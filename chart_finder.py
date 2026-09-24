@@ -242,6 +242,25 @@ def anchor_defs(day: str, t_hhmm, tz_names, spans=SPANS) -> list:
     return out
 
 
+def intraday_grid(d: dict, lo: int = EXT_OPEN_MIN, hi: int = EXT_CLOSE_MIN) -> list:
+    """شبكةُ الشموع اللحظيّة **كما يرسمها التطبيق**: حدودُها `نهايةُ المرساة + k × المدى` مقصوصةً
+    إلى [04:00، 20:00) — لا من 04:00 (سلسلةٌ بمحاذاةٍ غير محاذاة التطبيق لا تُقارَن بالعين)."""
+    span = max(1, int(d.get("span") or 1))
+    b0 = int(d["b"])
+    k_lo = -((b0 - lo) // span) - 1
+    out = []
+    k = k_lo
+    while True:
+        a, b = b0 + k * span - span, b0 + k * span
+        if a >= hi:
+            break
+        a2, b2 = max(a, lo), min(b, hi)
+        if b2 > a2:
+            out.append((a2, b2))
+        k += 1
+    return out
+
+
 def agg_bar(rows, a: int, b: int):
     """شمعةٌ من دقائقَ مرتَّبة `[(mod, o, h, l, c, v)]` داخل [a، b) ⟵ `{o,h,l,c,v,n}` أو `None`."""
     if not rows:
@@ -590,6 +609,179 @@ def fetch_minute_file(day: str, tmpdir: str):
     return dest if ah_scan.download(key, dest, ep) else None
 
 
+DAY_PATH = "us_stocks_sip/day_aggs_v1"
+UNDATED_YEARS = 3          # بلا تاريخ ⇒ آخرُ 3 سنوات (نصُّ البرومبت)
+PANEL_WORKERS = 8
+SHORTLIST_MAX = 60         # أقصى أزواجٍ (رمز، يوم نهاية) تُفحص بالتقسيم الفعليّ (يُعلَن ما قُصّ)
+
+
+def day_aggs_key(day: str) -> str:
+    y, m, _ = day.split("-")
+    return f"{DAY_PATH}/{y}/{m}/{day}.csv.gz"
+
+
+def read_day_aggs(path: str) -> dict:
+    """ملفُّ اليوم المجمَّع ⟵ `{رمز: (o,h,l,c,v)}` — الأعمدةُ من الترويسة."""
+    import csv as _csv                                              # noqa: PLC0415
+    out = {}
+    with gzip.open(path, "rt", newline="") as fh:
+        rd = _csv.reader(fh)
+        header = next(rd)
+        ix = {n: ah_scan._pick(header, *al) for n, al in (
+            ("t", ("ticker", "symbol")), ("o", ("open",)), ("h", ("high",)),
+            ("l", ("low",)), ("c", ("close",)), ("v", ("volume",)))}
+        if min(ix.values()) < 0:
+            raise KeyError(f"ترويسةٌ ناقصة: {header}")
+        for r in rd:
+            try:
+                s = r[ix["t"]].strip().upper()
+                vals = tuple(float(r[ix[k]]) for k in ("o", "h", "l", "c", "v"))
+            except (IndexError, ValueError):
+                continue
+            if s and vals[3] > 0 and vals[1] > 0:
+                out[s] = vals
+    return out
+
+
+def _fetch_day_s3(day: str, tmpdir: str):
+    dest = os.path.join(tmpdir, f"day_{day}.csv.gz")
+    for ep in FP.ENDPOINTS:
+        rc, _, _ = FP.aws("cp", f"s3://{FP.BUCKET}/{day_aggs_key(day)}", dest,
+                          endpoint=ep, timeout=300)
+        if rc == 0:
+            try:
+                return read_day_aggs(dest)
+            except (OSError, KeyError, EOFError):
+                return None
+            finally:
+                try:
+                    os.remove(dest)
+                except OSError:
+                    pass
+    return None
+
+
+def load_panel(days: list, tmpdir: str, get=None) -> dict:
+    """لوحةُ السوق اليوميّة **خامًا** لأيامٍ بعينها ⟵ `{يوم: {رمز: (o,h,l,c,v)}}`.
+    المصدرُ الملفّاتُ المجمَّعة (S3) وإلّا REST (`grouped_day`) — **وكلُّ يومٍ مفقودٍ يُعلَن**."""
+    from concurrent.futures import ThreadPoolExecutor                # noqa: PLC0415
+    FP.resolve_swapped_creds()
+    use_s3 = FP.creds_present()
+    out, src = {}, {"s3": 0, "rest": 0}
+
+    def one(d):
+        if use_s3:
+            g = _fetch_day_s3(d, tmpdir)
+            if g:
+                return d, g, "s3"
+        g = grouped_day(d, get=get)
+        return d, g, "rest"
+
+    import numpy as np                                              # noqa: PLC0415
+    with ThreadPoolExecutor(max_workers=PANEL_WORKERS) as ex:
+        for d, g, how in ex.map(one, days):
+            if g:
+                syms = sorted(g)
+                arr = np.array([g[s][1:4] for s in syms], dtype=np.float32)   # h · l · c
+                out[d] = (syms, arr)          # مضغوطٌ فورًا: 750 يومًا × 12 ألف رمز لا تُحمَل قواميسَ
+                src[how] += 1
+    missing = [d for d in days if d not in out]
+    log(f"   🗂️ لوحةُ السوق: {len(out)} من {len(days)} يومًا (S3 {src['s3']} · REST {src['rest']})"
+        + (f" · ⛔ مفقود {len(missing)}: {missing[:8]}" if missing else ""))
+    return out
+
+
+def panel_arrays(panel: dict):
+    """اللوحة `{يوم: (رموز، [h,l,c])}` ⟵ مصفوفاتُ numpy `(أيام × رموز)` للأعمدة H/L/C مع NaN للغائب."""
+    import numpy as np                                              # noqa: PLC0415
+    days = sorted(panel)
+    syms = sorted({s for d in days for s in panel[d][0]})
+    ix = {s: i for i, s in enumerate(syms)}
+    H = np.full((len(days), len(syms)), np.nan, dtype=np.float32)
+    L, C = H.copy(), H.copy()
+    for di, d in enumerate(days):
+        ds, arr = panel[d]
+        cols = np.array([ix[s] for s in ds], dtype=np.int64)
+        H[di, cols], L[di, cols], C[di, cols] = arr[:, 0], arr[:, 1], arr[:, 2]
+    return days, syms, H, L, C
+
+
+def _pair_errors(hs, ls, c_e, h_e, l_e, spec_hi, spec_lo, spec_last):
+    """أخطاءُ زوجٍ (رمز، يوم نهاية) **خامًا**: `(آخر، أفضلُ طرف)` — والطرفُ يُقاس على كلّ أطوال النافذة
+    حتى `n_max` دفعةً واحدة (المتراكمُ من النهاية للخلف)."""
+    import numpy as np                                              # noqa: PLC0415
+    e_last = 0.0
+    if spec_last is not None:
+        tn = tol_near(spec_last)
+        if abs(c_e - spec_last[0]) <= tn:
+            e_last = abs(c_e - spec_last[0]) / tn
+        elif l_e - tn <= spec_last[0] <= h_e + tn:
+            e_last = 1.0
+        else:
+            return None
+    best = math.inf
+    for spec, arr, acc in ((spec_lo, ls, np.fmin), (spec_hi, hs, np.fmax)):
+        if spec is None:
+            continue
+        with np.errstate(invalid="ignore"):
+            run = acc.accumulate(arr[::-1])
+        fin = run[np.isfinite(run)]
+        if fin.size:
+            best = min(best, float(np.min(np.abs(fin - spec[0]))) / tol_near(spec))
+    if spec_lo is None and spec_hi is None:
+        best = 0.0
+    return e_last, best
+
+
+def undated_market_candidates(days, syms, H, L, C, spec_hi, spec_lo, spec_last, n_max: int):
+    """مسحُ السوق كلِّه بلا تاريخ **بقيودٍ لا يكسرها تقسيمٌ داخل النافذة**:
+    • آخرُ سعر عند يوم النهاية (إغلاقٌ، أو داخل المدى بخطأ 1) — آخرُ شمعةٍ بعد كلّ تقسيمٍ بالبناء.
+    • وأحدُ الطرفين **خامًا** داخل آخر `n_max` شمعة (الطرفُ الواقع بعد التقسيم خامٌ = معروض).
+    ⟵ `{رمز: (خطأ، يوم نهاية)}` بأفضل زوجٍ لكلّ رمز · والتحقّقُ الكامل بالتقسيم الفعليّ بعده."""
+    import numpy as np                                              # noqa: PLC0415
+    if spec_last is None and spec_lo is None and spec_hi is None:
+        return {}
+    if spec_last is not None:
+        tn = tol_near(spec_last)
+        with np.errstate(invalid="ignore"):
+            m = (np.abs(C - spec_last[0]) <= tn) | ((L - tn <= spec_last[0]) & (spec_last[0] <= H + tn))
+        pairs = np.argwhere(m)
+    else:
+        spec, arr = (spec_lo, L) if spec_lo is not None else (spec_hi, H)
+        tn = tol_near(spec)
+        with np.errstate(invalid="ignore"):
+            hit = np.abs(arr - spec[0]) <= tn
+        ends = set()
+        for di, j in np.argwhere(hit):
+            for e in range(di, min(len(days), di + n_max)):
+                ends.add((e, j))
+        pairs = np.array(sorted(ends)) if ends else np.zeros((0, 2), dtype=int)
+    best = {}
+    for e, j in pairs:
+        a = max(0, e - n_max + 1)
+        r = _pair_errors(H[a:e + 1, j], L[a:e + 1, j], C[e, j], H[e, j], L[e, j],
+                         spec_hi, spec_lo, spec_last)
+        if r is None or r[1] > 1.0:
+            continue
+        err = r[0] + r[1]
+        s = syms[j]
+        if s not in best or err < best[s][0]:
+            best[s] = (err, days[e])
+    return best
+
+
+def trading_days_back(end_iso: str, years: int) -> list:
+    d1 = dt.date.fromisoformat(end_iso)
+    d0 = d1 - dt.timedelta(days=int(366 * years))
+    out, d = [], d0
+    while d <= d1:
+        iso = d.isoformat()
+        if d.weekday() < 5 and MC.is_trading_day(iso):
+            out.append(iso)
+        d += dt.timedelta(days=1)
+    return out
+
+
 # ══ المراحل ═════════════════════════════════════════════════════════════════════
 def stage_anchor(card: dict, tmpdir: str, file_path: str = None) -> list:
     """المرساةُ اللحظيّة على **كلّ الرموز** من ملفّ دقائق يومها ⟵ مرشّحون مرتَّبون."""
@@ -665,6 +857,32 @@ def stage_window(card: dict, sym: str, get=None) -> dict:
     return out
 
 
+def stage_market_undated(card: dict, tmpdir: str, get=None) -> list:
+    """بلا تاريخ ⟵ لوحةُ آخر `UNDATED_YEARS` سنوات ⟵ قيودٌ لا يكسرها التقسيم ⟵ قائمةٌ قصيرة
+    (أقصاها `SHORTLIST_MAX` رمزًا — **والمقصوصُ يُعلَن بعدده**)."""
+    ex = card.get("extremes") or {}
+    spec_hi, spec_lo = parse_num(ex.get("high")), parse_num(ex.get("low"))
+    spec_last = parse_num(card.get("last"))
+    nv = int(card.get("bars_visible") or 0)
+    n_max = int(nv * 1.25) + 1 if nv else 120
+    end = (dt.date.today() - dt.timedelta(days=1)).isoformat()
+    days = trading_days_back(end, UNDATED_YEARS)
+    log(f"① بلا تاريخ ⟵ لوحةُ السوق {days[0] if days else '-'} ⟶ {days[-1] if days else '-'} "
+        f"({len(days)} يومًا) · نافذةٌ حتى {n_max} شمعة")
+    panel = load_panel(days, tmpdir, get=get)
+    if not panel:
+        return []
+    pdays, syms, H, L, C = panel_arrays(panel)
+    best = undated_market_candidates(pdays, syms, H, L, C, spec_hi, spec_lo, spec_last, n_max)
+    ranked = sorted(best.items(), key=lambda kv: kv[1][0])
+    log(f"   🔎 رموزٌ عبرت القيدَين الخامَّين: {len(ranked):,}"
+        + (f" · ✂️ فُحص أوّلُ {SHORTLIST_MAX} بالتقسيم الفعليّ وقُصّ {len(ranked) - SHORTLIST_MAX:,}"
+           if len(ranked) > SHORTLIST_MAX else ""))
+    for s, (err, e) in ranked[:8]:
+        log(f"   · {s:6} خطأ {err:.2f} · يوم النهاية {e}")
+    return [s for s, _ in ranked[:SHORTLIST_MAX]]
+
+
 def stage_undated(card: dict, syms: list, get=None) -> list:
     """شارتٌ يوميٌّ بلا تاريخ على رموزٍ بعينها (تحقّقٌ متقاطع مع بطاقةٍ أخرى) ⟵ مرشّحون بحكمهم."""
     ex = card.get("extremes") or {}
@@ -686,7 +904,7 @@ def stage_undated(card: dict, syms: list, get=None) -> list:
             except (KeyError, TypeError, ValueError):
                 continue
         splits = ticker_splits(s, get=get)
-        res = undated_scan(bars, splits, spec_hi, spec_lo, spec_last, n_range)
+        res = undated_scan(bars, splits, spec_hi, spec_lo, spec_last, n_range, ends_back=len(bars))
         best = res[0] if res else None
         n_ok = len({r["e"] for r in res if r["ok"]})
         if best:
@@ -737,15 +955,48 @@ def print_series(sym: str, card: dict, wr: dict, m: dict = None, get=None) -> No
             f"{b['c'] * f:.4f} {b.get('v', 0):.0f} x{f:g}")
     mins = (wr or {}).get("mins") or {}
     if m and mins:
-        span = m["def"]["span"]
         for day in sorted(mins):
-            a = EXT_OPEN_MIN
-            while a < EXT_CLOSE_MIN:
-                bar = agg_bar(mins[day], a, a + span)
+            for a, b in intraday_grid(m["def"]):
+                bar = agg_bar(mins[day], a, b)
                 if bar:
                     log(f"SERIES_I {sym} {day} {a // 60:02d}:{a % 60:02d} {bar['o']:.4f} "
                         f"{bar['h']:.4f} {bar['l']:.4f} {bar['c']:.4f} {bar['v']:.0f}")
-                a += span
+
+
+def probe_session_days(sym: str, mins: dict, get=None, max_days: int = 12) -> str:
+    """⓪ **الحاسم:** أيامٌ يخرج فيها طرفُ الجلسة الممتدّة عن النظاميّة ⟵ هل يتبعه يوميُّ Polygon؟
+    ⟵ `ممتدّ` / `نظاميّ` / `مختلط` / `لا يوم يفصل` مع العدّ."""
+    days = sorted(mins)
+    if not days:
+        return "لا دقائق"
+    daily = {}
+    for b in ticker_aggs(sym, 1, "day", days[0], days[-1], get=get):
+        try:
+            d = dt.datetime.fromtimestamp(int(b["t"]) / 1000.0, tz=NY).date().isoformat()
+            daily[d] = (float(b["h"]), float(b["l"]))
+        except (KeyError, TypeError, ValueError):
+            continue
+    ext_n = reg_n = 0
+    shown = 0
+    for d in days:
+        reg, ext = day_extremes(mins, d, "reg"), day_extremes(mins, d, "ext")
+        if not (reg and ext and d in daily):
+            continue
+        if abs(ext["h"] - reg["h"]) < 1e-9 and abs(ext["l"] - reg["l"]) < 1e-9:
+            continue
+        h, lo_ = daily[d]
+        is_ext = abs(h - ext["h"]) < 1e-9 and abs(lo_ - ext["l"]) < 1e-9
+        is_reg = abs(h - reg["h"]) < 1e-9 and abs(lo_ - reg["l"]) < 1e-9
+        ext_n += is_ext
+        reg_n += is_reg
+        if shown < max_days:
+            log(f"   ⓪ {sym} {d}: يوميّ H {h:g} L {lo_:g} · نظاميّ H {reg['h']:g} L {reg['l']:g} · "
+                f"ممتدّ H {ext['h']:g} L {ext['l']:g} ⇒ {'ممتدّ' if is_ext else 'نظاميّ' if is_reg else 'لا هذا ولا ذاك'}")
+            shown += 1
+    tag = ("لا يوم يفصل" if ext_n + reg_n == 0 else "ممتدّ" if reg_n == 0 else
+           "نظاميّ" if ext_n == 0 else "مختلط")
+    log(f"   ⓪ الحكم ({sym}): يوميُّ Polygon = **{tag}** (أيامٌ فاصلة: ممتدّ {ext_n} · نظاميّ {reg_n})")
+    return tag
 
 
 def probe_daily_session(day: str, syms: list, get=None) -> None:
@@ -786,19 +1037,21 @@ def run_card(card: dict, tmpdir: str, get=None, file_path: str = None,
     has_window = bool((card.get("window") or {}).get("to"))
     if not has_anchor and not has_window:
         cross = [s for s in (cross_syms or []) if s]
-        if not cross:
-            log("⛔ شارتٌ بلا تاريخ ولا مرشّحين متقاطعين — مسحُ السوق كلِّه بلا تاريخ لم يُبنَ بعد")
-            log(judge_line(cid, "لا تطابق", None, None, 0, 0))
-            return 0
-        log(f"🔁 تحقّقٌ متقاطع (لا بحثٌ مستقلّ) على مرشّحي بطاقةٍ أخرى: {cross}")
-        final = stage_undated(card, cross, get=get)
+        mode = "cross" if cross else "market"
+        if cross:
+            log(f"🔁 تحقّقٌ متقاطع (لا بحثٌ مستقلّ) على مرشّحي بطاقةٍ أخرى: {cross}")
+            syms = cross
+        else:
+            syms = stage_market_undated(card, tmpdir, get=get)
+        final = stage_undated(card, syms, get=get)
         label, t1, t2, n_pass = verdict(final)
-        log(f"⚖️ الحكمُ المتقاطع: **{label}** · عابرون {n_pass}")
+        log(f"⚖️ الحكمُ ({'متقاطع' if mode == 'cross' else 'السوقُ كلُّه بلا تاريخ'}): "
+            f"**{label}** · عابرون {n_pass}")
         for c in sorted(final, key=lambda x: (0 if x["pass"] else 1, x["score"]))[:TOP_SERIES]:
             e = (c.get("undated") or {}).get("e")
             if e:
                 print_series(c["sym"], {"window": {"to": e}}, c.get("window"), None, get=get)
-        log(judge_line(cid, label, t1, t2, n_pass, 0) + " mode=cross")
+        log(judge_line(cid, label, t1, t2, n_pass, 0) + f" mode={mode}")
         return 0
     anchor_c = stage_anchor(card, tmpdir, file_path=file_path)
     shortlist = [c for c in anchor_c if c["near"]][:10] if has_anchor else []
@@ -824,6 +1077,10 @@ def run_card(card: dict, tmpdir: str, get=None, file_path: str = None,
         print_series(c["sym"], card, c.get("window"), c.get("anchor"), get=get)
     if has_anchor and final:
         probe_daily_session(card["anchor"]["date"], [final[0]["sym"], "AAPL"], get=get)
+        for c in final[:2]:
+            mins = (c.get("window") or {}).get("mins") or {}
+            if mins:
+                probe_session_days(c["sym"], mins, get=get)
     if results is not None:
         results[cid] = [c["sym"] for c in sorted(final, key=lambda x: (0 if x["pass"] else 1,
                                                                       x["score"]))[:TOP_SERIES]]
@@ -836,7 +1093,8 @@ def load_cards() -> list:
     files = [p.strip() for p in (os.environ.get("CHART_CARD_FILES") or "").split(",") if p.strip()]
     cards = []
     if raw:
-        cards.append(json.loads(raw))
+        js = json.loads(raw)
+        cards.extend(js if isinstance(js, list) else [js])
     for p in files:
         with open(p, encoding="utf-8") as fh:
             cards.append(json.load(fh))

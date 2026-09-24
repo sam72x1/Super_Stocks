@@ -1,0 +1,40 @@
+name: "🔎 مُعرِّف الشارت — صورةُ شارت ⟵ الرمزُ بالدليل (chart_finder_prereg)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · **والصورةُ لا تُدفَع** (المستودعُ عامّ):
+#    المُدخَلُ «بطاقةُ الشارت» — أرقامٌ كما قُرئت من الصورة ولا رمز. العقد chart_finder_prereg.md.
+#    أسرارُه: POLYGON_API_KEY ومفتاحا الملفّات المجمَّعة (للمرساة اللحظيّة ولوحة السوق).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      card:
+        description: "بطاقةُ الشارت JSON (كائنٌ واحد أو قائمةُ بطاقات · cross_with للتحقّق المتقاطع)"
+        required: true
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔎 مُعرِّف الشارت
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          CHART_CARD: ${{ inputs.card }}
+        run: python chart_finder.py

@@ -16,7 +16,7 @@ on:
 jobs:
   probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,5 +36,5 @@ jobs:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
-          CHART_CARD_FILES: "chart_cards/live/2026-09-24_A.json,chart_cards/live/2026-09-24_B.json"
+          CHART_CARD_FILES: "chart_cards/live/2026-09-24_A.json,chart_cards/live/2026-09-24_B.json,chart_cards/live/2026-09-24_B_alone.json"
         run: python chart_finder.py
