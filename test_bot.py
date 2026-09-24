@@ -61393,8 +61393,17 @@ try:
                   and getattr(c.func, "id", None) == "_early2_bound"] if len(_fns) == 1 else []
         _all_calls = [c for c in _erk_ast.walk(_t) if isinstance(c, _erk_ast.Call)
                       and getattr(c.func, "id", None) == "_early2_bound"]
-        _erk2[_mod] = (len(_calls) == 1 and len(_all_calls) == 1
-                       and _out == _src.replace(_ERP.PATCHES[_mod][0], _ERP.PATCHES[_mod][1], 1) + _ERP.HELPER)
+        _rep = _src.replace(_ERP.PATCHES[_mod][0], _ERP.PATCHES[_mod][1], 1)
+        _gd = [n.lineno for n in _t.body if isinstance(n, _erk_ast.If) and isinstance(n.test, _erk_ast.Compare)
+               and getattr(n.test.left, "id", None) == "__name__"]
+        _df = [n.lineno for n in _t.body if isinstance(n, _erk_ast.FunctionDef) and n.name == "_early2_bound"]
+        # 🔴 **المساعدُ قبل حارس `__main__`:** `kasih_scan.py` سكربتٌ ووحدةٌ معًا — إلحاقُه بعد الحارس أسقط
+        #    تشغيلاتِ T-KASIH الثلاث بـ`NameError` (35958681885) ولم يُمسكه `ERK4` لأنه يستورد ولا يُشغّل
+        _erk2[_mod] = (len(_calls) == 1 and len(_all_calls) == 1 and len(_df) == 1
+                       and (not _gd or _df[0] < _gd[0])
+                       and (_out.replace(_ERP.HELPER.lstrip("\n") + "\n\n", "", 1) == _rep if _gd
+                            else _out == _rep + _ERP.HELPER))
+        _erk2[f"{_mod} حارسٌ بعد المساعد"] = (bool(_gd) == (_mod != "event_exec.py"))
 
     def _erk_raises(fn):
         try:
@@ -61415,7 +61424,8 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🗓️🔍② ERK2 الرقعة على الوحدات الثلاث: **نداءٌ واحدٌ** لـ`_early2_bound` داخل الدالّة المقصودة (AST) · "
-      "لا تغييرَ سواه · والمرساةُ الغائبة/المكرّرة والرقعةُ المزدوجة ⇒ `PatchError`", _v, _w)
+      "لا تغييرَ سواه · **والمساعدُ قبل حارس `__main__`** (السكربتُ المرقوع يعمل) · والمرساةُ الغائبة/المكرّرة والرقعةُ "
+      "المزدوجة ⇒ `PatchError`", _v, _w)
 
 
 def _erk_helper_ns(flag):

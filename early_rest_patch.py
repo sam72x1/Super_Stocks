@@ -104,7 +104,17 @@ def patch_source(src: str, module: str) -> str:
     n = src.count(old)
     if n != 1:
         raise PatchError(f"{module}: المرساةُ ×{n} (المطلوب مرّةٌ واحدة)")
-    return src.replace(old, new, 1) + HELPER
+    out = src.replace(old, new, 1)
+    # 🔴 **المساعدُ قبل حارس `__main__` لا بعده:** `kasih_scan.py` سكربتُ أسرته ووحدتُها معًا، فإلحاقُ المساعد
+    #    في آخر الملفّ جعل `main()` تُنادى قبل تعريفه ⇒ `NameError` في أوّل ملفّ (أسقط تشغيلاتِ T-KASIH الثلاث
+    #    قبل أيّ صفّ). الوحداتُ المستورَدة لا تتأثّر — ولذا لم يُمسكه `ERK4` (يستورد ولا يُشغّل `__main__`).
+    guard = [i for i, ln in enumerate(out.splitlines(True)) if ln.startswith('if __name__ == "__main__":')]
+    if len(guard) > 1:
+        raise PatchError(f"{module}: حارسُ __main__ ×{len(guard)}")
+    if not guard:
+        return out + HELPER
+    lines = out.splitlines(True)
+    return "".join(lines[:guard[0]]) + HELPER.lstrip("\n") + "\n\n" + "".join(lines[guard[0]:])
 
 
 def parse_gov_env(log_text: str, family: str) -> dict:
