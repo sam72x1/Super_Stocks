@@ -1,0 +1,47 @@
+name: "T-PRE-EDGAR-2 — الدراسة (🔬📰② الإيداعُ الليليّ قبل الانفجار)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد `edgar2_prereg.md` (+ الملحق §⑩).
+# 🔒 المُدخَلُ مثبَّتٌ لا مُمرَّر (§⑤-ب): صفوفُ 2025 من التشغيلة 33724367680 وحدَها (مصدرُ الـ702).
+# 🔒 الأداةُ تُعيد المرحلةَ صفر أوّلًا (V-E0) وتحسم التوقيتَ على مجتمعها (V-E9) — ولا حكمَ جزئيّ.
+# 🔒 يُشغَّل في Actions حصرًا — بيئةُ التطوير تحجب SEC.
+permissions:
+  contents: read
+  actions: read      # لازمٌ لـ`gh run download` (صفوفُ E1 من الـartifacts)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  study:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📥 تنزيل صفوف E1 لسنة 2025 (التشغيلة المثبَّتة)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          E1_RUN_ID: "33724367680"
+        run: |
+          set -e
+          gh run download "$E1_RUN_ID" --repo "$GITHUB_REPOSITORY" \
+            --pattern 'presession-rows-*' --dir "/tmp/edgar2-dl" \
+            || echo "⚠️ تعذّر تنزيل $E1_RUN_ID — يُعلَن ولا يُصمت"
+          find /tmp/edgar2-dl -name 'presession_rows_*.jsonl.gz' -exec cp -v {} . \; || true
+          ls -la presession_rows_*.jsonl.gz || echo "⚠️ لا صفوف — الدراسةُ ستخرج بـ2"
+
+      - name: 🔬 الدراسة
+        env:
+          # 🔒 V-E8: بلا هذا السرّ يرتدّ `SEC_UA` إلى بريدٍ وهميّ — والدراسةُ تخرج بـ2 إن وصل فارغًا.
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+        run: python edgar2_study.py

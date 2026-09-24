@@ -62596,6 +62596,432 @@ except Exception as _e:                                           # noqa: BLE001
     _egq10, _egq_rc = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🔬📰② EGQ10 V-E8 سلوكيًّا: SEC_CONTACT فارغٌ أو مسافات ⇒ خروج 2 بصفرِ نداءٍ وصفرِ قراءة "
       "(عطبُ إعدادٍ لا يُقرأ «المصدرُ لا يعمل»)", _egq10, f"rc={_egq_rc}")
+
+
+# ═══ 🔬📰② T-PRE-EDGAR-2 · الدراسة — أقفال الأداة (العقد edgar2_prereg.md + الملحق §⑩) ═══
+# 🔒 أرقامُ العقدين تُقرأ من نصّيهما وتطابق الثوابت (EGS0) · V-E7/V-E6/V-E12 بالـAST · اللوحةُ
+#    والنافذةُ والتغطيةُ والجلبُ والحكمُ سلوكيًّا · **ودورةٌ كاملةٌ على عالمٍ اصطناعيٍّ معروفِ
+#    الحقيقة** (EGS11): نجاح · فشل (الملحق §⑩) · حجبٌ مزدوج · V-E1 · توقيتُ مجتمعٍ مخالف.
+import edgar2_study as _EGS                                       # noqa: E402
+import ast as _egs_ast                                            # noqa: E402
+import contextlib as _egs_ctx                                     # noqa: E402
+import datetime as _egs_dt                                        # noqa: E402
+import gzip as _egs_gz                                            # noqa: E402
+import io as _egs_io                                              # noqa: E402
+import json as _egs_js                                            # noqa: E402
+import os as _egs_os                                              # noqa: E402
+import random as _egs_rnd                                         # noqa: E402
+import re as _egs_re                                              # noqa: E402
+import tempfile as _egs_tf                                        # noqa: E402
+
+_egs_NY = _EGS.P2.NY
+try:
+    _egs_src = open("edgar2_study.py", encoding="utf-8").read()
+    _egs_tree = _egs_ast.parse(_egs_src)
+except Exception as _e:                                           # noqa: BLE001
+    _egs_src, _egs_tree = "", _egs_ast.parse("")
+
+# EGS0 — أرقامُ العقدين تُقرأ من نصّيهما (بعد نزع علامة الاتّجاه) وتطابق الثوابت
+try:
+    _egs_d2 = open("edgar2_prereg.md", encoding="utf-8").read().replace("\u200f", "")
+    _egs_d1 = open("edgar_prereg.md", encoding="utf-8").read().replace("\u200f", "")
+
+    def _egs_row(doc, tag):
+        return next((ln for ln in doc.splitlines() if ln.startswith(f"| **{tag}** |")), "")
+
+    def _egs_fam(tag):
+        m = _egs_re.search(r"\*\*`" + tag + r"`\*\* = ((?:`[^`]+`·?)+)", _egs_d2)
+        return tuple(_egs_re.findall(r"`([^`]+)`", m.group(1))) if m else ()
+
+    _egs_c = {
+        "diff": float(_egs_re.search(r"≥ (\d+\.\d+) نقطةً مئويّة", _egs_d2).group(1)),
+        "eg3": int(_egs_re.findall(r"(\d+)", _egs_row(_egs_d1, "EG3").split("|")[-3])[0]),
+        "eg4": int(_egs_re.findall(r"(\d+)", _egs_row(_egs_d1, "EG4").split("|")[-3])[0]),
+        "eg5": float(_egs_re.findall(r"(\d+)%", _egs_row(_egs_d1, "EG5").split("|")[-3])[0]),
+        "unk": float(_egs_re.search(r"المجهولُ التغطية ≤ (\d+)% في كلّ طرف", _egs_d2).group(1)),
+        "b": int(_egs_re.search(r"`B = (\d+)`", _egs_d2).group(1)),
+        "seed": int(_egs_re.search(r"default_rng\((\d+)\)", _egs_d2).group(1)),
+        "pct": float(_egs_re.search(r"percentile\(…, (\d+\.\d+)\)", _egs_d2).group(1)),
+        "v1": _egs_re.search(r"\*\*(\d+) ±(\d+)%\*\*", _egs_row(_egs_d1, "V-E1")).groups(),
+        "win": _egs_re.search(r"\[(\d\d:\d\d) نيويورك من يوم التداول السابق ،\s*(\d\d:\d\d) نيويورك "
+                              r"من اليوم\]", _egs_d2).groups(),
+        "retry": _egs_re.search(r"انتظار (\d+)ث ثم (\d+)ث", _egs_d2).groups(),
+        "pause": int(_egs_re.search(r"توقّفٌ (\d+)ث", _egs_d2).group(1)),
+        "margin": int(_egs_re.search(r"±(\d+) أيّام", _egs_d2).group(1)),
+        "fam": {k: _egs_fam(k) for k in ("F-8K", "F-424", "F-REG")},
+        "winner": "الفائزُ **`B`**" in _egs_d2,
+    }
+    _egs0 = (_egs_c["diff"] == _EGS.EG_DIFF_MIN
+             and (_egs_c["eg3"], _egs_c["eg4"], _egs_c["eg5"]) == (_EGS.EG3_MIN, _EGS.EG4_MIN,
+                                                                    _EGS.EG5_MAX)
+             and _egs_c["unk"] == _EGS.UNKNOWN_MAX_PCT
+             and (_egs_c["b"], _egs_c["seed"], _egs_c["pct"]) == (_EGS.BOOT_B, _EGS.BOOT_SEED,
+                                                                   _EGS.BOOT_PCT)
+             and (int(_egs_c["v1"][0]), int(_egs_c["v1"][1]) / 100) == (_EGS.PUBLISHED_CASE,
+                                                                         _EGS.V_E1_TOL)
+             and _egs_c["win"] == (_EGS.WIN_START.strftime("%H:%M"), _EGS.WIN_END.strftime("%H:%M"))
+             and tuple(int(x) for x in _egs_c["retry"]) == _EGS.RETRY_SLEEPS
+             and _egs_c["pause"] == _EGS.BLOCK_PAUSE and _egs_c["margin"] == _EGS.PAGE_MARGIN_DAYS
+             and _egs_c["fam"] == {k: tuple(v) for k, v in _EGS.FAMILIES.items()}
+             and _egs_c["winner"] and _EGS.TZ_WINNER == "B"
+             and (_EGS.YEAR, _EGS.SESS, _EGS.MAXS_KEY, _EGS.CASE_MIN) == ("2025", "PM", "maxs", 100.0))
+except Exception as _e:                                           # noqa: BLE001
+    _egs0, _egs_c = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGS0 أرقامُ العقدين **تُقرأ من نصّيهما** وتطابق ثوابتَ الدراسة: الحاكم 15.0 · EG3/EG4 ‏100 · "
+      "EG5 ‏40% · المجهول 2% · EG6 ‏2000/20260924/2.5 · V-E1 ‏702±2% · النافذة 16:00/03:50 · الإعادة 2/4 · "
+      "التوقّف 60 · الهامش 7 · الأسر الثلاث · والفائز B", _egs0, str(_egs_c)[:170])
+
+# EGS1 — V-E7 بالـAST · وV-E0/V-E9 موصولتان من نقطة النداء (stage0 · tz_verdict)
+try:
+    _egs_calls = {(n.func.attr if isinstance(n.func, _egs_ast.Attribute) else getattr(n.func, "id", ""))
+                  for n in _egs_ast.walk(_egs_tree) if isinstance(n, _egs_ast.Call)}
+    _egs_ids = ({n.attr for n in _egs_ast.walk(_egs_tree) if isinstance(n, _egs_ast.Attribute)}
+                | {n.id for n in _egs_ast.walk(_egs_tree) if isinstance(n, _egs_ast.Name)})
+    _egs_k = {n.value for n in _egs_ast.walk(_egs_tree)
+              if isinstance(n, _egs_ast.Constant) and isinstance(n.value, str)}
+    _egs_main = next(n for n in _egs_ast.walk(_egs_tree)
+                     if isinstance(n, _egs_ast.FunctionDef) and n.name == "main")
+    _egs_mcalls = {(n.func.attr if isinstance(n.func, _egs_ast.Attribute) else getattr(n.func, "id", ""))
+                   for n in _egs_ast.walk(_egs_main) if isinstance(n, _egs_ast.Call)}
+    _egs1 = ("sec_recent_filings" not in _egs_calls | _egs_ids | _egs_k
+             and {"stage0", "tz_verdict", "build_panel", "load_pm_rows", "fetch_json", "covered",
+                  "row_hit", "cluster_boot", "verdict"} <= _egs_mcalls)
+except Exception as _e:                                           # noqa: BLE001
+    _egs1, _egs_mcalls = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGS1 V-E7: الدراسةُ لا تعرف sec_recent_filings · و`main` تنادي stage0 (V-E0) وtz_verdict (V-E9) "
+      "والأنبوبَ كلَّه من نقطة النداء", _egs1)
+
+# EGS2 — V-E6: قراءةٌ فقط
+try:
+    _egs_wr = [n for n in _egs_ast.walk(_egs_tree)
+               if isinstance(n, _egs_ast.Call) and getattr(n.func, "id", "") == "open"
+               and any(isinstance(a, _egs_ast.Constant) and isinstance(a.value, str)
+                       and any(c in a.value for c in "wax") for a in n.args[1:2])]
+    _egs_gzw = [n for n in _egs_ast.walk(_egs_tree)
+                if isinstance(n, _egs_ast.Call) and getattr(n.func, "attr", "") == "open"
+                and any(isinstance(a, _egs_ast.Constant) and isinstance(a.value, str)
+                        and any(c in a.value for c in "wax") for a in n.args[1:2])]
+    _egs2 = (not _egs_wr and not _egs_gzw
+             and not ({"send_telegram", "git_save", "save_watchlist", "dump"} & _egs_calls)
+             and not any(str(c).startswith("save_") for c in _egs_calls))
+except Exception as _e:                                           # noqa: BLE001
+    _egs2 = False
+check("🔬📰② EGS2 V-E6: قراءةٌ فقط — صفرُ فتحٍ للكتابة (open/gzip.open) وصفرُ إرسالٍ أو حفظِ حالة", _egs2)
+
+# EGS3 — V-E12: اسمُ حقل تاريخ الإيداع غائبٌ عن الدراسة كلِّها · ولا datetime.fromisoformat
+try:
+    _egs_fd = [n.lineno for n in _egs_ast.walk(_egs_tree) if isinstance(n, _egs_ast.Constant)
+               and isinstance(n.value, str) and "filingDate" in n.value]
+    _egs_iso = [n.lineno for n in _egs_ast.walk(_egs_tree)
+                if isinstance(n, _egs_ast.Attribute) and n.attr == "fromisoformat"
+                and isinstance(n.value, _egs_ast.Attribute) and n.value.attr == "datetime"]
+    _egs3 = not _egs_fd and not _egs_iso and "acceptanceDateTime" in _egs_k
+except Exception as _e:                                           # noqa: BLE001
+    _egs3, _egs_fd = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGS3 V-E12: `filingDate` غائبٌ عن الدراسة (التحقّقُ منه داخل tz_verdict وحدَها) · وصفرُ "
+      "datetime.fromisoformat (الطابعُ يُقرأ بـparse_acc/to_ny وحدهما)", _egs3, f"أسطر={_egs_fd}")
+
+# EGS4 — build_panel: ‏100 داخلةٌ في CASE · المعدومُ خارج الطرفين · الشاهدُ أدنى sha256 بعدد CASE اليوم ·
+#        العجزُ يُعَدّ · والتكرارُ لا يُطبَّع (V-E14 يمسكه) · وحتميّةٌ بت-بت
+try:
+    import hashlib as _egs_h                                      # noqa: E402
+    _egs_pd = {"2025-03-04": [("AAA", 100.0), ("BBB", 150.0), ("CCC", None), ("D1", 10.0), ("D2", 99.99),
+                              ("D3", 5.0), ("D4", float("nan"))],
+               "2025-03-05": [("EEE", 300.0), ("EEE", 300.0), ("F1", 1.0)],
+               "2025-03-06": [("GGG", 200.0)]}
+    _egs_pd = {k: [(s, _EGS._maxs(m)) for s, m in v] for k, v in _egs_pd.items()}
+    _egs_ca, _egs_ct, _egs_sh = _EGS.build_panel(_egs_pd)
+    _egs_exp = sorted(("D1", "D2", "D3"),
+                      key=lambda s: _egs_h.sha256(f"2025-03-04:{s}".encode()).hexdigest())[:2]
+    _egs4 = (_egs_ca == [("2025-03-04", "AAA"), ("2025-03-04", "BBB"), ("2025-03-05", "EEE"),
+                         ("2025-03-05", "EEE"), ("2025-03-06", "GGG")]
+             and [s for d, s in _egs_ct if d == "2025-03-04"] == _egs_exp
+             and [s for d, s in _egs_ct if d == "2025-03-05"] == ["F1"]
+             and _egs_sh == 2 and "CCC" not in {s for _, s in _egs_ca + _egs_ct}
+             and _EGS.build_panel(_egs_pd) == (_egs_ca, _egs_ct, _egs_sh)
+             and _EGS._maxs(True) is None and _EGS._maxs("150") is None and _EGS._maxs(7) == 7.0)
+except Exception as _e:                                           # noqa: BLE001
+    _egs4, _egs_ca = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGS4 build_panel: 100 تدخل CASE · المعدومُ خارج الطرفين · الشاهدُ أدنى sha256(يوم:رمز) بعدد CASE "
+      "يومه · العجزُ يُعَدّ · التكرارُ يبقى ليمسكه V-E14 · وحتميّة", _egs4, str(_egs_ca)[:120])
+
+# EGS5 — load_pm_rows: الشاهدُ والجلسةُ الأخرى والسنةُ الأخرى وبلا رمز خارج · والمعدومُ يُعَدّ
+try:
+    _egs_dir = _egs_tf.mkdtemp(prefix="egs5_")
+    _egs_f = _egs_os.path.join(_egs_dir, "presession_rows_t.jsonl.gz")
+    with _egs_gz.open(_egs_f, "wt", encoding="utf-8") as _fh:
+        for _r in ({"day": "2025-03-04", "sess": "PM", "sym": "aaa", "maxs": 120},
+                   {"day": "2025-03-04", "sess": "PM", "sym": "WIT", "maxs": 900, "wit": 1},
+                   {"day": "2025-03-04", "sess": "AH", "sym": "AHS", "maxs": 900},
+                   {"day": "2024-03-04", "sess": "PM", "sym": "OLD", "maxs": 900},
+                   {"day": "2025-03-04", "sess": "PM", "sym": "", "maxs": 900},
+                   {"day": "2025-03-05", "sess": "PM", "sym": "NUL", "maxs": None},
+                   {"day": "2025-03-05", "sess": "PM", "sym": "BOO", "maxs": True}):
+            _fh.write(_egs_js.dumps(_r) + "\n")
+        _fh.write("{bad json\n")
+    _egs_pdl, _egs_n = _EGS.load_pm_rows([_egs_f])
+    _egs5 = (_egs_pdl == {"2025-03-04": [("AAA", 120.0)], "2025-03-05": [("NUL", None), ("BOO", None)]}
+             and (_egs_n["wit"], _egs_n["other_sess"], _egs_n["other_year"], _egs_n["no_sym"],
+                  _egs_n["maxs_none"], _egs_n["pm"], _egs_n["bad_json"]) == (1, 1, 1, 1, 2, 3, 1))
+except Exception as _e:                                           # noqa: BLE001
+    _egs5, _egs_n = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGS5 load_pm_rows: الشاهدُ · AH · 2024 · بلا رمز خارجَ المجتمع · والرمزُ يُرفَع · والمعدومُ "
+      "(None/منطقيّ) يُعَدّ · والسطرُ التالف يُعَدّ لا يُسقط", _egs5, str(_egs_n)[:120])
+
+
+# EGS6 — النافذة: يومُ التداول السابق بالتقويم (لا احتياطَ صامت) = presession_radar.prev_bday على 2025 كلِّه ·
+#        ‏16:00 السابق ⟵ 03:50 اليوم بمنطقة نيويورك (عبر تبديل التوقيت)
+def _egs_days():
+    import market_calendar as _mc                                 # noqa: PLC0415
+    d, out = _egs_dt.date(2025, 1, 2), []
+    while d <= _egs_dt.date(2025, 12, 31):
+        if d.weekday() < 5 and d.isoformat() not in _mc.HOLIDAYS:
+            out.append(d.isoformat())
+        d += _egs_dt.timedelta(days=1)
+    return out
+
+
+try:
+    import presession_radar as _egs_pr                            # noqa: E402
+    _egs_td = _egs_days()
+    _egs_s, _egs_e = _EGS.window_ny("2025-03-10")
+    _egs6 = (_EGS.prev_trading_day("2025-01-02") == _egs_dt.date(2024, 12, 31)
+             and _EGS.prev_trading_day("2025-04-21") == _egs_dt.date(2025, 4, 17)
+             and _EGS.prev_trading_day("2025-01-10") == _egs_dt.date(2025, 1, 8)
+             and _EGS.prev_trading_day("2025-01-06") == _egs_dt.date(2025, 1, 3)
+             and all(_EGS.prev_trading_day(d).isoformat() == _egs_pr.prev_bday(d) for d in _egs_td)
+             and _egs_s == _egs_dt.datetime(2025, 3, 7, 16, 0, tzinfo=_egs_NY)
+             and _egs_s.utcoffset() == _egs_dt.timedelta(hours=-5)
+             and _egs_e == _egs_dt.datetime(2025, 3, 10, 3, 50, tzinfo=_egs_NY)
+             and _egs_e.utcoffset() == _egs_dt.timedelta(hours=-4)
+             and _EGS.in_window(_egs_s, _egs_s, _egs_e) and _EGS.in_window(_egs_e, _egs_s, _egs_e)
+             and not _EGS.in_window(_egs_e + _egs_dt.timedelta(seconds=1), _egs_s, _egs_e))
+except Exception as _e:                                           # noqa: BLE001
+    _egs6 = False
+check("🔬📰② EGS6 النافذة: يومُ التداول السابق يتخطّى العطل (رأسُ السنة · الجمعةُ العظيمة · حدادُ كارتر) ويطابق "
+      "prev_bday على 2025 كلِّه · 16:00 شتويّة ⟵ 03:50 صيفيّة · مغلقةُ الطرفين", _egs6)
+
+# EGS7 — التغطية وصفحاتُ files[]: (أ) بلا صفحات · (ب) recent يبلغ البداية · (ج) الصفحاتُ اللازمة كلُّها ·
+#        والهامشُ ±7 بالحدّ · وصفحةٌ بلا acceptanceDateTime لا تُغطّي
+try:
+    _egs_st, _egs_en = _EGS.window_ny("2025-06-10")
+    _egs_rec_old = {"form": ["8-K"], "acceptanceDateTime": ["2024-01-02T15:00:00.000Z"]}
+    _egs_rec_new = {"form": ["8-K"], "acceptanceDateTime": ["2025-09-02T15:00:00.000Z"]}
+    _egs_pg = [{"name": "p1", "filingFrom": "2025-01-01", "filingTo": "2025-06-02"},    # ينتهي قبل ‏−7 بيومٍ ⇒ لازم
+               {"name": "p2", "filingFrom": "2024-01-01", "filingTo": "2025-06-01"},    # قبل ‏−7 ⇒ ليس لازمًا
+               {"name": "p3", "filingFrom": "2025-06-18", "filingTo": "2025-08-01"}]    # بعد ‏+7 بيومٍ ⇒ ليس لازمًا
+    _egs_sub_a = {"filings": {"recent": _egs_rec_new, "files": []}}
+    _egs_sub_b = {"filings": {"recent": _egs_rec_old, "files": _egs_pg}}
+    _egs_sub_c = {"filings": {"recent": _egs_rec_new, "files": _egs_pg}}
+    _egs_need = _EGS.needed_pages(_egs_sub_c, _egs_st.date(), _egs_en.date())
+    _egs7 = (_EGS.covered(_egs_sub_a, {}, _egs_st, _egs_en)
+             and _EGS.covered(_egs_sub_b, {}, _egs_st, _egs_en)
+             and _egs_need == ["p1"]
+             and not _EGS.covered(_egs_sub_c, {}, _egs_st, _egs_en)
+             and _EGS.covered(_egs_sub_c, {"p1": {}}, _egs_st, _egs_en)
+             and _EGS.page_rec({"form": [], "acceptanceDateTime": []}) is not None
+             and _EGS.page_rec({"filings": {"recent": {"form": [], "acceptanceDateTime": []}}}) is not None
+             and _EGS.page_rec({"form": ["8-K"]}) is None and _EGS.page_rec(None) is None)
+except Exception as _e:                                           # noqa: BLE001
+    _egs7, _egs_need = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGS7 التغطية: (أ) بلا صفحات · (ب) recent يبلغ البداية · (ج) الصفحةُ اللازمة وحدَها بالهامش ±7 "
+      "(يومٌ قبله داخل ويومان خارج) · وصفحةٌ بلا الحقل لا تُغطّي", _egs7, f"اللازمة={_egs_need}")
+
+
+# EGS8 — سياسةُ الجلب §⑤-2 بجالبٍ محقون: الكبح 0.15 · إعادةُ الشبكة 2 ثم 4 · 404 بلا إعادة ·
+#        أوّلُ حجبٍ توقّفٌ 60 ومحاولة · وحجبٌ ثانٍ في التشغيلة كلِّها ⇒ إجهاض
+def _egs_fetch(codes):
+    _sl, _it = [], iter(codes)
+    _st = {"prev": True, "calls": 0, "blocks": 0, "paused": False, "aborted": False, "failed": 0}
+
+    def _g(url, timeout=None):
+        c = next(_it)
+        return c, ({"ok": 1} if c == 200 else None), 0.0
+    return _EGS.fetch_json("u", _g, _sl.append, _st), _sl, _st
+
+
+try:
+    _egs_r1 = _egs_fetch([200])
+    _egs_r2 = _egs_fetch([-1, 503, 200])
+    _egs_r3 = _egs_fetch([-1, -1, -1])
+    _egs_r4 = _egs_fetch([404])
+    _egs_r5 = _egs_fetch([429, 200])
+    _egs_r6 = _egs_fetch([429, 403])
+    _egs8 = (_egs_r1[0] == {"ok": 1} and _egs_r1[1] == [0.15]
+             and _egs_r2[0] == {"ok": 1} and _egs_r2[1] == [0.15, 2, 0.15, 4, 0.15]
+             and _egs_r3[0] is None and _egs_r3[2]["failed"] == 1 and _egs_r3[1] == [0.15, 2, 0.15, 4, 0.15]
+             and _egs_r4[0] is None and _egs_r4[2]["calls"] == 1 and _egs_r4[2]["failed"] == 1
+             and _egs_r5[0] == {"ok": 1} and _egs_r5[1] == [0.15, 60, 0.15] and _egs_r5[2]["paused"]
+             and not _egs_r5[2]["aborted"]
+             and _egs_r6[0] is None and _egs_r6[2]["aborted"] and _egs_r6[2]["blocks"] == 2)
+    _egs_w8 = f"{[r[1] for r in (_egs_r1, _egs_r2, _egs_r5)]} · r6={_egs_r6[2]}"
+except Exception as _e:                                           # noqa: BLE001
+    _egs8, _egs_w8 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGS8 الجلب §⑤-2: كبحٌ 0.15 قبل كلّ نداء · شبكةٌ/5xx ⟵ 2 ثم 4 ثم مجهول · 404 مجهولٌ بلا إعادة · "
+      "أوّلُ حجبٍ ⟵ 60ث ومحاولة · والحجبُ الثاني يُجهض التشغيلة", _egs8, _egs_w8)
+
+# EGS9 — جدولُ الحكم (§① ‏+ §⑩): الحاكمُ أوّلًا — ساقطٌ «فشل» مهما كان EG6 · عابرٌ وEG6 ساقطٌ «لا حكم» ·
+#        كلاهما «نجاح» · والحدُّ 15.0 داخل · والانفصالُ تامٌّ لا تماسّ
+try:
+    _egs_v = _EGS.verdict
+    _egs9 = (_egs_v(20.0, 30.0, 10.0, 5.0)[:2] == ("نجاح", 0)
+             and _egs_v(20.0, 30.0, 10.0, -1.0)[:2] == ("لا حكم", 6)
+             and _egs_v(20.0, 30.0, 10.0, 0.0)[:2] == ("لا حكم", 6)
+             and _egs_v(10.0, 30.0, 10.0, 5.0)[:2] == ("فشل", 0)
+             and _egs_v(-0.4, 10.0, 12.0, -3.0)[:2] == ("فشل", 0)
+             and _egs_v(15.0, 30.0, 10.0, 1.0)[:2] == ("نجاح", 0)
+             and _egs_v(20.0, 10.0, 10.0, 5.0)[:2] == ("فشل", 0))
+except Exception as _e:                                           # noqa: BLE001
+    _egs9 = False
+check("🔬📰② EGS9 الحكمُ بالملحق §⑩: الحاكمُ الساقطُ «فشل» ولو سقط EG6 (الفرقُ الصفريّ يُنشَر سقوطًا) · "
+      "EG6 يحرس النجاحَ وحدَه · 15.0 داخل · وتماسُّ الفاصلين ليس انفصالًا", _egs9)
+
+# EGS10 — EG6 العنقوديّة: حتميّةٌ بالبذرة · حدُّها الأدنى تحت الفرق المرصود · والتعنقدُ يُوسّع الفاصل
+try:
+    _egs_rnd_a = _egs_rnd.Random(3)
+    _egs_ca10 = [(f"A{i}", _egs_rnd_a.random() < 0.4) for i in range(300)]
+    _egs_cb10 = [(f"B{i}", _egs_rnd_a.random() < 0.2) for i in range(300)]
+    _egs_cl10 = [(f"A{i // 10}", h) for i, (_, h) in enumerate(sorted(_egs_ca10, key=lambda x: x[1]))]
+    _egs_p1 = _EGS.cluster_boot(_egs_ca10, _egs_cb10)
+    _egs_p2 = _EGS.cluster_boot(_egs_ca10, _egs_cb10)
+    _egs_pc = _EGS.cluster_boot(_egs_cl10, _egs_cb10)
+    _egs_obs = 100.0 * (sum(h for _, h in _egs_ca10) / 300 - sum(h for _, h in _egs_cb10) / 300)
+    _egs10 = (_egs_p1 == _egs_p2 and 0.0 < _egs_p1 < _egs_obs - 3.0 and _egs_pc < _egs_p1)
+    _egs_w10 = f"p2.5={_egs_p1:.2f} · المرصود={_egs_obs:.2f} · المتعنقد={_egs_pc:.2f}"
+except Exception as _e:                                           # noqa: BLE001
+    _egs10, _egs_w10 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGS10 EG6: حتميّةٌ بالبذرة · المئينُ 2.5 موجبٌ وتحت الفرق المرصود بأكثر من 3 نقاط · والإصاباتُ "
+      "المتعنقدةُ في رموزٍ قليلة تُخفّض الحدَّ الأدنى (هو ما وُضع له)", _egs10, _egs_w10)
+
+
+# EGS11 — دورةٌ كاملةٌ على عالمٍ اصطناعيٍّ معروفِ الحقيقة (الجالبُ والمؤقِّتُ والمدخلُ والخريطةُ محقونة)
+def _egs_fmt(t, truth):
+    if truth == "B":
+        return t.astimezone(_egs_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S") + ".000Z"
+    return t.strftime("%Y-%m-%dT%H:%M:%S") + ".000Z"
+
+
+def _egs_nb(d):
+    d = d + _egs_dt.timedelta(days=1)
+    while d.weekday() >= 5:
+        d += _egs_dt.timedelta(days=1)
+    return d
+
+
+def _egs_world(p_case=0.6, p_ctrl=0.1, n_case=702, seed=7, truth_pop="B"):
+    import edgar_probe as _ep                                     # noqa: PLC0415
+    rnd = _egs_rnd.Random(seed)
+    days, rows, k = _egs_days(), [], 0
+    for di, day in enumerate(days):
+        for _j in range(3):
+            if k < n_case:
+                rows.append({"day": day, "sess": "PM", "sym": f"C{k:04d}", "maxs": 150.0})
+                k += 1
+        for j in range(10):
+            rows.append({"day": day, "sess": "PM", "sym": f"N{di:03d}{j}", "maxs": 10.0})
+        rows.append({"day": day, "sess": "AH", "sym": f"H{di:03d}", "maxs": 500.0})
+        rows.append({"day": day, "sess": "PM", "sym": f"W{di:03d}", "maxs": 500.0, "wit": 1})
+    path = _egs_os.path.join(_egs_tf.mkdtemp(prefix="egs11_"), "presession_rows_w.jsonl.gz")
+    with _egs_gz.open(path, "wt", encoding="utf-8") as fh:
+        for r in rows:
+            fh.write(_egs_js.dumps(r) + "\n")
+    syms = sorted({r["sym"] for r in rows})
+    cmap = {s: 100000 + i for i, s in enumerate(syms)}
+    sample = set(_ep.sample_symbols(syms))
+    case, ctrl, _ = _EGS.build_panel(_EGS.load_pm_rows([path])[0])
+    side = {s: ("CASE", d) for d, s in case}
+    side.update({s: ("CTRL", d) for d, s in ctrl})
+    subs = {}
+    for s in syms:
+        truth = "B" if (s in sample or truth_pop == "B") else "A"
+        rec = {"form": [], "filingDate": [], "acceptanceDateTime": []}
+
+        def _add(f, t, rec=rec, truth=truth):
+            fd = t.date() if t.time() <= _egs_dt.time(17, 30) else _egs_nb(t.date())
+            rec["form"].append(f)
+            rec["filingDate"].append(fd.isoformat())
+            rec["acceptanceDateTime"].append(_egs_fmt(t, truth))
+        _add("10-K", _egs_dt.datetime(2024, 6, 3, 10, 0, tzinfo=_egs_NY))
+        for _i in range(12):
+            d = _egs_dt.date.fromisoformat(rnd.choice(days))
+            _add("8-K", _egs_dt.datetime(d.year, d.month, d.day, rnd.randint(6, 21), rnd.randint(0, 59),
+                                         rnd.randint(0, 59), tzinfo=_egs_NY))
+        if s in side and rnd.random() < (p_case if side[s][0] == "CASE" else p_ctrl):
+            p = _EGS.prev_trading_day(side[s][1])
+            _add(rnd.choice(("8-K", "424B5", "S-1")),
+                 _egs_dt.datetime(p.year, p.month, p.day, rnd.randint(16, 20), rnd.randint(0, 59),
+                                  tzinfo=_egs_NY))
+        subs[cmap[s]] = {"filings": {"recent": rec, "files": []}}
+    return path, cmap, subs
+
+
+def _egs_run(block_at=(), **kw):
+    path, cmap, subs = _egs_world(**kw)
+    calls, sleeps = [], []
+
+    def _get(url, timeout=None):
+        calls.append(url)
+        if len(calls) in block_at:
+            return 429, None, 0.0
+        m = _egs_re.search(r"CIK(\d{10})", url)
+        sub = subs.get(int(m.group(1))) if m else None
+        return (200, sub, 0.0) if sub else (404, None, 0.0)
+    buf = _egs_io.StringIO()
+    old = _egs_os.environ.get("SEC_CONTACT")
+    _egs_os.environ["SEC_CONTACT"] = "lock@example.org"
+    try:
+        with _egs_ctx.redirect_stdout(buf):
+            rc = _EGS.main(get=_get, sleep=sleeps.append, paths=[path], cmap=cmap)
+    finally:
+        if old is None:
+            _egs_os.environ.pop("SEC_CONTACT", None)
+        else:
+            _egs_os.environ["SEC_CONTACT"] = old
+    judge = next((ln for ln in buf.getvalue().splitlines() if ln.startswith("JUDGE")), "")
+    return rc, judge, sleeps
+
+
+try:
+    _egs_a = _egs_run()
+    _egs_b = _egs_run(p_case=0.1, p_ctrl=0.1)
+    _egs_c11 = _egs_run(block_at=(100, 101))
+    _egs_d = _egs_run(n_case=650)
+    _egs_e = _egs_run(truth_pop="A")
+    _egs11 = (_egs_a[0] == 0 and "verdict=نجاح" in _egs_a[1] and "case=702 ctrl=702" in _egs_a[1]
+              and "tz=B" in _egs_a[1] and set(_egs_a[2]) == {0.15}
+              and _egs_b[0] == 0 and "verdict=فشل" in _egs_b[1]
+              and _egs_c11[0] == 5 and "reason=V-E10" in _egs_c11[1]
+              and _egs_d[0] == 3 and "reason=V-E1" in _egs_d[1]
+              and _egs_e[0] == 5 and "reason=V-E9" in _egs_e[1])
+    _egs_w11 = " | ".join(x[1][:60] for x in (_egs_a, _egs_b, _egs_c11, _egs_d, _egs_e))
+except Exception as _e:                                           # noqa: BLE001
+    _egs11, _egs_w11 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGS11 دورةٌ كاملة على عالمٍ معروفِ الحقيقة: أثرٌ حقيقيّ ⟵ «نجاح» (702/702 · B · كبحٌ 0.15 وحدَه) · "
+      "لا أثر ⟵ «فشل» (الملحق §⑩) · حجبٌ مزدوج ⟵ V-E10 · ‏650 حالة ⟵ V-E1 · مجتمعٌ بتوقيتٍ مخالف ⟵ V-E9",
+      _egs11, _egs_w11[:200])
+
+# EGS12 — الـworkflow: dispatch بلا كرون ولا مُدخَل · المُدخَلُ مثبَّت · SEC_CONTACT · قراءةٌ فقط · مهلةٌ كافية
+try:
+    import yaml as _egs_y                                         # noqa: E402
+    _egs_wf = _egs_y.safe_load(open(".github/workflows/edgar2_study.yml", encoding="utf-8"))
+    _egs_on = _egs_wf.get(True) or _egs_wf.get("on") or {}
+    _egs_job = _egs_wf["jobs"]["study"]
+    _egs_steps = _egs_job["steps"]
+    _egs_last = _egs_steps[-1]
+    _egs_dl = next((s for s in _egs_steps if "gh run download" in str(s.get("run") or "")), {})
+    _egs_py = next((s for s in _egs_steps if "setup-python" in str(s.get("uses") or "")), {})
+    _egs12 = ("workflow_dispatch" in _egs_on and not _egs_on.get("schedule")
+              and not ((_egs_on.get("workflow_dispatch") or {}).get("inputs"))
+              and (_egs_wf.get("permissions") or {}).get("contents") == "read"
+              and "secrets.SEC_CONTACT" in str((_egs_last.get("env") or {}).get("SEC_CONTACT"))
+              and str(_egs_last.get("run") or "").strip() == "python edgar2_study.py"
+              and str((_egs_dl.get("env") or {}).get("E1_RUN_ID")) == "33724367680"
+              and str((_egs_py.get("with") or {}).get("python-version")) == "3.11"
+              and int(_egs_job.get("timeout-minutes") or 0) >= 60)
+except Exception as _e:                                           # noqa: BLE001
+    _egs12 = False
+check("🔬📰② EGS12 edgar2_study.yml: dispatch بلا كرون ولا مُدخَل · صفوفُ 33724367680 مثبَّتة · SEC_CONTACT "
+      "في خطوة الدراسة · contents: read · بايثون 3.11 · مهلةٌ 60 دقيقةً فأكثر", _egs12)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
