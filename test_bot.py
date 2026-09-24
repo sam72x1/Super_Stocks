@@ -62967,16 +62967,20 @@ def _egs_run(block_at=(), **kw):
         sub = subs.get(int(m.group(1))) if m else None
         return (200, sub, 0.0) if sub else (404, None, 0.0)
     buf = _egs_io.StringIO()
-    old = _egs_os.environ.get("SEC_CONTACT")
+    old = {k: _egs_os.environ.get(k) for k in ("SEC_CONTACT", "EDGAR_REOPEN")}
     _egs_os.environ["SEC_CONTACT"] = "lock@example.org"
+    # 🔒 إقرارًا («اقفل EDGAR» 2026-09-24): العالمُ يختبر الآلةَ **خلف** الإغلاق ⇒ يرفع الحارسَ بـ`1`
+    #    حرفيًّا — والإغلاقُ نفسُه يحرسه EGS13 من طرفيه.
+    _egs_os.environ["EDGAR_REOPEN"] = "1"
     try:
         with _egs_ctx.redirect_stdout(buf):
             rc = _EGS.main(get=_get, sleep=sleeps.append, paths=[path], cmap=cmap)
     finally:
-        if old is None:
-            _egs_os.environ.pop("SEC_CONTACT", None)
-        else:
-            _egs_os.environ["SEC_CONTACT"] = old
+        for _k, _v in old.items():
+            if _v is None:
+                _egs_os.environ.pop(_k, None)
+            else:
+                _egs_os.environ[_k] = _v
     judge = next((ln for ln in buf.getvalue().splitlines() if ln.startswith("JUDGE")), "")
     return rc, judge, sleeps
 
@@ -63000,7 +63004,9 @@ check("🔬📰② EGS11 دورةٌ كاملة على عالمٍ معروفِ ا
       "لا أثر ⟵ «فشل» (الملحق §⑩) · حجبٌ مزدوج ⟵ V-E10 · ‏650 حالة ⟵ V-E1 · مجتمعٌ بتوقيتٍ مخالف ⟵ V-E9",
       _egs11, _egs_w11[:200])
 
-# EGS12 — الـworkflow: dispatch بلا كرون ولا مُدخَل · المُدخَلُ مثبَّت · SEC_CONTACT · قراءةٌ فقط · مهلةٌ كافية
+# EGS12 — الـworkflow: dispatch بلا كرون · المُدخَلُ الوحيد `reopen` (افتراضُه `0` · إقرارُ الإغلاق — «اقفل
+#    EDGAR» 2026-09-24، حُدِّث إقرارًا: كان «بلا مُدخَل») موصولٌ بخطوة الدراسة · صفوفُ E1 مثبَّتة ·
+#    SEC_CONTACT · قراءةٌ فقط · مهلةٌ كافية
 try:
     import yaml as _egs_y                                         # noqa: E402
     _egs_wf = _egs_y.safe_load(open(".github/workflows/edgar2_study.yml", encoding="utf-8"))
@@ -63010,8 +63016,12 @@ try:
     _egs_last = _egs_steps[-1]
     _egs_dl = next((s for s in _egs_steps if "gh run download" in str(s.get("run") or "")), {})
     _egs_py = next((s for s in _egs_steps if "setup-python" in str(s.get("uses") or "")), {})
+    _egs_inp = (_egs_on.get("workflow_dispatch") or {}).get("inputs") or {}
     _egs12 = ("workflow_dispatch" in _egs_on and not _egs_on.get("schedule")
-              and not ((_egs_on.get("workflow_dispatch") or {}).get("inputs"))
+              and set(_egs_inp) == {"reopen"}
+              and str((_egs_inp.get("reopen") or {}).get("default")) == "0"
+              and str((_egs_last.get("env") or {}).get("EDGAR_REOPEN", "")).replace(" ", "")
+              == "${{github.event.inputs.reopen}}"
               and (_egs_wf.get("permissions") or {}).get("contents") == "read"
               and "secrets.SEC_CONTACT" in str((_egs_last.get("env") or {}).get("SEC_CONTACT"))
               and str(_egs_last.get("run") or "").strip() == "python edgar2_study.py"
@@ -63020,8 +63030,99 @@ try:
               and int(_egs_job.get("timeout-minutes") or 0) >= 60)
 except Exception as _e:                                           # noqa: BLE001
     _egs12 = False
-check("🔬📰② EGS12 edgar2_study.yml: dispatch بلا كرون ولا مُدخَل · صفوفُ 33724367680 مثبَّتة · SEC_CONTACT "
-      "في خطوة الدراسة · contents: read · بايثون 3.11 · مهلةٌ 60 دقيقةً فأكثر", _egs12)
+check("🔬📰② EGS12 edgar2_study.yml: dispatch بلا كرون · المُدخَلُ الوحيد `reopen` بافتراض `0` وموصولٌ "
+      "بـEDGAR_REOPEN في خطوة الدراسة · صفوفُ 33724367680 مثبَّتة · SEC_CONTACT · contents: read · "
+      "بايثون 3.11 · مهلةٌ 60 دقيقةً فأكثر", _egs12)
+
+# EGS13 — 🔒 **الإغلاقُ مُنفَّذٌ لا مكتوب** («اقفل EDGAR» 2026-09-24 · بالتفويض الكامل · `edgar2_result.md §③`)
+#    — مرآةُ `HRA13` سلوكيًّا من طرفيه: (أ) مُغلَقًا ⟶ ‏8 بصفرِ نداءٍ للجالب والمؤقِّت ولا سطرَ غيرُ النصّ ·
+#    (ب) افتراضُ الـyml (`0`) يُبقيه مُغلَقًا · (ج) الإقرارُ `1` يرفع الحارسَ **فعلًا** فتبلغ الدراسةُ V-E8
+#    (خروج 2 بلا SEC_CONTACT) · (د) ‏8 مميَّزٌ عن كلّ `return` حرفيٍّ في `main`/`verdict` · (هـ) الحارسُ
+#    أوّلُ جملةٍ بعد التوثيق · ونصُّ الفتح ①②③ بأرقام الحكم · والقسمُ §③ في النتيجة · ونقطةُ دخولٍ واحدة.
+try:
+    _egz_main = next((n for n in _egs_tree.body if isinstance(n, _egs_ast.FunctionDef)
+                      and n.name == "main"), None)
+    _egz_verd = next((n for n in _egs_tree.body if isinstance(n, _egs_ast.FunctionDef)
+                      and n.name == "verdict"), None)
+    _egz_body = list(_egz_main.body) if _egz_main else []
+    if (_egz_body and isinstance(_egz_body[0], _egs_ast.Expr)
+            and isinstance(getattr(_egz_body[0], "value", None), _egs_ast.Constant)
+            and isinstance(_egz_body[0].value.value, str)):
+        _egz_body = _egz_body[1:]                                 # التوثيقُ ليس جملة
+    _egz_b0 = _egz_body[0] if _egz_body else None
+    _egz_first = (isinstance(_egz_b0, _egs_ast.If) and isinstance(_egz_b0.test, _egs_ast.Call)
+                  and getattr(_egz_b0.test.func, "id", None) == "_closed_now"
+                  and any(isinstance(_x, _egs_ast.Return)
+                          and getattr(_x.value, "id", None) == "CLOSED_RC" for _x in _egz_b0.body))
+    _egz_rcs = set()
+    for _fn in (_egz_main, _egz_verd):
+        for _n in (_egs_ast.walk(_fn) if _fn else ()):
+            if isinstance(_n, _egs_ast.Return) and isinstance(_n.value, _egs_ast.Constant):
+                _egz_rcs.add(_n.value.value)
+            if isinstance(_n, _egs_ast.Return) and isinstance(_n.value, _egs_ast.Tuple):
+                _egz_rcs |= {_e.value for _e in _n.value.elts
+                             if isinstance(_e, _egs_ast.Constant) and isinstance(_e.value, int)}
+            if isinstance(_n, _egs_ast.keyword) and _n.arg == "code" \
+                    and isinstance(_n.value, _egs_ast.Constant):
+                _egz_rcs.add(_n.value.value)
+    _egz_witness = ({0, 2, 3, 4, 5, 6} <= _egz_rcs and _EGS.CLOSED_RC not in _egz_rcs)
+    _egz_wf = __import__("yaml").safe_load(open(".github/workflows/edgar2_study.yml", encoding="utf-8"))
+    _egz_on = _egz_wf.get(True) or _egz_wf.get("on") or {}
+    _egz_def = str(((((_egz_on.get("workflow_dispatch") or {}).get("inputs") or {}).get("reopen") or {})
+                    .get("default")))
+    _egz_calls, _egz_sleeps = [], []
+
+    def _egz_get(url, timeout=None):
+        _egz_calls.append(url)
+        return 404, None, 0.0
+    _egz_env0 = {_k: _egs_os.environ.get(_k) for _k in ("EDGAR_REOPEN", "SEC_CONTACT")}
+    _egz_logged = []
+    _egz_keep = _EGS.log
+    try:
+        _EGS.log = _egz_logged.append
+        _egs_os.environ.pop("EDGAR_REOPEN", None)
+        _egs_os.environ.pop("SEC_CONTACT", None)
+        _egz_rc_closed = _EGS.main(get=_egz_get, sleep=_egz_sleeps.append, paths=[], cmap={})
+        _egz_log_closed = list(_egz_logged)
+        _egz_n_closed = len(_egz_calls) + len(_egz_sleeps)
+        _egs_os.environ["EDGAR_REOPEN"] = _egz_def                 # افتراضُ الـyml
+        del _egz_logged[:]
+        _egz_rc_default = _EGS.main(get=_egz_get, sleep=_egz_sleeps.append, paths=[], cmap={})
+        _egz_n_default = len(_egz_calls) + len(_egz_sleeps)
+        _egs_os.environ["EDGAR_REOPEN"] = "1"                      # الإقرار
+        del _egz_logged[:]
+        _egz_rc_open = _EGS.main(get=_egz_get, sleep=_egz_sleeps.append, paths=[], cmap={})
+        _egz_log_open = list(_egz_logged)
+    finally:
+        _EGS.log = _egz_keep
+        for _k, _v0 in _egz_env0.items():
+            _egs_os.environ.pop(_k, None)
+            if _v0 is not None:
+                _egs_os.environ[_k] = _v0
+    _egz_txt = "\n".join(_EGS.closure_notice())
+    _egz_notice = all(_x in _egz_txt for _x in (
+        "①", "②", "③", "EDGAR_REOPEN=1", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد", "36041963692",
+        "+2.28", "5.65%", "3.37%", "15", "6-K", "edgar2_result.md §③"))
+    _egz_res = open("edgar2_result.md", encoding="utf-8").read()
+    _egz_sec = ("## ③ 🔒 الإغلاق" in _egz_res and "EDGAR_REOPEN=1" in _egz_res and "EGS13" in _egz_res
+                and "| ③ | **إذنُ المالك** |" in _egz_res and "JUDGE verdict=فشل" in _egz_res)
+    _egz_one = _egs_src.count("if __name__ ==") == 1
+    _egs13 = (_EGS.AXIS_CLOSED is True and _EGS.REOPEN_ENV == "EDGAR_REOPEN"
+              and _egz_rc_closed == _EGS.CLOSED_RC == 8 and _egz_n_closed == 0
+              and _egz_log_closed == _EGS.closure_notice()
+              and _egz_def == "0" and _egz_rc_default == 8 and _egz_n_default == 0
+              and _egz_rc_open == 2 and any("V-E8" in str(_l) for _l in _egz_log_open)
+              and _egz_witness and _egz_first and _egz_notice and _egz_sec and _egz_one)
+    _egs13_w = (f"مُغلَق rc={_egz_rc_closed} نداءات={_egz_n_closed} أسطر={len(_egz_log_closed)} · "
+                f"افتراضُ الـyml={_egz_def!r} ⟶ rc={_egz_rc_default} · بالإقرار rc={_egz_rc_open} · "
+                f"رموز={sorted(_egz_rcs)} · شاهد={_egz_witness} · أوّلُ جملة={_egz_first} · "
+                f"النصّ={_egz_notice} · §③={_egz_sec} · دخولٌ واحد={_egz_one}")
+except Exception as _e:                                           # noqa: BLE001
+    _egs13, _egs13_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔬📰②🔒 EGS13 الإغلاقُ **مُنفَّذ** («اقفل EDGAR»): خروج 8 بصفرِ نداءٍ ولا سطرَ غيرُ النصّ · "
+      "**وافتراضُ الـworkflow (`0`) يُبقيه مُغلَقًا** · والإقرارُ `1` يرفع الحارسَ فتبلغ الدراسةُ V-E8 · "
+      "و‏8 مميَّزٌ عن رموز الدراسة · والحارسُ أوّلُ جملة · ونصُّ الفتح ①②③ بأرقام الحكم · و§③ · ودخولٌ واحد",
+      _egs13, _egs13_w)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
