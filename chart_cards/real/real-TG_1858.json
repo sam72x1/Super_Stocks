@@ -1,0 +1,13 @@
+{
+ "v": 1,
+ "id": "real-TG_1858",
+ "timeframe": "4H",
+ "bars_visible": 14,
+ "extended": true,
+ "extremes": {
+  "high": "3.000",
+  "low": "1.411"
+ },
+ "last": "2.390",
+ "captured_by": "2026-06-02"
+}

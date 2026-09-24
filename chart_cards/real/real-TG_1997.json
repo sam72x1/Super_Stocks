@@ -1,0 +1,15 @@
+{
+ "v": 1,
+ "id": "real-TG_1997",
+ "timeframe": "unknown",
+ "bars_visible": 12,
+ "extremes": {
+  "low": "1.62"
+ },
+ "last": {
+  "v": "4.79",
+  "src": "pixel",
+  "tol": "0.05"
+ },
+ "captured_by": "2026-04-12"
+}

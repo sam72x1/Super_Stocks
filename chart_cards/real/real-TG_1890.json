@@ -1,0 +1,12 @@
+{
+ "v": 1,
+ "id": "real-TG_1890",
+ "timeframe": "4H",
+ "bars_visible": 75,
+ "extended": true,
+ "extremes": {
+  "high": "26.350",
+  "low": "3.380"
+ },
+ "last": "3.790"
+}

@@ -63850,6 +63850,123 @@ except Exception as _e:                                           # noqa: BLE001
     _cfd26, _cfd26_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD26 الحتميّة: رموزُ ملفّ الدقائق **مرتَّبة** (لا ترتيبَ مجموعةٍ يتبع بذرةَ التجزئة) · والتعادلُ في الحكم "
       "يحسمه الرمز (AAA ثم MMM) — فالحكمُ نفسُه في كلّ تشغيلة", _cfd26, _cfd26_w)
+# ── CFD27 المجموعةُ الحقيقيّة مجمَّدةٌ وباختيار العقد حرفيًّا (لا انتقاءَ بعد القراءة) ──
+try:
+    import hashlib as _cfd_hl                                     # noqa: PLC0415
+    _files27 = {_cfd_os.path.splitext(f)[0] for f in _cfd_os.listdir("faisal_images")}
+    _elig27 = []
+    for _src27 in ("FAISAL_IMAGE_PASS2.md", "FAISAL_IMAGE_PASS3.md"):
+        for _ln27 in open(_src27, encoding="utf-8"):
+            if not _ln27.startswith("|"):
+                continue
+            _cells27 = [c.strip() for c in _ln27.strip().strip("|").split("|")]
+            _m27 = (_cfd_re.fullmatch(r"\*\*((?:IMG|TG)_[0-9A-Za-z_]+)\*\*\s+\$?([A-Z]{2,5})", _cells27[0])
+                    if len(_cells27) >= 2 else None)
+            if _m27 and "🎯" in _cells27[1] and "🔁" not in _cells27[1] and _m27.group(1) in _files27:
+                _elig27.append((_m27.group(1), _m27.group(2)))
+    _order27 = sorted(dict(_elig27).items(),
+                      key=lambda kv: _cfd_hl.sha256((kv[0] + "20260924").encode()).hexdigest())
+    _sel27 = [_cfd_json.loads(_l) for _l in open("chart_cards/real/SELECTION.jsonl", encoding="utf-8")]
+    _used27 = [s for s in _sel27 if s["use"]]
+    _ok_man27, _files_man27, _bad27 = _CFE.verify_manifest("chart_cards/real")
+    _key27 = _CFE.load_key("chart_cards/real")
+    _cards27 = [_cfd_json.load(open(p, encoding="utf-8")) for p in _files_man27]
+    _cfd27 = (len(_elig27) == 189 and [s["img"] for s in _sel27] == [k for k, _ in _order27[:len(_sel27)]]
+              and len(_used27) == 40 and _sel27[-1]["use"]
+              and all(s["why"] in ("ليست شارتًا", "بلا رقمين مقروءين", "الرمزُ غيرُ مؤكَّد في الكاتالوج")
+                      for s in _sel27 if not s["use"])
+              and _ok_man27 and sorted(c["id"] for c in _cards27) == sorted(s["card"] for s in _used27)
+              and set(_key27) == {c["id"] for c in _cards27}
+              and all(_key27[s["card"]]["sym"] == dict(_elig27)[s["img"]] for s in _used27)
+              and all(_key27[s["card"]]["class"] == s["class"] in ("daily_axis", "intraday", "unknown")
+                      for s in _used27)
+              and all(_CF.validate_card(c) == [] for c in _cards27))
+    _cfd27_w = (f"مؤهَّل={len(_elig27)} · رُئي={len(_sel27)} · قُبل={len(_used27)} · البصمة={_ok_man27} {_bad27[:2]} · "
+                f"المفتاح={len(_key27)}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd27, _cfd27_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD27 المجموعةُ الحقيقيّة **بنصّ العقد**: ‏189 مؤهَّلًا بترتيب `sha256(المعرّف+20260924)` ⟵ المرئيّةُ أوّلُها بلا قفز "
+      "وآخرُها مقبول (القبولُ حتى 40) · والاستبعادُ بأحد الأسباب الثلاثة · والبصمةُ سليمة · والمفتاحُ = رمزُ الكاتالوج "
+      "لكلّ بطاقة · والبطاقاتُ صالحةٌ بلا رمز", _cfd27, _cfd27_w)
+# ── CFD28 بطاقتا الاختبار الحيّ مجمَّدتان قبل البحث — ونصُّ المالك فيهما كما قاله ──
+try:
+    _ok_man28, _files_man28, _bad28 = _CFE.verify_manifest("chart_cards/live")
+    _live28 = {_cfd_os.path.basename(p): _cfd_json.load(open(p, encoding="utf-8")) for p in _files_man28}
+    _t77, _t51 = _live28.get("TG_1977.json") or {}, _live28.get("TG_2051.json") or {}
+    _hi51, _lo51 = (_t51.get("extremes") or {}).get("high"), (_t51.get("extremes") or {}).get("low")
+    _cfd28 = (_ok_man28 and set(_live28) == {"2026-09-24_A.json", "2026-09-24_B.json",
+                                            "2026-09-24_B_alone.json", "TG_1977.json", "TG_2051.json"}
+              and all(_CF.validate_card(c) == [] for c in _live28.values())
+              and _t77.get("id") == "live-TG_1977" and (_t77.get("anchor") or {}).get("date") == "2026-04-15"
+              and _t77.get("extremes") == {"high": "5.050", "low": "1.425"}
+              and _t51.get("id") == "live-TG_2051" and _t51.get("timeframe") == "4H"
+              and "anchor" not in _t51 and "window" not in _t51 and _t51.get("chart_type") == "line"
+              and all(isinstance(x, dict) and x.get("src") == "pixel" and _CF.num_spec(x) for x in (_hi51, _lo51))
+              and "cross_with" not in _live28["2026-09-24_B_alone.json"])
+    _cfd28_w = f"البصمة={_ok_man28} {_bad28[:2]} · الملفّات={sorted(_live28)}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd28, _cfd28_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD28 بطاقاتُ الاختبار الحيّ **مجمَّدةٌ ببصمة** (لا ملفَّ خارجها) · ‏TG_1977 بنصّ المالك (04/15/2026 · من 1.425 "
+      "إلى 5.050) · وTG_2051 بلا تاريخ بفريم «4H» المكتوب وخطّيٌّ بطرفَين من البكسل بتسامحٍ مصرَّح · وB_alone بلا تحقّقٍ متقاطع",
+      _cfd28, _cfd28_w)
+# ── CFD29 صفوفُ النتيجة تُعاد في آخر السجلّ (واجهةُ السجلّ تُرجع آخرَ 5000 سطرٍ وحدَها) ──
+try:
+    import ast as _cfd_ast                                        # noqa: PLC0415
+    import inspect as _cfd_insp                                   # noqa: PLC0415
+    _out29, _orig_log29 = [], _CFE.log
+    _CFE.log = lambda m="": _out29.append(str(m))
+    try:
+        _CFE.report_synth([{"k": i, "sym": f"S{i}", "end": "2025-01-02", "W": 40, "label": "مرجّح",
+                            "style": {"marks": True, "last_tag": bool(i % 2), "dated": False, "log": False,
+                                      "theme": "light"},
+                            "top": [f"S{i}"], "hit1": True, "hit3": True, "px": {}} for i in range(7)])
+    finally:
+        _CFE.log = _orig_log29
+    _rc29 = [ln for ln in _out29 if ln.startswith("SYNTH_RECAP ")]
+    _fin29 = [i for i, ln in enumerate(_out29) if ln.startswith("CHART_EVAL_SYNTH ")]
+    _lastrc29 = [i for i, ln in enumerate(_out29) if ln.startswith("SYNTH_RECAP ")]
+    _calls29 = {}
+    for _n29 in _cfd_ast.walk(_cfd_ast.parse(_cfd_insp.getsource(_CFE.run_real))):
+        if isinstance(_n29, _cfd_ast.Call) and isinstance(_n29.func, _cfd_ast.Name):
+            _calls29.setdefault(_n29.func.id, []).append(
+                (_n29.lineno, [a.value for a in _n29.args if isinstance(a, _cfd_ast.Constant)]))
+    _real29 = [ln for ln, a in _calls29.get("recap", []) if "REAL_RECAP" in a]
+    _judge29 = [ln for ln, _ in _calls29.get("judge_real", [])]
+    _cfd29 = (len(_rc29) == 7 and all(f"truth=S{i} " in _rc29[i] for i in range(7))
+              and bool(_fin29) and bool(_lastrc29) and max(_lastrc29) < _fin29[0]
+              and len(_real29) == 1 and len(_judge29) == 1 and _real29[0] < _judge29[0])
+    _cfd29_w = f"صفوف={len(_rc29)} · قبل الخلاصة={bool(_fin29) and bool(_lastrc29) and max(_lastrc29) < _fin29[0]} · الحقيقيّة={_real29}/{_judge29}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd29, _cfd29_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD29 صفوفُ النتيجة **تُعاد مختصرةً في آخر السجلّ** قبل سطر الحكم (المصنوعةُ صفًّا لكلّ نافذة · والحقيقيّةُ قبل "
+      "`judge_real`) — لأن واجهةَ السجلّ تُرجع آخرَ 5000 سطرٍ وحدَها (‏14 صفًّا من 150 في التشغيلة 36057581617)",
+      _cfd29, _cfd29_w)
+# ── CFD30 عدّادُ §⑧-6 من المصنوعة: نافذةٌ فيها تقسيمٌ وطرفا الشاشة كلاهما قبله ──
+try:
+    def _b30(d, h, lo):
+        return {"o": lo, "h": h, "l": lo, "c": lo, "d": d}
+    _bars30 = [_b30("2025-01-02", 10, 8), _b30("2025-01-03", 12, 9), _b30("2025-01-06", 5, 4), _b30("2025-01-07", 6, 5)]
+    _cases30 = [_CFE.split_case(_bars30, sp) for sp in
+                ([], [("2025-01-06", 10, 1)], [("2025-01-07", 10, 1)], [("2025-01-02", 10, 1)], [("2025-01-07", 1, 1)])]
+    _out30, _orig_log30 = [], _CFE.log
+    _CFE.log = lambda m="": _out30.append(str(m))
+    try:
+        _CFE.report_synth([{"k": i, "sym": f"S{i}", "end": "2025-01-07", "W": 4, "label": "مرجّح",
+                            "style": {"marks": True, "last_tag": True, "dated": i == 0, "log": False,
+                                      "theme": "light"}, "top": [f"S{i}"], "hit1": i != 1, "hit3": True,
+                            "px": {}, "split": sp} for i, sp in enumerate(["both_before", "both_before",
+                                                                            "inside", "none"])])
+    finally:
+        _CFE.log = _orig_log30
+    _l30 = [ln for ln in _out30 if "§⑧-6" in ln]
+    _cfd30 = (_cases30 == ["none", "inside", "both_before", "none", "none"] and len(_l30) == 1
+              and "نوافذُ فيها تقسيم 3 (الأوّلُ الصحيح 2)" in _l30[0]
+              and "منها الطرفان كلاهما قبله 2 (الأوّلُ الصحيح 1 · بلا تاريخ 1)" in _l30[0])
+    _cfd30_w = f"الحالات={_cases30} · السطر={_l30[:1]}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd30, _cfd30_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD30 §⑧-6 يُطبع من المصنوعة: `split_case` = بلا تقسيم · داخلها وطرفٌ خام · الطرفان قبله · وتقسيمُ اليوم الأوّل "
+      "أو النسبةُ 1:1 ليسا تقسيمًا داخلها — والعدّادُ بصفوفه وإصاباتها وغيرِ المؤرَّخ منها", _cfd30, _cfd30_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

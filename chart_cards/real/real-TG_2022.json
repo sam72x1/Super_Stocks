@@ -1,0 +1,19 @@
+{
+ "v": 1,
+ "id": "real-TG_2022",
+ "timeframe": "1D",
+ "bars_visible": 115,
+ "extremes": {
+  "high": {
+   "v": "8.45",
+   "src": "pixel",
+   "tol": "0.15"
+  },
+  "low": {
+   "v": "3.20",
+   "src": "pixel",
+   "tol": "0.10"
+  }
+ },
+ "last": "3.460"
+}

@@ -1,0 +1,15 @@
+{
+ "v": 1,
+ "id": "real-TG_1925",
+ "timeframe": "4H",
+ "bars_visible": 84,
+ "extended": true,
+ "extremes": {
+  "high": "3.350",
+  "low": "1.105"
+ },
+ "last": "1.910",
+ "axis_md": [
+  "05/23"
+ ]
+}
