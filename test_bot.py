@@ -61317,6 +61317,460 @@ check("🗓️🔍② ER0 عقدُ `T-EARLY-2` مدفوعٌ قبل أيّ رقم
       _v, _w)
 
 
+# ═══ 🗓️🔍② «قِس الباقي» — `T-EARLY-2` · أداةُ الإعادة على شيفرة الحاكمة · أقفال ERK1-ERK7 ═══
+# العقدُ `early_rest_prereg.md` §③: رقعةُ علمٍ **وقتَ التشغيل** (`early_rest_patch.py`) على شيفرة الحاكمة ·
+# workflow عامّ `early_rest_run.yml` · وأداةُ مقارنة `early_rest_compare.py`. كلُّ قفلٍ سلوكيٌّ أو بالـAST.
+import ast as _erk_ast
+import importlib.util as _erk_iu
+import os as _erk_os
+import sys as _erk_sys
+import tempfile as _erk_tmp
+
+try:
+    import early_rest_patch as _ERP
+except Exception as _e:                                          # noqa: BLE001
+    _ERP = None
+    _erk_err = f"⛔ رمى الاستيراد: {type(_e).__name__}: {_e}"
+
+_ERK_FAMS = {"kasih", "kasih2", "exit_stop", "rearm", "reclaim", "target10", "pm_curve", "tc_arms",
+             "event_exec"}
+_ERK_WF = {"kasih": "kasih.yml", "kasih2": "kasih2.yml", "exit_stop": "exit_stop.yml", "rearm": "rearm.yml",
+           "reclaim": "reclaim.yml", "target10": "target10.yml", "pm_curve": "pm_curve.yml",
+           "tc_arms": "tc_arms.yml", "event_exec": "event_exec.yml"}
+
+
+def _erk_run_env(fam):
+    """مفاتيحُ `env` غيرُ السرّيّة في خطوة `python <script>` من workflow الأسرة — والسكربت."""
+    import yaml as _y
+    doc = _y.safe_load(open(f".github/workflows/{_ERK_WF[fam]}", encoding="utf-8"))
+    for _job in (doc.get("jobs") or {}).values():
+        for _st in (_job.get("steps") or []):
+            _run = str(_st.get("run") or "")
+            if _run.strip().startswith("python ") and _st.get("env"):
+                _keys = {k for k, v in _st["env"].items() if "secrets." not in str(v)}
+                return _keys, _run.strip().split()[1]
+    return set(), ""
+
+
+# ERK1 — الأسرُ التسع = العقد · والسكربتُ والقائمةُ البيضاء = workflow الأسرة نفسِه · والوحدةُ المرقوعة يستوردها السكربت
+try:
+    _erk1 = {}
+    _erk1["الأسرُ التسع"] = _ERP is not None and set(_ERP.FAMILIES) == _ERK_FAMS
+    for _f in sorted(_ERK_FAMS):
+        _scr, _mod, _allow = _ERP.FAMILIES[_f]
+        _keys, _wscr = _erk_run_env(_f)
+        # 🔴 **الوصلُ بالنداء لا بالاستيراد:** `tc_arms` يستورد `kasih_scan` **و**`pm_radar_scan` معًا ⇒ «يستورد
+        #    الوحدة» يمرّ على رقعةٍ في الوحدة الخطأ (عَلَمٌ ميّت). فالشرط: السكربتُ **ينادي دالّةَ الدخول** للوحدة
+        #    المرقوعة (`parse_day` · `parse_pre` · `group_sessions` ⟵ `ny_session_key`) باسمها المستورد.
+        _entry = {"kasih_scan.py": "parse_day", "pm_radar_scan.py": "parse_pre",
+                  "event_exec.py": "group_sessions"}[_mod]
+        _tree = _erk_ast.parse(open(_scr, encoding="utf-8").read())
+        _alias = {a.asname or a.name for _n in _erk_ast.walk(_tree) if isinstance(_n, _erk_ast.Import)
+                  for a in _n.names if a.name == _mod[:-3]}
+        _wired = any(isinstance(c, _erk_ast.Call) and (
+            (isinstance(c.func, _erk_ast.Attribute) and c.func.attr == _entry
+             and getattr(c.func.value, "id", None) in _alias)
+            or (_scr == _mod and getattr(c.func, "id", None) == _entry)) for c in _erk_ast.walk(_tree))
+        _erk1[_f] = _scr == _wscr and set(_allow) == _keys and _wired
+    _v = all(_erk1.values())
+    _w = str({k: x for k, x in _erk1.items() if not x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, (_erk_err if _ERP is None else f"⛔ رمى: {type(_e).__name__}: {_e}")
+check("🗓️🔍② ERK1 الرقعة: الأسرُ التسع = العقد · السكربتُ والقائمةُ البيضاء **= workflow الأسرة نفسِه** · "
+      "والسكربتُ **ينادي دالّةَ دخول الوحدة المرقوعة** (AST — لا مجرّدَ استيرادها)", _v, _w)
+
+# ERK2 — الرقعةُ على وحدات اليوم الثلاث: نداءٌ واحدٌ داخل الدالّة المقصودة (AST) · وتُترجَم · والمرساةُ
+#        الغائبة/المكرّرة والرقعةُ المزدوجة ⇒ `PatchError` (لا رقعةٌ صامتة)
+try:
+    _erk2 = {}
+    for _mod, _fn in (("kasih_scan.py", "parse_day"), ("pm_radar_scan.py", "parse_pre"),
+                      ("event_exec.py", "ny_session_key")):
+        _src = open(_mod, encoding="utf-8").read()
+        _out = _ERP.patch_source(_src, _mod)
+        _t = _erk_ast.parse(_out)
+        _fns = [n for n in _erk_ast.walk(_t) if isinstance(n, _erk_ast.FunctionDef) and n.name == _fn]
+        _calls = [c for c in _erk_ast.walk(_fns[0]) if isinstance(c, _erk_ast.Call)
+                  and getattr(c.func, "id", None) == "_early2_bound"] if len(_fns) == 1 else []
+        _all_calls = [c for c in _erk_ast.walk(_t) if isinstance(c, _erk_ast.Call)
+                      and getattr(c.func, "id", None) == "_early2_bound"]
+        _erk2[_mod] = (len(_calls) == 1 and len(_all_calls) == 1
+                       and _out == _src.replace(_ERP.PATCHES[_mod][0], _ERP.PATCHES[_mod][1], 1) + _ERP.HELPER)
+
+    def _erk_raises(fn):
+        try:
+            fn()
+        except _ERP.PatchError:
+            return True
+        return False
+    _ks = open("kasih_scan.py", encoding="utf-8").read()
+    _erk2["رقعةٌ مزدوجة"] = _erk_raises(lambda: _ERP.patch_source(_ERP.patch_source(_ks, "kasih_scan.py"),
+                                                                   "kasih_scan.py"))
+    _erk2["مرساةٌ غائبة"] = _erk_raises(lambda: _ERP.patch_source(
+        _ks.replace(_ERP.ANCHOR_CLOSES, ""), "kasih_scan.py"))
+    _erk2["مرساةٌ مكرّرة"] = _erk_raises(lambda: _ERP.patch_source(_ks + "\n" + _ERP.ANCHOR_CLOSES,
+                                                                   "kasih_scan.py"))
+    _erk2["وحدةٌ خارج العقد"] = _erk_raises(lambda: _ERP.patch_source(_ks, "Super_stock.py"))
+    _v = all(_erk2.values())
+    _w = str({k: x for k, x in _erk2.items() if not x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔍② ERK2 الرقعة على الوحدات الثلاث: **نداءٌ واحدٌ** لـ`_early2_bound` داخل الدالّة المقصودة (AST) · "
+      "لا تغييرَ سواه · والمرساةُ الغائبة/المكرّرة والرقعةُ المزدوجة ⇒ `PatchError`", _v, _w)
+
+
+def _erk_helper_ns(flag):
+    """يُنفّذ `HELPER` بعلمٍ مضبوط وتقويمِ اليوم بديلًا عن `early2_calendar` — ويُرجع دالّةَ الحدّ."""
+    import market_calendar as _mc
+    _old_env = _erk_os.environ.get("EARLY_CLOSE_CAL")
+    _old_mod = _erk_sys.modules.get("early2_calendar")
+    try:
+        if flag is None:
+            _erk_os.environ.pop("EARLY_CLOSE_CAL", None)
+        else:
+            _erk_os.environ["EARLY_CLOSE_CAL"] = flag
+        _erk_sys.modules["early2_calendar"] = _mc
+        _ns = {}
+        exec(_ERP.HELPER, _ns)                                   # noqa: S102
+        _b = _ns["_early2_bound"]
+        return [(_d, _b(_d)) for _d in _erk_days()]
+    finally:
+        if _old_env is None:
+            _erk_os.environ.pop("EARLY_CLOSE_CAL", None)
+        else:
+            _erk_os.environ["EARLY_CLOSE_CAL"] = _old_env
+        if _old_mod is None:
+            _erk_sys.modules.pop("early2_calendar", None)
+        else:
+            _erk_sys.modules["early2_calendar"] = _old_mod
+
+
+def _erk_days():
+    import datetime as _d
+    _x, _out = _d.date(2023, 1, 1), []
+    while _x <= _d.date(2025, 12, 31):
+        _out.append(_x.isoformat())
+        _x += _d.timedelta(days=1)
+    return _out
+
+
+# ERK3 (`V-R4`) — العلمُ `== "1"` حرفيًّا: مرفوعًا يكافئ `presession_radar.reg_close_for` على كلّ يومٍ من
+#       2023-2025 (13:00 في أيّام الإغلاق المبكّر الثمانية) · ومطفأً (غائبًا/"0"/"true"/"yes"/"11") = 16:00 دائمًا
+try:
+    import presession_radar as _erk_pr
+    _on = _erk_helper_ns("1")
+    _erk3 = {"مرفوعٌ = reg_close_for": all(b == _erk_pr.reg_close_for(d) for d, b in _on),
+             "13:00 ثمانيةُ أيّام": sorted(d for d, b in _on if b == 780) == [
+                 "2023-07-03", "2023-11-24", "2024-07-03", "2024-11-29", "2024-12-24", "2025-07-03",
+                 "2025-11-28", "2025-12-24"]}
+    for _fl in (None, "0", "true", "yes", "11", ""):
+        _erk3[f"مطفأ {_fl!r}"] = all(b == 960 for _d, b in _erk_helper_ns(_fl))
+    # مرفوعٌ **بلا تقويم** ⇒ يسقط صراحةً وقتَ التحميل (لا 16:00 صامتًا = عَلَمٌ ميّت)
+    _old_mod3 = _erk_sys.modules.get("early2_calendar")
+    _old_env3 = _erk_os.environ.get("EARLY_CLOSE_CAL")
+    try:
+        _erk_sys.modules["early2_calendar"] = None           # ⇒ ImportError عند الاستيراد
+        _erk_os.environ["EARLY_CLOSE_CAL"] = "1"
+        try:
+            exec(_ERP.HELPER, {})                            # noqa: S102
+            _erk3["مرفوعٌ بلا تقويم يسقط"] = False
+        except ImportError:
+            _erk3["مرفوعٌ بلا تقويم يسقط"] = True
+    finally:
+        if _old_mod3 is None:
+            _erk_sys.modules.pop("early2_calendar", None)
+        else:
+            _erk_sys.modules["early2_calendar"] = _old_mod3
+        if _old_env3 is None:
+            _erk_os.environ.pop("EARLY_CLOSE_CAL", None)
+        else:
+            _erk_os.environ["EARLY_CLOSE_CAL"] = _old_env3
+    _v = all(_erk3.values())
+    _w = str({k: x for k, x in _erk3.items() if not x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔍② ERK3 (`V-R4`) العلمُ `== \"1\"`: مرفوعًا **يكافئ `reg_close_for`** على كلّ يومٍ 2023-2025 (13:00 في "
+      "الثمانية وحدَها) · ومطفأً/غائبًا/قيمةً أخرى = 16:00 دائمًا · **ومرفوعًا بلا تقويمٍ يسقط** (لا عَلَمَ ميّتًا)", _v, _w)
+
+
+def _erk_load(mod, flag, tag):
+    """يحمّل الوحدةَ **مرقوعةً** من ملفٍّ مؤقّت باسمٍ فريد وعلمٍ مضبوطٍ وقتَ الاستيراد."""
+    import market_calendar as _mc
+    _src = _ERP.patch_source(open(mod, encoding="utf-8").read(), mod)
+    _dir = _erk_tmp.mkdtemp(prefix="erk_")
+    _p = _erk_os.path.join(_dir, f"_erk_{tag}.py")
+    with open(_p, "w", encoding="utf-8") as _fh:
+        _fh.write(_src)
+    _old_env = _erk_os.environ.get("EARLY_CLOSE_CAL")
+    _old_mod = _erk_sys.modules.get("early2_calendar")
+    try:
+        _erk_os.environ["EARLY_CLOSE_CAL"] = flag
+        _erk_sys.modules["early2_calendar"] = _mc
+        _spec = _erk_iu.spec_from_file_location(f"_erk_{tag}", _p)
+        _m = _erk_iu.module_from_spec(_spec)
+        _spec.loader.exec_module(_m)
+        return _m
+    finally:
+        import shutil as _erk_sh
+        _erk_sh.rmtree(_dir, ignore_errors=True)                # لا أثرَ في النظام بعد التحميل
+        if _old_env is None:
+            _erk_os.environ.pop("EARLY_CLOSE_CAL", None)
+        else:
+            _erk_os.environ["EARLY_CLOSE_CAL"] = _old_env
+        if _old_mod is None:
+            _erk_sys.modules.pop("early2_calendar", None)
+        else:
+            _erk_sys.modules["early2_calendar"] = _old_mod
+
+
+def _erk_csv(day):
+    """ملفُّ دقيقةٍ اصطناعيّ ليومٍ واحد: شموعُ AAA عند 09:30 · 12:59 · 13:00 · 15:59 · 16:00 · 16:30."""
+    import datetime as _d
+    import io as _io
+    from zoneinfo import ZoneInfo as _Z
+    _ny = _Z("America/New_York")
+    _rows = ["ticker,volume,open,close,high,low,window_start,transactions"]
+    for _i, (_h, _mi) in enumerate(((9, 30), (12, 59), (13, 0), (15, 59), (16, 0), (16, 30))):
+        _t = _d.datetime.fromisoformat(day).replace(hour=_h, minute=_mi, tzinfo=_ny)
+        _c = 2.0 + _i / 10
+        _rows.append(f"AAA,1000,{_c},{_c},{_c},{_c},{int(_t.timestamp() * 1e9)},5")
+    return _io.StringIO("\n".join(_rows) + "\n")
+
+
+# ERK4 — سلوكيًّا على وحداتٍ مرقوعةٍ فعلًا: المطفأةُ = غيرُ المرقوعة بت-بت (الشموعُ والخريطة) · والمرفوعةُ
+#        يومَ الإغلاق المبكّر تختم «إغلاقَ الأمس» عند 13:00 وتُخرج 14:00 من الجلسة · ويومٌ عاديّ لا يتغيّر
+try:
+    import event_exec as _erk_ex
+    import kasih_scan as _erk_ks
+    import pm_radar_scan as _erk_pmr
+    _erk4 = {}
+    _k0, _k1 = _erk_load("kasih_scan.py", "0", "ks0"), _erk_load("kasih_scan.py", "1", "ks1")
+    for _day, _on_close in (("2024-11-29", 2.2), ("2024-12-02", 2.4)):
+        _base = _erk_ks.parse_day(_erk_csv(_day), {"AAA"})
+        _off = _k0.parse_day(_erk_csv(_day), {"AAA"})
+        _onr = _k1.parse_day(_erk_csv(_day), {"AAA"})
+        _erk4[f"parse_day {_day}"] = (_off == _base and _base[1]["AAA"] == 2.4
+                                     and _onr[0] == _base[0] and _onr[1]["AAA"] == _on_close)
+    _p0, _p1 = _erk_load("pm_radar_scan.py", "0", "pm0"), _erk_load("pm_radar_scan.py", "1", "pm1")
+    for _day, _on_close in (("2024-11-29", 2.2), ("2024-12-02", 2.4)):
+        _base = _erk_pmr.parse_pre(_erk_csv(_day), {}, True, "legacy")
+        _off = _p0.parse_pre(_erk_csv(_day), {}, True, "legacy")
+        _onr = _p1.parse_pre(_erk_csv(_day), {}, True, "legacy")
+        _erk4[f"parse_pre {_day}"] = (_off[:2] == _base[:2] and _base[1]["AAA"] == 2.4
+                                     and _onr[0] == _base[0] and _onr[1]["AAA"] == _on_close)
+    _e0, _e1 = _erk_load("event_exec.py", "0", "ex0"), _erk_load("event_exec.py", "1", "ex1")
+    import datetime as _erk_d
+    from zoneinfo import ZoneInfo as _erk_Z
+
+    def _erk_ms(day, h, mi):
+        return int(_erk_d.datetime.fromisoformat(day).replace(
+            hour=h, minute=mi, tzinfo=_erk_Z("America/New_York")).timestamp() * 1000)
+    for _day, _h, _mi, _want_on in (("2024-11-29", 14, 0, None), ("2024-11-29", 12, 59, ("2024-11-29", 779)),
+                                    ("2024-12-02", 14, 0, ("2024-12-02", 840))):
+        _ts = _erk_ms(_day, _h, _mi)
+        _erk4[f"ny_session_key {_day} {_h}:{_mi:02d}"] = (
+            _e0.ny_session_key(_ts) == _erk_ex.ny_session_key(_ts) == (_day, _h * 60 + _mi)
+            and _e1.ny_session_key(_ts) == _want_on)
+    _v = all(_erk4.values())
+    _w = str({k: x for k, x in _erk4.items() if not x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔍② ERK4 سلوكيًّا على وحداتٍ مرقوعة: **المطفأةُ = غيرُ المرقوعة بت-بت** · والمرفوعةُ يومَ الإغلاق "
+      "المبكّر تختم إغلاقَ الأمس عند 13:00 (`parse_day`/`parse_pre`) وتُخرج 14:00 من الجلسة (`ny_session_key`) · "
+      "واليومُ العاديّ لا يتغيّر", _v, _w)
+
+# ERK5 — مُدخَلاتُ الحاكمة **من سجلّها**: كتلةُ `env:` في مجموعة `Run python <السكربت>` الوحيدة (بطوابع
+#        الوقت كما يطبعها GitHub) · القائمةُ البيضاء وحدَها (الأسرارُ والمفاتيحُ الأخرى تُتجاهَل) · والقيمةُ
+#        الفارغة تُحفَظ · والمجموعةُ الغائبة/المكرّرة أو المفتاحُ الناقص ⇒ `PatchError` · و`E2_SCRIPT` أوّلًا
+_ERK_LOG = "\n".join([
+    "\ufeff2026-08-19T17:03:35.1Z ##[group]Run python kasih_scan.py",
+    "2026-08-19T17:03:35.2Z \x1b[36;1mpython kasih_scan.py\x1b[0m",
+    "2026-08-19T17:03:35.3Z shell: /usr/bin/bash -e {0}",
+    "2026-08-19T17:03:35.4Z env:",
+    "2026-08-19T17:03:35.5Z   pythonLocation: /opt/hostedtoolcache/Python/3.11.16/x64",
+    "2026-08-19T17:03:35.6Z   AWS_ACCESS_KEY_ID: ***",
+    "2026-08-19T17:03:35.7Z   KASIH_YEAR: 2023",
+    "2026-08-19T17:03:35.8Z   KASIH_DAY: ",
+    "2026-08-19T17:03:35.9Z ##[endgroup]",
+    "2026-08-19T17:03:36.0Z   KASIH_YEAR: 1999",
+])
+try:
+    _env = _ERP.parse_gov_env(_ERK_LOG, "kasih")
+    _erk5 = {"الاستخراج": _env == {"KASIH_YEAR": "2023", "KASIH_DAY": ""},
+             "السطور": _ERP.env_lines("kasih", _env) == ["E2_SCRIPT=kasih_scan.py", "KASIH_DAY=",
+                                                         "KASIH_YEAR=2023"]}
+
+    def _erk_rej(fn):
+        try:
+            fn()
+        except _ERP.PatchError:
+            return True
+        return False
+    _erk5["سكربتٌ آخر ⇒ رفض"] = _erk_rej(lambda: _ERP.parse_gov_env(_ERK_LOG, "kasih2"))
+    _erk5["مجموعتان ⇒ رفض"] = _erk_rej(lambda: _ERP.parse_gov_env(_ERK_LOG + "\n" + _ERK_LOG, "kasih"))
+    _erk5["مفتاحٌ ناقص ⇒ رفض"] = _erk_rej(lambda: _ERP.parse_gov_env(
+        _ERK_LOG.replace("KASIH_DAY: ", "OTHER: "), "kasih"))
+    _erk5["مفتاحٌ غريب ⇒ رفض"] = _erk_rej(lambda: _ERP.env_lines("kasih", {"PATH": "x"}))
+    _erk5["سطرٌ جديد ⇒ رفض"] = _erk_rej(lambda: _ERP.env_lines("kasih", {"KASIH_YEAR": "2023\nEVIL=1"}))
+    _erk5["أسرةٌ غريبة ⇒ رفض"] = _erk_rej(lambda: _ERP.parse_gov_env(_ERK_LOG, "nope"))
+    _v = all(_erk5.values())
+    _w = str({k: x for k, x in _erk5.items() if not x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔍② ERK5 مُدخَلاتُ الحاكمة **من سجلّها**: كتلةُ `env:` في مجموعة `Run python` الوحيدة · القائمةُ البيضاء "
+      "وحدَها والفارغُ يُحفَظ · والسكربتُ الآخر/المجموعتان/الناقص/الغريب/السطرُ الجديد ⇒ رفض", _v, _w)
+
+# ERK6 — `early_rest_run.yml` و`early_rest_compare.yml`: يدويّان بلا كرون · مُدخَلاتٌ بعينها · `early_cal`
+#        افتراضُه "0" ويصل الخطوتين · الرقعةُ تكتب `$GITHUB_ENV` · مفتاحُ Polygon لـ`event_exec` وحدَها ·
+#        وقراءةٌ فقط (`contents: read`) — و`V-R5`: لا ملفَّ خارج الأداتين يستوردهما (AST)
+try:
+    import glob as _erk_glob
+    import yaml as _erk_y
+    _r = _erk_y.safe_load(open(".github/workflows/early_rest_run.yml", encoding="utf-8"))
+    _c = _erk_y.safe_load(open(".github/workflows/early_rest_compare.yml", encoding="utf-8"))
+    _ron, _con = _r.get(True) or _r.get("on"), _c.get(True) or _c.get("on")
+    _rin = (_ron or {}).get("workflow_dispatch", {}).get("inputs", {})
+    _cin = (_con or {}).get("workflow_dispatch", {}).get("inputs", {})
+    _rsteps = list(_r["jobs"].values())[0]["steps"]
+    _patch = [s for s in _rsteps if "early_rest_patch.py" in str(s.get("run") or "")]
+    _runst = [s for s in _rsteps if str(s.get("run") or "").strip() == 'python "$E2_SCRIPT"']
+    _erk6 = {
+        "يدويّان بلا كرون": set(_ron) == {"workflow_dispatch"} and set(_con) == {"workflow_dispatch"},
+        "مُدخَلاتُ الإعادة": set(_rin) == {"family", "gov_run", "early_cal", "frozen_run_id"},
+        "early_cal افتراضُه 0": str(_rin.get("early_cal", {}).get("default")) == "0",
+        "مُدخَلاتُ المقارنة": (set(_cin) == {"gov_run", "new_run", "off_run", "rows"}
+                               and str(_cin.get("rows", {}).get("default")) == "1"),
+        "فرقُ المُخرَج دائمًا": any(
+            s.get("if") == "always()" and "early_rest_compare.py --logs e2_gov.log e2_new.log" in str(s.get("run"))
+            and "early_rest_compare.py --logs e2_gov.log e2_off.log" in str(s.get("run"))
+            for s in list(_c["jobs"].values())[0]["steps"]),
+        "الرقعةُ إلى GITHUB_ENV": (len(_patch) == 1 and 'early_rest_patch.py gov "$E2_FAMILY" e2_gov.log >> '
+                                  '"$GITHUB_ENV"' in _patch[0]["run"]),
+        "الشيفرةُ والسجلُّ من الحاكمة": any(
+            s.get("id") == "gov" and ".head_sha" in str(s.get("run")) and "/logs\" > e2_gov.log" in str(s.get("run"))
+            and (s.get("env") or {}).get("E2_GOV") == "${{ inputs.gov_run }}" for s in _rsteps),
+        "العلمُ في خطوة التشغيل": (len(_runst) == 1 and _runst[0].get("working-directory") == "gov"
+                                   and _runst[0]["env"].get("EARLY_CLOSE_CAL") == "${{ inputs.early_cal }}"),
+        "Polygon لـevent_exec وحدَها": (_runst[0]["env"].get("POLYGON_API_KEY", "") ==
+                                        "${{ inputs.family == 'event_exec' && secrets.POLYGON_API_KEY || '' }}"
+                                        if _runst else False),
+        "شيفرةُ الحاكمة في gov": any((s.get("with") or {}).get("ref") == "${{ steps.gov.outputs.sha }}"
+                                     and (s.get("with") or {}).get("path") == "gov" for s in _rsteps),
+        # الاسمُ يحمل الأسرةَ والحاكمةَ والعلم ⇒ تُربط كلُّ تشغيلةٍ بصفّها من القائمة لا من الذاكرة
+        "run-name يسمّي": (_r.get("run-name") == "T-EARLY-2 ${{ inputs.family }} gov=${{ inputs.gov_run }} "
+                                                 "cal=${{ inputs.early_cal }}"
+                           and "gov=${{ inputs.gov_run }} new=${{ inputs.new_run }}" in str(_c.get("run-name"))),
+        "قراءةٌ فقط": (_r.get("permissions", {}).get("contents") == "read"
+                        and _c.get("permissions", {}).get("contents") == "read"),
+    }
+    _importers = []
+    for _pf in sorted(_erk_glob.glob("*.py")):
+        if _pf in ("test_bot.py", "early_rest_patch.py", "early_rest_compare.py"):
+            continue
+        try:
+            _tt = _erk_ast.parse(open(_pf, encoding="utf-8").read())
+        except SyntaxError:
+            continue
+        for _n in _erk_ast.walk(_tt):
+            _names = ([a.name for a in _n.names] if isinstance(_n, _erk_ast.Import)
+                      else [_n.module] if isinstance(_n, _erk_ast.ImportFrom) and _n.module else [])
+            if any(x in ("early_rest_patch", "early_rest_compare") for x in _names):
+                _importers.append(_pf)
+    _erk6["V-R5 لا مستورِد"] = not _importers
+    _v = all(_erk6.values())
+    _w = str({k: x for k, x in _erk6.items() if not x} or "تامّة") + (f" · مستوردون: {_importers}" if _importers else "")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔍② ERK6 الـworkflowان يدويّان بلا كرون · مُدخَلاتٌ بعينها · **الشيفرةُ والمُدخَلاتُ تُقرأ من الحاكمة نفسِها** · "
+      "`early_cal` افتراضُه \"0\" ويصل خطوةَ التشغيل · Polygon لـ`event_exec` وحدَها · قراءةٌ فقط · و`V-R5` لا مستورِدَ خارجهما",
+      _v, _w)
+
+# ERK7 — المقارنة: `V-R1` = قائمتا العقد · `W` عشرةُ أيّام تداولٍ أوّلُها D1 · وعلى صفوفٍ اصطناعيّة: التطابقُ خارج W
+#        يعبر · وصفٌّ متغيّرٌ خارج W يُسقطه · وداخلها يُعَدّ ER1 (مع D1/حمل) · وصفٌّ بلا `day` يُسقطه
+try:
+    import early_rest_compare as _ERC
+    _wd = _ERC.window_days()
+    _v1 = _ERC.vr1()
+    _g = [{"sym": "A", "day": "2024-06-03", "x": 1}, {"sym": "B", "day": "2024-12-02", "x": 1},
+          {"sym": "C", "day": "2024-12-05", "x": 1}]
+    _same = _ERC.compare(_g, list(_g), _wd)
+    _n_in = [_g[0], {"sym": "B", "day": "2024-12-02", "x": 2}, {"sym": "C", "day": "2024-12-05", "x": 3}]
+    _in = _ERC.compare(_g, _n_in, _wd)
+    _out = _ERC.compare(_g, [{"sym": "A", "day": "2024-06-03", "x": 9}, _g[1], _g[2]], _wd)
+    _nod = _ERC.compare(_g, _g + [{"sym": "Z", "x": 1}], _wd)
+    _erk7 = {
+        "V-R1": _v1["ok"],
+        "W عشرةٌ أوّلُها D1": (len(_wd) == 8 and all(len(s) == 10 for s in _wd.values())
+                              and [s[0] for s in _wd.values()] == list(_ERC.CONTRACT_D1)
+                              and _wd["2024-12-24"][:5] == ["2024-12-26", "2024-12-27", "2024-12-30",
+                                                           "2024-12-31", "2025-01-02"]
+                              and "2025-01-09" not in _wd["2024-12-24"]),
+        "التطابقُ يعبر": _same["vr3_ok"] and _same["touched_keys"] == 0,
+        "داخل W يُعَدّ": (_in["vr3_ok"] and _in["touched_keys"] == 2 and _in["touched_D1"] == 1
+                          and _in["touched_carry"] == 1 and _in["in_added"] == 2 and _in["in_removed"] == 2),
+        "خارج W يُسقط": (not _out["vr3_ok"]) and _out["out_added"] == 1 and _out["out_removed"] == 1,
+        "بلا يوم يُسقط": (not _nod["vr3_ok"]) and _nod["no_day"] == 1,
+    }
+    _v = all(_erk7.values())
+    _w = str({k: x for k, x in _erk7.items() if not x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔍② ERK7 المقارنة: `V-R1` = قائمتا العقد · `W` عشرةُ أيّام تداولٍ أوّلُها D1 (تتخطّى 2025-01-09) · "
+      "التطابقُ خارج W يعبر وتغيّرُه يُسقط · وداخلها `ER1` بـD1/حمل · وصفٌّ بلا يوم يُسقط", _v, _w)
+
+# ERK8 — ملحقُ البناء §⑪ مدفوعٌ مع الأداة **بعد §⑩ وقبل أيّ رقم**: يُسمّي الوحدةَ لكلّ أسرة · عيبَ الاستيراد الكسول
+#        الذي أمسكه `ERK4` · الاستخراجَ من سجلّ الحاكمة · إسقاطَ الصفّ بلا يوم · وخطّةَ الثماني والعشرين —
+#        والخطّةُ **تُشتقّ من جدول §②** (تشغيلاتُ الأسر الثماني ذات الصفوف = 22) لا تُكتب بيد
+try:
+    import re as _erk_re
+    _doc8 = open("early_rest_prereg.md", encoding="utf-8").read()
+    _i10, _i11 = _doc8.find("## §⑩"), _doc8.find("## §⑪ ملحقٌ مؤرَّخ (‏2026-09-24) — قراراتُ البناء قبل أيّ رقم")
+    _app = _doc8[_i11:] if _i11 > _i10 >= 0 else ""
+    _i2, _i3 = _doc8.find("## §②"), _doc8.find("## §③")
+    _tab = [ln for ln in _doc8[_i2:_i3].splitlines() if ln.startswith("| `T-") and "لا صفوفَ" not in ln]
+    _nruns = sum(len(_erk_re.findall(r"\b3\d{10}\b", ln.split("|")[4])) for ln in _tab)
+    _erk8 = {
+        "بعد §⑩": bool(_app),
+        "الوحدةُ لكلّ أسرة": "`early_rest_patch.FAMILIES`" in _app,
+        "عيبُ الاستيراد": "`ERK4`" in _app and "عَلَمٌ ميّت" in _app,
+        "من سجلّ الحاكمة": "`parse_gov_env`" in _app and "`head_sha`" in _app,
+        "بلا يوم يُسقط": "**صفٌّ بلا `day` يُسقط `V-R3`**" in _app,
+        "الخطّة 22 من §②": _nruns == 22 and "‏22 مرفوعة" in _app and "‏22 مقارنة" in _app,
+        "ثمانٍ وعشرون": "ثمانٍ وعشرون تشغيلة" in _app and "‏6 (3 مطفأة ‏+ 3 مرفوعة)" in _app,
+    }
+    _v = all(_erk8.values())
+    _w = str({k: x for k, x in _erk8.items() if not x} or "تامّة") + f" · تشغيلاتُ §② ذات الصفوف={_nruns}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔍② ERK8 ملحقُ البناء §⑪ بعد §⑩ وقبل أيّ رقم: الوحدةُ لكلّ أسرة · عيبُ الاستيراد الكسول (`ERK4`) · الاستخراجُ من "
+      "سجلّ الحاكمة · الصفُّ بلا يوم يُسقط · **والخطّةُ مشتقّةٌ من جدول §② (22)**", _v, _w)
+
+# ERK9 — فرقُ المُخرَج (`ER2`): رأسُ الخطوة **بكلمةٍ واحدةٍ بعد `python`** (الحاكمة `kasih_scan.py` · المعادة
+#        `"$E2_SCRIPT"`) فخطوةُ الرقعة `Run python early_rest_patch.py gov …` لا تُطابَق · طوابعُ الوقت تُنزَع ·
+#        التطابقُ يُعلَن · والفرقُ يُطبَع بحرفه · والمُخرَجُ الغائب/المكرّر ⇒ `⛔` لا تخمين
+try:
+    import early_rest_compare as _ERC9
+    _T9 = "2026-08-19T17:03:35.1234567Z "
+    _g9 = "\n".join([_T9 + "##[group]Run python kasih_scan.py", _T9 + "env:", _T9 + "  KASIH_YEAR: 2023",
+                     _T9 + "##[endgroup]", _T9 + "🌱 بذرة", _T9 + "JUDGE a=1",
+                     _T9 + "##[group]Run actions/upload-artifact@v4", _T9 + "x"])
+    _n9 = "\n".join([_T9 + '##[group]Run python early_rest_patch.py gov "$E2_FAMILY" e2_gov.log >> "$GITHUB_ENV"',
+                     _T9 + "##[endgroup]", _T9 + "🩹 رُقعت", _T9 + '##[group]Run python "$E2_SCRIPT"',
+                     _T9 + "##[endgroup]", _T9 + "🌱 بذرة", _T9 + "JUDGE a=2", _T9 + "Post job cleanup."])
+    _erk9 = {
+        "مُخرَجُ الحاكمة": _ERC9.step_output(_g9) == ["🌱 بذرة", "JUDGE a=1"],
+        "مُخرَجُ المعادة (لا الرقعة)": _ERC9.step_output(_n9) == ["🌱 بذرة", "JUDGE a=2"],
+        "الفرقُ بحرفه": _ERC9.log_diff(_g9, _n9)[-2:] == ["-JUDGE a=1", "+JUDGE a=2"],
+        "التطابقُ يُعلَن": _ERC9.log_diff(_g9, _g9)[0].startswith("✅"),
+        "الغائبُ ⛔": _ERC9.log_diff("", _n9)[0].startswith("⛔"),
+        "المكرّرُ ⛔": _ERC9.step_output(_g9 + "\n" + _g9) == [],
+    }
+    _v = all(_erk9.values())
+    _w = str({k: x for k, x in _erk9.items() if not x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🔍② ERK9 فرقُ المُخرَج (`ER2`): رأسُ الخطوة بكلمةٍ واحدةٍ بعد `python` فخطوةُ الرقعة لا تُطابَق · الطوابعُ "
+      "تُنزَع · التطابقُ يُعلَن والفرقُ بحرفه · والغائبُ/المكرّرُ `⛔` لا تخمين", _v, _w)
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

@@ -1,0 +1,102 @@
+name: "T-EARLY-2 (🗓️🔍② إعادةُ الحاكمة على شيفرتها بعلم الإغلاق المبكّر)"
+run-name: "T-EARLY-2 ${{ inputs.family }} gov=${{ inputs.gov_run }} cal=${{ inputs.early_cal }}"
+
+# 🔒 قراءةٌ/قياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد early_rest_prereg.md §③
+#    تُعاد التشغيلةُ الحاكمة **على شيفرتها هي** (head_sha تُقرأ منها) ‏+ رقعةُ العلم وقتَ التشغيل ·
+#    ومُدخَلاتُها **من سجلّها** (early_rest_patch.py) — لا نسخَ بيدٍ للشيفرة ولا للمُدخَلات.
+permissions:
+  contents: read
+  actions: read          # سجلُّ الحاكمة وشيفرتُها · ولقطةُ T-EVENT-EXEC المجمّدة
+
+on:
+  workflow_dispatch:
+    inputs:
+      family:
+        description: "الأسرة: kasih · kasih2 · exit_stop · rearm · reclaim · target10 · pm_curve · tc_arms · event_exec"
+        required: true
+        type: string
+      gov_run:
+        description: "معرّفُ التشغيلة الحاكمة — منها تُقرأ شيفرتُها ومُدخَلاتُها"
+        required: true
+        type: string
+      early_cal:
+        description: "1 = حدُّ التقويم (13:00 يومَ الإغلاق المبكّر) · 0 = المنشور (16:00)"
+        required: false
+        default: "0"
+        type: string
+      frozen_run_id:
+        description: "لـ T-EVENT-EXEC وحدَها: تشغيلةُ اللقطة المجمّدة (30598885456)"
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - name: Checkout (main — الرقعة والتقويم)
+        uses: actions/checkout@v4
+
+      - name: 🧭 الحاكمة — شيفرتُها وسجلُّها
+        id: gov
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          E2_GOV: ${{ inputs.gov_run }}
+        run: |
+          sha=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$E2_GOV" --jq .head_sha)
+          job=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$E2_GOV/jobs" --jq '.jobs[0].id')
+          gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$job/logs" > e2_gov.log
+          test -n "$sha" && test -s e2_gov.log
+          echo "🧭 الحاكمة $E2_GOV ⟵ الشيفرة $sha · السجلّ $(wc -l < e2_gov.log) سطرًا"
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout (شيفرة الحاكمة)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.gov.outputs.sha }}
+          path: gov
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+
+      - name: Install dependencies (متطلّباتُ شيفرة الحاكمة)
+        run: pip install -r gov/requirements.txt
+
+      - name: Download frozen dataset (T-EVENT-EXEC)
+        if: ${{ inputs.frozen_run_id != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: ${{ inputs.frozen_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: gov
+
+      - name: 🩹 الرقعة + مُدخَلاتُ الحاكمة من سجلّها
+        env:
+          E2_FAMILY: ${{ inputs.family }}
+          EARLY_CLOSE_CAL: ${{ inputs.early_cal }}
+        run: |
+          python early_rest_patch.py gov "$E2_FAMILY" e2_gov.log >> "$GITHUB_ENV"
+          git -C gov diff --stat
+          git -C gov diff | head -60
+
+      - name: 🗓️ أعِد الحاكمة
+        working-directory: gov
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          POLYGON_API_KEY: ${{ inputs.family == 'event_exec' && secrets.POLYGON_API_KEY || '' }}
+          EARLY_CLOSE_CAL: ${{ inputs.early_cal }}
+        run: python "$E2_SCRIPT"
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: early2-${{ inputs.family }}-${{ inputs.gov_run }}-cal${{ inputs.early_cal }}
+          path: gov/*_rows*.jsonl
+          retention-days: 90
+          if-no-files-found: warn
