@@ -56,6 +56,9 @@ SPANS = (1, 2, 3, 5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 390, 960)
 DEVICE_TZ = "Asia/Riyadh"  # توقيتُ جهاز المالك — يُجرَّب ثانيًا بعد نيويورك
 TOP_SERIES = 3
 ANCHOR_MAX = 25            # أقصى عابري المرساة تُفحص نوافذُهم (دقائق REST لكلٍّ) — والمقصوصُ يحجب «واثق»
+# ── v1.1 (ملحق §⑩ · بعد المجموعة الحقيقيّة الأولى · لا يُحتسب عليها) ─────────────────────────
+CAP_UNDATED_INTRADAY = True  # G1: لحظيٌّ بلا مرساةٍ مؤرَّخة ⟵ الوسمُ لا يتجاوز «غير محسوم» («يُحاوَل ولا يُخمَّن»)
+LIVE_ANCHOR = True           # G2: مرساةٌ بلا عابر ⟵ بديلُ «الشمعة قيد التكوّن» على ملفّ دقائق اليوم نفسِه
 DAYS_PER_BAR = {"1D": 1.0, "1W": 5.0, "1M": 21.0}      # أيامُ تداولٍ لكلّ شمعة (اليوميّ فما فوقه)
 INTRADAY_SPAN = {"1m": 1, "2m": 2, "3m": 3, "5m": 5, "10m": 10, "15m": 15, "30m": 30, "45m": 45,
                  "1H": 60, "2H": 120, "3H": 180, "4H": 240}
@@ -325,6 +328,35 @@ def best_anchor_match(rows, specs: dict, defs: list):
     return best
 
 
+def score_anchor_live(bar, specs: dict) -> dict:
+    """G2 (§⑩): شمعةُ المرساة **قيد التكوّن** عند اللقطة ⟵ ما تضمنه الشمعةُ المكتملة وحدَه:
+    الافتتاحُ ثابتٌ (ضمن تسامحه) · **الأعلى النهائيّ ≥ المقروء** · **الأدنى النهائيّ ≤ المقروء** ·
+    والإغلاقُ والحجمُ حُرّان (يتغيّران بعد اللقطة). والافتتاحُ **شرطٌ** — بلا افتتاحٍ مقروء لا بديل."""
+    res = {}
+    if "o" in specs:
+        res["o"] = field_check(bar.get("o") if bar else None, specs["o"])
+    for f, sign in (("h", 1.0), ("l", -1.0)):
+        if f not in specs:
+            continue
+        v = bar.get(f) if bar else None
+        if v is None:
+            res[f] = {"strict": False, "near": False, "err": math.inf, "val": v}
+            continue
+        tn = tol_near(specs[f])
+        short = max(0.0, sign * (specs[f][0] - float(v)))   # الأعلى دون المقروء / الأدنى فوقه
+        res[f] = {"strict": short <= specs[f][1] + 1e-12, "near": short <= tn + 1e-12,
+                  "err": short / tn if tn > 0 else (0.0 if short == 0 else math.inf), "val": v}
+    ok = "o" in res and all(r["near"] for r in res.values())
+    return {"fields": res, "near": ok, "n_strict": sum(1 for r in res.values() if r["strict"]),
+            "n_price": len(res), "score": sum(r["err"] for r in res.values())}
+
+
+def is_intraday_tf(card: dict) -> bool:
+    """فريمٌ لحظيٌّ مكتوب (دقائق/ساعات أو «intraday») — لا «unknown» ولا اليوميّ فما فوقه."""
+    tf = (card or {}).get("timeframe") or "unknown"
+    return tf in INTRADAY_SPAN or tf == "intraday"
+
+
 # ══ ب′) قيودُ النافذة والتقسيم ══════════════════════════════════════════════════════
 def split_factor(splits, day: str, as_of: str) -> float:
     """معاملُ تسوية سعرٍ خامٍ يومَ `day` كما يعرضه شارتٌ التُقط يومَ `as_of`: جداءُ `from/to`
@@ -403,7 +435,9 @@ def window_check(daily: dict, days: list, core: tuple, spec_hi, spec_lo, spec_la
 def window_days(card: dict) -> tuple:
     """مدى طول النافذة **بأيام التداول** `(أدنى، أعلى)` من الفريم وعدد الشموع الظاهرة (±20-25%).
     اليوميّ فما فوقه بـ`DAYS_PER_BAR` · واللحظيُّ بين الجلسة الممتدّة (16 ساعة) والنظاميّة (6.5) —
-    **تقريبٌ بشموعٍ يوميّةٍ نظاميّة** (محاولةٌ لا تخمين: الحكمُ يُسقط ما لا يطابق) · وبلا عدد ⟵ مدًى افتراضيّ."""
+    **تقريبٌ بشموعٍ يوميّةٍ نظاميّة** · وبلا عدد ⟵ مدًى افتراضيّ.
+    🔴 كان هنا «الحكمُ يُسقط ما لا يطابق» — **كذّبته المجموعةُ الحقيقيّة الأولى** (‏2026-09-24): الصحيحُ يسقط
+    بالبناء (أطرافُه في الجلسة الممتدّة) وعابرٌ عَرَضيٌّ وحيدٌ قيل فيه «واثق» مرّتين ⟵ فالحكمُ مسقوفٌ بـG1."""
     tf = card.get("timeframe") or "1D"
     nv = int(card.get("bars_visible") or 0)
     if tf in INTRADAY_SPAN:
@@ -753,6 +787,7 @@ UNDATED_YEARS = 3          # بلا تاريخ ⇒ آخرُ 3 سنوات (نصُ
 PANEL_WORKERS = 8
 SHORTLIST_MAX = 1000       # أقصى رموزٍ عابرةٍ خامًا تُفحص بالتقسيم الفعليّ — والمقصوصُ يُعلَن **ويحجب «واثق»**
 _LAST_CUT = 0              # عددُ العابرين الذين قُصّوا بلا فحصٍ كامل في آخر بطاقة (يُصفَّر في `run_card`)
+_LAST_ANCHOR = {}          # ملفُّ دقائق المرساة الأخيرة وتعريفاتُها (للبديل G2 · يُصفَّر في `run_card`)
 
 
 def day_aggs_key(day: str) -> str:
@@ -943,6 +978,8 @@ def stage_anchor(card: dict, tmpdir: str, file_path: str = None) -> list:
     if not path:
         return []
     by_sym = read_minute_file(path, day, band)
+    global _LAST_ANCHOR
+    _LAST_ANCHOR = {"day": day, "by_sym": by_sym, "defs": defs, "specs": specs}   # للبديل G2 بلا تنزيلٍ ثانٍ
     cands = []
     for s, rows in by_sym.items():
         m = best_anchor_match(rows, specs, defs)
@@ -970,6 +1007,54 @@ def fmt_anchor(c: dict) -> str:
     return (f"{'✅' if c['near'] else '·'} {c['sym']:6} [{d['a'] // 60:02d}:{d['a'] % 60:02d}-"
             f"{d['b'] // 60:02d}:{d['b'] % 60:02d}) ET · مدى {d['span']}د · تسمية {d['label']} · "
             f"{d['tz']} · " + " · ".join(parts) + f" · خطأ {c['score']:.3f}")
+
+
+def stage_anchor_live(card: dict) -> list:
+    """G2 (§⑩): بعد «لا تطابق» في المرساة ⟵ **الشمعةُ قيد التكوّن** (`score_anchor_live`) على **كلّ**
+    رموز ملفّ الدقائق الذي قُرئ للمرساة (بلا تنزيلٍ ثانٍ) ⟵ قيودُ النافذة لكلّ عابرٍ **من دقائق اليوم
+    نفسِه** (لا REST ⟵ لا قصَّ ولا عيّنة). يُشترط: افتتاحٌ مقروء · نافذةٌ بوقتٍ في يوم المرساة نفسِه ·
+    وقيدُ شاشةٍ واحدٌ على الأقل (أعلى/أدنى/آخر). وإلّا `[]` (فيبقى الحكمُ الصارمُ كما هو)."""
+    st = _LAST_ANCHOR or {}
+    w = card.get("window") or {}
+    specs = st.get("specs") or {}
+    day = st.get("day")
+    if not (LIVE_ANCHOR and st and "o" in specs and day and w.get("from") == day == w.get("to")
+            and (w.get("from_time") or w.get("to_time"))):
+        return []
+    ex = card.get("extremes") or {}
+    spec_hi, spec_lo = num_spec(ex.get("high")), num_spec(ex.get("low"))
+    spec_last = num_spec(card.get("last"))
+    if spec_hi is None and spec_lo is None and spec_last is None:
+        return []
+    out, n_live = [], 0
+    for s, rows in st["by_sym"].items():
+        best = None
+        for d in st["defs"]:
+            bar = agg_bar(rows, d["a"], d["b"])
+            if bar is None:
+                continue
+            sc = score_anchor_live(bar, specs)
+            key = (0 if sc["near"] else 1, sc["score"])
+            if best is None or key < best["key"]:
+                best = {"key": key, "def": d, "bar": bar, "sc": sc}
+        if best is None or not best["sc"]["near"]:
+            continue
+        n_live += 1
+        mins = {day: rows}
+        wr = window_minutes_check(mins, w, best["def"]["tz"], spec_hi, spec_lo, spec_last)
+        wr["session"], wr["splits"], wr["mins"] = "مدًى زمنيّ · ملفُّ الدقائق", [], mins
+        wscore = sum(min(ch["err"], 40.0) for ch in (wr.get("checks") or {}).values())
+        out.append({"sym": s, "pass": bool(wr.get("ok")), "n_groups": 2,
+                    "score": best["sc"]["score"] + wscore, "anchor": best, "window": wr})
+    out.sort(key=lambda c: (0 if c["pass"] else 1, c["score"], c["sym"]))
+    log(f"↻ G2 الشمعةُ قيد التكوّن ({day}): افتتاحٌ مطابق · الأعلى النهائيّ ≥ المقروء · الأدنى النهائيّ ≤ "
+        f"المقروء · الإغلاقُ حرّ ⟵ عابرو المرساة {n_live} من {len(st['by_sym']):,} ⟵ عابرو النافذة "
+        f"(دقائقُ اليوم نفسِه · بلا قصّ) {sum(1 for c in out if c['pass'])}")
+    for c in out[:8]:
+        log("   " + fmt_anchor({"sym": c["sym"], "anchor": c["anchor"], "near": True,
+                                "score": c["anchor"]["sc"]["score"]}))
+        log(fmt_window(c["sym"], c["window"]))
+    return out
 
 
 def stage_window(card: dict, sym: str, get=None, tz: str = "America/New_York") -> dict:
@@ -1299,8 +1384,9 @@ def run_card(card: dict, tmpdir: str, get=None, file_path: str = None,
             log(f"⛔ البطاقة {cid}: {e}")
         log(judge_line(cid, "بطاقةٌ غيرُ صالحة", None, None, 0, 2))
         return {"rc": 2, "label": "بطاقةٌ غيرُ صالحة", "top": [], "n_pass": 0, "mode": "invalid"}
-    global _LAST_CUT
+    global _LAST_CUT, _LAST_ANCHOR
     _LAST_CUT = 0
+    _LAST_ANCHOR = {}
     log(f"\n🔎 البطاقة {cid} · فريم {card.get('timeframe')} · ممتدّة {card.get('extended')} · "
         f"منطقة {card.get('tz')}")
     has_anchor = bool((card.get("anchor") or {}).get("date"))
@@ -1323,6 +1409,10 @@ def run_card(card: dict, tmpdir: str, get=None, file_path: str = None,
             wscore = sum(min(ch["err"], 40.0) for ch in (wr.get("checks") or {}).values())
             final.append({"sym": c["sym"], "pass": ok, "n_groups": groups,
                           "score": c["score"] + wscore, "anchor": c["anchor"], "window": wr})
+        if LIVE_ANCHOR and not any(c["pass"] for c in final):
+            live = stage_anchor_live(card)
+            if any(c["pass"] for c in live):
+                mode, final, _LAST_CUT = "anchor_live", live, 0     # البديلُ فحص كلَّ الرموز ⟵ لا قصّ
         anchor_ref = card["anchor"]["date"]
     elif has_window:
         mode = "dated"
@@ -1342,6 +1432,11 @@ def run_card(card: dict, tmpdir: str, get=None, file_path: str = None,
     if label == "واثق" and _LAST_CUT:
         label = "مرجّح"
         log(f"   ⚠️ «واثق» حُجب ⟵ «مرجّح»: {_LAST_CUT} عابرًا خامًّا قُصّوا بلا فحصٍ كامل (التفرّدُ غيرُ مُتحقَّق)")
+    if (CAP_UNDATED_INTRADAY and mode not in ("anchor", "anchor_live") and is_intraday_tf(card)
+            and label in ("واثق", "مرجّح")):
+        log(f"   ⚠️ «{label}» حُجب ⟵ «غير محسوم» (G1 · §⑩): شارتٌ لحظيٌّ بلا مرساةٍ مؤرَّخة — المطابقةُ تقريبٌ "
+            "بشموعٍ يوميّةٍ نظاميّة وأطرافُه قد تكون في الجلسة الممتدّة ⟵ «اللحظي بلا تاريخ يُحاوَل ولا يُخمَّن»")
+        label = "غير محسوم"
     ranked = sorted(final, key=lambda x: (0 if x["pass"] else 1, x["score"], x["sym"]))
     log(f"⚖️ الحكمُ الآليّ ({mode}): **{label}** · عابرون {n_pass} · "
         f"الأوّل {(t1 or {}).get('sym', '-')} · الثاني {(t2 or {}).get('sym', '-')}"

@@ -32,6 +32,7 @@ SYNTH_FROM, SYNTH_TO = "2023-10-01", "2025-12-31"     # داخل «آخر 3 سن
 W_MIN, W_MAX = 20, 90
 PRICE_MIN, PRICE_MAX = 0.3, 50.0
 REAL_DIR = "chart_cards/real"
+REAL_DIRS = {"real": REAL_DIR, "real2": "chart_cards/real2"}   # real2 = مجموعةُ ملحق §⑩ (v1.1)
 K1_MIN_N, K2_MIN_N = 10, 20
 K1_BAR, K2_BAR = 0.95, 0.80
 
@@ -368,14 +369,14 @@ def undated_panel(card: dict, tmpdir: str, shared: dict, get=None):
     return shared["arr"]
 
 
-def run_real(tmpdir: str, get=None) -> int:
-    ok, files, bad = verify_manifest()
+def run_real(tmpdir: str, get=None, folder: str = REAL_DIR) -> int:
+    ok, files, bad = verify_manifest(folder)
     if not ok:
         for b in bad:
             log(f"⛔ البصمة: {b}")
         log("CHART_EVAL_JUDGE branch=بصمةٌ مكسورة exit=4")
         return 4
-    key = load_key()
+    key = load_key(folder)
     rows, results, shared = [], {}, {}
     for p in files:
         card = json.load(open(p, encoding="utf-8"))
@@ -409,9 +410,9 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         if mode == "synth":
             return run_synth(tmp)
-        if mode == "real":
-            return run_real(tmp)
-    log(f"⛔ CHART_EVAL غيرُ معروف: {mode!r} (synth أو real)")
+        if mode in REAL_DIRS:
+            return run_real(tmp, folder=REAL_DIRS[mode])
+    log(f"⛔ CHART_EVAL غيرُ معروف: {mode!r} (synth أو real أو real2)")
     return 2
 
 
