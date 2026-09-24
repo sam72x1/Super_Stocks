@@ -41423,7 +41423,10 @@ class _PsFakePre:
     def __init__(self):
         self.ledger = []
 
-    slot_now = staticmethod(lambda m: "AH")
+    # 🗓️ 2026-09-24 («صلّح الرادار يوم الإغلاق المبكر»): `_maybe_presession` يمرّر اليومَ
+    #    إلى `slot_now` ⇒ الجذعُ يقبله **ويسجّله** (‏`ECR7` يقرأ ما مُرِّر فعلًا).
+    slot_calls = []
+    slot_now = staticmethod(lambda m, d=None: (_PsFakePre.slot_calls.append((m, d)), "AH")[1])
     stamp_key = staticmethod(lambda d, s: f"PRE:{d}:{s}")
     # 🔒 البوّابةُ **الحقيقية** لا جذعٌ — وإلّا صار القفلُ يختبر نفسَه.
     send_enabled = staticmethod(_PR.send_enabled)
@@ -42371,14 +42374,16 @@ try:
     finally:
         _flPF.RANK_BY_SLOT.clear(); _flPF.RANK_BY_SLOT.update(_fl_rb)
         _flPF.FLOOR_BY_SLOT.clear(); _flPF.FLOOR_BY_SLOT.update(_fl_fb)
-    _fl34 = (abs(_fl_thr - 0.69492) < 1e-12
+    # 🔄 **إقرارٌ مؤرَّخ 2026-09-24:** «اعتمد الأرضية المصحّحة» ⇒ 0.69492 ⟶ 0.69903
+    #    (‏`T-EARLY`) — هذا القفلُ أمسك التغييرَ فحُدِّث بإقرار، والسلوكُ حول الحدّ كما هو.
+    _fl34 = (abs(_fl_thr - 0.69903) < 1e-12
              and _fl_pm == (True, True, False, False, False, False, False)
              and _fl_ah == (True, True, True)          # بلا أرضية ⇒ الكلُّ يمرّ
              and _flPF.rank_floor("AH") is None
              and _fl_asc == (True, True, False))       # الصاعدُ معكوس
 except Exception as _e:                                          # noqa: BLE001
     _fl34, _fl_pm, _fl_ah, _fl_asc = False, f"⛔ {type(_e).__name__}: {_e}", "", ""
-check("🎚️ PS34 الأرضيةُ (‏0.69492 للبريماركت) تفرّق فوق/عند/تحت · والمعدومُ "
+check("🎚️ PS34 الأرضيةُ (‏0.69903 للبريماركت منذ 2026-09-24) تفرّق فوق/عند/تحت · والمعدومُ "
       "والتالفُ **يُسقَطان** · والافترُ بلا أرضية يمرّ الكلُّ بت-بت · والمفتاحُ "
       "الصاعدُ يقلب المقارنة",
       _fl34, f"PM={_fl_pm} AH={_fl_ah} ASC={_fl_asc}")
@@ -42473,20 +42478,23 @@ try:
         _fl_off = _PR.build_presession_alert([_fl_r1], "PM", "2026-09-04", 40, 60)
     finally:
         _flPF.FLOOR_BY_SLOT.clear(); _flPF.FLOOR_BY_SLOT.update(_fl_bak2)
-    _fl37 = ("افترُ أمسِه 69.5% فأكثر" in _fl_on and "تُسلَّم صفرًا" in _fl_on
-             and "47 من 435" in _fl_on and "100 من 2,500" not in _fl_on
+    # 🔄 **إقرارٌ مؤرَّخ 2026-09-24:** الأرضيةُ 0.69903 ⇒ «69.9%» و«47 من 429» (‏صفوفُ 2025
+    #    المصحَّحة · `early_close_result.md`) بدل «69.5%» و«47 من 435».
+    _fl37 = ("افترُ أمسِه 69.9% فأكثر" in _fl_on and "تُسلَّم صفرًا" in _fl_on
+             and "47 من 429" in _fl_on and "47 من 435" not in _fl_on
+             and "100 من 2,500" not in _fl_on
              # 🔄 **إقرارٌ مؤرَّخ 2026-09-04**: كان «لا يعبر أحدٌ ⇒ صمتٌ تامّ»
              #    ⇒ صار **رسالةَ حياةٍ تُعلن الأرضيةَ نفسَها** (فيقرأ المالكُ
              #    لماذا صمتت) — وشرطُ الأرضية باقٍ في الرسالتين معًا.
-             and _fl_zero.strip() != "" and "افترُ أمسِه 69.5% فأكثر" in _fl_zero
+             and _fl_zero.strip() != "" and "افترُ أمسِه 69.9% فأكثر" in _fl_zero
              and "رسالةُ حياةٍ لا توصية" in _fl_zero
-             and "الأرضية:" not in _fl_ahm and "47 من 435" not in _fl_ahm
+             and "الأرضية:" not in _fl_ahm and "47 من 429" not in _fl_ahm
              and "الأرضية:" not in _fl_off            # بلا أرضية ⇒ لا سطرَ ولا رقمَها
-             and "100 من 2,500" in _fl_off and "47 من 435" not in _fl_off)
+             and "100 من 2,500" in _fl_off and "47 من 429" not in _fl_off)
 except Exception as _e:                                          # noqa: BLE001
     _fl37, _fl_on = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🎚️ PS37 الرسالةُ تُعلن الأرضيةَ برقمها وتقول إن ليلةً بلا عابرٍ تُسلَّم "
-      "صفرًا · وحدُّ الصدق يحمل أرقامَ المشحون (‏47/435) لا أرقامَ العشرة · "
+      "صفرًا · وحدُّ الصدق يحمل أرقامَ المشحون (‏47/429 منذ 2026-09-24) لا أرقامَ العشرة · "
       "والافترُ بلا سطرِ أرضية · **وصفرُ عابرٍ ⇒ رسالةُ حياةٍ تُعلن الأرضية**",
       _fl37, str(_fl_on)[:90])
 
@@ -42506,7 +42514,7 @@ try:
     _fl38 = (len(_fl_ln) == 4
              and [r["sent"] for r in _fl_ln] == [True, False, True, True]
              and [r["floor_ok"] for r in _fl_ln] == [True, False, True, False]
-             and all(abs(r["floor"] - 0.69492) < 1e-12 for r in _fl_ln)
+             and all(abs(r["floor"] - 0.69903) < 1e-12 for r in _fl_ln)   # 🔄 إقرار 2026-09-24
              # 2026-09-05: الحقلُ صار `rank_key` (كان `key` فاصطدم بدِدوب
              # `_union_jsonl` فمحا السجلّ) — والقفلُ القديم أمسك التغييرَ فحُدِّث بإقرار.
              and all(r["rank_key"] == "post_hi_ret" and "key" not in r
@@ -42627,12 +42635,20 @@ try:
     _pz_calls = [n for n in _ps_ast.walk(_pz_t)
                  if isinstance(n, _ps_ast.Call)
                  and getattr(n.func, "id", None) == "_presession_tail"]
-    _pz3 = (len(_pz_calls) == 2
+    # 🔄 **إقرارٌ مؤرَّخ 2026-09-24 — وتشديدٌ لا إرخاء:** صار للرسالة فرعٌ ثالث (صفرُ شموعٍ =
+    #    **تنبيهُ عطل**، «صلّح الرادار يوم الإغلاق المبكر») فالنداءاتُ ثلاثة · **وكلُّ `return`
+    #    يحمل نداءَ الذيل** ⇒ فرعٌ رابعٌ بلا تحفّظٍ يُسقط القفلَ لا يمرّ بعدٍّ صحيحٍ مصادفةً.
+    _pz_rets = [n for n in _ps_ast.walk(_pz_t) if isinstance(n, _ps_ast.Return)]
+    _pz_ret_ok = bool(_pz_rets) and all(
+        any(isinstance(c, _ps_ast.Call) and getattr(c.func, "id", None) == "_presession_tail"
+            for c in _ps_ast.walk(r)) for r in _pz_rets)
+    _pz3 = (len(_pz_calls) == 3 and len(_pz_rets) == 3 and _pz_ret_ok
             and "قيد الإثبات الأماميّ" not in _pz_src)   # النصُّ في الذيل وحدَه
 except Exception as _e:                                          # noqa: BLE001
     _pz3, _pz_calls = False, []
-check("🔔 PZ3 ذيلُ الصدق **مصدرٌ واحد**: الفرعان يناديان `_presession_tail` "
-      "ونصُّ التحفّظ ليس مكرَّرًا في البناء", _pz3, f"نداءات={len(_pz_calls)}")
+check("🔔 PZ3 ذيلُ الصدق **مصدرٌ واحد**: الفروعُ الثلاثة (القائمة · الليلةُ الصامتة · عطلُ الجلب) "
+      "تنادي `_presession_tail` **وكلُّ `return` يحمله** · ونصُّ التحفّظ ليس مكرَّرًا في البناء",
+      _pz3, f"نداءات={len(_pz_calls)}")
 
 # PZ4 — 🔒 **السجلُّ لا يتأثّر**: ليلةٌ صامتة تُرسَل ⇒ `sent=False` لكلّ صفّ
 #   (لأن `delivered` فارغة) ⇒ كلفةُ الأرضية تبقى مقروءةً أماميًّا بت-بت.
@@ -44779,12 +44795,17 @@ check("🔗② TL2-6 tierlink2.yml: contents: read · بلا schedule · 3.11 ·
       f"inputs={_t2_inputs} wired={_t2_wired}")
 # TL2-7 — التسجيلُ يطابق الكود: الأرضيةُ والسقفُ والدولارُ وTOPK بأرقامها · التنبّؤات · الحرّاس
 _t2_pre = open("tierlink2_prereg.md", encoding="utf-8").read()
-check("🔗② TL2-7 tierlink2_prereg.md: 0.69492 · 60 · 100,000 · 10 نصًّا = الثوابت · TL2-P1..P6 · G1..G4 · ≥80%",
-      f"{_T2PF.FLOOR_BY_SLOT['PM']}" in _t2_pre and f"(‏{_T2PR.PREFILTER_CAP})" in _t2_pre
+# 🔄 **إقرارٌ مؤرَّخ 2026-09-24** («اعتمد الأرضية المصحّحة»): الحيّةُ صارت 0.69903 ⇒ لم تعد =
+#    أرضيةَ العقد 0.69492 — فالقفلُ يثبّت **العقدَ بنصّه** و`CONTRACT_FLOOR` الذي تُثبّته الأداةُ
+#    أثناء تشغيلها (‏`ECR9` يُثبت ذلك سلوكيًّا) **والحيّةَ بقيمتها الجديدة** (تغييرُها إقرارٌ آخر).
+check("🔗② TL2-7 tierlink2_prereg.md: 0.69492 · 60 · 100,000 · 10 نصًّا = ثوابتُ العقد (والأداةُ تثبّت "
+      "أرضيتَه · والحيّةُ 0.69903 منذ 2026-09-24) · TL2-P1..P6 · G1..G4 · ≥80%",
+      f"{_T2.CONTRACT_FLOOR['PM']}" in _t2_pre and _T2.CONTRACT_FLOOR == {"PM": 0.69492}
+      and f"(‏{_T2PR.PREFILTER_CAP})" in _t2_pre
       and f"(‏{_T2PR.MIN_DAY_USD:,.0f})" in _t2_pre and f"(‏{_T2PF.TOPK})" in _t2_pre
       and all(f"TL2-P{i}" in _t2_pre for i in range(1, 7))
       and all(f"`G{i}`" in _t2_pre for i in range(1, 5)) and "≥80%" in _t2_pre
-      and _T2PF.FLOOR_BY_SLOT == {"PM": 0.69492} and _T2PR.PREFILTER_CAP == 60
+      and _T2PF.FLOOR_BY_SLOT == {"PM": 0.69903} and _T2PR.PREFILTER_CAP == 60
       and _T2PR.MIN_DAY_USD == 100_000.0 and _T2PF.TOPK == 10)
 # TL2-8 — PRESESSION_START: الافتراضُ بت-بت (السنةُ من أوّلها) · وبه يُقصّ البدءُ وتُبذَر الأيامُ من قبله
 _t2_yr_main = _ps_insp.getsource(_T2PS.main)
@@ -60822,7 +60843,9 @@ try:
         "مرفوعٌ للمالك": "يُرفَع للمالك" in _ear9_res,
         "تصحيحُ T-TOPK": _ear9_t >= 0 and "0.69903" in _ear9_tk[_ear9_t:],
         "RANK_BY_SLOT": getattr(_ear9_pf, "RANK_BY_SLOT", None) == {"PM": "post_hi_ret"},
-        "FLOOR_BY_SLOT": getattr(_ear9_pf, "FLOOR_BY_SLOT", None) == {"PM": 0.69492},
+        # 🔄 **إقرارٌ مؤرَّخ 2026-09-24:** «اعتمد الأرضية المصحّحة» — هذا ما نصّ عليه القفلُ نفسُه
+        #    («تغييرُها إقرارٌ بأمر المالك»)، فالقيمةُ الجديدة تُثبَّت هنا ويُحرس أثرُها في `ECR9`.
+        "FLOOR_BY_SLOT": getattr(_ear9_pf, "FLOOR_BY_SLOT", None) == {"PM": 0.69903},
         "PREFILTER_KEY": getattr(_ear9_rd, "PREFILTER_KEY", None) == "day_ret",
         "PRESESSION_SEND": bool(_mem_re.search(r"^\s*PRESESSION_SEND:\s*PM,AH\s*$", _ear9_wf,
                                                _mem_re.M)),
@@ -60835,6 +60858,273 @@ check("🗓️🔒 EAR9 (‏«قس أثر الإغلاق المبكر» صدر) 
       "(الأداة · و`V-E2` بنصّ العقد ساقطًا) والتشغيلةَ والفرعَ 2 والأرضيتين · والتصحيحُ المؤرَّخ في "
       "`topk_result.md` · **والثوابتُ الحيّة الأربعة كما هي** (العقد §⑥ — تغييرُها إقرارٌ بأمر المالك)",
       _v, _w)
+
+
+# ═══ 🗓️🌙 «صلّح الرادار يوم الإغلاق المبكر» · «اعتمد الأرضية المصحّحة» (أمرا المالك 2026-09-24) — أقفال ECR1-ECR9 ═══
+#    الرادارُ الحيّ كان يثبّت 16:00 (قرارُ الافتر وقسمُ الشموع) — ومعه عيبان **مقيسان من سجلّ العامل**
+#    (`early_close_result.md §⑧`): نافذةُ الجلب `now − 36h` لا تبلغ الجمعةَ من بريماركت الاثنين (‏09-14 و09-21
+#    `cov=0`) · و`prev_bday` لا يعرف العطلات (‏09-08 `grouped_missing` على يوم العمّال). والأرضيةُ أُعيدت معايرتُها.
+import datetime as _ecr_dt
+import sys as _ecr_sys
+from zoneinfo import ZoneInfo as _ecr_Z
+
+_ecr_NY = _ecr_Z("America/New_York")
+
+
+def _ecr_ms(day, hh, mm):
+    _y, _m, _d = (int(x) for x in day.split("-"))
+    return int(_ecr_dt.datetime(_y, _m, _d, hh, mm, tzinfo=_ecr_NY).timestamp() * 1000)
+
+
+def _ecr_bar(day, mod, o, h, lo, c, v, n=5.0):
+    return (_ecr_ms(day, mod // 60, mod % 60), o, h, lo, c, v, n, mod)
+
+
+def _ecr_no_calendar(fn):
+    """يشغّل `fn` والتقويمُ **غيرُ قابلٍ للاستيراد** ثمّ يعيده — فاشلٌ-آمنٌ يُختبَر لا يُدَّعى."""
+    _bak = _ecr_sys.modules.get("market_calendar")
+    _ecr_sys.modules["market_calendar"] = None
+    try:
+        return fn()
+    finally:
+        if _bak is None:
+            _ecr_sys.modules.pop("market_calendar", None)
+        else:
+            _ecr_sys.modules["market_calendar"] = _bak
+
+
+# ① ECR1 — `reg_close_for` مرآةُ `presession_scan.close_bound(day, True)` **يومًا يومًا** (مصدرٌ واحدٌ للحدّ)
+try:
+    _ecr_ps = _ear_mod("presession_scan")
+    _ecr_mc = _ear_mod("market_calendar")
+    _ecr_days = (sorted(_ecr_mc.EARLY_CLOSES) + sorted(_ecr_mc.HOLIDAYS)[:6]
+                 + ["2026-11-30", "2026-09-22", "2028-01-03", "", "garbage", None])
+    _ecr_eq = [d for d in _ecr_days if _PR.reg_close_for(d) != _ecr_ps.close_bound(d, True)]
+    _ecr_780 = sorted(d for d in _ecr_days if d and _PR.reg_close_for(d) == 780)
+    _ecr_fs = _ecr_no_calendar(lambda: (_PR.reg_close_for("2026-11-27"),
+                                        _PR.prev_bday("2026-09-08")))
+    _v = (not _ecr_eq and _ecr_780 == sorted(_ecr_mc.EARLY_CLOSES)
+          and (_PR.reg_close_for("2026-11-27"), _PR.reg_close_for("2026-12-24"),
+               _PR.reg_close_for("2026-11-30"), _PR.reg_close_for(None)) == (780, 780, 960, 960)
+          and _ecr_fs == (960, "2026-09-07"))
+    _w = f"مختلف={_ecr_eq} · 780={len(_ecr_780)} · بلا تقويم={_ecr_fs}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🌙 ECR1 `reg_close_for` = `presession_scan.close_bound(day, True)` يومًا يومًا (‏الإغلاقُ المبكّر 2023-2027 · "
+      "عطلات · عاديّ · مجهول) · 13:00 لأيّام الإغلاق المبكّر وحدَها · وتعذّرُ التقويم ⇒ 16:00 ويومُ العطلة "
+      "لا يُعرَف (السلوكُ السابق حرفيًّا)", _v, _w)
+
+# ② ECR2 — قرارُ الافتر يتبع الإغلاق: [12:50، 12:56) يومَ الإغلاق المبكّر ولا شيءَ 15:50 · والبري كما هو ·
+#    وبلا يومٍ بت-بت (‏PS9) · ويومٌ عاديٌّ بيومه = بلا يوم.
+try:
+    _ecr_s27 = tuple(_PR.slot_now(m, "2026-11-27") for m in (769, 770, 775, 776, 949, 950, 229, 230))
+    _ecr_s30 = tuple(_PR.slot_now(m, "2026-11-30") for m in (769, 770, 949, 950, 955, 956))
+    _ecr_s0 = tuple(_PR.slot_now(m) for m in (769, 770, 949, 950, 955, 956))
+    _v = (_ecr_s27 == (None, "AH", "AH", None, None, None, None, "PM")
+          and _ecr_s30 == (None, None, None, "AH", "AH", None) and _ecr_s0 == _ecr_s30)
+    _w = f"11-27={_ecr_s27} · 11-30={_ecr_s30} · بلا يوم={_ecr_s0}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🌙 ECR2 `slot_now(mod, day)`: يومَ الإغلاق المبكّر الافترُ [12:50، 12:56) و15:50 صمت · والبري 03:50 كما هو · "
+      "ويومٌ عاديٌّ = بلا يومٍ بت-بت", _v, _w)
+
+# ③ ECR3 — من طرفٍ إلى طرف بجالبٍ يحاكي نافذةَ الواجهة (يُرجع ما بين `frm` و`to` وحدَه):
+#    (أ) **افترُ 11-27 عند 12:50** = `core_feats` حتى 770 حرفيًّا (قصُّ المسح المصحَّح) · والحدّ 780.
+#    (ب) **بريُّ الاثنين 11-30** يقرأ 11-27 (لا نافذةَ السبت الفارغة) · وقمّةُ 13:30 **افترٌ** لا نظاميّ ⇒
+#        `post_hi_ret` فوق الأرضية فيُسلَّم — وبالقسم القديم عند 16:00 (`close_min=960`) لا يُسلَّم (شاهدٌ ضابط) ·
+#        والنداءان المجمَّعان على 11-27 و11-25 (**لا عيدَ الشكر**).
+#    (ج) **يومٌ عاديّ بت-بت**: الثلاثاء 09-22 ⇒ `frm` = `now − 36h` حرفيًّا · والصفُّ = المسارُ القديم (`close_min=None`).
+try:
+    _ecr_D = "2026-11-27"
+    _ecr_bars = ([_ecr_bar(_ecr_D, 300 + i, 1.0, 1.01, 0.99, 1.0, 1000.0) for i in range(5)]
+                 + [_ecr_bar(_ecr_D, 570 + i, 1.0 + i * 0.001, 1.01 + i * 0.001, 0.99, 1.0 + i * 0.001, 5000.0)
+                    for i in range(210)]
+                 + [_ecr_bar(_ecr_D, 780 + i, 1.2, 2.2 if i == 30 else 1.25, 1.19, 1.22, 8000.0)
+                    for i in range(180)]
+                 + [_ecr_bar(_ecr_D, 960 + i, 1.21, 1.23, 1.2, 1.21, 3000.0) for i in range(60)])
+    _ecr_G = [{"T": "EC", "o": 1.0, "h": 2.2, "l": 0.99, "c": 1.21, "v": 2_000_000, "n": 900}]
+    _ecr_asked, _ecr_frm = [], []
+
+    def _ecr_fg(day):
+        _ecr_asked.append(day)
+        return _ecr_G if day in ("2026-11-27", "2026-11-25") else None
+
+    def _ecr_fm(bars):
+        def _f(sym, frm, to):
+            _ecr_frm.append(int(frm))
+            return [b for b in bars if int(frm) <= b[0] < int(to)]
+        return _f
+
+    # (أ) الافتر عند 12:50
+    _ecr_ahr, _ecr_ahm, _ecr_ahd = _PR.run_presession(
+        "AH", _ecr_D, _ecr_ms(_ecr_D, 12, 50), fetch_grouped=_ecr_fg,
+        fetch_minutes=_ecr_fm(_ecr_bars), prev_closes={"EC": 1.0}, budget_sec=0)
+    _ecr_pre = [b for b in _ecr_bars if 240 <= b[7] < 570]
+    _ecr_reg = [b for b in _ecr_bars if 570 <= b[7] < 770]
+    _ecr_exp = _flPF.core_feats(_ecr_reg, _ecr_pre, 1.0, 770)
+    _ecr_a = (len(_ecr_ahr) == 1 and _ecr_ahd.get("close_min") == 780
+              and all(_ecr_ahr[0].get(k) == v for k, v in _ecr_exp.items()))
+    # (ب) بريُّ الاثنين 11-30 عند 03:50
+    _ecr_asked.clear()
+    _ecr_frm.clear()
+    _ecr_pmr, _ecr_pmm, _ecr_pmd = _PR.run_presession(
+        "PM", "2026-11-30", _ecr_ms("2026-11-30", 3, 50), fetch_grouped=_ecr_fg,
+        fetch_minutes=_ecr_fm(_ecr_bars), prev_closes={"EC": 1.0}, budget_sec=0)
+    _ecr_old = _PR.feature_row("EC", _ecr_bars, 1.0, "PM", 1200, close_min=960)
+    _ecr_b = (_ecr_pmd.get("src_day") == _ecr_D and _ecr_pmd.get("cov") == 1
+              and _ecr_pmd.get("close_min") == 780
+              and _ecr_asked == ["2026-11-27", "2026-11-25"]
+              and _ecr_frm and _ecr_frm[0] <= _ecr_ms(_ecr_D, 4, 0)
+              and _ecr_pmd.get("deliver") == ["EC"]
+              and abs(_ecr_pmr[0]["post_hi_ret"] - (2.2 / 1.209 - 1.0)) < 1e-9
+              and _ecr_old is not None and not _flPF.floor_ok(_ecr_old, "PM"))
+    # (ج) الثلاثاء 09-22 — يومٌ عاديّ بت-بت
+    _ecr_R = "2026-09-21"
+    _ecr_rb = ([_ecr_bar(_ecr_R, 300 + i, 1.0, 1.01, 0.99, 1.0, 1000.0) for i in range(5)]
+               + [_ecr_bar(_ecr_R, 570 + i, 1.0, 1.02, 0.99, 1.0 + i * 0.0005, 4000.0) for i in range(390)]
+               + [_ecr_bar(_ecr_R, 960 + i, 1.2, 1.9, 1.19, 1.3, 6000.0) for i in range(60)])
+    _ecr_now = _ecr_ms("2026-09-22", 3, 50)
+    _ecr_frm.clear()
+    _ecr_rr, _ecr_rm, _ecr_rd = _PR.run_presession(
+        "PM", "2026-09-22", _ecr_now, fetch_grouped=lambda d: _ecr_G,
+        fetch_minutes=_ecr_fm(_ecr_rb), prev_closes={"EC": 1.0}, budget_sec=0)
+    _ecr_ro = _PR.feature_row("EC", _ecr_rb, 1.0, "PM", 1200)
+    _ecr_c = (_ecr_frm == [_ecr_now - 36 * 3600 * 1000] and _ecr_rd.get("close_min") == 960
+              and len(_ecr_rr) == 1 and _ecr_ro is not None
+              and {k: v for k, v in _ecr_rr[0].items()} == {k: v for k, v in _ecr_ro.items()})
+    _v = bool(_ecr_a and _ecr_b and _ecr_c)
+    _w = f"أ={_ecr_a} ب={_ecr_b} ج={_ecr_c} · asked={_ecr_asked} · pm={_ecr_pmd.get('cov')}/{_ecr_pmd.get('deliver')}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🌙 ECR3 من طرفٍ إلى طرف: افترُ 11-27 يقصّ عند 12:50 = `core_feats` المسح المصحَّح · وبريُّ الاثنين 11-30 "
+      "يقرأ 11-27 ويقسم عند 13:00 فيُسلَّم (وبقسم 16:00 لا) · والنداءان على 11-27 و11-25 لا عيدِ الشكر · "
+      "**والثلاثاء العاديّ بت-بت** (النافذةُ `now − 36h` حرفيًّا والصفُّ = المسارُ القديم)", _v, _w)
+
+# ④ ECR4 — `prev_bday` يتخطّى العطلات (يوم العمّال · الشكر · الميلاد) والعاديُّ كما هو
+try:
+    _ecr_pb = {d: _PR.prev_bday(d) for d in ("2026-09-08", "2026-11-27", "2026-12-28",
+                                             "2026-11-30", "2026-09-22", "2026-09-07")}
+    _v = _ecr_pb == {"2026-09-08": "2026-09-04", "2026-11-27": "2026-11-25",
+                     "2026-12-28": "2026-12-24", "2026-11-30": "2026-11-27",
+                     "2026-09-22": "2026-09-21", "2026-09-07": "2026-09-04"}
+    _w = str(_ecr_pb)
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🌙 ECR4 `prev_bday` يتخطّى عطلاتِ التقويم: 09-08 ⟶ 09-04 (لا يومَ العمّال) · 11-27 ⟶ 11-25 · "
+      "12-28 ⟶ 12-24 · والعاديُّ كما هو", _v, _w)
+
+# ⑤ ECR5 — `fetch_from_ms`: الاثنين يبلغ منتصفَ ليل الجمعة · والثلاثاء `now − 36h` حرفيًّا · والتالفُ كذلك
+try:
+    _ecr_mon = _ecr_ms("2026-09-21", 3, 50)
+    _ecr_tue = _ecr_ms("2026-09-22", 3, 50)
+    _v = (_PR.fetch_from_ms(_ecr_mon, "2026-09-18") == _ecr_ms("2026-09-18", 0, 0)
+          and _PR.fetch_from_ms(_ecr_tue, "2026-09-21") == _ecr_tue - 36 * 3600 * 1000
+          and _PR.fetch_from_ms(_ecr_tue, "س") == _ecr_tue - 36 * 3600 * 1000
+          and _PR.fetch_from_ms(_ecr_mon, "2026-09-18") < _ecr_mon - 36 * 3600 * 1000)
+    _w = f"اثنين={_PR.fetch_from_ms(_ecr_mon, '2026-09-18')} · ثلاثاء={_PR.fetch_from_ms(_ecr_tue, '2026-09-21')}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🌙 ECR5 `fetch_from_ms`: بريُّ الاثنين يبدأ منتصفَ ليل الجمعة (نيويورك) · والثلاثاء `now − 36h` حرفيًّا · "
+      "والتاريخُ التالف ⇒ السلوكُ السابق", _v, _w)
+
+# ⑥ ECR6 — الرسالة: صفرُ شموعٍ **تنبيهُ عطلٍ** لا «لا أحد» · والليلةُ الصامتة الحقيقيّة كما هي · وعنوانُ الافتر
+#    ونافذتُه من التقويم يومَ الإغلاق المبكّر (13:00) وغيرَه (16:00).
+try:
+    _ecr_z0 = _PR.build_presession_alert([], "PM", "2026-09-21", 0, 60)
+    _ecr_z1 = _PR.build_presession_alert([], "PM", "2026-09-22", 40, 60)
+    _ecr_r1 = {"sym": "X", "ref": 1.5, "day_ret": 0.4, "usd_day": 5e5, "n5": 2}
+    _ecr_h27 = _PR.build_presession_alert([_ecr_r1], "AH", "2026-11-27", 1, 1)
+    _ecr_h30 = _PR.build_presession_alert([_ecr_r1], "AH", "2026-11-30", 1, 1)
+    _v = ("لم تُقرأ شموعُ الدقيقة" in _ecr_z0 and "عطلُ جلبٍ لا غيابُ أسماء" in _ecr_z0
+          and "رسالةُ حياةٍ" not in _ecr_z0 and "لا اسمَ يعبر" not in _ecr_z0
+          and "رسالةُ حياةٍ لا توصية" in _ecr_z1 and "لم تُقرأ" not in _ecr_z1
+          and "الافتر (13:00)" in _ecr_h27 and "13:00 ⟶ 20:00" in _ecr_h27
+          and "16:00" not in _ecr_h27
+          and "الافتر (16:00)" in _ecr_h30 and "16:00 ⟶ 20:00" in _ecr_h30)
+    _w = f"z0={_ecr_z0[:60]!r}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🌙 ECR6 صفرُ شموعٍ مع مرشَّحين ⇒ **تنبيهُ عطلٍ** لا «الأداةُ عملت وسلّمت صفرًا» · والليلةُ الصامتة "
+      "الحقيقيّة كما هي · وعنوانُ الافتر ونافذتُه 13:00 يومَ الإغلاق المبكّر و16:00 غيرَه", _v, _w)
+
+# ⑦ ECR7 — العاملُ الحيّ **يمرّر اليومَ** إلى `slot_now` (سلوكيًّا من نداءات PS13 عبر الجذع المسجِّل)
+try:
+    _ecr_sc = list(_PsFakePre.slot_calls)
+    _v = bool(_ecr_sc) and all(c == (950, "2026-09-04") for c in _ecr_sc)
+    _w = f"نداءات={_ecr_sc[:3]}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🌙 ECR7 `_maybe_presession` يمرّر اليومَ إلى `slot_now` (‏(950، «2026-09-04») في كلّ نداءٍ مسجَّل) "
+      "⇒ قرارُ الافتر الحيُّ يتبع التقويم", _v, _w)
+
+# ⑧ ECR8 — الحصادُ يحسم الافترَ بنافذة اليوم نفسِه: 11-27 [13:00، 20:00) فقمّةُ 13:30 إصابة · و11-30 [16:00، …)
+#    فلا شموعَ تُحسم ⇒ لا حسم · وبلا يومٍ بت-بت · والبري كما هو.
+try:
+    import presession_digest as _ecr_dg
+    _ecr_row = {"day": "2026-11-27", "sess": "AH", "sym": "EC", "rank": 1, "in_top": True,
+                "sent": True, "floor_ok": True, "ref": 1.0}
+    _ecr_b8 = [_ecr_bar("2026-11-27", 810, 1.0, 2.1, 1.0, 2.0, 50_000.0)]
+    _ecr_g27 = _ecr_dg.resolve_row(_ecr_row, _ecr_b8)
+    _ecr_g30 = _ecr_dg.resolve_row({**_ecr_row, "day": "2026-11-30"}, _ecr_b8)
+    _v = (_ecr_dg.window_bounds("AH", "2026-11-27") == (780, 1200)
+          and _ecr_dg.window_bounds("AH", "2026-11-30") == (960, 1200)
+          and _ecr_dg.window_bounds("AH") == (960, 1200)
+          and _ecr_dg.window_bounds("PM", "2026-11-27") == (240, 570)
+          and _ecr_g27 is not None and _ecr_g27["hit"] == 1 and _ecr_g30 is None)
+    _w = f"g27={_ecr_g27 and _ecr_g27.get('hit')} g30={_ecr_g30}"
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🌙 ECR8 `presession_digest` يحسم افترَ يوم الإغلاق المبكّر من 13:00 (قمّةُ 13:30 إصابة) · واليومُ العاديّ "
+      "من 16:00 · وبلا يومٍ بت-بت · والبري كما هو", _v, _w)
+
+# ⑨ ECR9 — «اعتمد الأرضية المصحّحة»: الحيّةُ 0.69903 وذيلُ الرسالة «47 من 429 (‏11.0%)» · و`tierlink2_probe`
+#    يثبّت أرضيةَ عقده **أثناء** التشغيل ويعيد الحيّةَ **ولو رمى** · والتوثيقُ يحمل الاعتمادَ وأسطرَ السجلّ بحرفها.
+try:
+    _ecr_tail = "\n".join(_PR._presession_tail("PM", "2026-09-22"))
+    _ecr_seen = []
+    _ecr_run0 = _T2._run
+
+    def _ecr_fake_run(live):
+        _ecr_seen.append((dict(_T2PF.FLOOR_BY_SLOT), dict(live)))
+        return 0
+
+    def _ecr_bad_run(live):
+        raise RuntimeError("اختبار")
+
+    try:
+        _T2._run = _ecr_fake_run
+        _ecr_rc = _T2.main()
+        _ecr_after = dict(_T2PF.FLOOR_BY_SLOT)
+        _T2._run = _ecr_bad_run
+        try:
+            _T2.main()
+        except RuntimeError:
+            pass
+        _ecr_after2 = dict(_T2PF.FLOOR_BY_SLOT)
+    finally:
+        _T2._run = _ecr_run0
+    _ecr_res = open("early_close_result.md", encoding="utf-8").read()
+    _ecr_tk = open("topk_result.md", encoding="utf-8").read()
+    _ecr_r = {
+        "الحيّة": _flPF.FLOOR_BY_SLOT == {"PM": 0.69903},
+        "الذيل": "47 من 429 اسمًا (‏11.0%)" in _ecr_tail and "435" not in _ecr_tail,
+        "العقدُ أثناء التشغيل": _ecr_seen == [({"PM": 0.69492}, {"PM": 0.69903})] and _ecr_rc == 0,
+        "تُعاد الحيّة": _ecr_after == {"PM": 0.69903} and _ecr_after2 == {"PM": 0.69903},
+        "§⑧": "## ⑧ 🗓️ نُفِّذ (‏2026-09-24)" in _ecr_res,
+        "سطرُ الاثنين بحرفه": ("[07:50:55] 🌙 قرارُ PM 2026-09-21: {'scanned': 60, 'cov': 0, 'rows': 0,"
+                              in _ecr_res),
+        "سطرُ العطلة بحرفه": ("[07:51:21] 🌙 قرارُ PM 2026-09-08: {'reason': 'grouped_missing', "
+                             "'src_day': '2026-09-07'}" in _ecr_res),
+        "التشغيلة": "35946526563" in _ecr_res,
+        "T-TOPK": "اعتُمدت الأرضيةُ المصحّحة بأمر المالك (‏2026-09-24)" in _ecr_tk,
+    }
+    _v = all(_ecr_r.values())
+    _w = str({_k: _x for _k, _x in _ecr_r.items() if not _x} or "تامّة")
+except Exception as _e:                                          # noqa: BLE001
+    _v, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️🌙 ECR9 الأرضيةُ الحيّة 0.69903 (‏«اعتمد الأرضية المصحّحة») وذيلُ الرسالة «47 من 429 (‏11.0%)» · "
+      "و`tierlink2_probe` يثبّت أرضيةَ عقده أثناء التشغيل ويعيد الحيّةَ ولو رمى · والتوثيقُ يحمل الاعتمادَ "
+      "وأسطرَ سجلّ العامل بحرفها", _v, _w)
 
 
 # ══════════════════════════════════════════════════════════════════════════
