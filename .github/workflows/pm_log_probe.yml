@@ -1,0 +1,25 @@
+name: pm-log-probe (temporary — deleted after reading)
+on:
+  push:
+    branches: [claude/conversation-compaction-failure-088pki]
+    paths: ['.github/workflows/pm_log_probe.yml']
+permissions:
+  actions: read
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: grep presession lines from worker logs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          for id in 35563187525 34808223717 34188147674 35689367823; do
+            echo "===== run $id"
+            gh run view "$id" -R "$REPO" --log > "log_$id.txt" 2>/dev/null || echo "no log"
+            grep -E "🌙" "log_$id.txt" | grep -vE "سبق من عاملٍ آخر" | cut -c1-600 | head -30 || true
+            echo "-- grouped/prefilter lines:"
+            grep -cE "قرارُ PM" "log_$id.txt" || true
+          done
