@@ -563,26 +563,24 @@
   "date": "2026-09-24"
  },
  "LIQ:VWAV": {
-  "last_eval_ms": 1790279700000,
-  "tc_cum": 3073497.914094413,
-  "tc_seen_ms": 1790279580000,
-  "date": "2026-09-24",
   "anchor_ms": 1790279640000,
-  "last_ms": 1790279640000,
+  "last_ms": 1790279700000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 47.0,
   "peak_usd": 317206,
-  "pulse_ms": 1790279640000,
+  "last_eval_ms": 1790279700000,
+  "pulse_ms": 1790279700000,
   "anchor_price": 5.7633,
   "anchor_open": 5.27,
   "anchor_low": 5.27,
   "pre_done": true,
   "pre_hi": 5.48,
   "pre_usd": 302129,
-  "pre_n": 49
+  "pre_n": 49,
+  "date": "2026-09-24"
  },
  "LIQ:WETO": {
   "anchor_ms": 1790237220000,
