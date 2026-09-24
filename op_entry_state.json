@@ -76,23 +76,23 @@
  },
  "LIQ:INLF": {
   "anchor_ms": 1790281800000,
-  "last_ms": 1790281800000,
+  "last_ms": 1790281860000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 123.2,
-  "peak_usd": 94240,
+  "peak_usd": 595894,
   "last_eval_ms": 1790281860000,
-  "pulse_ms": 1790281800000,
+  "pulse_ms": 1790281860000,
   "anchor_price": 3.51,
   "anchor_open": 2.9999,
   "anchor_low": 2.9814,
-  "date": "2026-09-24",
   "pre_done": true,
   "pre_hi": 2.8934,
   "pre_usd": 631,
-  "pre_n": 1
+  "pre_n": 1,
+  "date": "2026-09-24"
  },
  "LIQ:NAMM": {
   "last_eval_ms": 1790280540000,
