@@ -62254,6 +62254,348 @@ except Exception as _e:                                          # noqa: BLE001
 check("🗓️🔍② ERK10 نتيجةُ `T-EARLY-2`: الأسرُ التسع بعمودَي «انقلب؟»/«القياس» · **الفرعُ مشتقٌّ من الجدول** "
       "(نعم ⇒ 2 · وإلّا «لا قياس» ⇒ 3 بالأضعف · وإلّا 1) ويطابق §⓪ · `ER1` بكلّ حاكمة · التنبّؤاتُ الخمس · "
       "**والسطرُ المؤرَّخ تحت نتيجة كلّ أسرة**", _v, _w)
+
+
+# ═══ 🔬📰② T-PRE-EDGAR-2 · المرحلة صفر v2 — أقفال المِجَسّ (العقد edgar2_prereg.md §③/§④) ═══
+# 🔒 سقفُ النجاح صفر · الأقفالُ تحرس **صلاحيةَ الأداة**: أرقامُ العقد = ثوابتُ الكود (EGQ0) ·
+#    V-E7 · V-E6 · V-E12 (‏filingDate داخل tz_verdict وحدَها) · التفسيران A/B والحَكَمُ
+#    المستقلّ (قاعدةُ 17:30 وساعاتُ EDGAR) سلوكيًّا · F4′ بالكادنس المشحون · V-E8.
+import edgar2_probe as _EGQ                                       # noqa: E402
+import ast as _egq_ast                                            # noqa: E402
+import datetime as _egq_dt                                        # noqa: E402
+import os as _egq_os                                              # noqa: E402
+import random as _egq_rnd                                         # noqa: E402
+import re as _egq_re                                              # noqa: E402
+
+_egq_NY = _EGQ.NY
+
+
+def _egq_next_bday(d):
+    d = d + _egq_dt.timedelta(days=1)
+    while d.weekday() >= 5:
+        d += _egq_dt.timedelta(days=1)
+    return d
+
+
+def _egq_synth(truth, n=400, seed=1, forms=("8-K",), hours=(6, 21), viol=0.0,
+               start=_egq_dt.date(2025, 1, 6)):
+    """مصفوفاتٌ بشكل `filings.recent` بحقيقةٍ معروفة: `A` أرقامُ نيويورك بلاحقة Z ·
+    `B` أرقامُ UTC الصادقة · `O` إزاحةٌ صريحة · و`viol` حصّةُ مسائيّةٍ تُخالف القاعدة عمدًا."""
+    rnd = _egq_rnd.Random(seed)
+    rec = {"form": [], "filingDate": [], "acceptanceDateTime": []}
+    d = start
+    for i in range(n):
+        while d.weekday() >= 5:
+            d += _egq_dt.timedelta(days=1)
+        t = _egq_dt.datetime(d.year, d.month, d.day, rnd.randint(*hours), rnd.randint(0, 59),
+                             rnd.randint(0, 59), tzinfo=_egq_NY)
+        late = t.time() > _egq_dt.time(17, 30)
+        fd = _egq_next_bday(d) if late else d
+        if late and rnd.random() < viol:
+            fd = d                                  # مخالفةٌ مقصودة للقاعدة
+        if truth == "A":
+            raw = t.strftime("%Y-%m-%dT%H:%M:%S") + ".000Z"
+        elif truth == "B":
+            raw = t.astimezone(_egq_dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%S") + ".000Z"
+        else:
+            off = t.strftime("%z")
+            raw = t.strftime("%Y-%m-%dT%H:%M:%S") + off[:3] + ":" + off[3:]
+        rec["form"].append(rnd.choice(forms))
+        rec["filingDate"].append(fd.isoformat())
+        rec["acceptanceDateTime"].append(raw)
+        if i % 3 == 2:
+            d += _egq_dt.timedelta(days=1)
+    return rec
+
+
+try:
+    _egq_src = open("edgar2_probe.py", encoding="utf-8").read()
+    _egq_tree = _egq_ast.parse(_egq_src)
+except Exception as _e:                                           # noqa: BLE001
+    _egq_src, _egq_tree = "", None
+
+# EGQ0 — أرقامُ العقد **تُقرأ من العقد** وتُطابَق بثوابت الكود (لا نسخةٌ ثالثة)
+try:
+    _egq_doc = open("edgar2_prereg.md", encoding="utf-8").read()
+
+    def _egq_row(tag):
+        return next((ln for ln in _egq_doc.splitlines() if ln.startswith(f"| **{tag}** |")), "")
+
+    _egq_r2, _egq_r4 = _egq_row("TZ2"), _egq_row("F4′")
+    _egq_fl = next((ln for ln in _egq_doc.splitlines()
+                    if ln.startswith("**`FORMS` بنصّها:**")), "")
+    _egq_c = {
+        "TZ0": float(_egq_re.findall(r"(\d+)", _egq_row("TZ0").split("|")[-2])[0]),
+        "TZ1": float(_egq_re.findall(r"(\d+)%", _egq_row("TZ1").split("|")[-2])[0]),
+        "TZ2n": float(_egq_re.search(r"\|D\| ≥ (\d+)", _egq_r2).group(1)),
+        "TZ2p": float(_egq_re.search(r"≥ (\d+)% منها", _egq_r2).group(1)),
+        "TZ3": float(_egq_re.findall(r"(\d+)%", _egq_row("TZ3").split("|")[-2])[0]),
+        "sleep": float(_egq_re.search(r"time\.sleep\((\d+\.\d+)\)", _egq_r4).group(1)),
+        "okp": float(_egq_re.search(r"≥ (\d+)% من النداءات", _egq_r4).group(1)),
+        "range": _egq_re.search(r"\[(\d{4}-\d{2}-\d{2}) ، (\d{4}-\d{2}-\d{2})\]",
+                                _egq_doc).groups(),
+        "forms": tuple(_egq_re.search(r"`([^`]*8-K[^`]*)`",
+                                      _egq_fl.split(":**", 1)[1]).group(1).split(" · ")),
+    }
+    _egq0 = (_egq_c["TZ0"] == _EGQ.TZ_N_MIN and _egq_c["TZ1"] == _EGQ.TZ1_MIN_PCT
+             and _egq_c["TZ2n"] == _EGQ.TZ2_D_MIN and _egq_c["TZ2p"] == _EGQ.TZ2_MIN_PCT
+             and _egq_c["TZ3"] == _EGQ.TZ3_MAX_PCT and _egq_c["sleep"] == _EGQ.SHIPPED_SLEEP
+             and _egq_c["okp"] == _EGQ.F4P_MIN_OK_PCT
+             and _egq_c["range"] == (_EGQ.TZ_LO, _EGQ.TZ_HI)
+             and _egq_c["forms"] == _EGQ.FORMS
+             and _EGQ.RULE_CUT == _egq_dt.time(17, 30)
+             and (_EGQ.EDGAR_OPEN, _EGQ.EDGAR_CLOSE) == (_egq_dt.time(6), _egq_dt.time(22))
+             # العيّنةُ وF1-F3 حرفيًّا من العقد الأوّل (§③ «العيّنةُ نفسُها»)
+             and (_EGQ.SAMPLE_N, _EGQ.SAMPLE_SALT) == (60, "edgar-probe:")
+             and (_EGQ.F1_MIN_PCT, _EGQ.F2_MIN_PCT, _EGQ.F3_MIN_PCT) == (70.0, 100.0, 90.0))
+except Exception as _e:                                           # noqa: BLE001
+    _egq0, _egq_c = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGQ0 أرقامُ `edgar2_prereg.md` **تُقرأ من العقد** وتطابق ثوابتَ المِجَسّ: TZ0 ‏100 · "
+      "TZ1 ‏98% · TZ2 ‏30 و95% · TZ3 ‏1% · F4′ ‏0.15ث و95% · المدى · FORMS الاثنا عشر · 17:30 · "
+      "06:00-22:00 — والعيّنةُ وF1-F3 حرفيًّا", _egq0, str(_egq_c)[:160])
+
+# EGQ1 — V-E7 بالـAST: sec_recent_filings غائبةٌ نداءً واسمًا وسلسلةً · وsec_cik_map تُنادى
+try:
+    _egq_calls = {(n.func.attr if isinstance(n.func, _egq_ast.Attribute)
+                   else getattr(n.func, "id", ""))
+                  for n in _egq_ast.walk(_egq_tree) if isinstance(n, _egq_ast.Call)}
+    _egq_ids = ({n.attr for n in _egq_ast.walk(_egq_tree) if isinstance(n, _egq_ast.Attribute)}
+                | {n.id for n in _egq_ast.walk(_egq_tree) if isinstance(n, _egq_ast.Name)})
+    _egq_konst = {n.value for n in _egq_ast.walk(_egq_tree)
+                  if isinstance(n, _egq_ast.Constant) and isinstance(n.value, str)}
+    _egq1 = ("sec_recent_filings" not in _egq_calls and "sec_recent_filings" not in _egq_ids
+             and "sec_recent_filings" not in _egq_konst
+             and "sec_cik_map" in _egq_calls)
+except Exception as _e:                                           # noqa: BLE001
+    _egq1, _egq_calls = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGQ1 V-E7: المِجَسُّ لا يعرف sec_recent_filings (نداءً ولا اسمًا ولا سلسلة) · "
+      "ويُنادي sec_cik_map الإنتاجية", _egq1)
+
+# EGQ2 — V-E6: قراءةٌ فقط — صفرُ فتحٍ للكتابة وصفرُ إرسالٍ أو حفظِ حالة (بالـAST)
+try:
+    _egq_wr = [n for n in _egq_ast.walk(_egq_tree)
+               if isinstance(n, _egq_ast.Call) and getattr(n.func, "id", "") == "open"
+               and any(isinstance(a, _egq_ast.Constant) and isinstance(a.value, str)
+                       and any(c in a.value for c in "wax") for a in n.args[1:2])]
+    _egq2 = (not _egq_wr
+             and not ({"send_telegram", "git_save", "save_watchlist", "dump"} & _egq_calls)
+             and not any(str(c).startswith("save_") for c in _egq_calls))
+except Exception as _e:                                           # noqa: BLE001
+    _egq2 = False
+check("🔬📰② EGQ2 V-E6: قراءةٌ فقط — صفرُ open للكتابة وصفرُ send_telegram/git_save/save_* "
+      "(بالـAST)", _egq2)
+
+# EGQ3 — V-E12: كلُّ سلسلةٍ تحوي filingDate داخلَ tz_verdict وحدَها · وacceptanceDateTime مقروء
+try:
+    _egq_fn = next(n for n in _egq_ast.walk(_egq_tree)
+                   if isinstance(n, _egq_ast.FunctionDef) and n.name == "tz_verdict")
+    _egq_in = {id(n) for n in _egq_ast.walk(_egq_fn)}
+    _egq_fd = [n for n in _egq_ast.walk(_egq_tree) if isinstance(n, _egq_ast.Constant)
+               and isinstance(n.value, str) and "filingDate" in n.value]
+    _egq_out = [n.lineno for n in _egq_fd if id(n) not in _egq_in]
+    _egq3 = (bool(_egq_fd) and not _egq_out
+             and any(isinstance(n, _egq_ast.Constant) and n.value == "acceptanceDateTime"
+                     for n in _egq_ast.walk(_egq_tree))
+             and not any(isinstance(n, _egq_ast.Name) and n.id == "fromisoformat"
+                         for n in _egq_ast.walk(_egq_tree))
+             and "fromisoformat" not in {getattr(n, "attr", "") for n in _egq_ast.walk(_egq_tree)})
+except Exception as _e:                                           # noqa: BLE001
+    _egq3, _egq_out = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGQ3 V-E12: `filingDate` لا يَرِد إلّا داخل `tz_verdict` (للتحقّق لا للقرار) · "
+      "و`acceptanceDateTime` مقروء · **وصفرُ fromisoformat** (يقرأ Z توقيتَ UTC ضمنًا — §④-أ)",
+      _egq3, f"خارجها في الأسطر={_egq_out}")
+
+# EGQ4 — parse_acc: الصيغُ المقبولة والمرفوضة بسلوكٍ لا بنصّ
+try:
+    _egq_pa = _EGQ.parse_acc
+    _egq4 = (_egq_pa("2025-03-14T18:22:05.000Z") == (_egq_dt.datetime(2025, 3, 14, 18, 22, 5), "Z")
+             and _egq_pa("2025-03-14T18:22:05-04:00")[1] == "-04:00"
+             and _egq_pa("2025-03-14T18:22:05-0400")[1] == "-0400"
+             and _egq_pa("2025-03-14T18:22:05") == (_egq_dt.datetime(2025, 3, 14, 18, 22, 5), None)
+             and _egq_pa("2025-03-14T18:22:05.5Z")[0].microsecond == 500000
+             and _egq_pa("2025-03-14 18:22:05") is None and _egq_pa("") is None
+             and _egq_pa(None) is None and _egq_pa("garbage") is None
+             and _egq_pa("2025-02-30T10:00:00Z") is None)
+except Exception as _e:                                           # noqa: BLE001
+    _egq4 = False
+check("🔬📰② EGQ4 parse_acc: Z · إزاحةٌ بنقطتين وبلا نقطتين · بلا لاحقة · كسورُ الثانية · "
+      "ويرفض المسافةَ والفراغَ والتاريخَ المستحيل — بلا تفسيرٍ للاحقة", _egq4)
+
+# EGQ5 — to_ny: A = أرقامُ نيويورك · B = اللاحقةُ صادقة (صيفًا 4 ساعات وشتاءً 5) · والإزاحةُ الصريحة A≡B
+try:
+    _egq_p1 = _EGQ.parse_acc("2025-03-14T18:22:05.000Z")      # صيف (EDT)
+    _egq_p2 = _EGQ.parse_acc("2025-01-15T18:00:00.000Z")      # شتاء (EST)
+    _egq_p3 = _EGQ.parse_acc("2025-07-01T19:05:00-04:00")
+    _egq_a1, _egq_b1 = _EGQ.to_ny(_egq_p1, "A"), _EGQ.to_ny(_egq_p1, "B")
+    _egq_a2, _egq_b2 = _EGQ.to_ny(_egq_p2, "A"), _EGQ.to_ny(_egq_p2, "B")
+    _egq5 = ((_egq_a1.hour, _egq_b1.hour) == (18, 14) and (_egq_a2.hour, _egq_b2.hour) == (18, 13)
+             and _egq_a1.utcoffset() == _egq_dt.timedelta(hours=-4)
+             and _egq_a2.utcoffset() == _egq_dt.timedelta(hours=-5)
+             and _EGQ.to_ny(_egq_p3, "A") == _EGQ.to_ny(_egq_p3, "B")
+             and _EGQ.to_ny(_egq_p3, "B").hour == 19)
+    try:
+        _EGQ.to_ny(_egq_p1, "C")
+        _egq5 = False                                   # تفسيرٌ مجهول يجب أن يرمي
+    except ValueError:
+        pass
+except Exception as _e:                                           # noqa: BLE001
+    _egq5 = False
+check("🔬📰② EGQ5 to_ny: A يقرأ الأرقامَ ساعةَ نيويورك · B يحترم اللاحقة (‏18Z ⟶ 14:00 صيفًا و13:00 "
+      "شتاءً) · والإزاحةُ الصريحة A≡B · وتفسيرٌ مجهولٌ يرمي", _egq5)
+
+# EGQ6 — الحَكَمُ المستقلّ: حدودُ قاعدة 17:30 وساعاتِ EDGAR بالثانية
+try:
+    _egq_t = lambda *a: _egq_dt.datetime(*a, tzinfo=_egq_NY)             # noqa: E731
+    _egq6 = (_EGQ.rule_ok("2025-03-14", _egq_t(2025, 3, 14, 17, 30, 0))
+             and not _EGQ.rule_ok("2025-03-17", _egq_t(2025, 3, 14, 17, 30, 0))
+             and not _EGQ.rule_ok("2025-03-14", _egq_t(2025, 3, 14, 17, 30, 1))
+             and _EGQ.rule_ok("2025-03-17", _egq_t(2025, 3, 14, 17, 30, 1))
+             and not _EGQ.rule_ok("2025-03-13", _egq_t(2025, 3, 14, 18, 0, 0))
+             and _EGQ.in_edgar_hours(_egq_t(2025, 3, 14, 6, 0, 0))
+             and _EGQ.in_edgar_hours(_egq_t(2025, 3, 14, 22, 0, 0))
+             and not _EGQ.in_edgar_hours(_egq_t(2025, 3, 14, 5, 59, 59))
+             and not _EGQ.in_edgar_hours(_egq_t(2025, 3, 14, 22, 0, 1))
+             and not _EGQ.in_edgar_hours(_egq_t(2025, 3, 15, 10, 0, 0)))    # سبت
+except Exception as _e:                                           # noqa: BLE001
+    _egq6 = False
+check("🔬📰② EGQ6 الحَكَمُ المستقلّ: 17:30:00 يومُه و17:30:01 لاحق · ولا تاريخَ سابق · وساعاتُ "
+      "EDGAR 06:00:00-22:00:00 مغلقةُ الطرفين · والسبتُ خارجها", _egq6)
+
+# EGQ7 — tz_verdict سلوكيًّا: الحقيقةُ تفوز · وكلُّ بوّابةٍ تُسقط بحالتها
+try:
+    _egq_vA = _EGQ.tz_verdict([_egq_synth("A")])
+    _egq_vB = _EGQ.tz_verdict([_egq_synth("B")])
+    _egq_vO = _EGQ.tz_verdict([_egq_synth("O")])
+    _egq_bad = _egq_synth("A")
+    _egq_bad["acceptanceDateTime"][5] = "garbage"
+    _egq_vP = _EGQ.tz_verdict([_egq_bad])
+    _egq_oor = _egq_synth("A")
+    _egq_oor["form"].append("8-K")
+    _egq_oor["filingDate"].append("2019-01-02")
+    _egq_oor["acceptanceDateTime"].append("junk")
+    _egq_vR = _EGQ.tz_verdict([_egq_oor])
+    _egq_v0 = _EGQ.tz_verdict([_egq_synth("A", n=60)])
+    _egq_vM = _EGQ.tz_verdict([_egq_synth("A", hours=(6, 12))])          # صباحٌ فقط ⇒ D فارغ
+    _egq_vV = _EGQ.tz_verdict([_egq_synth("A", viol=0.10)])              # 10% مخالفة ⇒ D دون 95%
+    _egq_vF = _EGQ.tz_verdict([_egq_synth("A", forms=("4", "SC 13G"))])
+    _egq7 = (_egq_vA["ok"] and _egq_vA["winner"] == "A" and _egq_vA["D"] >= 30
+             and _egq_vB["ok"] and _egq_vB["winner"] == "B"
+             and _egq_vO["ok"] and _egq_vO["same"] is True
+             and not _egq_vP["ok"] and _egq_vP["gates"].get("TZ-P") is False
+             and _egq_vR["ok"] and _egq_vR["bad"] == 0
+             and not _egq_v0["ok"] and _egq_v0["gates"].get("TZ0") is False
+             and not _egq_vM["ok"] and _egq_vM["gates"].get("TZ2") is False
+             and not _egq_vV["ok"] and _egq_vV["gates"].get("TZ2") is False
+             and 80.0 < _egq_vV["share_D"] < 95.0
+             and _egq_vF["n"] == 0 and not _egq_vF["ok"]
+             and _egq_vA["out_B"] > 1.0 and _egq_vA["out_A"] == 0.0)
+    _egq_w7 = (f"A={_egq_vA['winner']}/{_egq_vA['ok']} B={_egq_vB['winner']}/{_egq_vB['ok']} "
+               f"O={_egq_vO.get('same')} P={_egq_vP['gates']} M={_egq_vM['gates'].get('TZ2')} "
+               f"V={_egq_vV.get('share_D', 0):.1f}")
+except Exception as _e:                                           # noqa: BLE001
+    _egq7, _egq_w7 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGQ7 tz_verdict: حقيقةُ A تفوز بـA وحقيقةُ B بـB · الإزاحةُ الصريحة A≡B · قيمةٌ فاسدة "
+      "داخل المدى تُسقط TZ-P وخارجه تُتجاهَل · 60 تُسقط TZ0 · صباحٌ فقط (D فارغ) ومخالفةُ 10% "
+      "تُسقطان TZ2 · ونماذجُ خارج FORMS لا تدخل", _egq7, _egq_w7)
+
+
+# EGQ8 — stage0 سلوكيًّا بجالبٍ محقون: الكادنسُ المشحون · والحجبُ والنجاحُ والحقلُ وF1 كلٌّ يُسقط ببوّابته
+def _egq_sub(seed, missing_acc=False):
+    rec = _egq_synth("A", n=12, seed=seed)
+    rec["form"].insert(0, "10-K")
+    rec["filingDate"].insert(0, "2024-06-03")
+    rec["acceptanceDateTime"].insert(0, "2024-06-03T10:00:00.000Z")   # عمقٌ قبل 2025-01-02
+    if missing_acc:
+        rec.pop("acceptanceDateTime")
+    return {"filings": {"recent": rec, "files": []}}
+
+
+def _egq_stage(fail=None, cmap_n=60):
+    _syms = [f"S{i:03d}" for i in range(400)]
+    _samp = _EGQ.sample_symbols(_syms)
+    _cmap = {s: 1000 + i for i, s in enumerate(_samp[:cmap_n])}
+    _calls, _sleeps = [], []
+
+    def _get(url, timeout=None):
+        _calls.append(url)
+        k = len(_calls)
+        if fail == "block" and k == 7:
+            return 429, None, 0.01
+        if fail == "net" and k in (3, 9, 21, 33):
+            return -1, None, 0.01
+        return 200, _egq_sub(k, missing_acc=(fail == "field" and k == 5)), 0.01
+
+    _r = _EGQ.stage0(_syms, _cmap, get=_get, sleep=_sleeps.append, say=lambda *_a: None)
+    return _r, _calls, _sleeps
+
+
+try:
+    _egq_ok, _egq_c1, _egq_s1 = _egq_stage()
+    _egq_bl, _egq_c2, _ = _egq_stage("block")
+    _egq_ne, _, _ = _egq_stage("net")
+    _egq_fi, _, _ = _egq_stage("field")
+    _egq_f1, _egq_c5, _ = _egq_stage(cmap_n=30)
+    _egq8 = (_egq_ok["exit"] == 0 and _egq_ok["winner"] == "A" and len(_egq_c1) == 60
+             and len(_egq_s1) == 59 and set(_egq_s1) == {0.15}
+             and (_egq_bl["exit"], _egq_bl["gate"]) == (5, "F4′")
+             and (_egq_ne["exit"], _egq_ne["gate"]) == (5, "F4′") and _egq_ne["ok"] == 56
+             and (_egq_fi["exit"], _egq_fi["gate"]) == (5, "F2")
+             and (_egq_f1["exit"], _egq_f1["gate"]) == (5, "F1") and not _egq_c5)
+    _egq_w8 = (f"ok={_egq_ok['exit']}/{_egq_ok.get('gate')}/{_egq_ok.get('winner')} "
+               f"sleeps={sorted(set(_egq_s1))}×{len(_egq_s1)} block={_egq_bl.get('gate')} "
+               f"net={_egq_ne.get('gate')} field={_egq_fi.get('gate')} F1={_egq_f1.get('gate')}")
+except Exception as _e:                                           # noqa: BLE001
+    _egq8, _egq_w8 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGQ8 stage0 سلوكيًّا: عيّنةٌ سليمة تعبر بـA بستّين نداءً وتسعٍ وخمسين كبحةً **كلُّها "
+      "0.15ث** · حجبٌ واحد ⟶ F4′ · أربعةُ أعطالٍ (93%) ⟶ F4′ · حقلٌ غائب ⟶ F2 · تغطيةُ 50% ⟶ F1 "
+      "**بصفرِ نداء**", _egq8, _egq_w8)
+
+# EGQ9 — الـworkflow: dispatch بلا كرون ولا مُدخَل · المُدخَلُ مثبَّت · SEC_CONTACT من Secrets · قراءةٌ فقط
+try:
+    import yaml as _egq_y                                         # noqa: E402
+    _egq_wf = _egq_y.safe_load(open(".github/workflows/edgar2_probe.yml", encoding="utf-8"))
+    _egq_on = _egq_wf.get(True) or _egq_wf.get("on") or {}
+    _egq_steps = _egq_wf["jobs"]["probe"]["steps"]
+    _egq_last = _egq_steps[-1]
+    _egq_dl = next((s for s in _egq_steps if "gh run download" in str(s.get("run") or "")), {})
+    _egq_py = next((s for s in _egq_steps if "setup-python" in str(s.get("uses") or "")), {})
+    _egq9 = ("workflow_dispatch" in _egq_on and not _egq_on.get("schedule")
+             and not ((_egq_on.get("workflow_dispatch") or {}).get("inputs"))
+             and (_egq_wf.get("permissions") or {}).get("contents") == "read"
+             and "secrets.SEC_CONTACT" in str((_egq_last.get("env") or {}).get("SEC_CONTACT"))
+             and str(_egq_last.get("run") or "").strip() == "python edgar2_probe.py"
+             and str((_egq_dl.get("env") or {}).get("E1_RUN_ID")) == "33724367680"
+             and str((_egq_py.get("with") or {}).get("python-version")) == "3.11")
+except Exception as _e:                                           # noqa: BLE001
+    _egq9 = False
+check("🔬📰② EGQ9 edgar2_probe.yml: dispatch بلا كرون ولا مُدخَل · صفوفُ التشغيلة 33724367680 مثبَّتة · "
+      "SEC_CONTACT من Secrets في خطوة المِجَسّ · contents: read · بايثون 3.11", _egq9)
+
+# EGQ10 — V-E8 سلوكيًّا: SEC_CONTACT فارغ ⇒ خروج 2 **قبل** أيّ نداءِ شبكةٍ أو قراءةِ صفوف
+try:
+    _egq_old = _egq_os.environ.get("SEC_CONTACT")
+    _egq_os.environ["SEC_CONTACT"] = "   "
+    _egq_bomb = [0]
+
+    def _egq_boom(*_a, **_k):
+        _egq_bomb[0] += 1
+        raise AssertionError("عملٌ قبل بوّابة SEC_CONTACT")
+
+    _egq_sv = (_EGQ.S.sec_cik_map, _EGQ.load_year_symbols, _EGQ.stage0)
+    _EGQ.S.sec_cik_map, _EGQ.load_year_symbols, _EGQ.stage0 = _egq_boom, _egq_boom, _egq_boom
+    try:
+        _egq_rc = _EGQ.main()
+    finally:
+        _EGQ.S.sec_cik_map, _EGQ.load_year_symbols, _EGQ.stage0 = _egq_sv
+        if _egq_old is None:
+            _egq_os.environ.pop("SEC_CONTACT", None)
+        else:
+            _egq_os.environ["SEC_CONTACT"] = _egq_old
+    _egq10 = (_egq_rc == 2 and _egq_bomb[0] == 0)
+except Exception as _e:                                           # noqa: BLE001
+    _egq10, _egq_rc = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔬📰② EGQ10 V-E8 سلوكيًّا: SEC_CONTACT فارغٌ أو مسافات ⇒ خروج 2 بصفرِ نداءٍ وصفرِ قراءة "
+      "(عطبُ إعدادٍ لا يُقرأ «المصدرُ لا يعمل»)", _egq10, f"rc={_egq_rc}")
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
