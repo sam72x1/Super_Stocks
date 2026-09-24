@@ -4,12 +4,19 @@ name: "T-PRE-EDGAR-2 — الدراسة (🔬📰② الإيداعُ الليل
 # 🔒 المُدخَلُ مثبَّتٌ لا مُمرَّر (§⑤-ب): صفوفُ 2025 من التشغيلة 33724367680 وحدَها (مصدرُ الـ702).
 # 🔒 الأداةُ تُعيد المرحلةَ صفر أوّلًا (V-E0) وتحسم التوقيتَ على مجتمعها (V-E9) — ولا حكمَ جزئيّ.
 # 🔒 يُشغَّل في Actions حصرًا — بيئةُ التطوير تحجب SEC.
+# 🔒🔴 مُغلَقٌ مُنفَّذًا («اقفل EDGAR» 2026-09-24 · edgar2_result.md §③): الدراسةُ تخرج 8 قبل أيّ عمليّة
+#    ما لم يكن مُدخَلُ `reopen` = 1 حرفيًّا (إقرارٌ بشروط الفتح الثلاثة) — وهو إقرارٌ لا مُدخَلُ دراسة.
 permissions:
   contents: read
   actions: read      # لازمٌ لـ`gh run download` (صفوفُ E1 من الـartifacts)
 
 on:
   workflow_dispatch:
+    inputs:
+      reopen:
+        description: "🔒 المحورُ مُغلَق («اقفل EDGAR» 2026-09-24) — 1 = إقرارٌ بشروط الفتح الثلاثة (edgar2_result.md §③) · غيرُه = خروج 8"
+        required: false
+        default: "0"
 
 jobs:
   study:
@@ -44,4 +51,5 @@ jobs:
         env:
           # 🔒 V-E8: بلا هذا السرّ يرتدّ `SEC_UA` إلى بريدٍ وهميّ — والدراسةُ تخرج بـ2 إن وصل فارغًا.
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          EDGAR_REOPEN: ${{ github.event.inputs.reopen }}
         run: python edgar2_study.py
