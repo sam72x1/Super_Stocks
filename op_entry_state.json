@@ -1161,7 +1161,7 @@
  },
  "LIQ:DCX": {
   "anchor_ms": 1790254860000,
-  "last_ms": 1790254860000,
+  "last_ms": 1790254920000,
   "sent": [
    "M1"
   ],
@@ -1169,7 +1169,7 @@
   "vol_x": 6.2,
   "peak_usd": 264408,
   "last_eval_ms": 1790254920000,
-  "pulse_ms": 1790254860000,
+  "pulse_ms": 1790254920000,
   "anchor_price": 0.0848,
   "anchor_open": 0.0781,
   "anchor_low": 0.0772,
@@ -1181,11 +1181,11 @@
    "e5": 0.0962,
    "exit_ms": 1790254800000
   },
-  "date": "2026-09-24",
   "pre_done": true,
   "pre_hi": 0.116,
   "pre_usd": 3298648,
-  "pre_n": 63
+  "pre_n": 63,
+  "date": "2026-09-24"
  },
  "LIQ:CIIT": {
   "last_eval_ms": 1790242440000,
@@ -1209,7 +1209,7 @@
   "updates": 0,
   "vol_x": 0.8,
   "peak_usd": 29665,
-  "last_eval_ms": 1790251200000,
+  "last_eval_ms": 1790251140000,
   "pulse_ms": 1790254920000,
   "anchor_price": 2.78,
   "anchor_open": 2.74,
@@ -1493,9 +1493,6 @@
   "date": "2026-09-23"
  },
  "LIQ:BIYA": {
-  "last_eval_ms": 1790193300000,
-  "tc_cum": 101250.67752,
-  "tc_seen_ms": 1790193300000,
   "date": "2026-09-24"
  },
  "LIQ:VEEA": {
@@ -1550,9 +1547,6 @@
   "date": "2026-09-24"
  },
  "LIQ:NXTT": {
-  "last_eval_ms": 1790194200000,
-  "tc_cum": 103893.64313738,
-  "tc_seen_ms": 1790194200000,
   "date": "2026-09-24"
  },
  "LIQ:SCLX": {
