@@ -108,6 +108,13 @@ def probe_one(label, company, today, horizon):
     print(f"   الرعاةُ الرئيسيّون: {_sponsors(js)[:4]}")
     if raw["body"]:
         print(f"   جسمُ الردّ (بيانات): {raw['body']!r}")
+    core = bot._ct_core_name(company) if hasattr(bot, "_ct_core_name") else ""
+    if core:
+        cjs = bot._ct_fetch(core) or {}
+        cm = bot._parse_ct_studies(cjs, company, today, 3650, match=core)
+        print(f"   🔎 احتياطُ الإصلاح «{core}»: دراسات {len(cjs.get('studies') or [])} · مطابَقٌ "
+              f"بالحارس الأشدّ على 10 سنوات = {len(cm)} {[e['date'] for e in cm]} · رعاة "
+              f"{_sponsors(cjs)[:3]}")
     if alt is not None:
         ajs = alt["js"] or {}
         print(f"   بالكلمة الأولى «{first}»: HTTP {alt['http']} · دراسات "
