@@ -61655,6 +61655,10 @@ try:
                                         if _runst else False),
         "شيفرةُ الحاكمة في gov": any((s.get("with") or {}).get("ref") == "${{ steps.gov.outputs.sha }}"
                                      and (s.get("with") or {}).get("path") == "gov" for s in _rsteps),
+        # الاسمُ يحمل الأسرةَ والحاكمةَ والعلم ⇒ تُربط كلُّ تشغيلةٍ بصفّها من القائمة لا من الذاكرة
+        "run-name يسمّي": (_r.get("run-name") == "T-EARLY-2 ${{ inputs.family }} gov=${{ inputs.gov_run }} "
+                                                 "cal=${{ inputs.early_cal }}"
+                           and "gov=${{ inputs.gov_run }} new=${{ inputs.new_run }}" in str(_c.get("run-name"))),
         "قراءةٌ فقط": (_r.get("permissions", {}).get("contents") == "read"
                         and _c.get("permissions", {}).get("contents") == "read"),
     }

@@ -1,4 +1,5 @@
 name: "T-EARLY-2 (🗓️🔍② مقارنةُ المرفوعة بالحاكمة: الصفوفُ داخل W وخارجها · وفرقُ المُخرَج)"
+run-name: "T-EARLY-2 compare gov=${{ inputs.gov_run }} new=${{ inputs.new_run }} off=${{ inputs.off_run }}"
 
 # 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد early_rest_prereg.md §④/§⑥
 permissions:
