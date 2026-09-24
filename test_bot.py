@@ -63967,6 +63967,47 @@ except Exception as _e:                                           # noqa: BLE001
     _cfd30, _cfd30_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD30 §⑧-6 يُطبع من المصنوعة: `split_case` = بلا تقسيم · داخلها وطرفٌ خام · الطرفان قبله · وتقسيمُ اليوم الأوّل "
       "أو النسبةُ 1:1 ليسا تقسيمًا داخلها — والعدّادُ بصفوفه وإصاباتها وغيرِ المؤرَّخ منها", _cfd30, _cfd30_w)
+# ── CFD31 لوحةُ «بلا تاريخ» تُحمَّل مرّةً في الحقيقيّة وتُعاد (والمؤرَّخةُ والمرساةُ بلا حقن) ──
+try:
+    _saved31 = {n: getattr(_CFE, n) for n in ("verify_manifest", "load_key", "log")}
+    _savedcf31 = {n: getattr(_CF, n) for n in ("load_panel", "panel_arrays", "run_card", "trading_days_back")}
+    _loads31, _got31 = [], []
+    _cards31 = {"u1": {"v": 1, "id": "u1", "extremes": {"high": "2.0"}},
+                "d1": {"v": 1, "id": "d1", "window": {"from": "2025-01-02", "to": "2025-01-30"},
+                       "extremes": {"high": "2.0"}},
+                "a1": {"v": 1, "id": "a1", "anchor": {"date": "2025-01-02", "c": "1.0"}},
+                "u2": {"v": 1, "id": "u2", "last": "1.5"}}
+    _dir31 = _cfd_tf.mkdtemp()
+    _files31 = []
+    for _k31, _c31 in _cards31.items():
+        _p31 = _cfd_os.path.join(_dir31, f"{_k31}.json")
+        with open(_p31, "w", encoding="utf-8") as _fh31:
+            _cfd_json.dump(_c31, _fh31)
+        _files31.append(_p31)
+    try:
+        _CFE.verify_manifest = lambda folder=None: (True, list(_files31), [])
+        _CFE.load_key = lambda folder=None: {k: {"sym": "AAA", "class": "unknown"} for k in _cards31}
+        _CFE.log = lambda m="": None
+        _CF.trading_days_back = lambda end, years: ["2025-01-02", "2025-01-03"]
+        _CF.load_panel = lambda days, tmpdir, get=None: (_loads31.append(tuple(days)) or {"x": 1})
+        _CF.panel_arrays = lambda panel: "PANEL"
+        _CF.run_card = lambda card, tmpdir, **kw: (_got31.append((card["id"], kw.get("panel_arr")))
+                                                   or {"rc": 0, "label": "لا تطابق", "top": []})
+        _rc31 = _CFE.run_real(_dir31)
+    finally:
+        for _n31, _f31 in _saved31.items():
+            setattr(_CFE, _n31, _f31)
+        for _n31, _f31 in _savedcf31.items():
+            setattr(_CF, _n31, _f31)
+        _cfd_sh.rmtree(_dir31, ignore_errors=True)
+    _cfd31 = (_rc31 == 0 and len(_loads31) == 1
+              and dict(_got31) == {"u1": "PANEL", "d1": None, "a1": None, "u2": "PANEL"}
+              and _CFE.is_undated({"extremes": {}}) and not _CFE.is_undated({"cross_with": "x"}))
+    _cfd31_w = f"تحميلات={len(_loads31)} · الحقن={dict(_got31)} · خروج={_rc31}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd31, _cfd31_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD31 الحقيقيّة: لوحةُ «بلا تاريخ» **تُحمَّل مرّةً واحدة** وتُعاد لكلّ بطاقةٍ بلا تاريخ (البياناتُ نفسُها ⇒ الحكمُ "
+      "بت-بت) · والمؤرَّخةُ والمرساةُ والتحقّقُ المتقاطع **بلا حقن** (مسارُها كما هو)", _cfd31, _cfd31_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

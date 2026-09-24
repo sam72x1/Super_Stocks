@@ -349,6 +349,25 @@ def judge_real(rows: list) -> tuple:
                     "k3": k3}
 
 
+def is_undated(card: dict) -> bool:
+    """بطاقةٌ بلا مرساةٍ ولا نافذةٍ مؤرَّخة ولا تحقّقٍ متقاطع ⟵ مسارُ «بلا تاريخ» على لوحة السوق."""
+    return not ((card.get("anchor") or {}).get("date") or (card.get("window") or {}).get("to")
+                or card.get("cross_with"))
+
+
+def undated_panel(card: dict, tmpdir: str, shared: dict, get=None):
+    """لوحةُ «بلا تاريخ» **تُحمَّل مرّةً وتُعاد لكلّ بطاقةٍ بلا تاريخ** — البياناتُ نفسُها التي يُحمّلها
+    المسارُ وحدَه (آخرُ `UNDATED_YEARS` سنوات حتى أمس) فالحكمُ بت-بت، والتحميلُ واحدٌ لا 37 (‏≈2-3 دقائق
+    لكلٍّ على الرنر ⇒ خطرُ مهلة 180). المؤرَّخةُ والمرساةُ `None` = مسارُها كما هو."""
+    if not is_undated(card):
+        return None
+    if "arr" not in shared:
+        end = (dt.date.today() - dt.timedelta(days=1)).isoformat()
+        panel = CF.load_panel(CF.trading_days_back(end, CF.UNDATED_YEARS), tmpdir, get=get)
+        shared["arr"] = CF.panel_arrays(panel) if panel else None
+    return shared["arr"]
+
+
 def run_real(tmpdir: str, get=None) -> int:
     ok, files, bad = verify_manifest()
     if not ok:
@@ -357,7 +376,7 @@ def run_real(tmpdir: str, get=None) -> int:
         log("CHART_EVAL_JUDGE branch=بصمةٌ مكسورة exit=4")
         return 4
     key = load_key()
-    rows, results = [], {}
+    rows, results, shared = [], {}, {}
     for p in files:
         card = json.load(open(p, encoding="utf-8"))
         cid = card.get("id")
@@ -365,7 +384,8 @@ def run_real(tmpdir: str, get=None) -> int:
         if truth is None:
             log(f"⛔ {cid}: بلا مفتاح")
             continue
-        res = CF.run_card(card, tmpdir, get=get, results=results)
+        res = CF.run_card(card, tmpdir, get=get, results=results,
+                          panel_arr=undated_panel(card, tmpdir, shared, get=get))
         rows.append({"id": cid, "sym": truth["sym"], "class": truth["class"], "label": res["label"],
                      "top": res["top"], "hit1": bool(res["top"]) and res["top"][0] == truth["sym"],
                      "hit3": truth["sym"] in res["top"][:3], "judged": res["rc"] == 0})
