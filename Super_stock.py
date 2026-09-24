@@ -18100,6 +18100,19 @@ def _e2_index_counts(idx):
         return 0, 0
 
 
+def _e2_verdict_counts(idx):
+    """🧾 (2026-09-24) عدُّ **أحكام المدقّق المحفوظة** في فهرس E2 — نقيّة. ترجّع
+    `(محكومة، مكتملة)`؛ المدخلُ بلا `session_complete` منطقيٍّ **غيرُ محكومٍ لا ناقص**
+    (الحكمُ لم يكن يُحفظ قبل هذا التاريخ). فاشلٌ-آمن ⇒ `(0, 0)`."""
+    try:
+        rows = list(idx.values()) if isinstance(idx, dict) else list(idx or [])
+        vs = [r.get("session_complete") for r in rows if isinstance(r, dict)
+              and isinstance(r.get("session_complete"), bool)]
+        return len(vs), sum(1 for v in vs if v)
+    except Exception:
+        return 0, 0
+
+
 def _observed_explosion_block(data) -> list:
     """📊 **«هل تنفجر أسهمُ الارتكاز؟» — الجوابُ الصادق، موصولًا أخيرًا.**
 
@@ -18267,12 +18280,16 @@ def _long_tracks_rows() -> list:
 
     def _e2():
         with open("ignition_e2_session_index.json", encoding="utf-8") as fh:
-            return len(json.load(fh) or {})
+            _ix = json.load(fh) or {}
+        return (len(_ix),) + _e2_verdict_counts(_ix)
     _e2n = _num(_e2)
     if _e2n is not None:
-        A.append(f"   🔬 بوّابةُ E2: <b>{_e2n}</b> وحدةً مسجَّلة · المطلوب 5 مكتملة. "
-                 "⚠️ <b>والاكتمالُ غيرُ محفوظٍ في الفهرس المدفوع</b> ⇒ يُقرأ من "
-                 "بوّابة الـworkflow (خضراء من 2026-08-07).")
+        # 🔴 (2026-09-24): كان هنا «الاكتمالُ غيرُ محفوظ ⇒ يُقرأ من بوّابة الـworkflow
+        #    (خضراء من 2026-08-07)» — **والبوّابةُ حمراءُ يوميًّا منذ 2026-08-31**. الحكمُ
+        #    صار يُحفظ في الفهرس فيُعَدّ منه لا يُروى.
+        A.append(f"   🔬 بوّابةُ E2: <b>{_e2n[0]}</b> وحدةً مسجَّلة · مكتملةٌ بحكم المدقّق "
+                 f"<b>{_e2n[2]}</b> من {_e2n[1]} محكومة · المطلوب 5 مكتملة "
+                 "(الحكمُ يُحفظ منذ 2026-09-24؛ غيرُ المحكوم لا يُعَدّ).")
 
     # ── (ب) تنتظر عملًا أو قرارًا — لا وقتًا ─────────────────────────────────
     B += ["   ⑥ <b>M6</b> (الالتقاطُ على المُسلَّم): يلزمه محاكاةُ الترتيب والسعة "
@@ -18347,9 +18364,10 @@ def _collection_health_block(wl=None) -> list:
         with open("ignition_e2_session_index.json", encoding="utf-8") as _f:
             _idx = json.load(_f)
         _tot, _norm = _e2_index_counts(_idx)
+        _jud, _cmp = _e2_verdict_counts(_idx)
         lines.append(
             f"   🔬 جلسات قياس E2 المسجَّلة: {_tot} (منها {_norm} انتهت طبيعيًّا) — "
-            "المطلوب 5 مكتملة · حكم الاكتمال من المدقّق `ignition_e2_analyze` لا من الفهرس")
+            f"مكتملةٌ بحكم المدقّق {_cmp} من {_jud} محكومة · المطلوب 5 مكتملة")
     except Exception:
         lines.append("   🔬 جلسات قياس E2: 0 مسجَّلة (تتجمّع)")
     return lines

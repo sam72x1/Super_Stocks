@@ -90,6 +90,32 @@ def recover(download_root, repo_root="."):
             merged.append(date)
         idx[date] = {**idx.get(date, {}), **entry}
 
+    # 🧾 (2026-09-24): **حكمُ المدقّق يُحفظ** لكلّ جلسةٍ مسترجَعة — بالقاعدة الحاليّة وعلى
+    #    الخام المحفوظ في artifacts (‏90 يومًا). كان يُطبَع في خطوةٍ لاحقة ولا يُحفظ، فلم
+    #    يعرف التقريرُ الأسبوعيّ أن البوّابةَ حمراءُ يوميًّا منذ 08-31. **ولا تخمين:** مجلّدٌ
+    #    بلا `session.json` لا يُحكَم عليه · والعدّاداتُ أعلاه لا تُمَسّ.
+    judged, judge_errors = [], []
+    try:
+        import ignition_e2_analyze as _A
+    except Exception as e:                       # الاسترجاعُ لا يسقط بسقوط المدقّق
+        _A = None
+        print("   ⚠️ حكمُ المدقّق تعذّر: %s" % e)
+    for date, (_loops, sdir, _summ) in (sorted(best.items()) if _A else ()):
+        if not os.path.exists(os.path.join(sdir, "session.json")):
+            continue
+        # 🔴 **لكلّ جلسةٍ حارسُها** (‏2026-09-24): كان الحارسُ حول الحلقة كلِّها فاستثناءٌ في
+        #    جلسةٍ واحدة (مخطّطٌ أقدم في إعادة الحكم التاريخيّ) **يبتر ما بعدها صامتًا** ⇒ تُحكَم
+        #    الباقيةُ ويُعلَن المتعذِّرُ بتاريخه — ولا يُخترَع له حكم.
+        try:
+            v = _A.verdict_entry(_A.analyze_session(sdir))
+        except Exception as e:                   # noqa: BLE001
+            judge_errors.append(date)
+            print("   ⚠️ حكمُ المدقّق تعذّر لجلسة %s: %s" % (date, e))
+            continue
+        if v and isinstance(idx.get(date), dict):
+            idx[date] = {**idx[date], **v}
+            judged.append((date, v["session_complete"]))
+
     with open(idx_path, "w", encoding="utf-8") as fh:
         json.dump(dict(sorted(idx.items())), fh, ensure_ascii=False, indent=2)
         fh.write("\n")
@@ -105,11 +131,17 @@ def recover(download_root, repo_root="."):
     if no_summary:
         print("   ⚠️ بلا ملخّصٍ أو بتاريخٍ مخالف (تُخطَّت، لا تخمين): "
               + ", ".join(d for d, _ in no_summary))
-    # صدق العدّ: الفهرس لا يُثبت الاكتمال — المدقّق الصارم وحده يفعل.
+    # صدق العدّ: الاكتمالُ حكمُ المدقّق وحده — والمحفوظُ منه يُعَدّ، وما لم يُحكَم لا يُفترَض.
     normal = [d for d, v in idx.items() if v.get("termination") == "normal"]
     print("   🧮 بالفهرس %d جلسة · منها %d بإنهاء طبيعي." % (len(idx), len(normal)))
-    print("   ⚠️ الفهرس عدّاد لا شهادة اكتمال — شغّل "
-          "`ignition_e2_analyze.py e2_measurement --strict` للحكم.")
+    _jud = [v for v in idx.values() if isinstance(v, dict)
+            and isinstance(v.get("session_complete"), bool)]
+    print("   🧾 حكمُ المدقّق محفوظٌ لـ%d جلسة (هذي التشغيلة: %d) · مكتملة %d · غير محكومة %d."
+          % (len(_jud), len(judged), sum(1 for v in _jud if v["session_complete"]),
+             len(idx) - len(_jud)))
+    if judge_errors:
+        print("   ⚠️ تعذّر الحكمُ على %d جلسة (لا حكمَ يُخترَع): %s"
+              % (len(judge_errors), ", ".join(judge_errors)))
     rebuilt = rebuild_fire_log(best, repo_root=repo_root)
     fires = _delivered_fires(best)
     if fires:
@@ -121,7 +153,7 @@ def recover(download_root, repo_root="."):
         for date, syms in fires:
             print("      %s: %s" % (date, " · ".join(syms)))
     return {"index": len(idx), "new": merged, "copied": copied, "fires": fires,
-            "rebuilt": rebuilt,
+            "rebuilt": rebuilt, "judged": judged, "judge_errors": judge_errors,
             "conflicts": conflicts, "no_summary": [d for d, _ in no_summary]}
 
 

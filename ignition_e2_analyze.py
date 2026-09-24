@@ -58,7 +58,30 @@ RECALL_MIN_POLLS, RECALL_MIN_COVERAGE, RECALL_MIN_EXPOSURE_MIN = 20, 0.80, 60
 #
 # ⚠️ ولا تُوسَّع هذي القائمة إلا لسببٍ **مستحيل الاستيفاء بنيويًّا** ويحرسه بديلٌ أقوى
 # على مستوى الجلسة — وإلّا صارت بابًا لتخفيفٍ صامت.
-DEFERRED_TO_ASSEMBLER = ("lost_post_alert_path",)
+#
+# 🔴 **وإضافةٌ ثانيةٌ بالقاعدة نفسِها (2026-09-24 — عطلٌ مقيسٌ من سجلّ الـworkflow):**
+# `segment_window_capped` — مقطعُ الافتتاح **قصّه سقفُ زمن التشغيل** قبل نهاية نافذته الاسميّة.
+# كرونُ الاحتياط (2026-08-29) يُقلع الجوبَ مبكّرًا فينتظر الجرسَ من ميزانيّته: تشغيلةُ
+# `35845795981` أقلعت 09:56 UTC وانتظرت 214 دقيقة ⇒ المهلةُ 09:56 ‏+ 330 = 15:26 قبل نهاية
+# النافذة 16:45 ⇒ مسح 116 من 195 دقيقة **ثمّ أقلع `close` بعد خمس ثوانٍ وملأ الباقي**
+# (`_start_plan`: المِرساةُ الجرسُ لا بدايةُ المقطع). فالرادارُ لم يَعمَ دقيقة، **والمدقّقُ
+# وحدَه لم يعرف هذا الوضع** ⇒ رُفضت **كلُّ جلسةٍ منذ 2026-08-31** (‏17 جلسةً في 18 تشغيلةٍ فاشلة
+# حتى 09-23 — لـ08-31 تشغيلتان؛ عدٌّ من واجهة Actions 2026-09-24)
+# وكان سببَها الوحيد في 09-21 · 09-22 · 09-23.
+# ⚖️ **والشرطان محقَّقان:** ① مستحيلُ الاستيفاء بنيويًّا في الوضع المشروع (الانتظارُ قبل
+# الجرس يأكل ميزانيّةَ الجوب المحدودة بـ345 دقيقة) ② ويحرسه بديلٌ أقوى على مستوى الجلسة:
+# `transition_gap_ms` **من مسحٍ فعليٍّ إلى مسحٍ فعليّ** (آخرُ لفّةٍ في `open` ⟶ أوّلُ لفّةٍ في
+# `close`) **وحدُّه 10 دقائق** · و`close` يبلغ الإغلاق · و`ended_before_expected_close`.
+# 🔒 **والتأجيلُ ضيّقٌ عمدًا:** مقطعُ الافتتاح وحدَه · وسببُ مهلته `max_runtime_cap` حرفيًّا ·
+# **وبلغ مهلتَه فعلًا** (انتهاءٌ قبلها = عطلٌ لا قصّ ⇒ يبقى `segment_window_not_covered`
+# رافضًا) · ولو غابت الفجوةُ المقيسة على مستوى الجلسة ⇒ `transition_gap_unmeasured` رافض.
+DEFERRED_TO_ASSEMBLER = ("lost_post_alert_path", "segment_window_capped")
+# حارسُ كلِّ مؤجَّلٍ على مستوى الجلسة — يُطبَع معه فلا يكون التأجيلُ تخفيفًا صامتًا.
+DEFERRED_GUARD = {"lost_post_alert_path": "path_not_reaching_close",
+                  "segment_window_capped": "transition_gap ≤ 10د من مسحٍ فعليّ"}
+# 🧾 الحكمُ يُحفظ في الفهرس المدفوع (كان يُطبَع فقط فلا يعرفه التقريرُ الأسبوعيّ) — وسمُ
+# القاعدة التي صدر بها، فالأحكامُ قبل هذا التاريخ غيرُ محفوظةٍ لا «غيرُ مكتملة».
+VERDICT_RULE = "2026-09-24"
 
 
 def _read_jsonl(path):
@@ -186,9 +209,17 @@ def analyze_session(sdir):
 
     if kind == "segment":
         # segment_complete: غطّى نافذته المقصودة (وصل ~ نهاية المقطع) + كل رمز مُنبَّه له بار لاحق.
-        if _ended_before(sess.get("segment_ended_at") or sess.get("ended_at"),
-                         sess.get("expected_segment_end_iso"), WINDOW_MARGIN_MIN):
-            reasons.append("segment_window_not_covered")
+        _seg_end = sess.get("segment_ended_at") or sess.get("ended_at")
+        if _ended_before(_seg_end, sess.get("expected_segment_end_iso"), WINDOW_MARGIN_MIN):
+            # 🔴 2026-09-24: قصُّ سقفِ التشغيل لمقطع الافتتاح **مؤجَّلٌ** (انظر
+            #    `DEFERRED_TO_ASSEMBLER`) — بشرط أنه بلغ مهلتَه فعلًا؛ وإلّا فالقديمُ الرافض.
+            if (sess.get("segment") == "open"
+                    and sess.get("deadline_reason") == "max_runtime_cap"
+                    and sess.get("deadline_iso")
+                    and not _ended_before(_seg_end, sess.get("deadline_iso"), WINDOW_MARGIN_MIN)):
+                reasons.append("segment_window_capped(max_runtime_cap)")
+            else:
+                reasons.append("segment_window_not_covered")
         if sess.get("segment") == "open":          # 🔬 P0-2: تغطية بداية الافتتاح (open فقط)
             _sc = _start_coverage_reason(sess)
             if _sc:
@@ -240,6 +271,11 @@ def analyze_session(sdir):
             _gap, _gmax = sess.get("transition_gap_ms"), sess.get("max_transition_gap_min")
             if _gap is not None and _gmax and _gap > _gmax * 60_000:
                 reasons.append("transition_gap_exceeded(%.1fد>%sد)" % (_gap / 60000.0, _gmax))
+            # 🔴 2026-09-24: قصُّ `open` المؤجَّل **لا يمرّ إلّا بفجوةٍ مقيسة** — غيابُها يعني أن
+            #    استمرارَ المسح غيرُ مُثبَت ⇒ رافض (لا يُفترَض الأفضل).
+            if any(d.startswith("open:") and "segment_window_capped" in d for d in deferred) \
+                    and (_gap is None or not _gmax):
+                reasons.append("transition_gap_unmeasured(open:capped)")
             # 🔬 P0-4: سلسلة manifest سليمة.
             if sess.get("manifest_chain_ok") is False:
                 reasons.append("manifest_chain_failed(%s)"
@@ -267,6 +303,39 @@ def analyze_session(sdir):
         "session_complete": (complete if is_session else None),
         "complete": complete,
     }
+
+
+def verdict_entry(r):
+    """🧾 مفاتيحُ حكم المدقّق التي تُحفظ في الفهرس — **نقيّة**. ترجّع `{}` لغير الجلسة
+    (المقطعُ وحدَه لا يُحكَم عليه بـsession_complete) أو لنتيجةٍ فارغة: لا حكمَ يُخترَع."""
+    if not isinstance(r, dict) or not isinstance(r.get("session_complete"), bool):
+        return {}
+    return {"session_complete": r["session_complete"],
+            "incomplete_reasons": [str(x)[:120] for x in (r.get("incomplete_reasons") or [])][:8],
+            "deferred_reasons": [str(x)[:120] for x in (r.get("deferred_reasons") or [])][:8],
+            "verdict_rule": VERDICT_RULE}
+
+
+def record_verdict(index_path, session_date, r):
+    """🧾 يدمج حكمَ المدقّق في مدخل الفهرس **ولا يمسّ العدّادات** — فاشلٌ-آمن (خطأٌ ⇒ False).
+    لا يُنشئ مدخلًا لتاريخٍ غائب: الفهرسُ يكتبه المسجّلُ/الاسترجاعُ، والحكمُ يُلحَق به فقط."""
+    try:
+        v = verdict_entry(r)
+        if not v or not session_date or not os.path.exists(index_path):
+            return False
+        with open(index_path, encoding="utf-8") as fh:
+            idx = json.load(fh) or {}
+        if not isinstance(idx, dict) or not isinstance(idx.get(session_date), dict):
+            return False
+        idx[session_date] = {**idx[session_date], **v}
+        tmp = index_path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(idx, fh, ensure_ascii=False, indent=2, sort_keys=True)
+            fh.write("\n")
+        os.replace(tmp, index_path)
+        return True
+    except Exception:
+        return False
 
 
 def main():
@@ -307,7 +376,9 @@ def main():
             print(f"    ⚠️ انتهت قبل الإغلاق المتوقّع بـ{r['minutes_short_of_close']} د "
                   f"(قيد سقف رنر GitHub — تغطية جزئية صريحة).")
         if r.get("deferred_reasons"):
-            print("    ℹ️ مؤجَّلٌ للـassembler (لا يَرفض · يحرسه `path_not_reaching_close`): "
+            _guards = sorted({g for d in r["deferred_reasons"]
+                              for k, g in DEFERRED_GUARD.items() if k in d})
+            print("    ℹ️ مؤجَّلٌ للـassembler (لا يَرفض · يحرسه " + " · ".join(_guards) + "): "
                   + " · ".join(r["deferred_reasons"]))
         _label = "segment_complete" if r["kind"] == "segment" else "session_complete"
         verdict = ("✅ %s" % _label) if r["complete"] else ("⚠️ غير مكتملة: " + " · ".join(r["incomplete_reasons"]))

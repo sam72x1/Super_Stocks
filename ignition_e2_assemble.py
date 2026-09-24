@@ -340,6 +340,10 @@ def main():
         r = A.analyze_session(os.path.join(root, "session_%s" % session_date))
         print("مدقّق: complete=%s%s" % (
             r.get("complete"), ("" if r.get("complete") else " · " + " · ".join(r.get("incomplete_reasons", [])))))
+        # 🧾 (2026-09-24): الحكمُ **يُحفظ** في الفهرس المدفوع — كان يُطبَع فقط، فلم يعرفه
+        #    التقريرُ الأسبوعيّ وظلّ يقول «خضراء من 08-07» والبوّابةُ حمراءُ يوميًّا منذ 08-31.
+        _saved = A.record_verdict("ignition_e2_session_index.json", session_date, r)
+        print("🧾 حكمُ المدقّق %s في الفهرس." % ("حُفظ" if _saved else "⚠️ لم يُحفظ (لا مدخلَ للتاريخ)"))
     except Exception as e:
         print(f"⚠️ المدقّق: {e}")
 
