@@ -1463,17 +1463,6 @@
   "date": "2026-09-21"
  },
  "LIQ:RETO": {
-  "last_eval_ms": 1790256960000,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1790242860000,
-   "anchor_price": 0.1875,
-   "anchor_low": 0.1734,
-   "e5": 0.1817,
-   "exit_ms": 1790243820000
-  },
-  "tc_cum": 7898934.897639928,
-  "tc_seen_ms": 1790256780000,
   "anchor_ms": 1790256840000,
   "last_ms": 1790258700000,
   "sent": [
@@ -1482,15 +1471,26 @@
   "updates": 0,
   "vol_x": 18.3,
   "peak_usd": 297005,
+  "last_eval_ms": 1790256960000,
   "pulse_ms": 1790258700000,
   "anchor_price": 0.1855,
   "anchor_open": 0.1748,
   "anchor_low": 0.1748,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1790242860000,
+   "anchor_price": 0.1875,
+   "anchor_low": 0.1734,
+   "e5": 0.1817,
+   "exit_ms": 1790243820000
+  },
   "pre_done": true,
   "pre_hi": 0.1782,
   "pre_usd": 924897,
   "pre_n": 62,
   "exit_ms": 1790257020000,
+  "tc_cum": 7898934.897639928,
+  "tc_seen_ms": 1790256780000,
   "date": "2026-09-24"
  },
  "LIQ:TLRY": {
@@ -1994,17 +1994,6 @@
   "date": "2026-09-23"
  },
  "LIQ:YMAT": {
-  "last_eval_ms": 1790256960000,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1790248200000,
-   "anchor_price": 1.48,
-   "anchor_low": 1.35,
-   "e5": 1.58,
-   "exit_ms": 1790250300000
-  },
-  "tc_cum": 34010751.72174111,
-  "tc_seen_ms": 1790256780000,
   "anchor_ms": 1790256840000,
   "last_ms": 1790258700000,
   "sent": [
@@ -2013,16 +2002,27 @@
   "updates": 0,
   "vol_x": 6.1,
   "peak_usd": 110336,
+  "last_eval_ms": 1790256960000,
   "pulse_ms": 1790258700000,
   "anchor_price": 1.54,
   "anchor_open": 1.495,
   "anchor_low": 1.49,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1790248200000,
+   "anchor_price": 1.48,
+   "anchor_low": 1.35,
+   "e5": 1.58,
+   "exit_ms": 1790250300000
+  },
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 1.5,
   "pre_usd": 1037328,
   "pre_n": 62,
   "exit_ms": 1790257080000,
+  "tc_cum": 34010751.72174111,
+  "tc_seen_ms": 1790256780000,
   "date": "2026-09-24"
  },
  "LIQ:SUNE": {
