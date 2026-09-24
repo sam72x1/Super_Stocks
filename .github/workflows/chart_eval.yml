@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "synth = المصنوعة (ضبط) · real = الحقيقيّة (قبول — بعد تجميد البطاقات ودمج §⑦)"
+        description: "synth = المصنوعة (ضبط) · real = الحقيقيّة الأولى (محترقة) · real2 = مجموعة ملحق §⑩ (v1.1 — بعد تجميد بطاقاتها)"
         required: true
         default: "synth"
       n:

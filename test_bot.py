@@ -64026,6 +64026,130 @@ except Exception as _e:                                           # noqa: BLE001
 check("🔎 CFD32 ملحقُ الضبط §⑦ **مكتوبٌ قبل الحقيقيّة** (لا «فارغ») ويسمّي تشغيلتَي المصنوعة · وكلُّ ما يجوز ضبطُه عليها "
       "(`DECISIVE_RATIO` · `SHORTLIST_MAX` · ثوابتُ البكسل الأربعة) بقيمته في الكود — لا ملحقَ يكذب على الأداة",
       _cfd32, _cfd32_w)
+# ── CFD33 G1 (§⑩): اللحظيُّ بلا مرساةٍ مؤرَّخة لا يُقال فيه «واثق» ولا «مرجّح» — والمرساةُ اللحظيّة لا تُمَسّ ──
+try:
+    _arr33, _get33 = _cfd_panel_world(True)
+    _base33 = {"v": 1, "id": "cfd-G1", "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"}
+    _keep33 = (_CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL), dict(_CF._LAST_ENDS), _CF.CAP_UNDATED_INTRADAY)
+    _r33 = {}
+    try:
+        for _tag33, _tf33, _nv33, _cap33 in (("4H", "4H", 90, True), ("1D", "1D", 37, True),
+                                              ("4H_off", "4H", 90, False)):
+            _CF._SPLITS_ALL_SINCE = None
+            _CF._SPLITS_ALL.clear()
+            _CF.CAP_UNDATED_INTRADAY = _cap33
+            _r33[_tag33] = _cfd_quiet(_CF.run_card, dict(_base33, id=f"cfd-G1-{_tag33}", timeframe=_tf33,
+                                                         bars_visible=_nv33),
+                                      _cfd_tmp, get=_get33, panel_arr=_arr33, series=False)
+        _CF.CAP_UNDATED_INTRADAY = True
+        _r33["anchor"] = _cfd_quiet(_CF.run_card, dict(_CFD_CARD_A, id="cfd-G1-anchor"), _cfd_tmp,
+                                    get=_cfd_get, file_path=_cfd_os.path.join(_cfd_tmp, "m.csv.gz"), series=False)
+    finally:
+        _CF._SPLITS_ALL_SINCE = _keep33[0]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep33[1])
+        _CF._LAST_ENDS.clear()
+        _CF._LAST_ENDS.update(_keep33[2])
+        _CF.CAP_UNDATED_INTRADAY = _keep33[3]
+    _cfd33 = (_r33["4H"]["label"] == "غير محسوم" and _r33["4H"]["top"][:1] == ["XSPL"]
+              and _r33["1D"]["label"] == "واثق" and _r33["4H_off"]["label"] == "واثق"
+              and _r33["anchor"]["label"] == "واثق" and _r33["anchor"]["mode"] == "anchor"
+              and _CF.is_intraday_tf({"timeframe": "5m"}) and _CF.is_intraday_tf({"timeframe": "intraday"})
+              and not _CF.is_intraday_tf({"timeframe": "unknown"}) and not _CF.is_intraday_tf({}))
+    _cfd33_w = " · ".join(f"{k}={v['label']}/{v['top'][:1]}/{v['mode']}" for k, v in _r33.items())
+except Exception as _e:                                           # noqa: BLE001
+    _cfd33, _cfd33_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD33 G1 (§⑩): العالمُ نفسُه بفريم «4H» بلا مرساة ⟵ **«غير محسوم»** (والمرشّحُ الأوّلُ يُطبع) · وبفريمٍ يوميّ "
+      "⟵ «واثق» كما كان · وبإطفاء `CAP_UNDATED_INTRADAY` ⟵ «واثق» (رجوعٌ بت-بت) · والمرساةُ اللحظيّةُ المؤرَّخة لا يمسّها الحارس",
+      _cfd33, _cfd33_w)
+# ── CFD34 G2 (§⑩): شمعةُ المرساة قيد التكوّن — الصارمُ يسقط والبديلُ يجد الصحيحَ وحيدًا بلا عيّنة ──
+try:
+    _d34 = "2026-04-15"
+    _hm34 = lambda s: int(s[:2]) * 60 + int(s[3:])               # noqa: E731
+    _w34 = {"LIVE": [("15:55", 1.43, 1.43, 1.425, 1.43), ("16:15", 1.51, 3.40, 1.50, 2.99),
+                     ("19:05", 4.75, 5.05, 4.72, 4.85), ("19:15", 4.84, 4.86, 4.56, 4.74),
+                     ("19:16", 4.74, 4.75, 4.50, 4.55), ("19:18", 4.55, 4.56, 4.27, 4.36)],
+            "DECO": [("15:40", 4.6, 4.9, 4.5, 4.7), ("19:15", 4.84, 4.86, 4.56, 4.74)],
+            "LDEC": [("15:40", 3.0, 3.1, 3.0, 3.05), ("19:15", 4.84, 4.90, 4.40, 4.50)]}
+    _p34 = _cfd_os.path.join(_cfd_tmp, "live.csv.gz")
+
+    def _write34(world):
+        with _cfd_gz.open(_p34, "wt") as _fh34:
+            _fh34.write("ticker,volume,open,close,high,low,window_start,transactions\n")
+            for _s34, _rs34 in world.items():
+                for _t34, _o34, _h34, _l34, _c34 in _rs34:
+                    _fh34.write(f"{_s34},1000,{_o34},{_c34},{_h34},{_l34},"
+                                f"{_cfd_ms(_d34, _hm34(_t34)) * 1_000_000},1\n")
+    _card34 = {"v": 1, "id": "cfd-G2", "timeframe": "intraday", "extended": True, "tz": "unknown",
+               "anchor": {"date": _d34, "time": "19:20", "o": "4.840", "h": "4.860", "l": "4.560", "c": "4.74"},
+               "window": {"from": _d34, "to": _d34, "from_time": "15:35", "to_time": "19:20"},
+               "extremes": {"high": "5.050", "low": "1.425"}}
+    _keep34 = _CF.LIVE_ANCHOR
+    try:
+        _write34(_w34)
+        _CF.LIVE_ANCHOR = True
+        _r34 = _cfd_quiet(_CF.run_card, _card34, _cfd_tmp, get=_cfd_get, file_path=_p34, series=False)
+        _r34o = _cfd_quiet(_CF.run_card, dict(_card34, id="cfd-G2-noopen",
+                                              anchor={k: v for k, v in _card34["anchor"].items() if k != "o"}),
+                           _cfd_tmp, get=_cfd_get, file_path=_p34, series=False)
+        _write34(dict(_w34, LIV2=[("15:55", 1.43, 1.43, 1.425, 1.43), ("19:05", 4.75, 5.05, 4.72, 4.85),
+                                  ("19:15", 4.84, 4.86, 4.30, 4.40)]))
+        _r34d = _cfd_quiet(_CF.run_card, dict(_card34, id="cfd-G2-twin"), _cfd_tmp, get=_cfd_get,
+                           file_path=_p34, series=False)
+        _write34(_w34)
+        _CF.LIVE_ANCHOR = False
+        _r34f = _cfd_quiet(_CF.run_card, dict(_card34, id="cfd-G2-off"), _cfd_tmp, get=_cfd_get,
+                           file_path=_p34, series=False)
+    finally:
+        _CF.LIVE_ANCHOR = _keep34
+    _cfd34 = (_r34["label"] == "واثق" and _r34["top"][0] == "LIVE" and _r34["mode"] == "anchor_live"
+              and _r34o["label"] == "لا تطابق" and _r34o["mode"] == "anchor"
+              and _r34d["label"] == "غير محسوم" and set(_r34d["top"][:2]) == {"LIVE", "LIV2"}
+              and _r34f["label"] == "لا تطابق" and _r34f["mode"] == "anchor" and _r34f["top"] == ["DECO"])
+    _cfd34_w = (f"بديل={_r34['label']}/{_r34['top'][:1]}/{_r34['mode']} · بلا افتتاح={_r34o['label']} · "
+                f"توأم={_r34d['label']}/{_r34d['top'][:2]} · مطفأ={_r34f['label']}/{_r34f['top']}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd34, _cfd34_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD34 G2 (§⑩): رأسُ اللقطة (4.84/4.86/4.56/4.74) لشمعةٍ **اكتملت بعدها** بأدنى 4.27 وإغلاق 4.36 ⟵ الصارمُ «لا تطابق» "
+      "(الشَّرَكُ المطابقُ حرفيًّا يسقط على النافذة) ⟵ **البديلُ يجد الصحيحَ وحيدًا «واثق»** · وبلا افتتاحٍ مقروء ⟵ لا بديل · "
+      "وتوأمٌ يعبر مثلَه ⟵ «غير محسوم» (لا تفرّدَ كاذب) · وبإطفاء `LIVE_ANCHOR` ⟵ الحكمُ الصارمُ كما كان", _cfd34, _cfd34_w)
+# ── CFD35 وحدةُ الشمعة قيد التكوّن: الافتتاحُ ثابت · الأعلى ≥ · الأدنى ≤ · الإغلاقُ حرّ ──
+try:
+    _sp35 = _CF.anchor_specs({"o": "4.840", "h": "4.860", "l": "4.560", "c": "4.74"})
+    _ok35 = _CF.score_anchor_live({"o": 4.84, "h": 4.86, "l": 4.27, "c": 4.36}, _sp35)
+    _hi35 = _CF.score_anchor_live({"o": 4.84, "h": 4.80, "l": 4.27, "c": 4.36}, _sp35)
+    _lo35 = _CF.score_anchor_live({"o": 4.84, "h": 4.90, "l": 4.60, "c": 4.36}, _sp35)
+    _op35 = _CF.score_anchor_live({"o": 4.90, "h": 4.95, "l": 4.27, "c": 4.36}, _sp35)
+    _no35 = _CF.score_anchor_live({"o": 4.84, "h": 4.86, "l": 4.27, "c": 4.36},
+                                  {k: v for k, v in _sp35.items() if k != "o"})
+    _st35 = _CF.score_anchor({"o": 4.84, "h": 4.86, "l": 4.27, "c": 4.36}, _sp35)
+    _cfd35 = (_ok35["near"] and "c" not in _ok35["fields"] and not _hi35["near"] and not _lo35["near"]
+              and not _op35["near"] and not _no35["near"] and not _st35["near"])
+    _cfd35_w = (f"مكتملة={_ok35['near']} · أعلى دونه={_hi35['near']} · أدنى فوقه={_lo35['near']} · "
+                f"افتتاح آخر={_op35['near']} · بلا افتتاح={_no35['near']} · الصارم={_st35['near']}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd35, _cfd35_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD35 `score_anchor_live`: الشمعةُ المكتملة (أدنى 4.27 · إغلاق 4.36) **تعبر** شرطَ اللقطة (4.84/4.86/4.56/4.74) والصارمُ "
+      "يرفضها · والأعلى النهائيّ دون المقروء أو الأدنى النهائيّ فوقه أو افتتاحٌ آخر ⟵ رفض · وبلا افتتاحٍ ⟵ رفض (لا بديلَ بلا ثابت)",
+      _cfd35, _cfd35_w)
+# ── CFD36 ملحقُ §⑩ والنتيجةُ المنشورة: المفتاحان بأسمائهما · والنتيجةُ الأولى بنصّ سطر حكمها لا تُعدَّل بصمت ──
+try:
+    _doc36 = open("chart_finder_prereg.md", encoding="utf-8").read()
+    _s10 = _doc36.split("## ⑩", 1)[1] if "## ⑩" in _doc36 else ""
+    _res36 = (open("chart_finder_result.md", encoding="utf-8").read()
+              if _cfd_os.path.exists("chart_finder_result.md") else "")
+    _need36 = ("`CAP_UNDATED_INTRADAY`", "`LIVE_ANCHOR`", "G1", "G2", "لا يُحتسب", "تجريبيّ", "مجموعةٌ حقيقيّةٌ جديدة")
+    _need36r = ("CHART_EVAL_JUDGE branch=لا حكم k1=6/8 k2=9/12 k3=1", "36062891504", "36062909423",
+                "36062928610", "36062937326", "TG_1965", "TG_2011", "MYSE")
+    _cfd36 = (bool(_s10) and all(x in _s10 for x in _need36) and all(x in _res36 for x in _need36r)
+              and _CF.CAP_UNDATED_INTRADAY is True and _CF.LIVE_ANCHOR is True)
+    _cfd36_w = (f"ملحق ناقص={[x for x in _need36 if x not in _s10]} · نتيجة ناقصة="
+                f"{[x for x in _need36r if x not in _res36]}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd36, _cfd36_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD36 ملحقُ §⑩ يسمّي G1/G2 بمفتاحَيهما ويقول «لا يُحتسب» و«تجريبيّ» ويشترط مجموعةً حقيقيّةً جديدة · والنتيجةُ الأولى "
+      "منشورةٌ بسطر حكمها حرفيًّا وتشغيلاتها الأربع وخطأَي «واثق» (`TG_1965` · `TG_2011`) وتشخيصِ `MYSE` · والمفتاحان مُشعلان",
+      _cfd36, _cfd36_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
