@@ -1200,7 +1200,7 @@
   "updates": 0,
   "vol_x": 0.8,
   "peak_usd": 29665,
-  "last_eval_ms": 1790251200000,
+  "last_eval_ms": 1790251140000,
   "pulse_ms": 1790252640000,
   "anchor_price": 2.78,
   "anchor_open": 2.74,
@@ -3529,5 +3529,6 @@
  },
  "LIQ:ETS": {
   "date": "2026-09-24"
- }
+ },
+ "DBGI": "2026-09-24"
 }
