@@ -64008,6 +64008,24 @@ except Exception as _e:                                           # noqa: BLE001
     _cfd31, _cfd31_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD31 الحقيقيّة: لوحةُ «بلا تاريخ» **تُحمَّل مرّةً واحدة** وتُعاد لكلّ بطاقةٍ بلا تاريخ (البياناتُ نفسُها ⇒ الحكمُ "
       "بت-بت) · والمؤرَّخةُ والمرساةُ والتحقّقُ المتقاطع **بلا حقن** (مسارُها كما هو)", _cfd31, _cfd31_w)
+# ── CFD32 ملحقُ §⑦ مكتوبٌ وقيمُه = الكود (ما يجوز ضبطُه على المصنوعة) ──
+try:
+    _doc32 = open("chart_finder_prereg.md", encoding="utf-8").read()
+    _s7 = _doc32.split("## ⑦", 1)[1].split("## ⑧", 1)[0] if "## ⑦" in _doc32 and "## ⑧" in _doc32 else ""
+    _mis32 = []
+    for _mod32, _k32 in ((_CF, "DECISIVE_RATIO"), (_CF, "SHORTLIST_MAX"), (_CFP, "LINE_MIN_FRAC"),
+                         (_CFP, "BODY_COVER"), (_CFP, "SAT_MIN"), (_CFP, "VAL_MIN")):
+        _m32 = _cfd_re.search(rf"`{_k32}=([0-9.]+)`", _s7)
+        if not _m32 or float(_m32.group(1)) != float(getattr(_mod32, _k32)):
+            _mis32.append(_k32)
+    _cfd32 = (bool(_s7) and "فارغٌ عند الدمج" not in _s7 and not _mis32
+              and "36057581617" in _s7 and "36060430298" in _s7)
+    _cfd32_w = f"مخالف={_mis32} · طول الملحق={len(_s7)}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd32, _cfd32_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD32 ملحقُ الضبط §⑦ **مكتوبٌ قبل الحقيقيّة** (لا «فارغ») ويسمّي تشغيلتَي المصنوعة · وكلُّ ما يجوز ضبطُه عليها "
+      "(`DECISIVE_RATIO` · `SHORTLIST_MAX` · ثوابتُ البكسل الأربعة) بقيمته في الكود — لا ملحقَ يكذب على الأداة",
+      _cfd32, _cfd32_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
