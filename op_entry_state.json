@@ -719,7 +719,19 @@
   "date": "2026-09-24"
  },
  "LIQ:WHLR": {
+  "anchor_ms": 1790263800000,
+  "last_ms": 1790263920000,
+  "sent": [
+   "M1"
+  ],
+  "updates": 0,
+  "vol_x": 13.7,
+  "peak_usd": 229902,
   "last_eval_ms": 1790263920000,
+  "pulse_ms": 1790263920000,
+  "anchor_price": 3.41,
+  "anchor_open": 3.24,
+  "anchor_low": 3.23,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1790256660000,
@@ -728,25 +740,11 @@
    "e5": null,
    "exit_ms": 1790256780000
   },
-  "tc_cum": 6314372.114095603,
-  "tc_seen_ms": 1790263740000,
-  "date": "2026-09-24",
-  "anchor_ms": 1790263800000,
-  "last_ms": 1790263860000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 13.7,
-  "peak_usd": 229902,
-  "pulse_ms": 1790263860000,
-  "anchor_price": 3.41,
-  "anchor_open": 3.24,
-  "anchor_low": 3.23,
   "pre_done": true,
   "pre_hi": 3.24,
   "pre_usd": 949083,
-  "pre_n": 62
+  "pre_n": 62,
+  "date": "2026-09-24"
  },
  "LIQ:PPCB": {
   "last_eval_ms": 1790263200000,
@@ -1222,9 +1220,9 @@
    "M5",
    "M30"
   ],
-  "updates": 1,
+  "updates": 0,
   "vol_x": 6.4,
-  "peak_usd": 11291375,
+  "peak_usd": 3717144,
   "last_eval_ms": 1790257500000,
   "pulse_ms": 1790263920000,
   "anchor_price": 13.51,
@@ -1615,7 +1613,7 @@
   "updates": 0,
   "vol_x": 24.0,
   "peak_usd": 89168,
-  "last_eval_ms": 1790260080000,
+  "last_eval_ms": 1790260020000,
   "pulse_ms": 1790263920000,
   "anchor_price": 1.43,
   "anchor_open": 1.18,
@@ -1798,7 +1796,7 @@
   "date": "2026-09-24"
  },
  "LIQ:NXTT": {
-  "last_eval_ms": 1790262000000,
+  "last_eval_ms": 1790260200000,
   "tc_cum": 37160.3535404,
   "tc_seen_ms": 1790260200000,
   "date": "2026-09-24"
@@ -1881,9 +1879,9 @@
    "e5": null,
    "exit_ms": 1790263500000
   },
-  "date": "2026-09-24",
   "tc_cum": 392421.3090227747,
-  "tc_seen_ms": 1790263500000
+  "tc_seen_ms": 1790263500000,
+  "date": "2026-09-24"
  },
  "LIQ:QNCX": {
   "date": "2026-09-24"
@@ -4090,10 +4088,10 @@
   "date": "2026-09-24"
  },
  "LIQ:FIEE": {
-  "date": "2026-09-24",
   "last_eval_ms": 1790263920000,
   "tc_cum": 9139.2,
-  "tc_seen_ms": 1790263920000
+  "tc_seen_ms": 1790263920000,
+  "date": "2026-09-24"
  },
  "LIQ:GRSD": {
   "last_eval_ms": 1790263920000,
