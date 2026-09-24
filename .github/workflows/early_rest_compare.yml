@@ -1,0 +1,68 @@
+name: "T-EARLY-2 (🗓️🔍② مقارنةُ صفوف المرفوعة بالحاكمة داخل W وخارجها)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد early_rest_prereg.md §④/§⑥
+permissions:
+  contents: read
+  actions: read          # تنزيلُ صفوف التشغيلات (run-id)
+
+on:
+  workflow_dispatch:
+    inputs:
+      gov_run:
+        description: "التشغيلةُ الحاكمة (صفوفُها المنشورة)"
+        required: true
+        type: string
+      new_run:
+        description: "تشغيلةُ early_rest_run.yml المرفوعة (early_cal=1)"
+        required: true
+        type: string
+      off_run:
+        description: "الاحتياط (§⑥ V-R3): تشغيلةُ early_rest_run.yml المطفأة (early_cal=0) — فارغٌ إن لم يلزم"
+        required: false
+        default: ""
+        type: string
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+
+      - name: Download governing rows
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.gov_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: e2_gov
+
+      - name: Download calendar-bound rows
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.new_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: e2_new
+
+      - name: Download flag-off rows (fallback)
+        if: ${{ inputs.off_run != '' }}
+        uses: actions/download-artifact@v4
+        with:
+          run-id: ${{ inputs.off_run }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: e2_off
+
+      - name: 🗓️ قارن
+        env:
+          E2_OFF: ${{ inputs.off_run }}
+        run: |
+          if [ -n "$E2_OFF" ]; then
+            python early_rest_compare.py e2_gov e2_new e2_off
+          else
+            python early_rest_compare.py e2_gov e2_new
+          fi
