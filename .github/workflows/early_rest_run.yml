@@ -46,7 +46,10 @@ jobs:
         run: |
           sha=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$E2_GOV" --jq .head_sha)
           job=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$E2_GOV/jobs" --jq '.jobs[0].id')
-          gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$job/logs" > e2_gov.log
+          # 🔴 السجلُّ بـcurl لا بـgh api: سجلّاتُ Actions ملوّنة (رموزُ طرفيّة) و`gh api` يرفض طباعتَها
+          #    ⇒ سقطت أوّلُ تشغيلةٍ هنا قبل أيّ رقم (35957890988).
+          curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/jobs/$job/logs" -o e2_gov.log
           test -n "$sha" && test -s e2_gov.log
           echo "🧭 الحاكمة $E2_GOV ⟵ الشيفرة $sha · السجلّ $(wc -l < e2_gov.log) سطرًا"
           echo "sha=$sha" >> "$GITHUB_OUTPUT"

@@ -86,7 +86,9 @@ jobs:
         run: |
           fetch() {
             job=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$1/jobs" --jq '.jobs[0].id')
-            gh api "repos/$GITHUB_REPOSITORY/actions/jobs/$job/logs" > "$2"
+            # السجلُّ بـcurl: `gh api` يرفض رموزَ الطرفيّة في السجلّات الملوّنة
+            curl -fsSL -H "Authorization: Bearer $GH_TOKEN" -H "Accept: application/vnd.github+json" \
+              "https://api.github.com/repos/$GITHUB_REPOSITORY/actions/jobs/$job/logs" -o "$2"
           }
           fetch "$E2_GOV" e2_gov.log
           fetch "$E2_NEW" e2_new.log
