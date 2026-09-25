@@ -66955,7 +66955,7 @@ except Exception as _e:                                              # noqa: BLE
 check("⏱️🕵️ ATM14 النتيجةُ منشورةٌ كما صدرت (`36187368420`): التنبّؤاتُ الأربعة بعلاماتها — **`AT-P2` ❌ يبقى منشورًا بسببه** · "
       "والحارسان بأرقامهما (‏410/411 · 403/404 · 722 من 723) · والجوابُ أوّلُ قسم", _atm14, _atm14_w)
 
-# ── WWK1-WWK12 «أسهمُ البوت هذا الأسبوع وشروطي الثلاثة» (watch_week_probe.py · قراءةٌ فقط) — عالمٌ اصطناعيّ · بلا شبكة ولا git ──
+# ── WWK1-WWK16 «أسهمُ البوت هذا الأسبوع وشروطي الثلاثة» (watch_week_probe.py · قراءةٌ فقط) — عالمٌ اصطناعيّ · بلا شبكة ولا git ──
 import ast as _ww_ast                                                # noqa: E402
 import contextlib as _ww_ctx                                         # noqa: E402
 import datetime as _ww_dt                                            # noqa: E402
@@ -66992,7 +66992,7 @@ def _ww_series(sym, d0, d1):
     return out
 
 
-def _ww_world(bad_rsi=0, no_bars=0, intraday=0):
+def _ww_world(bad_rsi=0, no_bars=0, intraday=0, mins="ok", late=False):
     """ستّةُ رموز في لقطاتٍ قبل الافتتاح · والمخزَّنُ `rsi` = المحسوبُ عند `ref_bar` (إلّا `bad_rsi` منها بفارق 10) ·
     و`intraday` = أوّلُ k رمزًا ظهروا على main **أثناء جلسة شمعتهم** (التزامٌ 09-18 ‏11:26 نيويورك · ⑦)."""
     syms = ["AAA", "BBB", "CCC", "DDD", "EEE", "PEN"]
@@ -67018,6 +67018,15 @@ def _ww_world(bad_rsi=0, no_bars=0, intraday=0):
     if intraday:
         snaps["hi"] = {"stocks": [dict(e) for e in ents[:intraday]]}
         commits = [(_ww_utc("2026-09-18", 11, 26), "hi")] + commits
+    if late:
+        # ⑧ LAT يظهر على main أوّلَ مرّةٍ 09-22 05:00 نيويورك (بعد فتح البريماركت) — قفزتُه 04:30 قبل ظهوره خارج النافذة
+        _bl = _ww_series("LAT", "2025-08-01", "2026-09-25")
+        _lat = {"symbol": "LAT", "status": "active", "added": "2026-09-22", "ref_bar": "2026-09-21",
+                "rsi": _WW.rsi_at(_bl, "2026-09-21"), "float": 1_000_000, "shares_available": 5_000, "short": 7_000}
+        snaps["h1b"] = {"stocks": [dict(e) for e in ents] + [dict(_lat)], "pullback": [dict(p) for p in pb]}
+        for h in ("h2", "h3", "h4"):
+            snaps[h]["stocks"].append(dict(_lat))
+        commits = sorted(commits + [(_ww_utc("2026-09-22", 5, 0), "h1b")])
     dead = set(syms[:no_bars])
 
     def fb(sym, d0, d1, key):
@@ -67028,17 +67037,41 @@ def _ww_world(bad_rsi=0, no_bars=0, intraday=0):
         b = _ww_series(sym, d0, d1)
         adj = [(d, o * 10, h * 10, lo * 10, c * 10, v) for d, o, h, lo, c, v in b] if sym == "PEN" else list(b)
         return adj, b
-    return commits, snaps, fb
+
+    def fm(sym, d0, d1, key):
+        """⑧ دقائقُ اصطناعيّة: شمعةٌ نظاميّةٌ واحدة 09:31 نيويورك كلَّ يوم بـhigh اليوميّ نفسِه (adjusted كـ`fb`) · و**BBB يقفز
+        ‏+80% في أفتر 09-23 (16:30)** — «GCTK» الاصطناعيّ: النظاميّةُ لا تراه والممتدّةُ تراه · وDDD يقفز ‏+90% في 03:59 يومَ 09-21
+        (قبل 04:00 ⇒ خارج النافذة) · وEEE يقفز ‏+90% في 19:00 يومَ 09-25 (بعد لحظة التشغيل 18:00 ⇒ خارجها) ·
+        و`mins="none"` صفرُ دقائق · و`"partial"` بلا دقائق لـCCC وPEN (تغطيةٌ 4/6 ⇒ `V-W3` وحدَه يسقط) · و`"half"` دقائقُ
+        بنصف السعر (عطبُ جلب ⇒ `V-W4` يسقط) · وLAT (`late`) يقفز ‏+90% في 04:30 يومَ 09-22 قبل ظهوره على main 05:00."""
+        if mins == "none" or sym in dead or (mins == "partial" and sym in ("CCC", "PEN")):
+            return []
+        adj, _raw = fb(sym, d0, d1, key)
+        k = 0.5 if mins == "half" else 1.0
+        out = [(int(_ww_utc(d, 9, 31).timestamp() * 1000), h * k) for d, _o, h, _l, _c, _v in adj]
+        cl = {d: c for d, _o, _h, _l, c, _v in adj}
+        if sym == "BBB" and "2026-09-22" in cl:
+            out.append((int(_ww_utc("2026-09-23", 16, 30).timestamp() * 1000), cl["2026-09-22"] * 1.8 * k))
+        if sym == "DDD" and "2026-09-18" in cl:
+            out.append((int(_ww_utc("2026-09-21", 3, 59).timestamp() * 1000), cl["2026-09-18"] * 1.9 * k))
+        if sym == "EEE" and "2026-09-24" in cl:
+            out.append((int(_ww_utc("2026-09-25", 19, 0).timestamp() * 1000), cl["2026-09-24"] * 1.9 * k))
+        if sym == "LAT" and "2026-09-21" in cl:
+            out.append((int(_ww_utc("2026-09-22", 4, 30).timestamp() * 1000), cl["2026-09-21"] * 1.9 * k))
+        return sorted(out)
+    return commits, snaps, fb, fm
 
 
-def _ww_run(bad_rsi=0, no_bars=0, key="k", commits=None, intraday=0):
-    c0, snaps, fb = _ww_world(bad_rsi, no_bars, intraday)
-    saved = (_WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.WEEK, _ww_os.environ.get("POLYGON_API_KEY"))
+def _ww_run(bad_rsi=0, no_bars=0, key="k", commits=None, intraday=0, mins="ok", late=False):
+    c0, snaps, fb, fm = _ww_world(bad_rsi, no_bars, intraday, mins, late)
+    saved = (_WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.WEEK, _ww_os.environ.get("POLYGON_API_KEY"),
+             _WW.fetch_minutes)
     buf = _ww_io.StringIO()
     try:
         _WW.wl_commits = lambda path=_WW.WL_FILE: list(c0 if commits is None else commits)
         _WW.load_snapshot = lambda h, path=_WW.WL_FILE: snaps.get(h)
         _WW.fetch_bars = fb
+        _WW.fetch_minutes = fm
         _WW.WEEK = ""
         if key:
             _ww_os.environ["POLYGON_API_KEY"] = key
@@ -67050,6 +67083,7 @@ def _ww_run(bad_rsi=0, no_bars=0, key="k", commits=None, intraday=0):
         rc = f"⛔ {type(_e).__name__}: {_e}"
     finally:
         _WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.WEEK = saved[:4]
+        _WW.fetch_minutes = saved[5]
         if saved[4] is None:
             _ww_os.environ.pop("POLYGON_API_KEY", None)
         else:
@@ -67168,6 +67202,8 @@ except Exception as _e:                                              # noqa: BLE
 check("🗓️🔎 WWK7 `V-W1` بحدوده: فارقُ نقطتين موافقٌ و2.01 لا · وترشيحُ ما قبل الأسبوع وبلا rsi خارج المقارنة", _atm_ww7, _atm_ww7_w)
 
 # WWK8 — الرئيسيّ طرفًا لطرف: الحارسان قبل أيّ رقم · المطابقُ والمجهولُ والسنتاتُ مُسقطة · والسطرُ الأخير الحكم
+# ⑧ (‏2026-09-25 · إقرارًا): سطرُ الحكم صار يحمل العمودين (النظاميّة · وشاملًا البري والأفتر) — ونصُّه القديم بادئتُه حرفيًّا
+_WW_LAST = ("🏁 المراقَبة هذا الأسبوع 6 · تطابق الثلاثة وفوق الدولار 1 · انفجر منها +50%: 1 · +100%: 0 (النظاميّة) · وشاملًا البري والأفتر: +50%: 1 · +100%: 0 · ومن المراقَبة كلِّها بلغ +50%: نظاميًّا 1 · شاملًا البري والأفتر 2 (BBB, AAA)")
 try:
     _rcA, _oA = _ww_run()
     _rcB, _oB = _ww_run(bad_rsi=4)
@@ -67176,7 +67212,7 @@ try:
     _rcE, _oE = _ww_run(commits=[(_ww_utc("2026-09-28", 3, 0), "h0")])
     _lastA = [l for l in _oA.splitlines() if l.strip()][-1]
     _ord = [_oA.find("V-W2"), _oA.find("V-W1"), _oA.find("📅 لكلّ جلسة"), _oA.find("🏁")]
-    _atm_ww8 = (_rcA == 0 and _lastA == "🏁 المراقَبة هذا الأسبوع 6 · تطابق الثلاثة وفوق الدولار 1 · انفجر منها +50%: 1 · +100%: 0"
+    _atm_ww8 = (_rcA == 0 and _lastA == _WW_LAST
                 and all(i >= 0 for i in _ord) and _ord == sorted(_ord)
                 and "🎯 AAA: أوّلُ مطابقةٍ داخلًا إلى 2026-09-21 (إغلاق 2026-09-18)" in _oA and "❔ مجهولٌ" in _oA
                 and "CCC" in _oA.split("❔ مجهولٌ")[1].splitlines()[0] and "🎯 PEN" not in _oA
@@ -67251,7 +67287,7 @@ try:
                  and set(_p11) == {"A"} and _p11["A"] == _ww_utc("2026-09-18", 11, 26)
                  and _rcA11 == 0 and "⑦ خارج المقارنة 2 مُرشَّحًا" in _oA11 and "ولو دخلوا: 4/6 = 66.7%" in _oA11
                  and "V-W1 RSI عند `ref_bar` مقابل المخزَّن (ترشيحاتٌ من 2026-09-18): 4/4 = 100.0%" in _oA11
-                 and _lastA11 == "🏁 المراقَبة هذا الأسبوع 6 · تطابق الثلاثة وفوق الدولار 1 · انفجر منها +50%: 1 · +100%: 0"
+                 and _lastA11 == _WW_LAST
                  and _rcB11 == 3 and "⑦ خارج المقارنة" not in _oB11
                  and _rcC11 == 0 and "ولو دخلوا: 6/6 = 100.0%" in _oC11)
     _atm_ww11_w = f"cl={_cl11} p={sorted(_p11)} rc={_rcA11}/{_rcB11}/{_rcC11} last={_lastA11[:40]}"
@@ -67286,6 +67322,122 @@ except Exception as _e:                                              # noqa: BLE
 check("🗓️🔎 WWK12 النتيجةُ منشورةٌ كما صدرت (`36195923031`): الجوابُ أوّلُ قسم (51 · UZX وحدَه · +0.6% · لا أحد بلغ +50%) · "
       "**والتشغيلةُ الأولى الساقطة `36194240914` (خروج 3 · 17/22 = 77.3%) تبقى منشورةً في ②** · والحارسان 51/51 و14/14 · "
       "ومجموعُ الجدول 177/4 · والارتدادُ بـGRML ‏+538.9% ومتاحُه غيرُ مخزَّن", _atm_ww12, _atm_ww12_w)
+
+# WWK13 — ⑧ الدوالُّ النقيّة: النافذةُ من الأحدث (04:00 · أوّلُ ظهورٍ **متّصل**) إلى الأسبق (20:00 · الآن) · وحدودُها · والجلسة
+try:
+    _wl13 = _ww_utc("2026-09-21", 4, 0)
+    _cm13 = [(_ww_utc("2026-09-18", 21, 0), "a"), (_ww_utc("2026-09-21", 2, 54), "b"), (_ww_utc("2026-09-22", 4, 6, 59), "c"),
+             (_ww_utc("2026-09-22", 9, 24), "d"), (_ww_utc("2026-09-23", 7, 35), "e")]
+    _sn13 = {"a": {"stocks": [{"symbol": "OLD"}, {"symbol": "DROP"}]}, "b": {"stocks": [{"symbol": "OLD"}]},
+             "c": {"stocks": [{"symbol": "OLD"}, {"symbol": "GCTK"}, {"symbol": "DROP"}]},
+             "d": {"stocks": [{"symbol": "OLD"}, {"symbol": "GCTK"}, {"symbol": "DROP"}]},
+             "e": {"stocks": [{"symbol": "OLD"}, {"symbol": "GCTK"}, {"symbol": "LATE"}]}}
+    _fs13 = _WW.first_seen_map(_cm13, {"OLD": "2026-09-21", "GCTK": "2026-09-22", "DROP": "2026-09-22", "LATE": "2026-09-23",
+                                       "NONE": "2026-09-22"}, _wl13, load=lambda h: _sn13.get(h))
+    _b13 = _WW.ext_bounds("2026-09-22", _fs13.get("GCTK"), "2026-09-25", _ww_utc("2026-09-26", 1, 0))
+    _b13n = _WW.ext_bounds("2026-09-22", None, "2026-09-25", _ww_utc("2026-09-25", 18, 0))
+    _b13e = _WW.ext_bounds("2026-09-22", _ww_utc("2026-09-22", 3, 0), "2026-09-25", _ww_utc("2026-09-26", 1, 0))
+
+    def _ms13(d, h, m, sec=0):
+        return int(_ww_utc(d, h, m, sec).timestamp() * 1000)
+    _mn13 = [(_ms13("2026-09-22", 4, 5), 9.9), (_ms13("2026-09-22", 4, 6, 59), 2.4), (_ms13("2026-09-23", 16, 45), 5.46),
+             (_ms13("2026-09-24", 9, 39), 3.25), (_ms13("2026-09-25", 20, 0), 99.0)]
+    _r13 = _WW.max_rise_ext(_mn13, 2.30, *_b13)
+    _atm_ww13 = (_fs13.get("OLD") == _wl13 and _fs13.get("GCTK") == _ww_utc("2026-09-22", 4, 6, 59)
+                 and _fs13.get("DROP") == _ww_utc("2026-09-22", 4, 6, 59) and _fs13.get("LATE") == _ww_utc("2026-09-23", 7, 35)
+                 and "NONE" not in _fs13
+                 and _b13 == (_ww_utc("2026-09-22", 4, 6, 59), _ww_utc("2026-09-25", 20, 0))
+                 and _b13n == (_ww_utc("2026-09-22", 4, 0), _ww_utc("2026-09-25", 18, 0))
+                 and _b13e[0] == _ww_utc("2026-09-22", 4, 0)
+                 and abs(_r13[0] - (5.46 / 2.30 - 1) * 100) < 1e-9 and _r13[1] == _ms13("2026-09-23", 16, 45)
+                 and _WW.max_rise_ext(_mn13[:2], 2.30, *_b13) == ((2.4 / 2.30 - 1) * 100, _ms13("2026-09-22", 4, 6, 59))
+                 and _WW.max_rise_ext(_mn13, 0, *_b13) == (None, None) and _WW.max_rise_ext([], 2.3, *_b13) == (None, None)
+                 and [_WW.sess_label(_ms13(*x)) for x in (("2026-09-24", 4, 1), ("2026-09-24", 9, 30), ("2026-09-24", 15, 59),
+                                                          ("2026-09-23", 16, 0), ("2026-11-27", 12, 59), ("2026-11-27", 13, 0))]
+                 == ["بري", "نظاميّ", "نظاميّ", "أفتر", "نظاميّ", "أفتر"]
+                 and _WW.vw4([("A", 10.0, 8.0), ("B", 10.0, 7.99), ("C", None, 5.0), ("D", 3.0, None)]) == (0.5, 2, [("B", 10.0, 7.99)])
+                 and (_WW.EXT_FROM, _WW.EXT_TO, _WW.EXT_TOL, _WW.MIN_MIN_COVER, _WW.MIN_EXT_AGREE)
+                 == ((4, 0), (20, 0), 2.0, 0.90, 0.90))
+    _atm_ww13_w = f"fs={ {k: f'{v:%m-%d %H:%M:%S}' for k, v in _fs13.items()} } b={_b13[0]:%H:%M:%S} r={_r13}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww13, _atm_ww13_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK13 ⑧ النافذةُ الممتدّة: البدءُ الأحدثُ من 04:00 يومَ d1 ومن أوّل ظهورٍ **متّصلٍ** على main (السهمُ المُسقَط ثمّ المُعاد "
+      "يبدأ من إعادته · ونشطُ ما قبل الأسبوع من 04:00) · والنهايةُ الأسبقُ من 20:00 ومن الآن · والدقيقةُ قبل البدء أو عند النهاية خارج · "
+      "والجلسةُ بإغلاق التقويم (مبكّرٌ 13:00) · و`V-W4` بنقطتين · والثوابتُ كرأس الأداة", _atm_ww13, _atm_ww13_w)
+
+# WWK14 — ⑧ الرئيسيّ: قفزةُ الأفتر يراها الممتدُّ ولا يراها النظاميّ · وما قبل 04:00 وما بعد لحظة التشغيل خارج · والنظاميُّ بت-بت
+try:
+    _rc14, _o14 = _ww_run()
+    _L14 = _o14.splitlines()
+    _reg14 = _o14.split("💥 المقارنة")[1].split("💥⑧")[0] if "💥⑧" in _o14 and "💥 المقارنة" in _o14 else ""
+    _ext14 = _o14.split("💥⑧")[1].split("🔁 البديل")[0] if "💥⑧" in _o14 and "🔁 البديل" in _o14 else ""
+    _ord14 = [_o14.find("🔒 V-W1"), _o14.find("🩺 V-W3"), _o14.find("🔒 V-W4"), _o14.find("📅 لكلّ جلسة"), _o14.find("💥⑧"),
+              _o14.find("🏁")]
+    _ln14 = {s_: next((l for l in _L14 if l.startswith(f"    {s_}    ") or l.startswith(f" 🎯 {s_}    ")), "")
+             for s_ in ("BBB", "DDD", "EEE", "AAA")}
+    _atm_ww14 = (_rc14 == 0 and all(i >= 0 for i in _ord14) and _ord14 == sorted(_ord14)
+                 and "   🎯 AAA: +55.2% (2026-09-23) · مراقَبٌ من 2026-09-21" in _reg14 and "BBB" not in _reg14
+                 and "      BBB: +80.0% (09-23 16:30 أفتر) · النظاميّة +1.3% · مراقَبٌ من 2026-09-21" in _ext14
+                 and "   🎯 AAA: +55.2% (09-23 09:31 نظاميّ)" in _ext14 and "DDD" not in _ext14 and "EEE" not in _ext14
+                 and _ext14.find("BBB") < _ext14.find("AAA")
+                 and _ln14["BBB"].endswith("· أقصى صعودٍ +1.3% (09-21) · ممتدًّا +80.0% (09-23 16:30 أفتر)")
+                 and _ln14["DDD"].endswith("· ممتدًّا +1.3% (09-21 09:31 نظاميّ)")
+                 and _ln14["EEE"].endswith("· ممتدًّا +1.3% (09-21 09:31 نظاميّ)")
+                 and "· وشاملًا البري والأفتر +55.2% (09-23 09:31 نظاميّ)" in _o14
+                 and "🔁⑧ الارتداد شاملًا البري والأفتر: بلغ +50%: 1 (PBA) · +100%: 1 (PBA)" in _L14
+                 and "حتى 09-25 18:00 نيويورك" in _o14 and _L14[-1] == _WW_LAST
+                 and _WW_LAST.startswith("🏁 المراقَبة هذا الأسبوع 6 · تطابق الثلاثة وفوق الدولار 1 · انفجر منها +50%: 1 · +100%: 0"))
+    _rcL14, _oL14 = _ww_run(late=True)
+    _extL14 = _oL14.split("💥⑧")[1].split("🔁 البديل")[0] if "💥⑧" in _oL14 and "🔁 البديل" in _oL14 else "∅"
+    _lnL14 = next((l for l in _oL14.splitlines() if l.startswith("    LAT    ")), "")
+    _atm_ww14 = (_atm_ww14 and _rcL14 == 0 and "LAT" not in _extL14 and "BBB" in _extL14
+                 and _lnL14.endswith("· أقصى صعودٍ +1.0% (09-23) · ممتدًّا +1.0% (09-23 09:31 نظاميّ)"))
+    _atm_ww14_w = f"rc={_rc14}/{_rcL14} ord={_ord14} bbb={_ln14['BBB'][-60:]} lat={_lnL14[-70:]}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww14, _atm_ww14_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK14 ⑧ الرئيسيّ: قفزةُ أفتر BBB (‏+80% · 09-23 16:30) يراها العمودُ الممتدّ ولا يراها النظاميّ (+1.3%) — «GCTK» "
+      "الاصطناعيّ · وقفزةُ 03:59 (قبل البريماركت) وقفزةُ ما بعد لحظة التشغيل **وقفزةُ LAT قبل ظهوره على main** خارج · "
+      "والحارسان قبل «📅» · وكتلةُ ③ بت-بت · "
+      "وسطرُ الحكم الأخير يحمل العمودين وبادئتُه نصُّه القديم حرفيًّا", _atm_ww14, _atm_ww14_w)
+
+# WWK15 — ⑧ حارسا الدقيقة: صفرُ دقائق (V-W3) أو دقائقُ تالفة (V-W4) ⇒ «لا حكم» للعمود وحده · وخروج 0 · والنظاميُّ كما هو
+try:
+    _rcN, _oN = _ww_run(mins="none")
+    _rcH, _oH = _ww_run(mins="half")
+    _rcP, _oP = _ww_run(mins="partial")
+    _ok_last15 = ("🏁 المراقَبة هذا الأسبوع 6 · تطابق الثلاثة وفوق الدولار 1 · انفجر منها +50%: 1 · +100%: 0 (النظاميّة) · "
+                  "وشاملًا البري والأفتر: لا حكم · ومن المراقَبة كلِّها بلغ +50%: نظاميًّا 1 · شاملًا البري والأفتر لا حكم")
+    _atm_ww15 = (_rcN == 0 and _rcH == 0 and _rcP == 0
+                 and "🩺 V-W3 شموعُ الدقيقة: 0 من 6 = 0.0% (الحدّ 90%)" in _oN and "🔒 V-W4" in _oH and "0/6 = 0.0%" in _oH
+                 and "الشاذّون: AAA" in _oH
+                 and "🩺 V-W3 شموعُ الدقيقة: 4 من 6 = 66.7% (الحدّ 90%) · بلا شموع: CCC, PEN" in _oP
+                 and "4/4 = 100.0%" in _oP
+                 and all("⚠️ ⑧ العمودُ الممتدّ «لا حكم»" in o and [l for l in o.splitlines() if l.strip()][-1] == _ok_last15
+                         and "ممتدًّا" not in o and "🔁⑧ الارتداد شاملًا البري والأفتر: لا حكم (V-W3/V-W4)" in o
+                         and "   🎯 AAA: +55.2% (2026-09-23) · مراقَبٌ من 2026-09-21" in o for o in (_oN, _oH, _oP)))
+    _atm_ww15_w = f"rc={_rcN}/{_rcH}/{_rcP}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww15, _atm_ww15_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK15 ⑧ حارسا الدقيقة: صفرُ دقائق أو تغطيةٌ 4/6 (`V-W3` وحدَه · و`V-W4` فيها 4/4) أو دقائقُ تالفةٌ تنقص عن النظاميّة "
+      "(`V-W4`) ⇒ العمودُ الممتدّ «لا حكم» في "
+      "كلّ موضع (ولا رقمَ ممتدًّا يُطبع) · وخروج 0 · وكتلةُ ③ وبادئةُ سطر الحكم كما هما", _atm_ww15, _atm_ww15_w)
+
+# WWK16 — ⑧ مؤرَّخٌ في رأس الأداة قبل رقمِ بقيّة المجتمع · والتصحيحُ منشورٌ فوق الأصل لا بدلَه (‏«التنبّؤُ الخاطئ يُنشر ولا يُحذف»)
+try:
+    _res16 = open("watch_week_result.md", encoding="utf-8").read()
+    _s0_16 = _res16.split("## ⓪", 1)[1].split("## ①", 1)[0] if "## ⓪" in _res16 and "## ①" in _res16 else ""
+    _doc16 = (_WW.__doc__ or "")
+    _i_orig, _i_fix = _s0_16.find("ولا سهمَ من الـ51 بلغ +50%"), _s0_16.find("🔴 **تصحيحٌ مؤرَّخ 2026-09-25")
+    _atm_ww16 = ("⑧ **ملحقٌ مؤرَّخ 2026-09-25" in _doc16 and "36201669055" in _doc16 and "5.46" in _doc16
+                 and "وبقيّةُ المجتمع لم تُقَس ممتدّةً قبله" in _doc16
+                 and 0 <= _i_orig < _i_fix and all(x in _s0_16[_i_fix:] for x in ("GCTK", "5.46", "5.05", "3.25", "+137%",
+                                                                                  "+146%", "+149%", "36201669055"))
+                 and "«لا أحد» هنا **للجلسة النظاميّة وحدَها**" in _res16 and "وهذا الحدُّ غيّر الجواب" in _res16)
+    _atm_ww16_w = f"orig={_i_orig} fix={_i_fix}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww16, _atm_ww16_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK16 ⑧ مؤرَّخٌ في رأس الأداة (مِجَسّ `36201669055` · 5.46) ويُعلن أن بقيّةَ المجتمع لم تُقَس ممتدّةً قبله · "
+      "والتصحيحُ منشورٌ **بعد** الأصل في ⓪ لا بدلَه (GCTK بأرقامه الثلاثة ومصدرِه) · وفي ⑤ و⑧-2", _atm_ww16, _atm_ww16_w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

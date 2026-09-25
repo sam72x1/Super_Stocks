@@ -29,6 +29,20 @@
    والإغلاقُ من التقويم بالاسم `session_info`) — ويُستبعد به ناجحون أيضًا · **والعتبةُ لا تُمَسّ** (نقطتان · 80% على 5) · **والنسبةُ لو
    دخلوا تُطبع** · **والشروطُ لا تقرأ RSI البوت أصلًا** (Polygon وحدَه) ⇒ لا أثرَ لهم على الحكم. ووقتُ الالتزام لا يسبق الحسابَ أبدًا ⇒
    الاستبعادُ لا يطال ترشيحًا حُسب بعد الإغلاق.
+⑧ **ملحقٌ مؤرَّخ 2026-09-25 (ليلًا) — «الجلسة الممتدّة» بعد مسكة المالك «GCTK … محقق فوق 140٪ هذا الأسبوع»:** ③ يقيس **الجلسة
+   النظاميّة وحدَها** (يوميُّ Polygon) وحدُّه كان مكتوبًا في حدود الصدق **لا في العنوان** ⇒ «لا سهمَ من الـ51 بلغ +50%» صحّ للنظاميّة
+   وكذب على سؤال المالك: GCTK بلغ **5.46 في أفتر 09-23** (16:45 نيويورك · مِجَسّ الملفّات المجمَّعة `36201669055`) وأعلى نظاميّته 3.25.
+   ⇒ **عمودٌ ثانٍ يُطبع بجانب ③ ولا يستبدله** (③ ونتائجُه المنشورة بت-بت):
+   · **النافذة** `[start, end)`: `start` = الأحدثُ من **04:00 نيويورك يومَ أوّل جلسةٍ مراقَبة** ومن **أوّل ظهورٍ للسهم نشطًا على main**
+     في الأسبوع (بوقت الالتزام · نشطٌ في آخر لقطةٍ قبل 04:00 أوّلِ جلسات الأسبوع ⇒ 04:00 نفسُها) — **فلا يُحتسب صعودٌ قبل أن تُرى
+     القائمة** · و`end` = **20:00 نيويورك آخرَ جلسةٍ منتهية** أو لحظةُ التشغيل إن سبقتها (ويُطبع الحدّ).
+   · **القمّة** = أقصى `high` لشموع دقيقة Polygon `adjusted=true` (البريماركت والأفتر ضمنًا) **بدأت داخل النافذة** ÷ إغلاق c نفسِه
+     في ③ − 1 ⟵ +50/+100 · ويُطبع وقتُها وجلستُها (بري قبل 09:30 · نظاميّ حتى إغلاق التقويم · أفتر بعده).
+   · **حارسان قبل الرقم:** `V-W3` شموعُ دقيقةٍ لـ90% فأكثر من الرموز · `V-W4` القمّةُ الممتدّة لا تقلّ عن النظاميّة بأكثر من نقطتين
+     لـ90% فأكثر ممّن لهما القيمتان (النافذةُ الممتدّة تحوي جلساتِ ③ النظاميّة كلَّها بالبناء ⇒ النقصُ عطبُ جلب) — وسقوطُ أيٍّ منهما
+     ⇒ العمودُ «لا حكم» **ولا يمسّ ③ ولا رمزَ الخروج**.
+   · **وسطرُ الحكم الأخير يحمل العمودين معًا** (درسُ الخطأ: حدُّ الصدق الذي يغيّر الجواب مكانُه العنوانُ لا الحاشية).
+   · **والرقمُ الممتدُّ الوحيد المعلومُ قبل هذا السطر = GCTK** — وبقيّةُ المجتمع لم تُقَس ممتدّةً قبله.
 
 الخروج: 0 قياس · 2 بلا مفتاح · 3 حارسٌ ساقط · 4 لا لقطة/لا رمز · 5 ليست قراءةً فقط.
 """
@@ -57,6 +71,9 @@ RSI_TOL, V_AGREE, V_MIN_N = 2.0, 0.80, 5                            # 🔒 V-W1
 MIN_BAR_COVER = 0.90                                                 # 🔒 V-W2
 EXPLODE = (50.0, 100.0)
 CLOSED_AFTER = (16, 30)          # الجلسةُ «منتهية» بعد 16:30 نيويورك (هامشُ الشمعة اليوميّة) · الجاريةُ لا تُحتسب
+EXT_FROM, EXT_TO = (4, 0), (20, 0)   # ⑧ البريماركت 04:00 ⟶ نهايةُ الأفتر 20:00 نيويورك (نافذةُ دقائق Polygon الممتدّة)
+EXT_TOL = 2.0                    # ⑧ 🔒 V-W4 — نقطتان: الممتدّةُ لا تقلّ عن النظاميّة بأكثر منهما (engineering)
+MIN_MIN_COVER = MIN_EXT_AGREE = 0.90                                 # ⑧ 🔒 V-W3 · V-W4
 UTC = dt.timezone.utc
 
 
@@ -205,6 +222,72 @@ def max_rise(adj, c, d_from, d_to):
     return (best[2] / c0 - 1.0) * 100.0, best[0]
 
 
+def ext_bounds(d1, seen, last_day, now_utc):
+    """⑧ النافذةُ الممتدّة `[start, end)` بـUTC: `start` = الأحدثُ من 04:00 نيويورك يومَ `d1` (أوّلِ جلسةٍ مراقَبة) ومن `seen`
+    (أوّلِ ظهورٍ للسهم نشطًا على main · None ⟵ 04:00 نفسُها) — فلا يُحتسب صعودٌ قبل أن تُرى القائمة · و`end` = الأسبقُ من 20:00
+    نيويورك يومَ `last_day` ومن `now_utc`."""
+    y, m, d = map(int, d1.split("-"))
+    t0 = dt.datetime(y, m, d, *EXT_FROM, tzinfo=NY).astimezone(UTC)
+    y, m, d = map(int, last_day.split("-"))
+    t1 = dt.datetime(y, m, d, *EXT_TO, tzinfo=NY).astimezone(UTC)
+    return (t0 if seen is None else max(t0, seen)), min(t1, now_utc)
+
+
+def max_rise_ext(mins, c0, start, end):
+    """⑧ أقصى `high` لدقيقةٍ **بدأت** في `[start, end)` ÷ `c0` − 1 بالمئة ⟵ (pct, ms) أو (None, None) · و`mins` = [(ms, high)]."""
+    if not c0 or c0 <= 0:
+        return None, None
+    lo, hi = start.timestamp() * 1000.0, end.timestamp() * 1000.0
+    win = [b for b in mins if lo <= b[0] < hi]
+    if not win:
+        return None, None
+    best = max(win, key=lambda b: b[1])
+    return (best[1] / c0 - 1.0) * 100.0, best[0]
+
+
+def sess_label(ms):
+    """⑧ جلسةُ الدقيقة: «بري» قبل 09:30 نيويورك · «نظاميّ» حتى إغلاق التقويم (يعرف الإغلاقَ المبكّر) · «أفتر» بعده."""
+    t = dt.datetime.fromtimestamp(ms / 1000.0, tz=UTC)
+    day = t.astimezone(NY).date().isoformat()
+    if t < open_utc(day):
+        return "بري"
+    return "نظاميّ" if t < close_utc(day) else "أفتر"
+
+
+def vw4(pairs, tol=EXT_TOL):
+    """⑧ `V-W4`: من [(رمز, نظاميّ%, ممتدّ%)] ⟵ (نسبةُ مَن لا تقلّ ممتدّتُه عن نظاميّته بأكثر من `tol` نقطة, n, الشاذّون) —
+    النافذةُ الممتدّة تحوي جلساتِ ③ كلَّها بالبناء ⇒ النقصُ عطبُ جلب."""
+    xs = [(s, r, e) for s, r, e in pairs if r is not None and e is not None]
+    bad = [(s, r, e) for s, r, e in xs if e < r - tol]
+    n = len(xs)
+    return ((n - len(bad)) / n if n else 0.0), n, bad
+
+
+def first_seen_map(commits, d1_by_sym, week_lo, pick=None, load=None):
+    """⑧ {رمز: بدءُ ظهوره **المتّصل** نشطًا على main حتى لقطة ما قبل افتتاح `d1`} — يُرجَع من تلك اللقطة إلى الوراء ما دام
+    نشطًا في كلّ التزام · فإن بلغ ما قبل `week_lo` ⟵ `week_lo` نفسُها · والغائبُ عن لقطة `d1` ⟵ غائبٌ عن القاموس. `pick` =
+    مُستخرِجُ المجموعة (`active_entries` للرئيسيّة · `pullback_entries` للارتداد) · و`commits` مرتّبةٌ صعودًا."""
+    pick = pick or active_entries
+    load = load or load_snapshot
+    cache = {}
+
+    def act(h):
+        if h not in cache:
+            cache[h] = set(pick(load(h) or {}))
+        return cache[h]
+    out = {}
+    for s, d in d1_by_sym.items():
+        cut = open_utc(d)
+        idx = max((i for i, (t, _h) in enumerate(commits) if t < cut), default=None)
+        if idx is None or s not in act(commits[idx][1]):
+            continue
+        j = idx
+        while j > 0 and commits[j][0] >= week_lo and s in act(commits[j - 1][1]):
+            j -= 1
+        out[s] = week_lo if commits[j][0] < week_lo else commits[j][0]
+    return out
+
+
 def partial_nominations(commits, first_entry, since, load=None):
     """{رمز: وقتُ دخوله main} لترشيحات الأسبوع (`added` من `since`) التي **ظهرت على main قبل إغلاق جلسة شمعتها** (`ref_bar`)
     بـ(`added`, `ref_bar`) نفسيهما ⇒ RSI البوت عليها محسوبٌ على شمعةٍ لم تكتمل (⑦). يُمسح ما بين منتصف ليل يوم الشمعة (نيويورك)
@@ -264,6 +347,20 @@ def fetch_bars(sym, d0, d1, key):
     return P.ticker_daily_adj(sym, d0, d1, key), fetch_raw(sym, d0, d1, key)
 
 
+def fetch_minutes(sym, d0, d1, key):
+    """⑧ شموعُ دقيقة Polygon `adjusted=true` بين يومين (**البريماركت والأفتر ضمنًا** · 04:00-20:00 نيويورك) ⟵ [(ms, high)] —
+    بـ`_get` بالاسم (إعادةُ المحاولة) · والشمعةُ التالفة تُتخطّى لا تُخمَّن."""
+    js = P._get(f"{P.API}/v2/aggs/ticker/{sym}/range/1/minute/{d0}/{d1}",
+                {"adjusted": "true", "sort": "asc", "limit": "50000"}, key)
+    out = []
+    for b in (js or {}).get("results") or []:
+        try:
+            out.append((int(b["t"]), float(b["h"])))
+        except (KeyError, TypeError, ValueError):
+            continue
+    return out
+
+
 # ─────────────────────────── الرئيسيّ ───────────────────────────
 def _fmt(x, f="{:,.0f}"):
     return "—" if x is None else f.format(x)
@@ -271,6 +368,18 @@ def _fmt(x, f="{:,.0f}"):
 
 def _mark(x):
     return "؟" if x is None else ("✓" if x else "✗")
+
+
+def _when(ms):
+    """⑧ «MM-DD HH:MM جلسة» بتوقيت نيويورك."""
+    return f"{dt.datetime.fromtimestamp(ms / 1000.0, tz=NY):%m-%d %H:%M} {sess_label(ms)}"
+
+
+def _ext_txt(x, ok, lead=" · ممتدًّا "):
+    """⑧ ذيلُ السطر الممتدّ — فارغٌ إن سقط حارسا ⑧ أو لا قيمة (لا يُخمَّن رقم)."""
+    if not ok or not x or x[0] is None:
+        return ""
+    return f"{lead}{x[0]:+.1f}% ({_when(x[1])})"
 
 
 def main(now=None) -> int:                                           # noqa: PLR0911, PLR0912, PLR0915
@@ -369,6 +478,33 @@ def main(now=None) -> int:                                           # noqa: PLR
             per[s][d] = {"c": c, "rsi": rsi, "px": px, "float": fl, "avail": av, "finra": fin,
                          "f": f, "m": conj(f), "alt": alt}
 
+    # ── ⑧ الجلسةُ الممتدّة — عمودٌ ثانٍ بجانب ③ لا بديلٌ عنه · وحارساه قبل أيّ رقمٍ ممتدّ ──
+    now_utc = now.astimezone(UTC)
+    week_lo = ext_bounds(wdays[0], None, wdays[-1], now_utc)[0]
+    d1_by = {s: sorted(per[s])[0] for s in union}
+    seen = first_seen_map(commits, d1_by, week_lo)
+    reg, ext, mins_by = {}, {}, {}
+    for s in union:
+        c1 = per[s][d1_by[s]]["c"]
+        reg[s] = max_rise(adj_by.get(s) or [], c1, d1_by[s], wdays[-1])
+        mins_by[s] = fetch_minutes(s, wdays[0], wdays[-1], key)
+        st, en = ext_bounds(d1_by[s], seen.get(s), wdays[-1], now_utc)
+        ext[s] = max_rise_ext(mins_by[s], close_at(adj_by.get(s) or [], c1), st, en)
+    ext_end = ext_bounds(wdays[-1], None, wdays[-1], now_utc)[1]
+    n_min = sum(1 for s in union if mins_by.get(s))
+    mcov = n_min / len(union)
+    agree4, n4, bad4 = vw4([(s, reg[s][0], ext[s][0]) for s in union])
+    ext_ok = mcov >= MIN_MIN_COVER and n4 > 0 and agree4 >= MIN_EXT_AGREE
+    log(f"🌙 ⑧ الجلسةُ الممتدّة (البري والأفتر · عمودٌ ثانٍ لا يمسّ ③): من 04:00 نيويورك يومَ أوّل جلسةٍ مراقَبة أو أوّلِ ظهورٍ "
+        f"على main (الأحدث) حتى {ext_end.astimezone(NY):%m-%d %H:%M} نيويورك")
+    log(f"🩺 V-W3 شموعُ الدقيقة: {n_min} من {len(union)} = {mcov * 100:.1f}% (الحدّ {MIN_MIN_COVER * 100:.0f}%) · بلا شموع: "
+        f"{', '.join(s for s in union if not mins_by.get(s)) or 'لا أحد'}")
+    log(f"🔒 V-W4 الممتدّةُ لا تقلّ عن النظاميّة بأكثر من {EXT_TOL:g} نقطة: {n4 - len(bad4)}/{n4} = {agree4 * 100:.1f}% "
+        f"(الحدّ {MIN_EXT_AGREE * 100:.0f}%)"
+        + (" · الشاذّون: " + ", ".join(f"{b[0]} {b[1]:+.1f}/{b[2]:+.1f}" for b in bad4) if bad4 else ""))
+    if not ext_ok:
+        log("⚠️ ⑧ العمودُ الممتدّ «لا حكم» (V-W3/V-W4) — ③ قائمٌ كما هو ولا يتغيّر رمزُ الخروج")
+
     log("")
     log("=" * 78)
     log("📅 لكلّ جلسة: القائمةُ داخلًا إليها · المطابقون (الأربعة معًا) · المجهول")
@@ -396,12 +532,14 @@ def main(now=None) -> int:                                           # noqa: PLR
         mt = [d for d in ds if per[s][d]["m"] is True]
         tag = "🎯" if mt else ("❔" if any(per[s][d]["m"] is None for d in ds) else "  ")
         log(f" {tag} {s:6} {' | '.join(cells)} · أقصى صعودٍ {_fmt(mr, '{:+.1f}%')}"
-            f"{'' if mday is None else ' (' + mday[5:] + ')'}")
+            f"{'' if mday is None else ' (' + mday[5:] + ')'}{_ext_txt(ext.get(s), ext_ok)}")
         if mt:
             dm = mt[0]
             r = per[s][dm]
             mr2, md2 = max_rise(adj_by.get(s) or [], r["c"], dm, wdays[-1])
-            matched.append((s, dm, r, mr2, md2, len(mt)))
+            st2, en2 = ext_bounds(dm, seen.get(s), wdays[-1], now_utc)
+            xm = max_rise_ext(mins_by.get(s) or [], close_at(adj_by.get(s) or [], r["c"]), st2, en2)
+            matched.append((s, dm, r, mr2, md2, len(mt), xm))
         elif any(per[s][d]["m"] is None for d in ds):
             unknown.append(s)
 
@@ -409,11 +547,12 @@ def main(now=None) -> int:                                           # noqa: PLR
     log("=" * 78)
     log("🎯 المطابقون (الأربعة معًا في جلسةٍ على الأقلّ) — وما جرى بعد أوّل مطابقة")
     log("=" * 78)
-    for s, dm, r, mr2, md2, k in matched:
+    for s, dm, r, mr2, md2, k, xm in matched:
         ex = " · ".join(f"+{int(t)}%: {'نعم' if (mr2 or -1e9) >= t else 'لا'}" for t in EXPLODE)
         log(f"   🎯 {s}: أوّلُ مطابقةٍ داخلًا إلى {dm} (إغلاق {r['c']}) · RSI {_fmt(r['rsi'], '{:.1f}')} · فلوت {_fmt(r['float'])} · "
             f"متاح {_fmt(r['avail'])} · سعر ${_fmt(r['px'], '{:.2f}')} · جلساتُ المطابقة {k} · أقصى صعودٍ بعدها "
-            f"{_fmt(mr2, '{:+.1f}%')}{'' if md2 is None else ' (' + md2 + ')'} · {ex} · حالتُه: {cont_label(last_entry[s])}")
+            f"{_fmt(mr2, '{:+.1f}%')}{'' if md2 is None else ' (' + md2 + ')'} · {ex} · حالتُه: {cont_label(last_entry[s])}"
+            f"{_ext_txt(xm, ext_ok, ' · وشاملًا البري والأفتر ')}")
     if not matched:
         log("   لا أحد")
     if unknown:
@@ -428,6 +567,19 @@ def main(now=None) -> int:                                           # noqa: PLR
     for s, mr, mday, d1 in boom:
         log(f"   {'🎯' if s in mset else '  '} {s}: {mr:+.1f}% ({mday}) · مراقَبٌ من {d1}")
     if not boom:
+        log("   لا أحد")
+    log("")
+    log("=" * 78)
+    log("💥⑧ شاملًا البري والأفتر: كلُّ مراقَبٍ بلغ +50% هذا الأسبوع (من إغلاق ما قبل أوّل جلسةٍ مراقَبة · منذ ظهوره على main)")
+    log("=" * 78)
+    eboom = sorted((s for s in union if ext_ok and ext[s][0] is not None and ext[s][0] >= EXPLODE[0]),
+                   key=lambda s: -ext[s][0])
+    for s in eboom:
+        log(f"   {'🎯' if s in mset else '  '} {s}: {ext[s][0]:+.1f}% ({_when(ext[s][1])}) · النظاميّة {_fmt(reg[s][0], '{:+.1f}%')} · "
+            f"مراقَبٌ من {d1_by[s]}" + ("" if seen.get(s) is None else f" · ظهر على main {seen[s].astimezone(NY):%m-%d %H:%M}"))
+    if not ext_ok:
+        log("   لا حكم (V-W3/V-W4)")
+    elif not eboom:
         log("   لا أحد")
     alt = sorted({s for s in union for d in per[s] if per[s][d]["alt"] is True})
     log(f"🔁 البديل «الشورت» = حجمُ FINRA اليوميّ أقلّ من {OPL.AVAIL_OWNER:,} (يُطبع ولا يَحكم): يطابق {len(alt)}"
@@ -449,7 +601,9 @@ def main(now=None) -> int:                                           # noqa: PLR
     log("=" * 78)
     log(f"🔁 قائمةُ الارتداد (مستقلّة · تُطبع ولا تَحكم · «المتاح» لا يُخزَّن لها ⇒ الاقترانُ مجهولٌ بالبناء): {len(pb_union)} رمزًا")
     log("=" * 78)
-    pb_three, pb_boom, pb_dead = [], [], []
+    pb_three, pb_boom, pb_dead, pb_ext = [], [], [], []
+    pb_seen = first_seen_map(commits, {s: min(d for d in wdays if s in pb_by.get(d, {})) for s in pb_union}, week_lo,
+                             pick=pullback_entries)
     for s in pb_union:
         adj, raw = fetch_bars(s, d0, wdays[-1], key)
         if not adj:
@@ -465,8 +619,12 @@ def main(now=None) -> int:                                           # noqa: PLR
                 hit.append((d, c))
         mr, mday = max_rise(adj, prev_day(cal, ds[0]), ds[0], wdays[-1])
         st = pb_by[ds[-1]][s].get("status") or "—"
+        pst, pen = ext_bounds(ds[0], pb_seen.get(s), wdays[-1], now_utc)
+        px_ = max_rise_ext(fetch_minutes(s, wdays[0], wdays[-1], key), close_at(adj, prev_day(cal, ds[0])), pst, pen)
+        if ext_ok and px_[0] is not None:
+            pb_ext.append((s, px_[0]))
         log(f"   {'🎯' if hit else '  '} {s:6} [{st}] {' | '.join(cells)} · فلوت {_fmt(_num(pb_by[ds[-1]][s].get('float')))} · "
-            f"أقصى صعودٍ {_fmt(mr, '{:+.1f}%')}{'' if mday is None else ' (' + mday[5:] + ')'}")
+            f"أقصى صعودٍ {_fmt(mr, '{:+.1f}%')}{'' if mday is None else ' (' + mday[5:] + ')'}{_ext_txt(px_, ext_ok)}")
         if hit:
             mr3, _md3 = max_rise(adj, hit[0][1], hit[0][0], wdays[-1])
             pb_three.append((s, mr3))
@@ -480,11 +638,23 @@ def main(now=None) -> int:                                           # noqa: PLR
         f"{' (' + ', '.join(s for s, _m in pb_three) + ')' if pb_three else ''} · بلغ منها +50%: {t50} · +100%: {t100} · "
         f"وبلغ +50% من القائمة كلِّها: {len(pb_boom)}{' (' + ', '.join(s for s, _m in pb_boom) + ')' if pb_boom else ''} · "
         f"والمتاحُ مجهولٌ فلا تُحسب مطابقة")
+    pe50 = [s for s, m in sorted(pb_ext, key=lambda x: -x[1]) if m >= EXPLODE[0]]
+    pe100 = [s for s, m in sorted(pb_ext, key=lambda x: -x[1]) if m >= EXPLODE[1]]
+    log("🔁⑧ الارتداد شاملًا البري والأفتر: " + ("لا حكم (V-W3/V-W4)" if not ext_ok else
+        f"بلغ +50%: {len(pe50)}{' (' + ', '.join(pe50) + ')' if pe50 else ''} · +100%: {len(pe100)}"
+        f"{' (' + ', '.join(pe100) + ')' if pe100 else ''}"))
 
     n50 = sum(1 for m in matched if m[3] is not None and m[3] >= EXPLODE[0])
     n100 = sum(1 for m in matched if m[3] is not None and m[3] >= EXPLODE[1])
+    e50 = sum(1 for m in matched if m[6][0] is not None and m[6][0] >= EXPLODE[0])
+    e100 = sum(1 for m in matched if m[6][0] is not None and m[6][0] >= EXPLODE[1])
+    all_r = sum(1 for s in union if reg[s][0] is not None and reg[s][0] >= EXPLODE[0])
     log("")
-    log(f"🏁 المراقَبة هذا الأسبوع {len(union)} · تطابق الثلاثة وفوق الدولار {len(matched)} · انفجر منها +50%: {n50} · +100%: {n100}")
+    # ⑧ سطرُ الحكم يحمل العمودين: حدُّ الصدق الذي يغيّر الجوابَ مكانُه العنوانُ لا الحاشية
+    log(f"🏁 المراقَبة هذا الأسبوع {len(union)} · تطابق الثلاثة وفوق الدولار {len(matched)} · انفجر منها +50%: {n50} · +100%: {n100} "
+        f"(النظاميّة) · وشاملًا البري والأفتر: " + (f"+50%: {e50} · +100%: {e100}" if ext_ok else "لا حكم")
+        + f" · ومن المراقَبة كلِّها بلغ +50%: نظاميًّا {all_r} · شاملًا البري والأفتر "
+        + ((f"{len(eboom)}" + (f" ({', '.join(eboom)})" if eboom else "")) if ext_ok else "لا حكم"))
     return 0
 
 
