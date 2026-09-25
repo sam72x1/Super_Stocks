@@ -764,7 +764,7 @@
   "date": "2026-09-24"
  },
  "LIQ:GDC": {
-  "last_eval_ms": 1790376060000,
+  "last_eval_ms": 1790373480000,
   "tc_cum": 398238.9923718922,
   "tc_seen_ms": 1790373480000,
   "date": "2026-09-25"
@@ -2118,7 +2118,7 @@
   "updates": 0,
   "vol_x": 0.3,
   "peak_usd": 580,
-  "last_eval_ms": 1790375580000,
+  "last_eval_ms": 1790375460000,
   "pulse_ms": 1790375880000,
   "anchor_price": 5.8,
   "anchor_open": 5.8,
