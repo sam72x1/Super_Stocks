@@ -64903,6 +64903,95 @@ except Exception as _e:                                           # noqa: BLE001
     _cfd55, _cfd55_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD55 §⑫-ب منشورٌ كما خرج: **`CP16` ❌** (ضررٌ واحد `TG_1857` مقابل كسبٍ 8 · والمصنوعةُ صفر) · `CP13-ج` ليس من G3 "
       "و`CP15` منه · والقرارُ المعلَّل «G3 يبقى مُشعَلًا» يطابق الكود · و`ACCEPTANCE` «غير جاهزة»", _cfd55, _cfd55_w)
+# ── CFD56 تغطيةُ التقسيمات لا تُعلَّم بصفحاتٍ ناقصة (2026-09-25 · عيبٌ مُثبَتٌ بالبناء: كانت تُعلَّم كاملةً فيعود `[]` صامتًا
+#    لرموز الصفحة المتعذّرة — والترتيبُ تصاعديّ فالناقصُ أحدثُ التقسيمات) ──
+try:
+    _keep56 = (_CF._SPLITS_ALL_SINCE, {k: list(v) for k, v in _CF._SPLITS_ALL.items()}, _CF.log)
+    _log56, _calls56 = [], []
+    _AAA56 = {"ticker": "AAA", "execution_date": "2026-03-02", "split_from": 10, "split_to": 1}
+    _BBB56 = {"ticker": "BBB", "execution_date": "2026-06-01", "split_from": 20, "split_to": 1}
+
+    def _mk56(mode):
+        def _g(url, params=None, headers=None, timeout=None):
+            _calls56.append(url)
+            if (params or {}).get("ticker") == "BBB":
+                return _CfdR(200, {"results": [_BBB56]})
+            if "/v3/reference/splits" not in url or mode == "first_fail":
+                return _CfdR(404, {})
+            if mode == "cap":
+                return _CfdR(200, {"results": [_AAA56], "next_url": _CF.API + "/v3/reference/splits?cursor=again"})
+            if "cursor=p2" in url:
+                return _CfdR(404, {}) if mode == "partial" else _CfdR(200, {"results": [_BBB56]})
+            return _CfdR(200, {"results": [_AAA56], "next_url": _CF.API + "/v3/reference/splits?cursor=p2"})
+        return _g
+
+    def _reset56(since=None, mem=None):
+        _CF._SPLITS_ALL_SINCE = since
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(mem or {})
+        _log56.clear()
+        _calls56.clear()
+
+    try:
+        _CF.log = lambda *a, **k: _log56.append(" ".join(str(x) for x in a))
+        _reset56("2026-05-01", {"OLD": [("2026-06-01", 5.0, 1.0)]})       # ① ناقصة فوق ذاكرةٍ سابقةٍ مكتملة
+        _r1 = _CF.load_all_splits("2026-01-01", get=_mk56("partial"))
+        _st1, _nq1 = (_CF._SPLITS_ALL_SINCE, sorted(_CF._SPLITS_ALL)), sum("ناقصة" in m for m in _log56)
+        _calls56.clear()
+        _bbb1 = _CF.ticker_splits("BBB", get=_mk56("partial"), need_since="2026-01-01")
+        _c1 = len(_calls56)
+        _reset56()                                                          # ② G3 على الناقصة ⟵ خامٌّ معلَن
+        _g3_56 = _CF._g3_split_cols(["2026-02-02", "2026-03-02", "2026-03-03"], ["AAA"], "2026-01-01",
+                                    get=_mk56("partial"))
+        _g3log = sum("⚠️ G3" in m for m in _log56)
+        _reset56()                                                          # ③ مكتملةٌ بصفحتين ⟵ كما كانت
+        _r3 = _CF.load_all_splits("2026-01-01", get=_mk56("full"))
+        _st3, _nq3 = (_CF._SPLITS_ALL_SINCE, sorted(_CF._SPLITS_ALL)), sum("ناقصة" in m for m in _log56)
+        _calls56.clear()
+        _bbb3 = _CF.ticker_splits("BBB", get=_mk56("full"), need_since="2026-01-01")
+        _c3 = len(_calls56)
+        _reset56()                                                          # ④ سقفُ الصفحات ⟵ ناقصة
+        _r4 = _CF.load_all_splits("2026-01-01", get=_mk56("cap"))
+        _st4, _nq4, _n4 = _CF._SPLITS_ALL_SINCE, sum("ناقصة" in m for m in _log56), len(_calls56)
+        _reset56()                                                          # ⑤ الأولى تتعذّر ⟵ كما كانت
+        _r5 = _CF.load_all_splits("2026-01-01", get=_mk56("first_fail"))
+        _st5, _nq5 = _CF._SPLITS_ALL_SINCE, sum("ناقصة" in m for m in _log56)
+    finally:
+        _CF.log = _keep56[2]
+        _CF._SPLITS_ALL_SINCE = _keep56[0]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep56[1])
+    _cfd56 = (_r1 == 0 and _st1 == ("2026-05-01", ["OLD"]) and _nq1 == 1
+              and _bbb1 == [("2026-06-01", 20.0, 1.0)] and _c1 == 1
+              and _g3_56 is None and _g3log == 1
+              and _r3 == 2 and _st3 == ("2026-01-01", ["AAA", "BBB"]) and _nq3 == 0
+              and _bbb3 == [("2026-06-01", 20.0, 1.0)] and _c3 == 0
+              and _r4 == 0 and _st4 is None and _nq4 == 1 and _n4 == 50
+              and _r5 == 0 and _st5 is None and _nq5 == 0)
+    _cfd56_w = (f"① ناقصة={_r1} {_st1} معلَن={_nq1} BBB={_bbb1} نداء={_c1} · ② G3={_g3_56} معلَن={_g3log} · "
+                f"③ مكتملة={_r3} {_st3} BBB نداء={_c3} · ④ السقف={_r4} {_st4} صفحات={_n4} معلَن={_nq4} · "
+                f"⑤ الأولى={_r5} {_st5} معلَن={_nq5}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd56, _cfd56_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD56 تغطيةُ تقسيمات السوق **لا تُعلَّم بصفحاتٍ ناقصة**: صفحةٌ تتعذّر بعد الأولى أو سقفُ الصفحات ⟵ 0 **ويُعلَن** "
+      "والذاكرةُ السابقة **لا تُمَسّ** ⟵ الرمزُ بندائه وحدَه (لا `[]` صامت) ومرشِّحُ G3 خامٌّ معلَن · والمكتملةُ بصفحتين "
+      "وتعذّرُ الأولى كما كانا", _cfd56, _cfd56_w)
+try:
+    _res57 = open("chart_finder_result.md", encoding="utf-8").read()
+    _h57 = "### ⑥ تصحيحٌ مؤرَّخ (‏2026-09-25 · بعد §⑫-ب)"
+    _s57 = _res57.split(_h57, 1)[1] if _h57 in _res57 else ""
+    _s57 = _cfd_re.split(r"\n#{2,3} ", _s57, maxsplit=1)[0]          # القسمُ وحدَه لا ما يُلحَق بعده
+    _need57 = ("عيبٌ مُثبَتٌ بالبناء · `CFD56`", "`load_all_splits`", "**هل أصاب التشغيلاتِ المنشورة؟ غيرُ مُتحقَّق:**",
+               "**قرينةٌ لا دليل:**", "`36072904953` المنشورة و`36086768000`", "**والمكتملةُ وتعذّرُ الأولى بت-بت**",
+               "**ولا يمسّ `ACCEPTANCE` ولا حكمًا منشورًا**")
+    _cfd57 = (bool(_s57) and all(x in _s57 for x in _need57) and "CHART_EVAL_JUDGE branch=" not in _s57
+              and "أصاب التشغيلاتِ المنشورة؟ مُتحقَّق" not in _s57 and "`36084432287`" not in _s57
+              and _CF.ACCEPTANCE == "غير جاهزة")
+    _cfd57_w = f"ناقص={[x for x in _need57 if x not in _s57]} · طول §⑩⑥={len(_s57)} · ACCEPTANCE={_CF.ACCEPTANCE}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd57, _cfd57_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD57 التصحيحُ المؤرَّخ §⑩⑥ منشورٌ كما كُتب: العيبُ وإعادةُ إنتاجه · والإصلاحُ بت-بت للمكتملة · **وإصابتُه للمنشور "
+      "«غيرُ مُتحقَّق» بقرينةٍ لا دليل** — فلا يُرقّى الادّعاءُ بصمت · و`ACCEPTANCE` «غير جاهزة»", _cfd57, _cfd57_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
