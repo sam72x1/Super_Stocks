@@ -668,7 +668,11 @@ def _split_rows(results) -> list:
 
 
 def load_all_splits(since: str, get=None) -> int:
-    """كلُّ تقسيمات السوق منذ `since` بصفحاتٍ قليلة (`next_url`) ⟵ ذاكرةٌ لكلّ رمز. يُرجع العدد."""
+    """كلُّ تقسيمات السوق منذ `since` بصفحاتٍ قليلة (`next_url`) ⟵ ذاكرةٌ لكلّ رمز. يُرجع العدد.
+    🔧 **التغطيةُ لا تُعلَّم إلّا بصفحاتٍ مكتملة** (2026-09-25): صفحةٌ تتعذّر بعد الأولى أو سقفُ الصفحات ⟵ القائمةُ ناقصة
+    (الترتيبُ تصاعديّ فالناقصُ **أحدثُ التقسيمات**) ⟵ **يُعلَن ويُرجع 0 ولا تُمَسّ الذاكرةُ السابقة** — فيعود
+    `ticker_splits` إلى نداء الرمز وحدَه ويبقى مرشِّحُ G3 خامًّا (§⑫: لا تسويةَ مُخمَّنة). وكان يُعلِّمها كاملةً
+    فيُرجع `[]` صامتًا لرموز الصفحات الناقصة (التحقّقُ الكامل بلا تقسيمها الفعليّ)."""
     global _SPLITS_ALL_SINCE
     url = f"{API}/v3/reference/splits"
     params = {"execution_date.gte": since, "limit": "1000", "order": "asc"}
@@ -679,7 +683,10 @@ def load_all_splits(since: str, get=None) -> int:
             break
         rows += _split_rows(js.get("results"))
         url, params, n = js.get("next_url"), {}, n + 1
-    if not rows and n == 0:
+    if url:
+        if n:
+            log(f"   ⚠️ تقسيماتُ السوق منذ {since} **ناقصة**: {len(rows):,} في {n} صفحة ثمّ تعذّرت التالية أو بلغ "
+                "السقف ⟵ لا تُعلَّم تغطيةً (التقسيمُ لكلّ رمزٍ بندائه وحدَه · ومرشِّحُ G3 خامّ)")
         return 0
     _SPLITS_ALL.clear()
     for t, ex, fr, to in rows:
