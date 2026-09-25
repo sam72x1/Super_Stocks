@@ -1,0 +1,49 @@
+name: "🕵️🔗 T-OPLINK — الرابط المشترك لمراسي هنا الدخول (opentry_link_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد opentry_link_prereg.md
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "أوّلُ يومٍ يُقاس (YYYY-MM-DD)"
+        required: false
+        default: "2026-08-17"
+      until:
+        description: "آخرُ يومٍ يُقاس (فارغ = أمس بتوقيت نيويورك)"
+        required: false
+        default: ""
+      max_anchors:
+        description: "جدوى: عددُ المراسي (0 = الكلّ · الحكمُ لا يُفسَّر إلّا بالكلّ)"
+        required: false
+        default: "0"
+
+jobs:
+  oplink:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة لقطات git)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🕵️🔗 القياس
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          OPLINK_SINCE: ${{ inputs.since }}
+          OPLINK_UNTIL: ${{ inputs.until }}
+          OPLINK_MAX: ${{ inputs.max_anchors }}
+        run: python opentry_link_probe.py
