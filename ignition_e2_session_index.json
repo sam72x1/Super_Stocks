@@ -13,7 +13,9 @@
       "open:lost_post_alert_path(PETS,SY)",
       "close:lost_post_alert_path(KLRS)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 2,
+    "n_executable_emitted": 2
   },
   "2026-07-16": {
     "n_delivered": 0,
@@ -26,7 +28,9 @@
       "segment_incomplete(open:start_coverage_late(104.3د))"
     ],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-07-17": {
     "n_delivered": 2,
@@ -42,7 +46,9 @@
       "open:lost_post_alert_path(KLRS)",
       "close:lost_post_alert_path(APVO)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 2,
+    "n_executable_emitted": 1
   },
   "2026-07-20": {
     "n_delivered": 0,
@@ -55,7 +61,9 @@
       "segment_incomplete(open:start_coverage_late(111.2د))"
     ],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-07-21": {
     "n_delivered": 0,
@@ -68,7 +76,9 @@
       "segment_incomplete(open:start_coverage_late(108.3د))"
     ],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-07-22": {
     "n_delivered": 0,
@@ -81,7 +91,9 @@
       "segment_incomplete(open:start_coverage_late(107.9د))"
     ],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-07-23": {
     "n_delivered": 0,
@@ -94,7 +106,9 @@
       "segment_incomplete(open:start_coverage_late(115.0د))"
     ],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-07-24": {
     "n_delivered": 1,
@@ -112,7 +126,9 @@
       "open:segment_window_capped(max_runtime_cap)",
       "close:lost_post_alert_path(PSTV)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-07-27": {
     "n_delivered": 3,
@@ -128,7 +144,9 @@
       "open:lost_post_alert_path(PONY,TRON)",
       "close:lost_post_alert_path(NMRA)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 3,
+    "n_executable_emitted": 3
   },
   "2026-07-28": {
     "n_delivered": 1,
@@ -143,7 +161,9 @@
     "deferred_reasons": [
       "close:lost_post_alert_path(LENZ)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-07-29": {
     "n_delivered": 0,
@@ -154,7 +174,9 @@
     "session_complete": true,
     "incomplete_reasons": [],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-07-30": {
     "n_delivered": 3,
@@ -167,7 +189,9 @@
     "deferred_reasons": [
       "open:lost_post_alert_path(CMTL,NEGG,TYGO)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-07-31": {
     "n_delivered": 2,
@@ -181,7 +205,9 @@
       "open:lost_post_alert_path(TYGO)",
       "close:lost_post_alert_path(PSTV)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-03": {
     "n_delivered": 2,
@@ -196,7 +222,9 @@
     "deferred_reasons": [
       "open:lost_post_alert_path(TRON,TYGO)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   },
   "2026-08-04": {
     "n_delivered": 3,
@@ -210,7 +238,9 @@
       "open:lost_post_alert_path(TRON,TYGO)",
       "close:lost_post_alert_path(NEGG)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-05": {
     "n_delivered": 2,
@@ -223,7 +253,9 @@
     "deferred_reasons": [
       "open:lost_post_alert_path(IPWR,NEGG)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-07": {
     "n_delivered": 1,
@@ -236,7 +268,9 @@
     "deferred_reasons": [
       "open:lost_post_alert_path(SUPX)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-10": {
     "n_delivered": 0,
@@ -247,7 +281,9 @@
     "session_complete": true,
     "incomplete_reasons": [],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-11": {
     "n_delivered": 1,
@@ -260,7 +296,9 @@
     "deferred_reasons": [
       "open:lost_post_alert_path(ENGN)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   },
   "2026-08-12": {
     "n_delivered": 2,
@@ -273,7 +311,9 @@
     "deferred_reasons": [
       "close:lost_post_alert_path(QTI,XAIR)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-13": {
     "n_delivered": 5,
@@ -287,7 +327,9 @@
       "open:lost_post_alert_path(DFSC,ENGN,FUFU,SNAL)",
       "close:lost_post_alert_path(XAIR)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 2,
+    "n_executable_emitted": 2
   },
   "2026-08-14": {
     "n_delivered": 3,
@@ -300,7 +342,9 @@
     "deferred_reasons": [
       "open:lost_post_alert_path(KITT,KSCP,MIMI)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-17": {
     "n_delivered": 4,
@@ -327,7 +371,9 @@
       "path_not_reaching_close(CELU)"
     ],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   },
   "2026-08-19": {
     "n_delivered": 4,
@@ -340,7 +386,9 @@
       "segment_incomplete(open:start_coverage_late(2.1د))"
     ],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-20": {
     "n_delivered": 2,
@@ -351,7 +399,9 @@
     "session_complete": true,
     "incomplete_reasons": [],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-21": {
     "n_delivered": 6,
@@ -362,7 +412,9 @@
     "session_complete": true,
     "incomplete_reasons": [],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   },
   "2026-08-24": {
     "n_delivered": 3,
@@ -375,7 +427,9 @@
       "path_not_reaching_close(MIMI)"
     ],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   },
   "2026-08-25": {
     "n_delivered": 4,
@@ -386,7 +440,9 @@
     "session_complete": true,
     "incomplete_reasons": [],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-26": {
     "n_delivered": 0,
@@ -397,7 +453,9 @@
     "session_complete": true,
     "incomplete_reasons": [],
     "deferred_reasons": [],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-31": {
     "n_delivered": 1,
@@ -414,7 +472,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-09-01": {
     "n_delivered": 2,
@@ -427,7 +487,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   },
   "2026-09-02": {
     "n_delivered": 4,
@@ -440,7 +502,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   },
   "2026-09-03": {
     "n_delivered": 4,
@@ -455,7 +519,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 2,
+    "n_executable_emitted": 2
   },
   "2026-09-04": {
     "n_delivered": 4,
@@ -468,7 +534,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-09-08": {
     "n_delivered": 2,
@@ -481,7 +549,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-09-09": {
     "n_delivered": 1,
@@ -494,7 +564,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-09-10": {
     "n_delivered": 0,
@@ -507,7 +579,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-09-11": {
     "n_delivered": 3,
@@ -520,7 +594,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   },
   "2026-09-14": {
     "n_delivered": 3,
@@ -533,7 +609,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 2,
+    "n_executable_emitted": 2
   },
   "2026-09-15": {
     "n_delivered": 1,
@@ -546,7 +624,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-09-16": {
     "n_delivered": 1,
@@ -559,7 +639,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-09-17": {
     "n_delivered": 3,
@@ -572,7 +654,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   },
   "2026-09-18": {
     "n_delivered": 5,
@@ -589,7 +673,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-09-21": {
     "n_delivered": 1,
@@ -602,7 +688,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 0
   },
   "2026-09-22": {
     "n_delivered": 4,
@@ -615,7 +703,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-09-23": {
     "n_delivered": 4,
@@ -628,7 +718,9 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   },
   "2026-09-24": {
     "n_delivered": 4,
@@ -641,6 +733,8 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 1,
+    "n_executable_emitted": 1
   }
 }
