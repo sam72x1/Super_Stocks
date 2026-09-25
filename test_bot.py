@@ -65700,8 +65700,13 @@ try:
             and isinstance(n.ops[0], _ast0.Eq) and getattr(n.comparators[0], "value", None) == "1"]
     _shr7 = (set(_wfs.get(True) or _wfs.get("on") or {}) == {"workflow_dispatch"}
              and _wfs["permissions"] == {"contents": "write"}
-             and _envs.get("SHADOW_READY") == "${{ inputs.write }}" and _envs.get("SHADOW_SINCE") == "${{ inputs.since }}"
-             and "POLYGON_API_KEY" in _envs and len(_commit) == 1 and _commit[0].get("if") == "inputs.write == '1'"
+             # 🗓️ إقرارٌ بأمر المالك 2026-09-25 «شغّل كرون الظلّيّة بعد التشغيلة الثانية»: المجدولُ مُجهَّزٌ خاملًا —
+             #    يكتب (`'1'`) واليدويُّ `inputs.write` بت-بت · وسطرُ الجدولة **غائبٌ** حتى التحقّق من الثانية (V-S7)
+             and _envs.get("SHADOW_READY") == "${{ github.event_name == 'schedule' && '1' || inputs.write }}"
+             and _envs.get("SHADOW_SINCE") == "${{ inputs.since }}"
+             and "POLYGON_API_KEY" in _envs and len(_commit) == 1
+             and _commit[0].get("if") == "github.event_name == 'schedule' || inputs.write == '1'"
+             and _wfs.get("concurrency") == {"group": "shadow-ready", "cancel-in-progress": False}
              and "git add shadow_ready_ledger.jsonl" in _commit[0]["run"]
              and not any(("git_save" in _rn or "TELEGRAM" in _rn) for _rn in _runs_nc)
              and not any("TELEGRAM" in k for k in _envs) and _job["steps"][0]["with"]["fetch-depth"] == 0
@@ -65711,7 +65716,8 @@ try:
 except Exception as _e:                                            # noqa: BLE001
     _shr7, _shr7_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🌅🗂️ SHR7 `V-S7` الـworkflow يدويٌّ بلا كرون ولا تلغرام · الكتابةُ `write=1` وحدَه (افتراضُه 0) ⟶ `SHADOW_READY == \"1\"` "
-      "حرفيًّا في الأداة (بالـAST) · والدفعُ خطوةٌ محميّةٌ للسجلّ وحدَه بلا `git_save` · وتاريخُ git كامل", _shr7, _shr7_w)
+      "حرفيًّا في الأداة (بالـAST) · والدفعُ خطوةٌ محميّةٌ للسجلّ وحدَه بلا `git_save` · وتاريخُ git كامل · "
+      "والمجدولُ مُجهَّزٌ خاملًا بأمر المالك 2026-09-25 (يكتب · يدفع · تشغيلةٌ واحدةٌ في كلّ مرّة) وسطرُ الجدولة غائب", _shr7, _shr7_w)
 try:
     _old_k = _cfd_os.environ.pop("POLYGON_API_KEY", None)
     _hit = []
@@ -65839,6 +65845,85 @@ except Exception as _e:                                            # noqa: BLE00
     _shr12, _shr12_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🌅🗂️ SHR12 مِجَسُّ التاريخ الرجعيّ للمتاح منشورٌ في §② (iBorrowDesk ‏0/16 · تشغيلةٌ واحدة · استنتاجٌ لا تأكيد) "
       "⇒ فرضيّةُ «متاح أقلّ من 20 ألف» أماميّةٌ وحدَها · **والمِجَسُّ المؤقّت محذوفٌ فعلًا لا وعدًا**", _shr12, _shr12_w)
+# ── SHR13-SHR15 تجهيزُ المجدول خاملًا (أمرُ المالك 2026-09-25 «شغّل كرون الظلّيّة بعد التشغيلة الثانية») ──
+# ⚠️ لا ساعةَ حقيقيّةً ولا نومَ حقيقيًّا هنا أبدًا: `wait_for_capture` تُنادى بساعةٍ ونومٍ محقونَين (lock-and-mutate §①-مكرر)
+try:
+    from zoneinfo import ZoneInfo as _ZI13
+    _NY13 = _ZI13("America/New_York")
+
+    def _t13(*a):
+        return _dt0.datetime(*a, tzinfo=_NY13)
+    _tab13 = [
+        (_t13(2026, 9, 29, 18, 17), 118 * 60),     # كرونُ 22:17 UTC بلا تأخيرٍ صيفًا ⟵ ينتظر حتى 20:15
+        (_t13(2026, 9, 29, 20, 14, 30), 30),
+        (_t13(2026, 9, 29, 20, 15), 0),            # عند الهدف ⟵ فورًا
+        (_t13(2026, 9, 29, 21, 3), 0),             # داخل النافذة (التأخّرُ المقيس 103-166 دقيقة) ⟵ فورًا
+        (_t13(2026, 9, 30, 0, 30), 0),             # بعد منتصف الليل ⟵ فورًا بلا متاح (لا ينام عشرين ساعة)
+        (_t13(2026, 9, 29, 16, 55), 200 * 60),     # على السقف تمامًا ⟵ ينتظر
+        (_t13(2026, 9, 29, 16, 54), 0),            # فوق السقف بدقيقة ⟵ لا انتظار
+        (_t13(2026, 11, 2, 17, 17), 178 * 60),     # شتاءً (EST) بلا تأخير ⟵ داخل السقف
+    ]
+    _bad13 = [(_t.isoformat(), _SHR.capture_wait_s(_t), _w) for _t, _w in _tab13 if _SHR.capture_wait_s(_t) != _w]
+    _sl13a, _sl13b = [], []
+    _r13a = _SHR.wait_for_capture(now=lambda: _t13(2026, 9, 29, 18, 17), sleep=_sl13a.append)
+    _r13b = _SHR.wait_for_capture(now=lambda: _t13(2026, 9, 29, 21, 0), sleep=_sl13b.append)
+    _tr13 = _ast0.parse(_shr_src)
+    _wfc13 = [n for n in _tr13.body if isinstance(n, _ast0.FunctionDef) and n.name == "wait_for_capture"]
+    _df13 = _wfc13[0].args.defaults[-1] if _wfc13 and _wfc13[0].args.defaults else None
+    _df13_ok = (isinstance(_df13, _ast0.Attribute) and _df13.attr == "sleep" and getattr(_df13.value, "id", None) == "time")
+    _mi13 = [n for n in _tr13.body if isinstance(n, _ast0.If) and isinstance(n.test, _ast0.Compare)
+             and getattr(n.test.left, "id", None) == "__name__"]
+    _calls13 = {getattr(c.func, "id", None) for m in _mi13 for c in _ast0.walk(m) if isinstance(c, _ast0.Call)}
+    _k13 = {c.value for m in _mi13 for c in _ast0.walk(m) if isinstance(c, _ast0.Constant)}
+    _shr13 = (not _bad13 and _r13a == 0 and _sl13a == [118 * 60] and _r13b == 0 and _sl13b == []
+              and _SHR.CAPTURE_AT_NY == (20, 15) and _SHR.CAPTURE_WAIT_MAX_S == 200 * 60 and _df13_ok
+              and {"wait_for_capture", "main"} <= _calls13 and "--wait-capture" in _k13)
+    _shr13_w = (f"جدول={_bad13} نوم={_sl13a}/{_sl13b} rc={_r13a},{_r13b} افتراضُ النوم={_df13_ok} "
+                f"نداءات={sorted(x for x in _calls13 if x)} علم={'--wait-capture' in _k13}")
+except Exception as _e:                                            # noqa: BLE001
+    _shr13, _shr13_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR13 انتظارُ المجدول (R-03 · V-S5): قبل 20:15 نيويورك بما لا يزيد عن 200 دقيقة ينام حتى 20:15 · عندها وبعدها "
+      "وبعد منتصف الليل وفوق السقف فورًا · صيفًا وشتاءً · ينام مرّةً بالمقدار نفسِه ولا ينام بلا انتظار · والنومُ الحقيقيّ افتراضُه "
+      "`time.sleep` · و`--wait-capture` يُوجَّه إليها ويبقى `main` لغيره", _shr13, _shr13_w)
+try:
+    _wf14 = _wfh_yaml.safe_load(open(".github/workflows/shadow_ready.yml", encoding="utf-8"))
+    _j14 = _wf14["jobs"]["shadow"]
+    _st14 = _j14["steps"]
+    _w14 = [i for i, _s in enumerate(_st14) if "--wait-capture" in (_s.get("run") or "")]
+    _m14 = [i for i, _s in enumerate(_st14) if "SHADOW_READY" in (_s.get("env") or {})]
+    _p14 = [i for i, _s in enumerate(_st14) if "pip install" in (_s.get("run") or "")]
+    _ws14 = _st14[_w14[0]] if len(_w14) == 1 else {}
+    _ms14 = _st14[_m14[0]] if len(_m14) == 1 else {}
+    _wr14 = "\n".join(_l for _l in (_ws14.get("run") or "").splitlines() if not _l.strip().startswith("#"))
+    _o14 = (_wr14.find("python shadow_ready.py --wait-capture"), _wr14.find('git fetch --force --quiet origin "$GITHUB_REF_NAME"'),
+            _wr14.find('git reset --hard --quiet "origin/$GITHUB_REF_NAME"'))
+    _wt14, _mt14, _jt14 = _ws14.get("timeout-minutes", 0), _ms14.get("timeout-minutes", 0), _j14.get("timeout-minutes", 0)
+    _shr14 = (len(_w14) == 1 and len(_m14) == 1 and len(_p14) == 1 and _p14[0] < _w14[0] < _m14[0]
+              and _ws14.get("if") == "github.event_name == 'schedule'"
+              and 0 <= _o14[0] < _o14[1] < _o14[2]
+              and _wt14 * 60 >= _SHR.CAPTURE_WAIT_MAX_S + 5 * 60 and _mt14 == 120 and _wt14 + _mt14 <= _jt14 <= 360
+              and "--wait-capture" not in (_ms14.get("run") or ""))
+    _shr14_w = f"انتظار={_w14} قياس={_m14} تثبيت={_p14} if={_ws14.get('if')!r} ترتيب={_o14} مهل={_wt14}/{_mt14}/{_jt14}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr14, _shr14_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR14 خطوةُ الانتظار في الـworkflow للمجدول وحدَه: بعد التثبيت وقبل القياس · تنام ثمّ تُزامن أحدثَ الفرع "
+      "(`fetch --force` ثمّ `reset --hard` — لقطةُ الإقلاع بائتةٌ بطول الانتظار) · ومهلتُها تسع السقفَ ‏+5 دقائق · والقياسُ 120 "
+      "كما كان · ومهلةُ الجوب تسعهما ولا تتجاوز 360", _shr14, _shr14_w)
+try:
+    _as15 = [n for n in _ast0.parse(_shr_src).body if isinstance(n, _ast0.Assign)
+             and any(getattr(t, "id", None) == "SINCE" for t in n.targets)]
+    _c15 = compile(_ast0.Expression(_as15[0].value), "SINCE", "eval") if len(_as15) == 1 else None
+
+    class _FakeOS15:
+        def __init__(self, env):
+            self.environ = env
+    _g15 = [eval(_c15, {"os": _FakeOS15(e)}) for e in ({"SHADOW_SINCE": ""}, {}, {"SHADOW_SINCE": "2026-09-01"})]
+    _shr15 = _g15 == ["2026-08-17", "2026-08-17", "2026-09-01"]
+    _shr15_w = f"فارغ/غائب/مُعطى ⟵ {_g15}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr15, _shr15_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR15 `SHADOW_SINCE` الفارغُ يرجع إلى 2026-08-17: حدثُ الجدولة يمرّر المُدخَلَ فارغًا و`get` بافتراضٍ "
+      "كان يقرأ التاريخَ كلَّه (عيبٌ كامنٌ أُصلح قبل أيّ كرون) · والغائبُ والمُعطى كما كانا", _shr15, _shr15_w)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

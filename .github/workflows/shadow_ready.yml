@@ -3,6 +3,9 @@ name: "🌅🗂️ T-SHADOW — القائمة الظلّيّة: مراسي ال
 # 🔒 قياسٌ فقط — لا كرون (الجدولةُ أمرٌ منفصلٌ للمالك بعد تشغيلتين ناجحتين · العقد §⑦ V-S7)
 #    لا تلغرام · لا كتابةَ حالةِ إنتاج · والكتابةُ الوحيدة سجلُّ الحصاد `shadow_ready_ledger.jsonl`
 #    حين `write=1` (‏`SHADOW_READY`) — صفوفٌ أماميّةٌ بلا نتيجة (العقد ⓪ D-2/D-3).
+# 🗓️ أمرُ المالك 2026-09-25 «شغّل كرون الظلّيّة بعد التشغيلة الثانية» ⇒ ما يلزم المجدولَ مُجهَّزٌ هنا **خاملًا**
+#    (اليدويُّ بت-بت): الكتابةُ للمجدول · انتظارُ 20:15 نيويورك ثمّ المزامنة · `concurrency` · وحدُّ الوقت.
+#    **وسطرُ الجدولة نفسُه لا يُضاف إلّا بعد التحقّق من التشغيلة الثانية** (تذكير 2026-09-29 · V-S7).
 permissions:
   contents: write          # يدفع سجلَّ الحصاد وحدَه حين write=1
 
@@ -18,10 +21,15 @@ on:
         required: false
         default: "2026-08-17"
 
+# 🔒 تشغيلةٌ واحدةٌ في كلّ مرّة: تشغيلتان متزامنتان تُلحقان الصفوفَ نفسَها فيتعارض الدفع (تنتظر ولا تُلغى)
+concurrency:
+  group: shadow-ready
+  cancel-in-progress: false
+
 jobs:
   shadow:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 345      # انتظارُ المجدول (‏≤210) ‏+ القياس (‏≤120) ‏+ الدفع — والسقفُ 360
     steps:
       - name: Checkout (كامل التاريخ لقراءة المراسي واللقطات)
         uses: actions/checkout@v4
@@ -37,16 +45,34 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      # ⏳ المجدولُ وحدَه: إن أقلع قبل 20:15 نيويورك بما لا يزيد عن 200 دقيقة نام حتى 20:15 (R-03: المتاحُ لا يُسجَّل
+      #    إلّا في جلسة المرساة بعد 20:00 · V-S5) ثمّ يُزامن أحدثَ الفرع لأن لقطةَ الإقلاع بائتةٌ بطول الانتظار
+      #    (مراسي الجلسة تُدفع حتى ‏≈20:05) — و`reset` آمنٌ: لا تغييرَ محلّيًّا قبل القياس.
+      - name: ⏳ انتظارُ جلسة المرساة ثمّ المزامنة (المجدولُ وحدَه)
+        if: github.event_name == 'schedule'
+        timeout-minutes: 210
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python shadow_ready.py --wait-capture
+          if git fetch --force --quiet origin "$GITHUB_REF_NAME"; then
+            git reset --hard --quiet "origin/$GITHUB_REF_NAME"
+            echo "🔄 مُزامَنٌ مع أحدث $GITHUB_REF_NAME: $(git rev-parse --short HEAD)"
+          else
+            echo "::warning::تعذّرت المزامنة بعد الانتظار — يُكمل على لقطة الإقلاع"
+          fi
+
       - name: 🌅🗂️ القياس
+        timeout-minutes: 120
         env:
           PYTHONUNBUFFERED: "1"
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
-          SHADOW_READY: ${{ inputs.write }}
+          SHADOW_READY: ${{ github.event_name == 'schedule' && '1' || inputs.write }}
           SHADOW_SINCE: ${{ inputs.since }}
         run: python shadow_ready.py
 
-      - name: Commit ledger (write=1 وحدَه)
-        if: inputs.write == '1'
+      - name: Commit ledger (write=1 أو المجدول)
+        if: github.event_name == 'schedule' || inputs.write == '1'
         run: |
           set -e
           git config user.name "Claude"
