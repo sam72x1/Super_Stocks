@@ -63,6 +63,7 @@ LIVE_ANCHOR = True           # G2: مرساةٌ بلا عابر ⟵ بديلُ �
 #    الحكمَ الآليّ: «غير جاهزة» ⟵ كلُّ جوابٍ «تجريبيّ» (§⑤-3) · «جاهزة للواثق وحدَه» ⟵ «واثق» وحدَه معتمَد · «جاهزة» ⟵ الكلّ.
 ACCEPTANCE = "غير جاهزة"          # real2 (§⑩) · k1=9/10 k2=34/46 · 2026-09-24
 ACCEPTANCE_RUN = "36072904953"
+DIAG_TOP = 5                # 🔬 ملحق §⑪: أفضلُ النوافذ المطبوعة لكلّ رمزٍ مُسمًّى في «التشخيص» — عرضٌ لا حكم
 DAYS_PER_BAR = {"1D": 1.0, "1W": 5.0, "1M": 21.0}      # أيامُ تداولٍ لكلّ شمعة (اليوميّ فما فوقه)
 INTRADAY_SPAN = {"1m": 1, "2m": 2, "3m": 3, "5m": 5, "10m": 10, "15m": 15, "30m": 30, "45m": 45,
                  "1H": 60, "2H": 120, "3H": 180, "4H": 240}
@@ -1478,6 +1479,78 @@ def run_card(card: dict, tmpdir: str, get=None, file_path: str = None,
     return {"rc": 0, "label": label, "top": top, "n_pass": n_pass, "mode": mode}
 
 
+def diag_syms_from_env(raw: str = None) -> list:
+    """🔬 رموزُ التشخيص من `CHART_DIAG_SYMS` («ONCO,BWV») — **خارجَ البطاقة عمدًا** (البطاقةُ لا تحمل الرمز).
+    الصالحُ: حرفٌ لاتينيٌّ أوّلًا ثمّ حروفٌ لاتينيّةٌ/أرقامٌ/نقطة حتى 10 · بلا تكرار · والباقي يُسقط."""
+    raw = os.environ.get("CHART_DIAG_SYMS", "") if raw is None else raw
+    out = []
+    for t in str(raw or "").replace(",", " ").upper().split():
+        ok = (1 <= len(t) <= 10 and "A" <= t[0] <= "Z"
+              and all("A" <= ch <= "Z" or "0" <= ch <= "9" or ch == "." for ch in t))
+        if ok and t not in out:
+            out.append(t)
+    return out
+
+
+def ticker_events(sym: str, get=None) -> list:
+    """أحداثُ الرمز في Polygon (تغيّرُ الرمز) ⟵ `[(تاريخ، نوع، الرمزُ حينها)]` مرتَّبة — فاشلةٌ-آمنة ⟵ `[]`."""
+    js = _get_json(f"{API}/vX/reference/tickers/{sym}/events", get=get)
+    try:
+        evs = ((js or {}).get("results") or {}).get("events") or []
+        return sorted((str(e.get("date") or ""), str(e.get("type") or ""),
+                       str((e.get("ticker_change") or {}).get("ticker") or ""))
+                      for e in evs if isinstance(e, dict))
+    except (AttributeError, TypeError):
+        return []
+
+
+def diagnose_card(card: dict, syms: list, get=None) -> list:
+    """🔬 **تشخيصٌ لا بحث** (ملحق §⑪ · ‏2026-09-25 · وُلد من `TG_2050`): أين يقع رمزٌ **يسمّيه المستخدم** من قيود
+    البطاقة، بقاعدة «بلا تاريخ» نفسِها (آخرُ `UNDATED_YEARS` سنوات · `undated_scan` بالتقسيم الفعليّ)؟ يطبع لكلّ
+    رمز: مدى سلسلته اليوميّة · تقسيماته · أحداثَ رمزه · أفضلَ `DIAG_TOP` نوافذ بقيد كلّ حقل ✅/❌ · وسلسلةَ أفضلها.
+    🔒 **لا يطبع سطرَ حكمٍ (`CHART_FINDER`) ولا يُحتسب** — الرمزُ سُمّي بعد رؤية الحكم، فهو تفسيرٌ لا جواب."""
+    ex = card.get("extremes") or {}
+    spec_hi, spec_lo = num_spec(ex.get("high")), num_spec(ex.get("low"))
+    spec_last = num_spec(card.get("last"))
+    lo_d, hi_d = window_days(card)
+    today = dt.date.today()
+    since = (today - dt.timedelta(days=int(366 * UNDATED_YEARS))).isoformat()
+    log(f"\n🔬 تشخيصٌ لا بحث — البطاقة {card.get('id')} على رموزٍ سُمّيت بعد الحكم (لا يُحتسب): "
+        f"{', '.join(syms)}")
+    out = []
+    for s in syms:
+        bars = []
+        for b in ticker_aggs(s, 1, "day", since, today.isoformat(), get=get):
+            try:
+                d = dt.datetime.fromtimestamp(int(b["t"]) / 1000.0, tz=NY).date().isoformat()
+                bars.append((d, float(b["o"]), float(b["h"]), float(b["l"]), float(b["c"]),
+                             float(b.get("v") or 0.0)))
+            except (KeyError, TypeError, ValueError):
+                continue
+        splits = ticker_splits(s, get=get, need_since=bars[0][0] if bars else since)
+        info = ticker_info(s, None, get=get)
+        evs = ticker_events(s, get=get)
+        log(f"🔬 {s}: {info.get('name')} · نشِط={info.get('active')} · شموعٌ يوميّة {len(bars)}"
+            + (f" من {bars[0][0]} إلى {bars[-1][0]}" if bars else " — لا بيانات")
+            + f" · تقسيمات {splits or 'لا شيء'} · أحداثُ الرمز {evs or 'لا شيء'}")
+        res = (undated_scan(bars, splits, spec_hi, spec_lo, spec_last, range(lo_d, hi_d + 1),
+                            ends_back=len(bars)) if bars else [])
+        for r in res[:DIAG_TOP]:
+            parts = []
+            for k, lab in (("high", "أعلى"), ("low", "أدنى"), ("last", "آخر")):
+                c = r["checks"].get(k)
+                if c:
+                    parts.append(f"{lab} {c['val']:.4g}{'✅' if c['near'] else '❌'}")
+            log(f"   {'✅' if r['ok'] else '❌'} DIAG {s} تنتهي {r['e']} · {r['N']} شمعة · "
+                + " · ".join(parts) + f" · خطأ {r['score']:.2f}")
+        if res:
+            print_series(s, {"window": {"to": res[0]["e"]}}, {"splits": splits}, get=get)
+        out.append({"sym": s, "n_bars": len(bars), "first": bars[0][0] if bars else None,
+                     "last": bars[-1][0] if bars else None, "splits": splits, "events": evs,
+                     "top": res[:DIAG_TOP]})
+    return out
+
+
 def load_cards() -> list:
     raw = (os.environ.get("CHART_CARD") or "").strip()
     files = [p.strip() for p in (os.environ.get("CHART_CARD_FILES") or "").split(",") if p.strip()]
@@ -1503,6 +1576,18 @@ def main() -> int:
     if not cards:
         log("⛔ لا بطاقة (CHART_CARD أو CHART_CARD_FILES)")
         return 2
+    diag = diag_syms_from_env()
+    if diag:                        # 🔬 ملحق §⑪: تشخيصٌ وحدَه — لا بحثَ ولا لوحةَ سوقٍ ولا سطرَ حكم
+        rc = 0
+        for card in cards:
+            errs = validate_card(card)
+            if errs:
+                for e in errs:
+                    log(f"⛔ البطاقة {(card or {}).get('id') if isinstance(card, dict) else '?'}: {e}")
+                rc = 2
+                continue
+            diagnose_card(card, diag)
+        return rc
     rc, results = 0, {}
     with tempfile.TemporaryDirectory() as tmp:
         for card in cards:
