@@ -66413,6 +66413,181 @@ except Exception as _e:                                              # noqa: BLE
 check("🕵️⏳💵 PXL11 قراءةُ التنبّؤات آليًّا بقواعد §⑩-9: حدّا `PX-P1` شاملان (1.0 و2.0) · «لا حكم» ⚪ لا ✅ · `PX-P5` سنتان سالبتان على الأقلّ · "
       "`PX-P6` 0.80 شاملٌ · `PX-P3` حدُّه 20", _pxl11, _pxl11_w)
 
+# ── RAP1-RAP9 ملحقُ §⑪ «دخولُ التنبيه الثاني» (prelink_rearm.py · العقد prelink_prereg.md §⑪) — صفوفُ الحاكمة · بلا شبكة ──
+try:
+    import prelink_rearm as _RA
+    _ra_src = open("prelink_rearm.py", encoding="utf-8").read()
+except Exception as _e:                                              # noqa: BLE001
+    _RA, _ra_src = None, ""
+
+
+def _ra_write(d, seed=11):
+    """صفوفُ `_px_write` ‏+ `raw.days_since_anchor` بمولِّدٍ مستقلّ (لا يمسّ تسلسلَ أقفال PXL)."""
+    _px_write(d, seed=seed)
+    rng = _px_rnd.Random(seed + 1)
+    for fn in sorted(_cfd_os.listdir(d)):
+        path = _cfd_os.path.join(d, fn)
+        rows = [_px_json.loads(ln) for ln in open(path, encoding="utf-8") if ln.strip()]
+        for r in rows:
+            r.setdefault("raw", {})["days_since_anchor"] = rng.choice([None, None, 1, 2, 3, 5, 6, 12, 40])
+        with open(path, "w", encoding="utf-8") as fh:
+            for r in rows:
+                fh.write(_px_json.dumps(r, ensure_ascii=False) + "\n")
+
+
+def _ra_run(d, patch=False, min_second=None):
+    saved = (_PX.ROWS_DIR, _PX.PUB_ROWS, _PX.PUB_LATE, _PX.PUB_POS0, _PX.PUB_REARM, _RA.MIN_SECOND)
+    buf = _px_io.StringIO()
+    try:
+        _PX.ROWS_DIR = d
+        if patch:
+            pop = _PX.load_rows(d)
+            di = _PX.calendar_index()
+            _PX.PUB_ROWS = {t: len(pop[t]) for t in _PX.TAGS}
+            _PX.PUB_LATE = {t: tuple(_PLK.rate(pop[t], "late100_10")) for t in _PX.TAGS}
+            _PX.PUB_POS0 = {t: f"{_PLK.pos_summary(pop[t], 'POS-0')['mean']:+.3f}" for t in _PX.TAGS}
+            _PX.PUB_REARM = {f"C{y}": _PX.rearm_counts(pop[f"C{y}"], pop[f"C{y}"], di) for y in _PX.YEARS}
+        if min_second is not None:
+            _RA.MIN_SECOND = min_second
+        with _px_ctx.redirect_stdout(buf):
+            rc = _RA.main()
+    finally:
+        _PX.ROWS_DIR, _PX.PUB_ROWS, _PX.PUB_LATE, _PX.PUB_POS0, _PX.PUB_REARM, _RA.MIN_SECOND = saved
+    return rc, buf.getvalue()
+
+
+try:
+    _rbad_w = _ra_src.replace("def dsa(r):", "def dsa(r):\n    open('x.txt', 'w').write('x')", 1)
+    _rbad_n = _ra_src.replace("import sys\n", "import sys\nimport requests\n", 1)
+    _rbad_g = _ra_src.replace("def dsa(r):", "def dsa(r):\n    P.grouped_day('2025-01-02', 'k')", 1)
+    _rap1 = (_PX._selfcheck(_ra_src) is True and _PX._selfcheck(_rbad_w) is False and _PX._selfcheck(_rbad_n) is False
+             and _PX._selfcheck(_rbad_g) is False and "X._selfcheck(src)" in _ra_src
+             and "prelink_rearm" not in open("Super_stock.py", encoding="utf-8").read()
+             and "schedule" not in open(".github/workflows/prelink_rearm.yml", encoding="utf-8").read())
+    _rap1_w = f"ok={_PX._selfcheck(_ra_src)} w={_PX._selfcheck(_rbad_w)} n={_PX._selfcheck(_rbad_n)} g={_PX._selfcheck(_rbad_g)}"
+except Exception as _e:                                              # noqa: BLE001
+    _rap1, _rap1_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳🔁🔒 RAP1 §⑪ قراءةٌ فقط وبلا شبكة (حارسُ `prelink_px` بالاسم على مصدرها): كتابةٌ · `requests` · جلبٌ — كلٌّ يُسقطه · والإنتاجُ لا يستوردها · "
+      "والـworkflow بلا كرون", _rap1, _rap1_w)
+try:
+    _mk2 = (lambda v: {"raw": {"days_since_anchor": v}})
+    _sec2 = [_RA.is_second(_mk2(v)) for v in (1, 5, "3", 0, 6, None)]
+    _fst2 = _RA.first_rows([_mk2(None), _mk2(3), _mk2(40), {"raw": {}}])
+    _mm2 = [n for n in _ast0.parse(_ra_src).body if isinstance(n, _ast0.Assign) and isinstance(n.targets[0], _ast0.Tuple)
+            and [getattr(e, "id", "") for e in n.targets[0].elts] == ["SECOND_MIN", "SECOND_MAX"]]
+    _rap2 = (_sec2 == [True, True, True, False, False, False] and len(_fst2) == 2
+             and (_RA.SECOND_MIN, _RA.SECOND_MAX) == (1, 5) and len(_mm2) == 1
+             and all(isinstance(e, _ast0.Constant) for e in _mm2[0].value.elts) and _RA.MIN_SECOND == 300)
+    _rap2_w = f"ثانٍ={_sec2} أوّل={len(_fst2)}"
+except Exception as _e:                                              # noqa: BLE001
+    _rap2, _rap2_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳🔁 RAP2 «الثاني» = مرساةٌ سابقة قبل 1-5 جلسات (حدّاها شاملان · السلّةُ «≤5» المُعلَنة) · «الأوّل» = بلا مرساةٍ في 60 جلسة · "
+      "والحدّان ثابتان حرفيّان لا مُدخَل · وأرضيّةُ «لا قياس» 300", _rap2, _rap2_w)
+try:
+    def _cy(m, lo, dm, dlo, n=400):
+        return {"n_second": n, "second": {"mean": m, "ci": (lo, lo + 0.2)}, "diff": (dm, dlo, dlo + 0.2, n)}
+    _good3 = {f"C{y}": _cy(0.10, 0.02, 0.05, 0.01) for y in _PX.YEARS}
+    _bad3 = dict(_good3)
+    _bad3["C2024"] = _cy(0.10, 0.02, 0.05, -0.01)                    # فرقٌ موجبُ المتوسّط بفاصلٍ يعبر الصفر
+    _few3 = dict(_good3)
+    _few3["C2025"] = _cy(0.10, 0.02, 0.05, 0.01, n=299)
+    _rap3 = (_RA.pop_branch(_good3) == "1" and _RA.pop_branch(_bad3) == "2" and _RA.pop_branch(_few3) == "3"
+             and _RA.branch({"full": _good3, "px": _good3}) == "1" and _RA.branch({"full": _good3, "px": _bad3}) == "2"
+             and _RA.branch({"full": _bad3, "px": _few3}) == "3")
+    _rap3_w = f"{_RA.pop_branch(_good3)}/{_RA.pop_branch(_bad3)}/{_RA.pop_branch(_few3)}"
+except Exception as _e:                                              # noqa: BLE001
+    _rap3, _rap3_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳🔁 RAP3 الفرع (§⑪-5): «1» يلزمه فاصلا `POS-0` و`POS-0 − C-MOM` فوق الصفر في كلّ سنة **بالمجتمعين** · فاصلٌ يعبر الصفر ⇒ «2» · "
+      "دون 300 ⇒ «3» · والأضعفُ يغلب", _rap3, _rap3_w)
+try:
+    _rows4 = [{"raw": {"days_since_anchor": 2}, "pos": {"POS-0": 0.5, "C-MOM": -0.5}},
+              {"raw": {"days_since_anchor": 4}, "pos": {"POS-0": -1.0, "C-MOM": 0.0}},
+              {"raw": {"days_since_anchor": None}, "pos": {"POS-0": 2.0}},
+              {"raw": {"days_since_anchor": 9}, "pos": {"POS-0": 7.0, "C-MOM": 7.0}}]
+    _m4 = _RA.measure({"C2023": _rows4})["C2023"]
+    _calls4 = {(getattr(c.func, "attr", None) or getattr(c.func, "id", None)) for c in _ast0.walk(_ast0.parse(_ra_src))
+               if isinstance(c, _ast0.Call)}
+    _rap4 = (_m4["n_second"] == 2 and abs(_m4["second"]["mean"] - (-0.25)) < 1e-12 and abs(_m4["first"]["mean"] - 2.0) < 1e-12
+             and abs(_m4["diff"][0] - 0.0) < 1e-12 and _m4["diff"][3] == 2
+             and "simulate" not in _calls4 and {"pos_summary", "boot_ci", "load_rows", "vx1", "split_px"} <= _calls4)
+    _rap4_w = f"n={_m4['n_second']} mean={_m4['second']['mean']} diff={_m4['diff']}"
+except Exception as _e:                                              # noqa: BLE001
+    _rap4, _rap4_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳🔁 RAP4 السياسةُ **مقروءةٌ من الصفوف** (`POS-0`/`C-MOM` كما بنتهما الحاكمة) لا محاكاةَ جديدة · والتحميلُ والهُويّةُ والملخّصُ بالاسم · "
+      "والفرقُ مقترنٌ صفًّا بصفّ", _rap4, _rap4_w)
+try:
+    _t5r = _px_tf.mkdtemp()
+    try:
+        _ra_write(_t5r)
+        _rc5r, _out5r = _ra_run(_t5r)
+        _rc5m, _out5m = _ra_run(_cfd_os.path.join(_t5r, "لا_يوجد"))
+    finally:
+        _px_sh.rmtree(_t5r, ignore_errors=True)
+    _rap5 = (_rc5r == 3 and "V-X1 ساقط" in _out5r and "الخلاصة" not in _out5r and "الثاني" not in _out5r.split("V-X1 ساقط")[0].split("🔒 V-X1")[-1]
+             and "💵" not in _out5r and _rc5m == 3 and "غائبة" in _out5m)
+    _rap5_w = f"rc={_rc5r} rc_missing={_rc5m}"
+except Exception as _e:                                              # noqa: BLE001
+    _rap5, _rap5_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳🔁 RAP5 `V-X1` بوّابة: صفوفٌ لا تُعيد المنشورَ ⇒ خروج 3 **ولا رقمَ من «الثاني»** · وصفوفٌ غائبة ⇒ خروج 3", _rap5, _rap5_w)
+try:
+    _t6r = _px_tf.mkdtemp()
+    try:
+        _ra_write(_t6r)
+        _rc6r, _out6r = _ra_run(_t6r, patch=True, min_second=5)
+        _rc6f, _out6f = _ra_run(_t6r, patch=True)                     # الأرضيّةُ الحقيقيّة 300 على صفوفٍ صغيرة ⇒ «لا قياس»
+    finally:
+        _px_sh.rmtree(_t6r, ignore_errors=True)
+    _tail6r = [ln for ln in _out6r.strip().splitlines() if ln.strip()]
+    _rap6 = (_rc6r == 0 and "✅ V-X1 عابر" in _out6r and _out6r.count("💵 ") == 2 and _out6r.count("🔮 RA-P") == 4
+             and _tail6r[-1].startswith("🏁 الفرعُ") and _out6r.index("🏁🏁 الخلاصة") > _out6r.rindex("💵 ")
+             and _rc6f == 3 and _out6f.strip().splitlines()[-1].startswith("🏁 الفرعُ 3"))
+    _rap6_w = f"rc={_rc6r} rc_floor={_rc6f} tail={_tail6r[-1][:40]}"
+except Exception as _e:                                              # noqa: BLE001
+    _rap6, _rap6_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳🔁 RAP6 بعد عبور V-X1: المجتمعان يُقاسان · التنبّؤاتُ الأربعة تُطبع · **والفرعُ آخرُ سطر** · وأرضيّةُ 300 على صفوفٍ صغيرة ⇒ «لا قياس» خروج 3",
+      _rap6, _rap6_w)
+try:
+    _wf7 = _wfh_yaml.safe_load(open(".github/workflows/prelink_rearm.yml", encoding="utf-8"))
+    _on7 = _wf7.get(True) or _wf7.get("on") or {}
+    _txt7 = open(".github/workflows/prelink_rearm.yml", encoding="utf-8").read()
+    _env7 = {}
+    for _s in _wf7["jobs"]["prelink_rearm"]["steps"]:
+        _env7.update(_s.get("env") or {})
+    _rap7 = (set(_on7) == {"workflow_dispatch"} and not (_on7.get("workflow_dispatch") or {}).get("inputs")
+             and _wf7["permissions"] == {"contents": "read", "actions": "read"}
+             and str(_env7.get("RUN_ID")) == _PX.GOV_RUN and _env7.get("PRELINK_ROWS_DIR") == "prelink_rows"
+             and not any(x in _txt7 for x in ("POLYGON", "TELEGRAM", "SEC_CONTACT"))
+             and "python prelink_rearm.py" in _txt7 and "gh run download" in _txt7
+             and int(_wf7["jobs"]["prelink_rearm"]["timeout-minutes"]) <= 60)
+    _rap7_w = f"on={list(_on7)} env={sorted(_env7)}"
+except Exception as _e:                                              # noqa: BLE001
+    _rap7, _rap7_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳🔁 RAP7 الـworkflow يدويٌّ **بلا مُدخَلات** · `contents/actions: read` · **بلا أيّ سرّ** · والحاكمةُ مثبَّتة", _rap7, _rap7_w)
+try:
+    _pre8 = open("prelink_prereg.md", encoding="utf-8").read()
+    _s11 = _pre8.split("## ⑪ ملحقٌ مؤرَّخ", 1)[1] if "## ⑪ ملحقٌ مؤرَّخ" in _pre8 else ""
+    _rap8 = (all(f"⑪-{i}" in _s11 for i in range(1, 8)) and all(f"`RA-P{i}`" in _s11 for i in range(1, 5))
+             and "من 1 إلى 5 جلسات" in _s11 and "300 صفّ" in _s11 and "`days_since_anchor`" in _s11
+             and "36163255276" in _s11 and "لا يُشحَن شيءٌ في أيّ فرع" in _s11)
+    _rap8_w = f"§⑪ حاضر={bool(_s11)}"
+except Exception as _e:                                              # noqa: BLE001
+    _rap8, _rap8_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳🔁 RAP8 التعريفُ والأرضيّةُ والفروعُ والتنبّؤاتُ الأربعة **مكتوبةٌ في العقد §⑪** قبل الأداة", _rap8, _rap8_w)
+try:
+    def _res9(sec, fst, dif):
+        return {f"C{y}": {"second": None if s is None else {"mean": s}, "first": None if f is None else {"mean": f},
+                          "diff": None if d is None else (d, 0, 0, 1)} for y, s, f, d in zip(_PX.YEARS, sec, fst, dif)}
+    _e9a = _RA.eval_predictions(_res9([-0.1, -0.2, -0.3], [-0.3, -0.3, -0.1], [-0.1, -0.1, 0.1]), "2")
+    _e9b = _RA.eval_predictions(_res9([-0.1, 0.1, -0.3], [-0.05, -0.3, -0.1], [0.1, 0.1, -0.1]), "1")
+    _e9c = _RA.eval_predictions(_res9([-0.1, None, -0.3], [-0.3, None, -0.1], [-0.1, None, 0.1]), "2")
+    _rap9 = (_e9a["RA-P1"][0] == "✅" and _e9a["RA-P2"][0] == "✅" and _e9a["RA-P3"][0] == "✅" and _e9a["RA-P4"][0] == "✅"
+             and _e9b["RA-P1"][0] == "❌" and _e9b["RA-P2"][0] == "❌" and _e9b["RA-P3"][0] == "❌" and _e9b["RA-P4"][0] == "❌"
+             and _e9c["RA-P1"][0] == "⚪" and _e9c["RA-P2"][0] == "⚪" and _e9c["RA-P3"][0] == "⚪")
+    _rap9_w = f"a={[v[0] for v in _e9a.values()]} b={[v[0] for v in _e9b.values()]} c={[v[0] for v in _e9c.values()]}"
+except Exception as _e:                                              # noqa: BLE001
+    _rap9, _rap9_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳🔁 RAP9 قراءةُ التنبّؤات آليًّا (§⑪-6): `RA-P2`/`RA-P3` «سنتان على الأقلّ» · «لا حكم» ⚪ لا ✅ · و`RA-P4` بالفرع", _rap9, _rap9_w)
+
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

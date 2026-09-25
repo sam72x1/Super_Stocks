@@ -280,6 +280,7 @@
   🔄 **و‏180 منذ 2026-09-25** بـ`opentry_link.yml` (‏`T-OPLINK`) و`shadow_ready.yml` (‏`T-SHADOW`) — يدويّان · **والمجدولةُ ‏20 كما هي** (‏مقروءةٌ بالـ`ls`).
   🔄 **و‏181 مساءَ 2026-09-25** بـ`prelink.yml` (‏`T-PRELINK` · يدويّ) — **والمجدولةُ ‏20 كما هي** (‏مقروءةٌ بالـ`ls`).
   🔄 **و‏182 ليلةَ 2026-09-25** بـ`prelink_px.yml` (‏`T-PRELINK §⑩` «فوق الدولار» · يدويّ بلا مُدخَلات) — **والمجدولةُ ‏20 كما هي** (‏مقروءةٌ بالـ`ls`).
+  🔄 **و‏183 ليلةَ 2026-09-25** بـ`prelink_rearm.yml` (‏`T-PRELINK §⑪` «دخولُ التنبيه الثاني» · يدويّ بلا مُدخَلات) — **والمجدولةُ ‏20 كما هي** (‏مقروءةٌ بالـ`ls`).
   **والمجدولةُ العشرون اليوم** (‏مقروءةٌ بالـ`ls`):
   daily_screener · pullback_monitor · operator_entry · ignition · press_radar ·
   press_harvest · presession_digest · split_hunter · split_filter · method_hunter ·
