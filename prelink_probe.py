@@ -897,6 +897,53 @@ def pos_summary(rows, tag):
             "win": sum(1 for x in xs if x > 0) / len(xs) * 100}
 
 
+def classify_links(vA, vA2, vC, vC2, emit=log):
+    """الحكمُ بالأضعف (العقد §⑤): «رابط» = يعبر C في كلّ سنةٍ مع/بدون صفوف التقسيم **و**A كذلك (أو A «لا قياس») ·
+    «زخمٌ/مرساة» = يفصل ①② في كلّ سنةٍ من C ويسقط على غيرهما ⟵ (links, momentum_only).
+    مستخرَجٌ من `main` **بلا تغيير سلوك** (‏2026-09-25) ليُعاد استعمالُه بالاسم في ملحق §⑩ (`prelink_px.py`)."""
+    names = [k for k in vA if not k.startswith("_") and not k.startswith("cohort_")]
+    for y in vC:
+        names += [k for k in vC[y] if k not in names and not k.startswith("_") and not k.startswith("cohort_")]
+    links, momentum_only = [], []
+    for name in names:
+        pa = passes(vA.get(name), need_c4=True) and passes(vA2.get(name), need_c4=True)
+        pc_all = bool(vC) and all(passes(vC[y].get(name)) and passes(vC2[y].get(name)) for y in vC)
+        c_meas = bool(vC) and all(isinstance(vC[y].get(name), dict) and vC[y][name].get("c1") is not None for y in vC)
+        a_meas = isinstance(vA.get(name), dict) and vA[name].get("c1") is not None
+        if pc_all and (pa or not a_meas):
+            links.append(name)
+        elif c_meas and all((vC[y][name].get("c1") and vC[y][name].get("c2")) for y in vC) and not pc_all:
+            momentum_only.append(name)
+        status = ("✅ رابط" if name in links else ("🟡 يفصل ويسقط على ⑤/⑥ (زخمٌ/مرساة)" if name in momentum_only
+                  else ("🟠 يعبر على A وحدَها — لا C ⇒ قيدُ الإثبات لا رابط" if (pa and not c_meas) else "❌")))
+        emit(f"   {name}: A {'✅' if pa else ('—' if not a_meas else '❌')} · C {'✅' if pc_all else ('—' if not c_meas else '❌')} ⇒ {status}")
+    return links, momentum_only
+
+
+def positioning(rows_A, rows_C, emit=log):
+    """§⑥ بحكمه: متوسّطُ R وفاصلُه لكلّ سياسة · و`POS-0 − C-MOM` مقترنًا ⟵ (pos_ok, diffs, pos_verdict).
+    «ممكن» = سياسةٌ موجبةٌ بفاصلٍ فوق الصفر في كلّ سنةٍ من C **و**تتفوّق على `C-MOM` في كلّ سنة.
+    مستخرَجٌ من `main` **بلا تغيير سلوك** (‏2026-09-25) ليُعاد استعمالُه بالاسم في ملحق §⑩."""
+    pos_ok = {}
+    for tag in ("POS-0", "POS-1", "POS-2", "POS-3", "C-MOM"):
+        parts = {"A": pos_summary(rows_A, tag)}
+        for y, rc in rows_C.items():
+            parts[f"C{y}"] = pos_summary(rc, tag)
+        line = " · ".join(f"{k}: " + ("—" if v is None else f"{v['mean']:+.3f}R [{v['ci'][0]:+.2f},{v['ci'][1]:+.2f}] وسيط {v['median']:+.2f} ربح {v['win']:.0f}% n={v['n']}") for k, v in parts.items())
+        emit(f"   {tag}: {line}")
+        pos_ok[tag] = all(v is not None and v["mean"] > 0 and v["ci"][0] > 0 for k, v in parts.items() if k.startswith("C")) and bool(rows_C)
+    # POS − C-MOM مقترنًا
+    diffs = {}
+    for y, rc in rows_C.items():
+        d = [r["pos"]["POS-0"] - r["pos"]["C-MOM"] for r in rc if r["pos"].get("POS-0") is not None and r["pos"].get("C-MOM") is not None]
+        if d:
+            lo, hi = boot_ci(d)
+            diffs[y] = (sum(d) / len(d), lo, hi, len(d))
+            emit(f"   POS-0 − C-MOM (C{y}): {sum(d) / len(d):+.3f}R [{lo:+.2f},{hi:+.2f}] n={len(d)}")
+    pos_verdict = any(pos_ok.get(t) for t in ("POS-0", "POS-1", "POS-2", "POS-3")) and all(v[1] > 0 for v in diffs.values()) and bool(diffs)
+    return pos_ok, diffs, pos_verdict
+
+
 def main() -> int:                                                   # noqa: PLR0911, PLR0912, PLR0915
     key = os.environ.get("POLYGON_API_KEY", "").strip()
     if not key:
@@ -1125,22 +1172,7 @@ def main() -> int:                                                   # noqa: PLR
     vC2 = {y: report_set([r for r in rc if not r["o"].get("split_in_win")], f"C{y}", MIN_N_C, z) for y, rc in rows_C.items()}
     # ── الخلاصة
     log(f"\n{'=' * 78}\n🏁 الحكم (يُقرأ بالأضعف · مع/بدون صفوف التقسيم)\n{'=' * 78}")
-    names = [k for k in vA if not k.startswith("_") and not k.startswith("cohort_")]
-    for y in vC:
-        names += [k for k in vC[y] if k not in names and not k.startswith("_") and not k.startswith("cohort_")]
-    links, momentum_only = [], []
-    for name in names:
-        pa = passes(vA.get(name), need_c4=True) and passes(vA2.get(name), need_c4=True)
-        pc_all = bool(vC) and all(passes(vC[y].get(name)) and passes(vC2[y].get(name)) for y in vC)
-        c_meas = bool(vC) and all(isinstance(vC[y].get(name), dict) and vC[y][name].get("c1") is not None for y in vC)
-        a_meas = isinstance(vA.get(name), dict) and vA[name].get("c1") is not None
-        if pc_all and (pa or not a_meas):
-            links.append(name)
-        elif c_meas and all((vC[y][name].get("c1") and vC[y][name].get("c2")) for y in vC) and not pc_all:
-            momentum_only.append(name)
-        status = ("✅ رابط" if name in links else ("🟡 يفصل ويسقط على ⑤/⑥ (زخمٌ/مرساة)" if name in momentum_only
-                  else ("🟠 يعبر على A وحدَها — لا C ⇒ قيدُ الإثبات لا رابط" if (pa and not c_meas) else "❌")))
-        log(f"   {name}: A {'✅' if pa else ('—' if not a_meas else '❌')} · C {'✅' if pc_all else ('—' if not c_meas else '❌')} ⇒ {status}")
+    links, momentum_only = classify_links(vA, vA2, vC, vC2)
     cov_ok = covA >= MIN_COVER and all(v >= MIN_COVER for v in cov_C.values())
     if not YEARS or not vp6_ok or not rows_C:
         branch = "3 «لا قياس» — C غيرُ متاح أو V-P6 ساقط"
@@ -1153,23 +1185,7 @@ def main() -> int:                                                   # noqa: PLR
     log(f"\n🏁 الفرعُ {branch}")
     # ── التمركز (§⑥)
     log(f"\n{'=' * 78}\n💵 §⑥ التمركز — R بعد التكلفة ({COST * 100:.0f}% للطرف · وقفٌ {STOP_BELOW * 100:.0f}% تحت أدنى يوم 0 · خروجٌ بهدف +100% أو بعد {POS_DAYS} جلسات)\n{'=' * 78}")
-    pos_ok = {}
-    for tag in ("POS-0", "POS-1", "POS-2", "POS-3", "C-MOM"):
-        parts = {"A": pos_summary(rows_A, tag)}
-        for y, rc in rows_C.items():
-            parts[f"C{y}"] = pos_summary(rc, tag)
-        line = " · ".join(f"{k}: " + ("—" if v is None else f"{v['mean']:+.3f}R [{v['ci'][0]:+.2f},{v['ci'][1]:+.2f}] وسيط {v['median']:+.2f} ربح {v['win']:.0f}% n={v['n']}") for k, v in parts.items())
-        log(f"   {tag}: {line}")
-        pos_ok[tag] = all(v is not None and v["mean"] > 0 and v["ci"][0] > 0 for k, v in parts.items() if k.startswith("C")) and bool(rows_C)
-    # POS − C-MOM مقترنًا
-    diffs = {}
-    for y, rc in rows_C.items():
-        d = [r["pos"]["POS-0"] - r["pos"]["C-MOM"] for r in rc if r["pos"].get("POS-0") is not None and r["pos"].get("C-MOM") is not None]
-        if d:
-            lo, hi = boot_ci(d)
-            diffs[y] = (sum(d) / len(d), lo, hi, len(d))
-            log(f"   POS-0 − C-MOM (C{y}): {sum(d) / len(d):+.3f}R [{lo:+.2f},{hi:+.2f}] n={len(d)}")
-    pos_verdict = any(pos_ok.get(t) for t in ("POS-0", "POS-1", "POS-2", "POS-3")) and all(v[1] > 0 for v in diffs.values()) and bool(diffs)
+    pos_ok, diffs, pos_verdict = positioning(rows_A, rows_C)
     log(f"\n🏁 التمركزُ بين التنبيه والانفجار: {'ممكنٌ بتوقّعٍ موجبٍ بعد التكلفة ✅' if pos_verdict else 'غيرُ ممكنٍ بهذي السياسات ❌'}"
         + (f" — الأعلى: {max((t for t in pos_ok), key=lambda t: (pos_ok[t], t))}" if pos_ok else ""))
     # ── الصفوف (artifact)
