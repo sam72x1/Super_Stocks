@@ -315,7 +315,7 @@
   "updates": 1,
   "vol_x": 7.0,
   "peak_usd": 61437,
-  "last_eval_ms": 1790353500000,
+  "last_eval_ms": 1790353440000,
   "pulse_ms": 1790354100000,
   "anchor_price": 5.33,
   "anchor_open": 5.2,
@@ -342,8 +342,8 @@
    "j1_top": false
   },
   "e5": 5.4395,
-  "date": "2026-09-25",
-  "tgt_ms": 1790354040000
+  "tgt_ms": 1790354040000,
+  "date": "2026-09-25"
  },
  "LIQ:FRGT": {
   "last_eval_ms": 1790354160000,
