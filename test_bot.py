@@ -3991,6 +3991,34 @@ except Exception as _e2r_e2:                                        # noqa: BLE0
 check("⏱️ E2R2-ب إعادةُ التشغيل لا تستكمل مرّتين (idempotent) ولا تُضاعف السجلّ",
       _e2r_res2.get("ts_filled") == [] and _e2r_res2.get("rebuilt") == [] and _e2r_n2 == 6,
       str((_e2r_res2.get("ts_filled"), _e2r_n2)))
+# ⏱️🔴 E2R3 (2026-09-25): **والماضي لا يُعاد كتابتُه** — الاسترجاعُ الكامل `36095794496` استكمل عشرةَ إطلاقاتٍ من
+#    07-15 ⟶ 07-28 فأسقط `SCK0` (مجتمعُ عقد `T-SECONDS` حتى 09-18 صفرٌ مُثبَت) ⇒ من `FIRED_TS_SINCE` وحدَه.
+_e2r3_root = _tmp.mkdtemp(prefix="e2r3_")
+_e2r3_best = {}
+for _d3, _ms3 in (("2026-07-15", 1784124600000), ("2026-09-22", 1790087400000), ("2026-09-23", 1790173800000)):
+    _sd3 = _os.path.join(_e2r3_root, "s_" + _d3)
+    _os.makedirs(_sd3, exist_ok=True)
+    with open(_os.path.join(_sd3, "candidates.jsonl"), "w", encoding="utf-8") as _fh:
+        _fh.write(_json.dumps({"symbol": "OLD", "session_date": _d3, "alert_emitted": True,
+                               "telegram_sent_at": _d3 + "T14:10:00Z", "telegram_sent_at_ms": _ms3,
+                               "trigger_bar_start": _ms3 - 60000}) + "\n")
+    _e2r3_best[_d3] = (400, _sd3, {})
+with open(_os.path.join(_e2r3_root, "ignition_log.json"), "w", encoding="utf-8") as _fh:
+    _json.dump([{"symbol": "OLD", "date": _d3, "fired_at": _d3 + "T14:10:00Z", "source": "e2_reconstructed"}
+                for _d3 in ("2026-07-15", "2026-09-22", "2026-09-23")], _fh)
+try:
+    _e2r3_f = _RC.fill_reconstructed_ts(_e2r3_best, repo_root=_e2r3_root)
+    _e2r3_log = {r["date"]: r for r in _json.load(open(_os.path.join(_e2r3_root, "ignition_log.json"),
+                                                       encoding="utf-8"))}
+except Exception as _e2r3_e:                                        # noqa: BLE001
+    _e2r3_f, _e2r3_log = f"⛔ {type(_e2r3_e).__name__}", {}
+check("⏱️🔴 E2R3 الاستكمالُ **من `FIRED_TS_SINCE` وحدَه** — الماضي لا يُعاد كتابتُه (`SCK0` · عقدُ `T-SECONDS` حتى 09-18) · والحدُّ نفسُه يُستكمَل",
+      _RC.FIRED_TS_SINCE == "2026-09-23" and _e2r3_f == ["2026-09-23 OLD"]
+      and "fired_ts_ms" not in _e2r3_log.get("2026-07-15", {"fired_ts_ms": 0})
+      and "fired_ts_ms" not in _e2r3_log.get("2026-09-22", {"fired_ts_ms": 0})
+      and _e2r3_log.get("2026-09-23", {}).get("fired_ts_ms") == 1790173800000,
+      str(_e2r3_f))
+_shutil.rmtree(_e2r3_root, ignore_errors=True)
 _shutil.rmtree(_e2r_root, ignore_errors=True)
 # ⏳ تغطية الافتتاح: الكرون مقدَّم لتعويض تأخّر GitHub المرصود، وسقف الانتظار يغطّي
 # الفصلين. اختبار حسابي على الأرقام الفعلية (لا نصّي) — أي عودة لقيمة تكسر التغطية تُسقطه.
@@ -5721,17 +5749,15 @@ check("🗄️ ARC1 الأرشيفُ اتّحادٌ لا ينكمش: الأكث�
       and [_arc_tag(_arc_out, d) for d in ("2026-07-29", "2026-08-04", "2026-08-05", "2026-09-24")]
       == ["prev", "cur", "prev", "cur"], str(_arc_m))
 _arc_D = _RC.archive_upload_decision
-check("🗄️ ARC2 قرارُ الرفع: لا أصغرَ من السابق أبدًا · تعذّرُ السابق يمنع · تأسيسٌ · تجديدٌ قبل الـ90 · والجديدُ أسبوعيًّا إلّا القديمَ فورًا",
+check("🗄️ ARC2 قرارُ الرفع: لا أصغرَ من السابق أبدًا · تعذّرُ السابق يمنع · الفارغُ لا يُرفع · تأسيسٌ · **كلُّ تغيّرٍ يُرفع** · وبلا تغيّرٍ تجديدٌ قبل الـ90",
       _arc_D("failed", None, 0, 5, 5)[0] is False
       and _arc_D("ok", 40, 10, 9, 0)[0] is False
       and _arc_D("none", None, 0, 4, 4)[0] is True and _arc_D("none", None, 0, 0, 0)[0] is False
+      and _arc_D("ok", 0, 10, 11, 1)[0] is True                     # جديدٌ ولو بعد ساعات (النافذةُ الليليّة ≈4 أيام)
+      and _arc_D("ok", 2, 10, 10, 1)[0] is True                     # استبدالٌ بلا زيادة
       and _arc_D("ok", _RC.RAW_RENEW_DAYS, 10, 10, 0)[0] is True
       and _arc_D("ok", _RC.RAW_RENEW_DAYS - 1, 10, 10, 0)[0] is False
-      and _arc_D("ok", 2, 10, 11, 1, 1)[0] is False
-      and _arc_D("ok", _RC.RAW_NEW_MIN_DAYS, 10, 11, 1, 1)[0] is True
-      and _arc_D("ok", 2, 4, 48, 44, 90 - _RC.RAW_RENEW_DAYS)[0] is True
-      and _arc_D("ok", 2, 4, 48, 44, 90 - _RC.RAW_RENEW_DAYS - 1)[0] is False
-      and _RC.RAW_NEW_MIN_DAYS < _RC.RAW_RENEW_DAYS < 90, "")
+      and not hasattr(_RC, "RAW_NEW_MIN_DAYS") and 0 < _RC.RAW_RENEW_DAYS < 90, "")
 # 🔌 الخطوةُ كاملة: حالةُ السابق من ملفّها ⟵ الاتّحاد ⟵ قرارُ الرفع وعلمُه ⟵ وإعلانُ ما في الفهرس بلا خام.
 _arc2 = _tmp.mkdtemp(prefix="arc2_")
 with open(_os.path.join(_arc2, "ignition_e2_session_index.json"), "w", encoding="utf-8") as _fh:
@@ -5739,7 +5765,7 @@ with open(_os.path.join(_arc2, "ignition_e2_session_index.json"), "w", encoding=
 _arc_now = S.dt.datetime(2026, 9, 25, 2, 0, tzinfo=S.dt.timezone.utc)
 
 
-def _arc_build(tag, status_text):
+def _arc_build(tag, status_text, prev=None):
     _st = _os.path.join(_arc2, tag + ".status")
     _fl = _os.path.join(_arc2, tag + ".flag")
     if status_text is not None:
@@ -5748,7 +5774,7 @@ def _arc_build(tag, status_text):
     _io = __import__("io").StringIO()
     try:
         with __import__("contextlib").redirect_stdout(_io):
-            _r = _RC.build_raw_archive(_arc_prev, _arc_cur, _os.path.join(_arc2, tag + "_out"),
+            _r = _RC.build_raw_archive(prev or _arc_prev, _arc_cur, _os.path.join(_arc2, tag + "_out"),
                                        status_file=_st, flag_file=_fl, repo_root=_arc2, now=_arc_now)
     except Exception as _e:                                      # noqa: BLE001
         _r = {"⛔": type(_e).__name__}
@@ -5756,17 +5782,20 @@ def _arc_build(tag, status_text):
     return _r, _flag, _io.getvalue()
 
 
-_arc_a, _arc_af, _arc_ao = _arc_build("a", "ok 2026-09-20T01:00:00Z\n")      # عمرُ السابق 5 أيام
+_arc_a, _arc_af, _arc_ao = _arc_build("a", "ok 2026-09-20T01:00:00Z\n")      # عمرُ السابق 5 أيام · وتغيّرٌ 2
 _arc_b, _arc_bf, _arc_bo = _arc_build("b", None)                            # لا ملفَّ حالة ⇒ تعذّر
 _arc_c, _arc_cf, _arc_co = _arc_build("c", "none\n")                         # تأسيس
-check("🔌 ARC3 خطوةُ الأرشيف: أسبوعيٌّ لا يُرفع قبل أوانه · التعذّرُ لا يرفع · التأسيسُ يرفع ويكتب علمَه · والفهرسُ بلا خامٍ **يُعلَن**",
-      _arc_a.get("status") == "ok" and _arc_a.get("age") == 5 and _arc_a.get("upload") is False
-      and _arc_af is None and _arc_a.get("missing") == ["2026-07-15"]
+_arc_d, _arc_df, _arc_do = _arc_build("d", "ok 2026-09-20T01:00:00Z\n", prev=_arc_cur)   # لا تغيّر
+check("🔌 ARC3 خطوةُ الأرشيف: التغيّرُ يُرفع ويكتب علمَه · وبلا تغيّرٍ لا يُرفع قبل أوانه · التعذّرُ لا يرفع · التأسيسُ يرفع · والفهرسُ بلا خامٍ **يُعلَن**",
+      _arc_a.get("status") == "ok" and _arc_a.get("age") == 5 and _arc_a.get("upload") is True
+      and (_arc_af or "").strip() == "تغيّرٌ (2 جلسة)" and _arc_a.get("missing") == ["2026-07-15"]
       and "في الفهرس بلا خامٍ في الأرشيف: 1 — 2026-07-15" in _arc_ao
+      and _arc_d.get("upload") is False and _arc_df is None and _arc_d.get("added") == []
+      and _arc_d.get("replaced") == []
       and _arc_b.get("status") == "failed" and _arc_b.get("upload") is False and _arc_bf is None
       and _arc_c.get("upload") is True and (_arc_cf or "").strip() == "تأسيس",
       str({k: _arc_a.get(k) for k in ("status", "age", "upload", "missing")}) + " · "
-      + str(_arc_b.get("status")) + " · " + str(_arc_cf))
+      + str((_arc_d.get("upload"), _arc_b.get("status"), _arc_cf)))
 # 🔌 والـworkflow موصول: يُنزِّل أحدثَ أرشيفٍ **غيرِ منتهٍ** ⟵ يبني **بعد** الدمج ⟵ ويرفع بعلمه وحدَه (90 يومًا).
 import yaml as _arc_yaml                                          # noqa: E402
 try:
@@ -5789,6 +5818,38 @@ check("🔌 ARC4 الـworkflow: تنزيلُ أحدثِ أرشيفٍ غيرِ �
       and str(_arc_upw.get("path", "")).rstrip("/") == "e2_raw_archive"
       and "upload-artifact" in str(_arc_steps[_arc_up].get("uses", "")),
       f"{_arc_dl} · {_arc_mg} · {_arc_bd} · {_arc_up}")
+# 🔴 تنزيلُ artifacts الجلسات: محاولتان **ونصُّ الخطأ يُطبع** — جلسة 08-17 طُبع عنها «انتهت مدّة الاحتفاظ»
+#    و`expires_at` 2026-11-15 (‏`36095794496`). **سلوكيًّا:** خطوةُ الـworkflow نفسُها بـ`gh` مزيَّف.
+_arc5 = _tmp.mkdtemp(prefix="arc5_")
+for _d5 in ("bin", "state", "work"):
+    _os.makedirs(_os.path.join(_arc5, _d5), exist_ok=True)
+with open(_os.path.join(_arc5, "bin", "gh"), "w", encoding="utf-8") as _fh:
+    _fh.write("#!/bin/bash\nid=\"$3\"; dir=\"$7\"; f=\"$FAKE_STATE/$id\"\n"
+              "n=$(cat \"$f\" 2>/dev/null || echo 0); n=$((n+1)); echo $n > \"$f\"\n"
+              "case \"$id\" in\n"
+              "  111) mkdir -p \"$dir\"; exit 0;;\n"
+              "  222) if [ \"$n\" -ge 2 ]; then mkdir -p \"$dir\"; exit 0; fi; echo 'HTTP 502: flaky' >&2; exit 1;;\n"
+              "  333) echo 'no artifact matches any of the names' >&2; echo 'second line' >&2; exit 1;;\n"
+              "  444) exit 1;;\nesac\n")
+_os.chmod(_os.path.join(_arc5, "bin", "gh"), 0o755)
+_arc5_run = next((str(s.get("run", "")) for s in _arc_steps if "ign-assembled-$id" in str(s.get("run", ""))), "")
+try:
+    _arc5_p = __import__("subprocess").run(
+        ["bash", "-e", "-c", _arc5_run], cwd=_os.path.join(_arc5, "work"), capture_output=True, text=True,
+        timeout=60, env={**_os.environ, "PATH": _os.path.join(_arc5, "bin") + ":" + _os.environ.get("PATH", ""),
+                         "IDS": "111,222,333,444", "FAKE_STATE": _os.path.join(_arc5, "state"), "GH_TOKEN": "x"})
+    _arc5_out, _arc5_rc = _arc5_p.stdout, _arc5_p.returncode
+except Exception as _e:                                          # noqa: BLE001
+    _arc5_out, _arc5_rc = f"⛔ رمى: {type(_e).__name__}", -1
+_arc5_calls = {f: open(_os.path.join(_arc5, "state", f)).read().strip()
+               for f in sorted(_os.listdir(_os.path.join(_arc5, "state")))}
+check("🔴 ARC5 تنزيلُ artifacts الجلسات: **محاولتان** (العابرُ يُنقَذ) · **ونصُّ الخطأ يُطبع** لا «انتهت مدّة الاحتفاظ» مُخمَّنة · والفاشلُ الصامتُ مفقودٌ لا ناجح",
+      _arc5_rc == 0 and "✅ 111" in _arc5_out and "✅ 222" in _arc5_out
+      and "⚠️ 333 — تعذّر التنزيل (محاولتان): no artifact matches any of the names\n" in _arc5_out
+      and "⚠️ 444 — تعذّر التنزيل (محاولتان):" in _arc5_out and "نُزِّل 2 · مفقود: 333 444" in _arc5_out
+      and "انتهت مدّة الاحتفاظ" not in _arc5_run
+      and _arc5_calls == {"111": "1", "222": "2", "333": "2", "444": "2"},
+      f"rc={_arc5_rc} · نداءات={_arc5_calls} · {_arc5_out[-160:]}")
 # ── 🔬 P0-1/P1.3: NBBO قياسي **لا-تزامني** (worker) خارج مسار التنبيه + measurement مفضَّل ──
 _p13_fresh = int(_time_e2.time() * 1e9)
 _p13_stale = int((_time_e2.time() - 100) * 1e9)

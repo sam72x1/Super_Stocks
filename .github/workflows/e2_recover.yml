@@ -50,10 +50,20 @@ jobs:
           mkdir -p recovered
           got=0; miss=""
           for id in $LIST; do
-            if gh run download "$id" -n "ign-assembled-$id" -D "recovered/$id" 2>/dev/null; then
+            # 🔴 (2026-09-25): محاولتان **ونصُّ الخطأ يُطبع** — جلسة 08-17 طُبع عنها «لا artifact (… انتهت
+            #    مدّة الاحتفاظ)» و`expires_at` 2026-11-15 ⇒ التعذّرُ عابرٌ لا انتهاء (`36095794496`).
+            ok=0; err=""
+            for try in 1 2; do
+              if err=$(gh run download "$id" -n "ign-assembled-$id" -D "recovered/$id" 2>&1); then
+                ok=1; break
+              fi
+              rm -rf "recovered/$id"
+              if [ "$try" = 1 ]; then sleep 3; fi
+            done
+            if [ "$ok" = 1 ]; then
               echo "✅ $id"; got=$((got+1))
             else
-              echo "⚠️ $id — لا artifact (تشغيلة أقدم أو انتهت مدّة الاحتفاظ)"; miss="$miss $id"
+              echo "⚠️ $id — تعذّر التنزيل (محاولتان): ${err%%$'\n'*}"; miss="$miss $id"
             fi
           done
           echo "نُزِّل $got · مفقود:${miss:- لا شيء}"
