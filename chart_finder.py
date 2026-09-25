@@ -59,6 +59,8 @@ ANCHOR_MAX = 25            # أقصى عابري المرساة تُفحص نو�
 # ── v1.1 (ملحق §⑩ · بعد المجموعة الحقيقيّة الأولى · لا يُحتسب عليها) ─────────────────────────
 CAP_UNDATED_INTRADAY = True  # G1: لحظيٌّ بلا مرساةٍ مؤرَّخة ⟵ الوسمُ لا يتجاوز «غير محسوم» («يُحاوَل ولا يُخمَّن»)
 LIVE_ANCHOR = True           # G2: مرساةٌ بلا عابر ⟵ بديلُ «الشمعة قيد التكوّن» على ملفّ دقائق اليوم نفسِه
+# ── v1.2 (ملحق §⑫ · بعد تشخيص §⑨ · لا يُحتسب على real ولا real2) ───────────────────────────────
+SPLIT_AWARE_PREFILTER = True  # G3: المرشِّحُ الخامّ يُسوّي نوافذَ الرموز المقسَّمة داخل اللوحة (حالةُ §⑧-6 · TG_2050)
 # ⚖️ حالةُ القبول بحكم العقد §⑤ على آخر مجموعةٍ حقيقيّة (`chart_finder_result.md`) — تُطبع مع كلّ جواب ولا تمسّ
 #    الحكمَ الآليّ: «غير جاهزة» ⟵ كلُّ جوابٍ «تجريبيّ» (§⑤-3) · «جاهزة للواثق وحدَه» ⟵ «واثق» وحدَه معتمَد · «جاهزة» ⟵ الكلّ.
 ACCEPTANCE = "غير جاهزة"          # real2 (§⑩) · k1=9/10 k2=34/46 · 2026-09-24
@@ -921,15 +923,55 @@ def _pair_errors(hs, ls, c_e, h_e, l_e, spec_hi, spec_lo, spec_last):
     return e_last, best
 
 
+def _split_factor_cols(days, syms, splits_by_sym) -> dict:
+    """G3 (§⑫): `{عمود: F}` لكلّ رمزٍ له تقسيمٌ **داخل اللوحة** — `F[i]` معاملُ يومِ `i` حتى آخر اللوحة، فمعاملُه حتى
+    يومِ نهايةٍ `e` = `F[i] / F[e]` (= `split_factor(sp, days[i], days[e])` بالقاعدة نفسِها) · وبلا تقسيمٍ داخلها ⟵ لا عمود
+    ⟵ خامٌ بت-بت."""
+    import numpy as np                                              # noqa: PLC0415
+    out = {}
+    if not splits_by_sym or not days:
+        return out
+    d0, d1 = days[0], days[-1]
+    dd = np.array(days)
+    for j, s in enumerate(syms):
+        sp = [x for x in (splits_by_sym.get(s) or ()) if d0 < x[0] <= d1]
+        if not sp:
+            continue
+        f = np.ones(len(days), dtype=float)
+        for ex, fr, to in sp:
+            if fr > 0 and to > 0:
+                f[dd < ex] *= float(fr) / float(to)
+        out[j] = f
+    return out
+
+
+def _g3_split_cols(pdays, syms, need_since: str, get=None):
+    """G3 (§⑫): تقسيماتُ السوق **قبل** المرشِّح (النداءُ الجماعيّ نفسُه الذي كان بعده) ⟵ عواملُ الرموز المقسَّمة داخل
+    اللوحة · والمفتاحُ مطفأٌ ⟵ `None` (v1.1 بت-بت) · وتعذّرُ الجلب ⟵ `None` **ويُعلَن** (المرشِّحُ خامّ)."""
+    if not SPLIT_AWARE_PREFILTER or not pdays:
+        return None
+    if _SPLITS_ALL_SINCE is None or _SPLITS_ALL_SINCE > need_since:
+        load_all_splits(need_since, get=get)
+    if _SPLITS_ALL_SINCE is None or _SPLITS_ALL_SINCE > pdays[0]:
+        log("   ⚠️ G3: تقسيماتُ السوق لم تُجلب ⟵ المرشِّحُ خامّ كما في v1.1 (حالةُ §⑧-6 لا تُلتقط)")
+        return None
+    cols = _split_factor_cols(pdays, syms, _SPLITS_ALL)
+    log(f"   ✂️ G3 (§⑫): نوافذُ {len(cols):,} رمزًا مقسَّمًا داخل اللوحة تُسوّى قبل المرشِّح")
+    return cols
+
+
 def undated_market_candidates(days, syms, H, L, C, spec_hi, spec_lo, spec_last, n_max: int,
-                              end_ok=None):
+                              end_ok=None, split_cols=None):
     """مسحُ السوق كلِّه بلا تاريخ **بقيودٍ لا يكسرها تقسيمٌ داخل النافذة**:
     • آخرُ سعر عند يوم النهاية (إغلاقٌ، أو داخل المدى بخطأ 1) — آخرُ شمعةٍ بعد كلّ تقسيمٍ بالبناء.
     • وأحدُ الطرفين **خامًا** داخل آخر `n_max` شمعة (الطرفُ الواقع بعد التقسيم خامٌ = معروض).
-    ⟵ `{رمز: (خطأ، يوم نهاية)}` بأفضل زوجٍ لكلّ رمز · والتحقّقُ الكامل بالتقسيم الفعليّ بعده."""
+    ⟵ `{رمز: (خطأ، يوم نهاية)}` بأفضل زوجٍ لكلّ رمز · والتحقّقُ الكامل بالتقسيم الفعليّ بعده.
+    🔧 **G3 (§⑫):** `split_cols` (من `_split_factor_cols`) يُسوّي نافذةَ الرمز المقسَّم حتى يومِ النهاية قبل القيد — فالطرفان
+    قبل تقسيمٍ داخل النافذة (§⑨: ONCO) يُلتقطان · وبلا عمودٍ للرمز ⟵ خامٌ بت-بت."""
     import numpy as np                                              # noqa: PLC0415
     if spec_last is None and spec_lo is None and spec_hi is None:
         return {}
+    cols = split_cols or {}
     if spec_last is not None:
         tn = tol_near(spec_last)
         with np.errstate(invalid="ignore"):
@@ -950,8 +992,12 @@ def undated_market_candidates(days, syms, H, L, C, spec_hi, spec_lo, spec_last, 
         if end_ok is not None and not end_ok(int(e)):
             continue
         a = max(0, e - n_max + 1)
-        r = _pair_errors(H[a:e + 1, j], L[a:e + 1, j], C[e, j], H[e, j], L[e, j],
-                         spec_hi, spec_lo, spec_last)
+        hs, ls = H[a:e + 1, j], L[a:e + 1, j]
+        f = cols.get(int(j))
+        if f is not None:                           # 🔒 النوعُ نفسُه (float32): وإلّا قُورن الخطأُ بدقّةٍ أعلى من الخامّ
+            g = f[a:e + 1] / f[e]                   #    فانقلب ترتيبُ المتعادلَين وقصَّ السقفُ الرمزَ الصحيح (أمسكه CFD21/CFD25)
+            hs, ls = (hs * g).astype(hs.dtype), (ls * g).astype(ls.dtype)
+        r = _pair_errors(hs, ls, C[e, j], H[e, j], L[e, j], spec_hi, spec_lo, spec_last)
         if r is None or r[1] > 1.0:
             continue
         err = r[0] + r[1]
@@ -1139,14 +1185,15 @@ def stage_market_dated(card: dict, tmpdir: str, get=None, panel_arr=None) -> tup
         return [], None
     n_max = (core[-1] - core[0] + 1) + 2 * WINDOW_SLACK_DAYS
     lo_e, hi_e = core[-1] - WINDOW_SLACK_DAYS, core[-1] + WINDOW_SLACK_DAYS
+    need = (dt.date.fromisoformat(w["from"]) - dt.timedelta(days=20)).isoformat()
+    split_cols = _g3_split_cols(pdays, syms, min(need, pdays[0]), get=get)
     best = undated_market_candidates(pdays, syms, H, L, C, spec_hi, spec_lo, spec_last, n_max,
-                                     end_ok=lambda e: lo_e <= e <= hi_e)
+                                     end_ok=lambda e: lo_e <= e <= hi_e, split_cols=split_cols)
     ranked = sorted(best.items(), key=lambda kv: (kv[1][0], kv[0]))
     global _LAST_CUT
     _LAST_CUT = max(0, len(ranked) - SHORTLIST_MAX)
     log(f"① نافذةٌ مؤرَّخة {w['from']} ⟶ {w['to']} ⟵ رموزٌ عبرت القيدَين الخامَّين: {len(ranked):,}"
         + (f" · ✂️ فُحص أوّلُ {SHORTLIST_MAX} وقُصّ {_LAST_CUT:,} (⇒ لا «واثق»)" if _LAST_CUT else ""))
-    need = (dt.date.fromisoformat(w["from"]) - dt.timedelta(days=20)).isoformat()
     if ranked and (_SPLITS_ALL_SINCE is None or _SPLITS_ALL_SINCE > need):
         load_all_splits(need, get=get)
     return [s for s, _ in ranked[:SHORTLIST_MAX]], (pdays, syms, H, L, C)
@@ -1206,7 +1253,9 @@ def stage_market_undated(card: dict, tmpdir: str, get=None, panel_arr=None) -> l
         if not panel:
             return [], None
         pdays, syms, H, L, C = panel_arrays(panel)
-    best = undated_market_candidates(pdays, syms, H, L, C, spec_hi, spec_lo, spec_last, n_max)
+    split_cols = _g3_split_cols(pdays, syms, pdays[0], get=get)
+    best = undated_market_candidates(pdays, syms, H, L, C, spec_hi, spec_lo, spec_last, n_max,
+                                     split_cols=split_cols)
     ranked = sorted(best.items(), key=lambda kv: (kv[1][0], kv[0]))
     if ranked and (_SPLITS_ALL_SINCE is None or _SPLITS_ALL_SINCE > pdays[0]):
         load_all_splits(pdays[0], get=get)
