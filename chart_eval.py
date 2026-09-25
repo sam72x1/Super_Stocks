@@ -539,11 +539,21 @@ def run_real(tmpdir: str, get=None, folder: str = REAL_DIR) -> int:
     return 0
 
 
+def g3_from_env(raw=None) -> bool:
+    """§⑫-ب: `CHART_EVAL_G3` ⟵ هل G3 مُشعَلٌ لهذه التشغيلة؟ **«0» حرفًا وحدَه يُطفئه** (ضبطٌ مزدوجٌ في اليوم نفسِه)
+    وكلُّ ما سواه (فارغ · «1» · غريب) ⟵ الافتراضُ مُشعَل — فلا يُطفأ بخطأ إدخال."""
+    raw = os.environ.get("CHART_EVAL_G3") if raw is None else raw
+    return (raw or "").strip() != "0"
+
+
 def main() -> int:
     mode = (os.environ.get("CHART_EVAL") or "").strip()
     if not CF._key():
         log("⛔ POLYGON_API_KEY غائب")
         return 3
+    if not g3_from_env():                 # §⑫-ب: ضبطٌ مزدوج — v1.1 على لوحة اليوم نفسِه (لا يُحتسب حكمًا)
+        CF.SPLIT_AWARE_PREFILTER = False
+        log("🔧 §⑫-ب: G3 مطفأٌ لهذه التشغيلة (CHART_EVAL_G3=0) — ضبطٌ مزدوجٌ لا حكم")
     with tempfile.TemporaryDirectory() as tmp:
         if mode == "synth":
             return run_synth(tmp)

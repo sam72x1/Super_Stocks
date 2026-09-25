@@ -64834,6 +64834,61 @@ except Exception as _e:                                           # noqa: BLE001
     _cfd52, _cfd52_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD52 `CHART_EVAL=synth_split` يُوجَّه إلى `run_synth_split` ومُدخَلُه في الـworkflow · وثوابتُه (60 · 3 · 20 · 95% · 10%) "
       "**= نصَّ ملحق §⑫ المكتوب قبل التشغيل** مع تصحيحِ المسودة الفارغة و`CP13-ب`/`CP13-ج` — فلا يُرخى معيارٌ بعد رقم", _cfd52, _cfd52_w)
+# ── CFD53-CFD54 🔧 §⑫-ب: مفتاحُ الضبط المزدوج (`CHART_EVAL_G3`) · ونتائجُ §⑫ منشورةٌ كما هي (§⑩) ──
+try:
+    import yaml as _cfd_yaml                                     # noqa: PLC0415
+    _v53 = [_CFE.g3_from_env(x) for x in ("0", " 0 ", "1", "", "x", "00", "false")]
+    _keep53 = (_CFE.run_synth_split, _CF._key, _CFE.log, _CF.SPLIT_AWARE_PREFILTER)
+    _env53 = {k: _cfd_os.environ.get(k) for k in ("CHART_EVAL", "CHART_EVAL_G3")}
+    _seen53, _logs53 = [], []
+    try:
+        _CFE.run_synth_split = lambda tmp, get=None, panel_arr=None: (_seen53.append(_CF.SPLIT_AWARE_PREFILTER) or 0)
+        _CF._key = lambda: "k"
+        _CFE.log = lambda m="": _logs53.append(str(m))
+        _cfd_os.environ["CHART_EVAL"] = "synth_split"
+        _cfd_os.environ.pop("CHART_EVAL_G3", None)
+        _CF.SPLIT_AWARE_PREFILTER = True
+        _m53a = _CFE.main()
+        _cfd_os.environ["CHART_EVAL_G3"] = "0"
+        _m53b = _CFE.main()
+    finally:
+        _CFE.run_synth_split, _CF._key, _CFE.log, _CF.SPLIT_AWARE_PREFILTER = _keep53
+        for _k53, _v in _env53.items():
+            if _v is None:
+                _cfd_os.environ.pop(_k53, None)
+            else:
+                _cfd_os.environ[_k53] = _v
+    _y53 = _cfd_yaml.safe_load(open(".github/workflows/chart_eval.yml", encoding="utf-8"))
+    _in53 = ((_y53.get(True) or _y53.get("on") or {}).get("workflow_dispatch") or {}).get("inputs") or {}
+    _envy53 = [st.get("env") or {} for st in _y53["jobs"]["eval"]["steps"] if st.get("env")]
+    _pre53 = open("chart_finder_prereg.md", encoding="utf-8").read()
+    _b53 = _pre53.split("### §⑫-ب", 1)[1] if "### §⑫-ب" in _pre53 else ""
+    _need53 = ("`CHART_EVAL_G3=0`", "`CP16`", "قاعدةُ الإسناد", "«لا مقارنة»", "**صفرُ ضررٍ من G3**", "افتراضي «البذرةُ نفسُها")
+    _cfd53 = (_v53 == [False, False, True, True, True, True, True] and _m53a == 0 and _m53b == 0
+              and _seen53 == [True, False] and sum("🔧 §⑫-ب" in m for m in _logs53) == 1
+              and (_in53.get("g3") or {}).get("default") == "1"
+              and any(e.get("CHART_EVAL_G3") == "${{ inputs.g3 }}" for e in _envy53)
+              and all(x in _b53 for x in _need53))
+    _cfd53_w = (f"env={_v53} · المفتاحُ عند النداء={_seen53} · سطر={sum('🔧 §⑫-ب' in m for m in _logs53)} · "
+                f"مُدخَل={(_in53.get('g3') or {}).get('default')} · ملحق ناقص={[x for x in _need53 if x not in _b53]}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd53, _cfd53_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD53 §⑫-ب: `CHART_EVAL_G3` **«0» حرفًا وحدَه** يُطفئ G3 لتشغيلةٍ واحدة (ويُعلَن) وكلُّ ما سواه مُشعَل · ومُدخَلُ `g3` "
+      "افتراضُه «1» ويصل عبر env · والملحقُ يكتب قاعدةَ الإسناد و`CP16` **قبل** التشغيل", _cfd53, _cfd53_w)
+try:
+    _res54 = open("chart_finder_result.md", encoding="utf-8").read()
+    _s54 = _res54.split("## ⑩", 1)[1] if "## ⑩" in _res54 else ""
+    _need54 = ("`36084429048`", "`36084430627`", "`36084432287`", "`508e3bebf`", "**‏60/60**", "**‏8/60 = 13.3%**",
+               "**‏147/150**", "**‏51/75**", "`TG_1857`", "`k1=12/12 k2=40/46`", "غيرُ مزدوجة", "5 من 60",
+               "✅ **‏60/60**", "❌ **‏8/60", "❌ **‏147/150**", "✅ **ONCO أوّلًا**", "❌ **بطاقةٌ واحدة: `TG_1857`**")
+    _cfd54 = (bool(_s54) and all(x in _s54 for x in _need54) and "CHART_EVAL_JUDGE branch=" not in _s54
+              and _CF.ACCEPTANCE == "غير جاهزة"
+              and _cfd_re.findall(r"CHART_EVAL_JUDGE branch=(.+?) k1=", _res54)[-1:] == ["غير جاهزة"])
+    _cfd54_w = f"ناقص={[x for x in _need54 if x not in _s54]} · طول §⑩={len(_s54)} · ACCEPTANCE={_CF.ACCEPTANCE}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd54, _cfd54_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD54 نتائجُ §⑫ منشورةٌ بتشغيلاتها الثلاث كما خرجت: `CP13` ✅ · `CP13-ب` ❌ · `CP13-ج` ❌ (وغيرُ مزدوجة) · `CP14` ✅ · "
+      "`CP15` ❌ (`TG_1857`) · وارتدادُ real2 يُنقل **وصفًا لا بصيغة سطر الحكم** فيبقى `ACCEPTANCE` «غير جاهزة»", _cfd54, _cfd54_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
