@@ -143,6 +143,7 @@ def recover(download_root, repo_root="."):
         print("   ⚠️ تعذّر الحكمُ على %d جلسة (لا حكمَ يُخترَع): %s"
               % (len(judge_errors), ", ".join(judge_errors)))
     rebuilt = rebuild_fire_log(best, repo_root=repo_root)
+    ts_filled = fill_reconstructed_ts(best, repo_root=repo_root)
     fires = _delivered_fires(best)
     if fires:
         # ⚠️ **قراءة لا توليد:** هذي تنبيهات **وصلت تلغرام فعلًا** (`delivered=true`)
@@ -153,7 +154,8 @@ def recover(download_root, repo_root="."):
         for date, syms in fires:
             print("      %s: %s" % (date, " · ".join(syms)))
     return {"index": len(idx), "new": merged, "copied": copied, "fires": fires,
-            "rebuilt": rebuilt, "judged": judged, "judge_errors": judge_errors,
+            "rebuilt": rebuilt, "ts_filled": ts_filled,
+            "judged": judged, "judge_errors": judge_errors,
             "conflicts": conflicts, "no_summary": [d for d, _ in no_summary]}
 
 
@@ -204,6 +206,79 @@ def rebuild_fire_log(best, repo_root=".", log_name=FIRE_LOG):
     print("   🔥 سجلّ الإطلاقات: أُعيد %d إدخالًا (صار %d) — %s"
           % (len(added), len(log), ", ".join(added) or "لا جديد"))
     return added
+
+
+def _ts_fields_from_candidate(c):
+    """⏱️ طابعُ «لحظة الإطلاق» لإدخالٍ مُسترجَع — **بقاعدة الإنتاج نفسِها لا بقاعدةٍ جديدة:**
+    اختيارُ المصدر من `ignition_e2_assemble._fires_from_candidates` (‏`telegram_sent_at_ms` ثمّ
+    `trigger_bar_start`) · والتحقّقُ مرآةُ `Super_stock._fired_ts_fields` حرفًا (‏1e12 ≤ ts < 1e13 ·
+    والفاسدُ ⇒ `{}` مجهولٌ لا صفر) — ومساواتُهما مقفولةٌ في السويّة (`E2R1`). لا تُستورَد
+    `Super_stock` لأن `e2_recover.yml` لا يثبّت الاعتماديات (فتسقط الاستيرادَ صامتةً ⇒ صفرُ استكمال)."""
+    try:
+        import ignition_e2_assemble as _ASM
+        s = _ASM._fires_from_candidates([{**c, "alert_emitted": True}])[0][0]
+        out = {}
+        for key, dst in (("fired_ts_ms", "fired_ts_ms"),
+                         ("trigger_bar_start", "trigger_bar_ms")):
+            v = s.get(key)
+            if v is None:
+                continue
+            v = int(v)
+            if 10 ** 12 <= v < 10 ** 13:
+                out[dst] = v
+        if "fired_ts_ms" not in out:
+            return {}
+        src = s.get("fired_ts_src")
+        out["fired_ts_src"] = src if src in ("telegram_sent", "trigger_bar_start") else "unknown"
+        return out
+    except Exception:
+        return {}
+
+
+def fill_reconstructed_ts(best, repo_root=".", log_name=FIRE_LOG):
+    """⏱️ (2026-09-25) يستكمل طابعَ «لحظة الإطلاق» للإدخالات **المُسترجَعة وحدَها**.
+
+    **الخلفية (مقيسة):** دفعُ الـassembler لجلسة 09-24 سقط (`35984252866`) فأعاد
+    `rebuild_fire_log` إطلاقاتِها الأربعة **بلا `fired_ts_ms`** — شرطِ إعادة قياس `T-SECONDS` —
+    لأن `_FIRE_MAP` أقدمُ من الحقل (‏2026-09-23)، ومصدرُه نفسُه في `candidates.jsonl`.
+    🔒 **ثلاثةُ حرّاس:** (1) `source == "e2_reconstructed"` وحدَه — **الأصليُّ لا يُمَسّ أبدًا** ·
+    (2) لا يدهس طابعًا موجودًا · (3) المرشّحُ هو **نفسُه** الذي بُني منه الإدخال: أوّلُ مُطلَقٍ
+    لـ(الرمز، التاريخ) بترتيب الملفّ كما في `rebuild_fire_log` **و`telegram_sent_at` = `fired_at`**
+    — وإلّا لا استكمال (لا تخمين). فاشلٌ-آمن: جلسةٌ بلا ملفٍّ أو بصيغةٍ تالفة تُتخطّى."""
+    path = os.path.join(repo_root, log_name)
+    log = _read_json(path)
+    if not isinstance(log, list):
+        return []
+    need = {(r.get("symbol"), r.get("date")): r for r in log
+            if isinstance(r, dict) and r.get("source") == "e2_reconstructed"
+            and "fired_ts_ms" not in r}
+    filled = []
+    for _date, (_loops, sdir, _s) in sorted(best.items()):
+        if not need:
+            break
+        try:
+            with open(os.path.join(sdir, "candidates.jsonl"), encoding="utf-8") as fh:
+                rows = [json.loads(x) for x in fh if x.strip()]
+        except Exception:
+            continue
+        for c in rows:
+            if not c.get("alert_emitted"):
+                continue
+            key = (c.get("symbol"), c.get("session_date"))
+            r = need.pop(key, None)            # أوّلُ مُطلَقٍ وحدَه — كما بُني الإدخال
+            if r is None or c.get("telegram_sent_at") != r.get("fired_at"):
+                continue
+            ts = _ts_fields_from_candidate(c)
+            if ts:
+                r.update(ts)
+                filled.append("%s %s" % (key[1], key[0]))
+    if filled:
+        with open(path, "w", encoding="utf-8") as fh:
+            json.dump(log, fh, ensure_ascii=False, indent=1)
+            fh.write("\n")
+    print("   ⏱️ طابعُ «لحظة الإطلاق» للمُسترجَع: استُكمل %d — %s"
+          % (len(filled), ", ".join(filled) or "لا جديد"))
+    return filled
 
 
 def _delivered_fires(best):

@@ -3891,6 +3891,107 @@ check("🔬♻️ إعادة التشغيل آمنة: صفر جلسة جديدة
       _rc_res2["new"] == [] and _rc_res2["copied"] == []
       and set(_json.load(open(_os.path.join(_rc_root, INDEX_RC := "ignition_e2_session_index.json"),
                               encoding="utf-8"))) == set(_rc_idx))
+# ⏱️🔴 E2P1/E2R1/E2R2 (2026-09-25 · عطلٌ مُثبَت `35984252866`): دفعُ ملخّص جلسة 09-24 سقط بتعارضٍ
+#    **حتميّ** في الفهرس (أساسُ الدفع لقطةُ الإطلاق · بائتٌ عشرَ ساعات) ⇒ أُعيدت الإطلاقاتُ الأربعة
+#    ليلًا بلا طابع «لحظة الإطلاق». الإصلاح: التجميعُ على أحدث الفرع · والطابعُ يُستكمَل للمُسترجَع وحدَه.
+import yaml as _e2p_yaml                                            # noqa: E402
+import ignition_e2_assemble as _e2r_asm                             # noqa: E402
+try:
+    _e2p_wf = _e2p_yaml.safe_load(open(".github/workflows/ignition.yml", encoding="utf-8")) or {}
+    _e2p_steps = ((_e2p_wf.get("jobs") or {}).get("assemble_e2_session") or {}).get("steps") or []
+except Exception as _e2p_e:                                         # noqa: BLE001
+    _e2p_steps = [{"uses": f"⛔ {type(_e2p_e).__name__}"}]
+_e2p_co = [st for st in _e2p_steps if str(st.get("uses", "")).startswith("actions/checkout")]
+check("⏱️🔴 E2P1 التجميعُ يسحب أحدثَ الفرع لا لقطةَ الإطلاق (checkout ref = github.ref_name)",
+      len(_e2p_co) == 1 and (_e2p_co[0].get("with") or {}).get("ref") == "${{ github.ref_name }}",
+      str(_e2p_co)[:120])
+_e2r_cases = [
+    {"telegram_sent_at_ms": 1790170359994, "trigger_bar_start": 1790170200000},
+    {"trigger_bar_start": 1790170200000},
+    {"telegram_sent_at_ms": 1790170359994},
+    {"telegram_sent_at_ms": 1790170359, "trigger_bar_start": 1790170200000},    # ثوانٍ في حقل مللي
+    {"telegram_sent_at_ms": "1790170359994", "trigger_bar_start": 1790170200000.0},
+    {"telegram_sent_at_ms": "abc", "trigger_bar_start": 1790170200000},         # فاسد ⇒ مجهولٌ كلُّه
+    {"telegram_sent_at_ms": True},
+    {"trigger_bar_start": 17901702000000},                                   # فوق النطاق
+    {},
+]
+_e2r_ours = [_RC._ts_fields_from_candidate(c) for c in _e2r_cases]
+_e2r_prod = [S._fired_ts_fields(_e2r_asm._fires_from_candidates([{**c, "alert_emitted": True}])[0][0])
+             for c in _e2r_cases]
+check("⏱️ E2R1 طابعُ المُسترجَع = قاعدةُ الإنتاج حرفًا (_fires_from_candidates ⟵ _fired_ts_fields) · تسعُ حالات",
+      _e2r_ours == _e2r_prod
+      and _e2r_ours[0] == {"fired_ts_ms": 1790170359994, "trigger_bar_ms": 1790170200000,
+                           "fired_ts_src": "telegram_sent"}
+      and _e2r_ours[1] == {"fired_ts_ms": 1790170200000, "trigger_bar_ms": 1790170200000,
+                           "fired_ts_src": "trigger_bar_start"}
+      and _e2r_ours[3] == {} and _e2r_ours[5] == {} and _e2r_ours[8] == {},
+      str(list(zip(_e2r_ours, _e2r_prod)))[:200])
+_e2r_root = _tmp.mkdtemp(prefix="e2r_ts_")
+_e2r_sd = _os.path.join(_e2r_root, "recovered", "901", "e2_measurement", "session_2026-09-24")
+_os.makedirs(_e2r_sd, exist_ok=True)
+with open(_os.path.join(_e2r_sd, "summary.json"), "w", encoding="utf-8") as _fh:
+    _json.dump({"schema_version": 3, "session_date": "2026-09-24", "termination": "normal",
+                "loops_completed": 481, "loops_started": 481, "n_symbols": 19,
+                "n_raw_candidates": 4, "n_emitted": 4, "n_delivered": 4}, _fh)
+
+
+def _e2r_c(sym, hhmm, ms, **kw):
+    return {"symbol": sym, "session_date": "2026-09-24", "alert_emitted": True,
+            "telegram_sent_at": "2026-09-24T%s:00Z" % hhmm, "telegram_sent_at_ms": ms,
+            "trigger_bar_start": ms - 60000, **kw}
+
+
+with open(_os.path.join(_e2r_sd, "candidates.jsonl"), "w", encoding="utf-8") as _fh:
+    for _c in (_e2r_c("AAA", "14:10", 1790259000000, break_level=1.0, signal_price=1.1),  # (أ)
+               _e2r_c("AAA", "15:00", 1790262000000),       # مُطلَقٌ ثانٍ ⇒ لا يُقرأ
+               _e2r_c("ORG", "16:00", 1790265600000),       # (ب) أصليّ
+               _e2r_c("HAS", "17:00", 1790269200000),       # (ج) بطابعٍ قائم
+               _e2r_c("MIS", "18:00", 1790272800000),       # (د) fired_at لا يطابق
+               _e2r_c("TWO", "19:30", 1790278200000),       # (و) الأوّلُ لا يطابق · الثاني يطابق
+               _e2r_c("TWO", "19:45", 1790279100000),
+               _e2r_c("NEW", "19:50", 1790279400000, break_level=2.0, signal_price=2.2)):  # (هـ)
+        _fh.write(_json.dumps(_c) + "\n")
+with open(_os.path.join(_e2r_root, "ignition_log.json"), "w", encoding="utf-8") as _fh:
+    _json.dump([{"symbol": "AAA", "date": "2026-09-24", "fired_at": "2026-09-24T14:10:00Z",
+                 "source": "e2_reconstructed"},
+                {"symbol": "ORG", "date": "2026-09-24", "fired_at": "2026-09-24T16:00:00Z"},
+                {"symbol": "HAS", "date": "2026-09-24", "fired_at": "2026-09-24T17:00:00Z",
+                 "source": "e2_reconstructed", "fired_ts_ms": 1790269199999,
+                 "fired_ts_src": "telegram_sent"},
+                {"symbol": "MIS", "date": "2026-09-24", "fired_at": "2026-09-24T18:30:00Z",
+                 "source": "e2_reconstructed"},
+                {"symbol": "TWO", "date": "2026-09-24", "fired_at": "2026-09-24T19:45:00Z",
+                 "source": "e2_reconstructed"}], _fh)
+try:
+    _e2r_res = _RC.recover(_os.path.join(_e2r_root, "recovered"), repo_root=_e2r_root)
+    _e2r_log = {r["symbol"]: r for r in _json.load(open(_os.path.join(_e2r_root, "ignition_log.json"),
+                                                        encoding="utf-8"))}
+except Exception as _e2r_e:                                         # noqa: BLE001
+    _e2r_res, _e2r_log = {"ts_filled": f"⛔ {type(_e2r_e).__name__}"}, {}
+check("⏱️ E2R2 الاستكمالُ للمُسترجَع وحدَه: (أ)(هـ) من أوّل مُطلَق · (ب) الأصليُّ لا يُمَسّ · (ج) لا دهس ·"
+      " (د)(و) لا تخمين",
+      _e2r_res.get("ts_filled") == ["2026-09-24 AAA", "2026-09-24 NEW"]
+      and _e2r_log.get("AAA", {}).get("fired_ts_ms") == 1790259000000
+      and _e2r_log.get("AAA", {}).get("trigger_bar_ms") == 1790258940000
+      and _e2r_log.get("AAA", {}).get("fired_ts_src") == "telegram_sent"
+      and _e2r_log.get("NEW", {}).get("fired_ts_ms") == 1790279400000
+      and _e2r_log.get("NEW", {}).get("source") == "e2_reconstructed"
+      and "fired_ts_ms" not in _e2r_log.get("ORG", {"fired_ts_ms": 0})
+      and "source" not in _e2r_log.get("ORG", {"source": 0})
+      and _e2r_log.get("HAS", {}).get("fired_ts_ms") == 1790269199999
+      and "fired_ts_ms" not in _e2r_log.get("MIS", {"fired_ts_ms": 0})
+      and "fired_ts_ms" not in _e2r_log.get("TWO", {"fired_ts_ms": 0}),
+      str((_e2r_res.get("ts_filled"), _e2r_log.get("AAA"), _e2r_log.get("TWO")))[:200])
+try:
+    _e2r_res2 = _RC.recover(_os.path.join(_e2r_root, "recovered"), repo_root=_e2r_root)
+    _e2r_n2 = len(_json.load(open(_os.path.join(_e2r_root, "ignition_log.json"), encoding="utf-8")))
+except Exception as _e2r_e2:                                        # noqa: BLE001
+    _e2r_res2, _e2r_n2 = {"ts_filled": f"⛔ {type(_e2r_e2).__name__}"}, -1
+check("⏱️ E2R2-ب إعادةُ التشغيل لا تستكمل مرّتين (idempotent) ولا تُضاعف السجلّ",
+      _e2r_res2.get("ts_filled") == [] and _e2r_res2.get("rebuilt") == [] and _e2r_n2 == 6,
+      str((_e2r_res2.get("ts_filled"), _e2r_n2)))
+_shutil.rmtree(_e2r_root, ignore_errors=True)
 # ⏳ تغطية الافتتاح: الكرون مقدَّم لتعويض تأخّر GitHub المرصود، وسقف الانتظار يغطّي
 # الفصلين. اختبار حسابي على الأرقام الفعلية (لا نصّي) — أي عودة لقيمة تكسر التغطية تُسقطه.
 _ig_yml = open(".github/workflows/ignition.yml", encoding="utf-8").read()
