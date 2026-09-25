@@ -65825,6 +65825,20 @@ except Exception as _e:                                            # noqa: BLE00
     _shr11, _shr11_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🌅🗂️ SHR11 التشغيلةُ الأولى منشورةٌ كما خرجت (داخل العيّنة · لا تحكم): شاهدُ الهُويّة 33/321 بت-بت · `S` ‏25/68 = ‏36.8% "
       "مقابل `S̄` ‏10.7% · الالتقاط 27% مقابل «الجاهز» 1% · SXTC · **والرقمُ المرجعيّ لـ`SR-P1` مثبَّتٌ لا يتحرّك**", _shr11, _shr11_w)
+try:
+    _shres2 = open("shadow_ready_result.md", encoding="utf-8").read()
+    _shr12_parts = _shres2.split("## ② ")
+    _shr12_sec = _shr12_parts[1] if len(_shr12_parts) == 2 else ""
+    _shres2_need = ("`36138093499`", "وصل \u200f0 من 16 رمزًا", "بما فيها AAPL", "تشغيلةٌ واحدة",
+                    "تُقاس أماميًّا وحدَها", "غيرُ مقيسةٍ حيًّا", "short_thread_prereg.md §2")
+    _shres2_miss = [x for x in _shres2_need if x not in _shr12_sec]
+    _shr12_gone = [f for f in ("iborrow_probe.py", ".github/workflows/iborrow_probe.yml") if _os.path.exists(f)]
+    _shr12 = bool(_shr12_sec) and not _shres2_miss and not _shr12_gone
+    _shr12_w = f"قسم②={bool(_shr12_sec)} ناقص={_shres2_miss} باقٍ={_shr12_gone}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr12, _shr12_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR12 مِجَسُّ التاريخ الرجعيّ للمتاح منشورٌ في §② (iBorrowDesk ‏0/16 · تشغيلةٌ واحدة · استنتاجٌ لا تأكيد) "
+      "⇒ فرضيّةُ «متاح أقلّ من 20 ألف» أماميّةٌ وحدَها · **والمِجَسُّ المؤقّت محذوفٌ فعلًا لا وعدًا**", _shr12, _shr12_w)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
