@@ -12,6 +12,10 @@ on:
       card:
         description: "بطاقةُ الشارت JSON (كائنٌ واحد أو قائمةُ بطاقات · cross_with للتحقّق المتقاطع)"
         required: true
+      diag_syms:
+        description: "🔬 تشخيصٌ لا بحث (ملحق §⑪): رموزٌ تُفحص على البطاقة بعد الحكم «ONCO,BWV» — فارغ = البحثُ العاديّ"
+        required: false
+        default: ""
 
 jobs:
   find:
@@ -37,4 +41,5 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
           CHART_CARD: ${{ inputs.card }}
+          CHART_DIAG_SYMS: ${{ inputs.diag_syms }}
         run: python chart_finder.py

@@ -64438,6 +64438,124 @@ except Exception as _e:                                           # noqa: BLE001
 check("🔎 CFD41 كلُّ جوابٍ يُوسَم بحكم القبول (§⑤-3): سطرُ «🧪 الجواب «تجريبيّ»» **قبل** سطر `CHART_FINDER` مباشرةً وهو الأخير · "
       "و`answer_status` = نصُّ الفروع («جاهزة» الكلّ · «جاهزة للواثق وحدَه» «واثق» وحدَه · وغيرُهما «تجريبيّ») · "
       "و`ACCEPTANCE` = **آخرُ فرعٍ منشور** في `chart_finder_result.md` وتشغيلتُه فيه — فلا يسبق الثابتُ الحكمَ", _cfd41, _cfd41_w)
+# ── CFD42-CFD45 🔬 التشخيصُ لا البحث (ملحق §⑪ · «قس ONCO» 2026-09-25): رمزٌ يُسمّى **بعد الحكم** خارجَ البطاقة ──
+_keep42 = _cfd_os.environ.get("CHART_DIAG_SYMS")
+try:
+    _cfd_os.environ["CHART_DIAG_SYMS"] = "onco ,bwv"
+    _env42 = _CF.diag_syms_from_env()
+    _cases42 = {"onco, bwv ONCO": ["ONCO", "BWV"], "": [], "$(rm -rf /)": [], "ONCO;BWV": [],
+                "BRK.B 1ABC ABCDEFGHIJK": ["BRK.B"], "a1": ["A1"], "  ": [], "أونكو ONCO": ["ONCO"]}
+    _got42 = {k: _CF.diag_syms_from_env(k) for k in _cases42}
+    _cfd42 = _env42 == ["ONCO", "BWV"] and _got42 == _cases42
+    _cfd42_w = f"env={_env42} · خطأ={[k for k in _cases42 if _got42[k] != _cases42[k]]}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd42, _cfd42_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    if _keep42 is None:
+        _cfd_os.environ.pop("CHART_DIAG_SYMS", None)
+    else:
+        _cfd_os.environ["CHART_DIAG_SYMS"] = _keep42
+check("🔎 CFD42 رموزُ التشخيص من `CHART_DIAG_SYMS` **خارجَ البطاقة**: لاتينيٌّ أوّلًا ثمّ حروفٌ/أرقامٌ/نقطة حتى 10 · "
+      "بلا تكرار · والغريبُ يُسقط (حقنٌ · فاصلةٌ منقوطة · عربيّ · رقمٌ أوّلًا · 11 حرفًا)", _cfd42, _cfd42_w)
+try:
+    _arr43, _get43s = _cfd_panel_world(True)
+    _d43, _s43, _H43, _L43, _C43 = _arr43
+
+    def _get43(url, params=None, headers=None, timeout=None):
+        m = _cfd_re.search(r"/v2/aggs/ticker/([A-Z.]+)/range/1/day/", url)
+        if m:
+            s = m.group(1)
+            if s not in _s43:
+                return _CfdR(200, {"results": []})
+            j = _s43.index(s)
+            return _CfdR(200, {"results": [
+                {"t": _cfd_ms(d, 0), "o": float(_C43[i, j]), "h": float(_H43[i, j]),
+                 "l": float(_L43[i, j]), "c": float(_C43[i, j]), "v": 1.0}
+                for i, d in enumerate(_d43) if _cfd_np.isfinite(_C43[i, j])]})
+        if "/vX/reference/tickers/" in url:
+            return _CfdR(200, {"results": {"events": [{"type": "ticker_change", "date": "2025-01-02",
+                                                        "ticker_change": {"ticker": "XSPL"}}]}})
+        if "/v3/reference/tickers/" in url:
+            return _CfdR(200, {"results": {"name": "Fake", "active": True}})
+        return _get43s(url, params, headers, timeout)
+
+    _logs43 = []
+    _keep43 = (_CF.log, _CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL))
+    try:
+        _CF.log = lambda m="", *_a, **_k: _logs43.append(str(m))
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _r43 = _CF.diagnose_card({"v": 1, "id": "cfd-DIAG", "timeframe": "1D", "bars_visible": 37,
+                                  "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"},
+                                 ["XSPL", "AAA", "NONE"], get=_get43)
+    finally:
+        _CF.log = _keep43[0]
+        _CF._SPLITS_ALL_SINCE = _keep43[1]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep43[2])
+    _x43, _a43, _n43 = _r43
+    _dl43 = [m for m in _logs43 if m.startswith("   ✅ DIAG XSPL") or m.startswith("   ❌ DIAG XSPL")]
+    _cfd43 = ([r["sym"] for r in _r43] == ["XSPL", "AAA", "NONE"]
+              and _x43["top"][0]["ok"] and _x43["top"][0]["e"] == _d43[-1]
+              and _x43["n_bars"] == len(_d43) and _x43["first"] == _d43[0]
+              and _x43["splits"] == [(_d43[20], 10.0, 1.0)]
+              and _x43["events"] == [("2025-01-02", "ticker_change", "XSPL")]
+              and len(_x43["top"]) == _CF.DIAG_TOP == len(_dl43) and _dl43[0].startswith("   ✅ DIAG XSPL تنتهي " + _d43[-1])
+              and _a43["top"] and not _a43["top"][0]["ok"]
+              and _n43["n_bars"] == 0 and _n43["top"] == [] and _n43["first"] is None
+              and sum(1 for m in _logs43 if m.startswith("\n🔬 تشخيصٌ لا بحث")) == 1
+              and any(m.startswith("SERIES_D XSPL ") for m in _logs43)
+              and any(m.startswith("🔬 NONE: ") and "لا بيانات" in m for m in _logs43)
+              and not any("CHART_FINDER" in m for m in _logs43))
+    _cfd43_w = (f"XSPL={[(r['e'], r['ok']) for r in _x43['top'][:2]]} · أسطر={len(_dl43)} · AAA={_a43['top'][:1] and _a43['top'][0]['ok']} · "
+                f"NONE={_n43['n_bars']} · حكم={[m[:20] for m in _logs43 if 'CHART_FINDER' in m]}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd43, _cfd43_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD43 `diagnose_card` تفسيرٌ لا جواب: الرمزُ المُسمّى يُفحص بقاعدة «بلا تاريخ» نفسِها **بالتقسيم الفعليّ** "
+      "(XSPL يعبر عند آخر يوم) · وتُطبع أفضلُ `DIAG_TOP` نوافذ ومدى السلسلة وأحداثُ الرمز والسلسلة · والغائبُ «لا بيانات» · "
+      "**ولا سطرَ حكمٍ `CHART_FINDER`**", _cfd43, _cfd43_w)
+_keep44 = (_CF._key, _CF.load_cards, _CF.diagnose_card, _CF.run_card, _cfd_os.environ.get("CHART_DIAG_SYMS"))
+_calls44 = []
+try:
+    _card44 = {"v": 1, "id": "cfd-R", "timeframe": "1D", "last": "2.40"}
+    _CF._key = lambda: "k"
+    _CF.load_cards = lambda: [_card44, {"v": 1, "id": "bad", "timeframe": "1D"}]
+    _CF.diagnose_card = lambda c, s, get=None: _calls44.append(("diag", c.get("id"), tuple(s))) or []
+    _CF.run_card = lambda c, *a, **k: _calls44.append(("run", c.get("id"))) or {"rc": 0}
+    _cfd_os.environ["CHART_DIAG_SYMS"] = "ONCO"
+    _rc44a = _cfd_quiet(_CF.main)
+    _calls44a = list(_calls44)
+    _calls44.clear()
+    _cfd_os.environ.pop("CHART_DIAG_SYMS", None)
+    _rc44b = _cfd_quiet(_CF.main)
+    _cfd44 = (_calls44a == [("diag", "cfd-R", ("ONCO",))] and _rc44a == 2
+              and _calls44 == [("run", "cfd-R"), ("run", "bad")] and _rc44b == 0)
+    _cfd44_w = f"بالتشخيص={_calls44a} rc={_rc44a} · بدونه={_calls44} rc={_rc44b}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd44, _cfd44_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    _CF._key, _CF.load_cards, _CF.diagnose_card, _CF.run_card = _keep44[:4]
+    if _keep44[4] is None:
+        _cfd_os.environ.pop("CHART_DIAG_SYMS", None)
+    else:
+        _cfd_os.environ["CHART_DIAG_SYMS"] = _keep44[4]
+check("🔎 CFD44 `main` يوجّه: بالمُدخَل ⟵ **تشخيصٌ وحدَه** (لا `run_card` · والبطاقةُ غيرُ الصالحة rc=2 بلا تشخيص) · "
+      "وبلا المُدخَل ⟵ البحثُ العاديّ لكلّ بطاقة كما كان", _cfd44, _cfd44_w)
+try:
+    import yaml as _cfd45_yaml                                    # noqa: PLC0415
+    _wf45 = _cfd45_yaml.safe_load(open(".github/workflows/chart_finder.yml", encoding="utf-8")) or {}
+    _in45 = ((_wf45.get(True) or _wf45.get("on") or {}).get("workflow_dispatch") or {}).get("inputs") or {}
+    _st45 = [st for st in ((_wf45.get("jobs") or {}).get("find") or {}).get("steps") or []
+             if "chart_finder.py" in str(st.get("run", ""))]
+    _cfd45 = (len(_st45) == 1 and (_in45.get("diag_syms") or {}).get("required") is False
+              and (_in45.get("diag_syms") or {}).get("default") == ""
+              and (_st45[0].get("env") or {}).get("CHART_DIAG_SYMS") == "${{ inputs.diag_syms }}"
+              and "inputs." not in str(_st45[0].get("run")))
+    _cfd45_w = f"مُدخَل={_in45.get('diag_syms')} · env={(_st45[0].get('env') or {}).get('CHART_DIAG_SYMS') if _st45 else None}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd45, _cfd45_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD45 `chart_finder.yml`: مُدخَلُ `diag_syms` اختياريٌّ فارغُ الافتراض ويصل **عبر env** (`CHART_DIAG_SYMS`) "
+      "لا بحقنٍ في سطر التشغيل", _cfd45, _cfd45_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
