@@ -37,10 +37,7 @@
   "vol_x": 5.5,
   "usd": 13853,
   "candle_class": "group",
-  "source": "e2_reconstructed",
-  "fired_ts_ms": 1784130324900,
-  "trigger_bar_ms": 1784130180000,
-  "fired_ts_src": "telegram_sent"
+  "source": "e2_reconstructed"
  },
  {
   "symbol": "SY",
@@ -51,10 +48,7 @@
   "vol_x": 7.9,
   "usd": 12650,
   "candle_class": "group",
-  "source": "e2_reconstructed",
-  "fired_ts_ms": 1784132499258,
-  "trigger_bar_ms": 1784132400000,
-  "fired_ts_src": "telegram_sent"
+  "source": "e2_reconstructed"
  },
  {
   "symbol": "KLRS",
@@ -65,10 +59,7 @@
   "vol_x": 3.2,
   "usd": 2525,
   "candle_class": "group",
-  "source": "e2_reconstructed",
-  "fired_ts_ms": 1784139877339,
-  "trigger_bar_ms": 1784139780000,
-  "fired_ts_src": "telegram_sent"
+  "source": "e2_reconstructed"
  },
  {
   "symbol": "KLRS",
@@ -79,10 +70,7 @@
   "vol_x": 3.9,
   "usd": 220320,
   "candle_class": "operator",
-  "source": "e2_reconstructed",
-  "fired_ts_ms": 1784301391067,
-  "trigger_bar_ms": 1784301300000,
-  "fired_ts_src": "telegram_sent"
+  "source": "e2_reconstructed"
  },
  {
   "symbol": "APVO",
@@ -93,10 +81,7 @@
   "vol_x": 7.0,
   "usd": 17458,
   "candle_class": "group",
-  "source": "e2_reconstructed",
-  "fired_ts_ms": 1784310444966,
-  "trigger_bar_ms": 1784310360000,
-  "fired_ts_src": "telegram_sent"
+  "source": "e2_reconstructed"
  },
  {
   "symbol": "PSTV",
@@ -107,10 +92,7 @@
   "vol_x": 4.0,
   "usd": 4839,
   "candle_class": "group",
-  "source": "e2_reconstructed",
-  "fired_ts_ms": 1784906774010,
-  "trigger_bar_ms": 1784906400000,
-  "fired_ts_src": "telegram_sent"
+  "source": "e2_reconstructed"
  },
  {
   "symbol": "TRON",
@@ -121,10 +103,7 @@
   "vol_x": 17.9,
   "usd": 28060,
   "candle_class": "group",
-  "source": "e2_reconstructed",
-  "fired_ts_ms": 1785169662352,
-  "trigger_bar_ms": 1785169560000,
-  "fired_ts_src": "telegram_sent"
+  "source": "e2_reconstructed"
  },
  {
   "symbol": "PONY",
@@ -135,10 +114,7 @@
   "vol_x": 3.3,
   "usd": 151966,
   "candle_class": "operator",
-  "source": "e2_reconstructed",
-  "fired_ts_ms": 1785170423485,
-  "trigger_bar_ms": 1785170340000,
-  "fired_ts_src": "telegram_sent"
+  "source": "e2_reconstructed"
  },
  {
   "symbol": "NMRA",
@@ -149,10 +125,7 @@
   "vol_x": 10.0,
   "usd": 22225,
   "candle_class": "group",
-  "source": "e2_reconstructed",
-  "fired_ts_ms": 1785174509332,
-  "trigger_bar_ms": 1785174420000,
-  "fired_ts_src": "telegram_sent"
+  "source": "e2_reconstructed"
  },
  {
   "symbol": "LENZ",
@@ -163,10 +136,7 @@
   "vol_x": 3.9,
   "usd": 30796,
   "candle_class": "group",
-  "source": "e2_reconstructed",
-  "fired_ts_ms": 1785267163599,
-  "trigger_bar_ms": 1785267060000,
-  "fired_ts_src": "telegram_sent"
+  "source": "e2_reconstructed"
  },
  {
   "symbol": "TYGO",

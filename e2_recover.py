@@ -251,6 +251,12 @@ def _ts_fields_from_candidate(c):
         return {}
 
 
+# ⏱️ (2026-09-25) **والماضي لا يُعاد كتابتُه:** الحقلُ يُحفظ **للأمام** منذ «لحظة الإطلاق» (‏2026-09-23 · إذنُ المالك)
+#    ومجتمعُ عقد `T-SECONDS` (‏حتى 09-18) يُثبت صفرَه (`SCK0`) ⇒ الاستكمالُ لإدخالاتٍ من هذا التاريخ فصاعدًا وحدَها.
+#    🔴 أمسكه `SCK0` بعد الاسترجاع الكامل `36095794496`: استُكمل عشرةُ إطلاقاتٍ من 07-15 ⟶ 07-28 فأُعيدت كما كانت.
+FIRED_TS_SINCE = "2026-09-23"
+
+
 def fill_reconstructed_ts(best, repo_root=".", log_name=FIRE_LOG):
     """⏱️ (2026-09-25) يستكمل طابعَ «لحظة الإطلاق» للإدخالات **المُسترجَعة وحدَها**.
 
@@ -260,14 +266,15 @@ def fill_reconstructed_ts(best, repo_root=".", log_name=FIRE_LOG):
     🔒 **ثلاثةُ حرّاس:** (1) `source == "e2_reconstructed"` وحدَه — **الأصليُّ لا يُمَسّ أبدًا** ·
     (2) لا يدهس طابعًا موجودًا · (3) المرشّحُ هو **نفسُه** الذي بُني منه الإدخال: أوّلُ مُطلَقٍ
     لـ(الرمز، التاريخ) بترتيب الملفّ كما في `rebuild_fire_log` **و`telegram_sent_at` = `fired_at`**
-    — وإلّا لا استكمال (لا تخمين). فاشلٌ-آمن: جلسةٌ بلا ملفٍّ أو بصيغةٍ تالفة تُتخطّى."""
+    — وإلّا لا استكمال (لا تخمين). فاشلٌ-آمن: جلسةٌ بلا ملفٍّ أو بصيغةٍ تالفة تُتخطّى.
+    (4) **ومن `FIRED_TS_SINCE` وحدَه** — الماضي لا يُعاد كتابتُه (`SCK0` · `E2R3`)."""
     path = os.path.join(repo_root, log_name)
     log = _read_json(path)
     if not isinstance(log, list):
         return []
     need = {(r.get("symbol"), r.get("date")): r for r in log
             if isinstance(r, dict) and r.get("source") == "e2_reconstructed"
-            and "fired_ts_ms" not in r}
+            and "fired_ts_ms" not in r and str(r.get("date") or "") >= FIRED_TS_SINCE}
     filled = []
     for _date, (_loops, sdir, _s) in sorted(best.items()):
         if not need:
@@ -324,8 +331,10 @@ def _delivered_fires(best):
 #    (‏20 ثمّ 50 تنبيهًا بـ≈0.39 للجلسة المكتملة) ⇒ أوّلُ مكتملةٍ (07-29) ينتهي ≈10-27 قبل أن تُبلغ E2-B.
 #    فيُنزَّل أحدثُ أرشيفٍ غيرِ منتهٍ ويُتّحد مع جلسات الليلة ويُرفع من جديد (احتفاظٌ جديد) — **ولا ينكمش**.
 RAW_ARCHIVE_NAME = "e2-raw-archive"
-RAW_RENEW_DAYS = 30          # تجديدٌ إلزاميّ قبل الـ90 بفسحةٍ واسعة
-RAW_NEW_MIN_DAYS = 7         # الجديدُ يُضاف أسبوعيًّا — وكلُّ جلسةٍ محميّةٌ بـartifact‌ها حتى ذلك
+RAW_RENEW_DAYS = 30          # تجديدٌ إلزاميّ قبل الـ90 بفسحةٍ واسعة (حين لا تغيّر)
+# 🔴 (2026-09-25 · عيبٌ في تصميمي أمسكه الاسترجاعُ الكامل `36095794496`): كان «الجديدُ أسبوعيًّا» والاسترجاعُ
+#    الليليّ يرى **آخرَ 15 تشغيلة وحدَها** (‏≈4 أيام تداول بتشغيلات الاحتياط) ⇒ جلسةٌ تخرج من نافذته قبل الرفع
+#    الأسبوعيّ **لا تدخل الأرشيفَ أبدًا** ⇒ أُلغي التأجيل: **كلُّ تغيّرٍ يُرفع** (`archive_upload_decision`).
 
 
 def _raw_sessions(root):
@@ -365,11 +374,11 @@ def merge_raw_archive(prev_dir, cur_root, out_dir):
             "replaced": replaced, "dates": sorted(set(prev) | set(cur))}
 
 
-def archive_upload_decision(prev_status, prev_age_days, n_prev, n_out, changed, oldest_new_age=None):
+def archive_upload_decision(prev_status, prev_age_days, n_prev, n_out, changed):
     """🗄️ نقيّة: هل يُرفع أرشيفُ الليلة؟ ⟵ `(نعم/لا، السبب)`. **لا يُرفع أصغرُ من السابق أبدًا** —
     وتعذّرُ تنزيل السابق يمنع الرفع (فيبقى السابقُ أحدثَ أرشيفٍ وتُعاد المحاولةُ الليلةَ التالية).
-    والجديدُ يُضاف أسبوعيًّا **إلّا جلسةً قديمةً** (عمرُها ‏90 − `RAW_RENEW_DAYS` يومًا فأكثر: artifact‌ها
-    يقترب انتهاؤه) فتُرفع فورًا — وهي حالُ الاسترجاع الكامل الذي يؤسّس الأرشيف."""
+    **وكلُّ تغيّرٍ يُرفع** (جلسةٌ جديدةٌ أو مُستبدَلة) لأن نافذةَ الاسترجاع الليليّ آخرُ 15 تشغيلة فالتأجيلُ
+    يُسقط ما يخرج منها قبل الرفع · وبلا تغيّرٍ يُجدَّد كلَّ `RAW_RENEW_DAYS` يومًا."""
     if prev_status == "failed":
         return False, "تعذّر تنزيلُ الأرشيف السابق ⇒ لا يُرفع أصغرُ منه (يُعاد الليلةَ التالية)"
     if n_out < n_prev:
@@ -378,15 +387,13 @@ def archive_upload_decision(prev_status, prev_age_days, n_prev, n_out, changed, 
         return False, "أرشيفٌ فارغ ⇒ لا يُرفع (خطوةُ الرفع تشترط ملفّات)"
     if prev_status == "none":
         return True, "تأسيس"
+    if changed:
+        return True, "تغيّرٌ (%d جلسة)" % changed
     if prev_age_days is None:
         return True, "عمرُ السابق مجهول ⇒ يُجدَّد"
     if prev_age_days >= RAW_RENEW_DAYS:
         return True, "تجديدُ الاحتفاظ (عمرُ السابق %d يومًا)" % prev_age_days
-    if changed and oldest_new_age is not None and oldest_new_age >= 90 - RAW_RENEW_DAYS:
-        return True, "جلساتٌ قديمة (أقدمُها %d يومًا) يقترب انتهاءُ artifact‌ها" % oldest_new_age
-    if changed and prev_age_days >= RAW_NEW_MIN_DAYS:
-        return True, "جلساتٌ جديدة (%d)" % changed
-    return False, "لا حاجة (عمرُ السابق %d يومًا · تغيّر %d)" % (prev_age_days, changed)
+    return False, "لا حاجة (لا تغيّر · عمرُ السابق %d يومًا)" % prev_age_days
 
 
 def _age_days(created_iso, now=None):
@@ -411,10 +418,8 @@ def build_raw_archive(prev_dir, cur_root, out_dir, status_file="archive_prev_sta
     status = st[0] if st and st[0] in ("ok", "none", "failed") else "failed"
     age = _age_days(st[1], now) if status == "ok" and len(st) > 1 else None
     m = merge_raw_archive(prev_dir if status == "ok" else None, cur_root, out_dir)
-    _new = m["added"] + m["replaced"]
-    _ages = [a for a in (_age_days(d + "T00:00:00+00:00", now) for d in _new) if a is not None]
-    ok, why = archive_upload_decision(status, age, m["prev"], m["out"], len(_new),
-                                      max(_ages) if _ages else None)
+    ok, why = archive_upload_decision(status, age, m["prev"], m["out"],
+                                      len(m["added"]) + len(m["replaced"]))
     if ok:
         with open(flag_file, "w", encoding="utf-8") as fh:
             fh.write(why + "\n")
