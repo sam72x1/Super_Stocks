@@ -65345,6 +65345,39 @@ except Exception as _e:                                           # noqa: BLE001
 check("🔎 CFD58 تحقّقُ §⑩⑥ اللاحق منشورٌ كما خرج: إعادةُ real2 وsynth_split على اللوحة نفسِها **طابقتا المنشور صفًّا بصفّ** "
       "بتشغيلاتها الأربع · والحكمُ **استنتاجٌ قويّ لا يقين** (لا «مؤكَّد») · والمصنوعةُ **لم تُعَد** وسندُها تقاطعٌ — فلا يُرقّى ولا يُعمَّم بصمت",
       _cfd58, _cfd58_w)
+# ── CFD59 الاختبارُ الأعمى بيد المالك (§⑪ · العقد §⑧-1) — البطاقاتُ كما شُغِّلت والنتيجةُ كما خرجت ولا يمسّ القبول ──
+try:
+    _ok59, _files59, _bad59 = _CFE.verify_manifest("chart_cards/blind")
+    _cards59 = {_cfd_os.path.basename(p): _cfd_json.load(open(p, encoding="utf-8")) for p in _files59}
+    _key59 = {k: v["sym"] for k, v in _CFE.load_key("chart_cards/blind").items()}
+    _res59 = open("chart_finder_result.md", encoding="utf-8").read()
+    _h59 = "## ⑪ اختبارٌ أعمى بيد المالك"
+    _s59 = _res59.split(_h59, 1)[1] if _h59 in _res59 else ""
+    _s59 = _cfd_re.split(r"\n#{2,3} ", _s59, maxsplit=1)[0]          # القسمُ وحدَه لا ما يُلحَق بعده
+    _need59 = ("`36116062762`", "**UCAR**", "**SNAL**", "«واثق» 2 من 2 صحيح", "لا يُحتسب ولا يمسّ `ACCEPTANCE`",
+               "P1", "P4", "8,262", "36,817", "1:20 يوم 2026-09-09", "استنتاجٌ لم يُتحقَّق", "حدُّ Wilson الأدنى",
+               "«ما يحتاج خلاص تأكدنا ان الاداة صحيحة لان فعلا هذي هي السهمين»")
+    _c59a = _cards59.get("owner-2026-09-25-1.json") or {}
+    _c59b = _cards59.get("owner-2026-09-25-2.json") or {}
+    _cfd59 = (_ok59 and set(_cards59) == {"owner-2026-09-25-1.json", "owner-2026-09-25-1-undated.json",
+                                          "owner-2026-09-25-2.json", "owner-2026-09-25-2-undated.json"}
+              and all(_CF.validate_card(c) == [] for c in _cards59.values())
+              and _key59 == {"owner-2026-09-25-1": "UCAR", "owner-2026-09-25-1-undated": "UCAR",
+                             "owner-2026-09-25-2": "SNAL", "owner-2026-09-25-2-undated": "SNAL"}
+              and _c59a.get("extremes") == {"high": "12.59", "low": "3.50"}
+              and (_c59a.get("window") or {}) == {"from": "2026-09-01", "to": "2026-09-24"}
+              and _c59b.get("extremes") == {"high": "4.91", "low": "2.43"}
+              and "window" not in _cards59.get("owner-2026-09-25-1-undated.json", {"window": 1})
+              and "window" not in _cards59.get("owner-2026-09-25-2-undated.json", {"window": 1})
+              and bool(_s59) and all(x in _s59 for x in _need59)
+              and "CHART_EVAL_JUDGE branch=" not in _s59 and _CF.ACCEPTANCE == "غير جاهزة")
+    _cfd59_w = (f"البصمة={_ok59} {_bad59[:2]} · بطاقات={sorted(_cards59)} · مفتاح={_key59} · "
+                f"ناقص={[x for x in _need59 if x not in _s59]} · ACCEPTANCE={_CF.ACCEPTANCE}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd59, _cfd59_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD59 الاختبارُ الأعمى بيد المالك (§⑪ · العقد §⑧-1) منشورٌ كما خرج: البطاقاتُ الأربع مجمَّدةٌ ببصمةٍ كما شُغِّلت "
+      "(مؤرَّخةٌ وبلا تاريخ لكلّ صورة · بلا رمز) والمفتاحُ بعد تأكيد المالك · و«واثق» 2 من 2 (UCAR · SNAL) بتشغيلته وتنبّؤاته "
+      "وتأكيدِ الحجم المستقلّ ونصِّ المالك · **ولا يُحتسب ولا يمسّ `ACCEPTANCE`** («غير جاهزة»)", _cfd59, _cfd59_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
