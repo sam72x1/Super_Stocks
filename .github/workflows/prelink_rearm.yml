@@ -1,0 +1,51 @@
+name: "🕵️⏳🔁 T-PRELINK §⑪ — دخولُ التنبيه الثاني (prelink_prereg §⑪ · صفوفُ الحاكمة)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا Polygon · العقد prelink_prereg.md §⑪
+#    المصدرُ صفوفُ الحاكمة 36163255276 (artifact · احتفاظ 90 يومًا) — مثبَّتةٌ هنا لا مُدخَل،
+#    و«الثاني» (1-5 جلسات) ثابتٌ في الأداة لا مُدخَل (§⑪-2).
+permissions:
+  contents: read
+  actions: read           # لتنزيل artifact صفوف الحاكمة
+
+on:
+  workflow_dispatch:
+
+jobs:
+  prelink_rearm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📥 صفوفُ الحاكمة (artifact prelink-rows-36163255276)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUN_ID: "36163255276"
+        run: |
+          set -u
+          mkdir -p prelink_rows
+          ok=0; err=""
+          for try in 1 2; do
+            if err=$(gh run download "$RUN_ID" -n "prelink-rows-$RUN_ID" -D prelink_rows 2>&1); then ok=1; break; fi
+            if [ "$try" = 1 ]; then sleep 5; fi
+          done
+          if [ "$ok" = 1 ]; then echo "✅ $RUN_ID"; else echo "⚠️ $RUN_ID — تعذّر التنزيل: ${err%%$'\n'*}"; fi
+          # إن وُضعت الملفّاتُ داخل مجلّدٍ فرعيّ تُسطَّح
+          find prelink_rows -mindepth 2 -name 'prelink_rows_*.jsonl' -exec mv -f {} prelink_rows/ \; 2>/dev/null || true
+          ls -la prelink_rows
+
+      - name: 🕵️⏳🔁 القياس
+        env:
+          PYTHONUNBUFFERED: "1"
+          PRELINK_ROWS_DIR: prelink_rows
+        run: python prelink_rearm.py
