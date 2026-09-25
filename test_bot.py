@@ -66955,6 +66955,275 @@ except Exception as _e:                                              # noqa: BLE
 check("⏱️🕵️ ATM14 النتيجةُ منشورةٌ كما صدرت (`36187368420`): التنبّؤاتُ الأربعة بعلاماتها — **`AT-P2` ❌ يبقى منشورًا بسببه** · "
       "والحارسان بأرقامهما (‏410/411 · 403/404 · 722 من 723) · والجوابُ أوّلُ قسم", _atm14, _atm14_w)
 
+# ── WWK1-WWK10 «أسهمُ البوت هذا الأسبوع وشروطي الثلاثة» (watch_week_probe.py · قراءةٌ فقط) — عالمٌ اصطناعيّ · بلا شبكة ولا git ──
+import ast as _ww_ast                                                # noqa: E402
+import contextlib as _ww_ctx                                         # noqa: E402
+import datetime as _ww_dt                                            # noqa: E402
+import io as _ww_io                                                  # noqa: E402
+import os as _ww_os                                                  # noqa: E402
+try:
+    import watch_week_probe as _WW
+    _ww_src = open("watch_week_probe.py", encoding="utf-8").read()
+except Exception as _e:                                              # noqa: BLE001
+    _WW, _ww_src = None, ""
+
+
+def _ww_utc(day, hh, mm, ss=0):
+    y, m, d = map(int, day.split("-"))
+    return _ww_dt.datetime(y, m, d, hh, mm, ss, tzinfo=_WW.NY).astimezone(_WW.UTC)
+
+
+def _ww_series(sym, d0, d1):
+    """شموعٌ اصطناعيّة حتميّة **بالتاريخ لا بموضع النافذة** (سلسلةٌ واحدةٌ من 2025-01-02 تُقصّ على [d0, d1] — فيتطابق RSI
+    أيًّا كان بدءُ الجلب) · adjusted = خامّ · بلا تقسيم: AAA/CCC هبوطٌ متّصل (RSI صفر) وAAA يقفز ‏+55% يوم 09-23 · PEN هبوطٌ
+    إلى ما دون الدولار · وPBA/PBB (قائمةُ الارتداد) هبوطٌ متّصل وPBA يقفز ‏+111% يوم 09-24 · والباقي تذبذبٌ حول 5$."""
+    px = {"AAA": 500.0, "CCC": 500.0, "PEN": 30.0, "PBA": 500.0, "PBB": 500.0}.get(sym, 5.0)
+    out = []
+    for i, d in enumerate(d for d in _WW.calendar(2026) if d >= "2025-01-02"):
+        if sym in ("AAA", "CCC", "PEN", "PBA", "PBB"):
+            px *= 0.985 if d < "2025-08-01" else 0.99
+            h = px * (1.6 if (sym == "AAA" and d == "2026-09-23") else 2.2 if (sym == "PBA" and d == "2026-09-24")
+                      else 1.001)
+        else:
+            px *= (1.003 if i % 2 else 0.997)
+            h = px * 1.01
+        if d0 <= d <= d1:
+            out.append((d, px, h, px * 0.99, px, 1e5))
+    return out
+
+
+def _ww_world(bad_rsi=0, no_bars=0):
+    """ستّةُ رموز في لقطاتٍ قبل الافتتاح · والمخزَّنُ `rsi` = المحسوبُ عند `ref_bar` (إلّا `bad_rsi` منها بفارق 10)."""
+    syms = ["AAA", "BBB", "CCC", "DDD", "EEE", "PEN"]
+    meta = {"AAA": (1_000_000, 5_000), "BBB": (10_000_000, 5_000), "CCC": (None, 5_000),
+            "DDD": (2_000_000, 50_000), "EEE": (3_000_000, 1_000), "PEN": (1_000_000, 5_000)}
+    ents = []
+    for k, s in enumerate(syms):
+        bars = _ww_series(s, "2025-08-01", "2026-09-25")
+        st = _WW.rsi_at(bars, "2026-09-18") + (10.0 if k < bad_rsi else 0.0)
+        fl, av = meta[s]
+        ents.append({"symbol": s, "status": "active", "added": "2026-09-18", "ref_bar": "2026-09-18", "rsi": st,
+                     "float": fl, "shares_available": av, "short": 7_000,
+                     "cont_status": {"BBB": "continues", "EEE": "exited"}.get(s)})
+    pb = [{"symbol": "PBA", "status": "watching", "float": 1_000_000},
+          {"symbol": "PBB", "status": "triggered", "float": 10_000_000}]
+    snaps = {h: {"stocks": [dict(e) for e in ents],
+                 "pullback": [dict(p) for p in pb] + ([{"symbol": "AAA", "status": "watching", "float": 1_000_000}]
+                                                     if h == "h2" else [])}
+             for h in ("h0", "h1", "h2", "h3", "h4")}
+    commits = [(_ww_utc("2026-09-18", 21, 0), "h0"), (_ww_utc("2026-09-22", 3, 0), "h1"),
+               (_ww_utc("2026-09-23", 3, 0), "h2"), (_ww_utc("2026-09-24", 3, 0), "h3"),
+               (_ww_utc("2026-09-25", 3, 0), "h4")]
+    dead = set(syms[:no_bars])
+
+    def fb(sym, d0, d1, key):
+        """(adjusted, خامّ) — وPEN مقسَّمٌ عكسيًّا 1:10 لاحقًا: adjusted = الخامُّ × 10 (فوق الدولار) والخامُّ تحته ⇒
+        السعرُ من الخامّ وحدَه يُسقطه (RSI لا يتغيّر بالمقياس)."""
+        if sym in dead:
+            return [], []
+        b = _ww_series(sym, d0, d1)
+        adj = [(d, o * 10, h * 10, lo * 10, c * 10, v) for d, o, h, lo, c, v in b] if sym == "PEN" else list(b)
+        return adj, b
+    return commits, snaps, fb
+
+
+def _ww_run(bad_rsi=0, no_bars=0, key="k", commits=None):
+    c0, snaps, fb = _ww_world(bad_rsi, no_bars)
+    saved = (_WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.WEEK, _ww_os.environ.get("POLYGON_API_KEY"))
+    buf = _ww_io.StringIO()
+    try:
+        _WW.wl_commits = lambda path=_WW.WL_FILE: list(c0 if commits is None else commits)
+        _WW.load_snapshot = lambda h, path=_WW.WL_FILE: snaps.get(h)
+        _WW.fetch_bars = fb
+        _WW.WEEK = ""
+        if key:
+            _ww_os.environ["POLYGON_API_KEY"] = key
+        else:
+            _ww_os.environ.pop("POLYGON_API_KEY", None)
+        with _ww_ctx.redirect_stdout(buf):
+            rc = _WW.main(now=_ww_dt.datetime(2026, 9, 25, 18, 0, tzinfo=_WW.NY))
+    except Exception as _e:                                          # noqa: BLE001
+        rc = f"⛔ {type(_e).__name__}: {_e}"
+    finally:
+        _WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.WEEK = saved[:4]
+        if saved[4] is None:
+            _ww_os.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _ww_os.environ["POLYGON_API_KEY"] = saved[4]
+    return rc, buf.getvalue()
+
+
+# WWK1 — قراءةٌ فقط بالاسم · والـgit قراءةٌ (log/show) لا غير · والإنتاجُ لا يستوردها
+try:
+    _t1 = _ww_ast.parse(_ww_src)
+    _git1 = []
+    for _n in _ww_ast.walk(_t1):
+        if isinstance(_n, _ww_ast.Call) and getattr(_n.func, "attr", "") == "run" and _n.args \
+                and isinstance(_n.args[0], _ww_ast.List):
+            _git1.append(tuple(getattr(x, "value", None) for x in _n.args[0].elts[:2]))
+    _ro1 = _WW.P._selfcheck_readonly(_ww_src)
+    _w1 = _WW.P._selfcheck_readonly(_ww_src + "\ndef _x():\n    open('weekly_watchlist.json', 'w').write('')\n")
+    _tg1 = _WW.P._selfcheck_readonly(_ww_src + "\ndef _y():\n    send_telegram('x')\n")
+    _prod1 = "watch_week_probe" in open("Super_stock.py", encoding="utf-8").read()
+    _atm_ww1 = (_ro1 and not _w1 and not _tg1 and not _prod1 and len(_git1) == 2
+                and set(_git1) == {("git", "log"), ("git", "show")}
+                and "P._selfcheck_readonly(open(__file__" in _ww_src)
+    _atm_ww1_w = f"ro={_ro1} w={_w1} tg={_tg1} git={_git1}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww1, _atm_ww1_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK1 قراءةٌ فقط (حارسُ `prelink_probe` بالاسم): كتابةُ ملفٍّ أو تلغرام يُسقطه · والـgit قراءةٌ (`log`/`show`) وحدَها · "
+      "والإنتاجُ لا يستوردها", _atm_ww1, _atm_ww1_w)
+
+# WWK2 — حدودُ المالك بالاسم لا أرقامًا · والثوابتُ كما في رأس الأداة
+try:
+    _f2 = next(n for n in _ww_ast.walk(_ww_ast.parse(_ww_src)) if isinstance(n, _ww_ast.FunctionDef) and n.name == "flags")
+    _nums2 = [c.value for c in _ww_ast.walk(_f2) if isinstance(c, _ww_ast.Constant) and isinstance(c.value, (int, float))
+              and not isinstance(c.value, bool)]
+    _attrs2 = sorted({f"{getattr(a.value, 'id', '')}.{a.attr}" for a in _ww_ast.walk(_f2) if isinstance(a, _ww_ast.Attribute)})
+    _atm_ww2 = (_nums2 == [] and {"OPL.RSI_OWNER", "OPL.FLOAT_OWNER", "OPL.AVAIL_OWNER", "PX.PX_MIN"} <= set(_attrs2)
+                and (_WW.RSI_TOL, _WW.V_AGREE, _WW.V_MIN_N, _WW.MIN_BAR_COVER, _WW.MIN_RSI_BARS, _WW.EXPLODE)
+                == (2.0, 0.80, 5, 0.90, 21, (50.0, 100.0))
+                and _WW.WL_FILE == "weekly_watchlist.json" and _WW.OPL.RSI_OWNER == 30.0 and _WW.PX.PX_MIN == 1.00)
+    _atm_ww2_w = f"nums={_nums2} attrs={_attrs2}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww2, _atm_ww2_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK2 حدودُ المالك **بالاسم** (`RSI_OWNER` · `FLOAT_OWNER` · `AVAIL_OWNER` · `PX_MIN`) لا أرقامًا في `flags` · "
+      "والثوابتُ كرأس الأداة (نقطتان · 80% على 5 · 90% · 21 · +50/+100)", _atm_ww2, _atm_ww2_w)
+
+# WWK3 — لقطةُ «ما قبل الافتتاح»: أحدثُ التزامٍ قبل 09:30 نيويورك **تمامًا** · بتوقيتٍ صيفيٍّ وشتويّ
+try:
+    _c3 = [(_ww_utc("2026-09-22", 9, 29, 59), "a"), (_ww_utc("2026-09-22", 9, 30, 0), "b"), (_ww_utc("2026-09-22", 11, 0), "c")]
+    _p3 = _WW.snapshot_before(_c3, _WW.open_utc("2026-09-22"))
+    _w3 = _WW.open_utc("2026-12-01")
+    _n3 = _WW.snapshot_before(_c3, _WW.open_utc("2026-09-21"))
+    _atm_ww3 = (_p3 is not None and _p3[1] == "a" and (_w3.hour, _w3.minute) == (14, 30)
+                and (_WW.open_utc("2026-09-22").hour, _WW.open_utc("2026-09-22").minute) == (13, 30) and _n3 is None)
+    _atm_ww3_w = f"pick={_p3 and _p3[1]} winter={_w3:%H:%M} none={_n3}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww3, _atm_ww3_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK3 القائمةُ «داخلًا إلى الجلسة» = أحدثُ التزامٍ **قبل** 09:30 نيويورك تمامًا (09:30:00 نفسُها بعدَه) · "
+      "وصيفًا 13:30 UTC وشتاءً 14:30 · وبلا لقطةٍ سابقة None", _atm_ww3, _atm_ww3_w)
+
+# WWK4 — الشروط: **المجهولُ None لا «لا»** · والحدودُ حصريّة · والاقترانُ «لا» متى سقط معلوم
+try:
+    _a4 = _WW.flags(29.99, 1.00, 3_999_999, 19_999)
+    _b4 = _WW.flags(30.0, 0.99, 4_000_000, 20_000)
+    _c4 = _WW.flags(None, None, None, None)
+    _atm_ww4 = (_a4 == (True, True, True, True) and _b4 == (False, False, False, False) and _c4 == (None,) * 4
+                and _WW.conj((True, None, True, True)) is None and _WW.conj((True, None, False, True)) is False
+                and _WW.conj((True,) * 4) is True)
+    _atm_ww4_w = f"a={_a4} b={_b4}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww4, _atm_ww4_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK4 الشروط: RSI 30 وفلوت 4م ومتاح 20 ألفًا **ليست «أقلّ»** · والدولارُ 1.00 «فوق» · والمجهولُ None · "
+      "والاقترانُ «لا» متى سقط شرطٌ معلوم ولو جُهل غيرُه", _atm_ww4, _atm_ww4_w)
+
+# WWK5 — RSI عند إغلاق c: الإغلاقاتُ حتى c **ضمنًا** وما بعدها لا يغيّره · ودون 21 مجهول · و`Super_stock.rsi` نفسُه
+try:
+    _s5 = _ww_series("DDD", "2026-01-02", "2026-09-25")
+    _r5 = _WW.rsi_at(_s5, "2026-09-18")
+    _j5 = [(d, o, h * (3 if d > "2026-09-18" else 1), lo, c * (3 if d > "2026-09-18" else 1), v) for d, o, h, lo, c, v in _s5]
+    _e5 = float(_WW.S.rsi(_WW.pd.Series([r[4] for r in _s5 if r[0] <= "2026-09-18"])).iloc[-1])
+    _sh5 = _WW.rsi_at(_s5[:20], _s5[19][0])
+    _in5 = _WW.rsi_at(_s5, "2026-09-18") != _WW.rsi_at([(d, o, h, lo, c * (2 if d == "2026-09-18" else 1), v)
+                                                      for d, o, h, lo, c, v in _s5], "2026-09-18")
+    _atm_ww5 = (_r5 is not None and abs(_r5 - _e5) < 1e-9 and _WW.rsi_at(_j5, "2026-09-18") == _r5 and _sh5 is None and _in5)
+    _atm_ww5_w = f"rsi={_r5} expect={_e5} short={_sh5} includes_c={_in5}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww5, _atm_ww5_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK5 RSI عند إغلاق c = `Super_stock.rsi` على الإغلاقات **حتى c ضمنًا**: ما بعدها لا يغيّره وإغلاقُ c نفسِه يغيّره · "
+      "ودون 21 إغلاقًا مجهول", _atm_ww5, _atm_ww5_w)
+
+# WWK6 — الانفجار: أقصى high في [d, آخر جلسة] ÷ إغلاق c · والنافذةُ ضمنيّةُ الطرفين وما قبلها/بعدها خارج
+try:
+    _b6 = [("2026-09-18", 2, 2.1, 1.9, 2.0, 1), ("2026-09-21", 2, 9.0, 1.9, 2.0, 1), ("2026-09-22", 2, 3.0, 1.9, 2.1, 1),
+           ("2026-09-25", 2, 4.0, 1.9, 2.2, 1), ("2026-09-28", 2, 50.0, 1.9, 2.2, 1)]
+    _m6 = _WW.max_rise(_b6, "2026-09-18", "2026-09-22", "2026-09-25")
+    _e6 = _WW.max_rise(_b6, "2026-09-18", "2026-09-22", "2026-09-22")
+    _atm_ww6 = (_m6 == (100.0, "2026-09-25") and _e6 == (50.0, "2026-09-22")
+                and _WW.max_rise(_b6, "2026-09-18", "2026-09-26", "2026-09-27") == (None, None))
+    _atm_ww6_w = f"m={_m6} e={_e6}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww6, _atm_ww6_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK6 الانفجار = أقصى high في [الجلسة d · آخر جلسة] ÷ إغلاق c − 1: القمّةُ قبل d وبعد آخر جلسة خارج · والطرفان داخل · "
+      "و+50%/+100% بالضبط تُحتسب", _atm_ww6, _atm_ww6_w)
+
+# WWK7 — V-W1: الفارقُ حتى نقطتين موافقة · وما قبل `since` أو بلا rsi خارج المقارنة
+try:
+    _s7 = _ww_series("DDD", "2025-08-01", "2026-09-25")
+    _r7 = _WW.rsi_at(_s7, "2026-09-18")
+    _fe7 = {"A": {"ref_bar": "2026-09-18", "rsi": _r7 + 2.0, "added": "2026-09-18"},
+            "B": {"ref_bar": "2026-09-18", "rsi": _r7 + 2.01, "added": "2026-09-18"},
+            "C": {"ref_bar": "2026-09-18", "rsi": _r7, "added": "2026-09-17"},
+            "D": {"ref_bar": "2026-09-18", "rsi": None, "added": "2026-09-18"}}
+    _v7 = _WW.vw1(_fe7, {k: _s7 for k in _fe7}, "2026-09-18")
+    _atm_ww7 = (_v7[1] == 2 and abs(_v7[0] - 0.5) < 1e-9 and [r[4] for r in _v7[2]] == [True, False])
+    _atm_ww7_w = f"agree={_v7[0]} n={_v7[1]}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww7, _atm_ww7_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK7 `V-W1` بحدوده: فارقُ نقطتين موافقٌ و2.01 لا · وترشيحُ ما قبل الأسبوع وبلا rsi خارج المقارنة", _atm_ww7, _atm_ww7_w)
+
+# WWK8 — الرئيسيّ طرفًا لطرف: الحارسان قبل أيّ رقم · المطابقُ والمجهولُ والسنتاتُ مُسقطة · والسطرُ الأخير الحكم
+try:
+    _rcA, _oA = _ww_run()
+    _rcB, _oB = _ww_run(bad_rsi=4)
+    _rcC, _oC = _ww_run(no_bars=5)
+    _rcD, _oD = _ww_run(key="")
+    _rcE, _oE = _ww_run(commits=[(_ww_utc("2026-09-28", 3, 0), "h0")])
+    _lastA = [l for l in _oA.splitlines() if l.strip()][-1]
+    _ord = [_oA.find("V-W2"), _oA.find("V-W1"), _oA.find("📅 لكلّ جلسة"), _oA.find("🏁")]
+    _atm_ww8 = (_rcA == 0 and _lastA == "🏁 المراقَبة هذا الأسبوع 6 · تطابق الثلاثة وفوق الدولار 1 · انفجر منها +50%: 1 · +100%: 0"
+                and all(i >= 0 for i in _ord) and _ord == sorted(_ord)
+                and "🎯 AAA: أوّلُ مطابقةٍ داخلًا إلى 2026-09-21 (إغلاق 2026-09-18)" in _oA and "❔ مجهولٌ" in _oA
+                and "CCC" in _oA.split("❔ مجهولٌ")[1].splitlines()[0] and "🎯 PEN" not in _oA
+                and _rcB == 3 and "🏁" not in _oB and _rcC == 3 and "🏁" not in _oC
+                and _rcD == 2 and _rcE == 4)
+    _atm_ww8_w = f"rc={_rcA}/{_rcB}/{_rcC}/{_rcD}/{_rcE} last={_lastA[:70]} ord={_ord}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww8, _atm_ww8_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK8 الرئيسيّ: `V-W2` ثمّ `V-W1` قبل أيّ رقم · المطابقُ AAA (+55% ⇒ +50% نعم) · والفلوتُ المجهول «مجهول» لا «لا» · "
+      "وسهمُ السنتات مُسقطٌ بالإغلاق الخامّ (PEN مقسَّمٌ لاحقًا فـadjusted فوق الدولار) · وRSI لا يطابق أو شموعٌ ناقصة ⇒ خروج 3 بلا حكم · وبلا مفتاح 2 · وبلا لقطة 4", _atm_ww8, _atm_ww8_w)
+
+# WWK9 — الـworkflow يدويٌّ بمُدخَلٍ اختياريّ · تاريخُ git كامل · قراءةٌ فقط · سرُّه Polygon وحدَه
+try:
+    import yaml as _ww_yaml
+    _y9 = _ww_yaml.safe_load(open(".github/workflows/watch_week.yml", encoding="utf-8"))
+    _on9 = _y9.get("on", _y9.get(True))
+    _steps9 = _y9["jobs"]["watch_week"]["steps"]
+    _env9 = {k for s in _steps9 for k in (s.get("env") or {})}
+    _raw9 = open(".github/workflows/watch_week.yml", encoding="utf-8").read()
+    _atm_ww9 = (list(_on9) == ["workflow_dispatch"] and _on9["workflow_dispatch"]["inputs"]["week"]["required"] is False
+                and _on9["workflow_dispatch"]["inputs"]["week"]["default"] == ""
+                and _y9["permissions"] == {"contents": "read"}
+                and any((s.get("with") or {}).get("fetch-depth") == 0 for s in _steps9)
+                and _env9 == {"PYTHONUNBUFFERED", "POLYGON_API_KEY", "WATCH_WEEK"}
+                and "TELEGRAM" not in _raw9 and "schedule" not in _raw9 and "python watch_week_probe.py" in _raw9)
+    _atm_ww9_w = f"on={list(_on9)} env={sorted(_env9)} perm={_y9.get('permissions')}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww9, _atm_ww9_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK9 الـworkflow يدويٌّ بمُدخَل `week` اختياريّ · تاريخُ git كامل · `contents: read` وحدَه · سرُّه Polygon وحدَه · "
+      "بلا تلغرام ولا كرون", _atm_ww9, _atm_ww9_w)
+
+# WWK10 — ⑥ قائمةُ الارتداد تُطبع ولا تَحكم: خارجَ الاتّحاد · الثلاثةُ المعلومة · وحالةُ المتابعة تُطبع ولا تُصفّي
+try:
+    _rc10, _o10 = _ww_run()
+    _L10 = _o10.splitlines()
+    _pbl10 = ("🔁 الارتداد: 2 رمزًا · تستوفي الثلاثةَ المعلومة (RSI · فلوت · دولار) في جلسةٍ: 1 (PBA) · بلغ منها +50%: 1 · "
+              "+100%: 1 · وبلغ +50% من القائمة كلِّها: 1 (PBA) · والمتاحُ مجهولٌ فلا تُحسب مطابقة")
+    _cc10 = "   حالةُ المتابعة (آخرُ لقطةٍ للرمز): ترشيحُ الأسبوع 4 · مستمرّ 1 · خرج من النموذج 1"
+    _mt10 = _o10.split("🎯 المطابقون")[1].split("💥 المقارنة")[0] if "💥 المقارنة" in _o10 and "🎯 المطابقون" in _o10 else ""
+    _ord10 = [_o10.find("🔭 عند إغلاق"), _o10.find("🔁 قائمةُ الارتداد"), _o10.find(_pbl10), _o10.find("🏁")]
+    _atm_ww10 = (_rc10 == 0 and _pbl10 in _L10 and _cc10 in _L10
+                 and any(l.startswith("   🎯 PBA    [watching]") for l in _L10)
+                 and any(l.startswith("      PBB    [triggered]") for l in _L10)
+                 and "AAA" not in _o10.split("🔁 قائمةُ الارتداد")[1].split("🔁 الارتداد:")[0]
+                 and "حالتُه: ترشيحُ الأسبوع" in _mt10 and "PBA" not in _mt10
+                 and all(i >= 0 for i in _ord10) and _ord10 == sorted(_ord10))
+    _atm_ww10_w = f"rc={_rc10} ord={_ord10} pb={[l for l in _L10 if l.startswith('🔁 الارتداد')][:1]}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww10, _atm_ww10_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK10 قائمةُ الارتداد تُطبع ولا تَحكم: الرمزُ الذي في القائمة الرئيسيّة خارجها · الثلاثةُ المعلومة وحدَها (الفلوتُ الكبير لا) · "
+      "والصعودُ من أوّل جلسةٍ تستوفيها · وحالةُ المتابعة تُطبع ولا تُصفّي · وسطرُ الحكم لا يتغيّر", _atm_ww10, _atm_ww10_w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
