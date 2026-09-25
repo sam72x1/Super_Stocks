@@ -64889,6 +64889,20 @@ except Exception as _e:                                           # noqa: BLE001
     _cfd54, _cfd54_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD54 نتائجُ §⑫ منشورةٌ بتشغيلاتها الثلاث كما خرجت: `CP13` ✅ · `CP13-ب` ❌ · `CP13-ج` ❌ (وغيرُ مزدوجة) · `CP14` ✅ · "
       "`CP15` ❌ (`TG_1857`) · وارتدادُ real2 يُنقل **وصفًا لا بصيغة سطر الحكم** فيبقى `ACCEPTANCE` «غير جاهزة»", _cfd54, _cfd54_w)
+try:
+    _res55 = open("chart_finder_result.md", encoding="utf-8").read()
+    _s55 = _res55.split("### ⑤ التشخيصُ المزدوج §⑫-ب", 1)[1] if "### ⑤ التشخيصُ المزدوج §⑫-ب" in _res55 else ""
+    _need55 = ("`36086766251`", "`36086768000`", "- **`CP16` ❌ (التنبّؤ الخاطئ يُنشر):**", "**1: `TG_1857`**", "‏44/75", "‏51/75", "**8**", "**صفر**",
+               "**`CP13-ج` ليس من G3 (مؤكَّد):**", "**`CP15` من G3 (مؤكَّد):**", "**G3 يبقى مُشعَلًا.**",
+               "`SPLIT_AWARE_PREFILTER`", "**`ACCEPTANCE` باقٍ «غير جاهزة»**")
+    _cfd55 = (bool(_s55) and all(x in _s55 for x in _need55) and "CHART_EVAL_JUDGE branch=" not in _s55
+              and "`CP16` ✅" not in _res55
+              and _CF.SPLIT_AWARE_PREFILTER is True and _CF.ACCEPTANCE == "غير جاهزة")
+    _cfd55_w = f"ناقص={[x for x in _need55 if x not in _s55]} · المفتاح={_CF.SPLIT_AWARE_PREFILTER} · ACCEPTANCE={_CF.ACCEPTANCE}"
+except Exception as _e:                                           # noqa: BLE001
+    _cfd55, _cfd55_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD55 §⑫-ب منشورٌ كما خرج: **`CP16` ❌** (ضررٌ واحد `TG_1857` مقابل كسبٍ 8 · والمصنوعةُ صفر) · `CP13-ج` ليس من G3 "
+      "و`CP15` منه · والقرارُ المعلَّل «G3 يبقى مُشعَلًا» يطابق الكود · و`ACCEPTANCE` «غير جاهزة»", _cfd55, _cfd55_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
