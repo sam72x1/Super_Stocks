@@ -65537,6 +65537,280 @@ except Exception as _e:                                            # noqa: BLE00
     _opl9, _opl9_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🕵️🔗 OPL9 حزمةُ `OPUS_READY_LIST_SPEC.md` بأقسام المالك العشرين ومراحله التسع بأسمائها وترتيبها · **R-00 لا إعادةَ برمجةٍ على الأساسيّات** "
       "· لا مراسي في `select_top` · لا تلغرام · مفتاحٌ مطفأ بت-بت · «بُنيت لـ…» · وتُشحَن بـ«نفذ» وحدَه", _opl9, _opl9_w)
+# ── SHR0-SHR10 القائمةُ الظلّيّة T-SHADOW (OPUS_READY_LIST_SPEC R-01/R-03 · العقد shadow_ready_prereg.md) ──
+try:
+    import shadow_ready as _SHR
+    _shr_src = open("shadow_ready.py", encoding="utf-8").read()
+except Exception as _e:                                            # noqa: BLE001
+    _SHR, _shr_src = None, ""
+try:
+    _shc = open("shadow_ready_prereg.md", encoding="utf-8").read()
+    _shc_need = ("## ⓪", "## ①", "## ②", "## ③", "## ④", "## ⑤", "## ⑥", "## ⑦", "## ⑧",
+                 "`D-1`", "`D-2`", "`D-3`", "`D-4`", "`D-5`", "`D-6`", "`build_liq_stage_alert`", "`j1_premarket_flag`",
+                 "`SHADOW_FWD_SINCE` = 2026-09-26", "**60**", "**150**", "**100 مرساةٍ مؤرَّخة**", "2026-12-31",
+                 "`T-J1PM`", "`T-OPLINK`", "`T-TIERLINK`", "`T-OPTRADE`", "CLOSED_RC", "**33/321 · 14**",
+                 "`V-S1`", "`V-S2`", "`V-S3`", "`V-S4`", "`V-S5`", "`V-S6`", "`V-S7`", "R-00",
+                 "بعد **20:00 نيويورك**", "مرّةً واحدة")
+    _shc_miss = [t for t in _shc_need if t not in _shc]
+    _shc_pr = _shc.split("## ⑥", 1)[1].split("## ⑦", 1)[0] if "## ⑥" in _shc and "## ⑦" in _shc else ""
+    _shr0 = (not _shc_miss and _shc_pr.count("**`SR-P") == 5
+             and _SHR.SHADOW_FWD_SINCE == "2026-09-26" and (_SHR.FLOOR_S, _SHR.FLOOR_ALL) == (60, 150)
+             and _SHR.FLOOR_AVAIL == 100 and _SHR.STOP_DATE == "2026-12-31" and _SHR.MIN_HALF == 10
+             and _SHR.AVAIL_CAP == 40 and _SHR.CLOSE_HOUR_NY == 20 and _SHR.MIN_COVER == 0.80
+             and _SHR.IDENTITY == ("2026-08-18", "2026-09-01", 33, 321, 14))
+    _shr0_w = f"ناقص={_shc_miss} · تنبّؤات={_shc_pr.count('**`SR-P')} · FWD={getattr(_SHR, 'SHADOW_FWD_SINCE', None)}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr0, _shr0_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR0 عقدُ `T-SHADOW` مدفوعٌ قبل أيّ رقم ومطابقٌ لثوابت الأداة بت-بت: الأقسام ⓪-⑧ · الانحرافاتُ الستّة "
+      "(R-02 في الكرت الصحيح ومُؤجَّلٌ للفرع 1) · الأماميّ من 2026-09-26 · الأرضيةُ 60/150 والمتاح 100 · الحسمُ 2026-12-31 "
+      "· خمسُ تنبّؤات · الحرّاس V-S1-V-S7 · وشاهدُ الهُويّة 33/321 · 14", _shr0, _shr0_w)
+try:
+    _neg = {
+        "open_w": "def main():\n    open('x.json', 'w')\n",
+        "git_push": "import subprocess\ndef f():\n    subprocess.run(['git', 'push'])\n",
+        "tg": "def f():\n    send_telegram('x')\n",
+        "git_save": "def f():\n    S.git_save()\n",
+        "unlink": "def f(p):\n    p.unlink()\n",
+    }
+    _negv = {k: _SHR._selfcheck(v) for k, v in _neg.items()}
+    _pos = _SHR._selfcheck("import subprocess\ndef append_ledger(rows, path=None):\n    open(path, 'a')\n"
+                           "def g(h):\n    subprocess.run(['git', 'show', h])\n")
+    _prod = [f for f in ("Super_stock.py", "operator_entry_live.py", "pullback_live.py", "ignition_live.py")
+             if "shadow_ready" in open(f, encoding="utf-8").read()]
+    _shr1 = (_SHR._selfcheck() is True and _pos is True and not any(_negv.values()) and not _prod)
+    _shr1_w = f"ذاتيّ={_SHR._selfcheck()} · إيجابيّ={_pos} · سلبيّات={_negv} · إنتاج={_prod}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr1, _shr1_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️🔒 SHR1 `V-S6` قراءةٌ فقط عدا سطرِ السجلّ (بالـAST): الحارسُ يمرّ على الأداة **ويُسقط** كتابةً خارج `append_ledger` "
+      "· `git push` · تلغرام · `git_save` · حذفَ ملفّ (شواهدُ ضبطٍ سلبيّة) · والإنتاجُ لا يستوردها", _shr1, _shr1_w)
+try:
+    _sf = _SHR.shadow_flag
+    _cases = [({"tod": "pre", "j1": "J1", "gap": "<10%"}, True), ({"tod": "pre", "j1": "لا", "gap": "≥30%"}, True),
+              ({"tod": "pre", "j1": "لا", "gap": "10-30%"}, False), ({"tod": "reg", "j1": "J1", "gap": "≥30%"}, False),
+              ({"tod": "after", "j1": "J1", "gap": "≥30%"}, False), ({"tod": "pre", "j1": "؟", "gap": "؟"}, False),
+              ({}, False), (None, False)]
+    _bad = [(c, w) for c, w in _cases if _sf(c) is not w]
+    _shr2 = not _bad
+    _shr2_w = f"خاطئ={_bad}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr2, _shr2_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR2 `S = pre ∧ (J1 ∨ gap≥30%)` بجدول الحقيقة (العقد §③): الفجوةُ 10-30% لا تكفي · J1 خارج البريماركت لا يكفي · "
+      "والمجهولُ «؟» ليس `S`", _shr2, _shr2_w)
+try:
+    from zoneinfo import ZoneInfo as _ZI_shr
+    _NY = _ZI_shr("America/New_York")
+    _t1959 = _dt0.datetime(2026, 10, 5, 19, 59, tzinfo=_NY)
+    _t2000 = _dt0.datetime(2026, 10, 5, 20, 0, tzinfo=_NY)
+    _shr3 = (_SHR.last_complete_day(_t1959) == "2026-10-04" and _SHR.last_complete_day(_t2000) == "2026-10-05"
+             and _SHR.sample_of("2026-09-25") == "in" and _SHR.sample_of("2026-09-26") == "fwd"
+             and _SHR.sample_of("2026-12-01") == "fwd")
+    _shr3_w = f"{_SHR.last_complete_day(_t1959)} · {_SHR.last_complete_day(_t2000)} · {_SHR.sample_of('2026-09-25')}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr3, _shr3_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR3 `V-S4` اليومُ لا يُقاس قبل اكتماله (20:00 نيويورك · 19:59 ⟵ الأمس) · والأماميُّ من 2026-09-26 بالضبط "
+      "(اليومُ السابق داخلُ العيّنة)", _shr3, _shr3_w)
+try:
+    _calls = []
+    def _ok_fetch(sym):
+        _calls.append(sym)
+        return {"shares_available": 15000, "borrow_fee": 50.0}
+    def _boom(sym):
+        _calls.append(sym)
+        raise RuntimeError("x")
+    _b = {"left": 5}
+    _a1 = _SHR.avail_capture("AAA", "2026-10-05", _dt0.datetime(2026, 10, 5, 20, 5, tzinfo=_NY), _ok_fetch, _b)
+    _a2 = _SHR.avail_capture("AAA", "2026-10-05", _dt0.datetime(2026, 10, 5, 19, 30, tzinfo=_NY), _ok_fetch, _b)
+    _a3 = _SHR.avail_capture("AAA", "2026-10-05", _dt0.datetime(2026, 10, 6, 0, 30, tzinfo=_NY), _ok_fetch, _b)
+    _n_ok = len(_calls)
+    _a4 = _SHR.avail_capture("AAA", "2026-10-05", _dt0.datetime(2026, 10, 5, 21, 0, tzinfo=_NY), _boom, _b)
+    _a5 = _SHR.avail_capture("AAA", "2026-10-05", _dt0.datetime(2026, 10, 5, 21, 0, tzinfo=_NY), lambda s: {}, _b)
+    _b0 = {"left": 0}
+    _before = len(_calls)
+    _a6 = _SHR.avail_capture("AAA", "2026-10-05", _dt0.datetime(2026, 10, 5, 21, 0, tzinfo=_NY), _ok_fetch, _b0)
+    _shr4 = (_a1[0] == 15000 and _a1[1] == "ok" and _a2 == (None, "not_same_session", None)
+             and _a3 == (None, "not_same_session", None) and _n_ok == 1 and _a4 == (None, "unavailable", None)
+             and _a5 == (None, "unavailable", None) and _a6 == (None, "cap", None) and len(_calls) == _before
+             and _b["left"] == 2)
+    _shr4_w = f"{_a1} {_a2} {_a3} {_a4} {_a5} {_a6} calls={len(_calls)} left={_b['left']}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr4, _shr4_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR4 `V-S5` المتاحُ **في جلسة المرساة نفسِها بعد 20:00 نيويورك وحدَها** (قبلها أو بعد منتصف الليل لا نداء) · "
+      "والتعذّرُ مجهولٌ لا صفر · والسقفُ يمنع النداءَ ويُعلَن «cap»", _shr4, _shr4_w)
+try:
+    def _mk(day, shadow, expl):
+        return {"date": day, "shadow": shadow, "exploded50": expl}
+    _days = [f"2026-10-{d:02d}" for d in range(1, 31)]
+    # (b) فاصلٌ صادق: S نصفُها ينفجر · S̄ عُشرُها — موزّعةٌ على ثلاثين يومًا
+    _good = []
+    for _i, _d in enumerate(_days):
+        _good += [_mk(_d, True, _j % 2 == 0) for _j in range(2)] + [_mk(_d, False, (_i * 5 + _j) % 10 == 0) for _j in range(5)]
+    _vb = _SHR.shadow_verdict(_good)
+    # (a) دون الأرضية: 59 S
+    _va = _SHR.shadow_verdict(_good[:0] + [r for r in _good if r["shadow"]][:59] + [r for r in _good if not r["shadow"]])
+    # (c) مقلوب: S̄ أعلى
+    _rev = [dict(r, exploded50=(not r["exploded50"]) if not r["shadow"] else (r["exploded50"] and r["date"] < "2026-10-04"))
+            for r in _good]
+    _vc = _SHR.shadow_verdict(_rev)
+    # (d) التجميد: صفوفٌ لاحقة بعد D* تقلب المجمَّع لا تمسّ الحكم
+    _later = [_mk(f"2026-11-{d:02d}", True, False) for d in range(1, 29) for _k in range(10)]
+    _vd = _SHR.shadow_verdict(_good + _later)
+    _shr5 = (_va["branch"] is None and "لا حكم" in _va["why"] and _vb["branch"] == 1 and _vb["d_star"] is not None
+             and _vc["branch"] == 2 and _vd["branch"] == 1 and _vd["d_star"] == _vb["d_star"])
+    _shr5_w = f"a={_va['why']} · b={_vb.get('why')}@{_vb.get('d_star')} · c={_vc.get('why')} · d={_vd.get('why')}@{_vd.get('d_star')}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr5, _shr5_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR5 الحكمُ الرباعيّ (العقد §④): «لا حكم» دون 60/150 · الفرعُ 1 على فصلٍ صادق · الفرعُ 2 حين الأعلى `S̄` · "
+      "**ونافذةُ الحكم مجمَّدةٌ عند أوّل بلوغ** (صفوفٌ لاحقةٌ تقلب المجمَّع لا تمسّه)", _shr5, _shr5_w)
+try:
+    import tempfile as _tf_shr
+    _rows = [{"date": "2026-09-25", "symbol": "IN1", "sample": "in", "exploded50": True, "mg_day": 80.0},
+             {"date": "2026-09-28", "symbol": "F1", "sample": "fwd", "exploded50": True, "mg_day": 80.0, "shadow": True},
+             {"date": "2026-09-28", "symbol": "F1", "sample": "fwd", "exploded50": False},
+             {"date": "2026-09-29", "symbol": "F2", "sample": "fwd", "exploded50": False}]
+    _w1 = _SHR.ledger_rows(_rows, set())
+    _w2 = _SHR.ledger_rows(_rows, {("2026-09-28", "F1"), ("2026-09-29", "F2")})
+    _td = _tf_shr.mkdtemp()
+    _lp = _cfd_os.path.join(_td, "led.jsonl")
+    _n0 = _SHR.append_ledger([], _lp)
+    _made0 = _cfd_os.path.exists(_lp)
+    _n1 = _SHR.append_ledger(_w1, _lp)
+    _keys = _SHR.load_ledger_keys(_lp)
+    _shr6 = ([r["symbol"] for r in _w1] == ["F1", "F2"] and _w2 == []
+             and all(tuple(r) == _SHR.LEDGER_FIELDS for r in _w1)
+             and not any(k in r for r in _w1 for k in _SHR.OUTCOME_FIELDS)
+             and _n0 == 0 and not _made0 and _n1 == 2 and _keys == {("2026-09-28", "F1"), ("2026-09-29", "F2")})
+    _shr6_w = f"w1={[r['symbol'] for r in _w1]} w2={len(_w2)} n={_n0},{_n1} made0={_made0} keys={sorted(_keys)}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr6, _shr6_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR6 السجلُّ (العقد ⓪ D-2/D-3): أماميٌّ وحدَه · مرّةً لكلّ (تاريخ، رمز) · حقولُه بالترتيب **بلا أيّ حقلِ نتيجة** · "
+      "ولا ملفَّ يُنشأ بلا صفوف", _shr6, _shr6_w)
+try:
+    _wfs = _wfh_yaml.safe_load(open(".github/workflows/shadow_ready.yml", encoding="utf-8"))
+    _job = _wfs["jobs"]["shadow"]
+    _envs = {}
+    for _s in _job["steps"]:
+        _envs.update(_s.get("env") or {})
+    _commit = [s for s in _job["steps"] if "git push" in (s.get("run") or "")]
+    # أوامرُ الخطوات **بلا تعليقات الصدفة** — فذكرُ `git_save` شرحًا لا يُسقط القفل ونداؤه يُسقطه (§② lock-and-mutate)
+    _runs_nc = ["\n".join(_l for _l in (s.get("run") or "").splitlines() if not _l.strip().startswith("#"))
+                for s in _job["steps"]]
+    _cmp = [n for n in _ast0.walk(_ast0.parse(_shr_src)) if isinstance(n, _ast0.Compare)
+            and isinstance(n.left, _ast0.Call) and getattr(n.left.func, "attr", None) == "get"
+            and n.left.args and getattr(n.left.args[0], "value", None) == "SHADOW_READY"
+            and isinstance(n.ops[0], _ast0.Eq) and getattr(n.comparators[0], "value", None) == "1"]
+    _shr7 = (set(_wfs.get(True) or _wfs.get("on") or {}) == {"workflow_dispatch"}
+             and _wfs["permissions"] == {"contents": "write"}
+             and _envs.get("SHADOW_READY") == "${{ inputs.write }}" and _envs.get("SHADOW_SINCE") == "${{ inputs.since }}"
+             and "POLYGON_API_KEY" in _envs and len(_commit) == 1 and _commit[0].get("if") == "inputs.write == '1'"
+             and "git add shadow_ready_ledger.jsonl" in _commit[0]["run"]
+             and not any(("git_save" in _rn or "TELEGRAM" in _rn) for _rn in _runs_nc)
+             and not any("TELEGRAM" in k for k in _envs) and _job["steps"][0]["with"]["fetch-depth"] == 0
+             and '"SHADOW_SINCE"' in _shr_src and len(_cmp) == 1
+             and (_wfs["on" if "on" in _wfs else True]["workflow_dispatch"]["inputs"]["write"]["default"] == "0"))
+    _shr7_w = f"on={list(_wfs.get(True) or _wfs.get('on') or {})} env={sorted(_envs)} commit={len(_commit)} cmp={len(_cmp)}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr7, _shr7_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR7 `V-S7` الـworkflow يدويٌّ بلا كرون ولا تلغرام · الكتابةُ `write=1` وحدَه (افتراضُه 0) ⟶ `SHADOW_READY == \"1\"` "
+      "حرفيًّا في الأداة (بالـAST) · والدفعُ خطوةٌ محميّةٌ للسجلّ وحدَه بلا `git_save` · وتاريخُ git كامل", _shr7, _shr7_w)
+try:
+    _old_k = _cfd_os.environ.pop("POLYGON_API_KEY", None)
+    _hit = []
+    _orig_ah = _SHR.anchor_history
+    _SHR.anchor_history = lambda since=None: _hit.append(since) or {}
+    try:
+        _rc8 = _SHR.main()
+    finally:
+        _SHR.anchor_history = _orig_ah
+        if _old_k is not None:
+            _cfd_os.environ["POLYGON_API_KEY"] = _old_k
+    _shr8 = _rc8 == 2 and not _hit
+    _shr8_w = f"rc={_rc8} · تاريخ git قُرئ={bool(_hit)}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr8, _shr8_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR8 بلا مفتاح ⇒ خروج 2 **قبل أيّ قراءةٍ لتاريخ git أو نداء** (بصمةُ لا-عمل)", _shr8, _shr8_w)
+try:
+    from zoneinfo import ZoneInfo as _ZI9
+    _a_ms = int(_dt0.datetime(2026, 10, 5, 8, 0, tzinfo=_ZI9("America/New_York")).timestamp() * 1000)
+    _A = {"anchor_ms": _a_ms, "anchor_price": 2.6, "anchor_low": 2.4, "date": "2026-10-05",
+          "k2": {"c3": "صادقت (إغلاقٌ فوق المرساة)", "c4": "خضراء 3-4", "v2": "x", "v3": "y", "j1": False}}
+    _bars = [(_a_ms + k * 60_000, 2.5, 2.7 if k != 30 else 4.2, 2.45, 2.6, 100.0) for k in range(60)]
+    _dly = [("2026-10-02", 2.1, 2.0), ("2026-10-05", 4.3, 2.8)]
+    _r9 = _SHR.anchor_row(_A, None, _bars, _dly, "2026-10-05")
+    _r9b = _SHR.anchor_row(_A, {"prev_close": 2.5, "e5": 2.6, "c3": None, "c4": None, "v2": None, "v3": None,
+                                "j1": False}, _bars, _dly, "2026-10-05")
+    _r9n = _SHR.anchor_row(dict(_A, anchor_price=None), None, [], _dly, "2026-10-05")
+    _shr9 = (_r9 is not None and _r9[0]["gap"] == "≥30%" and abs(_r9[2] - 30.0) < 1e-9 and _r9[0]["tod"] == "pre"
+             and _SHR.shadow_flag(_r9[0]) is True and _r9[1]["exploded50"] is True
+             and _r9b is not None and _r9b[0]["gap"] == "<10%" and abs(_r9b[2] - 4.0) < 1e-9
+             and _SHR.shadow_flag(_r9b[0]) is False and _r9n is None)
+    _shr9_w = (f"بلا سجلّ gap={None if _r9 is None else (_r9[0]['gap'], round(_r9[2], 2))} · "
+               f"بسجلّ gap={None if _r9b is None else (_r9b[0]['gap'], round(_r9b[2], 2))} · بلا أساس={_r9n}")
+except Exception as _e:                                            # noqa: BLE001
+    _shr9, _shr9_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR9 صفُّ المرساة بمصدر `T-OPLINK` نفسِه: فجوةُ من ليس في السجلّ من إغلاق الأمس في `daily_range` "
+      "(إصلاحُ `tierlink_probe.main`) · ومن في السجلّ من `prev_close` صفِّه · الرقمُ والسلّةُ من مصدرٍ واحد · وبلا أساس None",
+      _shr9, _shr9_w)
+try:
+    import tempfile as _tf10
+    from zoneinfo import ZoneInfo as _ZI10
+    _NY10 = _ZI10("America/New_York")
+    def _ms10(day, hh):
+        return int(_dt0.datetime.fromisoformat(day).replace(hour=hh, tzinfo=_NY10).timestamp() * 1000)
+    _anc, _bb, _dd = {}, {}, {}
+    for _d in ("2026-09-24", "2026-09-28", "2026-10-05"):
+        for _i in range(10):
+            _sym = f"Z{_d[5:7]}{_d[8:]}{_i}"
+            _am = _ms10(_d, 8 if _i < 5 else 11)
+            _anc[(_d, _sym)] = {"anchor_ms": _am, "anchor_price": 2.0, "anchor_low": 1.9, "date": _d, "symbol": _sym,
+                                "k2": {"j1": _i % 2 == 0}}
+            _bb[(_sym, _d)] = [(_am + k * 60_000, 2.0, 2.05 if (k != 20 or _i % 3) else 3.5, 1.95, 2.0, 100.0) for k in range(40)]
+            _dd[(_sym, _d)] = [("2026-09-01", 1.6, 1.5)]
+    _sv = {k: getattr(_SHR, k) for k in ("anchor_history", "fetch_day", "daily_range", "load_ledger", "_commits",
+                                          "_git_json", "LEDGER")}
+    _ce0 = S.ce_borrow_info
+    _td10 = _tf10.mkdtemp()
+    _led10 = _cfd_os.path.join(_td10, "shadow.jsonl")
+    _k0, _w0 = _cfd_os.environ.get("POLYGON_API_KEY"), _cfd_os.environ.get("SHADOW_READY")
+    _ce_calls = []
+    try:
+        _SHR.anchor_history = lambda since=None: {k: v for k, v in _anc.items() if k[0] >= since}
+        _SHR.fetch_day = lambda sym, day, key, get=None: _bb.get((sym, day))
+        _SHR.daily_range = lambda sym, day, key, get=None: _dd.get((sym, day))
+        _SHR.load_ledger = lambda path=None: []
+        _SHR._commits = lambda path: [("2026-09-20", "h")]
+        _SHR._git_json = lambda h, path="weekly_watchlist.json": {"stocks": [{"symbol": "Z09280", "status": "active"}]}
+        _SHR.LEDGER = _led10
+        S.ce_borrow_info = lambda sym: _ce_calls.append(sym) or {"shares_available": 9000}
+        _cfd_os.environ["POLYGON_API_KEY"] = "dummy"
+        _cfd_os.environ.pop("SHADOW_READY", None)
+        _now = _dt0.datetime(2026, 10, 5, 21, 0, tzinfo=_NY10)
+        _rcA = _SHR.main(now_ny=_now)
+        _madeA = _cfd_os.path.exists(_led10)
+        _cfd_os.environ["SHADOW_READY"] = "1"
+        _rcB = _SHR.main(now_ny=_now)
+        _LB = [json.loads(l) for l in open(_led10, encoding="utf-8")] if _cfd_os.path.exists(_led10) else []
+        _rcC = _SHR.main(now_ny=_now)
+        _LC = [json.loads(l) for l in open(_led10, encoding="utf-8")] if _cfd_os.path.exists(_led10) else []
+    finally:
+        for _k, _v in _sv.items():
+            setattr(_SHR, _k, _v)
+        S.ce_borrow_info = _ce0
+        for _k, _v in (("POLYGON_API_KEY", _k0), ("SHADOW_READY", _w0)):
+            if _v is None:
+                _cfd_os.environ.pop(_k, None)
+            else:
+                _cfd_os.environ[_k] = _v
+    _shr10 = (_rcA == 0 and not _madeA and _rcB == 0 and len(_LB) == 20
+              and {r["date"] for r in _LB} == {"2026-09-28", "2026-10-05"}
+              and sum(1 for r in _LB if r["avail"] == 9000) == 10
+              and all(r["avail"] is None for r in _LB if r["date"] == "2026-09-28")
+              and any(r["member"] for r in _LB) and sum(1 for r in _LB if r["shadow"]) >= 2
+              and _rcC == 0 and len(_LC) == 20)
+    _shr10_w = f"rc={_rcA},{_rcB},{_rcC} made={_madeA} صفوف={len(_LB)}→{len(_LC)} متاح={sum(1 for r in _LB if r['avail'] == 9000)}"
+except Exception as _e:                                            # noqa: BLE001
+    _shr10, _shr10_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🌅🗂️ SHR10 تشغيلٌ كاملٌ بجالباتٍ محقونة: بلا `SHADOW_READY` لا سجلّ · وبه تُكتب الأماميّةُ وحدَها مرّةً (إعادةُ التشغيل صفر) "
+      "· والمتاحُ لصفوف جلسة التشغيل وحدَها · والعضويّةُ من اللقطة", _shr10, _shr10_w)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
