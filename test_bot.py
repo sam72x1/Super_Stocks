@@ -64274,6 +64274,69 @@ check("🔎 CFD39 بطاقاتُ real2 **مجمَّدةٌ قبل أيّ بحث**
       "واسمُ كلِّ ملفٍّ معرّفُ بطاقته `real2-<الصورة>` · والمفتاحُ = رمزُ الكاتالوج · والصنفُ من الفريم المكتوب "
       "(يوميٌّ/أسبوعيٌّ ⟵ daily_axis · غيرُ ظاهر ⟵ unknown · لحظيٌّ بتاريخ ⟵ intraday) · والبطاقاتُ صالحةٌ بلا رمز",
       _cfd39, _cfd39_w)
+# ── CFD40 نتيجةُ real2 منشورةٌ بسطر حكمها حرفيًّا · وتنبّؤاتُها الأربعة بنتائجها · والخطأُ الوحيدُ وتشخيصُه لا يُحذفان ──
+try:
+    _res40 = open("chart_finder_result.md", encoding="utf-8").read()
+    _s40 = _res40.split("## ⑥", 1)[1] if "## ⑥" in _res40 else ""
+    _need40 = ("CHART_EVAL_JUDGE branch=غير جاهزة k1=9/10 k2=34/46 k3=1", "36072904953", "36074205818",
+               "36075397222", "فرضيّتي سقطت", "غيرُ محسوم", "لا يُحتسب", "المعينُ استُنفد", "المستقلُّ 8")
+    _cp40 = {}
+    for _k40 in ("CP8", "CP9", "CP10", "CP11"):
+        _m40 = _cfd_re.search(r"^\| `" + _k40 + r"` \|[^\n]*\| (✅|❌)", _s40, _cfd_re.M)
+        _cp40[_k40] = _m40.group(1) if _m40 else None
+    _ids40 = [k[len("real2-"):] for k in _CFE.load_key("chart_cards/real2")]
+    _rows40 = {m.group(1) for m in _cfd_re.finditer(r"^\| ((?:IMG|TG)_\w+) \| [A-Z]+ \|", _s40, _cfd_re.M)}
+    _cfd40 = (bool(_s40) and all(x in _s40 for x in _need40)
+              and _cp40 == {"CP8": "✅", "CP9": "❌", "CP10": "✅", "CP11": "❌"}
+              and len(_ids40) == 75 and _rows40 == set(_ids40))
+    _cfd40_w = (f"ناقص={[x for x in _need40 if x not in _s40]} · تنبّؤات={_cp40} · صفوف={len(_rows40)}/{len(_ids40)} "
+                f"غائبة={sorted(set(_ids40) - _rows40)[:3]}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd40, _cfd40_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD40 نتيجةُ real2 منشورةٌ **بسطر حكمها حرفيًّا** (`غير جاهزة k1=9/10 k2=34/46`) وتشغيلتُها وتشغيلتا التشخيص · "
+      "وتنبّؤاتُها الأربعة بنتائجها (‏CP8 ✅ · CP9 ❌ · CP10 ✅ · CP11 ❌) · والفرضيّةُ الساقطة والسببُ «غيرُ محسوم» واستنفادُ المعين · "
+      "وصفُّ كلِّ بطاقةٍ من الخمس والسبعين — فلا تُعدَّل بصمت", _cfd40, _cfd40_w)
+# ── CFD41 وسمُ الجواب بحكم القبول (§⑤-3): يُطبع قبل سطر CHART_FINDER مباشرةً · و`ACCEPTANCE` = آخرُ حكمٍ منشور ──
+try:
+    _arr41, _get41 = _cfd_panel_world(True)
+    _logs41 = []
+    _keep41 = (_CF.log, _CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL), dict(_CF._LAST_ENDS))
+    try:
+        _CF.log = lambda m="", *_a, **_k: _logs41.append(str(m))
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _r41 = _CF.run_card({"v": 1, "id": "cfd-ACC", "timeframe": "1D", "bars_visible": 37,
+                             "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"},
+                            _cfd_tmp, get=_get41, panel_arr=_arr41, series=False)
+    finally:
+        _CF.log = _keep41[0]
+        _CF._SPLITS_ALL_SINCE = _keep41[1]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep41[2])
+        _CF._LAST_ENDS.clear()
+        _CF._LAST_ENDS.update(_keep41[3])
+    _st41 = [i for i, m in enumerate(_logs41) if m.startswith("🧪 الجواب «")]
+    _jd41 = [i for i, m in enumerate(_logs41) if m.startswith("CHART_FINDER card=cfd-ACC")]
+    _res41 = open("chart_finder_result.md", encoding="utf-8").read()
+    _br41 = _cfd_re.findall(r"CHART_EVAL_JUDGE branch=(.+?) k1=", _res41)
+    _mx41 = {(a, lab): _CF.answer_status(lab, a) for a in ("غير جاهزة", "لا حكم", "جاهزة", "جاهزة للواثق وحدَه",
+                                                          "جاهزة للواثق وحدَه (K2 لا حكم)")
+             for lab in ("واثق", "مرجّح", "غير محسوم", "لا تطابق")}
+    _want41 = {k: ("معتمَد" if k[0] == "جاهزة" or (k[0].startswith("جاهزة للواثق") and k[1] == "واثق") else "تجريبيّ")
+               for k in _mx41}
+    _cfd41 = (_r41["label"] == "واثق" and len(_st41) == 1 and len(_jd41) == 1
+              and _st41[0] == _jd41[0] - 1 and _jd41[0] == len(_logs41) - 1
+              and "«تجريبيّ»" in _logs41[_st41[0]] and _CF.ACCEPTANCE_RUN in _logs41[_st41[0]]
+              and _mx41 == _want41 and bool(_br41) and _br41[-1] == _CF.ACCEPTANCE
+              and _CF.ACCEPTANCE_RUN in _res41)
+    _cfd41_w = (f"الحكم={_r41['label']} · الوسم={_st41} الحكم={_jd41} من {len(_logs41)} · "
+                f"«{(_logs41[_st41[0]] if _st41 else '')[:40]}» · آخرُ منشور={_br41[-1:]} · الثابت={_CF.ACCEPTANCE} · "
+                f"مصفوفة خاطئة={[k for k in _mx41 if _mx41[k] != _want41[k]][:2]}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd41, _cfd41_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD41 كلُّ جوابٍ يُوسَم بحكم القبول (§⑤-3): سطرُ «🧪 الجواب «تجريبيّ»» **قبل** سطر `CHART_FINDER` مباشرةً وهو الأخير · "
+      "و`answer_status` = نصُّ الفروع («جاهزة» الكلّ · «جاهزة للواثق وحدَه» «واثق» وحدَه · وغيرُهما «تجريبيّ») · "
+      "و`ACCEPTANCE` = **آخرُ فرعٍ منشور** في `chart_finder_result.md` وتشغيلتُه فيه — فلا يسبق الثابتُ الحكمَ", _cfd41, _cfd41_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

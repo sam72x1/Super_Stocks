@@ -59,6 +59,10 @@ ANCHOR_MAX = 25            # أقصى عابري المرساة تُفحص نو�
 # ── v1.1 (ملحق §⑩ · بعد المجموعة الحقيقيّة الأولى · لا يُحتسب عليها) ─────────────────────────
 CAP_UNDATED_INTRADAY = True  # G1: لحظيٌّ بلا مرساةٍ مؤرَّخة ⟵ الوسمُ لا يتجاوز «غير محسوم» («يُحاوَل ولا يُخمَّن»)
 LIVE_ANCHOR = True           # G2: مرساةٌ بلا عابر ⟵ بديلُ «الشمعة قيد التكوّن» على ملفّ دقائق اليوم نفسِه
+# ⚖️ حالةُ القبول بحكم العقد §⑤ على آخر مجموعةٍ حقيقيّة (`chart_finder_result.md`) — تُطبع مع كلّ جواب ولا تمسّ
+#    الحكمَ الآليّ: «غير جاهزة» ⟵ كلُّ جوابٍ «تجريبيّ» (§⑤-3) · «جاهزة للواثق وحدَه» ⟵ «واثق» وحدَه معتمَد · «جاهزة» ⟵ الكلّ.
+ACCEPTANCE = "غير جاهزة"          # real2 (§⑩) · k1=9/10 k2=34/46 · 2026-09-24
+ACCEPTANCE_RUN = "36072904953"
 DAYS_PER_BAR = {"1D": 1.0, "1W": 5.0, "1M": 21.0}      # أيامُ تداولٍ لكلّ شمعة (اليوميّ فما فوقه)
 INTRADAY_SPAN = {"1m": 1, "2m": 2, "3m": 3, "5m": 5, "10m": 10, "15m": 15, "30m": 30, "45m": 45,
                  "1H": 60, "2H": 120, "3H": 180, "4H": 240}
@@ -566,6 +570,14 @@ def verdict(cands: list) -> tuple:
     if t2.get("score", math.inf) >= DECISIVE_RATIO * max(t1.get("score", 0.0), 1e-9):
         return ("مرجّح", t1, t2, len(passers))
     return ("غير محسوم", t1, t2, len(passers))
+
+
+def answer_status(label: str, acceptance: str = None) -> str:
+    """وسمُ الجواب بحكم القبول (§⑤) — «معتمَد» أو «تجريبيّ». لا يغيّر الحكمَ الآليّ ولا سطرَ `CHART_FINDER`."""
+    acc = ACCEPTANCE if acceptance is None else acceptance
+    if acc == "جاهزة" or (acc.startswith("جاهزة للواثق وحدَه") and label == "واثق"):
+        return "معتمَد"
+    return "تجريبيّ"
 
 
 def judge_line(card_id: str, label: str, t1, t2, n_pass: int, rc: int) -> str:
@@ -1459,6 +1471,9 @@ def run_card(card: dict, tmpdir: str, get=None, file_path: str = None,
     top = [c["sym"] for c in ranked[:TOP_SERIES]]
     if results is not None:
         results[cid] = top
+    st = answer_status(label)
+    log(f"🧪 الجواب «{st}» — الأداةُ «{ACCEPTANCE}» بحكم العقد §⑤ (التشغيلة {ACCEPTANCE_RUN})"
+        + (" · لا يُعتمد إلّا بالمقارنة بالعين" if st == "تجريبيّ" else ""))
     log(judge_line(cid, label, t1, t2, n_pass, 0) + f" mode={mode}")
     return {"rc": 0, "label": label, "top": top, "n_pass": n_pass, "mode": mode}
 
