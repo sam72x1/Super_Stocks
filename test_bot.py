@@ -64706,6 +64706,126 @@ except Exception as _e:                                           # noqa: BLE001
     _cfd49, _cfd49_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD49 G3 مُشعَلٌ افتراضًا ومكتوبٌ في ملحق §⑫ (المفتاح · «لا يُحتسب» · `CP13`-`CP15` · بت-بت) · "
       "**وتعذّرُ جلب التقسيمات يُعلَن** ويبقى المرشِّحُ خامًّا (لا تسويةَ مُخمَّنة)", _cfd49, _cfd49_w)
+# ── CFD50-CFD52 🧪 §⑫: مصنوعةٌ موجَّهة لحالة §⑧-6 (`CHART_EVAL=synth_split`) — البطاقةُ نفسُها مرّتين ──
+try:
+    import random as _cfd_rand                                   # noqa: PLC0415
+    _arr50, _get50 = _cfd_split_last_world(True)
+    _d50, _s50, _H50, _L50, _C50 = _arr50
+    _sp50 = {"XBB": [(_d50[59], 10.0, 1.0)], "AAA": [(_d50[30], 1.0, 1.0)], "ZZZ": [("2020-01-02", 2.0, 1.0)]}
+    _w50a = _CFE.sample_split_windows(_d50, _s50, _H50, _L50, _C50, _sp50, _cfd_rand.Random(_CFE.SEED), 60,
+                                      frm=_d50[0], to=_d50[-1])
+    _w50b = _CFE.sample_split_windows(_d50, _s50, _H50, _L50, _C50, _sp50, _cfd_rand.Random(_CFE.SEED), 60,
+                                      frm=_d50[0], to=_d50[-1])
+    _ok50 = bool(_w50a) and all(
+        _CFE.split_case(_CFE.display_bars(_d50, _H50, _L50, _C50, _s50.index(s), e, W, sp), sp) == "both_before"
+        and 0 <= e - W + 1 < 59 <= e <= 59 + _CFE.SPLIT_END_MAX for s, e, W, sp in _w50a)
+    # شاهدُ الضبط: عالمُ CFD21 (الأدنى بعد التقسيم ⟵ «inside») لا يُعطي نافذةً موجَّهة · والنطاقُ يُحترَم
+    _arr50x, _ = _cfd_panel_world(True)
+    _d50x = _arr50x[0]
+    _w50x = _CFE.sample_split_windows(*_arr50x, {"XSPL": [(_d50x[20], 10.0, 1.0)]}, _cfd_rand.Random(_CFE.SEED), 60,
+                                      frm=_d50x[0], to=_d50x[-1])
+    _w50r = _CFE.sample_split_windows(_d50, _s50, _H50, _L50, _C50, _sp50, _cfd_rand.Random(_CFE.SEED), 60,
+                                      frm=_d50[0], to=_d50[58])
+    _cfd50 = (_w50a == _w50b and [w[0] for w in _w50a] == ["XBB"] and _ok50 and _w50x == [] and _w50r == [])
+    _cfd50_w = (f"نوافذ={[(w[0], w[1], w[2]) for w in _w50a]} · حتميّة={_w50a == _w50b} · both_before={_ok50} · "
+                f"عالمُ inside={_w50x} · خارج النطاق={_w50r}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd50, _cfd50_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD50 `sample_split_windows` (§⑫): نوافذُ «الطرفان كلاهما قبله» **بالبناء** من كلّ تقسيمٍ نسبتُه غيرُ 1 داخل النطاق "
+      "(النهايةُ من يوم التقسيم حتى `SPLIT_END_MAX` بعده) · حتميّةٌ بالبذرة · وتقسيمُ 1:1 وما قبل النطاق لا يُعطيان · "
+      "وعالمٌ طرفُه بعد التقسيم («inside») لا يُعطي نافذةً", _cfd50, _cfd50_w)
+try:
+    _logs51 = []
+    _keep51 = (_CFE.log, _CF.log, _CFE.SYNTH_FROM, _CFE.SYNTH_TO, _CF.SPLIT_AWARE_PREFILTER, _CF._SPLITS_ALL_SINCE,
+               dict(_CF._SPLITS_ALL), dict(_CF._LAST_ENDS), _CF._LAST_CUT)
+    try:
+        _CFE.log = lambda m="": _logs51.append(str(m))
+        _CF.log = lambda m="", *_a, **_k: _logs51.append(str(m))
+        _CFE.SYNTH_FROM, _CFE.SYNTH_TO = _d50[0], _d50[-1]
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _CF.SPLIT_AWARE_PREFILTER = False               # ⟵ يُعاد كما وُجد (لا «True» الأخيرُ في الحلقة)
+        _rc51 = _CFE.run_synth_split(_cfd_tmp, get=_get50, panel_arr=_arr50)
+        _sw51 = _CF.SPLIT_AWARE_PREFILTER
+    finally:
+        (_CFE.log, _CF.log, _CFE.SYNTH_FROM, _CFE.SYNTH_TO, _CF.SPLIT_AWARE_PREFILTER,
+         _CF._SPLITS_ALL_SINCE) = _keep51[:6]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep51[6])
+        _CF._LAST_ENDS.clear()
+        _CF._LAST_ENDS.update(_keep51[7])
+        _CF._LAST_CUT = _keep51[8]
+    def _r51(i, v11_hit, v12_hit, v12_label="واثق"):
+        _sym = "S%02d" % i
+        return {"k": i, "sym": _sym, "end": "2026-01-02", "W": 30, "rev": i % 2 == 0, "style": {"dated": False},
+                "v11": {"label": "مرجّح" if v11_hit else "لا تطابق", "top": [_sym] if v11_hit else [],
+                        "hit1": v11_hit, "hit3": v11_hit},
+                "v12": {"label": v12_label, "top": [_sym] if v12_hit else ["ZZ"], "hit1": v12_hit, "hit3": v12_hit}}
+    _rep51 = {}
+    _keep51b = _CFE.log
+    try:
+        for _nm, _rows in (("ok", [_r51(i, i < 2, True) for i in range(20)]),
+                           ("ctrl", [_r51(i, i < 3, True) for i in range(20)]),
+                           ("wrong", [_r51(i, False, i != 0) for i in range(20)])):
+            _buf = []
+            _CFE.log = lambda m="", _b=_buf: _b.append(str(m))
+            _CFE.report_split(_rows)
+            _rep51[_nm] = _buf[-1]
+    finally:
+        _CFE.log = _keep51b
+    _ctl51 = (_rep51["ok"].endswith("cp13=✅ cp13b=✅") and " v11_top1=2 " in _rep51["ok"]
+              and _rep51["ctrl"].endswith("cp13=✅ cp13b=❌")
+              and _rep51["wrong"].endswith("cp13=❌ cp13b=✅") and " v12_conf_wrong=1 " in _rep51["wrong"]
+              and [_CFE.split_ctrl(20, 2), _CFE.split_ctrl(20, 3), _CFE.split_ctrl(19, 0)] == ["✅", "❌", "لا حكم"])
+    _row51 = [m for m in _logs51 if m.startswith("SPLIT_ROW 000 XBB")]
+    _fin51 = [m for m in _logs51 if m.startswith("CHART_EVAL_SPLIT")]
+    _v51 = [_CFE.split_verdict(20, 19, 0), _CFE.split_verdict(20, 18, 0), _CFE.split_verdict(20, 20, 1),
+            _CFE.split_verdict(19, 19, 0)]
+    _cfd51 = (_rc51 == 0 and _sw51 is False and len(_row51) == 1 and _ctl51
+              and "hit1=0 · v1.2 واثق top=['XBB'] hit1=1" in _row51[0]
+              and _fin51 == [_fin51[-1]] and _logs51[-1] == _fin51[-1]
+              and "n=1 rev=1 v11_top1=0 " in _fin51[0] and " v12_top1=1 " in _fin51[0]
+              and _fin51[0].endswith("cp13=لا حكم cp13b=لا حكم")
+              and any(m.startswith("SPLIT_RECAP 000 truth=XBB") for m in _logs51)
+              and _v51 == ["✅", "❌", "❌", "لا حكم"])
+    _cfd51_w = (f"rc={_rc51} · المفتاحُ بعده={_sw51} · صف={_row51[:1]} · الخلاصة={_fin51} · الحكم={_v51} · "
+                f"الضبطُ على 20 صفًّا={_ctl51} {[v[-22:] for v in _rep51.values()]}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd51, _cfd51_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD51 `run_synth_split` (§⑫): البطاقةُ نفسُها **مرّتين** — v1.1 لا يلتقط XBB (العمى) ثمّ v1.2 «واثق» XBB — "
+      "والمفتاحُ يُعاد **كما وُجد** · وصفُّ الخلاصة في آخر السجلّ وسطرُ `CHART_EVAL_SPLIT` **آخرُه** · و`CP13`: دون 20 «لا حكم» · "
+      "19 من 20 ✅ · 18 ❌ · و«واثق» خاطئٌ واحد ❌ · و`CP13-ب` يقرأ **v1.1**: 2 من 20 ✅ · 3 ❌", _cfd51, _cfd51_w)
+try:
+    _keep52 = (_CFE.run_synth_split, _CF._key)
+    _env52 = _cfd_os.environ.get("CHART_EVAL")
+    _rt52 = []
+    try:
+        _CFE.run_synth_split = lambda tmp, get=None, panel_arr=None: (_rt52.append("split") or 0)
+        _CF._key = lambda: "k"
+        _cfd_os.environ["CHART_EVAL"] = "synth_split"
+        _m52 = _CFE.main()
+    finally:
+        _CFE.run_synth_split, _CF._key = _keep52
+        if _env52 is None:
+            _cfd_os.environ.pop("CHART_EVAL", None)
+        else:
+            _cfd_os.environ["CHART_EVAL"] = _env52
+    _yml52 = open(".github/workflows/chart_eval.yml", encoding="utf-8").read()
+    _pre52 = open("chart_finder_prereg.md", encoding="utf-8").read()
+    _s52 = _pre52.split("## ⑫", 1)[1] if "## ⑫" in _pre52 else ""
+    _need52 = ("synth_split", "`N_SPLIT`", "`SPLIT_TOP1_BAR`", "`SPLIT_MIN_N`", "`SPLIT_CTRL_MAX`", "`SPLIT_END_MAX`",
+               "`CP13-ب`", "`CP13-ج`", "**60**", "**95% فأكثر**", "**20**", "**10% أو أقلّ**", "**149 فأكثر**",
+               "كانت ستعبر **فارغةً**")
+    _cfd52 = (_m52 == 0 and _rt52 == ["split"] and "synth_split" in _yml52
+              and (_CFE.N_SPLIT, _CFE.SPLIT_END_MAX, _CFE.SPLIT_MIN_N, _CFE.SPLIT_TOP1_BAR, _CFE.SPLIT_CTRL_MAX)
+              == (60, 3, 20, 0.95, 0.10)
+              and all(x in _s52 for x in _need52))
+    _cfd52_w = (f"توجيه={_rt52} rc={_m52} · الثوابت={(_CFE.N_SPLIT, _CFE.SPLIT_END_MAX, _CFE.SPLIT_MIN_N)} · "
+                f"ملحق ناقص={[x for x in _need52 if x not in _s52]}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd52, _cfd52_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD52 `CHART_EVAL=synth_split` يُوجَّه إلى `run_synth_split` ومُدخَلُه في الـworkflow · وثوابتُه (60 · 3 · 20 · 95% · 10%) "
+      "**= نصَّ ملحق §⑫ المكتوب قبل التشغيل** مع تصحيحِ المسودة الفارغة و`CP13-ب`/`CP13-ج` — فلا يُرخى معيارٌ بعد رقم", _cfd52, _cfd52_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

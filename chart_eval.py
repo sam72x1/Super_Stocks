@@ -285,6 +285,143 @@ def report_synth(rows: list) -> int:
     return 0
 
 
+
+# ══ §⑫ (v1.2): مصنوعةٌ موجَّهة لحالة §⑧-6 — البطاقةُ نفسُها مرّتين (v1.1 ثمّ v1.2) ══════════════
+N_SPLIT = 60          # §⑫: سقفُ النوافذ الموجَّهة — مكتوبٌ قبل أيّ تشغيل
+SPLIT_END_MAX = 3     # نهايةُ النافذة من يوم التقسيم حتى 3 جلساتٍ بعده (TG_2050: يومُ التقسيم نفسُه)
+SPLIT_TRIES = 40      # محاولاتُ (نهاية، طول) لكلّ تقسيمٍ قبل تركه
+SPLIT_MIN_N = 20      # أرضيّةُ العيّنة: دونها «لا حكم» (كأرضيّة K2)
+SPLIT_TOP1_BAR = 0.95  # CP13: الأوّلُ الصحيح بـv1.2 (كحدّ K1)
+SPLIT_CTRL_MAX = 0.10  # CP13-ب: الأوّلُ الصحيح بـv1.1 لا يتجاوزه (العمى بنيويّ لا عَرَضيّ)
+
+
+def sample_split_windows(days, syms, H, L, C, splits_by_sym: dict, rng: random.Random, n: int,
+                         frm: str = None, to: str = None) -> list:
+    """نوافذُ §⑧-6 **بالبناء**: لكلّ تقسيمٍ نسبتُه غيرُ 1 ويومُه في [SYNTH_FROM، SYNTH_TO] تُسحب `(نهاية، طول)` حتى
+    تصير النافذةُ «الطرفان كلاهما قبله» (`split_case`) بشموعٍ كاملة وإغلاقٍ معروضٍ في [PRICE_MIN، PRICE_MAX] ⟵
+    `[(رمز، فهرسُ النهاية، الطول، تقسيماتُه)]` مخلوطةً بالبذرة ومقصوصةً إلى `n` · حتميّةٌ بالبذرة والترتيب."""
+    import bisect                                                   # noqa: PLC0415
+    import numpy as np                                              # noqa: PLC0415
+    frm, to = frm or SYNTH_FROM, to or SYNTH_TO
+    ix = {s: j for j, s in enumerate(syms)}
+    found = []
+    for s in sorted(splits_by_sym or {}):
+        j = ix.get(s)
+        if j is None:
+            continue
+        sp = list(splits_by_sym[s])
+        for ex, fr, tt in sp:
+            if not (frm <= ex <= to) or not fr or not tt or float(fr) == float(tt):
+                continue
+            k = bisect.bisect_left(days, ex)
+            if k <= 0 or k >= len(days):
+                continue
+            for _ in range(SPLIT_TRIES):
+                e = min(len(days) - 1, k + rng.randint(0, SPLIT_END_MAX))
+                W = rng.randint(W_MIN, W_MAX)
+                a = e - W + 1
+                if a < 0 or a >= k or not np.isfinite(C[a:e + 1, j]).all():
+                    continue
+                bars = display_bars(days, H, L, C, j, e, W, sp)
+                if not (PRICE_MIN <= bars[-1]["c"] <= PRICE_MAX):
+                    continue
+                if split_case(bars, sp) == "both_before":
+                    found.append((s, e, W, sp))
+                    break
+    rng.shuffle(found)
+    return found[:n]
+
+
+def split_verdict(n: int, top1: int, conf_wrong: int) -> str:
+    """`CP13` (§⑫): دون `SPLIT_MIN_N` ⟵ «لا حكم» · وإلّا ✅ إن بلغ الأوّلُ الصحيح `SPLIT_TOP1_BAR` **ولا «واثق» خاطئ**."""
+    if n < SPLIT_MIN_N:
+        return "لا حكم"
+    return "✅" if top1 >= math.ceil(SPLIT_TOP1_BAR * n) and conf_wrong == 0 else "❌"
+
+
+def split_ctrl(n: int, top1_v11: int) -> str:
+    """`CP13-ب` (§⑫): دون `SPLIT_MIN_N` ⟵ «لا حكم» · وإلّا ✅ إن لم يتجاوز الأوّلُ الصحيح بـ**v1.1** `SPLIT_CTRL_MAX` من النوافذ."""
+    if n < SPLIT_MIN_N:
+        return "لا حكم"
+    return "✅" if top1_v11 <= SPLIT_CTRL_MAX * n else "❌"
+
+
+def run_synth_split(tmpdir: str, get=None, panel_arr=None) -> int:
+    """§⑫ `CP13`: نوافذُ §⑧-6 الموجَّهة ⟵ البطاقةُ نفسُها مرّتين: v1.1 (`SPLIT_AWARE_PREFILTER=False`) ثمّ v1.2 ⟵ الأوّلُ
+    الصحيح و«واثق» الخاطئ لكلٍّ · قراءةٌ فقط · لا يُحتسب على `real`/`real2` · و`panel_arr` لوحةٌ محقونة (للأقفال)."""
+    if panel_arr is None:
+        end = (dt.date.today() - dt.timedelta(days=1)).isoformat()
+        days = CF.trading_days_back(end, CF.UNDATED_YEARS)
+        panel = CF.load_panel(days, tmpdir, get=get)
+        if not panel:
+            log("⛔ لا لوحة")
+            return 3
+        panel_arr = CF.panel_arrays(panel)
+    pdays, syms, H, L, C = panel_arr
+    log(f"🧪 §⑫ مصنوعةٌ موجَّهة لحالة §⑧-6 · بذرة {SEED} · حتى {N_SPLIT} نافذة · لوحةٌ {pdays[0]} ⟶ {pdays[-1]}")
+    CF.load_all_splits(pdays[0], get=get)
+    if CF._SPLITS_ALL_SINCE is None or CF._SPLITS_ALL_SINCE > pdays[0]:
+        log("⛔ تقسيماتُ السوق لم تُجلب ⟵ لا نوافذَ §⑧-6")
+        return 3
+    rng = random.Random(SEED)
+    samples = sample_split_windows(pdays, syms, H, L, C, CF._SPLITS_ALL, rng, N_SPLIT)
+    log(f"   نوافذُ §⑧-6 مسحوبة: {len(samples)}")
+    from chart_render import render_candles                          # noqa: PLC0415
+    keep = CF.SPLIT_AWARE_PREFILTER
+    rows = []
+    try:
+        for k, (sym, e, W, sp) in enumerate(samples):
+            j = syms.index(sym)
+            bars = display_bars(pdays, H, L, C, j, e, W, sp)
+            style = synth_style(rng)
+            card, kw = synth_card(bars, style, rng, f"split-{k:03d}")
+            img, meta = render_candles(bars, **kw)
+            card = add_pixel_fields(card, img, meta)
+            rev = any(float(fr) > float(tt) for ex, fr, tt in sp if bars[0]["d"] < ex <= bars[-1]["d"])
+            row = {"k": k, "sym": sym, "end": pdays[e], "W": W, "rev": rev, "style": style}
+            for tag, g3 in (("v11", False), ("v12", True)):
+                CF.SPLIT_AWARE_PREFILTER = g3
+                if CF.validate_card(card):
+                    res = {"label": "بطاقةٌ غيرُ صالحة", "top": []}
+                else:
+                    res = CF.run_card(json.loads(json.dumps(card)), tmpdir, get=get, panel_arr=panel_arr,
+                                      series=False)
+                top = list(res["top"][:3])
+                row[tag] = {"label": res["label"], "top": top, "hit1": bool(top) and top[0] == sym,
+                            "hit3": sym in top}
+            rows.append(row)
+            log(f"SPLIT_ROW {k:03d} {sym} {pdays[e]} W={W} rev={int(rev)} dated={int(style['dated'])} "
+                f"marks={int(style['marks'])} ⟵ v1.1 {row['v11']['label']} top={row['v11']['top']} "
+                f"hit1={int(row['v11']['hit1'])} · v1.2 {row['v12']['label']} top={row['v12']['top']} "
+                f"hit1={int(row['v12']['hit1'])}")
+    finally:
+        CF.SPLIT_AWARE_PREFILTER = keep
+    return report_split(rows)
+
+
+def report_split(rows: list) -> int:
+    """خلاصةُ §⑫ في **آخر السجلّ** (واجهةُ السجلّ ترجع آخرَ 5000 سطر): صفٌّ مختصرٌ لكلّ نافذة ثمّ سطرُ `CHART_EVAL_SPLIT`."""
+    n = len(rows)
+
+    def stats(tag):
+        conf = [r for r in rows if r[tag]["label"] == "واثق"]
+        return (sum(r[tag]["hit1"] for r in rows), sum(r[tag]["hit3"] for r in rows), len(conf),
+                sum(1 for r in conf if not r[tag]["hit1"]))
+    a1, a3, ac, aw = stats("v11")
+    b1, b3, bc, bw = stats("v12")
+    nr = sum(1 for r in rows if r["rev"])
+    for r in rows:
+        log(f"SPLIT_RECAP {r['k']:03d} truth={r['sym']} {r['end']} rev={int(r['rev'])} "
+            f"dated={int(r['style']['dated'])} ⟵ v1.1 {r['v11']['label']} top={r['v11']['top']} · "
+            f"v1.2 {r['v12']['label']} top={r['v12']['top']}")
+    log(f"\n📊 §⑧-6 موجَّهة: {n} نافذة (عكسيّ {nr}) · v1.1 الأوّلُ الصحيح {a1}/{n} ضمن 3 {a3} «واثق» {ac} خاطئٌ {aw} · "
+        f"v1.2 الأوّلُ الصحيح {b1}/{n} ضمن 3 {b3} «واثق» {bc} خاطئٌ {bw}")
+    ctrl = split_ctrl(n, a1)
+    log(f"CHART_EVAL_SPLIT n={n} rev={nr} v11_top1={a1} v11_top3={a3} v11_conf={ac} v11_conf_wrong={aw} "
+        f"v12_top1={b1} v12_top3={b3} v12_conf={bc} v12_conf_wrong={bw} "
+        f"cp13={split_verdict(n, b1, bw)} cp13b={ctrl}")
+    return 0
+
 # ══ الحقيقيّة ══════════════════════════════════════════════════════════════════
 def sha256_file(path: str) -> str:
     h = hashlib.sha256()
@@ -410,9 +547,11 @@ def main() -> int:
     with tempfile.TemporaryDirectory() as tmp:
         if mode == "synth":
             return run_synth(tmp)
+        if mode == "synth_split":           # §⑫ (v1.2): نوافذُ §⑧-6 الموجَّهة · v1.1 مقابل v1.2
+            return run_synth_split(tmp)
         if mode in REAL_DIRS:
             return run_real(tmp, folder=REAL_DIRS[mode])
-    log(f"⛔ CHART_EVAL غيرُ معروف: {mode!r} (synth أو real أو real2)")
+    log(f"⛔ CHART_EVAL غيرُ معروف: {mode!r} (synth أو synth_split أو real أو real2)")
     return 2
 
 
