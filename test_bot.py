@@ -5850,6 +5850,83 @@ check("🔴 ARC5 تنزيلُ artifacts الجلسات: **محاولتان** (ا
       and "انتهت مدّة الاحتفاظ" not in _arc5_run
       and _arc5_calls == {"111": "1", "222": "2", "333": "2", "444": "2"},
       f"rc={_arc5_rc} · نداءات={_arc5_calls} · {_arc5_out[-160:]}")
+# 🔴 WFH1/WFH2 (2026-09-25): **سطرُ عرضٍ يكذب على الجدولة** — رأسُ `e2_recover.yml` وصفه بأنه يدويٌّ حصرًا
+#    و`CLAUDE.md` «(يدويّ)»، والكرونُ الليليّ أُضيف بعد السطر بـ33 دقيقة (‏2026-07-28 · `1cc9dd323`) فبقيا بائتَين
+#    شهرين. ⇒ **الجدولةُ تُقرأ من YAML (`on.schedule`) لا من النصّ** · والرأسُ = التعليقاتُ قبل مفتاح `on:` ·
+#    والمشطوبُ `~~…~~` في الذاكرة تاريخٌ لا ادّعاء · وشاهدا ضبطٍ يُثبتان أن القفلين يمسكان ويتركان.
+import glob as _wfh_glob                                           # noqa: E402
+import re as _wfh_re                                               # noqa: E402
+import yaml as _wfh_yaml                                           # noqa: E402
+_WFH_MANUAL = _wfh_re.compile(r"يدوي\S*\s+فقط|manual[\s\-]only", _wfh_re.I)
+_WFH_DOC = _wfh_re.compile(r"`([\w\-]+\.yml)`\s*\(\s*(يدوي[^)\n]{0,80})\)")
+_WFH_SCHED_WORDS = ("كرون", "مجدول", "ليلي", "أسبوعي", "يومي", "schedule", "cron", "+")
+
+
+def _wfh_scan(wf_dir):
+    """(المجدولة · الرؤوسُ التي تدّعي «يدويّ فقط» وهي مجدولة) — الجدولةُ من YAML نفسِه."""
+    _sched, _bad = set(), []
+    for _f in sorted(_wfh_glob.glob(_os.path.join(wf_dir, "*.yml"))):
+        _b = _os.path.basename(_f)
+        try:
+            _t = open(_f, encoding="utf-8").read()
+            _d = _wfh_yaml.safe_load(_t) or {}
+        except Exception as _e:                                    # noqa: BLE001
+            _bad.append(f"{_b}: ⛔ {type(_e).__name__}")
+            continue
+        _on = _d.get(True, _d.get("on")) if isinstance(_d, dict) else None
+        if isinstance(_on, dict) and "schedule" in _on:
+            _sched.add(_b)
+        _head = []
+        for _l in _t.splitlines():
+            if _wfh_re.match(r"""^['"]?on['"]?\s*:""", _l):
+                break
+            if _l.lstrip().startswith("#"):
+                _head.append(_l)
+        if _b in _sched and _WFH_MANUAL.search("\n".join(_head)):
+            _bad.append(_b)
+    return _sched, _bad
+
+
+def _wfh_docs(sched, docs):
+    """سطرُ ذاكرةٍ حيّة يسمّي workflow مجدولًا «(يدويّ…)» بلا ذكر جدولته."""
+    _bad = []
+    for _doc in docs:
+        try:
+            _t = open(_doc, encoding="utf-8").read()
+        except Exception as _e:                                    # noqa: BLE001
+            _bad.append(f"{_doc}: ⛔ {type(_e).__name__}")
+            continue
+        for _m in _WFH_DOC.finditer(_t):
+            if _m.group(1) in sched and not any(_w in _m.group(2) for _w in _WFH_SCHED_WORDS):
+                _bad.append(f"{_os.path.basename(_doc)}:{_t.count(chr(10), 0, _m.start()) + 1} {_m.group(1)}")
+    return _bad
+
+
+# شاهدُ الضبط: مجلّدٌ اصطناعيّ بثلاث حالات (مجدولٌ يدّعي اليدويّ · يدويٌّ فعلًا · الادّعاءُ داخل الجسم لا الرأس)
+_wfh_ctl = _tmp.mkdtemp(prefix="wfh_")
+for _n, _body in (("a.yml", "name: a\n# يدويّ فقط. شرح\non:\n  schedule:\n    - cron: \"1 2 * * 1\"\n  workflow_dispatch:\njobs: {}\n"),
+                  ("b.yml", "name: b\n# يدويّ فقط.\non:\n  workflow_dispatch:\njobs: {}\n"),
+                  ("c.yml", "name: c\n# ليليّ\non:\n  schedule:\n    - cron: \"3 4 * * 1\"\njobs:\n  x:\n    # المُدخَل يدويّ فقط\n    runs-on: ubuntu-latest\n")):
+    with open(_os.path.join(_wfh_ctl, _n), "w", encoding="utf-8") as _fh:
+        _fh.write(_body)
+with open(_os.path.join(_wfh_ctl, "MEM.md"), "w", encoding="utf-8") as _fh:
+    _fh.write("`a.yml` (يدويّ) · `a.yml` (يدويّ + أسبوعي) · `b.yml` (يدويّ) · `a.yml` (~~يدويّ~~ ليليّ) · `c.yml` (يدويّ عند الطلب)\n")
+try:
+    _wfh_cs, _wfh_cb = _wfh_scan(_wfh_ctl)
+    _wfh_cd = _wfh_docs(_wfh_cs, [_os.path.join(_wfh_ctl, "MEM.md")])
+    _wfh_s, _wfh_b = _wfh_scan(_os.path.join(".github", "workflows"))
+    _wfh_d = _wfh_docs(_wfh_s, ["CLAUDE.md", "HANDOFF.md"])
+except Exception as _e:                                          # noqa: BLE001
+    _wfh_cs, _wfh_cb, _wfh_cd = set(), [f"⛔ {type(_e).__name__}"], ["⛔"]
+    _wfh_s, _wfh_b, _wfh_d = set(), [f"⛔ {type(_e).__name__}"], [f"⛔ {type(_e).__name__}"]
+check("🔴 WFH1 لا رأسَ workflow **مجدولٍ** يدّعي أنه «يدويّ فقط» — الجدولةُ من YAML لا من النصّ (`e2_recover.yml` كان بائتًا شهرين) · وشاهدُ الضبط يمسك المجدولَ ويترك اليدويَّ والادّعاءَ داخل الجسم",
+      _wfh_b == [] and {"e2_recover.yml", "daily_screener.yml"} <= _wfh_s
+      and _wfh_cs == {"a.yml", "c.yml"} and _wfh_cb == ["a.yml"],
+      f"مخالفة={_wfh_b} · مجدولة={len(_wfh_s)} · ضبط={sorted(_wfh_cs)}/{_wfh_cb}")
+check("🔴 WFH2 لا سطرَ في الذاكرة الحيّة (`CLAUDE.md` · `HANDOFF.md`) يسمّي workflow مجدولًا «(يدويّ)» بلا جدولته — والمشطوبُ تاريخٌ لا ادّعاء · وشاهدُ الضبط يمسك المجدولَين بلا جدولة ويترك «+ أسبوعي» واليدويَّ فعلًا والمشطوب",
+      _wfh_d == [] and sorted(_x.split()[-1] for _x in _wfh_cd) == ["a.yml", "c.yml"]
+      and all(_x.startswith("MEM.md:1 ") for _x in _wfh_cd),
+      f"مخالفة={_wfh_d} · ضبط={_wfh_cd}")
 # ── 🔬 P0-1/P1.3: NBBO قياسي **لا-تزامني** (worker) خارج مسار التنبيه + measurement مفضَّل ──
 _p13_fresh = int(_time_e2.time() * 1e9)
 _p13_stale = int((_time_e2.time() - 100) * 1e9)
