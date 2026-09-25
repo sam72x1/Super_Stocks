@@ -16,6 +16,10 @@ on:
         description: "عددُ نوافذ المصنوعة (العقد: 150)"
         required: false
         default: "150"
+      g3:
+        description: "1 = v1.2 (الافتراض) · 0 = G3 مطفأ لهذه التشغيلة ضبطًا مزدوجًا (ملحق §⑫-ب · لا يُحتسب حكمًا)"
+        required: false
+        default: "1"
 
 jobs:
   eval:
@@ -42,4 +46,5 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
           CHART_EVAL: ${{ inputs.mode }}
           CHART_EVAL_N: ${{ inputs.n }}
+          CHART_EVAL_G3: ${{ inputs.g3 }}
         run: python chart_eval.py
