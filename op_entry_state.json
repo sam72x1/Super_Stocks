@@ -510,7 +510,7 @@
  },
  "LIQ:JAGX": {
   "anchor_ms": 1790325780000,
-  "last_ms": 1790325780000,
+  "last_ms": 1790325840000,
   "sent": [
    "M1"
   ],
@@ -518,15 +518,15 @@
   "vol_x": 10.9,
   "peak_usd": 63794,
   "last_eval_ms": 1790325840000,
-  "pulse_ms": 1790325780000,
+  "pulse_ms": 1790325840000,
   "anchor_price": 8.3,
   "anchor_open": 7.8,
   "anchor_low": 7.8,
-  "date": "2026-09-25",
   "pre_done": true,
   "pre_hi": 7.8,
   "pre_usd": 99218,
-  "pre_n": 19
+  "pre_n": 19,
+  "date": "2026-09-25"
  },
  "LIQ:ASST": {
   "last_eval_ms": 1790325600000,
