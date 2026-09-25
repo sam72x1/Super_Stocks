@@ -1,0 +1,40 @@
+name: "🗓️🔎 أسهمُ البوت هذا الأسبوع وشروطي الثلاثة (watch_week_probe · قراءةٌ فقط)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · التعريفاتُ في رأس watch_week_probe.py
+#    المجتمع: لقطاتُ weekly_watchlist.json قبل افتتاح كلّ جلسة (تاريخ git كامل · fetch-depth: 0) · الشموعُ من Polygon.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      week:
+        description: "اثنينُ الأسبوع YYYY-MM-DD (فارغ = أحدثُ أسبوع)"
+        required: false
+        default: ""
+
+jobs:
+  watch_week:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة لقطات القائمة)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🗓️🔎 القياس
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          WATCH_WEEK: ${{ github.event.inputs.week }}
+        run: python watch_week_probe.py
