@@ -66955,7 +66955,7 @@ except Exception as _e:                                              # noqa: BLE
 check("⏱️🕵️ ATM14 النتيجةُ منشورةٌ كما صدرت (`36187368420`): التنبّؤاتُ الأربعة بعلاماتها — **`AT-P2` ❌ يبقى منشورًا بسببه** · "
       "والحارسان بأرقامهما (‏410/411 · 403/404 · 722 من 723) · والجوابُ أوّلُ قسم", _atm14, _atm14_w)
 
-# ── WWK1-WWK10 «أسهمُ البوت هذا الأسبوع وشروطي الثلاثة» (watch_week_probe.py · قراءةٌ فقط) — عالمٌ اصطناعيّ · بلا شبكة ولا git ──
+# ── WWK1-WWK11 «أسهمُ البوت هذا الأسبوع وشروطي الثلاثة» (watch_week_probe.py · قراءةٌ فقط) — عالمٌ اصطناعيّ · بلا شبكة ولا git ──
 import ast as _ww_ast                                                # noqa: E402
 import contextlib as _ww_ctx                                         # noqa: E402
 import datetime as _ww_dt                                            # noqa: E402
@@ -66992,8 +66992,9 @@ def _ww_series(sym, d0, d1):
     return out
 
 
-def _ww_world(bad_rsi=0, no_bars=0):
-    """ستّةُ رموز في لقطاتٍ قبل الافتتاح · والمخزَّنُ `rsi` = المحسوبُ عند `ref_bar` (إلّا `bad_rsi` منها بفارق 10)."""
+def _ww_world(bad_rsi=0, no_bars=0, intraday=0):
+    """ستّةُ رموز في لقطاتٍ قبل الافتتاح · والمخزَّنُ `rsi` = المحسوبُ عند `ref_bar` (إلّا `bad_rsi` منها بفارق 10) ·
+    و`intraday` = أوّلُ k رمزًا ظهروا على main **أثناء جلسة شمعتهم** (التزامٌ 09-18 ‏11:26 نيويورك · ⑦)."""
     syms = ["AAA", "BBB", "CCC", "DDD", "EEE", "PEN"]
     meta = {"AAA": (1_000_000, 5_000), "BBB": (10_000_000, 5_000), "CCC": (None, 5_000),
             "DDD": (2_000_000, 50_000), "EEE": (3_000_000, 1_000), "PEN": (1_000_000, 5_000)}
@@ -67014,6 +67015,9 @@ def _ww_world(bad_rsi=0, no_bars=0):
     commits = [(_ww_utc("2026-09-18", 21, 0), "h0"), (_ww_utc("2026-09-22", 3, 0), "h1"),
                (_ww_utc("2026-09-23", 3, 0), "h2"), (_ww_utc("2026-09-24", 3, 0), "h3"),
                (_ww_utc("2026-09-25", 3, 0), "h4")]
+    if intraday:
+        snaps["hi"] = {"stocks": [dict(e) for e in ents[:intraday]]}
+        commits = [(_ww_utc("2026-09-18", 11, 26), "hi")] + commits
     dead = set(syms[:no_bars])
 
     def fb(sym, d0, d1, key):
@@ -67027,8 +67031,8 @@ def _ww_world(bad_rsi=0, no_bars=0):
     return commits, snaps, fb
 
 
-def _ww_run(bad_rsi=0, no_bars=0, key="k", commits=None):
-    c0, snaps, fb = _ww_world(bad_rsi, no_bars)
+def _ww_run(bad_rsi=0, no_bars=0, key="k", commits=None, intraday=0):
+    c0, snaps, fb = _ww_world(bad_rsi, no_bars, intraday)
     saved = (_WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.WEEK, _ww_os.environ.get("POLYGON_API_KEY"))
     buf = _ww_io.StringIO()
     try:
@@ -67224,6 +67228,38 @@ except Exception as _e:                                              # noqa: BLE
     _atm_ww10, _atm_ww10_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🗓️🔎 WWK10 قائمةُ الارتداد تُطبع ولا تَحكم: الرمزُ الذي في القائمة الرئيسيّة خارجها · الثلاثةُ المعلومة وحدَها (الفلوتُ الكبير لا) · "
       "والصعودُ من أوّل جلسةٍ تستوفيها · وحالةُ المتابعة تُطبع ولا تُصفّي · وسطرُ الحكم لا يتغيّر", _atm_ww10, _atm_ww10_w)
+
+# WWK11 — ⑦ مجموعةُ مقارنة V-W1 تستبعد مَن دخل main قبل إغلاق جلسة شمعته — **بالوقت لا بقيم RSI** · والعتبةُ لا تُمَسّ
+try:
+    _cl11 = (_WW.close_utc("2026-09-18"), _WW.close_utc("2026-11-27"))
+    _e11 = {"A": {"added": "2026-09-18", "ref_bar": "2026-09-18", "rsi": 30.0},
+            "B": {"added": "2026-09-18", "ref_bar": "2026-09-18", "rsi": 30.0},
+            "C": {"added": "2026-09-18", "ref_bar": "2026-09-17", "rsi": 30.0},
+            "D": {"added": "2026-09-10", "ref_bar": "2026-09-10", "rsi": 30.0},
+            "E": {"added": "2026-09-18", "ref_bar": "2026-09-18", "rsi": 30.0}}
+    _sn11 = {"x1": {"stocks": [dict(_e11["A"], symbol="A", status="active"), dict(_e11["C"], symbol="C", status="active"),
+                               dict(_e11["D"], symbol="D", status="active"),
+                               dict(_e11["E"], symbol="E", status="active", ref_bar="2026-09-17")]},
+             "x2": {"stocks": [dict(v, symbol=k, status="active") for k, v in _e11.items()]}}
+    _cm11 = [(_ww_utc("2026-09-18", 11, 26), "x1"), (_ww_utc("2026-09-18", 17, 30), "x2")]
+    _p11 = _WW.partial_nominations(_cm11, _e11, "2026-09-18", load=lambda h: _sn11.get(h))
+    _rcA11, _oA11 = _ww_run(bad_rsi=2, intraday=2)
+    _rcB11, _oB11 = _ww_run(bad_rsi=2)
+    _rcC11, _oC11 = _ww_run(intraday=2)
+    _lastA11 = [l for l in _oA11.splitlines() if l.strip()][-1]
+    _atm_ww11 = (_cl11[0] == _ww_utc("2026-09-18", 16, 0) and _cl11[1] == _ww_utc("2026-11-27", 13, 0)
+                 and set(_p11) == {"A"} and _p11["A"] == _ww_utc("2026-09-18", 11, 26)
+                 and _rcA11 == 0 and "⑦ خارج المقارنة 2 مُرشَّحًا" in _oA11 and "ولو دخلوا: 4/6 = 66.7%" in _oA11
+                 and "V-W1 RSI عند `ref_bar` مقابل المخزَّن (ترشيحاتٌ من 2026-09-18): 4/4 = 100.0%" in _oA11
+                 and _lastA11 == "🏁 المراقَبة هذا الأسبوع 6 · تطابق الثلاثة وفوق الدولار 1 · انفجر منها +50%: 1 · +100%: 0"
+                 and _rcB11 == 3 and "⑦ خارج المقارنة" not in _oB11
+                 and _rcC11 == 0 and "ولو دخلوا: 6/6 = 100.0%" in _oC11)
+    _atm_ww11_w = f"cl={_cl11} p={sorted(_p11)} rc={_rcA11}/{_rcB11}/{_rcC11} last={_lastA11[:40]}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww11, _atm_ww11_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK11 ⑦ `V-W1` يستبعد مَن ظهر على main **قبل إغلاق جلسة شمعته** بـ(`added`, `ref_bar`) نفسيهما — بالوقت لا بـRSI · "
+      "والإغلاقُ من التقويم (مبكّرٌ 13:00) · والنسبةُ لو دخلوا تُطبع · والعتبةُ كما هي: الشاذّان بعد الإغلاق ⇒ خروج 3 · "
+      "وقبل الإغلاق ⇒ خارج المقارنة وسطرُ الحكم لا يتغيّر", _atm_ww11, _atm_ww11_w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
