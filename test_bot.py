@@ -66143,6 +66143,276 @@ except Exception as _e:                                            # noqa: BLE00
 check("🕵️⏳ PLK12 فهرسُ المراسي السابقة `anchors_index` (‏`prior_anchors60`/`rearmed`): يومُ 0 بقاعدة الافتر · خارجُ اللوحة يُهمَل · "
       "ويُبنى في `main` مرّةً على سنوات C **كلِّها** فيرى ينايرُ ديسمبرَ السابق", _plk12, _plk12_w)
 
+# ── PXL1-PXL11 ملحقُ §⑩ «فوق الدولار» (prelink_px.py · العقد prelink_prereg.md §⑩) — صفوفُ الحاكمة · بلا شبكة · قراءةٌ فقط ──
+import io as _px_io                                                  # noqa: E402
+import contextlib as _px_ctx                                         # noqa: E402
+import tempfile as _px_tf                                            # noqa: E402
+import shutil as _px_sh                                              # noqa: E402
+import json as _px_json                                              # noqa: E402
+import random as _px_rnd                                             # noqa: E402
+try:
+    import prelink_px as _PX
+    _px_src = open("prelink_px.py", encoding="utf-8").read()
+except Exception as _e:                                              # noqa: BLE001
+    _PX, _px_src = None, ""
+
+
+def _px_rows(tag, n, rng):
+    """صفوفٌ اصطناعيّةٌ بشكل صفوف الحاكمة (`k` بمفاتيح أعدادٍ تصير نصوصًا بعد JSON)."""
+    y = "2026" if tag == "A" else tag[1:]
+    days = [d for d in _PLK.year_days(y) if (y != "2026" or "2026-08-17" <= d <= "2026-09-10")]
+    out = []
+    for _i in range(n):
+        px = rng.choice([0.3, 0.6, 0.95, 1.0, 1.5, 3.0, 6.0])
+        fac0 = rng.choice([1.0, 1.0, 10.0])
+        late = rng.random() < (0.2 if px < 1 else 0.08)
+        f = {nm: (best if rng.random() < 0.3 else "x") for nm, best, _fm in _PLK.FEATS_SPEC}
+        if tag == "A":
+            f.update({nm: (best if rng.random() < 0.3 else "x") for nm, best, _fm in _PLK.FEATS_A_ONLY})
+            f["owner3"] = rng.choice(["نعم", "لا", None])
+        f["ret0"], f["vol_x0"] = rng.choice(["<+20%", "≥50"]), rng.choice(["<3", "≥10"])
+        o = {"close0": px * fac0 * 1.05, "entry_adj": px * fac0, "split_in_win": fac0 > 1, "cls": "late" if late else "none",
+             "days_to_peak": rng.randrange(1, 10) if late else None, "mdd_before_peak": -5.0 if late else None,
+             "held_low0_to_peak": True if late else None}
+        for h in (5, 10, 20):
+            o[f"late100_{h}"] = o[f"late50_{h}"] = late
+        k = {kk: {"in": True, "held_low0_k": rng.choice(["نعم", "لا"]), "inside_k": str(rng.randrange(kk + 1)),
+                  "vol_dry_k": rng.choice(["<0.3", "0.3-1"]), "close_k_vs_0": rng.choice([">0", "<−15%"]), "late100_k": late}
+             for kk in (1, 2, 3)}
+        cm = {"sym": "CMX", "late100_10": rng.random() < 0.05} if rng.random() < 0.7 else None
+        pos = {"POS-0": rng.uniform(-1, 0.6), "POS-1": rng.uniform(-1, 0.6)}
+        if cm:
+            pos["C-MOM"] = rng.uniform(-1, 0.6)
+        d0 = days[rng.randrange(len(days))]
+        out.append({"set": tag, "sym": f"S{rng.randrange(30)}", "day": d0, "day0": d0, "year": d0[:4], "f": f, "raw": {}, "o": o,
+                    "ctrl": {"CM": cm, "CR": {"sym": "CRX", "late100_10": False}}, "k": k, "pos": pos, "a": {"entry": px}})
+    return out
+
+
+def _px_write(d, seed=11, nA=40, nC=60):
+    rng = _px_rnd.Random(seed)
+    for tag, n in (("A", nA), ("C2023", nC), ("C2024", nC), ("C2025", nC)):
+        fn = "prelink_rows_A.jsonl" if tag == "A" else f"prelink_rows_C_{tag[1:]}.jsonl"
+        with open(_cfd_os.path.join(d, fn), "w", encoding="utf-8") as fh:
+            for r in _px_rows(tag, n, rng):
+                fh.write(_px_json.dumps(r, ensure_ascii=False) + "\n")
+
+
+def _px_run(d, patch=False):
+    """⟵ (rc, stdout) — `patch` يضبط أرقامَ الهُويّة على الصفوف الاصطناعيّة فيعبر V-X1 (لاختبار ما بعده)."""
+    saved = (_PX.ROWS_DIR, _PX.PUB_ROWS, _PX.PUB_LATE, _PX.PUB_POS0, _PX.PUB_REARM)
+    buf = _px_io.StringIO()
+    try:
+        _PX.ROWS_DIR = d
+        if patch:
+            pop = _PX.load_rows(d)
+            di = _PX.calendar_index()
+            _PX.PUB_ROWS = {t: len(pop[t]) for t in _PX.TAGS}
+            _PX.PUB_LATE = {t: tuple(_PLK.rate(pop[t], "late100_10")) for t in _PX.TAGS}
+            _PX.PUB_POS0 = {t: f"{_PLK.pos_summary(pop[t], 'POS-0')['mean']:+.3f}" for t in _PX.TAGS}
+            _PX.PUB_REARM = {f"C{y}": _PX.rearm_counts(pop[f"C{y}"], pop[f"C{y}"], di) for y in _PX.YEARS}
+        with _px_ctx.redirect_stdout(buf):
+            rc = _PX.main()
+    finally:
+        _PX.ROWS_DIR, _PX.PUB_ROWS, _PX.PUB_LATE, _PX.PUB_POS0, _PX.PUB_REARM = saved
+    return rc, buf.getvalue()
+
+
+try:
+    _bad_w = _px_src.replace("def raw_card(r):", "def raw_card(r):\n    open('x.txt', 'w').write('x')", 1)
+    _bad_n = _px_src.replace("import prelink_probe as P", "import prelink_probe as P\nimport requests", 1)
+    _bad_g = _px_src.replace("def raw_card(r):", "def raw_card(r):\n    P.grouped_day('2025-01-02', 'k')", 1)
+    _bad_s = _px_src.replace("def raw_card(r):", "def raw_card(r):\n    P.subprocess.run(['gh'])", 1)
+    _pxl1 = (_PX._selfcheck() is True and _PX._selfcheck(_bad_w) is False and _PX._selfcheck(_bad_n) is False
+             and _PX._selfcheck(_bad_g) is False and _PX._selfcheck(_bad_s) is False
+             and "prelink_px" not in open("Super_stock.py", encoding="utf-8").read()
+             and "schedule" not in open(".github/workflows/prelink_px.yml", encoding="utf-8").read())
+    _pxl1_w = f"ok={_PX._selfcheck()} w={_PX._selfcheck(_bad_w)} n={_PX._selfcheck(_bad_n)} g={_PX._selfcheck(_bad_g)} s={_PX._selfcheck(_bad_s)}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl1, _pxl1_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵🔒 PXL1 §⑩ قراءةٌ فقط **وبلا شبكة** (AST): كتابةُ ملفٍّ · استيرادُ `requests` · نداءُ جلبٍ من الحاكمة · `subprocess` — كلٌّ يُسقط الحارس · "
+      "والإنتاجُ لا يستوردها · والـworkflow بلا كرون", _pxl1, _pxl1_w)
+try:
+    _rw = [{"a": {"entry": 1.0}}, {"a": {"entry": 1.0 - 1e-12}}, {"a": {"entry": 0.999}}, {"a": {"entry": None}}, {"a": {"entry": 0}}]
+    _ab, _be, _no = _PX.split_px(_rw, _PX.raw_card)
+    _c0 = _PX.raw_close0({"a": {"entry": 0.5}, "o": {"close0": 6.0, "entry_adj": 5.0}})
+    _px_assign = [n for n in _ast0.parse(_px_src).body if isinstance(n, _ast0.Assign)
+                  and any(getattr(t, "id", "") == "PX_MIN" for t in n.targets)]
+    _pxl2 = (len(_ab) == 2 and len(_be) == 1 and len(_no) == 2
+             and _c0 is not None and abs(_c0 - 0.6) < 1e-12                                   # 6 × 0.5 ÷ 5 = إزالةُ التسوية ×10
+             and _PX.raw_close0({"a": {"entry": 0.5}, "o": {"close0": 6.0}}) is None
+             and _PX.raw_close0({"a": {}, "o": {"close0": 6.0, "entry_adj": 5.0}}) is None
+             and _PX.PX_MIN == 1.00 and len(_px_assign) == 1 and isinstance(_px_assign[0].value, _ast0.Constant)
+             and [d for d, _l, _g in _PX.PX_DEFS] == ["card", "close0"])
+    _pxl2_w = f"فوق={len(_ab)} دون={len(_be)} بلا={len(_no)} close0={_c0}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl2, _pxl2_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵 PXL2 التعريفان (§⑩-2): سعرُ الكرت الخامّ **شاملٌ** عند 1.00 (وخطأُ الفاصلة لا يُسقطه) · إغلاقُ يوم 0 الخامّ = `close0×entry÷entry_adj` · "
+      "بلا سعرٍ يُعَدّ ولا يُخمَّن · و`PX_MIN` ثابتٌ حرفيٌّ لا مُدخَل", _pxl2, _pxl2_w)
+try:
+    _d3 = ["2024-03-01", "2024-03-04", "2024-03-05", "2024-03-06"]
+    _di3 = {d: i for i, d in enumerate(_d3)}
+    _late3 = {"sym": "X", "day0": "2024-03-01", "o": {"late100_10": True, "days_to_peak": 3}}
+    _pen3 = {"sym": "X", "day0": "2024-03-05", "o": {"late100_10": False}}         # تجديدٌ دون الدولار
+    _bb = _insp0.getsource(_PX.base_block)
+    _mn = _insp0.getsource(_PX.main)
+    _pxl3 = (_PX.rearm_counts([_late3], [_late3, _pen3], _di3) == (1, 1)
+             and _PX.rearm_counts([_late3], [_late3], _di3) == (0, 1)
+             and "rearm_counts(rows, rows_year, didx)" in _bb and "base_block(sub[tag], tag, didx, pop[tag])" in _mn)
+    _pxl3_w = f"سنة={_PX.rearm_counts([_late3], [_late3, _pen3], _di3)} مقطع={_PX.rearm_counts([_late3], [_late3], _di3)}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl3, _pxl3_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵 PXL3 تجديدُ المرساة (§⑩-3): المراسي من صفوف السنة **كلِّها** — التنبيهُ التالي دون الدولار يُحتسب لمتأخّرٍ فوقه · والوصلُ من `main`",
+      _pxl3, _pxl3_w)
+try:
+    _t4 = _px_tf.mkdtemp()
+    try:
+        _row4 = {"sym": "X", "day0": "2024-03-01", "k": {"1": {"in": True}, "2": None}}
+        for _fn4 in ("prelink_rows_A.jsonl", "prelink_rows_C_2023.jsonl", "prelink_rows_C_2024.jsonl", "prelink_rows_C_2025.jsonl"):
+            with open(_cfd_os.path.join(_t4, _fn4), "w", encoding="utf-8") as _fh4:
+                _fh4.write(_px_json.dumps(_row4) + "\n")
+        with _px_ctx.redirect_stdout(_px_io.StringIO()):
+            _p4 = _PX.load_rows(_t4)
+            _cfd_os.remove(_cfd_os.path.join(_t4, "prelink_rows_C_2024.jsonl"))
+            _p4m = _PX.load_rows(_t4)
+    finally:
+        _px_sh.rmtree(_t4, ignore_errors=True)
+    _pxl4 = (_p4 is not None and set(_p4) == {"A", "C2023", "C2024", "C2025"} and 1 in _p4["A"][0]["k"]
+             and "1" not in _p4["A"][0]["k"] and _p4["C2025"][0]["k"][1] == {"in": True} and _p4m is None)
+    _pxl4_w = f"keys={list((_p4 or {}).get('A', [{}])[0].get('k', {}))} missing={_p4m}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl4, _pxl4_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵 PXL4 تحميلُ الصفوف: مفاتيحُ الأفواج `k` تعود أعدادًا (JSON يجعلها نصوصًا فتعمى الأفواجُ بصمت) · وملفٌّ غائب ⇒ None", _pxl4, _pxl4_w)
+try:
+    _t5 = _px_tf.mkdtemp()
+    try:
+        _px_write(_t5)
+        _rc5, _out5 = _px_run(_t5)
+        _rc5m, _out5m = _px_run(_cfd_os.path.join(_t5, "لا_يوجد"))
+    finally:
+        _px_sh.rmtree(_t5, ignore_errors=True)
+    _pxl5 = (_rc5 == 3 and "V-X1 ساقط" in _out5 and "المقطع «فوق الدولار»" not in _out5 and "الخلاصة" not in _out5
+             and "❌" in _out5 and _rc5m == 3 and "غائبة" in _out5m)
+    _pxl5_w = f"rc={_rc5} rc_missing={_rc5m}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl5, _pxl5_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵 PXL5 `V-X1` بوّابة: صفوفٌ لا تُعيد المنشورَ ⇒ خروج 3 **ولا رقمَ من المقطع** · وصفوفٌ غائبة ⇒ خروج 3", _pxl5, _pxl5_w)
+try:
+    _t6 = _px_tf.mkdtemp()
+    try:
+        _px_write(_t6)
+        _rc6, _out6 = _px_run(_t6, patch=True)
+    finally:
+        _px_sh.rmtree(_t6, ignore_errors=True)
+    _tail6 = [ln for ln in _out6.strip().splitlines() if ln.strip()][-2:]
+    _pxl6 = (_rc6 == 0 and "✅ V-X1 عابر" in _out6 and _out6.count("💵 المقطع «فوق الدولار» بتعريف") == 2
+             and "إغلاقُ يوم 0 الخامّ" in _out6 and _out6.count("PX-P") >= 6 and "🏁🏁 الخلاصة" in _out6
+             and _tail6[0].startswith("🏁 الفرعُ") and _tail6[1].startswith("🏁 التمركزُ فوق الدولار")
+             and _out6.index("🏁🏁 الخلاصة") > _out6.rindex("💵 §⑩-5 ④"))
+    _pxl6_w = f"rc={_rc6} tail={_tail6}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl6, _pxl6_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵 PXL6 بعد عبور V-X1: التعريفان كلاهما يُقاسان · التنبّؤاتُ الستّ تُطبع · **والحكمُ آخرُ سطرين** (درسُ T-TRAIL: الحاكمُ لا يُدفن تحت الجداول)",
+      _pxl6, _pxl6_w)
+try:
+    _P7 = {"c1": True, "c2": True, "c3": True, "c5": True, "c6": True, "c4": True}
+    _F7 = {"c1": False, "c2": False, "c3": True, "c5": False, "c6": False, "c4": False}
+    _N7 = {"c1": None, "why": "لا حكم"}
+    _M7 = {"c1": True, "c2": True, "c3": True, "c5": False, "c6": True}
+    _vA7 = {"f1": _P7, "f2": _F7, "f3": _P7, "f4": _F7, "f5": _N7, "f6": _P7}
+    _vC7 = {y: {"f1": _P7, "f2": _M7, "f3": _N7, "f4": _P7, "f5": _P7, "f6": _P7} for y in ("2023", "2024", "2025")}
+    _vC27 = {y: dict(v) for y, v in _vC7.items()}
+    _vC27["2024"]["f6"] = _F7                                        # بلا صفوف التقسيم يسقط في سنة ⇒ ليس رابطًا (الأضعف) بل «زخمٌ/مرساة»
+    _lines7 = []
+    _l7, _m7 = _PLK.classify_links(_vA7, dict(_vA7), _vC7, _vC27, emit=_lines7.append)
+    _main7 = next(n for n in _ast0.parse(_plk_src).body if isinstance(n, _ast0.FunctionDef) and n.name == "main")
+    _calls7 = {c.func.id for c in _ast0.walk(_main7) if isinstance(c, _ast0.Call) and isinstance(c.func, _ast0.Name)}
+    _msrc7 = _ast0.get_source_segment(_plk_src, _main7)
+    _pxl7 = (_l7 == ["f1", "f5"] and _m7 == ["f2", "f6"] and any("f3" in ln and "🟠" in ln for ln in _lines7)
+             and any(ln.startswith("   f4:") and ln.endswith("❌") for ln in _lines7)
+             and {"classify_links", "positioning"} <= _calls7 and "momentum_only.append" not in _msrc7
+             and "pos_ok[tag] =" not in _msrc7 and "classify_links" in _px_src and "P.positioning(" in _px_src)
+    _pxl7_w = f"links={_l7} mom={_m7} calls={sorted({'classify_links', 'positioning'} & _calls7)}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl7, _pxl7_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵 PXL7 `classify_links` المستخرَجة (بلا تغيير سلوك): رابطٌ = C كلُّها مع/بدون التقسيم **و**A (أو A «لا قياس») · زخمٌ = ①② في C وسقوطٌ على غيرهما "
+      "(ومنه السقوطُ بلا صفوف التقسيم) · "
+      "A وحدَها 🟠 · و`main` في الحاكمة وملحقُ §⑩ ينادِيانها بالاسم (لا نسخةَ ثانيةً للحكم)", _pxl7, _pxl7_w)
+try:
+    def _mk8(pos0, cmom):
+        return [{"pos": {"POS-0": a, "C-MOM": b}} for a, b in zip(pos0, cmom)]
+    _good8 = {y: _mk8([0.5] * 30, [-0.5] * 30) for y in ("2023", "2024", "2025")}
+    _ok8, _d8, _v8 = _PLK.positioning([], _good8, emit=lambda _s: None)
+    _mix = [1.0, -0.8] * 6                                           # فرقٌ متوسّطُه موجب وفاصلُه يعبر الصفر
+    _bad8 = dict(_good8)
+    _bad8["2024"] = _mk8([0.5] * 12, [0.5 - m for m in _mix])
+    _ok8b, _d8b, _v8b = _PLK.positioning([], _bad8, emit=lambda _s: None)
+    _pxl8 = (_v8 is True and _ok8["POS-0"] is True and _v8b is False and _d8b["2024"][0] > 0 and _d8b["2024"][1] < 0
+             and _PLK.positioning([], {}, emit=lambda _s: None)[2] is False)
+    _pxl8_w = f"v={_v8} v_bad={_v8b} diff2024={_d8b.get('2024')}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl8, _pxl8_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵 PXL8 `positioning` المستخرَجة (بلا تغيير سلوك): «ممكن» = سياسةٌ موجبةٌ بفاصلٍ فوق الصفر **و**`POS-0 − C-MOM` بفاصلٍ فوق الصفر في كلّ سنة "
+      "— متوسّطُ فرقٍ موجبٌ بفاصلٍ يعبر الصفر لا يكفي · وبلا C ⇒ لا", _pxl8, _pxl8_w)
+try:
+    _pre9 = open("prelink_prereg.md", encoding="utf-8").read()
+    _s10 = _pre9.split("## ⑩ ملحقٌ مؤرَّخ", 1)[1] if "## ⑩ ملحقٌ مؤرَّخ" in _pre9 else ""
+    _c10 = _s10.replace(",", "").replace("−", "-")
+    _need9 = ([f"{v}" for v in _PX.PUB_ROWS.values()] + [f"{k}/{n}" for k, n in _PX.PUB_LATE.values()]
+              + list(_PX.PUB_POS0.values()) + [f"{k}/{n}" for k, n in _PX.PUB_REARM.values()])
+    _miss9 = [x for x in _need9 if x not in _c10]
+    _pxl9 = (not _miss9 and _PX.GOV_RUN in _s10 and "⑩-9" in _s10 and all(f"`PX-P{i}`" in _s10 for i in range(1, 7))
+             and all(f"`{n}`" in _s10 for n in _PX.OWNER_A) and _PX.MIN_RAW == 0.95 and _PX.REARM_MIN == 0.80
+             and _PX.PUB_BRANCH.startswith("2 «لا رابط»") and _PX.GOV_RUN in open(".github/workflows/prelink_px.yml", encoding="utf-8").read())
+    _pxl9_w = f"غائبٌ عن §⑩-4: {_miss9}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl9, _pxl9_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵 PXL9 أرقامُ الهُويّة وشروطُ المالك والتنبّؤاتُ الستّ وقواعدُ قراءتها (§⑩-9) **مكتوبةٌ في العقد** قبل الأداة · والحاكمةُ نفسُها في الـworkflow",
+      _pxl9, _pxl9_w)
+try:
+    _wf10 = _wfh_yaml.safe_load(open(".github/workflows/prelink_px.yml", encoding="utf-8"))
+    _on10 = _wf10.get(True) or _wf10.get("on") or {}
+    _txt10 = open(".github/workflows/prelink_px.yml", encoding="utf-8").read()
+    _env10 = {}
+    for _s in _wf10["jobs"]["prelink_px"]["steps"]:
+        _env10.update(_s.get("env") or {})
+    _pxl10 = (set(_on10) == {"workflow_dispatch"} and not (_on10.get("workflow_dispatch") or {}).get("inputs")
+              and _wf10["permissions"] == {"contents": "read", "actions": "read"}
+              and str(_env10.get("RUN_ID")) == _PX.GOV_RUN and _env10.get("PRELINK_ROWS_DIR") == "prelink_rows"
+              and not any(x in _txt10 for x in ("POLYGON", "TELEGRAM", "SEC_CONTACT"))
+              and "python prelink_px.py" in _txt10 and "gh run download" in _txt10
+              and int(_wf10["jobs"]["prelink_px"]["timeout-minutes"]) <= 60)
+    _pxl10_w = f"on={list(_on10)} env={sorted(_env10)}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl10, _pxl10_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵 PXL10 الـworkflow يدويٌّ **بلا مُدخَلات** (الحاكمةُ مثبَّتة · والحدُّ في الأداة) · `contents/actions: read` · **بلا أيّ سرّ** (لا Polygon ولا تلغرام)",
+      _pxl10, _pxl10_w)
+try:
+    _Y = ("2023", "2024", "2025")
+
+    def _res11(**kw):
+        base = {"cm_ratio": {y: 1.5 for y in _Y}, "rsi_c1": {y: False for y in _Y}, "owner3_n": 0, "links": [],
+                "pos0": {y: -0.2 for y in _Y}, "diff": {y: -0.1 for y in _Y}, "rearm": {y: (90, 100) for y in _Y}}
+        base.update(kw)
+        return _PX.eval_predictions(base)
+    _e0 = _res11()
+    _e1 = _res11(cm_ratio={"2023": 1.0, "2024": 2.0, "2025": 1.5})
+    _e2 = _res11(cm_ratio={"2023": 2.01, "2024": 1.5, "2025": 1.5})
+    _e3 = _res11(cm_ratio={"2023": None, "2024": 1.5, "2025": 1.5}, rsi_c1={"2023": None, "2024": False, "2025": False})
+    _e4 = _res11(diff={"2023": -0.1, "2024": 0.1, "2025": 0.1})
+    _e5 = _res11(diff={"2023": -0.1, "2024": None, "2025": 0.1})
+    _e6 = _res11(rearm={"2023": (80, 100), "2024": (79, 100), "2025": (90, 100)})
+    _e7 = _res11(owner3_n=20, links=["rsi14"], rsi_c1={"2023": True, "2024": False, "2025": False})
+    _pxl11 = (all(v[0] == "✅" for v in _e0.values()) and _e1["PX-P1"][0] == "✅" and _e2["PX-P1"][0] == "❌"
+              and _e3["PX-P1"][0] == "⚪" and _e3["PX-P2"][0] == "⚪" and _e4["PX-P5"][0] == "❌" and _e5["PX-P5"][0] == "⚪"
+              and _e6["PX-P6"][0] == "❌" and _res11(rearm={y: (80, 100) for y in _Y})["PX-P6"][0] == "✅"
+              and _e7["PX-P3"][0] == "❌" and _e7["PX-P4"][0] == "❌" and _e7["PX-P2"][0] == "❌")
+    _pxl11_w = f"P1={_e1['PX-P1'][0]}/{_e2['PX-P1'][0]}/{_e3['PX-P1'][0]} P5={_e4['PX-P5'][0]}/{_e5['PX-P5'][0]} P6={_e6['PX-P6'][0]}"
+except Exception as _e:                                              # noqa: BLE001
+    _pxl11, _pxl11_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳💵 PXL11 قراءةُ التنبّؤات آليًّا بقواعد §⑩-9: حدّا `PX-P1` شاملان (1.0 و2.0) · «لا حكم» ⚪ لا ✅ · `PX-P5` سنتان سالبتان على الأقلّ · "
+      "`PX-P6` 0.80 شاملٌ · `PX-P3` حدُّه 20", _pxl11, _pxl11_w)
+
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
