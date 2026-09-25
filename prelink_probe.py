@@ -584,6 +584,26 @@ def day0_of(day, hhmm, days, didx):
     return day, False
 
 
+def anchors_index(anch, days, didx):
+    """رمزٌ ⟵ مواضعُ يوم 0 لمراسيه (تغذّي `prior_anchors60` · `days_since_anchor` · `rearmed`) — تُبنى على **كلّ**
+    المراسي المحمَّلة معًا لا سنةً سنة (🐞 الجدوى `36159703568`: فهرسُ السنة وحدَها كان يُصفّر ما قبل يناير)."""
+    idx = collections.defaultdict(list)
+    for a in anch:
+        d0, _ = day0_of(a["day"], a["hhmm"], days, didx)
+        if d0 in didx:
+            idx[a["sym"]].append(didx[d0])
+    return idx
+
+
+def owner3_of(f, fl, av, owner_flags):
+    """شروطُ المالك الثلاث مجتمعةً (‏§②-3) — `None` إن غاب أيٌّ منها؛ و`rsi14` بلا مفتاحٍ (تاريخٌ أقصر من 21 جلسة) مجهولٌ
+    لا خطأ (🐞 الجدوى `36159703568`: `KeyError` واحدٌ أسقط كتلةَ المؤرَّخ كلَّها)."""
+    if f.get("rsi14") is None:
+        return None
+    fl_ = owner_flags({"rsi14": f["rsi14"]}, fl, av)
+    return None if any(v is None for v in fl_.values()) else ("نعم" if all(fl_.values()) else "لا")
+
+
 def anchors_A(key, until):
     """مراسي A من git (بالاسم) + `same_day` بـ`measure` (شاهدُ الهُويّة V-P1) + سعرُ الكرت `e5`."""
     anchors = {k: v for k, v in anchor_history(since=SINCE).items() if k[0] <= until}
@@ -923,11 +943,7 @@ def main() -> int:                                                   # noqa: PLR
     vp1 = (k50, len(idn), k100) == (ID_K50, 321, ID_K100)
     log(f"🔒 V-P1 هُويّةُ A ({ID_FROM}⟶{ID_TO}): exploded50 {k50}/{len(idn)} · exploded100 {k100} — المنشور {ID_K50}/321 · {ID_K100} "
         f"{'✅' if vp1 else ('⚠️ جزئيّ (جدوى)' if MAX_ANCHORS else '⚠️ لا يطابق — يُقرأ الفرق قبل الحكم')}")
-    anchors_by_sym_A = collections.defaultdict(list)
-    for a in a_anch:
-        d0, _ = day0_of(a["day"], a["hhmm"], days, didx)
-        if d0 in didx:
-            anchors_by_sym_A[a["sym"]].append(didx[d0])
+    anchors_by_sym_A = anchors_index(a_anch, days, didx)
     rows_A, nobase_A, inc_A = build_rows(a_anch, ser, days, didx, splits, last_gidx, anchors_by_sym_A, "A")
     # A: المؤرَّخُ (فلوت/متاح) والعضويّة — بالاسم من T-OPLINK
     try:
@@ -942,22 +958,28 @@ def main() -> int:                                                   # noqa: PLR
                 except Exception:                                    # noqa: BLE001
                     cache[(hsh, f)] = None
             return cache[(hsh, f)]
-        dated_by_day = {}
+        dated_by_day, dated_fail = {}, 0
         for r in rows_A:
-            day = r["day"]
-            if day not in dated_by_day:
-                snaps = {f: OPL.snapshot_before(commits[f], day, (lambda h, f=f: _load(h, f))) for f in OPL.SNAP_FILES}
-                dated_by_day[day] = OPL.dated_values(day, snaps)
-                hw = snaps["hunter_watchlist.json"][1] or {}
-                dated_by_day[day]["__hunter"] = {s.get("symbol") for s in (hw.get("stocks") or [])}
-            dv = dated_by_day[day].get(r["sym"]) or {}
-            r["f"]["float_d"] = OPL.float_bucket(dv.get("float"))
-            r["f"]["avail_d"] = OPL.avail_bucket(dv.get("avail"))
-            r["f"]["float_d"] = None if r["f"]["float_d"] == "؟" else r["f"]["float_d"]
-            r["f"]["avail_d"] = None if r["f"]["avail_d"] == "؟" else r["f"]["avail_d"]
-            r["f"]["hunter_prev"] = "نعم" if r["sym"] in dated_by_day[day]["__hunter"] else "لا"
-            fl = OPL.owner_flags(r["f"], dv.get("float"), dv.get("avail"))
-            r["f"]["owner3"] = None if any(v is None for v in fl.values()) else ("نعم" if all(fl.values()) else "لا")
+            try:                                                     # صفٌّ يتعذّر لا يُسقط الكتلة (🐞 الجدوى 36159703568)
+                day = r["day"]
+                if day not in dated_by_day:
+                    snaps = {f: OPL.snapshot_before(commits[f], day, (lambda h, f=f: _load(h, f))) for f in OPL.SNAP_FILES}
+                    dated_by_day[day] = OPL.dated_values(day, snaps)
+                    hw = snaps["hunter_watchlist.json"][1] or {}
+                    dated_by_day[day]["__hunter"] = {s.get("symbol") for s in (hw.get("stocks") or [])}
+                dv = dated_by_day[day].get(r["sym"]) or {}
+                r["f"]["float_d"] = OPL.float_bucket(dv.get("float"))
+                r["f"]["avail_d"] = OPL.avail_bucket(dv.get("avail"))
+                r["f"]["float_d"] = None if r["f"]["float_d"] == "؟" else r["f"]["float_d"]
+                r["f"]["avail_d"] = None if r["f"]["avail_d"] == "؟" else r["f"]["avail_d"]
+                r["f"]["hunter_prev"] = "نعم" if r["sym"] in dated_by_day[day]["__hunter"] else "لا"
+                r["f"]["owner3"] = owner3_of(r["f"], dv.get("float"), dv.get("avail"), OPL.owner_flags)
+            except Exception as e:                                   # noqa: BLE001
+                dated_fail += 1
+                if dated_fail <= 3:
+                    log(f"   ⚠️ المؤرَّخُ {r['sym']} {r['day']}: {type(e).__name__}: {e}")
+        if dated_fail:
+            log(f"⚠️ المؤرَّخُ (فلوت/متاح/عضويّة) تعذّر في {dated_fail} صفًّا من {len(rows_A)}")
     except Exception as e:                                           # noqa: BLE001
         log(f"⚠️ المؤرَّخُ (فلوت/متاح/عضويّة) تعذّر: {type(e).__name__}: {e}")
     # A: العائلة 4 (صفقات/NBBO) — مشروطة
@@ -1016,7 +1038,7 @@ def main() -> int:                                                   # noqa: PLR
     vp8 = (agree / tot8 >= 0.95) if tot8 else None
     log(f"🔒 V-P8 شاهدُ الطريقة (grouped مقابل adjusted=true): اتّفاق {agree}/{tot8}" + (f" = {agree / tot8 * 100:.1f}% {'✅' if vp8 else '❌'}" if tot8 else " — لا قياس"))
     # ── C
-    rows_C, vp6_ok, cov_C = {}, True, {}
+    rows_C, vp6_ok, cov_C, anch_C = {}, True, {}, {}
     for y in YEARS:
         kr = load_kasih(y)
         if kr is None:
@@ -1030,14 +1052,14 @@ def main() -> int:                                                   # noqa: PLR
                  "anchor_low": k.get("anchor_low"), "same_day": None, "usd5": k.get("usd5"), "vol_x": k.get("vol_x"),
                  "gap_pct": k.get("gap_pct"), "f2": k.get("f2"), "f3": k.get("f3"), "exit": k.get("exit"), "mg_after": k.get("mg_after")}
                 for k in kr]
-        if MAX_ANCHORS:
-            anch = anch[:MAX_ANCHORS]
-        abs_ = collections.defaultdict(list)
-        for a in anch:
-            d0, _ = day0_of(a["day"], a["hhmm"], days, didx)
-            if d0 in didx:
-                abs_[a["sym"]].append(didx[d0])
-        rc, nb, inc = build_rows(anch, ser, days, didx, splits, last_gidx, abs_, f"C{y}")
+        anch_C[y] = anch[:MAX_ANCHORS] if MAX_ANCHORS else anch
+    # فهرسُ المراسي السابقة على السنوات المحمَّلة **كلِّها** (يناير يرى ديسمبرَ السابق · العقد §①-6 «من صفوف kasih نفسِها»)
+    abs_all = anchors_index([a for y in YEARS if y in anch_C for a in anch_C[y]], days, didx)
+    for y in YEARS:
+        if y not in anch_C:
+            continue
+        anch = anch_C[y]
+        rc, nb, inc = build_rows(anch, ser, days, didx, splits, last_gidx, abs_all, f"C{y}")
         cov_C[y] = len(rc) / len(anch) if anch else 0
         log(f"🩺 V-P4 تغطيةُ C {y}: صفوفٌ {len(rc):,} · بلا أساس {nb:,} · نافذةٌ ناقصة {inc:,} من {len(anch):,} = {cov_C[y] * 100:.1f}%")
         rows_C[y] = rc

@@ -65924,7 +65924,7 @@ except Exception as _e:                                            # noqa: BLE00
     _shr15, _shr15_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🌅🗂️ SHR15 `SHADOW_SINCE` الفارغُ يرجع إلى 2026-08-17: حدثُ الجدولة يمرّر المُدخَلَ فارغًا و`get` بافتراضٍ "
       "كان يقرأ التاريخَ كلَّه (عيبٌ كامنٌ أُصلح قبل أيّ كرون) · والغائبُ والمُعطى كما كانا", _shr15, _shr15_w)
-# ── PLK1-PLK10 أداةُ T-PRELINK (prelink_probe.py · العقد prelink_prereg.md §①-§⑧) — نقيّةٌ قابلةٌ للحقن · قراءةٌ فقط ──
+# ── PLK1-PLK12 أداةُ T-PRELINK (prelink_probe.py · العقد prelink_prereg.md §①-§⑧) — نقيّةٌ قابلةٌ للحقن · قراءةٌ فقط ──
 try:
     import numpy as _np_plk
     _old_plk = _cfd_os.environ.pop("POLYGON_API_KEY", None)
@@ -66103,6 +66103,45 @@ try:
 except Exception as _e:                                            # noqa: BLE001
     _plk10, _plk10_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🕵️⏳ PLK10 انحرافُ `mg_5d` في `T-OPLINK` مُعلَنٌ قسمًا مؤرَّخًا (§⑩) يُحيل إلى عقد `T-PRELINK` — لا يُطوى", _plk10, _plk10_w)
+
+# ── PLK11-PLK12 (🐞 الجدوى 36159703568 · 2026-09-25): المؤرَّخُ لا يسقط على صفٍّ واحد · وفهرسُ المراسي السابقة على السنوات كلِّها ──
+try:
+    import opentry_link_probe as _OPL11
+    _o3 = _PLK.owner3_of
+    _plk11 = (_o3({}, 1e6, 100, _OPL11.owner_flags) is None                     # لا مفتاح rsi14 ⇒ مجهولٌ لا KeyError
+              and _o3({"rsi14": None}, 1e6, 100, _OPL11.owner_flags) is None
+              and _o3({"rsi14": "<30"}, 1e6, 100, _OPL11.owner_flags) == "نعم"
+              and _o3({"rsi14": "<30"}, None, 100, _OPL11.owner_flags) is None   # فلوتٌ مجهول ⇒ لا يُحتسب
+              and _o3({"rsi14": "40-55"}, 1e6, 100, _OPL11.owner_flags) == "لا"
+              and _o3({"rsi14": "<30"}, 1e6, 50_000, _OPL11.owner_flags) == "لا")
+    _m11 = _ast0.parse(_plk_src)
+    _main11 = next(n for n in _m11.body if isinstance(n, _ast0.FunctionDef) and n.name == "main")
+    _calls11 = [c.func.id for c in _ast0.walk(_main11) if isinstance(c, _ast0.Call) and isinstance(c.func, _ast0.Name)]
+    # كلُّ صفٍّ في كتلة المؤرَّخ داخل `try` خاصٍّ به (حلقةٌ فوق rows_A يبدأ جسمُها بـTry)
+    _row_try = any(isinstance(n, _ast0.For) and getattr(n.iter, "id", "") == "rows_A" and n.body and isinstance(n.body[0], _ast0.Try)
+                   for n in _ast0.walk(_main11))
+    _plk11 = _plk11 and "owner3_of" in _calls11 and _row_try
+    _plk11_w = f"calls={'owner3_of' in _calls11} row_try={_row_try}"
+except Exception as _e:                                            # noqa: BLE001
+    _plk11, _plk11_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK11 شروطُ المالك الثلاث `owner3_of`: غيابُ `rsi14` مجهولٌ لا `KeyError` · والمؤرَّخُ يُحسب صفًّا صفًّا داخل `try` "
+      "(صفٌّ يتعذّر لا يُسقط الكتلة) · ونقطةُ النداء في `main`", _plk11, _plk11_w)
+try:
+    _days12 = ["2024-12-30", "2024-12-31", "2025-01-02", "2025-01-03"]
+    _didx12 = {d: i for i, d in enumerate(_days12)}
+    _idx12 = _PLK.anchors_index([{"sym": "X", "day": "2024-12-31", "hhmm": "10:00"}, {"sym": "X", "day": "2025-01-03", "hhmm": "09:00"},
+                                 {"sym": "Y", "day": "2024-12-31", "hhmm": "17:00"}, {"sym": "Z", "day": "2030-01-01", "hhmm": "10:00"}],
+                                _days12, _didx12)
+    _plk12 = dict(_idx12) == {"X": [1, 3], "Y": [2]}                              # الافترُ ⟵ الجلسةُ التالية · وخارجُ اللوحة يُهمَل
+    # في main: فهرسُ C يُبنى مرّةً واحدة على كلّ السنوات (`abs_all`) قبل حلقة build_rows — لا داخلَ حلقة السنة
+    _seg12 = _plk_src.split("rows_C, vp6_ok, cov_C", 1)[1].split("§② الأساس", 1)[0]
+    _plk12 = (_plk12 and _seg12.count("anchors_index(") == 1 and "abs_all = anchors_index([a for y in YEARS" in _seg12
+              and "build_rows(anch, ser, days, didx, splits, last_gidx, abs_all" in _seg12)
+    _plk12_w = f"idx={dict(_idx12)} n_calls={_seg12.count('anchors_index(')}"
+except Exception as _e:                                            # noqa: BLE001
+    _plk12, _plk12_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK12 فهرسُ المراسي السابقة `anchors_index` (‏`prior_anchors60`/`rearmed`): يومُ 0 بقاعدة الافتر · خارجُ اللوحة يُهمَل · "
+      "ويُبنى في `main` مرّةً على سنوات C **كلِّها** فيرى ينايرُ ديسمبرَ السابق", _plk12, _plk12_w)
 
 
 # ══════════════════════════════════════════════════════════════════════════
