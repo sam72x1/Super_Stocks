@@ -64726,9 +64726,17 @@ try:
                                       frm=_d50x[0], to=_d50x[-1])
     _w50r = _CFE.sample_split_windows(_d50, _s50, _H50, _L50, _C50, _sp50, _cfd_rand.Random(_CFE.SEED), 60,
                                       frm=_d50[0], to=_d50[58])
-    _cfd50 = (_w50a == _w50b and [w[0] for w in _w50a] == ["XBB"] and _ok50 and _w50x == [] and _w50r == [])
+    # 🔒 شاهدُ ضبطٍ **غيرُ فارغ بالبناء** (أمسكته الطفرةُ s1: عالمُ CFD21 لا يُعطي نافذةً صالحةَ الهندسة أصلًا بهذه البذرة):
+    #    عالمُ XBB نفسُه وأدناه بعد التقسيم (0.85 يومَ 59 ⟵ «inside») ⟵ النافذةُ نفسُها هندسيًّا تُرفض بالحالة وحدَها
+    _L50i = _L50.copy()
+    _L50i[59, 1] = 0.85
+    _w50i = _CFE.sample_split_windows(_d50, _s50, _H50, _L50i, _C50, _sp50, _cfd_rand.Random(_CFE.SEED), 60,
+                                      frm=_d50[0], to=_d50[-1])
+    _c50i = _CFE.split_case(_CFE.display_bars(_d50, _H50, _L50i, _C50, 1, 59, 27, _sp50["XBB"]), _sp50["XBB"])
+    _cfd50 = (_w50a == _w50b and [w[0] for w in _w50a] == ["XBB"] and _ok50 and _w50x == [] and _w50r == []
+              and _w50i == [] and _c50i == "inside")
     _cfd50_w = (f"نوافذ={[(w[0], w[1], w[2]) for w in _w50a]} · حتميّة={_w50a == _w50b} · both_before={_ok50} · "
-                f"عالمُ inside={_w50x} · خارج النطاق={_w50r}")
+                f"عالمُ inside={_w50x} · XBB بأدنى بعده={_w50i} ({_c50i}) · خارج النطاق={_w50r}")
 except Exception as _e:                                           # noqa: BLE001
     _cfd50, _cfd50_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD50 `sample_split_windows` (§⑫): نوافذُ «الطرفان كلاهما قبله» **بالبناء** من كلّ تقسيمٍ نسبتُه غيرُ 1 داخل النطاق "
