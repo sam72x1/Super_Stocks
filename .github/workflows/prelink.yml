@@ -1,0 +1,98 @@
+name: "🕵️⏳ T-PRELINK — التنبيه اليوم والانفجار بعد أيام (prelink_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · العقد prelink_prereg.md
+#    الصفوفُ (prelink_rows_*.jsonl) تُرفع artifact ولا تُدفَع للريبو.
+permissions:
+  contents: read
+  actions: read           # لتنزيل artifacts تشغيلات kasih (C 2023-2025)
+
+on:
+  workflow_dispatch:
+    inputs:
+      since:
+        description: "أوّلُ يومٍ لمراسي A (YYYY-MM-DD)"
+        required: false
+        default: "2026-08-17"
+      until:
+        description: "آخرُ يومٍ لمراسي A (فارغ = آخرُ يومٍ اكتملت بعده 10 جلسات)"
+        required: false
+        default: ""
+      years:
+        description: "سنواتُ C من صفوف kasih (فارغ = A وحدَها · جدوى)"
+        required: false
+        default: "2023,2024,2025"
+      kasih_runs:
+        description: "تشغيلاتُ kasih التي تحمل artifacts الصفوف (بفواصل · بترتيب السنوات)"
+        required: false
+        default: "32279408237,32279428391,32279447496"
+      max_anchors:
+        description: "جدوى: عددُ المراسي لكلّ مجتمع (0 = الكلّ · الحكمُ لا يُفسَّر إلّا بالكلّ)"
+        required: false
+        default: "0"
+      trades:
+        description: "العائلة 4 (صفقات/NBBO على A · مشروطةٌ بإقرار المالك ⓪-ب): 1 = تُقاس · 0 = «الغ فتح المحاور»"
+        required: false
+        default: "1"
+
+jobs:
+  prelink:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة لقطات git)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📥 صفوفُ kasih 2023-2025 (artifacts · V-P6)
+        if: ${{ inputs.years != '' }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RUNS: ${{ inputs.kasih_runs }}
+        run: |
+          set -u
+          mkdir -p kasih_rows
+          got=0
+          for id in ${RUNS//,/ }; do
+            ok=0; err=""
+            for try in 1 2; do
+              if err=$(gh run download "$id" -D kasih_rows 2>&1); then ok=1; break; fi
+              if [ "$try" = 1 ]; then sleep 3; fi
+            done
+            if [ "$ok" = 1 ]; then echo "✅ $id"; got=$((got+1)); else echo "⚠️ $id — تعذّر التنزيل: ${err%%$'\n'*}"; fi
+          done
+          # gh يضع الملفّ داخل مجلّدٍ باسم الـartifact — يُسطَّح
+          find kasih_rows -name 'kasih_rows_*.jsonl' -exec mv -f {} kasih_rows/ \; 2>/dev/null || true
+          ls -la kasih_rows
+          echo "artifacts=$got"
+
+      - name: 🕵️⏳ القياس
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PRELINK_SINCE: ${{ inputs.since }}
+          PRELINK_UNTIL: ${{ inputs.until }}
+          PRELINK_YEARS: ${{ inputs.years }}
+          PRELINK_MAX: ${{ inputs.max_anchors }}
+          PRELINK_TRADES: ${{ inputs.trades }}
+          PRELINK_KASIH_DIR: kasih_rows
+        run: python prelink_probe.py
+
+      - name: 📤 رفع الصفوف
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: prelink-rows-${{ github.run_id }}
+          path: prelink_rows_*.jsonl
+          if-no-files-found: ignore
+          retention-days: 90
