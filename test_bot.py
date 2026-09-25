@@ -64980,11 +64980,13 @@ try:
     _res57 = open("chart_finder_result.md", encoding="utf-8").read()
     _h57 = "### ⑥ تصحيحٌ مؤرَّخ (‏2026-09-25 · بعد §⑫-ب)"
     _s57 = _res57.split(_h57, 1)[1] if _h57 in _res57 else ""
+    _s57 = _cfd_re.split(r"\n#{2,3} ", _s57, maxsplit=1)[0]          # القسمُ وحدَه لا ما يُلحَق بعده
     _need57 = ("عيبٌ مُثبَتٌ بالبناء · `CFD56`", "`load_all_splits`", "**هل أصاب التشغيلاتِ المنشورة؟ غيرُ مُتحقَّق:**",
-               "**قرينةٌ لا دليل:**", "`36086768000`", "**والمكتملةُ وتعذّرُ الأولى بت-بت**",
+               "**قرينةٌ لا دليل:**", "`36072904953` المنشورة و`36086768000`", "**والمكتملةُ وتعذّرُ الأولى بت-بت**",
                "**ولا يمسّ `ACCEPTANCE` ولا حكمًا منشورًا**")
     _cfd57 = (bool(_s57) and all(x in _s57 for x in _need57) and "CHART_EVAL_JUDGE branch=" not in _s57
-              and "أصاب التشغيلاتِ المنشورة؟ مُتحقَّق" not in _s57 and _CF.ACCEPTANCE == "غير جاهزة")
+              and "أصاب التشغيلاتِ المنشورة؟ مُتحقَّق" not in _s57 and "`36084432287`" not in _s57
+              and _CF.ACCEPTANCE == "غير جاهزة")
     _cfd57_w = f"ناقص={[x for x in _need57 if x not in _s57]} · طول §⑩⑥={len(_s57)} · ACCEPTANCE={_CF.ACCEPTANCE}"
 except Exception as _e:                                           # noqa: BLE001
     _cfd57, _cfd57_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
