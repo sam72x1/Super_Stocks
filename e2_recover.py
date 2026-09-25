@@ -142,6 +142,22 @@ def recover(download_root, repo_root="."):
     if judge_errors:
         print("   ⚠️ تعذّر الحكمُ على %d جلسة (لا حكمَ يُخترَع): %s"
               % (len(judge_errors), ", ".join(judge_errors)))
+    # 🔬 (2026-09-25) **عدّادُ E2-B التراكميّ من الفهرس** — كلُّ الجلسات المكتملة لا المسترجَعة الليلة
+    #    وحدَها (مدقّقُ الخطوة التالية يرى مجلّدَ هذه التشغيلة فقط فطبع ‏2/20 والكاملُ ‏11/20). والمكتملةُ
+    #    بلا عدٍّ محفوظ **تُعلَن** فيُقرأ الرقمُ حدًّا أدنى لا صفرًا مُخترَعًا.
+    e2b = None
+    if _A is not None:
+        try:
+            e2b = _A.e2b_count_from_index(idx)
+        except Exception as e:                   # noqa: BLE001
+            print("   ⚠️ عدّادُ E2-B التراكميّ تعذّر: %s" % e)
+    if e2b:
+        _n, _comp, _have = e2b
+        print("   🔬 بوّابة E2-B التراكميّة (من الفهرس): %d/%d تنبيهًا بـNBBO قابلٍ للتنفيذ في جلساتٍ "
+              "مكتملة · محسوبٌ على %d من %d مكتملةً تحمل العدّ%s"
+              % (_n, _A.E2B_MIN_DECIDED_ALERTS, _have, _comp, "" if _have == _comp else
+                 " — ⚠️ %d بلا عدٍّ محفوظ ⇒ الرقمُ حدٌّ أدنى (يُستكمَل باسترجاع تشغيلاتها ما دامت "
+                 "artifacts حيّة)" % (_comp - _have)))
     rebuilt = rebuild_fire_log(best, repo_root=repo_root)
     ts_filled = fill_reconstructed_ts(best, repo_root=repo_root)
     fires = _delivered_fires(best)
@@ -155,7 +171,7 @@ def recover(download_root, repo_root="."):
             print("      %s: %s" % (date, " · ".join(syms)))
     return {"index": len(idx), "new": merged, "copied": copied, "fires": fires,
             "rebuilt": rebuilt, "ts_filled": ts_filled,
-            "judged": judged, "judge_errors": judge_errors,
+            "judged": judged, "judge_errors": judge_errors, "e2b": e2b,
             "conflicts": conflicts, "no_summary": [d for d, _ in no_summary]}
 
 

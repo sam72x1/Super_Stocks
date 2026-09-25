@@ -5590,6 +5590,89 @@ check("🔒 E2N3 الرقمان **مرآةُ التسجيل المسبق** بح�
       == _M.MAX_QUOTE_AGE_MS
       and _A.E2B_MIN_DECIDED_ALERTS == int(_e2n_pre["sample_gates"]["preliminary"]["decided_alerts"]),
       f"{_A.MAX_QUOTE_AGE_MS} · {_A.E2B_MIN_DECIDED_ALERTS}")
+# 🔬 (2026-09-25) **عدّادُ E2-B التراكميّ** — الاسترجاعُ الليليّ طبع ‏2/20 على آخر 4 جلسات والكاملُ ‏11/20
+#    (‏`36082836057` · `36002049868`) · والعدُّ لم يكن يُحفظ في الفهرس فيضيع مع artifacts (‏90 يومًا).
+_e2b_ve = _A.verdict_entry({"session_complete": True, "n_executable": 3, "n_executable_emitted": 1})
+_e2b_vx = _A.verdict_entry({"session_complete": False, "n_executable": True, "n_executable_emitted": "2"})
+_e2b_vn = _A.verdict_entry({"session_complete": True, "n_executable": -1})
+_e2b_vs = _A.verdict_entry({"session_complete": None, "n_executable_emitted": 4})
+check("🔬 E2B1 الحكمُ يحمل عدَّي E2-B صحيحَين · ولا عددَ يُخترَع (منطقيّ · نصّ · سالب · غائب) · ولا حكمَ لغير الجلسة",
+      _e2b_ve.get("n_executable") == 3 and _e2b_ve.get("n_executable_emitted") == 1
+      and not (set(_A.E2B_INDEX_KEYS) & set(_e2b_vx)) and _e2b_vx.get("session_complete") is False
+      and "n_executable" not in _e2b_vn and _e2b_vs == {},
+      str(_e2b_ve) + " | " + str(_e2b_vx) + " | " + str(_e2b_vn))
+_e2b_tmp = _tmp.mkdtemp(prefix="e2b_idx_")
+_e2b_ix = _os.path.join(_e2b_tmp, "ignition_e2_session_index.json")
+with open(_e2b_ix, "w", encoding="utf-8") as _fh:
+    _json.dump({"2026-09-24": {"n_emitted": 4, "termination": "normal"}}, _fh)
+_e2b_saved = _A.record_verdict(_e2b_ix, "2026-09-24",
+                               {**_e2c_ok, "n_executable": 2, "n_executable_emitted": 1})
+_e2b_ixd = _json.load(open(_e2b_ix, encoding="utf-8"))
+check("🧾 E2B2 الـassembler يحفظ العدّين مع الحكم (`record_verdict`) · ولا يمسّ العدّادات القائمة",
+      _e2b_saved is True and _e2b_ixd["2026-09-24"].get("n_executable_emitted") == 1
+      and _e2b_ixd["2026-09-24"].get("n_executable") == 2 and _e2b_ixd["2026-09-24"]["n_emitted"] == 4,
+      str(_e2b_ixd))
+_e2b_c = _A.e2b_count_from_index({
+    "a": {"session_complete": True, "n_executable_emitted": 2},
+    "b": {"session_complete": True, "n_executable_emitted": 1},
+    "c": {"session_complete": True},                                  # مكتملةٌ بلا عدٍّ محفوظ
+    "d": {"session_complete": False, "n_executable_emitted": 5},      # غيرُ مكتملة
+    "e": {"termination": "normal", "n_executable_emitted": 7},         # غيرُ محكومة
+    "f": {"session_complete": True, "n_executable_emitted": True},     # منطقيٌّ لا عدد
+    "g": "سطر"})
+check("🔬 E2B3 العدّادُ التراكميّ من الفهرس: المكتملةُ وحدَها · والمكتملةُ بلا عدٍّ **تُعلَن** ولا تُعَدّ صفرًا",
+      _e2b_c == (3, 4, 2) and _A.e2b_count_from_index(None) == (0, 0, 0)
+      and _A.e2b_count_from_index({}) == (0, 0, 0), str(_e2b_c))
+# 🔌 الاسترجاعُ يحفظ عدَّ المسترجَعة ويطبع التراكميَّ **من الفهرس** — جلسةٌ لم تُسترجَع الليلة تُعَدّ.
+_e2b_rr = _tmp.mkdtemp(prefix="e2b_rec_")
+_e2b_dl = _os.path.join(_e2b_rr, "recovered", "999", "e2_measurement", "session_2026-09-23")
+_shutil_e2c.copytree(_os.path.join(_e2_out, "e2c_ok", "session_2026-09-23"), _e2b_dl)
+with open(_os.path.join(_e2b_rr, "ignition_e2_session_index.json"), "w", encoding="utf-8") as _fh:
+    _json.dump({"2026-08-11": {"n_emitted": 3, "termination": "normal", "session_complete": True,
+                               "n_executable": 5, "n_executable_emitted": 4},
+                "2026-08-12": {"n_emitted": 1, "termination": "normal", "session_complete": True}}, _fh)
+_e2b_io = __import__("io").StringIO()
+try:
+    with __import__("contextlib").redirect_stdout(_e2b_io):
+        _e2b_rres = _RC.recover(_os.path.join(_e2b_rr, "recovered"), repo_root=_e2b_rr)
+except Exception as _e:                                          # noqa: BLE001
+    _e2b_rres = {"e2b": f"⛔ رمى: {type(_e).__name__}"}
+try:
+    _e2b_new = _A.analyze_session(_e2b_dl).get("n_executable_emitted")
+except Exception as _e:                                          # noqa: BLE001
+    _e2b_new = f"⛔ رمى: {type(_e).__name__}"
+_e2b_rix = _json.load(open(_os.path.join(_e2b_rr, "ignition_e2_session_index.json"), encoding="utf-8"))
+_e2b_out = _e2b_io.getvalue()
+check("🔌 E2B4 الاسترجاعُ يحفظ عدَّ المسترجَعة · ويطبع التراكميَّ **من الفهرس** (غيرُ المسترجَعة تُعَدّ) · ويُعلن الناقص",
+      isinstance(_e2b_new, int) and not isinstance(_e2b_new, bool)
+      and _e2b_rix.get("2026-09-23", {}).get("n_executable_emitted") == _e2b_new
+      and _e2b_rres.get("e2b") == (4 + _e2b_new, 3, 2)
+      and ("%d/%d" % (4 + _e2b_new, _A.E2B_MIN_DECIDED_ALERTS)) in _e2b_out
+      and "محسوبٌ على 2 من 3" in _e2b_out and "1 بلا عدٍّ محفوظ" in _e2b_out,
+      str(_e2b_rres.get("e2b")) + " · " + _e2b_out[-200:])
+# 🔴 والمدقّقُ يَسِم عدَّيه بنطاقهما فلا يُقرأ «تتراكم» أو «‏2/20» حالَ البوّابة من مجلّدٍ جزئيّ.
+_e2b_an = _tmp.mkdtemp(prefix="e2b_an_")
+_shutil_e2c.copytree(_os.path.join(_e2_out, "e2c_ok", "session_2026-09-23"),
+                     _os.path.join(_e2b_an, "session_2026-09-23"))
+_e2b_io2 = __import__("io").StringIO()
+_e2b_sys = __import__("sys")
+_e2b_argv = list(_e2b_sys.argv)
+try:
+    _e2b_sys.argv = ["ignition_e2_analyze.py", _e2b_an]
+    with __import__("contextlib").redirect_stdout(_e2b_io2):
+        _A.main()
+except SystemExit:
+    pass
+except Exception as _e:                                          # noqa: BLE001
+    _e2b_io2.write(f"⛔ رمى: {type(_e).__name__}")
+finally:
+    _e2b_sys.argv = _e2b_argv
+_e2b_o2 = _e2b_io2.getvalue()
+check("🔴 E2B5 المدقّقُ يَسِم عدَّيه **بنطاقهما** (هذا المجلّد وحدَه) ولا يطبع حالَ البوّابة من مجلّدٍ جزئيّ",
+      "وحدات هذا المجلّد وحدَه=1" in _e2b_o2 and "E2-B في هذا المجلّد وحدَه" in _e2b_o2
+      and "(من الفهرس: e2_recover)" in _e2b_o2
+      and "بوّابة E2-A (SPEC §18)" not in _e2b_o2 and "تتراكم (المطلوب 5" not in _e2b_o2,
+      _e2b_o2[-260:])
 # ── 🔬 P0-1/P1.3: NBBO قياسي **لا-تزامني** (worker) خارج مسار التنبيه + measurement مفضَّل ──
 _p13_fresh = int(_time_e2.time() * 1e9)
 _p13_stale = int((_time_e2.time() - 100) * 1e9)

@@ -38,6 +38,9 @@ RECALL_MIN_POLLS, RECALL_MIN_COVERAGE, RECALL_MIN_EXPOSURE_MIN = 20, 0.80, 60
 #    (`entry.max_quote_age_seconds` = 5 · `sample_gates.preliminary.decided_alerts` = 20) — قفل E2N3.
 MAX_QUOTE_AGE_MS = 5_000
 E2B_MIN_DECIDED_ALERTS = 20
+# 🔬 (2026-09-25) عدّا E2-B **يُحفظان في الفهرس** مع الحكم (`verdict_entry`) — كانا يُحسبان ويُطبعان
+#    ولا يُحفظان، فلا يُعاد العدّادُ التراكميّ إلّا من artifacts احتفاظُها 90 يومًا.
+E2B_INDEX_KEYS = ("n_executable", "n_executable_emitted")
 
 
 def _num(x):
@@ -79,6 +82,18 @@ def e2b_gate_count(results):
     في بوّابة E2-B (المحسومُ يلزمه فوق هذا مصيرُ خمس جلسات). الجلسةُ غيرُ المكتملة لا تُعَدّ."""
     return sum(int(r.get("n_executable_emitted") or 0) for r in results or []
                if isinstance(r, dict) and r.get("session_complete") is True)
+
+
+def e2b_count_from_index(idx):
+    """🔬 نقيّة (2026-09-25): عدّادُ بوّابة E2-B **التراكميّ من الفهرس** — كلُّ الجلسات المكتملة، لا
+    ما في مجلّد التشغيلة وحدَه (الـassembler يرى جلسةً واحدة والاسترجاعُ الليليّ آخرَ ~15 تشغيلة ⇒
+    طُبع ‏11/20 على 47 جلسة ثمّ ‏2/20 على 4). ترجّع `(العدد، المكتملة، منها بعدٍّ محفوظ)` — والمكتملةُ
+    بلا عدٍّ **تُعلَن ولا تُعَدّ صفرًا** (فالرقمُ حدٌّ أدنى حتى تُستكمَل). والعدُّ `e2b_gate_count` نفسُه."""
+    rows = [v for v in (idx.values() if isinstance(idx, dict) else ())
+            if isinstance(v, dict) and v.get("session_complete") is True]
+    have = [v for v in rows if isinstance(v.get("n_executable_emitted"), int)
+            and not isinstance(v.get("n_executable_emitted"), bool)]
+    return e2b_gate_count(have), len(rows), len(have)
 
 # 🔴 **أسبابٌ مؤجَّلةٌ بالتصميم إلى الـassembler** (إصلاح 2026-08-06 — عطلٌ مقيس):
 #
@@ -355,13 +370,22 @@ def analyze_session(sdir):
 
 def verdict_entry(r):
     """🧾 مفاتيحُ حكم المدقّق التي تُحفظ في الفهرس — **نقيّة**. ترجّع `{}` لغير الجلسة
-    (المقطعُ وحدَه لا يُحكَم عليه بـsession_complete) أو لنتيجةٍ فارغة: لا حكمَ يُخترَع."""
+    (المقطعُ وحدَه لا يُحكَم عليه بـsession_complete) أو لنتيجةٍ فارغة: لا حكمَ يُخترَع.
+
+    🔬 (2026-09-25) **ومعها عدّا E2-B** (`E2B_INDEX_KEYS`) ليبقى العدّادُ التراكميّ بعد انتهاء
+    artifacts (‏`ign-assembled` جلسة 08-11 ينتهي 2026-11-09 يومَ تذكير E2-B). **ولا عددَ يُخترَع:**
+    غيرُ الصحيح غيرِ السالب (غائب · منطقيّ · نصّ) لا يُكتب."""
     if not isinstance(r, dict) or not isinstance(r.get("session_complete"), bool):
         return {}
-    return {"session_complete": r["session_complete"],
-            "incomplete_reasons": [str(x)[:120] for x in (r.get("incomplete_reasons") or [])][:8],
-            "deferred_reasons": [str(x)[:120] for x in (r.get("deferred_reasons") or [])][:8],
-            "verdict_rule": VERDICT_RULE}
+    out = {"session_complete": r["session_complete"],
+           "incomplete_reasons": [str(x)[:120] for x in (r.get("incomplete_reasons") or [])][:8],
+           "deferred_reasons": [str(x)[:120] for x in (r.get("deferred_reasons") or [])][:8],
+           "verdict_rule": VERDICT_RULE}
+    for _k in E2B_INDEX_KEYS:
+        _v = r.get(_k)
+        if isinstance(_v, int) and not isinstance(_v, bool) and _v >= 0:
+            out[_k] = _v
+    return out
 
 
 def record_verdict(index_path, session_date, r):
@@ -441,12 +465,15 @@ def main():
         verdict = ("✅ %s" % _label) if r["complete"] else ("⚠️ غير مكتملة: " + " · ".join(r["incomplete_reasons"]))
         print(f"    منطق التنبيه: {r['alert_logic_version']} · الحكم: {verdict}")
     print("\n" + "=" * 78)
-    print(f"📋 وحدات مُسجَّلة={len(sessions)} · session_complete={total_complete}. "
-          f"بوّابة E2-A (SPEC §18): {'✅ عيّنة قابلة للتقييم' if total_complete >= 5 else 'تتراكم (المطلوب 5 جلسات session_complete)'}.")
+    # 🔴 (2026-09-25): العدّان **لهذا المجلّد وحدَه** — وهو في الـassembler جلسةٌ واحدة وفي الاسترجاع
+    #    الليليّ آخرُ ~15 تشغيلة ⇒ «تتراكم» و«‏2/20» كانا يُقرآن حالَ البوّابتين وليسا هي (‏`36002049868`
+    #    على 47 جلسة ‏11/20 ثمّ `36082836057` على 4 ‏2/20 · والمكتملُ في الفهرس 31). **التراكميُّ من
+    #    الفهرس** (`e2b_count_from_index` · يطبعه `e2_recover`).
+    print(f"📋 وحدات هذا المجلّد وحدَه={len(sessions)} · session_complete={total_complete} — "
+          "ليس عدَّ بوّابة E2-A (التراكميُّ من الفهرس: e2_recover).")
     _e2b = e2b_gate_count(results)
-    print("🔬 بوّابة E2-B (%d تنبيهًا بـNBBO قابلٍ للتنفيذ في جلساتٍ مكتملة — حدٌّ أعلى للمحسوم): %d/%d · %s"
-          % (E2B_MIN_DECIDED_ALERTS, _e2b, E2B_MIN_DECIDED_ALERTS,
-             "بلغ الحدَّ الأعلى — يلزم فحصُ المصير" if _e2b >= E2B_MIN_DECIDED_ALERTS else "تتراكم"))
+    print("🔬 E2-B في هذا المجلّد وحدَه: %d تنبيهًا بـNBBO قابلٍ للتنفيذ في جلساتٍ مكتملة — "
+          "والبوّابةُ %d تراكميًّا (من الفهرس: e2_recover)." % (_e2b, E2B_MIN_DECIDED_ALERTS))
     print("⚠️ E2-A: قياس فقط — لا معايرة/حكم عتبات (E2-B/C بعد العيّنة + تسجيل مسبق + موافقة المالك).")
     print("=" * 78)
     # 🔬 P0-6: بوّابة صارمة — أي جلسة (assembled/single) غير مكتملة تُفشل الأمر (بوّابة Pilot).
