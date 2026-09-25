@@ -22,6 +22,13 @@
 ⑥ **مجتمعٌ ثانٍ يُطبع ولا يَحكم — قائمةُ الارتداد** (`pullback` من اللقطة نفسِها · كلُّ حالاتها · خارجَ اتّحاد القائمة الرئيسيّة):
    «المتاح» لا يُخزَّن لها ⇒ **الاقترانُ مجهولٌ بالبناء** ⟵ تُطبع الثلاثةُ المعلومة (RSI · فلوت · دولار) وأقصى الصعود ·
    ولا تدخل سطرَ الحكم ولا `V-W2` · **وحالةُ المتابعة** (`cont_status`: ترشيحُ الأسبوع · مستمرّ · خرج من النموذج) تُطبع ولا تُصفّي.
+⑦ **ملحقٌ مؤرَّخ 2026-09-25 — بعد التشغيلة الأولى `36194240914` وقبل أيّ رقمِ مطابقةٍ أو انفجار:** خرجت 3 بـ`V-W1` ‏17/22 =
+   ‏77.3% · والساقطون الخمسة **كلُّهم شمعتُهم 09-18 ودخلوا main أثناء جلسة 09-18 نفسِها** (تشغيلتا فرزٍ يدويّتان 15:10-15:26 و
+   18:50-19:02 UTC) ⇒ RSI البوت عليهم محسوبٌ على **شمعةٍ لم تكتمل** فلا يُقارَن بإغلاقٍ نهائيّ — عيبٌ في **مجموعة المقارنة** لا في
+   الحساب. ⇒ `V-W1` يستبعد كلَّ ترشيحٍ **دخل main قبل إغلاق جلسة شمعته** (`ref_bar`) بمعيارٍ **زمنيٍّ لا بقيم RSI** (وقتُ الالتزام ·
+   والإغلاقُ من التقويم بالاسم `session_info`) — ويُستبعد به ناجحون أيضًا · **والعتبةُ لا تُمَسّ** (نقطتان · 80% على 5) · **والنسبةُ لو
+   دخلوا تُطبع** · **والشروطُ لا تقرأ RSI البوت أصلًا** (Polygon وحدَه) ⇒ لا أثرَ لهم على الحكم. ووقتُ الالتزام لا يسبق الحسابَ أبدًا ⇒
+   الاستبعادُ لا يطال ترشيحًا حُسب بعد الإغلاق.
 
 الخروج: 0 قياس · 2 بلا مفتاح · 3 حارسٌ ساقط · 4 لا لقطة/لا رمز · 5 ليست قراءةً فقط.
 """
@@ -35,6 +42,7 @@ import sys
 import pandas as pd
 
 import Super_stock as S                                              # rsi بالاسم
+import market_calendar as MC                                         # إغلاقُ الجلسة بالاسم (⑦)
 import opentry_link_probe as OPL                                     # حدودُ المالك بالاسم
 import prelink_probe as P                                            # ticker_daily_adj · _get · API · _selfcheck_readonly
 import prelink_px as PX                                              # PX_MIN بالاسم («فوق الدولار»)
@@ -89,6 +97,13 @@ def week_days(cal, monday, last_day):
 def open_utc(day):
     y, m, d = map(int, day.split("-"))
     return dt.datetime(y, m, d, 9, 30, tzinfo=NY).astimezone(UTC)
+
+
+def close_utc(day):
+    """إغلاقُ الجلسة النظاميّة ليوم `day` بـUTC — **من التقويم بالاسم** (`session_info`: ‏16:00 أو إغلاقٌ مبكّر) (⑦)."""
+    mins = (MC.session_info(day) or {}).get("close_ny_min") or 16 * 60
+    y, m, d = map(int, day.split("-"))
+    return dt.datetime(y, m, d, mins // 60, mins % 60, tzinfo=NY).astimezone(UTC)
 
 
 # ─────────────────────────── لقطاتُ القائمة ───────────────────────────
@@ -190,12 +205,39 @@ def max_rise(adj, c, d_from, d_to):
     return (best[2] / c0 - 1.0) * 100.0, best[0]
 
 
-def vw1(first_entry, adj_by_sym, since):
-    """`V-W1`: RSI المحسوب عند `ref_bar` مقابل `rsi` المخزَّن لترشيحات الأسبوع (`added` من `since`) ⟵ (نسبة, n, صفوف)."""
+def partial_nominations(commits, first_entry, since, load=None):
+    """{رمز: وقتُ دخوله main} لترشيحات الأسبوع (`added` من `since`) التي **ظهرت على main قبل إغلاق جلسة شمعتها** (`ref_bar`)
+    بـ(`added`, `ref_bar`) نفسيهما ⇒ RSI البوت عليها محسوبٌ على شمعةٍ لم تكتمل (⑦). يُمسح ما بين منتصف ليل يوم الشمعة (نيويورك)
+    وإغلاقها وحدَه · والتزاماتُ `commits` مرتّبةٌ صعودًا."""
+    load = load or load_snapshot
+    cache, out = {}, {}
+    for sym, e in sorted(first_entry.items()):
+        rb, ad = str(e.get("ref_bar") or "")[:10], str(e.get("added") or "")[:10]
+        if not rb or ad < since:
+            continue
+        lo = dt.datetime(*map(int, rb.split("-")), tzinfo=NY).astimezone(UTC)
+        cl = close_utc(rb)
+        for t, h in commits:
+            if t < lo:
+                continue
+            if t >= cl:
+                break
+            if h not in cache:
+                cache[h] = load(h) or {}
+            x = active_entries(cache[h]).get(sym)
+            if x and str(x.get("ref_bar") or "")[:10] == rb and str(x.get("added") or "")[:10] == ad:
+                out[sym] = t
+                break
+    return out
+
+
+def vw1(first_entry, adj_by_sym, since, exclude=()):
+    """`V-W1`: RSI المحسوب عند `ref_bar` مقابل `rsi` المخزَّن لترشيحات الأسبوع (`added` من `since`) ⟵ (نسبة, n, صفوف) ·
+    و`exclude` = المُرشَّحون قبل إغلاق جلسة شمعتهم (⑦) خارج المقارنة."""
     rows = []
     for sym, e in sorted(first_entry.items()):
         rb, st = str(e.get("ref_bar") or "")[:10], _num(e.get("rsi"))
-        if not rb or st is None or str(e.get("added") or "")[:10] < since:
+        if not rb or st is None or str(e.get("added") or "")[:10] < since or sym in exclude:
             continue
         mine = rsi_at(adj_by_sym.get(sym) or [], rb)
         if mine is None:
@@ -294,11 +336,20 @@ def main(now=None) -> int:                                           # noqa: PLR
         log("⛔ V-W2 ساقط — لا رقم")
         return 3
     since = prev_day(cal, wdays[0]) or wdays[0]
-    agree, n1, rows1 = vw1(first_entry, adj_by, since)
+    part = partial_nominations(commits, first_entry, since)
+    agree, n1, rows1 = vw1(first_entry, adj_by, since, exclude=part)
     log(f"🔒 V-W1 RSI عند `ref_bar` مقابل المخزَّن (ترشيحاتٌ من {since}): {sum(1 for r in rows1 if r[4])}/{n1} = {agree * 100:.1f}% "
         f"ضمن {RSI_TOL:g} نقطة (الحدّ {V_AGREE * 100:.0f}% على {V_MIN_N} فأكثر)")
     for r in rows1:
         log(f"      {r[0]:6} ref {r[1]} · مخزَّن {r[2]:.1f} · محسوب {r[3]:.1f} {'✓' if r[4] else '✗'}")
+    if part:
+        agree_all, n_all, rows_all = vw1(first_entry, adj_by, since)
+        log(f"   ⑦ خارج المقارنة {len(part)} مُرشَّحًا دخلوا main **قبل إغلاق جلسة شمعتهم** (RSI البوت على شمعةٍ لم تكتمل) · "
+            f"ولو دخلوا: {sum(1 for r in rows_all if r[4])}/{n_all} = {agree_all * 100:.1f}%")
+        for sym, t in sorted(part.items()):
+            e = first_entry[sym]
+            log(f"      {sym:6} ref {str(e.get('ref_bar'))[:10]} · دخل main {t.astimezone(NY):%m-%d %H:%M} نيويورك "
+                f"(الإغلاق {close_utc(str(e.get('ref_bar'))[:10]).astimezone(NY):%H:%M}) · مخزَّن {_fmt(_num(e.get('rsi')), '{:.1f}')}")
     if n1 >= V_MIN_N and agree < V_AGREE:
         log("⛔ V-W1 ساقط — RSI المحسوب لا يطابق RSI البوت ⇒ لا رقم")
         return 3
