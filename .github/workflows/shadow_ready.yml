@@ -1,0 +1,69 @@
+name: "🌅🗂️ T-SHADOW — القائمة الظلّيّة: مراسي البريماركت مقابل «الجاهز» (shadow_ready_prereg)"
+
+# 🔒 قياسٌ فقط — لا كرون (الجدولةُ أمرٌ منفصلٌ للمالك بعد تشغيلتين ناجحتين · العقد §⑦ V-S7)
+#    لا تلغرام · لا كتابةَ حالةِ إنتاج · والكتابةُ الوحيدة سجلُّ الحصاد `shadow_ready_ledger.jsonl`
+#    حين `write=1` (‏`SHADOW_READY`) — صفوفٌ أماميّةٌ بلا نتيجة (العقد ⓪ D-2/D-3).
+permissions:
+  contents: write          # يدفع سجلَّ الحصاد وحدَه حين write=1
+
+on:
+  workflow_dispatch:
+    inputs:
+      write:
+        description: "1 = يُلحق الصفوفَ الأماميّة بالسجلّ ويدفعه (SHADOW_READY) · 0 = قراءةٌ فقط"
+        required: false
+        default: "0"
+      since:
+        description: "أوّلُ يومٍ يُقاس (YYYY-MM-DD) — 2026-08-17 يشمل شاهدَ الهُويّة 08-18⟶09-01"
+        required: false
+        default: "2026-08-17"
+
+jobs:
+  shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة المراسي واللقطات)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🌅🗂️ القياس
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SHADOW_READY: ${{ inputs.write }}
+          SHADOW_SINCE: ${{ inputs.since }}
+        run: python shadow_ready.py
+
+      - name: Commit ledger (write=1 وحدَه)
+        if: inputs.write == '1'
+        run: |
+          set -e
+          git config user.name "Claude"
+          git config user.email "noreply@anthropic.com"
+          if [ -z "$(git status --porcelain -- shadow_ready_ledger.jsonl)" ]; then
+            echo "لا صفَّ أماميًّا جديدًا — لا كوميت."; exit 0
+          fi
+          git add shadow_ready_ledger.jsonl
+          git commit -q -m "🌅🗂️ T-SHADOW: صفوفٌ أماميّة (بلا نتيجة)"
+          # ⚠️ نمطُ الدفع المحميّ (‏ctb_harvest.yml · درسُ ignition.yml) — لا git_save (العقد ⓪ D-4)
+          ok=0
+          for i in 1 2 3 4 5; do
+            if git push; then ok=1; break; fi
+            git fetch origin "$GITHUB_REF_NAME" \
+              && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep $((2**i))
+          done
+          if [ "$ok" != 1 ]; then
+            echo "::error::⛔ فشل دفع سجلّ الظلّيّة بعد 5 محاولات"; exit 1
+          fi
