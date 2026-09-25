@@ -65392,8 +65392,8 @@ try:
                  "لا رفعٌ لإغلاق `T-RSI40`")
     _opl_miss = [t for t in _opl_need if t not in _opl_txt]
     _opl_pr = _opl_txt.split("## ⑥", 1)[1].split("## ⑦", 1)[0] if "## ⑥" in _opl_txt and "## ⑦" in _opl_txt else ""
-    _opl_ok = (not _opl_miss and _opl_pr.count("**`OP-P") == 6
-               and not _cfd_os.path.exists("opentry_link_result.md"))     # صفرُ رقمٍ قبل الأداة والتشغيل
+    # ⏳ قبل التشغيل (2026-09-25 صباحًا) كان الشرطُ «لا ملفَّ نتيجة» — والآن النتيجةُ منشورةٌ (OPL8) والعقدُ لم يُمَسّ بعدها
+    _opl_ok = (not _opl_miss and _opl_pr.count("**`OP-P") == 6 and _cfd_os.path.exists("opentry_link_result.md"))
     _opl_w = f"ناقص={_opl_miss} · تنبّؤات={_opl_pr.count('**`OP-P')} · نتيجة={_cfd_os.path.exists('opentry_link_result.md')}"
 except Exception as _e:                                            # noqa: BLE001
     _opl_ok, _opl_w = False, f"⛔ رمى: {type(_e).__name__}"
@@ -65502,6 +65502,41 @@ try:
 except Exception as _e:                                            # noqa: BLE001
     _opl7, _opl7_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🕵️🔗 OPL7 بلا مفتاح ⇒ خروج 2 **قبل أيّ قراءةٍ لتاريخ git أو نداء** (بصمةُ لا-عمل)", _opl7, _opl7_w)
+try:
+    _res = open("opentry_link_result.md", encoding="utf-8").read()
+    _need8 = ("`36125202136`", "**الفرعُ 2 «لا رابط»** (العقد §⑤)", "🏁 الفرعُ 2 «لا رابط» — عابرٌ لكنه مكرِّرٌ", "‏711 من 727", "‏33/321", "‏94 من 711", "‏13.2%", "‏36.6",
+              "‏36/228", "‏32/240", "‏1/18", "‏55/225", "‏21/77", "‏28/94", "‏19/51", "‏5.3%", "‏2.1%", "‏249", "‏215",
+              "‏24.1%", "‏0.0% من 682", "M2_هبوط_فوق_97", "**23.3**", "لم يُشحَن شيء", "انحرافٌ عن نصّ العقد يُعلَن",
+              "`OP-P1`", "تنبّؤي في مستوى RSI خاطئ", "`V-O5`", "لم يُنفَّذ")
+    _miss8 = [t for t in _need8 if t not in _res]
+    _opl8 = (not _miss8 and "OPUS_READY_LIST_SPEC" in _res
+             and _res.index("## ⓪") < _res.index("## ③") < _res.index("## ⑥") < _res.index("## ⑦") < _res.index("## ⑨"))
+    _opl8_w = f"ناقص={_miss8}"
+except Exception as _e:                                            # noqa: BLE001
+    _opl8, _opl8_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️🔗 OPL8 نتيجةُ `T-OPLINK` منشورةٌ كما خرجت: الفرعُ 2 «لا رابط» بتشغيلتها وأرقامها (‏711/727 · 33/321 بت-بت · فرضيّاتُ المالك الثلاث "
+      "· الروابطُ المكرِّرة · الشاهد 0/682 · SXTC) · **والانحرافُ عن العقد (إقصاءُ `tod`) مُعلَن** · والتنبّؤُ الخاطئ منشور · و`V-O5` غيرُ منفَّذ "
+      "مُصرَّحٌ به · ولم يُشحَن شيء", _opl8, _opl8_w)
+try:
+    _sp = open("OPUS_READY_LIST_SPEC.md", encoding="utf-8").read()
+    _secs = ("OBJECTIVE", "SOURCE MATERIAL", "MASTER KNOWLEDGE BASE", "VERIFIED FACTS", "DERIVED RULES", "PATTERNS",
+             "CONSTRAINTS", "EDGE CASES", "IMPLEMENTATION REQUIREMENTS", "SYSTEM ARCHITECTURE", "ALGORITHMS / LOGIC",
+             "INPUTS", "OUTPUTS", "VALIDATION", "TEST PLAN", "FAILURE CONDITIONS", "UNCERTAINTIES", "IMPLEMENTATION ORDER",
+             "DO NOT", "FINAL ACCEPTANCE CRITERIA")
+    _ph = ("Repository Inspection", "Understand Existing Architecture", "Map Requirements to Existing System", "Identify Gaps",
+           "Implement", "Test", "Validate Against Source Requirements", "Review for Regression", "Final Report")
+    _pos = [_sp.find(f"## {i + 1}. {t}") for i, t in enumerate(_secs)]
+    _ppos = [_sp.find(f"PHASE {i} — {t}") for i, t in enumerate(_ph)]
+    _opl9 = (all(p >= 0 for p in _pos) and _pos == sorted(_pos) and all(p >= 0 for p in _ppos) and _ppos == sorted(_ppos)
+             and "R-00" in _sp and "لا تُعيد برمجة قائمة «الجاهز» على RSI/الفلوت/المتاح" in _sp
+             and "لا تُدخل المراسي في `select_top`" in _sp and "لا رسالةَ تلغرام جديدة" in _sp
+             and "SHADOW_READY" in _sp and "بت-بت" in _sp and "«نفذ OPUS_READY_LIST_SPEC.md»" in _sp
+             and "بُنيت لـ…" in _sp)
+    _opl9_w = f"أقسام={sum(p >= 0 for p in _pos)}/20 · مراحل={sum(p >= 0 for p in _ppos)}/9"
+except Exception as _e:                                            # noqa: BLE001
+    _opl9, _opl9_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️🔗 OPL9 حزمةُ `OPUS_READY_LIST_SPEC.md` بأقسام المالك العشرين ومراحله التسع بأسمائها وترتيبها · **R-00 لا إعادةَ برمجةٍ على الأساسيّات** "
+      "· لا مراسي في `select_top` · لا تلغرام · مفتاحٌ مطفأ بت-بت · «بُنيت لـ…» · وتُشحَن بـ«نفذ» وحدَه", _opl9, _opl9_w)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
