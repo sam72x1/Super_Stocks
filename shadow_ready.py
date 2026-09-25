@@ -19,14 +19,17 @@
 والإنتاجُ لا يستوردها. **والسجلُّ لا يحمل النتيجة** (مبدأُ `ctb_harvest`: تُشتقّ وقتَ التحليل).
 
 **رموزُ الخروج:** 0 صدر · 2 لا مفتاح · 3 تغطيةٌ دون 80% · 4 صفرُ مرساة · 5 الحارسُ الذاتيّ.
+و`--wait-capture` (خطوةُ المجدول وحدَه): تنام حتى 20:15 نيويورك إن أقلعت قبلها بما لا يزيد عن 200 دقيقة ثمّ 0.
 """
 import ast
 import collections
 import datetime as dt
 import json
+import math
 import os
 import subprocess
 import sys
+import time
 
 from tierlink_probe import anchor_history, features, measure, daily_range, _bucket   # بالاسم
 from tier_fwd_report import fetch_day, load_ledger                                 # بالاسم
@@ -35,7 +38,7 @@ from opentry_link_probe import _commits, snapshot_before, membership, judge     
 import Super_stock as S                                                            # ce_borrow_info · CONFIG
 
 LEDGER = os.environ.get("SHADOW_LEDGER", "shadow_ready_ledger.jsonl")
-SINCE = os.environ.get("SHADOW_SINCE", "2026-08-17")
+SINCE = os.environ.get("SHADOW_SINCE") or "2026-08-17"   # ⚠️ `or` لا افتراضُ get: المجدولُ يمرّر المُدخَلَ فارغًا
 SHADOW_FWD_SINCE = "2026-09-26"      # العقد §② — اليومُ التالي لدفع العقد · لا يُحرَّك
 FLOOR_S, FLOOR_ALL = 60, 150         # العقد §④-3 (مُعادان من T-J1PM §③)
 FLOOR_AVAIL = 100                    # العقد §⑤ (رقمُ الحزمة R-03)
@@ -44,6 +47,9 @@ MIN_COVER = 0.80                     # العقد §⑦ V-S1
 STOP_DATE = "2026-12-31"             # العقد §④ (رقمُ T-PMFWD)
 AVAIL_CAP = 40                       # العقد §⑤ — سقفُ نداءات المتاح للتشغيلة
 CLOSE_HOUR_NY = 20                   # نهايةُ الافتر ⇒ اليومُ مكتمل (V-S4 · V-S5)
+CAPTURE_AT_NY = (20, 15)             # engineering — المجدولُ ينتظر حتى 20:15 نيويورك: نهايةُ الافتر (20:00) ‏+ هامشُ
+                                     #   آخرِ دفعٍ لـ`op_entry_state.json` (مقيس: ‏20:00:43 · 20:04:16 نيويورك)
+CAPTURE_WAIT_MAX_S = 200 * 60        # engineering — أبعدُ منه ⇒ لا انتظار (إقلاعٌ بعد منتصف الليل أو صباحًا)
 IDENTITY = ("2026-08-18", "2026-09-01", 33, 321, 14)   # V-S2 · T-TIERLINK بت-بت
 LEDGER_FIELDS = ("schema", "date", "symbol", "sample", "anchor_ms", "tod", "j1", "gap", "gap_pct", "shadow",
                  "member", "ready", "in_tier_ledger", "avail", "avail_why", "avail_asof", "run_id", "recorded_at")
@@ -159,6 +165,26 @@ def avail_capture(sym, day, now_ny, fetch, budget):
         return int(v), "ok", now_ny.isoformat(timespec="minutes")
     except (TypeError, ValueError):
         return None, "unavailable", None
+
+
+def capture_wait_s(now_ny, at=CAPTURE_AT_NY, cap_s=CAPTURE_WAIT_MAX_S) -> int:
+    """ثوانٍ ينتظرها **المجدولُ وحدَه** ليقع في جلسة المرساة بعد نهاية الافتر (R-03 · V-S5) — نقيّة:
+    صفرٌ عند `at` أو بعده · وصفرٌ إن زاد الانتظارُ عن `cap_s` (إقلاعٌ بعد منتصف الليل أو صباحًا ⇒ يُكمل فورًا
+    والمتاحُ مجهولٌ بسببه `not_same_session`) · وإلّا ما بقي حتى `at` من اليوم نفسِه بتوقيت نيويورك."""
+    need = (now_ny.replace(hour=at[0], minute=at[1], second=0, microsecond=0) - now_ny).total_seconds()
+    return int(math.ceil(need)) if 0 < need <= cap_s else 0
+
+
+def wait_for_capture(now=None, sleep=time.sleep) -> int:
+    """نقطةُ `--wait-capture` (خطوةُ المجدول وحدَه قبل القياس): تنام `capture_wait_s` ثمّ تعود 0 · وتطبع قرارَها.
+    لا تقرأ git ولا تنادي شبكة — والساعةُ والنومُ محقونان للاختبار."""
+    now_ny = now() if now else dt.datetime.now(NY)
+    w = capture_wait_s(now_ny)
+    log(f"⏳ R-03: الآن {now_ny:%Y-%m-%d %H:%M} نيويورك ⟵ "
+        + (f"انتظارُ {w // 60} دقيقة حتى {CAPTURE_AT_NY[0]:02d}:{CAPTURE_AT_NY[1]:02d}" if w else "بلا انتظار"))
+    if w:
+        sleep(w)
+    return 0
 
 
 def ledger_rows(rows, existing_keys):
@@ -432,4 +458,4 @@ def _git_json(h, path="weekly_watchlist.json"):
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(wait_for_capture() if "--wait-capture" in sys.argv[1:] else main())
