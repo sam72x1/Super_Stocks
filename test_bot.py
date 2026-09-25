@@ -63925,7 +63925,7 @@ try:
     _cfd13_ok = []
     for _wfp in (".github/workflows/chart_finder.yml", ".github/workflows/chart_eval.yml"):
         _txt = open(_wfp, encoding="utf-8").read()
-        _y = _cfd_yaml.safe_load(_txt)
+        _y = _wfh_yaml.safe_load(_txt)
         _on = _y.get(True) or _y.get("on")
         _steps = [st for j in _y["jobs"].values() for st in j["steps"]]
         _runs = " ".join(str(st.get("run", "")) for st in _steps)
@@ -63947,13 +63947,13 @@ try:
     _cfd14_ok = {}
     for _mod in ("chart_finder.py", "chart_eval.py", "chart_pixels.py", "chart_render.py"):
         _src = open(_mod, encoding="utf-8").read()
-        _t = _cfd_ast.parse(_src)
-        _imps = {a.name.split(".")[0] for n in _cfd_ast.walk(_t) if isinstance(n, _cfd_ast.Import)
-                 for a in n.names} | {(n.module or "").split(".")[0] for n in _cfd_ast.walk(_t)
-                                      if isinstance(n, _cfd_ast.ImportFrom)}
-        _writes = [n for n in _cfd_ast.walk(_t) if isinstance(n, _cfd_ast.Call)
+        _t = _ast0.parse(_src)
+        _imps = {a.name.split(".")[0] for n in _ast0.walk(_t) if isinstance(n, _ast0.Import)
+                 for a in n.names} | {(n.module or "").split(".")[0] for n in _ast0.walk(_t)
+                                      if isinstance(n, _ast0.ImportFrom)}
+        _writes = [n for n in _ast0.walk(_t) if isinstance(n, _ast0.Call)
                    and getattr(n.func, "id", None) == "open" and len(n.args) > 1
-                   and isinstance(n.args[1], _cfd_ast.Constant) and "w" in str(n.args[1].value)]
+                   and isinstance(n.args[1], _ast0.Constant) and "w" in str(n.args[1].value)]
         _cfd14_ok[_mod] = ("Super_stock" not in _imps and "send_telegram" not in _src
                            and "TELEGRAM" not in _src and not _writes)
     _cfd14 = all(_cfd14_ok.values())
@@ -64364,10 +64364,10 @@ try:
     _fin29 = [i for i, ln in enumerate(_out29) if ln.startswith("CHART_EVAL_SYNTH ")]
     _lastrc29 = [i for i, ln in enumerate(_out29) if ln.startswith("SYNTH_RECAP ")]
     _calls29 = {}
-    for _n29 in _cfd_ast.walk(_cfd_ast.parse(_cfd_insp.getsource(_CFE.run_real))):
-        if isinstance(_n29, _cfd_ast.Call) and isinstance(_n29.func, _cfd_ast.Name):
+    for _n29 in _ast0.walk(_ast0.parse(_cfd_insp.getsource(_CFE.run_real))):
+        if isinstance(_n29, _ast0.Call) and isinstance(_n29.func, _ast0.Name):
             _calls29.setdefault(_n29.func.id, []).append(
-                (_n29.lineno, [a.value for a in _n29.args if isinstance(a, _cfd_ast.Constant)]))
+                (_n29.lineno, [a.value for a in _n29.args if isinstance(a, _ast0.Constant)]))
     _real29 = [ln for ln, a in _calls29.get("recap", []) if "REAL_RECAP" in a]
     _judge29 = [ln for ln, _ in _calls29.get("judge_real", [])]
     _cfd29 = (len(_rc29) == 7 and all(f"truth=S{i} " in _rc29[i] for i in range(7))
@@ -65195,7 +65195,7 @@ try:
                 _cfd_os.environ.pop(_k53, None)
             else:
                 _cfd_os.environ[_k53] = _v
-    _y53 = _cfd_yaml.safe_load(open(".github/workflows/chart_eval.yml", encoding="utf-8"))
+    _y53 = _wfh_yaml.safe_load(open(".github/workflows/chart_eval.yml", encoding="utf-8"))
     _in53 = ((_y53.get(True) or _y53.get("on") or {}).get("workflow_dispatch") or {}).get("inputs") or {}
     _envy53 = [st.get("env") or {} for st in _y53["jobs"]["eval"]["steps"] if st.get("env")]
     _pre53 = open("chart_finder_prereg.md", encoding="utf-8").read()
@@ -65401,6 +65401,107 @@ check("🕵️🔗 OPL0 عقدُ `T-OPLINK` مدفوعٌ ومُغلَق قبل �
       "المقياسُ بالاسم وشاهدُ الهُويّة 33/321 · فرضيّاتُ المالك بسلالها (‏RSI<30 · فلوت<4م · متاح<20k) والمؤرَّخُ منفصلٌ عن "
       "غير المؤرَّخ · SXTC بتاريخيه · ستُّ تنبّؤاتٍ قبل الأرقام · **ولا يُشحَن شيءٌ إلّا بـ«نفذ»** — ولا ملفَّ نتيجةٍ قبل الأداة",
       _opl_ok, _opl_w)
+
+# ── OPL1-OPL7 أداةُ T-OPLINK (opentry_link_probe.py · العقد §④-§⑦) — نقيّةٌ قابلةٌ للحقن · قراءةٌ فقط ──
+try:
+    import opentry_link_probe as _OPL
+    _opl_src = open("opentry_link_probe.py", encoding="utf-8").read()
+    _opl_ban = {"send_telegram", "git_save", "save_watchlist", "save_op_entry_state", "record_new_alerts",
+                "save_near_watch", "save_hunter_watch"}
+    _opl_hits = {(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+                 for n in _ast0.walk(_ast0.parse(_opl_src)) if isinstance(n, _ast0.Call)}
+    _opl1 = (not (_opl_ban & _opl_hits) and _OPL._selfcheck_readonly() is True
+             and "opentry_link" not in open("Super_stock.py", encoding="utf-8").read()
+             and "schedule" not in open(".github/workflows/opentry_link.yml", encoding="utf-8").read())
+    _opl1_w = f"مخالفات={sorted(_opl_ban & _opl_hits)}"
+except Exception as _e:                                            # noqa: BLE001
+    _OPL, _opl1, _opl1_w = None, False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️🔗🔒 OPL1 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة (AST) · حارسٌ ذاتيٌّ عامل · الإنتاجُ لا يستوردها · وworkflow بلا كرون",
+      _opl1, _opl1_w)
+try:
+    _r = [(f"2026-09-{d:02d}", 1.0, 2.0, 0.5, 1.5, 1000.0) for d in range(1, 20)]
+    _df = _OPL.daily_frame(_r, "2026-09-10")
+    _opl2 = (_df is not None and str(_df.index[-1].date()) == "2026-09-09" and len(_df) == 9
+             and _OPL.daily_frame(_r, "2026-08-01") is None)
+    _opl2_w = f"asof={None if _df is None else _df.index[-1].date()} · n={None if _df is None else len(_df)}"
+except Exception as _e:                                            # noqa: BLE001
+    _opl2, _opl2_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️🔗 OPL2 `V-O3` صفرُ نظرٍ مستقبليّ: شمعةُ يوم المرساة وما بعدها **لا تدخل** الإطار (آخرُ شمعة day−1) · وبلا سابقٍ None", _opl2, _opl2_w)
+try:
+    _sb = _OPL.snapshot_before([("2026-09-12", "b"), ("2026-09-08", "a"), ("2026-09-01", "z")], "2026-09-10", lambda h: h)
+    _sb2 = _OPL.snapshot_before([("2026-09-12", "b")], "2026-09-10", lambda h: h)
+    _snaps = {"weekly_watchlist.json": ("2026-09-08", {"stocks": [{"symbol": "AAA", "float": 1e6, "shares_available": 5000}]}),
+              "company_cache.json": ("2026-09-09", {"AAA": {"float": 9e6}, "BBB": {"float": 3e6}}),
+              "hunter_watchlist.json": (None, None)}
+    _dv = _OPL.dated_values("2026-09-10", _snaps)
+    _opl3 = (_sb == ("2026-09-08", "a") and _sb2 == (None, None)
+             and _dv["AAA"]["float"] == 9e6 and _dv["AAA"]["avail"] == 5000 and _dv["BBB"]["avail"] is None
+             and "CCC" not in _dv)
+    _opl3_w = f"sb={_sb} sb2={_sb2} dv={_dv}"
+except Exception as _e:                                            # noqa: BLE001
+    _opl3, _opl3_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️🔗 OPL3 `V-O4` المؤرَّخُ = أحدثُ لقطةٍ **≤ يوم المرساة** فقط (اللاحقةُ تُرفَض ولو كانت الوحيدة) · والأحدثُ يفوز لكلّ حقلٍ على حدة · والمجهولُ None", _opl3, _opl3_w)
+try:
+    _R = []
+    for _i in range(120):
+        _yes = _i % 2 == 0
+        _day = f"2026-08-{(_i % 30) + 1:02d}" if _i < 60 else f"2026-09-{(_i % 20) + 1:02d}"
+        _R.append({"date": _day, "f": {"x": "نعم" if _yes else "لا"}, "o": {"exploded50": (_i % 3 != 0) if _yes else (_i % 12 == 0)}})
+    _t, _v = _OPL.judge(_R, "x", "2026-09-01")
+    # النصفُ الثاني ينقلب اتّجاهُه لكنّ المجمَّعَ يبقى فاصلًا (‏≥2× وWilson) ⇒ ④ وحدَه يُسقطه
+    _Rflip = ([{"date": "2026-08-10", "f": {"x": "نعم"}, "o": {"exploded50": _i < 28}} for _i in range(30)]
+              + [{"date": "2026-08-10", "f": {"x": "لا"}, "o": {"exploded50": _i < 2}} for _i in range(30)]
+              + [{"date": "2026-09-10", "f": {"x": "نعم"}, "o": {"exploded50": _i < 3}} for _i in range(30)]
+              + [{"date": "2026-09-10", "f": {"x": "لا"}, "o": {"exploded50": _i < 6}} for _i in range(30)])
+    _t2, _v2 = _OPL.judge(_Rflip, "x", "2026-09-01")
+    _t3, _v3 = _OPL.judge(_R[:30], "x", "2026-08-15")
+    _opl4 = (_v["ok"] and _v["why"] == "رابط" and _v["n"] == (60, 60)
+             and _v2["c1"] and _v2["c2"] and not _v2["c4"] and not _v2["ok"] and "لا حكم" in _v3["why"])
+    _opl4_w = f"v={_v.get('why')} c4flip={_v2.get('c4')} small={_v3.get('why')}"
+except Exception as _e:                                            # noqa: BLE001
+    _opl4, _opl4_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️🔗 OPL4 الحكمُ الرباعيّ (العقد §⑤): ‏≥2× وWilson منفصلان وn≥20 **والنصفان بنفس الاتّجاه** (انقلابُ نصفٍ يُسقط ④) · ودون 20 «لا حكم» لا «لا رابط»", _opl4, _opl4_w)
+try:
+    _f1 = _OPL.owner_flags({"rsi14": "<30"}, 3_999_999, 19_999)
+    _f2 = _OPL.owner_flags({"rsi14": "30-40"}, 4_000_000, 20_000)
+    _f3 = _OPL.owner_flags({"rsi14": "؟"}, None, None)
+    _opl5 = (_f1 == {"rsi<30": True, "float<4م": True, "avail<20k": True}
+             and _f2 == {"rsi<30": False, "float<4م": False, "avail<20k": False}
+             and _f3 == {"rsi<30": False, "float<4م": None, "avail<20k": None}
+             and (_OPL.FLOAT_OWNER, _OPL.AVAIL_OWNER, _OPL.RSI_OWNER) == (4_000_000, 20_000, 30.0)
+             and _OPL.AVAIL_OWNER == S.CONFIG["BORROW_AVAIL_MAX"]
+             and _OPL.float_bucket(None) == "؟" and _OPL.avail_bucket(None) == "؟")
+    _opl5_w = f"{_f1} {_f2} {_f3}"
+except Exception as _e:                                            # noqa: BLE001
+    _opl5, _opl5_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️🔗 OPL5 فرضيّاتُ المالك بحدودها الحرفيّة (‏RSI<30 · فلوت<4م · متاح<20k=`BORROW_AVAIL_MAX`): الحدُّ نفسُه لا يعبر · **والمجهولُ None لا يُحتسب** (لا صفرًا ولا خلطًا)", _opl5, _opl5_w)
+try:
+    _wf = _wfh_yaml.safe_load(open(".github/workflows/opentry_link.yml", encoding="utf-8"))
+    _env = {}
+    for _s in _wf["jobs"]["oplink"]["steps"]:
+        _env.update(_s.get("env") or {})
+    _opl6 = (set(_wf.get(True) or _wf.get("on") or {}) == {"workflow_dispatch"}
+             and _wf["permissions"] == {"contents": "read"}
+             and all(k in _env for k in ("OPLINK_SINCE", "OPLINK_UNTIL", "OPLINK_MAX", "POLYGON_API_KEY"))
+             and all(f'"{k}"' in _opl_src for k in ("OPLINK_SINCE", "OPLINK_UNTIL", "OPLINK_MAX"))
+             and "TELEGRAM" not in open(".github/workflows/opentry_link.yml", encoding="utf-8").read()
+             and _wf["jobs"]["oplink"]["steps"][0]["with"]["fetch-depth"] == 0)
+    _opl6_w = f"on={list(_wf.get(True) or _wf.get('on') or {})} env={sorted(_env)}"
+except Exception as _e:                                            # noqa: BLE001
+    _opl6, _opl6_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️🔗 OPL6 الـworkflow يدويٌّ بلا كرون · `contents: read` · بلا سرِّ تلغرام · كلُّ مُدخَلٍ يصل بيئةً **يقرؤها** السكربت (لا علمَ ميّت) · وتاريخُ git كامل", _opl6, _opl6_w)
+try:
+    _old = _cfd_os.environ.pop("POLYGON_API_KEY", None)
+    try:
+        _rc = _OPL.main()
+    finally:
+        if _old is not None:
+            _cfd_os.environ["POLYGON_API_KEY"] = _old
+    _opl7 = _rc == 2
+    _opl7_w = f"rc={_rc}"
+except Exception as _e:                                            # noqa: BLE001
+    _opl7, _opl7_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️🔗 OPL7 بلا مفتاح ⇒ خروج 2 **قبل أيّ قراءةٍ لتاريخ git أو نداء** (بصمةُ لا-عمل)", _opl7, _opl7_w)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
