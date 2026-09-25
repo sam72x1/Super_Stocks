@@ -64569,6 +64569,143 @@ except Exception as _e:                                           # noqa: BLE001
     _cfd46, _cfd46_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎 CFD46 «قس ONCO» (§⑨) منشورٌ بتشغيلته وسطرِ نافذته العابرة (خطأ 0.00 يومَ تقسيم 10:1) و**`CP12` ❌** كما كُتب قبله "
       "والسببِ §⑧-6 وتصحيحِ `36077395787` (اليومُ 05-22 لا 05-27/28) — فلا يُعدَّل التنبّؤُ ولا النتيجةُ بصمت", _cfd46, _cfd46_w)
+
+
+# ── CFD47-CFD49 🔧 v1.2 G3 (§⑫): المرشِّحُ الخامّ يُسوّي التقسيم — عالمُ ONCO مصغَّرًا ──
+def _cfd_split_last_world(splits_ok=True):
+    """G3 (§⑫): XBB مقسَّمٌ 10:1 **يومَ آخر شمعة** والطرفان كلاهما قبله (خامُهما 0.4843 و0.0911 ⟵ معروضُهما 4.843
+    و0.911) والآخرُ 1.22 خامٌ بعده — حالةُ §⑧-6 بعينها (ONCO · §⑨) فالمرشِّحُ الخامّ لا يلتقطه بالبناء."""
+    days = _CF.trading_days_back("2026-08-31", 1)[-60:]
+    syms = ["AAA", "XBB", "ZZZ"]
+    H = _cfd_np.full((len(days), len(syms)), _cfd_np.nan, dtype=_cfd_np.float32)
+    L, C = H.copy(), H.copy()
+    for j in (0, 2):
+        for d in range(len(days)):
+            H[d, j], L[d, j], C[d, j] = 5 + j + 0.1, 5 + j - 0.1, 5 + j
+    for d in range(len(days) - 1):
+        H[d, 1], L[d, 1], C[d, 1] = 0.30, 0.25, 0.28
+    H[47, 1], L[58, 1] = 0.4843, 0.0911
+    H[59, 1], L[59, 1], C[59, 1] = 1.29, 1.05, 1.22
+
+    def get(url, params=None, headers=None, timeout=None):
+        if "/v3/reference/splits" in url:
+            if not splits_ok:
+                return _CfdR(500, {})
+            t = (params or {}).get("ticker")
+            rows = [{"ticker": "XBB", "execution_date": days[59], "split_from": 10, "split_to": 1}]
+            return _CfdR(200, {"results": rows if t in (None, "XBB") else []})
+        return _CfdR(404, {})
+    return (days, syms, H, L, C), get
+
+
+def _cfd_g3_run(card, g3=True, splits_ok=True):
+    """يشغّل البطاقة على عالم G3 **بحالةٍ نظيفة** (ذاكرةُ التقسيمات والمقصوص) ويُرجع (الحكم، الأوّل، سجلّ)."""
+    _arr, _get = _cfd_split_last_world(splits_ok)
+    _logs = []
+    _keep = (_CF.log, _CF.SPLIT_AWARE_PREFILTER, _CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL),
+             dict(_CF._LAST_ENDS), _CF._LAST_CUT)
+    try:
+        _CF.log = lambda m="", *_a, **_k: _logs.append(str(m))
+        _CF.SPLIT_AWARE_PREFILTER = g3
+        _CF._SPLITS_ALL_SINCE = None
+        _CF._SPLITS_ALL.clear()
+        _r = _CF.run_card(card, _cfd_tmp, get=_get, panel_arr=_arr, series=False)
+    finally:
+        _CF.log, _CF.SPLIT_AWARE_PREFILTER, _CF._SPLITS_ALL_SINCE = _keep[0], _keep[1], _keep[2]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep[3])
+        _CF._LAST_ENDS.clear()
+        _CF._LAST_ENDS.update(_keep[4])
+        _CF._LAST_CUT = _keep[5]
+    return _r["label"], (_r["top"] or [None])[0], _r["mode"], _logs
+
+
+_CFD_G3_U = {"v": 1, "id": "cfd-G3u", "timeframe": "1D", "bars_visible": 13,
+             "extremes": {"high": "4.843", "low": "0.911"}, "last": "1.220"}
+try:
+    _g3d = _CF.trading_days_back("2026-08-31", 1)[-60:]
+    _CFD_G3_D = dict(_CFD_G3_U, id="cfd-G3d", window={"from": _g3d[47], "to": _g3d[59]})
+    _g3 = {k: _cfd_g3_run(c, g3) for k, c, g3 in (("u_on", _CFD_G3_U, True), ("u_off", _CFD_G3_U, False),
+                                                   ("d_on", _CFD_G3_D, True), ("d_off", _CFD_G3_D, False))}
+    _cfd47 = (_g3["u_on"][:3] == ("واثق", "XBB", "market") and _g3["u_off"][1] != "XBB"
+              and _g3["d_on"][:3] == ("واثق", "XBB", "dated") and _g3["d_off"][1] != "XBB"
+              and any("✂️ G3 (§⑫): نوافذُ 1 رمزًا مقسَّمًا" in m for m in _g3["u_on"][3]))
+    _cfd47_w = " · ".join(f"{k}={v[:3]}" for k, v in _g3.items())
+except Exception as _e:                                           # noqa: BLE001
+    _cfd47, _cfd47_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD47 G3 (§⑫): تقسيمٌ 10:1 **يومَ آخر شمعة** والطرفان قبله (ONCO مصغَّرًا) ⟵ **بالمفتاح يُلتقط «واثق» في المسارين** "
+      "(بلا تاريخ · مؤرَّخ) · وبإطفائه لا يُلتقط (حالةُ §⑧-6 كما كانت) · والتسويةُ تُعلَن بعدد رموزها", _cfd47, _cfd47_w)
+try:
+    _arr48, _get48 = _cfd_panel_world(True)
+    _d48, _s48, _H48, _L48, _C48 = _arr48
+    _sp48 = {"XSPL": [(_d48[20], 10.0, 1.0)], "AAA": [("2020-01-02", 5.0, 1.0)]}   # AAA قبل اللوحة ⟵ لا عمود
+    _cols48 = _CF._split_factor_cols(_d48, _s48, _sp48)
+    _eq48 = all(abs(_cols48[1][i] / _cols48[1][e] - _CF.split_factor(_sp48["XSPL"], _d48[i], _d48[e])) < 1e-12
+                for e in (19, 20, 21, 59) for i in range(e + 1))
+    _args48 = (_d48, _s48, _H48, _L48, _C48, (10.4, 0.0005), (1.78, 0.0005), (2.4, 0.0005), 47)
+    _b0 = _CF.undated_market_candidates(*_args48)
+    _b1 = _CF.undated_market_candidates(*_args48, split_cols={})
+    _b2 = _CF.undated_market_candidates(*_args48, split_cols=_CF._split_factor_cols(_d48, _s48, {"AAA": _sp48["AAA"]}))
+    # 🔒 النوعُ يُحفَظ: عالمُ CFD21 (الطرفُ المطابق بعد التقسيم) ⟵ أخطاءُ المرشِّح **بت-بت** بالتسوية وبدونها — وإلّا
+    #    قُورن المُسوّى بدقّةٍ أعلى (float64) فانقلب المتعادلان XSPL/YYY وقصّ السقفُ الصحيح (أمسكه CFD21/CFD25 أوّلًا)
+    _arr48d, _get48d = _cfd_panel_world(True, decoy=True)
+    _args48d = tuple(_arr48d) + ((10.4, 0.0005), (1.78, 0.0005), (2.4, 0.0005), 47)
+    _bd0 = _CF.undated_market_candidates(*_args48d)
+    _bd1 = _CF.undated_market_candidates(*_args48d, split_cols=_CF._split_factor_cols(
+        _arr48d[0], _arr48d[1], {"XSPL": _sp48["XSPL"]}))
+    _dt48 = bool(_bd0) and _bd0 == _bd1 and sorted(_bd0.items(), key=lambda kv: (kv[1][0], kv[0])) == sorted(
+        _bd1.items(), key=lambda kv: (kv[1][0], kv[0]))
+    # 🔒 التسويةُ **حتى يومِ النهاية** (`F[i]/F[e]`): شارتٌ ينتهي **قبل** تقسيمٍ داخل اللوحة (XSPL يوم 15 · التقسيمُ يوم 20)
+    #    ⟵ لا تسويةَ في نافذته فالمرشِّحُ = الخامّ بت-بت — وإلّا ضُربت النافذةُ كلُّها ×10 وسقط الرمزُ الصحيح
+    _args48b = (_d48, _s48, _H48, _L48, _C48, (1.04, 0.0005), (0.58, 0.0005), (0.6, 0.0005), 15)
+    _bn0 = _CF.undated_market_candidates(*_args48b)
+    _bn1 = _CF.undated_market_candidates(*_args48b, split_cols=_cols48)
+    _pre48 = "XSPL" in _bn0 and _bn0 == _bn1
+    _keep48 = (_CF.log, _CF.SPLIT_AWARE_PREFILTER, _CF._SPLITS_ALL_SINCE, dict(_CF._SPLITS_ALL), dict(_CF._LAST_ENDS),
+               _CF._LAST_CUT)
+    _res48 = {}
+    try:
+        _CF.log = lambda *_a, **_k: None
+        for _g in (True, False):
+            _CF.SPLIT_AWARE_PREFILTER = _g
+            _CF._SPLITS_ALL_SINCE = None
+            _CF._SPLITS_ALL.clear()
+            _r = _CF.run_card({"v": 1, "id": "cfd-48", "timeframe": "1D", "bars_visible": 37,
+                               "extremes": {"high": "10.400", "low": "1.780"}, "last": "2.400"},
+                              _cfd_tmp, get=_get48, panel_arr=_arr48, series=False)
+            _res48[_g] = (_r["label"], _r["top"], _r["n_pass"])
+    finally:
+        _CF.log, _CF.SPLIT_AWARE_PREFILTER, _CF._SPLITS_ALL_SINCE = _keep48[0], _keep48[1], _keep48[2]
+        _CF._SPLITS_ALL.clear()
+        _CF._SPLITS_ALL.update(_keep48[3])
+        _CF._LAST_ENDS.clear()
+        _CF._LAST_ENDS.update(_keep48[4])
+        _CF._LAST_CUT = _keep48[5]
+    _cfd48 = (_eq48 and set(_cols48) == {1} and _b0 == _b1 == _b2 and bool(_b0) and _dt48 and _pre48
+              and _res48[True] == _res48[False] and _res48[True][0] == "واثق")
+    _cfd48_w = (f"تكافؤ split_factor={_eq48} · أعمدة={sorted(_cols48)} · خامٌ بت-بت={_b0 == _b1 == _b2} · "
+                f"النوعُ محفوظ={_dt48} ({_bd0.get('XSPL')} مقابل {_bd1.get('XSPL')}) · "
+                f"قبل التقسيم={_pre48} ({_bn0.get('XSPL')} مقابل {_bn1.get('XSPL')}) · "
+                f"عالمُ CFD41 بالمفتاح={_res48.get(True)} بدونه={_res48.get(False)}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd48, _cfd48_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD48 G3 لا يمسّ ما لا تقسيمَ فيه: `F[i]/F[e]` = `split_factor` حرفًا · وتقسيمٌ قبل اللوحة لا عمودَ له · "
+      "والمرشِّحُ بلا أعمدةٍ = الخامُّ **بت-بت** · **والنوعُ يُحفَظ** (المطابقُ بعد التقسيم: الأخطاءُ والترتيبُ بت-بت) · "
+      "**والتسويةُ حتى يومِ النهاية** (شارتٌ ينتهي قبل التقسيم ⟵ الخامُّ بت-بت) · "
+      "وعالمُ CFD41 (طرفٌ بعد التقسيم) حكمُه واحدٌ بالمفتاح وبدونه", _cfd48, _cfd48_w)
+try:
+    _pre49 = open("chart_finder_prereg.md", encoding="utf-8").read()
+    _s49 = _pre49.split("## ⑫", 1)[1] if "## ⑫" in _pre49 else ""
+    _need49 = ("`SPLIT_AWARE_PREFILTER`", "G3", "لا يُحتسب", "`CP13`", "`CP14`", "`CP15`", "بت-بت", "§⑧-6")
+    _f49 = _cfd_g3_run(_CFD_G3_U, True, splits_ok=False)
+    _cfd49 = (_CF.SPLIT_AWARE_PREFILTER is True and bool(_s49) and all(x in _s49 for x in _need49)
+              and _f49[1] != "XBB" and any("⚠️ G3: تقسيماتُ السوق لم تُجلب" in m for m in _f49[3]))
+    _cfd49_w = (f"مفتاح={_CF.SPLIT_AWARE_PREFILTER} · ملحق ناقص={[x for x in _need49 if x not in _s49]} · "
+                f"تعذّرُ الجلب={_f49[:3]} معلَن={any('⚠️ G3' in m for m in _f49[3])}")
+except Exception as _e:                                           # noqa: BLE001
+    _cfd49, _cfd49_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 CFD49 G3 مُشعَلٌ افتراضًا ومكتوبٌ في ملحق §⑫ (المفتاح · «لا يُحتسب» · `CP13`-`CP15` · بت-بت) · "
+      "**وتعذّرُ جلب التقسيمات يُعلَن** ويبقى المرشِّحُ خامًّا (لا تسويةَ مُخمَّنة)", _cfd49, _cfd49_w)
 _cfd_sh.rmtree(_cfd_tmp, ignore_errors=True)
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
