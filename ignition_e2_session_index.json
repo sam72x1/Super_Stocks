@@ -629,5 +629,18 @@
       "open:segment_window_capped(max_runtime_cap)"
     ],
     "verdict_rule": "2026-09-24"
+  },
+  "2026-09-24": {
+    "n_delivered": 4,
+    "n_emitted": 4,
+    "n_raw_candidates": 4,
+    "n_symbols": 19,
+    "termination": "normal",
+    "session_complete": true,
+    "incomplete_reasons": [],
+    "deferred_reasons": [
+      "open:segment_window_capped(max_runtime_cap)"
+    ],
+    "verdict_rule": "2026-09-24"
   }
 }

@@ -1441,5 +1441,49 @@
   "usd_eff": 30450,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "NNNN",
+  "date": "2026-09-24",
+  "fired_at": "2026-09-24T14:10:19Z",
+  "break_level": 6.16,
+  "price": 6.58,
+  "vol_x": 12.2,
+  "usd": 41100,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "SKYQ",
+  "date": "2026-09-24",
+  "fired_at": "2026-09-24T14:48:06Z",
+  "break_level": 2.8,
+  "price": 3.03,
+  "vol_x": 4.3,
+  "usd": 428037,
+  "candle_class": "strong",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "BTCS",
+  "date": "2026-09-24",
+  "fired_at": "2026-09-24T16:21:24Z",
+  "break_level": 1.61,
+  "price": 1.615,
+  "vol_x": 3.4,
+  "usd": 20709,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
+ },
+ {
+  "symbol": "ONMD",
+  "date": "2026-09-24",
+  "fired_at": "2026-09-24T16:55:09Z",
+  "break_level": 0.68,
+  "price": 0.689,
+  "vol_x": 5.7,
+  "usd": 8951,
+  "candle_class": "group",
+  "source": "e2_reconstructed"
  }
 ]
