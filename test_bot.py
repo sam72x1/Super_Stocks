@@ -66955,7 +66955,7 @@ except Exception as _e:                                              # noqa: BLE
 check("⏱️🕵️ ATM14 النتيجةُ منشورةٌ كما صدرت (`36187368420`): التنبّؤاتُ الأربعة بعلاماتها — **`AT-P2` ❌ يبقى منشورًا بسببه** · "
       "والحارسان بأرقامهما (‏410/411 · 403/404 · 722 من 723) · والجوابُ أوّلُ قسم", _atm14, _atm14_w)
 
-# ── WWK1-WWK9 «أسهمُ البوت هذا الأسبوع وشروطي الثلاثة» (watch_week_probe.py · قراءةٌ فقط) — عالمٌ اصطناعيّ · بلا شبكة ولا git ──
+# ── WWK1-WWK10 «أسهمُ البوت هذا الأسبوع وشروطي الثلاثة» (watch_week_probe.py · قراءةٌ فقط) — عالمٌ اصطناعيّ · بلا شبكة ولا git ──
 import ast as _ww_ast                                                # noqa: E402
 import contextlib as _ww_ctx                                         # noqa: E402
 import datetime as _ww_dt                                            # noqa: E402
@@ -66976,13 +66976,14 @@ def _ww_utc(day, hh, mm, ss=0):
 def _ww_series(sym, d0, d1):
     """شموعٌ اصطناعيّة حتميّة **بالتاريخ لا بموضع النافذة** (سلسلةٌ واحدةٌ من 2025-01-02 تُقصّ على [d0, d1] — فيتطابق RSI
     أيًّا كان بدءُ الجلب) · adjusted = خامّ · بلا تقسيم: AAA/CCC هبوطٌ متّصل (RSI صفر) وAAA يقفز ‏+55% يوم 09-23 · PEN هبوطٌ
-    إلى ما دون الدولار · والباقي تذبذبٌ حول 5$."""
-    px = {"AAA": 500.0, "CCC": 500.0, "PEN": 30.0}.get(sym, 5.0)
+    إلى ما دون الدولار · وPBA/PBB (قائمةُ الارتداد) هبوطٌ متّصل وPBA يقفز ‏+111% يوم 09-24 · والباقي تذبذبٌ حول 5$."""
+    px = {"AAA": 500.0, "CCC": 500.0, "PEN": 30.0, "PBA": 500.0, "PBB": 500.0}.get(sym, 5.0)
     out = []
     for i, d in enumerate(d for d in _WW.calendar(2026) if d >= "2025-01-02"):
-        if sym in ("AAA", "CCC", "PEN"):
+        if sym in ("AAA", "CCC", "PEN", "PBA", "PBB"):
             px *= 0.985 if d < "2025-08-01" else 0.99
-            h = px * (1.6 if (sym == "AAA" and d == "2026-09-23") else 1.001)
+            h = px * (1.6 if (sym == "AAA" and d == "2026-09-23") else 2.2 if (sym == "PBA" and d == "2026-09-24")
+                      else 1.001)
         else:
             px *= (1.003 if i % 2 else 0.997)
             h = px * 1.01
@@ -67002,8 +67003,14 @@ def _ww_world(bad_rsi=0, no_bars=0):
         st = _WW.rsi_at(bars, "2026-09-18") + (10.0 if k < bad_rsi else 0.0)
         fl, av = meta[s]
         ents.append({"symbol": s, "status": "active", "added": "2026-09-18", "ref_bar": "2026-09-18", "rsi": st,
-                     "float": fl, "shares_available": av, "short": 7_000})
-    snaps = {h: {"stocks": [dict(e) for e in ents]} for h in ("h0", "h1", "h2", "h3", "h4")}
+                     "float": fl, "shares_available": av, "short": 7_000,
+                     "cont_status": {"BBB": "continues", "EEE": "exited"}.get(s)})
+    pb = [{"symbol": "PBA", "status": "watching", "float": 1_000_000},
+          {"symbol": "PBB", "status": "triggered", "float": 10_000_000}]
+    snaps = {h: {"stocks": [dict(e) for e in ents],
+                 "pullback": [dict(p) for p in pb] + ([{"symbol": "AAA", "status": "watching", "float": 1_000_000}]
+                                                     if h == "h2" else [])}
+             for h in ("h0", "h1", "h2", "h3", "h4")}
     commits = [(_ww_utc("2026-09-18", 21, 0), "h0"), (_ww_utc("2026-09-22", 3, 0), "h1"),
                (_ww_utc("2026-09-23", 3, 0), "h2"), (_ww_utc("2026-09-24", 3, 0), "h3"),
                (_ww_utc("2026-09-25", 3, 0), "h4")]
@@ -67196,6 +67203,27 @@ except Exception as _e:                                              # noqa: BLE
     _atm_ww9, _atm_ww9_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🗓️🔎 WWK9 الـworkflow يدويٌّ بمُدخَل `week` اختياريّ · تاريخُ git كامل · `contents: read` وحدَه · سرُّه Polygon وحدَه · "
       "بلا تلغرام ولا كرون", _atm_ww9, _atm_ww9_w)
+
+# WWK10 — ⑥ قائمةُ الارتداد تُطبع ولا تَحكم: خارجَ الاتّحاد · الثلاثةُ المعلومة · وحالةُ المتابعة تُطبع ولا تُصفّي
+try:
+    _rc10, _o10 = _ww_run()
+    _L10 = _o10.splitlines()
+    _pbl10 = ("🔁 الارتداد: 2 رمزًا · تستوفي الثلاثةَ المعلومة (RSI · فلوت · دولار) في جلسةٍ: 1 (PBA) · بلغ منها +50%: 1 · "
+              "+100%: 1 · وبلغ +50% من القائمة كلِّها: 1 (PBA) · والمتاحُ مجهولٌ فلا تُحسب مطابقة")
+    _cc10 = "   حالةُ المتابعة (آخرُ لقطةٍ للرمز): ترشيحُ الأسبوع 4 · مستمرّ 1 · خرج من النموذج 1"
+    _mt10 = _o10.split("🎯 المطابقون")[1].split("💥 المقارنة")[0] if "💥 المقارنة" in _o10 and "🎯 المطابقون" in _o10 else ""
+    _ord10 = [_o10.find("🔭 عند إغلاق"), _o10.find("🔁 قائمةُ الارتداد"), _o10.find(_pbl10), _o10.find("🏁")]
+    _atm_ww10 = (_rc10 == 0 and _pbl10 in _L10 and _cc10 in _L10
+                 and any(l.startswith("   🎯 PBA    [watching]") for l in _L10)
+                 and any(l.startswith("      PBB    [triggered]") for l in _L10)
+                 and "AAA" not in _o10.split("🔁 قائمةُ الارتداد")[1].split("🔁 الارتداد:")[0]
+                 and "حالتُه: ترشيحُ الأسبوع" in _mt10 and "PBA" not in _mt10
+                 and all(i >= 0 for i in _ord10) and _ord10 == sorted(_ord10))
+    _atm_ww10_w = f"rc={_rc10} ord={_ord10} pb={[l for l in _L10 if l.startswith('🔁 الارتداد')][:1]}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww10, _atm_ww10_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK10 قائمةُ الارتداد تُطبع ولا تَحكم: الرمزُ الذي في القائمة الرئيسيّة خارجها · الثلاثةُ المعلومة وحدَها (الفلوتُ الكبير لا) · "
+      "والصعودُ من أوّل جلسةٍ تستوفيها · وحالةُ المتابعة تُطبع ولا تُصفّي · وسطرُ الحكم لا يتغيّر", _atm_ww10, _atm_ww10_w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

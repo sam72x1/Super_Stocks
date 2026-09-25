@@ -19,6 +19,9 @@
 ④ **حارسا الصدق قبل الأرقام:** `V-W1` RSI المحسوب عند `ref_bar` يطابق `rsi` المخزَّن (ضمن نقطتين) لـ80% فأكثر من ترشيحات الأسبوع
    (5 فأكثر) وإلّا خروج 3 · `V-W2` شموعٌ لـ90% فأكثر من الرموز وإلّا خروج 3.
 ⑤ **بديلٌ يُطبع ولا يَحكم:** «الشورت» = حجمُ FINRA اليوميّ (`short`) أقلّ من 20 ألفًا.
+⑥ **مجتمعٌ ثانٍ يُطبع ولا يَحكم — قائمةُ الارتداد** (`pullback` من اللقطة نفسِها · كلُّ حالاتها · خارجَ اتّحاد القائمة الرئيسيّة):
+   «المتاح» لا يُخزَّن لها ⇒ **الاقترانُ مجهولٌ بالبناء** ⟵ تُطبع الثلاثةُ المعلومة (RSI · فلوت · دولار) وأقصى الصعود ·
+   ولا تدخل سطرَ الحكم ولا `V-W2` · **وحالةُ المتابعة** (`cont_status`: ترشيحُ الأسبوع · مستمرّ · خرج من النموذج) تُطبع ولا تُصفّي.
 
 الخروج: 0 قياس · 2 بلا مفتاح · 3 حارسٌ ساقط · 4 لا لقطة/لا رمز · 5 ليست قراءةً فقط.
 """
@@ -122,6 +125,19 @@ def active_entries(js):
     """{رمز: مدخل} للنشط وحدَه."""
     return {s["symbol"]: s for s in ((js or {}).get("stocks") or [])
             if s.get("symbol") and s.get("status", "active") == "active"}
+
+
+def pullback_entries(js):
+    """{رمز: مدخل} لقائمة الارتداد كلِّها (مراقَبةٌ ومُطلَقة) — مجتمعٌ ثانٍ يُطبع ولا يَحكم (⑥)."""
+    return {p["symbol"]: p for p in ((js or {}).get("pullback") or []) if p.get("symbol")}
+
+
+CONT = {None: "ترشيحُ الأسبوع", "renewed": "أعاد التأهّل", "continues": "مستمرّ", "exited": "خرج من النموذج"}
+
+
+def cont_label(e):
+    """حالةُ المتابعة بالعربيّة (`cont_status`) — عرضٌ فقط."""
+    return CONT.get((e or {}).get("cont_status"), str((e or {}).get("cont_status")))
 
 
 # ─────────────────────────── الشروط والانفجار ───────────────────────────
@@ -229,7 +245,7 @@ def main(now=None) -> int:                                           # noqa: PLR
     monday = WEEK or monday_of(last_day)
     days = week_days(cal, monday, last_day)
     commits = wl_commits()
-    lists = {}
+    lists, pb_by = {}, {}
     for d in days:
         sb = snapshot_before(commits, open_utc(d))
         if not sb:
@@ -238,6 +254,7 @@ def main(now=None) -> int:                                           # noqa: PLR
         if js is None:
             continue
         lists[d] = (sb[0], sb[1], active_entries(js))
+        pb_by[d] = pullback_entries(js)
     if not lists:
         log(f"⛔ لا لقطةَ قبل أيّ جلسة في أسبوع {monday}")
         return 4
@@ -256,6 +273,12 @@ def main(now=None) -> int:                                           # noqa: PLR
         log("⛔ صفرُ رمز")
         return 4
     log(f"👥 المراقَبة هذا الأسبوع (اتّحادُ القوائم قبل الافتتاح): {len(union)} رمزًا")
+    last_entry = {}
+    for d in wdays:
+        for s, e in lists[d][2].items():
+            last_entry[s] = e
+    cc = collections.Counter(cont_label(last_entry[s]) for s in union)
+    log("   حالةُ المتابعة (آخرُ لقطةٍ للرمز): " + " · ".join(f"{k} {v}" for k, v in sorted(cc.items(), key=lambda kv: -kv[1])))
 
     d0 = (dt.date.fromisoformat(wdays[0]) - dt.timedelta(days=HIST_DAYS)).isoformat()
     adj_by, raw_by = {}, {}
@@ -339,7 +362,7 @@ def main(now=None) -> int:                                           # noqa: PLR
         ex = " · ".join(f"+{int(t)}%: {'نعم' if (mr2 or -1e9) >= t else 'لا'}" for t in EXPLODE)
         log(f"   🎯 {s}: أوّلُ مطابقةٍ داخلًا إلى {dm} (إغلاق {r['c']}) · RSI {_fmt(r['rsi'], '{:.1f}')} · فلوت {_fmt(r['float'])} · "
             f"متاح {_fmt(r['avail'])} · سعر ${_fmt(r['px'], '{:.2f}')} · جلساتُ المطابقة {k} · أقصى صعودٍ بعدها "
-            f"{_fmt(mr2, '{:+.1f}%')}{'' if md2 is None else ' (' + md2 + ')'} · {ex}")
+            f"{_fmt(mr2, '{:+.1f}%')}{'' if md2 is None else ' (' + md2 + ')'} · {ex} · حالتُه: {cont_label(last_entry[s])}")
     if not matched:
         log("   لا أحد")
     if unknown:
@@ -368,6 +391,44 @@ def main(now=None) -> int:                                           # noqa: PLR
             now_m.append(s)
     log(f"🔭 عند إغلاق {last} (قائمةُ آخر جلسة · للأسبوع القادم قبل التجديد): يطابق {len(now_m)}"
         f"{' — ' + ', '.join(sorted(now_m)) if now_m else ''}")
+
+    # ── ⑥ قائمةُ الارتداد — تُطبع ولا تَحكم ──
+    pb_union = sorted({s for d in wdays for s in pb_by.get(d, {})} - set(union))
+    log("")
+    log("=" * 78)
+    log(f"🔁 قائمةُ الارتداد (مستقلّة · تُطبع ولا تَحكم · «المتاح» لا يُخزَّن لها ⇒ الاقترانُ مجهولٌ بالبناء): {len(pb_union)} رمزًا")
+    log("=" * 78)
+    pb_three, pb_boom, pb_dead = [], [], []
+    for s in pb_union:
+        adj, raw = fetch_bars(s, d0, wdays[-1], key)
+        if not adj:
+            pb_dead.append(s)
+            continue
+        ds = sorted(d for d in wdays if s in pb_by.get(d, {}))
+        cells, hit = [], []
+        for d in ds:
+            c = prev_day(cal, d)
+            f = flags(rsi_at(adj, c), close_at(raw or [], c), _num(pb_by[d][s].get("float")), None)
+            cells.append(f"{d[5:]} RSI {_fmt(rsi_at(adj, c), '{:.1f}')} {_mark(f[0])}{_mark(f[1])}{_mark(f[3])}")
+            if f[0] and f[1] and f[3]:
+                hit.append((d, c))
+        mr, mday = max_rise(adj, prev_day(cal, ds[0]), ds[0], wdays[-1])
+        st = pb_by[ds[-1]][s].get("status") or "—"
+        log(f"   {'🎯' if hit else '  '} {s:6} [{st}] {' | '.join(cells)} · فلوت {_fmt(_num(pb_by[ds[-1]][s].get('float')))} · "
+            f"أقصى صعودٍ {_fmt(mr, '{:+.1f}%')}{'' if mday is None else ' (' + mday[5:] + ')'}")
+        if hit:
+            mr3, _md3 = max_rise(adj, hit[0][1], hit[0][0], wdays[-1])
+            pb_three.append((s, mr3))
+        if mr is not None and mr >= EXPLODE[0]:
+            pb_boom.append((s, mr))
+    if pb_dead:
+        log(f"   بلا شموع: {', '.join(pb_dead)}")
+    t50 = sum(1 for _s, m in pb_three if m is not None and m >= EXPLODE[0])
+    t100 = sum(1 for _s, m in pb_three if m is not None and m >= EXPLODE[1])
+    log(f"🔁 الارتداد: {len(pb_union)} رمزًا · تستوفي الثلاثةَ المعلومة (RSI · فلوت · دولار) في جلسةٍ: {len(pb_three)}"
+        f"{' (' + ', '.join(s for s, _m in pb_three) + ')' if pb_three else ''} · بلغ منها +50%: {t50} · +100%: {t100} · "
+        f"وبلغ +50% من القائمة كلِّها: {len(pb_boom)}{' (' + ', '.join(s for s, _m in pb_boom) + ')' if pb_boom else ''} · "
+        f"والمتاحُ مجهولٌ فلا تُحسب مطابقة")
 
     n50 = sum(1 for m in matched if m[3] is not None and m[3] >= EXPLODE[0])
     n100 = sum(1 for m in matched if m[3] is not None and m[3] >= EXPLODE[1])
