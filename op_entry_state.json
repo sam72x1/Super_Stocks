@@ -1194,8 +1194,8 @@
  },
  "LIQ:ONFO": {
   "last_eval_ms": 1790377140000,
-  "tc_cum": 713085.1174755627,
-  "tc_seen_ms": 1790377020000,
+  "tc_cum": 713404.4074755628,
+  "tc_seen_ms": 1790377140000,
   "date": "2026-09-25"
  },
  "LIQ:TANH": {
@@ -2132,12 +2132,12 @@
    "exit_ms": 1790366400000
   },
   "trig": "T-C",
-  "date": "2026-09-25",
   "pre_done": true,
   "pre_hi": 5.54,
   "pre_usd": 1980,
   "pre_n": 1,
-  "exit_ms": 1790375880000
+  "exit_ms": 1790375880000,
+  "date": "2026-09-25"
  },
  "LIQ:LICN": {
   "last_eval_ms": 1790361180000,
@@ -2613,19 +2613,16 @@
   "date": "2026-09-23"
  },
  "LIQ:CLRO": {
-  "last_eval_ms": 1790377140000,
-  "tc_cum": 133870.769211,
-  "tc_seen_ms": 1790365020000,
-  "date": "2026-09-25",
   "anchor_ms": 1790377080000,
-  "last_ms": 1790377080000,
+  "last_ms": 1790377140000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 16.1,
   "peak_usd": 48636,
-  "pulse_ms": 1790377080000,
+  "last_eval_ms": 1790377140000,
+  "pulse_ms": 1790377140000,
   "anchor_price": 4.29,
   "anchor_open": 3.99,
   "anchor_low": 3.99,
@@ -2633,7 +2630,9 @@
   "pre_done": true,
   "pre_hi": 3.9985,
   "pre_usd": 2807,
-  "pre_n": 1
+  "pre_n": 1,
+  "exit_ms": 1790377140000,
+  "date": "2026-09-25"
  },
  "LIQ:FLNC": {
   "last_eval_ms": 1790377140000,
