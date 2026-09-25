@@ -1451,7 +1451,10 @@
   "vol_x": 12.2,
   "usd": 41100,
   "candle_class": "group",
-  "source": "e2_reconstructed"
+  "source": "e2_reconstructed",
+  "fired_ts_ms": 1790259019624,
+  "trigger_bar_ms": 1790258880000,
+  "fired_ts_src": "telegram_sent"
  },
  {
   "symbol": "SKYQ",
@@ -1462,7 +1465,10 @@
   "vol_x": 4.3,
   "usd": 428037,
   "candle_class": "strong",
-  "source": "e2_reconstructed"
+  "source": "e2_reconstructed",
+  "fired_ts_ms": 1790261286320,
+  "trigger_bar_ms": 1790261160000,
+  "fired_ts_src": "telegram_sent"
  },
  {
   "symbol": "BTCS",
@@ -1473,7 +1479,10 @@
   "vol_x": 3.4,
   "usd": 20709,
   "candle_class": "group",
-  "source": "e2_reconstructed"
+  "source": "e2_reconstructed",
+  "fired_ts_ms": 1790266884673,
+  "trigger_bar_ms": 1790266740000,
+  "fired_ts_src": "telegram_sent"
  },
  {
   "symbol": "ONMD",
@@ -1484,6 +1493,9 @@
   "vol_x": 5.7,
   "usd": 8951,
   "candle_class": "group",
-  "source": "e2_reconstructed"
+  "source": "e2_reconstructed",
+  "fired_ts_ms": 1790268909441,
+  "trigger_bar_ms": 1790268540000,
+  "fired_ts_src": "telegram_sent"
  }
 ]
