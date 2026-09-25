@@ -5673,6 +5673,122 @@ check("🔴 E2B5 المدقّقُ يَسِم عدَّيه **بنطاقهما** (
       and "(من الفهرس: e2_recover)" in _e2b_o2
       and "بوّابة E2-A (SPEC §18)" not in _e2b_o2 and "تتراكم (المطلوب 5" not in _e2b_o2,
       _e2b_o2[-260:])
+# 🗄️ (2026-09-25) **أرشيفُ الخام المتجدّد** — artifacts الجلسات احتفاظُها 90 يومًا (‏جلسة 08-11 ينتهي 11-09)
+#    وبوّابتا E2-B/C تحتاجان خامَ أشهر ⇒ اتّحادٌ يُرفع من جديد ولا ينكمش (`e2_recover.py` · `e2_recover.yml`).
+_arc_root = _tmp.mkdtemp(prefix="arc_")
+
+
+def _arc_mk(root, date, loops, tag):
+    _d = _os.path.join(root, "session_" + date)
+    _os.makedirs(_d, exist_ok=True)
+    with open(_os.path.join(_d, "session.json"), "w", encoding="utf-8") as _fh:
+        _json.dump({"session_date": date, "loops_completed": loops, "tag": tag}, _fh)
+    return _d
+
+
+_arc_prev = _os.path.join(_arc_root, "prev")
+_arc_cur = _os.path.join(_arc_root, "cur")
+_arc_mk(_arc_prev, "2026-07-29", 400, "prev")
+_arc_mk(_arc_prev, "2026-08-04", 300, "prev")
+_arc_mk(_arc_prev, "2026-08-05", 420, "prev")
+_arc_mk(_arc_cur, "2026-08-04", 416, "cur")          # أكثرُ دوراتٍ مكتملة ⇒ يستبدل
+_arc_mk(_arc_cur, "2026-08-05", 420, "cur")          # تعادلٌ ⇒ يبقى السابق
+_arc_mk(_arc_cur, "2026-09-24", 481, "cur")          # جديد
+_arc_out = _os.path.join(_arc_root, "out")
+try:
+    _arc_m = _RC.merge_raw_archive(_arc_prev, _arc_cur, _arc_out)
+except Exception as _e:                                          # noqa: BLE001
+    _arc_m = {"⛔": type(_e).__name__}
+try:
+    _RC.merge_raw_archive(_arc_prev, _arc_cur, _arc_out)         # مجلّدٌ غيرُ فارغ ⇒ يُرفض لا يُخلَط
+    _arc_raise = False
+except ValueError:
+    _arc_raise = True
+except Exception:                                                # noqa: BLE001
+    _arc_raise = False
+
+
+def _arc_tag(root, d):
+    try:
+        return _json.load(open(_os.path.join(root, "session_" + d, "session.json"), encoding="utf-8"))["tag"]
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+
+
+check("🗄️ ARC1 الأرشيفُ اتّحادٌ لا ينكمش: الأكثرُ دوراتٍ يستبدل · التعادلُ للسابق · الجديدُ يُضاف · ولا يُخلَط بمجلّدٍ غيرِ فارغ",
+      _arc_m.get("prev") == 3 and _arc_m.get("out") == 4 and _arc_m.get("added") == ["2026-09-24"]
+      and _arc_m.get("replaced") == ["2026-08-04"] and _arc_raise
+      and [_arc_tag(_arc_out, d) for d in ("2026-07-29", "2026-08-04", "2026-08-05", "2026-09-24")]
+      == ["prev", "cur", "prev", "cur"], str(_arc_m))
+_arc_D = _RC.archive_upload_decision
+check("🗄️ ARC2 قرارُ الرفع: لا أصغرَ من السابق أبدًا · تعذّرُ السابق يمنع · تأسيسٌ · تجديدٌ قبل الـ90 · والجديدُ أسبوعيًّا إلّا القديمَ فورًا",
+      _arc_D("failed", None, 0, 5, 5)[0] is False
+      and _arc_D("ok", 40, 10, 9, 0)[0] is False
+      and _arc_D("none", None, 0, 4, 4)[0] is True and _arc_D("none", None, 0, 0, 0)[0] is False
+      and _arc_D("ok", _RC.RAW_RENEW_DAYS, 10, 10, 0)[0] is True
+      and _arc_D("ok", _RC.RAW_RENEW_DAYS - 1, 10, 10, 0)[0] is False
+      and _arc_D("ok", 2, 10, 11, 1, 1)[0] is False
+      and _arc_D("ok", _RC.RAW_NEW_MIN_DAYS, 10, 11, 1, 1)[0] is True
+      and _arc_D("ok", 2, 4, 48, 44, 90 - _RC.RAW_RENEW_DAYS)[0] is True
+      and _arc_D("ok", 2, 4, 48, 44, 90 - _RC.RAW_RENEW_DAYS - 1)[0] is False
+      and _RC.RAW_NEW_MIN_DAYS < _RC.RAW_RENEW_DAYS < 90, "")
+# 🔌 الخطوةُ كاملة: حالةُ السابق من ملفّها ⟵ الاتّحاد ⟵ قرارُ الرفع وعلمُه ⟵ وإعلانُ ما في الفهرس بلا خام.
+_arc2 = _tmp.mkdtemp(prefix="arc2_")
+with open(_os.path.join(_arc2, "ignition_e2_session_index.json"), "w", encoding="utf-8") as _fh:
+    _json.dump({d: {} for d in ("2026-07-15", "2026-07-29", "2026-08-04", "2026-08-05", "2026-09-24")}, _fh)
+_arc_now = S.dt.datetime(2026, 9, 25, 2, 0, tzinfo=S.dt.timezone.utc)
+
+
+def _arc_build(tag, status_text):
+    _st = _os.path.join(_arc2, tag + ".status")
+    _fl = _os.path.join(_arc2, tag + ".flag")
+    if status_text is not None:
+        with open(_st, "w", encoding="utf-8") as _fh:
+            _fh.write(status_text)
+    _io = __import__("io").StringIO()
+    try:
+        with __import__("contextlib").redirect_stdout(_io):
+            _r = _RC.build_raw_archive(_arc_prev, _arc_cur, _os.path.join(_arc2, tag + "_out"),
+                                       status_file=_st, flag_file=_fl, repo_root=_arc2, now=_arc_now)
+    except Exception as _e:                                      # noqa: BLE001
+        _r = {"⛔": type(_e).__name__}
+    _flag = open(_fl, encoding="utf-8").read() if _os.path.exists(_fl) else None
+    return _r, _flag, _io.getvalue()
+
+
+_arc_a, _arc_af, _arc_ao = _arc_build("a", "ok 2026-09-20T01:00:00Z\n")      # عمرُ السابق 5 أيام
+_arc_b, _arc_bf, _arc_bo = _arc_build("b", None)                            # لا ملفَّ حالة ⇒ تعذّر
+_arc_c, _arc_cf, _arc_co = _arc_build("c", "none\n")                         # تأسيس
+check("🔌 ARC3 خطوةُ الأرشيف: أسبوعيٌّ لا يُرفع قبل أوانه · التعذّرُ لا يرفع · التأسيسُ يرفع ويكتب علمَه · والفهرسُ بلا خامٍ **يُعلَن**",
+      _arc_a.get("status") == "ok" and _arc_a.get("age") == 5 and _arc_a.get("upload") is False
+      and _arc_af is None and _arc_a.get("missing") == ["2026-07-15"]
+      and "في الفهرس بلا خامٍ في الأرشيف: 1 — 2026-07-15" in _arc_ao
+      and _arc_b.get("status") == "failed" and _arc_b.get("upload") is False and _arc_bf is None
+      and _arc_c.get("upload") is True and (_arc_cf or "").strip() == "تأسيس",
+      str({k: _arc_a.get(k) for k in ("status", "age", "upload", "missing")}) + " · "
+      + str(_arc_b.get("status")) + " · " + str(_arc_cf))
+# 🔌 والـworkflow موصول: يُنزِّل أحدثَ أرشيفٍ **غيرِ منتهٍ** ⟵ يبني **بعد** الدمج ⟵ ويرفع بعلمه وحدَه (90 يومًا).
+import yaml as _arc_yaml                                          # noqa: E402
+try:
+    _arc_steps = _arc_yaml.safe_load(open(".github/workflows/e2_recover.yml", encoding="utf-8"))["jobs"]["recover"]["steps"]
+except Exception as _e:                                          # noqa: BLE001
+    _arc_steps = []
+_arc_names = [s.get("name", "") for s in _arc_steps]
+_arc_i = lambda pred: next((i for i, s in enumerate(_arc_steps) if pred(s)), -1)
+_arc_dl = _arc_i(lambda s: "archive_prev_status" in str(s.get("run", "")))
+_arc_mg = _arc_i(lambda s: "e2_recover.py recovered" in str(s.get("run", "")))
+_arc_bd = _arc_i(lambda s: "e2_recover.py --archive archive_prev e2_measurement e2_raw_archive" in str(s.get("run", "")))
+_arc_up = _arc_i(lambda s: (s.get("with") or {}).get("name") == _RC.RAW_ARCHIVE_NAME)
+_arc_dlrun = str(_arc_steps[_arc_dl].get("run", "")) if _arc_dl >= 0 else ""
+_arc_upw = (_arc_steps[_arc_up].get("with") or {}) if _arc_up >= 0 else {}
+check("🔌 ARC4 الـworkflow: تنزيلُ أحدثِ أرشيفٍ غيرِ منتهٍ ⟵ دمجٌ ⟵ بناءٌ بعدَه ⟵ رفعٌ بعلمه وحدَه (احتفاظٌ 90)",
+      0 <= _arc_dl < _arc_mg < _arc_bd < _arc_up
+      and ("name=%s" % _RC.RAW_ARCHIVE_NAME) in _arc_dlrun and "select(.expired == false)" in _arc_dlrun
+      and "hashFiles('archive_upload.flag')" in str(_arc_steps[_arc_up].get("if", ""))
+      and int(_arc_upw.get("retention-days", 0)) == 90
+      and str(_arc_upw.get("path", "")).rstrip("/") == "e2_raw_archive"
+      and "upload-artifact" in str(_arc_steps[_arc_up].get("uses", "")),
+      f"{_arc_dl} · {_arc_mg} · {_arc_bd} · {_arc_up}")
 # ── 🔬 P0-1/P1.3: NBBO قياسي **لا-تزامني** (worker) خارج مسار التنبيه + measurement مفضَّل ──
 _p13_fresh = int(_time_e2.time() * 1e9)
 _p13_stale = int((_time_e2.time() - 100) * 1e9)

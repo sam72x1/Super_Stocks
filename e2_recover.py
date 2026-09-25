@@ -319,7 +319,123 @@ def _delivered_fires(best):
     return out
 
 
+# 🗄️ (2026-09-25) **أرشيفُ الخام المتجدّد** — خامُ كلّ جلسة (candidates · minute_paths …) يعيش في artifact
+#    احتفاظُه 90 يومًا (مواصفة E2 §5/§12: لا يُدفَع للريبو)، وبوّابتا E2-B/C تحتاجان خامَ **أشهر**
+#    (‏20 ثمّ 50 تنبيهًا بـ≈0.39 للجلسة المكتملة) ⇒ أوّلُ مكتملةٍ (07-29) ينتهي ≈10-27 قبل أن تُبلغ E2-B.
+#    فيُنزَّل أحدثُ أرشيفٍ غيرِ منتهٍ ويُتّحد مع جلسات الليلة ويُرفع من جديد (احتفاظٌ جديد) — **ولا ينكمش**.
+RAW_ARCHIVE_NAME = "e2-raw-archive"
+RAW_RENEW_DAYS = 30          # تجديدٌ إلزاميّ قبل الـ90 بفسحةٍ واسعة
+RAW_NEW_MIN_DAYS = 7         # الجديدُ يُضاف أسبوعيًّا — وكلُّ جلسةٍ محميّةٌ بـartifact‌ها حتى ذلك
+
+
+def _raw_sessions(root):
+    """`{تاريخ: مجلّد}` لمجلّدات `session_*` **مباشرةً** تحت الجذر (الأرشيفُ مسطَّح)."""
+    out = {}
+    if root and os.path.isdir(root):
+        for d in sorted(os.listdir(root)):
+            p = os.path.join(root, d)
+            if d.startswith("session_") and os.path.isdir(p):
+                out[d[len("session_"):]] = p
+    return out
+
+
+def _loops_of(sdir):
+    try:
+        return int(_read_json(os.path.join(sdir, "session.json")).get("loops_completed") or 0)
+    except (TypeError, ValueError):
+        return 0
+
+
+def merge_raw_archive(prev_dir, cur_root, out_dir):
+    """🗄️ **اتّحادُ** جلسات الأرشيف السابق وجلسات هذه التشغيلة في `out_dir` (يُشترَط فارغًا).
+    تاريخٌ في الاثنين يفوز فيه **الأكثرُ دوراتٍ مكتملة** (قاعدةُ `recover`) والتعادلُ للسابق (لا تقلّب).
+    **لا ينكمش بالبناء:** كلُّ تاريخٍ في السابق يبقى."""
+    if os.path.isdir(out_dir) and os.listdir(out_dir):
+        raise ValueError("مجلّدُ الأرشيف الجديد غيرُ فارغ: %s" % out_dir)
+    prev, cur = _raw_sessions(prev_dir), _raw_sessions(cur_root)
+    os.makedirs(out_dir, exist_ok=True)
+    added, replaced = [], []
+    for date in sorted(set(prev) | set(cur)):
+        src = prev.get(date)
+        if date in cur and (src is None or _loops_of(cur[date]) > _loops_of(src)):
+            (replaced if src else added).append(date)
+            src = cur[date]
+        shutil.copytree(src, os.path.join(out_dir, "session_%s" % date))
+    return {"prev": len(prev), "out": len(set(prev) | set(cur)), "added": added,
+            "replaced": replaced, "dates": sorted(set(prev) | set(cur))}
+
+
+def archive_upload_decision(prev_status, prev_age_days, n_prev, n_out, changed, oldest_new_age=None):
+    """🗄️ نقيّة: هل يُرفع أرشيفُ الليلة؟ ⟵ `(نعم/لا، السبب)`. **لا يُرفع أصغرُ من السابق أبدًا** —
+    وتعذّرُ تنزيل السابق يمنع الرفع (فيبقى السابقُ أحدثَ أرشيفٍ وتُعاد المحاولةُ الليلةَ التالية).
+    والجديدُ يُضاف أسبوعيًّا **إلّا جلسةً قديمةً** (عمرُها ‏90 − `RAW_RENEW_DAYS` يومًا فأكثر: artifact‌ها
+    يقترب انتهاؤه) فتُرفع فورًا — وهي حالُ الاسترجاع الكامل الذي يؤسّس الأرشيف."""
+    if prev_status == "failed":
+        return False, "تعذّر تنزيلُ الأرشيف السابق ⇒ لا يُرفع أصغرُ منه (يُعاد الليلةَ التالية)"
+    if n_out < n_prev:
+        return False, "انكماش (%d ⟵ %d) ⇒ لا يُرفع" % (n_out, n_prev)
+    if n_out == 0:
+        return False, "أرشيفٌ فارغ ⇒ لا يُرفع (خطوةُ الرفع تشترط ملفّات)"
+    if prev_status == "none":
+        return True, "تأسيس"
+    if prev_age_days is None:
+        return True, "عمرُ السابق مجهول ⇒ يُجدَّد"
+    if prev_age_days >= RAW_RENEW_DAYS:
+        return True, "تجديدُ الاحتفاظ (عمرُ السابق %d يومًا)" % prev_age_days
+    if changed and oldest_new_age is not None and oldest_new_age >= 90 - RAW_RENEW_DAYS:
+        return True, "جلساتٌ قديمة (أقدمُها %d يومًا) يقترب انتهاءُ artifact‌ها" % oldest_new_age
+    if changed and prev_age_days >= RAW_NEW_MIN_DAYS:
+        return True, "جلساتٌ جديدة (%d)" % changed
+    return False, "لا حاجة (عمرُ السابق %d يومًا · تغيّر %d)" % (prev_age_days, changed)
+
+
+def _age_days(created_iso, now=None):
+    import datetime as _dt
+    try:
+        c = _dt.datetime.fromisoformat(str(created_iso).replace("Z", "+00:00"))
+        n = now or _dt.datetime.now(_dt.timezone.utc)
+        return max(0, (n - c).days)
+    except (TypeError, ValueError):
+        return None
+
+
+def build_raw_archive(prev_dir, cur_root, out_dir, status_file="archive_prev_status",
+                      flag_file="archive_upload.flag", repo_root=".", now=None):
+    """🗄️ خطوةُ الـworkflow: يقرأ حالةَ تنزيل السابق (`ok <created>` · `none` · `failed`) ⟵ يتّحد ⟵ يقرّر
+    الرفع ويكتب `flag_file` عند «نعم» ⟵ ويُعلن ما في الفهرس بلا خامٍ في الأرشيف (لا صمت)."""
+    try:
+        with open(status_file, encoding="utf-8") as fh:
+            st = fh.read().split()
+    except OSError:
+        st = ["failed"]
+    status = st[0] if st and st[0] in ("ok", "none", "failed") else "failed"
+    age = _age_days(st[1], now) if status == "ok" and len(st) > 1 else None
+    m = merge_raw_archive(prev_dir if status == "ok" else None, cur_root, out_dir)
+    _new = m["added"] + m["replaced"]
+    _ages = [a for a in (_age_days(d + "T00:00:00+00:00", now) for d in _new) if a is not None]
+    ok, why = archive_upload_decision(status, age, m["prev"], m["out"], len(_new),
+                                      max(_ages) if _ages else None)
+    if ok:
+        with open(flag_file, "w", encoding="utf-8") as fh:
+            fh.write(why + "\n")
+    idx = _read_json(os.path.join(repo_root, INDEX))
+    missing = sorted(d for d in idx if d not in set(m["dates"]))
+    print("🗄️ أرشيفُ الخام: %d جلسة (كان %d · جديدة %d · استُبدلت %d) · السابق: %s%s"
+          % (m["out"], m["prev"], len(m["added"]), len(m["replaced"]), status,
+             "" if age is None else " (عمرُه %d يومًا)" % age))
+    print("   ⟵ %s: %s" % ("يُرفع" if ok else "لا يُرفع", why))
+    print("   في الفهرس بلا خامٍ في الأرشيف: %s"
+          % (("%d — %s" % (len(missing), ", ".join(missing[:8]) + (" …" if len(missing) > 8 else "")))
+             if missing else "لا شيء"))
+    return {**m, "status": status, "age": age, "upload": ok, "why": why, "missing": missing}
+
+
 if __name__ == "__main__":
+    if len(sys.argv) >= 2 and sys.argv[1] == "--archive":
+        if len(sys.argv) < 5:
+            sys.exit("الاستعمال: e2_recover.py --archive <الأرشيف السابق> <e2_measurement> <مجلّد الأرشيف الجديد>")
+        build_raw_archive(sys.argv[2], sys.argv[3], sys.argv[4])
+        sys.exit(0)
     if len(sys.argv) < 2:
         sys.exit("الاستعمال: e2_recover.py <مجلّد تنزيلات artifacts>")
     recover(sys.argv[1])

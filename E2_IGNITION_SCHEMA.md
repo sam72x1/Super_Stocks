@@ -41,6 +41,10 @@ e2_measurement/session_YYYY-MM-DD/
   minute_paths.jsonl.gz  ← مسار الدقيقة (دِدوب symbol+t) — لتحليل النتيجة لاحقًا
 ```
 **الخام** (`e2_measurement/`) يُرفَع **artifact** (retention 90) — **لا يُدفَع للريبو** (`.gitignore`).
+🗄️ **(2026-09-25) أرشيفٌ متجدّد:** احتفاظُ الـ90 أقصرُ من عيّنة E2-B/C (أشهر) ⇒ `e2_recover.yml` يبني ليلًا
+artifact **`e2-raw-archive`** = اتّحادُ أحدثِ أرشيفٍ غيرِ منتهٍ وجلساتِ الليلة (لا ينكمش · يُجدَّد قبل الـ90 ·
+`merge_raw_archive`/`archive_upload_decision` في `e2_recover.py` · أقفال `ARC1`-`ARC4`) — **ولا يُدفَع للريبو**
+(خامُ Polygon). **والتحليلُ اللاحق يقرأ أحدثَه غيرَ المنتهي** لا artifacts الجلسات المتفرّقة.
 الصغيران القابلان للدفع (العامل الحيّ فقط): `ignition_e2_summary.json` · `ignition_e2_session_index.json`.
 **crash-safe:** candidates/deliveries/minute تُلحَق فورًا مع flush · session كل 7 دورات ·
 `finalize` في `finally` (يكتب حتى عند exception/timeout).

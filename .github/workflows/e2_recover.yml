@@ -59,8 +59,41 @@ jobs:
           echo "نُزِّل $got · مفقود:${miss:- لا شيء}"
           # صفر تنزيلات = لا فائدة، أبلغ صراحةً ولا تُعلن نجاحًا كذبًا
           if [ "$got" = 0 ]; then echo "::error::⛔ لم يُنزَّل أي artifact"; exit 1; fi
+      # 🗄️ (2026-09-25) **أرشيفُ الخام المتجدّد** — artifacts الجلسات احتفاظُها 90 يومًا وبوّابتا E2-B/C
+      #    تحتاجان خامَ أشهر (أوّلُ مكتملةٍ 07-29 ينتهي ≈10-27) ⇒ أحدثُ أرشيفٍ غيرِ منتهٍ يُنزَّل ويُتّحد مع
+      #    جلسات الليلة ويُرفع من جديد (احتفاظٌ جديد). **لا يُدفَع للريبو** (مواصفة E2 §5/§12 · خامُ Polygon).
+      #    والحالةُ تُكتب ولا تُسقط الجوب: تعذّرٌ ⇒ `failed` ⇒ لا يُرفع أصغرُ من السابق (`e2_recover.py`).
+      - name: Download previous raw archive
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -u
+          META=$(gh api "repos/$REPO/actions/artifacts?name=e2-raw-archive&per_page=50" \
+                   -q '[.artifacts[] | select(.expired == false)] | sort_by(.created_at)
+                       | if length == 0 then "NONE" else (last | "\(.workflow_run.id) \(.created_at)") end' \
+                 2>/dev/null) || META="ERR"
+          if [ "$META" = "NONE" ]; then
+            echo "none" > archive_prev_status; echo "🗄️ لا أرشيفَ سابق — تأسيس"
+          elif [ "$META" = "ERR" ] || [ -z "$META" ]; then
+            echo "failed" > archive_prev_status; echo "::warning::⚠️ تعذّر سؤالُ API عن الأرشيف السابق"
+          elif gh run download "${META%% *}" -n e2-raw-archive -D archive_prev; then
+            echo "ok ${META#* }" > archive_prev_status; echo "🗄️ الأرشيفُ السابق: $META"
+          else
+            echo "failed" > archive_prev_status; echo "::warning::⚠️ تعذّر تنزيلُ الأرشيف السابق ($META)"
+          fi
       - name: Merge recovered sessions into repo index
         run: python e2_recover.py recovered | tee recover_report.txt
+      - name: Rebuild raw archive (union · never shrinks)
+        run: python e2_recover.py --archive archive_prev e2_measurement e2_raw_archive | tee -a recover_report.txt
+      - name: Upload raw archive (renews the 90-day retention)
+        if: hashFiles('archive_upload.flag') != ''
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2-raw-archive
+          path: e2_raw_archive/
+          retention-days: 90
+          if-no-files-found: error
       - name: Strict validator over all recovered sessions (تقرير لا بوّابة)
         continue-on-error: true
         run: python ignition_e2_analyze.py e2_measurement --strict | tee -a recover_report.txt
