@@ -65924,6 +65924,187 @@ except Exception as _e:                                            # noqa: BLE00
     _shr15, _shr15_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🌅🗂️ SHR15 `SHADOW_SINCE` الفارغُ يرجع إلى 2026-08-17: حدثُ الجدولة يمرّر المُدخَلَ فارغًا و`get` بافتراضٍ "
       "كان يقرأ التاريخَ كلَّه (عيبٌ كامنٌ أُصلح قبل أيّ كرون) · والغائبُ والمُعطى كما كانا", _shr15, _shr15_w)
+# ── PLK1-PLK10 أداةُ T-PRELINK (prelink_probe.py · العقد prelink_prereg.md §①-§⑧) — نقيّةٌ قابلةٌ للحقن · قراءةٌ فقط ──
+try:
+    import numpy as _np_plk
+    _old_plk = _cfd_os.environ.pop("POLYGON_API_KEY", None)
+    try:
+        import prelink_probe as _PLK
+    finally:
+        if _old_plk is not None:
+            _cfd_os.environ["POLYGON_API_KEY"] = _old_plk
+    _plk_src = open("prelink_probe.py", encoding="utf-8").read()
+    _plk_ban = {"send_telegram", "git_save", "save_watchlist", "save_op_entry_state", "record_new_alerts",
+                "save_near_watch", "save_hunter_watch"}
+    _plk_hits = {(getattr(n.func, "id", None) or getattr(n.func, "attr", None))
+                 for n in _ast0.walk(_ast0.parse(_plk_src)) if isinstance(n, _ast0.Call)}
+    _plk_bad = _plk_src.replace("def load_kasih(year):", "def load_kasih(year):\n    open('x.txt', 'w').write('x')")
+    _plk1 = (not (_plk_ban & _plk_hits) and _PLK._selfcheck_readonly() is True
+             and _PLK._selfcheck_readonly(_plk_bad) is False
+             and "prelink" not in open("Super_stock.py", encoding="utf-8").read()
+             and "schedule" not in open(".github/workflows/prelink.yml", encoding="utf-8").read())
+    _plk1_w = f"مخالفات={sorted(_plk_ban & _plk_hits)}"
+except Exception as _e:                                            # noqa: BLE001
+    _PLK, _plk1, _plk1_w = None, False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳🔒 PLK1 قراءةٌ فقط: صفرُ إرسال/كتابةِ حالة (AST) · حارسٌ ذاتيٌّ يُسقط كتابةً خارج `_dump_rows` · الإنتاجُ لا يستوردها · وworkflow بلا كرون",
+      _plk1, _plk1_w)
+
+
+def _plk_series(peak_day=85, peak_h=2.6, split_day=90, high0=None):
+    """سلسلةٌ مصنوعة 120 يومًا: مرساةٌ يوم 80 · قمّةٌ يوم `peak_day` · تقسيمٌ عكسيّ 1:10 خامٌّ من `split_day`."""
+    ser = _PLK.Series()
+    px = 1.0
+    for i in range(120):
+        o = px; c = px * (1 + 0.004 * ((i % 7) - 3)); h = max(o, c) * 1.01; lo = min(o, c) * 0.99; v = 100000
+        if i == 80:
+            c = o * 1.10; h = (high0 if high0 else o * 1.30); v = 1_000_000
+        if i == peak_day:
+            h = peak_h; c = min(peak_h, 2.0)
+        if split_day is not None and i >= split_day:
+            o, h, lo, c = o * 10, h * 10, lo * 10, c * 10
+        ser.add("ZZZ", i, o, h, lo, c, v)
+        px = c if (split_day is None or i < split_day - 1) else c / 10
+    ser.freeze()
+    return ser
+
+
+try:
+    _dplk = [f"2025-{(i // 21) + 1:02d}-{(i % 21) + 1:02d}" for i in range(120)]
+    _sp = {"ZZZ": [(_dplk[90], 10.0, 1.0)]}
+    _w = _PLK.adj_window(_plk_series(), "ZZZ", 80, _sp, days=_dplk)
+    _o = _PLK.outcomes(_w, 1.0, last_gidx=119)
+    _o_inc = _PLK.outcomes(_w, 1.0, last_gidx=84)
+    # يومُ 0 نفسُه مُستبعَد: قمّةٌ ضخمة يومَ 0 (‏high0=9) وبلا قمّةٍ بعده ⇒ late100 False و same_day True
+    _w0 = _PLK.adj_window(_plk_series(peak_h=1.2, high0=9.0), "ZZZ", 80, _sp, days=_dplk)
+    _o0 = _PLK.outcomes(_w0, 1.0, last_gidx=119)
+    _plk2 = (_w["split_in_win"] is True and abs(_w["fac0"] - 10.0) < 1e-9
+             and _o["late100_10"] is True and _o["late100_5"] is True and 100 < _o["mg_10"] < 200
+             and _o["days_to_peak"] == 5 and _o["cls"] == "late" and _o["same_day"] is False
+             and _o_inc["late100_10"] is None and _o_inc["late100_5"] is None
+             and _o0["same_day"] is True and _o0["late100_10"] is False)
+    _plk2_w = f"split={_w['split_in_win']} fac0={_w['fac0']} mg10={_o.get('mg_10')} inc={_o_inc.get('late100_10')} day0excl={_o0.get('late100_10')}"
+except Exception as _e:                                            # noqa: BLE001
+    _plk2, _plk2_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK2 النتيجةُ (العقد §①-4): مسوّاةٌ بالتقسيم (‏1:10 داخل النافذة ⇒ fac0=10 ووسم `split_in_win`) · +160% في الجلسة 5 ⇒ `late100_10/5` · "
+      "**يومُ 0 مُستبعَد** (قمّتُه لا تُحتسب متأخّرة) · والأفقُ غيرُ المكتمل None لا False (V-P3/V-P4)", _plk2, _plk2_w)
+try:
+    _dd = ["2026-09-08", "2026-09-09", "2026-09-10"]
+    _di = {d: i for i, d in enumerate(_dd)}
+    _plk3 = (_PLK.day0_of("2026-09-09", "10:00", _dd, _di) == ("2026-09-09", False)
+             and _PLK.day0_of("2026-09-09", "16:05", _dd, _di) == ("2026-09-10", True)
+             and _PLK.day0_of("2026-09-09", "08:15", _dd, _di) == ("2026-09-09", False)
+             and _PLK.day0_of("2026-09-10", "17:00", _dd, _di)[0] is None)
+    _plk3_w = f"{_PLK.day0_of('2026-09-09', '16:05', _dd, _di)}"
+except Exception as _e:                                            # noqa: BLE001
+    _plk3, _plk3_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK3 يومُ 0 (العقد §①-2): مرساةُ البريماركت/الجلسة ⇒ يومُها · مرساةُ الافتر (‏≥16:00) ⇒ الجلسةُ التالية · وبلا جلسةٍ تالية None", _plk3, _plk3_w)
+try:
+    _w = _PLK.adj_window(_plk_series(), "ZZZ", 80, _sp, days=_dplk)
+    _ck2 = _PLK.cohort_k(_w, 2, 119)
+    _we = _PLK.adj_window(_plk_series(peak_day=81, peak_h=2.5), "ZZZ", 80, _sp, days=_dplk)
+    _cke = _PLK.cohort_k(_we, 2, 119)
+    _ckn = _PLK.cohort_k(_w, 2, 85)
+    _plk4 = (_ck2["in"] is True and _ck2["held_low0_k"] == "نعم" and _ck2["late100_k"] is True
+             and abs(_ck2["close_k"] - float(_w["c"][_w["p0"] + 2])) < 1e-9
+             and _cke["in"] is False and "قبل k" in _cke["why"] and _ckn is None)
+    _plk4_w = f"in={_ck2.get('in')} held={_ck2.get('held_low0_k')} early={_cke} short={_ckn}"
+except Exception as _e:                                            # noqa: BLE001
+    _plk4, _plk4_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK4 الفوجُ k (العقد §①-8): مَن انفجر قبل k **يُخرَج** · والنتيجةُ من `close_k` على k+1..k+10 · ونافذةٌ لم تكتمل ⇒ None", _plk4, _plk4_w)
+try:
+    _R = []
+    for _i in range(400):
+        _mom = _i % 2 == 1
+        _feat = _i % 4 in (0, 1)
+        _R.append({"f": {"ret0": "≥50" if _mom else "<+20%", "vol_x0": "≥10" if _mom else "<3", "x": "نعم" if _feat else "لا"},
+                   "o": {"late100_10": _feat and (_i % 3 == 0) or (not _feat and _i % 20 == 0)}})
+    _rr, _per, _ok = _PLK.mh_ratio(_R, lambda r: r["f"]["x"], "نعم")
+    _R2 = [{"f": {"ret0": "≥50" if _i % 2 else "<+20%", "vol_x0": "≥10" if _i % 2 else "<3", "x": "نعم" if _i % 2 else "لا"},
+            "o": {"late100_10": bool(_i % 2 and _i % 3 == 0)}} for _i in range(400)]
+    _rr2, _per2, _ok2 = _PLK.mh_ratio(_R2, lambda r: r["f"]["x"], "نعم")
+    _v = _PLK.judge_feat(_R, lambda r: r["f"]["x"], "نعم", min_n=20, z=1.96)
+    _vs = _PLK.judge_feat(_R[:30], lambda r: r["f"]["x"], "نعم", min_n=20, z=1.96)
+    _plk5 = (_ok is True and _rr > 2 and _ok2 is False and _rr2 is None and _v["c1"] and _v["c2"]
+             and _vs["c1"] is None and "لا حكم" in _vs["why"])
+    _plk5_w = f"MH={_rr} ok={_ok} proxy={_rr2},{_ok2} judge={_v.get('c1'), _v.get('c2')} small={_vs.get('why')}"
+except Exception as _e:                                            # noqa: BLE001
+    _plk5, _plk5_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK5 الشرطُ 5 (العقد §⑤): ميزةٌ مستقلّةٌ عن الزخم تفصل داخل طبقاته (MH ≥ 2) · وميزةٌ **تُعيد الزخم** لا طبقةَ لها فلا تعبر · "
+      "ودون n=20 «لا حكم» لا «لا فصل»", _plk5, _plk5_w)
+try:
+    _wsim = {"o": _np_plk.array([1.0, 1.0, 0.5]), "h": _np_plk.array([1.0, 3.0, 1.0]), "l": _np_plk.array([1.0, 0.5, 0.5]),
+             "c": _np_plk.array([1.0, 1.5, 0.5])}
+    _r_stop_first = _PLK.simulate(_wsim, 1.0, 0.8, 2.0, 0, n_days=2, cost=0.0)     # يومٌ لمس الوقفَ والهدفَ معًا ⇒ الوقف
+    _wsim2 = {"o": _np_plk.array([1.0, 1.0, 1.0]), "h": _np_plk.array([1.0, 1.2, 2.5]), "l": _np_plk.array([1.0, 0.95, 0.9]),
+              "c": _np_plk.array([1.0, 1.1, 2.0])}
+    _r_target = _PLK.simulate(_wsim2, 1.0, 0.8, 2.0, 0, n_days=2, cost=0.0)
+    _r_target_c = _PLK.simulate(_wsim2, 1.0, 0.8, 2.0, 0, n_days=2, cost=0.01)
+    _wsim3 = {"o": _np_plk.array([1.0, 1.0, 1.0]), "h": _np_plk.array([1.0, 1.2, 1.3]), "l": _np_plk.array([1.0, 0.95, 0.9]),
+              "c": _np_plk.array([1.0, 1.1, 1.2])}
+    _r_time = _PLK.simulate(_wsim3, 1.0, 0.8, 2.0, 0, n_days=2, cost=0.0)
+    _plk6 = (abs(_r_stop_first - (-1.0)) < 1e-9 and abs(_r_target - 5.0) < 1e-9 and _r_target_c < _r_target
+             and abs(_r_time - 1.0) < 1e-9 and _PLK.COST == 0.01 and _PLK.STOP_BELOW == 0.02 and _PLK.POS_DAYS == 10)
+    _plk6_w = f"stop_first={_r_stop_first} target={_r_target} cost={_r_target_c} time={_r_time}"
+except Exception as _e:                                            # noqa: BLE001
+    _plk6, _plk6_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK6 سياسةُ التمركز (العقد §⑥): الوقفُ أوّلًا عند التعارض في اليوم نفسِه (‏−1R) · الهدفُ +100% (‏+5R بوقفٍ 20%) · التكلفةُ تُنقص R · "
+      "والخروجُ بالوقت عند إغلاق اليوم الأخير · والثوابتُ 1%/2%/10 كما في العقد", _plk6, _plk6_w)
+try:
+    _wf = _wfh_yaml.safe_load(open(".github/workflows/prelink.yml", encoding="utf-8"))
+    _env = {}
+    for _s in _wf["jobs"]["prelink"]["steps"]:
+        _env.update(_s.get("env") or {})
+    _need = ("PRELINK_SINCE", "PRELINK_UNTIL", "PRELINK_YEARS", "PRELINK_MAX", "PRELINK_TRADES", "PRELINK_KASIH_DIR")
+    _plk7 = (set(_wf.get(True) or _wf.get("on") or {}) == {"workflow_dispatch"}
+             and _wf["permissions"] == {"contents": "read", "actions": "read"}
+             and all(k in _env for k in _need + ("POLYGON_API_KEY", "SEC_CONTACT"))
+             and all(f'"{k}"' in _plk_src for k in _need)
+             and "TELEGRAM" not in open(".github/workflows/prelink.yml", encoding="utf-8").read()
+             and _wf["jobs"]["prelink"]["steps"][0]["with"]["fetch-depth"] == 0
+             and int(_wf["jobs"]["prelink"]["timeout-minutes"]) <= 360
+             and "gh run download" in open(".github/workflows/prelink.yml", encoding="utf-8").read())
+    _plk7_w = f"on={list(_wf.get(True) or _wf.get('on') or {})} env={sorted(_env)}"
+except Exception as _e:                                            # noqa: BLE001
+    _plk7, _plk7_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK7 الـworkflow يدويٌّ بلا كرون · `contents: read` + `actions: read` (لتنزيل صفوف kasih) · بلا سرِّ تلغرام · كلُّ مُدخَلٍ يقرؤه السكربت · "
+      "تاريخُ git كامل · والمهلةُ ≤ 360", _plk7, _plk7_w)
+try:
+    _old = _cfd_os.environ.pop("POLYGON_API_KEY", None)
+    try:
+        _rc = _PLK.main()
+    finally:
+        if _old is not None:
+            _cfd_os.environ["POLYGON_API_KEY"] = _old
+    _plk8 = _rc == 2
+    _plk8_w = f"rc={_rc}"
+except Exception as _e:                                            # noqa: BLE001
+    _plk8, _plk8_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK8 بلا مفتاح ⇒ خروج 2 **قبل أيّ قراءةٍ أو نداء** (بصمةُ لا-عمل)", _plk8, _plk8_w)
+try:
+    _pre = open("prelink_prereg.md", encoding="utf-8").read()
+    _names = [n for n, _b, _f in _PLK.FEATS_SPEC + _PLK.FEATS_A_ONLY]
+    _missing = [n for n in _names if f"`{n}`" not in _pre]
+    _plk9 = (not _missing and all(f"`PL-P{i}`" in _pre for i in range(1, 9)) and all(f"`V-P{i}`" in _pre for i in range(1, 10))
+             and all(c in _pre for c in (n for n, _fn in _PLK.COMBOS)) and "B فارغة" in _pre and "⓪-ب" in _pre
+             and _PLK.H_GOV == 10 and _PLK.LATE_PCT == 100.0 and _PLK.HORIZONS == (5, 10, 20)
+             and (_PLK.MIN_N_A, _PLK.MIN_N_C) == (20, 50) and _PLK.SEED == 20260925
+             and _PLK.KASIH_COUNTS == {"2023": 10851, "2024": 14312, "2025": 19037}
+             and (_PLK.ID_K50, _PLK.ID_K100) == (33, 14))
+    _plk9_w = f"غائبٌ عن العقد: {_missing}"
+except Exception as _e:                                            # noqa: BLE001
+    _plk9, _plk9_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK9 كلُّ ميزةٍ وتوليفةٍ في الأداة **مكتوبةٌ في العقد** قبلها · والتنبّؤاتُ الثمانية والحرّاسُ التسعة · وثوابتُ الحكم (الأفق 10 · +100% · n 20/50 · "
+      "البذرة · أعدادُ kasih · هُويّةُ A 33/14) بحرف العقد", _plk9, _plk9_w)
+try:
+    _res9 = open("opentry_link_result.md", encoding="utf-8").read()
+    _plk10 = ("## ⑩ تصحيحٌ مؤرَّخ" in _res9 and "`mg_5d`" in _res9.split("## ⑩")[1] and "لم يُعلَن" in _res9.split("## ⑩")[1]
+              and "prelink_prereg.md" in _res9.split("## ⑩")[1])
+    _plk10_w = "§⑨ غائب أو ناقص"
+except Exception as _e:                                            # noqa: BLE001
+    _plk10, _plk10_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕵️⏳ PLK10 انحرافُ `mg_5d` في `T-OPLINK` مُعلَنٌ قسمًا مؤرَّخًا (§⑩) يُحيل إلى عقد `T-PRELINK` — لا يُطوى", _plk10, _plk10_w)
+
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
