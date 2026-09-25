@@ -66588,6 +66588,354 @@ except Exception as _e:                                              # noqa: BLE
     _rap9, _rap9_w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🕵️⏳🔁 RAP9 قراءةُ التنبّؤات آليًّا (§⑪-6): `RA-P2`/`RA-P3` «سنتان على الأقلّ» · «لا حكم» ⚪ لا ✅ · و`RA-P4` بالفرع", _rap9, _rap9_w)
 
+# ── ATM1-ATM13 T-ALERT-TIME «بعد كم يوم ينفجر؟» (alert_timing.py · العقد alert_timing_prereg.md) — تنبيهاتٌ اصطناعيّة · بلا شبكة ولا git ──
+try:
+    import alert_timing as _AT
+    _at_src = open("alert_timing.py", encoding="utf-8").read()
+    _at_days, _at_didx = _AT.calendar()
+except Exception as _e:                                              # noqa: BLE001
+    _AT, _at_src, _at_days, _at_didx = None, "", [], {}
+
+
+def _at_series(seed, start="2026-03-02", end="2026-09-24"):
+    """شموعٌ عشوائيّةٌ حتميّة {تاريخ: (o, h, l, c, v)} في تقويم الأداة."""
+    rng = _px_rnd.Random(seed)
+    out, px = {}, 1.0 + rng.random()
+    for d in _at_days:
+        if start <= d <= end:
+            c = max(0.05, px * (1 + rng.gauss(0, 0.05)))
+            out[d] = (px, max(px, c) * 1.01, min(px, c) * 0.99, c, 1e5)
+            px = c
+    return out
+
+
+def _at_flat(start="2026-03-02", end="2026-09-24"):
+    """شموعٌ ثابتة: الإغلاقُ 1.0 · القمّةُ 1.02 · القاعُ 0.98."""
+    return {d: (1.0, 1.02, 0.98, 1.0, 1e5) for d in _at_days if start <= d <= end}
+
+
+def _at_anchor(day, hh, mm=5):
+    return {"anchor_ms": int(_AT.dt.datetime.fromisoformat(day).replace(hour=hh, minute=mm, tzinfo=_AT.NY).timestamp() * 1000)}
+
+
+def _at_row(day, hh, bars, until="2026-09-24", sym="Z"):
+    return _AT.alert_row(day, sym, _AT.hhmm_of(_at_anchor(day, hh)), bars, _at_days, _at_didx, _at_didx[until])
+
+
+def _at_population(n_syms=60, seed=5):
+    rng = _px_rnd.Random(seed)
+    alert_days = [d for d in _at_days if "2026-08-17" <= d <= "2026-09-24"]
+    anchors, bars = {}, {}
+    for s in range(n_syms):
+        sym = f"AT{s:03d}"
+        b = _at_series(seed * 1000 + s)
+        for day in rng.sample(alert_days, 2):
+            anchors[(day, sym)] = _at_anchor(day, rng.choice([5, 11, 17]), rng.randint(0, 59))
+            if rng.random() < 0.3:
+                j = _at_didx[day] + rng.randint(1, 12)
+                if j < len(_at_days) and _at_days[j] in b:
+                    o, h, lo, c, v = b[_at_days[j]]
+                    b[_at_days[j]] = (o, h * 3.0, lo, c, v)
+        bars[sym] = b
+    return anchors, bars
+
+
+def _at_rows(anchors, bars, until="2026-09-24"):
+    out = []
+    for (day, sym) in sorted(anchors):
+        r, _w = _AT.alert_row(day, sym, _AT.hhmm_of(anchors[(day, sym)]), bars.get(sym) or {}, _at_days, _at_didx, _at_didx[until])
+        if r:
+            out.append(r)
+    return out
+
+
+def _at_gov(rows, flip_late=0):
+    out = []
+    for i, r in enumerate(x for x in rows if x["F"] >= 10):
+        late = r["t100"] is not None and r["t100"] <= 10
+        out.append({"sym": r["sym"], "day": r["day"], "day0": r["day0"], "o": {"late100_10": (not late) if i < flip_late else late},
+                    "raw": {"rsi14": r["rsi14"]}})
+    return out
+
+
+def _at_main(anchors, bars, gov_rows, dated=None, ledger_path=None, key="x", until="2026-09-24", min_shared=None):
+    saved = (_AT.anchor_history, _AT.fetch_bars, _AT.dated_for_days, _AT.ROWS_DIR, _AT.UNTIL, _AT.LEDGER, _AT.V_MIN_SHARED)
+    old_key = _cfd_os.environ.get("POLYGON_API_KEY")
+    tmp = _px_tf.mkdtemp()
+    buf = _px_io.StringIO()
+    try:
+        if gov_rows is not None:
+            with open(_cfd_os.path.join(tmp, "prelink_rows_A.jsonl"), "w", encoding="utf-8") as fh:
+                for r in gov_rows:
+                    fh.write(_px_json.dumps(r, ensure_ascii=False) + "\n")
+        _AT.anchor_history = lambda since=None: dict(anchors)
+        _AT.fetch_bars = lambda sym, d0, d1, k: dict(bars.get(sym) or {})
+        _AT.dated_for_days = lambda ds: dict(dated or {})
+        _AT.ROWS_DIR, _AT.UNTIL = tmp, until
+        _AT.LEDGER = ledger_path or _cfd_os.path.join(tmp, "لا_دفتر.jsonl")
+        if min_shared is not None:
+            _AT.V_MIN_SHARED = min_shared
+        if key is None:
+            _cfd_os.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _cfd_os.environ["POLYGON_API_KEY"] = key
+        with _px_ctx.redirect_stdout(buf):
+            rc = _AT.main()
+    finally:
+        (_AT.anchor_history, _AT.fetch_bars, _AT.dated_for_days, _AT.ROWS_DIR, _AT.UNTIL, _AT.LEDGER, _AT.V_MIN_SHARED) = saved
+        if old_key is None:
+            _cfd_os.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _cfd_os.environ["POLYGON_API_KEY"] = old_key
+        _px_sh.rmtree(tmp, ignore_errors=True)
+    return rc, buf.getvalue()
+
+
+try:
+    import prelink_probe as _AT_P
+    _atb_w = _at_src.replace("def hhmm_of(a):", "def hhmm_of(a):\n    open('x.txt', 'w').write('x')", 1)
+    _atb_t = _at_src.replace("def hhmm_of(a):", "def hhmm_of(a):\n    S.send_telegram('x')", 1)
+    _at_calls1 = {(getattr(c.func, "attr", None) or getattr(c.func, "id", None)) for c in _ast0.walk(_ast0.parse(_at_src))
+                  if isinstance(c, _ast0.Call)}
+    _atm1 = (_AT_P._selfcheck_readonly(_at_src) is True and _AT_P._selfcheck_readonly(_atb_w) is False
+             and _AT_P._selfcheck_readonly(_atb_t) is False and "_selfcheck_readonly" in _at_calls1
+             and "alert_timing" not in open("Super_stock.py", encoding="utf-8").read()
+             and "schedule" not in open(".github/workflows/alert_timing.yml", encoding="utf-8").read())
+    _atm1_w = f"ok={_AT_P._selfcheck_readonly(_at_src)} w={_AT_P._selfcheck_readonly(_atb_w)} t={_AT_P._selfcheck_readonly(_atb_t)}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm1, _atm1_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️🔒 ATM1 قراءةٌ فقط (حارسُ `prelink_probe` بالاسم على مصدرها): كتابةُ ملفٍّ أو تلغرام يُسقطه · والإنتاجُ لا يستوردها · "
+      "والـworkflow بلا كرون", _atm1, _atm1_w)
+try:
+    _t2 = _ast0.parse(_at_src)
+    _cst2 = {n.targets[0].id: _ast0.literal_eval(n.value) for n in _t2.body
+             if isinstance(n, _ast0.Assign) and isinstance(n.targets[0], _ast0.Name)
+             and n.targets[0].id in ("HORIZON", "KS", "BACK", "MIN_COVER", "GOV_RUN")}
+    _tup2 = {}
+    for n in _t2.body:
+        if isinstance(n, _ast0.Assign) and isinstance(n.targets[0], _ast0.Tuple):
+            for e, v in zip(n.targets[0].elts, n.value.elts):
+                _tup2[e.id] = _ast0.literal_eval(v)
+    _fl2 = next(n for n in _t2.body if isinstance(n, _ast0.FunctionDef) and n.name == "flags")
+    _attrs2 = {f"{a.value.id}.{a.attr}" for a in _ast0.walk(_fl2) if isinstance(a, _ast0.Attribute) and isinstance(a.value, _ast0.Name)}
+    _nums2 = {c.value for c in _ast0.walk(_fl2) if isinstance(c, _ast0.Constant) and isinstance(c.value, (int, float))}
+    _fns2 = {n.name: {(getattr(c.func, "attr", None) or getattr(c.func, "id", None)) for c in _ast0.walk(n) if isinstance(c, _ast0.Call)}
+             for n in _t2.body if isinstance(n, _ast0.FunctionDef)}
+    _atm2 = (_cst2 == {"HORIZON": 20, "KS": (1, 2, 3, 5, 10, 20), "BACK": 60, "MIN_COVER": 0.80, "GOV_RUN": "36163255276"}
+             and _tup2.get("MIN_N") == 20 and _tup2.get("MIN_EV") == 5 and _tup2.get("V_AGREE") == 0.95
+             and _tup2.get("V_MIN_SHARED") == 300 and _tup2.get("V_MIN_FOLLOW") == 10
+             and {"OPL.RSI_OWNER", "OPL.FLOAT_OWNER", "OPL.AVAIL_OWNER"} <= _attrs2 and not (_nums2 & {30, 30.0, 4_000_000, 20_000})
+             and "day0_of" in _fns2["alert_row"] and "rsi" in _fns2["alert_row"] and "ticker_daily_adj" in _fns2["fetch_bars"]
+             and {"dated_values", "snapshot_before", "_commits"} <= _fns2["dated_for_days"] and "anchor_history" in _fns2["main"])
+    _atm2_w = f"cst={_cst2} attrs={sorted(_attrs2)} nums={sorted(_nums2)}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm2, _atm2_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM2 الثوابتُ حرفيّةٌ كما العقد (أفقُ 20 · k = 1·2·3·5·10·20 · نافذةُ 60 · أرضيّتا 20/5 · V-T1 ‏95%/300/10 · V-T2 ‏80%) · "
+      "وحدودُ المالك **بالاسم** من `opentry_link_probe` لا أرقامًا · ويومُ 0 والشموعُ والمؤرَّخُ والتنبيهاتُ بالاسم", _atm2, _atm2_w)
+try:
+    _b3 = _at_flat()
+    _i3 = _at_didx["2026-09-01"]
+    _b3[_at_days[_i3 + 2]] = (1.0, 1.5, 0.98, 1.0, 1e5)             # +50% بالضبط في الجلسة 2
+    _b3[_at_days[_i3 + 3]] = (1.0, 2.0, 0.98, 1.0, 1e5)             # +100% بالضبط في الجلسة 3
+    _r3a, _ = _at_row("2026-09-01", 10, _b3)
+    _r3b, _ = _at_row("2026-09-01", 17, _b3)                         # بعد 16:00 ⇒ يومُ 0 الجلسةُ التالية
+    _b3c = _at_flat()
+    _b3c[_at_days[_at_didx["2026-08-17"] + 21]] = (1.0, 3.0, 0.98, 1.0, 1e5)   # الجلسة 21 خارج الأفق
+    _r3c, _ = _at_row("2026-08-17", 10, _b3c)
+    _b3d = _at_flat()
+    del _b3d["2026-09-01"]
+    _r3d, _w3d = _at_row("2026-09-01", 10, _b3d)
+    _r3e, _w3e = _at_row("2026-09-24", 17, _at_flat())
+    _atm3 = (_r3a["day0"] == "2026-09-01" and _r3a["t50"] == 2 and _r3a["t100"] == 3 and _r3a["F"] == 16
+             and _r3b["day0"] == _at_days[_i3 + 1] and _r3b["t50"] == 1 and _r3b["t100"] == 2 and _r3b["F"] == 15
+             and _r3c["F"] == 20 and _r3c["t100"] is None and _r3c["t50"] is None
+             and _r3d is None and _w3d == "بلا شمعة يوم 0" and _r3e is None and _w3e == "أحدثُ من البيانات")
+    _atm3_w = f"a={_r3a and (_r3a['day0'], _r3a['t50'], _r3a['t100'], _r3a['F'])} b={_r3b and (_r3b['day0'], _r3b['t100'], _r3b['F'])} c={_r3c and _r3c['F']}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm3, _atm3_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM3 يومُ الانفجار: أوّلُ جلسةٍ يبلغ فيها القمّةُ +50%/+100% **بالضبط** من إغلاق يوم 0 · التنبيهُ بعد 16:00 يومُه التالي · "
+      "المتابعةُ بالتقويم وسقفُها 20 (الجلسة 21 لا تُعَدّ) · بلا شمعةِ يوم 0 أو أحدثُ من البيانات ⇒ لا صفّ بسببه", _atm3, _atm3_w)
+try:
+    _b4 = _at_series(41)
+    _i4 = _at_didx["2026-09-01"]
+    _r4, _ = _at_row("2026-09-01", 10, _b4)
+    _m4a = dict(_b4)
+    _o = _m4a[_at_days[_i4 - 61]]
+    _m4a[_at_days[_i4 - 61]] = (_o[0], _o[1] * 9, _o[2], _o[3] * 9, _o[4])   # خارجَ النافذة
+    _m4b = dict(_b4)
+    _o = _m4b["2026-09-01"]
+    _m4b["2026-09-01"] = (_o[0], _o[1], _o[2] * 0.2, _o[3], _o[4])     # قاعُ يوم 0 وحدَه (RSI لا يراه)
+    _m4c = dict(_b4)
+    _o = _m4c[_at_days[_i4 - 1]]
+    _m4c[_at_days[_i4 - 1]] = (_o[0], _o[1] * 1.6, _o[2], _o[3] * 1.5, _o[4])   # الجلسةُ السابقة داخلَ النافذة
+    _m4e = dict(_b4)
+    _o = _m4e["2026-09-01"]
+    _hi4 = max(_b4[d][2] for d in _at_days[_i4 - 60:_i4] if d in _b4)
+    _m4e["2026-09-01"] = (_o[0], _hi4 * 3, _hi4 * 2, _hi4 * 2.5, _o[4])  # إغلاقُ يوم 0 يقفز وقاعُه فوق النافذة كلِّها
+    _r4a, _ = _at_row("2026-09-01", 10, _m4a)
+    _r4b, _ = _at_row("2026-09-01", 10, _m4b)
+    _r4c, _ = _at_row("2026-09-01", 10, _m4c)
+    _r4e, _ = _at_row("2026-09-01", 10, _m4e)
+    _short4 = {d: v for d, v in _b4.items() if d >= _at_days[_i4 - 10]}
+    _r4d, _ = _at_row("2026-09-01", 10, _short4)
+    _atm4 = (_r4["rsi14"] is not None and _r4a["rsi14"] == _r4["rsi14"] and _r4b["rsi14"] == _r4["rsi14"]
+             and _r4c["rsi14"] != _r4["rsi14"] and _r4b["new_low"] is True and _r4a["new_low"] == _r4["new_low"]
+             and _r4e["rsi14"] == _r4["rsi14"] and _r4e["new_low"] is False
+             and _r4d["rsi14"] is None and _r4d["new_low"] is None)
+    _atm4_w = f"rsi={_r4['rsi14']} a={_r4a['rsi14']} c={_r4c['rsi14']} nl={_r4b['new_low']} short={_r4d['rsi14']}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm4, _atm4_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM4 RSI14 و«القاعُ الجديد» على **الجلسات الستّين قبل يوم 0 حصرًا** (نافذةُ الحاكمة): ما قبلها لا يغيّرهما · ويومُ 0 لا يدخل RSI "
+      "(إغلاقُه يقفز فلا يتغيّر) ولا نافذةَ القاع (قاعُه فوقها ⇒ «لا») · "
+      "والجلسةُ السابقةُ تغيّره · وأقلُّ من 21/20 شمعةً ⇒ مجهولٌ لا رقم", _atm4, _atm4_w)
+try:
+    _k5 = _AT.km([{"t100": 2, "F": 20}, {"t100": 3, "F": 20}, {"t100": None, "F": 2}, {"t100": None, "F": 5},
+                  {"t100": None, "F": 20}, {"t100": None, "F": 0}])
+    _atm5 = (_k5["n"] == 5 and _k5["events"] == 2 and abs(_k5["P"][1]) < 1e-12 and abs(_k5["curve"][2] - 0.2) < 1e-12
+             and abs(_k5["P"][3] - (1 - 0.8 * 2 / 3)) < 1e-12 and abs(_k5["P"][20] - _k5["P"][3]) < 1e-12
+             and _k5["at_risk"][3] == 3 and _k5["at_risk"][10] == 1 and _k5["at_risk"][20] == 1)
+    _atm5_w = f"n={_k5['n']} P={ {k: round(v, 4) for k, v in _k5['P'].items()} } at={_k5['at_risk'][3]}/{_k5['at_risk'][10]}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm5, _atm5_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM5 Kaplan-Meier بالمراقَبة (حسابٌ يدويّ): المراقَبُ عند F تحت المراقبة حتى F ثمّ يخرج — P(3) = 1 − 0.8 × 2/3 لا 2/5 خامًّا · "
+      "وبلا متابعةٍ (F = 0) لا يدخل · والمتابَعون يُعَدّون", _atm5, _atm5_w)
+try:
+    _rows6 = ([{"t100": t, "F": 20} for t in (10, 12, 14)] + [{"t100": None, "F": 20}] * 7
+              + [{"t100": t, "F": 3} for t in (1, 1, 2, 2)] + [{"t100": None, "F": 3}] * 6)
+    _e6 = _AT.event_stats(_rows6)
+    _raw6 = sorted(r["t100"] for r in _rows6 if r["t100"] is not None)[3]
+    _e6f = _AT.event_stats([{"t100": t, "F": 20} for t in (1, 2, 3, 4)] + [{"t100": None, "F": 20}] * 5)
+    _atm6 = (_e6 is not None and _e6["median"] == 10 and _raw6 == 2 and _e6["n"] == 7 and _e6["q1"] <= _e6["median"] <= _e6["q3"]
+             and _e6f is None)
+    _atm6_w = f"km_median={_e6 and _e6['median']} raw={_raw6} floor={_e6f}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm6, _atm6_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM6 وسيطُ يوم الانفجار **من منحنى KM بشرط الانفجار خلال 20** لا خامًّا (مثالٌ يتحيّز فيه الخامُّ إلى 2 والصادقُ 10) · "
+      "وأحداثٌ دون 5 ⇒ «لا قياس»", _atm6, _atm6_w)
+try:
+    def _mk7(n, flips=0, rsi_flips=0, day0_shift=0, short=0):
+        mine, gov = [], []
+        for i in range(n):
+            d = f"D{i}"
+            mine.append({"day": d, "sym": "S", "day0": d, "F": 5 if i < short else 12, "t100": 3 if i % 7 == 0 else None,
+                         "rsi14": 20.0 if i % 3 == 0 else 45.0})
+            late = (i % 7 == 0) != (i < flips)
+            rsi = (20.0 if i % 3 == 0 else 45.0) if i >= rsi_flips else (45.0 if i % 3 == 0 else 20.0)
+            gov.append({"day": d, "sym": "S", "day0": (d + "x") if i < day0_shift else d, "o": {"late100_10": late}, "raw": {"rsi14": rsi}})
+        return mine, gov
+    _v7 = [_AT.vt1(*_mk7(400, flips=20))[0], _AT.vt1(*_mk7(400, flips=21))[0], _AT.vt1(*_mk7(299))[0],
+           _AT.vt1(*_mk7(400, rsi_flips=21))[0], _AT.vt1(*_mk7(400, day0_shift=101))[0], _AT.vt1(*_mk7(400, short=101))[0]]
+    _atm7 = _v7 == [True, False, False, False, False, False]
+    _atm7_w = f"{_v7}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm7, _atm7_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM7 `V-T1` بحدوده: ‏95.0% على 400 عابر · 94.75% ساقط · 299 مشتركًا ساقط · RSI ساقط وحدَه يُسقطه · "
+      "ويومُ 0 المختلف والمتابعةُ دون 10 خارج المشترك", _atm7, _atm7_w)
+try:
+    _an8, _bars8 = _at_population()
+    _rows8 = _at_rows(_an8, _bars8)
+    _gov8 = _at_gov(_rows8)
+    _rc8, _out8 = _at_main(_an8, _bars8, _gov8, min_shared=30)
+    _rc8f, _out8f = _at_main(_an8, _bars8, _at_gov(_rows8, flip_late=len(_gov8) // 2), min_shared=30)
+    _rc8m, _out8m = _at_main(_an8, _bars8, None, min_shared=30)
+    _rc8k, _ = _at_main(_an8, _bars8, _gov8, key=None, min_shared=30)
+    _rc8z, _ = _at_main({}, _bars8, _gov8, min_shared=30)
+    _bars8c = {s: b for i, (s, b) in enumerate(sorted(_bars8.items())) if i % 3 == 0}
+    _rc8c, _out8c = _at_main(_an8, _bars8c, _gov8, min_shared=30)
+    _rc8s, _out8s = _at_main(_an8, _bars8, _gov8)                   # الأرضيّةُ الحقيقيّة 300 على 120 تنبيهًا
+    _tail8 = [ln for ln in _out8.strip().splitlines() if ln.strip()]
+    _atm8 = (_rc8 == 0 and "✅ V-T1 عابر" in _out8 and _out8.count("▶ ") == 11 and _out8.count("🔮 AT-P") == 4
+             and _tail8[-1].startswith("🏁 الثلاثةُ معًا") and _out8.index("🏁🏁 الخلاصة") > _out8.rindex("▶ ")
+             and _out8.index("V-T2") < _out8.index("V-T1") < _out8.index("▶ ")
+             and _rc8f == 3 and "V-T1 ساقط" in _out8f and "▶ " not in _out8f and "🏁🏁" not in _out8f
+             and _rc8m == 3 and "غائبة" in _out8m and _rc8k == 2 and _rc8z == 4
+             and _rc8c == 3 and "V-T2 ساقط" in _out8c and "▶ " not in _out8c and "V-T1 —" not in _out8c
+             and _rc8s == 3 and "V-T1 ساقط" in _out8s and "▶ " not in _out8s)
+    _atm8_w = f"rc={_rc8}/{_rc8f}/{_rc8m}/{_rc8k}/{_rc8z}/{_rc8c}/{_rc8s} tail={_tail8[-1][:30] if _tail8 else ''}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm8, _atm8_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM8 البوّابتان قبل أيّ رقم: `V-T2` ثمّ `V-T1` ثمّ المجموعاتُ الإحدى عشرة والتنبّؤاتُ الأربعة · والحكمُ آخرَ سطر · "
+      "وحاكمةٌ لا تتّفق أو غائبة أو تغطيةٌ ناقصة أو أرضيّةُ 300 ⇒ خروج 3 بلا رقم · وبلا مفتاح 2 · وصفرُ تنبيه 4", _atm8, _atm8_w)
+try:
+    _t9 = _px_tf.mkdtemp()
+    try:
+        _lp9 = _cfd_os.path.join(_t9, "l.jsonl")
+        with open(_lp9, "w", encoding="utf-8") as _fh9:
+            _fh9.write('{"date": "2026-09-01", "symbol": "A", "avail": 5000}\nلا-json\n{"date": "2026-09-01", "symbol": "B", "avail": null}\n')
+        _led9 = _AT.load_shadow_ledger(_lp9)
+        _none9 = _AT.load_shadow_ledger(_cfd_os.path.join(_t9, "لا_يوجد.jsonl"))
+    finally:
+        _px_sh.rmtree(_t9, ignore_errors=True)
+    _rows9 = [{"day": "2026-09-01", "sym": "A"}, {"day": "2026-09-01", "sym": "B"}, {"day": "2026-09-01", "sym": "C"}]
+    _dated9 = {"2026-09-01": {"A": {"float": 3e6, "avail": 50000}, "B": {"float": 9e6, "avail": 7000}}}
+    _AT.attach_dated(_rows9, _dated9, _led9)
+    _atm9 = (_led9 == {("2026-09-01", "A"): 5000.0} and _none9 == {}
+             and (_rows9[0]["avail"], _rows9[0]["avail_src"]) == (5000.0, "ledger")
+             and (_rows9[1]["avail"], _rows9[1]["avail_src"]) == (7000, "git")
+             and (_rows9[2]["float"], _rows9[2]["avail"], _rows9[2]["avail_src"]) == (None, None, None))
+    _atm9_w = f"led={_led9} rows={[(r['avail'], r['avail_src']) for r in _rows9]}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm9, _atm9_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM9 المتاحُ الأماميّ من دفتر `T-SHADOW` **يُفضَّل** على لقطة git للتنبيه نفسِه · والسطرُ التالفُ يُتخطّى · "
+      "والدفترُ الغائبُ {} · والمجهولُ يبقى مجهولًا", _atm9, _atm9_w)
+try:
+    _f10 = [_AT.flags(r) for r in ({"rsi14": 25, "float": 3e6, "avail": 5e3}, {"rsi14": 25, "float": 3e6, "avail": None},
+                                   {"rsi14": 45, "float": None, "avail": None}, {"rsi14": None, "float": 9e6, "avail": 5e3},
+                                   {"rsi14": 30.0, "float": 4e6, "avail": 20000})]
+    _atm10 = ([(f["triple"], f["pair"]) for f in _f10] == [(True, True), (None, None), (False, None), (False, False), (False, False)]
+              and _f10[2]["float"] is None and _f10[4]["rsi"] is False and _f10[4]["float"] is False and _f10[4]["avail"] is False)
+    _atm10_w = f"{[(f['triple'], f['pair']) for f in _f10]}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm10, _atm10_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM10 الشروط: **المجهولُ None لا «لا»** · والاقترانُ «لا» متى سقط شرطٌ معلوم ولو جُهل غيرُه · والحدودُ حصريّة (30 · 4م · 20 ألفًا ليست «أقلّ»)",
+      _atm10, _atm10_w)
+try:
+    def _gm11(med_all, nl, nnl, pa, pb):
+        def g(med, p=None):
+            return {"ev100": None if med is None else {"median": med}, "km100": None if p is None else {"P": {10: p}}}
+        return {"الكلّ": g(med_all), "قاعٌ جديد": g(nl), "ليس قاعًا جديدًا": g(nnl), "RSI أقلّ من 30": g(None, pa), "RSI 30 فأكثر": g(None, pb)}
+    _p11a = _AT.eval_predictions(_gm11(5, 6, 7, 0.10, 0.09), 2)
+    _p11b = _AT.eval_predictions(_gm11(9, 6, 8, 0.30, 0.10), 5)
+    _p11c = _AT.eval_predictions(_gm11(None, None, 7, None, 0.1), 0)
+    _p11d = _AT.eval_predictions(_gm11(4, 5, 5, 0.0, 0.0), 0)
+    _atm11 = ([v[0] for v in _p11a.values()] == ["✅", "✅", "✅", "✅"] and [v[0] for v in _p11b.values()] == ["❌", "❌", "❌", "❌"]
+              and [v[0] for v in _p11c.values()] == ["✅", "⚪", "⚪", "⚪"] and _p11d["AT-P4"][0] == "✅")
+    _atm11_w = f"a={[v[0] for v in _p11a.values()]} b={[v[0] for v in _p11b.values()]} c={[v[0] for v in _p11c.values()]}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm11, _atm11_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM11 قراءةُ التنبّؤات آليًّا (§⑤): P1 الثلاثيّ دون 5 · P2 الوسيطُ 3-8 · P3 فرقٌ حتى جلسةٍ واحدة · P4 النسبةُ 0.67-1.5 · "
+      "والغائبُ ⚪ لا ✅", _atm11, _atm11_w)
+try:
+    _wf12 = _wfh_yaml.safe_load(open(".github/workflows/alert_timing.yml", encoding="utf-8"))
+    _on12 = _wf12.get(True) or _wf12.get("on") or {}
+    _txt12 = open(".github/workflows/alert_timing.yml", encoding="utf-8").read()
+    _job12 = _wf12["jobs"]["alert_timing"]
+    _env12 = {}
+    for _s in _job12["steps"]:
+        _env12.update(_s.get("env") or {})
+    _atm12 = (set(_on12) == {"workflow_dispatch"} and not (_on12.get("workflow_dispatch") or {}).get("inputs")
+              and _wf12["permissions"] == {"contents": "read", "actions": "read"}
+              and any((_s.get("with") or {}).get("fetch-depth") == 0 for _s in _job12["steps"])
+              and str(_env12.get("RUN_ID")) == _AT.GOV_RUN and _env12.get("PRELINK_ROWS_DIR") == "prelink_rows"
+              and _env12.get("POLYGON_API_KEY") == "${{ secrets.POLYGON_API_KEY }}"
+              and not any(x in _txt12 for x in ("TELEGRAM", "SEC_CONTACT")) and "python alert_timing.py" in _txt12
+              and "gh run download" in _txt12 and int(_job12["timeout-minutes"]) <= 60)
+    _atm12_w = f"on={list(_on12)} env={sorted(_env12)}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm12, _atm12_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM12 الـworkflow يدويٌّ **بلا مُدخَلات** · تاريخُ git كامل · `contents/actions: read` · سرُّه Polygon وحدَه · والحاكمةُ مثبَّتة",
+      _atm12, _atm12_w)
+try:
+    _pre13 = open("alert_timing_prereg.md", encoding="utf-8").read()
+    _atm13 = (all(h in _pre13 for h in ("## ⓪", "## ①", "## ②", "## ③", "## ④", "## ⑤", "## ⑥", "## ⑦"))
+              and all(f"`AT-P{i}`" in _pre13 for i in range(1, 5)) and "`V-T1`" in _pre13 and "`V-T2`" in _pre13
+              and "‏≥95%" in _pre13 and "‏≥300" in _pre13 and "‏≥80%" in _pre13 and "بشرط الانفجار خلال 20" in _pre13
+              and "لا صفوفَ باكتيست (C) إطلاقًا" in _pre13 and "36163255276" in _pre13 and "لا شيءَ يُشحَن" in _pre13)
+    _atm13_w = f"len={len(_pre13)}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm13, _atm13_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏱️🕵️ ATM13 العقدُ مكتوبٌ قبل الأداة: الأقسامُ ⓪-⑦ · التنبّؤاتُ الأربعة · `V-T1`/`V-T2` بحدودهما · الوسيطُ من KM · ولا باكتيست", _atm13, _atm13_w)
+
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
