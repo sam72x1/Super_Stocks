@@ -358,7 +358,9 @@
       "open:lost_post_alert_path(CODX,KITT)",
       "close:lost_post_alert_path(LNKS,MLEC)"
     ],
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-24",
+    "n_executable": 0,
+    "n_executable_emitted": 0
   },
   "2026-08-18": {
     "n_delivered": 2,
