@@ -52,7 +52,7 @@ SAME_PCT = 50.0                # `same_day` = +50% من سعر الكرت في �
 MIN_N_A, MIN_N_C = 20, 50      # العقد §⑤-3
 MIN_HALF = 10
 MIN_COVER = 0.80               # V-P4
-GROUPED_FROM, GROUPED_TO = "2022-11-01", "2026-02-15"
+GROUPED_FROM = "2022-11-01"           # أرضيّةُ الجلب · والسقفُ أمسُ نيويورك (A حيّةٌ حتى اليوم — درسُ الجدوى 36156866491)
 PX_KEEP = 30.0                 # نحتفظ بصفوف grouped ذات إغلاقٍ ≤ 30$ (الكونُ ≤ 10$ والشاهدُ بخانته)
 COST = 0.01                    # انزلاقٌ 1% للطرف (engineering · العقد §⑥)
 STOP_BELOW = 0.02              # الوقفُ تحت أدنى يوم 0 بـ2%
@@ -889,11 +889,13 @@ def main() -> int:                                                   # noqa: PLR
     log(f"🕵️⏳ T-PRELINK · العقد prelink_prereg.md · A منذ {SINCE} · C {YEARS or '—'} · بذرة {SEED} · صفقات {'✅' if TRADES_ON else '❌ (الغ فتح المحاور)'}"
         + (f" · 🧪 جدوى: أوّلُ {MAX_ANCHORS} مرساة" if MAX_ANCHORS else ""))
     # ── التقويم + grouped
-    years_all = sorted(set(YEARS) | {"2026"} | ({"2022"} if YEARS else set()))
+    # كلُّ سنةٍ حاكمة **وسابقتُها** (نافذةُ ما قبل مراسي يناير) و2026 حتى أمس (A حيّة) — 🐞 الجدوى `36156866491`:
+    #   سقفٌ ثابتٌ 2026-02 جعل `until` شباطًا فصارت A صفرًا (خروج 4).
+    years_all = sorted(set(YEARS) | {str(int(y) - 1) for y in YEARS} | {str(today.year)})
     days = []
     for y in years_all:
         days += year_days(y)
-    days = [d for d in days if GROUPED_FROM <= d <= min(GROUPED_TO, (today - dt.timedelta(days=1)).isoformat())]
+    days = [d for d in days if GROUPED_FROM <= d <= (today - dt.timedelta(days=1)).isoformat()]
     if not YEARS:                                                    # A وحدَها: نافذةٌ ضيّقة
         days = [d for d in days if (dt.date.fromisoformat(SINCE) - dt.timedelta(days=120)).isoformat() <= d]
     log(f"📅 أيّامُ التداول المستهدفة {len(days)} ({days[0]} ⟶ {days[-1]})")
