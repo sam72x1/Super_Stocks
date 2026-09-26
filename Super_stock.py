@@ -316,6 +316,14 @@ CONFIG = {
                                  #   ناجح = جمعة كاملة سقطت (GitHub قد يُسقط تشغيلة كرون،
                                  #   والمستودع قاس تأخّرات 95-159د). **إشعار فقط** —
                                  #   القرار للمالك (force_renew=1). لا يُشتَقّ منه تجديد.
+    # 🕗 حارسُ شمعة الجلسة قبل التجديد (2026-09-26 · `renewal_lastbar_prereg.md` — **engineering**):
+    #   تجديداتُ 09-05 و09-12 و09-19 التزمت 20:12-20:28 نيويورك وحسبت ترشيحاتها كلَّها على شمعة الخميس
+    #   (22 من 22) ⇒ ينتظر حتى تحمل عيّنةُ القائمة شمعةَ آخر جلسةٍ مكتملة — **ولا ينتظر إلّا إن تأخّرت
+    #   جلسةً واحدةً بالضبط** (النمطُ المقيس) · وعند انقضاء السقف يمضي كما اليوم ويُعلِن (فاشلٌ-آمن).
+    "RENEW_BAR_MAX_WAIT_MIN": 150,  # سقفُ الانتظار (دقائق) — والجوبُ 300 والتجديدُ ‏≈15
+    "RENEW_BAR_STEP_MIN": 10,       # بين المحاولات
+    "RENEW_BAR_MIN_FRAC": 0.8,      # نسبةُ الطازج من (الطازج + المتأخّر جلسةً) ليُعدّ مكتملًا
+    "RENEW_BAR_MARGIN_MIN": 30,     # هامشٌ بعد الإغلاق قبل أن تُعدّ الجلسةُ مكتملة
     "HUNTER_STALE_TRADING_DAYS": 1,  # 🔔 ⓿-و أقصى عمرٍ **صامت** لختم صيّاد المقسّم
                                  #   بأيام التداول. الحالة السليمة = **يوم تداول واحد**
                                  #   (الصيّاد يمسح جلسة أمس فجرًا والفارز يقرأ صباحًا)،
@@ -19590,6 +19598,115 @@ def write_csv(rows: list, prefix: str) -> None:
         log(f"⚠️ حفظ CSV: {e}")
 
 
+def last_closed_session(now=None, margin_min=None):
+    """🕗 آخرُ جلسةٍ نظاميّةٍ **اكتمل إغلاقُها** بتوقيت نيويورك (ISO) — بالتقويم (العطلُ · الإغلاقُ المبكّر ·
+    `market_calendar.session_info` بالاسم) والأيّامِ الأسبوعيّة (التقويمُ لا يفحص العطلةَ الأسبوعيّة بالتصميم)
+    وهامشِ `RENEW_BAR_MARGIN_MIN` بعد الإغلاق. **نقيّة · فاشلةٌ-آمنة ⟵ None.**"""
+    try:
+        from zoneinfo import ZoneInfo
+        import market_calendar as _mc
+        ny = ZoneInfo("America/New_York")
+        m = int(CONFIG["RENEW_BAR_MARGIN_MIN"] if margin_min is None else margin_min)
+        t = (now or dt.datetime.now(dt.timezone.utc)).astimezone(ny)
+        for k in range(0, 12):
+            x = t.date() - dt.timedelta(days=k)
+            if x.weekday() >= 5:
+                continue
+            cl = (_mc.session_info(x.isoformat()) or {}).get("close_ny_min")
+            if not isinstance(cl, int):
+                continue                                   # عطلة
+            if t >= (dt.datetime(x.year, x.month, x.day, cl // 60, cl % 60, tzinfo=ny)
+                     + dt.timedelta(minutes=m)):
+                return x.isoformat()
+        return None
+    except Exception:                                      # noqa: BLE001
+        return None
+
+
+def _prev_session(day_iso):
+    """الجلسةُ النظاميّةُ السابقة لـ`day_iso` (أيّامُ الأسبوع بلا عطل التقويم) ⟵ ISO أو None. نقيّة · فاشلةٌ-آمنة."""
+    try:
+        import market_calendar as _mc
+        d = dt.date.fromisoformat(str(day_iso)[:10])
+        for k in range(1, 12):
+            x = d - dt.timedelta(days=k)
+            if x.weekday() < 5 and isinstance(
+                    (_mc.session_info(x.isoformat()) or {}).get("close_ny_min"), int):
+                return x.isoformat()
+        return None
+    except Exception:                                      # noqa: BLE001
+        return None
+
+
+def await_session_bars(syms, fetch=None, sleep=None, now=None) -> dict:
+    """🕗 **حارسُ شمعة الجلسة قبل التجديد** (2026-09-26 · `renewal_lastbar_prereg.md`).
+
+    المقيس: تجديداتُ الجمعة التي التزمت 20:12-20:28 نيويورك حسبت ترشيحاتها **كلَّها** على شمعة الخميس
+    (22 من 22) · وما قبل 20:00 أو عند 23:53 على الجمعة ⇒ بياناتُ ياهو في تلك النافذة **تنقصها جلسةٌ واحدة**.
+    ⇒ يُحمِّل عيّنةً صغيرة (رموزُ القائمة) ويقارن آخرَ شمعةٍ لكلٍّ بآخر جلسةٍ مكتملة (`exp`) وبالتي قبلها
+    (`prev`): **طازجٌ** = ‏`exp` فأحدث · **متأخّرٌ جلسةً** = ‏`prev` بالضبط · وما أقدمُ لا يُحتسب (موقوفٌ/مغمور ليس
+    تأخّرَ تحديث). ينتظر بخطوة `RENEW_BAR_STEP_MIN` **فقط** ما دام الطازجُ دون `RENEW_BAR_MIN_FRAC` من
+    (الطازج + المتأخّر) وحتى `RENEW_BAR_MAX_WAIT_MIN` ⟶ ثمّ يمضي. **لا يرمي أبدًا · صفرُ بياناتٍ ⇒ يمضي فورًا**
+    (حارسُ التغطية القائم يحكم الخنق) · والجالبُ والنومُ قابلان للحقن. يُرجِع dict للسجلّ."""
+    out = {"ok": None, "expected": None, "prev": None, "fresh": 0, "lag1": 0,
+           "have": 0, "tries": 0, "waited_min": 0, "reason": ""}
+    try:
+        syms = sorted({str(x) for x in (syms or []) if x})
+        exp = last_closed_session(now)
+        out["expected"] = exp
+        if not syms or not exp:
+            out["reason"] = "لا عيّنة" if not syms else "لا جلسة مكتملة"
+            return out
+        prev = _prev_session(exp)
+        out["prev"] = prev
+        fetch = fetch or download_history
+        sleep = sleep or time.sleep
+        step = max(1, int(CONFIG["RENEW_BAR_STEP_MIN"]))
+        cap = max(0, int(CONFIG["RENEW_BAR_MAX_WAIT_MIN"]))
+        need = float(CONFIG["RENEW_BAR_MIN_FRAC"])
+        while True:
+            out["tries"] += 1
+            try:
+                hist = fetch(syms) or {}
+            except Exception as e:                         # noqa: BLE001
+                out["reason"] = f"تعذّر الجلب: {type(e).__name__}"
+                return out
+            have = fresh = lag1 = 0
+            for sym in syms:
+                df = hist.get(sym)
+                if df is None or not len(df):
+                    continue
+                have += 1
+                try:
+                    last = df.index[-1]
+                    last = str(last.date() if hasattr(last, "date") else last)[:10]
+                except Exception:                          # noqa: BLE001
+                    continue
+                if last >= exp:
+                    fresh += 1
+                elif prev and last == prev:
+                    lag1 += 1
+            out.update(have=have, fresh=fresh, lag1=lag1)
+            if not have:
+                out["reason"] = "لا بيانات (يحكمه حارسُ التغطية)"
+                return out
+            if not (fresh + lag1):
+                out["reason"] = "لا حكم: العيّنةُ كلُّها أقدمُ من جلسةٍ واحدة (ليس تأخّرَ تحديث)"
+                return out
+            if fresh / (fresh + lag1) >= need:
+                out["ok"] = True
+                return out
+            if out["waited_min"] + step > cap:
+                out["ok"] = False
+                out["reason"] = "انقضى سقفُ الانتظار — يمضي كما اليوم"
+                return out
+            sleep(step * 60)
+            out["waited_min"] += step
+    except Exception as e:                                 # noqa: BLE001
+        out["reason"] = f"استثناء: {type(e).__name__}"
+        return out
+
+
 def run_weekly_renewal(wl: dict) -> None:
     """التجديد الأسبوعي (الجمعة بعد إغلاق السوق) أو التأسيس الأول:
     حصاد الأسبوع المنتهي + بناء قائمة جديدة. يقرأ إغلاق الجمعة →
@@ -19599,6 +19716,16 @@ def run_weekly_renewal(wl: dict) -> None:
     had_prev_list = bool(wl.get("stocks"))
     # 1) إغلاق الأسبوع المنتهي (إن وُجد) بتحديث أخير + رسالة حصاد
     old_syms = sorted({s["symbol"] for s in wl["stocks"]})
+    # 🕗 حارسُ شمعة الجلسة (2026-09-26 · `renewal_lastbar_prereg.md`): قبل أيّ تحميلٍ للأسبوع المنتهي
+    #    أو فرزٍ جديد ⇒ ينتظر (بسقف) حتى تحمل بياناتُ القائمة شمعةَ آخر جلسةٍ مكتملة. سجلٌّ فقط — لا تلغرام.
+    if yf is not None:
+        try:
+            _gb = await_session_bars(old_syms or list(CONFIG.get("TEST_TICKERS") or []))
+            log(f"🕗 حارس شمعة الجلسة: متوقَّعة {_gb.get('expected')} · طازج {_gb.get('fresh')} · "
+                f"متأخّر جلسةً {_gb.get('lag1')} من {_gb.get('have')} · انتظار {_gb.get('waited_min')} د · "
+                f"{'✅' if _gb.get('ok') else ('⚠️' if _gb.get('ok') is False else '—')} {_gb.get('reason') or ''}")
+        except Exception as e:                             # noqa: BLE001
+            log(f"⚠️ حارس شمعة الجلسة: {type(e).__name__} — يمضي التجديد كما اليوم")
     if old_syms and yf is not None:
         # ⑫ (إصلاح تدقيق 2026-07-12): حارس تغطية **الأسبوع المنتهي** — كان حارس
         # الصحة يحرس الفرز الجديد فقط؛ خنق ياهو هنا كان يؤرشف أسبوعًا غير محسوم
