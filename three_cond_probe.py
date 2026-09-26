@@ -231,6 +231,92 @@ def xcheck(syms) -> int:
     return 0
 
 
+def audit() -> int:                                                  # noqa: PLR0912, PLR0915
+    """🩺 فحصُ البوت (2026-09-26 · أمرُ المالك «افحص البوت»): ياهو (مسارُ الفرز) مقابل Polygon adjusted على كون البوت كلِّه —
+    **قراءةٌ فقط**. لكلّ رمز: نسبةُ الإغلاقين على الأيّام المشتركة (آخرُ 260 شمعة) · RSI14 من المصدرين (`S.rsi` نفسُها) ·
+    وقرارُ هُويّة الارتكاز (`S.analyze_ticker` بالاسم) على المصدرين. **التعارض** = مدى النسبة فوق 1.5× (تقسيمٌ طبّقه مصدرٌ دون
+    الآخر — الأرباحُ الموزّعة لا تصنع هذا) أو |ΔRSI| فوق نقطتين · أو آخرُ شمعةٍ مختلفة."""
+    import concurrent.futures as cf
+
+    import pandas as pd
+
+    import prelink_probe as P
+    key = (os.environ.get("POLYGON_API_KEY") or "").strip()
+    if not key:
+        log("⛔ بلا POLYGON_API_KEY")
+        return 2
+    d1 = dt.datetime.now(dt.timezone.utc).date().isoformat()
+    d0 = (dt.date.fromisoformat(d1) - dt.timedelta(days=S.CONFIG["HISTORY_DAYS"])).isoformat()
+    uni = S.get_universe()
+    yh = S.download_history(uni)
+    syms = sorted(yh)
+    log(f"🩺 الكون {len(uni)} · شموعُ ياهو {len(syms)} · جلبُ Polygon adjusted {d0} ⟶ {d1} …")
+
+    def pfetch(s):
+        try:
+            return s, P.ticker_daily_adj(s, d0, d1, key)
+        except Exception:                                            # noqa: BLE001
+            return s, None
+    pg = {}
+    with cf.ThreadPoolExecutor(max_workers=8) as ex:
+        for i, (s, rows) in enumerate(ex.map(pfetch, syms), 1):
+            pg[s] = rows
+            if i % 500 == 0:
+                log(f"   … Polygon {i}/{len(syms)}")
+    wl = load_json("weekly_watchlist.json", {})
+    nw = load_json("near_watch.json", {})
+    bot = {x.get("symbol") for sec in ("stocks", "pullback") for x in (wl.get(sec) or [])}
+    stats = collections.Counter()
+    flagged, flips = [], []
+    for s in syms:
+        ydf, rows = yh[s], pg.get(s)
+        if not rows or len(rows) < 30:
+            stats["بلا Polygon"] += 1
+            continue
+        pdf = pd.DataFrame(rows, columns=["d", "Open", "High", "Low", "Close", "Volume"])
+        pdf.index = pd.to_datetime(pdf.pop("d"))
+        stats["مقارَن"] += 1
+        yl, pl = ydf.index[-1].date().isoformat(), pdf.index[-1].date().isoformat()
+        yc = ydf["Close"].tail(260)
+        yc.index = pd.to_datetime([i.date() for i in yc.index])
+        j = yc.to_frame("y").join(pdf["Close"].rename("p"), how="inner")
+        j = j[(j["p"] > 0) & (j["y"] > 0)]
+        rng = float((j["y"] / j["p"]).max() / (j["y"] / j["p"]).min()) if len(j) >= 20 else None
+        ry, rp = float(S.rsi(ydf["Close"]).iloc[-1]), float(S.rsi(pdf["Close"]).iloc[-1])
+        bad_last = yl != pl
+        bad_rng = rng is not None and rng > 1.5
+        bad_rsi = abs(ry - rp) > 2.0
+        if bad_last:
+            stats["آخرُ شمعةٍ مختلفة"] += 1
+        if bad_rng:
+            stats["تقسيمٌ غيرُ متطابق (مدى النسبة فوق 1.5×)"] += 1
+        if bad_rsi:
+            stats["|ΔRSI| فوق نقطتين"] += 1
+            if (ry < OPL.RSI_OWNER) != (rp < OPL.RSI_OWNER):
+                stats["ينقلب شرطُ RSI أقلّ من 30"] += 1
+        dy, dp = identity(s, ydf), identity(s, pdf)
+        if dy.startswith("مؤهّل") != dp.startswith("مؤهّل"):
+            stats["ينقلب قرارُ هُويّة الارتكاز"] += 1
+            flips.append((s, dy, dp, rng, ry, rp))
+        if bad_rng or bad_rsi or bad_last:
+            flagged.append((s, rng, ry, rp, yl, pl, dy, dp, s in bot, s in (nw or {})))
+    log("\n🔎 الرموزُ المتعارضة (مدى النسبة · RSI ياهو/Polygon · آخرُ شمعة · القرار ياهو/Polygon · عند البوت):")
+    for s, rng, ry, rp, yl, pl, dy, dp, inb, innw in sorted(flagged, key=lambda x: -(x[1] or 0)):
+        tag = ("في القائمة/الارتداد" if inb else "") + (" · تحت المتابعة" if innw else "")
+        log(f"  {s:6} مدى {_fmt(rng, '{:.2f}')}× · RSI {ry:.1f}/{rp:.1f} · آخر {yl[5:]}/{pl[5:]} · {dy} ⟵⟶ {dp}"
+            + (f" · {tag}" if tag else ""))
+    log("\n🔁 انقلابُ قرار الهُويّة (ياهو ⟵⟶ Polygon):")
+    for s, dy, dp, rng, ry, rp in flips:
+        log(f"  {s:6} {dy} ⟵⟶ {dp} · مدى {_fmt(rng, '{:.2f}')}× · RSI {ry:.1f}/{rp:.1f}")
+    fb = [f[0] for f in flagged if f[8]]
+    fn = [f[0] for f in flagged if f[9]]
+    log(f"\n🧾 {dict(stats)}")
+    log(f"🧾 متعارضٌ {len(flagged)} من {stats['مقارَن']} · منها في قائمة البوت/الارتداد {len(fb)} {fb} · وتحت المتابعة {len(fn)}")
+    return 0
+
+
 if __name__ == "__main__":
     _xs = [x.strip().upper() for x in (os.environ.get("XCHECK") or "").split(",") if x.strip()]
+    if (os.environ.get("MODE") or "").strip() == "audit":
+        sys.exit(audit())
     sys.exit(xcheck(_xs) if _xs else main())

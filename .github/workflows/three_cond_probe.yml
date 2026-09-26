@@ -12,11 +12,15 @@ on:
         description: "رموزٌ بفاصلة للمقارنة المستقلّة ياهو/Polygon (فارغ = المِجَسّ الكامل)"
         required: false
         default: ""
+      mode:
+        description: "audit = فحصُ البوت (ياهو مقابل Polygon على الكون كلّه)"
+        required: false
+        default: ""
 
 jobs:
   three_cond_probe:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 75
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -34,5 +38,6 @@ jobs:
         env:
           PYTHONUNBUFFERED: "1"
           XCHECK: ${{ github.event.inputs.xcheck }}
+          MODE: ${{ github.event.inputs.mode }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
         run: python three_cond_probe.py
