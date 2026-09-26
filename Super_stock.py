@@ -12455,6 +12455,156 @@ def save_near_watch(watch: dict, path: str = None) -> bool:
         return False
 
 
+# 👀🏢 **مخزنُ فلوت «تحت المتابعة»** (أمرُ المالك 2026-09-26 «احفظ فلوت تحت المتابعة» — حتى لا يتكرّر «الفلوت مجهول»):
+#    تقريرُ الفترة (`watch_period_result.md §⑩`) قال عن MEDS · DLXY · SNYR · PDSB «الفلوتُ مجهولٌ عند البوت» — لأن ذاكرةَ
+#    الشركات (`company_cache.json`) لا تُثرى إلّا للمرشَّح، وكان نصفُ «تحت المتابعة» (322 من 644) بلا فلوت فيها.
+#    ⚖️ **ملفٌّ مستقلّ لا ذاكرةُ الشركات:** الإثراءُ يقرأ فلوتَها احتياطًا ثمّ `refloat_gate_recheck` يُعيد حكمَ M14 ⇒ حفظُ فلوت
+#    المتابَعين فيها **يغيّر الاختيار** · وهذا المخزنُ لا يقرؤه الفرزُ ولا جذرٌ. **عرضٌ/تقارير فقط** · ياهو `floatShares` حصرًا
+#    (`strict` — لا `sharesOutstanding`) · ويُكتب **بعد إرسال الرسائل** فلا يؤخّر التقرير · ولا يُحذف منه رمزٌ خرج (سجلٌّ لا يُمحى).
+NEAR_WATCH_FLOAT_FILE = "near_watch_float.json"
+NEAR_WATCH_FLOAT_MAX_AGE = 30    # engineering — يومًا: الفلوتُ يتغيّر بالطرح والتقسيم فيُعاد جلبُه بعدها
+NEAR_WATCH_FLOAT_RETRY = 7       # engineering — يومًا: رمزٌ أجاب ياهو عنه بلا `floatShares` يُعاد بعدها لا كلَّ يوم
+NEAR_WATCH_FLOAT_CAP = 700       # engineering — سقفُ الجلب/تشغيلة (يغطّي القائمةَ كلَّها ‏≈644 في أوّل يوم) · والقصُّ يُعلَن
+NEAR_WATCH_FLOAT_BUDGET_S = 420  # engineering — ميزانيةُ زمن/تشغيلة · والقصُّ يُعلَن
+NEAR_WATCH_FLOAT_BREAK = 8       # engineering — تعذّراتٌ متتالية ⟵ خنقُ ياهو ⟵ يتوقّف ويُعلَن (لا يُطرَق بلا فائدة)
+
+
+def load_near_watch_float(path: str = None) -> dict:
+    """يقرأ مخزنَ فلوت «تحت المتابعة». فاشل-آمن: غيابٌ/تلفٌ ⇒ `{}`."""
+    try:
+        with open(path or NEAR_WATCH_FLOAT_FILE, encoding="utf-8") as fh:
+            d = json.load(fh)
+        return d if isinstance(d, dict) else {}
+    except Exception:                                            # noqa: BLE001
+        return {}
+
+
+def save_near_watch_float(store: dict, path: str = None) -> bool:
+    """يحفظ مخزنَ الفلوت (مرتّبًا بالرمز فيبقى الفرقُ في git مقروءًا). فاشل-آمن: أيُّ خطأ ⇒ `False`."""
+    try:
+        with open(path or NEAR_WATCH_FLOAT_FILE, "w", encoding="utf-8") as fh:
+            json.dump(dict(sorted((store or {}).items())), fh, ensure_ascii=False, indent=1)
+        return True
+    except Exception:                                            # noqa: BLE001
+        return False
+
+
+def _yahoo_float_status(sym: str):
+    """فلوتُ ياهو **`floatShares` حصرًا** (توأمُ `_yahoo_float(strict=True)`) **بحالةٍ** ⟵ ("ok", فلوت) · ("miss", None) أجاب
+    ياهو بلا `floatShares` · ("fail", None) تعذّر (استثناءٌ أو ردٌّ فارغ) — فيفرّق قاطعُ الدائرة خنقَ ياهو عن سهمٍ بلا فلوت."""
+    try:
+        if yf is None:
+            return ("fail", None)
+        info = yf.Ticker(sym).info or {}
+    except Exception:                                            # noqa: BLE001
+        return ("fail", None)
+    if not info:
+        return ("fail", None)
+    try:
+        v = float(info.get("floatShares"))
+    except (TypeError, ValueError):
+        return ("miss", None)
+    return ("ok", v) if v > 0 else ("miss", None)
+
+
+def _nwf_due(rec, today_iso: str, max_age: int, retry: int):
+    """هل يُجلب فلوتُ الرمز اليوم؟ ⟵ أولويّةٌ (0 بلا سجلّ · 1 بلا فلوتٍ وآخرُ فحصٍ أقدمُ من `retry` · 2 فلوتٌ أقدمُ من `max_age`
+    وآخرُ فحصٍ أقدمُ من `retry`) أو None (طازج) — نقيّة."""
+    if not isinstance(rec, dict):
+        return 0
+    chk = rec.get("checked") or rec.get("date") or ""
+    if rec.get("float") is None:
+        return 1 if _iso_days_between(chk, today_iso) > retry else None
+    if (_iso_days_between(rec.get("date") or "", today_iso) > max_age
+            and _iso_days_between(chk, today_iso) > retry):
+        return 2
+    return None
+
+
+def refresh_near_watch_float(watch: dict, store: dict, today_iso: str, fetch=None, cap: int = None,
+                             budget_s: float = None, max_age: int = None, retry: int = None, brk: int = None,
+                             clock=None) -> dict:
+    """👀🏢 يُحدّث مخزنَ الفلوت لرموز «تحت المتابعة» ثمّ **يَسِم كلَّ مدخلٍ بفلوته** (`float` · `float_date` · `float_src`) ⟵ عدّادات.
+
+    الترتيب: بلا سجلٍّ أوّلًا ثمّ بلا فلوت ثمّ الأقدم · والجالبُ `fetch(sym)` ⟵ (حالة, قيمة) (محقونٌ للاختبار · وإلّا
+    `_yahoo_float_status` وقتَ النداء) · «miss» يحفظ الفحصَ **ولا يمحو فلوتًا سابقًا** · «fail» لا يغيّر شيئًا · والسقفُ والزمنُ
+    وقاطعُ الدائرة **يُعلَن قصُّها بعدّادها** (`cut` · `broke`). والوسمُ **بلا شرط**: مدخلٌ لا فلوتَ له في المخزن تُنزَع مفاتيحُه."""
+    n = {"fresh": 0, "fetched": 0, "miss": 0, "fail": 0, "cut": 0, "broke": False, "annotated": 0}
+    watch = watch if isinstance(watch, dict) else {}
+    cap = NEAR_WATCH_FLOAT_CAP if cap is None else int(cap)
+    budget_s = NEAR_WATCH_FLOAT_BUDGET_S if budget_s is None else float(budget_s)
+    max_age = NEAR_WATCH_FLOAT_MAX_AGE if max_age is None else int(max_age)
+    retry = NEAR_WATCH_FLOAT_RETRY if retry is None else int(retry)
+    brk = NEAR_WATCH_FLOAT_BREAK if brk is None else int(brk)
+    clock = clock or time.monotonic
+    get = fetch or _yahoo_float_status
+    due = []
+    for s in sorted(watch):
+        rec = store.get(s)
+        p = _nwf_due(rec, today_iso, max_age, retry)
+        if p is None:
+            n["fresh"] += 1
+        else:
+            age = _iso_days_between((rec or {}).get("checked") or (rec or {}).get("date") or "", today_iso)
+            due.append((p, -age, s))
+    due.sort()
+    t0, streak = clock(), 0
+    for i, (_p, _a, s) in enumerate(due):
+        if i >= cap or clock() - t0 > budget_s or streak >= brk:
+            n["cut"] = len(due) - i
+            n["broke"] = streak >= brk
+            break
+        try:
+            st, v = get(s)
+        except Exception:                                        # noqa: BLE001
+            st, v = "fail", None
+        if st == "ok" and v:
+            store[s] = {"float": float(v), "date": today_iso, "checked": today_iso, "src": "ياهو"}
+            n["fetched"] += 1
+            streak = 0
+        elif st == "miss":
+            rec = dict(store.get(s) or {})
+            rec.setdefault("float", None)
+            rec.setdefault("date", None)
+            rec["checked"] = today_iso
+            rec.setdefault("src", "ياهو")
+            store[s] = rec
+            n["miss"] += 1
+            streak = 0
+        else:
+            n["fail"] += 1
+            streak += 1
+    for s, e in watch.items():
+        if not isinstance(e, dict):
+            continue
+        rec = store.get(s) or {}
+        if rec.get("float"):
+            e["float"], e["float_date"], e["float_src"] = rec["float"], rec.get("date"), rec.get("src")
+            n["annotated"] += 1
+        else:
+            for k in ("float", "float_date", "float_src"):
+                e.pop(k, None)
+    return n
+
+
+def near_watch_float_step(today_iso: str, tag: str = "") -> dict:
+    """👀🏢 خطوةُ المسار الحيّ (اليوميّ والتجديد — **بعد** إرسال الرسائل): يقرأ «تحت المتابعة» ومخزنَها ⟵ يُحدّث ويَسِم ⟵
+    يحفظ الملفّين (يدفعهما `git_save` في `main`) · وسطرُ سجلٍّ بعدّاداته وقصِّه. فاشلٌ-آمن: أيُّ خطأ ⟵ سطرُ تحذيرٍ لا انهيار."""
+    try:
+        watch, store = load_near_watch(), load_near_watch_float()
+        n = refresh_near_watch_float(watch, store, today_iso)
+        ok_s, ok_w = save_near_watch_float(store), save_near_watch(watch)
+        log(f"👀🏢 فلوتُ تحت المتابعة{tag}: {len(watch)} سهم · موسومٌ بفلوت {n['annotated']} · جُلب {n['fetched']} · "
+            f"بلا فلوتٍ عند ياهو {n['miss']} · تعذّر {n['fail']} · طازج {n['fresh']}"
+            + (f" · ⚠️ قُصَّ {n['cut']}" + (" (خنقُ ياهو — قاطعُ الدائرة)" if n["broke"] else " (السقف/الزمن)")
+               if n["cut"] else "")
+            + ("" if ok_s and ok_w else " · ⚠️ تعذّر الحفظ"))
+        return n
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ فلوتُ تحت المتابعة{tag}: {e}")
+        return {}
+
+
 def near_watch_measure(sym: str, df, edges: dict):
     """📏 يقيس سهمًا **مرفوضًا** بكلّ البوّابات مُرخاة ⇒ (قيم، خارجة) أو `None`.
 
@@ -20525,6 +20675,7 @@ def run_weekly_renewal(wl: dict) -> None:
         "flags": " | ".join(r["flags"]),
         "warnings": " | ".join(r.get("warnings", [])),
     } for r in picks], "weekly_list")
+    near_watch_float_step(today_iso, " (التجديد)")   # 👀🏢 قبل `git_save` في `run_performance_system` (أمرُ «احفظ فلوت تحت المتابعة»)
     try:
         # التجديد الأسبوعي → أرسل التقرير الأسبوعي معه (أسبوع كامل على إغلاق الجمعة)
         run_performance_system(picks, weekly_report_now=True)
@@ -21045,6 +21196,9 @@ def run_daily_watchlist(wl: dict) -> None:
         "t1": s["t1"], "hit": s["hit"] or "",
         "max_gain%": s["max_gain_pct"],
     } for s in wl["stocks"]], "daily_watch")
+    # 👀🏢 فلوتُ «تحت المتابعة» (أمرُ المالك 2026-09-26 «احفظ فلوت تحت المتابعة»): **بعد** إرسال الرسائل فلا يؤخّر التقرير ·
+    #    و**قبل** `run_performance_system` لأن `git_save` في آخرها هو الذي يدفع الملفّين.
+    near_watch_float_step(today_iso)
     try:
         run_performance_system(added)
     except Exception as e:
@@ -25218,8 +25372,9 @@ def run_performance_system(results, weekly_report_now=False):
     #    فلا يُقرأ «منذ كم يوم»، والتقليمُ بعد 10 أيام **يستحيل**، وكونُ
     #    المتابعة الحيّة لا يجده أصلًا. **والدليلُ أن الملفّ غائبٌ من المستودع
     #    بعد تشغيلةٍ كاملة ناجحة** (`31957908070`) رغم أن الحفظ غيرُ مشروط.
+    #    👀🏢 ومخزنُ فلوت «تحت المتابعة» (2026-09-26) — وإلّا مات مع الرنر كما مات `NEAR_WATCH_FILE` قبل 08-16.
     git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE, REJECT_LOG_FILE,
-              HUNTER_WATCH_FILE, NEAR_WATCH_FILE])
+              HUNTER_WATCH_FILE, NEAR_WATCH_FILE, NEAR_WATCH_FLOAT_FILE])
 
 
 if __name__ == "__main__":

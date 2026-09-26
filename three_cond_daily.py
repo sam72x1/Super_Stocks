@@ -537,6 +537,9 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
             rows[s]["fl"], rows[s]["fl_src"] = float(fl), "ياهو"
         elif wl_fl.get(s):
             rows[s]["fl"], rows[s]["fl_src"] = float(wl_fl[s]), "قائمة البوت"
+        elif isinstance(nw, dict) and isinstance(nw.get(s), dict) and nw[s].get("float"):
+            #    👀🏢 مخزنُ فلوت «تحت المتابعة» (ياهو `floatShares` · يُحدَّث يوميًّا منذ 2026-09-26)
+            rows[s]["fl"], rows[s]["fl_src"] = float(nw[s]["float"]), "مخزن تحت المتابعة"
         elif isinstance(cache.get(s), dict) and cache[s].get("float"):
             rows[s]["fl"], rows[s]["fl_src"] = float(cache[s]["float"]), "ذاكرة البوت"
         if yfloat is None:
