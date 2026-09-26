@@ -29,6 +29,14 @@
 ⑨ **شاهدُ الهُويّة مع التقرير السابق (`V-P1`)** — إن وقعت جلساتُ 2026-09-21 ⟶ 25 كلُّها داخل الفترة: عدُّ (سهم×جلسة · RSI · فلوت ·
    متاح · دولار) يطابق المنشور **177 · 4 · 76 · 57 · 156** — عدٌّ لا تحليلُ دولار · والفرقُ يُطبع ولا يُخفى.
 ⑩ **الفئات** (`PERIOD_CLASSES`): `penny` للتقرير 1 (**لا تُحلَّل أسهمُ الدولار مرّةً أخرى**) · `penny,dollar` للتقرير 2.
+⑪ **👀 تحت المتابعة — مجتمعٌ ثالث** (أمرُ المالك 2026-09-26 بعد التقريرين: «فيه سهمين اذكر ريتو و واحد معه ارتفعوا نسبة
+   جنونية … ما ذكرته ليه؟» — والجواب: تعريفُ ② لم يشمل «تحت المتابعة» فغاب RETO عن المجتمع بالبناء): رموزُ `near_watch.json`
+   (`S.NEAR_WATCH_FILE` بالاسم) في أحدث لقطةٍ قبل 09:30 نيويورك **خارج** القائمة والارتداد · الفلوتُ من لقطة ذاكرة البوت
+   (`S.COMPANY_FILE`) قبل الجلسة نفسِها · **والمتاحُ مجهولٌ بالبناء** (لا يُخزَّن لهم) ⇒ مَن استوفى الثلاثةَ المعلومة (RSI ·
+   فلوت · الفئة) **«مجهولُ الشورت» لا مؤهّل** ولا يدخل المقام · والانفجارُ بتعريف ⑥ نفسِه · ومعه **صاعدو الفترة بلا شرط**
+   (+50% من إغلاق ما قبل أوّل جلسة · وصفٌ لا حكم) بسبب عدم استيفائهم.
+⑫ **التتبّع** (`PERIOD_TRACE` = رموزٌ بفاصلة): لكلّ رمزٍ مسمّى جلسةً جلسة — في أيّ مجتمعٍ كان · شروطُه · الإغلاقُ الخامّ
+   والمسوّى · وتقسيماتُه من Polygon · وأقصى صعوده — **وصفٌ لا يدخل عددًا**.
 
 الخروج: 0 قياس · 2 بلا مفتاح · 3 حارسٌ ساقط · 4 لا لقطة/لا رمز · 5 ليست قراءةً فقط.
 """
@@ -48,6 +56,9 @@ from kasih_scan import NY
 P_FROM = (os.environ.get("PERIOD_FROM") or "").strip()
 P_TO = (os.environ.get("PERIOD_TO") or "").strip()
 CLASSES = tuple(x.strip() for x in (os.environ.get("PERIOD_CLASSES") or "penny,dollar").split(",") if x.strip())
+TRACE = tuple(x.strip().upper() for x in (os.environ.get("PERIOD_TRACE") or "").split(",") if x.strip())
+NW_SHOW = 15                     # سقفُ عرض صاعدي «تحت المتابعة» بلا شرط — والقصُّ يُعلَن بعدده
+NW_WORKERS = 8
 WEEK_REF = ("2026-09-21", "2026-09-25")                             # ⑨ فترةُ التقرير السابق
 PUBLISHED = (177, 4, 76, 57, 156)                                    # ⑨ watch_week_result.md ③ — المجموع
 LABEL = {"penny": "🪙 Penny (سعرُ الإشارة الخامّ أقلّ من $1.00)", "dollar": "💵 Dollar (سعرُ الإشارة الخامّ $1.00 فأكثر)"}
@@ -86,6 +97,22 @@ def unknown_of(per_s):
         if three(per_s[d]["f"]) is None:
             return d
     return None
+
+
+def nw_entries(js):
+    """{رمز: مدخل} من لقطة `near_watch.json` — المدخلُ قاموسٌ يحمل رمزَه (أيُّ شكلٍ آخر ⟵ لا شيء · لا تخمين)."""
+    if not isinstance(js, dict):
+        return {}
+    return {s: e for s, e in js.items() if isinstance(e, dict) and str(e.get("symbol") or s) == s}
+
+
+def splits_of(sym, key, d0, d1):
+    """⑫ تقسيماتُ الرمز من Polygon بين يومين ⟵ [(تاريخ التنفيذ, من, إلى)] — `P._get` بالاسم · والتعذّرُ ⟵ None لا []."""
+    js = P._get(f"{P.API}/v3/reference/splits", {"ticker": sym, "execution_date.gte": d0, "execution_date.lte": d1,
+                                                 "limit": "100"}, key)
+    if js is None:
+        return None
+    return [(str(r.get("execution_date"))[:10], r.get("split_from"), r.get("split_to")) for r in js.get("results") or []]
 
 
 def chain(per, syms, k):
@@ -175,6 +202,17 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
             last_entry[s] = e
     pb_union = sorted({s for d in days for s in pb_by.get(d, {})} - set(union))
     log(f"👥 المراقَبة (القائمة): {len(union)} · والارتداد خارجها: {len(pb_union)}")
+    # ── ⑪ 👀 تحت المتابعة: لقطاتُها قبل الافتتاح · وذاكرةُ الفلوت قبل الجلسة نفسِها ──
+    nw_c, cc_c = WW.wl_commits(WW.S.NEAR_WATCH_FILE), WW.wl_commits(WW.S.COMPANY_FILE)
+    nw_by, cc_h = {}, {}
+    for d in days:
+        sb = WW.snapshot_before(nw_c, WW.open_utc(d))
+        nw_by[d] = nw_entries(WW.load_snapshot(sb[1], WW.S.NEAR_WATCH_FILE)) if sb else {}
+        cb = WW.snapshot_before(cc_c, WW.open_utc(d))
+        cc_h[d] = cb[1] if cb else None
+    nw_union = sorted({s for d in days for s in nw_by[d]} - set(union) - set(pb_union))
+    log(f"👀 تحت المتابعة خارج القائمة والارتداد: {len(nw_union)} (لقطاتُها {sum(1 for d in days if nw_by[d])} من "
+        f"{len(days)} جلسة · ذاكرةُ الفلوت {sum(1 for d in days if cc_h[d])} من {len(days)}) — المتاحُ مجهولٌ لهم بالبناء")
 
     d0 = (dt.date.fromisoformat(days[0]) - dt.timedelta(days=WW.HIST_DAYS)).isoformat()
     adj_by, raw_by = {}, {}
@@ -204,6 +242,26 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
     if n1 < WW.V_MIN_N:
         log(f"⚠️ V-W1 «لا يُحكم» (n={n1} دون {WW.V_MIN_N}) — يُكمَل بلا تأكيد هُويّة RSI")
 
+    # ── ⑪ شموعُ «تحت المتابعة» (متوازيةً · خارج حارس V-W2 لأنها ليست مجتمعَ المقام) ──
+    trace = [t for t in TRACE if t not in adj_by]
+    extra = [x for x in nw_union + trace if x not in adj_by]
+    if extra:
+        import concurrent.futures as _cf
+        with _cf.ThreadPoolExecutor(max_workers=NW_WORKERS) as ex:
+            for x, (a, r) in zip(extra, ex.map(lambda z: WW.fetch_bars(z, d0, days[-1], key), extra)):
+                adj_by[x], raw_by[x] = a, r
+        log(f"   … 👀 شموعُ تحت المتابعة والتتبّع: {sum(1 for x in extra if adj_by.get(x))} من {len(extra)}")
+    cc_cache = {}
+
+    def cc_float(h, sym):
+        if h is None:
+            return None
+        if h not in cc_cache:
+            js = WW.load_snapshot(h, WW.S.COMPANY_FILE)
+            cc_cache[h] = js if isinstance(js, dict) else {}
+        e = cc_cache[h].get(sym)
+        return WW._num(e.get("float")) if isinstance(e, dict) else None
+
     # ── لكلّ (سهم، جلسة) ──
     per = collections.defaultdict(dict)
     for d in days:
@@ -223,6 +281,18 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
                 fl = WW._num(e.get("float"))
                 pper[s][d] = {"c": c, "rsi": rsi, "px": px, "float": fl, "avail": None, "f": WW.flags(rsi, px, fl, None),
                               "status": e.get("status")}
+    nper = collections.defaultdict(dict)
+    for d in days:
+        c = WW.prev_day(cal, d)
+        for s, e in nw_by[d].items():
+            if s in nw_union:
+                rsi = WW.rsi_at(adj_by.get(s) or [], c)
+                px = WW.close_at(raw_by.get(s) or [], c)
+                fl = cc_float(cc_h[d], s)
+                nper[s][d] = {"c": c, "rsi": rsi, "px": px, "float": fl, "avail": None, "f": WW.flags(rsi, px, fl, None),
+                              "why": [str(x) for x in (e.get("outside") or [])][:2]}
+    nw_two = {s: next((d for d in sorted(nper[s]) if nper[s][d]["f"][0] is True and nper[s][d]["f"][1] is True), None)
+              for s in nw_union if nper.get(s)}
 
     # ── ⑨ شاهدُ الهُويّة مع التقرير السابق ──
     if all(d in days for d in [x for x in full if WEEK_REF[0] <= x <= WEEK_REF[1]]) and WEEK_REF[0] in days:
@@ -239,8 +309,11 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
     seen = WW.first_seen_map(commits, d1_by, week_lo)
     pseen = WW.first_seen_map(commits, {s: sorted(pper[s])[0] for s in pb_union if pper.get(s)}, week_lo,
                               pick=WW.pullback_entries)
+    nw_sig = sorted(s for s, d in nw_two.items() if d)
+    nseen = WW.first_seen_map(nw_c, {s: sorted(nper[s])[0] for s in nw_sig}, week_lo, pick=nw_entries,
+                              load=lambda h: WW.load_snapshot(h, WW.S.NEAR_WATCH_FILE))
     mins_by, reg, ext = {}, {}, {}
-    for s in union + pb_union:
+    for s in union + pb_union + nw_sig:
         mins_by[s] = WW.fetch_minutes(s, days[0], days[-1], key)
     for s in union:
         c1 = per[s][d1_by[s]]["c"]
@@ -333,6 +406,50 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
             + (f" · ممتدًّا: {_pct(mean_x)} · {_pct(med_x)} · {_pct(max_x)}" if ext_ok else "")
             + f" · مجهول {len(unk)} · الارتداد: يستوفي الثلاثةَ المعلومة {len(prow)} بلغ منها +50% {pb50}"
             + (f" (ممتدًّا {pbx50})" if ext_ok else ""))
+        # ── ⑪ 👀 تحت المتابعة (مجتمعٌ ثالث · المتاحُ مجهولٌ بالبناء ⇒ «مجهولُ الشورت» لا مؤهّل) ──
+        nrow = []
+        for s in nw_sig:
+            hit = [d for d in sorted(nper[s]) if nper[s][d]["f"][0] is True and nper[s][d]["f"][1] is True
+                   and klass(nper[s][d]["px"]) == k]
+            if not hit or hit[0] != nw_two[s]:
+                continue
+            r = nper[s][hit[0]]
+            o = outcome(adj_by.get(s) or [], r["c"], hit[0], days[-1], mins_by.get(s), nseen.get(s), now_utc)
+            nrow.append((s, r, o, hit[0]))
+        nrow.sort(key=lambda x: -(x[2]["reg"] if x[2]["reg"] is not None else -1e9))
+        for s, r, o, d in nrow:
+            log(f"   👀 {s:6} [تحت المتابعة · {' · '.join(r['why']) or '—'}] إشارةُ الثلاثة المعلومة {d} · RSI "
+                f"{_fmt(r['rsi'], '{:.1f}')} · فلوت {_fmt(r['float'])} (ذاكرةُ البوت قبل الجلسة) · المتاحُ مجهولٌ بالبناء · سعر "
+                f"${_fmt(r['px'], '{:.3f}')} · أقصى صعودٍ {_pct(o['reg'])} ({o['reg_day'] or '—'})"
+                + (f" · ممتدًّا {_pct(o['ext'])}" if ext_ok else ""))
+        n50 = sum(1 for x in nrow if (x[2]["reg"] or -1e9) >= WW.EXPLODE[0])
+        n100 = sum(1 for x in nrow if (x[2]["reg"] or -1e9) >= WW.EXPLODE[1])
+        nx50 = sum(1 for x in nrow if ext_ok and (x[2]["ext"] or -1e9) >= WW.EXPLODE[0])
+        watched_nw = sum(1 for s in nw_union if nper.get(s) and klass(nper[s][sorted(nper[s])[0]]["px"]) == k)
+        log(f"   👀 {k.upper()} تحت المتابعة: المراقَبة {watched_nw} · يستوفي الثلاثةَ المعلومة {len(nrow)} (مجهولُ الشورت · "
+            f"خارج المقام) · بلغ منها +50% {n50} (و+100% {n100})" + (f" · ممتدًّا +50% {nx50}" if ext_ok else ""))
+        movers = []
+        for s in nw_union:
+            if not nper.get(s):
+                continue
+            d1 = sorted(nper[s])[0]
+            if klass(nper[s][d1]["px"]) != k:
+                continue
+            mr, mday = WW.max_rise(adj_by.get(s) or [], nper[s][d1]["c"], d1, days[-1])
+            if mr is not None and mr >= WW.EXPLODE[0]:
+                pre = [nper[s][d] for d in sorted(nper[s]) if not mday or d <= mday]
+                rsis = [x["rsi"] for x in pre if x["rsi"] is not None]
+                movers.append((mr, s, d1, mday, min(rsis) if rsis else None, nper[s][d1]["float"], nw_two.get(s)))
+        movers.sort(reverse=True)
+        log(f"   🚀 👀 {k.upper()} — صاعدو «تحت المتابعة» +50% فأكثر من إغلاق ما قبل أوّل جلسةٍ لهم في الفترة (بلا شرط · وصفٌ "
+            f"لا حكم): {len(movers)}" + (f" (يُعرض {NW_SHOW} · والقصُّ مُعلَن)" if len(movers) > NW_SHOW else ""))
+        for mr, s, d1, mday, mrsi, fl, two in movers[:NW_SHOW]:
+            miss = [x for x in (
+                f"أدنى RSI قبل القمّة {_fmt(mrsi, '{:.1f}')}" if (mrsi is None or mrsi >= OPL.RSI_OWNER) else "",
+                f"الفلوت {_fmt(fl)}" if (fl is None or fl >= OPL.FLOAT_OWNER) else "") if x]
+            why = ("استوفى الثلاثةَ المعلومة " + two) if two else (
+                "لم يستوفِ: " + (" · ".join(miss) if miss else "RSI والفلوت لم يجتمعا في جلسةٍ واحدة"))
+            log(f"      {s:6} {_pct(mr)} ({mday or '—'}) · من {d1} · {why}")
         summary["classes"][k] = {
             "watched": watched_k, "chain": [(c, n) for c, n, _x in ch], "chain_diff": diff, "qualified": len(q),
             "exploded_reg": len(e50), "exploded_reg100": len(e100), "exploded_ext": len(x50) if ext_ok else None,
@@ -343,7 +460,33 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
                       "ext_when": WW._when(o["ext_ms"]) if o["ext_ms"] else None, "ext_hi": o["ext_hi"], "k": kk}
                      for s, r, o, kk in rows],
             "pullback": [{"sym": s, "signal": d, "c": r["c"], "rsi": r["rsi"], "float": r["float"], "px": r["px"],
-                          "reg": o["reg"], "reg_day": o["reg_day"], "ext": o["ext"]} for s, r, o, d in prow]}
+                          "reg": o["reg"], "reg_day": o["reg_day"], "ext": o["ext"]} for s, r, o, d in prow],
+            "near_watch": [{"sym": s, "signal": d, "c": r["c"], "rsi": r["rsi"], "float": r["float"], "px": r["px"],
+                            "reg": o["reg"], "reg_day": o["reg_day"], "ext": o["ext"]} for s, r, o, d in nrow],
+            "near_watched": watched_nw,
+            "near_movers": [{"sym": s, "rise": mr, "day": mday, "from": d1, "min_rsi": mrsi, "float": fl, "three": two}
+                            for mr, s, d1, mday, mrsi, fl, two in movers]}
+    # ── ⑫ التتبّع: رموزٌ مسمّاة جلسةً جلسة (وصفٌ لا يدخل عددًا) ──
+    for t in TRACE:
+        log("")
+        log(f"🔎 تتبّع {t}: تقسيماتُ Polygon {d0} ⟶ {days[-1]}: {splits_of(t, key, d0, days[-1])}")
+        a, rw = adj_by.get(t) or [], raw_by.get(t) or []
+        for d in days:
+            c = WW.prev_day(cal, d)
+            pop = ("القائمة" if t in lists[d][2] else "الارتداد" if t in pb_by.get(d, {}) else
+                   "تحت المتابعة" if t in nw_by[d] else "خارج البوت")
+            r = (per.get(t) or {}).get(d) or (pper.get(t) or {}).get(d) or (nper.get(t) or {}).get(d)
+            rsi = r["rsi"] if r else WW.rsi_at(a, c)
+            fl = r["float"] if r else cc_float(cc_h[d], t)
+            hi = next((b[2] for b in a if b[0] == d), None)
+            log(f"   {d} (إغلاق {c}) · {pop} · RSI {_fmt(rsi, '{:.1f}')} · خامّ ${_fmt(WW.close_at(rw, c), '{:.4f}')} · "
+                f"مسوًّى ${_fmt(WW.close_at(a, c), '{:.4f}')} · أعلى الجلسة مسوًّى ${_fmt(hi, '{:.4f}')} · فلوت {_fmt(fl)}"
+                + (f" · الشروط {r['f']}" if r else ""))
+        d1 = days[0]
+        c1 = WW.prev_day(cal, d1)
+        mr, mday = WW.max_rise(a, c1, d1, days[-1])
+        log(f"   ⟵ أقصى صعودٍ من إغلاق {c1} حتى {days[-1]}: {_pct(mr)} ({mday or '—'})")
+    summary["near_watch_union"] = len(nw_union)
     log("")
     log("JSON " + json.dumps(summary, ensure_ascii=False, default=str))
     return 0

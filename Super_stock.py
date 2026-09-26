@@ -711,6 +711,13 @@ CONFIG = {
     "RETRY_BACKOFF": 3.0,        # ثوانٍ أساس التراجع الأسّي (3,6,12...)
     "DATA_HEALTH_MIN_PCT": 85,   # تغطية بيانات أقل من هذا = تحذير صحة في الرسالة
     "MIN_BARS": 120,             # أقل عدد شموع مقبول للتحليل
+    # 🩹 مصدرُ الشموع (أمرُ المالك 2026-09-26 «صلح مصدر البوت» · فحصُ البوت `36244720433`: ياهو غيرُ متّسقٍ مع
+    #    التقسيمات في 39 من 3,390 رمزًا ومنه خطأُ MGN «RSI 25 وهو 50»): للرمز الذي يُدرج Polygon له تقسيمًا في نافذة
+    #    التحميل ويختلّ مدى نسبة إغلاق ياهو/Polygon فوق `SPLIT_MISMATCH_RATIO` ⟵ شموعُ Polygon المسوّاة بدل ياهو.
+    #    False (أو بيئةُ `SPLIT_SOURCE_REPAIR=0`) ⟵ ياهو حرفيًّا كما كان (بت-بت).
+    "SPLIT_SOURCE_REPAIR": True,
+    "SPLIT_MISMATCH_RATIO": 1.5,  # engineering (جودةُ بيانات لا عتبةُ فرز): مِجَسّ فحص 09-26 ⟵ 39 رمزًا فوقه (SMX ×159 ·
+                                  # MGN ×40 · VWAV ×20) وأعلى ما تحته 1.42 (OXLC · أرباحٌ موزّعة يعدّلها ياهو وحدَه)
     "REPORT_CSV": True,
     "MISSED_RISE_PCT": 30.0,     # مرفوض صعد ≥ هذا (آخر ~10 جلسات) = فرصة فائتة
     "SPLIT_SUSPECT_GAIN_PCT": 300.0,  # A2: كسب فوق هذا يُرجَّح أثر تقسيم عكسي غير
@@ -1795,9 +1802,197 @@ def _extract_into(out: dict, data, chunk: list):
             continue
 
 
+# ==========================================================
+# 4أ) 🩹 إصلاحُ مصدر الشموع — تقسيمٌ لم يطبّقه ياهو (أمرُ المالك 2026-09-26 «صلح مصدر البوت»)
+# ==========================================================
+# فحصُ البوت (`36244720433` · الكون كلُّه): ياهو غيرُ متّسقٍ مع التقسيمات في 39 من 3,390 رمزًا ⇒ RSI والمستوياتُ لتلك
+# الرموز محسوبةٌ على شموعٍ نصفُها بمقياسٍ ونصفُها بآخر (MGN: RSI ياهو 25.1 وPolygon 50.0 — وعند المالك 51).
+# العلاج: **للرمز الذي يُدرج Polygon له تقسيمًا داخل نافذة التحميل وحدَه** تُقارَن إغلاقاتُ ياهو بإغلاقات Polygon
+# المسوّاة يومًا بيوم، فإن تجاوز مدى النسبة (أعلاها ÷ أدناها) `SPLIT_MISMATCH_RATIO` استُبدلت شموعُه بشموع Polygon.
+# 🔒 مفتاحٌ يرجع بت-بت (`SPLIT_SOURCE_REPAIR` · بيئةُ «0») · بلا مفتاح Polygon ⟵ صفرُ نداء · الباكتيستُ ونافذتُه القديمة
+#    خارجه · فاشلٌ-آمن: أيُّ تعذّرٍ ⟵ شموعُ ياهو كما هي · وتقسيماتٌ ناقصةُ الصفحات ⟵ لا إصلاح (لا تغطيةَ مُخمَّنة).
+SPLIT_REPAIR_LAST = {}          # تقريرُ آخر إصلاحٍ في هذي العمليّة (للأداة اليوميّة وللسجلّ)
+_POLY_SPLITS_CACHE = {}         # since ⟵ {رمز: [تواريخ التنفيذ]} — نداءٌ واحدٌ للعمليّة
+
+
+def _poly_key() -> str:
+    return os.environ.get("POLYGON_API_KEY", "").strip()
+
+
+def _poly_get_json(url: str, params: dict = None, timeout: float = 15.0):
+    """GET من Polygon بمفتاح الترويسة ⟵ dict أو None (فاشلٌ-آمن · محاولتان عند الخنق 429)."""
+    key = _poly_key()
+    if not key:
+        return None
+    for i in range(2):
+        try:
+            r = requests.get(url, params=params or None, timeout=timeout,
+                             headers={"Authorization": f"Bearer {key}"})
+            if r.status_code == 429 and i == 0:
+                time.sleep(1.5)
+                continue
+            if r.status_code != 200:
+                return None
+            return r.json() or None
+        except Exception:
+            return None
+    return None
+
+
+def polygon_splits_since(since: str, get=None, max_pages: int = 60):
+    """كلُّ تقسيمات السوق منذ `since` (`/v3/reference/splits` بصفحات `next_url`) ⟵ {رمز: [تاريخ التنفيذ…]} أو None.
+    **لا تغطيةَ بصفحاتٍ ناقصة** (درسُ `chart_finder.load_all_splits` 2026-09-25): تعذّرُ صفحةٍ أو بلوغُ السقف ⟵ None
+    فلا يُصلَح شيء (القائمةُ الناقصة **أحدثُ التقسيمات** بالترتيب التصاعديّ — وهي بعينها ما نحتاجه)."""
+    g = get or _poly_get_json
+    url = "https://api.polygon.io/v3/reference/splits"
+    params = {"execution_date.gte": since, "limit": "1000", "order": "asc", "sort": "execution_date"}
+    out, n = {}, 0
+    while url and n < max_pages:
+        js = g(url, params)
+        if not js or not isinstance(js.get("results", []), list):
+            return None
+        for r in js.get("results") or []:
+            t, ex = str(r.get("ticker") or "").upper(), str(r.get("execution_date") or "")[:10]
+            if t and ex:
+                out.setdefault(t, []).append(ex)
+        url, params, n = js.get("next_url"), None, n + 1
+    return None if url else out
+
+
+def polygon_daily_frame(sym: str, start: str, end: str, get=None, tz=None):
+    """شموعُ Polygon اليوميّة **المسوّاة** لـ[start, end] ⟵ DataFrame بأعمدة ياهو (Open/High/Low/Close/Volume) وفهرسُ
+    تواريخ جلسات نيويورك (بمنطقة `tz` إن كان فهرسُ ياهو بمنطقة) · أو None. فاشلٌ-آمن."""
+    g = get or _poly_get_json
+    js = g(f"https://api.polygon.io/v2/aggs/ticker/{sym.upper()}/range/1/day/{start}/{end}",
+           {"adjusted": "true", "sort": "asc", "limit": "50000"})
+    res = (js or {}).get("results") or []
+    rows = []
+    for b in res:
+        try:
+            d = pd.Timestamp(int(b["t"]), unit="ms", tz="UTC").tz_convert("America/New_York").date()
+            rows.append((pd.Timestamp(d), float(b["o"]), float(b["h"]), float(b["l"]), float(b["c"]),
+                         float(b.get("v") or 0.0)))
+        except Exception:
+            continue
+    if not rows:
+        return None
+    df = pd.DataFrame([r[1:] for r in rows], columns=["Open", "High", "Low", "Close", "Volume"],
+                      index=pd.DatetimeIndex([r[0] for r in rows], name="Date"))
+    df = df[~df.index.duplicated(keep="last")]
+    if tz is not None:
+        try:
+            df.index = df.index.tz_localize(tz)
+        except Exception:
+            return None
+    return df
+
+
+def split_mismatch_ratio(ydf, pdf, min_common: int = 20):
+    """مدى نسبة إغلاق ياهو إلى Polygon على الجلسات المشتركة (أعلاها ÷ أدناها) ⟵ float أو None (أقلُّ من
+    `min_common` جلسةً مشتركة = لا حكم). تقسيمٌ طبّقه مصدرٌ دون الآخر ⇒ المدى = نسبةُ التقسيم (MGN ‏×40)."""
+    try:
+        y = {str(i)[:10]: float(c) for i, c in zip(ydf.index, ydf["Close"]) if c == c and float(c) > 0}
+        p = {str(i)[:10]: float(c) for i, c in zip(pdf.index, pdf["Close"]) if c == c and float(c) > 0}
+        rs = [y[d] / p[d] for d in y if d in p]
+        if len(rs) < min_common:
+            return None
+        return max(rs) / min(rs)
+    except Exception:
+        return None
+
+
+def _split_repair_on(start_override=None) -> bool:
+    """يعمل الإصلاحُ في الإنتاج وحدَه: المفتاحُ مُشعَل · وبيئةُ `SPLIT_SOURCE_REPAIR` ليست «0» · ومفتاحُ Polygon حاضر ·
+    وليس باكتيست (`MODE` · `start_override` · `BT_RAW_PRICE`) ⟵ فالمنشورُ من الباكتيست يُعاد بت-بت."""
+    if start_override is not None or MODE == "BACKTEST" or CONFIG.get("BT_RAW_PRICE"):
+        return False
+    if os.environ.get("SPLIT_SOURCE_REPAIR", "").strip() == "0":
+        return False
+    return bool(CONFIG.get("SPLIT_SOURCE_REPAIR")) and bool(_poly_key())
+
+
+def repair_split_mismatch(out: dict, start: str, splits=None, fetch=None, today=None) -> dict:
+    """🩹 يستبدل في `out` (رمز ⟵ إطارُ ياهو) شموعَ الرمز المختلّ تقسيمًا بشموع Polygon المسوّاة — **في مكانه** —
+    ويُرجع التقرير {listed · checked · replaced[(رمز، المدى)] · consistent · short[(رمز، سبب)] · failed[] · skipped}.
+    المرشَّحُ: رمزٌ يُدرج Polygon له تنفيذَ تقسيمٍ داخل [start, اليوم] وحدَه (نداءٌ جماعيٌّ واحد ثمّ نداءٌ لكلٍّ منها).
+    الاستبدالُ بشرطين: المدى فوق `SPLIT_MISMATCH_RATIO` **و**إطارُ Polygon لا يقصر (‏`MIN_BARS` فأكثر · وآخرُ جلسةٍ
+    فيه لا تسبق آخرَ جلسةٍ عند ياهو) — وإلّا يبقى ياهو ويُعلَن السبب."""
+    rep = {"listed": 0, "checked": 0, "replaced": [], "consistent": 0, "short": [], "failed": [],
+           "skipped": None}
+    today = today or dt.date.today().isoformat()
+    sp = splits if splits is not None else _POLY_SPLITS_CACHE.get(start)
+    if sp is None:
+        sp = polygon_splits_since(start)
+        if sp is not None:
+            _POLY_SPLITS_CACHE[start] = sp
+    if sp is None:
+        rep["skipped"] = "تعذّرت قائمةُ تقسيمات Polygon كاملةً"
+        return rep
+    cands = sorted(s for s, df in out.items() if df is not None and len(df)
+                   and any(start <= d <= today for d in sp.get(str(s).upper(), [])))
+    rep["listed"] = len(cands)
+    thr = float(CONFIG.get("SPLIT_MISMATCH_RATIO", 1.5))
+
+    def _one(s):
+        ydf = out[s]
+        tz = getattr(ydf.index, "tz", None)
+        f = fetch or (lambda sym: polygon_daily_frame(sym, start, today, tz=tz))
+        return s, f(s)
+
+    got = {}
+    if cands:
+        from concurrent.futures import ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=8) as ex:
+            for s, pdf in ex.map(_one, cands):
+                got[s] = pdf
+    for s in cands:
+        pdf, ydf = got.get(s), out[s]
+        if pdf is None or not len(pdf):
+            rep["failed"].append(s)
+            continue
+        r = split_mismatch_ratio(ydf, pdf)
+        if r is None:
+            rep["failed"].append(s)
+            continue
+        rep["checked"] += 1
+        if r <= thr:
+            rep["consistent"] += 1
+            continue
+        if len(pdf) < CONFIG["MIN_BARS"]:
+            rep["short"].append((s, f"Polygon {len(pdf)} شمعة"))
+            continue
+        if str(pdf.index[-1])[:10] < str(ydf.index[-1])[:10]:
+            rep["short"].append((s, f"آخرُ Polygon {str(pdf.index[-1])[:10]} قبل ياهو {str(ydf.index[-1])[:10]}"))
+            continue
+        pdf = pdf[["Open", "High", "Low", "Close", "Volume"]]
+        try:                                       # وحدةُ الزمن كإطار ياهو (pandas 3: التاريخُ وحدَه ⟵ ثوانٍ)
+            u = getattr(ydf.index, "unit", None)
+            if u and getattr(pdf.index, "unit", None) != u:
+                pdf.index = pdf.index.as_unit(u)
+        except Exception:                          # noqa: BLE001 — المقارنةُ بالتاريخ تعمل بأيّ وحدة
+            pass
+        out[s] = pdf
+        rep["replaced"].append((s, round(r, 2)))
+    return rep
+
+
+def _split_repair_line(rep: dict) -> str:
+    """سطرُ السجلّ — كلُّ قصٍّ يُعلَن بعدده."""
+    if rep.get("skipped"):
+        return f"🩹 مصدرُ الشموع: {rep['skipped']} ⟵ ياهو كما هو"
+    rp = rep.get("replaced") or []
+    ex = " · ".join(f"{s} ×{r:g}" for s, r in rp[:12]) + (f" · و{len(rp) - 12} غيرُها" if len(rp) > 12 else "")
+    sh = rep.get("short") or []
+    return (f"🩹 مصدرُ الشموع: Polygon يُدرج تقسيمًا في النافذة لـ{rep.get('listed', 0)} رمزًا ⟵ مختلٌّ واستُبدل "
+            f"{len(rp)}" + (f" ({ex})" if rp else "") + f" · متّسقٌ {rep.get('consistent', 0)}"
+            + (f" · مختلٌّ بقي على ياهو {len(sh)} ({' · '.join(f'{s}: {w}' for s, w in sh[:5])})" if sh else "")
+            + (f" · تعذّر {len(rep.get('failed') or [])}" if rep.get("failed") else ""))
+
+
 def download_history(tickers: list, start_override: str = None) -> dict:
     """🔬 start_override (باكتيست حصريًا): تاريخ بدء تحميل أقدم يصل للسنة المستهدفة — النافذة
-    الافتراضية (اليوم−HISTORY_DAYS) لا تصل للسنوات القديمة فتُنتج صفر إشارة. None = الإنتاج حرفيًّا."""
+    الافتراضية (اليوم−HISTORY_DAYS) لا تصل للسنوات القديمة فتُنتج صفر إشارة. None = الإنتاج حرفيًّا.
+    🩹 وفي الإنتاج: `repair_split_mismatch` بعد التحميل (مفتاح `SPLIT_SOURCE_REPAIR` · بلا مفتاح Polygon صفرُ عمل)."""
     if yf is None:
         raise RuntimeError("yfinance غير مثبتة — ثبّتها أو استخدم GitHub Actions")
     start = start_override or (
@@ -1821,6 +2016,14 @@ def download_history(tickers: list, start_override: str = None) -> dict:
             if data is not None:
                 _extract_into(out, data, sub)
             time.sleep(CONFIG["CHUNK_SLEEP"])
+    if out and _split_repair_on(start_override):
+        try:
+            rep = repair_split_mismatch(out, start)
+            SPLIT_REPAIR_LAST.clear()
+            SPLIT_REPAIR_LAST.update(rep)
+            log(_split_repair_line(rep))
+        except Exception as e:                                   # noqa: BLE001 — فاشلٌ-آمن: ياهو كما هو
+            log(f"⚠️ 🩹 إصلاحُ مصدر الشموع تعذّر ({type(e).__name__}) ⟵ ياهو كما هو")
     log(f"بيانات صالحة لـ {len(out)} سهم")
     return out
 

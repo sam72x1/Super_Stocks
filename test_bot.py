@@ -68578,21 +68578,23 @@ def _tcd_days():
 
 
 def _tcd_series(kind, end_px):
-    """هبوطٌ متّصل (RSI صفر) أو تذبذبٌ (RSI حول 50) ينتهي بسعر `end_px` يومَ الجلسة."""
+    """هبوطٌ متّصل (RSI صفر · قاعٌ جديد كلَّ جلسة) · «base» هبوطٌ ثمّ خمسُ جلساتٍ مستوية (أدنى شمعةٍ قبل 4 جلسات ⇒
+    مستقرّ · وRSI صفر) · أو تذبذبٌ (RSI حول 50) — ينتهي بسعر `end_px` يومَ الجلسة."""
     ds = _tcd_days()
     out = []
     for i, d in enumerate(ds):
         k = len(ds) - 1 - i
-        px = end_px * (1.004 ** k) if kind == "down" else end_px * (1.0 + 0.01 * ((-1) ** i))
+        px = (end_px * (1.004 ** k) if kind == "down" else end_px * (1.004 ** max(k - 4, 0)) if kind == "base"
+              else end_px * (1.0 + 0.01 * ((-1) ** i)))
         out.append((d, px, px * 1.01, px * 0.99, px, 1e5))
     return out
 
 
 def _tcd_world():
-    """AAA يطابق (متاحٌ من الحصاد) · SPL: Polygon هابطٌ وياهو بتقسيمٍ غيرِ مطبّق (⚠️) · MGN: Polygon متذبذبٌ وياهو بانهيارٍ
+    """AAA يطابق ومستقرّ (متاحٌ من الحصاد · أدنى شمعةٍ قبل 4 جلسات) · SPL: Polygon هابطٌ وياهو بتقسيمٍ غيرِ مطبّق (⚠️) · MGN: Polygon متذبذبٌ وياهو بانهيارٍ
     وهميّ (لا يُعدّ) · CET: متاح 30 ألفًا من «تحت المتابعة» (🔸) · UNK: فلوتٌ مجهول والموقعُ يتعذّر (❔) · NWO: من «تحت المتابعة»
-    **خارج كون ناسداك** ويطابق · PNY: سنتات (لا يُعدّ)."""
-    W = {"AAA": _tcd_series("down", 2.0), "SPL": _tcd_series("down", 3.0), "MGN": _tcd_series("flat", 4.0),
+    **خارج كون ناسداك** ويطابق **وقاعُه جديد** (⏳ ينتظر الثبات) · PNY: سنتات (لا يُعدّ)."""
+    W = {"AAA": _tcd_series("base", 2.0), "SPL": _tcd_series("down", 3.0), "MGN": _tcd_series("flat", 4.0),
          "CET": _tcd_series("down", 2.2), "UNK": _tcd_series("down", 1.5), "NWO": _tcd_series("down", 1.8),
          "PNY": _tcd_series("down", 0.5), "BIG": _tcd_series("down", 2.6)}
     uni = ["AAA", "SPL", "MGN", "CET", "UNK", "PNY", "BIG"]
@@ -68631,7 +68633,7 @@ def _tcd_world():
 import pandas as _tcd_pd                                             # noqa: E402
 
 
-def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3):
+def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired=None):
     """الأنبوبُ كلُّه (scan ⟶ borrow ×shards ⟶ send) ⟵ (رمزُ الخروج, المُخرَج, الحالة, المُرسَل)."""
     W, uni, fl, fetch, yahoo, ce = _tcd_world()
     if cover_cut:
@@ -68653,7 +68655,7 @@ def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3):
                                  wl={"stocks": [{"symbol": "AAA", "status": "active", "cont_status": "continues"}]},
                                  nw={"CET": {"outside": ["M2 الهبوط (دون الحدّ)"]}, "NWO": {"outside": []},
                                      "BIG": {"outside": []}},
-                                 cache={})
+                                 cache={}, repaired=repaired)
             parts = [_TCD.stage_borrow(st, k, shards, ce=ce, pause=0) for k in range(shards)]
             rc = _TCD.stage_send(st, parts, send=lambda m: sent.append(m))
     except Exception as _e:                                          # noqa: BLE001
@@ -68681,7 +68683,14 @@ try:
     _tcd_rc, _tcd_out, _tcd_st, _tcd_sent, _tcd_fetch = _tcd_run()
 except Exception as _e:                                              # noqa: BLE001
     _tcd_rc, _tcd_out, _tcd_st, _tcd_sent, _tcd_fetch = f"⛔ {type(_e).__name__}", "", {}, [], None
-_tcd_yes = " ".join(_tcd_sec(_tcd_out, "✅ <b>يطابق"))
+def _tcd_matched(out):
+    """«يطابق» بقسمَيه (✅ مستقرّ · ⏳ ينتظر الثبات) — المطابقةُ نفسُها والفصلُ عرض."""
+    return " ".join(_tcd_sec(out, "✅ <b>يطابق") + _tcd_sec(out, "⏳ <b>يطابق"))
+
+
+_tcd_yes = _tcd_matched(_tcd_out)
+_tcd_stable = " ".join(_tcd_sec(_tcd_out, "✅ <b>يطابق"))
+_tcd_wait = " ".join(_tcd_sec(_tcd_out, "⏳ <b>يطابق"))
 _tcd_dbt = " ".join(_tcd_sec(_tcd_out, "⚠️ <b>مشكوك"))
 _tcd_unk = " ".join(_tcd_sec(_tcd_out, "❔ <b>مجهول"))
 _tcd_near = " ".join(_tcd_sec(_tcd_out, "🔸 <b>من أسهم البوت"))
@@ -68741,8 +68750,8 @@ try:
     _flat6 = [x for p in _p6 for x in p]
     _rc1, _o1, _st1, _s1, _f1 = _tcd_run(shards=1)
     _v6 = (sorted(_flat6) == sorted(_need6) and len(_flat6) == len(set(_flat6))
-           and _TCD.shard_of(_need6, 4, 3) == _p6[1] and " ".join(_tcd_sec(_o1, "✅ <b>يطابق")) == _tcd_yes)
-    _v6w = f"أجزاء={[len(p) for p in _p6]} · رنرٌ واحد = ثلاثة: {' '.join(_tcd_sec(_o1, '✅ <b>يطابق')) == _tcd_yes}"
+           and _TCD.shard_of(_need6, 4, 3) == _p6[1] and _tcd_matched(_o1) == _tcd_yes)
+    _v6w = f"أجزاء={[len(p) for p in _p6]} · رنرٌ واحد = ثلاثة: {_tcd_matched(_o1) == _tcd_yes}"
 except Exception as _e:                                              # noqa: BLE001
     _v6, _v6w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🔎📬 TCD6 التقسيمُ `need[shard::shards]` تامٌّ منفصل · والنتيجةُ على رنرٍ واحد = على ثلاثة", _v6, _v6w)
@@ -68829,6 +68838,320 @@ except Exception as _e:                                              # noqa: BLE
     _v12, _v12w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🔎📬 TCD12 الشكّ: ياهو المجهولُ لا يصنعه · فرقُ نقطتين بالضبط ليس شكًّا (`WW.RSI_TOL` حصريّ) · والمتاحُ المجهولُ ⟵ مجهول",
       _v12, _v12w)
+
+# TCD13 — الثبات (أمرُ المالك 2026-09-26 «اي سهم يكون قاع جديد يحتاج ثبات 3-5 جلسات»): «يطابق» قسمان — AAA (أدنى شمعةٍ قبل 4
+#    جلسات) في ✅ مستقرّ · NWO (قاعٌ جديد في الجلسة نفسِها) في ⏳ ينتظر الثبات بعدّاده · ولا سهمَ في القسمين · والفصلُ لا يُسقط أحدًا
+try:
+    _v13 = ("$AAA" in _tcd_stable and "ثابتٌ 4 جلسات فوق أدنى شمعة" in _tcd_stable and "$AAA" not in _tcd_wait
+            and "$NWO" in _tcd_wait and "مضى 0 من 3 جلسات" in _tcd_wait and "$NWO" not in _tcd_stable
+            and "⏳ <b>يطابق وينتظر الثبات: 1</b>" in _tcd_out and "✅ <b>يطابق ومستقرّ: 1</b>" in _tcd_out
+            and "$SPL" not in _tcd_stable + _tcd_wait)
+    _v13w = f"مستقرّ={_tcd_stable[:90]} · ينتظر={_tcd_wait[:90]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v13, _v13w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏳ TCD13 الثبات: «يطابق» قسمان — AAA (أدنى شمعةٍ قبل 4 جلسات) ✅ مستقرّ · NWO (قاعٌ جديد) ⏳ ينتظر «مضى 0 من 3» · "
+      "بلا تكرارٍ بين القسمين ولا إسقاط", _v13, _v13w)
+
+# TCD14 — `stability_at`: `S.pivot_stability` و`STABILITY_MIN` بالاسم (AST) · القاعُ اليومَ ⟵ 0 · قبل جلستين ⟵ غيرُ مستقرّ ·
+#    قبل 3 ⟵ مستقرّ · **قبل 20 ⟵ مستقرّ (لا سقفَ 8)** · الإغلاقُ عند القاع ⟵ غيرُ مستقرّ · وما بعد الجلسة لا يُقرأ
+try:
+    def _t14(lows, closes, sess_i=None):
+        ds = [f"2026-08-{i + 1:02d}" for i in range(len(lows))]
+        rows = [(d, c, c, lo, c, 1.0) for d, lo, c in zip(ds, lows, closes)]
+        return _TCD.stability_at(rows, ds[-1] if sess_i is None else ds[sess_i])
+    _base = [5.0 - 0.1 * i for i in range(10)]                      # هبوطٌ 5.0 ⟶ 4.1
+    _a = _t14(_base + [4.0], [x + 0.05 for x in _base] + [4.05])                        # قاعٌ اليوم
+    _b = _t14(_base + [4.0, 4.1, 4.1], [x + 0.05 for x in _base] + [4.05, 4.15, 4.15])  # قبل جلستين
+    _c = _t14(_base + [4.0, 4.1, 4.1, 4.1], [x + 0.05 for x in _base] + [4.05] + [4.15] * 3)
+    _d = _t14([4.0] + [4.2] * 20, [4.05] + [4.25] * 20)                                  # قبل 20 جلسة
+    _e = _t14(_base + [4.0, 4.1, 4.1, 4.0], [x + 0.05 for x in _base] + [4.05, 4.15, 4.15, 4.0])
+    _f = _t14(_base + [4.0, 4.1, 4.1, 4.1, 3.0], [x + 0.05 for x in _base] + [4.05] + [4.15] * 3 + [3.05], sess_i=13)
+    _fn14 = [n for n in _tcd_ast.walk(_tcd_ast.parse(_tcd_src)) if isinstance(n, _tcd_ast.FunctionDef)
+             and n.name == "stability_at"]
+    #    الكودُ بلا docstring (نصُّه يذكر `ready`/`STABILITY_MAX` شرحًا — فالقفلُ النصّيّ يُخدع · درسُ lock-and-mutate §②)
+    _code14 = [n for n in (_fn14[0].body if _fn14 else []) if not (isinstance(n, _tcd_ast.Expr)
+               and isinstance(getattr(n, "value", None), _tcd_ast.Constant) and isinstance(n.value.value, str))]
+    _strs14 = {c.value for st in _code14 for c in _tcd_ast.walk(st)
+               if isinstance(c, _tcd_ast.Constant) and isinstance(c.value, str)}
+    _calls14 = {_tcd_ast.unparse(c.func) for st in _code14 for c in _tcd_ast.walk(st) if isinstance(c, _tcd_ast.Call)}
+    _v14 = (_a["bars_after"] == 0 and not _a["stable"] and _b["bars_after"] == 2 and not _b["stable"]
+            and _c["bars_after"] == 3 and _c["stable"] and _d["bars_after"] == 20 and _d["stable"]
+            and not _e["stable"] and _f["stable"] and _f["bars_after"] == 3 and _c["pivot_date"] == "2026-08-11"
+            and "S.pivot_stability" in _calls14 and "STABILITY_MIN" in _strs14
+            and "STABILITY_MAX" not in _strs14 and "ready" not in _strs14)
+    _v14w = f"اليوم={_a and _a['stable']} · 2={_b and _b['stable']} · 3={_c and _c['stable']} · 20={_d and _d['stable']} · عند القاع={_e and _e['stable']} · بعد الجلسة={_f and _f['stable']}"
+except Exception as _e:                                              # noqa: BLE001
+    _v14, _v14w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏳ TCD14 `stability_at`: `S.pivot_stability`/`STABILITY_MIN` بالاسم · القاعُ اليومَ وقبل جلستين ⟵ ينتظر · قبل 3 ⟵ "
+      "مستقرّ · **قبل 20 ⟵ مستقرّ (لا سقف `STABILITY_MAX`)** · الإغلاقُ عند القاع ⟵ ينتظر · وما بعد الجلسة لا يُقرأ",
+      _v14, _v14w)
+
+# TCD15 — 🩹 مصدرُ البوت: الرمزُ المصحَّح يُوسَم في سطره وفي التذييل وبسطر تعريف · والمسارُ الحيّ يقرأ `S.SPLIT_REPAIR_LAST`
+#    **بعد تصفيره** قبل نداء ياهو (AST) · وبلا تصحيح لا وسم
+try:
+    _rc15, _o15, _st15, _s15, _f15 = _tcd_run(repaired={"AAA": 40.0})
+    _fn15 = [n for n in _tcd_ast.walk(_tcd_ast.parse(_tcd_src)) if isinstance(n, _tcd_ast.FunctionDef)
+             and n.name == "stage_scan"]
+    _u15 = _tcd_ast.unparse(_fn15[0]) if _fn15 else ""
+    _i_clr, _i_dl = _u15.find("S.SPLIT_REPAIR_LAST.clear()"), _u15.find("S.download_history)(")
+    _v15 = (_rc15 == 0 and "🩹 ×40" in " ".join(_tcd_sec(_o15, "✅ <b>يطابق")) and "🩹 صُحِّح مصدرُ البوت 1" in _o15
+            and "تحقّقُه ليس مستقلًّا" in _o15 and "🩹" not in _tcd_out
+            and 0 <= _i_clr < _i_dl and "S.SPLIT_REPAIR_LAST.get('replaced')" in _u15)
+    _v15w = f"rc={_rc15} · وسم={'🩹 ×40' in _o15} · بلا تصحيح={'🩹' in _tcd_out} · تصفيرٌ قبل النداء={0 <= _i_clr < _i_dl}"
+except Exception as _e:                                              # noqa: BLE001
+    _v15, _v15w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🩹 TCD15 الرمزُ الذي صحّح البوتُ مصدرَه يُوسَم (سطرُه · التذييل · «تحقّقُه ليس مستقلًّا») · والمسارُ الحيّ يقرأ "
+      "`S.SPLIT_REPAIR_LAST` بعد تصفيره قبل نداء ياهو · وبلا تصحيح لا وسم", _v15, _v15w)
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🩹 SRC1-SRC9 إصلاحُ مصدر الشموع (أمرُ المالك 2026-09-26 «صلح مصدر البوت» · فحصُ البوت `36244720433`: ياهو غيرُ متّسقٍ مع
+#    التقسيمات في 39 من 3,390 · MGN: RSI ياهو 25 والصحيح 50) — عالمٌ اصطناعيّ بلا شبكة (الجالبان محقونان).
+# ══════════════════════════════════════════════════════════════════════════
+import numpy as _src_np                                              # noqa: E402
+import os as _src_os                                                 # noqa: E402
+
+
+def _src_frames():
+    """MIS: ياهو بتقسيمٍ عكسيّ 1:40 غيرِ مطبّقٍ قبل 2026-08-03 · Polygon مسوّى · OKS: متّسق · 200+ جلسة."""
+    idx = _tcd_pd.bdate_range("2025-11-01", "2026-09-25")
+    px = _src_np.linspace(20.0, 10.0, len(idx))
+    cut = idx.searchsorted(_tcd_pd.Timestamp("2026-08-03"))
+    yc = px.copy()
+    yc[:cut] = px[:cut] / 40.0
+
+    def fr(c, unit="ns"):
+        f = _tcd_pd.DataFrame({"Open": c, "High": c * 1.01, "Low": c * 0.99, "Close": c, "Volume": 1e5},
+                              index=_tcd_pd.DatetimeIndex(idx, name="Date").as_unit(unit))
+        return f
+    return fr(yc), fr(px, "s"), fr(px), idx
+
+
+def _src_repair(out, splits, fetch, today="2026-09-26", start="2024-07-18"):
+    try:
+        return S.repair_split_mismatch(out, start, splits=splits, fetch=fetch, today=today)
+    except Exception as _e:                                          # noqa: BLE001
+        return {"⛔": f"{type(_e).__name__}: {_e}"}
+
+
+# SRC1 — المختلُّ يُستبدل (المدى ×40) · المتّسقُ لا يُمَسّ (الكائنُ نفسُه) · ولا جلبَ لرمزٍ بلا تقسيمٍ في النافذة (قبلها أو بعد اليوم)
+try:
+    _y1, _p1, _ok1, _ = _src_frames()
+    _calls1 = []
+
+    def _fetch1(sym):
+        _calls1.append(sym)
+        return {"MIS": _p1, "OKS": _ok1.copy()}.get(sym)
+    _out1 = {"MIS": _y1, "OKS": _ok1, "OLD": _ok1.copy(), "FUT": _ok1.copy(), "NOS": _ok1.copy()}
+    _okref = _out1["OKS"]
+    _r1 = _src_repair(_out1, {"MIS": ["2026-08-03"], "OKS": ["2026-05-01"], "OLD": ["2020-01-02"],
+                              "FUT": ["2026-10-15"]}, _fetch1)
+    _v1 = (_r1.get("replaced") == [("MIS", 40.0)] and _r1.get("consistent") == 1 and _r1.get("listed") == 2
+           and sorted(_calls1) == ["MIS", "OKS"] and _out1["OKS"] is _okref
+           and float(_out1["MIS"]["Close"].iloc[0]) == float(_p1["Close"].iloc[0]))
+    _v1w = f"تقرير={ {k: _r1.get(k) for k in ('listed', 'replaced', 'consistent')} } · جلب={sorted(_calls1)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v1, _v1w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🩹 SRC1 المختلُّ تقسيمًا يُستبدل بشموع Polygon (المدى ×40) · المتّسقُ لا يُمَسّ (الكائنُ نفسُه) · ولا جلبَ لرمزٍ تقسيمُه "
+      "قبل النافذة أو بعد اليوم أو بلا تقسيم", _v1, _v1w)
+
+# SRC2 — يعمل في الإنتاج وحدَه: بلا مفتاح Polygon · بيئةُ «0» · المفتاحُ مطفأ · `start_override` · `MODE` باكتيست · `BT_RAW_PRICE`
+#    ⟵ لا يعمل · ومع المفتاح يعمل
+try:
+    _env2 = {k: _src_os.environ.get(k) for k in ("POLYGON_API_KEY", "SPLIT_SOURCE_REPAIR")}
+    _sv2 = (S.CONFIG.get("SPLIT_SOURCE_REPAIR"), S.MODE, S.CONFIG.get("BT_RAW_PRICE"))
+    _res2 = {}
+    try:
+        _src_os.environ.pop("POLYGON_API_KEY", None)
+        _src_os.environ.pop("SPLIT_SOURCE_REPAIR", None)
+        _res2["بلا مفتاح"] = S._split_repair_on()
+        _src_os.environ["POLYGON_API_KEY"] = "k"
+        _res2["مع المفتاح"] = S._split_repair_on()
+        _src_os.environ["SPLIT_SOURCE_REPAIR"] = "0"
+        _res2["بيئة 0"] = S._split_repair_on()
+        _src_os.environ.pop("SPLIT_SOURCE_REPAIR", None)
+        S.CONFIG["SPLIT_SOURCE_REPAIR"] = False
+        _res2["مطفأ"] = S._split_repair_on()
+        S.CONFIG["SPLIT_SOURCE_REPAIR"] = True
+        _res2["start_override"] = S._split_repair_on("2020-01-01")
+        S.MODE = "BACKTEST"
+        _res2["باكتيست"] = S._split_repair_on()
+        S.MODE = _sv2[1]
+        S.CONFIG["BT_RAW_PRICE"] = True
+        _res2["BT_RAW_PRICE"] = S._split_repair_on()
+    finally:
+        S.CONFIG["SPLIT_SOURCE_REPAIR"], S.MODE, S.CONFIG["BT_RAW_PRICE"] = _sv2
+        for _k, _v in _env2.items():
+            if _v is None:
+                _src_os.environ.pop(_k, None)
+            else:
+                _src_os.environ[_k] = _v
+    _v2 = _res2.get("مع المفتاح") is True and sum(1 for k, v in _res2.items() if v) == 1 and len(_res2) == 7
+    _v2w = str(_res2)
+except Exception as _e:                                              # noqa: BLE001
+    _v2, _v2w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🩹 SRC2 الإصلاحُ للإنتاج وحدَه: بلا مفتاح Polygon · بيئةُ `SPLIT_SOURCE_REPAIR=0` · المفتاحُ مطفأ · `start_override` · "
+      "باكتيست · `BT_RAW_PRICE` ⟵ لا يعمل (بت-بت) · ومع المفتاح يعمل", _v2, _v2w)
+
+# SRC3 — لا تغطيةَ بصفحاتٍ ناقصة: تعذّرُ صفحةٍ بعد الأولى أو بلوغُ السقف ⟵ None ⟵ لا إصلاح (ياهو كما هو) بسببٍ مُعلَن
+try:
+    _pg3 = [{"results": [{"ticker": "a", "execution_date": "2026-01-02"}], "next_url": "u2"},
+            {"results": [{"ticker": "B", "execution_date": "2026-02-03T00:00:00"}]}]
+    _it3 = iter(_pg3)
+    _all3 = S.polygon_splits_since("2024-01-01", get=lambda u, p: next(_it3))
+    _it3b = iter([_pg3[0], None])
+    _brk3 = S.polygon_splits_since("2024-01-01", get=lambda u, p: next(_it3b))
+    _cap3 = S.polygon_splits_since("2024-01-01", get=lambda u, p: {"results": [], "next_url": "more"}, max_pages=3)
+    _y3, _p3, _ok3, _ = _src_frames()
+    _o3 = {"MIS": _y3}
+    _sv3 = S.polygon_splits_since
+    try:
+        S.polygon_splits_since = lambda since, get=None, max_pages=60: None
+        S._POLY_SPLITS_CACHE.pop("2024-07-18", None)
+        _r3 = _src_repair(_o3, None, lambda s: _p3)
+    finally:
+        S.polygon_splits_since = _sv3
+    _v3 = (_all3 == {"A": ["2026-01-02"], "B": ["2026-02-03"]} and _brk3 is None and _cap3 is None
+           and _o3["MIS"] is _y3 and bool(_r3.get("skipped")) and _r3.get("replaced") == []
+           and "ياهو كما هو" in S._split_repair_line(_r3))
+    _v3w = f"كاملة={_all3} · منقطعة={_brk3} · سقف={_cap3} · تقرير={_r3.get('skipped')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v3, _v3w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🩹 SRC3 لا تغطيةَ بصفحاتٍ ناقصة: صفحةٌ تتعذّر بعد الأولى أو بلوغُ السقف ⟵ None ⟵ لا إصلاح (ياهو كما هو) بسببٍ مُعلَن",
+      _v3, _v3w)
+
+# SRC4 — Polygon القاصر لا يُستبدل به: أقلُّ من `MIN_BARS` أو آخرُ جلسةٍ فيه قبل آخر ياهو ⟵ ياهو يبقى والسببُ في «short»
+try:
+    _y4, _p4, _ok4, _ = _src_frames()
+    _o4a = {"MIS": _y4}
+    _r4a = _src_repair(_o4a, {"MIS": ["2026-08-03"]}, lambda s: _p4.iloc[-(S.CONFIG["MIN_BARS"] - 1):])
+    _o4b = {"MIS": _y4}
+    _r4b = _src_repair(_o4b, {"MIS": ["2026-08-03"]}, lambda s: _p4.iloc[:-1])
+    _v4 = (_o4a["MIS"] is _y4 and _o4b["MIS"] is _y4 and _r4a.get("replaced") == [] and _r4b.get("replaced") == []
+           and len(_r4a.get("short") or []) == 1 and "آخرُ Polygon" in str(_r4b.get("short"))
+           and "بقي على ياهو 1" in S._split_repair_line(_r4b))
+    _v4w = f"قصير={_r4a.get('short')} · متأخّر={_r4b.get('short')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v4, _v4w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🩹 SRC4 Polygon القاصر لا يُستبدل به: أقلُّ من `MIN_BARS` أو ينتهي قبل ياهو ⟵ ياهو يبقى والسببُ يُعلَن في السطر",
+      _v4, _v4w)
+
+# SRC5 — موصولٌ من نقطة النداء الحيّة: `download_history` ينادي الإصلاحَ مرّةً ببدء النافذة ويُرجع المصحَّح · وبالبيئة «0» أو
+#    `start_override` لا ينادي · وعطلُه ⟵ ياهو كما هو بسطرٍ مُعلَن (سلوكيًّا: الجالبُ الخامّ محقون)
+try:
+    _y5, _p5, _ok5, _ = _src_frames()
+    _mi5 = _tcd_pd.concat({"MIS": _y5, "OKS": _ok5}, axis=1)
+    _calls5 = []
+
+    def _rep5(out, start, **kw):
+        _calls5.append(start)
+        out["MIS"] = _p5
+        return {"listed": 1, "checked": 1, "replaced": [("MIS", 40.0)], "consistent": 0, "short": [], "failed": [],
+                "skipped": None}
+
+    def _boom5(out, start, **kw):
+        raise RuntimeError("x")
+    _env5 = {k: _src_os.environ.get(k) for k in ("POLYGON_API_KEY", "SPLIT_SOURCE_REPAIR")}
+    _sv5 = (S._download_chunk, S.repair_split_mismatch, S.CONFIG["CHUNK_SLEEP"], S.yf)
+    _buf5 = _tcd_io.StringIO()
+    try:
+        S._download_chunk = lambda chunk, start: _mi5
+        S.CONFIG["CHUNK_SLEEP"] = 0
+        S.yf = S.yf or object()
+        _src_os.environ["POLYGON_API_KEY"] = "k"
+        _src_os.environ.pop("SPLIT_SOURCE_REPAIR", None)
+        with _tcd_ctx.redirect_stdout(_buf5):
+            S.repair_split_mismatch = _rep5
+            _h5 = S.download_history(["MIS", "OKS"])
+            _last5 = dict(S.SPLIT_REPAIR_LAST)
+            _src_os.environ["SPLIT_SOURCE_REPAIR"] = "0"
+            _h5b = S.download_history(["MIS", "OKS"])
+            _src_os.environ.pop("SPLIT_SOURCE_REPAIR", None)
+            _h5c = S.download_history(["MIS", "OKS"], start_override="2023-01-02")
+            S.repair_split_mismatch = _boom5
+            _h5d = S.download_history(["MIS", "OKS"])
+    finally:
+        S._download_chunk, S.repair_split_mismatch, S.CONFIG["CHUNK_SLEEP"], S.yf = _sv5
+        for _k, _v in _env5.items():
+            if _v is None:
+                _src_os.environ.pop(_k, None)
+            else:
+                _src_os.environ[_k] = _v
+    _start5 = (_tcd_dt.date.today() - _tcd_dt.timedelta(days=S.CONFIG["HISTORY_DAYS"])).isoformat()
+    _v5 = (_calls5 == [_start5] and _h5["MIS"] is _p5 and _last5.get("replaced") == [("MIS", 40.0)]
+           and float(_h5b["MIS"]["Close"].iloc[0]) == float(_y5["Close"].iloc[0])
+           and float(_h5c["MIS"]["Close"].iloc[0]) == float(_y5["Close"].iloc[0])
+           and float(_h5d["MIS"]["Close"].iloc[0]) == float(_y5["Close"].iloc[0])
+           and "🩹 مصدرُ الشموع" in _buf5.getvalue() and "تعذّر (RuntimeError)" in _buf5.getvalue())
+    _v5w = f"نداءات={_calls5} · مصحَّح={_h5['MIS'] is _p5}"
+except Exception as _e:                                              # noqa: BLE001
+    _v5, _v5w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🩹 SRC5 موصولٌ من `download_history` (سلوكيًّا): نداءٌ واحدٌ ببدء النافذة ويُرجع المصحَّح ويحفظ التقرير · والبيئةُ «0» "
+      "و`start_override` لا تناديه · وعطلُه ⟵ ياهو كما هو بسطرٍ مُعلَن", _v5, _v5w)
+
+# SRC6 — `polygon_daily_frame`: طابعُ الملّي ⟵ تاريخُ جلسة **نيويورك** (03:00 UTC = اليومُ السابق) · أعمدةُ ياهو وفهرسُ «Date» ·
+#    ومنطقةُ ياهو إن وُجدت · والفارغُ ⟵ None
+try:
+    def _ms6(s):
+        return int(_tcd_pd.Timestamp(s, tz="UTC").value // 10 ** 6)
+    _js6 = {"results": [{"t": _ms6("2026-09-24 04:00"), "o": 1, "h": 2, "l": 0.5, "c": 1.5, "v": 100},
+                        {"t": _ms6("2026-09-26 03:00"), "o": 1, "h": 2, "l": 0.5, "c": 1.6, "v": 100}]}
+    _f6 = S.polygon_daily_frame("x", "2026-09-01", "2026-09-26", get=lambda u, p: _js6)
+    _f6z = S.polygon_daily_frame("x", "2026-09-01", "2026-09-26", get=lambda u, p: _js6, tz="America/New_York")
+    _n6 = S.polygon_daily_frame("x", "2026-09-01", "2026-09-26", get=lambda u, p: {"results": []})
+    _v6 = ([str(i)[:10] for i in _f6.index] == ["2026-09-24", "2026-09-25"]
+           and list(_f6.columns) == ["Open", "High", "Low", "Close", "Volume"] and _f6.index.name == "Date"
+           and _f6.index.tz is None and str(_f6z.index.tz) == "America/New_York" and _n6 is None)
+    _v6w = f"تواريخ={[str(i)[:10] for i in _f6.index]} · منطقة={_f6z.index.tz} · فارغ={_n6}"
+except Exception as _e:                                              # noqa: BLE001
+    _v6, _v6w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🩹 SRC6 `polygon_daily_frame`: الملّي ⟵ تاريخُ جلسة نيويورك (03:00 UTC = أمس) · أعمدةُ ياهو وفهرسُ «Date» · منطقةُ ياهو "
+      "إن وُجدت · والفارغُ ⟵ None", _v6, _v6w)
+
+# SRC7 — الـworkflows: صيّادُ المقسّم (تحت حماية المالك) خارجه بـ`SPLIT_SOURCE_REPAIR: "0"` · والفحصُ اليدويّ والفرزُ بمفتاح
+#    Polygon (الإصلاحُ حيٌّ فيهما) ولا يطفئانه
+try:
+    import yaml as _src_yaml
+
+    def _env7(f):
+        y = _src_yaml.safe_load(open(f".github/workflows/{f}", encoding="utf-8"))
+        return {k: str(v) for j in (y.get("jobs") or {}).values() for st in (j.get("steps") or [])
+                for k, v in (st.get("env") or {}).items()}
+    _sh7, _an7, _ds7 = _env7("split_hunter.yml"), _env7("analyze.yml"), _env7("daily_screener.yml")
+    _v7 = (_sh7.get("SPLIT_SOURCE_REPAIR") == "0" and "POLYGON_API_KEY" in _an7 and "POLYGON_API_KEY" in _ds7
+           and "SPLIT_SOURCE_REPAIR" not in _an7 and "SPLIT_SOURCE_REPAIR" not in _ds7)
+    _v7w = f"صيّاد={_sh7.get('SPLIT_SOURCE_REPAIR')} · يدويّ مفتاح={'POLYGON_API_KEY' in _an7} · فرز مفتاح={'POLYGON_API_KEY' in _ds7}"
+except Exception as _e:                                              # noqa: BLE001
+    _v7, _v7w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🩹 SRC7 صيّادُ المقسّم (تحت حماية المالك) خارجُ الإصلاح بـ`SPLIT_SOURCE_REPAIR: \"0\"` · والفحصُ اليدويّ والفرزُ "
+      "بمفتاح Polygon ولا يطفئانه", _v7, _v7w)
+
+# SRC8 — المستبدَلُ بوحدة زمن ياهو (pandas 3: فهرسُ التاريخ من Polygon بالثواني وياهو بالنانو) · وقيمُه قيمُ Polygon
+try:
+    _y8, _p8, _ok8, _ = _src_frames()
+    _o8 = {"MIS": _y8}
+    _src_repair(_o8, {"MIS": ["2026-08-03"]}, lambda s: _p8)
+    _v8 = (str(_p8.index.dtype) != str(_y8.index.dtype) and str(_o8["MIS"].index.dtype) == str(_y8.index.dtype)
+           and float(_o8["MIS"]["Close"].iloc[5]) == float(_p8["Close"].iloc[5]))
+    _v8w = f"ياهو={_y8.index.dtype} · Polygon={_p8.index.dtype} · المستبدَل={_o8['MIS'].index.dtype}"
+except Exception as _e:                                              # noqa: BLE001
+    _v8, _v8w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🩹 SRC8 الإطارُ المستبدَلُ بوحدة زمن ياهو (لا يختلط `datetime64[s]` بـ`[ns]` في المصبّ) وقيمُه قيمُ Polygon", _v8, _v8w)
+
+# SRC9 — المدى: None دون 20 جلسةً مشتركة · وأعلاه ÷ أدناه · والعتبةُ بالاسم (`SPLIT_MISMATCH_RATIO`) لا رقمٌ في الدالّة
+try:
+    _y9, _p9, _ok9, _idx9 = _src_frames()
+    _short9 = S.split_mismatch_ratio(_y9.iloc[:19], _p9.iloc[:19])
+    _fn9 = [n for n in _tcd_ast.walk(_tcd_ast.parse(open("Super_stock.py", encoding="utf-8").read()))
+            if isinstance(n, _tcd_ast.FunctionDef) and n.name == "repair_split_mismatch"]
+    _u9 = _tcd_ast.unparse(_fn9[0]) if _fn9 else ""
+    _v9 = (_short9 is None and abs(S.split_mismatch_ratio(_y9, _p9) - 40.0) < 1e-9
+           and S.split_mismatch_ratio(_ok9, _ok9) == 1.0 and "CONFIG.get('SPLIT_MISMATCH_RATIO'" in _u9
+           and S.CONFIG["SPLIT_MISMATCH_RATIO"] == 1.5)
+    _v9w = f"قصير={_short9} · مختلّ={S.split_mismatch_ratio(_y9, _p9)} · بالاسم={'SPLIT_MISMATCH_RATIO' in _u9}"
+except Exception as _e:                                              # noqa: BLE001
+    _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🩹 SRC9 المدى: لا حكمَ دون 20 جلسةً مشتركة · أعلاه ÷ أدناه (MIS ×40 · المتّسقُ ×1) · والعتبةُ بالاسم `SPLIT_MISMATCH_RATIO`",
+      _v9, _v9w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🗓️🔎② WPP1-WPP12 «التقريران» (watch_period_probe.py · أمرُ المالك 2026-09-26 «نفذ البروميت») — Penny لنفس فترة
@@ -69027,6 +69350,138 @@ try:
 except Exception as _e:                                              # noqa: BLE001
     _v12, _v12w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🗓️🔎② WPP12 `watch_period.yml` يدويٌّ بلا كرون ولا تلغرام · تاريخُ git كامل · سرُّ Polygon وحدَه · قراءةٌ فقط", _v12, _v12w)
+
+# ══ ⑪/⑫ 👀 «تحت المتابعة» مجتمعٌ ثالث + التتبّع (مسكةُ المالك 2026-09-26: «ريتو و واحد معه … ما ذكرته ليه؟») ══
+def _wpp_nw_series(sym, d0, d1):
+    """شموعُ «تحت المتابعة» الاصطناعيّة: هبوطٌ متّصل من $3 (RSI صفر · سنتاتٌ في سبتمبر) · NWX يقفز ×5 يوم 09-24 (‏+400%) · NWG
+    ×1.6 يوم 09-23 (‏+60%) · والباقي بلا قفزة."""
+    px, out = 3.0, []
+    for d in (d for d in _WW.calendar(2026) if d >= "2025-01-02"):
+        px *= 0.995
+        h = px * (5.0 if (sym == "NWX" and d == "2026-09-24") else 1.6 if (sym == "NWG" and d == "2026-09-23") else 1.001)
+        if d0 <= d <= d1:
+            out.append((d, px, h, px * 0.99, px, 1e5))
+    return out
+
+
+_WPP_NW = ("NWX", "NWF", "NWG", "NWT", "ZZZ")
+
+
+def _wpp_run_nw(trace="", with_nw=True, classes=("penny", "dollar")):
+    """`_wpp_run` نفسُه مع لقطات `near_watch.json` و`company_cache.json`: NWX (فلوت 800 ألف · ‏+400%) · NWF (بلا فلوتٍ في
+    الذاكرة) · NWG (فلوت 50 مليونًا · ‏+60%) · NWT (فلوتُه يظهر في الذاكرة من لقطة 09-23 وحدَها) · وAAA في «تحت المتابعة» **وفي
+    القائمة** (لا يُعدّ مرّتين) · وZZZ خارج البوت (للتتبّع)."""
+    c0, snaps, fb, fm = _ww_world(0, 0)
+    nwe = {s: {"symbol": s, "outside": ["M2 الهبوط (فوق الحدّ)"]} for s in ("NWX", "NWF", "NWG", "NWT", "AAA")}
+    nw_snaps = {"n0": dict(nwe)} if with_nw else {}
+    nw_c = [(_ww_utc("2026-09-18", 21, 0), "n0")] if with_nw else []
+    cc0 = {"NWX": {"float": 800_000}, "NWG": {"float": 50_000_000}}
+    cc_snaps = {"k0": dict(cc0), "k2": dict(cc0, NWT={"float": 900_000})}
+    cc_c = [(_ww_utc("2026-09-18", 21, 0), "k0"), (_ww_utc("2026-09-23", 3, 0), "k2")]
+
+    def fb2(sym, d0, d1, key):
+        if sym in _WPP_NW:
+            b = _wpp_nw_series(sym, d0, d1)
+            return list(b), list(b)
+        return fb(sym, d0, d1, key)
+
+    def fm2(sym, d0, d1, key):
+        if sym in _WPP_NW:
+            return [(int(_ww_utc(d, 9, 31).timestamp() * 1000), h) for d, _o, h, _l, _c, _v in _wpp_nw_series(sym, d0, d1)]
+        return fm(sym, d0, d1, key)
+
+    def commits(path=_WW.WL_FILE):
+        return list(nw_c if path == _WW.S.NEAR_WATCH_FILE else cc_c if path == _WW.S.COMPANY_FILE else c0)
+
+    def load(h, path=_WW.WL_FILE):
+        return (nw_snaps if path == _WW.S.NEAR_WATCH_FILE else cc_snaps if path == _WW.S.COMPANY_FILE else snaps).get(h)
+    saved = (_WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.fetch_minutes, _WPP.TRACE, _WPP.splits_of,
+             _wpp_os.environ.get("POLYGON_API_KEY"))
+    buf = _wpp_io.StringIO()
+    try:
+        _WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.fetch_minutes = commits, load, fb2, fm2
+        _WPP.TRACE = tuple(x for x in trace.split(",") if x)
+        _WPP.splits_of = lambda sym, key, d0, d1: [("2026-09-22", 10, 1)] if sym == "NWX" else []
+        _wpp_os.environ["POLYGON_API_KEY"] = "k"
+        with _wpp_ctx.redirect_stdout(buf):
+            rc = _WPP.main(now=_ww_dt.datetime(2026, 9, 25, 18, 0, tzinfo=_WW.NY), d_from="2026-09-21", d_to="2026-09-25",
+                           classes=classes)
+    except Exception as _e:                                          # noqa: BLE001
+        rc = f"⛔ {type(_e).__name__}: {_e}"
+    finally:
+        _WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.fetch_minutes, _WPP.TRACE, _WPP.splits_of = saved[:6]
+        if saved[6] is None:
+            _wpp_os.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _wpp_os.environ["POLYGON_API_KEY"] = saved[6]
+    out = buf.getvalue()
+    js = next((ln[5:] for ln in out.splitlines() if ln.startswith("JSON ")), None)
+    try:
+        js = __import__("json").loads(js) if js else {}
+    except ValueError:
+        js = {}
+    return rc, out, js
+
+
+try:
+    _wpp_nw = _wpp_run_nw(trace="NWX,ZZZ")
+except Exception as _e:                                              # noqa: BLE001
+    _wpp_nw = (f"⛔ {type(_e).__name__}", "", {})
+
+# WPP13 — «تحت المتابعة» مجتمعٌ ثالث: NWX (فلوتٌ معلوم · RSI · سنتات) «👀» بمتاحٍ مجهولٍ بالبناء ‏+390.07% (×5 من إغلاق 09-18
+#    بعد أربع جلساتٍ هابطة ‏0.5%) · **خارج المقام** (مؤهّلو
+#    Penny وأرقامُهم كما هي بلا «تحت المتابعة») · وAAA (في القائمة أيضًا) لا يُعدّ في «تحت المتابعة» · وNWF (بلا فلوت) لا يُعدّ
+try:
+    _pn13 = (_wpp_nw[2].get("classes") or {}).get("penny") or {}
+    _pn13b = (_wpp_b[2].get("classes") or {}).get("penny") or {}
+    _nwr13 = {r["sym"]: r for r in _pn13.get("near_watch") or []}
+    _strip = ("near_watch", "near_watched", "near_movers")
+    _v13 = (_wpp_nw[0] == 0 and "NWX" in _nwr13 and abs((_nwr13["NWX"]["reg"] or 0) - (5.0 * 0.995 ** 4 - 1.0) * 100.0) < 0.01
+            and "👀 NWX" in _wpp_nw[1] and "المتاحُ مجهولٌ بالبناء" in _wpp_nw[1]
+            and "AAA" not in _nwr13 and "NWF" not in _nwr13 and "NWG" not in _nwr13
+            and {k: v for k, v in _pn13.items() if k not in _strip} == {k: v for k, v in _pn13b.items() if k not in _strip}
+            and _wpp_nw[2].get("near_watch_union") == 4)
+    _v13w = f"rc={_wpp_nw[0]} · صفوف={sorted(_nwr13)} · NWX={(_nwr13.get('NWX') or {}).get('reg')} · اتّحاد={_wpp_nw[2].get('near_watch_union')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v13, _v13w = False, f"⛔ رمى: {type(_e).__name__}"
+check("👀 WPP13 «تحت المتابعة» مجتمعٌ ثالث: NWX «👀» بمتاحٍ مجهولٍ بالبناء ‏+400% **خارج المقام** (أرقامُ Penny كما هي حرفًا) · "
+      "وAAA (في القائمة) لا يُعدّ مرّتين · وNWF بلا فلوتٍ لا يُعدّ", _v13, _v13w)
+
+# WPP14 — الفلوتُ من ذاكرة البوت **قبل الجلسة** (point-in-time): NWT يظهر فلوتُه في لقطة 09-23 وحدَها ⟵ إشارتُه 09-23 لا 09-21
+try:
+    _nwr14 = {r["sym"]: r for r in (((_wpp_nw[2].get("classes") or {}).get("penny") or {}).get("near_watch") or [])}
+    _v14 = ("NWT" in _nwr14 and _nwr14["NWT"]["signal"] == "2026-09-23" and _nwr14["NWX"]["signal"] == "2026-09-21"
+            and _nwr14["NWT"]["float"] == 900_000)
+    _v14w = f"NWT={(_nwr14.get('NWT') or {}).get('signal')} · NWX={(_nwr14.get('NWX') or {}).get('signal')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v14, _v14w = False, f"⛔ رمى: {type(_e).__name__}"
+check("👀 WPP14 فلوتُ «تحت المتابعة» من لقطة ذاكرة البوت **قبل الجلسة**: NWT (فلوتُه يظهر من 09-23) إشارتُه 09-23 لا 09-21", _v14, _v14w)
+
+# WPP15 — صاعدو «تحت المتابعة» بلا شرط (وصفٌ لا حكم): NWX ‏+400% «استوفى» · NWG ‏+60% «لم يستوفِ: الفلوت 50,000,000» · مرتّبون
+try:
+    _mv15 = (((_wpp_nw[2].get("classes") or {}).get("penny") or {}).get("near_movers") or [])
+    _o15 = _wpp_nw[1]
+    _i15x, _i15g = _o15.find("      NWX"), _o15.find("      NWG")
+    _v15 = ([m["sym"] for m in _mv15] == ["NWX", "NWG"] and "لم يستوفِ: الفلوت 50,000,000" in _o15
+            and "استوفى الثلاثةَ المعلومة 2026-09-21" in _o15 and 0 <= _i15x < _i15g)
+    _v15w = f"صاعدون={[(m['sym'], round(m['rise'] or 0)) for m in _mv15]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v15, _v15w = False, f"⛔ رمى: {type(_e).__name__}"
+check("👀 WPP15 صاعدو «تحت المتابعة» +50% بلا شرط مرتّبون (NWX ‏+400% ثمّ NWG ‏+60%) وسببُ عدم الاستيفاء يُطبع (الفلوت 50,000,000)",
+      _v15, _v15w)
+
+# WPP16 — التتبّع: NWX جلسةً جلسة «تحت المتابعة» وتقسيماتُه · وZZZ «خارج البوت» · ولا يمسّ أيَّ عدد (بلا تتبّع = الأرقامُ نفسُها)
+try:
+    _t16 = _wpp_run_nw(trace="")
+    _o16 = _wpp_nw[1]
+    _v16 = ("🔎 تتبّع NWX" in _o16 and "('2026-09-22', 10, 1)" in _o16 and "🔎 تتبّع ZZZ" in _o16
+            and "خارج البوت" in _o16.split("🔎 تتبّع ZZZ")[1] and "تحت المتابعة" in _o16.split("🔎 تتبّع NWX")[1]
+            and "🔎 تتبّع" not in _t16[1] and _t16[2].get("classes") == _wpp_nw[2].get("classes"))
+    _v16w = f"تتبّع={'🔎 تتبّع NWX' in _o16} · بلا تتبّع نفسُ الأرقام={_t16[2].get('classes') == _wpp_nw[2].get('classes')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v16, _v16w = False, f"⛔ رمى: {type(_e).__name__}"
+check("👀 WPP16 التتبّع (`PERIOD_TRACE`): NWX جلسةً جلسة «تحت المتابعة» مع تقسيماته · ZZZ «خارج البوت» · وصفٌ لا يمسّ عددًا",
+      _v16, _v16w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

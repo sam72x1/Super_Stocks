@@ -34,4 +34,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           ANALYZE: ${{ github.event.inputs.ticker }}
+          # 🩹 مصدرُ الشموع (2026-09-26 «صلح مصدر البوت»): بلا المفتاح يبقى الفحصُ اليدويّ على ياهو المختلّ تقسيمًا
+          #    (MGN: RSI ياهو 25 والصحيح 50) بينما الفرزُ وفحصُ اليد على المصحَّح ⇒ الفحصُ اليدويّ = الأساسيّ مصدرًا أيضًا.
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
         run: python analyze_one.py
