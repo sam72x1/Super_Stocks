@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
-"""🔎📬 «شروطُك الثلاثة» — رسالةٌ يوميّة بالأسهم التي تطابق: RSI أقلّ من 30 · فلوت أقلّ من 4 ملايين · «الشورت»
-(المتاح) أقلّ من 20 ألفًا · سعر دولار فأكثر — على كون البوت كلِّه **وتحت المتابعة ضمنًا**.
+"""🔎📬 «شروطُك الثلاثة» — رسالةٌ يوميّة **واحدة** بقسمين (💵 فوق الدولار · 🪙 سنتات) بالأسهم التي تطابق: RSI أقلّ من 30 ·
+فلوت أقلّ من 4 ملايين · «الشورت» (المتاح) أقلّ من 20 ألفًا · **وثبات 5 جلسات فوق أدنى قاع · ولم تنفجر خلال آخر أسبوع** —
+على كون البوت كلِّه **وتحت المتابعة ضمنًا**. **ولا يُذكر في الرسالة إلّا المطابقُ الكامل** — وما سواه عدّادٌ في التذييل واسمُه في السجلّ.
 
 أمرُ المالك (2026-09-26): «أرسلها كل يوم و حتى الأسهم اللي تحت المتابعة يشملها الاداة» — بعد مسكته «rsi 51 ل mgn» ثمّ
 «افحص البوت»: فحصُ الكون كلِّه (`36244720433`) وجد تاريخَ ياهو **غيرَ متّسقٍ مع التقسيمات في 39 من 3,390 رمزًا** (MGN منها)
 ⇒ **RSI من Polygon adjusted** (مصدرُ التقرير السابق نفسُه) **وياهو للتحقّق**.
+🧭 **ثمّ أمرُه الثاني (2026-09-26 مساءً · بصورتَي SMX):** «عدل الاداة … تجيب أسهم السنتات و فوق الدولار في رسالة وحده لكن … لازم
+لازم لازم توافق الشروط 3 و ثبات 5 جلسات» · «الفريم اليومي يستخدم للحساب عدد الجلسات الثبات و فريم 4 ساعات عشان نعرف بالضبط قيمة
+ادنى قاع (SMX: ‏7.62 · جلسةٌ واحدة فقط فوقه)» · و«FGL نوع منفجر قبل اقل من اسبوع ومع ذلك حاسبه مع أسهم الارتكاز و هذا غلط».
 
 **التعريفات (مثبَّتةٌ قبل أيّ رقم — تعريفاتُ `watch_week_probe` بالاسم):**
 ① **الكون** = `S.get_universe()` ∪ القائمةُ والارتدادُ (`weekly_watchlist.json`) ∪ **تحت المتابعة** (`near_watch.json`).
@@ -12,24 +16,33 @@
    (عطلةٌ ⇒ صمتٌ بسببٍ مطبوع لا تكرارُ رسالةٍ قديمة) · واليدويُّ بـ`force` يُرسل.
 ③ **RSI14** = `WW.rsi_at` (‏`S.rsi` على إغلاقات Polygon `adjusted=true` حتى إغلاق الجلسة · ‏21 فأكثر وإلّا مجهول) · **والسعر**
    = إغلاقُ الجلسة نفسِها (`WW.close_at` · آخرُ شمعة adjusted هي الخامّ بالبناء) · ورمزٌ بلا شمعةٍ في الجلسة ⇒ «بائت» ⇒ مجهول.
+   **والفئة من السعر:** 🪙 سنتات = أقلّ من `PX.PX_MIN` (دولار) · 💵 فوق الدولار = دولارٌ فأكثر — **قسمان في رسالةٍ واحدة لا شرط**.
 ④ **الفلوت** = `S._yahoo_float(strict=True)` (‏`floatShares` وحدَه) ثمّ فلوتُ البوت المخزَّن (القائمة · `company_cache.json`) بوسمه.
 ⑤ **«الشورت»** = المتاح (`shares_available` · ChartExchange): صفُّ حصّاد اليوم (`S._harvested_borrow`) أوّلًا ثمّ
    `S.ce_borrow_info` **موزَّعًا على رنرات** (`need[shard::shards]` · حصّةُ الموقع ‏≈50 صفحة لكلّ رنر · #461) · والتعذّرُ
    يُطبع بسببه ولا يُعدّ «لا».
-⑥ **الحكم** = `WW.conj(WW.flags(...))`: «نعم» الأربعةُ معلومةٌ وعابرة · «لا» سقط شرطٌ معلوم · «مجهول» غيرُ ذلك.
-⑦ **تحقّقُ ياهو** لكلّ مرشّح: `S.rsi` على `S.download_history` — فرقٌ **فوق نقطتين** (`WW.RSI_TOL`) ⇒ «⚠️ مشكوك» في قسمه
-   **لا في «يطابق»** · يُطبع الرقمان ولا يُخفى · ومدى نسبة الإغلاقين فوق `SPLIT_RATIO` يُوسَم «تقسيمٌ غيرُ متّسق».
+⑥ **الحكم** = `WW.conj` على **الثلاثة الأولى** من `WW.flags(...)` (RSI · الفلوت · المتاح — والسعرُ فئةٌ لا شرط): «نعم» الثلاثةُ
+   معلومةٌ وعابرة · «لا» سقط شرطٌ معلوم · «مجهول» غيرُ ذلك.
+⑦ **تحقّقُ ياهو** لكلّ مرشّح: `S.rsi` على `S.download_history` — فرقٌ **فوق نقطتين** (`WW.RSI_TOL`) ⇒ «⚠️ مشكوك» **لا يُذكر**
+   (عدّادٌ في التذييل · والرقمان في السجلّ) · ومدى نسبة الإغلاقين فوق `SPLIT_RATIO` يُوسَم «تقسيمٌ غيرُ متّسق».
 ⑧ **حالتُه عند البوت** لكلّ سطر: القائمة (حالةُ المتابعة) · الارتداد · 👀 تحت المتابعة (أسبابُها من الملفّ) · أو ليس عند البوت.
 ⑨ **حارسُ التغطية:** شموعُ Polygon في الجلسة لأقلّ من `MIN_COVER` من الكون ⇒ **لا قائمة** بل سطرُ عطلٍ صريح (لا «لا يوجد» كاذب).
-⑩ **الثبات** (أمرُ المالك 2026-09-26: «اي سهم يكون قاع جديد يحتاج ثبات 3-5 جلسات») = `stability_at`: أدنى شمعةٍ في آخر
-   `PIVOT_LOOKBACK` جلسة (`S.pivot_stability` بالاسم) ثمّ «مستقرّ» = الإغلاقُ فوقها **و**مضى بعدها `STABILITY_MIN` جلساتٍ فأكثر
-   **بلا سقف** (ذراعُ `S2` في `T-STABILITY` بنصّها · والسقفُ 8 `engineering` لا يُطبَّق) ⇒ «يطابق» قسمان: ✅ مستقرّ · ⏳ ينتظر
-   الثبات — **فصلٌ في العرض لا إسقاط** (بوّابةُ الثبات في الفارز قِيست فسقطت `T-STABILITY` · ولا تُمَسّ).
+⑩ **الثبات** = `exact_low_stability`: **أدنى قاعٍ دقيق** في آخر `PIVOT_LOOKBACK` جلسة (بالاسم) = أدنى سعرٍ في الجلسة الممتدّة
+   (‏`WW.EXT_FROM` ⟶ `WW.EXT_TO` نيويورك · البري والأفتر ضمنًا) من **شموع الساعة** مع أدنى شمعةٍ يوميّة — وهو أدنى ذيلٍ على فريم
+   4 ساعات نفسُه (الصفقاتُ نفسُها · والساعةُ تحاذي نيويورك صيفًا وشتاءً بينما شموعُ Polygon بأربع ساعات تنزاح شتاءً إلى 03:00) ·
+   ويومُه **أوّلُ** يومٍ بلغه («ما كسر القاع» لا «ما لمسه» — نصُّ فيصل `X_85_YMT`) · **والعدُّ جلساتٌ يوميّة بعد يوم القاع** ·
+   «ثابت» = الإغلاقُ فوق القاع **و**مضت `STABILITY_REQ` (‏5 — أمرُ المالك) جلساتٍ فأكثر **بلا سقف** · وشموعُ الساعة المتعذّرة ⇒
+   «تعذّر القاع الدقيق» لا تخمين. 🔒 **و`S.CONFIG["STABILITY_MIN"]` (‏3) للبوت لا يُقرأ هنا ولا يُمَسّ.**
 ⑪ **🩹 مصدرُ البوت:** رمزٌ استبدل `S.download_history` شموعَه بـPolygon (`S.SPLIT_REPAIR_LAST` · ياهو مختلُّ التقسيم) يُوسَم
    🩹 في سطره — فتحقّقُه بشموع البوت **ليس مستقلًّا** ويُقال ذلك ولا يُخفى.
+⑫ **💥 «انفجر خلال آخر أسبوع»** = `recent_explosion`: في آخر `EXPLODE_WIN` جلسات (أسبوعُ تداول) بلغ سعرٌ (البري والنظاميّ
+   والأفتر) **`EXPLOSION_PCT` بالمئة فأكثر** (‏50 — عتبةُ الانفجار بقرار المالك · بالاسم) فوق **أدنى إغلاقٍ قبله** بدءًا من إغلاق
+   الجلسة التي تسبق الأسبوع — والأفترُ يُقاس على إغلاق يومه نفسِه · فيلتقط القفزةَ في يومٍ والصعودَ المتدرّجَ معًا ⇒ **لا يُذكر**.
+⑬ **التتبّع** (`TC_TRACE` = رموزٌ بفاصلة): لكلّ رمزٍ مسمّى في السجلّ — RSI · السعر · الفئة · القاعُ الدقيق ويومُه ومصدرُه · عددُ
+   جلسات الثبات · أقصى صعودٍ في الأسبوع — **وصفٌ لا يدخل عددًا**.
 
-المراحل (`TC_STAGE`): `scan` (Polygon · الفلوت · ياهو ⟵ `tc_scan.json`) ⟶ `borrow` (المتاح لجزء الرنر ⟵ `tc_borrow_<n>.json`) ⟶
-`send` (الحكم والرسالة) · و`all` الثلاثُ في عمليّةٍ واحدة.
+المراحل (`TC_STAGE`): `scan` (Polygon اليوميّ والساعة · الفلوت · ياهو ⟵ `tc_scan.json`) ⟶ `borrow` (المتاح لجزء الرنر ⟵
+`tc_borrow_<n>.json`) ⟶ `send` (الحكم والرسالة) · و`all` الثلاثُ في عمليّةٍ واحدة.
 الخروج: 0 أُرسلت/طُبعت أو صمتُ عطلةٍ بسببه · 2 بلا مفتاح · 3 تغطيةٌ ناقصة (سطرُ العطل أُرسل) · 4 لا جلسةَ في التقويم.
 """
 import concurrent.futures as cf
@@ -40,7 +53,6 @@ import os
 import sys
 import time
 
-import numpy as np
 import pandas as pd
 
 import Super_stock as S
@@ -63,8 +75,14 @@ CE_PAUSE = 0.6                   # engineering — كحصّاد الاقتراض
 WITNESS = "AAPL"                 # شاهدُ الحصّة: صفحتُه تعود دائمًا
 SPLIT_RATIO = 1.5                # «تقسيمٌ غيرُ متّسق» — عتبةُ فحص البوت `36244720433`
 WORKERS = 8
-NEAR_SHOW = 10                   # سقفُ عرض «سقطت بشرطٍ معلوم» — والقصُّ يُعلَن بعدده
+NEAR_SHOW = 10                   # سقفُ سجلّ «سقطت بشرطٍ معلوم» — والقصُّ يُعلَن بعدده
+STABILITY_REQ = 5                # 🧭 أمرُ المالك 2026-09-26: «لازم لازم لازم توافق الشروط 3 و ثبات 5 جلسات» (للأداة وحدَها ·
+#                                  ويسنده نصُّ فيصل `X_85_YMT` «إذا ما كسر القاع أكثرَ من 5 جلسات» · و`STABILITY_MIN`=3 للبوت لا يُمَسّ)
+EXPLODE_WIN = 5                  # 🧭 أمرُ المالك 2026-09-26: «FGL نوع منفجر قبل اقل من اسبوع … هذا غلط» — أسبوعُ تداول = 5 جلسات
+HOURS_DAYS = 45                  # engineering — أيّامٌ تقويميّة لشموع الساعة: تغطّي `PIVOT_LOOKBACK` (‏25 جلسة) بعطلاتها
+TRACE = tuple(x.strip().upper() for x in (os.environ.get("TC_TRACE") or "").split(",") if x.strip())
 BOT_LABEL = {"stocks": "🎯 في قائمة البوت", "pullback": "🔁 في قائمة الارتداد"}
+GATE_TXT = {"wait": "ينتظر الثبات", "boom": "انفجر خلال أسبوع", "nohour": "تعذّر القاع الدقيق"}
 
 
 def log(msg=""):
@@ -118,62 +136,146 @@ def bot_label(sym, wl, nw):
 
 
 def verdict(r, tol=None):
-    """(الحكم, مشكوك؟) لصفٍّ فيه rsi · px · fl · av · ry — `WW.conj(WW.flags(...))` بالاسم · والشكُّ = فرقُ RSI ياهو
-    عن Polygon فوق `tol` نقطة (`WW.RSI_TOL`) · وياهو المجهولُ لا يصنع شكًّا (لا دليلَ نقيض)."""
+    """(الحكم, مشكوك؟) لصفٍّ فيه rsi · px · fl · av · ry — `WW.conj` على **الثلاثة الأولى** من `WW.flags(...)` بالاسم (RSI ·
+    الفلوت · المتاح — والسعرُ فئةٌ لا شرط: أمرُ المالك «تجيب أسهم السنتات و فوق الدولار في رسالة وحده») · والشكُّ = فرقُ RSI
+    ياهو عن Polygon فوق `tol` نقطة (`WW.RSI_TOL`) · وياهو المجهولُ لا يصنع شكًّا (لا دليلَ نقيض)."""
     tol = WW.RSI_TOL if tol is None else tol
-    v = WW.conj(WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av")))
+    v = WW.conj(WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))[:3])
     ry, rp = r.get("ry"), r.get("rsi")
     doubt = ry is not None and rp is not None and abs(float(ry) - float(rp)) > tol
     return v, doubt
 
 
-def stability_at(rows_pg, sess):
-    """⏳ الثباتُ بعد أدنى شمعة حتى الجلسة ⟵ {pivot · pivot_date · bars_after · held · need · stable} أو None.
-    `S.pivot_stability` **بالاسم** على شموع Polygon (‏`(d, o, h, l, c, v)`) — بُنيت لـ: عرض ثبات الفارز (`ready` بسقف
-    `STABILITY_MAX` الهندسيّ) ⇒ **يُستعمل منها `held` و`bars_after` وحدَهما** والسقفُ لا يدخل: مَن ثبت 10 جلسات مستقرٌّ
-    لا مرفوض. «مستقرّ» = `held` **و** `bars_after` من `STABILITY_MIN` فأكثر (نصُّ فيصل «حافظ ع قاعه لمدة 3 جلسات»)."""
+def px_class(px):
+    """🪙 «سنتات» تحت `PX.PX_MIN` (دولار) · 💵 «دولار» دولارٌ فأكثر — من إغلاق الجلسة (الخامّ بالبناء) · None بلا سعر."""
+    if px is None:
+        return None
+    return "penny" if float(px) < PX.PX_MIN else "dollar"
+
+
+def ext_rows(hours, days=None):
+    """شموعُ الساعة **داخل الجلسة الممتدّة** (`WW.EXT_FROM` ⟶ `WW.EXT_TO` نيويورك) ⟵ [(يومُ نيويورك, ms, high, low)] مرتّبةً
+    زمنيًّا · و`days` (مجموعةُ أيّام) يقصرها عليها · والشمعةُ التالفة تُتخطّى لا تُخمَّن. و`hours` = [(ms, high, low)]."""
+    lo_h = WW.EXT_FROM[0] + WW.EXT_FROM[1] / 60.0
+    hi_h = WW.EXT_TO[0] + WW.EXT_TO[1] / 60.0
+    out = []
+    for b in hours or []:
+        try:
+            ms, h, lo = int(b[0]), float(b[1]), float(b[2])
+        except (TypeError, ValueError, IndexError):
+            continue
+        t = dt.datetime.fromtimestamp(ms / 1000.0, tz=NY)
+        hh = t.hour + t.minute / 60.0
+        d = t.date().isoformat()
+        if lo_h <= hh < hi_h and (days is None or d in days) and lo > 0 and h > 0:
+            out.append((d, ms, h, lo))
+    return sorted(out, key=lambda x: x[1])
+
+
+def exact_low_stability(daily, hours, sess, need=None, look=None):
+    """🔻 **أدنى قاعٍ دقيق وثباتُه** (أمرُ المالك: «الفريم اليومي يستخدم للحساب عدد الجلسات الثبات و فريم 4 ساعات عشان نعرف
+    بالضبط قيمة ادنى قاع») ⟵ {pivot · pivot_date · bars_after · held · need · stable · ext · daily_low} أو None.
+
+    القاعُ = أدنى سعرٍ في آخر `look` جلسة (`PIVOT_LOOKBACK` بالاسم) من **شموع الساعة الممتدّة** (البري والأفتر) **ومن الشمعة
+    اليوميّة** معًا (الساعةُ تحوي النظاميّة بالبناء · واليوميّةُ أرضيّةٌ لو نقصت ساعة) · ويومُه **أوّلُ** يومٍ بلغه (لمسُه ثانيةً
+    ليس كسرًا — «ما كسر القاع» `X_85_YMT`) · و`bars_after` = الجلساتُ اليوميّة المكتملة **بعد** يوم القاع حتى `sess` ·
+    و«ثابت» = إغلاقُ `sess` فوق القاع **و**`bars_after` من `need` (‏`STABILITY_REQ`) فأكثر بلا سقف · و`ext` = القاعُ من خارج
+    الجلسة النظاميّة (أدنى من كلّ شمعةٍ يوميّة). **بلا شمعة ساعةٍ واحدةٍ في النافذة ⟵ None** (القاعُ الدقيق لم يُقَس فلا يُخمَّن)."""
     try:
-        cut = [r for r in (rows_pg or []) if r[0] <= sess]
+        need = STABILITY_REQ if need is None else int(need)
+        look = int(S.CONFIG["PIVOT_LOOKBACK"]) if look is None else int(look)
+        cut = [r for r in (daily or []) if r[0] <= sess]
         if len(cut) < 2:
             return None
-        lows = np.array([float(r[3]) for r in cut])
-        closes = np.array([float(r[4]) for r in cut])
-        ps = S.pivot_stability(lows, closes)
-        if not ps:
+        win = cut[-look:]
+        days = [r[0] for r in win]
+        ext = ext_rows(hours, set(days))
+        if not ext:
             return None
-        need = int(S.CONFIG["STABILITY_MIN"])
-        k = len(cut) - 1 - int(ps["bars_after"])
-        return {"pivot": float(ps["pivot"]), "pivot_date": cut[k][0], "bars_after": int(ps["bars_after"]),
-                "held": bool(ps["held"]), "need": need,
-                "stable": bool(ps["held"]) and int(ps["bars_after"]) >= need}
+        cands = [(r[0], float(r[3])) for r in win if float(r[3]) > 0] + [(d, lo) for d, _ms, _h, lo in ext]
+        low = min(x for _d, x in cands)
+        day = min(d for d, x in cands if x <= low)
+        d_low = min(float(r[3]) for r in win if float(r[3]) > 0)
+        after = sum(1 for d in days if d > day)
+        held = float(cut[-1][4]) > low
+        return {"pivot": low, "pivot_date": day, "bars_after": after, "held": held, "need": need,
+                "stable": held and after >= need, "ext": low < d_low, "daily_low": d_low}
     except Exception:                                                # noqa: BLE001
         return None
 
 
+def recent_explosion(daily, hours, sess, win=None, pct=None):
+    """💥 **انفجر خلال آخر أسبوع؟** (أمرُ المالك: «FGL نوع منفجر قبل اقل من اسبوع … هذا غلط») ⟵ {pct · day · ref · peak ·
+    boom} أو None. في آخر `win` جلسات (`EXPLODE_WIN`) أقصى ارتفاعٍ لسعرٍ (البري والنظاميّ من شموع الساعة ومن أعلى الشمعة
+    اليوميّة · والأفتر) فوق **أدنى إغلاقٍ نظاميٍّ قبله** بدءًا من إغلاق الجلسة التي تسبق الأسبوع — والأفترُ يُقاس على إغلاق يومه
+    نفسِه (`WW.close_utc` يعرف الإغلاقَ المبكّر) · و«انفجر» = `pct` من `EXPLOSION_PCT` (بالاسم · قرارُ المالك «قفزة ≥50% =
+    انفجار») فأكثر. يلتقط قفزةَ اليوم الواحد والصعودَ المتدرّجَ معًا (مرجعُه أدنى إغلاقٍ لا إغلاقُ الأمس وحدَه)."""
+    try:
+        win = EXPLODE_WIN if win is None else int(win)
+        thr = float(S.CONFIG["EXPLOSION_PCT"]) if pct is None else float(pct)
+        cut = [r for r in (daily or []) if r[0] <= sess]
+        if len(cut) < win + 1:
+            return None
+        ref = float(cut[-win - 1][4])
+        if ref <= 0:
+            return None
+        wk = cut[-win:]
+        ext = ext_rows(hours, {r[0] for r in wk})
+        best = (-1e9, None, None, None)
+        for r in wk:
+            d, close_d = r[0], float(r[4])
+            cms = WW.close_utc(d).timestamp() * 1000.0
+            pre = [h for dd, ms, h, _lo in ext if dd == d and ms < cms] + [float(r[2])]
+            aft = [h for dd, ms, h, _lo in ext if dd == d and ms >= cms]
+            for peak, base in ((max(pre), ref), (max(aft) if aft else None, min(ref, close_d))):
+                if peak is None or base <= 0:
+                    continue
+                rise = (peak / base - 1.0) * 100.0
+                if rise > best[0]:
+                    best = (rise, d, base, peak)
+            ref = min(ref, close_d)
+        if best[1] is None:
+            return None
+        return {"pct": best[0], "day": best[1], "ref": best[2], "peak": best[3], "boom": best[0] >= thr}
+    except Exception:                                                # noqa: BLE001
+        return None
+
+
+def gate_of(stab, boom):
+    """بوّابةُ الثبات والانفجار ⟵ "ok" · "nohour" (القاعُ الدقيق لم يُقَس) · "boom" (انفجر خلال أسبوع) · "wait" (لم يثبت
+    `STABILITY_REQ` جلسات) — **بهذا الترتيب** فيُعدّ السهمُ مرّةً واحدة في التذييل."""
+    if not stab:
+        return "nohour"
+    if boom and boom.get("boom"):
+        return "boom"
+    if not stab.get("stable"):
+        return "wait"
+    return "ok"
+
+
 def stab_text(r):
-    """نصُّ الثبات في سطر السهم (عرضٌ فقط)."""
+    """نصُّ الثبات في سطر السهم (عرضٌ فقط) — القاعُ بدقّة السعر (`S._px_txt`) ويومُه و«بري/أفتر» إن كان من خارج الجلسة."""
     t = r.get("stab")
     if not t:
-        return "الثبات لم يُحسب"
-    low = f"${t['pivot']:.2f} ({t['pivot_date']})"
+        return "القاعُ الدقيق لم يُقَس"
+    low = f"{S._px_txt(t['pivot'])} ({t['pivot_date']}{' · بري/أفتر' if t.get('ext') else ''})"
     if t["stable"]:
-        return f"ثابتٌ {t['bars_after']} جلسات فوق أدنى شمعة {low}"
+        return f"ثابتٌ {t['bars_after']} جلسات فوق أدنى قاع {low}"
     if t["bars_after"] >= t["need"]:
-        return f"الإغلاقُ عند أدنى شمعة {low} — لم يثبت فوقها"
-    return f"أدنى شمعة {low} · مضى {t['bars_after']} من {t['need']} جلسات"
+        return f"الإغلاقُ عند أدنى قاع {low} — لم يثبت فوقه"
+    return f"أدنى قاع {low} · مضى {t['bars_after']} من {t['need']} جلسات"
 
 
 def near_misses(rows):
-    """🔸 أسهمُ البوت (القائمة · الارتداد · تحت المتابعة) التي سقطت **بشرطٍ واحدٍ والثلاثةُ الباقية معلومةٌ وعابرة** ⟵
-    [(رمز, السبب)] — تجيب «ليه ما ذكرت سهمي؟» (مسكةُ CETX: سقط بالمتاح وحدَه) · عرضٌ فقط لا يُعدّ مطابقة. ⚠️ ومَن سقط بالفلوت
-    لا يُسأل عن متاحه (مجهول) ⇒ لا يُقال «بشرطٍ واحد» فيه — كان التشغيلُ الأوّل يسرد 68 أغلبُها فلوتٌ بعشرات الملايين (ضجيج)."""
+    """🔸 (سجلٌّ فقط) أسهمُ البوت (القائمة · الارتداد · تحت المتابعة) التي عبرت الثبات وسقطت **بشرطٍ واحدٍ والباقيان معلومان
+    وعابران** ⟵ [(رمز, السبب)] — تجيب «ليه ما ذكرت سهمي؟» في السجلّ **لا في الرسالة** (أمرُ المالك «لازم لازم لازم توافق»)."""
     out = []
-    names = ("RSI", "الفلوت", "المتاح", "السعر")
+    names = ("RSI", "الفلوت", "المتاح")
     for s in sorted(rows, key=lambda x: rows[x].get("rsi") if rows[x].get("rsi") is not None else 99):
         r = rows[s]
-        if r.get("v") is not False or r.get("bot") in (None, "ليس عند البوت"):
+        if r.get("gate") != "ok" or r.get("v") is not False or r.get("bot") in (None, "ليس عند البوت"):
             continue
-        f = WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))
+        f = WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))[:3]
         bad = [i for i, x in enumerate(f) if x is False]
         if len(bad) != 1 or any(x is None for x in f):
             continue
@@ -194,66 +296,76 @@ def _num_txt(x):
     return f"{x:,.0f}"
 
 
+def listed(rows):
+    """المطابقُ الكامل وحدَه ⟵ (فوق الدولار, سنتات) مرتّبين بـRSI: عبر الثبات والانفجار (`gate` = ok) **و**الحكمُ «نعم» **و**لا
+    شكّ — وما سواه لا يُذكر في الرسالة (أمرُ المالك «لازم لازم لازم توافق الشروط 3 و ثبات 5 جلسات»)."""
+    ok = [s for s, r in rows.items() if r.get("gate") == "ok" and r.get("v") is True and not r.get("doubt")]
+    key = (lambda s: rows[s]["rsi"])
+    return (sorted((s for s in ok if px_class(rows[s]["px"]) == "dollar"), key=key),
+            sorted((s for s in ok if px_class(rows[s]["px"]) == "penny"), key=key))
+
+
+def excluded_counts(rows):
+    """عدّاداتُ «لا تُذكر» لمن عبر RSI: بوّاباتُ الثبات والانفجار ثمّ ما بعد الفلوت والمتاح — كلُّ سهمٍ مرّةً واحدة."""
+    c = {"wait": 0, "boom": 0, "nohour": 0, "float": 0, "avail": 0, "doubt": 0, "unk": 0}
+    for r in rows.values():
+        g = r.get("gate")
+        if g in ("wait", "boom", "nohour"):
+            c[g] += 1
+            continue
+        if g != "ok":
+            continue
+        if r.get("v") is True and r.get("doubt"):
+            c["doubt"] += 1
+        elif r.get("v") is None:
+            c["unk"] += 1
+        elif r.get("v") is False:
+            f = WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))[:3]
+            c["float" if f[1] is False else "avail"] += 1
+    return c
+
+
 def build_message(st, rows):
-    """نصُّ الرسالة (HTML تلغرام) — ✅ يطابق · ⚠️ مشكوك · ❔ مجهول · والتذييلُ بالعدّادات. **بلا علامات مقارنة.**"""
+    """نصُّ الرسالة (HTML تلغرام) — **رسالةٌ واحدة بقسمين** (💵 فوق الدولار · 🪙 سنتات) **بالمطابق الكامل وحدَه** · وما سواه
+    عدّادٌ في التذييل (والقصُّ يُعلَن بعدده) · **بلا علامات مقارنة.**"""
     sess = st.get("sess")
+    need = STABILITY_REQ
+    dol, pen = listed(rows)
     lines = [f"🔎 <b>شروطك الثلاثة</b> — إغلاق {sess}",
              f"RSI أقلّ من {OPL.RSI_OWNER:g} · فلوت أقلّ من {OPL.FLOAT_OWNER / 1e6:g} ملايين · شورت (المتاح) أقلّ من "
-             f"{OPL.AVAIL_OWNER:,} · سعر {PX.PX_MIN:g} دولار فأكثر",
+             f"{OPL.AVAIL_OWNER:,}",
+             f"وثبات {need} جلسات فوق أدنى قاع (القاعُ الدقيق بالبري والأفتر كفريم 4 ساعات · والعدُّ جلساتٌ يوميّة) · "
+             f"ولم ينفجر خلال آخر {EXPLODE_WIN} جلسات ({float(S.CONFIG['EXPLOSION_PCT']):g}% فأكثر)",
              "(RSI من Polygon · وياهو للتحقّق)", ""]
-    yes = sorted((s for s, r in rows.items() if r["v"] is True and not r["doubt"]), key=lambda s: rows[s]["rsi"])
-    dbt = sorted((s for s, r in rows.items() if r["v"] is True and r["doubt"]), key=lambda s: rows[s]["rsi"])
-    unk = sorted((s for s, r in rows.items() if r["v"] is None), key=lambda s: rows[s]["rsi"] if rows[s]["rsi"] is not None else 99)
-    need = int(S.CONFIG["STABILITY_MIN"])
-    stable = [s for s in yes if (rows[s].get("stab") or {}).get("stable")]
-    wait = [s for s in yes if s not in stable]
-    if any(rows[s].get("repaired") for s in rows):
-        lines.insert(3, "🩹 = شموعُ البوت لهذا الرمز صارت من Polygon (ياهو مختلُّ التقسيم) ⇒ تحقّقُه ليس مستقلًّا")
-    lines.append(f"✅ <b>يطابق ومستقرّ: {len(stable)}</b> (ثبت {need} جلسات فأكثر فوق أدنى شمعة)")
-    for i, s in enumerate(stable, 1):
+    if any(rows[s].get("repaired") for s in dol + pen):
+        lines.insert(4, "🩹 = شموعُ البوت لهذا الرمز صارت من Polygon (ياهو مختلُّ التقسيم) ⇒ تحقّقُه ليس مستقلًّا")
+    lines.append(f"💵 <b>فوق الدولار — يطابق: {len(dol)}</b>")
+    for i, s in enumerate(dol, 1):
         lines += _yes_lines(i, s, rows[s])
-    if not stable:
-        lines.append("لا سهمَ يطابق الأربعةَ ومستقرًّا في هذه الجلسة." if yes else "لا سهمَ يطابق الأربعةَ معًا في هذه الجلسة.")
-    if wait:
-        lines += ["", f"⏳ <b>يطابق وينتظر الثبات: {len(wait)}</b> (قاعٌ جديد — يلزمه {need} جلسات فوق أدنى شمعة)"]
-        for i, s in enumerate(wait, 1):
-            lines += _yes_lines(i, s, rows[s])
-    if dbt:
-        tol = "نقطتين" if WW.RSI_TOL == 2 else f"{WW.RSI_TOL:g} نقاط"
-        lines += ["", f"⚠️ <b>مشكوك — RSI ياهو يختلف عن Polygon بأكثر من {tol}: {len(dbt)}</b> (لا تُعدّ مطابقة)"]
-        for s in dbt:
-            r = rows[s]
-            why = " · تقسيمٌ غيرُ متّسق بين المصدرين" if (r.get("ratio") or 0) > SPLIT_RATIO else ""
-            lines.append(f"• ${s} · RSI Polygon {r['rsi']:.1f} · ياهو {r['ry']:.1f}{why} · ${r['px']:.2f} · {r['bot']}")
-    if unk:
-        lines += ["", f"❔ <b>مجهول — شرطٌ لم يُقَس ولم يسقط غيرُه: {len(unk)}</b>"]
-        for s in unk:
-            r = rows[s]
-            miss = []
-            if r.get("fl") is None:
-                miss.append("الفلوت")
-            if r.get("av") is None:
-                miss.append("المتاح" + (f" ({r['av_src']})" if r.get("av_src") else ""))
-            lines.append(f"• ${s} · RSI {_fmt1(r['rsi'])} · ${_fmt2(r['px'])} · الناقص: {' · '.join(miss) or '—'} · {r['bot']}")
-    near = near_misses(rows)
-    if near:
-        lines += ["", f"🔸 <b>من أسهم البوت — سقطت بشرطٍ واحد (والثلاثةُ الباقية عابرة): {len(near)}</b>"]
-        for s, why in near[:NEAR_SHOW]:
-            lines.append(f"• ${s} · RSI {_fmt1(rows[s]['rsi'])} · {why} · {rows[s]['bot']}")
-        if len(near) > NEAR_SHOW:
-            lines.append(f"… و{len(near) - NEAR_SHOW} غيرُها (القصُّ مُعلَن)")
+    if not dol:
+        lines.append("لا سهمَ فوق الدولار يطابق في هذه الجلسة.")
+    lines += ["", f"🪙 <b>سنتات (أقلّ من دولار) — يطابق: {len(pen)}</b>"]
+    for i, s in enumerate(pen, 1):
+        lines += _yes_lines(i, s, rows[s])
+    if not pen:
+        lines.append("لا سهمَ سنتات يطابق في هذه الجلسة.")
+    x = excluded_counts(rows)
+    lines += ["", f"🧾 لا تُذكر (عبرت RSI): ينتظر الثبات {x['wait']} · انفجر خلال أسبوع {x['boom']} · تعذّر القاعُ الدقيق "
+                  f"{x['nohour']} · الفلوت فوق الحدّ {x['float']} · المتاح فوق الحدّ {x['avail']} · مشكوك {x['doubt']} · مجهول "
+                  f"{x['unk']} (الأسماءُ في السجلّ)"]
     c = st.get("counts") or {}
-    lines += ["", f"🧾 الكون {c.get('universe', 0):,} · بشمعة الجلسة من Polygon {c.get('fresh', 0):,} · "
-                  f"RSI أقلّ من {OPL.RSI_OWNER:g} وسعرٌ دولارٌ فأكثر {c.get('c2', 0)} · منها فلوتٌ أقلّ من الحدّ أو مجهول "
-                  f"{c.get('c3', 0)} · المتاح: حصاد {c.get('av_harvest', 0)} · الموقع {c.get('av_ce', 0)} · "
-                  f"تعذّر {c.get('av_fail', 0)}" + (f" · 🩹 صُحِّح مصدرُ البوت {c['repaired']}" if c.get("repaired") else "")]
+    lines.append(f"🧾 الكون {c.get('universe', 0):,} · بشمعة الجلسة من Polygon {c.get('fresh', 0):,} · RSI أقلّ من "
+                 f"{OPL.RSI_OWNER:g}: {c.get('c2', 0)} (فوق الدولار {c.get('c2_dollar', 0)} · سنتات {c.get('c2_penny', 0)}) · "
+                 f"ثابتٌ وغيرُ منفجر {c.get('c3', 0)} · منه فلوتٌ أقلّ من الحدّ أو مجهول {c.get('c4', 0)} · المتاح: حصاد "
+                 f"{c.get('av_harvest', 0)} · الموقع {c.get('av_ce', 0)} · تعذّر {c.get('av_fail', 0)}"
+                 + (f" · 🩹 صُحِّح مصدرُ البوت {c['repaired']}" if c.get("repaired") else ""))
     return S._rtl_join(lines)
 
 
 def _yes_lines(i, s, r):
-    """سطرا السهم المطابق: الأرقام ثمّ (الثبات · 🩹 · حالتُه عند البوت) — عرضٌ فقط."""
+    """سطرا السهم المطابق: الأرقام ثمّ (الثبات · 🩹 · حالتُه عند البوت) — عرضٌ فقط · والسعرُ بدقّة `S._px_txt`."""
     rep = f" · 🩹 ×{r['repaired']:g}" if r.get("repaired") else ""
-    return [f"{i}. ${s} · ${r['px']:.2f} · RSI {r['rsi']:.1f} · فلوت {_num_txt(r['fl'])} · متاح {r['av']:,.0f}",
+    return [f"{i}. ${s} · {S._px_txt(r['px'])} · RSI {r['rsi']:.1f} · فلوت {_num_txt(r['fl'])} · متاح {r['av']:,.0f}",
             f"   ↳ {stab_text(r)}{rep} · {r['bot']}"]
 
 
@@ -263,6 +375,19 @@ def _fmt1(x):
 
 def _fmt2(x):
     return "—" if x is None else f"{x:.2f}"
+
+
+def trace_line(s, r, stab, boom, gate):
+    """🔎 سطرُ التتبّع (`TC_TRACE` · سجلٌّ فقط) — وصفٌ لا يدخل عددًا."""
+    if r is None:
+        return f"🔎 تتبّع {s}: خارج «RSI أقلّ من {OPL.RSI_OWNER:g}» أو بلا شمعة الجلسة"
+    low = (f"القاع {S._px_txt(stab['pivot'])} ({stab['pivot_date']}{' · بري/أفتر' if stab.get('ext') else ''} · أدنى يوميّ "
+           f"{S._px_txt(stab['daily_low'])}) · مضى {stab['bars_after']} جلسات · الإغلاقُ فوقه {stab['held']}"
+           if stab else "القاعُ الدقيق لم يُقَس")
+    bm = (f"أقصى صعودٍ في الأسبوع {boom['pct']:+.1f}% ({boom['day']} · من {S._px_txt(boom['ref'])} إلى "
+          f"{S._px_txt(boom['peak'])})" if boom else "الانفجار لم يُقَس")
+    return (f"🔎 تتبّع {s}: RSI {_fmt1(r.get('rsi'))} · {S._px_txt(r.get('px'))} ({px_class(r.get('px'))}) · {low} · {bm} · "
+            f"البوّابة {gate}")
 
 
 def failure_message(sess, why):
@@ -289,6 +414,34 @@ def fetch_polygon(syms, d0, d1, key, workers=WORKERS):
     return out
 
 
+
+def _hours_one(s, d0, d1, key):
+    """شموعُ الساعة `adjusted=true` لرمزٍ بين يومين ⟵ [(ms, high, low)] — بـ`P._get` بالاسم (إعادةُ المحاولة) · والشمعةُ التالفة
+    تُتخطّى · والتعذّرُ ⟵ [] (فيصير القاعُ الدقيق «لم يُقَس» لا تخمينًا)."""
+    js = P._get(f"{P.API}/v2/aggs/ticker/{s}/range/1/hour/{d0}/{d1}",
+                {"adjusted": "true", "sort": "asc", "limit": "50000"}, key)
+    out = []
+    for b in (js or {}).get("results") or []:
+        try:
+            out.append((int(b["t"]), float(b["h"]), float(b["l"])))
+        except (KeyError, TypeError, ValueError):
+            continue
+    return out
+
+
+def fetch_hours(syms, d0, d1, key, workers=WORKERS):
+    """{رمز: شموعُ الساعة} متوازيًا — للقاع الدقيق (⑩) والانفجار (⑫) · والتعذّرُ ⟵ []."""
+    def one(s):
+        try:
+            return s, _hours_one(s, d0, d1, key)
+        except Exception:                                            # noqa: BLE001
+            return s, []
+    out = {}
+    with cf.ThreadPoolExecutor(max_workers=workers) as ex:
+        for s, rows in ex.map(one, syms):
+            out[s] = rows
+    return out
+
 def load_json(path, default):
     try:
         with open(path, encoding="utf-8") as fh:
@@ -304,10 +457,12 @@ def _dump(path, obj):
 
 # ─────────────────────────── المراحل ───────────────────────────
 def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat=None, harvested=None,
-               wl=None, nw=None, cache=None, repaired=None):
-    """① ⟶ ④ + ⑦: الكون · Polygon · RSI والسعر · الفلوت · ياهو للتحقّق · وقائمةُ المتاح المطلوبة ⟵ الحالة (dict)."""
+               wl=None, nw=None, cache=None, repaired=None, hours=None):
+    """① ⟶ ④ + ⑦ + ⑩ + ⑫: الكون · Polygon اليوميّ · RSI والسعر (بلا حدّ سعرٍ — السنتاتُ قسمٌ) · شموعُ الساعة ⟵ القاعُ الدقيق
+    وثباتُه والانفجار · الفلوت (لمن عبر الثبات وحدَه) · ياهو للتحقّق · وقائمةُ المتاح المطلوبة ⟵ الحالة (dict)."""
     now = now or dt.datetime.now(tz=NY)
     fetch = fetch or fetch_polygon
+    hours = hours or fetch_hours
     cal = WW.calendar(now.year)
     sess, send, why = session_gate(cal, now, FORCE)
     st = {"sess": sess, "send": send, "why": why, "now": now.isoformat(), "rows": {}, "need": [], "counts": {},
@@ -334,15 +489,49 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
     for s in fresh:
         rsi = WW.rsi_at(pg[s], sess)
         px = WW.close_at(pg[s], sess)
-        if rsi is not None and px is not None and rsi < OPL.RSI_OWNER and px >= PX.PX_MIN:
+        if rsi is not None and px is not None and px > 0 and rsi < OPL.RSI_OWNER:
             rows[s] = {"rsi": rsi, "px": px, "fl": None, "fl_src": "", "av": None, "av_src": "", "ry": None,
-                       "ratio": None, "bot": bot_label(s, wl, nw), "stab": stability_at(pg[s], sess),
+                       "ratio": None, "bot": bot_label(s, wl, nw), "stab": None, "boom": None, "gate": None,
                        "repaired": None}
     st["counts"]["c2"] = len(rows)
-    log(f"② RSI أقلّ من {OPL.RSI_OWNER:g} وسعرٌ دولارٌ فأكثر (Polygon): {len(rows)}")
+    st["counts"]["c2_dollar"] = sum(1 for s in rows if px_class(rows[s]["px"]) == "dollar")
+    st["counts"]["c2_penny"] = len(rows) - st["counts"]["c2_dollar"]
+    log(f"② RSI أقلّ من {OPL.RSI_OWNER:g} (Polygon): {len(rows)} — فوق الدولار {st['counts']['c2_dollar']} · سنتات "
+        f"{st['counts']['c2_penny']}")
+    h0 = (dt.date.fromisoformat(sess) - dt.timedelta(days=HOURS_DAYS)).isoformat()
+    want = sorted(set(rows) | {t for t in TRACE if t in pg})
+    hr = hours(want, h0, sess, key) if want else {}
+    for s in sorted(rows):
+        stab = exact_low_stability(pg[s], hr.get(s) or [], sess)
+        boom = recent_explosion(pg[s], hr.get(s) or [], sess)
+        rows[s].update({"stab": stab, "boom": boom, "gate": gate_of(stab, boom)})
+    for t in TRACE:
+        if t in rows:
+            log(trace_line(t, rows[t], rows[t]["stab"], rows[t]["boom"], rows[t]["gate"]))
+        elif t in pg:
+            _st = exact_low_stability(pg[t], hr.get(t) or [], sess)
+            _bm = recent_explosion(pg[t], hr.get(t) or [], sess)
+            log(trace_line(t, {"rsi": WW.rsi_at(pg[t], sess), "px": WW.close_at(pg[t], sess)}, _st, _bm, "خارج RSI"))
+        else:
+            log(trace_line(t, None, None, None, None))
+    by = {g: sorted((s for s in rows if rows[s]["gate"] == g), key=lambda x: rows[x]["rsi"]) for g in GATE_TXT}
+    for g, xs in by.items():
+        st["counts"][g] = len(xs)
+    c3 = sorted(s for s in rows if rows[s]["gate"] == "ok")
+    st["counts"]["c3"] = len(c3)
+    log(f"⑩⑫ ثابتٌ {STABILITY_REQ} جلسات فوق القاع الدقيق وغيرُ منفجر خلال {EXPLODE_WIN}: {len(c3)} · "
+        + " · ".join(f"{GATE_TXT[g]} {len(xs)}" for g, xs in by.items()))
+    for s in by["wait"]:
+        log(f"   ⏳ {s} · {S._px_txt(rows[s]['px'])} · {stab_text(rows[s])}")
+    for s in by["boom"]:
+        b = rows[s]["boom"]
+        log(f"   💥 {s} · {S._px_txt(rows[s]['px'])} · {b['pct']:+.1f}% يوم {b['day']} (من {S._px_txt(b['ref'])} إلى "
+            f"{S._px_txt(b['peak'])}) · {stab_text(rows[s])}")
+    if by["nohour"]:
+        log(f"   ⛔ تعذّر القاعُ الدقيق (شموعُ الساعة): {by['nohour'][:60]}")
     cache = load_json(S.COMPANY_FILE, {}) if cache is None else cache
     wl_fl = {e.get("symbol"): e.get("float") for sec in ("stocks", "pullback") for e in (wl.get(sec) or [])}
-    for s in sorted(rows):
+    for s in c3:
         fl = (yfloat or (lambda x: S._yahoo_float(x, strict=True)))(s)
         if fl:
             rows[s]["fl"], rows[s]["fl_src"] = float(fl), "ياهو"
@@ -352,13 +541,13 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
             rows[s]["fl"], rows[s]["fl_src"] = float(cache[s]["float"]), "ذاكرة البوت"
         if yfloat is None:
             time.sleep(0.3)
-    c3 = [s for s in rows if rows[s]["fl"] is None or rows[s]["fl"] < OPL.FLOAT_OWNER]
-    st["counts"]["c3"] = len(c3)
-    log(f"③ فلوتٌ أقلّ من {OPL.FLOAT_OWNER:,} أو مجهول: {len(c3)} (مجهول {sum(1 for s in c3 if rows[s]['fl'] is None)})")
+    c4 = [s for s in c3 if rows[s]["fl"] is None or rows[s]["fl"] < OPL.FLOAT_OWNER]
+    st["counts"]["c4"] = len(c4)
+    log(f"④ فلوتٌ أقلّ من {OPL.FLOAT_OWNER:,} أو مجهول: {len(c4)} (مجهول {sum(1 for s in c4 if rows[s]['fl'] is None)})")
     S.SPLIT_REPAIR_LAST.clear()
-    yh = (yahoo or S.download_history)(sorted(c3)) if c3 else {}
+    yh = (yahoo or S.download_history)(sorted(c4)) if c4 else {}
     fixed = dict(S.SPLIT_REPAIR_LAST.get("replaced") or []) if repaired is None else dict(repaired)
-    for s in c3:
+    for s in c4:
         if s in fixed:
             rows[s]["repaired"] = float(fixed[s])
         ydf = yh.get(s)
@@ -371,18 +560,18 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
         rows[s]["ratio"] = ratio_range(ya, {r[0]: r[4] for r in pg[s][-260:]})
     hv = (harvested or S._harvested_borrow)(dt.datetime.now(dt.timezone.utc).date().isoformat())
     need = []
-    for s in sorted(c3, key=lambda x: (rows[x]["fl"] is None, rows[x]["rsi"])):
+    for s in sorted(c4, key=lambda x: (rows[x]["fl"] is None, rows[x]["rsi"])):
         h = hv.get(s)
         if h and h.get("shares_available") is not None:
             rows[s]["av"], rows[s]["av_src"] = float(h["shares_available"]), "حصاد اليوم"
         else:
             need.append(s)
     st["rows"], st["need"] = rows, need
-    st["counts"]["repaired"] = sum(1 for s in c3 if rows[s].get("repaired"))
+    st["counts"]["repaired"] = sum(1 for s in c4 if rows[s].get("repaired"))
     if st["counts"]["repaired"]:
         log(f"🩹 مصدرُ البوت صُحِّح لـ{st['counts']['repaired']}: "
-            + " · ".join(f"{s} ×{rows[s]['repaired']:g}" for s in sorted(c3) if rows[s].get("repaired")))
-    st["counts"]["av_harvest"] = sum(1 for s in c3 if rows[s]["av_src"] == "حصاد اليوم")
+            + " · ".join(f"{s} ×{rows[s]['repaired']:g}" for s in sorted(c4) if rows[s].get("repaired")))
+    st["counts"]["av_harvest"] = sum(1 for s in c4 if rows[s]["av_src"] == "حصاد اليوم")
     log(f"⑤ المتاح: من حصاد اليوم {st['counts']['av_harvest']} · مطلوبٌ من الموقع {len(need)} {need[:40]}")
     return st
 
@@ -443,7 +632,27 @@ def stage_send(st, parts, send=None):
             fail_ce += 1
     st.setdefault("counts", {}).update({"av_ce": ok_ce, "av_fail": fail_ce})
     for s, r in rows.items():
-        r["v"], r["doubt"] = verdict(r)
+        r["v"], r["doubt"] = verdict(r) if r.get("gate") == "ok" else (None, False)
+    # 🗒️ ما لا يُذكر في الرسالة يُطبع هنا بأسمائه (أمرُ المالك «لازم لازم لازم توافق» ⇒ الرسالةُ للمطابق وحدَه)
+    ok = [s for s in sorted(rows) if rows[s].get("gate") == "ok"]
+    for s in ok:
+        r = rows[s]
+        if r["v"] is True and r["doubt"]:
+            why = " · تقسيمٌ غيرُ متّسق بين المصدرين" if (r.get("ratio") or 0) > SPLIT_RATIO else ""
+            log(f"   ⚠️ مشكوك {s} · RSI Polygon {r['rsi']:.1f} · ياهو {r['ry']:.1f}{why} · {S._px_txt(r['px'])}")
+        elif r["v"] is None:
+            miss = [n for n, x in (("الفلوت", r.get("fl")), ("المتاح", r.get("av"))) if x is None]
+            log(f"   ❔ مجهول {s} · الناقص: {' · '.join(miss) or '—'} ({r.get('av_src') or '—'}) · {r['bot']}")
+    near = near_misses(rows)
+    if near:
+        log(f"   🔸 من أسهم البوت سقطت بشرطٍ واحد (والثبات عابر): {len(near)} — "
+            + " · ".join(f"{s} ({why})" for s, why in near[:NEAR_SHOW])
+            + (f" … و{len(near) - NEAR_SHOW} غيرُها" if len(near) > NEAR_SHOW else ""))
+    for t in TRACE:
+        r = rows.get(t)
+        if r is not None:
+            log(f"🔎 تتبّع {t}: البوّابة {r.get('gate')} · الحكم {r.get('v')} · مشكوك {r.get('doubt')} · فلوت "
+                f"{_num_txt(r.get('fl'))} ({r.get('fl_src') or '—'}) · متاح {r.get('av')} ({r.get('av_src') or '—'})")
     msg = build_message(st, rows)
     log(msg)
     if DRY:
