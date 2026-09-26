@@ -67461,6 +67461,111 @@ check("🗓️🔎 WWK17 ⑧ الحكمُ الممتدُّ منشورٌ في §�
       "وKITT ‏+123.4% (بري 09-25 · نظاميًّا −4.1% · تقسيمٌ 1:6 بأرقامه) · UZX ممتدًّا +5.2% · والارتدادُ · وسطرُ الحكم حرفيًّا · "
       "و⓪ يحيل إليه", _atm_ww17, _atm_ww17_w)
 
+# ── RBG1-RBG5 🕗 حارسُ شمعة الجلسة قبل التجديد (‏2026-09-26 · `renewal_lastbar_prereg.md`) — بلا شبكة ولا نومٍ حقيقيّ ──
+import datetime as _rbg_dt                                           # noqa: E402
+import ast as _rbg_ast                                               # noqa: E402
+import inspect as _rbg_insp                                          # noqa: E402
+_RBG_U = _rbg_dt.timezone.utc
+
+
+def _rbg_t(y, m, d, h, mi):
+    return _rbg_dt.datetime(y, m, d, h, mi, tzinfo=_RBG_U)
+
+
+def _rbg_df(last):
+    import pandas as _pd
+    _i = _pd.to_datetime(_pd.bdate_range(end=last, periods=30))
+    return _pd.DataFrame({"Close": list(range(30))}, index=_i)
+
+
+try:
+    _rb1 = [S.last_closed_session(_rbg_t(2026, 9, 26, 0, 15)),   # الجمعة 20:15 نيويورك
+            S.last_closed_session(_rbg_t(2026, 9, 25, 19, 0)),   # الجمعة 15:00 (الجلسةُ جارية)
+            S.last_closed_session(_rbg_t(2026, 9, 25, 20, 20)),  # 16:20 — داخل هامش 30 د
+            S.last_closed_session(_rbg_t(2026, 9, 25, 20, 31)),  # 16:31
+            S.last_closed_session(_rbg_t(2026, 9, 26, 15, 0)),   # السبت
+            S.last_closed_session(_rbg_t(2026, 9, 8, 7, 0)),     # الثلاثاء فجرًا بعد عيد العمال
+            S.last_closed_session(_rbg_t(2026, 11, 27, 18, 29)), # الجمعة السوداء 13:29 (إغلاقٌ مبكّر)
+            S.last_closed_session(_rbg_t(2026, 11, 27, 18, 31)), # 13:31
+            S._prev_session("2026-09-08"), S._prev_session("2026-09-25")]
+    _atm_rbg1 = _rb1 == ["2026-09-25", "2026-09-24", "2026-09-24", "2026-09-25", "2026-09-25",
+                         "2026-09-04", "2026-11-25", "2026-11-27", "2026-09-04", "2026-09-24"]
+    _atm_rbg1_w = f"{_rb1}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_rbg1, _atm_rbg1_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕗 RBG1 آخرُ جلسةٍ مكتملة بتوقيت نيويورك: هامشُ 30 د بعد الإغلاق · العطلةُ الأسبوعيّة · عيدُ العمّال · "
+      "الإغلاقُ المبكّر (13:00) · والجلسةُ السابقة بلا عطل", _atm_rbg1, _atm_rbg1_w)
+
+try:
+    _sl2 = []
+    _seq2 = iter([{"A": _rbg_df("2026-09-24"), "B": _rbg_df("2026-09-24"), "C": _rbg_df("2026-09-01")},
+                  {"A": _rbg_df("2026-09-24"), "B": _rbg_df("2026-09-25"), "C": _rbg_df("2026-09-01")},
+                  {"A": _rbg_df("2026-09-25"), "B": _rbg_df("2026-09-25"), "C": _rbg_df("2026-09-01")}])
+    _r2 = S.await_session_bars(["A", "B", "C"], fetch=lambda s: next(_seq2), sleep=_sl2.append,
+                               now=_rbg_t(2026, 9, 26, 0, 15))
+    _atm_rbg2 = (_r2.get("ok") is True and _r2.get("waited_min") == 20 and _sl2 == [600, 600]
+                 and _r2.get("tries") == 3 and _r2.get("fresh") == 2 and _r2.get("lag1") == 0
+                 and _r2.get("expected") == "2026-09-25" and _r2.get("prev") == "2026-09-24")
+    _atm_rbg2_w = f"{_r2} sleeps={_sl2}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_rbg2, _atm_rbg2_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕗 RBG2 ينتظر **ما دام** المتأخّرُ جلسةً غالبًا (نمطُ تجديدات 20:12-20:28) ويمضي لحظةَ تكتمل الجلسة — "
+      "والأقدمُ من جلسةٍ (C) لا يُحتسب", _atm_rbg2, _atm_rbg2_w)
+
+try:
+    _sl3, _n3 = [], [0]
+
+    def _f3(s):
+        _n3[0] += 1
+        if _n3[0] > 40:                       # ⛔ صمّامُ القفل: حلقةٌ بلا سقف تسقط هنا لا تُعلّق السويّة
+            raise RuntimeError("حلقةٌ بلا سقف")
+        return {"A": _rbg_df("2026-09-24"), "B": _rbg_df("2026-09-24")}
+    _r3 = S.await_session_bars(["A", "B"], fetch=_f3, sleep=_sl3.append, now=_rbg_t(2026, 9, 26, 0, 15))
+    _cap3 = S.CONFIG["RENEW_BAR_MAX_WAIT_MIN"]
+    _atm_rbg3 = (_r3.get("ok") is False and _r3.get("waited_min") == _cap3 == 150
+                 and len(_sl3) == 15 and _r3.get("tries") == 16 and "سقف" in (_r3.get("reason") or ""))
+    _atm_rbg3_w = f"{_r3} sleeps={len(_sl3)}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_rbg3, _atm_rbg3_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕗 RBG3 الانتظارُ مسقوف (150 د بخطوة 10) ثمّ يمضي كما اليوم ⟵ ok=False بسببه · ولا يرمي", _atm_rbg3, _atm_rbg3_w)
+
+try:
+    def _boom(x):
+        raise AssertionError("نام حيث لا يجوز")
+    _r4a = S.await_session_bars(["A"], fetch=lambda s: {}, sleep=_boom, now=_rbg_t(2026, 9, 26, 0, 15))
+    _r4b = S.await_session_bars(["A"], fetch=lambda s: {"A": _rbg_df("2026-07-01")}, sleep=_boom,
+                                now=_rbg_t(2026, 9, 26, 0, 15))
+    _r4c = S.await_session_bars(["A"], fetch=lambda s: 1 / 0, sleep=_boom, now=_rbg_t(2026, 9, 26, 0, 15))
+    _r4d = S.await_session_bars([], fetch=lambda s: 1 / 0, sleep=_boom, now=_rbg_t(2026, 9, 26, 0, 15))
+    _atm_rbg4 = (_r4a.get("ok") is None and "لا بيانات" in _r4a.get("reason", "") and _r4a.get("tries") == 1
+                 and _r4b.get("ok") is None and _r4b.get("reason", "").startswith("لا حكم")
+                 and _r4c.get("ok") is None and "تعذّر الجلب" in _r4c.get("reason", "")
+                 and _r4d.get("ok") is None and _r4d.get("tries") == 0)
+    _atm_rbg4_w = f"a={_r4a.get('reason')} b={_r4b.get('reason')} c={_r4c.get('reason')} d={_r4d.get('reason')}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_rbg4, _atm_rbg4_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕗 RBG4 فاشلٌ-آمن بلا نوم: صفرُ بيانات (يحكمه حارسُ التغطية) · عيّنةٌ أقدمُ من جلسة (لا حكم) · جلبٌ يرمي · "
+      "وعيّنةٌ فارغة", _atm_rbg4, _atm_rbg4_w)
+
+try:
+    _t5 = _rbg_ast.parse(_rbg_insp.getsource(S.run_weekly_renewal))
+    _calls5 = [(n.lineno, getattr(n.func, "id", None)) for n in _rbg_ast.walk(_t5) if isinstance(n, _rbg_ast.Call)]
+    _aw5 = [ln for ln, f in _calls5 if f == "await_session_bars"]
+    _dh5 = [ln for ln, f in _calls5 if f == "download_history"]
+    _sc5 = [ln for ln, f in _calls5 if f == "scan_market"]
+    _try5 = [t for t in _rbg_ast.walk(_t5) if isinstance(t, _rbg_ast.Try)
+             and any(isinstance(c, _rbg_ast.Call) and getattr(c.func, "id", None) == "await_session_bars"
+                     for c in _rbg_ast.walk(t))]
+    _tg5 = [c for t in _try5 for c in _rbg_ast.walk(t)
+            if isinstance(c, _rbg_ast.Call) and getattr(c.func, "id", None) == "send_telegram"]
+    _atm_rbg5 = (len(_aw5) == 1 and _dh5 and _sc5 and _aw5[0] < min(_dh5) and _aw5[0] < min(_sc5)
+                 and len(_try5) == 1 and not _tg5)
+    _atm_rbg5_w = f"await={_aw5} dh={_dh5[:2]} scan={_sc5} try={len(_try5)} tg={len(_tg5)}"
+except Exception as _e:                                              # noqa: BLE001
+    _atm_rbg5, _atm_rbg5_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕗 RBG5 موصولٌ في `run_weekly_renewal` **قبل** أوّل تحميلٍ وقبل `scan_market` (AST) · داخل try · "
+      "وبلا تلغرام (سجلٌّ فقط)", _atm_rbg5, _atm_rbg5_w)
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
