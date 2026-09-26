@@ -364,18 +364,19 @@
   },
   "2026-08-18": {
     "deferred_reasons": [],
-    "incomplete_reasons": [
-      "path_not_reaching_close(CELU)"
-    ],
+    "incomplete_reasons": [],
     "n_delivered": 2,
     "n_emitted": 2,
     "n_executable": 1,
     "n_executable_emitted": 1,
     "n_raw_candidates": 2,
     "n_symbols": 25,
-    "session_complete": false,
+    "session_complete": true,
     "termination": "normal",
-    "verdict_rule": "2026-09-26"
+    "verdict_rule": "2026-09-26",
+    "tail_verified": [
+      "CELU"
+    ]
   },
   "2026-08-19": {
     "deferred_reasons": [],
@@ -420,18 +421,19 @@
   },
   "2026-08-24": {
     "deferred_reasons": [],
-    "incomplete_reasons": [
-      "path_not_reaching_close(MIMI)"
-    ],
+    "incomplete_reasons": [],
     "n_delivered": 3,
     "n_emitted": 3,
     "n_executable": 1,
     "n_executable_emitted": 1,
     "n_raw_candidates": 3,
     "n_symbols": 24,
-    "session_complete": false,
+    "session_complete": true,
     "termination": "normal",
-    "verdict_rule": "2026-09-26"
+    "verdict_rule": "2026-09-26",
+    "tail_verified": [
+      "MIMI"
+    ]
   },
   "2026-08-25": {
     "deferred_reasons": [],
@@ -512,18 +514,19 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "incomplete_reasons": [
-      "path_not_reaching_close(CCTG)"
-    ],
+    "incomplete_reasons": [],
     "n_delivered": 4,
     "n_emitted": 4,
     "n_executable": 2,
     "n_executable_emitted": 2,
     "n_raw_candidates": 4,
     "n_symbols": 22,
-    "session_complete": false,
+    "session_complete": true,
     "termination": "normal",
-    "verdict_rule": "2026-09-26"
+    "verdict_rule": "2026-09-26",
+    "tail_verified": [
+      "CCTG"
+    ]
   },
   "2026-09-04": {
     "deferred_reasons": [
@@ -666,7 +669,6 @@
     ],
     "incomplete_reasons": [
       "duplicate_delivery(VHUB)",
-      "path_not_reaching_close(SMX)",
       "manifest_chain_failed(chain_previous_missing)"
     ],
     "n_delivered": 5,
@@ -677,7 +679,10 @@
     "n_symbols": 29,
     "session_complete": false,
     "termination": "normal",
-    "verdict_rule": "2026-09-26"
+    "verdict_rule": "2026-09-26",
+    "tail_verified": [
+      "SMX"
+    ]
   },
   "2026-09-21": {
     "deferred_reasons": [
@@ -743,17 +748,18 @@
     "deferred_reasons": [
       "open:segment_window_capped(max_runtime_cap)"
     ],
-    "incomplete_reasons": [
-      "path_not_reaching_close(CURX)"
-    ],
+    "incomplete_reasons": [],
     "n_delivered": 4,
     "n_emitted": 4,
     "n_executable": 1,
     "n_executable_emitted": 1,
     "n_raw_candidates": 4,
     "n_symbols": 18,
-    "session_complete": false,
+    "session_complete": true,
     "termination": "normal",
-    "verdict_rule": "2026-09-26"
+    "verdict_rule": "2026-09-26",
+    "tail_verified": [
+      "CURX"
+    ]
   }
 }
