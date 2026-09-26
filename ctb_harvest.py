@@ -351,13 +351,14 @@ def harvest(fetch=None, watch_syms=None, today_iso=None, cap=None, path=None,
                                    + ":" + repr(dg.get("snip", ""))[:120])
         if rnd == 1:
             first_bad = len(bad)
-            # 🐤 **شاهدٌ داخليّ** (الجالبُ الحقيقيّ وحدَه · لا يُكتب): أوّلُ رمزٍ يُعاد جلبُه بعد
-            #    التمريرة — نجح أوّلًا وتعذّر آخرًا ⇒ الموقعُ يتغيّر تحت الدفعة (لا عيبَ رمز).
-            if real and order:
+            # 🐤 **شاهدٌ داخليّ** (الجالبُ الحقيقيّ وحدَه · لا يُكتب): **أوّلُ رمزٍ نجح** يُعاد جلبُه
+            #    بعد التمريرة — نجح أوّلًا وتعذّر آخرًا ⇒ الموقعُ يتغيّر تحت الدفعة (لا عيبَ رمز) · ولا
+            #    يُختار رمزٌ ميّت (تجربةُ المصفوفة: `order[0]` كان CANF برمز 404 فلم يشهد بشيء).
+            ok0 = next((x for x in order if x in got), None)
+            if real and ok0:
                 sleep(gap)
-                d0, r0, _dg0 = _one(order[0])
-                canary = (order[0] + ": أوّلًا " + seq[0] + " · آخرًا "
-                          + ("✓" if d0 else "✗ " + r0))
+                d0, r0, _dg0 = _one(ok0)
+                canary = ok0 + ": أوّلًا ✓ · آخرًا " + ("✓" if d0 else "✗ " + r0)
         pending = bad
     failed = len(pending)
     rows = []
