@@ -12467,6 +12467,7 @@ NEAR_WATCH_FLOAT_RETRY = 7       # engineering — يومًا: رمزٌ أجاب
 NEAR_WATCH_FLOAT_CAP = 700       # engineering — سقفُ الجلب/تشغيلة (يغطّي القائمةَ كلَّها ‏≈644 في أوّل يوم) · والقصُّ يُعلَن
 NEAR_WATCH_FLOAT_BUDGET_S = 420  # engineering — ميزانيةُ زمن/تشغيلة · والقصُّ يُعلَن
 NEAR_WATCH_FLOAT_BREAK = 8       # engineering — تعذّراتٌ متتالية ⟵ خنقُ ياهو ⟵ يتوقّف ويُعلَن (لا يُطرَق بلا فائدة)
+NEAR_WATCH_FLOAT_PAUSE_S = 0.3   # engineering — مهلةٌ بين نداءات ياهو الحقيقيّة (نمطُ «شروطك الثلاثة») · والجالبُ المحقونُ بلا مهلة
 
 
 def load_near_watch_float(path: str = None) -> dict:
@@ -12538,6 +12539,7 @@ def refresh_near_watch_float(watch: dict, store: dict, today_iso: str, fetch=Non
     brk = NEAR_WATCH_FLOAT_BREAK if brk is None else int(brk)
     clock = clock or time.monotonic
     get = fetch or _yahoo_float_status
+    pause = NEAR_WATCH_FLOAT_PAUSE_S if fetch is None else 0.0
     due = []
     for s in sorted(watch):
         rec = store.get(s)
@@ -12558,6 +12560,8 @@ def refresh_near_watch_float(watch: dict, store: dict, today_iso: str, fetch=Non
             st, v = get(s)
         except Exception:                                        # noqa: BLE001
             st, v = "fail", None
+        if pause:
+            time.sleep(pause)
         if st == "ok" and v:
             store[s] = {"float": float(v), "date": today_iso, "checked": today_iso, "src": "ياهو"}
             n["fetched"] += 1

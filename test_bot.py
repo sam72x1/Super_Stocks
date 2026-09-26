@@ -68667,7 +68667,8 @@ def _tcd_world():
     return W, uni, fl, fetch, hours, yahoo, ce
 
 
-def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired=None, trace=(), drop_hours=(), nw_extra=None):
+def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired=None, trace=(), drop_hours=(), nw_extra=None,
+             pb_extra=()):
     """الأنبوبُ كلُّه (scan ⟶ borrow ×shards ⟶ send) ⟵ (رمزُ الخروج, المُخرَج, الحالة, المُرسَل, fetch, hours, yfloat)."""
     W, uni, fl, fetch, hours, yahoo, ce = _tcd_world()
     if cover_cut:
@@ -68697,7 +68698,8 @@ def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired
         with _tcd_ctx.redirect_stdout(buf):
             st = _TCD.stage_scan(now=now, key="k", fetch=fetch, universe=lambda: list(uni), yahoo=yahoo,
                                  yfloat=yfloat, harvested=lambda d: {"AAA": {"shares_available": 5000}},
-                                 wl={"stocks": [{"symbol": "AAA", "status": "active", "cont_status": "continues"}]},
+                                 wl={"stocks": [{"symbol": "AAA", "status": "active", "cont_status": "continues"}],
+                                     "pullback": list(pb_extra)},
                                  nw=dict({"CET": {"outside": ["M2 الهبوط (دون الحدّ)"]}, "NWO": {"outside": []},
                                           "BIG": {"outside": []}}, **(nw_extra or {})),
                                  cache={}, repaired=repaired, hours=hours)
@@ -69507,16 +69509,28 @@ try:
     _tk = iter([0.0, 0.0, 5.0, 500.0, 900.0, 900.0, 900.0])
     _n4c = S.refresh_near_watch_float(dict(_nwf_w4), {}, _T, fetch=lambda s: ("ok", 1e6), budget_s=100,
                                       clock=lambda: next(_tk))
+    #    والمهلةُ للجالب الحقيقيّ وحدَه: محقونٌ ⟵ صفرُ نومٍ · الافتراضيّ (`_yahoo_float_status` مجذَّعًا) ⟵ نومةٌ لكلّ نداء
+    _slp4, _yfs4, _sl0 = [], S._yahoo_float_status, S.time.sleep
+    try:
+        S.time.sleep = lambda x: _slp4.append(x)
+        S.refresh_near_watch_float(dict(_nwf_w4), {}, _T, fetch=lambda s: ("ok", 1e6))
+        _slp4_inj = len(_slp4)
+        S._yahoo_float_status = lambda s: ("ok", 1e6)
+        S.refresh_near_watch_float(dict(_nwf_w4), {}, _T)
+        _slp4_def = list(_slp4)
+    finally:
+        S.time.sleep, S._yahoo_float_status = _sl0, _yfs4
     _vN4 = (_n4a["fetched"] == 2 and _n4a["cut"] == 3 and not _n4a["broke"]
+            and _slp4_inj == 0 and _slp4_def == [S.NEAR_WATCH_FLOAT_PAUSE_S] * 5
             and _n4b["fail"] == 3 and len(_c4) == 3 and _n4b["cut"] == 2 and _n4b["broke"]
             and _n4c["fetched"] == 2 and _n4c["cut"] == 3 and not _n4c["broke"]
             and "قُصَّ" in _exh_insp.getsource(S.near_watch_float_step)
             and "خنقُ ياهو" in _exh_insp.getsource(S.near_watch_float_step))
-    _vN4w = f"سقف={_n4a} · قاطع={_n4b} · زمن={_n4c}"
+    _vN4w = f"سقف={_n4a} · قاطع={_n4b} · زمن={_n4c} · نوم: محقون={_slp4_inj} افتراضيّ={len(_slp4_def)}"
 except Exception as _e:                                              # noqa: BLE001
     _vN4, _vN4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("👀🏢 NWF4 القصُّ يُعلَن بعدّاده: السقف (قُصَّ 3) · قاطعُ الدائرة بعد 3 تعذّراتٍ متتالية (broke) · ميزانيةُ الزمن · وسطرُ "
-      "السجلّ يطبعه", _vN4, _vN4w)
+      "السجلّ يطبعه · والمهلةُ بين نداءات ياهو للجالب الحقيقيّ وحدَه", _vN4, _vN4w)
 
 # NWF6 — لا يصل الاختيار: الجذورُ الاثنا عشر ومعها `enrich`/`refloat_gate_recheck`/`apply_float_gate`/`fill_picks` لا تذكر المخزنَ
 #    ولا دوالَّه (AST) · والدوالُّ الجديدة لا تكتب `COMPANY_CACHE` ولا تحفظ ذاكرةَ الشركات
@@ -69553,17 +69567,23 @@ check("👀🏢 NWF6 لا يصل الاختيار: الجذورُ و`enrich`/`re
 try:
     _r8 = _tcd_run(nw_extra={"UNK": {"outside": [], "float": 1_200_000}, "NWO": {"outside": [], "float": 5e7}})
     _r8b = _tcd_run()
+    #    وقائمةُ البوت تسبق المخزن: UNK في الارتداد بفلوت 2.5 مليون ⟵ «قائمة البوت» لا المخزن
+    _r8c = _tcd_run(nw_extra={"UNK": {"outside": [], "float": 1_200_000}},
+                    pb_extra=[{"symbol": "UNK", "float": 2_500_000}])
     _rw8 = (_r8[2].get("rows") or {})
     _rw8b = (_r8b[2].get("rows") or {})
+    _rw8c = (_r8c[2].get("rows") or {})
     _vN8 = (_rw8.get("UNK", {}).get("fl") == 1_200_000 and _rw8["UNK"].get("fl_src") == "مخزن تحت المتابعة"
             and _rw8.get("NWO", {}).get("fl") == 9e5 and _rw8["NWO"].get("fl_src") == "ياهو"
-            and _rw8b.get("UNK", {}).get("fl") is None)
+            and _rw8b.get("UNK", {}).get("fl") is None
+            and _rw8c.get("UNK", {}).get("fl") == 2_500_000 and _rw8c["UNK"].get("fl_src") == "قائمة البوت")
     _vN8w = (f"UNK={(_rw8.get('UNK') or {}).get('fl')} ({(_rw8.get('UNK') or {}).get('fl_src')}) · "
-             f"NWO={(_rw8.get('NWO') or {}).get('fl')} ({(_rw8.get('NWO') or {}).get('fl_src')}) · بلا مخزن={(_rw8b.get('UNK') or {}).get('fl')}")
+             f"NWO={(_rw8.get('NWO') or {}).get('fl')} ({(_rw8.get('NWO') or {}).get('fl_src')}) · بلا مخزن={(_rw8b.get('UNK') or {}).get('fl')}"
+             f" · قائمةُ البوت={(_rw8c.get('UNK') or {}).get('fl')} ({(_rw8c.get('UNK') or {}).get('fl_src')})")
 except Exception as _e:                                              # noqa: BLE001
     _vN8, _vN8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("👀🏢 NWF8 «شروطك الثلاثة»: فلوتُ المخزن احتياطٌ بعد ياهو وقائمة البوت (UNK ⟵ «مخزن تحت المتابعة») · وياهو يسبقه (NWO) · "
-      "وبلا مخزنٍ UNK مجهولٌ كما كان", _vN8, _vN8w)
+      "وقائمةُ البوت تسبقه (UNK في الارتداد) · وبلا مخزنٍ UNK مجهولٌ كما كان", _vN8, _vN8w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🩹 SRC1-SRC9 إصلاحُ مصدر الشموع (أمرُ المالك 2026-09-26 «صلح مصدر البوت» · فحصُ البوت `36244720433`: ياهو غيرُ متّسقٍ مع
