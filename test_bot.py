@@ -16859,14 +16859,45 @@ import yaml as _yaml_ctbr                                       # noqa: E402
 _wf_ctb = _yaml_ctbr.safe_load(open(".github/workflows/ctb_harvest.yml", encoding="utf-8"))
 _on_ctb = _wf_ctb.get("on") or _wf_ctb.get(True) or {}
 _steps_ctb = {st.get("name"): st for st in _wf_ctb["jobs"]["harvest"]["steps"]}
+_cjob_ctb = (_wf_ctb.get("jobs") or {}).get("commit") or {}
+_crun_ctb = "\n".join(str(st.get("run") or "") for st in (_cjob_ctb.get("steps") or []))
+_mx_ctb = (((_wf_ctb["jobs"]["harvest"].get("strategy") or {}).get("matrix") or {}).get("shard") or [])
+_henv_ctb = (_steps_ctb.get("Harvest borrow context") or {}).get("env") or {}
 _dry_ctb = (((_on_ctb.get("workflow_dispatch") or {}).get("inputs") or {}).get("dry") or {})
-check("🔒 CTBR7·تجربةُ `dry=1` لا تكتب السجلّ ولا تُلتزَم · والمجدولُ على السجلّ الحقيقيّ والكرونِ نفسِه",
+check("🔒 CTBR7·ثلاثةُ رنرات تكتب أجزاءَها مؤقّتًا · وجوبُ `commit` وحدَه يُلحقها بالسجلّ (دفعٌ محميّ · `always()`) · و`dry=1` لا يلتزم · والكرونُ نفسُه",
       str(_dry_ctb.get("default")) == "0"
-      and "inputs.dry != '1'" in str(_steps_ctb["Commit harvest log"].get("if"))
-      and "runner.temp" in str((_steps_ctb["Harvest borrow context"].get("env") or {}).get("CTB_LOG"))
-      and "'ctb_log.jsonl'" in str((_steps_ctb["Harvest borrow context"].get("env") or {}).get("CTB_LOG"))
+      and "inputs.dry != '1'" in str(_cjob_ctb.get("if")) and "always()" in str(_cjob_ctb.get("if"))
+      and _cjob_ctb.get("needs") == "harvest"
+      and "runner.temp" in str(_henv_ctb.get("CTB_LOG")) and "ctb_log.jsonl" not in str(_henv_ctb.get("CTB_LOG"))
+      and "matrix.shard" in str(_henv_ctb.get("CTB_SHARD"))
+      and str(_henv_ctb.get("CTB_SHARDS")) == str(len(_mx_ctb)) and len(_mx_ctb) >= 2
+      and "ctb_shards/ctb-shard-*" in _crun_ctb and ">> ctb_log.jsonl" in _crun_ctb
+      and "git rebase" in _crun_ctb and "Upload shard rows" in _steps_ctb
       and [c.get("cron") for c in (_on_ctb.get("schedule") or [])] == ["20 1 * * 2-6"],
-      str(_steps_ctb["Commit harvest log"].get("if")))
+      f"if={_cjob_ctb.get('if')} shards={_henv_ctb.get('CTB_SHARDS')} mx={_mx_ctb}")
+
+
+def _ctbr9():
+    _uni = ["S%03d" % i for i in range(400)]
+    _parts = []
+    with _tf_ctbr.TemporaryDirectory() as _td:
+        for _k in range(3):
+            _q = _os_ctb.path.join(_td, "s%d.jsonl" % _k)
+            with _cx_ctbr.redirect_stdout(_io_ctbr.StringIO()):
+                _CTB.harvest(fetch=lambda s: {"shares_available": 4}, watch_syms=["W1", "W2"],
+                             today_iso="2026-08-01", path=_q, universe=_uni,
+                             pullback_syms=["P1"], shard=_k, shards=3)
+            _parts.append([json.loads(x)["symbol"] for x in open(_q, encoding="utf-8") if x.strip()])
+    _full = set(_CTB.build_cohorts(["W1", "W2"], _CTB.control_panel(_uni, "2026-08"), ["P1"]))
+    _sizes = [len(x) for x in _parts]
+    return (set().union(*map(set, _parts)) == _full and sum(_sizes) == len(_full)
+            and max(_sizes) - min(_sizes) <= 1 and _CTB.SHARDS == 1 and _CTB.SHARD == 0,
+            _sizes)
+
+
+_c9 = _ctbr9()
+check("🔒 CTBR9·التقسيمُ على رنرات تامٌّ منفصلٌ متوازن (اتّحادُ الأجزاء = الخطّة · لا تكرار · والافتراضُ بلا تقسيم)",
+      _c9[0], str(_c9[1]))
 check("🔒 CTBR8·المهلةُ حقيقيّة (‏≥1ث) · وسقفُ وقت الجالب مع الإعادة داخل مهلة الجوب",
       _CTB.FETCH_GAP_S >= 1.0 and _CTB.RETRY_PAUSE_S > 0
       and _CTB.BUDGET_S + _CTB.RETRY_PAUSE_S + 120

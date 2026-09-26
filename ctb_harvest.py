@@ -49,10 +49,16 @@ HARVEST_CAP = int(os.environ.get("CTB_HARVEST_CAP", "110") or 110)
 #    (‏09-22: قِيس 60 · كُتب 9 · تعذّر 51 في ‏≈9 ثوانٍ · والتشغيلةُ خضراء) ⇒ الأرجحُ
 #    حظرُ دفعاتٍ متتالية (استنتاجٌ قويّ من الترتيب الثابت · والسببُ يُطبع الآن).
 #    والمهلةُ تعمل مع الجالب الحقيقيّ وحدَه — المحقونُ للاختبار بلا نوم.
-#    🔄 2.0 ⟶ 4.0 (تجربتا dry=1 · 2026-09-26): بمهلة 2ث نجح ‏≈50 طلبًا ثمّ عادت **كلُّ** الصفحات
-#    ضئيلةً (‏1035 محرفًا · `parse:shell`) · والشاهدُ GWAV نجح أوّلًا وتعذّر آخرًا ⇒ حجبٌ ناعمٌ بالعدد
-#    والمعدّل (بلا مهلة: 9-19 · بمهلة 2ث: ‏≈50) ⇒ المعدّلُ المستدام أبطأُ من طلبٍ كلّ ‏≈2.5-3ث (تقديرٌ لا قياس).
-FETCH_GAP_S = float(os.environ.get("CTB_FETCH_GAP_S", "4.0") or 4.0)
+#    🔬 **ثلاثُ تجارب dry=1 (2026-09-26) حسمت السبب:** بمهلة 2ث **و**4ث نجح ‏≈50 طلبًا ثمّ عادت **كلُّ**
+#    الصفحات ضئيلةً (‏1035 محرفًا · `parse:shell`) **عند الموضع نفسِه** · والشاهدُ GWAV نجح أوّلًا وتعذّر آخرًا ⇒
+#    **حجبٌ ناعمٌ بالعدد لكلّ رنر (‏≈50 صفحة) لا بالمعدّل** — ومضاعفةُ المهلة لم تُحرّكه ⇒ العلاجُ **التقسيمُ على
+#    رنرات** (`CTB_SHARDS` أدناه) · والمهلةُ 2ث تبقى لأن بلا مهلةٍ كان الحجبُ أبكر (9-19 · السجلُّ القديم).
+FETCH_GAP_S = float(os.environ.get("CTB_FETCH_GAP_S", "2.0") or 2.0)
+# 🧩 **التقسيم على رنرات** (مصفوفة `ctb_harvest.yml`): الرنرُ `CTB_SHARD` من `CTB_SHARDS` يجلب
+#    `order[shard::shards]` من الترتيب الدوّار نفسِه ⇒ تقسيمٌ تامٌّ منفصل ومتوازنُ الفئات · وكلُّ رنرٍ
+#    تحت حصّة ‏≈50 (‏97 ÷ 3 ‏≈ 33). والافتراضُ 1 = السلوكُ بلا تقسيم.
+SHARD = int(os.environ.get("CTB_SHARD", "0") or 0)
+SHARDS = max(1, int(os.environ.get("CTB_SHARDS", "1") or 1))
 RETRY_PAUSE_S = float(os.environ.get("CTB_RETRY_PAUSE_S", "60") or 60)
 # ⚠️ تعذّرُ نصفِ المقيس فأكثر (وعشرةٌ على الأقلّ) ⇒ تنبيهُ `::warning::` في التشغيلة
 #    لا سطرٌ يمرّ صامتًا تحت خُضرتها.
@@ -254,7 +260,7 @@ def _record(rows, path=None):
 
 def harvest(fetch=None, watch_syms=None, today_iso=None, cap=None, path=None,
             universe=None, pullback_syms=None, sleep=None, gap=None,
-            retry_pause=None):
+            retry_pause=None, shard=None, shards=None):
     """يقيس الاقتراض لكل رمز في الخطّة ويسجّله. `fetch(sym) → {borrow_fee,
     shares_available}` (يُحقَن للاختبار؛ الافتراضي `ce_borrow_info` من البوت).
     يرجّع (مكتوب، مُسقَط، مُتعذّر).
@@ -303,6 +309,10 @@ def harvest(fetch=None, watch_syms=None, today_iso=None, cap=None, path=None,
                          else _pullback_symbols())
     syms, dropped = _select_within_cap(plan, cap)
     order = fetch_order(syms, plan)
+    shards = SHARDS if shards is None else max(1, int(shards))
+    shard = (SHARD if shard is None else int(shard)) % shards
+    if shards > 1:
+        order = order[shard::shards]
 
     def _one(sym):
         dg = {}
@@ -370,7 +380,8 @@ def harvest(fetch=None, watch_syms=None, today_iso=None, cap=None, path=None,
         reasons[why.get(sym, "?")] = reasons.get(why.get(sym, "?"), 0) + 1
     print("🔒 حصّاد الاقتراض " + day + " (schema " + str(SCHEMA) + "): خطّة "
           + str(len(plan)) + " رمزًا " + str(counts)
-          + " → قِيس " + str(len(syms)) + " · كُتب " + str(wrote)
+          + (" · جزء " + str(shard + 1) + " من " + str(shards) if shards > 1 else "")
+          + " → قِيس " + str(len(order)) + " · كُتب " + str(wrote)
           + " · تعذّر " + str(failed))
     print("   ↳ كُتب لكلّ فئة: " + str(wrote_by)
           + " · أُنقذ بالإعادة: " + str(first_bad - failed)
@@ -384,9 +395,9 @@ def harvest(fetch=None, watch_syms=None, today_iso=None, cap=None, path=None,
         print("⚠️ السقف " + str(cap) + " أسقط: " + str(dropped) + " — يُعلَن ولا يُصمت.")
     if wrote == 0:
         print("⚠️ صفر قياس — تعذّر الجلب لكل الرموز (لا يعني «لا بيانات»؛ عطلٌ محتمل).")
-    if len(syms) >= WARN_MIN_MEASURED and failed >= WARN_FAIL_FRAC * len(syms):
+    if len(order) >= WARN_MIN_MEASURED and failed >= WARN_FAIL_FRAC * len(order):
         print("::warning::⚠️ حصّاد الاقتراض " + day + ": تعذّر " + str(failed)
-              + " من " + str(len(syms)) + " — أسباب " + str(reasons)
+              + " من " + str(len(order)) + " — أسباب " + str(reasons)
               + " (التشغيلةُ خضراء والحصادُ ناقص)")
     return (wrote, sum(dropped.values()), failed)
 
@@ -481,6 +492,17 @@ def _selftest():
             harvest(fetch=lambda s: {"shares_available": 3}, watch_syms=[],
                     today_iso="2026-07-31", path=p, universe=[], pullback_syms=[])
         assert "::warning::" not in buf2.getvalue()
+        # ⑩ التقسيمُ على رنرات: الأجزاءُ الثلاثة منفصلةٌ واتّحادُها الخطّةُ كلُّها
+        parts = []
+        for k in range(3):
+            q = os.path.join(td, "s%d.jsonl" % k)
+            harvest(fetch=lambda s: {"shares_available": 4}, watch_syms=["W1", "W2"],
+                    today_iso="2026-08-01", path=q, universe=uni, pullback_syms=["P1"],
+                    shard=k, shards=3)
+            parts.append({json.loads(x)["symbol"] for x in open(q, encoding="utf-8")
+                          if x.strip()})
+        full = set(build_cohorts(["W1", "W2"], control_panel(uni, "2026-08"), ["P1"]))
+        assert set().union(*parts) == full and sum(len(x) for x in parts) == len(full)
     print("✅ ctb_harvest selftest نجح")
     return 0
 
