@@ -189,6 +189,10 @@ _NW_REAL_SHA = (
 S.NEAR_WATCH_FILE = _os_hc.path.join(
     _rej_tf.gettempdir(), f"_suite_near_watch.{_SUITE_PID}.json")
 
+# 👀🏢 **وعاشرُ ملفِّ حالة — يُحوَّل فورَ إنشائه** (‏مخزنُ فلوت «تحت المتابعة» · أمرُ «احفظ فلوت تحت المتابعة» 2026-09-26).
+S.NEAR_WATCH_FLOAT_FILE = _os_hc.path.join(
+    _rej_tf.gettempdir(), f"_suite_near_watch_float.{_SUITE_PID}.json")
+
 # 🎯 **وسادسُ ملفِّ حالة — يُحوَّل فورَ إنشائه** (‏دِدوبُ «هنا الدخول»).
 _OE_REAL_PATH = S.OP_ENTRY_STATE_FILE
 _OE_REAL_SHA = (
@@ -13831,7 +13835,7 @@ check("📥 الجامع·بلوغ السقف يُصرَّح به (لا «لا �
       and "المكرّرة تُحسب ضمن السقف" in _insp0.getsource(TC.main))
 
 
-def _run_daily(stocks, results=None, hist=None):
+def _run_daily(stocks, results=None, hist=None, yfs=None):
     """يقود `run_daily_watchlist` فعليًّا ببيئة معزولة ⇒ (رسائل مُرسَلة، القائمة).
 
     ⚠️ **أكبر ثغرة تغطية وُجدت في تدقيق 2026-07-27:** الدالّة — وهي التي تُنتج
@@ -13843,10 +13847,12 @@ def _run_daily(stocks, results=None, hist=None):
     #    وأمانُها من دهسِ الملفّ الحقيقيّ يأتي من تحويل `REJECT_LOG_FILE` لمسارٍ
     #    مؤقّتٍ في رأس السويّة (لا من جذعٍ يُنسى لكل مُشغِّلٍ جديد).
     names = ("scan_market", "download_history", "send_telegram", "save_watchlist",
-             "write_csv", "record_reject_stats", "accumulate_explosions")
+             "write_csv", "record_reject_stats", "accumulate_explosions", "_yahoo_float_status")
     for _n in names:
         _sv[_n] = getattr(S, _n)
     try:
+        #    👀🏢 لا شبكةَ من السويّة: فلوتُ «تحت المتابعة» يُجلب بعد الرسائل (2026-09-26) ⟵ جالبٌ «تعذّر» لا ياهو الحقيقيّ
+        S._yahoo_float_status = yfs or (lambda sym: ("fail", None))
         S.scan_market = lambda *a, **k: (results or [], hist or {})
         S.download_history = lambda u, **k: {}
         S.send_telegram = lambda m, *a, **k: sent.append(m) or True
@@ -68661,7 +68667,8 @@ def _tcd_world():
     return W, uni, fl, fetch, hours, yahoo, ce
 
 
-def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired=None, trace=(), drop_hours=()):
+def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired=None, trace=(), drop_hours=(), nw_extra=None,
+             pb_extra=()):
     """الأنبوبُ كلُّه (scan ⟶ borrow ×shards ⟶ send) ⟵ (رمزُ الخروج, المُخرَج, الحالة, المُرسَل, fetch, hours, yfloat)."""
     W, uni, fl, fetch, hours, yahoo, ce = _tcd_world()
     if cover_cut:
@@ -68691,9 +68698,10 @@ def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired
         with _tcd_ctx.redirect_stdout(buf):
             st = _TCD.stage_scan(now=now, key="k", fetch=fetch, universe=lambda: list(uni), yahoo=yahoo,
                                  yfloat=yfloat, harvested=lambda d: {"AAA": {"shares_available": 5000}},
-                                 wl={"stocks": [{"symbol": "AAA", "status": "active", "cont_status": "continues"}]},
-                                 nw={"CET": {"outside": ["M2 الهبوط (دون الحدّ)"]}, "NWO": {"outside": []},
-                                     "BIG": {"outside": []}},
+                                 wl={"stocks": [{"symbol": "AAA", "status": "active", "cont_status": "continues"}],
+                                     "pullback": list(pb_extra)},
+                                 nw=dict({"CET": {"outside": ["M2 الهبوط (دون الحدّ)"]}, "NWO": {"outside": []},
+                                          "BIG": {"outside": []}}, **(nw_extra or {})),
                                  cache={}, repaired=repaired, hours=hours)
             parts = [_TCD.stage_borrow(st, k, shards, ce=ce, pause=0) for k in range(shards)]
             rc = _TCD.stage_send(st, parts, send=lambda m: sent.append(m))
@@ -69168,6 +69176,419 @@ check("🗒️ TCD23 «الأسماءُ في السجلّ» صادقة: كلُّ
       "✖️ المتاح · ⚠️ · ❔) · و«تعذّر القاع» يظهر بعالمٍ بلا ساعة · ولا قصَّ صامتًا (AST)", _v23, _v23w)
 
 # ══════════════════════════════════════════════════════════════════════════
+# 🧱 EXH1-EXH6 الثبات الدقيق في كروت الجاهز (أمرُ المالك 2026-09-26 «اعرض الثبات في جاهز البوت» — **عرضٌ فقط**):
+#    `exact_pivot_hold` توأمُ `three_cond_daily.exact_low_stability` حرفًا · والسطرُ في الكرت واليوميّ · ويُحسب يوميًّا وفي
+#    التجديد قبل الرسالة · والجذورُ لا تقرؤه · و`STABILITY_MIN`=3 لم يُمَسّ — عالمٌ اصطناعيّ بلا شبكة (الجالبُ محقون).
+# ══════════════════════════════════════════════════════════════════════════
+import inspect as _exh_insp                                          # noqa: E402
+import random as _exh_random                                         # noqa: E402
+import textwrap as _exh_tw                                           # noqa: E402
+
+# EXH1 — التوأمان متطابقان: 300 عالمٍ عشوائيّ ببذرةٍ ثابتة (نوافذُ 2-40 جلسة عبر تحوّلَي التوقيت الصيفيّ · شموعُ ساعةٍ داخل
+#    الجلسة الممتدّة وخارجها · شمعةٌ تالفة · `need`/`look` متغيّران) ⟵ صفرُ فرق · ولا يمرّ فارغًا (مطلوبٌ غيرُ None وثابتٌ وذيلٌ
+#    ممتدّ بأعدادٍ دنيا) · وحالةُ ذيل الأفتر المحسومة ⟵ القاعُ 3.7 في الاثنين
+try:
+    _exh_r = _exh_random.Random(20260926)
+    _exh_ds = [d for d in _TCD.WW.calendar(2026) if "2025-10-01" <= d <= _TCD_SESS]
+    _exh_diff, _exh_nn, _exh_stb, _exh_ext, _exh_first = 0, 0, 0, 0, ""
+    for _k in range(300):
+        _L = _exh_r.randint(2, 40)
+        _st = _exh_r.randint(0, len(_exh_ds) - _L)
+        _dd = _exh_ds[_st:_st + _L]
+        _px, _rows = _exh_r.uniform(0.2, 8.0), []
+        _q = (lambda x: round(x * 20) / 20 or 0.05) if _k % 2 == 0 else (lambda x: x)   # نصفُها بشبكة 0.05 ⟵ تعادلاتٌ حقيقيّة
+        for _d in _dd:
+            _px *= _exh_r.uniform(0.9, 1.1)
+            _lo = _q(_px * _exh_r.uniform(0.9, 1.0))
+            _rows.append((_d, _px, _px * 1.05, _lo, _exh_r.uniform(_lo, _px * 1.05), 1e5))
+        _hrs = []
+        for _d, _o, _h, _lo, _c, _v in _rows:
+            for _hh in _exh_r.sample(range(24), _exh_r.randint(0, 8)):
+                _hrs.append((_tcd_ms(_d, _hh, _exh_r.choice((0, 30))), _h * _exh_r.uniform(0.95, 1.05),
+                             _q(_lo * _exh_r.uniform(0.9, 1.05))))
+        if _k % 10 == 0:
+            _hrs.append(("x", 1.0, 2.0))
+        _ss = _dd[_exh_r.randint(0, len(_dd) - 1)]
+        _nd, _lk = _exh_r.choice((None, 3, 5, 8)), _exh_r.choice((None, 5, 25))
+        _pa = S.exact_pivot_hold(_rows, _hrs, _ss, _nd, _lk)
+        _pb = _TCD.exact_low_stability(_rows, _hrs, _ss, _nd, _lk)
+        if _pa != _pb:
+            _exh_diff += 1
+            _exh_first = _exh_first or f"{_k}: {_pa} ≠ {_pb}"
+        if _pa:
+            _exh_nn += 1
+            _exh_stb += bool(_pa["stable"])
+            _exh_ext += bool(_pa["ext"])
+    _exh_dn = [5.0 - 0.1 * i for i in range(10)]
+    _exh_ds14 = _exh_ds[-16:]
+    _exh_rw = [(d, c, c * 1.01, lo, c, 1.0) for d, lo, c in
+               zip(_exh_ds14, _exh_dn + [4.0] + [4.1] * 5, [x + 0.05 for x in _exh_dn] + [4.05] + [4.15] * 5)]
+    _exh_hw = _tcd_hours_of(_exh_rw, [(_exh_ds14[-3], 17, 4.2, 3.7)])
+    _exh_ta = S.exact_pivot_hold(_exh_rw, _exh_hw, _exh_ds14[-1])
+    _exh_tb = _TCD.exact_low_stability(_exh_rw, _exh_hw, _exh_ds14[-1])
+    #    تعادلٌ صريح: القاعُ 4.0 بلغه قبل ستّ جلسات ثمّ لمسه اليوم ⟵ يومُه الأوّل (6 جلسات بعده) لا اليوم في الاثنين
+    _exh_rt = [(d, c, c * 1.01, lo, c, 1.0) for d, lo, c in
+               zip(_exh_ds[-17:], _exh_dn + [4.0] + [4.1] * 5 + [4.0], [x + 0.05 for x in _exh_dn] + [4.05] + [4.15] * 5 + [4.05])]
+    _exh_ht = _tcd_hours_of(_exh_rt)
+    _exh_tta = S.exact_pivot_hold(_exh_rt, _exh_ht, _exh_rt[-1][0])
+    _exh_ttb = _TCD.exact_low_stability(_exh_rt, _exh_ht, _exh_rt[-1][0])
+    _vX1 = (_exh_diff == 0 and _exh_nn >= 150 and _exh_stb >= 20 and _exh_ext >= 20 and _exh_ta == _exh_tb
+            and _exh_ta["pivot"] == 3.7 and _exh_ta["bars_after"] == 2 and _exh_ta["ext"] and not _exh_ta["stable"]
+            and _exh_tta == _exh_ttb and _exh_tta["pivot"] == 4.0 and _exh_tta["bars_after"] == 6 and _exh_tta["stable"])
+    _vX1w = (f"فروق={_exh_diff} {_exh_first[:120]} · غيرُ None={_exh_nn} · ثابت={_exh_stb} · ممتدّ={_exh_ext} · "
+             f"ذيلُ الأفتر={_exh_ta and (_exh_ta['pivot'], _exh_ta['bars_after'])} · "
+             f"التعادل={_exh_tta and (_exh_tta['pivot'], _exh_tta['bars_after'])}")
+except Exception as _e:                                              # noqa: BLE001
+    _vX1, _vX1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH1 `S.exact_pivot_hold` توأمُ `three_cond_daily.exact_low_stability`: 300 عالمٍ عشوائيّ (تحوّلا التوقيت · خارج "
+      "النافذة · تالفة · need/look · نصفُها بتعادلات) ⟵ صفرُ فرقٍ بلا مرورٍ فارغ · وذيلُ الأفتر ⟵ القاعُ 3.7 بعد جلستين · "
+      "والتعادلُ ⟵ يومُه الأوّل (6 جلسات) في الاثنين", _vX1, _vX1w)
+
+# EXH2 — السطرُ يصف ولا يُسقط: ثابت ⟵ «🧱 ثابتٌ 7 جلسات … $0.1234 (… · بري/أفتر)» · 12 ⟵ «12 جلسة» · ينتظر ⟵ «مضى 1 من 5» ·
+#    أغلق عند القاع ⟵ «أغلق عند» لا «مضى» · بلا ساعة ⟵ «تعذّر» · بلا حالة/تالف ⟵ «» · بلا `need` ⟵ `STABILITY_SHOW_REQ` ·
+#    وصفرُ علامة مقارنة
+try:
+    _eh_st = {"pivot": 0.1234, "pivot_date": "2026-09-18", "bars_after": 7, "held": True, "need": 5, "stable": True,
+              "ext": True}
+    _eh_12 = dict(_eh_st, bars_after=12, ext=False, pivot=2.5)
+    _eh_w = {"pivot": 1.5, "pivot_date": "2026-09-24", "bars_after": 1, "held": True, "stable": False, "ext": False}
+    _eh_at = dict(_eh_w, bars_after=5, held=False, pivot_date="2026-09-18", need=5)
+    _L_st, _L_12 = S.exact_hold_line(_eh_st), S.exact_hold_line(_eh_12)
+    _L_w, _L_at = S.exact_hold_line(_eh_w), S.exact_hold_line(_eh_at)
+    _L_nh = S.exact_hold_line({"nohour": True, "asof": "2026-09-25"})
+    _L_empty = [S.exact_hold_line(x) for x in (None, {}, {"pivot": "x"}, {"pivot": 1.0, "pivot_date": "d"})]
+    _all2 = [_L_st, _L_12, _L_w, _L_at, _L_nh] + _L_empty
+    _vX2 = (_L_st == "🧱 ثابتٌ 7 جلسات فوق أدنى قاع على 4 ساعات $0.1234 (2026-09-18 · بري/أفتر)"
+            and "ثابتٌ 12 جلسة " in _L_12 and "$2.50" in _L_12 and "بري/أفتر" not in _L_12
+            and _L_w == "⏳ لم يثبت بعد: مضى 1 من 5 جلسات فوق أدنى قاع على 4 ساعات $1.50 (2026-09-24)"
+            and "أغلق عند أدنى قاع على 4 ساعات $1.50" in _L_at and "مضى" not in _L_at
+            and _L_nh == "⏳ الثبات: تعذّر القاعُ الدقيق اليوم (شموعُ الساعة)"
+            and _L_empty == ["", "", "", ""] and S.STABILITY_SHOW_REQ == 5
+            and not any(c in x for x in _all2 for c in "≥≤<>"))
+    _vX2w = f"ثابت={_L_st!r} · ينتظر={_L_w!r} · عند القاع={_L_at!r} · فارغ={_L_empty}"
+except Exception as _e:                                              # noqa: BLE001
+    _vX2, _vX2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH2 `exact_hold_line` يصف ولا يُسقط: ثابت/12 جلسة/ينتظر «مضى 1 من 5»/أغلق عند القاع/تعذّر · «» بلا حالة أو تالف · "
+      "`need` الغائب ⟵ 5 · السعرُ بدقّته · ولا علامة مقارنة", _vX2, _vX2w)
+
+
+# EXH3 — `refresh_exact_hold`: القائمةُ كلُّها تُسنَد بلا شرط (رقمُ الأمس لا يبقى) · ok/nohour/fail/nodata بعدّاداتها · النطاقُ
+#    من أوّل يوم النافذة إلى يومٍ بعد الجلسة · والمحسوبُ = `exact_pivot_hold` + `asof` · والشمعةُ التالفة (NaN) تُتخطّى ·
+#    **بلا مفتاح Polygon ولا جالبٍ محقون ⟵ صفرُ نداء** · وبالمفتاح ⟵ `polygon_hour_bars` نفسُه
+def _exh_df(rows):
+    return _tcd_pd.DataFrame({"Open": [r[1] for r in rows], "High": [r[2] for r in rows], "Low": [r[3] for r in rows],
+                              "Close": [r[4] for r in rows], "Volume": [r[5] for r in rows]},
+                             index=_tcd_pd.to_datetime([r[0] for r in rows]))
+
+
+try:
+    _exh_rows = _tcd_series("base", 2.0)
+    _exh_look = int(S.CONFIG["PIVOT_LOOKBACK"])
+    _exh_win = _exh_rows[-_exh_look:]
+    _exh_hr = _tcd_hours_of(_exh_rows)
+    _exh_nan = _exh_df(_exh_rows[:-3] + [(_exh_rows[-3][0], float("nan"), 1.0, 1.0, 1.0, 1.0)] + _exh_rows[-2:])
+    _exh_hist = {s: _exh_df(_exh_rows) for s in ("AAA", "NOH", "FAL", "BAD")}
+    _exh_hist["NAN"] = _exh_nan
+    _exh_calls = []
+
+    def _exh_fetch(sym, d0, d1):
+        _exh_calls.append((sym, d0, d1))
+        if sym == "BAD":
+            raise RuntimeError("boom")
+        return {"AAA": _exh_hr, "NAN": _exh_hr, "NOH": [], "FAL": None}[sym]
+    _exh_st = [{"symbol": "AAA", "exact_hold": {"stale": 1}}, {"symbol": "NOH"}, {"symbol": "FAL", "exact_hold": {"stale": 1}},
+               {"symbol": "NOD", "exact_hold": {"stale": 1}}, {"symbol": "BAD"}, {"symbol": "NAN"}]
+    _exh_n = S.refresh_exact_hold(_exh_st, _exh_hist, fetch=_exh_fetch)
+    _exh_by = {s["symbol"]: s.get("exact_hold") for s in _exh_st}
+    _exh_want = dict(S.exact_pivot_hold(_exh_rows, _exh_hr, _exh_rows[-1][0]), asof=_exh_rows[-1][0])
+    _exh_nanrows = S._daily_rows_of(_exh_nan)
+    #    الحجمُ لا يُشترط: جلسةٌ حجمُها NaN تبقى (بحجم 0) — لا تُسقط يومًا من عدّ الثبات
+    _exh_vrows = S._daily_rows_of(_exh_df(_exh_rows[:-1] + [_exh_rows[-1][:5] + (float("nan"),)]))
+    _exh_d1 = (_tcd_dt.date.fromisoformat(_exh_win[-1][0]) + _tcd_dt.timedelta(days=1)).isoformat()
+    _vX3a = (_exh_n == {"ok": 2, "nohour": 1, "fail": 2, "nodata": 1, "nokey": 0}
+             and _exh_by["AAA"] == _exh_want and _exh_by["NOH"] == {"nohour": True, "asof": _exh_rows[-1][0]}
+             and _exh_by["FAL"] is None and _exh_by["NOD"] is None and _exh_by["BAD"] is None
+             and ("AAA", _exh_win[0][0], _exh_d1) in _exh_calls and len(_exh_calls) == 5
+             and len(_exh_nanrows) == len(_exh_rows) - 1 and _exh_rows[-3][0] not in [r[0] for r in _exh_nanrows]
+             and len(_exh_vrows) == len(_exh_rows) and _exh_vrows[-1][0] == _exh_rows[-1][0] and _exh_vrows[-1][5] == 0.0
+             and _exh_by["NAN"] and _exh_by["NAN"]["asof"] == _exh_rows[-1][0] and _exh_want["stable"])
+    _exh_pk, _exh_ph = S._poly_key, S.polygon_hour_bars
+    _exh_pcalls = []
+    try:
+        S._poly_key = lambda: ""
+        S.polygon_hour_bars = lambda *a, **k: _exh_pcalls.append(a) or []
+        _exh_s2 = [{"symbol": "AAA", "exact_hold": {"stale": 1}}, {"symbol": "NOH"}]
+        _exh_n2 = S.refresh_exact_hold(_exh_s2, _exh_hist)
+        _vX3b = (not _exh_pcalls and _exh_n2["nokey"] == 2 and _exh_n2["ok"] == 0
+                 and all(s["exact_hold"] is None for s in _exh_s2))
+        S._poly_key = lambda: "K"
+        _exh_s3 = [{"symbol": "AAA"}, {"symbol": "NOD"}]
+        _exh_n3 = S.refresh_exact_hold(_exh_s3, _exh_hist)
+        _vX3c = [a[0] for a in _exh_pcalls] == ["AAA"] and _exh_n3["nohour"] == 1 and _exh_n3["nodata"] == 1
+    finally:
+        S._poly_key, S.polygon_hour_bars = _exh_pk, _exh_ph
+    _vX3 = _vX3a and _vX3b and _vX3c
+    _vX3w = (f"عدّادات={_exh_n} · AAA={_exh_by.get('AAA') == _exh_want} · نداءات={_exh_calls[:2]} · "
+             f"بلا مفتاح: نداءات={len(_exh_pcalls)} {_vX3b} · بالمفتاح={_vX3c}")
+except Exception as _e:                                              # noqa: BLE001
+    _vX3, _vX3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH3 `refresh_exact_hold`: كلُّ سهمٍ يُسنَد بلا شرط (رقمُ الأمس لا يبقى) · ok/nohour/fail/nodata · النطاقُ حتى يومٍ بعد "
+      "الجلسة · المحسوبُ = التوأم + asof · NaN تُتخطّى · بلا مفتاحٍ صفرُ نداء · وبالمفتاح `polygon_hour_bars`", _vX3, _vX3w)
+
+# EXH4 — `polygon_hour_bars`: المسارُ `/range/1/hour/{start}/{end}` بالرمز كبيرًا و`adjusted=true` · التعذّرُ ⟵ None · بلا
+#    نتائج ⟵ [] · والتالفةُ تُتخطّى
+try:
+    _exh_g = []
+
+    def _exh_get(url, params):
+        _exh_g.append((url, dict(params)))
+        return {"results": [{"t": 1_000, "h": 2, "l": 1.5}, {"t": "bad", "h": 1, "l": 1}, {"h": 1.0}]}
+    _exh_pb1 = S.polygon_hour_bars("abc", "2026-09-01", "2026-09-26", get=_exh_get)
+    _exh_pb2 = S.polygon_hour_bars("abc", "2026-09-01", "2026-09-26", get=lambda u, p: None)
+    _exh_pb3 = S.polygon_hour_bars("abc", "2026-09-01", "2026-09-26", get=lambda u, p: {})
+    _vX4 = (_exh_pb1 == [(1000, 2.0, 1.5)] and _exh_pb2 is None and _exh_pb3 == []
+            and _exh_g and _exh_g[0][0].endswith("/v2/aggs/ticker/ABC/range/1/hour/2026-09-01/2026-09-26")
+            and _exh_g[0][1].get("adjusted") == "true")
+    _vX4w = f"نتيجة={_exh_pb1} · تعذّر={_exh_pb2} · فارغ={_exh_pb3} · url={_exh_g[:1]}"
+except Exception as _e:                                              # noqa: BLE001
+    _vX4, _vX4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH4 `polygon_hour_bars`: `/range/1/hour/` بالرمز كبيرًا و`adjusted=true` · التعذّرُ None · الفارغُ [] · التالفةُ "
+      "تُتخطّى", _vX4, _vX4w)
+
+# EXH5 — موصولٌ من نقطة النداء الحيّة: كرتُ الجاهز في اليوميّ (`ready_only=True` كما يناديه الإنتاج) وكرتُ التجديد يعرضان
+#    السطرَ مع الحقل ويُسقطانه بدونه · و`run_daily_watchlist`/`run_weekly_renewal` يحسبانه **قبل** بناء الرسالة (AST)
+try:
+    _exh_rb = {"price": 1.85, "last_price": 1.85, "pivot": 1.80, "tranches": [1.80, 1.85, 1.90], "stop": [1.67, 1.71],
+               "t1": 2.0, "t2": 2.2, "t3": 2.5, "key_levels": {"sup_major": 1.80}, "warnings": []}
+    _exh_card = dict(_exh_rb, symbol="EXHC", score=60, readiness=60, rr=2.0, entry=(1.80, 1.90), tier="B", soft_fails=[],
+                     flags=[])
+    _exh_card["interp"] = S.build_interpretation(_exh_card)
+    _exh_wl = S.make_watch_entry(dict(_exh_card), "2026-09-25")
+    _exh_rich = S.build_daily_message({"stocks": [dict(_exh_wl, exact_hold=_eh_st)]}, [], [], [], ready_only=True)
+    _exh_bare = S.build_daily_message({"stocks": [dict(_exh_wl)]}, [], [], [], ready_only=True)
+    _exh_m1 = S.build_message([dict(_exh_card, exact_hold=_eh_w)], [])
+    _exh_m0 = S.build_message([dict(_exh_card)], [])
+
+    def _exh_calls_in(fn):
+        t = _tcd_ast.parse(_exh_insp.getsource(fn))
+        return [(getattr(c.func, "id", None) or getattr(c.func, "attr", None), c.lineno)
+                for c in _tcd_ast.walk(t) if isinstance(c, _tcd_ast.Call)]
+
+    def _exh_first_line(calls, name):
+        ls = [ln for n, ln in calls if n == name]
+        return min(ls) if ls else None
+    _exh_cd, _exh_cr = _exh_calls_in(S.run_daily_watchlist), _exh_calls_in(S.run_weekly_renewal)
+    _exh_o1 = (_exh_first_line(_exh_cd, "refresh_exact_hold"), _exh_first_line(_exh_cd, "build_daily_message"))
+    _exh_o2 = (_exh_first_line(_exh_cr, "refresh_exact_hold"), _exh_first_line(_exh_cr, "build_message"))
+    _vX5 = ("🟢" in _exh_rich and "EXHC" in _exh_rich and "🧱 ثابتٌ 7 جلسات" in _exh_rich
+            and "🧱" not in _exh_bare and "EXHC" in _exh_bare
+            and "مضى 1 من 5 جلسات" in _exh_m1 and "مضى 1 من 5" not in _exh_m0
+            and None not in _exh_o1 and _exh_o1[0] < _exh_o1[1] and None not in _exh_o2 and _exh_o2[0] < _exh_o2[1]
+            and "exact_hold_line" in [n for n, _ in _exh_calls_in(S.build_daily_message)]
+            and "exact_hold_line" in [n for n, _ in _exh_calls_in(S.build_message)])
+    _vX5w = (f"يوميّ غنيّ={'🧱 ثابتٌ 7 جلسات' in _exh_rich} عارٍ={'🧱' in _exh_bare} · تجديد={'مضى 1 من 5' in _exh_m1} · "
+             f"ترتيبُ اليوميّ={_exh_o1} · التجديد={_exh_o2}")
+except Exception as _e:                                              # noqa: BLE001
+    _vX5, _vX5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH5 موصولٌ حيًّا: كرتُ الجاهز اليوميّ (ready_only=True) وكرتُ التجديد يعرضان السطرَ مع الحقل ويُسقطانه بدونه · "
+      "والحسابُ قبل بناء الرسالة في المسارين (AST)", _vX5, _vX5w)
+
+# EXH6 — عرضٌ فقط: الجذورُ الاثنا عشر لا تذكر الحقلَ ولا دوالَّه (AST: أسماءٌ وسماتٌ ونصوص) · `STABILITY_MIN` باقٍ 3 ·
+#    والحدُّ 5 = حدُّ الأداة · ونافذةُ الساعات = نافذتُها
+try:
+    _exh_roots = ["rank_key", "select_top", "classify_tier", "analyze_ticker", "apply_short_gate", "apply_float_gate",
+                  "scan_market", "backtest_symbol", "scan_ignition", "scan_split_hunter", "entry_status",
+                  "build_interpretation"]
+    _exh_ban = {"exact_hold", "exact_pivot_hold", "refresh_exact_hold", "exact_hold_line", "STABILITY_SHOW_REQ",
+                "polygon_hour_bars", "_ext_hour_rows", "EXT_HOURS_NY"}
+    _exh_hits = []
+    for _rn in _exh_roots:
+        _t6 = _tcd_ast.parse(_exh_tw.dedent(_exh_insp.getsource(getattr(S, _rn))))
+        for _nd6 in _tcd_ast.walk(_t6):
+            _v6 = (getattr(_nd6, "id", None) if isinstance(_nd6, _tcd_ast.Name)
+                   else getattr(_nd6, "attr", None) if isinstance(_nd6, _tcd_ast.Attribute)
+                   else _nd6.value if isinstance(_nd6, _tcd_ast.Constant) and isinstance(_nd6.value, str) else None)
+            if _v6 in _exh_ban:
+                _exh_hits.append((_rn, _v6))
+    _exh_win6 = (_TCD.WW.EXT_FROM[0] + _TCD.WW.EXT_FROM[1] / 60.0, _TCD.WW.EXT_TO[0] + _TCD.WW.EXT_TO[1] / 60.0)
+    _vX6 = (not _exh_hits and S.CONFIG["STABILITY_MIN"] == 3 and S.STABILITY_SHOW_REQ == _TCD.STABILITY_REQ == 5
+            and tuple(S.EXT_HOURS_NY) == _exh_win6)
+    _vX6w = f"إصاباتُ الجذور={_exh_hits} · STABILITY_MIN={S.CONFIG['STABILITY_MIN']} · النافذة={S.EXT_HOURS_NY}/{_exh_win6}"
+except Exception as _e:                                              # noqa: BLE001
+    _vX6, _vX6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH6 عرضٌ فقط: الجذورُ الاثنا عشر لا تذكر الحقلَ ولا دوالَّه (AST) · `STABILITY_MIN` باقٍ 3 · والحدُّ 5 ونافذةُ "
+      "04:00-20:00 = الأداة", _vX6, _vX6w)
+
+# ══════════════════════════════════════════════════════════════════════════
+# 👀🏢 NWF1-NWF8 مخزنُ فلوت «تحت المتابعة» (أمرُ المالك 2026-09-26 «احفظ فلوت تحت المتابعة» — حتى لا يتكرّر «الفلوت مجهول»):
+#    ملفٌّ مستقلّ `near_watch_float.json` · ياهو `floatShares` حصرًا · بلا سجلٍّ أوّلًا ثمّ الأقدم · «miss» لا يمحو فلوتًا ·
+#    القصُّ يُعلَن · ولا يقرؤه الفرزُ ولا ذاكرةُ الشركات — عالمٌ اصطناعيّ بلا شبكة (ياهو والساعةُ محقونان).
+# ══════════════════════════════════════════════════════════════════════════
+import types as _nwf_types                                           # noqa: E402
+
+# NWF1 — `_yahoo_float_status`: floatShares ⟵ ok · بلا floatShares/صفر/نصّ ⟵ miss · استثناء/ردٌّ فارغ/بلا yf ⟵ fail
+try:
+    _nwf_yf0 = S.yf
+    _nwf_infos = {"OK": {"floatShares": 1_500_000, "sharesOutstanding": 9e9}, "NOF": {"sharesOutstanding": 9e9},
+                  "ZER": {"floatShares": 0}, "TXT": {"floatShares": "x"}, "EMP": {}}
+
+    class _NwfTk:
+        def __init__(self, sym):
+            if sym == "RAI":
+                raise RuntimeError("Too Many Requests")
+            self.info = _nwf_infos.get(sym)
+    try:
+        S.yf = _nwf_types.SimpleNamespace(Ticker=_NwfTk)
+        _nwf1 = {k: S._yahoo_float_status(k) for k in ("OK", "NOF", "ZER", "TXT", "EMP", "RAI")}
+        S.yf = None
+        _nwf1["NONE"] = S._yahoo_float_status("OK")
+    finally:
+        S.yf = _nwf_yf0
+    _vN1 = (_nwf1 == {"OK": ("ok", 1_500_000.0), "NOF": ("miss", None), "ZER": ("miss", None), "TXT": ("miss", None),
+                      "EMP": ("fail", None), "RAI": ("fail", None), "NONE": ("fail", None)})
+    _vN1w = str(_nwf1)
+except Exception as _e:                                              # noqa: BLE001
+    _vN1, _vN1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("👀🏢 NWF1 `_yahoo_float_status`: floatShares ⟵ ok (لا sharesOutstanding) · بلا floatShares/صفر/نصّ ⟵ miss · خنقٌ/ردٌّ "
+      "فارغ/بلا ياهو ⟵ fail (فيفرّق القاطعُ خنقَ ياهو عن سهمٍ بلا فلوت)", _vN1, _vN1w)
+
+# NWF2 — `_nwf_due`: بلا سجلّ ⟵ 0 · بلا فلوتٍ فُحص قبل 3 ⟵ طازج وقبل 8 ⟵ 1 · فلوتٌ عمرُه 10 ⟵ طازج · 31 وفُحص قبل 31 ⟵ 2 ·
+#    31 وفُحص قبل يومين (miss حديث) ⟵ طازج
+try:
+    _T = "2026-09-26"
+    _dd = lambda n: (_tcd_dt.date(2026, 9, 26) - _tcd_dt.timedelta(days=n)).isoformat()   # noqa: E731
+    _nwf2 = [S._nwf_due(None, _T, 30, 7),
+             S._nwf_due({"float": None, "checked": _dd(3)}, _T, 30, 7),
+             S._nwf_due({"float": None, "checked": _dd(8)}, _T, 30, 7),
+             S._nwf_due({"float": 1e6, "date": _dd(10), "checked": _dd(10)}, _T, 30, 7),
+             S._nwf_due({"float": 1e6, "date": _dd(31), "checked": _dd(31)}, _T, 30, 7),
+             S._nwf_due({"float": 1e6, "date": _dd(31), "checked": _dd(2)}, _T, 30, 7)]
+    _vN2 = _nwf2 == [0, None, 1, None, 2, None]
+    _vN2w = str(_nwf2)
+except Exception as _e:                                              # noqa: BLE001
+    _vN2, _vN2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("👀🏢 NWF2 `_nwf_due`: بلا سجلّ 0 · بلا فلوتٍ يُعاد بعد 7 أيام · الفلوتُ يُعاد بعد 30 · وmiss حديثٌ لا يُطرَق ثانيةً", _vN2, _vN2w)
+
+# NWF3 — `refresh_near_watch_float`: الترتيبُ (بلا سجلّ ⟵ بلا فلوت ⟵ الأقدم) · ok يُخزَّن بتاريخه · miss يحفظ الفحصَ **ولا يمحو
+#    فلوتًا سابقًا** · fail لا يغيّر شيئًا · الطازجُ لا يُطرَق · والوسمُ بلا شرط (مدخلٌ بلا فلوتٍ في المخزن تُنزَع مفاتيحُه)
+try:
+    _nwf_st = {"FRS": {"float": 5e5, "date": _dd(5), "checked": _dd(5), "src": "ياهو"},
+               "OLD": {"float": 9e5, "date": _dd(40), "checked": _dd(40), "src": "ياهو"},
+               "GON": {"float": 7e5, "date": _dd(45), "checked": _dd(45), "src": "ياهو"},
+               "KEP": {"float": 1e6, "date": _dd(35), "checked": _dd(35), "src": "ياهو"},
+               "MIS": {"float": None, "date": None, "checked": _dd(10), "src": "ياهو"}}
+    _nwf_w = {s: {"symbol": s} for s in ("NEW", "OLD", "GON", "KEP", "MIS", "FRS")}
+    _nwf_w["MIS"]["float"] = 123.0                                   # وسمٌ بائت ⟵ يُنزَع
+    _nwf_order = []
+
+    def _nwf_f(sym):
+        _nwf_order.append(sym)
+        return {"NEW": ("ok", 2e6), "OLD": ("ok", 3e6), "MIS": ("miss", None), "GON": ("fail", None),
+                "KEP": ("miss", None)}[sym]
+    _nwf_n = S.refresh_near_watch_float(_nwf_w, _nwf_st, _T, fetch=_nwf_f)
+    _vN3 = (_nwf_order == ["NEW", "MIS", "GON", "OLD", "KEP"]
+            and _nwf_n == {"fresh": 1, "fetched": 2, "miss": 2, "fail": 1, "cut": 0, "broke": False, "annotated": 5}
+            and _nwf_st["NEW"] == {"float": 2e6, "date": _T, "checked": _T, "src": "ياهو"}
+            and _nwf_st["OLD"]["float"] == 3e6 and _nwf_st["OLD"]["date"] == _T
+            and _nwf_st["GON"] == {"float": 7e5, "date": _dd(45), "checked": _dd(45), "src": "ياهو"}
+            and _nwf_st["KEP"]["float"] == 1e6 and _nwf_st["KEP"]["date"] == _dd(35) and _nwf_st["KEP"]["checked"] == _T
+            and _nwf_st["MIS"]["float"] is None and _nwf_st["MIS"]["checked"] == _T
+            and _nwf_w["NEW"]["float"] == 2e6 and _nwf_w["NEW"]["float_date"] == _T and _nwf_w["NEW"]["float_src"] == "ياهو"
+            and _nwf_w["GON"]["float"] == 7e5 and _nwf_w["KEP"]["float"] == 1e6 and _nwf_w["FRS"]["float"] == 5e5
+            and "float" not in _nwf_w["MIS"] and "float_date" not in _nwf_w["MIS"])
+    _vN3w = f"الترتيب={_nwf_order} · عدّادات={_nwf_n} · MIS={_nwf_w.get('MIS')} · KEP={_nwf_st.get('KEP')}"
+except Exception as _e:                                              # noqa: BLE001
+    _vN3, _vN3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("👀🏢 NWF3 `refresh_near_watch_float`: بلا سجلّ أوّلًا ثمّ بلا فلوت ثمّ الأقدم · ok بتاريخه · miss لا يمحو فلوتًا · fail لا "
+      "يغيّر · الطازجُ لا يُطرَق · والوسمُ بلا شرط (البائتُ يُنزَع)", _vN3, _vN3w)
+
+# NWF4 — القصُّ يُعلَن ولا يُصمَت: السقفُ (2 من 5 ⟵ قُصَّ 3) · قاطعُ الدائرة (3 تعذّراتٍ متتالية ⟵ broke) · وميزانيةُ الزمن
+#    (ساعةٌ محقونة) · والرسالةُ تطبعه
+try:
+    _nwf_w4 = {s: {"symbol": s} for s in ("A1", "A2", "A3", "A4", "A5")}
+    _n4a = S.refresh_near_watch_float(dict(_nwf_w4), {}, _T, fetch=lambda s: ("ok", 1e6), cap=2)
+    _c4 = []
+    _n4b = S.refresh_near_watch_float(dict(_nwf_w4), {}, _T, fetch=lambda s: _c4.append(s) or ("fail", None), brk=3)
+    _tk = iter([0.0, 0.0, 5.0, 500.0, 900.0, 900.0, 900.0])
+    _n4c = S.refresh_near_watch_float(dict(_nwf_w4), {}, _T, fetch=lambda s: ("ok", 1e6), budget_s=100,
+                                      clock=lambda: next(_tk))
+    #    والمهلةُ للجالب الحقيقيّ وحدَه: محقونٌ ⟵ صفرُ نومٍ · الافتراضيّ (`_yahoo_float_status` مجذَّعًا) ⟵ نومةٌ لكلّ نداء
+    _slp4, _yfs4, _sl0 = [], S._yahoo_float_status, S.time.sleep
+    try:
+        S.time.sleep = lambda x: _slp4.append(x)
+        S.refresh_near_watch_float(dict(_nwf_w4), {}, _T, fetch=lambda s: ("ok", 1e6))
+        _slp4_inj = len(_slp4)
+        S._yahoo_float_status = lambda s: ("ok", 1e6)
+        S.refresh_near_watch_float(dict(_nwf_w4), {}, _T)
+        _slp4_def = list(_slp4)
+    finally:
+        S.time.sleep, S._yahoo_float_status = _sl0, _yfs4
+    _vN4 = (_n4a["fetched"] == 2 and _n4a["cut"] == 3 and not _n4a["broke"]
+            and _slp4_inj == 0 and _slp4_def == [S.NEAR_WATCH_FLOAT_PAUSE_S] * 5
+            and _n4b["fail"] == 3 and len(_c4) == 3 and _n4b["cut"] == 2 and _n4b["broke"]
+            and _n4c["fetched"] == 2 and _n4c["cut"] == 3 and not _n4c["broke"]
+            and "قُصَّ" in _exh_insp.getsource(S.near_watch_float_step)
+            and "خنقُ ياهو" in _exh_insp.getsource(S.near_watch_float_step))
+    _vN4w = f"سقف={_n4a} · قاطع={_n4b} · زمن={_n4c} · نوم: محقون={_slp4_inj} افتراضيّ={len(_slp4_def)}"
+except Exception as _e:                                              # noqa: BLE001
+    _vN4, _vN4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("👀🏢 NWF4 القصُّ يُعلَن بعدّاده: السقف (قُصَّ 3) · قاطعُ الدائرة بعد 3 تعذّراتٍ متتالية (broke) · ميزانيةُ الزمن · وسطرُ "
+      "السجلّ يطبعه · والمهلةُ بين نداءات ياهو للجالب الحقيقيّ وحدَه", _vN4, _vN4w)
+
+# NWF6 — لا يصل الاختيار: الجذورُ الاثنا عشر ومعها `enrich`/`refloat_gate_recheck`/`apply_float_gate`/`fill_picks` لا تذكر المخزنَ
+#    ولا دوالَّه (AST) · والدوالُّ الجديدة لا تكتب `COMPANY_CACHE` ولا تحفظ ذاكرةَ الشركات
+try:
+    _nwf_ban = {"NEAR_WATCH_FLOAT_FILE", "near_watch_float_step", "refresh_near_watch_float", "load_near_watch_float",
+                "save_near_watch_float", "_yahoo_float_status", "_nwf_due", "float_date", "float_src"}
+    _nwf_hits = []
+    for _rn in _exh_roots + ["enrich", "refloat_gate_recheck", "fill_picks"]:
+        _fn6 = getattr(S, _rn, None)
+        if _fn6 is None:
+            _nwf_hits.append((_rn, "غائبة"))
+            continue
+        for _nd6 in _tcd_ast.walk(_tcd_ast.parse(_exh_tw.dedent(_exh_insp.getsource(_fn6)))):
+            _v6 = (getattr(_nd6, "id", None) if isinstance(_nd6, _tcd_ast.Name)
+                   else getattr(_nd6, "attr", None) if isinstance(_nd6, _tcd_ast.Attribute)
+                   else _nd6.value if isinstance(_nd6, _tcd_ast.Constant) and isinstance(_nd6.value, str) else None)
+            if _v6 in _nwf_ban:
+                _nwf_hits.append((_rn, _v6))
+    _nwf_cc = []
+    for _fn in (S.refresh_near_watch_float, S.near_watch_float_step, S._yahoo_float_status, S._nwf_due):
+        for _nd in _tcd_ast.walk(_tcd_ast.parse(_exh_tw.dedent(_exh_insp.getsource(_fn)))):
+            if (isinstance(_nd, _tcd_ast.Name) and _nd.id in ("COMPANY_CACHE", "COMPANY_FILE", "_save_company_cache")) or \
+               (isinstance(_nd, _tcd_ast.Attribute) and _nd.attr in ("COMPANY_CACHE", "_save_company_cache")):
+                _nwf_cc.append((_fn.__name__, getattr(_nd, "id", None) or _nd.attr))
+    _vN6 = not _nwf_hits and not _nwf_cc and S.NEAR_WATCH_FLOAT_FILE != S.COMPANY_FILE
+    _vN6w = f"إصاباتُ الاختيار={_nwf_hits} · ذاكرةُ الشركات={_nwf_cc}"
+except Exception as _e:                                              # noqa: BLE001
+    _vN6, _vN6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("👀🏢 NWF6 لا يصل الاختيار: الجذورُ و`enrich`/`refloat_gate_recheck`/`fill_picks` لا تذكر المخزنَ ولا دوالَّه (AST) · "
+      "ولا تكتب الدوالُّ الجديدة ذاكرةَ الشركات", _vN6, _vN6w)
+
+# NWF8 — «شروطك الثلاثة»: فلوتُ مخزن «تحت المتابعة» احتياطٌ بعد ياهو وقائمة البوت وقبل ذاكرة الشركات · UNK (ياهو بلا فلوت)
+#    ⟵ من المخزن بوسمه · وNWO (ياهو يعرفه) يبقى «ياهو» ولو حمل المخزنُ غيرَه · وبلا مخزنٍ يبقى UNK مجهولًا كما كان
+try:
+    _r8 = _tcd_run(nw_extra={"UNK": {"outside": [], "float": 1_200_000}, "NWO": {"outside": [], "float": 5e7}})
+    _r8b = _tcd_run()
+    #    وقائمةُ البوت تسبق المخزن: UNK في الارتداد بفلوت 2.5 مليون ⟵ «قائمة البوت» لا المخزن
+    _r8c = _tcd_run(nw_extra={"UNK": {"outside": [], "float": 1_200_000}},
+                    pb_extra=[{"symbol": "UNK", "float": 2_500_000}])
+    _rw8 = (_r8[2].get("rows") or {})
+    _rw8b = (_r8b[2].get("rows") or {})
+    _rw8c = (_r8c[2].get("rows") or {})
+    _vN8 = (_rw8.get("UNK", {}).get("fl") == 1_200_000 and _rw8["UNK"].get("fl_src") == "مخزن تحت المتابعة"
+            and _rw8.get("NWO", {}).get("fl") == 9e5 and _rw8["NWO"].get("fl_src") == "ياهو"
+            and _rw8b.get("UNK", {}).get("fl") is None
+            and _rw8c.get("UNK", {}).get("fl") == 2_500_000 and _rw8c["UNK"].get("fl_src") == "قائمة البوت")
+    _vN8w = (f"UNK={(_rw8.get('UNK') or {}).get('fl')} ({(_rw8.get('UNK') or {}).get('fl_src')}) · "
+             f"NWO={(_rw8.get('NWO') or {}).get('fl')} ({(_rw8.get('NWO') or {}).get('fl_src')}) · بلا مخزن={(_rw8b.get('UNK') or {}).get('fl')}"
+             f" · قائمةُ البوت={(_rw8c.get('UNK') or {}).get('fl')} ({(_rw8c.get('UNK') or {}).get('fl_src')})")
+except Exception as _e:                                              # noqa: BLE001
+    _vN8, _vN8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("👀🏢 NWF8 «شروطك الثلاثة»: فلوتُ المخزن احتياطٌ بعد ياهو وقائمة البوت (UNK ⟵ «مخزن تحت المتابعة») · وياهو يسبقه (NWO) · "
+      "وقائمةُ البوت تسبقه (UNK في الارتداد) · وبلا مخزنٍ UNK مجهولٌ كما كان", _vN8, _vN8w)
+
+# ══════════════════════════════════════════════════════════════════════════
 # 🩹 SRC1-SRC9 إصلاحُ مصدر الشموع (أمرُ المالك 2026-09-26 «صلح مصدر البوت» · فحصُ البوت `36244720433`: ياهو غيرُ متّسقٍ مع
 #    التقسيمات في 39 من 3,390 · MGN: RSI ياهو 25 والصحيح 50) — عالمٌ اصطناعيّ بلا شبكة (الجالبان محقونان).
 # ══════════════════════════════════════════════════════════════════════════
@@ -69631,12 +70052,14 @@ def _wpp_nw_series(sym, d0, d1):
 _WPP_NW = ("NWX", "NWF", "NWG", "NWT", "ZZZ")
 
 
-def _wpp_run_nw(trace="", with_nw=True, classes=("penny", "dollar")):
+def _wpp_run_nw(trace="", with_nw=True, classes=("penny", "dollar"), nw_float=None):
     """`_wpp_run` نفسُه مع لقطات `near_watch.json` و`company_cache.json`: NWX (فلوت 800 ألف · ‏+400%) · NWF (بلا فلوتٍ في
     الذاكرة) · NWG (فلوت 50 مليونًا · ‏+60%) · NWT (فلوتُه يظهر في الذاكرة من لقطة 09-23 وحدَها) · وAAA في «تحت المتابعة» **وفي
     القائمة** (لا يُعدّ مرّتين) · وZZZ خارج البوت (للتتبّع)."""
     c0, snaps, fb, fm = _ww_world(0, 0)
-    nwe = {s: {"symbol": s, "outside": ["M2 الهبوط (فوق الحدّ)"]} for s in ("NWX", "NWF", "NWG", "NWT", "AAA")}
+    nwe = {s: dict({"symbol": s, "outside": ["M2 الهبوط (فوق الحدّ)"]},
+                   **({"float": (nw_float or {})[s]} if s in (nw_float or {}) else {}))
+           for s in ("NWX", "NWF", "NWG", "NWT", "AAA")}
     nw_snaps = {"n0": dict(nwe)} if with_nw else {}
     nw_c = [(_ww_utc("2026-09-18", 21, 0), "n0")] if with_nw else []
     cc0 = {"NWX": {"float": 800_000}, "NWG": {"float": 50_000_000}}
@@ -69746,6 +70169,62 @@ except Exception as _e:                                              # noqa: BLE
     _v16, _v16w = False, f"⛔ رمى: {type(_e).__name__}"
 check("👀 WPP16 التتبّع (`PERIOD_TRACE`): NWX جلسةً جلسة «تحت المتابعة» مع تقسيماته · ZZZ «خارج البوت» · وصفٌ لا يمسّ عددًا",
       _v16, _v16w)
+
+# NWF7 — 👀🏢 تقريرُ الفترة يقرأ فلوتَ المدخل نفسِه أوّلًا (مخزنُ «تحت المتابعة» · لقطةُ ما قبل الجلسة) ثمّ ذاكرةَ البوت: NWF
+#    (بلا فلوتٍ في الذاكرة) يصير مؤهّلَ الثلاثة المعلومة بفلوت 700 ألف · وNWG (ذاكرته 50 مليونًا) يُقرأ بفلوت مدخله مليونًا ·
+#    وNWX (بلا فلوتٍ في المدخل) يبقى على الذاكرة 800 ألف · وبلا فلوتٍ في المداخل ⟵ الأرقامُ كما كانت (WPP13)
+try:
+    _w7 = _wpp_run_nw(trace="", nw_float={"NWF": 700_000, "NWG": 1_000_000})
+    _nwr7 = {r["sym"]: r for r in (((_w7[2].get("classes") or {}).get("penny") or {}).get("near_watch") or [])}
+    _nwr7b = {r["sym"]: r for r in (((_wpp_nw[2].get("classes") or {}).get("penny") or {}).get("near_watch") or [])}
+    _vN7 = (_w7[0] == 0 and (_nwr7.get("NWF") or {}).get("float") == 700_000
+            and (_nwr7.get("NWG") or {}).get("float") == 1_000_000 and (_nwr7.get("NWX") or {}).get("float") == 800_000
+            and "NWF" not in _nwr7b and "NWG" not in _nwr7b)
+    _vN7w = f"rc={_w7[0]} · صفوف={sorted(_nwr7)} · بلا مخزن={sorted(_nwr7b)}"
+except Exception as _e:                                              # noqa: BLE001
+    _vN7, _vN7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("👀🏢 NWF7 تقريرُ الفترة: فلوتُ مدخل «تحت المتابعة» أوّلًا (NWF ⟵ 700 ألف · NWG ⟵ مليون بدل ذاكرة 50 مليونًا) ثمّ ذاكرةُ "
+      "البوت (NWX 800 ألف) · وبلا فلوتٍ في المداخل الأرقامُ كما كانت", _vN7, _vN7w)
+
+# NWF5 — 👀🏢 موصولٌ حيًّا: `run_daily_watchlist` يَسِم «تحت المتابعة» (الملفُّ المحوَّل) ويحفظ المخزنَ **بعد** كلّ رسالةٍ وقبل
+#    `run_performance_system` (سلوكًا بـ`_run_daily` وترتيبًا بالـAST) · والتجديدُ كذلك · و`git_save` يدفع المخزن
+try:
+    _nwf5_prev = S.load_near_watch()
+    try:
+        S.save_near_watch({"NWA": {"symbol": "NWA", "outside": []}, "NWB": {"symbol": "NWB", "outside": []}})
+        if _os_hc.path.exists(S.NEAR_WATCH_FLOAT_FILE):
+            _os_hc.remove(S.NEAR_WATCH_FLOAT_FILE)
+        _s5, _wl5 = _run_daily([], yfs=lambda sym: ("ok", 1_100_000) if sym == "NWA" else ("miss", None))
+        _nw5, _st5 = S.load_near_watch(), S.load_near_watch_float()
+    finally:
+        S.save_near_watch(_nwf5_prev)
+        if _os_hc.path.exists(S.NEAR_WATCH_FLOAT_FILE):
+            _os_hc.remove(S.NEAR_WATCH_FLOAT_FILE)
+    _td5 = _tcd_dt.date.today().isoformat()
+
+    def _nwf_lines(fn, name):
+        t = _tcd_ast.parse(_exh_insp.getsource(fn))
+        return [c.lineno for c in _tcd_ast.walk(t) if isinstance(c, _tcd_ast.Call)
+                and (getattr(c.func, "id", None) or getattr(c.func, "attr", None)) == name]
+    _d_st, _d_tg = _nwf_lines(S.run_daily_watchlist, "near_watch_float_step"), _nwf_lines(S.run_daily_watchlist, "send_telegram")
+    _d_rp = _nwf_lines(S.run_daily_watchlist, "run_performance_system")
+    _r_st, _r_tg = _nwf_lines(S.run_weekly_renewal, "near_watch_float_step"), _nwf_lines(S.run_weekly_renewal, "send_telegram")
+    _r_rp = _nwf_lines(S.run_weekly_renewal, "run_performance_system")
+    _gs5 = [c for c in _tcd_ast.walk(_tcd_ast.parse(_exh_insp.getsource(S.run_performance_system)))
+            if isinstance(c, _tcd_ast.Call) and getattr(c.func, "id", None) == "git_save"]
+    _vN5 = (len(_s5) >= 1 and (_nw5.get("NWA") or {}).get("float") == 1_100_000
+            and (_nw5.get("NWA") or {}).get("float_date") == _td5 and "float" not in (_nw5.get("NWB") or {})
+            and (_st5.get("NWA") or {}).get("float") == 1_100_000 and (_st5.get("NWB") or {}).get("checked") == _td5
+            and (_st5.get("NWB") or {}).get("float") is None
+            and len(_d_st) == 1 and _d_tg and _d_rp and max(_d_tg) < _d_st[0] < min(_d_rp)
+            and len(_r_st) == 1 and _r_tg and _r_rp and max(_r_tg) < _r_st[0] < min(_r_rp)
+            and len(_gs5) == 1 and "NEAR_WATCH_FLOAT_FILE" in _tcd_ast.unparse(_gs5[0]))
+    _vN5w = (f"NWA={_nw5.get('NWA')} · مخزن={_st5} · يوميّ: تلغرام={_d_tg} خطوة={_d_st} تتبّع={_d_rp} · "
+             f"تجديد: تلغرام={_r_tg} خطوة={_r_st} تتبّع={_r_rp}")
+except Exception as _e:                                              # noqa: BLE001
+    _vN5, _vN5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("👀🏢 NWF5 موصولٌ حيًّا: المسارُ اليوميّ يَسِم «تحت المتابعة» ويحفظ المخزن (سلوكًا) · بعد كلّ رسالةٍ وقبل "
+      "`run_performance_system` في اليوميّ والتجديد (AST) · و`git_save` يدفع المخزن", _vN5, _vN5w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

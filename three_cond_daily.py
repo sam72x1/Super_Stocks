@@ -17,7 +17,8 @@
 ③ **RSI14** = `WW.rsi_at` (‏`S.rsi` على إغلاقات Polygon `adjusted=true` حتى إغلاق الجلسة · ‏21 فأكثر وإلّا مجهول) · **والسعر**
    = إغلاقُ الجلسة نفسِها (`WW.close_at` · آخرُ شمعة adjusted هي الخامّ بالبناء) · ورمزٌ بلا شمعةٍ في الجلسة ⇒ «بائت» ⇒ مجهول.
    **والفئة من السعر:** 🪙 سنتات = أقلّ من `PX.PX_MIN` (دولار) · 💵 فوق الدولار = دولارٌ فأكثر — **قسمان في رسالةٍ واحدة لا شرط**.
-④ **الفلوت** = `S._yahoo_float(strict=True)` (‏`floatShares` وحدَه) ثمّ فلوتُ البوت المخزَّن (القائمة · `company_cache.json`) بوسمه.
+④ **الفلوت** = `S._yahoo_float(strict=True)` (‏`floatShares` وحدَه) ثمّ فلوتُ البوت المخزَّن بوسمه: القائمة ⟵ مخزنُ «تحت المتابعة»
+   (مدخلُ `near_watch.json` · يومي منذ 2026-09-26 · أمرُ «احفظ فلوت تحت المتابعة») ⟵ `company_cache.json`.
 ⑤ **«الشورت»** = المتاح (`shares_available` · ChartExchange): صفُّ حصّاد اليوم (`S._harvested_borrow`) أوّلًا ثمّ
    `S.ce_borrow_info` **موزَّعًا على رنرات** (`need[shard::shards]` · حصّةُ الموقع ‏≈50 صفحة لكلّ رنر · #461) · والتعذّرُ
    يُطبع بسببه ولا يُعدّ «لا».
@@ -537,6 +538,9 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
             rows[s]["fl"], rows[s]["fl_src"] = float(fl), "ياهو"
         elif wl_fl.get(s):
             rows[s]["fl"], rows[s]["fl_src"] = float(wl_fl[s]), "قائمة البوت"
+        elif isinstance(nw, dict) and isinstance(nw.get(s), dict) and nw[s].get("float"):
+            #    👀🏢 مخزنُ فلوت «تحت المتابعة» (ياهو `floatShares` · يُحدَّث يوميًّا منذ 2026-09-26)
+            rows[s]["fl"], rows[s]["fl_src"] = float(nw[s]["float"]), "مخزن تحت المتابعة"
         elif isinstance(cache.get(s), dict) and cache[s].get("float"):
             rows[s]["fl"], rows[s]["fl_src"] = float(cache[s]["float"]), "ذاكرة البوت"
         if yfloat is None:
