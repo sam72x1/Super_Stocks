@@ -68558,13 +68558,16 @@ check("🕗 RBG5 موصولٌ في `run_weekly_renewal` **قبل** أوّل تح
       "وبلا تلغرام (سجلٌّ فقط)", _atm_rbg5, _atm_rbg5_w)
 
 # ══════════════════════════════════════════════════════════════════════════
-# 🔎📬 TCD1-TCD12 «شروطك الثلاثة» يوميًّا (three_cond_daily.py · أمرُ المالك 2026-09-26 «أرسلها كل يوم و حتى الأسهم
-#    اللي تحت المتابعة يشملها الاداة») — عالمٌ اصطناعيّ بلا شبكة: RSI من Polygon وياهو للتحقّق (فحصُ البوت 36244720433).
+# 🔎📬 TCD1-TCD22 «شروطك الثلاثة» يوميًّا (three_cond_daily.py · أمرُ المالك 2026-09-26 «أرسلها كل يوم و حتى الأسهم
+#    اللي تحت المتابعة يشملها الاداة» ⟵ ثمّ أمرُه الثاني: «تجيب أسهم السنتات و فوق الدولار في رسالة وحده لكن … لازم لازم
+#    لازم توافق الشروط 3 و ثبات 5 جلسات» · «فريم 4 ساعات عشان نعرف بالضبط قيمة ادنى قاع» · «FGL نوع منفجر قبل اقل من
+#    اسبوع … هذا غلط») — عالمٌ اصطناعيّ بلا شبكة: شموعُ اليوم والساعة محقونتان · RSI من Polygon وياهو للتحقّق.
 # ══════════════════════════════════════════════════════════════════════════
 import ast as _tcd_ast                                               # noqa: E402
 import contextlib as _tcd_ctx                                        # noqa: E402
 import datetime as _tcd_dt                                           # noqa: E402
 import io as _tcd_io                                                 # noqa: E402
+import pandas as _tcd_pd                                             # noqa: E402
 try:
     import three_cond_daily as _TCD
     _tcd_src = open("three_cond_daily.py", encoding="utf-8").read()
@@ -68578,33 +68581,61 @@ def _tcd_days():
 
 
 def _tcd_series(kind, end_px):
-    """هبوطٌ متّصل (RSI صفر · قاعٌ جديد كلَّ جلسة) · «base» هبوطٌ ثمّ خمسُ جلساتٍ مستوية (أدنى شمعةٍ قبل 4 جلسات ⇒
-    مستقرّ · وRSI صفر) · أو تذبذبٌ (RSI حول 50) — ينتهي بسعر `end_px` يومَ الجلسة."""
+    """«down» هبوطٌ متّصل (RSI صفر · قاعٌ جديد كلَّ جلسة ⇒ ينتظر الثبات) · «base» هبوطٌ ثمّ سبعُ جلساتٍ مستوية (أوّلُ لمسٍ
+    لأدنى قاعٍ قبل 6 جلسات ⇒ ثابت · وRSI صفر) · «flat» تذبذبٌ (RSI حول 50) — ينتهي بسعر `end_px` يومَ الجلسة."""
     ds = _tcd_days()
     out = []
     for i, d in enumerate(ds):
         k = len(ds) - 1 - i
-        px = (end_px * (1.004 ** k) if kind == "down" else end_px * (1.004 ** max(k - 4, 0)) if kind == "base"
+        px = (end_px * (1.004 ** k) if kind == "down" else end_px * (1.004 ** max(k - 6, 0)) if kind == "base"
               else end_px * (1.0 + 0.01 * ((-1) ** i)))
         out.append((d, px, px * 1.01, px * 0.99, px, 1e5))
     return out
 
 
+def _tcd_ms(d, h, m=0):
+    y, mo, dd = map(int, d.split("-"))
+    return int(_tcd_dt.datetime(y, mo, dd, h, m, tzinfo=_TCD.NY).timestamp() * 1000)
+
+
+def _tcd_hours_of(rows, extra=()):
+    """شموعُ ساعةٍ من الشموع اليوميّة: البري 04 و08 · النظاميّ 10 و15 · الأفتر 17 — high = الإغلاق ‏+0.5% · low = أدنى اليوم
+    (فالقاعُ الدقيق = اليوميّ ما لم يُحقن ذيلٌ ممتدّ) · و`extra` = [(يوم, ساعة, high, low)] شموعٌ محقونة."""
+    out = [(_tcd_ms(r[0], h), r[4] * 1.005, r[3]) for r in rows for h in (4, 8, 10, 15, 17)]
+    out += [(_tcd_ms(d, h), hi, lo) for d, h, hi, lo in extra]
+    return sorted(out)
+
+
 def _tcd_world():
-    """AAA يطابق ومستقرّ (متاحٌ من الحصاد · أدنى شمعةٍ قبل 4 جلسات) · SPL: Polygon هابطٌ وياهو بتقسيمٍ غيرِ مطبّق (⚠️) · MGN: Polygon متذبذبٌ وياهو بانهيارٍ
-    وهميّ (لا يُعدّ) · CET: متاح 30 ألفًا من «تحت المتابعة» (🔸) · UNK: فلوتٌ مجهول والموقعُ يتعذّر (❔) · NWO: من «تحت المتابعة»
-    **خارج كون ناسداك** ويطابق **وقاعُه جديد** (⏳ ينتظر الثبات) · PNY: سنتات (لا يُعدّ)."""
-    W = {"AAA": _tcd_series("base", 2.0), "SPL": _tcd_series("down", 3.0), "MGN": _tcd_series("flat", 4.0),
-         "CET": _tcd_series("down", 2.2), "UNK": _tcd_series("down", 1.5), "NWO": _tcd_series("down", 1.8),
-         "PNY": _tcd_series("down", 0.5), "BIG": _tcd_series("down", 2.6)}
-    uni = ["AAA", "SPL", "MGN", "CET", "UNK", "PNY", "BIG"]
-    fl = {"AAA": 1e6, "SPL": 2e6, "MGN": 1e6, "CET": 1.5e6, "UNK": None, "NWO": 9e5, "PNY": 1e6, "BIG": 5e7}
+    """✅ AAA/NWO/OLDB (ثابتةٌ وتطابق · NWO من «تحت المتابعة» خارج كون ناسداك · OLDB قفز قبل 5 جلسات = يومُ مرجع الأسبوع لا داخله) ·
+    🪙 PNY (سنتات ثابتٌ يطابق) · ⚠️ SPL: Polygon ثابتٌ وياهو بتقسيمٍ غيرِ مطبّق (مشكوك) · MGN: Polygon متذبذبٌ وياهو بانهيارٍ
+    وهميّ (لا يعبر RSI) · CET: متاح 30 ألفًا (🔸 سجلٌّ فقط) · UNK: فلوتٌ مجهول والموقعُ يتعذّر (❔) · BIG: فلوتٌ كبير ·
+    💥 BOOM: ثابتٌ وقفز ‏+60% قبل جلستين · ⏳ EXT: ثابتٌ باليوميّ **وذيلُ أفترٍ قبل جلستين أدنى** · ⏳ NEW: قاعٌ جديد اليوم."""
+    base = {s: _tcd_series("base", p) for s, p in (("AAA", 2.0), ("SPL", 3.0), ("CET", 2.2), ("UNK", 1.5),
+                                                    ("NWO", 1.8), ("PNY", 0.5), ("BIG", 2.6), ("BOOM", 2.3),
+                                                    ("OLDB", 2.4), ("EXT", 2.8))}
+    W = dict(base, MGN=_tcd_series("flat", 4.0), NEW=_tcd_series("down", 1.7))
+    ds = _tcd_days()
+    extra = {"BOOM": [(ds[-2], 11, 2.3 * 1.6, 2.3 * 0.995)],                      # ‏+60% قبل جلستين ⇒ 💥
+             "OLDB": [(ds[-6], 11, 2.4 * 1.8, 2.4 * 0.995)],                      # ‏+80% قبل 5 جلسات (يومُ المرجع) ⇒ خارج الأسبوع
+             "EXT": [(ds[-3], 17, 2.8, 2.8 * 0.90)]}                              # ذيلُ أفترٍ ‏−10% قبل جلستين
+    H = {s: _tcd_hours_of(W[s], extra.get(s, ())) for s in W}
+    uni = ["AAA", "SPL", "MGN", "CET", "UNK", "PNY", "BIG", "BOOM", "OLDB", "EXT", "NEW"]
+    fl = {"AAA": 1e6, "SPL": 2e6, "MGN": 1e6, "CET": 1.5e6, "UNK": None, "NWO": 9e5, "PNY": 1e6, "BIG": 5e7,
+          "BOOM": 1e6, "OLDB": 1e6, "EXT": 1e6, "NEW": 1e6}
     av = {"SPL": 3000, "MGN": 2000, "CET": 30000, "NWO": 4000, "PNY": 1000}
 
     def fetch(syms, d0, d1, key):
         fetch.calls += 1
         return {s: [r for r in W.get(s, []) if d0 <= r[0] <= d1] for s in syms}
     fetch.calls = 0
+
+    def hours(syms, d0, d1, key):
+        hours.calls += 1
+        hours.syms = sorted(syms)
+        lo, hi = _tcd_ms(d0, 0), _tcd_ms(d1, 23, 59)
+        return {s: [b for b in H.get(s, []) if lo <= b[0] <= hi] for s in syms}
+    hours.calls, hours.syms = 0, []
 
     def yahoo(syms):
         out = {}
@@ -68627,15 +68658,12 @@ def _tcd_world():
                 diag["reason"] = "parse:shell"
             return {}
         return {"shares_available": av.get(sym, 9000)}
-    return W, uni, fl, fetch, yahoo, ce
+    return W, uni, fl, fetch, hours, yahoo, ce
 
 
-import pandas as _tcd_pd                                             # noqa: E402
-
-
-def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired=None):
-    """الأنبوبُ كلُّه (scan ⟶ borrow ×shards ⟶ send) ⟵ (رمزُ الخروج, المُخرَج, الحالة, المُرسَل)."""
-    W, uni, fl, fetch, yahoo, ce = _tcd_world()
+def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired=None, trace=()):
+    """الأنبوبُ كلُّه (scan ⟶ borrow ×shards ⟶ send) ⟵ (رمزُ الخروج, المُخرَج, الحالة, المُرسَل, fetch, hours, yfloat)."""
+    W, uni, fl, fetch, hours, yahoo, ce = _tcd_world()
     if cover_cut:
         _f0 = fetch
 
@@ -68643,26 +68671,31 @@ def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired
             out = _f0(syms, d0, d1, key)
             return {s: (v if s in ("AAA",) else [r for r in v if r[0] < d1]) for s, v in out.items()}
         fetch.calls = 0
+
+    def yfloat(s):
+        yfloat.asked.append(s)
+        return fl.get(s)
+    yfloat.asked = []
     now = now or _tcd_dt.datetime(2026, 9, 26, 3, 30, tzinfo=_TCD.NY)
     sent = []
     buf = _tcd_io.StringIO()
-    sv = (_TCD.DRY, _TCD.FORCE)
+    sv = (_TCD.DRY, _TCD.FORCE, _TCD.TRACE)
     try:
-        _TCD.DRY, _TCD.FORCE = dry, force
+        _TCD.DRY, _TCD.FORCE, _TCD.TRACE = dry, force, tuple(trace)
         with _tcd_ctx.redirect_stdout(buf):
             st = _TCD.stage_scan(now=now, key="k", fetch=fetch, universe=lambda: list(uni), yahoo=yahoo,
-                                 yfloat=lambda s: fl.get(s), harvested=lambda d: {"AAA": {"shares_available": 5000}},
+                                 yfloat=yfloat, harvested=lambda d: {"AAA": {"shares_available": 5000}},
                                  wl={"stocks": [{"symbol": "AAA", "status": "active", "cont_status": "continues"}]},
                                  nw={"CET": {"outside": ["M2 الهبوط (دون الحدّ)"]}, "NWO": {"outside": []},
                                      "BIG": {"outside": []}},
-                                 cache={}, repaired=repaired)
+                                 cache={}, repaired=repaired, hours=hours)
             parts = [_TCD.stage_borrow(st, k, shards, ce=ce, pause=0) for k in range(shards)]
             rc = _TCD.stage_send(st, parts, send=lambda m: sent.append(m))
     except Exception as _e:                                          # noqa: BLE001
         rc, st = f"⛔ {type(_e).__name__}: {_e}", {}
     finally:
-        _TCD.DRY, _TCD.FORCE = sv
-    return rc, buf.getvalue(), st, sent, fetch
+        _TCD.DRY, _TCD.FORCE, _TCD.TRACE = sv
+    return rc, buf.getvalue(), st, sent, fetch, hours, yfloat
 
 
 def _tcd_sec(out, head):
@@ -68679,21 +68712,27 @@ def _tcd_sec(out, head):
     return got
 
 
+def _tcd_msg(out):
+    """الرسالةُ وحدَها من المُخرَج (أسطرُ RLM) — لا السجلّ."""
+    return "\n".join(ln for ln in out.splitlines() if ln.startswith("‏"))
+
+
 try:
-    _tcd_rc, _tcd_out, _tcd_st, _tcd_sent, _tcd_fetch = _tcd_run()
+    _tcd_rc, _tcd_out, _tcd_st, _tcd_sent, _tcd_fetch, _tcd_hours, _tcd_yf = _tcd_run(trace=("EXT", "MGN", "ZZZ"))
 except Exception as _e:                                              # noqa: BLE001
-    _tcd_rc, _tcd_out, _tcd_st, _tcd_sent, _tcd_fetch = f"⛔ {type(_e).__name__}", "", {}, [], None
+    _tcd_rc, _tcd_out, _tcd_st, _tcd_sent, _tcd_fetch, _tcd_hours, _tcd_yf = f"⛔ {type(_e).__name__}", "", {}, [], None, None, None
+
+
 def _tcd_matched(out):
-    """«يطابق» بقسمَيه (✅ مستقرّ · ⏳ ينتظر الثبات) — المطابقةُ نفسُها والفصلُ عرض."""
-    return " ".join(_tcd_sec(out, "✅ <b>يطابق") + _tcd_sec(out, "⏳ <b>يطابق"))
+    """المذكورُ في الرسالة بقسمَيها (💵 · 🪙)."""
+    return " ".join(_tcd_sec(out, "💵 <b>فوق الدولار") + _tcd_sec(out, "🪙 <b>سنتات"))
 
 
-_tcd_yes = _tcd_matched(_tcd_out)
-_tcd_stable = " ".join(_tcd_sec(_tcd_out, "✅ <b>يطابق"))
-_tcd_wait = " ".join(_tcd_sec(_tcd_out, "⏳ <b>يطابق"))
-_tcd_dbt = " ".join(_tcd_sec(_tcd_out, "⚠️ <b>مشكوك"))
-_tcd_unk = " ".join(_tcd_sec(_tcd_out, "❔ <b>مجهول"))
-_tcd_near = " ".join(_tcd_sec(_tcd_out, "🔸 <b>من أسهم البوت"))
+_tcd_m = _tcd_msg(_tcd_out)
+_tcd_dol = " ".join(_tcd_sec(_tcd_out, "💵 <b>فوق الدولار"))
+_tcd_pen = " ".join(_tcd_sec(_tcd_out, "🪙 <b>سنتات"))
+_tcd_yes = _tcd_dol + " " + _tcd_pen
+_tcd_log = "\n".join(ln for ln in _tcd_out.splitlines() if not ln.startswith("‏"))
 
 # TCD1 — لا يكتب حالةَ البوت ولا يُستورَد في الإنتاج · والكتابةُ في `_dump` وحدَها · والإرسالُ في `stage_send` وحدَها
 try:
@@ -68721,90 +68760,101 @@ try:
     _calls2 = {_tcd_ast.unparse(c.func) for c in _tcd_ast.walk(_v2f[0]) if isinstance(c, _tcd_ast.Call)} if _v2f else set()
     _lits2 = {c.value for c in _tcd_ast.walk(_tcd_ast.parse(_src2)) if isinstance(c, _tcd_ast.Constant)
               and isinstance(c.value, (int, float)) and not isinstance(c.value, bool)}
-    _v2 = ({"WW.conj", "WW.flags"} <= _calls2 and not ({30, 30.0, 4_000_000, 20_000, 1.0} & _lits2 - {1.0})
+    _v2 = ({"WW.conj", "WW.flags"} <= _calls2 and not ({30, 30.0, 4_000_000, 20_000, 50, 50.0} & _lits2)
            and "OPL.RSI_OWNER" in _src2 and "PX.PX_MIN" in _src2)
-    _v2w = f"calls={sorted(_calls2)} · أرقامُ حدود={sorted({30, 4_000_000, 20_000} & _lits2)}"
+    _v2w = f"calls={sorted(_calls2)} · أرقامُ حدود={sorted({30, 4_000_000, 20_000, 50} & _lits2)}"
 except Exception as _e:                                              # noqa: BLE001
     _v2, _v2w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🔎📬 TCD2 الحدودُ بالاسم (`WW.conj(WW.flags(...))` · `OPL`/`PX`) وصفرُ رقمِ حدٍّ مكتوبٍ باليد", _v2, _v2w)
+check("🔎📬 TCD2 الحدودُ بالاسم (`WW.conj(WW.flags(...))` · `OPL`/`PX` · وعتبةُ الانفجار من `S.CONFIG`) وصفرُ رقمِ حدٍّ "
+      "مكتوبٍ باليد (ولا 50)", _v2, _v2w)
 
-# TCD3 — Polygon أوّلًا: MGN (انهيارٌ وهميّ في ياهو) لا يُعدّ · وSPL (تقسيمٌ غيرُ مطبّق في ياهو) «مشكوك» لا «يطابق»
-check("🔎📬 TCD3 RSI من Polygon: MGN (ياهو منهارٌ وهميًّا) **لا يطابق** · SPL (ياهو بتقسيمٍ غيرِ مطبّق) في «مشكوك» "
-      "بوسم «تقسيمٌ غيرُ متّسق» لا في «يطابق» · وAAA يطابق",
-      _tcd_rc == 0 and "$AAA" in _tcd_yes and "$MGN" not in _tcd_out.split("🧾")[0]
-      and "$SPL" in _tcd_dbt and "$SPL" not in _tcd_yes and "تقسيمٌ غيرُ متّسق" in _tcd_dbt,
-      f"rc={_tcd_rc} · yes={_tcd_yes[:80]} · dbt={_tcd_dbt[:80]}")
+# TCD3 — Polygon أوّلًا: MGN (انهيارٌ وهميّ في ياهو) لا يُعدّ · وSPL (تقسيمٌ غيرُ مطبّق في ياهو) «مشكوك» لا يُذكر — عدّادُه في
+#    التذييل واسمُه ورقماه في السجلّ · وAAA يطابق
+check("🔎📬 TCD3 RSI من Polygon: MGN (ياهو منهارٌ وهميًّا) **لا يطابق** · SPL (ياهو بتقسيمٍ غيرِ مطبّق) **لا يُذكر** وعدّادُه "
+      "«مشكوك 1» وسجلُّه «⚠️ مشكوك SPL … تقسيمٌ غيرُ متّسق» · وAAA يطابق",
+      _tcd_rc == 0 and "$AAA" in _tcd_yes and "$MGN" not in _tcd_m and "$SPL" not in _tcd_m
+      and "مشكوك 1" in _tcd_m and "⚠️ مشكوك SPL" in _tcd_log and "تقسيمٌ غيرُ متّسق" in _tcd_log,
+      f"rc={_tcd_rc} · yes={_tcd_yes[:80]}")
 
-# TCD4 — «تحت المتابعة» ضمن الكون ولو غاب عن كون ناسداك · ووسمُه يُطبع
-check("🔎📬 TCD4 «تحت المتابعة» ضمن الكون (NWO خارج `get_universe` ويطابق) · ووسمُ «👀 تحت المتابعة» يُطبع",
-      "$NWO" in _tcd_yes and "👀 تحت المتابعة" in _tcd_out, _tcd_yes[:120])
+# TCD4 — «تحت المتابعة» ضمن الكون ولو غاب عن كون ناسداك · ووسمُه يُطبع في سطره
+check("🔎📬 TCD4 «تحت المتابعة» ضمن الكون (NWO خارج `get_universe` ويطابق) · ووسمُ «👀 تحت المتابعة» يُطبع في سطره",
+      "$NWO" in _tcd_dol and "👀 تحت المتابعة" in _tcd_dol, _tcd_dol[:160])
 
-# TCD5 — المجهولُ لا «لا»: تعذّرُ الموقع ⟵ «❔ مجهول» بسببه · لا «يطابق» ولا إسقاطٌ صامت
-check("🔎📬 TCD5 المجهولُ مجهولٌ لا «لا»: UNK (فلوتٌ مجهول وتعذّرُ الموقع) في «❔ مجهول» بسببه (`parse:shell`) · لا في «يطابق»",
-      "$UNK" in _tcd_unk and "parse:shell" in _tcd_unk and "$UNK" not in _tcd_yes, _tcd_unk[:120])
+# TCD5 — المجهولُ لا «لا»: تعذّرُ الموقع ⟵ «مجهول 1» في التذييل وسببُه في السجلّ · لا يُذكر ولا يُعدّ «لا»
+check("🔎📬 TCD5 المجهولُ مجهولٌ لا «لا»: UNK (فلوتٌ مجهول وتعذّرُ الموقع) **لا يُذكر** · «مجهول 1» في التذييل · والسجلّ "
+      "«❔ مجهول UNK … parse:shell» · ولا يُعدّ في «الفلوت/المتاح فوق الحدّ»",
+      "$UNK" not in _tcd_m and "مجهول 1" in _tcd_m and "❔ مجهول UNK" in _tcd_log and "parse:shell" in _tcd_log,
+      _tcd_m[-260:])
 
 # TCD6 — التقسيمُ على الرنرات تامٌّ منفصل · ودمجُ الأجزاء يملأ المتاح كلَّه
 try:
     _need6 = [f"S{i}" for i in range(11)]
     _p6 = [_TCD.shard_of(_need6, k, 3) for k in range(3)]
     _flat6 = [x for p in _p6 for x in p]
-    _rc1, _o1, _st1, _s1, _f1 = _tcd_run(shards=1)
+    _r6 = _tcd_run(shards=1, trace=("EXT", "MGN", "ZZZ"))
     _v6 = (sorted(_flat6) == sorted(_need6) and len(_flat6) == len(set(_flat6))
-           and _TCD.shard_of(_need6, 4, 3) == _p6[1] and _tcd_matched(_o1) == _tcd_yes)
-    _v6w = f"أجزاء={[len(p) for p in _p6]} · رنرٌ واحد = ثلاثة: {_tcd_matched(_o1) == _tcd_yes}"
+           and _TCD.shard_of(_need6, 4, 3) == _p6[1] and _tcd_matched(_r6[1]) == _tcd_matched(_tcd_out)
+           and _tcd_msg(_r6[1]) == _tcd_m)
+    _v6w = f"أجزاء={[len(p) for p in _p6]} · رنرٌ واحد = ثلاثة: {_tcd_msg(_r6[1]) == _tcd_m}"
 except Exception as _e:                                              # noqa: BLE001
     _v6, _v6w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🔎📬 TCD6 التقسيمُ `need[shard::shards]` تامٌّ منفصل · والنتيجةُ على رنرٍ واحد = على ثلاثة", _v6, _v6w)
+check("🔎📬 TCD6 التقسيمُ `need[shard::shards]` تامٌّ منفصل · والرسالةُ على رنرٍ واحد = على ثلاثة", _v6, _v6w)
 
-# TCD7 — الجلسة: بعد عطلة الاثنين لا تكرار (وصفرُ جلب) · والعاديُّ يُرسل · و`force` يُرسل
+# TCD7 — الجلسة: بعد عطلة الاثنين لا تكرار (وصفرُ جلبٍ يوميٍّ وساعيّ) · والعاديُّ يُرسل · و`force` يُرسل
 try:
     _cal7 = _TCD.WW.calendar(2026)
     _hol7 = _TCD.session_gate(_cal7, _tcd_dt.datetime(2026, 9, 8, 3, 30, tzinfo=_TCD.NY))       # بعد Labor Day
     _ok7 = _TCD.session_gate(_cal7, _tcd_dt.datetime(2026, 9, 26, 3, 30, tzinfo=_TCD.NY))
     _eve7 = _TCD.session_gate(_cal7, _tcd_dt.datetime(2026, 9, 25, 18, 0, tzinfo=_TCD.NY))
     _frc7 = _TCD.session_gate(_cal7, _tcd_dt.datetime(2026, 9, 8, 3, 30, tzinfo=_TCD.NY), True)
-    _rc7, _o7, _st7, _s7, _f7 = _tcd_run(now=_tcd_dt.datetime(2026, 9, 8, 3, 30, tzinfo=_TCD.NY), dry=False)
+    _r7 = _tcd_run(now=_tcd_dt.datetime(2026, 9, 8, 3, 30, tzinfo=_TCD.NY), dry=False)
     _v7 = (_hol7[1] is False and _hol7[0] == "2026-09-04" and _ok7[:2] == ("2026-09-25", True)
            and _eve7[:2] == ("2026-09-25", True) and _frc7[1] is True
-           and _rc7 == 0 and _s7 == [] and _f7 is not None and _f7.calls == 0)
-    _v7w = f"عطلة={_hol7[:2]} · عادي={_ok7[:2]} · مساء={_eve7[:2]} · force={_frc7[1]} · rc={_rc7} · مُرسَل={len(_s7)}"
+           and _r7[0] == 0 and _r7[3] == [] and _r7[4].calls == 0 and _r7[5].calls == 0)
+    _v7w = f"عطلة={_hol7[:2]} · عادي={_ok7[:2]} · مساء={_eve7[:2]} · force={_frc7[1]} · rc={_r7[0]} · مُرسَل={len(_r7[3])}"
 except Exception as _e:                                              # noqa: BLE001
     _v7, _v7w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🔎📬 TCD7 الجلسة: صباحُ الثلاثاء بعد عطلة الاثنين **لا يُعيد رسالةَ الجمعة** (صمتٌ بخروج 0 وصفرُ جلب) · والعاديُّ "
-      "والمسائيُّ يُرسلان · و`force` يُرسل", _v7, _v7w)
+check("🔎📬 TCD7 الجلسة: صباحُ الثلاثاء بعد عطلة الاثنين **لا يُعيد رسالةَ الجمعة** (صمتٌ بخروج 0 وصفرُ جلبٍ يوميٍّ وساعيّ) · "
+      "والعاديُّ والمسائيُّ يُرسلان · و`force` يُرسل", _v7, _v7w)
 
-# TCD8 — حارسُ التغطية: شموعُ الجلسة ناقصة ⟵ سطرُ عطلٍ صريح وخروج 3 · لا «يطابق» ولا «لا يوجد» كاذب
+# TCD8 — حارسُ التغطية: شموعُ الجلسة ناقصة ⟵ سطرُ عطلٍ صريح وخروج 3 · لا قائمة ولا «لا يوجد» كاذب
 try:
-    _rc8, _o8, _st8, _s8, _f8 = _tcd_run(cover_cut=True, dry=False)
-    _v8 = _rc8 == 3 and "⚠️ تعذّر الفحص اليوم" in _o8 and "✅ <b>يطابق" not in _o8 and len(_s8) == 1
-    _v8w = f"rc={_rc8} · مُرسَل={len(_s8)}"
+    _r8 = _tcd_run(cover_cut=True, dry=False)
+    _v8 = (_r8[0] == 3 and "⚠️ تعذّر الفحص اليوم" in _r8[1] and "💵 <b>فوق الدولار" not in _r8[1] and len(_r8[3]) == 1
+           and _r8[5].calls == 0)
+    _v8w = f"rc={_r8[0]} · مُرسَل={len(_r8[3])} · ساعات={_r8[5].calls}"
 except Exception as _e:                                              # noqa: BLE001
     _v8, _v8w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🔎📬 TCD8 حارسُ التغطية: شموعُ الجلسة لأقلّ من الحدّ ⟵ سطرُ عطلٍ صريح (يُرسَل) وخروج 3 — لا قائمةَ ولا «لا يوجد» كاذب",
-      _v8, _v8w)
+check("🔎📬 TCD8 حارسُ التغطية: شموعُ الجلسة لأقلّ من الحدّ ⟵ سطرُ عطلٍ صريح (يُرسَل) وخروج 3 — لا قائمةَ ولا «لا يوجد» كاذب "
+      "ولا جلبُ ساعات", _v8, _v8w)
 
-# TCD9 — الرسالة: بلا علامات مقارنة خارج وسوم HTML · RTL لكلّ سطر · وسطرُ الشروط الأربعة · و🔸 لسهم البوت الساقط بالمتاح
+# TCD9 — الرسالة: بلا علامات مقارنة خارج وسوم HTML · RTL لكلّ سطر · وسطرُ الشروط والثبات والانفجار · و🔸 في السجلّ لا في
+#    الرسالة (CET بالمتاح) · ولا 🔸 لمن سقط بالفلوت ومتاحُه مجهول (BIG)
 try:
     _m9 = [ln for ln in _tcd_out.splitlines() if ln.startswith("‏")]
     _txt9 = __import__("re").sub(r"<[^>]+>", "", "\n".join(_m9))
     _sig9 = [ch for ch in "≥≤<>" if ch in _txt9]
+    _near9 = next((ln for ln in _tcd_log.splitlines() if "🔸" in ln), "")
     _v9 = (not _sig9 and _m9 and all(ln.startswith("‏") for ln in _m9 if ln.strip("‏ "))
-           and "شورت (المتاح) أقلّ من" in _txt9 and "$CET" in _tcd_near and "المتاح 30,000" in _tcd_near
-           and "$BIG" not in _tcd_near and "$PNY" not in _tcd_out.split("🧾")[0])
-    _v9w = f"علامات={_sig9} · أسطر={len(_m9)} · near={_tcd_near[:80]}"
+           and "شورت (المتاح) أقلّ من" in _txt9 and "وثبات 5 جلسات فوق أدنى قاع" in _txt9
+           and "ولم ينفجر خلال آخر 5 جلسات (50% فأكثر)" in _txt9
+           and "🔸" not in _txt9 and "CET (المتاح 30,000)" in _near9 and "BIG" not in _near9)
+    _v9w = f"علامات={_sig9} · أسطر={len(_m9)} · near={_near9[:90]}"
 except Exception as _e:                                              # noqa: BLE001
     _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🔎📬 TCD9 الرسالة بلا علامات مقارنة · RTL لكلّ سطر · وسطرُ الشروط · و«🔸 سقطت بشرطٍ واحد» لسهم البوت (CET بالمتاح) "
-      "لا لمن سقط بالفلوت ومتاحُه مجهول (BIG) · والسنتاتُ خارجها", _v9, _v9w)
+check("🔎📬 TCD9 الرسالة بلا علامات مقارنة · RTL لكلّ سطر · وسطرُ الشروط والثبات 5 والانفجار 50% · و«🔸 سقطت بشرطٍ واحد» "
+      "في السجلّ وحدَه (CET بالمتاح) لا لمن سقط بالفلوت ومتاحُه مجهول (BIG)", _v9, _v9w)
 
-# TCD10 — DRY لا يُرسل · وغيرُه يُرسل رسالةً واحدة
+# TCD10 — DRY لا يُرسل · وغيرُه يُرسل رسالةً واحدة **بالقسمين**
 try:
-    _rc10, _o10, _st10, _s10, _f10 = _tcd_run(dry=False)
-    _v10 = _tcd_sent == [] and len(_s10) == 1 and "$AAA" in _s10[0] and _rc10 == 0
-    _v10w = f"dry={len(_tcd_sent)} · حيّ={len(_s10)}"
+    _r10 = _tcd_run(dry=False)
+    _v10 = (_tcd_sent == [] and len(_r10[3]) == 1 and "$AAA" in _r10[3][0] and "$PNY" in _r10[3][0] and _r10[0] == 0
+            and "💵" in _r10[3][0] and "🪙" in _r10[3][0])
+    _v10w = f"dry={len(_tcd_sent)} · حيّ={len(_r10[3])}"
 except Exception as _e:                                              # noqa: BLE001
     _v10, _v10w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🔎📬 TCD10 `TC_DRY=1` لا يُرسل شيئًا · والحيُّ يُرسل رسالةً واحدةً فيها المطابق", _v10, _v10w)
+check("🔎📬 TCD10 `TC_DRY=1` لا يُرسل شيئًا · والحيُّ يُرسل **رسالةً واحدة** فيها القسمان (AAA فوق الدولار · PNY سنتات)",
+      _v10, _v10w)
 
 # TCD11 — الـworkflow: كرونٌ واحد الثلاثاء-السبت · ثلاثةُ جوبات · مصفوفةُ ثلاثة رنرات · كلُّ سرٍّ في جوبه وحدَه
 try:
@@ -68826,82 +68876,239 @@ except Exception as _e:                                              # noqa: BLE
 check("🔎📬 TCD11 `three_cond_daily.yml`: كرونٌ واحد `23 2 * * 2-6` · scan⟶borrow(×3)⟶send · Polygon في scan وحدَه وتلغرام في "
       "send وحدَه · send يعمل ولو سقط رنرُ متاح · قراءةٌ فقط وconcurrency", _v11, _v11w)
 
-# TCD12 — ياهو المجهولُ لا يصنع شكًّا · وفرقُ نقطتين بالضبط ليس «فوق نقطتين»
+# TCD12 — ياهو المجهولُ لا يصنع شكًّا · وفرقُ نقطتين بالضبط ليس «فوق نقطتين» · **والسعرُ تحت الدولار ليس «لا»** (فئةٌ لا شرط)
 try:
     _b12 = {"rsi": 20.0, "px": 2.0, "fl": 1e6, "av": 1000.0}
     _v12 = (_TCD.verdict(dict(_b12, ry=None)) == (True, False)
             and _TCD.verdict(dict(_b12, ry=22.0)) == (True, False)
             and _TCD.verdict(dict(_b12, ry=22.5)) == (True, True)
-            and _TCD.verdict(dict(_b12, av=None, ry=None))[0] is None)
-    _v12w = str([_TCD.verdict(dict(_b12, ry=x)) for x in (None, 22.0, 22.5)])
+            and _TCD.verdict(dict(_b12, av=None, ry=None))[0] is None
+            and _TCD.verdict(dict(_b12, px=0.5, ry=None)) == (True, False)
+            and _TCD.verdict(dict(_b12, av=20000.0, ry=None))[0] is False)
+    _v12w = str([_TCD.verdict(dict(_b12, ry=x)) for x in (None, 22.0, 22.5)]) + f" · سنتات={_TCD.verdict(dict(_b12, px=0.5))}"
 except Exception as _e:                                              # noqa: BLE001
     _v12, _v12w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🔎📬 TCD12 الشكّ: ياهو المجهولُ لا يصنعه · فرقُ نقطتين بالضبط ليس شكًّا (`WW.RSI_TOL` حصريّ) · والمتاحُ المجهولُ ⟵ مجهول",
-      _v12, _v12w)
+check("🔎📬 TCD12 الشكّ: ياهو المجهولُ لا يصنعه · فرقُ نقطتين بالضبط ليس شكًّا (`WW.RSI_TOL` حصريّ) · والمتاحُ المجهولُ ⟵ "
+      "مجهول · **وسعرُ 0.50 ليس «لا»** (فئة) · والمتاحُ 20,000 بالضبط ⟵ «لا»", _v12, _v12w)
 
-# TCD13 — الثبات (أمرُ المالك 2026-09-26 «اي سهم يكون قاع جديد يحتاج ثبات 3-5 جلسات»): «يطابق» قسمان — AAA (أدنى شمعةٍ قبل 4
-#    جلسات) في ✅ مستقرّ · NWO (قاعٌ جديد في الجلسة نفسِها) في ⏳ ينتظر الثبات بعدّاده · ولا سهمَ في القسمين · والفصلُ لا يُسقط أحدًا
+# TCD13 — الثباتُ شرطٌ لا قسم: AAA (أوّلُ لمسٍ لأدنى قاعٍ قبل 6 جلسات) يُذكر «ثابتٌ 6 جلسات» · NEW (قاعٌ جديد اليوم) **لا يُذكر**
+#    وعدّادُه في «ينتظر الثبات» واسمُه في السجلّ «مضى 0 من 5» · ولا قسمَ «⏳» في الرسالة
 try:
-    _v13 = ("$AAA" in _tcd_stable and "ثابتٌ 4 جلسات فوق أدنى شمعة" in _tcd_stable and "$AAA" not in _tcd_wait
-            and "$NWO" in _tcd_wait and "مضى 0 من 3 جلسات" in _tcd_wait and "$NWO" not in _tcd_stable
-            and "⏳ <b>يطابق وينتظر الثبات: 1</b>" in _tcd_out and "✅ <b>يطابق ومستقرّ: 1</b>" in _tcd_out
-            and "$SPL" not in _tcd_stable + _tcd_wait)
-    _v13w = f"مستقرّ={_tcd_stable[:90]} · ينتظر={_tcd_wait[:90]}"
+    _wait13 = [ln for ln in _tcd_log.splitlines() if ln.strip().startswith("⏳ ")]
+    _v13 = ("$AAA" in _tcd_dol and "ثابتٌ 6 جلسات فوق أدنى قاع" in _tcd_dol and "$NEW" not in _tcd_m
+            and any("NEW" in ln and "مضى 0 من 5 جلسات" in ln for ln in _wait13) and "⏳" not in _tcd_m
+            and "ينتظر الثبات 2" in _tcd_m)
+    _v13w = f"سجلّ={[ln.strip()[:60] for ln in _wait13]}"
 except Exception as _e:                                              # noqa: BLE001
     _v13, _v13w = False, f"⛔ رمى: {type(_e).__name__}"
-check("⏳ TCD13 الثبات: «يطابق» قسمان — AAA (أدنى شمعةٍ قبل 4 جلسات) ✅ مستقرّ · NWO (قاعٌ جديد) ⏳ ينتظر «مضى 0 من 3» · "
-      "بلا تكرارٍ بين القسمين ولا إسقاط", _v13, _v13w)
+check("⏳ TCD13 الثباتُ شرطٌ لا قسم: AAA «ثابتٌ 6 جلسات» يُذكر · NEW (قاعٌ جديد) لا يُذكر وعدّادُه «ينتظر الثبات 2» (مع EXT) "
+      "واسمُه في السجلّ «مضى 0 من 5» · ولا «⏳» في الرسالة", _v13, _v13w)
 
-# TCD14 — `stability_at`: `S.pivot_stability` و`STABILITY_MIN` بالاسم (AST) · القاعُ اليومَ ⟵ 0 · قبل جلستين ⟵ غيرُ مستقرّ ·
-#    قبل 3 ⟵ مستقرّ · **قبل 20 ⟵ مستقرّ (لا سقفَ 8)** · الإغلاقُ عند القاع ⟵ غيرُ مستقرّ · وما بعد الجلسة لا يُقرأ
+# TCD14 — `exact_low_stability`: أدنى قاعٍ دقيق من شموع الساعة الممتدّة واليوميّة معًا · أوّلُ يومٍ بلغه (اللمسُ ثانيةً ليس
+#    كسرًا) · العدُّ جلساتٌ يوميّة بعده · 4 ⟵ ينتظر و5 ⟵ ثابت و20 ⟵ ثابت (بلا سقف) · الإغلاقُ عند القاع ⟵ ينتظر · بلا ساعة ⟵
+#    None · ما بعد الجلسة لا يُقرأ · وشمعةُ ساعةٍ خارج 04:00-20:00 لا تدخل · `PIVOT_LOOKBACK` بالاسم
 try:
-    def _t14(lows, closes, sess_i=None):
-        ds = [f"2026-08-{i + 1:02d}" for i in range(len(lows))]
-        rows = [(d, c, c, lo, c, 1.0) for d, lo, c in zip(ds, lows, closes)]
-        return _TCD.stability_at(rows, ds[-1] if sess_i is None else ds[sess_i])
-    _base = [5.0 - 0.1 * i for i in range(10)]                      # هبوطٌ 5.0 ⟶ 4.1
-    _a = _t14(_base + [4.0], [x + 0.05 for x in _base] + [4.05])                        # قاعٌ اليوم
-    _b = _t14(_base + [4.0, 4.1, 4.1], [x + 0.05 for x in _base] + [4.05, 4.15, 4.15])  # قبل جلستين
-    _c = _t14(_base + [4.0, 4.1, 4.1, 4.1], [x + 0.05 for x in _base] + [4.05] + [4.15] * 3)
-    _d = _t14([4.0] + [4.2] * 20, [4.05] + [4.25] * 20)                                  # قبل 20 جلسة
-    _e = _t14(_base + [4.0, 4.1, 4.1, 4.0], [x + 0.05 for x in _base] + [4.05, 4.15, 4.15, 4.0])
-    _f = _t14(_base + [4.0, 4.1, 4.1, 4.1, 3.0], [x + 0.05 for x in _base] + [4.05] + [4.15] * 3 + [3.05], sess_i=13)
+    _ds14 = [d for d in _TCD.WW.calendar(2026) if "2026-06-01" <= d <= _TCD_SESS][-40:]
+
+    def _t14(lows, closes, extra=(), sess_i=None, hours=True):
+        ds = _ds14[-len(lows):]
+        rows = [(d, c, c * 1.01, lo, c, 1.0) for d, lo, c in zip(ds, lows, closes)]
+        hr = _tcd_hours_of(rows, [(ds[i], h, hi, lo) for i, h, hi, lo in extra]) if hours else []
+        return _TCD.exact_low_stability(rows, hr, ds[-1] if sess_i is None else ds[sess_i])
+    _dn = [5.0 - 0.1 * i for i in range(10)]                        # هبوطٌ 5.0 ⟶ 4.1
+    _a = _t14(_dn + [4.0] + [4.1] * 4, [x + 0.05 for x in _dn] + [4.05] + [4.15] * 4)      # قبل 4 جلسات
+    _b = _t14(_dn + [4.0] + [4.1] * 5, [x + 0.05 for x in _dn] + [4.05] + [4.15] * 5)      # قبل 5
+    _c = _t14([4.0] + [4.2] * 20, [4.05] + [4.25] * 20)                                     # قبل 20
+    _d = _t14(_dn + [4.0] + [4.1] * 5 + [4.0], [x + 0.05 for x in _dn] + [4.05] + [4.15] * 5 + [4.0])  # لمسٌ ثانٍ اليوم
+    _e = _t14(_dn + [4.0] + [4.1] * 5, [x + 0.05 for x in _dn] + [4.05] + [4.15] * 5,
+              extra=[(-3, 17, 4.2, 3.7)])                                                   # ذيلُ أفترٍ قبل جلستين
+    _f = _t14(_dn + [4.0] + [4.1] * 5, [x + 0.05 for x in _dn] + [4.05] + [4.15] * 5, hours=False)
+    _g = _t14(_dn + [4.0] + [4.1] * 5 + [3.0], [x + 0.05 for x in _dn] + [4.05] + [4.15] * 5 + [3.05], sess_i=-2)
+    _h = _t14(_dn + [4.0] + [4.1] * 5, [x + 0.05 for x in _dn] + [4.05] + [4.15] * 5,
+              extra=[(-3, 21, 4.2, 3.0), (-3, 3, 4.2, 3.0)])                                # خارج 04:00-20:00
+    _i = _t14(_dn + [4.0] + [4.1] * 4 + [4.0], [x + 0.05 for x in _dn] + [4.05] + [4.15] * 4 + [4.0])  # الإغلاقُ عند القاع
+    #    الشمعةُ اليوميّة أرضيّةٌ لو نقصت ساعةٌ يومَ القاع: ساعاتُ يوم 4.0 لا تبلغه (4.1) ⟵ القاعُ 4.0 يومَه من اليوميّة
+    _rows_j = [(d, c, c * 1.01, lo, c, 1.0) for d, lo, c in
+               zip(_ds14[-16:], _dn + [4.0] + [4.1] * 5, [x + 0.05 for x in _dn] + [4.05] + [4.15] * 5)]
+    _hj = _tcd_hours_of([(r[0], r[1], r[2], (4.1 if r[3] == 4.0 else r[3]), r[4], r[5]) for r in _rows_j])
+    _j = _TCD.exact_low_stability(_rows_j, _hj, _rows_j[-1][0])
     _fn14 = [n for n in _tcd_ast.walk(_tcd_ast.parse(_tcd_src)) if isinstance(n, _tcd_ast.FunctionDef)
-             and n.name == "stability_at"]
-    #    الكودُ بلا docstring (نصُّه يذكر `ready`/`STABILITY_MAX` شرحًا — فالقفلُ النصّيّ يُخدع · درسُ lock-and-mutate §②)
+             and n.name == "exact_low_stability"]
     _code14 = [n for n in (_fn14[0].body if _fn14 else []) if not (isinstance(n, _tcd_ast.Expr)
                and isinstance(getattr(n, "value", None), _tcd_ast.Constant) and isinstance(n.value.value, str))]
     _strs14 = {c.value for st in _code14 for c in _tcd_ast.walk(st)
                if isinstance(c, _tcd_ast.Constant) and isinstance(c.value, str)}
-    _calls14 = {_tcd_ast.unparse(c.func) for st in _code14 for c in _tcd_ast.walk(st) if isinstance(c, _tcd_ast.Call)}
-    _v14 = (_a["bars_after"] == 0 and not _a["stable"] and _b["bars_after"] == 2 and not _b["stable"]
-            and _c["bars_after"] == 3 and _c["stable"] and _d["bars_after"] == 20 and _d["stable"]
-            and not _e["stable"] and _f["stable"] and _f["bars_after"] == 3 and _c["pivot_date"] == "2026-08-11"
-            and "S.pivot_stability" in _calls14 and "STABILITY_MIN" in _strs14
-            and "STABILITY_MAX" not in _strs14 and "ready" not in _strs14)
-    _v14w = f"اليوم={_a and _a['stable']} · 2={_b and _b['stable']} · 3={_c and _c['stable']} · 20={_d and _d['stable']} · عند القاع={_e and _e['stable']} · بعد الجلسة={_f and _f['stable']}"
+    _names14 = {c.id for st in _code14 for c in _tcd_ast.walk(st) if isinstance(c, _tcd_ast.Name)}
+    _v14 = (_a["bars_after"] == 4 and not _a["stable"] and _b["bars_after"] == 5 and _b["stable"]
+            and _c["bars_after"] == 20 and _c["stable"] and _d["bars_after"] == 6 and _d["pivot"] == 4.0
+            and _e["pivot"] == 3.7 and _e["bars_after"] == 2 and _e["ext"] and not _e["stable"]
+            and _f is None and _g["bars_after"] == 5 and _g["stable"] and _h["pivot"] == 4.0 and _h["bars_after"] == 5
+            and not _i["stable"] and not _i["held"] and _j["pivot"] == 4.0 and _j["bars_after"] == 5 and not _j["ext"]
+            and "PIVOT_LOOKBACK" in _strs14 and "STABILITY_REQ" in _names14 and "STABILITY_MIN" not in _strs14)
+    _v14w = (f"4={_a and _a['stable']} · 5={_b and _b['stable']} · 20={_c and _c['stable']} · لمسٌ ثانٍ={_d and _d['bars_after']}"
+             f" · أفتر={_e and (_e['pivot'], _e['bars_after'])} · بلا ساعة={_f} · خارج النافذة={_h and _h['pivot']}")
 except Exception as _e:                                              # noqa: BLE001
     _v14, _v14w = False, f"⛔ رمى: {type(_e).__name__}"
-check("⏳ TCD14 `stability_at`: `S.pivot_stability`/`STABILITY_MIN` بالاسم · القاعُ اليومَ وقبل جلستين ⟵ ينتظر · قبل 3 ⟵ "
-      "مستقرّ · **قبل 20 ⟵ مستقرّ (لا سقف `STABILITY_MAX`)** · الإغلاقُ عند القاع ⟵ ينتظر · وما بعد الجلسة لا يُقرأ",
-      _v14, _v14w)
+check("⏳ TCD14 `exact_low_stability`: القاعُ من الساعة الممتدّة واليوميّة · أوّلُ يومٍ بلغه (لمسُه ثانيةً ليس كسرًا) · 4 ⟵ "
+      "ينتظر · 5 ⟵ ثابت · 20 ⟵ ثابت (بلا سقف) · ذيلُ أفترٍ أدنى ⟵ القاعُ يومَه (بري/أفتر) · بلا ساعة ⟵ None · ما بعد الجلسة لا "
+      "يُقرأ · خارج 04:00-20:00 لا يدخل · الإغلاقُ عند القاع ⟵ ينتظر · `PIVOT_LOOKBACK`/`STABILITY_REQ` بالاسم", _v14, _v14w)
 
 # TCD15 — 🩹 مصدرُ البوت: الرمزُ المصحَّح يُوسَم في سطره وفي التذييل وبسطر تعريف · والمسارُ الحيّ يقرأ `S.SPLIT_REPAIR_LAST`
 #    **بعد تصفيره** قبل نداء ياهو (AST) · وبلا تصحيح لا وسم
 try:
-    _rc15, _o15, _st15, _s15, _f15 = _tcd_run(repaired={"AAA": 40.0})
+    _r15 = _tcd_run(repaired={"AAA": 40.0})
     _fn15 = [n for n in _tcd_ast.walk(_tcd_ast.parse(_tcd_src)) if isinstance(n, _tcd_ast.FunctionDef)
              and n.name == "stage_scan"]
     _u15 = _tcd_ast.unparse(_fn15[0]) if _fn15 else ""
     _i_clr, _i_dl = _u15.find("S.SPLIT_REPAIR_LAST.clear()"), _u15.find("S.download_history)(")
-    _v15 = (_rc15 == 0 and "🩹 ×40" in " ".join(_tcd_sec(_o15, "✅ <b>يطابق")) and "🩹 صُحِّح مصدرُ البوت 1" in _o15
-            and "تحقّقُه ليس مستقلًّا" in _o15 and "🩹" not in _tcd_out
+    _v15 = (_r15[0] == 0 and "🩹 ×40" in " ".join(_tcd_sec(_r15[1], "💵 <b>فوق الدولار")) and "🩹 صُحِّح مصدرُ البوت 1" in _r15[1]
+            and "تحقّقُه ليس مستقلًّا" in _r15[1] and "🩹" not in _tcd_m
             and 0 <= _i_clr < _i_dl and "S.SPLIT_REPAIR_LAST.get('replaced')" in _u15)
-    _v15w = f"rc={_rc15} · وسم={'🩹 ×40' in _o15} · بلا تصحيح={'🩹' in _tcd_out} · تصفيرٌ قبل النداء={0 <= _i_clr < _i_dl}"
+    _v15w = f"rc={_r15[0]} · وسم={'🩹 ×40' in _r15[1]} · بلا تصحيح={'🩹' in _tcd_m} · تصفيرٌ قبل النداء={0 <= _i_clr < _i_dl}"
 except Exception as _e:                                              # noqa: BLE001
     _v15, _v15w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🩹 TCD15 الرمزُ الذي صحّح البوتُ مصدرَه يُوسَم (سطرُه · التذييل · «تحقّقُه ليس مستقلًّا») · والمسارُ الحيّ يقرأ "
       "`S.SPLIT_REPAIR_LAST` بعد تصفيره قبل نداء ياهو · وبلا تصحيح لا وسم", _v15, _v15w)
+
+# TCD16 — 💥 `recent_explosion` بأرقام المالك الحقيقيّة (تتبّع `36257347949`): FGL — من أدنى إغلاقٍ في الأسبوع 4.07 (09-21)
+#    إلى 6.60 (09-25) = ‏+62.2% ⟵ **انفجر** (والقفزةُ على إغلاق الأمس وحدَه ‏+49.7% كانت ستُفلته) · SXTC ‏+12.6% وIPW ‏+10.8% ⟵
+#    لا · والأفترُ على إغلاق يومه · وقفزةٌ قبل 5 جلسات (يومُ مرجع الأسبوع) خارجه · والحدُّ 50 شاملٌ من `S.CONFIG` بالاسم
+try:
+    _ds16 = ["2026-09-17", "2026-09-18", "2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25"]
+
+    def _t16(closes, highs, extra=(), sess=None):
+        rows = [(d, c, h, c * 0.97, c, 1.0) for d, c, h in zip(_ds16, closes, highs)]
+        return _TCD.recent_explosion(rows, _tcd_hours_of(rows, extra), sess or _ds16[-1])
+    #    الإغلاقاتُ والقممُ من سطور التتبّع (09-17 ⟶ 09-25) · وإغلاقُ 09-25 من رسالة `36252785194`
+    _fgl = _t16([4.08, 4.60, 4.07, 4.64, 4.43, 4.41, 4.33], [4.4936, 4.79, 4.45, 4.83, 4.62, 4.60, 6.60])
+    _sxt = _t16([2.435, 2.40, 2.38, 2.47, 2.51, 2.55, 2.57], [2.52, 2.48, 2.4081, 2.49, 2.68, 2.60, 2.60])
+    _ipw = _t16([1.80, 1.69, 1.52, 1.20, 1.24, 1.22, 1.25], [1.9799, 1.85, 1.65, 1.48, 1.33, 1.24, 1.28])
+    _one = _TCD.recent_explosion([(d, c, h, c * 0.97, c, 1.0) for d, c, h in
+                                  zip(_ds16, [4.08, 4.60, 4.41, 4.41, 4.41, 4.41, 4.33],
+                                      [4.79, 4.45, 4.45, 4.45, 4.45, 4.45, 6.60])], [], _ds16[-1])
+    _ah = _t16([2.0] * 6 + [1.2], [2.02] * 6 + [1.22], extra=[("2026-09-25", 17, 1.85, 1.2)])
+    _old = _t16([2.0] * 7, [2.02, 3.2, 2.02, 2.02, 2.02, 2.02, 2.02])              # قبل 5 جلسات = يومُ مرجع الأسبوع
+    _edge = _TCD.recent_explosion([(d, 2.0, 2.0 * (1.5 if d == _ds16[-1] else 1.0), 1.9, 2.0, 1.0) for d in _ds16], [],
+                                  _ds16[-1])
+    _below = _TCD.recent_explosion([(d, 2.0, 2.0 * (1.4999 if d == _ds16[-1] else 1.0), 1.9, 2.0, 1.0) for d in _ds16],
+                                   [], _ds16[-1])
+    _fn16 = [n for n in _tcd_ast.walk(_tcd_ast.parse(_tcd_src)) if isinstance(n, _tcd_ast.FunctionDef)
+             and n.name == "recent_explosion"]
+    _code16 = _tcd_ast.unparse(_fn16[0]) if _fn16 else ""
+    _v16 = (_fgl["boom"] and abs(_fgl["pct"] - (6.60 / 4.07 - 1) * 100) < 0.01 and _fgl["day"] == "2026-09-25"
+            and _fgl["ref"] == 4.07 and not _sxt["boom"] and _sxt["pct"] < 13 and not _ipw["boom"] and _ipw["pct"] < 11
+            and _one["boom"] is False and abs(_one["pct"] - (6.60 / 4.41 - 1) * 100) < 0.01
+            and _ah["boom"] and _ah["ref"] == 1.2 and not _old["boom"] and _edge["boom"] and not _below["boom"]
+            and "S.CONFIG['EXPLOSION_PCT']" in _code16 and "EXPLODE_WIN" in _code16 and "WW.close_utc" in _code16)
+    _v16w = (f"FGL={_fgl and round(_fgl['pct'], 1)} · SXTC={_sxt and round(_sxt['pct'], 1)} · IPW={_ipw and round(_ipw['pct'], 1)}"
+             f" · أمسُ وحدَه={_one and round(_one['pct'], 1)} · أفتر={_ah and _ah['boom']} · قبل 5={_old and _old['boom']}"
+             f" · 50={_edge and _edge['boom']} · 49.99={_below and _below['boom']}")
+except Exception as _e:                                              # noqa: BLE001
+    _v16, _v16w = False, f"⛔ رمى: {type(_e).__name__}"
+check("💥 TCD16 `recent_explosion` بأرقام التتبّع الحيّة: FGL ‏+62.2% من إغلاق 4.07 ⟵ انفجر (وإغلاقُ الأمس وحدَه ‏+49.7% كان "
+      "سيُفلته) · SXTC وIPW ⟵ لا · الأفترُ على إغلاق يومه · قبل 5 جلسات خارج الأسبوع · 50% شاملةٌ و49.99 لا · `EXPLOSION_PCT` "
+      "و`EXPLODE_WIN` و`WW.close_utc` بالاسم", _v16, _v16w)
+
+# TCD17 — الأنبوب: BOOM (ثابتٌ وقفز ‏+60% قبل جلستين) لا يُذكر وعدّادُه «انفجر خلال أسبوع 1» وسجلُّه «💥 BOOM +60.0%» ·
+#    OLDB (قفز قبل 5 جلسات · يومُ مرجع الأسبوع) يُذكر · EXT (ذيلُ أفترٍ أدنى قبل جلستين) لا يُذكر وسجلُّه «بري/أفتر · مضى 2 من 5» · والتذييلُ بعدّاداته
+try:
+    _boom17 = next((ln for ln in _tcd_log.splitlines() if ln.strip().startswith("💥 BOOM")), "")
+    _ext17 = next((ln for ln in _tcd_log.splitlines() if ln.strip().startswith("⏳ EXT")), "")
+    _v17 = ("$BOOM" not in _tcd_m and "انفجر خلال أسبوع 1" in _tcd_m and "+60.0%" in _boom17
+            and "$OLDB" in _tcd_dol and "$EXT" not in _tcd_m and "بري/أفتر" in _ext17 and "مضى 2 من 5" in _ext17
+            and "الفلوت فوق الحدّ 1" in _tcd_m and "المتاح فوق الحدّ 1" in _tcd_m and "تعذّر القاعُ الدقيق 0" in _tcd_m
+            and _TCD.gate_of({"stable": False}, {"boom": True}) == "boom" and _TCD.gate_of(None, {"boom": True}) == "nohour")
+    _v17w = f"💥={_boom17.strip()[:70]} · ⏳={_ext17.strip()[:70]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v17, _v17w = False, f"⛔ رمى: {type(_e).__name__}"
+check("💥 TCD17 الأنبوب: BOOM (ثابتٌ وقفز ‏+60% قبل جلستين) لا يُذكر و«انفجر خلال أسبوع 1» وسجلُّه · OLDB (قبل 5 جلسات) يُذكر · "
+      "EXT (ذيلُ أفترٍ أدنى) لا يُذكر وسجلُّه «بري/أفتر · مضى 2 من 5» · وعدّاداتُ التذييل · وترتيبُ البوّابة (تعذّر ⟵ انفجار ⟵ "
+      "ثبات)", _v17, _v17w)
+
+# TCD18 — رسالةٌ واحدة بقسمين: 💵 فوق الدولار (AAA · NWO · OLDB) · 🪙 سنتات (PNY بسعرٍ بأربع خانات $0.5000) · لا سهمَ في
+#    القسمين · وحدُّ الفئة `PX.PX_MIN` (1.00 دولار · 0.9999 سنتات)
+try:
+    _v18 = (all(f"${s}" in _tcd_dol for s in ("AAA", "NWO", "OLDB")) and "$PNY" in _tcd_pen and "$0.5000" in _tcd_pen
+            and "$PNY" not in _tcd_dol and not any(f"${s}" in _tcd_pen for s in ("AAA", "NWO", "OLDB"))
+            and "💵 <b>فوق الدولار — يطابق: 3</b>" in _tcd_m and "🪙 <b>سنتات (أقلّ من دولار) — يطابق: 1</b>" in _tcd_m
+            and _TCD.px_class(1.0) == "dollar" and _TCD.px_class(0.9999) == "penny" and _TCD.px_class(None) is None
+            and "سنتات 1" in _tcd_m)
+    _v18w = f"💵={_tcd_dol[:100]} · 🪙={_tcd_pen[:80]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v18, _v18w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🪙 TCD18 رسالةٌ واحدة بقسمين: 💵 (AAA · NWO · OLDB) · 🪙 (PNY بسعر $0.5000) · لا تكرار · وحدُّ الفئة `PX.PX_MIN` "
+      "(1.00 دولار · 0.9999 سنتات)", _v18, _v18w)
+
+# TCD19 — المطابقُ الكامل وحدَه يُذكر: لا قسمَ «ينتظر» ولا «مشكوك» ولا «مجهول» ولا «🔸» في الرسالة · والمذكورُ = `listed`
+#    بالضبط · وكلُّ سهمٍ عبر RSI مذكورٌ أو معدودٌ مرّةً واحدة (المذكور + العدّادات = RSI أقلّ من 30)
+try:
+    _rows19 = _tcd_st.get("rows") or {}
+    _dl19, _pn19 = _TCD.listed(_rows19)
+    _x19 = _TCD.excluded_counts(_rows19)
+    _named19 = sorted(s for s in _rows19 if f"${s} ·" in _tcd_yes)
+    _u19 = {"W": {"gate": "wait", "v": True, "doubt": False, "px": 2.0, "rsi": 10.0},
+            "B": {"gate": "boom", "v": True, "doubt": False, "px": 0.5, "rsi": 11.0},
+            "D": {"gate": "ok", "v": True, "doubt": True, "px": 2.0, "rsi": 12.0},
+            "K": {"gate": "ok", "v": True, "doubt": False, "px": 0.9, "rsi": 13.0}}
+    _v19 = (all(t not in _tcd_m for t in ("⏳ <b>", "⚠️ <b>مشكوك", "❔ <b>مجهول", "🔸"))
+            and _named19 == sorted(_dl19 + _pn19) and _TCD.listed(_u19) == ([], ["K"])
+            and len(_dl19) + len(_pn19) + sum(_x19.values()) == len(_rows19) == _tcd_st["counts"]["c2"])
+    _v19w = f"مذكور={_named19} · عدّادات={_x19} · RSI={len(_rows19)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v19, _v19w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🧾 TCD19 المطابقُ الكامل وحدَه يُذكر (لا ⏳ ولا ⚠️ ولا ❔ ولا 🔸 في الرسالة) · والمذكورُ = `listed` · والمذكورُ مع "
+      "العدّادات = كلُّ مَن عبر RSI مرّةً واحدة", _v19, _v19w)
+
+# TCD20 — الثباتُ 5 للأداة وحدَها: `STABILITY_REQ` = 5 · و`STABILITY_MIN` للبوت 3 لم يُمَسّ ولا يُقرأ في كود الأداة · و5
+#    الأسبوع `EXPLODE_WIN` مستقلٌّ بالاسم
+try:
+    _t20 = _tcd_ast.parse(_tcd_src)
+    _code20 = [n for n in _t20.body if not (isinstance(n, _tcd_ast.Expr) and isinstance(getattr(n, "value", None),
+                                                                                      _tcd_ast.Constant))]
+    _strs20 = {c.value for n in _code20 for c in _tcd_ast.walk(n) if isinstance(c, _tcd_ast.Constant)
+               and isinstance(c.value, str)}
+    _v20 = (_TCD.STABILITY_REQ == 5 and _TCD.EXPLODE_WIN == 5 and _TCD.S.CONFIG["STABILITY_MIN"] == 3
+            and "STABILITY_MIN" not in _strs20)
+    _v20w = f"REQ={_TCD.STABILITY_REQ} · WIN={_TCD.EXPLODE_WIN} · البوت={_TCD.S.CONFIG['STABILITY_MIN']}"
+except Exception as _e:                                              # noqa: BLE001
+    _v20, _v20w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏳ TCD20 الثباتُ 5 للأداة وحدَها (`STABILITY_REQ`) · و`STABILITY_MIN`=3 للبوت لم يُمَسّ ولا يُقرأ في كود الأداة · "
+      "و`EXPLODE_WIN`=5 بالاسم", _v20, _v20w)
+
+# TCD21 — التتبّع: `TC_TRACE` يطبع لكلّ رمزٍ مسمّى سطرَه (EXT بقاعه الممتدّ · MGN خارج RSI · ZZZ بلا شمعة) ولا يدخل عددًا ·
+#    ومُدخَلُ `trace` موصولٌ في scan وsend
+try:
+    _tr21 = [ln for ln in _tcd_log.splitlines() if ln.startswith("🔎 تتبّع")]
+    _y21 = __import__("yaml").safe_load(open(".github/workflows/three_cond_daily.yml", encoding="utf-8").read())
+    _j21 = _y21.get("jobs") or {}
+    _env21 = {j: [((st or {}).get("env") or {}).get("TC_TRACE") for st in (_j21[j].get("steps") or [])]
+              for j in ("scan", "send")}
+    _in21 = ((_y21.get(True) or _y21.get("on") or {}).get("workflow_dispatch") or {}).get("inputs") or {}
+    _r21 = _tcd_run()                                                # بلا تتبّع
+    _v21 = (any("تتبّع EXT" in ln and "بري/أفتر" in ln and "البوّابة wait" in ln for ln in _tr21)
+            and any("تتبّع MGN" in ln and "خارج RSI" in ln for ln in _tr21)
+            and any("تتبّع ZZZ" in ln and "بلا شمعة" in ln for ln in _tr21)
+            and _tcd_msg(_r21[1]) == _tcd_m and "trace" in _in21
+            and all(any(v == "${{ github.event.inputs.trace }}" for v in vs) for vs in _env21.values()))
+    _v21w = f"أسطر={len(_tr21)} · env={_env21}"
+except Exception as _e:                                              # noqa: BLE001
+    _v21, _v21w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔎 TCD21 التتبّع `TC_TRACE`: سطرٌ لكلّ رمزٍ مسمّى (EXT بقاعه الممتدّ · MGN خارج RSI · ZZZ بلا شمعة) · لا يغيّر الرسالة · "
+      "ومُدخَلُ `trace` موصولٌ في scan وsend", _v21, _v21w)
+
+# TCD22 — الكلفة: شموعُ الساعة لمن عبر RSI (والمتتبَّع) وحدَه · والفلوتُ (ياهو) لمن عبر الثبات والانفجار وحدَه · والموقعُ
+#    (المتاح) لا يُسأل عن ينتظر الثبات ولا المنفجر
+try:
+    _need22 = set(_tcd_st.get("need") or [])
+    _rows22 = _tcd_st.get("rows") or {}
+    _v22 = (_tcd_hours.calls == 1 and set(_tcd_hours.syms) == set(_rows22) | {"MGN"}
+            and set(_tcd_yf.asked) == {s for s in _rows22 if _rows22[s]["gate"] == "ok"}
+            and not ({"BOOM", "EXT", "NEW"} & (set(_tcd_yf.asked) | _need22)))
+    _v22w = f"ساعات={_tcd_hours.syms} · فلوت={sorted(_tcd_yf.asked)} · موقع={sorted(_need22)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v22, _v22w = False, f"⛔ رمى: {type(_e).__name__}"
+check("💰 TCD22 الكلفة: شموعُ الساعة لمن عبر RSI والمتتبَّع وحدَهم · والفلوتُ لمن عبر الثبات والانفجار وحدَهم · والمتاحُ لا "
+      "يُسأل عن ينتظر الثبات ولا المنفجر", _v22, _v22w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🩹 SRC1-SRC9 إصلاحُ مصدر الشموع (أمرُ المالك 2026-09-26 «صلح مصدر البوت» · فحصُ البوت `36244720433`: ياهو غيرُ متّسقٍ مع
