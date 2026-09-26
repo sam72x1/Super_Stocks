@@ -1,0 +1,32 @@
+name: "🩺 مِجَسّ IBKR للاقتراض (مؤقّت · يُحذف بعد القراءة)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · بلا سرّ.
+#    هل ملفُّ IBKR العامّ (ftp3 · shortstock · usa.txt) يصل من الرنر ويطابق «Available»
+#    في حصاد ChartExchange اليوم؟ المعيارُ R1-R3 مكتوبٌ في رأس ibkr_borrow_probe.py قبل التشغيل.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ibkr_borrow_probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🩺 المِجَسّ
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python ibkr_borrow_probe.py
