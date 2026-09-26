@@ -375,7 +375,7 @@
     "n_symbols": 25,
     "session_complete": false,
     "termination": "normal",
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-26"
   },
   "2026-08-19": {
     "deferred_reasons": [],
@@ -431,7 +431,7 @@
     "n_symbols": 24,
     "session_complete": false,
     "termination": "normal",
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-26"
   },
   "2026-08-25": {
     "deferred_reasons": [],
@@ -523,7 +523,7 @@
     "n_symbols": 22,
     "session_complete": false,
     "termination": "normal",
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-26"
   },
   "2026-09-04": {
     "deferred_reasons": [
@@ -677,7 +677,7 @@
     "n_symbols": 29,
     "session_complete": false,
     "termination": "normal",
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-26"
   },
   "2026-09-21": {
     "deferred_reasons": [
@@ -754,6 +754,6 @@
     "n_symbols": 18,
     "session_complete": false,
     "termination": "normal",
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-26"
   }
 }
