@@ -306,10 +306,11 @@ def harvest(fetch=None, watch_syms=None, today_iso=None, cap=None, path=None,
         try:
             d = (fetch(sym, diag=dg) if real else fetch(sym)) or {}
         except Exception as e:              # الجالبُ المحقون قد يرمي — تعذّرٌ لا انهيار
-            return {}, "exc:" + type(e).__name__
-        return d, ("" if d else (dg.get("reason") or "empty"))
+            return {}, "exc:" + type(e).__name__, dg
+        return d, ("" if d else (dg.get("reason") or "empty")), dg
 
     got, why, pending, first_bad = {}, {}, list(order), 0
+    seq, samples, canary = [], [], ""
     for rnd in (1, 2):
         if rnd == 2:
             if not pending:
@@ -324,14 +325,26 @@ def harvest(fetch=None, watch_syms=None, today_iso=None, cap=None, path=None,
                 break
             if k and gap > 0:
                 sleep(gap)
-            d, reason = _one(sym)
+            d, reason, dg = _one(sym)
+            if rnd == 1:
+                seq.append("✓" if d else "✗")
             if d:
                 got[sym] = d
             else:                           # تعذّر ≠ صفر ⇒ لا سطر كاذب
                 why[sym] = reason
                 bad.append(sym)
+                if rnd == 1 and len(samples) < 6:
+                    samples.append(sym + ":" + reason + ":len=" + str(dg.get("len"))
+                                   + ":" + repr(dg.get("snip", ""))[:120])
         if rnd == 1:
             first_bad = len(bad)
+            # 🐤 **شاهدٌ داخليّ** (الجالبُ الحقيقيّ وحدَه · لا يُكتب): أوّلُ رمزٍ يُعاد جلبُه بعد
+            #    التمريرة — نجح أوّلًا وتعذّر آخرًا ⇒ الموقعُ يتغيّر تحت الدفعة (لا عيبَ رمز).
+            if real and order:
+                sleep(gap)
+                d0, r0, _dg0 = _one(order[0])
+                canary = (order[0] + ": أوّلًا " + seq[0] + " · آخرًا "
+                          + ("✓" if d0 else "✗ " + r0))
         pending = bad
     failed = len(pending)
     rows = []
@@ -359,6 +372,11 @@ def harvest(fetch=None, watch_syms=None, today_iso=None, cap=None, path=None,
     print("   ↳ كُتب لكلّ فئة: " + str(wrote_by)
           + " · أُنقذ بالإعادة: " + str(first_bad - failed)
           + " · أسبابُ التعذّر: " + str(reasons))
+    print("   ↳ تسلسلُ التمريرة الأولى بترتيب الجلب: " + "".join(seq))
+    if samples:
+        print("   ↳ أمثلةُ التعذّر: " + " | ".join(samples))
+    if canary:
+        print("   ↳ 🐤 الشاهد " + canary)
     if dropped:
         print("⚠️ السقف " + str(cap) + " أسقط: " + str(dropped) + " — يُعلَن ولا يُصمت.")
     if wrote == 0:

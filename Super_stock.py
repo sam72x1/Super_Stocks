@@ -4216,6 +4216,12 @@ def ce_borrow_info(sym: str, diag: dict = None) -> dict:
             diag["reason"] = ("parse:challenge" if ("Just a moment" in _t
                                                     or "cf-chl" in _t)
                               else "parse:empty")
+            # 🩺 ما الذي عاد فعلًا؟ طولُ الصفحة ومقتطفُ جملة «ctbtoday» (أو عنوانُ الصفحة)
+            _i = _t.find('name="ctbtoday"')
+            _m = re.search(r"<title[^>]*>(.*?)</title>", _t, re.S | re.I)
+            diag["len"] = len(_t)
+            diag["snip"] = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", (
+                _t[_i:_i + 600] if _i >= 0 else (_m.group(1) if _m else ""))))[:160]
         return out
     except Exception as e:
         if diag is not None:
