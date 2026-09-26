@@ -528,7 +528,7 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
         log(f"   💥 {s} · {S._px_txt(rows[s]['px'])} · {b['pct']:+.1f}% يوم {b['day']} (من {S._px_txt(b['ref'])} إلى "
             f"{S._px_txt(b['peak'])}) · {stab_text(rows[s])}")
     if by["nohour"]:
-        log(f"   ⛔ تعذّر القاعُ الدقيق (شموعُ الساعة): {by['nohour'][:60]}")
+        log(f"   ⛔ تعذّر القاعُ الدقيق (شموعُ الساعة) {len(by['nohour'])}: " + " · ".join(by["nohour"]))
     cache = load_json(S.COMPANY_FILE, {}) if cache is None else cache
     wl_fl = {e.get("symbol"): e.get("float") for sec in ("stocks", "pullback") for e in (wl.get(sec) or [])}
     for s in c3:
@@ -643,6 +643,19 @@ def stage_send(st, parts, send=None):
         elif r["v"] is None:
             miss = [n for n, x in (("الفلوت", r.get("fl")), ("المتاح", r.get("av"))) if x is None]
             log(f"   ❔ مجهول {s} · الناقص: {' · '.join(miss) or '—'} ({r.get('av_src') or '—'}) · {r['bot']}")
+    # ✖️ وما سقط بالفلوت أو المتاح يُطبع **كلُّه بقيمته** — التذييلُ يَعِد «الأسماءُ في السجلّ» (أمسكه dry `36259380803`: الفلوت
+    #    29 والمتاح 20 كانوا عدًّا بلا أسماء) · والتصنيفُ نفسُه في `excluded_counts`
+    fl_x, av_x = [], []
+    for s in ok:
+        r = rows[s]
+        if r["v"] is False:
+            f = WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))[:3]
+            (fl_x if f[1] is False else av_x).append(s)
+    if fl_x:
+        log(f"   ✖️ الفلوت فوق الحدّ {len(fl_x)}: " + " · ".join(f"{s} ({_num_txt(rows[s].get('fl'))})" for s in fl_x))
+    if av_x:
+        log(f"   ✖️ المتاح فوق الحدّ {len(av_x)}: "
+            + " · ".join(f"{s} ({(rows[s].get('av') or 0):,.0f})" for s in av_x))
     near = near_misses(rows)
     if near:
         log(f"   🔸 من أسهم البوت سقطت بشرطٍ واحد (والثبات عابر): {len(near)} — "
