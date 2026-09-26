@@ -16800,7 +16800,9 @@ def _ctbr5():
     _ok = ('<div name="ctbtoday">As of <b>x</b>, there were <b>12,000</b> shares '
            'available with a fee of <b>55.5%</b>.</div>')
     _cases = {"http": _FakeResp(429), "cf": _FakeResp(200, "<title>Just a moment...</title>"),
-              "empty": _FakeResp(200, "<html>no data</html>"), "ok": _FakeResp(200, _ok)}
+              "empty": _FakeResp(200, "<html>" + "x" * 3000 + "</html>"),
+              "shell": _FakeResp(200, "<html>" + "y" * 1000 + "</html>"),
+              "ok": _FakeResp(200, _ok)}
     out = {}
     try:
         for _k, _resp in _cases.items():
@@ -16821,13 +16823,14 @@ def _ctbr5():
         S.requests.get = _orig
     return (out["http"] == ({}, "http:429", {}) and out["cf"] == ({}, "parse:challenge", {})
             and out["empty"] == ({}, "parse:empty", {})
+            and out["shell"] == ({}, "parse:shell", {})
             and out["exc"] == ({}, "exc:ConnectionError", {})
             and out["ok"][0] == out["ok"][2] == {"shares_available": 12000, "borrow_fee": 55.5}
             and out["ok"][1] is None, out)
 
 
 _c5 = _ctbr5()
-check("🔒 CTBR5·`ce_borrow_info(diag=)` يكتب سببَ التعذّر (http · تحدّي Cloudflare · فارغ · استثناء) · وبلا diag النتيجةُ نفسُها",
+check("🔒 CTBR5·`ce_borrow_info(diag=)` يكتب سببَ التعذّر (http · تحدّي Cloudflare · قِشرةٌ ضئيلة · فارغ · استثناء) · وبلا diag النتيجةُ نفسُها",
       _c5[0], str(_c5[1])[:100])
 
 

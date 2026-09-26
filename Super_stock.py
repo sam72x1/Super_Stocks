@@ -4213,8 +4213,11 @@ def ce_borrow_info(sym: str, diag: dict = None) -> dict:
         out = _parse_ce_borrow(r.text or "")
         if diag is not None and not out:
             _t = r.text or ""
+            # `parse:shell` = صفحةٌ ضئيلة (‏1035 محرفًا في تجربة 2026-09-26) لا صفحةُ سهم:
+            #    الموقعُ يُرجعها بعد ‏≈50 طلبًا متتاليًا (حجبٌ ناعمٌ برمز 200 · شاهدٌ داخليّ أثبته)
             diag["reason"] = ("parse:challenge" if ("Just a moment" in _t
                                                     or "cf-chl" in _t)
+                              else "parse:shell" if len(_t) < 2000
                               else "parse:empty")
             # 🩺 ما الذي عاد فعلًا؟ طولُ الصفحة ومقتطفُ جملة «ctbtoday» (أو عنوانُ الصفحة)
             _i = _t.find('name="ctbtoday"')
