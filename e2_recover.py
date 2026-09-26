@@ -54,7 +54,22 @@ def _summary_of(sdir):
     return _read_json(os.path.join(up, "ignition_e2_summary.json"))
 
 
-def recover(download_root, repo_root="."):
+def _tail_fetcher(fetch_range):
+    """🔎 (2026-09-26) جالبُ فحص الذيل: `"auto"` ⇒ جالبُ Polygon المؤرَّخ **بمفتاحٍ فقط** (بلا مفتاحٍ ⇒
+    None = الحكمُ السابق حرفيًّا · والسويّةُ بلا مفتاحٍ فلا شبكة) · وغيرُه يُمرَّر كما هو (محقونٌ للاختبار)."""
+    if fetch_range != "auto":
+        return fetch_range
+    if not os.environ.get("POLYGON_API_KEY", "").strip():
+        return None
+    try:
+        import ignition_e2_assemble as _ASM
+        return _ASM.fetch_minute_range
+    except Exception as e:                       # noqa: BLE001
+        print("   ⚠️ جالبُ فحص الذيل تعذّر: %s" % e)
+        return None
+
+
+def recover(download_root, repo_root=".", fetch_range="auto"):
     idx_path = os.path.join(repo_root, INDEX)
     idx = _read_json(idx_path)
     before = set(idx)
@@ -100,6 +115,11 @@ def recover(download_root, repo_root="."):
     except Exception as e:                       # الاسترجاعُ لا يسقط بسقوط المدقّق
         _A = None
         print("   ⚠️ حكمُ المدقّق تعذّر: %s" % e)
+    # 🔎 (2026-09-26): **ذيلُ المسار** لما لم يبلغ الإغلاق يُفحص عند المزوّد (نافذةٌ مؤرَّخة · بعد الإغلاق
+    #    بالبناء) ويُكتب دليلُه `TAIL_CHECKS_FILE` في المجلّد ونسختِه ثمّ يُعاد الحكم — للجلسات التي جُمِّعت
+    #    قبل هذا الإصلاح (مِجَسّ `36223025879`: CELU · MIMI · CCTG · CURX · SMX). بلا مفتاحٍ = الحكمُ السابق.
+    _fr = _tail_fetcher(fetch_range) if _A else None
+    tail_done = []                               # [(تاريخ، {رمز: فحص})]
     for date, (_loops, sdir, _summ) in (sorted(best.items()) if _A else ()):
         if not os.path.exists(os.path.join(sdir, "session.json")):
             continue
@@ -107,7 +127,24 @@ def recover(download_root, repo_root="."):
         #    جلسةٍ واحدة (مخطّطٌ أقدم في إعادة الحكم التاريخيّ) **يبتر ما بعدها صامتًا** ⇒ تُحكَم
         #    الباقيةُ ويُعلَن المتعذِّرُ بتاريخه — ولا يُخترَع له حكم.
         try:
-            v = _A.verdict_entry(_A.analyze_session(sdir))
+            _r = _A.analyze_session(sdir)
+            _open = _r.get("path_tail_unverified") or {}
+            if _open and _fr is not None and _r.get("expected_close_ms") is not None:
+                import ignition_e2_assemble as _ASM
+                _cks = {}
+                for _sym, _lt in sorted(_open.items()):
+                    _ck, _ = _ASM.close_tail_check(_fr, _sym, _lt, _r["expected_close_ms"],
+                                                   source="e2_recover")
+                    if _ck is not None:
+                        _cks[_sym] = _ck
+                if _cks:
+                    _ASM.write_tail_checks(sdir, _cks)
+                    _dst = os.path.join(repo_root, ROOT, "session_%s" % date)
+                    if os.path.isdir(_dst) and os.path.abspath(_dst) != os.path.abspath(sdir):
+                        _ASM.write_tail_checks(_dst, _cks)
+                    tail_done.append((date, _cks))
+                    _r = _A.analyze_session(sdir)
+            v = _A.verdict_entry(_r)
         except Exception as e:                   # noqa: BLE001
             judge_errors.append(date)
             print("   ⚠️ حكمُ المدقّق تعذّر لجلسة %s: %s" % (date, e))
@@ -142,6 +179,11 @@ def recover(download_root, repo_root="."):
     if judge_errors:
         print("   ⚠️ تعذّر الحكمُ على %d جلسة (لا حكمَ يُخترَع): %s"
               % (len(judge_errors), ", ".join(judge_errors)))
+    if tail_done:
+        print("   🔎 ذيلُ المسار عند المزوّد (%d جلسة): %s" % (len(tail_done), " · ".join(
+            "%s %s" % (d, ",".join("%s=%s" % (k, ("خالٍ" if c.get("n") == 0 else "%s شمعة" % c.get("n")))
+                                   for k, c in sorted(cks.items())))
+            for d, cks in tail_done)))
     # 🔬 (2026-09-25) **عدّادُ E2-B التراكميّ من الفهرس** — كلُّ الجلسات المكتملة لا المسترجَعة الليلة
     #    وحدَها (مدقّقُ الخطوة التالية يرى مجلّدَ هذه التشغيلة فقط فطبع ‏2/20 والكاملُ ‏11/20). والمكتملةُ
     #    بلا عدٍّ محفوظ **تُعلَن** فيُقرأ الرقمُ حدًّا أدنى لا صفرًا مُخترَعًا.
@@ -171,7 +213,7 @@ def recover(download_root, repo_root="."):
             print("      %s: %s" % (date, " · ".join(syms)))
     return {"index": len(idx), "new": merged, "copied": copied, "fires": fires,
             "rebuilt": rebuilt, "ts_filled": ts_filled,
-            "judged": judged, "judge_errors": judge_errors, "e2b": e2b,
+            "judged": judged, "judge_errors": judge_errors, "e2b": e2b, "tail_checks": tail_done,
             "conflicts": conflicts, "no_summary": [d for d, _ in no_summary]}
 
 

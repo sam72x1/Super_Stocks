@@ -5701,6 +5701,223 @@ check("🔴 E2B5 المدقّقُ يَسِم عدَّيه **بنطاقهما** (
       and "(من الفهرس: e2_recover)" in _e2b_o2
       and "بوّابة E2-A (SPEC §18)" not in _e2b_o2 and "تتراكم (المطلوب 5" not in _e2b_o2,
       _e2b_o2[-260:])
+# 🔎 E2T (2026-09-26) **ذيلٌ بلا شموع ليس مسارًا ناقصًا** — مِجَسُّ الفرع `36223025879` على أرشيف الخام: خمسُ
+#    رفضاتٍ بـ`path_not_reaching_close` جُمِّعت بعد الإغلاق (CELU · MIMI · CCTG · SMX · CURX) والمسارُ فيها التقط
+#    كلَّ ما عند Polygon وذيلُه صفقاتُ odd lot لا تصنع شمعة ⇒ **دليلٌ من المزوّد** (نافذةٌ مؤرَّخةٌ بعد الإغلاق ·
+#    جوابٌ صريحٌ فارغ) يُقبل ويُعلَن · والتعذّرُ لا يُقبل · وشموعُ الذيل تُدمَج · والماضي يُفحص في `e2_recover`.
+_e2t_bf_short = lambda s: [{"o": 2, "h": 2.1, "l": 2, "c": 2.05, "v": 10,
+                            "t": _f_close_ms - 60000 * k} for k in (12, 11, 10)]
+
+
+def _e2t_sess(sub, fr):
+    """جلسةٌ أمينةٌ للإنتاج وردمُها يقف قبل الإغلاق بعشر دقائق (سهمٌ رقيق) — ثمّ فحصُ الذيل بـ`fr`."""
+    _o = _e2_seg(sub, "2026-07-25", "open", "IGN", _f_now_ms - 3600_000, seg_end_off=-90, post_bar=False)
+    _e2_seg(sub, "2026-07-25", "close", "BBB", _f_now_ms - 600_000, seg_end_off=+5,
+            prev=_o.manifest_sha256, post_bar=False)
+    try:
+        _sm = _ASM.assemble("2026-07-25", root=_os.path.join(_e2_out, sub), write_repo_index=False,
+                            fetch_bars=_e2t_bf_short, fetch_range=fr)
+    except Exception as _e:                                      # noqa: BLE001
+        _sm = {"⛔": type(_e).__name__}
+    _sd = _os.path.join(_e2_out, sub, "session_2026-07-25")
+    try:
+        _rr = _A.analyze_session(_sd)
+    except Exception as _e:                                      # noqa: BLE001
+        _rr = {"session_complete": f"⛔ رمى: {type(_e).__name__}", "incomplete_reasons": []}
+    _tp = _os.path.join(_sd, _A.TAIL_CHECKS_FILE)
+    _tc = _json.load(open(_tp, encoding="utf-8")) if _os.path.exists(_tp) else None
+    return _sm, _rr, _tc
+
+
+def _e2t_raise(s, a, b):
+    raise ConnectionError("شبكة")
+
+
+_e2t_calls = []
+_e2t_sm_e, _e2t_r_e, _e2t_tc_e = _e2t_sess("e2t_empty", lambda s, a, b: (_e2t_calls.append((s, a, b)) or []))
+# النافذةُ **لكلّ رمزٍ من آخر شمعته هو**: IGN آخرُه شمعةُ الردم (الإغلاق −10د) · وBBB آخرُه شمعةُ زناده (الآن −10د)
+#    — والإغلاقُ من `session.json` نفسِه لا من ساعة الفِكستشر (عبورُ دقيقةٍ بينهما لا يُسقط القفل كذبًا).
+_e2t_sj = _json.load(open(_os.path.join(_e2_out, "e2t_empty", "session_2026-07-25", "session.json"), encoding="utf-8"))
+_e2t_cms = int(S.dt.datetime.strptime(_e2t_sj["expected_close_iso"], "%Y-%m-%dT%H:%M:%SZ")
+               .replace(tzinfo=S.dt.timezone.utc).timestamp() * 1000)
+check("🔎 E2T1 ذيلٌ فارغٌ **بجوابٍ صريحٍ من المزوّد** بعد الإغلاق ⇒ الجلسةُ مكتملة · والقبولُ **مُعلَنٌ** ومحفوظٌ دليلُه",
+      _e2t_r_e.get("session_complete") is True and _e2t_r_e.get("tail_verified") == ["BBB", "IGN"]
+      and isinstance(_e2t_tc_e, dict) and sorted(_e2t_tc_e) == ["BBB", "IGN"]
+      and all(v.get("n") == 0 and v.get("source") == "assembler" for v in _e2t_tc_e.values())
+      and _A.verdict_entry(_e2t_r_e).get("tail_verified") == ["BBB", "IGN"]
+      and {c[0]: (c[1], c[2]) for c in _e2t_calls}
+      == {"IGN": (_f_close_ms - 540_000, _e2t_cms - 60_000), "BBB": (_f_now_ms - 540_000, _e2t_cms - 60_000)},
+      str(_e2t_r_e.get("incomplete_reasons")) + " · " + str(_e2t_r_e.get("tail_verified")) + " · " + str(_e2t_calls))
+_e2t_sm_n, _e2t_r_n, _e2t_tc_n = _e2t_sess("e2t_none", lambda s, a, b: None)
+_e2t_sm_x, _e2t_r_x, _e2t_tc_x = _e2t_sess("e2t_raise", _e2t_raise)
+check("🔴 E2T2 شاهدا ضبط: **تعذّرُ** الجلب (None · استثناء) ليس دليلًا ⇒ `path_not_reaching_close` ولا ملفَّ دليل",
+      _e2t_r_n.get("session_complete") is False and _e2t_r_x.get("session_complete") is False
+      and any("path_not_reaching_close" in x for x in _e2t_r_n.get("incomplete_reasons") or [])
+      and any("path_not_reaching_close" in x for x in _e2t_r_x.get("incomplete_reasons") or [])
+      and _e2t_tc_n is None and _e2t_tc_x is None and not _e2t_r_n.get("tail_verified"),
+      str(_e2t_r_n.get("incomplete_reasons")) + " · " + str(_e2t_r_x.get("incomplete_reasons")))
+_e2t_sm_b, _e2t_r_b, _e2t_tc_b = _e2t_sess(
+    "e2t_bars", lambda s, a, b: [{"o": 2, "h": 2.2, "l": 2, "c": 2.1, "v": 500, "t": b}])
+_e2t_mp = _os.path.join(_e2_out, "e2t_bars", "session_2026-07-25", "minute_paths.jsonl.gz")
+_e2t_tb = [_r for _r in _A._read_jsonl_gz(_e2t_mp) if _r.get("t") == _f_close_ms - 60000]
+check("🔎 E2T3 شموعٌ في الذيل **تُدمَج في المسار** (ثغرةٌ حقيقيّةٌ سُدّت) ⇒ يبلغ الإغلاقَ بالمسار لا بالدليل · والفحصُ يحفظ عددَها",
+      _e2t_r_b.get("session_complete") is True and not _e2t_r_b.get("tail_verified")
+      and sorted(r["symbol"] for r in _e2t_tb) == ["BBB", "IGN"]
+      and isinstance(_e2t_tc_b, dict) and all(v.get("n") == 1 for v in _e2t_tc_b.values()),
+      str(_e2t_r_b.get("incomplete_reasons")) + " · " + str(len(_e2t_tb)) + " · " + str(_e2t_tc_b))
+_e2t_ok = {"from_ms": 1_000_060_000, "to_ms": 1_000_540_000, "n": 0, "at_ms": 1_000_700_000}
+_e2t_v = lambda **kw: _A.tail_check_valid(dict(_e2t_ok, **kw), 1_000_000_000, 1_000_600_000)
+check("🔒 E2T4 `tail_check_valid` فاشلٌ-مغلق: n=0 صحيحٌ بعد الإغلاق يلاصق المسار ويبلغ آخرَ دقيقة — **وحدَه**",
+      _e2t_v() is True
+      and _e2t_v(n=True) is False and _e2t_v(n=1) is False and _e2t_v(n=0.0) is False and _e2t_v(n=None) is False
+      and _e2t_v(at_ms=1_000_599_999) is False
+      and _e2t_v(from_ms=1_000_060_001) is False
+      and _e2t_v(to_ms=1_000_539_999) is False and _e2t_v(to_ms="1000540000") is False
+      and _A.tail_check_valid(None, 1, 2) is False and _A.tail_check_valid(_e2t_ok, None, 1_000_600_000) is False
+      and _A.tail_check_valid(_e2t_ok, 1_000_000_000, None) is False,
+      "أساس=%s" % _e2t_v())
+# ♻️ الماضي: جلسةٌ جُمِّعت بلا فحص (المسارُ قصير) ⟵ `e2_recover` يفحص ذيلَها ويكتب الدليلَ ويُعيد الحكم.
+_e2t_rr = _tmp.mkdtemp(prefix="e2t_rec_")
+_e2t_dl = _os.path.join(_e2t_rr, "recovered", "777", "e2_measurement", "session_2026-07-25")
+__import__("shutil").copytree(_os.path.join(_e2_out, "e2t_none", "session_2026-07-25"), _e2t_dl)
+with open(_os.path.join(_e2t_rr, "ignition_e2_session_index.json"), "w", encoding="utf-8") as _fh:
+    _json.dump({}, _fh)
+try:
+    _e2t_res0 = _RC.recover(_os.path.join(_e2t_rr, "recovered"), repo_root=_e2t_rr, fetch_range=None)
+    _e2t_ix0 = _json.load(open(_os.path.join(_e2t_rr, "ignition_e2_session_index.json"), encoding="utf-8"))
+    _e2t_res1 = _RC.recover(_os.path.join(_e2t_rr, "recovered"), repo_root=_e2t_rr,
+                            fetch_range=lambda s, a, b: [])
+    _e2t_ix1 = _json.load(open(_os.path.join(_e2t_rr, "ignition_e2_session_index.json"), encoding="utf-8"))
+except Exception as _e:                                          # noqa: BLE001
+    _e2t_res0 = _e2t_res1 = {"judged": f"⛔ رمى: {type(_e).__name__}"}
+    _e2t_ix0 = _e2t_ix1 = {}
+_e2t_copy = _os.path.join(_e2t_rr, "e2_measurement", "session_2026-07-25", _A.TAIL_CHECKS_FILE)
+_e2t_dlf = _os.path.join(_e2t_dl, _A.TAIL_CHECKS_FILE)
+check("♻️ E2T5 الاسترجاعُ يفحص ذيلَ الماضي: بلا جالبٍ ⇒ الحكمُ السابق حرفيًّا · وبجوابٍ فارغ ⇒ مكتملة ودليلُها في المجلّدين والفهرس",
+      _e2t_res0.get("judged") == [("2026-07-25", False)] and not _e2t_res0.get("tail_checks")
+      and _e2t_ix0.get("2026-07-25", {}).get("session_complete") is False
+      and _e2t_res1.get("judged") == [("2026-07-25", True)]
+      and [d for d, _c in (_e2t_res1.get("tail_checks") or [])] == ["2026-07-25"]
+      and _e2t_ix1.get("2026-07-25", {}).get("session_complete") is True
+      and _e2t_ix1.get("2026-07-25", {}).get("tail_verified") == ["BBB", "IGN"]
+      and _os.path.exists(_e2t_copy) and _os.path.exists(_e2t_dlf)
+      and all(v.get("source") == "e2_recover" for v in _json.load(open(_e2t_dlf, encoding="utf-8")).values()),
+      str(_e2t_res0.get("judged")) + " ⟶ " + str(_e2t_res1.get("judged")) + " · " + str(_e2t_ix1.get("2026-07-25")))
+# 🌐 الجالبُ المؤرَّخ: **الفارغُ الصريح [] غيرُ التعذّر None** — وهو الفرقُ الذي يقوم عليه الدليل.
+_e2t_env = _os.environ.get("POLYGON_API_KEY")
+_e2t_req = __import__("requests")
+_e2t_get0 = _e2t_req.get
+_e2t_urls = []
+
+
+class _E2tResp:
+    def __init__(self, code, body):
+        self.status_code, self._b = code, body
+
+    def json(self):
+        return self._b
+
+
+def _e2t_mkget(code, body):
+    def _g(url, headers=None, timeout=None):
+        _e2t_urls.append(url)
+        return _E2tResp(code, body)
+    return _g
+
+
+_e2t_out = {}
+try:
+    _os.environ.pop("POLYGON_API_KEY", None)
+    _e2t_req.get = _e2t_mkget(200, {"status": "OK"})
+    _e2t_out["nokey"] = _ASM.fetch_minute_range("CURX", 1, 2)
+    _e2t_out["nokey_calls"] = len(_e2t_urls)
+    _os.environ["POLYGON_API_KEY"] = "k"
+    _e2t_out["empty"] = _ASM.fetch_minute_range("curx", 1000, 2000)
+    _e2t_req.get = _e2t_mkget(200, {"status": "OK", "results": [{"o": 1, "h": 1, "l": 1, "c": 1, "v": 5, "t": 1500},
+                                                                 {"o": 1, "c": 1}]})
+    _e2t_out["bars"] = _ASM.fetch_minute_range("CURX", 1000, 2000)
+    _e2t_req.get = _e2t_mkget(200, {"status": "DELAYED"})
+    _e2t_out["delayed"] = _ASM.fetch_minute_range("CURX", 1000, 2000)
+    _e2t_req.get = _e2t_mkget(403, {"status": "OK"})
+    _e2t_out["403"] = _ASM.fetch_minute_range("CURX", 1000, 2000)
+    _e2t_out["inverted"] = _ASM.fetch_minute_range("CURX", 3000, 2000)
+    _e2t_out["auto_key"] = _RC._tail_fetcher("auto") is _ASM.fetch_minute_range
+    _os.environ.pop("POLYGON_API_KEY", None)
+    _e2t_out["auto_nokey"] = _RC._tail_fetcher("auto")
+except Exception as _e:                                          # noqa: BLE001
+    _e2t_out["⛔"] = type(_e).__name__
+finally:
+    _e2t_req.get = _e2t_get0
+    if _e2t_env is None:
+        _os.environ.pop("POLYGON_API_KEY", None)
+    else:
+        _os.environ["POLYGON_API_KEY"] = _e2t_env
+check("🌐 E2T6 `fetch_minute_range`: فارغٌ صريح ⇒ [] · غيرُ OK/غيرُ 200/بلا مفتاح/نافذةٌ مقلوبة ⇒ None · والنافذةُ مؤرَّخةٌ في الرابط",
+      _e2t_out.get("nokey") is None and _e2t_out.get("nokey_calls") == 0
+      and _e2t_out.get("empty") == [] and _e2t_out.get("delayed") is None and _e2t_out.get("403") is None
+      and _e2t_out.get("inverted") is None
+      and [b.get("t") for b in (_e2t_out.get("bars") or [])] == [1500]
+      and any("/CURX/range/1/minute/1000/2000?" in u for u in _e2t_urls)
+      and _e2t_out.get("auto_key") is True and _e2t_out.get("auto_nokey") is None,
+      str({k: v for k, v in _e2t_out.items() if k != "bars"}))
+# 🔌 موصولٌ من نقطتَي النداء الحيّتين: الـassembler يمرّر الجالبَ المؤرَّخ · والاسترجاعُ يحمل المفتاح.
+import ast as _e2t_ast
+_e2t_main = next(n for n in _e2t_ast.walk(_e2t_ast.parse(open("ignition_e2_assemble.py", encoding="utf-8").read()))
+                 if isinstance(n, _e2t_ast.FunctionDef) and n.name == "main")
+_e2t_kw = [(k.arg, getattr(k.value, "id", None)) for c in _e2t_ast.walk(_e2t_main)
+           if isinstance(c, _e2t_ast.Call) and getattr(c.func, "id", None) == "assemble" for k in c.keywords]
+_e2t_yml = __import__("yaml").safe_load(open(".github/workflows/e2_recover.yml", encoding="utf-8"))
+_e2t_step = next((st for st in (_e2t_yml.get("jobs", {}).get("recover", {}).get("steps") or [])
+                  if "e2_recover.py recovered" in str(st.get("run") or "")), {})
+check("🔌 E2T7 موصول: `assemble(..., fetch_range=fetch_minute_range)` في main (AST) · وخطوةُ الاسترجاع تحمل POLYGON_API_KEY",
+      ("fetch_range", "fetch_minute_range") in _e2t_kw
+      and "secrets.POLYGON_API_KEY" in str((_e2t_step.get("env") or {}).get("POLYGON_API_KEY") or ""),
+      str(_e2t_kw) + " · " + str(_e2t_step.get("env")))
+_e2t_io = __import__("io").StringIO()
+_e2t_argv = _e2b_sys.argv
+try:
+    _e2b_sys.argv = ["ignition_e2_analyze.py", _os.path.join(_e2_out, "e2t_empty")]
+    with __import__("contextlib").redirect_stdout(_e2t_io):
+        _A.main()
+except SystemExit:
+    pass
+except Exception as _e:                                          # noqa: BLE001
+    _e2t_io.write(f"⛔ رمى: {type(_e).__name__}")
+finally:
+    _e2b_sys.argv = _e2t_argv
+check("📣 E2T8 القبولُ **يُطبَع** في تقرير المدقّق (لا تخفيفَ صامت) مع اسم ملفّ الدليل",
+      "ذيلٌ بلا شموعٍ عند المزوّد" in _e2t_io.getvalue() and _A.TAIL_CHECKS_FILE in _e2t_io.getvalue()
+      and "BBB · IGN" in _e2t_io.getvalue(),
+      _e2t_io.getvalue()[-200:])
+# 🔴 IOF (2026-09-26): **إطلاقُ اليوم نفسِه لا يُسأل عنه ياهو بنطاقٍ مقلوب** — التجديدُ بعد إغلاق الجمعة طلب
+#    `start` = الغد و`end` = الآن فرفض ياهو «start date cannot be after end date» وطبع «possibly delisted» أربعَ
+#    مرّات (`36205367215`: WSHP · CRVO · CURX · BIYA) · والنتيجةُ «معلّق» في الحالتين. **واليومُ بتوقيت نيويورك
+#    لا UTC:** 00:45 UTC السبت = 20:45 نيويورك الجمعة (يسقط به قياسُ UTC) · و04:30 UTC = 00:30 نيويورك السبت (يُسأل).
+_iof_calls = []
+_iof_yf0 = S.yf
+
+
+class _IofYF:
+    @staticmethod
+    def download(sym, start=None, **kw):
+        _iof_calls.append((sym, start))
+        return S.pd.DataFrame()
+
+
+try:
+    S.yf = _IofYF
+    _iof_fri = S.dt.datetime(2026, 9, 26, 0, 45, tzinfo=S.dt.timezone.utc)
+    _iof_sat = S.dt.datetime(2026, 9, 26, 4, 30, tzinfo=S.dt.timezone.utc)
+    _iof_same = S._ignition_outcome_fetch("CURX", "2026-09-25", now=_iof_fri)
+    _iof_prev = S._ignition_outcome_fetch("WSHP", "2026-09-24", now=_iof_fri)
+    _iof_next = S._ignition_outcome_fetch("BIYA", "2026-09-25", now=_iof_sat)
+except Exception as _e:                                          # noqa: BLE001
+    _iof_calls.append(("⛔", type(_e).__name__))
+finally:
+    S.yf = _iof_yf0
+check("🔴 IOF1 إطلاقُ اليوم نفسِه (بتوقيت نيويورك) ⇒ لا نداءَ لياهو بنطاقٍ مقلوب · والأمسُ وما بعد منتصف ليل نيويورك يُسألان",
+      _iof_same is None and _iof_calls == [("WSHP", "2026-09-25"), ("BIYA", "2026-09-26")],
+      str(_iof_calls))
 # 🗄️ (2026-09-25) **أرشيفُ الخام المتجدّد** — artifacts الجلسات احتفاظُها 90 يومًا (‏جلسة 08-11 ينتهي 11-09)
 #    وبوّابتا E2-B/C تحتاجان خامَ أشهر ⇒ اتّحادٌ يُرفع من جديد ولا ينكمش (`e2_recover.py` · `e2_recover.yml`).
 _arc_root = _tmp.mkdtemp(prefix="arc_")

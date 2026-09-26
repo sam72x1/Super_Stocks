@@ -94,7 +94,11 @@ jobs:
           else
             echo "failed" > archive_prev_status; echo "::warning::⚠️ تعذّر تنزيلُ الأرشيف السابق ($META)"
           fi
+      # 🔎 (2026-09-26) مفتاحُ Polygon لفحص **ذيل المسار** عند المزوّد (نافذةٌ مؤرَّخة بعد الإغلاق) لما لم
+      #    يبلغ الإغلاق — دليلُه يُكتب في مجلّد الجلسة ويُعاد الحكم (`e2_recover._tail_fetcher`). بلا مفتاحٍ = الحكمُ السابق.
       - name: Merge recovered sessions into repo index
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
         run: python e2_recover.py recovered | tee recover_report.txt
       - name: Rebuild raw archive (union · never shrinks)
         run: python e2_recover.py --archive archive_prev e2_measurement e2_raw_archive | tee -a recover_report.txt
