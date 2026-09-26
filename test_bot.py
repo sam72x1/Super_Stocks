@@ -68927,6 +68927,11 @@ try:
     _h = _t14(_dn + [4.0] + [4.1] * 5, [x + 0.05 for x in _dn] + [4.05] + [4.15] * 5,
               extra=[(-3, 21, 4.2, 3.0), (-3, 3, 4.2, 3.0)])                                # خارج 04:00-20:00
     _i = _t14(_dn + [4.0] + [4.1] * 4 + [4.0], [x + 0.05 for x in _dn] + [4.05] + [4.15] * 4 + [4.0])  # الإغلاقُ عند القاع
+    #    الشمعةُ اليوميّة أرضيّةٌ لو نقصت ساعةٌ يومَ القاع: ساعاتُ يوم 4.0 لا تبلغه (4.1) ⟵ القاعُ 4.0 يومَه من اليوميّة
+    _rows_j = [(d, c, c * 1.01, lo, c, 1.0) for d, lo, c in
+               zip(_ds14[-16:], _dn + [4.0] + [4.1] * 5, [x + 0.05 for x in _dn] + [4.05] + [4.15] * 5)]
+    _hj = _tcd_hours_of([(r[0], r[1], r[2], (4.1 if r[3] == 4.0 else r[3]), r[4], r[5]) for r in _rows_j])
+    _j = _TCD.exact_low_stability(_rows_j, _hj, _rows_j[-1][0])
     _fn14 = [n for n in _tcd_ast.walk(_tcd_ast.parse(_tcd_src)) if isinstance(n, _tcd_ast.FunctionDef)
              and n.name == "exact_low_stability"]
     _code14 = [n for n in (_fn14[0].body if _fn14 else []) if not (isinstance(n, _tcd_ast.Expr)
@@ -68938,7 +68943,7 @@ try:
             and _c["bars_after"] == 20 and _c["stable"] and _d["bars_after"] == 6 and _d["pivot"] == 4.0
             and _e["pivot"] == 3.7 and _e["bars_after"] == 2 and _e["ext"] and not _e["stable"]
             and _f is None and _g["bars_after"] == 5 and _g["stable"] and _h["pivot"] == 4.0 and _h["bars_after"] == 5
-            and not _i["stable"] and not _i["held"]
+            and not _i["stable"] and not _i["held"] and _j["pivot"] == 4.0 and _j["bars_after"] == 5 and not _j["ext"]
             and "PIVOT_LOOKBACK" in _strs14 and "STABILITY_REQ" in _names14 and "STABILITY_MIN" not in _strs14)
     _v14w = (f"4={_a and _a['stable']} · 5={_b and _b['stable']} · 20={_c and _c['stable']} · لمسٌ ثانٍ={_d and _d['bars_after']}"
              f" · أفتر={_e and (_e['pivot'], _e['bars_after'])} · بلا ساعة={_f} · خارج النافذة={_h and _h['pivot']}")
@@ -69041,8 +69046,12 @@ try:
     _dl19, _pn19 = _TCD.listed(_rows19)
     _x19 = _TCD.excluded_counts(_rows19)
     _named19 = sorted(s for s in _rows19 if f"${s} ·" in _tcd_yes)
+    _u19 = {"W": {"gate": "wait", "v": True, "doubt": False, "px": 2.0, "rsi": 10.0},
+            "B": {"gate": "boom", "v": True, "doubt": False, "px": 0.5, "rsi": 11.0},
+            "D": {"gate": "ok", "v": True, "doubt": True, "px": 2.0, "rsi": 12.0},
+            "K": {"gate": "ok", "v": True, "doubt": False, "px": 0.9, "rsi": 13.0}}
     _v19 = (all(t not in _tcd_m for t in ("⏳ <b>", "⚠️ <b>مشكوك", "❔ <b>مجهول", "🔸"))
-            and _named19 == sorted(_dl19 + _pn19)
+            and _named19 == sorted(_dl19 + _pn19) and _TCD.listed(_u19) == ([], ["K"])
             and len(_dl19) + len(_pn19) + sum(_x19.values()) == len(_rows19) == _tcd_st["counts"]["c2"])
     _v19w = f"مذكور={_named19} · عدّادات={_x19} · RSI={len(_rows19)}"
 except Exception as _e:                                              # noqa: BLE001
