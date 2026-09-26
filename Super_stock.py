@@ -17925,13 +17925,25 @@ def _ignition_outcome(fire, df, confirm_pct=None) -> str:
         return "pending"
 
 
-def _ignition_outcome_fetch(sym, fire_date):
-    """يجلب الشموع اليومية بعد يوم الاشتعال (لحساب النتيجة) — فاشل-آمن → None."""
+def _ignition_outcome_fetch(sym, fire_date, now=None):
+    """يجلب الشموع اليومية بعد يوم الاشتعال (لحساب النتيجة) — فاشل-آمن → None.
+    🔴 (2026-09-26): إطلاقُ **اليوم نفسِه** (التجديدُ بعد إغلاق الجمعة) لا جلسةَ بعده بعد ⇒ بدايةُ النطاق (الغد
+    بتوقيت نيويورك) بعد نهايته (الآن) ⇒ ياهو يرفض «start date cannot be after end date» ويطبع «possibly
+    delisted» — أربعُ مرّاتٍ في `36205367215` (WSHP · CRVO · CURX · BIYA) والنتيجةُ «معلّق» في الحالتين ⇒ لا
+    نداء. `now` محقونٌ للاختبار (aware)؛ تعذّرُ الساعة ⇒ السلوكُ السابق."""
     if yf is None:
         return None
     try:
-        start = (dt.date.fromisoformat(str(fire_date)[:10])
-                 + dt.timedelta(days=1)).isoformat()
+        start_d = dt.date.fromisoformat(str(fire_date)[:10]) + dt.timedelta(days=1)
+        try:
+            from zoneinfo import ZoneInfo
+            _today_ny = (now or dt.datetime.now(dt.timezone.utc)).astimezone(
+                ZoneInfo("America/New_York")).date()
+        except Exception:
+            _today_ny = None
+        if _today_ny is not None and start_d > _today_ny:
+            return None
+        start = start_d.isoformat()
         df = yf.download(sym, start=start, interval="1d",
                          auto_adjust=True, progress=False)
         if df is None or df.empty:

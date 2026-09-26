@@ -142,7 +142,42 @@ DEFERRED_GUARD = {"lost_post_alert_path": "path_not_reaching_close",
                   "segment_window_capped": "transition_gap ≤ 10د من مسحٍ فعليّ"}
 # 🧾 الحكمُ يُحفظ في الفهرس المدفوع (كان يُطبَع فقط فلا يعرفه التقريرُ الأسبوعيّ) — وسمُ
 # القاعدة التي صدر بها، فالأحكامُ قبل هذا التاريخ غيرُ محفوظةٍ لا «غيرُ مكتملة».
-VERDICT_RULE = "2026-09-24"
+# 🔎 (2026-09-26) صار «ذيلُ المسار المتحقَّقُ خاليًا عند المزوّد» يُحتسب بلوغًا للإغلاق (أدناه) ⇒ تاريخٌ جديد.
+VERDICT_RULE = "2026-09-26"
+
+# 🔎 (2026-09-26) **ذيلٌ بلا شموع ليس مسارًا ناقصًا — عطلٌ مقيسٌ في تعريف `path_not_reaching_close`**:
+#    مِجَسُّ الفرع `36223025879` على أرشيف الخام (49 جلسة · 110 تنبيهًا مُصدَرًا): سبعُ رفضاتٍ بهذا السبب،
+#    **خمسٌ منها جُمِّعت بعد الإغلاق** (CELU 08-18 · MIMI 08-24 · CCTG 09-03 · SMX 09-18 · CURX 09-25) وفي
+#    الخمس **آخرُ شمعةٍ في المسار = آخرُ شمعةٍ نظاميّةٍ عند Polygon اليوم** (الردمُ التقط كلَّ ما عند المزوّد)
+#    وصفقاتُ الدقائق الأخيرة **odd lot وحدَها** (شرط 37) فلا تصنع شمعةَ دقيقة ⇒ «شمعةٌ في آخر 4 دقائق»
+#    **مستحيلُ الاستيفاء** لسهمٍ رقيقٍ لم يُتداوَل فيه لوتٌ كامل — فيُسقط جلستَه **ويحيّز عيّنةَ E2 ضدّ
+#    الرقيقة**. والرفضان الباقيان (PSTV 07-24 · VHUB 08-31) جُمِّعا **قبل** الإغلاق وعند المزوّد شموعٌ بعد
+#    مسارهما ⇒ صحيحان ويبقيان.
+#    ⇒ **البديلُ الأقوى دليلٌ من المزوّد لا افتراض:** فحصٌ **بعد الإغلاق** لنافذةٍ مؤرَّخة من الدقيقة التالية
+#    لآخر شمعةٍ حتى بداية آخر دقيقة، بجوابٍ صريحٍ فارغ (`n == 0`) — يكتبه الـassembler حيًّا أو `e2_recover`
+#    للماضي في `TAIL_CHECKS_FILE`. **ولا يُقبل غيرُه:** تعذّرُ الجلب لا يُكتب أصلًا، وشموعٌ في الذيل تُدمَج في
+#    المسار (ثغرةٌ حقيقيّة سُدّت) أو يبقى الرفض، وفحصٌ قبل الإغلاق أو نافذةٌ لا تلاصق المسار أو لا تبلغ آخرَ
+#    دقيقة ⇒ رافض. والمقبولُ **يُطبَع** (`tail_verified`) ويُحفظ في الفهرس — لا تخفيفَ صامت.
+TAIL_CHECKS_FILE = "close_tail_checks.json"
+
+
+def tail_check_valid(ck, last_t, close_ms):
+    """🔎 نقيّة: هل يُثبت فحصُ الذيل `ck` أن مسارَ رمزٍ آخرُ شمعته `last_t` مكتملٌ حتى الإغلاق `close_ms`؟
+    ‏`n` صفرٌ صحيح (لا منطقيّ) · جرى **بعد** الإغلاق · يبدأ عند الدقيقة التالية لآخر شمعةٍ أو قبلها ·
+    ويبلغ بدايةَ آخر دقيقة. أيُّ شكلٍ آخر ⇒ False (فاشلٌ-مغلق: لا دليلَ = لا قبول)."""
+    try:
+        if not isinstance(ck, dict) or last_t is None or close_ms is None:
+            return False
+        n = ck.get("n")
+        if isinstance(n, bool) or not isinstance(n, int) or n != 0:
+            return False
+        vals = [ck.get("at_ms"), ck.get("from_ms"), ck.get("to_ms")]
+        if any(isinstance(v, bool) or not isinstance(v, int) for v in vals):
+            return False
+        at, frm, to = vals
+        return at >= int(close_ms) and frm <= int(last_t) + 60_000 and to >= int(close_ms) - 60_000
+    except Exception:
+        return False
 
 
 def _read_jsonl(path):
@@ -205,7 +240,9 @@ def _start_coverage_reason(sess):
     return ("start_coverage_late(%.1fد)" % ((a - b) / 60.0)) if a > b + tol * 60 else None
 
 
-def analyze_session(sdir):
+def analyze_session(sdir, close_checks=None):
+    """`close_checks` = {رمز: فحصُ ذيل} يُضاف فوق `TAIL_CHECKS_FILE` في المجلّد (لـ`e2_recover`) — انظر
+    `tail_check_valid`. بلا الاثنين = الحكمُ السابق حرفيًّا."""
     sess = _read_json(os.path.join(sdir, "session.json"))
     ss = _read_jsonl(os.path.join(sdir, "symbol_sessions.jsonl"))
     cands = _read_jsonl(os.path.join(sdir, "candidates.jsonl"))
@@ -239,6 +276,8 @@ def analyze_session(sdir):
 
     # ── أسباب عدم الاكتمال (data-integrity فقط، لا حكم عتبات) ──────────────────
     reasons = []
+    close_ms = None
+    tail_ok, tail_open = set(), {}     # 🔎 (2026-09-26) ذيلٌ متحقَّق · وما لم يُتحقَّق منه {رمز: آخرُ شمعة}
     deferred = []      # أسبابُ مقاطعَ مؤجَّلةٌ للـassembler — تُعلَن ولا تَرفض (لا صمت)
     term = sess.get("termination")
     if term != "normal":
@@ -299,9 +338,22 @@ def analyze_session(sdir):
         close_ms = int(close_ms * 1000) if close_ms is not None else None
         if close_ms is not None:
             target = close_ms - 60_000 - CLOSE_PATH_TOLERANCE_MS
-            not_reaching = [c.get("symbol") for c in emitted_cands
-                            if c.get("symbol") is not None
-                            and max_t.get(c.get("symbol"), -1) < target]
+            # 🔎 (2026-09-26): ذيلٌ متحقَّقٌ خالٍ عند المزوّد بعد الإغلاق = مسارٌ مكتمل (انظر
+            #    `TAIL_CHECKS_FILE`) — يُعلَن في `tail_verified` ولا يَرفض؛ وما سواه يبقى رافضًا.
+            _tail = _read_json(os.path.join(sdir, TAIL_CHECKS_FILE))
+            _tail = dict(_tail) if isinstance(_tail, dict) else {}
+            if isinstance(close_checks, dict):
+                _tail.update(close_checks)
+            not_reaching = []
+            for c in emitted_cands:
+                _s = c.get("symbol")
+                if _s is None or max_t.get(_s, -1) >= target:
+                    continue
+                if tail_check_valid(_tail.get(_s), max_t.get(_s), close_ms):
+                    tail_ok.add(_s)
+                else:
+                    not_reaching.append(_s)
+                    tail_open[_s] = max_t.get(_s)
             if not_reaching:
                 reasons.append("path_not_reaching_close(%s)" % ",".join(sorted(set(not_reaching))))
         elif emitted_cands:
@@ -361,6 +413,11 @@ def analyze_session(sdir):
         # 🔴 أسبابُ مقاطعَ **مؤجَّلةٌ للـassembler** (لا تَرفض) — تُطبَع صراحةً فلا يكون
         #    التأجيلُ تخفيفًا صامتًا، ويبقى مرئيًّا أن الشرط قِيس ومَن يحرسه.
         "deferred_reasons": deferred,
+        # 🔎 (2026-09-26): ذيلٌ قُبل بدليل المزوّد (يُطبَع ويُحفظ) · وما بقي بلا دليل {رمز: آخرُ شمعة}
+        #    ليفحصه `e2_recover` · والإغلاقُ المتوقّع بالملّي.
+        "tail_verified": sorted(tail_ok),
+        "path_tail_unverified": dict(sorted(tail_open.items())),
+        "expected_close_ms": close_ms,
         # segment → segment_complete · session → session_complete
         "segment_complete": (complete if kind == "segment" else None),
         "session_complete": (complete if is_session else None),
@@ -385,6 +442,11 @@ def verdict_entry(r):
         _v = r.get(_k)
         if isinstance(_v, int) and not isinstance(_v, bool) and _v >= 0:
             out[_k] = _v
+    # 🔎 (2026-09-26): ذيلٌ قُبل بدليل المزوّد **يُحفظ اسمُه** مع الحكم (غيابُه = لم يُقبل ذيلٌ) — فلا
+    #    تُقرأ الجلسةُ المكتملةُ به مكتملةً بالتعريف القديم.
+    _tv = [str(x)[:12] for x in (r.get("tail_verified") or []) if x][:8]
+    if _tv:
+        out["tail_verified"] = _tv
     return out
 
 
@@ -447,6 +509,9 @@ def main():
         if r["ended_before_expected_close"]:
             print(f"    ⚠️ انتهت قبل الإغلاق المتوقّع بـ{r['minutes_short_of_close']} د "
                   f"(قيد سقف رنر GitHub — تغطية جزئية صريحة).")
+        if r.get("tail_verified"):
+            print("    ℹ️ ذيلٌ بلا شموعٍ عند المزوّد (متحقَّقٌ بعد الإغلاق · لا يَرفض · %s): %s"
+                  % (TAIL_CHECKS_FILE, " · ".join(r["tail_verified"])))
         if r.get("deferred_reasons"):
             _guards = sorted({g for d in r["deferred_reasons"]
                               for k, g in DEFERRED_GUARD.items() if k in d})

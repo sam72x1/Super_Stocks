@@ -16,10 +16,13 @@ import gzip
 import json
 import os
 import sys
+import time
 
 import ignition_measurement as M
 
 MAX_TRANSITION_GAP_MIN = 10        # 🔬 P0-3: أقصى فجوة انتقال مقبولة (مقفول قبل confirmatory)
+# 🔎 (2026-09-26) مصدرُ فحص الذيل الحيّ — انظر `close_tail_check` و`ignition_e2_analyze.TAIL_CHECKS_FILE`.
+TAIL_SOURCE_LIVE = "assembler"
 # عدّادات symbol-session التي تُجمَّع عبر المقاطع (بقيّة الحقول min/max أو أوّل غير-None).
 _SUM_KEYS = ["active_polls", "level_available_polls", "bars_attempted", "bars_ok", "bars_failed",
              "raw_candidate_count", "operator_pass_count", "operator_fail_count",
@@ -132,7 +135,105 @@ def _segment_dirs(session_dir):
     return [(role, path) for _, role, path in sorted(segs)]
 
 
-def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_index=True):
+def fetch_minute_range(sym, from_ms, to_ms):
+    """🔎 (2026-09-26) دقائقُ Polygon لنافذةٍ **مؤرَّخةٍ ثابتة** `[from_ms, to_ms]` (لا نسبيّةٍ للآن كـ
+    `polygon_minute_bars`). ترجّع قائمةً — **قد تكون فارغةً بجوابٍ صريحٍ من المزوّد** (`status == "OK"`) —
+    أو `None` عند أيّ تعذّر (بلا مفتاح · غيرُ 200 · حالةٌ غيرُ OK كـ`DELAYED` · شبكة). **الفرقُ مقصود:**
+    الفارغُ دليلٌ على «لا صفقاتٍ تصنع شمعة»، والتعذّرُ ليس دليلًا (`polygon_minute_bars` يُرجع None للاثنين)."""
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    try:
+        frm, to = int(from_ms), int(to_ms)
+    except (TypeError, ValueError):
+        return None
+    if not key or frm > to:
+        return None
+    try:
+        import requests
+        url = ("https://api.polygon.io/v2/aggs/ticker/%s/range/1/minute/%d/%d"
+               "?adjusted=true&sort=asc&limit=50000" % (str(sym).upper(), frm, to))
+        r = requests.get(url, headers={"Authorization": "Bearer " + key}, timeout=15)
+        if r.status_code != 200:
+            return None
+        j = r.json() or {}
+        if j.get("status") != "OK":
+            return None
+        return [{"o": b.get("o"), "h": b.get("h"), "l": b.get("l"), "c": b.get("c"),
+                 "v": b.get("v"), "t": b.get("t")}
+                for b in (j.get("results") or []) if b.get("t") is not None]
+    except Exception:
+        return None
+
+
+def close_tail_check(fetch_range, sym, last_t, close_ms, now_ms=None, source=TAIL_SOURCE_LIVE):
+    """🔎 (2026-09-26) هل عند المزوّد شموعٌ بين آخر شمعةٍ في المسار (`last_t`) والإغلاق؟ **نقيّةٌ بجالبٍ
+    محقون.** ترجّع `(فحص، شموع)`: الفحصُ `{from_ms, to_ms, n, at_ms, source}` لنافذةٍ من الدقيقة التالية
+    لآخر شمعةٍ حتى بداية آخر دقيقة، والشموعُ ما وُجد فيها (لتُدمَج في المسار) — أو `(None, [])` عند
+    التعذّر (**لا دليلَ يُكتب**) أو حين لا نافذة (المسارُ بلغ آخرَ دقيقة). الحكمُ للمدقّق (`tail_check_valid`)."""
+    try:
+        if fetch_range is None or last_t is None or close_ms is None:
+            return None, []
+        frm, to = int(last_t) + 60_000, int(close_ms) - 60_000
+        if frm > to:
+            return None, []
+        bars = fetch_range(sym, frm, to)
+        if bars is None:
+            return None, []
+        inwin = [b for b in bars if isinstance(b, dict) and b.get("t") is not None
+                 and frm <= int(b["t"]) <= to]
+        at = int(now_ms) if now_ms is not None else int(time.time() * 1000)
+        return {"from_ms": frm, "to_ms": to, "n": len(inwin), "at_ms": at, "source": source}, inwin
+    except Exception:
+        return None, []
+
+
+def write_tail_checks(session_dir, checks):
+    """🔎 يدمج فحوصَ الذيل في `TAIL_CHECKS_FILE` داخل مجلّد الجلسة (ذرّيًّا) — فاشلٌ-آمن ⇒ False."""
+    try:
+        import ignition_e2_analyze as A
+        if not checks or not os.path.isdir(session_dir):
+            return False
+        path = os.path.join(session_dir, A.TAIL_CHECKS_FILE)
+        cur = _read_json(path)
+        cur = dict(cur) if isinstance(cur, dict) else {}
+        cur.update(checks)
+        tmp = path + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(dict(sorted(cur.items())), fh, ensure_ascii=False, indent=2)
+            fh.write("\n")
+        os.replace(tmp, path)
+        return True
+    except Exception:
+        return False
+
+
+def _tail_checks_for(rec, fetch_range, close_ms, now_ms=None):
+    """🔎 لكلّ رمزٍ مُنبَّهٍ لم يبلغ مسارُه (بعد الردم) حدَّ المدقّق: فحصُ ذيلٍ عند المزوّد — وما وُجد من
+    شموعٍ في الذيل **يُدمَج في المسار** (ثغرةٌ حقيقيّة سُدّت). يرجّع `{رمز: فحص}`. فاشلٌ-آمن ⇒ ما جُمِع."""
+    out = {}
+    try:
+        import ignition_e2_analyze as A
+        target = int(close_ms) - 60_000 - A.CLOSE_PATH_TOLERANCE_MS
+        last = {}
+        for (s_, t_) in list(rec._minute_seen):
+            if s_ is not None and t_ is not None:
+                last[s_] = max(last.get(s_, t_), t_)
+        for sym in rec._emitted_symbols():
+            lt = last.get(sym)
+            if lt is None or lt >= target:
+                continue
+            ck, bars = close_tail_check(fetch_range, sym, lt, close_ms, now_ms=now_ms)
+            if ck is None:
+                continue
+            if bars:
+                rec.record_minute_path(sym, bars)
+            out[sym] = ck
+    except Exception:
+        pass
+    return out
+
+
+def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_index=True,
+             fetch_range=None):
     """يدمج مقاطع `session_<date>` ويكتب الجلسة النهائية في جذرها. `fetch_bars(symbol)->bars`
     محقون (حيّ = bot.polygon_minute_bars). يرجّع dict الملخّص أو None لو لا مقاطع. فاشل-آمن."""
     session_dir = os.path.join(root, "session_%s" % session_date)
@@ -236,13 +337,22 @@ def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_in
         exp_last = int(_cs * 1000) - M.BAR_INTERVAL_MS   # بداية آخر شمعة دقيقة قبل الإغلاق
     if fetch_bars is not None:
         rec.backfill_emitted(fetch_bars, expected_last_bar_ts=exp_last)
+    # 🔎 (2026-09-26): ذيلُ المسار — دليلٌ من المزوّد بعد الإغلاق لما لم يبلغه (`fetch_range` مؤرَّخ ·
+    #    بلا جالبٍ = الحكمُ السابق حرفيًّا). انظر `ignition_e2_analyze.TAIL_CHECKS_FILE`.
+    tail_checks = {}
+    if fetch_range is not None and _cs is not None:
+        tail_checks = _tail_checks_for(rec, fetch_range, int(_cs * 1000))
     # الإنهاء المدموج = normal فقط لو كل المقاطع انتهت طبيعيًّا (وإلّا exception) — الاكتمال
     # التفصيلي (وصول المسار للإغلاق · الجزآن) يحكمه المدقّق (session_complete).
     seg_terms = [s.get("termination") for s in seg_meta]
     merged_term = "normal" if seg_terms and all(t == "normal" for t in seg_terms) else "exception"
     rec.finalize(termination=merged_term)
+    if tail_checks:
+        write_tail_checks(session_dir, tail_checks)
     summ = _read_json(os.path.join(session_dir, "summary.json"))
-    return summ or {"session_date": session_date, "assembled": True}
+    out = summ or {"session_date": session_date, "assembled": True}
+    out["tail_checks"] = tail_checks        # للطباعة فقط (لا يُكتب في summary.json)
+    return out
 
 
 def _fires_from_candidates(cands):
@@ -301,7 +411,7 @@ def main():
     if not session_date:
         print("📋 لا جلسة للدمج.")
         return
-    summ = assemble(session_date, root=root, fetch_bars=fetch)
+    summ = assemble(session_date, root=root, fetch_bars=fetch, fetch_range=fetch_minute_range)
     if summ is None:
         print(f"📋 لا مقاطع segment_* تحت session_{session_date} — لا شيء للدمج.")
         return
@@ -311,6 +421,11 @@ def main():
           f"· emitted={summ.get('n_emitted')} · delivered={summ.get('n_delivered')}")
     print(f"    recall-eligible={summ.get('n_recall_eligible_symbol_sessions')} "
           f"· الإنهاء={summ.get('termination')}")
+    _tc = summ.get("tail_checks") or {}
+    if _tc:
+        print("    🔎 ذيلُ المسار عند المزوّد: " + " · ".join(
+            "%s %s" % (k, ("خالٍ" if v.get("n") == 0 else "دُمجت %s شمعة" % v.get("n")))
+            for k, v in sorted(_tc.items())))
     print("=" * 70)
     # 🔬 P1-7: الـassembler **وحده** يولّد السجلّ القديم (ignition_log/universe) من البيانات
     # المدموجة (الإطلاقات = candidates المُصدَرة) — الـworkflow يدفعه مرة واحدة. فاشل-آمن.
