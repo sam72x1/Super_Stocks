@@ -139,7 +139,9 @@ def fetch_minute_range(sym, from_ms, to_ms):
     """🔎 (2026-09-26) دقائقُ Polygon لنافذةٍ **مؤرَّخةٍ ثابتة** `[from_ms, to_ms]` (لا نسبيّةٍ للآن كـ
     `polygon_minute_bars`). ترجّع قائمةً — **قد تكون فارغةً بجوابٍ صريحٍ من المزوّد** (`status == "OK"`) —
     أو `None` عند أيّ تعذّر (بلا مفتاح · غيرُ 200 · حالةٌ غيرُ OK كـ`DELAYED` · شبكة). **الفرقُ مقصود:**
-    الفارغُ دليلٌ على «لا صفقاتٍ تصنع شمعة»، والتعذّرُ ليس دليلًا (`polygon_minute_bars` يُرجع None للاثنين)."""
+    الفارغُ دليلٌ على «لا صفقاتٍ تصنع شمعة»، والتعذّرُ ليس دليلًا (`polygon_minute_bars` يُرجع None للاثنين).
+    🔴 **مكتبةُ بايثون القياسيّة وحدَها (`urllib`) لا `requests`** — `e2_recover.yml` لا يُثبّت اعتماديّات (stdlib
+    بالتصميم) فأوّلُ إعادة حكمٍ بعد الدمج (`36224774545`) سقط فيها الاستيرادُ صامتًا: خمسُ جلساتٍ بلا فحصٍ واحد."""
     key = os.environ.get("POLYGON_API_KEY", "").strip()
     try:
         frm, to = int(from_ms), int(to_ms)
@@ -148,13 +150,16 @@ def fetch_minute_range(sym, from_ms, to_ms):
     if not key or frm > to:
         return None
     try:
-        import requests
+        import urllib.request
         url = ("https://api.polygon.io/v2/aggs/ticker/%s/range/1/minute/%d/%d"
                "?adjusted=true&sort=asc&limit=50000" % (str(sym).upper(), frm, to))
-        r = requests.get(url, headers={"Authorization": "Bearer " + key}, timeout=15)
-        if r.status_code != 200:
+        req = urllib.request.Request(url, headers={"Authorization": "Bearer " + key})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            code = getattr(r, "status", None) or r.getcode()
+            body = r.read()
+        if code != 200:
             return None
-        j = r.json() or {}
+        j = json.loads(body.decode("utf-8") if isinstance(body, bytes) else body) or {}
         if j.get("status") != "OK":
             return None
         return [{"o": b.get("o"), "h": b.get("h"), "l": b.get("l"), "c": b.get("c"),
@@ -206,9 +211,10 @@ def write_tail_checks(session_dir, checks):
         return False
 
 
-def _tail_checks_for(rec, fetch_range, close_ms, now_ms=None):
+def _tail_checks_for(rec, fetch_range, close_ms, now_ms=None, failed=None):
     """🔎 لكلّ رمزٍ مُنبَّهٍ لم يبلغ مسارُه (بعد الردم) حدَّ المدقّق: فحصُ ذيلٍ عند المزوّد — وما وُجد من
-    شموعٍ في الذيل **يُدمَج في المسار** (ثغرةٌ حقيقيّة سُدّت). يرجّع `{رمز: فحص}`. فاشلٌ-آمن ⇒ ما جُمِع."""
+    شموعٍ في الذيل **يُدمَج في المسار** (ثغرةٌ حقيقيّة سُدّت). يرجّع `{رمز: فحص}` · والمتعذِّرُ يُلحَق بـ`failed`
+    (قائمةٌ محقونة) **فيُعلَن ولا يُصمَت**. فاشلٌ-آمن ⇒ ما جُمِع."""
     out = {}
     try:
         import ignition_e2_analyze as A
@@ -223,6 +229,8 @@ def _tail_checks_for(rec, fetch_range, close_ms, now_ms=None):
                 continue
             ck, bars = close_tail_check(fetch_range, sym, lt, close_ms, now_ms=now_ms)
             if ck is None:
+                if isinstance(failed, list):
+                    failed.append(sym)
                 continue
             if bars:
                 rec.record_minute_path(sym, bars)
@@ -339,9 +347,9 @@ def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_in
         rec.backfill_emitted(fetch_bars, expected_last_bar_ts=exp_last)
     # 🔎 (2026-09-26): ذيلُ المسار — دليلٌ من المزوّد بعد الإغلاق لما لم يبلغه (`fetch_range` مؤرَّخ ·
     #    بلا جالبٍ = الحكمُ السابق حرفيًّا). انظر `ignition_e2_analyze.TAIL_CHECKS_FILE`.
-    tail_checks = {}
+    tail_checks, tail_failed = {}, []
     if fetch_range is not None and _cs is not None:
-        tail_checks = _tail_checks_for(rec, fetch_range, int(_cs * 1000))
+        tail_checks = _tail_checks_for(rec, fetch_range, int(_cs * 1000), failed=tail_failed)
     # الإنهاء المدموج = normal فقط لو كل المقاطع انتهت طبيعيًّا (وإلّا exception) — الاكتمال
     # التفصيلي (وصول المسار للإغلاق · الجزآن) يحكمه المدقّق (session_complete).
     seg_terms = [s.get("termination") for s in seg_meta]
@@ -352,6 +360,7 @@ def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_in
     summ = _read_json(os.path.join(session_dir, "summary.json"))
     out = summ or {"session_date": session_date, "assembled": True}
     out["tail_checks"] = tail_checks        # للطباعة فقط (لا يُكتب في summary.json)
+    out["tail_failed"] = sorted(tail_failed)  # فحصٌ تعذّر (لا دليل) — يُطبَع ولا يُصمَت
     return out
 
 
@@ -422,10 +431,11 @@ def main():
     print(f"    recall-eligible={summ.get('n_recall_eligible_symbol_sessions')} "
           f"· الإنهاء={summ.get('termination')}")
     _tc = summ.get("tail_checks") or {}
-    if _tc:
+    _tf = summ.get("tail_failed") or []
+    if _tc or _tf:
         print("    🔎 ذيلُ المسار عند المزوّد: " + " · ".join(
-            "%s %s" % (k, ("خالٍ" if v.get("n") == 0 else "دُمجت %s شمعة" % v.get("n")))
-            for k, v in sorted(_tc.items())))
+            ["%s %s" % (k, ("خالٍ" if v.get("n") == 0 else "دُمجت %s شمعة" % v.get("n")))
+             for k, v in sorted(_tc.items())] + ["%s ⚠️ تعذّر (لا دليل)" % k for k in _tf]))
     print("=" * 70)
     # 🔬 P1-7: الـassembler **وحده** يولّد السجلّ القديم (ignition_log/universe) من البيانات
     # المدموجة (الإطلاقات = candidates المُصدَرة) — الـworkflow يدفعه مرة واحدة. فاشل-آمن.
