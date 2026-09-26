@@ -1,0 +1,31 @@
+name: "🔎 مِجَسّ الشروط الثلاثة (مؤقّت · يُحذف بعد القراءة)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا commit · لا تلغرام (لا سرَّ له هنا).
+#    كونُ البوت كلُّه ⟵ RSI أقلّ من 30 · فلوت أقلّ من 4م · متاح أقلّ من 20 ألفًا · فوق الدولار (تعريفاتُ watch_week_probe بالاسم).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  three_cond_probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔎 المِجَسّ
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python three_cond_probe.py
