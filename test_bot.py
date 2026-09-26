@@ -69302,12 +69302,15 @@ try:
     _exh_by = {s["symbol"]: s.get("exact_hold") for s in _exh_st}
     _exh_want = dict(S.exact_pivot_hold(_exh_rows, _exh_hr, _exh_rows[-1][0]), asof=_exh_rows[-1][0])
     _exh_nanrows = S._daily_rows_of(_exh_nan)
+    #    الحجمُ لا يُشترط: جلسةٌ حجمُها NaN تبقى (بحجم 0) — لا تُسقط يومًا من عدّ الثبات
+    _exh_vrows = S._daily_rows_of(_exh_df(_exh_rows[:-1] + [_exh_rows[-1][:5] + (float("nan"),)]))
     _exh_d1 = (_tcd_dt.date.fromisoformat(_exh_win[-1][0]) + _tcd_dt.timedelta(days=1)).isoformat()
     _vX3a = (_exh_n == {"ok": 2, "nohour": 1, "fail": 2, "nodata": 1, "nokey": 0}
              and _exh_by["AAA"] == _exh_want and _exh_by["NOH"] == {"nohour": True, "asof": _exh_rows[-1][0]}
              and _exh_by["FAL"] is None and _exh_by["NOD"] is None and _exh_by["BAD"] is None
              and ("AAA", _exh_win[0][0], _exh_d1) in _exh_calls and len(_exh_calls) == 5
              and len(_exh_nanrows) == len(_exh_rows) - 1 and _exh_rows[-3][0] not in [r[0] for r in _exh_nanrows]
+             and len(_exh_vrows) == len(_exh_rows) and _exh_vrows[-1][0] == _exh_rows[-1][0] and _exh_vrows[-1][5] == 0.0
              and _exh_by["NAN"] and _exh_by["NAN"]["asof"] == _exh_rows[-1][0] and _exh_want["stable"])
     _exh_pk, _exh_ph = S._poly_key, S.polygon_hour_bars
     _exh_pcalls = []

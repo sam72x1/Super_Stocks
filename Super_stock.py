@@ -7510,9 +7510,15 @@ def _daily_rows_of(df):
     out = []
     try:
         for i, o, h, lo, c, v in zip(df.index, df["Open"], df["High"], df["Low"], df["Close"], df["Volume"]):
-            vals = [float(o), float(h), float(lo), float(c), float(v or 0.0)]
-            if all(x == x for x in vals):
-                out.append((str(i)[:10], *vals))
+            ohlc = [float(o), float(h), float(lo), float(c)]
+            if not all(x == x for x in ohlc):
+                continue
+            try:                                         # الحجمُ لا يُشترط (لا يدخل القاعَ ولا العدّ)
+                vv = float(v)
+                vv = vv if vv == vv else 0.0
+            except (TypeError, ValueError):
+                vv = 0.0
+            out.append((str(i)[:10], *ohlc, vv))
     except Exception:                                            # noqa: BLE001
         return []
     return out
