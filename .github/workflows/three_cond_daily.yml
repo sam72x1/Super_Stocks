@@ -1,0 +1,146 @@
+name: "🔎📬 شروطك الثلاثة — رسالةٌ يوميّة (three_cond_daily)"
+
+# 🔎 أمرُ المالك 2026-09-26: «أرسلها كل يوم و حتى الأسهم اللي تحت المتابعة يشملها الاداة».
+#    RSI أقلّ من 30 (Polygon · وياهو للتحقّق — فحصُ البوت 36244720433) · فلوت أقلّ من 4 ملايين · شورت (المتاح) أقلّ من
+#    20 ألفًا · سعر دولار فأكثر — على كون البوت كلِّه ومعه القائمة والارتداد وتحت المتابعة. التعريفاتُ في رأس three_cond_daily.py.
+#    ثلاثُ مراحل: scan (Polygon · الفلوت · ياهو) ⟶ borrow على ثلاثة رنرات (حصّةُ ChartExchange ‏≈50 صفحة لكلّ رنر · #461)
+#    ⟶ send (الحكم والرسالة). لا كتابةَ حالةٍ ولا commit.
+# ⏰ الكرون 02:23 UTC الثلاثاء-السبت = جلساتُ الاثنين-الجمعة: بعد حصّاد الاقتراض (01:20) فيُقرأ صفُّه أوّلًا ·
+#    والتأخّرُ المقيس عند 02:xx ‏≈283-319 دقيقة ⇒ الوصولُ مع التقرير اليوميّ صباحًا بتوقيت السعوديّة تقريبًا (لا وعدَ بدقيقة) ·
+#    والجلسةُ ليست اليومَ ولا أمسَ بتوقيت نيويورك (عطلة) ⇒ صمتٌ بسببٍ مطبوع لا تكرار.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry:
+        description: "1 = تُطبع الرسالةُ في السجلّ ولا تُرسل"
+        required: false
+        default: "0"
+      force:
+        description: "1 = تُرسل ولو لم تكن الجلسةُ اليومَ أو أمسَ بتوقيت نيويورك"
+        required: false
+        default: "0"
+  schedule:
+    - cron: "23 2 * * 2-6"
+
+concurrency:
+  group: three-cond-daily
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔎 المسح (Polygon · الفلوت · ياهو)
+        env:
+          PYTHONUNBUFFERED: "1"
+          TC_STAGE: scan
+          TC_FORCE: ${{ github.event.inputs.force }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        run: python three_cond_daily.py
+
+      - name: Upload scan state
+        uses: actions/upload-artifact@v4
+        with:
+          name: tc-scan
+          path: tc_scan.json
+          retention-days: 7
+
+  borrow:
+    needs: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # 🧩 ثلاثةُ رنرات: `need[shard::3]` — تقسيمٌ تامٌّ منفصل (نمطُ حصّاد الاقتراض)
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download scan state
+        uses: actions/download-artifact@v4
+        with:
+          name: tc-scan
+
+      - name: 💧 المتاح (جزء الرنر)
+        env:
+          PYTHONUNBUFFERED: "1"
+          TC_STAGE: borrow
+          TC_SHARD: ${{ matrix.shard }}
+          TC_SHARDS: "3"
+          TC_PART: ${{ format('tc_borrow_{0}.json', matrix.shard) }}
+        run: python three_cond_daily.py
+
+      - name: Upload borrow part
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ format('tc-borrow-{0}', matrix.shard) }}
+          path: ${{ format('tc_borrow_{0}.json', matrix.shard) }}
+          if-no-files-found: ignore
+          retention-days: 7
+
+  send:
+    needs: [scan, borrow]
+    # `always()` ⇒ رنرُ متاحٍ سقط لا يُسقط الرسالة: رموزُه تُطبع «مجهولًا» بسببه لا «لا»
+    if: ${{ always() && needs.scan.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download scan state
+        uses: actions/download-artifact@v4
+        with:
+          name: tc-scan
+
+      - name: Download borrow parts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tc-borrow-*
+          path: tc_parts
+
+      - name: 📬 الحكم والرسالة
+        env:
+          PYTHONUNBUFFERED: "1"
+          TC_STAGE: send
+          TC_PARTS: "tc_parts/**/tc_borrow_*.json"
+          TC_DRY: ${{ github.event.inputs.dry }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python three_cond_daily.py
