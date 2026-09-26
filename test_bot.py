@@ -68558,7 +68558,7 @@ check("🕗 RBG5 موصولٌ في `run_weekly_renewal` **قبل** أوّل تح
       "وبلا تلغرام (سجلٌّ فقط)", _atm_rbg5, _atm_rbg5_w)
 
 # ══════════════════════════════════════════════════════════════════════════
-# 🔎📬 TCD1-TCD22 «شروطك الثلاثة» يوميًّا (three_cond_daily.py · أمرُ المالك 2026-09-26 «أرسلها كل يوم و حتى الأسهم
+# 🔎📬 TCD1-TCD23 «شروطك الثلاثة» يوميًّا (three_cond_daily.py · أمرُ المالك 2026-09-26 «أرسلها كل يوم و حتى الأسهم
 #    اللي تحت المتابعة يشملها الاداة» ⟵ ثمّ أمرُه الثاني: «تجيب أسهم السنتات و فوق الدولار في رسالة وحده لكن … لازم لازم
 #    لازم توافق الشروط 3 و ثبات 5 جلسات» · «فريم 4 ساعات عشان نعرف بالضبط قيمة ادنى قاع» · «FGL نوع منفجر قبل اقل من
 #    اسبوع … هذا غلط») — عالمٌ اصطناعيّ بلا شبكة: شموعُ اليوم والساعة محقونتان · RSI من Polygon وياهو للتحقّق.
@@ -68661,7 +68661,7 @@ def _tcd_world():
     return W, uni, fl, fetch, hours, yahoo, ce
 
 
-def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired=None, trace=()):
+def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired=None, trace=(), drop_hours=()):
     """الأنبوبُ كلُّه (scan ⟶ borrow ×shards ⟶ send) ⟵ (رمزُ الخروج, المُخرَج, الحالة, المُرسَل, fetch, hours, yfloat)."""
     W, uni, fl, fetch, hours, yahoo, ce = _tcd_world()
     if cover_cut:
@@ -68671,6 +68671,12 @@ def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired
             out = _f0(syms, d0, d1, key)
             return {s: (v if s in ("AAA",) else [r for r in v if r[0] < d1]) for s, v in out.items()}
         fetch.calls = 0
+    if drop_hours:
+        _h0 = hours
+
+        def hours(syms, d0, d1, key):                                # noqa: F811
+            return {s: v for s, v in _h0(syms, d0, d1, key).items() if s not in drop_hours}
+        hours.calls, hours.syms = 0, []
 
     def yfloat(s):
         yfloat.asked.append(s)
@@ -69109,6 +69115,57 @@ except Exception as _e:                                              # noqa: BLE
     _v22, _v22w = False, f"⛔ رمى: {type(_e).__name__}"
 check("💰 TCD22 الكلفة: شموعُ الساعة لمن عبر RSI والمتتبَّع وحدَهم · والفلوتُ لمن عبر الثبات والانفجار وحدَهم · والمتاحُ لا "
       "يُسأل عن ينتظر الثبات ولا المنفجر", _v22, _v22w)
+
+# TCD23 — «(الأسماءُ في السجلّ)» صادقة: كلُّ مَن عبر RSI ولم يُذكر في الرسالة يظهر **اسمُه** في السجلّ تحت فئته (⏳ ينتظر ·
+#    💥 انفجر · ⛔ تعذّر القاع · ✖️ الفلوت · ✖️ المتاح · ⚠️ مشكوك · ❔ مجهول) — أمسكه dry `36259380803`: الفلوت 29 والمتاح 20 كانوا
+#    عدًّا بلا أسماء · و«تعذّر القاع» مقصوصٌ صامتًا عند 60 ⇒ لا قصَّ على قائمة «تعذّر» (AST) · والفئةُ بتصنيف `excluded_counts`
+try:
+    def _cat23(r):
+        g = r.get("gate")
+        if g in ("wait", "boom", "nohour"):
+            return g
+        if r.get("v") is True and r.get("doubt"):
+            return "doubt"
+        if r.get("v") is None:
+            return "unk"
+        f = _TCD.WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))[:3]
+        return "float" if f[1] is False else "avail"
+
+    def _named23(log, s, cat):
+        ls = log.splitlines()
+        return {"wait": any(ln.strip().startswith(f"⏳ {s} ·") for ln in ls),
+                "boom": any(ln.strip().startswith(f"💥 {s} ·") for ln in ls),
+                "nohour": any("⛔ تعذّر القاعُ الدقيق" in ln
+                              and s in [x.strip() for x in ln.split(":", 1)[-1].split(" · ")] for ln in ls),
+                "float": any("✖️ الفلوت فوق الحدّ" in ln and f"{s} (" in ln for ln in ls),
+                "avail": any("✖️ المتاح فوق الحدّ" in ln and f"{s} (" in ln for ln in ls),
+                "doubt": any(f"⚠️ مشكوك {s} ·" in ln for ln in ls),
+                "unk": any(f"❔ مجهول {s} ·" in ln for ln in ls)}[cat]
+
+    def _gaps23(st, log):
+        rows = st.get("rows") or {}
+        dl, pn = _TCD.listed(rows)
+        return {s: _cat23(r) for s, r in rows.items() if s not in dl + pn and not _named23(log, s, _cat23(r))}
+    _rows23 = _tcd_st.get("rows") or {}
+    _cats23 = {_cat23(r) for s, r in _rows23.items() if s not in sum(_TCD.listed(_rows23), [])}
+    _gap23 = _gaps23(_tcd_st, _tcd_log)
+    #    عالمٌ ثانٍ: AAA بلا شموع ساعة ⟵ «تعذّر القاعُ الدقيق 1» واسمُه في السجلّ
+    _r23 = _tcd_run(drop_hours=("AAA",))
+    _log23 = "\n".join(ln for ln in _r23[1].splitlines() if not ln.startswith("‏"))
+    _gap23b = _gaps23(_r23[2], _log23)
+    _nh23 = (_r23[2].get("rows") or {}).get("AAA", {}).get("gate")
+    _fn23 = [n for n in _tcd_ast.walk(_tcd_ast.parse(_tcd_src)) if isinstance(n, _tcd_ast.FunctionDef)
+             and n.name == "stage_scan"]
+    _cut23 = [n for n in (_tcd_ast.walk(_fn23[0]) if _fn23 else []) if isinstance(n, _tcd_ast.Subscript)
+              and isinstance(n.slice, _tcd_ast.Slice) and isinstance(n.value, _tcd_ast.Subscript)
+              and isinstance(n.value.slice, _tcd_ast.Constant) and n.value.slice.value in ("nohour", "wait", "boom")]
+    _v23 = (not _gap23 and {"wait", "boom", "float", "avail", "doubt", "unk"} <= _cats23 and not _gap23b
+            and _nh23 == "nohour" and "تعذّر القاعُ الدقيق 1" in _tcd_msg(_r23[1]) and bool(_fn23) and not _cut23)
+    _v23w = f"فجوات={_gap23} · فئات={sorted(_cats23)} · بلا ساعة: {_nh23} فجوات={_gap23b} · قصّ={len(_cut23)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v23, _v23w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗒️ TCD23 «الأسماءُ في السجلّ» صادقة: كلُّ مَن عبر RSI ولم يُذكر اسمُه في السجلّ تحت فئته (⏳ · 💥 · ⛔ · ✖️ الفلوت · "
+      "✖️ المتاح · ⚠️ · ❔) · و«تعذّر القاع» يظهر بعالمٍ بلا ساعة · ولا قصَّ صامتًا (AST)", _v23, _v23w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🩹 SRC1-SRC9 إصلاحُ مصدر الشموع (أمرُ المالك 2026-09-26 «صلح مصدر البوت» · فحصُ البوت `36244720433`: ياهو غيرُ متّسقٍ مع
