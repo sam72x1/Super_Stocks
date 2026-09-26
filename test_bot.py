@@ -68830,6 +68830,204 @@ check("🔎📬 TCD12 الشكّ: ياهو المجهولُ لا يصنعه · �
       _v12, _v12w)
 
 # ══════════════════════════════════════════════════════════════════════════
+# 🗓️🔎② WPP1-WPP12 «التقريران» (watch_period_probe.py · أمرُ المالك 2026-09-26 «نفذ البروميت») — Penny لنفس فترة
+#    التقرير السابق · والشهر Penny/Dollar — بتعريفات watch_week_probe بالاسم · على عالم WWK الاصطناعيّ نفسِه (بلا شبكة ولا git).
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _wpp_ast                                               # noqa: E402
+import contextlib as _wpp_ctx                                        # noqa: E402
+import io as _wpp_io                                                 # noqa: E402
+import os as _wpp_os                                                 # noqa: E402
+try:
+    import watch_period_probe as _WPP
+    _wpp_src = open("watch_period_probe.py", encoding="utf-8").read()
+except Exception as _e:                                              # noqa: BLE001
+    _WPP, _wpp_src = None, ""
+
+
+def _wpp_run(classes=("penny", "dollar"), no_bars=0, published=None, d_from="2026-09-21", d_to="2026-09-25"):
+    """الأداةُ كلُّها على `_ww_world` (عالمُ أقفال WWK): AAA دولارٌ يقفز ‏+55% · PEN سنتاتٌ خامًّا (مقسَّمٌ لاحقًا ×10) · CCC فلوتُه
+    مجهول · والارتداد PBA ‏+111% ⟵ (رمزُ الخروج, المُخرَج, ملخّصُ JSON)."""
+    c0, snaps, fb, fm = _ww_world(0, no_bars)
+    saved = (_WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.fetch_minutes, _WPP.PUBLISHED,
+             _wpp_os.environ.get("POLYGON_API_KEY"))
+    buf = _wpp_io.StringIO()
+    try:
+        _WW.wl_commits = lambda path=_WW.WL_FILE: list(c0)
+        _WW.load_snapshot = lambda h, path=_WW.WL_FILE: snaps.get(h)
+        _WW.fetch_bars, _WW.fetch_minutes = fb, fm
+        if published is not None:
+            _WPP.PUBLISHED = published
+        _wpp_os.environ["POLYGON_API_KEY"] = "k"
+        with _wpp_ctx.redirect_stdout(buf):
+            rc = _WPP.main(now=_ww_dt.datetime(2026, 9, 25, 18, 0, tzinfo=_WW.NY), d_from=d_from, d_to=d_to,
+                           classes=classes)
+    except Exception as _e:                                          # noqa: BLE001
+        rc = f"⛔ {type(_e).__name__}: {_e}"
+    finally:
+        _WW.wl_commits, _WW.load_snapshot, _WW.fetch_bars, _WW.fetch_minutes, _WPP.PUBLISHED = saved[:5]
+        if saved[5] is None:
+            _wpp_os.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _wpp_os.environ["POLYGON_API_KEY"] = saved[5]
+    out = buf.getvalue()
+    js = next((ln[5:] for ln in out.splitlines() if ln.startswith("JSON ")), None)
+    try:
+        js = __import__("json").loads(js) if js else {}
+    except ValueError:
+        js = {}
+    return rc, out, js
+
+
+try:
+    _wpp_p = _wpp_run(("penny",))
+    _wpp_b = _wpp_run(("penny", "dollar"))
+except Exception as _e:                                              # noqa: BLE001
+    _wpp_p = _wpp_b = (f"⛔ {type(_e).__name__}", "", {})
+
+# WPP1 — قراءةٌ فقط (حارسُ `prelink_probe` بالاسم) · بلا git مباشر (لقطاتُه من `WW` بالاسم) · والإنتاجُ لا يستوردها
+try:
+    _t1 = _wpp_ast.parse(_wpp_src)
+    _run1 = [n for n in _wpp_ast.walk(_t1) if isinstance(n, _wpp_ast.Call) and getattr(n.func, "attr", "") in ("run", "Popen")]
+    _v1 = (_WPP.P._selfcheck_readonly(_wpp_src)
+           and not _WPP.P._selfcheck_readonly(_wpp_src + "\ndef _x():\n    open('weekly_watchlist.json', 'w').write('')\n")
+           and not _run1 and "watch_period_probe" not in open("Super_stock.py", encoding="utf-8").read()
+           and "P._selfcheck_readonly(open(__file__" in _wpp_src)
+    _v1w = f"subprocess={len(_run1)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v1, _v1w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP1 قراءةٌ فقط (حارسُ `prelink_probe` بالاسم) · بلا git ولا subprocess مباشر · والإنتاجُ لا يستوردها", _v1, _v1w)
+
+# WPP2 — التعريفاتُ بالاسم من `watch_week_probe` (AST) · ولا نسخةَ محلّيّة لأيٍّ منها
+try:
+    _t2 = _wpp_ast.parse(_wpp_src)
+    _need2 = {"flags", "conj", "rsi_at", "close_at", "max_rise", "max_rise_ext", "ext_bounds", "vw1", "vw4",
+              "partial_nominations", "first_seen_map", "snapshot_before", "active_entries", "pullback_entries",
+              "fetch_bars", "fetch_minutes", "wl_commits", "load_snapshot", "last_closed_day", "prev_day"}
+    _used2 = {n.func.attr for n in _wpp_ast.walk(_t2) if isinstance(n, _wpp_ast.Call)
+              and isinstance(n.func, _wpp_ast.Attribute) and getattr(n.func.value, "id", "") == "WW"}
+    _local2 = {n.name for n in _wpp_ast.walk(_t2) if isinstance(n, _wpp_ast.FunctionDef)} & _need2
+    # كلُّ نداءٍ يمسّ الشرطَ أو الانفجار يمرّ عبر `WW` — لا دالّةَ محلّيّةٌ باسمٍ آخر (طفرةُ w2 نجت من الصيغة الأولى)
+    _stray2 = sorted({_wpp_ast.unparse(n.func) for n in _wpp_ast.walk(_t2) if isinstance(n, _wpp_ast.Call)
+                      and any(k in _wpp_ast.unparse(n.func).lower() for k in ("rsi", "close_at", "max_rise", "flags", "conj"))
+                      and not _wpp_ast.unparse(n.func).startswith("WW.")})
+    _v2 = (_need2 <= _used2 and not _local2 and not _stray2 and "WW.EXPLODE[0]" in _wpp_src
+           and "WW.MIN_BAR_COVER" in _wpp_src)
+    _v2w = f"ناقص={sorted(_need2 - _used2)} · محلّيّ={sorted(_local2)} · خارج WW={_stray2}"
+except Exception as _e:                                              # noqa: BLE001
+    _v2, _v2w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP2 التعريفاتُ كلُّها بالاسم من `watch_week_probe` (الشروط · الانفجار · الحرّاس · اللقطات · الجلب) ولا نسخةَ "
+      "محلّيّة", _v2, _v2w)
+
+# WPP3 — التقرير 1 Penny وحدَه: لا قسمَ دولار ولا ملخّصَ دولار · وPEN مؤهّلٌ فيه
+_o3 = _wpp_p[1]
+check("🗓️🔎② WPP3 `classes=penny` ⟵ **لا تُحلَّل أسهمُ الدولار**: قسمُ Penny وحدَه (PEN مؤهّل) · لا «💵 Dollar» ولا «DOLLAR:» ولا AAA",
+      _wpp_p[0] == 0 and "🪙 Penny" in _o3 and "🎯 PEN" in _o3 and "💵 Dollar" not in _o3 and "DOLLAR:" not in _o3
+      and "🎯 AAA" not in _o3 and list((_wpp_p[2].get("classes") or {})) == ["penny"],
+      f"rc={_wpp_p[0]} · classes={list((_wpp_p[2].get('classes') or {}))}")
+
+# WPP4 — التقرير 2: الفئتان منفصلتان (مقامٌ لكلٍّ) · PEN في Penny وAAA في Dollar · والانفجارُ من سعر الإشارة
+try:
+    _c4 = _wpp_b[2].get("classes") or {}
+    _pn, _dl = _c4.get("penny") or {}, _c4.get("dollar") or {}
+    _pr = [r["sym"] for r in _pn.get("rows") or []]
+    _dr = {r["sym"]: r for r in _dl.get("rows") or []}
+    _v4 = (_pr == ["PEN"] and list(_dr) == ["AAA"] and _pn.get("qualified") == 1 and _dl.get("qualified") == 1
+           and _dl.get("exploded_reg") == 1 and _pn.get("exploded_reg") == 0 and abs(_dr["AAA"]["reg"] - 55.2) < 0.2
+           and not (set(_pr) & set(_dr)) and "⚠️ مسوًّى (تقسيمٌ لاحق ×10.00)" in _wpp_b[1])
+    _v4w = f"penny={_pr} · dollar={list(_dr)} · AAA={(_dr.get('AAA') or {}).get('reg')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v4, _v4w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP4 Penny وDollar منفصلان (لا سهمَ في المقامين) · AAA ‏+55.2% انفجر في Dollar · PEN لم ينفجر في Penny · "
+      "وتسويةُ التقسيم اللاحق تُعلَن", _v4, _v4w)
+
+# WPP5 — الفئةُ من سعر **الإشارة الأولى** ولا تتغيّر بعدها (سهمُ سنتاتٍ صار فوق الدولار يبقى Penny)
+try:
+    _per5 = {"2026-09-21": {"f": (True, True, True, False), "px": 0.9},
+             "2026-09-22": {"f": (True, True, True, True), "px": 1.5}}
+    _sig5 = _WPP.signal_of(_per5)
+    _v5 = (_sig5 == "2026-09-21" and _WPP.klass(_per5[_sig5]["px"]) == "penny" and _WPP.klass(1.0) == "dollar"
+           and _WPP.klass(0.999) == "penny" and _WPP.klass(None) is None
+           and "klass(per[s][sig[s]][\"px\"])" in _wpp_src)
+    _v5w = f"sig={_sig5} · {_WPP.klass(0.9)} · 1.0⟵{_WPP.klass(1.0)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v5, _v5w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP5 الفئةُ من سعر الإشارة الأولى (0.90 ثمّ 1.50 ⟵ Penny) · حدُّ الدولار `PX.PX_MIN` شاملًا · والمجهولُ مجهول", _v5, _v5w)
+
+# WPP6 — الانفجارُ بعد الإشارة وحدَها: قمّةٌ قبل جلسة الإشارة لا تُحتسب
+try:
+    _adj6 = [("2026-09-17", 1, 1.0, 1, 1.0, 1), ("2026-09-18", 1, 1.0, 1, 1.0, 1), ("2026-09-21", 1, 3.0, 1, 1.0, 1),
+             ("2026-09-22", 1, 1.1, 1, 1.0, 1), ("2026-09-23", 1, 1.2, 1, 1.1, 1)]
+    _o6 = _WPP.outcome(_adj6, "2026-09-21", "2026-09-22", "2026-09-23", [], None,
+                       _ww_dt.datetime(2026, 9, 25, 22, 0, tzinfo=_WW.UTC))
+    _v6 = abs((_o6["reg"] or 0) - 20.0) < 1e-6 and _o6["reg_day"] == "2026-09-23"
+    _v6w = f"reg={_o6['reg']} · day={_o6['reg_day']}"
+except Exception as _e:                                              # noqa: BLE001
+    _v6, _v6w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP6 الانفجارُ من جلسة الإشارة فصاعدًا: قمّةُ ‏+200% قبلها لا تُحتسب (النتيجة ‏+20% يومَ 09-23)", _v6, _v6w)
+
+# WPP7 — إزالةُ التكرار: سهمٌ طابق خمسَ جلسات يُعدّ مرّةً (المقامُ أسهمٌ لا تنبيهات)
+check("🗓️🔎② WPP7 إزالةُ التكرار: AAA طابق 5 جلسات ⟵ مؤهَّلٌ **واحد** في المقام · و«جلساتُ المطابقة 5» تُطبع",
+      "جلساتُ المطابقة 5" in _wpp_b[1] and ((_wpp_b[2].get("classes") or {}).get("dollar") or {}).get("qualified") == 1,
+      str(((_wpp_b[2].get("classes") or {}).get("dollar") or {}).get("qualified")))
+
+# WPP8 — شاهدُ الهُويّة مع التقرير السابق: يطابق ⟵ ✓ · ويختلف ⟵ ⚠️ يُطبع
+try:
+    _r8a = _wpp_run(("penny",), published=(30, 15, 20, 25, 25))[1]
+    _r8b = _wpp_p[1]
+    _v8 = "V-P1" in _r8a and "✓ يطابق" in _r8a and "⚠️ **يختلف" in _r8b
+    _v8w = f"✓={'✓ يطابق' in _r8a} · ⚠️={'يختلف' in _r8b}"
+except Exception as _e:                                              # noqa: BLE001
+    _v8, _v8w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP8 `V-P1` يقارن عدَّ أسبوع التقرير السابق بالمنشور: المطابقُ ✓ والمختلفُ «⚠️ يختلف» يُطبع ولا يُخفى", _v8, _v8w)
+
+# WPP9 — الارتداد: الشورتُ مجهولٌ بالبناء ⟵ «🔁» خارجَ المؤهّلين (PBA ‏+111%)
+try:
+    _pb9 = (((_wpp_b[2].get("classes") or {}).get("dollar") or {}).get("pullback")) or []
+    _v9 = ([x["sym"] for x in _pb9] == ["PBA"] and "المتاحُ مجهولٌ بالبناء" in _wpp_b[1]
+           and "PBA" not in [r["sym"] for r in ((_wpp_b[2].get("classes") or {}).get("dollar") or {}).get("rows") or []])
+    _v9w = str([x["sym"] for x in _pb9])
+except Exception as _e:                                              # noqa: BLE001
+    _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP9 الارتداد مجتمعٌ ثانٍ: PBA «🔁» بمتاحٍ مجهولٍ بالبناء — لا يدخل المؤهّلين ولا المقام", _v9, _v9w)
+
+# WPP10 — V-W2 ساقط ⟵ خروج 3 بلا رقم
+try:
+    _r10 = _wpp_run(("penny", "dollar"), no_bars=5)
+    _v10 = _r10[0] == 3 and "V-W2 ساقط" in _r10[1] and "🎯" not in _r10[1] and "JSON" not in _r10[1]
+    _v10w = f"rc={_r10[0]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v10, _v10w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP10 `V-W2` ساقط (شموعٌ لأقلّ من الحدّ) ⟵ خروج 3 ولا رقمَ ولا مؤهَّل", _v10, _v10w)
+
+# WPP11 — سلسلةُ التحقّق: سهمٌ إشارتُه الأولى Dollar ثمّ صار Penny ⟵ يظهر في سلسلة Penny ويُعلَن اختلافُه عن قاعدة الإشارة
+try:
+    _per11 = {"XSW": {"2026-09-21": {"f": (True, True, True, True), "px": 1.05},
+                      "2026-09-22": {"f": (True, True, True, False), "px": 0.9}}}
+    _ch11 = _WPP.chain(_per11, ["XSW"], "penny")
+    _v11 = ([n for _c, n, _x in _ch11] == [1, 1, 1, 1] and _WPP.klass(_per11["XSW"][_WPP.signal_of(_per11["XSW"])]["px"])
+            == "dollar" and "اختلافُ السلسلة عن قاعدة الإشارة الأولى" in _wpp_src)
+    _v11w = str([n for _c, n, _x in _ch11])
+except Exception as _e:                                              # noqa: BLE001
+    _v11, _v11w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP11 السلسلةُ التراكميّة تُحصي كلّ مستوى داخل الجلسة · وسهمُ «Dollar ثمّ Penny» يظهر في سلسلة Penny وفئتُه "
+      "Dollar بالإشارة الأولى ⟵ الاختلافُ يُطبع", _v11, _v11w)
+
+# WPP12 — الـworkflow يدويٌّ بلا كرون ولا تلغرام · تاريخٌ كامل · Polygon وحدَه · والمُدخَلات عبر env
+try:
+    _y12 = __import__("yaml").safe_load(open(".github/workflows/watch_period.yml", encoding="utf-8").read())
+    _on12 = _y12.get(True) or _y12.get("on") or {}
+    _j12 = list((_y12.get("jobs") or {}).values())[0]
+    _steps12 = __import__("yaml").safe_dump(_j12)
+    _v12 = ("schedule" not in _on12 and "workflow_dispatch" in _on12 and "TELEGRAM" not in _steps12
+            and "fetch-depth: 0" in _steps12 and "POLYGON_API_KEY" in _steps12
+            and (_y12.get("permissions") or {}).get("contents") == "read"
+            and "watch_period_probe.py" in _steps12)
+    _v12w = f"on={list(_on12)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v12, _v12w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP12 `watch_period.yml` يدويٌّ بلا كرون ولا تلغرام · تاريخُ git كامل · سرُّ Polygon وحدَه · قراءةٌ فقط", _v12, _v12w)
+
+# ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
