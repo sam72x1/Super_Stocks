@@ -7,6 +7,11 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      xcheck:
+        description: "رموزٌ بفاصلة للمقارنة المستقلّة ياهو/Polygon (فارغ = المِجَسّ الكامل)"
+        required: false
+        default: ""
 
 jobs:
   three_cond_probe:
@@ -28,4 +33,6 @@ jobs:
       - name: 🔎 المِجَسّ
         env:
           PYTHONUNBUFFERED: "1"
+          XCHECK: ${{ github.event.inputs.xcheck }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
         run: python three_cond_probe.py

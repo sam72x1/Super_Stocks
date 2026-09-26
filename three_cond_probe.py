@@ -191,5 +191,46 @@ def main() -> int:                                                   # noqa: PLR
     return rc
 
 
+def xcheck(syms) -> int:
+    """🔬 (2026-09-26 · مسكةُ المالك «rsi 51 ل mgn») مقارنةٌ مستقلّة: ياهو (مسارُ البوت) مقابل Polygon adjusted — آخرُ
+    الإغلاقات من المصدرين وRSI14 لكلٍّ (`S.rsi` نفسُها) وسجلُّ التقسيمات من المصدرين. قراءةٌ فقط."""
+    import prelink_probe as P
+    key = (os.environ.get("POLYGON_API_KEY") or "").strip()
+    d1 = dt.datetime.now(dt.timezone.utc).date().isoformat()
+    d0 = (dt.date.fromisoformat(d1) - dt.timedelta(days=400)).isoformat()
+    yh = S.download_history(list(syms))
+    for s in syms:
+        log(f"\n===== {s}")
+        df = yh.get(s)
+        if df is not None and len(df):
+            ry = float(S.rsi(df["Close"]).iloc[-1])
+            tail = " ".join(f"{i.date().isoformat()[5:]}:{c:.4g}" for i, c in df["Close"].tail(20).items())
+            log(f"  ياهو: RSI {ry:.1f} · {len(df)} شمعة · آخرُ 20: {tail}")
+        else:
+            log("  ياهو: لا بيانات")
+        try:
+            sp = S.yf.Ticker(s).splits
+            log("  تقسيماتُ ياهو: " + (", ".join(f"{i.date()}×{v:g}" for i, v in sp.tail(6).items()) if sp is not None and len(sp) else "لا"))
+        except Exception as e:                                       # noqa: BLE001
+            log(f"  تقسيماتُ ياهو: تعذّر {type(e).__name__}")
+        if not key:
+            log("  Polygon: بلا مفتاح")
+            continue
+        adj = P.ticker_daily_adj(s, d0, d1, key)
+        if adj:
+            import pandas as pd
+            rp = float(S.rsi(pd.Series([r[4] for r in adj])).iloc[-1])
+            tail = " ".join(f"{r[0][5:]}:{r[4]:.4g}" for r in adj[-20:])
+            log(f"  Polygon adjusted: RSI {rp:.1f} · {len(adj)} شمعة · آخرُ 20: {tail}")
+        else:
+            log("  Polygon adjusted: لا بيانات")
+        js = P._get(f"{P.API}/v3/reference/splits", {"ticker": s, "limit": "20", "order": "desc"}, key) or {}
+        rs = js.get("results") or []
+        log("  تقسيماتُ Polygon: " + (", ".join(f"{r.get('execution_date')} {r.get('split_from')}⟶{r.get('split_to')}"
+                                                   for r in rs[:8]) or "لا"))
+    return 0
+
+
 if __name__ == "__main__":
-    sys.exit(main())
+    _xs = [x.strip().upper() for x in (os.environ.get("XCHECK") or "").split(",") if x.strip()]
+    sys.exit(xcheck(_xs) if _xs else main())
