@@ -301,10 +301,12 @@ def assemble(session_date, root="e2_measurement", fetch_bars=None, write_repo_in
     expected_close_iso = base_sj.get("expected_close_iso")
     # بنِ recorder للجلسة المدموجة (segment=None → يكتب في جذر session_<date>/)
     # 🔬 P1-8: provenance صادق — نافذة المراقبة (من المقاطع) ≠ وقت التجميع.
-    _mon_start = min((s.get("segment_started_at") for s in seg_meta if s.get("segment_started_at")),
-                     default=None)
-    _mon_end = max((s.get("segment_ended_at") for s in seg_meta if s.get("segment_ended_at")),
-                   default=None)
+    # 🔴 2026-09-26: المراقبةُ الفعليّة (`monitoring_*` = أوّلُ/آخرُ دورة) أولى من بناء المسجّل — صار يُبنى
+    #    **قبل انتظار الجرس** فـ`segment_started_at` يسبق المراقبة بساعات · والاحتياطُ للمقاطع القديمة.
+    _mon_start = min((s.get("monitoring_started_at") or s.get("segment_started_at") for s in seg_meta
+                      if (s.get("monitoring_started_at") or s.get("segment_started_at"))), default=None)
+    _mon_end = max((s.get("monitoring_ended_at") or s.get("segment_ended_at") for s in seg_meta
+                    if (s.get("monitoring_ended_at") or s.get("segment_ended_at"))), default=None)
     rec = M.IgnitionMeasurementRecorder(
         session_date, out_root=root, segment=None, write_repo_index=write_repo_index,
         meta={"assembled": True, "segments": seg_meta,

@@ -143,7 +143,9 @@ DEFERRED_GUARD = {"lost_post_alert_path": "path_not_reaching_close",
 # 🧾 الحكمُ يُحفظ في الفهرس المدفوع (كان يُطبَع فقط فلا يعرفه التقريرُ الأسبوعيّ) — وسمُ
 # القاعدة التي صدر بها، فالأحكامُ قبل هذا التاريخ غيرُ محفوظةٍ لا «غيرُ مكتملة».
 # 🔎 (2026-09-26) صار «ذيلُ المسار المتحقَّقُ خاليًا عند المزوّد» يُحتسب بلوغًا للإغلاق (أدناه) ⇒ تاريخٌ جديد.
-VERDICT_RULE = "2026-09-26"
+# 🔴 (2026-09-26b) ومعه `delivered_unrecorded` (تسليمٌ وصل ولم يُسجَّل) — لا يغيّر حكمَ جلسةٍ سابقة
+#    (الحقلُ لا يُكتب إلّا بعد الإصلاح) ⇒ وسمٌ جديدٌ لا حكمٌ جديدٌ على الماضي.
+VERDICT_RULE = "2026-09-26b"
 
 # 🔎 (2026-09-26) **ذيلٌ بلا شموع ليس مسارًا ناقصًا — عطلٌ مقيسٌ في تعريف `path_not_reaching_close`**:
 #    مِجَسُّ الفرع `36223025879` على أرشيف الخام (49 جلسة · 110 تنبيهًا مُصدَرًا): سبعُ رفضاتٍ بهذا السبب،
@@ -301,6 +303,14 @@ def analyze_session(sdir, close_checks=None):
     _dups = sorted(str(s) for s, n in _dpsym.items() if n > 1)
     if _dups:
         reasons.append("duplicate_delivery(%s)" % ",".join(_dups))
+    # 🔴 2026-09-26 (جلسة 09-18): تسليمٌ **وصل** في الإنتاج (`delivered_symbols_segment` يكتبه العاملُ
+    #    من `seen`) ولم يُسجَّل في القياس = ثغرةٌ تُعلَن لا غيابٌ صامت (ONMD صدر قبل التحاق المسجّل).
+    #    غيابُ الحقل (مقاطعُ ما قبل الإصلاح · والمدموجةُ نفسُها) ⇒ لا حكمَ هنا.
+    _dss = sess.get("delivered_symbols_segment")
+    if isinstance(_dss, list):
+        _unrec = sorted({s for s in _dss if isinstance(s, str) and s} - deliv_syms)
+        if _unrec:
+            reasons.append("delivered_unrecorded(%s)" % ",".join(_unrec))
     unresolved_nbbo = [c.get("symbol") for c in emitted_cands
                        if c.get("operator_status") == "pass" and c.get("primary_executable") is None]
     if unresolved_nbbo:

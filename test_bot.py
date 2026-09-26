@@ -6898,6 +6898,234 @@ check("🔬 P0-6: analyzer --strict خروج غير صفر عند جلسة غي�
 check("🔬 Codex5 قفل: إيقاع الرادار = time.sleep(interval) (لا جدولة مطلقة تغيّر أوقات المسح)",
       "time.sleep(interval)" in _insp0.getsource(IG.main)
       and "_next_tick" not in _insp0.getsource(IG.main))
+# ══ 🔴 E2D — جلسة 09-18 (`35330807801`): الدِدوبُ الإنتاجيّ مستقلٌّ عن تحقّق القياس ══
+# ONMD صدر في أوّل دورةٍ بعد الجرس (13:30:12) قبل التحاق المسجّل (13:30:57) ⇒ handoff الافتتاح
+# (المسجَّلُ ∪ الواصل = 5) ≠ manifest (4) ⇒ `alerted_symbols_mismatch` ⇒ أُسقط الدِدوبُ مع السلسلة ⇒
+# وصل VHUB مرّتين (13:51:41 ثمّ 15:24:39). الإصلاح: الدِدوب من المُسلَّم (E2D1/E2D2) · والـhandoff يحمله
+# (E2D3) · والمسجّل يتهيّأ قبل انتظار الجرس (E2D4) · والمدقّق يُعلن التسليمَ غيرَ المسجَّل (E2D5) ·
+# والمجمِّع يؤرّخ المراقبةَ بدوراتها (E2D6) · ومقطعُ الإغلاق لا يعدّ المُستعادَ تسليمًا له (E2D7).
+_hd = IG._handoff_dedup_symbols
+_ho_ok = {"session_date": "2026-09-18", "segment": "open", "alerted_symbols": ["BTCS", "ONMD", "ZZZ"],
+          "delivered_symbols": ["BTCS", "ONMD"]}
+_hd_cases = [
+    _hd(_ho_ok, "2026-09-18"),
+    _hd({"session_date": "2026-09-18", "segment": "open", "alerted_symbols": ["A", None, 3, ""]}, "2026-09-18"),
+    _hd(dict(_ho_ok, session_date="2026-09-17"), "2026-09-18"),
+    _hd(dict(_ho_ok, segment="close"), "2026-09-18"),
+    _hd(None, "2026-09-18"), _hd("x", "2026-09-18"),
+    _hd(dict(_ho_ok, delivered_symbols=[]), "2026-09-18"),
+]
+check("🔴 E2D1 `_handoff_dedup_symbols`: الواصلُ وحدَه (ZZZ صدر ولم يصل ⇒ لا يُكتَم) · صيغةٌ أقدم بلا الحقل ⇒ "
+      "`alerted_symbols` · جلسةٌ أخرى أو مقطعٌ غيرُ الافتتاح أو ليس قاموسًا ⇒ فارغ · وقائمةُ واصلٍ فارغة لا تسقط للصادر",
+      _hd_cases == [{"BTCS", "ONMD"}, {"A"}, set(), set(), set(), set(), set()], str(_hd_cases)[:160])
+
+
+def _e2d_scan(_traces):
+    """مسحٌ يحاكي `scan_ignition`: يختم `ignition_alert` قبل الإرجاع ويتخطّى المختوم اليوم."""
+    def _scan(wl, today, trace=None):
+        _traces.append(trace)
+        _rows = []
+        for _s in wl.get("stocks", []):
+            if _s.get("ignition_alert") != today:
+                _s["ignition_alert"] = today
+                _rows.append(({"symbol": _s["symbol"]}, {"price": 2.0}, None))
+        return _rows
+    return _scan
+
+
+def _e2d_window(open_off_s):
+    _n = S.dt.datetime.utcnow()
+    return lambda role, t0=None: {
+        "role": role, "open": _n + S.dt.timedelta(seconds=open_off_s),
+        "close": _n + S.dt.timedelta(hours=1), "segment_start": _n + S.dt.timedelta(seconds=open_off_s),
+        "segment_end": _n + S.dt.timedelta(hours=1), "deadline": _n + S.dt.timedelta(hours=1),
+        "reason": "test", "session_type": "regular", "calendar_version": "test"}
+
+
+_e2d_recs = []
+
+
+class _E2dRec:
+    def __init__(self, *a, **kw):
+        _real_sleep(0.1)                  # تهيئةٌ تستغرق وقتًا (تفرّق «قبل الانتظار» عن «عند الجرس»)
+        self.meta = {}
+        _e2d_recs.append(self)
+
+    def __getattr__(self, name):
+        return lambda *a, **kw: None
+
+
+_e2d_mod = _types_ml.ModuleType("ignition_measurement")
+_e2d_mod.IgnitionMeasurementRecorder = _E2dRec
+
+
+def _e2d_run(env, window, scan, send, sleep, log=None):
+    _saved = (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+              IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep, IG.bot.log)
+    _os.environ.update(dict(env, POLYGON_API_KEY="TEST_KEY_NOT_USED"))
+    _sys.modules["ignition_measurement"] = _e2d_mod
+    IG._segment_window = window
+    IG.bot.load_watchlist = lambda: {"stocks": [{"symbol": "IGN", "status": "active"},
+                                                {"symbol": "ZZZ", "status": "active"}]}
+    IG.bot.scan_ignition = scan
+    IG.bot.build_ignition_alert = lambda rows: "ALERT:" + ",".join(r[0]["symbol"] for r in rows)
+    IG.bot.send_telegram = send
+    IG.time.sleep = sleep
+    if log is not None:
+        IG.bot.log = log
+    try:
+        IG.main()
+    except (_StopLoop, Exception):
+        pass
+    finally:
+        (IG._segment_window, IG.bot.load_watchlist, IG.bot.scan_ignition,
+         IG.bot.build_ignition_alert, IG.bot.send_telegram, IG.time.sleep, IG.bot.log) = _saved
+        _sys.modules.pop("ignition_measurement", None)
+        for _k, _v in _ml_env.items():
+            _os.environ.pop(_k, None) if _v is None else _os.environ.update({_k: _v})
+
+
+def _e2d_read(p):
+    try:
+        with open(p, encoding="utf-8") as _fh:
+            return _json.load(_fh)
+    except Exception:                     # noqa: BLE001
+        return {}
+
+
+_today_d = S.dt.date.today().isoformat()
+_hin_d = _os.path.join(_e2_out, "e2d_ho_open.json")
+with open(_hin_d, "w", encoding="utf-8") as _fh:
+    _json.dump({"session_date": _today_d, "segment": "open", "alerted_symbols": ["IGN", "ZZZ"],
+                "delivered_symbols": ["IGN"], "manifest_sha256": "x"}, _fh)
+# ── E2D2: تحقّقٌ ساقط (لا manifest) ⇒ الدِدوبُ من المُسلَّم باقٍ ──
+_hout_d2 = _os.path.join(_e2_out, "e2d_ho_close2.json")
+_sent_d2, _logs_d2, _tr_d2 = [], [], []
+_e2d_run({"E2_MEASUREMENT": "", "IGNITION_SEGMENT": "close", "IGNITION_HANDOFF_IN": _hin_d,
+          "IGNITION_HANDOFF_OUT": _hout_d2},
+         _e2d_window(-60), _e2d_scan(_tr_d2), lambda m: (_sent_d2.append(m), True)[1],
+         lambda *_a: (_ for _ in ()).throw(_StopLoop()), log=lambda m: _logs_d2.append(str(m)))
+_ho_d2 = _e2d_read(_hout_d2)
+check("🔴 E2D2 (09-18) مقطعُ الإغلاق: تحقّقُ القياس **ساقط** ومع ذلك الواصلُ في الافتتاح (IGN) لا يُنبَّه ثانيةً · "
+      "والصادرُ غيرُ الواصل (ZZZ) يُنبَّه (①أ) · والسجلّ يُعلن «القياسُ غيرُ مؤهّل» · والـhandoff يحمل الواصلَ كلَّه",
+      len(_sent_d2) == 1 and _sent_d2[0].startswith("ALERT:ZZZ") and "IGN" not in _sent_d2[0]
+      and any("❌ E2: تحقّق handoff/manifest" in _l for _l in _logs_d2)
+      and any("استعادة 1 ختم دِدوب" in _l and "القياسُ غيرُ مؤهّل" in _l for _l in _logs_d2)
+      and _ho_d2.get("delivered_symbols") == ["IGN", "ZZZ"],
+      f"sent={[m[:20] for m in _sent_d2]} ho={_ho_d2.get('delivered_symbols')}")
+# ── E2D3: handoff الافتتاح يحمل الواصلَ وحدَه (BAD صدر ولم يصل) ──
+_hout_d3 = _os.path.join(_e2_out, "e2d_ho_open3.json")
+_sent_d3, _tr_d3 = [], []
+_e2d_run({"E2_MEASUREMENT": "", "IGNITION_SEGMENT": "open", "IGNITION_HANDOFF_IN": "",
+          "IGNITION_HANDOFF_OUT": _hout_d3},
+         _e2d_window(-60),
+         lambda wl, today, trace=None: (_tr_d3.append(1),
+                                        [({"symbol": "IGN" if len(_tr_d3) == 1 else "BAD"}, {"price": 2.0}, None)])[1],
+         lambda m: len(_sent_d3.append(m) or _sent_d3) == 1,
+         lambda *_a: (_ for _ in ()).throw(_StopLoop()) if len(_tr_d3) >= 2 else None)
+_ho_d3 = _e2d_read(_hout_d3)
+check("🔴 E2D3 handoff الافتتاح: `delivered_symbols` = ما وصل وحدَه (IGN) — BAD صدر ورفضه تلغرام فلا يُنقَل كتمًا · "
+      "والجلسةُ والمقطعُ فيه (شرطا `_handoff_dedup_symbols`)",
+      len(_sent_d3) == 2 and _ho_d3.get("delivered_symbols") == ["IGN"]
+      and _ho_d3.get("segment") == "open" and _ho_d3.get("session_date") == _today_d
+      and IG._handoff_dedup_symbols(_ho_d3, _today_d) == {"IGN"},
+      f"sent={len(_sent_d3)} ho={_ho_d3}"[:160])
+# ── E2D4: التهيئةُ قبل انتظار الجرس ⇒ الدورةُ الأولى مَقيسة · وما وصل يُكتب في ميتا المقطع ──
+_e2d_recs.clear()
+_tr_d4, _sl_d4 = [], []
+
+
+def _sleep_d4(*_a):
+    _sl_d4.append(_a)
+    if len(_sl_d4) == 1:                  # انتظارُ الجرس: وقتٌ حقيقيّ تكتمل فيه التهيئة
+        _real_sleep(0.4)
+        return None
+    raise _StopLoop()
+
+
+_e2d_run({"E2_MEASUREMENT": "1", "IGNITION_SEGMENT": "open", "IGNITION_HANDOFF_IN": "",
+          "IGNITION_HANDOFF_OUT": _os.path.join(_e2_out, "e2d_ho_open4.json")},
+         _e2d_window(2), _e2d_scan(_tr_d4), lambda m: True, _sleep_d4)
+check("🔴 E2D4 تهيئةُ المسجّل **قبل** انتظار الجرس: أوّلُ مسحٍ بعد الجرس مَقيس (trace ليس None — كان يُعمى دائمًا: "
+      "ONMD 09-18 · وبدءٌ متأخّر 2.1د 08-19) · وما وصل في المقطع يُكتب `delivered_symbols_segment` قبل الختام",
+      len(_sl_d4) == 2 and bool(_tr_d4) and _tr_d4[0] is not None and len(_e2d_recs) == 1
+      and _e2d_recs[0].meta.get("delivered_symbols_segment") == ["IGN", "ZZZ"],
+      f"sleeps={len(_sl_d4)} tr0={'None' if not _tr_d4 or _tr_d4[0] is None else 'ok'} "
+      f"meta={[r.meta for r in _e2d_recs]}"[:160])
+# ── E2D7: مقطعُ الإغلاق لا يعدّ المُستعادَ تسليمًا له (وإلّا رُفضت كلُّ جلسةٍ فيها تنبيهُ افتتاح) ──
+_e2d_recs.clear()
+_tr_d7, _sl_d7 = [], []
+
+
+def _sleep_d7(*_a):
+    _sl_d7.append(_a)
+    if len(_sl_d7) == 1:                  # بعد الدورة الأولى: وقتٌ يلتحق فيه المسجّل
+        _real_sleep(0.4)
+        return None
+    raise _StopLoop()
+
+
+_hout_d7 = _os.path.join(_e2_out, "e2d_ho_close7.json")
+_e2d_run({"E2_MEASUREMENT": "1", "IGNITION_SEGMENT": "close", "IGNITION_HANDOFF_IN": _hin_d,
+          "IGNITION_HANDOFF_OUT": _hout_d7},
+         _e2d_window(-60), _e2d_scan(_tr_d7), lambda m: True, _sleep_d7)
+check("🔴 E2D7 مقطعُ الإغلاق: `delivered_symbols_segment` = ما وصل **فيه** (ZZZ) لا المُستعادُ من الافتتاح (IGN) — "
+      "وإلّا أعلن المدقّقُ `delivered_unrecorded(IGN)` على كلّ جلسةٍ فيها تنبيهُ افتتاح",
+      len(_e2d_recs) == 1 and _e2d_recs[0].meta.get("delivered_symbols_segment") == ["ZZZ"]
+      and _e2d_read(_hout_d7).get("delivered_symbols") == ["IGN", "ZZZ"],
+      f"meta={[r.meta for r in _e2d_recs]} ho={_e2d_read(_hout_d7).get('delivered_symbols')}"[:160])
+
+
+# ── E2D5: المدقّق يُعلن التسليمَ غيرَ المسجَّل ──
+def _e2d_seg5(sub, dss, delivered):
+    _d = _os.path.join(_e2_out, sub, "session_2026-09-18", "segment_open")
+    _os.makedirs(_d, exist_ok=True)
+    _sj = {"session_date": "2026-09-18", "segment": "open", "termination": "normal"}
+    if dss is not None:
+        _sj["delivered_symbols_segment"] = dss
+    with open(_os.path.join(_d, "session.json"), "w", encoding="utf-8") as _fh:
+        _json.dump(_sj, _fh)
+    with open(_os.path.join(_d, "deliveries.jsonl"), "w", encoding="utf-8") as _fh:
+        for _s in delivered:
+            _fh.write(_json.dumps({"symbol": _s, "delivered": True}) + "\n")
+    return _A.analyze_session(_d)
+
+
+_du = lambda r: [x for x in (r or {}).get("incomplete_reasons", []) if x.startswith("delivered_unrecorded")]
+_u5 = [_du(_e2d_seg5("e2d5a", ["BTCS", "ONMD"], ["BTCS"])), _du(_e2d_seg5("e2d5b", None, ["BTCS"])),
+       _du(_e2d_seg5("e2d5c", ["BTCS"], ["BTCS"]))]
+check("🔴 E2D5 المدقّق: تسليمٌ وصل (الإنتاج) ولم يُسجَّل ⇒ `delivered_unrecorded(ONMD)` · وغيابُ الحقل (ما قبل الإصلاح) "
+      "أو اكتمالُ التسجيل ⇒ لا سبب · والقاعدةُ موسومةٌ 2026-09-26b",
+      _u5 == [["delivered_unrecorded(ONMD)"], [], []] and _A.VERDICT_RULE == "2026-09-26b", str(_u5))
+# ── E2D6: المجمِّع يؤرّخ المراقبة بدوراتها لا ببناء المسجّل ──
+_orig_now_pv = _M._utcnow_iso
+_pv_calls = []
+
+
+def _pv_now():
+    _pv_calls.append(1)
+    return "2026-07-27T09:41:00Z" if len(_pv_calls) == 1 else _orig_now_pv()
+
+
+_M._utcnow_iso = _pv_now                  # بناءُ مسجّل الافتتاح قبل انتظار الجرس بساعات
+try:
+    _ro_pv = _e2_seg("segpv", "2026-07-27", "open", "IGN", _seg_now_ms - 3600_000, seg_end_off=-90)
+finally:
+    _M._utcnow_iso = _orig_now_pv
+_e2_seg("segpv", "2026-07-27", "close", "BBB", _seg_now_ms - 600_000, seg_end_off=+5,
+        prev=_ro_pv.manifest_sha256)
+_ASM.assemble("2026-07-27", root=_os.path.join(_e2_out, "segpv"), write_repo_index=False,
+              fetch_bars=lambda s: [{"o": 2, "h": 2.1, "l": 2, "c": 2.05, "v": 10,
+                                     "t": _asm_close_ms - 60000 * k} for k in (3, 2, 1)])
+_sj_pv = _e2d_read(_os.path.join(_e2_out, "segpv", "session_2026-07-27", "session.json"))
+_sj_pv_o = _e2d_read(_os.path.join(_e2_out, "segpv", "session_2026-07-27", "segment_open", "session.json"))
+check("🔴 E2D6 المجمِّع: نافذةُ المراقبة المدموجة من الدورات (`monitoring_started_at`) لا من بناء المسجّل "
+      "— صار يُبنى قبل انتظار الجرس فيسبقها بساعات",
+      _sj_pv_o.get("segment_started_at") == "2026-07-27T09:41:00Z"
+      and bool(_sj_pv_o.get("monitoring_started_at"))
+      and _sj_pv.get("monitoring_started_at") == _sj_pv_o.get("monitoring_started_at"),
+      f"seg={_sj_pv_o.get('segment_started_at')} mon={_sj_pv_o.get('monitoring_started_at')} "
+      f"asm={_sj_pv.get('monitoring_started_at')}")
 _shutil.rmtree(_e2_out, ignore_errors=True)
 # 🔥📏 دالّتا التحقّق التاريخي (IGNITION_VERIFY_PLAN.md — قياس «هل فاد الاشتراك؟»)
 check("تحقّق·يوم الانفجار: أول قمة تبلغ +50% من الدخول (وإلا None)",
