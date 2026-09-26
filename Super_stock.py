@@ -11678,7 +11678,61 @@ def borrow_gate_recheck(picks):
     return kept, ejected
 
 
-def fill_picks(results, space, exclude, enrich_fn=None, rounds=None):
+def borrow_second_chance(picks, today_iso=None, harvested=None, fetch_ce=None,
+                         pause=None) -> dict:
+    """🔒⏱️ **فرصةٌ ثانية لمتاح البوّابة — للمجهول وحده** (2026-09-26 · أمرُ المالك «طبّق
+    بوابة المتاح على الـ12»).
+
+    🔴 **العيبُ المقيس (تجديد 09-26 · `36205367215`):** الـ14 المرشَّحون كلُّهم دخلوا **بلا متاحٍ
+    ولا رسوم** — لأن جولة التعبئة الأولى (15 سهمًا في `enrich` واحد) تعذّر فيها ChartExchange
+    في أوّلها فانطفأ قاطعُه (3 إخفاقات متتالية) فلم يُسأل عن الباقين، وFintel محجوب وiBorrowDesk
+    ميّتٌ من الرنر ⇒ **البوّابةُ مرّرتهم مجهولين بفائدة الشك**؛ بينما الجولاتُ 2-4 (سهمٌ لكلٍّ بعد
+    دقيقةٍ ونصف) جلبت المتاحَ وأخرجت AIRE/SCKT/PHIO ⇒ التعذّرُ عابرٌ والقاطعُ عمّمه على الجولة.
+    وحصادُ صباحِ اليوم نفسِه وجد الـ12 الجدد كلَّهم **فوق 20 ألف** (40 ألفًا ⟶ 550 ألفًا).
+
+    ✅ **العلاج:** لكلّ مختارٍ **متاحُه مجهول** بعد الإثراء: ① صفُّ حصّاد اليوم (`_harvested_borrow`
+    · بلا نداء) ② ثمّ ChartExchange **مرّةً واحدة** بقاطعٍ مستقلّ (3 إخفاقات متتالية) وفاصلٍ قصير.
+    والرسومُ تُملأ من المصدر نفسِه **إن كانت غائبة** فقط.
+    🔒 **وما له متاحٌ لا يُمَسّ بت-بت** · والبوّابةُ وحدُّها (`borrow_gate_recheck` · 20,000) كما هما ·
+    والمتعذّرُ بعد الفرصتين **يبقى مجهولًا فيمرّ بفائدة الشك** (قاعدتُها لا تتغيّر هنا) — لكنه **يُعَدّ
+    ويُعلَن** في السجلّ بدل أن يمرّ صامتًا. يرجّع {"مجهول", "حصاد", "موقع", "تعذّر"}.
+    `harvested`/`fetch_ce`/`pause` تُحقَن للاختبار (بلا شبكة)."""
+    cnt = {"مجهول": 0, "حصاد": 0, "موقع": 0, "تعذّر": 0}
+    todo = [r for r in (picks or [])
+            if isinstance(r, dict) and r.get("shares_available") is None]
+    if not todo:
+        return cnt
+    cnt["مجهول"] = len(todo)
+    hb = (_harvested_borrow(today_iso or dt.date.today().isoformat())
+          if harvested is None else harvested) or {}
+    ce = fetch_ce or ce_borrow_info
+    nap = pause or time.sleep
+    fails = 0
+    for r in todo:
+        _d = hb.get(str(r.get("symbol") or "").upper()) or {}
+        src = "حصاد" if _d.get("shares_available") is not None else None
+        if src is None and fails < 3:
+            try:
+                nap(0.5)
+                _d = ce(str(r.get("symbol") or "")) or {}
+            except Exception:                                  # noqa: BLE001
+                _d = {}
+            if _d.get("shares_available") is not None:
+                src, fails = "موقع", 0
+            else:
+                fails += 1
+        if src is None:
+            cnt["تعذّر"] += 1
+            continue
+        r["shares_available"] = _d.get("shares_available")
+        if r.get("borrow_fee") is None:
+            r["borrow_fee"] = _d.get("borrow_fee")
+        cnt[src] += 1
+    return cnt
+
+
+def fill_picks(results, space, exclude, enrich_fn=None, rounds=None,
+               second_chance=None):
     """🎯 **تعبئةُ الخانات بالترتيب مع بوّابتَي ما بعد الإثراء** (أمرُ المالك
     2026-08-11 «صلّح الترتيب»).
 
@@ -11719,6 +11773,20 @@ def fill_picks(results, space, exclude, enrich_fn=None, rounds=None):
             log(f"⚠️ الإثراء (جولة {used}): {e}")
         got, _fl = refloat_gate_recheck(got)
         fl_out += _fl
+        # 🔒⏱️ فرصةٌ ثانية لمتاح البوّابة (2026-09-26): **الإنتاجُ وحدَه افتراضًا** — الاختباراتُ
+        #    تحقن `enrich_fn` فلا نداءَ شبكةٍ منها (وتحقن `second_chance` صراحةً لتقيسها).
+        _sc = (second_chance if second_chance is not None
+               else (borrow_second_chance if enrich_fn is None else None))
+        if _sc is not None:
+            try:
+                _c = _sc(got) or {}
+                if _c.get("مجهول"):
+                    log(f"🔒 فرصةٌ ثانيةٌ لمتاح البوّابة (جولة {used}): مجهولٌ {_c.get('مجهول')} ⟵ "
+                        f"حصاد {_c.get('حصاد', 0)} · موقع {_c.get('موقع', 0)} · تعذّر {_c.get('تعذّر', 0)}"
+                        + (" — والمتعذّرُ يمرّ بفائدة الشك (قاعدةُ البوّابة)"
+                           if _c.get("تعذّر") else ""))
+            except Exception as e:                               # noqa: BLE001
+                log(f"⚠️ الفرصة الثانية للمتاح (جولة {used}): {e}")
         got, _bw = borrow_gate_recheck(got)
         bw_out += _bw
         picks += got
@@ -20043,6 +20111,10 @@ def run_weekly_renewal(wl: dict) -> None:
         final_stocks = [x for x in final_stocks if id(x) not in _drop]
     new_wl = dict(wl)
     new_wl.update({"week_start": today_iso, "created": today_iso,
+                   # 🗓️ ختمُ الجيل (2026-09-26): يفرّق تجديدَين في اليوم نفسِه لـ`_merge_watchlist`
+                   #    (حدُّ الجيل ⇒ قوائمُ الأحدث كما هي · لا بعثَ لما أسقطه التجديد)
+                   "renewed_at": dt.datetime.now(dt.timezone.utc).isoformat(
+                       timespec="seconds"),
                    "logic_version": LOGIC_VERSION,   # القائمة مبنية على آخر منطق
                    "stocks": final_stocks,
                    "removed": [], "replacements_log": [], "notes": [],
@@ -23927,6 +23999,9 @@ STATUS_AR = {
     "hit_t3": "🏆 حقق الهدف 3",
     "stopped": "🛑 ضرب الستوب",
     "expired": "⌛ انتهى التتبع (30 يوم)",
+    # ↩️ (2026-09-26 · «طبّق بوابة المتاح على الـ12»): ترشيحٌ سُحب **قبل أيّ جلسة** — لا ربحَ
+    #    ولا خسارة ولا يُقاس مقدارُه؛ يُعَدّ مُعلَنًا في تقرير الأداء ولا يدخل الحسم.
+    "withdrawn": "↩️ سُحب قبل أيّ جلسة",
 }
 
 
@@ -24104,7 +24179,12 @@ def _merge_watchlist(remote_bytes, local_bytes) -> bytes:
     يُقدّمه) وعند التساوي/الغياب **المحلّيّ**، **وكلُّ مفتاحٍ لم يُعدَّد
     يبقى** (لا يُسقَط حقلٌ لم نتوقّعه). وفاشلةٌ-آمنة كنظيرتيها: أيُّ عطبٍ ⇒
     نسختُنا = سلوكُ اليوم حرفيًّا. والشكلُ يطابق `_atomic_write_json`
-    (`ensure_ascii=False, indent=1`) فلا يتضخّم الفرق."""
+    (`ensure_ascii=False, indent=1`) فلا يتضخّم الفرق.
+
+    🗓️ **وتصحيحٌ مؤرَّخ 2026-09-26 — الاتّحادُ صحيحٌ داخل الجيل وخاطئٌ عبر حدِّه:** «لا فقدَ
+    عضوية» حُرِسَت باتّحادٍ يبعث عند حدّ التجديد ما أسقطه التجديدُ عمدًا (مقيسٌ بعد 09-12 · 09-19
+    · 09-26) ⇒ الجيلُ = (`week_start` · `renewed_at` الذي يختمه `run_weekly_renewal`) وعند اختلافه
+    **قوائمُ الأحدث كما هي** والزمنيّةُ وحدَها تتّحد. وداخل الجيل الواحد السلوكُ كما كان بت-بت."""
     try:
         def _load(bs):
             d = json.loads((bs or b"").decode("utf-8", "replace") or "{}")
@@ -24121,12 +24201,26 @@ def _merge_watchlist(remote_bytes, local_bytes) -> bytes:
         rem, loc = _load(remote_bytes), _load(local_bytes)
         if rem is None or loc is None:
             return local_bytes
-        # ① الحقولُ العليا: الأحدثُ `week_start` يعلو · والغائبُ يُملأ من الآخر
+        # ① الحقولُ العليا: الجيلُ الأحدثُ يعلو (`week_start` ثمّ `renewed_at`) · والغائبُ يُملأ من الآخر
+        #    (وبلا `renewed_at` في الجهتين = المقارنةُ بـ`week_start` وحدَه كما كانت بت-بت)
         _rw = str(rem.get("week_start") or "")
         _lw = str(loc.get("week_start") or "")
-        _base, _other = ((rem, loc) if _rw > _lw else (loc, rem))
+        _rg = (_rw, str(rem.get("renewed_at") or ""))
+        _lg = (_lw, str(loc.get("renewed_at") or ""))
+        _base, _other = ((rem, loc) if _rg > _lg else (loc, rem))
         out = dict(_other)
         out.update(_base)
+        # 🗓️ **حدُّ الجيل** (2026-09-26 · مقيسٌ لا مفترض): جهتان من جيلَين مختلفَين ⇒ الأحدثُ **هو
+        #    التجديدُ نفسُه** وقد استهلك الأقدمَ (أرشفه في `history` · حمل نشِطَه بوسم مصير · صفّر
+        #    `removed`/`notes`/`replacements_log` · وبنى `pullback` من جديد) ⇒ **اتّحادُ الأقدم يبعث ما
+        #    أسقطه التجديدُ عمدًا**. وقع بعد تجديدات 09-12 · 09-19 · 09-26 كلِّها (مراقبُ الارتداد المتأخّر
+        #    دفع نسختَه البائتة بعد التجديد بدقيقة): المشطوباتُ 0 ⟶ 8 · 26 · 47 · والارتدادُ القديم
+        #    3 ⟶ 14 · 3 ⟶ 18 · 7 ⟶ 23 · ونسخُ الأسهم البائتة غلبت حقولَ التجديد («المحلّيُّ يفوز» والمحلّيُّ
+        #    هو البائت: 16 من 30 فقدت `cont_status`) ⇒ عند الحدّ **قوائمُ الجيل الأحدث كما هي**
+        #    (`_WL_KEYED` ‏+ `_WL_APPEND` — وضعتها `out.update(_base)` أعلاه) والزمنيّةُ اتّحادٌ بمفتاحها كما هي.
+        #    ⚖️ ورصيدٌ مُعلَن: أختامُ دِدوبِ البائت لمساء الجمعة تُفقَد عند الحدّ — أهونُ بمراتبَ من البعث.
+        #    وجهةٌ بلا `week_start` ⇒ لا حدّ (الاتّحادُ كما هو · فاشلٌ-آمن لا يُسقط شيئًا).
+        _boundary = bool(_rw) and bool(_lw) and _rg != _lg
         # ② اتّحادُ المشطوبين **قبل** القصّ (المصدرُ الوحيد لمنع البعث)
         # ⚖️ **بقاعدة الإنتاج نفسِها لا أشدَّ منها** (إصلاحٌ 2026-08-21):
         #    الاتّحادُ الخامّ كان يقصّ **بلا قيدِ حالةٍ ولا وقت** و`removed`
@@ -24151,6 +24245,8 @@ def _merge_watchlist(remote_bytes, local_bytes) -> bytes:
                     and str(_e.get("symbol")) not in _act}
         # ③ عضويةٌ بالمفتاح: المحلّيُّ أوّلًا (يفوز عند التكرار) ثم جديدُ البعيد
         for _k in _WL_KEYED:
+            if _boundary:
+                continue                             # 🗓️ حدُّ الجيل: قائمةُ الأحدث كما هي
             _rl, _ll = _lst(rem, _k), _lst(loc, _k)
             if _rl is None and _ll is None:
                 continue
@@ -24173,6 +24269,8 @@ def _merge_watchlist(remote_bytes, local_bytes) -> bytes:
         #    لنفس الرمز في اليوم نفسِه مختلفتان، وطيُّهما فقدُ بيانات — وهو
         #    الأذى الذي وُلدت له الخطة.
         for _k in _WL_APPEND:
+            if _boundary:
+                continue                             # 🗓️ حدُّ الجيل: قائمةُ الأحدث كما هي
             _rl, _ll = _lst(rem, _k), _lst(loc, _k)
             if _rl is None and _ll is None:
                 continue
@@ -24547,7 +24645,9 @@ def weekly_report(data):
     if not alerts:
         return ""
     opens = [a for a in alerts if a["status"] == "open"]
-    closed = [a for a in alerts if a["status"] != "open"]
+    # ↩️ المسحوبُ قبل أيّ جلسة (2026-09-26) لا يدخل الحسمَ ولا النسبة — ويُعلَن بعدده لا يُطوى
+    withdrawn = [a for a in alerts if a["status"] == "withdrawn"]
+    closed = [a for a in alerts if a["status"] not in ("open", "withdrawn")]
     expired = [a for a in closed if a["status"] == "expired"]
     decided = [a for a in closed if a["status"] != "expired"]
     wins = [a for a in decided if a["status"].startswith("hit")]
@@ -24556,7 +24656,8 @@ def weekly_report(data):
     lines = [f"📊 <b>تقرير الأداء الأسبوعي</b> — "
              f"{dt.date.today().isoformat()}", "",
              f"إجمالي التنبيهات: {len(alerts)} | مفتوحة: {len(opens)} | "
-             f"منتهية بلا حسم: {len(expired)}"]
+             f"منتهية بلا حسم: {len(expired)}"
+             + (f" | مسحوبة قبل أيّ جلسة: {len(withdrawn)}" if withdrawn else "")]
 
     if decided:
         wr = len(wins) / len(decided) * 100.0
@@ -24651,8 +24752,8 @@ def observe_closed_alerts(data, fetch=None, today=None, cap=None):
         return (0, 0)
     todo = []
     for a in (data.get("alerts") or []):
-        if a.get("status") in (None, "", "open"):
-            continue                          # المفتوحة شأنُ `update_tracking`
+        if a.get("status") in (None, "", "open", "withdrawn"):
+            continue                          # المفتوحة شأنُ `update_tracking` · والمسحوبُ لا يُقاس (2026-09-26)
         if a.get("mg_obs_done"):
             continue                          # نافذتُها انتهت — لا نعيد الجلب أبدًا
         try:
