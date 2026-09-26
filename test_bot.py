@@ -69168,6 +69168,237 @@ check("🗒️ TCD23 «الأسماءُ في السجلّ» صادقة: كلُّ
       "✖️ المتاح · ⚠️ · ❔) · و«تعذّر القاع» يظهر بعالمٍ بلا ساعة · ولا قصَّ صامتًا (AST)", _v23, _v23w)
 
 # ══════════════════════════════════════════════════════════════════════════
+# 🧱 EXH1-EXH6 الثبات الدقيق في كروت الجاهز (أمرُ المالك 2026-09-26 «اعرض الثبات في جاهز البوت» — **عرضٌ فقط**):
+#    `exact_pivot_hold` توأمُ `three_cond_daily.exact_low_stability` حرفًا · والسطرُ في الكرت واليوميّ · ويُحسب يوميًّا وفي
+#    التجديد قبل الرسالة · والجذورُ لا تقرؤه · و`STABILITY_MIN`=3 لم يُمَسّ — عالمٌ اصطناعيّ بلا شبكة (الجالبُ محقون).
+# ══════════════════════════════════════════════════════════════════════════
+import inspect as _exh_insp                                          # noqa: E402
+import random as _exh_random                                         # noqa: E402
+import textwrap as _exh_tw                                           # noqa: E402
+
+# EXH1 — التوأمان متطابقان: 300 عالمٍ عشوائيّ ببذرةٍ ثابتة (نوافذُ 2-40 جلسة عبر تحوّلَي التوقيت الصيفيّ · شموعُ ساعةٍ داخل
+#    الجلسة الممتدّة وخارجها · شمعةٌ تالفة · `need`/`look` متغيّران) ⟵ صفرُ فرق · ولا يمرّ فارغًا (مطلوبٌ غيرُ None وثابتٌ وذيلٌ
+#    ممتدّ بأعدادٍ دنيا) · وحالةُ ذيل الأفتر المحسومة ⟵ القاعُ 3.7 في الاثنين
+try:
+    _exh_r = _exh_random.Random(20260926)
+    _exh_ds = [d for d in _TCD.WW.calendar(2026) if "2025-10-01" <= d <= _TCD_SESS]
+    _exh_diff, _exh_nn, _exh_stb, _exh_ext, _exh_first = 0, 0, 0, 0, ""
+    for _k in range(300):
+        _L = _exh_r.randint(2, 40)
+        _st = _exh_r.randint(0, len(_exh_ds) - _L)
+        _dd = _exh_ds[_st:_st + _L]
+        _px, _rows = _exh_r.uniform(0.2, 8.0), []
+        for _d in _dd:
+            _px *= _exh_r.uniform(0.9, 1.1)
+            _lo = _px * _exh_r.uniform(0.9, 1.0)
+            _rows.append((_d, _px, _px * 1.05, _lo, _exh_r.uniform(_lo, _px * 1.05), 1e5))
+        _hrs = []
+        for _d, _o, _h, _lo, _c, _v in _rows:
+            for _hh in _exh_r.sample(range(24), _exh_r.randint(0, 8)):
+                _hrs.append((_tcd_ms(_d, _hh, _exh_r.choice((0, 30))), _h * _exh_r.uniform(0.95, 1.05),
+                             _lo * _exh_r.uniform(0.9, 1.05)))
+        if _k % 10 == 0:
+            _hrs.append(("x", 1.0, 2.0))
+        _ss = _dd[_exh_r.randint(0, len(_dd) - 1)]
+        _nd, _lk = _exh_r.choice((None, 3, 5, 8)), _exh_r.choice((None, 5, 25))
+        _pa = S.exact_pivot_hold(_rows, _hrs, _ss, _nd, _lk)
+        _pb = _TCD.exact_low_stability(_rows, _hrs, _ss, _nd, _lk)
+        if _pa != _pb:
+            _exh_diff += 1
+            _exh_first = _exh_first or f"{_k}: {_pa} ≠ {_pb}"
+        if _pa:
+            _exh_nn += 1
+            _exh_stb += bool(_pa["stable"])
+            _exh_ext += bool(_pa["ext"])
+    _exh_dn = [5.0 - 0.1 * i for i in range(10)]
+    _exh_ds14 = _exh_ds[-16:]
+    _exh_rw = [(d, c, c * 1.01, lo, c, 1.0) for d, lo, c in
+               zip(_exh_ds14, _exh_dn + [4.0] + [4.1] * 5, [x + 0.05 for x in _exh_dn] + [4.05] + [4.15] * 5)]
+    _exh_hw = _tcd_hours_of(_exh_rw, [(_exh_ds14[-3], 17, 4.2, 3.7)])
+    _exh_ta = S.exact_pivot_hold(_exh_rw, _exh_hw, _exh_ds14[-1])
+    _exh_tb = _TCD.exact_low_stability(_exh_rw, _exh_hw, _exh_ds14[-1])
+    _vX1 = (_exh_diff == 0 and _exh_nn >= 150 and _exh_stb >= 20 and _exh_ext >= 20 and _exh_ta == _exh_tb
+            and _exh_ta["pivot"] == 3.7 and _exh_ta["bars_after"] == 2 and _exh_ta["ext"] and not _exh_ta["stable"])
+    _vX1w = (f"فروق={_exh_diff} {_exh_first[:120]} · غيرُ None={_exh_nn} · ثابت={_exh_stb} · ممتدّ={_exh_ext} · "
+             f"ذيلُ الأفتر={_exh_ta and (_exh_ta['pivot'], _exh_ta['bars_after'])}")
+except Exception as _e:                                              # noqa: BLE001
+    _vX1, _vX1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH1 `S.exact_pivot_hold` توأمُ `three_cond_daily.exact_low_stability`: 300 عالمٍ عشوائيّ (تحوّلا التوقيت · خارج "
+      "النافذة · تالفة · need/look) ⟵ صفرُ فرقٍ بلا مرورٍ فارغ · وذيلُ الأفتر ⟵ القاعُ 3.7 بعد جلستين في الاثنين", _vX1, _vX1w)
+
+# EXH2 — السطرُ يصف ولا يُسقط: ثابت ⟵ «🧱 ثابتٌ 7 جلسات … $0.1234 (… · بري/أفتر)» · 12 ⟵ «12 جلسة» · ينتظر ⟵ «مضى 1 من 5» ·
+#    أغلق عند القاع ⟵ «أغلق عند» لا «مضى» · بلا ساعة ⟵ «تعذّر» · بلا حالة/تالف ⟵ «» · بلا `need` ⟵ `STABILITY_SHOW_REQ` ·
+#    وصفرُ علامة مقارنة
+try:
+    _eh_st = {"pivot": 0.1234, "pivot_date": "2026-09-18", "bars_after": 7, "held": True, "need": 5, "stable": True,
+              "ext": True}
+    _eh_12 = dict(_eh_st, bars_after=12, ext=False, pivot=2.5)
+    _eh_w = {"pivot": 1.5, "pivot_date": "2026-09-24", "bars_after": 1, "held": True, "stable": False, "ext": False}
+    _eh_at = dict(_eh_w, bars_after=5, held=False, pivot_date="2026-09-18", need=5)
+    _L_st, _L_12 = S.exact_hold_line(_eh_st), S.exact_hold_line(_eh_12)
+    _L_w, _L_at = S.exact_hold_line(_eh_w), S.exact_hold_line(_eh_at)
+    _L_nh = S.exact_hold_line({"nohour": True, "asof": "2026-09-25"})
+    _L_empty = [S.exact_hold_line(x) for x in (None, {}, {"pivot": "x"}, {"pivot": 1.0, "pivot_date": "d"})]
+    _all2 = [_L_st, _L_12, _L_w, _L_at, _L_nh] + _L_empty
+    _vX2 = (_L_st == "🧱 ثابتٌ 7 جلسات فوق أدنى قاع على 4 ساعات $0.1234 (2026-09-18 · بري/أفتر)"
+            and "ثابتٌ 12 جلسة " in _L_12 and "$2.50" in _L_12 and "بري/أفتر" not in _L_12
+            and _L_w == "⏳ لم يثبت بعد: مضى 1 من 5 جلسات فوق أدنى قاع على 4 ساعات $1.50 (2026-09-24)"
+            and "أغلق عند أدنى قاع على 4 ساعات $1.50" in _L_at and "مضى" not in _L_at
+            and _L_nh == "⏳ الثبات: تعذّر القاعُ الدقيق اليوم (شموعُ الساعة)"
+            and _L_empty == ["", "", "", ""] and S.STABILITY_SHOW_REQ == 5
+            and not any(c in x for x in _all2 for c in "≥≤<>"))
+    _vX2w = f"ثابت={_L_st!r} · ينتظر={_L_w!r} · عند القاع={_L_at!r} · فارغ={_L_empty}"
+except Exception as _e:                                              # noqa: BLE001
+    _vX2, _vX2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH2 `exact_hold_line` يصف ولا يُسقط: ثابت/12 جلسة/ينتظر «مضى 1 من 5»/أغلق عند القاع/تعذّر · «» بلا حالة أو تالف · "
+      "`need` الغائب ⟵ 5 · السعرُ بدقّته · ولا علامة مقارنة", _vX2, _vX2w)
+
+
+# EXH3 — `refresh_exact_hold`: القائمةُ كلُّها تُسنَد بلا شرط (رقمُ الأمس لا يبقى) · ok/nohour/fail/nodata بعدّاداتها · النطاقُ
+#    من أوّل يوم النافذة إلى يومٍ بعد الجلسة · والمحسوبُ = `exact_pivot_hold` + `asof` · والشمعةُ التالفة (NaN) تُتخطّى ·
+#    **بلا مفتاح Polygon ولا جالبٍ محقون ⟵ صفرُ نداء** · وبالمفتاح ⟵ `polygon_hour_bars` نفسُه
+def _exh_df(rows):
+    return _tcd_pd.DataFrame({"Open": [r[1] for r in rows], "High": [r[2] for r in rows], "Low": [r[3] for r in rows],
+                              "Close": [r[4] for r in rows], "Volume": [r[5] for r in rows]},
+                             index=_tcd_pd.to_datetime([r[0] for r in rows]))
+
+
+try:
+    _exh_rows = _tcd_series("base", 2.0)
+    _exh_look = int(S.CONFIG["PIVOT_LOOKBACK"])
+    _exh_win = _exh_rows[-_exh_look:]
+    _exh_hr = _tcd_hours_of(_exh_rows)
+    _exh_nan = _exh_df(_exh_rows[:-3] + [(_exh_rows[-3][0], float("nan"), 1.0, 1.0, 1.0, 1.0)] + _exh_rows[-2:])
+    _exh_hist = {s: _exh_df(_exh_rows) for s in ("AAA", "NOH", "FAL", "BAD")}
+    _exh_hist["NAN"] = _exh_nan
+    _exh_calls = []
+
+    def _exh_fetch(sym, d0, d1):
+        _exh_calls.append((sym, d0, d1))
+        if sym == "BAD":
+            raise RuntimeError("boom")
+        return {"AAA": _exh_hr, "NAN": _exh_hr, "NOH": [], "FAL": None}[sym]
+    _exh_st = [{"symbol": "AAA", "exact_hold": {"stale": 1}}, {"symbol": "NOH"}, {"symbol": "FAL", "exact_hold": {"stale": 1}},
+               {"symbol": "NOD", "exact_hold": {"stale": 1}}, {"symbol": "BAD"}, {"symbol": "NAN"}]
+    _exh_n = S.refresh_exact_hold(_exh_st, _exh_hist, fetch=_exh_fetch)
+    _exh_by = {s["symbol"]: s.get("exact_hold") for s in _exh_st}
+    _exh_want = dict(S.exact_pivot_hold(_exh_rows, _exh_hr, _exh_rows[-1][0]), asof=_exh_rows[-1][0])
+    _exh_nanrows = S._daily_rows_of(_exh_nan)
+    _exh_d1 = (_tcd_dt.date.fromisoformat(_exh_win[-1][0]) + _tcd_dt.timedelta(days=1)).isoformat()
+    _vX3a = (_exh_n == {"ok": 2, "nohour": 1, "fail": 2, "nodata": 1, "nokey": 0}
+             and _exh_by["AAA"] == _exh_want and _exh_by["NOH"] == {"nohour": True, "asof": _exh_rows[-1][0]}
+             and _exh_by["FAL"] is None and _exh_by["NOD"] is None and _exh_by["BAD"] is None
+             and ("AAA", _exh_win[0][0], _exh_d1) in _exh_calls and len(_exh_calls) == 5
+             and len(_exh_nanrows) == len(_exh_rows) - 1 and _exh_rows[-3][0] not in [r[0] for r in _exh_nanrows]
+             and _exh_by["NAN"] and _exh_by["NAN"]["asof"] == _exh_rows[-1][0] and _exh_want["stable"])
+    _exh_pk, _exh_ph = S._poly_key, S.polygon_hour_bars
+    _exh_pcalls = []
+    try:
+        S._poly_key = lambda: ""
+        S.polygon_hour_bars = lambda *a, **k: _exh_pcalls.append(a) or []
+        _exh_s2 = [{"symbol": "AAA", "exact_hold": {"stale": 1}}, {"symbol": "NOH"}]
+        _exh_n2 = S.refresh_exact_hold(_exh_s2, _exh_hist)
+        _vX3b = (not _exh_pcalls and _exh_n2["nokey"] == 2 and _exh_n2["ok"] == 0
+                 and all(s["exact_hold"] is None for s in _exh_s2))
+        S._poly_key = lambda: "K"
+        _exh_s3 = [{"symbol": "AAA"}, {"symbol": "NOD"}]
+        _exh_n3 = S.refresh_exact_hold(_exh_s3, _exh_hist)
+        _vX3c = [a[0] for a in _exh_pcalls] == ["AAA"] and _exh_n3["nohour"] == 1 and _exh_n3["nodata"] == 1
+    finally:
+        S._poly_key, S.polygon_hour_bars = _exh_pk, _exh_ph
+    _vX3 = _vX3a and _vX3b and _vX3c
+    _vX3w = (f"عدّادات={_exh_n} · AAA={_exh_by.get('AAA') == _exh_want} · نداءات={_exh_calls[:2]} · "
+             f"بلا مفتاح: نداءات={len(_exh_pcalls)} {_vX3b} · بالمفتاح={_vX3c}")
+except Exception as _e:                                              # noqa: BLE001
+    _vX3, _vX3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH3 `refresh_exact_hold`: كلُّ سهمٍ يُسنَد بلا شرط (رقمُ الأمس لا يبقى) · ok/nohour/fail/nodata · النطاقُ حتى يومٍ بعد "
+      "الجلسة · المحسوبُ = التوأم + asof · NaN تُتخطّى · بلا مفتاحٍ صفرُ نداء · وبالمفتاح `polygon_hour_bars`", _vX3, _vX3w)
+
+# EXH4 — `polygon_hour_bars`: المسارُ `/range/1/hour/{start}/{end}` بالرمز كبيرًا و`adjusted=true` · التعذّرُ ⟵ None · بلا
+#    نتائج ⟵ [] · والتالفةُ تُتخطّى
+try:
+    _exh_g = []
+
+    def _exh_get(url, params):
+        _exh_g.append((url, dict(params)))
+        return {"results": [{"t": 1_000, "h": 2, "l": 1.5}, {"t": "bad", "h": 1, "l": 1}, {"h": 1.0}]}
+    _exh_pb1 = S.polygon_hour_bars("abc", "2026-09-01", "2026-09-26", get=_exh_get)
+    _exh_pb2 = S.polygon_hour_bars("abc", "2026-09-01", "2026-09-26", get=lambda u, p: None)
+    _exh_pb3 = S.polygon_hour_bars("abc", "2026-09-01", "2026-09-26", get=lambda u, p: {})
+    _vX4 = (_exh_pb1 == [(1000, 2.0, 1.5)] and _exh_pb2 is None and _exh_pb3 == []
+            and _exh_g and _exh_g[0][0].endswith("/v2/aggs/ticker/ABC/range/1/hour/2026-09-01/2026-09-26")
+            and _exh_g[0][1].get("adjusted") == "true")
+    _vX4w = f"نتيجة={_exh_pb1} · تعذّر={_exh_pb2} · فارغ={_exh_pb3} · url={_exh_g[:1]}"
+except Exception as _e:                                              # noqa: BLE001
+    _vX4, _vX4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH4 `polygon_hour_bars`: `/range/1/hour/` بالرمز كبيرًا و`adjusted=true` · التعذّرُ None · الفارغُ [] · التالفةُ "
+      "تُتخطّى", _vX4, _vX4w)
+
+# EXH5 — موصولٌ من نقطة النداء الحيّة: كرتُ الجاهز في اليوميّ (`ready_only=True` كما يناديه الإنتاج) وكرتُ التجديد يعرضان
+#    السطرَ مع الحقل ويُسقطانه بدونه · و`run_daily_watchlist`/`run_weekly_renewal` يحسبانه **قبل** بناء الرسالة (AST)
+try:
+    _exh_rb = {"price": 1.85, "last_price": 1.85, "pivot": 1.80, "tranches": [1.80, 1.85, 1.90], "stop": [1.67, 1.71],
+               "t1": 2.0, "t2": 2.2, "t3": 2.5, "key_levels": {"sup_major": 1.80}, "warnings": []}
+    _exh_card = dict(_exh_rb, symbol="EXHC", score=60, readiness=60, rr=2.0, entry=(1.80, 1.90), tier="B", soft_fails=[],
+                     flags=[])
+    _exh_card["interp"] = S.build_interpretation(_exh_card)
+    _exh_wl = S.make_watch_entry(dict(_exh_card), "2026-09-25")
+    _exh_rich = S.build_daily_message({"stocks": [dict(_exh_wl, exact_hold=_eh_st)]}, [], [], [], ready_only=True)
+    _exh_bare = S.build_daily_message({"stocks": [dict(_exh_wl)]}, [], [], [], ready_only=True)
+    _exh_m1 = S.build_message([dict(_exh_card, exact_hold=_eh_w)], [])
+    _exh_m0 = S.build_message([dict(_exh_card)], [])
+
+    def _exh_calls_in(fn):
+        t = _tcd_ast.parse(_exh_insp.getsource(fn))
+        return [(getattr(c.func, "id", None) or getattr(c.func, "attr", None), c.lineno)
+                for c in _tcd_ast.walk(t) if isinstance(c, _tcd_ast.Call)]
+
+    def _exh_first_line(calls, name):
+        ls = [ln for n, ln in calls if n == name]
+        return min(ls) if ls else None
+    _exh_cd, _exh_cr = _exh_calls_in(S.run_daily_watchlist), _exh_calls_in(S.run_weekly_renewal)
+    _exh_o1 = (_exh_first_line(_exh_cd, "refresh_exact_hold"), _exh_first_line(_exh_cd, "build_daily_message"))
+    _exh_o2 = (_exh_first_line(_exh_cr, "refresh_exact_hold"), _exh_first_line(_exh_cr, "build_message"))
+    _vX5 = ("🟢" in _exh_rich and "EXHC" in _exh_rich and "🧱 ثابتٌ 7 جلسات" in _exh_rich
+            and "🧱" not in _exh_bare and "EXHC" in _exh_bare
+            and "مضى 1 من 5 جلسات" in _exh_m1 and "مضى 1 من 5" not in _exh_m0
+            and None not in _exh_o1 and _exh_o1[0] < _exh_o1[1] and None not in _exh_o2 and _exh_o2[0] < _exh_o2[1]
+            and "exact_hold_line" in [n for n, _ in _exh_calls_in(S.build_daily_message)]
+            and "exact_hold_line" in [n for n, _ in _exh_calls_in(S.build_message)])
+    _vX5w = (f"يوميّ غنيّ={'🧱 ثابتٌ 7 جلسات' in _exh_rich} عارٍ={'🧱' in _exh_bare} · تجديد={'مضى 1 من 5' in _exh_m1} · "
+             f"ترتيبُ اليوميّ={_exh_o1} · التجديد={_exh_o2}")
+except Exception as _e:                                              # noqa: BLE001
+    _vX5, _vX5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH5 موصولٌ حيًّا: كرتُ الجاهز اليوميّ (ready_only=True) وكرتُ التجديد يعرضان السطرَ مع الحقل ويُسقطانه بدونه · "
+      "والحسابُ قبل بناء الرسالة في المسارين (AST)", _vX5, _vX5w)
+
+# EXH6 — عرضٌ فقط: الجذورُ الاثنا عشر لا تذكر الحقلَ ولا دوالَّه (AST: أسماءٌ وسماتٌ ونصوص) · `STABILITY_MIN` باقٍ 3 ·
+#    والحدُّ 5 = حدُّ الأداة · ونافذةُ الساعات = نافذتُها
+try:
+    _exh_roots = ["rank_key", "select_top", "classify_tier", "analyze_ticker", "apply_short_gate", "apply_float_gate",
+                  "scan_market", "backtest_symbol", "scan_ignition", "scan_split_hunter", "entry_status",
+                  "build_interpretation"]
+    _exh_ban = {"exact_hold", "exact_pivot_hold", "refresh_exact_hold", "exact_hold_line", "STABILITY_SHOW_REQ",
+                "polygon_hour_bars", "_ext_hour_rows", "EXT_HOURS_NY"}
+    _exh_hits = []
+    for _rn in _exh_roots:
+        _t6 = _tcd_ast.parse(_exh_tw.dedent(_exh_insp.getsource(getattr(S, _rn))))
+        for _nd6 in _tcd_ast.walk(_t6):
+            _v6 = (getattr(_nd6, "id", None) if isinstance(_nd6, _tcd_ast.Name)
+                   else getattr(_nd6, "attr", None) if isinstance(_nd6, _tcd_ast.Attribute)
+                   else _nd6.value if isinstance(_nd6, _tcd_ast.Constant) and isinstance(_nd6.value, str) else None)
+            if _v6 in _exh_ban:
+                _exh_hits.append((_rn, _v6))
+    _exh_win6 = (_TCD.WW.EXT_FROM[0] + _TCD.WW.EXT_FROM[1] / 60.0, _TCD.WW.EXT_TO[0] + _TCD.WW.EXT_TO[1] / 60.0)
+    _vX6 = (not _exh_hits and S.CONFIG["STABILITY_MIN"] == 3 and S.STABILITY_SHOW_REQ == _TCD.STABILITY_REQ == 5
+            and tuple(S.EXT_HOURS_NY) == _exh_win6)
+    _vX6w = f"إصاباتُ الجذور={_exh_hits} · STABILITY_MIN={S.CONFIG['STABILITY_MIN']} · النافذة={S.EXT_HOURS_NY}/{_exh_win6}"
+except Exception as _e:                                              # noqa: BLE001
+    _vX6, _vX6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱 EXH6 عرضٌ فقط: الجذورُ الاثنا عشر لا تذكر الحقلَ ولا دوالَّه (AST) · `STABILITY_MIN` باقٍ 3 · والحدُّ 5 ونافذةُ "
+      "04:00-20:00 = الأداة", _vX6, _vX6w)
+
+# ══════════════════════════════════════════════════════════════════════════
 # 🩹 SRC1-SRC9 إصلاحُ مصدر الشموع (أمرُ المالك 2026-09-26 «صلح مصدر البوت» · فحصُ البوت `36244720433`: ياهو غيرُ متّسقٍ مع
 #    التقسيمات في 39 من 3,390 · MGN: RSI ياهو 25 والصحيح 50) — عالمٌ اصطناعيّ بلا شبكة (الجالبان محقونان).
 # ══════════════════════════════════════════════════════════════════════════

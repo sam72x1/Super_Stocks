@@ -7433,6 +7433,153 @@ def pivot_cycle_line(pc) -> str:
         return ""
 
 
+# 🧱 **الثبات الدقيق في كروت الجاهز** (أمرُ المالك 2026-09-26 «اعرض الثبات في جاهز البوت» — **عرضٌ فقط**):
+#    القاعُ = أدنى low في `PIVOT_LOOKBACK` جلسة من **شموع الساعة** 04:00-20:00 نيويورك ‏+ اليوميّة (= ذيلُ فريم 4 ساعات ·
+#    «فريم 4 ساعات عشان نعرف بالضبط قيمة ادنى قاع») · ويومُه أوّلُ يومٍ بلغه · والعدُّ **جلساتٌ يوميّة** بعده («الفريم اليومي
+#    يستخدم للحساب عدد الجلسات الثبات») · والحدُّ 5 («ثبات 5 جلسات»). **توأمُ `exact_low_stability` في أداة «شروطك الثلاثة»**
+#    (قفلُ تطابقٍ في السويّة · والإنتاجُ لا يستورد الأداة) — **ولا يمسّ الفرز ولا `entry_status` ولا `STABILITY_MIN`=3.**
+STABILITY_SHOW_REQ = 5
+EXT_HOURS_NY = (4.0, 20.0)      # الجلسةُ الممتدّة بتوقيت نيويورك (البري ‏+ النظاميّة ‏+ الأفتر)
+
+
+def polygon_hour_bars(sym: str, start: str, end: str, get=None):
+    """شموعُ Polygon **الساعيّة المسوّاة** لـ[start, end] ⟵ [(ms, high, low)] مرتّبة · `[]` إن لا شموع · **`None` عند
+    التعذّر** (بلا مفتاح أو خطأ) — فاشلٌ-آمن عبر `_poly_get_json`."""
+    g = get or _poly_get_json
+    js = g(f"https://api.polygon.io/v2/aggs/ticker/{str(sym).upper()}/range/1/hour/{start}/{end}",
+           {"adjusted": "true", "sort": "asc", "limit": "50000"})
+    if js is None:
+        return None
+    out = []
+    for b in js.get("results") or []:
+        try:
+            out.append((int(b["t"]), float(b["h"]), float(b["l"])))
+        except Exception:                                    # noqa: BLE001
+            continue
+    return out
+
+
+def _ext_hour_rows(hours, days=None):
+    """شموعُ الساعة داخل `EXT_HOURS_NY` ⟵ [(يومُ نيويورك, ms, high, low)] مرتّبةً زمنيًّا · و`days` يقصرها · والتالفةُ
+    تُتخطّى لا تُخمَّن (توأمُ `ext_rows` في الأداة)."""
+    lo_h, hi_h = EXT_HOURS_NY
+    out = []
+    for b in hours or []:
+        try:
+            ms, h, lo = int(b[0]), float(b[1]), float(b[2])
+        except (TypeError, ValueError, IndexError):
+            continue
+        t = pd.Timestamp(ms, unit="ms", tz="UTC").tz_convert("America/New_York")
+        hh = t.hour + t.minute / 60.0
+        d = t.date().isoformat()
+        if lo_h <= hh < hi_h and (days is None or d in days) and lo > 0 and h > 0:
+            out.append((d, ms, h, lo))
+    return sorted(out, key=lambda x: x[1])
+
+
+def exact_pivot_hold(rows, hours, sess, need=None, look=None):
+    """🧱 أدنى قاعٍ دقيق وثباتُه — **توأمُ `exact_low_stability` في أداة «شروطك الثلاثة» حرفًا** (قفلُ تطابق) ⟵ {pivot · pivot_date ·
+    bars_after · held · need · stable · ext · daily_low} أو None. `rows` = [(يوم, open, high, low, close, vol)] يوميّة ·
+    `hours` = [(ms, high, low)] · والقاعُ يومُه **أوّلُ** يومٍ بلغه (لمسُه ثانيةً ليس كسرًا · `X_85_YMT`) · و«ثابت» = إغلاقُ
+    `sess` فوق القاع **و**`bars_after` من `need` فأكثر بلا سقف. **بلا شمعة ساعةٍ في النافذة ⟵ None** (لا يُخمَّن)."""
+    try:
+        need = STABILITY_SHOW_REQ if need is None else int(need)
+        look = int(CONFIG["PIVOT_LOOKBACK"]) if look is None else int(look)
+        cut = [r for r in (rows or []) if r[0] <= sess]
+        if len(cut) < 2:
+            return None
+        win = cut[-look:]
+        days = [r[0] for r in win]
+        ext = _ext_hour_rows(hours, set(days))
+        if not ext:
+            return None
+        cands = [(r[0], float(r[3])) for r in win if float(r[3]) > 0] + [(d, lo) for d, _ms, _h, lo in ext]
+        low = min(x for _d, x in cands)
+        day = min(d for d, x in cands if x <= low)
+        d_low = min(float(r[3]) for r in win if float(r[3]) > 0)
+        after = sum(1 for d in days if d > day)
+        held = float(cut[-1][4]) > low
+        return {"pivot": low, "pivot_date": day, "bars_after": after, "held": held, "need": need,
+                "stable": held and after >= need, "ext": low < d_low, "daily_low": d_low}
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def _daily_rows_of(df):
+    """شموعُ البوت اليوميّة ⟵ [(يوم, open, high, low, close, vol)] — والتالفةُ (NaN) تُتخطّى لا تُخمَّن."""
+    out = []
+    try:
+        for i, o, h, lo, c, v in zip(df.index, df["Open"], df["High"], df["Low"], df["Close"], df["Volume"]):
+            vals = [float(o), float(h), float(lo), float(c), float(v or 0.0)]
+            if all(x == x for x in vals):
+                out.append((str(i)[:10], *vals))
+    except Exception:                                            # noqa: BLE001
+        return []
+    return out
+
+
+def refresh_exact_hold(stocks, hist, fetch=None, need=None) -> dict:
+    """🧱 يحسب `exact_hold` لكلّ سهم **ويُسنده بلا شرط** (التعذّرُ ⟵ None فلا يُعرَض رقمُ الأمس) ⟵ عدّادات.
+    `fetch(sym, d0, d1)` ⟵ [(ms, high, low)] أو None (محقونٌ للاختبار · وإلّا `polygon_hour_bars`) · **بلا مفتاح Polygon ولا
+    جالبٍ محقون ⟵ صفرُ نداء**. عرضٌ فقط — لا يقرؤه الفرزُ ولا `entry_status`."""
+    n = {"ok": 0, "nohour": 0, "fail": 0, "nodata": 0, "nokey": 0}
+    stocks = list(stocks or [])
+    if fetch is None and not _poly_key():
+        for s in stocks:
+            s["exact_hold"] = None
+        n["nokey"] = len(stocks)
+        return n
+    get = fetch or polygon_hour_bars
+    look = int(CONFIG["PIVOT_LOOKBACK"])
+    for s in stocks:
+        s["exact_hold"] = None
+        try:
+            df = (hist or {}).get(s.get("symbol"))
+            rows = _daily_rows_of(df) if df is not None else []
+            if len(rows) < 2:
+                n["nodata"] += 1
+                continue
+            win = rows[-look:]
+            #    النهايةُ يومٌ بعد الجلسة: ساعةُ 19:00 نيويورك شتاءً تبدأ منتصفَ ليل UTC التالي · والزائدُ يُقصى بأيّام النافذة
+            d_end = (dt.date.fromisoformat(win[-1][0]) + dt.timedelta(days=1)).isoformat()
+            hrs = get(s["symbol"], win[0][0], d_end)
+            if hrs is None:
+                n["fail"] += 1
+                continue
+            eh = exact_pivot_hold(rows, hrs, win[-1][0], need=need)
+            if eh is None:
+                s["exact_hold"] = {"nohour": True, "asof": win[-1][0]}
+                n["nohour"] += 1
+                continue
+            eh["asof"] = win[-1][0]
+            s["exact_hold"] = eh
+            n["ok"] += 1
+        except Exception:                                        # noqa: BLE001
+            n["fail"] += 1
+    return n
+
+
+def exact_hold_line(eh) -> str:
+    """🧱 سطرُ «الثبات» في الكرت (عرضٌ فقط · أمرُ المالك «اعرض الثبات في جاهز البوت») — **يصف ولا يُسقط** · بلا علامات
+    مقارنة · والقاعُ بدقّة السعر (`_px_txt`) · «» بلا قياس."""
+    try:
+        if not eh:
+            return ""
+        if eh.get("nohour"):
+            return "⏳ الثبات: تعذّر القاعُ الدقيق اليوم (شموعُ الساعة)"
+        lo = _px_txt(eh["pivot"])
+        where = str(eh["pivot_date"]) + (" · بري/أفتر" if eh.get("ext") else "")
+        n = int(eh["bars_after"])
+        need = int(eh.get("need") or STABILITY_SHOW_REQ)
+        if eh.get("stable"):
+            return f"🧱 ثابتٌ {_pc_sessions(n)} فوق أدنى قاع على 4 ساعات {lo} ({where})"
+        if not eh.get("held"):                 # أغلق عند القاع نفسِه ⟵ لا يُقال «مضى N فوقه»
+            return f"⏳ لم يثبت بعد: أغلق عند أدنى قاع على 4 ساعات {lo} ({where})"
+        return f"⏳ لم يثبت بعد: مضى {n} من {need} جلسات فوق أدنى قاع على 4 ساعات {lo} ({where})"
+    except Exception:                                            # noqa: BLE001
+        return ""
+
+
 def pump_repeat_watch_only(r) -> str:
     """🚫 **قاعدة «رُفِع أكثر من مرة بدون مضارب ⇒ متابعة فقط»** (فيصل — EZRA IMG_0295: «معروف عند
     الجميع و**تم رفعه أكثر من مرة بدون مضارب** … **متابعه فقط**» · EDBL IMG_0298: «**تم التلاعب
@@ -10463,6 +10610,9 @@ def build_message(results: list, splits: list,
         _pc = pivot_cycle_line(r.get("pivot_cycle"))   # 🪜 دورة الارتكاز (TG_50584)
         if _pc:
             lines.append(_pc)
+        _eh = exact_hold_line(r.get("exact_hold"))     # 🧱 الثبات الدقيق (أمرُ المالك «اعرض الثبات في جاهز البوت»)
+        if _eh:
+            lines.append(_eh)
         lines.append(news_links_compact(r["symbol"]))
     lines += ["", FOOTER]
     return _rtl_join(lines)
@@ -19139,6 +19289,9 @@ def build_daily_message(wl: dict, splits: list,
         _pc = pivot_cycle_line(s.get("pivot_cycle"))    # 🪜 دورة الارتكاز (TG_50584)
         if _pc:
             lines.append("   " + _pc)
+        _eh = exact_hold_line(s.get("exact_hold"))      # 🧱 الثبات الدقيق (أمرُ المالك «اعرض الثبات في جاهز البوت»)
+        if _eh:
+            lines.append("   " + _eh)
     # بدلاء اليوم: قائمة الإضافات — تُخفى بوضع الجاهز-فقط (الجديد يظهر كرته لو جاهز؛
     # وإلا فهو «تحت المتابعة» يتكفّل بها البوت — طلب المستخدم «ما يوصلني إلا الجاهز»).
     if replaced and not ready_only:
@@ -20338,6 +20491,12 @@ def run_weekly_renewal(wl: dict) -> None:
     if len(picks) < CONFIG["WATCHLIST_SIZE"]:
         subnote = (f"(وُجد {len(picks)} فقط يطابق الشروط — "
                    f"الحد الأقصى {CONFIG['WATCHLIST_SIZE']})")
+    try:                                   # 🧱 الثبات الدقيق في كروت التجديد (عرضٌ فقط · أمرُ «اعرض الثبات في جاهز البوت»)
+        _ehc = refresh_exact_hold(picks, hist)
+        log("🧱 الثبات الدقيق (التجديد): قِيس " + str(_ehc["ok"]) + " · بلا شموع ساعة " + str(_ehc["nohour"])
+            + " · تعذّر " + str(_ehc["fail"]))
+    except Exception as e:                                     # noqa: BLE001
+        log(f"⚠️ الثبات الدقيق (التجديد): {e}")
     msg = build_message(picks, splits, title=title, subnote=subnote)
     msg += "\n" + build_pullback_section(pull_entries)
     send_telegram(msg)
@@ -20712,6 +20871,15 @@ def run_daily_watchlist(wl: dict) -> None:
             + " · تعذّر " + str(_bsrc["تعذّر"]) + " (القديمُ يبقى)")
     except Exception as e:                                     # noqa: BLE001
         log(f"⚠️ تحديث الاقتراض: {e}")
+    # 🧱 الثبات الدقيق يوميًّا (أمرُ المالك 2026-09-26 «اعرض الثبات في جاهز البوت» — عرضٌ فقط): شموعُ Polygon الساعيّة
+    #    لكلّ سهمٍ في القائمة ⟵ `exact_hold` يُسنَد بلا شرط (فلا يُعرَض رقمُ الأمس) · بلا مفتاح ⟵ صفرُ نداء.
+    try:
+        _ehc = refresh_exact_hold(wl["stocks"], hist)
+        log("🧱 الثبات الدقيق: قِيس " + str(_ehc["ok"]) + " · بلا شموع ساعة " + str(_ehc["nohour"])
+            + " · تعذّر " + str(_ehc["fail"]) + " · بلا شموع يوميّة " + str(_ehc["nodata"])
+            + (" · بلا مفتاح Polygon " + str(_ehc["nokey"]) if _ehc["nokey"] else ""))
+    except Exception as e:                                     # noqa: BLE001
+        log(f"⚠️ الثبات الدقيق: {e}")
     # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم.
     #    نمرّر القائمة الأساسية الحالية (تشمل ما أُضيف توًّا) كاستبعاد، ثم
     #    نشيل أي سهم تخرّج للأساسية من المراقبة (لا ازدواج بين القائمتين).
