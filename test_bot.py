@@ -68564,10 +68564,11 @@ check("🕗 RBG5 موصولٌ في `run_weekly_renewal` **قبل** أوّل تح
       "وبلا تلغرام (سجلٌّ فقط)", _atm_rbg5, _atm_rbg5_w)
 
 # ══════════════════════════════════════════════════════════════════════════
-# 🔎📬 TCD1-TCD23 «شروطك الثلاثة» يوميًّا (three_cond_daily.py · أمرُ المالك 2026-09-26 «أرسلها كل يوم و حتى الأسهم
+# 🔎📬 TCD1-TCD24 «شروطك الثلاثة» يوميًّا (three_cond_daily.py · أمرُ المالك 2026-09-26 «أرسلها كل يوم و حتى الأسهم
 #    اللي تحت المتابعة يشملها الاداة» ⟵ ثمّ أمرُه الثاني: «تجيب أسهم السنتات و فوق الدولار في رسالة وحده لكن … لازم لازم
 #    لازم توافق الشروط 3 و ثبات 5 جلسات» · «فريم 4 ساعات عشان نعرف بالضبط قيمة ادنى قاع» · «FGL نوع منفجر قبل اقل من
-#    اسبوع … هذا غلط») — عالمٌ اصطناعيّ بلا شبكة: شموعُ اليوم والساعة محقونتان · RSI من Polygon وياهو للتحقّق.
+#    اسبوع … هذا غلط») ⟵ وأمرُه الثالث «تحت 33 نفس شرط فيصل بالضبط … للصنفين» (TCD24) — عالمٌ اصطناعيّ بلا شبكة: شموعُ
+#    اليوم والساعة محقونتان · RSI من Polygon وياهو للتحقّق.
 # ══════════════════════════════════════════════════════════════════════════
 import ast as _tcd_ast                                               # noqa: E402
 import contextlib as _tcd_ctx                                        # noqa: E402
@@ -68612,7 +68613,7 @@ def _tcd_hours_of(rows, extra=()):
     return sorted(out)
 
 
-def _tcd_world():
+def _tcd_world(more=None):
     """✅ AAA/NWO/OLDB (ثابتةٌ وتطابق · NWO من «تحت المتابعة» خارج كون ناسداك · OLDB قفز قبل 5 جلسات = يومُ مرجع الأسبوع لا داخله) ·
     🪙 PNY (سنتات ثابتٌ يطابق) · ⚠️ SPL: Polygon ثابتٌ وياهو بتقسيمٍ غيرِ مطبّق (مشكوك) · MGN: Polygon متذبذبٌ وياهو بانهيارٍ
     وهميّ (لا يعبر RSI) · CET: متاح 30 ألفًا (🔸 سجلٌّ فقط) · UNK: فلوتٌ مجهول والموقعُ يتعذّر (❔) · BIG: فلوتٌ كبير ·
@@ -68621,6 +68622,8 @@ def _tcd_world():
                                                     ("NWO", 1.8), ("PNY", 0.5), ("BIG", 2.6), ("BOOM", 2.3),
                                                     ("OLDB", 2.4), ("EXT", 2.8))}
     W = dict(base, MGN=_tcd_series("flat", 4.0), NEW=_tcd_series("down", 1.7))
+    for _s, (_k, _p, _f, _a) in (more or {}).items():               # TCD24: رموزٌ إضافيّة {رمز: (نوع, سعر, فلوت, متاح)}
+        W[_s] = _tcd_series(_k, _p)
     ds = _tcd_days()
     extra = {"BOOM": [(ds[-2], 11, 2.3 * 1.6, 2.3 * 0.995)],                      # ‏+60% قبل جلستين ⇒ 💥
              "OLDB": [(ds[-6], 11, 2.4 * 1.8, 2.4 * 0.995)],                      # ‏+80% قبل 5 جلسات (يومُ المرجع) ⇒ خارج الأسبوع
@@ -68630,6 +68633,12 @@ def _tcd_world():
     fl = {"AAA": 1e6, "SPL": 2e6, "MGN": 1e6, "CET": 1.5e6, "UNK": None, "NWO": 9e5, "PNY": 1e6, "BIG": 5e7,
           "BOOM": 1e6, "OLDB": 1e6, "EXT": 1e6, "NEW": 1e6}
     av = {"SPL": 3000, "MGN": 2000, "CET": 30000, "NWO": 4000, "PNY": 1000}
+    noy = set(more or {})                                           # الإضافيّةُ بلا ياهو ⇒ لا شكّ (المجهولُ لا يصنعه)
+    for _s, (_k, _p, _f, _a) in (more or {}).items():
+        uni.append(_s)
+        fl[_s] = _f
+        if _a is not None:
+            av[_s] = _a
 
     def fetch(syms, d0, d1, key):
         fetch.calls += 1
@@ -68646,6 +68655,8 @@ def _tcd_world():
     def yahoo(syms):
         out = {}
         for s in syms:
+            if s in noy:
+                continue
             rows = W[s]
             c = [r[4] for r in rows]
             if s == "SPL":
@@ -68668,9 +68679,10 @@ def _tcd_world():
 
 
 def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired=None, trace=(), drop_hours=(), nw_extra=None,
-             pb_extra=()):
-    """الأنبوبُ كلُّه (scan ⟶ borrow ×shards ⟶ send) ⟵ (رمزُ الخروج, المُخرَج, الحالة, المُرسَل, fetch, hours, yfloat)."""
-    W, uni, fl, fetch, hours, yahoo, ce = _tcd_world()
+             pb_extra=(), more=None):
+    """الأنبوبُ كلُّه (scan ⟶ borrow ×shards ⟶ send) ⟵ (رمزُ الخروج, المُخرَج, الحالة, المُرسَل, fetch, hours, yfloat) ·
+    و`more` = رموزٌ إضافيّة للعالم (TCD24)."""
+    W, uni, fl, fetch, hours, yahoo, ce = _tcd_world(more)
     if cover_cut:
         _f0 = fetch
 
@@ -68767,20 +68779,35 @@ except Exception as _e:                                              # noqa: BLE
 check("🔎📬 TCD1 لا يكتب حالةَ البوت ولا يستورده الإنتاج · والكتابةُ في `_dump` وحدَها والإرسالُ في `stage_send` وحدَها (AST)",
       _v1, _v1w)
 
-# TCD2 — الحدودُ بالاسم: الحكمُ `WW.conj(WW.flags(...))` · وصفرُ رقمٍ للحدود في الأداة
+# TCD2 — الحدودُ بالاسم: الحكمُ `WW.conj(flags3(...))` · و`flags3` = RSI بحدّ فيصل `rsi_max()` (‏`S.CONFIG["RSI_OVERSOLD"]` ·
+#    أمرُ المالك الثالث «تحت 33 نفس شرط فيصل بالضبط») ‏+ الفلوتُ والمتاحُ من `WW.flags` · ولا دالّةَ غيرُها تنادي `WW.flags`
+#    (كلُّ تصنيفٍ يمرّ بحدّ الأداة) · و`OPL.RSI_OWNER` لا يُقرأ في الكود (AST — التعليقُ يذكره) · وصفرُ رقمِ حدٍّ (ولا 30 ولا 33)
 try:
     _src2 = _tcd_src
-    _v2f = [n for n in _tcd_ast.walk(_tcd_ast.parse(_src2)) if isinstance(n, _tcd_ast.FunctionDef) and n.name == "verdict"]
-    _calls2 = {_tcd_ast.unparse(c.func) for c in _tcd_ast.walk(_v2f[0]) if isinstance(c, _tcd_ast.Call)} if _v2f else set()
-    _lits2 = {c.value for c in _tcd_ast.walk(_tcd_ast.parse(_src2)) if isinstance(c, _tcd_ast.Constant)
+    _t2 = _tcd_ast.parse(_src2)
+    _fn2 = {n.name: n for n in _tcd_ast.walk(_t2) if isinstance(n, _tcd_ast.FunctionDef)}
+
+    def _calls_of2(n):
+        return {_tcd_ast.unparse(c.func) for c in _tcd_ast.walk(n) if isinstance(c, _tcd_ast.Call)} if n else set()
+    _calls2 = _calls_of2(_fn2.get("verdict"))
+    _calls2f = _calls_of2(_fn2.get("flags3"))
+    _key2 = [c for c in (_tcd_ast.walk(_fn2["rsi_max"]) if "rsi_max" in _fn2 else [])
+             if isinstance(c, _tcd_ast.Subscript) and _tcd_ast.unparse(c.value) == "S.CONFIG"
+             and isinstance(c.slice, _tcd_ast.Constant) and c.slice.value == "RSI_OVERSOLD"]
+    _own2 = [c for c in _tcd_ast.walk(_t2) if isinstance(c, _tcd_ast.Attribute) and c.attr == "RSI_OWNER"]
+    _wwf2 = sorted(f for f, n in _fn2.items() if f != "flags3" and "WW.flags" in _calls_of2(n))
+    _lits2 = {c.value for c in _tcd_ast.walk(_t2) if isinstance(c, _tcd_ast.Constant)
               and isinstance(c.value, (int, float)) and not isinstance(c.value, bool)}
-    _v2 = ({"WW.conj", "WW.flags"} <= _calls2 and not ({30, 30.0, 4_000_000, 20_000, 50, 50.0} & _lits2)
-           and "OPL.RSI_OWNER" in _src2 and "PX.PX_MIN" in _src2)
-    _v2w = f"calls={sorted(_calls2)} · أرقامُ حدود={sorted({30, 4_000_000, 20_000, 50} & _lits2)}"
+    _bad2 = sorted({30, 33, 4_000_000, 20_000, 50} & _lits2)
+    _v2 = ({"WW.conj", "flags3"} <= _calls2 and {"WW.flags", "rsi_max"} <= _calls2f and bool(_key2) and not _own2
+           and not _wwf2 and not _bad2 and "PX.PX_MIN" in _src2)
+    _v2w = (f"verdict={sorted(_calls2)} · flags3={sorted(_calls2f)} · مفتاح={len(_key2)} · RSI_OWNER={len(_own2)} · "
+            f"WW.flags خارج flags3={_wwf2} · أرقامُ حدود={_bad2}")
 except Exception as _e:                                              # noqa: BLE001
     _v2, _v2w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🔎📬 TCD2 الحدودُ بالاسم (`WW.conj(WW.flags(...))` · `OPL`/`PX` · وعتبةُ الانفجار من `S.CONFIG`) وصفرُ رقمِ حدٍّ "
-      "مكتوبٍ باليد (ولا 50)", _v2, _v2w)
+check("🔎📬 TCD2 الحدودُ بالاسم (`WW.conj(flags3(...))` · RSI من `S.CONFIG[\"RSI_OVERSOLD\"]` لا `OPL.RSI_OWNER` · الفلوتُ والمتاحُ من "
+      "`WW.flags` داخل `flags3` وحدَها · `PX` · وعتبةُ الانفجار من `S.CONFIG`) وصفرُ رقمِ حدٍّ مكتوبٍ باليد (ولا 30 ولا 33 ولا 50)",
+      _v2, _v2w)
 
 # TCD3 — Polygon أوّلًا: MGN (انهيارٌ وهميّ في ياهو) لا يُعدّ · وSPL (تقسيمٌ غيرُ مطبّق في ياهو) «مشكوك» لا يُذكر — عدّادُه في
 #    التذييل واسمُه ورقماه في السجلّ · وAAA يطابق
@@ -69054,7 +69081,7 @@ check("🪙 TCD18 رسالةٌ واحدة بقسمين: 💵 (AAA · NWO · OLDB
       "(1.00 دولار · 0.9999 سنتات)", _v18, _v18w)
 
 # TCD19 — المطابقُ الكامل وحدَه يُذكر: لا قسمَ «ينتظر» ولا «مشكوك» ولا «مجهول» ولا «🔸» في الرسالة · والمذكورُ = `listed`
-#    بالضبط · وكلُّ سهمٍ عبر RSI مذكورٌ أو معدودٌ مرّةً واحدة (المذكور + العدّادات = RSI أقلّ من 30)
+#    بالضبط · وكلُّ سهمٍ عبر RSI مذكورٌ أو معدودٌ مرّةً واحدة (المذكور + العدّادات = RSI أقلّ من حدّ الأداة)
 try:
     _rows19 = _tcd_st.get("rows") or {}
     _dl19, _pn19 = _TCD.listed(_rows19)
@@ -69136,7 +69163,7 @@ try:
             return "doubt"
         if r.get("v") is None:
             return "unk"
-        f = _TCD.WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))[:3]
+        f = _TCD.flags3(r)
         return "float" if f[1] is False else "avail"
 
     def _named23(log, s, cat):
@@ -69174,6 +69201,73 @@ except Exception as _e:                                              # noqa: BLE
     _v23, _v23w = False, f"⛔ رمى: {type(_e).__name__}"
 check("🗒️ TCD23 «الأسماءُ في السجلّ» صادقة: كلُّ مَن عبر RSI ولم يُذكر اسمُه في السجلّ تحت فئته (⏳ · 💥 · ⛔ · ✖️ الفلوت · "
       "✖️ المتاح · ⚠️ · ❔) · و«تعذّر القاع» يظهر بعالمٍ بلا ساعة · ولا قصَّ صامتًا (AST)", _v23, _v23w)
+
+# TCD24 — أمرُ المالك الثالث (2026-09-26 ليلًا): «عدّل rsi بدال ما يكون تحت 30 يكون تحت 33 نفس شرط فيصل بالضبط … للصنفين»
+#    ⟵ حدُّ الأداة = `S.CONFIG["RSI_OVERSOLD"]` **وقتَ النداء** (النافذ 33 = وسيطُ قاع RSI في كاتالوج فيصل) · «أقلّ من» حصرًا ·
+#    وفي القسمين. عالمٌ بستّة رموزٍ إضافيّة يُحقَن RSI كلٍّ منها بسعر إغلاقه (والباقي بحسابه · وبلا ياهو ⇒ لا شكّ):
+#    R31 ‏31.5 💵 يطابق · P32 ‏32.4 🪙 يطابق · P30 ‏30.0 🪙 يطابق (كان خارجًا بحدّ 30 الحصريّ) · R33 ‏33.0 بالضبط خارج ·
+#    R34 ‏33.9 خارج · R35 ‏31.5 بمتاحٍ 30 ألفًا وفي قائمة الارتداد ⟵ «✖️ المتاح» و🔸 «سقطت بشرطٍ واحد (المتاح …)» (بحدّ 30
+#    لسقط شرطان فاختفى من 🔸 — والفلوتُ الكبير لا يصلح هنا: متاحُه لا يُجلب بالتصميم فيبقى مجهولًا) ·
+#    والرأسُ والتذييلُ «RSI أقلّ من 33» ولا «30» · ثمّ **بالاسم**: `RSI_OVERSOLD`=31 مؤقّتًا ⟵ P30 وحدَه داخل والرأسُ «31».
+#    ⚠️ والسويّةُ على `FAISAL_ONLY=0` (حدُّها 27) ⇒ قيمةُ الإنتاج تُحسب من الظرف الحقيقيّ بـ`apply_faisal_only` على قاموسٍ
+#    منفصل (كـ`SOFT8`) وتُثبَّت 33 — فإعادةُ إصدار الظرف تُسقطه لحظتَها وتُلزم قرارًا — وتُحقَن مؤقّتًا للتشغيل ثمّ تُستعاد.
+try:
+    _more24 = {"R31": ("base", 2.07, 1e6, 1000), "P32": ("base", 0.63, 1e6, 1000), "P30": ("base", 0.67, 1e6, 1000),
+               "R33": ("base", 2.13, 1e6, 1000), "R34": ("base", 2.17, 1e6, 1000), "R35": ("base", 2.21, 1e6, 30000)}
+    _fix24 = {2.07: 31.5, 0.63: 32.4, 0.67: 30.0, 2.13: 33.0, 2.17: 33.9, 2.21: 31.5}
+    _orig24 = _TCD.WW.rsi_at
+
+    def _rsi24(rows, sess):
+        px = _TCD.WW.close_at(rows, sess)
+        v = _fix24.get(None if px is None else round(float(px), 4))
+        return _orig24(rows, sess) if v is None else v
+
+    def _run24():
+        return _tcd_run(more=_more24, pb_extra=({"symbol": "R35", "status": "active"},))
+    _live_cfg24 = {"FAISAL_ONLY": 1}
+    _TCD.S.apply_faisal_only(_live_cfg24, log_fn=lambda *_a: None)
+    _live24 = float(_live_cfg24.get("RSI_OVERSOLD") or 0.0)         # حدُّ الإنتاج (‏`FAISAL_ONLY=1` · الافتراض)
+    _cfg24 = _TCD.S.CONFIG["RSI_OVERSOLD"]
+    _lim24 = None
+    try:
+        _TCD.WW.rsi_at = _rsi24
+        _TCD.S.CONFIG["RSI_OVERSOLD"] = _live24
+        _lim24 = _TCD.rsi_max()
+        _r24 = _run24()
+        _TCD.S.CONFIG["RSI_OVERSOLD"] = 31.0
+        _r24b = _run24()
+    finally:
+        _TCD.WW.rsi_at = _orig24
+        _TCD.S.CONFIG["RSI_OVERSOLD"] = _cfg24
+    _in24 = set(_r24[2].get("rows") or {}) & set(_more24)
+    _inb24 = set(_r24b[2].get("rows") or {}) & set(_more24)
+    _m24 = _tcd_msg(_r24[1])
+    _dol24 = " ".join(_tcd_sec(_r24[1], "💵 <b>فوق الدولار"))
+    _pen24 = " ".join(_tcd_sec(_r24[1], "🪙 <b>سنتات"))
+    _ls24 = [ln for ln in _r24[1].splitlines() if not ln.startswith("‏")]
+    _flx24 = any("✖️ المتاح فوق الحدّ" in ln and "R35 (30,000)" in ln for ln in _ls24)
+    _near24 = any("🔸" in ln and "R35 (المتاح 30,000)" in ln for ln in _ls24)
+    _xf24 = (_TCD.excluded_counts(_r24[2].get("rows") or {})["avail"]
+             - _TCD.excluded_counts(_tcd_st.get("rows") or {})["avail"])
+    _cfg24b = _TCD.S.CONFIG["RSI_OVERSOLD"]
+    try:
+        _TCD.S.CONFIG["RSI_OVERSOLD"] = _live24
+        _pure24 = [_TCD.flags3({"rsi": x, "px": 2.0, "fl": 1e6, "av": 1000.0})[0] for x in (32.99, 33.0, None)]
+    finally:
+        _TCD.S.CONFIG["RSI_OVERSOLD"] = _cfg24b
+    _v24 = (_r24[0] == 0 and _lim24 == 33.0 == _live24 and _in24 == {"R31", "P32", "P30", "R35"}
+            and "$R31" in _dol24 and "$P32" in _pen24 and "$P30" in _pen24
+            and not any(f"${x}" in _m24 for x in ("R33", "R34", "R35"))
+            and "RSI أقلّ من 33 · فلوت" in _m24 and "RSI أقلّ من 33:" in _m24 and "RSI أقلّ من 30" not in _r24[1]
+            and _flx24 and _near24 and _xf24 == 1 and _pure24 == [True, False, None]
+            and _r24b[0] == 0 and _inb24 == {"P30"} and "RSI أقلّ من 31 · فلوت" in _tcd_msg(_r24b[1]))
+    _v24w = (f"rc={_r24[0]} · حدّ={_lim24} (الإنتاج {_live24} · السويّة {_cfg24}) · داخل={sorted(_in24)} · 💵={_dol24[:200]} · 🪙={_pen24[:200]} · ✖️R35={_flx24} · "
+             f"🔸R35={_near24} · Δمتاح={_xf24} · نقيّة={_pure24} · بحدّ 31: rc={_r24b[0]} داخل={sorted(_inb24)}")
+except Exception as _e:                                              # noqa: BLE001
+    _v24, _v24w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎📬 TCD24 RSI «تحت 33 نفس شرط فيصل … للصنفين»: الحدُّ `S.CONFIG[\"RSI_OVERSOLD\"]`=33 بالاسم وقتَ النداء · R31 (‏31.5) 💵 "
+      "وP32 (‏32.4) وP30 (‏30.0) 🪙 تطابق · R33 (‏33.0 بالضبط) وR34 خارجان · R35 (متاح 30 ألفًا) «✖️ المتاح» و🔸 · الرأسُ والتذييلُ "
+      "«33» ولا «30» · وبحدّ 31 مؤقّتًا P30 وحدَه", _v24, _v24w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧱 EXH1-EXH6 الثبات الدقيق في كروت الجاهز (أمرُ المالك 2026-09-26 «اعرض الثبات في جاهز البوت» — **عرضٌ فقط**):
