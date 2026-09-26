@@ -3,6 +3,8 @@ name: "🗓️🔎② أسهمُ البوت في فترةٍ وشروطُ الم�
 # 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · التعريفاتُ في رأس watch_period_probe.py (تعريفاتُ watch_week_probe بالاسم)
 #    أمرُ المالك 2026-09-26 «نفذ البروميت»: التقرير 1 = Penny لأسبوع 2026-09-21 ⟶ 25 · التقرير 2 = الشهر Penny/Dollar.
 #    المجتمع: لقطاتُ weekly_watchlist.json قبل افتتاح كلّ جلسة (تاريخ git كامل · fetch-depth: 0) · الشموعُ من Polygon.
+#    و«تحت المتابعة» (near_watch.json) مجتمعٌ ثالث منذ 2026-09-26 (مسكةُ المالك RETO) · فلوتُه من لقطة company_cache.json قبل
+#    الجلسة · والمتاحُ مجهولٌ لهم بالبناء ⇒ لا يدخل المقام.
 permissions:
   contents: read
 
@@ -21,6 +23,10 @@ on:
         description: "penny للتقرير 1 · penny,dollar للتقرير 2"
         required: false
         default: "penny,dollar"
+      trace:
+        description: "تتبّعُ رموزٍ بعينها جلسةً جلسة (بفاصلة · مثل RETO) — وصفٌ لا يدخل عددًا"
+        required: false
+        default: ""
 
 jobs:
   watch_period:
@@ -48,4 +54,5 @@ jobs:
           PERIOD_FROM: ${{ github.event.inputs.date_from }}
           PERIOD_TO: ${{ github.event.inputs.date_to }}
           PERIOD_CLASSES: ${{ github.event.inputs.classes }}
+          PERIOD_TRACE: ${{ github.event.inputs.trace }}
         run: python watch_period_probe.py

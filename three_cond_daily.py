@@ -21,6 +21,12 @@
    **لا في «يطابق»** · يُطبع الرقمان ولا يُخفى · ومدى نسبة الإغلاقين فوق `SPLIT_RATIO` يُوسَم «تقسيمٌ غيرُ متّسق».
 ⑧ **حالتُه عند البوت** لكلّ سطر: القائمة (حالةُ المتابعة) · الارتداد · 👀 تحت المتابعة (أسبابُها من الملفّ) · أو ليس عند البوت.
 ⑨ **حارسُ التغطية:** شموعُ Polygon في الجلسة لأقلّ من `MIN_COVER` من الكون ⇒ **لا قائمة** بل سطرُ عطلٍ صريح (لا «لا يوجد» كاذب).
+⑩ **الثبات** (أمرُ المالك 2026-09-26: «اي سهم يكون قاع جديد يحتاج ثبات 3-5 جلسات») = `stability_at`: أدنى شمعةٍ في آخر
+   `PIVOT_LOOKBACK` جلسة (`S.pivot_stability` بالاسم) ثمّ «مستقرّ» = الإغلاقُ فوقها **و**مضى بعدها `STABILITY_MIN` جلساتٍ فأكثر
+   **بلا سقف** (ذراعُ `S2` في `T-STABILITY` بنصّها · والسقفُ 8 `engineering` لا يُطبَّق) ⇒ «يطابق» قسمان: ✅ مستقرّ · ⏳ ينتظر
+   الثبات — **فصلٌ في العرض لا إسقاط** (بوّابةُ الثبات في الفارز قِيست فسقطت `T-STABILITY` · ولا تُمَسّ).
+⑪ **🩹 مصدرُ البوت:** رمزٌ استبدل `S.download_history` شموعَه بـPolygon (`S.SPLIT_REPAIR_LAST` · ياهو مختلُّ التقسيم) يُوسَم
+   🩹 في سطره — فتحقّقُه بشموع البوت **ليس مستقلًّا** ويُقال ذلك ولا يُخفى.
 
 المراحل (`TC_STAGE`): `scan` (Polygon · الفلوت · ياهو ⟵ `tc_scan.json`) ⟶ `borrow` (المتاح لجزء الرنر ⟵ `tc_borrow_<n>.json`) ⟶
 `send` (الحكم والرسالة) · و`all` الثلاثُ في عمليّةٍ واحدة.
@@ -34,6 +40,7 @@ import os
 import sys
 import time
 
+import numpy as np
 import pandas as pd
 
 import Super_stock as S
@@ -120,6 +127,42 @@ def verdict(r, tol=None):
     return v, doubt
 
 
+def stability_at(rows_pg, sess):
+    """⏳ الثباتُ بعد أدنى شمعة حتى الجلسة ⟵ {pivot · pivot_date · bars_after · held · need · stable} أو None.
+    `S.pivot_stability` **بالاسم** على شموع Polygon (‏`(d, o, h, l, c, v)`) — بُنيت لـ: عرض ثبات الفارز (`ready` بسقف
+    `STABILITY_MAX` الهندسيّ) ⇒ **يُستعمل منها `held` و`bars_after` وحدَهما** والسقفُ لا يدخل: مَن ثبت 10 جلسات مستقرٌّ
+    لا مرفوض. «مستقرّ» = `held` **و** `bars_after` من `STABILITY_MIN` فأكثر (نصُّ فيصل «حافظ ع قاعه لمدة 3 جلسات»)."""
+    try:
+        cut = [r for r in (rows_pg or []) if r[0] <= sess]
+        if len(cut) < 2:
+            return None
+        lows = np.array([float(r[3]) for r in cut])
+        closes = np.array([float(r[4]) for r in cut])
+        ps = S.pivot_stability(lows, closes)
+        if not ps:
+            return None
+        need = int(S.CONFIG["STABILITY_MIN"])
+        k = len(cut) - 1 - int(ps["bars_after"])
+        return {"pivot": float(ps["pivot"]), "pivot_date": cut[k][0], "bars_after": int(ps["bars_after"]),
+                "held": bool(ps["held"]), "need": need,
+                "stable": bool(ps["held"]) and int(ps["bars_after"]) >= need}
+    except Exception:                                                # noqa: BLE001
+        return None
+
+
+def stab_text(r):
+    """نصُّ الثبات في سطر السهم (عرضٌ فقط)."""
+    t = r.get("stab")
+    if not t:
+        return "الثبات لم يُحسب"
+    low = f"${t['pivot']:.2f} ({t['pivot_date']})"
+    if t["stable"]:
+        return f"ثابتٌ {t['bars_after']} جلسات فوق أدنى شمعة {low}"
+    if t["bars_after"] >= t["need"]:
+        return f"الإغلاقُ عند أدنى شمعة {low} — لم يثبت فوقها"
+    return f"أدنى شمعة {low} · مضى {t['bars_after']} من {t['need']} جلسات"
+
+
 def near_misses(rows):
     """🔸 أسهمُ البوت (القائمة · الارتداد · تحت المتابعة) التي سقطت **بشرطٍ واحدٍ والثلاثةُ الباقية معلومةٌ وعابرة** ⟵
     [(رمز, السبب)] — تجيب «ليه ما ذكرت سهمي؟» (مسكةُ CETX: سقط بالمتاح وحدَه) · عرضٌ فقط لا يُعدّ مطابقة. ⚠️ ومَن سقط بالفلوت
@@ -161,13 +204,20 @@ def build_message(st, rows):
     yes = sorted((s for s, r in rows.items() if r["v"] is True and not r["doubt"]), key=lambda s: rows[s]["rsi"])
     dbt = sorted((s for s, r in rows.items() if r["v"] is True and r["doubt"]), key=lambda s: rows[s]["rsi"])
     unk = sorted((s for s, r in rows.items() if r["v"] is None), key=lambda s: rows[s]["rsi"] if rows[s]["rsi"] is not None else 99)
-    lines.append(f"✅ <b>يطابق: {len(yes)}</b>")
-    for i, s in enumerate(yes, 1):
-        r = rows[s]
-        lines.append(f"{i}. ${s} · ${r['px']:.2f} · RSI {r['rsi']:.1f} · فلوت {_num_txt(r['fl'])} · متاح {r['av']:,.0f}")
-        lines.append(f"   ↳ {r['bot']}")
-    if not yes:
-        lines.append("لا سهمَ يطابق الأربعةَ معًا في هذه الجلسة.")
+    need = int(S.CONFIG["STABILITY_MIN"])
+    stable = [s for s in yes if (rows[s].get("stab") or {}).get("stable")]
+    wait = [s for s in yes if s not in stable]
+    if any(rows[s].get("repaired") for s in rows):
+        lines.insert(3, "🩹 = شموعُ البوت لهذا الرمز صارت من Polygon (ياهو مختلُّ التقسيم) ⇒ تحقّقُه ليس مستقلًّا")
+    lines.append(f"✅ <b>يطابق ومستقرّ: {len(stable)}</b> (ثبت {need} جلسات فأكثر فوق أدنى شمعة)")
+    for i, s in enumerate(stable, 1):
+        lines += _yes_lines(i, s, rows[s])
+    if not stable:
+        lines.append("لا سهمَ يطابق الأربعةَ ومستقرًّا في هذه الجلسة." if yes else "لا سهمَ يطابق الأربعةَ معًا في هذه الجلسة.")
+    if wait:
+        lines += ["", f"⏳ <b>يطابق وينتظر الثبات: {len(wait)}</b> (قاعٌ جديد — يلزمه {need} جلسات فوق أدنى شمعة)"]
+        for i, s in enumerate(wait, 1):
+            lines += _yes_lines(i, s, rows[s])
     if dbt:
         tol = "نقطتين" if WW.RSI_TOL == 2 else f"{WW.RSI_TOL:g} نقاط"
         lines += ["", f"⚠️ <b>مشكوك — RSI ياهو يختلف عن Polygon بأكثر من {tol}: {len(dbt)}</b> (لا تُعدّ مطابقة)"]
@@ -196,8 +246,15 @@ def build_message(st, rows):
     lines += ["", f"🧾 الكون {c.get('universe', 0):,} · بشمعة الجلسة من Polygon {c.get('fresh', 0):,} · "
                   f"RSI أقلّ من {OPL.RSI_OWNER:g} وسعرٌ دولارٌ فأكثر {c.get('c2', 0)} · منها فلوتٌ أقلّ من الحدّ أو مجهول "
                   f"{c.get('c3', 0)} · المتاح: حصاد {c.get('av_harvest', 0)} · الموقع {c.get('av_ce', 0)} · "
-                  f"تعذّر {c.get('av_fail', 0)}"]
+                  f"تعذّر {c.get('av_fail', 0)}" + (f" · 🩹 صُحِّح مصدرُ البوت {c['repaired']}" if c.get("repaired") else "")]
     return S._rtl_join(lines)
+
+
+def _yes_lines(i, s, r):
+    """سطرا السهم المطابق: الأرقام ثمّ (الثبات · 🩹 · حالتُه عند البوت) — عرضٌ فقط."""
+    rep = f" · 🩹 ×{r['repaired']:g}" if r.get("repaired") else ""
+    return [f"{i}. ${s} · ${r['px']:.2f} · RSI {r['rsi']:.1f} · فلوت {_num_txt(r['fl'])} · متاح {r['av']:,.0f}",
+            f"   ↳ {stab_text(r)}{rep} · {r['bot']}"]
 
 
 def _fmt1(x):
@@ -247,7 +304,7 @@ def _dump(path, obj):
 
 # ─────────────────────────── المراحل ───────────────────────────
 def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat=None, harvested=None,
-               wl=None, nw=None, cache=None):
+               wl=None, nw=None, cache=None, repaired=None):
     """① ⟶ ④ + ⑦: الكون · Polygon · RSI والسعر · الفلوت · ياهو للتحقّق · وقائمةُ المتاح المطلوبة ⟵ الحالة (dict)."""
     now = now or dt.datetime.now(tz=NY)
     fetch = fetch or fetch_polygon
@@ -279,7 +336,8 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
         px = WW.close_at(pg[s], sess)
         if rsi is not None and px is not None and rsi < OPL.RSI_OWNER and px >= PX.PX_MIN:
             rows[s] = {"rsi": rsi, "px": px, "fl": None, "fl_src": "", "av": None, "av_src": "", "ry": None,
-                       "ratio": None, "bot": bot_label(s, wl, nw)}
+                       "ratio": None, "bot": bot_label(s, wl, nw), "stab": stability_at(pg[s], sess),
+                       "repaired": None}
     st["counts"]["c2"] = len(rows)
     log(f"② RSI أقلّ من {OPL.RSI_OWNER:g} وسعرٌ دولارٌ فأكثر (Polygon): {len(rows)}")
     cache = load_json(S.COMPANY_FILE, {}) if cache is None else cache
@@ -297,8 +355,12 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
     c3 = [s for s in rows if rows[s]["fl"] is None or rows[s]["fl"] < OPL.FLOAT_OWNER]
     st["counts"]["c3"] = len(c3)
     log(f"③ فلوتٌ أقلّ من {OPL.FLOAT_OWNER:,} أو مجهول: {len(c3)} (مجهول {sum(1 for s in c3 if rows[s]['fl'] is None)})")
+    S.SPLIT_REPAIR_LAST.clear()
     yh = (yahoo or S.download_history)(sorted(c3)) if c3 else {}
+    fixed = dict(S.SPLIT_REPAIR_LAST.get("replaced") or []) if repaired is None else dict(repaired)
     for s in c3:
+        if s in fixed:
+            rows[s]["repaired"] = float(fixed[s])
         ydf = yh.get(s)
         if ydf is None or not len(ydf):
             continue
@@ -316,6 +378,10 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
         else:
             need.append(s)
     st["rows"], st["need"] = rows, need
+    st["counts"]["repaired"] = sum(1 for s in c3 if rows[s].get("repaired"))
+    if st["counts"]["repaired"]:
+        log(f"🩹 مصدرُ البوت صُحِّح لـ{st['counts']['repaired']}: "
+            + " · ".join(f"{s} ×{rows[s]['repaired']:g}" for s in sorted(c3) if rows[s].get("repaired")))
     st["counts"]["av_harvest"] = sum(1 for s in c3 if rows[s]["av_src"] == "حصاد اليوم")
     log(f"⑤ المتاح: من حصاد اليوم {st['counts']['av_harvest']} · مطلوبٌ من الموقع {len(need)} {need[:40]}")
     return st
