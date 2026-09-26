@@ -8277,14 +8277,15 @@
    "float": 2719148,
    "short": 2266,
    "short_pct": 4.1,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 100000,
+   "borrow_fee": 30.36,
    "drop_pct": 72.15447187959512,
    "best_spike": 256.59338374052146,
    "rr": 1.1450381679389285,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 100,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "EHGO",
@@ -8316,14 +8317,15 @@
    "float": 1748910,
    "short": 19659,
    "short_pct": 2.9,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 200000,
+   "borrow_fee": 93.6,
    "drop_pct": 92.08035679085522,
    "best_spike": 254.26358967459004,
    "rr": 1.2015819471908784,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 200,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "OM",
@@ -8351,14 +8353,15 @@
    "float": 14773067,
    "short": null,
    "short_pct": 6.5,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 500000,
+   "borrow_fee": 0.41,
    "drop_pct": 80.62998924689299,
    "best_spike": 96.19239300404365,
    "rr": 1.3396503839241962,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 500,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "AZI",
@@ -8388,14 +8391,15 @@
    "float": 4397327,
    "short": null,
    "short_pct": 0.5,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 75000,
+   "borrow_fee": 53.51,
    "drop_pct": 98.97021273349193,
    "best_spike": 279.2207792207792,
    "rr": 2.343585237258345,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 75,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "MNDR",
@@ -8425,14 +8429,15 @@
    "float": 398281,
    "short": 92081,
    "short_pct": 0.9,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 150000,
+   "borrow_fee": 41.36,
    "drop_pct": 95.87945874995,
    "best_spike": 252.05992455852976,
    "rr": 2.017067494181536,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 150,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "DFNS",
@@ -8464,14 +8469,15 @@
    "float": 1589018,
    "short": null,
    "short_pct": 43.7,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 80000,
+   "borrow_fee": 125.88,
    "drop_pct": 99.59615138496169,
    "best_spike": 3648.201438848921,
    "rr": 1.7947099892588594,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 80,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "GDHG",
@@ -8502,14 +8508,15 @@
    "float": 12547704,
    "short": 5000,
    "short_pct": 0.1,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 40000,
+   "borrow_fee": 75.83,
    "drop_pct": 85.61593333753072,
    "best_spike": 493.75,
    "rr": 1.6926563916591113,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 40,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "RBNE",
@@ -8540,14 +8547,15 @@
    "float": 572237,
    "short": 6827,
    "short_pct": 1.7,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 75000,
+   "borrow_fee": 33.75,
    "drop_pct": 98.22476196289062,
    "best_spike": 438.4615384615385,
    "rr": 2.0161886940249754,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 75,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "GEOS",
@@ -8576,14 +8584,15 @@
    "float": 12552321,
    "short": null,
    "short_pct": 3.4,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 550000,
+   "borrow_fee": 0.42,
    "drop_pct": 83.205085033675,
    "best_spike": 226.2411357111557,
    "rr": 1.3695871097683794,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 550,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "SCLX",
@@ -8610,14 +8619,15 @@
    "float": 5690047,
    "short": null,
    "short_pct": 3.2,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 250000,
+   "borrow_fee": 1.31,
    "drop_pct": 74.32478951143813,
    "best_spike": 200.0,
    "rr": 1.4876593994241047,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 250,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "AFJK",
@@ -8653,14 +8663,15 @@
    "float": 1441346,
    "short": 2268,
    "short_pct": 0.2,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 60000,
+   "borrow_fee": 173.84,
    "drop_pct": 90.65352391195243,
    "best_spike": 1006.25,
    "rr": 1.44005358338915,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 60,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   },
   {
    "symbol": "MTEK",
@@ -8690,14 +8701,15 @@
    "float": 4223298,
    "short": 19312,
    "short_pct": 3.5,
-   "shares_available": null,
-   "borrow_fee": null,
+   "shares_available": 250000,
+   "borrow_fee": 8.0,
    "drop_pct": 75.87822070279545,
    "best_spike": 193.85964814437847,
    "rr": 1.01419878296146,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "withdrawn",
+   "result_date": "2026-09-26",
+   "max_gain_pct": 0.0,
+   "withdrawn_reason": "بوّابة المتاح بأثرٍ لاحق (أمر المالك 2026-09-26): متاح 250,000 فوق 20,000 بحصاد 2026-09-26 · وأُعيد التجديد على شمعة الجمعة"
   }
  ]
 }
