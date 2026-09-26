@@ -412,6 +412,25 @@ def _apply_handoff_dedup(wl, handoff, today_iso):
     return n
 
 
+def _handoff_dedup_symbols(handoff, session_day):
+    """🔴 2026-09-26 (جلسة 09-18 · `35330807801`): مجموعةُ الدِدوب **الإنتاجيّة** من handoff المقطع
+    السابق — ما **وصل** فعلًا (`delivered_symbols` = `seen`) — **مستقلّةً عن تحقّق القياس**. كان سقوطُ
+    التحقّق (`alerted_symbols_mismatch`: ONMD صدر في أوّل دورةٍ قبل التحاق المسجّل) يُسقط الدِدوبَ معه
+    فوصل VHUB مرّتين. شرطُها وحدَه: handoff **لهذه الجلسة** من **مقطع الافتتاح**. handoff بلا الحقل
+    (صيغةٌ أقدم) ⇒ `alerted_symbols` كما كان. فاشلٌ-آمن ⇒ مجموعةٌ فارغة (= لا استعادة = سلوكُ اليوم)."""
+    try:
+        if not isinstance(handoff, dict):
+            return set()
+        if handoff.get("session_date") != session_day or handoff.get("segment") != "open":
+            return set()
+        syms = handoff.get("delivered_symbols")
+        if not isinstance(syms, list):
+            syms = handoff.get("alerted_symbols")
+        return {s for s in (syms or []) if isinstance(s, str) and s}
+    except Exception:
+        return set()
+
+
 def _verify_prev_segment(handoff, session_day, e2_root="e2_measurement"):
     """🔬 P0-4: تحقّق **صارم** من manifest المقطع السابق (open) قبل مسح مقطع close: البنية ·
     تطابق hash الـmanifest · تطابق hash كل ملف خام · التاريخ/الدور · تطابق handoff.manifest_sha256
@@ -483,41 +502,40 @@ def main():
         bot.log("📋 خارج الجلسة أو بلا ميزانيةٍ تبلغ الجرس — لا مسح (فاشل-آمن).")
         _write_skip_marker(role, _why, session_day)
         return
-    if _act == "wait":
-        bot.log(f"⏳ قبل الجرس — انتظار {_wait_min:.0f} دقيقة (لا مسحَ قبله).")
-        time.sleep(_wait_min * 60)
     deadline = window["deadline"]
     # 🔬 (ب+): استعادة أختام الدِدوب من handoff المقطع السابق (المقطع close فقط) — لا تنبيه مكرّر.
     handoff_in = None
     seen = set()
+    _restored = set()                      # 🔴 2026-09-26: ما استُعيد من المقطع السابق (لا يُحسب تسليمًا هنا)
     handoff_reasons = []
     if role == "close":
-        handoff_in = _load_handoff(os.environ.get("IGNITION_HANDOFF_IN", "").strip())
+        _ho_raw = _load_handoff(os.environ.get("IGNITION_HANDOFF_IN", "").strip())
+        handoff_in = _ho_raw
         # 🔬 مراجعة Codex 5 (P0): التحقّق **لا يوقف التنبيه**. سلامة القياس تقرّر أهلية الجلسة
-        # للتحليل لا استمرار الرادار (fail-open للإنتاج): manifest فاسد ⇒ نواصل المسح بلا استعادة
-        # دِدوب (قد يتكرّر تنبيه — أهون من فقد كل تنبيهات مقطع الإغلاق) والassembler/المدقّق يرفض
-        # الجلسة بسلسلة manifest (`manifest_chain_ok=False`) فلا تُعدّ نحو 5/20.
+        # للتحليل لا استمرار الرادار (fail-open للإنتاج) والassembler/المدقّق يرفض الجلسة بسلسلة
+        # manifest (`manifest_chain_ok=False`) فلا تُعدّ نحو 5/20.
         _ok, _vr = _verify_prev_segment(handoff_in, session_day)
         if not _ok:
             handoff_reasons = _vr
             bot.log(f"❌ E2: تحقّق handoff/manifest المقطع السابق فشل: {_vr} — "
                     "نواصل التنبيه (fail-open) · الجلسة تُوسَم غير مؤهّلة للقياس.")
-            handoff_in = None
-        if handoff_in:
-            _nd = _apply_handoff_dedup(wl, handoff_in, session_day)
-            seen |= set(handoff_in.get("alerted_symbols") or [])
-            bot.log(f"🔁 استعادة {_nd} ختم دِدوب من المقطع السابق (تحقّق manifest ✓ · لا تنبيه مكرّر).")
-    bot.log(f"🔥 رادار الانطلاق [{window['role']}]: {len(active)} زنبرك · كل {interval}ث حتى "
-            f"{deadline.strftime('%H:%M')} UTC (نافذة {window['segment_start'].strftime('%H:%M')}–"
-            f"{window['segment_end'].strftime('%H:%M')} · إغلاق {window['close'].strftime('%H:%M')} · "
-            f"سبب={window['reason']}).")
-    loops = 0
-    max_loops = 2000                       # حارس ضد اللف اللانهائي
-    session_fires = []
+            handoff_in = None              # السلسلةُ القياسيّة لا تُبنى على handoff لم يتحقّق
+        # 🔴 2026-09-26 (جلسة 09-18): **ولا تقرّر الدِدوبَ الإنتاجيّ أيضًا** — كان سقوطُ التحقّق يُسقطه
+        #    فوصل VHUB مرّتين. الدِدوب من **المُسلَّم** (`_handoff_dedup_symbols`) لا من القياس.
+        _restored = _handoff_dedup_symbols(_ho_raw, session_day)
+        if _restored:
+            _nd = _apply_handoff_dedup(wl, {"alerted_symbols": sorted(_restored)}, session_day)
+            seen |= _restored
+            bot.log(f"🔁 استعادة {_nd} ختم دِدوب من المقطع السابق (من المُسلَّم · "
+                    f"{'تحقّق manifest ✓' if handoff_in else 'القياسُ غيرُ مؤهّل'} · لا تنبيه مكرّر).")
     # 🔬 E2-A: مسجّل القياس الظلّي (اختياري · `E2_MEASUREMENT=1`). **مطفأ = trace=None = بت-بت.**
     # 🔬 مراجعة Codex 5 (P0-ج): **حتى التهيئة لا-حاجبة** — الاستيراد وبناء المسجّل يلمسان القرص
     # (إنشاء مجلّد/فتح ملفات)؛ تعليقهما كان سيمنع **كل** مسح وتنبيه قبل بدء الحلقة. الآن يجريان في
     # خيط daemon، والرادار **يبدأ فورًا بـtrace=None** ويلتحق المسجّل أول دورة يجهز فيها (أو لا يلتحق).
+    # 🔴 2026-09-26: **وتبدأ قبل انتظار الجرس** — الالتحاقُ يُفحَص أعلى كلّ دورة، فالتهيئةُ عند الجرس
+    #    تُعمي الدورةَ الأولى دائمًا (مسحٌ ‏+ نومُ 45ث): جلسة 09-18 صدر ONMD فيها ولم يُسجَّل ⇒ انكسرت
+    #    السلسلة · وجلسة 08-19 سُجِّل أوّلُ مسحٍ بعد الجرس بـ2.1د ⇒ `start_coverage_late`. الانتظارُ قائمٌ
+    #    أصلًا ⇒ صفرُ تأخيرٍ على الإنتاج · والمقطعُ الذي لا ينتظر (الإغلاق) كما كان.
     recorder = None
     _rec_box = {}
     if os.environ.get("E2_MEASUREMENT", "").strip() == "1":
@@ -566,6 +584,16 @@ def main():
         threading.Thread(target=_init_recorder, name="e2-init", daemon=True).start()
     else:
         _rec_pending, _rec_ready = False, None
+    if _act == "wait":
+        bot.log(f"⏳ قبل الجرس — انتظار {_wait_min:.0f} دقيقة (لا مسحَ قبله).")
+        time.sleep(_wait_min * 60)
+    bot.log(f"🔥 رادار الانطلاق [{window['role']}]: {len(active)} زنبرك · كل {interval}ث حتى "
+            f"{deadline.strftime('%H:%M')} UTC (نافذة {window['segment_start'].strftime('%H:%M')}–"
+            f"{window['segment_end'].strftime('%H:%M')} · إغلاق {window['close'].strftime('%H:%M')} · "
+            f"سبب={window['reason']}).")
+    loops = 0
+    max_loops = 2000                       # حارس ضد اللف اللانهائي
+    session_fires = []
     _trace = None                          # الرادار يبدأ بلا قياس — يلتحق لاحقًا لو جهز
     termination = "normal"
     _last_start = None
@@ -668,6 +696,11 @@ def main():
     finally:
         if recorder is not None:           # finalize في finally = crash-safe
             try:
+                # 🔴 2026-09-26: ما **وصل** في هذا المقطع (الإنتاج · بلا المُستعاد من السابق) ⇒ session.json
+                #    فيرى المدقّقُ تسليمًا لم يُسجَّل (`delivered_unrecorded`) بدل غيابٍ صامت. بعد الحلقة
+                #    (خارج مسار التنبيه) · وعلى العامل قبل الختام (الطابور بالترتيب).
+                recorder.submit(lambda rec, _d=sorted(seen - _restored): rec.meta.update(
+                    {"delivered_symbols_segment": _d}))
                 recorder.finalize(termination=termination)
             except Exception as e:
                 bot.log(f"⚠️ E2: finalize ({e})")
@@ -677,6 +710,9 @@ def main():
         ho.setdefault("session_date", session_day)
         ho["segment"] = window["role"]
         ho["alerted_symbols"] = sorted(set(ho.get("alerted_symbols") or []) | seen)
+        # 🔴 2026-09-26: مجموعةُ الدِدوب الإنتاجيّة — ما **وصل** وحدَه. يقرؤها المقطعُ التالي بـ
+        #    `_handoff_dedup_symbols` مستقلّةً عن تحقّق القياس · وما صدر ولم يصل لا يُنقَل كتمًا (①أ).
+        ho["delivered_symbols"] = sorted(seen)
         _out = os.environ.get("IGNITION_HANDOFF_OUT", "").strip() or ("handoff_%s.json" % window["role"])
         if _write_handoff(_out, ho):
             bot.log(f"🔁 handoff [{window['role']}] → {_out} ({len(ho['alerted_symbols'])} مُنبَّه).")
