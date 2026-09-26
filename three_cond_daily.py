@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""🔎📬 «شروطُك الثلاثة» — رسالةٌ يوميّة **واحدة** بقسمين (💵 فوق الدولار · 🪙 سنتات) بالأسهم التي تطابق: RSI أقلّ من 30 ·
+"""🔎📬 «شروطُك الثلاثة» — رسالةٌ يوميّة **واحدة** بقسمين (💵 فوق الدولار · 🪙 سنتات) بالأسهم التي تطابق: RSI أقلّ من 33 ·
 فلوت أقلّ من 4 ملايين · «الشورت» (المتاح) أقلّ من 20 ألفًا · **وثبات 5 جلسات فوق أدنى قاع · ولم تنفجر خلال آخر أسبوع** —
 على كون البوت كلِّه **وتحت المتابعة ضمنًا**. **ولا يُذكر في الرسالة إلّا المطابقُ الكامل** — وما سواه عدّادٌ في التذييل واسمُه في السجلّ.
 
@@ -9,6 +9,9 @@
 🧭 **ثمّ أمرُه الثاني (2026-09-26 مساءً · بصورتَي SMX):** «عدل الاداة … تجيب أسهم السنتات و فوق الدولار في رسالة وحده لكن … لازم
 لازم لازم توافق الشروط 3 و ثبات 5 جلسات» · «الفريم اليومي يستخدم للحساب عدد الجلسات الثبات و فريم 4 ساعات عشان نعرف بالضبط قيمة
 ادنى قاع (SMX: ‏7.62 · جلسةٌ واحدة فقط فوقه)» · و«FGL نوع منفجر قبل اقل من اسبوع ومع ذلك حاسبه مع أسهم الارتكاز و هذا غلط».
+🧭 **وأمرُه الثالث (2026-09-26 ليلًا):** «عدّل rsi بدال ما يكون تحت 30 يكون تحت 33 نفس شرط فيصل بالضبط … للصنفين» ⇒ حدُّ RSI
+للأداة = **حدُّ فيصل في البوت بالاسم** `S.CONFIG["RSI_OVERSOLD"]` (‏`rsi_max` · النافذ 33 = وسيطُ **قاع** RSI في كاتالوج أسهمه ·
+`FAISAL_ONLY`) للقسمين · و`OPL.RSI_OWNER` (‏30 · عقدُ `T-OPLINK` وتقريرا الأسبوع والفترة) **لا يُقرأ هنا ولا يُمَسّ**.
 
 **التعريفات (مثبَّتةٌ قبل أيّ رقم — تعريفاتُ `watch_week_probe` بالاسم):**
 ① **الكون** = `S.get_universe()` ∪ القائمةُ والارتدادُ (`weekly_watchlist.json`) ∪ **تحت المتابعة** (`near_watch.json`).
@@ -22,8 +25,8 @@
 ⑤ **«الشورت»** = المتاح (`shares_available` · ChartExchange): صفُّ حصّاد اليوم (`S._harvested_borrow`) أوّلًا ثمّ
    `S.ce_borrow_info` **موزَّعًا على رنرات** (`need[shard::shards]` · حصّةُ الموقع ‏≈50 صفحة لكلّ رنر · #461) · والتعذّرُ
    يُطبع بسببه ولا يُعدّ «لا».
-⑥ **الحكم** = `WW.conj` على **الثلاثة الأولى** من `WW.flags(...)` (RSI · الفلوت · المتاح — والسعرُ فئةٌ لا شرط): «نعم» الثلاثةُ
-   معلومةٌ وعابرة · «لا» سقط شرطٌ معلوم · «مجهول» غيرُ ذلك.
+⑥ **الحكم** = `WW.conj` على `flags3` (RSI أقلّ من `rsi_max()` · والفلوتُ والمتاحُ من `WW.flags(...)` بالاسم — والسعرُ فئةٌ لا
+   شرط): «نعم» الثلاثةُ معلومةٌ وعابرة · «لا» سقط شرطٌ معلوم · «مجهول» غيرُ ذلك.
 ⑦ **تحقّقُ ياهو** لكلّ مرشّح: `S.rsi` على `S.download_history` — فرقٌ **فوق نقطتين** (`WW.RSI_TOL`) ⇒ «⚠️ مشكوك» **لا يُذكر**
    (عدّادٌ في التذييل · والرقمان في السجلّ) · ومدى نسبة الإغلاقين فوق `SPLIT_RATIO` يُوسَم «تقسيمٌ غيرُ متّسق».
 ⑧ **حالتُه عند البوت** لكلّ سطر: القائمة (حالةُ المتابعة) · الارتداد · 👀 تحت المتابعة (أسبابُها من الملفّ) · أو ليس عند البوت.
@@ -136,12 +139,27 @@ def bot_label(sym, wl, nw):
     return " · ".join(out) or "ليس عند البوت"
 
 
+def rsi_max():
+    """حدُّ RSI للأداة ⟵ `S.CONFIG["RSI_OVERSOLD"]` **وقتَ النداء** (بالاسم لا رقمٌ مكتوب · النافذ 33 = وسيطُ قاع RSI في كاتالوج
+    فيصل) — أمرُ المالك 2026-09-26 «تحت 33 نفس شرط فيصل بالضبط … للصنفين» · والمقارنةُ «أقلّ من» حصرًا («تحت 33»)."""
+    return float(S.CONFIG["RSI_OVERSOLD"])
+
+
+def flags3(r):
+    """(RSI · الفلوت · المتاح) لصفٍّ فيه rsi · px · fl · av — RSI أقلّ من `rsi_max()` (حدُّ فيصل للأداة) · والفلوتُ والمتاحُ من
+    `WW.flags(...)` بالاسم (`OPL.FLOAT_OWNER` · `OPL.AVAIL_OWNER`) · والمجهولُ None لا «لا». و`WW.flags` الأوّلُ (‏`OPL.RSI_OWNER`
+    ‏30) **لا يُقرأ هنا** — هو حدُّ تقريرَي الأسبوع والفترة."""
+    rsi = r.get("rsi")
+    f = WW.flags(rsi, r.get("px"), r.get("fl"), r.get("av"))
+    return (None if rsi is None else float(rsi) < rsi_max(), f[1], f[2])
+
+
 def verdict(r, tol=None):
-    """(الحكم, مشكوك؟) لصفٍّ فيه rsi · px · fl · av · ry — `WW.conj` على **الثلاثة الأولى** من `WW.flags(...)` بالاسم (RSI ·
-    الفلوت · المتاح — والسعرُ فئةٌ لا شرط: أمرُ المالك «تجيب أسهم السنتات و فوق الدولار في رسالة وحده») · والشكُّ = فرقُ RSI
+    """(الحكم, مشكوك؟) لصفٍّ فيه rsi · px · fl · av · ry — `WW.conj` على `flags3` (RSI بحدّ فيصل `rsi_max()` · والفلوتُ والمتاحُ من
+    `WW.flags` بالاسم — والسعرُ فئةٌ لا شرط: أمرُ المالك «تجيب أسهم السنتات و فوق الدولار في رسالة وحده») · والشكُّ = فرقُ RSI
     ياهو عن Polygon فوق `tol` نقطة (`WW.RSI_TOL`) · وياهو المجهولُ لا يصنع شكًّا (لا دليلَ نقيض)."""
     tol = WW.RSI_TOL if tol is None else tol
-    v = WW.conj(WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))[:3])
+    v = WW.conj(flags3(r))
     ry, rp = r.get("ry"), r.get("rsi")
     doubt = ry is not None and rp is not None and abs(float(ry) - float(rp)) > tol
     return v, doubt
@@ -276,7 +294,7 @@ def near_misses(rows):
         r = rows[s]
         if r.get("gate") != "ok" or r.get("v") is not False or r.get("bot") in (None, "ليس عند البوت"):
             continue
-        f = WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))[:3]
+        f = flags3(r)
         bad = [i for i, x in enumerate(f) if x is False]
         if len(bad) != 1 or any(x is None for x in f):
             continue
@@ -321,7 +339,7 @@ def excluded_counts(rows):
         elif r.get("v") is None:
             c["unk"] += 1
         elif r.get("v") is False:
-            f = WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))[:3]
+            f = flags3(r)
             c["float" if f[1] is False else "avail"] += 1
     return c
 
@@ -333,7 +351,7 @@ def build_message(st, rows):
     need = STABILITY_REQ
     dol, pen = listed(rows)
     lines = [f"🔎 <b>شروطك الثلاثة</b> — إغلاق {sess}",
-             f"RSI أقلّ من {OPL.RSI_OWNER:g} · فلوت أقلّ من {OPL.FLOAT_OWNER / 1e6:g} ملايين · شورت (المتاح) أقلّ من "
+             f"RSI أقلّ من {rsi_max():g} · فلوت أقلّ من {OPL.FLOAT_OWNER / 1e6:g} ملايين · شورت (المتاح) أقلّ من "
              f"{OPL.AVAIL_OWNER:,}",
              f"وثبات {need} جلسات فوق أدنى قاع (القاعُ الدقيق بالبري والأفتر كفريم 4 ساعات · والعدُّ جلساتٌ يوميّة) · "
              f"ولم ينفجر خلال آخر {EXPLODE_WIN} جلسات ({float(S.CONFIG['EXPLOSION_PCT']):g}% فأكثر)",
@@ -356,7 +374,7 @@ def build_message(st, rows):
                   f"{x['unk']} (الأسماءُ في السجلّ)"]
     c = st.get("counts") or {}
     lines.append(f"🧾 الكون {c.get('universe', 0):,} · بشمعة الجلسة من Polygon {c.get('fresh', 0):,} · RSI أقلّ من "
-                 f"{OPL.RSI_OWNER:g}: {c.get('c2', 0)} (فوق الدولار {c.get('c2_dollar', 0)} · سنتات {c.get('c2_penny', 0)}) · "
+                 f"{rsi_max():g}: {c.get('c2', 0)} (فوق الدولار {c.get('c2_dollar', 0)} · سنتات {c.get('c2_penny', 0)}) · "
                  f"ثابتٌ وغيرُ منفجر {c.get('c3', 0)} · منه فلوتٌ أقلّ من الحدّ أو مجهول {c.get('c4', 0)} · المتاح: حصاد "
                  f"{c.get('av_harvest', 0)} · الموقع {c.get('av_ce', 0)} · تعذّر {c.get('av_fail', 0)}"
                  + (f" · 🩹 صُحِّح مصدرُ البوت {c['repaired']}" if c.get("repaired") else ""))
@@ -381,7 +399,7 @@ def _fmt2(x):
 def trace_line(s, r, stab, boom, gate):
     """🔎 سطرُ التتبّع (`TC_TRACE` · سجلٌّ فقط) — وصفٌ لا يدخل عددًا."""
     if r is None:
-        return f"🔎 تتبّع {s}: خارج «RSI أقلّ من {OPL.RSI_OWNER:g}» أو بلا شمعة الجلسة"
+        return f"🔎 تتبّع {s}: خارج «RSI أقلّ من {rsi_max():g}» أو بلا شمعة الجلسة"
     low = (f"القاع {S._px_txt(stab['pivot'])} ({stab['pivot_date']}{' · بري/أفتر' if stab.get('ext') else ''} · أدنى يوميّ "
            f"{S._px_txt(stab['daily_low'])}) · مضى {stab['bars_after']} جلسات · الإغلاقُ فوقه {stab['held']}"
            if stab else "القاعُ الدقيق لم يُقَس")
@@ -487,18 +505,19 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
         st["fail"] = f"شموعُ Polygon لجلسة {sess} لم تكتمل ({len(fresh)} من {len(uni)})"
         return st
     rows = {}
+    lim = rsi_max()                         # حدُّ فيصل بالاسم (أمرُ المالك «تحت 33 … للصنفين») — لا `OPL.RSI_OWNER`
     for s in fresh:
         rsi = WW.rsi_at(pg[s], sess)
         px = WW.close_at(pg[s], sess)
-        if rsi is not None and px is not None and px > 0 and rsi < OPL.RSI_OWNER:
+        if rsi is not None and px is not None and px > 0 and rsi < lim:
             rows[s] = {"rsi": rsi, "px": px, "fl": None, "fl_src": "", "av": None, "av_src": "", "ry": None,
                        "ratio": None, "bot": bot_label(s, wl, nw), "stab": None, "boom": None, "gate": None,
                        "repaired": None}
     st["counts"]["c2"] = len(rows)
     st["counts"]["c2_dollar"] = sum(1 for s in rows if px_class(rows[s]["px"]) == "dollar")
     st["counts"]["c2_penny"] = len(rows) - st["counts"]["c2_dollar"]
-    log(f"② RSI أقلّ من {OPL.RSI_OWNER:g} (Polygon): {len(rows)} — فوق الدولار {st['counts']['c2_dollar']} · سنتات "
-        f"{st['counts']['c2_penny']}")
+    log(f"② RSI أقلّ من {lim:g} (Polygon · حدُّ فيصل `RSI_OVERSOLD`): {len(rows)} — فوق الدولار "
+        f"{st['counts']['c2_dollar']} · سنتات {st['counts']['c2_penny']}")
     h0 = (dt.date.fromisoformat(sess) - dt.timedelta(days=HOURS_DAYS)).isoformat()
     want = sorted(set(rows) | {t for t in TRACE if t in pg})
     hr = hours(want, h0, sess, key) if want else {}
@@ -653,7 +672,7 @@ def stage_send(st, parts, send=None):
     for s in ok:
         r = rows[s]
         if r["v"] is False:
-            f = WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))[:3]
+            f = flags3(r)
             (fl_x if f[1] is False else av_x).append(s)
     if fl_x:
         log(f"   ✖️ الفلوت فوق الحدّ {len(fl_x)}: " + " · ".join(f"{s} ({_num_txt(rows[s].get('fl'))})" for s in fl_x))
