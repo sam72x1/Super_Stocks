@@ -4299,6 +4299,76 @@ def refresh_borrow(s: dict, today_iso: str, fetch=None) -> None:
         pass
 
 
+def _harvested_borrow(today_iso: str, path: str = None) -> dict:
+    """🔒⏱️ متاحُ **اليوم** من حصّاد الاقتراض (`ctb_log.jsonl`) ⇒ {رمز: {borrow_fee,
+    shares_available}} لصفوف `date == today_iso` ومتاحُها معلوم.
+
+    **لماذا (2026-09-26 · مقيس):** ChartExchange يُرجع قِشرةً ضئيلة بعد ‏≈50 صفحة لكلّ رنر،
+    والفرزُ اليوميّ يصرف الحصّةَ على الإثراء ثمّ على `refresh_borrow` بترتيب القائمة ⇒
+    **19 من 42 نشطًا وحدَها كان متاحُها محدَّثًا** (الأوّلُ 20 ثمّ بائتٌ متتالٍ). والحصّادُ صار
+    يحصد القائمةَ على ثلاثة رنرات قبل الفرز بنحو 40 دقيقة (‏95/97 · #461) ⇒ صفُّه مصدرٌ أوّل
+    **بلا نداء** والموقعُ للناقص وحدَه. قراءةٌ فقط · فاشلٌ-آمن ⇒ {} (فيعود الجلبُ كما كان)."""
+    out = {}
+    try:
+        with open(path or "ctb_log.jsonl", encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    r = json.loads(line)
+                except Exception:                              # noqa: BLE001
+                    continue
+                if (not isinstance(r, dict) or r.get("date") != today_iso
+                        or r.get("shares_available") is None):
+                    continue
+                out[str(r.get("symbol") or "").upper()] = {
+                    "borrow_fee": r.get("borrow_fee"),
+                    "shares_available": r.get("shares_available")}
+    except Exception:                                          # noqa: BLE001
+        return {}
+    return out
+
+
+def _borrow_refresh_order(stocks: list) -> list:
+    """ترتيبُ تحديث المتاح: **بلا متاحٍ أوّلًا ثمّ الأقدمُ تحديثًا** (مستقرّ · نقيّ) — فحصّةُ
+    ChartExchange تُصرف على الأحوج لا على أوّل القائمة كلَّ يوم (2026-09-26)."""
+    def _key(s):
+        try:
+            h = s.get("borrow_hist") or []
+            d = h[-1][0] if h and h[-1] else None
+        except Exception:                                      # noqa: BLE001
+            d = None
+        return (0, "") if not d else (1, str(d))
+    return sorted(list(stocks or []), key=_key)
+
+
+def refresh_borrow_all(stocks: list, today_iso: str, harvested: dict = None,
+                       fetch_ce=None) -> dict:
+    """🔒⏱️ تمريرةُ تحديث المتاح اليوميّة لكلّ نشطٍ: **صفُّ حصّاد اليوم أوّلًا بلا نداء**
+    (`_harvested_borrow`) ثمّ ChartExchange للناقص **بترتيب الأحوج** (`_borrow_refresh_order`)
+    — و`refresh_borrow` نفسُها بلا تغيير (فشلُ الجلب ⇒ القديمُ يبقى). يرجّع عدّاداتِ المصدر
+    {"حصاد", "موقع", "تعذّر"} للسجلّ. `harvested`/`fetch_ce` يُحقنان للاختبار."""
+    hb = _harvested_borrow(today_iso) if harvested is None else harvested
+    ce = fetch_ce or ce_borrow_info
+    cnt = {"حصاد": 0, "موقع": 0, "تعذّر": 0}
+    for s in _borrow_refresh_order([x for x in (stocks or [])
+                                    if (x or {}).get("status") == "active"]):
+        via = {}
+
+        def _fetch_b(sym, _h=hb, _v=via):
+            _d = _h.get(str(sym).upper())
+            if _d:
+                _v["src"] = "حصاد"
+                return _d
+            try:
+                _d = ce(sym) or {}
+            except Exception:                                  # noqa: BLE001
+                _d = {}
+            _v["src"] = "موقع" if _d else "تعذّر"
+            return _d
+        refresh_borrow(s, today_iso, fetch=_fetch_b)
+        cnt[via.get("src", "تعذّر")] += 1
+    return cnt
+
+
 def _session_label(now=None):
     """وسم الجلسة الحالية بتوقيت نيويورك: «بريماركت» · «السوق» · «أفتر/مغلق».
     يُستعمل لوسم السبريد بصدق (سبريد خارج الجلسة واسع طبيعيًّا — لقطة فيديو DSY 21%
@@ -20291,9 +20361,8 @@ def run_daily_watchlist(wl: dict) -> None:
                 s["upcoming_events"] = _ue
         except Exception:
             pass
-        # 🔒 تحديث الاقتراض يوميًّا + مسار «المتاح» (فيصل يتابعه يوميًّا — IMG_9505:
-        # قفز 30 ألف→600 ألف في 3 أيام قبيل «طاخ طيخ»). فاشل-آمن: القديم يبقى.
-        refresh_borrow(s, today_iso)
+        # 🔒 تحديثُ الاقتراض خرج من هذه الحلقة إلى تمريرةٍ بعدها (2026-09-26): من حصّاد
+        #    اليوم أوّلًا ثمّ ChartExchange **للأحوج أوّلًا** — `_borrow_refresh_order`.
         # 🏢 ردم الفلوت المجهول (اقتراح المستخدم 2026-07-10): الأسهم القديمة التي غاب
         # فلوتها (ياهو مخنوق لحظتها) تُملأ مرة واحدة — الفلوت ثابت فيُخزَّن ويبقى.
         # فاشل-آمن، وفقط عند الغياب (نداء واحد/سهم مرّة).
@@ -20345,6 +20414,17 @@ def run_daily_watchlist(wl: dict) -> None:
                     hist.get(s["symbol"]), _ne.get("date"), s.get("last_price"))
         except Exception:
             pass
+    # 🔒 تحديث الاقتراض يوميًّا + مسار «المتاح» (فيصل يتابعه يوميًّا — IMG_9505:
+    # قفز 30 ألف→600 ألف في 3 أيام قبيل «طاخ طيخ»). فاشل-آمن: القديم يبقى.
+    # ⏱️ (2026-09-26) **من حصّاد اليوم أوّلًا بلا نداء** ثمّ ChartExchange للناقص **بترتيب
+    #    الأحوج** (بلا متاحٍ ثمّ الأقدم) — حصّةُ ‏≈50 صفحة لكلّ رنر كانت تُترك نصفَ القائمة بائتًا.
+    try:
+        _bsrc = refresh_borrow_all(wl["stocks"], today_iso)
+        log("🔒 الاقتراض اليوميّ: من حصّاد اليوم " + str(_bsrc["حصاد"])
+            + " · من ChartExchange " + str(_bsrc["موقع"])
+            + " · تعذّر " + str(_bsrc["تعذّر"]) + " (القديمُ يبقى)")
+    except Exception as e:                                     # noqa: BLE001
+        log(f"⚠️ تحديث الاقتراض: {e}")
     # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم.
     #    نمرّر القائمة الأساسية الحالية (تشمل ما أُضيف توًّا) كاستبعاد، ثم
     #    نشيل أي سهم تخرّج للأساسية من المراقبة (لا ازدواج بين القائمتين).
