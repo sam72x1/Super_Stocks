@@ -773,7 +773,7 @@ _sv_f01 = (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
            S.download_history, S.build_wrapup_message, S.enrich,
            S.scan_pullback, S.accumulate_explosions, S.load_alerts,
            S.build_dev_assistant_report, S.export_weekly_csvs,
-           S.write_csv, S.run_performance_system)
+           S.write_csv, S.run_performance_system, S.borrow_second_chance)
 try:
     def _f01_scan():
         S._SCAN_STATS.update({"universe": 10, "valid": 10,
@@ -796,6 +796,7 @@ try:
     S.export_weekly_csvs = lambda *a, **k: None
     S.write_csv = lambda *a, **k: None
     S.run_performance_system = lambda *a, **k: None
+    S.borrow_second_chance = lambda got, **k: {}   # 🔒 لا شبكةَ من السويّة (الفرصةُ الثانية للمتاح · 2026-09-26)
     _wlf01 = {"week_start": "2026-07-03", "stocks": [], "removed": [],
               "notes": [], "pullback": [], "history": [],
               # ⑥: حالة متراكمة يجب أن تنجو التجديد (كانت تُمسح كل جمعة)
@@ -841,7 +842,7 @@ finally:
      S.download_history, S.build_wrapup_message, S.enrich,
      S.scan_pullback, S.accumulate_explosions, S.load_alerts,
      S.build_dev_assistant_report, S.export_weekly_csvs,
-     S.write_csv, S.run_performance_system) = _sv_f01
+     S.write_csv, S.run_performance_system, S.borrow_second_chance) = _sv_f01
 
 # 4ب-2) 🔄 قفل الاستمرارية (طلب المستخدم 2026-07-21): التجديد لا يمحو أسهم
 #       الأسبوع الماضي النشطة بصمت (PSTV اختفى) — تُحمَل بوسم مصير + تقرير مصير.
@@ -864,7 +865,7 @@ _sv_cont = (S.scan_market, S.send_telegram, S.save_watchlist, S.yf,
             S.download_history, S.build_wrapup_message, S.enrich,
             S.scan_pullback, S.accumulate_explosions, S.load_alerts,
             S.build_dev_assistant_report, S.export_weekly_csvs,
-            S.write_csv, S.run_performance_system)
+            S.write_csv, S.run_performance_system, S.borrow_second_chance)
 _cont_saved = {}
 _cont_msgs = []
 try:
@@ -900,6 +901,7 @@ try:
     S.export_weekly_csvs = lambda *a, **k: None
     S.write_csv = lambda *a, **k: None
     S.run_performance_system = lambda *a, **k: None
+    S.borrow_second_chance = lambda got, **k: {}   # 🔒 لا شبكةَ من السويّة (الفرصةُ الثانية للمتاح · 2026-09-26)
 
     def _cont_stock(sym):
         return {"symbol": sym, "status": "active", "added": "2026-07-06",
@@ -933,7 +935,7 @@ finally:
      S.download_history, S.build_wrapup_message, S.enrich,
      S.scan_pullback, S.accumulate_explosions, S.load_alerts,
      S.build_dev_assistant_report, S.export_weekly_csvs,
-     S.write_csv, S.run_performance_system) = _sv_cont
+     S.write_csv, S.run_performance_system, S.borrow_second_chance) = _sv_cont
 
 # 4ب-3) 🔄 قسم «متابعة لمركزك» الدائم (طلب المستخدم 2026-07-21): الأسهم المحمولة
 #       (continues/exited) تظهر يوميًا في قسم مستقل الين تُضرب ستوب أو تعود للترشيح —
