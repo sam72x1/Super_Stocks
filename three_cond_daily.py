@@ -121,20 +121,21 @@ def verdict(r, tol=None):
 
 
 def near_misses(rows):
-    """🔸 أسهمُ البوت (القائمة · الارتداد · تحت المتابعة) التي استوفت RSI والسعر **وسقطت بشرطٍ معلوم** (الفلوت أو المتاح)
-    ⟵ [(رمز, السبب)] — تجيب «ليه ما ذكرت سهمي؟» (مسكةُ CETX · 2026-09-26) · عرضٌ فقط لا يُعدّ مطابقة."""
+    """🔸 أسهمُ البوت (القائمة · الارتداد · تحت المتابعة) التي سقطت **بشرطٍ واحدٍ والثلاثةُ الباقية معلومةٌ وعابرة** ⟵
+    [(رمز, السبب)] — تجيب «ليه ما ذكرت سهمي؟» (مسكةُ CETX: سقط بالمتاح وحدَه) · عرضٌ فقط لا يُعدّ مطابقة. ⚠️ ومَن سقط بالفلوت
+    لا يُسأل عن متاحه (مجهول) ⇒ لا يُقال «بشرطٍ واحد» فيه — كان التشغيلُ الأوّل يسرد 68 أغلبُها فلوتٌ بعشرات الملايين (ضجيج)."""
     out = []
+    names = ("RSI", "الفلوت", "المتاح", "السعر")
     for s in sorted(rows, key=lambda x: rows[x].get("rsi") if rows[x].get("rsi") is not None else 99):
         r = rows[s]
         if r.get("v") is not False or r.get("bot") in (None, "ليس عند البوت"):
             continue
         f = WW.flags(r.get("rsi"), r.get("px"), r.get("fl"), r.get("av"))
-        why = []
-        if f[1] is False:
-            why.append(f"الفلوت {_num_txt(r.get('fl'))}")
-        if f[2] is False:
-            why.append(f"المتاح {r['av']:,.0f}")
-        out.append((s, " · ".join(why) or "—"))
+        bad = [i for i, x in enumerate(f) if x is False]
+        if len(bad) != 1 or any(x is None for x in f):
+            continue
+        val = {1: _num_txt(r.get("fl")), 2: f"{(r.get('av') or 0):,.0f}"}.get(bad[0], "")
+        out.append((s, f"{names[bad[0]]} {val}".strip()))
     return out
 
 
@@ -186,7 +187,7 @@ def build_message(st, rows):
             lines.append(f"• ${s} · RSI {_fmt1(r['rsi'])} · ${_fmt2(r['px'])} · الناقص: {' · '.join(miss) or '—'} · {r['bot']}")
     near = near_misses(rows)
     if near:
-        lines += ["", f"🔸 <b>من أسهم البوت — سقطت بشرطٍ معلوم: {len(near)}</b>"]
+        lines += ["", f"🔸 <b>من أسهم البوت — سقطت بشرطٍ واحد (والثلاثةُ الباقية عابرة): {len(near)}</b>"]
         for s, why in near[:NEAR_SHOW]:
             lines.append(f"• ${s} · RSI {_fmt1(rows[s]['rsi'])} · {why} · {rows[s]['bot']}")
         if len(near) > NEAR_SHOW:

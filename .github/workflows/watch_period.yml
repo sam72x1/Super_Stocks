@@ -1,0 +1,51 @@
+name: "🗓️🔎② أسهمُ البوت في فترةٍ وشروطُ المالك — Penny/Dollar (watch_period_probe · قراءةٌ فقط)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · التعريفاتُ في رأس watch_period_probe.py (تعريفاتُ watch_week_probe بالاسم)
+#    أمرُ المالك 2026-09-26 «نفذ البروميت»: التقرير 1 = Penny لأسبوع 2026-09-21 ⟶ 25 · التقرير 2 = الشهر Penny/Dollar.
+#    المجتمع: لقطاتُ weekly_watchlist.json قبل افتتاح كلّ جلسة (تاريخ git كامل · fetch-depth: 0) · الشموعُ من Polygon.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      date_from:
+        description: "أوّلُ يومٍ YYYY-MM-DD (فارغ = اثنينُ آخر أسبوع)"
+        required: false
+        default: ""
+      date_to:
+        description: "آخرُ يومٍ YYYY-MM-DD (فارغ = آخرُ جلسةٍ منتهية)"
+        required: false
+        default: ""
+      classes:
+        description: "penny للتقرير 1 · penny,dollar للتقرير 2"
+        required: false
+        default: "penny,dollar"
+
+jobs:
+  watch_period:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة لقطات القائمة)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🗓️🔎② القياس
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PERIOD_FROM: ${{ github.event.inputs.date_from }}
+          PERIOD_TO: ${{ github.event.inputs.date_to }}
+          PERIOD_CLASSES: ${{ github.event.inputs.classes }}
+        run: python watch_period_probe.py
