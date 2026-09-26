@@ -69188,15 +69188,16 @@ try:
         _st = _exh_r.randint(0, len(_exh_ds) - _L)
         _dd = _exh_ds[_st:_st + _L]
         _px, _rows = _exh_r.uniform(0.2, 8.0), []
+        _q = (lambda x: round(x * 20) / 20 or 0.05) if _k % 2 == 0 else (lambda x: x)   # نصفُها بشبكة 0.05 ⟵ تعادلاتٌ حقيقيّة
         for _d in _dd:
             _px *= _exh_r.uniform(0.9, 1.1)
-            _lo = _px * _exh_r.uniform(0.9, 1.0)
+            _lo = _q(_px * _exh_r.uniform(0.9, 1.0))
             _rows.append((_d, _px, _px * 1.05, _lo, _exh_r.uniform(_lo, _px * 1.05), 1e5))
         _hrs = []
         for _d, _o, _h, _lo, _c, _v in _rows:
             for _hh in _exh_r.sample(range(24), _exh_r.randint(0, 8)):
                 _hrs.append((_tcd_ms(_d, _hh, _exh_r.choice((0, 30))), _h * _exh_r.uniform(0.95, 1.05),
-                             _lo * _exh_r.uniform(0.9, 1.05)))
+                             _q(_lo * _exh_r.uniform(0.9, 1.05))))
         if _k % 10 == 0:
             _hrs.append(("x", 1.0, 2.0))
         _ss = _dd[_exh_r.randint(0, len(_dd) - 1)]
@@ -69217,14 +69218,23 @@ try:
     _exh_hw = _tcd_hours_of(_exh_rw, [(_exh_ds14[-3], 17, 4.2, 3.7)])
     _exh_ta = S.exact_pivot_hold(_exh_rw, _exh_hw, _exh_ds14[-1])
     _exh_tb = _TCD.exact_low_stability(_exh_rw, _exh_hw, _exh_ds14[-1])
+    #    تعادلٌ صريح: القاعُ 4.0 بلغه قبل ستّ جلسات ثمّ لمسه اليوم ⟵ يومُه الأوّل (6 جلسات بعده) لا اليوم في الاثنين
+    _exh_rt = [(d, c, c * 1.01, lo, c, 1.0) for d, lo, c in
+               zip(_exh_ds[-17:], _exh_dn + [4.0] + [4.1] * 5 + [4.0], [x + 0.05 for x in _exh_dn] + [4.05] + [4.15] * 5 + [4.05])]
+    _exh_ht = _tcd_hours_of(_exh_rt)
+    _exh_tta = S.exact_pivot_hold(_exh_rt, _exh_ht, _exh_rt[-1][0])
+    _exh_ttb = _TCD.exact_low_stability(_exh_rt, _exh_ht, _exh_rt[-1][0])
     _vX1 = (_exh_diff == 0 and _exh_nn >= 150 and _exh_stb >= 20 and _exh_ext >= 20 and _exh_ta == _exh_tb
-            and _exh_ta["pivot"] == 3.7 and _exh_ta["bars_after"] == 2 and _exh_ta["ext"] and not _exh_ta["stable"])
+            and _exh_ta["pivot"] == 3.7 and _exh_ta["bars_after"] == 2 and _exh_ta["ext"] and not _exh_ta["stable"]
+            and _exh_tta == _exh_ttb and _exh_tta["pivot"] == 4.0 and _exh_tta["bars_after"] == 6 and _exh_tta["stable"])
     _vX1w = (f"فروق={_exh_diff} {_exh_first[:120]} · غيرُ None={_exh_nn} · ثابت={_exh_stb} · ممتدّ={_exh_ext} · "
-             f"ذيلُ الأفتر={_exh_ta and (_exh_ta['pivot'], _exh_ta['bars_after'])}")
+             f"ذيلُ الأفتر={_exh_ta and (_exh_ta['pivot'], _exh_ta['bars_after'])} · "
+             f"التعادل={_exh_tta and (_exh_tta['pivot'], _exh_tta['bars_after'])}")
 except Exception as _e:                                              # noqa: BLE001
     _vX1, _vX1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧱 EXH1 `S.exact_pivot_hold` توأمُ `three_cond_daily.exact_low_stability`: 300 عالمٍ عشوائيّ (تحوّلا التوقيت · خارج "
-      "النافذة · تالفة · need/look) ⟵ صفرُ فرقٍ بلا مرورٍ فارغ · وذيلُ الأفتر ⟵ القاعُ 3.7 بعد جلستين في الاثنين", _vX1, _vX1w)
+      "النافذة · تالفة · need/look · نصفُها بتعادلات) ⟵ صفرُ فرقٍ بلا مرورٍ فارغ · وذيلُ الأفتر ⟵ القاعُ 3.7 بعد جلستين · "
+      "والتعادلُ ⟵ يومُه الأوّل (6 جلسات) في الاثنين", _vX1, _vX1w)
 
 # EXH2 — السطرُ يصف ولا يُسقط: ثابت ⟵ «🧱 ثابتٌ 7 جلسات … $0.1234 (… · بري/أفتر)» · 12 ⟵ «12 جلسة» · ينتظر ⟵ «مضى 1 من 5» ·
 #    أغلق عند القاع ⟵ «أغلق عند» لا «مضى» · بلا ساعة ⟵ «تعذّر» · بلا حالة/تالف ⟵ «» · بلا `need` ⟵ `STABILITY_SHOW_REQ` ·
