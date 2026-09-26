@@ -1421,7 +1421,12 @@ _mw_rem = {"week_start": "2026-08-21",
 #      ينسخه** (`wl["stocks"] = [s ... if s["status"] == "active"]`) ⇒ حالةٌ
 #      مستحيلة. صُحِّح الشكلُ، **والأقفالُ اشتدّت لا أُرخيت** (‏OPW2 صار
 #      يفرّق الاتجاهين بدل قصٍّ شامل).
-_mw_loc = {"week_start": "2026-08-14",
+# 🗓️ **إقرارٌ مؤرَّخ 2026-09-26 — الفِكستشرُ صار «جيلًا واحدًا» (الأسبوعُ نفسُه):** كان يضع
+#   الجهتين في أسبوعين مختلفين (‏08-21 مقابل 08-14) فيُقفِل **الاتّحادَ عبر حدّ التجديد** —
+#   وهو بعينه العيبُ المقيس بعد تجديدات 09-12 · 09-19 · 09-26 (المراقبُ البائت بعث المشطوبات
+#   0 ⟶ 8 · 26 · 47 والارتدادَ القديم وحقولَ الأسهم البائتة). الاتّحادُ **داخل الجيل** باقٍ كما
+#   هو (OPW1-OPW3 · OPW6 بمعناها) · **وسلوكُ الحدّ مقفولٌ بأقفال WLB أدناه** — تشديدٌ لا إرخاء.
+_mw_loc = {"week_start": "2026-08-21",
            "stocks": [{"symbol": "B"}],
            "pullback": [{"symbol": "C"}],
            "removed": [{"symbol": "X", "added": "2026-08-01",
@@ -1496,6 +1501,109 @@ check("🔒 OPW7 وصلةُ الفرع في `git_save` باسم `WATCH_FILE` · 
       and "os.path.basename(WATCH_FILE)" in _insp.getsource(S.git_save)
       and "_merge_op_entry(_remote, _b)" in _insp.getsource(S.git_save)
       and "_union_jsonl(_remote, _b)" in _insp.getsource(S.git_save))
+
+# 🗓️ **WLB — حدُّ الجيل في `_merge_watchlist` (2026-09-26 · عيبٌ مقيسٌ في الإنتاج):** بعد تجديدات
+#    09-12 · 09-19 · 09-26 دفع مراقبُ الارتداد المتأخّر نسختَه البائتة بعد التجديد بدقيقة فاتّحدت
+#    القوائم: المشطوباتُ 0 ⟶ 8 · 26 · 47 · والارتدادُ القديم 3 ⟶ 14 · 3 ⟶ 18 · 7 ⟶ 23 · و16 من 30
+#    سهمًا فقدت `cont_status` (نسخةُ البائت غلبت «المحلّيُّ يفوز»). والفِكستشرُ هنا **صورةُ 09-26**.
+_wlb_new = {"week_start": "2026-09-26", "renewed_at": "2026-09-26T00:53:40+00:00",
+            "stocks": [{"symbol": "N1", "cont_status": None},
+                       {"symbol": "OLD", "cont_status": "continues", "f": "new"}],
+            "pullback": [{"symbol": "PN"}],
+            "removed": [], "notes": [], "replacements_log": [],
+            "history": [{"week_start": "2026-09-19", "stocks": []}],
+            "explosions": [{"symbol": "E1", "date": "2026-09-25"}],
+            "reject_stats": [{"date": "2026-09-26", "x": 1}],
+            "tie_harvest": [{"date": "2026-09-26", "source": "renew"}]}
+_wlb_old = {"week_start": "2026-09-19",
+            "stocks": [{"symbol": "OLD", "cont_status": None, "f": "stale"},
+                       {"symbol": "DROPPED"}],
+            "pullback": [{"symbol": "PO"}],
+            "removed": [{"symbol": "S1", "status": "stopped", "added": "2026-09-01"}],
+            "notes": [{"symbol": "OLD", "t": "n"}],
+            "replacements_log": [{"symbol": "R"}],
+            "history": [{"week_start": "2026-09-12", "stocks": []}],
+            "explosions": [{"symbol": "E0", "date": "2026-09-18"}],
+            "reject_stats": [{"date": "2026-09-25", "x": 0}],
+            "tie_harvest": [{"date": "2026-09-25", "source": "daily"}],
+            "stale_only_key": 7}
+
+
+def _wlb_both(new, old):
+    """الاتّجاهان: البائتُ محلّيٌّ (حادثةُ 09-26) · والتجديدُ محلّيٌّ (المراقبُ دفع أثناء التجديد)."""
+    try:
+        return [_mw_run(new, old), _mw_run(old, new)]
+    except Exception as _e:                                      # noqa: BLE001
+        return [{"⛔": type(_e).__name__}] * 2
+
+
+_wlb_outs = _wlb_both(_wlb_new, _wlb_old)
+check("🗓️ WLB1 عند حدّ الجيل **عضويةُ الأحدث كما هي** — لا بعثَ لما أسقطه التجديد (`DROPPED`) "
+      "وحقولُ الأحدث تغلب (`cont_status`) — **في الاتّجاهين**",
+      all([s.get("symbol") for s in _o.get("stocks", [])] == ["N1", "OLD"]
+          and _o["stocks"][1].get("cont_status") == "continues"
+          and _o["stocks"][1].get("f") == "new" for _o in _wlb_outs),
+      str([[s.get("symbol") for s in _o.get("stocks", [])] for _o in _wlb_outs]))
+check("🗓️ WLB2 والقوائمُ التي يُصفّرها التجديدُ أو يبنيها **لا تتّحد عبر الحدّ** (removed · notes · "
+      "replacements_log · pullback · history · explosions) — والمقيسُ 47 ⟶ 0",
+      all(_o.get("removed") == [] and _o.get("notes") == []
+          and _o.get("replacements_log") == []
+          and [p.get("symbol") for p in _o.get("pullback", [])] == ["PN"]
+          and [h.get("week_start") for h in _o.get("history", [])] == ["2026-09-19"]
+          and [e.get("symbol") for e in _o.get("explosions", [])] == ["E1"]
+          for _o in _wlb_outs),
+      str([(len(_o.get("removed") or []), len(_o.get("pullback") or [])) for _o in _wlb_outs]))
+check("🗓️ WLB3 والزمنيّةُ **تتّحد بمفتاحها كما كانت** عبر الحدّ (`reject_stats` · `tie_harvest` "
+      "حصادُ T-TIE-FWD) — ومرتّبةٌ بالتاريخ",
+      all([r.get("date") for r in _o.get("reject_stats", [])] == ["2026-09-25", "2026-09-26"]
+          and sorted((t.get("date"), t.get("source")) for t in _o.get("tie_harvest", []))
+          == [("2026-09-25", "daily"), ("2026-09-26", "renew")] for _o in _wlb_outs))
+check("🗓️ WLB4 والحقولُ العليا من الأحدث (`week_start` · `renewed_at`) وكلُّ مفتاحٍ لم يُعدَّد يبقى",
+      all(_o.get("week_start") == "2026-09-26"
+          and _o.get("renewed_at") == "2026-09-26T00:53:40+00:00"
+          and _o.get("stale_only_key") == 7 for _o in _wlb_outs))
+# WLB5 — تجديدان في اليوم نفسِه (`force_renew`): `week_start` واحد و`renewed_at` يفرّق الجيلين
+_wlb_re = dict(_wlb_new, renewed_at="2026-09-26T11:00:00+00:00",
+               stocks=[{"symbol": "N2"}])
+_wlb_first = dict(_wlb_new)
+_wlb_nots = dict(_wlb_new)
+_wlb_nots.pop("renewed_at")
+_wlb_o5 = _wlb_both(_wlb_re, _wlb_first) + _wlb_both(_wlb_re, _wlb_nots)
+check("🗓️ WLB5 تجديدٌ ثانٍ في اليوم نفسِه: **`renewed_at` الأحدثُ يحكم** والغائبُ أقدم — لا بعثَ "
+      "لترشيحات الأوّل (`N1`/`OLD`)",
+      all([s.get("symbol") for s in _o.get("stocks", [])] == ["N2"]
+          and _o.get("renewed_at") == "2026-09-26T11:00:00+00:00" for _o in _wlb_o5),
+      str([[s.get("symbol") for s in _o.get("stocks", [])] for _o in _wlb_o5]))
+# WLB6 — **داخل الجيل** (الأسبوعُ نفسُه وبلا ختمٍ في الجهتين) الاتّحادُ كما كان بت-بت
+_wlb_same = dict(_wlb_old, week_start="2026-09-26")
+_wlb_new_nr = dict(_wlb_new)
+_wlb_new_nr.pop("renewed_at")
+_wlb_o6 = _mw_run(_wlb_new_nr, _wlb_same)
+check("🗓️ WLB6 **داخل الجيل الاتّحادُ باقٍ**: عضويةُ الجهتين (`DROPPED` ينجو) والمشطوبُ يُلحَق — "
+      "خطة 036 كما هي",
+      sorted(s.get("symbol") for s in _wlb_o6.get("stocks", [])) == ["DROPPED", "N1", "OLD"]
+      and [r.get("symbol") for r in _wlb_o6.get("removed", [])] == ["S1"])
+# WLB7 — جهةٌ بلا `week_start` (ملفٌّ جديد/تالف) ⇒ لا حدّ ⇒ الاتّحاد (فاشلٌ-آمن لا يُسقط)
+_wlb_nows = dict(_wlb_old)
+_wlb_nows.pop("week_start")
+_wlb_o7 = _mw_run(_wlb_new, _wlb_nows)
+check("🗓️ WLB7 جهةٌ بلا `week_start` ⇒ **لا حدّ** والاتّحادُ كما كان (لا يُسقَط شيءٌ على شكّ)",
+      sorted(s.get("symbol") for s in _wlb_o7.get("stocks", [])) == ["DROPPED", "N1", "OLD"])
+# WLB8 — التجديدُ **يختم الجيل**: مفتاحُ `renewed_at` في `new_wl.update({...})` داخل `run_weekly_renewal` (AST)
+_wlb_rn = next((n for n in _ast0.walk(_ast0.parse(
+    open("Super_stock.py", encoding="utf-8").read()))
+    if isinstance(n, _ast0.FunctionDef) and n.name == "run_weekly_renewal"), None)
+_wlb_keys = set()
+for _c in (_ast0.walk(_wlb_rn) if _wlb_rn is not None else []):
+    if (isinstance(_c, _ast0.Call) and isinstance(_c.func, _ast0.Attribute)
+            and _c.func.attr == "update" and getattr(_c.func.value, "id", None) == "new_wl"):
+        for _a in _c.args:
+            if isinstance(_a, _ast0.Dict):
+                _wlb_keys |= {getattr(_k, "value", None) for _k in _a.keys}
+check("🗓️ WLB8 `run_weekly_renewal` **يختم الجيل** (`renewed_at` في `new_wl.update` · AST) — "
+      "وإلّا لا يفرّق الدمجُ تجديدَين في اليوم نفسِه",
+      {"renewed_at", "week_start", "stocks", "removed", "pullback"} <= _wlb_keys,
+      str(sorted(k for k in _wlb_keys if k))[:120])
 
 # 🔴🔴 **مآخذُ مراجعة 2026-08-21 — أقفالُ الإصلاح (‏WL8-WL10):**
 # WL8 — **القوائمُ الزمنيّة تُوحَّد بمفتاحها**: كانتا خارج `_WL_KEYED`
@@ -4505,6 +4613,129 @@ check("🔒 FIL10 ولا تُستدعى داخل أيّ جذر (طبقةُ تع�
 check("🔒 FIL11 و`LOGIC_VERSION` يحمل `fillpicks`+`shutdoor` (يمسّان العضوية)",
       "fillpicks" in S.LOGIC_VERSION and "shutdoor" in S.LOGIC_VERSION,
       S.LOGIC_VERSION[:44])
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 🔒⏱️ BSC — فرصةٌ ثانية لمتاح البوّابة (2026-09-26 · «طبّق بوابة المتاح على الـ12»)
+#    تجديدُ 09-26: الـ14 كلُّهم بلا متاح (قاطعُ ChartExchange انطفأ في أوّل الجولة الأولى) ⇒
+#    مرّوا مجهولين · وحصادُ اليوم نفسِه وجد الـ12 الجدد فوق 20 ألف.
+# ══════════════════════════════════════════════════════════════════════════════
+def _bsc_calls():
+    _c = []
+
+    def _f(sym):
+        _c.append(sym)
+        return {}
+    return _c, _f
+
+
+_bsc_c1, _bsc_f1 = _bsc_calls()
+_bsc_p1 = [{"symbol": "EFOI", "shares_available": None, "borrow_fee": None}]
+_bsc_n1 = S.borrow_second_chance(
+    _bsc_p1, harvested={"EFOI": {"shares_available": 100000, "borrow_fee": 30.36}},
+    fetch_ce=_bsc_f1, pause=lambda *_: None)
+check("🔒 BSC1 المجهولُ يُملأ من **صفّ حصّاد اليوم بلا نداء** (EFOI 100,000 كما حُصد 09-26)",
+      _bsc_p1[0]["shares_available"] == 100000 and _bsc_p1[0]["borrow_fee"] == 30.36
+      and _bsc_c1 == [] and _bsc_n1 == {"مجهول": 1, "حصاد": 1, "موقع": 0, "تعذّر": 0},
+      f"{_bsc_p1[0]} · نداءات={_bsc_c1} · {_bsc_n1}")
+_bsc_c2, _bsc_f2 = _bsc_calls()
+_bsc_known = {"symbol": "K", "shares_available": 7000, "borrow_fee": 12.0, "x": [1]}
+_bsc_known_copy = S.json.loads(S.json.dumps(_bsc_known))
+_bsc_n2 = S.borrow_second_chance([_bsc_known], harvested={"K": {"shares_available": 999999}},
+                                 fetch_ce=_bsc_f2, pause=lambda *_: None)
+check("🔒 BSC2 ما له متاحٌ **لا يُمَسّ بت-بت** ولا نداء (ولو كان للحصاد رقمٌ آخر)",
+      _bsc_known == _bsc_known_copy and _bsc_c2 == [] and _bsc_n2["مجهول"] == 0)
+_bsc_p3 = [{"symbol": "NEW", "shares_available": None, "borrow_fee": None}]
+_bsc_n3 = S.borrow_second_chance(
+    _bsc_p3, harvested={}, pause=lambda *_: None,
+    fetch_ce=lambda s: {"shares_available": 55000, "borrow_fee": 3.1})
+check("🔒 BSC3 وما ليس في الحصاد يُسأل عنه ChartExchange **مرّةً** فيُملأ",
+      _bsc_p3[0]["shares_available"] == 55000 and _bsc_n3["موقع"] == 1)
+_bsc_c4, _bsc_f4 = _bsc_calls()
+_bsc_p4 = [{"symbol": f"U{i}", "shares_available": None} for i in range(5)]
+_bsc_n4 = S.borrow_second_chance(_bsc_p4, harvested={}, fetch_ce=_bsc_f4,
+                                 pause=lambda *_: None)
+check("🔒 BSC4 **قاطعٌ مستقلّ**: 3 إخفاقاتٍ متتالية توقف النداء (5 مجهولين ⟵ 3 نداءات) · "
+      "والمتعذّرُ يبقى مجهولًا ويُعَدّ",
+      len(_bsc_c4) == 3 and _bsc_n4["تعذّر"] == 5
+      and all(r["shares_available"] is None for r in _bsc_p4),
+      f"نداءات={len(_bsc_c4)} · {_bsc_n4}")
+_bsc_p5 = [{"symbol": "F", "shares_available": None, "borrow_fee": 5.0}]
+S.borrow_second_chance(_bsc_p5, harvested={"F": {"shares_available": 30000, "borrow_fee": 99.0}},
+                       fetch_ce=_bsc_f4, pause=lambda *_: None)
+check("🔒 BSC5 والرسومُ **لا تُدهَس** إن كانت معلومة (يُملأ المتاحُ وحدَه)",
+      _bsc_p5[0]["borrow_fee"] == 5.0 and _bsc_p5[0]["shares_available"] == 30000)
+# BSC6 — الوصلُ في `fill_picks`: الفرصةُ **قبل** البوّابة فيُخرَج مَن صار متاحُه معلومًا فوق الحدّ
+#    وتُعبَّأ خانتُه · وبلا حقنٍ مع `enrich_fn` (الاختبارات) السلوكُ بت-بت كما كان (المجهولُ يمرّ)
+_bsc_pool = [_fil_r("UNK", None), _fil_r("C", 1_000), _fil_r("D", 2_000)]
+
+
+def _bsc_sc(got):
+    _n = 0
+    for _r in got:
+        if _r.get("symbol") == "UNK" and _r.get("shares_available") is None:
+            _r["shares_available"] = 75_000
+            _n += 1
+    return {"مجهول": _n, "حصاد": 0, "موقع": _n, "تعذّر": 0}
+
+
+_bsc_fp = S.fill_picks([dict(x) for x in _bsc_pool], 2, set(),
+                       enrich_fn=lambda _x: None, second_chance=_bsc_sc)
+_bsc_fp0 = S.fill_picks([dict(x) for x in _bsc_pool], 2, set(),
+                        enrich_fn=lambda _x: None)
+check("🔒 BSC6 الفرصةُ **قبل** البوّابة: المجهولُ الذي صار 75,000 يُخرَج وتُعبَّأ خانتُه · "
+      "وبلا حقنٍ (`enrich_fn` محقون) المجهولُ يمرّ كما كان بت-بت",
+      [r["symbol"] for r in _bsc_fp[0]] == ["C", "D"]
+      and [s for s, _v in _bsc_fp[2]] == ["UNK"]
+      and [r["symbol"] for r in _bsc_fp0[0]] == ["UNK", "C"] and _bsc_fp0[2] == [],
+      f"{[r['symbol'] for r in _bsc_fp[0]]} · {[r['symbol'] for r in _bsc_fp0[0]]}")
+# BSC7 — **الإنتاجُ افتراضًا** (AST): `fill_picks` تختار `borrow_second_chance` حين `enrich_fn is None`
+_bsc_fn = next(n for n in _brg_ast_mod.walk(_shd_ast)
+               if isinstance(n, _brg_ast_mod.FunctionDef) and n.name == "fill_picks")
+_bsc_ifexp = [n for n in _brg_ast_mod.walk(_bsc_fn) if isinstance(n, _brg_ast_mod.IfExp)
+              and "borrow_second_chance" in _brg_ast_mod.unparse(n)]
+check("🔒 BSC7 مسارُ الإنتاج (`enrich_fn is None`) **يختار الفرصةَ الثانية افتراضًا** (AST) — "
+      "والوصلُ قبل `borrow_gate_recheck`",
+      bool(_bsc_ifexp) and "enrich_fn is None" in _brg_ast_mod.unparse(_bsc_ifexp[0])
+      and (lambda _s: 0 <= _s.find("_sc(got)") < _s.find("borrow_gate_recheck(got)"))(
+          _insp0.getsource(S.fill_picks)),
+      str([_brg_ast_mod.unparse(x)[:90] for x in _bsc_ifexp]))
+check("🔒 BSC8 خارج الجذور (طبقةُ بيانات البوّابة لا فرز) · والبوّابةُ وحدُّها كما هما",
+      all("borrow_second_chance" not in _insp0.getsource(_f)
+          for _f in (S.rank_key, S.select_top, S.classify_tier, S.scan_market,
+                     S.analyze_ticker, S.backtest_symbol, S.entry_status,
+                     S.borrow_gate_recheck))
+      and int(S.CONFIG["BORROW_AVAIL_MAX"]) == 20000)
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ↩️ WDR — حالةُ «سُحب قبل أيّ جلسة» في سجلّ التتبّع (2026-09-26): ترشيحاتٌ أُرسلت ثمّ سُحبت
+#    قبل أن تُتاح جلسةٌ واحدة ⇒ لا تدخل الحسمَ ولا نسبةَ النجاح ولا قياسَ المقدار — وتُعلَن بعددها.
+# ══════════════════════════════════════════════════════════════════════════════
+def _wdr_a(sym, st, **kw):
+    _a = {"symbol": sym, "date": "2026-09-19", "price": 1.0, "stop": 0.9, "t1": 1.1,
+          "t2": 1.2, "t3": 1.3, "status": st, "flags": [], "max_gain_pct": 0.0,
+          "result_date": "2026-09-22"}
+    _a.update(kw)
+    return _a
+
+
+_wdr_data = {"alerts": [_wdr_a("W", "hit_t1"), _wdr_a("L", "stopped"),
+                        _wdr_a("X1", "withdrawn"), _wdr_a("X2", "withdrawn")]}
+_wdr_rep = S.weekly_report(_wdr_data)
+_wdr_rep0 = S.weekly_report({"alerts": [_wdr_a("W", "hit_t1"), _wdr_a("L", "stopped")]})
+check("↩️ WDR1 المسحوبُ **خارج الحسم ونسبة النجاح** (50% لا 25%) · ويُعلَن بعدده",
+      "نسبة النجاح: <b>50%</b>" in _wdr_rep and "مسحوبة قبل أيّ جلسة: 2" in _wdr_rep
+      and "رابحة: 1 | 🛑 خاسرة: 1" in _wdr_rep, _wdr_rep[:160])
+check("↩️ WDR2 وبلا مسحوبٍ **تقريرُ الأداء بت-بت** (لا سطرَ ولا كلمةَ زائدة)",
+      "مسحوبة" not in _wdr_rep0 and "نسبة النجاح: <b>50%</b>" in _wdr_rep0)
+_wdr_calls = []
+S.observe_closed_alerts({"alerts": [_wdr_a("X1", "withdrawn")]},
+                        fetch=lambda s, st: (_wdr_calls.append(s), None)[1],
+                        today=S.dt.date(2026, 9, 28))
+check("↩️ WDR3 ولا يُقاس مقدارُه بعد «الخروج» (مراقبةُ ما بعد الخروج تتخطّاه · صفرُ جلب)",
+      _wdr_calls == [], str(_wdr_calls))
+check("↩️ WDR4 ولا يدخل صفقاتِ مساعد التطوير المحسومة · وله وسمٌ عربيّ",
+      [r["symbol"] for r in S._collect_closed_alerts(_wdr_data)] == ["W", "L"]
+      and S.STATUS_AR.get("withdrawn", "").startswith("↩️"))
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 🔬🔥 OPF — أداةُ T-OPFIRE (‏`opfire_prereg.md` هو العقد · قياس/بحث فقط)
