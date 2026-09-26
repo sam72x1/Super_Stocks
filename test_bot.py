@@ -5803,42 +5803,77 @@ check("♻️ E2T5 الاسترجاعُ يفحص ذيلَ الماضي: بلا �
       and _os.path.exists(_e2t_copy) and _os.path.exists(_e2t_dlf)
       and all(v.get("source") == "e2_recover" for v in _json.load(open(_e2t_dlf, encoding="utf-8")).values()),
       str(_e2t_res0.get("judged")) + " ⟶ " + str(_e2t_res1.get("judged")) + " · " + str(_e2t_ix1.get("2026-07-25")))
+# 📣 E2T10 **التعذّرُ يُعلَن ولا يُصمَت** — صمتُه هو ما أخفى سقوطَ `import requests` في `36224774545`: المجمِّعُ يُرجع
+#    `tail_failed` (يطبعه main) · والاسترجاعُ يطبع «تعذّر فحصُ N رمزًا» ويُرجعها.
+_e2t_rf = _tmp.mkdtemp(prefix="e2t_recf_")
+__import__("shutil").copytree(_os.path.join(_e2_out, "e2t_none", "session_2026-07-25"),
+                              _os.path.join(_e2t_rf, "recovered", "778", "e2_measurement", "session_2026-07-25"))
+with open(_os.path.join(_e2t_rf, "ignition_e2_session_index.json"), "w", encoding="utf-8") as _fh:
+    _json.dump({}, _fh)
+_e2t_iof = __import__("io").StringIO()
+try:
+    with __import__("contextlib").redirect_stdout(_e2t_iof):
+        _e2t_resf = _RC.recover(_os.path.join(_e2t_rf, "recovered"), repo_root=_e2t_rf,
+                                fetch_range=lambda s, a, b: None)
+except Exception as _e:                                          # noqa: BLE001
+    _e2t_resf = {"tail_failed": f"⛔ رمى: {type(_e).__name__}"}
+check("📣 E2T10 التعذّرُ **يُعلَن**: المجمِّعُ يُرجع `tail_failed` · والاسترجاعُ يطبع «تعذّر فحصُ» ويُرجع الرموز",
+      _e2t_sm_n.get("tail_failed") == ["BBB", "IGN"] and _e2t_sm_x.get("tail_failed") == ["BBB", "IGN"]
+      and not _e2t_sm_e.get("tail_failed")
+      and _e2t_resf.get("tail_failed") == [("2026-07-25", "BBB"), ("2026-07-25", "IGN")]
+      and "تعذّر فحصُ 2 رمزًا" in _e2t_iof.getvalue(),
+      str(_e2t_sm_n.get("tail_failed")) + " · " + str(_e2t_resf.get("tail_failed")) + " · " + _e2t_iof.getvalue()[-160:])
 # 🌐 الجالبُ المؤرَّخ: **الفارغُ الصريح [] غيرُ التعذّر None** — وهو الفرقُ الذي يقوم عليه الدليل.
+#    🔴 **ومكتبةُ بايثون القياسيّة وحدَها** (`urllib`): `e2_recover.yml` لا يُثبّت اعتماديّات، وأوّلُ إعادة حكمٍ بعد
+#    الدمج (`36224774545`) سقط فيها `import requests` صامتًا ⇒ خمسُ جلساتٍ بلا فحصٍ واحد. الفِكستشرُ يزيّف
+#    `urllib.request.urlopen` نفسَه: جالبٌ يعود إلى `requests` لا يمرّ بالفِكستشر فيسقط القفل.
 _e2t_env = _os.environ.get("POLYGON_API_KEY")
-_e2t_req = __import__("requests")
-_e2t_get0 = _e2t_req.get
+_e2t_ur = __import__("urllib.request").request
+_e2t_ue = __import__("urllib.error").error
+_e2t_open0 = _e2t_ur.urlopen
 _e2t_urls = []
 
 
 class _E2tResp:
-    def __init__(self, code, body):
-        self.status_code, self._b = code, body
+    def __init__(self, body):
+        self.status, self._b = 200, _json.dumps(body).encode("utf-8")
 
-    def json(self):
+    def getcode(self):
+        return self.status
+
+    def read(self):
         return self._b
 
+    def __enter__(self):
+        return self
 
-def _e2t_mkget(code, body):
-    def _g(url, headers=None, timeout=None):
-        _e2t_urls.append(url)
-        return _E2tResp(code, body)
-    return _g
+    def __exit__(self, *a):
+        return False
+
+
+def _e2t_mkopen(code, body):
+    def _o(req, timeout=None):
+        _e2t_urls.append(getattr(req, "full_url", str(req)))
+        if code != 200:
+            raise _e2t_ue.HTTPError(getattr(req, "full_url", ""), code, "x", {}, None)
+        return _E2tResp(body)
+    return _o
 
 
 _e2t_out = {}
 try:
     _os.environ.pop("POLYGON_API_KEY", None)
-    _e2t_req.get = _e2t_mkget(200, {"status": "OK"})
+    _e2t_ur.urlopen = _e2t_mkopen(200, {"status": "OK"})
     _e2t_out["nokey"] = _ASM.fetch_minute_range("CURX", 1, 2)
     _e2t_out["nokey_calls"] = len(_e2t_urls)
     _os.environ["POLYGON_API_KEY"] = "k"
     _e2t_out["empty"] = _ASM.fetch_minute_range("curx", 1000, 2000)
-    _e2t_req.get = _e2t_mkget(200, {"status": "OK", "results": [{"o": 1, "h": 1, "l": 1, "c": 1, "v": 5, "t": 1500},
-                                                                 {"o": 1, "c": 1}]})
+    _e2t_ur.urlopen = _e2t_mkopen(200, {"status": "OK", "results": [{"o": 1, "h": 1, "l": 1, "c": 1, "v": 5, "t": 1500},
+                                                                    {"o": 1, "c": 1}]})
     _e2t_out["bars"] = _ASM.fetch_minute_range("CURX", 1000, 2000)
-    _e2t_req.get = _e2t_mkget(200, {"status": "DELAYED"})
+    _e2t_ur.urlopen = _e2t_mkopen(200, {"status": "DELAYED"})
     _e2t_out["delayed"] = _ASM.fetch_minute_range("CURX", 1000, 2000)
-    _e2t_req.get = _e2t_mkget(403, {"status": "OK"})
+    _e2t_ur.urlopen = _e2t_mkopen(403, {"status": "OK"})
     _e2t_out["403"] = _ASM.fetch_minute_range("CURX", 1000, 2000)
     _e2t_out["inverted"] = _ASM.fetch_minute_range("CURX", 3000, 2000)
     _e2t_out["auto_key"] = _RC._tail_fetcher("auto") is _ASM.fetch_minute_range
@@ -5847,7 +5882,7 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     _e2t_out["⛔"] = type(_e).__name__
 finally:
-    _e2t_req.get = _e2t_get0
+    _e2t_ur.urlopen = _e2t_open0
     if _e2t_env is None:
         _os.environ.pop("POLYGON_API_KEY", None)
     else:
@@ -5860,6 +5895,15 @@ check("🌐 E2T6 `fetch_minute_range`: فارغٌ صريح ⇒ [] · غيرُ OK
       and any("/CURX/range/1/minute/1000/2000?" in u for u in _e2t_urls)
       and _e2t_out.get("auto_key") is True and _e2t_out.get("auto_nokey") is None,
       str({k: v for k, v in _e2t_out.items() if k != "bars"}))
+# 🔴 E2T9 **بلا مكتبةٍ خارجيّة** (AST): الجالبُ والفحصُ لا يستوردان `requests` — `e2_recover` يعمل بلا pip install.
+import ast as _e2t_ast9
+_e2t_mod9 = _e2t_ast9.parse(open("ignition_e2_assemble.py", encoding="utf-8").read())
+_e2t_imps9 = {(a.name if isinstance(n, _e2t_ast9.Import) else (n.module or "")).split(".")[0]
+              for n in _e2t_ast9.walk(_e2t_mod9) if isinstance(n, (_e2t_ast9.Import, _e2t_ast9.ImportFrom))
+              for a in (n.names if isinstance(n, _e2t_ast9.Import) else [n])}
+check("🔴 E2T9 `ignition_e2_assemble` بلا `requests` (مكتبةُ بايثون القياسيّة وحدَها ⇒ `e2_recover` بلا pip install)",
+      "requests" not in _e2t_imps9 and "urllib" in _e2t_imps9,
+      str(sorted(_e2t_imps9)))
 # 🔌 موصولٌ من نقطتَي النداء الحيّتين: الـassembler يمرّر الجالبَ المؤرَّخ · والاسترجاعُ يحمل المفتاح.
 import ast as _e2t_ast
 _e2t_main = next(n for n in _e2t_ast.walk(_e2t_ast.parse(open("ignition_e2_assemble.py", encoding="utf-8").read()))

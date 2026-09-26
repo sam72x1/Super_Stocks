@@ -120,6 +120,7 @@ def recover(download_root, repo_root=".", fetch_range="auto"):
     #    قبل هذا الإصلاح (مِجَسّ `36223025879`: CELU · MIMI · CCTG · CURX · SMX). بلا مفتاحٍ = الحكمُ السابق.
     _fr = _tail_fetcher(fetch_range) if _A else None
     tail_done = []                               # [(تاريخ، {رمز: فحص})]
+    tail_failed = []                             # [(تاريخ، رمز)] — فحصٌ تعذّر (لا دليل) يُعلَن ولا يُصمَت
     for date, (_loops, sdir, _summ) in (sorted(best.items()) if _A else ()):
         if not os.path.exists(os.path.join(sdir, "session.json")):
             continue
@@ -137,6 +138,8 @@ def recover(download_root, repo_root=".", fetch_range="auto"):
                                                    source="e2_recover")
                     if _ck is not None:
                         _cks[_sym] = _ck
+                    else:
+                        tail_failed.append((date, _sym))
                 if _cks:
                     _ASM.write_tail_checks(sdir, _cks)
                     _dst = os.path.join(repo_root, ROOT, "session_%s" % date)
@@ -179,6 +182,9 @@ def recover(download_root, repo_root=".", fetch_range="auto"):
     if judge_errors:
         print("   ⚠️ تعذّر الحكمُ على %d جلسة (لا حكمَ يُخترَع): %s"
               % (len(judge_errors), ", ".join(judge_errors)))
+    if tail_failed:
+        print("   ⚠️ ذيلُ المسار: تعذّر فحصُ %d رمزًا (لا دليل ⇒ الحكمُ باقٍ): %s"
+              % (len(tail_failed), " · ".join("%s %s" % x for x in tail_failed)))
     if tail_done:
         print("   🔎 ذيلُ المسار عند المزوّد (%d جلسة): %s" % (len(tail_done), " · ".join(
             "%s %s" % (d, ",".join("%s=%s" % (k, ("خالٍ" if c.get("n") == 0 else "%s شمعة" % c.get("n")))
@@ -214,6 +220,7 @@ def recover(download_root, repo_root=".", fetch_range="auto"):
     return {"index": len(idx), "new": merged, "copied": copied, "fires": fires,
             "rebuilt": rebuilt, "ts_filled": ts_filled,
             "judged": judged, "judge_errors": judge_errors, "e2b": e2b, "tail_checks": tail_done,
+            "tail_failed": tail_failed,
             "conflicts": conflicts, "no_summary": [d for d, _ in no_summary]}
 
 
