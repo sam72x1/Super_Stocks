@@ -10,13 +10,20 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      dry:
+        description: "1 = تجربةٌ تطبع ولا تكتب في ctb_log.jsonl ولا تُلتزَم (للتحقّق من الإصلاح)"
+        required: false
+        default: "0"
   schedule:
     - cron: "20 1 * * 2-6"
 
 jobs:
   harvest:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # ⏱️ 20 ⟶ 30 (2026-09-26): مهلةٌ بين الطلبات (2ث) + تمريرةُ إعادة ⇒ الحصادُ دقائق لا ثوانٍ ·
+    #    وسقفُ وقت الجالب `CTB_BUDGET_S` (20 دقيقة) يُبقيه داخل المهلة لو صار كلُّ طلبٍ ينتظر مهلتَه.
+    timeout-minutes: 30
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,9 +38,13 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Harvest borrow context
+        env:
+          # 🧪 `dry=1` ⇒ السجلُّ في مجلّد الرنر المؤقّت فلا يُلمَس `ctb_log.jsonl` (والمجدولُ: inputs فارغة ⇒ السجلّ الحقيقيّ)
+          CTB_LOG: ${{ inputs.dry == '1' && format('{0}/ctb_dry.jsonl', runner.temp) || 'ctb_log.jsonl' }}
         run: python3 ctb_harvest.py
 
       - name: Commit harvest log
+        if: ${{ inputs.dry != '1' }}
         run: |
           set -e
           git config user.name "Claude"

@@ -4194,18 +4194,32 @@ def _parse_ce_borrow(html: str) -> dict:
         return {}
 
 
-def ce_borrow_info(sym: str) -> dict:
+def ce_borrow_info(sym: str, diag: dict = None) -> dict:
     """غلاف شبكي فاشل-آمن لصفحة اقتراض ChartExchange (ناسداك فقط — بورصة البوت
     المعتمدة). أثبت مجسّ Actions (2026-07-10) أن بيئة البوت تصل 200/سريعة رغم
-    حجب بيئات التطوير. {} عند أي فشل — لا يعيق الإثراء. عرض/سياق فقط."""
+    حجب بيئات التطوير. {} عند أي فشل — لا يعيق الإثراء. عرض/سياق فقط.
+
+    🩺 `diag` (2026-09-26 · اختياريّ): قاموسٌ يُكتب فيه **سببُ** التعذّر
+    (`http:<رمز>` · `exc:<نوع>` · `parse:challenge` · `parse:empty`) — لأن حصّاد
+    الاقتراض كان يَعُدّ «تعذّر 51 من 60» بلا سبب. بلا `diag` السلوكُ بت-بت."""
     try:
         r = requests.get("https://chartexchange.com/symbol/"
                          f"nasdaq-{sym.lower()}/borrow-fee/",
                          headers=BROWSER_UA, timeout=8)
         if r.status_code != 200:
+            if diag is not None:
+                diag["reason"] = f"http:{r.status_code}"
             return {}
-        return _parse_ce_borrow(r.text or "")
-    except Exception:
+        out = _parse_ce_borrow(r.text or "")
+        if diag is not None and not out:
+            _t = r.text or ""
+            diag["reason"] = ("parse:challenge" if ("Just a moment" in _t
+                                                    or "cf-chl" in _t)
+                              else "parse:empty")
+        return out
+    except Exception as e:
+        if diag is not None:
+            diag["reason"] = "exc:" + type(e).__name__
         return {}
 
 

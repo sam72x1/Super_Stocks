@@ -16707,6 +16707,168 @@ check("🔒 CTB·لا يكتب حالةً إطلاقًا: كل فتحٍ للكت
 check("🔒 CTB·workflow الحصاد يستعمل نمط الدفع المحمي (درس ignition: دفعٌ عارٍ ضيّع بيانات)",
       all(t in open(".github/workflows/ctb_harvest.yml", encoding="utf-8").read()
           for t in ("git rebase", "for i in 1 2 3 4 5", "::error::")))
+
+# 🔒⏱️ حصّادُ الاقتراض كان **يموت نصفَ موتٍ بصمت** (2026-09-26 · سؤالُ المالك «GRML وVBIO
+#    مب مطابقة؟»): 09-22 «قِيس 60 · كُتب 9 · تعذّر 51» والتشغيلةُ **خضراء** · والقائمةُ
+#    (`bot_selected`) حُصدت **12 يومًا من 37** منذ 08-07 لأنها آخرُ الترتيب والحظرُ يقع بعد
+#    أوّل 9-19 طلبًا · **وقائمةُ الارتداد لم تُحصَد قطّ** ⇒ شرطُ المالك الرابع «مجهول».
+import io as _io_ctbr                                           # noqa: E402
+import contextlib as _cx_ctbr                                   # noqa: E402
+import tempfile as _tf_ctbr                                     # noqa: E402
+import time as _time_ctbr                                       # noqa: E402
+
+
+def _ctbr_run(**kw):
+    """يشغّل `harvest` في مجلّدٍ مؤقّت ويرجّع (النتيجة، المطبوع) — فاشلٌ نظيفًا لا انهيار."""
+    buf = _io_ctbr.StringIO()
+    with _tf_ctbr.TemporaryDirectory() as _td:
+        try:
+            with _cx_ctbr.redirect_stdout(buf):
+                res = _CTB.harvest(today_iso="2026-09-26", universe=[],
+                                   path=_os_ctb.path.join(_td, "r.jsonl"), **kw)
+        except Exception as _e:                                 # noqa: BLE001
+            return (f"⛔ {type(_e).__name__}: {_e}", buf.getvalue())
+    return (res, buf.getvalue())
+
+
+def _ctbr1():
+    with _tf_ctbr.TemporaryDirectory() as _td:
+        _p = _os_ctb.path.join(_td, "wl.json")
+        with open(_p, "w", encoding="utf-8") as _fh:
+            json.dump({"stocks": [{"symbol": "AAA", "status": "active"}],
+                       "pullback": [{"symbol": "grml", "status": "triggered"},
+                                    {"symbol": "VBIO", "status": "watching"},
+                                    {"status": "triggered"}]}, _fh)
+        _syms = _CTB._pullback_symbols(_p)
+    _pl = _CTB.build_cohorts(["AAA"], ["BBB"], ["PBK", "AAA", "BBB", "DSY"])
+    return (_syms == ["GRML", "VBIO"] and _pl.get("PBK") == "bot_pullback"
+            and _pl.get("AAA") == "bot_selected" and _pl.get("BBB") == "control_market"
+            and _pl.get("DSY") == "faisal_exec"
+            and _CTB._KIND.get("bot_pullback") == "membership"
+            and "bot_pullback" in _CTB._QUOTA_ORDER, (_syms, _pl.get("PBK")))
+
+
+_c1 = _ctbr1()
+check("🔒 CTBR1·قائمةُ الارتداد فئةٌ `bot_pullback` (كلُّ حالاتها · آخرُ الأولويّات · الموسومُ والقائمةُ بوسمهما)",
+      _c1[0], str(_c1[1])[:90])
+_pl_c2 = _CTB.build_cohorts(["W%02d" % i for i in range(9)],
+                            ["C%02d" % i for i in range(9)],
+                            ["P%02d" % i for i in range(9)])
+_s_c2, _ = _CTB._select_within_cap(_pl_c2, None)
+_o_c2 = _CTB.fetch_order(_s_c2, _pl_c2)
+_k_c2 = len(set(_pl_c2.values()))
+check("🔒 CTBR2·الجلبُ دوّار: أوّلُ لفّةٍ تمسّ الفئاتِ كلَّها (القائمةُ لا تكون آخرَ من يُجلَب) · وتبديلٌ تامّ",
+      sorted(_o_c2) == sorted(_s_c2) and len(_o_c2) == len(_s_c2)
+      and len({_pl_c2[x] for x in _o_c2[:_k_c2]}) == _k_c2
+      and _pl_c2[_o_c2[-1]] != "faisal_negative",
+      str([_pl_c2[x][:8] for x in _o_c2[:_k_c2]]))
+_seen_c3, _naps_c3 = {}, []
+
+
+def _flaky_c3(sym):
+    _seen_c3[sym] = _seen_c3.get(sym, 0) + 1
+    return {"shares_available": 7} if _seen_c3[sym] >= 2 else {}
+
+
+_r3, _out3 = _ctbr_run(fetch=_flaky_c3, watch_syms=[], pullback_syms=[],
+                       sleep=_naps_c3.append, gap=0.5, retry_pause=9.0)
+_n3 = len(_CTB.build_cohorts([], []))
+check("🔒 CTBR3·مهلةٌ بين الطلبات وتمريرةُ إعادة: يُنقَذ المتعذّرُ أوّلًا · والنومُ يُحقَن",
+      _r3 == (_n3, 0, 0) and _naps_c3.count(9.0) == 1
+      and _naps_c3.count(0.5) == 2 * (_n3 - 1) and "أُنقذ بالإعادة: " + str(_n3) in _out3,
+      f"{_r3} naps={len(_naps_c3)}")
+_t0_c3 = _time_ctbr.monotonic()
+_r3b, _ = _ctbr_run(fetch=lambda s: {}, watch_syms=[], pullback_syms=[])
+check("🔒 CTBR3b·الجالبُ المحقون لا ينام (السويّةُ لا تنتظر المهلات الحقيقيّة)",
+      isinstance(_r3b, tuple) and _time_ctbr.monotonic() - _t0_c3 < 2.0,
+      f"{_time_ctbr.monotonic() - _t0_c3:.2f}ث")
+_r4, _out4 = _ctbr_run(fetch=lambda s: None, watch_syms=[], pullback_syms=[])
+_r4b, _out4b = _ctbr_run(fetch=lambda s: {"shares_available": 3}, watch_syms=[],
+                         pullback_syms=[])
+check("🔒 CTBR4·تعذّرُ النصف فأكثر ⇒ `::warning::` بأسبابه · والحصادُ السليم بلا تنبيه",
+      "::warning::" in _out4 and "empty" in _out4 and "::warning::" not in _out4b
+      and "كُتب لكلّ فئة" in _out4b, _out4[-90:])
+
+
+class _FakeResp:
+    def __init__(self, code, text=""):
+        self.status_code, self.text = code, text
+
+
+def _ctbr5():
+    _orig = S.requests.get
+    _ok = ('<div name="ctbtoday">As of <b>x</b>, there were <b>12,000</b> shares '
+           'available with a fee of <b>55.5%</b>.</div>')
+    _cases = {"http": _FakeResp(429), "cf": _FakeResp(200, "<title>Just a moment...</title>"),
+              "empty": _FakeResp(200, "<html>no data</html>"), "ok": _FakeResp(200, _ok)}
+    out = {}
+    try:
+        for _k, _resp in _cases.items():
+            S.requests.get = (lambda *a, _r=_resp, **k: _r)
+            _d = {}
+            out[_k] = (S.ce_borrow_info("ZZZ", diag=_d), _d.get("reason"),
+                       S.ce_borrow_info("ZZZ"))
+
+        def _raise(*a, **k):
+            raise S.requests.exceptions.ConnectionError("x")
+        S.requests.get = _raise
+        _d = {}
+        out["exc"] = (S.ce_borrow_info("ZZZ", diag=_d), _d.get("reason"),
+                      S.ce_borrow_info("ZZZ"))
+    except Exception as _e:                                     # noqa: BLE001
+        return (False, f"⛔ {type(_e).__name__}")
+    finally:
+        S.requests.get = _orig
+    return (out["http"] == ({}, "http:429", {}) and out["cf"] == ({}, "parse:challenge", {})
+            and out["empty"] == ({}, "parse:empty", {})
+            and out["exc"] == ({}, "exc:ConnectionError", {})
+            and out["ok"][0] == out["ok"][2] == {"shares_available": 12000, "borrow_fee": 55.5}
+            and out["ok"][1] is None, out)
+
+
+_c5 = _ctbr5()
+check("🔒 CTBR5·`ce_borrow_info(diag=)` يكتب سببَ التعذّر (http · تحدّي Cloudflare · فارغ · استثناء) · وبلا diag النتيجةُ نفسُها",
+      _c5[0], str(_c5[1])[:100])
+
+
+def _ctbr6():
+    _orig = S.ce_borrow_info
+    _calls = []
+
+    def _fake(sym, diag=None):
+        _calls.append(diag is not None)
+        if diag is not None:
+            diag["reason"] = "http:429"
+        return {}
+    try:
+        S.ce_borrow_info = _fake
+        _r, _o = _ctbr_run(watch_syms=[], pullback_syms=[], sleep=lambda _s: None)
+    finally:
+        S.ce_borrow_info = _orig
+    return (bool(_calls) and all(_calls) and "'http:429'" in _o and "::warning::" in _o,
+            (len(_calls), _o[-80:]))
+
+
+_c6 = _ctbr6()
+check("🔒 CTBR6·الجالبُ الحقيقيّ يُنادى بـdiag فيُطبع سببُ كلّ تعذّر (لا «تعذّر 51» بلا سبب)",
+      _c6[0], str(_c6[1])[:90])
+import yaml as _yaml_ctbr                                       # noqa: E402
+_wf_ctb = _yaml_ctbr.safe_load(open(".github/workflows/ctb_harvest.yml", encoding="utf-8"))
+_on_ctb = _wf_ctb.get("on") or _wf_ctb.get(True) or {}
+_steps_ctb = {st.get("name"): st for st in _wf_ctb["jobs"]["harvest"]["steps"]}
+_dry_ctb = (((_on_ctb.get("workflow_dispatch") or {}).get("inputs") or {}).get("dry") or {})
+check("🔒 CTBR7·تجربةُ `dry=1` لا تكتب السجلّ ولا تُلتزَم · والمجدولُ على السجلّ الحقيقيّ والكرونِ نفسِه",
+      str(_dry_ctb.get("default")) == "0"
+      and "inputs.dry != '1'" in str(_steps_ctb["Commit harvest log"].get("if"))
+      and "runner.temp" in str((_steps_ctb["Harvest borrow context"].get("env") or {}).get("CTB_LOG"))
+      and "'ctb_log.jsonl'" in str((_steps_ctb["Harvest borrow context"].get("env") or {}).get("CTB_LOG"))
+      and [c.get("cron") for c in (_on_ctb.get("schedule") or [])] == ["20 1 * * 2-6"],
+      str(_steps_ctb["Commit harvest log"].get("if")))
+check("🔒 CTBR8·المهلةُ حقيقيّة (‏≥1ث) · وسقفُ وقت الجالب مع الإعادة داخل مهلة الجوب",
+      _CTB.FETCH_GAP_S >= 1.0 and _CTB.RETRY_PAUSE_S > 0
+      and _CTB.BUDGET_S + _CTB.RETRY_PAUSE_S + 120
+      < 60 * int(_wf_ctb["jobs"]["harvest"]["timeout-minutes"]),
+      f"gap={_CTB.FETCH_GAP_S} budget={_CTB.BUDGET_S} timeout={_wf_ctb['jobs']['harvest']['timeout-minutes']}")
 # 🚧 سقف GitHub الصلب: **25 مدخلًا لكل `workflow_dispatch`** — تجاوزُه لا يُكتشَف
 #    بالـlint ولا بالتحليل الساكن، بل بـ422 عند **أول محاولة تشغيل** («you may only
 #    define up to 25 inputs»)، أي بعد الدمج والدفع. حدث فعلًا مع `backtest.yml` (26).
