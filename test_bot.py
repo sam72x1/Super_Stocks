@@ -5990,7 +5990,15 @@ check("🔴 E2T2 شاهدا ضبط: **تعذّرُ** الجلب (None · است�
 _e2t_sm_b, _e2t_r_b, _e2t_tc_b = _e2t_sess(
     "e2t_bars", lambda s, a, b: [{"o": 2, "h": 2.2, "l": 2, "c": 2.1, "v": 500, "t": b}])
 _e2t_mp = _os.path.join(_e2_out, "e2t_bars", "session_2026-07-25", "minute_paths.jsonl.gz")
-_e2t_tb = [_r for _r in _A._read_jsonl_gz(_e2t_mp) if _r.get("t") == _f_close_ms - 60000]
+# 🔴 (2026-09-26 · قفلٌ متقلّبٌ أمسكته جولةُ الطفرات: سقط في 2 من 17 تشغيلةً متوازية لا تمسّ E2):
+#    شمعةُ الذيل تُحقَن عند `b` = إغلاقُ **session.json** −60ث (ساعةُ إنشاء المقطع) والفلترُ كان
+#    بساعة الفِكستشر `_f_close_ms` (تُحسب قبله بدقائق) ⇒ عبورُ حدِّ دقيقةٍ بينهما يُفرغ القائمةَ كذبًا
+#    ⇒ الإغلاقُ يُقرأ من session.json نفسِه (نظيرُ E2T1 أعلاه) · والقفلُ لم يُرخَ: الشرطُ نفسُه.
+_e2t_sjb = _json.load(open(_os.path.join(_e2_out, "e2t_bars", "session_2026-07-25", "session.json"),
+                           encoding="utf-8"))
+_e2t_cms_b = int(S.dt.datetime.strptime(_e2t_sjb["expected_close_iso"], "%Y-%m-%dT%H:%M:%SZ")
+                 .replace(tzinfo=S.dt.timezone.utc).timestamp() * 1000)
+_e2t_tb = [_r for _r in _A._read_jsonl_gz(_e2t_mp) if _r.get("t") == _e2t_cms_b - 60000]
 check("🔎 E2T3 شموعٌ في الذيل **تُدمَج في المسار** (ثغرةٌ حقيقيّةٌ سُدّت) ⇒ يبلغ الإغلاقَ بالمسار لا بالدليل · والفحصُ يحفظ عددَها",
       _e2t_r_b.get("session_complete") is True and not _e2t_r_b.get("tail_verified")
       and sorted(r["symbol"] for r in _e2t_tb) == ["BBB", "IGN"]
