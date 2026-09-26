@@ -16898,6 +16898,71 @@ def _ctbr9():
 _c9 = _ctbr9()
 check("🔒 CTBR9·التقسيمُ على رنرات تامٌّ منفصلٌ متوازن (اتّحادُ الأجزاء = الخطّة · لا تكرار · والافتراضُ بلا تقسيم)",
       _c9[0], str(_c9[1]))
+
+# 🔒⏱️ **تحديثُ المتاح اليوميّ** (2026-09-26): 19 من 42 نشطًا وحدَها كان متاحُها محدَّثًا — الأوّلُ
+#    20 ثمّ بائتٌ متتالٍ (حصّةُ ChartExchange ‏≈50 صفحة لكلّ رنر تُصرف بترتيب القائمة) ⇒ صفُّ حصّاد
+#    اليوم أوّلًا بلا نداء ثمّ الموقعُ للناقص **بترتيب الأحوج** · و`refresh_borrow` نفسُها بلا تغيير.
+def _brf1():
+    with _tf_ctbr.TemporaryDirectory() as _td:
+        _p = _os_ctb.path.join(_td, "ctb.jsonl")
+        with open(_p, "w", encoding="utf-8") as _fh:
+            _fh.write(json.dumps({"date": "2026-09-29", "symbol": "grml",
+                                  "shares_available": 12000, "borrow_fee": 90.5}) + "\n")
+            _fh.write(json.dumps({"date": "2026-09-29", "symbol": "VBIO",
+                                  "shares_available": None, "borrow_fee": 3.0}) + "\n")
+            _fh.write(json.dumps({"date": "2026-09-28", "symbol": "OLD",
+                                  "shares_available": 5, "borrow_fee": 1.0}) + "\n")
+            _fh.write("{كسر\n")
+        _got = S._harvested_borrow("2026-09-29", _p)
+        _miss = S._harvested_borrow("2026-09-29", _os_ctb.path.join(_td, "لا.jsonl"))
+    return (_got == {"GRML": {"borrow_fee": 90.5, "shares_available": 12000}} and _miss == {},
+            (_got, _miss))
+
+
+_b1 = _brf1()
+check("🔒 BRF1·`_harvested_borrow` يقرأ صفوفَ اليوم ومتاحُها معلوم وحدَها (لا أمس · لا None · السطرُ التالف يُتخطّى · بلا ملفّ ⇒ {})",
+      _b1[0], str(_b1[1])[:100])
+_ord_b2 = [s.get("symbol") for s in S._borrow_refresh_order([
+    {"symbol": "A", "borrow_hist": [["2026-09-25", 1]]}, {"symbol": "B"},
+    {"symbol": "C", "borrow_hist": [["2026-09-15", 1]]}, {"symbol": "D", "borrow_hist": []},
+    {"symbol": "E", "borrow_hist": [["2026-09-25", 2]]}])]
+check("🔒 BRF2·ترتيبُ الأحوج: بلا متاحٍ أوّلًا ثمّ الأقدمُ تحديثًا · ومستقرٌّ عند التعادل",
+      _ord_b2 == ["B", "D", "C", "A", "E"], str(_ord_b2))
+
+
+def _brf3():
+    _calls = []
+
+    def _ce(sym):
+        _calls.append(sym)
+        return {"shares_available": 7000, "borrow_fee": 50.0} if sym != "F" else {}
+    _st = [{"symbol": "A", "status": "active", "borrow_hist": [["2026-09-25", 1]]},
+           {"symbol": "H", "status": "active", "borrow_hist": [["2026-09-10", 1]]},
+           {"symbol": "F", "status": "active", "shares_available": 999,
+            "borrow_hist": [["2026-09-20", 999]]},
+           {"symbol": "N", "status": "active"},
+           {"symbol": "X", "status": "stopped"}]
+    _cnt = S.refresh_borrow_all(_st, "2026-09-29",
+                                harvested={"H": {"shares_available": 12000, "borrow_fee": 90.0}},
+                                fetch_ce=_ce)
+    _by = {x["symbol"]: x for x in _st}
+    return (_calls == ["N", "F", "A"]
+            and _cnt == {"حصاد": 1, "موقع": 2, "تعذّر": 1}
+            and _by["H"]["shares_available"] == 12000 and _by["H"]["borrow_hist"][-1] == ["2026-09-29", 12000]
+            and _by["F"]["shares_available"] == 999 and _by["F"]["borrow_hist"][-1] == ["2026-09-20", 999]
+            and "borrow_hist" not in _by["X"], (_calls, _cnt))
+
+
+_b3 = _brf3()
+check("🔒 BRF3·`refresh_borrow_all`: المحصودُ اليوم بلا نداء · والباقي للموقع بترتيب الأحوج · والمتعذّرُ يُبقي القديم · وغيرُ النشط لا يُمَسّ",
+      _b3[0], str(_b3[1])[:100])
+_rdw_src = _insp0.getsource(S.run_daily_watchlist)
+_rdw_calls = [getattr(c.func, "id", None) for c in _ast0.walk(_ast0.parse(_rdw_src))
+              if isinstance(c, _ast0.Call)]
+check("🔒 BRF4·المسارُ اليوميّ يُحدّث المتاح بـ`refresh_borrow_all` قبل بناء الرسالة (ولا نداءَ مباشرًا لـ`refresh_borrow`)",
+      "refresh_borrow_all" in _rdw_calls and "refresh_borrow" not in _rdw_calls
+      and 0 <= _rdw_src.find("refresh_borrow_all(") < _rdw_src.find("build_daily_message("),
+      str(_rdw_calls.count("refresh_borrow_all")))
 check("🔒 CTBR8·المهلةُ حقيقيّة (‏≥1ث) · وسقفُ وقت الجالب مع الإعادة داخل مهلة الجوب",
       _CTB.FETCH_GAP_S >= 1.0 and _CTB.RETRY_PAUSE_S > 0
       and _CTB.BUDGET_S + _CTB.RETRY_PAUSE_S + 120
