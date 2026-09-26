@@ -41,7 +41,32 @@ import sys
 LOG_PATH = os.environ.get("CTB_LOG", "ctb_log.jsonl")
 SCHEMA = 2
 # سقف نداءات ChartExchange لكل تشغيلة (الصفحة تُكشَط، فالإفراط يُخاطر بحظر).
-HARVEST_CAP = int(os.environ.get("CTB_HARVEST_CAP", "60") or 60)
+# 🔄 60 ⟶ 110 (2026-09-26): فئةُ الارتداد (‏~23) ‏+ القائمةُ (‏~42) كانت تُقصّ بالسقف
+#    (‏09-22: «أسقط bot_selected: 19») — والحمايةُ من الحظر صارت **بالمهلة** أدناه.
+HARVEST_CAP = int(os.environ.get("CTB_HARVEST_CAP", "110") or 110)
+# ⏱️ **مهلةٌ بين الطلبات وتمريرةُ إعادة** (2026-09-26 · `engineering` بلا ادّعاء سند):
+#    السجلُّ يُثبت نمطًا ثابتًا — **أوّلُ 9-19 طلبًا تنجح ثمّ يتعذّر كلُّ ما بعدها**
+#    (‏09-22: قِيس 60 · كُتب 9 · تعذّر 51 في ‏≈9 ثوانٍ · والتشغيلةُ خضراء) ⇒ الأرجحُ
+#    حظرُ دفعاتٍ متتالية (استنتاجٌ قويّ من الترتيب الثابت · والسببُ يُطبع الآن).
+#    والمهلةُ تعمل مع الجالب الحقيقيّ وحدَه — المحقونُ للاختبار بلا نوم.
+#    🔬 **ثلاثُ تجارب dry=1 (2026-09-26) حسمت السبب:** بمهلة 2ث **و**4ث نجح ‏≈50 طلبًا ثمّ عادت **كلُّ**
+#    الصفحات ضئيلةً (‏1035 محرفًا · `parse:shell`) **عند الموضع نفسِه** · والشاهدُ GWAV نجح أوّلًا وتعذّر آخرًا ⇒
+#    **حجبٌ ناعمٌ بالعدد لكلّ رنر (‏≈50 صفحة) لا بالمعدّل** — ومضاعفةُ المهلة لم تُحرّكه ⇒ العلاجُ **التقسيمُ على
+#    رنرات** (`CTB_SHARDS` أدناه) · والمهلةُ 2ث تبقى لأن بلا مهلةٍ كان الحجبُ أبكر (9-19 · السجلُّ القديم).
+FETCH_GAP_S = float(os.environ.get("CTB_FETCH_GAP_S", "2.0") or 2.0)
+# 🧩 **التقسيم على رنرات** (مصفوفة `ctb_harvest.yml`): الرنرُ `CTB_SHARD` من `CTB_SHARDS` يجلب
+#    `order[shard::shards]` من الترتيب الدوّار نفسِه ⇒ تقسيمٌ تامٌّ منفصل ومتوازنُ الفئات · وكلُّ رنرٍ
+#    تحت حصّة ‏≈50 (‏97 ÷ 3 ‏≈ 33). والافتراضُ 1 = السلوكُ بلا تقسيم.
+SHARD = int(os.environ.get("CTB_SHARD", "0") or 0)
+SHARDS = max(1, int(os.environ.get("CTB_SHARDS", "1") or 1))
+RETRY_PAUSE_S = float(os.environ.get("CTB_RETRY_PAUSE_S", "60") or 60)
+# ⚠️ تعذّرُ نصفِ المقيس فأكثر (وعشرةٌ على الأقلّ) ⇒ تنبيهُ `::warning::` في التشغيلة
+#    لا سطرٌ يمرّ صامتًا تحت خُضرتها.
+WARN_FAIL_FRAC = 0.5
+WARN_MIN_MEASURED = 10
+# ⏳ سقفُ وقت الجالب الحقيقيّ (ثوانٍ) — ما بعده يُعدّ تعذّرًا بسبب `deadline` فلا تتجاوز
+#    التشغيلةُ مهلةَ الجوب (30 دقيقة) لو صار كلُّ طلبٍ ينتظر مهلتَه (8 ثوانٍ).
+BUDGET_S = float(os.environ.get("CTB_BUDGET_S", "1200") or 1200)
 # حجم لوحة الشاهد الضبطيّ (سحبٌ حتميّ من كون ناسداك).
 CONTROL_SIZE = int(os.environ.get("CTB_CONTROL_SIZE", "20") or 20)
 
@@ -78,13 +103,16 @@ FAISAL_NEGATIVE = {
 }
 _KIND = {"faisal_exec": "decision", "faisal_wait": "decision",
          "faisal_negative": "decision", "bot_selected": "membership",
-         "control_market": "membership"}
+         "control_market": "membership", "bot_pullback": "membership"}
 _SOURCE = {"faisal_exec": "faisal_text", "faisal_wait": "faisal_text",
            "faisal_negative": "faisal_text", "bot_selected": "bot_screen",
-           "control_market": "universe_sample"}
+           "control_market": "universe_sample", "bot_pullback": "bot_pullback_list"}
 # حصّةٌ محفوظة لكل فئة عند السقف — فنموّ القائمة **لا يخنق** لوحة الشاهد بصمت.
+# 🆕 `bot_pullback` (2026-09-26): **قائمةُ الارتداد** يراقبها البوت ولا يُخزَّن لها
+#    «المتاح» ⇒ سؤالُ المالك «GRML وVBIO يطابقون؟» بقي شرطُه الرابع **مجهولًا**
+#    (`watch_week_result.md` ⑥) — فصارت تُحصَد من هنا.
 _QUOTA_ORDER = ["faisal_negative", "faisal_exec", "faisal_wait",
-                "control_market", "bot_selected"]
+                "control_market", "bot_selected", "bot_pullback"]
 
 
 def _watchlist_symbols(path="weekly_watchlist.json"):
@@ -96,6 +124,22 @@ def _watchlist_symbols(path="weekly_watchlist.json"):
         for s in (wl.get("stocks") or []):
             sym = (s or {}).get("symbol")
             if sym and (s or {}).get("status") == "active":
+                out.append(str(sym).upper())
+        return sorted(set(out))
+    except Exception:
+        return []
+
+
+def _pullback_symbols(path="weekly_watchlist.json"):
+    """رموز **قائمة الارتداد** بكلّ حالاتها — **قراءة فقط** (لا كتابة ولا قرار).
+    فاشلة-آمنة → []."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            wl = json.load(fh) or {}
+        out = []
+        for p in (wl.get("pullback") or []):
+            sym = (p or {}).get("symbol")
+            if sym:
                 out.append(str(sym).upper())
         return sorted(set(out))
     except Exception:
@@ -133,11 +177,13 @@ def _fetch_universe():
         return []
 
 
-def build_cohorts(watch_syms=None, control_syms=None):
+def build_cohorts(watch_syms=None, control_syms=None, pullback_syms=None):
     """يبني خطّة القياس: {symbol: cohort} بأولوية **الوسم على العضوية**.
 
     الوسم أولًا لأن سهمًا وسمه فيصل ثم رشّحه البوت **يبقى مثالًا موسومًا عنده** — ولو
-    وسمناه `bot_selected` لضاع الوسم بصمت. والسالب يسبق الجميع (أندر وأثمن). نقيّة."""
+    وسمناه `bot_selected` لضاع الوسم بصمت. والسالب يسبق الجميع (أندر وأثمن). نقيّة.
+    و`bot_pullback` (قائمةُ الارتداد) **آخرُ الأولويّات**: سهمٌ موسومٌ أو في القائمة
+    أو في لوحة الشاهد يبقى بوسمه (فلا يتغيّر مقامُ فئةٍ قائمة بإضافتها)."""
     plan = {}
     for src, cohort in ((FAISAL_NEGATIVE, "faisal_negative"),
                         (FAISAL_EXEC, "faisal_exec"),
@@ -148,7 +194,30 @@ def build_cohorts(watch_syms=None, control_syms=None):
         plan.setdefault(str(sym).upper(), "control_market")
     for sym in (watch_syms or []):
         plan.setdefault(str(sym).upper(), "bot_selected")
+    for sym in (pullback_syms or []):
+        plan.setdefault(str(sym).upper(), "bot_pullback")
     return plan
+
+
+def fetch_order(syms, plan):
+    """ترتيبُ الجلب **دوّارٌ بين الفئات** (واحدٌ من كلّ فئةٍ في كلّ لفّة) — نقيّة وحتميّة.
+
+    🐞 **لماذا (2026-09-26):** الترتيبُ كان **فئةً بعد فئة** و`bot_selected` آخرُها،
+    والحظرُ يقع بعد أوّل 9-19 طلبًا ⇒ **القائمةُ لم تُحصَد إلّا 12 يومًا من 37** منذ
+    08-07 — فالحصصُ التي يوزّعها `_select_within_cap` بعدل **كان يهدمها ترتيبُ الجلب**.
+    والدوّارُ يوزّع أيَّ خسارةٍ متبقّية على الفئات كلِّها بدل أن تبتلع فئةً كاملة."""
+    by = {}
+    for s in (syms or []):
+        by.setdefault(plan.get(s), []).append(s)
+    order = ([c for c in _QUOTA_ORDER if by.get(c)]
+             + [c for c in by if c not in _QUOTA_ORDER])
+    out, i, n = [], 0, sum(len(v) for v in by.values())
+    while len(out) < n:
+        for c in order:
+            if i < len(by[c]):
+                out.append(by[c][i])
+        i += 1
+    return out
 
 
 def _select_within_cap(plan, cap):
@@ -190,38 +259,112 @@ def _record(rows, path=None):
 
 
 def harvest(fetch=None, watch_syms=None, today_iso=None, cap=None, path=None,
-            universe=None):
+            universe=None, pullback_syms=None, sleep=None, gap=None,
+            retry_pause=None, shard=None, shards=None):
     """يقيس الاقتراض لكل رمز في الخطّة ويسجّله. `fetch(sym) → {borrow_fee,
     shares_available}` (يُحقَن للاختبار؛ الافتراضي `ce_borrow_info` من البوت).
     يرجّع (مكتوب، مُسقَط، مُتعذّر).
 
     **الاقتصار على السقف يُعلَن ولا يُصمت**، والتوزيع **بحصص** (‏`_select_within_cap`)
     فلا تُخنَق لوحة الشاهد ولا الفئة السالبة عند ضيق السقف. وفشلُ جلب الكون يُسقط
-    **لوحة الشاهد وحدها معلَنًا** — لا الحصاد كلّه، ولا يُستبدَل بصمت."""
+    **لوحة الشاهد وحدها معلَنًا** — لا الحصاد كلّه، ولا يُستبدَل بصمت.
+
+    ⏱️ **(2026-09-26)** الجلبُ **دوّارٌ بين الفئات** (`fetch_order`) · ومهلةُ `gap` بين
+    الطلبات · وتمريرةُ إعادةٍ واحدة للمتعذّر بعد `retry_pause` — والنومُ **مع الجالب
+    الحقيقيّ وحدَه** (المحقونُ للاختبار لا ينام) · وسقفُ وقتٍ `BUDGET_S` للجالب الحقيقيّ
+    فلا تتجاوز التشغيلةُ مهلتَها · **وسببُ كلّ تعذّرٍ نهائيٍّ يُعدّ ويُطبع** · وتعذّرُ
+    النصف فأكثر ⇒ `::warning::` (كانت التشغيلةُ خضراءَ وقد تعذّر 51 من 60)."""
     day = today_iso or dt.date.today().isoformat()
     cap = HARVEST_CAP if cap is None else cap
-    if fetch is None:                       # استيراد كسول: انكساره لا يُسقط الأداة
+    real = fetch is None
+    if real:                                # استيراد كسول: انكساره لا يُسقط الأداة
         try:
             from Super_stock import ce_borrow_info as fetch      # noqa: PLC0415
         except Exception:
             print("⛔ تعذّر استيراد `ce_borrow_info` — لا حصاد (فاشل-آمن).")
             return (0, 0, 0)
+    if sleep is None:
+        if real:
+            import time as _time                                  # noqa: PLC0415
+            sleep = _time.sleep
+        else:
+            def sleep(_s):
+                return None
+    gap = FETCH_GAP_S if gap is None else gap
+    retry_pause = RETRY_PAUSE_S if retry_pause is None else retry_pause
+    if real:
+        import time as _time                                      # noqa: PLC0415
+        deadline = _time.monotonic() + BUDGET_S
+        clock = _time.monotonic
+    else:
+        deadline, clock = None, None
     uni = _fetch_universe() if universe is None else universe
     ctrl = control_panel(uni, day[:7])
     if not ctrl:
         print("⚠️ لوحة الشاهد الضبطيّ **غائبة** هذه التشغيلة (تعذّر جلب الكون) — "
               "تُعلَن ولا تُستبدَل: الحصاد يمضي بفئات الوسم والقائمة فقط.")
     plan = build_cohorts(watch_syms if watch_syms is not None
-                         else _watchlist_symbols(), ctrl)
+                         else _watchlist_symbols(), ctrl,
+                         pullback_syms if pullback_syms is not None
+                         else _pullback_symbols())
     syms, dropped = _select_within_cap(plan, cap)
-    rows, failed = [], 0
-    for sym in syms:
+    order = fetch_order(syms, plan)
+    shards = SHARDS if shards is None else max(1, int(shards))
+    shard = (SHARD if shard is None else int(shard)) % shards
+    if shards > 1:
+        order = order[shard::shards]
+
+    def _one(sym):
+        dg = {}
         try:
-            d = fetch(sym) or {}
-        except Exception:
-            d = {}
+            d = (fetch(sym, diag=dg) if real else fetch(sym)) or {}
+        except Exception as e:              # الجالبُ المحقون قد يرمي — تعذّرٌ لا انهيار
+            return {}, "exc:" + type(e).__name__, dg
+        return d, ("" if d else (dg.get("reason") or "empty")), dg
+
+    got, why, pending, first_bad = {}, {}, list(order), 0
+    seq, samples, canary = [], [], ""
+    for rnd in (1, 2):
+        if rnd == 2:
+            if not pending:
+                break
+            sleep(retry_pause)
+        bad = []
+        for k, sym in enumerate(pending):
+            if deadline is not None and clock() > deadline:
+                for rest in pending[k:]:
+                    why[rest] = "deadline"
+                bad.extend(pending[k:])
+                break
+            if k and gap > 0:
+                sleep(gap)
+            d, reason, dg = _one(sym)
+            if rnd == 1:
+                seq.append("✓" if d else "✗")
+            if d:
+                got[sym] = d
+            else:                           # تعذّر ≠ صفر ⇒ لا سطر كاذب
+                why[sym] = reason
+                bad.append(sym)
+                if rnd == 1 and len(samples) < 6:
+                    samples.append(sym + ":" + reason + ":len=" + str(dg.get("len"))
+                                   + ":" + repr(dg.get("snip", ""))[:120])
+        if rnd == 1:
+            first_bad = len(bad)
+            # 🐤 **شاهدٌ داخليّ** (الجالبُ الحقيقيّ وحدَه · لا يُكتب): **أوّلُ رمزٍ نجح** يُعاد جلبُه
+            #    بعد التمريرة — نجح أوّلًا وتعذّر آخرًا ⇒ الموقعُ يتغيّر تحت الدفعة (لا عيبَ رمز) · ولا
+            #    يُختار رمزٌ ميّت (تجربةُ المصفوفة: `order[0]` كان CANF برمز 404 فلم يشهد بشيء).
+            ok0 = next((x for x in order if x in got), None)
+            if real and ok0:
+                sleep(gap)
+                d0, r0, _dg0 = _one(ok0)
+                canary = ok0 + ": أوّلًا ✓ · آخرًا " + ("✓" if d0 else "✗ " + r0)
+        pending = bad
+    failed = len(pending)
+    rows = []
+    for sym in order:
+        d = got.get(sym)
         if not d:
-            failed += 1                     # تعذّر ≠ صفر ⇒ لا سطر كاذب
             continue
         c = plan[sym]
         rows.append({"schema": SCHEMA, "date": day, "symbol": sym, "cohort": c,
@@ -229,17 +372,34 @@ def harvest(fetch=None, watch_syms=None, today_iso=None, cap=None, path=None,
                      "shares_available": d.get("shares_available"),
                      "borrow_fee": d.get("borrow_fee"), "source": "chartexchange"})
     wrote = _record(rows, path)
-    counts = {}
+    counts, wrote_by, reasons = {}, {}, {}
     for c in plan.values():
         counts[c] = counts.get(c, 0) + 1
+    for r in rows:
+        wrote_by[r["cohort"]] = wrote_by.get(r["cohort"], 0) + 1
+    for sym in pending:
+        reasons[why.get(sym, "?")] = reasons.get(why.get(sym, "?"), 0) + 1
     print("🔒 حصّاد الاقتراض " + day + " (schema " + str(SCHEMA) + "): خطّة "
           + str(len(plan)) + " رمزًا " + str(counts)
-          + " → قِيس " + str(len(syms)) + " · كُتب " + str(wrote)
+          + (" · جزء " + str(shard + 1) + " من " + str(shards) if shards > 1 else "")
+          + " → قِيس " + str(len(order)) + " · كُتب " + str(wrote)
           + " · تعذّر " + str(failed))
+    print("   ↳ كُتب لكلّ فئة: " + str(wrote_by)
+          + " · أُنقذ بالإعادة: " + str(first_bad - failed)
+          + " · أسبابُ التعذّر: " + str(reasons))
+    print("   ↳ تسلسلُ التمريرة الأولى بترتيب الجلب: " + "".join(seq))
+    if samples:
+        print("   ↳ أمثلةُ التعذّر: " + " | ".join(samples))
+    if canary:
+        print("   ↳ 🐤 الشاهد " + canary)
     if dropped:
         print("⚠️ السقف " + str(cap) + " أسقط: " + str(dropped) + " — يُعلَن ولا يُصمت.")
     if wrote == 0:
         print("⚠️ صفر قياس — تعذّر الجلب لكل الرموز (لا يعني «لا بيانات»؛ عطلٌ محتمل).")
+    if len(order) >= WARN_MIN_MEASURED and failed >= WARN_FAIL_FRAC * len(order):
+        print("::warning::⚠️ حصّاد الاقتراض " + day + ": تعذّر " + str(failed)
+              + " من " + str(len(order)) + " — أسباب " + str(reasons)
+              + " (التشغيلةُ خضراء والحصادُ ناقص)")
     return (wrote, sum(dropped.values()), failed)
 
 
@@ -264,7 +424,7 @@ def _selftest():
         p = os.path.join(td, "t.jsonl")
         w, dr, f = harvest(fetch=lambda s: {"shares_available": 5, "borrow_fee": 1.5},
                            watch_syms=["AAA"], today_iso="2026-07-30", path=p,
-                           universe=uni)
+                           universe=uni, pullback_syms=[])
         assert dr == 0 and f == 0 and w == len(build_cohorts(["AAA"], a1)), (w, dr, f)
         recs = [json.loads(x) for x in open(p, encoding="utf-8") if x.strip()]
         assert all(r["schema"] == 2 and r["label_kind"] and r["label_source"]
@@ -275,25 +435,75 @@ def _selftest():
         # ③ السقف يوزّع بحصص: لا فئة تُقصّ كاملةً
         w2, dr2, _ = harvest(fetch=lambda s: {"shares_available": 1},
                              watch_syms=["AAA"], today_iso="2026-07-30", cap=5,
-                             path=p, universe=uni)
+                             path=p, universe=uni, pullback_syms=[])
         assert w2 == 5 and dr2 > 0, (w2, dr2)
         got = [json.loads(x) for x in open(p, encoding="utf-8") if x.strip()][-5:]
         assert len({r["cohort"] for r in got}) == 5, [r["cohort"] for r in got]
         # ④ غياب الكون ⇒ لوحة الشاهد غائبة معلَنة، والحصاد يمضي
         w3, _, _ = harvest(fetch=lambda s: {"shares_available": 2}, watch_syms=[],
-                           today_iso="2026-07-30", path=p, universe=[])
+                           today_iso="2026-07-30", path=p, universe=[],
+                           pullback_syms=[])
         r3 = [json.loads(x) for x in open(p, encoding="utf-8") if x.strip()][-w3:]
         assert not any(r["cohort"] == "control_market" for r in r3)
         # ⑤ فشل الجلب لا يكتب سطرًا كاذبًا · واستثناء الجالب يُعدّ تعذّرًا لا انهيارًا
         w4, _, f4 = harvest(fetch=lambda s: None, watch_syms=[],
-                            today_iso="2026-07-30", path=p, universe=[])
+                            today_iso="2026-07-30", path=p, universe=[],
+                            pullback_syms=[])
         assert w4 == 0 and f4 == len(build_cohorts([], []))
 
         def _boom(_s):
             raise RuntimeError("شبكة")
         w5, _, f5 = harvest(fetch=_boom, watch_syms=[], today_iso="2026-07-30",
-                            path=p, universe=[])
+                            path=p, universe=[], pullback_syms=[])
         assert w5 == 0 and f5 == len(build_cohorts([], []))
+        # ⑥ قائمةُ الارتداد فئةٌ مستقلّة وآخرُ الأولويّات (الموسومُ والقائمةُ يبقيان بوسمهما)
+        pl6 = build_cohorts(["AAA"], ["BBB"], ["PBK", "AAA", "BBB", "DSY"])
+        assert pl6["PBK"] == "bot_pullback" and pl6["AAA"] == "bot_selected"
+        assert pl6["BBB"] == "control_market" and pl6["DSY"] == "faisal_exec"
+        assert _KIND["bot_pullback"] == "membership" and _SOURCE["bot_pullback"]
+        # ⑦ الجلبُ دوّار: أوّلُ لفّةٍ تمسّ كلَّ فئة قبل أن تتكرّر أيٌّ منها
+        pl7 = build_cohorts(["W%02d" % i for i in range(8)], a1, ["P%02d" % i for i in range(8)])
+        s7, _ = _select_within_cap(pl7, None)
+        o7 = fetch_order(s7, pl7)
+        k7 = len({pl7[x] for x in s7})
+        assert sorted(o7) == sorted(s7) and len(o7) == len(s7)
+        assert len({pl7[x] for x in o7[:k7]}) == k7, [pl7[x] for x in o7[:k7]]
+        # ⑧ المهلةُ بين الطلبات وتمريرةُ الإعادة: يُنقَذ ما تعذّر أوّلًا · والنومُ يُحقَن
+        seen, naps = {}, []
+
+        def _flaky(sym):
+            seen[sym] = seen.get(sym, 0) + 1
+            return {"shares_available": 7} if seen[sym] >= 2 else {}
+        w8, _, f8 = harvest(fetch=_flaky, watch_syms=[], today_iso="2026-07-31",
+                            path=p, universe=[], pullback_syms=[],
+                            sleep=naps.append, gap=0.5, retry_pause=9.0)
+        n8 = len(build_cohorts([], []))
+        assert w8 == n8 and f8 == 0, (w8, f8)
+        assert naps.count(9.0) == 1 and naps.count(0.5) == 2 * (n8 - 1), naps
+        # ⑨ تعذّرُ النصف فأكثر ⇒ `::warning::` (لا خُضرةٌ صامتة)
+        import io as _io
+        import contextlib as _cx
+        buf = _io.StringIO()
+        with _cx.redirect_stdout(buf):
+            harvest(fetch=lambda s: None, watch_syms=[], today_iso="2026-07-31",
+                    path=p, universe=[], pullback_syms=[])
+        assert "::warning::" in buf.getvalue() and "empty" in buf.getvalue()
+        buf2 = _io.StringIO()
+        with _cx.redirect_stdout(buf2):
+            harvest(fetch=lambda s: {"shares_available": 3}, watch_syms=[],
+                    today_iso="2026-07-31", path=p, universe=[], pullback_syms=[])
+        assert "::warning::" not in buf2.getvalue()
+        # ⑩ التقسيمُ على رنرات: الأجزاءُ الثلاثة منفصلةٌ واتّحادُها الخطّةُ كلُّها
+        parts = []
+        for k in range(3):
+            q = os.path.join(td, "s%d.jsonl" % k)
+            harvest(fetch=lambda s: {"shares_available": 4}, watch_syms=["W1", "W2"],
+                    today_iso="2026-08-01", path=q, universe=uni, pullback_syms=["P1"],
+                    shard=k, shards=3)
+            parts.append({json.loads(x)["symbol"] for x in open(q, encoding="utf-8")
+                          if x.strip()})
+        full = set(build_cohorts(["W1", "W2"], control_panel(uni, "2026-08"), ["P1"]))
+        assert set().union(*parts) == full and sum(len(x) for x in parts) == len(full)
     print("✅ ctb_harvest selftest نجح")
     return 0
 

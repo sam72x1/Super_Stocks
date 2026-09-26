@@ -10,13 +10,26 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      dry:
+        description: "1 = تجربةٌ تطبع ولا تكتب في ctb_log.jsonl ولا تُلتزَم (للتحقّق من الإصلاح)"
+        required: false
+        default: "0"
   schedule:
     - cron: "20 1 * * 2-6"
 
 jobs:
   harvest:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # ⏱️ 20 ⟶ 30 (2026-09-26): مهلةٌ بين الطلبات (2ث) + تمريرةُ إعادة ⇒ الحصادُ دقائق لا ثوانٍ ·
+    #    وسقفُ وقت الجالب `CTB_BUDGET_S` (20 دقيقة) يُبقيه داخل المهلة لو صار كلُّ طلبٍ ينتظر مهلتَه.
+    timeout-minutes: 30
+    # 🧩 **ثلاثةُ رنرات** (2026-09-26): ChartExchange يُرجع قِشرةً ضئيلة بعد ‏≈50 صفحة **لكلّ رنر** (ثلاثُ
+    #    تجارب dry=1 · بمهلة 2ث و4ث الموضعُ نفسُه) ⇒ الخطّةُ (‏≈97) تُقسَّم `order[shard::3]` ‏≈33 لكلّ رنر.
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,11 +44,47 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Harvest borrow context
+        env:
+          # كلُّ رنرٍ يكتب جزءَه في مجلّده المؤقّت · ودمجُ الأجزاء والالتزامُ في جوب `commit` وحدَه (لا تعارضَ دفع)
+          CTB_LOG: ${{ format('{0}/ctb_shard.jsonl', runner.temp) }}
+          CTB_SHARD: ${{ matrix.shard }}
+          CTB_SHARDS: "3"
         run: python3 ctb_harvest.py
+
+      - name: Upload shard rows
+        uses: actions/upload-artifact@v4
+        with:
+          name: ctb-shard-${{ matrix.shard }}
+          path: ${{ runner.temp }}/ctb_shard.jsonl
+          if-no-files-found: ignore
+          retention-days: 7
+
+  commit:
+    needs: harvest
+    # 🧪 `dry=1` ⇒ الأجزاءُ تُرفع artifacts ولا يُلمَس `ctb_log.jsonl` · والمجدولُ (inputs فارغة) يلتزم
+    #    · و`always()` ⇒ رنرٌ سقط لا يُضيّع أجزاءَ أخويه.
+    if: ${{ always() && inputs.dry != '1' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download shard rows
+        uses: actions/download-artifact@v4
+        with:
+          pattern: ctb-shard-*
+          path: ctb_shards
 
       - name: Commit harvest log
         run: |
           set -e
+          shopt -s nullglob
+          # الأجزاءُ بترتيبٍ حتميّ (0 ثمّ 1 ثمّ 2) تُلحَق بالسجلّ ثمّ يُحذف مجلّدُها
+          for f in $(printf '%s\n' ctb_shards/ctb-shard-*/ctb_shard.jsonl | sort); do
+            cat "$f" >> ctb_log.jsonl
+          done
+          rm -rf ctb_shards
           git config user.name "Claude"
           git config user.email "noreply@anthropic.com"
           if git diff --quiet -- ctb_log.jsonl 2>/dev/null \
@@ -43,7 +92,7 @@ jobs:
             echo "لا قياس جديد — لا كوميت."; exit 0
           fi
           git add ctb_log.jsonl
-          git commit -q -m "🔒 حصّاد الاقتراض: قياس يوميّ (قائمة + شاهد ضبط سالب)"
+          git commit -q -m "🔒 حصّاد الاقتراض: قياس يوميّ (قائمة + ارتداد + شاهد ضبط سالب)"
           # ⚠️ نمط الدفع المحمي (درس `ignition.yml`: دفعٌ عارٍ ضيّع بيانات 13 يومًا)
           ok=0
           for i in 1 2 3 4 5; do
