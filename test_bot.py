@@ -68594,9 +68594,9 @@ def _tcd_world():
     **خارج كون ناسداك** ويطابق · PNY: سنتات (لا يُعدّ)."""
     W = {"AAA": _tcd_series("down", 2.0), "SPL": _tcd_series("down", 3.0), "MGN": _tcd_series("flat", 4.0),
          "CET": _tcd_series("down", 2.2), "UNK": _tcd_series("down", 1.5), "NWO": _tcd_series("down", 1.8),
-         "PNY": _tcd_series("down", 0.5)}
-    uni = ["AAA", "SPL", "MGN", "CET", "UNK", "PNY"]
-    fl = {"AAA": 1e6, "SPL": 2e6, "MGN": 1e6, "CET": 1.5e6, "UNK": None, "NWO": 9e5, "PNY": 1e6}
+         "PNY": _tcd_series("down", 0.5), "BIG": _tcd_series("down", 2.6)}
+    uni = ["AAA", "SPL", "MGN", "CET", "UNK", "PNY", "BIG"]
+    fl = {"AAA": 1e6, "SPL": 2e6, "MGN": 1e6, "CET": 1.5e6, "UNK": None, "NWO": 9e5, "PNY": 1e6, "BIG": 5e7}
     av = {"SPL": 3000, "MGN": 2000, "CET": 30000, "NWO": 4000, "PNY": 1000}
 
     def fetch(syms, d0, d1, key):
@@ -68651,7 +68651,8 @@ def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3):
             st = _TCD.stage_scan(now=now, key="k", fetch=fetch, universe=lambda: list(uni), yahoo=yahoo,
                                  yfloat=lambda s: fl.get(s), harvested=lambda d: {"AAA": {"shares_available": 5000}},
                                  wl={"stocks": [{"symbol": "AAA", "status": "active", "cont_status": "continues"}]},
-                                 nw={"CET": {"outside": ["M2 الهبوط (دون الحدّ)"]}, "NWO": {"outside": []}},
+                                 nw={"CET": {"outside": ["M2 الهبوط (دون الحدّ)"]}, "NWO": {"outside": []},
+                                     "BIG": {"outside": []}},
                                  cache={})
             parts = [_TCD.stage_borrow(st, k, shards, ce=ce, pause=0) for k in range(shards)]
             rc = _TCD.stage_send(st, parts, send=lambda m: sent.append(m))
@@ -68780,12 +68781,12 @@ try:
     _sig9 = [ch for ch in "≥≤<>" if ch in _txt9]
     _v9 = (not _sig9 and _m9 and all(ln.startswith("‏") for ln in _m9 if ln.strip("‏ "))
            and "شورت (المتاح) أقلّ من" in _txt9 and "$CET" in _tcd_near and "المتاح 30,000" in _tcd_near
-           and "$PNY" not in _tcd_out.split("🧾")[0])
+           and "$BIG" not in _tcd_near and "$PNY" not in _tcd_out.split("🧾")[0])
     _v9w = f"علامات={_sig9} · أسطر={len(_m9)} · near={_tcd_near[:80]}"
 except Exception as _e:                                              # noqa: BLE001
     _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🔎📬 TCD9 الرسالة بلا علامات مقارنة · RTL لكلّ سطر · وسطرُ الشروط · و«🔸 سقطت بشرطٍ معلوم» لسهم البوت (CET بالمتاح) · "
-      "والسنتاتُ خارجها", _v9, _v9w)
+check("🔎📬 TCD9 الرسالة بلا علامات مقارنة · RTL لكلّ سطر · وسطرُ الشروط · و«🔸 سقطت بشرطٍ واحد» لسهم البوت (CET بالمتاح) "
+      "لا لمن سقط بالفلوت ومتاحُه مجهول (BIG) · والسنتاتُ خارجها", _v9, _v9w)
 
 # TCD10 — DRY لا يُرسل · وغيرُه يُرسل رسالةً واحدة
 try:
