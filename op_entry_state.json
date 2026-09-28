@@ -1522,7 +1522,7 @@
  },
  "LIQ:CSAI": {
   "anchor_ms": 1790603520000,
-  "last_ms": 1790603520000,
+  "last_ms": 1790603580000,
   "sent": [
    "M1"
   ],
@@ -1530,7 +1530,7 @@
   "vol_x": 6.2,
   "peak_usd": 130231,
   "last_eval_ms": 1790603580000,
-  "pulse_ms": 1790603520000,
+  "pulse_ms": 1790603580000,
   "anchor_price": 4.4182,
   "anchor_open": 4.08,
   "anchor_low": 4.08,
