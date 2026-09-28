@@ -2225,7 +2225,7 @@
   "updates": 0,
   "vol_x": 1.0,
   "peak_usd": 4384,
-  "last_eval_ms": 1790604600000,
+  "last_eval_ms": 1790604540000,
   "pulse_ms": 1790608980000,
   "anchor_price": 3.25,
   "anchor_open": 3.345,
@@ -2872,7 +2872,7 @@
   "updates": 0,
   "vol_x": 6.3,
   "peak_usd": 28607,
-  "last_eval_ms": 1790604600000,
+  "last_eval_ms": 1790604540000,
   "pulse_ms": 1790609160000,
   "anchor_price": 1.0993,
   "anchor_open": 1.0481,
@@ -3938,5 +3938,6 @@
  },
  "TGL": "2026-09-28",
  "YDES": "2026-09-28",
- "RADX": "2026-09-28"
+ "RADX": "2026-09-28",
+ "INTJ": "2026-09-28"
 }
