@@ -611,7 +611,8 @@ def main():
             errs += 1
             lrows, lcov, lsec = [], 0, 0.0
             _log(f"⚠️ مسحُ السيولة (دورة {loops}): {e}")
-        if lcov and (loops % REFRESH_EVERY == 0 or lrows):
+        # 🩺 بلا شرط `lcov` (‏2026-09-29): التغطيةُ صارت ما وصل فعلًا ⇒ صفرُها يُطبَع ولا يُخفى
+        if loops % REFRESH_EVERY == 0 or lrows:
             _log(f"💰 التغطية: {lcov} من {len(uni_all)} في {lsec}ث "
                  f"(خيوط {bot.LIQ_WORKERS})")
         # 🎛️ **فلترُ المالك — يقصّ ما يُرسَل ولا يمسّ ما يُفحَص** (قرارُه
