@@ -56,6 +56,7 @@ import glob
 import json
 import os
 import sys
+import threading
 import time
 
 import pandas as pd
@@ -80,6 +81,9 @@ CE_PAUSE = 0.6                   # engineering — كحصّاد الاقتراض
 WITNESS = "AAPL"                 # شاهدُ الحصّة: صفحتُه تعود دائمًا
 SPLIT_RATIO = 1.5                # «تقسيمٌ غيرُ متّسق» — عتبةُ فحص البوت `36244720433`
 WORKERS = 8
+BREAKER_MIN = 32                 # engineering — رموزٌ مكتملةٌ قبل الحكم على المزوّد (قاطعُ الدائرة · 2026-09-29)
+BREAKER_FAIL_RATIO = 0.9         # engineering — نسبةُ إخفاق `P._get` (بعد محاولاتها الأربع) التي تفتح القاطع
+BREAKER_LAST = {}                # {"daily"|"hours": ملخّصُ آخر قاطع} — يُصفَّر في `stage_scan` قبل الجلب
 NEAR_SHOW = 10                   # سقفُ سجلّ «سقطت بشرطٍ معلوم» — والقصُّ يُعلَن بعدده
 STABILITY_REQ = 5                # 🧭 أمرُ المالك 2026-09-26: «لازم لازم لازم توافق الشروط 3 و ثبات 5 جلسات» (للأداة وحدَها ·
 #                                  ويسنده نصُّ فيصل `X_85_YMT` «إذا ما كسر القاع أكثرَ من 5 جلسات» · و`STABILITY_MIN`=3 للبوت لا يُمَسّ)
@@ -418,19 +422,77 @@ def failure_message(sess, why):
 
 
 # ─────────────────────────── الجلب ───────────────────────────
-def fetch_polygon(syms, d0, d1, key, workers=WORKERS):
-    """{رمز: صفوف adjusted} بـ`P.ticker_daily_adj` بالاسم — متوازيًا · والتعذّرُ ⟵ []."""
-    def one(s):
-        try:
-            return s, P.ticker_daily_adj(s, d0, d1, key) or []
-        except Exception:                                            # noqa: BLE001
-            return s, []
+class Breaker:
+    """⛔ قاطعُ دائرةٍ لنداءات Polygon (‏2026-09-29 · عطلٌ مُثبَت بالتشغيلة `36631553164`): حين يرفض المزوّدُ الطلبات يدفع
+    `P._get` كلَّ رمزٍ أربعَ محاولاتٍ بانتظارٍ ‏30ث ⇒ ‏3,584 رمزًا بثمانية خيوطٍ ‏≈3.7 ساعات ⇒ تُقصّ المرحلةُ عند مهلتها
+    (‏40 د) **قبل حارس التغطية** فلا يصل سطرُ العطل المصمَّم ويُتخطّى الإرسالُ كلُّه (صمتٌ لا «تعذّر»). القاطعُ يعدّ الرموزَ
+    المكتملة وإخفاقاتِ `P._get` (فرقُ `P._CALLS["fail"]` منذ إنشائه) فإذا بلغت المكتملةُ `BREAKER_MIN` وبلغ إخفاقُها
+    `BREAKER_FAIL_RATIO` منها فُتح: **البقيّةُ `[]` بلا نداء** ⇒ حارسُ التغطية يُرسل سطرَ العطل في دقائق. **وسليمًا لا يُفتح**
+    (الإخفاقُ نادر) ⇒ النداءاتُ والنتائجُ بت-بت · وسباقُ العدّاد بين الخيوط لا يُنقص إلّا الإخفاق (فلا يفتحه كذبًا)."""
+
+    def __init__(self, min_done=None, ratio=None, calls=None):
+        self.min_done = BREAKER_MIN if min_done is None else int(min_done)
+        self.ratio = BREAKER_FAIL_RATIO if ratio is None else float(ratio)
+        self.calls = P._CALLS if calls is None else calls
+        self.base = self.calls["fail"]
+        self.done = self.skipped = 0
+        self.open = False
+        self.lock = threading.Lock()
+
+    def fails(self):
+        return self.calls["fail"] - self.base
+
+    def skip(self):
+        """مفتوحٌ ⇒ يُعَدّ المتخطّى ويعود True (لا نداء)."""
+        with self.lock:
+            if self.open:
+                self.skipped += 1
+            return self.open
+
+    def record(self):
+        """رمزٌ اكتمل نداؤه (نجح أو أخفق) ⟵ يُفتح القاطعُ إن بلغ الحدّين."""
+        with self.lock:
+            self.done += 1
+            if not self.open and self.done >= self.min_done and self.fails() >= self.ratio * self.done:
+                self.open = True
+
+    def summary(self):
+        return {"open": self.open, "done": self.done, "fail": self.fails(), "skipped": self.skipped}
+
+
+def breaker_note(b):
+    """ذيلُ سطر العطل حين فُتح القاطع ⟵ نصٌّ عربيٌّ بلا علاماتِ مقارنة · وإلّا ""."""
+    if not b or not b.get("open"):
+        return ""
+    return (f" — قاطعُ الدائرة: Polygon أخفق في {b['fail']:,} من {b['done']:,} رمزًا فتُخطّيت البقيّةُ "
+            f"({b['skipped']:,}) · تحقّق من اشتراك Polygon")
+
+
+def _guarded(brk, fn, s):
+    """نداءٌ واحدٌ تحت القاطع ⟵ (s, صفوف) · والمتخطّى والمُستثنى ⟵ []."""
+    if brk.skip():
+        return s, []
+    try:
+        return s, fn(s) or []
+    except Exception:                                                # noqa: BLE001
+        return s, []
+    finally:
+        brk.record()
+
+
+def fetch_polygon(syms, d0, d1, key, workers=WORKERS, brk=None):
+    """{رمز: صفوف adjusted} بـ`P.ticker_daily_adj` بالاسم — متوازيًا · والتعذّرُ ⟵ [] · **تحت قاطع الدائرة** (`Breaker`)."""
+    brk = brk or Breaker()
     out = {}
     with cf.ThreadPoolExecutor(max_workers=workers) as ex:
-        for i, (s, rows) in enumerate(ex.map(one, syms), 1):
+        for i, (s, rows) in enumerate(ex.map(lambda x: _guarded(brk, lambda y: P.ticker_daily_adj(y, d0, d1, key), x),
+                                             syms), 1):
             out[s] = rows
             if i % 500 == 0:
                 log(f"   … Polygon {i}/{len(syms)}")
+    BREAKER_LAST["daily"] = brk.summary()
+    if brk.open:
+        log(f"⛔ قاطعُ الدائرة (اليوميّ){breaker_note(BREAKER_LAST['daily'])}")
     return out
 
 
@@ -449,17 +511,16 @@ def _hours_one(s, d0, d1, key):
     return out
 
 
-def fetch_hours(syms, d0, d1, key, workers=WORKERS):
-    """{رمز: شموعُ الساعة} متوازيًا — للقاع الدقيق (⑩) والانفجار (⑫) · والتعذّرُ ⟵ []."""
-    def one(s):
-        try:
-            return s, _hours_one(s, d0, d1, key)
-        except Exception:                                            # noqa: BLE001
-            return s, []
+def fetch_hours(syms, d0, d1, key, workers=WORKERS, brk=None):
+    """{رمز: شموعُ الساعة} متوازيًا — للقاع الدقيق (⑩) والانفجار (⑫) · والتعذّرُ ⟵ [] · **تحت قاطعٍ مستقلّ** عن اليوميّ."""
+    brk = brk or Breaker()
     out = {}
     with cf.ThreadPoolExecutor(max_workers=workers) as ex:
-        for s, rows in ex.map(one, syms):
+        for s, rows in ex.map(lambda x: _guarded(brk, lambda y: _hours_one(y, d0, d1, key), x), syms):
             out[s] = rows
+    BREAKER_LAST["hours"] = brk.summary()
+    if brk.open:
+        log(f"⛔ قاطعُ الدائرة (الساعة){breaker_note(BREAKER_LAST['hours'])}")
     return out
 
 def load_json(path, default):
@@ -497,13 +558,15 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
     uni = sorted(set(universe() if universe else S.get_universe()) | set(extra))
     d0 = (dt.date.fromisoformat(sess) - dt.timedelta(days=WW.HIST_DAYS)).isoformat()
     log(f"👥 الكون {len(uni)} (منه القائمة والارتداد وتحت المتابعة {len(extra)}) · Polygon {d0} ⟶ {sess} …")
+    BREAKER_LAST.clear()                     # ⛔ لا يُقرأ قاطعُ تشغيلةٍ سابقة (والجالبُ المحقون لا يكتبه)
     pg = fetch(uni, d0, sess, key)
     fresh = [s for s in uni if (pg.get(s) or []) and pg[s][-1][0] == sess]
     cover = len(fresh) / len(uni) if uni else 0.0
     st["counts"].update({"universe": len(uni), "polygon": sum(1 for s in uni if pg.get(s)), "fresh": len(fresh)})
     log(f"🩺 شمعةُ الجلسة من Polygon: {len(fresh)} من {len(uni)} = {cover * 100:.1f}% (الحدّ {MIN_COVER * 100:.0f}%)")
     if cover < MIN_COVER:
-        st["fail"] = f"شموعُ Polygon لجلسة {sess} لم تكتمل ({len(fresh)} من {len(uni)})"
+        st["fail"] = (f"شموعُ Polygon لجلسة {sess} لم تكتمل ({len(fresh)} من {len(uni)})"
+                      + breaker_note(BREAKER_LAST.get("daily")))
         return st
     rows = {}
     lim = rsi_max()                         # حدُّ فيصل بالاسم (أمرُ المالك «تحت 33 … للصنفين») — لا `OPL.RSI_OWNER`
@@ -522,6 +585,10 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
     h0 = (dt.date.fromisoformat(sess) - dt.timedelta(days=HOURS_DAYS)).isoformat()
     want = sorted(set(rows) | {t for t in TRACE if t in pg})
     hr = hours(want, h0, sess, key) if want else {}
+    if (BREAKER_LAST.get("hours") or {}).get("open"):
+        #    ⛔ قاطعُ الساعة فُتح ⇒ القاعُ الدقيق لم يُقَس لأغلب العابرين ⇒ **سطرُ عطلٍ لا «لا يوجد» كاذب**
+        st["fail"] = f"شموعُ الساعة من Polygon لجلسة {sess} تعذّرت" + breaker_note(BREAKER_LAST["hours"])
+        return st
     for s in sorted(rows):
         stab = exact_low_stability(pg[s], hr.get(s) or [], sess)
         boom = recent_explosion(pg[s], hr.get(s) or [], sess)
