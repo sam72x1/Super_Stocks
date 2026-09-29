@@ -26797,6 +26797,49 @@ check("⏫ LS8 **الحالةُ قاموسٌ بنطاق `LIQ:`** (لا ملفَ�
                             fetch_bars=lambda s, minutes=65: _ls_bars(1)
                             )[0][0][1][0]["stage"] == "M1",
       str(_ls_seen.get("LIQ:S1"))[:110])
+# 🩺 COV1-COV2 «التغطية» = ما وصلت شموعُه لا المحاولات (‏2026-09-29 · عطلُ Polygon: العاملُ الحيّ طبع «💰 التغطية 522
+#    من 522» خمسَ ساعاتٍ والمزوّدُ يرفض — 403/429 · `polygon_health` 36636703441). COV1 سلوكيّ: نصفُ الكون بلا شموع ⟵ النصف ·
+#    وكلُّه بلا شموع ⟵ صفر · وجالبٌ يرمي ⟵ لا يُعَدّ · وكلُّه بشموع ⟵ كلُّه (بت-بت مع LS7). COV2 (AST): سطرُ «💰 التغطية» في
+#    العامل الحيّ غيرُ مشروطٍ بـ`lcov` (فصفرُها يُطبَع ولا يُخفى).
+try:
+    _cov_uni = [{"symbol": f"C{i}", "src": "تحت المتابعة"} for i in range(12)]
+
+    def _cov_fb(sym, minutes=65):
+        _i = int(sym[1:])
+        if _i == 11:
+            raise RuntimeError("شبكة")
+        return _ls_flat if _i < 6 else None
+    _cov_half = S.scan_liq_stages(_cov_uni, "2026-08-17", seen={}, workers=4, clock=lambda: _LS_NOW21,
+                                  fetch_bars=_cov_fb)[1]
+    _cov_none = S.scan_liq_stages(_cov_uni, "2026-08-17", seen={}, workers=4, clock=lambda: _LS_NOW21,
+                                  fetch_bars=lambda s, minutes=65: None)[1]
+    _cov_all = S.scan_liq_stages(_cov_uni, "2026-08-17", seen={}, workers=4, clock=lambda: _LS_NOW21,
+                                 fetch_bars=lambda s, minutes=65: _ls_flat)[1]
+    _v_cov1 = (_cov_half == 6 and _cov_none == 0 and _cov_all == 12)
+    _v_cov1w = f"نصف={_cov_half} · لا شيء={_cov_none} · الكلّ={_cov_all}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_cov1, _v_cov1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🩺 COV1 «التغطية» = ما وصلت شموعُه لا المحاولات: نصفُ الكون بلا شموع (وواحدٌ يرمي) ⟵ 6 من 12 · وكلُّه بلا شموع ⟵ 0 · "
+      "وكلُّه بشموع ⟵ 12", _v_cov1, _v_cov1w)
+try:
+    _cov_src = open("operator_entry_live.py", encoding="utf-8").read()
+    _cov_t = _ast0.parse(_cov_src)
+    _cov_ifs = []
+    for _n in _ast0.walk(_cov_t):
+        if not isinstance(_n, _ast0.If):
+            continue
+        _hit = any(isinstance(_c, _ast0.Call) and getattr(_c.func, "id", None) == "_log"
+                   and any(isinstance(_k, _ast0.Constant) and isinstance(_k.value, str) and "💰 التغطية:" in _k.value
+                           for _a in _c.args for _k in _ast0.walk(_a))
+                   for _b in _n.body for _c in _ast0.walk(_b))
+        if _hit:
+            _cov_ifs.append(sorted({getattr(_x, "id", None) for _x in _ast0.walk(_n.test)} - {None}))
+    _v_cov2 = len(_cov_ifs) == 1 and "lcov" not in _cov_ifs[0] and "loops" in _cov_ifs[0]
+    _v_cov2w = f"شروطُ سطر التغطية={_cov_ifs}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_cov2, _v_cov2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🩺 COV2 سطرُ «💰 التغطية» في العامل الحيّ غيرُ مشروطٍ بـ`lcov` (AST) ⟵ صفرُ الشموع يُطبَع ولا يُخفى",
+      _v_cov2, _v_cov2w)
 _ls_msg = S.build_liq_stage_alert([({"symbol": "WFF", "src": "تحت المتابعة"},
                                     S.liq_stage_events(_ls_bars(1))[0])])
 _ls_bare = _ls_msg

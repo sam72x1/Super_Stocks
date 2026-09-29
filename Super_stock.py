@@ -15386,7 +15386,9 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
     out, covered = [], 0
     with _cf.ThreadPoolExecutor(max_workers=nw) as pool:
         for row, ev, st in pool.map(_one, uni):
-            covered += 1
+            # 🩺 «التغطية» = رموزٌ **وصلت شموعُها** لا محاولات (‏2026-09-29 · عطلُ Polygon: كان `+= 1` لكلّ صفٍّ فطبع
+            #    العاملُ الحيّ «522 من 522» خمسَ ساعاتٍ والمزوّدُ يرفض — `_one` يعيد `st=None` للفراغ والتعذّر معًا)
+            covered += st is not None
             if st is not None:
                 seen[LIQ_STATE_PREFIX + row["symbol"]] = st
             if ev:
