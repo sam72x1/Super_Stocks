@@ -68109,21 +68109,49 @@ except Exception as _e:                                              # noqa: BLE
 check("🗓️🔎 WWK1 قراءةٌ فقط (حارسُ `prelink_probe` بالاسم): كتابةُ ملفٍّ أو تلغرام يُسقطه · والـgit قراءةٌ (`log`/`show`) وحدَها · "
       "والإنتاجُ لا يستوردها", _atm_ww1, _atm_ww1_w)
 
-# WWK2 — حدودُ المالك بالاسم لا أرقامًا · والثوابتُ كما في رأس الأداة
+def _u33_live():
+    """حدُّ RSI **في الإنتاج** (‏`FAISAL_ONLY=1` · الافتراض) على قاموسٍ منفصل — السويّةُ على `FAISAL_ONLY=0` (27) بالتصميم."""
+    _cfg = {"FAISAL_ONLY": 1}
+    _WW.S.apply_faisal_only(_cfg, log_fn=lambda *_a: None)
+    return float(_cfg.get("RSI_OVERSOLD") or 0.0)
+
+
+def _u33_with(lim, fn):
+    """`fn()` بحدّ RSI = `lim` مؤقّتًا (`S.CONFIG["RSI_OVERSOLD"]`) ثمّ الاستعادة في `finally`."""
+    _old = _WW.S.CONFIG["RSI_OVERSOLD"]
+    try:
+        _WW.S.CONFIG["RSI_OVERSOLD"] = lim
+        return fn()
+    finally:
+        _WW.S.CONFIG["RSI_OVERSOLD"] = _old
+
+
+# WWK2 — حدودُ المالك بالاسم لا أرقامًا · والثوابتُ كما في رأس الأداة · و🔄 (‏2026-09-29 · «وحد 33 في التقريرين» — تحديثٌ إقرارًا):
+#    RSI = `rsi_max()` (‏`S.CONFIG["RSI_OVERSOLD"]` بالاسم) لا `OPL.RSI_OWNER` — والعقدُ (30) باقٍ لأدوات `T-OPLINK`
 try:
     _f2 = next(n for n in _ww_ast.walk(_ww_ast.parse(_ww_src)) if isinstance(n, _ww_ast.FunctionDef) and n.name == "flags")
     _nums2 = [c.value for c in _ww_ast.walk(_f2) if isinstance(c, _ww_ast.Constant) and isinstance(c.value, (int, float))
               and not isinstance(c.value, bool)]
     _attrs2 = sorted({f"{getattr(a.value, 'id', '')}.{a.attr}" for a in _ww_ast.walk(_f2) if isinstance(a, _ww_ast.Attribute)})
-    _atm_ww2 = (_nums2 == [] and {"OPL.RSI_OWNER", "OPL.FLOAT_OWNER", "OPL.AVAIL_OWNER", "PX.PX_MIN"} <= set(_attrs2)
+    _calls2w = {getattr(c.func, "id", "") for c in _ww_ast.walk(_f2) if isinstance(c, _ww_ast.Call)}
+    _rm2 = next((n for n in _ww_ast.walk(_ww_ast.parse(_ww_src)) if isinstance(n, _ww_ast.FunctionDef)
+                 and n.name == "rsi_max"), None)
+    _key2w = [c for c in (_ww_ast.walk(_rm2) if _rm2 else []) if isinstance(c, _ww_ast.Subscript)
+              and _ww_ast.unparse(c.value) == "S.CONFIG" and isinstance(c.slice, _ww_ast.Constant)
+              and c.slice.value == "RSI_OVERSOLD"]
+    _rmnum2 = [c.value for c in (_ww_ast.walk(_rm2) if _rm2 else []) if isinstance(c, _ww_ast.Constant)
+               and isinstance(c.value, (int, float)) and not isinstance(c.value, bool)]
+    _atm_ww2 = (_nums2 == [] and {"OPL.FLOAT_OWNER", "OPL.AVAIL_OWNER", "PX.PX_MIN"} <= set(_attrs2)
+                and "OPL.RSI_OWNER" not in _attrs2 and "rsi_max" in _calls2w and bool(_key2w) and _rmnum2 == []
                 and (_WW.RSI_TOL, _WW.V_AGREE, _WW.V_MIN_N, _WW.MIN_BAR_COVER, _WW.MIN_RSI_BARS, _WW.EXPLODE)
                 == (2.0, 0.80, 5, 0.90, 21, (50.0, 100.0))
                 and _WW.WL_FILE == "weekly_watchlist.json" and _WW.OPL.RSI_OWNER == 30.0 and _WW.PX.PX_MIN == 1.00)
-    _atm_ww2_w = f"nums={_nums2} attrs={_attrs2}"
+    _atm_ww2_w = f"nums={_nums2} attrs={_attrs2} calls={sorted(_calls2w)} مفتاح={len(_key2w)} أرقام rsi_max={_rmnum2}"
 except Exception as _e:                                              # noqa: BLE001
     _atm_ww2, _atm_ww2_w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🗓️🔎 WWK2 حدودُ المالك **بالاسم** (`RSI_OWNER` · `FLOAT_OWNER` · `AVAIL_OWNER` · `PX_MIN`) لا أرقامًا في `flags` · "
-      "والثوابتُ كرأس الأداة (نقطتان · 80% على 5 · 90% · 21 · +50/+100)", _atm_ww2, _atm_ww2_w)
+check("🗓️🔎 WWK2 الحدودُ **بالاسم** في `flags` (RSI = `rsi_max()` ⟵ `S.CONFIG[\"RSI_OVERSOLD\"]` لا `OPL.RSI_OWNER` · `FLOAT_OWNER` · "
+      "`AVAIL_OWNER` · `PX_MIN`) لا أرقامًا · والثوابتُ كرأس الأداة (نقطتان · 80% على 5 · 90% · 21 · +50/+100) · وعقدُ "
+      "`T-OPLINK` (30) باقٍ", _atm_ww2, _atm_ww2_w)
 
 # WWK3 — لقطةُ «ما قبل الافتتاح»: أحدثُ التزامٍ قبل 09:30 نيويورك **تمامًا** · بتوقيتٍ صيفيٍّ وشتويّ
 try:
@@ -68139,18 +68167,21 @@ except Exception as _e:                                              # noqa: BLE
 check("🗓️🔎 WWK3 القائمةُ «داخلًا إلى الجلسة» = أحدثُ التزامٍ **قبل** 09:30 نيويورك تمامًا (09:30:00 نفسُها بعدَه) · "
       "وصيفًا 13:30 UTC وشتاءً 14:30 · وبلا لقطةٍ سابقة None", _atm_ww3, _atm_ww3_w)
 
-# WWK4 — الشروط: **المجهولُ None لا «لا»** · والحدودُ حصريّة · والاقترانُ «لا» متى سقط معلوم
+# WWK4 — الشروط: **المجهولُ None لا «لا»** · والحدودُ حصريّة · والاقترانُ «لا» متى سقط معلوم · و🔄 (‏2026-09-29 · إقرارًا):
+#    حدُّ RSI عند **حدّ الإنتاج** (33 = `FAISAL_ONLY=1` على قاموسٍ منفصل) — 32.99 «أقلّ» و33 نفسُها ليست «أقلّ»
 try:
-    _a4 = _WW.flags(29.99, 1.00, 3_999_999, 19_999)
-    _b4 = _WW.flags(30.0, 0.99, 4_000_000, 20_000)
-    _c4 = _WW.flags(None, None, None, None)
-    _atm_ww4 = (_a4 == (True, True, True, True) and _b4 == (False, False, False, False) and _c4 == (None,) * 4
+    _lv4 = _u33_live()
+    _a4 = _u33_with(_lv4, lambda: _WW.flags(32.99, 1.00, 3_999_999, 19_999))
+    _b4 = _u33_with(_lv4, lambda: _WW.flags(33.0, 0.99, 4_000_000, 20_000))
+    _c4 = _u33_with(_lv4, lambda: _WW.flags(None, None, None, None))
+    _atm_ww4 = (_lv4 == 33.0 and _a4 == (True, True, True, True) and _b4 == (False, False, False, False)
+                and _c4 == (None,) * 4
                 and _WW.conj((True, None, True, True)) is None and _WW.conj((True, None, False, True)) is False
                 and _WW.conj((True,) * 4) is True)
-    _atm_ww4_w = f"a={_a4} b={_b4}"
+    _atm_ww4_w = f"حدّ={_lv4} a={_a4} b={_b4}"
 except Exception as _e:                                              # noqa: BLE001
     _atm_ww4, _atm_ww4_w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🗓️🔎 WWK4 الشروط: RSI 30 وفلوت 4م ومتاح 20 ألفًا **ليست «أقلّ»** · والدولارُ 1.00 «فوق» · والمجهولُ None · "
+check("🗓️🔎 WWK4 الشروط: RSI 33 (حدُّ الإنتاج) وفلوت 4م ومتاح 20 ألفًا **ليست «أقلّ»** · والدولارُ 1.00 «فوق» · والمجهولُ None · "
       "والاقترانُ «لا» متى سقط شرطٌ معلوم ولو جُهل غيرُه", _atm_ww4, _atm_ww4_w)
 
 # WWK5 — RSI عند إغلاق c: الإغلاقاتُ حتى c **ضمنًا** وما بعدها لا يغيّره · ودون 21 مجهول · و`Super_stock.rsi` نفسُه
@@ -68457,6 +68488,28 @@ except Exception as _e:                                              # noqa: BLE
 check("🗓️🔎 WWK17 ⑧ الحكمُ الممتدُّ منشورٌ في §⑩ بعد ⑨ (`36203459825`): الحارسان 51/51 · GCTK ‏+137.4% (أفتر 09-23 · نظاميًّا +41.3%) "
       "وKITT ‏+123.4% (بري 09-25 · نظاميًّا −4.1% · تقسيمٌ 1:6 بأرقامه) · UZX ممتدًّا +5.2% · والارتدادُ · وسطرُ الحكم حرفيًّا · "
       "و⓪ يحيل إليه", _atm_ww17, _atm_ww17_w)
+
+# WWK18 — «وحد 33 في التقريرين» (‏2026-09-29) لتقرير الأسبوع: الحدُّ `rsi_max()` **وقتَ النداء** — سلوكيًّا: بحدٍّ 60 مؤقّتًا يدخل
+#    EEE (‏RSI ≈50 · فلوت 3م · متاح ألف · ‏$5) المطابقين ويقول الرأسُ وسطرُ الجلسة «أقلّ من 60» · وبحدّ الإنتاج (33) لا EEE وAAA
+#    مطابق والرأسُ «33» ولا «أقلّ من 30» في المُخرَج · و`OPL.RSI_OWNER` (عقدُ `T-OPLINK`) 30 كما هو
+try:
+    _lv18 = _u33_live()
+    _r18a = _u33_with(60.0, _ww_run)
+    _r18b = _u33_with(_lv18, _ww_run)
+    _m18a = _r18a[1].split("🎯 المطابقون", 1)[1] if "🎯 المطابقون" in _r18a[1] else ""
+    _m18b = _r18b[1].split("🎯 المطابقون", 1)[1] if "🎯 المطابقون" in _r18b[1] else ""
+    _atm_ww18 = (_r18a[0] == 0 and _r18b[0] == 0 and _lv18 == 33.0
+                 and "🎯 EEE:" in _m18a and "🎯 EEE:" not in _m18b and "🎯 AAA:" in _m18b
+                 and "الشروط: RSI أقلّ من 60 ·" in _r18a[1] and "(RSI أقلّ من 60:" in _r18a[1]
+                 and "الشروط: RSI أقلّ من 33 ·" in _r18b[1] and "(RSI أقلّ من 33:" in _r18b[1]
+                 and "RSI أقلّ من 30" not in _r18b[1] and _WW.OPL.RSI_OWNER == 30.0)
+    _atm_ww18_w = (f"rc={_r18a[0]}/{_r18b[0]} حدّ={_lv18} EEE@60={'🎯 EEE:' in _m18a} EEE@33={'🎯 EEE:' in _m18b} "
+                   f"رأس60={'الشروط: RSI أقلّ من 60 ·' in _r18a[1]} رأس33={'الشروط: RSI أقلّ من 33 ·' in _r18b[1]}")
+except Exception as _e:                                              # noqa: BLE001
+    _atm_ww18, _atm_ww18_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎 WWK18 «وحد 33 في التقريرين»: تقريرُ الأسبوع على حدّ فيصل **وقتَ النداء** — بحدٍّ 60 مؤقّتًا EEE (‏RSI ≈50) مطابقٌ "
+      "والرأسُ وسطرُ الجلسة «60» · وبحدّ الإنتاج 33 لا EEE وAAA مطابق ولا «أقلّ من 30» · وعقدُ `T-OPLINK` 30 باقٍ",
+      _atm_ww18, _atm_ww18_w)
 
 # ── RBG1-RBG5 🕗 حارسُ شمعة الجلسة قبل التجديد (‏2026-09-26 · `renewal_lastbar_prereg.md`) — بلا شبكة ولا نومٍ حقيقيّ ──
 import datetime as _rbg_dt                                           # noqa: E402
@@ -70263,6 +70316,37 @@ except Exception as _e:                                              # noqa: BLE
     _v16, _v16w = False, f"⛔ رمى: {type(_e).__name__}"
 check("👀 WPP16 التتبّع (`PERIOD_TRACE`): NWX جلسةً جلسة «تحت المتابعة» مع تقسيماته · ZZZ «خارج البوت» · وصفٌ لا يمسّ عددًا",
       _v16, _v16w)
+
+# WPP17 — «وحد 33 في التقريرين» (‏2026-09-29) لتقرير الفترة: الحدُّ `WW.rsi_max()` في الشروط والرأس · وشاهدُ V-P1 **بحدّ المنشور**
+#    (`PUBLISHED_RSI` = `OPL.RSI_OWNER` · 30) لا بالنافذ — سلوكيًّا بحدٍّ 60 مؤقّتًا: EEE مؤهَّلٌ في Dollar · الرأسُ «أقلّ من 60» ·
+#    وV-P1 «✓ يطابق» على (30 · 15 · 20 · 25 · 25) كما هو · وبحدّ الإنتاج لا EEE وAAA مؤهَّل · و`RSI_OWNER` في الكود **مرّةً واحدة**
+#    داخل تعريف `PUBLISHED_RSI` · و`WW.rsi_max` منادًى في الرأس وفي سبب «لم يستوفِ»
+try:
+    _lv17 = _u33_live()
+    _p17a = _u33_with(60.0, lambda: _wpp_run(("penny", "dollar"), published=(30, 15, 20, 25, 25)))
+    _p17b = _u33_with(_lv17, lambda: _wpp_run(("penny", "dollar"), published=(30, 15, 20, 25, 25)))
+
+    def _rows17(js):
+        return {r["sym"] for r in (((js.get("classes") or {}).get("dollar") or {}).get("rows") or [])}
+    _t17 = _wpp_ast.parse(_wpp_src)
+    _own17 = [n for n in _wpp_ast.walk(_t17) if isinstance(n, _wpp_ast.Attribute) and n.attr == "RSI_OWNER"]
+    _asg17 = [n for n in _t17.body if isinstance(n, _wpp_ast.Assign)
+              and any(getattr(t, "id", "") == "PUBLISHED_RSI" for t in n.targets)]
+    _rm17 = sum(1 for n in _wpp_ast.walk(_t17) if isinstance(n, _wpp_ast.Call) and _wpp_ast.unparse(n.func) == "WW.rsi_max")
+    _v17 = (_p17a[0] == 0 and _p17b[0] == 0 and _lv17 == 33.0 and "EEE" in _rows17(_p17a[2])
+            and "EEE" not in _rows17(_p17b[2]) and "AAA" in _rows17(_p17b[2])
+            and "الشروط: RSI أقلّ من 60 ·" in _p17a[1] and "الشروط: RSI أقلّ من 33 ·" in _p17b[1]
+            and "RSI بحدّ المنشور 30" in _p17a[1] and "✓ يطابق" in _p17a[1] and "✓ يطابق" in _p17b[1]
+            and len(_own17) == 1 and len(_asg17) == 1 and any(n is _own17[0] for n in _wpp_ast.walk(_asg17[0]))
+            and _rm17 >= 2)
+    _v17w = (f"rc={_p17a[0]}/{_p17b[0]} حدّ={_lv17} EEE@60={'EEE' in _rows17(_p17a[2])} "
+             f"EEE@33={'EEE' in _rows17(_p17b[2])} V-P1@60={'✓ يطابق' in _p17a[1]} RSI_OWNER={len(_own17)} "
+             f"rsi_max={_rm17}")
+except Exception as _e:                                              # noqa: BLE001
+    _v17, _v17w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🗓️🔎② WPP17 «وحد 33 في التقريرين»: تقريرُ الفترة على `WW.rsi_max()` (بحدٍّ 60 EEE مؤهَّلٌ في Dollar والرأسُ «60» · "
+      "وبحدّ الإنتاج 33 لا EEE) · وشاهدُ V-P1 **بحدّ المنشور 30** فيبقى «✓ يطابق» · و`RSI_OWNER` مرّةً واحدة (تعريفُ الشاهد)",
+      _v17, _v17w)
 
 # NWF7 — 👀🏢 تقريرُ الفترة يقرأ فلوتَ المدخل نفسِه أوّلًا (مخزنُ «تحت المتابعة» · لقطةُ ما قبل الجلسة) ثمّ ذاكرةَ البوت: NWF
 #    (بلا فلوتٍ في الذاكرة) يصير مؤهّلَ الثلاثة المعلومة بفلوت 700 ألف · وNWG (ذاكرته 50 مليونًا) يُقرأ بفلوت مدخله مليونًا ·
