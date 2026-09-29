@@ -1623,5 +1623,21 @@
   "usd_eff": 552,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "SXTP",
+  "date": "2026-09-29",
+  "fired_ts_ms": 1790688994481,
+  "trigger_bar_ms": 1790688840000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-09-29T19:25:30Z",
+  "break_level": 1.28,
+  "price": 1.29,
+  "vol_x": 4.2,
+  "usd": 6450,
+  "candle_class": "group",
+  "usd_eff": 6450,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
