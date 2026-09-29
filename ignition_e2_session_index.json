@@ -727,7 +727,7 @@
     "n_symbols": 24,
     "session_complete": true,
     "termination": "normal",
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-26b"
   },
   "2026-09-24": {
     "deferred_reasons": [
@@ -742,7 +742,7 @@
     "n_symbols": 19,
     "session_complete": true,
     "termination": "normal",
-    "verdict_rule": "2026-09-24"
+    "verdict_rule": "2026-09-26b"
   },
   "2026-09-25": {
     "deferred_reasons": [
@@ -760,18 +760,22 @@
       "CURX"
     ],
     "termination": "normal",
-    "verdict_rule": "2026-09-26"
+    "verdict_rule": "2026-09-26b"
   },
   "2026-09-28": {
-    "deferred_reasons": [],
-    "incomplete_reasons": [
-      "missing_segment(close)"
+    "deferred_reasons": [
+      "open:segment_window_capped(max_runtime_cap)"
     ],
-    "n_delivered": 0,
-    "n_emitted": 0,
-    "n_executable": 0,
-    "n_executable_emitted": 0,
-    "n_raw_candidates": 0,
+    "incomplete_reasons": [
+      "ended_before_expected_close(19.4 د)",
+      "path_not_reaching_close(BTCS,SKYQ,SXTP)",
+      "segment_incomplete(close:segment_window_not_covered)"
+    ],
+    "n_delivered": 3,
+    "n_emitted": 3,
+    "n_executable": 1,
+    "n_executable_emitted": 1,
+    "n_raw_candidates": 3,
     "n_symbols": 17,
     "session_complete": false,
     "termination": "normal",
