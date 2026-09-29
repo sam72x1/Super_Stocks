@@ -24,6 +24,7 @@ import os
 import queue
 import subprocess
 import threading
+import sys
 import time
 
 try:
@@ -168,6 +169,15 @@ MAX_RUNTIME_SAFETY_DEFAULT = 340          # سقف أمان (نادرًا يبل
 # 150 تغطّي الحالتين. الانتظار لا يُنبّه أبدًا — يؤخّر البدء فقط، ففاشل-آمن بطبعه.
 PRE_OPEN_WAIT_MAX_MIN = 150
 START_TOLERANCE_MIN = 2                    # 🔬 P0-2: أقصى تأخّر لبدء مراقبة open عن الافتتاح (مقفول)
+# ⏰🔴 **انتظارُ الجرس خارج ميزانية المسح (2026-09-29 · عطلٌ مُثبَت `36398556213` و`36542373249`):**
+# تأخّرُ GitHub صار يُقلع أبكرَ كرون (02:11) نحو 08:2x-08:4x UTC ⇒ مقطعُ الافتتاح ينتظر الجرسَ
+# **~5 ساعات من سقفه (330 د)** فيمسح 23-38 دقيقة فقط، ومقطعُ الإغلاق يُقلع بعده فينتهي سقفُه
+# قبل الإغلاق بـ19-36 دقيقة ⇒ الذيلُ على تشغيلةٍ احتياطيّة (فجوةُ تسليمٍ ~2 د) وجلستا القياس ضاعتا.
+# العلاج: **جوبا نومٍ رخيصان** قبل مقطع الافتتاح (كلٌّ حتى `PRE_OPEN_JOB_SLEEP_CAP_MIN` تحت سقف
+# GitHub للجوب 360 د) ينامان حتى الجرس ناقصَ `PRE_OPEN_JOB_LEAD_MIN` ⇒ المقطعان يأخذان ميزانيّتَهما
+# **من الافتتاح**. المسحُ والتنبيهُ والدِدوبُ والقياسُ **بت-بت**؛ ما تغيّر = متى يُقلع جوبُ الافتتاح.
+PRE_OPEN_JOB_LEAD_MIN = 10
+PRE_OPEN_JOB_SLEEP_CAP_MIN = 340
 
 
 def _fresh_watchlist(cur_wl, runner=None):
@@ -368,6 +378,38 @@ def _start_plan(window, now=None):
     if gap >= budget:
         return ("skip", 0.0, "no_budget_before_open")
     return ("wait", gap, "before_open")
+
+
+def _pre_open_sleep_min(window, now=None, lead=None, cap=None):
+    """⏰ **كم ينام جوبُ الانتظار قبل مقطع الافتتاح؟** (دقائقُ صحيحة · نقيّةٌ قابلةٌ للاختبار).
+    = الجرسُ ناقصَ `lead` ناقصَ الآن · مقصوصًا إلى `[0, cap]` · **وصفرٌ** للعطلة/نهاية الأسبوع وبعد
+    موعد الإقلاع وعند أيّ عطل ⇒ **أسوأُ حالةٍ سلوكُ اليوم حرفيًّا** (المقطعُ ينتظر داخل ميزانيّته).
+    بُنيت لـ: جوبَي `pre_open_wait` في `ignition.yml` (لا يُنادى من مسار المسح أبدًا)."""
+    lead = PRE_OPEN_JOB_LEAD_MIN if lead is None else lead
+    cap = PRE_OPEN_JOB_SLEEP_CAP_MIN if cap is None else cap
+    try:
+        if window.get("session_type") not in ("regular", "early_close"):
+            return 0
+        op = window["open"]
+        if op.weekday() >= 5:                                   # السبت/الأحد (تشغيلٌ يدويّ)
+            return 0
+        now = now or bot.dt.datetime.utcnow()
+        gap = (op - bot.dt.timedelta(minutes=lead) - now).total_seconds() / 60.0
+        if gap <= 0:
+            return 0
+        return int(min(cap, int(gap)))
+    except Exception:                                           # noqa: BLE001
+        return 0
+
+
+def _pre_open_sleep_cli(now=None):
+    """🧷 نقطةُ النداء الحيّة لجوبَي الانتظار (`python ignition_live.py --pre-open-sleep`): نافذةُ
+    مقطع الافتتاح نفسُها (`_segment_window`) ⟵ `_pre_open_sleep_min`. **فاشلٌ-آمن ⟵ 0**."""
+    try:
+        now = now or bot.dt.datetime.utcnow()
+        return _pre_open_sleep_min(_segment_window("open", now), now)
+    except Exception:                                           # noqa: BLE001
+        return 0
 
 
 def _write_skip_marker(role, reason, session_day, root="e2_measurement"):
@@ -759,4 +801,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    if "--pre-open-sleep" in sys.argv[1:]:
+        print(f"PRE_OPEN_SLEEP_MIN={_pre_open_sleep_cli()}", flush=True)
+    else:
+        main()

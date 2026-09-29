@@ -4209,6 +4209,138 @@ check("⏰ IGF3ب `close` بعد الجرس وقبل نافذته يمضي (يم
       # وقبل الجرس ينتظره هو لا نافذتَه (فلا مسحَ بريماركت بحال)
       and _IGL._start_plan(*_ig_win(40, 300, seg_start_ahead=235))
       == ("wait", 40.0, "before_open"))
+
+# ⏰🔴 IGW1-IGW6 (2026-09-29 · عطلٌ مُثبَت `36398556213` · `36542373249`): **انتظارُ الجرس خارج ميزانية المسح.**
+#    أبكرُ كرون أقلع 08:38 و08:23 UTC ⇒ مقطعُ الافتتاح انتظر الجرسَ **من سقفه** (330 د) ⇒ مقطعُ الإغلاق انتهى 19:39/19:24
+#    قبل الإغلاق (20:00) ⇒ الذيلُ لتشغيلةٍ احتياطيّة (فجوةُ تسليمٍ ~2 د) وجلستا E2 غيرُ مكتملتين. `IGF4` لم يمسكه لأنه
+#    يسأل «هل يبلغ مقطعٌ **الجرس**؟» لا «هل تغطّي تشغيلةٌ واحدة **الجلسة حتى الإغلاق**؟». القفلُ يُعيد الحادثتين
+#    **بالدوالّ الحيّة نفسِها** (`_segment_window` · `_start_plan` · `_pre_open_sleep_min`) وبأرقام الـworkflow.
+import yaml as _igw_yaml                                              # noqa: E402
+try:
+    _igw_jobs = (_igw_yaml.safe_load(_ig_yml) or {}).get("jobs") or {}
+except Exception as _e:                                               # noqa: BLE001
+    _igw_jobs = {}
+# جوبا الانتظار **كما هما في الـworkflow** (لا عددٌ مكتوبٌ بيد): كلُّ جوبٍ تنادي خطوتُه `--pre-open-sleep`
+_igw_wait = [k for k, v in _igw_jobs.items()
+             if any("--pre-open-sleep" in str((st or {}).get("run", "")) for st in ((v or {}).get("steps") or []))]
+
+
+def _igw_chain(s, waits, oh=1.0):
+    """تشغيلةٌ واحدة بالدوالّ الحيّة: `waits` جوبَ نومٍ ⟵ مقطعُ الافتتاح ⟵ مقطعُ الإغلاق (كلُّ جوبٍ يُقلع بعد سابقه بـ`oh` د).
+    يرجّع (غطّت [الجرس، الإغلاق] كاملًا؟ · نهايةُ مقطع الإغلاق HH:MM · النومات)."""
+    _td = S.dt.timedelta
+    t, sl = s, []
+    for _ in range(waits):
+        w = _IGL._pre_open_sleep_min(_IGL._segment_window("open", t), t)
+        sl.append(w)
+        t = t + _td(minutes=w + oh)
+    wo = _IGL._segment_window("open", t)
+    if _IGL._start_plan(wo, t)[0] == "skip":
+        return False, None, sl
+    cs = wo["deadline"] + _td(minutes=oh)
+    wc = _IGL._segment_window("close", cs)
+    if _IGL._start_plan(wc, cs)[0] == "skip":
+        return False, None, sl
+    return (max(t, wo["open"]) <= wo["open"] + _td(minutes=_IGL.START_TOLERANCE_MIN)
+            and wc["deadline"] >= wc["close"]), wc["deadline"].strftime("%H:%M"), sl
+
+
+_igw_envk = ("IGNITION_MAX_RUNTIME_MIN", "IGNITION_SEGMENT_SPLIT_MIN", "IGNITION_END_UTC")
+_igw_env0 = {k: _os.environ.get(k) for k in _igw_envk}
+_igw_d28, _igw_d29 = S.dt.datetime(2026, 9, 28, 8, 38), S.dt.datetime(2026, 9, 29, 8, 23)
+try:
+    _os.environ.update({"IGNITION_MAX_RUNTIME_MIN": str(_ig_mr), "IGNITION_SEGMENT_SPLIT_MIN": str(_ig_sp)})
+    _os.environ.pop("IGNITION_END_UTC", None)
+    _igw_old = (_igw_chain(_igw_d28, 0), _igw_chain(_igw_d29, 0))
+    _igw_new = (_igw_chain(_igw_d28, len(_igw_wait)), _igw_chain(_igw_d29, len(_igw_wait)))
+    _igw_bad, _igw_bad_less = {}, {}
+    for _dd in (S.dt.datetime(2026, 9, 29), S.dt.datetime(2026, 11, 10)):     # صيفٌ (13:30) · شتاءٌ (14:30)
+        _op = _IGL._segment_window("open", _dd.replace(hour=12))["open"]
+        _mins = range(0, int((_op - _dd).total_seconds() // 60))
+        _igw_bad[_op.strftime("%H:%M")] = [m for m in _mins
+                                          if not _igw_chain(_dd + S.dt.timedelta(minutes=m), len(_igw_wait))[0]]
+        _igw_bad_less[_op.strftime("%H:%M")] = len([m for m in _mins
+                                                    if not _igw_chain(_dd + S.dt.timedelta(minutes=m),
+                                                                      max(0, len(_igw_wait) - 1))[0]])
+    _igw_cli = _IGL._pre_open_sleep_cli(_igw_d29)
+    _igw_seg = _IGL._segment_window
+    try:
+        _IGL._segment_window = lambda *_a, **_k: (_ for _ in ()).throw(RuntimeError("x"))
+        _igw_cli_fail = _IGL._pre_open_sleep_cli(_igw_d29)
+    finally:
+        _IGL._segment_window = _igw_seg
+except Exception as _e:                                               # noqa: BLE001
+    _igw_old = _igw_new = (f"⛔ {type(_e).__name__}: {_e}",)
+    _igw_bad, _igw_bad_less, _igw_cli, _igw_cli_fail = {"⛔": [0]}, {}, None, None
+finally:
+    for _k, _v in _igw_env0.items():
+        _os.environ.pop(_k, None) if _v is None else _os.environ.__setitem__(_k, _v)
+check("⏰🔴 IGW1 الحادثتان تُعادان بالدوالّ الحيّة: بلا نومٍ ينتهي مقطعُ الإغلاق 19:39 و19:24 قبل الإغلاق · "
+      "وبجوبَي النوم تغطّي التشغيلةُ الواحدة الجلسةَ كاملةً (نومٌ 282 و297 د)",
+      _igw_old == ((False, "19:39", []), (False, "19:24", []))
+      and all(isinstance(r, tuple) and r[0] is True and r[1] == "20:00" for r in _igw_new)
+      and _igw_new[0][2][:1] == [282] and _igw_new[1][2][:1] == [297],
+      f"قبل={_igw_old} · بعد={_igw_new}")
+check("⏰ IGW2 كلُّ إقلاعٍ من 00:00 UTC حتى الجرس يغطّي الجلسةَ بتشغيلةٍ واحدة (صيفًا وشتاءً) · "
+      "وبجوبٍ أقلّ تسقط إقلاعاتٌ مبكّرة (الجوبُ الثاني ليس زينة)",
+      len(_igw_wait) >= 2 and set(_igw_bad) == {"13:30", "14:30"} and not any(_igw_bad.values())
+      and all(v > 0 for v in _igw_bad_less.values()) and len(_igw_bad_less) == 2,
+      f"جوبا النوم={_igw_wait} · ساقطٌ={ {k: len(v) for k, v in _igw_bad.items()} } · بجوبٍ أقلّ={_igw_bad_less}")
+
+
+def _igw_step(j):
+    return next((st for st in ((j or {}).get("steps") or []) if "--pre-open-sleep" in str(st.get("run", ""))), {})
+
+
+try:
+    _igw_w1, _igw_w2, _igw_o = (_igw_jobs.get(k) or {} for k in ("pre_open_wait_1", "pre_open_wait_2", "open_segment"))
+    _igw_sed = [str(_igw_step(j).get("run", "")).split("sed -n '", 1)[1].split("'", 1)[0]
+                if "sed -n '" in str(_igw_step(j).get("run", "")) else "" for j in (_igw_w1, _igw_w2)]
+    _igw_ext = [_sp_fp.run(["sed", "-n", p_], input="🥇 ضجيجُ الاستيراد\nPRE_OPEN_SLEEP_MIN=297\nذيل\n",
+                               capture_output=True, text=True, timeout=20).stdout.strip() if p_ else ""
+                for p_ in _igw_sed]
+    _igw_main_ok = any(isinstance(n_, _ast0.If) and "--pre-open-sleep" in _ast0.dump(n_)
+                       and "PRE_OPEN_SLEEP_MIN=" in _ast0.dump(n_) and "_pre_open_sleep_cli" in _ast0.dump(n_)
+                       for n_ in _ast0.parse(open("ignition_live.py", encoding="utf-8").read()).body)
+    _igw3 = (_igw_wait == ["pre_open_wait_1", "pre_open_wait_2"]
+             and "needs" not in _igw_w1
+             and _igw_w2.get("needs") == "pre_open_wait_1" and _igw_w2.get("if") == "always()"
+             and _igw_o.get("needs") == "pre_open_wait_2" and _igw_o.get("if") == "always()"
+             and all(_IGL.PRE_OPEN_JOB_SLEEP_CAP_MIN + 5 <= int(j.get("timeout-minutes", 0)) <= 360
+                     for j in (_igw_w1, _igw_w2))
+             and all(_igw_step(j).get("continue-on-error") is True
+                     and "sleep $((M * 60))" in str(_igw_step(j).get("run", "")) for j in (_igw_w1, _igw_w2))
+             and _igw_ext == ["297", "297"] and _igw_main_ok)
+    _igw3_w = f"انتظار={_igw_wait} · sed={_igw_ext} · main={_igw_main_ok}"
+except Exception as _e:                                               # noqa: BLE001
+    _igw3, _igw3_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰ IGW3 الوصلُ في الـworkflow: جوبا نومٍ متسلسلان قبل مقطع الافتتاح (`if: always()` فاشلٌ-آمن) · مهلةُ كلٍّ "
+      "فوق سقف النوم وتحت 360 · خطوةُ النوم `continue-on-error` · و`sed` يستخرج وسمَ الـCLI من بين ضجيج الاستيراد",
+      _igw3, _igw3_w)
+_igw_S = S.dt.datetime
+_igw_sl = _IGL._pre_open_sleep_min
+_igw_w = lambda d: _IGL._segment_window("open", d)                    # noqa: E731
+_igw4 = [
+    _igw_sl(_igw_w(_igw_S(2026, 11, 26, 5, 0)), _igw_S(2026, 11, 26, 5, 0)) == 0,      # عيدُ الشكر (عطلة)
+    _igw_sl(_igw_w(_igw_S(2026, 10, 3, 5, 0)), _igw_S(2026, 10, 3, 5, 0)) == 0,        # سبت (تشغيلٌ يدويّ)
+    _igw_sl(_igw_w(_igw_S(2026, 9, 29, 14, 0)), _igw_S(2026, 9, 29, 14, 0)) == 0,      # بعد الجرس
+    _igw_sl(_igw_w(_igw_S(2026, 9, 29, 13, 25)), _igw_S(2026, 9, 29, 13, 25)) == 0,    # داخل الدقائق العشر
+    _igw_sl(_igw_w(_igw_S(2026, 9, 29, 10, 0)), _igw_S(2026, 9, 29, 10, 0)) == 200,    # 13:20 − 10:00
+    _igw_sl(_igw_w(_igw_S(2026, 9, 29, 2, 11)), _igw_S(2026, 9, 29, 2, 11)) == _IGL.PRE_OPEN_JOB_SLEEP_CAP_MIN,
+    _igw_sl(_igw_w(_igw_S(2026, 11, 27, 10, 0)), _igw_S(2026, 11, 27, 10, 0)) == 260,  # إغلاقٌ مبكّر: 14:20 − 10:00
+    _igw_sl({}, _igw_S(2026, 9, 29, 10, 0)) == 0,
+    _igw_sl({"session_type": "regular", "open": "13:30"}, _igw_S(2026, 9, 29, 10, 0)) == 0,
+]
+check("⏰ IGW4 النومُ صحيحٌ وفاشلٌ-آمن: عطلةٌ/سبتٌ/بعد الجرس/داخل الدقائق العشر ⟵ 0 · 10:00 ⟵ 200 · 02:11 ⟵ السقف · "
+      "الإغلاقُ المبكّر ينام عاديًّا (260) · ونافذةٌ ناقصةٌ أو فاسدة ⟵ 0",
+      all(_igw4) and _IGL.PRE_OPEN_JOB_LEAD_MIN == 10 and _IGL.PRE_OPEN_JOB_SLEEP_CAP_MIN == 340, str(_igw4))
+_igw_main_calls = {getattr(c.func, "id", None) for c in _ast0.walk(_ast0.parse(_insp0.getsource(_IGL.main)))
+                   if isinstance(c, _ast0.Call)}
+check("⏰ IGW5 مسارُ المسح بت-بت: `main` لا ينادي النومَ ولا الـCLI (النومُ في جوبٍ مستقلّ وحدَه)",
+      not ({"_pre_open_sleep_min", "_pre_open_sleep_cli"} & _igw_main_calls) and "_start_plan" in _igw_main_calls,
+      str(sorted(x for x in _igw_main_calls if x and x.startswith("_pre"))))
+check("⏰ IGW6 الـCLI فاشلٌ-آمن: يطابق الدالّةَ النقيّة (297 لإقلاع 08:23) · وعطلُ النافذة ⟵ 0 لا استثناء",
+      _igw_cli == 297 and _igw_cli_fail == 0, f"cli={_igw_cli} · عطل={_igw_cli_fail}")
 # 🔓 T-LIBERATION (liberation_prereg.md): ذراع الدخول بعد كسر التحرر
 # اختبارات سلوكية على أرقام فيصل الحقيقية (DSY 1.85→3.20 · JZ 2.56→4).
 _lib_sv = dict(S.CONFIG)
