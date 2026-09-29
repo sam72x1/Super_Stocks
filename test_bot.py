@@ -17146,9 +17146,12 @@ _c7_pins = [_l.strip() for _l in _c7_req.splitlines()
 # 🔴 **وحُدِّث عمدًا ثالثةً 2026-09-24 — `Pillow`** لمُعرِّف الشارت (`chart_render`/`chart_pixels`):
 #    تُستورَد كسولةً داخل الدوالّ فلا تمسّ الإنتاج، وأقفالُ `CFD` تحتاجها في CI · والمجموعةُ
 #    **مطابقةٌ بالضبط** (سابعةٌ لا «تحوي») · و`DEP1` يعرف `PIL ⟵ pillow` بخريطةٍ صريحة.
-_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml", "Pillow"}
+# 🔴 **وحُدِّث عمدًا رابعةً 2026-09-29 — `websocket-client`** لمِقبس شموع TradingView (`tv_data.Chart`) بعد أمر المالك
+#    «اشتراكي مخلص ولا راح اجدده … البيانات تاخذها من ترندق فيو مب ياهو»: تُستورَد كسولةً داخل `Chart.open` فلا تحتاجها
+#    السويّة · والمجموعةُ **مطابقةٌ بالضبط** (ثامنةٌ لا «تحوي»).
+_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml", "Pillow", "websocket-client"}
 _c7_names = {_l.split("==")[0].strip() for _l in _c7_pins}
-check("📌 007·الاعتمادياتُ السبع مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
+check("📌 007·الاعتمادياتُ الثماني مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
       "(لا ترقيةٌ صامتة ولا إضافةٌ صامتة)",
       _c7_names == _C7_EXPECT and all("==" in _l for _l in _c7_pins)
       and len(_c7_pins) == len(_C7_EXPECT),
