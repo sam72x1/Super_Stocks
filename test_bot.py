@@ -69454,6 +69454,191 @@ check("🔎📬 TCD24 RSI «تحت 33 نفس شرط فيصل … للصنفين�
       "وP32 (‏32.4) وP30 (‏30.0) 🪙 تطابق · R33 (‏33.0 بالضبط) وR34 خارجان · R35 (متاح 30 ألفًا) «✖️ المتاح» و🔸 · الرأسُ والتذييلُ "
       "«33» ولا «30» · وبحدّ 31 مؤقّتًا P30 وحدَه", _v24, _v24w)
 
+# TCD25-TCD28 — ⛔ قاطعُ الدائرة (‏2026-09-29 · عطلٌ مُثبَت بالتشغيلة `36631553164`): Polygon رفض الطلبات (فحصُ الاشتراك
+#    `36636703441`: الصفقات 403 · الدقائق 429 · NBBO 403) فدفع `P._get` كلَّ رمزٍ أربعَ محاولاتٍ بانتظارٍ ‏30ث ⇒ ‏500 رمزٍ في ‏32
+#    دقيقة ⇒ قُصّت المرحلةُ عند مهلة ‏40 د **قبل حارس التغطية** وتُخطّي الإرسال ⇒ صمتٌ لا «تعذّر». بلا شبكة: جالبٌ مزيَّف يعدّ
+#    إخفاقَه في `P._CALLS["fail"]` كما يفعل `P._get` (والعدّادُ يُستعاد بعده).
+import collections as _brk_col                                      # noqa: E402
+import threading as _brk_thr                                         # noqa: E402
+
+
+def _brk_fake(fail_every=1, rows=(("2026-09-25", 1.0, 1.0, 1.0, 1.0, 1.0),)):
+    """جالبٌ مزيَّف ⟵ يُخفق (يعدّ `fail` ويعود []) لكلّ رمزٍ رقمُه يقبل القسمة على `fail_every` · وإلّا يعود `rows`."""
+    lock = _brk_thr.Lock()
+
+    def fn(sym, *_a):
+        with lock:
+            fn.calls.append(sym)
+        if int(str(sym)[1:]) % fail_every == 0:
+            _TCD.P._CALLS["fail"] += 1
+            return []
+        return list(rows)
+    fn.calls = []
+    return fn
+
+
+_brk_syms = [f"S{i}" for i in range(1, 401)]
+_brk_calls0 = dict(_TCD.P._CALLS) if _TCD is not None else {}
+_brk_tda0 = _TCD.P.ticker_daily_adj if _TCD is not None else None
+_brk_ho0 = _TCD._hours_one if _TCD is not None else None
+
+
+def _brk_restore():
+    _TCD.P._CALLS.clear()
+    _TCD.P._CALLS.update(_brk_calls0)
+    _TCD.P.ticker_daily_adj = _brk_tda0
+    _TCD._hours_one = _brk_ho0
+    _TCD.BREAKER_LAST.clear()
+
+
+# TCD25 — المزوّدُ يرفض كلَّ طلب ⟵ القاطعُ يُفتح بعد `BREAKER_MIN` (‏32) فتُتخطّى البقيّة **بلا نداء** — في اليوميّ وفي الساعة ·
+#    والعدّادُ الافتراضيّ هو `P._CALLS` نفسُه (لا عدّادٌ جانبيّ لا يراه `P._get`) · والسطرُ يُطبع
+try:
+    _f25 = _brk_fake(1)
+    _h25 = _brk_fake(1)
+    _buf25 = _tcd_io.StringIO()
+    try:
+        _TCD.P.ticker_daily_adj = _f25
+        _TCD._hours_one = _h25
+        with _tcd_ctx.redirect_stdout(_buf25):
+            _o25 = _TCD.fetch_polygon(_brk_syms, "d0", "d1", "k", workers=4)
+            _d25 = dict(_TCD.BREAKER_LAST.get("daily") or {})
+            _p25 = _TCD.fetch_hours(_brk_syms, "d0", "d1", "k", workers=4)
+            _q25 = dict(_TCD.BREAKER_LAST.get("hours") or {})
+        _def25 = _TCD.Breaker().calls is _TCD.P._CALLS
+    finally:
+        _brk_restore()
+    _v25 = (_TCD.BREAKER_MIN == 32 and _TCD.BREAKER_FAIL_RATIO == 0.9 and _def25
+            and len(_f25.calls) <= 32 + 4 and len(_h25.calls) <= 32 + 4
+            and set(_o25) == set(_brk_syms) == set(_p25) and not any(_o25.values()) and not any(_p25.values())
+            and _d25.get("open") is True and _q25.get("open") is True
+            and _d25.get("skipped") == 400 - len(_f25.calls) and _q25.get("skipped") == 400 - len(_h25.calls)
+            and _buf25.getvalue().count("⛔ قاطعُ الدائرة") == 2)
+    _v25w = (f"نداءاتٌ يوميّة={len(_f25.calls)} ساعة={len(_h25.calls)} · يوميّ={_d25} · ساعة={_q25} · "
+             f"العدّادُ الافتراضيّ P._CALLS={_def25} · السطر={_buf25.getvalue().count('⛔ قاطعُ الدائرة')}")
+except Exception as _e:                                              # noqa: BLE001
+    _v25, _v25w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⛔ TCD25 قاطعُ الدائرة: Polygon يرفض كلَّ طلب ⟵ يُفتح بعد 32 رمزًا فتُتخطّى البقيّةُ بلا نداء (اليوميّ والساعة كلٌّ بقاطعه) · "
+      "والعدّادُ `P._CALLS` نفسُه · والسطرُ يُطبع", _v25, _v25w)
+
+# TCD26 — سليمًا لا يُفتح: صفرُ إخفاقٍ ⟵ كلُّ الرموز تُنادى والمُخرَجُ بت-بت مع النداء المباشر · وإخفاقٌ متفرّقٌ (‏1 من 10 ⇒
+#    ‏10%) دون النسبة ⟵ مغلقٌ أيضًا وكلُّ الرموز تُنادى
+try:
+    _f26 = _brk_fake(10 ** 9)
+    _g26 = _brk_fake(10)
+    try:
+        _TCD.P.ticker_daily_adj = _f26
+        with _tcd_ctx.redirect_stdout(_tcd_io.StringIO()):
+            _o26 = _TCD.fetch_polygon(_brk_syms, "d0", "d1", "k", workers=4)
+            _d26 = dict(_TCD.BREAKER_LAST.get("daily") or {})
+        _n26 = len(_f26.calls)                                      # قبل المرجع (المرجعُ ينادي الجالبَ مرّةً أخرى)
+        _ref26 = {s: _f26(s) or [] for s in _brk_syms}
+        _TCD.P.ticker_daily_adj = _g26
+        with _tcd_ctx.redirect_stdout(_tcd_io.StringIO()):
+            _o26b = _TCD.fetch_polygon(_brk_syms, "d0", "d1", "k", workers=4)
+            _d26b = dict(_TCD.BREAKER_LAST.get("daily") or {})
+    finally:
+        _brk_restore()
+    _v26 = (_o26 == _ref26 and _n26 == 400 and _d26 == {"open": False, "done": 400, "fail": 0, "skipped": 0}
+            and len(_g26.calls) == 400 and _d26b.get("open") is False and _d26b.get("fail") == 40
+            and sum(1 for v in _o26b.values() if not v) == 40)
+    _v26w = f"سليم: نداءات={_n26} ملخّص={_d26} بت-بت={_o26 == _ref26} · متفرّق: نداءات={len(_g26.calls)} ملخّص={_d26b}"
+except Exception as _e:                                              # noqa: BLE001
+    _v26, _v26w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⛔ TCD26 قاطعُ الدائرة سليمًا لا يُفتح: صفرُ إخفاقٍ ⟵ 400 نداءٍ والمُخرَجُ بت-بت · وإخفاقٌ متفرّق 10% ⟵ مغلقٌ وكلُّ الرموز "
+      "تُنادى", _v26, _v26w)
+
+# TCD27 — الأنبوبُ كاملًا: قاطعُ اليوميّ مفتوح ⟵ سطرُ العطل يُرسل **ومعه سببُه** («قاطعُ الدائرة … تحقّق من اشتراك Polygon»)
+#    ورمزُ 3 · وقاطعُ الساعة وحدَه مفتوح ⟵ سطرُ عطلٍ لا قائمةٌ «لا يوجد» · وقاطعٌ مفتوحٌ من تشغيلةٍ سابقة لا يُقرأ (يُصفَّر)
+try:
+    _W27, _u27, _fl27, _fe27, _hr27, _y27, _ce27 = _tcd_world()
+
+    def _run27(fetch_hook=None, hours_hook=None, stale=None):
+        sent = []
+        buf = _tcd_io.StringIO()
+        sv = (_TCD.DRY, _TCD.FORCE, _TCD.TRACE)
+
+        def fetch(syms, d0, d1, key):
+            out = _fe27(syms, d0, d1, key)
+            if fetch_hook:
+                out = fetch_hook(out)
+            return out
+
+        def hours(syms, d0, d1, key):
+            out = _hr27(syms, d0, d1, key)
+            if hours_hook:
+                out = hours_hook(out)
+            return out
+        try:
+            _TCD.DRY, _TCD.FORCE, _TCD.TRACE = False, False, ()
+            _TCD.BREAKER_LAST.clear()
+            if stale:
+                _TCD.BREAKER_LAST.update(stale)
+            with _tcd_ctx.redirect_stdout(buf):
+                st = _TCD.stage_scan(now=_tcd_dt.datetime(2026, 9, 26, 3, 30, tzinfo=_TCD.NY), key="k", fetch=fetch,
+                                     universe=lambda: list(_u27), yahoo=_y27, yfloat=lambda x: _fl27.get(x),
+                                     harvested=lambda d: {}, wl={"stocks": [], "pullback": []}, nw={}, cache={},
+                                     repaired={}, hours=hours)
+                parts = [_TCD.stage_borrow(st, 0, 1, ce=_ce27, pause=0)]
+                rc = _TCD.stage_send(st, parts, send=lambda m: sent.append(m))
+        finally:
+            _TCD.DRY, _TCD.FORCE, _TCD.TRACE = sv
+            _TCD.BREAKER_LAST.clear()
+        return rc, sent, st
+
+    _open27 = {"open": True, "done": 32, "fail": 32, "skipped": 3552}
+
+    def _trip_daily(out):
+        _TCD.BREAKER_LAST["daily"] = dict(_open27)
+        return {s: [] for s in out}
+
+    def _trip_hours(out):
+        _TCD.BREAKER_LAST["hours"] = dict(_open27)
+        return {s: [] for s in out}
+    _a27 = _run27(fetch_hook=_trip_daily)
+    _b27 = _run27(hours_hook=_trip_hours)
+    _c27 = _run27(stale={"daily": dict(_open27), "hours": dict(_open27)})
+    _ma27 = " ".join(_a27[1])
+    _mb27 = " ".join(_b27[1])
+    _mc27 = " ".join(_c27[1])
+    _v27 = (_a27[0] == 3 and len(_a27[1]) == 1 and "⚠️ تعذّر الفحص اليوم" in _ma27 and "قاطعُ الدائرة" in _ma27
+            and "تحقّق من اشتراك Polygon" in _ma27 and "3,552" in _ma27
+            and _b27[0] == 3 and len(_b27[1]) == 1 and "شموعُ الساعة من Polygon" in _mb27 and "قاطعُ الدائرة" in _mb27
+            and not _b27[2].get("rows")
+            and _c27[0] == 0 and len(_c27[1]) == 1 and "تعذّر الفحص" not in _mc27 and "قاطعُ" not in _mc27
+            and not any(ch in _TCD.breaker_note(_open27) for ch in "<>≤≥"))
+    _v27w = (f"يوميّ: rc={_a27[0]} رسائل={len(_a27[1])} «{_ma27[:160]}» · ساعة: rc={_b27[0]} «{_mb27[:120]}» · "
+             f"سابق: rc={_c27[0]} فشل={'تعذّر الفحص' in _mc27}")
+except Exception as _e:                                              # noqa: BLE001
+    _v27, _v27w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⛔ TCD27 الأنبوبُ كاملًا: قاطعُ اليوميّ مفتوح ⟵ «⚠️ تعذّر الفحص اليوم … قاطعُ الدائرة … تحقّق من اشتراك Polygon» ورمزُ 3 · "
+      "وقاطعُ الساعة ⟵ سطرُ عطلٍ لا قائمة · وقاطعُ تشغيلةٍ سابقة يُصفَّر فلا يُقرأ", _v27, _v27w)
+
+# TCD28 — الجالبان يمرّان بالقاطع فعلًا (AST): `fetch_polygon` و`fetch_hours` يناديان `_guarded` ويكتبان `BREAKER_LAST` ·
+#    و`_guarded` لا ينادي الجالبَ حين `skip()` · و`stage_scan` يُصفّر `BREAKER_LAST` **قبل** نداء `fetch`
+try:
+    _t28 = _tcd_ast.parse(_tcd_src)
+    _fn28 = {n.name: n for n in _t28.body if isinstance(n, _tcd_ast.FunctionDef)}
+
+    def _calls28(fn):
+        return {getattr(c.func, "id", None) or getattr(c.func, "attr", None)
+                for c in _tcd_ast.walk(fn) if isinstance(c, _tcd_ast.Call)}
+
+    def _writes28(fn, name):
+        return any(isinstance(t, _tcd_ast.Subscript) and getattr(t.value, "id", None) == name
+                   for a in _tcd_ast.walk(fn) if isinstance(a, _tcd_ast.Assign) for t in a.targets)
+    _ss28 = _tcd_ast.get_source_segment(_tcd_src, _fn28["stage_scan"])
+    _i28, _j28 = _ss28.find("BREAKER_LAST.clear()"), _ss28.find("pg = fetch(")
+    _v28 = ("_guarded" in _calls28(_fn28["fetch_polygon"]) and "_guarded" in _calls28(_fn28["fetch_hours"])
+            and _writes28(_fn28["fetch_polygon"], "BREAKER_LAST") and _writes28(_fn28["fetch_hours"], "BREAKER_LAST")
+            and 0 <= _i28 < _j28)
+    _v28w = (f"اليوميّ={sorted(x for x in _calls28(_fn28['fetch_polygon']) if x)} · الساعة="
+             f"{sorted(x for x in _calls28(_fn28['fetch_hours']) if x)} · تصفيرٌ قبل الجلب={0 <= _i28 < _j28}")
+except Exception as _e:                                              # noqa: BLE001
+    _v28, _v28w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⛔ TCD28 الجالبان يمرّان بالقاطع (AST): `_guarded` في `fetch_polygon` و`fetch_hours` · وكلاهما يكتب `BREAKER_LAST` · "
+      "و`stage_scan` يُصفّره قبل الجلب", _v28, _v28w)
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🧱 EXH1-EXH6 الثبات الدقيق في كروت الجاهز (أمرُ المالك 2026-09-26 «اعرض الثبات في جاهز البوت» — **عرضٌ فقط**):
 #    `exact_pivot_hold` توأمُ `three_cond_daily.exact_low_stability` حرفًا · والسطرُ في الكرت واليوميّ · ويُحسب يوميًّا وفي
