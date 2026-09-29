@@ -737,7 +737,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.4793,
+   "last_price": 0.479,
    "live_alert": {
     "buyzone": "2026-09-28",
     "sweep": "2026-09-28",
@@ -9540,7 +9540,7 @@
    "hit": "t1",
    "hit_date": "2026-09-25",
    "max_gain_pct": 8.7,
-   "last_price": 5.0349,
+   "last_price": 5.035,
    "faisal_levels": "🧭 إغلاقات الهابطة $5.10 · $5.22 · $5.27 · جسم قبل الهبوط $5.05 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-09-25"
