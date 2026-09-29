@@ -187,9 +187,11 @@ class Chart:
 
 
 def fetch_many(symbols, interval: str = "1D", n: int = 600, extended: bool = False, workers: int = 6,
-               chart_factory=None, progress=None, pause: float = 0.0) -> dict:
+               chart_factory=None, progress=None, pause: float = 0.0, gate=None) -> dict:
     """{رمز: شموع | None} لعدّة رموز على `workers` مقابس متوازية (كلُّ مقبسٍ يمرّ على نصيبه بالتتابع) · والرمزُ الذي فشل
-    يُعاد **مرّةً واحدة** على مقبسٍ جديد (سقوطٌ عابر) · `chart_factory` محقونٌ للاختبار. الرموزُ بصيغة «EXCH:SYM»."""
+    يُعاد **مرّةً واحدة** على مقبسٍ جديد (سقوطٌ عابر) · `chart_factory` محقونٌ للاختبار. الرموزُ بصيغة «EXCH:SYM».
+    و`gate` (اختياريّ · قاطعُ دائرة) = كائنٌ له `skip()` قبل كلّ رمز (True ⟵ None بلا نداء) و`record(ok)` بعد نتيجته
+    النهائيّة — فحين يُحجَب الموقعُ لا تُستنفَد المهلةُ على آلاف الرموز (درسُ Polygon 2026-09-29) · وبلا `gate` السلوكُ كما هو."""
     syms = list(dict.fromkeys(symbols or []))
     out = {}
     if not syms:
@@ -208,11 +210,18 @@ def fetch_many(symbols, interval: str = "1D", n: int = 600, extended: bool = Fal
                     s = q.get_nowait()
                 except queue.Empty:
                     return
+                if gate is not None and gate.skip():
+                    with _LOCK:
+                        out[s] = None
+                        done[0] += 1
+                    continue
                 r = ch.bars(s, interval=interval, n=n, extended=extended)
                 if r is None:
                     ch.close()
                     _count("reconnect")
                     r = ch.bars(s, interval=interval, n=n, extended=extended)
+                if gate is not None:
+                    gate.record(r is not None)
                 with _LOCK:
                     out[s] = r
                     done[0] += 1

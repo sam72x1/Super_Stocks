@@ -9,6 +9,9 @@ name: "🔎📬 شروطك الثلاثة — رسالةٌ يوميّة (three_c
 #    رنر · #461) ⟶ send (الحكم والرسالة). لا كتابةَ حالةٍ ولا commit.
 # 🧭 وأمرُه الثالث 2026-09-26 ليلًا («تحت 33 نفس شرط فيصل بالضبط … للصنفين»): حدُّ RSI صار حدَّ فيصل في البوت بالاسم
 #    (`S.CONFIG["RSI_OVERSOLD"]` = 33 النافذ · `rsi_max`) للقسمين — وسطرُ «أقلّ من 30» أعلاه تاريخُ الأمر الأوّل.
+# 📺 وأمرُه الرابع 2026-09-29 ليلًا (بعد انتهاء اشتراك Polygon): «المهم الاشعارات حقت الأدوات تكون مستمرة … البيانات تاخذها من
+#    ترندق فيو مب ياهو» ⇒ المصدرُ الافتراضيّ TradingView (`tv_data.py`: الماسح للفلوت وRSI المرجع · والمِقبس للشموع) بلا مفتاح ·
+#    ومُدخَلُ `source=polygon` = المسارُ السابق بت-بت (يلزمه `POLYGON_API_KEY` · باقٍ في scan للرجوع).
 # ⏰ الكرون 02:23 UTC الثلاثاء-السبت = جلساتُ الاثنين-الجمعة: بعد حصّاد الاقتراض (01:20) فيُقرأ صفُّه أوّلًا ·
 #    والتأخّرُ المقيس عند 02:xx ‏≈283-319 دقيقة ⇒ الوصولُ مع التقرير اليوميّ صباحًا بتوقيت السعوديّة تقريبًا (لا وعدَ بدقيقة) ·
 #    والجلسةُ ليست اليومَ ولا أمسَ بتوقيت نيويورك (عطلة) ⇒ صمتٌ بسببٍ مطبوع لا تكرار.
@@ -30,6 +33,10 @@ on:
         description: "تتبّعُ رموزٍ بعينها في السجلّ (بفاصلة · مثل FGL,SMX) — وصفٌ لا يدخل عددًا"
         required: false
         default: ""
+      source:
+        description: "مصدرُ البيانات: tv (TradingView · الافتراضيّ) أو polygon (المسارُ السابق · يلزمه اشتراك Polygon)"
+        required: false
+        default: "tv"
   schedule:
     - cron: "23 2 * * 2-6"
 
@@ -54,10 +61,11 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: 🔎 المسح (Polygon · الفلوت · ياهو)
+      - name: 🔎 المسح (TradingView افتراضًا · الشموع والفلوت والتحقّق)
         env:
           PYTHONUNBUFFERED: "1"
           TC_STAGE: scan
+          TC_SOURCE: ${{ github.event.inputs.source }}
           TC_FORCE: ${{ github.event.inputs.force }}
           TC_TRACE: ${{ github.event.inputs.trace }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}

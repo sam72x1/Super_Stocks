@@ -13,6 +13,16 @@
 للأداة = **حدُّ فيصل في البوت بالاسم** `S.CONFIG["RSI_OVERSOLD"]` (‏`rsi_max` · النافذ 33 = وسيطُ **قاع** RSI في كاتالوج أسهمه ·
 `FAISAL_ONLY`) للقسمين · و`OPL.RSI_OWNER` (‏30 · عقدُ `T-OPLINK`) **لا يُقرأ هنا ولا يُمَسّ** — 🔄 وتقريرا الأسبوع والفترة
 على الحدّ نفسِه منذ 2026-09-29 (أمرُ المالك «وحد 33 في التقريرين» · `WW.rsi_max` · المصدرُ `S.CONFIG` نفسُه).
+📺 **وأمرُه الرابع (2026-09-29 ليلًا · بعد انتهاء اشتراك Polygon):** «اشتراكي مخلص ولا راح اجدده حتى لو يتوقف التحديث اللحظي
+المهم الاشعارات حقت الأدوات تكون مستمرة … و المهم تكون النتايج دقيقة يعني البيانات تاخذها من ترندق فيو مب ياهو» ⇒ **المصدرُ
+الافتراضيّ `TC_SOURCE=tv`** (`tv_data.py`): الشموعُ اليوميّة (نظاميّةٌ مسوّاةٌ بالتقسيم `adjustment=splits` = Polygon
+`adjusted=true`) وشموعُ الساعة الممتدّة من **مِقبس TradingView** بالتعريفات نفسِها ③ ⑨ ⑩ ⑫ · **والفلوتُ من ماسحه وحدَه**
+(`float_shares_outstanding` — لا ياهو ولا ذاكرةُ البوت: المخزَّنُ يُطبع في السجلّ ولا يدخل الحكم) · **وتحقّقُ ياهو ⑦ يُستبدل**
+بتحقّقٍ داخليّ: RSI الماسح **لجلسة الشموع نفسِها** (إغلاقُه = إغلاقُ الجلسة) مقابل RSI الشموع بـ`WW.RSI_TOL` — **قناةٌ ثانيةٌ من
+المصدر نفسِه لا تحقّقٌ مستقلّ** (مِجَسّ `36646071838`: ‏`S.rsi` على شموعه = RSI ماسحه بفرقٍ أقصاه 0.006 · وMGN عند ياهو 25.0
+وعنده 48.2) · وبلا 🩹 (لا مصدرَ ثانٍ يُصحَّح) · والمتاحُ ⑤ من ChartExchange كما هو · **و`TC_SOURCE=polygon` = المسارُ السابق
+بت-بت** (يلزمه `POLYGON_API_KEY`). ⚠️ **حدُّ صدق:** TradingView **بلا واجهةٍ رسميّة** وأتمتتُه خلافُ شروط استخدامه ⇒ قد يُحجَب
+أو تتغيّر واجهتُه بلا إنذار ⇒ قاطعُ دائرةٍ (`TVBreaker`) وحارسا تغطيةٍ (الماسح والشموع) ⟵ **سطرُ عطلٍ لا صمتٌ ولا «لا يوجد» كاذب**.
 
 **التعريفات (مثبَّتةٌ قبل أيّ رقم — تعريفاتُ `watch_week_probe` بالاسم):**
 ① **الكون** = `S.get_universe()` ∪ القائمةُ والارتدادُ (`weekly_watchlist.json`) ∪ **تحت المتابعة** (`near_watch.json`).
@@ -46,9 +56,11 @@
 ⑬ **التتبّع** (`TC_TRACE` = رموزٌ بفاصلة): لكلّ رمزٍ مسمّى في السجلّ — RSI · السعر · الفئة · القاعُ الدقيق ويومُه ومصدرُه · عددُ
    جلسات الثبات · أقصى صعودٍ في الأسبوع — **وصفٌ لا يدخل عددًا**.
 
-المراحل (`TC_STAGE`): `scan` (Polygon اليوميّ والساعة · الفلوت · ياهو ⟵ `tc_scan.json`) ⟶ `borrow` (المتاح لجزء الرنر ⟵
-`tc_borrow_<n>.json`) ⟶ `send` (الحكم والرسالة) · و`all` الثلاثُ في عمليّةٍ واحدة.
-الخروج: 0 أُرسلت/طُبعت أو صمتُ عطلةٍ بسببه · 2 بلا مفتاح · 3 تغطيةٌ ناقصة (سطرُ العطل أُرسل) · 4 لا جلسةَ في التقويم.
+المراحل (`TC_STAGE`): `scan` (الشموعُ اليوميّة والساعة · الفلوت · التحقّق — من TradingView افتراضًا · أو Polygon وياهو بـ
+`TC_SOURCE=polygon` ⟵ `tc_scan.json`) ⟶ `borrow` (المتاح لجزء الرنر ⟵ `tc_borrow_<n>.json`) ⟶ `send` (الحكم والرسالة) · و`all`
+الثلاثُ في عمليّةٍ واحدة.
+الخروج: 0 أُرسلت/طُبعت أو صمتُ عطلةٍ بسببه · 2 بلا مفتاح Polygon (مصدرُ `polygon` وحدَه) · 3 تغطيةٌ ناقصة (سطرُ العطل أُرسل) ·
+4 لا جلسةَ في التقويم.
 """
 import concurrent.futures as cf
 import datetime as dt
@@ -65,10 +77,12 @@ import Super_stock as S
 import opentry_link_probe as OPL                                     # حدودُ المالك بالاسم
 import prelink_probe as P                                            # ticker_daily_adj بالاسم
 import prelink_px as PX                                              # PX_MIN بالاسم
+import tv_data as TV                                                 # 📺 TradingView: الماسح والمِقبس (أمرُ المالك 2026-09-29)
 import watch_week_probe as WW                                        # flags · conj · rsi_at · close_at بالاسم
 from kasih_scan import NY
 
 STAGE = (os.environ.get("TC_STAGE") or "all").strip()
+SOURCE = (os.environ.get("TC_SOURCE") or "tv").strip().lower()      # 📺 «tv» افتراضًا · «polygon» حرفيًّا = المسارُ السابق بت-بت
 DRY = (os.environ.get("TC_DRY") or "0").strip() == "1"
 FORCE = (os.environ.get("TC_FORCE") or "0").strip() == "1"
 SHARD = int(os.environ.get("TC_SHARD") or 0)
@@ -92,6 +106,13 @@ HOURS_DAYS = 45                  # engineering — أيّامٌ تقويميّة
 TRACE = tuple(x.strip().upper() for x in (os.environ.get("TC_TRACE") or "").split(",") if x.strip())
 BOT_LABEL = {"stocks": "🎯 في قائمة البوت", "pullback": "🔁 في قائمة الارتداد"}
 GATE_TXT = {"wait": "ينتظر الثبات", "boom": "انفجر خلال أسبوع", "nohour": "تعذّر القاع الدقيق"}
+SRC_NAME = {"tv": "TradingView", "polygon": "Polygon"}
+TV_COLS = ["name", "close", "RSI", "RSI[1]", "float_shares_outstanding"]   # حقولُ الماسح (مقروءةٌ حيًّا: مِجَسّ `36646071838`)
+TV_WORKERS = 8                   # engineering — مِقابسُ متوازية: المِجَسُّ قاس 6 و12 مقبسًا ‏≈0.03ث/رمز · 100 من 100 بعد إعادةٍ واحدة
+TV_DAILY_N = 400                 # engineering — شموعٌ يوميّة تغطّي `WW.HIST_DAYS` (‏400 يومٍ تقويميّ ‏≈276 جلسة) بهامش ثمّ تُقصّ عليه
+TV_HOURS_N = 1000                # engineering — شموعُ ساعةٍ ممتدّة تغطّي `HOURS_DAYS` (‏1000 ÷ 16 ساعة ‏≈62 جلسة لأنشط سهم)
+TV_SCAN_TRIES = 2                # engineering — محاولتا الماسح (طلبٌ واحد ‏≈1ث) قبل سطر العطل
+PX_TOL = 1e-6                    # engineering — تطابقُ إغلاق الماسح وإغلاق الجلسة (نسبيّ) شرطُ مقارنة RSI الماسح
 
 
 def log(msg=""):
@@ -112,6 +133,37 @@ def session_gate(cal, now_ny, force=False):
     if sess in (today, yday):
         return sess, True, "جلسةٌ جديدة"
     return sess, False, f"آخرُ جلسةٍ {sess} ليست اليومَ ولا أمسَ بتوقيت نيويورك (عطلة) — لا تكرار"
+
+
+def source_of(x):
+    """📺 «polygon» حرفيًّا (بلا حالةٍ ولا مسافات) ⟵ المسارُ السابق (Polygon اليوميّ والساعة · فلوتُ ياهو · تحقّقُ ياهو) بت-بت ·
+    وأيُّ قيمةٍ غيرها ⟵ «tv» (الافتراضيّ بأمر المالك 2026-09-29)."""
+    return "polygon" if str(x or "").strip().lower() == "polygon" else "tv"
+
+
+def tv_float(sn):
+    """فلوتُ TradingView من صفّ الماسح (`float_shares_outstanding`) ⟵ عددٌ موجب أو None (مجهولٌ لا صفر)."""
+    try:
+        f = float((sn or {}).get("float_shares_outstanding"))
+    except (TypeError, ValueError):
+        return None
+    return f if f > 0 else None
+
+
+def tv_ref_rsi(sn, px, tol=PX_TOL):
+    """RSI الماسح **لجلسة الشموع نفسِها** ⟵ حقلُ "RSI" حين يطابق إغلاقُ الماسح إغلاقَ الجلسة `px` (نسبيًّا ضمن `tol`) · وإلّا
+    None: الماسحُ على شمعةٍ أخرى (جلسةٌ جديدة فُتحت أو بياناتٌ متأخّرة) ⟵ **لا مقارنة ولا شكّ** (المجهولُ لا يصنع شكًّا ⑦).
+    قناةٌ ثانيةٌ من TradingView نفسِه (الماسح مقابل المِقبس) — تُمسك خللَ البيانات أو الحساب **لا خطأَ المصدر كلِّه**."""
+    try:
+        c, r, p = float((sn or {}).get("close")), (sn or {}).get("RSI"), float(px)
+    except (TypeError, ValueError):
+        return None
+    if r is None or p <= 0 or abs(c - p) > tol * p:
+        return None
+    try:
+        return float(r)
+    except (TypeError, ValueError):
+        return None
 
 
 def ratio_range(ya, pa):
@@ -351,8 +403,9 @@ def excluded_counts(rows):
 
 def build_message(st, rows):
     """نصُّ الرسالة (HTML تلغرام) — **رسالةٌ واحدة بقسمين** (💵 فوق الدولار · 🪙 سنتات) **بالمطابق الكامل وحدَه** · وما سواه
-    عدّادٌ في التذييل (والقصُّ يُعلَن بعدده) · **بلا علامات مقارنة.**"""
+    عدّادٌ في التذييل (والقصُّ يُعلَن بعدده) · **بلا علامات مقارنة.** ومصدرُ البيانات من `st["source"]` (وغيابُه = Polygon)."""
     sess = st.get("sess")
+    src = source_of(st.get("source") or "polygon")
     need = STABILITY_REQ
     dol, pen = listed(rows)
     lines = [f"🔎 <b>شروطك الثلاثة</b> — إغلاق {sess}",
@@ -360,7 +413,8 @@ def build_message(st, rows):
              f"{OPL.AVAIL_OWNER:,}",
              f"وثبات {need} جلسات فوق أدنى قاع (القاعُ الدقيق بالبري والأفتر كفريم 4 ساعات · والعدُّ جلساتٌ يوميّة) · "
              f"ولم ينفجر خلال آخر {EXPLODE_WIN} جلسات ({float(S.CONFIG['EXPLOSION_PCT']):g}% فأكثر)",
-             "(RSI من Polygon · وياهو للتحقّق)", ""]
+             ("(البياناتُ من TradingView: الشموعُ وRSI والفلوت · والمتاحُ من ChartExchange)" if src == "tv"
+              else "(RSI من Polygon · وياهو للتحقّق)"), ""]
     if any(rows[s].get("repaired") for s in dol + pen):
         lines.insert(4, "🩹 = شموعُ البوت لهذا الرمز صارت من Polygon (ياهو مختلُّ التقسيم) ⇒ تحقّقُه ليس مستقلًّا")
     lines.append(f"💵 <b>فوق الدولار — يطابق: {len(dol)}</b>")
@@ -378,7 +432,7 @@ def build_message(st, rows):
                   f"{x['nohour']} · الفلوت فوق الحدّ {x['float']} · المتاح فوق الحدّ {x['avail']} · مشكوك {x['doubt']} · مجهول "
                   f"{x['unk']} (الأسماءُ في السجلّ)"]
     c = st.get("counts") or {}
-    lines.append(f"🧾 الكون {c.get('universe', 0):,} · بشمعة الجلسة من Polygon {c.get('fresh', 0):,} · RSI أقلّ من "
+    lines.append(f"🧾 الكون {c.get('universe', 0):,} · بشمعة الجلسة من {SRC_NAME[src]} {c.get('fresh', 0):,} · RSI أقلّ من "
                  f"{rsi_max():g}: {c.get('c2', 0)} (فوق الدولار {c.get('c2_dollar', 0)} · سنتات {c.get('c2_penny', 0)}) · "
                  f"ثابتٌ وغيرُ منفجر {c.get('c3', 0)} · منه فلوتٌ أقلّ من الحدّ أو مجهول {c.get('c4', 0)} · المتاح: حصاد "
                  f"{c.get('av_harvest', 0)} · الموقع {c.get('av_ce', 0)} · تعذّر {c.get('av_fail', 0)}"
@@ -460,10 +514,31 @@ class Breaker:
         return {"open": self.open, "done": self.done, "fail": self.fails(), "skipped": self.skipped}
 
 
+class TVBreaker(Breaker):
+    """⛔ قاطعُ TradingView — عدّادُه **نتائجُ الرموز نفسُها** (None بعد الإعادة = إخفاق) لا عدّادٌ عامّ: `TV.fetch_many` ينادي
+    `skip()` قبل كلّ رمز و`record(ok)` بعد نتيجته النهائيّة (معاملُ `gate`). حين يُحجَب الموقعُ يُفتح بعد `BREAKER_MIN` رمزًا
+    ⟵ البقيّةُ بلا نداء ⟵ سطرُ العطل في دقائق لا صمتٌ حتى المهلة (درسُ Polygon 2026-09-29 · والحدّان نفسُهما)."""
+
+    def __init__(self, min_done=None, ratio=None):
+        super().__init__(min_done=min_done, ratio=ratio, calls={"fail": 0})
+
+    def record(self, ok=True):
+        if not ok:
+            with self.lock:
+                self.calls["fail"] += 1
+        super().record()
+
+    def summary(self):
+        return dict(super().summary(), src="tv")
+
+
 def breaker_note(b):
-    """ذيلُ سطر العطل حين فُتح القاطع ⟵ نصٌّ عربيٌّ بلا علاماتِ مقارنة · وإلّا ""."""
+    """ذيلُ سطر العطل حين فُتح القاطع ⟵ نصٌّ عربيٌّ بلا علاماتِ مقارنة · وإلّا "" — ونصُّ TradingView لقاطعه (`src`)."""
     if not b or not b.get("open"):
         return ""
+    if b.get("src") == "tv":
+        return (f" — قاطعُ الدائرة: TradingView أخفق في {b['fail']:,} من {b['done']:,} رمزًا فتُخطّيت البقيّةُ "
+                f"({b['skipped']:,}) · قد يكون الموقعُ حجب الوصول أو غيّر واجهته (لا واجهةَ رسميّة)")
     return (f" — قاطعُ الدائرة: Polygon أخفق في {b['fail']:,} من {b['done']:,} رمزًا فتُخطّيت البقيّةُ "
             f"({b['skipped']:,}) · تحقّق من اشتراك Polygon")
 
@@ -523,6 +598,79 @@ def fetch_hours(syms, d0, d1, key, workers=WORKERS, brk=None):
         log(f"⛔ قاطعُ الدائرة (الساعة){breaker_note(BREAKER_LAST['hours'])}")
     return out
 
+def _tv_full(s, tmap):
+    """رمزٌ مجرّد ⟵ «EXCH:SYM» من خريطة الماسح (`TV.ticker_map`) · وغيابُه ⟵ «NASDAQ:SYM» (كونُ البوت ناسداك)."""
+    return (tmap or {}).get(s) or f"NASDAQ:{s}"
+
+
+def _tv_progress(k, n):
+    if k % 1000 == 0:
+        log(f"   … TradingView {k}/{n}")
+
+
+def fetch_tv(syms, d0, d1, key=None, tmap=None, workers=TV_WORKERS, brk=None, chart_factory=None):
+    """📺 {رمز: صفوفٌ يوميّة (يومُ نيويورك, o, h, l, c, v)} من مِقبس TradingView (`TV.fetch_many` · الجلسةُ النظاميّة ·
+    `adjustment=splits`) **مقصوصةً على [d0, d1]** — فشكلُ الصفّ وحدودُه كـ`P.ticker_daily_adj` (آخرُ صفٍّ = الجلسةُ أو قبلها) ·
+    والتعذّرُ ⟵ [] · **تحت قاطع الدائرة** (`TVBreaker`) · و`key` مُهمَل (توقيعُ `fetch_polygon` نفسُه للحقن)."""
+    brk = brk or TVBreaker()
+    full = {s: _tv_full(s, tmap) for s in syms}
+    got = TV.fetch_many(sorted(set(full.values())), interval="1D", n=TV_DAILY_N, workers=workers,
+                        chart_factory=chart_factory, progress=_tv_progress, gate=brk)
+    out = {}
+    for s, f in full.items():
+        rows = []
+        for b in got.get(f) or []:
+            d = TV.ny_day(b[0])
+            if d0 <= d <= d1:
+                rows.append((d, float(b[1]), float(b[2]), float(b[3]), float(b[4]), float(b[5])))
+        out[s] = rows
+    BREAKER_LAST["daily"] = brk.summary()
+    if brk.open:
+        log(f"⛔ قاطعُ الدائرة (اليوميّ){breaker_note(BREAKER_LAST['daily'])}")
+    return out
+
+
+def fetch_tv_hours(syms, d0, d1, key=None, tmap=None, workers=TV_WORKERS, brk=None, chart_factory=None):
+    """📺 {رمز: [(ms, high, low)]} — شموعُ ساعةٍ **ممتدّة** (البري والأفتر) من مِقبس TradingView بين يومَي نيويورك d0 وd1 ضمنًا
+    (شكلُ `_hours_one` نفسُه) · والتعذّرُ ⟵ [] (فالقاعُ الدقيق «لم يُقَس» لا تخمين) · **تحت قاطعٍ مستقلّ** عن اليوميّ."""
+    brk = brk or TVBreaker()
+    full = {s: _tv_full(s, tmap) for s in syms}
+    got = TV.fetch_many(sorted(set(full.values())), interval="60", n=TV_HOURS_N, extended=True, workers=workers,
+                        chart_factory=chart_factory, gate=brk)
+    out = {}
+    for s, f in full.items():
+        out[s] = [(int(b[0]) * 1000, float(b[2]), float(b[3])) for b in (got.get(f) or []) if d0 <= TV.ny_day(b[0]) <= d1]
+    BREAKER_LAST["hours"] = brk.summary()
+    if brk.open:
+        log(f"⛔ قاطعُ الدائرة (الساعة){breaker_note(BREAKER_LAST['hours'])}")
+    return out
+
+
+def tv_snapshot(tries=TV_SCAN_TRIES, scan=None, pause=5.0):
+    """📺 لقطةُ الماسح (`TV_COLS` لأسهم الأسواق الثلاثة) ⟵ {«EXCH:SYM»: {عمود: قيمة}} أو None بعد `tries` محاولات — و`TV.scan`
+    لا يُرجع نصفَ قائمة (صفحةٌ تتعذّر ⟵ None للكلّ)."""
+    scan = scan or TV.scan
+    for i in range(max(1, int(tries))):
+        sn = scan(TV_COLS)
+        if sn:
+            return sn
+        if i + 1 < tries and pause:
+            time.sleep(pause)
+    return None
+
+
+def _stored_float(s, wl_fl, nw, cache):
+    """فلوتُ البوت المخزَّن لرمز (القائمة ⟵ مخزنُ «تحت المتابعة» ⟵ ذاكرةُ الشركات) ⟵ عددٌ أو None — **للاطّلاع في السجلّ وحدَه**
+    في مصدر TradingView (أصلُه ياهو) · وترتيبُه ترتيبُ مسار Polygon نفسُه."""
+    if wl_fl.get(s):
+        return float(wl_fl[s])
+    if isinstance(nw, dict) and isinstance(nw.get(s), dict) and nw[s].get("float"):
+        return float(nw[s]["float"])
+    if isinstance(cache, dict) and isinstance(cache.get(s), dict) and cache[s].get("float"):
+        return float(cache[s]["float"])
+    return None
+
+
 def load_json(path, default):
     try:
         with open(path, encoding="utf-8") as fh:
@@ -538,17 +686,19 @@ def _dump(path, obj):
 
 # ─────────────────────────── المراحل ───────────────────────────
 def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat=None, harvested=None,
-               wl=None, nw=None, cache=None, repaired=None, hours=None):
-    """① ⟶ ④ + ⑦ + ⑩ + ⑫: الكون · Polygon اليوميّ · RSI والسعر (بلا حدّ سعرٍ — السنتاتُ قسمٌ) · شموعُ الساعة ⟵ القاعُ الدقيق
-    وثباتُه والانفجار · الفلوت (لمن عبر الثبات وحدَه) · ياهو للتحقّق · وقائمةُ المتاح المطلوبة ⟵ الحالة (dict)."""
+               wl=None, nw=None, cache=None, repaired=None, hours=None, source=None, snap=None):
+    """① ⟶ ④ + ⑦ + ⑩ + ⑫: الكون · الشموعُ اليوميّة · RSI والسعر (بلا حدّ سعرٍ — السنتاتُ قسمٌ) · شموعُ الساعة ⟵ القاعُ الدقيق
+    وثباتُه والانفجار · الفلوت (لمن عبر الثبات وحدَه) · التحقّق · وقائمةُ المتاح المطلوبة ⟵ الحالة (dict).
+    📺 `source` (وغيابُه ⟵ `SOURCE`): «tv» = TradingView (لقطةُ الماسح `snap` المحقونة أو `tv_snapshot()` ⟵ خريطةُ الرموز والفلوتُ
+    وRSI المرجع · والمِقبسُ للشموع) · «polygon» = Polygon وياهو (المسارُ السابق بت-بت · و`yahoo`/`yfloat`/`repaired` له وحدَه)."""
     now = now or dt.datetime.now(tz=NY)
-    fetch = fetch or fetch_polygon
-    hours = hours or fetch_hours
+    src = source_of(SOURCE if source is None else source)
+    nm = SRC_NAME[src]
     cal = WW.calendar(now.year)
     sess, send, why = session_gate(cal, now, FORCE)
     st = {"sess": sess, "send": send, "why": why, "now": now.isoformat(), "rows": {}, "need": [], "counts": {},
-          "fail": None}
-    log(f"🔎 الجلسة {sess} · يُرسَل: {send} ({why})")
+          "fail": None, "source": src}
+    log(f"🔎 الجلسة {sess} · يُرسَل: {send} ({why})" + (f" · المصدر {nm}" if src == "tv" else ""))
     if not sess or not send:
         return st                            # عطلةٌ/لا جلسة ⇒ صفرُ جلب (لا Polygon ولا ياهو ولا موقع)
     wl = load_json(WW.WL_FILE, {}) if wl is None else wl
@@ -557,15 +707,36 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
                    | set(nw if isinstance(nw, dict) else {}))
     uni = sorted(set(universe() if universe else S.get_universe()) | set(extra))
     d0 = (dt.date.fromisoformat(sess) - dt.timedelta(days=WW.HIST_DAYS)).isoformat()
-    log(f"👥 الكون {len(uni)} (منه القائمة والارتداد وتحت المتابعة {len(extra)}) · Polygon {d0} ⟶ {sess} …")
     BREAKER_LAST.clear()                     # ⛔ لا يُقرأ قاطعُ تشغيلةٍ سابقة (والجالبُ المحقون لا يكتبه)
+    sn, tmap = {}, {}
+    if src == "tv":
+        #    📺 الماسحُ أوّلًا: خريطةُ «EXCH:SYM» للمِقبس · والفلوت · وRSI المرجع — وتعذّرُه أو قصورُه ⟵ سطرُ عطلٍ قبل أيّ شمعة
+        sn = tv_snapshot() if snap is None else snap
+        if not sn:
+            st["fail"] = "ماسحُ TradingView تعذّر (الفلوت وتحقّقُ RSI) — قد يكون الموقعُ حجب الوصول أو غيّر واجهته"
+            log(f"⛔ {st['fail']}")
+            return st
+        tmap = TV.ticker_map(sn)
+        hit = sum(1 for s in uni if s in tmap)
+        st["counts"]["tv_scan"] = hit
+        log(f"📺 ماسحُ TradingView: {len(sn):,} صفًّا · منها في الكون {hit} من {len(uni)} = "
+            f"{hit / max(1, len(uni)) * 100:.1f}% (الحدّ {MIN_COVER * 100:.0f}%)")
+        if not uni or hit / len(uni) < MIN_COVER:
+            st["fail"] = f"ماسحُ TradingView غطّى {hit} من {len(uni)} رمزًا فقط"
+            return st
+        fetch = fetch or (lambda xs, a, b, k: fetch_tv(xs, a, b, k, tmap=tmap))
+        hours = hours or (lambda xs, a, b, k: fetch_tv_hours(xs, a, b, k, tmap=tmap))
+    else:
+        fetch = fetch or fetch_polygon
+        hours = hours or fetch_hours
+    log(f"👥 الكون {len(uni)} (منه القائمة والارتداد وتحت المتابعة {len(extra)}) · {nm} {d0} ⟶ {sess} …")
     pg = fetch(uni, d0, sess, key)
     fresh = [s for s in uni if (pg.get(s) or []) and pg[s][-1][0] == sess]
     cover = len(fresh) / len(uni) if uni else 0.0
-    st["counts"].update({"universe": len(uni), "polygon": sum(1 for s in uni if pg.get(s)), "fresh": len(fresh)})
-    log(f"🩺 شمعةُ الجلسة من Polygon: {len(fresh)} من {len(uni)} = {cover * 100:.1f}% (الحدّ {MIN_COVER * 100:.0f}%)")
+    st["counts"].update({"universe": len(uni), src: sum(1 for s in uni if pg.get(s)), "fresh": len(fresh)})
+    log(f"🩺 شمعةُ الجلسة من {nm}: {len(fresh)} من {len(uni)} = {cover * 100:.1f}% (الحدّ {MIN_COVER * 100:.0f}%)")
     if cover < MIN_COVER:
-        st["fail"] = (f"شموعُ Polygon لجلسة {sess} لم تكتمل ({len(fresh)} من {len(uni)})"
+        st["fail"] = (f"شموعُ {nm} لجلسة {sess} لم تكتمل ({len(fresh)} من {len(uni)})"
                       + breaker_note(BREAKER_LAST.get("daily")))
         return st
     rows = {}
@@ -580,14 +751,14 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
     st["counts"]["c2"] = len(rows)
     st["counts"]["c2_dollar"] = sum(1 for s in rows if px_class(rows[s]["px"]) == "dollar")
     st["counts"]["c2_penny"] = len(rows) - st["counts"]["c2_dollar"]
-    log(f"② RSI أقلّ من {lim:g} (Polygon · حدُّ فيصل `RSI_OVERSOLD`): {len(rows)} — فوق الدولار "
+    log(f"② RSI أقلّ من {lim:g} ({nm} · حدُّ فيصل `RSI_OVERSOLD`): {len(rows)} — فوق الدولار "
         f"{st['counts']['c2_dollar']} · سنتات {st['counts']['c2_penny']}")
     h0 = (dt.date.fromisoformat(sess) - dt.timedelta(days=HOURS_DAYS)).isoformat()
     want = sorted(set(rows) | {t for t in TRACE if t in pg})
     hr = hours(want, h0, sess, key) if want else {}
     if (BREAKER_LAST.get("hours") or {}).get("open"):
         #    ⛔ قاطعُ الساعة فُتح ⇒ القاعُ الدقيق لم يُقَس لأغلب العابرين ⇒ **سطرُ عطلٍ لا «لا يوجد» كاذب**
-        st["fail"] = f"شموعُ الساعة من Polygon لجلسة {sess} تعذّرت" + breaker_note(BREAKER_LAST["hours"])
+        st["fail"] = f"شموعُ الساعة من {nm} لجلسة {sess} تعذّرت" + breaker_note(BREAKER_LAST["hours"])
         return st
     for s in sorted(rows):
         stab = exact_low_stability(pg[s], hr.get(s) or [], sess)
@@ -619,36 +790,55 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
         log(f"   ⛔ تعذّر القاعُ الدقيق (شموعُ الساعة) {len(by['nohour'])}: " + " · ".join(by["nohour"]))
     cache = load_json(S.COMPANY_FILE, {}) if cache is None else cache
     wl_fl = {e.get("symbol"): e.get("float") for sec in ("stocks", "pullback") for e in (wl.get(sec) or [])}
-    for s in c3:
-        fl = (yfloat or (lambda x: S._yahoo_float(x, strict=True)))(s)
-        if fl:
-            rows[s]["fl"], rows[s]["fl_src"] = float(fl), "ياهو"
-        elif wl_fl.get(s):
-            rows[s]["fl"], rows[s]["fl_src"] = float(wl_fl[s]), "قائمة البوت"
-        elif isinstance(nw, dict) and isinstance(nw.get(s), dict) and nw[s].get("float"):
-            #    👀🏢 مخزنُ فلوت «تحت المتابعة» (ياهو `floatShares` · يُحدَّث يوميًّا منذ 2026-09-26)
-            rows[s]["fl"], rows[s]["fl_src"] = float(nw[s]["float"]), "مخزن تحت المتابعة"
-        elif isinstance(cache.get(s), dict) and cache[s].get("float"):
-            rows[s]["fl"], rows[s]["fl_src"] = float(cache[s]["float"]), "ذاكرة البوت"
-        if yfloat is None:
-            time.sleep(0.3)
+    if src == "tv":
+        #    📺 الفلوتُ من ماسح TradingView **وحدَه** (أمرُ المالك «من ترندق فيو مب ياهو») — والمخزَّنُ عند البوت (أصلُه ياهو)
+        #    يُطبع للغائب ولا يدخل الحكم ⇒ الغائبُ «مجهولٌ» لا «نعم»
+        for s in c3:
+            fl = tv_float(sn.get(tmap.get(s)))
+            if fl:
+                rows[s]["fl"], rows[s]["fl_src"] = fl, "TradingView"
+        unk_tv = [s for s in c3 if rows[s]["fl"] is None]
+        if unk_tv:
+            log(f"   ❔ فلوتُ TradingView غائب {len(unk_tv)} (مجهولٌ في الحكم · والمخزَّنُ عند البوت للاطّلاع وحدَه): "
+                + " · ".join(f"{s} ({_num_txt(_stored_float(s, wl_fl, nw, cache))})" for s in unk_tv))
+    else:
+        for s in c3:
+            fl = (yfloat or (lambda x: S._yahoo_float(x, strict=True)))(s)
+            if fl:
+                rows[s]["fl"], rows[s]["fl_src"] = float(fl), "ياهو"
+            elif wl_fl.get(s):
+                rows[s]["fl"], rows[s]["fl_src"] = float(wl_fl[s]), "قائمة البوت"
+            elif isinstance(nw, dict) and isinstance(nw.get(s), dict) and nw[s].get("float"):
+                #    👀🏢 مخزنُ فلوت «تحت المتابعة» (ياهو `floatShares` · يُحدَّث يوميًّا منذ 2026-09-26)
+                rows[s]["fl"], rows[s]["fl_src"] = float(nw[s]["float"]), "مخزن تحت المتابعة"
+            elif isinstance(cache.get(s), dict) and cache[s].get("float"):
+                rows[s]["fl"], rows[s]["fl_src"] = float(cache[s]["float"]), "ذاكرة البوت"
+            if yfloat is None:
+                time.sleep(0.3)
     c4 = [s for s in c3 if rows[s]["fl"] is None or rows[s]["fl"] < OPL.FLOAT_OWNER]
     st["counts"]["c4"] = len(c4)
     log(f"④ فلوتٌ أقلّ من {OPL.FLOAT_OWNER:,} أو مجهول: {len(c4)} (مجهول {sum(1 for s in c4 if rows[s]['fl'] is None)})")
-    S.SPLIT_REPAIR_LAST.clear()
-    yh = (yahoo or S.download_history)(sorted(c4)) if c4 else {}
-    fixed = dict(S.SPLIT_REPAIR_LAST.get("replaced") or []) if repaired is None else dict(repaired)
-    for s in c4:
-        if s in fixed:
-            rows[s]["repaired"] = float(fixed[s])
-        ydf = yh.get(s)
-        if ydf is None or not len(ydf):
-            continue
-        ya = {i.date().isoformat(): float(c) for i, c in ydf["Close"].items()}
-        cut = [ya[d] for d in sorted(ya) if d <= sess]
-        if len(cut) >= WW.MIN_RSI_BARS:
-            rows[s]["ry"] = float(S.rsi(pd.Series(cut)).iloc[-1])
-        rows[s]["ratio"] = ratio_range(ya, {r[0]: r[4] for r in pg[s][-260:]})
+    if src == "tv":
+        for s in c4:
+            rows[s]["ry"] = tv_ref_rsi(sn.get(tmap.get(s)), rows[s]["px"])
+        st["counts"]["tv_ref"] = sum(1 for s in c4 if rows[s]["ry"] is not None)
+        log(f"⑦ تحقّقُ RSI بماسح TradingView (قناةٌ ثانيةٌ من المصدر نفسِه لا تحقّقٌ مستقلّ): قُورن {st['counts']['tv_ref']} من "
+            f"{len(c4)} · والباقي إغلاقُ الماسح ليس إغلاقَ الجلسة ⟵ لا مقارنة ولا شكّ")
+    else:
+        S.SPLIT_REPAIR_LAST.clear()
+        yh = (yahoo or S.download_history)(sorted(c4)) if c4 else {}
+        fixed = dict(S.SPLIT_REPAIR_LAST.get("replaced") or []) if repaired is None else dict(repaired)
+        for s in c4:
+            if s in fixed:
+                rows[s]["repaired"] = float(fixed[s])
+            ydf = yh.get(s)
+            if ydf is None or not len(ydf):
+                continue
+            ya = {i.date().isoformat(): float(c) for i, c in ydf["Close"].items()}
+            cut = [ya[d] for d in sorted(ya) if d <= sess]
+            if len(cut) >= WW.MIN_RSI_BARS:
+                rows[s]["ry"] = float(S.rsi(pd.Series(cut)).iloc[-1])
+            rows[s]["ratio"] = ratio_range(ya, {r[0]: r[4] for r in pg[s][-260:]})
     hv = (harvested or S._harvested_borrow)(dt.datetime.now(dt.timezone.utc).date().isoformat())
     need = []
     for s in sorted(c4, key=lambda x: (rows[x]["fl"] is None, rows[x]["rsi"])):
@@ -728,7 +918,9 @@ def stage_send(st, parts, send=None):
     ok = [s for s in sorted(rows) if rows[s].get("gate") == "ok"]
     for s in ok:
         r = rows[s]
-        if r["v"] is True and r["doubt"]:
+        if r["v"] is True and r["doubt"] and source_of(st.get("source") or "polygon") == "tv":
+            log(f"   ⚠️ مشكوك {s} · RSI الشموع {r['rsi']:.1f} · الماسح {r['ry']:.1f} (TradingView) · {S._px_txt(r['px'])}")
+        elif r["v"] is True and r["doubt"]:
             why = " · تقسيمٌ غيرُ متّسق بين المصدرين" if (r.get("ratio") or 0) > SPLIT_RATIO else ""
             log(f"   ⚠️ مشكوك {s} · RSI Polygon {r['rsi']:.1f} · ياهو {r['ry']:.1f}{why} · {S._px_txt(r['px'])}")
         elif r["v"] is None:
@@ -768,7 +960,7 @@ def stage_send(st, parts, send=None):
 
 def main() -> int:
     key = (os.environ.get("POLYGON_API_KEY") or "").strip()
-    if STAGE in ("scan", "all") and not key:
+    if STAGE in ("scan", "all") and source_of(SOURCE) == "polygon" and not key:     # 📺 TradingView بلا مفتاح
         log("⛔ بلا POLYGON_API_KEY")
         return 2
     if STAGE == "scan":
