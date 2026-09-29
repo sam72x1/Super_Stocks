@@ -51,8 +51,61 @@ env:
   IGNITION_SEGMENT_SPLIT_MIN: "195"
 
 jobs:
+  # ═══ job0أ/0ب: انتظارُ الجرس **خارج ميزانية المسح** (2026-09-29 · عطلٌ مُثبَت) ═══
+  # 🔴 تأخّرُ GitHub صار يُقلع أبكرَ كرون (02:11) نحو 08:2x-08:4x UTC ⇒ كان مقطعُ الافتتاح ينتظر
+  # الجرسَ ~5 ساعات **من سقفه 330 د** فيمسح 23-38 دقيقة فقط، ويُقلع مقطعُ الإغلاق بعده فينتهي
+  # سقفُه قبل الإغلاق بـ19-36 دقيقة (`36398556213` · `36542373249`) ⇒ الذيلُ على تشغيلةٍ احتياطيّة
+  # (فجوةُ تسليمٍ ~2 د) وجلستا القياس ضاعتا. الآن جوبا نومٍ رخيصان (كلٌّ حتى 340 د تحت سقف
+  # الجوب 360) ينامان حتى الجرس ناقصَ 10 د ⇒ المقطعان يأخذان ميزانيّتَهما **من الافتتاح**
+  # (مقيسٌ بالنموذج: كلُّ إقلاعٍ من 00:00 UTC حتى الجرس يغطّي الجلسةَ كاملةً بتشغيلةٍ واحدة).
+  # ⚖️ **فاشلٌ-آمن:** أيُّ عطلٍ في جوب النوم ⟵ صفرُ نوم (`continue-on-error` · والمقطعُ بعده
+  # `if: always()`) ⟵ سلوكُ اليوم حرفيًّا. المسحُ والتنبيهُ والدِدوبُ والقياسُ لم تُمَسّ.
+  pre_open_wait_1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Wait for the bell outside the scan budget
+        continue-on-error: true
+        run: |
+          M=$(python ignition_live.py --pre-open-sleep 2>/dev/null \
+                | sed -n 's/^PRE_OPEN_SLEEP_MIN=\([0-9][0-9]*\)$/\1/p' | tail -1)
+          [ -n "$M" ] || M=0
+          echo "⏰ انتظارُ الجرس خارج ميزانية المسح: ${M} دقيقة"
+          sleep $((M * 60))
+
+  pre_open_wait_2:
+    needs: pre_open_wait_1
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Wait for the bell outside the scan budget
+        continue-on-error: true
+        run: |
+          M=$(python ignition_live.py --pre-open-sleep 2>/dev/null \
+                | sed -n 's/^PRE_OPEN_SLEEP_MIN=\([0-9][0-9]*\)$/\1/p' | tail -1)
+          [ -n "$M" ] || M=0
+          echo "⏰ انتظارُ الجرس خارج ميزانية المسح: ${M} دقيقة"
+          sleep $((M * 60))
+
   # ═══ job1: مقطع الافتتاح [open, open+195د] ═══
   open_segment:
+    needs: pre_open_wait_2
+    if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 345
     steps:
