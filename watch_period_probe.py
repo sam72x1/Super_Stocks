@@ -27,7 +27,8 @@
 ⑧ **سلسلةُ التحقّق** لكلّ فئة (تراكميّةً داخل الجلسة الواحدة): خامٌ (سهم×جلسة) ⟵ أسهمٌ بعد إزالة التكرار ⟵ الفئة ⟵ فلوت ⟵ RSI ⟵
    شورت ⟵ المؤهّلة ⟵ انفجرت · **وحارسُ اتّساق**: المؤهّلُ بالسلسلة = المؤهّلُ بالإشارة الأولى (فرقٌ ⇒ يُطبع بأسمائه لا يُخفى).
 ⑨ **شاهدُ الهُويّة مع التقرير السابق (`V-P1`)** — إن وقعت جلساتُ 2026-09-21 ⟶ 25 كلُّها داخل الفترة: عدُّ (سهم×جلسة · RSI · فلوت ·
-   متاح · دولار) يطابق المنشور **177 · 4 · 76 · 57 · 156** — عدٌّ لا تحليلُ دولار · والفرقُ يُطبع ولا يُخفى.
+   متاح · دولار) يطابق المنشور **177 · 4 · 76 · 57 · 156** — عدٌّ لا تحليلُ دولار · والفرقُ يُطبع ولا يُخفى. **وعدُّ RSI فيه بحدّ
+   المنشور** `PUBLISHED_RSI` (= `OPL.RSI_OWNER` · 30 — الحدُّ الذي صدر به) لا بالحدّ النافذ (⑬): الشاهدُ يختبر هُويّةَ البيانات لا الحدّ.
 ⑩ **الفئات** (`PERIOD_CLASSES`): `penny` للتقرير 1 (**لا تُحلَّل أسهمُ الدولار مرّةً أخرى**) · `penny,dollar` للتقرير 2.
 ⑪ **👀 تحت المتابعة — مجتمعٌ ثالث** (أمرُ المالك 2026-09-26 بعد التقريرين: «فيه سهمين اذكر ريتو و واحد معه ارتفعوا نسبة
    جنونية … ما ذكرته ليه؟» — والجواب: تعريفُ ② لم يشمل «تحت المتابعة» فغاب RETO عن المجتمع بالبناء): رموزُ `near_watch.json`
@@ -38,6 +39,9 @@
    (+50% من إغلاق ما قبل أوّل جلسة · وصفٌ لا حكم) بسبب عدم استيفائهم.
 ⑫ **التتبّع** (`PERIOD_TRACE` = رموزٌ بفاصلة): لكلّ رمزٍ مسمّى جلسةً جلسة — في أيّ مجتمعٍ كان · شروطُه · الإغلاقُ الخامّ
    والمسوّى · وتقسيماتُه من Polygon · وأقصى صعوده — **وصفٌ لا يدخل عددًا**.
+⑬ **ملحقٌ مؤرَّخ 2026-09-29 — أمرُ المالك «وحد 33 في التقريرين»:** حدُّ RSI في ③ وسطرِ السجلّ وسببِ «لم يستوفِ» = `WW.rsi_max()`
+   بالاسم (`S.CONFIG["RSI_OVERSOLD"]` وقتَ النداء · النافذ 33) عبر `WW.flags` ⇒ **التقريران والأداةُ اليوميّة على حدٍّ واحد** ·
+   و`OPL.RSI_OWNER` (30) لا يُقرأ إلّا لشاهد ⑨ · **والمنشورُ قبل هذا السطر بحدّ 30 يبقى كما صدر** (`watch_period_result.md`).
 
 الخروج: 0 قياس · 2 بلا مفتاح · 3 حارسٌ ساقط · 4 لا لقطة/لا رمز · 5 ليست قراءةً فقط.
 """
@@ -62,6 +66,7 @@ NW_SHOW = 15                     # سقفُ عرض صاعدي «تحت المت�
 NW_WORKERS = 8
 WEEK_REF = ("2026-09-21", "2026-09-25")                             # ⑨ فترةُ التقرير السابق
 PUBLISHED = (177, 4, 76, 57, 156)                                    # ⑨ watch_week_result.md ③ — المجموع
+PUBLISHED_RSI = OPL.RSI_OWNER    # ⑨ حدُّ RSI الذي صدر به المنشور (30) — لعدّ الشاهد وحدَه · والتقريرُ نفسُه على WW.rsi_max() (⑬)
 LABEL = {"penny": "🪙 Penny (سعرُ الإشارة الخامّ أقلّ من $1.00)", "dollar": "💵 Dollar (سعرُ الإشارة الخامّ $1.00 فأكثر)"}
 UTC = WW.UTC
 
@@ -190,7 +195,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
         return 4
     days = sorted(lists)
     log(f"🗓️🔎② الفترة {d_from} ⟶ {d_to}: {len(days)} من {len(full)} جلسة منتهية ({days[0]} ⟶ {days[-1]}) · الفئات: "
-        f"{', '.join(classes)} · الشروط: RSI أقلّ من {OPL.RSI_OWNER:g} · فلوت أقلّ من {OPL.FLOAT_OWNER:,} · «شورت» (المتاح) أقلّ "
+        f"{', '.join(classes)} · الشروط: RSI أقلّ من {WW.rsi_max():g} · فلوت أقلّ من {OPL.FLOAT_OWNER:,} · «شورت» (المتاح) أقلّ "
         f"من {OPL.AVAIL_OWNER:,} · الفئة من سعر الإشارة الخامّ (حدُّ الدولار ${PX.PX_MIN:.2f})")
     union = sorted({s for d in days for s in lists[d][2]})
     if not union:
@@ -302,8 +307,10 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
     # ── ⑨ شاهدُ الهُويّة مع التقرير السابق ──
     if all(d in days for d in [x for x in full if WEEK_REF[0] <= x <= WEEK_REF[1]]) and WEEK_REF[0] in days:
         wk = [(s, d) for d in days if WEEK_REF[0] <= d <= WEEK_REF[1] for s in lists[d][2]]
-        got = (len(wk),) + tuple(sum(1 for s, d in wk if per[s][d]["f"][i] is True) for i in range(4))
-        log(f"🪪 V-P1 شاهدُ الهُويّة مع التقرير السابق (أسبوع {WEEK_REF[0]} ⟶ {WEEK_REF[1]} · سهم×جلسة · RSI · فلوت · متاح · "
+        pub_rsi = sum(1 for s, d in wk if per[s][d]["rsi"] is not None and per[s][d]["rsi"] < PUBLISHED_RSI)
+        got = (len(wk), pub_rsi) + tuple(sum(1 for s, d in wk if per[s][d]["f"][i] is True) for i in (1, 2, 3))
+        log(f"🪪 V-P1 شاهدُ الهُويّة مع التقرير السابق (أسبوع {WEEK_REF[0]} ⟶ {WEEK_REF[1]} · سهم×جلسة · "
+            f"RSI بحدّ المنشور {PUBLISHED_RSI:g} · فلوت · متاح · "
             f"دولار): محسوب {got} مقابل المنشور {PUBLISHED} ⟵ " + ("✓ يطابق" if got == PUBLISHED else
                                                                 "⚠️ **يختلف — يُطبع ولا يُخفى**"))
 
@@ -450,7 +457,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
             f"لا حكم): {len(movers)}" + (f" (يُعرض {NW_SHOW} · والقصُّ مُعلَن)" if len(movers) > NW_SHOW else ""))
         for mr, s, d1, mday, mrsi, fl, two in movers[:NW_SHOW]:
             miss = [x for x in (
-                f"أدنى RSI قبل القمّة {_fmt(mrsi, '{:.1f}')}" if (mrsi is None or mrsi >= OPL.RSI_OWNER) else "",
+                f"أدنى RSI قبل القمّة {_fmt(mrsi, '{:.1f}')}" if (mrsi is None or mrsi >= WW.rsi_max()) else "",
                 f"الفلوت {_fmt(fl)}" if (fl is None or fl >= OPL.FLOAT_OWNER) else "") if x]
             why = ("استوفى الثلاثةَ المعلومة " + two) if two else (
                 "لم يستوفِ: " + (" · ".join(miss) if miss else "RSI والفلوت لم يجتمعا في جلسةٍ واحدة"))
