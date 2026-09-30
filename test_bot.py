@@ -8832,10 +8832,14 @@ try:
     check("🔬 نافذة تحميل: start_override يُستعمَل حرفيًّا (باكتيست قديم يصل 2023)",
           _dh_cap.get("start") == "2020-10-01")
     _dh_cap.clear()
+    _dh_d0 = S.dt.date.today()
     S.download_history(["AAA"])            # الإنتاج: بلا override
-    _dh_exp = (S.dt.date.today() - S.dt.timedelta(days=S.CONFIG["HISTORY_DAYS"])).isoformat()
+    _dh_d1 = S.dt.date.today()
+    # 🕛 «اليوم» يومُ النداء: المحاولاتُ تنام ثوانيَ فقد يعبر النداءُ منتصفَ الليل (سقط هكذا 2026-09-29 23:59:56 ⟶ 00:00)
+    #    ⇒ يُقبل يومُ بدء النداء أو يومُ نهايته وحدَهما — والحكمُ نفسُه «اليوم − HISTORY_DAYS» بت-بت
+    _dh_exp = {(d - S.dt.timedelta(days=S.CONFIG["HISTORY_DAYS"])).isoformat() for d in (_dh_d0, _dh_d1)}
     check("🔬 نافذة تحميل: بلا override = اليوم−HISTORY_DAYS (الإنتاج حرفيًّا)",
-          _dh_cap.get("start") == _dh_exp)
+          _dh_cap.get("start") in _dh_exp, f"start={_dh_cap.get('start')} · المتوقَّع={sorted(_dh_exp)}")
 finally:
     S.yf, S._download_chunk = _dh_saved
 check("🔬 نافذة تحميل: run_backtest يمدّ البدء من date_window ويمرّره",
@@ -69908,6 +69912,7 @@ check("📺 TCD33 الماسحُ حارسٌ قبل الشموع: فارغٌ ⟵ 
 #    «شموعُ TradingView لجلسة … لم تكتمل» ورمزُ 3
 try:
     _syms34 = [f"S{i}" for i in range(1, 401)]
+    _pc34 = dict(_TCD.P._CALLS)                                     # عدّادُ Polygon لا يلمسه قاطعُ TradingView (مسكةُ طفرة m23)
     _log34, _lk34 = [], _tv_thr.Lock()
     _buf34 = _tcd_io.StringIO()
     with _tcd_ctx.redirect_stdout(_buf34):
@@ -69930,13 +69935,58 @@ try:
             and "TradingView أخفق" in _note34 and "Polygon" not in _note34 and not any(ch in _note34 for ch in "<>≤≥")
             and _buf34.getvalue().count("⛔ قاطعُ الدائرة") == 1
             and _e34.get("open") is False and len(_ok34log) == 400 and all(len(v) == 1 for v in _p34.values())
-            and _pipe34[0] == 3 and "شموعُ TradingView لجلسة" in _mp34 and "لم تكتمل" in _mp34)
+            and _pipe34[0] == 3 and "شموعُ TradingView لجلسة" in _mp34 and "لم تكتمل" in _mp34
+            and dict(_TCD.P._CALLS) == _pc34)
     _v34w = (f"محجوب: نداءات={len(_log34)} ملخّص={_d34} · سليم: نداءات={len(_ok34log)} مفتوح={_e34.get('open')} · "
              f"أنبوب: rc={_pipe34[0]} «{_mp34[:110]}»")
 except Exception as _e:                                              # noqa: BLE001
     _v34, _v34w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📺 TCD34 قاطعُ TradingView: محجوبٌ ⟵ يُفتح بعد 32 (النداءاتُ لا تتجاوز ضعفَ 32 والمقابس) · `src=tv` ونصُّه بلا Polygon · "
-      "سليمًا 400 نداءٍ مغلق · والأنبوبُ المحجوب ⟵ «شموعُ TradingView لجلسة … لم تكتمل» ورمزُ 3", _v34, _v34w)
+      "سليمًا 400 نداءٍ مغلق · والأنبوبُ المحجوب ⟵ «شموعُ TradingView لجلسة … لم تكتمل» ورمزُ 3 · وعدّادُ Polygon لم يُلمَس", _v34, _v34w)
+
+# TCD38 — نافذةُ القاطع **منزلقة** ومهلتُه **كلّيّة** (مِقبسٌ واحد ⇒ حتميّ): ① حجبٌ يبدأ بعد 100 نجاح ⟵ يُفتح بعد 29 إخفاقًا بالضبط
+#    (آخرُ 32 نتيجة = 3 ناجحة ‏+ 29 مُخفِقة · والتراكميُّ ما كان ليُفتح قبل 900) ⟵ نداءاتٌ 158 لا 700 · ② ساعةٌ محقونة (مهلةُ 5 ثوانٍ
+#    وكلُّ قراءةٍ ثانية) على مِقبسٍ سليم ⟵ يُفتح بعد 4 رموز بسبب «المهلة» ونصُّه «انقضت مهلةُ الجلب» لا «أخفق» · ③ الجالبان بمهلتَيهما
+#    الافتراضيّتين بالاسم (AST) ومجموعُهما ‏+ خمسُ دقائق دون `timeout-minutes` جوبِ المسح
+try:
+    _syms38 = [f"S{i}" for i in range(1, 401)]
+    _ord38 = sorted(f"NASDAQ:{x}" for x in _syms38)
+    _data38 = {x: [(_tv_ts("2026-09-25", 9, 30), 1.0, 1.0, 1.0, 1.0, 1.0)] for x in _ord38}
+    _log38 = []
+    with _tcd_ctx.redirect_stdout(_tcd_io.StringIO()):
+        _o38 = _TCD.fetch_tv(_syms38, "2026-01-01", "2026-09-25", workers=1,
+                             chart_factory=lambda: _TvFakeChart(_data38, bad=set(_ord38[100:]), log=_log38))
+        _d38 = dict(_TCD.BREAKER_LAST.get("daily") or {})
+        _t38 = [0]
+
+        def _clk38():
+            _t38[0] += 1
+            return _t38[0]
+        _b38 = _TCD.TVBreaker(budget=5, clock=_clk38)
+        _q38 = _TCD.fetch_tv(_syms38, "2026-01-01", "2026-09-25", workers=1, brk=_b38,
+                             chart_factory=lambda: _TvFakeChart(_data38))
+        _e38 = dict(_TCD.BREAKER_LAST.get("daily") or {})
+    _TCD.BREAKER_LAST.clear()
+    _n38 = _TCD.breaker_note(_e38)
+    _fn38 = {n.name: _tcd_ast.unparse(n) for n in _tcd_ast.parse(_tcd_src).body if isinstance(n, _tcd_ast.FunctionDef)}
+    _jt38 = __import__("yaml").safe_load(open(".github/workflows/three_cond_daily.yml", encoding="utf-8").read())
+    _to38 = int(_jt38["jobs"]["scan"]["timeout-minutes"])
+    _v38 = (_d38.get("open") is True and _d38.get("timeout") is False and _d38.get("done") == 129
+            and _d38.get("fail") == 29 and _d38.get("skipped") == 271 and len(_log38) == 158
+            and sum(1 for v in _o38.values() if v) == 100
+            and _e38.get("open") is True and _e38.get("timeout") is True and _e38.get("done") == 4
+            and _e38.get("fail") == 0 and _e38.get("skipped") == 396 and sum(1 for v in _q38.values() if v) == 4
+            and "انقضت مهلةُ الجلب" in _n38 and "جُلب 4 رمزًا" in _n38 and "(396)" in _n38 and "أخفق" not in _n38
+            and not any(ch in _n38 for ch in "<>≤≥")
+            and "TVBreaker(budget=TV_DAILY_BUDGET_S)" in _fn38.get("fetch_tv", "")
+            and "TVBreaker(budget=TV_HOURS_BUDGET_S)" in _fn38.get("fetch_tv_hours", "")
+            and _TCD.TV_DAILY_BUDGET_S + _TCD.TV_HOURS_BUDGET_S + 5 * 60 <= _to38 * 60)
+    _v38w = (f"منتصف: {_d38} نداءات={len(_log38)} · مهلة: {_e38} · «{_n38[:90]}» · "
+             f"مهلتان={_TCD.TV_DAILY_BUDGET_S}+{_TCD.TV_HOURS_BUDGET_S}ث · الجوب={_to38}د")
+except Exception as _e:                                              # noqa: BLE001
+    _v38, _v38w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD38 نافذةُ القاطع منزلقة (حجبٌ بعد 100 نجاح ⟵ يُفتح بعد 29 إخفاقًا · 158 نداءً لا 700) ومهلتُه كلّيّة (ساعةٌ محقونة ⟵ "
+      "«انقضت مهلةُ الجلب» بعد 4 رموز) · والمهلتان بالاسم ومجموعُهما دون مهلة جوب المسح", _v38, _v38w)
 
 # TCD35 — الجالبان بشكل Polygon نفسِه: اليوميّ (يومُ نيويورك, o, h, l, c, v) مقصوصٌ على [d0, d1] · والساعةُ (ms, high, low) لأيّام
 #    [d0, d1] بتوقيت نيويورك · والخريطةُ من الماسح («AMEX:XYZ») وغيابُها «NASDAQ:ABC» · والفاصلُ/العدد/الممتدُّ بالاسم

@@ -62,6 +62,7 @@
 الخروج: 0 أُرسلت/طُبعت أو صمتُ عطلةٍ بسببه · 2 بلا مفتاح Polygon (مصدرُ `polygon` وحدَه) · 3 تغطيةٌ ناقصة (سطرُ العطل أُرسل) ·
 4 لا جلسةَ في التقويم.
 """
+import collections
 import concurrent.futures as cf
 import datetime as dt
 import glob
@@ -112,6 +113,8 @@ TV_WORKERS = 8                   # engineering — مِقابسُ متوازية
 TV_DAILY_N = 400                 # engineering — شموعٌ يوميّة تغطّي `WW.HIST_DAYS` (‏400 يومٍ تقويميّ ‏≈276 جلسة) بهامش ثمّ تُقصّ عليه
 TV_HOURS_N = 1000                # engineering — شموعُ ساعةٍ ممتدّة تغطّي `HOURS_DAYS` (‏1000 ÷ 16 ساعة ‏≈62 جلسة لأنشط سهم)
 TV_SCAN_TRIES = 2                # engineering — محاولتا الماسح (طلبٌ واحد ‏≈1ث) قبل سطر العطل
+TV_DAILY_BUDGET_S = 20 * 60      # engineering — مهلةُ جلب اليوميّ كلِّه (المقيسُ ‏≈2 د للكون) · وجوبُ المسح 40 د ⇒ سطرُ عطلٍ قبله
+TV_HOURS_BUDGET_S = 8 * 60       # engineering — مهلةُ جلب الساعة (‏≈600 رمزٍ ‏≈1 د مقيسًا) — والمجموعُ دون مهلة الجوب
 PX_TOL = 1e-6                    # engineering — تطابقُ إغلاق الماسح وإغلاق الجلسة (نسبيّ) شرطُ مقارنة RSI الماسح
 
 
@@ -516,26 +519,49 @@ class Breaker:
 
 class TVBreaker(Breaker):
     """⛔ قاطعُ TradingView — عدّادُه **نتائجُ الرموز نفسُها** (None بعد الإعادة = إخفاق) لا عدّادٌ عامّ: `TV.fetch_many` ينادي
-    `skip()` قبل كلّ رمز و`record(ok)` بعد نتيجته النهائيّة (معاملُ `gate`). حين يُحجَب الموقعُ يُفتح بعد `BREAKER_MIN` رمزًا
-    ⟵ البقيّةُ بلا نداء ⟵ سطرُ العطل في دقائق لا صمتٌ حتى المهلة (درسُ Polygon 2026-09-29 · والحدّان نفسُهما)."""
+    `skip()` قبل كلّ رمز و`record(ok)` بعد نتيجته النهائيّة (معاملُ `gate`). والحدّان نفسُهما (`BREAKER_MIN` · `BREAKER_FAIL_RATIO`)
+    لكن على **نافذةٍ منزلقة** من آخر `min_done` نتيجة لا على المجموع: حجبٌ يبدأ **في منتصف الجلب** يُمسَك بعد ‏≈32 رمزًا ولا
+    يذوب في نجاح ما قبله (التراكميُّ لا يُفتح بعد 100 نجاحٍ إلّا بعد 900 إخفاق) · **ومهلةٌ كلّيّة** `budget` ثانية: بعدها تُتخطّى
+    البقيّةُ ⟵ سطرُ عطلٍ **قبل** مهلة الجوب (موقعٌ بطيءٌ أو مُقيِّدٌ لا يُصمِت الرسالة — درسُ Polygon 2026-09-29)."""
 
-    def __init__(self, min_done=None, ratio=None):
+    def __init__(self, min_done=None, ratio=None, budget=None, clock=None):
         super().__init__(min_done=min_done, ratio=ratio, calls={"fail": 0})
+        self.recent = collections.deque(maxlen=self.min_done)
+        self.clock = clock or time.monotonic
+        self.deadline = None if budget is None else self.clock() + float(budget)
+        self.timed_out = False
+
+    def skip(self):
+        """مفتوحٌ أو انقضت المهلة ⇒ يُعَدّ المتخطّى ويعود True (لا نداء)."""
+        with self.lock:
+            if not self.open and self.deadline is not None and self.clock() >= self.deadline:
+                self.open = self.timed_out = True
+            if self.open:
+                self.skipped += 1
+            return self.open
 
     def record(self, ok=True):
-        if not ok:
-            with self.lock:
+        """نتيجةُ رمزٍ نهائيّة ⟵ يُفتح إن أخفق `ratio` من آخر `min_done` نتيجة (النافذةُ ممتلئة)."""
+        with self.lock:
+            self.done += 1
+            if not ok:
                 self.calls["fail"] += 1
-        super().record()
+            self.recent.append(bool(ok))
+            bad = sum(1 for x in self.recent if not x)
+            if not self.open and len(self.recent) >= self.min_done and bad >= self.ratio * len(self.recent):
+                self.open = True
 
     def summary(self):
-        return dict(super().summary(), src="tv")
+        return dict(super().summary(), src="tv", timeout=self.timed_out)
 
 
 def breaker_note(b):
     """ذيلُ سطر العطل حين فُتح القاطع ⟵ نصٌّ عربيٌّ بلا علاماتِ مقارنة · وإلّا "" — ونصُّ TradingView لقاطعه (`src`)."""
     if not b or not b.get("open"):
         return ""
+    if b.get("src") == "tv" and b.get("timeout"):
+        return (f" — انقضت مهلةُ الجلب: جُلب {b['done']:,} رمزًا فتُخطّيت البقيّةُ ({b['skipped']:,}) · الموقعُ بطيءٌ أو "
+                f"يُقيّد الطلبات")
     if b.get("src") == "tv":
         return (f" — قاطعُ الدائرة: TradingView أخفق في {b['fail']:,} من {b['done']:,} رمزًا فتُخطّيت البقيّةُ "
                 f"({b['skipped']:,}) · قد يكون الموقعُ حجب الوصول أو غيّر واجهته (لا واجهةَ رسميّة)")
@@ -611,8 +637,8 @@ def _tv_progress(k, n):
 def fetch_tv(syms, d0, d1, key=None, tmap=None, workers=TV_WORKERS, brk=None, chart_factory=None):
     """📺 {رمز: صفوفٌ يوميّة (يومُ نيويورك, o, h, l, c, v)} من مِقبس TradingView (`TV.fetch_many` · الجلسةُ النظاميّة ·
     `adjustment=splits`) **مقصوصةً على [d0, d1]** — فشكلُ الصفّ وحدودُه كـ`P.ticker_daily_adj` (آخرُ صفٍّ = الجلسةُ أو قبلها) ·
-    والتعذّرُ ⟵ [] · **تحت قاطع الدائرة** (`TVBreaker`) · و`key` مُهمَل (توقيعُ `fetch_polygon` نفسُه للحقن)."""
-    brk = brk or TVBreaker()
+    والتعذّرُ ⟵ [] · **تحت قاطع الدائرة ومهلته** (`TVBreaker` · `TV_DAILY_BUDGET_S`) · و`key` مُهمَل (توقيعُ `fetch_polygon` للحقن)."""
+    brk = brk or TVBreaker(budget=TV_DAILY_BUDGET_S)
     full = {s: _tv_full(s, tmap) for s in syms}
     got = TV.fetch_many(sorted(set(full.values())), interval="1D", n=TV_DAILY_N, workers=workers,
                         chart_factory=chart_factory, progress=_tv_progress, gate=brk)
@@ -632,8 +658,9 @@ def fetch_tv(syms, d0, d1, key=None, tmap=None, workers=TV_WORKERS, brk=None, ch
 
 def fetch_tv_hours(syms, d0, d1, key=None, tmap=None, workers=TV_WORKERS, brk=None, chart_factory=None):
     """📺 {رمز: [(ms, high, low)]} — شموعُ ساعةٍ **ممتدّة** (البري والأفتر) من مِقبس TradingView بين يومَي نيويورك d0 وd1 ضمنًا
-    (شكلُ `_hours_one` نفسُه) · والتعذّرُ ⟵ [] (فالقاعُ الدقيق «لم يُقَس» لا تخمين) · **تحت قاطعٍ مستقلّ** عن اليوميّ."""
-    brk = brk or TVBreaker()
+    (شكلُ `_hours_one` نفسُه) · والتعذّرُ ⟵ [] (فالقاعُ الدقيق «لم يُقَس» لا تخمين) · **تحت قاطعٍ مستقلّ** عن اليوميّ ومهلته
+    (`TV_HOURS_BUDGET_S`)."""
+    brk = brk or TVBreaker(budget=TV_HOURS_BUDGET_S)
     full = {s: _tv_full(s, tmap) for s in syms}
     got = TV.fetch_many(sorted(set(full.values())), interval="60", n=TV_HOURS_N, extended=True, workers=workers,
                         chart_factory=chart_factory, gate=brk)
