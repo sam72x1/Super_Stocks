@@ -69218,7 +69218,7 @@ try:
     _cr11 = [c.get("cron") for c in (_on11.get("schedule") or [])]
     _sec = {j: sorted(set(__import__("re").findall(r"secrets\.([A-Z_]+)", __import__("yaml").safe_dump(v))))
             for j, v in _j11.items()}
-    _v11 = (_cr11 == ["23 2 * * 2-6"] and sorted(_j11) == ["borrow", "scan", "send"]
+    _v11 = (_cr11 == ["43 1 * * 2-6"] and sorted(_j11) == ["borrow", "scan", "send"]
             and _j11["borrow"]["strategy"]["matrix"]["shard"] == [0, 1, 2]
             and _sec == {"scan": ["POLYGON_API_KEY"], "borrow": [], "send": ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID"]}
             and "always()" in str(_j11["send"].get("if")) and "needs.scan.result == 'success'" in str(_j11["send"].get("if"))
@@ -69226,8 +69226,53 @@ try:
     _v11w = f"cron={_cr11} · jobs={sorted(_j11)} · أسرار={_sec}"
 except Exception as _e:                                              # noqa: BLE001
     _v11, _v11w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🔎📬 TCD11 `three_cond_daily.yml`: كرونٌ واحد `23 2 * * 2-6` · scan⟶borrow(×3)⟶send · Polygon في scan وحدَه وتلغرام في "
+check("🔎📬 TCD11 `three_cond_daily.yml`: كرونٌ واحد `43 1 * * 2-6` (كان 02:23 — «قدّم كرون شروطك الثلاثة» 2026-09-30 · وتوقيتُه يحسبه TCD40) · scan⟶borrow(×3)⟶send · Polygon في scan وحدَه وتلغرام في "
       "send وحدَه · send يعمل ولو سقط رنرُ متاح · قراءةٌ فقط وconcurrency", _v11, _v11w)
+
+# TCD40 — «قدّم كرون شروطك الثلاثة» (أمرُ المالك 2026-09-30): توقيتُ الكرون **محسوبٌ من الـYAML لا منصوص** — ثلاثةُ قيودٍ مقيسة:
+#   ① بلا أيّ تأخّرٍ من GitHub يبدأ بعد نهاية الأفتر شتاءً (20:00 EST = 01:00 UTC) ‏+ تأخّر بيانات TradingView (≈15 د) ⇒ الجلسةُ
+#      الممتدّة مكتملة (القاعُ الدقيق من شموع الساعة 04:00-20:00 نيويورك وانفجارُ الأفتر) — فاشلٌ-آمن لو زال التأخّر.
+#   ② بعد كرون حصّاد الاقتراض بـ15 دقيقةً فأكثر ⇒ صفُّ «حصاد اليوم» يُقرأ أوّلًا (مدّةُ الحصّاد 0.6-3.2 د · والترتيبُ داخل
+#      الساعة محفوظٌ في القياس: 01:20 ⟶ 06:46 ثمّ 01:37 ⟶ 07:19 يومَ 09-30).
+#   ③ بأكبر تأخّرٍ مقيسٍ لكرونات 01:xx (01:09-01:51 · 09-22 ⟶ 09-30: 280-351 دقيقة) ‏+ أطولِ مدّةٍ مقيسةٍ للأداة (6.2 د)
+#      تصل الرسالةُ قبل 11:00 السعودية (08:00 UTC) — وعلى الكرون القديم 02:23 كان الوصولُ ≈11:48 (تأخّرٌ 380-381).
+_TC_AH_END_WINTER_UTC = 60        # 20:00 EST
+_TC_TV_DELAY = 15                 # بيانُ الزائر متأخّرٌ ≈15 د (tv_bars_result.md §④)
+_TC_HARVEST_GAP = 15
+# ⟵ 52 تشغيلةً مجدولةً مقيسة (`created_at − الجدولة` · ثمانيةُ workflows بكرونات 01:09-01:51 · 09-22 ⟶ 09-30 · دقائقُ مقرَّبة)
+_TC_LAG_01XX = (280, 281, 281, 284, 287, 287, 290, 290, 290, 291, 291, 291, 292, 293, 293, 293, 294, 294,
+                295, 295, 295, 296, 296, 296, 297, 297, 297, 297, 298, 298, 299, 299, 300, 303, 304, 307,
+                326, 326, 326, 329, 336, 336, 338, 338, 340, 340, 342, 342, 342, 343, 346, 351)
+_TC_DUR_MAX = 6.2
+_TC_ARRIVE_BY_UTC = 8 * 60        # 11:00 السعودية
+
+
+def _tc_cron_min(path):
+    """(دقائقُ الكرون بعد منتصف ليل UTC، قائمةُ الكرونات) — الكرونُ الوحيد في الملفّ بصيغة «د س * * أيّام»."""
+    _y = __import__("yaml").safe_load(open(path, encoding="utf-8").read())
+    _on = _y.get(True) or _y.get("on") or {}
+    _cr = [c.get("cron") for c in (_on.get("schedule") or [])]
+    if len(_cr) != 1:
+        return None, _cr
+    _m, _h = _cr[0].split()[:2]
+    return int(_h) * 60 + int(_m), _cr
+
+
+try:
+    _t40, _c40 = _tc_cron_min(".github/workflows/three_cond_daily.yml")
+    _h40, _hc40 = _tc_cron_min(".github/workflows/ctb_harvest.yml")
+    _a40 = (_t40 is not None and _t40 >= _TC_AH_END_WINTER_UTC + _TC_TV_DELAY)
+    _b40 = (_t40 is not None and _h40 is not None and _t40 - _h40 >= _TC_HARVEST_GAP)
+    _arr40 = [(_t40 or 0) + _l + _TC_DUR_MAX for _l in _TC_LAG_01XX]
+    _cc40 = (_t40 is not None and max(_arr40) <= _TC_ARRIVE_BY_UTC)
+    _v40 = _a40 and _b40 and _cc40
+    _v40w = (f"كرون={_c40} · حصّاد={_hc40} · ①={_a40} ②={_b40} ③={_cc40} · أبعدُ وصولٍ "
+             f"{int(max(_arr40)) // 60 + 3:02d}:{int(max(_arr40)) % 60:02d} السعودية")
+except Exception as _e:                                              # noqa: BLE001
+    _v40, _v40w = False, f"⛔ رمى: {type(_e).__name__}"
+check("⏰📬 TCD40 كرونُ «شروطك الثلاثة» محسوبٌ لا منصوص: ① بلا تأخّرٍ يبدأ بعد نهاية الأفتر شتاءً ‏+ تأخّر TradingView "
+      "⇒ الجلسةُ مكتملة · ② بعد حصّاد الاقتراض بـ15 دقيقةً فأكثر · ③ بأكبر تأخّرٍ مقيسٍ لساعة 01 يصل قبل 11:00 السعودية",
+      _v40, _v40w)
 
 # TCD12 — ياهو المجهولُ لا يصنع شكًّا · وفرقُ نقطتين بالضبط ليس «فوق نقطتين» · **والسعرُ تحت الدولار ليس «لا»** (فئةٌ لا شرط)
 try:
