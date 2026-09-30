@@ -72502,9 +72502,11 @@ check("📺 TVB8 فاشلٌ-آمن كلّيًّا: `tv_download` يرمي ⟵ ي
 #    🔄 **إقرارٌ مؤرَّخ 2026-09-30 (أمرُ المالك «انقل الصيّادين إلى ترندق فيو»):** النطاقُ صار **تسعة** — الخمسةُ ‏+ الصيّادون
 #    الأربعة (المقسّم · النهجُ العلميّ · فلترةُ التقسيم · الظرف · وخطوتُهم مقفولةٌ بـHTV3) · وحصّادُ النتائج وفحصُ الدخان وأدواتُ
 #    البحث بلا البيئة كما هي (المساواةُ تامّةٌ فأيُّ زائدٍ يُسقطه).
+#    🔄 **وإقرارٌ ثانٍ مؤرَّخ 2026-09-30 (أمرُ المالك «انقل رادار الضغط إلى ترندق فيو»):** النطاقُ صار **عشرة** — ورادارُ الضغط
+#    (‏press_radar.yml · خطوتُه مقفولةٌ بـPRV8) · وحاصدُه بلا البيئة (يحسم كلَّ صفٍّ بمصدره من الكود · PRV7).
 try:
     _want9 = {"daily_screener.yml", "pullback_monitor.yml", "hand_digest.yml", "analyze.yml", "hand_check.yml",
-              "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml"}
+              "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml", "press_radar.yml"}
     _got9 = set()
     for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
         if not _fn9.endswith((".yml", ".yaml")):
@@ -72520,8 +72522,9 @@ try:
     _v9w = f"زائد={sorted(_got9 - _want9)} · ناقص={sorted(_want9 - _got9)}"
 except Exception as _e:                                              # noqa: BLE001
     _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows التسعة وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
-      "فحص اليد ‏+ الصيّادون الأربعة منذ 2026-09-30) — وحصّادُ النتائج وفحصُ الدخان وأدواتُ البحث على ياهو (YAML)", _v9, _v9w)
+check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows العشرة وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
+      "فحص اليد ‏+ الصيّادون الأربعة ‏+ رادارُ الضغط منذ 2026-09-30) — وحصّادا النتائج والضغط وفحصُ الدخان وأدواتُ البحث بلا البيئة (YAML)",
+      _v9, _v9w)
 
 # TVB10 — `tv_bar_fresh`: إطارُ ياهو (بلا وسم) ⟵ True دائمًا (بت-بت) · وإطارُ TradingView آخرُه آخرُ جلسةٍ مكتملة ⟵ True · وأقدمُ ⟵ False
 #    (الساعةُ محقونة: الأربعاء 2026-09-30 ‏22:00 UTC ⟵ الجلسةُ المكتملة 09-30)
@@ -73038,6 +73041,301 @@ except Exception as _e:                                              # noqa: BLE
     _v13, _v13w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("⚖️ HTV13 `unadjusted_jump` الأماميُّ خارج التسامح بالفرضيّة الأقرب (ATRO · WDC مسوّيان ⟵ False · MBBC · RBKB ⟵ True) والعكسيُّ "
       "محافظ (‏0.75 بيومٍ صاعد ⟵ True) · و`resolve` يحسم صفَّ WDC مسوّى المرجع (‏10/1.323) لا معلّقًا", _v13, _v13w)
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🗜️📺 PRV1-PRV8 — **رادارُ الضغط على TradingView** (‏2026-09-30 · أمرُ المالك «انقل رادار الضغط إلى ترندق فيو»): `BARS_SOURCE`
+#    في press_radar.yml ⟵ `download_history` نفسُه (TradingView ثمّ ياهو لكلّ رمز) · وسعرُ الافتر لقرينة الصحوة من دقائق TradingView
+#    الممتدّة ليوم الجلسة وحدَه (`tv_session_minutes` ⟵ `extended_last_price(fetch_bars=…)` نفسُها · Polygon انتهى 09-29) · وسجلُّ
+#    الحصاد يحمل `bars_src` (‏`src` فيه مصدرُ البِركة) · والحاصدُ يحسم كلَّ صفٍّ بشموع مصدره ويستبعد ما لم يُسوِّ تقسيمًا مُدرَجًا
+#    (`split_unadjusted`). سلوكيّةٌ بلا شبكة: المِقبسُ والخريطةُ والجالباتُ محقونة.
+from zoneinfo import ZoneInfo as _prv_ZI                             # noqa: E402
+import tv_data as _prv_tvd                                           # noqa: E402
+import presession_radar as _prv_psr                                  # noqa: E402
+
+
+class _PrvChart:
+    """مِقبسُ `tv_data.Chart` محقون: يُرجع الشموعَ المُعطاة ويسجّل النداءات · و`fail` نداءاتٌ أولى تُرجع None · و`boom` يرمي."""
+
+    def __init__(self, bars, fail=0, boom=False):
+        self.bars_, self.fail, self.boom = list(bars), int(fail), bool(boom)
+        self.calls, self.closed = [], 0
+
+    def bars(self, symbol, interval="1D", n=600, extended=False, adjustment="splits"):
+        self.calls.append((symbol, interval, n, extended))
+        if self.boom:
+            raise RuntimeError("socket")
+        if self.fail > 0:
+            self.fail -= 1
+            return None
+        return list(self.bars_)
+
+    def close(self):
+        self.closed += 1
+
+
+def _prv_ts(day, hh, mm):
+    return int(_tvb_dt.datetime.fromisoformat(f"{day}T{hh:02d}:{mm:02d}:00")
+               .replace(tzinfo=_prv_ZI("America/New_York")).timestamp())
+
+
+def _prv_bar(day, hh, mm, c):
+    return (_prv_ts(day, hh, mm), c, c, c, c, 100.0)
+
+
+# جلسةُ الثلاثاء 2026-09-29: افترُ الأمس (خارج اليوم) · نظاميّةٌ · افترٌ آخرُه 2.52 · وبريماركتُ الغد (خارج اليوم — الفخّ)
+_prv_day = [_prv_bar("2026-09-28", 19, 0, 9.0), _prv_bar("2026-09-29", 9, 30, 2.0), _prv_bar("2026-09-29", 15, 59, 2.10),
+            _prv_bar("2026-09-29", 16, 30, 2.30), _prv_bar("2026-09-29", 19, 59, 2.52),
+            _prv_bar("2026-09-30", 4, 30, 5.0), _prv_bar("2026-09-30", 8, 0, 5.5)]
+_prv_now = _tvb_dt.datetime(2026, 9, 30, 6, 0, tzinfo=_tvb_dt.timezone.utc)
+
+# PRV1 — `tv_session_minutes`: يومُ الجلسة وحدَه [04:00، 20:00) نيويورك بعقد Polygon ({t مللي، c}) · و`extended_last_price` نفسُها تقرأ
+#    به آخرَ إغلاقِ افتر (‏2.52 — لا بريماركتَ الغد 5.5 ولا افترَ الأمس 9.0) · والطلبُ دقيقةٌ ممتدّة بالرمز من الخريطة وإلّا NASDAQ
+try:
+    _prv_c1 = _PrvChart(_prv_day)
+    _prv_m1 = S.tv_session_minutes("AAA", "2026-09-29", chart=_prv_c1, tmap={"AAA": "NYSE:AAA"}, now=_prv_now)
+    _prv_c1b = _PrvChart(_prv_day)
+    _prv_e1 = S.extended_last_price(
+        "AAA", "2026-09-29",
+        fetch_bars=lambda _s, _d: S.tv_session_minutes(_s, _d, chart=_prv_c1b, tmap={}, now=_prv_now))
+    _v1 = (_prv_m1 == [{"t": _prv_ts("2026-09-29", _h, _mi) * 1000, "c": _c}
+                       for _h, _mi, _c in ((9, 30, 2.0), (15, 59, 2.10), (16, 30, 2.30), (19, 59, 2.52))]
+           and _prv_e1 == 2.52
+           and _prv_c1.calls == [("NYSE:AAA", "1", 1500, True)] and _prv_c1.closed == 0
+           and [_c[0] for _c in _prv_c1b.calls] == ["NASDAQ:AAA"])
+    _v1w = (f"m={[_x['c'] for _x in (_prv_m1 or [])]} · ext={_prv_e1} · calls={_prv_c1.calls} · "
+            f"b={[_c[0] for _c in _prv_c1b.calls]}")
+except Exception as _e:                                              # noqa: BLE001
+    _v1, _v1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗜️📺 PRV1 `tv_session_minutes` يومُ الجلسة وحدَه بعقد Polygon ⟵ `extended_last_price` تقرأ به افترَ الجلسة (2.52) لا بريماركتَ "
+      "الغد (5.5) ولا افترَ الأمس (9.0) · دقيقةٌ ممتدّة («1» · extended) بالرمز من الخريطة وإلّا NASDAQ", _v1, _v1w)
+
+# PRV2 — العمقُ `TV_AH_MIN_N` ‏+ `TV_AH_DAY_N` لكلّ يومٍ تقويميٍّ إضافيّ بسقف `TV_BARS_MAX` · وإعادةٌ واحدة على مقبسٍ جديد (None ثمّ شموع ⟵
+#    تُقرأ · None مرّتين ⟵ None) · والرميُ ⟵ None · والتاريخُ التالف ⟵ None بلا نداء · وبلا `chart` مِقبسٌ خاصّ يُغلق بعد النداء ·
+#    والتوأمان مطابقان لـ`presession_radar` (مصدرٌ واحدٌ لعمق اليوم الممتدّ)
+try:
+    _prv_c2a = _PrvChart(_prv_day)
+    S.tv_session_minutes("AAA", "2026-09-29", chart=_prv_c2a, tmap={},
+                         now=_tvb_dt.datetime(2026, 10, 3, 12, 0, tzinfo=_tvb_dt.timezone.utc))
+    _prv_c2b = _PrvChart(_prv_day)
+    S.tv_session_minutes("AAA", "2026-09-29", chart=_prv_c2b, tmap={},
+                         now=_tvb_dt.datetime(2026, 10, 30, 12, 0, tzinfo=_tvb_dt.timezone.utc))
+    _prv_c2c = _PrvChart(_prv_day, fail=1)
+    _prv_r2c = S.tv_session_minutes("AAA", "2026-09-29", chart=_prv_c2c, tmap={}, now=_prv_now)
+    _prv_c2d = _PrvChart(_prv_day, fail=2)
+    _prv_r2d = S.tv_session_minutes("AAA", "2026-09-29", chart=_prv_c2d, tmap={}, now=_prv_now)
+    _prv_r2e = S.tv_session_minutes("AAA", "2026-09-29", chart=_PrvChart(_prv_day, boom=True), tmap={}, now=_prv_now)
+    _prv_c2f = _PrvChart(_prv_day)
+    _prv_r2f = S.tv_session_minutes("AAA", "ليس-تاريخًا", chart=_prv_c2f, tmap={}, now=_prv_now)
+    _prv_own2 = _PrvChart(_prv_day)
+    _prv_cls2 = _prv_tvd.Chart
+    try:
+        _prv_tvd.Chart = lambda *a, **k: _prv_own2
+        _prv_r2g = S.tv_session_minutes("AAA", "2026-09-29", tmap={}, now=_prv_now)
+    finally:
+        _prv_tvd.Chart = _prv_cls2
+    _v2 = (bool(_prv_c2a.calls) and _prv_c2a.calls[0][2] == 1500 + 960 * 3
+           and bool(_prv_c2b.calls) and _prv_c2b.calls[0][2] == S.TV_BARS_MAX
+           and len(_prv_r2c or []) == 4 and len(_prv_c2c.calls) == 2 and _prv_c2c.closed == 1
+           and _prv_r2d is None and len(_prv_c2d.calls) == 2
+           and _prv_r2e is None and _prv_r2f is None and _prv_c2f.calls == []
+           and len(_prv_r2g or []) == 4 and _prv_own2.closed == 1
+           and S.TV_AH_MIN_N == _prv_psr.TV_MIN_N and S.TV_AH_DAY_N == _prv_psr.TV_DAY_N)
+    _v2w = (f"n={[_c[2] for _c in _prv_c2a.calls]}/{[_c[2] for _c in _prv_c2b.calls]} · إعادة={len(_prv_r2c or [])},"
+            f"{len(_prv_c2c.calls)},{_prv_c2c.closed} · مرّتان={_prv_r2d} · رمى={_prv_r2e} · تالف={_prv_r2f} · "
+            f"خاصّ={_prv_own2.closed}")
+except Exception as _e:                                              # noqa: BLE001
+    _v2, _v2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗜️📺 PRV2 `tv_session_minutes`: العمقُ 1500 ‏+ 960 لكلّ يومٍ إضافيّ بسقف `TV_BARS_MAX` · إعادةٌ واحدة على مقبسٍ جديد · الرميُ "
+      "والتاريخُ التالف ⟵ None · والمِقبسُ الخاصّ يُغلق · والتوأمان = `presession_radar`", _v2, _v2w)
+
+# PRV3 — `bars_src_summary`: يَعُدّ إطارات TradingView (وسمُ `tv_daily_frame` الحقيقيّ) وياهو ويُسمّي TradingView الذي آخرُ شمعته قبل الجلسة
+#    (بلا حشو) · وNone/الفارغُ لا يُعدّ · وياهو الأقدمُ لا يُسمّى (يحشو يومَه)
+try:
+    _prv_h3 = {"NEW": S.tv_daily_frame(_tvb_bars(3, "2026-09-25"), "2026-09-01"),
+               "OLD": S.tv_daily_frame(_tvb_bars(3, "2026-09-23"), "2026-09-01"),
+               "YH": pd.DataFrame({"Close": [1.0, 1.1]}, index=pd.to_datetime(["2026-09-24", "2026-09-25"])),
+               "NUL": None, "EMP": pd.DataFrame()}
+    _prv_s3 = _PRD.bars_src_summary(_prv_h3, "2026-09-29")
+    _v3 = _prv_s3 == {"tv": 2, "yahoo": 1, "stale": ["OLD"]}
+    _v3w = f"{_prv_s3}"
+except Exception as _e:                                              # noqa: BLE001
+    _v3, _v3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗜️📺 PRV3 `bars_src_summary`: TradingView 2 · ياهو 1 · وTradingView الذي آخرُ شمعته قبل الجلسة يُسمّى (OLD) · وياهو "
+      "الأقدمُ لا يُسمّى · وNone/الفارغ لا يُعدّ", _v3, _v3w)
+
+# PRV4 — `append_ledger`: `bars_src` يُكتب حين يحمله الصفّ ويغيب حين لا يحمله (الصفُّ السابق بت-بت) · و`src` (مصدرُ البِركة) كما هو
+try:
+    _prv_p4 = _tvb_os.path.join(_prd_tmp.mkdtemp(prefix="prv4_"), "led.jsonl")
+    _prv_n4 = _PRD.append_ledger([{"symbol": "AAA", "read": {"close": 1.0}, "src": "قائمة", "bars_src": "tradingview"},
+                                  {"symbol": "BBB", "read": {"close": 2.0}, "src": "ارتداد"}], "2026-09-29", path=_prv_p4)
+    _prv_l4 = [_json0.loads(_x) for _x in open(_prv_p4, encoding="utf-8") if _x.strip()]
+    _v4 = (_prv_n4 == 2 and _prv_l4[0].get("bars_src") == "tradingview" and "bars_src" not in _prv_l4[1]
+           and [_r.get("src") for _r in _prv_l4] == ["قائمة", "ارتداد"])
+    _v4w = f"n={_prv_n4} · {[(_r.get('symbol'), _r.get('bars_src'), _r.get('src')) for _r in _prv_l4]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v4, _v4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗜️📺 PRV4 `append_ledger`: `bars_src` يُكتب حين يحمله الصفّ ويغيب حين لا يحمله · و`src` مصدرُ البِركة كما هو", _v4, _v4w)
+
+# PRV5 — `run()` طرفيًّا (نقطة النداء الحيّة): مع `BARS_SOURCE=tradingview` الافترُ من المِقبس المحقون عبر `extended_last_price(fetch_bars=…)`
+#    (‏+20% ⟵ «حركة افتر +20.0%» في الرسالة وawake في الحصاد) · والصفُّ «tradingview» · والمِقبسُ يُغلق بعد الجاهزين · وسطرا السجلّ
+#    (المصدر · الافتر) · **وبلا البيئة النداءُ السابق حرفًا** (بلا وسيط) ولا مِقبسَ يُفتح والصفُّ «yahoo»
+try:
+    _prv_f5 = _wk19_fetch(None)["TSTX"].copy()
+    _prv_f5.attrs["bars_src"] = "tradingview"
+    _prv_d5 = _prd_tmp.mkdtemp(prefix="prv5_")
+    _prv_c5 = _PrvChart([_prv_bar("2026-08-13", 15, 59, 3.61), _prv_bar("2026-08-13", 19, 59, round(3.61 * 1.2, 4))])
+    _prv_sv5 = (S.load_watchlist, S._tv_ticker_map, _prv_tvd.Chart, S.extended_last_price, _tvb_os.environ.get("BARS_SOURCE"))
+    _prv_sent5, _prv_out5, _prv_calls5 = [], _io_ph.StringIO(), []
+    try:
+        S.load_watchlist = lambda: {"pullback": [], "stocks": [{"symbol": "TSTX"}], "removed": [], "explosions": []}
+        S._tv_ticker_map = lambda *a, **k: {}
+        _prv_tvd.Chart = lambda *a, **k: _prv_c5
+        _tvb_os.environ["BARS_SOURCE"] = "tradingview"
+        with _ctx_ph.redirect_stdout(_prv_out5):
+            _prv_rc5 = _PRD.run(now_utc=_prd_now, fetch_hist=lambda syms: {"TSTX": _prv_f5},
+                                sender=lambda m: (_prv_sent5.append(m), True)[1],
+                                state_path=_tvb_os.path.join(_prv_d5, "st.json"),
+                                ledger_path=_tvb_os.path.join(_prv_d5, "led.jsonl"), saver=lambda f: None)
+        _tvb_os.environ.pop("BARS_SOURCE", None)
+        _prv_tvd.Chart = lambda *a, **k: (_ for _ in ()).throw(AssertionError("مِقبسٌ بلا البيئة"))
+        S.extended_last_price = lambda sym, d, **k: (_prv_calls5.append((sym, d, dict(k))), None)[1]
+        with _ctx_ph.redirect_stdout(_io_ph.StringIO()):
+            _prv_rc5b = _PRD.run(now_utc=_prd_now, fetch_hist=lambda syms: {"TSTX": _wk19_fetch(None)["TSTX"]},
+                                 sender=lambda m: True, state_path=_tvb_os.path.join(_prv_d5, "st2.json"),
+                                 ledger_path=_tvb_os.path.join(_prv_d5, "led2.jsonl"), saver=lambda f: None)
+    finally:
+        S.load_watchlist, S._tv_ticker_map, _prv_tvd.Chart, S.extended_last_price = _prv_sv5[:4]
+        if _prv_sv5[4] is None:
+            _tvb_os.environ.pop("BARS_SOURCE", None)
+        else:
+            _tvb_os.environ["BARS_SOURCE"] = _prv_sv5[4]
+    _prv_rec5 = _json0.loads(open(_tvb_os.path.join(_prv_d5, "led.jsonl"), encoding="utf-8").read().strip())
+    _prv_rec5b = _json0.loads(open(_tvb_os.path.join(_prv_d5, "led2.jsonl"), encoding="utf-8").read().strip())
+    _prv_log5 = _prv_out5.getvalue()
+    _v5 = (_prv_rc5 == 0 and "حركة افتر +20.0%" in (_prv_sent5[0] if _prv_sent5 else "")
+           and _prv_rec5.get("bars_src") == "tradingview" and _prv_rec5.get("awake") is True
+           and _prv_rec5.get("wake_ah_pct") == 20.0
+           and bool(_prv_c5.calls) and _prv_c5.calls[0][:2] == ("NASDAQ:TSTX", "1") and _prv_c5.calls[0][3] is True
+           and _prv_c5.closed == 1
+           and "📺 مصدرُ الشموع في البِركة: TradingView 1 · ياهو 0" in _prv_log5
+           and "🌙📺 الافتر من TradingView: قُرئ سعرُه لـ1 من 1" in _prv_log5
+           and _prv_rc5b == 0 and _prv_calls5 == [("TSTX", "2026-08-13", {})]
+           and _prv_rec5b.get("bars_src") == "yahoo")
+    _v5w = (f"rc={_prv_rc5}/{_prv_rc5b} · صفّ={_prv_rec5.get('bars_src')},{_prv_rec5.get('wake_ah_pct')} · "
+            f"مِقبس={_prv_c5.calls[:1]},{_prv_c5.closed} · سابق={_prv_calls5} · {_prv_rec5b.get('bars_src')}")
+except Exception as _e:                                              # noqa: BLE001
+    _v5, _v5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗜️📺 PRV5 `run()` طرفيًّا: مع البيئة الافترُ من TradingView (‏+20% ⟵ 🔥 في الرسالة وawake في الحصاد) والصفُّ «tradingview» "
+      "والمِقبسُ يُغلق وسطرا السجلّ · وبلا البيئة النداءُ السابق حرفًا بلا وسيط ولا مِقبس والصفُّ «yahoo»", _v5, _v5w)
+
+# 🐞 **إطارُ الحاصد الاصطناعيّ محلّيٌّ هنا لا `_ph_df`** — أمسكته السويّةُ الكاملة لا الحِزامُ السريع: الاسمُ نفسُه يُعاد ربطُه
+#    إطارًا (‏`_ph_df = _PITH.to_frame(...)` في كتلة PIT) فيصير «غيرَ قابلٍ للنداء» عند هذا الموضع ⇒ نسخةٌ حرفيّةٌ باسمٍ فريد.
+def _prv_hdf(lows_after, highs_after, n_before=31):
+    lo = [3.0] * n_before + list(lows_after)
+    hi = [3.2] * n_before + list(highs_after)
+    cl = [2.10] * n_before + [x * 1.05 for x in lows_after]
+    idx = pd.date_range("2026-07-01", periods=len(lo), freq="B")
+    return pd.DataFrame({"Open": cl, "High": hi, "Low": lo, "Close": cl}, index=idx)
+
+
+_prv_hsess = str(pd.date_range("2026-07-01", periods=31, freq="B")[-1].date())
+_prv_hrow = {"symbol": "PHX", "session": _prv_hsess, "close": 2.10, "press_low": 2.00,
+             "hold_sessions": 5, "awake": True, "swept_hold": False, "src": "اختبار"}
+
+# PRV6 — `row_bars_src`: `bars_src` حرفًا وإلّا yahoo — و`src` (مصدرُ البِركة) **لا يُقرأ** · و`resolve_row(split_events=…)`: إطارٌ لم يسوِّ
+#    تقسيمًا عكسيًّا 1:10 بعد الجلسة (قفزة ×10 — فوزٌ كاذبٌ بلا الحارس) ⟵ `split_unadjusted` في الذراعين · وأماميٌّ داخل التسامح (‏1.05)
+#    ⟵ الحسمُ كما هو · ورميُ الجالب ⟵ الحسمُ كما هو (مفتوح) · ولا شموعَ بعد الجلسة ⟵ لا نداء · والجالبُ يُنادى بالرمز ويوم الشمعة
+try:
+    _prv_f6 = _prv_hdf([2.10] + [21.0] * 40, [2.50] + [25.0] * 40)
+    _prv_d6 = str(_prv_f6.index[32].date())
+    _prv_seen6 = []
+    _prv_raw6 = _PH.resolve_row(_prv_hrow, _prv_f6)
+    _prv_g6 = _PH.resolve_row(_prv_hrow, _prv_f6,
+                              split_events=lambda _s, _d: (_prv_seen6.append((_s, _d)), [(_prv_d6, 0.1)])[1])
+    _prv_fw6 = _PH.resolve_row(_prv_hrow, _prv_hdf([2.10] + [3.0] * 40, [2.50] + [4.0] * 40),
+                               split_events=lambda _s, _d: [(_prv_d6, 1.05)])
+    _prv_bm6 = _PH.resolve_row(_prv_hrow, _prv_f6, split_events=lambda _s, _d: 1 / 0)
+    _prv_nc6 = []
+    _PH.resolve_row(_prv_hrow, _prv_hdf([], []), split_events=lambda _s, _d: (_prv_nc6.append(1), [(_prv_d6, 0.1)])[1])
+    _v6 = (_PH.row_bars_src({"bars_src": "tradingview"}) == "tradingview"
+           and _PH.row_bars_src({"src": "tradingview"}) == "yahoo" and _PH.row_bars_src({}) == "yahoo"
+           and _PH.row_bars_src(None) == "yahoo" and _PH.row_bars_src({"bars_src": "TV"}) == "yahoo"
+           and _prv_raw6["outcome"] == "win"
+           and (_prv_g6["outcome"], _prv_g6["outcome_low"]) == ("split_unadjusted", "split_unadjusted")
+           and _prv_seen6 == [("PHX", _prv_hsess)]
+           and _prv_fw6["outcome"] == "win" and _prv_bm6["outcome"] == "win" and _prv_nc6 == [])
+    _v6w = (f"خامّ={_prv_raw6['outcome']} · حارس={_prv_g6['outcome']}/{_prv_g6['outcome_low']} · نداء={_prv_seen6} · "
+            f"أماميّ={_prv_fw6['outcome']} · رمى={_prv_bm6['outcome']} · بلا_بعد={_prv_nc6}")
+except Exception as _e:                                              # noqa: BLE001
+    _v6, _v6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗜️📺 PRV6 `row_bars_src` يقرأ `bars_src` لا `src` · و`resolve_row`: تقسيمٌ عكسيٌّ غيرُ مسوّى بعد الجلسة ⟵ `split_unadjusted` في "
+      "الذراعين (بدل فوزٍ كاذب) · والأماميُّ داخل التسامح والرميُ ⟵ الحسمُ كما هو · ولا شموعَ بعد الجلسة ⟵ لا نداء", _v6, _v6w)
+
+# PRV7 — `press_harvest.main()`: كلُّ صفٍّ بشموع مصدره — ياهو بدفعاتِ 60 كما كان (‏63 رمزًا ⟵ 60 ‏+ 3) · وTradingView دفعةً واحدة ·
+#    والرمزُ نفسُه بمصدرين يُحسم بإطار كلٍّ (DUAL: ياهو فوز · TradingView خسارة) · وحارسُ التقسيم موصولٌ من `_fetch_splits` (SPLT:
+#    تقسيمٌ عكسيٌّ غيرُ مسوّى ⟵ `split_unadjusted`) · وصفرُ نداءٍ مباشرٍ لـ`download_history`
+try:
+    _prv_base7 = {"session": _prv_hsess, "close": 2.10, "press_low": 2.00, "hold_sessions": 5, "awake": False,
+                  "swept_hold": False, "src": "قائمة"}
+    _prv_rows7 = ([dict(_prv_base7, symbol=f"Y{_k:03d}") for _k in range(61)]
+                  + [dict(_prv_base7, symbol="DUAL"), dict(_prv_base7, symbol="DUAL", bars_src="tradingview"),
+                     dict(_prv_base7, symbol="SPLT")])
+    _prv_win7 = _prv_hdf([2.10] + [3.0] * 40, [2.50] + [4.0] * 40)
+    _prv_loss7 = _prv_hdf([2.10, 1.50] + [1.0] * 40, [2.50] * 42)
+    _prv_splt7 = _prv_hdf([2.10] + [21.0] * 40, [2.50] + [25.0] * 40)
+    _prv_sd7 = str(_prv_splt7.index[32].date())
+    _prv_calls7 = {"yahoo": [], "tradingview": []}
+    _prv_fx7 = {"yahoo": lambda ss: (_prv_calls7["yahoo"].append(list(ss)),
+                                     {_s: (_prv_splt7 if _s == "SPLT" else _prv_win7) for _s in ss})[1],
+                "tradingview": lambda ss: (_prv_calls7["tradingview"].append(list(ss)), {_s: _prv_loss7 for _s in ss})[1]}
+    _prv_sv7 = (_PH.load_ledger, _PH.report, _HO.src_fetchers, S._fetch_splits, S.download_history)
+    _prv_got7 = {}
+    try:
+        _PH.load_ledger = lambda *a, **k: (_prv_rows7, 0)
+        _PH.report = lambda results, bad_lines=0: _prv_got7.update(res=results)
+        _HO.src_fetchers = lambda _S, log=None: _prv_fx7
+        S._fetch_splits = lambda _s: ({_prv_sd7: 0.1} if _s == "SPLT" else None)
+        S.download_history = lambda *a, **k: (_ for _ in ()).throw(AssertionError("نداءٌ مباشر"))
+        with _ctx_ph.redirect_stdout(_io_ph.StringIO()):
+            _prv_rc7 = _PH.main()
+    finally:
+        _PH.load_ledger, _PH.report, _HO.src_fetchers, S._fetch_splits, S.download_history = _prv_sv7
+    _prv_res7 = _prv_got7.get("res") or []
+    _prv_dual7 = [_r["outcome"] for _r in _prv_res7 if _r["symbol"] == "DUAL"]
+    _prv_spl7 = [_r["outcome"] for _r in _prv_res7 if _r["symbol"] == "SPLT"]
+    _v7 = (_prv_rc7 == 0 and [len(_c) for _c in _prv_calls7["yahoo"]] == [60, 3]
+           and sorted(_prv_calls7["yahoo"][0] + _prv_calls7["yahoo"][1])
+           == sorted([f"Y{_k:03d}" for _k in range(61)] + ["DUAL", "SPLT"])
+           and _prv_calls7["tradingview"] == [["DUAL"]] and _prv_dual7 == ["win", "loss"]
+           and _prv_spl7 == ["split_unadjusted"] and len(_prv_res7) == 64
+           and all(_r["outcome"] == "win" for _r in _prv_res7 if _r["symbol"] not in ("DUAL", "SPLT")))
+    _v7w = (f"rc={_prv_rc7} · ياهو={[len(_c) for _c in _prv_calls7['yahoo']]} · tv={_prv_calls7['tradingview']} · "
+            f"DUAL={_prv_dual7} · SPLT={_prv_spl7} · ن={len(_prv_res7)}")
+except Exception as _e:                                              # noqa: BLE001
+    _v7, _v7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗜️📺 PRV7 `press_harvest.main()`: كلُّ صفٍّ بشموع مصدره — ياهو بدفعاتِ 60 كما كان · TradingView دفعةً واحدة · والرمزُ بمصدرين "
+      "يُحسم بإطار كلٍّ (فوز/خسارة) · وحارسُ التقسيم موصول (SPLT ⟵ split_unadjusted) · وصفرُ نداءٍ مباشرٍ لـ`download_history`",
+      _v7, _v7w)
+
+# PRV8 — الـYAML: `BARS_SOURCE: tradingview` **في بيئة الخطوة التي تشغّل press_radar.py** ومعها `POLYGON_API_KEY` كما كان (المسارُ
+#    السابق حيٌّ بلا البيئة) · وحاصدُه بلا `BARS_SOURCE` في أيّ بيئة (يحسم كلَّ صفٍّ بمصدره من الكود لا من البيئة)
+try:
+    _prv_y8 = _tvb_yaml.safe_load(open(".github/workflows/press_radar.yml", encoding="utf-8")) or {}
+    _prv_st8 = [_st for _j in (_prv_y8.get("jobs") or {}).values() for _st in ((_j or {}).get("steps") or [])]
+    _prv_run8 = [_st for _st in _prv_st8 if "press_radar.py" in str((_st or {}).get("run") or "")]
+    _prv_h8 = _tvb_yaml.safe_load(open(".github/workflows/press_harvest.yml", encoding="utf-8")) or {}
+    _prv_env8 = [_prv_h8.get("env") or {}]
+    for _j in (_prv_h8.get("jobs") or {}).values():
+        _prv_env8.append((_j or {}).get("env") or {})
+        _prv_env8 += [(_st or {}).get("env") or {} for _st in ((_j or {}).get("steps") or [])]
+    _prv_e8 = (_prv_run8[0].get("env") or {}) if len(_prv_run8) == 1 else {}
+    _v8 = (len(_prv_run8) == 1 and str(_prv_e8.get("BARS_SOURCE", "")).strip() == "tradingview"
+           and "POLYGON_API_KEY" in _prv_e8 and not any("BARS_SOURCE" in _e8 for _e8 in _prv_env8))
+    _v8w = f"خطوات={len(_prv_run8)} · env={sorted(_prv_e8)} · حاصد={[sorted(_e8) for _e8 in _prv_env8 if _e8]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v8, _v8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗜️📺 PRV8 الـYAML: `BARS_SOURCE: tradingview` في خطوة press_radar.py ومعه `POLYGON_API_KEY` كما كان · وحاصدُه بلا البيئة",
+      _v8, _v8w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

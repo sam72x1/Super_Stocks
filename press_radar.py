@@ -772,6 +772,11 @@ def append_ledger(rows, session_iso: str, path=LEDGER_FILE) -> int:
                        "wake_score": _w.get("score"),
                        "awake": bool(_w.get("awake")),
                        **r["read"]}
+                # 📺 مصدرُ الشموع (‏2026-09-30 «انقل رادار الضغط إلى ترندق فيو»): **حقلٌ مستقلّ** لأن `src` هنا
+                # مصدرُ البِركة (ارتداد/قائمة/…) · والحاصدُ يحسم كلَّ صفٍّ بشموع مصدره (‏`press_harvest.row_bars_src`)
+                # وغيابُه = ياهو (كلُّ صفٍّ قبل النقل).
+                if r.get("bars_src"):
+                    rec["bars_src"] = r["bars_src"]
                 fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
                 seen.add(str(r["symbol"]))
                 n += 1
@@ -780,6 +785,38 @@ def append_ledger(rows, session_iso: str, path=LEDGER_FILE) -> int:
     if dup:
         _log(f"📒 الحصاد: {dup} رمزًا مسجَّلًا سلفًا لهذي الجلسة — لم يُكرَّر.")
     return n
+
+
+def _bars_src_of(df) -> str:
+    """📺 مصدرُ إطار الشموع بالاسم (`hunter_ledger.frame_src`: «tradingview» بوسم `tv_daily_frame` وإلّا «yahoo») — فاشلٌ-آمن ⟵
+    «yahoo» (المسارُ السابق)."""
+    try:
+        import hunter_ledger as HL                               # noqa: PLC0415
+        return HL.frame_src(df)
+    except Exception:                                            # noqa: BLE001
+        return "yahoo"
+
+
+def bars_src_summary(hist: dict, session_iso: str) -> dict:
+    """📺 نقيّة: {"tv": عددُ إطارات TradingView · "yahoo": عددُ إطارات ياهو (المسارُ السابق أو احتياطُه لكلّ رمز) ·
+    "stale": رموزُ TradingView التي آخرُ شمعتها **قبل** الجلسة} — والمصدرُ `hunter_ledger.frame_src` بالاسم.
+    ⚠️ **TradingView بلا حشو** (يومٌ بلا صفقة لا شمعةَ له · وياهو يحشوه بشمعةٍ حجمُها صفر): فالقراءةُ لإطارٍ «قديم» تقع على
+    **آخر جلسةٍ تداولها** — تُعلَن بعددها وأسمائها في السجلّ ولا تُسقَط ولا تُحشى (لا بيانات تُخترَع). فاشلةٌ-آمنة لكلّ إطار."""
+    import hunter_ledger as HL                                   # noqa: PLC0415
+    out = {"tv": 0, "yahoo": 0, "stale": []}
+    for sym, df in sorted((hist or {}).items()):
+        try:
+            if df is None or getattr(df, "empty", True):
+                continue
+            if HL.frame_src(df) == HL.SRC_TV:
+                out["tv"] += 1
+                if str(df.index[-1])[:10] < str(session_iso)[:10]:
+                    out["stale"].append(str(sym))
+            else:
+                out["yahoo"] += 1
+        except Exception:                                        # noqa: BLE001
+            continue
+    return out
 
 
 # ─────────────────────────── المسار الرئيسي ───────────────────────────
@@ -817,6 +854,18 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
     _log(f"📡 بِركة الرادار: {len(pool)} رمزًا (ارتداد/قائمة/مشطوب/متحرّك/ذاكرة).")
     fetch = fetch_hist or S.download_history
     hist = fetch(pool) or {}
+    # 📺 مصدرُ الشموع (أمرُ المالك 2026-09-30 «انقل رادار الضغط إلى ترندق فيو»): `BARS_SOURCE: tradingview` في
+    #    press_radar.yml ⟵ `download_history` نفسُه (TradingView ثمّ ياهو لكلّ رمزٍ يتعذّر) · وسطرُ سجلٍّ بالعدّين
+    #    وبأسماء إطارات TradingView التي آخرُ شمعتها قبل الجلسة (بلا حشو ⟵ قراءتُها على آخر جلسةٍ تداولها · يُعلَن لا يُخفى).
+    try:
+        _bs = bars_src_summary(hist, session_iso)
+        _st = _bs["stale"]
+        _log(f"📺 مصدرُ الشموع في البِركة: TradingView {_bs['tv']} · ياهو {_bs['yahoo']}"
+             + (f" · TradingView بلا شمعة الجلسة {len(_st)}: {', '.join(_st[:10])}"
+                + (f" و{len(_st) - 10} غيرُها" if len(_st) > 10 else "")
+                + " (بلا حشو ⟵ القراءةُ على آخر جلسةٍ تداولها)" if _st else ""))
+    except Exception as e:                                       # noqa: BLE001
+        _log(f"⚠️ سطرُ مصدر الشموع تعذّر ({type(e).__name__}) — لا يمسّ المسح.")
     rows, failed = [], 0
     grid = {"V0": 0, "VA1": 0, "VA2": 0, "VA3": 0}
     for sym in pool:
@@ -844,7 +893,8 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
         if not force and not should_alert(mem, session_iso):
             continue
         rows.append({"symbol": sym, "read": r,
-                     "plan": mem.get("plan"), "src": mem.get("src", "؟")})
+                     "plan": mem.get("plan"), "src": mem.get("src", "؟"),
+                     "bars_src": _bars_src_of(df)})
     # 🔁 تركيبة المالك: «مؤهلٌ سابقًا عند البوت؟» تُحسب للمطابقين فقط (قلّة
     # بعد الدِدوب) — فاشلة-آمنة: تعذّرها لا يمس التنبيه.
     for r in rows:
@@ -858,20 +908,48 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
     # أصلًا (صفر نداء إضافي)، وحركةُ الافتر تُجلب **للحافظين وحدهم** (سقفُ
     # نداءات Polygon = عدد الجاهزين ≈ عشرات لا مئات) — فاشلة-آمنة: بلا مفتاح/
     # تعذّر ⇒ ah_pct=None والقراءةُ الباقية تعمل.
-    for r in rows:
-        ah_pct = None
-        try:
-            if int((r.get("read") or {}).get("hold_sessions") or 0) >= READY_HOLD:
-                _ext = S.extended_last_price(r["symbol"], session_iso)
-                _cl = float((r.get("read") or {}).get("close") or 0)
-                if _ext and _cl > 0:
-                    ah_pct = round((float(_ext) / _cl - 1.0) * 100.0, 1)
-        except Exception:                                        # noqa: BLE001
+    # 📺🌙 **ومنذ 2026-09-30 من TradingView حين `BARS_SOURCE=tradingview`** (أمرُ المالك «انقل رادار الضغط إلى ترندق
+    #    فيو» · Polygon انتهى 09-29 فصارت قرينةُ الافتر ميتةً صامتةً): `extended_last_price` **نفسُها** بجالبٍ محقون
+    #    (`S.tv_session_minutes` — يومُ الجلسة وحدَه) على مِقبسٍ واحدٍ للجاهزين يُغلق بعدهم · وبلا البيئة النداءُ السابق
+    #    **حرفًا** (Polygon · بت-بت) · وتعذّرُ المِقبس ⟵ ah_pct=None كما كان.
+    _ah_tv, _ah_ch, _ah_asked, _ah_got = False, None, 0, 0
+    try:
+        if S.bars_source() == "tradingview":
+            import tv_data as _TVD                               # noqa: PLC0415
+            _ah_ch, _ah_tv = _TVD.Chart(), True
+    except Exception:                                            # noqa: BLE001
+        _ah_tv, _ah_ch = False, None
+    try:
+        for r in rows:
             ah_pct = None
-        try:
-            r["wake"] = wake_read(hist.get(r["symbol"]), ah_pct=ah_pct)
-        except Exception:                                        # noqa: BLE001
-            r["wake"] = {}
+            try:
+                if int((r.get("read") or {}).get("hold_sessions") or 0) >= READY_HOLD:
+                    if _ah_tv:
+                        _ah_asked += 1
+                        _ext = S.extended_last_price(
+                            r["symbol"], session_iso,
+                            fetch_bars=lambda _s, _d: S.tv_session_minutes(_s, _d, chart=_ah_ch))
+                        _ah_got += 1 if _ext else 0
+                    else:
+                        _ext = S.extended_last_price(r["symbol"], session_iso)
+                    _cl = float((r.get("read") or {}).get("close") or 0)
+                    if _ext and _cl > 0:
+                        ah_pct = round((float(_ext) / _cl - 1.0) * 100.0, 1)
+            except Exception:                                    # noqa: BLE001
+                ah_pct = None
+            try:
+                r["wake"] = wake_read(hist.get(r["symbol"]), ah_pct=ah_pct)
+            except Exception:                                    # noqa: BLE001
+                r["wake"] = {}
+    finally:
+        if _ah_ch is not None:
+            try:
+                _ah_ch.close()
+            except Exception:                                    # noqa: BLE001
+                pass
+    if _ah_tv:
+        _log(f"🌙📺 الافتر من TradingView: قُرئ سعرُه لـ{_ah_got} من {_ah_asked} حافظًا "
+             f"(والباقي بلا صفقة افترٍ عنده أو تعذّر ⟵ قرينةُ الافتر خامدةٌ له · الحجمُ والشمعةُ تعملان).")
     rows.sort(key=alert_rank)        # الأقرب لنمط WETO أولًا (تصحيح أول تشغيلة)
     # 🔒 الشورت المتاح/الرسوم/الفلوت (طلب المالك 2026-08-15) — **لأصحاب
     # الكروت وحدهم** (ترتيبُ العرض نفسُه: المستيقظُ الحافظ أولًا ثم الحافظ ·

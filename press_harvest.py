@@ -33,6 +33,14 @@
 بلا معنًى. فيُقارَن `close` المسجَّل بإغلاق يوم الجلسة المجلوب، والمتفرّقُ **يُستبعَد
 بسببٍ مُسمًّى ويُعَدّ** (سابقة `scale_mismatch` في `T-SLIP`) — لا يُصحَّح ولا يُدفَن.
 
+📺 **ومصدرُ الشموع لكلّ صفٍّ مصدرُه ليلةَ التسجيل (‏2026-09-30، أمرُ المالك «انقل رادار الضغط إلى ترندق فيو»):**
+الصفُّ الجديد يحمل `bars_src` (‏`src` في هذا السجلّ **مصدرُ البِركة** لا الشموع) ⟵ يُحسم بشموع TradingView وحدَها بلا
+احتياط ياهو (‏`hunter_outcomes.src_fetchers` بالاسم — نمطُ ملحق §⑦ في `harvest_prereg.md`) · وغيابُه = ياهو ⇒ الصفوفُ
+القديمة على المسار السابق نفسِه (الدفعاتُ نفسُها عبر `download_history`). ⚖️ **وحارسُ التقسيم غير المسوّى** (‏ملحق §⑧ ·
+`unadjusted_jump` و`split_events_after` بالاسم): إطارٌ لم يسوِّ تقسيمًا مُدرَجًا بعد جلسة الصفّ (‏WOK عند TradingView ·
+وتقسيماتٌ عكسيّةٌ حديثة عند ياهو — مِجَسّ `tvs_probe`) **يمرّ حارسَ المقياس** لأن الإغلاقين خامّان ثمّ تُضخّم قفزةُ
+التقسيم القممَ ⇒ فوزٌ كاذب ⟵ يُستبعَد بسببٍ مُسمًّى `split_unadjusted` ويُعَدّ — لا يُصحَّح.
+
 ⛔ قراءةٌ فقط: لا يستورده الإنتاج · لا يكتب حالةً · لا يرسل تلغرام · لا يمسّ عتبة.
 """
 import json
@@ -66,6 +74,16 @@ def load_ledger(path=LEDGER):
     return rows, bad
 
 
+def row_bars_src(row) -> str:
+    """📺 مصدرُ شموع الصفّ: «tradingview» إن حمله الحقلُ `bars_src` حرفًا وإلّا «yahoo» (غيابُه = كلُّ صفٍّ قبل النقل ·
+    و`src` هنا مصدرُ البِركة فلا يُقرأ) — الثابتان من `hunter_ledger` بالاسم. فاشلٌ-آمن ⟵ «yahoo»."""
+    import hunter_ledger as HL                                   # noqa: PLC0415
+    try:
+        return HL.SRC_TV if str((row or {}).get("bars_src") or "") == HL.SRC_TV else HL.SRC_YAHOO
+    except Exception:                                            # noqa: BLE001
+        return HL.SRC_YAHOO
+
+
 def scale_verdict(rec_close, fetched_close, tol=SCALE_TOL):
     """🩺 هل السلسلةُ المجلوبةُ اليوم بمقياس الصفّ المسجَّل؟
     ترجع `True` متّسق · `False` متفرّق · `None` تعذّر الحكم (يُعَدّ ولا يُفترَض)."""
@@ -78,14 +96,18 @@ def scale_verdict(rec_close, fetched_close, tol=SCALE_TOL):
         return None
 
 
-def resolve_row(row, df, mirror=None, resolve=None):
+def resolve_row(row, df, mirror=None, resolve=None, split_events=None):
     """يحسم صفًّا واحدًا بدوالّ الإنتاج. يرجّع dict فيه **ذراعا وقفٍ**:
     `outcome` (‏B0 = وقفُ `mirror_plan`، ‏7% تحت القاع — يقارَن بالمنشور) و
     `outcome_low` (‏B1 = **وقفُ القاع المعتمَد**). كلٌّ من `resolve_episode`:
     win | loss | no_fill | open — أو سببُ استبعادٍ مُسمًّى **يُكتَب في الذراعين
     معًا** فلا يختلف مقامُهما: `no_data` · `session_missing` · **`session_ahead`**
     (الجلسةُ بعد آخر بارٍ متاح ⇒ تُحسَم لاحقًا لا عطب) · `scale_mismatch` ·
-    `scale_unknown` · `no_anchor`."""
+    `scale_unknown` · `no_anchor` · **`split_unadjusted`** (‏2026-09-30).
+
+    ⚖️ `split_events(رمز، يوم)` ⟵ [(يوم، نسبة)] تقسيماتُ ياهو بعد يوم الشمعة المستعمَلة: إطارٌ لم يسوِّ واحدًا منها
+    (‏`hunter_outcomes.unadjusted_jump` بالاسم) ⟵ `split_unadjusted` · وتعذّرُ الفحص ⟵ الحسمُ كما كان (فاشلٌ-آمنٌ مفتوح:
+    لا يُسقَط صفٌّ بالظنّ) · وبلا الوسيط المسارُ السابق بت-بت."""
     import rebound_arms as RB                                    # noqa: PLC0415
     mirror = mirror or RB.mirror_plan
     resolve = resolve or RB.resolve_episode
@@ -150,6 +172,18 @@ def resolve_row(row, df, mirror=None, resolve=None):
         out["outcome"] = out["outcome_low"] = (
             "scale_mismatch" if sv is False else "scale_unknown")
         return out
+    # ⚖️🔴 **حارسُ التقسيم غير المسوّى — بعد حارس المقياس لا قبله:** إطارٌ سوّى التقسيمَ يسقط حارسَ المقياس
+    # (`scale_mismatch`) · والذي **لم** يُسوِّه يمرّ لأن إغلاقَ الجلسة فيه خامٌّ كالمسجَّل ثمّ تقفز قممُ ما بعد
+    # التقسيم ×1/النسبة ⇒ فوزٌ كاذبٌ بالبناء. فيُفحص ما بعد الشمعة المستعمَلة وحدَه (لا شموعَ بعدها ⟵ لا نداء).
+    if split_events is not None and len(df) - 1 - i > 0:
+        try:
+            import hunter_outcomes as HO                         # noqa: PLC0415
+            _ev = split_events(str(row.get("symbol")), idx[i])
+            if _ev and HO.unadjusted_jump(df, _ev):
+                out["outcome"] = out["outcome_low"] = "split_unadjusted"
+                return out
+        except Exception:                                        # noqa: BLE001
+            pass
     hi = df["High"].values.astype(float)
     lo = df["Low"].values.astype(float)
     tr, st = mirror(anchor)
@@ -265,16 +299,39 @@ def main() -> int:
         print("⛔ سجلُّ الحصاد فارغ — لا شيء يُقرأ (بصمةُ no-op لا نتيجة).")
         return 4
     import Super_stock as S                                      # noqa: PLC0415
+    import hunter_ledger as HL                                   # noqa: PLC0415
+    import hunter_outcomes as HO                                 # noqa: PLC0415
     syms = sorted({str(r.get("symbol")) for r in rows if r.get("symbol")})
     print(f"📥 {len(rows)} صفًّا · {len(syms)} رمزًا فريدًا — يُجلَب التاريخ…")
+    # 📺 كلُّ صفٍّ بشموع مصدره (‏`row_bars_src`): ياهو بدفعاتِ 60 كما كان (جالبُ `src_fetchers` = `download_history`
+    #    وبيئةُ `BARS_SOURCE` منزوعةٌ مدّةَ النداء) · وTradingView دفعةً واحدة **بلا احتياط ياهو** (تعذّرُه ⟵ `no_data` يُعَدّ).
+    by = {}
+    for r in rows:
+        if r.get("symbol"):
+            by.setdefault(row_bars_src(r), set()).add(str(r.get("symbol")))
+    fx = HO.src_fetchers(S, log=print)
     data = {}
     CH = 60
-    for k in range(0, len(syms), CH):
-        try:
-            data.update(S.download_history(syms[k:k + CH]) or {})
-        except Exception as e:                                   # noqa: BLE001
-            print(f"⚠️ دفعةٌ تعذّرت ({k}): {e}")
-    results = [resolve_row(r, data.get(str(r.get("symbol")))) for r in rows]
+    for src in sorted(by):
+        ss = sorted(by[src])
+        got = {}
+        if src == HL.SRC_YAHOO:
+            for k in range(0, len(ss), CH):
+                try:
+                    got.update(fx[src](ss[k:k + CH]) or {})
+                except Exception as e:                           # noqa: BLE001
+                    print(f"⚠️ دفعةٌ تعذّرت ({k}): {e}")
+        else:
+            try:
+                got.update(fx[src](ss) or {})
+            except Exception as e:                               # noqa: BLE001
+                print(f"⚠️ جلبُ «{src}» تعذّر ({e}) — صفوفُه `no_data` (لا تُحسم بمصدرٍ آخر).")
+        data[src] = got
+        print(f"📺 شموعُ «{src}»: {len(got)} من {len(ss)} رمزًا")
+    # ⚖️ حارسُ التقسيم غير المسوّى (ملحق §⑧ بالاسم): تقسيماتُ ياهو بعد يوم الشمعة المستعمَلة (كاشُ التشغيلة `_SPLITS_MEMO`)
+    results = [resolve_row(r, (data.get(row_bars_src(r)) or {}).get(str(r.get("symbol"))),
+                           split_events=lambda _s, _d: HO.split_events_after(S._fetch_splits(_s), _d))
+               for r in rows]
     report(results, bad_lines=bad)
     return 0
 
