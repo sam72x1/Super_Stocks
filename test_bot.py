@@ -71941,6 +71941,194 @@ except Exception as _e:                                              # noqa: BLE
 check("📺 PTV16 الوصل في الحصاد: دقائقُ TradingView تُسوّى بحجم الشمعة اليوميّة ليوم الصفّ تحت شرط المصدر والمفتاح (AST) · "
       "وعدّادُ المسوّى مطبوع · وسطرُ حدّ الصدق يقول «يُسوّى»", _p16, _p16w)
 
+# ── THV — 📺 حسمُ الحصاد على TradingView مقيسٌ مقابل ياهو (‏2026-09-30 · مِجَسّ `36694612545` · معيارُه مكتوبٌ قبل الرقم
+#    في #497): شاهدُ الهُويّة 74/74 · القمّةُ ضمن 3% في 51 من 67 (الحدّ 90%) · و26 صفًّا قديمًا (09-04 ⟶ 09-28) تركها
+#    Polygon بلا شموعٍ حُسمت على TradingView ومنها RAY 09-10 PM «بلغ» +674.6% بلا شمعةٍ عند Polygon ولا ياهو (مقياسُه
+#    0.893) و SHMDW ‏0.799 ⇒ القرارُ المكتوب: الأيّامُ قبل 2026-09-29 لا تُحسم على TradingView · وما كُتب منها يبقى في الملفّ
+#    ويُستثنى من التراكم · وحارسُ مقياسٍ [0.9، 1.1] · وسطرُ صدقٍ في الرسالة. وPolygon بت-بت.
+import presession_digest as _THV                                      # noqa: E402
+from zoneinfo import ZoneInfo as _thv_zi                             # noqa: E402
+import datetime as _thv_dt                                            # noqa: E402
+
+_THV_NY = _thv_zi("America/New_York")
+
+
+def _thv_bar(day_iso, mod, h, c, v=50_000.0):
+    """شمعةُ الثمانيّ (ms, o, h, l, c, v, n, mod) بتوقيت نيويورك."""
+    y, m, d = (int(x) for x in day_iso.split("-"))
+    ms = int(_thv_dt.datetime(y, m, d, mod // 60, mod % 60, tzinfo=_THV_NY).timestamp() * 1000)
+    return (ms, c, h, min(c, h), c, v, 1.0, mod)
+
+
+_THV_BARS = {
+    "OKA": [_thv_bar("2026-09-29", 1190, 1.0, 1.0), _thv_bar("2026-09-30", 300, 2.0, 1.9)],
+    "SPL": [_thv_bar("2026-09-29", 1190, 10.0, 10.0), _thv_bar("2026-09-30", 300, 2.0, 1.9)],
+    "NOA": [_thv_bar("2026-09-30", 300, 1.5, 1.4)],
+    "AHX": [_thv_bar("2026-09-30", 959, 2.0, 2.0), _thv_bar("2026-09-30", 1000, 4.0, 3.9)],
+    "OLD": [_thv_bar("2026-09-25", 1190, 1.0, 1.0), _thv_bar("2026-09-26", 300, 2.0, 1.9)],
+}
+_THV_LED = [
+    {"day": "2026-09-30", "sess": "PM", "sym": "OKA", "ref": 1.0, "rank": 1, "in_top": True, "sent": True,
+     "floor_ok": True},
+    {"day": "2026-09-30", "sess": "PM", "sym": "SPL", "ref": 1.0, "rank": 2, "in_top": True, "sent": False,
+     "floor_ok": False},
+    {"day": "2026-09-30", "sess": "PM", "sym": "NOA", "ref": 1.0, "rank": 11, "in_top": False, "sent": False,
+     "floor_ok": False},
+    {"day": "2026-09-30", "sess": "AH", "sym": "AHX", "ref": 2.0, "rank": 1, "in_top": True, "sent": True,
+     "floor_ok": True},
+    {"day": "2026-09-26", "sess": "PM", "sym": "OLD", "ref": 1.0, "rank": 3, "in_top": True, "sent": True,
+     "floor_ok": True},
+]
+_THV_OUT0 = [   # حصادٌ سابق: صفٌّ قديمٌ حُسم على TradingView (يُستثنى) وصفُّ Polygon (يُعَدّ) — كلاهما «مقصوصٌ بلغ»
+    {"key": "2026-09-10|PM|RAYX", "day": "2026-09-10", "sess": "PM", "sym": "RAYX", "in_top": True, "sent": False,
+     "floor_ok": False, "hit": 1, "src": "tv"},
+    {"key": "2026-09-10|PM|POLX", "day": "2026-09-10", "sess": "PM", "sym": "POLX", "in_top": True, "sent": False,
+     "floor_ok": False, "hit": 1},
+]
+
+
+def _thv_run(src_env):
+    """يشغّل `presession_digest.main` بلا شبكةٍ ولا كتابةٍ في المستودع ويُرجع (رمزُ الخروج، النداءات، الجديد، السجلّ، الرسالة)."""
+    import tempfile as _tf
+    calls, logs, sent = [], [], []
+    d_ = _tf.mkdtemp(prefix="thv_")
+    led_p, out_p = _ptv_os.path.join(d_, "led.jsonl"), _ptv_os.path.join(d_, "out.jsonl")
+    with open(led_p, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(json.dumps(r, ensure_ascii=False) for r in _THV_LED) + "\n")
+    with open(out_p, "w", encoding="utf-8") as fh:
+        fh.write("\n".join(json.dumps(r, ensure_ascii=False) for r in _THV_OUT0) + "\n")
+
+    def _fm(sym, a, b):
+        calls.append((sym, a, b))
+        return [x for x in _THV_BARS.get(sym, []) if a <= x[0] < b]
+
+    saved = (_PTV.LEDGER_FILE, _THV.OUT_FILE, _THV._save_stamp, _THV._log, _PTV.fetchers, _PTV.tv_snapshot,
+             _THV.S.send_telegram, _THV.S.git_save)
+    env_keys = ("DIGEST_FORCE", "DIGEST_DAY", "PRESESSION_SOURCE", "POLYGON_API_KEY")
+    env0 = {k: _ptv_os.environ.get(k) for k in env_keys}
+    try:
+        _ptv_os.environ.update({"DIGEST_FORCE": "1", "DIGEST_DAY": "2026-09-30", "PRESESSION_SOURCE": src_env,
+                                "POLYGON_API_KEY": "K"})
+        _PTV.LEDGER_FILE, _THV.OUT_FILE = led_p, out_p
+        _THV._save_stamp = lambda *a, **k: None
+        _THV._log = lambda m: logs.append(str(m))
+        _PTV.fetchers = lambda source=None: (None, _fm)
+        _PTV.tv_snapshot = lambda *a, **k: ({"NASDAQ:OKA": {}}, "2026-09-29")
+        _THV.S.send_telegram = lambda m: sent.append(m) or True
+        _THV.S.git_save = lambda *a, **k: None
+        rc = _THV.main()
+        rows = [json.loads(x) for x in open(out_p, encoding="utf-8").read().splitlines() if x.strip()]
+    finally:
+        (_PTV.LEDGER_FILE, _THV.OUT_FILE, _THV._save_stamp, _THV._log, _PTV.fetchers, _PTV.tv_snapshot,
+         _THV.S.send_telegram, _THV.S.git_save) = saved
+        for k, v in env0.items():
+            if v is None:
+                _ptv_os.environ.pop(k, None)
+            else:
+                _ptv_os.environ[k] = v
+        _ptv_reset()
+        import shutil as _sh
+        _sh.rmtree(d_, ignore_errors=True)
+    return rc, calls, rows[len(_THV_OUT0):], "\n".join(logs), (sent[0] if sent else "")
+
+
+# THV1 — `tv_backfill`: صفٌّ حُسم على TradingView ويومُه قبل 2026-09-29 وحدَه · وصفُّ Polygon القديمُ يُعَدّ كما كان.
+try:
+    _v1 = (_THV.TV_HARVEST_SINCE == "2026-09-29"
+           and _THV.tv_backfill({"src": "tv", "day": "2026-09-10"}) is True
+           and _THV.tv_backfill({"src": "tv", "day": "2026-09-28"}) is True
+           and _THV.tv_backfill({"src": "tv", "day": "2026-09-29"}) is False
+           and _THV.tv_backfill({"src": "tv", "day": "2026-09-30"}) is False
+           and _THV.tv_backfill({"day": "2026-09-10"}) is False
+           and _THV.tv_backfill({"src": "tv"}) is True)
+    _w1 = f"حدّ={_THV.TV_HARVEST_SINCE}"
+except Exception as _e:                                              # noqa: BLE001
+    _v1, _w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 THV1 `tv_backfill`: ما حُسم على TradingView ويومُه قبل 2026-09-29 وحدَه يُستثنى (مِجَسّ 36694612545) · "
+      "وصفُّ Polygon القديمُ والصفُّ الجديدُ يُعَدّان", _v1, _w1)
+
+# THV2 — `tv_scale_ok` (نقيّة): البري ⟵ آخرُ شمعةٍ في يوم الجلسة السابقة حتى 20:00 · الافتر ⟵ آخرُ شمعةٍ نظاميّة في يومه
+#        (شمعةُ الأفتر لا تُحسب مرجعًا) · داخل [0.9، 1.1] يُحسم · ×10 لا · وبلا شمعة مرجعٍ أو مرجعٍ صالح ⟵ (True، None).
+try:
+    _pm = {"sess": "PM", "day": "2026-09-30", "ref": 1.0}
+    _ah = {"sess": "AH", "day": "2026-09-30", "ref": 2.0}
+    _r_ok = _THV.tv_scale_ok(_pm, [_thv_bar("2026-09-29", 1000, 1.0, 1.0), _thv_bar("2026-09-29", 1190, 1.05, 1.05)],
+                             [_thv_bar("2026-09-30", 300, 9.0, 9.0)])
+    _r_big = _THV.tv_scale_ok(_pm, [_thv_bar("2026-09-29", 1190, 10.0, 10.0)], [])
+    _r_none = _THV.tv_scale_ok(_pm, [], [_thv_bar("2026-09-30", 300, 9.0, 9.0)])
+    _r_bad = _THV.tv_scale_ok({**_pm, "ref": None}, [_thv_bar("2026-09-29", 1190, 10.0, 10.0)], [])
+    _r_ah = _THV.tv_scale_ok(_ah, [_thv_bar("2026-09-29", 1190, 50.0, 50.0)],
+                             [_thv_bar("2026-09-30", 959, 2.1, 2.1), _thv_bar("2026-09-30", 1000, 9.0, 9.0)])
+    _r_edge = (_THV.tv_scale_ok(_pm, [_thv_bar("2026-09-29", 1190, 1.1, 1.1)], [])[0],
+               _THV.tv_scale_ok(_pm, [_thv_bar("2026-09-29", 1190, 0.9, 0.9)], [])[0],
+               _THV.tv_scale_ok(_pm, [_thv_bar("2026-09-29", 1190, 0.89, 0.89)], [])[0])
+    _v2 = (_r_ok == (True, 1.05) and _r_big == (False, 10.0) and _r_none == (True, None) and _r_bad == (True, None)
+           and _r_ah[0] is True and abs(_r_ah[1] - 1.05) < 1e-9 and _r_edge == (True, True, False))
+    _w2 = f"ok={_r_ok} ×10={_r_big} بلا={_r_none} مرجعٌ تالف={_r_bad} افتر={_r_ah} حدود={_r_edge}"
+except Exception as _e:                                              # noqa: BLE001
+    _v2, _w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 THV2 حارسُ المقياس: البري من آخر شمعة الجلسة السابقة والافتر من آخر شمعةٍ نظاميّة (شمعةُ الأفتر لا تُحسب) · "
+      "داخل [0.9، 1.1] يُحسم وخارجه لا · وبلا مرجعٍ فاشلٌ-آمنٌ يُحسم", _v2, _w2)
+
+# THV3 — `main` على TradingView (سلوكيّ · بلا شبكة): القديمُ لا يُجلب ولا يُحسم · SPL (×10) لا يُحسم ويُطبَع · NOA بلا مرجعٍ
+#        يُحسم ويُعَدّ · OKA وAHX يُحسمان موسومَين «tv» · والجلبُ من 04:00 يومِ الجلسة السابقة · والتراكمُ يستثني RAYX
+#        (tv قديم) ويعدّ POLX (Polygon) ويُعلن «مستثنى 1».
+try:
+    _rc3, _c3, _n3, _l3, _m3 = _thv_run("tv")
+    _syms3 = sorted(c[0] for c in _c3)
+    _prev_a3 = _THV.day_bounds_ms("2026-09-29")[0]
+    _new3 = {r["sym"]: r for r in _n3}
+    _v3 = (_rc3 == 0 and _syms3 == ["AHX", "NOA", "OKA", "SPL"]
+           and all(c[1] == _prev_a3 for c in _c3)
+           and sorted(_new3) == ["AHX", "NOA", "OKA"]
+           and _new3["OKA"]["hit"] == 1 and _new3["AHX"]["hit"] == 1 and _new3["NOA"]["hit"] == 0
+           and all(r.get("src") == "tv" for r in _n3)
+           and "ما قبل 2026-09-29: 1 صفًّا" in _l3
+           and "خارجه 1 — SPL 2026-09-30 PM ×10.000" in _l3 and "بلا شمعة مرجعٍ 1" in _l3
+           and "مستثنى من التراكم: 1" in _l3
+           and "مستثنى 1 صفًّا" in _m3 and "مقصوصٌ محسوم 1 · بلغ 1" in _m3
+           and "مُسلَّمٌ محسوم 2 · بلغ 2" in _m3 and "خالفت ياهو" in _m3)
+    _w3 = (f"rc={_rc3} · جُلب={_syms3} · من السابق={all(c[1] == _prev_a3 for c in _c3)} · حُسم={sorted(_new3)} · "
+           f"مستثنى={'مستثنى 1 صفًّا' in _m3} · مقصوص={'مقصوصٌ محسوم 1 · بلغ 1' in _m3}")
+except Exception as _e:                                              # noqa: BLE001
+    _v3, _w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 THV3 الحصادُ على TradingView (سلوكيّ): القديمُ لا يُجلب ولا يُحسم · ×10 لا يُحسم ويُطبَع · بلا مرجعٍ يُحسم ويُعَدّ · "
+      "والجلبُ من يوم الجلسة السابقة · والتراكمُ يستثني القديمَ الموسومَ tv ويُعلنه ويعدّ صفَّ Polygon", _v3, _w3)
+
+# THV4 — `main` على Polygon بت-بت: القديمُ يُجلب ويُحسم · ×10 يُحسم (لا حارسَ مقياس) · الجلبُ من 04:00 يومِ الصفّ نفسِه ·
+#        بلا وسم «tv» · ولا سطرَ للحارس ولا للمنع.
+try:
+    _rc4, _c4, _n4, _l4, _m4 = _thv_run("polygon")
+    _new4 = {r["sym"]: r for r in _n4}
+    _own_a4 = all(c[1] == _THV.day_bounds_ms("2026-09-26" if c[0] == "OLD" else "2026-09-30")[0] for c in _c4)
+    _v4 = (_rc4 == 0 and sorted(c[0] for c in _c4) == ["AHX", "NOA", "OKA", "OLD", "SPL"] and _own_a4
+           and sorted(_new4) == ["AHX", "NOA", "OKA", "OLD", "SPL"] and _new4["SPL"]["hit"] == 1
+           and all("src" not in r for r in _n4)
+           and "حارسُ المقياس" not in _l4 and "لا يُحسم على TradingView" not in _l4 and "خالفت ياهو" not in _m4)
+    _w4 = f"rc={_rc4} · جُلب={sorted(c[0] for c in _c4)} · من يومه={_own_a4} · حُسم={sorted(_new4)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v4, _w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 THV4 الحصادُ على Polygon بت-بت: القديمُ يُحسم · ×10 يُحسم (لا حارسَ مقياس) · الجلبُ من يوم الصفّ نفسِه · "
+      "بلا وسمٍ ولا سطرِ حارسٍ ولا منع", _v4, _w4)
+
+# THV5 — الرسالة: `excluded` يُعلَن تحت «التراكم» وصفرُه بت-بت · وسطرُ صدق TradingView يحمل نتيجةَ المِجَسّ (16 من 67 ·
+#        أدنى 13 · أعلى 3) ويبقى ذيلًا ملحقًا (PTV13).
+try:
+    _c5 = {"deliv": (0, 0), "cut": (0, 0), "below": (0, 0), "all": (0, 0)}
+    _d0 = _THV.build_digest("2026-09-30", [], _c5, (0, 0), 0)
+    _d0x = _THV.build_digest("2026-09-30", [], _c5, (0, 0), 0, excluded=0)
+    _d26 = _THV.build_digest("2026-09-30", [], _c5, (0, 0), 0, excluded=26)
+    _dtv = _THV.build_digest("2026-09-30", [], _c5, (0, 0), 0, src="tv")
+    _v5 = (_d0 == _d0x and "مستثنى" not in _d0 and "مستثنى 26 صفًّا قديمًا حُسم على TradingView" in _d26
+           and _d26.index("مستثنى 26") > _d26.index("التراكم") and _d26.index("مستثنى 26") < _d26.index("مُسلَّمٌ محسوم")
+           and "خالفت ياهو بأكثرَ من 3% في 16 من 67" in _dtv and "أدنى في 13 · أعلى في 3" in _dtv
+           and _dtv.startswith(_d0) and "خالفت ياهو" not in _d0)
+    _w5 = f"صفر بت-بت={_d0 == _d0x} · 26={'مستثنى 26' in _d26} · سطر tv={'خالفت ياهو' in _dtv}"
+except Exception as _e:                                              # noqa: BLE001
+    _v5, _w5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 THV5 الرسالة: المستثنى يُعلَن تحت «التراكم» بعدده وصفرُه بت-بت · وسطرُ صدق TradingView يحمل نتيجةَ المِجَسّ "
+      "(خالف ياهو في 16 من 67 · أدنى 13 · أعلى 3) ذيلًا ملحقًا", _v5, _w5)
+
 # 🏷️ LID1 — **معرّفُ القفل لا يتكرّر** (‏2026-09-30 · درسُ `PWA14`: قفلُ تجميد pmfwd الجديد حمل اسمَ جدول الحقيقة
 #    `fired_of` القائمِ منذ 09-17 فالتبس إسنادُ طفراته — وقاعدةُ `lock-and-mutate` «أسماءُ الأقفال فريدة» كانت نصًّا
 #    لا قفلًا). **سقّاطةٌ لا تنظيف:** المكرَّرُ القائمُ يومَها (‏67 معرّفًا) مُجمَّدٌ بأسمائه ⇒ تكرارٌ **جديد** يُسقطه ·
