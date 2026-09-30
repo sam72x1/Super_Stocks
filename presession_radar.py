@@ -517,6 +517,210 @@ def polygon_minutes(sym: str, frm_ms: int, to_ms: int, requests_mod=None):
         return None
 
 
+# ── 📺 TradingView (أمرُ المالك 2026-09-29: «اشتراكي مخلص ولا راح اجدده … البيانات تاخذها من ترندق فيو مب ياهو») ──
+# Polygon انتهى ⇒ جالبا المرشِّح والدقائق من TradingView افتراضًا · و`PRESESSION_SOURCE=polygon` = المسارُ السابق بت-بت.
+# ⚠️ **حدُّ صدق:** TradingView بلا واجهةٍ رسميّة (قد يُحجَب بلا إنذار ⇒ «grouped_missing» أو «0 بشموعِ دقيقة» = سطرُ عطلٍ
+#    لا صمت) · وبياناتُه للزائر **متأخّرةٌ 15 دقيقة** ⇒ قرارُ البري (03:50 · يقرأ جلسةَ أمسِ المكتملة) **مطابقٌ**، وقرارُ
+#    الأفتر (15:50) يرى الجلسةَ حتى ‏≈15:35 · ولا عدَّ صفقاتٍ (`n`=0) ⇒ `spt_30` و`tx_last5` مجهولتان (وصفيّتان لا ترتّبان).
+SOURCE_ENV = "PRESESSION_SOURCE"
+TV_REF = "NASDAQ:AAPL"             # رمزٌ مرجعيٌّ لتأريخ لقطة الماسح (آخرُ جلسةٍ عند TradingView)
+TV_MIN_N = 1500                    # engineering — شموعُ دقيقةٍ ممتدّة تكفي يومًا كاملًا 04:00-20:00 (‏960) بهامش
+TV_MAX_N = 5000                    # engineering — سقفُ الطلب الواحد
+TV_DAY_N = 960                     # دقائقُ اليوم الممتدّ (04:00-20:00) — لحساب عمق الطلب لأيّامٍ أقدم
+TV_SNAP_TTL = 120.0                # ثوانٍ — ماسحٌ واحدٌ لكلّ قرار (اليومُ والسابقُ من اللقطة نفسِها)
+TV_COLS = ["name", "close", "open", "high", "low", "volume", "change"]
+_TV = {"snap": None, "at": 0.0, "latest": None, "tmap": {}, "chart": None, "cache": {}, "prefetched": False}
+
+
+def data_source(env_val=None) -> str:
+    """«polygon» حرفيًّا وحدَه يعيد المسارَ السابق · وكلُّ ما سواه (والفارغ) TradingView."""
+    v = str(os.environ.get(SOURCE_ENV, "") if env_val is None else env_val).strip().lower()
+    return "polygon" if v == "polygon" else "tv"
+
+
+def tv_rows(snap: dict, day_iso: str, latest: str) -> list | None:
+    """لقطةُ الماسح ⟵ صفوفٌ بشكل Polygon المجمَّع ليوم `day_iso` — نقيّة.
+    الماسحُ يصف **آخرَ جلسة** وحدَها (`latest`): يومُها ⟵ o/h/l/c/v كما هي · واليومُ الذي قبلها ⟵ إغلاقُه وحدَه من
+    `change` (‏c ÷ (1 + change/100)) · وأيُّ يومٍ آخر ⟵ None (لا تخمين)."""
+    if not snap or not latest or not day_iso:
+        return None
+    if day_iso == latest:
+        mode = "day"
+    elif day_iso == prev_bday(latest):
+        mode = "prev"
+    else:
+        return None
+    out = []
+    for full, d in snap.items():
+        sym = str(full).partition(":")[2].upper()
+        try:
+            c = float((d or {}).get("close"))
+        except (TypeError, ValueError):
+            continue
+        if not sym or not c > 0:
+            continue
+        if mode == "day":
+            try:
+                v = float(d.get("volume") or 0.0)
+            except (TypeError, ValueError):
+                v = 0.0
+            out.append({"T": sym, "o": d.get("open"), "h": d.get("high"), "l": d.get("low"), "c": c,
+                        "v": v, "n": None})
+            continue
+        try:
+            ch = float(d.get("change"))
+        except (TypeError, ValueError):
+            continue
+        if ch <= -100.0:
+            continue
+        out.append({"T": sym, "c": c / (1.0 + ch / 100.0)})
+    return out or None
+
+
+def tv_bars8(bars: list, frm_ms: int, to_ms: int) -> list:
+    """شموعُ المِقبس [(ts ثوانٍ، o، h، l، c، v)] ⟵ عقدُ الثمانيّ داخل [frm_ms، to_ms) — نقيّة (`n`=0: لا عدَّ صفقات)."""
+    res = []
+    for b in (bars or []):
+        try:
+            t, o, h, lo, c, v = b
+            ms = int(t) * 1000
+        except (TypeError, ValueError):
+            continue
+        if int(frm_ms) <= ms < int(to_ms):
+            res.append({"t": ms, "o": o, "h": h, "l": lo, "c": c, "v": v, "n": 0})
+    return to_bars8(res)
+
+
+def tv_depth(frm_ms: int, now_ms: int) -> int:
+    """كم شمعةَ دقيقةٍ نطلب ليبلغ الطلبُ `frm_ms`: ‏`TV_MIN_N` ‏+ يومٌ ممتدٌّ لكلّ يومٍ تقويميٍّ إضافيّ · بسقف `TV_MAX_N`.
+    ⚠️ **`now_ms` هو الآنُ لا نهايةُ النافذة:** المِقبسُ يُرجع آخرَ `n` شمعةً **حتى الآن** — فالحصادُ الذي يطلب يومًا
+    مضى يحسب العمقَ من الآن (`_tv_now`) وإلّا لم يبلغ طلبُه يومَه."""
+    try:
+        days = max(0, int((int(now_ms) - int(frm_ms)) // 86_400_000) - 1)
+    except (TypeError, ValueError):
+        days = 0
+    return int(min(TV_MAX_N, TV_MIN_N + TV_DAY_N * days))
+
+
+def _tv_mod():
+    import tv_data as TV                                         # noqa: PLC0415 — كسولٌ: مسارُ Polygon لا يحتاجه
+    return TV
+
+
+def _tv_now(to_ms: int, now_ms: int = None) -> int:
+    """مرجعُ العمق = الأبعدُ من نهاية النافذة والآن (المحقونِ أو ساعةِ النظام) — نقيّةٌ مع `now_ms`."""
+    now = int(now_ms) if now_ms is not None else int(time.time() * 1000)
+    try:
+        return max(int(to_ms), now)
+    except (TypeError, ValueError):
+        return now
+
+
+def tv_snapshot(scan=None, clock=None, ref_bars=None) -> tuple:
+    """(لقطةُ الماسح، آخرُ جلسةٍ عند TradingView) مخبّأتين `TV_SNAP_TTL` ثانية · أو (None, None) فاشلًا-آمنًا.
+    آخرُ جلسة = يومُ آخر شمعةٍ يوميّةٍ لـ`TV_REF` (والماسحُ يصفها)."""
+    now = (clock or time.time)()
+    if _TV["snap"] and (now - _TV["at"]) < TV_SNAP_TTL:
+        return _TV["snap"], _TV["latest"]
+    try:
+        TV = _tv_mod()
+        snap = (scan or TV.scan)(TV_COLS)
+        if not snap:
+            return None, None
+        rb = ref_bars(TV_REF) if ref_bars else TV.Chart().bars(TV_REF, interval="1D", n=3)
+        if not rb:
+            return None, None
+        latest = TV.ny_day(rb[-1][0])
+    except Exception:                                            # noqa: BLE001
+        return None, None
+    _TV.update(snap=snap, at=now, latest=latest, tmap=TV.ticker_map(snap), cache={}, prefetched=False)
+    return snap, latest
+
+
+def tv_grouped(day_iso: str, scan=None, ref_bars=None):
+    """بديلُ `polygon_grouped` — صفوفُ الماسح بشكله · أو None (فاشلٌ-آمن)."""
+    snap, latest = tv_snapshot(scan=scan, ref_bars=ref_bars)
+    return tv_rows(snap, day_iso, latest) if snap else None
+
+
+def tv_minutes(sym: str, frm_ms: int, to_ms: int, chart=None, now_ms: int = None):
+    """بديلُ `polygon_minutes` — شموعُ دقيقةٍ ممتدّة من المِقبس بعقد الثمانيّ · أو None (فاشلٌ-آمن · إعادةٌ واحدة على
+    مقبسٍ جديد: المقبسُ الخامل بين قرارٍ وقرار قد يسقط). وما جلبه `tv_prefetch` يُقرأ من الذاكرة بلا نداء.
+    ⏱️ **وبعد جلبٍ مسبقٍ لهذا القرار لا نداءَ حيًّا:** ما لم يُجلب مسبقًا ⟵ None ⇒ زمنُ القرار = ميزانيةُ الجلب المسبق وحدَها
+    (الحلقةُ لا تفتح ميزانيةً ثانية)."""
+    s = str(sym or "").upper()
+    hit = _TV["cache"].get(s)
+    if hit is not None:
+        return tv_bars8(hit, frm_ms, to_ms)
+    if _TV.get("prefetched"):
+        return None
+    try:
+        TV = _tv_mod()
+        full = _TV["tmap"].get(s) or ("NASDAQ:" + s)
+        n = tv_depth(frm_ms, _tv_now(to_ms, now_ms))
+        ch = chart
+        if ch is None:
+            ch = _TV.get("chart")
+            if ch is None:
+                ch = _TV["chart"] = TV.Chart()
+        b = ch.bars(full, interval="1", n=n, extended=True)
+        if b is None:
+            ch.close()
+            b = ch.bars(full, interval="1", n=n, extended=True)
+    except Exception:                                            # noqa: BLE001
+        return None
+    return None if b is None else tv_bars8(b, frm_ms, to_ms)
+
+
+def tv_prefetch(syms, frm_ms: int, to_ms: int, budget_sec: float = BUDGET_SEC, fetch_many=None, clock=None,
+                now_ms: int = None) -> int:
+    """جلبٌ متوازٍ للمرشَّحين قبل حلقة الميزات (مقابس ستّة · وتمريرةُ إعادةٍ لما أخفق) **بمهلةٍ كلّيّة** = ميزانيةُ الجلب
+    نفسُها ⇒ الحلقةُ تقرأ من الذاكرة. يُرجع عددَ المجلوب. فاشلٌ-آمن: إن رمى الجلبُ كلُّه فالحلقةُ تجلب كما كانت ·
+    وإن أتمّ فما لم يُجلب لا يُطلب ثانيةً (`prefetched`)."""
+    _now = clock or time.monotonic
+    t_end = _now() + float(budget_sec or 0)
+
+    class _Deadline:
+        open = False
+
+        def skip(self):
+            if budget_sec and _now() >= t_end:
+                self.open = True
+            return self.open
+
+        def record(self, ok):
+            return None
+
+    try:
+        TV = _tv_mod()
+        fm = fetch_many or TV.fetch_many
+        names = [str(s).upper() for s in (syms or [])]
+        full = {s: (_TV["tmap"].get(s) or ("NASDAQ:" + s)) for s in names}
+        got = fm(list(full.values()), interval="1", n=tv_depth(frm_ms, _tv_now(to_ms, now_ms)), extended=True,
+                 workers=6, gate=_Deadline(), stagger=0.1, retry_pass=True, retry_pause=1.0, retry_cap=len(full))
+    except Exception:                                            # noqa: BLE001
+        return 0
+    _TV["prefetched"] = True
+    k = 0
+    for s, f in full.items():
+        b = (got or {}).get(f)
+        if b:
+            _TV["cache"][s] = b
+            k += 1
+    return k
+
+
+tv_minutes.prefetch = tv_prefetch
+tv_minutes.src = "tv"
+
+
+def fetchers(source: str = None) -> tuple:
+    """(جالبُ المرشِّح، جالبُ الدقائق) للمصدر — `polygon` حرفيًّا للسابق بت-بت · وإلّا TradingView."""
+    if data_source(source) == "polygon":
+        return polygon_grouped, polygon_minutes
+    return tv_grouped, tv_minutes
+
+
 # ── الوصلةُ الحيّة ────────────────────────────────────────────────────────────
 def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
                    fetch_minutes=None, prev_closes: dict = None, price_lo: float = None,
@@ -525,8 +729,10 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
                    clock=None, prefilter_key: str = None):
     """يُرجع `(rows, msg, diag)`. لا يرسل ولا يكتب — القرارُ للمُنادي."""
     _log = log or (lambda *_a, **_k: None)
-    fg = fetch_grouped or polygon_grouped
-    fm = fetch_minutes or polygon_minutes
+    # 📺 الجالبان الافتراضيّان من المصدر (TradingView افتراضًا · `PRESESSION_SOURCE=polygon` = السابقُ بت-بت).
+    _dfg, _dfm = fetchers()
+    fg = fetch_grouped or _dfg
+    fm = fetch_minutes or _dfm
     lo = price_lo if price_lo is not None else 0.40
     hi = price_hi if price_hi is not None else 10.0
     # قرارُ البريماركت يقرأ **يومَ التداول السابق** (اليومُ الحاليُّ لم يبدأ بعد).
@@ -562,7 +768,16 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
     close_min = reg_close_for(src_day)
     cut = PF.EXT_CLOSE if slot == "PM" else close_min - PF.DECISION_LEAD
     frm = fetch_from_ms(now_ms, src_day)
+    # 📺 جلبٌ متوازٍ للمرشَّحين إن كان للجالب `prefetch` (TradingView) — وجالبُ Polygon بلاها ⇒ بت-بت.
+    _pre = getattr(fm, "prefetch", None)
+    if _pre is not None and cands:
+        try:
+            _got = _pre([c[PF.ROW_SYM] for c in cands], frm, now_ms, budget_sec)
+            _log(f"📺 {slot}: جلبُ الدقائق مسبقًا من TradingView {_got} من {len(cands)}")
+        except Exception as e:                                   # noqa: BLE001
+            _log(f"⚠️ {slot}: الجلبُ المسبق تعذّر ({type(e).__name__}) ⟵ الحلقةُ تجلب كما كانت")
     rows, cov, cut_off = [], 0, 0
+    _src_tag = getattr(fm, "src", None)                          # 📺 «tv» يُوسَم في السجلّ · وPolygon بلا وسم (بت-بت)
     _now = clock or time.time
     _t0 = _now()
     for c in cands:
@@ -578,13 +793,19 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
         if not bars:
             continue
         cov += 1
-        pc = (prev_closes or {}).get(c[PF.ROW_SYM])
+        # 🔴 **عيبٌ مُثبَت (2026-09-30):** `prev_closes` لا يُمرَّر من العامل ولا من اليدويّة ⇒ كان المرجعُ **افتتاحَ اليوم
+        #    نفسِه** ⇒ `gap_open` صفرٌ في **1,816 من 1,816** صفًّا حيًّا منذ 09-03 و«صاعدٌ X% عن الأمس» في الرسالة كان عن
+        #    الافتتاح. ⇒ إغلاقاتُ الجلسة السابقة المجلوبةُ أصلًا للمرشِّح (`pcm`) مرجعٌ قبل الافتتاح — **تعريفُ الدراسة نفسُه**
+        #    (`presession_scan`: إغلاقُ الأمس). مفتاحا الترتيب (`post_hi_ret` · `usd_day`) والأرضيةُ لا يقرآنه ⇒ التسليمُ بت-بت.
+        pc = (prev_closes or {}).get(c[PF.ROW_SYM]) or pcm.get(c[PF.ROW_SYM])
         if not pc:
             pre, reg, _ = split_bars(bars, src_day)
             pc = (reg[0][1] if reg else (pre[0][1] if pre else None))
         r = feature_row(c[PF.ROW_SYM], bars, pc, slot, cut, liq_fn=liq_fn, win=win,
                         close_min=close_min)
         if r:
+            if _src_tag:
+                r["src"] = _src_tag
             rows.append(r)
     if cut_off:
         _log(f"⚠️ ميزانيةُ {budget_sec:g}ث قصّت {cut_off} مرشَّحًا — يُعلَن ولا يُصمت.")

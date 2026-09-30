@@ -29,7 +29,7 @@
 خارج العقد** (‏الوسمُ المسجَّل بريماركتُ اليوم وحدَه) — وحكمُها يلزمه `T-PREDAY`.
 
 🔒 عرض/حصادٌ فقط: لا يمسّ فرزًا ولا حالةَ بوتٍ ولا عتبةً ولا `LOGIC_VERSION`.
-التشغيل: `python3 presession_digest.py` (يلزم POLYGON_API_KEY + أسرار تلغرام).
+التشغيل: `python3 presession_digest.py` (الدقائقُ من TradingView افتراضًا · و`PRESESSION_SOURCE=polygon` يلزمه POLYGON_API_KEY · + أسرارُ تلغرام).
 """
 from __future__ import annotations
 
@@ -161,8 +161,8 @@ def _pct(hit: int, n: int) -> str:
 
 
 def build_digest(day_iso: str, today_rows: list, cum: dict,
-                 cov: tuple, missing: int) -> str:
-    """رسالةُ التقرير — بلا علامات مقارنة (قاعدة العرض)."""
+                 cov: tuple, missing: int, src: str = None) -> str:
+    """رسالةُ التقرير — بلا علامات مقارنة (قاعدة العرض). و`src="tv"` يُلحق سطرَ حدّ الصدق للمصدر (وبلاه بت-بت)."""
     e = S.esc
     L = [f"📒 <b>حصادُ قائمة ما قبل الجلسة</b> — {e(day_iso)}",
          f"🩺 حُسم {cov[0]} من {cov[1]} صفًّا "
@@ -214,6 +214,9 @@ def build_digest(day_iso: str, today_rows: list, cum: dict,
     L.append("⚠️ <i>الوسمُ المسجَّل: قمّةُ نافذة القرار تبلغ ‏+80% فأكثر عن مرجع "
              "الأمس بأرضية تنفيذٍ $20,000. و«النظاميّة» وصفٌ خارج العقد — حكمُها "
              "يلزمه تسجيلٌ مسبقٌ مستقلّ.</i>")
+    if src == "tv":
+        L.append("📺 <i>الحسمُ من دقائق TradingView (Polygon انتهى): حجمُها جزئيّ — نحو 5-15% من الحجم الموحَّد في "
+                 "مِجَسّ 09-30 — فأرضيةُ الـ$20,000 عليها أشدّ والإصاباتُ حدٌّ أدنى.</i>")
     return "\n".join(L)
 
 
@@ -249,9 +252,18 @@ def main() -> int:
     if not force and _load_stamp() == day:
         _log(f"🔁 حُصد {day} سلفًا — دِدوب.")
         return 0
-    if not (os.environ.get("POLYGON_API_KEY") or "").strip():
+    # 📺 المصدرُ من `PRESESSION_SOURCE` (TradingView افتراضًا منذ انتهاء Polygon 2026-09-29) — والمفتاحُ شرطُ Polygon وحدَه.
+    src = PR.data_source()
+    if src == "polygon" and not (os.environ.get("POLYGON_API_KEY") or "").strip():
         _log("⛔ بلا POLYGON_API_KEY — لا حسمَ (عطلٌ صريحٌ لا صمت).")
         return 2
+    fetch_minutes = PR.fetchers(src)[1]
+    _log(f"📺 مصدرُ الدقائق: {'TradingView' if src == 'tv' else 'Polygon'}")
+    if src == "tv":
+        #    خريطةُ البورصات (NASDAQ/NYSE/AMEX) من لقطة الماسح — وإلّا طُلب رمزُ غيرِ ناسداك «NASDAQ:…» فلا يُحسم.
+        _snap, _latest = PR.tv_snapshot()
+        _log(f"📺 خريطةُ البورصات: {len(PR._TV['tmap'])} رمزًا · آخرُ جلسة {_latest}" if _snap else
+             "⚠️ تعذّرت لقطةُ الماسح — الرموزُ تُطلب «NASDAQ:» (غيرُ ناسداك لا يُحسم ويُعَدّ في «تعذّر»)")
 
     led = read_jsonl(PR.LEDGER_FILE)
     if not led:
@@ -280,7 +292,7 @@ def main() -> int:
         if ck not in bars_cache:
             try:
                 a, b = day_bounds_ms(d)
-                bars_cache[ck] = PR.polygon_minutes(sym, a, b) or []
+                bars_cache[ck] = fetch_minutes(sym, a, b) or []
             except Exception as e:                               # noqa: BLE001
                 _log(f"⚠️ {sym} {d}: {e}")
                 bars_cache[ck] = []
@@ -288,6 +300,8 @@ def main() -> int:
         if out is None:
             miss += 1
             continue
+        if src == "tv":
+            out["src"] = "tv"
         new.append(out)
 
     if new:
@@ -304,7 +318,7 @@ def main() -> int:
     tgt = [r for r in led if str(r.get(PF.ROW_DAY)) == day]
     cov = (len(today_rows), len(tgt))
     pct = (100.0 * cov[0] / cov[1]) if cov[1] else 0.0
-    msg = build_digest(day, today_rows, tally(allo), cov, miss)
+    msg = build_digest(day, today_rows, tally(allo), cov, miss, src=src)
     _log(msg)
     if not S.send_telegram(msg + "\n\n" + S.FOOTER):
         _log("⚠️ تيليجرام رفض التقرير — لا ختم، تُعاد المحاولة.")

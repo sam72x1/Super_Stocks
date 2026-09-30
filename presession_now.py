@@ -51,7 +51,8 @@ def manual_header(slot: str, mod_ny: int) -> str:
 
 
 def main() -> int:
-    if not (os.environ.get("POLYGON_API_KEY") or "").strip():
+    # 📺 TradingView افتراضًا منذ انتهاء Polygon (2026-09-29) — والمفتاحُ شرطُ `PRESESSION_SOURCE=polygon` وحدَه.
+    if PRE.data_source() == "polygon" and not (os.environ.get("POLYGON_API_KEY") or "").strip():
         _log("⚠️ لا مفتاح Polygon — لا عمل (فاشل-آمن).")
         return 0
     mod, day = None, (os.environ.get("PRESESSION_DAY") or "").strip()
