@@ -1,0 +1,28 @@
+name: hnt probe (مؤقّت — يُحذف قبل الدمج)
+
+# 🧪 التحقّقُ الطرفيّ من نقل الصيّادين إلى TradingView ‏+ قياسُ مقياس سجلّ الحصاد — قراءةٌ فقط: بلا تلغرام ولا كتابة حالة ولا Polygon.
+on:
+  pull_request:
+    paths:
+      - "hnt_probe.py"
+      - ".github/workflows/hnt_probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Probe
+        env:
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+        run: python hnt_probe.py
