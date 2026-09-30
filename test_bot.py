@@ -72826,7 +72826,8 @@ check("🪝📺 HTV7 `session_srcs` أغلبيّةٌ صارمة (التعادل�
 
 # HTV8 — **`run()` طرفيًّا** (نقطةُ النداء الحيّة · جذوعٌ بلا شبكة ولا git): سجلٌّ مؤقّت بصفَّي صيّاد (ياهو 06-01 · TradingView
 #    06-02) ⟵ الشاهدُ يُبنى لكلّ جلسةٍ بمصدرها (‏`src` لجلسة TradingView وحدَها) ⟵ مرجعُه من جالب مصدره (ياهو 1.0 · TradingView 2.0)
-#    ⟵ كلُّ صفٍّ يُحسم بقمم مصدره ⟵ و`git_save` بملفّ السجلّ المؤقّت
+#    ⟵ كلُّ صفٍّ يُحسم بقمم مصدره ⟵ و`git_save` بملفّ السجلّ المؤقّت · ⚖️ و**حارسُ التقسيم موصولٌ** (ملحق §⑧): إطارُ ياهو لـAAA
+#    مسوّى بتقسيمٍ عكسيّ 1:10 مؤكَّد (07-01) فإغلاقُه 10.0 ومرجعُ صفّ الصيّاد المجمَّد 1.0 ⟵ يُسوّى إلى 10.0 ⟵ ‏+50% (وبلا الحارس ‏+1400%)
 try:
     _htv_p8 = _tvb_os.path.join(_rej_tf.gettempdir(), "_htv8_ledger.jsonl")
     if _tvb_os.path.exists(_htv_p8):
@@ -72839,19 +72840,21 @@ try:
 
     def _htv_dh8(syms, start_override=None):
         _htv_c8["yahoo"].append(sorted(syms))
-        return {s: _htv_frame(1.0, 1.5, False) for s in syms}
+        return {s: (_htv_frame(10.0, 15.0, False) if s == "AAA" else _htv_frame(1.0, 1.5, False)) for s in syms}
 
     def _htv_tv8(syms, start, **_k):
         _htv_c8["tradingview"].append(sorted(syms))
         return {s: _htv_frame(2.0, 5.0, True) for s in syms}, {"asked": len(syms)}
 
-    _htv_sv8 = {k: getattr(S, k) for k in ("download_history", "tv_download", "get_universe", "git_save", "log")}
+    _htv_sv8 = {k: getattr(S, k) for k in ("download_history", "tv_download", "get_universe", "git_save", "log",
+                                           "_fetch_splits")}
     _htv_lf8 = _LG.LEDGER_FILE
     try:
         S.download_history, S.tv_download = _htv_dh8, _htv_tv8
         S.get_universe = lambda: ["AAA", "BBB", "CCC"]
         S.git_save = lambda files, *a, **k: _htv_c8["git"].append(list(files))
         S.log = lambda *a, **k: None
+        S._fetch_splits = lambda s: (pd.Series([0.1], index=pd.to_datetime(["2026-07-01"])) if s == "AAA" else None)
         _LG.LEDGER_FILE = _htv_p8
         _htv_rc8 = _HO.run()
         _htv_l8 = _LG.load(_htv_p8)
@@ -72862,13 +72865,18 @@ try:
     _htv_ctl8 = {(r["session"], r["symbol"]): r for r in _htv_l8 if r.get("hunter") == "control"}
     _htv_by8 = {r["key"]: r for r in _htv_l8}
     _v8 = (_htv_rc8 == 0 and len(_htv_ctl8) == 6
-           and all("src" not in r and r.get("ref_close") == 1.0 for (d, _s), r in _htv_ctl8.items() if d == "2026-06-01")
+           and all("src" not in r and r.get("ref_close") == (10.0 if _s == "AAA" else 1.0)
+                   for (d, _s), r in _htv_ctl8.items() if d == "2026-06-01")
+           and _htv_by8["split|2026-06-01|AAA"].get("ref_close") == 1.0
            and all(r.get("src") == "tradingview" and r.get("ref_close") == 2.0
                    for (d, _s), r in _htv_ctl8.items() if d == "2026-06-02")
            and all((r.get("outcome") or {}).get("max_gain") == (150.0 if _LG.row_src(r) == "tradingview" else 50.0)
                    for r in _htv_l8)
            and _htv_by8["split|2026-06-02|BBB"]["outcome"]["hit100"] is True
            and _htv_by8["split|2026-06-01|AAA"]["outcome"]["hit100"] is False
+           and _htv_by8["split|2026-06-01|AAA"]["outcome"].get("ref_scaled") == 10.0
+           and _htv_by8["split|2026-06-01|AAA"]["outcome"].get("split_f") == 0.1
+           and "ref_scaled" not in (_htv_ctl8[("2026-06-01", "AAA")].get("outcome") or {})
            and _htv_c8["yahoo"] == [["AAA", "BBB", "CCC"]] * 2 and _htv_c8["tradingview"] == [["AAA", "BBB", "CCC"]] * 2
            and _htv_c8["git"] == [[_htv_p8]])
     _v8w = (f"rc={_htv_rc8} · شاهد={len(_htv_ctl8)} · نداءات ياهو={_htv_c8['yahoo']} · TradingView={_htv_c8['tradingview']} · "
@@ -72876,7 +72884,95 @@ try:
 except Exception as _e:                                              # noqa: BLE001
     _v8, _v8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🪝📺 HTV8 `run()` طرفيًّا: الشاهدُ بمصدر جلسته (src لجلسة TradingView وحدَها) · ومرجعُه من جالب مصدره · وكلُّ صفٍّ بقمم مصدره "
-      "· و`git_save` بالسجلّ", _v8, _v8w)
+      "· و`git_save` بالسجلّ · وحارسُ التقسيم موصول (مرجعُ AAA 1.0 ⟵ 10.0 بتقسيمٍ 1:10 مؤكَّد)", _v8, _v8w)
+
+# HTV9 — `scale_ref` نقيّة (ملحق §⑧): عكسيّ 1:10 بعد الجلسة (مرجع 0.5 · طازج 5.0 · f=0.1) ⟵ split 5.0 · شاهدٌ مُلئ بعد التقسيم (5.0 ·
+#    5.0 · 0.1) ⟵ as_is · بلا تقسيمٍ وفرقٌ داخل [0.8، 1.25] ⟵ as_is بالمرجع المجمَّد (‏H3) · وخارجه بلا تقسيمٍ يفسّره ⟵ inconsistent ·
+#    وأماميّ 2:1 ⟵ split · وحالةُ CTNT الحقيقيّة (1.85 · 277.5 · 1/150) ⟵ split 277.5 · ومُدخَلٌ تالف ⟵ invalid · والنطاقُ 0.25 مُعلَن
+try:
+    _htv_s9 = [_HO.scale_ref(0.5, 5.0, 0.1), _HO.scale_ref(5.0, 5.0, 0.1), _HO.scale_ref(1.0, 1.2, 1.0),
+               _HO.scale_ref(1.0, 0.79, 1.0), _HO.scale_ref(1.0, 1.26, 1.0), _HO.scale_ref(4.0, 2.0, 2.0),
+               _HO.scale_ref(1.85, 277.5, 1 / 150), _HO.scale_ref(None, 1.0, 1.0), _HO.scale_ref(1.0, 0.0, 1.0),
+               _HO.scale_ref(1.0, 1.0, None)]
+    _v9 = (_htv_s9[0] == (5.0, "split") and _htv_s9[1] == (5.0, "as_is") and _htv_s9[2] == (1.0, "as_is")
+           and _htv_s9[3] == (None, "inconsistent") and _htv_s9[4] == (None, "inconsistent")
+           and _htv_s9[5] == (2.0, "split") and _htv_s9[6][1] == "split" and abs(_htv_s9[6][0] - 277.5) < 1e-9
+           and _htv_s9[7] == (None, "invalid") and _htv_s9[8] == (None, "invalid") and _htv_s9[9] == (1.0, "as_is")
+           and _HO.SCALE_TOL == 0.25)
+    _v9w = f"{_htv_s9}"
+except Exception as _e:                                              # noqa: BLE001
+    _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️ HTV9 `scale_ref`: عكسيّ ⟵ split · شاهدٌ بعد التقسيم ⟵ as_is · بلا تقسيمٍ داخل [0.8، 1.25] ⟵ المرجعُ المجمَّد · وخارجه ⟵ "
+      "inconsistent · وأماميّ 2:1 ⟵ split · وCTNT (1:150) ⟵ 277.5 · والتالف ⟵ invalid", _v9, _v9w)
+
+# HTV10 — `resolve` بـ`split_events` (ملحق §⑧): صفٌّ مرجعُه قبل تقسيمٍ 1:10 والإطارُ مسوّى (إغلاقُ الجلسة 5.0 · القممُ 6.0) ⟵ يُحسم
+#    بالمرجع المسوّى 5.0 (‏+20% · لا hit100) ويُكتب `ref_scaled`/`split_f` · وإطارٌ **لم يسوِّ** التقسيمَ (قفزةُ ×10 يومَه — شاهدُ WOK على
+#    TradingView) ⟵ معلّقٌ «unadjusted» لا حسمٌ كاذب · وصفٌّ غيرُ متّسقٍ بلا تقسيم ⟵ معلّقٌ مُعلَنٌ باسمه · وصفٌّ لم تنقضِ نافذتُه ⟵ لا
+#    يُسأل عن تقسيماته (لا نداءَ شبكة بلا داعٍ) · وبلا `split_events` المسارُ السابق (‏+1100% · hit100) بت-بت
+try:
+    _htv_r10 = [{"key": "split|2026-06-01|SPL", "hunter": "split", "session": "2026-06-01", "symbol": "SPL", "ref_close": 0.5},
+                {"key": "split|2026-06-01|UNA", "hunter": "split", "session": "2026-06-01", "symbol": "UNA", "ref_close": 1.0},
+                {"key": "split|2026-06-01|BAD", "hunter": "split", "session": "2026-06-01", "symbol": "BAD", "ref_close": 1.0},
+                {"key": "split|2026-09-24|NEW", "hunter": "split", "session": "2026-09-24", "symbol": "NEW", "ref_close": 1.0}]
+    _htv_asked10 = []
+    _htv_ix10 = pd.bdate_range("2026-05-01", "2026-09-29")
+    _htv_una10 = pd.DataFrame({"High": [1.1 if d < pd.Timestamp("2026-07-01") else 11.0 for d in _htv_ix10],
+                               "Close": [1.0 if d < pd.Timestamp("2026-07-01") else 10.0 for d in _htv_ix10]},
+                              index=_htv_ix10)
+
+    def _htv_f10(syms):
+        return {"SPL": _htv_frame(5.0, 6.0, False), "UNA": _htv_una10, "BAD": _htv_frame(3.0, 3.1, False),
+                "NEW": _htv_frame(1.0, 1.1, False)}
+
+    def _htv_se10(sym, sess):
+        _htv_asked10.append(sym)
+        return [("2026-07-01", 0.1)] if sym in ("SPL", "UNA") else []
+
+    _htv_lg10 = []
+    _htv_o10 = _HO.resolve(_htv_r10, _htv_f10, log=_htv_lg10.append, split_events=_htv_se10)
+    _htv_o10b = _HO.resolve(_htv_r10, _htv_f10)
+    _htv_spl = _htv_o10.get("split|2026-06-01|SPL") or {}
+    _v10 = (set(_htv_o10) == {"split|2026-06-01|SPL"}
+            and _htv_spl.get("max_gain") == 20.0 and _htv_spl.get("hit100") is False
+            and _htv_spl.get("ref_scaled") == 5.0 and _htv_spl.get("split_f") == 0.1
+            and sorted(_htv_asked10) == ["BAD", "SPL", "UNA"]
+            and any("مقياسٌ غير متّسق 2" in x for x in _htv_lg10)
+            and any("BAD 2026-06-01 (inconsistent)" in x and "UNA 2026-06-01 (unadjusted)" in x for x in _htv_lg10)
+            and (_htv_o10b.get("split|2026-06-01|SPL") or {}).get("max_gain") == 1100.0
+            and (_htv_o10b.get("split|2026-06-01|SPL") or {}).get("hit100") is True
+            and (_htv_o10b.get("split|2026-06-01|UNA") or {}).get("hit100") is True
+            and "ref_scaled" not in (_htv_o10b.get("split|2026-06-01|SPL") or {}))
+    _v10w = f"حُسم={ {k: (v.get('max_gain'), v.get('ref_scaled')) for k, v in _htv_o10.items()} } · سُئل={_htv_asked10}"
+except Exception as _e:                                              # noqa: BLE001
+    _v10, _v10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️ HTV10 `resolve` بـ`split_events`: مرجعٌ قبل تقسيمٍ 1:10 ⟵ يُسوّى (‏+20% لا +1100%) ويُكتب `ref_scaled` · وإطارٌ لم يسوِّ "
+      "التقسيم ⟵ معلّق · وغيرُ المتّسق ⟵ معلّقٌ مُعلَنٌ باسمه · ولا يُسأل مَن لم تنقضِ نافذتُه · وبلا `split_events` السابقُ بت-بت",
+      _v10, _v10w)
+
+# HTV11 — نقيّتان (ملحق §⑧): `split_events_after` تقسيماتٌ **بعد** الجلسة حصرًا (يومُ الجلسة نفسُه خارجها · نسبةٌ موجبة · مرتّبة ·
+#    Series أو أزواج · None ⟵ []) · و`unadjusted_jump` يُمسك قفزةَ ×1/النسبة يومَ التقسيم (عكسيّ 1:100 كشاهد WOK · وأماميّ 2:1) ولا يُمسك
+#    إطارًا مسوّى ولا حركةً عاديّة ولا تقسيمًا قبل أوّل شمعة
+try:
+    _htv_sp11 = pd.Series([0.01, 0.01, 0.01], index=pd.to_datetime(["2025-10-21", "2025-12-29", "2026-06-18"]))
+    _htv_ix11 = pd.bdate_range("2025-10-01", "2025-11-10")
+    _htv_wok = pd.DataFrame({"Close": [3.59 if d < pd.Timestamp("2025-10-21") else 392.0 for d in _htv_ix11]}, index=_htv_ix11)
+    _htv_adj = pd.DataFrame({"Close": [359.0 if d < pd.Timestamp("2025-10-21") else 392.0 for d in _htv_ix11]}, index=_htv_ix11)
+    _htv_fwd = pd.DataFrame({"Close": [10.0 if d < pd.Timestamp("2025-10-21") else 5.1 for d in _htv_ix11]}, index=_htv_ix11)
+    _v11 = (_HO.split_events_after(_htv_sp11, "2025-12-29") == [("2026-06-18", 0.01)]
+            and _HO.split_events_after(_htv_sp11, "2025-10-20") == [("2025-10-21", 0.01), ("2025-12-29", 0.01), ("2026-06-18", 0.01)]
+            and _HO.split_events_after([("2026-07-01", 0.1), ("2026-06-01", 0.5), ("2026-08-01", -1)], "2026-06-01")
+            == [("2026-07-01", 0.1)]
+            and _HO.split_events_after(None, "2026-06-01") == []
+            and _HO.unadjusted_jump(_htv_wok, [("2025-10-21", 0.01)]) is True
+            and _HO.unadjusted_jump(_htv_adj, [("2025-10-21", 0.01)]) is False
+            and _HO.unadjusted_jump(_htv_fwd, [("2025-10-21", 2.0)]) is True
+            and _HO.unadjusted_jump(_htv_adj, [("2025-09-01", 0.01)]) is False
+            and _HO.unadjusted_jump(None, [("2025-10-21", 0.01)]) is False)
+    _v11w = f"بعد 12-29={_HO.split_events_after(_htv_sp11, '2025-12-29')} · WOK={_HO.unadjusted_jump(_htv_wok, [('2025-10-21', 0.01)])}"
+except Exception as _e:                                              # noqa: BLE001
+    _v11, _v11w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️ HTV11 `split_events_after` بعد الجلسة حصرًا (مرتّبة · موجبة · None ⟵ []) · و`unadjusted_jump` يُمسك قفزةَ ×1/النسبة (WOK 1:100 · "
+      "أماميّ 2:1) ولا يُمسك المسوّى ولا ما قبل أوّل شمعة", _v11, _v11w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
