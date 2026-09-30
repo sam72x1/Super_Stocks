@@ -145,8 +145,36 @@
    "dollar_vol": 122031.0,
    "move_pct": -12.1,
    "stopped_at": "2026-09-16"
+  },
+  {
+   "symbol": "WOK",
+   "added": "2026-09-29",
+   "ref_price": 1.81,
+   "half": 1.6,
+   "ref": 3.2,
+   "event_kind": "split",
+   "split_date": "2026-06-18",
+   "float": 15400,
+   "avail": 90000,
+   "borrow_fee": 27.23,
+   "stop": 1.8,
+   "hold_above": 1.9,
+   "targets": [
+    {
+     "price": 1.97,
+     "src": "مقاومة"
+    },
+    {
+     "price": 2.26,
+     "src": "رأس شمعة حمراء"
+    }
+   ],
+   "status": "active",
+   "last_price": 1.81
   }
  ],
- "added_last": [],
+ "added_last": [
+  "WOK"
+ ],
  "pruned": []
 }
