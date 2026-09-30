@@ -1989,17 +1989,235 @@ def _split_repair_line(rep: dict) -> str:
             + (f" · تعذّر {len(rep.get('failed') or [])}" if rep.get("failed") else ""))
 
 
+# ==========================================================
+# 4ب) 📺 مصدرُ الشموع: TradingView (أمرُ المالك 2026-09-30 «حوّل شموع البوت إلى ترندق فيو»)
+# ==========================================================
+# عقدُ `T-TVBARS` (`tv_bars_prereg.md`) صدر **الفرعَ 2** ⟵ «القرارُ للمالك»: سقط C2 وحدَه (‏98.87% دون 99%) وتشخيصُه
+# (`tv_bars_result.md` §②) أن ياهو **يحشو يومًا بلا صفقة بشمعةٍ حجمُها صفر** (‏130 من 133 · وتداولٌ فاته TradingView صفر) —
+# فأمر المالكُ بالتحويل. **مفتاحٌ يرجع بت-بت:** البيئةُ `BARS_SOURCE=tradingview` تُضبط في workflows البوت وحدَها (الفرز ·
+# المراقب · تحديث اليد · الفحص اليدويّ · فحص اليد) · وغيابُها أو أيُّ قيمةٍ أخرى ⟵ ياهو حرفًا (أدواتُ البحث · والصيّادون ·
+# وصيّادُ المقسّم بحماية المالك · وفحصُ الدخان على ياهو كما هي) · **والباكتيستُ خارجه دائمًا.**
+# **فاشلٌ-آمن لكلّ رمز:** ما تعذّر عند TradingView (خطأ · بلا شموع · أقلُّ من `MIN_BARS` بعد القصّ) أو تخطّاه القاطع ⟵ ياهو
+# له وحدَه **ويُعلَن بعدده** · والفلوتُ يبقى من ياهو (C6: 103 من 139 فقط داخل [0.8، 1.25]).
+# ⚠️ **بلا حشو:** يومٌ بلا صفقة لا شمعةَ له عند TradingView ⇒ ما يقرأ «آخرَ شمعة» على أنها «اليوم» يُحرَس (`tv_bar_fresh`).
+# ⚠️ TradingView بلا واجهةٍ رسميّة وأتمتتُه خلافُ شروطه ⇒ قد يُحجَب بلا إنذار — والاحتياطُ يُبقي البوتَ يعمل.
+TV_BARS_WORKERS = 8              # engineering — مِقابسُ متوازية (مِجَسّ `36653615576`: 3,580 من 3,582 في 98ث بثمانية)
+TV_BARS_STAGGER_S = 0.25         # engineering — ثوانٍ بين فتح المقابس (المِجَسُّ نفسُه)
+TV_BARS_RETRY_PAUSE_S = 2.0      # engineering — انتظارٌ قبل التمريرة الثانية لما أخفق
+TV_BARS_BUDGET_S = 15 * 60       # engineering — مهلةُ الجلب كلِّه (المقيسُ ‏≈100ث للكون) ⟵ ثمّ ياهو للباقي · والجوبُ 300 د
+TV_BARS_GATE_WINDOW = 32         # engineering — نافذةُ القاطع (آخرُ 32 نتيجة · كقاطع «شروطك الثلاثة»)
+TV_BARS_GATE_RATIO = 0.9         # engineering — إخفاقُ 90% منها يفتحه ⟵ تُتخطّى البقيّةُ إلى ياهو (حجبٌ لا يستنفد المهلة)
+TV_BARS_MARGIN = 10              # engineering — شموعٌ فوق أيّام العمل حتى اليوم · ثمّ القصُّ على `start` (نافذةُ ياهو نفسُها)
+TV_BARS_MAX = 5000               # engineering — سقفُ الطلب الواحد
+TV_TMAP_TTL_S = 3600.0           # engineering — خريطةُ الماسح (رمز ⟵ سوقه) نداءٌ واحدٌ في الساعة للعمليّة
+BARS_SOURCE_LAST = {}            # 📺 تقريرُ آخر تحميلٍ بـTradingView (للسجلّ والاختبار)
+_TV_TMAP = {"at": None, "map": None}
+
+
+def bars_source(start_override=None) -> str:
+    """📺 «tradingview» حين البيئةُ `BARS_SOURCE` = ‏tradingview (أو tv) **وليس باكتيست** (`start_override` · `MODE` ·
+    `BT_RAW_PRICE`) ⟵ وإلّا «yahoo» (المسارُ السابق بت-بت). تُقرأ وقتَ النداء."""
+    if start_override is not None or MODE == "BACKTEST" or CONFIG.get("BT_RAW_PRICE"):
+        return "yahoo"
+    v = os.environ.get("BARS_SOURCE", "").strip().lower()
+    return "tradingview" if v in ("tradingview", "tv") else "yahoo"
+
+
+class TVBarsGate:
+    """⛔ قاطعُ TradingView لتحميل الشموع — بروتوكولُ `gate` في `tv_data.fetch_many` (`skip()` قبل كلّ رمز و`record(ok)` بعد
+    نتيجته النهائيّة): يُفتح إن أخفق `ratio` من آخر `window` نتيجة (والنافذةُ ممتلئة) أو انقضت `budget` ثانية ⟵ تُتخطّى البقيّةُ
+    (None بلا نداء) فتذهب لياهو. `clock` محقونٌ للاختبار."""
+
+    def __init__(self, window=None, ratio=None, budget=None, clock=None):
+        import collections
+        import threading
+        self.window = max(1, int(TV_BARS_GATE_WINDOW if window is None else window))
+        self.ratio = float(TV_BARS_GATE_RATIO if ratio is None else ratio)
+        self.recent = collections.deque(maxlen=self.window)
+        self.clock = clock or time.monotonic
+        b = TV_BARS_BUDGET_S if budget is None else budget
+        self.deadline = None if b is False else self.clock() + float(b)
+        self.lock = threading.Lock()
+        self.open = self.timed_out = False
+        self.done = self.fail = self.skipped = 0
+
+    def skip(self):
+        with self.lock:
+            if not self.open and self.deadline is not None and self.clock() >= self.deadline:
+                self.open = self.timed_out = True
+            if self.open:
+                self.skipped += 1
+            return self.open
+
+    def record(self, ok=True):
+        with self.lock:
+            self.done += 1
+            if not ok:
+                self.fail += 1
+            self.recent.append(bool(ok))
+            bad = sum(1 for x in self.recent if not x)
+            if not self.open and len(self.recent) >= self.window and bad >= self.ratio * len(self.recent):
+                self.open = True
+
+    def summary(self) -> dict:
+        return {"open": self.open, "timeout": self.timed_out, "done": self.done, "fail": self.fail,
+                "skipped": self.skipped}
+
+
+def _tv_bars_n(start: str, today=None) -> int:
+    """📺 شموعُ الطلب = أيّامُ العمل من `start` حتى اليوم ضمنًا ‏+ `TV_BARS_MARGIN` (بين `MIN_BARS` و`TV_BARS_MAX`) — ثمّ يُقصّ
+    الإطارُ على `start` ⇒ النافذةُ نافذةُ ياهو (العطلُ تجعل الطلبَ أوسعَ قليلًا لا أضيق)."""
+    try:
+        t = today or dt.date.today()
+        k = int(np.busday_count(dt.date.fromisoformat(str(start)[:10]), t + dt.timedelta(days=1)))
+    except Exception:                                            # noqa: BLE001
+        k = int(CONFIG["HISTORY_DAYS"])
+    return max(int(CONFIG["MIN_BARS"]), min(k + TV_BARS_MARGIN, TV_BARS_MAX))
+
+
+def tv_daily_frame(bars, start: str):
+    """📺 شموعُ TradingView [(ts, o, h, l, c, v)] ⟵ إطارٌ بشكل ياهو: Open/High/Low/Close/Volume وفهرسُ «Date» بيوم نيويورك
+    (`tv_data.ny_day` — الشكلُ نفسُه الذي قاسه عقدُ `T-TVBARS` وشغّل عليه `analyze_ticker`) مقصوصًا من `start` (نافذةُ ياهو) ·
+    **بلا حشو** (يومٌ بلا صفقة لا شمعةَ له) · والشمعةُ التالفة تُتخطّى · والوسمُ `attrs["bars_src"]`. فارغٌ ⟵ None."""
+    import tv_data as TV
+    rows = []
+    for b in bars or []:
+        try:
+            d = TV.ny_day(b[0])
+            if d >= str(start)[:10]:
+                rows.append((pd.Timestamp(d), float(b[1]), float(b[2]), float(b[3]), float(b[4]), float(b[5])))
+        except Exception:                                        # noqa: BLE001
+            continue
+    if not rows:
+        return None
+    df = pd.DataFrame(rows, columns=["Date", "Open", "High", "Low", "Close", "Volume"]).set_index("Date")
+    df = df[~df.index.duplicated(keep="last")].sort_index()
+    df.attrs["bars_src"] = "tradingview"
+    return df
+
+
+def _tv_ticker_map(scan=None, now=None) -> dict:
+    """📺 {رمزٌ مجرّد: «EXCH:SYM»} من ماسح TradingView (`tv_data.ticker_map` — ناسداك يغلب) · مخبّأةٌ `TV_TMAP_TTL_S` ·
+    وتعذّرُ الماسح ⟵ {} (لا يُخبَّأ) فيُطلب «NASDAQ:SYM» (كونُ البوت ناسداك) · و`scan` محقونٌ للاختبار (لا يُخبَّأ)."""
+    import tv_data as TV
+    t = time.monotonic() if now is None else now
+    if scan is None and _TV_TMAP["map"] and _TV_TMAP["at"] is not None and t - _TV_TMAP["at"] < TV_TMAP_TTL_S:
+        return _TV_TMAP["map"]
+    try:
+        snap = (scan or TV.scan)(["name"])
+    except Exception:                                            # noqa: BLE001
+        snap = None
+    m = TV.ticker_map(snap) if snap else {}
+    if m and scan is None:
+        _TV_TMAP.update(at=t, map=m)
+    return m
+
+
+def _tv_full_name(sym: str, tmap: dict) -> str:
+    """رمزُ ياهو ⟵ «EXCH:SYM» عند TradingView (الشَّرطةُ نقطةٌ هناك: BRK-B ⟵ BRK.B) · وغيابُه ⟵ «NASDAQ:SYM»."""
+    s = str(sym).upper()
+    return (tmap or {}).get(s) or (tmap or {}).get(s.replace("-", ".")) or f"NASDAQ:{s.replace('-', '.')}"
+
+
+def tv_download(tickers, start: str, fetch=None, scan=None, gate=None, today=None):
+    """📺 ({رمز: إطارٌ بشكل ياهو}, تقرير) من TradingView — **الجلسةُ النظاميّة** مسوّاةً بالتقسيم (`adjustment=splits` · ما يراه
+    المالكُ على الشارت) · ويُقبل الإطارُ إن بلغ `MIN_BARS` شمعةً بعد القصّ على `start`. `fetch` (توقيعُ `tv_data.fetch_many`) و`scan`
+    و`gate` محقونةٌ للاختبار. التقرير: asked · tv · none (تعذّر) · empty (بلا شموع) · short (أقلُّ من `MIN_BARS`) · map · gate ·
+    secs · n — وما ليس في الإطارات يذهب لياهو في `download_history`."""
+    import tv_data as TV
+    t0 = time.monotonic()
+    syms = list(dict.fromkeys(tickers or []))
+    rep = {"src": "tradingview", "asked": len(syms), "tv": 0, "none": [], "empty": [], "short": [], "map": "nasdaq",
+           "gate": None, "secs": 0.0, "n": 0}
+    if not syms:
+        return {}, rep
+    tmap = _tv_ticker_map(scan)
+    rep["map"] = "scan" if tmap else "nasdaq"
+    full = {s: _tv_full_name(s, tmap) for s in syms}
+    g = gate if gate is not None else TVBarsGate()
+    n = _tv_bars_n(start, today)
+    rep["n"] = n
+    got = (fetch or TV.fetch_many)(sorted(set(full.values())), interval="1D", n=n, workers=TV_BARS_WORKERS, gate=g,
+                                   stagger=TV_BARS_STAGGER_S, retry_pass=True, retry_pause=TV_BARS_RETRY_PAUSE_S) or {}
+    out = {}
+    minb = int(CONFIG["MIN_BARS"])
+    for s in syms:
+        b = got.get(full[s])
+        if b is None:
+            rep["none"].append(s)
+            continue
+        if not b:
+            rep["empty"].append(s)
+            continue
+        df = tv_daily_frame(b, start)
+        if df is None or len(df) < minb:
+            rep["short"].append(s)
+            continue
+        out[s] = df
+    rep["tv"] = len(out)
+    rep["gate"] = g.summary() if hasattr(g, "summary") else None
+    rep["secs"] = round(time.monotonic() - t0, 1)
+    return out, rep
+
+
+def _tv_bars_line(rep: dict) -> str:
+    """📺 سطرُ السجلّ — كلُّ احتياطٍ يُعلَن بعدده وأوّلِ أسمائه (لا قصَّ صامتًا)."""
+    if rep.get("error"):
+        return (f"📺 مصدرُ الشموع: TradingView تعذّر كلُّه ({rep['error']}) ⟵ ياهو لـ{rep.get('yahoo_got', 0)} "
+                f"من {rep.get('asked', 0)}")
+
+    def _ex(xs):
+        return (" (" + " · ".join(xs[:8]) + (f" · و{len(xs) - 8} غيرُها" if len(xs) > 8 else "") + ")") if xs else ""
+    g = rep.get("gate") or {}
+    gt = ""
+    if g.get("open"):
+        gt = (" · ⛔ انقضت مهلةُ الجلب" if g.get("timeout") else " · ⛔ قاطعُ الدائرة فُتح") + f" (تُخطّي {g.get('skipped', 0)})"
+    no, em, sh = rep.get("none") or [], rep.get("empty") or [], rep.get("short") or []
+    fb = len(no) + len(em) + len(sh)
+    return (f"📺 مصدرُ الشموع: TradingView {rep.get('tv', 0)} من {rep.get('asked', 0)} في {rep.get('secs', 0)}ث"
+            f" · خريطةُ الماسح {'✅' if rep.get('map') == 'scan' else 'تعذّرت ⟵ NASDAQ'}{gt}"
+            + (f" · احتياطُ ياهو {rep.get('yahoo_got', 0)} من {fb}: تعذّر {len(no)}{_ex(no)} · بلا شموع {len(em)}{_ex(em)}"
+               f" · دون {CONFIG['MIN_BARS']} شمعة {len(sh)}{_ex(sh)}" if fb else " · بلا احتياط"))
+
+
+def tv_bar_fresh(df, now=None) -> bool:
+    """📺 إطارُ TradingView **بلا حشو**: آخرُ شمعةٍ أقدمُ من آخر جلسةٍ مكتملة (`last_closed_session`) = لا صفقةَ فيها ⟵ False
+    (فلا يُقرأ فعلُ جلسةٍ أقدمَ على أنه «اليوم»). وإطارُ ياهو (بلا الوسم) ⟵ True دائمًا (السلوكُ السابق بت-بت · ياهو يحشو اليومَ
+    بشمعةٍ حجمُها صفر) · وتعذّرُ التقويم أو التاريخ ⟵ True (السلوكُ السابق)."""
+    try:
+        if (getattr(df, "attrs", None) or {}).get("bars_src") != "tradingview":
+            return True
+        exp = last_closed_session(now)
+        if not exp:
+            return True
+        return str(df.index[-1])[:10] >= exp
+    except Exception:                                            # noqa: BLE001
+        return True
+
+
 def download_history(tickers: list, start_override: str = None) -> dict:
     """🔬 start_override (باكتيست حصريًا): تاريخ بدء تحميل أقدم يصل للسنة المستهدفة — النافذة
     الافتراضية (اليوم−HISTORY_DAYS) لا تصل للسنوات القديمة فتُنتج صفر إشارة. None = الإنتاج حرفيًّا.
-    🩹 وفي الإنتاج: `repair_split_mismatch` بعد التحميل (مفتاح `SPLIT_SOURCE_REPAIR` · بلا مفتاح Polygon صفرُ عمل)."""
+    🩹 وفي الإنتاج: `repair_split_mismatch` بعد التحميل (مفتاح `SPLIT_SOURCE_REPAIR` · بلا مفتاح Polygon صفرُ عمل).
+    📺 و`BARS_SOURCE=tradingview` (بيئةٌ · الإنتاجُ وحدَه · `bars_source`): TradingView أوّلًا (`tv_download`) ثمّ ياهو لما تعذّر
+    وحدَه — والإصلاحُ لإطارات ياهو وحدَها (TradingView مسوّى بالتقسيم عند المصدر) · وبلا البيئة المسارُ السابق بت-بت."""
     if yf is None:
         raise RuntimeError("yfinance غير مثبتة — ثبّتها أو استخدم GitHub Actions")
     start = start_override or (
         dt.date.today() - dt.timedelta(days=CONFIG["HISTORY_DAYS"])).isoformat()
     out = {}
+    todo, tv_rep = tickers, None
+    if bars_source(start_override) == "tradingview":
+        try:
+            got, tv_rep = tv_download(tickers, start)
+        except Exception as e:                                   # noqa: BLE001 — فاشلٌ-آمن: ياهو للكلّ
+            got, tv_rep = {}, {"src": "tradingview", "error": type(e).__name__, "asked": len(tickers or [])}
+        out.update(got)
+        todo = [t for t in tickers if t not in out]
+        if todo:
+            log(f"📺 احتياطُ ياهو لـ{len(todo)} رمزًا لم يُعطها TradingView...")
     size = CONFIG["CHUNK_SIZE"]
-    chunks = [tickers[i:i + size] for i in range(0, len(tickers), size)]
+    chunks = [todo[i:i + size] for i in range(0, len(todo), size)]
     for n, chunk in enumerate(chunks, 1):
         log(f"تحميل دفعة {n}/{len(chunks)} ({len(chunk)} سهم)...")
         data = _download_chunk(chunk, start)
@@ -2007,7 +2225,7 @@ def download_history(tickers: list, start_override: str = None) -> dict:
             _extract_into(out, data, chunk)
         time.sleep(CONFIG["CHUNK_SLEEP"])
     # تمريرة ثانية: إعادة محاولة الرموز التي لم تُحمّل (غالبًا خُنقت ضمن دفعتها)
-    missing = [t for t in tickers if t not in out]
+    missing = [t for t in todo if t not in out]
     if missing:
         log(f"إعادة محاولة {len(missing)} رمز لم يُحمّل...")
         for i in range(0, len(missing), size):
@@ -2018,12 +2236,26 @@ def download_history(tickers: list, start_override: str = None) -> dict:
             time.sleep(CONFIG["CHUNK_SLEEP"])
     if out and _split_repair_on(start_override):
         try:
-            rep = repair_split_mismatch(out, start)
+            if tv_rep is None:
+                rep = repair_split_mismatch(out, start)
+            else:                                                # 📺 الإصلاحُ لإطارات ياهو (الاحتياط) وحدَها
+                ysub = {s: out[s] for s in todo if s in out}
+                rep = (repair_split_mismatch(ysub, start) if ysub else
+                       {"listed": 0, "checked": 0, "replaced": [], "consistent": 0, "short": [], "failed": [],
+                        "skipped": "📺 لا إطارَ من ياهو"})
+                out.update(ysub)
             SPLIT_REPAIR_LAST.clear()
             SPLIT_REPAIR_LAST.update(rep)
-            log(_split_repair_line(rep))
+            if tv_rep is None or rep.get("skipped") != "📺 لا إطارَ من ياهو":
+                log(_split_repair_line(rep))
         except Exception as e:                                   # noqa: BLE001 — فاشلٌ-آمن: ياهو كما هو
             log(f"⚠️ 🩹 إصلاحُ مصدر الشموع تعذّر ({type(e).__name__}) ⟵ ياهو كما هو")
+    if tv_rep is not None:
+        tv_rep["yahoo_asked"] = len(todo)
+        tv_rep["yahoo_got"] = sum(1 for t in todo if t in out)
+        BARS_SOURCE_LAST.clear()
+        BARS_SOURCE_LAST.update(tv_rep)
+        log(_tv_bars_line(tv_rep))
     log(f"بيانات صالحة لـ {len(out)} سهم")
     return out
 
@@ -10028,7 +10260,8 @@ def build_hand_digest(wl: dict, history: dict) -> str:
             continue
         df = history.get(s["symbol"])
         ev = hand_evidence(s)
-        acts = hand_activity_today(s, df) if df is not None else []
+        # 📺 إطارُ TradingView بلا حشو: آخرُ شمعةٍ أقدمُ من آخر جلسةٍ مكتملة = لا صفقة ⟵ لا يُقرأ فعلُها «اليوم» (`tv_bar_fresh`)
+        acts = hand_activity_today(s, df) if df is not None and tv_bar_fresh(df) else []
         if len(ev) < 2 and not acts:
             continue
         rows.append((s, ev, acts))

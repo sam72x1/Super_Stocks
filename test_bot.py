@@ -71821,6 +71821,397 @@ except Exception as _e:                                              # noqa: BLE
 check("🏷️ LID1 معرّفُ القفل لا يتكرّر: صفرُ تكرارٍ جديد خارج القائمة المجمَّدة (‏67 يومَ 2026-09-30) · "
       "والقائمةُ بلا بائت (تنكمش ولا تكبر) · والاستخراجُ حيّ (2,000 معرّفٍ فأكثر · بالـAST)", _lid_ok, _lid_w)
 
+# 📺 TVB1-TVB13 — **شموعُ البوت من TradingView** (‏2026-09-30 · أمرُ المالك «حوّل شموع البوت إلى ترندق فيو» بعد حكم
+#    `T-TVBARS` الفرعِ 2): `bars_source` · `tv_download` · `tv_daily_frame` · `TVBarsGate` · `tv_bar_fresh` · واحتياطُ ياهو
+#    **لكلّ رمز** · ومسارُ ياهو بلا البيئة **بت-بت** · والباكتيستُ خارجه · والـworkflows الخمسة وحدَها على TradingView.
+#    سلوكيّةٌ بجالباتٍ محقونة (بلا شبكة): `tv_data.fetch_many`/`scan`/`Chart` و`_download_chunk` و`repair_split_mismatch`.
+import contextlib as _tvb_ctx                                        # noqa: E402
+import datetime as _tvb_dt                                           # noqa: E402
+import io as _tvb_io                                                 # noqa: E402
+import os as _tvb_os                                                 # noqa: E402
+import tv_data as _tvb_TV                                            # noqa: E402
+import yaml as _tvb_yaml                                             # noqa: E402
+
+
+def _tvb_bars(n, first, c0=1.0):
+    """شموعُ TradingView اصطناعيّة [(ts, o, h, l, c, v)] — أيّامُ عملٍ متتالية من `first` (13:30 UTC)."""
+    out, d = [], _tvb_dt.datetime.fromisoformat(first + "T13:30:00+00:00")
+    while len(out) < n:
+        if d.weekday() < 5:
+            c = c0 + 0.001 * len(out)
+            out.append((int(d.timestamp()), c, c * 1.02, c * 0.98, c, 1000.0 + len(out)))
+        d += _tvb_dt.timedelta(days=1)
+    return out
+
+
+def _tvb_yahoo_frame(n=150, c0=5.0):
+    idx = pd.date_range(end=_tvb_dt.date.today(), periods=n, freq="B")
+    return pd.DataFrame({"Open": c0, "High": c0 * 1.01, "Low": c0 * 0.99, "Close": c0, "Volume": 1e5}, index=idx)
+
+
+def _tvb_run(tickers, env=None, fetch_map=None, scan_snap=None, tv_raise=False, repair_on=False, override=None,
+             chunk_size=None, chart_cls=None):
+    """سيناريو `download_history` كاملًا بجالباتٍ محقونة ⟵ dict: out · chunks · fetch · repair · scan · log · last · srl.
+    `chart_cls` ⟵ `tv_data.fetch_many` الحقيقيّ بمِقبسٍ مزيَّف (لا يُحقن `fetch_many`)."""
+    rec = {"chunks": [], "fetch": [], "repair": [], "scan": 0}
+
+    def _chunk(chunk, start):
+        rec["chunks"].append(list(chunk))
+        return pd.concat({s: _tvb_yahoo_frame() for s in chunk}, axis=1)
+
+    def _fetch(full, **kw):
+        rec["fetch"].append((list(full), kw.get("n"), kw.get("interval")))
+        return {f: (fetch_map or {}).get(f) for f in full}
+
+    def _scan(cols):
+        rec["scan"] += 1
+        return scan_snap
+
+    def _repair(out, start, **kw):
+        rec["repair"].append(sorted(out))
+        return {"listed": 0, "checked": 0, "replaced": [], "consistent": 0, "short": [], "failed": [], "skipped": None}
+
+    def _boom(*a, **k):
+        raise RuntimeError("tv")
+    keys = ("BARS_SOURCE", "POLYGON_API_KEY", "SPLIT_SOURCE_REPAIR")
+    env0 = {k: _tvb_os.environ.get(k) for k in keys}
+    sv = (S._download_chunk, S.repair_split_mismatch, S.CONFIG["CHUNK_SLEEP"], S.CONFIG["CHUNK_SIZE"], S.yf,
+          _tvb_TV.fetch_many, _tvb_TV.scan, _tvb_TV.Chart, S.tv_download)
+    tm0, srl0 = dict(S._TV_TMAP), dict(S.SPLIT_REPAIR_LAST)
+    buf = _tvb_io.StringIO()
+    try:
+        S._download_chunk, S.repair_split_mismatch = _chunk, _repair
+        S.CONFIG["CHUNK_SLEEP"] = 0
+        if chunk_size:
+            S.CONFIG["CHUNK_SIZE"] = chunk_size
+        S.yf = S.yf or object()
+        _tvb_TV.scan = _scan
+        if chart_cls is None:
+            _tvb_TV.fetch_many = _fetch
+        else:
+            _tvb_TV.Chart = chart_cls
+        S._TV_TMAP.update(at=None, map=None)
+        if tv_raise:
+            S.tv_download = _boom
+        for k in keys:
+            _tvb_os.environ.pop(k, None)
+        for k, v in (env or {}).items():
+            _tvb_os.environ[k] = v
+        if repair_on:
+            _tvb_os.environ["POLYGON_API_KEY"] = "k"
+        else:
+            _tvb_os.environ["SPLIT_SOURCE_REPAIR"] = "0"
+        S.BARS_SOURCE_LAST.clear()
+        with _tvb_ctx.redirect_stdout(buf):
+            rec["out"] = S.download_history(tickers, start_override=override)
+        rec["last"] = dict(S.BARS_SOURCE_LAST)
+        rec["srl"] = dict(S.SPLIT_REPAIR_LAST)
+    finally:
+        (S._download_chunk, S.repair_split_mismatch, S.CONFIG["CHUNK_SLEEP"], S.CONFIG["CHUNK_SIZE"], S.yf,
+         _tvb_TV.fetch_many, _tvb_TV.scan, _tvb_TV.Chart, S.tv_download) = sv
+        S._TV_TMAP.clear()
+        S._TV_TMAP.update(tm0)
+        S.SPLIT_REPAIR_LAST.clear()
+        S.SPLIT_REPAIR_LAST.update(srl0)
+        for k, v in env0.items():
+            if v is None:
+                _tvb_os.environ.pop(k, None)
+            else:
+                _tvb_os.environ[k] = v
+    rec["log"] = buf.getvalue()
+    return rec
+
+
+_tvb_start = (_tvb_dt.date.today() - _tvb_dt.timedelta(days=S.CONFIG["HISTORY_DAYS"])).isoformat()
+_tvb_full = _tvb_bars(S._tv_bars_n(_tvb_start) - S.TV_BARS_MARGIN, _tvb_start)
+_tvb_short = _tvb_full[-(S.CONFIG["MIN_BARS"] - 20):]
+
+# TVB1 — جدولُ القرار: TradingView **فقط** بالبيئة (tradingview/tv) وخارج الباكتيست (`start_override` · `MODE` · `BT_RAW_PRICE`)
+try:
+    _e1 = _tvb_os.environ.get("BARS_SOURCE")
+    _m1, _r1 = S.MODE, S.CONFIG.get("BT_RAW_PRICE")
+    _t1 = []
+    try:
+        for _v in (None, "", "yahoo", "tradingview", "TV", " TradingView "):
+            if _v is None:
+                _tvb_os.environ.pop("BARS_SOURCE", None)
+            else:
+                _tvb_os.environ["BARS_SOURCE"] = _v
+            _t1.append(S.bars_source())
+        _tvb_os.environ["BARS_SOURCE"] = "tradingview"
+        _t1.append(S.bars_source("2023-01-02"))
+        S.MODE = "BACKTEST"
+        _t1.append(S.bars_source())
+        S.MODE = _m1
+        S.CONFIG["BT_RAW_PRICE"] = 1
+        _t1.append(S.bars_source())
+    finally:
+        S.MODE, S.CONFIG["BT_RAW_PRICE"] = _m1, _r1
+        if _e1 is None:
+            _tvb_os.environ.pop("BARS_SOURCE", None)
+        else:
+            _tvb_os.environ["BARS_SOURCE"] = _e1
+    _v1 = _t1 == ["yahoo", "yahoo", "yahoo", "tradingview", "tradingview", "tradingview", "yahoo", "yahoo", "yahoo"]
+    _v1w = f"{_t1}"
+except Exception as _e:                                              # noqa: BLE001
+    _v1, _v1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB1 `bars_source`: TradingView بالبيئة وحدَها (tradingview · tv · بلا حساسيّة حالةٍ ولا مسافات) · وغيابُها/فراغُها/"
+      "yahoo ⟵ ياهو · والباكتيستُ خارجه (`start_override` · `MODE` · `BT_RAW_PRICE`)", _v1, _v1w)
+
+# TVB2 — **مسارُ ياهو بت-بت** بلا البيئة: لا نداءَ TradingView (لا ماسح ولا مِقبس) · الدفعاتُ هي شرائحُ القائمة نفسِها بترتيبها ·
+#    والإصلاحُ على الإطارات كلِّها · ولا سطرَ 📺 — وكذا مع البيئة في الباكتيست (`start_override`)
+try:
+    _r2 = _tvb_run(["CCC", "AAA", "BBB"], env=None, fetch_map={}, repair_on=True, chunk_size=2)
+    _r2b = _tvb_run(["CCC", "AAA", "BBB"], env={"BARS_SOURCE": "tradingview"}, fetch_map={}, override="2023-01-02")
+    _v2 = (_r2["fetch"] == [] and _r2["scan"] == 0 and _r2["chunks"] == [["CCC", "AAA"], ["BBB"]]
+           and _r2["repair"] == [["AAA", "BBB", "CCC"]] and "📺" not in _r2["log"] and _r2["last"] == {}
+           and sorted(_r2["out"]) == ["AAA", "BBB", "CCC"]
+           and not any((_r2["out"][s].attrs or {}).get("bars_src") for s in _r2["out"])
+           and _r2b["fetch"] == [] and _r2b["scan"] == 0 and _r2b["chunks"] == [["CCC", "AAA", "BBB"]]
+           and "📺" not in _r2b["log"])
+    _v2w = (f"مِقبس={len(_r2['fetch'])} ماسح={_r2['scan']} دفعات={_r2['chunks']} إصلاح={_r2['repair']} · "
+            f"باكتيست: مِقبس={len(_r2b['fetch'])} دفعات={_r2b['chunks']}")
+except Exception as _e:                                              # noqa: BLE001
+    _v2, _v2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB2 بلا البيئة مسارُ ياهو بت-بت: صفرُ نداءٍ لـTradingView · الدفعاتُ شرائحُ القائمة بترتيبها · والإصلاحُ على الكلّ · "
+      "ولا سطرَ 📺 · ومع البيئة في الباكتيست كذلك", _v2, _v2w)
+
+# TVB3 — **الاحتياطُ لكلّ رمز**: ما أعطاه TradingView يُؤخذ منه (موسومًا) · وياهو لما تعذّر/خلا/قصُر **وحدَه** بترتيب القائمة ·
+#    والخريطةُ من الماسح (NYSE:EEE) · وطلبٌ واحدٌ بـ`_tv_bars_n` · والتقريرُ وسطرُ السجلّ بالأعداد
+try:
+    _r3 = _tvb_run(["AAA", "BBB", "CCC", "DDD", "EEE"], env={"BARS_SOURCE": "tradingview"},
+                   fetch_map={"NASDAQ:AAA": _tvb_full, "NYSE:EEE": _tvb_full, "NASDAQ:BBB": None, "NASDAQ:CCC": [],
+                              "NASDAQ:DDD": _tvb_short},
+                   scan_snap={"NASDAQ:AAA": {"name": "AAA"}, "NYSE:EEE": {"name": "EEE"}}, repair_on=True)
+    _o3, _l3 = _r3["out"], _r3["last"]
+    _v3 = (sorted(_o3) == ["AAA", "BBB", "CCC", "DDD", "EEE"]
+           and all((_o3[s].attrs or {}).get("bars_src") == "tradingview" for s in ("AAA", "EEE"))
+           and not any((_o3[s].attrs or {}).get("bars_src") for s in ("BBB", "CCC", "DDD"))
+           and _r3["chunks"] == [["BBB", "CCC", "DDD"]]
+           and _r3["fetch"] == [(["NASDAQ:AAA", "NASDAQ:BBB", "NASDAQ:CCC", "NASDAQ:DDD", "NYSE:EEE"],
+                                 S._tv_bars_n(_tvb_start), "1D")]
+           and _l3.get("tv") == 2 and _l3.get("none") == ["BBB"] and _l3.get("empty") == ["CCC"]
+           and _l3.get("short") == ["DDD"] and _l3.get("yahoo_asked") == 3 and _l3.get("yahoo_got") == 3
+           and _l3.get("map") == "scan"
+           and "📺 مصدرُ الشموع: TradingView 2 من 5" in _r3["log"] and "احتياطُ ياهو 3 من 3" in _r3["log"])
+    _v3w = (f"مفاتيح={sorted(_o3)} دفعات={_r3['chunks']} مِقبس={[f[0] for f in _r3['fetch']]} · "
+            f"تقرير={ {k: _l3.get(k) for k in ('tv', 'none', 'empty', 'short', 'yahoo_asked', 'yahoo_got', 'map')} }")
+except Exception as _e:                                              # noqa: BLE001
+    _v3, _v3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB3 الاحتياطُ لكلّ رمز: TradingView لما أعطى (موسومًا) · وياهو لما تعذّر/خلا/قصُر عن `MIN_BARS` وحدَه · وخريطةُ الماسح "
+      "(NYSE:EEE) · وطلبٌ واحدٌ بـ`_tv_bars_n` · والتقريرُ وسطرُ السجلّ بالأعداد", _v3, _v3w)
+
+# TVB4 — `tv_daily_frame`: شكلُ ياهو (الأعمدةُ الخمسة · فهرسُ «Date» بلا منطقة) · قصٌّ من `start` · **بلا حشو** (الثلاثاءُ الغائب
+#    لا يُصنَع) · والتالفُ يُتخطّى · والمكرَّرُ يغلب آخرُه · والوسم · والفارغُ ⟵ None
+try:
+    def _ts4(d, h=13, m=30):
+        return int(_tvb_dt.datetime.fromisoformat(f"{d}T{h:02d}:{m:02d}:00+00:00").timestamp())
+    _b4 = [(_ts4("2026-09-18"), 1, 1, 1, 1, 1), (_ts4("2026-09-21"), 2, 2.1, 1.9, 2.0, 10),
+           (_ts4("2026-09-23"), 3, 3.1, 2.9, 3.0, 30), ("x", 9, 9, 9, 9, 9),
+           (_ts4("2026-09-23", 14), 4, 4.1, 3.9, 4.0, 40)]
+    _f4 = S.tv_daily_frame(_b4, "2026-09-21")
+    _v4 = (_f4 is not None and list(_f4.columns) == ["Open", "High", "Low", "Close", "Volume"]
+           and _f4.index.name == "Date" and getattr(_f4.index, "tz", None) is None
+           and [str(i)[:10] for i in _f4.index] == ["2026-09-21", "2026-09-23"]
+           and float(_f4["Close"].iloc[-1]) == 4.0 and _f4.attrs.get("bars_src") == "tradingview"
+           and S.tv_daily_frame([], "2026-09-21") is None and S.tv_daily_frame(_b4[:1], "2026-09-21") is None)
+    _v4w = f"أيّام={[str(i)[:10] for i in _f4.index] if _f4 is not None else None} · أعمدة={list(getattr(_f4, 'columns', []))}"
+except Exception as _e:                                              # noqa: BLE001
+    _v4, _v4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB4 `tv_daily_frame`: شكلُ ياهو (خمسةُ أعمدة · «Date» بلا منطقة) · قصٌّ من `start` · بلا حشو (الغائبُ لا يُصنَع) · "
+      "والتالفُ يُتخطّى · والمكرَّرُ يغلب آخرُه · والوسم · والفارغُ ⟵ None", _v4, _v4w)
+
+# TVB5 — `TVBarsGate`: لا يُفتح قبل امتلاء النافذة · يُفتح بإخفاق 90% منها · والنجاحُ بينها يُبقيه مغلقًا · والمهلةُ تفتحه (ساعةٌ
+#    محقونة) · والمتخطّى يُعَدّ
+try:
+    _g5 = S.TVBarsGate(window=4, ratio=0.9, budget=False)
+    for _ in range(3):
+        _g5.record(False)
+    _a5 = _g5.open
+    _g5.record(False)
+    _b5 = _g5.open and _g5.skip() and _g5.skip() and _g5.summary()["skipped"] == 2
+    _g5c = S.TVBarsGate(window=4, ratio=0.9, budget=False)
+    for _ok in (False, False, True, False):
+        _g5c.record(_ok)
+    _c5 = _g5c.open
+    _clk5 = [0.0]
+    _g5d = S.TVBarsGate(window=4, ratio=0.9, budget=10, clock=lambda: _clk5[0])
+    _d5a = _g5d.skip()
+    _clk5[0] = 11.0
+    _d5b = _g5d.skip() and _g5d.summary()["timeout"]
+    _v5 = (not _a5) and _b5 and (not _c5) and (not _d5a) and _d5b
+    _v5w = f"قبل الامتلاء={_a5} · ممتلئ={_b5} · نجاحٌ بينها={_c5} · مهلة={_d5a}/{_d5b}"
+except Exception as _e:                                              # noqa: BLE001
+    _v5, _v5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB5 `TVBarsGate`: لا يُفتح قبل امتلاء النافذة · يُفتح بإخفاق 90% منها · والنجاحُ بينها يُبقيه مغلقًا · والمهلةُ تفتحه "
+      "· والمتخطّى يُعَدّ", _v5, _v5w)
+
+# TVB6 — القاطعُ **موصولٌ** بـ`fetch_many` الحقيقيّ: مِقبسٌ محجوبٌ (كلُّ رمزٍ None) ⟵ يُفتح بعد النافذة فتُتخطّى البقيّةُ بلا نداء ·
+#    ولا تمريرةَ ثانية · وياهو للكلّ — فالحجبُ لا يستنفد المهلةَ على آلاف الرموز
+try:
+    _calls6 = []
+
+    class _Blocked6:
+        def __init__(self, *a, **k):
+            pass
+
+        def bars(self, symbol, **kw):
+            _calls6.append(symbol)
+            return None
+
+        def close(self):
+            pass
+    _syms6 = [f"Z{i:03d}" for i in range(120)]
+    _st6 = S.TV_BARS_STAGGER_S
+    try:
+        S.TV_BARS_STAGGER_S = 0.0
+        _r6 = _tvb_run(_syms6, env={"BARS_SOURCE": "tradingview"}, chart_cls=_Blocked6)
+    finally:
+        S.TV_BARS_STAGGER_S = _st6
+    _g6 = _r6["last"].get("gate") or {}
+    _v6 = (_g6.get("open") is True and _g6.get("skipped", 0) > 0 and len(_calls6) < 2 * len(_syms6)
+           and _r6["chunks"] == [_syms6] and sorted(_r6["out"]) == sorted(_syms6) and "قاطعُ الدائرة فُتح" in _r6["log"])
+    _v6w = f"قاطع={_g6} · نداءات={len(_calls6)} من {2 * len(_syms6)} · دفعات={len(_r6['chunks'])}"
+except Exception as _e:                                              # noqa: BLE001
+    _v6, _v6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB6 القاطعُ موصولٌ بـ`fetch_many` الحقيقيّ: مِقبسٌ محجوبٌ ⟵ يُفتح فتُتخطّى البقيّةُ بلا نداء · وياهو للكلّ · "
+      "وسطرُ السجلّ يقول «قاطعُ الدائرة فُتح»", _v6, _v6w)
+
+# TVB7 — الإصلاحُ (Polygon) لإطارات ياهو **وحدَها** في وضع TradingView (من TVB3) · وحين كلُّها من TradingView لا نداءَ له ولا لياهو ·
+#    ويُحفظ «لا إطارَ من ياهو» ولا يُطبع سطرُ 🩹
+try:
+    _r7 = _tvb_run(["AAA"], env={"BARS_SOURCE": "tradingview"}, fetch_map={"NASDAQ:AAA": _tvb_full}, repair_on=True)
+    _v7 = (_r3["repair"] == [["BBB", "CCC", "DDD"]] and _r7["repair"] == [] and _r7["chunks"] == []
+           and _r7["srl"].get("skipped") == "📺 لا إطارَ من ياهو" and "🩹" not in _r7["log"] and "بلا احتياط" in _r7["log"])
+    _v7w = f"TVB3 إصلاح={_r3['repair']} · الكلُّ TradingView: إصلاح={_r7['repair']} دفعات={_r7['chunks']} srl={_r7['srl'].get('skipped')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v7, _v7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB7 إصلاحُ Polygon لإطارات ياهو وحدَها في وضع TradingView · وحين كلُّها من TradingView لا نداءَ له ولا لياهو · "
+      "ويُحفظ «لا إطارَ من ياهو» بلا سطر 🩹", _v7, _v7w)
+
+# TVB8 — **فاشلٌ-آمن كلّيًّا**: `tv_download` يرمي ⟵ ياهو للكلّ بترتيب القائمة · والتقريرُ يحمل الخطأ · والسطرُ «تعذّر كلُّه»
+try:
+    _r8 = _tvb_run(["CCC", "AAA"], env={"BARS_SOURCE": "tradingview"}, tv_raise=True)
+    _v8 = (_r8["chunks"] == [["CCC", "AAA"]] and sorted(_r8["out"]) == ["AAA", "CCC"]
+           and _r8["last"].get("error") == "RuntimeError" and "TradingView تعذّر كلُّه (RuntimeError)" in _r8["log"])
+    _v8w = f"دفعات={_r8['chunks']} · تقرير={_r8['last']}"
+except Exception as _e:                                              # noqa: BLE001
+    _v8, _v8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB8 فاشلٌ-آمن كلّيًّا: `tv_download` يرمي ⟵ ياهو للكلّ بترتيب القائمة · والتقريرُ يحمل الخطأ · والسطرُ «تعذّر كلُّه»",
+      _v8, _v8w)
+
+# TVB9 — **النطاق**: البيئةُ `BARS_SOURCE: tradingview` في الـworkflows الخمسة وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ ·
+#    فحص اليد) — وصيّادُ المقسّم (حمايةُ المالك) وفحصُ الدخان وأدواتُ البحث بلا البيئة (ياهو) · YAML يُقرأ لا نصّ
+try:
+    _want9 = {"daily_screener.yml", "pullback_monitor.yml", "hand_digest.yml", "analyze.yml", "hand_check.yml"}
+    _got9 = set()
+    for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
+        if not _fn9.endswith((".yml", ".yaml")):
+            continue
+        _y9 = _tvb_yaml.safe_load(open(f".github/workflows/{_fn9}", encoding="utf-8")) or {}
+        _envs9 = [_y9.get("env") or {}]
+        for _j9 in (_y9.get("jobs") or {}).values():
+            _envs9.append((_j9 or {}).get("env") or {})
+            _envs9 += [(_st or {}).get("env") or {} for _st in ((_j9 or {}).get("steps") or [])]
+        if any(str(_e9.get("BARS_SOURCE", "")).strip().lower() in ("tradingview", "tv") for _e9 in _envs9):
+            _got9.add(_fn9)
+    _v9 = _got9 == _want9
+    _v9w = f"زائد={sorted(_got9 - _want9)} · ناقص={sorted(_want9 - _got9)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows الخمسة وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
+      "فحص اليد) — وصيّادُ المقسّم وفحصُ الدخان وأدواتُ البحث على ياهو (YAML)", _v9, _v9w)
+
+# TVB10 — `tv_bar_fresh`: إطارُ ياهو (بلا وسم) ⟵ True دائمًا (بت-بت) · وإطارُ TradingView آخرُه آخرُ جلسةٍ مكتملة ⟵ True · وأقدمُ ⟵ False
+#    (الساعةُ محقونة: الأربعاء 2026-09-30 ‏22:00 UTC ⟵ الجلسةُ المكتملة 09-30)
+try:
+    _now10 = _tvb_dt.datetime(2026, 9, 30, 22, 0, tzinfo=_tvb_dt.timezone.utc)
+
+    def _f10(end, tag):
+        _d = pd.DataFrame({"Close": [1.0, 1.0]}, index=pd.to_datetime([
+            (_tvb_dt.date.fromisoformat(end) - _tvb_dt.timedelta(days=1)).isoformat(), end]))
+        if tag:
+            _d.attrs["bars_src"] = "tradingview"
+        return _d
+    _t10 = (S.tv_bar_fresh(_f10("2026-09-30", True), now=_now10), S.tv_bar_fresh(_f10("2026-09-29", True), now=_now10),
+            S.tv_bar_fresh(_f10("2026-09-29", False), now=_now10), S.tv_bar_fresh(_f10("2026-09-25", False), now=_now10))
+    _v10 = _t10 == (True, False, True, True)
+    _v10w = f"{_t10}"
+except Exception as _e:                                              # noqa: BLE001
+    _v10, _v10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB10 `tv_bar_fresh`: إطارُ ياهو ⟵ True دائمًا (بت-بت) · وإطارُ TradingView آخرُه آخرُ جلسةٍ مكتملة ⟵ True · "
+      "وأقدمُ (لا صفقة) ⟵ False", _v10, _v10w)
+
+# TVB11 — **موصولٌ** في تحديث اليد وفحص اليد (سلوكيًّا): كنسُ دعمٍ في شمعةٍ أقدمَ من آخر جلسةٍ مكتملة لا يُقرأ «اليوم» على إطار
+#    TradingView · ويُقرأ كما كان على إطار ياهو · ويُقرأ على إطار TradingView الطازج
+try:
+    _exp11 = S.last_closed_session()
+    _prv11 = S._prev_session(_exp11)
+
+    def _sw11(end, tag):
+        _d = _today_df("sweep")
+        _d.index = pd.date_range(end=end, periods=len(_d), freq="B")
+        if tag:
+            _d.attrs["bars_src"] = "tradingview"
+        return _d
+    _wl11 = {"stocks": [{"symbol": "AAA", "status": "active"}]}
+    _dg11 = {k: S.build_hand_digest(_wl11, {"AAA": _sw11(e, t)})
+             for k, (e, t) in {"tv_new": (_exp11, True), "tv_old": (_prv11, True), "yh_old": (_prv11, False)}.items()}
+    _hc11 = {k: HC.render_hand_check("AAA", {"price": 2.0}, _sw11(e, t))
+             for k, (e, t) in {"tv_old": (_prv11, True), "yh_old": (_prv11, False)}.items()}
+    _k11 = "📌 اليوم: كنس الدعم"
+    _v11 = (_k11 in _dg11["tv_new"] and _k11 not in _dg11["tv_old"] and _k11 in _dg11["yh_old"]
+            and "ماذا فعلت اليد اليوم" not in _hc11["tv_old"] and "ماذا فعلت اليد اليوم" in _hc11["yh_old"])
+    _v11w = (f"آخرُ جلسة={_exp11} · تحديث: tv_new={_k11 in _dg11['tv_new']} tv_old={_k11 in _dg11['tv_old']} "
+             f"yh_old={_k11 in _dg11['yh_old']} · فحص: tv_old={'ماذا فعلت' in _hc11['tv_old']} yh_old={'ماذا فعلت' in _hc11['yh_old']}")
+except Exception as _e:                                              # noqa: BLE001
+    _v11, _v11w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB11 موصولٌ في تحديث اليد وفحص اليد: فعلُ شمعةٍ أقدمَ من آخر جلسةٍ مكتملة لا يُقرأ «اليوم» على إطار TradingView · "
+      "ويُقرأ كما كان على إطار ياهو · وعلى إطار TradingView الطازج", _v11, _v11w)
+
+# TVB12 — `_tv_bars_n`: أيّامُ العمل حتى اليوم ضمنًا ‏+ الهامش (فالقصُّ على `start` لا يُنقص نافذةَ ياهو) · وأرضيّةُ `MIN_BARS` ·
+#    وسقفُ `TV_BARS_MAX`
+try:
+    _d12 = _tvb_dt.date(2026, 9, 30)
+    _n12 = (S._tv_bars_n("2026-01-01", today=_d12), S._tv_bars_n("2026-09-01", today=_d12),
+            S._tv_bars_n("1990-01-01", today=_d12))
+    # 2026-01-01 ⟶ 2026-09-30 ضمنًا = 195 يومَ عمل (‏`np.busday_count` · محسوبٌ خارج القفل) ⇒ 205 بالهامش · و09-01 ⟶ 22 ⇒ الأرضيّة
+    _v12 = _n12 == (205, S.CONFIG["MIN_BARS"], S.TV_BARS_MAX)
+    _v12w = f"{_n12}"
+except Exception as _e:                                              # noqa: BLE001
+    _v12, _v12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB12 `_tv_bars_n`: أيّامُ العمل حتى اليوم ضمنًا ‏+ الهامش · وأرضيّةُ `MIN_BARS` · وسقفُ `TV_BARS_MAX`", _v12, _v12w)
+
+# TVB13 — الخريطة: `_tv_full_name` (الشَّرطةُ نقطة · الغائبُ ⟵ «NASDAQ:») · والماسحُ نداءٌ واحدٌ يُخبَّأ · وتعذّرُه لا يُخبَّأ
+try:
+    _sv13 = (_tvb_TV.scan, dict(S._TV_TMAP))
+    _c13 = [0]
+    _snap13 = [None]
+
+    def _scan13(cols):
+        _c13[0] += 1
+        return _snap13[0]
+    try:
+        _tvb_TV.scan = _scan13
+        S._TV_TMAP.update(at=None, map=None)
+        _m13a = S._tv_ticker_map()                  # تعذّر ⟵ {} ولا يُخبَّأ
+        _snap13[0] = {"NYSE:BRK.B": {}, "NASDAQ:AAA": {}}
+        _m13b = S._tv_ticker_map()
+        _m13c = S._tv_ticker_map()                  # من المخبّأ
+        _calls13 = _c13[0]
+    finally:
+        _tvb_TV.scan = _sv13[0]
+        S._TV_TMAP.clear()
+        S._TV_TMAP.update(_sv13[1])
+    _v13 = (_m13a == {} and _m13b.get("BRK.B") == "NYSE:BRK.B" and _m13c == _m13b and _calls13 == 2
+            and S._tv_full_name("BRK-B", _m13b) == "NYSE:BRK.B" and S._tv_full_name("zzz", _m13b) == "NASDAQ:ZZZ"
+            and S._tv_full_name("AAA", {}) == "NASDAQ:AAA")
+    _v13w = f"تعذّر={_m13a} · نداءات={_calls13} · BRK-B={S._tv_full_name('BRK-B', _m13b)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v13, _v13w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TVB13 الخريطة: الشَّرطةُ نقطة (BRK-B ⟵ NYSE:BRK.B) · والغائبُ ⟵ «NASDAQ:» · والماسحُ نداءٌ واحدٌ يُخبَّأ · وتعذّرُه "
+      "لا يُخبَّأ", _v13, _v13w)
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

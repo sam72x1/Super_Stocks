@@ -49,8 +49,8 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
             L.append(f"  • [{e['frame']}] {e['sign']} — {e['detail']}")
     else:
         L.append("لا قرائن مرصودة من الشموع/4س/التدوير/الرفعة.")
-    # ماذا فعلت اليد اليوم (شمعة اليوم)
-    if df is not None:
+    # ماذا فعلت اليد اليوم (شمعة اليوم) — 📺 وإطارُ TradingView بلا حشو: شمعةٌ أقدمُ من آخر جلسةٍ مكتملة لا تُقرأ «اليوم»
+    if df is not None and bot.tv_bar_fresh(df):
         acts = bot.hand_activity_today(r, df)
         if acts:
             L.append("")
