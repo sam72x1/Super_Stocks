@@ -215,8 +215,9 @@ def build_digest(day_iso: str, today_rows: list, cum: dict,
              "الأمس بأرضية تنفيذٍ $20,000. و«النظاميّة» وصفٌ خارج العقد — حكمُها "
              "يلزمه تسجيلٌ مسبقٌ مستقلّ.</i>")
     if src == "tv":
-        L.append("📺 <i>الحسمُ من دقائق TradingView (Polygon انتهى): حجمُها جزئيّ — نحو 5-15% من الحجم الموحَّد في "
-                 "مِجَسّ 09-30 — فأرضيةُ الـ$20,000 عليها أشدّ والإصاباتُ حدٌّ أدنى.</i>")
+        L.append("📺 <i>الحسمُ من دقائق TradingView (Polygon انتهى): حجمُها للزائر جزئيّ (نحو 5-15% من الموحَّد) فيُسوّى "
+                 "بحجم الشمعة اليوميّة الموحَّد — تقديرٌ لا قياس · وما لم يُسوَّ (يومٌ أقدمُ من آخر جلسة) أرضيةُ الـ$20,000 "
+                 "عليه أشدّ فإصاباتُه حدٌّ أدنى.</i>")
     return "\n".join(L)
 
 
@@ -281,7 +282,7 @@ def main() -> int:
         _log(f"⚠️ قُصّ {len(todo) - FETCH_CAP} صفًّا بسقف {FETCH_CAP} — يُعلَن ولا يُصمت.")
         todo = todo[:FETCH_CAP]
 
-    bars_cache, new, miss = {}, [], 0
+    bars_cache, new, miss, scaled = {}, [], 0, [0, 0]
     for r in todo:
         d = str(r.get(PF.ROW_DAY) or "")
         sym = str(r.get(PF.ROW_SYM) or "").upper()
@@ -296,6 +297,12 @@ def main() -> int:
             except Exception as e:                               # noqa: BLE001
                 _log(f"⚠️ {sym} {d}: {e}")
                 bars_cache[ck] = []
+            # 📺 **تسويةُ حجم TradingView** بالحجم اليوميّ الموحَّد (ليوم آخر جلسةٍ وحدَه) — فتقرب أرضيةُ الوسم $20,000
+            #    من مقياسها · وما لم يُسوَّ (يومٌ أقدم أو f خارج النطاق) حدٌّ أدنى ويُعَدّ.
+            if src == "tv" and PR.TV_VOL_SCALE and bars_cache[ck]:
+                bars_cache[ck], _f = PR.tv_scale_volume(bars_cache[ck], PR.tv_day_volume(sym, d),
+                                                        PR.reg_close_for(d))
+                scaled[0 if _f is not None else 1] += 1
         out = resolve_row(r, bars_cache[ck])
         if out is None:
             miss += 1
@@ -304,6 +311,8 @@ def main() -> int:
             out["src"] = "tv"
         new.append(out)
 
+    if src == "tv":
+        _log(f"📺 تسويةُ حجم الحصاد: {scaled[0]} مسوّى · {scaled[1]} كما هو (حدٌّ أدنى)")
     if new:
         try:
             with open(OUT_FILE, "a", encoding="utf-8") as fh:

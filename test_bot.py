@@ -33048,6 +33048,15 @@ check("📈 CR6 **كرونا ما بعد الافتر بالفصلين + يدو�
               for _s in _cr_steps),
       f"on={sorted(_cr_on)} · كرون={_cr_crons}")
 
+# 🧊 CR8 — **تجميدُ الحصّاد بعد انتهاء Polygon (2026-09-30):** الجوبُ يدويٌّ وحدَه (الكرونُ يُتخطّى فلا يحمرّ كلَّ ليلة بتغطيةٍ
+#    ناقصة) · والكرونان والتعليلُ المؤرَّخ باقيان (‏CR6) · والرجوعُ حذفُ السطر وحدَه.
+check("📈🧊 CR8 حصّادُ T-CUMRISE-FWD مُجمَّدٌ بعد انتهاء Polygon: الجوبُ يدويٌّ وحدَه (الكرونُ يُتخطّى لا يحمرّ) · والكرونان "
+      "والتعليلُ المؤرَّخ باقيان",
+      str(_cr_job.get("if") or "").strip() == "github.event_name == 'workflow_dispatch'"
+      and _cr_crons == ["41 0 * * 2-6", "41 1 * * 2-6"]
+      and "مُجمَّدٌ 2026-09-30" in open(".github/workflows/cumrise.yml", encoding="utf-8").read(),
+      f"if={_cr_job.get('if')!r} · كرون={_cr_crons}")
+
 # 🔒 CR7 — **عزلٌ تامّ**: الإنتاجُ لا يستورد المِجَسّ (أداةُ بحثٍ خارج الفرز).
 check("🔒 CR7 **`Super_stock` لا يستورد `cumrise_probe`** (عزلٌ تامّ)",
       "cumrise_probe" not in open("Super_stock.py", encoding="utf-8").read())
@@ -55351,6 +55360,24 @@ check("🌅📡🔒 PWA11 `pmfwd.yml`: كرونٌ واحدٌ بعد إغلاق �
       "تلغرام · صلاحيةُ كتابةٍ للسجلّ · ودفعٌ بـfetch+rebase يُعلن سقوطَه",
       _pwa_ok11, _pwa_w11)
 
+# 🧊 `PWA17` — **تجميدُ الحصّاد بعد انتهاء Polygon (2026-09-30):** الجوبُ لا يعمل إلّا يدويًّا (الكرونُ يُتخطّى فلا يحمرّ كلَّ ليلة
+#    بتغطية 0%) · والكرونُ نفسُه باقٍ (‏`PWA11` وحارسُ «لا كرونَ عتيق») · والرجوعُ حذفُ السطر وحدَه.
+#    (‏سُمّي أوّلًا `PWA14` وهو اسمُ جدول الحقيقة `fired_of` أدناه ⇒ أُعيدت تسميتُه قبل الدمج — اسمٌ مكرّر يُفسد إسنادَ الطفرة.)
+try:
+    import yaml as _pwa_yaml                                     # noqa: E402
+    _pwa_y17 = _pwa_yaml.safe_load(open(".github/workflows/pmfwd.yml", encoding="utf-8"))
+    _pwa_if17 = (((_pwa_y17 or {}).get("jobs") or {}).get("pmfwd") or {}).get("if")
+    _pwa_on17 = (_pwa_y17 or {}).get(True) or (_pwa_y17 or {}).get("on") or {}
+    _pwa_ok17 = (str(_pwa_if17 or "").strip() == "github.event_name == 'workflow_dispatch'"
+                 and "workflow_dispatch" in _pwa_on17
+                 and [c.get("cron") for c in (_pwa_on17.get("schedule") or []) if isinstance(c, dict)] == ["29 22 * * 1-5"]
+                 and "مُجمَّدٌ 2026-09-30" in open(".github/workflows/pmfwd.yml", encoding="utf-8").read())
+    _pwa_w17 = f"if={_pwa_if17!r} · on={sorted(map(str, _pwa_on17))}"
+except Exception as _e:                                          # noqa: BLE001
+    _pwa_ok17, _pwa_w17 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🧊 PWA17 حصّادُ T-PMFWD مُجمَّدٌ بعد انتهاء Polygon: الجوبُ يدويٌّ وحدَه (الكرونُ يُتخطّى لا يحمرّ) · والكرونُ "
+      "والتعليلُ المؤرَّخ باقيان", _pwa_ok17, _pwa_w17)
+
 # 🔴 `PWA12` — عتباتُ الأداة **تطابق العقد** ولا رقمَ مكتوبٌ بيدٍ يخالفه.
 try:
     _pwa_s5 = _ohk_sec(_pwk_doc, "## ⑤", "## ⑥")
@@ -71661,6 +71688,94 @@ except Exception as _e:                                              # noqa: BLE
     _ptv_reset()
 check("📺 PTV13 وسمُ المصدر: صفوفُ TradingView موسومةٌ «tv» في النتيجة والسجلّ وPolygon بلا وسم · والحصادُ يَسِم ما حسمه "
       "TradingView ويُلحق سطرَ حدّ الصدق (حجمُ الدقائق جزئيّ) · وبلا مصدرٍ رسالتُه بت-بت", _p13, _p13w)
+
+# PTV14 — 📺 تسويةُ حجم TradingView (‏2026-09-30 · مِجَسّ VOL `36657384676`: الخامُّ ÷ Polygon وسيطُه 0.090 · والمسوّى 1.084 ·
+#         ‏88.1% بين 0.5 و2 · سبيرمان 0.987 — قبولٌ مكتوبٌ قبل الرقم): `tv_scale_volume` تضرب حجمَ كلّ دقيقةٍ (البري والأفتر
+#         معًا) في f = الحجمُ اليوميّ ÷ مجموعِ دقائق الجلسة النظاميّة والأسعارُ بت-بت · وخارجَ [1، 200] أو بلا حجمٍ أو بلا
+#         جلسة ⟵ الشموعُ نفسُها وf=None · و`tv_day_volume` ليوم آخر جلسةٍ وحدَه.
+try:
+    _ptv_reset()
+    _b14, _f14 = _PTV.tv_scale_volume(list(_b12), 15_000_000.0, 960)     # الجلسةُ 30×50k = 1.5M ⟵ f=10
+    _same14 = len(_b14) == len(_b12) and all(x[:5] == y[:5] and x[6:] == y[6:] for x, y in zip(_b12, _b14))
+    _vol14 = all(abs(y[5] - x[5] * 10.0) < 1e-6 for x, y in zip(_b12, _b14))
+    _none14 = [_PTV.tv_scale_volume(list(_b12), v, 960) for v in (None, 0, -5, "x", 1_000_000.0, 400_000_000.0)]
+    _nz14 = all(f is None and b == list(_b12) for b, f in _none14)
+    _edge14 = (_PTV.tv_scale_volume(list(_b12), 1_500_000.0, 960)[1] == 1.0
+               and _PTV.tv_scale_volume(list(_b12), 300_000_000.0, 960)[1] == 200.0
+               and _PTV.tv_scale_volume([b for b in _b12 if b[7] >= 960], 1e6, 960)[1] is None)
+    _PTV._TV.update(snap={"NASDAQ:PCX": {"volume": 7.0}, "AMEX:QQQ": {"volume": 0}}, latest="2026-09-29",
+                    tmap={"PCX": "NASDAQ:PCX", "QQQ": "AMEX:QQQ"})
+    _dv14 = (_PTV.tv_day_volume("pcx", "2026-09-29") == 7.0 and _PTV.tv_day_volume("PCX", "2026-09-28") is None
+             and _PTV.tv_day_volume("QQQ", "2026-09-29") is None and _PTV.tv_day_volume("ZZZ", "2026-09-29") is None)
+    _p14 = _f14 == 10.0 and _same14 and _vol14 and _nz14 and _edge14 and _dv14
+    _p14w = f"f={_f14} · أسعار={_same14} · حجم={_vol14} · بلا تسوية={_nz14} · حدود={_edge14} · يوميّ={_dv14}"
+    _ptv_reset()
+except Exception as _e:                                              # noqa: BLE001
+    _p14, _p14w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+    _ptv_reset()
+check("📺 PTV14 تسويةُ حجم TradingView: f = الحجمُ اليوميّ ÷ دقائقِ الجلسة يضرب حجمَ كلِّ دقيقة (البري والأفتر معًا) والأسعارُ "
+      "بت-بت · وخارجَ [1، 200] أو بلا حجمٍ أو بلا جلسة ⟵ الشموعُ نفسُها بلا تسوية · والحجمُ اليوميّ ليوم آخر جلسةٍ وحدَه",
+      _p14, _p14w)
+
+# PTV15 — الوصل في القرار: جالبٌ موسومٌ «tv» ⟵ الصفُّ مسوّى (`vol_scale` · `usd_day` = الخامّ × f) و💰 بـ«≈» · والمفتاحُ السعريّ
+#         `post_hi_ret` والتسليمُ بت-بت · وجالبٌ بلا وسم (Polygon) ⟵ بلا تسوية ولا «≈» ولا «(جزئيّ)» · و`TV_VOL_SCALE=False` ⟵
+#         الخامُّ نفسُه موسومًا «(جزئيّ)».
+try:
+    _ptv_reset()
+    _post15 = [{"t": (_T12 + 390 * 60 + 60 * k) * 1000, "o": 2.2, "h": 4.0, "l": 2.1, "c": 3.8, "v": 1000.0, "n": 1}
+               for k in range(5)]                                    # قمّةُ الأفتر 4.0 فوق إغلاق 2.2 ⟵ تعبر الأرضية
+    _b15 = _PTV.to_bars8(_reg12 + _post15)
+    _G15 = [{"T": "PCX", "c": 2.2, "v": 15_000_000.0, "o": 2.0, "h": 2.3, "l": 1.9, "n": 9}]
+    _fg15 = lambda d: _G15 if d == "2026-09-29" else (_P12 if d == "2026-09-28" else None)   # noqa: E731
+
+    def _fm15(s_, a, b):
+        return list(_b15)
+
+    _fm15.src = "tv"
+    _tv15 = _PTV.run_presession("PM", "2026-09-30", _now12, fetch_grouped=_fg15, fetch_minutes=_fm15)
+    _po15 = _PTV.run_presession("PM", "2026-09-30", _now12, fetch_grouped=_fg15,
+                                fetch_minutes=lambda s_, a, b: list(_b15))
+    _sv15 = _PTV.TV_VOL_SCALE
+    try:
+        _PTV.TV_VOL_SCALE = False
+        _of15 = _PTV.run_presession("PM", "2026-09-30", _now12, fetch_grouped=_fg15, fetch_minutes=_fm15)
+    finally:
+        _PTV.TV_VOL_SCALE = _sv15
+    _rs, _rp, _ro = _tv15[0][0], _po15[0][0], _of15[0][0]
+    _p15 = (_rs.get("vol_scale") == 10.0 and abs(_rs["usd_day"] - _rp["usd_day"] * 10.0) < 1e-6
+            and _rs["post_hi_ret"] == _rp["post_hi_ret"] and _tv15[2]["deliver"] == _po15[2]["deliver"] == ["PCX"]
+            and "vol_scale" not in _rp and "vol_scale" not in _ro and _ro["usd_day"] == _rp["usd_day"]
+            and "💰 ≈$" in _tv15[1] and "(جزئيّ)" not in _tv15[1]
+            and "💰 $" in _po15[1] and "≈" not in _po15[1] and "(جزئيّ)" not in _po15[1]
+            and "(جزئيّ)" in _of15[1] and "≈" not in _of15[1])
+    _p15w = (f"مسوّى={_rs.get('vol_scale')} usd={round(_rs['usd_day'])}/{round(_rp['usd_day'])} · تسليم="
+             f"{_tv15[2]['deliver']}/{_po15[2]['deliver']} · ≈ tv={'💰 ≈$' in _tv15[1]} poly={'≈' in _po15[1]} · "
+             f"جزئيّ مطفأ={'(جزئيّ)' in _of15[1]}")
+    _ptv_reset()
+except Exception as _e:                                              # noqa: BLE001
+    _p15, _p15w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+    _ptv_reset()
+check("📺 PTV15 الوصل في القرار: صفوفُ TradingView مسوّاةٌ (usd_day = الخامّ × f) و💰 بـ«≈» · والمفتاحُ السعريّ والتسليمُ "
+      "بت-بت · وPolygon بلا تسوية ولا وسم · والمفتاحُ مطفأً ⟵ الخامُّ نفسُه موسومًا «(جزئيّ)»", _p15, _p15w)
+
+# PTV16 — الوصل في الحصاد (AST على `main`): حجمُ دقائق TradingView يُسوّى بحجم الشمعة اليوميّة ليوم الصفّ (`tv_day_volume`)
+#         تحت شرط المصدر والمفتاح · ويُطبَع عدّادُ المسوّى وما بقي خامًّا (حدٌّ أدنى) · وسطرُ حدّ الصدق يقول «يُسوّى».
+try:
+    import presession_digest as _PD16                               # noqa: E402
+    _mn16 = next(n for n in _ps_ast.walk(_ps_ast.parse(open("presession_digest.py", encoding="utf-8").read()))
+                 if isinstance(n, _ps_ast.FunctionDef) and n.name == "main")
+    _s16 = _ps_ast.unparse(_mn16)
+    _cum16 = {"deliv": (0, 0), "cut": (0, 0), "below": (0, 0), "all": (0, 0)}
+    _dg16 = _PD16.build_digest("2026-09-30", [], _cum16, (0, 0), 0, src="tv")
+    _p16 = ("if src == 'tv' and PR.TV_VOL_SCALE and bars_cache[ck]:" in _s16
+            and "PR.tv_scale_volume(bars_cache[ck], PR.tv_day_volume(sym, d), PR.reg_close_for(d))" in _s16
+            and "تسويةُ حجم الحصاد" in _s16 and "يُسوّى" in _dg16)
+    _p16w = (f"شرط={'if src ==' in _s16 and 'PR.TV_VOL_SCALE' in _s16} · نداء={'PR.tv_scale_volume(' in _s16} · "
+             f"عدّاد={'تسويةُ حجم الحصاد' in _s16} · سطر={'يُسوّى' in _dg16}")
+except Exception as _e:                                              # noqa: BLE001
+    _p16, _p16w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 PTV16 الوصل في الحصاد: دقائقُ TradingView تُسوّى بحجم الشمعة اليوميّة ليوم الصفّ تحت شرط المصدر والمفتاح (AST) · "
+      "وعدّادُ المسوّى مطبوع · وسطرُ حدّ الصدق يقول «يُسوّى»", _p16, _p16w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
