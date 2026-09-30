@@ -4,6 +4,11 @@ name: TV probe 3 (temporary)
 
 on:
   workflow_dispatch:
+    inputs:
+      part:
+        description: "PRE (T-TVPRE) · VOL (تسويةُ الحجم · قبولٌ مكتوبٌ قبل الرقم) · C2 (تشخيصُ طزاجة T-TVBARS · وصفيّ)"
+        required: false
+        default: "PRE"
 
 permissions:
   contents: read
@@ -23,4 +28,5 @@ jobs:
       - name: Probe
         env:
           PYTHONUNBUFFERED: "1"
+          TVPROBE3_PART: ${{ github.event.inputs.part }}
         run: python tv_probe3.py
