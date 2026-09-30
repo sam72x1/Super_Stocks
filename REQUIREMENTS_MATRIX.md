@@ -29,7 +29,7 @@
 | R-21 | الدفعةُ كلُّها | 32 صورة · مصادرُها · وسمُها | فهرسةٌ في الكاتالوج (§ثامن وعشرون) · الدفتر (§دفعة 2026-09-22) · `faisal_images/README.md` · بندُ أرشيفٍ + فهرسان | 📒 (يُنفَّذ الآن مع هذي الملفّات) | `📒🔒 دفتر المصادر` (كلُّ صفٍّ بوسمٍ واحد) · `MEM1`/`HND1`/`MEM5`/`HND5` | 📒 |
 
 ## ✅ تحديثٌ مؤرَّخ 2026-09-23 — نُفِّذ R-01 وR-02 بأمر المالك «نفذ»
-- **R-01:** `pivot_cycle_state`/`pivot_cycle_line` في `Super_stock.py` · مفاتيح `PIVOT_TEST_TYPICAL_PCT=20` و`PIVOT_SWEEP_PCT=5` (`faisal_verbatim`) **و`PIVOT_CYCLE_WIN=60` (`engineering` — لم يكن في الحزمة)** · المرحلة 4 = `STABILITY_MIN` القائم (3) · الوصل: الكرت (`build_message`) · اليوميّ · فحص اليد · والتخزين شقيقُ `bottom_test` داخل حارس الإثراء.
+- **R-01:** `pivot_cycle_state`/`pivot_cycle_line` في `Super_stock.py` · مفاتيح `PIVOT_TEST_TYPICAL_PCT=20` و`PIVOT_SWEEP_PCT=5` (`faisal_verbatim`) **و`PIVOT_CYCLE_WIN=60` (`engineering` — لم يكن في الحزمة)** · المرحلة 4 = `STABILITY_MIN` القائم (3) · الوصل: الكرت (`build_message`) · اليوميّ · فحص اليد · والتخزين شقيقُ `bottom_test` داخل حارس الإثراء. 🔄 **(تصحيحٌ مؤرَّخ 2026-09-30: `PIVOT_SWEEP_PCT` صار 13** بنصّ «المتعارف 7-13%» · دفعةُ 39 صورة · `PSW1`/`PSW2`)
 - **R-02:** وسمُ وايكوف داخل السطر (`PIVOT_WYCKOFF_TAG` يُطفئه).
 - **الأقفال `PC1`-`PC9`** · والانحرافاتُ عن الحزمة مسرودةٌ في `OPUS_EXECUTION_SPEC.md §21`.
 
