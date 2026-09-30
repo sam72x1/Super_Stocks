@@ -53,6 +53,12 @@ MIN_COVERAGE_PCT = 60.0   # 🩺 أرضيةُ تغطية الحسم (أقلُّ 
 BACKLOG_DAYS = 30         # مدى استدراك الصفوف غير المحسومة
 FETCH_CAP = 400           # سقفُ نداءات الدقائق للتشغيلة الواحدة — يُعلَن قصُّه
 SHOW_BELOW = 5            # كم من «دون العشرة» يُعرَض (الباقي بعدده)
+# 📺 **حسمُ TradingView مقيسٌ مقابل ياهو** (‏2026-09-30 · مِجَسّ `36694612545` · معيارُه مكتوبٌ قبل الرقم في #497): أوّلُ حصادٍ
+#    عليه حسم 26 صفًّا قديمًا (09-04 ⟶ 09-28) تركها Polygon بلا شموعٍ في النافذة — منها RAY 09-10 PM «بلغ» +674.6% ولا شمعةَ
+#    في نافذته عند Polygon ولا ياهو (ومقياسُه 0.893) ⇒ الأيّامُ قبل أوّل يومٍ لم يحسمه Polygon **لا تُحسم على TradingView** ·
+#    وما كُتب منها **يبقى في الملفّ** (لا حذف) ويُستثنى من التراكم (`tv_backfill`).
+TV_HARVEST_SINCE = "2026-09-29"
+TV_SCALE_LO, TV_SCALE_HI = 0.9, 1.1   # engineering — حارسُ المقياس: سعرُ المصدر عند القرار ÷ ref (تقسيمٌ بعد القرار يُخرجه)
 
 
 def _log(m: str) -> None:
@@ -130,6 +136,36 @@ def resolve_row(row: dict, bars8: list) -> dict | None:
             "full_max": full.get("max"), "full_hit": int(full.get("hit80") or 0)}
 
 
+def tv_backfill(r: dict) -> bool:
+    """صفٌّ قديمٌ حُسم على TradingView (يومُه قبل `TV_HARVEST_SINCE`) — غيرُ موثوق بالمِجَسّ فلا يدخل التراكم (ويبقى في الملفّ)."""
+    return r.get("src") == "tv" and str(r.get(PF.ROW_DAY) or "") < TV_HARVEST_SINCE
+
+
+def scale_anchor(sess: str, day_iso: str, prev_bars: list, day_bars: list):
+    """سعرُ المصدر عند القرار — `PM`: آخرُ شمعةٍ في يوم الجلسة السابقة حتى 20:00 · `AH`: آخرُ شمعةٍ نظاميّةٍ في يومه · أو None."""
+    if str(sess).strip().upper() == "PM":
+        w = [b for b in (prev_bars or []) if b[7] < PF.EXT_CLOSE]
+    else:
+        cm = PR.reg_close_for(day_iso)
+        w = [b for b in (day_bars or []) if PR.REG_OPEN <= b[7] < cm]
+    return w[-1][4] if w else None
+
+
+def tv_scale_ok(row: dict, prev_bars: list, day_bars: list) -> tuple:
+    """(يُحسم؟، النسبة) — سعرُ المصدر عند القرار ÷ `ref` داخل [`TV_SCALE_LO`، `TV_SCALE_HI`] (دقائقُ TradingView مسوّاةٌ
+    بالتقسيم و`ref` خامّ ⇒ تقسيمٌ بعد القرار يزيّف النسبة). **وبلا شمعة مرجعٍ أو مرجعٍ صالح ⟵ (True، None)** فاشلٌ-آمنٌ يُعَدّ:
+    لا يُترك صفٌّ بلا حسمٍ بلا دليل."""
+    try:
+        ref = float(row.get("ref"))
+    except (TypeError, ValueError):
+        return True, None
+    a = scale_anchor(row.get(PF.ROW_SESS), row.get(PF.ROW_DAY), prev_bars, day_bars)
+    if a is None or not ref > 0:
+        return True, None
+    q = float(a) / ref
+    return TV_SCALE_LO <= q <= TV_SCALE_HI, q
+
+
 def day_bounds_ms(day_iso: str) -> tuple:
     """(بدايةُ 04:00 نيويورك، نهايةُ 20:00) بالملّي — تتصيّف ذاتيًّا."""
     from zoneinfo import ZoneInfo
@@ -161,8 +197,9 @@ def _pct(hit: int, n: int) -> str:
 
 
 def build_digest(day_iso: str, today_rows: list, cum: dict,
-                 cov: tuple, missing: int, src: str = None) -> str:
-    """رسالةُ التقرير — بلا علامات مقارنة (قاعدة العرض). و`src="tv"` يُلحق سطرَ حدّ الصدق للمصدر (وبلاه بت-بت)."""
+                 cov: tuple, missing: int, src: str = None, excluded: int = 0) -> str:
+    """رسالةُ التقرير — بلا علامات مقارنة (قاعدة العرض). و`src="tv"` يُلحق سطرَ حدّ الصدق للمصدر (وبلاه بت-بت) ·
+    و`excluded` عددُ ما استُثني من التراكم (`tv_backfill`) يُعلَن تحته (وصفرُه بت-بت)."""
     e = S.esc
     L = [f"📒 <b>حصادُ قائمة ما قبل الجلسة</b> — {e(day_iso)}",
          f"🩺 حُسم {cov[0]} من {cov[1]} صفًّا "
@@ -198,6 +235,8 @@ def build_digest(day_iso: str, today_rows: list, cum: dict,
             L.append(f"‏… و{len(below) - len(sh)} آخرون (يُعلَن ولا يُقصّ صامتًا)")
     L.append("")
     L.append("📈 <b>التراكم</b> (السجلُّ الأماميّ كلُّه)")
+    if excluded:
+        L.append(f"‏📺 مستثنى {excluded} صفًّا قديمًا حُسم على TradingView بلا تأكيد (يبقى في الملفّ)")
     L.append(f"‏🟢 مُسلَّمٌ محسوم {cum['deliv'][0]} · بلغ {cum['deliv'][1]}")
     L.append(f"‏🎚️ مقصوصٌ محسوم {cum['cut'][0]} · بلغ {cum['cut'][1]}")
     L.append(f"‏🔎 دون العشرة {cum['below'][0]} · بلغ {cum['below'][1]}")
@@ -216,7 +255,8 @@ def build_digest(day_iso: str, today_rows: list, cum: dict,
              "يلزمه تسجيلٌ مسبقٌ مستقلّ.</i>")
     if src == "tv":
         L.append("📺 <i>الحسمُ من دقائق TradingView (Polygon انتهى): حجمُها للزائر جزئيّ (نحو 5-15% من الموحَّد) فيُسوّى "
-                 "بحجم الشمعة اليوميّة الموحَّد — تقديرٌ لا قياس · وما لم يُسوَّ (يومٌ أقدمُ من آخر جلسة) أرضيةُ الـ$20,000 "
+                 "بحجم الشمعة اليوميّة الموحَّد — تقديرٌ لا قياس · وقمّتُها تقديرٌ أيضًا: خالفت ياهو بأكثرَ من 3% في 16 من 67 "
+                 "صفًّا (أدنى في 13 · أعلى في 3) · وما لم يُسوَّ (يومٌ أقدمُ من آخر جلسة) أرضيةُ الـ$20,000 "
                  "عليه أشدّ فإصاباتُه حدٌّ أدنى.</i>")
     return "\n".join(L)
 
@@ -278,11 +318,18 @@ def main() -> int:
             and str(r.get(PF.ROW_DAY) or "") >= floor_d
             and str(r.get(PF.ROW_DAY) or "") <= day]
     _log(f"📒 السجلّ {len(led)} صفًّا · محسومٌ سلفًا {len(done)} · للحسم {len(todo)}")
+    if src == "tv":
+        # 📺 الأيّامُ التي لم تُحسم على Polygon لا تُحسم على TradingView (مِجَسّ `36694612545`) — تبقى بلا حسمٍ وتُعَدّ.
+        _old = [r for r in todo if str(r.get(PF.ROW_DAY) or "") < TV_HARVEST_SINCE]
+        if _old:
+            todo = [r for r in todo if str(r.get(PF.ROW_DAY) or "") >= TV_HARVEST_SINCE]
+            _log(f"📺 لا يُحسم على TradingView ما قبل {TV_HARVEST_SINCE}: {len(_old)} صفًّا (يبقى بلا حسم)")
     if len(todo) > FETCH_CAP:
         _log(f"⚠️ قُصّ {len(todo) - FETCH_CAP} صفًّا بسقف {FETCH_CAP} — يُعلَن ولا يُصمت.")
         todo = todo[:FETCH_CAP]
 
     bars_cache, new, miss, scaled = {}, [], 0, [0, 0]
+    prev_cache, scale_bad, no_anchor = {}, [], 0
     for r in todo:
         d = str(r.get(PF.ROW_DAY) or "")
         sym = str(r.get(PF.ROW_SYM) or "").upper()
@@ -293,7 +340,13 @@ def main() -> int:
         if ck not in bars_cache:
             try:
                 a, b = day_bounds_ms(d)
-                bars_cache[ck] = fetch_minutes(sym, a, b) or []
+                if src == "tv":
+                    # 📺 ويومُ الجلسة السابقة معه — مرجعُ حارس المقياس لقرار البري (`tv_scale_ok`)
+                    _all = fetch_minutes(sym, day_bounds_ms(PR.prev_bday(d))[0], b) or []
+                    prev_cache[ck] = [x for x in _all if x[0] < a]
+                    bars_cache[ck] = [x for x in _all if x[0] >= a]
+                else:
+                    bars_cache[ck] = fetch_minutes(sym, a, b) or []
             except Exception as e:                               # noqa: BLE001
                 _log(f"⚠️ {sym} {d}: {e}")
                 bars_cache[ck] = []
@@ -303,6 +356,15 @@ def main() -> int:
                 bars_cache[ck], _f = PR.tv_scale_volume(bars_cache[ck], PR.tv_day_volume(sym, d),
                                                         PR.reg_close_for(d))
                 scaled[0 if _f is not None else 1] += 1
+        if src == "tv":
+            # 📺 **حارسُ المقياس:** سعرُ المصدر عند القرار ÷ ref خارج [0.9، 1.1] ⟵ لا حسم (تقسيمٌ بعد القرار يزيّف النسبة).
+            _ok, _q = tv_scale_ok(r, prev_cache.get(ck) or [], bars_cache[ck])
+            if _q is None:
+                no_anchor += 1
+            if not _ok:
+                scale_bad.append(f"{sym} {d} {r.get(PF.ROW_SESS)} ×{_q:.3f}")
+                miss += 1
+                continue
         out = resolve_row(r, bars_cache[ck])
         if out is None:
             miss += 1
@@ -313,6 +375,9 @@ def main() -> int:
 
     if src == "tv":
         _log(f"📺 تسويةُ حجم الحصاد: {scaled[0]} مسوّى · {scaled[1]} كما هو (حدٌّ أدنى)")
+        _log(f"📺 حارسُ المقياس [{TV_SCALE_LO:g}، {TV_SCALE_HI:g}]: خارجه {len(scale_bad)}"
+             + (" — " + " · ".join(scale_bad[:20]) if scale_bad else "")
+             + f" · بلا شمعة مرجعٍ {no_anchor} (يُحسم فاشلًا-آمنًا)")
     if new:
         try:
             with open(OUT_FILE, "a", encoding="utf-8") as fh:
@@ -327,7 +392,12 @@ def main() -> int:
     tgt = [r for r in led if str(r.get(PF.ROW_DAY)) == day]
     cov = (len(today_rows), len(tgt))
     pct = (100.0 * cov[0] / cov[1]) if cov[1] else 0.0
-    msg = build_digest(day, today_rows, tally(allo), cov, miss, src=src)
+    # 📺 ما حُسم قديمًا على TradingView يبقى في الملفّ (لا حذف) ويُستثنى من التراكم (`tv_backfill`) ويُعلَن بعدده.
+    cum_rows = [r for r in allo if not tv_backfill(r)]
+    if len(cum_rows) < len(allo):
+        _log(f"📺 مستثنى من التراكم: {len(allo) - len(cum_rows)} صفًّا قديمًا حُسم على TradingView (يبقى في الملفّ)")
+    msg = build_digest(day, today_rows, tally(cum_rows), cov, miss, src=src,
+                       excluded=len(allo) - len(cum_rows))
     _log(msg)
     if not S.send_telegram(msg + "\n\n" + S.FOOTER):
         _log("⚠️ تيليجرام رفض التقرير — لا ختم، تُعاد المحاولة.")
