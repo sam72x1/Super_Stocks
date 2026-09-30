@@ -7691,6 +7691,47 @@ def polygon_hour_bars(sym: str, start: str, end: str, get=None):
     return out
 
 
+TV_HOURS_N = 1000                # engineering — شموعُ ساعةٍ ممتدّة لكلّ رمز (توأمُ `TV_HOURS_N` في «شروطك الثلاثة» · 1000 ÷ 16
+#                                   ساعة ‏≈62 جلسةً لأنشط سهم ⟵ تغطّي `PIVOT_LOOKBACK`=25 بهامش)
+
+
+def tv_hour_fetcher(syms, fetch=None, scan=None, gate=None):
+    """📺 شموعُ الساعة **الممتدّة** (البري والأفتر · `extended=True` · مسوّاةٌ بالتقسيم كاليوميّة) من TradingView لكلّ `syms`
+    **بدفعةٍ واحدة** (`tv_data.fetch_many` · `interval="60"` · تحت `TVBarsGate`) ⟵ دالّةٌ بتوقيع `polygon_hour_bars(sym, start,
+    end)`: [(ms, high, low)] مرتّبةً بين يومَي نيويورك start وend ضمنًا (شكلُ `fetch_tv_hours` في «شروطك الثلاثة» حرفًا) ·
+    `[]` بلا شموعٍ في النافذة · **`None` لرمزٍ تعذّر** (فيُعَدّ «تعذّر» لا «بلا شموع ساعة») · ورميُ الدفعة كلِّها ⟵ None للكلّ ·
+    وبلا رموز ⟵ صفرُ نداء. `fetch`/`scan`/`gate` محقونةٌ للاختبار. (عطلٌ مُثبَت 2026-09-30: `36684201530` «قِيس 5 · تعذّر 25»
+    على `polygon_hour_bars` بعد انتهاء Polygon.)"""
+    import tv_data as TV
+    syms = list(dict.fromkeys(str(x).upper() for x in (syms or []) if x))
+    if not syms:
+        return lambda *a, **k: None
+    tmap = _tv_ticker_map(scan)
+    full = {x: _tv_full_name(x, tmap) for x in syms}
+    try:
+        got = (fetch or TV.fetch_many)(sorted(set(full.values())), interval="60", n=TV_HOURS_N, extended=True,
+                                       workers=TV_BARS_WORKERS, gate=gate if gate is not None else TVBarsGate(),
+                                       stagger=TV_BARS_STAGGER_S, retry_pass=True,
+                                       retry_pause=TV_BARS_RETRY_PAUSE_S) or {}
+    except Exception:                                            # noqa: BLE001
+        got = {}
+
+    def get(sym, start, end):
+        x = str(sym).upper()
+        bars = got.get(full.get(x) or _tv_full_name(x, tmap))
+        if bars is None:
+            return None
+        out = []
+        for b in bars:
+            try:
+                if start <= TV.ny_day(b[0]) <= end:
+                    out.append((int(b[0]) * 1000, float(b[2]), float(b[3])))
+            except Exception:                                    # noqa: BLE001
+                continue
+        return sorted(out)
+    return get
+
+
 def _ext_hour_rows(hours, days=None):
     """شموعُ الساعة داخل `EXT_HOURS_NY` ⟵ [(يومُ نيويورك, ms, high, low)] مرتّبةً زمنيًّا · و`days` يقصرها · والتالفةُ
     تُتخطّى لا تُخمَّن (توأمُ `ext_rows` في الأداة)."""
@@ -7759,9 +7800,14 @@ def _daily_rows_of(df):
 def refresh_exact_hold(stocks, hist, fetch=None, need=None) -> dict:
     """🧱 يحسب `exact_hold` لكلّ سهم **ويُسنده بلا شرط** (التعذّرُ ⟵ None فلا يُعرَض رقمُ الأمس) ⟵ عدّادات.
     `fetch(sym, d0, d1)` ⟵ [(ms, high, low)] أو None (محقونٌ للاختبار · وإلّا `polygon_hour_bars`) · **بلا مفتاح Polygon ولا
-    جالبٍ محقون ⟵ صفرُ نداء**. عرضٌ فقط — لا يقرؤه الفرزُ ولا `entry_status`."""
+    جالبٍ محقون ⟵ صفرُ نداء**. عرضٌ فقط — لا يقرؤه الفرزُ ولا `entry_status`.
+    📺 **ومع `bars_source()`=«tradingview»** (`BARS_SOURCE` في workflows البوت · 2026-09-30) ⟵ `tv_hour_fetcher` بدفعةٍ واحدة
+    و`src`=«tradingview» في العدّادات · وبدونها المسارُ السابق بت-بت."""
     n = {"ok": 0, "nohour": 0, "fail": 0, "nodata": 0, "nokey": 0}
     stocks = list(stocks or [])
+    if fetch is None and bars_source() == "tradingview":
+        fetch = tv_hour_fetcher([s.get("symbol") for s in stocks])
+        n["src"] = "tradingview"
     if fetch is None and not _poly_key():
         for s in stocks:
             s["exact_hold"] = None
@@ -20888,7 +20934,8 @@ def run_weekly_renewal(wl: dict) -> None:
                    f"الحد الأقصى {CONFIG['WATCHLIST_SIZE']})")
     try:                                   # 🧱 الثبات الدقيق في كروت التجديد (عرضٌ فقط · أمرُ «اعرض الثبات في جاهز البوت»)
         _ehc = refresh_exact_hold(picks, hist)
-        log("🧱 الثبات الدقيق (التجديد): قِيس " + str(_ehc["ok"]) + " · بلا شموع ساعة " + str(_ehc["nohour"])
+        log("🧱 الثبات الدقيق (التجديد" + (" · 📺 TradingView" if _ehc.get("src") == "tradingview" else "")
+            + "): قِيس " + str(_ehc["ok"]) + " · بلا شموع ساعة " + str(_ehc["nohour"])
             + " · تعذّر " + str(_ehc["fail"]))
     except Exception as e:                                     # noqa: BLE001
         log(f"⚠️ الثبات الدقيق (التجديد): {e}")
@@ -21269,9 +21316,11 @@ def run_daily_watchlist(wl: dict) -> None:
         log(f"⚠️ تحديث الاقتراض: {e}")
     # 🧱 الثبات الدقيق يوميًّا (أمرُ المالك 2026-09-26 «اعرض الثبات في جاهز البوت» — عرضٌ فقط): شموعُ Polygon الساعيّة
     #    لكلّ سهمٍ في القائمة ⟵ `exact_hold` يُسنَد بلا شرط (فلا يُعرَض رقمُ الأمس) · بلا مفتاح ⟵ صفرُ نداء.
+    #    📺 ومنذ 2026-09-30 شموعُ TradingView الساعيّة الممتدّة حين `BARS_SOURCE=tradingview` (`tv_hour_fetcher` · `EHT1`-`EHT3`).
     try:
         _ehc = refresh_exact_hold(wl["stocks"], hist)
-        log("🧱 الثبات الدقيق: قِيس " + str(_ehc["ok"]) + " · بلا شموع ساعة " + str(_ehc["nohour"])
+        log("🧱 الثبات الدقيق" + (" (📺 TradingView)" if _ehc.get("src") == "tradingview" else "")
+            + ": قِيس " + str(_ehc["ok"]) + " · بلا شموع ساعة " + str(_ehc["nohour"])
             + " · تعذّر " + str(_ehc["fail"]) + " · بلا شموع يوميّة " + str(_ehc["nodata"])
             + (" · بلا مفتاح Polygon " + str(_ehc["nokey"]) if _ehc["nokey"] else ""))
     except Exception as e:                                     # noqa: BLE001
