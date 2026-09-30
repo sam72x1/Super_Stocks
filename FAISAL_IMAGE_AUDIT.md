@@ -1,7 +1,7 @@
-# 📸 سجلّ تغطية صور منهجية فيصل — 2026-09-23
+# 📸 سجلّ تغطية صور منهجية فيصل — 2026-09-30
 
-- **المجموع المُدرَج:** 770  ·  **بملف مرفوع:** 654
-- **📗 موثّقة:** 200  ·  **📕 لم تُقرأ بعد:** 570  ·  **مكرّرة:** 0
+- **المجموع المُدرَج:** 807  ·  **بملف مرفوع:** 691
+- **📗 موثّقة:** 200  ·  **📕 لم تُقرأ بعد:** 607  ·  **مكرّرة:** 0
 
 **الدفعة التالية المقترحة (8):** APP_20260918_18_NTCL · APP_20260918_19_NTCL · APP_20260918_20_NTCL · APP_20260918_49_main · APP_20260918_50_ZNB · APP_20260918_52_ELPW · APP_20260918_53_ELPW · APP_20260918_59_VEEE
 
@@ -706,6 +706,43 @@
 | TG_50831 | TG_50831.jpg | ❌ | unread | — |
 | TG_50832 | TG_50832.jpg | ❌ | unread | — |
 | TG_50833 | TG_50833.jpg | ❌ | unread | — |
+| TG_57858 | TG_57858.jpg | ❌ | unread | — |
+| TG_57859 | TG_57859.jpg | ❌ | unread | — |
+| TG_57860 | TG_57860.jpg | ❌ | unread | — |
+| TG_57861 | TG_57861.jpg | ❌ | unread | — |
+| TG_57862 | TG_57862.jpg | ❌ | unread | — |
+| TG_57863 | TG_57863.jpg | ❌ | unread | — |
+| TG_57864 | TG_57864.jpg | ❌ | unread | — |
+| TG_57865 | TG_57865.jpg | ❌ | unread | — |
+| TG_57866 | TG_57866.jpg | ❌ | unread | — |
+| TG_57867 | TG_57867.jpg | ❌ | unread | — |
+| TG_57868 | TG_57868.jpg | ❌ | unread | — |
+| TG_57869 | TG_57869.jpg | ❌ | unread | — |
+| TG_57870 | TG_57870.jpg | ❌ | unread | — |
+| TG_57871 | TG_57871.jpg | ❌ | unread | — |
+| TG_57872 | TG_57872.jpg | ❌ | unread | — |
+| TG_57873 | TG_57873.jpg | ❌ | unread | — |
+| TG_57874 | TG_57874.jpg | ❌ | unread | — |
+| TG_57875 | TG_57875.jpg | ❌ | unread | — |
+| TG_57876 | TG_57876.jpg | ❌ | unread | — |
+| TG_57877 | TG_57877.jpg | ❌ | unread | — |
+| TG_57878 | TG_57878.jpg | ❌ | unread | — |
+| TG_57879 | TG_57879.jpg | ❌ | unread | — |
+| TG_57880 | TG_57880.jpg | ❌ | unread | — |
+| TG_57881 | TG_57881.jpg | ❌ | unread | — |
+| TG_57882 | TG_57882.jpg | ❌ | unread | — |
+| TG_57883 | TG_57883.jpg | ❌ | unread | — |
+| TG_57884 | TG_57884.jpg | ❌ | unread | — |
+| TG_57885 | TG_57885.jpg | ❌ | unread | — |
+| TG_57886 | TG_57886.jpg | ❌ | unread | — |
+| TG_57887 | TG_57887.jpg | ❌ | unread | — |
+| TG_57888 | TG_57888.jpg | ❌ | unread | — |
+| TG_57889 | TG_57889.jpg | ❌ | unread | — |
+| TG_57890 | TG_57890.jpg | ❌ | unread | — |
+| TG_57891 | TG_57891.jpg | ❌ | unread | — |
+| TG_57892 | TG_57892.jpg | ❌ | unread | — |
+| TG_57893 | TG_57893.jpg | ❌ | unread | — |
+| TG_57894 | TG_57894.jpg | ❌ | unread | — |
 | WA_20260918_31_SXTC | WA_20260918_31_SXTC.jpg | ❌ | unread | — |
 | WA_20260918_46_NUWE | WA_20260918_46_NUWE.jpg | ❌ | unread | — |
 | X_20260827_amix_3m_inflow | X_20260827_amix_3m_inflow.png | ❌ | unread | — |
