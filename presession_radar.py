@@ -412,7 +412,10 @@ def build_presession_alert(rows: list, slot: str, day_iso: str, cov: int,
         if pct is not None:
             line.append(("صاعدٌ " if pct >= 0 else "هابطٌ ") + f"{abs(pct) * 100:.0f}% عن الأمس")
         if r.get("usd_day"):
-            line.append(f"💰 ${r['usd_day']:,.0f}")
+            #    📺 المسوّى تقديرٌ بالحجم الموحَّد (≈) · وTradingView بلا تسوية حدٌّ أدنى (جزئيّ) · وPolygon كما كان بت-بت.
+            _tvu = r.get("src") == "tv"
+            line.append(f"💰 {'≈' if r.get('vol_scale') else ''}${r['usd_day']:,.0f}"
+                        + (" (جزئيّ)" if _tvu and not r.get("vol_scale") else ""))
         if r.get("anchor"):
             line.append("⚓ مِرساةُ سيولةٍ اليوم")
         if r.get("n5"):
@@ -602,6 +605,49 @@ def tv_depth(frm_ms: int, now_ms: int) -> int:
     return int(min(TV_MAX_N, TV_MIN_N + TV_DAY_N * days))
 
 
+TV_VOL_SCALE = True                # 📺 تسويةُ حجم الدقائق الجزئيّ بالحجم اليوميّ الموحَّد (مِجَسّ VOL) — False = الخامُّ بت-بت
+TV_SCALE_MIN = 1.0                 # engineering — f تحت 1 مستحيلٌ (الجزءُ أكبرُ من الكلّ) ⟵ لا تسوية
+TV_SCALE_MAX = 200.0               # engineering — f فوقه = دقائقُ شبهُ خالية ⟵ التسويةُ تضخيمُ ضجيجٍ فلا تُطبَّق
+
+
+def tv_scale_volume(bars8: list, v_day, close_min: int = None) -> tuple:
+    """📺 حجمُ دقائق TradingView للزائر **جزئيّ** (‏≈5-15% من الموحَّد · مِجَسّ `36653615576` الجزء C) ⟵ يُضرب حجمُ كلّ
+    دقيقةٍ في `f` = حجمُ الشمعة اليوميّة الموحَّد (‏`v` صفِّ المرشِّح من الماسح) ÷ مجموعُ دقائق الجلسة النظاميّة ⟵ فتعود
+    ميزاتُ السيولة (‏`usd_day` مفتاحُ الأفتر · 💰 · ⚓ · `pre/post_usd`) إلى مقياس الحجم الموحَّد **تقديرًا**.
+    يُرجع `(الشموع، f)` — نقيّة · فاشلةٌ-آمنة: بلا حجمٍ يوميٍّ أو بلا دقائق جلسة أو `f` خارج [`TV_SCALE_MIN`،
+    `TV_SCALE_MAX`] ⟵ `(الشموعُ كما هي، None)`. والنِّسبُ (`vol_share_30` · `vol_accel`) والأسعارُ لا تتغيّر بالبناء."""
+    try:
+        vd = float(v_day)
+    except (TypeError, ValueError):
+        return bars8, None
+    if not bars8 or not vd > 0:
+        return bars8, None
+    cm = REG_CLOSE if close_min is None else int(close_min)
+    try:
+        vt = sum(float(b[5] or 0.0) for b in bars8 if REG_OPEN <= b[7] < cm)
+    except (TypeError, ValueError, IndexError):
+        return bars8, None
+    if not vt > 0:
+        return bars8, None
+    f = vd / vt
+    if not (TV_SCALE_MIN <= f <= TV_SCALE_MAX):
+        return bars8, None
+    return [tuple(b[:5]) + (b[5] * f,) + tuple(b[6:]) for b in bars8], f
+
+
+def tv_day_volume(sym: str, day_iso: str):
+    """حجمُ الشمعة اليوميّة الموحَّد للرمز من لقطة الماسح — **ليوم آخر جلسةٍ وحدَه** (الماسحُ لا يصف غيره) · وإلّا None."""
+    if not day_iso or day_iso != _TV.get("latest"):
+        return None
+    s = str(sym or "").upper()
+    d = (_TV.get("snap") or {}).get(_TV["tmap"].get(s) or ("NASDAQ:" + s)) or {}
+    try:
+        v = float(d.get("volume"))
+    except (TypeError, ValueError):
+        return None
+    return v if v > 0 else None
+
+
 def _tv_mod():
     import tv_data as TV                                         # noqa: PLC0415 — كسولٌ: مسارُ Polygon لا يحتاجه
     return TV
@@ -776,7 +822,7 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
             _log(f"📺 {slot}: جلبُ الدقائق مسبقًا من TradingView {_got} من {len(cands)}")
         except Exception as e:                                   # noqa: BLE001
             _log(f"⚠️ {slot}: الجلبُ المسبق تعذّر ({type(e).__name__}) ⟵ الحلقةُ تجلب كما كانت")
-    rows, cov, cut_off = [], 0, 0
+    rows, cov, cut_off, _vs = [], 0, 0, []
     _src_tag = getattr(fm, "src", None)                          # 📺 «tv» يُوسَم في السجلّ · وPolygon بلا وسم (بت-بت)
     _now = clock or time.time
     _t0 = _now()
@@ -793,6 +839,12 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
         if not bars:
             continue
         cov += 1
+        # 📺 **تسويةُ حجم TradingView** (‏2026-09-30): دقائقُ الزائر جزئيّةُ الحجم ⟵ `f` من حجم الشمعة اليوميّة (صفُّ المرشِّح)
+        #    فيعود `usd_day` (مفتاحُ الأفتر · 💰) و⚓ إلى المقياس الموحَّد تقديرًا · وPolygon بلا تسوية (بت-بت).
+        _f = None
+        if _src_tag == "tv" and TV_VOL_SCALE:
+            bars, _f = tv_scale_volume(bars, c.get("v"), close_min)
+            _vs.append(_f)
         # 🔴 **عيبٌ مُثبَت (2026-09-30):** `prev_closes` لا يُمرَّر من العامل ولا من اليدويّة ⇒ كان المرجعُ **افتتاحَ اليوم
         #    نفسِه** ⇒ `gap_open` صفرٌ في **1,816 من 1,816** صفًّا حيًّا منذ 09-03 و«صاعدٌ X% عن الأمس» في الرسالة كان عن
         #    الافتتاح. ⇒ إغلاقاتُ الجلسة السابقة المجلوبةُ أصلًا للمرشِّح (`pcm`) مرجعٌ قبل الافتتاح — **تعريفُ الدراسة نفسُه**
@@ -806,7 +858,14 @@ def run_presession(slot: str, day_iso: str, now_ms: int, *, fetch_grouped=None,
         if r:
             if _src_tag:
                 r["src"] = _src_tag
+            if _f is not None:
+                r["vol_scale"] = round(_f, 3)
             rows.append(r)
+    if _vs:
+        _ok = sorted(x for x in _vs if x is not None)
+        _log(f"📺 {slot}: تسويةُ الحجم {len(_ok)} من {len(_vs)}"
+             + (f" · الوسيط f={_ok[len(_ok) // 2]:.1f}" if _ok else "")
+             + f" · كما هو {len(_vs) - len(_ok)} (بلا حجمٍ يوميٍّ أو f خارج [{TV_SCALE_MIN:g}، {TV_SCALE_MAX:g}] ⟵ حدٌّ أدنى)")
     if cut_off:
         _log(f"⚠️ ميزانيةُ {budget_sec:g}ث قصّت {cut_off} مرشَّحًا — يُعلَن ولا يُصمت.")
     # 🔭 **السجلُّ يرى كلَّ مرتَّبٍ لا العشرةَ وحدَهم** (‏2026-09-03، عقد
