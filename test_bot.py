@@ -71777,6 +71777,50 @@ except Exception as _e:                                              # noqa: BLE
 check("📺 PTV16 الوصل في الحصاد: دقائقُ TradingView تُسوّى بحجم الشمعة اليوميّة ليوم الصفّ تحت شرط المصدر والمفتاح (AST) · "
       "وعدّادُ المسوّى مطبوع · وسطرُ حدّ الصدق يقول «يُسوّى»", _p16, _p16w)
 
+# 🏷️ LID1 — **معرّفُ القفل لا يتكرّر** (‏2026-09-30 · درسُ `PWA14`: قفلُ تجميد pmfwd الجديد حمل اسمَ جدول الحقيقة
+#    `fired_of` القائمِ منذ 09-17 فالتبس إسنادُ طفراته — وقاعدةُ `lock-and-mutate` «أسماءُ الأقفال فريدة» كانت نصًّا
+#    لا قفلًا). **سقّاطةٌ لا تنظيف:** المكرَّرُ القائمُ يومَها (‏67 معرّفًا) مُجمَّدٌ بأسمائه ⇒ تكرارٌ **جديد** يُسقطه ·
+#    وإصلاحُ مكرَّرٍ قائمٍ يُلزم حذفَه من القائمة في التغيير نفسِه (القائمةُ تنكمش ولا تكبر) · والمعرّفُ = أوّلُ رمزٍ
+#    بشكل حرفٍ كبيرٍ فرقمٍ في أوّل 60 محرفًا من عنوان `check` (‏بالـAST · نصًّا أو f-string) — تقريبيٌّ بالتصميم:
+#    بعضُ المجمَّد أسماءُ بوّاباتٍ لا أقفال (`M13` · `M14`) · والقفلُ الجديد يُسمّى بمعرّفٍ لم يُستعمَل (‏`grep` قبل الكتابة).
+_LID_GRANDFATHER = frozenset({
+    'AF19', 'B475', 'C25', 'CR1', 'CT1', 'CT2', 'CT3', 'CT4', 'CT5', 'CT6', 'D10', 'D11', 'FAITXT1', 'HCG5',
+    'HCG7', 'HCG7b', 'HCG9', 'HK2', 'HW8', 'LS1', 'LS10', 'LS11', 'LS12', 'LS2', 'LS3', 'LS4', 'LS5', 'LS6', 'LS7',
+    'LS8', 'LS9', 'M13', 'M14', 'NWF1', 'NWF2', 'NWF3', 'NWF4', 'NWF5', 'NWF6', 'PB1', 'PB2', 'PB3', 'PC1', 'PC2',
+    'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PL27', 'PL27ج', 'PS1', 'PS2', 'PS3', 'PS4', 'PS5', 'PS6', 'PS7', 'PS8',
+    'PX1', 'PX3', 'PX4', 'RDR6', 'REPLAY10', 'TIE4', 'TL2', 'VWR5'
+})
+try:
+    import ast as _lid_ast
+    import collections as _lid_col
+    import re as _lid_re
+    _lid_pat = _lid_re.compile(r"(?<![A-Za-z0-9_])([A-Z][A-Z0-9]{1,6}?\d+(?:[a-z]|-?[بجد])?)(?![A-Za-z0-9_])")
+    _lid_ids = _lid_col.defaultdict(list)
+    for _lid_n in _lid_ast.walk(_lid_ast.parse(open("test_bot.py", encoding="utf-8").read())):
+        if not (isinstance(_lid_n, _lid_ast.Call) and getattr(_lid_n.func, "id", None) == "check" and _lid_n.args):
+            continue
+        _lid_a = _lid_n.args[0]
+        if isinstance(_lid_a, _lid_ast.Constant) and isinstance(_lid_a.value, str):
+            _lid_s = _lid_a.value
+        elif isinstance(_lid_a, _lid_ast.JoinedStr):
+            _lid_s = "".join(v.value for v in _lid_a.values
+                             if isinstance(v, _lid_ast.Constant) and isinstance(v.value, str))
+        else:
+            continue
+        _lid_m = _lid_pat.search(_lid_s[:60])
+        if _lid_m:
+            _lid_ids[_lid_m.group(1)].append(_lid_n.lineno)
+    _lid_new = sorted(k for k, v in _lid_ids.items() if len(v) > 1 and k not in _LID_GRANDFATHER)
+    _lid_stale = sorted(k for k in _LID_GRANDFATHER if len(_lid_ids.get(k, [])) < 2)
+    _lid_n_all = sum(len(v) for v in _lid_ids.values())
+    _lid_ok = not _lid_new and not _lid_stale and _lid_n_all >= 2000
+    _lid_w = (f"جديد={[(k, _lid_ids[k][:3]) for k in _lid_new][:5]} · بائتٌ في القائمة={_lid_stale[:5]} · "
+              f"معرّفات={_lid_n_all} · مجمَّد={len(_LID_GRANDFATHER)}")
+except Exception as _e:                                              # noqa: BLE001
+    _lid_ok, _lid_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏷️ LID1 معرّفُ القفل لا يتكرّر: صفرُ تكرارٍ جديد خارج القائمة المجمَّدة (‏67 يومَ 2026-09-30) · "
+      "والقائمةُ بلا بائت (تنكمش ولا تكبر) · والاستخراجُ حيّ (2,000 معرّفٍ فأكثر · بالـAST)", _lid_ok, _lid_w)
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
