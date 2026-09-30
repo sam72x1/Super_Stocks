@@ -4137,6 +4137,21 @@ _shutil.rmtree(_e2r_root, ignore_errors=True)
 # ⏳ تغطية الافتتاح: الكرون مقدَّم لتعويض تأخّر GitHub المرصود، وسقف الانتظار يغطّي
 # الفصلين. اختبار حسابي على الأرقام الفعلية (لا نصّي) — أي عودة لقيمة تكسر التغطية تُسقطه.
 _ig_yml = open(".github/workflows/ignition.yml", encoding="utf-8").read()
+# 🧊 IGZ1 (2026-09-30 · «خلّ اللحظي متوقف»): الجوباتُ مُجمَّدةٌ للكرون ⇒ `if` = `${{ always() && <شرط اليدويّ> }}`.
+#    `_ig_thaw` يَنزع **شرطَ التجميد بحرفه وحدَه** فتبقى الأقفالُ التي تحرس `always()` (IGW3 · Codex5) تسأل سؤالَها
+#    نفسَه عن التشغيل اليدويّ — وأيُّ صيغةٍ أخرى تمرّ كما هي فتُسقطها.
+_IG_FREEZE = "github.event_name == 'workflow_dispatch'"
+
+
+def _ig_thaw(cond):
+    """شرطُ جوبٍ بعد نزع شرط التجميد بحرفه (لا غيره): `${{ always() && <التجميد> }}` ⟵ `always()`."""
+    c = str(cond or "").strip()
+    if c.startswith("${{") and c.endswith("}}"):
+        c = c[3:-2].strip()
+    suf = " && " + _IG_FREEZE
+    return c[:-len(suf)].strip() if c.endswith(suf) else c
+
+
 _ig_cron_min = next((int(x.split('"')[1].split()[1]) * 60 + int(x.split('"')[1].split()[0])
                      for x in _ig_yml.splitlines() if "- cron:" in x), None)
 import ignition_live as _IGL
@@ -4304,8 +4319,9 @@ try:
                        for n_ in _ast0.parse(open("ignition_live.py", encoding="utf-8").read()).body)
     _igw3 = (_igw_wait == ["pre_open_wait_1", "pre_open_wait_2"]
              and "needs" not in _igw_w1
-             and _igw_w2.get("needs") == "pre_open_wait_1" and _igw_w2.get("if") == "always()"
-             and _igw_o.get("needs") == "pre_open_wait_2" and _igw_o.get("if") == "always()"
+             # 🧊 إقرارٌ 2026-09-30: `if` يُقرأ بعد نزع شرط التجميد (`_ig_thaw` · `IGZ1`) — سؤالُ القفل كما هو
+             and _igw_w2.get("needs") == "pre_open_wait_1" and _ig_thaw(_igw_w2.get("if")) == "always()"
+             and _igw_o.get("needs") == "pre_open_wait_2" and _ig_thaw(_igw_o.get("if")) == "always()"
              and all(_IGL.PRE_OPEN_JOB_SLEEP_CAP_MIN + 5 <= int(j.get("timeout-minutes", 0)) <= 360
                      for j in (_igw_w1, _igw_w2))
              and all(_igw_step(j).get("continue-on-error") is True
@@ -4341,6 +4357,35 @@ check("⏰ IGW5 مسارُ المسح بت-بت: `main` لا ينادي النو
       str(sorted(x for x in _igw_main_calls if x and x.startswith("_pre"))))
 check("⏰ IGW6 الـCLI فاشلٌ-آمن: يطابق الدالّةَ النقيّة (297 لإقلاع 08:23) · وعطلُ النافذة ⟵ 0 لا استثناء",
       _igw_cli == 297 and _igw_cli_fail == 0, f"cli={_igw_cli} · عطل={_igw_cli_fail}")
+# 🧊 IGZ1 — **رادارُ الانطلاق مُجمَّدٌ للكرون (2026-09-30 · قرارُ المالك «خلّ اللحظي متوقف»):** Polygon انتهى ولن يُجدَّد ⇒
+#    الرادارُ بلا بيانات والمدقّقُ الصارم يحمرّ كلَّ جلسة (`36600831492`). **كلُّ جوبٍ** (مقروءٌ من الـworkflow لا بيد) يعمل
+#    **يدويًّا وحدَه**: الجذرُ بشرط التجميد حرفًا · والبقيّةُ `always()` مقرونةً به ⇒ اليدويُّ بت-بت والكرونُ يُتخطّى ·
+#    والكروناتُ الأربعة باقيةٌ (IGF4 · «لا كرونَ عتيق») · والتعليلُ المؤرَّخ حاضر · والمُطبِّعُ صارمٌ (لا ينزع غيرَ شرطه).
+try:
+    _igz_y = _igw_yaml.safe_load(_ig_yml) or {}
+    _igz_jobs = _igz_y.get("jobs") or {}
+    _igz_on = _igz_y.get(True) or _igz_y.get("on") or {}
+    _igz_if = {k: str((v or {}).get("if") or "").strip() for k, v in _igz_jobs.items()}
+    _igz_roots = [k for k, v in _igz_jobs.items() if not (v or {}).get("needs")]
+    _igz_rest = [k for k in _igz_jobs if k not in _igz_roots]
+    _igz_thaw_ok = (_ig_thaw("${{ always() && " + _IG_FREEZE + " }}") == "always()"
+                    and _ig_thaw("always() && " + _IG_FREEZE) == "always()" and _ig_thaw("always()") == "always()"
+                    and _ig_thaw("${{ always() && github.event_name == 'schedule' }}") != "always()"
+                    and _ig_thaw("${{ always() && inputs.dry != '1' }}") != "always()")
+    _igz_ok = (len(_igz_jobs) >= 5 and _igz_roots == ["pre_open_wait_1"]
+               and all(_igz_if[k] == _IG_FREEZE for k in _igz_roots)
+               and all(_igz_if[k] == "${{ always() && " + _IG_FREEZE + " }}" for k in _igz_rest)
+               and all(_ig_thaw(_igz_if[k]) == "always()" for k in _igz_rest)
+               and "workflow_dispatch" in _igz_on
+               and sorted(c.get("cron") for c in (_igz_on.get("schedule") or []) if isinstance(c, dict))
+               == ["11 11 * * 1-5", "11 2 * * 1-5", "11 5 * * 1-5", "11 8 * * 1-5"]
+               and "مُجمَّدٌ 2026-09-30" in _ig_yml and "خلّ اللحظي متوقف" in _ig_yml and _igz_thaw_ok)
+    _igz_w = f"if={_igz_if} · on={sorted(map(str, _igz_on))} · مُطبِّع={_igz_thaw_ok}"
+except Exception as _e:                                               # noqa: BLE001
+    _igz_ok, _igz_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧊 IGZ1 رادارُ الانطلاق مُجمَّدٌ للكرون بقرار المالك «خلّ اللحظي متوقف»: كلُّ جوبٍ يدويٌّ وحدَه (الجذرُ بالشرط حرفًا · "
+      "والبقيّةُ `always()` مقرونةً به) · والكروناتُ الأربعة والتعليلُ المؤرَّخ باقيان · والمُطبِّعُ لا ينزع غيرَ شرطه",
+      _igz_ok, _igz_w)
 # 🔓 T-LIBERATION (liberation_prereg.md): ذراع الدخول بعد كسر التحرر
 # اختبارات سلوكية على أرقام فيصل الحقيقية (DSY 1.85→3.20 · JZ 2.56→4).
 _lib_sv = dict(S.CONFIG)
@@ -5518,8 +5563,11 @@ check("🔬 (ب+) قفل workflow: 3 jobs متسلسلة (open→close→assembl
 # 🔬 مراجعة Codex 5 (P0): تنبيهات مقطع الإغلاق **لا تُعلَّق على نجاح القياس** — لا على نجاح job
 # الافتتاح (`if: always()`) ولا على تنزيل الartifact (`continue-on-error`). فشل نقل القياس يجعل
 # الجلسة غير مؤهّلة للتحليل، لا يُسكت الرادار 195 دقيقة حتى الإغلاق.
+# 🧊 تشديدٌ 2026-09-30: كان `"if: always()" in cl` نصًّا — ويمرّ على تعليقٍ في الكتلة يذكره وعلى `if: always()`
+#    خطواتٍ داخلها (قفلٌ نصّيّ) ⇒ صار يقرأ `if` الجوب نفسَه من الـYAML بعد نزع شرط التجميد (`_ig_thaw`).
 check("🔬 Codex5 قفل workflow: close_segment يشتغل رغم فشل open/غياب artifact (fail-open للتنبيه)",
-      (lambda t: (lambda cl: "if: always()" in cl and "continue-on-error: true" in cl
+      (lambda t: (lambda cl: _ig_thaw((_igw_jobs.get("close_segment") or {}).get("if")) == "always()"
+                  and "continue-on-error: true" in cl
                   and cl.index("continue-on-error: true") < cl.index("run: python ignition_live.py")
                   )(t[t.index("close_segment:"):t.index("assemble_e2_session:")])
        )(open(".github/workflows/ignition.yml", encoding="utf-8").read()))
