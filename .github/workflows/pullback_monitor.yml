@@ -104,4 +104,7 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          # 📺 شموعُ البوت من TradingView (أمرُ المالك 2026-09-30 · `bars_source`) — المصدرُ نفسُه الذي حُسبت عليه المستويات ·
+          #    وياهو احتياطٌ لكلّ رمزٍ يتعذّر · ⚠️ بيانُ الزائر متأخّرٌ ‏≈15 دقيقة داخل الجلسة · وحذفُ السطر = ياهو بت-بت.
+          BARS_SOURCE: tradingview
         run: python pullback_live.py
