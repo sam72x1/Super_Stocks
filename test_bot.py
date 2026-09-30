@@ -71242,6 +71242,427 @@ check("👀🏢 NWF5 موصولٌ حيًّا: المسارُ اليوميّ يَ
       "`run_performance_system` في اليوميّ والتجديد (AST) · و`git_save` يدفع المخزن", _vN5, _vN5w)
 
 # ══════════════════════════════════════════════════════════════════════════
+# 📺 PTV1-PTV13 — «قائمة البري» وحصادُها على TradingView (أمرُ المالك 2026-09-29: «اشتراكي مخلص ولا راح اجدده … البيانات
+#    تاخذها من ترندق فيو مب ياهو»): الجالبان الافتراضيّان من `PRESESSION_SOURCE` (TradingView افتراضًا · `polygon` = السابقُ
+#    بت-بت) · وصفوفُ الماسح بشكل Polygon المجمَّع · وشموعُ الدقيقة بعقد الثمانيّ · والجلبُ المسبق بمهلة · والحصادُ واليدويّة.
+import presession_radar as _PTV                                  # noqa: E402
+import os as _ptv_os                                             # noqa: E402
+
+
+def _ptv_reset():
+    _PTV._TV.update(snap=None, at=0.0, latest=None, tmap={}, chart=None, cache={}, prefetched=False)
+
+
+def _ptv_env(v):
+    """يضبط `PRESESSION_SOURCE` (None = يحذفه) ويُرجع القيمةَ السابقة."""
+    old = _ptv_os.environ.get("PRESESSION_SOURCE")
+    if v is None:
+        _ptv_os.environ.pop("PRESESSION_SOURCE", None)
+    else:
+        _ptv_os.environ["PRESESSION_SOURCE"] = v
+    return old
+
+
+# PTV1 — المصدرُ: «polygon» حرفيًّا وحدَه يعيد السابق · والفارغُ وغيرُه TradingView · و`fetchers` تُرجع دوالَّ المصدر بالاسم.
+try:
+    _p1 = (_PTV.data_source("") == "tv" and _PTV.data_source("polygon") == "polygon"
+           and _PTV.data_source(" POLYGON ") == "polygon" and _PTV.data_source("tv") == "tv"
+           and _PTV.data_source("yahoo") == "tv" and _PTV.data_source("poly") == "tv"
+           and _PTV.fetchers("polygon") == (_PTV.polygon_grouped, _PTV.polygon_minutes)
+           and _PTV.fetchers("tv") == (_PTV.tv_grouped, _PTV.tv_minutes)
+           and _PTV.fetchers("") == (_PTV.tv_grouped, _PTV.tv_minutes))
+    _o1 = _ptv_env(None)
+    try:
+        _p1 = _p1 and _PTV.data_source() == "tv"
+        _ptv_env("polygon")
+        _p1 = _p1 and _PTV.data_source() == "polygon" and _PTV.fetchers() == (_PTV.polygon_grouped, _PTV.polygon_minutes)
+    finally:
+        _ptv_env(_o1)
+    _p1w = f"{_PTV.data_source('')} · {_PTV.data_source('polygon')}"
+except Exception as _e:                                              # noqa: BLE001
+    _p1, _p1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 PTV1 مصدرُ قائمة البري: TradingView افتراضًا · و`PRESESSION_SOURCE=polygon` حرفيًّا وحدَه يعيد جالبَي Polygon "
+      "(بالاسم) · وغيرُه TradingView", _p1, _p1w)
+
+# PTV2 — صفوفُ الماسح بشكل Polygon: يومُ آخر جلسة ⟵ o/h/l/c/v · واليومُ قبله ⟵ إغلاقُه من `change` · وغيرُهما None ·
+#        والتالفُ يُتخطّى · و`prefilter` على الصفّين يعطي `day_ret` = change/100 بالضبط.
+try:
+    _snap2 = {"NASDAQ:AAA": {"close": 2.0, "open": 1.5, "high": 2.2, "low": 1.4, "volume": 1_000_000.0, "change": 25.0},
+              "NYSE:BBB": {"close": 3.0, "open": 3.0, "high": 3.3, "low": 2.9, "volume": 500_000.0, "change": -40.0},
+              "NASDAQ:BAD": {"close": None, "volume": 5.0, "change": 1.0},
+              "AMEX:ZER": {"close": 1.0, "volume": 10.0, "change": -100.0}}
+    _L2 = "2026-09-29"
+    _d2 = _PTV.tv_rows(_snap2, _L2, _L2)
+    _q2 = _PTV.tv_rows(_snap2, "2026-09-28", _L2)
+    _x2 = _PTV.tv_rows(_snap2, "2026-09-25", _L2)
+    _dm2 = {r["T"]: r for r in (_d2 or [])}
+    _qm2 = {r["T"]: r["c"] for r in (_q2 or [])}
+    _pf2 = _PTV.prefilter(_d2, 0.4, 10.0, 0, min_usd=0, prev_close=_PTV.closes_map(_q2), key="day_ret")
+    _pr2 = {r[_PTV.PF.ROW_SYM]: r["day_ret"] for r in _pf2}
+    _p2 = (set(_dm2) == {"AAA", "BBB", "ZER"} and _dm2["AAA"]["v"] == 1_000_000.0 and _dm2["AAA"]["o"] == 1.5
+           and _dm2["AAA"]["c"] == 2.0 and _dm2["BBB"]["h"] == 3.3
+           and set(_qm2) == {"AAA", "BBB"}                      # ZER (‏-100%) يُتخطّى · BAD بلا إغلاق
+           and abs(_qm2["AAA"] - 1.6) < 1e-12 and abs(_qm2["BBB"] - 5.0) < 1e-12
+           and _x2 is None and _PTV.tv_rows({}, _L2, _L2) is None and _PTV.tv_rows(_snap2, _L2, None) is None
+           and abs(_pr2["AAA"] - 0.25) < 1e-12 and abs(_pr2["BBB"] + 0.40) < 1e-12)
+    _p2w = f"يوم={sorted(_dm2)} سابق={_qm2} عائد={_pr2} غيره={_x2}"
+except Exception as _e:                                              # noqa: BLE001
+    _p2, _p2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 PTV2 صفوفُ الماسح بشكل Polygon المجمَّع: يومُ آخر جلسة بـo/h/l/c/v · واليومُ قبله إغلاقُه من change (c ÷ (1+change/100)) "
+      "· وأيُّ يومٍ آخر None · والتالفُ يُتخطّى · والمرشِّحُ يعطي day_ret = change/100", _p2, _p2w)
+
+# PTV3 — شموعُ المِقبس ⟵ الثمانيّ داخل [من، إلى) بـn=0 ودقيقةِ نيويورك · والتالفُ يُتخطّى · وعمقُ الطلب بالأيّام وبسقف.
+try:
+    _t3 = int(_PTV.dt.datetime(2026, 9, 29, 13, 30, tzinfo=_PTV.dt.timezone.utc).timestamp())     # 09:30 نيويورك
+    _b3 = [(_t3 + 60 * k, 1.0, 1.2, 0.9, 1.1, 100.0 + k) for k in range(5)] + [("x", 1, 1, 1, 1, 1), (1, 2)]
+    _o3 = _PTV.tv_bars8(_b3, (_t3 + 60) * 1000, (_t3 + 240) * 1000)
+    _p3 = ([b[0] for b in _o3] == [(_t3 + 60 * k) * 1000 for k in (1, 2, 3)]
+           and all(len(b) == 8 and b[6] == 0 for b in _o3) and _o3[0][7] == 9 * 60 + 31
+           and _o3[0][5] == 101.0
+           and _PTV.tv_depth(0, 3_600_000) == _PTV.TV_MIN_N
+           and _PTV.tv_depth(0, 3 * 86_400_000 + 1) == _PTV.TV_MIN_N + 2 * _PTV.TV_DAY_N
+           and _PTV.tv_depth(0, 400 * 86_400_000) == _PTV.TV_MAX_N
+           and _PTV.tv_depth("x", 5) == _PTV.TV_MIN_N)
+    _p3w = f"{[(b[0], b[7]) for b in _o3]} · عمق {[_PTV.tv_depth(0, d * 86_400_000) for d in (0, 2, 3, 400)]}"
+except Exception as _e:                                              # noqa: BLE001
+    _p3, _p3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 PTV3 شموعُ المِقبس بعقد الثمانيّ داخل [من، إلى) (‏n=0 · دقيقةُ نيويورك) والتالفُ يُتخطّى · وعمقُ الطلب يومٌ ممتدٌّ "
+      "لكلّ يومٍ إضافيّ بسقف TV_MAX_N", _p3, _p3w)
+
+# PTV4 — الوصل: `run_presession` بلا جالبٍ محقون يأخذ جالبَي المصدر **وقتَ النداء** — TradingView افتراضًا وPolygon بالمفتاح.
+try:
+    _calls4 = []
+    _og4, _otg4 = _PTV.polygon_grouped, _PTV.tv_grouped
+    _PTV.polygon_grouped = lambda d, *a, **k: _calls4.append(("poly", d)) or None
+    _PTV.tv_grouped = lambda d, *a, **k: _calls4.append(("tv", d)) or None
+    _o4 = _ptv_env(None)
+    try:
+        _r4a = _PTV.run_presession("PM", "2026-09-30", 1_790_000_000_000)[2]
+        _ptv_env("polygon")
+        _r4b = _PTV.run_presession("PM", "2026-09-30", 1_790_000_000_000)[2]
+    finally:
+        _ptv_env(_o4)
+        _PTV.polygon_grouped, _PTV.tv_grouped = _og4, _otg4
+    _p4 = (_calls4 == [("tv", "2026-09-29"), ("poly", "2026-09-29")]
+           and _r4a.get("reason") == "grouped_missing" and _r4b.get("reason") == "grouped_missing")
+    _p4w = f"{_calls4}"
+except Exception as _e:                                              # noqa: BLE001
+    _p4, _p4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 PTV4 `run_presession` بلا جالبٍ محقون: TradingView افتراضًا · و`PRESESSION_SOURCE=polygon` يعيد Polygon · "
+      "وتعذّرُ المرشِّح «grouped_missing» في الحالتين (لا صمت)", _p4, _p4w)
+
+# PTV5 — الجلبُ المسبق: جالبٌ له `prefetch` يُنادى **مرّةً** بالمرشَّحين والنافذة والميزانية قبل الحلقة · وجالبٌ بلاها (Polygon)
+#        لا شيءَ قبل الحلقة · ورميُ الجلب المسبق يُطبَع والحلقةُ تمضي.
+try:
+    _G5 = [{"T": f"S{i}", "c": 1.0 + i / 10, "v": 1e6, "o": 1, "h": 1, "l": 1, "n": 1} for i in range(4)]
+    _P5 = [{"T": f"S{i}", "c": 1.0} for i in range(4)]
+    _pre5, _loop5 = [], []
+
+    def _fm5(sym, a, b):
+        _loop5.append(sym)
+        return []
+
+    _fm5.prefetch = lambda syms, a, b, bud: _pre5.append((tuple(syms), a, b, bud)) or len(syms)
+    _lg5 = []
+    _PTV.run_presession("PM", "2026-09-30", 1_790_000_000_000, fetch_grouped=lambda d: _G5 if d == "2026-09-29" else _P5,
+                        fetch_minutes=_fm5, log=_lg5.append, budget_sec=45.0)
+    _loopB5 = []
+    _PTV.run_presession("PM", "2026-09-30", 1_790_000_000_000, fetch_grouped=lambda d: _G5 if d == "2026-09-29" else _P5,
+                        fetch_minutes=lambda s, a, b: _loopB5.append(s) or [], log=_lg5.append)
+
+    def _fm5c(sym, a, b):
+        return []
+
+    def _boom(*a):
+        raise RuntimeError("x")
+
+    _fm5c.prefetch = _boom
+    _lgC5 = []
+    _rC5 = _PTV.run_presession("PM", "2026-09-30", 1_790_000_000_000, fetch_grouped=lambda d: _G5 if d == "2026-09-29" else _P5,
+                               fetch_minutes=_fm5c, log=_lgC5.append)[2]
+    _p5 = (len(_pre5) == 1 and set(_pre5[0][0]) == {"S0", "S1", "S2", "S3"} and _pre5[0][2] == 1_790_000_000_000
+           and _pre5[0][3] == 45.0 and _pre5[0][1] == _PTV.fetch_from_ms(1_790_000_000_000, "2026-09-29")
+           and sorted(_loop5) == ["S0", "S1", "S2", "S3"] and sorted(_loopB5) == ["S0", "S1", "S2", "S3"]
+           and any("مسبقًا" in m and "4 من 4" in m for m in _lg5)
+           and any("تعذّر" in m for m in _lgC5) and _rC5.get("scanned") == 4)
+    _p5w = f"مسبق={_pre5} حلقة={_loop5} سجلّ={[m for m in _lg5 if 'مسبق' in m]} · رمى={[m for m in _lgC5 if 'تعذّر' in m]}"
+except Exception as _e:                                              # noqa: BLE001
+    _p5, _p5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 PTV5 الجلبُ المسبق: جالبٌ له `prefetch` يُنادى مرّةً بالمرشَّحين والنافذة والميزانية قبل الحلقة ويُطبَع عددُه · وجالبُ "
+      "Polygon بلاها كما كان · ورميُه يُطبَع والحلقةُ تمضي", _p5, _p5w)
+
+# PTV6 — اللقطة: آخرُ جلسةٍ من شمعة الرمز المرجعيّ · والمرشِّحُ لليوم وللسابق من **ماسحٍ واحد** (مخبّأٌ TV_SNAP_TTL) ·
+#        وتعذّرُ الماسح أو المرجع ⟵ None (فاشلٌ-آمن) · وغيرُ آخر جلسة ⟵ None.
+try:
+    _ptv_reset()
+    _sc6 = []
+    _T6 = int(_PTV.dt.datetime(2026, 9, 29, 13, 30, tzinfo=_PTV.dt.timezone.utc).timestamp())
+    _scan6 = lambda cols: _sc6.append(tuple(cols)) or {"NASDAQ:AAA": {"close": 2.0, "volume": 10.0, "change": 25.0}}  # noqa: E731
+    _ref6 = lambda s: [(_T6, 1, 1, 1, 1, 1)]                     # noqa: E731
+    _g6a = _PTV.tv_grouped("2026-09-29", scan=_scan6, ref_bars=_ref6)
+    _g6b = _PTV.tv_grouped("2026-09-28", scan=_scan6, ref_bars=_ref6)
+    _g6c = _PTV.tv_grouped("2026-09-25", scan=_scan6, ref_bars=_ref6)
+    _n6 = len(_sc6)
+    _ptv_reset()
+    _g6d = _PTV.tv_grouped("2026-09-29", scan=lambda c: None, ref_bars=_ref6)
+    _ptv_reset()
+    _g6e = _PTV.tv_grouped("2026-09-29", scan=_scan6, ref_bars=lambda s: None)
+    _ptv_reset()
+    _p6 = (_g6a and _g6a[0]["T"] == "AAA" and _g6a[0]["c"] == 2.0 and _g6b and abs(_g6b[0]["c"] - 1.6) < 1e-12
+           and _g6c is None and _n6 == 1 and _g6d is None and _g6e is None
+           and _sc6[0] == tuple(_PTV.TV_COLS))
+    _p6w = f"يوم={_g6a} سابق={_g6b} غيره={_g6c} ماسح={_n6} تعذّر={_g6d}/{_g6e}"
+except Exception as _e:                                              # noqa: BLE001
+    _p6, _p6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 PTV6 لقطةُ الماسح: آخرُ جلسةٍ من شمعة الرمز المرجعيّ · واليومُ والسابقُ من ماسحٍ واحدٍ مخبّأ · وتعذّرُ الماسح أو "
+      "المرجع ⟵ None · وغيرُ آخر جلسة ⟵ None", _p6, _p6w)
+
+
+# PTV7 — الدقائق: الرمزُ من خريطة الماسح · فاصلٌ «1» ممتدّ بعمق `tv_depth` · إعادةٌ واحدة عند None · والمجلوبُ مسبقًا يُقرأ
+#        من الذاكرة **بلا نداء** · و`tv_prefetch` بمهلةٍ كلّيّة (بوّابةٌ تتخطّى بعد الموعد).
+class _PtvChart:
+    def __init__(self, seq):
+        self.seq, self.calls, self.closed = list(seq), [], 0
+
+    def bars(self, symbol, interval="1D", n=600, extended=False, adjustment="splits"):
+        self.calls.append((symbol, interval, n, extended))
+        return self.seq.pop(0) if self.seq else None
+
+    def close(self):
+        self.closed += 1
+
+
+try:
+    _ptv_reset()
+    _PTV._TV["tmap"] = {"KITT": "NASDAQ:KITT", "ABC": "AMEX:ABC"}
+    _T7 = int(_PTV.dt.datetime(2026, 9, 29, 8, 0, tzinfo=_PTV.dt.timezone.utc).timestamp())        # 04:00 نيويورك
+    _bb7 = [(_T7 + 60 * k, 1.0, 1.5, 0.9, 1.2, 10.0) for k in range(3)]
+    _N7 = (_T7 + 3600) * 1000                                   # «الآن» محقونٌ — لا ساعةَ نظامٍ في القفل
+    _ch7 = _PtvChart([None, _bb7])
+    _m7 = _PTV.tv_minutes("abc", _T7 * 1000, (_T7 + 3600) * 1000, chart=_ch7, now_ms=_N7)
+    _chB7 = _PtvChart([_bb7])
+    _mB7 = _PTV.tv_minutes("ZZZ", _T7 * 1000, (_T7 + 3600) * 1000, chart=_chB7, now_ms=_N7)
+    _chF7 = _PtvChart([None, None])
+    _mF7 = _PTV.tv_minutes("ABC", _T7 * 1000, (_T7 + 60) * 1000, chart=_chF7, now_ms=_N7)
+    # الجلبُ المسبق بجالبٍ محقون وساعةٍ محقونة: الرمزُ الثاني بعد الموعد ⟵ يُتخطّى
+    _clk7 = iter([0.0, 0.0, 999.0, 999.0, 999.0])
+    _fmany7 = []
+
+    def _fm7(fulls, interval, n, extended, workers, gate, stagger, **kw):
+        _fmany7.append((tuple(fulls), interval, n, extended, kw.get("retry_pass"), kw.get("retry_cap")))
+        out = {}
+        for f in fulls:
+            out[f] = None if gate.skip() else _bb7
+        return out
+
+    _k7 = _PTV.tv_prefetch(["KITT", "ABC"], _T7 * 1000, (_T7 + 3600) * 1000, budget_sec=10.0, fetch_many=_fm7,
+                           clock=lambda: next(_clk7), now_ms=_N7)
+    _chC7 = _PtvChart([])
+    _mC7 = _PTV.tv_minutes("KITT", _T7 * 1000, (_T7 + 3600) * 1000, chart=_chC7, now_ms=_N7)
+    _p7 = (_ch7.calls[0][0] == "AMEX:ABC" and _ch7.calls[0][1] == "1" and _ch7.calls[0][3] is True
+           and _ch7.calls[0][2] == _PTV.tv_depth(_T7 * 1000, _N7) and len(_ch7.calls) == 2
+           and _ch7.closed == 1 and len(_m7) == 3 and _m7[0][7] == 240
+           and _chB7.calls[0][0] == "NASDAQ:ZZZ" and len(_mB7) == 3
+           and _mF7 is None and len(_chF7.calls) == 2
+           and _k7 == 1 and _fmany7[0][0] == ("NASDAQ:KITT", "AMEX:ABC") and _fmany7[0][1] == "1"
+           and _fmany7[0][2] == _PTV.tv_depth(_T7 * 1000, _N7) and _fmany7[0][3] is True
+           and _fmany7[0][4] is True and _fmany7[0][5] == 2
+           and "KITT" in _PTV._TV["cache"] and "ABC" not in _PTV._TV["cache"]
+           and len(_mC7) == 3 and _chC7.calls == [])
+    _p7w = (f"نداءات={_ch7.calls} أغلق={_ch7.closed} · افتراضيّ={_chB7.calls} · فشل={_mF7} · مسبق={_k7} "
+            f"{_fmany7} · من الذاكرة نداءات={_chC7.calls}")
+    _ptv_reset()
+except Exception as _e:                                              # noqa: BLE001
+    _p7, _p7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+    _ptv_reset()
+check("📺 PTV7 دقائقُ TradingView: الرمزُ من خريطة الماسح (وإلّا NASDAQ) · فاصلٌ «1» ممتدّ بعمق tv_depth · إعادةٌ واحدة عند "
+      "None · والمجلوبُ مسبقًا يُقرأ بلا نداء · والجلبُ المسبق يتخطّى بعد مهلته", _p7, _p7w)
+
+# PTV8 — ماسحٌ ثمّ دقائق من طرفٍ إلى طرف: `run_presession` بجالبَي TradingView (ماسحٌ ومِقبسٌ محقونان) يُخرج صفًّا مرتَّبًا
+#        بمفتاح البري (قمّةُ الأفتر فوق الإغلاق) — بلا Polygon ولا شبكة.
+try:
+    _ptv_reset()
+    _T8 = int(_PTV.dt.datetime(2026, 9, 29, 13, 30, tzinfo=_PTV.dt.timezone.utc).timestamp())       # 09:30 نيويورك 09-29
+    _snap8 = {"NASDAQ:AAA": {"close": 2.0, "open": 1.8, "high": 2.1, "low": 1.7, "volume": 2_000_000.0, "change": 10.0}}
+    _reg8 = [(_T8 + 60 * k, 2.0, 2.05, 1.95, 2.0, 5000.0) for k in range(390)]
+    _post8 = [(_T8 + 390 * 60 + 60 * k, 2.0, 3.6 if k == 10 else 2.1, 1.99, 2.05, 3000.0) for k in range(120)]
+    _ch8 = _PtvChart([_reg8 + _post8])
+    _og8 = _PTV.tv_grouped
+    _PTV.tv_grouped = lambda d, *a, **k: _og8(d, scan=lambda c: _snap8, ref_bars=lambda s: [(_T8, 1, 1, 1, 1, 1)])
+    _otm8 = _PTV.tv_minutes
+    _now8 = int(_PTV.dt.datetime(2026, 9, 30, 7, 50, tzinfo=_PTV.dt.timezone.utc).timestamp() * 1000)   # 03:50 نيويورك
+    _fm8 = lambda s, a, b: _otm8(s, a, b, chart=_ch8, now_ms=b)  # noqa: E731
+    try:
+        _r8, _m8, _d8 = _PTV.run_presession("PM", "2026-09-30", _now8, fetch_grouped=_PTV.tv_grouped, fetch_minutes=_fm8)
+    finally:
+        _PTV.tv_grouped = _og8
+    _p8 = (_d8.get("scanned") == 1 and _d8.get("cov") == 1 and len(_r8) == 1 and _r8[0][_PTV.PF.ROW_SYM] == "AAA"
+           and abs(_r8[0]["post_hi_ret"] - 0.8) < 1e-9 and _d8.get("deliver") == ["AAA"] and "$AAA" in _m8)
+    _p8w = f"diag={ {k: _d8.get(k) for k in ('scanned', 'cov', 'deliver', 'src_day')} } · قمّة={_r8 and _r8[0].get('post_hi_ret')}"
+    _ptv_reset()
+except Exception as _e:                                              # noqa: BLE001
+    _p8, _p8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+    _ptv_reset()
+check("📺 PTV8 من طرفٍ إلى طرف بجالبَي TradingView: الماسحُ يرشّح والمِقبسُ يعطي الدقائق ⟵ صفٌّ مرتَّبٌ بمفتاح البري "
+      "(قمّةُ الأفتر +80% فوق إغلاق الجلسة) يعبر الأرضية ويُسلَّم — بلا Polygon", _p8, _p8w)
+
+# PTV9 — الحصادُ واليدويّة: مفتاحُ Polygon شرطُ `polygon` وحدَه · والحصادُ يجلب بجالب المصدر (`PR.fetchers`) لا Polygon حرفيًّا (AST).
+try:
+    _dg9 = _ps_ast.parse(open("presession_digest.py", encoding="utf-8").read())
+    _mn9 = next(n for n in _ps_ast.walk(_dg9) if isinstance(n, _ps_ast.FunctionDef) and n.name == "main")
+    _src9 = _ps_ast.unparse(_mn9)
+    _nw9 = _ps_ast.parse(open("presession_now.py", encoding="utf-8").read())
+    _mnw9 = next(n for n in _ps_ast.walk(_nw9) if isinstance(n, _ps_ast.FunctionDef) and n.name == "main")
+    _srcw9 = _ps_ast.unparse(_mnw9)
+    _snap9 = [n for n in _ps_ast.walk(_mn9) if isinstance(n, _ps_ast.If) and _ps_ast.unparse(n.test) == "src == 'tv'"
+              and any(isinstance(c, _ps_ast.Call) and _ps_ast.unparse(c.func) == "PR.tv_snapshot"
+                      for c in _ps_ast.walk(n))]
+    _p9 = ("polygon_minutes" not in _src9 and "PR.fetchers(src)[1]" in _src9
+           and "src == 'polygon' and (not" in _src9 and "fetch_minutes(sym, a, b)" in _src9
+           and "PRE.data_source() == 'polygon' and (not" in _srcw9 and len(_snap9) == 1)
+    _p9w = (f"حصاد={'polygon_minutes' in _src9} · يدويّة={'data_source' in _srcw9} · "
+            f"خريطةُ البورصات في الحصاد={len(_snap9)}")
+except Exception as _e:                                              # noqa: BLE001
+    _p9, _p9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 PTV9 الحصادُ يجلب الدقائق بجالب المصدر (`PR.fetchers`) لا Polygon حرفيًّا · ومفتاحُ Polygon شرطُ `polygon` وحدَه "
+      "في الحصاد واليدويّة · والحصادُ على TradingView يأخذ لقطةَ الماسح أوّلًا (خريطةُ البورصات) (AST)", _p9, _p9w)
+
+# PTV10 — مرجعُ العمق «الآن» لا نهايةُ النافذة: المِقبسُ يُرجع آخرَ n شمعةً حتى الآن ⇒ حصادُ يومٍ مضى يطلب عمقًا يبلغه ·
+#         و`_tv_now` = الأبعدُ من نهاية النافذة والآن.
+try:
+    _ptv_reset()
+    _a10 = int(_PTV.dt.datetime(2026, 9, 25, 8, 0, tzinfo=_PTV.dt.timezone.utc).timestamp() * 1000)   # الجمعة 04:00 نيويورك
+    _b10 = _a10 + 16 * 3600 * 1000                                                                     # الجمعة 20:00
+    _n10 = int(_PTV.dt.datetime(2026, 9, 30, 5, 0, tzinfo=_PTV.dt.timezone.utc).timestamp() * 1000)    # الأربعاء
+    _ch10 = _PtvChart([[]])
+    _PTV.tv_minutes("QQQ1", _a10, _b10, chart=_ch10, now_ms=_n10)
+    _ptv_reset()
+    _fm10 = []
+    _PTV.tv_prefetch(["QQQ1"], _a10, _b10, budget_sec=10.0, now_ms=_n10,
+                     fetch_many=lambda fulls, *a, **k: _fm10.append(k.get("n")) or {})
+    _p10 = (_PTV._tv_now(_b10, _n10) == _n10 and _PTV._tv_now(_n10, _b10) == _n10 and _PTV._tv_now("x", 7) == 7
+            and _ch10.calls and _ch10.calls[0][2] == _PTV.tv_depth(_a10, _n10)
+            and _ch10.calls[0][2] > _PTV.tv_depth(_a10, _b10)
+            and _fm10 == [_PTV.tv_depth(_a10, _n10)])
+    _p10w = (f"عمق={_ch10.calls and _ch10.calls[0][2]} · مسبق={_fm10} · من النهاية={_PTV.tv_depth(_a10, _b10)} · "
+             f"من الآن={_PTV.tv_depth(_a10, _n10)}")
+    _ptv_reset()
+except Exception as _e:                                              # noqa: BLE001
+    _p10, _p10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+    _ptv_reset()
+check("📺 PTV10 عمقُ طلب الدقائق يُحسب من «الآن» لا من نهاية النافذة (المِقبسُ يُرجع آخرَ n حتى الآن) ⟵ حصادُ الجمعة يوم "
+      "الأربعاء يطلب عمقًا يبلغها — في النداء المفرد والجلب المسبق معًا", _p10, _p10w)
+
+# PTV11 — بعد جلبٍ مسبقٍ لهذا القرار لا نداءَ حيًّا: غيرُ المجلوب ⟵ None **بلا نداء** (زمنُ القرار = ميزانيةُ الجلب المسبق) ·
+#         ولقطةٌ جديدة (قرارٌ جديد) تُعيد النداءَ الحيّ · ورميُ الجلب المسبق كلِّه لا يُعلِّمه.
+try:
+    _ptv_reset()
+    _T11 = int(_PTV.dt.datetime(2026, 9, 29, 8, 0, tzinfo=_PTV.dt.timezone.utc).timestamp())
+    _bb11 = [(_T11 + 60 * k, 1.0, 1.5, 0.9, 1.2, 10.0) for k in range(3)]
+    _k11 = _PTV.tv_prefetch(["AAA"], _T11 * 1000, (_T11 + 3600) * 1000, budget_sec=10.0, now_ms=(_T11 + 3600) * 1000,
+                            fetch_many=lambda fulls, *a, **k: {f: _bb11 for f in fulls})
+    _ch11 = _PtvChart([_bb11])
+    _mA11 = _PTV.tv_minutes("AAA", _T11 * 1000, (_T11 + 3600) * 1000, chart=_ch11, now_ms=(_T11 + 3600) * 1000)
+    _mB11 = _PTV.tv_minutes("BBB", _T11 * 1000, (_T11 + 3600) * 1000, chart=_ch11, now_ms=(_T11 + 3600) * 1000)
+    _calls11 = list(_ch11.calls)
+    _pf11 = bool(_PTV._TV["prefetched"])
+    _PTV.tv_snapshot(scan=lambda c: {"NASDAQ:BBB": {"close": 1.0}}, ref_bars=lambda s: [(_T11, 1, 1, 1, 1, 1)])
+    _pf11b = bool(_PTV._TV["prefetched"])
+    _mC11 = _PTV.tv_minutes("BBB", _T11 * 1000, (_T11 + 3600) * 1000, chart=_ch11, now_ms=(_T11 + 3600) * 1000)
+    _ptv_reset()
+
+    def _boom11(*a, **k):
+        raise RuntimeError("x")
+
+    _PTV.tv_prefetch(["AAA"], _T11 * 1000, (_T11 + 3600) * 1000, budget_sec=10.0, fetch_many=_boom11)
+    _pf11c = bool(_PTV._TV["prefetched"])
+    _p11 = (_k11 == 1 and len(_mA11) == 3 and _mB11 is None and _calls11 == [] and _pf11 and not _pf11b
+            and len(_mC11) == 3 and _ch11.calls and _ch11.calls[0][0] == "NASDAQ:BBB" and not _pf11c)
+    _p11w = (f"مسبق={_k11} · AAA={len(_mA11 or [])} · BBB بعده={_mB11} نداءات={_calls11} · علم={_pf11}/{_pf11b}/{_pf11c} · "
+             f"بعد اللقطة={len(_mC11 or [])}")
+    _ptv_reset()
+except Exception as _e:                                              # noqa: BLE001
+    _p11, _p11w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+    _ptv_reset()
+check("📺 PTV11 بعد جلبٍ مسبقٍ لهذا القرار لا نداءَ حيًّا: غيرُ المجلوب ⟵ None بلا نداء · ولقطةٌ جديدة تُعيد النداءَ الحيّ · "
+      "ورميُ الجلب المسبق كلِّه لا يُعلِّم «جُلب مسبقًا»", _p11, _p11w)
+
+# PTV12 — عيبٌ مُثبَت (1,816 من 1,816 صفًّا حيًّا بـ`gap_open` صفر): مرجعُ الميزات **إغلاقُ الجلسة السابقة** من إغلاقات المرشِّح
+#         (`pcm`) لا افتتاحُ اليوم ⇒ «صاعدٌ X% عن الأمس» صادقة · و`prev_closes` الصريحُ يغلب · وبلا إغلاقاتٍ سابقة (مفتاحُ `usd_day`)
+#         يبقى الافتتاحُ كما كان.
+try:
+    _ptv_reset()
+    _T12 = int(_PTV.dt.datetime(2026, 9, 29, 13, 30, tzinfo=_PTV.dt.timezone.utc).timestamp())      # 09:30 نيويورك 09-29
+    _reg12 = [{"t": (_T12 + 60 * k) * 1000, "o": 2.0 if k == 0 else 2.1, "h": 2.3, "l": 1.9,
+               "c": 2.2, "v": 50_000.0, "n": 5} for k in range(30)]
+    _post12 = [{"t": (_T12 + 390 * 60 + 60 * k) * 1000, "o": 2.2, "h": 2.5, "l": 2.1, "c": 2.3, "v": 1000.0, "n": 1}
+               for k in range(5)]
+    _b12 = _PTV.to_bars8(_reg12 + _post12)
+    _G12 = [{"T": "PCX", "c": 2.2, "v": 1_500_000.0, "o": 2.0, "h": 2.3, "l": 1.9, "n": 9}]
+    _P12 = [{"T": "PCX", "c": 1.6}]
+    _now12 = int(_PTV.dt.datetime(2026, 9, 30, 7, 50, tzinfo=_PTV.dt.timezone.utc).timestamp() * 1000)
+    _fg12 = lambda d: _G12 if d == "2026-09-29" else (_P12 if d == "2026-09-28" else None)   # noqa: E731
+    _fm12 = lambda s_, a, b: list(_b12)                           # noqa: E731
+    _rA = _PTV.run_presession("PM", "2026-09-30", _now12, fetch_grouped=_fg12, fetch_minutes=_fm12)[0]
+    _rB = _PTV.run_presession("PM", "2026-09-30", _now12, fetch_grouped=_fg12, fetch_minutes=_fm12,
+                              prev_closes={"PCX": 2.0 / 1.1})[0]
+    _rC = _PTV.run_presession("PM", "2026-09-30", _now12, fetch_grouped=_fg12, fetch_minutes=_fm12,
+                              prefilter_key="usd_day")[0]
+    _p12 = (len(_rA) == 1 and abs(_rA[0]["day_ret"] - (2.2 / 1.6 - 1)) < 1e-9
+            and abs(_rA[0]["gap_open"] - (2.0 / 1.6 - 1)) < 1e-9
+            and len(_rB) == 1 and abs(_rB[0]["gap_open"] - 0.1) < 1e-9
+            and len(_rC) == 1 and _rC[0]["gap_open"] == 0.0 and abs(_rC[0]["day_ret"] - 0.1) < 1e-9)
+    _p12w = (f"pcm: day_ret={_rA and round(_rA[0]['day_ret'], 4)} gap={_rA and round(_rA[0]['gap_open'], 4)} · "
+             f"صريح: gap={_rB and round(_rB[0]['gap_open'], 4)} · usd_day: gap={_rC and _rC[0]['gap_open']}")
+    _ptv_reset()
+except Exception as _e:                                              # noqa: BLE001
+    _p12, _p12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+    _ptv_reset()
+check("📺 PTV12 عيبٌ مُثبَت: مرجعُ ميزات القائمة إغلاقُ الجلسة السابقة (إغلاقاتُ المرشِّح) لا افتتاحُ اليوم ⟵ «عن الأمس» صادقة · "
+      "و`prev_closes` الصريحُ يغلب · وبلا إغلاقاتٍ سابقة يبقى الافتتاح", _p12, _p12w)
+
+# PTV13 — وسمُ المصدر: صفوفُ جالب TradingView (`src="tv"`) موسومةٌ في النتيجة والسجلّ · وجالبٌ بلا وسم (Polygon) بلا حقل ·
+#         والحصادُ يَسِم ما حسمه TradingView ويُلحق سطرَ حدّ الصدق — وبلا `src` رسالتُه بت-بت.
+try:
+    _ptv_reset()
+
+    def _fm13(s_, a, b):
+        return list(_b12)
+
+    _fm13.src = "tv"
+    _r13 = _PTV.run_presession("PM", "2026-09-30", _now12, fetch_grouped=_fg12, fetch_minutes=_fm13)[0]
+    import tempfile as _ptv_tmp                                     # noqa: E402
+    _fd13, _led13 = _ptv_tmp.mkstemp(prefix="ptv13_", suffix=".jsonl")
+    _ptv_os.close(_fd13)
+    try:
+        _PTV.append_ledger(_r13, "PM", "2026-09-30", path=_led13)
+        _row13 = json.loads(open(_led13, encoding="utf-8").read().splitlines()[0])
+    finally:
+        try:
+            _ptv_os.remove(_led13)
+        except OSError:
+            pass
+    import presession_digest as _PD13                               # noqa: E402
+    _cum13 = {"deliv": (0, 0), "cut": (0, 0), "below": (0, 0), "all": (0, 0)}
+    _dg_tv = _PD13.build_digest("2026-09-30", [], _cum13, (0, 0), 0, src="tv")
+    _dg_no = _PD13.build_digest("2026-09-30", [], _cum13, (0, 0), 0)
+    _mn13 = next(n for n in _ps_ast.walk(_ps_ast.parse(open("presession_digest.py", encoding="utf-8").read()))
+                 if isinstance(n, _ps_ast.FunctionDef) and n.name == "main")
+    _s13 = _ps_ast.unparse(_mn13)
+    _p13 = (_r13 and _r13[0].get("src") == "tv" and "src" not in _rA[0] and _row13.get("src") == "tv"
+            and _PTV.tv_minutes.src == "tv" and not hasattr(_PTV.polygon_minutes, "src")
+            and "TradingView" in _dg_tv and "TradingView" not in _dg_no and _dg_tv.startswith(_dg_no)
+            and "out['src'] = 'tv'" in _s13 and "src=src" in _s13)
+    _p13w = (f"صفّ={_r13 and _r13[0].get('src')} · سجلّ={_row13.get('src')} · Polygon بلا وسم="
+             f"{not hasattr(_PTV.polygon_minutes, 'src')} · حصاد tv={'TradingView' in _dg_tv} بلا={'TradingView' in _dg_no}")
+    _ptv_reset()
+except Exception as _e:                                              # noqa: BLE001
+    _p13, _p13w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+    _ptv_reset()
+check("📺 PTV13 وسمُ المصدر: صفوفُ TradingView موسومةٌ «tv» في النتيجة والسجلّ وPolygon بلا وسم · والحصادُ يَسِم ما حسمه "
+      "TradingView ويُلحق سطرَ حدّ الصدق (حجمُ الدقائق جزئيّ) · وبلا مصدرٍ رسالتُه بت-بت", _p13, _p13w)
+
+# ══════════════════════════════════════════════════════════════════════════
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
