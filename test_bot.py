@@ -70459,7 +70459,7 @@ try:
                   "scan_market", "backtest_symbol", "scan_ignition", "scan_split_hunter", "entry_status",
                   "build_interpretation"]
     _exh_ban = {"exact_hold", "exact_pivot_hold", "refresh_exact_hold", "exact_hold_line", "STABILITY_SHOW_REQ",
-                "polygon_hour_bars", "_ext_hour_rows", "EXT_HOURS_NY"}
+                "polygon_hour_bars", "_ext_hour_rows", "EXT_HOURS_NY", "tv_hour_fetcher", "TV_HOURS_N"}
     _exh_hits = []
     for _rn in _exh_roots:
         _t6 = _tcd_ast.parse(_exh_tw.dedent(_exh_insp.getsource(getattr(S, _rn))))
@@ -70477,6 +70477,122 @@ except Exception as _e:                                              # noqa: BLE
     _vX6, _vX6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧱 EXH6 عرضٌ فقط: الجذورُ الاثنا عشر لا تذكر الحقلَ ولا دوالَّه (AST) · `STABILITY_MIN` باقٍ 3 · والحدُّ 5 ونافذةُ "
       "04:00-20:00 = الأداة", _vX6, _vX6w)
+
+
+# ══════════════════════════════════════════════════════════════════════════
+# 📺🧱 EHT1-EHT3 الثبات الدقيق على TradingView — عطلٌ مُثبَت (2026-09-30 · أوّلُ تقريرٍ يوميٍّ بشموع TradingView `36684201530`:
+#    «🧱 الثبات الدقيق: قِيس 5 · تعذّر 25» — `refresh_exact_hold` يجلب شموع الساعة من Polygon المنتهي) ⟵ `tv_hour_fetcher`
+#    بدفعةٍ واحدة خلف `BARS_SOURCE` (وبدونه Polygon بت-بت) · عرضٌ فقط · بلا شبكة (الجالبُ والماسحُ محقونان).
+# ══════════════════════════════════════════════════════════════════════════
+import datetime as _eht_dt                                           # noqa: E402
+from zoneinfo import ZoneInfo as _eht_zi                             # noqa: E402
+
+
+def _eht_ts(d, hh, mm=0):
+    y, m, dd = (int(x) for x in d.split("-"))
+    return int(_eht_dt.datetime(y, m, dd, hh, mm, tzinfo=_eht_zi("America/New_York")).timestamp())
+
+
+# EHT1 — `tv_hour_fetcher`: نداءٌ واحدٌ للدفعة (`interval="60"` · `extended=True` · `n=TV_HOURS_N` · `TVBarsGate`) بالرموز كبيرةً
+#    بلا تكرار وبخريطة الماسح (NYSE:BBB) · والشمعةُ ⟵ (ms, high, low) مرتّبةً بين يومَي **نيويورك** start وend ضمنًا (‏20:30
+#    نيويورك يومَ 29 = 00:30 UTC يومَ 30 ⟵ داخلُ 29) · والتالفةُ تُتخطّى · بلا شموع ⟵ [] · تعذّرُ الرمز ⟵ None · ورميُ الدفعة ⟵
+#    None للكلّ · وبلا رموز ⟵ صفرُ نداء
+try:
+    _eht_calls = []
+    _eht_bars = [
+        (_eht_ts("2026-09-29", 10), 1.0, 1.30, 1.10, 1.2, 100.0),
+        (_eht_ts("2026-09-28", 4), 1.0, 1.20, 0.95, 1.1, 50.0),
+        (_eht_ts("2026-09-28", 19), 1.0, 1.25, 1.05, 1.1, 60.0),
+        (_eht_ts("2026-09-29", 20, 30), 1.0, 1.40, 1.15, 1.2, 70.0),
+        (_eht_ts("2026-09-30", 4), 1.0, 1.50, 1.20, 1.3, 80.0),
+        (_eht_ts("2026-09-27", 19), 1.0, 1.60, 0.90, 1.3, 90.0),
+        ("x", 1.0, 1.0, 1.0, 1.0, 1.0),
+    ]
+
+    def _eht_fetch(symbols, interval=None, n=None, extended=None, gate=None, **kw):
+        _eht_calls.append((list(symbols), interval, n, extended, type(gate).__name__))
+        return {"NASDAQ:AAA": list(_eht_bars), "NYSE:BBB": []}
+
+    def _eht_scan(cols):
+        return {"NASDAQ:AAA": {"name": "AAA"}, "NYSE:BBB": {"name": "BBB"}}
+    _eht_get = S.tv_hour_fetcher(["aaa", "BBB", "CCC", "AAA", None], fetch=_eht_fetch, scan=_eht_scan)
+    _eht_a = _eht_get("aaa", "2026-09-28", "2026-09-29")
+    _eht_want = sorted([(_eht_ts("2026-09-28", 4) * 1000, 1.20, 0.95), (_eht_ts("2026-09-28", 19) * 1000, 1.25, 1.05),
+                        (_eht_ts("2026-09-29", 10) * 1000, 1.30, 1.10),
+                        (_eht_ts("2026-09-29", 20, 30) * 1000, 1.40, 1.15)])
+    _eht_b = _eht_get("BBB", "2026-09-28", "2026-09-29")
+    _eht_c = _eht_get("CCC", "2026-09-28", "2026-09-29")
+    _eht_e = S.tv_hour_fetcher([], fetch=_eht_fetch, scan=_eht_scan)("AAA", "2026-09-28", "2026-09-29")
+
+    def _eht_boom(*a, **k):
+        raise RuntimeError("socket")
+    _eht_x = S.tv_hour_fetcher(["AAA"], fetch=_eht_boom, scan=_eht_scan)("AAA", "2026-09-28", "2026-09-29")
+    _vT1 = (_eht_a == _eht_want and _eht_b == [] and _eht_c is None and _eht_e is None and _eht_x is None
+            and len(_eht_calls) == 1 and _eht_calls[0][0] == ["NASDAQ:AAA", "NASDAQ:CCC", "NYSE:BBB"]
+            and _eht_calls[0][1] == "60" and _eht_calls[0][2] == S.TV_HOURS_N == 1000 and _eht_calls[0][3] is True
+            and _eht_calls[0][4] == "TVBarsGate")
+    _vT1w = f"AAA={_eht_a} · BBB={_eht_b} · CCC={_eht_c} · فارغ={_eht_e} · رمى={_eht_x} · نداءات={_eht_calls}"
+except Exception as _e:                                              # noqa: BLE001
+    _vT1, _vT1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 EHT1 `tv_hour_fetcher`: دفعةٌ واحدة (ساعة · ممتدّة · TV_HOURS_N · قاطع) بخريطة الماسح · (ms, high, low) بين يومَي "
+      "نيويورك ضمنًا والتالفةُ تُتخطّى · بلا شموع [] · تعذّرُ الرمز None · رميُ الدفعة None · وبلا رموز صفرُ نداء", _vT1, _vT1w)
+
+# EHT2 — `refresh_exact_hold`: مع `BARS_SOURCE=tradingview` وبلا جالبٍ محقون ⟵ `tv_hour_fetcher` **مرّةً واحدة** بكلّ الرموز ·
+#    صفرُ نداءٍ لـPolygon ولو غاب مفتاحُه (لا «بلا مفتاح») · `src`=«tradingview» · والمحسوبُ = التوأم · والجالبُ المحقونُ يغلب
+#    البيئة · وبلا البيئة ⟵ المسارُ السابق بت-بت (بلا مفتاحٍ صفرُ نداء · وبه `polygon_hour_bars` · والعدّاداتُ بلا `src`)
+try:
+    _eht_env0 = _os.environ.get("BARS_SOURCE")
+    _eht_pk0, _eht_ph0, _eht_tf0 = S._poly_key, S.polygon_hour_bars, S.tv_hour_fetcher
+    _eht_tv, _eht_pg = [], []
+    try:
+        S._poly_key = lambda: ""
+        S.polygon_hour_bars = lambda *a, **k: _eht_pg.append(a) or []
+
+        def _eht_fake(syms, **k):
+            _eht_tv.append(list(syms))
+            return lambda sym, d0, d1: _exh_hr if sym == "AAA" else None
+        S.tv_hour_fetcher = _eht_fake
+        _os.environ["BARS_SOURCE"] = "tradingview"
+        _eht_s1 = [{"symbol": "AAA", "exact_hold": {"stale": 1}}, {"symbol": "FAL", "exact_hold": {"stale": 1}}]
+        _eht_n1 = S.refresh_exact_hold(_eht_s1, _exh_hist)
+        _eht_w1 = dict(S.exact_pivot_hold(_exh_rows, _exh_hr, _exh_rows[-1][0]), asof=_exh_rows[-1][0])
+        _eht_n1b = S.refresh_exact_hold([{"symbol": "AAA"}], _exh_hist, fetch=lambda s, a, b: _exh_hr)
+        _eht_pg1 = len(_eht_pg)
+        _os.environ.pop("BARS_SOURCE", None)
+        _eht_n2 = S.refresh_exact_hold([{"symbol": "AAA"}], _exh_hist)
+        _eht_pg2 = len(_eht_pg)
+        S._poly_key = lambda: "K"
+        _eht_n3 = S.refresh_exact_hold([{"symbol": "AAA"}], _exh_hist)
+    finally:
+        S._poly_key, S.polygon_hour_bars, S.tv_hour_fetcher = _eht_pk0, _eht_ph0, _eht_tf0
+        if _eht_env0 is None:
+            _os.environ.pop("BARS_SOURCE", None)
+        else:
+            _os.environ["BARS_SOURCE"] = _eht_env0
+    _vT2 = (_eht_tv == [["AAA", "FAL"]]
+            and _eht_n1 == {"ok": 1, "nohour": 0, "fail": 1, "nodata": 0, "nokey": 0, "src": "tradingview"}
+            and _eht_s1[0]["exact_hold"] == _eht_w1 and _eht_s1[1]["exact_hold"] is None
+            and "src" not in _eht_n1b and _eht_n1b["ok"] == 1 and _eht_pg1 == 0
+            and _eht_n2 == {"ok": 0, "nohour": 0, "fail": 0, "nodata": 0, "nokey": 1} and _eht_pg2 == 0
+            and [a[0] for a in _eht_pg] == ["AAA"] and "src" not in _eht_n3 and _eht_n3["nohour"] == 1)
+    _vT2w = (f"tv={_eht_tv} · n1={_eht_n1} · n1b={_eht_n1b} · n2={_eht_n2} · n3={_eht_n3} · polygon={_eht_pg} · "
+             f"التوأم={_eht_s1[0].get('exact_hold') == _eht_w1}")
+except Exception as _e:                                              # noqa: BLE001
+    _vT2, _vT2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 EHT2 `refresh_exact_hold`: مع BARS_SOURCE=tradingview ⟵ `tv_hour_fetcher` مرّةً بكلّ الرموز · صفرُ Polygon ولو غاب "
+      "مفتاحُه · src=tradingview · التوأمُ نفسُه · والمحقونُ يغلب · وبلا البيئة المسارُ السابق بت-بت", _vT2, _vT2w)
+
+# EHT3 — السجلّ يُسمّي المصدر في المسارين (اليوميّ والتجديد) فيُقرأ «📺 TradingView» من سجلّ التشغيلة لا بالافتراض
+try:
+    _eht_src_d = _exh_insp.getsource(S.run_daily_watchlist)
+    _eht_src_r = _exh_insp.getsource(S.run_weekly_renewal)
+    _eht_pat = '_ehc.get("src") == "tradingview"'
+    _vT3 = (_eht_pat in _eht_src_d and _eht_pat in _eht_src_r
+            and "(📺 TradingView)" in _eht_src_d and "· 📺 TradingView" in _eht_src_r)
+    _vT3w = f"يوميّ={_eht_pat in _eht_src_d} · تجديد={_eht_pat in _eht_src_r}"
+except Exception as _e:                                              # noqa: BLE001
+    _vT3, _vT3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 EHT3 سطرُ «🧱 الثبات الدقيق» يُسمّي المصدرَ TradingView في اليوميّ والتجديد (من العدّادات لا بالافتراض)", _vT3, _vT3w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 👀🏢 NWF1-NWF8 مخزنُ فلوت «تحت المتابعة» (أمرُ المالك 2026-09-26 «احفظ فلوت تحت المتابعة» — حتى لا يتكرّر «الفلوت مجهول»):
