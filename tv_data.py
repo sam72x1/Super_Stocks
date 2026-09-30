@@ -32,7 +32,8 @@ ERRORS = ("symbol_error", "series_error", "critical_error", "protocol_error")
 
 NY = ZoneInfo("America/New_York")
 
-CALLS = {"scan": 0, "scan_fail": 0, "bars": 0, "bars_fail": 0, "bars_empty": 0, "reconnect": 0}
+CALLS = {"scan": 0, "scan_fail": 0, "bars": 0, "bars_fail": 0, "bars_empty": 0, "reconnect": 0, "recovered": 0}
+LAST_PASS = {"failed": 0, "retried": 0, "recovered": 0}   # آخرُ تمريرةِ إعادةٍ في `fetch_many` (للسجلّ)
 _LOCK = threading.Lock()
 _FRAME = re.compile(r"~m~\d+~m~")
 
@@ -187,11 +188,15 @@ class Chart:
 
 
 def fetch_many(symbols, interval: str = "1D", n: int = 600, extended: bool = False, workers: int = 6,
-               chart_factory=None, progress=None, pause: float = 0.0, gate=None) -> dict:
+               chart_factory=None, progress=None, pause: float = 0.0, gate=None, stagger: float = 0.0,
+               retry_pass: bool = False, retry_pause: float = 2.0, retry_cap: int = 400) -> dict:
     """{رمز: شموع | None} لعدّة رموز على `workers` مقابس متوازية (كلُّ مقبسٍ يمرّ على نصيبه بالتتابع) · والرمزُ الذي فشل
     يُعاد **مرّةً واحدة** على مقبسٍ جديد (سقوطٌ عابر) · `chart_factory` محقونٌ للاختبار. الرموزُ بصيغة «EXCH:SYM».
     و`gate` (اختياريّ · قاطعُ دائرة) = كائنٌ له `skip()` قبل كلّ رمز (True ⟵ None بلا نداء) و`record(ok)` بعد نتيجته
-    النهائيّة — فحين يُحجَب الموقعُ لا تُستنفَد المهلةُ على آلاف الرموز (درسُ Polygon 2026-09-29) · وبلا `gate` السلوكُ كما هو."""
+    النهائيّة — فحين يُحجَب الموقعُ لا تُستنفَد المهلةُ على آلاف الرموز (درسُ Polygon 2026-09-29) · وبلا `gate` السلوكُ كما هو.
+    و`stagger` ثوانٍ بين فتح المقابس (المقبسُ k ينتظر k×stagger) · و`retry_pass` **تمريرةٌ ثانيةٌ بعد الدفعة** لما أخفق (None) ولم
+    يتخطَّه القاطع: مقبسٌ واحدٌ بعد `retry_pause` ثانية وحتى `retry_cap` رمزًا · ويُستشار `gate.skip()` قبل كلّ رمز (مهلتُه وقاطعُه) ولا
+    تُسجَّل نتائجُها فيه (عدّادُه رموزٌ لا محاولات) — مِجَسُّ `36649271250`: ستّةُ رموزٍ من أوّل دفعة ساعةٍ أخفقت مرّتين متتاليتين."""
     syms = list(dict.fromkeys(symbols or []))
     out = {}
     if not syms:
@@ -201,8 +206,11 @@ def fetch_many(symbols, interval: str = "1D", n: int = 600, extended: bool = Fal
         q.put(s)
     make = chart_factory or (lambda: Chart())
     done = [0]
+    skipped = set()
 
-    def work():
+    def work(k):
+        if stagger and k:
+            time.sleep(float(stagger) * k)
         ch = make()
         try:
             while True:
@@ -213,6 +221,7 @@ def fetch_many(symbols, interval: str = "1D", n: int = 600, extended: bool = Fal
                 if gate is not None and gate.skip():
                     with _LOCK:
                         out[s] = None
+                        skipped.add(s)
                         done[0] += 1
                     continue
                 r = ch.bars(s, interval=interval, n=n, extended=extended)
@@ -233,11 +242,32 @@ def fetch_many(symbols, interval: str = "1D", n: int = 600, extended: bool = Fal
         finally:
             ch.close()
 
-    ts = [threading.Thread(target=work, daemon=True) for _ in range(max(1, min(int(workers), len(syms))))]
+    ts = [threading.Thread(target=work, args=(k,), daemon=True) for k in range(max(1, min(int(workers), len(syms))))]
     for t in ts:
         t.start()
     for t in ts:
         t.join()
+    failed = [s for s in syms if out.get(s) is None and s not in skipped]
+    LAST_PASS.update({"failed": len(failed), "retried": 0, "recovered": 0})
+    if retry_pass and failed and not getattr(gate, "open", False):
+        if retry_pause:
+            time.sleep(float(retry_pause))
+        ch = make()
+        try:
+            for s in failed[:max(0, int(retry_cap))]:
+                if gate is not None and gate.skip():
+                    break
+                LAST_PASS["retried"] += 1
+                r = ch.bars(s, interval=interval, n=n, extended=extended)
+                if r is None:
+                    ch.close()
+                    r = ch.bars(s, interval=interval, n=n, extended=extended)
+                if r is not None:
+                    out[s] = r
+                    LAST_PASS["recovered"] += 1
+                    _count("recovered")
+        finally:
+            ch.close()
     return out
 
 

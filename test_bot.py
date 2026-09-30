@@ -69774,15 +69774,19 @@ class _TvFakeChart:
     """مِقبسٌ مزيَّف لـ`TV.fetch_many`: `bars()` من `data` {«EXCH:SYM»: شموع} · None لما في `bad` · و`flaky` يُخفق أوّلَ مرّةٍ
     على المقبس نفسِه ثمّ ينجح (سقوطٌ عابر) · وكلُّ نداءٍ يُسجَّل في `log` المشترك (symbol, interval, n, extended)."""
 
-    def __init__(self, data=None, bad=(), flaky=(), log=None, lock=None, every=False):
+    def __init__(self, data=None, bad=(), flaky=(), log=None, lock=None, every=False, fail_first=None):
         self.data, self.bad, self.flaky, self.every = data or {}, set(bad), set(flaky), every
         self.log = log if log is not None else []
         self.lock = lock or _tv_thr.Lock()
         self.seen = set()
+        self.fail_first = fail_first                                 # {رمز: عددُ إخفاقاتٍ أولى} مشتركٌ بين المقابس (دفعةٌ عابرة)
 
     def bars(self, symbol, interval="1D", n=600, extended=False, adjustment="splits"):
         with self.lock:
             self.log.append((symbol, interval, n, extended))
+            if self.fail_first is not None and self.fail_first.get(symbol, 0) > 0:
+                self.fail_first[symbol] -= 1
+                return None
         if self.every or symbol in self.bad:
             return None
         if symbol in self.flaky and symbol not in self.seen:
@@ -69987,6 +69991,90 @@ except Exception as _e:                                              # noqa: BLE
     _v38, _v38w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📺 TCD38 نافذةُ القاطع منزلقة (حجبٌ بعد 100 نجاح ⟵ يُفتح بعد 29 إخفاقًا · 158 نداءً لا 700) ومهلتُه كلّيّة (ساعةٌ محقونة ⟵ "
       "«انقضت مهلةُ الجلب» بعد 4 رموز) · والمهلتان بالاسم ومجموعُهما دون مهلة جوب المسح", _v38, _v38w)
+
+# TCD39 — التمريرةُ الثانية بعد الدفعة (الجافّة `36649271250`: ستّةُ رموزٍ من أوّل دفعة ساعةٍ أخفقت محاولتَيها): ① B1/B10/B11 تُخفق
+#    مرّتين في الدفعة ثمّ تنجح ⟵ تُستردّ (والمحجوبُ B40 يبقى [] بعد محاولتين أُخريين) وسطرُ «🔁 اليوميّ: أخفق بعد الدفعة 4 · أُعيد 4 ·
+#    استُردّ 3» · والقاطعُ لم يُفتح وعدّادُه رموزٌ (40) لا محاولات · ② مهلةٌ تنقضي بعد 9 رموز ⟵ **لا تمريرةَ ثانية** (القاطعُ مفتوح)
+#    ولا يُعاد المتخطّى · وB1 بمحاولتَيه فقط · ③ `fetch_many` بلا `retry_pass` كما كان (لا إعادة)
+try:
+    _syms39 = [f"B{i}" for i in range(1, 41)]
+    _full39 = sorted(f"NASDAQ:{x}" for x in _syms39)
+    _data39 = {x: [(_tv_ts("2026-09-25", 9, 30), 1.0, 1.0, 1.0, 1.0, 1.0)] for x in _full39}
+    _sv39 = _TCD.TV_RETRY_PAUSE_S
+    try:
+        _TCD.TV_RETRY_PAUSE_S = 0
+        _ff39 = {"NASDAQ:B1": 2, "NASDAQ:B10": 2, "NASDAQ:B11": 2}
+        _lk39, _log39 = _tv_thr.Lock(), []
+        _buf39 = _tcd_io.StringIO()
+        with _tcd_ctx.redirect_stdout(_buf39):
+            _o39 = _TCD.fetch_tv(_syms39, "2026-01-01", "2026-09-25", workers=4,
+                                 chart_factory=lambda: _TvFakeChart(_data39, bad={"NASDAQ:B40"}, fail_first=_ff39,
+                                                                    log=_log39, lock=_lk39))
+            _d39 = dict(_TCD.BREAKER_LAST.get("daily") or {})
+        _lp39 = dict(_TCD.TV.LAST_PASS)
+        _t39 = [0]
+
+        def _clk39():
+            _t39[0] += 1
+            return _t39[0]
+        _ff39b, _log39b = {"NASDAQ:B1": 2}, []
+        with _tcd_ctx.redirect_stdout(_tcd_io.StringIO()):
+            _o39b = _TCD.fetch_tv(_syms39, "2026-01-01", "2026-09-25", workers=1, brk=_TCD.TVBreaker(budget=10, clock=_clk39),
+                                  chart_factory=lambda: _TvFakeChart(_data39, fail_first=_ff39b, log=_log39b))
+        _lp39b = dict(_TCD.TV.LAST_PASS)
+        _ff39c, _log39c = {"NASDAQ:B1": 2}, []
+        _o39c = _TCD.TV.fetch_many(_full39[:5], workers=1,
+                                   chart_factory=lambda: _TvFakeChart(_data39, fail_first=_ff39c, log=_log39c))
+
+        class _G39:                                                   # بوّابةٌ بلا `open` تتخطّى الثالثَ والرابع وحدَهما
+            def __init__(self):
+                self.k, self.rec = 0, []
+
+            def skip(self):
+                self.k += 1
+                return self.k in (3, 4)
+
+            def record(self, ok):
+                self.rec.append(ok)
+        _ff39d, _log39d = {x: 2 for x in _full39[:5]}, []
+        _o39d = _TCD.TV.fetch_many(_full39[:5], workers=1, gate=_G39(), retry_pass=True, retry_pause=0,
+                                   chart_factory=lambda: _TvFakeChart(_data39, fail_first=_ff39d, log=_log39d))
+        _lp39d = dict(_TCD.TV.LAST_PASS)
+        _t39e = [0]
+
+        def _clk39e():
+            _t39e[0] += 1
+            return _t39e[0]
+        _ff39e, _log39e = {_full39[0]: 2, _full39[1]: 2}, []
+        _o39e = _TCD.TV.fetch_many(_full39[:5], workers=1, gate=_TCD.TVBreaker(budget=6, clock=_clk39e), retry_pass=True,
+                                   retry_pause=0, chart_factory=lambda: _TvFakeChart(_data39, fail_first=_ff39e, log=_log39e))
+        _lp39e = dict(_TCD.TV.LAST_PASS)
+        _fn39 = {n.name: _tcd_ast.unparse(n) for n in _tcd_ast.parse(_tcd_src).body if isinstance(n, _tcd_ast.FunctionDef)}
+    finally:
+        _TCD.TV_RETRY_PAUSE_S = _sv39
+        _TCD.BREAKER_LAST.clear()
+    _n39 = {x: sum(1 for c in _log39 if c[0] == x) for x in ("NASDAQ:B1", "NASDAQ:B10", "NASDAQ:B40", "NASDAQ:B2")}
+    _v39 = (sum(1 for v in _o39.values() if v) == 39 and _o39["B40"] == [] and all(_o39[x] for x in ("B1", "B10", "B11"))
+            and _lp39 == {"failed": 4, "retried": 4, "recovered": 3}
+            and "🔁 اليوميّ: أخفق بعد الدفعة 4 · أُعيد 4 · استُردّ 3" in _buf39.getvalue()
+            and _n39 == {"NASDAQ:B1": 3, "NASDAQ:B10": 3, "NASDAQ:B40": 4, "NASDAQ:B2": 1}
+            and _d39.get("open") is False and _d39.get("done") == 40 and _d39.get("fail") == 4
+            and _lp39b == {"failed": 1, "retried": 0, "recovered": 0} and _o39b["B1"] == []
+            and sum(1 for c in _log39b if c[0] == "NASDAQ:B1") == 2 and len(_log39b) == 9 + 1
+            and _o39c["NASDAQ:B1"] is None and len(_log39c) == 2 + 4
+            and _lp39d == {"failed": 3, "retried": 3, "recovered": 3} and _o39d[_full39[2]] is None and _o39d[_full39[3]] is None
+            and not any(c[0] in (_full39[2], _full39[3]) for c in _log39d)
+            and _lp39e == {"failed": 2, "retried": 0, "recovered": 0} and _o39e[_full39[0]] is None
+            and all("stagger=TV_STAGGER_S" in _fn39.get(f, "") and "retry_pass=True" in _fn39.get(f, "")
+                    and "retry_pause=TV_RETRY_PAUSE_S" in _fn39.get(f, "") for f in ("fetch_tv", "fetch_tv_hours")))
+    _v39w = (f"استرداد={_lp39} نداءات={_n39} قاطع={_d39} · مهلة={_lp39b} نداءاتُ B1={sum(1 for c in _log39b if c[0] == 'NASDAQ:B1')} "
+             f"الكلّ={len(_log39b)} · بلا تمريرة: B1={_o39c.get('NASDAQ:B1')} نداءات={len(_log39c)} · متخطّى={_lp39d} · "
+             f"مهلةٌ أثناءها={_lp39e}")
+except Exception as _e:                                              # noqa: BLE001
+    _v39, _v39w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD39 التمريرةُ الثانية: ما أخفق محاولتَيه في الدفعة يُستردّ بعدها (3 من 4 · والمحجوبُ يبقى []) وسطرُ «🔁» · والقاطعُ عدّادُه "
+      "رموزٌ لا محاولات · والمهلةُ المنقضية قبلها أو أثناءها تمنعها · والمتخطّى لا يُعاد · وبلا `retry_pass` لا إعادة · والجالبان "
+      "بالتدريج والتمريرة (AST)", _v39, _v39w)
 
 # TCD35 — الجالبان بشكل Polygon نفسِه: اليوميّ (يومُ نيويورك, o, h, l, c, v) مقصوصٌ على [d0, d1] · والساعةُ (ms, high, low) لأيّام
 #    [d0, d1] بتوقيت نيويورك · والخريطةُ من الماسح («AMEX:XYZ») وغيابُها «NASDAQ:ABC» · والفاصلُ/العدد/الممتدُّ بالاسم

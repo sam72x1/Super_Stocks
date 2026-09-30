@@ -116,6 +116,8 @@ TV_SCAN_TRIES = 2                # engineering — محاولتا الماسح (
 TV_DAILY_BUDGET_S = 20 * 60      # engineering — مهلةُ جلب اليوميّ كلِّه (المقيسُ ‏≈2 د للكون) · وجوبُ المسح 40 د ⇒ سطرُ عطلٍ قبله
 TV_HOURS_BUDGET_S = 8 * 60       # engineering — مهلةُ جلب الساعة (‏≈600 رمزٍ ‏≈1 د مقيسًا) — والمجموعُ دون مهلة الجوب
 PX_TOL = 1e-6                    # engineering — تطابقُ إغلاق الماسح وإغلاق الجلسة (نسبيّ) شرطُ مقارنة RSI الماسح
+TV_STAGGER_S = 0.25              # engineering — ثوانٍ بين فتح المقابس · وتمريرةٌ ثانيةٌ لما أخفق (جافّة `36649271250`: ستّةٌ من أوّل دفعة)
+TV_RETRY_PAUSE_S = 2.0           # engineering — انتظارٌ قبل التمريرة الثانية (تهدأ الدفعةُ الأولى)
 
 
 def log(msg=""):
@@ -629,6 +631,13 @@ def _tv_full(s, tmap):
     return (tmap or {}).get(s) or f"NASDAQ:{s}"
 
 
+def _tv_retry_log(what):
+    """سطرُ التمريرة الثانية (سجلٌّ فقط): كم أخفق بعد الدفعة وكم استُردّ — فلا يضيع رمزٌ بصمت."""
+    lp = TV.LAST_PASS
+    if lp.get("failed"):
+        log(f"   🔁 {what}: أخفق بعد الدفعة {lp['failed']} · أُعيد {lp['retried']} · استُردّ {lp['recovered']}")
+
+
 def _tv_progress(k, n):
     if k % 1000 == 0:
         log(f"   … TradingView {k}/{n}")
@@ -641,7 +650,9 @@ def fetch_tv(syms, d0, d1, key=None, tmap=None, workers=TV_WORKERS, brk=None, ch
     brk = brk or TVBreaker(budget=TV_DAILY_BUDGET_S)
     full = {s: _tv_full(s, tmap) for s in syms}
     got = TV.fetch_many(sorted(set(full.values())), interval="1D", n=TV_DAILY_N, workers=workers,
-                        chart_factory=chart_factory, progress=_tv_progress, gate=brk)
+                        chart_factory=chart_factory, progress=_tv_progress, gate=brk, stagger=TV_STAGGER_S,
+                        retry_pass=True, retry_pause=TV_RETRY_PAUSE_S)
+    _tv_retry_log("اليوميّ")
     out = {}
     for s, f in full.items():
         rows = []
@@ -663,7 +674,8 @@ def fetch_tv_hours(syms, d0, d1, key=None, tmap=None, workers=TV_WORKERS, brk=No
     brk = brk or TVBreaker(budget=TV_HOURS_BUDGET_S)
     full = {s: _tv_full(s, tmap) for s in syms}
     got = TV.fetch_many(sorted(set(full.values())), interval="60", n=TV_HOURS_N, extended=True, workers=workers,
-                        chart_factory=chart_factory, gate=brk)
+                        chart_factory=chart_factory, gate=brk, stagger=TV_STAGGER_S, retry_pass=True, retry_pause=TV_RETRY_PAUSE_S)
+    _tv_retry_log("الساعة")
     out = {}
     for s, f in full.items():
         out[s] = [(int(b[0]) * 1000, float(b[2]), float(b[3])) for b in (got.get(f) or []) if d0 <= TV.ny_day(b[0]) <= d1]
