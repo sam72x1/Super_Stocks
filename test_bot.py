@@ -60471,11 +60471,15 @@ check("🪜 PC1: `pivot_cycle_state` بترتيب الزمن — المرحلة�
 
 # 🔒 PC2 — **الفرعان والحدّ**: ثباتٌ داخل التسامح ⇒ 4/ثبات · سحبٌ 4% ثمّ استعادة ⇒ 4/سحب ·
 #    لمسةٌ داخل التسامح **بإغلاقٍ تحت القاع** ⇒ سحبٌ لا ثبات («ولا يُغلق تحته») ·
-#    سحبٌ 9% ⇒ **القاعُ انكسر** (قاعٌ جديد 0.91 · ليس 4) · وجلستان فقط بعد اللمسة ⇒ 3.
+#    سحبٌ 9% ⇒ **سحبٌ على القاع 1.00** (داخل «المتعارف 7-13%» · 4/سحب) · وسحبٌ 16% ⇒ **القاعُ انكسر**
+#    (قاعٌ جديد 0.84 · ليس 4) · وجلستان فقط بعد اللمسة ⇒ 3.
+#    🔄 **تحديثٌ إقراريّ 2026-09-30:** كان «سحبٌ 9% ⇒ انكسر» بحدّ 5 · وحدُّ `PIVOT_SWEEP_PCT` صار 13
+#    (نصُّ فيصل «متعارف عليه من 7٪ ل 13٪» `IMG_0297` + أمثلةُ دفعة 39 صورة — قفل `PSW1`) ⇒ 9% سحبٌ
+#    والانكسارُ يُختبَر بـ16% · والطفرةُ «إرجاعُ 5» تُسقط هذا القفلَ و`PSW1` معًا.
 _pc2 = {nm: _pc_call(S.pivot_cycle_state, d) for nm, d in (
     ("hold", _pc_story(1.005)), ("sweep4", _pc_story(0.96, 0.99)),
-    ("closebelow", _pc_story(0.995, 0.998)), ("broken9", _pc_story(0.91, 0.93)),
-    ("after2", _pc_story(1.005, after=2)))}
+    ("closebelow", _pc_story(0.995, 0.998)), ("sweep9", _pc_story(0.91, 0.93)),
+    ("broken16", _pc_story(0.84, 0.86)), ("after2", _pc_story(1.005, after=2)))}
 _pc2_ok = (
     _pc_g(_pc2["hold"], "stage") == 4 and _pc_g(_pc2["hold"], "branch") == "hold"
     and _pc_g(_pc2["hold"], "bottom") == 1.0 and _pc_g(_pc2["hold"], "held") == 4
@@ -60484,7 +60488,9 @@ _pc2_ok = (
     and _pc_g(_pc2["sweep4"], "sweep_pct") == 4.0 and _pc_g(_pc2["sweep4"], "bottom") == 1.0
     and _pc_g(_pc2["closebelow"], "branch") == "sweep"
     and _pc_g(_pc2["closebelow"], "sweep_pct") == 0.5
-    and _pc_g(_pc2["broken9"], "stage") == 2 and _pc_g(_pc2["broken9"], "bottom") == 0.91
+    and _pc_g(_pc2["sweep9"], "stage") == 4 and _pc_g(_pc2["sweep9"], "branch") == "sweep"
+    and _pc_g(_pc2["sweep9"], "sweep_pct") == 9.0 and _pc_g(_pc2["sweep9"], "bottom") == 1.0
+    and _pc_g(_pc2["broken16"], "stage") == 2 and _pc_g(_pc2["broken16"], "bottom") == 0.84
     and _pc_g(_pc2["after2"], "stage") == 3 and _pc_g(_pc2["after2"], "held") == 2)
 # …ومدخلاتٌ لا حالةَ لها ⇒ `None` صادق لا حالةٌ مختلَقة: صعودٌ من أوّل بار (القاعُ
 # أوّلُ بارٍ في النافذة — قد يسبقها الحقيقيّ) · أدنى سالبٌ · NaN · خمسةُ بارات · لا إطار.
@@ -60499,7 +60505,8 @@ _pc_nan.loc[12, "Low"] = float("nan")
 _pc2_none = [_pc_call(S.pivot_cycle_state, x)
              for x in (_pc_up, _pc_neg, _pc_nan, _pc_story(1.005).iloc[:5], None)]
 check("🪜 PC2: الفرعان والحدّ — ثبات ⇒ 4/ثبات · سحب 4% ⇒ 4/سحب · إغلاقٌ تحت القاع ⇒ سحب · "
-      "**سحب 9% ⇒ القاعُ انكسر (0.91 · مرحلة 2 لا 4)** · جلستان بعد اللمسة ⇒ 3 · "
+      "**سحب 9% ⇒ سحبٌ على القاع 1.00 (4/سحب)** · **سحب 16% ⇒ القاعُ انكسر (0.84 · مرحلة 2 لا 4)** · "
+      "جلستان بعد اللمسة ⇒ 3 · "
       "**وقاعٌ في أوّل بار/أدنى سالب/NaN/خمسةُ بارات/لا إطار ⇒ None**",
       _pc2_ok and _pc2_none == [None] * 5,
       " · ".join(f"{k}={_pc_g(v, 'stage')}/{_pc_g(v, 'branch')}/"
@@ -60532,7 +60539,8 @@ _pc4_ln = {k: _pc_call(S.pivot_cycle_line, v) for k, v in _pc4_st.items()}
 _PC4_WANT = {"s1": ("1/4", "لم يبلغ 10%"), "s2t": ("2/4", "نموذجيّ: فيصل «20% غالبًا»"),
              "s2l": ("2/4", "دون نموذجيّ فيصل 20%"), "s2f": ("2/4", "صعودٌ أوّل"),
              "s3h": ("3/4", "وثبت عليه"),
-             "s3s": ("3/4", "سحبُ سيولة 4.0% تحت القاع $1.00 (فيصل: حتى 5%)"),
+             # 🔄 تحديثٌ إقراريّ 2026-09-30: «حتى 5%» ⟵ «حتى 13%» (`PIVOT_SWEEP_PCT` بنصّ «المتعارف 7-13%» · `PSW1`)
+             "s3s": ("3/4", "سحبُ سيولة 4.0% تحت القاع $1.00 (فيصل: حتى 13%)"),
              "s4h": ("4/4", "بعد الاختبار"), "s4s": ("4/4", "بعد سحب السيولة")}
 _pc4_bad = [k for k, (a, b) in _PC4_WANT.items()
             if not (isinstance(_pc4_ln.get(k), str) and a in _pc4_ln[k] and b in _pc4_ln[k]
@@ -60941,14 +60949,91 @@ def _snl_df(sweep_low):
 
 _snl1 = _nc_call(S.pivot_cycle_state, _snl_df(2.432))
 _snl2 = _nc_call(S.pivot_cycle_state, _snl_df(2.47))
-check("🔒 SNL1: SNAL — كنسُ القاع 2.59 إلى **2.432** (‏−6.1%، أعمقُ من `PIVOT_SWEEP_PCT`) ⇒ "
-      "**عدٌّ جديد من القاع الأدنى** (المرحلة 1 · القاع 2.432 = «الدعم ٢.٤٣» عند فيصل)",
-      isinstance(_snl1, dict) and _snl1.get("stage") == 1
-      and abs(float(_snl1.get("bottom") or 0) - 2.432) < 1e-6, str(_snl1)[:90])
-check("🔒 SNL2: ضبط — كنسٌ إلى 2.47 (‏−4.6%، داخل 5%) ⇒ **سحبُ سيولةٍ على قاع 2.59** "
+_snl1b = _nc_call(S.pivot_cycle_state, _snl_df(2.20))
+# 🔄 **تحديثٌ إقراريّ 2026-09-30:** كان SNL1 «‏−6.1% أعمقُ من الحدّ ⇒ عدٌّ جديد من 2.432 (المرحلة 1)» بحدّ 5 ·
+#    وحدُّ `PIVOT_SWEEP_PCT` صار 13 («متعارف عليه من 7٪ ل 13٪» `IMG_0297` + دفعة 39 صورة · قفل `PSW1`) ⇒
+#    ‏−6.1% **سحبُ سيولةٍ على قاع 2.59** وذيلُه **2.432 = «الدعم ٢.٤٣»** محفوظٌ في `retest_low` · والانكسارُ
+#    يُختبَر بكنسٍ إلى 2.20 (‏−15.1%، أعمقُ من 13) ⇒ عدٌّ جديد من 2.20 — فالحدُّ ما زال فارقًا لا شكلًا.
+check("🔒 SNL1: SNAL — كنسُ القاع 2.59 إلى **2.432** (‏−6.1%، داخل `PIVOT_SWEEP_PCT`=13) ⇒ "
+      "**سحبُ سيولةٍ على 2.59** (المرحلة 3 · ذيلُه 2.432 = «الدعم ٢.٤٣» عند فيصل) · "
+      "وكنسٌ إلى **2.20** (‏−15.1%) ⇒ **عدٌّ جديد من القاع الأدنى** (المرحلة 1 · القاع 2.20)",
+      isinstance(_snl1, dict) and _snl1.get("stage") == 3 and _snl1.get("branch") == "sweep"
+      and abs(float(_snl1.get("bottom") or 0) - 2.59) < 1e-6
+      and abs(float(_snl1.get("retest_low") or 0) - 2.432) < 1e-6
+      and isinstance(_snl1b, dict) and _snl1b.get("stage") == 1
+      and abs(float(_snl1b.get("bottom") or 0) - 2.20) < 1e-6,
+      f"{str(_snl1)[:80]} · 2.20⟵{str(_snl1b)[:60]}")
+check("🔒 SNL2: ضبط — كنسٌ إلى 2.47 (‏−4.6%، ضمن «5٪» فيصل الضحلة) ⇒ **سحبُ سيولةٍ على قاع 2.59** "
       "(المرحلة 3 · فرعُ sweep) — فالحدُّ هو الفارقُ لا الشكل",
       isinstance(_snl2, dict) and _snl2.get("stage") == 3 and _snl2.get("branch") == "sweep"
       and abs(float(_snl2.get("bottom") or 0) - 2.59) < 1e-6, str(_snl2)[:90])
+
+# ═══ 🩸 دفعة 2026-09-30 (‏39 صورة) — أقفال PSW1/PSW2: حدُّ السحب في «دورة الارتكاز» = «المتعارف 7-13%» ═══
+# المصدر: `IMG_0297` (فيصل: «من القاع 1.30 سحب السيوله متعارف عليه من 7٪ ل 13٪») · وأمثلةُ الدفعة بأرقام فيصل
+# على شارتاته: OMH قاعٌ 2.05 ⟵ اختبارٌ 2.64 ⟵ أحمرُ «انتظار تحقيق سحب سيوله» 1.808 (`TG_57875`) و«1.87=2.20-15٪»
+# (`TG_57870`) · CIIT «القاع 2.26 · سحب السيوله 2» (`TG_57881`) · DKI قاعٌ 2.183 «مسح سيوله الى 2 تقريبا» (`TG_57894`).
+# 🔴 **العطلُ المُثبَت (محاكاةٌ قبل الإصلاح):** بحدّ 5 كان السطرُ يُنزل القاعَ إلى ذيل السحب ثمّ يصف الارتدادَ بعده
+#    «2/4 … ولم يرجع يختبره» — **لحظةَ ما يسمّيه فيصل الدخول** («تاخذ السهم بعد سحب السيوله مباشره» `TG_57894`).
+import numpy as _psw_np
+import pandas as _psw_pd
+
+
+def _psw_df(top, bottom, test, sweep_low, after):
+    """قصّةُ فيصل بأرقامه: هبوطٌ إلى القاع ⟵ ارتدادٌ يختبر المقاومة ⟵ رجوعٌ ⟵ شمعةُ سحبٍ ذيلُها `sweep_low`
+    وإغلاقُها فوق القاع ⟵ `after` جلساتٍ فوقه. **بلا شبكة** (إطارٌ مصنوع)."""
+    rows = [(x * 0.98, x * 1.02, x) for x in _psw_np.linspace(top, bottom * 1.02, 12)]
+    rows.append((bottom, bottom * 1.03, bottom * 1.02))                  # شمعةُ القاع
+    rows += [(x * 0.98, x * 1.01, x) for x in _psw_np.linspace(bottom * 1.05, test * 0.98, 6)]
+    rows.append((test * 0.97, test, test * 0.98))                        # اختبارُ المقاومة
+    rows += [(x * 0.98, x * 1.01, x) for x in _psw_np.linspace(test * 0.95, bottom * 1.03, 6)]
+    rows.append((sweep_low, bottom * 1.02, bottom * 1.01))               # شمعةُ السحب
+    rows += [(x * 0.985, x * 1.015, x) for x in after]
+    _i = _psw_pd.bdate_range("2026-07-01", periods=len(rows))
+    return _psw_pd.DataFrame({"Open": [r[2] for r in rows], "High": [r[1] for r in rows],
+                              "Low": [r[0] for r in rows], "Close": [r[2] for r in rows],
+                              "Volume": [1e5] * len(rows)}, index=_i)
+
+
+def _psw_call(f, *a, **k):
+    try:
+        return f(*a, **k)
+    except Exception as _e:                                       # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+
+
+_PSW_CASES = {   # الاسم: (القمّة، القاع، الاختبار، ذيلُ السحب، ما بعده) — أرقامُ فيصل حرفًا
+    "OMH_1.808": (5.1, 2.05, 2.64, 1.808, [2.10, 2.15, 2.20, 2.25]),
+    "OMH_1.87": (5.1, 2.05, 2.64, 1.87, [2.10, 2.15, 2.20, 2.25]),
+    "CIIT_2.00": (5.4, 2.26, 2.99, 2.00, [2.30, 2.35, 2.40, 2.45]),
+    "DKI_2.00": (3.74, 2.183, 2.74, 2.00, [2.25, 2.30, 2.35, 2.40]),
+}
+_psw = {k: _psw_call(S.pivot_cycle_state, _psw_df(*v)) for k, v in _PSW_CASES.items()}
+_psw_bad = [k for k, v in _psw.items()
+            if not (isinstance(v, dict) and v.get("stage") == 4 and v.get("branch") == "sweep"
+                    and abs(float(v.get("bottom") or 0) - _PSW_CASES[k][1]) < 0.01
+                    and 8.0 <= float(v.get("sweep_pct") or 0) <= 12.5)]
+_psw_crash = _psw_call(S.pivot_cycle_state, _psw_df(5.0, 2.00, 2.50, 1.50, [1.55, 1.52, 1.50, 1.48]))
+_psw_st3 = _psw_call(S.pivot_cycle_state, _psw_df(5.1, 2.05, 2.64, 1.808, [2.03]))
+_psw_line = _psw_call(S.pivot_cycle_line, _psw_st3) if isinstance(_psw_st3, dict) else str(_psw_st3)
+check("🩸 PSW1: سحوبُ فيصل الموثّقة في دفعة 2026-09-30 تُقرأ **سحبًا لا انكسارًا** — OMH (1.808 · 1.87) · CIIT (2.00) · "
+      "DKI (2.00) ⇒ **4/4 ثباتٌ بعد سحب السيولة على القاع الأصليّ** (السحبُ 8-12%) · وانهيارُ ‏25% ⇒ **1/4 قاعٌ جديد** · "
+      "وسطرُ المرحلة 3 يقول «(فيصل: حتى 13%)»",
+      not _psw_bad and isinstance(_psw_crash, dict) and _psw_crash.get("stage") == 1
+      and abs(float(_psw_crash.get("bottom") or 0) - 1.47) < 0.02
+      and isinstance(_psw_st3, dict) and _psw_st3.get("stage") == 3
+      and "(فيصل: حتى 13%)" in str(_psw_line),
+      f"خاطئ={_psw_bad} · {[(k, v.get('stage') if isinstance(v, dict) else v) for k, v in _psw.items()]} · "
+      f"انهيار={_psw_crash.get('stage') if isinstance(_psw_crash, dict) else _psw_crash} · "
+      f"سطر3={str(_psw_line)[:70]}")
+# 🔒 PSW2 — **الإسنادُ لا يضيع:** صفُّ الدفتر لـ`PIVOT_SWEEP_PCT` يسمّي نصَّ «المتعارف» (`IMG_0297`) وشواهدَ
+#    الدفعة الثلاثة (`TG_57875` · `TG_57881` · `TG_57894`) ويحفظ الرقمَ السابق (5 · `TG_50584`) طرفًا ضحلًا لا سقفًا.
+_psw_led = [ln for ln in open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read().splitlines()
+            if "PIVOT_SWEEP_PCT=" in ln and ln.lstrip().startswith("|")]
+check("🩸 PSW2: صفُّ `PIVOT_SWEEP_PCT` في الدفتر يسمّي `IMG_0297` وشواهدَ الدفعة (`TG_57875` · `TG_57881` · "
+      "`TG_57894`) ويحفظ `TG_50584` (‏5%) طرفًا ضحلًا",
+      len(_psw_led) == 1 and all(t in _psw_led[0] for t in
+                                 ("IMG_0297", "TG_57875", "TG_57881", "TG_57894", "TG_50584")),
+      f"صفوف={len(_psw_led)}")
 
 # ═══ 🔁 دفعة 2026-09-23 — أقفال SMC1-SMC5 (R-02 «مقسّمٌ أكثر من 3 مرّات ⇒ دون متوسّط 20» · عرضٌ فقط) ═══
 # المصدر: `TG_50832` (فيصل بتأكيد المالك 2026-09-23): «السهم المقسم اكثر من 3 مرات غالبا يصعد

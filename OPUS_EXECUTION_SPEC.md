@@ -172,7 +172,7 @@ build_message / build_daily_message / hand_check ──► pivot_cycle_line(r.ge
 
 ### 21-1 ما نُفِّذ
 - `pivot_cycle_state(df, …)` نقيّةٌ **فاشلةٌ-آمنةٌ حتى آخرها** (المسارُ كلُّه في `try` ⇒ `None` لا انهيار) · `pivot_cycle_line(pc)` سطرٌ واحد «🪜 دورة الارتكاز N/4» · `_pc_sessions` (جمعُ «جلسة/جلسات»).
-- `CONFIG`: `PIVOT_TEST_TYPICAL_PCT=20` · `PIVOT_SWEEP_PCT=5` (`faisal_verbatim`) · **`PIVOT_CYCLE_WIN=60` (`engineering`)**.
+- `CONFIG`: `PIVOT_TEST_TYPICAL_PCT=20` · `PIVOT_SWEEP_PCT=5` (`faisal_verbatim`) · **`PIVOT_CYCLE_WIN=60` (`engineering`)**. 🔄 **(تصحيحٌ مؤرَّخ 2026-09-30: `PIVOT_SWEEP_PCT=13` لا 5** — بنصّ «المتعارف 7-13%» (`IMG_0297`) وأمثلةِ دفعة 39 صورة (OMH/CIIT 8.8-12.9% تحت القاع) · وطفرةُ `p3` أدناه صارت القيمةَ الحيّة وطفرةُ «إرجاع 5» تُسقط `PC2`/`SNL1`/`PSW1` · `FAISAL_IMAGES_CATALOG.md §ثلاثون`)
 - التخزين: `scan_market` و`update_watchlist_status` **شقيقُ `bottom_test` في حارس الإثراء نفسِه** · `make_watch_entry` ينسخ.
 - الوصل: `build_message` (الكرت) · `build_daily_message` · `hand_check.py` (حسابٌ في المسار المؤهَّل + عرضٌ بعد 🕯️).
 - وسمُ وايكوف (R-02) داخل السطر · `PIVOT_WYCKOFF_TAG=False` يُطفئه بلا أثرٍ على بقيّته.
