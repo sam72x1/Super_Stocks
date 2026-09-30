@@ -72974,6 +72974,39 @@ except Exception as _e:                                              # noqa: BLE
 check("⚖️ HTV11 `split_events_after` بعد الجلسة حصرًا (مرتّبة · موجبة · None ⟵ []) · و`unadjusted_jump` يُمسك قفزةَ ×1/النسبة (WOK 1:100 · "
       "أماميّ 2:1) ولا يُمسك المسوّى ولا ما قبل أوّل شمعة", _v11, _v11w)
 
+# HTV12 — ملحق §⑧-ب (‏2026-09-30 · مِجَسّ `tvs_probe` ‏36756439668): نسبةٌ **داخل التسامح** (|log v| ≤ log 1.25 — أرباحُ أسهم 1.05 ·
+#    انفصالٌ 1.06 …) لا تُميَّز: المسوّى وغيرُ المسوّى كلاهما داخل الحدّ (‏23 من 29 علامةً في المِجَسّ · وأسماؤها نفسُها عند ياهو) ⇒
+#    `unadjusted_jump` يتخطّاها (لا «unadjusted» زائفًا يعلّق الصفَّ للأبد) · وخارجَ التسامح يبقى حكمُه (‏0.79 · 1:100 · 2:1) ·
+#    و`resolve` يحسم صفًّا بعد جلسته أرباحُ أسهم 1.05 وإطارُه مسوّى ⟵ يُسوّى مرجعُه بها (‏`ref_scaled` = 10/1.05 · `split_f` = 1.05)
+try:
+    _htv_ix12 = pd.bdate_range("2026-05-01", "2026-09-29")
+    _htv_c12 = 10.0 / 1.05
+    _htv_adj12 = pd.DataFrame({"High": [_htv_c12 * 1.03] * len(_htv_ix12), "Close": [_htv_c12] * len(_htv_ix12)}, index=_htv_ix12)
+    _htv_una12 = pd.DataFrame({"Close": [10.0 if d < pd.Timestamp("2026-06-15") else _htv_c12 for d in _htv_ix12]}, index=_htv_ix12)
+    _htv_b79 = pd.DataFrame({"Close": [1.0 if d < pd.Timestamp("2026-06-15") else 1.0 / 0.79 for d in _htv_ix12]}, index=_htv_ix12)
+    _htv_big12 = pd.DataFrame({"Close": [0.5 if d < pd.Timestamp("2026-06-15") else 50.0 for d in _htv_ix12]}, index=_htv_ix12)
+    _htv_r12 = [{"key": "envelope|2026-06-01|DIV", "hunter": "envelope", "session": "2026-06-01", "symbol": "DIV", "ref_close": 10.0}]
+    _htv_lg12 = []
+    _htv_o12 = _HO.resolve(_htv_r12, lambda _s: {"DIV": _htv_adj12}, log=_htv_lg12.append,
+                           split_events=lambda _s, _d: [("2026-06-15", 1.05)])
+    _htv_d12 = _htv_o12.get("envelope|2026-06-01|DIV") or {}
+    _v12 = (_HO.unadjusted_jump(_htv_adj12, [("2026-06-15", 1.05)]) is False
+            and _HO.unadjusted_jump(_htv_una12, [("2026-06-15", 1.05)]) is False
+            and _HO.unadjusted_jump(_htv_adj12, [("2026-06-15", 0.81)]) is False
+            and _HO.unadjusted_jump(_htv_b79, [("2026-06-15", 0.79)]) is True
+            and _HO.unadjusted_jump(_htv_big12, [("2026-06-15", 0.01)]) is True
+            and _HO.unadjusted_jump(_htv_una12, [("2026-06-15", 1.05), ("2026-07-01", -2.0)]) is False
+            and set(_htv_o12) == {"envelope|2026-06-01|DIV"}
+            and abs(float(_htv_d12.get("ref_scaled") or 0) - round(_htv_c12, 6)) < 1e-9
+            and _htv_d12.get("split_f") == 1.05 and _htv_d12.get("hit100") is False
+            and any("سُوّي مرجعُه بتقسيمٍ مؤكَّد 1 · مقياسٌ غير متّسق 0" in x for x in _htv_lg12))
+    _v12w = (f"مسوّى1.05={_HO.unadjusted_jump(_htv_adj12, [('2026-06-15', 1.05)])} · "
+             f"0.79={_HO.unadjusted_jump(_htv_b79, [('2026-06-15', 0.79)])} · حُسم={ {k: (v.get('ref_scaled'), v.get('split_f')) for k, v in _htv_o12.items()} }")
+except Exception as _e:                                              # noqa: BLE001
+    _v12, _v12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️ HTV12 `unadjusted_jump` يتخطّى النسبةَ داخل التسامح (‏1.05 · 0.81 — لا تُميَّز) ويُبقي ما خارجه (‏0.79 · 1:100) · و`resolve` "
+      "يحسم صفًّا بعده أرباحُ أسهم 1.05 مسوّاةً (‏`ref_scaled` = 10/1.05) لا معلّقًا للأبد", _v12, _v12w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

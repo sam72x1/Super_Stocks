@@ -119,16 +119,24 @@ def split_events_after(splits, session) -> list:
 def unadjusted_jump(df, events, tol=None) -> bool:
     """⚖️ نقيّة (ملحق §⑧): هل **لم يُسوِّ** الإطارُ تقسيمًا مُدرَجًا؟ — إغلاقُ أوّل شمعةٍ في يوم التقسيم أو بعده ÷ إغلاقِ آخر شمعةٍ
     قبله يساوي 1/النسبة داخل `SCALE_TOL` ⟵ True (الشاهدُ المقيس: TradingView لم يسوِّ WOK ‏2025-10-21 ‏1:100 فقفز في سلسلته نفسِها
-    359 ⟵ 37,200 · `hnt_diag` 2026-09-30). فاشلةٌ-آمنة ⟵ False."""
+    359 ⟵ 37,200 · `hnt_diag` 2026-09-30). فاشلةٌ-آمنة ⟵ False.
+
+    🔎 **ونسبةٌ داخل التسامح لا تُفحص** (ملحق §⑧-ب · مِجَسّ `tvs_probe` ‏36756439668): حين |log النسبة| ≤ log(1+t) يقع المسوّى
+    وغيرُ المسوّى **كلاهما** داخل الحدّ (أرباحُ أسهمٍ 1.05 · انفصالٌ 1.06 …) فلا يُميَّز بينهما — وكان الكاشفُ يُعلّمها «غيرَ مسوّاة»
+    أيًّا كان المصدر (‏23 من 29 علامةً في المِجَسّ · وأسماؤها نفسُها عند ياهو) فيعلّق صفَّها للأبد. وخطأُ مقياسها لا يتجاوز التسامح،
+    و`scale_ref` يختار بينها بإغلاق يوم الجلسة الطازج."""
     try:
         t = SCALE_TOL if tol is None else float(tol)
         idx = [str(i)[:10] for i in df.index]
         cl = [float(x) for x in df["Close"].values]
         for d, v in (events or []):
+            fv = float(v)
+            if fv <= 0 or abs(math.log(fv)) <= math.log(1.0 + t):
+                continue                                         # 🔎 داخل التسامح: لا يُميَّز (ملحق §⑧-ب)
             j = next((k for k, x in enumerate(idx) if x >= str(d)[:10]), None)
-            if j is None or j == 0 or cl[j - 1] <= 0 or float(v) <= 0:
+            if j is None or j == 0 or cl[j - 1] <= 0:
                 continue
-            if abs(math.log((cl[j] / cl[j - 1]) * float(v))) <= math.log(1.0 + t):
+            if abs(math.log((cl[j] / cl[j - 1]) * fv)) <= math.log(1.0 + t):
                 return True
         return False
     except Exception:                                            # noqa: BLE001
