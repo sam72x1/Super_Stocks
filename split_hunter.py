@@ -307,7 +307,8 @@ def run(fetch_ext=None, now_utc=None):
     #    🔒 `ref_close` **يُجمَّد لحظةَ الرصد** (‏H3) — إغلاقُ جلسة المسح نفسها.
     try:
         LEDGER.record("split", sess, rows, log=S.log,
-                      ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]))
+                      ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]),
+                      src_of=lambda _s: LEDGER.frame_src(hist.get(_s)))   # 📺 مصدرُ المرجع (ملحق §⑦)
     except Exception:                                            # noqa: BLE001
         pass
     # 🎁 **إثراء الكماليّات** (طلب المالك: اليد · المتابعة · تدفّق السيولة · قيمة

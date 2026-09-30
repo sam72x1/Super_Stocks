@@ -220,7 +220,8 @@ def run(now_utc=None, decide_fn=None) -> int:
     try:
         LEDGER.record("envelope", (sess.isoformat() if sess else None), rows,
                       log=S.log,
-                      ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]))
+                      ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]),
+                      src_of=lambda _s: LEDGER.frame_src(hist.get(_s)))   # 📺 مصدرُ المرجع (ملحق §⑦)
     except Exception:                                            # noqa: BLE001
         pass
     # ④ الكتابة — سطرٌ لكل مرشّح، وسطرُ ترويسةٍ يحمل التغطية والبصمة

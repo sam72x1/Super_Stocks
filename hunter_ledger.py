@@ -18,6 +18,11 @@
 
 ⚠️ **والمرجعُ `ref_close` يُخزَّن لحظةَ الرصد** لا وقتَ التقييم (‏`H3`) — وإلّا صار
 المقياسُ يتحرّك تحت أقدامنا.
+
+📺 **ومصدرُ الصفّ `src` (‏2026-09-30 · «انقل الصيّادين إلى ترندق فيو» · ملحق §⑦ في `harvest_prereg.md`):**
+الصيّادون يقرؤون شموعَهم من TradingView (مع احتياط ياهو لكلّ رمز) ⇒ كلُّ صفٍّ يحمل مصدرَ الإطار الذي جُمِّد منه
+مرجعُه، **ويُحسم بشموع المصدر نفسِه** (‏`hunter_outcomes`) فلا يُقارَن مرجعٌ من مصدرٍ بقممٍ من آخر. وغيابُ الحقل
+= ياهو (كلُّ صفٍّ قبل النقل) — ونداءٌ بلا `src_of` يُنتج الصفَّ السابق **بت-بت**.
 """
 from __future__ import annotations
 
@@ -30,6 +35,9 @@ HIT_PRIMARY = 2.0             # `hit100` — هدفُ الوصفة المنصو�
 HIT_SECONDARY = 1.5           # `hit50` — مساند
 MAX_ROWS = 20000              # سقفٌ **مُعلَنٌ بعدّاده** لا قصٌّ صامت (‏H6)
 
+SRC_TV = "tradingview"        # 📺 مصدرُ إطار الصيّاد (وسمُ `attrs["bars_src"]` من `Super_stock.tv_daily_frame`)
+SRC_YAHOO = "yahoo"           #    وغيابُ الحقل في الصفّ = ياهو (كلُّ صفٍّ قبل 2026-09-30)
+
 # الحقولُ المنسوخة من صفّ المرشّح (إن وُجدت) — **قراءةٌ فقط**، لا تُبتدَع قيمة.
 _COPY = ("price", "float", "short_avail", "best_spike", "drop_pct", "rr",
          "readiness", "score", "pivot", "half", "ref")
@@ -37,6 +45,23 @@ _COPY = ("price", "float", "short_avail", "best_spike", "drop_pct", "rr",
 
 def _key(hunter, session, symbol) -> str:
     return f"{hunter}|{session}|{str(symbol).upper()}"
+
+
+def frame_src(df) -> str:
+    """📺 مصدرُ إطار الشموع: «tradingview» إن حمل وسمَ `attrs["bars_src"]` (‏`tv_daily_frame`) وإلّا «yahoo» — إطارُ ياهو
+    (المسارُ السابق · واحتياطُه لكلّ رمزٍ تعذّر عند TradingView) بلا وسم. **فاشلٌ-آمن** ⟵ «yahoo»."""
+    try:
+        return SRC_TV if (getattr(df, "attrs", None) or {}).get("bars_src") == SRC_TV else SRC_YAHOO
+    except Exception:                                            # noqa: BLE001
+        return SRC_YAHOO
+
+
+def row_src(row) -> str:
+    """📺 مصدرُ صفّ السجلّ: «tradingview» إن حمله الحقلُ `src` حرفًا وإلّا «yahoo» (غيابُه = كلُّ صفٍّ قبل النقل)."""
+    try:
+        return SRC_TV if str((row or {}).get("src") or "") == SRC_TV else SRC_YAHOO
+    except Exception:                                            # noqa: BLE001
+        return SRC_YAHOO
 
 
 def load(path: str = None) -> list:
@@ -66,10 +91,12 @@ def load(path: str = None) -> list:
     return out
 
 
-def build_rows(hunter, session, rows, ref_of=None, kind="candidate") -> list:
+def build_rows(hunter, session, rows, ref_of=None, kind="candidate", src_of=None) -> list:
     """🧱 نقيّة: يحوّل مرشّحي صيّادٍ إلى صفوفِ سجلّ. **لا تلمس `rows`.**
 
-    `ref_of(sym)` يُرجع إغلاقَ جلسة الرصد — **يُقرأ الآن ويُجمَّد** (‏`H3`)."""
+    `ref_of(sym)` يُرجع إغلاقَ جلسة الرصد — **يُقرأ الآن ويُجمَّد** (‏`H3`).
+    📺 `src_of(sym)` يُرجع مصدرَ الإطار الذي جُمِّد منه المرجع (‏`frame_src`) فيُكتب `src` · وبدونه لا حقلَ (الصفُّ السابق
+    بت-بت) · وتعذّرُه ⟵ «yahoo»."""
     out = []
     for r in (rows or []):
         try:
@@ -98,6 +125,11 @@ def build_rows(hunter, session, rows, ref_of=None, kind="candidate") -> list:
                                   else str(r[k])[:40])
                     except Exception:                            # noqa: BLE001
                         pass
+            if src_of is not None:
+                try:
+                    rec["src"] = SRC_TV if src_of(sym) == SRC_TV else SRC_YAHOO
+                except Exception:                                # noqa: BLE001
+                    rec["src"] = SRC_YAHOO
             out.append(rec)
         except Exception:                                        # noqa: BLE001
             continue
@@ -129,16 +161,17 @@ def _known_keys(path: str) -> set:
 
 
 def record(hunter, session, rows, ref_of=None, kind="candidate",
-           path: str = None, log=None) -> int:
+           path: str = None, log=None, src_of=None) -> int:
     """✍️ يُلحق صفوفَ صيّادٍ بالسجلّ ويُرجع **عدد الجديد**.
 
     🔒 **لا يرمي أبدًا** (البند 2) · **ومُتَمَاثِل** (البند 3): ما كان مفتاحُه
     موجودًا يُتخطّى ⇒ الكرونان لا يُنتجان صفَّين.
 
-    🔴 والمسارُ **يُحسَم وقت النداء** (نفسُ فخّ الافتراض المربوط)."""
+    🔴 والمسارُ **يُحسَم وقت النداء** (نفسُ فخّ الافتراض المربوط).
+    📺 و`src_of` يمرّ إلى `build_rows` كما هو (مصدرُ الإطار · ملحق §⑦)."""
     path = path or LEDGER_FILE
     try:
-        new = build_rows(hunter, session, rows, ref_of=ref_of, kind=kind)
+        new = build_rows(hunter, session, rows, ref_of=ref_of, kind=kind, src_of=src_of)
         if not new:
             return 0
         have = _known_keys(path)
