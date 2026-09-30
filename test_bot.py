@@ -8832,10 +8832,14 @@ try:
     check("🔬 نافذة تحميل: start_override يُستعمَل حرفيًّا (باكتيست قديم يصل 2023)",
           _dh_cap.get("start") == "2020-10-01")
     _dh_cap.clear()
+    _dh_d0 = S.dt.date.today()
     S.download_history(["AAA"])            # الإنتاج: بلا override
-    _dh_exp = (S.dt.date.today() - S.dt.timedelta(days=S.CONFIG["HISTORY_DAYS"])).isoformat()
+    _dh_d1 = S.dt.date.today()
+    # 🕛 «اليوم» يومُ النداء: المحاولاتُ تنام ثوانيَ فقد يعبر النداءُ منتصفَ الليل (سقط هكذا 2026-09-29 23:59:56 ⟶ 00:00)
+    #    ⇒ يُقبل يومُ بدء النداء أو يومُ نهايته وحدَهما — والحكمُ نفسُه «اليوم − HISTORY_DAYS» بت-بت
+    _dh_exp = {(d - S.dt.timedelta(days=S.CONFIG["HISTORY_DAYS"])).isoformat() for d in (_dh_d0, _dh_d1)}
     check("🔬 نافذة تحميل: بلا override = اليوم−HISTORY_DAYS (الإنتاج حرفيًّا)",
-          _dh_cap.get("start") == _dh_exp)
+          _dh_cap.get("start") in _dh_exp, f"start={_dh_cap.get('start')} · المتوقَّع={sorted(_dh_exp)}")
 finally:
     S.yf, S._download_chunk = _dh_saved
 check("🔬 نافذة تحميل: run_backtest يمدّ البدء من date_window ويمرّره",
@@ -17146,9 +17150,12 @@ _c7_pins = [_l.strip() for _l in _c7_req.splitlines()
 # 🔴 **وحُدِّث عمدًا ثالثةً 2026-09-24 — `Pillow`** لمُعرِّف الشارت (`chart_render`/`chart_pixels`):
 #    تُستورَد كسولةً داخل الدوالّ فلا تمسّ الإنتاج، وأقفالُ `CFD` تحتاجها في CI · والمجموعةُ
 #    **مطابقةٌ بالضبط** (سابعةٌ لا «تحوي») · و`DEP1` يعرف `PIL ⟵ pillow` بخريطةٍ صريحة.
-_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml", "Pillow"}
+# 🔴 **وحُدِّث عمدًا رابعةً 2026-09-29 — `websocket-client`** لمِقبس شموع TradingView (`tv_data.Chart`) بعد أمر المالك
+#    «اشتراكي مخلص ولا راح اجدده … البيانات تاخذها من ترندق فيو مب ياهو»: تُستورَد كسولةً داخل `Chart.open` فلا تحتاجها
+#    السويّة · والمجموعةُ **مطابقةٌ بالضبط** (ثامنةٌ لا «تحوي»).
+_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml", "Pillow", "websocket-client"}
 _c7_names = {_l.split("==")[0].strip() for _l in _c7_pins}
-check("📌 007·الاعتمادياتُ السبع مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
+check("📌 007·الاعتمادياتُ الثماني مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
       "(لا ترقيةٌ صامتة ولا إضافةٌ صامتة)",
       _c7_names == _C7_EXPECT and all("==" in _l for _l in _c7_pins)
       and len(_c7_pins) == len(_C7_EXPECT),
@@ -68797,6 +68804,8 @@ check("🕗 RBG5 موصولٌ في `run_weekly_renewal` **قبل** أوّل تح
 #    لازم توافق الشروط 3 و ثبات 5 جلسات» · «فريم 4 ساعات عشان نعرف بالضبط قيمة ادنى قاع» · «FGL نوع منفجر قبل اقل من
 #    اسبوع … هذا غلط») ⟵ وأمرُه الثالث «تحت 33 نفس شرط فيصل بالضبط … للصنفين» (TCD24) — عالمٌ اصطناعيّ بلا شبكة: شموعُ
 #    اليوم والساعة محقونتان · RSI من Polygon وياهو للتحقّق.
+#    📺 ومنذ 2026-09-29 (أمرُ المالك «البيانات تاخذها من ترندق فيو مب ياهو»): المصدرُ الافتراضيّ TradingView ⇒ هذا الحزامُ يمرّر
+#    `source="polygon"` **صراحةً** فتحرس TCD1-TCD28 المسارَ السابق (مفتاحُ الرجوع بت-بت) · وTCD29-TCD37 تحرس TradingView.
 # ══════════════════════════════════════════════════════════════════════════
 import ast as _tcd_ast                                               # noqa: E402
 import contextlib as _tcd_ctx                                        # noqa: E402
@@ -68942,7 +68951,7 @@ def _tcd_run(now=None, dry=True, force=False, cover_cut=None, shards=3, repaired
                                      "pullback": list(pb_extra)},
                                  nw=dict({"CET": {"outside": ["M2 الهبوط (دون الحدّ)"]}, "NWO": {"outside": []},
                                           "BIG": {"outside": []}}, **(nw_extra or {})),
-                                 cache={}, repaired=repaired, hours=hours)
+                                 cache={}, repaired=repaired, hours=hours, source="polygon")
             parts = [_TCD.stage_borrow(st, k, shards, ce=ce, pause=0) for k in range(shards)]
             rc = _TCD.stage_send(st, parts, send=lambda m: sent.append(m))
     except Exception as _e:                                          # noqa: BLE001
@@ -69621,7 +69630,7 @@ try:
                 st = _TCD.stage_scan(now=_tcd_dt.datetime(2026, 9, 26, 3, 30, tzinfo=_TCD.NY), key="k", fetch=fetch,
                                      universe=lambda: list(_u27), yahoo=_y27, yfloat=lambda x: _fl27.get(x),
                                      harvested=lambda d: {}, wl={"stocks": [], "pullback": []}, nw={}, cache={},
-                                     repaired={}, hours=hours)
+                                     repaired={}, hours=hours, source="polygon")
                 parts = [_TCD.stage_borrow(st, 0, 1, ce=_ce27, pause=0)]
                 rc = _TCD.stage_send(st, parts, send=lambda m: sent.append(m))
         finally:
@@ -69681,6 +69690,474 @@ except Exception as _e:                                              # noqa: BLE
     _v28, _v28w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("⛔ TCD28 الجالبان يمرّان بالقاطع (AST): `_guarded` في `fetch_polygon` و`fetch_hours` · وكلاهما يكتب `BREAKER_LAST` · "
       "و`stage_scan` يُصفّره قبل الجلب", _v28, _v28w)
+
+# ══════════════════════════════════════════════════════════════════════════
+# 📺 TCD29-TCD37 «شروطك الثلاثة» على TradingView (أمرُ المالك 2026-09-29 ليلًا بعد انتهاء اشتراك Polygon: «المهم الاشعارات حقت
+#    الأدوات تكون مستمرة … و المهم تكون النتايج دقيقة يعني البيانات تاخذها من ترندق فيو مب ياهو») — المصدرُ الافتراضيّ `tv`:
+#    الشموعُ من مِقبس TradingView · والفلوتُ وRSI المرجع من ماسحه · و`polygon` = المسارُ السابق بت-بت (يحرسه TCD1-TCD28).
+#    عالمٌ اصطناعيّ بلا شبكة: لقطةُ ماسحٍ محقونة (`snap`) ومِقبسٌ مزيَّف (`chart_factory` · أو `TV.Chart` مُستبدَلًا ثمّ مُستعادًا).
+# ══════════════════════════════════════════════════════════════════════════
+import os as _tv_os                                                  # noqa: E402
+import threading as _tv_thr                                          # noqa: E402
+
+_TV_SNAP_DEFAULT = object()
+
+
+def _tv_snap_of(W, fl, mut=None):
+    """لقطةُ ماسحٍ اصطناعيّة من شموع العالم (كلُّ رموزه ومعها NWO): الإغلاقُ = إغلاقُ الجلسة · RSI = `S.rsi` على الإغلاقات (ما
+    قاسه المِجَسّ الحيّ `36646071838`) · والفلوتُ من `fl` · و`mut` = {رمز: {حقل: قيمة}} تعديلاتٌ بعدها."""
+    out = {}
+    for s, rows in W.items():
+        if not rows:
+            continue
+        r = _TCD.S.rsi(_tcd_pd.Series([x[4] for x in rows]))
+        out[f"NASDAQ:{s}"] = {"name": s, "close": rows[-1][4], "RSI": float(r.iloc[-1]), "RSI[1]": float(r.iloc[-2]),
+                              "float_shares_outstanding": fl.get(s)}
+    for s, d in (mut or {}).items():
+        out.setdefault(f"NASDAQ:{s}", {"name": s}).update(d)
+    return out
+
+
+def _tcd_run_tv(snap=_TV_SNAP_DEFAULT, snap_mut=None, more=None, cache=None, dry=True, trace=(), chart=None):
+    """الأنبوبُ كلُّه بمصدر TradingView ⟵ (رمزُ الخروج, المُخرَج, الحالة, المُرسَل, fetch, hours, عدّاداتُ ياهو) — و`chart` =
+    مِقبسٌ مزيَّف يُستبدل به `TV.Chart` فيمرّ بالجالبَين الحقيقيَّين (`fetch_tv`/`fetch_tv_hours`) بدل المحقونَين."""
+    W, uni, fl, fetch, hours, yahoo, ce = _tcd_world(more)
+    sn = _tv_snap_of(W, fl, snap_mut) if snap is _TV_SNAP_DEFAULT else snap
+    yc = {"yahoo": 0, "yfloat": 0, "download_history": 0, "_yahoo_float": 0}
+
+    def _yh(syms):
+        yc["yahoo"] += 1
+        return yahoo(syms)
+
+    def _yf(s):
+        yc["yfloat"] += 1
+        return fl.get(s)
+    sv_dl, sv_yf, sv_ch = _TCD.S.download_history, _TCD.S._yahoo_float, _TCD.TV.Chart
+
+    def _dl(*a, **k):
+        yc["download_history"] += 1
+        return sv_dl(*a, **k)
+
+    def _yflt(*a, **k):
+        yc["_yahoo_float"] += 1
+        return None
+    sent = []
+    buf = _tcd_io.StringIO()
+    sv = (_TCD.DRY, _TCD.FORCE, _TCD.TRACE)
+    try:
+        _TCD.DRY, _TCD.FORCE, _TCD.TRACE = dry, False, tuple(trace)
+        _TCD.S.download_history, _TCD.S._yahoo_float = _dl, _yflt
+        if chart is not None:
+            _TCD.TV.Chart = chart
+        with _tcd_ctx.redirect_stdout(buf):
+            st = _TCD.stage_scan(now=_tcd_dt.datetime(2026, 9, 26, 3, 30, tzinfo=_TCD.NY), key=None,
+                                 fetch=None if chart is not None else fetch, universe=lambda: list(uni), yahoo=_yh,
+                                 yfloat=_yf, harvested=lambda d: {"AAA": {"shares_available": 5000}},
+                                 wl={"stocks": [{"symbol": "AAA", "status": "active", "cont_status": "continues"}],
+                                     "pullback": []},
+                                 nw={"CET": {"outside": ["M2 الهبوط (دون الحدّ)"]}, "NWO": {"outside": []},
+                                     "BIG": {"outside": []}},
+                                 cache=dict(cache or {}), repaired=None,
+                                 hours=None if chart is not None else hours, source="tv", snap=sn)
+            parts = [_TCD.stage_borrow(st, k, 3, ce=ce, pause=0) for k in range(3)]
+            rc = _TCD.stage_send(st, parts, send=lambda m: sent.append(m))
+    except Exception as _e:                                          # noqa: BLE001
+        rc, st = f"⛔ {type(_e).__name__}: {_e}", {}
+    finally:
+        _TCD.DRY, _TCD.FORCE, _TCD.TRACE = sv
+        _TCD.S.download_history, _TCD.S._yahoo_float, _TCD.TV.Chart = sv_dl, sv_yf, sv_ch
+        _TCD.BREAKER_LAST.clear()
+    return rc, buf.getvalue(), st, sent, fetch, hours, yc
+
+
+class _TvFakeChart:
+    """مِقبسٌ مزيَّف لـ`TV.fetch_many`: `bars()` من `data` {«EXCH:SYM»: شموع} · None لما في `bad` · و`flaky` يُخفق أوّلَ مرّةٍ
+    على المقبس نفسِه ثمّ ينجح (سقوطٌ عابر) · وكلُّ نداءٍ يُسجَّل في `log` المشترك (symbol, interval, n, extended)."""
+
+    def __init__(self, data=None, bad=(), flaky=(), log=None, lock=None, every=False, fail_first=None):
+        self.data, self.bad, self.flaky, self.every = data or {}, set(bad), set(flaky), every
+        self.log = log if log is not None else []
+        self.lock = lock or _tv_thr.Lock()
+        self.seen = set()
+        self.fail_first = fail_first                                 # {رمز: عددُ إخفاقاتٍ أولى} مشتركٌ بين المقابس (دفعةٌ عابرة)
+
+    def bars(self, symbol, interval="1D", n=600, extended=False, adjustment="splits"):
+        with self.lock:
+            self.log.append((symbol, interval, n, extended))
+            if self.fail_first is not None and self.fail_first.get(symbol, 0) > 0:
+                self.fail_first[symbol] -= 1
+                return None
+        if self.every or symbol in self.bad:
+            return None
+        if symbol in self.flaky and symbol not in self.seen:
+            self.seen.add(symbol)
+            return None
+        return list(self.data.get(symbol, []))
+
+    def close(self):
+        pass
+
+
+def _tv_ts(d, h, m=0):
+    """ثواني يونكس لوقت نيويورك (شكلُ طابع شمعة TradingView)."""
+    y, mo, dd = map(int, d.split("-"))
+    return int(_tcd_dt.datetime(y, mo, dd, h, m, tzinfo=_TCD.NY).timestamp())
+
+
+# TCD29 — المصدرُ الافتراضيّ TradingView (والتعبيرُ نفسُه في الكود · AST) · و`source_of`: «polygon» حرفيًّا وحدَه يرجع للسابق ·
+#    و`main()` بمصدر TradingView **لا يطلب `POLYGON_API_KEY`** (يمضي إلى المسح) · وبمصدر Polygon يخرج 2 قبل أيّ جلب
+try:
+    _t29 = _tcd_ast.parse(_tcd_src)
+    _as29 = [n for n in _t29.body if isinstance(n, _tcd_ast.Assign) and any(getattr(t, "id", "") == "SOURCE" for t in n.targets)]
+    _src29 = _tcd_ast.unparse(_as29[0].value) if _as29 else ""
+    _tab29 = [_TCD.source_of(x) for x in (None, "", "tv", "TV", "polygon", " Polygon ", "polygn", "yahoo")]
+    _calls29, _sv29 = [], (_TCD.STAGE, _TCD.SOURCE, _TCD.stage_scan, _TCD._dump, _tv_os.environ.get("POLYGON_API_KEY"))
+    try:
+        _tv_os.environ.pop("POLYGON_API_KEY", None)
+        _TCD.stage_scan = lambda **k: _calls29.append(("scan", k)) or {"sess": None}
+        _TCD._dump = lambda path, obj: _calls29.append(("dump", path))
+        _TCD.STAGE, _TCD.SOURCE = "scan", "tv"
+        with _tcd_ctx.redirect_stdout(_tcd_io.StringIO()):
+            _rc29tv = _TCD.main()
+        _n29tv = len(_calls29)
+        _TCD.SOURCE = "polygon"
+        with _tcd_ctx.redirect_stdout(_tcd_io.StringIO()):
+            _rc29pg = _TCD.main()
+        _n29pg = len(_calls29) - _n29tv
+    finally:
+        _TCD.STAGE, _TCD.SOURCE, _TCD.stage_scan, _TCD._dump = _sv29[:4]
+        if _sv29[4] is not None:
+            _tv_os.environ["POLYGON_API_KEY"] = _sv29[4]
+    _v29 = ("TC_SOURCE" in _src29 and "'tv'" in _src29
+            and _tab29 == ["tv", "tv", "tv", "tv", "polygon", "polygon", "tv", "tv"]
+            and _rc29tv == 0 and _n29tv == 2 and _rc29pg == 2 and _n29pg == 0)
+    _v29w = f"SOURCE={_src29} · جدول={_tab29} · tv: rc={_rc29tv} نداءات={_n29tv} · polygon: rc={_rc29pg} نداءات={_n29pg}"
+except Exception as _e:                                              # noqa: BLE001
+    _v29, _v29w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD29 المصدرُ الافتراضيّ TradingView (`TC_SOURCE` وإلّا «tv») · «polygon» حرفيًّا وحدَه يرجع للسابق · و`main()` بـTradingView "
+      "بلا مفتاح Polygon يمضي إلى المسح · وبـPolygon بلا مفتاح يخرج 2 قبل أيّ جلب", _v29, _v29w)
+
+# TCD30 — الأنبوبُ كاملًا بـTradingView: المذكورُ نفسُه في مسار Polygon (AAA · NWO · OLDB · PNY) · والرسالةُ تقول TradingView ولا
+#    تقول Polygon ولا ياهو · والفلوتُ وسمُه «TradingView» · **وصفرُ نداءٍ لياهو** (`yahoo`/`yfloat` المحقونَين و`S.download_history`
+#    و`S._yahoo_float`) · والحالةُ تحمل مصدرَها
+try:
+    _r30 = _tcd_run_tv(snap_mut={"SPL": {"RSI": 5.0}, "PNY": {"close": 0.55, "RSI": 90.0}}, trace=("EXT", "MGN", "ZZZ"))
+    _m30 = _tcd_msg(_r30[1])
+    _rows30 = (_r30[2] or {}).get("rows") or {}
+    _v30 = (_r30[0] == 0 and _tcd_matched(_r30[1]) == _tcd_matched(_tcd_out) and "$AAA" in _tcd_matched(_r30[1])
+            and "$PNY" in " ".join(_tcd_sec(_r30[1], "🪙 <b>سنتات")) and "TradingView" in _m30
+            and "بشمعة الجلسة من TradingView" in _m30 and "Polygon" not in _m30 and "ياهو" not in _m30
+            and (_rows30.get("AAA") or {}).get("fl_src") == "TradingView" and _r30[2].get("source") == "tv"
+            and _r30[6] == {"yahoo": 0, "yfloat": 0, "download_history": 0, "_yahoo_float": 0})
+    _v30w = f"rc={_r30[0]} · مذكور={_tcd_matched(_r30[1])[:120]} · ياهو={_r30[6]} · مصدر={(_r30[2] or {}).get('source')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v30, _v30w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD30 الأنبوبُ بـTradingView: المذكورُ = مسارُ Polygon (AAA · NWO · OLDB · PNY) · الرسالةُ «TradingView» بلا Polygon ولا "
+      "ياهو · الفلوتُ «TradingView» · وصفرُ نداءٍ لياهو (المحقونَين و`download_history` و`_yahoo_float`)", _v30, _v30w)
+
+# TCD31 — التحقّقُ الداخليّ: SPL (RSI الماسح 5 والشموعُ 0 · إغلاقٌ مطابق) «مشكوك» لا يُذكر وسجلُّه «RSI الشموع … الماسح …» ·
+#    وPNY (إغلاقُ الماسح 0.55 لا 0.50 ⟵ شمعةٌ أخرى) **لا يُقارَن** فيُذكر رغم RSI 90 · و`tv_ref_rsi`: التطابقُ وحدَه يُقارَن
+try:
+    _log31 = "\n".join(ln for ln in _r30[1].splitlines() if not ln.startswith("‏"))
+    _rw31 = (_r30[2] or {}).get("rows") or {}
+    _sn31 = {"close": 2.0, "RSI": 21.5}
+    _u31 = [_TCD.tv_ref_rsi(_sn31, 2.0), _TCD.tv_ref_rsi(_sn31, 2.0 * (1 + 5e-7)), _TCD.tv_ref_rsi(_sn31, 2.00002),
+            _TCD.tv_ref_rsi(dict(_sn31, RSI=None), 2.0), _TCD.tv_ref_rsi(_sn31, 0), _TCD.tv_ref_rsi({}, 2.0),
+            _TCD.tv_ref_rsi(None, 2.0)]
+    _v31 = ("$SPL" not in _tcd_matched(_r30[1]) and "مشكوك 1" in _tcd_msg(_r30[1])
+            and "⚠️ مشكوك SPL · RSI الشموع 0.0 · الماسح 5.0 (TradingView)" in _log31
+            and (_rw31.get("PNY") or {}).get("ry") is None and (_rw31.get("SPL") or {}).get("ry") == 5.0
+            and "$PNY" in _tcd_matched(_r30[1]) and "⑦ تحقّقُ RSI بماسح TradingView" in _log31
+            and _u31 == [21.5, 21.5, None, None, None, None, None])
+    _v31w = f"وحدات={_u31} · PNY.ry={(_rw31.get('PNY') or {}).get('ry')} · SPL.ry={(_rw31.get('SPL') or {}).get('ry')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v31, _v31w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD31 التحقّقُ الداخليّ: SPL (الماسح 5 والشموع 0) «مشكوك» لا يُذكر وسجلُّه بالرقمين · PNY (إغلاقُ الماسح ليس إغلاقَ "
+      "الجلسة) لا يُقارَن فيُذكر · و`tv_ref_rsi` يقارن بإغلاقٍ مطابقٍ وحدَه (‏1e-6 نسبيًّا)", _v31, _v31w)
+
+# TCD32 — الفلوتُ من TradingView **وحدَه**: UNF (الماسح بلا فلوت · وذاكرةُ البوت 1.00 مليون · والمتاحُ معلوم) «مجهولٌ» لا يُذكر وناقصُه
+#    «الفلوت» · وسجلُّه يطبع المخزَّنَ للاطّلاع · وBIG (‏50 مليونًا في الماسح) «الفلوت فوق الحدّ» باسمه
+try:
+    _r32 = _tcd_run_tv(more={"UNF": ("base", 2.1, None, 1000)}, cache={"UNF": {"float": 1e6}})
+    _log32 = "\n".join(ln for ln in _r32[1].splitlines() if not ln.startswith("‏"))
+    _unf32 = next((ln for ln in _log32.splitlines() if "❔ مجهول UNF" in ln), "")
+    _v32 = (_r32[0] == 0 and "$UNF" not in _tcd_msg(_r32[1]) and "الناقص: الفلوت" in _unf32
+            and "❔ فلوتُ TradingView غائب" in _log32 and "UNF (1.00 مليون)" in _log32
+            and "✖️ الفلوت فوق الحدّ" in _log32 and "BIG (50.00 مليون)" in _log32
+            and ((_r32[2] or {}).get("rows") or {}).get("UNF", {}).get("fl") is None)
+    _v32w = f"rc={_r32[0]} · UNF: «{_unf32.strip()[:90]}»"
+except Exception as _e:                                              # noqa: BLE001
+    _v32, _v32w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD32 الفلوتُ من TradingView وحدَه: UNF (بلا فلوتٍ في الماسح وذاكرةُ البوت مليون) «مجهول» لا يُذكر وناقصُه «الفلوت» · "
+      "والمخزَّنُ يُطبع للاطّلاع · وBIG «الفلوت فوق الحدّ» باسمه", _v32, _v32w)
+
+# TCD33 — الماسحُ حارسٌ قبل أيّ شمعة: لقطةٌ فارغة ⟵ «⚠️ تعذّر الفحص اليوم: ماسحُ TradingView تعذّر …» ورمزُ 3 وصفرُ جلبٍ يوميٍّ
+#    وساعيّ · ولقطةٌ لا تغطّي الحدّ (رمزان من 12) ⟵ «غطّى 2 من 12» · و`tv_snapshot` يعيد المحاولةَ ثمّ يُرجع None
+try:
+    _a33 = _tcd_run_tv(snap={}, dry=False)
+    _W33 = _tcd_world()
+    _b33 = _tcd_run_tv(snap=_tv_snap_of({k: _W33[0][k] for k in ("AAA", "PNY")}, _W33[2]), dry=False)
+    _k33 = []
+    _t33 = _TCD.tv_snapshot(tries=2, scan=lambda cols: _k33.append(list(cols)) or None, pause=0)
+    _ok33 = _TCD.tv_snapshot(tries=2, scan=lambda cols: {"NASDAQ:A": {"close": 1}}, pause=0)
+    _ma33, _mb33 = " ".join(_a33[3]), " ".join(_b33[3])
+    _v33 = (_a33[0] == 3 and len(_a33[3]) == 1 and "⚠️ تعذّر الفحص اليوم" in _ma33 and "ماسحُ TradingView تعذّر" in _ma33
+            and _a33[4].calls == 0 and _a33[5].calls == 0
+            and _b33[0] == 3 and "غطّى 2 من 12" in _mb33 and _b33[4].calls == 0
+            and _t33 is None and len(_k33) == 2 and _k33[0] == _TCD.TV_COLS and _ok33 == {"NASDAQ:A": {"close": 1}})
+    _v33w = f"فارغة: rc={_a33[0]} «{_ma33[:120]}» · ناقصة: rc={_b33[0]} · محاولات={len(_k33)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v33, _v33w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD33 الماسحُ حارسٌ قبل الشموع: فارغٌ ⟵ «تعذّر الفحص … ماسحُ TradingView تعذّر» ورمزُ 3 وصفرُ جلب · تغطيةٌ ناقصة ⟵ "
+      "«غطّى 2 من 12» · و`tv_snapshot` محاولتان ثمّ None", _v33, _v33w)
+
+# TCD34 — ⛔ قاطعُ TradingView: مِقبسٌ محجوبٌ لـ400 رمز ⟵ يُفتح بعد 32 فلا يُنادى الباقي (نداءاتٌ لا تتجاوز ضعفَ 32 ‏+ المقابس) ·
+#    وملخّصُه `src="tv"` ونصُّه «TradingView أخفق …» بلا Polygon · وسليمًا لا يُفتح (400 نداء) · والأنبوبُ بمِقبسٍ محجوب ⟵
+#    «شموعُ TradingView لجلسة … لم تكتمل» ورمزُ 3
+try:
+    _syms34 = [f"S{i}" for i in range(1, 401)]
+    _pc34 = dict(_TCD.P._CALLS)                                     # عدّادُ Polygon لا يلمسه قاطعُ TradingView (مسكةُ طفرة m23)
+    _log34, _lk34 = [], _tv_thr.Lock()
+    _buf34 = _tcd_io.StringIO()
+    with _tcd_ctx.redirect_stdout(_buf34):
+        _o34 = _TCD.fetch_tv(_syms34, "2026-01-01", "2026-09-25", workers=4,
+                             chart_factory=lambda: _TvFakeChart(every=True, log=_log34, lock=_lk34))
+        _d34 = dict(_TCD.BREAKER_LAST.get("daily") or {})
+    _ok34log = []
+    _ok34data = {f"NASDAQ:{s}": [(_tv_ts("2026-09-25", 9, 30), 1.0, 1.1, 0.9, 1.0, 100.0)] for s in _syms34}
+    with _tcd_ctx.redirect_stdout(_tcd_io.StringIO()):
+        _p34 = _TCD.fetch_tv(_syms34, "2026-01-01", "2026-09-25", workers=4,
+                             chart_factory=lambda: _TvFakeChart(_ok34data, log=_ok34log, lock=_lk34))
+        _e34 = dict(_TCD.BREAKER_LAST.get("daily") or {})
+    _TCD.BREAKER_LAST.clear()
+    _note34 = _TCD.breaker_note(_d34)
+    _pipe34 = _tcd_run_tv(dry=False, chart=lambda: _TvFakeChart(every=True))
+    _mp34 = " ".join(_pipe34[3])
+    _v34 = (_d34.get("open") is True and _d34.get("src") == "tv" and 32 <= _d34.get("done", 0) <= 32 + 4
+            and _d34.get("done", 0) + _d34.get("skipped", 0) == 400 and len(_log34) == 2 * _d34.get("done", 0)
+            and _d34.get("fail") == _d34.get("done") and set(_o34) == set(_syms34) and not any(_o34.values())
+            and "TradingView أخفق" in _note34 and "Polygon" not in _note34 and not any(ch in _note34 for ch in "<>≤≥")
+            and _buf34.getvalue().count("⛔ قاطعُ الدائرة") == 1
+            and _e34.get("open") is False and len(_ok34log) == 400 and all(len(v) == 1 for v in _p34.values())
+            and _pipe34[0] == 3 and "شموعُ TradingView لجلسة" in _mp34 and "لم تكتمل" in _mp34
+            and dict(_TCD.P._CALLS) == _pc34)
+    _v34w = (f"محجوب: نداءات={len(_log34)} ملخّص={_d34} · سليم: نداءات={len(_ok34log)} مفتوح={_e34.get('open')} · "
+             f"أنبوب: rc={_pipe34[0]} «{_mp34[:110]}»")
+except Exception as _e:                                              # noqa: BLE001
+    _v34, _v34w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD34 قاطعُ TradingView: محجوبٌ ⟵ يُفتح بعد 32 (النداءاتُ لا تتجاوز ضعفَ 32 والمقابس) · `src=tv` ونصُّه بلا Polygon · "
+      "سليمًا 400 نداءٍ مغلق · والأنبوبُ المحجوب ⟵ «شموعُ TradingView لجلسة … لم تكتمل» ورمزُ 3 · وعدّادُ Polygon لم يُلمَس", _v34, _v34w)
+
+# TCD38 — نافذةُ القاطع **منزلقة** ومهلتُه **كلّيّة** (مِقبسٌ واحد ⇒ حتميّ): ① حجبٌ يبدأ بعد 100 نجاح ⟵ يُفتح بعد 29 إخفاقًا بالضبط
+#    (آخرُ 32 نتيجة = 3 ناجحة ‏+ 29 مُخفِقة · والتراكميُّ ما كان ليُفتح قبل 900) ⟵ نداءاتٌ 158 لا 700 · ② ساعةٌ محقونة (مهلةُ 5 ثوانٍ
+#    وكلُّ قراءةٍ ثانية) على مِقبسٍ سليم ⟵ يُفتح بعد 4 رموز بسبب «المهلة» ونصُّه «انقضت مهلةُ الجلب» لا «أخفق» · ③ الجالبان بمهلتَيهما
+#    الافتراضيّتين بالاسم (AST) ومجموعُهما ‏+ خمسُ دقائق دون `timeout-minutes` جوبِ المسح
+try:
+    _syms38 = [f"S{i}" for i in range(1, 401)]
+    _ord38 = sorted(f"NASDAQ:{x}" for x in _syms38)
+    _data38 = {x: [(_tv_ts("2026-09-25", 9, 30), 1.0, 1.0, 1.0, 1.0, 1.0)] for x in _ord38}
+    _log38 = []
+    with _tcd_ctx.redirect_stdout(_tcd_io.StringIO()):
+        _o38 = _TCD.fetch_tv(_syms38, "2026-01-01", "2026-09-25", workers=1,
+                             chart_factory=lambda: _TvFakeChart(_data38, bad=set(_ord38[100:]), log=_log38))
+        _d38 = dict(_TCD.BREAKER_LAST.get("daily") or {})
+        _t38 = [0]
+
+        def _clk38():
+            _t38[0] += 1
+            return _t38[0]
+        _b38 = _TCD.TVBreaker(budget=5, clock=_clk38)
+        _q38 = _TCD.fetch_tv(_syms38, "2026-01-01", "2026-09-25", workers=1, brk=_b38,
+                             chart_factory=lambda: _TvFakeChart(_data38))
+        _e38 = dict(_TCD.BREAKER_LAST.get("daily") or {})
+    _TCD.BREAKER_LAST.clear()
+    _n38 = _TCD.breaker_note(_e38)
+    _fn38 = {n.name: _tcd_ast.unparse(n) for n in _tcd_ast.parse(_tcd_src).body if isinstance(n, _tcd_ast.FunctionDef)}
+    _jt38 = __import__("yaml").safe_load(open(".github/workflows/three_cond_daily.yml", encoding="utf-8").read())
+    _to38 = int(_jt38["jobs"]["scan"]["timeout-minutes"])
+    _v38 = (_d38.get("open") is True and _d38.get("timeout") is False and _d38.get("done") == 129
+            and _d38.get("fail") == 29 and _d38.get("skipped") == 271 and len(_log38) == 158
+            and sum(1 for v in _o38.values() if v) == 100
+            and _e38.get("open") is True and _e38.get("timeout") is True and _e38.get("done") == 4
+            and _e38.get("fail") == 0 and _e38.get("skipped") == 396 and sum(1 for v in _q38.values() if v) == 4
+            and "انقضت مهلةُ الجلب" in _n38 and "جُلب 4 رمزًا" in _n38 and "(396)" in _n38 and "أخفق" not in _n38
+            and not any(ch in _n38 for ch in "<>≤≥")
+            and "TVBreaker(budget=TV_DAILY_BUDGET_S)" in _fn38.get("fetch_tv", "")
+            and "TVBreaker(budget=TV_HOURS_BUDGET_S)" in _fn38.get("fetch_tv_hours", "")
+            and _TCD.TV_DAILY_BUDGET_S + _TCD.TV_HOURS_BUDGET_S + 5 * 60 <= _to38 * 60)
+    _v38w = (f"منتصف: {_d38} نداءات={len(_log38)} · مهلة: {_e38} · «{_n38[:90]}» · "
+             f"مهلتان={_TCD.TV_DAILY_BUDGET_S}+{_TCD.TV_HOURS_BUDGET_S}ث · الجوب={_to38}د")
+except Exception as _e:                                              # noqa: BLE001
+    _v38, _v38w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD38 نافذةُ القاطع منزلقة (حجبٌ بعد 100 نجاح ⟵ يُفتح بعد 29 إخفاقًا · 158 نداءً لا 700) ومهلتُه كلّيّة (ساعةٌ محقونة ⟵ "
+      "«انقضت مهلةُ الجلب» بعد 4 رموز) · والمهلتان بالاسم ومجموعُهما دون مهلة جوب المسح", _v38, _v38w)
+
+# TCD39 — التمريرةُ الثانية بعد الدفعة (الجافّة `36649271250`: ستّةُ رموزٍ من أوّل دفعة ساعةٍ أخفقت محاولتَيها): ① B1/B10/B11 تُخفق
+#    مرّتين في الدفعة ثمّ تنجح ⟵ تُستردّ (والمحجوبُ B40 يبقى [] بعد محاولتين أُخريين) وسطرُ «🔁 اليوميّ: أخفق بعد الدفعة 4 · أُعيد 4 ·
+#    استُردّ 3» · والقاطعُ لم يُفتح وعدّادُه رموزٌ (40) لا محاولات · ② مهلةٌ تنقضي بعد 9 رموز ⟵ **لا تمريرةَ ثانية** (القاطعُ مفتوح)
+#    ولا يُعاد المتخطّى · وB1 بمحاولتَيه فقط · ③ `fetch_many` بلا `retry_pass` كما كان (لا إعادة)
+try:
+    _syms39 = [f"B{i}" for i in range(1, 41)]
+    _full39 = sorted(f"NASDAQ:{x}" for x in _syms39)
+    _data39 = {x: [(_tv_ts("2026-09-25", 9, 30), 1.0, 1.0, 1.0, 1.0, 1.0)] for x in _full39}
+    _sv39 = _TCD.TV_RETRY_PAUSE_S
+    try:
+        _TCD.TV_RETRY_PAUSE_S = 0
+        _ff39 = {"NASDAQ:B1": 2, "NASDAQ:B10": 2, "NASDAQ:B11": 2}
+        _lk39, _log39 = _tv_thr.Lock(), []
+        _buf39 = _tcd_io.StringIO()
+        with _tcd_ctx.redirect_stdout(_buf39):
+            _o39 = _TCD.fetch_tv(_syms39, "2026-01-01", "2026-09-25", workers=4,
+                                 chart_factory=lambda: _TvFakeChart(_data39, bad={"NASDAQ:B40"}, fail_first=_ff39,
+                                                                    log=_log39, lock=_lk39))
+            _d39 = dict(_TCD.BREAKER_LAST.get("daily") or {})
+        _lp39 = dict(_TCD.TV.LAST_PASS)
+        _t39 = [0]
+
+        def _clk39():
+            _t39[0] += 1
+            return _t39[0]
+        _ff39b, _log39b = {"NASDAQ:B1": 2}, []
+        with _tcd_ctx.redirect_stdout(_tcd_io.StringIO()):
+            _o39b = _TCD.fetch_tv(_syms39, "2026-01-01", "2026-09-25", workers=1, brk=_TCD.TVBreaker(budget=10, clock=_clk39),
+                                  chart_factory=lambda: _TvFakeChart(_data39, fail_first=_ff39b, log=_log39b))
+        _lp39b = dict(_TCD.TV.LAST_PASS)
+        _ff39c, _log39c = {"NASDAQ:B1": 2}, []
+        _o39c = _TCD.TV.fetch_many(_full39[:5], workers=1,
+                                   chart_factory=lambda: _TvFakeChart(_data39, fail_first=_ff39c, log=_log39c))
+
+        class _G39:                                                   # بوّابةٌ بلا `open` تتخطّى الثالثَ والرابع وحدَهما
+            def __init__(self):
+                self.k, self.rec = 0, []
+
+            def skip(self):
+                self.k += 1
+                return self.k in (3, 4)
+
+            def record(self, ok):
+                self.rec.append(ok)
+        _ff39d, _log39d = {x: 2 for x in _full39[:5]}, []
+        _o39d = _TCD.TV.fetch_many(_full39[:5], workers=1, gate=_G39(), retry_pass=True, retry_pause=0,
+                                   chart_factory=lambda: _TvFakeChart(_data39, fail_first=_ff39d, log=_log39d))
+        _lp39d = dict(_TCD.TV.LAST_PASS)
+        _t39e = [0]
+
+        def _clk39e():
+            _t39e[0] += 1
+            return _t39e[0]
+        _ff39e, _log39e = {_full39[0]: 2, _full39[1]: 2}, []
+        _o39e = _TCD.TV.fetch_many(_full39[:5], workers=1, gate=_TCD.TVBreaker(budget=6, clock=_clk39e), retry_pass=True,
+                                   retry_pause=0, chart_factory=lambda: _TvFakeChart(_data39, fail_first=_ff39e, log=_log39e))
+        _lp39e = dict(_TCD.TV.LAST_PASS)
+        _fn39 = {n.name: _tcd_ast.unparse(n) for n in _tcd_ast.parse(_tcd_src).body if isinstance(n, _tcd_ast.FunctionDef)}
+    finally:
+        _TCD.TV_RETRY_PAUSE_S = _sv39
+        _TCD.BREAKER_LAST.clear()
+    _n39 = {x: sum(1 for c in _log39 if c[0] == x) for x in ("NASDAQ:B1", "NASDAQ:B10", "NASDAQ:B40", "NASDAQ:B2")}
+    _v39 = (sum(1 for v in _o39.values() if v) == 39 and _o39["B40"] == [] and all(_o39[x] for x in ("B1", "B10", "B11"))
+            and _lp39 == {"failed": 4, "retried": 4, "recovered": 3}
+            and "🔁 اليوميّ: أخفق بعد الدفعة 4 · أُعيد 4 · استُردّ 3" in _buf39.getvalue()
+            and _n39 == {"NASDAQ:B1": 3, "NASDAQ:B10": 3, "NASDAQ:B40": 4, "NASDAQ:B2": 1}
+            and _d39.get("open") is False and _d39.get("done") == 40 and _d39.get("fail") == 4
+            and _lp39b == {"failed": 1, "retried": 0, "recovered": 0} and _o39b["B1"] == []
+            and sum(1 for c in _log39b if c[0] == "NASDAQ:B1") == 2 and len(_log39b) == 9 + 1
+            and _o39c["NASDAQ:B1"] is None and len(_log39c) == 2 + 4
+            and _lp39d == {"failed": 3, "retried": 3, "recovered": 3} and _o39d[_full39[2]] is None and _o39d[_full39[3]] is None
+            and not any(c[0] in (_full39[2], _full39[3]) for c in _log39d)
+            and _lp39e == {"failed": 2, "retried": 0, "recovered": 0} and _o39e[_full39[0]] is None
+            and all("stagger=TV_STAGGER_S" in _fn39.get(f, "") and "retry_pass=True" in _fn39.get(f, "")
+                    and "retry_pause=TV_RETRY_PAUSE_S" in _fn39.get(f, "") for f in ("fetch_tv", "fetch_tv_hours")))
+    _v39w = (f"استرداد={_lp39} نداءات={_n39} قاطع={_d39} · مهلة={_lp39b} نداءاتُ B1={sum(1 for c in _log39b if c[0] == 'NASDAQ:B1')} "
+             f"الكلّ={len(_log39b)} · بلا تمريرة: B1={_o39c.get('NASDAQ:B1')} نداءات={len(_log39c)} · متخطّى={_lp39d} · "
+             f"مهلةٌ أثناءها={_lp39e}")
+except Exception as _e:                                              # noqa: BLE001
+    _v39, _v39w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD39 التمريرةُ الثانية: ما أخفق محاولتَيه في الدفعة يُستردّ بعدها (3 من 4 · والمحجوبُ يبقى []) وسطرُ «🔁» · والقاطعُ عدّادُه "
+      "رموزٌ لا محاولات · والمهلةُ المنقضية قبلها أو أثناءها تمنعها · والمتخطّى لا يُعاد · وبلا `retry_pass` لا إعادة · والجالبان "
+      "بالتدريج والتمريرة (AST)", _v39, _v39w)
+
+# TCD35 — الجالبان بشكل Polygon نفسِه: اليوميّ (يومُ نيويورك, o, h, l, c, v) مقصوصٌ على [d0, d1] · والساعةُ (ms, high, low) لأيّام
+#    [d0, d1] بتوقيت نيويورك · والخريطةُ من الماسح («AMEX:XYZ») وغيابُها «NASDAQ:ABC» · والفاصلُ/العدد/الممتدُّ بالاسم
+try:
+    _days35 = [d for d in _TCD.WW.calendar(2026) if "2026-09-10" <= d <= "2026-09-29"]
+    _dd35 = {"AMEX:XYZ": [(_tv_ts(d, 9, 30), 1.0 + i, 2.0 + i, 0.5 + i, 1.5 + i, 1000.0 + i) for i, d in enumerate(_days35)]}
+    _hh35 = {"AMEX:XYZ": [(_tv_ts(d, h), 1.0, 2.0 + h, 0.25 * h, 1.5, 10.0) for d in _days35 for h in (4, 9, 16, 19)]}
+    _lg35 = []
+    with _tcd_ctx.redirect_stdout(_tcd_io.StringIO()):
+        _o35 = _TCD.fetch_tv(["XYZ", "ABC"], "2026-09-15", "2026-09-25", tmap={"XYZ": "AMEX:XYZ"}, workers=1,
+                             chart_factory=lambda: _TvFakeChart(_dd35, log=_lg35))
+        _h35 = _TCD.fetch_tv_hours(["XYZ"], "2026-09-15", "2026-09-25", tmap={"XYZ": "AMEX:XYZ"}, workers=1,
+                                   chart_factory=lambda: _TvFakeChart(_hh35, log=_lg35))
+    _TCD.BREAKER_LAST.clear()
+    _xd35 = [r[0] for r in _o35["XYZ"]]
+    _hd35 = sorted({_tcd_dt.datetime.fromtimestamp(ms / 1000, tz=_TCD.NY).date().isoformat() for ms, _h, _l in _h35["XYZ"]})
+    _v35 = (_xd35 == [d for d in _days35 if "2026-09-15" <= d <= "2026-09-25"] and _o35["ABC"] == []
+            and all(isinstance(r[0], str) and len(r) == 6 and all(isinstance(x, float) for x in r[1:]) for r in _o35["XYZ"])
+            and _o35["XYZ"][0][1:] == (1.0 + _days35.index(_xd35[0]), 2.0 + _days35.index(_xd35[0]),
+                                       0.5 + _days35.index(_xd35[0]), 1.5 + _days35.index(_xd35[0]),
+                                       1000.0 + _days35.index(_xd35[0]))
+            and _hd35 == _xd35 and all(len(b) == 3 and b[0] % 1000 == 0 for b in _h35["XYZ"])
+            and _h35["XYZ"][0][1:] == (6.0, 1.0)
+            and ("AMEX:XYZ", "1D", _TCD.TV_DAILY_N, False) in _lg35 and ("NASDAQ:ABC", "1D", _TCD.TV_DAILY_N, False) in _lg35
+            and ("AMEX:XYZ", "60", _TCD.TV_HOURS_N, True) in _lg35)
+    _v35w = f"يوميّ={_xd35[:2]}…{_xd35[-1:]} · ساعة={_hd35[:1]}…{_hd35[-1:]} · نداءات={sorted(set(_lg35))[:3]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v35, _v35w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD35 الجالبان بشكل Polygon: اليوميّ (يوم, o, h, l, c, v) مقصوصٌ على [d0, d1] · الساعةُ (ms, high, low) لأيّام النافذة · "
+      "الخريطةُ من الماسح وغيابُها «NASDAQ:» · والفاصلُ والعددُ والممتدُّ بالاسم", _v35, _v35w)
+
+# TCD36 — `TV.fetch_many(gate=…)`: `skip()` قبل كلّ رمز (True ⟵ None بلا نداء) و`record(ok)` بنتيجته **النهائيّة** (العابرُ الذي نجح
+#    في الإعادة ⟵ True) · وبلا `gate` السلوكُ كما هو (كلُّ الرموز تُنادى والمحجوبُ None بعد إعادةٍ واحدة)
+try:
+    class _Gate36:
+        def __init__(self, n_ok):
+            self.n_ok, self.rec, self.lock = n_ok, [], _tv_thr.Lock()
+
+        def skip(self):
+            with self.lock:
+                return len(self.rec) >= self.n_ok
+
+        def record(self, ok):
+            with self.lock:
+                self.rec.append(ok)
+    _syms36 = [f"NASDAQ:T{i}" for i in range(1, 11)]
+    _data36 = {s: [(_tv_ts("2026-09-25", 9, 30), 1.0, 1.0, 1.0, 1.0, 1.0)] for s in _syms36}
+    _g36, _lg36 = _Gate36(5), []
+    _o36 = _TCD.TV.fetch_many(_syms36, workers=1, gate=_g36,
+                              chart_factory=lambda: _TvFakeChart(_data36, bad={"NASDAQ:T3"}, flaky={"NASDAQ:T2"}, log=_lg36))
+    _lg36b = []
+    _o36b = _TCD.TV.fetch_many(_syms36, workers=1,
+                               chart_factory=lambda: _TvFakeChart(_data36, bad={"NASDAQ:T3"}, flaky={"NASDAQ:T2"}, log=_lg36b))
+    _called36 = [x[0] for x in _lg36]
+    _v36 = (_g36.rec == [True, True, False, True, True]
+            and _called36 == ["NASDAQ:T1", "NASDAQ:T2", "NASDAQ:T2", "NASDAQ:T3", "NASDAQ:T3", "NASDAQ:T4", "NASDAQ:T5"]
+            and [s for s in _syms36 if _o36.get(s)] == ["NASDAQ:T1", "NASDAQ:T2", "NASDAQ:T4", "NASDAQ:T5"]
+            and all(_o36[s] is None for s in _syms36[5:]) and _o36["NASDAQ:T3"] is None
+            and sum(1 for v in _o36b.values() if v) == 9 and _o36b["NASDAQ:T3"] is None and len(_lg36b) == 12)
+    _v36w = f"سجلّ={_g36.rec} · نُودي={sorted(set(_called36))} · بلا gate: ناجح={sum(1 for v in _o36b.values() if v)} نداءات={len(_lg36b)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v36, _v36w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD36 `TV.fetch_many(gate=…)`: `skip()` يمنع النداءَ ويُرجع None · `record(ok)` بالنتيجة النهائيّة (العابرُ ⟵ True) · "
+      "وبلا gate كلُّ الرموز تُنادى والمحجوبُ None بعد إعادةٍ واحدة", _v36, _v36w)
+
+# TCD37 — الـworkflow: مُدخَلُ `source` افتراضُه «tv» يُمرَّر `TC_SOURCE` إلى المسح وحدَه · ومفتاحُ Polygon باقٍ في المسح (للرجوع) ·
+#    والمِقبسُ `websocket-client` مثبَّتٌ في المتطلّبات (قفلُ 007) · ولا مِجَسَّ مؤقّتًا باقيًا (`tv_probe`)
+try:
+    _y37 = __import__("yaml").safe_load(open(".github/workflows/three_cond_daily.yml", encoding="utf-8").read())
+    _on37 = _y37.get(True) or _y37.get("on") or {}
+    _in37 = ((_on37.get("workflow_dispatch") or {}).get("inputs") or {}).get("source") or {}
+    _env37 = {j: [st.get("env") or {} for st in (_y37["jobs"][j].get("steps") or []) if st.get("run")] for j in _y37["jobs"]}
+    _scan37 = next((e for e in _env37["scan"] if "TC_STAGE" in e), {})
+    _req37 = open("requirements.txt", encoding="utf-8").read()
+    _v37 = (str(_in37.get("default")) == "tv" and "inputs.source" in str(_scan37.get("TC_SOURCE"))
+            and "POLYGON_API_KEY" in str(_scan37) and not any("TC_SOURCE" in e for j in ("borrow", "send") for e in _env37[j])
+            and __import__("re").search(r"(?m)^websocket-client==\S+", _req37) is not None
+            and not _tv_os.path.exists("tv_probe.py") and not _tv_os.path.exists(".github/workflows/tv_probe.yml"))
+    _v37w = f"مُدخَل={_in37} · مسح={sorted(_scan37)} · مِجَسٌّ باقٍ={_tv_os.path.exists('tv_probe.py')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v37, _v37w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📺 TCD37 `three_cond_daily.yml`: مُدخَلُ `source` افتراضُه «tv» إلى المسح وحدَه · ومفتاحُ Polygon باقٍ للرجوع · "
+      "و`websocket-client` مثبَّت · ولا مِجَسَّ `tv_probe` باقيًا", _v37, _v37w)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🧱 EXH1-EXH6 الثبات الدقيق في كروت الجاهز (أمرُ المالك 2026-09-26 «اعرض الثبات في جاهز البوت» — **عرضٌ فقط**):
