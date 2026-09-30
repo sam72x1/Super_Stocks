@@ -294,7 +294,7 @@
   daily_screener · pullback_monitor · operator_entry · ignition · press_radar ·
   press_harvest · presession_digest · split_hunter · split_filter · method_hunter ·
   envelope_hunter · hand_digest · hand_flow · scan_earnings · ctb_harvest ·
-  hunter_outcomes · cumrise · e2_recover · deps_smoke · **pmfwd** · **three_cond_daily** (🧊 **`cumrise` و`pmfwd` مُجمَّدان منذ 2026-09-30**: كرونُهما في الملفّ ويُتخطّى · `CR8` · `PWA14`). **وأبرزُ
+  hunter_outcomes · cumrise · e2_recover · deps_smoke · **pmfwd** · **three_cond_daily** (🧊 **`cumrise` و`pmfwd` مُجمَّدان منذ 2026-09-30**: كرونُهما في الملفّ ويُتخطّى · `CR8` · `PWA17`). **وأبرزُ
   اليدويّ:** backtest ·
   analyze/technical · hand_check · polygon_health · acc_verify · وأدواتُ
   التجارب (`gate` · `kasih` · `kasih2` · `exit_stop` · `ceiling` · `liq_noise`
@@ -1913,7 +1913,7 @@ async function tryAgent(prompt, opts, attempts) {   // 3 محاولات افتر
   `alive_eod` (‏`tc_yield_prereg.md §⑬`) · **و`+12.0` صحيحةٌ لنافذتها** (أُعيدت
   بالتعريف المصحَّح فطابقت بت-بت) · والتسليمُ هبط بعد الجلسات الثلاث الأولى
   (‏13.3 ⟶ 3.0 مُسلَّمة/جلسة) **وسببُه غيرُ مقيس** (`tc_yield_result.md`).
-- **🌅 حصّادُ `T-PMFWD`** — `pmfwd.yml` بكرون `29 22 * * 1-5` · حصادٌ/قراءةٌ فقط · 🧊 **مُجمَّدٌ منذ 2026-09-30** (Polygon انتهى ⇒ الكرونُ يُتخطّى · `PWA14` · والحسمُ 12-31 بلا مصدر)
+- **🌅 حصّادُ `T-PMFWD`** — `pmfwd.yml` بكرون `29 22 * * 1-5` · حصادٌ/قراءةٌ فقط · 🧊 **مُجمَّدٌ منذ 2026-09-30** (Polygon انتهى ⇒ الكرونُ يُتخطّى · `PWA17` · والحسمُ 12-31 بلا مصدر)
   **ولا رسالةٌ تُرسَل** · العتبةُ **مليونُ دولارٍ حرفيًّا ولا تُعاير** · الحسمُ
   **‏2026-12-31** · و`fired` تُقرأ **«أُطلق» بحضور `anchor_ms`** لا «مُقيَّم».
   ⚠️ **وتغطيتُه قائمتُنا الحيّة وحدَها** لا كونَ `live_watch_universe`.

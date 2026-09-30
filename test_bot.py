@@ -55360,22 +55360,23 @@ check("🌅📡🔒 PWA11 `pmfwd.yml`: كرونٌ واحدٌ بعد إغلاق �
       "تلغرام · صلاحيةُ كتابةٍ للسجلّ · ودفعٌ بـfetch+rebase يُعلن سقوطَه",
       _pwa_ok11, _pwa_w11)
 
-# 🧊 `PWA14` — **تجميدُ الحصّاد بعد انتهاء Polygon (2026-09-30):** الجوبُ لا يعمل إلّا يدويًّا (الكرونُ يُتخطّى فلا يحمرّ كلَّ ليلة
+# 🧊 `PWA17` — **تجميدُ الحصّاد بعد انتهاء Polygon (2026-09-30):** الجوبُ لا يعمل إلّا يدويًّا (الكرونُ يُتخطّى فلا يحمرّ كلَّ ليلة
 #    بتغطية 0%) · والكرونُ نفسُه باقٍ (‏`PWA11` وحارسُ «لا كرونَ عتيق») · والرجوعُ حذفُ السطر وحدَه.
+#    (‏سُمّي أوّلًا `PWA14` وهو اسمُ جدول الحقيقة `fired_of` أدناه ⇒ أُعيدت تسميتُه قبل الدمج — اسمٌ مكرّر يُفسد إسنادَ الطفرة.)
 try:
     import yaml as _pwa_yaml                                     # noqa: E402
-    _pwa_y14 = _pwa_yaml.safe_load(open(".github/workflows/pmfwd.yml", encoding="utf-8"))
-    _pwa_if14 = (((_pwa_y14 or {}).get("jobs") or {}).get("pmfwd") or {}).get("if")
-    _pwa_on14 = (_pwa_y14 or {}).get(True) or (_pwa_y14 or {}).get("on") or {}
-    _pwa_ok14 = (str(_pwa_if14 or "").strip() == "github.event_name == 'workflow_dispatch'"
-                 and "workflow_dispatch" in _pwa_on14
-                 and [c.get("cron") for c in (_pwa_on14.get("schedule") or []) if isinstance(c, dict)] == ["29 22 * * 1-5"]
+    _pwa_y17 = _pwa_yaml.safe_load(open(".github/workflows/pmfwd.yml", encoding="utf-8"))
+    _pwa_if17 = (((_pwa_y17 or {}).get("jobs") or {}).get("pmfwd") or {}).get("if")
+    _pwa_on17 = (_pwa_y17 or {}).get(True) or (_pwa_y17 or {}).get("on") or {}
+    _pwa_ok17 = (str(_pwa_if17 or "").strip() == "github.event_name == 'workflow_dispatch'"
+                 and "workflow_dispatch" in _pwa_on17
+                 and [c.get("cron") for c in (_pwa_on17.get("schedule") or []) if isinstance(c, dict)] == ["29 22 * * 1-5"]
                  and "مُجمَّدٌ 2026-09-30" in open(".github/workflows/pmfwd.yml", encoding="utf-8").read())
-    _pwa_w14 = f"if={_pwa_if14!r} · on={sorted(map(str, _pwa_on14))}"
+    _pwa_w17 = f"if={_pwa_if17!r} · on={sorted(map(str, _pwa_on17))}"
 except Exception as _e:                                          # noqa: BLE001
-    _pwa_ok14, _pwa_w14 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🌅📡🧊 PWA14 حصّادُ T-PMFWD مُجمَّدٌ بعد انتهاء Polygon: الجوبُ يدويٌّ وحدَه (الكرونُ يُتخطّى لا يحمرّ) · والكرونُ "
-      "والتعليلُ المؤرَّخ باقيان", _pwa_ok14, _pwa_w14)
+    _pwa_ok17, _pwa_w17 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🧊 PWA17 حصّادُ T-PMFWD مُجمَّدٌ بعد انتهاء Polygon: الجوبُ يدويٌّ وحدَه (الكرونُ يُتخطّى لا يحمرّ) · والكرونُ "
+      "والتعليلُ المؤرَّخ باقيان", _pwa_ok17, _pwa_w17)
 
 # 🔴 `PWA12` — عتباتُ الأداة **تطابق العقد** ولا رقمَ مكتوبٌ بيدٍ يخالفه.
 try:
