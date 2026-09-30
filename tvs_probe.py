@@ -23,6 +23,8 @@ TS2 (الأثر): لكلّ رمزٍ فيه زوجٌ غيرُ مسوّى: `S.anal
 🔄 تشغيلٌ ثانٍ **وصفيّ** (‏2026-09-30 مساءً · بعد ملحق §⑧-ب): الحكمُ المسجَّل صدر في التشغيلة الأولى ‏36756439668
 («② حدٌّ معلَن» · 29 من 1,034 · صفرُ انقلاب · صفرُ نشط) ولا يُعاد — والثانية تطبع تصنيفَ الأزواج بالنسبة (عكسيّ دون 0.8 ·
 أماميّ فوق 1.25 · داخل التسامح) وعلاماتِها بالكاشف بعد الإصلاح · وقائمةَ ياهو كاملة.
+🔄 تشغيلٌ ثالثٌ وصفيّ (‏2026-09-30 ليلًا · بعد ملحق §⑧-ج): المتوقَّعُ مكتوبٌ في `harvest_prereg.md §⑧-ج` قبل الرقم (ATRO وWDC لا يُعلَّمان ·
+MBBC · RBKB · UNIT · WOK يُعلَّمون) · ومعه قائمةُ ياهو بقاعدة الإنتاج (سجلُّ الحصاد حتى اليوم على ياهو).
 """
 import math
 import sys
@@ -137,6 +139,17 @@ def main() -> int:
                 ybad.append((s, d, v, jump))
     print(f"   وصف · ياهو بالمقياس نفسِه: أزواج {ypairs} · غيرُ مسوّاة {len(ybad)} {[b[0] for b in ybad[:20]]}")
     print(f"   وصف · ياهو كاملة: {[(b[0], b[1], round(b[2], 4)) for b in ybad]}")
+    yprod = []
+    for s, df in yh.items():
+        for d, v, st, jump in classify(df, sp.get(s) or []):
+            if st == "no_bar":
+                continue
+            try:
+                if HO.unadjusted_jump(df, [(d, v)]):
+                    yprod.append((s, d, round(v, 4), jump))
+            except Exception:                                    # noqa: BLE001
+                continue
+    print(f"   وصف · ياهو بقاعدة الإنتاج (unadjusted_jump): {len(yprod)} {yprod}")
     print(f"   فحصٌ ذاتيّ: خلافُ المصنِّف المحلّيّ مع unadjusted_jump = {len(disagree)} {disagree[:10]}")
     # 🔄 وصفٌ (تشغيلٌ ثانٍ · §⑧-ب): الأزواجُ بفئة النسبة · والعلاماتُ بفئتها
     lim = math.log(1.0 + TOL)

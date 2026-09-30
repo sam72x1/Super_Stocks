@@ -72978,6 +72978,7 @@ check("⚖️ HTV11 `split_events_after` بعد الجلسة حصرًا (مرت�
 #    انفصالٌ 1.06 …) لا تُميَّز: المسوّى وغيرُ المسوّى كلاهما داخل الحدّ (‏23 من 29 علامةً في المِجَسّ · وأسماؤها نفسُها عند ياهو) ⇒
 #    `unadjusted_jump` يتخطّاها (لا «unadjusted» زائفًا يعلّق الصفَّ للأبد) · وخارجَ التسامح يبقى حكمُه (‏0.79 · 1:100 · 2:1) ·
 #    و`resolve` يحسم صفًّا بعد جلسته أرباحُ أسهم 1.05 وإطارُه مسوّى ⟵ يُسوّى مرجعُه بها (‏`ref_scaled` = 10/1.05 · `split_f` = 1.05)
+#    🔄 وبملحق §⑧-ج (اليوم نفسُه): التخطّي للأماميّ وحدَه ⇒ العكسيُّ داخل التسامح (‏0.81) على القاعدة المحافظة ⟵ True (معلّقٌ لا مُضخَّم)
 try:
     _htv_ix12 = pd.bdate_range("2026-05-01", "2026-09-29")
     _htv_c12 = 10.0 / 1.05
@@ -72992,7 +72993,7 @@ try:
     _htv_d12 = _htv_o12.get("envelope|2026-06-01|DIV") or {}
     _v12 = (_HO.unadjusted_jump(_htv_adj12, [("2026-06-15", 1.05)]) is False
             and _HO.unadjusted_jump(_htv_una12, [("2026-06-15", 1.05)]) is False
-            and _HO.unadjusted_jump(_htv_adj12, [("2026-06-15", 0.81)]) is False
+            and _HO.unadjusted_jump(_htv_adj12, [("2026-06-15", 0.81)]) is True
             and _HO.unadjusted_jump(_htv_b79, [("2026-06-15", 0.79)]) is True
             and _HO.unadjusted_jump(_htv_big12, [("2026-06-15", 0.01)]) is True
             and _HO.unadjusted_jump(_htv_una12, [("2026-06-15", 1.05), ("2026-07-01", -2.0)]) is False
@@ -73004,8 +73005,39 @@ try:
              f"0.79={_HO.unadjusted_jump(_htv_b79, [('2026-06-15', 0.79)])} · حُسم={ {k: (v.get('ref_scaled'), v.get('split_f')) for k, v in _htv_o12.items()} }")
 except Exception as _e:                                              # noqa: BLE001
     _v12, _v12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("⚖️ HTV12 `unadjusted_jump` يتخطّى النسبةَ داخل التسامح (‏1.05 · 0.81 — لا تُميَّز) ويُبقي ما خارجه (‏0.79 · 1:100) · و`resolve` "
-      "يحسم صفًّا بعده أرباحُ أسهم 1.05 مسوّاةً (‏`ref_scaled` = 10/1.05) لا معلّقًا للأبد", _v12, _v12w)
+check("⚖️ HTV12 `unadjusted_jump` يتخطّى الأماميَّ داخل التسامح (‏1.05 مسوّى وغيرُ مسوّى — لا يُميَّز) ويُبقي العكسيَّ داخله محافظًا (‏0.81) "
+      "وما خارجه (‏0.79 · 1:100) · و`resolve` يحسم صفًّا بعده أرباحُ أسهم 1.05 مسوّاةً (‏`ref_scaled` = 10/1.05) لا معلّقًا للأبد", _v12, _v12w)
+
+# HTV13 — ملحق §⑧-ج (‏2026-09-30 · تشغيلةُ المِجَسّ الثانية ‏36759036046): **الاتّجاهُ يحكم** — غيرُ المسوّى الأماميّ (فوق 1) يُنقص القممَ
+#    فلا يصنع hit100 · والعكسيّ (دون 1) يضخّمها. ⇒ الأماميُّ خارج التسامح يُعلَّم فقط إن فسّرت «غيرُ مسوّى» قفزةَ يومه أحسنَ من «مسوّى»:
+#    أرقامُ المِجَسّ حرفًا — ATRO ‏1.253 (×0.9461) وWDC ‏1.323 (×0.9442) ⟵ False (يومٌ هابطٌ عاديّ على إطارٍ مسوّى) · MBBC ‏1.372 (×0.7376) ·
+#    RBKB ‏1.397 (×0.6822) ⟵ True · والعكسيُّ خارج التسامح محافظ: 0.75 بيومٍ صاعد 10% ⟵ True · و`resolve` يحسم صفَّ WDC مسوّى المرجع
+try:
+    _htv_ix13 = pd.bdate_range("2026-05-01", "2026-09-29")
+
+    def _htv_fr13(_pre, _post, _hi=1.0):
+        return pd.DataFrame({"High": [(_pre if d < pd.Timestamp("2026-06-15") else _post) * _hi for d in _htv_ix13],
+                             "Close": [_pre if d < pd.Timestamp("2026-06-15") else _post for d in _htv_ix13]}, index=_htv_ix13)
+
+    _htv_j13 = {n: _HO.unadjusted_jump(_htv_fr13(10.0, 10.0 * j), [("2026-06-15", v)])
+                for n, v, j in (("ATRO", 1.253, 0.9461), ("WDC", 1.323, 0.9442), ("MBBC", 1.372, 0.7376),
+                                ("RBKB", 1.397, 0.6822), ("REV75", 0.75, 1.10), ("FWD2", 2.0, 0.5), ("FWD2A", 2.0, 1.0))}
+    _htv_c13 = 10.0 / 1.323
+    _htv_r13 = [{"key": "envelope|2026-06-01|WDC", "hunter": "envelope", "session": "2026-06-01", "symbol": "WDC", "ref_close": 10.0}]
+    _htv_lg13 = []
+    _htv_o13 = _HO.resolve(_htv_r13, lambda _s: {"WDC": _htv_fr13(_htv_c13, _htv_c13 * 0.9442, 1.03)}, log=_htv_lg13.append,
+                           split_events=lambda _s, _d: [("2026-06-15", 1.323)])
+    _htv_d13 = _htv_o13.get("envelope|2026-06-01|WDC") or {}
+    _v13 = (_htv_j13 == {"ATRO": False, "WDC": False, "MBBC": True, "RBKB": True, "REV75": True, "FWD2": True, "FWD2A": False}
+            and set(_htv_o13) == {"envelope|2026-06-01|WDC"}
+            and abs(float(_htv_d13.get("ref_scaled") or 0) - round(_htv_c13, 6)) < 1e-9
+            and _htv_d13.get("split_f") == 1.323 and _htv_d13.get("hit100") is False
+            and any("سُوّي مرجعُه بتقسيمٍ مؤكَّد 1 · مقياسٌ غير متّسق 0" in x for x in _htv_lg13))
+    _v13w = f"{_htv_j13} · حُسم={ {k: (v.get('ref_scaled'), v.get('split_f')) for k, v in _htv_o13.items()} }"
+except Exception as _e:                                              # noqa: BLE001
+    _v13, _v13w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️ HTV13 `unadjusted_jump` الأماميُّ خارج التسامح بالفرضيّة الأقرب (ATRO · WDC مسوّيان ⟵ False · MBBC · RBKB ⟵ True) والعكسيُّ "
+      "محافظ (‏0.75 بيومٍ صاعد ⟵ True) · و`resolve` يحسم صفَّ WDC مسوّى المرجع (‏10/1.323) لا معلّقًا", _v13, _v13w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
