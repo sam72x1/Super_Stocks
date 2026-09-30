@@ -38,6 +38,10 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          # 📺 شموعُ الصيّاد من TradingView (أمرُ المالك 2026-09-30 «انقل الصيّادين إلى ترندق فيو» · `bars_source`):
+          #    ياهو احتياطٌ لكلّ رمزٍ يتعذّر (يُعلَن بعدده) · وصفُّ السجلّ يحمل مصدرَه `src` فيُحسم بشموع مصدره
+          #    (ملحق §⑦ في `harvest_prereg.md`) · والفلوتُ والتقسيماتُ وشموعُ 4 ساعات من ياهو كما هي · وحذفُ السطر = ياهو بت-بت.
+          BARS_SOURCE: tradingview
           # 🔓 التشغيل اليدويّ يتخطّى بوّابة التوقيت والدِدوب معًا — وإلّا خرج
           # الزرّ **أخضر بلا رسالة**، وهو صنفُ العطل غير المرئيّ.
           SPLIT_FILTER_FORCE: >-

@@ -72499,8 +72499,12 @@ check("📺 TVB8 فاشلٌ-آمن كلّيًّا: `tv_download` يرمي ⟵ ي
 
 # TVB9 — **النطاق**: البيئةُ `BARS_SOURCE: tradingview` في الـworkflows الخمسة وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ ·
 #    فحص اليد) — وصيّادُ المقسّم (حمايةُ المالك) وفحصُ الدخان وأدواتُ البحث بلا البيئة (ياهو) · YAML يُقرأ لا نصّ
+#    🔄 **إقرارٌ مؤرَّخ 2026-09-30 (أمرُ المالك «انقل الصيّادين إلى ترندق فيو»):** النطاقُ صار **تسعة** — الخمسةُ ‏+ الصيّادون
+#    الأربعة (المقسّم · النهجُ العلميّ · فلترةُ التقسيم · الظرف · وخطوتُهم مقفولةٌ بـHTV3) · وحصّادُ النتائج وفحصُ الدخان وأدواتُ
+#    البحث بلا البيئة كما هي (المساواةُ تامّةٌ فأيُّ زائدٍ يُسقطه).
 try:
-    _want9 = {"daily_screener.yml", "pullback_monitor.yml", "hand_digest.yml", "analyze.yml", "hand_check.yml"}
+    _want9 = {"daily_screener.yml", "pullback_monitor.yml", "hand_digest.yml", "analyze.yml", "hand_check.yml",
+              "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml"}
     _got9 = set()
     for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
         if not _fn9.endswith((".yml", ".yaml")):
@@ -72516,8 +72520,8 @@ try:
     _v9w = f"زائد={sorted(_got9 - _want9)} · ناقص={sorted(_want9 - _got9)}"
 except Exception as _e:                                              # noqa: BLE001
     _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows الخمسة وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
-      "فحص اليد) — وصيّادُ المقسّم وفحصُ الدخان وأدواتُ البحث على ياهو (YAML)", _v9, _v9w)
+check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows التسعة وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
+      "فحص اليد ‏+ الصيّادون الأربعة منذ 2026-09-30) — وحصّادُ النتائج وفحصُ الدخان وأدواتُ البحث على ياهو (YAML)", _v9, _v9w)
 
 # TVB10 — `tv_bar_fresh`: إطارُ ياهو (بلا وسم) ⟵ True دائمًا (بت-بت) · وإطارُ TradingView آخرُه آخرُ جلسةٍ مكتملة ⟵ True · وأقدمُ ⟵ False
 #    (الساعةُ محقونة: الأربعاء 2026-09-30 ‏22:00 UTC ⟵ الجلسةُ المكتملة 09-30)
@@ -72610,6 +72614,366 @@ check("📺 TVB13 الخريطة: الشَّرطةُ نقطة (BRK-B ⟵ NYSE:BR
       "لا يُخبَّأ", _v13, _v13w)
 
 # ══════════════════════════════════════════════════════════════════════════
+# 🪝📺 HTV1-HTV8 — **الصيّادون على TradingView** (‏2026-09-30 · أمرُ المالك «انقل الصيّادين إلى ترندق فيو»): `BARS_SOURCE` في
+#    workflows الصيّادين الأربعة (المقسّم · النهج العلميّ · فلترةُ التقسيم · الظرف) · وسجلُّ الحصاد يحمل مصدرَ كلّ صفٍّ `src`
+#    (‏`hunter_ledger.frame_src`) · و`hunter_outcomes` يحسم كلَّ صفٍّ **بشموع مصدره** والشاهدُ بمصدر أغلبيّة جلسته (ملحق §⑦ في
+#    `harvest_prereg.md`) · وبلا `src_of` الصفُّ السابق بت-بت. سلوكيّةٌ بجالباتٍ محقونة (بلا شبكة) · و`run()` طرفيًّا بجذوع.
+import types as _htv_types                                           # noqa: E402
+
+_HTV_HUNTERS = {"split_hunter.yml": "split_hunter.py", "split_filter.yml": "split_filter_hunter.py",
+                "method_hunter.yml": "method_hunter.py", "envelope_hunter.yml": "envelope_hunter.py"}
+
+# HTV1 — `frame_src`: إطارُ `tv_daily_frame` (المُنتِجُ الحقيقيّ للوسم) ⟵ «tradingview» · وإطارُ ياهو/None/كائنٌ غريب ⟵ «yahoo» ·
+#    و`row_src`: الحقلُ حرفًا وإلّا «yahoo» (الغيابُ = صفوفُ ما قبل النقل)
+try:
+    _htv_tvf = S.tv_daily_frame(_tvb_bars(3, "2026-09-28"), "2026-09-01")
+    _htv_yhf = pd.DataFrame({"Close": [1.0]}, index=pd.to_datetime(["2026-09-30"]))
+    _v1 = (_LG.frame_src(_htv_tvf) == "tradingview" and _LG.frame_src(_htv_yhf) == "yahoo"
+           and _LG.frame_src(None) == "yahoo" and _LG.frame_src(object()) == "yahoo"
+           and _LG.row_src({"src": "tradingview"}) == "tradingview" and _LG.row_src({}) == "yahoo"
+           and _LG.row_src({"src": "TV"}) == "yahoo" and _LG.row_src(None) == "yahoo"
+           and _LG.SRC_TV == "tradingview" and _LG.SRC_YAHOO == "yahoo")
+    _v1w = f"tv={_LG.frame_src(_htv_tvf)} · yh={_LG.frame_src(_htv_yhf)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v1, _v1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🪝📺 HTV1 `frame_src`: إطارُ `tv_daily_frame` ⟵ tradingview · وياهو/None/غريب ⟵ yahoo · و`row_src` الحقلُ حرفًا وإلّا yahoo",
+      _v1, _v1w)
+
+# HTV2 — `build_rows`/`record`: بلا `src_of` **لا حقلَ `src`** (الصفُّ السابق بت-بت) · ومعه مصدرُ كلّ رمز (مُكبَّرًا) · وتعذّرُه ⟵ yahoo ·
+#    والصفوفُ نفسُها سوى `src` · و`record` يمرّره فيُقرأ من الملفّ
+try:
+    _htv_r2 = [{"symbol": "AAA", "price": 1.0}, {"symbol": "bbb", "price": 2.0}]
+    _htv_b0 = _LG.build_rows("split", "2026-09-30", _htv_r2)
+    _htv_b1 = _LG.build_rows("split", "2026-09-30", _htv_r2,
+                             src_of=lambda s: "tradingview" if s == "AAA" else "yahoo")
+    _htv_b2 = _LG.build_rows("split", "2026-09-30", _htv_r2, src_of=lambda s: 1 / 0)
+    _htv_p2 = _tvb_os.path.join(_rej_tf.gettempdir(), "_htv2_ledger.jsonl")
+    if _tvb_os.path.exists(_htv_p2):
+        _tvb_os.remove(_htv_p2)
+    _htv_n2 = _LG.record("split", "2026-09-30", _htv_r2, path=_htv_p2, src_of=lambda s: "tradingview")
+    _htv_l2 = _LG.load(_htv_p2)
+    _v2 = (all("src" not in r for r in _htv_b0)
+           and [r.get("src") for r in _htv_b1] == ["tradingview", "yahoo"]
+           and [r.get("src") for r in _htv_b2] == ["yahoo", "yahoo"]
+           and [{k: v for k, v in r.items() if k != "src"} for r in _htv_b1] == _htv_b0
+           and _htv_n2 == 2 and [r.get("src") for r in _htv_l2] == ["tradingview", "tradingview"])
+    _v2w = f"b0={[r.get('src') for r in _htv_b0]} · b1={[r.get('src') for r in _htv_b1]} · n={_htv_n2}"
+except Exception as _e:                                              # noqa: BLE001
+    _v2, _v2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🪝📺 HTV2 `build_rows`/`record`: بلا `src_of` لا حقلَ `src` (بت-بت) · ومعه مصدرُ كلّ رمز · وتعذّرُه ⟵ yahoo · و`record` يمرّره",
+      _v2, _v2w)
+
+# HTV3 — الـYAML: `BARS_SOURCE: tradingview` **في بيئة الخطوة التي تشغّل سكربتَ الصيّاد نفسَه** (أو فوقها) في الأربعة · وصيّادُ المقسّم
+#    يُبقي `SPLIT_SOURCE_REPAIR: "0"` · وحصّادُ النتائج بلا البيئة (يحسم كلَّ صفٍّ بمصدره من الكود لا من البيئة)
+try:
+    _htv_bad3 = []
+    for _f3, _py3 in _HTV_HUNTERS.items():
+        _y3 = _tvb_yaml.safe_load(open(f".github/workflows/{_f3}", encoding="utf-8")) or {}
+        _hit3 = False
+        for _j3 in (_y3.get("jobs") or {}).values():
+            for _st3 in ((_j3 or {}).get("steps") or []):
+                if f"python {_py3}" not in str((_st3 or {}).get("run") or ""):
+                    continue
+                _env3 = {**(_y3.get("env") or {}), **((_j3 or {}).get("env") or {}), **((_st3 or {}).get("env") or {})}
+                _hit3 = str(_env3.get("BARS_SOURCE", "")).strip().lower() == "tradingview"
+                if _f3 == "split_hunter.yml" and str(_env3.get("SPLIT_SOURCE_REPAIR")) != "0":
+                    _hit3 = False
+        if not _hit3:
+            _htv_bad3.append(_f3)
+    _y3o = _tvb_yaml.safe_load(open(".github/workflows/hunter_outcomes.yml", encoding="utf-8")) or {}
+    _o3 = "BARS_SOURCE" not in str(_y3o)
+    _v3 = not _htv_bad3 and _o3
+    _v3w = f"ناقص={_htv_bad3} · حصّادُ النتائج بلا البيئة={_o3}"
+except Exception as _e:                                              # noqa: BLE001
+    _v3, _v3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🪝📺 HTV3 الـYAML: `BARS_SOURCE: tradingview` في خطوة سكربت كلِّ صيّادٍ من الأربعة · وصيّادُ المقسّم يُبقي "
+      "`SPLIT_SOURCE_REPAIR: \"0\"` · وحصّادُ النتائج بلا البيئة", _v3, _v3w)
+
+# HTV4 — الوصلُ من نقطة النداء (AST): في كلّ سكربت صيّادٍ نداءُ `LEDGER.record` يحمل `src_of=lambda _s: LEDGER.frame_src(hist.get(_s))`
+#    — المصدرُ من **إطار الرمز نفسِه** الذي جُمِّد منه `ref_of`
+try:
+    _htv_bad4 = []
+    for _py4 in _HTV_HUNTERS.values():
+        _ok4 = False
+        for _n4 in _ast0.walk(_ast0.parse(open(_py4, encoding="utf-8").read())):
+            if not (isinstance(_n4, _ast0.Call) and isinstance(_n4.func, _ast0.Attribute) and _n4.func.attr == "record"
+                    and getattr(_n4.func.value, "id", None) == "LEDGER"):
+                continue
+            _kw4 = {k.arg: k.value for k in _n4.keywords}
+            _lam4 = _kw4.get("src_of")
+            _body4 = getattr(_lam4, "body", None)
+            _ok4 = (isinstance(_lam4, _ast0.Lambda) and isinstance(_body4, _ast0.Call)
+                    and getattr(_body4.func, "attr", None) == "frame_src"
+                    and getattr(getattr(_body4.func, "value", None), "id", None) == "LEDGER"
+                    and len(_body4.args) == 1 and isinstance(_body4.args[0], _ast0.Call)
+                    and getattr(_body4.args[0].func, "attr", None) == "get"
+                    and getattr(getattr(_body4.args[0].func, "value", None), "id", None) == "hist")
+        if not _ok4:
+            _htv_bad4.append(_py4)
+    _v4, _v4w = (not _htv_bad4), f"بلا وصل={_htv_bad4}"
+except Exception as _e:                                              # noqa: BLE001
+    _v4, _v4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🪝📺 HTV4 الوصلُ (AST): كلُّ صيّادٍ من الأربعة يمرّر `src_of=lambda _s: LEDGER.frame_src(hist.get(_s))` في `LEDGER.record`",
+      _v4, _v4w)
+
+
+def _htv_frame(c, h, tv, first="2026-05-01", last="2026-09-29"):
+    _ix = pd.bdate_range(first, last)
+    _d = pd.DataFrame({"Open": c, "High": h, "Low": c, "Close": c, "Volume": 1000.0}, index=_ix)
+    if tv:
+        _d.attrs["bars_src"] = "tradingview"
+    return _d
+
+
+# HTV5 — `resolve` بقاموس الجالبات: صفُّ ياهو بقمم ياهو وصفُّ TradingView بقمم TradingView (المرجعُ والقممُ من المصدر نفسِه) ·
+#    وكلُّ جالبٍ يُسأل عن رموز مصدره وحدَها · وصفُّ TradingView الذي تعذّر إطارُه **يبقى معلّقًا** (لا يُحسم بياهو) · ومصدرٌ بلا
+#    جالب ⟵ معلّقٌ مُعلَن
+try:
+    _htv_rows5 = [{"key": "split|2026-06-01|AAA", "hunter": "split", "session": "2026-06-01", "symbol": "AAA", "ref_close": 1.0},
+                  {"key": "split|2026-06-02|BBB", "hunter": "split", "session": "2026-06-02", "symbol": "BBB", "ref_close": 2.0,
+                   "src": "tradingview"},
+                  {"key": "split|2026-06-02|EEE", "hunter": "split", "session": "2026-06-02", "symbol": "EEE", "ref_close": 2.0,
+                   "src": "tradingview"}]
+    _htv_c5 = {"yahoo": [], "tradingview": []}
+
+    def _htv_yf5(syms):
+        _htv_c5["yahoo"].append(list(syms))
+        return {s: _htv_frame(1.0, 1.5, False) for s in syms}
+
+    def _htv_tf5(syms):
+        _htv_c5["tradingview"].append(list(syms))
+        return {s: _htv_frame(2.0, 5.0, True) for s in syms if s != "EEE"}
+
+    _htv_o5 = _HO.resolve(_htv_rows5, {"yahoo": _htv_yf5, "tradingview": _htv_tf5})
+    _htv_lg5 = []
+    _htv_o5b = _HO.resolve(_htv_rows5, {"yahoo": _htv_yf5}, log=_htv_lg5.append)
+    _v5 = (set(_htv_o5) == {"split|2026-06-01|AAA", "split|2026-06-02|BBB"}
+           and _htv_o5["split|2026-06-01|AAA"]["max_gain"] == 50.0 and _htv_o5["split|2026-06-01|AAA"]["hit100"] is False
+           and _htv_o5["split|2026-06-02|BBB"]["max_gain"] == 150.0 and _htv_o5["split|2026-06-02|BBB"]["hit100"] is True
+           and _htv_c5["tradingview"][0] == ["BBB", "EEE"] and _htv_c5["yahoo"][0] == ["AAA"]
+           and set(_htv_o5b) == {"split|2026-06-01|AAA"}
+           and any("لا جالبَ لمصدر «tradingview»" in x for x in _htv_lg5)
+           and any("تعذّر مصدرُه 2" in x for x in _htv_lg5))
+    _v5w = f"حُسم={sorted(_htv_o5)} · نداءات={_htv_c5}"
+except Exception as _e:                                              # noqa: BLE001
+    _v5, _v5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🪝📺 HTV5 `resolve` بقاموس الجالبات: كلُّ صفٍّ بقمم مصدره · وكلُّ جالبٍ برموز مصدره وحدَها · وتعذّرُ إطار TradingView ⟵ "
+      "معلّق (لا ياهو) · ومصدرٌ بلا جالب ⟵ معلّقٌ مُعلَن", _v5, _v5w)
+
+# HTV6 — المسارُ السابق **بت-بت**: جالبٌ واحد (callable) ⟵ نداءٌ واحد بكلّ الرموز مرتّبةً · والسطرانِ حرفًا كما كانا
+try:
+    _htv_c6, _htv_lg6 = [], []
+
+    def _htv_f6(syms):
+        _htv_c6.append(list(syms))
+        return {s: _htv_frame(1.0, 3.0, False) for s in syms}
+
+    _htv_o6 = _HO.resolve(_htv_rows5[:2], _htv_f6, log=_htv_lg6.append)
+    _v6 = (_htv_c6 == [["AAA", "BBB"]] and len(_htv_o6) == 2
+           and _htv_lg6 == ["📏 بانتظار الحسم: 2 صفًّا · 2 رمزًا", "   ⇒ حُسم 2 · لم تنقضِ نافذتُه 0 · بلا شموع 0"])
+    _v6w = f"نداءات={_htv_c6} · سجلّ={_htv_lg6}"
+except Exception as _e:                                              # noqa: BLE001
+    _v6, _v6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🪝📺 HTV6 المسارُ السابق بت-بت: جالبٌ واحد ⟵ نداءٌ واحد بكلّ الرموز مرتّبةً · والسطرانِ حرفًا كما كانا", _v6, _v6w)
+
+# HTV7 — `session_srcs`: أغلبيّةٌ صارمة لـTradingView وإلّا ياهو (التعادلُ ياهو) · والشاهدُ لا يُعدّ · وصفٌّ بلا جلسة يُتخطّى ·
+#    و`src_fetchers`: جالبُ ياهو **ينزع `BARS_SOURCE` مدّةَ النداء ثمّ يُعيدها** · وجالبُ TradingView `tv_download` وحدَه ويُسقط ما لا
+#    يحمل الوسم (بلا احتياط ياهو)
+try:
+    _htv_s7 = _HO.session_srcs([
+        {"hunter": "split", "session": "2026-09-30", "src": "tradingview"},
+        {"hunter": "envelope", "session": "2026-09-30", "src": "tradingview"},
+        {"hunter": "envelope", "session": "2026-09-30"},
+        {"hunter": "split", "session": "2026-09-29"},
+        {"hunter": "envelope", "session": "2026-09-28", "src": "tradingview"},
+        {"hunter": "envelope", "session": "2026-09-28"},
+        {"hunter": "control", "session": "2026-09-29", "src": "tradingview"},
+        {"hunter": "control", "session": "2026-09-27", "src": "tradingview"},
+        {"hunter": "split"}])
+    _htv_seen7 = {}
+
+    def _htv_dh7(syms):
+        _htv_seen7["env"] = _tvb_os.environ.get("BARS_SOURCE")
+        return {s: _htv_frame(1.0, 1.0, False) for s in syms}
+
+    def _htv_tv7(syms, start):
+        _htv_seen7["tv"] = (list(syms), start)
+        return ({"AAA": _htv_frame(1.0, 1.0, True), "BBB": _htv_frame(1.0, 1.0, False)}, {"asked": len(syms)})
+
+    _htv_fS7 = _htv_types.SimpleNamespace(download_history=_htv_dh7, tv_download=_htv_tv7,
+                                          CONFIG={"HISTORY_DAYS": 800, "MIN_BARS": 120})
+    _htv_fx7 = _HO.src_fetchers(_htv_fS7)
+    _htv_old7 = _tvb_os.environ.get("BARS_SOURCE")
+    _tvb_os.environ["BARS_SOURCE"] = "tradingview"
+    try:
+        _htv_y7 = _htv_fx7["yahoo"](["AAA"])
+        _htv_after7 = _tvb_os.environ.get("BARS_SOURCE")
+    finally:
+        if _htv_old7 is None:
+            _tvb_os.environ.pop("BARS_SOURCE", None)
+        else:
+            _tvb_os.environ["BARS_SOURCE"] = _htv_old7
+    _htv_t7 = _htv_fx7["tradingview"](["AAA", "BBB"])
+    _v7 = (_htv_s7 == {"2026-09-30": "tradingview", "2026-09-29": "yahoo", "2026-09-28": "yahoo"}
+           and _htv_seen7.get("env") is None and _htv_after7 == "tradingview" and list(_htv_y7) == ["AAA"]
+           and list(_htv_t7) == ["AAA"] and _htv_seen7["tv"][0] == ["AAA", "BBB"]
+           and _htv_seen7["tv"][1] == (_tvb_dt.date.today() - _tvb_dt.timedelta(days=800)).isoformat())
+    _v7w = f"جلسات={_htv_s7} · env={_htv_seen7.get('env')}/{_htv_after7} · tv={list(_htv_t7)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v7, _v7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🪝📺 HTV7 `session_srcs` أغلبيّةٌ صارمة (التعادلُ ياهو · الشاهدُ لا يُعدّ) · وجالبُ ياهو ينزع `BARS_SOURCE` مدّةَ النداء "
+      "ويُعيدها · وجالبُ TradingView `tv_download` وحدَه يُسقط غيرَ الموسوم", _v7, _v7w)
+
+# HTV8 — **`run()` طرفيًّا** (نقطةُ النداء الحيّة · جذوعٌ بلا شبكة ولا git): سجلٌّ مؤقّت بصفَّي صيّاد (ياهو 06-01 · TradingView
+#    06-02) ⟵ الشاهدُ يُبنى لكلّ جلسةٍ بمصدرها (‏`src` لجلسة TradingView وحدَها) ⟵ مرجعُه من جالب مصدره (ياهو 1.0 · TradingView 2.0)
+#    ⟵ كلُّ صفٍّ يُحسم بقمم مصدره ⟵ و`git_save` بملفّ السجلّ المؤقّت · ⚖️ و**حارسُ التقسيم موصولٌ** (ملحق §⑧): إطارُ ياهو لـAAA
+#    مسوّى بتقسيمٍ عكسيّ 1:10 مؤكَّد (07-01) فإغلاقُه 10.0 ومرجعُ صفّ الصيّاد المجمَّد 1.0 ⟵ يُسوّى إلى 10.0 ⟵ ‏+50% (وبلا الحارس ‏+1400%)
+try:
+    _htv_p8 = _tvb_os.path.join(_rej_tf.gettempdir(), "_htv8_ledger.jsonl")
+    if _tvb_os.path.exists(_htv_p8):
+        _tvb_os.remove(_htv_p8)
+    import json as _htv_json
+    with open(_htv_p8, "w", encoding="utf-8") as _fh8:
+        for _r8 in _htv_rows5[:2]:
+            _fh8.write(_htv_json.dumps({**_r8, "kind": "candidate", "fwd": 40, "outcome": None}) + "\n")
+    _htv_c8 = {"yahoo": [], "tradingview": [], "git": []}
+
+    def _htv_dh8(syms, start_override=None):
+        _htv_c8["yahoo"].append(sorted(syms))
+        return {s: (_htv_frame(10.0, 15.0, False) if s == "AAA" else _htv_frame(1.0, 1.5, False)) for s in syms}
+
+    def _htv_tv8(syms, start, **_k):
+        _htv_c8["tradingview"].append(sorted(syms))
+        return {s: _htv_frame(2.0, 5.0, True) for s in syms}, {"asked": len(syms)}
+
+    _htv_sv8 = {k: getattr(S, k) for k in ("download_history", "tv_download", "get_universe", "git_save", "log",
+                                           "_fetch_splits")}
+    _htv_lf8 = _LG.LEDGER_FILE
+    try:
+        S.download_history, S.tv_download = _htv_dh8, _htv_tv8
+        S.get_universe = lambda: ["AAA", "BBB", "CCC"]
+        S.git_save = lambda files, *a, **k: _htv_c8["git"].append(list(files))
+        S.log = lambda *a, **k: None
+        S._fetch_splits = lambda s: (pd.Series([0.1], index=pd.to_datetime(["2026-07-01"])) if s == "AAA" else None)
+        _LG.LEDGER_FILE = _htv_p8
+        _htv_rc8 = _HO.run()
+        _htv_l8 = _LG.load(_htv_p8)
+    finally:
+        for _k8, _f8 in _htv_sv8.items():
+            setattr(S, _k8, _f8)
+        _LG.LEDGER_FILE = _htv_lf8
+    _htv_ctl8 = {(r["session"], r["symbol"]): r for r in _htv_l8 if r.get("hunter") == "control"}
+    _htv_by8 = {r["key"]: r for r in _htv_l8}
+    _v8 = (_htv_rc8 == 0 and len(_htv_ctl8) == 6
+           and all("src" not in r and r.get("ref_close") == (10.0 if _s == "AAA" else 1.0)
+                   for (d, _s), r in _htv_ctl8.items() if d == "2026-06-01")
+           and _htv_by8["split|2026-06-01|AAA"].get("ref_close") == 1.0
+           and all(r.get("src") == "tradingview" and r.get("ref_close") == 2.0
+                   for (d, _s), r in _htv_ctl8.items() if d == "2026-06-02")
+           and all((r.get("outcome") or {}).get("max_gain") == (150.0 if _LG.row_src(r) == "tradingview" else 50.0)
+                   for r in _htv_l8)
+           and _htv_by8["split|2026-06-02|BBB"]["outcome"]["hit100"] is True
+           and _htv_by8["split|2026-06-01|AAA"]["outcome"]["hit100"] is False
+           and _htv_by8["split|2026-06-01|AAA"]["outcome"].get("ref_scaled") == 10.0
+           and _htv_by8["split|2026-06-01|AAA"]["outcome"].get("split_f") == 0.1
+           and "ref_scaled" not in (_htv_ctl8[("2026-06-01", "AAA")].get("outcome") or {})
+           and _htv_c8["yahoo"] == [["AAA", "BBB", "CCC"]] * 2 and _htv_c8["tradingview"] == [["AAA", "BBB", "CCC"]] * 2
+           and _htv_c8["git"] == [[_htv_p8]])
+    _v8w = (f"rc={_htv_rc8} · شاهد={len(_htv_ctl8)} · نداءات ياهو={_htv_c8['yahoo']} · TradingView={_htv_c8['tradingview']} · "
+            f"git={_htv_c8['git']}")
+except Exception as _e:                                              # noqa: BLE001
+    _v8, _v8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🪝📺 HTV8 `run()` طرفيًّا: الشاهدُ بمصدر جلسته (src لجلسة TradingView وحدَها) · ومرجعُه من جالب مصدره · وكلُّ صفٍّ بقمم مصدره "
+      "· و`git_save` بالسجلّ · وحارسُ التقسيم موصول (مرجعُ AAA 1.0 ⟵ 10.0 بتقسيمٍ 1:10 مؤكَّد)", _v8, _v8w)
+
+# HTV9 — `scale_ref` نقيّة (ملحق §⑧): عكسيّ 1:10 بعد الجلسة (مرجع 0.5 · طازج 5.0 · f=0.1) ⟵ split 5.0 · شاهدٌ مُلئ بعد التقسيم (5.0 ·
+#    5.0 · 0.1) ⟵ as_is · بلا تقسيمٍ وفرقٌ داخل [0.8، 1.25] ⟵ as_is بالمرجع المجمَّد (‏H3) · وخارجه بلا تقسيمٍ يفسّره ⟵ inconsistent ·
+#    وأماميّ 2:1 ⟵ split · وحالةُ CTNT الحقيقيّة (1.85 · 277.5 · 1/150) ⟵ split 277.5 · ومُدخَلٌ تالف ⟵ invalid · والنطاقُ 0.25 مُعلَن
+try:
+    _htv_s9 = [_HO.scale_ref(0.5, 5.0, 0.1), _HO.scale_ref(5.0, 5.0, 0.1), _HO.scale_ref(1.0, 1.2, 1.0),
+               _HO.scale_ref(1.0, 0.79, 1.0), _HO.scale_ref(1.0, 1.26, 1.0), _HO.scale_ref(4.0, 2.0, 2.0),
+               _HO.scale_ref(1.85, 277.5, 1 / 150), _HO.scale_ref(None, 1.0, 1.0), _HO.scale_ref(1.0, 0.0, 1.0),
+               _HO.scale_ref(1.0, 1.0, None)]
+    _v9 = (_htv_s9[0] == (5.0, "split") and _htv_s9[1] == (5.0, "as_is") and _htv_s9[2] == (1.0, "as_is")
+           and _htv_s9[3] == (None, "inconsistent") and _htv_s9[4] == (None, "inconsistent")
+           and _htv_s9[5] == (2.0, "split") and _htv_s9[6][1] == "split" and abs(_htv_s9[6][0] - 277.5) < 1e-9
+           and _htv_s9[7] == (None, "invalid") and _htv_s9[8] == (None, "invalid") and _htv_s9[9] == (1.0, "as_is")
+           and _HO.SCALE_TOL == 0.25)
+    _v9w = f"{_htv_s9}"
+except Exception as _e:                                              # noqa: BLE001
+    _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️ HTV9 `scale_ref`: عكسيّ ⟵ split · شاهدٌ بعد التقسيم ⟵ as_is · بلا تقسيمٍ داخل [0.8، 1.25] ⟵ المرجعُ المجمَّد · وخارجه ⟵ "
+      "inconsistent · وأماميّ 2:1 ⟵ split · وCTNT (1:150) ⟵ 277.5 · والتالف ⟵ invalid", _v9, _v9w)
+
+# HTV10 — `resolve` بـ`split_events` (ملحق §⑧): صفٌّ مرجعُه قبل تقسيمٍ 1:10 والإطارُ مسوّى (إغلاقُ الجلسة 5.0 · القممُ 6.0) ⟵ يُحسم
+#    بالمرجع المسوّى 5.0 (‏+20% · لا hit100) ويُكتب `ref_scaled`/`split_f` · وإطارٌ **لم يسوِّ** التقسيمَ (قفزةُ ×10 يومَه — شاهدُ WOK على
+#    TradingView) ⟵ معلّقٌ «unadjusted» لا حسمٌ كاذب · وصفٌّ غيرُ متّسقٍ بلا تقسيم ⟵ معلّقٌ مُعلَنٌ باسمه · وصفٌّ لم تنقضِ نافذتُه ⟵ لا
+#    يُسأل عن تقسيماته (لا نداءَ شبكة بلا داعٍ) · وبلا `split_events` المسارُ السابق (‏+1100% · hit100) بت-بت
+try:
+    _htv_r10 = [{"key": "split|2026-06-01|SPL", "hunter": "split", "session": "2026-06-01", "symbol": "SPL", "ref_close": 0.5},
+                {"key": "split|2026-06-01|UNA", "hunter": "split", "session": "2026-06-01", "symbol": "UNA", "ref_close": 1.0},
+                {"key": "split|2026-06-01|BAD", "hunter": "split", "session": "2026-06-01", "symbol": "BAD", "ref_close": 1.0},
+                {"key": "split|2026-09-24|NEW", "hunter": "split", "session": "2026-09-24", "symbol": "NEW", "ref_close": 1.0}]
+    _htv_asked10 = []
+    _htv_ix10 = pd.bdate_range("2026-05-01", "2026-09-29")
+    _htv_una10 = pd.DataFrame({"High": [1.1 if d < pd.Timestamp("2026-07-01") else 11.0 for d in _htv_ix10],
+                               "Close": [1.0 if d < pd.Timestamp("2026-07-01") else 10.0 for d in _htv_ix10]},
+                              index=_htv_ix10)
+
+    def _htv_f10(syms):
+        return {"SPL": _htv_frame(5.0, 6.0, False), "UNA": _htv_una10, "BAD": _htv_frame(3.0, 3.1, False),
+                "NEW": _htv_frame(1.0, 1.1, False)}
+
+    def _htv_se10(sym, sess):
+        _htv_asked10.append(sym)
+        return [("2026-07-01", 0.1)] if sym in ("SPL", "UNA") else []
+
+    _htv_lg10 = []
+    _htv_o10 = _HO.resolve(_htv_r10, _htv_f10, log=_htv_lg10.append, split_events=_htv_se10)
+    _htv_o10b = _HO.resolve(_htv_r10, _htv_f10)
+    _htv_spl = _htv_o10.get("split|2026-06-01|SPL") or {}
+    _v10 = (set(_htv_o10) == {"split|2026-06-01|SPL"}
+            and _htv_spl.get("max_gain") == 20.0 and _htv_spl.get("hit100") is False
+            and _htv_spl.get("ref_scaled") == 5.0 and _htv_spl.get("split_f") == 0.1
+            and sorted(_htv_asked10) == ["BAD", "SPL", "UNA"]
+            and any("مقياسٌ غير متّسق 2" in x for x in _htv_lg10)
+            and any("BAD 2026-06-01 (inconsistent)" in x and "UNA 2026-06-01 (unadjusted)" in x for x in _htv_lg10)
+            and (_htv_o10b.get("split|2026-06-01|SPL") or {}).get("max_gain") == 1100.0
+            and (_htv_o10b.get("split|2026-06-01|SPL") or {}).get("hit100") is True
+            and (_htv_o10b.get("split|2026-06-01|UNA") or {}).get("hit100") is True
+            and "ref_scaled" not in (_htv_o10b.get("split|2026-06-01|SPL") or {}))
+    _v10w = f"حُسم={ {k: (v.get('max_gain'), v.get('ref_scaled')) for k, v in _htv_o10.items()} } · سُئل={_htv_asked10}"
+except Exception as _e:                                              # noqa: BLE001
+    _v10, _v10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️ HTV10 `resolve` بـ`split_events`: مرجعٌ قبل تقسيمٍ 1:10 ⟵ يُسوّى (‏+20% لا +1100%) ويُكتب `ref_scaled` · وإطارٌ لم يسوِّ "
+      "التقسيم ⟵ معلّق · وغيرُ المتّسق ⟵ معلّقٌ مُعلَنٌ باسمه · ولا يُسأل مَن لم تنقضِ نافذتُه · وبلا `split_events` السابقُ بت-بت",
+      _v10, _v10w)
+
+# HTV11 — نقيّتان (ملحق §⑧): `split_events_after` تقسيماتٌ **بعد** الجلسة حصرًا (يومُ الجلسة نفسُه خارجها · نسبةٌ موجبة · مرتّبة ·
+#    Series أو أزواج · None ⟵ []) · و`unadjusted_jump` يُمسك قفزةَ ×1/النسبة يومَ التقسيم (عكسيّ 1:100 كشاهد WOK · وأماميّ 2:1) ولا يُمسك
+#    إطارًا مسوّى ولا حركةً عاديّة ولا تقسيمًا قبل أوّل شمعة
+try:
+    _htv_sp11 = pd.Series([0.01, 0.01, 0.01], index=pd.to_datetime(["2025-10-21", "2025-12-29", "2026-06-18"]))
+    _htv_ix11 = pd.bdate_range("2025-10-01", "2025-11-10")
+    _htv_wok = pd.DataFrame({"Close": [3.59 if d < pd.Timestamp("2025-10-21") else 392.0 for d in _htv_ix11]}, index=_htv_ix11)
+    _htv_adj = pd.DataFrame({"Close": [359.0 if d < pd.Timestamp("2025-10-21") else 392.0 for d in _htv_ix11]}, index=_htv_ix11)
+    _htv_fwd = pd.DataFrame({"Close": [10.0 if d < pd.Timestamp("2025-10-21") else 5.1 for d in _htv_ix11]}, index=_htv_ix11)
+    _v11 = (_HO.split_events_after(_htv_sp11, "2025-12-29") == [("2026-06-18", 0.01)]
+            and _HO.split_events_after(_htv_sp11, "2025-10-20") == [("2025-10-21", 0.01), ("2025-12-29", 0.01), ("2026-06-18", 0.01)]
+            and _HO.split_events_after([("2026-07-01", 0.1), ("2026-06-01", 0.5), ("2026-08-01", -1)], "2026-06-01")
+            == [("2026-07-01", 0.1)]
+            and _HO.split_events_after(None, "2026-06-01") == []
+            and _HO.unadjusted_jump(_htv_wok, [("2025-10-21", 0.01)]) is True
+            and _HO.unadjusted_jump(_htv_adj, [("2025-10-21", 0.01)]) is False
+            and _HO.unadjusted_jump(_htv_fwd, [("2025-10-21", 2.0)]) is True
+            and _HO.unadjusted_jump(_htv_adj, [("2025-09-01", 0.01)]) is False
+            and _HO.unadjusted_jump(None, [("2025-10-21", 0.01)]) is False)
+    _v11w = f"بعد 12-29={_HO.split_events_after(_htv_sp11, '2025-12-29')} · WOK={_HO.unadjusted_jump(_htv_wok, [('2025-10-21', 0.01)])}"
+except Exception as _e:                                              # noqa: BLE001
+    _v11, _v11w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚖️ HTV11 `split_events_after` بعد الجلسة حصرًا (مرتّبة · موجبة · None ⟵ []) · و`unadjusted_jump` يُمسك قفزةَ ×1/النسبة (WOK 1:100 · "
+      "أماميّ 2:1) ولا يُمسك المسوّى ولا ما قبل أوّل شمعة", _v11, _v11w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
