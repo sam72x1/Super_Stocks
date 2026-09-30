@@ -1,0 +1,27 @@
+name: hnt diag (مؤقّت — يُحذف قبل الدمج)
+
+# 🧪 تشخيصُ انقلاب صيّاد المقسّم بين ياهو وTradingView (WOK · YHC) وصفوف LS غير المفسَّرة — قراءةٌ فقط.
+on:
+  pull_request:
+    paths:
+      - "hnt_diag.py"
+      - ".github/workflows/hnt_diag.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  diag:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Diag
+        env:
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+        run: python hnt_diag.py
