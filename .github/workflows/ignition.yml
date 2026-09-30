@@ -51,6 +51,11 @@ env:
   IGNITION_SEGMENT_SPLIT_MIN: "195"
 
 jobs:
+  # 🧊 **مُجمَّدٌ 2026-09-30 بقرار المالك «خلّ اللحظي متوقف»:** Polygon انتهى ولن يُجدَّد («اشتراكي مخلص ولا راح اجدده حتى
+  #    لو يتوقف التحديث اللحظي») ⇒ الرادارُ بلا شموع دقيقةٍ ولا صفقات (فاشلٌ-آمن: صفرُ تنبيه) والمدقّقُ الصارم يحمرّ كلَّ جلسة
+  #    (‏`36600831492`: «1 جلسة غير مكتملة») · وبديلُ TradingView المجّانيّ متأخّرٌ ‏≈15 دقيقة وحجمُ دقائقه جزئيّ فلا يصلح
+  #    للّحظيّ ⇒ **الكروناتُ الأربعة تُتخطّى واليدويُّ باقٍ بت-بت** (`IGZ1`) · والأرشيفُ الخامّ يبقى حيًّا بـ`e2_recover` الليليّ.
+  #    الرجوعُ (بعد عودة مفتاحٍ يعمل): يُحذف سطرُ `if` من `pre_open_wait_1` وتعود `${{ always() && … }}` في الأربعة `always()`.
   # ═══ job0أ/0ب: انتظارُ الجرس **خارج ميزانية المسح** (2026-09-29 · عطلٌ مُثبَت) ═══
   # 🔴 تأخّرُ GitHub صار يُقلع أبكرَ كرون (02:11) نحو 08:2x-08:4x UTC ⇒ كان مقطعُ الافتتاح ينتظر
   # الجرسَ ~5 ساعات **من سقفه 330 د** فيمسح 23-38 دقيقة فقط، ويُقلع مقطعُ الإغلاق بعده فينتهي
@@ -61,6 +66,7 @@ jobs:
   # ⚖️ **فاشلٌ-آمن:** أيُّ عطلٍ في جوب النوم ⟵ صفرُ نوم (`continue-on-error` · والمقطعُ بعده
   # `if: always()`) ⟵ سلوكُ اليوم حرفيًّا. المسحُ والتنبيهُ والدِدوبُ والقياسُ لم تُمَسّ.
   pre_open_wait_1:
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 350
     steps:
@@ -82,7 +88,7 @@ jobs:
 
   pre_open_wait_2:
     needs: pre_open_wait_1
-    if: always()
+    if: ${{ always() && github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 350
     steps:
@@ -105,7 +111,7 @@ jobs:
   # ═══ job1: مقطع الافتتاح [open, open+195د] ═══
   open_segment:
     needs: pre_open_wait_2
-    if: always()
+    if: ${{ always() && github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     timeout-minutes: 345
     steps:
@@ -149,7 +155,7 @@ jobs:
     # `if: always()` ⇒ فشل/إلغاء/انتهاء مهلة open **لا يلغي تنبيهات مقطع الإغلاق** (195د حتى
     # الإغلاق). فشل نقل القياس يجعل الجلسة غير مؤهّلة للتحليل، لا يُسكت الرادار.
     needs: open_segment
-    if: always()
+    if: ${{ always() && github.event_name == 'workflow_dispatch' }}
     timeout-minutes: 345
     steps:
       - uses: actions/checkout@v4
@@ -199,7 +205,7 @@ jobs:
     runs-on: ubuntu-latest
     # 🔬 مراجعة Codex 5: يجمع ما توفّر حتى لو تعثّر مقطع (المدقّق يحكم بالاكتمال، لا الـCI).
     needs: close_segment
-    if: always()
+    if: ${{ always() && github.event_name == 'workflow_dispatch' }}
     timeout-minutes: 30
     steps:
       # 🔴 **أحدثُ الفرع لحظةَ التجميع لا لقطةُ الإطلاق (2026-09-25 · عطلٌ مُثبَت `35984252866`):**
