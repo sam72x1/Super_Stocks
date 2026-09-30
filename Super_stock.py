@@ -2001,6 +2001,9 @@ def _split_repair_line(rep: dict) -> str:
 # النهجُ العلميّ · فلترةُ التقسيم · الظرف — ‏`BARS_SOURCE` في workflows الأربعة) · وصفُّ سجلّ حصادهم يحمل مصدرَ إطاره
 # (‏`hunter_ledger.frame_src`) فيُحسم بشموع مصدره (‏`hunter_outcomes` · ملحق §⑦ في `harvest_prereg.md`) · وحصّادُ النتائج
 # نفسُه بلا البيئة · ورادارُ الضغط وفحصُ الدخان وأدواتُ البحث على ياهو كما هي.
+# 🔄 (تحديثٌ مؤرَّخ 2026-09-30 · أمرُ المالك «انقل رادار الضغط إلى ترندق فيو»): ورادارُ الضغط صار عليه أيضًا (‏`BARS_SOURCE` في
+# workflow الرادار نفسِه · وسعرُ افتر قرينة الصحوة من `tv_session_minutes`) · وصفُّ سجلّه يحمل `bars_src` فيحسمه حاصدُه بشموع مصدره ·
+# والباقي على ياهو: فحصُ الدخان وأدواتُ البحث والباكتيست.
 # **فاشلٌ-آمن لكلّ رمز:** ما تعذّر عند TradingView (خطأ · بلا شموع · أقلُّ من `MIN_BARS` بعد القصّ) أو تخطّاه القاطع ⟵ ياهو
 # له وحدَه **ويُعلَن بعدده** · والفلوتُ يبقى من ياهو (C6: 103 من 139 فقط داخل [0.8، 1.25]).
 # ⚠️ **بلا حشو:** يومٌ بلا صفقة لا شمعةَ له عند TradingView ⇒ ما يقرأ «آخرَ شمعة» على أنها «اليوم» يُحرَس (`tv_bar_fresh`).
@@ -17336,6 +17339,65 @@ def extended_last_price(sym: str, session_date, fetch_bars=None):
         return round(best_c, 4) if best_c is not None else None
     except Exception:
         return None
+
+
+TV_AH_MIN_N = 1500               # engineering — توأمُ `presession_radar.TV_MIN_N` (قفلُ تطابق): شموعُ دقيقةٍ ممتدّة تكفي يومًا
+#                                   كاملًا 04:00-20:00 (‏960) بهامش
+TV_AH_DAY_N = 960                # توأمُ `presession_radar.TV_DAY_N`: دقائقُ اليوم الممتدّ — تُضاف لكلّ يومٍ تقويميٍّ بين الجلسة والآن
+
+
+def tv_session_minutes(sym, session_date, chart=None, tmap=None, now=None):
+    """📺🌙 بديلُ Polygon في `extended_last_price(fetch_bars=…)` — شموعُ دقيقةٍ **ممتدّة** من مِقبس TradingView لـ**يوم الجلسة
+    وحدَه** (‏[04:00، 20:00) نيويورك) بعقد Polygon ({"t": مللي، "c": إغلاق}) ⟵ فيبقى الحدُّ (16:00 أو الإغلاقُ المبكّر) واختيارُ أكبر
+    طابعٍ في `extended_last_price` نفسِها بلا تغيير. **والحدُّ الأعلى إلزاميّ:** المِقبسُ يُرجع آخرَ n شمعةً **حتى الآن**، ونافذةُ
+    Polygon كانت يومَ الجلسة بنطاق الطلب نفسِه ⇒ بلا الحدّ تقرأ تشغيلةٌ تأخّرت إلى بريماركت الغد سعرَه «افترَ» الجلسة.
+    العمقُ `TV_AH_MIN_N` ‏+ `TV_AH_DAY_N` لكلّ يومٍ تقويميٍّ إضافيّ (بسقف `TV_BARS_MAX`) · وإعادةٌ واحدة على مقبسٍ جديد (المقبسُ
+    الخامل بين رمزٍ ورمز قد يسقط) · والرمزُ من خريطة الماسح (`_tv_full_name`). فاشلٌ-آمن ⟵ None (تعذّر · تاريخٌ تالف) و`[]` بلا
+    شموعٍ في اليوم. `chart` (‏`tv_data.Chart`) و`tmap` و`now` محقونةٌ للاختبار · وبلا `chart` مقبسٌ لهذا النداء يُغلق بعده.
+    🔒 عرضٌ/تنبيهٌ فقط — خارج الفرز والجذور (أمرُ المالك 2026-09-30 «انقل رادار الضغط إلى ترندق فيو»: Polygon انتهى 09-29)."""
+    try:
+        import tv_data as TV
+        from zoneinfo import ZoneInfo
+        d = session_date
+        if isinstance(d, str):
+            d = dt.date.fromisoformat(d[:10])
+        elif isinstance(d, dt.datetime):
+            d = d.date()
+        if not isinstance(d, dt.date):
+            return None
+        ny = ZoneInfo("America/New_York")
+        lo_ms = int(dt.datetime(d.year, d.month, d.day, 4, 0, tzinfo=ny).timestamp() * 1000)
+        hi_ms = int(dt.datetime(d.year, d.month, d.day, 20, 0, tzinfo=ny).timestamp() * 1000)
+        t_now = now if now is not None else dt.datetime.now(dt.timezone.utc)
+        extra = max(0, (t_now.astimezone(ny).date() - d).days - 1)
+        n = int(min(TV_BARS_MAX, TV_AH_MIN_N + TV_AH_DAY_N * extra))
+        full = _tv_full_name(sym, _tv_ticker_map() if tmap is None else tmap)
+    except Exception:                                            # noqa: BLE001
+        return None
+    own = chart is None
+    ch = None
+    try:
+        ch = TV.Chart() if own else chart
+        b = ch.bars(full, interval="1", n=n, extended=True)
+        if b is None:
+            ch.close()
+            b = ch.bars(full, interval="1", n=n, extended=True)
+    except Exception:                                            # noqa: BLE001
+        b = None
+    finally:
+        if own and ch is not None:
+            ch.close()
+    if b is None:
+        return None
+    out = []
+    for x in b:
+        try:
+            ms, c = int(x[0]) * 1000, float(x[4])
+        except (TypeError, ValueError, IndexError):
+            continue
+        if lo_ms <= ms < hi_ms:
+            out.append({"t": ms, "c": c})
+    return out
 
 
 def ah_guard_rows(rows, session_date, fetch=None):
