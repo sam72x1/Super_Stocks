@@ -73422,6 +73422,276 @@ except Exception as _e:                                              # noqa: BLE
 check("🗜️📺 PRV8 الـYAML: `BARS_SOURCE: tradingview` في خطوة press_radar.py ومعه `POLYGON_API_KEY` كما كان · وحاصدُه بلا البيئة",
       _v8, _v8w)
 
+# 🌙📺 AHT1-AHT10 — **حارسُ الافتر للمقسّم على TradingView** (‏2026-10-01 · أمرُ المالك «شغّل حارس الافتر للمقسّم على ترندق فيو»):
+#    `ah_guard_rows` بلا جالبٍ محقون و`BARS_SOURCE=tradingview` ⟵ **قناتان**: آخرُ دقيقةٍ ممتدّة (`tv_session_minutes` على مِقبسٍ واحدٍ
+#    يُغلق بعد الصفوف) و`postmarket_close` الماسح (`tv_postmarket_map` بنداءٍ واحد) · **ولا يُتحقَّق إلّا إن اتّفقتا ضمن
+#    `TV_AH_AGREE_PCT`** والسعرُ أدناهما — لأن القناةَ الواحدة سقطت في مِجَسّ `36808633641` (‏`AH2` ‏43 من 53 = 81.1%) · والقاعدةُ
+#    والعتبةُ والكتمُ والوسمُ بت-بت · وبلا البيئة النداءُ السابق حرفًا · والمحقونُ يغلب. سلوكيّةٌ بلا شبكة: المِقبسُ والماسحُ والخريطةُ محقونة.
+#    🔒 **وخلف مفتاح `AH_GUARD_TV`=«1»** — مطفأٌ في الـworkflows حتى يعبر مِجَسّ v2 الحاكم (‏`AHT9`/`AHT10`).
+
+
+class _AhtChart:
+    """مِقبسٌ محقونٌ بشموعٍ لكلّ رمز ({رمز: [(ts, o, h, l, c, v)]}) · يسجّل الرموز ويَعُدّ الإغلاق."""
+
+    def __init__(self, data):
+        self.data, self.calls, self.closed = dict(data), [], 0
+
+    def bars(self, symbol, interval="1D", n=600, extended=False, adjustment="splits"):
+        self.calls.append((symbol, interval, extended))
+        return list(self.data.get(str(symbol).split(":")[-1], []))
+
+    def close(self):
+        self.closed += 1
+
+
+# جلسةُ الثلاثاء 2026-09-29 · الإغلاقُ 2.0: UP افترُه 3.0 والماسح 3.03 (‏+50% بقناتين ⟵ يُكتم) · FLAT ‏2.1 والماسح 2.09 (يبقى مُتحقَّقًا)
+#    · NOAH بلا صفقةٍ بعد 16:00 · GONE لا شموعَ له (‏[]) · SPLIT ‏2.5 والماسح 2.0 (اختلافٌ 25% ⟵ «لم يُتحقّق» **ولا كتم** ولو أن
+#    الشارتَ وحدَه +25%) · NOSC ‏2.05 ولا قيمةَ له في الماسح (⟵ «لم يُتحقّق»)
+_aht_data = {"UP": [_prv_bar("2026-09-29", 15, 59, 2.0), _prv_bar("2026-09-29", 19, 0, 3.0)],
+             "FLAT": [_prv_bar("2026-09-29", 15, 59, 2.0), _prv_bar("2026-09-29", 17, 0, 2.1)],
+             "NOAH": [_prv_bar("2026-09-29", 15, 59, 2.0)],
+             "SPLIT": [_prv_bar("2026-09-29", 15, 59, 2.0), _prv_bar("2026-09-29", 18, 0, 2.5)],
+             "NOSC": [_prv_bar("2026-09-29", 15, 59, 2.0), _prv_bar("2026-09-29", 18, 30, 2.05)]}
+_aht_syms = ("UP", "FLAT", "NOAH", "GONE", "SPLIT", "NOSC")
+_aht_rows = [{"symbol": _s, "price": 2.0, "ref": 4.0} for _s in _aht_syms]
+_aht_snap = {"NASDAQ:UP": {"name": "UP", "postmarket_close": 3.03},
+             "NASDAQ:FLAT": {"name": "FLAT", "postmarket_close": 2.09},
+             "NYSE:FLAT": {"name": "FLAT", "postmarket_close": 9.0},          # ناسداك يغلب
+             "NASDAQ:NOAH": {"name": "NOAH", "postmarket_close": 2.0},
+             "NASDAQ:SPLIT": {"name": "SPLIT", "postmarket_close": 2.0},
+             "NASDAQ:NOSC": {"name": "NOSC", "postmarket_close": None}}
+
+
+def _aht_run(env, chart_factory, fetch=None, ext_spy=None, scan=None, rows=None, switch=True):
+    """يشغّل `ah_guard_rows` بالبيئة المعطاة ومِقبسٍ وماسحٍ محقونَين وخريطةٍ فارغة (‏NASDAQ) ⟵
+    (kept رموزًا, unverified, التقرير, المقابس, نداءاتُ الماسح)."""
+    _sv = (_prv_tvd.Chart, S._tv_ticker_map, _os.environ.get("BARS_SOURCE"), S.extended_last_price, _prv_tvd.scan)
+    _sw0 = _os.environ.get("AH_GUARD_TV")
+    _made, _scans = [], []
+
+    def _factory():
+        _c = chart_factory()
+        _made.append(_c)
+        return _c
+
+    def _scan(cols, *a, **k):
+        _scans.append(list(cols))
+        return scan() if callable(scan) else (dict(_aht_snap) if scan is None else scan)
+    try:
+        _prv_tvd.Chart = _factory
+        _prv_tvd.scan = _scan
+        S._tv_ticker_map = lambda *a, **k: {}
+        if env is None:
+            _os.environ.pop("BARS_SOURCE", None)
+        else:
+            _os.environ["BARS_SOURCE"] = env
+        if switch:
+            _os.environ["AH_GUARD_TV"] = "1"
+        else:
+            _os.environ.pop("AH_GUARD_TV", None)
+        if ext_spy is not None:
+            S.extended_last_price = ext_spy
+        _k, _u = S.ah_guard_rows([dict(_r) for _r in (rows or _aht_rows)], "2026-09-29", fetch=fetch)
+        return [_r["symbol"] for _r in _k], list(_u), dict(S.AH_GUARD_LAST), _made, _scans
+    finally:
+        _prv_tvd.Chart, S._tv_ticker_map, _prv_tvd.scan = _sv[0], _sv[1], _sv[4]
+        if _sv[2] is None:
+            _os.environ.pop("BARS_SOURCE", None)
+        else:
+            _os.environ["BARS_SOURCE"] = _sv[2]
+        if _sw0 is None:
+            _os.environ.pop("AH_GUARD_TV", None)
+        else:
+            _os.environ["AH_GUARD_TV"] = _sw0
+        S.extended_last_price = _sv[3]
+
+
+# AHT1 — مسارُ TradingView بقناتين: UP يُكتم (‏+50% بالقناتين) · FLAT مُتحقَّق · NOAH/GONE «لم يُتحقّق» (بلا صفقةٍ بعد الإغلاق) ·
+#    SPLIT «لم يُتحقّق» **بلا كتم** (القناتان مختلفتان 25%) · NOSC «لم يُتحقّق» (بلا قيمةٍ في الماسح) · مِقبسٌ **واحد** يُغلق **مرّةً**
+#    · ودقيقةٌ ممتدّة لكلّ رمز · والماسحُ **نداءٌ واحد** بعمودَي الاسم و`postmarket_close` · والتقريرُ (6 · 2 · 2 · 0 · 1 · 1)
+try:
+    _aht_k1, _aht_u1, _aht_r1, _aht_m1, _aht_s1 = _aht_run("tradingview", lambda: _AhtChart(_aht_data))
+    _w1 = (_aht_k1 == ["FLAT", "NOAH", "GONE", "SPLIT", "NOSC"] and _aht_u1 == ["NOAH", "GONE", "SPLIT", "NOSC"]
+           and len(_aht_m1) == 1 and _aht_m1[0].closed == 1
+           and [_c[0] for _c in _aht_m1[0].calls] == [f"NASDAQ:{_s}" for _s in _aht_syms]
+           and all(_c[1] == "1" and _c[2] is True for _c in _aht_m1[0].calls)
+           and _aht_s1 == [["name", "postmarket_close"]]
+           and _aht_r1.get("src") == "tradingview" and _aht_r1.get("asked") == 6 and _aht_r1.get("got") == 2
+           and _aht_r1.get("no_ah") == 2 and _aht_r1.get("fail") == 0 and _aht_r1.get("no_scan") == 1
+           and _aht_r1.get("disagree") == 1)
+    _w1w = (f"kept={_aht_k1} · unv={_aht_u1} · مقابس={len(_aht_m1)} · أُغلق={[_c.closed for _c in _aht_m1]} · "
+            f"calls={[_c[0] for _c in (_aht_m1[0].calls if _aht_m1 else [])]} · ماسح={_aht_s1} · rep={_aht_r1}")
+except Exception as _e:                                              # noqa: BLE001
+    _w1, _w1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙📺 AHT1 حارسُ الافتر على TradingView بقناتين: UP يُكتم · FLAT مُتحقَّق · SPLIT بلا كتم (اختلافٌ 25%) · NOSC/NOAH/GONE «لم "
+      "يُتحقّق» · مِقبسٌ واحد يُغلق مرّة · ماسحٌ بنداءٍ واحد · والتقريرُ (6 · 2 · 2 · 0 · 1 · 1)", _w1, _w1w)
+
+# AHT2 — **بلا البيئة بت-بت**: صفرُ مِقبسٍ **وصفرُ نداءٍ للماسح** · و`extended_last_price` تُنادى **بلا `fetch_bars`** (Polygon كما كان)
+#    لكلّ صفّ · والصفوفُ كلُّها «لم يُتحقّق» حين لا مفتاح (السلوكُ السابق) · والمصدرُ «polygon»
+try:
+    _aht_spy2 = []
+    _aht_k2, _aht_u2, _aht_r2, _aht_m2, _aht_s2 = _aht_run(
+        None, lambda: _AhtChart(_aht_data),
+        ext_spy=lambda s, d, **k: (_aht_spy2.append((s, sorted(k))), None)[1])
+    _w2 = (_aht_m2 == [] and _aht_s2 == [] and _aht_spy2 == [(_s, []) for _s in _aht_syms]
+           and _aht_k2 == list(_aht_syms) and _aht_u2 == _aht_k2 and _aht_r2.get("src") == "polygon")
+    _w2w = f"مقابس={len(_aht_m2)} · ماسح={_aht_s2} · نداءات={_aht_spy2} · kept={_aht_k2} · rep={_aht_r2}"
+except Exception as _e:                                              # noqa: BLE001
+    _w2, _w2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙📺 AHT2 بلا `BARS_SOURCE` بت-بت: صفرُ مِقبسٍ وصفرُ ماسح · `extended_last_price` بلا `fetch_bars` لكلّ صفّ · والكلُّ «لم "
+      "يُتحقّق» بلا مفتاح", _w2, _w2w)
+
+# AHT3 — **الجالبُ المحقون يغلب البيئة**: `fetch` (الاختبارات · الصيّاد بحقنه) ⟵ صفرُ مِقبسٍ وصفرُ ماسحٍ ولو كانت البيئةُ tradingview
+#    · والقرارُ من المحقون وحدَه (UP ‏9.0 يُكتم · الباقي 2.0 ⟵ يبقى مُتحقَّقًا) · والمصدرُ «injected» بلا سطرِ سجلّ
+try:
+    _aht_k3, _aht_u3, _aht_r3, _aht_m3, _aht_s3 = _aht_run(
+        "tradingview", lambda: _AhtChart(_aht_data), fetch=lambda s, d: 9.0 if s == "UP" else 2.0)
+    _w3 = (_aht_m3 == [] and _aht_s3 == [] and _aht_k3 == [_s for _s in _aht_syms if _s != "UP"] and _aht_u3 == []
+           and _aht_r3.get("src") == "injected" and _aht_r3.get("got") == 6)
+    _w3w = f"مقابس={len(_aht_m3)} · ماسح={_aht_s3} · kept={_aht_k3} · unv={_aht_u3} · rep={_aht_r3}"
+except Exception as _e:                                              # noqa: BLE001
+    _w3, _w3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙📺 AHT3 الجالبُ المحقون يغلب `BARS_SOURCE`: صفرُ مِقبسٍ وماسح · القرارُ من المحقون (UP يُكتم · الباقي مُتحقَّق) · «injected»",
+      _w3, _w3w)
+
+# AHT4 — **تعذّرُ فتح المِقبس فاشلٌ-آمنٌ مفتوح**: `Chart()` يرمي ⟵ لا يرمي الحارس · ولا يُنادى الماسح · والصفوفُ كلُّها «لم يُتحقّق»
+#    عبر المسار السابق (`extended_last_price` بلا `fetch_bars`) · والمصدرُ يُعلن التعذّر (سطرُ سجلٍّ لا صمت)
+try:
+    _aht_spy4 = []
+
+    def _aht_boom():
+        raise RuntimeError("socket")
+    _aht_k4, _aht_u4, _aht_r4, _aht_m4, _aht_s4 = _aht_run(
+        "tradingview", _aht_boom, ext_spy=lambda s, d, **k: (_aht_spy4.append(sorted(k)), None)[1])
+    _w4 = (_aht_k4 == list(_aht_syms) and _aht_u4 == _aht_k4 and _aht_spy4 == [[]] * 6 and _aht_s4 == []
+           and "تعذّر" in str(_aht_r4.get("src")) and _aht_r4.get("asked") == 6)
+    _w4w = f"kept={_aht_k4} · unv={_aht_u4} · kwargs={_aht_spy4} · ماسح={_aht_s4} · rep={_aht_r4}"
+except Exception as _e:                                              # noqa: BLE001
+    _w4, _w4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙📺 AHT4 تعذّرُ مِقبس TradingView فاشلٌ-آمنٌ مفتوح: لا رمي · لا ماسح · الكلُّ «لم يُتحقّق» عبر المسار السابق · والمصدرُ يُعلن التعذّر",
+      _w4, _w4w)
+
+# AHT5 — **موصولٌ من نقطتَي النداء الحيّتين بلا جالب** (نحويًّا): الرادارُ في `run_daily_watchlist` ينادي `ah_guard_rows` **بلا
+#    `fetch`** · والصيّادُ ينادي `ah_guard` بـ`fetch=fetch_ext` وافتراضُه في `split_hunter.run` = None ⇒ مسارُ TradingView يعمل حيًّا
+try:
+    import ast as _aht_ast
+    _aht_t = _aht_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+    _aht_fn = [_n for _n in _aht_ast.walk(_aht_t)
+               if isinstance(_n, _aht_ast.FunctionDef) and _n.name == "run_daily_watchlist"]
+    _aht_calls = [_c for _c in _aht_ast.walk(_aht_fn[0]) if isinstance(_c, _aht_ast.Call)
+                  and getattr(_c.func, "id", None) == "ah_guard_rows"] if _aht_fn else []
+    _aht_h = _aht_ast.parse(open("split_hunter.py", encoding="utf-8").read())
+    _aht_run_fn = [_n for _n in _aht_h.body if isinstance(_n, _aht_ast.FunctionDef) and _n.name == "run"]
+    _aht_def = {}
+    if _aht_run_fn:
+        _a = _aht_run_fn[0].args
+        _aht_def = {_x.arg: _aht_ast.unparse(_v) for _x, _v in zip(_a.args[len(_a.args) - len(_a.defaults):], _a.defaults)}
+    _aht_hcalls = [_c for _c in _aht_ast.walk(_aht_run_fn[0]) if isinstance(_c, _aht_ast.Call)
+                   and getattr(_c.func, "id", None) == "ah_guard"] if _aht_run_fn else []
+    _w5 = (len(_aht_calls) == 1 and not any(_kw.arg == "fetch" for _kw in _aht_calls[0].keywords)
+           and len(_aht_calls[0].args) == 2
+           and _aht_def.get("fetch_ext") == "None" and len(_aht_hcalls) == 1
+           and [(_kw.arg, _aht_ast.unparse(_kw.value)) for _kw in _aht_hcalls[0].keywords] == [("fetch", "fetch_ext")])
+    _w5w = (f"رادار={[_aht_ast.unparse(_c) for _c in _aht_calls]} · صيّاد={[_aht_ast.unparse(_c) for _c in _aht_hcalls]} · "
+            f"افتراض={_aht_def.get('fetch_ext')}")
+except Exception as _e:                                              # noqa: BLE001
+    _w5, _w5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙📺 AHT5 موصولٌ حيًّا: الرادارُ ينادي `ah_guard_rows` بلا `fetch` · والصيّادُ بـ`fetch=fetch_ext` وافتراضُه None ⇒ TradingView",
+      _w5, _w5w)
+
+# AHT6 — **تعذّرُ الماسح ⟵ لا كتمَ بقناةٍ واحدة**: الماسحُ يُرجع None ⟵ الصفوفُ كلُّها «لم يُتحقّق» (UP لا يُكتم ولو أن الشارتَ +50%)
+#    · والمِقبسُ يُفتح ويُغلق مرّةً · والتقريرُ: بلا قيمةٍ في الماسح لكلّ صفٍّ له افتر (UP · FLAT · SPLIT · NOSC = 4) · بلا صفقة 2
+try:
+    _aht_k6, _aht_u6, _aht_r6, _aht_m6, _aht_s6 = _aht_run("tradingview", lambda: _AhtChart(_aht_data), scan=lambda: None)
+    _w6 = (_aht_k6 == list(_aht_syms) and _aht_u6 == list(_aht_syms) and len(_aht_m6) == 1 and _aht_m6[0].closed == 1
+           and len(_aht_s6) == 1 and _aht_r6.get("got") == 0 and _aht_r6.get("no_scan") == 4 and _aht_r6.get("no_ah") == 2
+           and _aht_r6.get("src") == "tradingview")
+    _w6w = f"kept={_aht_k6} · unv={_aht_u6} · مقابس={len(_aht_m6)} · ماسح={_aht_s6} · rep={_aht_r6}"
+except Exception as _e:                                              # noqa: BLE001
+    _w6, _w6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙📺 AHT6 تعذّرُ الماسح ⟵ الكلُّ «لم يُتحقّق» ولا كتمَ بقناةٍ واحدة (UP +50% في الشارت يبقى) · والمِقبسُ يُغلق مرّة", _w6, _w6w)
+
+# AHT7 — `tv_postmarket_map` نقيّةٌ بماسحٍ محقون: عمودا الاسم و`postmarket_close` · ناسداك يغلب السوقَ الآخر للرمز نفسِه ·
+#    والقيمةُ None/NaN/صفر/سالبة/نصّ ⟵ تُسقَط · والماسحُ None أو {} أو يرمي ⟵ None (لا نصفَ قائمة)
+try:
+    _aht_cols7 = []
+    _aht_s7 = {"NASDAQ:AA": {"name": "AA", "postmarket_close": 1.5}, "NYSE:AA": {"name": "AA", "postmarket_close": 7.0},
+               "NYSE:BB": {"name": "BB", "postmarket_close": 2.25}, "NASDAQ:CC": {"name": "CC", "postmarket_close": float("nan")},
+               "NASDAQ:DD": {"name": "DD", "postmarket_close": 0}, "NASDAQ:EE": {"name": "EE", "postmarket_close": -1.0},
+               "NASDAQ:FF": {"name": "FF", "postmarket_close": "x"}, "NASDAQ:GG": {"name": "GG", "postmarket_close": None}}
+    _m7 = S.tv_postmarket_map(scan=lambda cols, *a, **k: (_aht_cols7.append(list(cols)), _aht_s7)[1])
+
+    def _aht_raise(cols, *a, **k):
+        raise RuntimeError("scan")
+    _w7 = (_m7 == {"AA": 1.5, "BB": 2.25} and _aht_cols7 == [["name", "postmarket_close"]]
+           and S.tv_postmarket_map(scan=lambda c, *a, **k: None) is None
+           and S.tv_postmarket_map(scan=lambda c, *a, **k: {}) is None
+           and S.tv_postmarket_map(scan=_aht_raise) is None)
+    _w7w = f"الخريطة={_m7} · الأعمدة={_aht_cols7}"
+except Exception as _e:                                              # noqa: BLE001
+    _w7, _w7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙📺 AHT7 `tv_postmarket_map`: ناسداك يغلب · None/NaN/صفر/سالب/نصّ تُسقَط · وتعذّرُ الماسح (None · {} · رمي) ⟵ None", _w7, _w7w)
+
+# AHT8 — **السعرُ أدنى القناتين والحدُّ بالاسم وقتَ النداء**: الشارت 2.42 (‏+21%) والماسح 2.39 (‏+19.5%) يتّفقان ضمن 2% ⟵ الأدنى
+#    ⟵ **لا كتم** (الأعلى كان سيكتم) · وبـ`TV_AH_AGREE_PCT`=1.0 يصيران «اختلافًا» ⟵ «لم يُتحقّق» (الحدُّ يُقرأ بالاسم لا منسوخًا)
+try:
+    _aht_d8 = {"EDGE": [_prv_bar("2026-09-29", 15, 59, 2.0), _prv_bar("2026-09-29", 19, 30, 2.42)]}
+    _aht_r8rows = [{"symbol": "EDGE", "price": 2.0, "ref": 4.0}]
+    _aht_sn8 = {"NASDAQ:EDGE": {"name": "EDGE", "postmarket_close": 2.39}}
+    _k8a, _u8a, _r8a, _m8a, _s8a = _aht_run("tradingview", lambda: _AhtChart(_aht_d8), scan=_aht_sn8, rows=_aht_r8rows)
+    _sv8 = S.TV_AH_AGREE_PCT
+    try:
+        S.TV_AH_AGREE_PCT = 1.0
+        _k8b, _u8b, _r8b, _m8b, _s8b = _aht_run("tradingview", lambda: _AhtChart(_aht_d8), scan=_aht_sn8, rows=_aht_r8rows)
+    finally:
+        S.TV_AH_AGREE_PCT = _sv8
+    _w8 = (_k8a == ["EDGE"] and _u8a == [] and _r8a.get("got") == 1
+           and _k8b == ["EDGE"] and _u8b == ["EDGE"] and _r8b.get("disagree") == 1 and _sv8 == 2.0)
+    _w8w = f"الحدّ 2: kept={_k8a} unv={_u8a} rep={_r8a} · الحدّ 1: kept={_k8b} unv={_u8b} rep={_r8b} · المفتاح={_sv8}"
+except Exception as _e:                                              # noqa: BLE001
+    _w8, _w8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙📺 AHT8 السعرُ أدنى القناتين (‏2.42/2.39 ⟵ +19.5% لا كتم) · و`TV_AH_AGREE_PCT` يُقرأ بالاسم (1.0 ⟵ اختلاف) · والنافذُ 2.0",
+      _w8, _w8w)
+
+# AHT9 — **المفتاحُ المطفأ = المسارُ السابق بت-بت ولو كانت البيئةُ tradingview**: بلا `AH_GUARD_TV`=«1» ⟵ صفرُ مِقبسٍ وصفرُ ماسح ·
+#    و`extended_last_price` بلا `fetch_bars` لكلّ صفّ (Polygon كما كان) · والمصدرُ «polygon» — فالدمجُ وحدَه لا يغيّر الإنتاج
+try:
+    _aht_spy9 = []
+    _aht_k9, _aht_u9, _aht_r9, _aht_m9, _aht_s9 = _aht_run(
+        "tradingview", lambda: _AhtChart(_aht_data), switch=False,
+        ext_spy=lambda s, d, **k: (_aht_spy9.append((s, sorted(k))), None)[1])
+    _w9 = (_aht_m9 == [] and _aht_s9 == [] and _aht_spy9 == [(_s, []) for _s in _aht_syms]
+           and _aht_k9 == list(_aht_syms) and _aht_u9 == _aht_k9 and _aht_r9.get("src") == "polygon"
+           and S.AH_GUARD_TV_ENV == "AH_GUARD_TV")
+    _w9w = f"مقابس={len(_aht_m9)} · ماسح={_aht_s9} · نداءات={_aht_spy9} · rep={_aht_r9} · المفتاح={S.AH_GUARD_TV_ENV}"
+except Exception as _e:                                              # noqa: BLE001
+    _w9, _w9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙📺 AHT9 المفتاحُ المطفأ (`AH_GUARD_TV` غائب) ⟵ المسارُ السابق بت-بت ولو `BARS_SOURCE=tradingview`: صفرُ مِقبسٍ وماسح · "
+      "`extended_last_price` بلا `fetch_bars`", _w9, _w9w)
+
+# AHT10 — **المفتاحُ مطفأٌ في الإنتاج حتى يعبر مِجَسّ v2 الحاكم** (رأسُ aht_probe.py): لا خطوةَ في `split_hunter.yml` ولا
+#    `daily_screener.yml` تضبط `AH_GUARD_TV` — وإشعالُه يُحدّث هذا القفلَ إقرارًا بعد الحكم لا قبله
+try:
+    import yaml as _aht_yaml
+    _aht_env10 = {}
+    for _wf in ("split_hunter.yml", "daily_screener.yml"):
+        _y = _aht_yaml.safe_load(open(f".github/workflows/{_wf}", encoding="utf-8"))
+        _hits = []
+        for _jn, _jb in ((_y or {}).get("jobs") or {}).items():
+            if "AH_GUARD_TV" in ((_jb or {}).get("env") or {}):
+                _hits.append(f"{_jn}:job")
+            for _st in (_jb or {}).get("steps") or []:
+                if "AH_GUARD_TV" in ((_st or {}).get("env") or {}):
+                    _hits.append(f"{_jn}:{(_st or {}).get('name')}")
+        if "AH_GUARD_TV" in ((_y or {}).get("env") or {}):
+            _hits.append("workflow")
+        _aht_env10[_wf] = _hits
+    _w10 = all(_v == [] for _v in _aht_env10.values()) and len(_aht_env10) == 2
+    _w10w = f"{_aht_env10}"
+except Exception as _e:                                              # noqa: BLE001
+    _w10, _w10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙📺 AHT10 المفتاحُ مطفأٌ في الإنتاج: لا `AH_GUARD_TV` في split_hunter.yml ولا daily_screener.yml حتى يعبر مِجَسّ v2", _w10, _w10w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
