@@ -75759,6 +75759,8 @@ _HS_V = {
                 (100, 0.89), (104, 0.82), (112, 1.00), (130, 1.20)],
     "shallow": [(0, 1.0), (5, 1.04), (45, 0.99), (55, 1.01), (67, 0.98), (79, 1.01), (89, 0.99), (97, 1.02), (125, 1.04),
                 (140, 1.04)],
+    "medium": [(0, 1.04), (5, 1.10), (45, 0.965), (55, 1.0), (67, 0.94), (79, 1.0), (89, 0.965), (97, 1.03), (125, 1.06),
+               (140, 1.06)],
 }
 
 
@@ -76009,17 +76011,20 @@ except Exception as _e:                                                  # noqa:
 check("🔎 HS17 مقاييسُ سعرٍ مختلفة (×1024 · ÷1024 · ×1000 · ×0.001): الإشاراتُ بأعيانها — **لا عتبةَ بالدولار** (كلُّها بوحدات ATR)",
       _hs17 and all(v is True for v in _hs17.values()), str(_hs17))
 
-# ── HS18 أنظمةُ تذبذبٍ مختلفة: النموذجُ الكبير يُكشَف في كلّها · والضحلُ يُرفَض حين يكون صغيرًا أمام ATR ───────────────────
+# ── HS18 أنظمةُ تذبذبٍ مختلفة: النموذجُ الكبير يُكشَف في كلّها · والمتوسّطُ (‏6% من السعر) يُرفَض حين يكون صغيرًا أمام ATR ويُقبل في الهادئ ·
+#    والضحلُ (‏3%) يُرفَض **حتى في الهادئ** — حدُّ السعر (§⑤-ب ⟵ AMCI: التطبيعُ بـATR وحدَه يُجيز ضجيجَ السهم الساكن) ──────────────
 try:
     _hs18 = {nz: sum(1 for _s in range(10) if any(abs(h - 67) <= 5 for h in _hs_heads(_hs_det(HS.SYN_IHS, _s, noise=nz))))
              for nz in (0.002, 0.004, 0.008)}
-    _hs18["shallow_hi"] = sum(len(_hs_det(_HS_V["shallow"], _s, noise=0.015)) for _s in range(10))
-    _hs18["shallow_lo"] = sum(1 for _s in range(10) if _hs_det(_HS_V["shallow"], _s, noise=0.0008))
-    _hs18_ok = (_hs18[0.002] == _hs18[0.004] == _hs18[0.008] == 10 and _hs18["shallow_hi"] == 0 and _hs18["shallow_lo"] == 10)
+    _hs18["medium_hi"] = sum(len(_hs_det(_HS_V["medium"], _s, noise=0.015)) for _s in range(10))
+    _hs18["medium_lo"] = sum(1 for _s in range(10) if _hs_det(_HS_V["medium"], _s, noise=0.0008))
+    _hs18["shallow_lo"] = sum(len(_hs_det(_HS_V["shallow"], _s, noise=0.0008)) for _s in range(10))
+    _hs18_ok = (_hs18[0.002] == _hs18[0.004] == _hs18[0.008] == 10 and _hs18["medium_hi"] == 0 and _hs18["medium_lo"] == 10
+                and _hs18["shallow_lo"] == 0)
 except Exception as _e:                                                  # noqa: BLE001
     _hs18_ok, _hs18 = False, f"⛔ {type(_e).__name__}: {_e}"
-check("🔎 HS18 أنظمةُ تذبذب: النموذجُ يُكشَف بضجيج 0.2% · 0.4% · 0.8% (10/10) · والشكلُ نفسُه **ضحلًا** يُرفَض في سهمٍ متذبذب ويُقبل "
-      "في الهادئ — التطبيعُ بـATR يعمل", _hs18_ok, str(_hs18))
+check("🔎 HS18 أنظمةُ تذبذب: النموذجُ يُكشَف بضجيج 0.2% · 0.4% · 0.8% (10/10) · والمتوسّطُ (‏6%) يُرفَض في سهمٍ متذبذب ويُقبل في الهادئ "
+      "(التطبيعُ بـATR) · والضحلُ (‏3%) يُرفَض حتى في الهادئ (حدُّ السعر §⑤-ب)", _hs18_ok, str(_hs18))
 
 # ── HS19 الرأسُ مرساةُ البنية: تذبذبُ الكتف الأيمن لا يُضيّع النموذج ──────────────────────────────────────────────────────
 try:
@@ -76354,6 +76359,8 @@ def _hs_inv(df, sigs, p):
             "sym": d1 >= 1 and d2 >= 1 and max(d1, d2) / min(d1, d2) <= p["time_sym"],
             "span": p["min_span"] <= rs - ls <= p["max_span"],
             "prior": s_["p0_px"] - LS >= p["prior_drop"] * ht - 1e-9,
+            "prior_bars": ls - s_["p0_i"] >= p["prior_bars"],
+            "height_pct": ht >= p["height_min_pct"] * abs(c_[b]) - 1e-9,
             "close": c_[b] >= nk(b) + p["brk_atr"] * at - 1e-9,
             "first": not any(c_[x] >= nk(x) + p["brk_atr"] * a_[x] for x in range(p2 + 1, b)),
             "fresh": b - rs <= max(p["k"] + 1, p["wait_mult"] * d2),
@@ -76417,6 +76424,129 @@ except Exception as _e:                                                  # noqa:
     _hs30, _r_ok = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🔎 HS30 عقدُ المُقيِّم بشموعٍ مصنوعة: ارتفاعٌ 3.5 مع ATR ‏2.0 (‏1.75 ATR) ⟵ إشارة (الكتفُ الأيمن أدنى ما بعد P2 · العنقُ 12) · ومع ATR ‏2.5 "
       "(‏1.4 ATR) ⟵ لا (`height_min_atr` 1.5) · وإغلاقٌ 12.1 دون العنق ‏+ عُشر ATR ⟵ لا (اللمسُ ليس اختراقًا)", _hs30, str(_r_ok)[:200])
+
+# ── HS31 **أسبابُ الرفض بترتيب القواعد ولا تُغيّر الرفض** (§⑤-ب): أسماءُ `_rej` في `_evaluate` بترتيب ظهورها = `RULE_ORDER` (AST) ·
+#    و`why=None` مقابل `why=[]` على كلّ (بار × بنية) في سيرين عشوائيّين والنموذج: النتيجةُ نفسُها · وسببٌ واحدٌ بالضبط حين يُرفض وصفرٌ حين يُقبل ─
+try:
+    _t31 = _hs_ast.parse(_insp0.getsource(HS._evaluate))
+    _names31 = [c.args[1].value for c in _hs_ast.walk(_t31) if isinstance(c, _hs_ast.Call) and getattr(c.func, "id", None) == "_rej"
+                and len(c.args) == 2 and isinstance(c.args[1], _hs_ast.Constant)]
+    _calls31 = sorted((c.lineno, c.col_offset, c.args[1].value) for c in _hs_ast.walk(_t31)
+                      if isinstance(c, _hs_ast.Call) and getattr(c.func, "id", None) == "_rej")
+    _ord31 = [x[2] for x in _calls31]
+    _bare31 = [n for n in _hs_ast.walk(_t31) if isinstance(n, _hs_ast.Return) and isinstance(n.value, _hs_ast.Constant) and n.value.value is None]
+    _same31, _cnt31, _pairs31 = True, True, 0
+    for _d31 in (HS.synth_walk(400, seed=31_001), HS.synth_walk(400, seed=31_002), HS.synth_bars(HS.SYN_IHS, seed=2)):
+        _o, _h, _l, _c, _v = HS._arrays(_d31)
+        _a = HS.atr_np(_h, _l, _c, 14)
+        _sw = HS.fractal_swings(_h, _l, 3)
+        _Z, _si, _cand = [], 0, []
+        for _t in range(len(_c)):
+            while _si < len(_sw) and _sw[_si][0] + 3 <= _t:
+                HS.zz_add(_Z, _sw[_si], _a[_sw[_si][0] + 3], 1.0)
+                _si += 1
+                _cand = HS.structures(_Z)
+            for _st in _cand:
+                _w = []
+                _r0 = HS._evaluate(_st, _t, _h, _l, _c, _a, HS.STRICT)
+                _r1 = HS._evaluate(_st, _t, _h, _l, _c, _a, HS.STRICT, why=_w)
+                _pairs31 += 1
+                _same31 &= (_r0 is None and _r1 is None) or (_r0 is not None and _r0 == _r1)
+                _cnt31 &= (len(_w) == 1 and _w[0] in HS.RULE_ORDER) if _r1 is None else (len(_w) == 0)
+    _hs31 = (tuple(_ord31) == HS.RULE_ORDER and len(set(_ord31)) == len(_ord31) and not _bare31 and _same31 and _cnt31
+             and _pairs31 > 1000)
+except Exception as _e:                                                  # noqa: BLE001
+    _hs31, _ord31, _pairs31 = False, f"⛔ {type(_e).__name__}: {_e}", 0
+check("🔎 HS31 أسبابُ الرفض: كلُّ `return` في المُقيِّم سببٌ مسمّى بترتيب `RULE_ORDER` (AST · لا `return None` عارية) · والسؤالُ عن السبب لا "
+      "يُغيّر الرفض (نتيجةٌ واحدة بـ`why` وبدونه) · وسببٌ واحدٌ بالضبط لكلّ رفضٍ وصفرٌ للقبول",
+      _hs31, f"ترتيب={_ord31} · أزواج={_pairs31}")
+
+# ── HS32 عقدُ «الارتفاعُ نسبةٌ من السعر» (§⑤-ب ⟵ AMCI): بنيةُ HS30 نفسُها ارتفاعُها 3.5 وإغلاقُها 12.4 (‏28%) ⟵ إشارة · وبإزاحة الأسعار كلِّها
+#    ‏+50 (‏5.6%) ⟵ إشارة · و‏+100 (‏3.1%) ⟵ تُرفض بسبب `height_pct` وحدَه (الإزاحةُ لا تمسّ ATR ولا الفروق ⇒ كلُّ قاعدةٍ أخرى ثابتة) ────────
+try:
+    def _ev32(shift):
+        _a = np.full(_n30, 1.0)
+        _a[40] = 2.0
+        _st = {k: ((v[0], v[1], v[2] + shift) if isinstance(v, tuple) else v) for k, v in _st30.items()}
+        _w = []
+        _r = HS._evaluate(_st, 40, _h30 + shift, _l30 + shift, _c30 + shift, _a, HS.STRICT, why=_w)
+        return _r, _w
+    _r32 = {sh: _ev32(sh) for sh in (0.0, 50.0, 100.0)}
+    _hs32 = (_r32[0.0][0] is not None and _r32[50.0][0] is not None and _r32[100.0][0] is None
+             and _r32[100.0][1] == ["height_pct"] and HS.STRICT["height_min_pct"] == 0.05 and HS.LOOSE["height_min_pct"] == 0.05)
+except Exception as _e:                                                  # noqa: BLE001
+    _hs32, _r32 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+check("🔎 HS32 الارتفاعُ 5% من السعر على الأقلّ (§⑤-ب · ATR وحدَه يُجيز ضجيجَ السهم الساكن): البنيةُ نفسُها بإغلاق 12.4 و62.4 ⟵ إشارة · "
+      "و112.4 (‏3.1%) ⟵ تُرفض بـ`height_pct` وحدَه",
+      _hs32, str({k: (v[0] is not None, v[1]) for k, v in _r32.items()} if isinstance(_r32, dict) and "err" not in _r32 else _r32)[:200])
+
+# ── HS33 عقدُ «الهبوطُ السابق اتّجاهٌ لا شمعة» (§⑤-ب ⟵ SCWO): P0 قبل الكتف الأيسر ببارٍ واحد ⟵ تُرفض بـ`prior_bars` · وبثلاثة بارات ⟵ إشارة ──
+try:
+    def _ev33(p0_i):
+        _a = np.full(_n30, 1.0)
+        _a[40] = 2.0
+        _st = dict(_st30, p0=(p0_i, "H", 20.0))
+        _w = []
+        return HS._evaluate(_st, 40, _h30, _l30, _c30, _a, HS.STRICT, why=_w), _w
+    _r33 = {i: _ev33(i) for i in (9, 8, 7)}
+    _hs33 = (_r33[9][0] is None and _r33[9][1] == ["prior_bars"] and _r33[8][0] is None and _r33[8][1] == ["prior_bars"]
+             and _r33[7][0] is not None and _r33[7][1] == [] and HS.STRICT["prior_bars"] == HS.STRICT["k"] == 3)
+except Exception as _e:                                                  # noqa: BLE001
+    _hs33, _r33 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+check("🔎 HS33 الهبوطُ السابق يمتدّ k=3 بارات على الأقلّ (§⑤-ب · شمعةُ ارتدادٍ واحدةٌ ليست اتّجاهًا): P0 قبل الكتف ببارٍ أو اثنين ⟵ `prior_bars` · "
+      "وبثلاثة ⟵ إشارة", _hs33, str({k: (v[0] is not None, v[1]) for k, v in _r33.items()} if "err" not in _r33 else _r33)[:200])
+
+# ── HS34 عقدُ «تقاربُ الكتفين ثلثُ الارتفاع» (§⑤-ب ⟵ ثمانيةُ إيجابٍ كاذب بفرقٍ 0.34-0.47): الكتفُ الأيسر 11.1 (فرقٌ 0.314 من الارتفاع 3.5) ⟵ إشارة ·
+#    و11.2 (‏0.343) ⟵ تُرفض بـ`shoulder_tol` نفسِه (لا بعمق الكتف الذي يليه) ─────────────────────────────────────────────────────────────
+try:
+    def _ev34(ls_px):
+        _a = np.full(_n30, 1.0)
+        _a[40] = 2.0
+        _st = dict(_st30, ls=(10, "L", ls_px))
+        _w = []
+        return HS._evaluate(_st, 40, _h30, _l30, _c30, _a, HS.STRICT, why=_w), _w
+    _r34 = {x: _ev34(x) for x in (11.1, 11.2)}
+    _hs34 = (_r34[11.1][0] is not None and _r34[11.2][0] is None and _r34[11.2][1] == ["shoulder_tol"]
+             and abs(HS.STRICT["shoulder_tol"] - 1 / 3) < 1e-12 and HS.LOOSE["shoulder_tol"] == 0.75)
+except Exception as _e:                                                  # noqa: BLE001
+    _hs34, _r34 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+check("🔎 HS34 الكتفان حتى ثلث الارتفاع (§⑤-ب · كان النصف): كتفٌ أيسر 11.1 ⟵ إشارة · و11.2 ⟵ `shoulder_tol` · وLOOSE يبقى 0.75 كما سُجِّل",
+      _hs34, str({k: (v[0] is not None, v[1]) for k, v in _r34.items()} if "err" not in _r34 else _r34)[:200])
+
+# ── HS35 `explain_miss` يقرأ ما رآه المكتشف (تشخيصٌ وصفيّ لمثالَي فيصل): القمّةُ المزروعة ⟵ «detected» وأبعدُ نقاطها بأسعارها الحقيقيّة
+#    (المرآةُ تُعكَس) · وبكتفٍ أيمن 1.11 بدل 1.20 ⟵ لا إشارة وأقربُ رفضٍ `shoulder_tol` · ورأسُ الجلسة محورٌ في الحالين ──────────────
+try:
+    _d35 = HS.synth_bars(HS.SYN_TOP, seed=2)
+    _e35 = HS.explain_miss(_d35, HS.STRICT, "top", np.zeros(len(_d35), dtype=int), 0, int(np.argmax(_d35["High"].to_numpy())))
+    _d35b = HS.synth_bars([(i, (1.11 if i == 89 else px)) for i, px in HS.SYN_TOP], seed=2)
+    _e35b = HS.explain_miss(_d35b, HS.STRICT, "top", np.zeros(len(_d35b), dtype=int), 0, int(np.argmax(_d35b["High"].to_numpy())))
+    _c35 = _e35["closest"] or {}
+    _hs35 = (_c35.get("rule") == "detected" and _e35["head_pivot"] and _c35.get("head_px", 0) > _c35.get("ls_px", 9e9) > _c35.get("p1_px", 9e9) > 0
+             and (_e35b["closest"] or {}).get("rule") == "shoulder_tol" and "detected" not in _e35b["reasons"]
+             and not HS.detect(_d35b, HS.STRICT, polarity="top") and _e35b["head_pivot"])
+except Exception as _e:                                                  # noqa: BLE001
+    _hs35, _e35 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+check("🔎 HS35 تشخيصُ «لماذا لم يجده» (`explain_miss` · وصفٌ لا ضبط): القمّةُ المزروعة ⟵ detected بأسعارٍ حقيقيّة (الرأسُ فوق الكتف فوق العنق) · "
+      "وكتفٌ أيمن منحرف ⟵ لا إشارة وأقربُ رفضٍ `shoulder_tol`", _hs35, str(_e35)[:240])
+
+# ── HS36 **مصدرا المحاور السببيّان متّفقان عند كلّ بار** (الحارسُ الخامد يُقفَل بعقده): `_zigzag_until(t)` (دورةُ الحياة · FORMING) يساوي
+#    زجزاجَ `_walk` عند t نفسِه (الكشف والتشخيص) على سيرين عشوائيّين والنموذج — فمحورٌ لم يتأكّد عند t (i + k بعده) لا يدخل أيًّا منهما ──
+try:
+    _bad36, _n36 = [], 0
+    for _d36 in (HS.synth_walk(300, seed=36_001), HS.synth_walk(300, seed=36_002), HS.synth_bars(HS.SYN_IHS, seed=2)):
+        _o, _h, _l, _c, _v = HS._arrays(_d36)
+        _a = HS.atr_np(_h, _l, _c, 14)
+        _sw36 = HS.fractal_swings(_h, _l, 3)
+        for _t, _cand, _Z in HS._walk(_h, _l, _a, HS.STRICT, len(_c)):
+            _n36 += 1
+            _zu = HS._zigzag_until(_sw36, _a, HS.STRICT, _t)
+            if _zu != list(_Z):
+                _bad36.append(_t)
+    _hs36 = _n36 > 700 and not _bad36
+except Exception as _e:                                                  # noqa: BLE001
+    _hs36, _bad36 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS36 مصدرا المحاور السببيّان متّفقان: زجزاجُ دورة الحياة (`_zigzag_until`) = زجزاجُ الكشف (`_walk`) عند كلّ بار — محورٌ لم يتأكّد بعد "
+      "k بارات لا يدخل أيًّا منهما (عقدُ الحارس لا أثرُه)", _hs36, f"بارات={_n36} · مختلف={_bad36[:6]}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

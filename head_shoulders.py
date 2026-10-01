@@ -34,8 +34,10 @@ STRICT = {
     "atr_n": 14,            # ATR 14 بصيغة `S.atr` نفسِها
     "swing_atr": 1.0,       # عتبةُ انعكاس الزجزاج بوحدات ATR (ما دونها ضجيج)
     "height_min_atr": 1.5,  # ارتفاعُ النموذج (خطُّ العنق عند الرأس − قاعُ الرأس) بوحدات ATR
+    "height_min_pct": 0.05, # §⑤-ب ‏+ ارتفاعُه 5% من سعر الإغلاق على الأقلّ — ATR وحدَه يُجيز ضجيجَ سهمٍ شبهِ ساكن (AMCI ‏1.5% · أدنى صحيحٍ 7%)
     "head_min_atr": 0.5,    # الرأسُ أعمقُ من أعلى الكتفين بنصف ATR على الأقلّ
-    "shoulder_tol": 0.5,    # |الكتف الأيسر − الكتف الأيمن| حتى نصف الارتفاع (HS-E3 «متقاربان لا متساويان»)
+    "shoulder_tol": 1 / 3,  # |الكتف الأيسر − الكتف الأيمن| حتى ثلث الارتفاع (HS-E3 «متقاربان لا متساويان») — §⑤-ب: كان 0.5 فمرّت
+                            #   ثمانٍ من إحدى عشرةَ إيجابًا كاذبًا بفرقٍ 0.34-0.47 · وأكبرُ فرقٍ في الصحيحة 0.23
     "shoulder_depth": 0.25, # كلُّ كتفٍ تحت خطّ العنق بربع الارتفاع على الأقلّ
     "neck_slope": 0.5,      # |قمّةُ الارتداد الثانية − الأولى| حتى نصف الارتفاع (أفقيٌّ أو صاعدٌ أو هابط)
     "mid_gap": 0.25,        # الرأسُ المركّب (HS-E8): الارتدادُ الأوسط تحت خطّ العنق بربع الارتفاع على الأقلّ
@@ -43,6 +45,7 @@ STRICT = {
     "min_span": 10,         # من الكتف الأيسر إلى الأيمن (بارات)
     "max_span": 120,
     "prior_drop": 1.0,      # اتّجاهٌ سابق (HS-E9): هبوطُ ما قبل الكتف الأيسر بارتفاع النموذج على الأقلّ
+    "prior_bars": 3,        # §⑤-ب ‏+ والهبوطُ السابق (P0 ⟵ الكتف الأيسر) يمتدّ k بارات على الأقلّ — شمعةُ ارتدادٍ واحدةٌ ليست اتّجاهًا (SCWO)
     "brk_atr": 0.1,         # الاختراقُ = **إغلاقٌ** فوق خطّ العنق بعُشر ATR (اللمسُ ليس اختراقًا)
     "wait_mult": 1.5,       # الاختراقُ خلال 1.5 × (الرأس ⟵ الكتف الأيمن) من الكتف الأيمن وإلّا انتهت صلاحيتُه
     "retest_win": 10,       # إعادةُ الاختبار: عودةٌ إلى خطّ العنق خلال 10 بارات من الاختراق
@@ -69,7 +72,8 @@ SPLIT_PAD_DAYS = 45                        # نافذةُ استبعاد الت�
 DEV_YEAR, VERDICT_YEARS, DESC_YEAR = 2022, (2023, 2024, 2025), 2026
 DATA_START = "2021-06-01"
 AUDIT_N = 30
-AUDIT_SEED = 20261001
+AUDIT_SEED = 20261002                       # §⑤-ب: العيّنةُ الثانية (بذرة +1) بعد إصلاح التعريف — والأولى (20261001) دقّتُها 19/30
+AUDIT_ITER = 2                             # التكرارُ الثاني والأخير (حدٌّ أقصى مرّتان · العقد §⑤)
 AUDIT_MIN_PRECISION = 0.70
 SCAN_MIN_COVERAGE = 0.85                   # حارسُ التغطية للمسح الحيّ (كحرّاس الصيّادين)
 SCAN_LOOKBACK = 1                          # المسحُ يرى اختراقَ آخر جلسة والتي قبلها (كرونٌ سقط لا يُفوّت)
@@ -199,60 +203,71 @@ def _neck_fn(p1, p2):
     return (lambda x: p1[2] + slope * (x - p1[0])), slope
 
 
-def _evaluate(st, t, h, l, c, a, p, session=None, probe: bool = False, expiry: bool = True):
+def _rej(why, rule: str):
+    """سببُ الرفض لمن يسأل (`why` قائمة) — وإلّا None كما كان: الرفضُ نفسُه لا يتغيّر بالسؤال عنه."""
+    if why is not None:
+        why.append(rule)
+    return None
+
+
+def _evaluate(st, t, h, l, c, a, p, session=None, probe: bool = False, expiry: bool = True, why: list = None):
     """هل تكتمل البنيةُ `st` باختراقٍ **مؤكَّدٍ بالإغلاق** عند البار t؟ ⟵ قاموسُ الإشارة أو None. يقرأ بارات ≤ t وحدَها.
     `probe=True` (لدورة الحياة قبل الاختراق): الكتفُ الأيمن يشمل البار t ولا يُشترط الإغلاقُ — ويُشترط **ألّا يكون** قد اخترق
-    حتى t · و`expiry=False` يُبقي البنيةَ المنتهيةَ صلاحيتُها (لتُوسَم EXPIRED لا لتُرسَل)."""
+    حتى t · و`expiry=False` يُبقي البنيةَ المنتهيةَ صلاحيتُها (لتُوسَم EXPIRED لا لتُرسَل). و`why` (اختياريّ) يتلقّى اسمَ أوّل قاعدةٍ رفضت."""
     p0, ls, p1, hd, p2 = st["p0"], st["ls"], st["p1"], st["head"], st["p2"]
     P2i = p2[0]
     if p0 is None or (t - P2i) < (1 if probe else 2) or not np.isfinite(a[t]) or a[t] <= 0:
-        return None
+        return _rej(why, "pre")
     neck, slope = _neck_fn(p1, p2)
     at = float(a[t])
     thr_t = neck(t) + p["brk_atr"] * at
     if not probe and not c[t] >= thr_t:                                           # HS-E6 إغلاقٌ لا لمس (رفضٌ رخيص أوّلًا)
-        return None
+        return _rej(why, "close")
     end = t + 1 if probe else t
     seg = l[P2i + 1:end]
     if not len(seg) or not np.isfinite(seg).any():
-        return None
+        return _rej(why, "rs_seg")
     RSi = P2i + 1 + int(np.nanargmin(seg))
     RS = float(l[RSi])
     H, LS = hd[2], ls[2]
     height = neck(hd[0]) - H
     if not (height > 0 and H < LS and H < RS):                                   # HS-E1 الرأسُ الأعمق
-        return None
+        return _rej(why, "head_lowest")
     if np.nanmin(l[ls[0]:P2i + 1]) < H:                                           # لا قاعَ أدنى من الرأس داخل النموذج
-        return None
+        return _rej(why, "head_min")
     if min(LS, RS) - H < p["head_min_atr"] * at:
-        return None
+        return _rej(why, "head_depth")
     if height < p["height_min_atr"] * at:
-        return None
+        return _rej(why, "height_atr")
+    if height < p["height_min_pct"] * abs(float(c[t])):                          # §⑤-ب نسبةٌ من السعر (المرآةُ سالبة ⟵ abs)
+        return _rej(why, "height_pct")
     if abs(LS - RS) > p["shoulder_tol"] * height:                                 # HS-E3
-        return None
+        return _rej(why, "shoulder_tol")
     if neck(ls[0]) - LS < p["shoulder_depth"] * height or neck(RSi) - RS < p["shoulder_depth"] * height:
-        return None
+        return _rej(why, "shoulder_depth")
     if abs(p2[2] - p1[2]) > p["neck_slope"] * height:                             # HS-E4 أفقيٌّ أو مائل
-        return None
+        return _rej(why, "neck_slope")
     d1, d2 = hd[0] - ls[0], RSi - hd[0]
     if d1 < 1 or d2 < 1 or max(d1, d2) / float(min(d1, d2)) > p["time_sym"]:     # HS-E10 تناظرٌ لا «12 شمعة»
-        return None
+        return _rej(why, "time_sym")
     span = RSi - ls[0]
     if span < p["min_span"] or span > p["max_span"]:
-        return None
+        return _rej(why, "span")
     if p0[2] - LS < p["prior_drop"] * height:                                     # HS-E9 اتّجاهٌ سابق
-        return None
+        return _rej(why, "prior_drop")
+    if ls[0] - p0[0] < p["prior_bars"]:                                           # §⑤-ب اتّجاهٌ لا شمعةُ ارتداد
+        return _rej(why, "prior_bars")
     expired = t - RSi > max(p["k"] + 1, p["wait_mult"] * d2)
     if expiry and expired:                                                        # انتهت الصلاحية
-        return None
+        return _rej(why, "expired")
     if any(m[2] > neck(m[0]) - p["mid_gap"] * height for m in st.get("mids") or []):  # القممُ المتخطّاة تحت خطّ العنق
-        return None
+        return _rej(why, "mids")
     deep = [x for x in st.get("lows") or [] if x[2] < min(LS, RS) - p["head_min_atr"] * at]  # HS-E8 الرأسُ المركّب
     if session is not None and not (session[p0[0]] == session[t]):               # داخل جلسةٍ واحدة (5 دقائق)
-        return None
+        return _rej(why, "session")
     xs = np.arange(P2i + 1, end)
     if len(xs) and np.any(c[xs] >= neck(xs) + p["brk_atr"] * a[xs]):              # الاختراقُ الأوّل وحدَه
-        return None
+        return _rej(why, "not_first")
     return {"p0_i": p0[0], "p0_px": p0[2], "ls_i": ls[0], "ls_px": LS, "p1_i": p1[0], "p1_px": p1[2],
             "head_i": hd[0], "head_px": H, "p2_i": P2i, "p2_px": p2[2], "rs_i": RSi, "rs_px": RS,
             "pm_i": (deep[0][0] if deep else None), "b_i": int(t), "neck_b": float(neck(t)), "neck_slope": float(slope),
@@ -273,6 +288,22 @@ def _max_age(p) -> int:
     return int((1 + p["wait_mult"]) * p["max_span"]) + p["k"] + 1
 
 
+def _walk(h, l, a, p, n: int):
+    """المشيُ السببيُّ الواحد (`detect` و`explain_miss` معًا): لكلّ بار t ⟵ (t, البنى المرشّحة، الزجزاج) من محاورَ **مؤكَّدةٍ عند t
+    وحدَها** (المحورُ عند i يُعرَف عند i + k) — فلا يختلف ما يراه التشخيصُ عمّا رآه الكاشف."""
+    sw = fractal_swings(h, l, p["k"])
+    Z, si, cand = [], 0, []
+    for t in range(n):
+        grew = False
+        while si < len(sw) and sw[si][0] + p["k"] <= t:
+            zz_add(Z, sw[si], a[sw[si][0] + p["k"]], p["swing_atr"])
+            si += 1
+            grew = True
+        if grew:
+            cand = structures(Z)
+        yield t, cand, Z
+
+
 def detect(df, p=None, polarity: str = "inverse", sym: str = "", tf: str = "1d", session=None) -> list:
     """كلُّ إشارات النموذج في الإطار — **سببيًّا**: يمشي t بارًا بارًا · والمحورُ يظهر عند i + k · و**إشارةٌ واحدةٌ لكلّ رأس**
     (فالتكوينُ الواحد لا يُرسَل مرّتين بأيّ كتفٍ أو قمّة) ولكلّ بار. `polarity="top"` = المرآة (القمّة) للتحقّق البنيويّ وحدَه.
@@ -282,18 +313,10 @@ def detect(df, p=None, polarity: str = "inverse", sym: str = "", tf: str = "1d",
         return []
     o, h, l, c, v = _arrays(df, polarity)
     a = atr_np(h, l, c, p["atr_n"])
-    sw = fractal_swings(h, l, p["k"])
     fk, fd = fsto_np(h, l, c)
-    Z, used, sigs, si, cand = [], set(), [], 0, []
+    used, sigs = set(), []
     age = _max_age(p)
-    for t in range(len(c)):
-        grew = False
-        while si < len(sw) and sw[si][0] + p["k"] <= t:
-            zz_add(Z, sw[si], a[sw[si][0] + p["k"]], p["swing_atr"])
-            si += 1
-            grew = True
-        if grew:
-            cand = structures(Z)
+    for t, cand, _Z in _walk(h, l, a, p, len(c)):
         for st in cand:
             hk = st["head"][0]
             if hk in used or t - hk > age:
@@ -1217,8 +1240,52 @@ def _splits_many(syms, workers: int = 8, fetch=None) -> dict:
     return dict(zip(syms, vals))
 
 
+RULE_ORDER = ("pre", "close", "rs_seg", "head_lowest", "head_min", "head_depth", "height_atr", "height_pct", "shoulder_tol",
+              "shoulder_depth", "neck_slope", "time_sym", "span", "prior_drop", "prior_bars", "expired", "mids", "session",
+              "not_first")                     # ترتيبُ قواعد `_evaluate` نفسُه — «أبعدُ ما بلغته بنيةٌ» يُقرأ عليه
+
+
+def explain_miss(df, p, polarity: str, session, day_ord: int, top_i: int, win: int = 3) -> dict:
+    """لماذا لم يُكتشَف النموذجُ في جلسةٍ بعينها؟ **تشخيصٌ وصفيٌّ لا ضبط** (لا يُغيّر قاعدةً لأجل مثال): يمشي البارات بالترتيب
+    السببيّ نفسِه في `detect` ويسأل `_evaluate` كلَّ بنيةٍ رأسُها خلال ±`win` بارات من `top_i` في كلّ بارٍ من الجلسة: أيُّ قاعدةٍ
+    رفضتها أوّلًا؟ ⟵ عدُّ الأسباب ‏+ أبعدُ بنيةٍ في ترتيب القواعد (`RULE_ORDER`) بنقاطها الحقيقيّة ‏+ هل كان رأسُ الجلسة محورًا أصلًا."""
+    p = dict(STRICT if p is None else p)
+    sgn = -1.0 if polarity == "top" else 1.0
+    o, h, l, c, v = _arrays(df, polarity)
+    a = atr_np(h, l, c, p["atr_n"])
+    idx = np.nonzero(np.asarray(session) == day_ord)[0]
+    out = {"structures_near_top": 0, "reasons": {}, "head_pivot": False, "closest": None}
+    if not len(idx):
+        return out
+    Z, seen, best = [], set(), None
+    for t, cand, Z in _walk(h, l, a, p, int(idx[-1]) + 1):
+        if session[t] != day_ord:
+            continue
+        for st in cand:
+            if abs(st["head"][0] - top_i) > win:
+                continue
+            seen.add((st["ls"][0], st["p1"][0], st["head"][0], st["p2"][0]))
+            why = []
+            sig = _evaluate(st, t, h, l, c, a, p, session=session, why=why)
+            r = "detected" if sig is not None else (why[0] if why else "?")
+            out["reasons"][r] = out["reasons"].get(r, 0) + 1
+            rank = len(RULE_ORDER) if sig is not None else (RULE_ORDER.index(r) if r in RULE_ORDER else -1)
+            if best is None or rank > best[0]:
+                best = (rank, r, t, st)
+    out["structures_near_top"] = len(seen)
+    out["head_pivot"] = any(z[1] == "L" and abs(z[0] - top_i) <= win for z in Z)
+    if best is not None:
+        _, r, t, st = best
+        di = pd.DatetimeIndex(df.index)
+        out["closest"] = {"rule": r, "at": str(di[t])[:16],
+                          **{f"{k}_px": round(sgn * float(st[k][2]), 4) for k in ("p0", "ls", "p1", "head", "p2")},
+                          **{f"{k}_at": str(di[st[k][0]])[:16] for k in ("ls", "head", "p2")}}
+    return out
+
+
 def structural_check(sym: str, day: str, shoulder_px: float, head_px: float, tol: float = 0.10) -> dict:
-    """التحقّقُ البنيويّ (العقد §⑦): هل يرى المكتشفُ — بمرآته للقمّة — القمّةَ التي رسمها فيصل في جلسة `day`؟ ⟵ قراءةٌ لا حكم."""
+    """التحقّقُ البنيويّ (العقد §⑦): هل يرى المكتشفُ — بمرآته للقمّة — القمّةَ التي رسمها فيصل في جلسة `day`؟ ⟵ قراءةٌ لا حكم.
+    وإن لم يجده: `why_not` لكلٍّ من STRICT وLOOSE (`explain_miss` — أيُّ قاعدةٍ رفضت · تشخيصٌ لا ضبط)."""
     data = _fetch_intraday([sym], extended=True)
     df = data.get(sym)
     if df is None or not len(df):
@@ -1228,17 +1295,23 @@ def structural_check(sym: str, day: str, shoulder_px: float, head_px: float, tol
         return {"sym": sym, "day": day, "status": "لا قياس", "why": f"الجلسة خارج ما تبلغه الدقائق (أقدمُها {days[0]})"}
     ses = _session_codes(df)
     dord = dt.date.fromisoformat(day).toordinal()
-    sigs = detect(df, STRICT, polarity="top", sym=sym, tf="5m", session=ses)
-    sday = [s for s in sigs if s["b_date"][:10] == day]
     first_i = int(np.nonzero(ses == dord)[0][0])
     top_i = first_i + int(np.argmax(df["High"].to_numpy()[ses == dord]))
-    hit = [s for s in sday if abs(s["head_i"] - top_i) <= 3
-           and abs(s["ls_px"] / shoulder_px - 1) <= tol and abs(s["rs_px"] / shoulder_px - 1) <= tol]
-    return {"sym": sym, "day": day, "status": ("وجده" if hit else "لم يجده"), "n_top_signals_day": len(sday),
-            "session_high": float(df["High"].to_numpy()[ses == dord].max()), "faisal_head": head_px,
-            "faisal_shoulder": shoulder_px,
-            "signals": [{k: s[k] for k in ("ls_date", "head_date", "rs_date", "b_date", "ls_px", "head_px", "rs_px",
-                                             "neck_b", "quality")} for s in sday]}
+    res = {"sym": sym, "day": day, "session_high": float(df["High"].to_numpy()[ses == dord].max()), "faisal_head": head_px,
+           "faisal_shoulder": shoulder_px, "bars_in_session": int((ses == dord).sum())}
+    for name, p in (("STRICT", STRICT), ("LOOSE", LOOSE)):
+        sigs = detect(df, p, polarity="top", sym=sym, tf="5m", session=ses)
+        sday = [s for s in sigs if s["b_date"][:10] == day]
+        hit = [s for s in sday if abs(s["head_i"] - top_i) <= 3
+               and abs(s["ls_px"] / shoulder_px - 1) <= tol and abs(s["rs_px"] / shoulder_px - 1) <= tol]
+        key = "" if name == "STRICT" else "_loose"
+        res["status" + key] = "وجده" if hit else "لم يجده"
+        res["n_top_signals_day" + key] = len(sday)
+        res["signals" + key] = [{k: s[k] for k in ("ls_date", "head_date", "rs_date", "b_date", "ls_px", "head_px", "rs_px",
+                                                     "neck_b", "quality")} for s in sday]
+        if not hit:
+            res["why_not" + key] = explain_miss(df, p, "top", ses, dord, top_i)
+    return res
 
 
 def _audit_pack(rows, data, year: int, seed: int = AUDIT_SEED, n: int = AUDIT_N) -> list:
@@ -1307,11 +1380,16 @@ def run_research(mode: str) -> int:
             f"V {_pct(r['v_shape'], False)} · سيرٌ عشوائيّ {r['walk_per_1000_bars']:.2f} لكلّ 1000 شمعة")
     if mode == "dev":
         res["audit"] = _audit_pack(rows, data, DEV_YEAR)
+        res["audit_seed"], res["audit_iter"] = AUDIT_SEED, AUDIT_ITER
         res["structural"] = [structural_check("DCOY", "2026-09-22", 5.332, 6.9),
                              structural_check("DRMA", "2026-03-20", 1.668, 1.828, tol=0.05)]
         for x in res["structural"]:
-            log(f"🧭 التحقّق البنيويّ {x['sym']} {x['day']}: {x['status']} · {x.get('why', '')} {x.get('n_top_signals_day', '')}")
-        log(f"🔍 عيّنةُ التدقيق البصريّ: {len(res['audit'])} إشارة STRICT من {DEV_YEAR} (بذرة {AUDIT_SEED}) — بلا أيّ عائد (أعمى)")
+            wn = x.get("why_not") or {}
+            log(f"🧭 التحقّق البنيويّ {x['sym']} {x['day']}: {x['status']} (LOOSE {x.get('status_loose', '—')}) · "
+                f"{x.get('why', '')} {x.get('n_top_signals_day', '')} · أقربُ رفض: {(wn.get('closest') or {}).get('rule', '—')} · "
+                f"بنى قرب القمّة {wn.get('structures_near_top', '—')} · رأسُ الجلسة محور: {wn.get('head_pivot', '—')}")
+        log(f"🔍 عيّنةُ التدقيق البصريّ: {len(res['audit'])} إشارة STRICT من {DEV_YEAR} (بذرة {AUDIT_SEED} · التكرار {AUDIT_ITER}) "
+            f"— بلا أيّ عائد (أعمى)")
         out = os.path.join(RES_DIR, "dev_2022.json")
         files = [out]
     else:
