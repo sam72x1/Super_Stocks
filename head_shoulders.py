@@ -1642,6 +1642,8 @@ def run_scan(fetch=None) -> int:
         if not S.send_telegram(msg + "\n\n" + S.FOOTER):
             continue
         sent[lc["sig"]["pid"]] = lc["sig"]["b_date"]
+        # السجلُّ يُسمّي ما أُرسل (الاختبارُ الطرفيّ `36922279556` عرف LVLU من `hs_state.json` لا من السجلّ · HS43)
+        log(f"   📤 أُرسل: ${sym} · {lc['state']} · جودة {lc['sig']['quality']}/100 · اختراق {lc['sig']['b_date']}")
         try:
             path = render_chart(ok[sym], lc["sig"], os.path.join(CHART_DIR, f"hs_{sym}.png"),
                                 title=f"{sym} 1D inverse H&S · {lc['state']}",
@@ -1656,6 +1658,7 @@ def run_scan(fetch=None) -> int:
         if S.send_telegram(line + "\n\n" + S.FOOTER):
             for sym, lc in rest:
                 sent[lc["sig"]["pid"]] = lc["sig"]["b_date"]
+            log("   📤 أُرسل سطرُ الباقين: " + " · ".join(f"${sym}" for sym, _ in rest))
     state["last_scan"] = dt.date.today().isoformat()
     with open(STATE_FILE, "w", encoding="utf-8") as fh:
         json.dump(state, fh, ensure_ascii=False, indent=1)

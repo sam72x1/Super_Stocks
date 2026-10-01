@@ -76771,6 +76771,52 @@ except Exception as _e:                                                  # noqa:
     _hs42_ok, _hs42 = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🔎 HS42 الأرقامُ التاريخيّة في الرسالة **موسومةٌ بمصدرها** (‏1D · 2023-2025) في رسالة اليوميّ و5 دقائق معًا · وبلا حكمٍ «—»",
       _hs42_ok, str(_hs42))
+
+# ── HS43 **سجلُّ المسح يُسمّي ما أُرسل** (2026-10-01 · الاختبارُ الطرفيّ `36922279556`: نموذجٌ واحد أُرسل وعُرف رمزُه LVLU من
+#    `hs_state.json` لا من السجلّ): سطرٌ لكلّ رسالةٍ وصلت ‏+ سطرٌ بالباقين · وتلغرامٌ يرفض ⟵ لا سطرَ «أُرسل» (السجلُّ لا يكذب).
+_hs43_dir = _hs_tf.mkdtemp(prefix=f"hs43_{_SUITE_PID}_")
+_hs43_sv = (HS._fetch_live, HS.scan_population, HS.STATE_FILE, HS.CHART_DIR, HS.RES_DIR,
+            S.send_telegram, S.send_telegram_document, S.git_save, S.dq_filter)
+_hs43 = {}
+try:
+    _fr43 = {}
+    for _i, _sy in enumerate(("RA", "RB", "RC", "RD", "RE", "RF")):
+        _df = HS.synth_bars(HS.SYN_IHS, seed=_i)
+        _fr43[_sy] = _df.iloc[:HS.detect(_df)[0]["b_i"] + 1]
+    HS.scan_population = lambda root=".": sorted(_fr43)
+    HS._fetch_live = lambda syms, days=HS.SCAN_DAYS: ({s: _fr43[s] for s in syms if s in _fr43}, {})
+    HS.STATE_FILE = _hs_os.path.join(_hs43_dir, "hs_state.json")
+    HS.CHART_DIR = _hs43_dir
+    HS.RES_DIR = _hs_os.path.join(_hs43_dir, "res")
+    S.send_telegram_document = lambda p, caption="": True
+    S.git_save = lambda files, **k: None
+    S.dq_filter = lambda items, hist, scope, **k: list(items)
+    S.send_telegram = lambda t: True
+    _o43 = _hs_io.StringIO()
+    with _hs_ctx.redirect_stdout(_o43):
+        HS.run_scan()
+    _log43 = _o43.getvalue()
+    _one43 = [ln for ln in _log43.splitlines() if "📤 أُرسل: $" in ln]
+    _rest43 = [ln for ln in _log43.splitlines() if "📤 أُرسل سطرُ الباقين: $" in ln]
+    # تلغرامٌ يرفض ⟵ لا سطرَ «أُرسل»
+    _hs_os.remove(HS.STATE_FILE)
+    S.send_telegram = lambda t: False
+    _o43b = _hs_io.StringIO()
+    with _hs_ctx.redirect_stdout(_o43b):
+        HS.run_scan()
+    _hs43 = {"five": len(_one43) == 5 and all("جودة " in ln and "اختراق " in ln for ln in _one43),
+             "rest": len(_rest43) == 1 and _rest43[0].count("$") == 1,
+             "named": {ln.split("$")[1].split(" ")[0] for ln in _one43 + _rest43} == set(_fr43),
+             "no_lie": "📤" not in _o43b.getvalue()}
+    _hs43_ok = all(_hs43.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs43_ok, _hs43 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+finally:
+    (HS._fetch_live, HS.scan_population, HS.STATE_FILE, HS.CHART_DIR, HS.RES_DIR,
+     S.send_telegram, S.send_telegram_document, S.git_save, S.dq_filter) = _hs43_sv
+    _hs_sh.rmtree(_hs43_dir, ignore_errors=True)
+check("🔎 HS43 سجلُّ المسح **يُسمّي ما أُرسل**: سطرٌ لكلّ رسالةٍ وصلت (الرمز · الحالة · الجودة · الاختراق) ‏+ سطرُ الباقين · والستّةُ كلُّهم "
+      "مسمَّون · وتلغرامٌ يرفض ⟵ لا سطرَ «أُرسل»", _hs43_ok, str(_hs43)[:400])
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
