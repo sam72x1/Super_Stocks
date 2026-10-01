@@ -72117,14 +72117,15 @@ _THV_OUT0 = [   # حصادٌ سابق: صفٌّ قديمٌ حُسم على Tradi
 ]
 
 
-def _thv_run(src_env):
-    """يشغّل `presession_digest.main` بلا شبكةٍ ولا كتابةٍ في المستودع ويُرجع (رمزُ الخروج، النداءات، الجديد، السجلّ، الرسالة)."""
+def _thv_run(src_env, extra_led=()):
+    """يشغّل `presession_digest.main` بلا شبكةٍ ولا كتابةٍ في المستودع ويُرجع (رمزُ الخروج، النداءات، الجديد، السجلّ، الرسالة).
+    و`extra_led` صفوفٌ تُلحق بالسجلّ لقفلٍ بعينه (‏THV7) — وفراغُه يُبقي THV3/THV4 بت-بت."""
     import tempfile as _tf
     calls, logs, sent = [], [], []
     d_ = _tf.mkdtemp(prefix="thv_")
     led_p, out_p = _ptv_os.path.join(d_, "led.jsonl"), _ptv_os.path.join(d_, "out.jsonl")
     with open(led_p, "w", encoding="utf-8") as fh:
-        fh.write("\n".join(json.dumps(r, ensure_ascii=False) for r in _THV_LED) + "\n")
+        fh.write("\n".join(json.dumps(r, ensure_ascii=False) for r in list(_THV_LED) + list(extra_led)) + "\n")
     with open(out_p, "w", encoding="utf-8") as fh:
         fh.write("\n".join(json.dumps(r, ensure_ascii=False) for r in _THV_OUT0) + "\n")
 
@@ -72258,6 +72259,50 @@ except Exception as _e:                                              # noqa: BLE
     _v5, _w5 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📺 THV5 الرسالة: المستثنى يُعلَن تحت «التراكم» بعدده وصفرُه بت-بت · وسطرُ صدق TradingView يحمل نتيجةَ المِجَسّ "
       "(خالف ياهو في 16 من 67 · أدنى 13 · أعلى 3) ذيلًا ملحقًا", _v5, _w5)
+
+# 🩺 THV6 — سطرُ التغطية **يُطابق نفسَه** (مسكةُ التحقّق الحيّ 2026-10-01 · `36824396026`: «حُسم 103 من 111 صفًّا (تعذّر 14)»
+#        وثمانيةٌ منها لليوم وستّةٌ من 09-29 · وعلى Polygon «114 من 118 · تعذّر 80» يومَ 09-26): `missing_prior` يُعلَن
+#        بعدّه بجوار تعذّر اليوم · وصفرُه بت-بت (لا مقطعَ ولا مسافة).
+try:
+    _c6 = {"deliv": (0, 0), "cut": (0, 0), "below": (0, 0), "all": (0, 0)}
+    _d6a = _THV.build_digest("2026-09-30", [], _c6, (103, 111), 8)
+    _d6b = _THV.build_digest("2026-09-30", [], _c6, (103, 111), 8, missing_prior=0)
+    _d6c = _THV.build_digest("2026-09-30", [], _c6, (103, 111), 8, missing_prior=6)
+    _v6 = (_d6a == _d6b and "جلساتٍ سابقة" not in _d6a
+           and "🩺 حُسم 103 من 111 صفًّا (تعذّر 8 — يُعلَن ولا يُصمت)" in _d6a
+           and "🩺 حُسم 103 من 111 صفًّا (تعذّر 8 · ومن جلساتٍ سابقة 6 — يُعلَن ولا يُصمت)" in _d6c
+           and _d6c.replace(" · ومن جلساتٍ سابقة 6", "") == _d6a)
+    _w6 = f"صفرٌ بت-بت={_d6a == _d6b} · سابقة={'ومن جلساتٍ سابقة 6' in _d6c} · الباقي بت-بت={_d6c.replace(' · ومن جلساتٍ سابقة 6', '') == _d6a}"
+except Exception as _e:                                              # noqa: BLE001
+    _v6, _w6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🩺 THV6 سطرُ التغطية: تعذّرُ الجلسات السابقة يُعلَن بعدّه بجوار تعذّر اليوم · وصفرُه بت-بت", _v6, _w6)
+
+# 🩺 THV7 — `main` على TradingView (سلوكيّ · بلا شبكة): صفّان من جلسةٍ سابقة (09-29) يتعذّران بالطريقين (‏PRV بلا شموع ·
+#        PSC ×10 يمنعه حارسُ المقياس) ⟵ «تعذّر» لليوم = ما لم يُحسم من صفوفه (‏4 − 3 = 1 · SPL) لا مجموعُ إخفاقات التشغيلة
+#        (‏3) · والسابقُ يُعلَن «ومن جلساتٍ سابقة 2» وبيومه في السجلّ · وبلا صفٍّ سابق السطرُ بلا مقطعٍ إضافيّ.
+try:
+    _prv7 = {"day": "2026-09-29", "sess": "PM", "sym": "PRV", "ref": 1.0, "rank": 4, "in_top": True,
+             "sent": True, "floor_ok": True}                         # بلا شموع ⟵ لا يُحسم
+    _psc7 = {"day": "2026-09-29", "sess": "PM", "sym": "PSC", "ref": 1.0, "rank": 5, "in_top": True,
+             "sent": True, "floor_ok": True}                         # ×10 ⟵ حارسُ المقياس يمنعه
+    _THV_BARS["PSC"] = [_thv_bar("2026-09-28", 1190, 10.0, 10.0), _thv_bar("2026-09-29", 300, 2.0, 1.9)]
+    try:
+        _rc7, _c7, _n7, _l7, _m7 = _thv_run("tv", extra_led=[_prv7, _psc7])
+    finally:
+        _THV_BARS.pop("PSC", None)
+    _rc7b, _c7b, _n7b, _l7b, _m7b = _thv_run("tv")
+    _v7 = (_rc7 == 0 and {"PRV", "PSC"} <= {c[0] for c in _c7} and not ({"PRV", "PSC"} & {r["sym"] for r in _n7})
+           and "PSC 2026-09-29 PM ×10.000" in _l7
+           and "🩺 حُسم 3 من 4 صفًّا (تعذّر 1 · ومن جلساتٍ سابقة 2 — يُعلَن ولا يُصمت)" in _m7
+           and "تعذّر من جلساتٍ سابقة 2 صفًّا" in _l7 and "2026-09-29: 2" in _l7
+           and _rc7b == 0 and "🩺 حُسم 3 من 4 صفًّا (تعذّر 1 — يُعلَن ولا يُصمت)" in _m7b
+           and "جلساتٍ سابقة" not in _m7b and "جلساتٍ سابقة" not in _l7b)
+    _w7 = (f"rc={_rc7} · جُلب={sorted({c[0] for c in _c7})} · سطر={[x for x in _m7.splitlines() if 'حُسم' in x][:1]} · "
+           f"سجلّ={'2026-09-29: 2' in _l7} · بلا سابق={[x for x in _m7b.splitlines() if 'حُسم' in x][:1]}")
+except Exception as _e:                                              # noqa: BLE001
+    _v7, _w7 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🩺 THV7 الحصادُ (سلوكيّ): «تعذّر» لليوم = ما لم يُحسم من صفوفه · وتعذّرُ جلسةٍ سابقة يُعلَن بعدّه وبيومه في السجلّ · "
+      "وبلا صفٍّ سابق السطرُ كما كان", _v7, _w7)
 
 # 🏷️ LID1 — **معرّفُ القفل لا يتكرّر** (‏2026-09-30 · درسُ `PWA14`: قفلُ تجميد pmfwd الجديد حمل اسمَ جدول الحقيقة
 #    `fired_of` القائمِ منذ 09-17 فالتبس إسنادُ طفراته — وقاعدةُ `lock-and-mutate` «أسماءُ الأقفال فريدة» كانت نصًّا
