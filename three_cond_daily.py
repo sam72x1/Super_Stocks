@@ -234,6 +234,50 @@ def px_class(px):
     return "penny" if float(px) < PX.PX_MIN else "dollar"
 
 
+DQ_HOLD = ("block", "quarantine")   # 🛡️ إجراءا البوّابة اللذان لا يُذكر صاحبُهما (سياسةُ `data_quality` الافتراضيّة · `DQ_POLICY`)
+
+
+def dq_held(r):
+    """هل حجزت بوّابةُ سلامة البيانات هذا الصفّ؟ (حقلُ `dq` من `dq_rows` · وغيابُه = لا حجز — المفتاحُ المطفأ بت-بت)."""
+    return ((r or {}).get("dq") or {}).get("action") in DQ_HOLD
+
+
+def rows_frame(rows, src):
+    """صفوفٌ يوميّة (يوم، o، h، l، c، v) ⟵ إطارٌ بشكل `S.download_history` ومعه `bars_src` (TradingView أو Polygon) لبوّابة سلامة البيانات."""
+    rows = list(rows or [])
+    df = pd.DataFrame([[float(r[1]), float(r[2]), float(r[3]), float(r[4]), float(r[5])] for r in rows],
+                      columns=["Open", "High", "Low", "Close", "Volume"],
+                      index=pd.to_datetime([r[0] for r in rows]))
+    df.attrs["bars_src"] = "tradingview" if source_of(src) == "tv" else "polygon"
+    return df
+
+
+def dq_rows(syms, pg, sess, src, assess=None, xcheck=None):
+    """🛡️ حكمُ بوّابة سلامة البيانات لمجتمع c4 ⟵ {رمز: {state, action, label, why}} — **عطلٌ مُثبَت** (مِجَسّ `dq_cover_probe` D1
+    `36876764712`: 6 من 21 زوجًا ذكرته الرسائلُ المُرسَلة حكمُه «quarantine» — FGL · KITT · RPGL · UZX في جلسة 09-25 · وXCH في 09-25
+    و09-28: تقسيمٌ عكسيٌّ لم تكتمل بعده وصفةُ فيصل). `S.dq_assess` بالاسم (التقسيمُ من المصدرين · والإغلاقُ مقابل ياهو بـ`S.dq_close_xcheck`)
+    · وتعذّرُ تقييم رمزٍ ⟵ «غيرُ مُتحقَّق» بسببه (يُذكر بوسمه لا «صالحٌ» صامت) · والمفتاحُ مطفأ (`DQ_GATE=0`) أو بلا رموز ⟵ {}
+    (**بت-بت**: لا شبكة ولا حقل). `assess`/`xcheck` محقونان للاختبار."""
+    import data_quality as DQ
+    if not DQ.enabled() or not syms:
+        return {}
+    hist = {s: rows_frame(pg.get(s) or [], src) for s in syms}
+    try:
+        xc = (xcheck or S.dq_close_xcheck)(list(syms), hist) or {}
+    except Exception:                                            # noqa: BLE001 — لا تعارضَ يُخترع
+        xc = {}
+    out = {}
+    for s in syms:
+        try:
+            a = (assess or S.dq_assess)(s, hist[s], sess, xclose=xc.get(s))
+        except Exception as e:                                   # noqa: BLE001
+            a = {"state": DQ.UNVERIFIED, "action": DQ.policy_map().get(DQ.UNVERIFIED, "warn"),
+                 "reasons": [f"تعذّر تقييمُ البوّابة ({type(e).__name__})"], "label": DQ.label_ar(DQ.UNVERIFIED)}
+        out[s] = {"state": a.get("state"), "action": a.get("action"), "label": a.get("label") or "",
+                  "why": " · ".join(str(x) for x in (a.get("reasons") or [])[:2])}
+    return out
+
+
 def ext_rows(hours, days=None):
     """شموعُ الساعة **داخل الجلسة الممتدّة** (`WW.EXT_FROM` ⟶ `WW.EXT_TO` نيويورك) ⟵ [(يومُ نيويورك, ms, high, low)] مرتّبةً
     زمنيًّا · و`days` (مجموعةُ أيّام) يقصرها عليها · والشمعةُ التالفة تُتخطّى لا تُخمَّن. و`hours` = [(ms, high, low)]."""
@@ -380,7 +424,8 @@ def _num_txt(x):
 def listed(rows):
     """المطابقُ الكامل وحدَه ⟵ (فوق الدولار, سنتات) مرتّبين بـRSI: عبر الثبات والانفجار (`gate` = ok) **و**الحكمُ «نعم» **و**لا
     شكّ — وما سواه لا يُذكر في الرسالة (أمرُ المالك «لازم لازم لازم توافق الشروط 3 و ثبات 5 جلسات»)."""
-    ok = [s for s, r in rows.items() if r.get("gate") == "ok" and r.get("v") is True and not r.get("doubt")]
+    ok = [s for s, r in rows.items() if r.get("gate") == "ok" and r.get("v") is True and not r.get("doubt")
+          and not dq_held(r)]
     key = (lambda s: rows[s]["rsi"])
     return (sorted((s for s in ok if px_class(rows[s]["px"]) == "dollar"), key=key),
             sorted((s for s in ok if px_class(rows[s]["px"]) == "penny"), key=key))
@@ -388,13 +433,16 @@ def listed(rows):
 
 def excluded_counts(rows):
     """عدّاداتُ «لا تُذكر» لمن عبر RSI: بوّاباتُ الثبات والانفجار ثمّ ما بعد الفلوت والمتاح — كلُّ سهمٍ مرّةً واحدة."""
-    c = {"wait": 0, "boom": 0, "nohour": 0, "float": 0, "avail": 0, "doubt": 0, "unk": 0}
+    c = {"wait": 0, "boom": 0, "nohour": 0, "float": 0, "avail": 0, "doubt": 0, "unk": 0, "dq": 0}
     for r in rows.values():
         g = r.get("gate")
         if g in ("wait", "boom", "nohour"):
             c[g] += 1
             continue
         if g != "ok":
+            continue
+        if dq_held(r):                       # 🛡️ حجزته بوّابةُ سلامة البيانات قبل المتاح ⟵ فئةٌ مستقلّة (كلُّ سهمٍ مرّةً واحدة)
+            c["dq"] += 1
             continue
         if r.get("v") is True and r.get("doubt"):
             c["doubt"] += 1
@@ -435,7 +483,7 @@ def build_message(st, rows):
     x = excluded_counts(rows)
     lines += ["", f"🧾 لا تُذكر (عبرت RSI): ينتظر الثبات {x['wait']} · انفجر خلال أسبوع {x['boom']} · تعذّر القاعُ الدقيق "
                   f"{x['nohour']} · الفلوت فوق الحدّ {x['float']} · المتاح فوق الحدّ {x['avail']} · مشكوك {x['doubt']} · مجهول "
-                  f"{x['unk']} (الأسماءُ في السجلّ)"]
+                  f"{x['unk']}" + (f" · 🛡️ سلامةُ البيانات {x['dq']}" if x.get("dq") else "") + " (الأسماءُ في السجلّ)"]
     c = st.get("counts") or {}
     lines.append(f"🧾 الكون {c.get('universe', 0):,} · بشمعة الجلسة من {SRC_NAME[src]} {c.get('fresh', 0):,} · RSI أقلّ من "
                  f"{rsi_max():g}: {c.get('c2', 0)} (فوق الدولار {c.get('c2_dollar', 0)} · سنتات {c.get('c2_penny', 0)}) · "
@@ -448,8 +496,9 @@ def build_message(st, rows):
 def _yes_lines(i, s, r):
     """سطرا السهم المطابق: الأرقام ثمّ (الثبات · 🩹 · حالتُه عند البوت) — عرضٌ فقط · والسعرُ بدقّة `S._px_txt`."""
     rep = f" · 🩹 ×{r['repaired']:g}" if r.get("repaired") else ""
+    dql = (r.get("dq") or {}).get("label") if (r.get("dq") or {}).get("action") == "warn" else ""
     return [f"{i}. ${s} · {S._px_txt(r['px'])} · RSI {WW.rsi_txt(r['rsi'], rsi_max())} · فلوت {_num_txt(r['fl'])} · متاح {r['av']:,.0f}",
-            f"   ↳ {stab_text(r)}{rep} · {r['bot']}"]
+            f"   ↳ {stab_text(r)}{rep} · {r['bot']}" + (f" · {dql}" if dql else "")]
 
 
 def _fmt2(x):
@@ -853,6 +902,16 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
     c4 = [s for s in c3 if rows[s]["fl"] is None or rows[s]["fl"] < OPL.FLOAT_OWNER]
     st["counts"]["c4"] = len(c4)
     log(f"④ فلوتٌ أقلّ من {OPL.FLOAT_OWNER:,} أو مجهول: {len(c4)} (مجهول {sum(1 for s in c4 if rows[s]['fl'] is None)})")
+    #    🛡️ سلامةُ البيانات لمجتمع c4 (عطلٌ مُثبَت · مِجَسّ D1 `36876764712`) — المحجوزُ والممنوع لا يُذكر ويُعَدّ (ولا يُسأل عنه الموقع)
+    #    · والمُنبَّهُ يُذكر بوسمه · والمفتاحُ مطفأ ⟵ صفرُ أثر
+    dqr = dq_rows(c4, pg, sess, src)
+    for s, a in dqr.items():
+        rows[s]["dq"] = a
+    if dqr:
+        hold = [s for s in c4 if dq_held(rows[s])]
+        st["counts"]["dq_hold"] = len(hold)
+        log(f"🛡️ سلامةُ البيانات (فلوتٌ أقلّ من الحدّ أو مجهول {len(c4)}): محجوزٌ أو ممنوع {len(hold)}"
+            + (" — " + " · ".join(f"{s} ({rows[s]['dq']['why'][:120]})" for s in hold) if hold else ""))
     if src == "tv":
         for s in c4:
             rows[s]["ry"] = tv_ref_rsi(sn.get(tmap.get(s)), rows[s]["px"])
@@ -877,6 +936,8 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
     hv = (harvested or S._harvested_borrow)(dt.datetime.now(dt.timezone.utc).date().isoformat())
     need = []
     for s in sorted(c4, key=lambda x: (rows[x]["fl"] is None, rows[x]["rsi"])):
+        if dq_held(rows[s]):
+            continue                         # 🛡️ لا يُذكر أصلًا ⟵ لا يُسأل عنه الموقع (حصّتُه ‏≈50 صفحة لكلّ رنر)
         h = hv.get(s)
         if h and h.get("shares_available") is not None:
             rows[s]["av"], rows[s]["av_src"] = float(h["shares_available"]), "حصاد اليوم"
@@ -974,6 +1035,10 @@ def stage_send(st, parts, send=None):
     if av_x:
         log(f"   ✖️ المتاح فوق الحدّ {len(av_x)}: "
             + " · ".join(f"{s} ({(rows[s].get('av') or 0):,.0f})" for s in av_x))
+    hold = [s for s in ok if dq_held(rows[s])]
+    if hold:
+        log(f"   🛡️ حجزته سلامةُ البيانات {len(hold)}: "
+            + " · ".join(f"{s} ({(rows[s].get('dq') or {}).get('why', '')[:120]})" for s in hold))
     near = near_misses(rows)
     if near:
         log(f"   🔸 من أسهم البوت سقطت بشرطٍ واحد (والثبات عابر): {len(near)} — "

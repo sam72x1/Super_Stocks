@@ -75654,6 +75654,80 @@ check("🛡️ DQ21 الإفصاحُ موصولٌ في فحص اليد والف�
       and _dq21.get("tr_pos") == 1 and "err" not in _dq21,
       str(_dq21))
 
+# DQ22 — «شروطك الثلاثة» موصولةٌ بالبوّابة (عطلٌ مُثبَت · مِجَسّ D1 `36876764712`: 6 من 21 زوجًا ذكرته الرسائلُ حكمُه quarantine):
+#         الأنبوبُ كلُّه بعالم `_tcd_run` — المحجوزُ (NWO) لا يُذكر ويُعَدّ في التذييل ويُسمّى في السجلّ **ولا يُسأل عنه الموقع** ·
+#         والمُنبَّهُ (PNY) يُذكر بوسمه · وكلُّ سهمٍ مذكورٌ أو معدودٌ مرّةً واحدة · والبوّابةُ «allow» للكلّ ⟵ الرسالةُ نفسُها بت-بت ·
+#         والمفتاحُ مطفأ ⟵ صفرُ نداء · وتعذّرُ التقييم ⟵ «غيرُ مُتحقَّق» بوسمه لا «صالحٌ» صامت · والإطارُ يحمل مصدرَه
+_dq22 = {}
+_dq22_sv = (S.dq_assess, S.dq_close_xcheck)
+try:
+    _dq22_calls = []
+    _dq22_mode = {"hold": True}
+
+    def _dq22_assess(sym, df, exp, **_k):
+        _dq22_calls.append((sym, df.attrs.get("bars_src"), str(df.index[-1])[:10], exp))
+        if _dq22_mode["hold"] and sym == "NWO":
+            return {"state": _DQm.CORPORATE_ACTION_PENDING, "action": "quarantine", "label": "",
+                    "reasons": ["تقسيمٌ عكسيّ 1:10 يوم 2026-09-22 · لم يضرب ÷2 بعد"]}
+        if _dq22_mode["hold"] and sym == "PNY":
+            return {"state": _DQm.RECENT_SPLIT, "action": "warn", "label": "✂️ وسمُ اختبار", "reasons": ["r"]}
+        return {"state": _DQm.VALID, "action": "allow", "label": "", "reasons": []}
+    S.dq_assess = _dq22_assess
+    S.dq_close_xcheck = lambda syms, hist, fetch=None: {}
+    _dq_set("0")
+    _r22_off = _tcd_run(dry=False)
+    _dq22["off_calls"] = len(_dq22_calls)
+    _dq_set("1")
+    _dq22_mode["hold"] = False
+    _r22_allow = _tcd_run(dry=False)
+    _dq22["allow_calls"] = len(_dq22_calls)
+    _dq22_mode["hold"] = True
+    _r22_on = _tcd_run(dry=False)
+    _dq22_m_off = (_r22_off[3] or [""])[0]
+    _dq22_m_allow = (_r22_allow[3] or [""])[0]
+    _dq22_m_on = (_r22_on[3] or [""])[0]
+    _dq22["same_when_allow"] = bool(_dq22_m_off) and _dq22_m_off == _dq22_m_allow
+    _dq22["nwo_off"] = "$NWO ·" in _dq22_m_off
+    _dq22["nwo_on"] = "$NWO ·" in _dq22_m_on
+    _dq22["footer"] = "🛡️ سلامةُ البيانات 1" in _dq22_m_on and "🛡️ سلامةُ البيانات" not in _dq22_m_off
+    _dq22_pny = [ln for ln in _dq22_m_on.split("\n") if "✂️ وسمُ اختبار" in ln]
+    _dq22["pny_label"] = len(_dq22_pny) == 1 and "↳" in _dq22_pny[0]
+    _dq22["logged"] = "حجزته سلامةُ البيانات 1: NWO" in _r22_on[1]
+    _dq22["need"] = ("NWO" in (_r22_off[2].get("need") or []), "NWO" in (_r22_on[2].get("need") or []))
+    _rows22 = _r22_on[2].get("rows") or {}
+    _dl22, _pn22 = _TCD.listed(_rows22)
+    _dq22["sum"] = len(_dl22) + len(_pn22) + sum(_TCD.excluded_counts(_rows22).values()) == len(_rows22)
+    #   وعقدُ `listed` نفسِه مباشرةً (حارسٌ خامدٌ في الأنبوب خلف تخطّي المتاح — طفرةُ حذفه نجت في الأنبوب): المحجوزُ بحكمٍ
+    #   «نعم» كامل لا يُذكر ويُعَدّ مرّةً · وتوأمُه المُنبَّه يُذكر
+    _rows22b = {"HLD": {"gate": "ok", "v": True, "doubt": False, "px": 2.0, "rsi": 25.0, "dq": {"action": "quarantine"}},
+                "OKY": {"gate": "ok", "v": True, "doubt": False, "px": 2.0, "rsi": 26.0, "dq": {"action": "warn"}}}
+    _dq22["listed_direct"] = (_TCD.listed(_rows22b), _TCD.excluded_counts(_rows22b).get("dq"))
+    _dq22["frames"] = sorted({(b, d == e) for _s, b, d, e in _dq22_calls})
+    _dq22["unv"] = _TCD.dq_rows(["X"], {"X": _tcd_series("base", 2.0)}, _TCD_SESS, "tv",
+                                assess=lambda *a, **k: (_ for _ in ()).throw(ValueError("x")),
+                                xcheck=lambda a, b: {})
+    _dq22["tv_src"] = _TCD.rows_frame(_tcd_series("base", 2.0), "tv").attrs.get("bars_src")
+    _dq_set("0")
+    _dq22["off_direct"] = _TCD.dq_rows(["X"], {"X": _tcd_series("base", 2.0)}, _TCD_SESS, "tv",
+                                       assess=lambda *a, **k: {"action": "block"}, xcheck=lambda a, b: {})
+except Exception as _e:                                                  # noqa: BLE001
+    _dq22["err"] = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    S.dq_assess, S.dq_close_xcheck = _dq22_sv
+    _dq_set("0")
+_dq22_unv = (_dq22.get("unv") or {}).get("X") or {}
+check("🛡️ DQ22 «شروطك الثلاثة» موصولةٌ بالبوّابة: المحجوزُ (NWO) لا يُذكر ويُعَدّ «🛡️ سلامةُ البيانات 1» ويُسمّى في السجلّ "
+      "**ولا يُسأل عنه الموقع** · والمُنبَّهُ يُذكر بوسمه في سطر «↳» · وكلُّ سهمٍ مذكورٌ أو معدودٌ مرّةً · و«allow» للكلّ ⟵ الرسالةُ نفسُها "
+      "بت-بت · والمفتاحُ مطفأ ⟵ صفرُ نداء · وتعذّرُ التقييم ⟵ «غيرُ مُتحقَّق» · والإطارُ بمصدره وآخرُ شمعته الجلسة",
+      _dq22.get("off_calls") == 0 and (_dq22.get("allow_calls") or 0) > 0 and _dq22.get("same_when_allow")
+      and _dq22.get("nwo_off") is True and _dq22.get("nwo_on") is False and _dq22.get("footer")
+      and _dq22.get("pny_label") and _dq22.get("logged") and _dq22.get("need") == (True, False) and _dq22.get("sum")
+      and _dq22.get("frames") == [("polygon", True)]
+      and _dq22_unv.get("state") == _DQm.UNVERIFIED and _dq22_unv.get("action") == "warn"
+      and "ValueError" in str(_dq22_unv.get("why")) and _dq22.get("tv_src") == "tradingview"
+      and _dq22.get("off_direct") == {} and _dq22.get("listed_direct") == ((["OKY"], []), 1) and "err" not in _dq22,
+      str({k: v for k, v in _dq22.items() if k != "unv"})[:700] + f" unv={_dq22_unv}")
+
 if _dq_env0 is None:
     _os_hc.environ.pop("DQ_GATE", None)
 else:
