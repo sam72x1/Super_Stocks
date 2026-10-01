@@ -71722,6 +71722,12 @@ check("📺 WPT8 ⑭ الجوالبُ بالاسم: اليوميُّ `TC.fetch_t
 #    الشهر `36847138500`) — `WW.rsi_txt` مصدرٌ واحدٌ للأدوات الثلاث (تقريرُ الفترة · تقريرُ الأسبوع · «شروطك الثلاثة») ══
 # RSD1 — سلوكيّ: ما دون الحدّ لا يُطبَع بالغًا إيّاه ولا العكس (شبكةُ 0..100 على الحدّين 33 و30) · وما خارج شريط الحدّ بت-بت
 #    `{:.1f}` · والحالاتُ المسمّاة · والحدُّ الافتراضيّ `S.CONFIG["RSI_OVERSOLD"]` وقتَ النداء لا رقمٌ مكتوب
+_rsd_live_cfg = {"FAISAL_ONLY": 1}
+try:
+    _WW.S.apply_faisal_only(_rsd_live_cfg, log_fn=lambda *_a: None)
+except Exception:                                                    # noqa: BLE001
+    pass
+_rsd_live = float(_rsd_live_cfg.get("RSI_OVERSOLD") or 0.0)          # حدُّ الإنتاج (33) لا حدُّ السويّة (`FAISAL_ONLY=0`)
 try:
     _rsd_bad = []
     for _rsd_lim in (33.0, 30.0):
@@ -71738,12 +71744,14 @@ try:
     try:
         _WW.S.CONFIG["RSI_OVERSOLD"] = 30.0
         _rsd_d30 = _WW.rsi_txt(29.97)
+        _WW.S.CONFIG["RSI_OVERSOLD"] = _rsd_live
+        _rsd_d33 = (_WW.rsi_txt(29.97), _WW.rsi_txt(32.9919))
     finally:
         _WW.S.CONFIG["RSI_OVERSOLD"] = _rsd_cfg
-    _rsd_d33 = _WW.rsi_txt(29.97)
-    _v_rsd1 = (not _rsd_bad and not _rsd_named_bad and _WW.rsi_txt(None) == "—" and _rsd_d30 == "29.97"
-               and _rsd_d33 == "30.0")
-    _w_rsd1 = f"شاذّ={_rsd_bad[:3]} · مسمّى={_rsd_named_bad} · حدُّ 30 ⟵ {_rsd_d30} · حدُّ 33 ⟵ {_rsd_d33}"
+    _v_rsd1 = (not _rsd_bad and not _rsd_named_bad and _WW.rsi_txt(None) == "—" and _rsd_live == 33.0
+               and _rsd_d30 == "29.97" and _rsd_d33 == ("30.0", "32.99"))
+    _w_rsd1 = (f"شاذّ={_rsd_bad[:3]} · مسمّى={_rsd_named_bad} · الحدُّ الحيّ {_rsd_live:g} · حدُّ 30 ⟵ {_rsd_d30} · "
+               f"حدُّ الإنتاج ⟵ {_rsd_d33}")
 except Exception as _e:                                              # noqa: BLE001
     _v_rsd1, _w_rsd1 = False, f"⛔ رمى: {type(_e).__name__}"
 check("🔢 RSD1 `rsi_txt`: ما دون الحدّ لا يُطبَع بالغًا إيّاه (‏32.9919 ⟵ 32.99 لا 33.0) · وخارجَ شريط الحدّ `{:.1f}` بت-بت · "
@@ -71782,10 +71790,15 @@ check("🔢 RSD2 الوصل (AST): لا عرضَ لقيمة RSI بالصيغة �
 #    العاديّة بت-بت (25.5)
 try:
     _rsd_r = {"px": 2.77, "rsi": 32.9919, "fl": 732625.0, "av": 1000.0, "bot": "—"}
-    _rsd_y = _TCD._yes_lines(1, "CIIT", _rsd_r)[0]
-    _rsd_y2 = _TCD._yes_lines(1, "FRGT", dict(_rsd_r, rsi=25.4855))[0]
-    _rsd_tr = _TCD.trace_line("CIIT", _rsd_r, None, None, "—")
-    _v_rsd3 = ("RSI 32.99 ·" in _rsd_y and "RSI 33.0" not in _rsd_y and "RSI 25.5 ·" in _rsd_y2
+    _rsd_cfg3 = _TCD.S.CONFIG.get("RSI_OVERSOLD")
+    try:
+        _TCD.S.CONFIG["RSI_OVERSOLD"] = _rsd_live                    # الرسالةُ الحيّة على حدّ الإنتاج (33)
+        _rsd_y = _TCD._yes_lines(1, "CIIT", _rsd_r)[0]
+        _rsd_y2 = _TCD._yes_lines(1, "FRGT", dict(_rsd_r, rsi=25.4855))[0]
+        _rsd_tr = _TCD.trace_line("CIIT", _rsd_r, None, None, "—")
+    finally:
+        _TCD.S.CONFIG["RSI_OVERSOLD"] = _rsd_cfg3
+    _v_rsd3 = (_rsd_live == 33.0 and "RSI 32.99 ·" in _rsd_y and "RSI 33.0" not in _rsd_y and "RSI 25.5 ·" in _rsd_y2
                and "RSI 32.99 ·" in _rsd_tr and "RSI 33.0" not in _rsd_tr)
     _w_rsd3 = f"{_rsd_y[:60]} | {_rsd_tr[:40]}"
 except Exception as _e:                                              # noqa: BLE001
