@@ -17361,6 +17361,7 @@ def extended_last_price(sym: str, session_date, fetch_bars=None):
 TV_AH_MIN_N = 1500               # engineering — توأمُ `presession_radar.TV_MIN_N` (قفلُ تطابق): شموعُ دقيقةٍ ممتدّة تكفي يومًا
 #                                   كاملًا 04:00-20:00 (‏960) بهامش
 TV_AH_DAY_N = 960                # توأمُ `presession_radar.TV_DAY_N`: دقائقُ اليوم الممتدّ — تُضاف لكلّ يومٍ تقويميٍّ بين الجلسة والآن
+AH_GUARD_LAST = {}               # 🌙📺 تقريرُ آخر نداءٍ لـ`ah_guard_rows` (المصدر · سُئل · قُرئ · بلا صفقة افتر · تعذّر) — للسجلّ والاختبار
 
 
 def tv_session_minutes(sym, session_date, chart=None, tmap=None, now=None):
@@ -17438,47 +17439,94 @@ def ah_guard_rows(rows, session_date, fetch=None):
     🔒 **فاشل-آمن مفتوح (fail-open):** بلا مفتاح/تعذّر الجلب/صفر شموع/مرجع تالف ⇒
     الصفّ **يبقى** ويُوسَم في `unverified` (تعذّر ≠ صفر · لا كتم صامت ولا ثقة كاذبة).
     يرجع `(kept, unverified)`. `fetch(sym, date)` محقون للاختبار بلا شبكة.
+    📺 **ومنذ 2026-10-01 (أمرُ المالك «شغّل حارس الافتر للمقسّم على ترندق فيو»):** بلا `fetch` و`BARS_SOURCE=tradingview` ⟵
+    السعرُ الممتدّ من دقائق TradingView (`tv_session_minutes` على مِقبسٍ واحد) والقاعدةُ نفسُها · وبلا البيئة بت-بت (`AHT1`-`AHT5`).
     🔒 عرض/تنبيه فقط — خارج الفرز والجذور (مقفول)."""
     kept, unverified = [], []
     try:
         th = float(CONFIG["SPLIT_ROSE_MAX_PCT"])
     except Exception:                                            # noqa: BLE001
         return list(rows or []), [str(r.get("symbol") or "") for r in (rows or [])]
-    f = fetch if fetch is not None else extended_last_price
-    for r in rows or []:
-        sym = str(r.get("symbol") or "")
+    # 📺🌙 (2026-10-01 · أمرُ المالك «شغّل حارس الافتر للمقسّم على ترندق فيو»): Polygon انتهى 09-29 فصار كلُّ صفٍّ «لم يُتحقّق»
+    #    (رادارُ 09-30: 12 من 12 · والصيّاد: WOK وYHC). **بلا جالبٍ محقون و`BARS_SOURCE=tradingview`** ⟵ `extended_last_price`
+    #    **نفسُها** (الحدُّ 16:00 أو الإغلاقُ المبكّر · أكبرُ طابع) بشموع `tv_session_minutes` (يومُ الجلسة وحدَه) على **مِقبسٍ
+    #    واحد** يُغلق بعد الصفوف — نمطُ رادار الضغط (#505). والقاعدةُ والعتبةُ والكتمُ والوسمُ بت-بت · والجالبُ المحقون يغلب ·
+    #    وبلا البيئة النداءُ السابق حرفًا · وتعذّرُ المِقبس ⟵ «لم يُتحقّق» كما كان (فاشلٌ-آمنٌ مفتوح) · والسجلُّ يفرّق «تعذّر» عن
+    #    «بلا صفقةٍ بعد الإغلاق» (كلاهما «لم يُتحقّق» — دقائقُ TradingView من منصّةٍ لا من الشريط الموحَّد فغيابُها لا يُثبت السكون).
+    rep = {"src": "injected" if fetch is not None else "polygon", "asked": 0, "got": 0, "no_ah": 0, "fail": 0}
+    tv_ch = None
+    if fetch is None and rows and bars_source() == "tradingview":
         try:
-            ext = f(sym, session_date)
-            ext = float(ext) if ext is not None else None
+            import tv_data as _TVD                               # noqa: PLC0415
+            tv_ch = _TVD.Chart()
         except Exception:                                        # noqa: BLE001
-            ext = None
-        if ext is None or ext != ext or ext <= 0:                # ⚠️ NaN ليس None
-            unverified.append(sym)
-            kept.append(r)
-            continue
-        bases, broke = [], None
-        for name, raw in (("إغلاق الجلسة", r.get("price")),
-                          ("قمة ما بعد الحدث", r.get("ref"))):
+            tv_ch = None
+            rep["src"] = "polygon (تعذّر مِقبس TradingView)"
+
+    def _tv_fetch(sym, d):
+        bars = tv_session_minutes(sym, d, chart=tv_ch)
+        if bars is None:
+            rep["fail"] += 1
+            return None
+        px = extended_last_price(sym, d, fetch_bars=lambda _s, _d: bars)
+        if px is None:
+            rep["no_ah"] += 1
+        return px
+
+    if fetch is not None:
+        f = fetch
+    elif tv_ch is not None:
+        rep["src"], f = "tradingview", _tv_fetch
+    else:
+        f = extended_last_price
+    try:
+        for r in rows or []:
+            sym = str(r.get("symbol") or "")
+            rep["asked"] += 1
             try:
-                b = float(raw)
-            except (TypeError, ValueError):
+                ext = f(sym, session_date)
+                ext = float(ext) if ext is not None else None
+            except Exception:                                    # noqa: BLE001
+                ext = None
+            if ext is None or ext != ext or ext <= 0:            # ⚠️ NaN ليس None
+                unverified.append(sym)
+                kept.append(r)
                 continue
-            if b != b or b <= 0:
+            rep["got"] += 1
+            bases, broke = [], None
+            for name, raw in (("إغلاق الجلسة", r.get("price")),
+                              ("قمة ما بعد الحدث", r.get("ref"))):
+                try:
+                    b = float(raw)
+                except (TypeError, ValueError):
+                    continue
+                if b != b or b <= 0:
+                    continue
+                bases.append(name)
+                rise = (ext / b - 1.0) * 100.0
+                # نفس صيغة المِجَسّ حرفيًّا: القرار على الخام و«أكبر من» لا «أكبر أو يساوي»
+                if broke is None and rise > th:
+                    broke = (name, b, rise)
+            if not bases:                 # لا مرجع صالح ⇒ لم نتحقّق (لا نكتم بالظنّ)
+                unverified.append(sym)
+                kept.append(r)
                 continue
-            bases.append(name)
-            rise = (ext / b - 1.0) * 100.0
-            # نفس صيغة المِجَسّ حرفيًّا: القرار على الخام و«أكبر من» لا «أكبر أو يساوي»
-            if broke is None and rise > th:
-                broke = (name, b, rise)
-        if not bases:                     # لا مرجع صالح ⇒ لم نتحقّق (لا نكتم بالظنّ)
-            unverified.append(sym)
+            if broke:
+                log(f"⛔ {sym}: شرط «لم يصعد» مكسور بالافتر (+{broke[2]:.0f}% عن "
+                    f"{broke[0]} ${broke[1]:.2f} ← ${ext:.2f}) — تنبيه بائت أُلغي")
+                continue
             kept.append(r)
-            continue
-        if broke:
-            log(f"⛔ {sym}: شرط «لم يصعد» مكسور بالافتر (+{broke[2]:.0f}% عن "
-                f"{broke[0]} ${broke[1]:.2f} ← ${ext:.2f}) — تنبيه بائت أُلغي")
-            continue
-        kept.append(r)
+    finally:
+        if tv_ch is not None:
+            try:
+                tv_ch.close()
+            except Exception:                                    # noqa: BLE001
+                pass
+    AH_GUARD_LAST.clear()
+    AH_GUARD_LAST.update(rep)
+    if rows and rep["src"] not in ("injected", "polygon"):        # سطرُ السجلّ لمسار TradingView وحدَه (والبقيّةُ بت-بت)
+        log(f"🌙📺 حارسُ الافتر ({rep['src']}): قُرئ سعرُ {rep['got']} من {rep['asked']}"
+            + (f" · بلا صفقةٍ بعد الإغلاق {rep['no_ah']} · تعذّر {rep['fail']}" if rep["src"] == "tradingview" else ""))
     return kept, unverified
 
 
