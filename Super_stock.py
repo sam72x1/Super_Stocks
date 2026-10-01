@@ -2426,6 +2426,35 @@ def dq_cache_view(sym, cached: dict, item: dict = None, nasdaq=None) -> dict:
     return view
 
 
+_DQ_ACTION_ICON = {"warn": "⚠️", "quarantine": "⏸️", "block": "⛔"}
+
+
+def dq_disclosure_line(sym, df, expected=None, nasdaq=None, fetch=None, close_fetch=None, today=None):
+    """🛡️ سطرُ إفصاحٍ لأدوات الطلب (فحصُ اليد · الفحصُ اليدويّ · التقريرُ الفنيّ) — عطلٌ مُثبَت (مِجَسّ `dq_cover_probe` D4 ·
+    2026-10-01): `analyze` على MGN يومَ 2026-09-26 وتقسيمُه العكسيّ 1:30 (09-17) **معلَّقُ الوصفة** (حكمُ البوّابة «quarantine»)
+    بلا أيّ إفصاح. المالكُ سمّى الرمز فلا يُحجَب التحليل — **يُعلَن حكمُ البوّابة فوقه** حين لا يكون «allow» (الحالةُ وأوّلُ سببين)
+    ⟵ نصٌّ أو None. المفتاحُ مطفأ أو بلا إطارٍ أو أيُّ استثناء ⟵ None (**بت-بت**). `nasdaq`/`fetch`/`close_fetch`/`today` محقونةٌ للاختبار."""
+    import data_quality as _DQ
+    if not _DQ.enabled() or df is None or not len(df):
+        return None
+    try:
+        exp = expected or last_closed_session()
+        try:
+            xc = dq_close_xcheck([sym], {sym: df}, fetch=close_fetch).get(sym)
+        except Exception:                                        # noqa: BLE001 — لا تعارضَ يُخترع
+            xc = None
+        a = dq_assess(sym, df, exp, nasdaq=nasdaq, fetch=fetch, xclose=xc, today=today)
+    except Exception:                                            # noqa: BLE001
+        return None
+    act = a.get("action")
+    if act == "allow" or act not in _DQ_ACTION_ICON:
+        return None
+    why = " · ".join(str(x) for x in (a.get("reasons") or [])[:2])
+    tail = " (لا يدخل قوائمَ البوت حتى يزول)" if act in ("quarantine", "block") else ""
+    return (f"🛡️ سلامة البيانات: {_DQ_ACTION_ICON[act]} {_DQ.LABELS_AR.get(a.get('state'), a.get('state'))}{tail}"
+            + (f" — {why}" if why else ""))
+
+
 def download_history(tickers: list, start_override: str = None) -> dict:
     """🔬 start_override (باكتيست حصريًا): تاريخ بدء تحميل أقدم يصل للسنة المستهدفة — النافذة
     الافتراضية (اليوم−HISTORY_DAYS) لا تصل للسنوات القديمة فتُنتج صفر إشارة. None = الإنتاج حرفيًّا.

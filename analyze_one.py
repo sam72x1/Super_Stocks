@@ -718,6 +718,8 @@ def render_ondemand(result: dict, gates: list, official, reject_reason=None,
         "(قوة الإشارات الفنية)",
         f"بوابات فيصل الصلبة: <b>{_hp}/{len(_hard)}</b>",
     ]
+    if result.get("dq_line"):                # 🛡️ حكمُ بوّابة سلامة البيانات — تحت العنوان مباشرةً (`dq_disclosure_line`)
+        head.insert(1, bot.esc(result["dq_line"]))
     # الحكم = قرار البوت الأساسي نفسه (مؤهّل / ارتداد / مرفوض) — لا تناقض
     # (🪦 A/B متقاعد 2026-07-05: فئة واحدة مؤهّلة، الجاهزية هي المحور)
     if official is not None:
@@ -846,6 +848,8 @@ def main():
             official = None                 # يُعرض كمرفوض
 
     gates = append_short_float_gates(card_result, gates)
+    # 🛡️ سلامةُ البيانات (عطلٌ مُثبَت · مِجَسّ D4 2026-10-01: MGN يومَ 09-26 بتقسيمٍ معلَّق بلا إفصاح) — يُعلَن ولا يحجب · فاشلٌ-آمن
+    card_result["dq_line"] = bot.dq_disclosure_line(sym, df)
     msg = render_ondemand(card_result, gates, official, reject_reason, pull)
     bot.send_telegram(msg)
     bot.log("✅ أُرسل التحليل اليدوي.")

@@ -750,7 +750,9 @@ def technical_report(sym):
     return {"symbol": sym, "price": float(df["Close"].iloc[-1]),
             "score": score, "verdict": verdict, "tfs": tfs,
             "earnings": earn_label, "earnings_warn": earn_warn,
-            "pivot_depth": pivot_depth_section(sym, df)}, None
+            "pivot_depth": pivot_depth_section(sym, df),
+            # 🛡️ سلامةُ البيانات (عطلٌ مُثبَت · مِجَسّ D4 2026-10-01) — يُعلَن ولا يحجب · فاشلٌ-آمن (None)
+            "dq_line": bot.dq_disclosure_line(sym, df)}, None
 
 
 # ==========================================================
@@ -761,11 +763,13 @@ def _fmt_levels(levels):
 
 
 def render(rep):
-    L = [f"📐 <b>التحليل الفني الكلاسيكي: {bot.esc(rep['symbol'])}</b>",
-         f"السعر الحالي: ${rep['price']:.2f}",
-         f"التقييم العام: <b>{rep['verdict']}</b>",
-         f"مؤشر القوة الفني: <b>{rep['score']}/100</b> "
-         f"<i>(اجتهادي — ملخّص مساعد، ليس معياراً عالمياً)</i>"]
+    L = [f"📐 <b>التحليل الفني الكلاسيكي: {bot.esc(rep['symbol'])}</b>"]
+    if rep.get("dq_line"):                   # 🛡️ حكمُ بوّابة سلامة البيانات — تحت العنوان مباشرةً (`dq_disclosure_line`)
+        L.append(bot.esc(rep["dq_line"]))
+    L += [f"السعر الحالي: ${rep['price']:.2f}",
+          f"التقييم العام: <b>{rep['verdict']}</b>",
+          f"مؤشر القوة الفني: <b>{rep['score']}/100</b> "
+          f"<i>(اجتهادي — ملخّص مساعد، ليس معياراً عالمياً)</i>"]
     if rep.get("earnings"):
         L.append(("<b>" + rep["earnings"] + "</b>") if rep.get("earnings_warn")
                  else rep["earnings"])
