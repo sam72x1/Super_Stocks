@@ -75733,6 +75733,691 @@ if _dq_env0 is None:
 else:
     _os_hc.environ["DQ_GATE"] = _dq_env0
 
+# ═════ 🔎 HS — «نموذج الرأس والكتفين» (أمرُ المالك 2026-10-01 · `hs_prereg.md` · `head_shoulders.py`) ═════════════════════
+#    حالاتُ الأمر السبعَ عشرة (§45) على **حقيقةٍ أرضيّةٍ معلومة** (أطرٌ اصطناعيّة حتميّة · `HS.synth_bars`) ‏+ عقدُ الرسالة بنموذج
+#    المالك ‏+ المسحُ والفحصُ والاستعلامُ والبحثُ **طرفًا لطرف بجالبين محقونين** (لا شبكة · ولا كتابةَ في المستودع — LEAK).
+import ast as _hs_ast                                                    # noqa: E402
+import contextlib as _hs_ctx                                             # noqa: E402
+import io as _hs_io                                                      # noqa: E402
+import json as _hs_json                                                  # noqa: E402
+import os as _hs_os                                                      # noqa: E402
+import shutil as _hs_sh                                                  # noqa: E402
+import tempfile as _hs_tf                                                # noqa: E402
+import head_shoulders as HS                                              # noqa: E402
+
+_HS_PRE = [(0, 1.20), (5, 1.30), (45, 0.80), (55, 0.92), (67, 0.70), (79, 0.92), (89, 0.80)]
+_HS_V = {
+    "fail": _HS_PRE + [(96, 0.96), (98, 0.95), (103, 0.84), (120, 0.80)],
+    "retest_ok": _HS_PRE + [(94, 0.98), (97, 1.02), (101, 0.925), (115, 1.15), (130, 1.18)],
+    "retest_fail": _HS_PRE + [(94, 0.98), (97, 1.02), (101, 0.93), (108, 0.82), (125, 0.80)],
+    "noretest": _HS_PRE + [(93, 1.00), (105, 1.30), (125, 1.38)],
+    "stall": _HS_PRE + [(95, 0.94), (110, 0.945)],
+    "incomplete": _HS_PRE + [(91, 0.86)],
+    "near_neck": _HS_PRE + [(95, 0.915)],
+    "expired": _HS_PRE + [(95, 0.88), (125, 0.88)],
+    "chop_rs": [(0, 1.20), (5, 1.30), (45, 0.80), (55, 0.92), (67, 0.70), (79, 0.92), (85, 0.80), (90, 0.88), (95, 0.81),
+                (100, 0.89), (104, 0.82), (112, 1.00), (130, 1.20)],
+    "shallow": [(0, 1.0), (5, 1.04), (45, 0.99), (55, 1.01), (67, 0.98), (79, 1.01), (89, 0.99), (97, 1.02), (125, 1.04),
+                (140, 1.04)],
+}
+
+
+def _hs_det(pts, seed=0, p=None, **kw):
+    return HS.detect(HS.synth_bars(pts, seed=seed, **kw), p)
+
+
+def _hs_heads(sigs):
+    return [s["head_i"] for s in sigs]
+
+
+def _hs_composite(seed=0, n_walk=(400, 300)):
+    """سيرٌ عشوائيّ ⟵ نموذجٌ بسيط ⟵ سيرٌ ⟵ نموذجٌ مركّب — موصولةً سعرًا (للاقتطاع والمقياس)."""
+    parts = [HS.synth_walk(n_walk[0], seed=seed + 1), HS.synth_bars(HS.SYN_IHS, seed=seed + 3),
+             HS.synth_walk(n_walk[1], seed=seed + 2), HS.synth_bars(HS.SYN_IHS_COMPOUND, seed=seed + 4)]
+    out, last = [], None
+    for f in parts:
+        f = f.copy()
+        if last is not None:
+            f[["Open", "High", "Low", "Close"]] *= last / f["Open"].iloc[0]
+        last = f["Close"].iloc[-1]
+        out.append(f)
+    big = pd.concat(out)
+    big.index = pd.bdate_range("2021-06-01", periods=len(big))
+    return big
+
+
+# ── HS0 الهويّة: الاسمُ حرفيًّا · و«12 شمعة» ليست رقمًا في الكشف (AST) · والمعاملاتُ في الدفتر ──────────────────────────
+try:
+    _hs0_src = open(HS.__file__, encoding="utf-8").read()
+    _hs0_t = _hs_ast.parse(_hs0_src)
+    _hs0_fn = {n.name: n for n in _hs_ast.walk(_hs0_t) if isinstance(n, _hs_ast.FunctionDef)}
+    _hs0_12 = [f for f in ("detect", "_evaluate", "structures", "_finalize", "fractal_swings", "zz_add")
+               if any(isinstance(c, _hs_ast.Constant) and c.value == 12 for c in _hs_ast.walk(_hs0_fn[f]))]
+    _hs0_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _hs0_sec = _hs0_led[_hs0_led.find("## §نموذج الرأس والكتفين"):]
+    _hs0_keys = [k for k in HS.STRICT if k not in ("atr_n", "horizon") and f"`{k}`" not in _hs0_sec]
+    _hs0 = HS.TOOL_NAME == "نموذج الرأس والكتفين" and not _hs0_12 and not _hs0_keys
+    _hs0_w = f"12={_hs0_12} · بلا صفّ={_hs0_keys}"
+except Exception as _e:                                                  # noqa: BLE001
+    _hs0, _hs0_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎 HS0 الأداةُ باسم المالك حرفيًّا «نموذج الرأس والكتفين» · ولا «12» (شموع الكتف الأيمن) في دوالّ الكشف (AST — مثالُ طرفٍ ثالث "
+      "لا قاعدة · `time_sym`) · وكلُّ معاملٍ له صفٌّ في الدفتر", _hs0, _hs0_w)
+
+# ── HS1 نموذجٌ صحيح (بسيط) ⟵ إشارةٌ واحدة برأسه وكتفيه ──────────────────────────────────────────────────────────────────
+try:
+    _hs1 = []
+    for _s in range(8):
+        _sg = _hs_det(HS.SYN_IHS, _s)
+        _hs1.append(len(_sg) == 1 and abs(_sg[0]["head_i"] - 67) <= 3 and abs(_sg[0]["ls_i"] - 45) <= 3
+                    and abs(_sg[0]["rs_i"] - 89) <= 3 and _sg[0]["neck_type"] == "horizontal" and not _sg[0]["compound"]
+                    and abs(_sg[0]["target"] - (_sg[0]["neck_b"] + _sg[0]["height"])) < 1e-9
+                    and _sg[0]["head_px"] < min(_sg[0]["ls_px"], _sg[0]["rs_px"]) and _sg[0]["entry"] >= _sg[0]["neck_b"])
+    _hs1_ok = all(_hs1)
+except Exception as _e:                                                  # noqa: BLE001
+    _hs1_ok, _hs1 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS1 نموذجٌ صحيح (بسيط · 8 بذور) ⟵ إشارةٌ واحدة: الرأس ‏±3 من 67 · الكتفان 45/89 · خطُّ عنقٍ أفقيّ · الهدف = العنق ‏+ الارتفاع · "
+      "الدخولُ فوق العنق", _hs1_ok, str(_hs1))
+
+# ── HS2 الرأسُ المركّب (قاعان) ⟵ يُكشَف ويُوسَم مركّبًا ─────────────────────────────────────────────────────────────────
+try:
+    _hs2 = [(_x := _hs_det(_pts, _s)) and len(_x) == 1 and _x[0]["compound"] and abs(_x[0]["head_i"] - _hb) <= 3
+            and abs(_x[0]["p1_i"] - 55) <= 3 for _pts, _hb in ((HS.SYN_IHS_COMPOUND, 63), (HS.SYN_IHS_COMPOUND_B, 73))
+            for _s in range(8)]
+except Exception as _e:                                                  # noqa: BLE001
+    _hs2 = [f"⛔ {type(_e).__name__}"]
+check("🔎 HS2 الرأسُ المركّب («القاع الأول · القاع الثاني» — الإنفوغراف) يُكشَف إشارةً واحدةً موسومةً `compound` والرأسُ أدنى القاعين "
+      "**أيًّا كان الأعمقُ منهما** (الأوّل ⟵ P2 بعد القاع الثاني · الثاني ⟵ P1 قبل القاع الأوّل) وخطُّ العنق من قمّة الكتف الأيسر",
+      all(x is True for x in _hs2), str(_hs2))
+
+# ── HS3 نموذجٌ غير مكتمل ⟵ لا إشارة · ودورةُ الحياة: FORMING · COMPLETED · EXPIRED ──────────────────────────────────────
+try:
+    _hs3 = {
+        "incomplete": [(len(HS.detect(_d)), HS.lifecycle(_d)["state"])
+                       for _d in (HS.synth_bars(_HS_V["incomplete"], seed=_s) for _s in range(4))],
+        "near": [(len(HS.detect(_d)), HS.lifecycle(_d)["state"])
+                 for _d in (HS.synth_bars(_HS_V["near_neck"], seed=_s) for _s in range(4))],
+        "expired": [(len(HS.detect(_d)), HS.lifecycle(_d)["state"])
+                    for _d in (HS.synth_bars(_HS_V["expired"], seed=_s) for _s in range(4))],
+    }
+    _hs3_ok = (_hs3["incomplete"] == [(0, "FORMING")] * 4 and _hs3["near"] == [(0, "COMPLETED")] * 4
+               and _hs3["expired"] == [(0, "EXPIRED")] * 4)
+except Exception as _e:                                                  # noqa: BLE001
+    _hs3, _hs3_ok = f"⛔ {type(_e).__name__}: {_e}", False
+check("🔎 HS3 النموذجُ غيرُ المكتمل لا يُرسَل إشارةً: الكتفُ الأيمن يتكوّن ⟵ FORMING · تحت العنق بعد تأكّده ⟵ COMPLETED · "
+      "مضت نافذةُ الاختراق ⟵ EXPIRED", _hs3_ok, str(_hs3))
+
+# ── HS4 «رأسٌ وكتفان» عاديّ (قمّة) ليس مقلوبًا ⟵ لا إشارةَ صاعدة · والمرآةُ تراه ─────────────────────────────────────────
+try:
+    _hs4 = [(len(_hs_det(HS.SYN_TOP, _s)), len(HS.detect(HS.synth_bars(HS.SYN_TOP, seed=_s), polarity="top")))
+            for _s in range(6)]
+except Exception as _e:                                                  # noqa: BLE001
+    _hs4 = [f"⛔ {type(_e).__name__}"]
+check("🔎 HS4 نموذجُ القمّة (رأسٌ وكتفان عاديّ) **لا يُقرأ مقلوبًا صاعدًا** · ومرآةُ القمّة (`polarity=top` · للتحقّق البنيويّ) تراه",
+      _hs4 == [(0, 1)] * 6, str(_hs4))
+
+# ── HS5/HS6 قاعٌ مزدوج · انعكاسٌ V ⟵ لا إشارة ──────────────────────────────────────────────────────────────────────────────
+try:
+    _hs5 = [len(_hs_det(HS.SYN_DB, _s)) for _s in range(10)]
+    _hs6 = [len(_hs_det(HS.SYN_V, _s)) for _s in range(10)]
+except Exception as _e:                                                  # noqa: BLE001
+    _hs5 = _hs6 = [f"⛔ {type(_e).__name__}"]
+check("🔎 HS5 القاعُ المزدوج (بلا كتفين) **لا يُصنَّف رأسًا وكتفين** (10 بذور)", _hs5 == [0] * 10, str(_hs5))
+check("🔎 HS6 الانعكاسُ على شكل V لا يُصنَّف (10 بذور)", _hs6 == [0] * 10, str(_hs6))
+
+# ── HS7 الضجيج: سيرٌ عشوائيّ ⟵ إنذارٌ كاذبٌ نادر (STRICT أقلُّ من LOOSE · وتحت حدٍّ مقيس) ───────────────────────────────────
+try:
+    _hs7_s = sum(len(HS.detect(HS.synth_walk(500, seed=10_000 + _s))) for _s in range(30))
+    _hs7_l = sum(len(HS.detect(HS.synth_walk(500, seed=10_000 + _s), HS.LOOSE)) for _s in range(30))
+    _hs7 = 1000.0 * _hs7_s / 15000 <= 2.5 and _hs7_l > _hs7_s
+except Exception as _e:                                                  # noqa: BLE001
+    _hs7, _hs7_s, _hs7_l = False, f"⛔ {type(_e).__name__}", None
+check("🔎 HS7 الضجيج (30 سيرًا عشوائيًّا × 500 شمعة): STRICT لا يتجاوز 2.5 إشارة لكلّ 1000 شمعة · و LOOSE أكثرُ منه "
+      "(الدقّةُ قبل الكثرة — أمرُ المالك)", _hs7, f"STRICT={_hs7_s} LOOSE={_hs7_l}")
+
+# ── HS8-HS11 الاختراقُ وإعادةُ الاختبار ──────────────────────────────────────────────────────────────────────────────────────
+try:
+    _hs8 = {}
+    for _k in ("fail", "retest_ok", "retest_fail", "noretest", "stall"):
+        _r = []
+        for _s in range(6):
+            _d = HS.synth_bars(_HS_V[_k], seed=_s)
+            _sg = HS.detect(_d)
+            _r.append((len(_sg), HS.retest_state(_d, _sg[0])["retest"] if _sg else None, HS.lifecycle(_d, lookback=200)["state"]))
+        _hs8[_k] = _r
+except Exception as _e:                                                  # noqa: BLE001
+    _hs8 = {"err": f"⛔ {type(_e).__name__}: {_e}"}
+check("🔎 HS8 فشلُ الاختراق: إغلاقٌ تحت خطّ العنق قبل أيّ عودة ⟵ `failed_breakout` · ودورةُ الحياة FAILED (6 بذور)",
+      all(r[0] == 1 and r[1] in ("failed_breakout", "failed_retest") and r[2] == "FAILED" for r in _hs8.get("fail", []))
+      and sum(r[1] == "failed_breakout" for r in _hs8.get("fail", [])) >= 5, str(_hs8.get("fail") or _hs8))
+check("🔎 HS9 الاختراقُ الناجح بلا عودة ⟵ `none` (NO RETEST) ويبلغ الهدف ⟵ TARGET_REACHED",
+      _hs8.get("noretest") == [(1, "none", "TARGET_REACHED")] * 6, str(_hs8.get("noretest")))
+check("🔎 HS10 إعادةُ اختبارٍ ناجحة («اختراق ⟵ عودة ⟵ ثبات ⟵ استمرار») ⟵ `success`",
+      [r[1] for r in _hs8.get("retest_ok", [])] == ["success"] * 6, str(_hs8.get("retest_ok")))
+check("🔎 HS11 إعادةُ اختبارٍ فاشلة (عاد ثمّ كسر العنق) ⟵ `failed_retest` · FAILED",
+      _hs8.get("retest_fail") == [(1, "failed_retest", "FAILED")] * 6, str(_hs8.get("retest_fail")))
+check("🔎 HS12 **الحومُ عند خطّ العنق ليس إعادةَ اختبار** (عيبٌ أمسكه المِجَسّ قبل الشحن: شمعةٌ تلمس الخطّ ثمّ أخرى فوق قمّة "
+      "الاختراق كانت تُقرأ «نجاحًا») ⟵ `stalled` · STALLED",
+      _hs8.get("stall") == [(1, "stalled", "STALLED")] * 6, str(_hs8.get("stall")))
+
+# ── HS13 شموعٌ ناقصة: صفوفٌ محذوفة ⟵ ما زال يُكشَف · وقيمٌ فارغة ⟵ لا انهيار ──────────────────────────────────────────────
+try:
+    _hs13 = []
+    for _s in range(8):
+        _d = HS.synth_bars(HS.SYN_IHS, seed=_s)
+        _rg = np.random.default_rng(_s)
+        _keep = np.ones(len(_d), bool)
+        _keep[_rg.choice(np.arange(10, len(_d) - 10), size=7, replace=False)] = False
+        _ok_drop = any(abs(h - 67) <= 8 for h in _hs_heads(HS.detect(_d[_keep])))
+        _dn = _d.copy()
+        _dn.iloc[_rg.choice(np.arange(10, len(_d) - 10), size=5, replace=False)] = np.nan
+        with np.errstate(all="ignore"):
+            import warnings as _hs_w                                     # noqa: PLC0415
+            with _hs_w.catch_warnings():
+                _hs_w.simplefilter("ignore")
+                _sgn = HS.detect(_dn)
+                HS.lifecycle(_dn)
+                for _x in _sgn:
+                    HS.outcomes(_dn, _x)
+                    HS.retest_state(_dn, _x)
+        _hs13.append(_ok_drop)
+    _hs13_ok = all(_hs13)
+except Exception as _e:                                                  # noqa: BLE001
+    _hs13_ok, _hs13 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS13 شموعٌ ناقصة: سبعُ جلساتٍ محذوفة ⟵ النموذجُ ما زال يُكشَف · وخمسُ شموعٍ فارغة (NaN) ⟵ لا انهيارَ في الكشف ولا القياس",
+      _hs13_ok, str(_hs13))
+
+# ── HS14 التقسيم: في النافذة ⟵ خارج الصالح · مجهولٌ ⟵ خارج الصالح (فاشلٌ-مغلق) · بعيدٌ ⟵ صالح ─────────────────────────────
+try:
+    _d14 = HS.synth_bars(HS.SYN_IHS, seed=0)
+    _sg14 = HS.detect(_d14)[0]
+    _a_in = HS.analyze_symbol("SPL", _d14, [_sg14["b_date"]])
+    _a_unk = HS.analyze_symbol("UNK", _d14, None)
+    _a_far = HS.analyze_symbol("FAR", _d14, ["2001-01-02"])
+    _st14 = [r for r in _a_in["sigs"] if r["cfg"] == "STRICT"][0]
+    _su14 = [r for r in _a_unk["sigs"] if r["cfg"] == "STRICT"][0]
+    _sf14 = [r for r in _a_far["sigs"] if r["cfg"] == "STRICT"][0]
+    import pandas as _hs_pd                                              # noqa: PLC0415
+    _ser = _hs_pd.Series([0.1], index=_hs_pd.to_datetime(["2024-03-05"]).tz_localize("America/New_York"))
+    _hs14 = {"in": (_st14["split_win"], HS._usable(_st14)), "unk": (_su14["split_win"], HS._usable(_su14)),
+             "far": (_sf14["split_win"], HS._usable(_sf14)),
+             "dates": HS._split_dates("X", fetch=lambda s: _ser), "none": HS._split_dates("X", fetch=lambda s: None),
+             "boom": HS._split_dates("X", fetch=lambda s: (_ for _ in ()).throw(RuntimeError("x")))}
+    _hs14_ok = (_hs14["in"] == (True, False) and _hs14["unk"] == (None, False) and _hs14["far"] == (False, True)
+                and _hs14["dates"] == ["2024-03-05"] and _hs14["none"] is None and _hs14["boom"] is None)
+except Exception as _e:                                                  # noqa: BLE001
+    _hs14_ok, _hs14 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS14 التقسيم (سلامةُ البيانات): تقسيمٌ بين الكتف الأيسر و45 يومًا بعد الاختراق ⟵ خارج الصالح · تقسيماتٌ مجهولة (تعذّر ياهو) "
+      "⟵ خارج الصالح **لا «لا تقسيم»** · وبعيدٌ ⟵ صالح · و`_split_dates` يقرأ سلسلةَ ياهو ويعيد None عند التعذّر",
+      _hs14_ok, str(_hs14))
+
+# ── HS15 التكرار: إشارةٌ واحدةٌ لكلّ رأس · والمسحُ لا يُعيد معرّفًا مُرسَلًا ──────────────────────────────────────────────
+try:
+    _osc = _HS_PRE + [(94, 0.96), (97, 0.91), (100, 0.97), (103, 0.91), (106, 0.98), (125, 1.20)]
+    _hs15_n = [len(_hs_det(_osc, _s)) for _s in range(6)]
+    _d15 = HS.synth_bars(HS.SYN_IHS, seed=1)
+    _b15 = HS.detect(_d15)[0]["b_i"]
+    _cut15 = _d15.iloc[:_b15 + 1]
+    _f1 = HS.scan_universe({"AAA": _cut15}, {"sent": {}})
+    _f2 = HS.scan_universe({"AAA": _cut15}, {"sent": {_f1[0][1]["sig"]["pid"]: "x"}}) if _f1 else None
+    # عقدُ «إشارةٌ واحدةٌ لكلّ رأس» مباشرةً (حارسٌ خامدٌ في الأشكال — قاعدةُ القمم المتخطّاة تمنع إعادةَ الرأس قبله): مُقيِّمٌ محقونٌ يقبل
+    #   كلَّ بنيةٍ في كلّ بار ⟵ ما زالت إشارةٌ واحدةٌ لكلّ رأس
+    _ev_sv, _fn_sv = HS._evaluate, HS._finalize
+    try:
+        HS._evaluate = lambda st, t, *a, **k: {"b_i": t, "head_i": st["head"][0], "ls_i": st["ls"][0]}
+        HS._finalize = lambda s, *a, **k: dict(s)
+        _all15 = HS.detect(HS.synth_bars(_HS_V["retest_ok"], seed=0))
+    finally:
+        HS._evaluate, HS._finalize = _ev_sv, _fn_sv
+    _hk15 = [x["head_i"] for x in _all15]
+    _hs15 = (_hs15_n == [1] * 6 and len(_f1) == 1 and _f1[0][1]["state"] == "BREAKOUT_CONFIRMED" and _f1[0][1]["new"]
+             and _f2 == [] and _f1[0][1]["sig"]["pid"].startswith("AAA|1d|inverse|")
+             and len(_hk15) >= 3 and len(_hk15) == len(set(_hk15)))
+except Exception as _e:                                                  # noqa: BLE001
+    _hs15, _hs15_n = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS15 لا تكرار: سعرٌ يتذبذب حول خطّ العنق بعد الاختراق ⟵ إشارةٌ واحدةٌ للرأس · والمسحُ يرى الاختراقَ الجديدَ مرّةً ولا يُعيده "
+      "بعد تسجيل معرّفه (`رمز|فريم|قطبيّة|الكتف الأيسر|الرأس`) · **ومُقيِّمٌ يقبل كلَّ بارٍ لا يُخرج للرأس إلّا إشارةً واحدة** (العقدُ مباشرةً)",
+      _hs15, f"n={_hs15_n}")
+
+# ── HS16 لا نظرَ للمستقبل: ثباتُ الاقتطاع (سلوكيّ) ‏+ الكشفُ لا ينادي القياس (AST) ──────────────────────────────────────────
+try:
+    _big = _hs_composite(0)
+    _full = HS.detect(_big)
+    _bad16 = [t for t in range(30, len(_big), 4)
+              if [(s["b_i"], s["pid"], round(s["entry"], 9)) for s in HS.detect(_big.iloc[:t + 1])]
+              != [(s["b_i"], s["pid"], round(s["entry"], 9)) for s in _full if s["b_i"] <= t]]
+    _det_calls = set()
+    for _f in ("detect", "_evaluate", "_finalize", "structures", "quality", "zz_add", "fractal_swings"):
+        _det_calls |= {getattr(c.func, "id", getattr(c.func, "attr", None)) for c in _hs_ast.walk(_hs0_fn[_f])
+                       if isinstance(c, _hs_ast.Call)}
+    _hs16 = (len(_full) >= 2 and not _bad16
+             and not (_det_calls & {"outcomes", "retest_state", "signal_state", "lifecycle", "control_events"}))
+except Exception as _e:                                                  # noqa: BLE001
+    _hs16, _bad16, _full = False, f"⛔ {type(_e).__name__}: {_e}", []
+check("🔎 HS16 **لا نظرَ للمستقبل**: إشاراتُ `df[:t+1]` = إشاراتُ الإطار كلِّه حتى t (كلَّ 4 شموع على 987 شمعة) · ودوالُّ الكشف لا تنادي "
+      "القياسَ (`outcomes` · `retest_state` · `signal_state` — AST)", _hs16, f"إشارات={len(_full)} · مخالف={_bad16[:5]}")
+
+# ── HS17 مقاييسُ سعرٍ مختلفة ⟵ الإشاراتُ نفسُها ─────────────────────────────────────────────────────────────────────────────
+try:
+    _ref17 = [(s["b_i"], s["ls_i"], s["head_i"], s["rs_i"]) for s in _full]
+    _hs17 = {}
+    for _k17 in (1024.0, 1 / 1024.0, 1000.0, 0.001):
+        _sc = _big.copy()
+        _sc[["Open", "High", "Low", "Close"]] *= _k17
+        _hs17[_k17] = [(s["b_i"], s["ls_i"], s["head_i"], s["rs_i"]) for s in HS.detect(_sc)] == _ref17
+except Exception as _e:                                                  # noqa: BLE001
+    _hs17 = {"err": f"⛔ {type(_e).__name__}"}
+check("🔎 HS17 مقاييسُ سعرٍ مختلفة (×1024 · ÷1024 · ×1000 · ×0.001): الإشاراتُ بأعيانها — **لا عتبةَ بالدولار** (كلُّها بوحدات ATR)",
+      _hs17 and all(v is True for v in _hs17.values()), str(_hs17))
+
+# ── HS18 أنظمةُ تذبذبٍ مختلفة: النموذجُ الكبير يُكشَف في كلّها · والضحلُ يُرفَض حين يكون صغيرًا أمام ATR ───────────────────
+try:
+    _hs18 = {nz: sum(1 for _s in range(10) if any(abs(h - 67) <= 5 for h in _hs_heads(_hs_det(HS.SYN_IHS, _s, noise=nz))))
+             for nz in (0.002, 0.004, 0.008)}
+    _hs18["shallow_hi"] = sum(len(_hs_det(_HS_V["shallow"], _s, noise=0.015)) for _s in range(10))
+    _hs18["shallow_lo"] = sum(1 for _s in range(10) if _hs_det(_HS_V["shallow"], _s, noise=0.0008))
+    _hs18_ok = (_hs18[0.002] == _hs18[0.004] == _hs18[0.008] == 10 and _hs18["shallow_hi"] == 0 and _hs18["shallow_lo"] == 10)
+except Exception as _e:                                                  # noqa: BLE001
+    _hs18_ok, _hs18 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS18 أنظمةُ تذبذب: النموذجُ يُكشَف بضجيج 0.2% · 0.4% · 0.8% (10/10) · والشكلُ نفسُه **ضحلًا** يُرفَض في سهمٍ متذبذب ويُقبل "
+      "في الهادئ — التطبيعُ بـATR يعمل", _hs18_ok, str(_hs18))
+
+# ── HS19 الرأسُ مرساةُ البنية: تذبذبُ الكتف الأيمن لا يُضيّع النموذج ──────────────────────────────────────────────────────
+try:
+    _hs19 = [any(abs(h - 67) <= 3 for h in _hs_heads(_hs_det(_HS_V["chop_rs"], _s))) for _s in range(8)]
+except Exception as _e:                                                  # noqa: BLE001
+    _hs19 = [f"⛔ {type(_e).__name__}"]
+check("🔎 HS19 كتفٌ أيمنُ متذبذب (ثلاثُ قيعانٍ وقمّتان تحت العنق قبل الاختراق) ما زال يُكشَف — البنيةُ مرساتُها الرأس لا آخرُ قمّتين "
+      "(عيبٌ أمسكه المِجَسّ قبل الشحن)", all(x is True for x in _hs19), str(_hs19))
+
+# ── HS20 الرسالة بنموذج المالك (§41): الحقولُ بترتيبها · ولا رقمَ بلا حساب · ولا علامةَ مقارنة ───────────────────────────────
+try:
+    _d20 = HS.synth_bars(HS.SYN_IHS, seed=0)
+    _sg20 = HS.detect(_d20)[0]
+    _lc20 = HS.lifecycle(_d20.iloc[:_sg20["b_i"] + 1], sym="ZZZ")
+    _m0 = HS.build_alert("ZZZ", _lc20, tf="1d", hist={})
+    _m1 = HS.build_alert("ZZZ", _lc20, tf="1d", hist={"branch_text": "لا ميزة على الضبط", "pooled": {
+        "n": 321, "ret5": 0.012, "mfe": 0.25, "mae": -0.18, "target_rate": 0.31}})
+    _order = ["🔎 <b>نموذج الرأس والكتفين</b>", "Ticker: $ZZZ", "Timeframe: 1D", "Status: BREAKOUT CONFIRMED", "Left Shoulder:",
+              "Head:", "Right Shoulder:", "Neckline:", "Breakout:", "Retest: PENDING", "Target:", "Pattern Quality:",
+              "Match Type: STRUCTURAL", "Historical Sample:", "Median +5D:", "Median Max Run-Up:", "Median Max Drawdown:",
+              "Target Hit Rate:"]
+    _pos = [_m1.find(x) for x in _order]
+    _plain = _m0.replace("<b>", "").replace("</b>", "")
+    _hs20 = {"order": all(p >= 0 for p in _pos) and _pos == sorted(_pos),
+             "dash": all(f"{k}: —" in _m0 for k in ("Historical Sample", "Median +5D", "Median Max Run-Up",
+                                                    "Median Max Drawdown", "Target Hit Rate")) and "لم يُقَس بعد" in _m0,
+             "nums": "Historical Sample: 321" in _m1 and "Median +5D: +1.2%" in _m1 and "Median Max Drawdown: -18.0%" in _m1
+             and "Target Hit Rate: 31.0%" in _m1 and "«لا ميزة على الضبط»" in _m1,
+             "nocmp": not any(ch in _plain for ch in "≥≤<>")}
+    _hs20_ok = all(_hs20.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs20_ok, _hs20 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS20 رسالةُ التنبيه **بنموذج المالك حرفًا وترتيبًا** (Ticker · Timeframe · Status · الكتفان والرأس · Neckline · Breakout · Retest · "
+      "Target · Pattern Quality · Match Type · Historical Sample · Median +5D · Max Run-Up · Max Drawdown · Target Hit Rate) · "
+      "وبلا حكمٍ مسجَّل كلُّ رقمٍ تاريخيٍّ «—» (لا رقمَ بلا حساب) · وبلا علامات مقارنة", _hs20_ok, str(_hs20))
+
+# ── HS21 المجتمع: بلا `control` ولا `envelope` (صامت) · والبريُ المُرسَلُ وحدَه · ومصادرُ كلّ رمز ──────────────────────────────
+_hs21_dir = _hs_tf.mkdtemp(prefix=f"hs21_{_SUITE_PID}_")
+try:
+    with open(_hs_os.path.join(_hs21_dir, "weekly_watchlist.json"), "w", encoding="utf-8") as _fh:
+        _hs_json.dump({"stocks": [{"symbol": "AAA"}], "removed": [{"symbol": "BBB"}], "pullback": [],
+                       "history": [{"stocks": [{"symbol": "CCC"}]}]}, _fh)
+    with open(_hs_os.path.join(_hs21_dir, "hunter_ledger.jsonl"), "w", encoding="utf-8") as _fh:
+        for _h, _sy in (("split", "DDD"), ("control", "EEE"), ("envelope", "FFF")):
+            _fh.write(_hs_json.dumps({"hunter": _h, "symbol": _sy}) + "\n")
+    with open(_hs_os.path.join(_hs21_dir, "presession_ledger.jsonl"), "w", encoding="utf-8") as _fh:
+        _fh.write(_hs_json.dumps({"sym": "GGG", "sent": True}) + "\n" + _hs_json.dumps({"sym": "HHH", "sent": False}) + "\n")
+    with open(_hs_os.path.join(_hs21_dir, "op_entry_state.json"), "w", encoding="utf-8") as _fh:
+        _hs_json.dump({"LIQ:III": {}, "JJJ": {}}, _fh)
+    _p21 = HS.build_population(_hs21_dir)
+    _hs21 = (_p21["symbols"] == ["AAA", "BBB", "CCC", "DDD", "GGG", "III", "JJJ"]
+             and _p21["sources"]["CCC"] == ["watchlist_history"] and _p21["sources"]["DDD"] == ["hunter_split"])
+    _pop_real = _hs_json.load(open(HS.POP_FILE, encoding="utf-8"))
+    _hs21b = (_pop_real["n"] == len(_pop_real["symbols"]) >= 900 and "EEE" not in _pop_real["symbols"]
+              and all(s.replace(".", "").replace("-", "").isalnum() for s in _pop_real["symbols"]))
+except Exception as _e:                                                  # noqa: BLE001
+    _hs21 = _hs21b = False
+    _p21 = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    _hs_sh.rmtree(_hs21_dir, ignore_errors=True)
+check("🔎 HS21 مجتمعُ «أسهم البوت»: القائمةُ وأرشيفُها والصيّادون **بلا `control` (عيّنةٌ عشوائيّة) ولا `envelope` (صامتٌ بقرار)** · والبريُ "
+      "**المُرسَلُ وحدَه** · ومراقَبو «هنا الدخول» بلا البادئة — والمجمَّدُ `hs_population.json` حاضرٌ بعدّه", _hs21 and _hs21b,
+      str(_p21)[:300])
+
+# ── HS22 الضبط والإحصاء: اختراقُ نطاقٍ بعيدٌ عن الإشارات · عيّنةٌ وبوتستراب حتميّان · وقاعدةُ الحكم بالأضعف ─────────────────
+try:
+    _d22 = HS.synth_walk(600, seed=5)
+    _ev_all = HS.control_events(_d22)
+    _ev_ex = HS.control_events(_d22, sig_bars=[300])
+    _c22 = _d22["Close"].to_numpy()
+    _h22 = _d22["High"].to_numpy()
+    _first = all(_c22[e["b_i"]] > _h22[e["b_i"] - e["wb"]:e["b_i"]].max() for e in _ev_all)
+    _excl = all(abs(e["b_i"] - 300) > e["wb"] for e in _ev_ex) and len(_ev_ex) < len(_ev_all)
+    _pool = list(range(40))
+    _det = HS.sample_controls("P|A", _pool) == HS.sample_controls("P|A", _pool) != HS.sample_controls("P|B", _pool)
+    _bd = HS.boot_median_diff([0.1, 0.2, 0.3], [[0.0, 0.1], [0.05], [0.0]], b=300)
+    _vb = (HS.verdict_branch({2023: {"n": 40, "ci_lo": 0.01}, 2024: {"n": 31, "ci_lo": 0.002}, 2025: {"n": 30, "ci_lo": 0.03}}),
+           HS.verdict_branch({2023: {"n": 40, "ci_lo": 0.01}, 2024: {"n": 31, "ci_lo": 0.0}, 2025: {"n": 30, "ci_lo": 0.03}}),
+           HS.verdict_branch({2023: {"n": 40, "ci_lo": 0.01}, 2024: {"n": 29, "ci_lo": 0.2}, 2025: {"n": 30, "ci_lo": 0.03}}))
+    _vr22 = HS._verdict_rows({"STRICT": {str(y): {"n": 99, "ci_lo": 0.01, "control": {"n_sig_matched": (12 if y == 2024 else 40)}}
+                                         for y in HS.VERDICT_YEARS}}, "STRICT")
+    _hs22 = (len(_ev_all) > 5 and _first and _excl and _det and _vr22[2024]["n"] == 12 and HS.verdict_branch(_vr22)[0] == 3
+             and _bd == HS.boot_median_diff([0.1, 0.2, 0.3], [[0.0, 0.1], [0.05], [0.0]], b=300) and _bd[0] is not None
+             and abs(_bd[0] - (0.2 - 0.025)) < 1e-12
+             and [v[0] for v in _vb] == [1, 2, 3])
+except Exception as _e:                                                  # noqa: BLE001
+    _hs22, _vb = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS22 الضبط: أوّلُ إغلاقٍ فوق قمّة النطاق · ويُستبعَد ما حول الإشارة ‏±Wb · وعيّنتُه وبوتستراب الفرق حتميّان (crc32 · بذرةٌ ثابتة) · "
+      "والحكمُ بالأضعف: الثلاثُ عابرةٌ ⟵ 1 · سنةٌ ساقطة (الحدُّ صفرٌ ساقط) ⟵ 2 · سنةٌ دون 30 ⟵ 3 · **و n = المطابَقُ بضبطه لا كلُّ الصالح**",
+      _hs22, str(_vb))
+
+# ── HS23 وضعُ التطوير أعمى عن العوائد (AST): `year_stats` والتوزيعُ في فرع الحكم وحدَه ────────────────────────────────────
+try:
+    _rr = _hs0_fn["run_research"]
+    _if_dev = next(n for n in _hs_ast.walk(_rr) if isinstance(n, _hs_ast.If)
+                   and "dev" in _hs_ast.unparse(n.test) and "mode" in _hs_ast.unparse(n.test))
+    _dev_calls = {getattr(c.func, "id", getattr(c.func, "attr", None)) for b in _if_dev.body for c in _hs_ast.walk(b)
+                  if isinstance(c, _hs_ast.Call)}
+    _else_calls = {getattr(c.func, "id", getattr(c.func, "attr", None)) for b in _if_dev.orelse for c in _hs_ast.walk(b)
+                   if isinstance(c, _hs_ast.Call)}
+    _outside = {getattr(c.func, "id", getattr(c.func, "attr", None)) for c in _hs_ast.walk(_rr) if isinstance(c, _hs_ast.Call)}
+    _outside -= _dev_calls | _else_calls
+    _hs23 = ("year_stats" in _else_calls and not ({"year_stats", "dist", "verdict_branch"} & (_dev_calls | _outside)))
+except Exception as _e:                                                  # noqa: BLE001
+    _hs23, _dev_calls = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS23 TRAIN (2022) **أعمى عن العوائد** بالبناء: `year_stats` والتوزيعاتُ وقاعدةُ الحكم في فرع `verdict` وحدَه (AST) — "
+      "فلا تُضبَط الأداةُ على ما رأته من أرباح", _hs23, str(sorted(x for x in _dev_calls if x))[:200])
+
+# ── HS24 القياسُ بعد الإشارة: العوائدُ من إغلاق الاختراق · أعلى ارتفاعٍ بسعره وتاريخه وشموعه · أكبرُ هبوط · الهدفُ بتاريخه ─────
+try:
+    _d24 = HS.synth_bars(_HS_V["noretest"], seed=0)
+    _sg24 = HS.detect(_d24)[0]
+    _o24 = HS.outcomes(_d24, _sg24)
+    _b24 = _sg24["b_i"]
+    _c24 = _d24["Close"].to_numpy()
+    _hh24 = _d24["High"].to_numpy()[_b24 + 1:_b24 + 31]
+    _ll24 = _d24["Low"].to_numpy()[_b24 + 1:_b24 + 31]
+    _hs24 = {"ret": all(abs(_o24[f"ret{h}"] - (_c24[_b24 + h] / _c24[_b24] - 1)) < 1e-12 for h in (1, 3, 5, 10, 20, 30)),
+             "mfe": abs(_o24["mfe"] - (_hh24.max() / _c24[_b24] - 1)) < 1e-12 and _o24["max_high"] == _hh24.max()
+             and _o24["mfe_bars"] == int(np.argmax(_hh24)) + 1 and _o24["mfe_date"] == str(_d24.index[_b24 + _o24["mfe_bars"]])[:16],
+             "mae": abs(_o24["mae"] - (_ll24.min() / _c24[_b24] - 1)) < 1e-12,
+             "tgt": _o24["target_hit"] and _o24["target_bars"] == int(np.nonzero(_hh24 >= _sg24["target"])[0][0]) + 1,
+             "complete": _o24["complete"] is True,
+             "short": HS.outcomes(_d24.iloc[:_b24 + 4], _sg24)["ret5"] is None
+             and HS.outcomes(_d24.iloc[:_b24 + 4], _sg24)["complete"] is False}
+    _hs24_ok = all(_hs24.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs24_ok, _hs24 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS24 ما بعد الإشارة من **إغلاق الاختراق**: ‏+1…+30 · أعلى ارتفاع (سعرُه · تاريخُه · شموعُه) · أكبر هبوط · الهدفُ وشموعُه · "
+      "و«غيرُ مكتمل» حين لا تكفي البيانات (None لا صفر)", _hs24_ok, str(_hs24))
+
+# ── HS25 خارج الجذور والفرز: البوت لا يستورد الأداة · والأداةُ لا تنادي جذرًا · والـworkflow بلا `BARS_SOURCE` ولا كرون ─────────
+try:
+    _bot_src = open("Super_stock.py", encoding="utf-8").read()
+    _roots = {"rank_key", "select_top", "classify_tier", "analyze_ticker", "apply_short_gate", "apply_float_gate", "scan_market",
+              "backtest_symbol", "scan_ignition", "scan_split_hunter", "entry_status", "build_interpretation"}
+    _hs_attr = {c.attr for c in _hs_ast.walk(_hs0_t) if isinstance(c, _hs_ast.Attribute)}
+    import yaml as _hs_yaml                                              # noqa: PLC0415
+    _wf25t = open(".github/workflows/head_shoulders.yml", encoding="utf-8").read()
+    _wf25 = _hs_yaml.safe_load(_wf25t) or {}
+    _on25 = _wf25.get("on", _wf25.get(True)) or {}
+    _envs25 = [_wf25.get("env") or {}]
+    for _j25 in (_wf25.get("jobs") or {}).values():
+        _envs25.append((_j25 or {}).get("env") or {})
+        _envs25 += [(_st or {}).get("env") or {} for _st in ((_j25 or {}).get("steps") or [])]
+    _hs25 = {"bot": "head_shoulders" not in _bot_src, "roots": not (_roots & _hs_attr),
+             "logic": not any((isinstance(n, _hs_ast.Name) and n.id == "LOGIC_VERSION")
+                              or (isinstance(n, _hs_ast.Attribute) and n.attr == "LOGIC_VERSION") for n in _hs_ast.walk(_hs0_t)),
+             "wf": (not any("BARS_SOURCE" in e for e in _envs25) and "schedule" not in _on25
+                    and (_wf25.get("permissions") or {}).get("contents") == "write"
+                    and 'python-version: "3.11"' in _wf25t and "inputs.mode" in _wf25t)}
+    _hs25_ok = all(_hs25.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs25_ok, _hs25 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS25 أداةٌ مستقلّة: البوتُ لا يستوردها · ولا تنادي جذرًا (الاثنا عشر) · ولا `LOGIC_VERSION` · والـworkflow يدويٌّ بلا كرون "
+      "(الكرونُ بعد الحكم — العقد §⑪) وبلا `BARS_SOURCE` (TVB9)", _hs25_ok, str(_hs25))
+
+# ── HS26 المسحُ الحيّ طرفًا لطرف (جالبٌ وبوّابةٌ وتلغرامٌ محقونة): رسالةٌ بالشارت · المحجوزُ لا يُفحص · لا تكرار · حدُّ 5 · التغطية ───
+_hs26_dir = _hs_tf.mkdtemp(prefix=f"hs26_{_SUITE_PID}_")
+_hs26_sv = (HS._fetch_live, HS.scan_population, HS.STATE_FILE, HS.CHART_DIR, HS.RES_DIR,
+            S.send_telegram, S.send_telegram_document, S.git_save, S.dq_filter)
+_hs26 = {}
+try:
+    _sent26, _docs26, _saved26 = [], [], []
+    _frames26 = {}
+    for _i, _sy in enumerate(("QA", "QB", "QC", "QD", "QE", "QF", "QG")):
+        _df = HS.synth_bars(HS.SYN_IHS, seed=_i)
+        _frames26[_sy] = _df.iloc[:HS.detect(_df)[0]["b_i"] + 1]
+    _frames26["STALE"] = _frames26["QA"].copy()
+    _frames26["FLAT"] = HS.synth_bars(HS.SYN_V, seed=3)
+    HS.scan_population = lambda root=".": sorted(_frames26)
+    HS._fetch_live = lambda syms, days=HS.SCAN_DAYS: ({s: _frames26[s] for s in syms if s in _frames26}, {})
+    HS.STATE_FILE = _hs_os.path.join(_hs26_dir, "hs_state.json")
+    HS.CHART_DIR = _hs26_dir
+    HS.RES_DIR = _hs_os.path.join(_hs26_dir, "res")
+    S.send_telegram = lambda t: (_sent26.append(t), True)[1]
+    S.send_telegram_document = lambda p, caption="": (_docs26.append(p), True)[1]
+    S.git_save = lambda files, **k: _saved26.append(list(files))
+    S.dq_filter = lambda items, hist, scope, **k: [it for it in items if it["symbol"] != "STALE"]
+    with _hs_ctx.redirect_stdout(_hs_io.StringIO()):
+        _rc1 = HS.run_scan()
+        _n1 = len(_sent26)
+        _rc2 = HS.run_scan()
+    _st26 = _hs_json.load(open(HS.STATE_FILE, encoding="utf-8"))
+    _hs26 = {"rc": (_rc1, _rc2), "msgs": _n1, "second": len(_sent26) - _n1,
+             "full_msgs": sum(1 for m in _sent26[:_n1] if "Ticker: $" in m),
+             "rest": any("نماذجُ أخرى اليوم (2)" in m for m in _sent26[:_n1]),
+             "stale": not any("$STALE" in m for m in _sent26), "flat": not any("$FLAT" in m for m in _sent26),
+             "docs": len(_docs26) == 5 and all(d.startswith(_hs26_dir) for d in _docs26),
+             "state": len(_st26.get("sent") or {}) == 7, "saved": _saved26 and _saved26[0] == [HS.STATE_FILE]}
+    # التغطية: جالبٌ يتعذّر على الأكثر ⟵ سطرُ عطلٍ لا صمت · ولا مسح
+    _sent26.clear()
+    HS._fetch_live = lambda syms, days=HS.SCAN_DAYS: ({"QA": _frames26["QA"]}, {})
+    with _hs_ctx.redirect_stdout(_hs_io.StringIO()):
+        _rc3 = HS.run_scan()
+    _hs26["cov"] = _rc3 == 3 and len(_sent26) == 1 and "تعذّر المسح اليوم" in _sent26[0]
+    # تلغرامٌ يرفض ⟵ لا يُسجَّل معرّفٌ (فيُعاد غدًا) — الختمُ **بعد** الإرسال لا قبله
+    _hs_os.remove(HS.STATE_FILE)
+    HS._fetch_live = lambda syms, days=HS.SCAN_DAYS: ({s: _frames26[s] for s in syms if s in _frames26}, {})
+    S.send_telegram = lambda t: False
+    with _hs_ctx.redirect_stdout(_hs_io.StringIO()):
+        HS.run_scan()
+    _hs26["nosend"] = (_hs_json.load(open(HS.STATE_FILE, encoding="utf-8")).get("sent") or {}) == {}
+    _hs26_ok = (_hs26["rc"] == (0, 0) and _hs26["msgs"] == 6 and _hs26["second"] == 0 and _hs26["full_msgs"] == 5
+                and all(_hs26[k] for k in ("rest", "stale", "flat", "docs", "state", "saved", "cov", "nosend")))
+except Exception as _e:                                                  # noqa: BLE001
+    _hs26_ok, _hs26 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+finally:
+    (HS._fetch_live, HS.scan_population, HS.STATE_FILE, HS.CHART_DIR, HS.RES_DIR,
+     S.send_telegram, S.send_telegram_document, S.git_save, S.dq_filter) = _hs26_sv
+    _hs_sh.rmtree(_hs26_dir, ignore_errors=True)
+check("🔎 HS26 المسحُ الحيّ طرفًا لطرف: سبعةُ اختراقاتٍ جديدة ⟵ خمسُ رسائل بنموذج المالك ‏+ شارتاتُها ‏+ سطرٌ واحدٌ بالاثنين الباقيين "
+      "(لا قصَّ صامتًا) · المحجوزُ بسلامة البيانات لا يُذكر · وما ليس نموذجًا لا يُذكر · والمعرّفاتُ تُحفظ **بعد** الإرسال فالتشغيلةُ "
+      "الثانية صامتة · وتلغرامٌ يرفض ⟵ لا معرّفَ يُسجَّل · وتعذّرُ البيانات ⟵ سطرُ عطلٍ ورمزُ خروج 3", _hs26_ok, str(_hs26)[:400])
+
+# ── HS27 الفحصُ عند الطلب والاستعلامُ التاريخيّ (طرفًا لطرف) ─────────────────────────────────────────────────────────────────
+_hs27_dir = _hs_tf.mkdtemp(prefix=f"hs27_{_SUITE_PID}_")
+_hs27_sv = (HS._fetch_live, HS.CHART_DIR, HS.RES_DIR, S.send_telegram, S.send_telegram_document, S.dq_disclosure_line)
+_hs27 = {}
+try:
+    _sent27, _docs27 = [], []
+    _df27 = HS.synth_bars(_HS_V["retest_ok"], seed=0)
+    HS._fetch_live = lambda syms, days=HS.SCAN_DAYS: ({"OKX": _df27} if "OKX" in syms else {}, {})
+    HS.CHART_DIR = _hs27_dir
+    HS.RES_DIR = _hs_os.path.join(_hs27_dir, "res")
+    S.send_telegram = lambda t: (_sent27.append(t), True)[1]
+    S.send_telegram_document = lambda p, caption="": (_docs27.append(p), True)[1]
+    S.dq_disclosure_line = lambda sym, df, **k: None
+    with _hs_ctx.redirect_stdout(_hs_io.StringIO()):
+        _r_ok = HS.run_ticker("okx", "1d")
+        _r_bad = HS.run_ticker("NOPE", "1d")
+        _r_q0 = HS.run_query()
+    _hs27["ticker"] = (_r_ok == 0 and "Ticker: $OKX" in _sent27[0] and "Match Type: FULL STRATEGY" in _sent27[0]
+                       and "Retest: SUCCESSFUL" in _sent27[0] and len(_docs27) == 1)
+    _hs27["bad"] = _r_bad == 3 and "تعذّر جلبُ الشموع" in _sent27[1]
+    _hs27["q0"] = _r_q0 == 0 and "لم يُبنَ بعد" in _sent27[2]
+    _hs_os.makedirs(HS.RES_DIR)
+    pd.DataFrame([{"cfg": "STRICT", "sym": "AAA", "b_date": "2024-05-01", "entry": 2.5, "split_win": False, "match": "STRUCTURAL",
+                   "ret5": 0.05, "ret10": 0.1, "mfe": 0.3, "mae": -0.1, "target_hit": True},
+                  {"cfg": "STRICT", "sym": "BBB", "b_date": "2024-06-01", "entry": 1.5, "split_win": True, "match": "STRUCTURAL",
+                   "ret5": 0.0, "ret10": 0.0, "mfe": 0.0, "mae": 0.0, "target_hit": False},
+                  {"cfg": "LOOSE", "sym": "CCC", "b_date": "2024-07-01", "entry": 1.0, "split_win": False, "match": "STRUCTURAL",
+                   "ret5": 0.0, "ret10": 0.0, "mfe": 0.0, "mae": 0.0, "target_hit": False}]).to_csv(
+        _hs_os.path.join(HS.RES_DIR, "hs_history.csv"), index=False)
+    with _hs_ctx.redirect_stdout(_hs_io.StringIO()):
+        _r_q1 = HS.run_query()
+    _hs27["q1"] = (_r_q1 == 0 and "$AAA · 2024-05-01 · 1D · STRUCTURAL · $2.50 · +5.0% · +10.0% · +30.0% · -10.0% · ✅" in _sent27[3]
+                   and "$BBB" not in _sent27[3] and "$CCC" not in _sent27[3] and len(_docs27) == 2)
+    _hs27_ok = all(_hs27.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs27_ok, _hs27 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+finally:
+    (HS._fetch_live, HS.CHART_DIR, HS.RES_DIR, S.send_telegram, S.send_telegram_document, S.dq_disclosure_line) = _hs27_sv
+    _hs_sh.rmtree(_hs27_dir, ignore_errors=True)
+check("🔎 HS27 الفحصُ عند الطلب: سهمٌ أعاد الاختبارَ وواصل ⟵ «FULL STRATEGY · SUCCESSFUL» ‏+ شارت · رمزٌ بلا شموع ⟵ «تعذّر» ورمزُ 3 · "
+      "والاستعلامُ التاريخيّ بأعمدة المالك (السهم · التاريخ · الفريم · نوع التطابق · الاختراق · ‏+5 · ‏+10 · أعلى ارتفاع · أكبر هبوط · الهدف) "
+      "على STRICT الصالحِ وحدَه ‏+ CSV", _hs27_ok, str(_hs27))
+
+# ── HS28 البحثُ طرفًا لطرف بجالبٍ اصطناعيّ: dev أعمى ويكتب العيّنةَ والتحقّق · verdict يكتب الحكمَ والسجلَّ بأعمدته ─────────────
+_hs28_dir = _hs_tf.mkdtemp(prefix=f"hs28_{_SUITE_PID}_")
+_hs28_sv = (HS.load_population, HS._fetch_daily, HS._splits_many, HS.structural_check, HS.intraday_descriptive, HS.RES_DIR,
+            S.git_save, HS.synthetic_eval)
+_hs28 = {}
+try:
+    _syms28 = [f"S{_i:02d}" for _i in range(24)]
+    _fr28 = {}
+    for _i, _sy in enumerate(_syms28):
+        _f = _hs_composite(seed=100 + 7 * _i, n_walk=(500, 380))
+        _fr28[_sy] = _f
+    HS.load_population = lambda root=".": list(_syms28)
+    HS._fetch_daily = lambda syms, start=HS.DATA_START: ({s: _fr28[s] for s in syms}, {
+        "src": "tradingview", "asked": len(syms), "tv": len(syms), "none": [], "empty": [], "short": [], "map": "scan",
+        "gate": None, "secs": 0.1, "n": 1400})
+    HS._splits_many = lambda syms, workers=8, fetch=None: {s: ([] if i % 6 else None) for i, s in enumerate(syms)}
+    HS.structural_check = lambda *a, **k: {"sym": a[0], "day": a[1], "status": "لا قياس", "why": "محقون"}
+    HS.intraday_descriptive = lambda pop: {"n": 0, "verdict": "لا حكم (وصفيّ)"}
+    HS.synthetic_eval = lambda seeds=50: {c: {"ihs": 1.0, "ihs_compound": 1.0, "ihs_compound_b": 1.0, "top": 0.0,
+                                              "double_bottom": 0.0, "v_shape": 0.0, "walk_per_1000_bars": 1.0}
+                                          for c in HS.CONFIGS}
+    HS.RES_DIR = _hs28_dir
+    _sv28 = []
+    S.git_save = lambda files, **k: _sv28.append(list(files))
+    _log28 = _hs_io.StringIO()
+    with _hs_ctx.redirect_stdout(_log28):
+        _rd = HS.run_research("dev")
+        _rv = HS.run_research("verdict")
+    _dev = _hs_json.load(open(_hs_os.path.join(_hs28_dir, "dev_2022.json"), encoding="utf-8"))
+    _ver = _hs_json.load(open(_hs_os.path.join(_hs28_dir, "hs_verdict.json"), encoding="utf-8"))
+    _csv = pd.read_csv(_hs_os.path.join(_hs28_dir, "hs_history.csv"))
+    _dev_txt = _hs_json.dumps(_dev, ensure_ascii=False)
+    _hs28 = {"rc": (_rd, _rv) == (0, 0),
+             "dev_blind": "stats" not in _dev and '"ret10"' not in _dev_txt and '"mfe"' not in _dev_txt and "telegram" not in _dev,
+             "dev_audit": isinstance(_dev.get("audit"), list) and all(a.get("bars") and a["sig"].get("b_i") is not None
+                                                                     for a in _dev["audit"]),
+             "dev_counts": "STRICT" in _dev.get("counts", {}),
+             "ver": all(k in _ver for k in ("stats", "branch", "branch_text", "arms_branch", "telegram", "pooled", "intraday")),
+             "arms": set(_ver.get("stats", {})) == set(HS.ARMS),
+             "csv": {"sym", "pid", "b_date", "entry", "match", "ret1", "ret30", "mfe", "max_high", "mae", "target_hit",
+                     "target_date", "retest", "split_win", "neck_type"} <= set(_csv.columns) and len(_csv) > 0,
+             "saved": [_hs_os.path.basename(f) for fs in _sv28 for f in fs] == ["dev_2022.json", "hs_verdict.json", "hs_history.csv"]}
+    _hs28_ok = all(_hs28.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs28_ok, _hs28 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+finally:
+    (HS.load_population, HS._fetch_daily, HS._splits_many, HS.structural_check, HS.intraday_descriptive, HS.RES_DIR,
+     S.git_save, HS.synthetic_eval) = _hs28_sv
+    _hs_sh.rmtree(_hs28_dir, ignore_errors=True)
+check("🔎 HS28 البحثُ طرفًا لطرف (24 سهمًا اصطناعيًّا 2021-2026 · جالبٌ محقون): dev **بلا أيّ عائد** ويكتب العيّنةَ بشموعها والأعداد · "
+      "verdict يكتب الإحصاءَ لكلّ ذراعٍ وسنة والفرعَ وأرقامَ الرسالة والسجلَّ بأعمدة المالك · وكلاهما يُحفَظ بـ`git_save`",
+      _hs28_ok, str(_hs28)[:400])
+
+# ── HS29 **كلُّ إشارةٍ تحمل شروطَها** (خاصّيّةٌ لا مثال): على 30 سيرًا عشوائيًّا ‏+ المركّب بإعدادَي STRICT وLOOSE تُعاد كلُّ قاعدةٍ من
+#    الإشارة نفسِها وشموعِها — فحذفُ أيّ شرطٍ من `_evaluate` يُخرج إشارةً تخالفه ──────────────────────────────────────────────────
+def _hs_inv(df, sigs, p):
+    o_, h_, l_, c_, v_ = HS._arrays(df)
+    a_ = HS.atr_np(h_, l_, c_, p["atr_n"])
+    bad = []
+    for s_ in sigs:
+        b, ls, hd, rs, p2 = s_["b_i"], s_["ls_i"], s_["head_i"], s_["rs_i"], s_["p2_i"]
+        H, LS, RS, ht, at = s_["head_px"], s_["ls_px"], s_["rs_px"], s_["height"], a_[b]
+
+        def nk(x, s_=s_, b=b):
+            return s_["neck_b"] + s_["neck_slope"] * (x - b)
+        d1, d2 = hd - ls, rs - hd
+        conds = {
+            "head_min": np.nanmin(l_[ls:b]) >= H - 1e-12,
+            "deep": min(LS, RS) - H >= p["head_min_atr"] * at - 1e-9,
+            "height": ht >= p["height_min_atr"] * at - 1e-9,
+            "tol": abs(LS - RS) <= p["shoulder_tol"] * ht + 1e-9,
+            "depth": nk(ls) - LS >= p["shoulder_depth"] * ht - 1e-9 and nk(rs) - RS >= p["shoulder_depth"] * ht - 1e-9,
+            "slope": abs(s_["p2_px"] - s_["p1_px"]) <= p["neck_slope"] * ht + 1e-9,
+            "sym": d1 >= 1 and d2 >= 1 and max(d1, d2) / min(d1, d2) <= p["time_sym"],
+            "span": p["min_span"] <= rs - ls <= p["max_span"],
+            "prior": s_["p0_px"] - LS >= p["prior_drop"] * ht - 1e-9,
+            "close": c_[b] >= nk(b) + p["brk_atr"] * at - 1e-9,
+            "first": not any(c_[x] >= nk(x) + p["brk_atr"] * a_[x] for x in range(p2 + 1, b)),
+            "fresh": b - rs <= max(p["k"] + 1, p["wait_mult"] * d2),
+            "rs_min": abs(RS - np.nanmin(l_[p2 + 1:b])) < 1e-12,
+            "mids": all(m_px <= nk(m_i) - p["mid_gap"] * ht + 1e-9 for m_i, m_px in s_.get("mids") or []),
+            "order": s_["p0_i"] < ls < s_["p1_i"] < hd < p2 < rs < b,
+            "conf": p2 + p["k"] <= b and all(m_i + p["k"] <= b for m_i, _ in s_.get("mids") or []),
+        }
+        bad += [(b, k) for k, ok in conds.items() if not ok]
+    return bad
+
+
+try:
+    _hs29_n, _hs29_bad = 0, []
+    for _cfg, _p29 in HS.CONFIGS.items():
+        for _s in range(30):
+            _w29 = HS.synth_walk(500, seed=20_000 + _s)
+            _sg29 = HS.detect(_w29, _p29)
+            _hs29_n += len(_sg29)
+            _hs29_bad += _hs_inv(_w29, _sg29, _p29)
+        for _pts in (HS.SYN_IHS, HS.SYN_IHS_COMPOUND, HS.SYN_IHS_COMPOUND_B, _HS_V["chop_rs"], _HS_V["retest_ok"]):
+            _d29 = HS.synth_bars(_pts, seed=2)
+            _sg29 = HS.detect(_d29, _p29)
+            _hs29_n += len(_sg29)
+            _hs29_bad += _hs_inv(_d29, _sg29, _p29)
+    _hs29 = _hs29_n >= 40 and not _hs29_bad
+except Exception as _e:                                                  # noqa: BLE001
+    _hs29, _hs29_bad = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS29 **كلُّ إشارةٍ تحمل شروطَها** (خاصّيّة · STRICT وLOOSE على 30 سيرًا عشوائيًّا ‏+ خمسة نماذج): الرأسُ أدنى ما بين الكتف الأيسر "
+      "والاختراق · العمقُ والارتفاعُ بـATR · تقاربُ الكتفين وعمقُهما · ميلُ العنق · تناظرُ الزمن والمدى · الهبوطُ السابق · إغلاقُ الاختراق "
+      "وأوّليّتُه · الصلاحية · الكتفُ الأيمن أدنى ما بعد P2 · القممُ المتخطّاة تحت العنق · وترتيبُ النقاط · **وكلُّ محورٍ مؤكَّدٌ "
+      "(i+k) قبل بار الاختراق** (لا نظرَ للمستقبل)",
+      _hs29, f"إشارات={_hs29_n} · مخالف={_hs29_bad[:6]}")
+
+# ── HS30 عقدُ `_evaluate` بشموعٍ مصنوعةٍ باليد: البنيةُ نفسُها تُقبل حين ارتفاعُها 1.75 ATR وتُرفض حين 1.4 ATR (حارسُ الارتفاع وحدَه — خامدٌ
+#    غالبًا في الأشكال لأن الزجزاج وعمقَ الرأس يكادان يُلزمانه) · وتُرفض بلا إغلاقٍ فوق العنق ‏+ عُشر ATR ──────────────────────────────
+try:
+    _n30 = 41
+    _h30 = np.full(_n30, 11.0)
+    _l30 = np.full(_n30, 10.9)
+    _c30 = np.full(_n30, 11.0)
+    for _i, _px in ((2, 20.0), (15, 12.0), (25, 12.0)):
+        _h30[_i] = _px
+    for _i, _px in ((10, 10.0), (20, 8.5), (30, 10.0)):
+        _l30[_i] = _px
+    _l30[:3] = 15.0
+    _c30[40], _h30[40] = 12.4, 12.5
+    _st30 = {"p0": (2, "H", 20.0), "ls": (10, "L", 10.0), "p1": (15, "H", 12.0), "head": (20, "L", 8.5), "p2": (25, "H", 12.0),
+             "mids": [], "lows": []}
+
+    def _ev30(atr_t, close_t=12.4):
+        _a = np.full(_n30, 1.0)
+        _a[40] = atr_t
+        _cc = _c30.copy()
+        _cc[40] = close_t
+        return HS._evaluate(_st30, 40, _h30, _l30, _cc, _a, HS.STRICT)
+    _r_ok, _r_low, _r_close = _ev30(2.0), _ev30(2.5), _ev30(2.0, close_t=12.1)
+    _hs30 = (_r_ok is not None and abs(_r_ok["height"] - 3.5) < 1e-12 and _r_ok["rs_i"] == 30 and _r_ok["neck_b"] == 12.0
+             and _r_low is None and _r_close is None)
+except Exception as _e:                                                  # noqa: BLE001
+    _hs30, _r_ok = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS30 عقدُ المُقيِّم بشموعٍ مصنوعة: ارتفاعٌ 3.5 مع ATR ‏2.0 (‏1.75 ATR) ⟵ إشارة (الكتفُ الأيمن أدنى ما بعد P2 · العنقُ 12) · ومع ATR ‏2.5 "
+      "(‏1.4 ATR) ⟵ لا (`height_min_atr` 1.5) · وإغلاقٌ 12.1 دون العنق ‏+ عُشر ATR ⟵ لا (اللمسُ ليس اختراقًا)", _hs30, str(_r_ok)[:200])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

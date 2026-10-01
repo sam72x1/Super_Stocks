@@ -1,0 +1,58 @@
+name: "🔎 نموذج الرأس والكتفين (head_and_shoulders_detector · hs_prereg)"
+
+# 🔎 أمرُ المالك 2026-10-01 «FULL AUTONOMOUS MISSION — BUILD: نموذج الرأس والكتفين» · العقد hs_prereg.md.
+# الأوضاع: dev (2022 أعمى عن العوائد ‏+ عيّنةُ التدقيق ‏+ التحقّقُ البنيويّ) · verdict (الحكمُ المسجَّل 2023-2025 ‏+ 5 دقائق وصفيّة)
+#   · ticker (فحصُ سهمٍ ‏+ شارت) · query (الحالاتُ التاريخيّة ‏+ CSV) · scan (المسحُ الحيّ — الكرونُ يُضاف بعد الحكم بشرط العقد §⑤).
+# 📺 الشموعُ من TradingView مباشرةً (`S.tv_download`) — **بلا `BARS_SOURCE`** (مفتاحُه محصورٌ بعشرة workflows · قفلُ TVB9).
+# 🔐 contents: write — `git_save` يدفع `hs_research/` (dev/verdict) و`hs_state.json` (scan). خارج الفرز والجذور · لا `LOGIC_VERSION`.
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dev · verdict · ticker · query · scan"
+        type: choice
+        options: [dev, verdict, ticker, query, scan]
+        default: dev
+      ticker:
+        description: "الرمز (لوضع ticker)"
+        required: false
+        default: ""
+      tf:
+        description: "الفريم (لوضع ticker): 1d · 5m"
+        type: choice
+        options: ["1d", "5m"]
+        default: "1d"
+
+concurrency:
+  group: head-shoulders
+  cancel-in-progress: false
+
+jobs:
+  hs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔎 نموذج الرأس والكتفين
+        env:
+          PYTHONUNBUFFERED: "1"
+          HS_MODE: ${{ inputs.mode }}
+          HS_TICKER: ${{ inputs.ticker }}
+          HS_TF: ${{ inputs.tf }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python head_shoulders.py

@@ -28,3 +28,6 @@ archive_upload.flag
 # (‏Release ZIP بدل التاريخ) **قرارُ مالك** لأنه يمسّ حجمَ المستودع للأبد.
 faisal_images/*
 !faisal_images/README.md
+
+# 🔎 شارتاتُ «نموذج الرأس والكتفين» المُرسَلة (`head_shoulders.CHART_DIR`) — لا تُدفَع
+hs_*.png
