@@ -55,6 +55,18 @@ SNAPS = [
 ]
 
 
+# ⑤ خارج العيّنة (الملحق §⑤ — مكتوبٌ قبل الرقم): (القيمة، مرئيّ؟)
+OOS = {"NTCL-25": {"below": (True, True), "mom": (True, False)},
+       "NTCL-15": {"below": (True, True), "mom": (True, False)},
+       "GCTK-25": {"below": (True, True)},
+       "OMH-x": {"below": (False, True), "mom": (False, True)},
+       "CIIT-x": {"below": (False, True), "mom": (True, False)},
+       "MSGY-x": {"below": (True, False), "mom": (True, False)},
+       "ELPW-05": {"below": (True, False), "mom": (True, False)},
+       "ZNB-04": {"below": (True, False), "mom": (True, False)}}
+OOS_RES = []          # (اللقطة، الشرط، المصدر، المتوقَّع، المحسوب، مرئيّ)
+
+
 def tol(dec):
     return 0.5 * 10 ** (-dec) if dec >= 0 else 0.5 * 10 ** (-dec)
 
@@ -245,6 +257,34 @@ def bot_view(d, s, sp):
         print(f"   [bot] تعذّر: {type(e).__name__}: {e}")
 
 
+def macd_up(closes):
+    if closes is None or len(closes) < 40:
+        return None
+    return bool(macd_flags(pd.Series(list(closes)))["line>sig"])
+
+
+def oos_check(s, src, d, dd):
+    """الملحق §⑤: «أسفل EMA20/30/50» بالصيغة المؤكَّدة (آخر 250 · adjust=False) · و«الزخم» = MACD يوميّ ‏+ 4 ساعات."""
+    want = OOS[s["tag"]]
+    c = d["Close"].iloc[-250:]
+    px = float(d["Close"].iloc[-1])
+    emas = [float(c.ewm(span=n, adjust=False).mean().iloc[-1]) for n in (20, 30, 50)]
+    below = all(px < e for e in emas)
+    if "below" in want:
+        OOS_RES.append((s["tag"], "below", src, want["below"][0], below, want["below"][1]))
+    ad = d.index[-1].date()
+    up_d = macd_up(d["Close"])
+    for nm, f in (("240reg", dd["h4r"]), ("240ext", dd["h4x"])):
+        if "mom" not in want or f is None or src != "tv":
+            continue
+        x = f[[t.date() <= ad for t in f["t"]]]
+        up4 = macd_up(x["Close"]) if len(x) else None
+        mom = (up_d and up4) if (up_d is not None and up4 is not None) else None
+        OOS_RES.append((s["tag"], f"mom[{nm}]", src, want["mom"][0], mom, want["mom"][1]))
+    print(f"   [{src}/OOS] EMA20/30/50={[round(e, 4) for e in emas]} · السعر {px} · أسفل الثلاثة={below} "
+          f"(التطبيق {want.get('below')}) · MACD يوميّ فوق الإشارة={up_d}")
+
+
 # ── ④ التشغيل ──────────────────────────────────────────────────────────────────────────────────────────────────
 VERDICT = {}          # حقل ⟵ مصدر ⟵ مرشَّح ⟵ [✓/✗ لكلّ لقطة]
 
@@ -377,6 +417,8 @@ def run():
                         note("split_open", src, "firstDailyOpen", match(float(sd["Open"].iloc[0]), s["split_open"]))
                 if tag == "tv/D":
                     bot_view(dd_, s, dd["sp"])
+                if shift == 0 and s["tag"] in OOS:
+                    oos_check(s, src, dd_, dd)
                 print(f"   [{tag}] آخر شمعة {last} · إغلاق {float(c.iloc[-1]):.4f} · قاع60 {bval:.4f} ({bdate}) · "
                       f"أعلى بعده {hi_in:.4f} · قيعان: " + " · ".join(f"{k}={v:.4f}@{t}" for k, (v, t) in bv.items()))
         # ── أعلى أوّل 4 ساعات · RSI/MACD 4H (TradingView وحدَه) ──
@@ -446,6 +488,18 @@ def run():
                     near.append(f"{src}:{cand}")
         print(f"• {field}: " + (("✅ مؤكَّد ⟵ " + " · ".join(conf)) if conf else "❔ غيرُ معروف")
               + (f" ‖ قريب: {' · '.join(near[:6])}" if near else ""))
+    print("\n════════ OOS (الملحق §⑤ · مكتوبٌ قبل الرقم) ════════")
+    for cond in ("below", "mom[240reg]", "mom[240ext]"):
+        for src in ("tv", "yahoo"):
+            rows = [r for r in OOS_RES if r[1] == cond and r[2] == src]
+            if not rows:
+                continue
+            ok = sum(1 for r in rows if r[4] is not None and r[3] == r[4])
+            vis = [r for r in rows if r[5]]
+            okv = sum(1 for r in vis if r[4] is not None and r[3] == r[4])
+            bad = [f"{r[0]}(متوقَّع {r[3]} · محسوب {r[4]})" for r in rows if r[4] is None or r[3] != r[4]]
+            print(f"• {cond} [{src}]: {ok} من {len(rows)} (المرئيّ {okv} من {len(vis)})"
+                  + (f" ‖ ✗ {' · '.join(bad)}" if bad else ""))
     return 0
 
 
