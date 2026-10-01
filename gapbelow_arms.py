@@ -465,6 +465,23 @@ def year_report(S, year, all_rows, gap_rows, issues, stats, counts):
     return 0, out
 
 
+def predictions(summaries, rows, dm, gates, c0):
+    """§⑤ — التنبّؤاتُ السبع **بنصّ العقد** (تُنشَر كما تقع). نقيّة.
+
+    🔴 `GB-P5` نصُّها «`E1` تسقط (`G − R0` المجمَّع دون +0.05R)» ⇒ السقوطُ **و**آليّتُه المكتوبة معًا.
+    كانت تفحص `not E1` وحدَه فطبعت «✅ صدق» على مجمَّعٍ +0.1071 **فوق** الحدّ (الحاكمة `36812671247`) —
+    أُصلحت بعد التشغيلة **تشديدًا يطابق العقد** (`gapbelow_result.md` §⑥ · قفل `GBA14`)."""
+    return {
+        "GB-P1": all(0.05 <= s["prevalence"] <= 0.30 for s in summaries),
+        "GB-P2": bool(rows) and (sum(1 for r in rows if not r.get("bite_G")) / len(rows)) > 0.5,
+        "GB-P3": bool(dm and not dm["D1"] and 45.0 <= dm["cover_pct"] <= 75.0),
+        "GB-P4": bool(dm and abs(dm["magnet_pp"]) < D2_MIN_PP),
+        "GB-P5": bool(not gates["E1"] and c0 is not None and c0["mean"] < E1_MIN_R),
+        "GB-P6": not gates["E2"],
+        "GB-P7": all(s["arms"][nm]["r_fixed"] < 0 for s in summaries for nm in ARMS),
+    }
+
+
 def pooled(judged, summaries):
     """§④ — الحكمُ المجمَّع: عنقدةٌ بالرمز عبر السنوات معًا (محافِظ) · والفرعُ من `verdict`."""
     rows = [r for _, rs in judged for r in rs]
@@ -501,15 +518,7 @@ def pooled(judged, summaries):
              + (f"[{dm['magnet_ci']['lo'] * 100:+.1f}, {dm['magnet_ci']['hi'] * 100:+.1f}]"
                 if dm.get("magnet_ci") else "—") + f" · الحدّ +{D2_MIN_PP:.0f})")
     _log(f"   ⇒ **الفرع {br}: «{label}»**")
-    pred = {
-        "GB-P1": all(0.05 <= s["prevalence"] <= 0.30 for s in summaries),
-        "GB-P2": (sum(1 for r in rows if not r.get("bite_G")) / len(rows)) > 0.5,
-        "GB-P3": bool(dm and not dm["D1"] and 45.0 <= dm["cover_pct"] <= 75.0),
-        "GB-P4": bool(dm and abs(dm["magnet_pp"]) < D2_MIN_PP),
-        "GB-P5": not gates["E1"],
-        "GB-P6": not gates["E2"],
-        "GB-P7": all(s["arms"][nm]["r_fixed"] < 0 for s in summaries for nm in ARMS),
-    }
+    pred = predictions(summaries, rows, dm, gates, c0)
     _log("   🔮 التنبّؤات (تُنشر كما وقعت): " + " · ".join(
         f"{k} {'✅ صدق' if v else '❌ خاب'}" for k, v in pred.items()))
     _log("POOLED " + json.dumps({"branch": br, "label": label, "gates": gates,
