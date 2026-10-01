@@ -20,6 +20,7 @@ import json
 import math
 import os
 import sys
+import time
 import zlib
 
 import numpy as np
@@ -900,7 +901,9 @@ def _split_dates(sym, fetch=None):
     if sp is None:
         return None
     try:
-        keys = sp.index if hasattr(sp, "index") else [x[0] for x in sp]
+        # أزواجُ (يوم, نسبة) من `S._fetch_splits_dq` (اتّحادُ ياهو وتقويم ناسداك) **قائمةٌ لها `.index` دالّةً** ⟵ كانت تُقرأ «مجهولًا»
+        #    (عطلٌ مُثبَت بتجربة الحسم الأماميّ 2026-10-01 · HSF8) · وسلسلةُ ياهو كما هي بت-بت
+        keys = [x[0] for x in sp] if isinstance(sp, (list, tuple)) else sp.index
         return sorted({str(d)[:10] for d in keys})
     except Exception:                                                      # noqa: BLE001
         return None
@@ -1593,9 +1596,11 @@ def load_state(root: str = ".") -> dict:
         return {"sent": {}}
 
 
-def scan_universe(hist: dict, state: dict, p=None, lookback: int = SCAN_LOOKBACK) -> list:
+def scan_universe(hist: dict, state: dict, p=None, lookback: int = SCAN_LOOKBACK, collect: list = None) -> list:
     """المسحُ الحيّ على أطرٍ **عبرت بوّابةَ السلامة**: اختراقٌ مؤكَّد في آخر `lookback`+1 جلسة ولم يُرسَل معرّفُه ⟵ [(رمز, دورة الحياة)]
-    مرتّبةً بالجودة. لا إرسالَ هنا (نقيّة على الأطر · الحالةُ تُقرأ لا تُكتب)."""
+    مرتّبةً بالجودة. لا إرسالَ هنا (نقيّة على الأطر · الحالةُ تُقرأ لا تُكتب).
+    🧪 `collect` (‏`T-HS-SF` · `hs_sf_prereg.md §③`): قائمةٌ يُلحَق بها **كلُّ** اختراقٍ في النافذة [(رمز, إشارة)] — **قبل** شرطَي «أُرسل»
+    و«فشل» فلا يُحصَد الناجون وحدَهم · و`None` ⟵ المُخرَجُ بت-بت (HSF3)."""
     p = dict(STRICT if p is None else p)
     sent = (state or {}).get("sent") or {}
     out = []
@@ -1606,7 +1611,11 @@ def scan_universe(hist: dict, state: dict, p=None, lookback: int = SCAN_LOOKBACK
             continue
         n = len(df)
         for s in sigs:
-            if s["b_i"] < n - 1 - lookback or s["pid"] in sent:
+            if s["b_i"] < n - 1 - lookback:
+                continue
+            if collect is not None:
+                collect.append((sym, s))
+            if s["pid"] in sent:
                 continue
             st, rt = signal_state(df, s, p)
             if st == "FAILED":
@@ -1633,7 +1642,8 @@ def run_scan(fetch=None) -> int:
     kept = S.dq_filter([{"symbol": s} for s in sorted(hist)], hist, scope="hs_scan")
     ok = {it["symbol"]: hist[it["symbol"]] for it in kept}
     state = load_state()
-    found = scan_universe(ok, state)
+    window = []
+    found = scan_universe(ok, state, collect=window)
     log(f"   بعد بوّابة السلامة {len(ok)} (محجوز {len(hist) - len(ok)}) · نماذجُ جديدة {len(found)}")
     hist_stats = load_hist()
     sent = state.setdefault("sent", {})
@@ -1659,11 +1669,526 @@ def run_scan(fetch=None) -> int:
             for sym, lc in rest:
                 sent[lc["sig"]["pid"]] = lc["sig"]["b_date"]
             log("   📤 أُرسل سطرُ الباقين: " + " · ".join(f"${sym}" for sym, _ in rest))
+    # 🧪 `T-HS-SF` (`hs_sf_prereg.md` · أمرُ المالك «سجّل تجربة الرأس والكتفين مع قواعد الشورت و الفلوت»): حصادٌ أماميٌّ **صامت** بعد
+    #    الرسائل فلا يؤخّرها ولا يغيّرها (§⑦ W5) · ولا تلغرام · وعطلُه يُسجَّل ولا يُسقط المسح ولا الختم.
+    try:
+        forward_run(ok, window, sent)
+    except Exception as e:                                                 # noqa: BLE001
+        log(f"⚠️ T-HS-SF تعذّر: {type(e).__name__}: {e}")
     state["last_scan"] = dt.date.today().isoformat()
     with open(STATE_FILE, "w", encoding="utf-8") as fh:
         json.dump(state, fh, ensure_ascii=False, indent=1)
-    S.git_save([STATE_FILE])
+    S.git_save([STATE_FILE, _fwd_path()])
     return 0
+
+
+# ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# ⑫ `T-HS-SF` — «الرأس والكتفين مع قواعد الشورت والفلوت» (حصادٌ أماميٌّ صامت · العقد `hs_sf_prereg.md`)
+# ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+FWD_NAME = "hs_forward.jsonl"              # تحت `RES_DIR` **وقتَ النداء** (`_fwd_path`) · يُلحَق فقط (`signal` · `resolve` · `literal` · `verdict`)
+FWD_SCHEMA = 1
+FWD_START = "2026-10-01"                   # §③: أوّلُ جلسةٍ لم يرَ أحدٌ اختراقاتِها قبل العقد
+FWD_FLOAT_MAX = 5_000_000                  # §②: «الحد النهائي 5 ملايين» · «5 ملايين أو أقل — مطابق» (TG_57915/57918/57919 · faisal_adopted)
+FWD_FLOOR = 30                             # §⑥-أ: أرضيّةُ كلّ مجموعة (محسومٌ صالح) — engineering
+FWD_DEADLINE = "2027-12-31"                # §⑥-أ: دون الأرضيّة حتى هنا ⟵ الفرعُ 3 — engineering
+FWD_CE_BUDGET = 12                         # §④: سقفُ نداءات ChartExchange (وياهو) في التشغيلة — engineering (حصّةُ الموقع ‏≈50 صفحةً للرنر)
+FWD_SPLIT_RETRY = 10                       # §⑤: جلساتٌ بعد اكتمال الثلاثين قبل حسم «مجهول الصلاحية» — engineering
+FWD_LOST_DAYS = 90                         # §⑤: يومُ اختراقٍ غائبٌ عن الإطار بعد هذه الأيّام ⟵ «ضاعت» — engineering
+FWD_TV_TRIES = 2                           # §④: محاولتا الماسح (طلبٌ واحد ‏≈1ث) — engineering
+
+
+def _fwd_path() -> str:
+    return os.path.join(RES_DIR, FWD_NAME)
+
+
+def _fwd_testing() -> bool:
+    """🧪 تحت `SUPER_STOCKS_TESTING` وبلا جالبٍ محقون ⟵ **صفرُ نداءٍ شبكيّ** (كحارس `git_save`) — المجهولُ بسببه «testing»."""
+    return os.environ.get("SUPER_STOCKS_TESTING") == "1"
+
+
+def _num(x):
+    try:
+        v = float(x)
+    except (TypeError, ValueError):
+        return None
+    return v if math.isfinite(v) else None
+
+
+def _jdefault(o):
+    if isinstance(o, np.integer):
+        return int(o)
+    if isinstance(o, np.floating):
+        return float(o)
+    if isinstance(o, (np.bool_,)):
+        return bool(o)
+    return str(o)
+
+
+def fwd_load(path: str = None) -> dict:
+    """السجلّ ⟵ {"pids": {pid: {"signal": صفّ, "resolve": صفّ|None}}, "literal": {قراءة: صفّ}, "verdict": صفّ|None, "rows": n} —
+    التالفُ يُتجاهَل · والمكرَّرُ (اتّحادُ `git_save` لسجلّات `.jsonl`) يُقرأ أوّلُه · وغيابُ الملفّ ⟵ سجلٌّ فارغ."""
+    out = {"pids": {}, "literal": {}, "verdict": None, "rows": 0}
+    try:
+        fh = open(path or _fwd_path(), encoding="utf-8")
+    except Exception:                                                      # noqa: BLE001
+        return out
+    with fh:
+        for line in fh:
+            try:
+                r = json.loads(line)
+            except Exception:                                              # noqa: BLE001
+                continue
+            if not isinstance(r, dict):
+                continue
+            out["rows"] += 1
+            ev, pid = r.get("ev"), r.get("pid")
+            if ev == "signal" and pid:
+                out["pids"].setdefault(pid, {"signal": r, "resolve": None})
+            elif ev == "resolve" and pid in out["pids"] and out["pids"][pid]["resolve"] is None:
+                out["pids"][pid]["resolve"] = r
+            elif ev == "literal" and r.get("reading") and r["reading"] not in out["literal"]:
+                out["literal"][r["reading"]] = r
+            elif ev == "verdict" and out["verdict"] is None:
+                out["verdict"] = r
+    return out
+
+
+def fwd_flags(avail, flt, fee=None) -> dict:
+    """§②: الأعلامُ بمنطقٍ ثلاثيّ — **الحدودُ بالاسم وقتَ النداء** (`S.CONFIG` · لا رقمَ مكرَّر) · والمجهولُ None لا «لا» ·
+    و«و» تسقط بأحدهما معلومًا «لا» ولا تتحقّق إلّا بالاثنين معلومَين."""
+    import Super_stock as S
+    c = S.CONFIG
+    a, f, e = _num(avail), _num(flt), _num(fee)
+
+    def lt(x, lim):
+        return None if x is None else bool(x < float(lim))
+
+    def conj(x, y):
+        return False if (x is False or y is False) else (True if (x is True and y is True) else None)
+    s_ = lt(a, c["BORROW_AVAIL_MAX"])
+    f_ = None if f is None else bool(f <= float(FWD_FLOAT_MAX))
+    s10 = lt(a, c["FAISAL_ENTRY_AVAIL_MAX"])
+    f2 = lt(f, c["SPLIT_RADAR_FLOAT_MAX"])
+    fee_ = None if e is None else bool(e >= float(c["BORROW_HIGH_PCT"]))
+    sf = conj(s_, f_)
+    return {"S": s_, "F": f_, "SF": sf, "S10": s10, "F2": f2, "FEE": fee_, "S10F": conj(s10, f_), "SF2": conj(s_, f2),
+            "SFFEE": conj(sf, fee_),
+            "thr": {"avail": c["BORROW_AVAIL_MAX"], "float": FWD_FLOAT_MAX, "avail10": c["FAISAL_ENTRY_AVAIL_MAX"],
+                    "float2": c["SPLIT_RADAR_FLOAT_MAX"], "fee": c["BORROW_HIGH_PCT"]}}
+
+
+def _tv_float_snapshot():
+    import tv_data as TV
+    return TV.scan(["name", "float_shares_outstanding"])
+
+
+def fwd_measure(syms, today: str, harvested=None, fetch_ce=None, tv_scan=None, yfloat=None, budget: int = None,
+                pause: float = 5.0) -> dict:
+    """§④ ⟵ {رمز: {avail · fee · avail_src · avail_why · float_tv · float_why · float_yf · float_yf_why}}: المتاحُ من **صفّ حصّاد اليوم
+    بلا نداء** (`S._harvested_borrow`) ثمّ ChartExchange (`S.ce_borrow_info` بسببه) بسقف `FWD_CE_BUDGET` · والفلوتُ من **ماسح TradingView
+    مرّةً** (مصدرُ تطبيق فيصل) · وفلوتُ ياهو (`floatShares` حصرًا) **للمقارنة وحدَها** — **وكلُّ تعذّرٍ مجهولٌ بسببه لا صفر** (§⑦ W2).
+    الجوالبُ محقونةٌ للاختبار · وتحت `SUPER_STOCKS_TESTING` بلا حقنٍ صفرُ نداء."""
+    import Super_stock as S
+    syms = list(dict.fromkeys(syms or []))
+    out = {s: {"avail": None, "fee": None, "avail_src": None, "avail_why": None, "float_tv": None, "float_why": None,
+               "float_yf": None, "float_yf_why": None} for s in syms}
+    if not syms:
+        return out
+    testing = _fwd_testing()
+    budget = FWD_CE_BUDGET if budget is None else int(budget)
+    # ① المتاحُ والرسوم
+    if harvested is None:
+        harvested = {} if testing else S._harvested_borrow(today)
+    ce = fetch_ce if fetch_ce is not None else (None if testing else S.ce_borrow_info)
+    calls = 0
+    for s in syms:
+        r = out[s]
+        row = (harvested or {}).get(str(s).upper()) or {}
+        if row.get("shares_available") is not None:
+            r.update(avail=int(row["shares_available"]), fee=_num(row.get("borrow_fee")), avail_src="ctb_log")
+            continue
+        if ce is None:
+            r["avail_why"] = "testing"
+            continue
+        if calls >= budget:
+            r["avail_why"] = "budget"
+            continue
+        calls += 1
+        diag = {}
+        try:
+            d = ce(s, diag=diag) or {}
+        except Exception as e:                                             # noqa: BLE001
+            d, diag = {}, {"reason": "exc:" + type(e).__name__}
+        if d.get("shares_available") is not None:
+            r.update(avail=int(d["shares_available"]), fee=_num(d.get("borrow_fee")), avail_src="chartexchange")
+        else:
+            r["avail_why"] = diag.get("reason") or "empty"
+    # ② الفلوت: ماسحُ TradingView مرّةً
+    scan = tv_scan if tv_scan is not None else (None if testing else _tv_float_snapshot)
+    snap, why = None, "testing"
+    if scan is not None:
+        for i in range(FWD_TV_TRIES):
+            try:
+                snap = scan()
+            except Exception:                                              # noqa: BLE001
+                snap = None
+            if snap:
+                break
+            if i + 1 < FWD_TV_TRIES and pause:
+                time.sleep(pause)
+        why = None if snap else "tv_scan_fail"
+    tmap = {}
+    if snap:
+        import tv_data as TV
+        tmap = TV.ticker_map(snap)
+    for s in syms:
+        r = out[s]
+        if not snap:
+            r["float_why"] = why
+            continue
+        row = snap.get(tmap.get(s) or "") or {}
+        if not row:
+            r["float_why"] = "tv_missing"
+            continue
+        v = _num(row.get("float_shares_outstanding"))
+        if v is None or v <= 0:
+            r["float_why"] = "tv_nonpositive"
+            continue
+        r["float_tv"] = v
+    # ③ فلوتُ ياهو للمقارنة (لا يحكم)
+    yf_ = yfloat if yfloat is not None else (None if testing else S._yahoo_float_status)
+    for i, s in enumerate(syms):
+        r = out[s]
+        if yf_ is None:
+            r["float_yf_why"] = "testing"
+            continue
+        if i >= budget:
+            r["float_yf_why"] = "budget"
+            continue
+        try:
+            st, v = yf_(s)
+        except Exception as e:                                             # noqa: BLE001
+            st, v = "exc:" + type(e).__name__, None
+        if st == "ok" and _num(v):
+            r["float_yf"] = _num(v)
+        else:
+            r["float_yf_why"] = st
+    return out
+
+
+def fwd_candidates(window, ledger) -> list:
+    """§③: إشاراتُ النافذة الجديدة ⟵ [(رمز, إشارة)]: يومُ الاختراق ‏≥ `FWD_START` · لم يُحصَد معرّفُها · **مرّةً لكلّ معرّف** — بلا شرط
+    «أُرسل» ولا «فشل» (لا انحيازَ بقاء)."""
+    seen = set(((ledger or {}).get("pids") or {}).keys())
+    out = []
+    for sym, s in window or []:
+        pid = (s or {}).get("pid")
+        if not pid or pid in seen or str(s.get("b_date") or "")[:10] < FWD_START:
+            continue
+        seen.add(pid)
+        out.append((sym, s))
+    return out
+
+
+def fwd_signal_row(sym: str, s: dict, df, meas: dict, sent, today: str, now_iso: str = None) -> dict:
+    """§④: صفُّ `signal` — الإشارةُ بأسعارها وتواريخها ‏+ الحالةُ عند الحصاد ‏+ `msg` · `lag` ‏+ القياسُ الخامّ بمصدره وسببه ‏+ الأعلامُ والحدود."""
+    try:
+        st = signal_state(df, s)[0]
+    except Exception:                                                      # noqa: BLE001
+        st = None
+    m = dict(meas or {})
+    row = {"ev": "signal", "schema": FWD_SCHEMA, "pid": s["pid"], "sym": sym, "b_date": str(s["b_date"])[:10],
+           "ls_date": str(s.get("ls_date"))[:10], "head_date": str(s.get("head_date"))[:10], "scan_date": today,
+           "measured_utc": now_iso, "lag": int(len(df) - 1 - int(s["b_i"])), "entry": _num(s.get("entry")),
+           "neck_b": _num(s.get("neck_b")), "target": _num(s.get("target")), "head_px": _num(s.get("head_px")),
+           "height": _num(s.get("height")), "quality": s.get("quality"), "state": st, "msg": s["pid"] in (sent or {})}
+    for k in ("avail", "fee", "avail_src", "avail_why", "float_tv", "float_why", "float_yf", "float_yf_why"):
+        row[k] = m.get(k)
+    row.update(fwd_flags(row["avail"], row["float_tv"], row["fee"]))
+    return row
+
+
+def fwd_outcome(df, sig: dict, p=None):
+    """§⑤: 30 جلسة بعد الاختراق مكتملة ⟵ **النجاح = «TARGET_REACHED» بدورة الحياة على نافذة الثلاثين** (`signal_state` على الإطار حتى الجلسة
+    الثلاثين: الهدفُ قبل الفشل · والتعادلُ فشل) ‏+ الثانويّ من `outcomes` · وإلّا None (لم تكتمل)."""
+    p = dict(STRICT if p is None else p)
+    H, b = int(p["horizon"]), int(sig["b_i"])
+    if len(df) < b + 1 + H:
+        return None
+    st, rt = signal_state(df.iloc[: b + 1 + H], sig, p)
+    o = outcomes(df, sig, p)
+    return {"success": st == "TARGET_REACHED", "state30": st, "retest": (rt or {}).get("retest"),
+            "target_hit": bool(o.get("target_hit")), "target_bars": o.get("target_bars"), "invalid_bars": o.get("invalid_bars"),
+            "mfe": o.get("mfe"), "mae": o.get("mae"), "ret5": o.get("ret5"), "ret10": o.get("ret10"), "ret30": o.get("ret30"),
+            "entry_now": o.get("entry_px"), "target_now": _num(sig.get("target")), "end_date": str(df.index[b + H])[:10]}
+
+
+def fwd_resolve_row(rec: dict, df, today: str, splits=None, p=None):
+    """§⑤ لصفٍّ محصودٍ غيرِ محسوم ⟵ صفُّ `resolve` أو None (يُنتظر): يومُ الاختراق في الإطار ⟵ 30 جلسةً بعده ⟵ **إعادةُ الكشف على الإطار
+    مقصوصًا عند يوم الاختراق** (المعرّفُ واليومُ نفسُهما وإلّا «ضاعت») ⟵ النتيجة ⟵ الصلاحية (لا تقسيمَ بين الكتف الأيسر والجلسة الثلاثين ·
+    وتعذّرُ ياهو يُعاد حتى `FWD_SPLIT_RETRY` جلسةً ثمّ «مجهولةٌ» خارج الحكم). `splits` جالبٌ محقون · وغيابُه ⟵ ياهو ∪ تقويمُ ناسداك
+    (`S._fetch_splits_dq` حتى يوم الجلسة الثلاثين — يُمسك تقسيمًا يجهله ياهو كـDLXY 09-28)."""
+    p = dict(STRICT if p is None else p)
+    H = int(p["horizon"])
+    base = {"ev": "resolve", "schema": FWD_SCHEMA, "pid": rec["pid"], "sym": rec["sym"], "b_date": str(rec["b_date"])[:10],
+            "resolved_on": today}
+    days = [str(x)[:10] for x in df.index]
+    bd = str(rec["b_date"])[:10]
+    if bd not in days:
+        try:
+            gone = (dt.date.fromisoformat(today[:10]) - dt.date.fromisoformat(bd)).days > FWD_LOST_DAYS
+        except Exception:                                                  # noqa: BLE001
+            gone = False
+        return dict(base, status="lost", why="b_date_missing") if gone else None
+    b = days.index(bd)
+    if len(df) < b + 1 + H:
+        return None
+    sig = next((s for s in detect(df.iloc[: b + 1], p, sym=rec["sym"], tf="1d")
+                if s["pid"] == rec["pid"] and str(s["b_date"])[:10] == bd), None)
+    if sig is None:
+        return dict(base, status="lost", why="pid_not_redetected")
+    o = fwd_outcome(df, sig, p)
+    if splits is None:                                                     # ياهو ∪ تقويمُ ناسداك حتى آخر الثلاثين (`S._fetch_splits_dq`)
+        import Super_stock as S
+
+        def splits(sym, _u=o["end_date"]):
+            return S._fetch_splits_dq(sym, upto=_u)
+    dates = _split_dates(rec["sym"], fetch=splits)
+    if dates is None:
+        if len(df) < b + 1 + H + FWD_SPLIT_RETRY:
+            return None
+        valid = None
+    else:
+        valid = not split_in_window(dates, str(rec.get("ls_date"))[:10], o["end_date"])
+    return dict(base, status="ok", valid=valid, **o)
+
+
+def newcombe(k1: int, n1: int, k2: int, n2: int, z: float = 1.96):
+    """فرقُ نسبتين p1 − p2 بفاصل Newcombe (الطريقةُ 10 · من فاصلَي Wilson) ⟵ (الفرق, الأدنى, الأعلى) · وعيّنةٌ فارغة ⟵ (None, None, None)."""
+    if not n1 or not n2:
+        return None, None, None
+    p1, p2 = k1 / n1, k2 / n2
+    l1, u1 = wilson(k1, n1, z)
+    l2, u2 = wilson(k2, n2, z)
+    d = p1 - p2
+    return d, d - math.sqrt((p1 - l1) ** 2 + (u2 - p2) ** 2), d + math.sqrt((u1 - p1) ** 2 + (p2 - l2) ** 2)
+
+
+def _fwd_valid(ledger) -> list:
+    """[(صفُّ الإشارة, صفُّ الحسم)] **للمحسوم الصالح وحدَه** (`ok` · `valid` True · يومُ الاختراق ‏≥ `FWD_START`) مرتّبةً بيوم الاختراق."""
+    out = []
+    for d in ((ledger or {}).get("pids") or {}).values():
+        sg, rs = (d or {}).get("signal") or {}, (d or {}).get("resolve") or {}
+        if rs.get("status") == "ok" and rs.get("valid") is True and str(sg.get("b_date") or "")[:10] >= FWD_START:
+            out.append((sg, rs))
+    return sorted(out, key=lambda x: (str(x[0].get("b_date")), str(x[0].get("pid"))))
+
+
+def _fwd_metric(rs: dict, metric: str) -> bool:
+    if metric == "mfe100":
+        return _num(rs.get("mfe")) is not None and float(rs["mfe"]) >= 1.0
+    return bool(rs.get(metric))
+
+
+def fwd_compare(rows, flag: str = "SF", metric: str = "success", cond=None) -> dict:
+    """«نعم» مقابل «لا» لعلَمٍ **معلوم** (المجهولُ خارجهما) ⟵ الأعدادُ والنسبتان وWilson وفرقُ Newcombe."""
+    rows = [r for r in rows or [] if cond is None or cond(r[0])]
+    yes = [_fwd_metric(r[1], metric) for r in rows if r[0].get(flag) is True]
+    no = [_fwd_metric(r[1], metric) for r in rows if r[0].get(flag) is False]
+    n1, k1, n2, k2 = len(yes), int(sum(yes)), len(no), int(sum(no))
+    d, lo, hi = newcombe(k1, n1, k2, n2)
+    return {"flag": flag, "metric": metric, "n_yes": n1, "k_yes": k1, "n_no": n2, "k_no": k2,
+            "p_yes": (k1 / n1 if n1 else None), "p_no": (k2 / n2 if n2 else None),
+            "wilson_yes": list(wilson(k1, n1)), "wilson_no": list(wilson(k2, n2)), "diff": d, "lo": lo, "hi": hi}
+
+
+def fwd_halves(rows, flag: str = "SF", metric: str = "success") -> dict:
+    """§⑥-أ «بالأضعف»: الحدُّ = وسيطُ أيّام اختراق «نعم» ⟵ الفرقُ في النصف الأوّل (حتى الحدّ) والثاني (بعده) — ونصفٌ فارغٌ ⟵ لا يتحقّق."""
+    ds = sorted(str(r[0].get("b_date"))[:10] for r in rows or [] if r[0].get(flag) is True)
+    if not ds:
+        return {"cut": None, "first": None, "second": None, "ok": False}
+    cut = ds[(len(ds) - 1) // 2]
+    a = fwd_compare([r for r in rows if str(r[0].get("b_date"))[:10] <= cut], flag, metric)
+    b = fwd_compare([r for r in rows if str(r[0].get("b_date"))[:10] > cut], flag, metric)
+    ok = a["diff"] is not None and a["diff"] > 0 and b["diff"] is not None and b["diff"] > 0
+    return {"cut": cut, "first": a["diff"], "second": b["diff"], "ok": bool(ok),
+            "n_first": [a["n_yes"], a["n_no"]], "n_second": [b["n_yes"], b["n_no"]]}
+
+
+def fwd_counts(ledger) -> dict:
+    """§⑦ W3: **أعدادٌ بلا نسبة نجاح** (عمًى ذاتيّ قبل صفّ الحكم)."""
+    c = {"harvested": 0, "sf_yes": 0, "sf_no": 0, "sf_unknown": 0, "avail_unknown": 0, "float_unknown": 0, "budget_cut": 0,
+         "resolved_valid_yes": 0, "resolved_valid_no": 0, "resolved_valid_unknown": 0, "resolved_invalid": 0,
+         "resolved_split_unknown": 0, "lost": 0, "pending": 0}
+    for d in ((ledger or {}).get("pids") or {}).values():
+        sg, rs = (d or {}).get("signal") or {}, (d or {}).get("resolve")
+        if str(sg.get("b_date") or "")[:10] < FWD_START:
+            continue
+        c["harvested"] += 1
+        sf = sg.get("SF")
+        c["sf_yes" if sf is True else "sf_no" if sf is False else "sf_unknown"] += 1
+        c["avail_unknown"] += sg.get("avail") is None
+        c["float_unknown"] += sg.get("float_tv") is None
+        c["budget_cut"] += sg.get("avail_why") == "budget"
+        if not rs:
+            c["pending"] += 1
+        elif rs.get("status") == "lost":
+            c["lost"] += 1
+        elif rs.get("valid") is True:
+            c["resolved_valid_yes" if sf is True else "resolved_valid_no" if sf is False else "resolved_valid_unknown"] += 1
+        elif rs.get("valid") is False:
+            c["resolved_invalid"] += 1
+        else:
+            c["resolved_split_unknown"] += 1
+    return c
+
+
+def fwd_literal_events(ledger, rows, today: str) -> list:
+    """§⑥-ب (تسلسليّ): أوّلُ إشارةِ SF صالحةٍ **لم تنجح** ⟵ (أ) «كلُّ صفقةٍ تنجح» سقط · وأوّلُها **أعلى ارتفاعِها دون ‏+100%** ⟵ (ب) — مرّةً
+    لكلّ قراءة (صفٌّ يُلحَق ولا يُعاد)."""
+    have = (ledger or {}).get("literal") or {}
+    out = []
+    for reading, bad in (("A", lambda rs: not rs.get("success")), ("B", lambda rs: not _fwd_metric(rs, "mfe100"))):
+        if reading in have:
+            continue
+        hit = next(((sg, rs) for sg, rs in rows or [] if sg.get("SF") is True and bad(rs)), None)
+        if hit:
+            out.append({"ev": "literal", "schema": FWD_SCHEMA, "reading": reading, "pid": hit[0].get("pid"), "sym": hit[0].get("sym"),
+                        "b_date": hit[0].get("b_date"), "state30": hit[1].get("state30"), "mfe": hit[1].get("mfe"), "on": today})
+    return out
+
+
+def fwd_literal_status(rows) -> dict:
+    """عند الحكم: لكلّ قراءةٍ عددُ SF الصالح وما صمد وحدُّ Wilson الأدنى — **«لم يُكذَّب على N» لا «ثبت»**."""
+    sf = [rs for sg, rs in rows or [] if sg.get("SF") is True]
+    out = {}
+    for reading, ok in (("A", lambda rs: bool(rs.get("success"))), ("B", lambda rs: _fwd_metric(rs, "mfe100"))):
+        k = sum(1 for rs in sf if ok(rs))
+        out[reading] = {"n": len(sf), "k": k, "refuted": k < len(sf), "wilson_lo": wilson(k, len(sf))[0]}
+    return out
+
+
+def fwd_verdict(ledger, today: str):
+    """§⑥-أ: صفُّ الحكم عند **أوّل** مسحٍ تُبلَغ فيه الأرضيّتان (عددٌ ثابت لا توقّفٌ اختياريّ) — أو **الفرعُ 3** في أوّل مسحٍ بعد الموعد — وإلّا
+    None (قيد الجمع · أو حُكم سلفًا فلا يُعاد)."""
+    if (ledger or {}).get("verdict"):
+        return None
+    rows = _fwd_valid(ledger)
+    m = fwd_compare(rows)
+    floors = m["n_yes"] >= FWD_FLOOR and m["n_no"] >= FWD_FLOOR
+    if not floors and str(today)[:10] <= FWD_DEADLINE:
+        return None
+    arms = {"S": fwd_compare(rows, "S"), "F": fwd_compare(rows, "F"), "S10F": fwd_compare(rows, "S10F"),
+            "SF2": fwd_compare(rows, "SF2"), "SFFEE": fwd_compare(rows, "SFFEE"),
+            "S_in_F": fwd_compare(rows, "S", cond=lambda sg: sg.get("F") is True),
+            "SF_target_hit": fwd_compare(rows, "SF", "target_hit"),
+            "SF_lag0": fwd_compare(rows, "SF", cond=lambda sg: sg.get("lag") == 0),
+            "SF_mfe100": fwd_compare(rows, "SF", "mfe100")}
+    base = {"ev": "verdict", "schema": FWD_SCHEMA, "on": str(today)[:10], "primary": m, "counts": fwd_counts(ledger), "arms": arms,
+            "literal": fwd_literal_status(rows), "floor": FWD_FLOOR, "deadline": FWD_DEADLINE}
+    if not floors:
+        return dict(base, branch=3, branch_text="لا قياس", why="floor_not_reached_by_deadline")
+    hv = fwd_halves(rows)
+    br = 1 if (m["lo"] is not None and m["lo"] > 0 and hv["ok"]) else 2
+    return dict(base, branch=br, branch_text=("القواعدُ تُضيف" if br == 1 else "لا تُضيف"), halves=hv)
+
+
+def _fmt_n(x) -> str:
+    v = _num(x)
+    if v is None:
+        return "—"
+    return f"{v / 1e6:.2f}M" if abs(v) >= 1e6 else f"{int(round(v)):,}"
+
+
+def fwd_log_lines(ledger, new_rows, res_rows, lit, verdict) -> list:
+    """§⑦ W3: أسطرُ السجلّ (لا تلغرام) — أعدادُ اليوم والمجموع والقياسُ الخامّ لكلّ محصود · **ولا نسبةَ نجاحٍ قبل صفّ الحكم** ·
+    والحرفيُّ يُنشَر لحظةَ سقوطه (تسلسليٌّ مسجَّل) · والحكمُ بعد صفّه وحدَه."""
+    c = fwd_counts(ledger)
+
+    def sfw(v):
+        return "نعم" if v is True else ("لا" if v is False else "مجهول")
+    nn = [r.get("SF") for r in new_rows or []]
+    ok_r = [r for r in res_rows or [] if r.get("status") == "ok"]
+    L = [f"🧪 T-HS-SF (hs_sf_prereg.md) · اليوم: حُصد {len(new_rows or [])} (SF نعم {nn.count(True)} · لا {nn.count(False)} · مجهول "
+         f"{sum(1 for v in nn if v is None)}) · حُسم {len(res_rows or [])} (صالح {sum(1 for r in ok_r if r.get('valid') is True)} · "
+         f"غيرُ صالح {sum(1 for r in ok_r if r.get('valid') is False)} · مجهولُ التقسيم {sum(1 for r in ok_r if r.get('valid') is None)} · "
+         f"ضاع {sum(1 for r in res_rows or [] if r.get('status') == 'lost')})",
+         f"   المجموع: محصود {c['harvested']} (مجهولُ المتاح {c['avail_unknown']} · منه قصُّ السقف {c['budget_cut']} · مجهولُ الفلوت "
+         f"{c['float_unknown']}) · محسومٌ صالح: SF {c['resolved_valid_yes']} من {FWD_FLOOR} · الباقي {c['resolved_valid_no']} من "
+         f"{FWD_FLOOR} · ينتظر {c['pending']} · ضاع {c['lost']} · الموعد {FWD_DEADLINE} — لا نسبةَ نجاحٍ قبل الحكم (§⑦ W3)"]
+    for r in new_rows or []:
+        av = (f"متاح {_fmt_n(r.get('avail'))} ({'حصاد اليوم' if r.get('avail_src') == 'ctb_log' else 'ChartExchange'})"
+              if r.get("avail") is not None else f"متاح — ({r.get('avail_why')})")
+        fee = f" · رسوم {r['fee']:.1f}%" if _num(r.get("fee")) is not None else ""
+        fl = (f"فلوت {_fmt_n(r.get('float_tv'))} (TradingView)" if r.get("float_tv") is not None
+              else f"فلوت — ({r.get('float_why')})")
+        yf_ = f" · ياهو {_fmt_n(r.get('float_yf'))}" if r.get("float_yf") is not None else ""
+        L.append(f"   ↳ ${r.get('sym')} · اختراق {r.get('b_date')} · تأخّر {r.get('lag')} · {av}{fee} · {fl}{yf_} ⟵ SF {sfw(r.get('SF'))}")
+    have = dict((ledger or {}).get("literal") or {})
+    for e in lit or []:
+        have[e["reading"]] = e
+    txt = {"A": "(أ) «كل صفقة تنجح»", "B": "(ب) «‏+100% بكل صفقة»"}
+    L.append("⚖️ الادّعاءُ الحرفيّ «100٪ بكل صفقه»: " + " · ".join(
+        (f"{txt[k]} سقط على ${have[k].get('sym')} (اختراق {have[k].get('b_date')} · {have[k].get('state30')})" if k in have
+         else f"{txt[k]} لم يُكذَّب بعد") for k in ("A", "B")))
+    v = verdict or (ledger or {}).get("verdict")
+    if v:
+        m = v.get("primary") or {}
+        L.append(f"⚖️ T-HS-SF الحكم ({v.get('on')}): الفرعُ {v.get('branch')} «{v.get('branch_text')}» — SF {m.get('k_yes')} من "
+                 f"{m.get('n_yes')} · الباقي {m.get('k_no')} من {m.get('n_no')}"
+                 + (f" · الفرق {_pct(m.get('diff'))} [{_pct(m.get('lo'))}، {_pct(m.get('hi'))}]" if m.get("diff") is not None else ""))
+    return L
+
+
+def forward_run(frames: dict, window, sent=None, today: str = None, path: str = None, measure=None, splits=None) -> dict:
+    """§③-§⑥ في تشغيلة المسح: حصادُ الجديد ⟵ حسمُ المكتمل ⟵ الحرفيّ ⟵ الحكم ⟵ **يُلحَق بالسجلّ** ⟵ أسطرُ السجلّ (**لا تلغرام**) ⟵
+    {new · resolved · literal · verdict · counts · path}. `measure`/`splits` محقونان للاختبار · وتحت `SUPER_STOCKS_TESTING` بلا حقنٍ صفرُ نداء."""
+    today = str(today or dt.date.today().isoformat())[:10]
+    path = path or _fwd_path()
+    led = fwd_load(path)
+    frames = frames or {}
+    cands = [(sym, s) for sym, s in fwd_candidates(window, led) if frames.get(sym) is not None]
+    try:
+        meas = (measure or fwd_measure)([sym for sym, _ in cands], today)
+    except Exception as e:                                                 # noqa: BLE001
+        log(f"⚠️ T-HS-SF القياس تعذّر: {type(e).__name__} — المحصودُ اليوم مجهولُ القياس بسببه")
+        meas = {sym: {"avail_why": "measure_exc", "float_why": "measure_exc", "float_yf_why": "measure_exc"} for sym, _ in cands}
+    now_iso = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+    new_rows = []
+    for sym, s in cands:
+        r = fwd_signal_row(sym, s, frames[sym], (meas or {}).get(sym) or {}, sent, today, now_iso)
+        new_rows.append(r)
+        led["pids"].setdefault(r["pid"], {"signal": r, "resolve": None})
+    spl = splits if splits is not None else ((lambda _s: None) if _fwd_testing() else None)
+    res_rows = []
+    for pid in sorted(led["pids"]):
+        d = led["pids"][pid]
+        sg = d.get("signal") or {}
+        if d.get("resolve") is not None or frames.get(sg.get("sym")) is None:
+            continue
+        try:
+            rr = fwd_resolve_row(sg, frames[sg["sym"]], today, splits=spl)
+        except Exception as e:                                             # noqa: BLE001
+            log(f"⚠️ T-HS-SF حسمُ {sg.get('sym')} تعذّر: {type(e).__name__}")
+            continue
+        if rr:
+            res_rows.append(rr)
+            d["resolve"] = rr
+    lit = fwd_literal_events(led, _fwd_valid(led), today)
+    for e in lit:
+        led["literal"][e["reading"]] = e
+    ver = fwd_verdict(led, today)
+    if ver:
+        led["verdict"] = ver
+    rows = new_rows + res_rows + lit + ([ver] if ver else [])
+    if rows:
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        with open(path, "a", encoding="utf-8") as fh:
+            for r in rows:
+                fh.write(json.dumps(r, ensure_ascii=False, sort_keys=True, default=_jdefault) + "\n")
+    for ln in fwd_log_lines(led, new_rows, res_rows, lit, ver):
+        log(ln)
+    return {"new": new_rows, "resolved": res_rows, "literal": lit, "verdict": ver, "counts": fwd_counts(led), "path": path}
 
 
 def main() -> int:
