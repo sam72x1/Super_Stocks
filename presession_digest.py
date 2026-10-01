@@ -197,13 +197,18 @@ def _pct(hit: int, n: int) -> str:
 
 
 def build_digest(day_iso: str, today_rows: list, cum: dict,
-                 cov: tuple, missing: int, src: str = None, excluded: int = 0) -> str:
+                 cov: tuple, missing: int, src: str = None, excluded: int = 0,
+                 missing_prior: int = 0) -> str:
     """رسالةُ التقرير — بلا علامات مقارنة (قاعدة العرض). و`src="tv"` يُلحق سطرَ حدّ الصدق للمصدر (وبلاه بت-بت) ·
-    و`excluded` عددُ ما استُثني من التراكم (`tv_backfill`) يُعلَن تحته (وصفرُه بت-بت)."""
+    و`excluded` عددُ ما استُثني من التراكم (`tv_backfill`) يُعلَن تحته (وصفرُه بت-بت) ·
+    و`missing_prior` ما تعذّر في هذه التشغيلة من **جلساتٍ سابقة** (نافذةُ الاستدراك) يُعلَن بعدّه مستقلًّا (وصفرُه بت-بت)
+    — فـ`missing` يبقى ما لم يُحسم من **صفوف اليوم** فيُطابق «حُسم X من Y» (مسكةُ 2026-10-01: «103 من 111 · تعذّر 14»
+    وثمانيةٌ منها لليوم وستّةٌ من 09-29 · وعلى Polygon «114 من 118 · تعذّر 80» يومَ 09-26)."""
     e = S.esc
+    _prior = (f" · ومن جلساتٍ سابقة {missing_prior}" if missing_prior else "")
     L = [f"📒 <b>حصادُ قائمة ما قبل الجلسة</b> — {e(day_iso)}",
          f"🩺 حُسم {cov[0]} من {cov[1]} صفًّا "
-         f"(تعذّر {missing} — يُعلَن ولا يُصمت)"]
+         f"(تعذّر {missing}{_prior} — يُعلَن ولا يُصمت)"]
     deliv = [r for r in today_rows if r.get("sent")]
     cut = [r for r in today_rows if r.get("in_top") and not r.get("floor_ok")]
     below = [r for r in today_rows if not r.get("in_top")]
@@ -330,11 +335,13 @@ def main() -> int:
 
     bars_cache, new, miss, scaled = {}, [], 0, [0, 0]
     prev_cache, scale_bad, no_anchor = {}, [], 0
+    miss_days = {}       # 🩺 ما تعذّر بيومه — فيُفصل تعذّرُ الجلسات السابقة عن صفوف اليوم في الرسالة
     for r in todo:
         d = str(r.get(PF.ROW_DAY) or "")
         sym = str(r.get(PF.ROW_SYM) or "").upper()
         if not d or not sym:
             miss += 1
+            miss_days[d] = miss_days.get(d, 0) + 1
             continue
         ck = f"{d}|{sym}"
         if ck not in bars_cache:
@@ -364,10 +371,12 @@ def main() -> int:
             if not _ok:
                 scale_bad.append(f"{sym} {d} {r.get(PF.ROW_SESS)} ×{_q:.3f}")
                 miss += 1
+                miss_days[d] = miss_days.get(d, 0) + 1
                 continue
         out = resolve_row(r, bars_cache[ck])
         if out is None:
             miss += 1
+            miss_days[d] = miss_days.get(d, 0) + 1
             continue
         if src == "tv":
             out["src"] = "tv"
@@ -396,8 +405,14 @@ def main() -> int:
     cum_rows = [r for r in allo if not tv_backfill(r)]
     if len(cum_rows) < len(allo):
         _log(f"📺 مستثنى من التراكم: {len(allo) - len(cum_rows)} صفًّا قديمًا حُسم على TradingView (يبقى في الملفّ)")
-    msg = build_digest(day, today_rows, tally(cum_rows), cov, miss, src=src,
-                       excluded=len(allo) - len(cum_rows))
+    # 🩺 **سطرُ التغطية يُطابق نفسَه** (مسكةُ 2026-10-01): «تعذّر» لليوم = ما لم يُحسم من صفوفه (`cov[1] - cov[0]`)
+    #    لا مجموعُ إخفاقات التشغيلة — وما تعذّر من جلساتٍ سابقة داخل نافذة الاستدراك يُعلَن بعدّه مستقلًّا وبأيّامه.
+    prior = {k: v for k, v in miss_days.items() if k != day}
+    if prior:
+        _log(f"🩺 تعذّر من جلساتٍ سابقة {sum(prior.values())} صفًّا (يُعاد كلَّ تشغيلةٍ حتى يخرج من نافذة "
+             f"{BACKLOG_DAYS} يومًا): " + " · ".join(f"{k}: {v}" for k, v in sorted(prior.items())))
+    msg = build_digest(day, today_rows, tally(cum_rows), cov, max(0, cov[1] - cov[0]), src=src,
+                       excluded=len(allo) - len(cum_rows), missing_prior=sum(prior.values()))
     _log(msg)
     if not S.send_telegram(msg + "\n\n" + S.FOOTER):
         _log("⚠️ تيليجرام رفض التقرير — لا ختم، تُعاد المحاولة.")
