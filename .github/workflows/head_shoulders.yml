@@ -2,20 +2,25 @@ name: "🔎 نموذج الرأس والكتفين (head_and_shoulders_detector 
 
 # 🔎 أمرُ المالك 2026-10-01 «FULL AUTONOMOUS MISSION — BUILD: نموذج الرأس والكتفين» · العقد hs_prereg.md.
 # الأوضاع: dev (2022 أعمى عن العوائد ‏+ عيّنةُ التدقيق ‏+ التحقّقُ البنيويّ) · verdict (الحكمُ المسجَّل 2023-2025 ‏+ 5 دقائق وصفيّة)
-#   · ticker (فحصُ سهمٍ ‏+ شارت) · query (الحالاتُ التاريخيّة ‏+ CSV) · scan (المسحُ الحيّ — الكرونُ يُضاف بعد الحكم بشرط العقد §⑤).
+#   · ticker (فحصُ سهمٍ ‏+ شارت) · query (الحالاتُ التاريخيّة ‏+ CSV) · scan (المسحُ الحيّ — مجدولٌ منذ 2026-10-01 بعد الحكم وبشرط دقّة التدقيق · العقد §⑪ · HS25).
 # 📺 الشموعُ من TradingView مباشرةً (`S.tv_download`) — **بلا `BARS_SOURCE`** (مفتاحُه محصورٌ بعشرة workflows · قفلُ TVB9).
 # 🔐 contents: write — `git_save` يدفع `hs_research/` (dev/verdict) و`hs_state.json` (scan). خارج الفرز والجذور · لا `LOGIC_VERSION`.
 permissions:
   contents: write
 
 on:
+  schedule:
+    # ⏰ المسحُ اليوميّ بعد الإغلاق (العقد §⑪ · بعد الحكم وبشرط الدقّة): 00:47 UTC = 20:47 ET صيفًا · 19:47 ET شتاءً — بعد إغلاق
+    #    الجلسة النظاميّة في الفصلين · وخانةُ الأيّام 2-6 (ثلاثاء⟶سبت UTC = جلساتُ الاثنين⟶الجمعة).
+    - cron: "47 0 * * 2-6"
   workflow_dispatch:
     inputs:
       mode:
         description: "dev · verdict · ticker · query · scan"
         type: choice
         options: [dev, verdict, ticker, query, scan]
-        default: dev
+        # الافتراضيُّ query (يقرأ ولا يكتب البحث) — dev/verdict يُختاران صراحةً فلا يدهس تشغيلٌ يدويٌّ عابرٌ ملفّاتِ البحث المجمَّدة
+        default: query
       ticker:
         description: "الرمز (لوضع ticker)"
         required: false
@@ -50,7 +55,7 @@ jobs:
       - name: 🔎 نموذج الرأس والكتفين
         env:
           PYTHONUNBUFFERED: "1"
-          HS_MODE: ${{ inputs.mode }}
+          HS_MODE: ${{ inputs.mode || 'scan' }}
           HS_TICKER: ${{ inputs.ticker }}
           HS_TF: ${{ inputs.tf }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
