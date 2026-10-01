@@ -15730,7 +15730,9 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
             # 📊 إغلاقُ الأمس **للناجين وحدهم** (نداءٌ واحدٌ لكلّ سهمٍ باليوم —
             #    كاشُ `polygon_prev_close`) ⇒ سطرُ «من إغلاق الأمس» في الكرت.
             #    فاشلٌ-آمنٌ داخليًّا (`None` ⇒ غيابُ السطر لا انهيارُ المسح).
-            _pc = polygon_prev_close(row.get("symbol"), today_iso)
+            #    🎯📺 (‏2026-10-01) **من الجالب المحقون نفسِه** (`fpc` — وافتراضُه `polygon_prev_close` ⇒ بت-بت بلا حقن):
+            #    مسارُ TradingView يحقن إغلاقَ أمسه فيعود سطرُ الكرت وختمُ `J1` (كان Polygon وحدَه ⇒ صامتًا منذ 09-29).
+            _pc = fpc(row.get("symbol"), today_iso)
             for e in ev:
                 e["operator"] = of
                 if _pc:
@@ -17442,6 +17444,183 @@ def tv_postmarket_map(scan=None):
         return out
     except Exception:                                            # noqa: BLE001
         return None
+
+
+
+# ═══ 🎯📺 «رجع هنا الدخول» (أمرُ المالك 2026-10-01) — شموعُ الدقيقة الحيّة من مِقبس TradingView **بعقد Polygon** ═══
+# عاملُ «هنا الدخول» (`operator_entry_live.py`) صامتٌ منذ انتهاء Polygon (2026-09-29): مسحُ الدخول ومسحُ السيولة يأخذان
+# `polygon_minute_bars` و`polygon_prev_close`. هذا الجالبُ دفعةٌ واحدةٌ في الدورة للكون كلّه (`tv_data.fetch_many`) ثمّ يُقرأ
+# بالعقد نفسِه ({o,h,l,c,v,t,vw}) فتعمل `scan_liq_stages`/`scan_operator_entry` **بلا تعديل** عبر حقنهما القائم.
+# 🔒 **خلف مفتاح `OE_SOURCE`=«tradingview» مطفأٍ في الـworkflow** حتى يعبر مِجَسُّ الجلسة (‏`ope_probe.py`: الطزاجة · التغطية ·
+#    السعر · السرعة · الحجم) ⇒ الدمجُ وحدَه لا يغيّر الإنتاج · وغيابُ المفتاح ⟵ Polygon بت-بت. عرضٌ/تنبيهٌ فقط — خارج الجذور.
+OE_SOURCE_ENV = "OE_SOURCE"        # 🎯📺 «tradingview» ⟵ مِقبس TV في «هنا الدخول» · وغيابُه ⟵ Polygon بت-بت
+TV_LIVE_N = 400                    # engineering — دقائقُ ممتدّة تغطّي نافذةَ الدخول (`OP_ENTRY_WINDOW_MIN`=390) وبُكيتَي السيولة (65)
+TV_LIVE_WORKERS = 8                # engineering — مقابسُ الجلب المتوازي في الدورة (مِجَسّ `O4`: الكونُ ‏≤45ث)
+TV_LIVE_REFRESH_S = 30             # engineering — لا جلبَ ثانيًا قبل نصف دقيقة (مسحا السيولة في الدورة نفسِها يقرآن الدفعة نفسَها)
+TV_LIVE_SCALE_MIN = 1.0            # توأمُ `presession_radar.TV_SCALE_MIN` (قفلُ تطابق): f تحت 1 مستحيل ⟵ لا تسوية
+TV_LIVE_SCALE_MAX = 200.0          # توأمُ `presession_radar.TV_SCALE_MAX`: f فوقه دقائقُ شبهُ خالية ⟵ لا تسوية
+TV_LIVE_SCALE_SPAN_MIN = 30        # engineering — لا `f` قبل نصف ساعةٍ من الجرس (مقامٌ من دقائقَ قليلة غيرُ مستقرّ ⟵ نفخٌ لا صمت)
+TV_LIVE_LAST = {}                  # 🎯📺 تقريرُ آخر جلب (للسجلّ والاختبار)
+
+
+def oe_source() -> str:
+    """مصدرُ شموع «هنا الدخول» من البيئة وقتَ النداء: «tradingview» أو "" (= Polygon بت-بت)."""
+    return (os.environ.get(OE_SOURCE_ENV) or "").strip().lower()
+
+
+def tv_live_minutes(raw, minutes, now_s, f=None):
+    """نقيّة: شموعُ TV [(ts, o, h, l, c, v)] ⟵ عقدُ Polygon [{'o','h','l','c','v','t','vw'}] لما بدأ في
+    `[now_s − minutes×60، now_s]` (نافذةُ `polygon_minute_bars` نفسُها) · والحجمُ × `f` إن مُرِّر (تسويةُ الحجم الجزئيّ) ·
+    و`t` بالمللي · و`vw`=None (‏`vwap_entry_confirm` يقرأ الإغلاقَ حين يغيب `vw` — سلوكُه القائم) · وبلا شموعٍ ⟵ None."""
+    if not raw:
+        return None
+    try:
+        hi_s = int(now_s)
+        lo_s = hi_s - int(minutes) * 60
+        k = float(f) if f else 1.0
+    except (TypeError, ValueError):
+        return None
+    out = []
+    for x in raw:
+        try:
+            ts = int(x[0])
+            if ts < lo_s or ts > hi_s:
+                continue
+            out.append({"o": float(x[1]), "h": float(x[2]), "l": float(x[3]), "c": float(x[4]),
+                        "v": float(x[5] or 0.0) * k, "t": ts * 1000, "vw": None})
+        except (TypeError, ValueError, IndexError):
+            continue
+    return out or None
+
+
+def tv_live_scale(raw, v_day, open_s, close_s, now_s=None):
+    """نقيّة: `f` = حجمُ اليوم الموحَّد (الماسح) ÷ مجموعُ دقائق TV **النظاميّة** اليوم (‏`[open_s، close_s)`) — نظيرُ
+    `presession_radar.tv_scale_volume` لهذا العقد · وبلا حجمٍ يوميٍّ أو بلا دقائق نظاميّة أو `f` خارج [`TV_LIVE_SCALE_MIN`،
+    `TV_LIVE_SCALE_MAX`] ⟵ None (‏الحجمُ الخامُّ يبقى ⇒ أرضياتُ الدولار أصعبُ بلوغًا: فاشلٌ-آمنٌ نحو صمتٍ لا ضجيج).
+    🔒 **وحارسا النفخ** (‏2026-10-01 · مراجعةٌ قبل الدمج — المقامُ الجزئيّ يكبّر `f` فيضخّم الحجمَ نحو الضجيج):
+    ① **التغطية:** أوّلُ شمعةٍ في الدفعة بعد `open_s` ⟵ الدفعةُ لا تبلغ الجرس (‏400 دقيقة لسهمٍ نشطٍ بعد ‏≈16:10 نيويورك) ⟵ None ·
+    ② **المدى:** `now_s` قبل `TV_LIVE_SCALE_SPAN_MIN` دقيقةً من الجرس ⟵ None (‏البريماركتُ بلا دقائق نظاميّة ⟵ None أصلًا)."""
+    try:
+        vd = float(v_day)
+    except (TypeError, ValueError):
+        return None
+    if not raw or not vd > 0:
+        return None
+    try:
+        o, c = int(open_s), int(close_s)
+        if now_s is not None and int(now_s) - o < TV_LIVE_SCALE_SPAN_MIN * 60:
+            return None
+        if min(int(x[0]) for x in raw) > o:
+            return None
+        vt = sum(float(x[5] or 0.0) for x in raw if o <= int(x[0]) < c)
+    except (TypeError, ValueError, IndexError):
+        return None
+    if not vt > 0:
+        return None
+    f = vd / vt
+    return f if TV_LIVE_SCALE_MIN <= f <= TV_LIVE_SCALE_MAX else None
+
+
+def tv_prev_from_daily(daily, today_ny):
+    """نقيّة: إغلاقُ **الجلسة السابقة** من شموع TV اليوميّة [(ts, o, h, l, c, v)] — إن كانت آخرُ شمعةٍ يومَ `today_ny`
+    (الجلسةُ بدأت) فالتي قبلها · وإلّا آخرُها (بريماركت/عطلة) · نظيرُ `/prev` عند Polygon · وتعذّرٌ ⟵ None."""
+    try:
+        import tv_data as TV
+        b = [x for x in (daily or []) if x and float(x[4]) > 0]
+        if not b:
+            return None
+        last_day = TV.ny_day(int(b[-1][0]))
+        if str(last_day) == str(today_ny):
+            return float(b[-2][4]) if len(b) >= 2 else None
+        return float(b[-1][4])
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+class TVLiveFeed:
+    """🎯📺 جالبُ دورة «هنا الدخول» من TradingView: `refresh(syms)` دفعةٌ واحدة (الماسحُ لحجم اليوم وخريطة الرموز ·
+    `fetch_many` لدقائق الكون الممتدّة · وشموعٌ يوميّةٌ **مرّةً في اليوم** لإغلاق الأمس) ثمّ `bars(sym, minutes)` و`prev_close(sym)`
+    بعقد `polygon_minute_bars`/`polygon_prev_close` حرفًا ⇒ يُحقَنان في `scan_liq_stages`/`scan_operator_entry` كما هما.
+    `fetch` (توقيعُ `tv_data.fetch_many`) و`scan` و`clock` محقونةٌ للاختبار · وكلُّ تعذّرٍ فاشلٌ-آمنٌ (None ⇒ لا حدث)."""
+
+    def __init__(self, fetch=None, scan=None, clock=None):
+        self._fetch, self._scan, self._clock = fetch, scan, (clock or time.time)
+        self.raw, self.scale, self.prev = {}, {}, {}
+        self.at = None
+        self.prev_day = None
+        self.scale_day = None
+
+    def _tv(self):
+        import tv_data as TV
+        return TV
+
+    def refresh(self, syms, force=False):
+        now = float(self._clock())
+        if not force and self.at is not None and now - self.at < TV_LIVE_REFRESH_S:
+            return dict(TV_LIVE_LAST)
+        TV = self._tv()
+        from zoneinfo import ZoneInfo
+        ny = ZoneInfo("America/New_York")
+        today = dt.datetime.fromtimestamp(now, ny).date()
+        t0 = time.time()
+        try:
+            snap = (self._scan or TV.scan)(["name", "volume"])
+        except Exception:                                        # noqa: BLE001
+            snap = None
+        tmap = TV.ticker_map(snap) if snap else {}
+        syms = [str(s).upper() for s in dict.fromkeys(syms or []) if s]
+        fulls = {s: _tv_full_name(s, tmap) for s in syms}
+        fetch = self._fetch or TV.fetch_many
+        try:
+            res = fetch(list(fulls.values()), interval="1", n=TV_LIVE_N, extended=True,
+                        workers=TV_LIVE_WORKERS) or {}
+        except Exception:                                        # noqa: BLE001
+            res = {}
+        o_s = int(dt.datetime(today.year, today.month, today.day, 9, 30, tzinfo=ny).timestamp())
+        c_s = int(dt.datetime(today.year, today.month, today.day, 16, 0, tzinfo=ny).timestamp())
+        # 🔒 `f` اليوم يبقى حين يتعذّر حسابُه لاحقًا (تغطيةٌ ناقصةٌ بعد الإغلاق · ماسحٌ تعذّر) — وتبدّلُ اليوم يمحوه.
+        old = self.scale if self.scale_day == today else {}
+        self.raw, self.scale = {}, {}
+        for s, full in fulls.items():
+            b = res.get(full)
+            if not b:
+                continue
+            self.raw[s] = b
+            vday = ((snap or {}).get(full) or {}).get("volume")
+            f = tv_live_scale(b, vday, o_s, c_s, now_s=now)
+            if f is None:
+                f = old.get(s)
+            if f is not None:
+                self.scale[s] = f
+        self.scale_day = today
+        if self.prev_day != today or not self.prev:
+            try:
+                dres = fetch(list(fulls.values()), interval="1D", n=3, extended=False,
+                             workers=TV_LIVE_WORKERS) or {}
+            except Exception:                                    # noqa: BLE001
+                dres = {}
+            self.prev = {}
+            for s, full in fulls.items():
+                pv = tv_prev_from_daily(dres.get(full), today.isoformat())
+                if pv is not None:
+                    self.prev[s] = pv
+            self.prev_day = today
+        self.at = now
+        TV_LIVE_LAST.clear()
+        TV_LIVE_LAST.update({"asked": len(fulls), "got": len(self.raw), "scaled": len(self.scale),
+                             "prev": len(self.prev), "scan": bool(snap), "secs": round(time.time() - t0, 1)})
+        return dict(TV_LIVE_LAST)
+
+    def bars(self, sym, minutes=90):
+        """عقدُ `polygon_minute_bars(sym, minutes)`: شموعُ آخر دفعةٍ حتى لحظة جلبها · وبلا شموعٍ ⟵ None."""
+        s = str(sym or "").upper()
+        if self.at is None:
+            return None
+        return tv_live_minutes(self.raw.get(s), minutes, self.at, self.scale.get(s))
+
+    def prev_close(self, sym, day_iso=None):
+        """عقدُ `polygon_prev_close(sym, day_iso)`: إغلاقُ الجلسة السابقة من شموع TV اليوميّة · وتعذّرٌ ⟵ None."""
+        return self.prev.get(str(sym or "").upper())
 
 
 def ah_guard_rows(rows, session_date, fetch=None):

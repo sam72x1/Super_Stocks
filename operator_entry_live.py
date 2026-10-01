@@ -535,9 +535,13 @@ def _load_universe():
 
 
 def main():
-    if not os.environ.get("POLYGON_API_KEY", "").strip():
+    # 🎯📺 **مسارُ TradingView** (أمرُ المالك 2026-10-01 «رجع هنا الدخول»): `OE_SOURCE`=«tradingview» ⟵ الشموعُ وإغلاقُ
+    #    الأمس من `bot.TVLiveFeed` (دفعةٌ واحدةٌ في الدورة) وبلا حاجةٍ لمفتاح Polygon · وغيابُه ⟵ المسارُ السابق **بت-بت**.
+    tv_mode = bot.oe_source() == "tradingview"
+    if not tv_mode and not os.environ.get("POLYGON_API_KEY", "").strip():
         _log("⚠️ «هنا الدخول»: لا مفتاح Polygon — لا عمل (فاشل-آمن).")
         return 0
+    feed = bot.TVLiveFeed() if tv_mode else None
     role = (os.environ.get("OE_SEGMENT", "").strip().lower() or "full")
     try:
         interval = max(20, int(os.environ.get("OE_INTERVAL", "")
@@ -584,6 +588,9 @@ def main():
          + f" · 🔁 إعادةُ المِرساة بعد الخروج البنيويّ مرّةً واحدة "
            f"(`LIQ_REARM_MAX`={bot.LIQ_REARM_MAX}) · ووسمُ «مِرساة #N» "
            f"يُطبَع هنا مُسلَّمًا كان أو مكتومًا")
+    if feed is not None:
+        _log("📺 مصدرُ الشموع: **TradingView** (`OE_SOURCE`) — دفعةٌ واحدةٌ في الدورة بـ"
+             f"{bot.TV_LIVE_WORKERS} مقابس · وبوّابةُ المضارب بلا Polygon ⟵ «لم يُتحقّق» (فاشلةٌ-آمنةٌ مفتوحة)")
     loops, fired, errs = 0, 0, 0
     liq_at, liq_cov, liq_hit = 0, 0, 0
     def _liq_sweep():
@@ -601,11 +608,21 @@ def main():
         #    والمسحُ **متزامنٌ** فيغطّي الكونَ كلَّه في دورةٍ واحدة (‏319 نداءً
         #    تسلسليًّا ‏≈96ث ⇒ يستحيل وعدُ الدقيقة).
         _snap = dict(seen)          # لقطةٌ للرجوع عند رفض تيليجرام (لا كتمَ صامت)
+        _kw = {}
+        if feed is not None:        # 🎯📺 دفعةُ TradingView (لا جلبَ ثانيًا قبل `TV_LIVE_REFRESH_S`)
+            try:
+                _tvr = feed.refresh([r["symbol"] for r in uni_all])
+                if loops % REFRESH_EVERY == 0 or not _tvr.get("got"):
+                    _log(f"📺 TradingView: {_tvr.get('got')} من {_tvr.get('asked')} في {_tvr.get('secs')}ث · "
+                         f"مسوّى الحجم {_tvr.get('scaled')} · إغلاقُ الأمس {_tvr.get('prev')}")
+            except Exception as e:                               # noqa: BLE001
+                _log(f"⚠️ جلبُ TradingView (دورة {loops}): {e}")
+            _kw = {"fetch_bars": feed.bars, "fetch_prev_close": feed.prev_close}
         try:
             _today2 = _ny_minutes()[1]
             lrows, lcov, lsec = bot.scan_liq_stages(
                 uni_all, _today2, seen=seen,
-                fetch_operator=bot.operator_flow)
+                fetch_operator=bot.operator_flow, **_kw)
             liq_cov += lcov
         except Exception as e:                                   # noqa: BLE001
             errs += 1
@@ -735,7 +752,9 @@ def main():
         _liq_sweep()
         try:
             _today = _ny_minutes()[1]
-            rows = bot.scan_operator_entry(uni, _today, seen=seen)
+            rows = bot.scan_operator_entry(
+                uni, _today, seen=seen,
+                **({"fetch_bars": feed.bars} if feed is not None else {}))
         except Exception as e:                                   # noqa: BLE001
             errs += 1
             rows = []
