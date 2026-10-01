@@ -76226,7 +76226,8 @@ try:
              "rest": any("نماذجُ أخرى اليوم (2)" in m for m in _sent26[:_n1]),
              "stale": not any("$STALE" in m for m in _sent26), "flat": not any("$FLAT" in m for m in _sent26),
              "docs": len(_docs26) == 5 and all(d.startswith(_hs26_dir) for d in _docs26),
-             "state": len(_st26.get("sent") or {}) == 7, "saved": _saved26 and _saved26[0] == [HS.STATE_FILE]}
+             # 🧪 الحالةُ **وسجلُّ `T-HS-SF`** في دفعةٍ واحدة (`hs_sf_prereg.md §⑩` · HSF7)
+             "state": len(_st26.get("sent") or {}) == 7, "saved": _saved26 and _saved26[0] == [HS.STATE_FILE, HS._fwd_path()]}
     # التغطية: جالبٌ يتعذّر على الأكثر ⟵ سطرُ عطلٍ لا صمت · ولا مسح
     _sent26.clear()
     HS._fetch_live = lambda syms, days=HS.SCAN_DAYS: ({"QA": _frames26["QA"]}, {})
@@ -76817,6 +76818,452 @@ finally:
     _hs_sh.rmtree(_hs43_dir, ignore_errors=True)
 check("🔎 HS43 سجلُّ المسح **يُسمّي ما أُرسل**: سطرٌ لكلّ رسالةٍ وصلت (الرمز · الحالة · الجودة · الاختراق) ‏+ سطرُ الباقين · والستّةُ كلُّهم "
       "مسمَّون · وتلغرامٌ يرفض ⟵ لا سطرَ «أُرسل»", _hs43_ok, str(_hs43)[:400])
+# ═════ 🧪 HSF — `T-HS-SF` «الرأس والكتفين مع قواعد الشورت والفلوت» (أمرُ المالك 2026-10-01 · `hs_sf_prereg.md`) ═════════════════
+#    حصادٌ أماميٌّ صامت في المسح الحيّ: أعلامٌ بمنطقٍ ثلاثيّ وبالاسم · قياسٌ فاشلٌ-آمن بلا صفرٍ مفبرك · بلا انحيازِ بقاء · حسمٌ بدورة الحياة
+#    على نافذة الثلاثين · حكمٌ بعددٍ ثابت وبالأضعف · حرفيٌّ تسلسليّ · عمًى قبل الحكم · وصفرُ أثرٍ على الرسائل (W5) — **أطرٌ اصطناعيّة · لا شبكة**.
+_HSF_PRE = [(0, 1.20), (5, 1.30), (45, 0.80), (55, 0.92), (67, 0.70), (79, 0.92), (89, 0.80)]
+_HSF_V = {"ok": HS.SYN_IHS,
+          "fail": _HSF_PRE + [(97, 0.97), (105, 0.95), (130, 0.60), (140, 0.6)],
+          "late": _HSF_PRE + [(97, 0.97), (101, 0.66), (106, 0.66), (122, 1.25), (140, 1.2)],
+          "slow": _HSF_PRE + [(97, 0.97), (126, 1.0), (140, 1.3), (150, 1.3)]}
+
+
+def _hsf_df(kind, seed=1):
+    return HS.synth_bars(_HSF_V[kind], seed=seed, start="2026-06-01")
+
+
+def _hsf_meas(table):
+    return lambda syms, today: {s: dict(table.get(s) or {}) for s in syms}
+
+
+def _hsf_empty_splits(_s):
+    return pd.Series([], dtype=float)
+
+
+# ── HSF1 الأعلامُ (§②): منطقٌ ثلاثيّ (المجهولُ None لا «لا») · «تحت» للمتاح و«أو أقلّ» للفلوت · و«و» تسقط بأحدهما معلومًا · والحدودُ
+#    **بالاسم وقتَ النداء** (`S.CONFIG` — تغييرُ `BORROW_AVAIL_MAX` يقلب العلَم) · والاستكشافيّةُ بحدودها.
+try:
+    _f1 = HS.fwd_flags
+    _a1, _b1 = _f1(19_999, 5_000_000, 20.0), _f1(20_000, 5_000_001, 19.99)
+    _c1, _d1, _e1, _g1 = _f1(None, 3e6), _f1(5_000, None), _f1(30_000, None), _f1(None, 9e6)
+    _sv1 = S.CONFIG["BORROW_AVAIL_MAX"]
+    try:
+        S.CONFIG["BORROW_AVAIL_MAX"] = 25_000
+        _h1 = _f1(22_000, 1e6)
+    finally:
+        S.CONFIG["BORROW_AVAIL_MAX"] = _sv1
+    _hsf1 = {"edges": (_a1["S"], _a1["F"], _a1["SF"], _a1["FEE"], _b1["S"], _b1["F"], _b1["SF"], _b1["FEE"]),
+             "unknown": (_c1["S"], _c1["F"], _c1["SF"], _d1["S"], _d1["F"], _d1["SF"]),
+             "known_no": (_e1["SF"], _g1["SF"]), "by_name": (_h1["S"], _h1["thr"]["avail"]),
+             "arms": (_f1(9_999, 1_999_999)["S10"], _f1(10_000, 2_000_000)["S10"], _f1(10_000, 2_000_000)["F2"],
+                      _f1(9_999, 1e6)["S10F"], _f1(5_000, 1.5e6)["SF2"], _f1(5_000, 1.5e6, None)["SFFEE"],
+                      _f1(5_000, 1.5e6, 5.0)["SFFEE"])}
+    _hsf1_ok = (_hsf1["edges"] == (True, True, True, True, False, False, False, False)
+                and _hsf1["unknown"] == (None, True, None, True, None, None) and _hsf1["known_no"] == (False, False)
+                and _hsf1["by_name"] == (True, 25_000) and _hsf1["arms"] == (True, False, False, True, True, None, False))
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf1_ok, _hsf1 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 HSF1 أعلامُ «قواعد الشورت والفلوت» بمنطقٍ ثلاثيّ: متاحٌ «تحت» 20 ألفًا · فلوتٌ «5 ملايين أو أقلّ» · المجهولُ None لا «لا» · «و» تسقط "
+      "بأحدهما معلومًا · والحدودُ بالاسم وقتَ النداء (`S.CONFIG`) · والاستكشافيّةُ (10K · 2M · الرسوم) بحدودها", _hsf1_ok, str(_hsf1)[:400])
+
+# ── HSF2 القياسُ (§④ · W2): صفُّ حصّاد اليوم أوّلًا **بلا نداء** · ChartExchange بسقفه · التعذّرُ مجهولٌ **بسببه لا صفر** · ماسحُ TradingView
+#    **مرّةً** (ناسداك قبل نيويورك) وغيرُ الموجب مجهول · وياهو للمقارنة بسقفه · وتعذّرُ الماسح ⟵ محاولتان ثمّ «tv_scan_fail» ·
+#    وتحت `SUPER_STOCKS_TESTING` بلا حقنٍ **صفرُ نداءٍ شبكيّ**.
+_hsf2_sv = (S.ce_borrow_info, S._harvested_borrow, S._yahoo_float_status, HS._tv_float_snapshot)
+try:
+    _calls2 = {"ce": [], "tv": 0, "yf": []}
+
+    def _ce2(sym, diag=None):
+        _calls2["ce"].append(sym)
+        if sym == "CEX":
+            raise RuntimeError("x")
+        if sym == "CEF":
+            if diag is not None:
+                diag["reason"] = "parse:shell"
+            return {}
+        return {"shares_available": 7000, "borrow_fee": 55.5}
+
+    def _tv2():
+        _calls2["tv"] += 1
+        return {"NASDAQ:HV1": {"float_shares_outstanding": 1.2e6}, "NASDAQ:CEO": {"float_shares_outstanding": 0},
+                "NYSE:HV1": {"float_shares_outstanding": 9e9}}
+
+    def _yf2(sym):
+        _calls2["yf"].append(sym)
+        return ("ok", 1.1e6) if sym == "HV1" else ("miss", None)
+    _m2 = HS.fwd_measure(["HV1", "CEO", "CEF", "CEX", "B1", "B2"], "2026-10-02",
+                         harvested={"HV1": {"shares_available": 900, "borrow_fee": 300.0}}, fetch_ce=_ce2, tv_scan=_tv2,
+                         yfloat=_yf2, budget=3, pause=0)
+    _tvn2 = {"n": 0}
+
+    def _tvfail2():
+        _tvn2["n"] += 1
+        return None
+    _m2b = HS.fwd_measure(["Z1"], "2026-10-02", harvested={}, fetch_ce=lambda s, diag=None: {}, tv_scan=_tvfail2,
+                          yfloat=lambda s: ("fail", None), pause=0)
+
+    def _boom2(*a, **k):
+        raise AssertionError("network")
+    S.ce_borrow_info = S._harvested_borrow = S._yahoo_float_status = _boom2
+    HS._tv_float_snapshot = _boom2
+    _m2c = HS.fwd_measure(["Q1"], "2026-10-02")
+    _hsf2 = {"harvest": (_m2["HV1"]["avail"], _m2["HV1"]["avail_src"], _m2["HV1"]["fee"]),
+             "ce": (_m2["CEO"]["avail"], _m2["CEO"]["avail_src"], _m2["CEO"]["fee"]),
+             "why": (_m2["CEF"]["avail"], _m2["CEF"]["avail_why"], _m2["CEX"]["avail"], _m2["CEX"]["avail_why"]),
+             "budget": (_m2["B1"]["avail_why"], _m2["B2"]["avail_why"], _calls2["ce"]),
+             "float": (_m2["HV1"]["float_tv"], _m2["CEO"]["float_tv"], _m2["CEO"]["float_why"], _m2["CEF"]["float_why"],
+                       _calls2["tv"]),
+             "yahoo": (_m2["HV1"]["float_yf"], _m2["CEO"]["float_yf_why"], _m2["B1"]["float_yf_why"], _calls2["yf"]),
+             "tvfail": (_m2b["Z1"]["float_why"], _tvn2["n"], _m2b["Z1"]["avail"], _m2b["Z1"]["avail_why"]),
+             "testing": (_m2c["Q1"]["avail_why"], _m2c["Q1"]["float_why"], _m2c["Q1"]["float_yf_why"], _m2c["Q1"]["avail"])}
+    _hsf2_ok = (_hsf2["harvest"] == (900, "ctb_log", 300.0) and _hsf2["ce"] == (7000, "chartexchange", 55.5)
+                and _hsf2["why"] == (None, "parse:shell", None, "exc:RuntimeError")
+                and _hsf2["budget"] == ("budget", "budget", ["CEO", "CEF", "CEX"])
+                and _hsf2["float"] == (1.2e6, None, "tv_nonpositive", "tv_missing", 1)
+                and _hsf2["yahoo"] == (1.1e6, "miss", "budget", ["HV1", "CEO", "CEF"])
+                and _hsf2["tvfail"] == ("tv_scan_fail", HS.FWD_TV_TRIES, None, "empty")
+                and _hsf2["testing"] == ("testing", "testing", "testing", None))
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf2_ok, _hsf2 = False, f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    S.ce_borrow_info, S._harvested_borrow, S._yahoo_float_status, HS._tv_float_snapshot = _hsf2_sv
+check("🧪 HSF2 القياسُ عند الإشارة: حصّادُ اليوم أوّلًا بلا نداء · ChartExchange بسقف التشغيلة · التعذّرُ مجهولٌ بسببه **لا صفر** · ماسحُ "
+      "TradingView مرّةً (ناسداك أوّلًا · غيرُ الموجب مجهول · التعذّرُ بعد محاولتين) · ياهو للمقارنة بسقفه · وتحت الاختبار صفرُ نداء",
+      _hsf2_ok, str(_hsf2)[:500])
+
+# ── HSF3 المجتمعُ (§③): `scan_universe(collect=)` يجمع **كلَّ** اختراقٍ في النافذة **قبل** شرطَي «أُرسل» و«فشل» (لا انحيازَ بقاء) ·
+#    و`collect=None` ⟵ المُخرَجُ بت-بت · و`fwd_candidates`: يومُ الاختراق ‏≥ `FWD_START` (الحدُّ داخل) · غيرُ محصودٍ سلفًا · مرّةً لكلّ معرّف.
+try:
+    _ok3, _fl3 = _hsf_df("ok"), _hsf_df("fail")
+    _so3 = HS.detect(_ok3, sym="AAA")[0]
+    _tr3 = {"AAA": _ok3.iloc[:_so3["b_i"] + 1]}
+    _w3a = []
+    _fd3a = HS.scan_universe({"BBB": _fl3}, {"sent": {}}, lookback=60, collect=_w3a)
+    _w3b = []
+    _fd3b = HS.scan_universe(_tr3, {"sent": {_so3["pid"]: "2026-10-13"}}, collect=_w3b)
+
+    def _sig3(f):
+        return [(s, lc["state"], lc["sig"]["pid"], lc["sig"]["b_date"]) for s, lc in f]
+    _same3 = (_sig3(HS.scan_universe(_tr3, {"sent": {}})) == _sig3(HS.scan_universe(_tr3, {"sent": {}}, collect=[]))
+              and len(HS.scan_universe(_tr3, {"sent": {}})) == 1)
+    _led3 = {"pids": {"P2": {"signal": {"pid": "P2"}}}}
+    _win3 = [("AAA", {"pid": "A1", "b_date": "2026-10-13"}), ("AAA", {"pid": "A1", "b_date": "2026-10-13"}),
+             ("OLD", {"pid": "O1", "b_date": "2026-09-30"}), ("P", {"pid": "P2", "b_date": "2026-10-05"}),
+             ("EDGE", {"pid": "E1", "b_date": "2026-10-01"}), ("NOPID", {"b_date": "2026-10-05"})]
+    _c3 = [(s, x["pid"]) for s, x in HS.fwd_candidates(_win3, _led3)]
+    _hsf3 = {"failed_collected": (len(_fd3a), [s for s, _ in _w3a]), "sent_collected": (len(_fd3b), [s for s, _ in _w3b]),
+             "bitwise": _same3, "cands": _c3}
+    _hsf3_ok = (_hsf3["failed_collected"] == (0, ["BBB"]) and _hsf3["sent_collected"] == (0, ["AAA"]) and _same3
+                and _c3 == [("AAA", "A1"), ("EDGE", "E1")])
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf3_ok, _hsf3 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 HSF3 المجتمعُ بلا انحيازِ بقاء: النافذةُ تُجمَع قبل «أُرسل» و«فشل» (‏`collect`) و`None` بت-بت · والمرشَّحُ: من 2026-10-01 (الحدُّ داخل) · "
+      "غيرُ محصودٍ سلفًا · مرّةً لكلّ معرّف · وبلا معرّفٍ لا يُحصَد", _hsf3_ok, str(_hsf3)[:400])
+
+# ── HSF4 الحسم (§⑤): دورةُ الحياة على **نافذة الثلاثين** — الهدفُ قبل الفشل (late: هدفٌ بعد إبطالٍ ⟵ فشل) · وبعد الثلاثين لا يُحتسب (slow) ·
+#    والناقصُ يُنتظر · التقسيمُ في النافذة ⟵ غيرُ صالح · وتعذّرُه ⟵ يُنتظر ثمّ «مجهول» بعد `FWD_SPLIT_RETRY` · ويومٌ غائبٌ بعد 90 يومًا ⟵ ضاع ·
+#    ومعرّفٌ لا يُعاد كشفُه ⟵ ضاع (لا يُحسم بإشارةٍ أخرى في اليوم نفسِه).
+try:
+    _rec4 = {}
+    for _k in ("ok", "fail", "late", "slow"):
+        _df = _hsf_df(_k)
+        _s = HS.detect(_df, sym=_k.upper())[0]
+        _rec4[_k] = (_df, {"pid": _s["pid"], "sym": _k.upper(), "b_date": _s["b_date"], "ls_date": _s["ls_date"]}, _s["b_i"])
+    _H4 = HS.STRICT["horizon"]
+
+    def _res4(k, df=None, splits=_hsf_empty_splits, today="2027-01-15", rec=None):
+        d0, r0, _b = _rec4[k]
+        return HS.fwd_resolve_row(rec or r0, d0 if df is None else df, today, splits=splits)
+    _o4 = {k: _res4(k) for k in _rec4}
+    _df_ok, _r_ok, _b_ok = _rec4["ok"]
+    _ls4 = _r_ok["ls_date"]
+    _hsf4 = {
+        "outcomes": {k: (v or {}).get("status") and (v["status"], v.get("valid"), v.get("success"), v.get("state30"), v.get("target_hit"))
+                     for k, v in _o4.items()},
+        "incomplete": _res4("ok", df=_df_ok.iloc[:_b_ok + _H4]),
+        "split_in": (_res4("ok", splits=lambda s: pd.Series([0.1], index=pd.to_datetime([_ls4]))) or {}).get("valid"),
+        "split_after": (_res4("ok", splits=lambda s: pd.Series([0.1], index=pd.to_datetime(["2027-06-01"]))) or {}).get("valid"),
+        "split_unknown_wait": _res4("ok", df=_df_ok.iloc[:_b_ok + 1 + _H4], splits=lambda s: None),
+        "split_unknown_late": (_res4("ok", splits=lambda s: None) or {}).get("valid", "ABSENT"),
+        "lost_day": (HS.fwd_resolve_row(dict(_r_ok, b_date="2026-07-04"), _df_ok, "2026-12-01", splits=_hsf_empty_splits) or {}).get("why"),
+        "wait_day": HS.fwd_resolve_row(dict(_r_ok, b_date="2026-07-04"), _df_ok, "2026-09-01", splits=_hsf_empty_splits),
+        "lost_pid": (HS.fwd_resolve_row(dict(_r_ok, pid=_r_ok["pid"].rsplit("|", 1)[0] + "|2026-09-03"), _df_ok, "2027-01-15",
+                                        splits=_hsf_empty_splits) or {}).get("why")}
+    _hsf4_ok = (_hsf4["outcomes"] == {"ok": ("ok", True, True, "TARGET_REACHED", True), "fail": ("ok", True, False, "FAILED", False),
+                                      "late": ("ok", True, False, "FAILED", True), "slow": ("ok", True, False, "NO_RETEST", False)}
+                and _hsf4["incomplete"] is None and _hsf4["split_in"] is False and _hsf4["split_after"] is True
+                and _hsf4["split_unknown_wait"] is None and _hsf4["split_unknown_late"] is None
+                and _hsf4["lost_day"] == "b_date_missing" and _hsf4["wait_day"] is None and _hsf4["lost_pid"] == "pid_not_redetected")
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf4_ok, _hsf4 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 HSF4 الحسمُ بدورة الحياة على نافذة الثلاثين: الهدفُ قبل الفشل (هدفٌ بعد إبطالٍ = فشل · وهدفٌ بعد الثلاثين لا يُحتسب) · الناقصُ يُنتظر · "
+      "التقسيمُ في النافذة غيرُ صالح · وتعذّرُه يُنتظر ثمّ «مجهول» · ويومٌ غائبٌ بعد 90 يومًا أو معرّفٌ لا يُعاد كشفُه ⟵ ضاع",
+      _hsf4_ok, str(_hsf4)[:600])
+
+
+# ── HSF5 الحكم (§⑥-أ): **أوّلُ** بلوغٍ للأرضيّتين (30 · 30) ⟵ الفرعُ 1 بحدّ Newcombe الأدنى فوق الصفر **و**النصفين موجبين (بالأضعف) ·
+#    وإلّا 2 · وقبل الموعد دون الأرضيّة لا حكم (والموعدُ نفسُه لا يُحكم فيه) · وبعده الفرعُ 3 · والأرضيّتان معًا · وصفُّ حكمٍ موجودٌ لا يُعاد.
+def _hsf_led(groups):
+    """[(SF, نجاح, يوم الاختراق)] ⟵ سجلٌّ مفروز (محسومٌ صالح)."""
+    pids = {}
+    for i, (sf, ok, day) in enumerate(groups):
+        pid = f"T{i:03d}|1d|inverse|x|y"
+        pids[pid] = {"signal": {"pid": pid, "sym": f"T{i:03d}", "b_date": day, "SF": sf, "S": sf, "F": True, "lag": 0},
+                     "resolve": {"pid": pid, "status": "ok", "valid": True, "success": ok, "target_hit": ok,
+                                 "mfe": (1.2 if ok else 0.1), "state30": ("TARGET_REACHED" if ok else "FAILED")}}
+    return {"pids": pids, "literal": {}, "verdict": None}
+
+
+def _hsf_days(n, start="2026-10-01"):
+    import datetime as _dtm
+    d0 = _dtm.date.fromisoformat(start)
+    return [(d0 + _dtm.timedelta(days=3 * i)).isoformat() for i in range(n)]
+
+
+try:
+    _d5 = _hsf_days(30)
+    _A5 = _hsf_led([(True, True, d) for d in _d5] + [(False, i % 2 == 0, d) for i, d in enumerate(_d5)])
+    _B5 = _hsf_led([(True, i % 2 == 0, d) for i, d in enumerate(_d5)] + [(False, i % 2 == 0, d) for i, d in enumerate(_d5)])
+    _C5 = _hsf_led([(True, True, d) for d in _d5[:29]] + [(False, False, d) for d in _d5])
+    _E5 = _hsf_led([(True, True, d) for d in _d5[:15]] + [(False, False, d) for d in _d5[:15]]
+                   + [(True, i >= 3, d) for i, d in enumerate(_d5[15:])] + [(False, True, d) for d in _d5[15:]])
+    _F5 = _hsf_led([(True, True, d) for d in _d5] + [(False, False, d) for d in _d5[:29]])
+    _vA, _vB = HS.fwd_verdict(_A5, "2027-03-01"), HS.fwd_verdict(_B5, "2027-03-01")
+    _vE = HS.fwd_verdict(_E5, "2027-03-01")
+    _D5 = dict(_A5, verdict={"ev": "verdict", "branch": 2})
+    _hsf5 = {"A": (_vA or {}).get("branch"), "A_lo": round(((_vA or {}).get("primary") or {}).get("lo") or -9, 3),
+             "A_halves": ((_vA or {}).get("halves") or {}).get("ok"), "B": (_vB or {}).get("branch"),
+             "E": ((_vE or {}).get("branch"), round(((_vE or {}).get("primary") or {}).get("lo") or -9, 3),
+                   ((_vE or {}).get("halves") or {}).get("second")),
+             "C_before": HS.fwd_verdict(_C5, "2027-06-01"), "C_deadline": HS.fwd_verdict(_C5, HS.FWD_DEADLINE),
+             "C_after": (HS.fwd_verdict(_C5, "2028-01-01") or {}).get("branch"),
+             "F": HS.fwd_verdict(_F5, "2027-03-01"), "D": HS.fwd_verdict(_D5, "2028-02-01"),
+             "arms": sorted(((_vA or {}).get("arms") or {}).keys())}
+    _hsf5_ok = (_hsf5["A"] == 1 and _hsf5["A_lo"] > 0 and _hsf5["A_halves"] is True and _hsf5["B"] == 2
+                and _hsf5["E"][0] == 2 and _hsf5["E"][1] > 0 and (_hsf5["E"][2] or 0) < 0
+                and _hsf5["C_before"] is None and _hsf5["C_deadline"] is None and _hsf5["C_after"] == 3
+                and _hsf5["F"] is None and _hsf5["D"] is None
+                and {"S", "F", "S10F", "SF2", "SFFEE", "S_in_F", "SF_target_hit", "SF_lag0", "SF_mfe100"} <= set(_hsf5["arms"]))
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf5_ok, _hsf5 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 HSF5 الحكمُ بعددٍ ثابت وبالأضعف: 30/30 ⟵ الفرعُ 1 بحدّ Newcombe الأدنى فوق الصفر والنصفان موجبان · نصفٌ سالبٌ ⟵ 2 ولو المجمَّعُ فوق "
+      "الصفر · تساوٍ ⟵ 2 · دون الأرضيّة قبل الموعد وفيه لا حكم وبعده 3 · والأرضيّتان معًا · وصفُّ الحكم لا يُعاد · والأذرعُ التسع تُكتب",
+      _hsf5_ok, str(_hsf5)[:500])
+
+# ── HSF6 الحرفيّ (§⑥-ب): أوّلُ SF صالحٍ لم ينجح ⟵ (أ) · وأوّلُه دون ‏+100% ⟵ (ب) · مرّةً لكلّ قراءة · و«الباقي» لا يُسقطه · وعند الحكم
+#    «لم يُكذَّب على N» بحدّ Wilson لا «ثبت».
+try:
+    _L6 = _hsf_led([(False, False, "2026-10-02"), (True, True, "2026-10-03"), (True, False, "2026-10-05"), (True, False, "2026-10-07")])
+    _rows6 = HS._fwd_valid(_L6)
+    _ev6 = HS.fwd_literal_events(_L6, _rows6, "2026-12-01")
+    _L6b = dict(_L6, literal={e["reading"]: e for e in _ev6})
+    _ev6b = HS.fwd_literal_events(_L6b, _rows6, "2026-12-02")
+    _L6c = _hsf_led([(False, False, "2026-10-02"), (True, True, "2026-10-03")])
+    _ev6c = HS.fwd_literal_events(_L6c, HS._fwd_valid(_L6c), "2026-12-01")
+    _st6 = HS.fwd_literal_status(HS._fwd_valid(_L6c))
+    _hsf6 = {"first": sorted((e["reading"], e["sym"]) for e in _ev6), "once": _ev6b, "rest_only": _ev6c,
+             "status": (_st6["A"]["n"], _st6["A"]["k"], _st6["A"]["refuted"], round(_st6["A"]["wilson_lo"], 3))}
+    _hsf6_ok = (_hsf6["first"] == [("A", "T002"), ("B", "T002")] and _ev6b == [] and _ev6c == []
+                and _hsf6["status"][:3] == (1, 1, False) and 0 < _hsf6["status"][3] < 1)
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf6_ok, _hsf6 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 HSF6 الادّعاءُ الحرفيّ تسلسليّ: أوّلُ SF صالحٍ يفشل ⟵ (أ) وأوّلُه دون ‏+100% ⟵ (ب) · مرّةً لكلّ قراءة · وفشلُ «الباقي» لا يُسقطه · وعند "
+      "الحكم «لم يُكذَّب على N» بحدّ Wilson لا «ثبت»", _hsf6_ok, str(_hsf6)[:400])
+
+# ── HSF7 **صفرُ أثرٍ على الرسائل** (§⑦ W5) والحصادُ موصولٌ طرفًا لطرف: المسحُ بجالبٍ محقون ⟵ الرسائلُ والحالةُ **بت-بت** مع الحصاد وبحصادٍ يرمي ·
+#    والحصادُ يكتب صفوفَه (مرّةً) ويُحفظ السجلُّ مع الحالة (`git_save`) · وعطلُه يُسجَّل ولا يُسقط المسح (رمزُ 0) · وسطرُ الأعداد مطبوع.
+_hsf7_dir = _hs_tf.mkdtemp(prefix=f"hsf7_{_SUITE_PID}_")
+_hsf7_sv = (HS._fetch_live, HS.scan_population, HS.STATE_FILE, HS.CHART_DIR, HS.RES_DIR, HS.forward_run,
+            S.send_telegram, S.send_telegram_document, S.git_save, S.dq_filter)
+_hsf7 = {}
+try:
+    _fr7 = {}
+    for _i, (_sy, _k) in enumerate((("WA", "ok"), ("WB", "fail"), ("WC", "late"))):
+        _df = _hsf_df(_k, seed=_i + 1)
+        _fr7[_sy] = _df.iloc[:HS.detect(_df)[0]["b_i"] + 1]
+    HS.scan_population = lambda root=".": sorted(_fr7)
+    HS._fetch_live = lambda syms, days=HS.SCAN_DAYS: ({s: _fr7[s] for s in syms if s in _fr7}, {})
+    HS.CHART_DIR = _hsf7_dir
+    S.send_telegram_document = lambda p, caption="": True
+    S.dq_filter = lambda items, hist, scope, **k: list(items)
+
+    def _run7(tag, boom=False):
+        _msgs, _saves = [], []
+        HS.STATE_FILE = _hs_os.path.join(_hsf7_dir, f"st_{tag}.json")
+        HS.RES_DIR = _hs_os.path.join(_hsf7_dir, f"res_{tag}")
+        S.send_telegram = lambda t: (_msgs.append(t), True)[1]
+        S.git_save = lambda files, **k: _saves.append(list(files))
+        if boom:
+            def _raise(*a, **k):
+                raise RuntimeError("boom7")
+            HS.forward_run = _raise
+        _out = _hs_io.StringIO()
+        with _hs_ctx.redirect_stdout(_out):
+            _rc = HS.run_scan()
+        HS.forward_run = _hsf7_sv[5]
+        _st = _hs_json.load(open(HS.STATE_FILE, encoding="utf-8"))
+        return _rc, _msgs, _st, _saves, _out.getvalue()
+    _rcA, _msA, _stA, _svA, _logA = _run7("A")
+    _fwA = _hs_os.path.join(_hsf7_dir, "res_A", HS.FWD_NAME)
+    _ledA = HS.fwd_load(_fwA)
+    _rcA2, _msA2, _stA2, _svA2, _logA2 = _run7("A")              # تشغيلةٌ ثانية: لا رسائلَ ولا صفوفَ مكرّرة
+    _rcB, _msB, _stB, _svB, _logB = _run7("B", boom=True)
+    _hsf7 = {"rc": (_rcA, _rcA2, _rcB), "same_msgs": _msA == _msB and len(_msA) >= 1,
+             "same_state": _stA.get("sent") == _stB.get("sent") and len(_stA.get("sent") or {}) == 3,
+             "rows": (len(_ledA["pids"]), _ledA["rows"], HS.fwd_load(_fwA)["rows"]),
+             "saved": bool(_svA) and _svA[0] == [_hs_os.path.join(_hsf7_dir, "st_A.json"), _fwA],
+             "count_line": "🧪 T-HS-SF (hs_sf_prereg.md) · اليوم: حُصد 3" in _logA and "حُصد 0" in _logA2,
+             "boom_logged": "⚠️ T-HS-SF تعذّر: RuntimeError" in _logB, "no_msgs_2": _msA2 == [],
+             "msg_untouched": not any("T-HS-SF" in m or "hs_sf" in m for m in _msA)}
+    _hsf7_ok = (_hsf7["rc"] == (0, 0, 0) and all(_hsf7[k] for k in ("same_msgs", "same_state", "saved", "count_line", "boom_logged",
+                                                                      "no_msgs_2", "msg_untouched"))
+                and _hsf7["rows"] == (3, 3, 3))
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf7_ok, _hsf7 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+finally:
+    (HS._fetch_live, HS.scan_population, HS.STATE_FILE, HS.CHART_DIR, HS.RES_DIR, HS.forward_run,
+     S.send_telegram, S.send_telegram_document, S.git_save, S.dq_filter) = _hsf7_sv
+    _hs_sh.rmtree(_hsf7_dir, ignore_errors=True)
+check("🧪 HSF7 صفرُ أثرٍ على الرسائل (W5): الرسائلُ والحالةُ بت-بت مع الحصاد وبحصادٍ يرمي · والحصادُ يكتب صفوفَه مرّةً ويُحفظ السجلُّ مع الحالة · "
+      "وعطلُه يُسجَّل ولا يُسقط المسح · وسطرُ الأعداد مطبوع · والرسالةُ بلا حرفٍ من التجربة", _hsf7_ok, str(_hsf7)[:500])
+
+# ── HSF8 التقسيم: `_split_dates` تقرأ **أزواجَ** (يوم, نسبة) من `S._fetch_splits_dq` (قائمةٌ لها `.index` دالّةً ⟵ كانت «مجهولًا» · عطلٌ مُثبَت
+#    بتجربة الحسم) وسلسلةَ ياهو كما هي · وNone/الاستثناءُ مجهول · والحسمُ بلا جالبٍ محقون يقرأ **ياهو ∪ تقويمَ ناسداك** (AST).
+try:
+    _fn8 = {n.name: n for n in _hs_ast.walk(_hs_ast.parse(open(HS.__file__, encoding="utf-8").read()))
+            if isinstance(n, _hs_ast.FunctionDef)}
+
+    def _raise8(_s):
+        raise RuntimeError("x")
+    _hsf8 = {"pairs": HS._split_dates("X", fetch=lambda s: [("2026-09-28", 0.2), ("2025-01-02", 0.1)]),
+             "series": HS._split_dates("X", fetch=lambda s: pd.Series([0.1], index=pd.to_datetime(["2025-01-02"]))),
+             "empty": HS._split_dates("X", fetch=_hsf_empty_splits), "none": HS._split_dates("X", fetch=lambda s: None),
+             "exc": HS._split_dates("X", fetch=_raise8),
+             "dq": any(isinstance(n, _hs_ast.Attribute) and n.attr == "_fetch_splits_dq" for n in _hs_ast.walk(_fn8["fwd_resolve_row"]))}
+    _hsf8_ok = (_hsf8["pairs"] == ["2025-01-02", "2026-09-28"] and _hsf8["series"] == ["2025-01-02"] and _hsf8["empty"] == []
+                and _hsf8["none"] is None and _hsf8["exc"] is None and _hsf8["dq"])
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf8_ok, _hsf8 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 HSF8 تواريخُ التقسيم: أزواجُ (يوم, نسبة) تُقرأ (كانت «مجهولًا») وسلسلةُ ياهو كما هي · وNone والاستثناءُ مجهول · والحسمُ يقرأ ياهو ∪ "
+      "تقويمَ ناسداك (`_fetch_splits_dq`)", _hsf8_ok, str(_hsf8)[:400])
+
+# ── HSF9 الوصلُ والحدود (§⑦ W1 · §⑪ · AST): `run_scan` تنادي `scan_universe(collect=…)` و`forward_run` **بعد آخر إرسال** داخل `try` · و`git_save`
+#    يحفظ `_fwd_path()` · ولا `send_telegram` في أيّ دالّةٍ من التجربة (لا رسالةَ جديدة) · والحدودُ تُقرأ بالاسم (لا 20_000 ولا 10_000 حرفًا).
+try:
+    _src9 = open(HS.__file__, encoding="utf-8").read()
+    _fn9 = {n.name: n for n in _hs_ast.walk(_hs_ast.parse(_src9)) if isinstance(n, _hs_ast.FunctionDef)}
+    _rs9 = _fn9["run_scan"]
+
+    def _calls9(node, name):
+        return [c for c in _hs_ast.walk(node) if isinstance(c, _hs_ast.Call)
+                and (getattr(c.func, "id", None) == name or getattr(c.func, "attr", None) == name)]
+    _fw9 = _calls9(_rs9, "forward_run")
+    _su9 = _calls9(_rs9, "scan_universe")
+    _send9 = [c.lineno for c in _calls9(_rs9, "send_telegram")]
+    _try9 = [t for t in _hs_ast.walk(_rs9) if isinstance(t, _hs_ast.Try)
+             and any(isinstance(c, _hs_ast.Call) and getattr(c.func, "id", None) == "forward_run" for c in _hs_ast.walk(t))]
+    _gs9 = _calls9(_rs9, "git_save")
+    _fwd_fns9 = [n for n in _fn9 if n.startswith("fwd_") or n in ("forward_run", "_fwd_valid", "newcombe")]
+    _hsf9 = {"wired": len(_fw9) == 1 and bool(_try9) and _fw9[0].lineno > max(_send9),
+             "collect": len(_su9) == 1 and any(k.arg == "collect" for k in _su9[0].keywords),
+             "saved": len(_gs9) == 1 and "_fwd_path" in _hs_ast.dump(_gs9[0]),
+             "no_tg": [n for n in _fwd_fns9 if _calls9(_fn9[n], "send_telegram") or _calls9(_fn9[n], "send_telegram_document")],
+             "by_name": all(k in _hs_ast.dump(_fn9["fwd_flags"]) for k in ("BORROW_AVAIL_MAX", "FAISAL_ENTRY_AVAIL_MAX",
+                                                                         "SPLIT_RADAR_FLOAT_MAX", "BORROW_HIGH_PCT"))
+             and not any(isinstance(c, _hs_ast.Constant) and c.value in (20_000, 10_000, 2_000_000, 20.0)
+                         for c in _hs_ast.walk(_fn9["fwd_flags"])),
+             "fns": len(_fwd_fns9)}
+    _hsf9_ok = (_hsf9["wired"] and _hsf9["collect"] and _hsf9["saved"] and _hsf9["no_tg"] == [] and _hsf9["by_name"]
+                and _hsf9["fns"] >= 12)
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf9_ok, _hsf9 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 HSF9 الوصل (W1): `run_scan` ⟵ `scan_universe(collect=…)` ‏+ `forward_run` بعد آخر إرسال داخل `try` ‏+ `git_save` يحفظ السجلّ · ولا تلغرامَ "
+      "في دوالّ التجربة · والحدودُ بالاسم لا حرفًا", _hsf9_ok, str(_hsf9)[:400])
+
+# ── HSF10 السجلُّ يُحفظ فعلًا: `hs_research/hs_forward.jsonl` **غيرُ مُتجاهَل** في git (درسُ HS38: `*.csv` رفض الحفظ) — وشاهدُ ضبطٍ مُتجاهَل.
+try:
+    import subprocess as _hsf10_sp                                      # noqa: PLC0415
+
+    def _ign10(path):
+        return _hsf10_sp.run(["git", "check-ignore", "-q", path], capture_output=True).returncode == 0
+    _p10 = _hs_os.path.join("hs_research", HS.FWD_NAME)
+    _hsf10 = {"path": _p10, "ignored": _ign10(_p10), "control": _ign10("hs_ZZZZ.png"), "rel": HS.FWD_NAME.endswith(".jsonl")}
+    _hsf10_ok = _hsf10["ignored"] is False and _hsf10["control"] is True and _hsf10["rel"]
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf10_ok, _hsf10 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 HSF10 سجلُّ التجربة `hs_research/hs_forward.jsonl` غيرُ مُتجاهَل في git (فيحفظه `git_save`) — والشارتُ مُتجاهَلٌ شاهدَ ضبط",
+      _hsf10_ok, str(_hsf10))
+
+# ── HSF11 **عمًى قبل الحكم** (§⑦ W3): أسطرُ السجلّ قبل صفّ الحكم بلا نسبةٍ ولا عددِ نجاح (والمحسومُ فيه ناجحٌ وفاشل) · وبعد صفّه سطرُ الحكم ·
+#    وسقوطُ الحرفيّ يُنشَر باسم الرمز.
+try:
+    _L11 = _hsf_led([(True, True, "2026-10-02"), (True, False, "2026-10-03"), (False, True, "2026-10-04"), (False, False, "2026-10-06")])
+    _preL11 = HS.fwd_log_lines(_L11, [], [], [], None)
+    _pre11, _cnt11 = "\n".join(_preL11), "\n".join(_preL11[:2])
+    _lit11 = HS.fwd_literal_events(_L11, HS._fwd_valid(_L11), "2026-12-01")
+    _mid11 = "\n".join(HS.fwd_log_lines(_L11, [], [], _lit11, None))
+    _v11 = {"ev": "verdict", "on": "2027-05-01", "branch": 2, "branch_text": "لا تُضيف",
+            "primary": {"k_yes": 1, "n_yes": 2, "k_no": 1, "n_no": 2, "diff": 0.0, "lo": -0.5, "hi": 0.5}}
+    _post11 = "\n".join(HS.fwd_log_lines(dict(_L11, verdict=_v11), [], [], [], None))
+    import re as _hsf11_re                                               # noqa: PLC0415
+    _hsf11 = {"no_rate": "%" not in _cnt11 and not _hsf11_re.search(r"نجا?ح\S*\s*\d", _pre11),
+              "counts": "محسومٌ صالح: SF 2 من 30 · الباقي 2 من 30" in _pre11,
+              "literal": "(أ) «كل صفقة تنجح» سقط على $T001" in _mid11, "post": "الفرعُ 2 «لا تُضيف»" in _post11,
+              "pre_no_verdict": "T-HS-SF الحكم (" not in _pre11}
+    _hsf11_ok = all(_hsf11.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf11_ok, _hsf11 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 HSF11 عمًى قبل الحكم: أسطرُ السجلّ بلا نسبةٍ ولا عددِ نجاح (والمحسومُ ناجحٌ وفاشل) · الأعدادُ بالأرضيّة · سقوطُ الحرفيّ يُسمّى · "
+      "وسطرُ الحكم بعد صفّه وحدَه", _hsf11_ok, str(_hsf11)[:400])
+
+# ── HSF12 Newcombe (الطريقةُ 10 من Wilson): ‏30/30 مقابل 15/30 ⟵ الحدُّ الأدنى من الحساب اليدويّ · والتماثلُ (عكسُ المجموعتين يعكس الفاصل) ·
+#    وعيّنةٌ فارغةٌ ⟵ (None, None, None).
+try:
+    import math as _hsf12_m                                              # noqa: PLC0415
+    _d12, _lo12, _hi12 = HS.newcombe(30, 30, 15, 30)
+    _l1, _u1 = HS.wilson(30, 30)
+    _l2, _u2 = HS.wilson(15, 30)
+    _lo_hand = 0.5 - _hsf12_m.sqrt((1.0 - _l1) ** 2 + (_u2 - 0.5) ** 2)
+    _hi_hand = 0.5 + _hsf12_m.sqrt((_u1 - 1.0) ** 2 + (0.5 - _l2) ** 2)
+    _r12 = HS.newcombe(15, 30, 30, 30)
+    _hsf12 = {"diff": _d12, "lo": (round(_lo12, 6), round(_lo_hand, 6)), "hi": (round(_hi12, 6), round(_hi_hand, 6)),
+              "sym": (round(_r12[1], 9), round(-_hi12, 9), round(_r12[2], 9), round(-_lo12, 9)), "empty": HS.newcombe(0, 0, 3, 5)}
+    _hsf12_ok = (abs(_d12 - 0.5) < 1e-12 and abs(_lo12 - _lo_hand) < 1e-12 and abs(_hi12 - _hi_hand) < 1e-12
+                 and 0.25 < _lo12 < 0.35 and _hsf12["sym"][0] == _hsf12["sym"][1] and _hsf12["sym"][2] == _hsf12["sym"][3]
+                 and _hsf12["empty"] == (None, None, None))
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf12_ok, _hsf12 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 HSF12 فاصلُ Newcombe لفرق نسبتين: يطابق الحسابَ اليدويّ من فاصلَي Wilson (‏30/30 مقابل 15/30) · ومتماثلٌ بعكس المجموعتين · وفارغٌ ⟵ None",
+      _hsf12_ok, str(_hsf12)[:300])
+
+# ── HSF13 **القياسُ الذي يرمي لا يُسقط الحصاد** (§⑦ W2): جالبُ قياسٍ يرمي ⟵ الإشاراتُ تُحصَد **مجهولةَ القياس بسببه** («measure_exc») ويُعلَن
+#    السطر — لا تضيع صامتةً (لو سقط الحصادُ كلُّه لخرجت الإشارةُ من النافذة غدًا بلا صفّ ⟵ انحيازُ اختيار).
+_hsf13_dir = _hs_tf.mkdtemp(prefix=f"hsf13_{_SUITE_PID}_")
+try:
+    _df13 = _hsf_df("ok")
+    _s13 = HS.detect(_df13, sym="MX")[0]
+    _fr13 = {"MX": _df13.iloc[:_s13["b_i"] + 1]}
+    _w13 = []
+    HS.scan_universe(_fr13, {"sent": {}}, collect=_w13)
+
+    def _boom13(syms, today):
+        raise RuntimeError("m13")
+    _o13 = _hs_io.StringIO()
+    with _hs_ctx.redirect_stdout(_o13):
+        _r13 = HS.forward_run(_fr13, _w13, sent={}, today="2026-10-20", path=_hs_os.path.join(_hsf13_dir, "fw.jsonl"),
+                              measure=_boom13, splits=_hsf_empty_splits)
+    _n13 = (_r13.get("new") or [{}])[0]
+    _hsf13 = {"rows": len(_r13.get("new") or []), "why": (_n13.get("avail_why"), _n13.get("float_why"), _n13.get("SF")),
+              "logged": "⚠️ T-HS-SF القياس تعذّر: RuntimeError" in _o13.getvalue(),
+              "saved": HS.fwd_load(_hs_os.path.join(_hsf13_dir, "fw.jsonl"))["rows"]}
+    _hsf13_ok = (_hsf13["rows"] == 1 and _hsf13["why"] == ("measure_exc", "measure_exc", None) and _hsf13["logged"]
+                 and _hsf13["saved"] == 1)
+except Exception as _e:                                                  # noqa: BLE001
+    _hsf13_ok, _hsf13 = False, f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    _hs_sh.rmtree(_hsf13_dir, ignore_errors=True)
+check("🧪 HSF13 قياسٌ يرمي لا يُسقط الحصاد: الإشارةُ تُحصَد مجهولةَ القياس بسببه («measure_exc») ويُعلَن السطرُ ويُكتب الصفّ — لا تضيع صامتة",
+      _hsf13_ok, str(_hsf13)[:300])
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
