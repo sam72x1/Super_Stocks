@@ -1,0 +1,641 @@
+{
+ "iteration": 1,
+ "seed": 20261001,
+ "source_run": 36900586981,
+ "generated_from": "hs_research/dev_2022_iter1.json",
+ "rubric": "hs_prereg.md §⑤ — ستّةُ معايير · الرسمُ حتى بار الاختراق وحدَه (أعمى عن العوائد)",
+ "criterion_3_operationalization": "الكتفان «متقاربان» = فرقُهما حتى ثلث ارتفاع النموذج تقريبًا — اعتُمد أثناء وسم هذه العيّنة ويُطبَّق كما هو على الثانية",
+ "zoom_disclosure": "الشارتات 25-30 رُئيت أيضًا مكبَّرةً (من الكتف الأيسر − 12 حتى الاختراق) لأن انهيارًا سابقًا ضغط مقياسَها — للمعيار ⑥ وحدَه · وفي العيّنة الثانية يُرى المكبَّرُ للثلاثين كلِّها",
+ "precision": {
+  "true": 19,
+  "n": 30,
+  "value": 0.6333,
+  "threshold": 0.7,
+  "passed": false
+ },
+ "false_positive_classes": {
+  "shoulder_mismatch (③)": [
+   "ATYR",
+   "BJDX",
+   "BNKK",
+   "DXLG",
+   "JFIN",
+   "LOOP",
+   "NAGE",
+   "PRPL"
+  ],
+  "relative_noise (⑥)": [
+   "AMCI"
+  ],
+  "spike_reversal_prior (①④)": [
+   "SCWO"
+  ],
+  "spike_neckline_drift (②④⑥ · غيرُ مُصلَح)": [
+   "ZNB"
+  ]
+ },
+ "fixes": [
+  {
+   "param": "shoulder_tol",
+   "from": 0.5,
+   "to": "1/3",
+   "labels": [
+    "ATYR",
+    "BJDX",
+    "BNKK",
+    "DXLG",
+    "JFIN",
+    "LOOP",
+    "NAGE",
+    "PRPL"
+   ],
+   "evidence": "فرقُ الكتفين في الثمانية 0.34-0.47 · وأكبرُه في التسعة عشر الصحيحة 0.23"
+  },
+  {
+   "param": "height_min_pct",
+   "to": 0.05,
+   "labels": [
+    "AMCI"
+   ],
+   "evidence": "AMCI ‏1.5% · وأدنى صحيحٍ 7.0% (GOGO)"
+  },
+  {
+   "param": "prior_bars",
+   "to": 3,
+   "labels": [
+    "SCWO"
+   ],
+   "evidence": "SCWO ‏P0⟵LS بارٌ واحد · وأقصرُه في الصحيحة 3 (WRAP 08-11)"
+  }
+ ],
+ "unfixed": {
+  "ZNB": "لا قاعدةَ بنيويّةً بسيطةً تفصله في هذه العيّنة دون أن تُسقط صحيحًا (ميلُ العنق: FTCI ‏−0.49 صحيح · عمقُ الرأس: RNXT 0.16 صحيح · العنقُ فوق الكتفين عند الاختراق: IBRX 0.12 صحيح) ⟵ صنفٌ متبقٍّ معلَن"
+ },
+ "if_new_rules_on_this_sample": {
+  "kept": 20,
+  "kept_true": 19,
+  "note": "داخل العيّنة — لا يُقرأ دقّةً · والحكمُ على العيّنة الثانية (بذرة 20261002)"
+ },
+ "items": [
+  {
+   "n": 1,
+   "sym": "AMCI",
+   "b_date": "2022-11-28",
+   "pid": "AMCI|1d|inverse|2022-09-21|2022-10-07",
+   "label": "FALSE",
+   "criteria_failed": "⑥",
+   "reason": "ضجيجٌ لا نموذج: سهمُ استحواذٍ (SPAC) ملتصقٌ بقيمة الأمانة ‏≈$10 — الارتفاعُ 1.5% من السعر · وATR شبهُ صفرٍ يُجيزه",
+   "metrics": {
+    "tol": 0.132,
+    "head_depth": 0.329,
+    "height_pct_of_price": 0.0154,
+    "p0_to_ls_bars": 4,
+    "neck_slope_rel": -0.217,
+    "quality": 54
+   },
+   "new_rule_rejects": [
+    "height_pct"
+   ]
+  },
+  {
+   "n": 2,
+   "sym": "ARQ",
+   "b_date": "2022-01-03",
+   "pid": "ARQ|1d|inverse|2021-12-01|2021-12-20",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.234,
+    "head_depth": 0.22,
+    "height_pct_of_price": 0.1017,
+    "p0_to_ls_bars": 11,
+    "neck_slope_rel": -0.336,
+    "quality": 55
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 3,
+   "sym": "ATYR",
+   "b_date": "2022-07-07",
+   "pid": "ATYR|1d|inverse|2022-05-12|2022-06-13",
+   "label": "FALSE",
+   "criteria_failed": "③",
+   "reason": "الكتفان غيرُ متقاربين (فرقُهما 0.37 من الارتفاع)",
+   "metrics": {
+    "tol": 0.366,
+    "head_depth": 0.275,
+    "height_pct_of_price": 0.1851,
+    "p0_to_ls_bars": 28,
+    "neck_slope_rel": -0.35,
+    "quality": 50
+   },
+   "new_rule_rejects": [
+    "shoulder_tol"
+   ]
+  },
+  {
+   "n": 4,
+   "sym": "BJDX",
+   "b_date": "2022-05-02",
+   "pid": "BJDX|1d|inverse|2022-02-07|2022-03-08",
+   "label": "FALSE",
+   "criteria_failed": "③",
+   "reason": "الكتفان غيرُ متقاربين (0.35)",
+   "metrics": {
+    "tol": 0.349,
+    "head_depth": 0.201,
+    "height_pct_of_price": 0.3871,
+    "p0_to_ls_bars": 17,
+    "neck_slope_rel": -0.035,
+    "quality": 77
+   },
+   "new_rule_rejects": [
+    "shoulder_tol"
+   ]
+  },
+  {
+   "n": 5,
+   "sym": "BNKK",
+   "b_date": "2022-02-10",
+   "pid": "BNKK|1d|inverse|2021-12-29|2022-01-24",
+   "label": "FALSE",
+   "criteria_failed": "③",
+   "reason": "الكتفان غيرُ متقاربين (0.39)",
+   "metrics": {
+    "tol": 0.389,
+    "head_depth": 0.393,
+    "height_pct_of_price": 0.3845,
+    "p0_to_ls_bars": 13,
+    "neck_slope_rel": 0.18,
+    "quality": 54
+   },
+   "new_rule_rejects": [
+    "shoulder_tol"
+   ]
+  },
+  {
+   "n": 6,
+   "sym": "BRTX",
+   "b_date": "2022-04-05",
+   "pid": "BRTX|1d|inverse|2021-12-16|2022-01-27",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.2,
+    "head_depth": 0.2,
+    "height_pct_of_price": 0.4622,
+    "p0_to_ls_bars": 29,
+    "neck_slope_rel": -0.189,
+    "quality": 77
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 7,
+   "sym": "CLLS",
+   "b_date": "2022-05-27",
+   "pid": "CLLS|1d|inverse|2022-04-29|2022-05-11",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.069,
+    "head_depth": 0.493,
+    "height_pct_of_price": 0.2905,
+    "p0_to_ls_bars": 18,
+    "neck_slope_rel": -0.052,
+    "quality": 69
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 8,
+   "sym": "DXLG",
+   "b_date": "2022-08-26",
+   "pid": "DXLG|1d|inverse|2022-06-23|2022-07-01",
+   "label": "FALSE",
+   "criteria_failed": "③",
+   "reason": "الكتفان غيرُ متقاربين (0.42)",
+   "metrics": {
+    "tol": 0.417,
+    "head_depth": 0.335,
+    "height_pct_of_price": 0.1525,
+    "p0_to_ls_bars": 14,
+    "neck_slope_rel": 0.417,
+    "quality": 56
+   },
+   "new_rule_rejects": [
+    "shoulder_tol"
+   ]
+  },
+  {
+   "n": 9,
+   "sym": "EDSA",
+   "b_date": "2022-08-05",
+   "pid": "EDSA|1d|inverse|2022-05-25|2022-06-30",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.124,
+    "head_depth": 0.368,
+    "height_pct_of_price": 0.3748,
+    "p0_to_ls_bars": 31,
+    "neck_slope_rel": -0.124,
+    "quality": 75
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 10,
+   "sym": "FTCI",
+   "b_date": "2022-09-14",
+   "pid": "FTCI|1d|inverse|2022-08-22|2022-09-02",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.176,
+    "head_depth": 0.251,
+    "height_pct_of_price": 0.183,
+    "p0_to_ls_bars": 7,
+    "neck_slope_rel": -0.49,
+    "quality": 53
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 11,
+   "sym": "GAIA",
+   "b_date": "2022-04-25",
+   "pid": "GAIA|1d|inverse|2022-03-28|2022-04-12",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.008,
+    "head_depth": 0.3,
+    "height_pct_of_price": 0.16,
+    "p0_to_ls_bars": 5,
+    "neck_slope_rel": -0.421,
+    "quality": 55
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 12,
+   "sym": "GNPX",
+   "b_date": "2022-05-23",
+   "pid": "GNPX|1d|inverse|2022-04-28|2022-05-12",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.13,
+    "head_depth": 0.494,
+    "height_pct_of_price": 0.2423,
+    "p0_to_ls_bars": 27,
+    "neck_slope_rel": -0.234,
+    "quality": 59
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 13,
+   "sym": "GOGO",
+   "b_date": "2022-07-25",
+   "pid": "GOGO|1d|inverse|2022-07-05|2022-07-14",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.155,
+    "head_depth": 0.327,
+    "height_pct_of_price": 0.0701,
+    "p0_to_ls_bars": 5,
+    "neck_slope_rel": -0.168,
+    "quality": 79
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 14,
+   "sym": "IBRX",
+   "b_date": "2022-03-29",
+   "pid": "IBRX|1d|inverse|2022-03-08|2022-03-15",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.174,
+    "head_depth": 0.23,
+    "height_pct_of_price": 0.2288,
+    "p0_to_ls_bars": 12,
+    "neck_slope_rel": -0.336,
+    "quality": 61
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 15,
+   "sym": "JFIN",
+   "b_date": "2022-10-17",
+   "pid": "JFIN|1d|inverse|2022-09-08|2022-09-27",
+   "label": "FALSE",
+   "criteria_failed": "③",
+   "reason": "الكتفان غيرُ متقاربين (0.47)",
+   "metrics": {
+    "tol": 0.468,
+    "head_depth": 0.25,
+    "height_pct_of_price": 0.1525,
+    "p0_to_ls_bars": 6,
+    "neck_slope_rel": -0.389,
+    "quality": 45
+   },
+   "new_rule_rejects": [
+    "shoulder_tol"
+   ]
+  },
+  {
+   "n": 16,
+   "sym": "JZXN",
+   "b_date": "2022-02-09",
+   "pid": "JZXN|1d|inverse|2021-12-21|2022-01-10",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.092,
+    "head_depth": 0.367,
+    "height_pct_of_price": 0.3172,
+    "p0_to_ls_bars": 10,
+    "neck_slope_rel": -0.279,
+    "quality": 59
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 17,
+   "sym": "KPTI",
+   "b_date": "2022-01-10",
+   "pid": "KPTI|1d|inverse|2021-12-06|2021-12-15",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.0,
+    "head_depth": 0.44,
+    "height_pct_of_price": 0.2487,
+    "p0_to_ls_bars": 17,
+    "neck_slope_rel": -0.01,
+    "quality": 77
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 18,
+   "sym": "LGO",
+   "b_date": "2022-01-04",
+   "pid": "LGO|1d|inverse|2021-12-06|2021-12-20",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.049,
+    "head_depth": 0.54,
+    "height_pct_of_price": 0.1857,
+    "p0_to_ls_bars": 27,
+    "neck_slope_rel": -0.054,
+    "quality": 77
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 19,
+   "sym": "LOOP",
+   "b_date": "2022-06-06",
+   "pid": "LOOP|1d|inverse|2022-04-26|2022-05-11",
+   "label": "FALSE",
+   "criteria_failed": "③",
+   "reason": "الكتفان غيرُ متقاربين (0.39)",
+   "metrics": {
+    "tol": 0.395,
+    "head_depth": 0.296,
+    "height_pct_of_price": 0.4263,
+    "p0_to_ls_bars": 14,
+    "neck_slope_rel": -0.454,
+    "quality": 57
+   },
+   "new_rule_rejects": [
+    "shoulder_tol"
+   ]
+  },
+  {
+   "n": 20,
+   "sym": "LWLG",
+   "b_date": "2022-11-15",
+   "pid": "LWLG|1d|inverse|2022-09-23|2022-10-21",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.064,
+    "head_depth": 0.351,
+    "height_pct_of_price": 0.2725,
+    "p0_to_ls_bars": 9,
+    "neck_slope_rel": 0.26,
+    "quality": 56
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 21,
+   "sym": "NAGE",
+   "b_date": "2022-11-01",
+   "pid": "NAGE|1d|inverse|2022-08-22|2022-09-27",
+   "label": "FALSE",
+   "criteria_failed": "③",
+   "reason": "الكتفان غيرُ متقاربين (0.36)",
+   "metrics": {
+    "tol": 0.359,
+    "head_depth": 0.275,
+    "height_pct_of_price": 0.2884,
+    "p0_to_ls_bars": 8,
+    "neck_slope_rel": -0.063,
+    "quality": 59
+   },
+   "new_rule_rejects": [
+    "shoulder_tol"
+   ]
+  },
+  {
+   "n": 22,
+   "sym": "NEGG",
+   "b_date": "2022-03-28",
+   "pid": "NEGG|1d|inverse|2022-02-24|2022-03-08",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.0,
+    "head_depth": 0.442,
+    "height_pct_of_price": 0.2658,
+    "p0_to_ls_bars": 10,
+    "neck_slope_rel": 0.346,
+    "quality": 77
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 23,
+   "sym": "OLOX",
+   "b_date": "2022-05-25",
+   "pid": "OLOX|1d|inverse|2022-04-27|2022-05-11",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: المعاييرُ الستّة متحقّقة",
+   "metrics": {
+    "tol": 0.131,
+    "head_depth": 0.433,
+    "height_pct_of_price": 0.1915,
+    "p0_to_ls_bars": 17,
+    "neck_slope_rel": -0.157,
+    "quality": 72
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 24,
+   "sym": "PRPL",
+   "b_date": "2022-03-16",
+   "pid": "PRPL|1d|inverse|2022-01-27|2022-03-02",
+   "label": "FALSE",
+   "criteria_failed": "③",
+   "reason": "الكتفان غيرُ متقاربين (0.34)",
+   "metrics": {
+    "tol": 0.345,
+    "head_depth": 0.489,
+    "height_pct_of_price": 0.3604,
+    "p0_to_ls_bars": 25,
+    "neck_slope_rel": -0.404,
+    "quality": 45
+   },
+   "new_rule_rejects": [
+    "shoulder_tol"
+   ]
+  },
+  {
+   "n": 25,
+   "sym": "RNXT",
+   "b_date": "2022-06-14",
+   "pid": "RNXT|1d|inverse|2022-04-26|2022-05-11",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ (حدّيّ): هبوطٌ واضح 2.97⟵1.7 · رأسٌ 1.53 تحت كتفين 1.66/1.68 · عنقٌ شبهُ أفقيّ · إغلاقٌ فوقه — والكتفُ الأيمن ذيلُ شمعةٍ في تماسكٍ أفقيّ",
+   "metrics": {
+    "tol": 0.119,
+    "head_depth": 0.164,
+    "height_pct_of_price": 0.3234,
+    "p0_to_ls_bars": 15,
+    "neck_slope_rel": -0.089,
+    "quality": 64
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 26,
+   "sym": "SCWO",
+   "b_date": "2022-08-11",
+   "pid": "SCWO|1d|inverse|2022-06-15|2022-07-19",
+   "label": "FALSE",
+   "criteria_failed": "①④",
+   "reason": "لا اتّجاهَ سابق: «الهبوطُ» من قمّة قفزةِ يومٍ واحد إلى ذيلها (P0⟵LS شمعةٌ واحدة) والسعرُ قبل القفزة عند مستوى الكتف · وP1 ذيلُ شمعةٍ يرسم عنقًا هابطًا حادًّا — تعافٍ على شكل V لا رأسٌ وكتفان",
+   "metrics": {
+    "tol": 0.203,
+    "head_depth": 0.311,
+    "height_pct_of_price": 0.5259,
+    "p0_to_ls_bars": 1,
+    "neck_slope_rel": -0.305,
+    "quality": 62
+   },
+   "new_rule_rejects": [
+    "prior_bars"
+   ]
+  },
+  {
+   "n": 27,
+   "sym": "SGLY",
+   "b_date": "2022-07-19",
+   "pid": "SGLY|1d|inverse|2022-06-22|2022-06-30",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: بعد انهيارٍ 1500⟵460 · رأسٌ 413 تحت كتفين ‏≈440/450 · عنقٌ من قمّتين (ذيلان) · شمعةُ اختراقٍ واضحة (مُكبَّرًا)",
+   "metrics": {
+    "tol": 0.125,
+    "head_depth": 0.236,
+    "height_pct_of_price": 0.187,
+    "p0_to_ls_bars": 24,
+    "neck_slope_rel": -0.097,
+    "quality": 77
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 28,
+   "sym": "WRAP",
+   "b_date": "2022-04-20",
+   "pid": "WRAP|1d|inverse|2022-01-25|2022-03-15",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ: هبوطٌ وفجوة · كتفٌ أيسر بعد الانهيار · رأسٌ مستدير 1.72 · كتفٌ أيمن 2.45 · عنقٌ صاعدٌ قليلًا · اختراقٌ بإغلاق",
+   "metrics": {
+    "tol": 0.207,
+    "head_depth": 0.376,
+    "height_pct_of_price": 0.4373,
+    "p0_to_ls_bars": 8,
+    "neck_slope_rel": 0.074,
+    "quality": 73
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 29,
+   "sym": "WRAP",
+   "b_date": "2022-08-11",
+   "pid": "WRAP|1d|inverse|2022-07-13|2022-07-26",
+   "label": "TRUE",
+   "criteria_failed": "",
+   "reason": "حقيقيّ (حدّيّ): قاعدةٌ أفقيّةٌ ضيّقة بعد هبوط · الرأسُ 1.74 تحت كتفين 1.80/1.81 · والنقاطُ ذيولٌ أكثرُ منها أجسام · اختراقٌ بشمعةٍ خضراء",
+   "metrics": {
+    "tol": 0.034,
+    "head_depth": 0.274,
+    "height_pct_of_price": 0.1438,
+    "p0_to_ls_bars": 3,
+    "neck_slope_rel": -0.24,
+    "quality": 74
+   },
+   "new_rule_rejects": []
+  },
+  {
+   "n": 30,
+   "sym": "ZNB",
+   "b_date": "2022-06-07",
+   "pid": "ZNB|1d|inverse|2022-04-26|2022-05-09",
+   "label": "FALSE",
+   "criteria_failed": "②④⑥",
+   "reason": "عنقٌ هابطٌ حادّ مرسومٌ من قفزةِ يومٍ واحد (P1) · و«الاختراق» نزولُ الخطّ إلى تذبذبٍ أفقيّ بشمعةٍ صغيرة · والرأسُ 13% فقط من الارتفاع تحت أقرب كتف",
+   "metrics": {
+    "tol": 0.102,
+    "head_depth": 0.126,
+    "height_pct_of_price": 0.4896,
+    "p0_to_ls_bars": 26,
+    "neck_slope_rel": -0.484,
+    "quality": 45
+   },
+   "new_rule_rejects": []
+  }
+ ]
+}
