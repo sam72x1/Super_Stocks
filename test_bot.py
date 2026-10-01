@@ -76634,6 +76634,31 @@ except Exception as _e:                                                  # noqa:
     _hs38_ok, _hs38 = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🔎 HS38 كلُّ ما يحفظه `git_save` من الأداة غيرُ مُتجاهَل في git (`hs_history.csv` · `hs_verdict.json` · `dev_2022.json` · "
       "`hs_state.json`) — والشارتُ و`*.csv` آخرُ مُتجاهَلان (شاهدا ضبط)", _hs38_ok, str(_hs38))
+# ── HS39 **اتّجاهُ الفرق لا اسمُ الفرع وحدَه** (2026-10-01 · الحكمُ الأوّل `36911113194`: «لا ميزة على الضبط» وفرقُ الوسيط **سالبٌ** في الثلاث):
+#    وضعُ الحكم يكتب `telegram.ctrl_diff` (فرقُ وسيط ‏+10 جلسات عن الضبط لكلّ سنة حكم · AST) ⟵ والرسالةُ تنقله بإشارته بجوار اسم الفرع ·
+#    وغيابُه ⟵ لا رقمَ مخترَع · وبلا حكمٍ ⟵ «لم يُقَس بعد» بلا فروق.
+try:
+    _h39 = {"branch_text": "لا ميزة على الضبط", "ctrl_diff": {"2025": 0.005, "2023": -0.0173, "2024": -0.0313, "2022": None},
+            "pooled": {"n": 544}}
+    _sig39 = {"ls_px": 2.0, "head_px": 1.5, "rs_px": 2.05, "neck_b": 2.6, "entry": 2.7, "b_date": "2026-09-30", "target": 3.8,
+              "quality": 60}
+    _m39a = HS.build_alert("TEST", {"state": "BREAKOUT_CONFIRMED", "sig": _sig39, "retest": {"retest": "pending"}}, hist=_h39)
+    _m39b = HS.build_alert("TEST", {"state": "BREAKOUT_CONFIRMED", "sig": _sig39, "retest": {"retest": "pending"}},
+                           hist={"branch_text": "لا ميزة على الضبط", "pooled": {"n": 544}})
+    _m39c = HS.build_alert("TEST", {"state": "BREAKOUT_CONFIRMED", "sig": _sig39, "retest": {"retest": "pending"}},
+                           hist={"ctrl_diff": {"2023": -0.0173}})
+    _rr39 = _fn37["run_research"]
+    _w39 = any(isinstance(n, _hs_ast.Assign) and any(isinstance(t, _hs_ast.Subscript)
+                                                       and getattr(t.slice, "value", None) == "ctrl_diff" for t in n.targets)
+               for n in _hs_ast.walk(_rr39))
+    _hs39 = {"line": "فرقُ وسيط +10 جلسات عن الضبط: 2023 -1.7% · 2024 -3.1% · 2025 +0.5%" in _m39a,   # الإشارةُ للموجب أيضًا
+             "no_invent": "فرقُ وسيط" not in _m39b and "لم يُقَس بعد" in _m39c and "فرقُ وسيط" not in _m39c,
+             "written": _w39}
+    _hs39_ok = all(_hs39.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs39_ok, _hs39 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS39 الرسالةُ تنقل **اتّجاهَ الفرق** عن الضبط لكلّ سنة حكم بإشارته (‏2023 ‏−1.7% · …) بجوار اسم الفرع · وغيابُه أو غيابُ الحكم ⟵ "
+      "لا رقمَ مخترَع · ووضعُ الحكم يكتبه (AST)", _hs39_ok, str(_hs39))
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

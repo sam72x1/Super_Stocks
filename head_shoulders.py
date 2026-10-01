@@ -1176,7 +1176,9 @@ def build_alert(sym: str, lc: dict, tf: str = "1d", hist=None, dq_line: str = No
     hb = history_block(hist)
     L += [""] + hb
     br = (hist or {}).get("branch_text")
-    L += ["", "⚖️ الحكم المسجَّل على أسهم البوت: " + (f"«{br}» (مقابل اختراقاتٍ عاديّةٍ مطابِقة)" if br else "لم يُقَس بعد"),
+    cd = " · ".join(f"{y} {_pct(v)}" for y, v in sorted(((hist or {}).get("ctrl_diff") or {}).items()) if v is not None)
+    L += ["", "⚖️ الحكم المسجَّل على أسهم البوت: " + (f"«{br}» (مقابل اختراقاتٍ عاديّةٍ مطابِقة)" if br else "لم يُقَس بعد")
+          + (f" · فرقُ وسيط +10 جلسات عن الضبط: {cd}" if br and cd else ""),
           "⚠️ قراءةٌ آليّة لشكلٍ كلاسيكيّ تبنّاه فيصل — أمثلتُه الحقيقيّة للنموذج قمّةٌ يُخرَج عندها لا دخول. ليست توصية."]
     return "\n".join(L)
 
@@ -1459,6 +1461,9 @@ def run_research(mode: str) -> int:
             "mfe": res["pooled"]["mfe"].get("median"), "mae": res["pooled"]["mae"].get("median"),
             "target_rate": (sum(1 for o in comp if o.get("target_hit")) / len(comp) if comp else None),
             "fail_rate": (sum(1 for x in rts if x in ("failed_breakout", "failed_retest")) / len(rts) if rts else None)}}
+        # اتّجاهُ الفرق لا اسمُ الفرع وحدَه (2026-10-01): «لا ميزة» تشمل «أضعفُ من الضبط» ⟵ فرقُ الوسيط لكلّ سنة حكم يُنقل للرسالة
+        res["telegram"]["ctrl_diff"] = {str(y): ((res["stats"]["STRICT"].get(str(y)) or {}).get("control") or {}).get("diff")
+                                        for y in VERDICT_YEARS}
         log(f"⚖️ الحكم (STRICT · بالأضعف 2023/2024/2025): الفرع {b} «{txt}»")
         recs = []
         for r in rows:
