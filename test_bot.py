@@ -101,6 +101,11 @@ _os_hc.environ["SUPER_STOCKS_TESTING"] = "1"
 #    الأنواعُ · الفشلُ الآمن · **والفارقُ السلوكيّ** الذي يُثبت أن التبديل يعمل).
 #    ⚠️ ولذلك القفلُ الأوّل فيها هو **أن الافتراضَ في الإنتاج = 1** فلا يُنسى مُطفأً.
 _os_hc.environ["FAISAL_ONLY"] = "0"
+# 🛡️ **والسويّةُ على `DQ_GATE=0` — للسبب نفسِه** (سلامةُ البيانات 2026-10-01): بوّابةُ المخرَج في الإنتاج تسأل ياهو وتقويمَ ناسداك
+#    (شبكة) وتقارن آخرَ شمعةٍ بآخر جلسةٍ مكتملة **بساعة اليوم** — والفِكستشراتُ التوصيفيّة شموعٌ مصطنعةٌ بتواريخَ ثابتة ⇒ تشغيلُها
+#    والبوّابةُ مُفعَّلة **يُبطل معنى الفِكستشر** (كلُّها «قديمة») ولا يكشف عيبًا. ⇒ البوّابةُ تأخذ أقفالَها الخاصّة (`DQ*` قبل `LEAK0`)
+#    **بجالبين محقونين وتشغيلٍ صريح** — وأوّلُها أن الافتراضَ في الإنتاج **مُفعَّل** (غيابُ المتغيّر = 1) فلا يُنسى مُطفأً.
+_os_hc.environ["DQ_GATE"] = "0"
 import types as _ty0
 import numpy as np
 import pandas as pd
@@ -74971,6 +74976,611 @@ check("〽️ EMX3 `EMA_CROSS_PAIR` = (9, 26) **وسندُه في الدفتر `
       "سندٍ يُسقطه",
       S.CONFIG.get("EMA_CROSS_PAIR") == (9, 26) and len(_emx_led) == 1 and "faisal_verbatim" in _emx_led[0],
       f"pair={S.CONFIG.get('EMA_CROSS_PAIR')} rows={len(_emx_led)}")
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🛡️ DQ — سلامةُ البيانات قبل كلّ مخرَج (أمرُ المالك 2026-10-01 «CRITICAL MISSION» · `data_quality.py` · `data_integrity_result.md`)
+# ══════════════════════════════════════════════════════════════════════════
+# السويّةُ على `DQ_GATE=0` (رأسُ الملفّ) — وهذي الأقفالُ **تُشعل البوّابة صراحةً بجالبين محقونين** ثمّ تُعيدها. وDLXY حالةُ انحدارٍ
+# **بشموعه الحقيقيّة** (مِجَسّ `36863655877` · TradingView المسوّى · تقويمُ ناسداك «1 : 5» يوم 09-28 · وياهو بلا تقسيمٍ أصلًا) لا استثناءٌ
+# باسمه: لا يظهر الرمزُ في كود الإنتاج (`DQ0` يتحقّق).
+import data_quality as _DQm                                       # noqa: E402
+import press_radar as _dq_PR                                      # noqa: E402
+import datetime as _dq_dt                                         # noqa: E402
+import ast as _dq_ast                                             # noqa: E402
+import inspect as _dq_insp                                        # noqa: E402
+import textwrap as _dq_tw                                         # noqa: E402
+
+
+def _dq_set(v):
+    if v is None:
+        _os_hc.environ.pop("DQ_GATE", None)
+    else:
+        _os_hc.environ["DQ_GATE"] = v
+
+
+_DQ_DLXY = [  # (يوم، o، h، l، c، v) — TradingView المسوّى بالتقسيم كما قرأه المِجَسّ حرفًا
+    ("2026-08-19", 1.9995, 2.0130, 1.9000, 2.0130, 447), ("2026-08-20", 2.0505, 2.2000, 2.0500, 2.1000, 2782),
+    ("2026-08-21", 2.0995, 2.0995, 2.0065, 2.0070, 783), ("2026-08-24", 1.9860, 2.0095, 1.9000, 1.9000, 2986),
+    ("2026-08-25", 1.8500, 1.9705, 1.8500, 1.9000, 6158), ("2026-08-26", 1.9180, 1.9375, 1.8750, 1.8750, 678),
+    ("2026-08-27", 1.8750, 1.8750, 1.8750, 1.8750, 1306), ("2026-08-28", 1.8000, 1.8410, 1.7505, 1.7505, 9591),
+    ("2026-08-31", 1.8250, 2.0500, 1.8000, 1.8995, 7992), ("2026-09-01", 1.9850, 2.2000, 1.8615, 2.1500, 909118),
+    ("2026-09-02", 1.9255, 2.2500, 1.8500, 2.2000, 105689), ("2026-09-03", 2.2755, 2.2760, 2.1055, 2.1055, 8252),
+    ("2026-09-04", 2.0495, 2.2350, 2.0085, 2.0100, 10154), ("2026-09-08", 2.0500, 2.2245, 2.0500, 2.1220, 3668),
+    ("2026-09-09", 2.0970, 2.2000, 2.0005, 2.1740, 2192), ("2026-09-10", 2.2500, 2.5000, 2.0000, 2.0885, 52736),
+    ("2026-09-11", 2.0820, 2.2000, 2.0005, 2.0600, 11782), ("2026-09-14", 2.0650, 2.1990, 2.0605, 2.0705, 5228),
+    ("2026-09-15", 2.1495, 2.1870, 2.0500, 2.0750, 8946), ("2026-09-16", 5.1000, 22.2500, 3.2585, 11.4500, 49306359),
+    ("2026-09-17", 5.7500, 6.2995, 3.1505, 4.2240, 5400302), ("2026-09-18", 3.6645, 4.4560, 3.2500, 4.3010, 3298777),
+    ("2026-09-21", 3.0510, 3.2495, 2.8585, 2.9895, 470765), ("2026-09-22", 2.8005, 3.0735, 2.5005, 2.6000, 189220),
+    ("2026-09-23", 2.5740, 2.5740, 2.3500, 2.5150, 104155), ("2026-09-24", 2.5000, 2.5250, 2.2495, 2.3010, 79570),
+    ("2026-09-25", 2.2995, 2.7170, 2.2510, 2.4995, 161068), ("2026-09-28", 3.0500, 4.2500, 2.3600, 2.4400, 1899009),
+    ("2026-09-29", 2.3100, 2.4990, 2.2000, 2.3000, 144291), ("2026-09-30", 2.2000, 2.2500, 2.1200, 2.1900, 109246),
+]
+
+
+def _dq_df(rows, src="tradingview"):
+    df = pd.DataFrame([[o, h, lo_, c, v] for (_d, o, h, lo_, c, v) in rows],
+                      columns=["Open", "High", "Low", "Close", "Volume"],
+                      index=pd.to_datetime([r[0] for r in rows]))
+    if src:
+        df.attrs["bars_src"] = src
+    return df
+
+
+def _dq_long_dlxy():
+    """DLXY بـ20 شمعةً مسطّحةً قبله (يوليو-أغسطس) ⟵ 50 شمعة تكفي نافذةَ الرادار (`ALERT_W`=40 تحتاج 41 فأكثر)."""
+    pre = [(d.strftime("%Y-%m-%d"), 2.0, 2.05, 1.95, 2.0, 1000)
+           for d in pd.bdate_range(end="2026-08-18", periods=20)]
+    return _dq_df(pre + _DQ_DLXY)
+
+
+_DQ_TODAY = _dq_dt.date(2026, 10, 1)
+_DQ_EXP = "2026-09-30"
+_DQ_EV = [("2026-09-28", 0.2)]
+_dq_env0 = _os_hc.environ.get("DQ_GATE")
+
+# DQ0 — الافتراضُ في الإنتاج **مُفعَّل** · و«0» يطفئ · والسياسةُ الافتراضيّة فاشلةٌ-مغلقة للحالات الحاكمة · ولا رمزَ باسمه في الإنتاج
+_dq_set(None)
+_dq0_on = _DQm.enabled()
+_dq_set("0")
+_dq0_off = not _DQm.enabled()
+_dq_set("0")
+_dq0_src = (open("data_quality.py", encoding="utf-8").read() + open("Super_stock.py", encoding="utf-8").read()
+            + open("press_radar.py", encoding="utf-8").read())
+check("🛡️ DQ0 بوّابةُ سلامة البيانات **مُفعَّلةٌ افتراضًا في الإنتاج** (غيابُ `DQ_GATE` = 1 · و«0» يطفئ) · والسياسةُ فاشلةٌ-مغلقة: "
+      "القديمُ والناقصُ وغيرُ المسوّى وتعارضُ المصدرين وخارجُ الكون **block** · والمقسَّمُ قبل اكتمال الوصفة **quarantine** · "
+      "**ولا `\"DLXY\"` في كود الإنتاج** (حلٌّ عامّ لا استثناء)",
+      _dq0_on and _dq0_off
+      and all(_DQm.DEFAULT_POLICY[k] == "block" for k in (_DQm.STALE, _DQm.INCOMPLETE, _DQm.SPLIT_UNADJUSTED,
+                                                           _DQm.SOURCE_CONFLICT, _DQm.SYMBOL_CHANGED))
+      and _DQm.DEFAULT_POLICY[_DQm.CORPORATE_ACTION_PENDING] == "quarantine"
+      and '"DLXY"' not in _dq0_src and "'DLXY'" not in _dq0_src,
+      f"on={_dq0_on} off={_dq0_off}")
+
+# DQ1 — الطزاجة: آخرُ شمعةٍ أقدمُ من الجلسة ⟵ قديم · حشوُ ياهو ⟵ قديم · فارغٌ ⟵ ناقص · بلا جلسة ⟵ لا جلسة · والأحدثُ «حيّ» صالح
+try:
+    _dq1_df = _dq_df(_DQ_DLXY)
+    _dq1 = [_DQm.freshness(_dq1_df, _DQ_EXP)[0],                         # 09-30 = 09-30 ⟵ VALID
+            _DQm.freshness(_dq1_df.iloc[:-1], _DQ_EXP)[0],               # 09-29 ⟵ STALE
+            _DQm.freshness(_dq1_df.iloc[:0], _DQ_EXP)[0],                # فارغ ⟵ INCOMPLETE
+            _DQm.freshness(_dq1_df, None)[0],                            # ⟵ MARKET_CLOSED
+            _DQm.freshness(_dq1_df, "2026-09-29")[1].get("live")]        # أحدثُ من المتوقَّع ⟵ حيّ
+    _dq1_y = _dq_df(_DQ_DLXY, src=None)
+    _dq1_y.iloc[-1, _dq1_y.columns.get_loc("Volume")] = 0
+    _dq1 += [_DQm.freshness(_dq1_y, _DQ_EXP)[0],                         # ياهو محشوّ ⟵ STALE
+             _DQm.freshness(_dq_df(_DQ_DLXY, src=None), _DQ_EXP)[0]]    # ياهو بحجم ⟵ VALID
+except Exception as _e:                                                  # noqa: BLE001
+    _dq1 = [f"⛔ {type(_e).__name__}"]
+check("🛡️ DQ1 الطزاجةُ صريحة: آخرُ شمعةٍ أقدمُ من آخر جلسةٍ مكتملة ⟵ STALE · شمعةُ ياهو المحشوّة بحجم صفر ⟵ STALE · إطارٌ فارغ ⟵ "
+      "INCOMPLETE · بلا جلسةٍ معروفة ⟵ MARKET_CLOSED · والأحدثُ من المتوقَّع «حيّ» صالح",
+      _dq1 == [_DQm.VALID, _DQm.STALE, _DQm.INCOMPLETE, _DQm.MARKET_CLOSED, True, _DQm.STALE, _DQm.VALID], str(_dq1))
+
+# DQ2 — DLXY حالةُ انحدار: تقويمُ ناسداك وحدَه يعرف التقسيم ⟵ الاتّحادُ يحمله ⟵ CORPORATE_ACTION_PENDING محجوز · وياهو وحدَه ⟵ «صالح» كاذب
+try:
+    _dq2_df = _dq_df(_DQ_DLXY)
+    _dq2_u, _dq2_c, _dq2_n = S.dq_split_events("DLXY", nasdaq={"DLXY": list(_DQ_EV)},
+                                                fetch=lambda s: pd.Series(dtype=float))
+    _dq2 = _DQm.assess("DLXY", _dq2_df, _DQ_EXP, events=_dq2_u, today=_DQ_TODAY)
+    _dq2_y = _DQm.assess("DLXY", _dq2_df, _DQ_EXP, events=[], today=_DQ_TODAY)
+    _dq2_r = " ".join(_dq2["reasons"])
+except Exception as _e:                                                  # noqa: BLE001
+    _dq2, _dq2_y, _dq2_u, _dq2_n, _dq2_r = {}, {}, None, [], f"⛔ {type(_e).__name__}"
+check("🛡️ DQ2 **DLXY حالةُ انحدار بشموعه الحقيقيّة**: ياهو بلا تقسيم وناسداك «1:5» يوم 09-28 ⟵ الاتّحادُ يحمل الحدث (ملاحظةٌ لا تعارض) ⟵ "
+      "CORPORATE_ACTION_PENDING **محجوز** (ضرب ÷2 = $2.12 من قمّة ما بعده $4.25 وحافظ 2 من 3) · **وياهو وحدَه كان سيقول «صالح»** "
+      "(سببُ المصدر الثاني)",
+      _dq2_u == _DQ_EV and _dq2_n == [("only_secondary", "2026-09-28", 0.2)]
+      and _dq2.get("state") == _DQm.CORPORATE_ACTION_PENDING and _dq2.get("action") == "quarantine"
+      and "1:5" in _dq2_r and "2026-09-28" in _dq2_r and "حافظ 2 من 3" in _dq2_r and "$4.25" in _dq2_r
+      and _dq2_y.get("state") == _DQm.VALID,
+      f"u={_dq2_u} n={_dq2_n} st={_dq2.get('state')} y={_dq2_y.get('state')} r={_dq2_r[:90]}")
+
+# DQ3 — الاكتمالُ تاريخيّ: جلسةُ حفاظٍ ثالثة ⟵ اكتمل (RECENT_SPLIT موسوم) · وصعودٌ بعده لا يُعيد التعليق · وإغلاقٌ فوق النطاق يُعيد العدّ
+try:
+    _dq3_a = _dq_df(_DQ_DLXY + [("2026-10-01", 2.19, 2.30, 2.15, 2.20, 90000)])
+    _dq3_b = _dq_df(_DQ_DLXY + [("2026-10-01", 2.19, 2.30, 2.15, 2.20, 90000),
+                                ("2026-10-02", 2.3, 4.1, 2.3, 4.0, 900000)])
+    _dq3_c = _dq_df(_DQ_DLXY + [("2026-10-01", 2.19, 3.20, 2.15, 3.00, 90000)])     # فوق النطاق ⟵ لم يحافظ
+    _s3a, _s3b, _s3c = (_DQm.split_settled(_dq3_a, "2026-09-28"), _DQm.split_settled(_dq3_b, "2026-09-28"),
+                        _DQm.split_settled(_dq3_c, "2026-09-28"))
+    _dq3_as = _DQm.assess("DLXY", _dq3_b, "2026-10-02", events=_DQ_EV, today=_dq_dt.date(2026, 10, 3))
+except Exception as _e:                                                  # noqa: BLE001
+    _s3a = _s3b = _s3c = {}
+    _dq3_as = {"label": f"⛔ {type(_e).__name__}"}
+check("🛡️ DQ3 «ضرب ÷2 وحافظ 3ج» تاريخيّةٌ لا لحظيّة: الجلسةُ الثالثةُ داخل النطاق ⟵ اكتملت يوم 10-01 · وصعودٌ إلى $4 بعدها يُبقيها "
+      "مكتملة (RECENT_SPLIT · warn · وسمٌ ثابت بلا عدّادٍ يتقادم) · وإغلاقٌ فوق النطاق يُعيد العدّ (لا اكتمال)",
+      _s3a.get("settled") is True and _s3a.get("day") == "2026-10-01"
+      and _s3b.get("settled") is True and _s3b.get("day") == "2026-10-01"
+      and _s3c.get("settled") is False and _s3c.get("held") == 0
+      and _dq3_as.get("state") == _DQm.RECENT_SPLIT and _dq3_as.get("action") == "warn"
+      and _dq3_as.get("label", "").startswith("✂️ مقسَّم عكسيًّا 1:5 يوم 2026-09-28") and "جلس" not in _dq3_as.get("label", ""),
+      f"a={_s3a} b={_s3b.get('day')} c={_s3c} lab={_dq3_as.get('label')}")
+
+# DQ4 — مرجعُ القراءة قبل التقسيم (قاعدةُ فيصل IMG_0143/0144) ⟵ محجوز · و`window_high_date` يقرأ يومَ قمّة الرادار نفسَه
+try:
+    _dq4_df = _dq_long_dlxy()
+    _dq4_ref = _dq_PR.window_high_date(_dq4_df)
+    _dq4_pre = _DQm.assess("DLXY", _dq3_b, "2026-10-02", events=_DQ_EV, today=_dq_dt.date(2026, 10, 3),
+                           ref_date=_dq4_ref)
+    _dq4_post = _DQm.assess("DLXY", _dq3_b, "2026-10-02", events=_DQ_EV, today=_dq_dt.date(2026, 10, 3),
+                            ref_date="2026-10-02")
+    _dq4_rd = _dq_PR.press_read(_dq4_df, w=_dq_PR.ALERT_W) or {}
+except Exception as _e:                                                  # noqa: BLE001
+    _dq4_ref, _dq4_pre, _dq4_post, _dq4_rd = f"⛔ {type(_e).__name__}", {}, {}, {}
+check("🛡️ DQ4 **مرجعُ القراءة قبل التقسيم يُحجز** ولو اكتملت الوصفة: قمّةُ نافذة الرادار لـDLXY ($22.25 يوم 09-16 · المِجَسّ نفسُه) "
+      "قبل تقسيم 09-28 ⟵ CORPORATE_ACTION_PENDING (والهبوطُ يُقاس من قمّة ما بعد التقسيم) · ومرجعٌ بعد التقسيم ⟵ لا حجز",
+      _dq4_ref == "2026-09-16" and abs(float(_dq4_rd.get("high_w") or 0) - 22.25) < 1e-9
+      and _dq4_pre.get("action") == "quarantine" and any("مرجعُ القراءة" in x for x in _dq4_pre.get("reasons", []))
+      and _dq4_post.get("action") == "warn" and not any("مرجعُ القراءة" in x for x in _dq4_post.get("reasons", [])),
+      f"ref={_dq4_ref} hw={_dq4_rd.get('high_w')} pre={_dq4_pre.get('action')} post={_dq4_post.get('action')}")
+
+# DQ5 — تعذّرُ المصدرين ⟵ UNVERIFIED موسوم (لا «صالح» صامت) · وخارجُ الكون ⟵ SYMBOL_CHANGED محجوب · وتقسيمٌ مُعلَن لم يُنفَّذ ⟵ وسم
+try:
+    _dq5_u = _DQm.cross_check(None, None)
+    _dq5_a = _DQm.assess("AAA", _dq_df(_DQ_DLXY), _DQ_EXP, events=None, today=_DQ_TODAY)
+    _dq5_s = _DQm.assess("OLDX", _dq_df(_DQ_DLXY), _DQ_EXP, events=[], today=_DQ_TODAY, universe={"AAA"})
+    _dq5_f = _DQm.assess("AAA", _dq_df(_DQ_DLXY), _DQ_EXP, events=[("2026-10-07", 1 / 6)], today=_DQ_TODAY)
+except Exception as _e:                                                  # noqa: BLE001
+    _dq5_u, _dq5_a, _dq5_s, _dq5_f = (f"⛔ {type(_e).__name__}",), {}, {}, {}
+check("🛡️ DQ5 تعذّرُ مصدرَي التقسيم معًا ⟵ UNVERIFIED **موسوم** (‏«غيرُ مُتحقَّقة» لا «صالح») · والرمزُ خارج كون اليوم ⟵ SYMBOL_CHANGED "
+      "**block** · والتقسيمُ المُعلَنُ قبل تنفيذه ⟵ CORPORATE_ACTION_ANNOUNCED موسوم «المستوياتُ ستتغيّر»",
+      _dq5_u[0] is None and _dq5_a.get("state") == _DQm.UNVERIFIED and _dq5_a.get("action") == "warn"
+      and "غيرُ مُتحقَّقة" in _dq5_a.get("label", "")
+      and _dq5_s.get("state") == _DQm.SYMBOL_CHANGED and _dq5_s.get("action") == "block"
+      and _dq5_f.get("state") == _DQm.CORPORATE_ACTION_ANNOUNCED and "2026-10-07" in _dq5_f.get("label", ""),
+      f"u={_dq5_u} a={_dq5_a.get('state')} s={_dq5_s.get('state')} f={_dq5_f.get('state')}")
+
+# DQ6 — المزوّدُ لم يسوِّ التقسيم (قفزة ×5 في السلسلة نفسِها يوم الحدث) ⟵ SPLIT_UNADJUSTED محجوب
+try:
+    _dq6_rows = [(d, o, h, lo_, c, v) for (d, o, h, lo_, c, v) in _DQ_DLXY]
+    _dq6_rows = [(d, o / 5, h / 5, lo_ / 5, c / 5, v) if d < "2026-09-28" else (d, o, h, lo_, c, v)
+                 for (d, o, h, lo_, c, v) in _dq6_rows]                   # الخامُّ غيرُ المسوّى: ما قبل التقسيم ÷5
+    _dq6 = _DQm.assess("DLXY", _dq_df(_dq6_rows), _DQ_EXP, events=_DQ_EV, today=_DQ_TODAY)
+    _dq6_ok = _DQm.assess("DLXY", _dq_df(_DQ_DLXY), _DQ_EXP, events=_DQ_EV, today=_DQ_TODAY)
+except Exception as _e:                                                  # noqa: BLE001
+    _dq6, _dq6_ok = {"states": [f"⛔ {type(_e).__name__}"]}, {"states": []}
+check("🛡️ DQ6 تقسيمٌ **غيرُ مسوًّى** عند المزوّد (قفزةٌ ×5 يوم 09-28 في السلسلة نفسِها · `unadjusted_jump` بالاسم) ⟵ SPLIT_UNADJUSTED "
+      "**block** · والمسوّى (TradingView الحقيقيّ) لا يُوسَم بها",
+      _dq6.get("state") == _DQm.SPLIT_UNADJUSTED and _dq6.get("action") == "block"
+      and _DQm.SPLIT_UNADJUSTED not in _dq6_ok.get("states", []),
+      f"bad={_dq6.get('states')} ok={_dq6_ok.get('states')}")
+
+# DQ7 — السياسةُ قابلةٌ للضبط: `DQ_POLICY` يسمح بالمعلَّق · والمدخلُ التالف يُتجاهل (القديمُ يبقى محجوبًا)
+_dq7_p0 = _os_hc.environ.get("DQ_POLICY")
+try:
+    _os_hc.environ["DQ_POLICY"] = "CORPORATE_ACTION_PENDING=allow,STALE=nonsense,BOGUS=allow"
+    _dq7_a = _DQm.assess("DLXY", _dq_df(_DQ_DLXY), _DQ_EXP, events=_DQ_EV, today=_DQ_TODAY)
+    _dq7_b = _DQm.assess("DLXY", _dq_df(_DQ_DLXY).iloc[:-1], _DQ_EXP, events=[], today=_DQ_TODAY)
+except Exception as _e:                                                  # noqa: BLE001
+    _dq7_a, _dq7_b = {"action": f"⛔ {type(_e).__name__}"}, {}
+finally:
+    if _dq7_p0 is None:
+        _os_hc.environ.pop("DQ_POLICY", None)
+    else:
+        _os_hc.environ["DQ_POLICY"] = _dq7_p0
+check("🛡️ DQ7 السياسةُ قابلةٌ للضبط بلا كود (`DQ_POLICY`): «CORPORATE_ACTION_PENDING=allow» يُمرّر DLXY · والقيمةُ التالفة (‏STALE=nonsense) "
+      "والحالةُ المجهولة تُتجاهلان فيبقى القديمُ **block**",
+      _dq7_a.get("action") == "allow" and _dq7_b.get("action") == "block",
+      f"a={_dq7_a.get('action')} b={_dq7_b.get('action')}")
+
+# DQ8 — المفتاحُ مطفأ ⟵ **بت-بت**: القائمةُ نفسُها بلا حقل `dq` ولا وسم · صفرُ نداءِ شبكة · والختمُ بلا لاحقة · والانفجاراتُ كما كانت
+_dq8_calls = {"n": 0}
+
+
+def _dq8_fetch(*a, **k):
+    _dq8_calls["n"] += 1
+    return None
+
+
+try:
+    _dq_set("0")
+    _dq8_items = [{"symbol": "DLXY"}, {"symbol": "AAA"}]
+    _dq8_out = S.dq_filter(_dq8_items, {"DLXY": _dq_df(_DQ_DLXY)}, "اختبار", expected=_DQ_EXP,
+                           fetch=_dq8_fetch, close_fetch=_dq8_fetch, nasdaq={"DLXY": list(_DQ_EV)})
+    S.set_data_basis("2026-09-30", "x")
+    _dq8_suf = S.data_basis_suffix()
+except Exception as _e:                                                  # noqa: BLE001
+    _dq8_out, _dq8_suf = [f"⛔ {type(_e).__name__}"], "⛔"
+check("🛡️ DQ8 `DQ_GATE=0` ⟵ **السلوكُ السابق بت-بت**: البوّابةُ تُرجع القائمةَ نفسَها بلا `dq` ولا وسم · صفرُ نداءٍ لجالبي التقسيم "
+      "والإغلاق · ولاحقةُ ختم الرسالة فارغة",
+      _dq8_out == [{"symbol": "DLXY"}, {"symbol": "AAA"}] and all("dq" not in x and "warnings" not in x for x in _dq8_out)
+      and _dq8_calls["n"] == 0 and _dq8_suf == "",
+      f"out={_dq8_out} calls={_dq8_calls['n']} suf={_dq8_suf!r}")
+
+# DQ9 — البوّابةُ مُفعَّلة على مرشّحي مخرَجٍ حقيقيّ الشكل: DLXY محجوز · القديمُ محجوب · تعارضُ الإغلاق (×5 عند ياهو) محجوب · والصالحُ يمرّ
+#        ويُسجَّل كلُّ محجوزٍ بسببه في `DQ_LAST` (لا صمت)
+try:
+    _dq_set("1")
+    _dq9_aaa = _dq_df([(d, 3.0, 3.1, 2.9, 3.0, 50000) for (d, *_r) in _DQ_DLXY])
+    _dq9_ccc = _dq_df([(d, 5.0, 5.1, 4.9, 5.0, 50000) for (d, *_r) in _DQ_DLXY])
+    _dq9_hist = {"DLXY": _dq_df(_DQ_DLXY), "AAA": _dq9_aaa, "BBB": _dq9_aaa.iloc[:-1], "CCC": _dq9_ccc}
+    _dq9_y = {"CCC": _dq_df([(d, 1.0, 1.02, 0.98, 1.0, 50000) for (d, *_r) in _DQ_DLXY], src=None),
+              "AAA": _dq_df([(d, 3.0, 3.1, 2.9, 3.0, 50000) for (d, *_r) in _DQ_DLXY], src=None)}
+    _dq9_items = [{"symbol": s_} for s_ in ("DLXY", "AAA", "BBB", "CCC")]
+    _dq9_out = S.dq_filter(_dq9_items, _dq9_hist, "اختبار DQ9", expected=_DQ_EXP,
+                           fetch=lambda s: pd.Series(dtype=float),
+                           close_fetch=lambda syms, start: {k: v for k, v in _dq9_y.items() if k in syms},
+                           nasdaq={"DLXY": list(_DQ_EV)})
+    _dq9_last = S.DQ_LAST.get("اختبار DQ9") or {}
+    _dq9_drop = {d[0]: d[1] for d in _dq9_last.get("dropped", [])}
+except Exception as _e:                                                  # noqa: BLE001
+    _dq9_out, _dq9_drop = [f"⛔ {type(_e).__name__}"], {}
+finally:
+    _dq_set("0")
+check("🛡️ DQ9 البوّابةُ مُفعَّلةً على مرشّحين: AAA الصالحُ وحدَه يمرّ (بحقل `dq` = VALID) · DLXY ⟵ CORPORATE_ACTION_PENDING · BBB "
+      "(آخرُ شمعة 09-29) ⟵ STALE · CCC (‏TradingView $5 وياهو $1 لجلسة 09-30) ⟵ SOURCE_CONFLICT — وكلُّ محجوزٍ بسببه في `DQ_LAST`",
+      [x.get("symbol") for x in _dq9_out if isinstance(x, dict)] == ["AAA"]
+      and (_dq9_out[0].get("dq") or {}).get("state") == _DQm.VALID
+      and _dq9_drop == {"DLXY": _DQm.CORPORATE_ACTION_PENDING, "BBB": _DQm.STALE, "CCC": _DQm.SOURCE_CONFLICT},
+      f"out={[x.get('symbol') if isinstance(x, dict) else x for x in _dq9_out]} drop={_dq9_drop}")
+
+# DQ10 — قسمُ «تحت المتابعة»: بلا `dq_fn` كما كان حرفًا · والصفُّ الذي لم يُقَس في فرز اليوم لا يُعرَض بسعره القديم · والمحجوزُ لا يُعرَض ·
+#         والموسومُ بوسمه · وسطرُ «لم يُعرَض» يعدّهم
+_dq10_w = {
+    "AAA": {"symbol": "AAA", "last_seen": "2026-10-01", "n_out": 0, "outside": [], "price": 3.0, "rsi_now": 40.0, "readiness": 50},
+    "OLD": {"symbol": "OLD", "last_seen": "2026-09-30", "n_out": 0, "outside": [], "price": 9.9, "rsi_now": 40.0, "readiness": 90},
+    "DLXY": {"symbol": "DLXY", "last_seen": "2026-10-01", "n_out": 0, "outside": [], "price": 2.19, "rsi_now": 47.0,
+             "readiness": 80},
+    "SPL": {"symbol": "SPL", "last_seen": "2026-10-01", "n_out": 0, "outside": [], "price": 1.5, "rsi_now": 41.0, "readiness": 70},
+}
+try:
+    _dq10_base = S.build_near_watch_section(_dq10_w)
+    _dq10_allow = S.build_near_watch_section(
+        {k: v for k, v in _dq10_w.items() if k != "OLD"},
+        dq_fn=lambda s: {"action": "allow", "state": "VALID", "label": ""})
+    _dq10_base2 = S.build_near_watch_section({k: v for k, v in _dq10_w.items() if k != "OLD"})
+    _dq10_g = S.build_near_watch_section(_dq10_w, dq_fn=lambda s: {
+        "DLXY": {"action": "quarantine", "state": _DQm.CORPORATE_ACTION_PENDING},
+        "SPL": {"action": "warn", "state": _DQm.RECENT_SPLIT, "label": "✂️ وسمُ اختبار"}}.get(s, {"action": "allow"}))
+except Exception as _e:                                                  # noqa: BLE001
+    _dq10_base = _dq10_allow = _dq10_base2 = _dq10_g = f"⛔ {type(_e).__name__}"
+check("🛡️ DQ10 «تحت المتابعة»: بلا `dq_fn` المخرَجُ كما كان حرفًا (والسماحُ للكلّ = بلاه) · ومع البوّابة: صفٌّ `last_seen` أقدمُ من فرز اليوم "
+      "**لا يُعرَض بسعره القديم** (‏OLD $9.90) · والمحجوزُ لا يُعرَض (DLXY) · والموسومُ بوسمه · وسطرُ «🛡️ لم يُعرَض» يعدّ الاثنين",
+      "OLD" in _dq10_base and _dq10_allow == _dq10_base2
+      and "OLD" not in _dq10_g and "$9.90" not in _dq10_g and "DLXY" not in _dq10_g
+      and "SPL" in _dq10_g and "✂️ وسمُ اختبار" in _dq10_g and "AAA" in _dq10_g
+      and "🛡️ لم يُعرَض (سلامةُ البيانات): " in _dq10_g and "لم يُقَس في فرز اليوم 1" in _dq10_g
+      and "تقسيمٌ عكسيّ حديث لم تكتمل بعده الوصفة 1" in _dq10_g,
+      _dq10_g[-160:] if isinstance(_dq10_g, str) else str(_dq10_g))
+
+# DQ11 — الانفجارُ القديم لا يُسجَّل جديدًا كلَّ يوم: «تجمّع» انطلاقُه قبل آخر رصدٍ للرمز يُتخطّى · والركضُ الجديدُ بعده يُسجَّل ·
+#         والمفتاحُ مطفأ ⟵ يُسجَّل كما كان (عطلٌ مُثبَت: 289 صفًّا زائدًا من 600 في المِجَسّ · DLXY أربعُ مرّات)
+_dq11_real = S.scan_explosions
+try:
+    def _dq11_wl():
+        return {"explosions": [{"symbol": "DLXY", "date": "2026-09-17", "expl_date": "2026-09-16", "gain": 452.0, "kind": "قفزة"}]}
+    _dq11_found = [{"symbol": "DLXY", "date": _dq_dt.date.today().isoformat(), "expl_date": "2026-09-08", "gain": 470.0,
+                    "kind": "تجمّع", "was_pivot": True},
+                   {"symbol": "NEWR", "date": _dq_dt.date.today().isoformat(), "expl_date": "2026-09-29", "gain": 90.0,
+                    "kind": "تجمّع", "was_pivot": False}]
+    S.scan_explosions = lambda h: [dict(x) for x in _dq11_found]
+    _dq_set("1")
+    _dq11_on = _dq11_wl()
+    S.accumulate_explosions(_dq11_on, {})
+    _dq_set("0")
+    _dq11_off = _dq11_wl()
+    S.accumulate_explosions(_dq11_off, {})
+    _dq11_a = sorted((e["symbol"], e["expl_date"]) for e in _dq11_on["explosions"])
+    _dq11_b = sorted((e["symbol"], e["expl_date"]) for e in _dq11_off["explosions"])
+except Exception as _e:                                                  # noqa: BLE001
+    _dq11_a = _dq11_b = [f"⛔ {type(_e).__name__}"]
+finally:
+    S.scan_explosions = _dq11_real
+    _dq_set("0")
+check("🛡️ DQ11 الانفجارُ المرصودُ سلفًا لا يُعاد تسجيلُه بتاريخ رصدٍ جديد (DLXY «تجمّع» 09-08 بعد رصد 09-17 ⟵ يُتخطّى) · والركضُ الجديدُ "
+      "حقًّا يُسجَّل (NEWR 09-29) · **والمفتاحُ مطفأ ⟵ السلوكُ السابق** (يُسجَّل الاثنان)",
+      _dq11_a == [("DLXY", "2026-09-16"), ("NEWR", "2026-09-29")]
+      and _dq11_b == [("DLXY", "2026-09-08"), ("DLXY", "2026-09-16"), ("NEWR", "2026-09-29")],
+      f"on={_dq11_a} off={_dq11_b}")
+
+# DQ12 — رادارُ الضغط **سلوكيًّا**: DLXY الحقيقيُّ يطابق القراءة ($22.25) ⟵ مع البوّابة لا رسالةَ ولا سجلّ (يُختَم «لا مطابق») · وبدونها
+#         يُرسَل كما كان · وتعذّرُ البوّابة نفسِها ⟵ فشلٌ مغلق (rc=1 · لا ختم ولا سجلّ)
+import tempfile as _dq_tmp                                        # noqa: E402
+_dq12_dir = _dq_tmp.mkdtemp(prefix="dq12_")
+_dq12_wl = S.load_watchlist
+_dq12_fs, _dq12_dc, _dq12_nq = S._fetch_splits, S._download_chunk, dict(S._DQ_NASDAQ)
+_dq12_basis = dict(S.DATA_BASIS)
+_dq12_now = _dq_dt.datetime(2026, 10, 1, 1, 30, tzinfo=_dq_dt.timezone.utc)
+_dq12_res = {}
+try:
+    S.load_watchlist = lambda: {"pullback": [], "stocks": [], "removed": [],
+                                "explosions": [{"symbol": "DLXY", "date": "2026-09-29", "expl_date": "2026-09-01",
+                                                "gain": 503.0, "kind": "تجمّع"}]}
+    S._fetch_splits = lambda s: pd.Series(dtype=float)
+    S._download_chunk = lambda chunk, start: None
+    S._DQ_NASDAQ.update(tried=True, events={"DLXY": list(_DQ_EV)}, stats={})
+    _dq12_fetch = lambda syms: {"DLXY": _dq_long_dlxy()}             # noqa: E731
+    for _k, _gate in (("on", "1"), ("off", "0")):
+        _sent = []
+        _sp = _os_hc.path.join(_dq12_dir, f"st_{_k}.json")
+        _lp = _os_hc.path.join(_dq12_dir, f"led_{_k}.jsonl")
+        _dq_set(_gate)
+        _rc = _dq_PR.run(now_utc=_dq12_now, fetch_hist=_dq12_fetch, sender=lambda m: _sent.append(m) or True,
+                         state_path=_sp, ledger_path=_lp, saver=lambda f: None)
+        _dq12_res[_k] = (_rc, len(_sent), _os_hc.path.exists(_lp) and "DLXY" in open(_lp, encoding="utf-8").read(),
+                         _dq_PR.load_state(_sp).get("last_session"))
+    _dq_set("1")
+    _dq12_real_f = S.dq_filter
+    S.dq_filter = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("عطلٌ مصطنع"))
+    try:
+        _sp = _os_hc.path.join(_dq12_dir, "st_err.json")
+        _lp = _os_hc.path.join(_dq12_dir, "led_err.jsonl")
+        _sent = []
+        _rc = _dq_PR.run(now_utc=_dq12_now, fetch_hist=_dq12_fetch, sender=lambda m: _sent.append(m) or True,
+                         state_path=_sp, ledger_path=_lp, saver=lambda f: None)
+        _dq12_res["err"] = (_rc, len(_sent), _os_hc.path.exists(_lp), _dq_PR.load_state(_sp).get("last_session"))
+    finally:
+        S.dq_filter = _dq12_real_f
+except Exception as _e:                                                  # noqa: BLE001
+    _dq12_res["exc"] = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    S.load_watchlist, S._fetch_splits, S._download_chunk = _dq12_wl, _dq12_fs, _dq12_dc
+    S._DQ_NASDAQ.clear()
+    S._DQ_NASDAQ.update(_dq12_nq)
+    S.DATA_BASIS.clear()
+    S.DATA_BASIS.update(_dq12_basis)
+    _dq_set("0")
+check("🛡️ DQ12 رادارُ الضغط سلوكيًّا على DLXY الحقيقيّ: **مع البوّابة** لا رسالةَ ولا صفَّ سجلّ والجلسةُ تُختَم (‏«لا مطابق» صامت) · "
+      "**وبدونها** يُرسَل ويُسجَّل كما كان · **وتعذّرُ البوّابة فشلٌ مغلق**: rc=1 بلا رسالةٍ ولا سجلٍّ ولا ختم (الكرونُ الثاني يعيد)",
+      _dq12_res.get("on") == (0, 0, False, "2026-09-30") and _dq12_res.get("off") == (0, 1, True, "2026-09-30")
+      and _dq12_res.get("err") == (1, 0, False, None),
+      str(_dq12_res))
+
+# DQ13 — أساسُ البيانات في ختم كلّ رسالة: يُضبط في المسارات الدفعيّة («📅 بيانات جلسة …») · والختمُ في `send_telegram` يقرؤه بالاسم
+try:
+    _dq_set("1")
+    S.set_data_basis("2026-09-30", "إغلاقٌ نظاميّ · TradingView")
+    _dq13_on = S.data_basis_suffix()
+    _dq_set("0")
+    S.set_data_basis("2026-09-30", "x")
+    _dq13_off = S.data_basis_suffix()
+    S.DATA_BASIS.clear()
+    _dq13_st = [n for n in _dq_ast.walk(_dq_ast.parse(_dq_insp.getsource(S.send_telegram)))
+                if isinstance(n, _dq_ast.Call) and getattr(n.func, "id", None) == "data_basis_suffix"]
+except Exception as _e:                                                  # noqa: BLE001
+    _dq13_on, _dq13_off, _dq13_st = f"⛔ {type(_e).__name__}", "⛔", []
+check("🛡️ DQ13 ختمُ الرسالة يحمل **جلسةَ البيانات لا تاريخَ التشغيل وحدَه**: «📅 بيانات جلسة 2026-09-30 (إغلاقٌ نظاميّ · TradingView)» حين "
+      "يُضبط · والمفتاحُ مطفأ ⟵ لاحقةٌ فارغة · و`send_telegram` يقرأ `data_basis_suffix()` (AST)",
+      _dq13_on == " · 📅 بيانات جلسة 2026-09-30 (إغلاقٌ نظاميّ · TradingView)" and _dq13_off == "" and len(_dq13_st) == 1,
+      f"on={_dq13_on!r} off={_dq13_off!r} calls={len(_dq13_st)}")
+
+# DQ14 — «موصول» من نقطة النداء الحيّة (AST): المرشّحون الجدد في اليوميّ والتجديد يمرّون على `dq_filter` داخل `fill_picks` · وقائمتا
+#         الارتداد · وقسمُ «تحت المتابعة» بـ`dq_fn` · والرادارُ قبل الرسالة والسجلّ (بمرجع القراءة) · وكونُ اليوم يُحفظ لـSYMBOL_CHANGED
+def _dq14_calls(fn):
+    return [n for n in _dq_ast.walk(_dq_ast.parse(_dq_tw.dedent(_dq_insp.getsource(fn)))) if isinstance(n, _dq_ast.Call)]
+
+
+def _dq14_fill_wrapped(fn):
+    """`fill_picks(X, …)` و`record_tie_cohort(…, X, …)` بالمتغيّر نفسِه · و`X = dq_filter(results, …)` في الدالّة نفسِها."""
+    _t = _dq_ast.parse(_dq_tw.dedent(_dq_insp.getsource(fn)))
+    _fp = [c for c in _dq_ast.walk(_t) if isinstance(c, _dq_ast.Call) and getattr(c.func, "id", None) == "fill_picks"]
+    _rc = [c for c in _dq_ast.walk(_t) if isinstance(c, _dq_ast.Call) and getattr(c.func, "id", None) == "record_tie_cohort"]
+    if len(_fp) != 1 or len(_rc) != 1 or not _fp[0].args or len(_rc[0].args) < 2:
+        return False
+    _x = _fp[0].args[0]
+    if not isinstance(_x, _dq_ast.Name) or getattr(_rc[0].args[1], "id", None) != _x.id:
+        return False
+    return any(isinstance(a, _dq_ast.Assign) and any(getattr(t, "id", None) == _x.id for t in a.targets)
+               and isinstance(a.value, _dq_ast.Call) and getattr(a.value.func, "id", None) == "dq_filter"
+               and a.value.args and getattr(a.value.args[0], "id", None) == "results"
+               for a in _dq_ast.walk(_t))
+
+
+try:
+    _dq14_daily = _dq14_fill_wrapped(S.run_daily_watchlist)
+    _dq14_renew = _dq14_fill_wrapped(S.run_weekly_renewal)
+    _dq14_pull = tuple(sum(1 for c in _dq14_calls(fn) if getattr(c.func, "id", None) == "dq_filter")
+                       for fn in (S.run_weekly_renewal, S.merge_pullback))   # (المرشّحون + الارتداد · الارتداد اليوميّ)
+    _dq14_nw = any(getattr(c.func, "id", None) == "build_near_watch_section" and any(k.arg == "dq_fn" for k in c.keywords)
+                   for c in _dq14_calls(S.run_daily_watchlist))
+    _dq14_rsrc = _dq_insp.getsource(_dq_PR.run)
+    _dq14_i = _dq14_rsrc.find("S.dq_filter(")
+    _dq14_radar = (0 < _dq14_i < _dq14_rsrc.find("append_ledger(") and _dq14_i < _dq14_rsrc.find("build_alert(")
+                   and "ref_of=" in _dq14_rsrc[_dq14_i:_dq14_i + 300])
+    _dq14_uni = "_DQ_UNIVERSE[\"set\"] = set(symbols)" in _dq_insp.getsource(S.get_universe)
+except Exception as _e:                                                  # noqa: BLE001
+    _dq14_daily = _dq14_renew = _dq14_nw = _dq14_radar = _dq14_uni = False
+    _dq14_pull = f"⛔ {type(_e).__name__}"
+check("🛡️ DQ14 «موصول» من نقطة النداء الحيّة (AST): `X = dq_filter(results, …)` ثمّ `fill_picks(X, …)` **و`record_tie_cohort(…, X, …)`** "
+      "(نفسُ مدخلات الاختيار — TH13ب) في اليوميّ **والتجديد** · و`dq_filter` على قائمتَي الارتداد "
+      "(التجديد · اليوميّ `merge_pullback`) · و`build_near_watch_section(..., dq_fn=...)` في اليوميّ · والرادارُ يمرّر على `S.dq_filter` **قبل** "
+      "`build_alert` و`append_ledger` بمرجع القراءة · و`get_universe` يحفظ كونَ اليوم",
+      _dq14_daily and _dq14_renew and _dq14_pull == (2, 1) and _dq14_nw and _dq14_radar and _dq14_uni,
+      f"d={_dq14_daily} r={_dq14_renew} p={_dq14_pull} nw={_dq14_nw} radar={_dq14_radar} uni={_dq14_uni}")
+
+# DQ15 — الفلوتُ المخزَّنُ قبل التقسيم لا يعود (عطلٌ مُثبَت F6: AIXI ‏866,043 والحيُّ 123,698 بعد 1:7): ذاكرةُ الشركات تُعرَض بلاه ·
+#         ومخزنُ «تحت المتابعة» يُعيد جلبَه أوّلًا ولا يَسِم به · والمفتاحُ مطفأ ⟵ كما كان
+try:
+    _dq_set("1")
+    _dq15_c = {"float": 866043.0, "shares_out": 900000, "sector": "Tech"}
+    _dq15_item = {"dq": {"split": {"date": "2026-09-08", "ratio": 1 / 7}}}
+    _dq15_v1 = S.dq_cache_view("AIXI", _dq15_c, _dq15_item, nasdaq={})
+    _dq15_v2 = S.dq_cache_view("AIXI", dict(_dq15_c, float_asof="2026-09-20"), _dq15_item, nasdaq={})
+    _dq15_v2b = S.dq_cache_view("AIXI", dict(_dq15_c, float_date="2026-09-20"), _dq15_item, nasdaq={})   # حقلُ المخزن الآخر لا يُعتدّ به
+    _dq15_en = [n for n in _dq_ast.walk(_dq_ast.parse(_dq_tw.dedent(_dq_insp.getsource(S.enrich))))
+                if isinstance(n, _dq_ast.Assign) and any(isinstance(t, _dq_ast.Subscript)
+                                                         and getattr(t.slice, "value", None) == "float_asof" for t in n.targets)]
+    _dq15_v3 = S.dq_cache_view("AIXI", _dq15_c, {}, nasdaq={})
+    _dq15_watch = {"AIXI": {"symbol": "AIXI"}, "KEEP": {"symbol": "KEEP"}}
+    _dq15_store = {"AIXI": {"float": 866043.0, "date": "2026-09-01", "checked": "2026-09-30", "src": "ياهو"},
+                   "KEEP": {"float": 5e6, "date": "2026-09-30", "checked": "2026-09-30", "src": "ياهو"}}
+    _dq15_seen = []
+    _dq15_n = S.refresh_near_watch_float(_dq15_watch, _dq15_store, "2026-10-01",
+                                         fetch=lambda s: (_dq15_seen.append(s), ("fail", None))[1], cap=1,
+                                         split_after={"AIXI": "2026-09-08"})
+    _dq_set("0")
+    _dq15_v4 = S.dq_cache_view("AIXI", _dq15_c, _dq15_item, nasdaq={})
+except Exception as _e:                                                  # noqa: BLE001
+    _dq15_v1 = _dq15_v2 = _dq15_v2b = _dq15_v3 = _dq15_v4 = {"⛔": type(_e).__name__}
+    _dq15_n, _dq15_seen, _dq15_watch, _dq15_en = {}, [], {}, []
+finally:
+    _dq_set("0")
+check("🛡️ DQ15 فلوتُ ما قبل التقسيم لا يعود: ذاكرةُ الشركات تُعرَض **بلا فلوتٍ/أسهمٍ** أقدمَ من تقسيم 09-08 (والأحدثُ منه بـ`float_asof` "
+      "الذي يكتبه `enrich` (AST) يبقى · و`float_date` حقلُ مخزنٍ آخر لا يُعتدّ به · وبلا "
+      "تقسيمٍ كما هي) · ومخزنُ «تحت المتابعة» يجلب AIXI **أوّلًا** (‏cap=1) ولا يَسِم المدخلَ بقيمته القديمة حين يتعذّر · والمفتاحُ مطفأ ⟵ كما كان",
+      "float" not in _dq15_v1 and "shares_out" not in _dq15_v1 and _dq15_v1.get("sector") == "Tech"
+      and _dq15_v2.get("float") == 866043.0 and "float" not in _dq15_v2b and _dq15_v3 is _dq15_c and _dq15_v4 is _dq15_c
+      and len(_dq15_en) == 1
+      and _dq15_seen == ["AIXI"] and _dq15_n.get("stale_split") == 1
+      and "float" not in _dq15_watch.get("AIXI", {"float": 1}) and _dq15_watch.get("KEEP", {}).get("float") == 5e6,
+      f"v1={_dq15_v1} v2={_dq15_v2.get('float')} seen={_dq15_seen} n={_dq15_n} w={_dq15_watch}")
+
+# DQ16 — تقويمُ ناسداك: المحلّلُ مكتوبٌ من **الشكل الحقيقيّ** (المِجَسّ: `data.rows` ⟵ symbol · ratio «1 : 5» · executionDate «9/28/2026») ·
+#         والجزئيُّ يُقبل ويُعلَن · والكلُّ تعذّر ⟵ None (ياهو وحدَه)
+try:
+    _dq16_rows = _DQm.parse_nasdaq_rows({"data": {"asOf": "x", "headers": {}, "rows": [
+        {"symbol": "DXJ", "name": "x", "ratio": "3 : 1", "executionDate": "10/09/2026"},
+        {"symbol": "DLXY", "name": "x", "ratio": "1 : 5", "executionDate": "9/28/2026"},
+        {"symbol": "BAD", "ratio": "؟", "executionDate": "غيرُ تاريخ"}]}})
+    _dq16_ok, _dq16_st = _DQm.nasdaq_calendar(days=4, today=_dq_dt.date(2026, 10, 1), workers=2, get=lambda u: (
+        (500, None) if "2026-09-29" in u else
+        (200, {"data": {"rows": [{"symbol": "DLXY", "ratio": "1 : 5", "executionDate": "9/28/2026"}]}})))
+    _dq16_none, _dq16_st2 = _DQm.nasdaq_calendar(days=2, today=_dq_dt.date(2026, 10, 1), get=lambda u: (403, None))
+except Exception as _e:                                                  # noqa: BLE001
+    _dq16_rows, _dq16_ok, _dq16_st, _dq16_none, _dq16_st2 = f"⛔ {type(_e).__name__}", None, {}, "x", {}
+check("🛡️ DQ16 تقويمُ ناسداك يُقرأ **بشكله الحقيقيّ** («1 : 5» ⟵ 0.2 · «3 : 1» ⟵ 3.0 · «9/28/2026» ⟵ ISO · والتالفُ يُتخطّى) · وتعذّرُ "
+      "بعض الأيّام يُقبل ويُعَدّ · وتعذّرُ الكلّ ⟵ None (ياهو وحدَه — لا «لا تقسيم» مختلَقًا)",
+      _dq16_rows == [("DXJ", "2026-10-09", 3.0), ("DLXY", "2026-09-28", 0.2)]
+      and _dq16_ok == {"DLXY": [("2026-09-28", 0.2)]} and _dq16_st.get("fail") == 1 and _dq16_st.get("ok", 0) >= 2
+      and _dq16_none is None and _dq16_st2.get("ok") == 0,
+      f"rows={_dq16_rows} ok={_dq16_ok} st={_dq16_st} none={_dq16_none}")
+
+# DQ17 — آخرُ جلسةٍ مكتملة بتوقيت نيويورك عبر التوقيت الصيفيّ والعطل والإغلاق المبكّر (لا UTC ولا الرياض)
+try:
+    _dq17 = [S.last_closed_session(_dq_dt.datetime(*a, tzinfo=_dq_dt.timezone.utc), margin_min=0) for a in (
+        (2026, 11, 2, 14, 0),     # الاثنين بعد نهاية الصيفيّ — 09:00 EST قبل الافتتاح ⟵ الجمعة 10-30
+        (2026, 11, 2, 21, 5),     # 16:05 EST ⟵ الاثنين نفسُه
+        (2026, 11, 2, 20, 30),    # 15:30 EST (كان سيكون 16:30 لو قُرئ صيفيًّا) ⟵ الجمعة
+        (2026, 3, 9, 20, 5),      # الاثنين بعد بداية الصيفيّ — 16:05 EDT ⟵ الاثنين
+        (2026, 11, 27, 4, 0),     # بعد عيد الشكر (11-26 عطلة) ⟵ 11-25
+        (2026, 11, 27, 18, 5),    # 13:05 EST يومَ الإغلاق المبكّر ⟵ 11-27 نفسُه
+        (2026, 10, 1, 21, 30))]   # الجمعة 00:30 الرياض = الخميس 17:30 EDT ⟵ 10-01 (لا يومُ الرياض 10-02)
+except Exception as _e:                                                  # noqa: BLE001
+    _dq17 = [f"⛔ {type(_e).__name__}"]
+check("🛡️ DQ17 «آخرُ جلسةٍ مكتملة» بساعة نيويورك: الاثنين بعد نهاية الصيفيّ وبدايته · وعيدُ الشكر · والإغلاقُ المبكّر 13:00 · وفجرُ الرياض "
+      "الذي ما زال مساءَ أمسِ في نيويورك — كلُّها صحيحة (لا UTC ولا توقيتَ الرياض)",
+      _dq17 == ["2026-10-30", "2026-11-02", "2026-10-30", "2026-03-09", "2026-11-25", "2026-11-27", "2026-10-01"],
+      str(_dq17))
+
+# DQ18 — بِركةُ رادار الضغط تضمّ **المرصودَ اليومَ نفسَه** (عطلٌ مُثبَت في بيانات الإنتاج: `or 999` جعل الفرقَ صفرًا 999 ⟵ 0 من 237
+#         منفجرًا دخل يومَ رصده و91 بعده بجلسة) · والتاريخُ التالفُ يُقصى · وحدُّ `MEMORY_DAYS` بتخومه (45 يدخل · 46 لا)
+try:
+    _dq18_t = "2026-09-30"
+    _dq18_md = _dq_PR.MEMORY_DAYS
+    _dq18_edge_in = (_dq_dt.date(2026, 9, 30) - _dq_dt.timedelta(days=_dq18_md)).isoformat()
+    _dq18_edge_out = (_dq_dt.date(2026, 9, 30) - _dq_dt.timedelta(days=_dq18_md + 1)).isoformat()
+    _dq18_pool, _dq18_cut = _dq_PR.build_pool({
+        "explosions": [{"symbol": "NEWX", "date": _dq18_t}, {"symbol": "EDGI", "date": _dq18_edge_in},
+                       {"symbol": "EDGO", "date": _dq18_edge_out}, {"symbol": "BADD", "date": "غيرُ تاريخ"}],
+        "removed": [{"symbol": "GONE", "date": _dq18_t}]}, {}, _dq18_t)
+except Exception as _e:                                                  # noqa: BLE001
+    _dq18_pool = [f"⛔ {type(_e).__name__}"]
+check("🛡️ DQ18 بِركةُ رادار الضغط تضمّ **المتحرّكَ والمشطوبَ المرصودَين اليومَ نفسَه** (كان الفرقُ صفرًا يُقرأ 999 فيتأخّران جلسة) · "
+      "وحدُّ الذاكرة بتخومه (‏`MEMORY_DAYS` يدخل · وما بعده لا) · والتاريخُ التالفُ يُقصى",
+      sorted(_dq18_pool) == ["EDGI", "GONE", "NEWX"],
+      str(_dq18_pool))
+
+# DQ19 — مساراتُ الحسم ترى التقسيمَ الذي فات ياهو (عطلٌ مُثبَت: ناسداك وحدَه 20 حدثًا في المِجَسّ · DLXY وياهو بلا تقسيم) — سلوكيًّا على
+#         `update_tracking`: تنبيهٌ مخزَّنٌ بمقياس ما قبل تقسيم 1:5 وشموعٌ مسوّاة ⟵ مع البوّابة **لا «هدفٌ محقّق» زائف** · وبدونها
+#         يُسجَّل hit_t3 (العطلُ نفسُه) · والجالبُ يُرجع **كائنَ ياهو ذاتَه** حين لا يضيف ناسداك جديدًا · وصيّادُ المقسّم لا يناديه
+_dq19_sv = (S.yf, S._fetch_splits, dict(S._DQ_NASDAQ))
+_dq19_res = {}
+try:
+    class _Dq19YF:
+        pass
+    _dq19_df = pd.DataFrame({"Open": [2.5] * 8, "High": [2.6] * 8, "Low": [2.35] * 8, "Close": [2.5] * 8,
+                             "Volume": [1e5] * 8},
+                            index=pd.to_datetime(["2026-09-21", "2026-09-22", "2026-09-23", "2026-09-24", "2026-09-25",
+                                                  "2026-09-28", "2026-09-29", "2026-09-30"]))
+    S.yf = _Dq19YF()
+    S.yf.download = lambda *a, **k: _dq19_df.copy()
+    _dq19_empty = pd.Series(dtype=float)
+    S._fetch_splits = lambda sym: _dq19_empty
+    S._DQ_NASDAQ.update(tried=True, events={"XSPL": [("2026-09-28", 0.2)], "LATE": [("2026-10-07", 0.1)],
+                                            "UNKR": [("2026-09-28", None)]}, stats={})
+
+    def _dq19_alert():
+        return {"symbol": "XSPL", "date": "2026-09-20", "ref_bar": "2026-09-20", "price": 0.5, "stop": 0.45,
+                "t1": 0.6, "t2": 0.7, "t3": 0.8, "status": "open", "hit": None}
+    for _k, _g in (("on", "1"), ("off", "0")):
+        _dq_set(_g)
+        _dq19_a = {"alerts": [_dq19_alert()]}
+        S.update_tracking(_dq19_a)
+        _dq19_res[_k] = _dq19_a["alerts"][0].get("status")
+    _dq_set("1")
+    _dq19_pairs = S._fetch_splits_dq("XSPL", upto="2026-09-30")
+    _dq19_same = [S._fetch_splits_dq(x, upto="2026-09-30") is _dq19_empty for x in ("LATE", "UNKR", "NONE")]
+    S._fetch_splits = lambda sym: None
+    _dq19_ynone = S._fetch_splits_dq("XSPL", upto="2026-09-30")
+    _dq19_ynone2 = S._fetch_splits_dq("NONE", upto="2026-09-30")
+    _ys = pd.Series([0.2], index=pd.to_datetime(["2026-09-28"]))
+    S._fetch_splits = lambda sym: _ys
+    _dq19_both = S._fetch_splits_dq("XSPL", upto="2026-09-30") is _ys
+    _dq_set("0")
+    S._fetch_splits = lambda sym: _dq19_empty
+    _dq19_off = S._fetch_splits_dq("XSPL", upto="2026-09-30") is _dq19_empty
+
+    def _dq19_names(fn):
+        return {n.id for n in _dq_ast.walk(_dq_ast.parse(_dq_tw.dedent(_dq_insp.getsource(fn))))
+                if isinstance(n, _dq_ast.Name)}
+    _dq19_set = [("_fetch_splits_dq" in _dq19_names(f) and "_fetch_splits" not in _dq19_names(f))
+                 for f in (S.update_watchlist_status, S.update_tracking, S.observe_closed_alerts, S.repair_stale_pullback,
+                           S._resolve_split_suspects, S._resolve_explosion_suspects)]
+    # 🧊 حارسُ المفتاح خامدٌ سلوكيًّا (‏`dq_nasdaq_events` يحرس نفسَه — طفرةُ حذفه نجت) ⟵ يُقفَل **بنيويًّا**: `if not _DQ.enabled(): return sp`
+    #    قبل أيّ نداءٍ لـ`dq_nasdaq_events` (فلا يصير التقويمُ وحدَه حارسَ «بت-بت»)
+    _dq19_t = _dq_ast.parse(_dq_tw.dedent(_dq_insp.getsource(S._fetch_splits_dq)))
+    _dq19_g = [n.lineno for n in _dq_ast.walk(_dq19_t) if isinstance(n, _dq_ast.If)
+               and isinstance(n.test, _dq_ast.UnaryOp) and isinstance(n.test.op, _dq_ast.Not)
+               and isinstance(n.test.operand, _dq_ast.Call) and getattr(n.test.operand.func, "attr", None) == "enabled"
+               and n.body and isinstance(n.body[0], _dq_ast.Return) and getattr(n.body[0].value, "id", None) == "sp"]
+    _dq19_n = [n.lineno for n in _dq_ast.walk(_dq19_t) if isinstance(n, _dq_ast.Call)
+               and getattr(n.func, "id", None) == "dq_nasdaq_events"]
+    _dq19_guard = bool(_dq19_g and _dq19_n and min(_dq19_g) < min(_dq19_n))
+    import split_hunter as _dq19_SH
+    _dq19_hunt = ("_fetch_splits_dq" not in open(_dq19_SH.__file__, encoding="utf-8").read()
+                  and "_fetch_splits_dq" not in _dq_insp.getsource(S.scan_split_hunter))
+except Exception as _e:                                                  # noqa: BLE001
+    _dq19_res["exc"] = f"⛔ {type(_e).__name__}: {_e}"
+    _dq19_pairs, _dq19_same, _dq19_ynone, _dq19_ynone2, _dq19_both, _dq19_off = None, [], None, "x", False, False
+    _dq19_set, _dq19_hunt, _dq19_guard = [], False, False
+finally:
+    S.yf, S._fetch_splits = _dq19_sv[0], _dq19_sv[1]
+    S._DQ_NASDAQ.clear()
+    S._DQ_NASDAQ.update(_dq19_sv[2])
+    _dq_set("0")
+check("🛡️ DQ19 مساراتُ الحسم ترى التقسيمَ الذي فات ياهو: تنبيهٌ بمقياس ما قبل 1:5 وشموعٌ مسوّاة ⟵ **مع البوّابة يبقى open** (لا هدفَ زائف) "
+      "و**بدونها hit_t3 زائف** (العطلُ نفسُه) · والجالبُ: أزواجُ الاتّحاد حين يضيف ناسداك · **وكائنُ ياهو ذاتُه** حين لا يضيف (حدثٌ "
+      "بعد آخر شمعة · نسبةٌ مجهولة · لا حدث · المصدران يتّفقان · المفتاحُ مطفأ) · وياهو تعذّر ⟵ ناسداك وحدَه (أو None) · والمساراتُ "
+      "الستّ تناديه لا `_fetch_splits` (AST) · وحارسُ المفتاح قبل التقويم (AST — خامدٌ سلوكيًّا) · **وصيّادُ المقسّم لا يناديه** (حمايتُه)",
+      _dq19_res.get("on") == "open" and _dq19_res.get("off") == "hit_t3"
+      and _dq19_pairs == [("2026-09-28", 0.2)] and _dq19_same == [True, True, True]
+      and _dq19_ynone == [("2026-09-28", 0.2)] and _dq19_ynone2 is None and _dq19_both and _dq19_off
+      and _dq19_set == [True] * 6 and _dq19_hunt and _dq19_guard,
+      f"res={_dq19_res} pairs={_dq19_pairs} same={_dq19_same} yn={_dq19_ynone}/{_dq19_ynone2} both={_dq19_both} "
+      f"off={_dq19_off} set={_dq19_set} hunt={_dq19_hunt} guard={_dq19_guard}")
+
+if _dq_env0 is None:
+    _os_hc.environ.pop("DQ_GATE", None)
+else:
+    _os_hc.environ["DQ_GATE"] = _dq_env0
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

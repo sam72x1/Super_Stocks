@@ -137,13 +137,18 @@ def build_pool(wl: dict, state: dict, today_iso: str):
         _seen(it.get("symbol"), "قائمة الارتداد", plan or None)
     for it in (wl.get("stocks") or []):
         _seen(it.get("symbol"), "قائمة الترشيح")
+    # 🛡️ (2026-10-01 · عطلٌ مُثبَت): كان الشرطُ `(_days_between(...) or 999)` — والفرقُ **صفرٌ** خاطئٌ منطقيًّا في بايثون
+    #    فيصير 999 ⟵ **المرصودُ اليومَ نفسَه يُقصى** ويدخل البِركةَ في الجلسة التالية (بياناتُ الإنتاج: 0 من 237 منفجرًا دخل
+    #    يومَ رصده · و91 دخل بعده بجلسة) = عينُ شكوى «يظهر في البوت في اليوم التالي». ⇒ `None` وحدَه «تعذّر».
     for it in (wl.get("removed") or []):
         d = it.get("date") or it.get("removed_at")
-        if d and (_days_between(d, today_iso) or 999) <= MEMORY_DAYS:
+        g = _days_between(d, today_iso) if d else None
+        if g is not None and g <= MEMORY_DAYS:
             _seen(it.get("symbol"), "شُطب حديثًا")
     for it in (wl.get("explosions") or []):
         d = it.get("date")
-        if d and (_days_between(d, today_iso) or 999) <= MEMORY_DAYS:
+        g = _days_between(d, today_iso) if d else None
+        if g is not None and g <= MEMORY_DAYS:
             _seen(it.get("symbol"), "متحرّك حديث")
     # ذاكرة الرادار: كل اسم ظهر خلال MEMORY_DAYS يبقى مراقَبًا ولو مُسحت القوائم
     for sym, e in list(mem.items()):
@@ -233,6 +238,22 @@ def press_read(df, w=W, band_pct=None):
                 "swept_hold": bool(_sw), "prev_hold": int(_ph),
                 "runup_pct": round(runup_pct(hi, lo, j_star), 1),
                 "tested_level": tl}
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
+def window_high_date(df, w=ALERT_W):
+    """يومُ قمّة نافذة القراءة (`j_star` في `press_read` بالتعريف نفسِه: أعلى High في آخر `w` جلسة · وعند التساوي الأبكر) ⟵ ISO أو None.
+    🛡️ مرجعُ القراءة الذي تفحصه بوّابةُ سلامة البيانات: قمّةٌ **قبل** تقسيمٍ عكسيٍّ حديث = هبوطٌ يُقاس من قمّةٍ مسوّاةٍ لم تُتداوَل
+    (DLXY: $22.25 يوم 09-16 قبل تقسيم 09-28) لا من قمّة ما بعد التقسيم (فيصل IMG_0143/0144). نقيّة · فاشلةٌ-آمنة."""
+    try:
+        hi = df["High"].values.astype(float)
+        n = len(hi)
+        if n < w + 1:
+            return None
+        win = hi[n - w:n]
+        j = int(n - w + max(range(len(win)), key=lambda k: win[k]))
+        return str(df.index[j])[:10]
     except Exception:                                            # noqa: BLE001
         return None
 
@@ -895,6 +916,19 @@ def run(now_utc=None, fetch_hist=None, sender=None, state_path=STATE_FILE,
         rows.append({"symbol": sym, "read": r,
                      "plan": mem.get("plan"), "src": mem.get("src", "؟"),
                      "bars_src": _bars_src_of(df)})
+    # 🛡️ سلامةُ البيانات (2026-10-01 · أمرُ المالك «CRITICAL MISSION» · `data_integrity_result.md`): كلُّ مطابقٍ يمرّ على
+    #    `S.dq_filter` **قبل** الرسالة والسجلّ — إطارٌ آخرُ شمعته أقدمُ من الجلسة (كان يُعلَن في السجلّ ثمّ يُقرأ «اليوم») · وتقسيمٌ
+    #    عكسيّ حديث لم تكتمل بعده وصفةُ فيصل (DLXY: قمّةُ $22.25 مسوّاةٌ لم تُتداوَل وهبوطُ 90% هو هبوطُ ما قبل التقسيم) · وتعارضُ
+    #    المصدرين — يُحجز ويُسجَّل بسببه. والمفتاحُ `DQ_GATE=0` ⟵ الصفوفُ كما هي بت-بت. **وتعذّرُ البوّابة نفسِها فشلٌ مغلق:**
+    #    لا رسالةَ ولا ختم ولا حصاد ⟵ الكرونُ الثاني يعيد (صنفُ أرضية التغطية نفسُه).
+    try:
+        S.set_data_basis(session_iso, S._data_basis_note())
+        rows = S.dq_filter(rows, hist, "رادار الضغط", expected=session_iso,
+                           ref_of=lambda r: window_high_date(hist.get(r["symbol"])))
+    except Exception as e:                                       # noqa: BLE001
+        _log(f"⛔ 🛡️ بوّابةُ سلامة البيانات تعذّرت ({type(e).__name__}) — لا مطابقَ يُرسَل كأنه صالح "
+             "(فشلٌ مغلق) · لا ختم ولا حصاد (الكرون الثاني يعيد).")
+        return 1
     # 🔁 تركيبة المالك: «مؤهلٌ سابقًا عند البوت؟» تُحسب للمطابقين فقط (قلّة
     # بعد الدِدوب) — فاشلة-آمنة: تعذّرها لا يمس التنبيه.
     for r in rows:

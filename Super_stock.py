@@ -1764,6 +1764,8 @@ def get_universe() -> list:
             log(f"⚠️ فشل تحميل {url}: {e}")
     symbols = sorted(set(symbols))
     log(f"حجم كون ناسداك بعد الفلترة: {len(symbols)} سهم")
+    if symbols:                       # 🛡️ لـSYMBOL_CHANGED في بوّابة المخرَج (آخرُ كونٍ ناجح في العمليّة)
+        _DQ_UNIVERSE["set"] = set(symbols)
     return symbols
 
 
@@ -2212,6 +2214,216 @@ def tv_bar_fresh(df, now=None) -> bool:
         return str(df.index[-1])[:10] >= exp
     except Exception:                                            # noqa: BLE001
         return True
+
+
+# ==========================================================
+# 🛡️ سلامةُ البيانات قبل كلّ مخرَج (أمرُ المالك 2026-10-01 «CRITICAL MISSION» · `data_quality.py` · `data_integrity_result.md`)
+#    الطزاجةُ مقابل آخر جلسةٍ مكتملة · التقسيمُ من مصدرين مستقلّين (ياهو ⟵ `_fetch_splits` · تقويمُ ناسداك) · إغلاقُ الجلسة من مصدرين
+#    (TradingView مقابل ياهو) · وحالةٌ صريحة لكلّ رمز وسياسةٌ قابلةٌ للضبط. **خارج الجذور:** تُطبَّق على **مخرَجات** الجذور لا داخلها
+#    (`scan_market`/`analyze_ticker` بت-بت) · و`DQ_GATE=0` ⟵ كلُّ بوّابةٍ تمرّر كلَّ شيء (السلوكُ السابق بت-بت).
+# ==========================================================
+_DQ_UNIVERSE = {"set": None}     # كونُ ناسداك من آخر `get_universe` ناجح في هذي العمليّة (لـSYMBOL_CHANGED)
+_DQ_NASDAQ = {"events": None, "tried": False, "stats": {}}   # تقويمُ ناسداك للتقسيمات — يُجلَب مرّةً للعمليّة
+DQ_LAST: dict = {}               # آخرُ ملخّصٍ لكلّ نطاق — للسجلّ والاختبار
+DATA_BASIS: dict = {}            # «بيانات جلسة …» في ختم الرسالة — تضبطه المساراتُ الدفعيّة وحدَها (`set_data_basis`)
+
+
+def set_data_basis(session_iso, note: str = "إغلاقٌ نظاميّ") -> None:
+    """يضبط أساسَ البيانات الذي يُختَم في كلّ رسالةٍ بعدها في هذي العمليّة («📅 بيانات جلسة 2026-09-30 (إغلاقٌ نظاميّ)») —
+    **المسارات الدفعيّة وحدَها** (التقرير اليوميّ · التجديد · الرادار) · والأدواتُ الحيّة لا تضبطه فيبقى ختمُها كما كان بت-بت.
+    `None` ⟵ يُمسح. المفتاحُ مطفأ ⟵ لا يُضبط."""
+    try:
+        import data_quality as _DQ
+        DATA_BASIS.clear()
+        if session_iso and _DQ.enabled():
+            DATA_BASIS.update(session=str(session_iso)[:10], note=str(note or ""))
+    except Exception:                                            # noqa: BLE001
+        pass
+
+
+def _data_basis_note() -> str:
+    """«إغلاقٌ نظاميّ · TradingView/ياهو» بحسب مصدر الشموع النافذ — نصٌّ للختم لا منطق."""
+    return "إغلاقٌ نظاميّ · " + ("TradingView" if bars_source() == "tradingview" else "ياهو")
+
+
+def data_basis_suffix() -> str:
+    """لاحقةُ ختم الرسالة — فارغةٌ ما لم يُضبط الأساس (السلوكُ السابق بت-بت)."""
+    if not DATA_BASIS.get("session"):
+        return ""
+    return f" · 📅 بيانات جلسة {DATA_BASIS['session']}" + (f" ({DATA_BASIS['note']})" if DATA_BASIS.get("note") else "")
+
+
+def dq_nasdaq_events(get=None) -> dict | None:
+    """تقويمُ ناسداك للتقسيمات — **يُجلَب مرّةً للعمليّة** (`data_quality.nasdaq_calendar` بالتوازي) ويُسجَّل سطرُه بالأعداد. تعذّرُه كلِّه
+    ⟵ None (ياهو وحدَه) — يُعلَن لا يُصمَت. والمفتاحُ مطفأ ⟵ لا نداء. `get` محقونٌ للاختبار."""
+    import data_quality as _DQ
+    if not _DQ.enabled():
+        return None
+    if not _DQ_NASDAQ["tried"]:
+        _DQ_NASDAQ["tried"] = True
+        try:
+            ev, st = _DQ.nasdaq_calendar(get=get)
+        except Exception as e:                                   # noqa: BLE001
+            ev, st = None, {"error": type(e).__name__}
+        _DQ_NASDAQ.update(events=ev, stats=st)
+        log(f"🛡️ تقويمُ ناسداك للتقسيمات (المصدرُ المستقلّ الثاني): "
+            + (f"{st.get('events', 0)} حدثًا لـ{st.get('symbols', 0)} رمزًا · طلبات {st.get('ok', 0)} من {st.get('asked', 0)}"
+               + (f" · تعذّر {st.get('fail')}" if st.get("fail") else "")
+               if ev is not None else f"تعذّر كلُّه ({st}) — ياهو وحدَه مصدرُ التقسيمات اليوم"))
+    return _DQ_NASDAQ["events"]
+
+
+def dq_split_events(sym, nasdaq=None, fetch=None) -> tuple:
+    """أحداثُ تقسيم الرمز من **مصدرين مستقلّين** ⟵ (اتّحادٌ|None، تعارضات، ملاحظات) — ياهو (`_fetch_splits` بكاش التشغيلة) وتقويمُ
+    ناسداك (`_DQ_NASDAQ` · يُجلَب مرّةً). تعذّرُهما معًا ⟵ None (UNVERIFIED). `nasdaq`/`fetch` محقونان للاختبار."""
+    import data_quality as _DQ
+    try:
+        sp = (fetch or _fetch_splits)(sym)
+    except Exception:                                            # noqa: BLE001
+        sp = None
+    yev = _DQ.split_events(sp) if sp is not None else None
+    cal = dq_nasdaq_events() if nasdaq is None else nasdaq
+    nev = list((cal or {}).get(str(sym).upper(), [])) if cal is not None else None
+    return _DQ.cross_check(yev, nev)
+
+
+def dq_close_xcheck(syms, hist, fetch=None) -> dict:
+    """{رمز: تعارضٌ|None} — إغلاقُ **آخر جلسةٍ مشتركة** في إطار TradingView مقابل ياهو (المصدرُ الثاني المستقلّ للسعر). يُقارَن الإطارُ
+    الوارد من TradingView وحدَه (إطارُ ياهو لا يُقارَن بنفسه) · والآخرُ المشترك لا الأخيرُ مطلقًا (ياهو يحشو) · والفرقُ فوق
+    `hunter_outcomes.SCALE_TOL` لوغاريتميًّا = **تعارض** (مقياسُ تقسيمٍ أو بياناتٌ تالفة — لا ضجيجُ مصدرين: إغلاقُ آخر جلسةٍ غيرُ
+    مُسوًّى عند الاثنين). تعذّرُ ياهو ⟵ لا تعارض (لا يُخترع) ويُعَدّ. `fetch(syms, start)` ⟵ {رمز: إطار} محقونٌ للاختبار."""
+    import data_quality as _DQ
+    tv = [s for s in syms if _DQ.bars_src((hist or {}).get(s)) == "tradingview"]
+    out = {}
+    if not tv:
+        return out
+    start = (dt.date.today() - dt.timedelta(days=21)).isoformat()
+    try:
+        if fetch is not None:
+            yh = fetch(tv, start) or {}
+        else:
+            yh = {}
+            size = int(CONFIG["CHUNK_SIZE"])
+            for i in range(0, len(tv), size):
+                sub = tv[i:i + size]
+                data = _download_chunk(sub, start)
+                if data is not None:
+                    tmp = {}
+                    try:
+                        _extract_into(tmp, data, sub)
+                    except Exception:                            # noqa: BLE001
+                        tmp = {}
+                    # `_extract_into` يشترط MIN_BARS — النافذةُ القصيرة هنا تُقرأ مباشرةً من الدفعة
+                    for s in sub:
+                        if s in tmp:
+                            yh[s] = tmp[s]
+                            continue
+                        try:
+                            d = data[s] if len(sub) > 1 else data
+                            d = d.dropna(subset=["Close"])
+                            if len(d):
+                                yh[s] = d
+                        except Exception:                        # noqa: BLE001
+                            continue
+    except Exception:                                            # noqa: BLE001
+        yh = {}
+    try:
+        t = float(_DQ._minor_tol())
+    except Exception:                                            # noqa: BLE001
+        t = 0.25
+    for s in tv:
+        a, b = (hist or {}).get(s), yh.get(s)
+        if a is None or b is None or len(b) == 0:
+            continue
+        try:
+            ya = {str(i)[:10]: float(c) for i, c, v in zip(b.index, b["Close"].values, b["Volume"].values)
+                  if float(v) > 0 and float(c) > 0}
+            common = [str(i)[:10] for i in a.index if str(i)[:10] in ya]
+            if not common:
+                continue
+            d = common[-1]
+            ca = float(a["Close"].loc[[x for x in a.index if str(x)[:10] == d][-1]])
+            cb = ya[d]
+            if ca > 0 and abs(math.log(ca / cb)) > math.log(1.0 + t):
+                out[s] = ("close", d, round(ca, 4), round(cb, 4))
+        except Exception:                                        # noqa: BLE001
+            continue
+    return out
+
+
+def dq_assess(sym, df, expected, nasdaq=None, fetch=None, xclose=None, today=None, ref_date=None) -> dict:
+    """تقييمُ رمزٍ واحد بالحالة والسياسة (`data_quality.assess`) — التقسيماتُ من المصدرين والتعارضُ السعريّ ومرجعُ القراءة إن وُجدت."""
+    import data_quality as _DQ
+    union, conflicts, notes = dq_split_events(sym, nasdaq=nasdaq, fetch=fetch)
+    xc = {"conflicts": list(conflicts) + ([xclose] if xclose else [])}
+    a = _DQ.assess(sym, df, expected, events=union, today=today, universe=_DQ_UNIVERSE["set"], xcheck=xc,
+                   ref_date=ref_date)
+    if notes:
+        a["notes"] = notes
+    return a
+
+
+def dq_filter(items, hist, scope: str, expected=None, sym_of=None, xcheck_close: bool = True,
+              fetch=None, close_fetch=None, ref_of=None, nasdaq=None) -> list:
+    """🛡️ بوّابةُ المخرَج — تُرجع المارّين (وكلٌّ منهم `dq` بحالته ووسمه) وتسجّل كلَّ محجوزٍ/مستبعَدٍ بسببه (لا صمت).
+    المفتاحُ مطفأ ⟵ القائمةُ كما هي **بت-بت** (لا شبكة ولا حقل). `fetch`/`close_fetch` محقونان للاختبار."""
+    import data_quality as _DQ
+    items = list(items or [])
+    if not _DQ.enabled() or not items:
+        return items
+    sym_of = sym_of or (lambda it: it.get("symbol") if isinstance(it, dict) else str(it))
+    exp = expected or last_closed_session()
+    closes = {}
+    if xcheck_close:
+        try:
+            closes = dq_close_xcheck([sym_of(it) for it in items], hist, fetch=close_fetch)
+        except Exception as e:                                   # noqa: BLE001
+            log(f"⚠️ 🛡️ التحقّقُ المتقاطع للإغلاق تعذّر ({type(e).__name__}) — لا تعارضَ يُخترع")
+    kept, dropped, summ = _DQ.gate(
+        items, lambda s, it: dq_assess(s, (hist or {}).get(s), exp, nasdaq=nasdaq, fetch=fetch, xclose=closes.get(s),
+                                       ref_date=(ref_of(it) if ref_of else None)), sym_of)
+    log(_DQ.summary_line(summ, scope) + f" · الجلسةُ المتوقَّعة {exp}")
+    for ln in _DQ.dropped_lines(dropped):
+        log(ln)
+    DQ_LAST[scope] = {"summary": summ, "expected": exp,
+                      "dropped": [(a.get("symbol"), a.get("state"), a.get("action"), a.get("reasons")) for _, a in dropped]}
+    return kept
+
+
+def dq_split_dates(nasdaq=None) -> dict:
+    """{رمز: آخرُ يوم تقسيمٍ غيرِ طفيفٍ منفَّذ} من تقويم ناسداك (المحمَّل مرّةً) — لإبطال الكاش الأقدم منه. المفتاحُ مطفأ أو تعذّر ⟵ {}."""
+    import data_quality as _DQ
+    cal = dq_nasdaq_events() if nasdaq is None else nasdaq
+    out, today = {}, dt.date.today().isoformat()
+    for sym, evs in (cal or {}).items():
+        ds = [d for d, r in evs if d <= today and (r is None or not _DQ.is_minor(r))]
+        if ds:
+            out[sym] = max(ds)
+    return out
+
+
+def dq_cache_view(sym, cached: dict, item: dict = None, nasdaq=None) -> dict:
+    """🛡️ نسخةٌ من مدخل ذاكرة الشركات **بلا فلوتٍ/أسهمٍ أقدمَ من آخر تقسيم** (عطلٌ مُثبَت 2026-10-01 · مِجَسّ `36863655877` F6: AIXI
+    مخزَّنٌ 866,043 والحيُّ 123,698 بعد تقسيم 1:7 · ARTL ‏4.59م والحيُّ 510 آلاف بعد 1:9) — الذاكرةُ احتياطٌ حين يتعذّر ياهو فتعود
+    قيمةُ ما قبل التقسيم (×7 · ×9) إلى بوّابة الفلوت والعرض. يومُ التقسيم من تقييم البوّابة (`item["dq"]["split"]`) أو تقويم ناسداك ·
+    وتاريخُ القيمة `float_asof` (يُكتب منذ اليوم · اسمٌ غيرُ `float_date` مخزنِ «تحت المتابعة» — NWF6) وغيابُه مع تقسيمٍ معروف = قديمٌ (لا يُفترَض الأحدث). المفتاحُ مطفأ أو لا تقسيم ⟵
+    **المدخلُ نفسُه** (بت-بت)."""
+    import data_quality as _DQ
+    if not cached or not _DQ.enabled():
+        return cached
+    d = ((((item or {}).get("dq") or {}).get("split") or {}).get("date")
+         if isinstance(item, dict) else None)
+    if not d:
+        d = dq_split_dates(nasdaq=nasdaq).get(str(sym).upper())
+    if not d or str(d) > dt.date.today().isoformat():
+        return cached
+    fd = str(cached.get("float_asof") or "")
+    if fd and fd >= str(d)[:10]:
+        return cached
+    view = dict(cached)
+    for k in ("float", "shares_out"):
+        view.pop(k, None)
+    return view
 
 
 def download_history(tickers: list, start_override: str = None) -> dict:
@@ -6324,7 +6536,8 @@ def enrich(results: list) -> None:
             try:
                 info = _fetch_info(t)                 # مع إعادة محاولة
                 sym = r["symbol"]
-                cached = COMPANY_CACHE.get(sym, {})    # آخر قيم معروفة
+                # 🛡️ آخرُ القيم المعروفة — **بلا فلوتٍ/أسهمٍ سابقةٍ لآخر تقسيم** (`dq_cache_view` · المفتاحُ مطفأ ⟵ كما كان)
+                cached = dq_cache_view(sym, COMPANY_CACHE.get(sym, {}), r)
                 sp = info.get("shortPercentOfFloat")
                 # 🔑 خطة 019-ب: `if sp` كان يعدّ **الصفرَ غيابًا** فيستبدله بقيمةٍ
                 # قديمة — و«صفر شورت» عند فيصل **قراءةٌ إيجابية** لا نقصُ بيانات
@@ -6457,6 +6670,17 @@ def enrich(results: list) -> None:
                               "finra_short", "company_name", "first_trade",
                               "short_interest", "days_to_cover")
                              if r.get(k) is not None}
+                # 🛡️ تاريخُ الفلوت (2026-10-01): الحيُّ من ياهو يُؤرَّخ اليوم · والمنقولُ من الذاكرة يحمل تاريخَه السابق — فيُعرف
+                #    لاحقًا أهو أقدمُ من تقسيمٍ أم لا (`dq_cache_view`). المفتاحُ مطفأ ⟵ المدخلُ كما كان بت-بت.
+                try:
+                    import data_quality as _DQ
+                    if _DQ.enabled() and _cc_entry.get("float") is not None:
+                        _cc_entry["float_asof"] = (dt.date.today().isoformat() if info.get("floatShares") is not None
+                                                   else (COMPANY_CACHE.get(sym, {}) or {}).get("float_asof"))
+                        if not _cc_entry["float_asof"]:
+                            _cc_entry.pop("float_asof", None)
+                except Exception:                                # noqa: BLE001
+                    pass
                 COMPANY_CACHE.pop(sym, None)      # LRU: ينقله لأحدث موضع
                 COMPANY_CACHE[sym] = _cc_entry
                 # تحذير جغرافي (تحذير فقط — السهم يظل يظهر حتى في A)
@@ -11219,7 +11443,7 @@ def send_telegram(text: str) -> bool:
         log("⚠️ تيليجرام: رسالة فارغة — لم يُرسَل شيء.")
         return False
     # ختم الإصدار في كل رسالة (تعريف النسخة فورًا — ضمان ضد لبس الرسائل القديمة)
-    stamp = f"\n🧾 إصدار {code_version()} · {dt.date.today().isoformat()}"
+    stamp = f"\n🧾 إصدار {code_version()} · {dt.date.today().isoformat()}" + data_basis_suffix()
     chunks = [c + stamp for c in chunks]
     ok = True
     for ch in chunks:
@@ -12792,10 +13016,33 @@ def accumulate_explosions(wl: dict, history: dict) -> int:
     def _ek(e):
         return (e["symbol"], e.get("expl_date", e.get("date")))
     seen = {_ek(e) for e in log_ex}
+    # 🔁🛡️ **الركضُ نفسُه لا يُسجَّل جديدًا كلَّ يوم** (عطلٌ مُثبَت 2026-10-01 · `data_integrity_result.md` F3): «تجمّع» يومُ انطلاقه
+    #    = أوّلُ يومٍ بعد أدنى قاعٍ **داخل نافذة المسح** — فينزاح كلّما انزلقت النافذة ⇒ مفتاحُ (رمز، يوم الانطلاق) يتغيّر فيُسجَّل
+    #    الانفجارُ القديم كلَّ يومٍ بتاريخ رصدٍ جديد (DLXY: انفجارُ 09-16 سُجّل أربعَ مرّات 09-17 ⟶ 10-01) فيبقى «متحرّكًا حديثًا»
+    #    في بِركة الرادار. ⇒ «تجمّعٌ» انطلاقُه **لا يتجاوز تاريخَ رصدٍ سابقٍ للرمز نفسِه** = الحركةُ المرصودةُ سلفًا لا حركةٌ جديدة.
+    #    والركضُ الجديدُ حقًّا ينطلق **بعد** آخر رصد فيُسجَّل · و«قفزة» يومُها دقيقٌ فلا تُمَسّ · و`DQ_GATE=0` ⟵ السلوكُ السابق بت-بت.
+    try:
+        import data_quality as _DQ
+        _dq_on = _DQ.enabled()
+    except Exception:                                            # noqa: BLE001
+        _dq_on = False
+    _last_seen = {}
+    for e in log_ex:
+        _d = str(e.get("date") or "")
+        if _d > _last_seen.get(e.get("symbol"), ""):
+            _last_seen[e.get("symbol")] = _d
+    _redetect = 0
     for e in found:
-        if _ek(e) not in seen:
-            log_ex.append(e)
-            seen.add(_ek(e))
+        if _ek(e) in seen:
+            continue
+        if (_dq_on and e.get("kind") == "تجمّع"
+                and str(e.get("expl_date") or "9") <= _last_seen.get(e.get("symbol"), "")):
+            _redetect += 1
+            continue
+        log_ex.append(e)
+        seen.add(_ek(e))
+    if _redetect:
+        log(f"🔁 كاشف الانفجارات: {_redetect} «تجمّعًا» مرصودًا سلفًا لم يُعَد تسجيلُه (انطلاقُه قبل آخر رصدٍ للرمز).")
     cutoff = (dt.date.today()
               - dt.timedelta(days=int(CONFIG["EXPLOSION_KEEP_DAYS"]))).isoformat()
     kept = [e for e in log_ex if e.get("date", "") >= cutoff]
@@ -12966,13 +13213,24 @@ def _nwf_due(rec, today_iso: str, max_age: int, retry: int):
 
 def refresh_near_watch_float(watch: dict, store: dict, today_iso: str, fetch=None, cap: int = None,
                              budget_s: float = None, max_age: int = None, retry: int = None, brk: int = None,
-                             clock=None) -> dict:
+                             clock=None, split_after: dict = None) -> dict:
     """👀🏢 يُحدّث مخزنَ الفلوت لرموز «تحت المتابعة» ثمّ **يَسِم كلَّ مدخلٍ بفلوته** (`float` · `float_date` · `float_src`) ⟵ عدّادات.
 
     الترتيب: بلا سجلٍّ أوّلًا ثمّ بلا فلوت ثمّ الأقدم · والجالبُ `fetch(sym)` ⟵ (حالة, قيمة) (محقونٌ للاختبار · وإلّا
     `_yahoo_float_status` وقتَ النداء) · «miss» يحفظ الفحصَ **ولا يمحو فلوتًا سابقًا** · «fail» لا يغيّر شيئًا · والسقفُ والزمنُ
-    وقاطعُ الدائرة **يُعلَن قصُّها بعدّادها** (`cut` · `broke`). والوسمُ **بلا شرط**: مدخلٌ لا فلوتَ له في المخزن تُنزَع مفاتيحُه."""
+    وقاطعُ الدائرة **يُعلَن قصُّها بعدّادها** (`cut` · `broke`). والوسمُ **بلا شرط**: مدخلٌ لا فلوتَ له في المخزن تُنزَع مفاتيحُه.
+
+    🛡️ `split_after` ({رمز: يومُ آخر تقسيم} · 2026-10-01): فلوتٌ مخزَّنٌ **أقدمُ من تقسيم الرمز** (مِجَسّ `36863655877` F6: AGRZ ‏9.89م
+    والحيُّ 529 ألفًا بعد 1:20 · BGM ‏133م والحيُّ 4.44م بعد 1:30) **أوّلُ المستحقّين** للجلب (`stale_split`) · ولا يُوسَم به المدخلُ
+    ما لم يُجدَّد (لا تنتقل قيمةُ ما قبل التقسيم إلى التقريرين). `None` ⟵ السلوكُ السابق بت-بت."""
     n = {"fresh": 0, "fetched": 0, "miss": 0, "fail": 0, "cut": 0, "broke": False, "annotated": 0}
+    sa = split_after or {}
+    if sa:
+        n["stale_split"] = 0
+
+    def _pre_split(s_, rec_):
+        d_ = sa.get(s_)
+        return bool(d_ and str((rec_ or {}).get("date") or "") < str(d_)[:10])
     watch = watch if isinstance(watch, dict) else {}
     cap = NEAR_WATCH_FLOAT_CAP if cap is None else int(cap)
     budget_s = NEAR_WATCH_FLOAT_BUDGET_S if budget_s is None else float(budget_s)
@@ -12986,6 +13244,9 @@ def refresh_near_watch_float(watch: dict, store: dict, today_iso: str, fetch=Non
     for s in sorted(watch):
         rec = store.get(s)
         p = _nwf_due(rec, today_iso, max_age, retry)
+        if sa and rec and rec.get("float") and _pre_split(s, rec):
+            p = -1                                               # 🛡️ فلوتُ ما قبل التقسيم ⟵ أوّلُ المستحقّين
+            n["stale_split"] += 1
         if p is None:
             n["fresh"] += 1
         else:
@@ -13024,7 +13285,7 @@ def refresh_near_watch_float(watch: dict, store: dict, today_iso: str, fetch=Non
         if not isinstance(e, dict):
             continue
         rec = store.get(s) or {}
-        if rec.get("float"):
+        if rec.get("float") and not (sa and _pre_split(s, rec)):
             e["float"], e["float_date"], e["float_src"] = rec["float"], rec.get("date"), rec.get("src")
             n["annotated"] += 1
         else:
@@ -13038,10 +13299,16 @@ def near_watch_float_step(today_iso: str, tag: str = "") -> dict:
     يحفظ الملفّين (يدفعهما `git_save` في `main`) · وسطرُ سجلٍّ بعدّاداته وقصِّه. فاشلٌ-آمن: أيُّ خطأ ⟵ سطرُ تحذيرٍ لا انهيار."""
     try:
         watch, store = load_near_watch(), load_near_watch_float()
-        n = refresh_near_watch_float(watch, store, today_iso)
+        try:                                                     # 🛡️ أيّامُ التقسيم من تقويم ناسداك (المفتاحُ مطفأ ⟵ None بت-بت)
+            import data_quality as _DQ
+            _sa = dq_split_dates() if _DQ.enabled() else None
+        except Exception:                                        # noqa: BLE001
+            _sa = None
+        n = refresh_near_watch_float(watch, store, today_iso, split_after=_sa)
         ok_s, ok_w = save_near_watch_float(store), save_near_watch(watch)
         log(f"👀🏢 فلوتُ تحت المتابعة{tag}: {len(watch)} سهم · موسومٌ بفلوت {n['annotated']} · جُلب {n['fetched']} · "
             f"بلا فلوتٍ عند ياهو {n['miss']} · تعذّر {n['fail']} · طازج {n['fresh']}"
+            + (f" · 🛡️ فلوتُ ما قبل التقسيم أُعيد جلبُه {n['stale_split']}" if n.get("stale_split") else "")
             + (f" · ⚠️ قُصَّ {n['cut']}" + (" (خنقُ ياهو — قاطعُ الدائرة)" if n["broke"] else " (السقف/الزمن)")
                if n["cut"] else "")
             + ("" if ok_s and ok_w else " · ⚠️ تعذّر الحفظ"))
@@ -13215,22 +13482,61 @@ def near_watch_buckets(watch: dict):
     return inside, oversold
 
 
-def build_near_watch_section(watch: dict, cap: int = None) -> str:
+def build_near_watch_section(watch: dict, cap: int = None, dq_fn=None) -> str:
     """👀 قسمُ «تحت المتابعة» في التقرير اليوميّ — عرضٌ فقط، **بسلّتين**.
 
-    **والقصُّ يُعلَن بعدده** ولا يُطوى. وقائمةٌ فارغة ⇒ **نصٌّ فارغ**."""
+    **والقصُّ يُعلَن بعدده** ولا يُطوى. وقائمةٌ فارغة ⇒ **نصٌّ فارغ**.
+
+    🛡️ `dq_fn(sym)` ⟵ تقييمُ `data_quality` (2026-10-01 · أمرُ المالك «لا نتيجةَ أمسٍ تُعاد كأنها اليوم»): ① صفٌّ **لم يُقَس في فرز
+    اليوم** (`last_seen` أقدمُ من أحدثه في الملفّ — قصُّ الميزانية أو تعذّرُ الشموع) **لا يُعرَض بسعره القديم** · ② والمحجوزُ/المستبعَدُ
+    بحالته (قديم · تقسيمٌ معلّق · غيرُ مسوًّى · تعارض) لا يُعرَض · ③ والموسومُ يُعرَض بوسمه — وكلُّ مخفيٍّ **يُعَدّ في سطرٍ واحد** (لا
+    صمت). والتقييمُ لما يُعرَض وحدَه (سقفُ العرض) فلا تُستنزَف الشبكة. و`dq_fn=None` ⟵ القسمُ كما كان **بت-بت**."""
     inside, oversold = near_watch_buckets(watch)
     if not (inside or oversold):
         return ""
     lim = max(1, int(cap or NEAR_WATCH_SHOW) // 2)
     out = [f"👀 <b>تحت المتابعة</b> ({len(inside) + len(oversold)}) — "
            "قريبٌ من كتالوج فيصل، غيرُ مرشَّح بعد"]
+    _hidden = {}
+    _newest = max((str(e.get("last_seen") or "") for e in inside + oversold), default="")
+
+    def _ok(e):
+        """(يُعرَض؟، وسم) — بلا `dq_fn` دائمًا (True، "")."""
+        if dq_fn is None:
+            return True, ""
+        if str(e.get("last_seen") or "") < _newest:
+            _hidden["لم يُقَس في فرز اليوم"] = _hidden.get("لم يُقَس في فرز اليوم", 0) + 1
+            return False, ""
+        try:
+            a = dq_fn(e.get("symbol")) or {}
+        except Exception:                                        # noqa: BLE001
+            a = {"action": "warn", "label": "⚠️ تعذّر التحقّق"}
+        if a.get("action") in ("block", "quarantine"):
+            try:
+                import data_quality as _DQ
+                k = _DQ.LABELS_AR.get(a.get("state"), a.get("state") or "؟")
+            except Exception:                                    # noqa: BLE001
+                k = a.get("state") or "؟"
+            _hidden[k] = _hidden.get(k, 0) + 1
+            return False, ""
+        return True, (a.get("label") or "") if a.get("action") == "warn" else ""
 
     def _emit(title, rows):
         if not rows:
             return
+        if dq_fn is None:
+            shown_rows = [(e, "") for e in rows[:lim]]
+            rest = len(rows) - lim
+        else:
+            shown_rows, i = [], 0
+            while i < len(rows) and len(shown_rows) < lim:
+                ok, tag = _ok(rows[i])
+                if ok:
+                    shown_rows.append((rows[i], tag))
+                i += 1
+            rest = len(rows) - i
         out.append(f"   <b>{title}</b> ({len(rows)})")
-        for e in rows[:lim]:
+        for e, _tag in shown_rows:
             _bits = [f"${(e.get('price') or 0):.2f}"]
             if e.get("rsi_now") is not None:
                 _bits.append(f"RSI {float(e['rsi_now']):.0f}")
@@ -13241,13 +13547,17 @@ def build_near_watch_section(watch: dict, cap: int = None) -> str:
                                    e.get("last_seen") or "")
             out.append(f"   • {esc(e.get('symbol'))} — {' · '.join(_bits)} "
                        f"· ينقصه: {esc(_o)}"
-                       + (f" · منذ {_d} يومًا" if _d else ""))
-        if len(rows) > lim:
-            out.append(f"   …و{len(rows) - lim} غيرهم (يُعلَن لا يُطوى)")
+                       + (f" · منذ {_d} يومًا" if _d else "")
+                       + (f" · {esc(_tag)}" if _tag else ""))
+        if rest > 0:
+            out.append(f"   …و{rest} غيرهم (يُعلَن لا يُطوى)")
 
     _emit("داخلَ ظرف فيصل تمامًا — وجدارُه من عندنا", inside)
     _emit(f"متشبّعٌ الآن (‏RSI تحت {FAISAL_RSI_ENTRY_MAX:.0f} — زنادُ فيصل)",
           oversold)
+    if _hidden:
+        out.append("   🛡️ لم يُعرَض (سلامةُ البيانات): "
+                   + " · ".join(f"{k} {v}" for k, v in sorted(_hidden.items(), key=lambda x: -x[1])))
     return _rtl_join(out)
 
 
@@ -13883,6 +14193,39 @@ def _fetch_splits(sym: str):
     return out
 
 
+def _fetch_splits_dq(sym: str, upto: str = None):
+    """🛡️ أحداثُ التقسيم **لمسارات الحسم وحدَها** (تتبّعُ القائمة · سجلُّ التنبيهات · إصلاحُ الارتداد · تقاريرُ التطوير) من
+    **المصدرين**: ياهو (`_fetch_splits` كما هو) **ثمّ ما انفرد به تقويمُ ناسداك** (`dq_nasdaq_events` · `data_quality.cross_check`
+    بالاسم). عطلٌ مُثبَت 2026-10-01 (مِجَسّ `36863655877` X: ناسداك وحدَه 20 حدثًا · منها DLXY 1:5 يوم 09-28 وياهو بلا تقسيمٍ
+    أصلًا): سهمٌ في القائمة يُقسَّم عكسيًّا وياهو متأخّر ⟵ عاملُ التسوية 1.0 ⟵ المستوياتُ المخزَّنة بمقياس ما قبل التقسيم
+    والشموعُ مسوّاة ⟵ **«أهدافٌ محقّقة» زائفة** (صنفُ F-02 نفسُه حين يجهل ياهو التقسيم).
+    • لا جديدَ من ناسداك ⟵ **مخرَجُ ياهو نفسُه** (الكائنُ ذاتُه — بت-بت) · وجديدٌ بنسبةٍ معلومة ⟵ أزواجُ الاتّحاد
+      (`_split_scale_factor` تقبل الأزواج) · وحدثٌ بنسبةٍ مجهولة لا يُحتسب (لا عاملَ يُختلَق).
+    • `upto`: آخرُ يومٍ في إطار الحسم — حدثُ ناسداك بعده لم تبلغه الشموعُ بعد فلا يُطبَّق (تقسيمٌ مُعلَن لا يُسوّي مستوًى قبل
+      وقوعه) · وغيابُه ⟵ أمس (UTC) احتياطًا.
+    • `DQ_GATE=0` أو تعذّرُ التقويم أو أيُّ استثناء ⟵ `_fetch_splits(sym)` حرفًا. 🔒 **وصيّادُ المقسّم لا يناديها** — يبقى على
+      `_fetch_splits` (حمايةُ المالك)."""
+    sp = _fetch_splits(sym)
+    try:
+        import data_quality as _DQ
+        if not _DQ.enabled():
+            return sp
+        cal = dq_nasdaq_events()
+        if not cal:
+            return sp
+        lim = str(upto)[:10] if upto else (dt.date.today() - dt.timedelta(days=1)).isoformat()
+        nev = [(d, r) for d, r in cal.get(str(sym).upper(), []) if d <= lim]
+        if not nev:
+            return sp
+        yev = _DQ.split_events(sp) if sp is not None else []
+        union, _conf, notes = _DQ.cross_check(yev, nev)
+        if not [1 for k, _d, r in notes if k == "only_secondary" and r]:
+            return sp
+        return [(d, float(r)) for d, r in union if r]
+    except Exception:                                            # noqa: BLE001
+        return sp
+
+
 def _scale_divisor(last_price, ref_level, factor: float) -> float:
     """⚖️ مُختار تماسك المقياس (حارس ضد التصحيح المزدوج): بعد ترحيل LOGIC_VERSION
     قد تكون المستويات أعيد حسابها من بيانات معدَّلة أصلًا (مقياس جديد) رغم أن تاريخ
@@ -13928,7 +14271,7 @@ def _resolve_split_suspects(missed, fetch=None):
     غير المشتبه يمرّ بلا مساس. **أسوأ حالة = سلوك اليوم حرفيًا** (تعذّر الجلب/لا
     window_start → يبقى suspect). `fetch` محقون للاختبار بلا شبكة. يرجع قائمة جديدة
     (لا يمسّ _MISSED). مقفول خارج الفرز/الاختيار."""
-    _f = fetch or _fetch_splits              # بحث وقت النداء (يُتيح المونكي-باتش)
+    _f = fetch or _fetch_splits_dq           # بحث وقت النداء (يُتيح المونكي-باتش) · 🛡️ بالمصدرين
     lo = float(CONFIG["MISSED_RISE_PCT"])
     hi = float(CONFIG["SPLIT_SUSPECT_GAIN_PCT"])
     out = []
@@ -13971,7 +14314,7 @@ def _resolve_explosion_suspects(explosions, fetch=None):
     تستخدم `d > since` الصارمة). يصحّح كسب الانفجار المشتبه عند تقسيم عكسي مؤكَّد،
     ويُعيد التصنيف بنفس المنطق (نظيف/يُسقَط/يبقى). `gain` رقم لا نسبة (round(g,0)).
     أسوأ حالة = سلوك اليوم. يرجع قائمة جديدة. مقفول خارج الفرز/الاختيار."""
-    _f = fetch or _fetch_splits              # بحث وقت النداء (يُتيح المونكي-باتش)
+    _f = fetch or _fetch_splits_dq           # بحث وقت النداء (يُتيح المونكي-باتش) · 🛡️ بالمصدرين
     hi = float(CONFIG["SPLIT_SUSPECT_GAIN_PCT"])
     ex_lo = float(CONFIG["EXPLOSION_PCT"])      # دون عتبة الانفجار = لم يعد انفجارًا
     out = []
@@ -14195,7 +14538,8 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
         # التقسيم بعد الإضافة، ومُختار التماسك يحمي من التصحيح المزدوج لو كانت
         # المستويات أعيد حسابها بعد الترحيل. فاشل-آمن: تعذُّر الجلب → عامل 1.0
         # = السلوك السابق حرفيًا. **تسوية مقارنات فقط — المخزّن لا يُمسّ.**
-        _raw_splits = _fetch_splits(s["symbol"])
+        # 🛡️ (2026-10-01): بالمصدرين حتى آخر شمعةٍ في الإطار (`_fetch_splits_dq` · ياهو بت-بت حين لا يضيف ناسداك جديدًا)
+        _raw_splits = _fetch_splits_dq(s["symbol"], upto=str(df.index[-1])[:10] if len(df) else None)
         # 🔬 P0-2 (تدقيق Codex 2026-07-14، نفس حارس update_tracking): فشل جلب التقسيم
         # (None) لسهم بياناته المعاد تحميلها تُظهر قفزة مقياس ≥3× = تقسيم محتمل لم يُجلَب ⇒
         # الحسم بعامل 1.0 يزيّف الشطب/تحقيق الهدف. **نؤجّل الحسم** (يبقى السهم كما هو هذه
@@ -14397,7 +14741,7 @@ def check_promotions(wl: dict, history: dict) -> list:
         # القطاع/الدولة من الذاكرة لو ناقصة بالسجل (تظهر بدل ما تبقى فاضية).
         if fresh.get("key_levels"):
             s["key_levels"] = fresh["key_levels"]
-        _cc = COMPANY_CACHE.get(s["symbol"], {})
+        _cc = dq_cache_view(s["symbol"], COMPANY_CACHE.get(s["symbol"], {}), s)   # 🛡️ بلا فلوتٍ أقدمَ من تقسيم
         if not s.get("sector") and _cc.get("sector"):
             s["sector"] = _cc["sector"]
         if not s.get("country") and _cc.get("country"):
@@ -21275,13 +21619,18 @@ def run_weekly_renewal(wl: dict) -> None:
             log(f"🗂️ سجلّ المرفوضين: {len(_REJECT_REASONS)} رمزًا · {_rl} يومًا بالنافذة.")
     except Exception as e:                                       # noqa: BLE001
         log(f"⚠️ سجلّ المرفوضين (خارجيّ): {e}")
+    # 🛡️ سلامةُ البيانات (2026-10-01): **المرشّحُ وحدَه** يمرّ على البوّابة قبل دخول القائمة — والقائمةُ المارّةُ نفسُها تُعطى
+    #    لحصاد التعادل وللتعبئة معًا (‏TH13ب: «نفسُ مدخلات الاختيار حرفيًّا» — وإلّا قاس الحصادُ حدَّ قطعٍ غيرَ الفعليّ) · و`results`
+    #    الخامّ يبقى لحارس التغطية كما كان · ومفتاحُ `DQ_GATE=0` ⟵ القائمةُ نفسُها بت-بت.
+    set_data_basis(last_closed_session(), _data_basis_note())
+    _dq_results = dq_filter(results, hist, "التجديد · المرشّحون")
     # 🥇⑦➡️ حصادُ كاسر التعادل — **بعد** الاختيار ويقرأ مُخرَجَه (صفرُ أثرٍ عليه).
-    record_tie_cohort(wl, results, CONFIG["WATCHLIST_SIZE"], exclude,
+    record_tie_cohort(wl, _dq_results, CONFIG["WATCHLIST_SIZE"], exclude,
                       today_iso, "renew")
     # 🎯 «صلّح الترتيب» (أمرُ المالك 2026-08-11): اختيارٌ ⟶ إثراءٌ ⟶ بوّابتا M14/المتاح
     #    ⟶ **وتعبئةُ ما أُخرِج من بقيّة المرتَّبين** (كانت الخانةُ تبقى فارغة).
     picks, _fl_out, _bw_out, _rnd = fill_picks(
-        results, CONFIG["WATCHLIST_SIZE"], exclude)
+        _dq_results, CONFIG["WATCHLIST_SIZE"], exclude)
     if _fl_out:
         log("🔁 أُخرِج بفلوت كبير ظهر بعد الإثراء: "
             + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
@@ -21310,6 +21659,8 @@ def run_weekly_renewal(wl: dict) -> None:
     try:
         excl = {r["symbol"] for r in picks}
         w_list = scan_pullback(hist, exclude=excl)
+        # 🛡️ سلامةُ البيانات (2026-10-01): قائمةُ الارتداد مخرَجٌ (تنبيهٌ حيّ عند الدعم) — تمرّ على البوّابة نفسِها.
+        w_list = dq_filter(w_list, hist, "التجديد · الارتداد")
         if w_list:
             enrich(w_list)
         pull_entries = [make_pullback_entry(w, today_iso) for w in w_list]
@@ -21477,6 +21828,8 @@ def merge_pullback(wl: dict, hist: dict, exclude: set, today_iso: str) -> None:
     if space <= 0:
         return
     cands = scan_pullback(hist, exclude=exclude | existing)
+    # 🛡️ سلامةُ البيانات (2026-10-01): المرشّحُ للارتداد يمرّ على البوّابة قبل القصّ على السعة (فلا يحجز المحجوزُ خانة).
+    cands = dq_filter(cands, hist, "الارتداد اليوميّ")
     new = cands[:space]
     if not new:
         return
@@ -21520,7 +21873,7 @@ def repair_stale_pullback(wl: dict, fetch=None) -> tuple:
     pb = wl.get("pullback") or []
     if not pb:
         return ([], [])
-    fx = fetch if fetch is not None else _fetch_splits
+    fx = fetch if fetch is not None else _fetch_splits_dq   # 🛡️ بالمصدرين (DQ_GATE=0 ⟵ `_fetch_splits` حرفًا)
     repaired, dropped, keep = [], [], []
     for e in pb:
         try:
@@ -21571,6 +21924,8 @@ def run_daily_watchlist(wl: dict) -> None:
     today_iso = dt.date.today().isoformat()
     # 1) فرز كامل للسوق (لالتقاط الجديد) — بياناته تُعاد استخدامها للمتابعة
     results, hist = scan_market()
+    # 🛡️ أساسُ البيانات في ختم كلّ رسالةٍ بعد الآن (2026-10-01): «بيانات جلسة X (إغلاقٌ نظاميّ · المصدر)» — لا تاريخَ التشغيل وحدَه.
+    set_data_basis(last_closed_session(), _data_basis_note())
     # 2) تحميل أي رمز في القائمة لم يأتِ ضمن الفرز (نادر) حتى نتابعه
     wl_syms = {s["symbol"] for s in wl["stocks"]}
     missing = [s for s in wl_syms if s not in hist]
@@ -21680,11 +22035,14 @@ def run_daily_watchlist(wl: dict) -> None:
         log(f"⚠️ تخطّي إضافة الجديد اليوم: {low_coverage_note} — "
             "القائمة الحالية تُتابَع كالمعتاد.")
     elif space > 0:
+        # 🛡️ سلامةُ البيانات (2026-10-01): المرشّحُ الجديد وحدَه يمرّ على البوّابة — والمارّون أنفسُهم لحصاد التعادل وللتعبئة
+        #    (‏TH13ب) · و`results` الخامّ لحارس التغطية كما كان.
+        _dq_results = dq_filter(results, hist, "الفرز اليوميّ · المرشّحون")
         # 🥇⑦➡️ حصادُ كاسر التعادل — نفسُ الموضع: **بعد** الاختيار لا قبله.
-        record_tie_cohort(wl, results, space, held | stopped, today_iso, "daily")
+        record_tie_cohort(wl, _dq_results, space, held | stopped, today_iso, "daily")
         # 🎯 «صلّح الترتيب» — نفسُ التعبئة في المسار اليوميّ (لا تُنسى إحداهما).
         picks, _fl_out, _bw_out, _rnd = fill_picks(
-            results, space, held | stopped)
+            _dq_results, space, held | stopped)
         if _fl_out:
             log("🔁 لم يُضَف (فلوت كبير ظهر بعد الإثراء): "
                 + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
@@ -21922,7 +22280,12 @@ def run_daily_watchlist(wl: dict) -> None:
     #    ضمن المتابعة والبوت يتابع شموعه بعد نهاية كل جلسة»).
     #    🔒 حارسٌ مطلق: قسمٌ عرضيّ لا يجوز أن يُسقط التقرير.
     try:
-        _nws = build_near_watch_section(load_near_watch())
+        # 🛡️ سلامةُ البيانات (2026-10-01): الصفُّ يُقيَّم على شموع **اليوم** نفسِها (`hist`) قبل العرض — والمفتاحُ مطفأ ⟵ كما كان.
+        import data_quality as _DQ
+        _nw_exp = last_closed_session()
+        _nws = build_near_watch_section(
+            load_near_watch(),
+            dq_fn=(lambda _s: dq_assess(_s, hist.get(_s), _nw_exp)) if _DQ.enabled() else None)
         if _nws:
             msg += "\n\n" + _nws
     except Exception as _e:                                      # noqa: BLE001
@@ -25863,7 +26226,7 @@ def update_tracking(data):
             # التتبع كان يسجّل «hit_t3» زائفًا. نقسم المستويات على عامل التقسيم
             # منذ التنبيه (فاشل-آمن → 1.0 = السلوك السابق). التنبيهات لا يُعاد
             # حساب مستوياتها أبدًا فالعامل الخام يكفي (بلا مُختار تماسك).
-            _raw_splits = _fetch_splits(a["symbol"])
+            _raw_splits = _fetch_splits_dq(a["symbol"], upto=str(df.index[-1])[:10] if len(df) else None)   # 🛡️ بالمصدرين
             _spf = _split_scale_factor(_raw_splits, a["date"])
             # 🔬 P0-2 (تدقيق Codex 2026-07-14): فشل جلب التقسيم (None) لسهم بياناته تُظهر
             # قفزة مقياس ≥3× = تقسيم محتمل لم نجلبه ⇒ الحسم بعامل 1.0 يزيّف hit/stop. **نؤجّل
@@ -26089,7 +26452,7 @@ def observe_closed_alerts(data, fetch=None, today=None, cap=None):
             df = df.dropna(subset=["Close"])
             if not len(df):
                 continue
-            _spf = _split_scale_factor(_fetch_splits(a["symbol"]), a["date"])
+            _spf = _split_scale_factor(_fetch_splits_dq(a["symbol"], upto=str(df.index[-1])[:10]), a["date"])   # 🛡️
             entry = float(a["price"]) / (_spf or 1.0)
             if entry <= 0:
                 continue
