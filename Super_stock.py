@@ -2201,6 +2201,47 @@ def _tv_bars_line(rep: dict) -> str:
                f" · دون {CONFIG['MIN_BARS']} شمعة {len(sh)}{_ex(sh)}" if fb else " · بلا احتياط"))
 
 
+# ⚠️ «نبهني لو رجع الفرز لياهو» (أمرُ المالك 2026-10-01): سطرٌ في رسالة الفرز **القائمة** (اليوميّ والتجديد) — لا رسالةٌ جديدة —
+#    حين يرجع فرزُ الكون لياهو. وما عداه بت-بت.
+TV_FALLBACK_ALERT_PCT = 10.0     # engineering — حصّةُ ياهو من إطارات فرز الكون الصالحة التي تُعدّ «رجوعًا لياهو» · مِجَسّ: 09-30
+#                                  (`36684201530`) ياهو 62 من 3,423 = 1.8% و10-01 (`36832727347`) ياهو 63 من 3,423 = 1.8% ⟵ لا سطر ·
+#                                  وحجبٌ كامل (القاطعُ يُفتح بعد 32 إخفاقًا) ⟵ ياهو للكلّ ⟵ سطر (`YF1`)
+
+
+def scan_bars_report():
+    """📺 نسخةُ تقرير مصدر الشموع لفرز الكون — تُؤخذ **بعد `scan_market` مباشرةً**: تحميلُ رموز القائمة الناقصة بعده يدهس
+    `BARS_SOURCE_LAST` بتقريرٍ صغير (مقيسٌ في `36832727347`: «TradingView 5 من 5» بعد «3360 من 3583») · وبلا `BARS_SOURCE=tradingview`
+    ⟵ None (لا تقريرَ يُقرأ ولا بقايا نداءٍ سابق في العمليّة نفسِها)."""
+    if bars_source() != "tradingview" or not BARS_SOURCE_LAST:
+        return None
+    return dict(BARS_SOURCE_LAST)
+
+
+def yahoo_fallback_line(rep) -> str:
+    """⚠️ سطرُ «الفرز اليوم رجع لياهو» — فارغٌ ما لم يرجع: ① تعذّر TradingView كلُّه (`error`) · ② فُتح قاطعُه أو انقضت مهلتُه
+    (`gate.open`) · ③ بلغت حصّةُ ياهو من الإطارات الصالحة `TV_FALLBACK_ALERT_PCT`. `rep` = `scan_bars_report()` · وبلا تقرير أو بمصدرٍ
+    غير TradingView أو تقريرٍ تالف ⟵ «» (فاشلٌ-آمن · والرسالةُ بت-بت)."""
+    try:
+        if not rep or rep.get("src") != "tradingview":
+            return ""
+        tv, y = int(rep.get("tv") or 0), int(rep.get("yahoo_got") or 0)
+        g = rep.get("gate") or {}
+        why = []
+        if rep.get("error"):
+            why.append(f"TradingView تعذّر كلُّه ({esc(str(rep['error']))})")
+        elif g.get("open"):
+            why.append("انقضت مهلةُ جلب TradingView" if g.get("timeout") else "قاطعُ TradingView فُتح بعد إخفاقٍ متتالٍ")
+        pct = y / (tv + y) * 100.0 if (tv + y) else 0.0
+        if not why and pct < TV_FALLBACK_ALERT_PCT:
+            return ""
+        if not why:
+            why.append(f"حصّةُ ياهو بلغت حدَّ التنبيه {TV_FALLBACK_ALERT_PCT:g}%")
+        return (f"⚠️ <b>الفرز اليوم رجع لياهو:</b> {y:,} سهمًا من ياهو و{tv:,} من TradingView ({pct:.0f}% من ياهو)"
+                f" — السبب: {' · '.join(why)}. دقّةُ التقسيمات على ياهو أقلّ.")
+    except Exception:                                            # noqa: BLE001
+        return ""
+
+
 def tv_bar_fresh(df, now=None) -> bool:
     """📺 إطارُ TradingView **بلا حشو**: آخرُ شمعةٍ أقدمُ من آخر جلسةٍ مكتملة (`last_closed_session`) = لا صفقةَ فيها ⟵ False
     (فلا يُقرأ فعلُ جلسةٍ أقدمَ على أنه «اليوم»). وإطارُ ياهو (بلا الوسم) ⟵ True دائمًا (السلوكُ السابق بت-بت · ياهو يحشو اليومَ
@@ -21592,6 +21633,10 @@ def run_weekly_renewal(wl: dict) -> None:
         exclude = {s["symbol"] for s in wl["removed"]
                    if s["status"] == "stopped"}
     results, hist = scan_market()
+    _scan_bars = scan_bars_report()   # ⚠️ «نبهني لو رجع الفرز لياهو» — قبل أيّ تحميلٍ آخر يدهس التقرير (`YF3`)
+    _yfl = yahoo_fallback_line(_scan_bars)
+    if _yfl:
+        log(_yfl)
     # حارس ضد مسح القائمة: لو خُنق فحص الجمعة (تغطية ضعيفة/صفر نتائج) **أو** فشل
     # جلب كون ناسداك (يتحوّل لعيّنة اختبار صغيرة تغطيتها ~100% فيخدع حساب التغطية)
     # — لا نستبدل القائمة النشطة. نحفظ الستوبات المرصودة ونُبقي القائمة، ويُؤجَّل
@@ -21608,7 +21653,8 @@ def run_weekly_renewal(wl: dict) -> None:
         try:
             send_telegram("⚠️ <b>تأجّل تجديد القائمة الأسبوعية</b>\n"
                           f"السبب: {_why}.\nالقائمة النشطة الحالية محفوظة كما هي، "
-                          "ويُعاد التجديد تلقائيًا في التشغيل القادم.")
+                          "ويُعاد التجديد تلقائيًا في التشغيل القادم."
+                          + ("\n" + _yfl if _yfl else ""))
         except Exception as e:
             log(f"⚠️ إشعار تأجيل التجديد: {e}")
         return
@@ -21802,6 +21848,8 @@ def run_weekly_renewal(wl: dict) -> None:
     if len(picks) < CONFIG["WATCHLIST_SIZE"]:
         subnote = (f"(وُجد {len(picks)} فقط يطابق الشروط — "
                    f"الحد الأقصى {CONFIG['WATCHLIST_SIZE']})")
+    if _yfl:   # ⚠️ «نبهني لو رجع الفرز لياهو» — أعلى الرسالة تحت سطر التغطية
+        subnote = _yfl + ("\n" + subnote if subnote else "")
     try:                                   # 🧱 الثبات الدقيق في كروت التجديد (عرضٌ فقط · أمرُ «اعرض الثبات في جاهز البوت»)
         _ehc = refresh_exact_hold(picks, hist)
         log("🧱 الثبات الدقيق (التجديد" + (" · 📺 TradingView" if _ehc.get("src") == "tradingview" else "")
@@ -21953,6 +22001,7 @@ def run_daily_watchlist(wl: dict) -> None:
     today_iso = dt.date.today().isoformat()
     # 1) فرز كامل للسوق (لالتقاط الجديد) — بياناته تُعاد استخدامها للمتابعة
     results, hist = scan_market()
+    _scan_bars = scan_bars_report()   # ⚠️ قبل تحميل الناقص الذي يدهس التقرير («نبهني لو رجع الفرز لياهو» · `YF3`)
     # 🛡️ أساسُ البيانات في ختم كلّ رسالةٍ بعد الآن (2026-10-01): «بيانات جلسة X (إغلاقٌ نظاميّ · المصدر)» — لا تاريخَ التشغيل وحدَه.
     set_data_basis(last_closed_session(), _data_basis_note())
     # 2) تحميل أي رمز في القائمة لم يأتِ ضمن الفرز (نادر) حتى نتابعه
@@ -22238,6 +22287,10 @@ def run_daily_watchlist(wl: dict) -> None:
     if low_coverage_note:   # تنبيه التغطية للمستخدم (يكشف الخنق الصامت Mon-Thu)
         msg += ("\n\n⚠️ <b>تنبيه تغطية:</b> " + low_coverage_note
                 + " — لم تُضف أسهم جديدة اليوم (متابعة القائمة الحالية مستمرة).")
+    _yfl = yahoo_fallback_line(_scan_bars)   # ⚠️ «نبهني لو رجع الفرز لياهو» (أمرُ المالك 2026-10-01) — سطرٌ في التقرير القائم
+    if _yfl:
+        msg += "\n\n" + _yfl
+        log(_yfl)
     # 🕵️ أسهم اليد = **رسالة تلغرام مستقلة** (طلب المستخدم: «ما تندفن بالتقرير
     # الطويل») — تُرسَل منفصلة بعد التقرير الرئيسي أدناه، لا تُلحَق به.
     hand_msg = build_hand_section(wl)
