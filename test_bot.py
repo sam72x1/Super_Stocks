@@ -73692,6 +73692,390 @@ except Exception as _e:                                              # noqa: BLE
     _w10, _w10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🌙📺 AHT10 المفتاحُ مطفأٌ في الإنتاج: لا `AH_GUARD_TV` في split_hunter.yml ولا daily_screener.yml حتى يعبر مِجَسّ v2", _w10, _w10w)
 
+# ═══ 🕳️ T-GAPBELOW — أقفال GBA0-GBA13 (العقد gapbelow_prereg.md · 2026-10-01) ═══
+# «سجّل الفجوة تحت السعر»: هل تُغطّى الفجوةُ الصاعدةُ تحت السعر («لازم» `D1`/`D2`) وهل
+# قاعُها دخولٌ أفضل («كويس» `E1`-`E4`)؟ — الأداةُ تُقفَل **قبل أيّ تشغيل** (العقد §⑥).
+import ast as _gb_ast
+import contextlib as _gb_ctx
+import importlib.util as _gb_imp
+import io as _gb_io
+import os as _gb_os
+import tempfile as _gb_tmp
+import numpy as _gb_np
+import pandas as _gb_pd
+import yaml as _gb_yaml
+import wait_rsi23w_arms as _gb_w23
+import wait_rsi27_arms as _gb_w27
+
+_gb_path = _gb_os.path.abspath("gapbelow_arms.py")
+_gb_spec = _gb_imp.spec_from_file_location("gapbelow_arms", _gb_path)
+_GB = _gb_imp.module_from_spec(_gb_spec)
+try:
+    _gb_spec.loader.exec_module(_GB)
+    _gb_load = ""
+except Exception as _e:                                          # noqa: BLE001
+    _GB, _gb_load = None, f"{type(_e).__name__}: {_e}"
+_gb_src = _gb_io.open("gapbelow_arms.py", encoding="utf-8").read()
+_gb_top = _gb_ast.parse(_gb_src).body
+_gb_top_imp = {a.name for n in _gb_top if isinstance(n, _gb_ast.Import) for a in n.names} | {
+    n.module for n in _gb_top if isinstance(n, _gb_ast.ImportFrom)}
+check("🕳️🔒 GBA0 أداةُ الفجوة تُحمَّل · وبلا استيرادٍ علويٍّ للإنتاج (`Super_stock` كسولٌ داخل الدوالّ)",
+      _GB is not None and "Super_stock" not in _gb_top_imp,
+      _gb_load or f"top={sorted(x for x in _gb_top_imp if x)}")
+
+# GBA1 — الثوابتُ كالعقد حرفًا · **وإعادةُ الاستعمال بالاسم هويّةٌ لا نسخة** (‏`is`) · والعقدُ
+#    المدموجُ يحمل الأرقامَ نفسَها (فلا تُعاير الأداةُ رقمًا لم يُكتب قبلها).
+_gb_pre = _gb_io.open("gapbelow_prereg.md", encoding="utf-8").read()
+_gb_pre_ok = all(t in _gb_pre for t in (
+    "57869", "+0.05R", "+0.025R", "30%", "80%", "+5 نقاط", "2%", "⌊n/3⌋", "60 تنصيفًا", "97.5%",
+    "2000", "31574165523", "31199493957", "31191327731", "−0.2602", "1620", "1399",
+    "−0.1807", "1591", "1386", "−0.2172", "1606", "1370"))
+check("🕳️🔒 GBA1 الأذرعُ R0/G/M/C والحاكمة G · السنوات 2023-2025 · ROT 3 · 60 تنصيفًا · 2000 · بذرة 57869 · "
+      "97.5% · E1 0.05 · E2 0.025 · E3 0.30 · D1 0.80 · D2 5 · V-G3 0.02 · V-G4 0.80 · أرضية 100 · "
+      "و`REF23`/`rotate`/`cluster_ci`/`arms_for`/`stop_for` **هي نفسُها** · والعقدُ يحملها",
+      _GB is not None and _GB.ARMS == ("R0", "G", "M", "C") and _GB.GOV == "G"
+      and _GB.CONTRACT_YEARS == ("2023", "2024", "2025") and _GB.ROT_DEN == 3
+      and _GB.MATCH_ITERS == 60 and _GB.BOOT_N == 2000 and _GB.BOOT_SEED == 57869
+      and _GB.CI_PCT == 97.5 and _GB.E1_MIN_R == 0.05 and _GB.E2_MIN_R == 0.025
+      and _GB.E3_MIN_FILL_RATIO == 0.30 and _GB.D1_MIN_WILSON == 0.80 and _GB.D2_MIN_PP == 5.0
+      and _GB.V_G3_FILL_TOL == 0.02 and _GB.V_G4_MIN_CHANGED == 0.80 and _GB.FLOOR_DECIDED == 100
+      and _GB.REF23 is _gb_w23.REF23 and _GB.rotate is _gb_w23.rotate
+      and _GB.cluster_ci is _gb_w23.cluster_ci and _GB.per_fill_mean is _gb_w23.per_fill_mean
+      and _GB.arms_for is _gb_w27.arms_for and _GB.stop_for is _gb_w27.stop_for
+      and _GB.agg is _gb_w27.agg and _GB.decomp is _gb_w27.decomp and _gb_pre_ok,
+      f"pre_ok={_gb_pre_ok}" if _GB is not None else "لم تُحمَّل")
+
+# GBA2 — كشفُ الفجوة على شموعٍ مبنيّة: صاعدةٌ لم تُغطَّ (k=3 · b=1.00) · صاعدةٌ **غُطّيت**
+#    (k=6 · قاعٌ لاحقٌ 1.15 تحت 1.20) ⟵ تُسقَط · صغيرةٌ دون 3% (k=7) ⟵ تُسقَط · وفجوةُ شمعة
+#    الإشارة نفسِها (k=9 · b=1.25) ⟵ تُقبَل · والحاكمةُ **أعلى قاع** · والنافذةُ والحدُّ يحكمان.
+_gb_H = [1.00, 1.00, 1.00, 1.20, 1.25, 1.20, 1.40, 1.45, 1.25, 1.45]
+_gb_L = [0.90, 0.90, 0.95, 1.10, 1.15, 1.12, 1.30, 1.42, 1.15, 1.35]
+_gb_C = [0.95, 0.95, 0.98, 1.15, 1.20, 1.18, 1.35, 1.43, 1.20, 1.40]
+try:
+    _gb_g, _gb_ns = _GB.gaps_below(_gb_H, _gb_L, _gb_C, lookback=120, min_pct=3.0)
+    _gb_gov = _GB.governing_gap(_gb_g)
+    _gb_g5, _ = _GB.gaps_below(_gb_H, _gb_L, _gb_C, lookback=5, min_pct=3.0)
+    _gb_g9, _ = _GB.gaps_below(_gb_H, _gb_L, _gb_C, lookback=120, min_pct=9.0)
+    _gb_Ln = list(_gb_L)
+    _gb_Ln[5] = float("nan")                      # قاعٌ مجهول لا يُغطّي (ولا يُسقط الحساب)
+    _gb_gn, _ = _GB.gaps_below(_gb_H, _gb_Ln, _gb_C, lookback=120, min_pct=3.0)
+    _gb_tie = _GB.governing_gap([{"b": 1.0, "k": 3}, {"b": 1.0, "k": 5}, {"b": 0.9, "k": 8}])
+    _gb_okv = [_GB.gap_ok({"b": 1.0, "top": 1.1, "size": 10.0, "cov_min": 1.05}, 1.2, 3.0),
+               _GB.gap_ok({"b": 1.0, "top": 1.1, "size": 10.0, "cov_min": 0.99}, 1.2, 3.0),
+               _GB.gap_ok({"b": 1.0, "top": 1.02, "size": 2.0, "cov_min": None}, 1.2, 3.0),
+               _GB.gap_ok({"b": 1.3, "top": 1.4, "size": 100 * (1.4 / 1.3 - 1), "cov_min": None}, 1.2, 3.0),
+               _GB.gap_ok({"b": 1.0, "top": 1.1, "size": 12.0, "cov_min": None}, 1.2, 3.0)]
+except Exception as _e:                                          # noqa: BLE001
+    _gb_g, _gb_ns, _gb_gov, _gb_g5, _gb_g9, _gb_gn, _gb_tie, _gb_okv = (
+        [], -1, None, [], [], [], None, [f"⛔ {type(_e).__name__}"])
+check("🕳️🔒 GBA2 الفجواتُ [3, 9] لا 6 (مُغطّاة) ولا 7 (دون 3%) · الحاكمةُ b=1.25 (أعلى قاع) · النافذة 5 ⟵ [9] · "
+      "الحدّ 9% ⟵ [3] · قاعٌ NaN لا يُغطّي ⟵ [3, 9] · التعادلُ ⟵ الأحدث · و`gap_ok` (V-G1) يرفض المغطّاة "
+      "والصغيرة وما فوق السعر والحجمَ المغشوش",
+      [g["k"] for g in _gb_g] == [3, 9] and _gb_ns == 0 and _gb_gov is not None
+      and _gb_gov["k"] == 9 and abs(_gb_gov["b"] - 1.25) < 1e-12 and abs(_gb_gov["top"] - 1.35) < 1e-12
+      and abs(_gb_gov["size"] - 8.0) < 1e-9 and _gb_gov["ago"] == 0 and _gb_gov["cov_min"] is None
+      and abs(_gb_g[0]["cov_min"] - 1.12) < 1e-12 and _gb_g[0]["ago"] == 6
+      and [g["k"] for g in _gb_g5] == [9] and [g["k"] for g in _gb_g9] == [3]
+      and [g["k"] for g in _gb_gn] == [3, 9] and _gb_tie == {"b": 1.0, "k": 5}
+      and _gb_okv == [True, False, False, False, False],
+      f"g={[g['k'] for g in _gb_g]} gov={_gb_gov} g5={[g['k'] for g in _gb_g5]} "
+      f"g9={[g['k'] for g in _gb_g9]} gn={[g['k'] for g in _gb_gn]} tie={_gb_tie} ok={_gb_okv}")
+
+# GBA3 — حارسُ التقسيم (§③-5): تقسيمٌ في `(date[k−1], date[k]]` ⟵ تُستبعَد الفجوةُ وتُعَدّ ·
+#    وعلى `date[k−1]` نفسِه ⟵ لا · والتاريخُ بمنطقةٍ زمنيّة يُقرأ · ونسبةُ 1.0/None/نصٌّ تُهمَل.
+_gb_dates = _gb_pd.bdate_range("2024-03-01", periods=10)
+try:
+    _gb_sd_in = _GB.split_dates(_gb_pd.Series([0.1], index=[_gb_dates[9]]))
+    _gb_s_in, _gb_n_in = _GB.gaps_below(_gb_H, _gb_L, _gb_C, _gb_dates, _gb_sd_in, 120, 3.0)
+    _gb_sd_on = _GB.split_dates([(_gb_dates[8], 0.1)])
+    _gb_s_on, _gb_n_on = _GB.gaps_below(_gb_H, _gb_L, _gb_C, _gb_dates, _gb_sd_on, 120, 3.0)
+    _gb_sd_tz = _GB.split_dates(_gb_pd.Series(
+        [0.05], index=_gb_pd.DatetimeIndex([_gb_dates[3]]).tz_localize("America/New_York")))
+    _gb_s_tz, _gb_n_tz = _GB.gaps_below(_gb_H, _gb_L, _gb_C, _gb_dates, _gb_sd_tz, 120, 3.0)
+    _gb_sd_junk = _GB.split_dates([(_gb_dates[9], 1.0), (_gb_dates[9], None), (_gb_dates[9], "x")])
+    _gb_sd_utc = _GB.split_dates(_gb_pd.Series(           # 04:00 UTC يومَ d[9] ⟵ يومُ d[9] لا ما بعده
+        [0.1], index=_gb_pd.DatetimeIndex(["2024-03-14 04:00"]).tz_localize("UTC")))
+    _gb_s_utc, _gb_n_utc = _GB.gaps_below(_gb_H, _gb_L, _gb_C, _gb_dates, _gb_sd_utc, 120, 3.0)
+except Exception as _e:                                          # noqa: BLE001
+    _gb_s_in = _gb_s_on = _gb_s_tz = [f"⛔ {type(_e).__name__}"]
+    _gb_n_in = _gb_n_on = _gb_n_tz = -1
+    _gb_sd_junk = ["⛔"]
+    _gb_s_utc, _gb_n_utc = [{"k": "⛔"}], -1
+check("🕳️🔒 GBA3 حارسُ التقسيم: على d[9] ⟵ الفجوةُ 9 تُستبعَد وتُعَدّ (يبقى [3]) · على d[8] ⟵ لا تُستبعَد · "
+      "منطقةٌ زمنيّة على d[3] ⟵ الفجوةُ 3 تُستبعَد · و04:00 UTC يومَ d[9] ⟵ يومُ d[9] (التاريخُ لا الساعة) · "
+      "ونسبُ 1.0/None/نصّ تُهمَل",
+      [g.get("k") for g in _gb_s_in] == [3] and _gb_n_in == 1
+      and [g.get("k") for g in _gb_s_on] == [3, 9] and _gb_n_on == 0
+      and [g.get("k") for g in _gb_s_tz] == [9] and _gb_n_tz == 1 and _gb_sd_junk == []
+      and [g.get("k") for g in _gb_s_utc] == [3] and _gb_n_utc == 1,
+      f"in={_gb_s_in}/{_gb_n_in} on={[g.get('k') for g in _gb_s_on]}/{_gb_n_on} "
+      f"tz={[g.get('k') for g in _gb_s_tz]}/{_gb_n_tz} junk={_gb_sd_junk}")
+
+# GBA4 — الحدّان **من `CONFIG` بالاسم وقتَ النداء** (لا رقمَ منسوخ): رفعُ `GAP_MIN_PCT` إلى 9
+#    يُسقط فجوةَ 8% · وقصرُ `GAP_ABOVE_LOOKBACK_D` إلى 5 يُسقط الأقدم · و`main` يقرؤهما بالاسم.
+_gb_cfg0 = (S.CONFIG.get("GAP_MIN_PCT"), S.CONFIG.get("GAP_ABOVE_LOOKBACK_D"))
+try:
+    _gb_def, _ = _GB.gaps_below(_gb_H, _gb_L, _gb_C)
+    S.CONFIG["GAP_MIN_PCT"] = 9.0
+    _gb_c9, _ = _GB.gaps_below(_gb_H, _gb_L, _gb_C)
+    S.CONFIG["GAP_MIN_PCT"] = _gb_cfg0[0]
+    S.CONFIG["GAP_ABOVE_LOOKBACK_D"] = 5
+    _gb_c5, _ = _GB.gaps_below(_gb_H, _gb_L, _gb_C)
+except Exception as _e:                                          # noqa: BLE001
+    _gb_def = _gb_c9 = _gb_c5 = [{"k": f"⛔ {type(_e).__name__}"}]
+finally:
+    S.CONFIG["GAP_MIN_PCT"], S.CONFIG["GAP_ABOVE_LOOKBACK_D"] = _gb_cfg0
+_gb_main_src = next((_gb_ast.get_source_segment(_gb_src, n) for n in _gb_top
+                     if isinstance(n, _gb_ast.FunctionDef) and n.name == "main"), "") or ""
+check("🕳️🔒 GBA4 الحدّان من `CONFIG` بالاسم وقتَ النداء: الافتراضُ (3 · 120) ⟵ [3, 9] · `GAP_MIN_PCT`=9 ⟵ [3] · "
+      "`GAP_ABOVE_LOOKBACK_D`=5 ⟵ [9] · و`main` يقرأ المفتاحين بالاسم · والقيمتان استُعيدتا",
+      _gb_cfg0 == (3.0, 120) and [g["k"] for g in _gb_def] == [3, 9]
+      and [g["k"] for g in _gb_c9] == [3] and [g["k"] for g in _gb_c5] == [9]
+      and 'S.CONFIG["GAP_ABOVE_LOOKBACK_D"]' in _gb_main_src and 'S.CONFIG["GAP_MIN_PCT"]' in _gb_main_src
+      and (S.CONFIG.get("GAP_MIN_PCT"), S.CONFIG.get("GAP_ABOVE_LOOKBACK_D")) == _gb_cfg0,
+      f"cfg0={_gb_cfg0} def={[g.get('k') for g in _gb_def]} c9={[g.get('k') for g in _gb_c9]} "
+      f"c5={[g.get('k') for g in _gb_c5]}")
+
+
+# GBA5 — الأذرع بمحرّك الإنتاج `_resolve_arm` الحقيقيّ: `G` عند القاع **بلا قصٍّ بـ`entry0`**
+#    (قاعٌ فوق `entry0` يبقى فوقه = «أعلى») · الوقفُ بنسبة الإنتاج · `V-G2` (التعبئةُ ⟺ أدنى قاعٍ
+#    ‏≤ القاع) · `M` يُحَلّ فيطابق تعبئةَ `G` بالضبط · و`C` إزاحةُ ⌊n/3⌋ للأعماق نفسِها.
+class _GBStub:
+    CONFIG = {}
+    _resolve_arm = staticmethod(S._resolve_arm)
+
+
+_gb_bs = [9.8, 9.0, 8.5, 9.6, 7.0, 9.2]
+_gb_ml = [9.7, 9.1, 8.0, 9.0, 7.5, 9.5]
+_gb_rows, _gb_bars = [], {}
+for _i, (_b, _m) in enumerate(zip(_gb_bs, _gb_ml)):
+    _r = {"symbol": f"G{_i}", "date": "2024-05-01", "ref": 10.0, "ref_raw": 10.0,
+          "e_R0": 9.5, "stop0": 8.8, "t1": 11.0, "gap_b": _b, "minlow": _m,
+          "o_R0": "no_fill", "ret_R0": None, "s_R0": 8.8, "bite_R0": False}
+    _gb_rows.append(_r)
+    _gb_bars[(_r["symbol"], _r["date"])] = (_gb_np.array([10.2, 10.1, 10.3, 10.2]),
+                                           _gb_np.array([9.9, _m, 9.95, 9.9]),
+                                           _gb_np.array([10.0, 9.95, 10.1, 10.0]),
+                                           _gb_np.array([10.0, 10.0, 10.0, 10.0]))
+try:
+    _gb_out, _gb_st = _GB.build_arms(_GBStub, list(_gb_rows), _gb_bars, 0.0)
+    _gb_by = {r["symbol"]: r for r in _gb_out}
+    _gb_fG = sorted(s for s, r in _gb_by.items() if _GB.is_filled(r, "G"))
+    _gb_fM = sum(1 for r in _gb_out if _GB.is_filled(r, "M"))
+    _gb_v2 = all(_GB.is_filled(r, "G") == (r["minlow"] <= r["gap_b"]) for r in _gb_out)
+    _gb_dep = [r["depth"] for r in _gb_out]
+    _gb_depc = [r["depth_C"] for r in _gb_out]
+except Exception as _e:                                          # noqa: BLE001
+    _gb_out, _gb_st, _gb_by, _gb_fG, _gb_fM, _gb_v2, _gb_dep, _gb_depc = (
+        [], {}, {}, [f"⛔ {type(_e).__name__}: {_e}"], -1, False, [], [])
+_gb_g0 = _gb_by.get("G0", {})
+check("🕳️🔒 GBA5 `G`=9.80 فوق entry0 9.50 (لا قصّ · «أعلى») ووقفُه 9.8×8.8/9.5 · التعبئة G0/G2/G3 = أدنى قاعٍ ‏≤ القاع "
+      "(V-G2) · `M` يطابقها 3 بالضبط · و`C` = إزاحةُ اثنين (⌊6/3⌋) لأعماق الفجوة نفسِها · والتغيّرُ 100%",
+      abs(_gb_g0.get("e_G", 0) - 9.8) < 1e-12 and _gb_g0.get("bite_G") is False
+      and abs(_gb_g0.get("s_G", 0) - round(9.8 * 8.8 / 9.5, 4)) < 1e-12
+      and _gb_fG == ["G0", "G2", "G3"] and _gb_v2 and _gb_fM == 3
+      and _gb_st.get("target") == 3 and _gb_st.get("match_err") == 0
+      and len(_gb_dep) == 6 and all(abs(_gb_depc[i] - _gb_dep[(i + 2) % 6]) < 1e-12 for i in range(6))
+      and abs(_gb_st.get("rot_changed", 0) - 1.0) < 1e-12,
+      f"G0={ {k: _gb_g0.get(k) for k in ('e_G', 's_G', 'bite_G', 'o_G')} } fG={_gb_fG} fM={_gb_fM} "
+      f"st={ {k: _gb_st.get(k) for k in ('target', 'match_err', 'rot_changed')} }")
+
+# GBA6 — **المقدِّرُ نفسُه:** `cluster_ci_vals` على فروق `R₀` يُطابق `wait_rsi23w_arms.cluster_ci`
+#    رقمًا برقم (البذرة · المعايَنة · نسبةُ المجاميع) — فـ`D2` يُقرأ بالمقدِّر الحاكم لا بنسخةٍ منه.
+_gb_cr = []
+for _i in range(12):
+    _o0 = ["win", "loss", "no_fill", "open"][_i % 4]
+    _og = ["loss", "win", "win", "no_fill"][(_i + 1) % 4]
+    _gb_cr.append({"symbol": f"Q{_i % 4}", "e_R0": 2.0, "stop0": 1.8,
+                   "o_R0": _o0, "ret_R0": (None if _o0 == "no_fill" else [10.0, -10.0, 0, 3.0][_i % 4]),
+                   "e_G": 1.9, "o_G": _og, "ret_G": (None if _og == "no_fill" else [12.0, -9.0, 5.0, 0][(_i + 1) % 4])})
+try:
+    _gb_ref_ci = _gb_w23.cluster_ci(_gb_cr, "R0", "G", seed=57869)
+    _gb_my_ci = _GB.cluster_ci_vals(_gb_cr, lambda r: (None if r.get("o_R0") is None or r.get("o_G") is None
+                                                       else _gb_w27.r0_of(r, "G") - _gb_w27.r0_of(r, "R0")))
+except Exception as _e:                                          # noqa: BLE001
+    _gb_ref_ci, _gb_my_ci = {"e": f"⛔ {type(_e).__name__}: {_e}"}, None
+check("🕳️🔒 GBA6 `cluster_ci_vals` ≡ `cluster_ci` (بذرة 57869 · 2000 · 97.5%) رقمًا برقم على فروق R₀",
+      _gb_ref_ci is not None and _gb_my_ci == _gb_ref_ci and _gb_ref_ci.get("n_sym") == 4,
+      f"ref={_gb_ref_ci} mine={_gb_my_ci}")
+
+# GBA7 — «لازم» حرفيًّا (`D1`): حدُّ ويلسون الأدنى 95% — 80/100 ⟵ 0.7112 · 90/100 ⟵ 0.8256 (تصدق) ·
+#    85/100 ⟵ 0.7672 (لا تصدق) · 100/100 ⟵ 0.9630 · و`n`=0 ⟵ 0 · والمغناطيسُ (`D2`) يحتاج +5 نقاط وفاصلًا موجبًا.
+_gb_w = [round(_GB.wilson_lower(k, n), 4) for k, n in ((80, 100), (90, 100), (85, 100), (100, 100), (0, 0))]
+
+
+def _gb_drows(nG, nC, n=100):
+    return [{"symbol": f"W{i % 25}", "o_G": ("loss" if i < nG else "no_fill"),
+             "o_C": ("loss" if i < nC else "no_fill")} for i in range(n)]
+
+
+try:
+    _gb_d90 = _GB.d_metrics(_gb_drows(90, 60))
+    _gb_d85 = _GB.d_metrics(_gb_drows(85, 82))
+except Exception as _e:                                          # noqa: BLE001
+    _gb_d90 = _gb_d85 = {"D1": None, "D2": None, "e": f"⛔ {type(_e).__name__}: {_e}"}
+check("🕳️🔒 GBA7 ويلسون 95% [0.7112 · 0.8256 · 0.7672 · 0.963 · 0] · 90/100 مع C 60 ⟵ D1 ✅ وD2 ✅ (+30 نقطة) · "
+      "85/100 مع C 82 ⟵ D1 ❌ وD2 ❌ (+3 نقاط دون 5)",
+      _gb_w == [0.7112, 0.8256, 0.7672, 0.963, 0.0]
+      and _gb_d90.get("D1") is True and _gb_d90.get("D2") is True and abs(_gb_d90.get("magnet_pp", 0) - 30.0) < 1e-9
+      and _gb_d85.get("D1") is False and _gb_d85.get("D2") is False and abs(_gb_d85.get("magnet_pp", 0) - 3.0) < 1e-9,
+      f"w={_gb_w} d90={ {k: _gb_d90.get(k) for k in ('D1', 'D2', 'magnet_pp')} } "
+      f"d85={ {k: _gb_d85.get(k) for k in ('D1', 'D2', 'magnet_pp')} }")
+
+# GBA8 — الفرعُ بالعقد حرفًا (§④): الكلُّ يعبر ⟵ 1 · سنةٌ سالبة ⟵ 2 (`E1` يشترط كلَّ سنة) · وسطٌ دون +0.05 ⟵ 2 ·
+#    فاصلٌ يلامس الصفر ⟵ 2 · `E2` دون +0.025 ⟵ 2 · تعبئةٌ دون 30% في سنة ⟵ 2 · لكلّ مُعبَّأة أسوأ ⟵ 2 ·
+#    أرضيةٌ ساقطة ⟵ 3 · `V-G3` ساقط ⟵ 3 · سنةٌ ناقصة ⟵ 3.
+_gb_py = {y: {"d_r0": 0.06, "fill_ratio": 0.5} for y in ("2023", "2024", "2025")}
+_gb_c0 = {"mean": 0.06, "lo": 0.01, "hi": 0.1}
+_gb_cm = {"mean": 0.03, "lo": 0.005, "hi": 0.05}
+
+
+def _gb_br(py=None, c0=None, cm=None, pf=(0.10, 0.05), fl=True, v3=True):
+    try:
+        return _GB.verdict(py if py is not None else _gb_py, c0 or _gb_c0, cm or _gb_cm, pf, fl, v3)[0]
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}"
+
+
+_gb_neg = dict(_gb_py)
+_gb_neg["2024"] = {"d_r0": -0.01, "fill_ratio": 0.5}
+_gb_lowf = dict(_gb_py)
+_gb_lowf["2025"] = {"d_r0": 0.06, "fill_ratio": 0.29}
+_gb_miss = {y: v for y, v in _gb_py.items() if y != "2023"}
+_gb_branches = [_gb_br(), _gb_br(py=_gb_neg), _gb_br(c0={"mean": 0.049, "lo": 0.01}),
+                _gb_br(c0={"mean": 0.06, "lo": 0.0}), _gb_br(cm={"mean": 0.024, "lo": 0.001}),
+                _gb_br(py=_gb_lowf), _gb_br(pf=(0.04, 0.05)), _gb_br(fl=False), _gb_br(v3=False),
+                _gb_br(py=_gb_miss)]
+check("🕳️🔒 GBA8 الفروع [1, 2, 2, 2, 2, 2, 2, 3, 3, 3] بالعقد حرفًا (E1 كلَّ سنة · +0.05 · فاصلٌ فوق الصفر · "
+      "E2 +0.025 · E3 30% · E4 · الأرضية · V-G3 · السنواتُ الثلاث)",
+      _gb_branches == [1, 2, 2, 2, 2, 2, 2, 3, 3, 3], f"{_gb_branches}")
+
+# GBA9 — قراءةٌ فقط (نمطُ `TV6`): صفرُ إرسالٍ وصفرُ كتابةِ حالة · والملفُّ الوحيد المكتوب `OUT_ROWS` ·
+#    والإنتاجُ لا يستورد الأداة.
+_gb_prod_imp = {a.name for n in _gb_ast.walk(_gb_ast.parse(_gb_io.open("Super_stock.py", encoding="utf-8").read()))
+                if isinstance(n, _gb_ast.Import) for a in n.names}
+check("🕳️🔒 GBA9 قراءةٌ فقط (`_selfcheck_readonly` ✅) · الملفُّ المكتوب `gapbelow_rows.jsonl` وحدَه · "
+      "والإنتاجُ لا يستوردها",
+      _GB is not None and _GB._selfcheck_readonly() is True and _GB.OUT_ROWS == "gapbelow_rows.jsonl"
+      and "gapbelow_arms" not in _gb_prod_imp and "gapbelow_arms" not in _gb_io.open(
+          "Super_stock.py", encoding="utf-8").read(),
+      "OK" if _GB is not None else "لم تُحمَّل")
+
+# GBA10 — الـworkflow: يدويٌّ بلا كرون ولا مُدخَلات · `contents: read` ‏+ `actions: read` · بلا سرِّ تلغرام
+#    ولا مفتاحِ مزوّد · اللقطاتُ الثلاث **بمعرّفات العقد** · والبيئةُ موصولةٌ بالسكربت.
+_gb_wfp = ".github/workflows/gapbelow.yml"
+_gb_wft = _gb_io.open(_gb_wfp, encoding="utf-8").read() if _gb_os.path.exists(_gb_wfp) else ""
+_gb_wf = _gb_yaml.safe_load(_gb_wft) if _gb_wft else {}
+_gb_on = (_gb_wf or {}).get(True) or (_gb_wf or {}).get("on") or {}
+_gb_steps = (((_gb_wf or {}).get("jobs") or {}).get("gapbelow-arms") or {}).get("steps") or []
+_gb_dl = [s.get("with", {}) for s in _gb_steps if str(s.get("uses", "")).startswith("actions/download-artifact")]
+_gb_run = next((s for s in _gb_steps if "gapbelow_arms.py" in str(s.get("run", ""))), {})
+check("🕳️🔒 GBA10 `gapbelow.yml` يدويٌّ بلا كرون ولا مُدخَلات · صلاحيّتا قراءة · بلا TELEGRAM/POLYGON · ثلاثُ لقطاتٍ "
+      "31574165523/31199493957/31191327731 · وBT_YEARS=2023,2024,2025 بمساراتها",
+      list(_gb_on) == ["workflow_dispatch"] and not (_gb_on.get("workflow_dispatch") or {})
+      and (_gb_wf or {}).get("permissions") == {"contents": "read", "actions": "read"}
+      and "TELEGRAM" not in _gb_wft and "POLYGON" not in _gb_wft
+      and [str(d.get("run-id")) for d in _gb_dl] == ["31574165523", "31199493957", "31191327731"]
+      and all(d.get("name") == "frozen-dataset" for d in _gb_dl)
+      and (_gb_run.get("env") or {}).get("BT_YEARS") == "2023,2024,2025"
+      and (_gb_run.get("env") or {}).get("BT_FROZEN_PATHS") == ",".join(
+          f"pit_{y}/frozen_backtest.pkl.gz" for y in ("2023", "2024", "2025"))
+      and [d.get("path") for d in _gb_dl] == ["pit_2023", "pit_2024", "pit_2025"],
+      f"on={list(_gb_on)} dl={[d.get('run-id') for d in _gb_dl]}")
+
+# GBA11 — `main` يرفض سنواتٍ غيرَ سنوات العقد **قبل** فتح `OUT_ROWS` (يُشغَّل في مجلّدٍ مؤقّت ⇒ لا أثر ·
+#    و`SCREENER_MODE` يُستعاد).
+_gb_env0 = {k: _gb_os.environ.get(k) for k in ("BT_YEARS", "BT_FROZEN_PATHS", "SCREENER_MODE")}
+_gb_cwd0 = _gb_os.getcwd()
+_gb_tdir = _gb_tmp.mkdtemp(prefix="gba11_")
+try:
+    _gb_os.chdir(_gb_tdir)
+    _gb_os.environ["BT_YEARS"], _gb_os.environ["BT_FROZEN_PATHS"] = "2022,2023,2024", "a,b,c"
+    with _gb_ctx.redirect_stdout(_gb_io.StringIO()):
+        _gb_rc1 = _GB.main()
+    _gb_os.environ["BT_YEARS"], _gb_os.environ["BT_FROZEN_PATHS"] = "2023,2024,2025", "a,b"
+    with _gb_ctx.redirect_stdout(_gb_io.StringIO()):
+        _gb_rc2 = _GB.main()
+    _gb_left = sorted(_gb_os.listdir(_gb_tdir))
+except Exception as _e:                                          # noqa: BLE001
+    _gb_rc1 = _gb_rc2 = f"⛔ {type(_e).__name__}: {_e}"
+    _gb_left = ["?"]
+finally:
+    _gb_os.chdir(_gb_cwd0)
+    for _k, _v in _gb_env0.items():
+        if _v is None:
+            _gb_os.environ.pop(_k, None)
+        else:
+            _gb_os.environ[_k] = _v
+check("🕳️🔒 GBA11 `main`: سنواتٌ غيرُ 2023-2025 ⟵ 2 · طولان مختلفان ⟵ 2 · ولا ملفَّ يُكتب · والبيئةُ مُستعادة",
+      _gb_rc1 == 2 and _gb_rc2 == 2 and _gb_left == []
+      and {k: _gb_os.environ.get(k) for k in _gb_env0} == _gb_env0,
+      f"rc={_gb_rc1}/{_gb_rc2} left={_gb_left}")
+
+# GBA12 — `V-G0` حيّةٌ لا زينة: مرجعٌ يطابق صفوفَ الإشارة ⟵ تمضي السنة (0) · ومرجعٌ يخالفها بصفٍّ واحد ⟵ 3 ·
+#    وسنةٌ بلا مرجعٍ منشور ⟵ 3. (المرجعُ يُحقَن مؤقّتًا ويُستعاد بالهويّة.)
+_gb_all = [{"symbol": f"V{i}", "date": "2099-01-0%d" % (i + 1), "e_R0": 2.0, "stop0": 1.8, "s_R0": 1.8,
+            "o_R0": ("loss" if i % 2 else "no_fill"), "ret_R0": (-10.0 if i % 2 else None),
+            "bite_R0": False, "prod_o": ("loss" if i % 2 else "no_fill")} for i in range(4)]
+_gb_ref_true = {"r0": round(_gb_w27.agg(_gb_all, "R0")["r_fixed"], 4), "n": 4,
+                "f0": _gb_w27.agg(_gb_all, "R0")["n_fill"]}
+_gb_ref_save = _GB.REF23 if _GB is not None else None
+try:
+    _GB.REF23 = {"2099": dict(_gb_ref_true)}
+    with _gb_ctx.redirect_stdout(_gb_io.StringIO()):
+        _gb_v0_ok = _GB.year_report(S, "2099", _gb_all, [], {}, {"rot_changed": 1.0}, {"split_rows": 0, "split_gaps": 0})[0]
+    _GB.REF23 = {"2099": dict(_gb_ref_true, n=5)}
+    with _gb_ctx.redirect_stdout(_gb_io.StringIO()):
+        _gb_v0_bad = _GB.year_report(S, "2099", _gb_all, [], {}, {"rot_changed": 1.0}, {"split_rows": 0, "split_gaps": 0})[0]
+    _GB.REF23 = {}
+    with _gb_ctx.redirect_stdout(_gb_io.StringIO()):
+        _gb_v0_none = _GB.year_report(S, "2099", _gb_all, [], {}, {"rot_changed": 1.0}, {"split_rows": 0, "split_gaps": 0})[0]
+except Exception as _e:                                          # noqa: BLE001
+    _gb_v0_ok = _gb_v0_bad = _gb_v0_none = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    if _GB is not None:
+        _GB.REF23 = _gb_ref_save
+check("🕳️🔒 GBA12 `V-G0` حيّة: مطابقٌ ⟵ 0 · يخالف بصفٍّ ⟵ 3 · بلا مرجعٍ ⟵ 3 · والمرجعُ المنشور مُستعادٌ بالهويّة",
+      _gb_v0_ok == 0 and _gb_v0_bad == 3 and _gb_v0_none == 3
+      and _GB is not None and _GB.REF23 is _gb_w23.REF23,
+      f"ok={_gb_v0_ok} bad={_gb_v0_bad} none={_gb_v0_none}")
+
+# GBA13 — `V-G1`/`V-G2` حيّتان: صفُّ فجوةٍ قاعُه فوق سعر التحليل ⟵ 3 · وصفٌّ «لم يُعبَّأ» وأدنى قاعه تحت القاع ⟵ 3.
+_gb_ok_rows, _ = (_GB.build_arms(_GBStub, [dict(r) for r in _gb_rows], _gb_bars, 0.0)
+                  if _GB is not None else ([], None))
+
+
+def _gb_yr(gap_rows):
+    _sv = _GB.REF23
+    try:
+        _GB.REF23 = {"2099": dict(_gb_ref_true)}
+        with _gb_ctx.redirect_stdout(_gb_io.StringIO()):
+            return _GB.year_report(S, "2099", _gb_all, gap_rows, {}, {"rot_changed": 1.0, "match_depth": 0.1},
+                                   {"split_rows": 0, "split_gaps": 0})[0]
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}: {_e}"
+    finally:
+        _GB.REF23 = _sv
+
+
+def _gb_fix(rows):
+    for r in rows:
+        r.update({"gap_top": r["gap_b"] * 1.05, "gap_size": 5.0, "gap_cov_min": None})
+    return rows
+
+
+_gb_r_ok = _gb_fix([dict(r) for r in _gb_ok_rows])
+_gb_r_v1 = _gb_fix([dict(r) for r in _gb_ok_rows])
+_gb_r_v1[0]["gap_b"] = 10.5
+_gb_r_v1[0]["gap_top"], _gb_r_v1[0]["gap_size"] = 10.5 * 1.05, 5.0
+_gb_r_v2 = _gb_fix([dict(r) for r in _gb_ok_rows])
+_gb_r_v2[1]["o_G"] = "no_fill"
+_gb_r_v2[1]["minlow"] = 8.0
+_gb_yr_ok, _gb_yr_v1, _gb_yr_v2 = _gb_yr(_gb_r_ok), _gb_yr(_gb_r_v1), _gb_yr(_gb_r_v2)
+check("🕳️🔒 GBA13 `V-G1`/`V-G2` حيّتان: الصفوفُ السليمة ⟵ 0 · قاعٌ فوق السعر ⟵ 3 · «لم يُعبَّأ» وأدنى قاعه تحته ⟵ 3",
+      _gb_yr_ok == 0 and _gb_yr_v1 == 3 and _gb_yr_v2 == 3,
+      f"ok={_gb_yr_ok} v1={_gb_yr_v1} v2={_gb_yr_v2}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

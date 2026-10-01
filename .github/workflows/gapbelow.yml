@@ -1,0 +1,54 @@
+name: 🕳️ T-GAPBELOW — الفجوةُ تحت السعر («لازم» و«كويس»)
+# العقد: gapbelow_prereg.md (مدموجٌ قبل أيّ سطرٍ من الأداة وقبل أيّ رقم).
+# بحث/قياس فقط · يدويّ بلا كرون · بلا سرِّ تلغرام ولا مفتاحِ مزوّد · صفرُ مسّ إنتاج.
+# 🔒 اللقطاتُ الثلاث مثبَّتةٌ هنا كما في العقد §② (لا مُدخَلات) ⇒ الحكمُ المجمَّع من تشغيلةٍ واحدة قابلةٍ لإعادة الإنتاج.
+permissions:
+  contents: read
+  actions: read
+on:
+  workflow_dispatch:
+jobs:
+  gapbelow-arms:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Download snapshot 2023
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: 31574165523
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: pit_2023
+      - name: Download snapshot 2024
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: 31199493957
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: pit_2024
+      - name: Download snapshot 2025
+        uses: actions/download-artifact@v4
+        with:
+          name: frozen-dataset
+          run-id: 31191327731
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: pit_2025
+      - name: Run gap-below arms
+        env:
+          PYTHONUNBUFFERED: "1"
+          BT_YEARS: "2023,2024,2025"
+          BT_FROZEN_PATHS: "pit_2023/frozen_backtest.pkl.gz,pit_2024/frozen_backtest.pkl.gz,pit_2025/frozen_backtest.pkl.gz"
+        run: python gapbelow_arms.py
+      - name: Upload rows
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gapbelow-rows
+          path: gapbelow_rows.jsonl
+          retention-days: 90
