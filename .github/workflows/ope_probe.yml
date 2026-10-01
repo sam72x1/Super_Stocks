@@ -1,0 +1,26 @@
+name: ope probe (مؤقّت — يُحذف قبل الدمج)
+
+# 🧪 «رجع هنا الدخول»: دقائقُ TradingView مقابل ياهو (الطزاجة · التغطية · السعر · السرعة · الحجم) — قراءةٌ فقط:
+# بلا تلغرام ولا كتابة حالة ولا git. المعيارُ مكتوبٌ في رأس ope_probe.py قبل أيّ رقم · والحاكمةُ أوّلُ تشغيلةٍ 14:00-19:30 UTC.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Probe
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python ope_probe.py

@@ -74076,6 +74076,227 @@ check("🕳️🔒 GBA13 `V-G1`/`V-G2` حيّتان: الصفوفُ السليم
       _gb_yr_ok == 0 and _gb_yr_v1 == 3 and _gb_yr_v2 == 3,
       f"ok={_gb_yr_ok} v1={_gb_yr_v1} v2={_gb_yr_v2}")
 
+# ═══ 🎯📺 «رجع هنا الدخول» على TradingView — أقفال OEV1-OEV9 (‏2026-10-01 · خلف `OE_SOURCE` المطفأ) ═══
+# الجالبُ `TVLiveFeed` يُقرأ بعقد `polygon_minute_bars`/`polygon_prev_close` حرفًا فيُحقَن في `scan_liq_stages`/`scan_operator_entry`
+# كما هما · وبلا `OE_SOURCE` العاملُ بت-بت · والإشعالُ بعد مِجَسّ الجلسة (‏`ope_probe.py`).
+import ast as _oev_ast
+import inspect as _oev_insp
+import os as _oev_os
+import io as _oev_io
+import yaml as _oev_yaml
+import presession_radar as _oev_pr
+
+_OEV_NOW = 1_790_000_000                         # ثانيةٌ ثابتة (صمّاءُ الزمن الحيّ)
+_OEV_RAW = [(_OEV_NOW - 3600, 1.0, 1.1, 0.9, 1.05, 100.0),     # خارج نافذة 30 دقيقة
+            (_OEV_NOW - 1200, 1.05, 1.2, 1.0, 1.15, 200.0),
+            (_OEV_NOW - 60, 1.15, 1.3, 1.1, 1.25, 300.0),
+            (_OEV_NOW + 60, 1.25, 1.3, 1.2, 1.28, 400.0)]       # بعد لحظة الجلب ⟵ يُستبعَد
+try:
+    _oev_m30 = S.tv_live_minutes(_OEV_RAW, 30, _OEV_NOW)
+    _oev_m30f = S.tv_live_minutes(_OEV_RAW, 30, _OEV_NOW, f=10.0)
+    _oev_none = (S.tv_live_minutes([], 30, _OEV_NOW), S.tv_live_minutes(None, 30, _OEV_NOW),
+                 S.tv_live_minutes(_OEV_RAW[:1], 30, _OEV_NOW))
+except Exception as _e:                                          # noqa: BLE001
+    _oev_m30 = _oev_m30f = [{"e": f"⛔ {type(_e).__name__}"}]
+    _oev_none = ("⛔",)
+check("🎯📺 OEV1 `tv_live_minutes` بعقد Polygon: نافذةُ [الآن−30د، الآن] (‏2 من 4 · ما قبلها وما بعد لحظة الجلب يُستبعَد) · "
+      "المفاتيحُ {o,h,l,c,v,t,vw} و`t` بالمللي و`vw`=None · والحجمُ × f · وبلا شموعٍ ⟵ None",
+      [b["t"] for b in _oev_m30] == [(_OEV_NOW - 1200) * 1000, (_OEV_NOW - 60) * 1000]
+      and set(_oev_m30[0]) == {"o", "h", "l", "c", "v", "t", "vw"} and _oev_m30[0]["vw"] is None
+      and [b["v"] for b in _oev_m30] == [200.0, 300.0] and [b["v"] for b in _oev_m30f] == [2000.0, 3000.0]
+      and _oev_m30[1]["c"] == 1.25 and _oev_none == (None, None, None),
+      f"m30={_oev_m30} none={_oev_none}")
+
+# OEV2 — `tv_live_scale`: f = حجمُ اليوم ÷ دقائقُ [الافتتاح، الإغلاق) النظاميّة وحدَها · وخارج [1، 200] أو بلا حجمٍ/دقائق ⟵ None ·
+#    والحدّان **توأما** `presession_radar.TV_SCALE_MIN/MAX` (قفلُ تطابق: مقياسٌ واحدٌ لا ثانٍ).
+_oev_o, _oev_c = _OEV_NOW - 1800, _OEV_NOW
+_OEV_RAW2 = [(_OEV_NOW - 3600, 1, 1, 1, 1, 999.0),             # بريماركت — لا يُحسب
+             (_OEV_NOW - 1500, 1, 1, 1, 1, 100.0), (_OEV_NOW - 900, 1, 1, 1, 1, 300.0)]
+try:
+    _oev_f = (S.tv_live_scale(_OEV_RAW2, 4000.0, _oev_o, _oev_c), S.tv_live_scale(_OEV_RAW2, 300.0, _oev_o, _oev_c),
+              S.tv_live_scale(_OEV_RAW2, 90000.0, _oev_o, _oev_c), S.tv_live_scale(_OEV_RAW2, None, _oev_o, _oev_c),
+              S.tv_live_scale(_OEV_RAW2[:1], 4000.0, _oev_o, _oev_c), S.tv_live_scale(_OEV_RAW2, "x", _oev_o, _oev_c))
+except Exception as _e:                                          # noqa: BLE001
+    _oev_f = (f"⛔ {type(_e).__name__}",)
+check("🎯📺 OEV2 `tv_live_scale`: 4000÷400 = 10 (البريماركتُ خارج المقام) · 300÷400 تحت 1 ⟵ None · 90000÷400 فوق 200 ⟵ None · "
+      "بلا حجمٍ/دقائق/نصٌّ ⟵ None · والحدّان توأما `presession_radar`",
+      _oev_f == (10.0, None, None, None, None, None)
+      and (S.TV_LIVE_SCALE_MIN, S.TV_LIVE_SCALE_MAX) == (_oev_pr.TV_SCALE_MIN, _oev_pr.TV_SCALE_MAX),
+      f"f={_oev_f}")
+
+
+# OEV3 — `TVLiveFeed` بجالبٍ وماسحٍ وساعةٍ محقونة: دفعةٌ واحدةٌ للكون · `bars` بعقد Polygon ومسوّاةٌ بالماسح · `prev_close` من
+#    اليوميّ (شمعةُ اليوم موجودة ⟵ التي قبلها · وغائبة ⟵ آخرُها) · ولا جلبَ ثانيًا قبل `TV_LIVE_REFRESH_S` · واليوميّ مرّةً في اليوم.
+class _OevFetch:
+    def __init__(self):
+        self.calls = []
+
+    def __call__(self, fulls, interval="1D", n=600, extended=False, workers=6):
+        self.calls.append((interval, tuple(fulls), n, extended, workers))
+        import tv_data as _TVm
+        today = _TVm.ny_day(_OEV_NOW)
+        out = {}
+        for f in fulls:
+            if f.endswith(":MISS"):
+                out[f] = None
+            elif interval == "1":        # شمعةُ بريماركت (تغطيةُ الجرس · خارج المقام) ثمّ دقيقتان نظاميّتان
+                out[f] = [(_OEV_NOW - 4 * 3600, 1.9, 1.9, 1.9, 1.9, 999.0),
+                          (_OEV_NOW - 600, 2.0, 2.2, 1.9, 2.1, 50.0), (_OEV_NOW - 120, 2.1, 2.4, 2.0, 2.3, 150.0)]
+            elif f.endswith(":AAA"):     # شمعةُ اليوم موجودة ⟵ إغلاقُ الأمس هو ما قبلها
+                out[f] = [(_OEV_NOW - 2 * 86400, 1, 1, 1, 1.50, 1), (_OEV_NOW - 86400, 1, 1, 1, 1.80, 1),
+                          (_OEV_NOW - 300, 1, 1, 1, 2.30, 1)]
+            else:                        # بلا شمعة اليوم (بريماركت) ⟵ آخرُها
+                out[f] = [(_OEV_NOW - 2 * 86400, 1, 1, 1, 3.10, 1), (_OEV_NOW - 86400, 1, 1, 1, 3.40, 1)]
+            if interval != "1" and out[f] and _TVm.ny_day(out[f][-1][0]) != today and f.endswith(":AAA"):
+                out[f] = None            # حارسُ بناء الفِكستشر (لا يقع)
+        return out
+
+
+_oev_clock = [float(_OEV_NOW)]
+_oev_fx = _OevFetch()
+_oev_scan = lambda cols: {"NASDAQ:AAA": {"name": "AAA", "volume": 2000.0},              # noqa: E731
+                          "NYSE:BBB": {"name": "BBB", "volume": None}}
+try:
+    _oev_feed = S.TVLiveFeed(fetch=_oev_fx, scan=_oev_scan, clock=lambda: _oev_clock[0])
+    _oev_r1 = _oev_feed.refresh(["AAA", "BBB", "MISS"])
+    _oev_bA = _oev_feed.bars("AAA", minutes=30)
+    _oev_bB = _oev_feed.bars("bbb", minutes=30)
+    _oev_pv = (_oev_feed.prev_close("AAA", "2026-10-01"), _oev_feed.prev_close("BBB"), _oev_feed.prev_close("MISS"))
+    _oev_n1 = len(_oev_fx.calls)
+    _oev_clock[0] += 10
+    _oev_feed.refresh(["AAA", "BBB", "MISS"])       # قبل 30ث ⟵ لا جلب
+    _oev_n2 = len(_oev_fx.calls)
+    _oev_clock[0] += 40
+    _oev_feed.refresh(["AAA", "BBB", "MISS"])       # بعد 30ث ⟵ دقائقٌ فقط (اليوميُّ مرّةً في اليوم)
+    _oev_n3 = len(_oev_fx.calls)
+    _oev_bM = _oev_feed.bars("MISS")
+except Exception as _e:                                          # noqa: BLE001
+    _oev_r1, _oev_bA, _oev_bB, _oev_pv, _oev_n1, _oev_n2, _oev_n3, _oev_bM = (
+        {"e": f"⛔ {type(_e).__name__}: {_e}"}, None, None, None, -1, -1, -1, "⛔")
+_oev_nyday = __import__("tv_data").ny_day(_OEV_NOW)
+check("🎯📺 OEV3 `TVLiveFeed`: دفعةُ دقائقٍ ‏+ يوميّ (نداءان) لـ3 رموز بخريطة الماسح (NASDAQ/NYSE) · AAA مسوّى (2000÷دقائقه النظاميّة) و BBB خامّ "
+      "(بلا حجمٍ يوميّ) · إغلاقُ الأمس 1.80 (شمعةُ اليوم موجودة) و3.40 (غائبة) · والفاشل None · ولا جلبَ قبل 30ث · واليوميُّ مرّةً",
+      isinstance(_oev_r1, dict) and _oev_r1.get("asked") == 3 and _oev_r1.get("got") == 2 and _oev_r1.get("prev") == 2
+      and _oev_fx.calls[0][0] == "1" and _oev_fx.calls[0][1] == ("NASDAQ:AAA", "NYSE:BBB", "NASDAQ:MISS")
+      and _oev_fx.calls[0][2] == S.TV_LIVE_N and _oev_fx.calls[0][3] is True and _oev_fx.calls[0][4] == S.TV_LIVE_WORKERS
+      and _oev_fx.calls[1][0] == "1D" and _oev_n1 == 2 and _oev_n2 == 2 and _oev_n3 == 3
+      and _oev_bA is not None and [b["c"] for b in _oev_bA] == [2.1, 2.3] and [b["v"] for b in _oev_bA] == [500.0, 1500.0]
+      and _oev_bB is not None and [b["v"] for b in _oev_bB] == [50.0, 150.0]
+      and _oev_pv == (1.80, 3.40, None) and _oev_bM is None,
+      f"r1={_oev_r1} calls={[c[0] for c in _oev_fx.calls]} bA={_oev_bA} bB={_oev_bB} pv={_oev_pv} "
+      f"n={_oev_n1}/{_oev_n2}/{_oev_n3} day={_oev_nyday}")
+
+# OEV4 — `scan_liq_stages` يأخذ إغلاقَ الأمس للعرض وختمِ J1 **من الجالب المحقون** (`fpc`) لا من Polygon مباشرةً (AST):
+#    النداءُ الوحيد لـ`polygon_prev_close` في الدالّة هو افتراضُ `fpc` ⇒ بلا حقن بت-بت.
+_oev_sls = _oev_insp.getsource(S.scan_liq_stages)
+_oev_calls = [(getattr(c.func, "id", None) or getattr(c.func, "attr", None))
+              for c in _oev_ast.walk(_oev_ast.parse(_oev_sls))
+              if isinstance(c, _oev_ast.Call)]
+check("🎯📺 OEV4 `scan_liq_stages`: إغلاقُ الأمس للكرت وJ1 من `fpc` المحقون · وصفرُ نداءٍ مباشرٍ لـ`polygon_prev_close` "
+      "(افتراضُ `fpc` وحدَه ⇒ بلا حقن بت-بت)",
+      "polygon_prev_close" not in _oev_calls and "fpc = fetch_prev_close or polygon_prev_close" in _oev_sls
+      and "_pc = fpc(row.get(\"symbol\"), today_iso)" in _oev_sls,
+      f"calls_has_ppc={'polygon_prev_close' in _oev_calls}")
+
+# OEV5 — العاملُ موصولٌ من نقطة النداء (AST): `OE_SOURCE`=tradingview ⟵ `TVLiveFeed` ويُحقَن في المسحين · وبدونه بلا مفتاحٍ ⟵ خروج 0
+#    كما كان · والنداءان بلا حقنٍ حين `feed` غائب (Polygon بت-بت).
+_oev_oe = _oev_io.open("operator_entry_live.py", encoding="utf-8").read()
+_oev_main = next((n for n in _oev_ast.walk(_oev_ast.parse(_oev_oe))
+                  if isinstance(n, _oev_ast.FunctionDef) and n.name == "main"), None)
+_oev_ms = _oev_ast.get_source_segment(_oev_oe, _oev_main) if _oev_main else ""
+check("🎯📺 OEV5 العاملُ: `tv_mode = bot.oe_source() == \"tradingview\"` · حارسُ المفتاح لا يُخرج في وضع TV · `TVLiveFeed` "
+      "يُبنى ويُحقَن `fetch_bars`/`fetch_prev_close` في السيولة و`fetch_bars` في الدخول · وبلا feed صفرُ حقن",
+      'tv_mode = bot.oe_source() == "tradingview"' in _oev_ms
+      and 'if not tv_mode and not os.environ.get("POLYGON_API_KEY", "").strip():' in _oev_ms
+      and "feed = bot.TVLiveFeed() if tv_mode else None" in _oev_ms
+      and '_kw = {"fetch_bars": feed.bars, "fetch_prev_close": feed.prev_close}' in _oev_ms
+      and "fetch_operator=bot.operator_flow, **_kw)" in _oev_ms
+      and '**({"fetch_bars": feed.bars} if feed is not None else {})' in _oev_ms
+      and "_kw = {}" in _oev_ms,
+      "OK" if _oev_ms else "main غائبة")
+
+# OEV6 — المفتاحُ يُقرأ وقتَ النداء (لا لقطة استيراد) · و`OE_SOURCE` **مطفأٌ في الـworkflow** حتى يعبر مِجَسُّ الجلسة
+#    (إشعالُه تغييرٌ مُقرٌّ يُحدِّث هذا القفل — نمطُ `AHT10`).
+_oev_env0 = _oev_os.environ.get("OE_SOURCE")
+try:
+    _oev_os.environ["OE_SOURCE"] = " TradingView "
+    _oev_on = S.oe_source()
+    _oev_os.environ.pop("OE_SOURCE", None)
+    _oev_off = S.oe_source()
+finally:
+    if _oev_env0 is None:
+        _oev_os.environ.pop("OE_SOURCE", None)
+    else:
+        _oev_os.environ["OE_SOURCE"] = _oev_env0
+_oev_wf = _oev_yaml.safe_load(_oev_io.open(".github/workflows/operator_entry.yml", encoding="utf-8").read()) or {}
+_oev_envs = [((st or {}).get("env") or {}) for j in ((_oev_wf.get("jobs") or {}).values())
+             for st in ((j or {}).get("steps") or [])] + [_oev_wf.get("env") or {}]
+_oev_envs += [((j or {}).get("env") or {}) for j in ((_oev_wf.get("jobs") or {}).values())]
+check("🎯📺 OEV6 `oe_source()` وقتَ النداء (مسافاتٌ وحالةُ أحرف ⟵ «tradingview» · غيابُه ⟵ \"\") · و`OE_SOURCE` غائبٌ عن "
+      "`operator_entry.yml` (مطفأٌ حتى مِجَسّ الجلسة)",
+      _oev_on == "tradingview" and _oev_off == "" and not any("OE_SOURCE" in e for e in _oev_envs),
+      f"on={_oev_on!r} off={_oev_off!r}")
+
+# OEV7 — الثوابتُ معلنةٌ ومحدودة: 400 دقيقةً تغطّي نافذةَ الدخول (`OP_ENTRY_WINDOW_MIN`) وبُكيتَي السيولة · 8 مقابس · 30ث.
+check("🎯📺 OEV7 `TV_LIVE_N`=400 ‏≥ `OP_ENTRY_WINDOW_MIN` و`LIQ_WINDOW_MIN` · مقابس 8 · تجديدٌ ‏≥30ث · ومفتاحُ البيئة «OE_SOURCE»",
+      S.TV_LIVE_N == 400 and S.TV_LIVE_N >= S.OP_ENTRY_WINDOW_MIN and S.TV_LIVE_N >= S.LIQ_WINDOW_MIN
+      and S.TV_LIVE_WORKERS == 8 and S.TV_LIVE_REFRESH_S == 30 and S.OE_SOURCE_ENV == "OE_SOURCE",
+      f"N={S.TV_LIVE_N} W={S.TV_LIVE_WORKERS} R={S.TV_LIVE_REFRESH_S}")
+
+# OEV8 — خارج الجذور والفرز (AST): الجالبُ لا يُنادى من دوالّ الاختيار.
+_oev_roots = (S.rank_key, S.select_top, S.classify_tier, S.entry_status, S.analyze_ticker,
+              S.backtest_symbol, S.build_interpretation, S.scan_market)
+_oev_leak = [f.__name__ for f in _oev_roots
+             if any(t in _oev_insp.getsource(f) for t in ("TVLiveFeed", "tv_live_minutes", "oe_source"))]
+check("🎯📺 OEV8 الجالبُ خارج الجذور والفرز (صفرُ ذكرٍ في دوالّ الاختيار)", _oev_leak == [], f"{_oev_leak}")
+
+# OEV9 — حارسا النفخ (مراجعةٌ قبل الدمج): ① دفعةٌ لا تبلغ الجرس ⟵ None (المقامُ جزئيّ) · ② قبل `TV_LIVE_SCALE_SPAN_MIN` من
+#    الجرس ⟵ None وعندها بالضبط ⟵ f · و`TVLiveFeed` يمرّر ساعتَه (09:45 ⟵ خامّ) ويُبقي `f` اليوم حين يتعذّر لاحقًا ويمحوه بتبدّل اليوم.
+_OEV_RAW9 = [(_OEV_NOW - 1500, 1, 1, 1, 1, 100.0), (_OEV_NOW - 900, 1, 1, 1, 1, 300.0)]   # أوّلُها بعد الجرس ⟵ لا تغطية
+try:
+    _oev_g = (S.tv_live_scale(_OEV_RAW9, 4000.0, _oev_o, _oev_c),
+              S.tv_live_scale(_OEV_RAW2, 4000.0, _oev_o, _oev_c, now_s=_oev_o + (S.TV_LIVE_SCALE_SPAN_MIN - 1) * 60),
+              S.tv_live_scale(_OEV_RAW2, 4000.0, _oev_o, _oev_c, now_s=_oev_o + S.TV_LIVE_SCALE_SPAN_MIN * 60))
+except Exception as _e:                                          # noqa: BLE001
+    _oev_g = (f"⛔ {type(_e).__name__}",)
+
+
+class _OevFetch9:
+    def __init__(self, clock):
+        self.clock, self.cover = clock, True
+
+    def __call__(self, fulls, interval="1D", n=600, extended=False, workers=6):
+        t = int(self.clock[0])
+        out = {}
+        for f in fulls:
+            if interval == "1":
+                b = [(t - 600, 2.0, 2.2, 1.9, 2.1, 50.0), (t - 120, 2.1, 2.4, 2.0, 2.3, 150.0)]
+                out[f] = ([(t - 4 * 3600, 1.9, 1.9, 1.9, 1.9, 999.0)] + b) if self.cover else b
+            else:
+                out[f] = [(t - 2 * 86400, 1, 1, 1, 1.50, 1), (t - 86400, 1, 1, 1, 1.80, 1)]
+        return out
+
+
+_oev_open9 = _OEV_NOW - (43 * 60 + 20)            # 09:30 نيويورك يومَ الفِكستشر (الآنُ 10:13:20)
+_oev_clk9 = [float(_oev_open9 + 15 * 60)]         # 09:45 ⟵ قبل نصف الساعة
+_oev_fx9 = _OevFetch9(_oev_clk9)
+try:
+    _oev_feed9 = S.TVLiveFeed(fetch=_oev_fx9, scan=lambda cols: {"NASDAQ:AAA": {"name": "AAA", "volume": 2000.0}},
+                              clock=lambda: _oev_clk9[0])
+    _oev_v9 = []
+    for _t9, _cv9 in ((_oev_clk9[0], True), (float(_OEV_NOW), True), (float(_OEV_NOW + 60), False),
+                      (float(_OEV_NOW + 86400), False)):
+        _oev_clk9[0], _oev_fx9.cover = _t9, _cv9
+        _oev_feed9.refresh(["AAA"])
+        _oev_v9.append([b["v"] for b in (_oev_feed9.bars("AAA", minutes=30) or [])])
+except Exception as _e:                                          # noqa: BLE001
+    _oev_v9 = [f"⛔ {type(_e).__name__}: {_e}"]
+check("🎯📺 OEV9 حارسا النفخ: بلا تغطيةٍ للجرس ⟵ None · قبل 30د ⟵ None وعندها ⟵ 10 · والجالبُ: 09:45 خامّ ⟵ 10:13 مسوّى ⟵ "
+      "دفعةٌ لا تبلغ الجرس تُبقي f اليوم ⟵ واليومُ التالي يمحوه (خامّ)",
+      _oev_g == (None, None, 10.0) and S.TV_LIVE_SCALE_SPAN_MIN == 30
+      and _oev_v9 == [[50.0, 150.0], [500.0, 1500.0], [500.0, 1500.0], [50.0, 150.0]],
+      f"g={_oev_g} v={_oev_v9}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
