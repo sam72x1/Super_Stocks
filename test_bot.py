@@ -74352,6 +74352,281 @@ check("🎯📺 OEV9 حارسا النفخ: بلا تغطيةٍ للجرس ⟵ N
       and _oev_v9 == [[50.0, 150.0], [500.0, 1500.0], [500.0, 1500.0], [50.0, 150.0]],
       f"g={_oev_g} v={_oev_v9}")
 
+# ✂️〽️ APC1-APC8 · EMX1-EMX3 — **دفعة 2026-10-01 (‏18 صورة · تطبيق «مراقب استراتيجية فيصل» ومنشورُ لوحة فيصل)**:
+#    ① `split_day_card`/`split_day_card_line` = «بيانات التقسيم» كما يعرضها التطبيق — الافتتاحُ والأعلى **أُعيدا من
+#    الشموع بمعيارٍ مكتوبٍ قبل الرقم** (`faisal_batches/2026-10-01/APP_PARITY_PREREG.md` · افتتاحٌ 10/10 · أعلى 3/3 بأربع
+#    خانات = **أعلى شمعةِ يوم التقسيم اليوميّة** لا أوّلُ شمعة 4 ساعات) · سطرٌ في **فحص اليد وحدَه** · ② `ema_cross_state`/
+#    `ema_cross_line` = تقاطعُ EMA 9/26 من لوحة فيصل على TradingView في **التقرير الفنيّ الكلاسيكيّ وحدَه**. **عرضٌ فقط ·
+#    خارج الجذور والفرز والتنبيهات الحيّة** (لا إطالةَ لتنبيهٍ حيّ — خطٌّ أحمر). فِكستشراتٌ يدويّة بلا شبكة.
+import ast as _apc_ast                                               # noqa: E402
+import datetime as _apc_dt                                          # noqa: E402
+import inspect as _apc_insp                                         # noqa: E402
+
+_APC_BARS = [("2026-07-06", 4.26, 6.00, 4.00, 4.62), ("2026-07-07", 4.60, 6.50, 4.20, 4.30),
+             ("2026-07-08", 4.00, 4.10, 3.70, 3.80), ("2026-07-09", 3.60, 3.70, 3.30, 3.40),
+             ("2026-07-10", 3.20, 3.30, 2.90, 3.00), ("2026-07-13", 2.90, 3.00, 2.60, 2.70),
+             ("2026-07-14", 2.60, 2.70, 2.30, 2.40), ("2026-07-15", 2.30, 2.40, 2.05, 2.10),
+             ("2026-07-16", 2.10, 2.15, 1.90, 1.95), ("2026-07-17", 1.95, 2.00, 1.80, 1.85),
+             ("2026-07-20", 1.80, 1.86, 1.735, 1.80), ("2026-07-21", 1.85, 1.95, 1.75, 1.87),
+             ("2026-07-22", 1.95, 2.05, 1.85, 1.97), ("2026-07-23", 2.10, 2.20, 2.00, 2.12),
+             ("2026-07-24", 2.10, 2.15, 1.95, 2.07)]
+
+
+def _apc_df(bars, pre=10):
+    """إطارٌ يوميّ: `pre` شمعةً مسطّحة قبل 07-06 ثمّ `bars` (تقسيمُ 1:50 يومَ 07-06 · قمّةٌ أعلى 6.50 يومَ 07-07 ·
+    قاعٌ 1.735 يومَ 07-20 · ارتدادٌ لأعلى 2.20)."""
+    pidx = list(pd.bdate_range(end="2026-07-03", periods=pre))
+    rows = [(d, 5.0, 5.2, 4.8, 5.0) for d in pidx] + [(pd.Timestamp(d), o, h, l, c) for d, o, h, l, c in bars]
+    out = pd.DataFrame([r[1:] for r in rows], index=[r[0] for r in rows], columns=["Open", "High", "Low", "Close"])
+    out["Volume"] = 1e5
+    return out
+
+
+_APC_SP = pd.Series([0.02], index=[pd.Timestamp("2026-07-06")])
+_APC_TODAY = _apc_dt.date(2026, 7, 25)
+try:
+    _apc_c1 = S.split_day_card(_apc_df(_APC_BARS), _APC_SP, _APC_TODAY)
+    _apc_psh = S._post_split_high(_apc_df(_APC_BARS)["High"], _APC_SP, pd.Timestamp("2026-07-24"))
+    _apc_edo = S._event_day_open(_apc_df(_APC_BARS)["Open"], pd.Timestamp("2026-07-06"))
+except Exception as _e:                                          # noqa: BLE001
+    _apc_c1, _apc_psh, _apc_edo = {"e": f"⛔ {type(_e).__name__}: {_e}"}, None, None
+check("✂️ APC1 بطاقةُ التقسيم: التاريخ 2026-07-06 · «1:50» · منذ 19 يومًا · الافتتاحُ 4.26 = `_event_day_open` · "
+      "والأعلى **6.00 = أعلى شمعةِ يوم التقسيم** لا قمّةُ ما بعده (`_post_split_high` ‏6.50) · القاع 1.735 يومَ 07-20 · "
+      "وأعلى ما بعد القاع 2.20 ⇒ لم يبلغ الافتتاح ولا الأعلى",
+      isinstance(_apc_c1, dict) and _apc_c1.get("date") == "2026-07-06" and _apc_c1.get("ratio") == "1:50"
+      and _apc_c1.get("days") == 19 and _apc_c1.get("open") == 4.26 and _apc_c1.get("open") == _apc_edo
+      and _apc_c1.get("high") == 6.0 and _apc_psh == 6.5 and _apc_c1.get("high") != _apc_psh
+      and _apc_c1.get("bottom") == 1.735 and _apc_c1.get("bottom_date") == "2026-07-20"
+      and _apc_c1.get("hi_after") == 2.2 and _apc_c1.get("reached_open") is False
+      and _apc_c1.get("reached_high") is False,
+      f"card={_apc_c1} psh={_apc_psh} edo={_apc_edo}")
+
+
+def _apc_with(i, bar):
+    b = list(_APC_BARS)
+    b[i] = bar
+    return S.split_day_card(_apc_df(b), _APC_SP, _APC_TODAY)
+
+
+try:
+    _apc_cB = _apc_with(-1, ("2026-07-24", 2.10, 4.50, 1.95, 4.40))       # بلغ الافتتاح وحدَه
+    _apc_cC = _apc_with(-1, ("2026-07-24", 2.10, 6.10, 1.95, 6.00))       # بلغ أعلى شمعة التقسيم
+    _apc_cD = _apc_with(10, ("2026-07-20", 1.80, 4.40, 1.735, 1.80))      # أعلى **بار القاع** فوق الافتتاح ⟵ لا يُعَدّ
+    _apc_cE = S.split_day_card(_apc_df(_APC_BARS[:11]), _APC_SP, _APC_TODAY)   # القاعُ آخرُ شمعة ⟵ لا «بعد»
+    _apc_L2 = S.split_day_card_line(_apc_cB, 4.40)
+    _apc_L3 = S.split_day_card_line(_apc_cC, 6.00)
+except Exception as _e:                                          # noqa: BLE001
+    _apc_cB = _apc_cC = _apc_cD = _apc_cE = {"e": f"⛔ {type(_e).__name__}: {_e}"}
+    _apc_L2 = _apc_L3 = ""
+# 🛡️ None ⟵ {} فيسقط القفلُ نظيفًا ولا ينهار (درسُ القفل المنهار · طفرةُ M26)
+_apc_cB, _apc_cC, _apc_cD, _apc_cE = [x if isinstance(x, dict) else {} for x in (_apc_cB, _apc_cC, _apc_cD, _apc_cE)]
+check("✂️ APC2 «بلغ» = أعلى High **بعد بار القاع** (لا شاملًا له): 4.50 ⟵ بلغ الافتتاح وحدَه · 6.10 ⟵ بلغ الأعلى · "
+      "وأعلى بار القاع نفسِه 4.40 **لا يُعَدّ** · وقاعٌ هو آخرُ شمعةٍ ⟵ hi_after None · والسطرُ يقرأ الحالةَ الصحيحة",
+      _apc_cB.get("reached_open") is True and _apc_cB.get("reached_high") is False
+      and _apc_cC.get("reached_open") is True and _apc_cC.get("reached_high") is True
+      and _apc_cD.get("hi_after") == 2.2 and _apc_cD.get("reached_open") is False
+      and _apc_cE.get("hi_after") is None and _apc_cE.get("reached_open") is False
+      and _apc_L2.endswith("بلغ الافتتاح ✅ · لم يبلغ أعلى شمعته") and "يبعد" not in _apc_L2
+      and _apc_L3.endswith("بلغ أعلى شمعته ✅") and "يبعد" not in _apc_L3,
+      f"B={_apc_cB} C={_apc_cC} D={_apc_cD} E={_apc_cE} L2={_apc_L2[-40:]!r} L3={_apc_L3[-30:]!r}")
+
+try:
+    _apc_long = _apc_df(_APC_BARS, pre=150)
+    _apc_none = (S.split_day_card(_apc_df(_APC_BARS), None),
+                 S.split_day_card(_apc_df(_APC_BARS), pd.Series([], dtype=float)),
+                 S.split_day_card(_apc_df(_APC_BARS), pd.Series([2.0], index=[pd.Timestamp("2026-07-06")])),
+                 S.split_day_card(_apc_df(_APC_BARS), pd.Series([0.1], index=[pd.Timestamp("2026-05-01")])),
+                 S.split_day_card(None, _APC_SP),
+                 S.split_day_card(_apc_long, pd.Series([0.1], index=[_apc_long.index[5]])))
+    _apc_lbd = (_apc_long.index[-1] - _apc_long.index[5]).days
+    _apc_two = S.split_day_card(_apc_df(_APC_BARS), pd.Series([0.1, 0.02], index=[pd.Timestamp("2026-06-29"),
+                                                                                  pd.Timestamp("2026-07-06")]))
+    _apc_rat = S.split_day_card(_apc_df(_APC_BARS), pd.Series([0.15], index=[pd.Timestamp("2026-07-06")]))
+    _apc_lst = S.split_day_card(_apc_df(_APC_BARS), [(pd.Timestamp("2026-07-06"), 0.02)])
+except Exception as _e:                                          # noqa: BLE001
+    _apc_none, _apc_lbd, _apc_two, _apc_rat, _apc_lst = (f"⛔ {type(_e).__name__}: {_e}",), 0, {}, {}, {}
+_apc_two, _apc_rat, _apc_lst = [x if isinstance(x, dict) else {} for x in (_apc_two, _apc_rat, _apc_lst)]
+check("✂️ APC3 None بلا تقسيمٍ صالح: بلا تقسيمات · فارغة · **أماميٌّ (2.0)** · قبل أوّل شمعة · بلا إطار · **أقدمُ من "
+      "`SPLIT_LOOKBACK_DAYS`** · وتقسيمان ⟵ **الأحدث** (07-06 · 1:50) · ونسبةٌ كسريّة «1:6.7» · وقائمةُ أزواجٍ مقبولة",
+      _apc_none == (None, None, None, None, None, None) and _apc_lbd > S.CONFIG["SPLIT_LOOKBACK_DAYS"]
+      and _apc_two.get("date") == "2026-07-06" and _apc_two.get("ratio") == "1:50"
+      and _apc_rat.get("ratio") == "1:6.7" and _apc_lst.get("open") == 4.26,
+      f"none={_apc_none} lb={_apc_lbd} two={_apc_two.get('date')} rat={_apc_rat.get('ratio')} lst={_apc_lst.get('open')}")
+
+try:
+    _apc_L1 = S.split_day_card_line(_apc_c1, 2.12)
+    _apc_px = (S._px_app(6.0), S._px_app(4.9793), S._px_app(1.735), S._px_app(4.26), S._px_app(2.2))
+    _apc_e = (S.split_day_card_line(None), S.split_day_card_line({}), S.split_day_card_line({"open": "x"}))
+except Exception as _e:                                          # noqa: BLE001
+    _apc_L1, _apc_px, _apc_e = f"⛔ {type(_e).__name__}", (), ("⛔",)
+check("✂️ APC4 السطرُ حرفًا: «✂️ تقسيم 1:50 · 2026-07-06 (قبل 19 يومًا): افتتاحُه $4.26 (يبعد +101%) · أعلى شمعته $6.00 "
+      "— بعد قاعه $1.735 (07-20): لم يبلغ الافتتاح بعد» · والأسعارُ بخانتين أو أربعٍ إن لزم (4.9793) · وبلا علاماتِ مقارنة · "
+      "و«» بلا بطاقة أو ببطاقةٍ فاسدة",
+      _apc_L1 == ("✂️ تقسيم 1:50 · 2026-07-06 (قبل 19 يومًا): افتتاحُه $4.26 (يبعد +101%) · أعلى شمعته $6.00 — "
+                  "بعد قاعه $1.735 (07-20): لم يبلغ الافتتاح بعد")
+      and not any(ch in _apc_L1 + _apc_L2 + _apc_L3 for ch in "<>≤≥")
+      and _apc_px == ("6.00", "4.9793", "1.735", "4.26", "2.20") and _apc_e == ("", "", ""),
+      f"L1={_apc_L1!r} px={_apc_px} e={_apc_e}")
+
+try:
+    _apc_m1 = HC.render_hand_check("Q", {"symbol": "Q", "price": 2.12, "behav": {}, "split_card": _apc_c1})
+    _apc_m0 = HC.render_hand_check("Q", {"symbol": "Q", "price": 2.12, "behav": {}})
+except Exception as _e:                                          # noqa: BLE001
+    _apc_m1 = _apc_m0 = f"⛔ {type(_e).__name__}: {_e}"
+_apc_hcs = _apc_insp.getsource(HC.hand_check)
+_apc_asg = [n for n in _apc_ast.walk(_apc_ast.parse(_apc_hcs)) if isinstance(n, _apc_ast.Assign)
+            and any(isinstance(t, _apc_ast.Subscript) and getattr(t.slice, "value", None) == "split_card"
+                    for t in n.targets)]
+_apc_wired = any(isinstance(n.value, _apc_ast.Call) and getattr(n.value.func, "attr", None) == "split_day_card"
+                 and [getattr(a, "id", None) for a in n.value.args[:2]] == ["df", "sp"] for n in _apc_asg)
+check("✂️ APC5 فحصُ اليد موصول: `hand_check` يُسند `r[\"split_card\"] = bot.split_day_card(df, sp, …)` (AST · الإطارُ "
+      "والتقسيماتُ نفسُهما ⇒ صفرُ جلبٍ إضافيّ) · والعرضُ يطبع السطرَ مع البطاقة ولا يطبعه بدونها",
+      _apc_wired and _apc_L1 in _apc_m1.splitlines() and "✂️ تقسيم 1:" not in _apc_m0,
+      f"wired={_apc_wired} with={_apc_L1 in _apc_m1.splitlines()} without={'✂️ تقسيم 1:' in _apc_m0}")
+
+_APC_NEW = {"split_day_card", "split_day_card_line", "ema_cross_state", "ema_cross_line", "EMA_CROSS_PAIR", "_px_app"}
+_apc_guard = [S.rank_key, S.select_top, S.classify_tier, S.entry_status, S.analyze_ticker, S.backtest_symbol,
+              S.build_interpretation, S.scan_market, S.apply_short_gate, S.apply_float_gate, S.scan_ignition,
+              S.scan_split_hunter, S.build_split_hunter_alert, S.build_message, S.build_daily_message,
+              S.build_live_alert, S.monitor_live_events]
+
+
+def _apc_refs(f):
+    t = _apc_ast.parse(_apc_insp.getsource(f).lstrip())
+    names = {getattr(n, "id", None) for n in _apc_ast.walk(t) if isinstance(n, _apc_ast.Name)}
+    attrs = {getattr(n, "attr", None) for n in _apc_ast.walk(t) if isinstance(n, _apc_ast.Attribute)}
+    strs = {n.value for n in _apc_ast.walk(t) if isinstance(n, _apc_ast.Constant) and isinstance(n.value, str)}
+    return (names | attrs | strs) & _APC_NEW
+
+
+_apc_leak = {f.__name__: sorted(_apc_refs(f)) for f in _apc_guard if _apc_refs(f)}
+check("✂️ APC6 خارج الجذور والفرز والتنبيهات الحيّة وكرتَي البوت وتنبيهِ الصيّاد (AST: صفرُ اسمٍ أو سِمةٍ أو مفتاحٍ "
+      "من الستّة الجديدة في 17 دالّة) ⇒ لا إطالةَ لتنبيهٍ حيّ ولا مسَّ بصيّاد المقسّم",
+      _apc_leak == {} and len(_apc_guard) == 17, f"{_apc_leak}")
+
+# APC7 — **التحقّقُ مقابل الصور** على أرقام اللقطات المؤكَّدة بالمِجَسّ (‏`36825498198`): شمعةُ يوم التقسيم لكلٍّ من
+#    NTCL (‏07-06 · O 4.26 · H 6.00) وELPW (‏08-10 · O 4.63 · H 4.9793) وZNB (‏07-27 · O 2.17 · H 2.85) — مُدخَلةً بأرقام
+#    TradingView اليوميّة نفسِها · والبطاقةُ تُخرج ما يعرضه التطبيق حرفيًّا ($4.26/$6.00 · $4.63/$4.9793 · $2.17/$2.85) ·
+#    و«لم يصل» في اللقطات الثلاث تطابقها «لم يبلغ الافتتاح» (القيعانُ والارتداداتُ من اللقطات: 1.735/2.20 · 3.01/3.27 · 1.55/1.75).
+_APC_SNAPS = (("2026-07-06", 0.02, 4.26, 6.00, 1.735, 2.20, "1:50"), ("2026-08-10", 1 / 45, 4.63, 4.9793, 3.01, 3.27, "1:45"),
+              ("2026-07-27", 0.125, 2.17, 2.85, 1.55, 1.75, "1:8"))
+_apc_snap_out = []
+for _d7, _r7, _o7, _h7, _b7, _hb7, _rt7 in _APC_SNAPS:
+    try:
+        _i7 = pd.bdate_range(pd.Timestamp(_d7), periods=8)
+        _f7 = pd.DataFrame({"Open": [_o7] + [(_o7 + _b7) / 2] * 5 + [_b7 * 1.02, _hb7 * 0.97],
+                            "High": [_h7] + [_o7 * 0.99] * 5 + [_b7 * 1.03, _hb7],
+                            "Low": [_o7 * 0.9] + [(_o7 + _b7) / 2 * 0.95] * 5 + [_b7, _b7 * 1.01],
+                            "Close": [_o7 * 1.01] + [(_o7 + _b7) / 2] * 5 + [_b7 * 1.02, _hb7 * 0.98]}, index=_i7)
+        _f7 = pd.concat([pd.DataFrame({"Open": [9.0] * 5, "High": [9.5] * 5, "Low": [8.5] * 5, "Close": [9.0] * 5},
+                                      index=pd.bdate_range(end=_i7[0] - pd.Timedelta(days=1), periods=5)), _f7])
+        _c7 = S.split_day_card(_f7, pd.Series([_r7], index=[pd.Timestamp(_d7)]))
+        _l7 = S.split_day_card_line(_c7)
+        _apc_snap_out.append((_c7 or {}).get("ratio") == _rt7 and f"افتتاحُه ${S._px_app(_o7)}" in _l7
+                             and f"أعلى شمعته ${S._px_app(_h7)}" in _l7 and _l7.endswith("لم يبلغ الافتتاح بعد")
+                             and (_c7 or {}).get("bottom") == _b7)
+    except Exception as _e:                                      # noqa: BLE001
+        _apc_snap_out.append(f"⛔ {type(_e).__name__}: {_e}")
+check("✂️ APC7 مقابل الصور: NTCL ‏$4.26/$6.00 «1:50» · ELPW ‏$4.63/$4.9793 «1:45» · ZNB ‏$2.17/$2.85 «1:8» — كما يعرضها "
+      "التطبيق حرفيًّا (IMAGE-01/11/13/18/14) · و«لم يبلغ الافتتاح» = «لم يصل» في الثلاث",
+      _apc_snap_out == [True, True, True], f"{_apc_snap_out}")
+
+# APC8 — 🧹 **تكرارُ سجلّ ياهو** (مراجعةٌ ثانية 2026-10-01): ياهو يسجّل التقسيمَ الواحد مرّتين أحيانًا (ENVB ‏1:15 يومَي
+#    2025-01-27 و2025-01-29 · مِجَسُّ R-02) ⇒ بلا دمجٍ يأخذ `max` السجلَّ المتأخّر فيعرض افتتاحَ يومٍ ليس يومَ التقسيم (07-08:
+#    4.00/4.10 بدل 4.26/6.00). البطاقةُ تقرأ `_dedupe_reverse_splits` (يُبقي الأبكر) · ونسبتان مختلفتان حدثان لا يُدمجان ·
+#    وفهرسُ ياهو بمنطقة نيويورك يُقرأ بتاريخه المحلّيّ.
+try:
+    _apc8_dup = S.split_day_card(_apc_df(_APC_BARS), pd.Series([0.02, 0.02], index=[pd.Timestamp("2026-07-06"),
+                                                                                    pd.Timestamp("2026-07-08")]),
+                                 _APC_TODAY)
+    _apc8_two = S.split_day_card(_apc_df(_APC_BARS), pd.Series([0.02, 0.1], index=[pd.Timestamp("2026-07-06"),
+                                                                                   pd.Timestamp("2026-07-08")]),
+                                 _APC_TODAY)
+    _apc8_tz = S.split_day_card(_apc_df(_APC_BARS),
+                                pd.Series([0.02], index=[pd.Timestamp("2026-07-06", tz="America/New_York")]),
+                                _APC_TODAY)
+except Exception as _e:                                          # noqa: BLE001
+    _apc8_dup = _apc8_two = _apc8_tz = {"e": f"⛔ {type(_e).__name__}: {_e}"}
+_apc8_dup, _apc8_two, _apc8_tz = [x if isinstance(x, dict) else {} for x in (_apc8_dup, _apc8_two, _apc8_tz)]
+check("✂️ APC8 تكرارُ سجلّ ياهو يُدمج (الأبكر 07-06 · 4.26/6.00 لا 07-08 · 4.00/4.10) · ونسبتان مختلفتان حدثان (الأحدث "
+      "07-08 «1:10») · وفهرسُ نيويورك يُقرأ بتاريخه",
+      _apc8_dup.get("date") == "2026-07-06" and _apc8_dup.get("open") == 4.26 and _apc8_dup.get("high") == 6.0
+      and _apc8_two.get("date") == "2026-07-08" and _apc8_two.get("ratio") == "1:10"
+      and _apc8_tz.get("date") == "2026-07-06" and _apc8_tz.get("open") == 4.26,
+      f"dup={_apc8_dup} two={_apc8_two.get('date')}/{_apc8_two.get('ratio')} tz={_apc8_tz.get('date')}")
+
+# EMX1-EMX3 — 〽️ تقاطعُ EMA 9/26 (لوحةُ فيصل على TradingView · `TG_57927`/`TG_57928` ≈ `X_20260918_54` · 2026-01-30).
+_EMX_UP = pd.Series(np.r_[np.linspace(10, 5, 50), np.linspace(5, 9, 30)])
+_EMX_DN = pd.Series(np.r_[np.linspace(5, 10, 50), np.linspace(10, 6, 30)])
+
+
+def _emx_indep(c, f, s):
+    """حسابٌ مستقلّ: آخرُ تبدّلِ إشارةِ (EMA f − EMA s) بـ`ewm(adjust=False)` ⟵ (شموعٌ منذه، الاتّجاه)."""
+    d = np.sign((c.ewm(span=f, adjust=False).mean() - c.ewm(span=s, adjust=False).mean()).to_numpy())
+    hits = [i for i in range(1, len(d)) if d[i] != 0 and d[i - 1] != 0 and d[i] != d[i - 1]]
+    return (len(d) - 1 - hits[-1], "up" if d[hits[-1]] > 0 else "down") if hits else (None, None)
+
+
+try:
+    _emx_u, _emx_d = S.ema_cross_state(_EMX_UP), S.ema_cross_state(_EMX_DN)
+    _emx_lu, _emx_ld = S.ema_cross_line(_emx_u), S.ema_cross_line(_emx_d)
+    _emx_misc = (S.ema_cross_state(_EMX_UP[:27]), S.ema_cross_state(_EMX_UP[:28]) is not None,
+                 S.ema_cross_state(_EMX_UP, 26, 26), S.ema_cross_state(_EMX_UP, fast=12)["fast"],
+                 S.ema_cross_state(pd.Series(np.linspace(1, 5, 60)))["since"], S.ema_cross_line(None))
+    _emx_sh = _EMX_UP[-30:].reset_index(drop=True)             # 30 شمعة: `adjust` يفرّق بأربع خانات
+    _emx_s30 = S.ema_cross_state(_emx_sh)
+    _emx_v30 = ((_emx_s30 or {}).get("f"), (_emx_s30 or {}).get("s"))
+except Exception as _e:                                          # noqa: BLE001
+    _emx_u = _emx_d = {"e": f"⛔ {type(_e).__name__}: {_e}"}
+    _emx_lu = _emx_ld = ""
+    _emx_misc, _emx_v30 = ("⛔",), (None, None)
+_emx_u, _emx_d = [x if isinstance(x, dict) else {} for x in (_emx_u, _emx_d)]
+_emx_iu, _emx_id = _emx_indep(_EMX_UP, 9, 26), _emx_indep(_EMX_DN, 9, 26)
+_emx_sh = _EMX_UP[-30:].reset_index(drop=True)
+_emx_w30 = (round(float(_emx_sh.ewm(span=9, adjust=False).mean().iloc[-1]), 4),
+            round(float(_emx_sh.ewm(span=26, adjust=False).mean().iloc[-1]), 4))
+check("〽️ EMX1 `ema_cross_state`: افتراضُه (9, 26) من `EMA_CROSS_PAIR` · الحالةُ والتقاطعُ يطابقان حسابًا مستقلًّا "
+      "وقيمتَي EMA (‏`ewm(adjust=False)` — ومعها سلسلةُ 30 شمعة حيث يفرّق `adjust`) · (صاعد قبل 18 · هابط قبل 18) · والسطرُ «EMA 9 فوق/تحت EMA 26 — آخرُ تقاطعٍ صاعد/هابط قبل N شمعة» · None للسلسلة القصيرة "
+      "(دون 28) ولـ fast ‏≥ slow · وبلا تقاطعٍ ⟵ since None · و«» بلا حالة",
+      _emx_u.get("fast") == 9 and _emx_u.get("slow") == 26 and _emx_u.get("above") is True
+      and _emx_u.get("f") == round(float(_EMX_UP.ewm(span=9, adjust=False).mean().iloc[-1]), 4)
+      and _emx_u.get("s") == round(float(_EMX_UP.ewm(span=26, adjust=False).mean().iloc[-1]), 4)
+      and (_emx_u.get("since"), _emx_u.get("last_dir")) == _emx_iu == (18, "up")
+      and _emx_d.get("above") is False and (_emx_d.get("since"), _emx_d.get("last_dir")) == _emx_id == (18, "down")
+      and _emx_lu == "EMA 9 فوق EMA 26 — آخرُ تقاطعٍ صاعد قبل 18 شمعة (لوحة فيصل على TradingView)"
+      and _emx_ld == "EMA 9 تحت EMA 26 — آخرُ تقاطعٍ هابط قبل 18 شمعة (لوحة فيصل على TradingView)"
+      and _emx_misc == (None, True, None, 12, None, "") and _emx_v30 == _emx_w30,
+      f"u={_emx_u} d={_emx_d} iu={_emx_iu} id={_emx_id} misc={_emx_misc} v30={_emx_v30}/{_emx_w30}")
+
+_emx_orig = S.ema_cross_state
+try:
+    _emx_df = pd.DataFrame({"Open": _EMX_UP.values, "High": _EMX_UP.values * 1.02, "Low": _EMX_UP.values * 0.98,
+                            "Close": _EMX_UP.values, "Volume": 1e5}, index=pd.bdate_range("2026-01-01", periods=80))
+    _emx_t = TR.analyze_tf(_emx_df, "يومي", 3)
+    _emx_r = TR.render({"symbol": "X", "price": 9.0, "verdict": "v", "score": 50, "tfs": [_emx_t]})
+    S.ema_cross_state = lambda *a, **k: None              # بلا حالة ⟵ السطرُ يغيب والدرجةُ نفسُها
+    _emx_t0 = TR.analyze_tf(_emx_df, "يومي", 3)
+except Exception as _e:                                          # noqa: BLE001
+    _emx_t, _emx_r, _emx_t0 = {"extra": {}}, f"⛔ {type(_e).__name__}: {_e}", {"extra": {}}
+finally:
+    S.ema_cross_state = _emx_orig
+_emx_t, _emx_t0 = [x if isinstance(x, dict) else {} for x in (_emx_t, _emx_t0)]
+_emx_r = _emx_r if isinstance(_emx_r, str) else ""
+check("〽️ EMX2 التقرير الفنيّ الكلاسيكيّ موصول: `analyze_tf` يملأ `extra[\"ema_cross\"]` بسطر EMX1 نفسِه · و`render` يطبع "
+      "«〽️ تقاطع المتوسط الأسّيّ: …» · **ومعلوماتٌ فقط**: بلا حالةٍ يغيب السطرُ والدرجةُ الفرعيّة (`subscore`) نفسُها بت-بت",
+      (_emx_t.get("extra") or {}).get("ema_cross") == _emx_lu
+      and f"〽️ تقاطع المتوسط الأسّيّ: {_emx_lu}" in _emx_r.splitlines()
+      and (_emx_t0.get("extra") or {}).get("ema_cross") is None
+      and _emx_t.get("subscore") is not None and _emx_t.get("subscore") == _emx_t0.get("subscore"),
+      f"extra={(_emx_t.get('extra') or {}).get('ema_cross')!r} sub={_emx_t.get('subscore')}/{_emx_t0.get('subscore')}")
+
+_emx_led = [ln for ln in open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read().splitlines()
+            if ln.startswith("|") and "EMA_CROSS_PAIR" in ln]
+check("〽️ EMX3 `EMA_CROSS_PAIR` = (9, 26) **وسندُه في الدفتر `faisal_verbatim`** (صفٌّ يسمّي المفتاح) — وتغييرُ الرقم بلا "
+      "سندٍ يُسقطه",
+      S.CONFIG.get("EMA_CROSS_PAIR") == (9, 26) and len(_emx_led) == 1 and "faisal_verbatim" in _emx_led[0],
+      f"pair={S.CONFIG.get('EMA_CROSS_PAIR')} rows={len(_emx_led)}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

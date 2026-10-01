@@ -167,6 +167,11 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     _smc = bot.split_ma20_cap_line(r.get("split_count"), r.get("split_ma20"))
     if _smc:
         L.append(_smc)
+    # ✂️ بطاقةُ التقسيم كما يعرضها تطبيق «مراقب استراتيجية فيصل» (دفعة 2026-10-01 · الافتتاحُ والأعلى مطابقان
+    #    للتطبيق بمعيارٍ مكتوبٍ قبل الرقم) — عرضٌ فقط · بلا تقسيمٍ عكسيٍّ حديث ⇒ لا سطر.
+    _sdc = bot.split_day_card_line(r.get("split_card"), r.get("price"))
+    if _sdc:
+        L.append(_sdc)
     # بصمة طريقة الارتفاع (سياق)
     bh = r.get("behav") or {}
     if bh.get("score") is not None:
@@ -327,6 +332,11 @@ def hand_check(sym: str):
         r["split_ma20"] = bot.ema(df["Close"], 20)
     except Exception:                                            # noqa: BLE001
         r["split_count"], r["split_ma20"] = 0, None
+    # ✂️ بطاقةُ التقسيم (تطبيق فيصل) من `sp` والإطار نفسَيهما — صفرُ جلبٍ إضافيّ · فاشلةٌ-آمنة ⇒ None فلا سطر.
+    try:
+        r["split_card"] = bot.split_day_card(df, sp, dt.date.today())
+    except Exception:                                            # noqa: BLE001
+        r["split_card"] = None
     # 🎯 مرجع الـ÷2 لـ«أهداف الشورت» = **قمة ما بعد آخر تقسيم عكسي** (`_post_split_high`،
     # مرجع فيصل الحرفي: JEM 6.90÷2=3.45). مفتاح **خاصّ بالمقسّم** لا عامّ: سهم غير مقسّم
     # ⇒ None ⇒ يُطبع «—» ولا يُختلق هدف هبوط على ارتكاز عادي (تدقيق الخلط 2026-07-27).

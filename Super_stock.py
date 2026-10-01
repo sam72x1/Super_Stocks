@@ -663,6 +663,8 @@ CONFIG = {
                                          # ⇒ يُذكَر بذيل التنبيه بدل الإسقاط الصامت.
                                          # السبب: HTCR عند فيصل **+23%** (المسح الثاني
                                          # IMG_8242) — العتبة لا تُمَسّ، والإبلاغ يكفي.
+    "EMA_CROSS_PAIR": (9, 26),           # 〽️ faisal_verbatim — «تقاطع المتوسط المتحرك الأسي 9 26» في لوحته على
+                                         #    TradingView (`X_20260918_54` = `TG_57927/57928` · 2026-01-30) — عرضٌ فقط
     "SPLIT_MA_PERIODS": (20, 30, 50),    # 📏 متوسطات فيصل من **تاريخ التقسيم**: يذكر 30
                                          # (LABT) · 40 (JEM IMG_0141) · 50 ⇒ فالمقصود
                                          # مجموعته الموثّقة 20<30<50 لا رقمًا مفردًا.
@@ -7363,6 +7365,137 @@ def split_ma_lines(df, split_date, periods=None) -> str:
         return (f"📏 متوسطات من التقسيم ({sess} جلسة): " + " · ".join(parts)
                 + " — فيصل يقيسها من تاريخ التقسيم (30 LABT · 40 JEM · 50)")
     except Exception:                                    # noqa: BLE001
+        return ""
+
+
+def _px_app(v) -> str:
+    """سعرٌ بخانتين أو أربعٍ إن لزم (4.9793 · 1.735 · 6.00) — عرضٌ فقط."""
+    t = f"{float(v):.4f}".rstrip("0")
+    return t if len(t.split(".")[1]) >= 2 else f"{float(v):.2f}"
+
+
+def split_day_card(df, splits, today=None):
+    """✂️ **بطاقةُ التقسيم كما يعرضها تطبيق «مراقب استراتيجية فيصل»** (دفعة 2026-10-01 · **عرضٌ فقط**).
+
+    الحقولُ أُعيدت من الشموع **بمطابقةٍ معيارُها مكتوبٌ قبل الرقم** (`faisal_batches/2026-10-01/APP_PARITY_PREREG.md`
+    · مِجَسُّ `36825498198`): «افتتاح يوم التقسيم» = افتتاحُ أوّل شمعةٍ يوميّة عند/بعد التاريخ (‏10 من 10 · هو
+    `_event_day_open` نفسُه) · و«أعلى أول 4 ساعات» = **أعلى شمعةِ يوم التقسيم اليوميّة** (‏3 من 3 بأربع خانات:
+    NTCL ‏6.00 · ELPW ‏4.9793 · ZNB ‏2.85 — لا أوّلُ شمعة 4 ساعات: 5.88 · 4.95 · 2.79) ⇒ **يُسمّى هنا بما هو**.
+    ويطابق مثالَ فيصل في `IMG_0153` («سهم قسم اليوم **فتح ع 5 وصل 5.50** ⇒ تقسم 5.50 على 2» = افتتاحُ يوم التقسيم
+    وأعلاه — استنتاجٌ قويّ لا نصٌّ يسمّي «الشمعة اليوميّة») · والقاعُ = أدنى Low منذ يوم التقسيم (‏5 من 5) · و«بلغ» =
+    أعلى High **بعد بار القاع** بلغ المستوى — **تعريفُنا الصريح** (يوافق «لم يصل» في اللقطتين ولا يُدّعى أنه قاعدةُ التطبيق).
+    ⚠️ **لا يُقال «قمّة ما بعد التقسيم»:** `_post_split_high` = أعلى High **منذ** التقسيم (ELPW ‏5.59) غيرُ هذا (4.9793) ·
+    وعمودُ «أعلى بعده» في بطاقة فيصل الفرزيّة (HTCR ‏4.58 · MWC ‏26.38) هو ذاك (`_post_event_high`) لا هذا.
+
+    يرجّع dict أو None (لا تقسيمٌ عكسيٌّ داخل الإطار ضمن `SPLIT_LOOKBACK_DAYS`). نقيّة · فاشلة-آمنة · بلا تسريب
+    (تقسيماتٌ حتى آخر شمعة) · **خارج الفرز والجذور**."""
+    try:
+        if df is None or len(df) < 2 or splits is None:
+            return None
+        # 🧹 بلا تكرارِ سجلّ ياهو (ENVB ‏1:15 يومَي 01-27 و01-29): المصدرُ الواحد للعدّين يُبقي **الأبكر** —
+        #    وإلّا أخذ `max` السجلَّ المكرَّر المتأخّر فعرض افتتاحَ وأعلى يومٍ ليس يومَ التقسيم (مراجعةٌ ثانية 2026-10-01).
+        pairs = _dedupe_reverse_splits(splits)
+        idx = [_norm_ts(t) for t in df.index]
+        first, last = idx[0], idx[-1]
+        lb = int(CONFIG["SPLIT_LOOKBACK_DAYS"])
+        rev = []
+        for dd, r in pairs:
+            try:
+                d = pd.Timestamp(dd).normalize()
+            except Exception:                                  # noqa: BLE001
+                continue
+            if 0 < r < 1.0 and first <= d <= last and (last - d).days <= lb:
+                rev.append((d, r))
+        if not rev:
+            return None
+        d0, r0 = max(rev)
+        pos = next(i for i, t in enumerate(idx) if t >= d0)
+        o = float(df["Open"].iloc[pos])
+        h = float(df["High"].iloc[pos])
+        lows = df["Low"].iloc[pos:].to_numpy(dtype=float)
+        highs = df["High"].iloc[pos:].to_numpy(dtype=float)
+        if not (np.isfinite(o) and np.isfinite(h) and o > 0 and h > 0 and np.isfinite(lows).all()):
+            return None
+        b = int(np.argmin(lows))
+        after = highs[b + 1:]
+        hi_after = float(after.max()) if len(after) else None
+        inv = 1.0 / r0
+        tday = pd.Timestamp(today).date() if today is not None else last.date()
+        return {"date": d0.date().isoformat(),
+                "ratio": (f"1:{int(round(inv))}" if abs(inv - round(inv)) < 0.05 else f"1:{inv:.1f}"),
+                "days": int((tday - d0.date()).days),
+                "open": round(o, 4), "high": round(h, 4),
+                "bottom": round(float(lows[b]), 4),
+                "bottom_date": idx[pos + b].date().isoformat(),
+                "hi_after": (round(hi_after, 4) if hi_after is not None else None),
+                "reached_open": bool(hi_after is not None and hi_after >= o),
+                "reached_high": bool(hi_after is not None and hi_after >= h)}
+    except Exception:                                          # noqa: BLE001
+        return None
+
+
+def split_day_card_line(card, price=None) -> str:
+    """✂️ سطرُ «بطاقة التقسيم» (عرضٌ فقط) · «» بلا بطاقة. بلا علاماتِ مقارنة · والأسعارُ بخانتين أو أربعٍ إن لزم."""
+    try:
+        if not card:
+            return ""
+        o, h = float(card["open"]), float(card["high"])
+        if card.get("reached_high"):
+            st = "بلغ أعلى شمعته ✅"
+        elif card.get("reached_open"):
+            st = "بلغ الافتتاح ✅ · لم يبلغ أعلى شمعته"
+        else:
+            st = "لم يبلغ الافتتاح بعد"
+        far = ""
+        if price and float(price) > 0 and not card.get("reached_open"):
+            far = f" (يبعد +{(o / float(price) - 1.0) * 100.0:.0f}%)"
+        return (f"✂️ تقسيم {card['ratio']} · {card['date']} (قبل {card['days']} يومًا): "
+                f"افتتاحُه ${_px_app(o)}{far} · أعلى شمعته ${_px_app(h)} — "
+                f"بعد قاعه ${_px_app(card['bottom'])} ({card['bottom_date'][5:]}): {st}")
+    except Exception:                                          # noqa: BLE001
+        return ""
+
+
+def ema_cross_state(close, fast=None, slow=None):
+    """〽️ **تقاطعُ EMA 9/26** — مؤشّرٌ في لوحة فيصل على TradingView («تقاطع المتوسط المتحرك الأسي 9 26» ·
+    `X_20260918_54` = `TG_57927/57928` · 2026-01-30) بإعداده الافتراضيّ (`EMA_CROSS_PAIR`) — وهو **الوحيدُ** من
+    لوحته (كلنجر · EMA 9/26 · MACD 12/26/9 · DMI 14/14 · Stoch RSI 14/14/3/3 · ATR 14 · فيبوناتشي) الغائبُ عن البوت.
+    يرجّع `{fast, slow, f, s, above, since, last_dir}` (‏`since` = شموعٌ منذ آخر تقاطع · None إن لم يقع في السلسلة)
+    أو None. **وصفٌ لا إشارة** — كيف يستعمله فيصل غيرُ مكتوب (نصُّه «تقاطع الماكد» لا «تقاطع المتوسط»).
+    نقيّة · فاشلة-آمنة · **عرضٌ فقط — خارج الفرز والجذور**."""
+    try:
+        pf, ps = CONFIG["EMA_CROSS_PAIR"]
+        pf = int(fast if fast is not None else pf)
+        ps = int(slow if slow is not None else ps)
+        c = pd.Series(close).dropna().astype(float)
+        if len(c) < ps + 2 or pf >= ps:
+            return None
+        ef = c.ewm(span=pf, adjust=False).mean().to_numpy()
+        es = c.ewm(span=ps, adjust=False).mean().to_numpy()
+        sg = np.sign(ef - es)
+        since, last_dir = None, None
+        for i in range(len(sg) - 1, 0, -1):
+            if sg[i] != 0 and sg[i - 1] != 0 and sg[i] != sg[i - 1]:
+                since, last_dir = len(sg) - 1 - i, ("up" if sg[i] > 0 else "down")
+                break
+        return {"fast": pf, "slow": ps, "f": round(float(ef[-1]), 4), "s": round(float(es[-1]), 4),
+                "above": bool(ef[-1] > es[-1]), "since": since, "last_dir": last_dir}
+    except Exception:                                          # noqa: BLE001
+        return None
+
+
+def ema_cross_line(st) -> str:
+    """〽️ سطرُ تقاطع EMA (عرضٌ فقط · بلا علاماتِ مقارنة) · «» بلا حالة."""
+    try:
+        if not st:
+            return ""
+        rel = "فوق" if st["above"] else "تحت"
+        tail = ""
+        if st.get("since") is not None:
+            tail = (" — آخرُ تقاطعٍ " + ("صاعد" if st["last_dir"] == "up" else "هابط")
+                    + (" اليوم" if st["since"] == 0 else f" قبل {st['since']} شمعة"))
+        return f"EMA {st['fast']} {rel} EMA {st['slow']}{tail} (لوحة فيصل على TradingView)"
+    except Exception:                                          # noqa: BLE001
         return ""
 
 
