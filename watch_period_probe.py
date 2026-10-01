@@ -368,7 +368,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
         f"(قبل إغلاق جلسة شمعتهم) {len(part)}")
     for r in rows1:
         if not r[4]:
-            log(f"      ✗ {r[0]:6} ref {r[1]} · مخزَّن {r[2]:.1f} · محسوب {r[3]:.1f}")
+            log(f"      ✗ {r[0]:6} ref {r[1]} · مخزَّن {WW.rsi_txt(r[2])} · محسوب {WW.rsi_txt(r[3])}")
     if n1 >= WW.V_MIN_N and agree < WW.V_AGREE:
         log("⛔ V-W1 ساقط — RSI المحسوب لا يطابق RSI البوت ⇒ لا رقم")
         return 3
@@ -526,7 +526,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
             split_note = ""
             if r["px"] and o["c0"] and abs(o["c0"] / r["px"] - 1.0) > 0.01:
                 split_note = f" · ⚠️ مسوًّى (تقسيمٌ لاحق ×{o['c0'] / r['px']:.2f})"
-            log(f"   🎯 {s:6} إشارة {sig[s]} (إغلاق {r['c']}) · RSI {_fmt(r['rsi'], '{:.1f}')} · فلوت {_fmt(r['float'])} · "
+            log(f"   🎯 {s:6} إشارة {sig[s]} (إغلاق {r['c']}) · RSI {WW.rsi_txt(r['rsi'])} · فلوت {_fmt(r['float'])} · "
                 f"متاح {_fmt(r['avail'])} · سعر الإشارة ${_fmt(r['px'], '{:.3f}')} (خامّ) · جلساتُ المطابقة {k_sessions} · "
                 f"أقصى صعودٍ بعدها {_pct(o['reg'])} ({o['reg_day'] or '—'} · أعلى {_fmt(o['reg_hi'], '{:.4g}')} مسوًّى) · "
                 + (f"ممتدًّا {_pct(o['ext'])} ({WW._when(o['ext_ms']) if o['ext_ms'] else '—'} · أعلى "
@@ -557,7 +557,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
             r = pper[s][hit[0]]
             o = outcome(adj_by.get(s) or [], r["c"], hit[0], days[-1], mins_by.get(s), pseen.get(s), now_utc, reach=tv)
             prow.append((s, r, o, hit[0]))
-            log(f"   🔁 {s:6} [ارتداد · {r.get('status') or '—'}] إشارةُ الثلاثة المعلومة {hit[0]} · RSI {_fmt(r['rsi'], '{:.1f}')} · "
+            log(f"   🔁 {s:6} [ارتداد · {r.get('status') or '—'}] إشارةُ الثلاثة المعلومة {hit[0]} · RSI {WW.rsi_txt(r['rsi'])} · "
                 f"فلوت {_fmt(r['float'])} · المتاحُ مجهولٌ بالبناء · سعر ${_fmt(r['px'], '{:.3f}')} · أقصى صعودٍ {_pct(o['reg'])} "
                 f"({o['reg_day'] or '—'})" + (f" · ممتدًّا {_pct(o['ext'])}" if ext_ok else ""))
         pb50 = sum(1 for x in prow if (x[2]["reg"] or -1e9) >= WW.EXPLODE[0])
@@ -583,7 +583,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
         nrow.sort(key=lambda x: -(x[2]["reg"] if x[2]["reg"] is not None else -1e9))
         for s, r, o, d in nrow:
             log(f"   👀 {s:6} [تحت المتابعة · {' · '.join(r['why']) or '—'}] إشارةُ الثلاثة المعلومة {d} · RSI "
-                f"{_fmt(r['rsi'], '{:.1f}')} · فلوت {_fmt(r['float'])} (ذاكرةُ البوت قبل الجلسة) · المتاحُ مجهولٌ بالبناء · سعر "
+                f"{WW.rsi_txt(r['rsi'])} · فلوت {_fmt(r['float'])} (ذاكرةُ البوت قبل الجلسة) · المتاحُ مجهولٌ بالبناء · سعر "
                 f"${_fmt(r['px'], '{:.3f}')} · أقصى صعودٍ {_pct(o['reg'])} ({o['reg_day'] or '—'})"
                 + (f" · ممتدًّا {_pct(o['ext'])}" if ext_ok else ""))
         n50 = sum(1 for x in nrow if (x[2]["reg"] or -1e9) >= WW.EXPLODE[0])
@@ -609,7 +609,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
             f"لا حكم): {len(movers)}" + (f" (يُعرض {NW_SHOW} · والقصُّ مُعلَن)" if len(movers) > NW_SHOW else ""))
         for mr, s, d1, mday, mrsi, fl, two in movers[:NW_SHOW]:
             miss = [x for x in (
-                f"أدنى RSI قبل القمّة {_fmt(mrsi, '{:.1f}')}" if (mrsi is None or mrsi >= WW.rsi_max()) else "",
+                f"أدنى RSI قبل القمّة {WW.rsi_txt(mrsi)}" if (mrsi is None or mrsi >= WW.rsi_max()) else "",
                 f"الفلوت {_fmt(fl)}" if (fl is None or fl >= OPL.FLOAT_OWNER) else "") if x]
             why = ("استوفى الثلاثةَ المعلومة " + two) if two else (
                 "لم يستوفِ: " + (" · ".join(miss) if miss else "RSI والفلوت لم يجتمعا في جلسةٍ واحدة"))
@@ -649,7 +649,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
             rsi = r["rsi"] if r else WW.rsi_at(a, c)
             fl = r["float"] if r else cc_float(cc_h[d], t)
             hi = next((b[2] for b in a if b[0] == d), None)
-            log(f"   {d} (إغلاق {c}) · {pop} · RSI {_fmt(rsi, '{:.1f}')} · خامّ ${_fmt(WW.close_at(rw, c), '{:.4f}')} · "
+            log(f"   {d} (إغلاق {c}) · {pop} · RSI {WW.rsi_txt(rsi)} · خامّ ${_fmt(WW.close_at(rw, c), '{:.4f}')} · "
                 f"مسوًّى ${_fmt(WW.close_at(a, c), '{:.4f}')} · أعلى الجلسة مسوًّى ${_fmt(hi, '{:.4f}')} · فلوت {_fmt(fl)}"
                 + (f" · الشروط {r['f']}" if r else ""))
         d1 = days[0]

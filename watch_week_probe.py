@@ -191,6 +191,21 @@ def rsi_max():
     return float(S.CONFIG["RSI_OVERSOLD"])
 
 
+def rsi_txt(x, lim=None):
+    """RSI للعرض بعُشريّةٍ **لا تكذب على الحكم** («أقلّ من» الحدّ حصرًا): ما دون الحدّ ويُطبَع بعُشريّةٍ واحدةٍ مساويًا له ⟵
+    خانتان لا تبلغانه (‏CIIT ‏32.9919 طُبع «33.0» تحت «RSI أقلّ من 33» في تقرير الشهر `36847138500` · 2026-10-01 · وسابقتُه
+    «قاع RSI بعُشرية» في فحص اليد) · وما سواه `{:.1f}` بت-بت · والمجهولُ «—» · والحدُّ `rsi_max()` وقتَ النداء ما لم يُمرَّر."""
+    if x is None:
+        return "—"
+    lim = rsi_max() if lim is None else float(lim)
+    t = f"{x:.1f}"
+    if x < lim <= float(t):
+        t = f"{x:.2f}"
+        if float(t) >= lim:
+            t = f"{float(t) - 0.01:.2f}"
+    return t
+
+
 def flags(rsi, px, fl, av):
     """(RSI أقلّ من `rsi_max()` · فلوت أقلّ من 4م · «شورت» أقلّ من 20 ألفًا · سعر 1$ فأكثر) — **المجهولُ None لا «لا»** ·
     والحدودُ بالاسم وحصريّة (الحدُّ نفسُه و4م و20 ألفًا ليست «أقلّ»)."""
@@ -461,7 +476,7 @@ def main(now=None) -> int:                                           # noqa: PLR
     log(f"🔒 V-W1 RSI عند `ref_bar` مقابل المخزَّن (ترشيحاتٌ من {since}): {sum(1 for r in rows1 if r[4])}/{n1} = {agree * 100:.1f}% "
         f"ضمن {RSI_TOL:g} نقطة (الحدّ {V_AGREE * 100:.0f}% على {V_MIN_N} فأكثر)")
     for r in rows1:
-        log(f"      {r[0]:6} ref {r[1]} · مخزَّن {r[2]:.1f} · محسوب {r[3]:.1f} {'✓' if r[4] else '✗'}")
+        log(f"      {r[0]:6} ref {r[1]} · مخزَّن {rsi_txt(r[2])} · محسوب {rsi_txt(r[3])} {'✓' if r[4] else '✗'}")
     if part:
         agree_all, n_all, rows_all = vw1(first_entry, adj_by, since)
         log(f"   ⑦ خارج المقارنة {len(part)} مُرشَّحًا دخلوا main **قبل إغلاق جلسة شمعتهم** (RSI البوت على شمعةٍ لم تكتمل) · "
@@ -469,7 +484,7 @@ def main(now=None) -> int:                                           # noqa: PLR
         for sym, t in sorted(part.items()):
             e = first_entry[sym]
             log(f"      {sym:6} ref {str(e.get('ref_bar'))[:10]} · دخل main {t.astimezone(NY):%m-%d %H:%M} نيويورك "
-                f"(الإغلاق {close_utc(str(e.get('ref_bar'))[:10]).astimezone(NY):%H:%M}) · مخزَّن {_fmt(_num(e.get('rsi')), '{:.1f}')}")
+                f"(الإغلاق {close_utc(str(e.get('ref_bar'))[:10]).astimezone(NY):%H:%M}) · مخزَّن {rsi_txt(_num(e.get('rsi')))}")
     if n1 >= V_MIN_N and agree < V_AGREE:
         log("⛔ V-W1 ساقط — RSI المحسوب لا يطابق RSI البوت ⇒ لا رقم")
         return 3
@@ -539,7 +554,7 @@ def main(now=None) -> int:                                           # noqa: PLR
         cells = []
         for d in ds:
             r = per[s][d]
-            cells.append(f"{d[5:]} RSI {_fmt(r['rsi'], '{:.1f}')} {''.join(_mark(x) for x in r['f'])}")
+            cells.append(f"{d[5:]} RSI {rsi_txt(r['rsi'])} {''.join(_mark(x) for x in r['f'])}")
         mt = [d for d in ds if per[s][d]["m"] is True]
         tag = "🎯" if mt else ("❔" if any(per[s][d]["m"] is None for d in ds) else "  ")
         log(f" {tag} {s:6} {' | '.join(cells)} · أقصى صعودٍ {_fmt(mr, '{:+.1f}%')}"
@@ -560,7 +575,7 @@ def main(now=None) -> int:                                           # noqa: PLR
     log("=" * 78)
     for s, dm, r, mr2, md2, k, xm in matched:
         ex = " · ".join(f"+{int(t)}%: {'نعم' if (mr2 or -1e9) >= t else 'لا'}" for t in EXPLODE)
-        log(f"   🎯 {s}: أوّلُ مطابقةٍ داخلًا إلى {dm} (إغلاق {r['c']}) · RSI {_fmt(r['rsi'], '{:.1f}')} · فلوت {_fmt(r['float'])} · "
+        log(f"   🎯 {s}: أوّلُ مطابقةٍ داخلًا إلى {dm} (إغلاق {r['c']}) · RSI {rsi_txt(r['rsi'])} · فلوت {_fmt(r['float'])} · "
             f"متاح {_fmt(r['avail'])} · سعر ${_fmt(r['px'], '{:.2f}')} · جلساتُ المطابقة {k} · أقصى صعودٍ بعدها "
             f"{_fmt(mr2, '{:+.1f}%')}{'' if md2 is None else ' (' + md2 + ')'} · {ex} · حالتُه: {cont_label(last_entry[s])}"
             f"{_ext_txt(xm, ext_ok, ' · وشاملًا البري والأفتر ')}")
@@ -625,7 +640,7 @@ def main(now=None) -> int:                                           # noqa: PLR
         for d in ds:
             c = prev_day(cal, d)
             f = flags(rsi_at(adj, c), close_at(raw or [], c), _num(pb_by[d][s].get("float")), None)
-            cells.append(f"{d[5:]} RSI {_fmt(rsi_at(adj, c), '{:.1f}')} {_mark(f[0])}{_mark(f[1])}{_mark(f[3])}")
+            cells.append(f"{d[5:]} RSI {rsi_txt(rsi_at(adj, c))} {_mark(f[0])}{_mark(f[1])}{_mark(f[3])}")
             if f[0] and f[1] and f[3]:
                 hit.append((d, c))
         mr, mday = max_rise(adj, prev_day(cal, ds[0]), ds[0], wdays[-1])
