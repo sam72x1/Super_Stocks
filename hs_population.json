@@ -1,0 +1,5839 @@
+{
+"frozen_at": "2026-10-01",
+"git_head": "f6abfb4bab4d1c8014111701f96f71a12a89e8de",
+"n": 997,
+"source_counts": {
+"alerts_history": 210,
+"git_alerts": 210,
+"git_watchlist": 390,
+"hunter_split": 6,
+"hunter_split_filter": 2,
+"hunter_watchlist": 6,
+"ignition": 57,
+"near_watch": 671,
+"op_entry": 576,
+"presession_sent": 131,
+"press_radar": 320,
+"watchlist_history": 188,
+"watchlist_pullback": 13,
+"watchlist_removed": 13,
+"watchlist_stocks": 29
+},
+"symbols": [
+"AAOI",
+"AAPG",
+"AARD",
+"ABAT",
+"ABSI",
+"ABTC",
+"ABTS",
+"ACON",
+"ACTU",
+"ACXP",
+"ADGM",
+"ADIL",
+"ADVB",
+"ADXN",
+"AEC",
+"AEHL",
+"AEHR",
+"AEI",
+"AEMD",
+"AENT",
+"AEVA",
+"AFJK",
+"AGMH",
+"AGRZ",
+"AH",
+"AHMA",
+"AIDX",
+"AIFA",
+"AIFC",
+"AIFF",
+"AIFU",
+"AIIO",
+"AIOS",
+"AIRO",
+"AIRS",
+"AISP",
+"AIXC",
+"AIXI",
+"AKAN",
+"AKTX",
+"ALAR",
+"ALDX",
+"ALEC",
+"ALGS",
+"ALMS",
+"ALMU",
+"ALOY",
+"ALP",
+"ALPS",
+"AMC",
+"AMCI",
+"AMIX",
+"AMOD",
+"AMST",
+"ANNA",
+"ANPA",
+"ANTA",
+"ANY",
+"APPS",
+"APUS",
+"APVO",
+"AQMS",
+"ARAI",
+"ARBE",
+"ARBK",
+"AREC",
+"ARQ",
+"ARTL",
+"ASAN",
+"ASPC",
+"ASPI",
+"ASST",
+"ASTC",
+"ASTI",
+"ASTS",
+"ATCX",
+"ATGL",
+"ATOS",
+"ATPC",
+"ATXG",
+"ATYR",
+"AUID",
+"AURE",
+"AUUD",
+"AVAT",
+"AVX",
+"AVXL",
+"AXG",
+"AXTI",
+"AXTX",
+"AZ",
+"AZI",
+"AZIO",
+"BAER",
+"BANL",
+"BAOS",
+"BBLG",
+"BBOT",
+"BCAB",
+"BCTX",
+"BDMD",
+"BDRX",
+"BDTX",
+"BEAT",
+"BEEM",
+"BENF",
+"BETR",
+"BEZ",
+"BFLY",
+"BFRG",
+"BGDE",
+"BGL",
+"BGLC",
+"BGM",
+"BGMS",
+"BHST",
+"BIAF",
+"BIOA",
+"BIOX",
+"BIRD",
+"BIYA",
+"BJDX",
+"BKYI",
+"BLNE",
+"BLNK",
+"BLZE",
+"BMGL",
+"BNAI",
+"BNC",
+"BNGO",
+"BNKK",
+"BNR",
+"BODI",
+"BOXL",
+"BRAI",
+"BRCB",
+"BRFH",
+"BRLS",
+"BRNX",
+"BRTX",
+"BTCS",
+"BTCT",
+"BTCZ",
+"BTOC",
+"BTOG",
+"BTQ",
+"BTTC",
+"BW",
+"BXBL",
+"BYAH",
+"BYND",
+"BYRN",
+"BZAI",
+"CABR",
+"CALC",
+"CAMP",
+"CAN",
+"CAPR",
+"CAPS",
+"CAR",
+"CAST",
+"CBIO",
+"CBUS",
+"CCG",
+"CCHH",
+"CCOI",
+"CCTG",
+"CD",
+"CDIO",
+"CDLX",
+"CDT",
+"CDTG",
+"CELU",
+"CELZ",
+"CENN",
+"CGTL",
+"CHAI",
+"CHGA",
+"CHSN",
+"CIGL",
+"CIIT",
+"CING",
+"CIRC",
+"CISO",
+"CISS",
+"CLGN",
+"CLIK",
+"CLLS",
+"CLRB",
+"CLRO",
+"CMCT",
+"CMND",
+"CMPX",
+"CMTL",
+"CNCK",
+"CNET",
+"CNSY",
+"CNTB",
+"CNTX",
+"CODX",
+"CONL",
+"COOT",
+"CORD",
+"COSM",
+"CPIX",
+"CPOP",
+"CPSH",
+"CRBU",
+"CRDU",
+"CRE",
+"CRGO",
+"CRIS",
+"CRML",
+"CRMT",
+"CRVO",
+"CRWV",
+"CSAI",
+"CTMX",
+"CTNT",
+"CTSO",
+"CTXR",
+"CUPR",
+"CURX",
+"CVKD",
+"CVRX",
+"CWD",
+"CXAI",
+"CYAB",
+"CYCU",
+"CYN",
+"CYPH",
+"DAIC",
+"DBGI",
+"DCGO",
+"DCOY",
+"DCX",
+"DEFT",
+"DETX",
+"DFLI",
+"DFNS",
+"DFSC",
+"DGNX",
+"DH",
+"DJT",
+"DKI",
+"DLXY",
+"DOGZ",
+"DRCT",
+"DRK",
+"DRMA",
+"DSY",
+"DTI",
+"DTSS",
+"DUKR",
+"DUO",
+"DVLT",
+"DWSN",
+"DWTX",
+"DXLG",
+"DXST",
+"DYAI",
+"EDBL",
+"EDRY",
+"EDSA",
+"EEIQ",
+"EFOI",
+"EH",
+"EHGO",
+"EHTH",
+"EJH",
+"ELAB",
+"ELBM",
+"ELOG",
+"ELPW",
+"ELTX",
+"EMAT",
+"EMPD",
+"ENGN",
+"ENGS",
+"ENLV",
+"ENSC",
+"ENTX",
+"ENVB",
+"ENVX",
+"EOCN",
+"EOSE",
+"EPOW",
+"EPSM",
+"ERNA",
+"ESLA",
+"ETS",
+"EU",
+"EUDA",
+"EVAX",
+"EVGN",
+"EVGO",
+"EVTV",
+"EYPT",
+"EZGO",
+"EZRA",
+"FAC",
+"FAMI",
+"FBDT",
+"FBLG",
+"FBYD",
+"FCHL",
+"FCUV",
+"FEAM",
+"FEED",
+"FEMY",
+"FFAI",
+"FGI",
+"FGL",
+"FGNX",
+"FIEE",
+"FLD",
+"FLNA",
+"FLNC",
+"FLUX",
+"FLYE",
+"FMFC",
+"FMST",
+"FNGR",
+"FNUC",
+"FOFO",
+"FOXX",
+"FRGT",
+"FRMI",
+"FRMM",
+"FRSX",
+"FTCI",
+"FTFT",
+"FTHM",
+"FUFU",
+"FULC",
+"FUSE",
+"FVN",
+"FWDI",
+"FXHO",
+"GAIA",
+"GAUZ",
+"GCDT",
+"GCL",
+"GCTK",
+"GDC",
+"GDEV",
+"GDHG",
+"GDTC",
+"GELS",
+"GEMI",
+"GENI",
+"GEOS",
+"GFAI",
+"GIBO",
+"GIPR",
+"GITS",
+"GLMD",
+"GLND",
+"GLXG",
+"GMEX",
+"GMM",
+"GNLN",
+"GNPX",
+"GNTA",
+"GOAI",
+"GOGO",
+"GOVX",
+"GOW",
+"GP",
+"GPRO",
+"GRAN",
+"GRI",
+"GRML",
+"GRNQ",
+"GRPN",
+"GRSD",
+"GSIW",
+"GSUN",
+"GTBP",
+"GURE",
+"GUTS",
+"GVH",
+"GWAV",
+"GXAI",
+"GYGY",
+"HAO",
+"HCAI",
+"HCTI",
+"HCWB",
+"HDRN",
+"HERE",
+"HFFG",
+"HIT",
+"HKIT",
+"HKPD",
+"HODO",
+"HOLO",
+"HOVR",
+"HPAI",
+"HRTX",
+"HSDT",
+"HTCO",
+"HTCR",
+"HTZ",
+"HUBC",
+"HUCK",
+"HUIZ",
+"HUMA",
+"HVII",
+"HWH",
+"HXHX",
+"HYFM",
+"IBG",
+"IBRX",
+"ICCM",
+"ICMB",
+"ICU",
+"IDN",
+"ILAG",
+"ILLR",
+"IMCC",
+"IMMP",
+"IMNN",
+"IMRN",
+"IMSR",
+"INBS",
+"INDP",
+"INHD",
+"INKT",
+"INLF",
+"INOD",
+"INSG",
+"INSM",
+"INTJ",
+"INTS",
+"INV",
+"INVZ",
+"IOTR",
+"IPDN",
+"IPEX",
+"IPST",
+"IPW",
+"IPWR",
+"IPX",
+"IRD",
+"IREZ",
+"ISPC",
+"ISPR",
+"ITOC",
+"ITUB",
+"IVDA",
+"IVF",
+"IXHL",
+"IZM",
+"JAGX",
+"JBDI",
+"JDZG",
+"JEM",
+"JFB",
+"JFIN",
+"JLHL",
+"JOBY",
+"JSPR",
+"JTAI",
+"JUNS",
+"JWEL",
+"JYD",
+"JZ",
+"JZXN",
+"KALA",
+"KC",
+"KDK",
+"KELYB",
+"KG",
+"KIDZ",
+"KITT",
+"KLRS",
+"KLXE",
+"KMRK",
+"KNDI",
+"KNRX",
+"KPLT",
+"KPTI",
+"KRRO",
+"KSCP",
+"KTTA",
+"KUST",
+"KWM",
+"KXIN",
+"KYNB",
+"LABD",
+"LAES",
+"LASE",
+"LBGJ",
+"LCID",
+"LEDS",
+"LENZ",
+"LESL",
+"LEXX",
+"LFCR",
+"LFS",
+"LGCL",
+"LGHL",
+"LGO",
+"LGVN",
+"LHAI",
+"LHSW",
+"LI",
+"LICN",
+"LIMN",
+"LIQT",
+"LITZ",
+"LNAI",
+"LNKS",
+"LOBO",
+"LONA",
+"LOOP",
+"LPCN",
+"LPSN",
+"LRHC",
+"LRMR",
+"LSTA",
+"LTBR",
+"LTRN",
+"LUNR",
+"LVLU",
+"LWLG",
+"LX",
+"LXEH",
+"LXEO",
+"LYEL",
+"LZMH",
+"MAMO",
+"MASK",
+"MB",
+"MBAI",
+"MBIO",
+"MBRX",
+"MCRB",
+"MDCX",
+"MDXH",
+"MEDS",
+"MENS",
+"MERC",
+"METC",
+"METCB",
+"MF",
+"MFI",
+"MGIH",
+"MGN",
+"MGRT",
+"MGRX",
+"MIMI",
+"MIST",
+"MKDW",
+"MKZR",
+"MLEC",
+"MLGO",
+"MLTX",
+"MNDR",
+"MNOV",
+"MNST",
+"MNTS",
+"MOB",
+"MOBX",
+"MODD",
+"MPLT",
+"MREO",
+"MRLN",
+"MRM",
+"MRNO",
+"MSAI",
+"MSGY",
+"MSS",
+"MSTR",
+"MSTZ",
+"MTC",
+"MTEK",
+"MTEN",
+"MTVA",
+"MUZ",
+"MVIS",
+"MVST",
+"MYPS",
+"MYSE",
+"MYSZ",
+"NA",
+"NAGE",
+"NAKA",
+"NAMI",
+"NAMM",
+"NAUT",
+"NBIZ",
+"NBP",
+"NCEL",
+"NCI",
+"NCNA",
+"NCPL",
+"NCRA",
+"NCSM",
+"NCT",
+"NCTY",
+"NEGG",
+"NERV",
+"NEUP",
+"NEXM",
+"NEXR",
+"NFE",
+"NGEN",
+"NHTC",
+"NIKI",
+"NIPG",
+"NIVF",
+"NIXX",
+"NKLR",
+"NMRA",
+"NMTC",
+"NNE",
+"NNNN",
+"NNOX",
+"NOMA",
+"NOWL",
+"NPT",
+"NRSN",
+"NSPR",
+"NTCL",
+"NTHI",
+"NTLA",
+"NUAI",
+"NUR",
+"NUWE",
+"NVCT",
+"NVD",
+"NVNI",
+"NVNO",
+"NVX",
+"NWGL",
+"NXAT",
+"NXGL",
+"NXH",
+"NXL",
+"NXTC",
+"NXTS",
+"NXTT",
+"NXXT",
+"NYXH",
+"OBAI",
+"OCG",
+"OCS",
+"ODYS",
+"OFAL",
+"OIO",
+"OLB",
+"OLMA",
+"OLOX",
+"OM",
+"OMER",
+"OMEX",
+"OMH",
+"ONCO",
+"ONDS",
+"ONEG",
+"ONEN",
+"ONFO",
+"ONMD",
+"OPAD",
+"OPEN",
+"OPRX",
+"ORBS",
+"ORGO",
+"OST",
+"OTLK",
+"OWLS",
+"OXBR",
+"PAAI",
+"PACB",
+"PARA",
+"PASG",
+"PASW",
+"PAVS",
+"PBK",
+"PBM",
+"PC",
+"PCLA",
+"PCSA",
+"PDSB",
+"PEPG",
+"PETS",
+"PFSA",
+"PHIO",
+"PHOE",
+"PLCE",
+"PLSM",
+"PLUG",
+"PLUR",
+"PLYX",
+"PM",
+"PMAX",
+"PMCB",
+"PMEC",
+"PMN",
+"PN",
+"POET",
+"POLA",
+"POM",
+"PONY",
+"PPCB",
+"PPSI",
+"PRFX",
+"PRHI",
+"PROP",
+"PRPL",
+"PRSO",
+"PRTH",
+"PRTS",
+"PSIG",
+"PSIX",
+"PSNY",
+"PSQL",
+"PSTV",
+"PTLE",
+"PTN",
+"PWCM",
+"QCLS",
+"QFIN",
+"QH",
+"QNCX",
+"QNME",
+"QNRX",
+"QNTM",
+"QS",
+"QTEX",
+"QTI",
+"QTTB",
+"QUCY",
+"RADX",
+"RAIN",
+"RANI",
+"RAYA",
+"RBNE",
+"RCAT",
+"RCON",
+"RCT",
+"RDAC",
+"RDGT",
+"RDHL",
+"RDIB",
+"REAX",
+"REFR",
+"REKR",
+"RENT",
+"RENX",
+"RETO",
+"REVB",
+"RFAI",
+"RGC",
+"RGTI",
+"RIG",
+"RIME",
+"RITR",
+"RKDA",
+"RMCF",
+"RMSG",
+"RNAZ",
+"RNXT",
+"RPGL",
+"RPID",
+"RSKD",
+"RUBI",
+"RUM",
+"RVSN",
+"RYM",
+"RYOJ",
+"RZLV",
+"SAFX",
+"SAGT",
+"SBET",
+"SBFM",
+"SCAG",
+"SCKT",
+"SCLX",
+"SCNI",
+"SCNX",
+"SCWO",
+"SCYX",
+"SDOT",
+"SDST",
+"SEAT",
+"SEGG",
+"SERV",
+"SEV",
+"SFWL",
+"SGLY",
+"SGRX",
+"SHFS",
+"SHMD",
+"SHPH",
+"SIDU",
+"SILO",
+"SION",
+"SKDD",
+"SKK",
+"SKYA",
+"SKYE",
+"SKYQ",
+"SLBT",
+"SLE",
+"SLGB",
+"SLMT",
+"SLNH",
+"SLSN",
+"SLXN",
+"SMCI",
+"SMMT",
+"SMTK",
+"SMX",
+"SMXT",
+"SNAL",
+"SNES",
+"SNGX",
+"SNOA",
+"SNTI",
+"SNWV",
+"SOGP",
+"SONM",
+"SORA",
+"SOUN",
+"SOWG",
+"SPDN",
+"SPHL",
+"SPRB",
+"SPRC",
+"SPWR",
+"SQFT",
+"SSII",
+"SSM",
+"SSPC",
+"STAK",
+"STEX",
+"STFS",
+"STI",
+"STKH",
+"SUGP",
+"SUNE",
+"SUPX",
+"SURG",
+"SVRE",
+"SWMR",
+"SWRD",
+"SWVL",
+"SXTC",
+"SXTP",
+"SY",
+"TANH",
+"TAOP",
+"TAOX",
+"TC",
+"TCRT",
+"TCRX",
+"TCX",
+"TDIC",
+"TDTH",
+"TDUP",
+"TEAD",
+"TENX",
+"TGE",
+"TGHL",
+"TGL",
+"THH",
+"THRY",
+"TIL",
+"TLRY",
+"TMC",
+"TMCR",
+"TNMG",
+"TNON",
+"TNXP",
+"TNYA",
+"TONX",
+"TOPS",
+"TOYO",
+"TPST",
+"TRIB",
+"TRNR",
+"TRON",
+"TRUG",
+"TSLL",
+"TTD",
+"TURB",
+"TVGN",
+"TVRD",
+"TWG",
+"TYGO",
+"UBXG",
+"UCAR",
+"UCL",
+"UFG",
+"UK",
+"UONE",
+"UONEK",
+"UPB",
+"UPC",
+"UPLD",
+"UPXI",
+"USDE",
+"USGO",
+"UZX",
+"VBIO",
+"VCIG",
+"VEEA",
+"VEEE",
+"VELO",
+"VERI",
+"VFF",
+"VFS",
+"VHC",
+"VHUB",
+"VIOT",
+"VIP",
+"VITL",
+"VIVK",
+"VIVS",
+"VMAR",
+"VOR",
+"VRAX",
+"VRM",
+"VRME",
+"VRRM",
+"VRXA",
+"VSA",
+"VSME",
+"VSTM",
+"VTGN",
+"VTIX",
+"VVOS",
+"VWAV",
+"WATR",
+"WBUY",
+"WCT",
+"WETO",
+"WFF",
+"WHLR",
+"WIMI",
+"WKHS",
+"WKSP",
+"WLDS",
+"WNW",
+"WOK",
+"WRAP",
+"WSHP",
+"WVE",
+"WVVIP",
+"WXM",
+"WYHG",
+"XAIR",
+"XBIO",
+"XCH",
+"XCUR",
+"XELB",
+"XHG",
+"XHLD",
+"XLAB",
+"XNDU",
+"XOS",
+"XPON",
+"XRTX",
+"XRX",
+"XTIA",
+"XTLB",
+"XXII",
+"YAAS",
+"YARW",
+"YDDL",
+"YDES",
+"YDKG",
+"YFOR",
+"YHC",
+"YHGJ",
+"YJ",
+"YMAT",
+"YMT",
+"YOUL",
+"YXT",
+"YYAI",
+"YYGH",
+"ZBAO",
+"ZCMD",
+"ZDAI",
+"ZENA",
+"ZEO",
+"ZJYL",
+"ZNB",
+"ZOOZ",
+"ZSQR",
+"ZSTK",
+"ZTG",
+"ZYBT"
+],
+"sources": {
+"AAOI": [
+"press_radar"
+],
+"AAPG": [
+"git_watchlist"
+],
+"AARD": [
+"git_watchlist",
+"op_entry"
+],
+"ABAT": [
+"near_watch",
+"op_entry"
+],
+"ABSI": [
+"presession_sent"
+],
+"ABTC": [
+"near_watch"
+],
+"ABTS": [
+"near_watch",
+"op_entry"
+],
+"ACON": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"ACTU": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"ACXP": [
+"near_watch",
+"op_entry"
+],
+"ADGM": [
+"near_watch",
+"op_entry"
+],
+"ADIL": [
+"op_entry",
+"press_radar"
+],
+"ADVB": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"press_radar",
+"watchlist_removed"
+],
+"ADXN": [
+"near_watch",
+"op_entry"
+],
+"AEC": [
+"git_watchlist",
+"near_watch"
+],
+"AEHL": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"AEHR": [
+"press_radar"
+],
+"AEI": [
+"op_entry",
+"press_radar"
+],
+"AEMD": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"hunter_split",
+"hunter_watchlist",
+"op_entry",
+"presession_sent",
+"press_radar",
+"watchlist_history"
+],
+"AENT": [
+"presession_sent"
+],
+"AEVA": [
+"press_radar"
+],
+"AFJK": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"AGMH": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"watchlist_history"
+],
+"AGRZ": [
+"near_watch"
+],
+"AH": [
+"op_entry"
+],
+"AHMA": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"AIDX": [
+"near_watch",
+"op_entry"
+],
+"AIFA": [
+"git_watchlist"
+],
+"AIFC": [
+"near_watch",
+"op_entry"
+],
+"AIFF": [
+"presession_sent"
+],
+"AIFU": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"AIIO": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"AIOS": [
+"near_watch",
+"op_entry"
+],
+"AIRO": [
+"press_radar"
+],
+"AIRS": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"AISP": [
+"near_watch",
+"op_entry"
+],
+"AIXC": [
+"near_watch",
+"op_entry"
+],
+"AIXI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"AKAN": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"AKTX": [
+"near_watch",
+"op_entry"
+],
+"ALAR": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"ALDX": [
+"near_watch",
+"op_entry"
+],
+"ALEC": [
+"op_entry",
+"press_radar"
+],
+"ALGS": [
+"press_radar"
+],
+"ALMS": [
+"near_watch",
+"op_entry"
+],
+"ALMU": [
+"git_watchlist"
+],
+"ALOY": [
+"op_entry",
+"press_radar"
+],
+"ALP": [
+"near_watch"
+],
+"ALPS": [
+"near_watch"
+],
+"AMC": [
+"presession_sent"
+],
+"AMCI": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"AMIX": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"AMOD": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"AMST": [
+"near_watch",
+"op_entry"
+],
+"ANNA": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"ANPA": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"ANTA": [
+"near_watch",
+"op_entry"
+],
+"ANY": [
+"git_watchlist"
+],
+"APPS": [
+"press_radar"
+],
+"APUS": [
+"presession_sent"
+],
+"APVO": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"press_radar",
+"watchlist_history"
+],
+"AQMS": [
+"near_watch",
+"op_entry"
+],
+"ARAI": [
+"near_watch"
+],
+"ARBE": [
+"near_watch",
+"op_entry"
+],
+"ARBK": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_history"
+],
+"AREC": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"ARQ": [
+"near_watch"
+],
+"ARTL": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"ASAN": [
+"presession_sent"
+],
+"ASPC": [
+"git_watchlist",
+"op_entry"
+],
+"ASPI": [
+"near_watch",
+"op_entry"
+],
+"ASST": [
+"git_watchlist"
+],
+"ASTC": [
+"near_watch"
+],
+"ASTI": [
+"near_watch"
+],
+"ASTS": [
+"git_watchlist"
+],
+"ATCX": [
+"near_watch"
+],
+"ATGL": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"ATOS": [
+"near_watch",
+"op_entry"
+],
+"ATPC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"ATXG": [
+"near_watch",
+"op_entry"
+],
+"ATYR": [
+"near_watch",
+"op_entry"
+],
+"AUID": [
+"near_watch"
+],
+"AURE": [
+"near_watch"
+],
+"AUUD": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"AVAT": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"AVX": [
+"op_entry"
+],
+"AVXL": [
+"near_watch"
+],
+"AXG": [
+"near_watch",
+"op_entry"
+],
+"AXTI": [
+"git_watchlist",
+"press_radar"
+],
+"AXTX": [
+"presession_sent"
+],
+"AZ": [
+"git_watchlist"
+],
+"AZI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"press_radar"
+],
+"AZIO": [
+"near_watch"
+],
+"BAER": [
+"near_watch",
+"op_entry"
+],
+"BANL": [
+"near_watch",
+"press_radar"
+],
+"BAOS": [
+"near_watch",
+"op_entry"
+],
+"BBLG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"BBOT": [
+"near_watch",
+"op_entry"
+],
+"BCAB": [
+"git_watchlist"
+],
+"BCTX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"watchlist_history",
+"watchlist_stocks"
+],
+"BDMD": [
+"near_watch",
+"op_entry"
+],
+"BDRX": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"watchlist_pullback"
+],
+"BDTX": [
+"git_watchlist"
+],
+"BEAT": [
+"near_watch"
+],
+"BEEM": [
+"near_watch",
+"op_entry"
+],
+"BENF": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar",
+"watchlist_history"
+],
+"BETR": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"BEZ": [
+"presession_sent"
+],
+"BFLY": [
+"presession_sent"
+],
+"BFRG": [
+"presession_sent"
+],
+"BGDE": [
+"near_watch",
+"op_entry"
+],
+"BGL": [
+"near_watch"
+],
+"BGLC": [
+"git_watchlist",
+"near_watch"
+],
+"BGM": [
+"near_watch"
+],
+"BGMS": [
+"near_watch"
+],
+"BHST": [
+"near_watch",
+"op_entry"
+],
+"BIAF": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"BIOA": [
+"op_entry"
+],
+"BIOX": [
+"near_watch"
+],
+"BIRD": [
+"git_watchlist",
+"op_entry"
+],
+"BIYA": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_removed"
+],
+"BJDX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"BKYI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"BLNE": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"watchlist_history",
+"watchlist_removed"
+],
+"BLNK": [
+"near_watch",
+"op_entry"
+],
+"BLZE": [
+"press_radar"
+],
+"BMGL": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"BNAI": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"BNC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"BNGO": [
+"presession_sent"
+],
+"BNKK": [
+"near_watch"
+],
+"BNR": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"watchlist_history",
+"watchlist_stocks"
+],
+"BODI": [
+"near_watch",
+"op_entry"
+],
+"BOXL": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"BRAI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"BRCB": [
+"near_watch"
+],
+"BRFH": [
+"near_watch",
+"op_entry"
+],
+"BRLS": [
+"near_watch",
+"op_entry"
+],
+"BRNX": [
+"git_watchlist",
+"op_entry",
+"press_radar"
+],
+"BRTX": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"BTCS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"watchlist_history",
+"watchlist_stocks"
+],
+"BTCT": [
+"op_entry",
+"press_radar"
+],
+"BTCZ": [
+"presession_sent"
+],
+"BTOC": [
+"near_watch"
+],
+"BTOG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"press_radar",
+"watchlist_history"
+],
+"BTQ": [
+"near_watch",
+"op_entry"
+],
+"BTTC": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"BW": [
+"presession_sent"
+],
+"BXBL": [
+"near_watch"
+],
+"BYAH": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"press_radar",
+"watchlist_history"
+],
+"BYND": [
+"op_entry",
+"press_radar"
+],
+"BYRN": [
+"git_watchlist",
+"near_watch"
+],
+"BZAI": [
+"near_watch",
+"op_entry"
+],
+"CABR": [
+"near_watch"
+],
+"CALC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"CAMP": [
+"git_watchlist",
+"press_radar"
+],
+"CAN": [
+"near_watch",
+"op_entry"
+],
+"CAPR": [
+"git_watchlist",
+"near_watch",
+"presession_sent"
+],
+"CAPS": [
+"near_watch"
+],
+"CAR": [
+"near_watch",
+"op_entry"
+],
+"CAST": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"CBIO": [
+"git_watchlist"
+],
+"CBUS": [
+"press_radar"
+],
+"CCG": [
+"near_watch"
+],
+"CCHH": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_removed"
+],
+"CCOI": [
+"near_watch"
+],
+"CCTG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"CD": [
+"near_watch",
+"op_entry"
+],
+"CDIO": [
+"op_entry"
+],
+"CDLX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"CDT": [
+"near_watch",
+"op_entry"
+],
+"CDTG": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"CELU": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"watchlist_history",
+"watchlist_stocks"
+],
+"CELZ": [
+"git_watchlist",
+"near_watch",
+"press_radar"
+],
+"CENN": [
+"near_watch"
+],
+"CGTL": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history",
+"watchlist_stocks"
+],
+"CHAI": [
+"near_watch"
+],
+"CHGA": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"CHSN": [
+"hunter_split",
+"hunter_watchlist",
+"near_watch",
+"op_entry"
+],
+"CIGL": [
+"near_watch"
+],
+"CIIT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"CING": [
+"git_watchlist"
+],
+"CIRC": [
+"near_watch",
+"op_entry"
+],
+"CISO": [
+"near_watch"
+],
+"CISS": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"CLGN": [
+"near_watch"
+],
+"CLIK": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"CLLS": [
+"near_watch",
+"op_entry"
+],
+"CLRB": [
+"near_watch",
+"op_entry"
+],
+"CLRO": [
+"git_watchlist",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"CMCT": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"CMND": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"CMPX": [
+"near_watch",
+"op_entry"
+],
+"CMTL": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"watchlist_history"
+],
+"CNCK": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"CNET": [
+"presession_sent",
+"press_radar"
+],
+"CNSY": [
+"op_entry"
+],
+"CNTB": [
+"presession_sent"
+],
+"CNTX": [
+"near_watch"
+],
+"CODX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"CONL": [
+"presession_sent"
+],
+"COOT": [
+"near_watch",
+"op_entry"
+],
+"CORD": [
+"presession_sent"
+],
+"COSM": [
+"op_entry"
+],
+"CPIX": [
+"press_radar"
+],
+"CPOP": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"CPSH": [
+"near_watch",
+"op_entry"
+],
+"CRBU": [
+"git_watchlist"
+],
+"CRDU": [
+"presession_sent"
+],
+"CRE": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"CRGO": [
+"near_watch",
+"op_entry"
+],
+"CRIS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"CRML": [
+"near_watch",
+"presession_sent"
+],
+"CRMT": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"CRVO": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"CRWV": [
+"press_radar"
+],
+"CSAI": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"CTMX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"CTNT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"CTSO": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"CTXR": [
+"op_entry"
+],
+"CUPR": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"CURX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"CVKD": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"press_radar",
+"watchlist_history"
+],
+"CVRX": [
+"near_watch",
+"op_entry"
+],
+"CWD": [
+"near_watch",
+"presession_sent"
+],
+"CXAI": [
+"op_entry",
+"press_radar"
+],
+"CYAB": [
+"near_watch",
+"op_entry"
+],
+"CYCU": [
+"near_watch",
+"op_entry"
+],
+"CYN": [
+"near_watch",
+"op_entry"
+],
+"CYPH": [
+"presession_sent",
+"press_radar"
+],
+"DAIC": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"DBGI": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"DCGO": [
+"near_watch"
+],
+"DCOY": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"DCX": [
+"near_watch",
+"op_entry"
+],
+"DEFT": [
+"near_watch",
+"op_entry"
+],
+"DETX": [
+"near_watch"
+],
+"DFLI": [
+"near_watch",
+"op_entry"
+],
+"DFNS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"DFSC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"DGNX": [
+"near_watch",
+"op_entry"
+],
+"DH": [
+"near_watch"
+],
+"DJT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist"
+],
+"DKI": [
+"near_watch",
+"op_entry"
+],
+"DLXY": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"DOGZ": [
+"git_watchlist",
+"near_watch"
+],
+"DRCT": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"DRK": [
+"near_watch"
+],
+"DRMA": [
+"near_watch",
+"op_entry"
+],
+"DSY": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"DTI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"DTSS": [
+"presession_sent"
+],
+"DUKR": [
+"git_watchlist"
+],
+"DUO": [
+"near_watch"
+],
+"DVLT": [
+"near_watch"
+],
+"DWSN": [
+"press_radar"
+],
+"DWTX": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"DXLG": [
+"near_watch"
+],
+"DXST": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"DYAI": [
+"near_watch",
+"press_radar"
+],
+"EDBL": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"EDRY": [
+"op_entry",
+"press_radar"
+],
+"EDSA": [
+"near_watch",
+"op_entry"
+],
+"EEIQ": [
+"git_watchlist"
+],
+"EFOI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist"
+],
+"EH": [
+"near_watch"
+],
+"EHGO": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"EHTH": [
+"near_watch",
+"op_entry"
+],
+"EJH": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"ELAB": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"ELBM": [
+"near_watch"
+],
+"ELOG": [
+"near_watch",
+"op_entry"
+],
+"ELPW": [
+"near_watch",
+"press_radar"
+],
+"ELTX": [
+"near_watch",
+"op_entry"
+],
+"EMAT": [
+"near_watch",
+"op_entry"
+],
+"EMPD": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"ENGN": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"watchlist_history",
+"watchlist_stocks"
+],
+"ENGS": [
+"near_watch"
+],
+"ENLV": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"ENSC": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"ENTX": [
+"press_radar"
+],
+"ENVB": [
+"near_watch"
+],
+"ENVX": [
+"near_watch",
+"op_entry"
+],
+"EOCN": [
+"near_watch",
+"op_entry"
+],
+"EOSE": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"EPOW": [
+"near_watch",
+"op_entry"
+],
+"EPSM": [
+"near_watch",
+"op_entry"
+],
+"ERNA": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"ESLA": [
+"near_watch",
+"op_entry"
+],
+"ETS": [
+"op_entry",
+"press_radar"
+],
+"EU": [
+"near_watch"
+],
+"EUDA": [
+"near_watch",
+"press_radar"
+],
+"EVAX": [
+"near_watch",
+"op_entry"
+],
+"EVGN": [
+"near_watch",
+"op_entry"
+],
+"EVGO": [
+"near_watch",
+"op_entry"
+],
+"EVTV": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"EYPT": [
+"near_watch",
+"op_entry"
+],
+"EZGO": [
+"near_watch"
+],
+"EZRA": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_history"
+],
+"FAC": [
+"near_watch"
+],
+"FAMI": [
+"near_watch"
+],
+"FBDT": [
+"presession_sent"
+],
+"FBLG": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"FBYD": [
+"op_entry"
+],
+"FCHL": [
+"near_watch",
+"op_entry"
+],
+"FCUV": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_pullback"
+],
+"FEAM": [
+"git_watchlist",
+"press_radar"
+],
+"FEED": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"press_radar",
+"watchlist_history"
+],
+"FEMY": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"FFAI": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"FGI": [
+"press_radar"
+],
+"FGL": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"FGNX": [
+"git_watchlist",
+"near_watch"
+],
+"FIEE": [
+"git_watchlist",
+"op_entry",
+"press_radar"
+],
+"FLD": [
+"near_watch"
+],
+"FLNA": [
+"near_watch",
+"presession_sent"
+],
+"FLNC": [
+"near_watch",
+"op_entry"
+],
+"FLUX": [
+"near_watch",
+"op_entry"
+],
+"FLYE": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"FMFC": [
+"near_watch",
+"press_radar"
+],
+"FMST": [
+"near_watch",
+"op_entry"
+],
+"FNGR": [
+"near_watch",
+"op_entry"
+],
+"FNUC": [
+"near_watch",
+"op_entry"
+],
+"FOFO": [
+"near_watch",
+"op_entry"
+],
+"FOXX": [
+"git_watchlist"
+],
+"FRGT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"FRMI": [
+"near_watch"
+],
+"FRMM": [
+"near_watch",
+"op_entry"
+],
+"FRSX": [
+"near_watch",
+"op_entry"
+],
+"FTCI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"FTFT": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"FTHM": [
+"near_watch"
+],
+"FUFU": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"FULC": [
+"near_watch",
+"op_entry"
+],
+"FUSE": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"presession_sent",
+"press_radar",
+"watchlist_history"
+],
+"FVN": [
+"press_radar"
+],
+"FWDI": [
+"git_watchlist",
+"near_watch"
+],
+"FXHO": [
+"op_entry"
+],
+"GAIA": [
+"near_watch"
+],
+"GAUZ": [
+"op_entry"
+],
+"GCDT": [
+"presession_sent"
+],
+"GCL": [
+"near_watch"
+],
+"GCTK": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar",
+"watchlist_history"
+],
+"GDC": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"GDEV": [
+"near_watch",
+"op_entry"
+],
+"GDHG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"GDTC": [
+"near_watch"
+],
+"GELS": [
+"near_watch",
+"op_entry"
+],
+"GEMI": [
+"near_watch"
+],
+"GENI": [
+"presession_sent"
+],
+"GEOS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"GFAI": [
+"near_watch"
+],
+"GIBO": [
+"git_watchlist"
+],
+"GIPR": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"GITS": [
+"git_watchlist",
+"near_watch"
+],
+"GLMD": [
+"press_radar"
+],
+"GLND": [
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"GLXG": [
+"git_watchlist",
+"op_entry"
+],
+"GMEX": [
+"near_watch",
+"op_entry"
+],
+"GMM": [
+"near_watch",
+"op_entry"
+],
+"GNLN": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"GNPX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"hunter_split_filter",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_removed"
+],
+"GNTA": [
+"near_watch",
+"op_entry"
+],
+"GOAI": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"GOGO": [
+"near_watch",
+"op_entry"
+],
+"GOVX": [
+"near_watch",
+"op_entry"
+],
+"GOW": [
+"near_watch",
+"op_entry"
+],
+"GP": [
+"near_watch",
+"op_entry"
+],
+"GPRO": [
+"op_entry",
+"press_radar"
+],
+"GRAN": [
+"near_watch",
+"op_entry"
+],
+"GRI": [
+"near_watch",
+"press_radar"
+],
+"GRML": [
+"git_watchlist",
+"op_entry",
+"press_radar"
+],
+"GRNQ": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"GRPN": [
+"press_radar"
+],
+"GRSD": [
+"near_watch"
+],
+"GSIW": [
+"near_watch",
+"op_entry"
+],
+"GSUN": [
+"git_watchlist",
+"near_watch"
+],
+"GTBP": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"GURE": [
+"near_watch",
+"op_entry"
+],
+"GUTS": [
+"near_watch",
+"op_entry"
+],
+"GVH": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"watchlist_history",
+"watchlist_stocks"
+],
+"GWAV": [
+"git_watchlist",
+"op_entry"
+],
+"GXAI": [
+"near_watch",
+"op_entry"
+],
+"GYGY": [
+"presession_sent"
+],
+"HAO": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"HCAI": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_pullback"
+],
+"HCTI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"watchlist_history",
+"watchlist_pullback"
+],
+"HCWB": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"HDRN": [
+"near_watch",
+"op_entry"
+],
+"HERE": [
+"near_watch",
+"op_entry"
+],
+"HFFG": [
+"alerts_history",
+"git_alerts"
+],
+"HIT": [
+"near_watch",
+"op_entry"
+],
+"HKIT": [
+"near_watch"
+],
+"HKPD": [
+"near_watch",
+"op_entry"
+],
+"HODO": [
+"near_watch",
+"op_entry"
+],
+"HOLO": [
+"git_watchlist",
+"near_watch"
+],
+"HOVR": [
+"git_watchlist"
+],
+"HPAI": [
+"near_watch"
+],
+"HRTX": [
+"near_watch"
+],
+"HSDT": [
+"git_watchlist",
+"near_watch"
+],
+"HTCO": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"HTCR": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"watchlist_history"
+],
+"HTZ": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"HUBC": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"HUCK": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_stocks"
+],
+"HUIZ": [
+"git_watchlist",
+"press_radar"
+],
+"HUMA": [
+"near_watch",
+"op_entry"
+],
+"HVII": [
+"press_radar"
+],
+"HWH": [
+"git_watchlist"
+],
+"HXHX": [
+"near_watch",
+"op_entry"
+],
+"HYFM": [
+"near_watch",
+"press_radar"
+],
+"IBG": [
+"near_watch",
+"op_entry"
+],
+"IBRX": [
+"presession_sent"
+],
+"ICCM": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"ICMB": [
+"near_watch"
+],
+"ICU": [
+"git_watchlist",
+"press_radar"
+],
+"IDN": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_history"
+],
+"ILAG": [
+"git_watchlist"
+],
+"ILLR": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"IMCC": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"IMMP": [
+"near_watch",
+"op_entry"
+],
+"IMNN": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"IMRN": [
+"op_entry",
+"press_radar"
+],
+"IMSR": [
+"near_watch",
+"op_entry"
+],
+"INBS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"INDP": [
+"press_radar"
+],
+"INHD": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"INKT": [
+"git_watchlist"
+],
+"INLF": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"INOD": [
+"git_watchlist"
+],
+"INSG": [
+"near_watch",
+"op_entry"
+],
+"INSM": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"INTJ": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"INTS": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"INV": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"INVZ": [
+"near_watch"
+],
+"IOTR": [
+"near_watch"
+],
+"IPDN": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"IPEX": [
+"near_watch"
+],
+"IPST": [
+"near_watch",
+"press_radar"
+],
+"IPW": [
+"git_watchlist",
+"hunter_split",
+"hunter_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar",
+"watchlist_pullback"
+],
+"IPWR": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"watchlist_history"
+],
+"IPX": [
+"near_watch"
+],
+"IRD": [
+"presession_sent"
+],
+"IREZ": [
+"presession_sent"
+],
+"ISPC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"ISPR": [
+"git_watchlist"
+],
+"ITOC": [
+"near_watch"
+],
+"ITUB": [
+"presession_sent"
+],
+"IVDA": [
+"git_watchlist",
+"near_watch"
+],
+"IVF": [
+"op_entry",
+"press_radar"
+],
+"IXHL": [
+"git_watchlist"
+],
+"IZM": [
+"near_watch",
+"op_entry"
+],
+"JAGX": [
+"near_watch",
+"op_entry"
+],
+"JBDI": [
+"near_watch",
+"op_entry"
+],
+"JDZG": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"JEM": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"JFB": [
+"git_watchlist"
+],
+"JFIN": [
+"near_watch",
+"op_entry"
+],
+"JLHL": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"JOBY": [
+"presession_sent"
+],
+"JSPR": [
+"near_watch",
+"op_entry"
+],
+"JTAI": [
+"git_watchlist",
+"near_watch",
+"press_radar"
+],
+"JUNS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"JWEL": [
+"press_radar"
+],
+"JYD": [
+"near_watch"
+],
+"JZ": [
+"near_watch",
+"press_radar"
+],
+"JZXN": [
+"press_radar"
+],
+"KALA": [
+"near_watch",
+"presession_sent"
+],
+"KC": [
+"git_watchlist"
+],
+"KDK": [
+"near_watch",
+"op_entry"
+],
+"KELYB": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history",
+"watchlist_stocks"
+],
+"KG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"KIDZ": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"KITT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"KLRS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"KLXE": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"KMRK": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history",
+"watchlist_stocks"
+],
+"KNDI": [
+"presession_sent"
+],
+"KNRX": [
+"presession_sent"
+],
+"KPLT": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"KPTI": [
+"git_watchlist",
+"near_watch",
+"press_radar"
+],
+"KRRO": [
+"near_watch",
+"op_entry"
+],
+"KSCP": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"KTTA": [
+"near_watch",
+"op_entry"
+],
+"KUST": [
+"near_watch",
+"op_entry"
+],
+"KWM": [
+"git_watchlist",
+"press_radar"
+],
+"KXIN": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"KYNB": [
+"git_watchlist"
+],
+"LABD": [
+"presession_sent"
+],
+"LAES": [
+"near_watch",
+"op_entry"
+],
+"LASE": [
+"near_watch"
+],
+"LBGJ": [
+"near_watch",
+"press_radar"
+],
+"LCID": [
+"near_watch",
+"press_radar"
+],
+"LEDS": [
+"press_radar"
+],
+"LENZ": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"watchlist_history"
+],
+"LESL": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"LEXX": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"LFCR": [
+"presession_sent"
+],
+"LFS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"LGCL": [
+"git_watchlist",
+"op_entry"
+],
+"LGHL": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"LGO": [
+"near_watch"
+],
+"LGVN": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"LHAI": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"LHSW": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"LI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"watchlist_history"
+],
+"LICN": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"LIMN": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"press_radar",
+"watchlist_history"
+],
+"LIQT": [
+"near_watch"
+],
+"LITZ": [
+"presession_sent"
+],
+"LNAI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"LNKS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"watchlist_history"
+],
+"LOBO": [
+"presession_sent"
+],
+"LONA": [
+"near_watch",
+"op_entry"
+],
+"LOOP": [
+"near_watch",
+"op_entry"
+],
+"LPCN": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"LPSN": [
+"git_watchlist"
+],
+"LRHC": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"LRMR": [
+"git_watchlist"
+],
+"LSTA": [
+"op_entry",
+"press_radar"
+],
+"LTBR": [
+"near_watch",
+"op_entry"
+],
+"LTRN": [
+"near_watch",
+"op_entry"
+],
+"LUNR": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"press_radar",
+"watchlist_history"
+],
+"LVLU": [
+"press_radar"
+],
+"LWLG": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"LX": [
+"near_watch",
+"op_entry"
+],
+"LXEH": [
+"near_watch",
+"op_entry"
+],
+"LXEO": [
+"git_watchlist"
+],
+"LYEL": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"LZMH": [
+"near_watch"
+],
+"MAMO": [
+"near_watch"
+],
+"MASK": [
+"op_entry"
+],
+"MB": [
+"op_entry",
+"press_radar"
+],
+"MBAI": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"MBIO": [
+"near_watch"
+],
+"MBRX": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"MCRB": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"MDCX": [
+"near_watch",
+"op_entry"
+],
+"MDXH": [
+"near_watch",
+"op_entry"
+],
+"MEDS": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"MENS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_history"
+],
+"MERC": [
+"near_watch",
+"op_entry"
+],
+"METC": [
+"near_watch",
+"op_entry"
+],
+"METCB": [
+"near_watch",
+"op_entry"
+],
+"MF": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"MFI": [
+"near_watch",
+"op_entry"
+],
+"MGIH": [
+"git_watchlist"
+],
+"MGN": [
+"near_watch",
+"op_entry"
+],
+"MGRT": [
+"git_watchlist"
+],
+"MGRX": [
+"near_watch"
+],
+"MIMI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"MIST": [
+"op_entry"
+],
+"MKDW": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"MKZR": [
+"near_watch"
+],
+"MLEC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"MLGO": [
+"op_entry"
+],
+"MLTX": [
+"op_entry"
+],
+"MNDR": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"MNOV": [
+"op_entry",
+"press_radar"
+],
+"MNST": [
+"press_radar"
+],
+"MNTS": [
+"near_watch"
+],
+"MOB": [
+"git_watchlist"
+],
+"MOBX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"MODD": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"MPLT": [
+"near_watch",
+"op_entry"
+],
+"MREO": [
+"near_watch"
+],
+"MRLN": [
+"op_entry"
+],
+"MRM": [
+"near_watch",
+"op_entry"
+],
+"MRNO": [
+"near_watch",
+"op_entry"
+],
+"MSAI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history",
+"watchlist_stocks"
+],
+"MSGY": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"MSS": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"MSTR": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"MSTZ": [
+"presession_sent"
+],
+"MTC": [
+"op_entry",
+"press_radar"
+],
+"MTEK": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"MTEN": [
+"near_watch",
+"op_entry"
+],
+"MTVA": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"MUZ": [
+"presession_sent"
+],
+"MVIS": [
+"git_watchlist",
+"op_entry",
+"press_radar"
+],
+"MVST": [
+"near_watch",
+"op_entry"
+],
+"MYPS": [
+"press_radar"
+],
+"MYSE": [
+"git_watchlist"
+],
+"MYSZ": [
+"op_entry",
+"press_radar"
+],
+"NA": [
+"git_watchlist"
+],
+"NAGE": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"NAKA": [
+"git_watchlist",
+"near_watch"
+],
+"NAMI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar",
+"watchlist_history"
+],
+"NAMM": [
+"near_watch",
+"op_entry"
+],
+"NAUT": [
+"op_entry"
+],
+"NBIZ": [
+"presession_sent"
+],
+"NBP": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"NCEL": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_history"
+],
+"NCI": [
+"near_watch",
+"op_entry"
+],
+"NCNA": [
+"op_entry"
+],
+"NCPL": [
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"NCRA": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_removed"
+],
+"NCSM": [
+"git_watchlist"
+],
+"NCT": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"NCTY": [
+"press_radar"
+],
+"NEGG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"watchlist_history"
+],
+"NERV": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"NEUP": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"watchlist_history"
+],
+"NEXM": [
+"near_watch"
+],
+"NEXR": [
+"near_watch",
+"press_radar"
+],
+"NFE": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_pullback"
+],
+"NGEN": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"NHTC": [
+"near_watch",
+"op_entry"
+],
+"NIKI": [
+"git_watchlist",
+"op_entry"
+],
+"NIPG": [
+"op_entry",
+"press_radar"
+],
+"NIVF": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"NIXX": [
+"near_watch",
+"op_entry"
+],
+"NKLR": [
+"near_watch",
+"op_entry"
+],
+"NMRA": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"NMTC": [
+"near_watch",
+"op_entry"
+],
+"NNE": [
+"near_watch",
+"op_entry"
+],
+"NNNN": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"NNOX": [
+"near_watch"
+],
+"NOMA": [
+"near_watch"
+],
+"NOWL": [
+"presession_sent"
+],
+"NPT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"NRSN": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"NSPR": [
+"near_watch"
+],
+"NTCL": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"NTHI": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"NTLA": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"NUAI": [
+"git_watchlist",
+"presession_sent"
+],
+"NUR": [
+"near_watch",
+"presession_sent"
+],
+"NUWE": [
+"op_entry",
+"press_radar"
+],
+"NVCT": [
+"press_radar"
+],
+"NVD": [
+"presession_sent"
+],
+"NVNI": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"NVNO": [
+"near_watch"
+],
+"NVX": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"NWGL": [
+"git_watchlist"
+],
+"NXAT": [
+"near_watch"
+],
+"NXGL": [
+"near_watch",
+"op_entry"
+],
+"NXH": [
+"near_watch",
+"op_entry"
+],
+"NXL": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"NXTC": [
+"op_entry",
+"press_radar"
+],
+"NXTS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"watchlist_history"
+],
+"NXTT": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"NXXT": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_pullback"
+],
+"NYXH": [
+"near_watch"
+],
+"OBAI": [
+"near_watch",
+"op_entry"
+],
+"OCG": [
+"near_watch"
+],
+"OCS": [
+"near_watch",
+"op_entry"
+],
+"ODYS": [
+"near_watch",
+"op_entry"
+],
+"OFAL": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"OIO": [
+"near_watch",
+"op_entry"
+],
+"OLB": [
+"near_watch"
+],
+"OLMA": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"OLOX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"OM": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"OMER": [
+"git_watchlist"
+],
+"OMEX": [
+"near_watch"
+],
+"OMH": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"ONCO": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"watchlist_pullback"
+],
+"ONDS": [
+"presession_sent"
+],
+"ONEG": [
+"git_watchlist"
+],
+"ONEN": [
+"near_watch",
+"op_entry"
+],
+"ONFO": [
+"near_watch",
+"op_entry"
+],
+"ONMD": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_removed"
+],
+"OPAD": [
+"near_watch",
+"op_entry"
+],
+"OPEN": [
+"near_watch",
+"op_entry"
+],
+"OPRX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"ORBS": [
+"near_watch"
+],
+"ORGO": [
+"near_watch",
+"op_entry"
+],
+"OST": [
+"near_watch"
+],
+"OTLK": [
+"near_watch",
+"op_entry"
+],
+"OWLS": [
+"near_watch"
+],
+"OXBR": [
+"press_radar"
+],
+"PAAI": [
+"presession_sent"
+],
+"PACB": [
+"presession_sent"
+],
+"PARA": [
+"near_watch",
+"op_entry"
+],
+"PASG": [
+"git_watchlist"
+],
+"PASW": [
+"near_watch"
+],
+"PAVS": [
+"near_watch"
+],
+"PBK": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"PBM": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"PC": [
+"near_watch"
+],
+"PCLA": [
+"git_watchlist",
+"presession_sent",
+"press_radar"
+],
+"PCSA": [
+"near_watch",
+"op_entry"
+],
+"PDSB": [
+"presession_sent"
+],
+"PEPG": [
+"git_watchlist",
+"press_radar"
+],
+"PETS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"watchlist_history"
+],
+"PFSA": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"PHIO": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_history",
+"watchlist_stocks"
+],
+"PHOE": [
+"git_watchlist"
+],
+"PLCE": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"PLSM": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"PLUG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"PLUR": [
+"near_watch",
+"op_entry"
+],
+"PLYX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"PM": [
+"op_entry"
+],
+"PMAX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"watchlist_history"
+],
+"PMCB": [
+"near_watch",
+"op_entry"
+],
+"PMEC": [
+"near_watch"
+],
+"PMN": [
+"git_watchlist"
+],
+"PN": [
+"git_watchlist",
+"near_watch",
+"press_radar"
+],
+"POET": [
+"git_watchlist"
+],
+"POLA": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"POM": [
+"git_watchlist",
+"near_watch"
+],
+"PONY": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"watchlist_history"
+],
+"PPCB": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"PPSI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"PRFX": [
+"near_watch",
+"op_entry"
+],
+"PRHI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"PROP": [
+"near_watch",
+"op_entry"
+],
+"PRPL": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"PRSO": [
+"near_watch",
+"op_entry"
+],
+"PRTH": [
+"presession_sent"
+],
+"PRTS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"PSIG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"PSIX": [
+"git_watchlist"
+],
+"PSNY": [
+"near_watch",
+"op_entry"
+],
+"PSQL": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"PSTV": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"watchlist_history"
+],
+"PTLE": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_removed"
+],
+"PTN": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"PWCM": [
+"near_watch",
+"op_entry"
+],
+"QCLS": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"QFIN": [
+"near_watch",
+"op_entry"
+],
+"QH": [
+"near_watch"
+],
+"QNCX": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"QNME": [
+"git_watchlist",
+"presession_sent"
+],
+"QNRX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"press_radar",
+"watchlist_stocks"
+],
+"QNTM": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"watchlist_history"
+],
+"QS": [
+"near_watch",
+"op_entry"
+],
+"QTEX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"QTI": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"QTTB": [
+"press_radar"
+],
+"QUCY": [
+"near_watch",
+"op_entry"
+],
+"RADX": [
+"op_entry"
+],
+"RAIN": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"RANI": [
+"near_watch",
+"op_entry"
+],
+"RAYA": [
+"near_watch",
+"op_entry"
+],
+"RBNE": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"RCAT": [
+"git_watchlist"
+],
+"RCON": [
+"hunter_split",
+"hunter_watchlist",
+"op_entry",
+"press_radar"
+],
+"RCT": [
+"near_watch"
+],
+"RDAC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"RDGT": [
+"near_watch",
+"op_entry"
+],
+"RDHL": [
+"near_watch",
+"op_entry"
+],
+"RDIB": [
+"press_radar"
+],
+"REAX": [
+"op_entry",
+"press_radar"
+],
+"REFR": [
+"near_watch",
+"presession_sent"
+],
+"REKR": [
+"near_watch",
+"op_entry"
+],
+"RENT": [
+"near_watch",
+"op_entry"
+],
+"RENX": [
+"git_watchlist",
+"near_watch"
+],
+"RETO": [
+"git_watchlist",
+"op_entry",
+"presession_sent"
+],
+"REVB": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"RFAI": [
+"press_radar"
+],
+"RGC": [
+"git_watchlist",
+"near_watch"
+],
+"RGTI": [
+"git_watchlist"
+],
+"RIG": [
+"presession_sent"
+],
+"RIME": [
+"near_watch",
+"op_entry"
+],
+"RITR": [
+"press_radar"
+],
+"RKDA": [
+"near_watch",
+"op_entry"
+],
+"RMCF": [
+"near_watch",
+"press_radar"
+],
+"RMSG": [
+"near_watch"
+],
+"RNAZ": [
+"press_radar"
+],
+"RNXT": [
+"op_entry",
+"press_radar"
+],
+"RPGL": [
+"near_watch",
+"op_entry"
+],
+"RPID": [
+"near_watch"
+],
+"RSKD": [
+"presession_sent"
+],
+"RUBI": [
+"near_watch",
+"op_entry"
+],
+"RUM": [
+"presession_sent"
+],
+"RVSN": [
+"near_watch",
+"op_entry"
+],
+"RYM": [
+"git_watchlist"
+],
+"RYOJ": [
+"near_watch"
+],
+"RZLV": [
+"git_watchlist"
+],
+"SAFX": [
+"near_watch"
+],
+"SAGT": [
+"near_watch",
+"op_entry"
+],
+"SBET": [
+"alerts_history",
+"git_alerts"
+],
+"SBFM": [
+"git_watchlist",
+"op_entry"
+],
+"SCAG": [
+"near_watch"
+],
+"SCKT": [
+"near_watch",
+"op_entry"
+],
+"SCLX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"SCNI": [
+"near_watch",
+"presession_sent"
+],
+"SCNX": [
+"near_watch",
+"op_entry"
+],
+"SCWO": [
+"near_watch",
+"op_entry"
+],
+"SCYX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"SDOT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"SDST": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"SEAT": [
+"near_watch",
+"op_entry"
+],
+"SEGG": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"SERV": [
+"near_watch",
+"op_entry"
+],
+"SEV": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"watchlist_history"
+],
+"SFWL": [
+"press_radar"
+],
+"SGLY": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"SGRX": [
+"git_watchlist",
+"op_entry",
+"press_radar",
+"watchlist_pullback"
+],
+"SHFS": [
+"near_watch",
+"op_entry"
+],
+"SHMD": [
+"presession_sent"
+],
+"SHPH": [
+"git_watchlist",
+"near_watch"
+],
+"SIDU": [
+"near_watch"
+],
+"SILO": [
+"near_watch",
+"op_entry"
+],
+"SION": [
+"near_watch",
+"op_entry"
+],
+"SKDD": [
+"presession_sent"
+],
+"SKK": [
+"near_watch",
+"op_entry"
+],
+"SKYA": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"watchlist_history"
+],
+"SKYE": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"SKYQ": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"presession_sent",
+"press_radar",
+"watchlist_history",
+"watchlist_removed"
+],
+"SLBT": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"SLE": [
+"near_watch",
+"press_radar"
+],
+"SLGB": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"watchlist_history"
+],
+"SLMT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"press_radar",
+"watchlist_history"
+],
+"SLNH": [
+"near_watch",
+"op_entry"
+],
+"SLSN": [
+"near_watch",
+"op_entry"
+],
+"SLXN": [
+"near_watch"
+],
+"SMCI": [
+"git_watchlist"
+],
+"SMMT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"SMTK": [
+"git_watchlist",
+"press_radar"
+],
+"SMX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"SMXT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"press_radar",
+"watchlist_history"
+],
+"SNAL": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"SNES": [
+"near_watch",
+"op_entry"
+],
+"SNGX": [
+"near_watch"
+],
+"SNOA": [
+"op_entry"
+],
+"SNTI": [
+"near_watch"
+],
+"SNWV": [
+"near_watch"
+],
+"SOGP": [
+"alerts_history",
+"git_alerts",
+"git_watchlist"
+],
+"SONM": [
+"near_watch"
+],
+"SORA": [
+"git_watchlist",
+"press_radar"
+],
+"SOUN": [
+"presession_sent"
+],
+"SOWG": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"SPDN": [
+"presession_sent"
+],
+"SPHL": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"press_radar",
+"watchlist_history"
+],
+"SPRB": [
+"near_watch",
+"op_entry"
+],
+"SPRC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"press_radar",
+"watchlist_history"
+],
+"SPWR": [
+"near_watch",
+"op_entry"
+],
+"SQFT": [
+"near_watch"
+],
+"SSII": [
+"git_watchlist"
+],
+"SSM": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"SSPC": [
+"presession_sent"
+],
+"STAK": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"STEX": [
+"near_watch",
+"op_entry"
+],
+"STFS": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"STI": [
+"near_watch",
+"op_entry"
+],
+"STKH": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"SUGP": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"SUNE": [
+"git_watchlist",
+"op_entry",
+"presession_sent",
+"press_radar",
+"watchlist_pullback"
+],
+"SUPX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"SURG": [
+"near_watch"
+],
+"SVRE": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"SWMR": [
+"near_watch",
+"op_entry"
+],
+"SWRD": [
+"presession_sent"
+],
+"SWVL": [
+"press_radar"
+],
+"SXTC": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"SXTP": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"SY": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"watchlist_history"
+],
+"TANH": [
+"near_watch",
+"press_radar"
+],
+"TAOP": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"TAOX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"TC": [
+"near_watch"
+],
+"TCRT": [
+"near_watch",
+"op_entry"
+],
+"TCRX": [
+"near_watch",
+"op_entry"
+],
+"TCX": [
+"press_radar"
+],
+"TDIC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"presession_sent",
+"press_radar",
+"watchlist_history"
+],
+"TDTH": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"TDUP": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"TEAD": [
+"near_watch",
+"op_entry"
+],
+"TENX": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"TGE": [
+"presession_sent"
+],
+"TGHL": [
+"git_watchlist"
+],
+"TGL": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_pullback"
+],
+"THH": [
+"near_watch",
+"press_radar"
+],
+"THRY": [
+"near_watch"
+],
+"TIL": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"TLRY": [
+"near_watch",
+"op_entry"
+],
+"TMC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist"
+],
+"TMCR": [
+"near_watch"
+],
+"TNMG": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"TNON": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"TNXP": [
+"git_watchlist"
+],
+"TNYA": [
+"near_watch",
+"op_entry"
+],
+"TONX": [
+"git_watchlist"
+],
+"TOPS": [
+"presession_sent"
+],
+"TOYO": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_history"
+],
+"TPST": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"TRIB": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"TRNR": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"TRON": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"TRUG": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"TSLL": [
+"presession_sent"
+],
+"TTD": [
+"near_watch"
+],
+"TURB": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar",
+"watchlist_history"
+],
+"TVGN": [
+"near_watch",
+"op_entry"
+],
+"TVRD": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"TWG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"TYGO": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"UBXG": [
+"git_watchlist"
+],
+"UCAR": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"UCL": [
+"near_watch"
+],
+"UFG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"watchlist_removed"
+],
+"UK": [
+"near_watch"
+],
+"UONE": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_history",
+"watchlist_removed"
+],
+"UONEK": [
+"git_watchlist",
+"near_watch"
+],
+"UPB": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"watchlist_history"
+],
+"UPC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"UPLD": [
+"op_entry"
+],
+"UPXI": [
+"near_watch"
+],
+"USDE": [
+"presession_sent"
+],
+"USGO": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"UZX": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_pullback"
+],
+"VBIO": [
+"git_watchlist",
+"near_watch",
+"press_radar"
+],
+"VCIG": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"VEEA": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"VEEE": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"VELO": [
+"press_radar"
+],
+"VERI": [
+"near_watch"
+],
+"VFF": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"VFS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"watchlist_history"
+],
+"VHC": [
+"git_watchlist"
+],
+"VHUB": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"VIOT": [
+"press_radar"
+],
+"VIP": [
+"press_radar"
+],
+"VITL": [
+"near_watch"
+],
+"VIVK": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"VIVS": [
+"near_watch",
+"op_entry"
+],
+"VMAR": [
+"near_watch"
+],
+"VOR": [
+"git_watchlist"
+],
+"VRAX": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"VRM": [
+"git_watchlist"
+],
+"VRME": [
+"presession_sent",
+"press_radar"
+],
+"VRRM": [
+"near_watch",
+"op_entry"
+],
+"VRXA": [
+"near_watch",
+"op_entry"
+],
+"VSA": [
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"VSME": [
+"near_watch",
+"op_entry"
+],
+"VSTM": [
+"alerts_history",
+"git_alerts",
+"git_watchlist"
+],
+"VTGN": [
+"near_watch"
+],
+"VTIX": [
+"near_watch"
+],
+"VVOS": [
+"near_watch",
+"op_entry"
+],
+"VWAV": [
+"near_watch",
+"op_entry"
+],
+"WATR": [
+"near_watch",
+"op_entry"
+],
+"WBUY": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"WCT": [
+"near_watch"
+],
+"WETO": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"WFF": [
+"near_watch",
+"op_entry"
+],
+"WHLR": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"WIMI": [
+"near_watch",
+"op_entry"
+],
+"WKHS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"watchlist_stocks"
+],
+"WKSP": [
+"near_watch",
+"op_entry"
+],
+"WLDS": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"WNW": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"WOK": [
+"hunter_split",
+"hunter_watchlist",
+"near_watch"
+],
+"WRAP": [
+"press_radar"
+],
+"WSHP": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_stocks"
+],
+"WVE": [
+"near_watch",
+"op_entry"
+],
+"WVVIP": [
+"near_watch"
+],
+"WXM": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"op_entry",
+"press_radar",
+"watchlist_removed"
+],
+"WYHG": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history",
+"watchlist_removed"
+],
+"XAIR": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"ignition",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"XBIO": [
+"near_watch",
+"op_entry"
+],
+"XCH": [
+"near_watch"
+],
+"XCUR": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"XELB": [
+"near_watch",
+"op_entry"
+],
+"XHG": [
+"near_watch",
+"press_radar"
+],
+"XHLD": [
+"near_watch",
+"op_entry"
+],
+"XLAB": [
+"near_watch",
+"op_entry"
+],
+"XNDU": [
+"near_watch",
+"op_entry"
+],
+"XOS": [
+"op_entry",
+"press_radar"
+],
+"XPON": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"XRTX": [
+"near_watch",
+"op_entry"
+],
+"XRX": [
+"git_watchlist",
+"presession_sent"
+],
+"XTIA": [
+"near_watch"
+],
+"XTLB": [
+"near_watch"
+],
+"XXII": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"hunter_split_filter",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"YAAS": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"YARW": [
+"press_radar"
+],
+"YDDL": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar",
+"watchlist_history"
+],
+"YDES": [
+"git_watchlist",
+"op_entry",
+"press_radar",
+"watchlist_pullback"
+],
+"YDKG": [
+"git_watchlist",
+"near_watch"
+],
+"YFOR": [
+"near_watch"
+],
+"YHC": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"hunter_split",
+"hunter_watchlist",
+"near_watch",
+"op_entry",
+"watchlist_history"
+],
+"YHGJ": [
+"near_watch"
+],
+"YJ": [
+"git_watchlist",
+"near_watch",
+"op_entry"
+],
+"YMAT": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"presession_sent",
+"press_radar",
+"watchlist_history"
+],
+"YMT": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"YOUL": [
+"near_watch"
+],
+"YXT": [
+"press_radar"
+],
+"YYAI": [
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"YYGH": [
+"press_radar"
+],
+"ZBAO": [
+"near_watch",
+"op_entry"
+],
+"ZCMD": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"press_radar",
+"watchlist_history"
+],
+"ZDAI": [
+"near_watch",
+"op_entry"
+],
+"ZENA": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"press_radar"
+],
+"ZEO": [
+"git_watchlist",
+"near_watch",
+"op_entry",
+"presession_sent"
+],
+"ZJYL": [
+"git_watchlist",
+"press_radar"
+],
+"ZNB": [
+"alerts_history",
+"git_alerts",
+"git_watchlist",
+"near_watch",
+"press_radar",
+"watchlist_history"
+],
+"ZOOZ": [
+"git_watchlist",
+"near_watch"
+],
+"ZSQR": [
+"near_watch",
+"op_entry"
+],
+"ZSTK": [
+"near_watch",
+"op_entry"
+],
+"ZTG": [
+"near_watch",
+"op_entry",
+"presession_sent",
+"press_radar"
+],
+"ZYBT": [
+"near_watch",
+"op_entry",
+"press_radar"
+]
+}
+}
