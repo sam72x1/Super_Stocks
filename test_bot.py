@@ -76693,6 +76693,84 @@ except Exception as _e:                                                  # noqa:
     _hs39_ok, _hs39 = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🔎 HS39 الرسالةُ **والاستعلامُ التاريخيّ** ينقلان **اتّجاهَ الفرق** عن الضبط لكلّ سنة حكم بإشارته (‏2023 ‏−1.7% · …) بجوار اسم الفرع · "
       "وغيابُه أو غيابُ الحكم ⟵ لا رقمَ مخترَع · ووضعُ الحكم يكتبه (AST)", _hs39_ok, str(_hs39))
+
+# ── HS40 **لا يُلغي طلبٌ طلبًا** (2026-10-01 · الاختبارُ الطرفيّ: فحصُ BNGO `36920013978` أُلغي — GitHub يُبقي في المجموعة الواحدة معلَّقًا
+#    واحدًا ويُلغي ما قبله): مجموعةُ التزامن تُقيَّم سلوكيًّا لكلّ وضع ⟵ الكتّابُ (المجدول · dev · verdict · scan) مجموعةٌ واحدةٌ ثابتة
+#    (يتسلسلون ولا يدهس بعضُهم `git_save` بعض) · وticker/query (قراءةٌ لا تكتب) مجموعةٌ لكلّ تشغيلة غيرُ مجموعة الكتّاب.
+try:
+    import re as _hs40_re                                                # noqa: PLC0415
+    import yaml as _hs40_yaml                                            # noqa: PLC0415
+    _wf40 = _hs40_yaml.safe_load(open(_hs_os.environ.get("HS_MUT_WF") or ".github/workflows/head_shoulders.yml",
+                                      encoding="utf-8").read()) or {}
+    _c40 = _wf40.get("concurrency") or {}
+    _g40 = " ".join(str(_c40.get("group", "")).split())
+    _m40 = _hs40_re.fullmatch(r"\$\{\{\s*(.*?)\s*\}\}", _g40)
+    if _m40:   # محاكاةٌ لتعبير GitHub (&& · || · == · format(…, github.run_id)) على وضعٍ ومعرّفٍ مُعطَيين
+        _py40 = _m40.group(1).replace("&&", " and ").replace("||", " or ")
+        _py40 = _hs40_re.sub(r"format\('([^']*)\{0\}',\s*github\.run_id\)", r"('\1' + RUN)", _py40)
+        _py40 = _py40.replace("inputs.mode", "MODE").replace("github.run_id", "RUN")
+    else:
+        _py40 = repr(_g40)
+
+    def _grp40(mode, run):
+        return eval(_py40, {"__builtins__": {}}, {"MODE": mode, "RUN": run})   # noqa: S307 — تعبيرٌ من ملفّ المستودع
+    _wr40 = {m: (_grp40(m, "1"), _grp40(m, "2")) for m in ("", "dev", "verdict", "scan")}
+    _rd40 = {m: (_grp40(m, "1"), _grp40(m, "2")) for m in ("ticker", "query")}
+    _wg40 = {g for pair in _wr40.values() for g in pair}
+    _hs40 = {"writers_one_group": len(_wg40) == 1,
+             "readers_per_run": all(a != b and a not in _wg40 and b not in _wg40 for a, b in _rd40.values()),
+             "no_cancel": _c40.get("cancel-in-progress") is False}
+    _hs40_ok = all(_hs40.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs40_ok, _hs40, _wr40, _rd40 = False, f"⛔ {type(_e).__name__}: {_e}", {}, {}
+check("🔎 HS40 **لا يُلغي طلبٌ طلبًا ولا المسحَ المجدول**: مجموعةُ التزامن تُقيَّم لكلّ وضع ⟵ الكتّابُ (المجدول · dev · verdict · scan) مجموعةٌ "
+      "واحدة · وticker/query مجموعةٌ لكلّ تشغيلة خارجها · بلا إلغاءٍ لما يجري", _hs40_ok, f"{_hs40} · كتّاب={_wr40} · قرّاء={_rd40}")
+
+# ── HS41 **⏳ لا ✖️ لنافذةٍ مفتوحة** في الاستعلام التاريخيّ (2026-10-01 · PWCM/LVLU اخترقا 09-30 بلا شمعةٍ بعده ووُسما «✖️»):
+#    ✅ بلغ (ولو قبل اكتمال النافذة) · ⏳ لم يبلغ ونافذةُ الـ30 جلسة مفتوحة (`complete` كاذب) · ✖️ لم يبلغ والنافذةُ مكتملة.
+try:
+    _q41d = _hs_tf.mkdtemp(prefix=f"hs41_{_SUITE_PID}_")
+    _hs_os.makedirs(_hs_os.path.join(_q41d, HS.RES_DIR), exist_ok=True)
+    _hs_pd.DataFrame([
+        {"cfg": "STRICT", "split_win": False, "sym": "HITO", "b_date": "2026-09-29", "entry": 1.8, "target_hit": True,
+         "complete": False, "match": "STRUCTURAL"},
+        {"cfg": "STRICT", "split_win": False, "sym": "OPEN", "b_date": "2026-09-30", "entry": 1.1, "target_hit": False,
+         "complete": False, "match": "STRUCTURAL"},
+        {"cfg": "STRICT", "split_win": False, "sym": "MISS", "b_date": "2026-08-01", "entry": 2.2, "target_hit": False,
+         "complete": True, "match": "STRUCTURAL"}]).to_csv(_hs_os.path.join(_q41d, HS.RES_DIR, "hs_history.csv"), index=False)
+    _q41, _cwd41 = [], _hs_os.getcwd()
+    _st41, _sd41 = S.send_telegram, S.send_telegram_document
+    S.send_telegram = lambda m, *a, **k: (_q41.append(m), True)[1]
+    S.send_telegram_document = lambda *a, **k: True
+    try:
+        _hs_os.chdir(_q41d)
+        HS.run_query(limit=5)
+    finally:
+        _hs_os.chdir(_cwd41)
+        S.send_telegram, S.send_telegram_document = _st41, _sd41
+    _l41 = {s: next((ln for ln in (_q41[0] if _q41 else "").splitlines() if ln.startswith(f"${s} ")), "") for s in ("HITO", "OPEN", "MISS")}
+    _hs41 = {"hit": _l41["HITO"].endswith("✅"), "open": _l41["OPEN"].endswith("⏳"), "miss": _l41["MISS"].endswith("✖️"),
+             "legend": "⏳ = نافذةُ الـ30 جلسة مفتوحة" in (_q41[0] if _q41 else "")}
+    _hs41_ok = all(_hs41.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs41_ok, _hs41, _l41 = False, f"⛔ {type(_e).__name__}: {_e}", {}
+check("🔎 HS41 الاستعلامُ التاريخيّ: ✅ بلغ · **⏳ نافذتُه مفتوحة** · ✖️ لم يبلغ والنافذةُ مكتملة — لا «✖️» لاختراقٍ بلا شموعٍ بعده · "
+      "والمفتاحُ في رأس الجدول", _hs41_ok, f"{_hs41} · {_l41}")
+
+# ── HS42 **مصدرُ الأرقام التاريخيّة يُسمّى في سطرها** (2026-10-01 · فحصُ BNGO 5M `36920024094`: أرقامُ الحكم اليوميّ بلا وسم في رسالة
+#    5 دقائق): «Historical Sample: N (1D · 2023-2025)» في الفريمين · وبلا حكمٍ «—» كما هو.
+try:
+    _h42 = {"branch_text": "لا ميزة على الضبط", "pooled": {"n": 544, "ret5": -0.016, "mfe": 0.21, "mae": -0.2, "target_rate": 0.52}}
+    _lc42 = {"state": "NONE"}
+    _m42 = {tf: HS.build_alert("TEST", _lc42, tf=tf, hist=_h42) for tf in ("1d", "5m")}
+    _m42e = HS.build_alert("TEST", _lc42, tf="5m", hist={})
+    _hs42 = {"tf_" + tf: "Historical Sample: 544 (1D · 2023-2025)" in m for tf, m in _m42.items()}
+    _hs42["dash"] = "Historical Sample: — (1D · 2023-2025)" in _m42e
+    _hs42_ok = all(_hs42.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs42_ok, _hs42 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS42 الأرقامُ التاريخيّة في الرسالة **موسومةٌ بمصدرها** (‏1D · 2023-2025) في رسالة اليوميّ و5 دقائق معًا · وبلا حكمٍ «—»",
+      _hs42_ok, str(_hs42))
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
