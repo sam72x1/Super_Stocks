@@ -27,6 +27,10 @@
 الإغلاق) لا يُستعاد (شموعُ اليوم وكونُ اليوم غيرُ ما كان) فيُطبع ولا يحكم · **إلّا لآخر جلسةٍ مكتملة فكلُّ الحالات حاضرة**.
 وتقويمُ ناسداك 45 يومًا (ما قبله ياهو وحدَه) — حدٌّ يُطبع.
 
+🐞 ملحقٌ مؤرَّخ (2026-10-01 · بعد التشغيلة الأولى `36875846552` · **المعاييرُ لم تُمَسّ**): قرأت سجلّاتِ التشغيلات بترميزٍ
+مُخمَّن فشُوِّهت العربيّةُ وجاء D1 «0 من 0» — وهو **لا قياس** لا «غيرُ مُثبَت» ⟵ أُصلح فكُّ الترميز (UTF-8 صراحةً) وأُضيف حارسُ
+«⛔ لا قياس» حين يخلو المجتمع · وD2-D5 من تلك التشغيلة لا يمسّها العيبُ (قراءتُها إنجليزيّةٌ أو من ملفّات الحالة) وتُعاد هنا كما هي.
+
 التنبّؤات (تُنشَر ولو خابت): (أ) SXTC يحمل تقسيمًا عكسيًّا داخل النافذة (🩹 ×8.1 في سجلّ جلسة 09-28) · (ب) D1 بلا ترجيح ·
 (ج) D2: النهجُ بلا مُدرَج والفلترةُ بلا عطل · (د) D3: صفرُ مدخلٍ مصاب (كما قِيس قبل #519) · (هـ) D4: تشغيلةٌ واحدةٌ على الأقلّ
 على رمزٍ بحكم «quarantine» · (و) D5: صفر.
@@ -97,13 +101,21 @@ def runs_of(wf, since):
     return out
 
 
+LOG_DIAG = {}
+
+
 def job_texts(run_id):
+    """نصوصُ سجلّات جوبات التشغيلة — **تُفكّ UTF-8 صراحةً** (🐞 التشغيلةُ الأولى `36875846552` قرأتها بـ`r.text` فحكم الترميزُ
+    المُخمَّن من ترويسة التخزين ⟵ العربيّةُ مشوَّهة وD1 «0 من 0» بلا قياس · والإنجليزيّةُ سليمة فنجا D4)."""
     js = gh(f"actions/runs/{run_id}/jobs", per_page=50, filter="all").get("jobs") or []
     out = []
     for j in js:
         try:
             r = requests.get(f"{GH}/repos/{REPO}/actions/jobs/{j['id']}/logs", headers=HDR, timeout=60)
-            out.append((j.get("name") or "", r.text if r.ok else ""))
+            if not LOG_DIAG:
+                LOG_DIAG.update({"content_type": r.headers.get("Content-Type"), "guessed": r.encoding,
+                                 "ok": r.ok, "status": r.status_code})
+            out.append((j.get("name") or "", r.content.decode("utf-8", "replace") if r.ok else ""))
         except Exception:                                        # noqa: BLE001
             out.append((j.get("name") or "", ""))
     return out
@@ -303,8 +315,13 @@ def main():
         c4_cnt[a.get("action")] += 1
         if a.get("action") != "allow":
             log(f"   c4 {s}@{latest} · {fmt(a)}")
-    verdict["D1"] = (bool(d1_bad), f"{len(d1_bad)} من {len(tc_pairs)} زوجًا — {' · '.join(d1_bad) or '—'} · "
-                                   f"وصفيّ c4 ({len(c4)}): {dict(c4_cnt)}")
+    sent_runs = sum(1 for x in tc_runs if x[3] == "مُرسَلة")
+    if not tc_pairs:                         # ⛔ لا مجتمع ⟵ «لا قياس» لا «غيرُ مُثبَت» (لا يُدّعى غيابُ عطلٍ لم يُفحَص)
+        verdict["D1"] = (None, f"⛔ لا قياس — تشغيلاتٌ بجلسةٍ مقروءة {len(tc_runs)} (مُرسَلة {sent_runs}) · أزواج 0 · "
+                               f"ترميزُ السجلّ {LOG_DIAG} · وصفيّ c4 ({len(c4)}): {dict(c4_cnt)}")
+    else:
+        verdict["D1"] = (bool(d1_bad), f"{len(d1_bad)} من {len(tc_pairs)} زوجًا (من {sent_runs} رسالةً مُرسَلة) — "
+                                       f"{' · '.join(d1_bad) or '—'} · وصفيّ c4 ({len(c4)}): {dict(c4_cnt)}")
 
     # ── D2 ──
     log("\n═══ D2 الصيّادون ═══")
@@ -383,7 +400,8 @@ def main():
     log(f"\n⏱️ المِجَسّ {time.time() - t_start:.0f}ث")
     log("🧾 الحكم (المعاييرُ في رأس الملفّ · مكتوبةٌ قبل أوّل تشغيل):")
     for k, (bad, txt) in verdict.items():
-        log(f"   {k}: {'🔴 مُثبَت' if bad else '🟢 غيرُ مُثبَت'} — {txt}")
+        log(f"   {k}: {'⛔ لا قياس' if bad is None else ('🔴 مُثبَت' if bad else '🟢 غيرُ مُثبَت')} — {txt}")
+    log(f"🧾 ترميزُ السجلّات: {LOG_DIAG}")
     log("🔮 التنبّؤات:")
     for k, (ok, txt) in pred.items():
         log(f"   {'✅' if ok else '❌'} {k}{(' — ' + txt) if txt else ''}")
