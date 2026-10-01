@@ -40,6 +40,8 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     rotation_pct/session_ctx/interp). دالة نقية قابلة للاختبار (بلا شبكة)."""
     ev = bot.hand_evidence(r)
     L = [f"🕵️ <b>فحص اليد: {bot.esc(sym.upper())}</b>", _verdict(len(ev)), ""]
+    if r.get("dq_line"):                     # 🛡️ حكمُ بوّابة سلامة البيانات — فوق الفحص لا بدلَه (`dq_disclosure_line`)
+        L.insert(2, bot.esc(r["dq_line"]))
     if r.get("price"):
         L.append(f"السعر: ${r['price']:.2f}")
     # القرائن (كل دليل بسطره — الإطار + الوصف + القيمة)
@@ -285,6 +287,8 @@ def hand_check(sym: str):
          # «لا إفصاح شراء» كأنها حقيقة (لقّاها التدقيق الخصومي).
          "insider_buys": diag.get("insider_buys"),          # 📄 Form 4 (شراء داخلي)
          "offering_event": diag.get("offering_event")}      # 🆕 طرح جديد (حدث مؤسِّس)
+    # 🛡️ سلامةُ البيانات (عطلٌ مُثبَت · مِجَسّ D4 2026-10-01): حكمُ البوّابة يُعلَن فوق الفحص ولا يحجبه — فاشلٌ-آمن (None)
+    r["dq_line"] = bot.dq_disclosure_line(sym, df)
     try:
         # 📉 «خبره عدم قبوله» + «÷2 على المستوى السائد» — يلزمهما الإطار اليومي وهو
         # متاح هنا (مسار الفرز يحسبهما في التحديث اليومي حيث الشمعة متوفّرة).

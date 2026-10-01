@@ -75577,6 +75577,83 @@ check("🛡️ DQ19 مساراتُ الحسم ترى التقسيمَ الذي �
       f"res={_dq19_res} pairs={_dq19_pairs} same={_dq19_same} yn={_dq19_ynone}/{_dq19_ynone2} both={_dq19_both} "
       f"off={_dq19_off} set={_dq19_set} hunt={_dq19_hunt} guard={_dq19_guard}")
 
+# DQ20 — سطرُ الإفصاح لأدوات الطلب (عطلٌ مُثبَت · مِجَسّ `dq_cover_probe` D4: `analyze` MGN يومَ 09-26 بتقسيمٍ معلَّق بلا إفصاح):
+#         DLXY المعلَّق ⟵ «⏸️» بحالته وسببه ونتيجته («لا يدخل قوائمَ البوت») · المكتملُ ⟵ «⚠️» بلا تلك النتيجة · القديمُ ⟵ «⛔» ·
+#         الصالحُ ⟵ None · والمفتاحُ مطفأ ⟵ None (بت-بت) · وبلا إطارٍ أو باستثناءٍ ⟵ None (فاشلٌ-آمن)
+_dq20_sv = (dict(S._DQ_UNIVERSE),)
+_dq20 = {}
+try:
+    S._DQ_UNIVERSE["set"] = None
+
+    def _dq20_line(sym, df, cal, exp=_DQ_EXP):
+        return S.dq_disclosure_line(sym, df, expected=exp, nasdaq=cal, fetch=lambda s: pd.Series(dtype=float),
+                                    close_fetch=lambda syms, start: {}, today=_DQ_TODAY)
+    _dq20_flat = _dq_df([(d.strftime("%Y-%m-%d"), 3.0, 3.1, 2.9, 3.0, 1e5)
+                         for d in pd.bdate_range(end="2026-09-30", periods=50)])
+    _dq20_days = [d.strftime("%Y-%m-%d") for d in pd.bdate_range(end="2026-09-30", periods=50)]
+    _dq20_rows = ([(d, 3.2, 3.3, 3.1, 3.2, 1e5) for d in _dq20_days[:30]]
+                  + [(_dq20_days[30], 3.5, 4.0, 3.0, 3.5, 1e6), (_dq20_days[31], 2.6, 2.6, 2.2, 2.3, 1e5)]
+                  + [(d, 2.1, 2.2, 2.0, 2.1, 1e5) for d in _dq20_days[32:]])
+    _dq20_set_df = _dq_df(_dq20_rows)
+    _dq_set("1")
+    _dq20["pend"] = _dq20_line("DLXY", _dq_long_dlxy(), {"DLXY": _DQ_EV})
+    _dq20["warn"] = _dq20_line("WRN", _dq20_set_df, {"WRN": [(_dq20_days[30], 0.1)]})
+    _dq20["stale"] = _dq20_line("OLD", _dq_df([r for r in _DQ_DLXY[:-1]]), {})
+    _dq20["valid"] = _dq20_line("FLAT", _dq20_flat, {})
+    _dq20["none_df"] = _dq20_line("FLAT", None, {})
+    _dq20["exc"] = _dq20_line("FLAT", _dq20_flat, object())
+    _dq_set("0")
+    _dq20["off"] = _dq20_line("DLXY", _dq_long_dlxy(), {"DLXY": _DQ_EV})
+except Exception as _e:                                                  # noqa: BLE001
+    _dq20["err"] = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    S._DQ_UNIVERSE.clear()
+    S._DQ_UNIVERSE.update(_dq20_sv[0])
+    _dq_set("0")
+_dq20_p, _dq20_w, _dq20_s = (str(_dq20.get(k) or "") for k in ("pend", "warn", "stale"))
+check("🛡️ DQ20 سطرُ الإفصاح لأدوات الطلب: DLXY المعلَّق ⟵ «⏸️» بحالته وسببه («2026-09-28») و«لا يدخل قوائمَ البوت» · المكتملُ "
+      "الوصفة ⟵ «⚠️ تقسيمٌ حديث» بلا تلك النتيجة · القديمُ ⟵ «⛔ قديم» · والصالحُ والمفتاحُ المطفأ وبلا إطارٍ والاستثناءُ ⟵ None",
+      _dq20_p.startswith("🛡️ سلامة البيانات: ⏸️ " + _DQm.LABELS_AR[_DQm.CORPORATE_ACTION_PENDING])
+      and "2026-09-28" in _dq20_p and "لا يدخل قوائمَ البوت" in _dq20_p
+      and _dq20_w.startswith("🛡️ سلامة البيانات: ⚠️ " + _DQm.LABELS_AR[_DQm.RECENT_SPLIT])
+      and "لا يدخل" not in _dq20_w
+      and _dq20_s.startswith("🛡️ سلامة البيانات: ⛔ " + _DQm.LABELS_AR[_DQm.STALE]) and "2026-09-29" in _dq20_s
+      and all(_dq20.get(k) is None for k in ("valid", "none_df", "exc", "off")) and "err" not in _dq20,
+      str(_dq20)[:600])
+
+# DQ21 — الوصلُ في الأدوات الثلاث من نقطة النداء الحيّة (AST) والعرضُ سلوكيًّا: السطرُ يظهر تحت العنوان حين يُمرَّر ويغيب بدونه
+#         (فالعرضُ بت-بت حين تُرجع الدالّةُ None — المفتاحُ مطفأ أو الحكمُ «allow»)
+_dq21 = {}
+try:
+    def _dq21_calls(fn):
+        return [n for n in _dq_ast.walk(_dq_ast.parse(_dq_tw.dedent(_dq_insp.getsource(fn))))
+                if isinstance(n, _dq_ast.Call) and getattr(n.func, "attr", None) == "dq_disclosure_line"]
+    _dq21["wired"] = [len(_dq21_calls(f)) == 1 for f in (HC.hand_check, AO.main, TR.technical_report)]
+    _dq21_tag = "🛡️ سلامة البيانات: ⏸️ اختبار"
+    _dq21_hc_r = {"symbol": "Q", "price": 5.0, "behav": {}}
+    _dq21["hc"] = (_dq21_tag in HC.render_hand_check("Q", dict(_dq21_hc_r, dq_line=_dq21_tag)),
+                   "سلامة البيانات" not in HC.render_hand_check("Q", _dq21_hc_r))
+    _dq21_hc_lines = HC.render_hand_check("Q", dict(_dq21_hc_r, dq_line=_dq21_tag)).split("\n")
+    _dq21["hc_pos"] = next((i for i, ln in enumerate(_dq21_hc_lines) if _dq21_tag in ln), -1)
+    _dq21_d = dict(_diag)
+    _dq21["ao"] = (_dq21_tag in AO.render_ondemand(dict(_dq21_d, dq_line=_dq21_tag), [], None),
+                   "سلامة البيانات" not in AO.render_ondemand(dict(_dq21_d), [], None))
+    _dq21_ao_lines = AO.render_ondemand(dict(_dq21_d, dq_line=_dq21_tag), [], None).split("\n")
+    _dq21["ao_pos"] = next((i for i, ln in enumerate(_dq21_ao_lines) if _dq21_tag in ln), -1)
+    _dq21_rep = {"symbol": "X", "price": 9.0, "verdict": "v", "score": 50, "tfs": []}
+    _dq21["tr"] = (_dq21_tag in TR.render(dict(_dq21_rep, dq_line=_dq21_tag)),
+                   "سلامة البيانات" not in TR.render(_dq21_rep))
+    _dq21_tr_lines = TR.render(dict(_dq21_rep, dq_line=_dq21_tag)).split("\n")
+    _dq21["tr_pos"] = next((i for i, ln in enumerate(_dq21_tr_lines) if _dq21_tag in ln), -1)
+except Exception as _e:                                                  # noqa: BLE001
+    _dq21["err"] = f"⛔ {type(_e).__name__}: {_e}"
+check("🛡️ DQ21 الإفصاحُ موصولٌ في فحص اليد والفحص اليدويّ والتقرير الفنيّ (نداءٌ واحد لكلٍّ من نقطة النداء الحيّة · AST) · والسطرُ "
+      "يظهر **تحت العنوان مباشرةً** حين يُمرَّر ويغيب بدونه في العروض الثلاثة (بت-بت حين `None`)",
+      _dq21.get("wired") == [True, True, True] and _dq21.get("hc") == (True, True) and _dq21.get("ao") == (True, True)
+      and _dq21.get("tr") == (True, True) and _dq21.get("hc_pos") == 2 and _dq21.get("ao_pos") == 1
+      and _dq21.get("tr_pos") == 1 and "err" not in _dq21,
+      str(_dq21))
+
 if _dq_env0 is None:
     _os_hc.environ.pop("DQ_GATE", None)
 else:
