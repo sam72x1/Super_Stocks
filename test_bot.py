@@ -74076,6 +74076,61 @@ check("🕳️🔒 GBA13 `V-G1`/`V-G2` حيّتان: الصفوفُ السليم
       _gb_yr_ok == 0 and _gb_yr_v1 == 3 and _gb_yr_v2 == 3,
       f"ok={_gb_yr_ok} v1={_gb_yr_v1} v2={_gb_yr_v2}")
 
+# GBA14 — `GB-P5` بنصّ العقد كاملًا: «`E1` تسقط (`G − R0` المجمَّع دون +0.05R)» ⇒ السقوطُ **و**آليّتُه معًا.
+# كانت `not E1` وحدَه فطبعت «✅ صدق» على مجمَّعٍ +0.1071 **فوق** الحدّ (الحاكمة `36812671247`) · ومنادًى من `pooled`.
+_g14_s = [{"prevalence": 0.07, "arms": {_nm: {"r_fixed": -0.1} for _nm in ("R0", "G", "M", "C")}}]
+_g14_rows = [{"bite_G": True}, {"bite_G": False}]
+_g14_dm = {"D1": False, "cover_pct": 53.2, "magnet_pp": 0.3}
+
+
+def _g14_p5(e1, mean):
+    _ci = None if mean is None else {"mean": mean, "lo": -1.0, "hi": 1.0}
+    return _GB.predictions(_g14_s, _g14_rows, _g14_dm, {"E1": e1, "E2": False}, _ci)["GB-P5"]
+
+
+try:
+    _g14_pub = _g14_p5(False, 0.10712344173144368)   # المنشور: سقطت `E1` والمجمَّعُ فوق الحدّ ⟵ ❌
+    _g14_low = _g14_p5(False, 0.03)                    # سقطت بآليّتها المكتوبة ⟵ ✅
+    _g14_pass = _g14_p5(True, 0.03)                    # `E1` عابرة ⟵ ❌
+    _g14_none = _g14_p5(False, None)                   # بلا فاصل ⟵ الآليّةُ لا تُثبَت ⟵ ❌
+    _g14_edge = _g14_p5(False, 0.05)                   # على الحدّ ليس «دونه» ⟵ ❌
+    _g14_pooled = next((n for n in _gb_top if isinstance(n, _gb_ast.FunctionDef) and n.name == "pooled"), None)
+    # الوصلُ = إسنادُ `pred` **مباشرةً** من نداء `predictions` (لا نداءٌ ميّتٌ في فرعٍ لا يُبلَغ — أمسكته طفرة m3)
+    _g14_wire = bool(_g14_pooled is not None and any(
+        isinstance(a, _gb_ast.Assign) and [getattr(t, "id", None) for t in a.targets] == ["pred"]
+        and isinstance(a.value, _gb_ast.Call) and getattr(a.value.func, "id", None) == "predictions"
+        for a in _gb_ast.walk(_g14_pooled)))
+    _g14 = (_g14_pub is False and _g14_low is True and _g14_pass is False and _g14_none is False
+            and _g14_edge is False and _g14_wire)
+    _g14_w = (f"pub={_g14_pub} low={_g14_low} pass={_g14_pass} none={_g14_none} "
+              f"edge={_g14_edge} wire={_g14_wire}")
+except Exception as _e:                                          # noqa: BLE001
+    _g14, _g14_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕳️🔒 GBA14 `GB-P5` بنصّ العقد: السقوطُ **و**«المجمَّع دون +0.05R» — المنشورُ (+0.1071) ⟵ ❌ · دون الحدّ ⟵ ✅ · "
+      "على الحدّ أو بلا فاصل أو `E1` عابرة ⟵ ❌ · ومنادًى من `pooled`", _g14, _g14_w)
+
+# GBA15 — النتيجةُ منشورةٌ كما صدرت (`36812671247`) — والتنبّؤُ الخاطئ لا يُحذف ولا تُقلَب علامتُه.
+import re as _gb_re                                              # noqa: E402
+try:
+    _g15_txt = _gb_io.open("gapbelow_result.md", encoding="utf-8").read()
+    _g15_pred = {m.group(1): m.group(2)
+                 for m in _gb_re.finditer(r"^\| `(GB-P\d)` \|[^\n]*?\| (✅|❌)", _g15_txt, _gb_re.M)}
+    _g15_s6 = (_g15_txt.split("## ⑥", 1)[1].split("## ⑦", 1)[0]
+               if _g15_txt.count("## ⑥") == 1 and "## ⑦" in _g15_txt else "")
+    _g15_heads = [i for i in (_g15_txt.find("## ⓪"), _g15_txt.find("## ①")) if i >= 0]
+    _g15 = (_g15_pred == {"GB-P1": "✅", "GB-P2": "❌", "GB-P3": "✅", "GB-P4": "✅",
+                          "GB-P5": "❌", "GB-P6": "✅", "GB-P7": "❌"}
+            and "36812671247" in _g15_txt and "209 من 393" in _g15_txt and "48.2%" in _g15_txt
+            and "59 · 68 · 82" in _g15_txt and "+0.1071" in _g15_txt and "−0.0454" in _g15_txt
+            and "**الفرعُ 3: «لا قياس»**" in _g15_txt
+            and "4 صدقت بنصّها كاملًا · 3 خابت" in _g15_s6 and "`GBA14`" in _g15_s6
+            and bool(_g15_heads) and _g15_txt.find("## ⓪ الجواب أوّلًا") == min(_g15_heads))
+    _g15_w = f"preds={_g15_pred}"
+except Exception as _e:                                          # noqa: BLE001
+    _g15, _g15_w = False, f"⛔ رمى: {type(_e).__name__}"
+check("🕳️🔒 GBA15 النتيجةُ منشورةٌ كما صدرت (`36812671247`): التنبّؤاتُ السبع بعلاماتها — **`GB-P5` ❌ بآليّته** · "
+      "والأرضيةُ (59 · 68 · 82) والتغطيةُ (209 من 393 · 48.2%) · والجوابُ أوّلُ قسم", _g15, _g15_w)
+
 # ═══ 🎯📺 «رجع هنا الدخول» على TradingView — أقفال OEV1-OEV9 (‏2026-10-01 · خلف `OE_SOURCE` المطفأ) ═══
 # الجالبُ `TVLiveFeed` يُقرأ بعقد `polygon_minute_bars`/`polygon_prev_close` حرفًا فيُحقَن في `scan_liq_stages`/`scan_operator_entry`
 # كما هما · وبلا `OE_SOURCE` العاملُ بت-بت · والإشعالُ بعد مِجَسّ الجلسة (‏`ope_probe.py`).
