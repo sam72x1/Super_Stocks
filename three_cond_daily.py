@@ -448,12 +448,8 @@ def build_message(st, rows):
 def _yes_lines(i, s, r):
     """سطرا السهم المطابق: الأرقام ثمّ (الثبات · 🩹 · حالتُه عند البوت) — عرضٌ فقط · والسعرُ بدقّة `S._px_txt`."""
     rep = f" · 🩹 ×{r['repaired']:g}" if r.get("repaired") else ""
-    return [f"{i}. ${s} · {S._px_txt(r['px'])} · RSI {r['rsi']:.1f} · فلوت {_num_txt(r['fl'])} · متاح {r['av']:,.0f}",
+    return [f"{i}. ${s} · {S._px_txt(r['px'])} · RSI {WW.rsi_txt(r['rsi'], rsi_max())} · فلوت {_num_txt(r['fl'])} · متاح {r['av']:,.0f}",
             f"   ↳ {stab_text(r)}{rep} · {r['bot']}"]
-
-
-def _fmt1(x):
-    return "—" if x is None else f"{x:.1f}"
 
 
 def _fmt2(x):
@@ -469,7 +465,7 @@ def trace_line(s, r, stab, boom, gate):
            if stab else "القاعُ الدقيق لم يُقَس")
     bm = (f"أقصى صعودٍ في الأسبوع {boom['pct']:+.1f}% ({boom['day']} · من {S._px_txt(boom['ref'])} إلى "
           f"{S._px_txt(boom['peak'])})" if boom else "الانفجار لم يُقَس")
-    return (f"🔎 تتبّع {s}: RSI {_fmt1(r.get('rsi'))} · {S._px_txt(r.get('px'))} ({px_class(r.get('px'))}) · {low} · {bm} · "
+    return (f"🔎 تتبّع {s}: RSI {WW.rsi_txt(r.get('rsi'), rsi_max())} · {S._px_txt(r.get('px'))} ({px_class(r.get('px'))}) · {low} · {bm} · "
             f"البوّابة {gate}")
 
 
@@ -958,10 +954,10 @@ def stage_send(st, parts, send=None):
     for s in ok:
         r = rows[s]
         if r["v"] is True and r["doubt"] and source_of(st.get("source") or "polygon") == "tv":
-            log(f"   ⚠️ مشكوك {s} · RSI الشموع {r['rsi']:.1f} · الماسح {r['ry']:.1f} (TradingView) · {S._px_txt(r['px'])}")
+            log(f"   ⚠️ مشكوك {s} · RSI الشموع {WW.rsi_txt(r['rsi'], rsi_max())} · الماسح {WW.rsi_txt(r['ry'], rsi_max())} (TradingView) · {S._px_txt(r['px'])}")
         elif r["v"] is True and r["doubt"]:
             why = " · تقسيمٌ غيرُ متّسق بين المصدرين" if (r.get("ratio") or 0) > SPLIT_RATIO else ""
-            log(f"   ⚠️ مشكوك {s} · RSI Polygon {r['rsi']:.1f} · ياهو {r['ry']:.1f}{why} · {S._px_txt(r['px'])}")
+            log(f"   ⚠️ مشكوك {s} · RSI Polygon {WW.rsi_txt(r['rsi'], rsi_max())} · ياهو {WW.rsi_txt(r['ry'], rsi_max())}{why} · {S._px_txt(r['px'])}")
         elif r["v"] is None:
             miss = [n for n, x in (("الفلوت", r.get("fl")), ("المتاح", r.get("av"))) if x is None]
             log(f"   ❔ مجهول {s} · الناقص: {' · '.join(miss) or '—'} ({r.get('av_src') or '—'}) · {r['bot']}")

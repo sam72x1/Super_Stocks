@@ -71718,6 +71718,81 @@ except Exception as _e:                                              # noqa: BLE
 check("📺 WPT8 ⑭ الجوالبُ بالاسم: اليوميُّ `TC.fetch_tv` · الممتدُّ `TV.fetch_many` بـ5 دقائق ممتدّة تحت قاطع · التقسيماتُ "
       "`S._fetch_splits` · والخامُّ `S._split_scale_factor` · وحارسُ غيرِ المسوّى `HO.unadjusted_jump`", _v8t, _v8tw)
 
+# ══ 🔢 RSD1-RSD3 «RSI للعرض لا يكذب على الحكم» (‏2026-10-01 · CIIT ‏32.9919 طُبع «RSI 33.0» تحت «RSI أقلّ من 33» في تقرير
+#    الشهر `36847138500`) — `WW.rsi_txt` مصدرٌ واحدٌ للأدوات الثلاث (تقريرُ الفترة · تقريرُ الأسبوع · «شروطك الثلاثة») ══
+# RSD1 — سلوكيّ: ما دون الحدّ لا يُطبَع بالغًا إيّاه ولا العكس (شبكةُ 0..100 على الحدّين 33 و30) · وما خارج شريط الحدّ بت-بت
+#    `{:.1f}` · والحالاتُ المسمّاة · والحدُّ الافتراضيّ `S.CONFIG["RSI_OVERSOLD"]` وقتَ النداء لا رقمٌ مكتوب
+try:
+    _rsd_bad = []
+    for _rsd_lim in (33.0, 30.0):
+        for _rsd_i in range(0, 100001, 3):
+            _rsd_x = _rsd_i / 1000
+            _rsd_t = _WW.rsi_txt(_rsd_x, _rsd_lim)
+            if ((_rsd_x < _rsd_lim) != (float(_rsd_t) < _rsd_lim)
+                    or (not (_rsd_lim - 0.05 <= _rsd_x < _rsd_lim) and _rsd_t != f"{_rsd_x:.1f}")):
+                _rsd_bad.append((_rsd_x, _rsd_lim, _rsd_t))
+    _rsd_named = {32.9919: "32.99", 32.996: "32.99", 32.99999: "32.99", 32.95: "32.95", 32.949: "32.9", 33.0: "33.0",
+                  33.04: "33.0", 25.4855: "25.5", 12.5: "12.5"}
+    _rsd_named_bad = {k: _WW.rsi_txt(k, 33.0) for k, v in _rsd_named.items() if _WW.rsi_txt(k, 33.0) != v}
+    _rsd_cfg = _WW.S.CONFIG.get("RSI_OVERSOLD")
+    try:
+        _WW.S.CONFIG["RSI_OVERSOLD"] = 30.0
+        _rsd_d30 = _WW.rsi_txt(29.97)
+    finally:
+        _WW.S.CONFIG["RSI_OVERSOLD"] = _rsd_cfg
+    _rsd_d33 = _WW.rsi_txt(29.97)
+    _v_rsd1 = (not _rsd_bad and not _rsd_named_bad and _WW.rsi_txt(None) == "—" and _rsd_d30 == "29.97"
+               and _rsd_d33 == "30.0")
+    _w_rsd1 = f"شاذّ={_rsd_bad[:3]} · مسمّى={_rsd_named_bad} · حدُّ 30 ⟵ {_rsd_d30} · حدُّ 33 ⟵ {_rsd_d33}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_rsd1, _w_rsd1 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔢 RSD1 `rsi_txt`: ما دون الحدّ لا يُطبَع بالغًا إيّاه (‏32.9919 ⟵ 32.99 لا 33.0) · وخارجَ شريط الحدّ `{:.1f}` بت-بت · "
+      "والمجهولُ «—» · والحدُّ `S.CONFIG` وقتَ النداء", _v_rsd1, _w_rsd1)
+
+# RSD2 — الوصل (AST): لا عرضَ لقيمة RSI بالصيغة القديمة في الأدوات الثلاث (`_fmt(…rsi…, '{:.1f}')` · أو f-string `.1f` على
+#    `'rsi'`/`'ry'`) · و`rsi_txt` منادًى في كلٍّ منها بعدد مواضع العرض
+try:
+    def _rsd_old(src):
+        out = []
+        for _n in _wpp_ast.walk(_wpp_ast.parse(src)):
+            if (isinstance(_n, _wpp_ast.Call) and _wpp_ast.unparse(_n.func) == "_fmt" and len(_n.args) == 2
+                    and _wpp_ast.unparse(_n.args[1]) == "'{:.1f}'" and "rsi" in _wpp_ast.unparse(_n.args[0]).lower()):
+                out.append(_wpp_ast.unparse(_n))
+            if (isinstance(_n, _wpp_ast.FormattedValue) and _n.format_spec is not None
+                    and _wpp_ast.unparse(_n.format_spec) in ("f'.1f'", 'f".1f"')
+                    and any(k in _wpp_ast.unparse(_n.value) for k in ("'rsi'", "'ry'"))):
+                out.append(_wpp_ast.unparse(_n.value))
+        return out
+
+    def _rsd_calls(src):
+        return sum(1 for _n in _wpp_ast.walk(_wpp_ast.parse(src)) if isinstance(_n, _wpp_ast.Call)
+                   and _wpp_ast.unparse(_n.func) in ("rsi_txt", "WW.rsi_txt"))
+    _rsd_srcs = {"watch_period_probe.py": (_wpp_src, 7), "watch_week_probe.py": (_ww_src, 6),
+                 "three_cond_daily.py": (_tcd_src, 6)}
+    _rsd_left = {f: _rsd_old(s) for f, (s, _k) in _rsd_srcs.items() if _rsd_old(s)}
+    _rsd_n = {f: _rsd_calls(s) for f, (s, _k) in _rsd_srcs.items()}
+    _v_rsd2 = not _rsd_left and all(_rsd_n[f] >= k for f, (_s, k) in _rsd_srcs.items())
+    _w_rsd2 = f"قديمٌ باقٍ={_rsd_left} · نداءاتُ rsi_txt={_rsd_n}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_rsd2, _w_rsd2 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔢 RSD2 الوصل (AST): لا عرضَ لقيمة RSI بالصيغة القديمة في تقرير الفترة والأسبوع و«شروطك الثلاثة» · و`rsi_txt` في "
+      "كلّ موضع عرض", _v_rsd2, _w_rsd2)
+
+# RSD3 — سلوكيّ على رسالة تلغرام نفسِها: سطرُ المطابق في «شروطك الثلاثة» وسطرُ التتبّع يطبعان 32.99 لا 33.0 · والقيمةُ
+#    العاديّة بت-بت (25.5)
+try:
+    _rsd_r = {"px": 2.77, "rsi": 32.9919, "fl": 732625.0, "av": 1000.0, "bot": "—"}
+    _rsd_y = _TCD._yes_lines(1, "CIIT", _rsd_r)[0]
+    _rsd_y2 = _TCD._yes_lines(1, "FRGT", dict(_rsd_r, rsi=25.4855))[0]
+    _rsd_tr = _TCD.trace_line("CIIT", _rsd_r, None, None, "—")
+    _v_rsd3 = ("RSI 32.99 ·" in _rsd_y and "RSI 33.0" not in _rsd_y and "RSI 25.5 ·" in _rsd_y2
+               and "RSI 32.99 ·" in _rsd_tr and "RSI 33.0" not in _rsd_tr)
+    _w_rsd3 = f"{_rsd_y[:60]} | {_rsd_tr[:40]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_rsd3, _w_rsd3 = False, f"⛔ رمى: {type(_e).__name__}"
+check("🔢 RSD3 رسالةُ «شروطك الثلاثة»: سطرُ المطابق وسطرُ التتبّع يطبعان 32.99 لا 33.0 تحت «أقلّ من 33» · والعاديّ بت-بت",
+      _v_rsd3, _w_rsd3)
+
 # NWF7 — 👀🏢 تقريرُ الفترة يقرأ فلوتَ المدخل نفسِه أوّلًا (مخزنُ «تحت المتابعة» · لقطةُ ما قبل الجلسة) ثمّ ذاكرةَ البوت: NWF
 #    (بلا فلوتٍ في الذاكرة) يصير مؤهّلَ الثلاثة المعلومة بفلوت 700 ألف · وNWG (ذاكرته 50 مليونًا) يُقرأ بفلوت مدخله مليونًا ·
 #    وNWX (بلا فلوتٍ في المدخل) يبقى على الذاكرة 800 ألف · وبلا فلوتٍ في المداخل ⟵ الأرقامُ كما كانت (WPP13)
