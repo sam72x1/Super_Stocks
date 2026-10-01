@@ -1196,20 +1196,56 @@ def log(*a):
     print(*a, flush=True)
 
 
-def _fetch_daily(syms, start: str = DATA_START):
-    """شموعٌ يوميّة من TradingView (مسوّاةٌ بالتقسيم · الجلسةُ النظاميّة) **وحدَه** للتحليل التاريخيّ (لا خلطَ مصادر) ⟵ ({رمز: إطار}, تقرير)."""
+def _completed(df, now=None):
+    """«الاختراقُ أوّلُ إغلاقٍ» (§③) ⟵ **شمعةُ جلسةٍ لم تُغلَق ليست إغلاقًا**: TradingView يُعيد الجلسةَ الجارية بسعرها اللحظيّ ⟵ تُقصّ كلُّ
+    شمعةٍ بعد آخر جلسةٍ نظاميّةٍ مكتملة (`S.last_closed_session` · ساعةُ نيويورك والتقويم وهامشُه) — يوميًّا ودقائقَ (التاريخُ من الفهرس) ·
+    وتعذّرُ التقويم أو الإطار ⟵ كما هو (السلوكُ السابق · فاشلٌ-آمن). عطلٌ مُثبَت: تشغيلةُ الحكم الأولى `36911113194` (‏19:04 UTC داخل
+    الجلسة) قرأت شمعةَ 2026-10-01 الجارية."""
     import Super_stock as S
-    return S.tv_download(list(syms), start)
+    try:
+        if df is None or not len(df):
+            return df
+        exp = S.last_closed_session(now)
+        if not exp:
+            return df
+        return df[pd.DatetimeIndex(df.index).normalize() <= pd.Timestamp(exp)]
+    except Exception:                                                      # noqa: BLE001
+        return df
+
+
+def _completed_all(frames: dict, rep: dict = None, now=None) -> dict:
+    """`_completed` لكلّ إطار ⟵ والمقصوصُ يُعَدّ في التقرير (`partial_trimmed`) ويُعلَن ولا يُصمت · والفارغُ بعد القصّ يغيب."""
+    out, cut = {}, 0
+    for s, df in (frames or {}).items():
+        d = _completed(df, now)
+        if d is not None and df is not None and len(d) < len(df):
+            cut += 1
+        if d is not None and len(d):
+            out[s] = d
+    if rep is not None:
+        rep["partial_trimmed"] = cut
+    return out
+
+
+def _fetch_daily(syms, start: str = DATA_START):
+    """شموعٌ يوميّة من TradingView (مسوّاةٌ بالتقسيم · الجلسةُ النظاميّة) **وحدَه** للتحليل التاريخيّ (لا خلطَ مصادر) ⟵ ({رمز: إطار}, تقرير) ·
+    **جلساتٌ مكتملةٌ وحدَها** (`_completed`)."""
+    import Super_stock as S
+    data, rep = S.tv_download(list(syms), start)
+    return _completed_all(data, rep), rep
 
 
 def _fetch_live(syms, days: int = SCAN_DAYS):
-    """شموعٌ يوميّة حيّة من TradingView **مباشرةً** (`S.tv_download` — لا `BARS_SOURCE`: مفتاحُه محصورٌ بعشرة workflows · TVB9)."""
+    """شموعٌ يوميّة حيّة من TradingView **مباشرةً** (`S.tv_download` — لا `BARS_SOURCE`: مفتاحُه محصورٌ بعشرة workflows · TVB9) ·
+    **جلساتٌ مكتملةٌ وحدَها** (`_completed`: المسحُ والفحصُ اليوميّ لا يقرآن «اختراقًا» على شمعةٍ جارية)."""
     import Super_stock as S
-    return S.tv_download(list(syms), (dt.date.today() - dt.timedelta(days=days)).isoformat())
+    data, rep = S.tv_download(list(syms), (dt.date.today() - dt.timedelta(days=days)).isoformat())
+    return _completed_all(data, rep), rep
 
 
-def _fetch_intraday(syms, n: int = 5000, extended: bool = False):
-    """شموعُ 5 دقائق من TradingView ⟵ {رمز: إطارٌ بفهرس توقيت نيويورك} · وما تعذّر يغيب."""
+def _fetch_intraday(syms, n: int = 5000, extended: bool = False, completed_only: bool = False):
+    """شموعُ 5 دقائق من TradingView ⟵ {رمز: إطارٌ بفهرس توقيت نيويورك} · وما تعذّر يغيب · و`completed_only` (البحثُ الوصفيّ) يقصّ
+    الجلسةَ الجارية (`_completed`) — وفحصُ السهم 5 دقائق يقرؤها كما هي (قراءةٌ متأخّرة ‏≈15 دقيقة معلنة)."""
     import Super_stock as S
     import tv_data as TV
     tmap = S._tv_ticker_map()
@@ -1224,7 +1260,7 @@ def _fetch_intraday(syms, n: int = 5000, extended: bool = False):
                 for x in b]
         df = pd.DataFrame(rows, columns=["Date", "Open", "High", "Low", "Close", "Volume"]).set_index("Date").sort_index()
         out[s] = df[~df.index.duplicated(keep="last")]
-    return out
+    return _completed_all(out) if completed_only else out
 
 
 def _session_codes(df) -> np.ndarray:
@@ -1354,6 +1390,8 @@ def run_research(mode: str) -> int:
     data, rep = _fetch_daily(pop)
     log(S._tv_bars_line(rep))
     log(f"📊 شموعٌ يوميّة من TradingView: {len(data)} من {len(pop)} (تعذّر {len(pop) - len(data)} · يُعلَن ولا يُستبدَل بمصدرٍ آخر)")
+    log(f"🕗 جلساتٌ مكتملةٌ وحدَها: قُصّت شمعةُ جلسةٍ جارية من {rep.get('partial_trimmed', 0)} إطارًا (آخرُ جلسةٍ مكتملة "
+        f"{S.last_closed_session()})")
     splits = _splits_many(sorted(data))
     sp_unknown = sum(1 for v in splits.values() if v is None)
     log(f"🧾 تقسيماتُ ياهو: معلومةٌ {len(splits) - sp_unknown} · مجهولةٌ {sp_unknown} (صفوفُها خارج الأوّليّ · فاشلٌ-مغلق)")
@@ -1368,7 +1406,8 @@ def run_research(mode: str) -> int:
     res = {"mode": mode, "generated": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z", "params": CONFIGS,
            "population": len(pop), "fetched": len(data), "fetch_report": {k: (v if not isinstance(v, list) else len(v))
                                                                           for k, v in rep.items()},
-           "splits_unknown_symbols": sp_unknown, "counts": counts_by_year(rows), "n_ctrl": len(ctrl)}
+           "splits_unknown_symbols": sp_unknown, "counts": counts_by_year(rows), "n_ctrl": len(ctrl),
+           "fetched_symbols": sorted(data)}
     for cfg, ys in res["counts"].items():
         log(f"   {cfg}: " + " · ".join(f"{y}: {d['all']} (صالح {d['usable']} · تقسيم {d['split']} · مجهول {d['unknown']})"
                                        for y, d in sorted(ys.items())))
@@ -1446,7 +1485,7 @@ def run_research(mode: str) -> int:
 
 def intraday_descriptive(pop) -> dict:
     """فريمُ 5 دقائق (فريمُ فيصل) — **وصفيٌّ بلا حكم** (العقد §⑧: الدقائقُ أسابيعُ لا سنوات): النموذجُ داخل جلسةٍ واحدة."""
-    data = _fetch_intraday(pop)
+    data = _fetch_intraday(pop, completed_only=True)
     rows = []
     for sym, df in data.items():
         ses = _session_codes(df)
@@ -1457,7 +1496,10 @@ def intraday_descriptive(pop) -> dict:
                          **{k: o.get(k) for k in ("ret1", "ret3", "ret6", "ret12", "ret_eod", "mfe", "mae", "target_hit")}})
     first = min((str(df.index[0])[:10] for df in data.values()), default=None)
     last = max((str(df.index[-1])[:10] for df in data.values()), default=None)
-    out = {"symbols_with_bars": len(data), "window": [first, last], "n": len(rows),
+    # تشخيصٌ وصفيّ (2026-10-01): التشغيلةُ الأولى طبعت نافذةً تبدأ 2000-01-03 لشموع «أسابيع» ⟵ يُسمّى كلُّ إطارٍ يبدأ قبل آخر 120 يومًا
+    old_first = sorted(((str(df.index[0])[:10], s_) for s_, df in data.items()
+                        if last and str(df.index[0])[:10] < (pd.Timestamp(last) - pd.Timedelta(days=120)).isoformat()[:10]))[:10]
+    out = {"symbols_with_bars": len(data), "window": [first, last], "window_outliers": old_first, "n": len(rows),
            "ret1": dist([r["ret1"] for r in rows]), "ret3": dist([r["ret3"] for r in rows]), "ret6": dist([r["ret6"] for r in rows]),
            "ret12": dist([r["ret12"] for r in rows]), "ret_eod": dist([r["ret_eod"] for r in rows]),
            "mfe_to_eod": dist([r["mfe"] for r in rows]), "mae_to_eod": dist([r["mae"] for r in rows]),

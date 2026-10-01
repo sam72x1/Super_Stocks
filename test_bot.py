@@ -76548,6 +76548,92 @@ except Exception as _e:                                                  # noqa:
 check("🔎 HS36 مصدرا المحاور السببيّان متّفقان: زجزاجُ دورة الحياة (`_zigzag_until`) = زجزاجُ الكشف (`_walk`) عند كلّ بار — محورٌ لم يتأكّد بعد "
       "k بارات لا يدخل أيًّا منهما (عقدُ الحارس لا أثرُه)", _hs36, f"بارات={_n36} · مختلف={_bad36[:6]}")
 
+# ── HS37 «الاختراقُ أوّلُ إغلاقٍ» ⟵ **لا شمعةَ جلسةٍ جارية** (عطلٌ مُثبَت 2026-10-01: تشغيلةُ الحكم الأولى `36911113194` ‏19:04 UTC داخل
+#    الجلسة قرأت شمعةَ 10-01 الجارية بسعرها اللحظيّ): `_completed` يقصّ ما بعد آخر جلسةٍ مكتملة **يوميًّا ودقائقَ** ويُبقي ما قبلها كلَّه ·
+#    وبعد الإغلاق وهامشه لا يقصّ شيئًا · وتعذّرُ التقويم ⟵ الإطارُ كما هو (فاشلٌ-آمن) · و`_completed_all` يَعُدّ المقصوصَ (يُعلَن) · والوصلُ
+#    من نقطة النداء (AST): مصدرا البحث والمسح/الفحص اليوميّ ‏+ البحثُ الوصفيّ 5 دقائق بـ`completed_only=True` (وفحصُ السهم 5 دقائق لا يقصّ).
+try:
+    import datetime as _hs37_dt                                          # noqa: PLC0415
+    _ix37 = _hs_pd.to_datetime(["2026-09-28", "2026-09-29", "2026-09-30", "2026-10-01"])
+    _d37 = _hs_pd.DataFrame({"Open": [1.0] * 4, "High": [1.0] * 4, "Low": [1.0] * 4, "Close": [1.0] * 4,
+                             "Volume": [1.0] * 4}, index=_ix37)
+    _in37 = _hs37_dt.datetime(2026, 10, 1, 19, 4, tzinfo=_hs37_dt.timezone.utc)   # 15:04 نيويورك — الجلسةُ جارية
+    _af37 = _hs37_dt.datetime(2026, 10, 2, 0, 47, tzinfo=_hs37_dt.timezone.utc)   # 20:47 نيويورك — أُغلقت وانقضى الهامش
+    _a37, _b37 = HS._completed(_d37, _in37), HS._completed(_d37, _af37)
+    _i37 = _hs_pd.DataFrame({"Open": [1.0] * 4, "High": [1.0] * 4, "Low": [1.0] * 4, "Close": [1.0] * 4, "Volume": [1.0] * 4},
+                            index=_hs_pd.to_datetime(["2026-09-30 09:30", "2026-09-30 15:55", "2026-10-01 09:30",
+                                                      "2026-10-01 15:00"]))
+    _ia37 = HS._completed(_i37, _in37)
+    _lcs37 = S.last_closed_session
+    S.last_closed_session = lambda now=None, margin_min=None: None
+    try:
+        _c37 = HS._completed(_d37, _in37)
+    finally:
+        S.last_closed_session = _lcs37
+    _rep37 = {}
+    _all37 = HS._completed_all({"A": _d37, "B": _d37.iloc[:3]}, _rep37, _in37)
+    import tv_data as _hs37_tv                                           # noqa: PLC0415
+    _fm37, _tm37, _lc37, _td37 = _hs37_tv.fetch_many, S._tv_ticker_map, S.last_closed_session, S.tv_download
+    _ts37 = [int(_hs_pd.Timestamp(x, tz="America/New_York").timestamp())
+             for x in ("2026-09-30 09:30", "2026-09-30 15:55", "2026-10-01 09:30")]
+    _hs37_tv.fetch_many = lambda names, **k: {n: [(t_, 1.0, 1.0, 1.0, 1.0, 1.0) for t_ in _ts37] for n in names}
+    S._tv_ticker_map = lambda *a, **k: {}
+    S.last_closed_session = lambda now=None, margin_min=None: "2026-09-30"
+    S.tv_download = lambda syms, start, **k: ({s_: _d37 for s_ in syms}, {"asked": len(syms)})
+    try:
+        _fi37 = HS._fetch_intraday(["AAA"], completed_only=True).get("AAA")
+        _fl37 = HS._fetch_intraday(["AAA"]).get("AAA")
+        _fd37, _rd37 = HS._fetch_daily(["AAA"])
+        _fv37, _rv37 = HS._fetch_live(["AAA"])
+    finally:
+        _hs37_tv.fetch_many, S._tv_ticker_map, S.last_closed_session, S.tv_download = _fm37, _tm37, _lc37, _td37
+    _fn37 = {n.name: n for n in _hs_ast.walk(_hs_ast.parse(open(HS.__file__, encoding="utf-8").read()))
+             if isinstance(n, _hs_ast.FunctionDef)}
+
+    def _calls37(f):
+        return {getattr(c.func, "id", None) or getattr(c.func, "attr", None)
+                for c in _hs_ast.walk(_fn37[f]) if isinstance(c, _hs_ast.Call)}
+
+    def _kw37(f):
+        return [k.arg for c in _hs_ast.walk(_fn37[f]) if isinstance(c, _hs_ast.Call) and getattr(c.func, "id", None) == "_fetch_intraday"
+                for k in c.keywords if k.arg == "completed_only" and getattr(k.value, "value", None) is True]
+    _hs37 = {"in_session": [str(x)[:10] for x in _a37.index] == ["2026-09-28", "2026-09-29", "2026-09-30"],
+             "after_close": len(_b37) == 4,
+             "intraday": [str(x)[:16] for x in _ia37.index] == ["2026-09-30 09:30", "2026-09-30 15:55"],
+             "failsafe": len(_c37) == 4,
+             "count": _rep37.get("partial_trimmed") == 1 and len(_all37.get("A", [])) == 3 and len(_all37.get("B", [])) == 3,
+             "fetch": (_fi37 is not None and len(_fi37) == 2 and _fl37 is not None and len(_fl37) == 3
+                       and len(_fd37.get("AAA", [])) == 3 and _rd37.get("partial_trimmed") == 1
+                       and len(_fv37.get("AAA", [])) == 3 and _rv37.get("partial_trimmed") == 1),
+             "wired": ("_completed_all" in _calls37("_fetch_daily") and "_completed_all" in _calls37("_fetch_live")
+                       and bool(_kw37("intraday_descriptive")) and not _kw37("run_ticker"))}
+    _hs37_ok = all(_hs37.values())
+except Exception as _e:                                                  # noqa: BLE001
+    _hs37_ok, _hs37 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS37 «الاختراقُ أوّلُ إغلاقٍ»: شمعةُ الجلسة الجارية تُقصّ يوميًّا ودقائقَ (‏15:04 نيويورك ⟵ حتى 09-30 · وبعد الإغلاق وهامشه لا قصّ) · "
+      "وتعذّرُ التقويم ⟵ كما هو · والمقصوصُ يُعَدّ · وموصولٌ بمصدرَي البحث والمسح والوصفيّ 5 دقائق (وفحصُ السهم 5 دقائق لا)",
+      _hs37_ok, str(_hs37))
+# ── HS38 **كلُّ ما يحفظه `git_save` من الأداة غيرُ مُتجاهَل** (عطلٌ مُثبَت 2026-10-01: `*.csv` في `.gitignore` جعل `git add` يرفض
+#    `hs_research/hs_history.csv` فلم يُحفَظ السجلُّ التاريخيّ في تشغيلة الحكم الأولى `36911113194` ⟵ وضعُ query بلا سجلّ): الأسماءُ من
+#    المصدر (AST: ثوابتُ `.json`/`.csv` في `run_research` تحت `RES_DIR` ‏+ `STATE_FILE`) ⟵ `git check-ignore` لكلٍّ «غيرُ مُتجاهَل» ·
+#    وشاهدا ضبطٍ يُثبتان أن الفاحصَ يمسك: الشارتُ `hs_*.png` و`*.csv` آخرُ مُتجاهَلان.
+try:
+    import subprocess as _hs38_sp                                        # noqa: PLC0415
+    _rr38 = _fn37["run_research"]
+    _names38 = sorted({c.value for c in _hs_ast.walk(_rr38) if isinstance(c, _hs_ast.Constant) and isinstance(c.value, str)
+                       and c.value.endswith((".json", ".csv")) and "/" not in c.value})
+    _paths38 = [_hs_os.path.join(HS.RES_DIR, n) for n in _names38] + [HS.STATE_FILE]
+
+    def _ign38(path):
+        return _hs38_sp.run(["git", "check-ignore", "-q", path], capture_output=True).returncode == 0
+    _bad38 = [p for p in _paths38 if _ign38(p)]
+    _ctl38 = [_ign38("hs_ZZZZ.png"), _ign38(_hs_os.path.join(HS.RES_DIR, "zz_other.csv"))]
+    _hs38 = {"names": _names38, "ignored": _bad38, "control": _ctl38}
+    _hs38_ok = ({"dev_2022.json", "hs_verdict.json", "hs_history.csv"} <= set(_names38) and not _bad38 and _ctl38 == [True, True])
+except Exception as _e:                                                  # noqa: BLE001
+    _hs38_ok, _hs38 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔎 HS38 كلُّ ما يحفظه `git_save` من الأداة غيرُ مُتجاهَل في git (`hs_history.csv` · `hs_verdict.json` · `dev_2022.json` · "
+      "`hs_state.json`) — والشارتُ و`*.csv` آخرُ مُتجاهَلان (شاهدا ضبط)", _hs38_ok, str(_hs38))
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
