@@ -17361,7 +17361,9 @@ def extended_last_price(sym: str, session_date, fetch_bars=None):
 TV_AH_MIN_N = 1500               # engineering — توأمُ `presession_radar.TV_MIN_N` (قفلُ تطابق): شموعُ دقيقةٍ ممتدّة تكفي يومًا
 #                                   كاملًا 04:00-20:00 (‏960) بهامش
 TV_AH_DAY_N = 960                # توأمُ `presession_radar.TV_DAY_N`: دقائقُ اليوم الممتدّ — تُضاف لكلّ يومٍ تقويميٍّ بين الجلسة والآن
-AH_GUARD_LAST = {}               # 🌙📺 تقريرُ آخر نداءٍ لـ`ah_guard_rows` (المصدر · سُئل · قُرئ · بلا صفقة افتر · تعذّر) — للسجلّ والاختبار
+AH_GUARD_LAST = {}               # 🌙📺 تقريرُ آخر نداءٍ لـ`ah_guard_rows` (المصدر · سُئل · قُرئ · بلا صفقة افتر · تعذّر · بلا ماسح · اختلاف) — للسجلّ والاختبار
+TV_AH_AGREE_PCT = 2.0            # 🌙📺 engineering — قناتا TradingView (آخرُ دقيقةٍ ممتدّة · `postmarket_close` الماسح) تتّفقان ضمنه وإلّا «لم يُتحقّق» (حدُّ `AH2` المكتوب قبل مِجَسّ 36808633641)
+AH_GUARD_TV_ENV = "AH_GUARD_TV"   # 🌙📺 مفتاحُ مسار TradingView في حارس الافتر: «1» يُشعله · وغيابُه ⟵ المسارُ السابق بت-بت (يُشعَل في الـworkflows بعد عبور مِجَسّ v2 الحاكم — رأسُ aht_probe.py)
 
 
 def tv_session_minutes(sym, session_date, chart=None, tmap=None, now=None):
@@ -17418,6 +17420,30 @@ def tv_session_minutes(sym, session_date, chart=None, tmap=None, now=None):
     return out
 
 
+def tv_postmarket_map(scan=None):
+    """📺🌙 القناةُ الثانية لحارس الافتر — {رمزٌ مجرّد: `postmarket_close`} من ماسح TradingView بنداءٍ واحد (‏`tv_data.ticker_map`:
+    ناسداك يغلب) · والقيمةُ غيرُ الصالحة تُسقَط · وتعذّرُ الماسح ⟵ None (لا نصفَ قائمة · فاشلٌ-آمن) · و`scan` محقونٌ للاختبار.
+    🔴 **بُنيت لـ**`ah_guard_rows` بعد مِجَسّ `36808633641` (‏2026-10-01): آخرُ دقيقةٍ ممتدّة في الشارت وحدَها اتّفقت مع ياهو
+    ضمن 2% في 43 من 53 (‏`AH2` ساقط · والماسحُ مع ياهو 71 من 80 · والقناتان معًا 41 من 52) ⇒ لا قناةَ تكفي وحدَها.
+    🔒 عرضٌ/تنبيهٌ فقط — خارج الفرز والجذور."""
+    try:
+        import tv_data as TV
+        snap = (scan or TV.scan)(["name", "postmarket_close"])
+        if not snap:
+            return None
+        out = {}
+        for sym, full in TV.ticker_map(snap).items():
+            try:
+                v = float((snap.get(full) or {}).get("postmarket_close"))
+            except (TypeError, ValueError):
+                continue
+            if v == v and v > 0:                                 # ⚠️ NaN ليس None
+                out[sym] = v
+        return out
+    except Exception:                                            # noqa: BLE001
+        return None
+
+
 def ah_guard_rows(rows, session_date, fetch=None):
     """🌙⛔ **حارس الافتر على صفوف المرشّحين** — يمنع التنبيه **البائت**.
 
@@ -17440,7 +17466,10 @@ def ah_guard_rows(rows, session_date, fetch=None):
     الصفّ **يبقى** ويُوسَم في `unverified` (تعذّر ≠ صفر · لا كتم صامت ولا ثقة كاذبة).
     يرجع `(kept, unverified)`. `fetch(sym, date)` محقون للاختبار بلا شبكة.
     📺 **ومنذ 2026-10-01 (أمرُ المالك «شغّل حارس الافتر للمقسّم على ترندق فيو»):** بلا `fetch` و`BARS_SOURCE=tradingview` ⟵
-    السعرُ الممتدّ من دقائق TradingView (`tv_session_minutes` على مِقبسٍ واحد) والقاعدةُ نفسُها · وبلا البيئة بت-بت (`AHT1`-`AHT5`).
+    السعرُ الممتدّ من **قناتين** في TradingView: آخرُ دقيقةٍ ممتدّة (`tv_session_minutes` على مِقبسٍ واحد) و`postmarket_close` الماسح
+    (`tv_postmarket_map` بنداءٍ واحد) — **ولا يُتحقَّق إلّا إن اتّفقتا ضمن `TV_AH_AGREE_PCT`** والسعرُ أدناهما (لا كتمَ إلّا بقناتين) ·
+    والقاعدةُ نفسُها · وبلا البيئة بت-بت (`AHT1`-`AHT10`) · لأن القناةَ الواحدة سقطت في مِجَسّ `36808633641` (‏`AH2` ‏81.1%).
+    🔒 **وخلف مفتاح `AH_GUARD_TV`=«1» أيضًا** (مطفأٌ في الـworkflows حتى يعبر مِجَسّ v2 الحاكم ⇒ الدمجُ وحدَه لا يغيّر الإنتاج).
     🔒 عرض/تنبيه فقط — خارج الفرز والجذور (مقفول)."""
     kept, unverified = [], []
     try:
@@ -17453,15 +17482,22 @@ def ah_guard_rows(rows, session_date, fetch=None):
     #    واحد** يُغلق بعد الصفوف — نمطُ رادار الضغط (#505). والقاعدةُ والعتبةُ والكتمُ والوسمُ بت-بت · والجالبُ المحقون يغلب ·
     #    وبلا البيئة النداءُ السابق حرفًا · وتعذّرُ المِقبس ⟵ «لم يُتحقّق» كما كان (فاشلٌ-آمنٌ مفتوح) · والسجلُّ يفرّق «تعذّر» عن
     #    «بلا صفقةٍ بعد الإغلاق» (كلاهما «لم يُتحقّق» — دقائقُ TradingView من منصّةٍ لا من الشريط الموحَّد فغيابُها لا يُثبت السكون).
-    rep = {"src": "injected" if fetch is not None else "polygon", "asked": 0, "got": 0, "no_ah": 0, "fail": 0}
-    tv_ch = None
-    if fetch is None and rows and bars_source() == "tradingview":
+    #    🔴 **وقناتان لا واحدة (‏2026-10-01 · مِجَسّ `36808633641`):** آخرُ دقيقةٍ ممتدّة وحدَها اتّفقت مع ياهو ضمن 2% في 43 من 53
+    #    (‏`AH2` ساقط · وقرارُ الكتم 53 من 53) ⇒ يلزم اتّفاقُها مع `postmarket_close` الماسح ضمن `TV_AH_AGREE_PCT` وإلّا «لم يُتحقّق» ·
+    #    والسعرُ أدنى القناتين ⟵ لا كتمَ إلّا إن صعدت الاثنتان (فاشلٌ-آمنٌ مفتوح) · وتعذّرُ الماسح ⟵ كلُّ صفٍّ «لم يُتحقّق».
+    rep = {"src": "injected" if fetch is not None else "polygon", "asked": 0, "got": 0, "no_ah": 0, "fail": 0,
+           "no_scan": 0, "disagree": 0}
+    tv_ch, tv_pm = None, None
+    if (fetch is None and rows and bars_source() == "tradingview"
+            and (os.environ.get(AH_GUARD_TV_ENV) or "").strip() == "1"):
         try:
             import tv_data as _TVD                               # noqa: PLC0415
             tv_ch = _TVD.Chart()
         except Exception:                                        # noqa: BLE001
             tv_ch = None
             rep["src"] = "polygon (تعذّر مِقبس TradingView)"
+        if tv_ch is not None:
+            tv_pm = tv_postmarket_map()
 
     def _tv_fetch(sym, d):
         bars = tv_session_minutes(sym, d, chart=tv_ch)
@@ -17471,7 +17507,16 @@ def ah_guard_rows(rows, session_date, fetch=None):
         px = extended_last_price(sym, d, fetch_bars=lambda _s, _d: bars)
         if px is None:
             rep["no_ah"] += 1
-        return px
+            return None
+        s_up = str(sym).upper()
+        sc = (tv_pm or {}).get(s_up) or (tv_pm or {}).get(s_up.replace("-", "."))
+        if sc is None:
+            rep["no_scan"] += 1
+            return None
+        if abs(float(px) / float(sc) - 1.0) * 100.0 > float(TV_AH_AGREE_PCT):
+            rep["disagree"] += 1
+            return None
+        return min(float(px), float(sc))
 
     if fetch is not None:
         f = fetch
@@ -17526,7 +17571,9 @@ def ah_guard_rows(rows, session_date, fetch=None):
     AH_GUARD_LAST.update(rep)
     if rows and rep["src"] not in ("injected", "polygon"):        # سطرُ السجلّ لمسار TradingView وحدَه (والبقيّةُ بت-بت)
         log(f"🌙📺 حارسُ الافتر ({rep['src']}): قُرئ سعرُ {rep['got']} من {rep['asked']}"
-            + (f" · بلا صفقةٍ بعد الإغلاق {rep['no_ah']} · تعذّر {rep['fail']}" if rep["src"] == "tradingview" else ""))
+            + (f" · بلا صفقةٍ بعد الإغلاق {rep['no_ah']} · تعذّر {rep['fail']} · بلا قيمةٍ في الماسح {rep['no_scan']}"
+               f" · اختلفت القناتان فوق {TV_AH_AGREE_PCT:g}% {rep['disagree']}"
+               + (" · ⚠️ الماسح تعذّر" if tv_pm is None else "") if rep["src"] == "tradingview" else ""))
     return kept, unverified
 
 

@@ -1,11 +1,9 @@
 name: aht probe (مؤقّت — يُحذف قبل الدمج)
 
 # 🧪 حارسُ الافتر للمقسّم على TradingView مقابل ياهو — قراءةٌ فقط: بلا تلغرام ولا كتابة حالة ولا git. المعيارُ في رأس aht_probe.py.
+# 🔄 v2 (2026-10-01): بلا مرشِّح مسارات ⟵ كلُّ دفعٍ للـPR يُشغّله · والحاكمةُ أوّلُ تشغيلةٍ على جلسةٍ بعد 09-30 بعد اكتمال افترها (الرأس).
 on:
   pull_request:
-    paths:
-      - "aht_probe.py"
-      - ".github/workflows/aht_probe.yml"
   workflow_dispatch:
 
 permissions:
