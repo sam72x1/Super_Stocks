@@ -544,7 +544,12 @@ def analyze_tf(df, name, scan_last):
     bears = detect_bearish(df, scan_last)
 
     # ===== مؤشرات كلاسيكية إضافية (معلومات فقط — لا تمسّ الدرجة/الحكم) =====
-    extra = {"adx": None, "boll": None, "stoch": None, "fib": None}
+    extra = {"adx": None, "boll": None, "stoch": None, "fib": None, "ema_cross": None}
+    # 〽️ تقاطع EMA 9/26 — المؤشّرُ الوحيد من لوحة فيصل على TradingView الغائبُ عن البوت (دفعة 2026-10-01 · عرضٌ فقط)
+    try:
+        extra["ema_cross"] = bot.ema_cross_line(bot.ema_cross_state(close)) or None
+    except Exception:
+        pass
     # قوة الاتجاه ADX/DMI (Wilder): الاتجاه له قوّة، مب اتجاه فقط
     try:
         pdi, mdi, adx = bot.dmi_adx(df["High"], df["Low"], close)
@@ -792,6 +797,8 @@ def render(rep):
             L.append(f"📉 بولنجر: {ex['boll']}")
         if ex.get("stoch"):
             L.append(f"🎚️ ستوكاستيك RSI: {ex['stoch']}")
+        if ex.get("ema_cross"):
+            L.append(f"〽️ تقاطع المتوسط الأسّيّ: {ex['ema_cross']}")
         if ex.get("fib"):
             lo_, hi_, lv = ex["fib"]
             ftxt = "، ".join(f"{k}: ${v:.2f}" for k, v in lv.items())
