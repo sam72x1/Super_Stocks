@@ -488,6 +488,24 @@ def run():
                     near.append(f"{src}:{cand}")
         print(f"• {field}: " + (("✅ مؤكَّد ⟵ " + " · ".join(conf)) if conf else "❔ غيرُ معروف")
               + (f" ‖ قريب: {' · '.join(near[:6])}" if near else ""))
+    # §⑥ H-UNADJ (استكشافيّة): «أسفل الثلاثة» على شموعٍ غير مسوّاة
+    print("\n════════ H-UNADJ (§⑥ · استكشافيّة — لا تُحسب تأكيدًا) ════════")
+    ch2 = TV.Chart(timeout=25)
+    for tag, sym, asof, want in (("NTCL-25", "NTCL", "2026-09-25", True), ("GCTK-25", "GCTK", "2026-09-25", True),
+                                 ("OMH-x", "OMH", "2026-09-25", False), ("CIIT-x", "CIIT", "2026-09-25", False)):
+        try:
+            raw = ch2.bars(tmap.get(sym, f"NASDAQ:{sym}"), "1D", n=700, adjustment="none")
+            d = daily_tv(raw)
+            d = d[d.index <= pd.Timestamp(asof)]
+            c = d["Close"].iloc[-250:]
+            px = float(d["Close"].iloc[-1])
+            emas = [float(c.ewm(span=n, adjust=False).mean().iloc[-1]) for n in (20, 30, 50)]
+            below = all(px < e for e in emas)
+            print(f"• {tag}: غيرُ مسوّى EMA20/30/50={[round(e, 4) for e in emas]} · السعر {px} · أسفل الثلاثة={below}"
+                  f" · التطبيق {want} ⇒ {'✓' if below == want else '✗'}")
+        except Exception as e:                                     # noqa: BLE001
+            print(f"• {tag}: تعذّر ({type(e).__name__})")
+    ch2.close()
     print("\n════════ OOS (الملحق §⑤ · مكتوبٌ قبل الرقم) ════════")
     for cond in ("below", "mom[240reg]", "mom[240ext]"):
         for src in ("tv", "yahoo"):
