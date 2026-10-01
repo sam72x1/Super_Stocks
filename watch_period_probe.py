@@ -42,6 +42,26 @@
 ⑬ **ملحقٌ مؤرَّخ 2026-09-29 — أمرُ المالك «وحد 33 في التقريرين»:** حدُّ RSI في ③ وسطرِ السجلّ وسببِ «لم يستوفِ» = `WW.rsi_max()`
    بالاسم (`S.CONFIG["RSI_OVERSOLD"]` وقتَ النداء · النافذ 33) عبر `WW.flags` ⇒ **التقريران والأداةُ اليوميّة على حدٍّ واحد** ·
    و`OPL.RSI_OWNER` (30) لا يُقرأ إلّا لشاهد ⑨ · **والمنشورُ قبل هذا السطر بحدّ 30 يبقى كما صدر** (`watch_period_result.md`).
+⑭ **ملحقٌ مؤرَّخ 2026-10-01 — المصدرُ TradingView خلف `PERIOD_SOURCE`** (عطلٌ مُثبَت: تشغيلةُ الشهر على main كما هو `36840995119`
+   جلبت 25 من 136 رمزًا في 25 دقيقة على Polygon — ‏≈دقيقةٌ للرمز وكانت التشغيلةُ كلُّها 3-4 دقائق يومَ 09-26 — فأُلغيت عند 41 دقيقة
+   قبل `V-W2` · والاشتراكُ انتهى 2026-09-29 · وأمرُ المالك «البيانات تاخذها من ترندق فيو»): `PERIOD_SOURCE=polygon`
+   (الافتراضيُّ بلا البيئة) = المسارُ السابق **بت-بت** · و`tradingview` = **تعريفاتُ ①-⑬ نفسُها بأسمائها والمصدرُ وحدَه يتغيّر** — مكتوبٌ
+   ومدموجٌ قبل أيّ رقمٍ منه:
+   (أ) **المسوّى** = `TC.fetch_tv` بالاسم (مِقبسُ الشارت · الجلسةُ النظاميّة · `adjustment=splits` · مقصوصٌ على [d0, d1]) ⟵ RSI والانفجارُ
+       النظاميّ والإغلاقُ المرجعيّ بدوالّ `WW` نفسِها.
+   (ب) **الخامّ** (الفئة · `WW.flags[3]`) = المسوّى × حاصلُ نسب تقسيمات ياهو **بعد يومه** (`S._fetch_splits` · `S._split_scale_factor`
+       بالاسم: 0.1 لعكسيٍّ 1:10) — وتعذّرُ التقسيمات (None) ⟵ **لا خامّ** (الفئةُ مجهولة · تُعَدّ) لا تخمين.
+   (ج) **حارسُ التقسيم غيرِ المسوّى** (`HO.split_events_after` · `HO.unadjusted_jump` بالاسم): رمزٌ لم يُسوِّ TradingView تقسيمًا من
+       تقسيماته بعد d0 (‏WOK 2025-10-21 شاهدُه المقيس) ⟵ **شموعُه تُسقط** (تُعَدّ في `V-W2` وتُسمّى) — لا تُصحَّح.
+   (د) **الممتدّ** = شموعُ **5 دقائق** ممتدّة (04:00-20:00) من المِقبس — عمقُ دقيقة الزائر ‏≈5 أيّامٍ لا يغطّي شهرًا ⟵ آخرُ `TV_EXT_N`
+       شمعة (‏≈26 جلسةً ممتدّة لأنشط سهم) · و`WW.max_rise_ext` بالاسم (الشمعةُ تُحتسب إن **بدأت** داخل النافذة ⟵ حدُّها الأوّلُ محافظٌ
+       بخمس دقائق) · **ورمزٌ لا تبلغ أوّلُ شمعةٍ مجلوبةٍ له بدايةَ نافذته يُعَدّ ناقصًا** (`ext_reach` · يخرج من `V-W3` ولا يُحسب
+       ممتدُّه) فلا تُقرأ نافذةٌ مقصوصةٌ كاملة.
+   (هـ) **الحجمُ لا يدخل** شرطًا ولا انفجارًا (الحكمُ على الأسعار وحدَها) ⇒ حدُّ «الحجم الجزئيّ» عند الزائر بلا أثرٍ بالبناء.
+   (و) **`V-P1` بوّابةٌ صلبة على TradingView** (وعلى Polygon يُطبع كما كان): عدُّ الأسبوع ≠ المنشور (177 · 4 · 76 · 57 · 156 بحدّ
+       `PUBLISHED_RSI`) ⟵ **خروج 3 «لا رقم»** — فهُويّةُ البيانات تُثبَت قبل أيّ رقمٍ للفترة · وفترةٌ لا تحوي ذلك الأسبوعَ كلَّه ⟵ سطرُ
+       «⚠️ هُويّةُ TradingView غيرُ مُثبتة في هذه الفترة» لا صمت · و`V-W1`/`V-W2`/`V-W3`/`V-W4` بعتباتها كما هي.
+   (ز) تقسيماتُ التتبّع (⑫) من ياهو · ومفتاحُ Polygon غيرُ لازم.
 
 الخروج: 0 قياس · 2 بلا مفتاح · 3 حارسٌ ساقط · 4 لا لقطة/لا رمز · 5 ليست قراءةً فقط.
 """
@@ -69,6 +89,9 @@ PUBLISHED = (177, 4, 76, 57, 156)                                    # ⑨ watch
 PUBLISHED_RSI = OPL.RSI_OWNER    # ⑨ حدُّ RSI الذي صدر به المنشور (30) — لعدّ الشاهد وحدَه · والتقريرُ نفسُه على WW.rsi_max() (⑬)
 LABEL = {"penny": "🪙 Penny (سعرُ الإشارة الخامّ أقلّ من $1.00)", "dollar": "💵 Dollar (سعرُ الإشارة الخامّ $1.00 فأكثر)"}
 UTC = WW.UTC
+SOURCE = (os.environ.get("PERIOD_SOURCE") or "polygon").strip().lower()   # ⑭ polygon (بت-بت) · tradingview
+TV_EXT_INTERVAL = "5"            # ⑭ engineering — شموعُ 5 دقائق ممتدّة: عمقُ دقيقة الزائر ‏≈5 أيّامٍ لا يغطّي شهرًا
+TV_EXT_N = 5000                  # ⑭ engineering — ‏≈26 جلسةً ممتدّة لأنشط سهم (192 شمعة/جلسة) فوق جلسات الشهر · والناقصُ يُعَدّ (ext_reach)
 
 
 def log(msg=""):
@@ -143,16 +166,105 @@ def stats(xs):
     return sum(xs) / len(xs), statistics.median(xs), max(xs)
 
 
-def outcome(adj, c, d_sig, last_day, mins, seen, now_utc):
-    """⑥ نتيجةُ الإشارة: النظاميّ (`WW.max_rise`) والممتدّ (`WW.max_rise_ext`) من جلسة الإشارة حتى آخر جلسة ⟵ dict."""
+def outcome(adj, c, d_sig, last_day, mins, seen, now_utc, reach=False):
+    """⑥ نتيجةُ الإشارة: النظاميّ (`WW.max_rise`) والممتدّ (`WW.max_rise_ext`) من جلسة الإشارة حتى آخر جلسة ⟵ dict ·
+    و`reach` (⑭-د · TradingView): شموعٌ لا تبلغ بدايةَ نافذة الإشارة ⟵ لا ممتدّ (نافذةٌ مقصوصةٌ لا تُقرأ كاملة)."""
     c0 = WW.close_at(adj, c)
     mr, mday = WW.max_rise(adj, c, d_sig, last_day)
     st, en = WW.ext_bounds(d_sig, seen, last_day, now_utc)
+    if reach and not ext_reach(mins, st):
+        mins = []
     xm, xms = WW.max_rise_ext(mins or [], c0, st, en)
 
     def hi(p):
         return None if p is None or not c0 else c0 * (1.0 + p / 100.0)
     return {"c0": c0, "reg": mr, "reg_day": mday, "reg_hi": hi(mr), "ext": xm, "ext_ms": xms, "ext_hi": hi(xm)}
+
+
+# ─────────────────────────── ⑭ TradingView (خلف `PERIOD_SOURCE`) ───────────────────────────
+def ext_reach(mins, start):
+    """⑭-د نقيّة: هل تبلغ الشموعُ بدايةَ النافذة؟ — أوّلُ شمعةٍ مجلوبة بدأت عند `start` أو قبله ⟵ True · وبلا شموعٍ أو بعده ⟵
+    False (المِقبسُ يُعطي آخرَ `TV_EXT_N` شمعة فالأقدمُ منها يُقصّ — والنافذةُ المقصوصةُ لا تُقرأ كاملة)."""
+    return bool(mins) and mins[0][0] <= start.timestamp() * 1000.0
+
+
+def raw_rows(adj, splits):
+    """⑭-ب نقيّة: الخامُّ من المسوّى — كلُّ صفٍّ × حاصلُ نسب التقسيمات **بعد يومه** (`S._split_scale_factor` بالاسم: 0.1 لعكسيٍّ
+    1:10) ⟵ مقياسُ يومِه نفسِه · والحجمُ كما هو (لا يدخل حكمًا)."""
+    out = []
+    for d, o, h, lo, c, v in adj or []:
+        f = WW.S._split_scale_factor(splits, d)
+        out.append((d, o * f, h * f, lo * f, c * f, v))
+    return out
+
+
+def tv_pair(adj, splits, d0):
+    """⑭-ب/ج نقيّة: (مسوًّى, خامّ, سبب) لرمز — بلا شموعٍ ⟵ ([], [], None) · تقسيماتٌ متعذّرة (None) ⟵ (المسوّى, [], "splits")
+    (الخامُّ مجهولٌ لا يُخمَّن) · وتقسيمٌ بعد `d0` لم يُسوِّه الإطار (`HO.unadjusted_jump` على `HO.split_events_after` بالاسم) ⟵
+    ([], [], "unadjusted") (تُسقط شموعُه ولا تُصحَّح) · وإلّا (المسوّى, `raw_rows`, None)."""
+    if not adj:
+        return [], [], None
+    if splits is None:
+        return list(adj), [], "splits"
+    import hunter_outcomes as HO
+    ev = HO.split_events_after(splits, d0)
+    if ev:
+        df = WW.pd.DataFrame({"Close": [r[4] for r in adj]}, index=[r[0] for r in adj])
+        if HO.unadjusted_jump(df, ev):
+            return [], [], "unadjusted"
+    return list(adj), raw_rows(adj, splits), None
+
+
+def tv_map():
+    """⑭ {رمز: «EXCH:SYM»} من لقطة الماسح (`TC.tv_snapshot` · `TV.ticker_map` بالاسم) ⟵ {} عند التعذّر (فالاحتياطُ «NASDAQ:SYM»)."""
+    import three_cond_daily as TC
+    sn = TC.tv_snapshot()
+    return TC.TV.ticker_map(sn) if sn else {}
+
+
+def tv_daily(syms, d0, d1, tmap):
+    """⑭-أ {رمز: صفوفٌ يوميّة مسوّاة (يوم, o, h, l, c, v)} مقصوصةً على [d0, d1] — `TC.fetch_tv` بالاسم (قاطعُه ومهلتُه وتمريرتُه
+    الثانية) · والتعذّرُ ⟵ []."""
+    import three_cond_daily as TC
+    return TC.fetch_tv(list(syms), d0, d1, tmap=tmap)
+
+
+def tv_splits(sym):
+    """⑭-ب تقسيماتُ ياهو للرمز (`S._fetch_splits` بالاسم · كاشُ التشغيلة) ⟵ Series أو None عند التعذّر."""
+    return WW.S._fetch_splits(sym)
+
+
+def tv_ext(syms, tmap):
+    """⑭-د {رمز: [(ms, high)]} صعودًا — آخرُ `TV_EXT_N` شمعةَ `TV_EXT_INTERVAL` دقائق **ممتدّة** من المِقبس (`TV.fetch_many` بالاسم ·
+    تحت قاطعٍ ومهلةٍ كـ`TC.fetch_tv_hours`) بلا قصّ (النافذةُ يقصّها `WW.max_rise_ext`) · والتعذّرُ ⟵ []."""
+    import three_cond_daily as TC
+    full = {s: TC._tv_full(s, tmap) for s in syms}
+    brk = TC.TVBreaker(budget=TC.TV_HOURS_BUDGET_S)
+    got = TC.TV.fetch_many(sorted(set(full.values())), interval=TV_EXT_INTERVAL, n=TV_EXT_N, extended=True,
+                           workers=TC.TV_WORKERS, gate=brk, stagger=TC.TV_STAGGER_S, retry_pass=True,
+                           retry_pause=TC.TV_RETRY_PAUSE_S)
+    if brk.open:
+        log(f"⛔ قاطعُ الدائرة (الممتدّ){TC.breaker_note(brk.summary())}")
+    return {s: sorted((int(b[0]) * 1000, float(b[2])) for b in (got.get(f) or [])) for s, f in full.items()}
+
+
+def tv_load(syms, d0, d1, tmap):
+    """⑭ {رمز: (مسوًّى, خامّ)} لعدّة رموز من TradingView وتقسيمات ياهو (`tv_daily` · `tv_splits` · `tv_pair`) ⟵ (القاموس, عدّادات) —
+    والعدّاداتُ تُطبع: بلا شموع · بلا تقسيمات (الخامُّ مجهول) · وتقسيمٌ غيرُ مسوّى (أُسقط) بأسمائها."""
+    daily = tv_daily(syms, d0, d1, tmap)
+    out, st = {}, {"no_bars": [], "no_splits": [], "unadjusted": []}
+    for s in syms:
+        adj = daily.get(s) or []
+        sp = tv_splits(s) if adj else None
+        a, r, why = tv_pair(adj, sp, d0)
+        out[s] = (a, r)
+        if not adj:
+            st["no_bars"].append(s)
+        elif why == "splits":
+            st["no_splits"].append(s)
+        elif why == "unadjusted":
+            st["unadjusted"].append(s)
+    return out, st
 
 
 def _fmt(x, f="{:,.0f}"):
@@ -169,7 +281,8 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
         log("⛔ ليست قراءةً فقط")
         return 5
     key = (os.environ.get("POLYGON_API_KEY") or "").strip()
-    if not key:
+    tv = SOURCE == "tradingview"                                     # ⑭ — وبلا البيئة Polygon بت-بت
+    if not key and not tv:
         log("⛔ بلا POLYGON_API_KEY")
         return 2
     now = now or dt.datetime.now(tz=NY)
@@ -197,6 +310,9 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
     log(f"🗓️🔎② الفترة {d_from} ⟶ {d_to}: {len(days)} من {len(full)} جلسة منتهية ({days[0]} ⟶ {days[-1]}) · الفئات: "
         f"{', '.join(classes)} · الشروط: RSI أقلّ من {WW.rsi_max():g} · فلوت أقلّ من {OPL.FLOAT_OWNER:,} · «شورت» (المتاح) أقلّ "
         f"من {OPL.AVAIL_OWNER:,} · الفئة من سعر الإشارة الخامّ (حدُّ الدولار ${PX.PX_MIN:.2f})")
+    if tv:
+        log(f"📺 المصدرُ TradingView (⑭): اليوميُّ مسوًّى من المِقبس · الخامُّ = المسوّى × تقسيماتُ ياهو بعد يومه · والممتدُّ شموعُ "
+            f"{TV_EXT_INTERVAL} دقائق ممتدّة (آخرُ {TV_EXT_N:,}) · و`V-P1` بوّابةٌ صلبة")
     union = sorted({s for d in days for s in lists[d][2]})
     if not union:
         log("⛔ صفرُ رمز")
@@ -222,10 +338,21 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
 
     d0 = (dt.date.fromisoformat(days[0]) - dt.timedelta(days=WW.HIST_DAYS)).isoformat()
     adj_by, raw_by = {}, {}
-    for i, s in enumerate(union + pb_union, 1):
-        adj_by[s], raw_by[s] = WW.fetch_bars(s, d0, days[-1], key)
-        if i % 25 == 0:
-            log(f"   … {i}/{len(union) + len(pb_union)}")
+    if tv:
+        tmap = tv_map()
+        got_tv, st_tv = tv_load(union + pb_union, d0, days[-1], tmap)
+        for s in union + pb_union:
+            adj_by[s], raw_by[s] = got_tv[s]
+        log(f"📺 خريطةُ الماسح {len(tmap):,} رمزًا · اليوميّ: {len(union) + len(pb_union) - len(st_tv['no_bars'])} من "
+            f"{len(union) + len(pb_union)} · بلا تقسيمات ياهو (الخامُّ مجهول) {len(st_tv['no_splits'])}"
+            + (f": {', '.join(st_tv['no_splits'])}" if st_tv["no_splits"] else "")
+            + f" · تقسيمٌ لم يُسوِّه TradingView (أُسقطت شموعُه) {len(st_tv['unadjusted'])}"
+            + (f": {', '.join(st_tv['unadjusted'])}" if st_tv["unadjusted"] else ""))
+    else:
+        for i, s in enumerate(union + pb_union, 1):
+            adj_by[s], raw_by[s] = WW.fetch_bars(s, d0, days[-1], key)
+            if i % 25 == 0:
+                log(f"   … {i}/{len(union) + len(pb_union)}")
     covered = [s for s in union if adj_by.get(s)]
     cover = len(covered) / len(union)
     log(f"🩺 V-W2 الشموع: {len(covered)} من {len(union)} = {cover * 100:.1f}% (الحدّ {WW.MIN_BAR_COVER * 100:.0f}%) · "
@@ -251,7 +378,13 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
     # ── ⑪ شموعُ «تحت المتابعة» (متوازيةً · خارج حارس V-W2 لأنها ليست مجتمعَ المقام) ──
     trace = [t for t in TRACE if t not in adj_by]
     extra = [x for x in nw_union + trace if x not in adj_by]
-    if extra:
+    if extra and tv:
+        got_x, st_x = tv_load(extra, d0, days[-1], tmap)
+        for x in extra:
+            adj_by[x], raw_by[x] = got_x[x]
+        log(f"   … 👀 شموعُ تحت المتابعة والتتبّع (TradingView): {sum(1 for x in extra if adj_by.get(x))} من {len(extra)} · "
+            f"بلا تقسيمات ياهو {len(st_x['no_splits'])} · تقسيمٌ غيرُ مسوّى (أُسقط) {len(st_x['unadjusted'])}")
+    elif extra:
         import concurrent.futures as _cf
         with _cf.ThreadPoolExecutor(max_workers=NW_WORKERS) as ex:
             for x, (a, r) in zip(extra, ex.map(lambda z: WW.fetch_bars(z, d0, days[-1], key), extra)):
@@ -313,6 +446,12 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
             f"RSI بحدّ المنشور {PUBLISHED_RSI:g} · فلوت · متاح · "
             f"دولار): محسوب {got} مقابل المنشور {PUBLISHED} ⟵ " + ("✓ يطابق" if got == PUBLISHED else
                                                                 "⚠️ **يختلف — يُطبع ولا يُخفى**"))
+        if tv and got != PUBLISHED:
+            log("⛔ V-P1 ساقط على TradingView (⑭-و) — هُويّةُ البيانات لم تثبت ⇒ لا رقم")
+            return 3
+    elif tv:
+        log(f"⚠️ V-P1 خارج الفترة (أسبوع {WEEK_REF[0]} ⟶ {WEEK_REF[1]} ليس كلُّه فيها) — هُويّةُ TradingView غيرُ مُثبتة في هذه "
+            f"الفترة (⑭-و)")
 
     # ── ⑧ الجلسةُ الممتدّة — حارساها قبل أيّ رقمٍ ممتدّ ──
     now_utc = now.astimezone(UTC)
@@ -325,13 +464,26 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
     nseen = WW.first_seen_map(nw_c, {s: sorted(nper[s])[0] for s in nw_sig}, week_lo, pick=nw_entries,
                               load=lambda h: WW.load_snapshot(h, WW.S.NEAR_WATCH_FILE))
     mins_by, reg, ext = {}, {}, {}
-    for s in union + pb_union + nw_sig:
-        mins_by[s] = WW.fetch_minutes(s, days[0], days[-1], key)
+    if tv:
+        mins_by = tv_ext(union + pb_union + nw_sig, tmap)
+    else:
+        for s in union + pb_union + nw_sig:
+            mins_by[s] = WW.fetch_minutes(s, days[0], days[-1], key)
+    short_ext = []
     for s in union:
         c1 = per[s][d1_by[s]]["c"]
         reg[s] = WW.max_rise(adj_by.get(s) or [], c1, d1_by[s], days[-1])
         st, en = WW.ext_bounds(d1_by[s], seen.get(s), days[-1], now_utc)
+        if tv and not ext_reach(mins_by.get(s), st):
+            if mins_by.get(s):
+                short_ext.append(s)
+            mins_by[s] = []
         ext[s] = WW.max_rise_ext(mins_by[s], WW.close_at(adj_by.get(s) or [], c1), st, en)
+    if tv:
+        log(f"📺 الممتدّ (⑭-د · {TV_EXT_INTERVAL} دقائق): بلغت شموعُه بدايةَ نافذته {sum(1 for s in union if mins_by.get(s))} من "
+            f"{len(union)} · ناقصُ النافذة (يخرج من V-W3) {len(short_ext)}"
+            + (f": {', '.join(short_ext)}" if short_ext else "")
+            + f" · بلا شموع {sum(1 for s in union if not mins_by.get(s)) - len(short_ext)}")
     n_min = sum(1 for s in union if mins_by.get(s))
     mcov = n_min / len(union)
     agree4, n4, bad4 = WW.vw4([(s, reg[s][0], ext[s][0]) for s in union])
@@ -368,7 +520,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
         rows = []
         for s in q:
             r = per[s][sig[s]]
-            o = outcome(adj_by[s], r["c"], sig[s], days[-1], mins_by.get(s), seen.get(s), now_utc)
+            o = outcome(adj_by[s], r["c"], sig[s], days[-1], mins_by.get(s), seen.get(s), now_utc, reach=tv)
             k_sessions = sum(1 for d in per[s] if three(per[s][d]["f"]) is True)
             rows.append((s, r, o, k_sessions))
             split_note = ""
@@ -403,7 +555,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
             if not hit or hit[0] != first_two:
                 continue
             r = pper[s][hit[0]]
-            o = outcome(adj_by.get(s) or [], r["c"], hit[0], days[-1], mins_by.get(s), pseen.get(s), now_utc)
+            o = outcome(adj_by.get(s) or [], r["c"], hit[0], days[-1], mins_by.get(s), pseen.get(s), now_utc, reach=tv)
             prow.append((s, r, o, hit[0]))
             log(f"   🔁 {s:6} [ارتداد · {r.get('status') or '—'}] إشارةُ الثلاثة المعلومة {hit[0]} · RSI {_fmt(r['rsi'], '{:.1f}')} · "
                 f"فلوت {_fmt(r['float'])} · المتاحُ مجهولٌ بالبناء · سعر ${_fmt(r['px'], '{:.3f}')} · أقصى صعودٍ {_pct(o['reg'])} "
@@ -426,7 +578,7 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
             if not hit or hit[0] != nw_two[s]:
                 continue
             r = nper[s][hit[0]]
-            o = outcome(adj_by.get(s) or [], r["c"], hit[0], days[-1], mins_by.get(s), nseen.get(s), now_utc)
+            o = outcome(adj_by.get(s) or [], r["c"], hit[0], days[-1], mins_by.get(s), nseen.get(s), now_utc, reach=tv)
             nrow.append((s, r, o, hit[0]))
         nrow.sort(key=lambda x: -(x[2]["reg"] if x[2]["reg"] is not None else -1e9))
         for s, r, o, d in nrow:
@@ -481,7 +633,13 @@ def main(now=None, d_from=None, d_to=None, classes=None) -> int:    # noqa: PLR0
     # ── ⑫ التتبّع: رموزٌ مسمّاة جلسةً جلسة (وصفٌ لا يدخل عددًا) ──
     for t in TRACE:
         log("")
-        log(f"🔎 تتبّع {t}: تقسيماتُ Polygon {d0} ⟶ {days[-1]}: {splits_of(t, key, d0, days[-1])}")
+        if tv:
+            import hunter_outcomes as HO
+            _sp = tv_splits(t)
+            log(f"🔎 تتبّع {t}: تقسيماتُ ياهو بعد {d0} (⑭-ز · يوم، نسبة): "
+                f"{None if _sp is None else HO.split_events_after(_sp, d0)}")
+        else:
+            log(f"🔎 تتبّع {t}: تقسيماتُ Polygon {d0} ⟶ {days[-1]}: {splits_of(t, key, d0, days[-1])}")
         a, rw = adj_by.get(t) or [], raw_by.get(t) or []
         for d in days:
             c = WW.prev_day(cal, d)
