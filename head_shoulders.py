@@ -1146,7 +1146,9 @@ def _pct(x, signed: bool = True) -> str:
 def history_block(hist: dict) -> list:
     """أسطرُ التاريخ من حكم العقد المجمَّد (`hs_verdict.json` · STRICT · 2023-2025 · الصالحُ وحدَه) — **وغيابُه ⟵ «—» لا رقمٌ مخترَع**."""
     pz = (hist or {}).get("pooled") or {}
-    return [f"Historical Sample: {pz.get('n') if pz.get('n') is not None else '—'}",
+    # مصدرُ الأرقام يُسمّى في السطر نفسِه: الحكمُ يوميٌّ 2023-2025 — وفي رسالة 5 دقائق كانت تُقرأ أرقامَ فريمها (عطلٌ مُثبَت
+    # 2026-10-01 · فحصُ BNGO 5M `36920024094` · HS42)
+    return [f"Historical Sample: {pz.get('n') if pz.get('n') is not None else '—'} (1D · 2023-2025)",
             f"Median +5D: {_pct(pz.get('ret5'))}",
             f"Median Max Run-Up: {_pct(pz.get('mfe'))}",
             f"Median Max Drawdown: {_pct(pz.get('mae'))}",
@@ -1566,10 +1568,13 @@ def run_query(limit: int = 25) -> int:
         v = r.get(k)
         return None if v is None or (isinstance(v, float) and not np.isfinite(v)) else v
     L = [f"🔎 <b>{TOOL_NAME}</b> — الحالاتُ التاريخيّة على أسهم البوت (أحدث {min(limit, len(d))} من {len(d)})", "",
-         "Ticker · Date · TF · Match · Breakout · +5D · +10D · Max Run-Up · Max DD · Target"]
+         "Ticker · Date · TF · Match · Breakout · +5D · +10D · Max Run-Up · Max DD · Target (⏳ = نافذةُ الـ30 جلسة مفتوحة)"]
     for _, r in d.head(limit).iterrows():
         r = r.to_dict()
-        tgt = "✅" if str(g(r, "target_hit")) == "True" else ("—" if g(r, "target_hit") is None else "✖️")
+        # ⏳ نافذةُ الـ30 جلسة لم تكتمل (`complete`) ولم يُبلَغ الهدفُ بعد ⟵ لا يُقرأ «✖️ لم يبلغ» (عطلٌ مُثبَت 2026-10-01: PWCM/LVLU
+        # اخترقا 09-30 بلا شمعةٍ بعده ووُسما ✖️ · HS41)
+        th = g(r, "target_hit")
+        tgt = "✅" if str(th) == "True" else ("—" if th is None else ("✖️" if str(g(r, "complete")) == "True" else "⏳"))
         L.append(f"${S.esc(r['sym'])} · {r['b_date']} · 1D · {r.get('match', 'STRUCTURAL')} · {_px(g(r, 'entry'))} · "
                  f"{_pct(g(r, 'ret5'))} · {_pct(g(r, 'ret10'))} · {_pct(g(r, 'mfe'))} · {_pct(g(r, 'mae'))} · {tgt}")
     hist = load_hist()
@@ -1637,6 +1642,8 @@ def run_scan(fetch=None) -> int:
         if not S.send_telegram(msg + "\n\n" + S.FOOTER):
             continue
         sent[lc["sig"]["pid"]] = lc["sig"]["b_date"]
+        # السجلُّ يُسمّي ما أُرسل (الاختبارُ الطرفيّ `36922279556` عرف LVLU من `hs_state.json` لا من السجلّ · HS43)
+        log(f"   📤 أُرسل: ${sym} · {lc['state']} · جودة {lc['sig']['quality']}/100 · اختراق {lc['sig']['b_date']}")
         try:
             path = render_chart(ok[sym], lc["sig"], os.path.join(CHART_DIR, f"hs_{sym}.png"),
                                 title=f"{sym} 1D inverse H&S · {lc['state']}",
@@ -1651,6 +1658,7 @@ def run_scan(fetch=None) -> int:
         if S.send_telegram(line + "\n\n" + S.FOOTER):
             for sym, lc in rest:
                 sent[lc["sig"]["pid"]] = lc["sig"]["b_date"]
+            log("   📤 أُرسل سطرُ الباقين: " + " · ".join(f"${sym}" for sym, _ in rest))
     state["last_scan"] = dt.date.today().isoformat()
     with open(STATE_FILE, "w", encoding="utf-8") as fh:
         json.dump(state, fh, ensure_ascii=False, indent=1)

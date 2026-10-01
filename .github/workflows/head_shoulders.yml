@@ -32,7 +32,13 @@ on:
         default: "1d"
 
 concurrency:
-  group: head-shoulders
+  # الكتّابُ (dev · verdict · scan · المجدول) يتسلسلون في مجموعة الحالة · وticker/query **قراءةٌ لا تكتب** فمجموعتُهما بمعرّف التشغيلة:
+  # GitHub يُبقي في المجموعة الواحدة **معلَّقًا واحدًا** ويُلغي ما قبله — عطلٌ مُثبَت 2026-10-01: فحصُ BNGO `36920013978` أُلغي
+  # لأن طلبًا بعده دخل المجموعةَ نفسَها · فلا يُلغي طلبٌ طلبًا ولا يُلغي طلبٌ المسحَ المجدول (HS40).
+  group: >-
+    ${{ (inputs.mode == 'ticker' || inputs.mode == 'query')
+        && format('head-shoulders-read-{0}', github.run_id)
+        || 'head-shoulders' }}
   cancel-in-progress: false
 
 jobs:
