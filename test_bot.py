@@ -76156,16 +76156,26 @@ except Exception as _e:                                                  # noqa:
 check("🔎 HS24 ما بعد الإشارة من **إغلاق الاختراق**: ‏+1…+30 · أعلى ارتفاع (سعرُه · تاريخُه · شموعُه) · أكبر هبوط · الهدفُ وشموعُه · "
       "و«غيرُ مكتمل» حين لا تكفي البيانات (None لا صفر)", _hs24_ok, str(_hs24))
 
-# ── HS25 خارج الجذور والفرز: البوت لا يستورد الأداة · والأداةُ لا تنادي جذرًا · والـworkflow بلا `BARS_SOURCE` ولا كرون ─────────
+# ── HS25 خارج الجذور والفرز: البوت لا يستورد الأداة · والأداةُ لا تنادي جذرًا · والـworkflow بلا `BARS_SOURCE` · **والكرونُ بشرط العقد وحدَه** ──
+#    🔄 (2026-10-01 · §⑪): الكرونُ `47 0 * * 2-6` حرفًا **بعد الحكم وبشرط الدقّة** — ملفُّ وسوم التدقيق الثاني «passed» وحكمٌ مكتوبٌ بفرعٍ في
+#    `hs_research/hs_verdict.json` · والتشغيلةُ المجدولة وضعُها scan (`inputs.mode || 'scan'`) ⟵ وإلّا يسقط · وخطّافا الطفرات
+#    `HS_MUT_WF`/`HS_MUT_LABELS` يقرآن نسخةً مطفورة (وبلا البيئة الملفّان الحقيقيّان).
 try:
     _bot_src = open("Super_stock.py", encoding="utf-8").read()
     _roots = {"rank_key", "select_top", "classify_tier", "analyze_ticker", "apply_short_gate", "apply_float_gate", "scan_market",
               "backtest_symbol", "scan_ignition", "scan_split_hunter", "entry_status", "build_interpretation"}
     _hs_attr = {c.attr for c in _hs_ast.walk(_hs0_t) if isinstance(c, _hs_ast.Attribute)}
     import yaml as _hs_yaml                                              # noqa: PLC0415
-    _wf25t = open(".github/workflows/head_shoulders.yml", encoding="utf-8").read()
+    import json as _hs25_json                                            # noqa: PLC0415
+    _wf25t = open(_hs_os.environ.get("HS_MUT_WF") or ".github/workflows/head_shoulders.yml", encoding="utf-8").read()
     _wf25 = _hs_yaml.safe_load(_wf25t) or {}
     _on25 = _wf25.get("on", _wf25.get(True)) or {}
+    try:
+        _lab25 = _hs25_json.load(open(_hs_os.environ.get("HS_MUT_LABELS") or "hs_research/audit_2022_labels_iter2.json", encoding="utf-8"))
+        _ver25 = _hs25_json.load(open("hs_research/hs_verdict.json", encoding="utf-8"))
+        _gate25 = (_lab25.get("precision") or {}).get("passed") is True and _ver25.get("branch") in (1, 2, 3)
+    except Exception:                                                    # noqa: BLE001
+        _gate25 = False
     _envs25 = [_wf25.get("env") or {}]
     for _j25 in (_wf25.get("jobs") or {}).values():
         _envs25.append((_j25 or {}).get("env") or {})
@@ -76173,14 +76183,16 @@ try:
     _hs25 = {"bot": "head_shoulders" not in _bot_src, "roots": not (_roots & _hs_attr),
              "logic": not any((isinstance(n, _hs_ast.Name) and n.id == "LOGIC_VERSION")
                               or (isinstance(n, _hs_ast.Attribute) and n.attr == "LOGIC_VERSION") for n in _hs_ast.walk(_hs0_t)),
-             "wf": (not any("BARS_SOURCE" in e for e in _envs25) and "schedule" not in _on25
+             "cron": (_on25.get("schedule") == [{"cron": "47 0 * * 2-6"}] and _gate25
+                      and "HS_MODE: ${{ inputs.mode || 'scan' }}" in _wf25t),
+             "wf": (not any("BARS_SOURCE" in e for e in _envs25)
                     and (_wf25.get("permissions") or {}).get("contents") == "write"
                     and 'python-version: "3.11"' in _wf25t and "inputs.mode" in _wf25t)}
     _hs25_ok = all(_hs25.values())
 except Exception as _e:                                                  # noqa: BLE001
     _hs25_ok, _hs25 = False, f"⛔ {type(_e).__name__}: {_e}"
-check("🔎 HS25 أداةٌ مستقلّة: البوتُ لا يستوردها · ولا تنادي جذرًا (الاثنا عشر) · ولا `LOGIC_VERSION` · والـworkflow يدويٌّ بلا كرون "
-      "(الكرونُ بعد الحكم — العقد §⑪) وبلا `BARS_SOURCE` (TVB9)", _hs25_ok, str(_hs25))
+check("🔎 HS25 أداةٌ مستقلّة: البوتُ لا يستوردها · ولا تنادي جذرًا (الاثنا عشر) · ولا `LOGIC_VERSION` · والكرونُ `47 0 * * 2-6` وحدَه "
+      "**بشرط العقد** (وسومُ التدقيق الثاني «passed» ‏+ حكمٌ مكتوب · §⑪) ووضعُ المجدول scan · وبلا `BARS_SOURCE` (TVB9)", _hs25_ok, str(_hs25))
 
 # ── HS26 المسحُ الحيّ طرفًا لطرف (جالبٌ وبوّابةٌ وتلغرامٌ محقونة): رسالةٌ بالشارت · المحجوزُ لا يُفحص · لا تكرار · حدُّ 5 · التغطية ───
 _hs26_dir = _hs_tf.mkdtemp(prefix=f"hs26_{_SUITE_PID}_")
@@ -76647,18 +76659,40 @@ try:
                            hist={"branch_text": "لا ميزة على الضبط", "pooled": {"n": 544}})
     _m39c = HS.build_alert("TEST", {"state": "BREAKOUT_CONFIRMED", "sig": _sig39, "retest": {"retest": "pending"}},
                            hist={"ctrl_diff": {"2023": -0.0173}})
+    # والاستعلامُ التاريخيّ يحمل السطرَ نفسَه (مجلّدٌ مؤقّت · تلغرامٌ محقون · لا كتابةَ في المستودع)
+    import tempfile as _hs39_tf                                          # noqa: PLC0415
+    import json as _hs39_json                                            # noqa: PLC0415
+    _q39d = _hs39_tf.mkdtemp(prefix="hs39_")
+    _hs_os.makedirs(_hs_os.path.join(_q39d, HS.RES_DIR), exist_ok=True)
+    _hs_pd.DataFrame([{"cfg": "STRICT", "split_win": False, "sym": "TEST", "b_date": "2026-09-30", "entry": 2.7, "ret5": 0.01,
+                       "ret10": -0.02, "mfe": 0.2, "mae": -0.1, "target_hit": True, "match": "STRUCTURAL"}]).to_csv(
+        _hs_os.path.join(_q39d, HS.RES_DIR, "hs_history.csv"), index=False)
+    with open(_hs_os.path.join(_q39d, HS.RES_DIR, "hs_verdict.json"), "w", encoding="utf-8") as _fh39:
+        _hs39_json.dump({"telegram": _h39}, _fh39)
+    _q39, _cwd39 = [], _hs_os.getcwd()
+    _st39, _sd39 = S.send_telegram, S.send_telegram_document
+    S.send_telegram = lambda m, *a, **k: (_q39.append(m), True)[1]
+    S.send_telegram_document = lambda *a, **k: True
+    try:
+        _hs_os.chdir(_q39d)
+        HS.run_query(limit=5)
+    finally:
+        _hs_os.chdir(_cwd39)
+        S.send_telegram, S.send_telegram_document = _st39, _sd39
     _rr39 = _fn37["run_research"]
     _w39 = any(isinstance(n, _hs_ast.Assign) and any(isinstance(t, _hs_ast.Subscript)
                                                        and getattr(t.slice, "value", None) == "ctrl_diff" for t in n.targets)
                for n in _hs_ast.walk(_rr39))
     _hs39 = {"line": "فرقُ وسيط +10 جلسات عن الضبط: 2023 -1.7% · 2024 -3.1% · 2025 +0.5%" in _m39a,   # الإشارةُ للموجب أيضًا
              "no_invent": "فرقُ وسيط" not in _m39b and "لم يُقَس بعد" in _m39c and "فرقُ وسيط" not in _m39c,
-             "written": _w39}
+             "written": _w39,
+             "query": bool(_q39) and "فرقُ وسيط +10 جلسات عن الضبط: 2023 -1.7% · 2024 -3.1% · 2025 +0.5%" in _q39[0]
+                      and "$TEST" in _q39[0]}
     _hs39_ok = all(_hs39.values())
 except Exception as _e:                                                  # noqa: BLE001
     _hs39_ok, _hs39 = False, f"⛔ {type(_e).__name__}: {_e}"
-check("🔎 HS39 الرسالةُ تنقل **اتّجاهَ الفرق** عن الضبط لكلّ سنة حكم بإشارته (‏2023 ‏−1.7% · …) بجوار اسم الفرع · وغيابُه أو غيابُ الحكم ⟵ "
-      "لا رقمَ مخترَع · ووضعُ الحكم يكتبه (AST)", _hs39_ok, str(_hs39))
+check("🔎 HS39 الرسالةُ **والاستعلامُ التاريخيّ** ينقلان **اتّجاهَ الفرق** عن الضبط لكلّ سنة حكم بإشارته (‏2023 ‏−1.7% · …) بجوار اسم الفرع · "
+      "وغيابُه أو غيابُ الحكم ⟵ لا رقمَ مخترَع · ووضعُ الحكم يكتبه (AST)", _hs39_ok, str(_hs39))
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

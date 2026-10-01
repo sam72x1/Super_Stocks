@@ -1175,12 +1175,18 @@ def build_alert(sym: str, lc: dict, tf: str = "1d", hist=None, dq_line: str = No
               f"Neckline: {_px(fm['neck_now'])}", "Breakout: —", "Retest: —", f"Target: {_px(fm['target'])}"]
     hb = history_block(hist)
     L += [""] + hb
-    br = (hist or {}).get("branch_text")
-    cd = " · ".join(f"{y} {_pct(v)}" for y, v in sorted(((hist or {}).get("ctrl_diff") or {}).items()) if v is not None)
-    L += ["", "⚖️ الحكم المسجَّل على أسهم البوت: " + (f"«{br}» (مقابل اختراقاتٍ عاديّةٍ مطابِقة)" if br else "لم يُقَس بعد")
-          + (f" · فرقُ وسيط +10 جلسات عن الضبط: {cd}" if br and cd else ""),
+    L += ["", verdict_line(hist),
           "⚠️ قراءةٌ آليّة لشكلٍ كلاسيكيّ تبنّاه فيصل — أمثلتُه الحقيقيّة للنموذج قمّةٌ يُخرَج عندها لا دخول. ليست توصية."]
     return "\n".join(L)
+
+
+def verdict_line(hist) -> str:
+    """سطرُ الحكم المسجَّل للرسالة والاستعلام معًا: اسمُ الفرع **واتّجاهُ الفرق** عن الضبط لكلّ سنة حكم (‏`telegram.ctrl_diff`) — وغيابُه ⟵
+    لا رقمَ مخترَع · وبلا حكمٍ ⟵ «لم يُقَس بعد»."""
+    br = (hist or {}).get("branch_text")
+    cd = " · ".join(f"{y} {_pct(v)}" for y, v in sorted(((hist or {}).get("ctrl_diff") or {}).items()) if v is not None)
+    return ("⚖️ الحكم المسجَّل على أسهم البوت: " + (f"«{br}» (مقابل اختراقاتٍ عاديّةٍ مطابِقة)" if br else "لم يُقَس بعد")
+            + (f" · فرقُ وسيط +10 جلسات عن الضبط: {cd}" if br and cd else ""))
 
 
 def load_hist(root: str = ".") -> dict:
@@ -1566,7 +1572,8 @@ def run_query(limit: int = 25) -> int:
         tgt = "✅" if str(g(r, "target_hit")) == "True" else ("—" if g(r, "target_hit") is None else "✖️")
         L.append(f"${S.esc(r['sym'])} · {r['b_date']} · 1D · {r.get('match', 'STRUCTURAL')} · {_px(g(r, 'entry'))} · "
                  f"{_pct(g(r, 'ret5'))} · {_pct(g(r, 'ret10'))} · {_pct(g(r, 'mfe'))} · {_pct(g(r, 'mae'))} · {tgt}")
-    L += [""] + history_block(load_hist())
+    hist = load_hist()
+    L += [""] + history_block(hist) + ["", verdict_line(hist)]
     S.send_telegram("\n".join(L) + "\n\n" + S.FOOTER)
     S.send_telegram_document(path, caption=f"{TOOL_NAME} — السجلّ التاريخيّ كاملًا (CSV)")
     return 0
