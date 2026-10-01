@@ -3,6 +3,8 @@ name: "🗓️🔎② أسهمُ البوت في فترةٍ وشروطُ الم�
 # 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · لا تلغرام · التعريفاتُ في رأس watch_period_probe.py (تعريفاتُ watch_week_probe بالاسم)
 #    أمرُ المالك 2026-09-26 «نفذ البروميت»: التقرير 1 = Penny لأسبوع 2026-09-21 ⟶ 25 · التقرير 2 = الشهر Penny/Dollar.
 #    المجتمع: لقطاتُ weekly_watchlist.json قبل افتتاح كلّ جلسة (تاريخ git كامل · fetch-depth: 0) · الشموعُ من Polygon.
+#    📺 ⑭ (2026-10-01): مُدخَلُ `source` (الافتراضيّ tradingview) ⟵ PERIOD_SOURCE · وpolygon = المسارُ السابق بت-بت · و`V-P1` على
+#    TradingView بوّابةٌ صلبة (خروج 3 «لا رقم» عند الاختلاف) · التعريفاتُ في رأس watch_period_probe.py ⑭.
 #    و«تحت المتابعة» (near_watch.json) مجتمعٌ ثالث منذ 2026-09-26 (مسكةُ المالك RETO) · فلوتُه من لقطة company_cache.json قبل
 #    الجلسة · والمتاحُ مجهولٌ لهم بالبناء ⇒ لا يدخل المقام.
 permissions:
@@ -27,6 +29,10 @@ on:
         description: "تتبّعُ رموزٍ بعينها جلسةً جلسة (بفاصلة · مثل RETO) — وصفٌ لا يدخل عددًا"
         required: false
         default: ""
+      source:
+        description: "مصدرُ الشموع (⑭): tradingview بعد انتهاء Polygon 2026-09-29 · polygon = المسارُ السابق بت-بت"
+        required: false
+        default: "tradingview"
 
 jobs:
   watch_period:
@@ -55,4 +61,5 @@ jobs:
           PERIOD_TO: ${{ github.event.inputs.date_to }}
           PERIOD_CLASSES: ${{ github.event.inputs.classes }}
           PERIOD_TRACE: ${{ github.event.inputs.trace }}
+          PERIOD_SOURCE: ${{ github.event.inputs.source }}
         run: python watch_period_probe.py

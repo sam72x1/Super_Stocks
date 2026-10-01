@@ -71506,6 +71506,218 @@ check("🗓️🔎② WPP17 «وحد 33 في التقريرين»: تقريرُ 
       "وبحدّ الإنتاج 33 لا EEE) · وشاهدُ V-P1 **بحدّ المنشور 30** فيبقى «✓ يطابق» · و`RSI_OWNER` مرّةً واحدة (تعريفُ الشاهد)",
       _v17, _v17w)
 
+# ══ 📺 WPT1-WPT8 ⑭ «تقريرُ الفترة على TradingView» (‏2026-10-01 · عطلٌ مُثبَت: تشغيلةُ الشهر على main كما هو `36840995119` جلبت 25 من 136 رمزًا في 25 دقيقة على Polygon) ══
+#    `PERIOD_SOURCE=tradingview` = تعريفاتُ ①-⑬ بأسمائها والمصدرُ وحدَه يتغيّر (المِقبس · الخامُّ من تقسيمات ياهو · 5 دقائق ممتدّة) ·
+#    وبلا البيئة Polygon بت-بت (أقفالُ WPP كلُّها عليه) · وV-P1 بوّابةٌ صلبة على TradingView. سلوكيّةٌ بلا شبكة: الجوالبُ محقونة.
+def _wpt_run(published=None, splits=None, daily=None, ext_from="2026-09-18", tmap=None, classes=("penny", "dollar")):
+    """`_wpp_run` على المسار ⑭: الجوالبُ الأربعة محقونة من عالم WWK نفسِه (`tv_daily` = المسوّى · `tv_splits` = PEN عكسيٌّ 1:10 يوم
+    09-28 ما لم يُمرَّر `splits` · `tv_ext` = دقائقُ `fm` من `ext_from`) · **وبلا POLYGON_API_KEY** ⟵ (رمزُ الخروج, المُخرَج, JSON)."""
+    c0, snaps, fb, fm = _ww_world(0, 0)
+    sp = {"PEN": [("2026-09-28", 0.1)]} if splits is None else splits
+    saved = (_WW.wl_commits, _WW.load_snapshot, _WWP_SAVE(), _wpp_os.environ.get("POLYGON_API_KEY"))
+    buf = _wpp_io.StringIO()
+    try:
+        _WW.wl_commits = lambda path=_WW.WL_FILE: list(c0)
+        _WW.load_snapshot = lambda h, path=_WW.WL_FILE: snaps.get(h)
+        _WW.fetch_bars = _WW.fetch_minutes = None                     # المسارُ ⑭ لا يناديهما — ونداؤهما ينهار فيُرى
+        _WPP.SOURCE = "tradingview"
+        _WPP.tv_map = lambda: dict(tmap or {})
+        _WPP.tv_daily = daily or (lambda syms, d0, d1, tm: {s: fb(s, d0, d1, None)[0] for s in syms})
+        _WPP.tv_splits = lambda sym: sp.get(sym, [])
+        _WPP.tv_ext = lambda syms, tm: {s: (fm(s, ext_from, "2026-09-25", None) if ext_from else []) for s in syms}
+        if published is not None:
+            _WPP.PUBLISHED = published
+        _wpp_os.environ.pop("POLYGON_API_KEY", None)
+        with _wpp_ctx.redirect_stdout(buf):
+            rc = _WPP.main(now=_ww_dt.datetime(2026, 9, 25, 18, 0, tzinfo=_WW.NY), d_from="2026-09-21", d_to="2026-09-25",
+                           classes=classes)
+    except Exception as _e:                                          # noqa: BLE001
+        rc = f"⛔ {type(_e).__name__}: {_e}"
+    finally:
+        _WW.wl_commits, _WW.load_snapshot = saved[0], saved[1]
+        _WWP_RESTORE(saved[2])
+        if saved[3] is None:
+            _wpp_os.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _wpp_os.environ["POLYGON_API_KEY"] = saved[3]
+    out = buf.getvalue()
+    js = next((ln[5:] for ln in out.splitlines() if ln.startswith("JSON ")), None)
+    try:
+        js = __import__("json").loads(js) if js else {}
+    except ValueError:
+        js = {}
+    return rc, out, js
+
+
+def _WWP_SAVE():
+    return (_WW.fetch_bars, _WW.fetch_minutes, _WPP.SOURCE, _WPP.tv_map, _WPP.tv_daily, _WPP.tv_splits, _WPP.tv_ext,
+            _WPP.PUBLISHED)
+
+
+def _WWP_RESTORE(t):
+    (_WW.fetch_bars, _WW.fetch_minutes, _WPP.SOURCE, _WPP.tv_map, _WPP.tv_daily, _WPP.tv_splits, _WPP.tv_ext,
+     _WPP.PUBLISHED) = t
+
+
+_WPT_PUB = (30, 15, 20, 25, 25)                                      # شاهدُ عالم WWK (WPP8)
+
+
+def _wpt_norm(x):
+    """تسويةُ ضجيج الفاصلة العائمة (‏x×10×0.1 قد يختلف عن x بآخر بِت) لمقارنة JSON المسارين — تقريبٌ إلى 9 منازل لا غير."""
+    if isinstance(x, float):
+        return round(x, 9)
+    if isinstance(x, dict):
+        return {k: _wpt_norm(v) for k, v in x.items()}
+    if isinstance(x, (list, tuple)):
+        return [_wpt_norm(v) for v in x]
+    return x
+
+
+try:
+    _wpt_ok = _wpt_run(published=_WPT_PUB)
+    _wpt_pg = _wpp_run(("penny", "dollar"), published=_WPT_PUB)
+except Exception as _e:                                              # noqa: BLE001
+    _wpt_ok = _wpt_pg = (f"⛔ {type(_e).__name__}", "", {})
+
+# WPT1 — المسارُ ⑭ على العالم نفسِه يعطي أرقامَ Polygon **حرفًا** (JSON مطابق) · بلا مفتاح Polygon · ورأسُ المصدر يُطبع
+try:
+    _v1t = (_wpt_ok[0] == 0 and _wpt_pg[0] == 0 and _wpt_ok[2] and _wpt_norm(_wpt_ok[2]) == _wpt_norm(_wpt_pg[2])
+            and "📺 المصدرُ TradingView (⑭)" in _wpt_ok[1] and "📺 المصدرُ TradingView" not in _wpt_pg[1]
+            and "✓ يطابق" in _wpt_ok[1] and "⛔ بلا POLYGON_API_KEY" not in _wpt_ok[1])
+    _v1tw = (f"rc={_wpt_ok[0]}/{_wpt_pg[0]} · JSON متطابق={_wpt_norm(_wpt_ok[2]) == _wpt_norm(_wpt_pg[2])} · "
+             f"penny={[r['sym'] for r in ((_wpt_ok[2].get('classes') or {}).get('penny') or {}).get('rows') or []]}")
+except Exception as _e:                                              # noqa: BLE001
+    _v1t, _v1tw = False, f"⛔ رمى: {type(_e).__name__}"
+check("📺 WPT1 ⑭ تقريرُ الفترة على TradingView = أرقامُ Polygon **حرفًا** على العالم نفسِه (JSON مطابق · PEN Penny بالخامّ المشتقّ) · "
+      "بلا مفتاح Polygon · ورأسُ «📺 المصدرُ TradingView» يُطبع", _v1t, _v1tw)
+
+# WPT2 — V-P1 بوّابةٌ صلبة على TradingView: الاختلافُ ⟵ خروج 3 «لا رقم» · وعلى Polygon يُطبع ويُكمَل (كما كان)
+try:
+    _r2t = _wpt_run(published=(177, 4, 76, 57, 156))
+    _r2p = _wpp_run(("penny", "dollar"), published=(177, 4, 76, 57, 156))
+    _v2t = (_r2t[0] == 3 and "⛔ V-P1 ساقط على TradingView" in _r2t[1] and "JSON" not in _r2t[1] and "🎯" not in _r2t[1]
+            and _r2p[0] == 0 and "⚠️ **يختلف" in _r2p[1] and "⛔ V-P1" not in _r2p[1])
+    _v2tw = f"tv rc={_r2t[0]} · polygon rc={_r2p[0]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v2t, _v2tw = False, f"⛔ رمى: {type(_e).__name__}"
+check("📺 WPT2 ⑭-و `V-P1` على TradingView بوّابةٌ صلبة: عدُّ الأسبوع ≠ المنشور ⟵ خروج 3 ولا رقمَ ولا مؤهَّل · وعلى Polygon يُطبع "
+      "«⚠️ يختلف» ويُكمَل كما كان", _v2t, _v2tw)
+
+# WPT3 — ⑭-ب الخامُّ = المسوّى × نسبُ تقسيمات ياهو **بعد يومه** · وتعذّرُ التقسيمات ⟵ الخامُّ مجهولٌ لا يُخمَّن (PEN بلا فئة)
+try:
+    _rr3 = _WPP.raw_rows([("2026-09-25", 10.0, 11.0, 9.0, 10.0, 7.0), ("2026-09-29", 1.0, 1.1, 0.9, 1.0, 7.0)],
+                         [("2026-09-28", 0.1)])
+    _pa3 = _WPP.tv_pair([("2026-09-25", 10.0, 11.0, 9.0, 10.0, 7.0)], None, "2025-01-01")
+    _r3n = _wpt_run(published=_WPT_PUB, splits={"PEN": None})
+    _pn3 = [r["sym"] for r in ((_r3n[2].get("classes") or {}).get("penny") or {}).get("rows") or []]
+    _dl3 = [r["sym"] for r in ((_r3n[2].get("classes") or {}).get("dollar") or {}).get("rows") or []]
+    _v3t = (abs(_rr3[0][4] - 1.0) < 1e-12 and abs(_rr3[0][2] - 1.1) < 1e-12 and _rr3[0][5] == 7.0
+            and abs(_rr3[1][4] - 1.0) < 1e-12 and _pa3[1] == [] and _pa3[2] == "splits" and _pa3[0]
+            and "PEN" not in _pn3 and "PEN" not in _dl3
+            and "بلا تقسيمات ياهو (الخامُّ مجهول) 1: PEN" in _r3n[1])
+    _v3tw = f"raw={[round(r[4], 3) for r in _rr3]} · pair={_pa3[2]} · penny={_pn3} · dollar={_dl3}"
+except Exception as _e:                                              # noqa: BLE001
+    _v3t, _v3tw = False, f"⛔ رمى: {type(_e).__name__}"
+check("📺 WPT3 ⑭-ب الخامُّ = المسوّى × نسبُ تقسيمات ياهو بعد يومه (‏10 ⟵ 1 قبل عكسيٍّ 1:10 · وبعده كما هو) · وتقسيماتٌ متعذّرة ⟵ "
+      "الخامُّ مجهول: PEN بلا فئةٍ ولا مقام · ويُسمّى في السجلّ", _v3t, _v3tw)
+
+# WPT4 — ⑭-ج تقسيمٌ لم يُسوِّه TradingView (قفزةُ 1/النسبة في سلسلته) ⟵ تُسقط شموعُ الرمز وتُسمّى (لا تصحيح) · والمسوّى يبقى
+try:
+    _adj4 = [("2026-09-24", 1.0, 1.0, 1.0, 1.0, 1.0), ("2026-09-25", 1.0, 1.0, 1.0, 1.0, 1.0),
+             ("2026-09-28", 10.0, 10.0, 10.0, 10.0, 1.0)]
+    _p4u = _WPP.tv_pair(_adj4, [("2026-09-28", 0.1)], "2026-01-01")
+    _p4a = _WPP.tv_pair([("2026-09-24", 1.0, 1.0, 1.0, 1.0, 1.0), ("2026-09-25", 1.0, 1.0, 1.0, 1.0, 1.0),
+                         ("2026-09-28", 1.0, 1.0, 1.0, 1.0, 1.0)], [("2026-09-28", 0.1)], "2026-01-01")
+    _p4o = _WPP.tv_pair(_adj4, [("2025-12-01", 0.1)], "2026-01-01")   # تقسيمٌ قبل d0 لا يُفحص
+
+    def _daily4(syms, d0, d1, tm, _fb=_ww_world(0, 0)[2]):
+        out = {s: _fb(s, d0, d1, None)[0] for s in syms}
+        out["DDD"] = [r if r[0] < "2026-09-23" else (r[0], r[1] * 10, r[2] * 10, r[3] * 10, r[4] * 10, r[5])
+                      for r in out["DDD"]]
+        return out
+    _r4 = _wpt_run(published=_WPT_PUB, splits={"PEN": [("2026-09-28", 0.1)], "DDD": [("2026-09-23", 0.1)]}, daily=_daily4)
+    _v4t = (_p4u == ([], [], "unadjusted") and _p4a[2] is None and len(_p4a[1]) == 3 and _p4o[2] is None
+            and abs(_p4a[1][0][4] - 0.1) < 1e-12 and abs(_p4a[1][2][4] - 1.0) < 1e-12
+            and "تقسيمٌ لم يُسوِّه TradingView (أُسقطت شموعُه) 1: DDD" in _r4[1] and _r4[0] == 3 and "V-W2 ساقط" in _r4[1])
+    _v4tw = f"unadj={_p4u[2]} · adj={_p4a[2]} · قبل d0={_p4o[2]} · rc={_r4[0]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v4t, _v4tw = False, f"⛔ رمى: {type(_e).__name__}"
+check("📺 WPT4 ⑭-ج تقسيمٌ بعد d0 لم يُسوِّه TradingView (قفزة ×10 يومَ عكسيٍّ 1:10) ⟵ تُسقط شموعُ الرمز وتُسمّى في السجلّ وتُعَدّ في "
+      "`V-W2` (5 من 6 دون 90% ⟵ خروج 3) · والمسوّى يبقى · وتقسيمٌ قبل d0 لا يُفحص", _v4t, _v4tw)
+
+# WPT5 — ⑭-د الممتدّ: شموعٌ لا تبلغ بدايةَ النافذة ⟵ «ناقص» تخرج من V-W3 (فالممتدُّ «لا حكم») · والبالغةُ تُحسب (WPT1)
+try:
+    _ws5 = _ww_utc("2026-09-21", 4, 0)
+    _e5a = _WPP.ext_reach([(int(_ww_utc("2026-09-18", 9, 31).timestamp() * 1000), 1.0)], _ws5)
+    _e5b = _WPP.ext_reach([(int(_ww_utc("2026-09-22", 9, 31).timestamp() * 1000), 1.0)], _ws5)
+    _e5c = _WPP.ext_reach([(int(_ws5.timestamp() * 1000), 1.0)], _ws5)
+    _r5 = _wpt_run(published=_WPT_PUB, ext_from="2026-09-22")
+    _v5t = (_e5a and not _e5b and _e5c and not _WPP.ext_reach([], _ws5) and _r5[0] == 0
+            and "ناقصُ النافذة (يخرج من V-W3) 6" in _r5[1] and "الممتدّ «لا حكم»" in _r5[1]
+            and _r5[2].get("ext_ok") is False and "الممتدّ قائم" in _wpt_ok[1] and _wpt_ok[2].get("ext_ok") is True)
+    _v5tw = f"reach={_e5a}/{_e5b}/{_e5c} · rc={_r5[0]} · ext_ok={_r5[2].get('ext_ok')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v5t, _v5tw = False, f"⛔ رمى: {type(_e).__name__}"
+check("📺 WPT5 ⑭-د شموعُ 5 دقائق لا تبلغ بدايةَ النافذة ⟵ «ناقصُ النافذة» تُعَدّ وتخرج من `V-W3` فالممتدُّ «لا حكم» (والنظاميُّ قائم) "
+      "· والبالغةُ (حدُّها شاملٌ) تُحسب", _v5t, _v5tw)
+
+# WPT6 — ⑭-د `outcome(reach=True)` لا يقرأ نافذةً مقصوصة (ممتدُّها None) · و`reach=False` (Polygon) كما كان بت-بت
+try:
+    _adj6t = [("2026-09-18", 1, 1.0, 1, 1.0, 1), ("2026-09-21", 1, 1.0, 1, 1.0, 1), ("2026-09-22", 1, 1.5, 1, 1.0, 1)]
+    _m6 = [(int(_ww_utc("2026-09-22", 10, 0).timestamp() * 1000), 1.8)]
+    _now6 = _ww_dt.datetime(2026, 9, 25, 22, 0, tzinfo=_WW.UTC)
+    _o6a = _WPP.outcome(_adj6t, "2026-09-18", "2026-09-21", "2026-09-22", _m6, None, _now6)
+    _o6b = _WPP.outcome(_adj6t, "2026-09-18", "2026-09-21", "2026-09-22", _m6, None, _now6, reach=True)
+    _v6t = (abs((_o6a["ext"] or 0) - 80.0) < 1e-6 and _o6b["ext"] is None and _o6b["reg"] == _o6a["reg"]
+            and abs((_o6b["reg"] or 0) - 50.0) < 1e-6)
+    _v6tw = f"polygon ext={_o6a['ext']} · tv ext={_o6b['ext']} · reg={_o6b['reg']}"
+except Exception as _e:                                              # noqa: BLE001
+    _v6t, _v6tw = False, f"⛔ رمى: {type(_e).__name__}"
+check("📺 WPT6 ⑭-د `outcome(reach=True)` لا يقرأ نافذةً مقصوصة (الممتدُّ None والنظاميُّ ‏+50% كما هو) · و`reach=False` كما كان "
+      "(‏+80%)", _v6t, _v6tw)
+
+# WPT7 — المفتاح: بلا البيئة Polygon (أقفالُ WPP كلُّها عليه بت-بت) · والـworkflow يمرّر مُدخَلَ `source` بافتراض tradingview ·
+#    والمسارُ ⑭ لا ينادي جوالبَ Polygon (`WW.fetch_bars` · `WW.fetch_minutes` · `splits_of`) ولا يحتاج المفتاح
+try:
+    _src7 = open("watch_period_probe.py", encoding="utf-8").read()
+    _y7 = __import__("yaml").safe_load(open(".github/workflows/watch_period.yml", encoding="utf-8").read())
+    _in7 = ((_y7.get(True) or _y7.get("on") or {}).get("workflow_dispatch") or {}).get("inputs") or {}
+    _st7 = [x for x in (list((_y7.get("jobs") or {}).values())[0].get("steps") or [])
+            if "watch_period_probe.py" in str(x.get("run") or "")]
+    _env7 = (_st7[0].get("env") or {}) if len(_st7) == 1 else {}
+    _v7t = (_wpp_os.environ.get("PERIOD_SOURCE") is None and _WPP.SOURCE == "polygon"
+            and '(os.environ.get("PERIOD_SOURCE") or "polygon")' in _src7
+            and (_in7.get("source") or {}).get("default") == "tradingview"
+            and _env7.get("PERIOD_SOURCE") == "${{ github.event.inputs.source }}"
+            and _wpt_ok[0] == 0 and "Traceback" not in _wpt_ok[1])
+    _v7tw = f"SOURCE={_WPP.SOURCE} · default={(_in7.get('source') or {}).get('default')}"
+except Exception as _e:                                              # noqa: BLE001
+    _v7t, _v7tw = False, f"⛔ رمى: {type(_e).__name__}"
+check("📺 WPT7 ⑭ المفتاح: بلا `PERIOD_SOURCE` المسارُ Polygon بت-بت · والـworkflow يمرّر `source` بافتراض tradingview · والمسارُ ⑭ "
+      "لا ينادي جوالبَ Polygon (محقونةٌ None فتنهار لو نوديت)", _v7t, _v7tw)
+
+# WPT8 — ⑭-أ/د الجوالبُ الحقيقيّة بالاسم (AST): `tv_daily` ⟵ `TC.fetch_tv` · `tv_ext` ⟵ `TV.fetch_many` بفاصل `TV_EXT_INTERVAL`
+#    وجلسةٍ ممتدّة وقاطع (`gate`) · `tv_splits` ⟵ `S._fetch_splits` · `tv_pair` ⟵ `HO.unadjusted_jump`/`HO.split_events_after`
+try:
+    import inspect as _wpt_insp
+
+    def _calls8(fn):
+        return {_wpp_ast.unparse(c.func) for c in _wpp_ast.walk(_wpp_ast.parse(_wpt_insp.getsource(fn)))
+                if isinstance(c, _wpp_ast.Call)}
+    _fm8 = [c for c in _wpp_ast.walk(_wpp_ast.parse(_wpt_insp.getsource(_WPP.tv_ext)))
+            if isinstance(c, _wpp_ast.Call) and _wpp_ast.unparse(c.func) == "TC.TV.fetch_many"]
+    _kw8 = {k.arg: _wpp_ast.unparse(k.value) for k in (_fm8[0].keywords if _fm8 else [])}
+    _v8t = ("TC.fetch_tv" in _calls8(_WPP.tv_daily) and "WW.S._fetch_splits" in _calls8(_WPP.tv_splits)
+            and {"HO.unadjusted_jump", "HO.split_events_after"} <= _calls8(_WPP.tv_pair)
+            and "WW.S._split_scale_factor" in _calls8(_WPP.raw_rows)
+            and _kw8.get("interval") == "TV_EXT_INTERVAL" and _kw8.get("extended") == "True" and _kw8.get("gate") == "brk"
+            and _WPP.TV_EXT_INTERVAL == "5" and _WPP.TV_EXT_N == 5000)
+    _v8tw = f"fetch_many kw={_kw8}"
+except Exception as _e:                                              # noqa: BLE001
+    _v8t, _v8tw = False, f"⛔ رمى: {type(_e).__name__}"
+check("📺 WPT8 ⑭ الجوالبُ بالاسم: اليوميُّ `TC.fetch_tv` · الممتدُّ `TV.fetch_many` بـ5 دقائق ممتدّة تحت قاطع · التقسيماتُ "
+      "`S._fetch_splits` · والخامُّ `S._split_scale_factor` · وحارسُ غيرِ المسوّى `HO.unadjusted_jump`", _v8t, _v8tw)
+
 # NWF7 — 👀🏢 تقريرُ الفترة يقرأ فلوتَ المدخل نفسِه أوّلًا (مخزنُ «تحت المتابعة» · لقطةُ ما قبل الجلسة) ثمّ ذاكرةَ البوت: NWF
 #    (بلا فلوتٍ في الذاكرة) يصير مؤهّلَ الثلاثة المعلومة بفلوت 700 ألف · وNWG (ذاكرته 50 مليونًا) يُقرأ بفلوت مدخله مليونًا ·
 #    وNWX (بلا فلوتٍ في المدخل) يبقى على الذاكرة 800 ألف · وبلا فلوتٍ في المداخل ⟵ الأرقامُ كما كانت (WPP13)
