@@ -2,7 +2,8 @@ name: "🧭 FAISAL METHOD V3 — أداةُ التحليل (ticker · cases · v
 
 # 🧭 أمرُ المالك 2026-10-02 «FAISAL METHOD — AUTONOMOUS MASTER MISSION» · الأداة faisal_method_v3/faisal_tool.py.
 # الأوضاع: ticker (تحليلُ رمزٍ واحد · وتلغرام فقط إن send=1 صراحةً) · cases (التحقّقُ البصريّ على حالات صور فيصل)
-#          · validate (T-W — العقد faisal_method_v3/T_W_prereg.md مدموجٌ قبل أيّ رقم).
+#          · validate (T-W — العقد faisal_method_v3/T_W_prereg.md مدموجٌ قبل أيّ رقم)
+#          · poolcap (تدقيقُ سقف بِركة رادار الضغط — المعاييرُ في pressure_pool_cap_audit.md §⓪ قبل الرقم · لا يمسّ الإنتاج).
 # 🔒 قراءةٌ فقط: لا حالةَ إنتاج · ولا سرَّ تلغرام إلّا حين send=1 (التعبيرُ أدناه يمرّر نصًّا فارغًا غيرَ ذلك).
 # 📺 الشموعُ من TradingView مباشرةً — **بلا `BARS_SOURCE`** (مفتاحُه محصورٌ بـworkflows الإنتاج · قفلُ TVB9).
 permissions:
@@ -12,9 +13,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "ticker · cases · validate"
+        description: "ticker · cases · validate · poolcap"
         type: choice
-        options: [ticker, cases, validate]
+        options: [ticker, cases, validate, poolcap]
         default: ticker
       ticker:
         description: "الرمز (لوضع ticker)"

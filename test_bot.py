@@ -78847,9 +78847,11 @@ import os as _fv_os                                                        # noq
 import sys as _fv_sys                                                      # noqa: E402
 import numpy as _fv_np                                                     # noqa: E402
 _fv_sys.path.insert(0, _fv_os.path.join(_fv_os.path.dirname(_fv_os.path.abspath(__file__)), "faisal_method_v3"))
-import faisal_tool as FVT                                                  # noqa: E402
-import forensics_build as FVB                                              # noqa: E402
-import w_validate as FVW                                                   # noqa: E402
+# وحداتٌ محلّيّةٌ في مجلّدٍ فرعيّ (لا ملفّاتُ جذر) ⟵ تُستورَد بالاسم بعد إضافة المسار · DEP1 يحرس الخارجيّةَ وحدَها
+import importlib as _fv_imp                                                # noqa: E402
+FVT = _fv_imp.import_module("faisal_tool")
+FVB = _fv_imp.import_module("forensics_build")
+FVW = _fv_imp.import_module("w_validate")
 
 _FV_PATH = [10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.6, 5.3, 5.0, 5.2, 5.5, 5.8, 6.0, 5.8, 5.5, 5.3, 5.1, 5.25, 5.5, 5.7, 5.9, 6.05,
             6.2, 6.4, 6.5, 6.3, 6.1, 6.15, 6.4, 6.8, 7.2, 7.5]
@@ -79103,6 +79105,44 @@ except Exception as _e:                                                   # noqa
     _f11, _b11 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
 check("🧭 FV11 فروعُ حكم `T-W` كما كُتبت قبل الرقم: أقلُّ من 30 في ذراع ⟵ W-4 · الوسطُ أسوأ من A وB معًا ⟵ W-1 · وتفوّقٌ على الضبط ⟵ W-2 · ولا فرقَ ⟵ W-3",
       _f11, f"{_b11}")
+
+
+# ── FV12 تدقيقُ سقف بِركة رادار الضغط (§23 · قراءةٌ فقط · المعاييرُ في `pressure_pool_cap_audit.md` §⓪ قبل الرقم):
+#    الذراعُ A **هي** `build_pool` الإنتاجيّ حرفًا (لا نسخةٌ تتباعد) · B بلا سقف · C المتحرّكون بالأحدث أوّلًا بالسقف نفسِه ·
+#    والتصنيفُ بحدود §⓪ · ولا إسنادَ ولا تعديلَ لـ`POOL_CAP`/`build_pool` ولا لحالة الرادار الأصليّة (AST + سلوك).
+try:
+    FVP = _fv_imp.import_module("pool_cap_audit")
+    import press_radar as _fv_pr                                           # noqa: E402
+    _cap12 = _fv_pr.POOL_CAP
+    _wl12 = {"pullback": [{"symbol": "PB1", "entry": 1.0}],
+             "stocks": [{"symbol": f"ST{i}"} for i in range(3)],
+             "removed": [{"symbol": f"RM{i}", "date": "2026-09-25"} for i in range(5)],
+             "explosions": [{"symbol": f"MV{i:03d}", "date": f"2026-09-{1 + i % 28:02d}"} for i in range(_cap12)]}
+    _st12 = {"symbols": {f"ME{i}": {"first_seen": "2026-09-20", "last_seen": "2026-09-28"} for i in range(4)}}
+    _st12_copy = _fv_json.loads(_fv_json.dumps(_st12))
+    _a12 = FVP.arms(_wl12, _st12, "2026-10-01")
+    _A, _B, _C = _a12["A"], _a12["B"], _a12["C"]
+    _mv = [s for s in _C if s.startswith("MV")]
+    _mv_dates = [_a12["meta"][s]["date"] for s in _mv]
+    _f12 = (len(_B) == 1 + 3 + 5 + _cap12 + 4 and _A == _B[:_cap12] and _a12["cut"] == len(_B) - _cap12
+            and len(_C) == _cap12 and _C[:4] == ["PB1", "ST0", "ST1", "ST2"]
+            and _mv_dates == sorted(_mv_dates, reverse=True) and not any(s.startswith(("RM", "ME")) for s in _C)
+            and _st12 == _st12_copy and _fv_pr.POOL_CAP == _cap12)
+    _cls = FVP.classify
+    _k12 = {"cov": _cls({"ready_lost_A": 9, "ready_B": 9}, 30, 0.89), "few": _cls({"ready_lost_A": 9, "ready_B": 9}, 9, 0.99),
+            "abs3": _cls({"ready_lost_A": 3, "ready_B": 1000}, 30, 0.95), "pct5": _cls({"ready_lost_A": 2, "ready_B": 40}, 30, 0.95),
+            "low": _cls({"ready_lost_A": 2, "ready_B": 100}, 30, 0.95), "zero": _cls({"ready_lost_A": 0, "ready_B": 0}, 30, 0.95)}
+    _ok12 = _k12 == {"cov": "UNKNOWN", "few": "UNKNOWN", "abs3": "MATERIAL", "pct5": "MATERIAL", "low": "LOW", "zero": "LOW"}
+    _t12 = _fv_ast.parse(open(_fv_os.path.join("faisal_method_v3", "pool_cap_audit.py"), encoding="utf-8").read())
+    _asg12 = [n for n in _fv_ast.walk(_t12) if isinstance(n, (_fv_ast.Assign, _fv_ast.AugAssign, _fv_ast.AnnAssign))
+              for t in (n.targets if isinstance(n, _fv_ast.Assign) else [n.target])
+              if isinstance(t, _fv_ast.Attribute) and t.attr in ("POOL_CAP", "build_pool", "MEMORY_DAYS")]
+    _grd12 = any(isinstance(n, _fv_ast.Assert) for n in _fv_ast.walk(_t12))
+except Exception as _e:                                                    # noqa: BLE001
+    _f12, _ok12, _asg12, _grd12, _k12 = False, False, ["⛔"], False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 FV12 تدقيقُ سقف البِركة (§23): A = `build_pool` الإنتاجيّ حرفًا · B بلا سقف · C المتحرّكون بالأحدث أوّلًا بالسقف نفسِه · "
+      "والتصنيفُ بحدود §⓪ (تغطية 90% · 10 جلسات · 3 مفقودين أو 5%) · ولا إسنادَ لـ`POOL_CAP`/`build_pool` ولا مسَّ لحالة الرادار",
+      _f12 and _ok12 and not _asg12 and _grd12, f"bins={_k12} · إسناد={len(_asg12)} · حارس={_grd12}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

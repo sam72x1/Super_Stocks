@@ -14,6 +14,9 @@ def main():
     if mode == "cases":
         import faisal_cases
         return faisal_cases.main()
+    if mode == "poolcap":
+        import pool_cap_audit
+        return pool_cap_audit.evaluate()
     if mode == "validate":
         import w_validate
         return w_validate.main()
