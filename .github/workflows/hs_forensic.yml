@@ -6,6 +6,8 @@ name: "🔬 التحقيق الجنائي في الرأس والكتفين (T-HS
 #   · verdict (الحكمُ الآليّ §⑦ من fx_bot.json وfx_ndq.json · بلا شبكة).
 # 📺 الشموعُ من TradingView مباشرةً (`S.tv_download`) — **بلا `BARS_SOURCE`** (مفتاحُه محصورٌ بعشرة workflows · قفلُ TVB9).
 # 🔒 بحثٌ فقط: **لا تلغرام** (بلا أسرارِه) · لا حالةَ إنتاج · `git_save` يدفع `hs_research/forensic/` وحدَه.
+# 🔒🔴 مُغلَقٌ مُنفَّذًا (2026-10-02 · hs_forensic/hs_rx_result.md §⑬ · RXC1): الأداةُ تخرج 8 قبل أيّ عمليّة
+#    ما لم يكن مُدخَلُ `reopen` = 1 حرفيًّا (إقرارٌ بشروط الفتح الثلاثة) — وهو إقرارٌ لا مُدخَلُ قياس.
 permissions:
   contents: write
 
@@ -17,6 +19,10 @@ on:
         type: choice
         options: [main, ndq, sens, verdict, rx]
         default: main
+      reopen:
+        description: "🔒 المحورُ مُغلَق (2026-10-02 · hs_rx_result.md §⑬) — 1 = إقرارٌ بشروط الفتح الثلاثة · غيرُه = خروج 8"
+        required: false
+        default: "0"
 
 concurrency:
   # وضعٌ واحدٌ في المرّة لكلّ مخرَج (الأوضاعُ الثلاثة تكتب ملفّاتٍ مختلفة فتتوازى) · ولا يُلغي طلبٌ طلبًا قائمًا.
@@ -44,6 +50,7 @@ jobs:
         env:
           PYTHONUNBUFFERED: "1"
           HS_FX_MODE: ${{ inputs.mode }}
+          HSFX_REOPEN: ${{ inputs.reopen }}
           # 14ج: بريد تواصلٍ لطلبات SEC (تدقيقُ إجراءات الشركات §⑩) — فارغ = الافتراضيّ القديم.
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
         run: python hs_forensic.py

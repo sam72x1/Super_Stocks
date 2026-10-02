@@ -78207,6 +78207,84 @@ check("🔁 RXF10 الأوضاعُ الأخرى بت-بت: `_fetch` الافتر
       _rx10 == {"default": (None, None, True), "forward": (True, True), "others": ["(1, [])"], "rx": [(1, ["gate", "scan"])], "n_callers": 2},
       str(_rx10)[:400])
 
+# RXC1 — 🔒 **الإغلاقُ مُنفَّذٌ لا مكتوب** (2026-10-02 · بالتفويض الكامل · `hs_forensic/hs_rx_result.md §⑬`) — مرآةُ `EGS13` سلوكيًّا من طرفيه:
+#    (أ) مُغلَقًا ⟶ ‏8 بصفرِ نداءٍ لأيّ وضعٍ أو جلب ولا سطرَ غيرُ النصّ · (ب) افتراضُ الـyml (`0`) يُبقيه مُغلَقًا · (ج) الإقرارُ `1` يرفع الحارسَ
+#    **فعلًا** (وضعٌ مجهول ⟶ 2 بسطره · وverdict ⟶ نداؤه) · (د) ‏8 مميَّزٌ عن كلّ `return` حرفيٍّ في الأوضاع · (هـ) الحارسُ أوّلُ جملةٍ بعد التوثيق ·
+#    ونصُّ الفتح ①②③ بأرقام الأحكام الثلاثة · والمُدخَلُ والبيئةُ في الـyml · و§⑬ في النتيجة · ونقطةُ دخولٍ واحدة.
+import os as _rxc_os                                                      # noqa: E402
+_rxc_orig = (FX.log, FX.run_main, FX.run_rx, FX.run_sens, FX.run_verdict, S.tv_download)
+_rxc_env0 = {_k: _rxc_os.environ.get(_k) for _k in ("HSFX_REOPEN", "HS_FX_MODE")}
+try:
+    _rxc_logged, _rxc_calls = [], []
+    FX.log = lambda *a: _rxc_logged.append(" ".join(map(str, a)))
+    FX.run_main = lambda mode: _rxc_calls.append(("main", mode)) or 0
+    FX.run_rx = lambda: _rxc_calls.append(("rx",)) or 0
+    FX.run_sens = lambda: _rxc_calls.append(("sens",)) or 0
+    FX.run_verdict = lambda: _rxc_calls.append(("verdict",)) or 0
+    S.tv_download = lambda *a, **k: _rxc_calls.append(("tv",)) or ({}, {})
+    _rxc_os.environ.pop("HSFX_REOPEN", None)
+    _rxc_os.environ["HS_FX_MODE"] = "rx"
+    _rxc_rc_closed = FX.main()
+    _rxc_log_closed, _rxc_n_closed = list(_rxc_logged), len(_rxc_calls)
+    import yaml as _rxc_yaml                                              # noqa: E402
+    _rxc_wf = _rxc_yaml.safe_load(open(".github/workflows/hs_forensic.yml", encoding="utf-8"))
+    _rxc_on = _rxc_wf.get(True) or _rxc_wf.get("on") or {}
+    _rxc_def = str((((_rxc_on.get("workflow_dispatch") or {}).get("inputs") or {}).get("reopen") or {}).get("default"))
+    _rxc_steps = [s for j in (_rxc_wf.get("jobs") or {}).values() for s in (j.get("steps") or [])
+                  if "hs_forensic.py" in str(s.get("run", ""))]
+    _rxc_envmap = len(_rxc_steps) == 1 and (_rxc_steps[0].get("env") or {}).get("HSFX_REOPEN") == "${{ inputs.reopen }}"
+    _rxc_os.environ["HSFX_REOPEN"] = _rxc_def                                  # افتراضُ الـyml
+    del _rxc_logged[:]
+    _rxc_rc_default = FX.main()
+    _rxc_n_default = len(_rxc_calls)
+    _rxc_os.environ["HSFX_REOPEN"] = "1"                                       # الإقرار
+    _rxc_os.environ["HS_FX_MODE"] = "__rxc_probe__"
+    del _rxc_logged[:]
+    _rxc_rc_unknown = FX.main()
+    _rxc_log_unknown = list(_rxc_logged)
+    _rxc_os.environ["HS_FX_MODE"] = "verdict"
+    _rxc_rc_verdict = FX.main()
+    _rxc_open_calls = list(_rxc_calls)
+    _rxc_tree = _hfx_ast.parse(open("hs_forensic.py", encoding="utf-8").read())
+    _rxc_fns = {n.name: n for n in _rxc_tree.body if isinstance(n, _hfx_ast.FunctionDef)}
+    _rxc_body = list(_rxc_fns["main"].body)
+    if (_rxc_body and isinstance(_rxc_body[0], _hfx_ast.Expr) and isinstance(getattr(_rxc_body[0], "value", None), _hfx_ast.Constant)
+            and isinstance(_rxc_body[0].value.value, str)):
+        _rxc_body = _rxc_body[1:]                                         # التوثيقُ ليس جملة
+    _rxc_b0 = _rxc_body[0] if _rxc_body else None
+    _rxc_first = (isinstance(_rxc_b0, _hfx_ast.If) and isinstance(_rxc_b0.test, _hfx_ast.Call)
+                  and getattr(_rxc_b0.test.func, "id", None) == "_closed_now"
+                  and any(isinstance(_x, _hfx_ast.Return) and getattr(_x.value, "id", None) == "CLOSED_RC" for _x in _rxc_b0.body))
+    _rxc_rcs = {_n.value.value for _fn in ("main", "run_main", "run_rx", "run_sens", "run_verdict") if _fn in _rxc_fns
+                for _n in _hfx_ast.walk(_rxc_fns[_fn]) if isinstance(_n, _hfx_ast.Return) and isinstance(_n.value, _hfx_ast.Constant)}
+    _rxc_witness = {0, 2, 3} <= _rxc_rcs and FX.CLOSED_RC not in _rxc_rcs
+    _rxc_txt = "\n".join(FX.closure_notice())
+    _rxc_notice = all(_x in _rxc_txt for _x in (
+        "①", "②", "③", "HSFX_REOPEN=1", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد", "36911113194", "36956919901", "36963821397",
+        "83.3%", "+5.20", "+1.08", "hs_rx_result.md §⑬", "head_shoulders.py"))
+    _rxc_res = open("hs_forensic/hs_rx_result.md", encoding="utf-8").read()
+    _rxc_sec = ("## ⑬ 🔒 الإغلاق" in _rxc_res and "HSFX_REOPEN=1" in _rxc_res and "RXC1" in _rxc_res
+                and "| ③ | **إذنُ المالك** |" in _rxc_res and "RX-3" in _rxc_res)
+    _rxc_one = open("hs_forensic.py", encoding="utf-8").read().count("if __name__ ==") == 1
+    _rxc = {"closed": (_rxc_rc_closed, _rxc_n_closed, _rxc_log_closed == FX.closure_notice()),
+            "default": (_rxc_def, _rxc_rc_default, _rxc_n_default),
+            "open": (_rxc_rc_unknown, any("__rxc_probe__" in _l for _l in _rxc_log_unknown), _rxc_rc_verdict, _rxc_open_calls),
+            "consts": (FX.AXIS_CLOSED, FX.REOPEN_ENV, FX.CLOSED_RC), "witness": _rxc_witness, "first": _rxc_first,
+            "envmap": _rxc_envmap, "notice": _rxc_notice, "sec": _rxc_sec, "one": _rxc_one}
+except Exception as _e:                                                   # noqa: BLE001
+    _rxc = {"⛔": f"{type(_e).__name__}: {_e}"}
+finally:
+    FX.log, FX.run_main, FX.run_rx, FX.run_sens, FX.run_verdict, S.tv_download = _rxc_orig
+    for _k, _v0 in _rxc_env0.items():
+        _rxc_os.environ.pop(_k, None)
+        if _v0 is not None:
+            _rxc_os.environ[_k] = _v0
+check("🔒 RXC1 الإغلاقُ **مُنفَّذ** (محورُ الرأس والكتفين اليوميّ): خروج 8 بصفرِ نداءٍ ولا سطرَ غيرُ النصّ · **وافتراضُ الـworkflow (`0`) يُبقيه مُغلَقًا** · "
+      "والإقرارُ `1` يرفع الحارسَ (وضعٌ مجهول ⟶ 2 · verdict ⟶ نداؤه) · و‏8 مميَّز · والحارسُ أوّلُ جملة · والمُدخَلُ والبيئة · ونصُّ الفتح ①②③ بأرقامه · و§⑬ · ودخولٌ واحد",
+      _rxc == {"closed": (8, 0, True), "default": ("0", 8, 0), "open": (2, True, 0, [("verdict",)]),
+               "consts": (True, "HSFX_REOPEN", 8), "witness": True, "first": True, "envmap": True, "notice": True, "sec": True, "one": True},
+      str(_rxc)[:500])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
