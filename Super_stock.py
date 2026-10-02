@@ -2328,14 +2328,19 @@ def dq_split_events(sym, nasdaq=None, fetch=None) -> tuple:
     return _DQ.cross_check(yev, nev)
 
 
-def dq_close_xcheck(syms, hist, fetch=None) -> dict:
+def dq_close_xcheck(syms, hist, fetch=None, stats: dict = None) -> dict:
     """{رمز: تعارضٌ|None} — إغلاقُ **آخر جلسةٍ مشتركة** في إطار TradingView مقابل ياهو (المصدرُ الثاني المستقلّ للسعر). يُقارَن الإطارُ
     الوارد من TradingView وحدَه (إطارُ ياهو لا يُقارَن بنفسه) · والآخرُ المشترك لا الأخيرُ مطلقًا (ياهو يحشو) · والفرقُ فوق
     `hunter_outcomes.SCALE_TOL` لوغاريتميًّا = **تعارض** (مقياسُ تقسيمٍ أو بياناتٌ تالفة — لا ضجيجُ مصدرين: إغلاقُ آخر جلسةٍ غيرُ
-    مُسوًّى عند الاثنين). تعذّرُ ياهو ⟵ لا تعارض (لا يُخترع) ويُعَدّ. `fetch(syms, start)` ⟵ {رمز: إطار} محقونٌ للاختبار."""
+    مُسوًّى عند الاثنين). تعذّرُ ياهو ⟵ لا تعارض (لا يُخترع) **ويُعَدّ في `stats`** (‏{asked · compared · missing}: «لم يُقارَن» = بلا إطارٍ
+    من ياهو أو بلا جلسةٍ مشتركة — عطلٌ مُثبَت 2026-10-02: MASK ‏`database is locked` في «شروطك الثلاثة» `36978917384` مرّ بلا مقارنةٍ
+    ولا عدّ والوصفُ هنا كان يَعِد بالعدّ) · و`stats=None` ⟵ كما كان **بت-بت**. `fetch(syms, start)` ⟵ {رمز: إطار} محقونٌ للاختبار."""
     import data_quality as _DQ
     tv = [s for s in syms if _DQ.bars_src((hist or {}).get(s)) == "tradingview"]
-    out = {}
+    out, compared = {}, []
+    if stats is not None:
+        stats.clear()
+        stats.update(asked=len(tv), compared=0, missing=list(tv))
     if not tv:
         return out
     start = (dt.date.today() - dt.timedelta(days=21)).isoformat()
@@ -2385,11 +2390,28 @@ def dq_close_xcheck(syms, hist, fetch=None) -> dict:
             d = common[-1]
             ca = float(a["Close"].loc[[x for x in a.index if str(x)[:10] == d][-1]])
             cb = ya[d]
-            if ca > 0 and abs(math.log(ca / cb)) > math.log(1.0 + t):
-                out[s] = ("close", d, round(ca, 4), round(cb, 4))
+            if ca > 0:                                           # إغلاقٌ صالحٌ في الطرفين ⟵ قُورن فعلًا
+                compared.append(s)
+                if abs(math.log(ca / cb)) > math.log(1.0 + t):
+                    out[s] = ("close", d, round(ca, 4), round(cb, 4))
         except Exception:                                        # noqa: BLE001
             continue
+    if stats is not None:
+        _cmp = set(compared)
+        stats.update(compared=len(_cmp), missing=[s for s in tv if s not in _cmp])
     return out
+
+
+def dq_xclose_line(stats: dict, cap: int = 20) -> str:
+    """سطرُ «لم يُقارَن» لملخّص البوّابة ⟵ فارغٌ حين قُورن الكلّ أو لم يُطلَب (فالسجلُّ **بت-بت**) · والأسماءُ بسقفٍ **يُعلَن عددُ
+    ما بعده** (لا قصٌّ صامت). `stats` من `dq_close_xcheck`."""
+    miss = list((stats or {}).get("missing") or [])
+    if not miss:
+        return ""
+    more = len(miss) - cap
+    return (f"   🛡️ الإغلاقُ مقابل ياهو: لم يُقارَن {len(miss)} من {(stats or {}).get('asked', len(miss))} ("
+            + " · ".join(str(x) for x in miss[:cap]) + (f" … و{more} غيرُها" if more > 0 else "")
+            + ") — تعذّر ياهو أو لا جلسةَ مشتركة ⟵ لا تعارضَ يُخترع ولا يُدّعى تحقّق")
 
 
 def dq_assess(sym, df, expected, nasdaq=None, fetch=None, xclose=None, today=None, ref_date=None) -> dict:
@@ -2414,19 +2436,22 @@ def dq_filter(items, hist, scope: str, expected=None, sym_of=None, xcheck_close:
         return items
     sym_of = sym_of or (lambda it: it.get("symbol") if isinstance(it, dict) else str(it))
     exp = expected or last_closed_session()
-    closes = {}
+    closes, xs = {}, {}
     if xcheck_close:
         try:
-            closes = dq_close_xcheck([sym_of(it) for it in items], hist, fetch=close_fetch)
+            closes = dq_close_xcheck([sym_of(it) for it in items], hist, fetch=close_fetch, stats=xs)
         except Exception as e:                                   # noqa: BLE001
             log(f"⚠️ 🛡️ التحقّقُ المتقاطع للإغلاق تعذّر ({type(e).__name__}) — لا تعارضَ يُخترع")
     kept, dropped, summ = _DQ.gate(
         items, lambda s, it: dq_assess(s, (hist or {}).get(s), exp, nasdaq=nasdaq, fetch=fetch, xclose=closes.get(s),
                                        ref_date=(ref_of(it) if ref_of else None)), sym_of)
     log(_DQ.summary_line(summ, scope) + f" · الجلسةُ المتوقَّعة {exp}")
+    _xl = dq_xclose_line(xs)                                     # 🛡️ ما لم يُقارَن إغلاقُه يُعَدّ ويُسمّى (وصفرُه بت-بت)
+    if _xl:
+        log(_xl)
     for ln in _DQ.dropped_lines(dropped):
         log(ln)
-    DQ_LAST[scope] = {"summary": summ, "expected": exp,
+    DQ_LAST[scope] = {"summary": summ, "expected": exp, "xclose": dict(xs),
                       "dropped": [(a.get("symbol"), a.get("state"), a.get("action"), a.get("reasons")) for _, a in dropped]}
     return kept
 
