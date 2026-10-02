@@ -222,7 +222,9 @@ def _evaluate(st, t, h, l, c, a, p, session=None, probe: bool = False, expiry: b
     neck, slope = _neck_fn(p1, p2)
     at = float(a[t])
     thr_t = neck(t) + p["brk_atr"] * at
-    if not probe and not c[t] >= thr_t:                                           # HS-E6 إغلاقٌ لا لمس (رفضٌ رخيص أوّلًا)
+    # 🔬 `brk_mode` (‏`T-HS-FX` · المدخل A «أوّلُ تجاوزٍ بالأعلى»): غائبٌ عن STRICT/LOOSE ⟵ **الإغلاقُ كما كان بت-بت** (`HSX1`)
+    px = h if p.get("brk_mode") == "high" else c
+    if not probe and not px[t] >= thr_t:                                          # HS-E6 إغلاقٌ لا لمس (رفضٌ رخيص أوّلًا)
         return _rej(why, "close")
     end = t + 1 if probe else t
     seg = l[P2i + 1:end]
@@ -234,7 +236,8 @@ def _evaluate(st, t, h, l, c, a, p, session=None, probe: bool = False, expiry: b
     height = neck(hd[0]) - H
     if not (height > 0 and H < LS and H < RS):                                   # HS-E1 الرأسُ الأعمق
         return _rej(why, "head_lowest")
-    if np.nanmin(l[ls[0]:P2i + 1]) < H:                                           # لا قاعَ أدنى من الرأس داخل النموذج
+    # 🔬 `head_rule` (‏`T-HS-FX` · «تحت الكتفين» وحدَه): غائبٌ عن STRICT/LOOSE ⟵ «أدنى نقطةٍ في النموذج» كما كان بت-بت (`HSX1`)
+    if p.get("head_rule", "lowest") == "lowest" and np.nanmin(l[ls[0]:P2i + 1]) < H:   # لا قاعَ أدنى من الرأس داخل النموذج
         return _rej(why, "head_min")
     if min(LS, RS) - H < p["head_min_atr"] * at:
         return _rej(why, "head_depth")
@@ -267,7 +270,7 @@ def _evaluate(st, t, h, l, c, a, p, session=None, probe: bool = False, expiry: b
     if session is not None and not (session[p0[0]] == session[t]):               # داخل جلسةٍ واحدة (5 دقائق)
         return _rej(why, "session")
     xs = np.arange(P2i + 1, end)
-    if len(xs) and np.any(c[xs] >= neck(xs) + p["brk_atr"] * a[xs]):              # الاختراقُ الأوّل وحدَه
+    if len(xs) and np.any(px[xs] >= neck(xs) + p["brk_atr"] * a[xs]):             # الاختراقُ الأوّل وحدَه
         return _rej(why, "not_first")
     return {"p0_i": p0[0], "p0_px": p0[2], "ls_i": ls[0], "ls_px": LS, "p1_i": p1[0], "p1_px": p1[2],
             "head_i": hd[0], "head_px": H, "p2_i": P2i, "p2_px": p2[2], "rs_i": RSi, "rs_px": RS,
