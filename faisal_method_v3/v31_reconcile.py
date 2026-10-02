@@ -21,7 +21,6 @@ import hashlib
 import json
 import os
 import re
-import struct
 import sys
 from datetime import datetime, timezone
 
@@ -183,8 +182,8 @@ def load_docs(root=ROOT):
     if os.path.exists(rd):
         docs["faisal_images/README.md"] = open(rd, encoding="utf-8", errors="ignore").read()
     for dp, dn, fn in os.walk(root):
-        dn[:] = [d for d in dn if d not in (".git", "faisal_images", "faisal_method_v3", "node_modules")]
-        for f in fn:
+        dn[:] = sorted(d for d in dn if d not in (".git", "faisal_images", "faisal_method_v3", "node_modules"))
+        for f in sorted(fn):                                           # ترتيبٌ ثابت ⟵ مخرَجٌ حتميّ أيًّا كان نظامُ الملفّات
             if f.endswith(".md") and f != "FAISAL_IMAGE_AUDIT.md":
                 p = os.path.join(dp, f)
                 try:
@@ -394,7 +393,7 @@ def corpus_reconcile(corpus, dedup, review, vr3, vr31, source_access, docs, img_
         "cluster_sets_identical_to_v3": v3_multi == new_multi,
         "multi_member_clusters": len(new_multi), "multi_clusters_visually_reviewed": len(new_multi & reviewed),
         "vetoed_pairs": len(vetoed),
-        "doc_record_methods": dict(collections.Counter(m for s in stems for m in how[s])),
+        "doc_record_methods": dict(sorted(collections.Counter(m for s in stems for m in how[s]).items())),
         "no_record_before_v31_visual": no_rec_v3_rules,
         "no_record_after_v31": sorted(set(stems) - inspected),
         "visual_merge_edges": vis_edges,
@@ -477,6 +476,19 @@ def transcript_images(path, corpus, uploads_dir=None, tmp_dir=None):
             "unmatched_detail": unmatched}
 
 
+def carry_over(cr, tx, prev, uploads_dir=None, transcript=None):
+    """🛡️ تشغيلٌ بلا مصدرٍ (المرفقاتُ أو سجلُّ المحادثة غيرُ متاحَين هنا) لا يدهس قياسًا محفوظًا بـnull — يُحمَل كما هو.
+    عطلٌ مُثبَت 2026-10-02: تشغيلُ البنّاء بلا وسائط كتب uploads=null وtranscript=NOT_SCANNED فوق القياس. يعيد (cr, tx, ما حُمل)."""
+    carried = []
+    if not (uploads_dir and os.path.isdir(uploads_dir)) and (prev.get("corpus") or {}).get("uploads") is not None:
+        cr = dict(cr, uploads=prev["corpus"]["uploads"])
+        carried.append("uploads")
+    if not transcript and (prev.get("transcript") or {}).get("status") not in (None, "NOT_SCANNED"):
+        tx = prev["transcript"]
+        carried.append("transcript")
+    return cr, tx, carried
+
+
 def main(out=OUT, uploads_dir=None, transcript=None):
     J = lambda p: json.load(open(p, encoding="utf-8"))           # noqa: E731
     corpus = J(os.path.join(HERE, "image_corpus.json"))
@@ -491,6 +503,9 @@ def main(out=OUT, uploads_dir=None, transcript=None):
     docs = load_docs()
     cr = corpus_reconcile(corpus, dedup, review, vr3, vr31, sa, docs, uploads_dir=uploads_dir)
     tx = transcript_images(transcript, corpus, uploads_dir) if transcript else {"status": "NOT_SCANNED"}
+    cr, tx, carried = carry_over(cr, tx, J(out) if os.path.exists(out) else {}, uploads_dir, transcript)
+    for c in carried:
+        print(f"ℹ️ {c} غيرُ مُمرَّر ⟵ حُمل قياسُه المحفوظ كما هو (لا يُدهَس بـnull)")
     res = {"tool": "v31_reconcile", "telegram": tg, "corpus": cr, "transcript": tx}
     os.makedirs(os.path.dirname(out), exist_ok=True)
     json.dump(res, open(out, "w", encoding="utf-8"), ensure_ascii=False, indent=1, default=dict)

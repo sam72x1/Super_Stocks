@@ -358,12 +358,12 @@
   "multi_clusters_visually_reviewed": 102,
   "vetoed_pairs": 3,
   "doc_record_methods": {
+   "abbrev": 4,
    "batch_code": 65,
    "exact": 620,
-   "short_name": 30,
-   "range": 196,
    "img_bare": 94,
-   "abbrev": 4
+   "range": 196,
+   "short_name": 30
   },
   "no_record_before_v31_visual": [
    "IMG_0339",
@@ -452,6 +452,120 @@
     "OPUS_EXECUTION_PACKAGE.md",
     "faisal_combo_prereg.md",
     "faisal_images/README.md"
+   ],
+   "IMG_9509": [
+    "CLAUDE.md",
+    "HANDOFF_ARCHIVE.md"
+   ],
+   "IMG_0091": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "HANDOFF_ARCHIVE.md",
+    "faisal_combo_prereg.md",
+    "fsto_backtest_prereg.md"
+   ],
+   "IMG_0125": [
+    "CLAUDE.md",
+    "FAISAL_IMAGE_PASS3.md",
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_0097": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_0080": [
+    "CLAUDE.md",
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "REQUIREMENTS_MATRIX.md",
+    "SOURCE_ANALYSIS.md",
+    "architecture_proposal.md"
+   ],
+   "IMG_0098": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_0082": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9510": [
+    "CLAUDE.md",
+    "COMMON_LINK_REPORT_FOR_OPUS.md"
+   ],
+   "IMG_9504": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "HANDOFF.md",
+    "HANDOFF_ARCHIVE.md"
+   ],
+   "IMG_9505": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9933": [
+    "CLAUDE.md",
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_METHODOLOGY_NOTES.md",
+    "FAISAL_SOURCE_LEDGER.md",
+    "hs_forensic/TARGET_FORENSICS.md",
+    "hs_forensic/target_forensics_prereg.md",
+    "targets_and_operator_report.md"
+   ],
+   "IMG_0489": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_SCIENTIFIC_METHOD.md",
+    "FAISAL_SOURCE_LEDGER.md",
+    "HANDOFF_ARCHIVE.md",
+    "OPUS_METHOD_UPDATES_PACKAGE.md",
+    "hs_sf_prereg.md",
+    "method_prereg.md",
+    "method_window_prereg.md"
+   ],
+   "IMG_0448": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_PRESSURE_MODEL.md",
+    "HANDOFF_ARCHIVE.md",
+    "candle_prereg.md"
+   ],
+   "IMG_1066": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_SOURCE_LEDGER.md",
+    "HANDOFF_ARCHIVE.md",
+    "kasih_prereg.md",
+    "radar_frames_prereg.md"
+   ],
+   "IMG_9425": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_0440": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_PRESSURE_MODEL.md",
+    "FAISAL_TEACHING_MODELS.md"
+   ],
+   "IMG_0450": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "candle_prereg.md"
+   ],
+   "IMG_0451": [
+    "DECISIONS_ARCHIVE.md",
+    "anchor_prereg.md",
+    "entry_points_audit.md"
+   ],
+   "IMG_0449": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_PRESSURE_MODEL.md"
+   ],
+   "IMG_0446": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "OPUS_METHOD_UPDATES_PACKAGE.md",
+    "method_window_prereg.md"
    ],
    "IMG_4717": [
     "FAISAL_IMAGES_CATALOG.md"
@@ -690,17 +804,7 @@
    "IMG_9499": [
     "FAISAL_IMAGES_CATALOG.md"
    ],
-   "IMG_9504": [
-    "CLAUDE.md",
-    "FAISAL_IMAGES_CATALOG.md",
-    "HANDOFF.md",
-    "HANDOFF_ARCHIVE.md"
-   ],
    "IMG_9506": [
-    "FAISAL_IMAGES_CATALOG.md"
-   ],
-   "IMG_9505": [
-    "CLAUDE.md",
     "FAISAL_IMAGES_CATALOG.md"
    ],
    "IMG_9508": [
@@ -714,112 +818,12 @@
    "IMG_9915": [
     "FAISAL_IMAGES_CATALOG.md"
    ],
-   "IMG_9933": [
-    "CLAUDE.md",
-    "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_METHODOLOGY_NOTES.md",
-    "FAISAL_SOURCE_LEDGER.md",
-    "hs_forensic/TARGET_FORENSICS.md",
-    "hs_forensic/target_forensics_prereg.md",
-    "targets_and_operator_report.md"
-   ],
-   "IMG_0080": [
-    "CLAUDE.md",
-    "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGES_CATALOG.md",
-    "REQUIREMENTS_MATRIX.md",
-    "SOURCE_ANALYSIS.md",
-    "architecture_proposal.md"
-   ],
    "IMG_0077": [
     "FAISAL_IMAGES_CATALOG.md"
    ],
-   "IMG_0097": [
-    "CLAUDE.md",
-    "FAISAL_IMAGES_CATALOG.md",
+   "IMG_8261": [
+    "FAISAL_METHODOLOGY_NOTES.md",
     "FAISAL_SOURCE_LEDGER.md"
-   ],
-   "IMG_0098": [
-    "CLAUDE.md",
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_SOURCE_LEDGER.md"
-   ],
-   "IMG_0091": [
-    "CLAUDE.md",
-    "FAISAL_IMAGES_CATALOG.md",
-    "HANDOFF_ARCHIVE.md",
-    "faisal_combo_prereg.md",
-    "fsto_backtest_prereg.md"
-   ],
-   "IMG_0082": [
-    "CLAUDE.md",
-    "FAISAL_IMAGES_CATALOG.md"
-   ],
-   "IMG_0446": [
-    "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGES_CATALOG.md",
-    "OPUS_METHOD_UPDATES_PACKAGE.md",
-    "method_window_prereg.md"
-   ],
-   "IMG_0450": [
-    "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGES_CATALOG.md",
-    "candle_prereg.md"
-   ],
-   "IMG_0489": [
-    "DECISIONS_ARCHIVE.md",
-    "FAISAL_SCIENTIFIC_METHOD.md",
-    "FAISAL_SOURCE_LEDGER.md",
-    "HANDOFF_ARCHIVE.md",
-    "OPUS_METHOD_UPDATES_PACKAGE.md",
-    "hs_sf_prereg.md",
-    "method_prereg.md",
-    "method_window_prereg.md"
-   ],
-   "IMG_0448": [
-    "DECISIONS_ARCHIVE.md",
-    "FAISAL_PRESSURE_MODEL.md",
-    "HANDOFF_ARCHIVE.md",
-    "candle_prereg.md"
-   ],
-   "IMG_1066": [
-    "DECISIONS_ARCHIVE.md",
-    "FAISAL_SOURCE_LEDGER.md",
-    "HANDOFF_ARCHIVE.md",
-    "kasih_prereg.md",
-    "radar_frames_prereg.md"
-   ],
-   "IMG_9425": [
-    "DECISIONS_ARCHIVE.md",
-    "FAISAL_SOURCE_LEDGER.md"
-   ],
-   "IMG_0440": [
-    "DECISIONS_ARCHIVE.md",
-    "FAISAL_PRESSURE_MODEL.md",
-    "FAISAL_TEACHING_MODELS.md"
-   ],
-   "IMG_0451": [
-    "DECISIONS_ARCHIVE.md",
-    "anchor_prereg.md",
-    "entry_points_audit.md"
-   ],
-   "IMG_0449": [
-    "DECISIONS_ARCHIVE.md",
-    "FAISAL_PRESSURE_MODEL.md"
-   ],
-   "IMG_9509": [
-    "CLAUDE.md",
-    "HANDOFF_ARCHIVE.md"
-   ],
-   "IMG_0125": [
-    "CLAUDE.md",
-    "FAISAL_IMAGE_PASS3.md",
-    "FAISAL_SOURCE_LEDGER.md"
-   ],
-   "IMG_9510": [
-    "CLAUDE.md",
-    "COMMON_LINK_REPORT_FOR_OPUS.md"
    ],
    "IMG_0485": [
     "FAISAL_SCIENTIFIC_METHOD.md"
@@ -830,6 +834,15 @@
    "IMG_0490": [
     "FAISAL_SCIENTIFIC_METHOD.md"
    ],
+   "IMG_9426": [
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_9432": [
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_9431": [
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
    "IMG_7367": [
     "MARKET_BACKTEST_FINDINGS.md"
    ],
@@ -838,6 +851,9 @@
    ],
    "IMG_7402": [
     "MARKET_BACKTEST_FINDINGS.md"
+   ],
+   "IMG_0140": [
+    "m2_split_ref_prereg.md"
    ],
    "IMG_0453": [
     "sprc_case.md"
@@ -853,22 +869,6 @@
    ],
    "IMG_0457": [
     "sprc_case.md"
-   ],
-   "IMG_8261": [
-    "FAISAL_METHODOLOGY_NOTES.md",
-    "FAISAL_SOURCE_LEDGER.md"
-   ],
-   "IMG_9426": [
-    "FAISAL_SOURCE_LEDGER.md"
-   ],
-   "IMG_9432": [
-    "FAISAL_SOURCE_LEDGER.md"
-   ],
-   "IMG_9431": [
-    "FAISAL_SOURCE_LEDGER.md"
-   ],
-   "IMG_0140": [
-    "m2_split_ref_prereg.md"
    ]
   },
   "doc_only_dropped": {
@@ -876,16 +876,16 @@
    "TG_57896": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_50817 (المحتوى في المدوَّنة)",
    "TG_57920": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_50592 (المحتوى في المدوَّنة)",
    "X_20260918_54": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
+   "TG_20260918_37": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
    "EDU_20260918_NN_": "قالبٌ لا اسم",
    "X_20260918_12": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
-   "TG_20260918_37": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
+   "X_20260918_11": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
    "TG_20260918_68": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_20260905_07 (المحتوى في المدوَّنة)",
    "X_20260918_81": "مكرَّرٌ لم يُحفظ ثانيةً ≡ X_20260905_04 (المحتوى في المدوَّنة)",
    "TG_20260918_73": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_20260905_01 (المحتوى في المدوَّنة)",
    "TG_20260918_72": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_20260905_02 (المحتوى في المدوَّنة)",
    "X_20260918_27": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
-   "TG_20260918_38": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
-   "X_20260918_11": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)"
+   "TG_20260918_38": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)"
   },
   "doc_only_new_vs_v3": [
    "IMG_0140",

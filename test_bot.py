@@ -79500,6 +79500,34 @@ check("🧭 FV18 أرقامُ V3.1 المنشورة لا تكذب: حكمُ سق
       _pcok18 and _secok18 and _docsok18 and _provok18,
       f"pc={_pcok18} verdict={_vd18} sec={_secok18} docs={_docsok18} diff={_docsdiff18} prov={_provok18} bad={_bad18}")
 
+# ── FV19 (V3.1) بنّاءُ المطابقة لا يدهس قياسًا محفوظًا بـnull — عطلٌ مُثبَت 2026-10-02: تشغيلُ `v31_reconcile.py` بلا وسائط كتب
+#    uploads=null وtranscript=NOT_SCANNED فوق قياس المرفقات وسجلّ المحادثة ⟵ `carry_over` يحملهما من المحفوظ حين يغيب المصدر ·
+#    ومع المصدر يُكتب الجديد · وبلا محفوظٍ يبقى الغياب صريحًا · و`main` يناديه قبل الكتابة (AST).
+try:
+    FVR19 = _fv_imp.import_module("v31_reconcile")
+    _pv19 = {"corpus": {"uploads": {"files": 79}}, "transcript": {"status": "ACCESSIBLE", "owner_sent_new": 0}}
+    _cr19, _tx19, _c19 = FVR19.carry_over({"uploads": None, "x": 1}, {"status": "NOT_SCANNED"}, _pv19)
+    _a19 = (_cr19 == {"uploads": {"files": 79}, "x": 1} and _tx19 == _pv19["transcript"] and _c19 == ["uploads", "transcript"])
+    _ud19 = _fv_os.path.dirname(_fv_os.path.abspath(__file__))           # مجلّدٌ موجود ⟵ المصدرُ مُمرَّر فيُكتب الجديد
+    _cr19b, _tx19b, _c19b = FVR19.carry_over({"uploads": {"files": 1}}, {"status": "ACCESSIBLE", "n": 2}, _pv19, _ud19, "x.jsonl")
+    _b19 = _cr19b == {"uploads": {"files": 1}} and _tx19b == {"status": "ACCESSIBLE", "n": 2} and _c19b == []
+    _cr19c, _tx19c, _c19c = FVR19.carry_over({"uploads": None}, {"status": "NOT_SCANNED"}, {})
+    _d19 = _cr19c == {"uploads": None} and _tx19c == {"status": "NOT_SCANNED"} and _c19c == []
+    _cr19e, _tx19e, _c19e = FVR19.carry_over({"uploads": None}, {"status": "NOT_SCANNED"},
+                                              {"corpus": {"uploads": None}, "transcript": {"status": "NOT_SCANNED"}})
+    _e19 = _cr19e == {"uploads": None} and _c19e == []
+    _mn19 = next(n for n in _fv_ast.walk(_fv_ast.parse(open(FVR19.__file__, encoding="utf-8").read()))
+                 if isinstance(n, _fv_ast.FunctionDef) and n.name == "main")
+    _dmp19 = [c for c in _fv_ast.walk(_mn19) if isinstance(c, _fv_ast.Call) and getattr(c.func, "attr", None) == "dump"]
+    _co19 = [c for c in _fv_ast.walk(_mn19) if isinstance(c, _fv_ast.Call) and getattr(c.func, "id", None) == "carry_over"]
+    _f19 = bool(_co19) and bool(_dmp19) and _co19[0].lineno < _dmp19[0].lineno
+except Exception as _e:                                                    # noqa: BLE001
+    _a19 = _b19 = _d19 = _e19 = _f19 = False
+    _c19 = f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 FV19 بنّاءُ المطابقة لا يدهس قياسًا محفوظًا بـnull: بلا مصدرٍ يُحمَل المحفوظ · ومع المصدر يُكتب الجديد · وبلا محفوظٍ يبقى الغيابُ صريحًا · "
+      "و`main` يناديه قبل الكتابة",
+      _a19 and _b19 and _d19 and _e19 and _f19, f"carry={_a19} fresh={_b19} none={_d19} nullprev={_e19} wired={_f19} c={_c19}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
