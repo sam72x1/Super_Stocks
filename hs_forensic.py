@@ -961,9 +961,12 @@ def _regime():
 
 
 def _pool_run(fn, tasks, workers: int = 4):
+    """عمليّاتٌ متوازية بسياق **spawn** لا fork: الجلبُ قبلها يفتح خيوطًا (مقابسُ TradingView · ياهو) ونسخُ عمليّةٍ فيها خيطٌ يمسك قفلًا
+    قد يُعلّق العاملَ حتى مهلة الجوب — spawn يبدأ نظيفًا (كلفتُه استيرادٌ واحدٌ لكلّ عامل)."""
+    import multiprocessing as mp
     from concurrent.futures import ProcessPoolExecutor
     out = []
-    with ProcessPoolExecutor(max_workers=workers) as ex:
+    with ProcessPoolExecutor(max_workers=workers, mp_context=mp.get_context("spawn")) as ex:
         for i, r in enumerate(ex.map(fn, tasks, chunksize=4)):
             out.append(r)
             if (i + 1) % 200 == 0:
