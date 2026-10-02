@@ -21,7 +21,7 @@
   },
   "ocr_rows": 722,
   "ocr_empty": 9,
-  "visual_reviewed": 0
+  "visual_reviewed": 20
  },
  "images": [
   {
@@ -68,7 +68,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -126,7 +125,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -176,7 +174,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -219,7 +216,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -270,7 +266,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -322,7 +317,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -383,7 +377,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -443,9 +436,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CAPP_20260918_59_VEEE"
   },
@@ -499,9 +490,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_01_ELPW"
   },
@@ -564,9 +553,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_02_ELPW"
   },
@@ -613,9 +600,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_03_ELPW"
   },
@@ -660,7 +645,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -698,9 +682,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_07_NUWE"
   },
@@ -753,9 +735,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_09_DAIC"
   },
@@ -804,9 +784,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_14_NUWE"
   },
@@ -864,9 +842,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_16_NTCL"
   },
@@ -916,9 +892,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_17_NTCL"
   },
@@ -973,9 +947,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_25_SXTC"
   },
@@ -1018,9 +990,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_32_SXTC"
   },
@@ -1077,9 +1047,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_39_NUWE"
   },
@@ -1131,9 +1099,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_45_NUWE"
   },
@@ -1193,9 +1159,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_47_WETO"
   },
@@ -1252,9 +1216,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_57_VEEE"
   },
@@ -1313,9 +1275,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_58_VEEE"
   },
@@ -1374,9 +1334,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_60_VEEE"
   },
@@ -1438,9 +1396,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_63_ELPW"
   },
@@ -1495,9 +1451,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_64_ELPW"
   },
@@ -1554,9 +1508,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CCH_20260918_65_ELPW"
   },
@@ -1599,7 +1551,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01_hs/HS_SOURCE_ANALYSIS.md",
     "hs_forensic/IMAGE_INVENTORY.md"
@@ -1662,7 +1613,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01_hs/HS_SOURCE_ANALYSIS.md",
     "hs_forensic/IMAGE_INVENTORY.md"
@@ -1721,8 +1671,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CEDU_20260827_dki_group_candle"
@@ -1773,7 +1722,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "fuse_prereg.md"
    ],
    "visual_review": null,
@@ -1827,7 +1775,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_MAX_PACKAGE_2026-09-18.md",
     "fuse_prereg.md",
     "ma_ladder_prereg.md"
@@ -1888,8 +1835,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CEDU_20260827_sle_night_4am"
@@ -1938,8 +1884,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CEDU_20260827_smxt_falling_model"
@@ -2003,8 +1948,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CEDU_20260827_wnw_daily_after_explosion"
@@ -2056,8 +2000,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CEDU_20260827_wnw_entry_decision_4h"
@@ -2107,8 +2050,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CEDU_20260827_wnw_precall_chinese"
@@ -2151,8 +2093,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CEDU_20260905_01"
@@ -2194,7 +2135,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
    "visual_review": null,
@@ -2234,9 +2174,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CEDU_20260918_10_pattern"
   },
@@ -2280,10 +2218,13 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "EDU_THIRD_PARTY",
+    "pattern": "W / double bottom",
+    "observation": "«عائد مرتفع مخاطرة منخفضة · استراتيجية الشراء عند القاع المزدوج» · الإشارات: اتجاه هابط سابق · تكوين قاع مزدوج · اختراق خط العنق · إعادة اختبار خط العنق · استمرار الاتجاه الصاعد · تأكيد الدخول: اختراق صعودي · إعادة اختبار · سلوك صاعد · شمعة صاعدة قوية · زخم شرائي · الخطة: الدخول عند إعادة اختبار خط العنق · وقف الخسارة أسفل أدنى إعادة اختبار · الهدف أقرب مقاومة أو سيولة الشراء",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CEDU_20260918_44_doublebottom"
   },
   {
@@ -2320,9 +2261,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CEDU_20260918_56_three_inside_up"
   },
@@ -2363,7 +2302,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -2407,7 +2345,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -2460,7 +2397,6 @@
    "doc_mentions": [
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
@@ -2517,7 +2453,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -2580,7 +2515,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -2627,7 +2561,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF_ARCHIVE.md",
@@ -2678,7 +2611,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_IMAGE_PASS3.md",
     "FAISAL_SOURCE_LEDGER.md",
@@ -2744,7 +2676,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -2799,7 +2730,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_IMAGE_PASS3.md",
     "FAISAL_SOURCE_LEDGER.md",
@@ -2863,7 +2793,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md",
@@ -2926,7 +2855,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -2981,7 +2909,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -3029,7 +2956,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
@@ -3071,8 +2997,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CIMG_0289"
@@ -3119,7 +3044,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "OPUS_EXECUTION_PACKAGE.md",
     "hunter_six_result.md"
@@ -3177,7 +3101,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "hunter_six_prereg.md"
    ],
@@ -3230,7 +3153,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "pump_filter_prereg.md"
    ],
@@ -3290,7 +3212,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -3332,7 +3253,6 @@
     "DECISIONS_ARCHIVE.md",
     "FAISAL_ELLIOTT_NOTES.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF_ARCHIVE.md",
@@ -3376,7 +3296,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -3439,7 +3358,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_IMAGE_PASS3.md",
     "FAISAL_SOURCE_LEDGER.md",
@@ -3495,7 +3413,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF.md",
@@ -3549,7 +3466,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -3593,7 +3509,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -3635,7 +3550,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -3677,7 +3591,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -3723,7 +3636,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "HANDOFF_ARCHIVE.md"
    ],
@@ -3773,7 +3685,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "HANDOFF_ARCHIVE.md"
    ],
@@ -3830,7 +3741,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -3882,7 +3792,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "HANDOFF_ARCHIVE.md"
    ],
    "visual_review": null,
@@ -3940,8 +3849,7 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CIMG_0306"
@@ -3984,7 +3892,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -4048,7 +3955,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
@@ -4098,7 +4004,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -4158,7 +4063,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -4217,7 +4121,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
@@ -4267,7 +4170,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
@@ -4314,7 +4216,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -4360,7 +4261,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
@@ -4401,9 +4301,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0339"
   },
@@ -4456,9 +4354,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0358"
   },
@@ -4517,9 +4413,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0359"
   },
@@ -4566,9 +4460,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0361"
   },
@@ -4624,9 +4516,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0362"
   },
@@ -4668,9 +4558,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0363"
   },
@@ -4711,7 +4599,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "liberation_prereg.md"
    ],
    "visual_review": null,
@@ -4768,7 +4655,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "HANDOFF_ARCHIVE.md",
     "borrow_labelled_set.md"
    ],
@@ -4813,9 +4699,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0393"
   },
@@ -4871,9 +4755,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0394"
   },
@@ -4918,9 +4800,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0395"
   },
@@ -4956,9 +4836,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0402"
   },
@@ -5005,7 +4883,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
     "OPUS_EXECUTION_PACKAGE.md"
@@ -5053,9 +4930,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0414"
   },
@@ -5091,9 +4966,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0426"
   },
@@ -5133,9 +5006,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0430"
   },
@@ -5193,7 +5064,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SCIENTIFIC_METHOD.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_EXECUTION_SPEC.md",
@@ -5249,7 +5119,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SCIENTIFIC_METHOD.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF.md",
@@ -5295,7 +5164,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SCIENTIFIC_METHOD.md"
    ],
    "visual_review": null,
@@ -5343,7 +5211,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SCIENTIFIC_METHOD.md"
    ],
    "visual_review": null,
@@ -5394,7 +5261,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SCIENTIFIC_METHOD.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
@@ -5438,7 +5304,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SCIENTIFIC_METHOD.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
@@ -5488,7 +5353,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SCIENTIFIC_METHOD.md"
    ],
    "visual_review": null,
@@ -5534,7 +5398,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SCIENTIFIC_METHOD.md",
     "entry_points_audit.md"
    ],
@@ -5585,7 +5448,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SPLIT_FILTER_METHOD.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
@@ -5629,7 +5491,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SPLIT_FILTER_METHOD.md"
    ],
    "visual_review": null,
@@ -5694,7 +5555,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SPLIT_FILTER_METHOD.md"
    ],
    "visual_review": null,
@@ -5743,7 +5603,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SPLIT_FILTER_METHOD.md"
    ],
    "visual_review": null,
@@ -5795,7 +5654,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SPLIT_FILTER_METHOD.md"
    ],
    "visual_review": null,
@@ -5840,7 +5698,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
    "visual_review": null,
@@ -5885,7 +5742,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
    "visual_review": null,
@@ -5937,7 +5793,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
    "visual_review": null,
@@ -5990,7 +5845,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
    "visual_review": null,
@@ -6044,7 +5898,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md",
     "OPUS_METHOD_UPDATES_PACKAGE.md",
     "borrow_fall_prereg.md",
@@ -6100,7 +5953,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
    "visual_review": null,
@@ -6157,7 +6009,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
    "visual_review": null,
@@ -6213,7 +6064,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
    "visual_review": null,
@@ -6265,7 +6115,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
    "visual_review": null,
@@ -6324,9 +6173,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0570"
   },
@@ -6364,7 +6211,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md",
     "hs_forensic/TARGET_FORENSICS.md",
     "hs_forensic/target_forensics_prereg.md"
@@ -6405,7 +6251,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
    "visual_review": null,
@@ -6450,7 +6295,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md",
     "HANDOFF_ARCHIVE.md"
    ],
@@ -6492,9 +6336,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0618"
   },
@@ -6542,7 +6384,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md",
     "hs_forensic/TARGET_FORENSICS.md",
     "hs_forensic/target_forensics_prereg.md"
@@ -6594,7 +6435,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md",
     "hs_forensic/TARGET_FORENSICS.md",
     "hs_forensic/target_forensics_prereg.md"
@@ -6641,7 +6481,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_TEACHING_MODELS.md"
    ],
    "visual_review": null,
@@ -6689,7 +6528,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -6734,9 +6572,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0648"
   },
@@ -6783,9 +6619,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0659"
   },
@@ -6838,7 +6672,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "HANDOFF_ARCHIVE.md"
    ],
    "visual_review": null,
@@ -6884,9 +6717,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0689"
   },
@@ -6946,7 +6777,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "hs_forensic/TARGET_FORENSICS.md",
     "hs_forensic/target_forensics_prereg.md"
    ],
@@ -6999,8 +6829,7 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CIMG_0691"
@@ -7058,9 +6887,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0570"
   },
@@ -7113,8 +6940,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CIMG_0696"
@@ -7162,9 +6988,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0697"
   },
@@ -7217,9 +7041,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CIMG_0698"
   },
@@ -7261,8 +7083,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CIMG_0746"
@@ -7307,7 +7128,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -7357,7 +7177,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -7405,7 +7224,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -7452,7 +7270,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -7510,7 +7327,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
@@ -7578,7 +7394,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -7629,7 +7444,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "OPUS_EXECUTION_PACKAGE.md"
    ],
@@ -7689,7 +7503,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -7754,7 +7567,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -7805,7 +7617,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_finder_result.md"
@@ -7848,7 +7659,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -7897,7 +7707,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -7944,7 +7753,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -7997,7 +7805,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8038,7 +7845,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8089,7 +7895,6 @@
    "doc_mentions": [
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8140,7 +7945,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8188,7 +7992,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "candle_readiness_prereg.md"
    ],
@@ -8230,7 +8033,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8275,7 +8077,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8323,7 +8124,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF_ARCHIVE.md",
@@ -8371,7 +8171,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8414,7 +8213,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -8461,7 +8259,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8514,7 +8311,6 @@
    "doc_mentions": [
     "COMMON_LINK_REPORT_FOR_OPUS.md",
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_EXECUTION_PACKAGE.md",
@@ -8560,7 +8356,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8611,7 +8406,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8653,7 +8447,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8698,7 +8491,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8741,7 +8533,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8782,7 +8573,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8841,7 +8631,6 @@
    "doc_mentions": [
     "COMMON_LINK_REPORT_FOR_OPUS.md",
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_EXECUTION_PACKAGE.md",
@@ -8896,7 +8685,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -8950,7 +8738,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "borrow_labelled_set.md",
     "candle_readiness_prereg.md"
@@ -9008,7 +8795,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -9053,7 +8839,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md"
    ],
@@ -9098,7 +8883,6 @@
    },
    "doc_mentions": [
     "COMMON_LINK_REPORT_FOR_OPUS.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_finder_result.md"
@@ -9147,7 +8931,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_finder_result.md"
@@ -9190,7 +8973,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -9235,7 +9017,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -9284,7 +9065,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -9341,7 +9121,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -9396,7 +9175,6 @@
    },
    "doc_mentions": [
     "COMMON_LINK_REPORT_FOR_OPUS.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -9437,7 +9215,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -9482,7 +9259,6 @@
    },
    "doc_mentions": [
     "COMMON_LINK_REPORT_FOR_OPUS.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -9528,7 +9304,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -9594,7 +9369,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -9651,7 +9425,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -9705,7 +9478,6 @@
    },
    "doc_mentions": [
     "COMMON_LINK_REPORT_FOR_OPUS.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -9752,7 +9524,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -9804,7 +9575,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -9853,7 +9623,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -9893,7 +9662,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -9939,7 +9707,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -9981,7 +9748,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10035,7 +9801,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10098,7 +9863,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10144,7 +9908,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10192,7 +9955,6 @@
    "doc_mentions": [
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
@@ -10239,7 +10001,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -10300,7 +10061,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -10354,7 +10114,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10408,7 +10167,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10471,7 +10229,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10512,7 +10269,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10561,7 +10317,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10609,7 +10364,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10673,7 +10427,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -10720,7 +10473,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "stop_sweep_prereg.md"
    ],
@@ -10765,7 +10517,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -10823,7 +10574,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -10877,7 +10627,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SCIENTIFIC_METHOD.md",
     "FAISAL_SOURCE_LEDGER.md",
@@ -10938,7 +10687,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md",
     "chart_cards/real2/README.md",
@@ -11003,7 +10751,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_finder_result.md"
@@ -11059,7 +10806,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -11122,7 +10868,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -11185,7 +10930,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -11236,7 +10980,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "HANDOFF_ARCHIVE.md",
     "borrow_labelled_set.md"
@@ -11299,7 +11042,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -11353,7 +11095,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -11409,7 +11150,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -11457,7 +11197,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -11516,7 +11255,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -11566,7 +11304,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -11627,7 +11364,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -11685,7 +11421,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -11741,7 +11476,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -11788,7 +11522,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -11831,7 +11564,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -11892,7 +11624,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -11942,7 +11673,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12006,7 +11736,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -12071,7 +11800,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md"
    ],
@@ -12119,7 +11847,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12183,7 +11910,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12228,7 +11954,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12277,7 +12002,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12340,7 +12064,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12403,7 +12126,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12466,7 +12188,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12525,7 +12246,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12573,7 +12293,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12617,7 +12336,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12656,7 +12374,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -12700,7 +12417,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "candle_readiness_prereg.md"
    ],
@@ -12744,10 +12460,14 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
-   "visual_review": null,
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "ticker": "SMX",
+    "observation": "«$SMX تحت المراقبه الان انتظار البري»",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_1908"
   },
   {
@@ -12788,7 +12508,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -12850,7 +12569,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -12921,7 +12639,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_finder_result.md"
@@ -12983,7 +12700,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -13048,7 +12764,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -13094,7 +12809,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -13156,7 +12870,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -13222,7 +12935,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -13285,7 +12997,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -13329,7 +13040,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -13371,7 +13081,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -13412,7 +13121,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -13466,7 +13174,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -13511,7 +13218,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -13565,7 +13271,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -13626,7 +13331,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -13685,7 +13389,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -13750,7 +13453,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -13809,7 +13511,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -13866,7 +13567,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -13927,7 +13627,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "candle_prereg.md",
     "chart_cards/real2/README.md",
@@ -13974,7 +13673,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_cards/real2/README.md",
@@ -14020,7 +13718,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -14060,7 +13757,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -14110,7 +13806,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -14157,7 +13852,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -14212,7 +13906,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -14256,7 +13949,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -14306,7 +13998,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_cards/real2/README.md",
@@ -14364,7 +14055,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -14418,7 +14108,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -14469,7 +14158,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "candle_prereg.md",
     "chart_cards/real/README.md",
@@ -14511,7 +14199,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -14550,7 +14237,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -14614,7 +14300,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -14679,7 +14364,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -14743,7 +14427,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -14804,7 +14487,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -14853,7 +14535,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -14918,7 +14599,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -14983,7 +14663,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15052,7 +14731,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15096,7 +14774,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15147,7 +14824,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15188,7 +14864,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15229,7 +14904,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15287,7 +14961,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15333,7 +15006,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15387,7 +15059,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15435,7 +15106,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15479,7 +15149,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15524,7 +15193,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15574,7 +15242,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -15636,7 +15303,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15688,7 +15354,6 @@
    "doc_mentions": [
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF.md",
@@ -15737,7 +15402,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md"
    ],
@@ -15787,7 +15451,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "HANDOFF_ARCHIVE.md",
     "chart_finder_prereg.md",
@@ -15834,7 +15497,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15882,7 +15544,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15940,7 +15601,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -15990,7 +15650,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16054,7 +15713,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16107,7 +15765,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16164,7 +15821,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -16225,7 +15881,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16291,7 +15946,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16351,7 +16005,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16413,7 +16066,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16453,7 +16105,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
@@ -16507,7 +16158,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16555,7 +16205,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16603,7 +16252,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16649,7 +16297,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -16714,7 +16361,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16775,7 +16421,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -16838,7 +16483,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -16887,10 +16531,15 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
-   "visual_review": null,
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "author": "فيصل",
+    "pattern": "Elliott wave size",
+    "observation": "«اختبر الدعم 2.40 · 2.37 بذيل شمعه · صعد الى 2.87 · 2.87=2.40+20٪ · 20٪ الموجه الثانيه · هكذا تدار الاسهم بنظرية اليوت · هذا السهم حقق النظريه · هناك اسهم تصعد مباشره لاتصلح لها هذي النظريه · لكل سهم سلوك تربح منه» · واقتباس: «باقي موجه في حال اختبر الدعم 2.40 ولافشل تابع عشان تتعلم» · خطوط 3.145 · 2.886 (زرقاء) · 2.504 (حمراء)",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_1985"
   },
   {
@@ -16940,7 +16589,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -16981,7 +16629,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17025,7 +16672,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -17080,7 +16726,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17123,7 +16768,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17169,7 +16813,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -17214,7 +16857,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17270,7 +16912,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17317,7 +16958,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17376,7 +17016,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17417,7 +17056,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_cards/real2/README.md",
@@ -17462,7 +17100,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17510,7 +17147,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17562,7 +17198,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17609,7 +17244,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17648,7 +17282,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "candle_prereg.md"
    ],
@@ -17688,7 +17321,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17749,7 +17381,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17795,7 +17426,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -17857,7 +17487,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
@@ -17923,7 +17552,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -17988,7 +17616,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -18038,7 +17665,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -18100,7 +17726,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "HANDOFF_ARCHIVE.md",
     "chart_cards/real/README.md",
@@ -18166,7 +17791,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_finder_result.md"
@@ -18220,7 +17844,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -18289,7 +17912,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -18351,7 +17973,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -18413,7 +18034,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -18468,7 +18088,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -18525,7 +18144,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -18576,7 +18194,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md"
    ],
@@ -18634,7 +18251,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -18694,7 +18310,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -18758,7 +18373,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_finder_result.md"
@@ -18822,7 +18436,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -18879,7 +18492,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -18941,7 +18553,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -19002,7 +18613,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -19043,7 +18653,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
     "hs_forensic/TARGET_FORENSICS.md",
@@ -19086,7 +18695,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
@@ -19126,8 +18734,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CTG_20260905_03"
@@ -19172,8 +18779,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CTG_20260905_04"
@@ -19242,7 +18848,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF_ARCHIVE.md",
     "faisal_batches/2026-09-23/OPUS_EXECUTION_SPEC.md",
@@ -19316,7 +18921,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "gapbelow_prereg.md"
    ],
@@ -19378,7 +18982,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md"
@@ -19437,7 +19040,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "gapbelow_prereg.md"
    ],
@@ -19506,7 +19108,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
    "visual_review": null,
@@ -19544,9 +19145,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CTG_20260918_06_CPOP"
   },
@@ -19590,9 +19189,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CTG_20260918_08_NTCL"
   },
@@ -19633,9 +19230,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CTG_20260918_30_targets7"
   },
@@ -19676,7 +19271,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -19720,7 +19314,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -19768,7 +19361,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -19809,9 +19401,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CTG_20260918_42_NUWE"
   },
@@ -19853,9 +19443,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CTG_20260918_67_BRNX"
   },
@@ -19912,7 +19500,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -19977,7 +19564,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_cards/real2/README.md",
@@ -20048,7 +19634,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_cards/real2/README.md",
@@ -20099,7 +19684,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -20148,7 +19732,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -20215,7 +19798,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "candle_prereg.md",
     "chart_cards/real/README.md",
@@ -20283,7 +19865,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -20336,7 +19917,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -20388,7 +19968,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -20433,7 +20012,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -20473,7 +20051,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md",
     "candle_readiness_prereg.md"
@@ -20530,7 +20107,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -20569,7 +20145,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -20613,7 +20188,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -20661,7 +20235,6 @@
    "doc_mentions": [
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -20712,7 +20285,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -20758,7 +20330,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md",
     "rsi_rank_prereg.md",
@@ -20806,7 +20377,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -20852,7 +20422,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -20902,7 +20471,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_finder_result.md"
@@ -20954,7 +20522,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21018,7 +20585,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -21080,7 +20646,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21135,7 +20700,6 @@
    "doc_mentions": [
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
@@ -21189,7 +20753,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
@@ -21237,7 +20800,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21281,7 +20843,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21322,7 +20883,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21365,7 +20925,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21410,7 +20969,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21471,7 +21029,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "candle_prereg.md",
     "chart_cards/real2/README.md",
@@ -21527,7 +21084,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
@@ -21574,7 +21130,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21619,7 +21174,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21662,7 +21216,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21707,7 +21260,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
@@ -21772,7 +21324,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -21830,7 +21381,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -21886,7 +21436,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -21938,7 +21487,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -21990,7 +21538,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -22051,7 +21598,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -22102,7 +21648,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -22148,7 +21693,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -22194,7 +21738,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "borrow_labelled_set.md",
     "chart_finder_result.md"
@@ -22243,7 +21786,6 @@
    },
    "doc_mentions": [
     "CLAUDE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "otc_uplist_verdict.md"
    ],
@@ -22293,7 +21835,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -22335,7 +21876,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -22377,7 +21917,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_cards/real2/README.md",
@@ -22424,7 +21963,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md"
    ],
@@ -22471,7 +22009,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -22518,7 +22055,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -22563,7 +22099,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -22604,7 +22139,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -22645,7 +22179,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -22693,7 +22226,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "candle_readiness_prereg.md"
    ],
@@ -22739,7 +22271,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -22787,7 +22318,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md"
    ],
@@ -22831,7 +22361,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -22884,7 +22413,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -22931,7 +22459,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -22981,7 +22508,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -23030,7 +22556,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -23082,7 +22607,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -23134,7 +22658,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -23194,7 +22717,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -23233,7 +22755,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -23273,7 +22794,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
@@ -23322,7 +22842,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -23383,7 +22902,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -23439,7 +22957,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -23484,7 +23001,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -23536,7 +23052,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -23580,7 +23095,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -23627,7 +23141,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -23669,7 +23182,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -23717,7 +23229,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -23769,7 +23280,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -23813,7 +23323,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -23855,7 +23364,6 @@
    "doc_mentions": [
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -23900,7 +23408,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -23951,7 +23458,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -24009,7 +23515,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real2/README.md",
     "chart_finder_result.md"
@@ -24054,7 +23559,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -24107,7 +23611,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -24152,7 +23655,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -24207,7 +23709,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -24254,7 +23755,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_cards/real/README.md",
     "chart_finder_result.md"
@@ -24299,7 +23799,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -24347,7 +23846,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -24400,7 +23898,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -24446,7 +23943,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -24494,7 +23990,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md",
     "chart_finder_result.md"
    ],
@@ -24534,7 +24029,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS2.md"
    ],
    "visual_review": null,
@@ -24587,7 +24081,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -24637,7 +24130,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "liberation_prereg.md"
    ],
@@ -24685,7 +24177,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -24746,7 +24237,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -24795,7 +24285,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "OPUS_EXECUTION_PACKAGE.md",
     "hs_forensic/TARGET_FORENSICS.md",
@@ -24856,7 +24345,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "candle_readiness_prereg.md"
    ],
@@ -24902,7 +24390,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -24948,7 +24435,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -24991,7 +24477,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25056,7 +24541,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25099,7 +24583,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25145,7 +24628,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25192,7 +24674,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25240,7 +24721,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25294,7 +24774,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25341,7 +24820,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "candle_readiness_prereg.md"
    ],
@@ -25381,7 +24859,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25423,7 +24900,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "HANDOFF_ARCHIVE.md",
     "OPUS_EXECUTION_PACKAGE.md"
@@ -25473,7 +24949,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25516,7 +24991,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "candle_readiness_prereg.md"
    ],
@@ -25560,7 +25034,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25599,7 +25072,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25638,7 +25110,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25699,7 +25170,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25745,7 +25215,6 @@
    },
    "doc_mentions": [
     "COMMON_LINK_REPORT_FOR_OPUS.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "liberation_prereg.md"
    ],
@@ -25793,7 +25262,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25846,7 +25314,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25888,7 +25355,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -25944,7 +25410,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "FAISAL_SOURCE_LEDGER.md",
     "FAISAL_TEACHING_MODELS.md",
@@ -25990,7 +25455,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "liberation_prereg.md"
    ],
@@ -26043,7 +25507,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "hs_forensic/TARGET_FORENSICS.md",
     "hs_forensic/target_forensics_prereg.md"
@@ -26096,7 +25559,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26143,7 +25605,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26197,7 +25658,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26245,7 +25705,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26304,7 +25763,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26349,7 +25807,6 @@
    },
    "doc_mentions": [
     "COMMON_LINK_REPORT_FOR_OPUS.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26401,7 +25858,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26450,7 +25906,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26493,7 +25948,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "hs_forensic/TARGET_FORENSICS.md",
     "hs_forensic/target_forensics_prereg.md"
@@ -26541,7 +25995,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "borrow_labelled_set.md"
    ],
@@ -26606,7 +26059,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26670,7 +26122,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26721,7 +26172,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26768,7 +26218,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26811,7 +26260,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md",
     "hs_forensic/TARGET_FORENSICS.md",
     "hs_forensic/target_forensics_prereg.md"
@@ -26856,7 +26304,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26902,7 +26349,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26944,7 +26390,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -26989,7 +26434,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27030,7 +26474,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27069,7 +26512,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27114,7 +26556,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27163,7 +26604,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27208,7 +26648,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27267,7 +26706,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27329,7 +26767,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27380,7 +26817,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27434,7 +26870,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27473,7 +26908,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27512,7 +26946,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27563,7 +26996,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27609,7 +27041,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_IMAGE_PASS3.md"
    ],
    "visual_review": null,
@@ -27655,7 +27086,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_EXECUTION_SPEC.md",
     "SOURCE_ANALYSIS.md",
@@ -27702,7 +27132,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md"
@@ -27749,7 +27178,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md",
@@ -27797,7 +27225,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md"
@@ -27846,7 +27273,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_EXECUTION_SPEC.md",
     "REQUIREMENTS_MATRIX.md",
@@ -27893,7 +27319,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md"
@@ -27941,7 +27366,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md"
@@ -28001,7 +27425,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md",
     "UNCERTAINTIES.md"
    ],
@@ -28061,7 +27484,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md",
     "UNCERTAINTIES.md",
     "faisal_batches/2026-09-23/OPUS_EXECUTION_SPEC.md",
@@ -28115,7 +27537,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF_ARCHIVE.md",
     "OPUS_EXECUTION_SPEC.md",
@@ -28173,7 +27594,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md",
@@ -28243,7 +27663,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_EXECUTION_SPEC.md",
     "REQUIREMENTS_MATRIX.md",
@@ -28315,7 +27734,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md",
     "faisal_batches/2026-09-23/OPUS_EXECUTION_SPEC.md",
@@ -28368,7 +27786,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md",
@@ -28424,7 +27841,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF_ARCHIVE.md",
     "REQUIREMENTS_MATRIX.md",
@@ -28478,7 +27894,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md",
     "UNCERTAINTIES.md"
    ],
@@ -28523,7 +27938,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md"
    ],
    "visual_review": null,
@@ -28575,7 +27989,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_EXECUTION_SPEC.md",
     "REQUIREMENTS_MATRIX.md",
@@ -28639,7 +28052,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md"
    ],
    "visual_review": null,
@@ -28699,7 +28111,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md"
    ],
    "visual_review": null,
@@ -28747,7 +28158,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md"
    ],
@@ -28797,7 +28207,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md",
@@ -28843,9 +28252,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CTG_50597"
   },
@@ -28889,7 +28296,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md"
    ],
    "visual_review": null,
@@ -28932,7 +28338,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_EXECUTION_SPEC.md",
     "REQUIREMENTS_MATRIX.md",
@@ -28983,7 +28388,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md"
@@ -29027,7 +28431,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md",
     "UNCERTAINTIES.md"
    ],
@@ -29075,7 +28478,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "REQUIREMENTS_MATRIX.md",
     "SOURCE_ANALYSIS.md"
    ],
@@ -29126,7 +28528,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_EXECUTION_SPEC.md",
     "REQUIREMENTS_MATRIX.md",
@@ -29174,7 +28575,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md"
    ],
    "visual_review": null,
@@ -29220,7 +28620,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "SOURCE_ANALYSIS.md"
    ],
    "visual_review": null,
@@ -29283,7 +28682,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
@@ -29339,7 +28737,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
@@ -29394,7 +28791,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-23/OPUS_EXECUTION_SPEC.md",
     "faisal_batches/2026-09-23/REQUIREMENTS_MATRIX.md",
@@ -29448,7 +28844,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF_ARCHIVE.md",
     "faisal_batches/2026-09-23/OPUS_EXECUTION_SPEC.md",
@@ -29499,7 +28894,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-23/REQUIREMENTS_MATRIX.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md"
@@ -29542,7 +28936,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md"
    ],
    "visual_review": null,
@@ -29584,7 +28977,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md"
    ],
    "visual_review": null,
@@ -29625,7 +29017,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md",
     "faisal_batches/2026-09-23/UNCERTAINTIES.md"
    ],
@@ -29671,7 +29062,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md"
    ],
    "visual_review": null,
@@ -29711,7 +29101,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-23/REQUIREMENTS_MATRIX.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md"
@@ -29754,7 +29143,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-23/REQUIREMENTS_MATRIX.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md",
@@ -29807,7 +29195,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
@@ -29862,7 +29249,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-23/OPUS_EXECUTION_SPEC.md",
     "faisal_batches/2026-09-23/REQUIREMENTS_MATRIX.md",
@@ -29908,7 +29294,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-23/REQUIREMENTS_MATRIX.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md",
     "faisal_batches/2026-09-23/UNCERTAINTIES.md"
@@ -29960,7 +29345,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-23/REQUIREMENTS_MATRIX.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md"
@@ -30010,7 +29394,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-23/REQUIREMENTS_MATRIX.md",
     "faisal_batches/2026-09-23/SOURCE_ANALYSIS.md",
@@ -30065,7 +29448,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
@@ -30125,7 +29507,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF.md",
     "HANDOFF_ARCHIVE.md",
@@ -30175,11 +29556,15 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
-   "visual_review": null,
+   "visual_review": {
+    "source_class": "FAISAL_REPOST_THIRD_PARTY",
+    "pattern": "rising wedge/channel → short",
+    "observation": "إنفوغراف «مستوى دخول عند المقاومة»: قناةٌ/وتدٌ صاعد تحت مقاومتين · الدخول عند كسر الحدّ السفليّ · وقف الخسارة فوقه · «نسبة العائد إلى المخاطرة 1.3»",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_57858"
   },
   {
@@ -30218,7 +29603,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -30257,10 +29641,14 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
-   "visual_review": null,
+   "visual_review": {
+    "source_class": "FAISAL_REPOST_THIRD_PARTY",
+    "pattern": "bear flag / rising wedge",
+    "observation": "إنفوغراف «التحليل الفني · ما اسم النمط؟»: اتجاه هابط · كسر · خطّا اتجاهٍ صاعدان · إعادة الاختبار · كسر المنطقة ⟵ هبوط",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_57860"
   },
   {
@@ -30309,7 +29697,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -30362,11 +29749,16 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
-   "visual_review": null,
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "author": "فيصل (اقتباسٌ لمنشوره 2026/9/11 «اضافة كميات مع الضغط»)",
+    "ticker": "SXTC",
+    "observation": "«عدة اساله عن sxtc · جني الربح عند مقاومه 3 > باكثر من 70٪ من الكميه · ليش · الصفقه ممكن تنعكس عليك ويفشل السهم يروح عليك ربح 50٪ · كل الصور باختلاف النماذج رفض الاختراق = هبوط - بعد الاختراق وتاكيد الدعوم يكون دخول جديد» ‏+ إنفوغرافان لطرفٍ ثالث: «التحليل الفني» (وتدٌ/علمٌ صاعدٌ بعد هبوط · كسرٌ ثمّ إعادة اختبار ثمّ هبوط) و«دخول فيبوناتشي 50%» (‏100% القمّة · 88.6 · 79 · 70.5 · 50% «كتلة الأوامر» · 0% القاع · دخولٌ عند 50% · RR 1:3)",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_57862"
   },
   {
@@ -30405,7 +29797,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -30470,7 +29861,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
     "gapbelow_prereg.md"
@@ -30533,7 +29923,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
     "gapbelow_prereg.md"
@@ -30576,7 +29965,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -30621,7 +30009,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -30684,7 +30071,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -30733,7 +30119,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
     "gapbelow_prereg.md",
@@ -30791,7 +30176,6 @@
     "CLAUDE.md",
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF_ARCHIVE.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
@@ -30854,7 +30238,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
     "gapbelow_prereg.md",
@@ -30903,7 +30286,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -30955,7 +30337,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31009,7 +30390,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31061,7 +30441,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31118,7 +30497,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
     "faisal_batches/2026-10-01/APP_PARITY_PREREG.md",
@@ -31165,7 +30543,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -31221,7 +30598,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31271,7 +30647,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31322,7 +30697,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
     "faisal_batches/2026-10-01/APP_PARITY_PREREG.md"
@@ -31379,7 +30753,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31438,7 +30811,6 @@
    },
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
     "faisal_batches/2026-10-01/APP_PARITY_PREREG.md"
@@ -31483,7 +30855,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -31528,7 +30899,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31576,7 +30946,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31620,7 +30989,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -31667,7 +31035,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31710,7 +31077,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -31757,7 +31123,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -31806,7 +31171,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31854,7 +31218,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -31899,7 +31262,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
     "hs_forensic/TARGET_FORENSICS.md",
     "hs_forensic/target_forensics_prereg.md"
@@ -31966,7 +31328,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -32020,7 +31381,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md"
    ],
@@ -32076,7 +31436,6 @@
    "doc_mentions": [
     "CLAUDE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32131,7 +31490,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32185,7 +31543,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32236,7 +31593,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md",
     "hs_sf_prereg.md"
@@ -32283,7 +31639,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -32337,7 +31692,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32382,7 +31736,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md",
     "hs_sf_prereg.md"
@@ -32428,7 +31781,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md",
@@ -32490,7 +31842,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32541,7 +31892,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32593,7 +31943,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32650,7 +31999,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
@@ -32705,7 +32053,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32748,7 +32095,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -32791,7 +32137,6 @@
    "doc_mentions": [
     "CLAUDE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32833,7 +32178,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32893,7 +32237,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
@@ -32941,10 +32284,23 @@
      "@WMoclu"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "EDU_THIRD_PARTY",
+    "author": "قناةٌ تعليميّة غيرُ مسمّاة (لقطةُ بحثٍ «نموذج» في تلغرام · 13 من 19)",
+    "same_source_group": "SG-58042",
+    "ticker": null,
+    "timeframe": null,
+    "pattern": "W / double bottom",
+    "observation": "رسمٌ يدويّ «نمط W»: «كسر الدعم» · «المقاومة» (دائرةٌ على تقاطع الترند الهابط والخطّ الأفقيّ) · «المطرقة» بين القاعين · «الدخول» (دائرةٌ على كسر الترند الهابط تحت الخطّ الأفقيّ) · «ستوبلوس» تحته · سهمٌ «100%» من مستوى الدخول إلى «الهدف» · سهمٌ «50%» من تحت الدخول إلى القاع الثاني · ونصٌّ: «نموذج W أو القاع المزدوج من أقوى نماذج انعكاس الاتجاه من هبوط إلى صعود · يتكون بعد نزول قوي عندما يفشل السعر بكسر القاع مرتين · ظهور شمعة المطرقة قرب القاع يعطي إشارة مبكرة لدخول المشترين (الثيران) بدؤ بالسيطرة · خط العنق (Neckline) يمثل المقاومة أو القمة بين القاعين · اختراق خط العنق مع كسر الترند الهابط يعتبر إشارة قوة عالية · الدخول يكون بعد إغلاق شمعة فوق المقاومة والترند الهابط»",
+    "drawn_levels": {
+     "entry": "كسر الترند الهابط",
+     "stop": "تحت الدخول",
+     "target": "أعلى السهم 100%"
+    },
+    "fifty_hundred": "100% = سهمٌ من الدخول إلى الهدف · 50% = سهمٌ من مستوى الوقف/الدخول إلى القاع الثاني · الرسمُ ليس بمقياس (مقيسٌ بالبكسل: 0.91 و0.72 من الارتفاع)",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_58042"
   },
   {
@@ -32987,10 +32343,14 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "EDU_THIRD_PARTY",
+    "same_source_group": "SG-58042",
+    "pattern": "W / double bottom",
+    "observation": "تتمّةُ النصّ نفسِه: «الدخول يكون بعد إغلاق شمعة فوق المقاومة والترند الهابط · وقف الخسارة أسفل آخر قاع أو أسفل منطقة الاختراق · الهدف يقاس بمسافة القاع إلى خط العنق ثم تضاف فوق نقطة الاختراق · أهم نقطة: لا تدخل قبل تأكيد الإغلاق لتجنب الاختراقات الكاذبة · نماذج الشموع»",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_58043"
   },
   {
@@ -33027,10 +32387,14 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "FAISAL_REPOST_THIRD_PARTY",
+    "author": "فيصل @kisar_ · 2026/2/11 10:15 م · 3 آلاف مشاهدة",
+    "pattern": "W / M",
+    "observation": "«نماذج التداول الشهيره W M» ‏+ إنفوغراف «M AND W PATTERNS» (شعارُ خوذة): Simple M · Extended M · Short formed M · Simple W · Short formed W · Extended W — الدخولُ مُعلَّمٌ عند كسر مستوى القمّة/القاع الأوسط (العنق)",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_58044"
   },
   {
@@ -33072,10 +32436,27 @@
      "@Moclu"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "author": "فيصل (منشور X · التاريخُ غيرُ ظاهر)",
+    "ticker": "VEEE",
+    "timeframe": "4h",
+    "pattern": "W vs M decision band",
+    "observation": "«هل يصعد ويكمل نموذج W الاجابي ام يهبط ويكون نموذجً M السلبي - مقرون 6.18> 6.34 > ادناهما سلبي اعلاهما اجابي -» · الشارت: قمّة 9.67 · قاع 5.00 · خطوط 8.76 (أسود) · 8.27 (بنفسجيّ) · 7.27 (أسود) · 6.57 (أسود) · 6.34 (بنفسجيّ) · 6.18 (أحمر) · 5.34 (أحمر) · 3.54 (بنفسجيّ) · مسارٌ بنفسجيّ متعرّج (W) يصعد فوق 10 · ومسارٌ أحمر يهبط إلى 5.34 · بعد الإغلاق 6.89 ‏+1.92% · KST(10,15,20,30,10,10,10,15,9) · MACD(12,26,9)",
+    "drawn_levels": {
+     "band_low": 6.18,
+     "band_high": 6.34,
+     "bear_target": 5.34,
+     "resistances": [
+      6.57,
+      7.27,
+      8.27,
+      8.76
+     ]
+    },
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_58045"
   },
   {
@@ -33117,10 +32498,23 @@
      "@Moscln"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "author": "فيصل · 2026/6/30 5:34 ص · ألفا مشاهدة",
+    "ticker": "EZRA",
+    "timeframe": "D",
+    "pattern": "butterfly + W",
+    "observation": "«نموذج الفراشه المتوقع اذا صدق التحليل مع نموذج W · 5.40 خطوره السهم اما بالهبوط او الصعود» · الشارت اليوميّ: قمّة 5.450 · قاع 3.030 · خطوط 5.433 · 3.994 · 3.430 (بنفسجيّة) · السعر 3.260 · فراشةٌ مرسومة: 5.45 ⟵ 3.25 ⟵ 3.994 ⟵ 3.03 ⟵ 5.433 · FSTO(14,3) · CCI(14)",
+    "drawn_levels": {
+     "risk_level": 5.4,
+     "x_top": 5.45,
+     "low": 3.03,
+     "mid": 3.994,
+     "projection": 5.433
+    },
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_58046"
   },
   {
@@ -33164,10 +32558,16 @@
      "@oscin"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "OTHER_USER",
+    "author": "@xzdixz · 2026/6/16",
+    "ticker": "DXST",
+    "timeframe": "4h",
+    "observation": "«ابشر حالياً شورته ٣٠٠٠ · عنده دعمين الي ب الاحمر و المقاومة عند ٣.١٩ ما قدر يثبت فوقها من الهبوط و الأهداف ب الازرق و مقاومه عنده ٤.١٤ سابقه» · خطوط 5.469 (أحمر) · 4.145 (أسود) · 3.905 · 3.352 (أزرق) · 3.195 (أسود) · 2.632 · 2.298 (أحمر) · قمّة 5.480 · قاع 2.280 · EMA(5,10,20) · RSI 46.67",
+    "note": "متابعٌ يطبّق مفتاحَ ألوان فيصل (أحمر دعم · أسود مقاومة · أزرق هدف) — ليس فيصل",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_58047"
   },
   {
@@ -33216,10 +32616,15 @@
      "@xzdixz"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "author": "فيصل · اقتباسٌ لمنشور @xzdixz (2026/6/16)",
+    "ticker": "DXST",
+    "pattern": "W",
+    "observation": "«نحتاج رسم مثلث W ع فريم 30 دقيقه مع تحديد خط العنق» — «مثلث» حرفًا (قد تكون «مثل»؛ والدليلُ الثانويّ ص25 يقرؤها «رسم W عبر فريم 30 دقيقة»)",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_58048"
   },
   {
@@ -33265,10 +32670,14 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "author": "فيصل ($ATMV)",
+    "ticker": "ATMV",
+    "observation": "«فنيا > عنده ترند هابط 6.70 - اذا ارتد وحافظ عليها ذكرني - ثباته + اقفال يومي على 8.76 مهم - مقاومه 13.47 الزخم يحدد اتجاه السهم - بالنسبه لي حاليا لايوجد اي شمعة تأكد الصعود - خطاي اكثر من صوابي لاتبني عليه» · خطوط 22.20 · 20.49 · 18.48 · 13.47 · 9.92 · 8.76 (سوداء) · 16.03 · 14.36 (زرقاء) · 6.71 · 5.40 (حمراء) · RSI14 50.69",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_58049"
   },
   {
@@ -33310,10 +32719,14 @@
      "@kisa"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "FAISAL_REPOST_THIRD_PARTY",
+    "author": "فيصل · 2025/12/7 2:09 ص",
+    "pattern": "W / M",
+    "observation": "«اشهر النماذج بالاسهم حرف M هبوطي حرف W صعودي» ‏+ نتيجةُ بحثٍ في TradingView «Double Top & Double Bottom (EDU) by RocketBomb» ومصغّراتُ Equiti (سهمان متساويان: من القاع إلى العنق ومن العنق إلى الهدف) وFXMaroc",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_58050"
   },
   {
@@ -33350,10 +32763,13 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "EDU_THIRD_PARTY",
+    "pattern": "W / M",
+    "observation": "رسمُ «Double bottom / Double top / Neckline» عامّ — نسخةٌ من EDU_20260918_10_pattern",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CEDU_20260918_10_pattern"
   },
   {
@@ -33399,10 +32815,14 @@
      "@oscinm"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "author": "فيصل · 2026/2/14 5:17 م · 6 آلاف مشاهدة",
+    "pattern": "Elliott ABC + Wyckoff labels",
+    "observation": "«البعض ارسلي عن موجات اليوت · التحليل عدة مدارس · كلها تتفق في الدعوم والارتداد · دعم 1 · عنق · دعم 2 دخول · منطقة تراكم صعود · منطقة توزيع ( تصريف كميات مضارب ) 3-5 · غالبا السهم اذا صعد له 3 رؤوس 2 ارتداد سبق ذكرتها · الهبوط نفس الشي» ‏+ إنفوغراف «Elliot_wave ABC pattern · Art of chart»: PS · AR · ST · (A) · B · (B) %61 %50 · C · (C) · 1-5 · Resistance · Support",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CTG_58052"
   },
   {
@@ -33444,9 +32864,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CWA_20260918_31_SXTC"
   },
@@ -33487,9 +32905,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CWA_20260918_46_NUWE"
   },
@@ -33525,9 +32941,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_amix_3m_inflow"
   },
@@ -33576,9 +32990,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_amix_hcwb_ready"
   },
@@ -33616,9 +33028,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_amix_pressure_497"
   },
@@ -33669,9 +33079,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_checklist_7points"
   },
@@ -33709,9 +33117,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_checklist_7points_cont"
   },
@@ -33749,9 +33155,7 @@
      "@s5c"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_ciit_targets"
   },
@@ -33793,9 +33197,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_hcwb_leak_close_dm"
   },
@@ -33837,9 +33239,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_hcwb_leak_read"
   },
@@ -33892,9 +33292,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_indicators_canf"
   },
@@ -33941,9 +33339,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_kwm_150_watch3"
   },
@@ -33985,9 +33381,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_kwm_annotated_levels"
   },
@@ -34053,9 +33447,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_kwm_hammer_support"
   },
@@ -34097,9 +33489,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_kwm_offering_notready"
   },
@@ -34139,9 +33529,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_labt_supports_wait"
   },
@@ -34185,9 +33573,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_operator_candle_ride"
   },
@@ -34233,9 +33619,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_pfsa_500pct"
   },
@@ -34273,10 +33657,13 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "ticker": "RAYA",
+    "observation": "«غير. جاهز فنيا · انتظار الهبوط» (4:44) — مطابقٌ لـ X_20260827_raya_notready_2",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CX_20260827_raya_notready"
   },
   {
@@ -34311,9 +33698,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_raya_notready"
   },
@@ -34368,9 +33753,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_rubi_4h_levels"
   },
@@ -34427,9 +33810,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_rubi_daily_ma_rsi"
   },
@@ -34490,9 +33871,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_rubi_read_short150k"
   },
@@ -34531,9 +33910,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260827_target10_entry_below"
   },
@@ -34577,9 +33954,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_01"
   },
@@ -34625,9 +34000,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_02"
   },
@@ -34669,9 +34042,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_03"
   },
@@ -34715,9 +34086,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_04"
   },
@@ -34759,9 +34128,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_05"
   },
@@ -34805,9 +34172,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_06"
   },
@@ -34849,9 +34214,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_07"
   },
@@ -34893,9 +34256,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_08"
   },
@@ -34939,9 +34300,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_09"
   },
@@ -34983,9 +34342,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_10"
   },
@@ -35027,9 +34384,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_11"
   },
@@ -35071,9 +34426,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_12"
   },
@@ -35115,9 +34468,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_13"
   },
@@ -35159,9 +34510,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_14"
   },
@@ -35203,9 +34552,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260828_15"
   },
@@ -35253,7 +34600,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
    "visual_review": null,
@@ -35301,9 +34647,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260905_02"
   },
@@ -35351,7 +34695,6 @@
    "doc_mentions": [
     "DECISIONS_ARCHIVE.md",
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "HANDOFF_ARCHIVE.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
@@ -35400,7 +34743,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
@@ -35457,7 +34799,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "weekly_support_prereg.md"
    ],
    "visual_review": null,
@@ -35510,9 +34851,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260905_06"
   },
@@ -35561,7 +34900,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
    "visual_review": null,
@@ -35605,7 +34943,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -35656,7 +34993,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
    "visual_review": null,
@@ -35706,7 +35042,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md"
    ],
    "visual_review": null,
@@ -35749,10 +35084,14 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
-   "visual_review": null,
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "ticker": "RAYA",
+    "observation": "«$RAYA اعتقد الشركه مصريه يطبق ماذكر ادناه» (12:25) — منشورٌ آخر",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CX_20260905_11"
   },
   {
@@ -35792,8 +35131,7 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CX_20260905_12"
@@ -35851,8 +35189,7 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md"
+    "FAISAL_IMAGES_CATALOG.md"
    ],
    "visual_review": null,
    "dup_cluster": "CX_20260905_13"
@@ -35906,9 +35243,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260905_14"
   },
@@ -35946,9 +35281,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260918_04_ELPW"
   },
@@ -35999,7 +35332,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -36046,10 +35378,14 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
-   "visual_review": null,
+   "doc_mentions": [],
+   "visual_review": {
+    "source_class": "FAISAL_VERBATIM",
+    "author": "فيصل (منشور X)",
+    "pattern": "W / double bottom",
+    "observation": "«لازال لم يتخبر القاع المزدوج · هذا السهم راح يمشي ع موجات اليوت · الان سلوكه يتبع نماذج فنيه - الضغط لابد منه - خط العنق بعد الضغط = تحرر - بالنسبه لي السهم مازال تحت الاجابيه انتظر فرصه دخول مناسبه - الدخول بين خط العنق والقاع المزدوج غير امن - المحللين ( الفاهمين العارفين الدارسين عن علم ) يبحث عن فرصه دخول عند سحب السيوله او عند اول اختراق صحيح - ضبابيه الدخول بين وبين ليست جيده -»",
+    "reviewed": "2026-10-02 · بعيني في هذه المهمّة (Read + تكبيرٌ عند الحاجة)"
+   },
    "dup_cluster": "CX_20260918_12_doublebottom"
   },
   {
@@ -36095,9 +35431,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260918_13_NUWE"
   },
@@ -36158,9 +35492,7 @@
      "@RayAlAlmh"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260918_15_NTCL"
   },
@@ -36204,7 +35536,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -36244,9 +35575,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260918_22_pipeline"
   },
@@ -36282,9 +35611,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260918_23_watchlist"
   },
@@ -36328,9 +35655,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260918_24_SXTC"
   },
@@ -36371,9 +35696,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260918_26_GRI"
   },
@@ -36416,7 +35739,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -36456,9 +35778,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260918_28_CUPR"
   },
@@ -36503,7 +35823,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -36551,9 +35870,7 @@
     "post_date": null,
     "author_signals": []
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260918_48_WETO"
   },
@@ -36601,7 +35918,6 @@
     "author_signals": []
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "faisal_batches/2026-10-01/EVIDENCE_REPORT.md"
    ],
    "visual_review": null,
@@ -36657,7 +35973,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -36703,9 +36018,7 @@
      "faisal_handle_or_name"
     ]
    },
-   "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md"
-   ],
+   "doc_mentions": [],
    "visual_review": null,
    "dup_cluster": "CX_20260918_66_ELPW"
   },
@@ -36755,7 +36068,6 @@
     ]
    },
    "doc_mentions": [
-    "FAISAL_IMAGE_AUDIT.md",
     "OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md"
    ],
    "visual_review": null,
@@ -36799,7 +36111,6 @@
    },
    "doc_mentions": [
     "FAISAL_IMAGES_CATALOG.md",
-    "FAISAL_IMAGE_AUDIT.md",
     "FAISAL_SOURCE_LEDGER.md",
     "faisal_batches/2026-10-01_hs/HS_SOURCE_ANALYSIS.md",
     "hs_forensic/IMAGE_INVENTORY.md",

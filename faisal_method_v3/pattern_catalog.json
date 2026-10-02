@@ -1,0 +1,375 @@
+{
+ "meta": {
+  "patterns": 17
+ },
+ "patterns": [
+  {
+   "id": "P01",
+   "name": "دورةُ الارتكاز (انفجار ⟵ انهيار ⟵ قاعٌ متشبّع ⟵ اشتعال)",
+   "status": "CONFIRMED",
+   "faisal": [
+    "IMG_0151",
+    "IMG_0153",
+    "TG_2043",
+    "TG_2062"
+   ],
+   "third_party": [],
+   "rules": [
+    "ledger: M1-M14 · الوقف · الدفعات"
+   ],
+   "quant": "الفارزُ الإنتاجيّ نفسُه — والأحكامُ في DECISIONS_ARCHIVE (لا رابطَ قبل الانفجار داخل المؤهَّلين · نسبة 2025 الحيّة 25.9%)",
+   "note": "المفهومُ لفيصل · والعتباتُ الرقميّة للهويّة هندسيّة/مستنتجة (الدفتر)",
+   "independent_units": 4,
+   "faisal_units": 4
+  },
+  {
+   "id": "P02",
+   "name": "W / القاعُ المزدوج",
+   "status": "CONFIRMED",
+   "faisal": [
+    "X_20260918_12_doublebottom",
+    "TG_58045",
+    "TG_58048",
+    "IMG_0627",
+    "IMG_0628",
+    "TG_58052",
+    "UPL_933a9f58"
+   ],
+   "faisal_repost": [
+    "TG_58044",
+    "TG_58050",
+    "TG_50589"
+   ],
+   "third_party": [
+    "TG_58042",
+    "TG_58043",
+    "EDU_20260918_44_doublebottom",
+    "EDU_20260918_10_pattern",
+    "TG_58051"
+   ],
+   "other_user": [
+    "TG_58047"
+   ],
+   "rules": [
+    "R-W-01",
+    "R-W-02",
+    "R-W-03",
+    "R-W-04",
+    "R-W-05",
+    "R-W-06",
+    "R-W-07",
+    "R-W-08",
+    "R-W-09",
+    "R-W-10",
+    "R-W-11",
+    "R-W-12",
+    "R-W-13"
+   ],
+   "quant": "لم يُقَس قطّ في المشروع ⟵ T-W مسجَّلٌ في هذه المهمّة (faisal_method_v3/T_W_prereg.md)",
+   "note": "التعارضُ الحقيقيّ: الطرفُ الثالث يقيس الهدفَ بارتفاع النموذج (R-W-09) وفيصل بسلّم المقاومات (R-W-08)",
+   "independent_units": 15,
+   "faisal_units": 7
+  },
+  {
+   "id": "P03",
+   "name": "M / القمّةُ المزدوجة",
+   "status": "SUPPORTED",
+   "faisal": [
+    "TG_58045"
+   ],
+   "faisal_repost": [
+    "TG_58044",
+    "TG_58050"
+   ],
+   "third_party": [
+    "EDU_20260918_10_pattern"
+   ],
+   "rules": [
+    "R-W-01",
+    "R-W-07"
+   ],
+   "quant": "لا قياس",
+   "note": "عند فيصل سيناريو سلبيّ يُتجنَّب (لا يبيع على المكشوف) — كسرُ أدنى نطاق القرار",
+   "independent_units": 4,
+   "faisal_units": 1
+  },
+  {
+   "id": "P04",
+   "name": "الرأسُ والكتفان (المقلوب الصاعد · والقمّة)",
+   "status": "SUPPORTED",
+   "faisal": [
+    "TG_2197",
+    "X_20261001_HS_03_LS",
+    "CH_20261001_HS_01_DRMA",
+    "CH_20261001_HS_02_DCOY"
+   ],
+   "faisal_repost": [
+    "TG_50589"
+   ],
+   "third_party": [],
+   "rules": [
+    "hs_forensic/RULE_AUDIT.md"
+   ],
+   "quant": "مُغلَقٌ مُنفَّذًا (HSFX_REOPEN) — T-HS «لا ميزة على الضبط» · T-HS-FX «لا ميزةَ تداوليّة» · T-HS-RX «لا ميزةَ حتى بالبناء الأمين» · وT-TGT للهدف",
+   "note": "محفوظٌ كما هو — لا يُعاد فتحُه هنا (§22)",
+   "independent_units": 5,
+   "faisal_units": 4
+  },
+  {
+   "id": "P05",
+   "name": "موجاتُ إليوت (تسميةٌ تشغيليّة)",
+   "status": "CONFIRMED",
+   "faisal": [
+    "TG_1985",
+    "TG_58052",
+    "TG_50577",
+    "TG_50584",
+    "X_20260918_12_doublebottom"
+   ],
+   "third_party": [
+    "TG_50821",
+    "TG_50822",
+    "TG_50823"
+   ],
+   "rules": [
+    "R-EL-01",
+    "R-EL-02",
+    "R-EL-03",
+    "R-EL-04",
+    "R-EL-05"
+   ],
+   "quant": "T-WAVES (موجاتُ التوقيت داخل الجلسة) الفرعُ 2 ومُغلَق — دعوى أخرى غيرُ حجم الموجة",
+   "note": "دليلُ إليوت (PDF · 57 ص) ملخّصُه FAISAL_ELLIOTT_NOTES.md",
+   "independent_units": 6,
+   "faisal_units": 5
+  },
+  {
+   "id": "P06",
+   "name": "وايكوف (تجميع · ربيع · توزيع)",
+   "status": "SUPPORTED",
+   "faisal": [
+    "TG_50584",
+    "TG_58052"
+   ],
+   "faisal_repost": [
+    "TG_50599"
+   ],
+   "third_party": [
+    "TG_50595"
+   ],
+   "rules": [
+    "R-EL-01",
+    "R-EL-02"
+   ],
+   "quant": "لا قياس مباشر · و«الربيع» يقابله سحبُ السيولة (P07)",
+   "note": "خريطةُ TG_58052 تحمل رموزَ وايكوف (PS · AR · ST) مع ABC إليوت",
+   "independent_units": 4,
+   "faisal_units": 2
+  },
+  {
+   "id": "P07",
+   "name": "سحبُ السيولة (كنسٌ تحت الدعم ثمّ استرداد)",
+   "status": "CONFIRMED",
+   "faisal": [
+    "IMG_0297",
+    "X_20260918_12_doublebottom",
+    "UPL_933a9f58",
+    "TG_50603"
+   ],
+   "third_party": [],
+   "rules": [
+    "ledger: SPLIT_SWEEP 7/10/13",
+    "R-W-03"
+   ],
+   "quant": "T-SWEEP-RECLAIM فشلت (إعادةُ الدخول الآليّة ‏−0.041R) · T-FUSE فشلت · T-RECLAIM-INTRADAY فشلت",
+   "note": "المفهومُ ثابت · والدخولُ الآليُّ على الاسترداد سالبُ التوقّع في القياس",
+   "independent_units": 4,
+   "faisal_units": 4
+  },
+  {
+   "id": "P08",
+   "name": "نطاقُ القرار / الرقمُ الحرج",
+   "status": "CONFIRMED",
+   "faisal": [
+    "TG_58045",
+    "TG_58046",
+    "TG_58049"
+   ],
+   "third_party": [],
+   "rules": [
+    "R-W-07",
+    "R-W-14",
+    "R-CL-01"
+   ],
+   "quant": "الإنتاج: «الرقم الحرج» عرضٌ (build_interpretation) بلا قياسٍ تداوليّ مستقلّ",
+   "independent_units": 3,
+   "faisal_units": 3
+  },
+  {
+   "id": "P09",
+   "name": "الفراشة (هارمونيّ)",
+   "status": "SUPPORTED",
+   "faisal": [
+    "TG_58046"
+   ],
+   "third_party": [],
+   "rules": [
+    "R-W-14"
+   ],
+   "quant": "لا قياس",
+   "note": "ذِكرٌ واحد بلا نِسَب ⟵ البنيةُ الهندسيّة UNKNOWN",
+   "independent_units": 1,
+   "faisal_units": 1
+  },
+  {
+   "id": "P10",
+   "name": "المثلّث · الوتد · العلم · القناة",
+   "status": "POSSIBLE",
+   "faisal": [],
+   "faisal_repost": [
+    "TG_57858",
+    "TG_57860"
+   ],
+   "third_party": [],
+   "doc_only": [
+    "IMG_6989"
+   ],
+   "rules": [
+    "R-CL-03"
+   ],
+   "quant": "لا قياس",
+   "note": "إنفوغرافاتُ طرفٍ ثالث أرفقها فيصل بتعليقٍ عامّ («رفض الاختراق = هبوط») · و«مثلث تجميع» CNMD وصفٌ في الكاتالوج بلا صورة · والقناةُ صفرُ دليل",
+   "independent_units": 2,
+   "faisal_units": 0
+  },
+  {
+   "id": "P11",
+   "name": "بنيةُ السوق HH/HL/LH/LL · BOS · CHoCH",
+   "status": "SUPPORTED",
+   "faisal": [
+    "IMG_8127",
+    "X_20260905_10"
+   ],
+   "third_party": [],
+   "rules": [
+    "R-ST-01"
+   ],
+   "quant": "لا قياس",
+   "note": "المفرداتُ العربيّة (قاع ادنى · قمة اعلى) بلفظه · وBOS/CHoCH صفرُ استعمال ⟵ UNKNOWN · وصورةُ «HIGHER HIGH…» المذكورة 10-01 لم تصل",
+   "independent_units": 2,
+   "faisal_units": 2
+  },
+  {
+   "id": "P12",
+   "name": "نماذجُ الشموع (مطرقة · ابتلاع · الرجل المشنوق · Piercing · Three Inside Up)",
+   "status": "SUPPORTED",
+   "faisal": [
+    "TG_2108",
+    "TG_2176"
+   ],
+   "third_party": [
+    "TG_58042",
+    "EDU_20260918_56_three_inside_up",
+    "TG_2274"
+   ],
+   "rules": [
+    "R-W-13"
+   ],
+   "quant": "T-CANDLE فشلت (صفرٌ من ستّة · والهمرُ أسوأ)",
+   "independent_units": 5,
+   "faisal_units": 2
+  },
+  {
+   "id": "P13",
+   "name": "الفجوات أهدافًا («الازرق فجوة لازم يغطيها»)",
+   "status": "CONFIRMED",
+   "faisal": [
+    "TG_20260905_06",
+    "TG_20260905_08"
+   ],
+   "third_party": [],
+   "rules": [
+    "ledger: الأزرق فجوة · تغطية الفجوة = تفعيل"
+   ],
+   "quant": "T-GAPBELOW (الفجوةُ تحت السعر) الفرعُ 3 «لا قياس» — والفجوةُ فوق السعر هدفٌ عرضًا في الإنتاج",
+   "independent_units": 2,
+   "faisal_units": 2
+  },
+  {
+   "id": "P14",
+   "name": "وصفةُ المقسّم (÷2 · ثبات 3 جلسات · شورت تحت 20 ألف · فلوت تحت 2 مليون · الهدف الشمعة الساقطة = 100٪)",
+   "status": "CONFIRMED",
+   "faisal": [
+    "IMG_0150",
+    "IMG_0151",
+    "IMG_0153"
+   ],
+   "third_party": [],
+   "rules": [
+    "ledger: بوّابات الصيّاد الخمس 5/5 faisal_verbatim"
+   ],
+   "quant": "صيّادُ المقسّم حيّ (تحت حماية المالك) — لم يُثبَت بباكتيست وأثبت نفسه حيًّا (الذاكرة)",
+   "independent_units": 3,
+   "faisal_units": 3
+  },
+  {
+   "id": "P15",
+   "name": "فيبوناتشي",
+   "status": "SUPPORTED",
+   "faisal": [
+    "TG_1995"
+   ],
+   "faisal_repost": [
+    "TG_57862"
+   ],
+   "third_party": [
+    "TG_58052"
+   ],
+   "doc_only": [
+    "IMG_9933"
+   ],
+   "rules": [
+    "F100-4",
+    "F50-6"
+   ],
+   "quant": "لا قياس",
+   "note": "النطاقُ الكامل (قاع ⟵ قمّة الدورة) سلّمُ أهداف · و50% دخولٌ عند الطرف الثالث وحدَه",
+   "independent_units": 3,
+   "faisal_units": 1
+  },
+  {
+   "id": "P16",
+   "name": "خطُّ الترند الهابط",
+   "status": "SUPPORTED",
+   "faisal": [
+    "TG_58049"
+   ],
+   "third_party": [
+    "TG_58042",
+    "TG_58043"
+   ],
+   "rules": [
+    "R-W-10"
+   ],
+   "quant": "الإنتاج: descending_trendline عرضٌ ويغذّي الرقمَ الحرج",
+   "independent_units": 3,
+   "faisal_units": 1
+  },
+  {
+   "id": "P17",
+   "name": "المتوسّطاتُ 20/30/50",
+   "status": "CONFIRMED",
+   "faisal": [
+    "IMG_0151",
+    "IMG_0153"
+   ],
+   "third_party": [],
+   "rules": [
+    "ledger: SPLIT_MA_PERIODS · MA_GATE"
+   ],
+   "quant": "T-MA-LADDER الفرعُ 2 «لا تُوصى»",
+   "independent_units": 2,
+   "faisal_units": 2
+  }
+ ]
+}

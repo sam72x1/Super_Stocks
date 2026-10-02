@@ -1,61 +1,565 @@
 {
  "audit_date": "2026-10-02",
- "status_vocabulary": ["KNOWN_TO_EXIST", "ACCESSIBLE", "RETRIEVED", "INSPECTED", "ANALYZED", "USED_AS_EVIDENCE", "NOT_ACCESSIBLE"],
+ "status_vocabulary": [
+  "KNOWN_TO_EXIST",
+  "ACCESSIBLE",
+  "RETRIEVED",
+  "INSPECTED",
+  "ANALYZED",
+  "USED_AS_EVIDENCE",
+  "NOT_ACCESSIBLE"
+ ],
  "summary": {
   "corpus_images_in_repo": 722,
   "non_evidence_image_in_repo_root": "operating_standard_v1.jpg (معيار التشغيل — ليس دليلَ منهج)",
   "independent_units_after_dedup": 609,
   "new_images_collected_this_mission": 11,
   "images_lost_in_git_history": 0,
-  "images_only_on_other_branches": 0
+  "images_only_on_other_branches": 0,
+  "doc_only_image_ids": 101
  },
  "sources": [
-  {"id": "SRC-REPO", "name": "faisal_images/ على main (e939785e0)", "status": ["KNOWN_TO_EXIST", "ACCESSIBLE", "RETRIEVED", "INSPECTED", "ANALYZED", "USED_AS_EVIDENCE"],
-   "count": 722, "families": {"TG": 502, "IMG": 105, "X": 70, "CH": 22, "EDU": 13, "APP": 8, "WA": 2},
+  {
+   "id": "SRC-REPO",
+   "name": "faisal_images/ على main (e939785e0)",
+   "status": [
+    "KNOWN_TO_EXIST",
+    "ACCESSIBLE",
+    "RETRIEVED",
+    "INSPECTED",
+    "ANALYZED",
+    "USED_AS_EVIDENCE"
+   ],
+   "count": 722,
+   "families": {
+    "TG": 502,
+    "IMG": 105,
+    "X": 70,
+    "CH": 22,
+    "EDU": 13,
+    "APP": 8,
+    "WA": 2
+   },
    "how": "قائمةُ الملفّات · SHA256 · بصمات · OCR (Tesseract 5.3.4 eng+ara) لكلّ صورة · مراجعةٌ بصريّةٌ للعناقيد والصور ذات الصلة",
-   "evidence": "faisal_method_v3/image_corpus.json"},
-  {"id": "SRC-GIT-HISTORY", "name": "تاريخُ git (38,741 commit · غيرُ ضحل)", "status": ["ACCESSIBLE", "RETRIEVED", "INSPECTED"],
+   "evidence": "faisal_method_v3/image_corpus.json"
+  },
+  {
+   "id": "SRC-GIT-HISTORY",
+   "name": "تاريخُ git (38,741 commit · غيرُ ضحل)",
+   "status": [
+    "ACCESSIBLE",
+    "RETRIEVED",
+    "INSPECTED"
+   ],
    "finding": "735 مسارَ صورةٍ ظهرت في التاريخ ⟵ 712 على main (711 + معيارُ التشغيل) و23 مسارًا قديمًا أُعيدت تسميتُها وبُقعُها (blobs) كلُّها في main ⟵ صفرُ صورةٍ مفقودة",
-   "how": "git log --all --name-only على امتدادات الصور ثمّ مقارنةُ البُقع بـ ls-tree على main"},
-  {"id": "SRC-BRANCHES", "name": "فروعُ الريموت (51) والوسوم (1)", "status": ["ACCESSIBLE", "INSPECTED"],
-   "finding": "اتّحادُ صور كلّ الفروع = 712 = صور main ⟵ لا صورةَ في فرعٍ دون main"},
-  {"id": "SRC-TELEGRAM-BOT", "name": "بوتُ التلغرام (getUpdates عبر telegram_collect.yml)", "status": ["ACCESSIBLE", "RETRIEVED", "INSPECTED", "ANALYZED", "USED_AS_EVIDENCE"],
+   "how": "git log --all --name-only على امتدادات الصور ثمّ مقارنةُ البُقع بـ ls-tree على main"
+  },
+  {
+   "id": "SRC-BRANCHES",
+   "name": "فروعُ الريموت (51) والوسوم (1)",
+   "status": [
+    "ACCESSIBLE",
+    "INSPECTED"
+   ],
+   "finding": "اتّحادُ صور كلّ الفروع = 712 = صور main ⟵ لا صورةَ في فرعٍ دون main"
+  },
+  {
+   "id": "SRC-TELEGRAM-BOT",
+   "name": "بوتُ التلغرام (getUpdates عبر telegram_collect.yml)",
+   "status": [
+    "ACCESSIBLE",
+    "RETRIEVED",
+    "INSPECTED",
+    "ANALYZED",
+    "USED_AS_EVIDENCE"
+   ],
    "run": "36996073993 (2026-10-02 10:32Z) ⟵ دُفع e939785e0 «📥 صور التلغرام: 11 ملفًا»",
-   "new_files": ["TG_58042", "TG_58043", "TG_58044", "TG_58045", "TG_58046", "TG_58047", "TG_58048", "TG_58049", "TG_58050", "TG_58051", "TG_58052"],
+   "new_files": [
+    "TG_58042",
+    "TG_58043",
+    "TG_58044",
+    "TG_58045",
+    "TG_58046",
+    "TG_58047",
+    "TG_58048",
+    "TG_58049",
+    "TG_58050",
+    "TG_58051",
+    "TG_58052"
+   ],
    "the_9_images": "TG_58042…TG_58050 — ساعةُ الهاتف فيها 9:14-9:20 (دفعةٌ واحدة) ⟵ هي «الصور التسع» بأرجحيّةٍ قويّة (استنتاج) · و58051 (بلا شريط حالة · نسخةٌ مطابقة لـEDU_20260918_10) و58052 (9:39) وصلتا معها",
    "collector_writes": "getUpdates/getFile فقط — صفرُ sendMessage (فحصٌ نصّيّ للكود)",
-   "gaps": "55,421 رقمَ رسالةٍ غائبًا في 31 فجوة (1806…58052) — مجهول هل فيها صور: التحقّقُ يلزمه forwardMessage = رسالةٌ جديدة ⟵ لم يُفعل (خطٌّ أحمر) ⟵ UNKNOWN"},
-  {"id": "SRC-SESSION-UPLOADS", "name": "مرفقاتُ محادثة هذه الجلسة على القرص (/root/.claude/uploads/<session>)", "status": ["ACCESSIBLE", "RETRIEVED", "INSPECTED"],
-   "count_files": 75, "unique_by_sha": 63, "exact_in_corpus": 50, "near_in_corpus": 4, "unmatched": 9,
+   "gaps": "55,421 رقمَ رسالةٍ غائبًا في 31 فجوة (1806…58052) — مجهول هل فيها صور: التحقّقُ يلزمه forwardMessage = رسالةٌ جديدة ⟵ لم يُفعل (خطٌّ أحمر) ⟵ UNKNOWN"
+  },
+  {
+   "id": "SRC-SESSION-UPLOADS",
+   "name": "مرفقاتُ محادثة هذه الجلسة على القرص (/root/.claude/uploads/<session>)",
+   "status": [
+    "ACCESSIBLE",
+    "RETRIEVED",
+    "INSPECTED"
+   ],
+   "count_files": 75,
+   "unique_by_sha": 63,
+   "exact_in_corpus": 50,
+   "near_in_corpus": 4,
+   "unmatched": 9,
    "unmatched_classified": {
-     "chart_finder_blind_or_test (لا تُدفَع — قاعدة مُعرِّف الشارت)": ["23c11204-image.jpg", "5d7333b3-image.jpg", "8ca6769d-image.jpg"],
-     "claude_app_screenshot (ليست دليلًا)": ["4386f49b-image.png", "66f65040-image.png"],
-     "owner_chart_SMX (ليست من فيصل)": ["5491ccd3-image.png", "7e92c069-image.png"],
-     "crop_of_TG_50577 (مشتقّ — بالعين)": ["8c788d89-image.jpg (= ba3293f5-image.jpg)"],
-     "faisal_post_not_in_corpus": ["933a9f58-image.png — منشورُ فيصل 2026/9/24 5:47: «هذا سهم سابق الجميع ربح فيه · الدعم والقاع 2.10 اخذنا دفعه بسيط · قبل يصعد بمشعه هبط فيه الى 1.78 · مباشره دخلنا بكل الكمية المقرره للدخول · ثاني يوم دبل» ⟵ USED_AS_EVIDENCE بمعرّف UPL_933a9f58 (وصفٌ لا صورة)"]},
-   "note": "لم تُنسخ المرفقاتُ إلى المستودع — الأربعُ والخمسون المطابقةُ موجودةٌ فيه أصلًا والتسعُ مصنَّفةٌ أعلاه"},
-  {"id": "SRC-CONVERSATION-TRANSCRIPTS", "name": "سجلّاتُ المحادثات (jsonl) وصورُها المضمَّنة", "status": ["KNOWN_TO_EXIST", "NOT_ACCESSIBLE"],
+    "chart_finder_blind_or_test (لا تُدفَع — قاعدة مُعرِّف الشارت)": [
+     "23c11204-image.jpg",
+     "5d7333b3-image.jpg",
+     "8ca6769d-image.jpg"
+    ],
+    "claude_app_screenshot (ليست دليلًا)": [
+     "4386f49b-image.png",
+     "66f65040-image.png"
+    ],
+    "owner_chart_SMX (ليست من فيصل)": [
+     "5491ccd3-image.png",
+     "7e92c069-image.png"
+    ],
+    "crop_of_TG_50577 (مشتقّ — بالعين)": [
+     "8c788d89-image.jpg (= ba3293f5-image.jpg)"
+    ],
+    "faisal_post_not_in_corpus": [
+     "933a9f58-image.png — منشورُ فيصل 2026/9/24 5:47: «هذا سهم سابق الجميع ربح فيه · الدعم والقاع 2.10 اخذنا دفعه بسيط · قبل يصعد بمشعه هبط فيه الى 1.78 · مباشره دخلنا بكل الكمية المقرره للدخول · ثاني يوم دبل» ⟵ USED_AS_EVIDENCE بمعرّف UPL_933a9f58 (وصفٌ لا صورة)"
+    ]
+   },
+   "note": "لم تُنسخ المرفقاتُ إلى المستودع — الأربعُ والخمسون المطابقةُ موجودةٌ فيه أصلًا والتسعُ مصنَّفةٌ أعلاه"
+  },
+  {
+   "id": "SRC-CONVERSATION-TRANSCRIPTS",
+   "name": "سجلّاتُ المحادثات (jsonl) وصورُها المضمَّنة",
+   "status": [
+    "KNOWN_TO_EXIST",
+    "NOT_ACCESSIBLE"
+   ],
    "reason": "رفض مُصنِّفُ الصلاحيات قراءةَ السجلّات بحثًا عن الصور في هذه الجلسة ⟵ لم يُلتفّ عليه · ومحادثاتُ claude.ai الأخرى غيرُ مرئيّةٍ من الحاوية أصلًا",
-   "residual_risk": "صورةٌ أُرسلت في محادثةٍ ولم تُحفظ مرفقًا ولا في faisal_images لا يمكن رؤيتها — مجهولة العدد"},
-  {"id": "SRC-PDF-FAISAL-GUIDE", "name": "«دليل طريقة فيصل لفلترة الأسهم» (94 صفحة · 78 صورةً مضمَّنة)", "status": ["KNOWN_TO_EXIST", "ACCESSIBLE", "RETRIEVED", "INSPECTED", "ANALYZED", "USED_AS_EVIDENCE"],
+   "residual_risk": "صورةٌ أُرسلت في محادثةٍ ولم تُحفظ مرفقًا ولا في faisal_images لا يمكن رؤيتها — مجهولة العدد"
+  },
+  {
+   "id": "SRC-PDF-FAISAL-GUIDE",
+   "name": "«دليل طريقة فيصل لفلترة الأسهم» (94 صفحة · 78 صورةً مضمَّنة)",
+   "status": [
+    "KNOWN_TO_EXIST",
+    "ACCESSIBLE",
+    "RETRIEVED",
+    "INSPECTED",
+    "ANALYZED",
+    "USED_AS_EVIDENCE"
+   ],
    "location": "مرفقُ الجلسة 954231ff-…prepress.pdf — لا يُدفَع (خطٌّ أحمر: المستودعُ عامّ)",
    "source_class": "مصدرٌ ثانويّ: ملخّصٌ أعدّه صديقُ فيصل من الدروس والمحادثات والصور (faisal_adopted لا faisal_verbatim)",
    "text_extraction": "PyMuPDF — نصٌّ عربيٌّ مقروء",
-   "images_vs_corpus": "صورةٌ واحدةٌ من 78 تطابق المدوَّنةَ بالبصمة · والبقيّةُ قصاصاتٌ وإعادةُ تحجيم لا تُطابَق آليًّا ⟵ لا تُعَدّ دليلًا مستقلًّا · وبعضُها منشوراتٌ لفيصل غائبةٌ عن المدوَّنة (مثالُها نتيجةُ DXST «ضرب المقاومه الان 3.11 · حقق نسبة 25%» ص52) ⟵ تُستشهَد بمعرّف PDF_B_pNN وصفًا"},
-  {"id": "SRC-PDF-ELLIOTT", "name": "«موجات إليوت — RTL مع جميع الصور التعليمية» (57 صفحة · 48 صورة)", "status": ["KNOWN_TO_EXIST", "ACCESSIBLE", "RETRIEVED", "INSPECTED"],
+   "images_vs_corpus": "صورةٌ واحدةٌ من 78 تطابق المدوَّنةَ بالبصمة · والبقيّةُ قصاصاتٌ وإعادةُ تحجيم لا تُطابَق آليًّا ⟵ لا تُعَدّ دليلًا مستقلًّا · وبعضُها منشوراتٌ لفيصل غائبةٌ عن المدوَّنة (مثالُها نتيجةُ DXST «ضرب المقاومه الان 3.11 · حقق نسبة 25%» ص52) ⟵ تُستشهَد بمعرّف PDF_B_pNN وصفًا"
+  },
+  {
+   "id": "SRC-PDF-ELLIOTT",
+   "name": "«موجات إليوت — RTL مع جميع الصور التعليمية» (57 صفحة · 48 صورة)",
+   "status": [
+    "KNOWN_TO_EXIST",
+    "ACCESSIBLE",
+    "RETRIEVED",
+    "INSPECTED"
+   ],
    "location": "مرفقُ الجلسة 7f1e0caf-….pdf — لا يُدفَع",
    "text_extraction": "PyMuPDF يُخرج نصًّا عربيًّا مقلوبَ الترتيب ⟵ الملخّصُ الموجود FAISAL_ELLIOTT_NOTES.md هو المرجع",
-   "images_vs_corpus": "صفرُ مطابقة — صورٌ تعليميّة عامّة"},
-  {"id": "SRC-AUDIO", "name": "تسجيلٌ صوتيّ (ogg · 12.3 ميغا) وتفريغُه (txt · 33.8 ك)", "status": ["KNOWN_TO_EXIST", "ACCESSIBLE"],
-   "note": "لا يُدفَع · التفريغُ آليٌّ مشوَّش (وسمُه faisal_adopted في الذاكرة) · لم يُستعمَل في هذه المهمّة سوى ما سبق توثيقُه"},
-  {"id": "SRC-X-LIVE", "name": "حسابُ فيصل على X مباشرةً (@kisar_)", "status": ["KNOWN_TO_EXIST", "NOT_ACCESSIBLE"],
-   "reason": "EGRESS_BLOCKED — بروكسي الشبكة يحجب x.com (محاولةٌ واحدة 2026-10-02)"},
-  {"id": "SRC-ACTIONS-ARTIFACTS", "name": "artifacts على GitHub Actions", "status": ["KNOWN_TO_EXIST", "ACCESSIBLE"],
-   "note": "faisal-images (نسخةُ أمانٍ 7 أيام لكلّ سحب) = نسخةٌ من المستودع لا مصدرٌ جديد · وartifacts التحقيق السابق (hs_forensic) مستعمَلةٌ في وثائقها"},
-  {"id": "SRC-REPO-DOCS", "name": "وثائقُ المستودع السابقة (الكاتالوج · المسحان PASS2/PASS3 · دفترُ المصادر · حزمُ الدفعات · hs_forensic/)", "status": ["ACCESSIBLE", "RETRIEVED", "INSPECTED", "ANALYZED", "USED_AS_EVIDENCE"],
-   "note": "تفسيراتٌ سابقة تُقرأ مقابل الصورة لا بدلًا منها · والإحالاتُ لكلّ صورةٍ في image_provenance.json (doc_mentions)"},
-  {"id": "SRC-OCR", "name": "محرّكُ OCR", "status": ["ACCESSIBLE", "USED_AS_EVIDENCE"],
-   "engine": "tesseract 5.3.4 (apt) · eng+ara · psm 3", "rows": 722, "empty": 9,
-   "limits": "نصُّ الشارت الصغير وأرقامُ المحاور تُقرأ بأخطاء ⟵ الحقولُ المستخرَجةُ آليًّا «مرشَّحة» لا مؤكَّدة"}
+   "images_vs_corpus": "صفرُ مطابقة — صورٌ تعليميّة عامّة"
+  },
+  {
+   "id": "SRC-AUDIO",
+   "name": "تسجيلٌ صوتيّ (ogg · 12.3 ميغا) وتفريغُه (txt · 33.8 ك)",
+   "status": [
+    "KNOWN_TO_EXIST",
+    "ACCESSIBLE"
+   ],
+   "note": "لا يُدفَع · التفريغُ آليٌّ مشوَّش (وسمُه faisal_adopted في الذاكرة) · لم يُستعمَل في هذه المهمّة سوى ما سبق توثيقُه"
+  },
+  {
+   "id": "SRC-X-LIVE",
+   "name": "حسابُ فيصل على X مباشرةً (@kisar_)",
+   "status": [
+    "KNOWN_TO_EXIST",
+    "NOT_ACCESSIBLE"
+   ],
+   "reason": "EGRESS_BLOCKED — بروكسي الشبكة يحجب x.com (محاولةٌ واحدة 2026-10-02)"
+  },
+  {
+   "id": "SRC-ACTIONS-ARTIFACTS",
+   "name": "artifacts على GitHub Actions",
+   "status": [
+    "KNOWN_TO_EXIST",
+    "ACCESSIBLE"
+   ],
+   "note": "faisal-images (نسخةُ أمانٍ 7 أيام لكلّ سحب) = نسخةٌ من المستودع لا مصدرٌ جديد · وartifacts التحقيق السابق (hs_forensic) مستعمَلةٌ في وثائقها"
+  },
+  {
+   "id": "SRC-REPO-DOCS",
+   "name": "وثائقُ المستودع السابقة (الكاتالوج · المسحان PASS2/PASS3 · دفترُ المصادر · حزمُ الدفعات · hs_forensic/)",
+   "status": [
+    "ACCESSIBLE",
+    "RETRIEVED",
+    "INSPECTED",
+    "ANALYZED",
+    "USED_AS_EVIDENCE"
+   ],
+   "note": "تفسيراتٌ سابقة تُقرأ مقابل الصورة لا بدلًا منها · والإحالاتُ لكلّ صورةٍ في image_provenance.json (doc_mentions)"
+  },
+  {
+   "id": "SRC-OCR",
+   "name": "محرّكُ OCR",
+   "status": [
+    "ACCESSIBLE",
+    "USED_AS_EVIDENCE"
+   ],
+   "engine": "tesseract 5.3.4 (apt) · eng+ara · psm 3",
+   "rows": 722,
+   "empty": 9,
+   "limits": "نصُّ الشارت الصغير وأرقامُ المحاور تُقرأ بأخطاء ⟵ الحقولُ المستخرَجةُ آليًّا «مرشَّحة» لا مؤكَّدة"
+  },
+  {
+   "id": "SRC-DOC-ONLY-IMAGES",
+   "name": "صورٌ تذكرها الوثائق ولا ملفَّ لها في المدوَّنة (دفعاتٌ قُرئت في محادثاتٍ قبل وجود المجمِّع)",
+   "status": [
+    "KNOWN_TO_EXIST",
+    "NOT_ACCESSIBLE"
+   ],
+   "count": 101,
+   "note": "وصفُها النصّيّ في الوثائق متاح (تفسيرٌ سابق) والصورةُ نفسُها غائبة ⟵ تُستشهَد بوصفها «doc_only» ولا تُعَدّ دليلًا بصريًّا · وبعضُها قد يكون نسخةً لصورةٍ مخزَّنةٍ باسمٍ آخر (غيرُ قابلٍ للتحقّق)",
+   "ids": {
+    "IMG_0076": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_IMAGE_PASS3.md",
+     "FAISAL_SOURCE_LEDGER.md",
+     "faisal_images/README.md"
+    ],
+    "IMG_0077": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_0080": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_0082": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_0091": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_0097": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "IMG_0098": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "IMG_0125": [
+     "FAISAL_IMAGE_PASS3.md",
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "IMG_0446": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_0450": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_0489": [
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "IMG_1066": [
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "IMG_4685": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_4717": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_5954": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6001": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6004": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6131": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6206": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6215": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6216": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6293": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_METHODOLOGY_NOTES.md"
+    ],
+    "IMG_6295": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6297": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6334": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6335": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6337": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6390": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6456": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_IMAGE_PASS3.md"
+    ],
+    "IMG_6457": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_IMAGE_PASS3.md"
+    ],
+    "IMG_6460": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_IMAGE_PASS3.md"
+    ],
+    "IMG_6461": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_IMAGE_PASS3.md"
+    ],
+    "IMG_6462": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_IMAGE_PASS3.md"
+    ],
+    "IMG_6464": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_IMAGE_PASS3.md"
+    ],
+    "IMG_6465": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6466": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6468": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6470": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6471": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6472": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_IMAGE_PASS3.md",
+     "FAISAL_METHODOLOGY_NOTES.md"
+    ],
+    "IMG_6473": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_METHODOLOGY_NOTES.md"
+    ],
+    "IMG_6475": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6478": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6479": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6481": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6701": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6703": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6714": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_METHODOLOGY_NOTES.md"
+    ],
+    "IMG_6748": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_METHODOLOGY_NOTES.md"
+    ],
+    "IMG_6761": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_METHODOLOGY_NOTES.md"
+    ],
+    "IMG_6779": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6782": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6807": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6814": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_METHODOLOGY_NOTES.md"
+    ],
+    "IMG_6816": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6844": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6975": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6976": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6989": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_6990": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7014": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7024": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7339": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7344": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7363": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_IMAGE_PASS3.md"
+    ],
+    "IMG_7370": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7388": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7391": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7393": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7399": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7405": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_7713": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_8051": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_8052": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_8053": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_8055": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_8090": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_8096": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_8102": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_8103": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_8261": [
+     "FAISAL_METHODOLOGY_NOTES.md",
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "IMG_9424": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_SOURCE_LEDGER.md",
+     "faisal_images/README.md"
+    ],
+    "IMG_9425": [
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "IMG_9426": [
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "IMG_9431": [
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "IMG_9432": [
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "IMG_9443": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9495": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9497": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9498": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9499": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9504": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9505": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9506": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9508": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9754": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9915": [
+     "FAISAL_IMAGES_CATALOG.md"
+    ],
+    "IMG_9933": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "FAISAL_METHODOLOGY_NOTES.md",
+     "FAISAL_SOURCE_LEDGER.md"
+    ],
+    "TG_57895": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "faisal_images/README.md"
+    ],
+    "TG_57896": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "faisal_images/README.md"
+    ],
+    "TG_57920": [
+     "FAISAL_IMAGES_CATALOG.md",
+     "faisal_images/README.md"
+    ]
+   }
+  }
  ]
 }

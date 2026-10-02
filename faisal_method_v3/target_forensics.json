@@ -1,0 +1,222 @@
+{
+ "meta": {
+  "verdict_50": "في لفظ فيصل لا تعني «50٪» إسقاطًا من ارتفاع النموذج قطّ: هي (1) صعودٌ أوّلُ تحقّق يُطفئ المطاردة · (2) ربحٌ معرَّضٌ للضياع · (3) مدى حركةٍ متوقَّع 30-50% · (4) تنصيفٌ في وصفة المقسّم مستهدفَ هبوط · والمعنى الهندسيّ (فيبو 50% · سهمُ 50% في رسم W) عند الطرف الثالث وحدَه",
+  "verdict_100": "«100٪» مقرونةً بـ«هدف» = ربحٌ ‏+100% (T-TGT) · و«100% من ارتفاع النموذج فوق الاختراق» لفظُ القناة التعليميّة ومصغّرةٌ أعاد فيصل نشرَها بلا تعليق — صفرُ استعمالٍ بلفظه · وهدفُه في W الوحيد المقيس (DXST) مستوياتٌ أفقيّة (1.07h · 1.82h) ونتيجتُه «حقق نسبة 25٪»",
+  "tool_policy": "الأداةُ تعرض الأهدافَ الثلاثة بوسومها: سلّمُ المقاومات (فيصل) · ‏+100% من الدخول (فيصل) · الحركةُ المقيسة 100%/50% من الارتفاع (طرفٌ ثالث · للمقارنة) — ولا تخلطها"
+ },
+ "meanings": {
+  "50": [
+   {
+    "id": "F50-1",
+    "meaning": "صعودٌ أوّلُ ‏+50% تحقّق ⟵ لا مطاردة · انتظار اختبار دعم أو سحب سيولة",
+    "kind": "anti_chase_trigger",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "IMG_8242",
+     "TG_2108",
+     "PDF_B_p76"
+    ],
+    "status": "CONFIRMED",
+    "independent_units": 3
+   },
+   {
+    "id": "F50-2",
+    "meaning": "ربحٌ 50% قد يضيع إذا انعكست الصفقة ⟵ جنيٌ مبكّر عند المقاومة الثالثة (أكثر من 70%)",
+    "kind": "profit_at_risk",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "TG_57862"
+    ],
+    "status": "SUPPORTED",
+    "independent_units": 1
+   },
+   {
+    "id": "F50-3",
+    "meaning": "متوسّطُ حركةٍ 50 يدلّ على صعودٍ «أقلها من 30 لـ50٪»",
+    "kind": "expected_move_range",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "TG_1809"
+    ],
+    "status": "SUPPORTED",
+    "note": "IMG_0097 (doc_only) تكرّرها · والإنتاج: faisal_move 30-50%",
+    "independent_units": 1
+   },
+   {
+    "id": "F50-4",
+    "meaning": "÷2 في وصفة المقسّم: مستهدفُ الهبوط نصفُ قمّة ما بعد التقسيم",
+    "kind": "halving_downside_target",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "IMG_0150",
+     "IMG_0151",
+     "IMG_0153"
+    ],
+    "status": "CONFIRMED",
+    "independent_units": 3
+   },
+   {
+    "id": "F50-5",
+    "meaning": "MWC: مستهدفُ هبوطٍ 2.35 = نصفُ القاع الأوّل 4.70 لسهمٍ بلا تاريخ (طرحٌ جديد)",
+    "kind": "halving_downside_target",
+    "source_type": "faisal_inferred",
+    "evidence": [
+     "IMG_8127",
+     "PDF_B_MWC"
+    ],
+    "status": "PROBABLE",
+    "note": "فيصل كتب الرقمَ 2.35 · وعلاقةُ «النصف» حسابُنا (والدليلُ الثانويّ يقولها)",
+    "independent_units": 2
+   },
+   {
+    "id": "F50-6",
+    "meaning": "تصحيحُ فيبوناتشي 50% منطقةُ دخول (كتلةُ أوامر)",
+    "kind": "fib_retracement",
+    "source_type": "third_party",
+    "evidence": [
+     "TG_57862",
+     "TG_58052"
+    ],
+    "status": "POSSIBLE",
+    "note": "إنفوغرافان لطرفٍ ثالث أرفقهما فيصل (وأحدُهما بيعٌ على المكشوف) · بلا قاعدةٍ بلفظه",
+    "independent_units": 2
+   },
+   {
+    "id": "F50-7",
+    "meaning": "سهمُ «50%» في رسم W للقناة التعليميّة (من الوقف/الدخول إلى القاع الثاني)",
+    "kind": "drawing_label",
+    "source_type": "third_party",
+    "evidence": [
+     "TG_58042"
+    ],
+    "status": "UNKNOWN",
+    "note": "الرسمُ يدويّ وليس بمقياس (0.72 من الارتفاع بالبكسل) والنصُّ لا يذكر 50% ⟵ المعنى الهندسيّ غيرُ قابلٍ للحسم",
+    "independent_units": 1
+   },
+   {
+    "id": "F50-8",
+    "meaning": "إغلاقٌ فوق مستوى 50% من الشمعة الأولى (Three Inside Up)",
+    "kind": "candle_midpoint",
+    "source_type": "third_party",
+    "evidence": [
+     "EDU_20260918_56_three_inside_up"
+    ],
+    "status": "POSSIBLE",
+    "independent_units": 1
+   },
+   {
+    "id": "F50-9",
+    "meaning": "مقاديرُ وصفيّة: «خساره 50٪» لمن دخل مع القروب · «10 الاف دولار ترفعه 50٪» · «متعدي 50٪» في ثواني",
+    "kind": "descriptive_magnitude",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "TG_50817",
+     "IMG_0506"
+    ],
+    "status": "CONFIRMED",
+    "note": "وصفٌ لا قاعدة",
+    "independent_units": 2
+   },
+   {
+    "id": "F50-10",
+    "meaning": "هويّةُ سهم الارتكاز: انهيارٌ 50% فأكثر بعد الانفجار (بوّابةُ الفارز M2)",
+    "kind": "identity_threshold",
+    "source_type": "engineering",
+    "evidence": [],
+    "status": "UNKNOWN",
+    "note": "الدفتر: بوّابات الهويّة صفرُ faisal_verbatim · والنافذُ اليوم ظرفُ الكاتالوج ≈71.7",
+    "independent_units": 0
+   }
+  ],
+  "100": [
+   {
+    "id": "F100-1",
+    "meaning": "هدفٌ = ربحٌ ‏+100% (ضعفُ السعر)",
+    "kind": "gain_distance",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "IMG_0151",
+     "IMG_0153",
+     "TG_2173"
+    ],
+    "status": "CONFIRMED",
+    "note": "T-TGT L1-L3",
+    "independent_units": 3
+   },
+   {
+    "id": "F100-2",
+    "meaning": "ربحٌ متحقّق أو كامن («دبل الان فوق 100٪» · «$sphl 100%» · «حقق 100%» · «في بطنه فوق 100٪»)",
+    "kind": "realized_gain",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "TG_2199",
+     "TG_57892",
+     "IMG_0647"
+    ],
+    "status": "CONFIRMED",
+    "independent_units": 3
+   },
+   {
+    "id": "F100-3",
+    "meaning": "صفقاتُه الارتكازيّة «تعتمد ع ربح يتجاوز 100٪»",
+    "kind": "strategy_goal",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "X_20260827_indicators_canf"
+    ],
+    "status": "SUPPORTED",
+    "independent_units": 1
+   },
+   {
+    "id": "F100-4",
+    "meaning": "فيبوناتشي النطاق الكامل: 100% = قمّةُ الدورة السابقة (SPRC 4.30 ⟵ 11.84)",
+    "kind": "fib_full_range",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "IMG_9933"
+    ],
+    "status": "SUPPORTED",
+    "note": "IMG_9933 doc_only (الصورةُ غائبة · وصفُها في الكاتالوج)",
+    "independent_units": 1
+   },
+   {
+    "id": "F100-5",
+    "meaning": "«اضمن لك 100٪ بكل صفقه» — صيغةُ ضمانٍ بلا «هدف»",
+    "kind": "rhetoric",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "TG_50589"
+    ],
+    "status": "UNKNOWN",
+    "note": "T-TGT L12: المعنى غيرُ قابلٍ للحسم",
+    "independent_units": 1
+   },
+   {
+    "id": "F100-6",
+    "meaning": "100% من ارتفاع النموذج يُسقَط فوق نقطة الاختراق (الحركةُ المقيسة)",
+    "kind": "measured_move",
+    "source_type": "third_party",
+    "evidence": [
+     "TG_58043",
+     "TG_58050",
+     "TG_58042"
+    ],
+    "status": "POSSIBLE",
+    "note": "لفظُ القناة التعليميّة ومصغّرةٌ أعاد فيصل نشرَها · وصفرُ استعمالٍ بلفظه · وهدفا DXST عنده 1.07h و1.82h",
+    "independent_units": 3
+   },
+   {
+    "id": "F100-7",
+    "meaning": "«100٪ مضمونه عند 5» — يقينٌ لا مسافة (5 من 3.16 = ‏+58%)",
+    "kind": "certainty",
+    "source_type": "faisal_verbatim",
+    "evidence": [
+     "IMG_0587"
+    ],
+    "status": "SUPPORTED",
+    "note": "T-TGT L8",
+    "independent_units": 1
+   }
+  ]
+ }
+}

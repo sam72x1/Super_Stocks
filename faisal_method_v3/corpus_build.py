@@ -228,7 +228,7 @@ def doc_mentions(stems):
         if any(dp.startswith(s) for s in skip) or "/.git" in dp or "/faisal_images" in dp:
             continue
         for f in fn:
-            if not f.endswith(".md"):
+            if not f.endswith(".md") or f == "FAISAL_IMAGE_AUDIT.md":   # سجلُّ تغطيةٍ آليّ يسرد كلَّ ملفّ ⟵ ليس إحالةً تفسيريّة
                 continue
             p = os.path.join(dp, f)
             try:
