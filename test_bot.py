@@ -79144,6 +79144,43 @@ check("🧭 FV12 تدقيقُ سقف البِركة (§23): A = `build_pool` ا�
       "والتصنيفُ بحدود §⓪ (تغطية 90% · 10 جلسات · 3 مفقودين أو 5%) · ولا إسنادَ لـ`POOL_CAP`/`build_pool` ولا مسَّ لحالة الرادار",
       _f12 and _ok12 and not _asg12 and _grd12, f"bins={_k12} · إسناد={len(_asg12)} · حارس={_grd12}")
 
+
+# ── FV13 مخرَجُ كلّ وضعٍ في السجلّ (عطلٌ مُثبَت 2026-10-02: تنزيلُ الـartifact محجوبٌ من بيئة الجلسة ⟵ النتيجةُ لا تُقرأ إلّا من السجلّ):
+#    `emit` يجزّئ الـJSON أجزاءً تُجمَّع بالترتيب إلى الأصل حرفًا · والغائبُ «missing» · والأوضاعُ الثلاثة مغطّاة · والإصدارُ في `finally`
+#    (يُطبع ولو خرج التحقّقُ 3) · و`faisal_cases` يطبع الحالةَ المتعذّرة (ATMV سقطت صامتةً في `37002345242`).
+try:
+    import contextlib as _fv_cl
+    import io as _fv_io
+    import tempfile as _fv_tf
+    FVR = _fv_imp.import_module("run_v3")
+    _d13 = _fv_tf.mkdtemp()
+    _obj13 = {"a": "ب" * 9000, "n": [1, 2, 3], "z": None}
+    _fv_json.dump(_obj13, open(_fv_os.path.join(_d13, "t.json"), "w", encoding="utf-8"), ensure_ascii=False)
+    _buf13 = _fv_io.StringIO()
+    with _fv_cl.redirect_stdout(_buf13):
+        _n13 = FVR.emit("t.json", _d13, chunk=1000)
+        FVR.emit("absent.json", _d13)
+    _L13 = _buf13.getvalue().splitlines()
+    _parts13 = sorted([ln.split("|", 4) for ln in _L13 if ln.startswith("V3OUT|t.json|")], key=lambda p: int(p[2]))
+    _rt13 = _fv_json.loads("".join(p[4] for p in _parts13)) == _obj13 and len(_parts13) == _n13 and _n13 > 1 \
+        and all(p[3] == str(_n13) for p in _parts13)
+    _miss13 = "V3OUT|absent.json|missing" in _L13
+    _modes13 = set(FVR.EMIT) == {"cases", "validate", "poolcap"}
+    _t13 = _fv_ast.parse(open(_fv_os.path.join("faisal_method_v3", "run_v3.py"), encoding="utf-8").read())
+    _fin13 = any(isinstance(n, _fv_ast.Try) and any(isinstance(c, _fv_ast.Call) and getattr(c.func, "id", None) == "emit"
+                                                     for b in n.finalbody for c in _fv_ast.walk(b)) for n in _fv_ast.walk(_t13))
+    _tc13 = _fv_ast.parse(open(_fv_os.path.join("faisal_method_v3", "faisal_cases.py"), encoding="utf-8").read())
+    _main13 = next(n for n in _tc13.body if isinstance(n, _fv_ast.FunctionDef) and n.name == "main")
+    _err13 = any(isinstance(c, _fv_ast.Call) and getattr(c.func, "id", None) == "print"
+                 and "error" in _fv_ast.dump(c) for c in _fv_ast.walk(_main13))
+except Exception as _e:                                                    # noqa: BLE001
+    _rt13 = _miss13 = _modes13 = _fin13 = _err13 = False
+    _L13 = [f"⛔ {type(_e).__name__}: {_e}"]
+check("🧭 FV13 مخرَجُ الأوضاع في السجلّ: أجزاءٌ تُجمَّع إلى الـJSON الأصل حرفًا · والغائبُ «missing» · والأوضاعُ الثلاثة · "
+      "والإصدارُ في `finally` · و`faisal_cases` يطبع الحالةَ المتعذّرة لا يُسقطها صامتةً",
+      _rt13 and _miss13 and _modes13 and _fin13 and _err13,
+      f"rt={_rt13} miss={_miss13} modes={_modes13} fin={_fin13} err={_err13} {str(_L13[:1])[:80]}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

@@ -152,6 +152,9 @@ def main():
         res.append(out)
         print(f"── {sym} asof {asof} · W يوميّ {out['tool_w_daily']} · W 30د {out['tool_w_30m']} · "
               f"M1 {ag['matched']}/{ag['of']} · الحالة {(rep.get('state') or {}).get('state')}")
+    for r in res:
+        if r.get("error"):                                               # الحالةُ المتعذّرة تُعلَن لا تُسقَط صامتةً
+            print(f"── {r['case']} ⛔ لم تُقَس: {r['error']} {json.dumps(r.get('search') or {}, ensure_ascii=False)}")
     w_cases = [r for r in res if r.get("faisal_says_w")]
     m2_ok = bool(w_cases) and all(r.get("M2") for r in w_cases) and len(w_cases) == 3
     m1_ok_n = sum(1 for r in res if r.get("M1") and r["M1"]["share"] is not None and r["M1"]["share"] >= 0.5)
