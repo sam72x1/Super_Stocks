@@ -1,9 +1,10 @@
-name: "🧭 FAISAL METHOD V3 — أداةُ التحليل (ticker · cases · validate · poolcap · dump)"
+name: "🧭 FAISAL METHOD V3 — أداةُ التحليل (ticker · cases · validate · poolcap · poolcap2 · dump)"
 
 # 🧭 أمرُ المالك 2026-10-02 «FAISAL METHOD — AUTONOMOUS MASTER MISSION» · الأداة faisal_method_v3/faisal_tool.py.
 # الأوضاع: ticker (تحليلُ رمزٍ واحد · وتلغرام فقط إن send=1 صراحةً) · cases (التحقّقُ البصريّ على حالات صور فيصل)
 #          · validate (T-W — العقد faisal_method_v3/T_W_prereg.md مدموجٌ قبل أيّ رقم)
 #          · poolcap (تدقيقُ سقف بِركة رادار الضغط — المعاييرُ في pressure_pool_cap_audit.md §⓪ قبل الرقم · لا يمسّ الإنتاج)
+#          · poolcap2 (V3.1 §15: أثرُ السقف على الكروت الثمانية — المعاييرُ §④ قبل الرقم)
 #          · dump (V3.1: تفريغُ شموع حالات الصور مضغوطةً في السجلّ · تغطيةُ 30 دقيقة · قراءةٌ فقط).
 # 🔒 قراءةٌ فقط: لا حالةَ إنتاج · ولا سرَّ تلغرام إلّا حين send=1 (التعبيرُ أدناه يمرّر نصًّا فارغًا غيرَ ذلك).
 # 📺 الشموعُ من TradingView مباشرةً — **بلا `BARS_SOURCE`** (مفتاحُه محصورٌ بـworkflows الإنتاج · قفلُ TVB9).
@@ -14,9 +15,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "ticker · cases · validate · poolcap · dump"
+        description: "ticker · cases · validate · poolcap · poolcap2 · dump"
         type: choice
-        options: [ticker, cases, validate, poolcap, dump]
+        options: [ticker, cases, validate, poolcap, poolcap2, dump]
         default: ticker
       ticker:
         description: "الرمز (لوضع ticker)"
