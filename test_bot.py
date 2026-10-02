@@ -73777,7 +73777,8 @@ check("🗜️📺 PRV8 الـYAML: `BARS_SOURCE: tradingview` في خطوة pre
 #    يُغلق بعد الصفوف) و`postmarket_close` الماسح (`tv_postmarket_map` بنداءٍ واحد) · **ولا يُتحقَّق إلّا إن اتّفقتا ضمن
 #    `TV_AH_AGREE_PCT`** والسعرُ أدناهما — لأن القناةَ الواحدة سقطت في مِجَسّ `36808633641` (‏`AH2` ‏43 من 53 = 81.1%) · والقاعدةُ
 #    والعتبةُ والكتمُ والوسمُ بت-بت · وبلا البيئة النداءُ السابق حرفًا · والمحقونُ يغلب. سلوكيّةٌ بلا شبكة: المِقبسُ والماسحُ والخريطةُ محقونة.
-#    🔒 **وخلف مفتاح `AH_GUARD_TV`=«1»** — مطفأٌ في الـworkflows حتى يعبر مِجَسّ v2 الحاكم (‏`AHT9`/`AHT10`).
+#    🔒 **وخلف مفتاح `AH_GUARD_TV`=«1»** — كان مطفأً في الـworkflows حتى يعبر مِجَسّ v2 الحاكم · 🔄 **مُشعَلٌ منذ 2026-10-02** بعد عبوره
+#    على جلسة 10-01 (`36944893317`) (‏`AHT9`/`AHT10`).
 
 
 class _AhtChart:
@@ -74019,8 +74020,10 @@ except Exception as _e:                                              # noqa: BLE
 check("🌙📺 AHT9 المفتاحُ المطفأ (`AH_GUARD_TV` غائب) ⟵ المسارُ السابق بت-بت ولو `BARS_SOURCE=tradingview`: صفرُ مِقبسٍ وماسح · "
       "`extended_last_price` بلا `fetch_bars`", _w9, _w9w)
 
-# AHT10 — **المفتاحُ مطفأٌ في الإنتاج حتى يعبر مِجَسّ v2 الحاكم** (رأسُ aht_probe.py): لا خطوةَ في `split_hunter.yml` ولا
-#    `daily_screener.yml` تضبط `AH_GUARD_TV` — وإشعالُه يُحدّث هذا القفلَ إقرارًا بعد الحكم لا قبله
+# AHT10 — **المفتاحُ مُشعَلٌ في الإنتاج بعد عبور مِجَسّ v2 الحاكم** (تحديثٌ إقراريّ 2026-10-02 · جلسة 10-01 · `36944893317`:
+#    AH1-AH6 ✅ · AH2 ‏30/33 = 90.9%): **الخطوةُ التي تضبط `BARS_SOURCE: tradingview`** في `split_hunter.yml` و`daily_screener.yml`
+#    تضبط `AH_GUARD_TV`=«1» حرفًا · ولا ضبطَ له على مستوى الجوب أو الـworkflow (موضعٌ واحدٌ مقروء) — وإطفاؤه تغييرٌ مُقرٌّ يُحدّث هذا القفل.
+#    (كان قبل الحكم: «لا خطوةَ تضبطه».)
 try:
     import yaml as _aht_yaml
     _aht_env10 = {}
@@ -74035,12 +74038,17 @@ try:
                     _hits.append(f"{_jn}:{(_st or {}).get('name')}")
         if "AH_GUARD_TV" in ((_y or {}).get("env") or {}):
             _hits.append("workflow")
-        _aht_env10[_wf] = _hits
-    _w10 = all(_v == [] for _v in _aht_env10.values()) and len(_aht_env10) == 2
+        _ok_steps = [f"{_jn}:{(_st or {}).get('name')}" for _jn, _jb in ((_y or {}).get("jobs") or {}).items()
+                     for _st in (_jb or {}).get("steps") or []
+                     if ((_st or {}).get("env") or {}).get("BARS_SOURCE") == "tradingview"
+                     and str(((_st or {}).get("env") or {}).get("AH_GUARD_TV")) == "1"]
+        _aht_env10[_wf] = (_hits, _ok_steps)
+    _w10 = (len(_aht_env10) == 2
+            and all(len(_h) == 1 and _h == _o for _h, _o in _aht_env10.values()))
     _w10w = f"{_aht_env10}"
 except Exception as _e:                                              # noqa: BLE001
     _w10, _w10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🌙📺 AHT10 المفتاحُ مطفأٌ في الإنتاج: لا `AH_GUARD_TV` في split_hunter.yml ولا daily_screener.yml حتى يعبر مِجَسّ v2", _w10, _w10w)
+check("🌙📺 AHT10 المفتاحُ مُشعَلٌ بعد عبور مِجَسّ v2: `AH_GUARD_TV`=«1» في خطوة `BARS_SOURCE: tradingview` وحدَها في split_hunter.yml وdaily_screener.yml", _w10, _w10w)
 
 # ═══ 🕳️ T-GAPBELOW — أقفال GBA0-GBA13 (العقد gapbelow_prereg.md · 2026-10-01) ═══
 # «سجّل الفجوة تحت السعر»: هل تُغطّى الفجوةُ الصاعدةُ تحت السعر («لازم» `D1`/`D2`) وهل
