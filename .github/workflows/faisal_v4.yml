@@ -1,0 +1,79 @@
+name: "🧭 FAISAL METHOD V4 — محرّكُ القرار (fetch · atmv · cov30 · ticker)"
+
+# 🧭 أمرُ المالك 2026-10-02 «FAISAL METHOD — V4 FORENSIC REPLICATION MISSION» · العقد faisal_method_v4/V4_prereg.md مدموجٌ قبل أيّ رقم.
+# الأوضاع: fetch (شموعُ رموز الحالات ⟵ تقييمٌ بالمحرّك المجمَّد ⟵ السجلّ) · atmv (§21: كلُّ مصدرٍ مشروع) ·
+#          cov30 (§22: تغطيةُ 30 دقيقة الفعليّة) · ticker (تحليلُ رمزٍ عند الطلب — بلا إرسال).
+# 🔒 قراءةٌ فقط: لا حالةَ إنتاج · ولا تلغرام · ولا أسرار (§37 · جدارُ الإنتاج).
+# 📺 الشموعُ من TradingView مباشرةً — **بلا `BARS_SOURCE`** (مفتاحُه محصورٌ بـworkflows الإنتاج · قفلُ TVB9).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "fetch · atmv · cov30 · ticker"
+        type: choice
+        options: [fetch, atmv, cov30, ticker]
+        default: ticker
+      ticker:
+        description: "الرمز (لوضع ticker)"
+        required: false
+        default: ""
+      asof:
+        description: "تاريخ القراءة YYYY-MM-DD (اختياريّ · فارغ = آخر جلسة)"
+        required: false
+        default: ""
+      groups:
+        description: "قروبات داخلة؟ 1 · 0 · فارغ = غيرُ معروف"
+        required: false
+        default: ""
+      offering:
+        description: "طرحٌ معلَّق؟ 1 · 0 · فارغ = غيرُ معروف"
+        required: false
+        default: ""
+      short:
+        description: "المتاح للشورت (عدد) · فارغ = غيرُ معروف"
+        required: false
+        default: ""
+
+concurrency:
+  group: faisal-v4-${{ inputs.mode }}-${{ inputs.ticker }}
+  cancel-in-progress: false
+
+jobs:
+  v4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧭 FAISAL V4
+        env:
+          PYTHONUNBUFFERED: "1"
+          V4_MODE: ${{ inputs.mode }}
+          V4_TICKER: ${{ inputs.ticker }}
+          V4_ASOF: ${{ inputs.asof }}
+          V4_GROUPS: ${{ inputs.groups }}
+          V4_OFFERING: ${{ inputs.offering }}
+          V4_SHORT: ${{ inputs.short }}
+        run: python faisal_method_v4/v4_run.py
+
+      - name: Upload outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: faisal-v4-${{ inputs.mode }}
+          path: faisal_method_v4/out/
+          retention-days: 30
+          if-no-files-found: ignore

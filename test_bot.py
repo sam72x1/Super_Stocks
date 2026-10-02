@@ -79528,6 +79528,285 @@ check("🧭 FV19 بنّاءُ المطابقة لا يدهس قياسًا محف
       "و`main` يناديه قبل الكتابة",
       _a19 and _b19 and _d19 and _e19 and _f19, f"carry={_a19} fresh={_b19} none={_d19} nullprev={_e19} wired={_f19} c={_c19}")
 
+# ══ FAISAL V4 (2026-10-02 · «V4 FORENSIC REPLICATION MISSION») — أقفالُ المحرّك والحالات والتقييم (بلا شبكة · بلا شموعٍ حقيقيّة) ══
+#    العقد `faisal_method_v4/V4_prereg.md` مدموجٌ قبل أيّ رقم · وهذه الأقفالُ لا تشغّل المحرّكَ على شموع حالاتٍ حقيقيّة (اصطناعيّةٌ وحدَها).
+_fv_sys.path.insert(0, _fv_os.path.join(_fv_os.path.dirname(_fv_os.path.abspath(__file__)), "faisal_method_v4"))
+_V4D = _fv_os.path.join("faisal_method_v4", "data")
+
+
+def _v4_mk(path, start=0):
+    """شموعٌ اصطناعيّة من مسار إغلاقات: الافتتاحُ = إغلاقُ أمس · والقمّة/القاع ±1%."""
+    import numpy as _np4
+    _c = _np4.array(path, float)
+    _o = _np4.r_[_c[0], _c[:-1]]
+    _h = _np4.maximum(_o, _c) * 1.01
+    _l = _np4.minimum(_o, _c) * 0.99
+    _d = [f"2026-{1 + (i + start) // 28:02d}-{1 + (i + start) % 28:02d}" for i in range(len(_c))]
+    return _o, _h, _l, _c, _d
+
+
+import numpy as _np4                                                        # noqa: E402
+_V4_BASE = list(_np4.linspace(3, 10, 10)) + list(_np4.linspace(10, 2, 20))
+_V4_RET = _V4_BASE + [2.02, 2.05, 2.03, 2.06, 2.04, 2.05, 2.07, 2.06] + list(_np4.linspace(2.1, 2.55, 6)) + [2.4, 2.3, 2.25, 2.22, 2.2]
+_V4_SWP = _V4_BASE + [2.05, 2.1, 2.08, 2.06, 2.1, 2.12, 2.09, 2.07, 2.05] + [1.87, 2.03]
+
+# ── V4L1 الحالاتُ مولَّدةٌ لا محرَّرة: `v4_cases.py` على المرور البصريّ والوسوم يعيد `results/cases_v4.json` حرفًا · والأرقامُ المسجَّلة
+#    (S1 = 22 · اكتشاف 12 · احتجاز 10 · READY 1) هي المنشورةُ في العقد.
+try:
+    V4C = _fv_imp.import_module("v4_cases")
+    _st1, _cs1 = V4C.build_cases(V4C.load_records(), _fv_json.load(open(V4C.LABELS, encoding="utf-8"))["cases"])
+    _disk1 = _fv_json.load(open(V4C.OUT, encoding="utf-8"))
+    _v4l1 = (_fv_json.dumps(_cs1, sort_keys=True, ensure_ascii=False) == _fv_json.dumps(_disk1["cases"], sort_keys=True, ensure_ascii=False)
+             and _fv_json.dumps(_st1, sort_keys=True, ensure_ascii=False) == _fv_json.dumps(_disk1["statements"], sort_keys=True, ensure_ascii=False))
+    _s1 = [c for c in _cs1 if c["set"] == "S1"]
+    _v4l1n = (len(_s1), sum(c["split"] == "discovery" for c in _s1), sum(c["split"] == "holdout" for c in _s1),
+              sum(c["label4"] == "READY" for c in _s1))
+    _v4l1ok = _v4l1 and _v4l1n == (22, 12, 10, 1) and len(V4C.load_records()) == 609
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l1ok, _v4l1n = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 V4L1 حالاتُ V4 مولَّدةٌ لا محرَّرة: البنّاءُ يعيد cases_v4.json حرفًا · 609 وحدة · S1 = 22 (12 · 10 · READY 1) كما في العقد",
+      _v4l1ok, f"n={_v4l1n}")
+
+# ── V4L2 الوسومُ من النصّ: كلُّ مستوًى/هدفٍ مكتوبٍ في case_labels_v4.json مصدرُه سجلٌّ موجود ورقمُه **مكتوبٌ في نصّ ذلك السجلّ**
+#    (لا خطوطَ شارت · لا أرقامَ مخترَعة) · والمشتقُّ من نسبةٍ موسومٌ derived ونصُّه يحمل «٪» · والأنواعُ من القائمة المسجَّلة.
+try:
+    import re as _re4
+    _recs2 = {r["id"]: r for r in V4C.load_records()}
+    _lab2 = _fv_json.load(open(V4C.LABELS, encoding="utf-8"))["cases"]
+
+    def _v4txt(r):
+        return " ".join([r.get("g", "")] + [x.get("txt", "") for x in r.get("rules", [])] + [_fv_json.dumps(r.get("cases", ""), ensure_ascii=False)])
+
+    def _v4var(p):
+        v = {f"{p}", f"{p:.2f}", f"{p:.3f}", f"{p:.1f}", f"{p:.4f}".rstrip("0").rstrip(".")}
+        if p < 1:
+            v.add(str(int(round(p * 100))))
+        if float(p).is_integer():
+            v.add(str(int(p)))
+        return v
+    _bad2 = []
+    for _k2, _c2 in _lab2.items():
+        for _lv2 in (_c2.get("levels") or []) + (_c2.get("targets") or []):
+            _r2 = _recs2.get(_lv2.get("src"))
+            if _r2 is None:
+                _bad2.append((_k2, _lv2.get("src"), "missing"))
+                continue
+            if "kind" in _lv2 and _lv2["kind"] not in ("support", "bottom", "zone_lo", "zone_hi", "sweep", "trigger", "resistance", "stop"):
+                _bad2.append((_k2, _lv2["kind"], "kind"))
+            if _lv2.get("derived"):
+                if "٪" not in _lv2.get("q", ""):
+                    _bad2.append((_k2, _lv2["price"], "derived-no-pct"))
+                continue
+            if not (_v4var(_lv2["price"]) & set(_re4.findall(r"\d+(?:\.\d+)?", _v4txt(_r2)))):
+                _bad2.append((_k2, _lv2["src"], _lv2["price"]))
+    _plans2 = {c.get("plan") for c in _lab2.values()}
+    _v4l2ok = not _bad2 and _plans2 <= {"BELOW", "AT", "ABOVE", "BOTH", "NONE"} and len(_lab2) >= 80
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l2ok, _bad2 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 V4L2 وسومُ الحالات من النصّ وحدَه: كلُّ مستوًى رقمُه مكتوبٌ في نصّ سجلّه · والمشتقُّ موسومٌ بنسبته · والفئاتُ والأنواعُ من القائمة المسجَّلة",
+      _v4l2ok, f"bad={str(_bad2)[:200]}")
+
+# ── V4L3 الطرفُ الثالث لا يصنع وسمًا (عيبُ المسودّة في FTFT: عبارةُ مساعدٍ READY جعلت الحالة «MIXED») · والصريحُ يعلو الاصطلاح ·
+#    والمُستعادُ لا يُعدّ قرارًا آنيًّا · وWATCH ⟵ WAIT.
+try:
+    _r3 = [{"id": "X1", "a": "F", "ab": "VISIBLE", "t": ["ABC"], "d": "2026-09-01", "dec": "MULTI", "res": "DECISION", "case": "ABC_1",
+            "cases": [{"who": "FA", "dec": "READY", "t": "ABC"}, {"who": "F", "dec": "WAIT", "t": "ABC"}]},
+           {"id": "X2", "a": "F", "ab": "VISIBLE", "t": ["DEF"], "d": "2026-09-02", "dec": "WATCH", "res": "DECISION"},
+           {"id": "X3", "a": "F", "ab": "VISIBLE", "t": ["DEF"], "d": "2026-09-02", "dec": "REJECT", "res": "DECISION",
+            "label_note": "اصطلاح NOT-READY-BARE"},
+           {"id": "X4", "a": "F", "ab": "VISIBLE", "t": ["GHI"], "d": "2026-09-03", "dec": "READY", "res": "DECISION_RECALLED"},
+           {"id": "X5", "a": "TP", "ab": "VISIBLE", "t": ["JKL"], "d": "2026-09-03", "dec": "READY", "res": "DECISION"}]
+    _st3, _cs3 = V4C.build_cases(_r3, {})
+    _m3 = {c["case"]: c for c in _cs3}
+    _v4l3ok = (_m3["ABC_1"]["label4"] == "WAIT" and _m3["ABC_1"]["third_party_sids"] == ["X1#0"]
+               and _m3["DEF_2026-09-02"]["label4"] == "WAIT" and _m3["DEF_2026-09-02"]["basis"] == "explicit"
+               and _m3["GHI_2026-09-03"]["basis"] == "recalled_only" and _m3["JKL_2026-09-03"]["set"] == "EXCL")
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l3ok, _m3 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 V4L3 الطرفُ الثالث لا يصنع وسمًا · والصريحُ يعلو الاصطلاح · والمُستعادُ ليس قرارًا آنيًّا · وWATCH ⟵ WAIT", _v4l3ok, str(_m3)[:160])
+
+# ── V4L4 تاريخُ القراءة قبل العبارة حصرًا (§③): جلسةُ يوم العبارة نفسُها لا تُرى · ولا شموعَ قبلها ⟵ UNKNOWN بكائنٍ كامل المفاتيح.
+try:
+    V4E = _fv_imp.import_module("decision_engine")
+    _o4, _h4, _l4, _c4, _d4 = _v4_mk(_V4_RET)
+    _rows4 = [[_d4[i], _o4[i], _h4[i], _l4[i], _c4[i], 1000] for i in range(len(_c4))]
+    _a4 = V4E.analyze_rows(_rows4, asof_date=_d4[-1])
+    _b4 = V4E.analyze(_o4, _h4, _l4, _c4, _d4, asof=len(_c4) - 2)
+    _n4 = V4E.analyze_rows(_rows4, asof_date="2025-01-01")
+    _v4l4ok = (_a4["asof"] == _d4[-2] and _a4["state"] == _b4["state"] and _a4["decisive_level"] == _b4["decisive_level"]
+               and _n4["state"] == "UNKNOWN" and _n4["tech_state"] == "DATA_INSUFFICIENT"
+               and all(k in _n4 for k in ("decisive_level", "structure", "support_resistance", "missing_information", "explain")))
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l4ok, _a4 = False, {"asof": f"⛔ {type(_e).__name__}: {_e}"}
+check("🧭 V4L4 القراءةُ عند آخر جلسةٍ قبل تاريخ العبارة حصرًا · وبلا شموعٍ قبلها ⟵ UNKNOWN بكائنٍ كامل المفاتيح", _v4l4ok, str(_a4.get("asof")))
+
+# ── V4L5 لا نظرَ للأمام وحتميّة (§35): إلحاقُ جلساتٍ مستقبليّة أو تغييرُها لا يغيّر كائنَ القرار عند asof بت-بت · وتشغيلتان = نتيجةٌ واحدة.
+try:
+    _o5, _h5, _l5, _c5, _d5 = _v4_mk(_V4_RET)
+    _x5 = [V4E.analyze(_o5, _h5, _l5, _c5, _d5, asof=a) for a in (40, 44, 48)]
+    _O5, _H5, _L5, _C5, _D5 = _v4_mk(_V4_RET + [5, 6, 0.5, 9])
+    _H5 = _H5.copy()
+    _y5 = [V4E.analyze(_O5, _H5, _L5, _C5, _D5, asof=a) for a in (40, 44, 48)]
+    _z5 = [V4E.analyze(_o5, _h5, _l5, _c5, _d5, asof=a) for a in (40, 44, 48)]
+    _js = lambda x: _fv_json.dumps(x, sort_keys=True, default=str, ensure_ascii=False)   # noqa: E731
+    _v4l5ok = all(_js(a) == _js(b) == _js(c) for a, b, c in zip(_x5, _y5, _z5))
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l5ok = False
+check("🧭 V4L5 محرّكُ V4 بلا نظرٍ للأمام وحتميّ: المستقبلُ المُلحَق أو المغيَّر لا يمسّ القرار عند asof · وتشغيلتان = نتيجةٌ واحدة", _v4l5ok)
+
+# ── V4L6 آلةُ الحالات بترتيب العقد §④ (شموعٌ اصطناعيّة): كلُّ حالةٍ تُبلَغ بقرارها · والصلاحيّةُ لا ترقّي أبدًا (قروبات ⟵ REJECT في أيّ حالة ·
+#    طرحٌ أو شورتٌ فوق 20,000 ⟵ WAIT · ونظيفةٌ كاملة ⟵ READY من الجاهزيّة الفنيّة وحدها · ومعلومةٌ ناقصة ⟵ UNKNOWN بقائمة الناقص).
+try:
+    _st6 = {}
+    _o6, _h6, _l6, _c6, _d6 = _v4_mk(_V4_RET)
+    for _a6 in (33, 38, 41, 46, 48):
+        _r6 = V4E.analyze(_o6, _h6, _l6, _c6, _d6, asof=_a6)
+        _st6[_a6] = (_r6["tech_state"], _r6["state"], _r6["decisive_class"])
+    _sw6 = V4E.analyze(*_v4_mk(_V4_SWP)[:4], _v4_mk(_V4_SWP)[4])
+    _sa6 = V4E.analyze(*_v4_mk(_V4_SWP[:-1] + [1.85])[:4], _v4_mk(_V4_SWP[:-1] + [1.85])[4])
+    _br6 = V4E.analyze(*_v4_mk(_V4_SWP[:-1] + [1.6])[:4], _v4_mk(_V4_SWP[:-1] + [1.6])[4])
+    _bh6 = V4E.analyze(*_v4_mk(_V4_BASE + [2.02, 2.05, 2.03, 2.06, 2.04, 2.05, 2.07, 2.06, 2.08, 2.1])[:4],
+                       _v4_mk(_V4_BASE + [2.02, 2.05, 2.03, 2.06, 2.04, 2.05, 2.07, 2.06, 2.08, 2.1])[4])
+    _ne6p = [3.0] * 5 + list(_np4.linspace(3, 10, 10)) + list(_np4.linspace(10, 3.0, 20)) + [3.3, 3.5, 3.2, 2.88, 2.85, 2.82, 2.95]
+    _ne6 = V4E.analyze(*_v4_mk(_ne6p)[:4], _v4_mk(_ne6p)[4])          # قاعٌ محوريٌّ كُسر قبل 5 جلسات ⟵ ليس «راسخًا» ⟵ لا سحبَ ولا عودة
+    _clean = {"groups": False, "offering_pending": False, "short_available": 5000, "operator_press": True}
+    _vR = V4E.analyze(_o6, _h6, _l6, _c6, _d6, context=_clean)["state"]
+    _vG = [V4E.analyze(_o6, _h6, _l6, _c6, _d6, asof=a, context=dict(_clean, groups=True))["state"] for a in (41, 48)]
+    _vO = V4E.analyze(_o6, _h6, _l6, _c6, _d6, context=dict(_clean, offering_pending=True))["state"]
+    _vS = V4E.analyze(_o6, _h6, _l6, _c6, _d6, context=dict(_clean, short_available=90000))["state"]
+    _vW = V4E.analyze(_o6, _h6, _l6, _c6, _d6, asof=41, context=_clean)["state"]
+    _vU = V4E.analyze(_o6, _h6, _l6, _c6, _d6)
+    _v4l6ok = (_st6[33][:2] == ("DATA_INSUFFICIENT", "UNKNOWN") and _st6[41] == ("RETEST_PENDING", "WAIT", "BELOW")
+               and _st6[46][:2] == ("RETEST_IN_PROGRESS", "WAIT") and _st6[48][0] == "RETEST_HELD"
+               and _sw6["tech_state"] == "PRESS_RECLAIM" and _sa6["tech_state"] == "SWEEP_ACTIVE" and _sa6["decisive_class"] == "ABOVE"
+               and _br6["tech_state"] == "BROKEN_NEW_BASE" and _bh6["tech_state"] == "BASE_HELD"
+               and _ne6["tech_state"] == "BASE_FORMING" and _ne6["structure"]["prior_base"] is None
+               and _vR == "READY" and _vG == ["REJECT", "REJECT"] and _vO == "WAIT" and _vS == "WAIT" and _vW == "WAIT"
+               and _vU["state"] == "UNKNOWN" and len(_vU["missing_information"]) == 4)
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l6ok, _st6 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 V4L6 آلةُ حالات V4 بترتيب العقد: الحالاتُ التسع تُبلَغ بقراراتها · والصلاحيّةُ لا ترقّي (قروبات ⟵ REJECT · طرح/شورت ⟵ WAIT) · "
+      "والجاهزيّةُ بلا معلومةٍ ⟵ UNKNOWN بقائمة الناقص",
+      _v4l6ok, str(_st6)[:200])
+
+# ── V4L7 سجلُّ القواعد (§27 · §29 · §24): الحقولُ كاملة · لا قاعدةَ من باكتيست · الحالاتُ والقراريّةُ من القوائم · كلُّ صورةٍ مذكورة موجودةٌ في
+#    المرور البصريّ · وكلُّ حالةٍ فنيّة تشير إلى قاعدةٍ نشطة · وكلُّ عتبةٍ بوسم مصدر · ولا رمزَ ذهبيٌّ في كود المحرّك (لا ترقيعَ لحالة).
+try:
+    V4R = _fv_imp.import_module("rules_v4")
+    _ids7 = set(_recs2)
+    _need7 = ("rule_id", "description", "source", "author", "source_level", "image_ids", "supporting", "contradicting", "status",
+              "decisionality", "backtest_derived", "current_version", "change_history", "effect")
+    _f7 = [k for k, r in V4R.RULES_V4.items() if any(x not in r for x in _need7)]
+    _bt7 = [k for k, r in V4R.RULES_V4.items() if r["backtest_derived"] is not False]
+    _st7 = [k for k, r in V4R.RULES_V4.items() if r["status"] not in ("CONFIRMED", "SUPPORTED", "PROBABLE", "POSSIBLE", "CONTRADICTED", "UNKNOWN")
+            or r["decisionality"] not in ("DECISIONAL", "SUPPORTING", "INFORMATIONAL", "UNKNOWN")]
+    _im7 = [(k, i) for k, r in V4R.RULES_V4.items() for i in r["image_ids"] if i not in _ids7]
+    _sr7 = [s for s, rid in V4E.STATE_RULE.items() if not V4R.RULES_V4.get(rid, {}).get("active")]
+    _pv7 = [k for k, v in V4E.PARAMS.items() if v[1] not in ("engineering", "production", "faisal_verbatim", "faisal_inferred", "faisal_tier2b")]
+    _gold7 = {"RAYA", "LABT", "ZNB", "RUBI", "AMIX", "HCWB", "DXST", "VEEE", "ATMV", "SPRC", "CUPR"}
+    _consts7 = [n.value for n in _fv_ast.walk(_fv_ast.parse(open(V4E.__file__, encoding="utf-8").read()))
+                if isinstance(n, _fv_ast.Constant) and isinstance(n.value, str)]
+    _g7 = sorted({g for g in _gold7 for s in _consts7 if g in s})
+    _v4l7ok = not (_f7 or _bt7 or _st7 or _im7 or _sr7 or _pv7 or _g7) and len(V4R.RULES_V4) >= 18 and not V4R.single_image_rules()
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l7ok, _f7 = False, f"⛔ {type(_e).__name__}: {_e}"
+    _bt7 = _st7 = _im7 = _sr7 = _pv7 = _g7 = None
+check("🧭 V4L7 سجلُّ قواعد V4: الحقولُ كاملة · لا باكتيست · الحالاتُ من القوائم · الصورُ موجودة · كلُّ حالةٍ بقاعدةٍ نشطة · كلُّ عتبةٍ بوسم · "
+      "ولا رمزَ ذهبيٌّ في المحرّك",
+      _v4l7ok, f"fields={_f7} bt={_bt7} st={_st7} img={_im7} sr={_sr7} pv={_pv7} gold={_g7}")
+
+# ── V4L8 رياضيّاتُ التقييم (§⑤-⑨): التغطيةُ العشوائيّة تحليليّة · البوتستراب ببذرته حتميّ · حدّا الحكم (0.15 · الحدُّ الأدنى > 0) ·
+#    BOTH يتّفق مع BELOW/ABOVE وNONE لا يتّفق · وويلسون · وفحصُ المقياس يستبعد · وتأريخُ VEEE (DATED · AMBIGUOUS · UNKNOWN) · وشجرةُ DXST.
+try:
+    V4V = _fv_imp.import_module("v4_eval")
+    import math as _m8
+    _q8 = V4V._q_cover(1.0, 1.0)
+    _q8ok = abs(_q8 - 2 * _m8.log(1.02) / _m8.log(1.40 / 0.60)) < 1e-12 and V4V._q_cover(0.601, 1.0) < _q8
+    _rows8 = [{"case": f"c{i % 4}", "hit": i % 2, "p_random": 0.2} for i in range(12)]
+    _b8a, _b8b = V4V.boot_ci(_rows8), V4V.boot_ci(_rows8)
+    _bok8 = _b8a == _b8b and _b8a["diff"] == 0.3 and _b8a["cases"] == 4
+    _vd8 = (V4V.h_level_verdict({"diff": 0.15, "ci95": [0.01, 0.3]}), V4V.h_level_verdict({"diff": 0.149, "ci95": [0.01, 0.3]}),
+            V4V.h_level_verdict({"diff": 0.3, "ci95": [0.0, 0.5]}), V4V.h_level_verdict(None))
+    _ca8 = (V4V.class_agree("BOTH", "BELOW"), V4V.class_agree("BOTH", "ABOVE"), V4V.class_agree("BOTH", "AT"),
+            V4V.class_agree("NONE", "AT"), V4V.class_agree("BELOW", "BELOW"))
+    _hc8 = V4V.h_class([("BELOW", "BELOW")] * 9 + [("ABOVE", "BELOW")])
+    _w8 = V4V.wilson(9, 10)
+    _sc8 = V4V.run_case({"case": "Z", "statement_date": "2026-03-01", "px_F": 3.0, "tickers": ["Z"]},
+                        [[_d4[i], _o4[i], _h4[i], _l4[i], _c4[i], 100] for i in range(len(_c4))])
+    _vr = [[f"2026-05-{i + 1:02d}", 6, 6.5, 5.5, 6, 1] for i in range(20)]
+    _vr[3] = ["2026-05-04", 6, 6.2, 5.0, 6, 1]
+    _vr[6] = ["2026-05-07", 7, 8.8, 7, 8, 1]
+    _vr[10] = ["2026-05-11", 6.7, 6.8, 6.6, 6.76, 1]
+    _ve1 = V4V.veee_date(_vr, V4V.VEEE_ANCHORS["A8"])["verdict"]
+    _vr2 = _vr + [["2026-05-21", 6.7, 6.8, 6.6, 6.75, 1]]
+    _ve2 = V4V.veee_date(_vr2, V4V.VEEE_ANCHORS["A8"])["verdict"]
+    _ve3 = V4V.veee_date(_vr, V4V.VEEE_ANCHORS["A9"])["verdict"]
+    _dx8 = V4V.dxst_classify({"regular": [], "extended": []})["verdict"]
+    _v4l8ok = (_q8ok and _bok8 and _vd8 == ("PASS", "FAIL", "FAIL", "NO_DATA") and _ca8 == (True, True, False, False, True)
+               and _hc8["agree"] == 9 and _hc8["majority_rate"] == 0.9 and _hc8["verdict"] == "FAIL" and _w8[0] < 0.9 < _w8[1]
+               and _sc8["status"] == "SCALE_MISMATCH" and (_ve1, _ve2, _ve3) == ("DATED", "AMBIGUOUS", "UNKNOWN") and _dx8 == "E"
+               and V4V.SEED == 20261002 and (V4V.BAND_LO, V4V.BAND_HI, V4V.TOL, V4V.PX_TOL) == (0.60, 1.40, 0.02, 0.15))
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l8ok, _vd8 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 V4L8 رياضيّاتُ تقييم V4 كما في العقد: تغطيةٌ تحليليّة · بوتستراب حتميّ · حدّا H-LEVEL · اتّفاقُ BOTH/NONE · ويلسون · فحصُ المقياس · "
+      "تأريخُ VEEE الثلاثيّ · وشجرةُ DXST بلا بيانات ⟵ E",
+      _v4l8ok, f"verdicts={_vd8}")
+
+# ── V4L9 جدارُ الإنتاج (§37): faisal_v4.yml يدويٌّ وحدَه · صلاحيّةُ قراءة · بلا أسرار ولا BARS_SOURCE · الأوضاعُ الأربعة · ولا نداءَ تلغرام في
+#    وحدات V4 (AST) · والمخرَجُ في السجلّ أجزاءٌ تُجمَّع حرفًا · والمرورُ البصريّ المدفوع منقّحٌ من الأسماء والمعرّفات الخاصّة.
+try:
+    import yaml as _y9
+    _wf9 = _y9.safe_load(open(_fv_os.path.join(".github", "workflows", "faisal_v4.yml"), encoding="utf-8"))
+    _on9 = _wf9.get("on", _wf9.get(True))
+    _env9 = {}                                                       # أسطرُ الإعداد لا نصُّ الملفّ (التعليقُ يذكر BARS_SOURCE شرحًا)
+    for _j9 in (_wf9.get("jobs") or {}).values():
+        for _s9 in _j9.get("steps") or []:
+            _env9.update(_s9.get("env") or {})
+            _env9.update({"with:" + k: v for k, v in (_s9.get("with") or {}).items()})
+    _wfok9 = (set(_on9) == {"workflow_dispatch"} and _wf9["permissions"] == {"contents": "read"}
+              and not any("secrets." in str(v) for v in _env9.values()) and "BARS_SOURCE" not in _env9
+              and "V4_MODE" in _env9 and _on9["workflow_dispatch"]["inputs"]["mode"]["options"] == ["fetch", "atmv", "cov30", "ticker"])
+    _calls9 = []
+    for _f9 in ("decision_engine.py", "v4_eval.py", "v4_cases.py", "v4_run.py", "rules_v4.py"):
+        for _n9 in _fv_ast.walk(_fv_ast.parse(open(_fv_os.path.join("faisal_method_v4", _f9), encoding="utf-8").read())):
+            if isinstance(_n9, _fv_ast.Call) and (getattr(_n9.func, "attr", None) or getattr(_n9.func, "id", None)) in (
+                    "send_telegram", "save_watchlist", "git_save", "send_photo"):
+                _calls9.append(_f9)
+    V4RUN = _fv_imp.import_module("v4_run")
+    import io as _io9
+    import contextlib as _cl9
+    _buf9 = _io9.StringIO()
+    _obj9 = {"a": "ب" * 5000, "n": list(range(300))}
+    with _cl9.redirect_stdout(_buf9):
+        _k9 = V4RUN.emit("x.json", _obj9, chunk=700)
+    _parts9 = [ln.split("|", 4) for ln in _buf9.getvalue().splitlines() if ln.startswith("V4OUT|x.json|")]
+    _re9 = _fv_json.loads("".join(p[4] for p in sorted(_parts9, key=lambda p: int(p[2]))))
+    _emok9 = _re9 == _obj9 and _k9 == len(_parts9) and _k9 > 1 and V4RUN.unpack(V4RUN.pack(_obj9)) == _obj9
+    _vp9 = open(_fv_os.path.join(_V4D, "visual_pass_v4.jsonl"), encoding="utf-8").read()
+    _hd9 = sorted(set(_re4.findall(r"@[A-Za-z_][A-Za-z0-9_]+", _vp9)) - {"@kisar_", "@user"})
+    _nm9 = [x for x in ("عبدالملك", "الراشد", "علوش", "ياسر", "Meshaal", "Meshal") if x in _vp9]
+    _v4l9ok = _wfok9 and not _calls9 and _emok9 and not _hd9 and not _nm9
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l9ok, _calls9, _hd9, _nm9 = False, f"⛔ {type(_e).__name__}: {_e}", None, None
+    _wfok9 = _emok9 = False
+check("🧭 V4L9 جدارُ إنتاج V4: الـworkflow يدويٌّ بصلاحيّة قراءة بلا أسرار ولا BARS_SOURCE · لا تلغرامَ ولا حالةَ إنتاج في وحداته · "
+      "المخرَجُ أجزاءٌ تُجمَّع حرفًا · والمرورُ البصريّ منقّحٌ من الأسماء والمعرّفات الخاصّة",
+      _v4l9ok, f"wf={_wfok9} calls={_calls9} emit={_emok9} handles={_hd9} names={_nm9}")
+
+# ── V4L10 العقدُ والكود متّفقان (§⑤-⑬): عتباتُ `V4_prereg.md` هي ثوابتُ الكود · ونسخةُ المحرّك · وأرقامُ المجموعات — تغييرُ أحدهما وحده يُسقطه.
+try:
+    _pr10 = open(_fv_os.path.join("faisal_method_v4", "V4_prereg.md"), encoding="utf-8").read()
+    _need10 = [V4E.ENGINE_VERSION.split(" (")[0], "[0.60 · 1.40]", "≥ 0.15", "بذرة 20261002", "**S1 = 22** (اكتشاف 12 · احتجاز 10)",
+               "قاعٌ أوّل ‏≈2.40 · العنق 2.864 · قاعٌ ثانٍ ‏≈2.55", "6.76 ±1%", "**8.80** ±2%", "120 جلسة", "15%", "13%", "20,000"]
+    _miss10 = [x for x in _need10 if x not in _pr10]
+    _par10 = (V4E.P("HOLD_MIN"), V4E.P("RISE_TEST_PCT"), V4E.P("ZONE_PCT"), V4E.P("HOLD_ZONE"), V4E.P("SWEEP_MAX_PCT"),
+              V4E.P("CYCLE_BARS"), V4E.P("SHORT_AVAIL_MAX"), V4V.DXST_ANCHORS, V4V.VEEE_ANCHORS["A8"]["high60"])
+    _v4l10ok = not _miss10 and _par10 == (5, 15.0, 15.0, 3, 13.0, 120, 20000, {"L1": 2.40, "NECK": 2.864, "L2": 2.55}, 8.80)
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l10ok, _miss10, _par10 = False, f"⛔ {type(_e).__name__}: {_e}", None
+check("🧭 V4L10 عقدُ V4 والكود متّفقان: نسخةُ المحرّك والعتباتُ والمراسي وأرقامُ المجموعات في V4_prereg.md هي ثوابتُ الكود",
+      _v4l10ok, f"missing={_miss10} params={_par10}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
