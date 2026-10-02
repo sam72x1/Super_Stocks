@@ -1,0 +1,341 @@
+{
+ "_source_run": 37004211584,
+ "_also_run": 37002345242,
+ "_note": "منقولٌ من سطور V3OUT (بلا نصّ الرسالة الطويل) · التشغيلتان متطابقتان في M1/M2/الحالة",
+ "verdict": "يعيد القراءة",
+ "M2_all_w_cases": true,
+ "M1_cases_ok": 3,
+ "M1_cases_measured": 4,
+ "cases": [
+  {
+   "case": "EZRA",
+   "img": "TG_58046",
+   "asof": "2026-06-29",
+   "faisal_says_w": true,
+   "tool_w_daily": true,
+   "tool_w_30m": true,
+   "M1": {
+    "matched": 6,
+    "of": 6,
+    "share": 1.0,
+    "rows": [
+     {
+      "faisal": 5.45,
+      "nearest_tool": 5.45,
+      "diff_pct": 0.0,
+      "within": true
+     },
+     {
+      "faisal": 5.433,
+      "nearest_tool": 5.45,
+      "diff_pct": 0.31,
+      "within": true
+     },
+     {
+      "faisal": 3.994,
+      "nearest_tool": 4.02,
+      "diff_pct": 0.65,
+      "within": true
+     },
+     {
+      "faisal": 3.43,
+      "nearest_tool": 3.45,
+      "diff_pct": 0.58,
+      "within": true
+     },
+     {
+      "faisal": 3.03,
+      "nearest_tool": 3.03,
+      "diff_pct": 0.0,
+      "within": true
+     },
+     {
+      "faisal": 5.4,
+      "nearest_tool": 5.45,
+      "diff_pct": 0.93,
+      "within": true
+     }
+    ]
+   },
+   "M2": true,
+   "tool_state": "AT_SUPPORT2",
+   "tool_w": {
+    "daily": [
+     3.45,
+     3.21,
+     4.18
+    ],
+    "m30": [
+     3.27,
+     3.03,
+     3.39
+    ]
+   },
+   "note": "T1 للأداة 5.45 = قمّة فيصل 5.45 · و30 دقيقة «في الوسط» واليوميّ «عند الدعم الثاني»"
+  },
+  {
+   "case": "DXST",
+   "img": "IMG_0627/IMG_0628 · TG_58048",
+   "asof": "2026-06-15",
+   "asof_30m_end": "2026-06-16 12:30",
+   "faisal_says_w": true,
+   "tool_w_daily": true,
+   "tool_w_30m": true,
+   "M1": {
+    "matched": 4,
+    "of": 10,
+    "share": 0.4,
+    "rows": [
+     {
+      "faisal": 2.864,
+      "nearest_tool": 2.54,
+      "diff_pct": -11.31,
+      "within": false
+     },
+     {
+      "faisal": 3.114,
+      "nearest_tool": 3.23,
+      "diff_pct": 3.73,
+      "within": false
+     },
+     {
+      "faisal": 3.302,
+      "nearest_tool": 3.23,
+      "diff_pct": -2.18,
+      "within": false
+     },
+     {
+      "faisal": 3.61,
+      "nearest_tool": 3.76,
+      "diff_pct": 4.16,
+      "within": false
+     },
+     {
+      "faisal": 4.467,
+      "nearest_tool": 3.89,
+      "diff_pct": -12.92,
+      "within": false
+     },
+     {
+      "faisal": 2.539,
+      "nearest_tool": 2.54,
+      "diff_pct": 0.04,
+      "within": true
+     },
+     {
+      "faisal": 2.306,
+      "nearest_tool": 2.26,
+      "diff_pct": -1.99,
+      "within": true
+     },
+     {
+      "faisal": 2.28,
+      "nearest_tool": 2.26,
+      "diff_pct": -0.88,
+      "within": true
+     },
+     {
+      "faisal": 3.3,
+      "nearest_tool": 3.23,
+      "diff_pct": -2.12,
+      "within": false
+     },
+     {
+      "faisal": 2.455,
+      "nearest_tool": 2.49,
+      "diff_pct": 1.43,
+      "within": true
+     }
+    ]
+   },
+   "M2": true,
+   "tool_state": "BREAKOUT",
+   "tool_w": {
+    "daily": [
+     1.72,
+     1.5,
+     1.88
+    ],
+    "m30": [
+     2.54,
+     2.51,
+     3.89
+    ]
+   },
+   "note": "عنقُ فيصل 2.864 **لم يُعَد إنتاجُه** (أقربُ مستوى 2.54 · −11.3%) — الـW اليوميّ للأداة قديمٌ (1.72/1.50/1.88) وW الثلاثين عنقُه 3.89 ⟵ M2 «نجح» بحضور W ما لا بـW فيصل"
+  },
+  {
+   "case": "VEEE",
+   "img": "TG_58045",
+   "asof": "2026-05-21",
+   "asof_fit": 1.3841,
+   "faisal_says_w": true,
+   "tool_w_daily": true,
+   "tool_w_30m": true,
+   "M1": {
+    "matched": 6,
+    "of": 10,
+    "share": 0.6,
+    "rows": [
+     {
+      "faisal": 6.18,
+      "nearest_tool": 6.16,
+      "diff_pct": -0.32,
+      "within": true
+     },
+     {
+      "faisal": 6.34,
+      "nearest_tool": 6.438,
+      "diff_pct": 1.55,
+      "within": true
+     },
+     {
+      "faisal": 5.34,
+      "nearest_tool": 5.41,
+      "diff_pct": 1.31,
+      "within": true
+     },
+     {
+      "faisal": 6.57,
+      "nearest_tool": 6.438,
+      "diff_pct": -2.01,
+      "within": false
+     },
+     {
+      "faisal": 7.27,
+      "nearest_tool": 7.4,
+      "diff_pct": 1.79,
+      "within": true
+     },
+     {
+      "faisal": 8.27,
+      "nearest_tool": 8.5,
+      "diff_pct": 2.78,
+      "within": false
+     },
+     {
+      "faisal": 8.76,
+      "nearest_tool": 8.8,
+      "diff_pct": 0.46,
+      "within": true
+     },
+     {
+      "faisal": 9.67,
+      "nearest_tool": 8.8,
+      "diff_pct": -9.0,
+      "within": false
+     },
+     {
+      "faisal": 5.0,
+      "nearest_tool": 5.0,
+      "diff_pct": 0.0,
+      "within": true
+     },
+     {
+      "faisal": 3.54,
+      "nearest_tool": 5.0,
+      "diff_pct": 41.24,
+      "within": false
+     }
+    ]
+   },
+   "M2": true,
+   "M3": {
+    "tool_band": [
+     7.4,
+     7.622
+    ],
+    "faisal_band": [
+     6.18,
+     6.34
+    ],
+    "within": false
+   },
+   "tool_state": "INVALIDATED",
+   "tool_w": {
+    "daily": [
+     7.7,
+     7.4,
+     11.41
+    ],
+    "m30": [
+     5.41,
+     5.74,
+     6.16
+    ]
+   },
+   "note": "M3 سقط (نطاقُ الأداة اليوميّ 7.40-7.62) · وعنقُ W الثلاثين 6.16 يقع على 6.18 فيصل (−0.3%) · وتاريخُ المنشور مُستنتَجٌ من الشموع (fit 1.38 · ليس مؤكَّدًا)"
+  },
+  {
+   "case": "ATMV",
+   "error": "لا شموع",
+   "note": "TradingView لم يُرجع شموعًا للرمز ⟵ لم تُقَس"
+  },
+  {
+   "case": "RAYA",
+   "img": "X_20260827_raya_notready",
+   "asof": "2026-08-26",
+   "faisal_says_w": false,
+   "tool_w_daily": true,
+   "tool_w_30m": true,
+   "M1": {
+    "matched": 4,
+    "of": 6,
+    "share": 0.667,
+    "rows": [
+     {
+      "faisal": 4.908,
+      "nearest_tool": 4.57,
+      "diff_pct": -6.89,
+      "within": false
+     },
+     {
+      "faisal": 4.569,
+      "nearest_tool": 4.57,
+      "diff_pct": 0.02,
+      "within": true
+     },
+     {
+      "faisal": 3.998,
+      "nearest_tool": 4.1599,
+      "diff_pct": 4.05,
+      "within": false
+     },
+     {
+      "faisal": 3.233,
+      "nearest_tool": 3.24,
+      "diff_pct": 0.22,
+      "within": true
+     },
+     {
+      "faisal": 2.617,
+      "nearest_tool": 2.58,
+      "diff_pct": -1.41,
+      "within": true
+     },
+     {
+      "faisal": 4.57,
+      "nearest_tool": 4.57,
+      "diff_pct": 0.0,
+      "within": true
+     }
+    ]
+   },
+   "M2": null,
+   "tool_state": "AT_SUPPORT2",
+   "tool_w": {
+    "daily": [
+     2.49,
+     2.2,
+     3.24
+    ],
+    "m30": [
+     2.45,
+     2.26,
+     2.58
+    ]
+   },
+   "note": "**تناقضٌ في القراءة لا يقيسه M1/M2:** فيصل «غيرُ جاهزٍ فنيًّا · انتظار الهبوط» والأداةُ «عند الدعم الثاني (منطقة دخول A)»"
+  }
+ ]
+}

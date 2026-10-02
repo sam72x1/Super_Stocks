@@ -369,7 +369,7 @@ def render_text(rep):
         L.append(f"⚖️ نطاق القرار {fmt(db['low'])} – {fmt(db['high'])}: {db['reading']}")
         for e in rep["entries"]:
             L.append(f"📥 دخول {e['mode']}: {fmt(e['price'])}")
-        L.append("🚫 الدخول في الوسط بين القاع والعنق غير آمن (فيصل)")
+        L.append("🚫 الدخول في الوسط بين القاع والعنق غير آمن (فيصل) — وكمّيًّا على اليوميّ لم يُثبَت (T-W)")
         s = rep["stops"][0]
         L.append(f"⛔ وقف الخسارة {fmt(s['price'])} ({s['name']})")
     fam = {"faisal_ladder": "🎯", "faisal_gain100": "🎯", "third_party_measured_move": "📐"}
