@@ -1,0 +1,46 @@
+name: "🎯 TARGET FORENSICS — ما معنى الهدف 100٪؟ (T-TGT · target_forensics_prereg)"
+
+# 🎯 أمرُ المالك 2026-10-02 «TARGET FORENSICS — DO NOT REOPEN H&S YET» · العقد hs_forensic/target_forensics_prereg.md (مدموجٌ قبل أيّ رقم).
+# الأوضاع: sample (حالةُ DXST ‏+ تصديرُ العيّنة العمياء · بلا إحصاءٍ للمجتمع) · pop (المجتمع — يرفض قبل دفع tf_blind_labels.json).
+#   (وفتحُ المفتاح `open` محلّيٌّ بلا شبكة بعد دفع الوسوم.)
+# 🔒 قراءةٌ فقط: الإشاراتُ مخزَّنةٌ من T-HS-FX — **لا يُنادى الكاشف** · لا تلغرام (بلا أسرارِه) · لا حالةَ إنتاج ·
+#    `git_save` يدفع `hs_research/target/` وحدَه · ولا يمسّ إغلاقَ hs_forensic.py (HSFX_REOPEN).
+# 📺 الشموعُ من TradingView مباشرةً (`S.tv_download`) — **بلا `BARS_SOURCE`** (مفتاحُه محصورٌ بعشرة workflows · قفلُ TVB9).
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "sample (DXST + العيّنة العمياء) · pop (المجتمع — بعد دفع الوسوم)"
+        type: choice
+        options: [sample, pop]
+        default: sample
+
+concurrency:
+  group: target-forensics-${{ inputs.mode }}
+  cancel-in-progress: false
+
+jobs:
+  tgt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🎯 TARGET FORENSICS
+        env:
+          PYTHONUNBUFFERED: "1"
+          TGT_MODE: ${{ inputs.mode }}
+        run: python target_forensics.py

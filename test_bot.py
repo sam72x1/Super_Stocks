@@ -78285,6 +78285,387 @@ check("🔒 RXC1 الإغلاقُ **مُنفَّذ** (محورُ الرأس وا
                "consts": (True, "HSFX_REOPEN", 8), "witness": True, "first": True, "envmap": True, "notice": True, "sec": True, "one": True},
       str(_rxc)[:500])
 
+# 🎯 TGF1-TGF14 — `T-TGT` «TARGET FORENSICS» (2026-10-02 · أمرُ المالك «DO NOT REOPEN H&S YET» · العقد `hs_forensic/target_forensics_prereg.md`):
+#    أداةُ قراءةٍ فقط على إشاراتٍ **مخزَّنة** — لا كاشف · لا تلغرام · لا حالةَ إنتاج · ولا تمسّ إغلاقَ `hs_forensic.py`. الأقفالُ سلوكيّة على
+#    شموعٍ اصطناعيّة (بلا شبكة) ‏+ AST للحدود ‏+ دورةُ الأوضاع الثلاثة كاملةً في مجلّدٍ مؤقّتٍ خارج المستودع (لا تسريب · LEAK1/LEAK2).
+import ast as _tgt_ast                                                     # noqa: E402
+import json as _tgt_json                                                   # noqa: E402
+import os as _tgt_os                                                       # noqa: E402
+import re as _tgt_re                                                       # noqa: E402
+import tempfile as _tgt_tmp                                                # noqa: E402
+import hashlib as _tgt_hl                                                  # noqa: E402
+import numpy as _tgt_np                                                    # noqa: E402
+import pandas as _tgt_pd                                                   # noqa: E402
+import target_forensics as TGT                                             # noqa: E402
+
+
+def _tgt_frame(seed, n=420, start="2023-01-02"):
+    """شموعٌ اصطناعيّة: هبوطٌ ثمّ قاعدةٌ ثمّ صعود ‏+ ضجيج (بذرةٌ ثابتة)."""
+    r = _tgt_np.random.default_rng(seed)
+    c = _tgt_np.concatenate([_tgt_np.linspace(10, 4, 200), 4 + 0.3 * _tgt_np.sin(_tgt_np.linspace(0, 6, 110)),
+                             _tgt_np.linspace(4.2, 7, n - 310)]) * (1 + 0.02 * seed % 3)
+    c = c + r.normal(0, 0.03, n)
+    o = _tgt_np.r_[c[0], c[:-1]]
+    return _tgt_pd.DataFrame({"Open": o, "High": _tgt_np.maximum(o, c) * 1.01, "Low": _tgt_np.minimum(o, c) * 0.99,
+                              "Close": c, "Volume": 1e5}, index=_tgt_pd.bdate_range(start, periods=n))
+
+
+def _tgt_row(sym, df, e, kind="C", era="TEST", valid="True", d_e=None):
+    """صفٌّ بشكل `fx_signals_bot.csv` **وأحداثُه المخزَّنة محسوبةٌ بـ`fx_events` نفسِها** (فالإعادةُ بت-بت بالبناء)."""
+    dates = [str(x)[:10] for x in df.index]
+    h, l, c = (df[k].to_numpy(float) for k in ("High", "Low", "Close"))
+    ee = e if d_e is None else d_e
+    E = float(c[ee])
+    hl, rs = float(l[e - 40]), float(l[e - 20])
+    row = {"ticker": sym, "date": dates[e], "entry_kind": kind, "era": era, "data_valid": valid,
+           "pid": f"{sym}|1d|inverse|{dates[e - 60]}|{dates[e - 40]}", "entry": repr(E), "neckline": repr(E * 0.98),
+           "target": repr(E * 1.15), "stop_I1": repr(hl), "stop_I2": repr(rs)}
+    ev = TGT.fx_events(h, c, ee, E * 1.15, hl, rs)
+    if ev is None:
+        row.update({"cls_I1_60": "", "cls_I2_60": "", "t_tgt_60": "", "t_stop_I2_60": "", "t_stop_I1_60": ""})
+    else:
+        row.update({"cls_I1_60": ev[0], "cls_I2_60": ev[1], "t_tgt_60": "" if ev[2] is None else f"{float(ev[2])}",
+                    "t_stop_I2_60": "" if ev[3] is None else f"{float(ev[3])}",
+                    "t_stop_I1_60": "" if ev[4] is None else f"{float(ev[4])}"})
+    return row
+
+
+# ── TGF1 الفئاتُ الخمس ‏+ خارجُ المقام (قاعدةُ التعادل من `FX.classify` بت-بت)
+try:
+    _h = _tgt_np.array([1.0, 1.0, 1.0, 1.3, 1.0, 1.0])
+    _c = _tgt_np.array([1.0, 1.0, 0.95, 1.0, 1.0, 1.0])
+    _o = {"hit": TGT.outcome(_h, _tgt_np.ones(6), 0, 1.0, 1.2, 0.9, 4)["cls"],
+          "tie": TGT.outcome(_tgt_np.array([1, 1, 1.3, 1, 1, 1.0]), _c, 0, 1.0, 1.2, 0.96, 4)["cls"],
+          "after": TGT.outcome(_h, _c, 0, 1.0, 1.2, 0.96, 4)["cls"],
+          "inv": TGT.outcome(_tgt_np.ones(6), _c, 0, 1.0, 1.2, 0.96, 4)["cls"],
+          "miss": TGT.outcome(_tgt_np.ones(6), _tgt_np.ones(6), 0, 1.0, 1.2, 0.5, 4)["cls"],
+          "open": TGT.outcome(_h, _c, 2, 1.0, 1.2, 0.9, 4)["cls"],
+          "none": TGT.outcome(_h, _c, 0, 1.0, None, 0.9, 4)["cls"],
+          "nan": TGT.outcome(_h, _c, 0, 1.0, float("nan"), 0.9, 4)["cls"],
+          "at": TGT.outcome(_h, _c, 0, 1.0, 1.0, 0.9, 4)["cls"],
+          "below": TGT.outcome(_h, _c, 0, 1.0, 0.98, 0.9, 4)["cls"],
+          "t": (TGT.outcome(_h, _tgt_np.ones(6), 0, 1.0, 1.2, 0.9, 4).get("t_tgt"),),
+          "classes": TGT.CLASSES}
+except Exception as _e:                                                   # noqa: BLE001
+    _o = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF1 الفئاتُ الخمس متنافية (§④): HIT · AFTER (والتعادلُ في البار نفسِه إبطالٌ أوّلًا) · INVALIDATION_FIRST · MISSED · OPEN_WINDOW · "
+      "وخارجُ المقام: NO_TARGET (غائب/NaN) وAT_OR_BELOW_ENTRY (‏≤E)",
+      _o == {"hit": "TARGET_HIT", "tie": "TARGET_AFTER_INVALIDATION", "after": "TARGET_AFTER_INVALIDATION", "inv": "INVALIDATION_FIRST",
+             "miss": "TARGET_MISSED", "open": "OPEN_WINDOW", "none": "NO_TARGET", "nan": "NO_TARGET",
+             "at": "TARGET_AT_OR_BELOW_ENTRY", "below": "TARGET_AT_OR_BELOW_ENTRY", "t": (3,),
+             "classes": ("TARGET_HIT", "TARGET_AFTER_INVALIDATION", "INVALIDATION_FIRST", "TARGET_MISSED", "OPEN_WINDOW",
+                         "NO_TARGET", "TARGET_AT_OR_BELOW_ENTRY")}, str(_o)[:400])
+
+# ── TGF2 بارُ الدخول: B/C بالتاريخ والإغلاق ضمن 0.1% · وD أوّلُ بارٍ بإغلاق E **وأحداثٍ مطابقة** (الشركُ بالإغلاق نفسِه يُتخطّى)
+try:
+    _df2 = _tgt_frame(7)
+    _d2 = [str(x)[:10] for x in _df2.index]
+    _h2, _c2 = _df2["High"].to_numpy(float), _df2["Close"].to_numpy(float).copy()
+    _r2 = _tgt_row("AAA", _df2, 300)
+    _ok = TGT.locate_e(_d2, _h2, _c2, _r2)
+    _off = TGT.locate_e(_d2, _h2, _c2, dict(_r2, entry=repr(float(_c2[300]) * 1.002)))
+    _near = TGT.locate_e(_d2, _h2, _c2, dict(_r2, entry=repr(float(_c2[300]) * 1.0009)))
+    _nod = TGT.locate_e(_d2, _h2, _c2, dict(_r2, date="1999-01-04"))
+    _rD = _tgt_row("AAA", _df2, 300, kind="D", d_e=306)
+    _c2d = _c2.copy()
+    _c2d[302] = _c2d[306]                                                 # شَرَك: إغلاقٌ مطابقٌ قبل الدخول الحقيقيّ وأحداثُه مختلفة
+    _gotD = TGT.locate_e(_d2, _h2, _c2d, _rD)
+    _rDo = _tgt_row("AAA", _df2, 400, kind="D", d_e=402)                  # نافذةٌ ناقصةٌ مخزَّنة ⟵ تُستعاد ناقصة
+    _gotDo = TGT.locate_e(_d2, _h2, _c2, _rDo)
+    _tgt2 = {"ok": _ok, "off": _off, "near": _near[1], "nod": _nod, "D": _gotD, "Dopen": _gotDo,
+             "dec_events_differ": TGT.fx_events(_h2, _c2d, 302, *(TGT._f(_rD[k]) for k in ("target", "stop_I1", "stop_I2")))
+             != TGT.stored_events(_rD)}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt2 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF2 بارُ الدخول (§⑧ · §⑨): C بتاريخه وإغلاقه (0.2% ⟵ misaligned · 0.09% ⟵ ok) · تاريخٌ غائب ⟵ no_date · "
+      "وD أوّلُ بارٍ إغلاقُه E **وأحداثُ T-C منه = المخزَّن** (الشركُ بالإغلاق نفسِه يُتخطّى) · والنافذةُ الناقصةُ المخزَّنة تُستعاد",
+      _tgt2 == {"ok": (300, "ok"), "off": (None, "misaligned"), "near": "ok", "nod": (None, "no_date"), "D": (306, "ok"),
+                "Dopen": (402, "ok"), "dec_events_differ": True}, str(_tgt2)[:400])
+
+# ── TGF3 التعريفاتُ السبعة بأسمائها وقيمها (§②) — ثابتةٌ ولا يُختار أحدُها
+try:
+    _tp = TGT.target_prices("1.25", 1.0, "0.7", [1.05, 1.11, 1.4], "1.6")
+    _tp0 = TGT.target_prices("", 2.0, None, [], None)
+    _tgt3 = {"tp": {k: round(v, 6) for k, v in _tp.items()}, "tp0": _tp0, "names": TGT.TARGETS, "stops": TGT.STOPS,
+             "wins": TGT.WINS, "entries": TGT.ENTRIES}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt3 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF3 التعريفاتُ السبعة (§②): TC المخزَّن · TR1/TR2 أوّلُ مستويين من السلّم · TFT · T30E = 1.30E · T100E = 2E · T100L = ضعفُ قاع الرأس · "
+      "والغائبُ None · والمداخلُ B/C/D · الإبطالان · النوافذ 30/60/90",
+      _tgt3 == {"tp": {"TC": 1.25, "TR1": 1.05, "TR2": 1.11, "TFT": 1.6, "T30E": 1.3, "T100E": 2.0, "T100L": 1.4},
+                "tp0": {"TC": None, "TR1": None, "TR2": None, "TFT": None, "T30E": 2.6, "T100E": 4.0, "T100L": None},
+                "names": ("TC", "TR1", "TR2", "TFT", "T30E", "T100E", "T100L"), "stops": ("I1", "I2"), "wins": (30, 60, 90),
+                "entries": ("B", "C", "D")}, str(_tgt3)[:400])
+
+# ── TGF4 سلّمُ الإنتاج وأوّلُ هدفه **كما هما** على إطارٍ مقصوصٍ عند e (لا نظرَ مستقبليّ) وبنافذة `HISTORY_DAYS` **وقتَ النداء**
+_tgt4_orig = (S.resistance_levels, S.first_target, S.CONFIG.get("HISTORY_DAYS"))
+try:
+    _seen4 = []
+    S.resistance_levels = lambda d, p, *a, **k: _seen4.append(("rl", str(d.index[0])[:10], str(d.index[-1])[:10], round(p, 6))) or [p * 1.1, p * 1.2]
+    S.first_target = lambda d, *a, **k: _seen4.append(("ft", str(d.index[0])[:10], str(d.index[-1])[:10])) or 9.0
+    _df4 = _tgt_frame(3)
+    _d4 = [str(x)[:10] for x in _df4.index]
+    S.CONFIG["HISTORY_DAYS"] = 100
+    _r4a = TGT.ladder_and_ft(_df4, 300, 4.0, S)
+    S.CONFIG["HISTORY_DAYS"] = 30
+    _r4b = TGT.ladder_and_ft(_df4, 300, 4.0, S)
+    _lim = lambda days: str(_tgt_pd.Timestamp(_d4[300]) - _tgt_pd.Timedelta(days=days))[:10]
+    _tgt4 = {"a": _r4a, "b": _r4b, "end": {x[2] for x in _seen4}, "start100": _seen4[0][1] >= _lim(100) and _seen4[0][1] <= _lim(95),
+             "start30": _seen4[2][1] >= _lim(30) and _seen4[2][1] <= _lim(25), "price": _seen4[0][3], "n": len(_seen4)}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt4 = {"⛔": f"{type(_e).__name__}: {_e}"}
+finally:
+    S.resistance_levels, S.first_target = _tgt4_orig[0], _tgt4_orig[1]
+    S.CONFIG["HISTORY_DAYS"] = _tgt4_orig[2]
+check("🎯 TGF4 `S.resistance_levels` و`S.first_target` **كما هما** على إطارٍ ينتهي ببار الدخول (لا مستقبل) ويبدأ عند `HISTORY_DAYS` "
+      "المقروءِ وقتَ النداء (100 ⟵ 30 يغيّر البداية) · والسعرُ E",
+      _tgt4 == {"a": ([4.4, 4.8], 9.0), "b": ([4.4, 4.8], 9.0), "end": {_d4[300]}, "start100": True, "start30": True, "price": 4.0, "n": 4},
+      str(_tgt4)[:400])
+
+# ── TGF5 شارتُ الوسم: حتى بار الدخول وحدَه · بلا رمزٍ ولا تاريخ · العلاماتُ والعنقُ والخطوط
+try:
+    _df5 = _tgt_frame(5)
+    _r5 = _tgt_row("ZQXW", _df5, 300)
+    _cp = TGT.chart_payload(_df5, 300, _r5, [4.5, 5.0, 5.5, 6.0, 6.5, 7.0])
+    _js = _tgt_json.dumps(_cp)
+    _tgt5 = {"n": len(_cp["bars"]), "last": _cp["bars"][-1][3] == round(float(_df5["Close"].iloc[300]), 6),
+             "decision": _cp["decision"], "nosym": "ZQXW" not in _js, "nodate": not _tgt_re.search(r"\d{4}-\d{2}-\d{2}", _js),
+             "marks": _cp["marks"],
+             "neck_x": [p[0] for p in (_cp["neck"] or [])], "lines": sorted(_cp["lines"]), "E": _cp["E"] == float(_r5["entry"]),
+             "short": len(TGT.chart_payload(_df5, 50, _tgt_row("ZQXW", _df5, 100), [])["bars"])}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt5 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF5 شارتُ الوسم (§⑦): 200 جلسةً تنتهي ببار الدخول (لا مستقبل) · **بلا رمزٍ ولا تاريخ** · LS/H/RS · العنقُ من نقطتيه (الرأس · الاختراق) · "
+      "TC/I1/I2/L1…L5 (لا أكثر) · وE",
+      _tgt5 == {"n": 200, "last": True, "decision": 199, "nosym": True, "nodate": True, "marks": {"LS": 139, "H": 159, "RS": 179},
+                "neck_x": [159, 199], "lines": ["I1", "I2", "L1", "L2", "L3", "L4", "L5", "TC"], "E": True, "short": 51},
+      str(_tgt5)[:400])
+
+# ── TGF6 إطارُ العيّنة والسحب (§⑦): C · صالح · حقبةٌ من الأربع · غيرُ 2022 · غيرُ DXST · ‏±30 يومًا ضمنًا من المرئيّ · بذرتان مثبَّتتان
+try:
+    _base = {"ticker": "AAA", "date": "2024-03-01", "entry_kind": "C", "era": "TEST", "data_valid": "True"}
+    _rows6 = [dict(_base), dict(_base, entry_kind="B"), dict(_base, data_valid="False"), dict(_base, era=""),
+              dict(_base, date="2022-05-02"), dict(_base, ticker="DXST"), dict(_base, ticker="BBB", date="2024-03-31"),
+              dict(_base, ticker="BBB", date="2024-04-01"), dict(_base, ticker="CCC", date="2024-03-02")]
+    _kept = [(r["ticker"], r["date"]) for r in TGT.prefilter(_rows6, [("BBB", "2024-03-01"), ("ZZZ", "2024-03-02")])]
+    _ks = [f"k{i}" for i in range(80)]
+    _pre = open("hs_forensic/target_forensics_prereg.md", encoding="utf-8").read()
+    _tgt6 = {"kept": _kept, "det": TGT.draw_sample(_ks, 30) == TGT.draw_sample(list(reversed(_ks)), 30),
+             "n": len(TGT.draw_sample(_ks, 30)), "small": len(TGT.draw_sample(_ks[:7], 30)),
+             "seeds": (TGT.SAMPLE_SEED, TGT.MIX_SEED, TGT.SAMPLE_N, TGT.EXCL_DAYS, TGT.CHART_BARS, TGT.SAMPLE_YEAR_OUT),
+             "prereg": all(x in _pre for x in ("random.Random(20261011)", "20261012", "‏±30 يومًا", "200 جلسة", "سنةٌ غيرُ 2022"))}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt6 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF6 إطارُ العيّنة (§⑦): يُبقي C الصالحَ في الحقب الأربع وحدَه · يُسقط 2022 وDXST · ‏±30 يومًا **ضمنًا** للرمز نفسِه (يومُ 30 خارج · 31 داخل) · "
+      "والسحبُ حتميٌّ لا يتأثّر بالترتيب · والبذرتان والثوابتُ كما في العقد حرفًا",
+      _tgt6 == {"kept": [("AAA", "2024-03-01"), ("BBB", "2024-04-01"), ("CCC", "2024-03-02")], "det": True, "n": 30, "small": 7,
+                "seeds": (20261011, 20261012, 30, 30, 200, "2022"), "prereg": True}, str(_tgt6)[:400])
+
+# ── TGF7 الختم: JSON ⟵ zlib ⟵ base64 · ذهابًا وإيابًا · وبصمةُ sha256 على النصّ المختوم
+try:
+    _obj7 = {"TG01": {"sym": "AAA", "future": [[1, 2.5]], "ar": "عربيّ"}}
+    _b7, _s7 = TGT.seal(_obj7)
+    _tgt7 = {"rt": TGT.unseal(_b7) == _obj7, "sha": _s7 == _tgt_hl.sha256(_b7.encode("ascii")).hexdigest(),
+             "opaque": "AAA" not in _b7, "stable": TGT.seal(_obj7) == (_b7, _s7)}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt7 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF7 المفتاحُ مختومٌ (لا يُقرأ بالعين) ويُفتح كما هو · والبصمةُ sha256 للنصّ المختوم · وحتميّ",
+      _tgt7 == {"rt": True, "sha": True, "opaque": True, "stable": True}, str(_tgt7)[:300])
+
+# ── TGF8 وسمُ الهدف مشتقٌّ آليًّا (§⑦) ‏+ قاعدةُ F المكتوبة قبل الوسم
+try:
+    _tgt8 = {"lab": [TGT.target_label(10.0, x) for x in ("NONE", None, "AMBIGUOUS", 9.69, 9.71, 10.29, 10.31, "9.0")],
+             "notc": TGT.target_label(None, 9.0),
+             "rule": [TGT.f_rule_ok(*x) for x in ((1.029, 1.0, 0.8), (1.03, 1.0, 0.8), (1.10, 1.0, 1.08), (1.10, 1.0, 1.13),
+                                                   ("NONE", 1.0, 0.9), (1.10, 1.0, None))],
+             "tol": (TGT.LABEL_TOL, TGT.F_MIN_GAP, TGT.F_NECK_BAND)}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt8 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF8 TARGET_LABEL من TC وF (§⑦): NONE/غائب ⟵ OPEN_SPACE · AMBIGUOUS ⟵ AMBIGUOUS · ‏±3% ⟵ MATCH · F أدنى ⟵ BEYOND · F أعلى ⟵ SHORT · "
+      "وقاعدةُ F: ‏≥3% فوق E وخارج ‏±2% من العنق",
+      _tgt8 == {"lab": ["OPEN_SPACE", "OPEN_SPACE", "AMBIGUOUS", "BEYOND", "MATCH", "MATCH", "SHORT", "BEYOND"], "notc": "AMBIGUOUS",
+                "rule": [False, True, False, True, None, True], "tol": (0.03, 0.03, 0.02)}, str(_tgt8)[:400])
+
+# ── TGF9 فئةُ مستوى DXST (§⑥): الإبطالُ في بار الزناد أو قبله ⟵ INVALIDATED_BEFORE_TRIGGER · وإلّا الفئاتُ الأربع
+try:
+    _tgt9 = [TGT.dxst_classify(*x) for x in ((None, 3, 5), (5, 3, 9), (5, 5, 9), (5, None, 9), (5, 12, 9), (5, 9, 9),
+                                              (5, 8, 9), (5, 8, None), (5, None, None), (5, None, 4))]
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt9 = [f"⛔ {type(_e).__name__}: {_e}"]
+check("🎯 TGF9 DXST: بلا زناد ⟵ NO_TRIGGER · إبطالٌ قبل الزناد **أو معه** ⟵ INVALIDATED_BEFORE_TRIGGER · وبعده: الهدفُ أوّلًا HIT · "
+      "التعادلُ إبطالٌ أوّلًا · إبطالٌ ثمّ هدف AFTER · إبطالٌ بلا هدف · لا شيء · ولمسٌ قبل الزناد لا يُعَدّ",
+      _tgt9 == ["NO_TRIGGER", "INVALIDATED_BEFORE_TRIGGER", "INVALIDATED_BEFORE_TRIGGER", "TARGET_HIT", "TARGET_HIT",
+                "TARGET_AFTER_INVALIDATION", "TARGET_AFTER_INVALIDATION", "INVALIDATION_FIRST", "TARGET_MISSED", "TARGET_MISSED"],
+      str(_tgt9)[:400])
+
+# ── TGF10-TGF14 دورةُ الأوضاع كاملةً في مجلّدٍ مؤقّت (شموعٌ اصطناعيّة · الجلبُ والحفظُ وDXST محقونة)
+_tgt_paths = ("OUT_DIR", "DXST_FILE", "CHARTS_FILE", "KEY_FILE", "LABELS_FILE", "RESULT_FILE", "POP_FILE", "POP_CSV")
+_tgt_orig = {k: getattr(TGT, k) for k in _tgt_paths}
+_tgt_orig_fn = (TGT.read_signals, TGT.seen_cases, TGT.fetch_daily, TGT.run_dxst, TGT._save, TGT.log)
+_tgt_env0 = _tgt_os.environ.get("TGT_MODE")
+try:
+    _tmp = _tgt_tmp.mkdtemp(prefix="tgt_lock_")
+    for _k in _tgt_paths:
+        setattr(TGT, _k, _tmp if _k == "OUT_DIR" else _tgt_os.path.join(_tmp, _tgt_os.path.basename(_tgt_orig[_k])))
+    _frames = {f"S{j:02d}": _tgt_frame(j) for j in range(12)}
+    _rows = []
+    for _s, _df in _frames.items():
+        for _e in (230, 260, 290, 320):
+            _rows.append(_tgt_row(_s, _df, _e))
+        _rows.append(_tgt_row(_s, _df, 300, kind="B"))
+    _rows.append(dict(_rows[0], entry=repr(float(_rows[0]["entry"]) * 1.01), entry_kind="B"))      # غيرُ مطابق ⟵ يُعَدّ
+    _calls, _logs, _saved = [], [], []
+    TGT.read_signals = lambda path=None: [dict(r) for r in _rows]
+    TGT.seen_cases = lambda paths=None: [("S00", "2023-11-30")]
+    TGT.fetch_daily = lambda syms: _calls.append(sorted(syms)) or ({s: _frames[s] for s in syms if s in _frames}, {"tv": len(syms)})
+    TGT.run_dxst = lambda: {"stub": True}
+    TGT._save = lambda files: _saved.append([_tgt_os.path.basename(f) for f in files])
+    TGT.log = lambda *a: _logs.append(" ".join(map(str, a)))
+    # (أ) pop قبل الوسوم ⟵ 3 بصفرِ جلب
+    _tgt_os.environ["TGT_MODE"] = "pop"
+    _rc_pop0, _n_pop0 = TGT.main(), len(_calls)
+    # (ب) sample ⟵ شارتاتٌ ومفتاحٌ مختوم · بلا إحصاءٍ للمجتمع في السجلّ
+    _tgt_os.environ["TGT_MODE"] = "sample"
+    _rc_s1 = TGT.main()
+    _ch = _tgt_json.load(open(TGT.CHARTS_FILE, encoding="utf-8"))
+    _blob = open(TGT.KEY_FILE, encoding="ascii").read()
+    _key = TGT.unseal(_blob)
+    _sha1 = _ch["meta"]["key_sha256"]
+    _cjs = _tgt_json.dumps(_ch["charts"])
+    _nostat = not any(_x in "\n".join(_logs) for _x in ("TARGET_HIT", "hit_before", "%"))
+    _last_ok = all(_ch["charts"][t]["bars"][-1][3] == round(_key[t]["E"], 6) for t in _ch["charts"])
+    # (ج) sample ثانيةً ⟵ لا سحبَ جديد (المفتاحُ نفسُه)
+    _rc_s2 = TGT.main()
+    _same = open(TGT.KEY_FILE, encoding="ascii").read() == _blob and any("مصدَّرةٌ سلفًا" in _l for _l in _logs)
+    # (د) open قبل الوسوم ⟵ 3 · ثمّ بوسومٍ ⟵ النتيجة · ومفتاحٌ عُبث به ⟵ 4
+    _tgt_os.environ["TGT_MODE"] = "open"
+    _rc_o0 = TGT.main()
+    _tids = sorted(_ch["charts"])
+    _labs = {"labels": {t: {"pattern": ("TRUE" if j % 3 else "NOT"), "neckline": "AGREE",
+                            "F": ("NONE" if j % 4 == 0 else ("AMBIGUOUS" if j % 4 == 1 else round(_key[t]["E"] * 1.1, 4))),
+                            "why": "x"} for j, t in enumerate(_tids)}}
+    _tgt_json.dump(_labs, open(TGT.LABELS_FILE, "w", encoding="utf-8"))
+    _rc_o1 = TGT.main()
+    _res = _tgt_json.load(open(TGT.RESULT_FILE, encoding="utf-8"))
+    _tl = sorted({r["target_label"] for r in _res["rows"]})
+    _dims = sorted({k.split("|")[0].split("=")[0] for k in _res["tables"]})
+    open(TGT.KEY_FILE, "w", encoding="ascii").write(_blob[:-4] + "AAAA")
+    _rc_o2 = TGT.main()
+    open(TGT.KEY_FILE, "w", encoding="ascii").write(_blob)
+    # (هـ) pop بعد الوسوم ⟵ بوّابةُ إعادة الإنتاج تعبر بت-بت · والشبكةُ كاملة
+    _tgt_os.environ["TGT_MODE"] = "pop"
+    _rc_p1 = TGT.main()
+    _pop = _tgt_json.load(open(TGT.POP_FILE, encoding="utf-8"))
+    _gkeys = len(_pop["grid"])
+    _tgt_os.environ["TGT_MODE"] = "__tgt_probe__"
+    _rc_unk = TGT.main()
+    _tgt10 = {"pop0": (_rc_pop0, _n_pop0), "s1": _rc_s1, "n": _ch["meta"]["n"], "frame": _ch["meta"]["frame"],
+              "sha": _sha1 == _tgt_hl.sha256(_blob.encode("ascii")).hexdigest(), "ids": _tids == [f"TG{j + 1:02d}" for j in range(len(_tids))],
+              "nosym": not any(s in _cjs for s in _frames), "nodate": not _tgt_re.search(r"\d{4}-\d{2}-\d{2}", _cjs),
+              "nostat": _nostat, "last": _last_ok, "s2": (_rc_s2, _same), "o0": _rc_o0, "o1": (_rc_o1, _res["n"]),
+              "tl": _tl, "dims": _dims, "o2": _rc_o2, "p1": _rc_p1, "gate": (_pop["gate"]["pass"], _pop["gate"]["repro_rate"]),
+              "excl": _pop["excluded"], "gkeys": _gkeys, "unk": _rc_unk,
+              "saved": [tuple(x) for x in _saved]}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt10 = {"⛔": f"{type(_e).__name__}: {_e}"}
+finally:
+    for _k, _v in _tgt_orig.items():
+        setattr(TGT, _k, _v)
+    TGT.read_signals, TGT.seen_cases, TGT.fetch_daily, TGT.run_dxst, TGT._save, TGT.log = _tgt_orig_fn
+    _tgt_os.environ.pop("TGT_MODE", None)
+    if _tgt_env0 is not None:
+        _tgt_os.environ["TGT_MODE"] = _tgt_env0
+_tgt10_want = {"pop0": (3, 0), "s1": 0, "n": 30, "frame": 47, "sha": True, "ids": True, "nosym": True, "nodate": True, "nostat": True,
+               "last": True, "s2": (0, True), "o0": 3, "o1": (0, 30), "tl": ["AMBIGUOUS", "BEYOND", "OPEN_SPACE"],
+               "dims": ["pattern", "target_label"], "o2": 4, "p1": 0, "gate": (True, 1.0), "excl": {"misaligned": 1},
+               "gkeys": 3 * 5 * 7 * 2 * 3, "unk": 2,
+               "saved": [("tf_dxst.json", "tf_blind_charts.json", "tf_blind_key.b64"), ("tf_dxst.json",),
+                         ("tf_pop.json", "tf_pop_signals.csv")]}
+check("🎯 TGF10 الترتيبُ (§⑤): pop قبل الوسوم ⟵ 3 بصفرِ جلب · sample يُصدّر 30 من الإطار بلا رمزٍ ولا تاريخ ولا إحصاء · ويُعاد بلا سحبٍ جديد · "
+      "open قبل الوسوم ⟵ 3 وبعدها النتيجةُ بجدولَي PATTERN وTARGET كلٌّ وحدَه ومفتاحٌ عُبث به ⟵ 4 · وpop بعدها بإعادة إنتاجٍ بت-بت · "
+      "ووضعٌ مجهول ⟵ 2 · والحفظُ `hs_research/target/` وحدَه",
+      _tgt10 == _tgt10_want, str({k: v for k, v in _tgt10.items() if _tgt10_want.get(k) != v})[:500])
+
+# ── TGF11 الحدود (AST): لا كاشفَ ولا وضعَ من hs_forensic ولا تلغرام ولا إعادةَ فتحٍ ولا BARS_SOURCE · ومن FX دوالُّ الترتيب النقيّة وحدَها
+try:
+    _src11 = open("target_forensics.py", encoding="utf-8").read()
+    _t11 = _tgt_ast.parse(_src11)
+    _fx_attrs = sorted({n.attr for n in _tgt_ast.walk(_t11) if isinstance(n, _tgt_ast.Attribute)
+                        and isinstance(n.value, _tgt_ast.Name) and n.value.id == "FX"})
+    _calls11 = {(getattr(n.func, "attr", None) or getattr(n.func, "id", None)) for n in _tgt_ast.walk(_t11) if isinstance(n, _tgt_ast.Call)}
+    _bad = {"detect", "retest_state", "control_events", "skeleton_events", "analyze_sym", "run_main", "run_rx", "run_sens",
+            "run_verdict", "send_telegram", "send_message", "lookahead", "measure"} & _calls11
+    _strs = {n.value for n in _tgt_ast.walk(_t11) if isinstance(n, _tgt_ast.Constant) and isinstance(n.value, str)}
+    _tgt11 = {"fx": _fx_attrs, "bad": sorted(_bad), "reopen": any("HSFX_REOPEN" in x for x in _strs),
+              "bars": any("BARS_SOURCE" in x for x in _strs), "out": TGT.OUT_DIR == _tgt_os.path.join("hs_research", "target"),
+              "one": _src11.count("if __name__ ==") == 1}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt11 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF11 حدودُ الأداة (AST): من `hs_forensic` **`event_bars` · `classify` · `excursion` وحدَها** · لا نداءَ لكاشفٍ أو وضعٍ أو تلغرام · "
+      "ولا `HSFX_REOPEN` ولا `BARS_SOURCE` · ومخرجُها `hs_research/target/` · ونقطةُ دخولٍ واحدة",
+      _tgt11 == {"fx": ["classify", "event_bars", "excursion"], "bad": [], "reopen": False, "bars": False, "out": True, "one": True},
+      str(_tgt11)[:400])
+
+# ── TGF12 الـworkflow: يدويٌّ بوضعين · بلا أسرار ولا BARS_SOURCE · يكتب المستودع (git_save) · وينادي الأداة بـTGT_MODE
+try:
+    import yaml as _tgt_yaml                                              # noqa: E402
+    _wf_txt = open(".github/workflows/target_forensics.yml", encoding="utf-8").read()
+    _wf = _tgt_yaml.safe_load(_wf_txt)
+    _on = _wf.get(True) or _wf.get("on") or {}
+    _inp = ((_on.get("workflow_dispatch") or {}).get("inputs") or {}).get("mode") or {}
+    _steps = [s for j in (_wf.get("jobs") or {}).values() for s in (j.get("steps") or []) if "target_forensics.py" in str(s.get("run", ""))]
+    _envs = [dict(_wf.get("env") or {})] + [dict(j.get("env") or {}) for j in (_wf.get("jobs") or {}).values()] \
+        + [dict(s.get("env") or {}) for j in (_wf.get("jobs") or {}).values() for s in (j.get("steps") or [])]
+    _vals = [str(v) for e in _envs for v in e.values()] + [str(s.get("with") or "") for j in (_wf.get("jobs") or {}).values()
+                                                           for s in (j.get("steps") or [])]
+    _tgt12 = {"triggers": sorted(_on), "opts": _inp.get("options"), "def": _inp.get("default"),
+              "secrets": any("secrets." in v for v in _vals), "bars": any("BARS_SOURCE" in e for e in _envs),
+              "perm": (_wf.get("permissions") or {}).get("contents"),
+              "env": len(_steps) == 1 and (_steps[0].get("env") or {}).get("TGT_MODE") == "${{ inputs.mode }}"}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt12 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF12 `target_forensics.yml`: يدويٌّ فقط (لا كرون) بوضعَي sample/pop وافتراضُه sample · **بلا أسرار** (لا تلغرام) ولا `BARS_SOURCE` · "
+      "`contents: write` للحفظ · وخطوةٌ واحدة بـ`TGT_MODE`",
+      _tgt12 == {"triggers": ["workflow_dispatch"], "opts": ["sample", "pop"], "def": "sample", "secrets": False, "bars": False,
+                 "perm": "write", "env": True}, str(_tgt12)[:400])
+
+# ── TGF13 الملخّص (§④): المكتملُ أربعُ فئات · المعدّلان وWilson · زمنُ الهدف من HIT وحدَها وAFTER منفصلًا · MFE وما بلغه MISSED
+try:
+    _cells13 = ([{"cls": "TARGET_HIT", "t_tgt": t, "mfe": 0.3, "dist": 0.2} for t in (2, 4, 9)]
+                + [{"cls": "TARGET_AFTER_INVALIDATION", "t_tgt": 40, "mfe": 0.25, "dist": 0.2}]
+                + [{"cls": "INVALIDATION_FIRST", "mfe": 0.05, "dist": 0.2}] * 2
+                + [{"cls": "TARGET_MISSED", "mfe": 0.1, "dist": 0.2, "reach": 0.5}]
+                + [{"cls": "OPEN_WINDOW"}, {"cls": "NO_TARGET"}, {"cls": "TARGET_AT_OR_BELOW_ENTRY"}])
+    _s13 = TGT.summarize(_cells13)
+    _w = TGT.wilson(3, 7)
+    _tgt13 = {"n": _s13["n_complete"], "any": round(_s13["hit_any"], 6), "bi": round(_s13["hit_before_inv"], 6),
+              "after": round(_s13["after_inv_share"], 6), "t": (_s13["t_hit_med"], _s13["t_after_med"]), "reach": _s13["reach_miss_med"],
+              "ci": (round(_s13["hit_before_inv_ci"][0], 4), round(_s13["hit_before_inv_ci"][1], 4)),
+              "w": (round(_w[0], 4), round(_w[1], 4)), "cnt": _s13["counts"]["OPEN_WINDOW"], "empty": TGT.summarize([])["hit_any"]}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt13 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF13 الملخّص: المقامُ HIT+AFTER+INVF+MISS (لا OPEN ولا NO_TARGET ولا AT_OR_BELOW) · بلوغٌ أيًّا كان 4/7 · قبل الإبطال 3/7 بفاصل Wilson · "
+      "زمنُ HIT وسيطُه 4 وAFTER منفصل 40 · وما بلغه MISSED 0.5 · والفارغُ None",
+      _tgt13 == {"n": 7, "any": round(4 / 7, 6), "bi": round(3 / 7, 6), "after": round(1 / 7, 6), "t": (4.0, 40.0), "reach": 0.5,
+                 "ci": (0.1582, 0.7495), "w": (0.1582, 0.7495), "cnt": 1, "empty": None}, str(_tgt13)[:400])
+
+# ── TGF14 العقدُ مدموجٌ بما يحكم: التعريفاتُ والفئاتُ والبوّابةُ والتنبّؤاتُ وما لا يفعله · وثوابتُ البوّابة كما فيه
+try:
+    _pre14 = open("hs_forensic/target_forensics_prereg.md", encoding="utf-8").read()
+    _tgt14 = {"text": [x for x in ("T-C", "T-R1", "T-FT", "T-30E", "T-100E", "T-100L", "TARGET_HIT", "TARGET_AFTER_INVALIDATION",
+                                    "INVALIDATION_FIRST", "TARGET_MISSED", "OPEN_WINDOW", "NO_TARGET", "TARGET_AT_OR_BELOW_ENTRY",
+                                    "INVALIDATED_BEFORE_TRIGGER", "‏≥99%", "‏≥95%", "TP1", "TP8", "لا ينادي الكاشف",
+                                    "DO NOT REOPEN H&S YET", "اضمن لك 100٪ بكل صفقه", "2.864", "3.302", "3.610", "4.467")
+                       if x not in _pre14],
+              "consts": (TGT.ALIGN_TOL, TGT.ALIGN_MIN, TGT.REPRO_MIN, TGT.D_MATCH_TOL, TGT.DXST_PROV_TOL, TGT.DXST_LADDER_TOL,
+                         TGT.DXST_PROV_BARS, TGT.DXST["neck"], TGT.DXST["s1"], TGT.DXST["s2"], TGT.DXST["tweet"])}
+except Exception as _e:                                                   # noqa: BLE001
+    _tgt14 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🎯 TGF14 العقدُ (`target_forensics_prereg.md`) يحمل التعريفاتِ السبعة والفئاتِ والبوّابةَ والتنبّؤاتِ ونصَّ المالك ومستوياتِ DXST · "
+      "وثوابتُ الأداة = العقد (0.1% · 95% · 99% · 0.5% · 1% · 120 جلسة · 2.864/2.539/2.306 · 2026-06-16)",
+      _tgt14 == {"text": [], "consts": (0.001, 0.95, 0.99, 1e-6, 0.005, 0.01, 120, 2.864, 2.539, 2.306, "2026-06-16")},
+      str(_tgt14)[:400])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
