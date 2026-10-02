@@ -1,0 +1,2624 @@
+{
+ "meta": {
+  "generated_by": "faisal_method_v3/corpus_build.py",
+  "images": 722,
+  "thresholds": {
+   "DUP_DHASH256_MAX": 24,
+   "DUP_PHASH_MAX": 10,
+   "DUP_OCR_JACCARD": 0.85,
+   "DUP_OCR_MIN_TOKENS": 15
+  },
+  "visual_not_duplicate_pairs": 3,
+  "clusters_visually_reviewed": 102,
+  "clusters": 609,
+  "multi_member_clusters": 102,
+  "independent_units": 609,
+  "edge_kinds": {
+   "exact": 0,
+   "near": 56,
+   "resized": 67,
+   "derivative_text": 3
+  },
+  "ocr_rows": 722,
+  "ocr_empty": 9,
+  "visual_reviewed": 0
+ },
+ "clusters": [
+  {
+   "cluster_id": "CAPP_20260918_18_NTCL",
+   "members": [
+    "APP_20260918_18_NTCL",
+    "TG_57923"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CAPP_20260918_19_NTCL",
+   "members": [
+    "APP_20260918_19_NTCL",
+    "TG_57921"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CAPP_20260918_20_NTCL",
+   "members": [
+    "APP_20260918_20_NTCL",
+    "TG_57922"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CAPP_20260918_49_main",
+   "members": [
+    "APP_20260918_49_main",
+    "TG_57926"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CAPP_20260918_50_ZNB",
+   "members": [
+    "APP_20260918_50_ZNB",
+    "TG_57925"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CAPP_20260918_52_ELPW",
+   "members": [
+    "APP_20260918_52_ELPW",
+    "TG_57924"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CAPP_20260918_53_ELPW",
+   "members": [
+    "APP_20260918_53_ELPW",
+    "TG_57929"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CEDU_20260918_10_pattern",
+   "members": [
+    "EDU_20260918_10_pattern",
+    "TG_58051"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0141",
+   "members": [
+    "IMG_0141",
+    "TG_2214",
+    "TG_2215"
+   ],
+   "size": 3
+  },
+  {
+   "cluster_id": "CIMG_0142",
+   "members": [
+    "IMG_0142",
+    "TG_2213"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0144",
+   "members": [
+    "IMG_0144",
+    "TG_2212"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0149",
+   "members": [
+    "IMG_0149",
+    "TG_2210"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0150",
+   "members": [
+    "IMG_0150",
+    "TG_2076",
+    "TG_2209"
+   ],
+   "size": 3
+  },
+  {
+   "cluster_id": "CIMG_0151",
+   "members": [
+    "IMG_0151",
+    "TG_2208"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0152",
+   "members": [
+    "IMG_0152",
+    "TG_2205"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0153",
+   "members": [
+    "IMG_0153",
+    "TG_1811",
+    "TG_2206"
+   ],
+   "size": 3
+  },
+  {
+   "cluster_id": "CIMG_0177",
+   "members": [
+    "IMG_0177",
+    "TG_2203"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0178",
+   "members": [
+    "IMG_0178",
+    "TG_2204"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0179",
+   "members": [
+    "IMG_0179",
+    "TG_2199"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0267",
+   "members": [
+    "IMG_0267",
+    "TG_2201"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0290",
+   "members": [
+    "IMG_0290",
+    "TG_2198"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0291",
+   "members": [
+    "IMG_0291",
+    "TG_2193"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0292",
+   "members": [
+    "IMG_0292",
+    "TG_2194"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0293",
+   "members": [
+    "IMG_0293",
+    "TG_2195"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0294",
+   "members": [
+    "IMG_0294",
+    "TG_2190"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0295",
+   "members": [
+    "IMG_0295",
+    "TG_2191"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0296",
+   "members": [
+    "IMG_0296",
+    "TG_2192"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0297",
+   "members": [
+    "IMG_0297",
+    "TG_2187"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0298",
+   "members": [
+    "IMG_0298",
+    "TG_2188"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0299",
+   "members": [
+    "IMG_0299",
+    "TG_2189"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0300",
+   "members": [
+    "IMG_0300",
+    "TG_2185"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0301",
+   "members": [
+    "IMG_0301",
+    "TG_2186"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0302",
+   "members": [
+    "IMG_0302",
+    "TG_2184"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0303",
+   "members": [
+    "IMG_0303",
+    "TG_2182"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0304",
+   "members": [
+    "IMG_0304",
+    "TG_2183"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0314",
+   "members": [
+    "IMG_0314",
+    "TG_2177"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0315",
+   "members": [
+    "IMG_0315",
+    "TG_2172"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0316",
+   "members": [
+    "IMG_0316",
+    "TG_2173"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0317",
+   "members": [
+    "IMG_0317",
+    "TG_2174"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0318",
+   "members": [
+    "IMG_0318",
+    "TG_2169"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0319",
+   "members": [
+    "IMG_0319",
+    "TG_2170"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0320",
+   "members": [
+    "IMG_0320",
+    "TG_2171"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0358",
+   "members": [
+    "IMG_0358",
+    "TG_1877"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0359",
+   "members": [
+    "IMG_0359",
+    "TG_1872"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0394",
+   "members": [
+    "IMG_0394",
+    "TG_1855"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_0570",
+   "members": [
+    "IMG_0570",
+    "IMG_0692"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_8126",
+   "members": [
+    "IMG_8126",
+    "TG_1894"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_8127",
+   "members": [
+    "IMG_8127",
+    "TG_1895"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_8133",
+   "members": [
+    "IMG_8133",
+    "TG_1889"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_8136",
+   "members": [
+    "IMG_8136",
+    "TG_1886"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_8242",
+   "members": [
+    "IMG_8242",
+    "TG_1873"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_9923",
+   "members": [
+    "IMG_9923",
+    "TG_1846"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CIMG_9925",
+   "members": [
+    "IMG_9925",
+    "TG_1842"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1806",
+   "members": [
+    "TG_1806",
+    "TG_2049"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1879",
+   "members": [
+    "TG_1879",
+    "TG_1935",
+    "TG_1994"
+   ],
+   "size": 3
+  },
+  {
+   "cluster_id": "CTG_1882",
+   "members": [
+    "TG_1882",
+    "TG_2104"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1884",
+   "members": [
+    "TG_1884",
+    "TG_2020"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1885",
+   "members": [
+    "TG_1885",
+    "TG_2021"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1887",
+   "members": [
+    "TG_1887",
+    "TG_1903"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1888",
+   "members": [
+    "TG_1888",
+    "TG_1902"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1890",
+   "members": [
+    "TG_1890",
+    "TG_1896"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1891",
+   "members": [
+    "TG_1891",
+    "TG_1893"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1910",
+   "members": [
+    "TG_1910",
+    "TG_1915",
+    "TG_1943",
+    "TG_1948"
+   ],
+   "size": 4
+  },
+  {
+   "cluster_id": "CTG_1911",
+   "members": [
+    "TG_1911",
+    "TG_1944"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1912",
+   "members": [
+    "TG_1912",
+    "TG_1945"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1913",
+   "members": [
+    "TG_1913",
+    "TG_1946"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1914",
+   "members": [
+    "TG_1914",
+    "TG_1947"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1916",
+   "members": [
+    "TG_1916",
+    "TG_1949"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1917",
+   "members": [
+    "TG_1917",
+    "TG_1950"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1919",
+   "members": [
+    "TG_1919",
+    "TG_1953"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1920",
+   "members": [
+    "TG_1920",
+    "TG_1954"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1921",
+   "members": [
+    "TG_1921",
+    "TG_1955"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1922",
+   "members": [
+    "TG_1922",
+    "TG_1956"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1923",
+   "members": [
+    "TG_1923",
+    "TG_2026",
+    "TG_2027",
+    "TG_2072"
+   ],
+   "size": 4
+  },
+  {
+   "cluster_id": "CTG_1924",
+   "members": [
+    "TG_1924",
+    "TG_1962"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1925",
+   "members": [
+    "TG_1925",
+    "TG_1968"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1926",
+   "members": [
+    "TG_1926",
+    "TG_1927",
+    "TG_1970",
+    "TG_1975"
+   ],
+   "size": 4
+  },
+  {
+   "cluster_id": "CTG_1928",
+   "members": [
+    "TG_1928",
+    "TG_1974"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1929",
+   "members": [
+    "TG_1929",
+    "TG_1973"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1930",
+   "members": [
+    "TG_1930",
+    "TG_1988"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1931",
+   "members": [
+    "TG_1931",
+    "TG_1987"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1934",
+   "members": [
+    "TG_1934",
+    "TG_1990"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1936",
+   "members": [
+    "TG_1936",
+    "TG_1993"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1937",
+   "members": [
+    "TG_1937",
+    "TG_1992"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1938",
+   "members": [
+    "TG_1938",
+    "TG_1996"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1939",
+   "members": [
+    "TG_1939",
+    "TG_2000"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1940",
+   "members": [
+    "TG_1940",
+    "TG_2038"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1995",
+   "members": [
+    "TG_1995",
+    "TG_2216"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_1998",
+   "members": [
+    "TG_1998",
+    "TG_2217"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_2016",
+   "members": [
+    "TG_2016",
+    "TG_2067"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_2017",
+   "members": [
+    "TG_2017",
+    "TG_2062"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_2032",
+   "members": [
+    "TG_2032",
+    "TG_2060"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_2046",
+   "members": [
+    "TG_2046",
+    "TG_2122"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_2047",
+   "members": [
+    "TG_2047",
+    "TG_2123"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_2089",
+   "members": [
+    "TG_2089",
+    "TG_2218"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_2110",
+   "members": [
+    "TG_2110",
+    "TG_2114"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_50582",
+   "members": [
+    "TG_50582",
+    "TG_50593"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_50583",
+   "members": [
+    "TG_50583",
+    "TG_50594"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_50821",
+   "members": [
+    "TG_50821",
+    "TG_50822",
+    "TG_50823"
+   ],
+   "size": 3
+  },
+  {
+   "cluster_id": "CTG_57865",
+   "members": [
+    "TG_57865",
+    "TG_57868"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CTG_57927",
+   "members": [
+    "TG_57927",
+    "X_20260918_54_indicators"
+   ],
+   "size": 2
+  },
+  {
+   "cluster_id": "CX_20260827_raya_notready",
+   "members": [
+    "X_20260827_raya_notready",
+    "X_20260827_raya_notready_2"
+   ],
+   "size": 2
+  }
+ ],
+ "edges": [
+  {
+   "a": "APP_20260918_18_NTCL",
+   "b": "TG_57923",
+   "kind": "near",
+   "dhash256_dist": 9,
+   "phash_dist": 0
+  },
+  {
+   "a": "APP_20260918_19_NTCL",
+   "b": "TG_57921",
+   "kind": "near",
+   "dhash256_dist": 10,
+   "phash_dist": 2
+  },
+  {
+   "a": "APP_20260918_20_NTCL",
+   "b": "TG_57922",
+   "kind": "near",
+   "dhash256_dist": 7,
+   "phash_dist": 2
+  },
+  {
+   "a": "APP_20260918_49_main",
+   "b": "TG_57926",
+   "kind": "near",
+   "dhash256_dist": 12,
+   "phash_dist": 0
+  },
+  {
+   "a": "APP_20260918_50_ZNB",
+   "b": "TG_57925",
+   "kind": "near",
+   "dhash256_dist": 2,
+   "phash_dist": 2
+  },
+  {
+   "a": "APP_20260918_52_ELPW",
+   "b": "TG_57924",
+   "kind": "resized",
+   "dhash256_dist": 7,
+   "phash_dist": 0
+  },
+  {
+   "a": "APP_20260918_53_ELPW",
+   "b": "TG_57929",
+   "kind": "resized",
+   "dhash256_dist": 13,
+   "phash_dist": 2
+  },
+  {
+   "a": "EDU_20260918_10_pattern",
+   "b": "TG_58051",
+   "kind": "resized",
+   "dhash256_dist": 2,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0141",
+   "b": "TG_2214",
+   "kind": "resized",
+   "dhash256_dist": 0,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0141",
+   "b": "TG_2215",
+   "kind": "resized",
+   "dhash256_dist": 10,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0142",
+   "b": "TG_2213",
+   "kind": "resized",
+   "dhash256_dist": 4,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0144",
+   "b": "TG_2212",
+   "kind": "resized",
+   "dhash256_dist": 7,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0149",
+   "b": "TG_2210",
+   "kind": "resized",
+   "dhash256_dist": 7,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0150",
+   "b": "TG_2076",
+   "kind": "derivative_text",
+   "dhash256_dist": 107,
+   "phash_dist": 28
+  },
+  {
+   "a": "IMG_0150",
+   "b": "TG_2209",
+   "kind": "resized",
+   "dhash256_dist": 4,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0151",
+   "b": "TG_2208",
+   "kind": "resized",
+   "dhash256_dist": 5,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0152",
+   "b": "TG_2205",
+   "kind": "resized",
+   "dhash256_dist": 8,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0153",
+   "b": "TG_1811",
+   "kind": "derivative_text",
+   "dhash256_dist": 63,
+   "phash_dist": 6
+  },
+  {
+   "a": "IMG_0153",
+   "b": "TG_2206",
+   "kind": "resized",
+   "dhash256_dist": 5,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0177",
+   "b": "TG_2203",
+   "kind": "resized",
+   "dhash256_dist": 12,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0178",
+   "b": "TG_2204",
+   "kind": "resized",
+   "dhash256_dist": 6,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0179",
+   "b": "TG_2199",
+   "kind": "resized",
+   "dhash256_dist": 6,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0267",
+   "b": "TG_2201",
+   "kind": "resized",
+   "dhash256_dist": 6,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0290",
+   "b": "TG_2198",
+   "kind": "resized",
+   "dhash256_dist": 5,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0291",
+   "b": "TG_2193",
+   "kind": "resized",
+   "dhash256_dist": 4,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0292",
+   "b": "TG_2194",
+   "kind": "resized",
+   "dhash256_dist": 6,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0293",
+   "b": "TG_2195",
+   "kind": "resized",
+   "dhash256_dist": 13,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0294",
+   "b": "TG_2190",
+   "kind": "resized",
+   "dhash256_dist": 8,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0295",
+   "b": "TG_2191",
+   "kind": "resized",
+   "dhash256_dist": 12,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0296",
+   "b": "TG_2192",
+   "kind": "resized",
+   "dhash256_dist": 5,
+   "phash_dist": 4
+  },
+  {
+   "a": "IMG_0297",
+   "b": "TG_2187",
+   "kind": "resized",
+   "dhash256_dist": 13,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0298",
+   "b": "TG_2188",
+   "kind": "resized",
+   "dhash256_dist": 13,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0299",
+   "b": "TG_2189",
+   "kind": "resized",
+   "dhash256_dist": 10,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0300",
+   "b": "TG_2185",
+   "kind": "resized",
+   "dhash256_dist": 9,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0301",
+   "b": "TG_2186",
+   "kind": "resized",
+   "dhash256_dist": 8,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0302",
+   "b": "TG_2184",
+   "kind": "resized",
+   "dhash256_dist": 3,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0303",
+   "b": "TG_2182",
+   "kind": "resized",
+   "dhash256_dist": 6,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0304",
+   "b": "TG_2183",
+   "kind": "near",
+   "dhash256_dist": 10,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0314",
+   "b": "TG_2177",
+   "kind": "resized",
+   "dhash256_dist": 5,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0315",
+   "b": "TG_2172",
+   "kind": "near",
+   "dhash256_dist": 8,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0316",
+   "b": "TG_2173",
+   "kind": "resized",
+   "dhash256_dist": 7,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0317",
+   "b": "TG_2174",
+   "kind": "resized",
+   "dhash256_dist": 7,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0318",
+   "b": "TG_2169",
+   "kind": "resized",
+   "dhash256_dist": 14,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0319",
+   "b": "TG_2170",
+   "kind": "resized",
+   "dhash256_dist": 2,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0320",
+   "b": "TG_2171",
+   "kind": "resized",
+   "dhash256_dist": 5,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0358",
+   "b": "TG_1877",
+   "kind": "resized",
+   "dhash256_dist": 6,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0359",
+   "b": "TG_1872",
+   "kind": "resized",
+   "dhash256_dist": 5,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_0394",
+   "b": "TG_1855",
+   "kind": "resized",
+   "dhash256_dist": 10,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_0570",
+   "b": "IMG_0692",
+   "kind": "resized",
+   "dhash256_dist": 5,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_8126",
+   "b": "TG_1894",
+   "kind": "resized",
+   "dhash256_dist": 4,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_8127",
+   "b": "TG_1895",
+   "kind": "resized",
+   "dhash256_dist": 4,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_8133",
+   "b": "TG_1889",
+   "kind": "resized",
+   "dhash256_dist": 5,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_8136",
+   "b": "TG_1886",
+   "kind": "resized",
+   "dhash256_dist": 2,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_8242",
+   "b": "TG_1873",
+   "kind": "resized",
+   "dhash256_dist": 2,
+   "phash_dist": 2
+  },
+  {
+   "a": "IMG_9923",
+   "b": "TG_1846",
+   "kind": "resized",
+   "dhash256_dist": 12,
+   "phash_dist": 0
+  },
+  {
+   "a": "IMG_9925",
+   "b": "TG_1842",
+   "kind": "resized",
+   "dhash256_dist": 4,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1806",
+   "b": "TG_2049",
+   "kind": "near",
+   "dhash256_dist": 21,
+   "phash_dist": 6
+  },
+  {
+   "a": "TG_1811",
+   "b": "TG_2206",
+   "kind": "derivative_text",
+   "dhash256_dist": 64,
+   "phash_dist": 6
+  },
+  {
+   "a": "TG_1879",
+   "b": "TG_1935",
+   "kind": "near",
+   "dhash256_dist": 8,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1879",
+   "b": "TG_1994",
+   "kind": "near",
+   "dhash256_dist": 8,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1882",
+   "b": "TG_2104",
+   "kind": "near",
+   "dhash256_dist": 9,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1884",
+   "b": "TG_2020",
+   "kind": "resized",
+   "dhash256_dist": 7,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1885",
+   "b": "TG_2021",
+   "kind": "resized",
+   "dhash256_dist": 9,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1887",
+   "b": "TG_1903",
+   "kind": "resized",
+   "dhash256_dist": 13,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1888",
+   "b": "TG_1902",
+   "kind": "resized",
+   "dhash256_dist": 9,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1890",
+   "b": "TG_1896",
+   "kind": "resized",
+   "dhash256_dist": 7,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1891",
+   "b": "TG_1893",
+   "kind": "resized",
+   "dhash256_dist": 6,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1910",
+   "b": "TG_1915",
+   "kind": "near",
+   "dhash256_dist": 9,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1910",
+   "b": "TG_1943",
+   "kind": "resized",
+   "dhash256_dist": 5,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1910",
+   "b": "TG_1948",
+   "kind": "near",
+   "dhash256_dist": 7,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1911",
+   "b": "TG_1944",
+   "kind": "near",
+   "dhash256_dist": 7,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1912",
+   "b": "TG_1945",
+   "kind": "near",
+   "dhash256_dist": 13,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1913",
+   "b": "TG_1946",
+   "kind": "near",
+   "dhash256_dist": 11,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1914",
+   "b": "TG_1947",
+   "kind": "near",
+   "dhash256_dist": 2,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1915",
+   "b": "TG_1943",
+   "kind": "resized",
+   "dhash256_dist": 10,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1915",
+   "b": "TG_1948",
+   "kind": "near",
+   "dhash256_dist": 6,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1916",
+   "b": "TG_1949",
+   "kind": "near",
+   "dhash256_dist": 6,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1917",
+   "b": "TG_1950",
+   "kind": "near",
+   "dhash256_dist": 5,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1919",
+   "b": "TG_1953",
+   "kind": "near",
+   "dhash256_dist": 14,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1920",
+   "b": "TG_1954",
+   "kind": "near",
+   "dhash256_dist": 13,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1921",
+   "b": "TG_1955",
+   "kind": "near",
+   "dhash256_dist": 6,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1922",
+   "b": "TG_1956",
+   "kind": "near",
+   "dhash256_dist": 7,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1923",
+   "b": "TG_2026",
+   "kind": "near",
+   "dhash256_dist": 9,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1923",
+   "b": "TG_2027",
+   "kind": "near",
+   "dhash256_dist": 8,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1923",
+   "b": "TG_2072",
+   "kind": "near",
+   "dhash256_dist": 8,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1924",
+   "b": "TG_1962",
+   "kind": "near",
+   "dhash256_dist": 6,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1925",
+   "b": "TG_1968",
+   "kind": "near",
+   "dhash256_dist": 4,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1926",
+   "b": "TG_1927",
+   "kind": "near",
+   "dhash256_dist": 12,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1926",
+   "b": "TG_1970",
+   "kind": "near",
+   "dhash256_dist": 6,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1926",
+   "b": "TG_1975",
+   "kind": "near",
+   "dhash256_dist": 9,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1927",
+   "b": "TG_1970",
+   "kind": "near",
+   "dhash256_dist": 10,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1927",
+   "b": "TG_1975",
+   "kind": "near",
+   "dhash256_dist": 9,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1928",
+   "b": "TG_1974",
+   "kind": "resized",
+   "dhash256_dist": 6,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1929",
+   "b": "TG_1973",
+   "kind": "near",
+   "dhash256_dist": 3,
+   "phash_dist": 4
+  },
+  {
+   "a": "TG_1930",
+   "b": "TG_1988",
+   "kind": "near",
+   "dhash256_dist": 14,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1931",
+   "b": "TG_1987",
+   "kind": "near",
+   "dhash256_dist": 14,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1934",
+   "b": "TG_1990",
+   "kind": "near",
+   "dhash256_dist": 12,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1935",
+   "b": "TG_1994",
+   "kind": "near",
+   "dhash256_dist": 8,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1936",
+   "b": "TG_1993",
+   "kind": "near",
+   "dhash256_dist": 15,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1937",
+   "b": "TG_1992",
+   "kind": "near",
+   "dhash256_dist": 13,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1938",
+   "b": "TG_1996",
+   "kind": "near",
+   "dhash256_dist": 6,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1939",
+   "b": "TG_2000",
+   "kind": "near",
+   "dhash256_dist": 8,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1940",
+   "b": "TG_2038",
+   "kind": "near",
+   "dhash256_dist": 9,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1943",
+   "b": "TG_1948",
+   "kind": "resized",
+   "dhash256_dist": 8,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1970",
+   "b": "TG_1975",
+   "kind": "near",
+   "dhash256_dist": 7,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_1995",
+   "b": "TG_2216",
+   "kind": "resized",
+   "dhash256_dist": 3,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_1998",
+   "b": "TG_2217",
+   "kind": "resized",
+   "dhash256_dist": 11,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_2016",
+   "b": "TG_2067",
+   "kind": "resized",
+   "dhash256_dist": 3,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_2017",
+   "b": "TG_2062",
+   "kind": "resized",
+   "dhash256_dist": 1,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_2026",
+   "b": "TG_2027",
+   "kind": "near",
+   "dhash256_dist": 5,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_2026",
+   "b": "TG_2072",
+   "kind": "near",
+   "dhash256_dist": 11,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_2027",
+   "b": "TG_2072",
+   "kind": "near",
+   "dhash256_dist": 10,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_2032",
+   "b": "TG_2060",
+   "kind": "near",
+   "dhash256_dist": 2,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_2046",
+   "b": "TG_2122",
+   "kind": "resized",
+   "dhash256_dist": 11,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_2047",
+   "b": "TG_2123",
+   "kind": "resized",
+   "dhash256_dist": 13,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_2089",
+   "b": "TG_2218",
+   "kind": "near",
+   "dhash256_dist": 3,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_2110",
+   "b": "TG_2114",
+   "kind": "resized",
+   "dhash256_dist": 11,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_2214",
+   "b": "TG_2215",
+   "kind": "near",
+   "dhash256_dist": 10,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_50582",
+   "b": "TG_50593",
+   "kind": "resized",
+   "dhash256_dist": 4,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_50583",
+   "b": "TG_50594",
+   "kind": "near",
+   "dhash256_dist": 3,
+   "phash_dist": 0
+  },
+  {
+   "a": "TG_50821",
+   "b": "TG_50822",
+   "kind": "near",
+   "dhash256_dist": 11,
+   "phash_dist": 8
+  },
+  {
+   "a": "TG_50821",
+   "b": "TG_50823",
+   "kind": "near",
+   "dhash256_dist": 14,
+   "phash_dist": 4
+  },
+  {
+   "a": "TG_50822",
+   "b": "TG_50823",
+   "kind": "near",
+   "dhash256_dist": 17,
+   "phash_dist": 8
+  },
+  {
+   "a": "TG_57865",
+   "b": "TG_57868",
+   "kind": "resized",
+   "dhash256_dist": 7,
+   "phash_dist": 2
+  },
+  {
+   "a": "TG_57927",
+   "b": "X_20260918_54_indicators",
+   "kind": "resized",
+   "dhash256_dist": 4,
+   "phash_dist": 0
+  },
+  {
+   "a": "X_20260827_raya_notready",
+   "b": "X_20260827_raya_notready_2",
+   "kind": "near",
+   "dhash256_dist": 9,
+   "phash_dist": 2
+  }
+ ],
+ "visual_not_duplicate": [
+  {
+   "a": "TG_1908",
+   "b": "X_20260905_11",
+   "dhash256_dist": 24,
+   "phash_dist": 8,
+   "by": "visual_review"
+  },
+  {
+   "a": "X_20260827_raya_notready",
+   "b": "X_20260905_11",
+   "dhash256_dist": 19,
+   "phash_dist": 4,
+   "by": "visual_review"
+  },
+  {
+   "a": "X_20260827_raya_notready_2",
+   "b": "X_20260905_11",
+   "dhash256_dist": 20,
+   "phash_dist": 4,
+   "by": "visual_review"
+  }
+ ],
+ "review": {
+  "method": "كلُّ عنقودٍ متعدّد الأعضاء اقترحته البصمةُ عُرض بعيني على لوحاتٍ مصغّرة (ثمّ بتكبيرٍ عند الشكّ) — هذا الملفّ يسجّل الأزواجَ التي حكمتُ أنها ليست تكرارًا ولماذا.",
+  "not_duplicate": [
+   [
+    "TG_1908",
+    "X_20260905_11",
+    "منشوران مختلفان لفيصل: $SMX «تحت المراقبه الان انتظار البري» مقابل $RAYA «اعتقد الشركه مصريه» — يتشاركان قالبَ X الأسود والشارتَ المُدرَج وحدَه"
+   ],
+   [
+    "X_20260827_raya_notready",
+    "X_20260905_11",
+    "منشوران مختلفان عن RAYA: «غير جاهز فنيا انتظار الهبوط» (4:44) مقابل «اعتقد الشركه مصريه» (12:25) — نصٌّ وتوقيتٌ وشارتٌ مختلفة"
+   ],
+   [
+    "X_20260827_raya_notready_2",
+    "X_20260905_11",
+    "كالسابق"
+   ]
+  ],
+  "reviewed_clusters": [
+   {
+    "cluster_id": "CAPP_20260918_18_NTCL",
+    "members": [
+     "APP_20260918_18_NTCL",
+     "TG_57923"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CAPP_20260918_19_NTCL",
+    "members": [
+     "APP_20260918_19_NTCL",
+     "TG_57921"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CAPP_20260918_20_NTCL",
+    "members": [
+     "APP_20260918_20_NTCL",
+     "TG_57922"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CAPP_20260918_49_main",
+    "members": [
+     "APP_20260918_49_main",
+     "TG_57926"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CAPP_20260918_50_ZNB",
+    "members": [
+     "APP_20260918_50_ZNB",
+     "TG_57925"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CAPP_20260918_52_ELPW",
+    "members": [
+     "APP_20260918_52_ELPW",
+     "TG_57924"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CAPP_20260918_53_ELPW",
+    "members": [
+     "APP_20260918_53_ELPW",
+     "TG_57929"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CEDU_20260918_10_pattern",
+    "members": [
+     "EDU_20260918_10_pattern",
+     "TG_58051"
+    ],
+    "verdict": "duplicate_confirmed",
+    "note": "exact_content: TG_58051 هو رسمُ القاع/القمّة المزدوجة نفسُه في EDU_20260918_10 — ليس دليلًا جديدًا"
+   },
+   {
+    "cluster_id": "CIMG_0141",
+    "members": [
+     "IMG_0141",
+     "TG_2214",
+     "TG_2215"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0142",
+    "members": [
+     "IMG_0142",
+     "TG_2213"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0144",
+    "members": [
+     "IMG_0144",
+     "TG_2212"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0149",
+    "members": [
+     "IMG_0149",
+     "TG_2210"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0150",
+    "members": [
+     "IMG_0150",
+     "TG_2076",
+     "TG_2209"
+    ],
+    "verdict": "duplicate_confirmed",
+    "note": "derivative_screenshot: TG_2076 لقطةُ شاشةٍ أخرى (بحثُ X) للمنشور نفسِه"
+   },
+   {
+    "cluster_id": "CIMG_0151",
+    "members": [
+     "IMG_0151",
+     "TG_2208"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0152",
+    "members": [
+     "IMG_0152",
+     "TG_2205"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0153",
+    "members": [
+     "IMG_0153",
+     "TG_1811",
+     "TG_2206"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0177",
+    "members": [
+     "IMG_0177",
+     "TG_2203"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0178",
+    "members": [
+     "IMG_0178",
+     "TG_2204"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0179",
+    "members": [
+     "IMG_0179",
+     "TG_2199"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0267",
+    "members": [
+     "IMG_0267",
+     "TG_2201"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0290",
+    "members": [
+     "IMG_0290",
+     "TG_2198"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0291",
+    "members": [
+     "IMG_0291",
+     "TG_2193"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0292",
+    "members": [
+     "IMG_0292",
+     "TG_2194"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0293",
+    "members": [
+     "IMG_0293",
+     "TG_2195"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0294",
+    "members": [
+     "IMG_0294",
+     "TG_2190"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0295",
+    "members": [
+     "IMG_0295",
+     "TG_2191"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0296",
+    "members": [
+     "IMG_0296",
+     "TG_2192"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0297",
+    "members": [
+     "IMG_0297",
+     "TG_2187"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0298",
+    "members": [
+     "IMG_0298",
+     "TG_2188"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0299",
+    "members": [
+     "IMG_0299",
+     "TG_2189"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0300",
+    "members": [
+     "IMG_0300",
+     "TG_2185"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0301",
+    "members": [
+     "IMG_0301",
+     "TG_2186"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0302",
+    "members": [
+     "IMG_0302",
+     "TG_2184"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0303",
+    "members": [
+     "IMG_0303",
+     "TG_2182"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0304",
+    "members": [
+     "IMG_0304",
+     "TG_2183"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0314",
+    "members": [
+     "IMG_0314",
+     "TG_2177"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0315",
+    "members": [
+     "IMG_0315",
+     "TG_2172"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0316",
+    "members": [
+     "IMG_0316",
+     "TG_2173"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0317",
+    "members": [
+     "IMG_0317",
+     "TG_2174"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0318",
+    "members": [
+     "IMG_0318",
+     "TG_2169"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0319",
+    "members": [
+     "IMG_0319",
+     "TG_2170"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0320",
+    "members": [
+     "IMG_0320",
+     "TG_2171"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0358",
+    "members": [
+     "IMG_0358",
+     "TG_1877"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0359",
+    "members": [
+     "IMG_0359",
+     "TG_1872"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0394",
+    "members": [
+     "IMG_0394",
+     "TG_1855"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_0570",
+    "members": [
+     "IMG_0570",
+     "IMG_0692"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_8126",
+    "members": [
+     "IMG_8126",
+     "TG_1894"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_8127",
+    "members": [
+     "IMG_8127",
+     "TG_1895"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_8133",
+    "members": [
+     "IMG_8133",
+     "TG_1889"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_8136",
+    "members": [
+     "IMG_8136",
+     "TG_1886"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_8242",
+    "members": [
+     "IMG_8242",
+     "TG_1873"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_9923",
+    "members": [
+     "IMG_9923",
+     "TG_1846"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CIMG_9925",
+    "members": [
+     "IMG_9925",
+     "TG_1842"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1806",
+    "members": [
+     "TG_1806",
+     "TG_2049"
+    ],
+    "verdict": "duplicate_confirmed",
+    "note": "annotated_derivative: TG_1806 عليه أسهمٌ مرسومة (أحمر/أخضر) فوق شارت TG_2049 نفسِه — مشتقٌّ معلَّم لا دليلٌ مستقلّ"
+   },
+   {
+    "cluster_id": "CTG_1879",
+    "members": [
+     "TG_1879",
+     "TG_1935",
+     "TG_1994"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1882",
+    "members": [
+     "TG_1882",
+     "TG_2104"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1884",
+    "members": [
+     "TG_1884",
+     "TG_2020"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1885",
+    "members": [
+     "TG_1885",
+     "TG_2021"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1887",
+    "members": [
+     "TG_1887",
+     "TG_1903"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1888",
+    "members": [
+     "TG_1888",
+     "TG_1902"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1890",
+    "members": [
+     "TG_1890",
+     "TG_1896"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1891",
+    "members": [
+     "TG_1891",
+     "TG_1893"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1910",
+    "members": [
+     "TG_1910",
+     "TG_1915",
+     "TG_1943",
+     "TG_1948"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1911",
+    "members": [
+     "TG_1911",
+     "TG_1944"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1912",
+    "members": [
+     "TG_1912",
+     "TG_1945"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1913",
+    "members": [
+     "TG_1913",
+     "TG_1946"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1914",
+    "members": [
+     "TG_1914",
+     "TG_1947"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1916",
+    "members": [
+     "TG_1916",
+     "TG_1949"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1917",
+    "members": [
+     "TG_1917",
+     "TG_1950"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1919",
+    "members": [
+     "TG_1919",
+     "TG_1953"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1920",
+    "members": [
+     "TG_1920",
+     "TG_1954"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1921",
+    "members": [
+     "TG_1921",
+     "TG_1955"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1922",
+    "members": [
+     "TG_1922",
+     "TG_1956"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1923",
+    "members": [
+     "TG_1923",
+     "TG_2026",
+     "TG_2027",
+     "TG_2072"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1924",
+    "members": [
+     "TG_1924",
+     "TG_1962"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1925",
+    "members": [
+     "TG_1925",
+     "TG_1968"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1926",
+    "members": [
+     "TG_1926",
+     "TG_1927",
+     "TG_1970",
+     "TG_1975"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1928",
+    "members": [
+     "TG_1928",
+     "TG_1974"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1929",
+    "members": [
+     "TG_1929",
+     "TG_1973"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1930",
+    "members": [
+     "TG_1930",
+     "TG_1988"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1931",
+    "members": [
+     "TG_1931",
+     "TG_1987"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1934",
+    "members": [
+     "TG_1934",
+     "TG_1990"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1936",
+    "members": [
+     "TG_1936",
+     "TG_1993"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1937",
+    "members": [
+     "TG_1937",
+     "TG_1992"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1938",
+    "members": [
+     "TG_1938",
+     "TG_1996"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1939",
+    "members": [
+     "TG_1939",
+     "TG_2000"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1940",
+    "members": [
+     "TG_1940",
+     "TG_2038"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1995",
+    "members": [
+     "TG_1995",
+     "TG_2216"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_1998",
+    "members": [
+     "TG_1998",
+     "TG_2217"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_2016",
+    "members": [
+     "TG_2016",
+     "TG_2067"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_2017",
+    "members": [
+     "TG_2017",
+     "TG_2062"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_2032",
+    "members": [
+     "TG_2032",
+     "TG_2060"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_2046",
+    "members": [
+     "TG_2046",
+     "TG_2122"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_2047",
+    "members": [
+     "TG_2047",
+     "TG_2123"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_2089",
+    "members": [
+     "TG_2089",
+     "TG_2218"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_2110",
+    "members": [
+     "TG_2110",
+     "TG_2114"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_50582",
+    "members": [
+     "TG_50582",
+     "TG_50593"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_50583",
+    "members": [
+     "TG_50583",
+     "TG_50594"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_50821",
+    "members": [
+     "TG_50821",
+     "TG_50822",
+     "TG_50823"
+    ],
+    "verdict": "duplicate_confirmed",
+    "note": "same_source_series: ثلاثُ شرائح من منشورٍ واحد (الصورةُ نفسُها والفقرةُ مختلفة) — مصدرٌ واحد"
+   },
+   {
+    "cluster_id": "CTG_57865",
+    "members": [
+     "TG_57865",
+     "TG_57868"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CTG_57927",
+    "members": [
+     "TG_57927",
+     "X_20260918_54_indicators"
+    ],
+    "verdict": "duplicate_confirmed"
+   },
+   {
+    "cluster_id": "CX_20260827_raya_notready",
+    "members": [
+     "X_20260827_raya_notready",
+     "X_20260827_raya_notready_2"
+    ],
+    "verdict": "duplicate_confirmed"
+   }
+  ],
+  "review_scope": "كلُّ العناقيد المتعدّدة الأعضاء (102) عُرضت بعيني على لوحاتٍ مصغّرة 2026-10-02 · والعنقودُ الذي ضمّ TG_1908 وX_20260905_11 فُكّ (أعلاه) · ولا عنقودَ آخر خاطئ",
+  "rejected_heuristic": {
+   "name": "ocr_veto (Jaccard<0.35 على كلماتٍ دالّة)",
+   "tested": "2026-10-02",
+   "pairs_split": 39,
+   "wrong": 35,
+   "right": 4,
+   "reason": "ضجيجُ OCR على نصّ الشارت يجعل نسختين متطابقتين «مختلفتين» نصًّا ⟵ أُسقط ولم يُستعمَل"
+  }
+ }
+}
