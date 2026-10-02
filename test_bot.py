@@ -75681,7 +75681,7 @@ try:
             return {"state": _DQm.RECENT_SPLIT, "action": "warn", "label": "✂️ وسمُ اختبار", "reasons": ["r"]}
         return {"state": _DQm.VALID, "action": "allow", "label": "", "reasons": []}
     S.dq_assess = _dq22_assess
-    S.dq_close_xcheck = lambda syms, hist, fetch=None: {}
+    S.dq_close_xcheck = lambda syms, hist, fetch=None, **_k: {}
     _dq_set("0")
     _r22_off = _tcd_run(dry=False)
     _dq22["off_calls"] = len(_dq22_calls)
@@ -75735,6 +75735,149 @@ check("🛡️ DQ22 «شروطك الثلاثة» موصولةٌ بالبوّا�
       and "ValueError" in str(_dq22_unv.get("why")) and _dq22.get("tv_src") == "tradingview"
       and _dq22.get("off_direct") == {} and _dq22.get("listed_direct") == ((["OKY"], []), 1) and "err" not in _dq22,
       str({k: v for k, v in _dq22.items() if k != "unv"})[:700] + f" unv={_dq22_unv}")
+
+# DQ23 — «لم يُقارَن» يُعَدّ (عطلٌ مُثبَت 2026-10-02: MASK ‏`database is locked` في «شروطك الثلاثة» `36978917384` مرّ بلا مقارنة إغلاقٍ
+#         ولا عدّ — ووصفُ `dq_close_xcheck` كان يَعِد «ويُعَدّ»): `stats` يعدّ المطلوبَ والمقارَنَ وما لم يُقارَن (بلا إطارٍ من ياهو · بلا جلسةٍ
+#         مشتركة) · والتعارضُ نفسُه **بت-بت** مع `stats` وبدونه · وإطارُ ياهو لا يُطلَب · وتعذّرُ الجالب كلِّه ⟵ الكلُّ «لم يُقارَن» · والسطرُ
+#         بسقفٍ يُعلَن عددُ ما بعده · وفارغٌ حين قُورن الكلّ
+import io as _dq23_io                                             # noqa: E402
+import contextlib as _dq23_ctx                                    # noqa: E402
+_dq23 = {}
+
+
+def _dq23_tv(c):
+    return _dq_df([(d, c, c, c, c, 50000) for (d, *_r) in _DQ_DLXY])
+
+
+def _dq23_y(c, shift=False):
+    return _dq_df([(("2025" + d[4:]) if shift else d, c, c, c, c, 50000) for (d, *_r) in _DQ_DLXY], src=None)
+
+
+_dq23_hist = {"AAA": _dq23_tv(3.0), "BBB": _dq23_tv(3.0), "CCC": _dq23_tv(5.0), "DDD": _dq23_tv(2.0),
+              "EEE": _dq_df([(d, 4.0, 4.0, 4.0, 4.0, 50000) for (d, *_r) in _DQ_DLXY], src=None)}
+_dq23_yh = {"AAA": _dq23_y(3.0), "CCC": _dq23_y(1.0), "DDD": _dq23_y(2.0, shift=True), "EEE": _dq23_y(4.0)}
+_dq23_asked = []
+
+
+def _dq23_fetch(syms, start):
+    _dq23_asked.append(sorted(syms))
+    return {k: v for k, v in _dq23_yh.items() if k in syms}
+
+
+try:
+    _dq23_syms = ["AAA", "BBB", "CCC", "DDD", "EEE"]
+    _dq23_st = {"stale": 1}
+    _dq23["with"] = S.dq_close_xcheck(_dq23_syms, _dq23_hist, fetch=_dq23_fetch, stats=_dq23_st)
+    _dq23["without"] = S.dq_close_xcheck(_dq23_syms, _dq23_hist, fetch=_dq23_fetch)
+    _dq23["st"] = dict(_dq23_st)
+    _dq23["asked"] = _dq23_asked[0] if _dq23_asked else None
+    _dq23_raise = {}
+    S.dq_close_xcheck(_dq23_syms, _dq23_hist, stats=_dq23_raise,
+                      fetch=lambda syms, start: (_ for _ in ()).throw(OSError("database is locked")))
+    _dq23["raise"] = dict(_dq23_raise)
+    _dq23_none = {"stale": 1}
+    S.dq_close_xcheck(["EEE"], _dq23_hist, fetch=_dq23_fetch, stats=_dq23_none)
+    _dq23["none"] = dict(_dq23_none)
+    _dq23["line"] = S.dq_xclose_line(_dq23_st)
+    _dq23["line_all"] = S.dq_xclose_line({"asked": 3, "compared": 3, "missing": []})
+    _dq23["line_cap"] = S.dq_xclose_line({"asked": 30, "compared": 5, "missing": [f"S{i}" for i in range(25)]})
+except Exception as _e:                                                  # noqa: BLE001
+    _dq23["err"] = f"⛔ {type(_e).__name__}: {_e}"
+_dq23_conf = {"CCC": ("close", "2026-09-30", 5.0, 1.0)}
+check("🛡️ DQ23 `dq_close_xcheck(stats=)` يعدّ ما لم يُقارَن (‏MASK 10-02 مرّ بلا مقارنةٍ ولا عدّ): المطلوبُ 4 (إطارُ ياهو EEE لا يُطلَب) · "
+      "قُورن 2 · لم يُقارَن BBB (بلا إطارٍ من ياهو) وDDD (بلا جلسةٍ مشتركة) · والتعارضُ (CCC ×5) **بت-بت** مع `stats` وبدونه · وتعذّرُ "
+      "الجالب ⟵ الأربعةُ «لم يُقارَن» · وبلا رمزٍ من TradingView ⟵ صفر · والسطرُ يسمّيهم ويُعلن ما بعد السقف وفارغٌ حين قُورن الكلّ",
+      _dq23.get("with") == _dq23_conf and _dq23.get("without") == _dq23_conf
+      and _dq23.get("st") == {"asked": 4, "compared": 2, "missing": ["BBB", "DDD"]}
+      and _dq23.get("asked") == ["AAA", "BBB", "CCC", "DDD"]
+      and _dq23.get("raise") == {"asked": 4, "compared": 0, "missing": ["AAA", "BBB", "CCC", "DDD"]}
+      and _dq23.get("none") == {"asked": 0, "compared": 0, "missing": []}
+      and "لم يُقارَن 2 من 4 (BBB · DDD)" in (_dq23.get("line") or "") and _dq23.get("line_all") == ""
+      and "لم يُقارَن 25 من 30" in (_dq23.get("line_cap") or "") and "S19" in (_dq23.get("line_cap") or "")
+      and "S20" not in (_dq23.get("line_cap") or "") and "… و5 غيرُها" in (_dq23.get("line_cap") or "") and "err" not in _dq23,
+      str(_dq23)[:700])
+
+# DQ24 — والفرزُ اليوميّ يُعلنه: `dq_filter` يطبع «🛡️ الإغلاقُ مقابل ياهو: لم يُقارَن 1 من 2 (BBB)» بعد سطر الملخّص ويحفظه في `DQ_LAST`
+#         · ولا يحجز BBB (لا تعارضَ يُخترع) · وحين قُورن الكلّ لا سطرَ (السجلُّ بت-بت)
+_dq24 = {}
+try:
+    _dq_set("1")
+    _b24 = _dq23_io.StringIO()
+    with _dq23_ctx.redirect_stdout(_b24):
+        _o24 = S.dq_filter([{"symbol": "AAA"}, {"symbol": "BBB"}], _dq23_hist, "اختبار DQ24", expected=_DQ_EXP,
+                           fetch=lambda s: pd.Series(dtype=float), close_fetch=_dq23_fetch, nasdaq={})
+    _b24b = _dq23_io.StringIO()
+    with _dq23_ctx.redirect_stdout(_b24b):
+        _o24b = S.dq_filter([{"symbol": "AAA"}], _dq23_hist, "اختبار DQ24ب", expected=_DQ_EXP,
+                            fetch=lambda s: pd.Series(dtype=float), close_fetch=_dq23_fetch, nasdaq={})
+    _dq24["kept"] = [x.get("symbol") for x in _o24]
+    _dq24["kept_b"] = [x.get("symbol") for x in _o24b]
+    _l24 = _b24.getvalue().splitlines()
+    _i_sum = next((i for i, ln in enumerate(_l24) if "اختبار DQ24" in ln), -1)
+    _i_x = next((i for i, ln in enumerate(_l24) if "🛡️ الإغلاقُ مقابل ياهو: لم يُقارَن 1 من 2 (BBB)" in ln), -1)
+    _dq24["order"] = _i_sum >= 0 and _i_x == _i_sum + 1
+    _dq24["absent_b"] = "لم يُقارَن" not in _b24b.getvalue()
+    _dq24["last"] = ((S.DQ_LAST.get("اختبار DQ24") or {}).get("xclose") or {}).get("missing")
+except Exception as _e:                                                  # noqa: BLE001
+    _dq24["err"] = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    _dq_set("0")
+check("🛡️ DQ24 الفرزُ اليوميّ يُعلن ما لم يُقارَن إغلاقُه: سطرُ «لم يُقارَن 1 من 2 (BBB)» تحت الملخّص مباشرةً و`DQ_LAST` يحفظه · وBBB يمرّ "
+      "(لا تعارضَ يُخترع) · وحين قُورن الكلّ لا سطر",
+      _dq24.get("kept") == ["AAA", "BBB"] and _dq24.get("kept_b") == ["AAA"] and _dq24.get("order") is True
+      and _dq24.get("absent_b") is True and _dq24.get("last") == ["BBB"] and "err" not in _dq24,
+      str(_dq24)[:500])
+
+# DQ25 — و«شروطك الثلاثة» تُعلنه وتطبع سببَ الحجز **كاملًا** (كان مقصوصًا عند 120 حرفًا بلا علامة: «÷2 = $7.18 من قمّة ما بعده $» في
+#         `36978917384`): `dq_rows` بلا `xcheck` محقون يمرّر `stats` ويطبع السطر · وبـ`xcheck` محقون لا يناديه · والسببُ الطويل يظهر كاملًا
+#         في سطر المسح وسطر الإرسال معًا (الأنبوبُ كلُّه بعالم `_tcd_run`)
+_dq25 = {}
+_dq25_sv = (S.dq_assess, S.dq_close_xcheck)
+try:
+    _dq_set("1")
+    _dq25_calls = []
+
+    def _dq25_x(syms, hist, fetch=None, stats=None):
+        _dq25_calls.append(sorted(syms))
+        if stats is not None:
+            stats.update(asked=2, compared=1, missing=["MASK"])
+        return {}
+    S.dq_close_xcheck = _dq25_x
+    S.dq_assess = lambda sym, df, exp, **_k: {"state": _DQm.VALID, "action": "allow", "label": "", "reasons": []}
+    _b25 = _dq23_io.StringIO()
+    with _dq23_ctx.redirect_stdout(_b25):
+        _TCD.dq_rows(["MASK", "OKK"], {"MASK": _tcd_series("base", 2.0), "OKK": _tcd_series("base", 2.0)}, _TCD_SESS, "tv")
+    _dq25["line"] = "🛡️ الإغلاقُ مقابل ياهو: لم يُقارَن 1 من 2 (MASK)" in _b25.getvalue()
+    _dq25["called"] = list(_dq25_calls)
+    _b25b = _dq23_io.StringIO()
+    with _dq23_ctx.redirect_stdout(_b25b):
+        _TCD.dq_rows(["MASK"], {"MASK": _tcd_series("base", 2.0)}, _TCD_SESS, "tv", xcheck=lambda a, b: {})
+    _dq25["inj_silent"] = "لم يُقارَن" not in _b25b.getvalue() and len(_dq25_calls) == 1
+    _dq25_why = ("تقسيمٌ عكسيّ 1:15 يوم 2026-08-03 (جلساتُ ما بعده 43) · ضرب ÷2 يوم 2026-10-01 وحافظ 0 من 3 — ÷2 = $7.18 "
+                 "من قمّة ما بعده $14.36 — وصفةُ فيصل للمقسّم لم تكتمل (مكانُه صيّادُ المقسّم)")
+
+    def _dq25_assess(sym, df, exp, **_k):
+        if sym == "NWO":
+            return {"state": _DQm.CORPORATE_ACTION_PENDING, "action": "quarantine", "label": "", "reasons": [_dq25_why]}
+        return {"state": _DQm.VALID, "action": "allow", "label": "", "reasons": []}
+    S.dq_assess = _dq25_assess
+    S.dq_close_xcheck = lambda syms, hist, fetch=None, **_k: {}
+    _r25 = _tcd_run(dry=False)
+    _l25 = _r25[1]
+    _dq25["scan_full"] = any("محجوزٌ أو ممنوع 1" in ln and f"NWO ({_dq25_why})" in ln for ln in _l25.splitlines())
+    _dq25["send_full"] = any("حجزته سلامةُ البيانات 1: NWO" in ln and f"NWO ({_dq25_why})" in ln for ln in _l25.splitlines())
+    _dq25["len"] = len(_dq25_why)
+except Exception as _e:                                                  # noqa: BLE001
+    _dq25["err"] = f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    S.dq_assess, S.dq_close_xcheck = _dq25_sv
+    _dq_set("0")
+check("🛡️ DQ25 «شروطك الثلاثة» تُعلن ما لم يُقارَن إغلاقُه («لم يُقارَن 1 من 2 (MASK)») وبـ`xcheck` محقون لا تناديه · وسببُ الحجز "
+      "يُطبع **كاملًا** (أطولَ من 120 حرفًا) في سطر المسح وسطر الإرسال معًا",
+      _dq25.get("line") is True and _dq25.get("called") == [["MASK", "OKK"]] and _dq25.get("inj_silent") is True
+      and _dq25.get("scan_full") is True and _dq25.get("send_full") is True and (_dq25.get("len") or 0) > 120
+      and "err" not in _dq25,
+      str(_dq25)[:500])
 
 if _dq_env0 is None:
     _os_hc.environ.pop("DQ_GATE", None)

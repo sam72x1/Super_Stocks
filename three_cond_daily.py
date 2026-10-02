@@ -262,10 +262,17 @@ def dq_rows(syms, pg, sess, src, assess=None, xcheck=None):
     if not DQ.enabled() or not syms:
         return {}
     hist = {s: rows_frame(pg.get(s) or [], src) for s in syms}
+    xs = {}
     try:
-        xc = (xcheck or S.dq_close_xcheck)(list(syms), hist) or {}
+        if xcheck is not None:
+            xc = xcheck(list(syms), hist) or {}
+        else:                                                    # 🛡️ ما لم يُقارَن إغلاقُه يُعَدّ (MASK 10-02 · `S.dq_xclose_line`)
+            xc = S.dq_close_xcheck(list(syms), hist, stats=xs) or {}
     except Exception:                                            # noqa: BLE001 — لا تعارضَ يُخترع
         xc = {}
+    _xl = S.dq_xclose_line(xs)
+    if _xl:
+        log(_xl)
     out = {}
     for s in syms:
         try:
@@ -911,7 +918,7 @@ def stage_scan(now=None, key=None, fetch=None, universe=None, yahoo=None, yfloat
         hold = [s for s in c4 if dq_held(rows[s])]
         st["counts"]["dq_hold"] = len(hold)
         log(f"🛡️ سلامةُ البيانات (فلوتٌ أقلّ من الحدّ أو مجهول {len(c4)}): محجوزٌ أو ممنوع {len(hold)}"
-            + (" — " + " · ".join(f"{s} ({rows[s]['dq']['why'][:120]})" for s in hold) if hold else ""))
+            + (" — " + " · ".join(f"{s} ({rows[s]['dq']['why']})" for s in hold) if hold else ""))
     if src == "tv":
         for s in c4:
             rows[s]["ry"] = tv_ref_rsi(sn.get(tmap.get(s)), rows[s]["px"])
@@ -1038,7 +1045,7 @@ def stage_send(st, parts, send=None):
     hold = [s for s in ok if dq_held(rows[s])]
     if hold:
         log(f"   🛡️ حجزته سلامةُ البيانات {len(hold)}: "
-            + " · ".join(f"{s} ({(rows[s].get('dq') or {}).get('why', '')[:120]})" for s in hold))
+            + " · ".join(f"{s} ({(rows[s].get('dq') or {}).get('why', '')})" for s in hold))
     near = near_misses(rows)
     if near:
         log(f"   🔸 من أسهم البوت سقطت بشرطٍ واحد (والثبات عابر): {len(near)} — "
