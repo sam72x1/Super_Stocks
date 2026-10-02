@@ -77446,7 +77446,7 @@ check("⚠️ YF6 حدُّ التنبيه `TV_FALLBACK_ALERT_PCT` موسومٌ `
       any("TV_FALLBACK_ALERT_PCT" in _ln and "`engineering`" in _ln and "1.8%" in _ln
           for _ln in open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read().splitlines()))
 # ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-# 🔬 HSX1-HSX3 · HFX1-HFX12 — **التحقيقُ الجنائيّ في الرأس والكتفين `T-HS-FX`** (‏2026-10-02 · أمرُ المالك «FINAL FORENSIC RESEARCH MISSION»
+# 🔬 HSX1-HSX4 · HFX1-HFX14 — **التحقيقُ الجنائيّ في الرأس والكتفين `T-HS-FX`** (‏2026-10-02 · أمرُ المالك «FINAL FORENSIC RESEARCH MISSION»
 #    · العقد `hs_forensic/hs_fx_prereg.md` مدموجٌ قبل أيّ رقم): أداةُ بحثٍ `hs_forensic.py` ‏+ خياران جديدان في `HS._evaluate` (‏`brk_mode` ·
 #    `head_rule`) **غائبان عن STRICT/LOOSE فالكشفُ بت-بت** (‏بصمةٌ محسوبةٌ على `42ba432d2` قبل التعديل). سلوكيّةٌ بلا شبكة.
 # ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -77794,6 +77794,50 @@ check("🔬 HFX13 الحكمُ الآليّ: main وحدَها جزئيّةٌ ب
                  "full": ("تُدعَم", "لا تُدعَم", "FX-3 «المقياسُ القديم ظلم»"),
                  "weakest": ("لا تُدعَم", "لا تُدعَم", "لا تُدعَم"),
                  "fx": ("FX-1 «خطأُ بناء»", "FX-2 «لا ميزة بأيّ بناء»", "FX-4 «لا قياس»"), "rc": 3}, str(_hfx13)[:400])
+
+# HFX14 — **§⑰ تمريرةُ تقسيمات ياهو الثانية** (عطلُ ndq الأولى: H-Z مجهولةٌ كلُّها بالخنق): تُفرَّغ ذاكرةُ كلِّ رمزٍ قبل سؤاله (وإلّا أعادت
+#    `_SPLITS_MEMO` الـNone المخزَّن) · فاصلٌ بعد كلّ نداء · تبريدٌ بعد `streak` تعذّرًا متتاليًا ويُصفَّر العدّادُ بالنجاح **وبعد التبريد** ·
+#    وسقفُ الزمن يوقف ولا يُدرِج غيرَ المسؤول (يبقى مجهولًا) · **والوصلُ سلوكيٌّ لا نصّيّ**: `_fetch` بجذوعٍ بلا شبكة (ياهو يتعذّر أوّلَ مرّةٍ
+#    ويُخزِّن None كالحقيقيّ) ⟵ المجهولُ يُستعاد ويُدمَج في المخرَج.
+try:
+    _r14_calls, _r14_sleep = [], []
+    _r14_seq = {"A": None, "B": [("2020-01-01", 0.1)], "C": None, "D": None, "E": None, "F": None, "G": [("2021-01-01", 0.2)]}
+    _r14 = FX._retry_splits(list("ABCDEFG"), lambda s: (s, _r14_seq[s]), reset=lambda s: _r14_calls.append(s),
+                            sleep=lambda x: _r14_sleep.append(x), streak=2, cool=9.0, pause=1.0)
+    _r14_t = [0]
+
+    def _r14_clk():
+        _r14_t[0] += 100
+        return _r14_t[0]
+    _r14b = FX._retry_splits(list("ABC"), lambda s: (s, _r14_seq[s]), sleep=lambda x: None, clock=_r14_clk, budget=150)
+    _w14_orig = (S.tv_download, S._tv_bars_line, S._fetch_splits)
+    _w14_n, _w14_syms = {}, ["ZZFXA", "ZZFXB"]
+
+    def _w14_split(s):
+        if s in S._SPLITS_MEMO:
+            return S._SPLITS_MEMO[s]
+        _w14_n[s] = _w14_n.get(s, 0) + 1
+        _o = None if _w14_n[s] == 1 else _hfx_pd.Series([0.1], index=[_hfx_pd.Timestamp("2020-01-02")])
+        S._SPLITS_MEMO[s] = _o
+        return _o
+    try:
+        S.tv_download = lambda syms, start: ({s: HS.synth_walk(60, seed=7) for s in syms}, {})
+        S._tv_bars_line = lambda rep: ""
+        S._fetch_splits = _w14_split
+        _w14_out = FX._fetch(list(_w14_syms))[2]
+    finally:
+        S.tv_download, S._tv_bars_line, S._fetch_splits = _w14_orig
+        for _k in _w14_syms:
+            S._SPLITS_MEMO.pop(_k, None)
+    _hfx14 = {"all": sorted(_r14) == list("ABCDEFG") and _r14["B"] == [("2020-01-01", 0.1)] and _r14["C"] is None,
+              "reset": _r14_calls == list("ABCDEFG"),
+              "sleep": _r14_sleep == [1.0, 1.0, 1.0, 9.0, 1.0, 1.0, 9.0, 1.0, 1.0], "budget": list(_r14b) == ["A"],
+              "wired": _w14_out == {s: [("2020-01-02", 0.1)] for s in _w14_syms} and _w14_n == {s: 2 for s in _w14_syms}}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx14 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX14 §⑰ تمريرةُ التقسيمات الثانية: ذاكرةُ كلِّ رمزٍ تُفرَّغ · فاصلٌ بعد كلّ نداء · تبريدٌ بعد تعذّرٍ متتالٍ يُصفَّر بالنجاح وبعد التبريد · "
+      "وسقفُ الزمن يوقف ولا يُدرِج غيرَ المسؤول · وموصولةٌ في `_fetch` سلوكيًّا (المجهولُ يُستعاد ويُدمَج)",
+      _hfx14 == {"all": True, "reset": True, "sleep": True, "budget": True, "wired": True}, str(_hfx14)[:300])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
