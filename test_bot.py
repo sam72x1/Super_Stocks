@@ -77839,6 +77839,243 @@ check("🔬 HFX14 §⑰ تمريرةُ التقسيمات الثانية: ذاك
       "وسقفُ الزمن يوقف ولا يُدرِج غيرَ المسؤول · وموصولةٌ في `_fetch` سلوكيًّا (المجهولُ يُستعاد ويُدمَج)",
       _hfx14 == {"all": True, "reset": True, "sleep": True, "budget": True, "wired": True}, str(_hfx14)[:300])
 
+# ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# 🔁 RXF1-RXF6 — **`T-HS-RX` «إصلاحُ إعادة البناء» على كونٍ لم يُرَ** (‏2026-10-02 · أمرُ المالك §39/§42 · العقد `hs_forensic/hs_rx_prereg.md`
+#    مدموجٌ قبل أيّ رقم): وضعُ `rx` في `hs_forensic.py` — POP-RX من `otherlisted.txt` (N/A) ناقص POP-BOT وناسداك · RECON-v2 = RECON ∧ HD1 ∧ HD2
+#    (‏q = 1/5 من القراءة التشغيليّة للتدقيق الأعمى) · BL-A للدخول D عند بار الدخول وسنته · أربعُ فرضيّاتٍ بالأضعف بين الخطّين (‏98.75%) ·
+#    عيّنةُ أمانةٍ عمياء بمفتاحٍ مختوم. **سلوكيّةٌ بلا شبكة** · و`main`/`ndq` بت-بت (لا مفتاحَ جديدًا في سجلّاتهما).
+# ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+def _rxf_A(lows, opens=None, closes=None):
+    _l = _hfx_np.asarray(lows, float)
+    _o = _hfx_np.asarray(opens if opens is not None else lows, float)
+    _c = _hfx_np.asarray(closes if closes is not None else lows, float)
+    return {"o": _o, "c": _c, "l": _l}
+
+
+# RXF1 — **HD1/HD2 بالحدود**: جسمُ الرأس عند الحدّ تمامًا يمرّ (‏≤) وفوقه بشعرةٍ يسقط · ذيلٌ وحدَه لا يكفي · البارُ الثاني للرأس المركّب يُحتسب ·
+#    قاعٌ قبل الكتف الأيسر **داخل W = عرضِ النموذج** بمستوى الرأس يُسقط HD2 (وخارجه لا) · وعند الحدّ تمامًا يسقط (‏>) · وبلا بارٍ قبله لا تتحقّق.
+try:
+    _rx_s = {"head_i": 30, "pm_i": None, "ls_i": 20, "rs_i": 40, "ls_px": 9.0, "rs_px": 9.2, "head_px": 8.0, "height": 2.0}
+    _rx_low = [10.0] * 50
+    _rx_low[20], _rx_low[30], _rx_low[40] = 9.0, 8.0, 9.2
+    _rx_open, _rx_close = list(_rx_low), list(_rx_low)
+    _rx_open[30], _rx_close[30] = 8.6, 8.3                   # جسمٌ أدناه 8.3 ‏≤ 9.0 − 0.4 = 8.6 ✓
+    _rx1 = {"pass": FX.head_distinct(_rxf_A(_rx_low, _rx_open, _rx_close), _rx_s)}
+    _o2, _c2 = list(_rx_open), list(_rx_close)
+    _o2[30], _c2[30] = 8.9, 8.6                              # جسمٌ أدناه 8.6 = الحدّ تمامًا ⟵ يمرّ
+    _rx1["edge_in"] = FX.head_distinct(_rxf_A(_rx_low, _o2, _c2), _rx_s)["hd1"]
+    _o3, _c3 = list(_rx_open), list(_rx_close)
+    _o3[30], _c3[30] = 8.9, 8.6001                           # فوق الحدّ بشعرة ⟵ يسقط
+    _rx1["edge_out"] = FX.head_distinct(_rxf_A(_rx_low, _o3, _c3), _rx_s)["hd1"]
+    _o4, _c4 = list(_rx_open), list(_rx_close)
+    _o4[30], _c4[30] = 9.4, 9.3                              # ذيلٌ إلى 8.0 والجسمُ فوق الكتفين ⟵ يسقط
+    _rx1["wick"] = FX.head_distinct(_rxf_A(_rx_low, _o4, _c4), _rx_s)["hd1"]
+    _o5, _c5, _l5 = list(_o4), list(_c4), list(_rx_low)
+    _l5[33], _o5[33], _c5[33] = 8.1, 8.4, 8.2                # البارُ الثاني للرأس المركّب جسمُه 8.2 ⟵ يمرّ به وحدَه
+    _rx1["compound"] = FX.head_distinct(_rxf_A(_l5, _o5, _c5), dict(_rx_s, pm_i=33))["hd1"]
+    _rx1["compound_off"] = FX.head_distinct(_rxf_A(_l5, _o5, _c5), _rx_s)["hd1"]
+    _l6 = list(_rx_low)
+    _l6[5] = 8.3                                             # قاعٌ عند ls_i − 15 (داخل W = 20) بمستوى الرأس ‏+ 0.3 ‏< 0.4 ⟵ يسقط
+    _rx1["prior_in"] = FX.head_distinct(_rxf_A(_l6, _rx_open, _rx_close), _rx_s)["hd2"]
+    _l7 = [10.0] * 70
+    _l7[45], _l7[55], _l7[65] = 9.0, 8.0, 9.2
+    _l7[20] = 8.3                                            # القاعُ نفسُه عند ls_i − 25 (خارج W = 20) ⟵ لا يُسقط
+    _o7, _c7 = list(_l7), list(_l7)
+    _o7[55], _c7[55] = 8.6, 8.3
+    _rx1["prior_out"] = FX.head_distinct(_rxf_A(_l7, _o7, _c7), dict(_rx_s, head_i=55, ls_i=45, rs_i=65))["hd2"]
+    _l8 = list(_rx_low)
+    _l8[10] = 8.4                                            # عند الحدّ تمامًا (8.0 ‏+ 0.4) ⟵ يسقط (‏>)
+    _rx1["prior_edge"] = FX.head_distinct(_rxf_A(_l8, _rx_open, _rx_close), _rx_s)["hd2"]
+    _rx1["no_prior"] = FX.head_distinct(_rxf_A(_rx_low, _rx_open, _rx_close), dict(_rx_s, ls_i=0, head_i=30, rs_i=40))["hd2"]
+    _rx1_ok = {"pass": (_rx1["pass"]["hd1"], _rx1["pass"]["hd2"], _rx1["pass"]["hd_w"], round(_rx1["pass"]["hd_body_gap"], 6)),
+               **{k: v for k, v in _rx1.items() if k != "pass"}}
+except Exception as _e:                                                   # noqa: BLE001
+    _rx1_ok = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔁 RXF1 `head_distinct`: HD1 جسمُ الرأس عند الحدّ يمرّ وفوقه بشعرةٍ يسقط · الذيلُ وحدَه لا يكفي · البارُ الثاني للمركّب يُحتسب · "
+      "HD2 يُسقطه قاعٌ داخل W (عرضُ النموذج) لا خارجه · وعند الحدّ تمامًا يسقط · وبلا تاريخٍ قبله لا يتحقّق",
+      _rx1_ok == {"pass": (True, True, 20, 0.35), "edge_in": True, "edge_out": False, "wick": False, "compound": True,
+                  "compound_off": False, "prior_in": False, "prior_out": True, "prior_edge": False, "no_prior": False}, str(_rx1_ok)[:400])
+
+# RXF2 — **POP-RX** من نصّ `otherlisted.txt` اصطناعيّ: N وA وحدَهما · ETF/Test مستبعَدان · الرمزُ الأبجديّ · لا وارنت/حقوق/وحدات بالاسم والذيل ·
+#    والمستبعَدُ (POP-BOT ∪ ناسداك) يسقط · وسطرُ «File Creation Time» يُتجاهَل · وترويسةٌ ناقصةٌ أو نصٌّ فارغ ⟵ [] (لا قياسَ على كونٍ فارغ).
+try:
+    _rx_txt = "\n".join([
+        "ACT Symbol|Security Name|Exchange|CQS Symbol|ETF|Round Lot Size|Test Issue|NASDAQ Symbol",
+        "AAA|Alpha Corp Common Stock|N|AAA|N|100|N|AAA", "BBB|Beta Inc Class A|A|BBB|N|100|N|BBB",
+        "CCC|Gamma Arca Listing|P|CCC|N|100|N|CCC", "DDD|Delta Fund|N|DDD|Y|100|N|DDD", "EEE|Eps Test|N|EEE|N|100|Y|EEE",
+        "FF.A|Phi Preferred|N|FF.A|N|100|N|FF-A", "GGGGW|Gee Warrant Something|A|GGGGW|N|100|N|GGGGW",
+        "HHH|Eta Warrants Trust|N|HHH|N|100|N|HHH", "III|Iota Units|N|III|N|100|N|III", "JJJ|Jot Corp|N|JJJ|N|100|N|JJJ",
+        "KKK|Kappa Bats Listing|Z|KKK|N|100|N|KKK", "File Creation Time: 1001202600:00|||||||"])
+    _rx2 = {"pop": FX.rx_population(text=_rx_txt, exclude={"JJJ"}),
+            "badhdr": FX.rx_population(text="Symbol|Name\nAAA|x"), "empty": FX.rx_population(text="")}
+except Exception as _e:                                                   # noqa: BLE001
+    _rx2 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔁 RXF2 POP-RX: NYSE وNYSE American وحدَهما · بلا ETF ولا اختبار ولا رمزٍ غيرِ أبجديّ ولا وارنت/وحدات · والمستبعَدُ يسقط · "
+      "وترويسةٌ ناقصةٌ أو نصٌّ فارغ ⟵ كونٌ فارغ",
+      _rx2 == {"pop": ["AAA", "BBB"], "badhdr": [], "empty": []}, str(_rx2)[:300])
+
+# RXF3 — **الوصلُ في `analyze_sym` سلوكيًّا** (جذوعٌ لـ`HS.detect`/`retest_state`/`control_events` بلا شبكة): في `rx` ⟵ سجلُّ D يحمل HD1/HD2 ·
+#    وBL-A يُسأل **ببار الدخول e وسنته** (اختراقٌ في 2022 ودخولٌ في 2023) · و`la` لـRECON-v2 وحدَه (أفقيّ ∧ HD1 ∧ HD2) · وفي `ndq` **لا مفتاحَ جديد**.
+_rx3_orig = (FX.HS.detect, FX.HS.retest_state, FX.HS.control_events, FX.bl_a)
+try:
+    _rx3_n = 300
+    _rx3_l = [10.0] * _rx3_n
+    _rx3_o, _rx3_c, _rx3_h = list(_rx3_l), list(_rx3_l), [10.2] * _rx3_n
+    for _i, _v in ((215, 9.0), (225, 8.0), (235, 9.2)):
+        _rx3_l[_i] = _v
+        _rx3_o[_i], _rx3_c[_i] = _v + 0.6, _v + 0.3
+    _rx3_l[100] = 8.0                                        # S2: قاعٌ قبل كتفه الأيسر (110) بمستوى رأسه ⟵ HD2 يسقط
+    for _i, _v in ((110, 9.0), (120, 8.05), (130, 9.2)):
+        _rx3_l[_i] = _v
+        _rx3_o[_i], _rx3_c[_i] = _v + 0.6, _v + 0.3
+    _rx3_df = _hfx_pd.DataFrame({"Open": _rx3_o, "High": _rx3_h, "Low": _rx3_l, "Close": _rx3_c, "Volume": [1e6] * _rx3_n},
+                                index=_hfx_pd.bdate_range("2022-01-03", periods=_rx3_n))
+    _rx3_dates = [str(x)[:10] for x in _rx3_df.index]
+    _rx3_b1 = next(i for i, d in enumerate(_rx3_dates) if d >= "2022-12-27")
+    _rx3_e1 = next(i for i, d in enumerate(_rx3_dates) if d >= "2023-01-04")
+    assert 235 < _rx3_b1 < _rx3_e1 < _rx3_n, (_rx3_b1, _rx3_e1)
+
+    def _rx3_sig(pid, ls, hd, rs, b, neck_type):
+        return {"pid": pid, "sym": "ZZRX", "b_i": b, "b_date": _rx3_dates[b], "ls_date": _rx3_dates[ls], "head_date": _rx3_dates[hd],
+                "rs_date": _rx3_dates[rs], "neck_type": neck_type, "compound": False, "quality": 50, "width": rs - ls, "height": 2.0,
+                "neck_b": 10.0, "target": 12.0, "head_px": float(_rx3_l[hd]), "rs_px": float(_rx3_l[rs]), "ls_px": float(_rx3_l[ls]),
+                "p0_px": 11.0, "ls_i": ls, "head_i": hd, "rs_i": rs, "p0_i": ls - 5, "p1_i": ls + 5, "p2_i": hd + 5, "pm_i": None}
+    _rx3_sigs = [_rx3_sig("ZZRX|v2", 215, 225, 235, _rx3_b1, "horizontal"), _rx3_sig("ZZRX|v1", 110, 120, 130, 140, "horizontal")]
+    _rx3_cont = {"ZZRX|v2": _rx3_e1, "ZZRX|v1": 146}
+    _rx3_calls = []
+
+    def _rx3_bl_a(A, s, rec, sp_dates):
+        _rx3_calls.append((s["pid"], int(s["b_i"]), int(rec["year"])))
+        return _rx3_orig[3](A, s, rec, sp_dates)
+    FX.HS.detect = lambda df, p, sym="": [dict(x) for x in _rx3_sigs if int(x["b_i"]) < len(df)]
+    FX.HS.retest_state = lambda df, s, p=None: {"retest": "success", "cont_i": _rx3_cont[s["pid"]], "fail_i": None, "touch_i": None}
+    FX.HS.control_events = lambda df, sig_bars=(), wbs=None: []
+    FX.bl_a = _rx3_bl_a
+    _rx3_rx = FX.analyze_sym(("ZZRX", _rx3_df, [], [], {}, "rx"))
+    _rx3_calls_rx = list(_rx3_calls)
+    _rx3_calls.clear()
+    _rx3_nd = FX.analyze_sym(("ZZRX", _rx3_df, [], [], {}, "ndq"))
+    _rx3_D = {r["pid"]: r for r in _rx3_rx["D"]}
+    _rx3 = {"err": (_rx3_rx["err"], _rx3_nd["err"]),
+            "hd": {p: (r.get("hd1"), r.get("hd2"), "la" in r) for p, r in sorted(_rx3_D.items())},
+            "blA_D": sorted(c for c in _rx3_calls_rx if c[0].endswith("|D")),
+            "blA_C": sorted(c for c in _rx3_calls_rx if not c[0].endswith("|D")),
+            "ndq_clean": all(not any(k in r for k in ("hd1", "hd2", "hd_body_gap", "hd_prior_gap", "hd_w", "blA", "la")) for r in _rx3_nd["D"]),
+            "ndq_blA_D": [c for c in _rx3_calls if c[0].endswith("|D")]}
+except Exception as _e:                                                   # noqa: BLE001
+    _rx3 = {"⛔": f"{type(_e).__name__}: {_e}"}
+finally:
+    FX.HS.detect, FX.HS.retest_state, FX.HS.control_events, FX.bl_a = _rx3_orig
+check("🔁 RXF3 الوصلُ في `analyze_sym`: في `rx` يحمل D قيمَ HD1/HD2 · وBL-A يُسأل ببار الدخول وسنته (2023 لا 2022) · و`la` لـRECON-v2 وحدَه · "
+      "وفي `ndq` لا مفتاحَ جديد ولا BL-A للدخول D (بت-بت)",
+      _rx3 == {"err": (None, None), "hd": {"ZZRX|v1": (True, False, False), "ZZRX|v2": (True, True, True)},
+               "blA_D": sorted([("ZZRX|v1|D", 146, 2022), ("ZZRX|v2|D", _rx3_e1, 2023)]),
+               "blA_C": sorted([("ZZRX|v1", 140, 2022), ("ZZRX|v2", _rx3_b1, 2022)]), "ndq_clean": True, "ndq_blA_D": []},
+      str(_rx3)[:500])
+
+# RXF4 — **الفرضيّاتُ الأربع بالأضعف**: «تُدعَم» = الحدُّ الأدنى فوق الصفر أمام BL-B **و** BL-A · و`n` = 30 يُقاس و29 «لا قياس» · والتسمية:
+#    القوسُ يغلب CLEAN (RX-1) · CLEAN وحدَه RX-2 · لا شيء RX-3 (‏و`note` يُسمّي الذراعَ غيرَ المقيسة) · الأربعُ «لا قياس» RX-4 · وثوابتُ العقد.
+try:
+    def _rx4_cmp(spec):
+        out = {}
+        for (k, bk), (n, lo) in spec.items():
+            out[f"{k}|ALL|{bk}"] = {"clean_I2_60": {"n_sig": n, "lo": lo}, "B1": {"n_sig": n, "lo": lo}}
+        return out
+    _rx4_all = lambda n, lo: {(k, bk): (n, lo) for k in ("RECON", "RECON2") for bk in ("BL-B", "BL-A")}
+    _rx4_h2 = _rx4_cmp(_rx4_all(30, 0.01))
+    _rx4_c = _rx4_cmp(_rx4_all(40, 0.01))
+    for _k in ("RECON", "RECON2"):
+        _rx4_c[f"{_k}|ALL|BL-B"]["B1"]["lo"] = -0.01
+    _rx4_onlyB = _rx4_cmp({**_rx4_all(40, 0.02), ("RECON", "BL-A"): (40, -0.001), ("RECON2", "BL-A"): (40, -0.001)})
+    _rx4_n29 = _rx4_cmp({**_rx4_all(40, -0.01), ("RECON2", "BL-A"): (29, 0.05), ("RECON2", "BL-B"): (29, 0.05)})
+    _rx4_none = _rx4_cmp(_rx4_all(10, 0.5))
+    _hx = {k: FX.hypotheses_rx(v) for k, v in (("h2", _rx4_h2), ("c", _rx4_c), ("onlyB", _rx4_onlyB), ("n29", _rx4_n29), ("none", _rx4_none))}
+    _rx4 = {k: (v["RX"], tuple(v[h]["status"] for h in ("RX-H1a", "RX-H2a", "RX-H1b", "RX-H2b")), tuple(v["note"])) for k, v in _hx.items()}
+    _rx4["const"] = (FX.RX_Q, FX.RX_ALPHA, FX.MIN_N, FX.RX_EXCH, FX.ALL_ERA,
+                     (FX.RX_SEED_V2, FX.RX_SEED_V1, FX.RX_SEED_NEG, FX.RX_MIX_SEED))
+except Exception as _e:                                                   # noqa: BLE001
+    _rx4 = {"⛔": f"{type(_e).__name__}: {_e}"}
+_RX4_S, _RX4_N, _RX4_X = "تُدعَم", "لا تُدعَم", "لا قياس"
+check("🔁 RXF4 `hypotheses_rx`: الأضعفُ بين BL-B وBL-A · n = 30 يُقاس و29 لا · القوسُ يغلب CLEAN · والذراعُ غيرُ المقيسة تُسمّى · وثوابتُ العقد (q = 1/5 · 98.75%)",
+      _rx4 == {"h2": ("RX-1 «البناءُ الأمين يربح»", (_RX4_S,) * 4, ()),
+               "c": ("RX-2 «يبلغ ولا يربح»", (_RX4_S, _RX4_N, _RX4_S, _RX4_N), ()),
+               "onlyB": ("RX-3 «لا ميزةَ حتى بالبناء الأمين»", (_RX4_N,) * 4, ()),
+               "n29": ("RX-3 «لا ميزةَ حتى بالبناء الأمين»", (_RX4_N, _RX4_N, _RX4_X, _RX4_X), ("RECON-v2",)),
+               "none": ("RX-4 «لا قياس»", (_RX4_X,) * 4, ("RECON", "RECON-v2")),
+               "const": (0.2, 0.05 / 4, 30, ("N", "A"), "ALL", (20261006, 20261007, 20261008, 20261009))}, str(_rx4)[:500])
+
+# RXF5 — **`run_rx` طرفًا لطرف بلا شبكة** (جذوع: الكون · الشموع · النظام · الكاشف · المجلّدُ مؤقّت · بلا دفع): يُرجع 0 · ويكتب الأربعة ·
+#    والمخطّطاتُ «RX01…» شموعٌ وحدَها (بلا رمزٍ ولا تاريخ) · والمفتاحُ المختوم يُفتح إلى V2/V1/NEG ببصمته المطبوعة · و`hd1` في الـCSV ·
+#    و`blind_mix` بلا بادئةٍ «BX» كما كان (التدقيقُ الأوّل بت-بت).
+import tempfile as _rx5_tmp                                               # noqa: E402
+import os as _rx5_os                                                      # noqa: E402
+_rx5_orig = (FX.rx_population, FX._fetch, FX._regime, FX._pool_run, FX.FX_DIR, FX.HS.detect, FX.HS.retest_state,
+             FX.HS.control_events, FX.HS.load_population, S.get_universe, _rx5_os.environ.get("HS_FX_SAVE"))
+try:
+    _rx5_dir = _rx5_tmp.mkdtemp(prefix="rxf5_")
+    _rx5_calls = {}
+
+    def _rx5_ctrl(df, sig_bars=(), wbs=None):
+        return [{"b_i": i, "entry": float(df["Close"].iloc[i]), "height": 1.0, "wb": 30} for i in (60, 80, 160, 180, 250, 270)]
+    FX.rx_population = lambda text=None, exclude=(): (_rx5_calls.setdefault("excl", sorted(exclude)), ["ZZRA", "ZZRB"])[1]
+    FX._fetch = lambda syms: ({s: _rx3_df for s in syms}, {"src": "stub", "none": []}, {s: [] for s in syms})
+    FX._regime = lambda: ({}, None)
+    FX._pool_run = lambda fn, tasks, workers=4: [fn(t) for t in tasks]
+    FX.FX_DIR = _rx5_dir
+    FX.HS.detect = lambda df, p, sym="": [dict(x, sym=sym, pid=x["pid"].replace("ZZRX", sym)) for x in _rx3_sigs if int(x["b_i"]) < len(df)]
+    FX.HS.retest_state = lambda df, s, p=None: {"retest": "success", "cont_i": _rx3_cont[s["pid"].replace(s["pid"].split("|")[0], "ZZRX")],
+                                                "fail_i": None, "touch_i": None}
+    FX.HS.control_events = _rx5_ctrl
+    FX.HS.load_population = lambda root=".": ["ZZBOT"]
+    S.get_universe = lambda: ["ZZNDQ"]
+    _rx5_os.environ["HS_FX_SAVE"] = "0"
+    _rx5_rc = FX.run_rx()
+    _rx5_files = sorted(_rx5_os.listdir(_rx5_dir))
+    _rx5_charts = _hfx_json.load(open(_rx5_os.path.join(_rx5_dir, "fx_rx_blind_charts.json"), encoding="utf-8"))
+    _rx5_key, _rx5_ksha = FX.open_key(open(_rx5_os.path.join(_rx5_dir, "fx_rx_blind_key.b64"), encoding="utf-8").read())
+    _rx5_js = _hfx_json.load(open(_rx5_os.path.join(_rx5_dir, "fx_rx.json"), encoding="utf-8"))
+    _rx5_csv = _hfx_pd.read_csv(_rx5_os.path.join(_rx5_dir, "fx_signals_rx.csv"))
+    _rx5_bars_only = all(isinstance(v, list) and all(len(b) == 4 and all(isinstance(x, float) for x in b) for b in v) for v in _rx5_charts.values())
+    _rx5_bx, _ = FX.blind_mix([{"kind": "NEW", "bars": [[1.0, 1.0, 1.0, 1.0]]}])
+    _rx5 = {"rc": _rx5_rc, "excl": _rx5_calls.get("excl"),
+            "files": _rx5_files == ["fx_rx.json", "fx_rx_blind_charts.json", "fx_rx_blind_key.b64", "fx_signals_rx.csv"],
+            "ids": sorted(_rx5_charts) == [f"RX{j:02d}" for j in range(1, len(_rx5_charts) + 1)] and len(_rx5_charts) > 0,
+            "bars_only": _rx5_bars_only, "kinds": sorted({v["kind"] for v in _rx5_key.values()}),
+            "sha": _rx5_ksha == _rx5_js["samples"]["key_sha256"], "label": _rx5_js["hypotheses"]["RX"],
+            "csv_hd": "hd1" in _rx5_csv.columns, "bx": sorted(_rx5_bx)}
+except Exception as _e:                                                   # noqa: BLE001
+    _rx5 = {"⛔": f"{type(_e).__name__}: {_e}"}
+finally:
+    (FX.rx_population, FX._fetch, FX._regime, FX._pool_run, FX.FX_DIR, FX.HS.detect, FX.HS.retest_state, FX.HS.control_events,
+     FX.HS.load_population, S.get_universe) = _rx5_orig[:10]
+    if _rx5_orig[10] is None:
+        _rx5_os.environ.pop("HS_FX_SAVE", None)
+    else:
+        _rx5_os.environ["HS_FX_SAVE"] = _rx5_orig[10]
+    import shutil as _rx5_sh
+    _rx5_sh.rmtree(_rx5_dir, ignore_errors=True) if "_rx5_dir" in dir() else None
+check("🔁 RXF5 `run_rx` طرفًا لطرف: يُرجع 0 ويكتب الأربعة في مجلّده · المستبعَدُ POP-BOT ∪ ناسداك · «RX01…» شموعٌ وحدَها · المفتاحُ يُفتح إلى "
+      "V1/V2/NEG ببصمته المطبوعة · و`hd1` في الـCSV · و`blind_mix` الافتراضيّ «BX» كما كان",
+      _rx5 == {"rc": 0, "excl": ["ZZBOT", "ZZNDQ"], "files": True, "ids": True, "bars_only": True, "kinds": ["NEG", "V1", "V2"],
+               "sha": True, "label": "RX-4 «لا قياس»", "csv_hd": True, "bx": ["BX01"]}, str(_rx5)[:500])
+
+# RXF6 — **العقدُ والـworkflow**: `hs_rx_prereg.md` موجودٌ بثوابته (q = 1/5 · 98.75% · الفرضيّاتُ الأربع · بذورُ العيّنة) · ووضعُ `rx` في خيارات
+#    `hs_forensic.yml` (بلا كرون) · و`main()` يوجّهه إلى `run_rx` (‏AST).
+try:
+    _rx6_doc = open("hs_forensic/hs_rx_prereg.md", encoding="utf-8").read()
+    import yaml as _rx6_yaml
+    _rx6_wf = _rx6_yaml.safe_load(open(".github/workflows/hs_forensic.yml", encoding="utf-8"))
+    _rx6_on = _rx6_wf.get(True) or _rx6_wf.get("on") or {}
+    _rx6_main = _hfx_ast.parse(_insp.getsource(FX.main))
+    _rx6 = {"doc": all(x in _rx6_doc for x in ("q = 1/5", "98.75%", "RX-H1a", "RX-H2a", "RX-H1b", "RX-H2b", "20261006", "20261009", "otherlisted.txt")),
+            "opt": "rx" in (_rx6_on.get("workflow_dispatch") or {}).get("inputs", {}).get("mode", {}).get("options", []),
+            "no_cron": "schedule" not in _rx6_on,
+            "dispatch": any(isinstance(n, _hfx_ast.Call) and getattr(n.func, "id", None) == "run_rx" for n in _hfx_ast.walk(_rx6_main))}
+except Exception as _e:                                                   # noqa: BLE001
+    _rx6 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔁 RXF6 العقدُ بثوابته · ووضعُ `rx` في خيارات الـworkflow بلا كرون · و`main()` يوجّهه إلى `run_rx` (AST)",
+      _rx6 == {"doc": True, "opt": True, "no_cron": True, "dispatch": True}, str(_rx6)[:300])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
