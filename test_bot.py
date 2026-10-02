@@ -78285,7 +78285,7 @@ check("🔒 RXC1 الإغلاقُ **مُنفَّذ** (محورُ الرأس وا
                "consts": (True, "HSFX_REOPEN", 8), "witness": True, "first": True, "envmap": True, "notice": True, "sec": True, "one": True},
       str(_rxc)[:500])
 
-# 🎯 TGF1-TGF14 — `T-TGT` «TARGET FORENSICS» (2026-10-02 · أمرُ المالك «DO NOT REOPEN H&S YET» · العقد `hs_forensic/target_forensics_prereg.md`):
+# 🎯 TGF1-TGF15 — `T-TGT` «TARGET FORENSICS» (2026-10-02 · أمرُ المالك «DO NOT REOPEN H&S YET» · العقد `hs_forensic/target_forensics_prereg.md`):
 #    أداةُ قراءةٍ فقط على إشاراتٍ **مخزَّنة** — لا كاشف · لا تلغرام · لا حالةَ إنتاج · ولا تمسّ إغلاقَ `hs_forensic.py`. الأقفالُ سلوكيّة على
 #    شموعٍ اصطناعيّة (بلا شبكة) ‏+ AST للحدود ‏+ دورةُ الأوضاع الثلاثة كاملةً في مجلّدٍ مؤقّتٍ خارج المستودع (لا تسريب · LEAK1/LEAK2).
 import ast as _tgt_ast                                                     # noqa: E402
@@ -78665,6 +78665,34 @@ check("🎯 TGF14 العقدُ (`target_forensics_prereg.md`) يحمل التع�
       "وثوابتُ الأداة = العقد (0.1% · 95% · 99% · 0.5% · 1% · 120 جلسة · 2.864/2.539/2.306 · 2026-06-16)",
       _tgt14 == {"text": [], "consts": (0.001, 0.95, 0.99, 1e-6, 0.005, 0.01, 120, 2.864, 2.539, 2.306, "2026-06-16")},
       str(_tgt14)[:400])
+
+# ── TGF15 **كلُّ مخرَجٍ تكتبه الأداةُ في `OUT_DIR` غيرُ مُتجاهَل في git** (عطلٌ مُثبَت 2026-10-02: تشغيلةُ pop الأولى `36980912940` لم تحفظ
+#    `tf_pop_signals.csv` لأن `*.csv` في `.gitignore` جعل `git add` يرفضه صامتًا · صنفُ HS38): المخرجاتُ من الوحدة (ثوابتُ `*_FILE`/`*_CSV` تحت
+#    `OUT_DIR`) ‏+ AST: كلُّ اسمٍ في قوائم الحفظ (`files = […]` · `files += […]` · `_save([…])`) منها ⟵ `git check-ignore -q` لكلٍّ «غيرُ مُتجاهَل» ·
+#    وشاهدا ضبطٍ يُثبتان أن الفاحصَ يمسك (`*.csv` خارج الاستثناءات و`__pycache__` مُتجاهَلان).
+try:
+    import subprocess as _tgf15_sp                                       # noqa: PLC0415
+    _outs15 = {n: v for n, v in vars(TGT).items() if n.endswith(("_FILE", "_CSV")) and isinstance(v, str)
+               and _tgt_os.path.dirname(v) == TGT.OUT_DIR}
+    _ast15 = _tgt_ast.parse(open("target_forensics.py", encoding="utf-8").read())
+    _lists15 = [c.args[0] for c in _tgt_ast.walk(_ast15) if isinstance(c, _tgt_ast.Call) and getattr(c.func, "id", None) == "_save"
+                and c.args and isinstance(c.args[0], _tgt_ast.List)]
+    _lists15 += [a.value for a in _tgt_ast.walk(_ast15) if isinstance(a, (_tgt_ast.Assign, _tgt_ast.AugAssign))
+                 and isinstance(a.value, _tgt_ast.List) and any(getattr(t, "id", None) == "files"
+                                                                for t in (a.targets if isinstance(a, _tgt_ast.Assign) else [a.target]))]
+    _saved15 = sorted({e.id for lst in _lists15 for e in lst.elts if isinstance(e, _tgt_ast.Name)})
+
+    def _ign15(path):
+        return _tgf15_sp.run(["git", "check-ignore", "-q", path], capture_output=True).returncode == 0
+    _bad15 = [p for p in _outs15.values() if _ign15(p)]
+    _ctl15 = [_ign15(_tgt_os.path.join("hs_research", "zz_other.csv")), _ign15(_tgt_os.path.join("__pycache__", "zz.pyc"))]
+except Exception as _e:                                                   # noqa: BLE001
+    _outs15, _saved15, _bad15, _ctl15 = {}, [], [f"⛔ {type(_e).__name__}: {_e}"], []
+check("🎯 TGF15 كلُّ مخرَجٍ تكتبه الأداةُ في `hs_research/target/` غيرُ مُتجاهَل في git (`tf_pop_signals.csv` · `tf_pop.json` · `tf_dxst.json` · "
+      "الشارتاتُ والمفتاحُ والوسومُ والنتيجة) · وكلُّ ما في قوائم الحفظ منها · وشاهدا الضبط مُتجاهَلان (الفاحصُ يمسك)",
+      len(_outs15) == 7 and "POP_CSV" in _outs15 and set(_saved15) >= {"POP_FILE", "POP_CSV", "DXST_FILE", "CHARTS_FILE", "KEY_FILE"}
+      and set(_saved15) <= set(_outs15) and not _bad15 and _ctl15 == [True, True],
+      f"outs={sorted(_outs15)} saved={_saved15} bad={_bad15} ctl={_ctl15}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
