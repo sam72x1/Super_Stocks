@@ -1,0 +1,72 @@
+name: "🧭 FAISAL METHOD V3 — أداةُ التحليل (ticker · cases · validate)"
+
+# 🧭 أمرُ المالك 2026-10-02 «FAISAL METHOD — AUTONOMOUS MASTER MISSION» · الأداة faisal_method_v3/faisal_tool.py.
+# الأوضاع: ticker (تحليلُ رمزٍ واحد · وتلغرام فقط إن send=1 صراحةً) · cases (التحقّقُ البصريّ على حالات صور فيصل)
+#          · validate (T-W — العقد faisal_method_v3/T_W_prereg.md مدموجٌ قبل أيّ رقم)
+#          · poolcap (تدقيقُ سقف بِركة رادار الضغط — المعاييرُ في pressure_pool_cap_audit.md §⓪ قبل الرقم · لا يمسّ الإنتاج).
+# 🔒 قراءةٌ فقط: لا حالةَ إنتاج · ولا سرَّ تلغرام إلّا حين send=1 (التعبيرُ أدناه يمرّر نصًّا فارغًا غيرَ ذلك).
+# 📺 الشموعُ من TradingView مباشرةً — **بلا `BARS_SOURCE`** (مفتاحُه محصورٌ بـworkflows الإنتاج · قفلُ TVB9).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "ticker · cases · validate · poolcap"
+        type: choice
+        options: [ticker, cases, validate, poolcap]
+        default: ticker
+      ticker:
+        description: "الرمز (لوضع ticker)"
+        required: false
+        default: ""
+      asof:
+        description: "تاريخ القراءة YYYY-MM-DD (اختياريّ · فارغ = آخر جلسة)"
+        required: false
+        default: ""
+      send:
+        description: "1 = أرسل النتيجةَ تلغرام (لوضع ticker وحدَه)"
+        required: false
+        default: "0"
+
+concurrency:
+  group: faisal-v3-${{ inputs.mode }}-${{ inputs.ticker }}
+  cancel-in-progress: false
+
+jobs:
+  v3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧭 FAISAL V3
+        env:
+          PYTHONUNBUFFERED: "1"
+          V3_MODE: ${{ inputs.mode }}
+          V3_TICKER: ${{ inputs.ticker }}
+          V3_ASOF: ${{ inputs.asof }}
+          V3_SEND: ${{ inputs.send }}
+          TELEGRAM_BOT_TOKEN: ${{ inputs.send == '1' && secrets.TELEGRAM_BOT_TOKEN || '' }}
+          TELEGRAM_CHAT_ID: ${{ inputs.send == '1' && secrets.TELEGRAM_CHAT_ID || '' }}
+        run: python faisal_method_v3/run_v3.py
+
+      - name: Upload outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: faisal-v3-${{ inputs.mode }}
+          path: faisal_method_v3/out/
+          retention-days: 30
+          if-no-files-found: ignore

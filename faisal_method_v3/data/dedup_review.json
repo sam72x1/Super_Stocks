@@ -1,0 +1,862 @@
+{
+ "method": "كلُّ عنقودٍ متعدّد الأعضاء اقترحته البصمةُ عُرض بعيني على لوحاتٍ مصغّرة (ثمّ بتكبيرٍ عند الشكّ) — هذا الملفّ يسجّل الأزواجَ التي حكمتُ أنها ليست تكرارًا ولماذا.",
+ "not_duplicate": [
+  [
+   "TG_1908",
+   "X_20260905_11",
+   "منشوران مختلفان لفيصل: $SMX «تحت المراقبه الان انتظار البري» مقابل $RAYA «اعتقد الشركه مصريه» — يتشاركان قالبَ X الأسود والشارتَ المُدرَج وحدَه"
+  ],
+  [
+   "X_20260827_raya_notready",
+   "X_20260905_11",
+   "منشوران مختلفان عن RAYA: «غير جاهز فنيا انتظار الهبوط» (4:44) مقابل «اعتقد الشركه مصريه» (12:25) — نصٌّ وتوقيتٌ وشارتٌ مختلفة"
+  ],
+  [
+   "X_20260827_raya_notready_2",
+   "X_20260905_11",
+   "كالسابق"
+  ]
+ ],
+ "reviewed_clusters": [
+  {
+   "cluster_id": "CAPP_20260918_18_NTCL",
+   "members": [
+    "APP_20260918_18_NTCL",
+    "TG_57923"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CAPP_20260918_19_NTCL",
+   "members": [
+    "APP_20260918_19_NTCL",
+    "TG_57921"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CAPP_20260918_20_NTCL",
+   "members": [
+    "APP_20260918_20_NTCL",
+    "TG_57922"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CAPP_20260918_49_main",
+   "members": [
+    "APP_20260918_49_main",
+    "TG_57926"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CAPP_20260918_50_ZNB",
+   "members": [
+    "APP_20260918_50_ZNB",
+    "TG_57925"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CAPP_20260918_52_ELPW",
+   "members": [
+    "APP_20260918_52_ELPW",
+    "TG_57924"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CAPP_20260918_53_ELPW",
+   "members": [
+    "APP_20260918_53_ELPW",
+    "TG_57929"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CEDU_20260918_10_pattern",
+   "members": [
+    "EDU_20260918_10_pattern",
+    "TG_58051"
+   ],
+   "verdict": "duplicate_confirmed",
+   "note": "exact_content: TG_58051 هو رسمُ القاع/القمّة المزدوجة نفسُه في EDU_20260918_10 — ليس دليلًا جديدًا"
+  },
+  {
+   "cluster_id": "CIMG_0141",
+   "members": [
+    "IMG_0141",
+    "TG_2214",
+    "TG_2215"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0142",
+   "members": [
+    "IMG_0142",
+    "TG_2213"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0144",
+   "members": [
+    "IMG_0144",
+    "TG_2212"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0149",
+   "members": [
+    "IMG_0149",
+    "TG_2210"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0150",
+   "members": [
+    "IMG_0150",
+    "TG_2076",
+    "TG_2209"
+   ],
+   "verdict": "duplicate_confirmed",
+   "note": "derivative_screenshot: TG_2076 لقطةُ شاشةٍ أخرى (بحثُ X) للمنشور نفسِه"
+  },
+  {
+   "cluster_id": "CIMG_0151",
+   "members": [
+    "IMG_0151",
+    "TG_2208"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0152",
+   "members": [
+    "IMG_0152",
+    "TG_2205"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0153",
+   "members": [
+    "IMG_0153",
+    "TG_1811",
+    "TG_2206"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0177",
+   "members": [
+    "IMG_0177",
+    "TG_2203"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0178",
+   "members": [
+    "IMG_0178",
+    "TG_2204"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0179",
+   "members": [
+    "IMG_0179",
+    "TG_2199"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0267",
+   "members": [
+    "IMG_0267",
+    "TG_2201"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0290",
+   "members": [
+    "IMG_0290",
+    "TG_2198"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0291",
+   "members": [
+    "IMG_0291",
+    "TG_2193"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0292",
+   "members": [
+    "IMG_0292",
+    "TG_2194"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0293",
+   "members": [
+    "IMG_0293",
+    "TG_2195"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0294",
+   "members": [
+    "IMG_0294",
+    "TG_2190"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0295",
+   "members": [
+    "IMG_0295",
+    "TG_2191"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0296",
+   "members": [
+    "IMG_0296",
+    "TG_2192"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0297",
+   "members": [
+    "IMG_0297",
+    "TG_2187"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0298",
+   "members": [
+    "IMG_0298",
+    "TG_2188"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0299",
+   "members": [
+    "IMG_0299",
+    "TG_2189"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0300",
+   "members": [
+    "IMG_0300",
+    "TG_2185"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0301",
+   "members": [
+    "IMG_0301",
+    "TG_2186"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0302",
+   "members": [
+    "IMG_0302",
+    "TG_2184"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0303",
+   "members": [
+    "IMG_0303",
+    "TG_2182"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0304",
+   "members": [
+    "IMG_0304",
+    "TG_2183"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0314",
+   "members": [
+    "IMG_0314",
+    "TG_2177"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0315",
+   "members": [
+    "IMG_0315",
+    "TG_2172"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0316",
+   "members": [
+    "IMG_0316",
+    "TG_2173"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0317",
+   "members": [
+    "IMG_0317",
+    "TG_2174"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0318",
+   "members": [
+    "IMG_0318",
+    "TG_2169"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0319",
+   "members": [
+    "IMG_0319",
+    "TG_2170"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0320",
+   "members": [
+    "IMG_0320",
+    "TG_2171"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0358",
+   "members": [
+    "IMG_0358",
+    "TG_1877"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0359",
+   "members": [
+    "IMG_0359",
+    "TG_1872"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0394",
+   "members": [
+    "IMG_0394",
+    "TG_1855"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_0570",
+   "members": [
+    "IMG_0570",
+    "IMG_0692"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_8126",
+   "members": [
+    "IMG_8126",
+    "TG_1894"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_8127",
+   "members": [
+    "IMG_8127",
+    "TG_1895"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_8133",
+   "members": [
+    "IMG_8133",
+    "TG_1889"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_8136",
+   "members": [
+    "IMG_8136",
+    "TG_1886"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_8242",
+   "members": [
+    "IMG_8242",
+    "TG_1873"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_9923",
+   "members": [
+    "IMG_9923",
+    "TG_1846"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CIMG_9925",
+   "members": [
+    "IMG_9925",
+    "TG_1842"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1806",
+   "members": [
+    "TG_1806",
+    "TG_2049"
+   ],
+   "verdict": "duplicate_confirmed",
+   "note": "annotated_derivative: TG_1806 عليه أسهمٌ مرسومة (أحمر/أخضر) فوق شارت TG_2049 نفسِه — مشتقٌّ معلَّم لا دليلٌ مستقلّ"
+  },
+  {
+   "cluster_id": "CTG_1879",
+   "members": [
+    "TG_1879",
+    "TG_1935",
+    "TG_1994"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1882",
+   "members": [
+    "TG_1882",
+    "TG_2104"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1884",
+   "members": [
+    "TG_1884",
+    "TG_2020"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1885",
+   "members": [
+    "TG_1885",
+    "TG_2021"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1887",
+   "members": [
+    "TG_1887",
+    "TG_1903"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1888",
+   "members": [
+    "TG_1888",
+    "TG_1902"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1890",
+   "members": [
+    "TG_1890",
+    "TG_1896"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1891",
+   "members": [
+    "TG_1891",
+    "TG_1893"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1910",
+   "members": [
+    "TG_1910",
+    "TG_1915",
+    "TG_1943",
+    "TG_1948"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1911",
+   "members": [
+    "TG_1911",
+    "TG_1944"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1912",
+   "members": [
+    "TG_1912",
+    "TG_1945"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1913",
+   "members": [
+    "TG_1913",
+    "TG_1946"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1914",
+   "members": [
+    "TG_1914",
+    "TG_1947"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1916",
+   "members": [
+    "TG_1916",
+    "TG_1949"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1917",
+   "members": [
+    "TG_1917",
+    "TG_1950"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1919",
+   "members": [
+    "TG_1919",
+    "TG_1953"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1920",
+   "members": [
+    "TG_1920",
+    "TG_1954"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1921",
+   "members": [
+    "TG_1921",
+    "TG_1955"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1922",
+   "members": [
+    "TG_1922",
+    "TG_1956"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1923",
+   "members": [
+    "TG_1923",
+    "TG_2026",
+    "TG_2027",
+    "TG_2072"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1924",
+   "members": [
+    "TG_1924",
+    "TG_1962"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1925",
+   "members": [
+    "TG_1925",
+    "TG_1968"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1926",
+   "members": [
+    "TG_1926",
+    "TG_1927",
+    "TG_1970",
+    "TG_1975"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1928",
+   "members": [
+    "TG_1928",
+    "TG_1974"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1929",
+   "members": [
+    "TG_1929",
+    "TG_1973"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1930",
+   "members": [
+    "TG_1930",
+    "TG_1988"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1931",
+   "members": [
+    "TG_1931",
+    "TG_1987"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1934",
+   "members": [
+    "TG_1934",
+    "TG_1990"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1936",
+   "members": [
+    "TG_1936",
+    "TG_1993"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1937",
+   "members": [
+    "TG_1937",
+    "TG_1992"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1938",
+   "members": [
+    "TG_1938",
+    "TG_1996"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1939",
+   "members": [
+    "TG_1939",
+    "TG_2000"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1940",
+   "members": [
+    "TG_1940",
+    "TG_2038"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1995",
+   "members": [
+    "TG_1995",
+    "TG_2216"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_1998",
+   "members": [
+    "TG_1998",
+    "TG_2217"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_2016",
+   "members": [
+    "TG_2016",
+    "TG_2067"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_2017",
+   "members": [
+    "TG_2017",
+    "TG_2062"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_2032",
+   "members": [
+    "TG_2032",
+    "TG_2060"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_2046",
+   "members": [
+    "TG_2046",
+    "TG_2122"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_2047",
+   "members": [
+    "TG_2047",
+    "TG_2123"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_2089",
+   "members": [
+    "TG_2089",
+    "TG_2218"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_2110",
+   "members": [
+    "TG_2110",
+    "TG_2114"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_50582",
+   "members": [
+    "TG_50582",
+    "TG_50593"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_50583",
+   "members": [
+    "TG_50583",
+    "TG_50594"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_50821",
+   "members": [
+    "TG_50821",
+    "TG_50822",
+    "TG_50823"
+   ],
+   "verdict": "duplicate_confirmed",
+   "note": "same_source_series: ثلاثُ شرائح من منشورٍ واحد (الصورةُ نفسُها والفقرةُ مختلفة) — مصدرٌ واحد"
+  },
+  {
+   "cluster_id": "CTG_57865",
+   "members": [
+    "TG_57865",
+    "TG_57868"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CTG_57927",
+   "members": [
+    "TG_57927",
+    "X_20260918_54_indicators"
+   ],
+   "verdict": "duplicate_confirmed"
+  },
+  {
+   "cluster_id": "CX_20260827_raya_notready",
+   "members": [
+    "X_20260827_raya_notready",
+    "X_20260827_raya_notready_2"
+   ],
+   "verdict": "duplicate_confirmed"
+  }
+ ],
+ "review_scope": "كلُّ العناقيد المتعدّدة الأعضاء (102) عُرضت بعيني على لوحاتٍ مصغّرة 2026-10-02 · والعنقودُ الذي ضمّ TG_1908 وX_20260905_11 فُكّ (أعلاه) · ولا عنقودَ آخر خاطئ",
+ "rejected_heuristic": {
+  "name": "ocr_veto (Jaccard<0.35 على كلماتٍ دالّة)",
+  "tested": "2026-10-02",
+  "pairs_split": 39,
+  "wrong": 35,
+  "right": 4,
+  "reason": "ضجيجُ OCR على نصّ الشارت يجعل نسختين متطابقتين «مختلفتين» نصًّا ⟵ أُسقط ولم يُستعمَل"
+ }
+}

@@ -78837,6 +78837,313 @@ check("🎯 TGF15 كلُّ مخرَجٍ تكتبه الأداةُ في `hs_resea
       and set(_saved15) <= set(_outs15) and not _bad15 and _ctl15 == [True, True],
       f"outs={sorted(_outs15)} saved={_saved15} bad={_bad15} ctl={_ctl15}")
 
+# 🧭 FV1-FV11 — FAISAL METHOD V3 (2026-10-02 · أمرُ المالك «FAISAL METHOD — AUTONOMOUS MASTER MISSION»): أداةُ التحليل
+#    `faisal_method_v3/faisal_tool.py` ‏+ التحقّقُ الكمّيّ `w_validate.py` (العقد `T_W_prereg.md`) ‏+ الطبقةُ الجنائيّة (JSON).
+#    سلوكيّةٌ على شموعٍ اصطناعيّة بلا شبكة · لا تُشغِّل البنّائين (يكتبون ملفّاتٍ متتبَّعة ⟵ LEAK1) بل تقرأ مخرَجاتهم المدفوعة.
+import ast as _fv_ast                                                      # noqa: E402
+import hashlib as _fv_hl                                                   # noqa: E402
+import json as _fv_json                                                    # noqa: E402
+import os as _fv_os                                                        # noqa: E402
+import sys as _fv_sys                                                      # noqa: E402
+import numpy as _fv_np                                                     # noqa: E402
+_fv_sys.path.insert(0, _fv_os.path.join(_fv_os.path.dirname(_fv_os.path.abspath(__file__)), "faisal_method_v3"))
+# وحداتٌ محلّيّةٌ في مجلّدٍ فرعيّ (لا ملفّاتُ جذر) ⟵ تُستورَد بالاسم بعد إضافة المسار · DEP1 يحرس الخارجيّةَ وحدَها
+import importlib as _fv_imp                                                # noqa: E402
+FVT = _fv_imp.import_module("faisal_tool")
+FVB = _fv_imp.import_module("forensics_build")
+FVW = _fv_imp.import_module("w_validate")
+
+_FV_PATH = [10, 9.5, 9, 8.5, 8, 7.5, 7, 6.5, 6, 5.6, 5.3, 5.0, 5.2, 5.5, 5.8, 6.0, 5.8, 5.5, 5.3, 5.1, 5.25, 5.5, 5.7, 5.9, 6.05,
+            6.2, 6.4, 6.5, 6.3, 6.1, 6.15, 6.4, 6.8, 7.2, 7.5]
+
+
+def _fv_bars(path):
+    c = _fv_np.array(path, float)
+    o = _fv_np.r_[c[0], c[:-1]]
+    return o, _fv_np.maximum(o, c) * 1.01, _fv_np.minimum(o, c) * 0.99, c
+
+
+def _fv_rw(seed, n=900):
+    r = _fv_np.random.default_rng(seed)
+    c = 10 * _fv_np.exp(_fv_np.cumsum(r.normal(0, 0.04, n)))
+    o = _fv_np.r_[c[0], c[:-1]]
+    return {"o": o, "h": _fv_np.maximum(o, c) * (1 + _fv_np.abs(r.normal(0, 0.02, n))),
+            "l": _fv_np.minimum(o, c) * (1 - _fv_np.abs(r.normal(0, 0.02, n))), "c": c, "d": ["2019-06-03"] * n}
+
+
+# ── FV1 لا نظرَ إلى المستقبل: محورٌ عند i لا يظهر قبل i+k · والتقريرُ عند asof مطابقٌ بوجود بياناتٍ لاحقة وبدونها
+try:
+    _A = _fv_rw(7)
+    _sw = FVT.confirmed_swings(_A["h"], _A["l"], 400, 3)
+    _f1a = bool(_sw) and all(all(i + 3 <= _a for i, _t, _p in FVT.confirmed_swings(_A["h"], _A["l"], _a, 3))
+                             for _a in range(60, 890, 7))
+    _sw2 = FVT.confirmed_swings(_A["h"], _A["l"], 600, 3)
+    _f1b = [x for x in _sw2 if x[0] + 3 <= 400] == _sw
+    _d = [f"2019-01-{(i % 28) + 1:02d}" for i in range(900)]
+    _eq = []
+    for _a in range(120, 890, 7):
+        _r1 = FVT.analyze_arrays(_A["o"][:_a + 1], _A["h"][:_a + 1], _A["l"][:_a + 1], _A["c"][:_a + 1], _d[:_a + 1], asof=_a)
+        _r2 = FVT.analyze_arrays(_A["o"], _A["h"], _A["l"], _A["c"], _d, asof=_a)
+        _eq.append(_r1["w"] == _r2["w"] and _r1["state"] == _r2["state"] and _r1["targets"] == _r2["targets"])
+    _f1c = all(_eq)
+    _swall = FVT.confirmed_swings(_A["h"], _A["l"], 899, 3)
+    _f1d = all(FVT.find_w(_A["o"], _A["h"], _A["l"], _A["c"], _a, 3) == FVT.find_w(_A["o"], _A["h"], _A["l"], _A["c"], _a, 3, sw=_swall)
+               for _a in (200, 400, 590, 880))
+except Exception as _e:                                                   # noqa: BLE001
+    _f1a = _f1b = _f1c = _f1d = False
+    _eq = [f"⛔ {type(_e).__name__}: {_e}"]
+check("🧭 FV1 لا نظرَ إلى المستقبل: محورٌ عند i يُعرف عند i+k فقط · والمحاورُ عند asof بادئةُ ما بعده · والتقريرُ (W · الحالة · الأهداف) "
+      "عند أربعة تواريخَ مطابقٌ بوجود شموعٍ لاحقة وبدونها · و`find_w(sw=)` المسرَّعُ مطابقٌ للحساب الكامل",
+      _f1a and _f1b and _f1c and _f1d, f"a={_f1a} b={_f1b} eq={_eq} d={_f1d}")
+
+# ── FV2 تسلسلُ الحالات على W اصطناعيّ بقواعد فيصل: الوسطُ غيرُ آمن ⟵ الاختراق ⟵ إعادةُ الاختبار · والإبطالُ والرفضُ والدعمُ الثاني
+try:
+    _o, _h, _l, _c = _fv_bars(_FV_PATH)
+    _dd = [f"2026-01-{i + 1:02d}" for i in range(len(_c))]
+    _st = {a: FVT.analyze_arrays(_o, _h, _l, _c, _dd, asof=a)["state"]["state"] for a in (21, 22, 25, 28)}
+    _w = FVT.find_w(_o, _h, _l, _c, 25)
+    _f2w = _w is not None and abs(_w["neckline"] - 6.06) < 0.01 and _w["i1"] == 11 and _w["i2"] == 19
+    _crash = list(_FV_PATH[:24]) + [5.0, 4.6, 4.3]
+    _o2, _h2, _l2, _c2 = _fv_bars(_crash)
+    _s_inv = FVT.analyze_arrays(_o2, _h2, _l2, _c2, _dd[:len(_c2)], asof=len(_c2) - 1)["state"]["state"]
+    _fail = list(_FV_PATH[:26]) + [6.2, 5.8, 5.6]
+    _o3, _h3, _l3, _c3 = _fv_bars(_fail)
+    _s_fail = FVT.analyze_arrays(_o3, _h3, _l3, _c3, _dd[:len(_c3)], asof=len(_c3) - 1)["state"]["state"]
+    _sup = list(_FV_PATH[:23]) + [5.6, 5.3, 5.2]
+    _o4, _h4, _l4, _c4 = _fv_bars(_sup)
+    _s_sup = FVT.analyze_arrays(_o4, _h4, _l4, _c4, _dd[:len(_c4)], asof=len(_c4) - 1)["state"]["state"]
+except Exception as _e:                                                   # noqa: BLE001
+    _st, _f2w, _s_inv, _s_fail, _s_sup = {"err": f"⛔ {type(_e).__name__}: {_e}"}, False, None, None, None
+check("🧭 FV2 حالاتُ الـW بقواعد فيصل على شموعٍ اصطناعيّة: لا W قبل تأكيد القاع الثاني (k=3) ⟵ «الوسط غير آمن» (R-W-02) ⟵ اختراق (R-W-03) "
+      "⟵ إعادةُ اختبارٍ صامدة · والكسرُ أعمق من 13% ⟵ إبطال · والعودةُ تحت العنق ⟵ رفضُ الاختراق (R-CL-03) · وعند الدعم الثاني ⟵ AT_SUPPORT2",
+      _st == {21: "NO_W", 22: "UNSAFE_MIDDLE", 25: "BREAKOUT", 28: "RETEST_HOLD"} and _f2w and _s_inv == "INVALIDATED"
+      and _s_fail == "FAILED_BREAKOUT" and _s_sup == "AT_SUPPORT2",
+      f"st={_st} w={_f2w} inv={_s_inv} fail={_s_fail} sup={_s_sup}")
+
+# ── FV3 ثلاثُ عائلاتِ أهدافٍ لا تُخلط (target_forensics.json): سلّمُ فيصل CONFIRMED · ‏+100% = ضعفُ الدخول CONFIRMED ·
+#    الحركةُ المقيسة 100% طرفٌ ثالث POSSIBLE و50% UNKNOWN — والنصُّ يَسِم الطرفَ الثالث «للمقارنة»
+try:
+    _wq = {"neckline": 6.0, "height": 1.0, "low2": 5.0, "base": 5.0}
+    _tg = {t["name"]: t for t in FVT.targets(_wq, 6.0, [6.6, 7.4])}
+    _f3 = (_tg["T1"]["family"] == "faisal_ladder" and _tg["T1"]["status"] == "CONFIRMED" and _tg["T2"]["price"] == 7.4
+           and _tg["+100%"]["price"] == 12.0 and _tg["+100%"]["status"] == "CONFIRMED"
+           and _tg["MM100"]["price"] == 7.0 and _tg["MM100"]["source"] == "third_party" and _tg["MM100"]["status"] == "POSSIBLE"
+           and _tg["MM50"]["price"] == 6.5 and _tg["MM50"]["status"] == "UNKNOWN")
+    _txt = FVT.render_text(FVT.analyze_arrays(*_fv_bars(_FV_PATH), [f"2026-01-{i + 1:02d}" for i in range(35)], asof=34, symbol="SYN"))
+    _f3t = "MM100" in _txt and "طرف ثالث — للمقارنة" in _txt and "+100%" in _txt and "(فيصل)" in _txt
+except Exception as _e:                                                   # noqa: BLE001
+    _tg, _f3, _f3t, _txt = {}, False, False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 FV3 الأهدافُ بثلاث عائلاتٍ موسومة لا تُخلط: سلّمُ مقاومات فيصل (CONFIRMED) · ‏+100% = ضعفُ سعر الدخول (CONFIRMED · F100-1) · "
+      "الحركةُ المقيسة MM100 = العنق ‏+ الارتفاع (طرفٌ ثالث · POSSIBLE) وMM50 (UNKNOWN) — والرسالةُ تَسِم الطرفَ الثالث «للمقارنة»",
+      _f3 and _f3t, f"tg={ {k: (v['price'], v['status']) for k, v in _tg.items()} } txt={_f3t}")
+
+# ── FV4 قاعدةُ العرض: لا علاماتِ مقارنة في الرسالة · وكلُّ سطرٍ يبدأ بـRLM
+try:
+    _lines4 = _txt.split("\n")
+    _bad4 = [x for x in _lines4 if any(s in x for s in ("≥", "≤", ">", "<"))]
+    _rlm4 = all(x.startswith("‏") for x in _lines4)
+except Exception as _e:                                                   # noqa: BLE001
+    _bad4, _rlm4 = [f"⛔ {type(_e).__name__}"], False
+check("🧭 FV4 رسالةُ الأداة بلا علامات مقارنة (≥ ≤ > <) — قاعدةُ المشروع للمبتدئ · وكلُّ سطرٍ يبدأ بعلامة RLM (اتّجاهٌ من اليمين)",
+      not _bad4 and _rlm4 and len(_lines4) >= 8, f"bad={_bad4[:2]} rlm={_rlm4}")
+
+# ── FV5 كلُّ عتبةٍ بوسم مصدرها · والمنسوبةُ لفيصل أو للإنتاج تطابق ثوابتَ `Super_stock.CONFIG` بالاسم (لا نسخةً تنجرف)
+try:
+    _cf = S.CONFIG
+    _p = {k: v[0] for k, v in FVT.PARAMS.items()}
+    _srcs = {v[1] for v in FVT.PARAMS.values()}
+    _f5 = (_srcs <= {"faisal_verbatim", "faisal_inferred", "production", "engineering"}
+           and all(v[2].strip() for v in FVT.PARAMS.values())
+           and _p["STOP_BELOW_PCT"] == _cf["STOP_BELOW_LOW_PCT"][1]
+           and _p["LEVEL_TOL_PCT"] == _cf["FAISAL_LEVEL_TOL_PCT"]
+           and _p["LOW2_SWEEP_MAX_PCT"] == _cf["SPLIT_SWEEP_MAX_PCT"]
+           and _p["LOW2_SWEEP_MIN_PCT"] == _cf["SPLIT_SWEEP_MIN_PCT"]
+           and _p["NECK_RISE_MIN_PCT"] == _cf["METHOD_BOUNCE_MIN_PCT"]
+           and _p["SUPPORT2_ZONE_PCT"] == (_cf["ENTRY_TRANCHES"] - 1) * _cf["ENTRY_STEP_PCT"]
+           and _p["DECISION_BAND_PCT"] == _cf["ENTRY_STEP_PCT"])
+except Exception as _e:                                                   # noqa: BLE001
+    _f5, _p, _srcs = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}, set()
+check("🧭 FV5 كلُّ عتبةٍ في الأداة بوسم مصدرها وسببِها · والمنسوبةُ لفيصل أو للإنتاج تطابق `S.CONFIG` بالاسم: الوقف 7 · تسامحُ المستوى 2 · "
+      "سحبُ السيولة 7/13 · الارتدادُ 10 · منطقةُ الدعم الثاني = (الدفعات−1)×الخطوة · نطاقُ القرار = الخطوة",
+      _f5, f"p={_p} srcs={_srcs}")
+
+# ── FV6 الـworkflow: يدويٌّ فقط · صلاحيةُ قراءة · سرُّ تلغرام لا يمرّ إلّا بـsend == '1' · وبلا BARS_SOURCE (TVB9)
+try:
+    _wf = open(_fv_os.path.join(".github", "workflows", "faisal_v3.yml"), encoding="utf-8").read()
+    import yaml as _fv_yaml                                              # noqa: PLC0415
+    _y = _fv_yaml.safe_load(_wf)
+    _on = _y.get(True) or _y.get("on")
+    _env6 = _y["jobs"]["v3"]["steps"][3]["env"]
+    _f6 = (set(_on) == {"workflow_dispatch"} and _y["permissions"] == {"contents": "read"}
+           and _env6["TELEGRAM_BOT_TOKEN"].startswith("${{ inputs.send == '1' && secrets.")
+           and _env6["TELEGRAM_CHAT_ID"].startswith("${{ inputs.send == '1' && secrets.")
+           and "BARS_SOURCE" not in _wf.split("permissions")[1] and "schedule" not in _on)
+except Exception as _e:                                                   # noqa: BLE001
+    _f6 = False
+    _env6 = {"err": f"⛔ {type(_e).__name__}: {_e}"}
+check("🧭 FV6 `faisal_v3.yml` يدويٌّ وحدَه (لا كرون) · صلاحيتُه قراءة · وسرّا تلغرام لا يمرّان إلّا حين send == '1' صراحةً · وبلا BARS_SOURCE",
+      _f6, f"env={ {k: v for k, v in _env6.items() if 'TELEGRAM' in k} if isinstance(_env6, dict) else _env6}")
+
+# ── FV7 الإرسالُ لا يقع إلّا داخل `if send:` في run_ticker (AST) · ولا نداءَ تلغرام في أيّ دالّةٍ أخرى من الأداة والتحقّق
+try:
+    _t7 = _fv_ast.parse(open(FVT.__file__, encoding="utf-8").read())
+    _calls7 = []
+    for _fn in [n for n in _fv_ast.walk(_t7) if isinstance(n, _fv_ast.FunctionDef)]:
+        for _n in _fv_ast.walk(_fn):
+            if isinstance(_n, _fv_ast.Call) and getattr(_n.func, "attr", None) in ("send_telegram", "send_telegram_document"):
+                _calls7.append(_fn.name)
+    _rt = next(n for n in _fv_ast.walk(_t7) if isinstance(n, _fv_ast.FunctionDef) and n.name == "run_ticker")
+    _ifs7 = [n for n in _fv_ast.walk(_rt) if isinstance(n, _fv_ast.If) and getattr(n.test, "id", None) == "send"]
+    _in_if = any(isinstance(m, _fv_ast.Call) and getattr(m.func, "attr", None) == "send_telegram"
+                 for i in _ifs7 for m in _fv_ast.walk(i))
+    _others7 = [p for p in ("w_validate.py", "faisal_cases.py", "forensics_build.py", "corpus_build.py")
+                if "send_telegram" in open(_fv_os.path.join("faisal_method_v3", p), encoding="utf-8").read()]
+    _f7 = _calls7 == ["run_ticker"] and _in_if and not _others7
+except Exception as _e:                                                   # noqa: BLE001
+    _f7, _calls7, _others7 = False, [f"⛔ {type(_e).__name__}"], []
+check("🧭 FV7 تلغرام لا يُنادى إلّا في run_ticker داخل `if send:` (AST) · وأدواتُ التحقّق والبناء بلا أيّ نداء إرسال",
+      _f7, f"calls={_calls7} others={_others7}")
+
+# ── FV8 سلامةُ الطبقة الجنائيّة المدفوعة: القواعدُ الجديدة كلُّها في rule_graph بحالةٍ = status_of(وسم المصدر · الوحدات) · وكلُّ معرّفٍ
+#    مستشهَدٍ به معروفُ الصنف (مدوَّنة · خارجيّ · وثائقيّ) · والحكمان: «50٪» الأولى CONFIRMED والحركةُ المقيسة طرفٌ ثالث POSSIBLE
+try:
+    _rg = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "rule_graph.json"), encoding="utf-8"))
+    _byid = {r["id"]: r for r in _rg["rules"]}
+    _corpus8 = {r["id"] for r in _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "image_corpus.json"), encoding="utf-8"))["images"]}
+    _docs8 = set(next(s["ids"] for s in _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "source_access.json"),
+                                                               encoding="utf-8"))["sources"] if s["id"] == "SRC-DOC-ONLY-IMAGES"))
+    _miss8, _stat8 = [], []
+    for _r in FVB.NEW_RULES:
+        _g = _byid.get(_r["id"])
+        if _g is None or _g["evidence_status"] not in FVB.STATUSES:
+            _stat8.append((_r["id"], "غائب"))
+            continue
+        if _g["evidence_status"] != FVB.status_of(_r["source_type"], _g["supporting_units"]):
+            _stat8.append((_r["id"], _g["evidence_status"]))
+        for _i in _r["supporting"] + _r["contradicting"]:
+            if not (_i in _corpus8 or _i in FVB.EXTERNAL or _i in _docs8):
+                _miss8.append((_r["id"], _i))
+    _tf8 = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "target_forensics.json"), encoding="utf-8"))["meanings"]
+    _m50 = {m["id"]: m for m in _tf8["50"]}
+    _m100 = {m["id"]: m for m in _tf8["100"]}
+    _f8 = (not _miss8 and not _stat8 and _m50["F50-1"]["status"] == "CONFIRMED" and _m50["F50-1"]["source_type"] == "faisal_verbatim"
+           and _m100["F100-6"]["source_type"] == "third_party" and _m100["F100-6"]["status"] == "POSSIBLE"
+           and _m100["F100-1"]["status"] == "CONFIRMED" and _byid["R-W-02"]["evidence_status"] in ("SUPPORTED", "CONFIRMED")
+           and _byid["R-W-09"]["source_type"] == "third_party" and all(r["evidence_status"] in FVB.STATUSES for r in _rg["rules"]))
+except Exception as _e:                                                   # noqa: BLE001
+    _f8, _miss8, _stat8 = False, [f"⛔ {type(_e).__name__}: {_e}"], []
+check("🧭 FV8 الطبقةُ الجنائيّة المدفوعة متّسقة: كلُّ قاعدةٍ جديدة في rule_graph بحالةٍ تساوي status_of(وسم المصدر · وحدات الدليل) · وكلُّ معرّفٍ مستشهَد "
+      "معروفُ الصنف · و«50٪ صعودٌ أوّل ⟵ لا مطاردة» CONFIRMED بلفظ فيصل · والحركةُ المقيسة 100% طرفٌ ثالث POSSIBLE · و«+100% ربح» CONFIRMED",
+      _f8, f"miss={_miss8[:3]} stat={_stat8[:3]}")
+
+# ── FV9 الفهرسُ لا يكذب: كلُّ صورةٍ في image_corpus موجودةٌ وSHA256 مطابق · وكلُّ عنقودٍ متعدّدٍ مراجَعٌ بصريًّا · وأزواجُ «ليست تكرارًا» في عنقودين مختلفين
+try:
+    _ic = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "image_corpus.json"), encoding="utf-8"))["images"]
+    _badsha = []
+    for _r in _ic:
+        _p9 = _r["file"]
+        if not _fv_os.path.exists(_p9):
+            _badsha.append((_r["id"], "غائب"))
+            continue
+        _hh = _fv_hl.sha256()
+        with open(_p9, "rb") as _fh:
+            for _ch in iter(lambda: _fh.read(1 << 20), b""):
+                _hh.update(_ch)
+        if _hh.hexdigest() != _r["sha256"]:
+            _badsha.append((_r["id"], "sha"))
+    _dc = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "dedup_clusters.json"), encoding="utf-8"))
+    _src9 = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "data", "dedup_review.json"), encoding="utf-8"))
+    _rev = {c["cluster_id"] for c in _src9.get("reviewed_clusters", [])}
+    _same9 = _src9 == _dc["review"]
+    _multi = {c["cluster_id"] for c in _dc["clusters"]}
+    _cl9 = {r["id"]: r["dup_cluster"] for r in _ic}
+    _nd9 = [(a, b) for a, b, *_x in _src9["not_duplicate"] if _cl9.get(a) == _cl9.get(b)]
+    _f9 = not _badsha and _multi <= _rev and not _nd9 and len(_ic) >= 700 and _same9
+except Exception as _e:                                                   # noqa: BLE001
+    _f9, _badsha, _nd9, _multi, _rev, _same9 = False, [f"⛔ {type(_e).__name__}: {_e}"], [], set(), set(), False
+check("🧭 FV9 فهرسُ الصور صادق: كلُّ صورةٍ مفهرَسة موجودةٌ وبصمتُها SHA256 مطابقة · وكلُّ عنقودِ تكرارٍ متعدّدٍ مراجَعٌ بالعين (من ملفّ "
+      "المراجعة نفسِه · ونسختُه في dedup_clusters مطابقة) · وما حُكم «ليس تكرارًا» في عنقودين مختلفين",
+      _f9, f"bad={_badsha[:3]} unreviewed={sorted(_multi - _rev)[:3]} nd={_nd9} same={_same9}")
+
+# ── FV10 التحقّقُ الكمّيّ يطابق عقدَه المدموج (T_W_prereg.md) ولا ينظر للأمام: ثوابتُه بالأرقام نفسِها · والمداخلُ على بياناتٍ مقصوصة
+#    مطابقةٌ للمداخل على الكاملة لكلّ مدخلٍ مكتملِ المعطيات قبل القصّ
+try:
+    _pr10 = open(_fv_os.path.join("faisal_method_v3", "T_W_prereg.md"), encoding="utf-8").read()
+    _k10 = (FVW.WIN == 60 and FVW.N_CTRL == 10 and FVW.SEED == 20261002 and abs(FVW.ALPHA4 - 0.0125) < 1e-12 and FVW.MIN_N == 30
+            and FVW.SPLIT_PAD_DAYS == 45 and "60 جلسة" in _pr10 and "20261002" in _pr10 and "98.75%" in _pr10 and "أقلُّ من 30" in _pr10)
+    _ok10 = []
+    for _seed in (3, 11):
+        _B = _fv_rw(_seed, 1200)
+        _full = {(e["kind"], e["e"]) for e in FVW.detect_events(_B)}
+        for _m in (500, 850):
+            _T = {k: (v[:_m] if k != "d" else v[:_m]) for k, v in _B.items()}
+            _cut = {(e["kind"], e["e"]) for e in FVW.detect_events(_T)}
+            _ok10.append(_cut <= _full and {x for x in _full if x[1] <= _m - 2 - FVW.WIN} <= _cut)
+    _f10 = _k10 and all(_ok10) and len(_full) > 20
+except Exception as _e:                                                   # noqa: BLE001
+    _f10, _k10, _ok10 = False, False, [f"⛔ {type(_e).__name__}: {_e}"]
+check("🧭 FV10 تحقّقُ `T-W` يطابق عقدَه المدموج قبل الرقم (نافذة 60 · ضبطٌ 10 · بذرة 20261002 · بونفيروني 98.75% · حدّ 30 · وسادة التقسيم 45) · "
+      "ومداخلُه على شموعٍ مقصوصة مجموعةٌ جزئيّة من مداخل الكاملة وتشمل كلَّ مدخلٍ اكتملت معطياتُه قبل القصّ (لا نظرَ للأمام)",
+      _f10, f"k={_k10} ok={_ok10}")
+
+# ── FV11 فروعُ الحكم كما كُتبت (§⑤): أقلُّ من 30 في ذراع ⟵ W-4 · الوسطُ أسوأُ بفاصلٍ فوق الصفر ⟵ W-1 · والتفوّقُ على الضبط ⟵ W-2 · ولا شيء ⟵ W-3
+try:
+    _r11 = _fv_np.random.default_rng(5)
+
+    def _rows11(n, a, m, b, ctrl):
+        out = []
+        for k, mu in (("A", a), ("M", m), ("B", b)):
+            for _i in range(n):
+                out.append({"era": "TEST", "kind": k, "split_ok": True, "ret": float(mu + _r11.normal(0, 0.01)),
+                            "ctrl": [float(ctrl + _r11.normal(0, 0.01)) for _j in range(10)], "why": "time"})
+        return out
+    _b11 = {"few": FVW.verdict(_rows11(10, 0.2, -0.1, 0.2, 0.0))["branch"],
+            "w1w2": FVW.verdict(_rows11(40, 0.2, -0.1, 0.2, 0.0))["branch"],
+            "w3": FVW.verdict(_rows11(40, 0.0, 0.0, 0.0, 0.0))["branch"]}
+    _f11 = (_b11["few"].startswith("W-4") and "W-1" in _b11["w1w2"] and "W-2" in _b11["w1w2"] and _b11["w3"].startswith("W-3"))
+except Exception as _e:                                                   # noqa: BLE001
+    _f11, _b11 = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+check("🧭 FV11 فروعُ حكم `T-W` كما كُتبت قبل الرقم: أقلُّ من 30 في ذراع ⟵ W-4 · الوسطُ أسوأ من A وB معًا ⟵ W-1 · وتفوّقٌ على الضبط ⟵ W-2 · ولا فرقَ ⟵ W-3",
+      _f11, f"{_b11}")
+
+
+# ── FV12 تدقيقُ سقف بِركة رادار الضغط (§23 · قراءةٌ فقط · المعاييرُ في `pressure_pool_cap_audit.md` §⓪ قبل الرقم):
+#    الذراعُ A **هي** `build_pool` الإنتاجيّ حرفًا (لا نسخةٌ تتباعد) · B بلا سقف · C المتحرّكون بالأحدث أوّلًا بالسقف نفسِه ·
+#    والتصنيفُ بحدود §⓪ · ولا إسنادَ ولا تعديلَ لـ`POOL_CAP`/`build_pool` ولا لحالة الرادار الأصليّة (AST + سلوك).
+try:
+    FVP = _fv_imp.import_module("pool_cap_audit")
+    import press_radar as _fv_pr                                           # noqa: E402
+    _cap12 = _fv_pr.POOL_CAP
+    _wl12 = {"pullback": [{"symbol": "PB1", "entry": 1.0}],
+             "stocks": [{"symbol": f"ST{i}"} for i in range(3)],
+             "removed": [{"symbol": f"RM{i}", "date": "2026-09-25"} for i in range(5)],
+             "explosions": [{"symbol": f"MV{i:03d}", "date": f"2026-09-{1 + i % 28:02d}"} for i in range(_cap12)]}
+    _st12 = {"symbols": {f"ME{i}": {"first_seen": "2026-09-20", "last_seen": "2026-09-28"} for i in range(4)}}
+    _st12_copy = _fv_json.loads(_fv_json.dumps(_st12))
+    _a12 = FVP.arms(_wl12, _st12, "2026-10-01")
+    _A, _B, _C = _a12["A"], _a12["B"], _a12["C"]
+    _mv = [s for s in _C if s.startswith("MV")]
+    _mv_dates = [_a12["meta"][s]["date"] for s in _mv]
+    _f12 = (len(_B) == 1 + 3 + 5 + _cap12 + 4 and _A == _B[:_cap12] and _a12["cut"] == len(_B) - _cap12
+            and len(_C) == _cap12 and _C[:4] == ["PB1", "ST0", "ST1", "ST2"]
+            and _mv_dates == sorted(_mv_dates, reverse=True) and not any(s.startswith(("RM", "ME")) for s in _C)
+            and _st12 == _st12_copy and _fv_pr.POOL_CAP == _cap12)
+    _cls = FVP.classify
+    _k12 = {"cov": _cls({"ready_lost_A": 9, "ready_B": 9}, 30, 0.89), "few": _cls({"ready_lost_A": 9, "ready_B": 9}, 9, 0.99),
+            "abs3": _cls({"ready_lost_A": 3, "ready_B": 1000}, 30, 0.95), "pct5": _cls({"ready_lost_A": 2, "ready_B": 40}, 30, 0.95),
+            "low": _cls({"ready_lost_A": 2, "ready_B": 100}, 30, 0.95), "zero": _cls({"ready_lost_A": 0, "ready_B": 0}, 30, 0.95)}
+    _ok12 = _k12 == {"cov": "UNKNOWN", "few": "UNKNOWN", "abs3": "MATERIAL", "pct5": "MATERIAL", "low": "LOW", "zero": "LOW"}
+    _t12 = _fv_ast.parse(open(_fv_os.path.join("faisal_method_v3", "pool_cap_audit.py"), encoding="utf-8").read())
+    _asg12 = [n for n in _fv_ast.walk(_t12) if isinstance(n, (_fv_ast.Assign, _fv_ast.AugAssign, _fv_ast.AnnAssign))
+              for t in (n.targets if isinstance(n, _fv_ast.Assign) else [n.target])
+              if isinstance(t, _fv_ast.Attribute) and t.attr in ("POOL_CAP", "build_pool", "MEMORY_DAYS")]
+    _grd12 = any(isinstance(n, _fv_ast.Assert) for n in _fv_ast.walk(_t12))
+except Exception as _e:                                                    # noqa: BLE001
+    _f12, _ok12, _asg12, _grd12, _k12 = False, False, ["⛔"], False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 FV12 تدقيقُ سقف البِركة (§23): A = `build_pool` الإنتاجيّ حرفًا · B بلا سقف · C المتحرّكون بالأحدث أوّلًا بالسقف نفسِه · "
+      "والتصنيفُ بحدود §⓪ (تغطية 90% · 10 جلسات · 3 مفقودين أو 5%) · ولا إسنادَ لـ`POOL_CAP`/`build_pool` ولا مسَّ لحالة الرادار",
+      _f12 and _ok12 and not _asg12 and _grd12, f"bins={_k12} · إسناد={len(_asg12)} · حارس={_grd12}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

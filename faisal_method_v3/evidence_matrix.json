@@ -1,0 +1,3682 @@
+{
+ "meta": {
+  "rules": 357,
+  "units_total": 609,
+  "units_cited": 143,
+  "units_uncited": 466
+ },
+ "by_rule": [
+  {
+   "rule": "R-W-01",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_58044",
+    "CTG_58045",
+    "CTG_58050"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-02",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260918_12_doublebottom"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-03",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_58052",
+    "CX_20260918_12_doublebottom",
+    "EXT:UPL_933a9f58"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-04",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260918_12_doublebottom"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-05",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0627",
+    "CIMG_0628",
+    "EXT:PDF_B_p25"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-06",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_58048",
+    "EXT:PDF_B_p25"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-07",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_58045"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-08",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0627",
+    "CIMG_0628",
+    "EXT:PDF_B_p52"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-09",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_58043",
+    "CTG_58050"
+   ],
+   "contradicting_units": [
+    "CIMG_0627"
+   ]
+  },
+  {
+   "rule": "R-W-10",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_58042",
+    "CTG_58043"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-11",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CEDU_20260918_44_doublebottom"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-12",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_58043"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-13",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_58042"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-W-14",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_58046"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-CL-01",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_58045",
+    "CTG_58046",
+    "CTG_58049"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-CL-02",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_58049"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-CL-03",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57862"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-TP-01",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57862"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-EL-01",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50584",
+    "CTG_58052"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-EL-02",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_58052"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-EL-03",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_58052"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-EL-04",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_1985",
+    "EXT:PDF_B_p27"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-EL-05",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CX_20260918_12_doublebottom",
+    "EXT:PDF_B_p27"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-50-01",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_8242",
+    "CTG_2108",
+    "EXT:PDF_B_p76"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-100-01",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151",
+    "CIMG_0153",
+    "CIMG_0316"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "R-ST-01",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_8127",
+    "CX_20260905_10"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-001",
+   "status": "CONTRADICTED",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_1818"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-002",
+   "status": "UNKNOWN",
+   "source_type": "unsourced",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-003",
+   "status": "UNKNOWN",
+   "source_type": "unsourced",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-004",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-005",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-006",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-007",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-008",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-009",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-010",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-011",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-012",
+   "status": "CONTRADICTED",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-013",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-014",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-015",
+   "status": "CONTRADICTED",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-016",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CIMG_0151"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-017",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-018",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-019",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-020",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-021",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-022",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-023",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-024",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-025",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-026",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-027",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-028",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-029",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CTG_1871"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-030",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-031",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-032",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-033",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_2043"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-034",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_2043"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-035",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-036",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-037",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_2017"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-038",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0150",
+    "CIMG_0151"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-039",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-040",
+   "status": "CONTRADICTED",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_1818"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-041",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CTG_2007"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-042",
+   "status": "UNKNOWN",
+   "source_type": "unsourced",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-043",
+   "status": "UNKNOWN",
+   "source_type": "unsourced",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-044",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CTG_50606"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-045",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0150",
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-046",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-047",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-048",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CIMG_8242"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-049",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-050",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151",
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-051",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-052",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-053",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-054",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-055",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-056",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0150",
+    "CIMG_0151"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-057",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0150",
+    "CIMG_0151",
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-058",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0297"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-059",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CIMG_0267"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-060",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-061",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151",
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-062",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-063",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-064",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-065",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-066",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-067",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-068",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-069",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0486",
+    "CIMG_0488",
+    "CIMG_0497"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-070",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0486",
+    "CIMG_0488"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-071",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-072",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0486",
+    "CIMG_0496"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-073",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0496"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-074",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-075",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0488"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-076",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-077",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0496"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-078",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0497"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-079",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-080",
+   "status": "UNKNOWN",
+   "source_type": "unsourced",
+   "supporting_units": [
+    "CTG_1870",
+    "CTG_2037"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-081",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-082",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-083",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-084",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-085",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-086",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-087",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-088",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-089",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_1829"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-090",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0294"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-091",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-092",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-093",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-094",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-095",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-096",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-097",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-098",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-099",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-100",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-101",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-102",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-103",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-104",
+   "status": "PROBABLE",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-105",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-106",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-107",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-108",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-109",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-110",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-111",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-112",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-113",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-114",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-115",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-116",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-117",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-118",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-119",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-120",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-121",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CIMG_0267"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-122",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-123",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_2017"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-124",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-125",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CIMG_0153"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-126",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-127",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CIMG_0297"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-128",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-129",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151",
+    "CTG_2066"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-130",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-131",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-132",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-133",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-134",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-135",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CTG_2066"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-136",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CIMG_0297"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-137",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-138",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CIMG_0296"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-139",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-140",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-141",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-142",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-143",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-144",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-145",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-146",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-147",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0294",
+    "CIMG_0296"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-148",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-149",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-150",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-151",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-152",
+   "status": "PROBABLE",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-153",
+   "status": "PROBABLE",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-154",
+   "status": "PROBABLE",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-155",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-156",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-157",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-158",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-159",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-160",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-161",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-162",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-163",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-164",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-165",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-166",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_01"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-167",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_03"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-168",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_03"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-169",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_03"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-170",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_04"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-171",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CX_20260905_04"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-172",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_09"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-173",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_10"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-174",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_10"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-175",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_10"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-176",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_10"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-177",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_07"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-178",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_20260905_01"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-179",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_20260905_01"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-180",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_20260905_01"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-181",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_20260905_02"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-182",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_20260905_02"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-183",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_20260905_02"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-184",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CEDU_20260905_02"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-185",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_20260905_06"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-186",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_20260905_07"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-187",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_20260905_07"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-188",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_20260905_08"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-189",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_20260905_08"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-190",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_20260905_09"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-191",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-192",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-193",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-194",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-195",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-196",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-197",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-198",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-199",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-200",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-201",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-202",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-203",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_2043"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-204",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CIMG_0151"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-205",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-206",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_20260918_40_NUWE",
+    "CX_20260918_11_afterhours",
+    "CX_20260918_48_WETO"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-207",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260918_24_SXTC"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-208",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260905_03"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-209",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CTG_20260918_38_NUWE"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-210",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_20260918_37_NUWE",
+    "CX_20260918_27_CUPR"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-211",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CTG_20260918_38_NUWE"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-212",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CTG_20260918_38_NUWE"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-213",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CTG_20260918_37_NUWE",
+    "CX_20260905_04"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-214",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-215",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260918_21_entry_below_ma"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-216",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260918_29_KWM"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-217",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151",
+    "CX_20260918_85_YMT"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-218",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260918_61_VEEE"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-219",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260918_61_VEEE"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-220",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_20260905_01"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-221",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CCH_20260918_05_CPOP"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-222",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CCH_20260918_17_NTCL",
+    "CX_20260918_48_WETO"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-223",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260918_48_WETO"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-224",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-225",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-226",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CAPP_20260918_18_NTCL",
+    "CIMG_0151",
+    "CIMG_0486",
+    "CX_20260918_85_YMT"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-227",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20260918_04_ELPW"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-228",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CEDU_20260918_56_three_inside_up"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-229",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50584",
+    "CTG_50599",
+    "CTG_50606",
+    "CX_20260918_85_YMT"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-230",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0153",
+    "CIMG_0177",
+    "CIMG_0297",
+    "CTG_50584",
+    "CTG_50828",
+    "CTG_57870",
+    "CTG_57874",
+    "CTG_57875",
+    "CTG_57876",
+    "CTG_57881",
+    "CTG_57882",
+    "CTG_57894"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-231",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-232",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151",
+    "CTG_50584"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-233",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50579",
+    "CTG_50586"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-234",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50584"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-235",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50588"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-236",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50581"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-237",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50578",
+    "CTG_50588"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-238",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50580"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-239",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50588",
+    "CTG_50599"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-240",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CTG_50599"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-241",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CTG_50596"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-242",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50577"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-243",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50577"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-244",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_50603"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-245",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50606"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-246",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50606"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-247",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CIMG_0151",
+    "CIMG_0486",
+    "CTG_50584",
+    "CTG_50585",
+    "CTG_50592",
+    "CX_20260918_85_YMT"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-248",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_50600",
+    "CTG_50603"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-249",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CEDU_20260918_44_doublebottom",
+    "CTG_2197",
+    "CTG_50589"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-250",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50828"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-251",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50832"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-252",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50818",
+    "CTG_50819"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-253",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50826"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-254",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-255",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-256",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-257",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CTG_20260905_05",
+    "CTG_50828"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-258",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50828"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-259",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50830"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-260",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50832"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-261",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50606",
+    "CTG_50832"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-262",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50832"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-263",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50831"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-264",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50833"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-265",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50817"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-266",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_20260905_05",
+    "CTG_50827"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-267",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50828"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-268",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50828"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-269",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_50820",
+    "CTG_50825"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-270",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57870",
+    "CTG_57894"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-271",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57870"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-272",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57870"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-273",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57874"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-274",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57874"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-275",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57879",
+    "CTG_57884"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-276",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_50599",
+    "CTG_57872"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-277",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57873"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-278",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57862",
+    "CTG_57885"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-279",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57858",
+    "CTG_57862"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-280",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57885"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-281",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57867"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-282",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57867"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-283",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57890",
+    "CTG_57891"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-284",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57887"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-285",
+   "status": "UNKNOWN",
+   "source_type": "unsourced",
+   "supporting_units": [
+    "CTG_57893",
+    "CTG_57894"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-286",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_57864",
+    "CTG_57865"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-287",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57869",
+    "CTG_57871"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-288",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CIMG_0177",
+    "CTG_57863",
+    "CTG_57866"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-289",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_57876",
+    "CTG_57878",
+    "CTG_57880",
+    "CTG_57882",
+    "CTG_57919"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-290",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CTG_57927",
+    "CTG_57928"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-291",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CAPP_20260918_20_NTCL",
+    "CAPP_20260918_50_ZNB",
+    "CAPP_20260918_52_ELPW",
+    "CIMG_0153",
+    "CTG_57912"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-292",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-293",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CAPP_20260918_18_NTCL",
+    "CAPP_20260918_50_ZNB",
+    "CAPP_20260918_52_ELPW",
+    "CTG_50592",
+    "CTG_57876",
+    "CTG_57913"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-294",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CAPP_20260918_18_NTCL",
+    "CAPP_20260918_50_ZNB",
+    "CAPP_20260918_52_ELPW",
+    "CIMG_0486",
+    "CTG_50592",
+    "CTG_57913"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-295",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CAPP_20260918_18_NTCL",
+    "CAPP_20260918_50_ZNB",
+    "CAPP_20260918_52_ELPW",
+    "CIMG_0151",
+    "CTG_50592",
+    "CTG_57913"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-296",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CTG_50585",
+    "CTG_57913",
+    "CTG_57914",
+    "CTG_57917"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-297",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CAPP_20260918_52_ELPW",
+    "CIMG_0486"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-298",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CIMG_0151",
+    "CTG_57915",
+    "CTG_57918",
+    "CTG_57919"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-299",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CAPP_20260918_53_ELPW",
+    "CTG_57917"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-300",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CAPP_20260918_19_NTCL",
+    "CTG_57876",
+    "CTG_57882",
+    "CTG_57914"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-301",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151",
+    "CIMG_0486",
+    "CIMG_0488"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-302",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [
+    "CIMG_0143"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-303",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-304",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-305",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-306",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CTG_50589"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-307",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CCH_20261001_HS_02_DCOY",
+    "CX_20261001_HS_03_LS"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-308",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20261001_HS_03_LS"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-309",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CX_20261001_HS_03_LS"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-310",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_50589"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-311",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-312",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-313",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-314",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-315",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CCH_20261001_HS_01_DRMA"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-316",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-317",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-318",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CTG_50589"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-319",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CTG_50589"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-320",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CTG_50589"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-321",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CTG_2197",
+    "CTG_50589"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-322",
+   "status": "POSSIBLE",
+   "source_type": "third_party",
+   "supporting_units": [
+    "CTG_50589"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-323",
+   "status": "PROBABLE",
+   "source_type": "faisal_inferred",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-324",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [
+    "CCH_20261001_HS_02_DCOY"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-325",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-326",
+   "status": "CONFIRMED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151",
+    "CTG_50589"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-327",
+   "status": "PROBABLE",
+   "source_type": "faisal_adopted",
+   "supporting_units": [
+    "CIMG_0151",
+    "CTG_57915",
+    "CTG_57918",
+    "CTG_57919"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-328",
+   "status": "SUPPORTED",
+   "source_type": "faisal_verbatim",
+   "supporting_units": [
+    "CIMG_0151"
+   ],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-329",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-330",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  },
+  {
+   "rule": "L-331",
+   "status": "UNKNOWN",
+   "source_type": "engineering",
+   "supporting_units": [],
+   "contradicting_units": []
+  }
+ ],
+ "by_unit": {
+  "CAPP_20260918_18_NTCL": [
+   "L-226",
+   "L-293",
+   "L-294",
+   "L-295"
+  ],
+  "CAPP_20260918_19_NTCL": [
+   "L-300"
+  ],
+  "CAPP_20260918_20_NTCL": [
+   "L-291"
+  ],
+  "CAPP_20260918_50_ZNB": [
+   "L-291",
+   "L-293",
+   "L-294",
+   "L-295"
+  ],
+  "CAPP_20260918_52_ELPW": [
+   "L-291",
+   "L-293",
+   "L-294",
+   "L-295",
+   "L-297"
+  ],
+  "CAPP_20260918_53_ELPW": [
+   "L-299"
+  ],
+  "CCH_20260918_05_CPOP": [
+   "L-221"
+  ],
+  "CCH_20260918_17_NTCL": [
+   "L-222"
+  ],
+  "CCH_20261001_HS_01_DRMA": [
+   "L-315"
+  ],
+  "CCH_20261001_HS_02_DCOY": [
+   "L-307",
+   "L-324"
+  ],
+  "CEDU_20260905_02": [
+   "L-184"
+  ],
+  "CEDU_20260918_44_doublebottom": [
+   "L-249",
+   "R-W-11"
+  ],
+  "CEDU_20260918_56_three_inside_up": [
+   "L-228"
+  ],
+  "CIMG_0143": [
+   "L-302"
+  ],
+  "CIMG_0150": [
+   "L-038",
+   "L-045",
+   "L-056",
+   "L-057"
+  ],
+  "CIMG_0151": [
+   "L-016",
+   "L-021",
+   "L-038",
+   "L-046",
+   "L-049",
+   "L-050",
+   "L-056",
+   "L-057",
+   "L-061",
+   "L-129",
+   "L-204",
+   "L-217",
+   "L-226",
+   "L-232",
+   "L-247",
+   "L-295",
+   "L-298",
+   "L-301",
+   "L-326",
+   "L-327",
+   "L-328",
+   "R-100-01"
+  ],
+  "CIMG_0153": [
+   "L-007",
+   "L-012",
+   "L-031",
+   "L-045",
+   "L-047",
+   "L-050",
+   "L-051",
+   "L-057",
+   "L-061",
+   "L-062",
+   "L-064",
+   "L-066",
+   "L-125",
+   "L-230",
+   "L-291",
+   "R-100-01"
+  ],
+  "CIMG_0177": [
+   "L-230",
+   "L-288"
+  ],
+  "CIMG_0267": [
+   "L-059",
+   "L-121"
+  ],
+  "CIMG_0294": [
+   "L-090",
+   "L-147"
+  ],
+  "CIMG_0296": [
+   "L-138",
+   "L-147"
+  ],
+  "CIMG_0297": [
+   "L-058",
+   "L-127",
+   "L-136",
+   "L-230"
+  ],
+  "CIMG_0316": [
+   "R-100-01"
+  ],
+  "CIMG_0486": [
+   "L-069",
+   "L-070",
+   "L-072",
+   "L-226",
+   "L-247",
+   "L-294",
+   "L-297",
+   "L-301"
+  ],
+  "CIMG_0488": [
+   "L-069",
+   "L-070",
+   "L-075",
+   "L-301"
+  ],
+  "CIMG_0496": [
+   "L-072",
+   "L-073",
+   "L-077"
+  ],
+  "CIMG_0497": [
+   "L-069",
+   "L-078"
+  ],
+  "CIMG_0627": [
+   "R-W-05",
+   "R-W-08"
+  ],
+  "CIMG_0628": [
+   "R-W-05",
+   "R-W-08"
+  ],
+  "CIMG_8127": [
+   "R-ST-01"
+  ],
+  "CIMG_8242": [
+   "L-048",
+   "R-50-01"
+  ],
+  "CTG_1818": [
+   "L-001",
+   "L-040"
+  ],
+  "CTG_1829": [
+   "L-089"
+  ],
+  "CTG_1870": [
+   "L-080"
+  ],
+  "CTG_1871": [
+   "L-029"
+  ],
+  "CTG_1985": [
+   "R-EL-04"
+  ],
+  "CTG_2007": [
+   "L-041"
+  ],
+  "CTG_2017": [
+   "L-037",
+   "L-123"
+  ],
+  "CTG_20260905_01": [
+   "L-178",
+   "L-179",
+   "L-180",
+   "L-220"
+  ],
+  "CTG_20260905_02": [
+   "L-181",
+   "L-182",
+   "L-183"
+  ],
+  "CTG_20260905_05": [
+   "L-257",
+   "L-266"
+  ],
+  "CTG_20260905_06": [
+   "L-185"
+  ],
+  "CTG_20260905_07": [
+   "L-186",
+   "L-187"
+  ],
+  "CTG_20260905_08": [
+   "L-188",
+   "L-189"
+  ],
+  "CTG_20260905_09": [
+   "L-190"
+  ],
+  "CTG_20260918_37_NUWE": [
+   "L-210",
+   "L-213"
+  ],
+  "CTG_20260918_38_NUWE": [
+   "L-209",
+   "L-211",
+   "L-212"
+  ],
+  "CTG_20260918_40_NUWE": [
+   "L-206"
+  ],
+  "CTG_2037": [
+   "L-080"
+  ],
+  "CTG_2043": [
+   "L-033",
+   "L-034",
+   "L-203"
+  ],
+  "CTG_2066": [
+   "L-129",
+   "L-135"
+  ],
+  "CTG_2108": [
+   "R-50-01"
+  ],
+  "CTG_2197": [
+   "L-249",
+   "L-321"
+  ],
+  "CTG_50577": [
+   "L-242",
+   "L-243"
+  ],
+  "CTG_50578": [
+   "L-237"
+  ],
+  "CTG_50579": [
+   "L-233"
+  ],
+  "CTG_50580": [
+   "L-238"
+  ],
+  "CTG_50581": [
+   "L-236"
+  ],
+  "CTG_50584": [
+   "L-229",
+   "L-230",
+   "L-232",
+   "L-234",
+   "L-247",
+   "R-EL-01"
+  ],
+  "CTG_50585": [
+   "L-247",
+   "L-296"
+  ],
+  "CTG_50586": [
+   "L-233"
+  ],
+  "CTG_50588": [
+   "L-235",
+   "L-237",
+   "L-239"
+  ],
+  "CTG_50589": [
+   "L-249",
+   "L-306",
+   "L-310",
+   "L-318",
+   "L-319",
+   "L-320",
+   "L-321",
+   "L-322",
+   "L-326"
+  ],
+  "CTG_50592": [
+   "L-247",
+   "L-293",
+   "L-294",
+   "L-295"
+  ],
+  "CTG_50596": [
+   "L-241"
+  ],
+  "CTG_50599": [
+   "L-229",
+   "L-239",
+   "L-240",
+   "L-276"
+  ],
+  "CTG_50600": [
+   "L-248"
+  ],
+  "CTG_50603": [
+   "L-244",
+   "L-248"
+  ],
+  "CTG_50606": [
+   "L-044",
+   "L-229",
+   "L-245",
+   "L-246",
+   "L-261"
+  ],
+  "CTG_50817": [
+   "L-265"
+  ],
+  "CTG_50818": [
+   "L-252"
+  ],
+  "CTG_50819": [
+   "L-252"
+  ],
+  "CTG_50820": [
+   "L-269"
+  ],
+  "CTG_50825": [
+   "L-269"
+  ],
+  "CTG_50826": [
+   "L-253"
+  ],
+  "CTG_50827": [
+   "L-266"
+  ],
+  "CTG_50828": [
+   "L-230",
+   "L-250",
+   "L-257",
+   "L-258",
+   "L-267",
+   "L-268"
+  ],
+  "CTG_50830": [
+   "L-259"
+  ],
+  "CTG_50831": [
+   "L-263"
+  ],
+  "CTG_50832": [
+   "L-251",
+   "L-260",
+   "L-261",
+   "L-262"
+  ],
+  "CTG_50833": [
+   "L-264"
+  ],
+  "CTG_57858": [
+   "L-279"
+  ],
+  "CTG_57862": [
+   "L-278",
+   "L-279",
+   "R-CL-03",
+   "R-TP-01"
+  ],
+  "CTG_57863": [
+   "L-288"
+  ],
+  "CTG_57864": [
+   "L-286"
+  ],
+  "CTG_57865": [
+   "L-286"
+  ],
+  "CTG_57866": [
+   "L-288"
+  ],
+  "CTG_57867": [
+   "L-281",
+   "L-282"
+  ],
+  "CTG_57869": [
+   "L-287"
+  ],
+  "CTG_57870": [
+   "L-230",
+   "L-270",
+   "L-271",
+   "L-272"
+  ],
+  "CTG_57871": [
+   "L-287"
+  ],
+  "CTG_57872": [
+   "L-276"
+  ],
+  "CTG_57873": [
+   "L-277"
+  ],
+  "CTG_57874": [
+   "L-230",
+   "L-273",
+   "L-274"
+  ],
+  "CTG_57875": [
+   "L-230"
+  ],
+  "CTG_57876": [
+   "L-230",
+   "L-289",
+   "L-293",
+   "L-300"
+  ],
+  "CTG_57878": [
+   "L-289"
+  ],
+  "CTG_57879": [
+   "L-275"
+  ],
+  "CTG_57880": [
+   "L-289"
+  ],
+  "CTG_57881": [
+   "L-230"
+  ],
+  "CTG_57882": [
+   "L-230",
+   "L-289",
+   "L-300"
+  ],
+  "CTG_57884": [
+   "L-275"
+  ],
+  "CTG_57885": [
+   "L-278",
+   "L-280"
+  ],
+  "CTG_57887": [
+   "L-284"
+  ],
+  "CTG_57890": [
+   "L-283"
+  ],
+  "CTG_57891": [
+   "L-283"
+  ],
+  "CTG_57893": [
+   "L-285"
+  ],
+  "CTG_57894": [
+   "L-230",
+   "L-270",
+   "L-285"
+  ],
+  "CTG_57912": [
+   "L-291"
+  ],
+  "CTG_57913": [
+   "L-293",
+   "L-294",
+   "L-295",
+   "L-296"
+  ],
+  "CTG_57914": [
+   "L-296",
+   "L-300"
+  ],
+  "CTG_57915": [
+   "L-298",
+   "L-327"
+  ],
+  "CTG_57917": [
+   "L-296",
+   "L-299"
+  ],
+  "CTG_57918": [
+   "L-298",
+   "L-327"
+  ],
+  "CTG_57919": [
+   "L-289",
+   "L-298",
+   "L-327"
+  ],
+  "CTG_57927": [
+   "L-290"
+  ],
+  "CTG_57928": [
+   "L-290"
+  ],
+  "CTG_58042": [
+   "R-W-10",
+   "R-W-13"
+  ],
+  "CTG_58043": [
+   "R-W-09",
+   "R-W-10",
+   "R-W-12"
+  ],
+  "CTG_58044": [
+   "R-W-01"
+  ],
+  "CTG_58045": [
+   "R-CL-01",
+   "R-W-01",
+   "R-W-07"
+  ],
+  "CTG_58046": [
+   "R-CL-01",
+   "R-W-14"
+  ],
+  "CTG_58048": [
+   "R-W-06"
+  ],
+  "CTG_58049": [
+   "R-CL-01",
+   "R-CL-02"
+  ],
+  "CTG_58050": [
+   "R-W-01",
+   "R-W-09"
+  ],
+  "CTG_58052": [
+   "R-EL-01",
+   "R-EL-02",
+   "R-EL-03",
+   "R-W-03"
+  ],
+  "CX_20260905_01": [
+   "L-166"
+  ],
+  "CX_20260905_03": [
+   "L-167",
+   "L-168",
+   "L-169",
+   "L-208"
+  ],
+  "CX_20260905_04": [
+   "L-170",
+   "L-171",
+   "L-213"
+  ],
+  "CX_20260905_07": [
+   "L-177"
+  ],
+  "CX_20260905_09": [
+   "L-172"
+  ],
+  "CX_20260905_10": [
+   "L-173",
+   "L-174",
+   "L-175",
+   "L-176",
+   "R-ST-01"
+  ],
+  "CX_20260918_04_ELPW": [
+   "L-227"
+  ],
+  "CX_20260918_11_afterhours": [
+   "L-206"
+  ],
+  "CX_20260918_12_doublebottom": [
+   "R-EL-05",
+   "R-W-02",
+   "R-W-03",
+   "R-W-04"
+  ],
+  "CX_20260918_21_entry_below_ma": [
+   "L-215"
+  ],
+  "CX_20260918_24_SXTC": [
+   "L-207"
+  ],
+  "CX_20260918_27_CUPR": [
+   "L-210"
+  ],
+  "CX_20260918_29_KWM": [
+   "L-216"
+  ],
+  "CX_20260918_48_WETO": [
+   "L-206",
+   "L-222",
+   "L-223"
+  ],
+  "CX_20260918_61_VEEE": [
+   "L-218",
+   "L-219"
+  ],
+  "CX_20260918_85_YMT": [
+   "L-217",
+   "L-226",
+   "L-229",
+   "L-247"
+  ],
+  "CX_20261001_HS_03_LS": [
+   "L-307",
+   "L-308",
+   "L-309"
+  ],
+  "EXT:PDF_B_p25": [
+   "R-W-05",
+   "R-W-06"
+  ],
+  "EXT:PDF_B_p27": [
+   "R-EL-04",
+   "R-EL-05"
+  ],
+  "EXT:PDF_B_p52": [
+   "R-W-08"
+  ],
+  "EXT:PDF_B_p76": [
+   "R-50-01"
+  ],
+  "EXT:UPL_933a9f58": [
+   "R-W-03"
+  ]
+ }
+}

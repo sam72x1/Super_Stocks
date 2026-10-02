@@ -39,3 +39,6 @@ faisal_images/*
 
 # 🔎 شارتاتُ «نموذج الرأس والكتفين» المُرسَلة (`head_shoulders.CHART_DIR`) — لا تُدفَع
 hs_*.png
+
+# FAISAL METHOD V3 — مخرَجاتُ التشغيل المحلّيّ (artifacts على Actions · لا تُدفَع)
+faisal_method_v3/out/
