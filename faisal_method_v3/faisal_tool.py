@@ -24,7 +24,20 @@ import sys
 
 import numpy as np
 
-TOOL_VERSION = "FAISAL-V3 1.0 (2026-10-02)"
+TOOL_VERSION = "FAISAL-V3.1 1.1 (2026-10-02)"
+
+# 🔄 V3.1 — قواعدُ بعقدٍ مدموجٍ قبل الرقم (`V31_prereg.md` · #545) · وكلُّ تغييرٍ مؤرَّخٌ في `v31/FAISAL_V3_1_CHANGELOG.md`.
+#    `active` = يغيّر المخرَج · وما ليس نشطًا يُعرض معلومةً أو لا يُستعمل — والقرارُ بدليله في `v31/golden_cases_v31.json`.
+RULES_V31 = {
+    "R-W-SPAN": {"active": True, "status": "ACCEPTED", "source": "inferred",
+                 "why": "C2: القاعُ المزدوج قاعان لا يقع بينهما قاعٌ أدنى منهما بأكثر من LEVEL_TOL_PCT — تعريفٌ (طرفٌ ثالث TG_58042/43/50/51) "
+                        "يطابقه رسمُ فيصل (IMG_0627) · عبر A1-A4 (§④) · وصفرُ مثالٍ لفيصل يناقضه"},
+    "R-SUP-MAIN": {"active": False, "status": "ADVISORY", "source": "faisal_verbatim (المفهوم) · engineering (التعريف)",
+                   "why": "C1: «انتظار الدعوم الأساسيّة» مؤكَّدٌ نصًّا (6 وحدات) · لكنّ تعريفَه «أدنى ذيلٍ منذ قمّة الدورة» يناقضه فيصلُ نفسُه "
+                          "(ZNB: دعمُه 1.963 فوق ذيل 1.830 · LABT: دعومُه 2 و1.80 فوق الذيل) ⟵ يُعرض معلومةً ولا يغيّر الحالة"},
+    "H-D2": {"active": False, "status": "REJECTED", "source": "faisal_adopted",
+             "why": "C3: لا الممتدُّ ولا النظاميُّ على 30 دقيقة أعاد W فيصل على DXST ضمن 2% ⟵ لا تغيير في جلسة الشموع"},
+}
 
 # (القيمة، المصدر، القاعدة/السند)
 PARAMS = {
@@ -96,8 +109,18 @@ def heads_since_low(sw, low_i):
     return n
 
 
+def main_support(h, l, asof: int, bars: int = None):
+    """R-SUP-MAIN (V3.1 · معلومة لا قاعدة): أدنى «low» بالذيل من قمّة الدورة (أعلى high في `bars` قبل asof) إلى asof.
+    `bars` = 2 × W_BARS_MAX (`engineering` · مُعلَنٌ في V31_prereg §②) ⟵ (السعر · فهرسُ القمّة · فهرسُ القاع). بلا نظرٍ للأمام."""
+    bars = 2 * P("W_BARS_MAX") if bars is None else bars
+    j0 = max(0, asof - bars)
+    ip = j0 + int(np.argmax(h[j0:asof + 1]))
+    il = ip + int(np.argmin(l[ip:asof + 1]))
+    return float(l[il]), ip, il
+
+
 # ── W / القاعُ المزدوج ────────────────────────────────────────────────────────────────
-def find_w(o, h, l, c, asof: int, k: int = None, sw=None):
+def find_w(o, h, l, c, asof: int, k: int = None, sw=None, span_rule: bool = None):
     """آخرُ W صالحٍ مؤكَّدٍ عند asof (بلا نظرٍ للأمام) أو None.
 
     الشروط (كلُّها بمصدرها في PARAMS):
@@ -105,8 +128,11 @@ def find_w(o, h, l, c, asof: int, k: int = None, sw=None):
       ② العنق = أعلى قمّةٍ بينهما · وارتفاعُه فوق أدنى القاعين ≥ NECK_RISE_MIN_PCT
       ③ L2 بين L1×(1−LOW2_SWEEP_MAX) وL1×(1+LOW2_ABOVE_MAX)  (تحت الأوّل حتى 13% = سحب سيولة)
       ④ «جاء من فوق»: أعلى قمّةٍ قبل L1 في نافذةٍ بطول الـW ≥ العنق (اتّجاهٌ هابطٌ سابق · «الضغط لابد منه»)
+      ⑤ (V3.1 · R-W-SPAN) لا قاعَ بين القاعين أدنى من أدناهما بأكثر من LEVEL_TOL_PCT — وإلّا فالقاعُ الحقيقيُّ ذلك الأدنى.
+         `span_rule=None` ⟵ RULES_V31 · و`False` = سلوكُ V3 حرفًا (نتائجُ T-W المنشورة تُعاد به).
     """
     k = P("SWING_K") if k is None else k
+    span_rule = RULES_V31["R-W-SPAN"]["active"] if span_rule is None else bool(span_rule)
     # المحورُ عند i يعتمد على [i−k · i+k] وحدَها ⟵ قائمةٌ محسوبةٌ مرّةً تُرشَّح بـ i+k ≤ asof بلا نظرٍ للأمام (تسريعٌ للتحقّق الكمّيّ)
     sw = confirmed_swings(h, l, asof, k) if sw is None else [x for x in sw if x[0] + k <= asof]
     lows = [(i, p) for i, t, p in sw if t == "L"]
@@ -120,6 +146,8 @@ def find_w(o, h, l, c, asof: int, k: int = None, sw=None):
             if gap > P("W_BARS_MAX"):
                 break
             if not (p1 * (1 - P("LOW2_SWEEP_MAX_PCT") / 100) <= p2 <= p1 * (1 + P("LOW2_ABOVE_MAX_PCT") / 100)):
+                continue
+            if span_rule and float(np.min(l[i1:i2 + 1])) < min(p1, p2) * (1 - P("LEVEL_TOL_PCT") / 100):
                 continue
             seg = h[i1:i2 + 1]
             ineck = i1 + int(np.argmax(seg))
@@ -241,7 +269,13 @@ def analyze_arrays(o, h, l, c, dates, asof: int = None, m30=None, context=None, 
     px = float(c[asof])
     rep = {"tool": TOOL_VERSION, "symbol": symbol, "asof": str(dates[asof])[:10], "price": round(px, 4),
            "structure": struct[-8:], "w": w, "params": {k2: {"value": v[0], "source": v[1], "why": v[2]} for k2, v in PARAMS.items()},
+           "rules_v31": {k2: {x: v[x] for x in ("active", "status", "source")} for k2, v in RULES_V31.items()},
            "context": context or {}}
+    ms, ip, il = main_support(h, l, asof)
+    rep["main_support"] = {"price": round(ms, 4), "date": str(dates[il])[:10], "cycle_high": round(float(h[ip]), 4),
+                           "cycle_high_date": str(dates[ip])[:10], "status": RULES_V31["R-SUP-MAIN"]["status"], "rule": "R-SUP-MAIN (C1)"}
+    if w:
+        rep["main_support"]["low2_above_pct"] = round((w["low2"] / ms - 1) * 100, 2)
     checks = []
     if w is None:
         rep["state"] = {"state": "NO_W", "rule": "لا قاعَ مزدوجًا مؤكَّدًا بالشروط"}
@@ -358,7 +392,7 @@ def render_text(rep):
     """رسالةٌ عربيّة مختصرة — بلا علامات مقارنة (قاعدة المشروع) · كلُّ رقمٍ بوسمه."""
     if rep.get("error"):
         return f"🧭 ${rep.get('symbol', '')} — {rep['error']}"
-    L = [f"🧭 ${rep['symbol']} · منهج فيصل v3 · بيانات جلسة {rep['asof']}", f"💰 السعر {fmt(rep['price'])}"]
+    L = [f"🧭 ${rep['symbol']} · منهج فيصل v3.1 · بيانات جلسة {rep['asof']}", f"💰 السعر {fmt(rep['price'])}"]
     st = rep["state"]["state"]
     L.append(f"📍 الحالة: {_STATE_AR.get(st, st)} — {rep['state'].get('rule', '')}")
     w = rep.get("w")
@@ -372,6 +406,12 @@ def render_text(rep):
         L.append("🚫 الدخول في الوسط بين القاع والعنق غير آمن (فيصل) — وكمّيًّا على اليوميّ لم يُثبَت (T-W)")
         s = rep["stops"][0]
         L.append(f"⛔ وقف الخسارة {fmt(s['price'])} ({s['name']})")
+    ms = rep.get("main_support")
+    if ms:
+        L.append(f"🧱 الدعم الأساسيّ (معلومة): أدنى ذيلٍ منذ قمّة الدورة {fmt(ms['cycle_high'])} ({ms['cycle_high_date']}) = "
+                 f"{fmt(ms['price'])} ({ms['date']})"
+                 + (f" — القاع الثاني فوقه بـ{ms['low2_above_pct']}%" if ms.get("low2_above_pct") is not None else "")
+                 + " · فيصل ينتظر الدعم الأساسيّ قبل الدخول")
     fam = {"faisal_ladder": "🎯", "faisal_gain100": "🎯", "third_party_measured_move": "📐"}
     for t in rep.get("targets", []):
         tag = "فيصل" if t["source"] == "faisal_verbatim" else "طرف ثالث — للمقارنة"
@@ -407,8 +447,13 @@ def render_png(rep, o, h, l, c, path, start: int = None):
         for e in rep["entries"]:
             lines[e["mode"][:1]] = (e["price"], max(0, w["i2"] - s))
         lines["stop"] = (rep["stops"][0]["price"], max(0, w["i2"] - s))
+        if w["ineck"] >= s:
+            marks["NECK"] = (w["ineck"] - s, w["neckline"])
     for t in rep.get("targets", []):
         lines[t["name"]] = (t["price"], 0)
+    ms = rep.get("main_support")
+    if ms:
+        lines["MS"] = (ms["price"], 0)                      # V3.1: الدعمُ الأساسيّ (معلومة) على الرسم
     return FX.render_bars(bars, path, marks=marks, lines=lines, title=f"{rep['symbol']} {rep['asof']} {rep['state']['state']}")
 
 

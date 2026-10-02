@@ -1,0 +1,6352 @@
+{
+ "tool": "v31_reconcile",
+ "telegram": {
+  "per_image": [
+   {
+    "id": "TG_58042",
+    "message_id": 58042,
+    "sent_utc": "2026-10-02T06:21:13Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "b37c4866428cf0815658e7161c7838608a65cdac31f9e06e938c1776bb1353a4",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "قناةٌ تعليميّة (طرفٌ ثالث)",
+    "dup_cluster": "CTG_58042",
+    "duplicate_of": [],
+    "used_as_evidence": true,
+    "evidence_status": "third_party"
+   },
+   {
+    "id": "TG_58043",
+    "message_id": 58043,
+    "sent_utc": "2026-10-02T06:21:13Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "e327721112ce3271f21fac4a8ce0f976f39a9ea963be08c944d90ca8fd395aac",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "القناةُ نفسُها",
+    "dup_cluster": "CTG_58043",
+    "duplicate_of": [],
+    "used_as_evidence": true,
+    "evidence_status": "third_party"
+   },
+   {
+    "id": "TG_58044",
+    "message_id": 58044,
+    "sent_utc": "2026-10-02T06:21:13Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "8e86e0014340506e138aeca5d553920e958ab63ff28355e85af66d50f859888c",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "فيصل يعيد نشر إنفوغراف",
+    "dup_cluster": "CTG_58044",
+    "duplicate_of": [],
+    "used_as_evidence": true,
+    "evidence_status": "faisal_adopted"
+   },
+   {
+    "id": "TG_58045",
+    "message_id": 58045,
+    "sent_utc": "2026-10-02T06:21:13Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "712c7a8410f92e561b67f46e39d06f63e4fe47c65657fa137f6d40b32081ed49",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "**فيصل**",
+    "dup_cluster": "CTG_58045",
+    "duplicate_of": [],
+    "used_as_evidence": true,
+    "evidence_status": "faisal_verbatim"
+   },
+   {
+    "id": "TG_58046",
+    "message_id": 58046,
+    "sent_utc": "2026-10-02T06:21:13Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "d4a8a86234c743629e60f1a81e37e16f6f44467fada9a22517e9ba84192e1edb",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "**فيصل**",
+    "dup_cluster": "CTG_58046",
+    "duplicate_of": [],
+    "used_as_evidence": true,
+    "evidence_status": "faisal_verbatim"
+   },
+   {
+    "id": "TG_58047",
+    "message_id": 58047,
+    "sent_utc": "2026-10-02T06:21:13Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "74fd42b649ee54bd2581ac41f7679b91b806fe6c9720c1d7dcbd62253a8cc2c5",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "متابع (@xzdixz)",
+    "dup_cluster": "CTG_58047",
+    "duplicate_of": [],
+    "used_as_evidence": false,
+    "evidence_status": "third_party"
+   },
+   {
+    "id": "TG_58048",
+    "message_id": 58048,
+    "sent_utc": "2026-10-02T06:21:13Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "65a1d0168ef89816fee14803995f365df5b0eff147e75acfebd0d7d8938ab0b6",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "**فيصل** (اقتباسٌ للمتابع)",
+    "dup_cluster": "CTG_58048",
+    "duplicate_of": [],
+    "used_as_evidence": true,
+    "evidence_status": "faisal_verbatim"
+   },
+   {
+    "id": "TG_58049",
+    "message_id": 58049,
+    "sent_utc": "2026-10-02T06:21:13Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "01aae9ed28852238a1da277a1c6e4dd77b65e8e71f99ebc1f3b071d1847554aa",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "**فيصل**",
+    "dup_cluster": "CTG_58049",
+    "duplicate_of": [],
+    "used_as_evidence": true,
+    "evidence_status": "faisal_verbatim"
+   },
+   {
+    "id": "TG_58050",
+    "message_id": 58050,
+    "sent_utc": "2026-10-02T06:21:13Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "c3e1eb184a82bf6043947a8cb899a6ff37a30f846e3783fc22023abfc966b261",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "فيصل يعيد نشر نتائج بحث",
+    "dup_cluster": "CTG_58050",
+    "duplicate_of": [],
+    "used_as_evidence": true,
+    "evidence_status": "faisal_verbatim"
+   },
+   {
+    "id": "TG_58051",
+    "message_id": 58051,
+    "sent_utc": "2026-10-02T06:39:59Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "66f2d2c3f5b0bf7a96a94ee45f4ee97be190334964f4b2ad65fa0661928eb9e0",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "تعليميّ",
+    "dup_cluster": "CEDU_20260918_10_pattern",
+    "duplicate_of": [
+     "EDU_20260918_10_pattern"
+    ],
+    "used_as_evidence": false,
+    "evidence_status": "third_party"
+   },
+   {
+    "id": "TG_58052",
+    "message_id": 58052,
+    "sent_utc": "2026-10-02T06:39:59Z",
+    "file_id_in_state": true,
+    "exists": true,
+    "accessible": true,
+    "sha256": "cc6b8a54d75b2e9a16a577102260043da53b0bc57c1e2ec2754a5769002be9e7",
+    "sha_matches_corpus": true,
+    "in_corpus": true,
+    "ocr": true,
+    "catalogued": true,
+    "visually_inspected": true,
+    "author_or_source": "**فيصل**",
+    "dup_cluster": "CTG_58052",
+    "duplicate_of": [],
+    "used_as_evidence": true,
+    "evidence_status": "faisal_verbatim"
+   }
+  ],
+  "sends": [
+   {
+    "sent_utc": "2026-10-02T06:21:13Z",
+    "count": 9,
+    "ids": [
+     "TG_58042",
+     "TG_58043",
+     "TG_58044",
+     "TG_58045",
+     "TG_58046",
+     "TG_58047",
+     "TG_58048",
+     "TG_58049",
+     "TG_58050"
+    ]
+   },
+   {
+    "sent_utc": "2026-10-02T06:39:59Z",
+    "count": 2,
+    "ids": [
+     "TG_58051",
+     "TG_58052"
+    ]
+   }
+  ],
+  "totals": {
+   "TELEGRAM_TOTAL_REFERENCED": 11,
+   "TELEGRAM_TOTAL_ACCESSIBLE": 11,
+   "TELEGRAM_TOTAL_INSPECTED": 11,
+   "TELEGRAM_TOTAL_USED_AS_EVIDENCE": 9,
+   "TELEGRAM_TOTAL_UNAVAILABLE": 0,
+   "TELEGRAM_TOTAL_DUPLICATES": 1
+  },
+  "send_group_gap_s": 60,
+  "decoded_file_ids": 791,
+  "state_file_ids": 791
+ },
+ "corpus": {
+  "table": [
+   {
+    "metric": "discovered",
+    "v3": 722,
+    "v31": 722,
+    "reason": "ملفّاتُ الصور في faisal_images/ (‏+ صورةٌ في جذر المستودع ليست دليلًا: operating_standard_v1.jpg)"
+   },
+   {
+    "metric": "accessible",
+    "v3": 722,
+    "v31": 722,
+    "reason": "كلُّ ملفٍّ مقروء"
+   },
+   {
+    "metric": "inspectable",
+    "v3": 722,
+    "v31": 722,
+    "reason": "تفتحه PIL وتُحسب بصماتُه"
+   },
+   {
+    "metric": "inspected_any_recorded_method",
+    "v3": null,
+    "v31": 722,
+    "reason": "V3 لم يعدّه لكلّ صورة · V3.1: وثيقةٌ تذكرها (اسمًا · مدًى · رمزَ دفعة · اسمًا مختصرًا) أو مراجعةٌ بصريّة V3/V3.1 أو عنقودٌ رُوجع"
+   },
+   {
+    "metric": "inspected_without_v31_visual",
+    "v3": null,
+    "v31": 699,
+    "reason": "قبل مراجعات V3.1 البصريّة"
+   },
+   {
+    "metric": "visual_review_per_image",
+    "v3": 20,
+    "v31": 53,
+    "reason": "V3: ‏20 · V3.1: ‏+33 (كانت بلا سجلٍّ لكلّ صورة)"
+   },
+   {
+    "metric": "unique_sha256",
+    "v3": 722,
+    "v31": 722,
+    "reason": "SHA256 كاملًا"
+   },
+   {
+    "metric": "unique_units_hash_ocr",
+    "v3": 609,
+    "v31": 609,
+    "reason": "بصمةٌ ‏+ نصُّ OCR (عتباتُ V3 نفسُها) — يُعاد حسابُه فيطابق"
+   },
+   {
+    "metric": "unique_units_after_v31_visual",
+    "v3": 609,
+    "v31": 602,
+    "reason": "دمجُ ما رأته العينُ في V3.1 مشتقًّا (صورةٌ ثانيةٌ للشاشة نفسِها) أو الرسمَ نفسَه — حدٌّ أدنى"
+   },
+   {
+    "metric": "exact_duplicates",
+    "v3": 0,
+    "v31": 0,
+    "reason": "لا ملفّان بـSHA256 واحد"
+   },
+   {
+    "metric": "near_duplicates",
+    "v3": 56,
+    "v31": 56,
+    "reason": "dHash256 ≤ 24 وpHash ≤ 10 بالمقاس نفسِه"
+   },
+   {
+    "metric": "resized",
+    "v3": 67,
+    "v31": 67,
+    "reason": "الشرطان نفسُهما بمقاسٍ مختلف"
+   },
+   {
+    "metric": "derivative_text",
+    "v3": 3,
+    "v31": 3,
+    "reason": "تشابهُ نصّ OCR ‏0.85 فأكثر"
+   },
+   {
+    "metric": "derivative_visual_v31",
+    "v3": 0,
+    "v31": 6,
+    "reason": "تصويرُ الشاشة مرّتين/اقتباسُ الشارت نفسِه — فاتت البصمةَ (اختلافُ الزاوية والإضاءة)"
+   },
+   {
+    "metric": "same_drawing_v31",
+    "v3": 0,
+    "v31": 1,
+    "reason": "الرسمُ نفسُه منشورًا في قناةٍ تعليميّة وعند فيصل"
+   },
+   {
+    "metric": "doc_only_references",
+    "v3": 101,
+    "v31": 116,
+    "reason": "معرّفاتٌ في الوثائق بلا ملفّ — بعد إسقاط القوالب والإحالات المختصرة لملفّاتٍ موجودة"
+   }
+  ],
+  "sha256_mismatch_vs_v3": [],
+  "fingerprint_mismatch_vs_v3": [],
+  "unreadable": [],
+  "cluster_sets_identical_to_v3": true,
+  "multi_member_clusters": 102,
+  "multi_clusters_visually_reviewed": 102,
+  "vetoed_pairs": 3,
+  "doc_record_methods": {
+   "batch_code": 65,
+   "exact": 620,
+   "short_name": 30,
+   "range": 196,
+   "img_bare": 94,
+   "abbrev": 4
+  },
+  "no_record_before_v31_visual": [
+   "IMG_0339",
+   "IMG_0361",
+   "IMG_0362",
+   "IMG_0363",
+   "IMG_0395",
+   "IMG_0402",
+   "IMG_0426",
+   "IMG_0430",
+   "X_20260828_01",
+   "X_20260828_02",
+   "X_20260828_03",
+   "X_20260828_04",
+   "X_20260828_05",
+   "X_20260828_06",
+   "X_20260828_07",
+   "X_20260828_08",
+   "X_20260828_09",
+   "X_20260828_10",
+   "X_20260828_11",
+   "X_20260828_12",
+   "X_20260828_13",
+   "X_20260828_14",
+   "X_20260828_15"
+  ],
+  "no_record_after_v31": [],
+  "visual_merge_edges": [
+   {
+    "a": "IMG_0628",
+    "b": "IMG_0627",
+    "kind": "derivative_of",
+    "merged": true
+   },
+   {
+    "a": "X_20260828_02",
+    "b": "X_20260918_27_CUPR",
+    "kind": "same_drawing_as",
+    "merged": true
+   },
+   {
+    "a": "X_20260828_03",
+    "b": "X_20260828_02",
+    "kind": "derivative_of",
+    "merged": true
+   },
+   {
+    "a": "X_20260828_06",
+    "b": "X_20260828_05",
+    "kind": "derivative_of",
+    "merged": true
+   },
+   {
+    "a": "X_20260828_08",
+    "b": "X_20260828_07",
+    "kind": "derivative_of",
+    "merged": true
+   },
+   {
+    "a": "X_20260828_10",
+    "b": "X_20260828_09",
+    "kind": "derivative_of",
+    "merged": true
+   },
+   {
+    "a": "X_20260828_11",
+    "b": "X_20260828_12",
+    "kind": "derivative_of",
+    "merged": true
+   }
+  ],
+  "doc_only": {
+   "IMG_9424": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_SOURCE_LEDGER.md",
+    "OPUS_EXECUTION_PACKAGE.md",
+    "faisal_images/README.md"
+   ],
+   "IMG_0076": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_IMAGE_PASS3.md",
+    "FAISAL_SOURCE_LEDGER.md",
+    "HANDOFF.md",
+    "HANDOFF_ARCHIVE.md",
+    "OPUS_EXECUTION_PACKAGE.md",
+    "faisal_combo_prereg.md",
+    "faisal_images/README.md"
+   ],
+   "IMG_4717": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_4685": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_5954": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6131": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6004": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6215": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6206": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6216": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6297": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6295": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6390": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6457": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_IMAGE_PASS3.md"
+   ],
+   "IMG_6456": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_IMAGE_PASS3.md"
+   ],
+   "IMG_6464": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_IMAGE_PASS3.md"
+   ],
+   "IMG_6460": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_IMAGE_PASS3.md"
+   ],
+   "IMG_6462": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_IMAGE_PASS3.md"
+   ],
+   "IMG_6461": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_IMAGE_PASS3.md"
+   ],
+   "IMG_6466": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6465": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6470": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6701": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6478": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6779": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6761": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_METHODOLOGY_NOTES.md",
+    "OPUS_EXECUTION_PLAN.md"
+   ],
+   "IMG_6748": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_METHODOLOGY_NOTES.md"
+   ],
+   "IMG_6814": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_METHODOLOGY_NOTES.md"
+   ],
+   "IMG_6714": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_METHODOLOGY_NOTES.md"
+   ],
+   "IMG_6334": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6479": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6481": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6471": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6337": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6475": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6293": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_METHODOLOGY_NOTES.md",
+    "OPUS_EXECUTION_PLAN.md"
+   ],
+   "IMG_6001": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6335": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6703": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6472": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_IMAGE_PASS3.md",
+    "FAISAL_METHODOLOGY_NOTES.md"
+   ],
+   "IMG_6473": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_METHODOLOGY_NOTES.md",
+    "OPUS_EXECUTION_PLAN.md"
+   ],
+   "IMG_6468": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6807": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6782": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6816": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6844": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6976": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6975": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6989": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7024": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_6990": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7014": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7363": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_IMAGE_PASS3.md"
+   ],
+   "IMG_7370": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7339": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7388": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7393": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7399": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_8051": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_8052": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_8053": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_8055": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7713": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_8096": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_8090": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7344": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_8102": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_8103": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7405": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_7391": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9443": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9495": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9497": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9498": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9499": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9504": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "HANDOFF.md",
+    "HANDOFF_ARCHIVE.md"
+   ],
+   "IMG_9506": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9505": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9508": [
+    "FAISAL_IMAGES_CATALOG.md",
+    "HANDOFF.md",
+    "HANDOFF_ARCHIVE.md"
+   ],
+   "IMG_9754": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9915": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_9933": [
+    "CLAUDE.md",
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_METHODOLOGY_NOTES.md",
+    "FAISAL_SOURCE_LEDGER.md",
+    "hs_forensic/TARGET_FORENSICS.md",
+    "hs_forensic/target_forensics_prereg.md",
+    "targets_and_operator_report.md"
+   ],
+   "IMG_0080": [
+    "CLAUDE.md",
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "REQUIREMENTS_MATRIX.md",
+    "SOURCE_ANALYSIS.md",
+    "architecture_proposal.md"
+   ],
+   "IMG_0077": [
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_0097": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_0098": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_0091": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "HANDOFF_ARCHIVE.md",
+    "faisal_combo_prereg.md",
+    "fsto_backtest_prereg.md"
+   ],
+   "IMG_0082": [
+    "CLAUDE.md",
+    "FAISAL_IMAGES_CATALOG.md"
+   ],
+   "IMG_0446": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "OPUS_METHOD_UPDATES_PACKAGE.md",
+    "method_window_prereg.md"
+   ],
+   "IMG_0450": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_IMAGES_CATALOG.md",
+    "candle_prereg.md"
+   ],
+   "IMG_0489": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_SCIENTIFIC_METHOD.md",
+    "FAISAL_SOURCE_LEDGER.md",
+    "HANDOFF_ARCHIVE.md",
+    "OPUS_METHOD_UPDATES_PACKAGE.md",
+    "hs_sf_prereg.md",
+    "method_prereg.md",
+    "method_window_prereg.md"
+   ],
+   "IMG_0448": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_PRESSURE_MODEL.md",
+    "HANDOFF_ARCHIVE.md",
+    "candle_prereg.md"
+   ],
+   "IMG_1066": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_SOURCE_LEDGER.md",
+    "HANDOFF_ARCHIVE.md",
+    "kasih_prereg.md",
+    "radar_frames_prereg.md"
+   ],
+   "IMG_9425": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_0440": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_PRESSURE_MODEL.md",
+    "FAISAL_TEACHING_MODELS.md"
+   ],
+   "IMG_0451": [
+    "DECISIONS_ARCHIVE.md",
+    "anchor_prereg.md",
+    "entry_points_audit.md"
+   ],
+   "IMG_0449": [
+    "DECISIONS_ARCHIVE.md",
+    "FAISAL_PRESSURE_MODEL.md"
+   ],
+   "IMG_9509": [
+    "CLAUDE.md",
+    "HANDOFF_ARCHIVE.md"
+   ],
+   "IMG_0125": [
+    "CLAUDE.md",
+    "FAISAL_IMAGE_PASS3.md",
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_9510": [
+    "CLAUDE.md",
+    "COMMON_LINK_REPORT_FOR_OPUS.md"
+   ],
+   "IMG_0485": [
+    "FAISAL_SCIENTIFIC_METHOD.md"
+   ],
+   "IMG_0487": [
+    "FAISAL_SCIENTIFIC_METHOD.md"
+   ],
+   "IMG_0490": [
+    "FAISAL_SCIENTIFIC_METHOD.md"
+   ],
+   "IMG_7367": [
+    "MARKET_BACKTEST_FINDINGS.md"
+   ],
+   "IMG_7369": [
+    "MARKET_BACKTEST_FINDINGS.md"
+   ],
+   "IMG_7402": [
+    "MARKET_BACKTEST_FINDINGS.md"
+   ],
+   "IMG_0453": [
+    "sprc_case.md"
+   ],
+   "IMG_0454": [
+    "sprc_case.md"
+   ],
+   "IMG_0455": [
+    "sprc_case.md"
+   ],
+   "IMG_0456": [
+    "sprc_case.md"
+   ],
+   "IMG_0457": [
+    "sprc_case.md"
+   ],
+   "IMG_8261": [
+    "FAISAL_METHODOLOGY_NOTES.md",
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_9426": [
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_9432": [
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_9431": [
+    "FAISAL_SOURCE_LEDGER.md"
+   ],
+   "IMG_0140": [
+    "m2_split_ref_prereg.md"
+   ]
+  },
+  "doc_only_dropped": {
+   "TG_57895": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_50818 (المحتوى في المدوَّنة)",
+   "TG_57896": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_50817 (المحتوى في المدوَّنة)",
+   "TG_57920": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_50592 (المحتوى في المدوَّنة)",
+   "X_20260918_54": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
+   "EDU_20260918_NN_": "قالبٌ لا اسم",
+   "X_20260918_12": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
+   "TG_20260918_37": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
+   "TG_20260918_68": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_20260905_07 (المحتوى في المدوَّنة)",
+   "X_20260918_81": "مكرَّرٌ لم يُحفظ ثانيةً ≡ X_20260905_04 (المحتوى في المدوَّنة)",
+   "TG_20260918_73": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_20260905_01 (المحتوى في المدوَّنة)",
+   "TG_20260918_72": "مكرَّرٌ لم يُحفظ ثانيةً ≡ TG_20260905_02 (المحتوى في المدوَّنة)",
+   "X_20260918_27": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
+   "TG_20260918_38": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)",
+   "X_20260918_11": "بادئةُ اسمٍ موجود (إحالةٌ مختصرة لملفٍّ في المدوَّنة)"
+  },
+  "doc_only_new_vs_v3": [
+   "IMG_0140",
+   "IMG_0440",
+   "IMG_0448",
+   "IMG_0449",
+   "IMG_0451",
+   "IMG_0453",
+   "IMG_0454",
+   "IMG_0455",
+   "IMG_0456",
+   "IMG_0457",
+   "IMG_0485",
+   "IMG_0487",
+   "IMG_0490",
+   "IMG_7367",
+   "IMG_7369",
+   "IMG_7402",
+   "IMG_9509",
+   "IMG_9510"
+  ],
+  "doc_only_v3_not_in_v31": [
+   "TG_57895",
+   "TG_57896",
+   "TG_57920"
+  ],
+  "uploads": {
+   "files": 79,
+   "images": 75,
+   "unique_by_sha": 63,
+   "exact_in_corpus": 50,
+   "not_in_corpus_by_sha": 13,
+   "other": {
+    ".ogg": 1,
+    ".txt": 1,
+    ".pdf": 2
+   }
+  },
+  "per_image_doc_methods": {
+   "APP_20260918_18_NTCL": [
+    "batch_code",
+    "exact"
+   ],
+   "APP_20260918_19_NTCL": [
+    "batch_code",
+    "exact"
+   ],
+   "APP_20260918_20_NTCL": [
+    "batch_code",
+    "exact",
+    "short_name"
+   ],
+   "APP_20260918_49_main": [
+    "batch_code",
+    "exact"
+   ],
+   "APP_20260918_50_ZNB": [
+    "batch_code",
+    "exact"
+   ],
+   "APP_20260918_52_ELPW": [
+    "batch_code",
+    "exact"
+   ],
+   "APP_20260918_53_ELPW": [
+    "batch_code",
+    "exact",
+    "short_name"
+   ],
+   "APP_20260918_59_VEEE": [
+    "batch_code"
+   ],
+   "CH_20260918_01_ELPW": [
+    "batch_code"
+   ],
+   "CH_20260918_02_ELPW": [
+    "batch_code"
+   ],
+   "CH_20260918_03_ELPW": [
+    "batch_code",
+    "short_name"
+   ],
+   "CH_20260918_05_CPOP": [
+    "batch_code",
+    "exact"
+   ],
+   "CH_20260918_07_NUWE": [
+    "batch_code"
+   ],
+   "CH_20260918_09_DAIC": [
+    "batch_code"
+   ],
+   "CH_20260918_14_NUWE": [
+    "batch_code"
+   ],
+   "CH_20260918_16_NTCL": [
+    "batch_code"
+   ],
+   "CH_20260918_17_NTCL": [
+    "batch_code",
+    "short_name"
+   ],
+   "CH_20260918_25_SXTC": [
+    "batch_code"
+   ],
+   "CH_20260918_32_SXTC": [
+    "batch_code"
+   ],
+   "CH_20260918_39_NUWE": [
+    "batch_code"
+   ],
+   "CH_20260918_45_NUWE": [
+    "batch_code",
+    "short_name"
+   ],
+   "CH_20260918_47_WETO": [
+    "batch_code"
+   ],
+   "CH_20260918_57_VEEE": [
+    "batch_code"
+   ],
+   "CH_20260918_58_VEEE": [
+    "batch_code"
+   ],
+   "CH_20260918_60_VEEE": [
+    "batch_code",
+    "short_name"
+   ],
+   "CH_20260918_63_ELPW": [
+    "batch_code"
+   ],
+   "CH_20260918_64_ELPW": [
+    "batch_code"
+   ],
+   "CH_20260918_65_ELPW": [
+    "batch_code",
+    "short_name"
+   ],
+   "CH_20261001_HS_01_DRMA": [
+    "exact"
+   ],
+   "CH_20261001_HS_02_DCOY": [
+    "exact"
+   ],
+   "EDU_20260827_dki_group_candle": [
+    "exact"
+   ],
+   "EDU_20260827_ma_rizq_rule_sle": [
+    "exact"
+   ],
+   "EDU_20260827_school_two_models_ma_ladder": [
+    "exact"
+   ],
+   "EDU_20260827_sle_night_4am": [
+    "exact"
+   ],
+   "EDU_20260827_smxt_falling_model": [
+    "exact"
+   ],
+   "EDU_20260827_wnw_daily_after_explosion": [
+    "exact"
+   ],
+   "EDU_20260827_wnw_entry_decision_4h": [
+    "exact"
+   ],
+   "EDU_20260827_wnw_precall_chinese": [
+    "exact"
+   ],
+   "EDU_20260905_01": [
+    "exact",
+    "range"
+   ],
+   "EDU_20260905_02": [
+    "exact",
+    "range"
+   ],
+   "EDU_20260918_10_pattern": [
+    "batch_code",
+    "exact"
+   ],
+   "EDU_20260918_44_doublebottom": [
+    "batch_code"
+   ],
+   "EDU_20260918_56_three_inside_up": [
+    "batch_code"
+   ],
+   "IMG_0141": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0142": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0143": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0144": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0149": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0150": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0151": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0152": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0153": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0177": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0178": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0179": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0267": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0289": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0290": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0291": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0292": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0293": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0294": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0295": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0296": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0297": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0298": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0299": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0300": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0301": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0302": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0303": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0304": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0305": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0306": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0314": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0315": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0316": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0317": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0318": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0319": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0320": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0329": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0339": [],
+   "IMG_0358": [],
+   "IMG_0359": [],
+   "IMG_0361": [],
+   "IMG_0362": [],
+   "IMG_0363": [],
+   "IMG_0391": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0392": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0393": [
+    "img_bare"
+   ],
+   "IMG_0394": [],
+   "IMG_0395": [],
+   "IMG_0402": [],
+   "IMG_0413": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0414": [
+    "img_bare"
+   ],
+   "IMG_0426": [],
+   "IMG_0430": [],
+   "IMG_0486": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0488": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0494": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0495": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0496": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0497": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0498": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0500": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0505": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0506": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0507": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0508": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0509": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0510": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0511": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0512": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0513": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0531": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0566": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0567": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0568": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0569": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0570": [
+    "img_bare",
+    "range"
+   ],
+   "IMG_0587": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0602": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0617": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0618": [
+    "img_bare",
+    "range"
+   ],
+   "IMG_0627": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0628": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0645": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0647": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0648": [
+    "img_bare"
+   ],
+   "IMG_0659": [
+    "img_bare"
+   ],
+   "IMG_0688": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0689": [
+    "img_bare",
+    "range"
+   ],
+   "IMG_0690": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0691": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0692": [
+    "img_bare",
+    "range"
+   ],
+   "IMG_0696": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0697": [
+    "img_bare"
+   ],
+   "IMG_0698": [
+    "img_bare"
+   ],
+   "IMG_0746": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_8126": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_8127": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_8133": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_8136": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_8242": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_9493": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_9923": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_9925": [
+    "exact",
+    "img_bare"
+   ],
+   "TG_1806": [
+    "exact"
+   ],
+   "TG_1807": [
+    "exact"
+   ],
+   "TG_1808": [
+    "exact"
+   ],
+   "TG_1809": [
+    "exact"
+   ],
+   "TG_1810": [
+    "exact"
+   ],
+   "TG_1811": [
+    "exact"
+   ],
+   "TG_1812": [
+    "exact"
+   ],
+   "TG_1813": [
+    "exact"
+   ],
+   "TG_1814": [
+    "exact"
+   ],
+   "TG_1815": [
+    "exact"
+   ],
+   "TG_1816": [
+    "exact"
+   ],
+   "TG_1817": [
+    "exact"
+   ],
+   "TG_1818": [
+    "exact"
+   ],
+   "TG_1819": [
+    "exact"
+   ],
+   "TG_1820": [
+    "exact"
+   ],
+   "TG_1821": [
+    "exact"
+   ],
+   "TG_1822": [
+    "exact"
+   ],
+   "TG_1823": [
+    "exact"
+   ],
+   "TG_1824": [
+    "exact"
+   ],
+   "TG_1825": [
+    "exact"
+   ],
+   "TG_1826": [
+    "exact"
+   ],
+   "TG_1827": [
+    "exact"
+   ],
+   "TG_1828": [
+    "exact"
+   ],
+   "TG_1829": [
+    "exact"
+   ],
+   "TG_1830": [
+    "exact"
+   ],
+   "TG_1831": [
+    "exact"
+   ],
+   "TG_1832": [
+    "exact"
+   ],
+   "TG_1833": [
+    "exact"
+   ],
+   "TG_1834": [
+    "exact"
+   ],
+   "TG_1835": [
+    "exact"
+   ],
+   "TG_1836": [
+    "exact"
+   ],
+   "TG_1837": [
+    "exact"
+   ],
+   "TG_1838": [
+    "exact"
+   ],
+   "TG_1839": [
+    "exact"
+   ],
+   "TG_1840": [
+    "exact"
+   ],
+   "TG_1841": [
+    "exact"
+   ],
+   "TG_1842": [
+    "exact"
+   ],
+   "TG_1843": [
+    "exact"
+   ],
+   "TG_1844": [
+    "exact"
+   ],
+   "TG_1845": [
+    "exact"
+   ],
+   "TG_1846": [
+    "exact"
+   ],
+   "TG_1847": [
+    "exact"
+   ],
+   "TG_1848": [
+    "exact"
+   ],
+   "TG_1849": [
+    "exact"
+   ],
+   "TG_1850": [
+    "exact"
+   ],
+   "TG_1851": [
+    "exact"
+   ],
+   "TG_1853": [
+    "exact"
+   ],
+   "TG_1854": [
+    "exact"
+   ],
+   "TG_1855": [
+    "exact"
+   ],
+   "TG_1856": [
+    "exact"
+   ],
+   "TG_1857": [
+    "exact"
+   ],
+   "TG_1858": [
+    "exact"
+   ],
+   "TG_1859": [
+    "exact"
+   ],
+   "TG_1860": [
+    "exact"
+   ],
+   "TG_1861": [
+    "exact"
+   ],
+   "TG_1862": [
+    "exact"
+   ],
+   "TG_1863": [
+    "exact"
+   ],
+   "TG_1864": [
+    "exact"
+   ],
+   "TG_1865": [
+    "exact"
+   ],
+   "TG_1866": [
+    "exact"
+   ],
+   "TG_1867": [
+    "exact"
+   ],
+   "TG_1868": [
+    "exact"
+   ],
+   "TG_1869": [
+    "exact"
+   ],
+   "TG_1870": [
+    "exact"
+   ],
+   "TG_1871": [
+    "exact"
+   ],
+   "TG_1872": [
+    "exact"
+   ],
+   "TG_1873": [
+    "exact"
+   ],
+   "TG_1874": [
+    "exact"
+   ],
+   "TG_1875": [
+    "exact"
+   ],
+   "TG_1876": [
+    "exact"
+   ],
+   "TG_1877": [
+    "exact"
+   ],
+   "TG_1878": [
+    "exact"
+   ],
+   "TG_1879": [
+    "exact"
+   ],
+   "TG_1880": [
+    "exact"
+   ],
+   "TG_1881": [
+    "exact"
+   ],
+   "TG_1882": [
+    "exact"
+   ],
+   "TG_1883": [
+    "exact"
+   ],
+   "TG_1884": [
+    "exact"
+   ],
+   "TG_1885": [
+    "exact"
+   ],
+   "TG_1886": [
+    "exact"
+   ],
+   "TG_1887": [
+    "exact"
+   ],
+   "TG_1888": [
+    "exact"
+   ],
+   "TG_1889": [
+    "exact"
+   ],
+   "TG_1890": [
+    "exact"
+   ],
+   "TG_1891": [
+    "exact"
+   ],
+   "TG_1892": [
+    "exact"
+   ],
+   "TG_1893": [
+    "exact"
+   ],
+   "TG_1894": [
+    "exact"
+   ],
+   "TG_1895": [
+    "exact"
+   ],
+   "TG_1896": [
+    "exact"
+   ],
+   "TG_1900": [
+    "exact"
+   ],
+   "TG_1901": [
+    "exact"
+   ],
+   "TG_1902": [
+    "exact"
+   ],
+   "TG_1903": [
+    "exact"
+   ],
+   "TG_1905": [
+    "exact"
+   ],
+   "TG_1906": [
+    "exact"
+   ],
+   "TG_1907": [
+    "exact"
+   ],
+   "TG_1908": [
+    "exact"
+   ],
+   "TG_1909": [
+    "exact"
+   ],
+   "TG_1910": [
+    "exact"
+   ],
+   "TG_1911": [
+    "exact"
+   ],
+   "TG_1912": [
+    "exact"
+   ],
+   "TG_1913": [
+    "exact"
+   ],
+   "TG_1914": [
+    "exact"
+   ],
+   "TG_1915": [
+    "exact"
+   ],
+   "TG_1916": [
+    "exact"
+   ],
+   "TG_1917": [
+    "exact"
+   ],
+   "TG_1918": [
+    "exact"
+   ],
+   "TG_1919": [
+    "exact"
+   ],
+   "TG_1920": [
+    "exact"
+   ],
+   "TG_1921": [
+    "exact"
+   ],
+   "TG_1922": [
+    "exact"
+   ],
+   "TG_1923": [
+    "exact"
+   ],
+   "TG_1924": [
+    "exact"
+   ],
+   "TG_1925": [
+    "exact"
+   ],
+   "TG_1926": [
+    "exact"
+   ],
+   "TG_1927": [
+    "exact"
+   ],
+   "TG_1928": [
+    "exact"
+   ],
+   "TG_1929": [
+    "exact"
+   ],
+   "TG_1930": [
+    "exact"
+   ],
+   "TG_1931": [
+    "exact"
+   ],
+   "TG_1932": [
+    "exact"
+   ],
+   "TG_1933": [
+    "exact"
+   ],
+   "TG_1934": [
+    "exact"
+   ],
+   "TG_1935": [
+    "exact"
+   ],
+   "TG_1936": [
+    "exact"
+   ],
+   "TG_1937": [
+    "exact"
+   ],
+   "TG_1938": [
+    "exact"
+   ],
+   "TG_1939": [
+    "exact"
+   ],
+   "TG_1940": [
+    "exact"
+   ],
+   "TG_1941": [
+    "exact"
+   ],
+   "TG_1942": [
+    "exact"
+   ],
+   "TG_1943": [
+    "exact"
+   ],
+   "TG_1944": [
+    "exact"
+   ],
+   "TG_1945": [
+    "exact"
+   ],
+   "TG_1946": [
+    "exact"
+   ],
+   "TG_1947": [
+    "exact"
+   ],
+   "TG_1948": [
+    "exact"
+   ],
+   "TG_1949": [
+    "exact"
+   ],
+   "TG_1950": [
+    "exact"
+   ],
+   "TG_1951": [
+    "exact"
+   ],
+   "TG_1952": [
+    "exact"
+   ],
+   "TG_1953": [
+    "exact"
+   ],
+   "TG_1954": [
+    "exact"
+   ],
+   "TG_1955": [
+    "exact"
+   ],
+   "TG_1956": [
+    "exact"
+   ],
+   "TG_1957": [
+    "exact"
+   ],
+   "TG_1958": [
+    "exact"
+   ],
+   "TG_1959": [
+    "exact"
+   ],
+   "TG_1960": [
+    "exact"
+   ],
+   "TG_1961": [
+    "exact"
+   ],
+   "TG_1962": [
+    "exact"
+   ],
+   "TG_1963": [
+    "exact"
+   ],
+   "TG_1964": [
+    "exact"
+   ],
+   "TG_1965": [
+    "exact"
+   ],
+   "TG_1966": [
+    "exact"
+   ],
+   "TG_1967": [
+    "exact"
+   ],
+   "TG_1968": [
+    "exact"
+   ],
+   "TG_1969": [
+    "exact"
+   ],
+   "TG_1970": [
+    "exact"
+   ],
+   "TG_1971": [
+    "exact"
+   ],
+   "TG_1972": [
+    "exact"
+   ],
+   "TG_1973": [
+    "exact"
+   ],
+   "TG_1974": [
+    "exact"
+   ],
+   "TG_1975": [
+    "exact"
+   ],
+   "TG_1976": [
+    "exact"
+   ],
+   "TG_1977": [
+    "exact"
+   ],
+   "TG_1978": [
+    "exact"
+   ],
+   "TG_1979": [
+    "exact"
+   ],
+   "TG_1980": [
+    "exact"
+   ],
+   "TG_1981": [
+    "exact"
+   ],
+   "TG_1982": [
+    "exact"
+   ],
+   "TG_1983": [
+    "exact"
+   ],
+   "TG_1984": [
+    "exact"
+   ],
+   "TG_1985": [
+    "exact"
+   ],
+   "TG_1986": [
+    "exact"
+   ],
+   "TG_1987": [
+    "exact"
+   ],
+   "TG_1988": [
+    "exact"
+   ],
+   "TG_1989": [
+    "exact"
+   ],
+   "TG_1990": [
+    "exact"
+   ],
+   "TG_1992": [
+    "exact"
+   ],
+   "TG_1993": [
+    "exact"
+   ],
+   "TG_1994": [
+    "exact"
+   ],
+   "TG_1995": [
+    "exact"
+   ],
+   "TG_1996": [
+    "exact"
+   ],
+   "TG_1997": [
+    "exact"
+   ],
+   "TG_1998": [
+    "exact"
+   ],
+   "TG_1999": [
+    "exact"
+   ],
+   "TG_2000": [
+    "exact"
+   ],
+   "TG_2001": [
+    "exact"
+   ],
+   "TG_2002": [
+    "exact"
+   ],
+   "TG_2003": [
+    "exact"
+   ],
+   "TG_2004": [
+    "exact"
+   ],
+   "TG_2005": [
+    "exact"
+   ],
+   "TG_2007": [
+    "exact",
+    "range"
+   ],
+   "TG_2008": [
+    "exact",
+    "range"
+   ],
+   "TG_2009": [
+    "exact",
+    "range"
+   ],
+   "TG_2010": [
+    "exact"
+   ],
+   "TG_2011": [
+    "exact"
+   ],
+   "TG_2012": [
+    "exact"
+   ],
+   "TG_2013": [
+    "exact"
+   ],
+   "TG_2014": [
+    "exact"
+   ],
+   "TG_2015": [
+    "exact"
+   ],
+   "TG_2016": [
+    "exact"
+   ],
+   "TG_2017": [
+    "exact"
+   ],
+   "TG_2018": [
+    "exact"
+   ],
+   "TG_2019": [
+    "exact"
+   ],
+   "TG_2020": [
+    "exact"
+   ],
+   "TG_2021": [
+    "exact"
+   ],
+   "TG_2022": [
+    "exact"
+   ],
+   "TG_2023": [
+    "exact"
+   ],
+   "TG_2024": [
+    "exact"
+   ],
+   "TG_2025": [
+    "exact"
+   ],
+   "TG_2026": [
+    "exact"
+   ],
+   "TG_20260905_01": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_02": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_03": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_04": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_05": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_06": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "TG_20260905_07": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_08": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "TG_20260905_09": [
+    "abbrev",
+    "exact",
+    "range"
+   ],
+   "TG_20260918_06_CPOP": [
+    "batch_code"
+   ],
+   "TG_20260918_08_NTCL": [
+    "batch_code"
+   ],
+   "TG_20260918_30_targets7": [
+    "batch_code"
+   ],
+   "TG_20260918_37_NUWE": [
+    "batch_code",
+    "exact"
+   ],
+   "TG_20260918_38_NUWE": [
+    "batch_code",
+    "exact"
+   ],
+   "TG_20260918_40_NUWE": [
+    "batch_code",
+    "exact"
+   ],
+   "TG_20260918_42_NUWE": [
+    "batch_code",
+    "short_name"
+   ],
+   "TG_20260918_67_BRNX": [
+    "batch_code"
+   ],
+   "TG_2027": [
+    "exact"
+   ],
+   "TG_2028": [
+    "exact"
+   ],
+   "TG_2029": [
+    "exact"
+   ],
+   "TG_2030": [
+    "exact"
+   ],
+   "TG_2031": [
+    "exact"
+   ],
+   "TG_2032": [
+    "exact"
+   ],
+   "TG_2033": [
+    "exact"
+   ],
+   "TG_2034": [
+    "exact"
+   ],
+   "TG_2035": [
+    "exact"
+   ],
+   "TG_2036": [
+    "exact"
+   ],
+   "TG_2037": [
+    "exact"
+   ],
+   "TG_2038": [
+    "exact"
+   ],
+   "TG_2039": [
+    "exact"
+   ],
+   "TG_2040": [
+    "exact"
+   ],
+   "TG_2041": [
+    "exact"
+   ],
+   "TG_2042": [
+    "exact"
+   ],
+   "TG_2043": [
+    "exact"
+   ],
+   "TG_2044": [
+    "exact"
+   ],
+   "TG_2045": [
+    "exact"
+   ],
+   "TG_2046": [
+    "exact"
+   ],
+   "TG_2047": [
+    "exact"
+   ],
+   "TG_2048": [
+    "exact"
+   ],
+   "TG_2049": [
+    "exact"
+   ],
+   "TG_2050": [
+    "exact"
+   ],
+   "TG_2051": [
+    "exact"
+   ],
+   "TG_2052": [
+    "exact"
+   ],
+   "TG_2053": [
+    "exact"
+   ],
+   "TG_2054": [
+    "exact"
+   ],
+   "TG_2058": [
+    "exact"
+   ],
+   "TG_2059": [
+    "exact"
+   ],
+   "TG_2060": [
+    "exact"
+   ],
+   "TG_2062": [
+    "exact"
+   ],
+   "TG_2063": [
+    "exact"
+   ],
+   "TG_2064": [
+    "exact"
+   ],
+   "TG_2065": [
+    "exact"
+   ],
+   "TG_2066": [
+    "exact"
+   ],
+   "TG_2067": [
+    "exact"
+   ],
+   "TG_2068": [
+    "exact"
+   ],
+   "TG_2069": [
+    "exact"
+   ],
+   "TG_2070": [
+    "exact"
+   ],
+   "TG_2071": [
+    "exact"
+   ],
+   "TG_2072": [
+    "exact"
+   ],
+   "TG_2073": [
+    "exact"
+   ],
+   "TG_2075": [
+    "exact"
+   ],
+   "TG_2076": [
+    "exact"
+   ],
+   "TG_2077": [
+    "exact"
+   ],
+   "TG_2078": [
+    "exact"
+   ],
+   "TG_2079": [
+    "exact"
+   ],
+   "TG_2080": [
+    "exact"
+   ],
+   "TG_2081": [
+    "exact"
+   ],
+   "TG_2082": [
+    "exact"
+   ],
+   "TG_2085": [
+    "exact"
+   ],
+   "TG_2086": [
+    "exact"
+   ],
+   "TG_2087": [
+    "exact"
+   ],
+   "TG_2088": [
+    "exact"
+   ],
+   "TG_2089": [
+    "exact"
+   ],
+   "TG_2090": [
+    "exact"
+   ],
+   "TG_2091": [
+    "exact"
+   ],
+   "TG_2092": [
+    "exact"
+   ],
+   "TG_2093": [
+    "exact"
+   ],
+   "TG_2094": [
+    "exact"
+   ],
+   "TG_2095": [
+    "exact"
+   ],
+   "TG_2096": [
+    "exact"
+   ],
+   "TG_2097": [
+    "exact"
+   ],
+   "TG_2098": [
+    "exact"
+   ],
+   "TG_2099": [
+    "exact"
+   ],
+   "TG_2100": [
+    "exact"
+   ],
+   "TG_2101": [
+    "exact"
+   ],
+   "TG_2102": [
+    "exact"
+   ],
+   "TG_2103": [
+    "exact"
+   ],
+   "TG_2104": [
+    "exact"
+   ],
+   "TG_2105": [
+    "exact"
+   ],
+   "TG_2106": [
+    "exact"
+   ],
+   "TG_2107": [
+    "exact"
+   ],
+   "TG_2108": [
+    "exact"
+   ],
+   "TG_2109": [
+    "exact"
+   ],
+   "TG_2110": [
+    "exact"
+   ],
+   "TG_2111": [
+    "exact"
+   ],
+   "TG_2112": [
+    "exact"
+   ],
+   "TG_2113": [
+    "exact"
+   ],
+   "TG_2114": [
+    "exact"
+   ],
+   "TG_2115": [
+    "exact"
+   ],
+   "TG_2116": [
+    "exact"
+   ],
+   "TG_2117": [
+    "exact"
+   ],
+   "TG_2118": [
+    "exact"
+   ],
+   "TG_2119": [
+    "exact"
+   ],
+   "TG_2120": [
+    "exact"
+   ],
+   "TG_2121": [
+    "exact"
+   ],
+   "TG_2122": [
+    "exact"
+   ],
+   "TG_2123": [
+    "exact"
+   ],
+   "TG_2124": [
+    "exact"
+   ],
+   "TG_2126": [
+    "exact"
+   ],
+   "TG_2127": [
+    "exact"
+   ],
+   "TG_2128": [
+    "exact"
+   ],
+   "TG_2169": [
+    "exact"
+   ],
+   "TG_2170": [
+    "exact"
+   ],
+   "TG_2171": [
+    "exact"
+   ],
+   "TG_2172": [
+    "exact"
+   ],
+   "TG_2173": [
+    "exact"
+   ],
+   "TG_2174": [
+    "exact"
+   ],
+   "TG_2175": [
+    "exact"
+   ],
+   "TG_2176": [
+    "exact"
+   ],
+   "TG_2177": [
+    "exact"
+   ],
+   "TG_2178": [
+    "exact"
+   ],
+   "TG_2179": [
+    "exact"
+   ],
+   "TG_2180": [
+    "exact"
+   ],
+   "TG_2181": [
+    "exact"
+   ],
+   "TG_2182": [
+    "exact"
+   ],
+   "TG_2183": [
+    "exact"
+   ],
+   "TG_2184": [
+    "exact"
+   ],
+   "TG_2185": [
+    "exact"
+   ],
+   "TG_2186": [
+    "exact"
+   ],
+   "TG_2187": [
+    "exact"
+   ],
+   "TG_2188": [
+    "exact"
+   ],
+   "TG_2189": [
+    "exact"
+   ],
+   "TG_2190": [
+    "exact"
+   ],
+   "TG_2191": [
+    "exact"
+   ],
+   "TG_2192": [
+    "exact"
+   ],
+   "TG_2193": [
+    "exact"
+   ],
+   "TG_2194": [
+    "exact"
+   ],
+   "TG_2195": [
+    "exact"
+   ],
+   "TG_2196": [
+    "exact"
+   ],
+   "TG_2197": [
+    "exact"
+   ],
+   "TG_2198": [
+    "exact"
+   ],
+   "TG_2199": [
+    "exact"
+   ],
+   "TG_2200": [
+    "exact"
+   ],
+   "TG_2201": [
+    "exact"
+   ],
+   "TG_2202": [
+    "exact"
+   ],
+   "TG_2203": [
+    "exact"
+   ],
+   "TG_2204": [
+    "exact"
+   ],
+   "TG_2205": [
+    "exact"
+   ],
+   "TG_2206": [
+    "exact"
+   ],
+   "TG_2207": [
+    "exact"
+   ],
+   "TG_2208": [
+    "exact"
+   ],
+   "TG_2209": [
+    "exact"
+   ],
+   "TG_2210": [
+    "exact"
+   ],
+   "TG_2211": [
+    "exact"
+   ],
+   "TG_2212": [
+    "exact"
+   ],
+   "TG_2213": [
+    "exact"
+   ],
+   "TG_2214": [
+    "exact"
+   ],
+   "TG_2215": [
+    "exact"
+   ],
+   "TG_2216": [
+    "exact"
+   ],
+   "TG_2217": [
+    "exact"
+   ],
+   "TG_2218": [
+    "exact"
+   ],
+   "TG_2249": [
+    "exact"
+   ],
+   "TG_2274": [
+    "exact"
+   ],
+   "TG_2275": [
+    "exact"
+   ],
+   "TG_2405": [
+    "exact"
+   ],
+   "TG_2523": [
+    "exact"
+   ],
+   "TG_2525": [
+    "exact"
+   ],
+   "TG_2530": [
+    "exact"
+   ],
+   "TG_2533": [
+    "exact"
+   ],
+   "TG_2536": [
+    "exact"
+   ],
+   "TG_2539": [
+    "exact"
+   ],
+   "TG_2541": [
+    "exact"
+   ],
+   "TG_2544": [
+    "exact"
+   ],
+   "TG_2545": [
+    "exact"
+   ],
+   "TG_50575": [
+    "exact",
+    "range"
+   ],
+   "TG_50576": [
+    "exact",
+    "range"
+   ],
+   "TG_50577": [
+    "exact",
+    "range"
+   ],
+   "TG_50578": [
+    "exact",
+    "range"
+   ],
+   "TG_50579": [
+    "exact",
+    "range"
+   ],
+   "TG_50580": [
+    "exact",
+    "range"
+   ],
+   "TG_50581": [
+    "exact",
+    "range"
+   ],
+   "TG_50582": [
+    "exact",
+    "range"
+   ],
+   "TG_50583": [
+    "exact",
+    "range"
+   ],
+   "TG_50584": [
+    "exact",
+    "range"
+   ],
+   "TG_50585": [
+    "exact",
+    "range"
+   ],
+   "TG_50586": [
+    "exact",
+    "range"
+   ],
+   "TG_50587": [
+    "exact",
+    "range"
+   ],
+   "TG_50588": [
+    "exact",
+    "range"
+   ],
+   "TG_50589": [
+    "exact",
+    "range"
+   ],
+   "TG_50590": [
+    "exact",
+    "range"
+   ],
+   "TG_50591": [
+    "exact",
+    "range"
+   ],
+   "TG_50592": [
+    "exact",
+    "range"
+   ],
+   "TG_50593": [
+    "exact",
+    "range"
+   ],
+   "TG_50594": [
+    "exact",
+    "range"
+   ],
+   "TG_50595": [
+    "exact",
+    "range"
+   ],
+   "TG_50596": [
+    "exact",
+    "range"
+   ],
+   "TG_50597": [
+    "range"
+   ],
+   "TG_50598": [
+    "exact",
+    "range"
+   ],
+   "TG_50599": [
+    "exact",
+    "range"
+   ],
+   "TG_50600": [
+    "exact",
+    "range"
+   ],
+   "TG_50601": [
+    "exact",
+    "range"
+   ],
+   "TG_50602": [
+    "exact",
+    "range"
+   ],
+   "TG_50603": [
+    "exact",
+    "range"
+   ],
+   "TG_50604": [
+    "exact",
+    "range"
+   ],
+   "TG_50605": [
+    "exact",
+    "range"
+   ],
+   "TG_50606": [
+    "exact",
+    "range"
+   ],
+   "TG_50817": [
+    "exact",
+    "range"
+   ],
+   "TG_50818": [
+    "exact",
+    "range"
+   ],
+   "TG_50819": [
+    "exact",
+    "range"
+   ],
+   "TG_50820": [
+    "exact",
+    "range"
+   ],
+   "TG_50821": [
+    "exact",
+    "range"
+   ],
+   "TG_50822": [
+    "exact",
+    "range"
+   ],
+   "TG_50823": [
+    "exact",
+    "range"
+   ],
+   "TG_50824": [
+    "exact",
+    "range"
+   ],
+   "TG_50825": [
+    "exact",
+    "range"
+   ],
+   "TG_50826": [
+    "exact",
+    "range"
+   ],
+   "TG_50827": [
+    "exact",
+    "range"
+   ],
+   "TG_50828": [
+    "exact",
+    "range"
+   ],
+   "TG_50829": [
+    "exact",
+    "range"
+   ],
+   "TG_50830": [
+    "exact",
+    "range"
+   ],
+   "TG_50831": [
+    "exact",
+    "range"
+   ],
+   "TG_50832": [
+    "exact",
+    "range"
+   ],
+   "TG_50833": [
+    "exact",
+    "range"
+   ],
+   "TG_57858": [
+    "exact",
+    "range"
+   ],
+   "TG_57859": [
+    "exact",
+    "range"
+   ],
+   "TG_57860": [
+    "exact",
+    "range"
+   ],
+   "TG_57861": [
+    "exact",
+    "range"
+   ],
+   "TG_57862": [
+    "exact",
+    "range"
+   ],
+   "TG_57863": [
+    "exact",
+    "range"
+   ],
+   "TG_57864": [
+    "exact",
+    "range"
+   ],
+   "TG_57865": [
+    "exact",
+    "range"
+   ],
+   "TG_57866": [
+    "exact",
+    "range"
+   ],
+   "TG_57867": [
+    "exact",
+    "range"
+   ],
+   "TG_57868": [
+    "exact",
+    "range"
+   ],
+   "TG_57869": [
+    "exact",
+    "range"
+   ],
+   "TG_57870": [
+    "exact",
+    "range"
+   ],
+   "TG_57871": [
+    "exact",
+    "range"
+   ],
+   "TG_57872": [
+    "exact",
+    "range"
+   ],
+   "TG_57873": [
+    "exact",
+    "range"
+   ],
+   "TG_57874": [
+    "exact",
+    "range"
+   ],
+   "TG_57875": [
+    "exact",
+    "range"
+   ],
+   "TG_57876": [
+    "exact",
+    "range"
+   ],
+   "TG_57877": [
+    "exact",
+    "range"
+   ],
+   "TG_57878": [
+    "exact",
+    "range"
+   ],
+   "TG_57879": [
+    "exact",
+    "range"
+   ],
+   "TG_57880": [
+    "exact",
+    "range"
+   ],
+   "TG_57881": [
+    "exact",
+    "range"
+   ],
+   "TG_57882": [
+    "exact",
+    "range"
+   ],
+   "TG_57883": [
+    "exact",
+    "range"
+   ],
+   "TG_57884": [
+    "exact",
+    "range"
+   ],
+   "TG_57885": [
+    "exact",
+    "range"
+   ],
+   "TG_57886": [
+    "exact",
+    "range"
+   ],
+   "TG_57887": [
+    "exact",
+    "range"
+   ],
+   "TG_57888": [
+    "exact",
+    "range"
+   ],
+   "TG_57889": [
+    "exact",
+    "range"
+   ],
+   "TG_57890": [
+    "exact",
+    "range"
+   ],
+   "TG_57891": [
+    "exact",
+    "range"
+   ],
+   "TG_57892": [
+    "exact",
+    "range"
+   ],
+   "TG_57893": [
+    "exact",
+    "range"
+   ],
+   "TG_57894": [
+    "exact",
+    "range"
+   ],
+   "TG_57912": [
+    "exact",
+    "range"
+   ],
+   "TG_57913": [
+    "exact",
+    "range"
+   ],
+   "TG_57914": [
+    "exact",
+    "range"
+   ],
+   "TG_57915": [
+    "exact",
+    "range"
+   ],
+   "TG_57916": [
+    "exact",
+    "range"
+   ],
+   "TG_57917": [
+    "exact",
+    "range"
+   ],
+   "TG_57918": [
+    "exact",
+    "range"
+   ],
+   "TG_57919": [
+    "exact",
+    "range"
+   ],
+   "TG_57921": [
+    "exact",
+    "range"
+   ],
+   "TG_57922": [
+    "exact",
+    "range"
+   ],
+   "TG_57923": [
+    "exact",
+    "range"
+   ],
+   "TG_57924": [
+    "exact",
+    "range"
+   ],
+   "TG_57925": [
+    "exact",
+    "range"
+   ],
+   "TG_57926": [
+    "exact",
+    "range"
+   ],
+   "TG_57927": [
+    "exact",
+    "range"
+   ],
+   "TG_57928": [
+    "exact",
+    "range"
+   ],
+   "TG_57929": [
+    "exact",
+    "range"
+   ],
+   "TG_58042": [
+    "exact",
+    "range"
+   ],
+   "TG_58043": [
+    "exact",
+    "range"
+   ],
+   "TG_58044": [
+    "exact",
+    "range"
+   ],
+   "TG_58045": [
+    "exact",
+    "range"
+   ],
+   "TG_58046": [
+    "exact",
+    "range"
+   ],
+   "TG_58047": [
+    "exact",
+    "range"
+   ],
+   "TG_58048": [
+    "exact",
+    "range"
+   ],
+   "TG_58049": [
+    "exact",
+    "range"
+   ],
+   "TG_58050": [
+    "exact",
+    "range"
+   ],
+   "TG_58051": [
+    "exact",
+    "range"
+   ],
+   "TG_58052": [
+    "exact",
+    "range"
+   ],
+   "WA_20260918_31_SXTC": [
+    "batch_code"
+   ],
+   "WA_20260918_46_NUWE": [
+    "batch_code"
+   ],
+   "X_20260827_amix_3m_inflow": [
+    "short_name"
+   ],
+   "X_20260827_amix_hcwb_ready": [
+    "short_name"
+   ],
+   "X_20260827_amix_pressure_497": [
+    "short_name"
+   ],
+   "X_20260827_checklist_7points": [
+    "short_name"
+   ],
+   "X_20260827_checklist_7points_cont": [
+    "short_name"
+   ],
+   "X_20260827_ciit_targets": [
+    "short_name"
+   ],
+   "X_20260827_hcwb_leak_close_dm": [
+    "short_name"
+   ],
+   "X_20260827_hcwb_leak_read": [
+    "short_name"
+   ],
+   "X_20260827_indicators_canf": [
+    "short_name"
+   ],
+   "X_20260827_kwm_150_watch3": [
+    "short_name"
+   ],
+   "X_20260827_kwm_annotated_levels": [
+    "short_name"
+   ],
+   "X_20260827_kwm_hammer_support": [
+    "short_name"
+   ],
+   "X_20260827_kwm_offering_notready": [
+    "short_name"
+   ],
+   "X_20260827_labt_supports_wait": [
+    "short_name"
+   ],
+   "X_20260827_operator_candle_ride": [
+    "short_name"
+   ],
+   "X_20260827_pfsa_500pct": [
+    "short_name"
+   ],
+   "X_20260827_raya_notready": [
+    "short_name"
+   ],
+   "X_20260827_raya_notready_2": [
+    "short_name"
+   ],
+   "X_20260827_rubi_4h_levels": [
+    "short_name"
+   ],
+   "X_20260827_rubi_daily_ma_rsi": [
+    "short_name"
+   ],
+   "X_20260827_rubi_read_short150k": [
+    "short_name"
+   ],
+   "X_20260827_target10_entry_below": [
+    "short_name"
+   ],
+   "X_20260828_01": [],
+   "X_20260828_02": [],
+   "X_20260828_03": [],
+   "X_20260828_04": [],
+   "X_20260828_05": [],
+   "X_20260828_06": [],
+   "X_20260828_07": [],
+   "X_20260828_08": [],
+   "X_20260828_09": [],
+   "X_20260828_10": [],
+   "X_20260828_11": [],
+   "X_20260828_12": [],
+   "X_20260828_13": [],
+   "X_20260828_14": [],
+   "X_20260828_15": [],
+   "X_20260905_01": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_02": [
+    "abbrev",
+    "range"
+   ],
+   "X_20260905_03": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_04": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "X_20260905_05": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_06": [
+    "abbrev",
+    "range"
+   ],
+   "X_20260905_07": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_08": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_09": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_10": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_11": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "X_20260905_12": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "X_20260905_13": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "X_20260905_14": [
+    "abbrev",
+    "range"
+   ],
+   "X_20260918_04_ELPW": [
+    "batch_code"
+   ],
+   "X_20260918_11_afterhours": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20260918_12_doublebottom": [
+    "batch_code"
+   ],
+   "X_20260918_13_NUWE": [
+    "batch_code"
+   ],
+   "X_20260918_15_NTCL": [
+    "batch_code"
+   ],
+   "X_20260918_21_entry_below_ma": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20260918_22_pipeline": [
+    "batch_code"
+   ],
+   "X_20260918_23_watchlist": [
+    "batch_code"
+   ],
+   "X_20260918_24_SXTC": [
+    "batch_code"
+   ],
+   "X_20260918_26_GRI": [
+    "batch_code"
+   ],
+   "X_20260918_27_CUPR": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20260918_28_CUPR": [
+    "batch_code"
+   ],
+   "X_20260918_29_KWM": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20260918_48_WETO": [
+    "batch_code"
+   ],
+   "X_20260918_54_indicators": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20260918_61_VEEE": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20260918_66_ELPW": [
+    "batch_code"
+   ],
+   "X_20260918_85_YMT": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20261001_HS_03_LS": [
+    "exact"
+   ]
+  },
+  "per_image_record": {
+   "APP_20260918_18_NTCL": [
+    "batch_code",
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "APP_20260918_19_NTCL": [
+    "batch_code",
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "APP_20260918_20_NTCL": [
+    "batch_code",
+    "dup_cluster_reviewed",
+    "exact",
+    "short_name"
+   ],
+   "APP_20260918_49_main": [
+    "batch_code",
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "APP_20260918_50_ZNB": [
+    "batch_code",
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "APP_20260918_52_ELPW": [
+    "batch_code",
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "APP_20260918_53_ELPW": [
+    "batch_code",
+    "dup_cluster_reviewed",
+    "exact",
+    "short_name"
+   ],
+   "APP_20260918_59_VEEE": [
+    "batch_code"
+   ],
+   "CH_20260918_01_ELPW": [
+    "batch_code"
+   ],
+   "CH_20260918_02_ELPW": [
+    "batch_code"
+   ],
+   "CH_20260918_03_ELPW": [
+    "batch_code",
+    "short_name"
+   ],
+   "CH_20260918_05_CPOP": [
+    "batch_code",
+    "exact"
+   ],
+   "CH_20260918_07_NUWE": [
+    "batch_code"
+   ],
+   "CH_20260918_09_DAIC": [
+    "batch_code"
+   ],
+   "CH_20260918_14_NUWE": [
+    "batch_code"
+   ],
+   "CH_20260918_16_NTCL": [
+    "batch_code"
+   ],
+   "CH_20260918_17_NTCL": [
+    "batch_code",
+    "short_name"
+   ],
+   "CH_20260918_25_SXTC": [
+    "batch_code"
+   ],
+   "CH_20260918_32_SXTC": [
+    "batch_code"
+   ],
+   "CH_20260918_39_NUWE": [
+    "batch_code"
+   ],
+   "CH_20260918_45_NUWE": [
+    "batch_code",
+    "short_name"
+   ],
+   "CH_20260918_47_WETO": [
+    "batch_code"
+   ],
+   "CH_20260918_57_VEEE": [
+    "batch_code"
+   ],
+   "CH_20260918_58_VEEE": [
+    "batch_code"
+   ],
+   "CH_20260918_60_VEEE": [
+    "batch_code",
+    "short_name"
+   ],
+   "CH_20260918_63_ELPW": [
+    "batch_code"
+   ],
+   "CH_20260918_64_ELPW": [
+    "batch_code"
+   ],
+   "CH_20260918_65_ELPW": [
+    "batch_code",
+    "short_name"
+   ],
+   "CH_20261001_HS_01_DRMA": [
+    "exact"
+   ],
+   "CH_20261001_HS_02_DCOY": [
+    "exact"
+   ],
+   "EDU_20260827_dki_group_candle": [
+    "exact"
+   ],
+   "EDU_20260827_ma_rizq_rule_sle": [
+    "exact"
+   ],
+   "EDU_20260827_school_two_models_ma_ladder": [
+    "exact"
+   ],
+   "EDU_20260827_sle_night_4am": [
+    "exact"
+   ],
+   "EDU_20260827_smxt_falling_model": [
+    "exact"
+   ],
+   "EDU_20260827_wnw_daily_after_explosion": [
+    "exact"
+   ],
+   "EDU_20260827_wnw_entry_decision_4h": [
+    "exact"
+   ],
+   "EDU_20260827_wnw_precall_chinese": [
+    "exact"
+   ],
+   "EDU_20260905_01": [
+    "exact",
+    "range"
+   ],
+   "EDU_20260905_02": [
+    "exact",
+    "range"
+   ],
+   "EDU_20260918_10_pattern": [
+    "batch_code",
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "EDU_20260918_44_doublebottom": [
+    "batch_code",
+    "visual_v3"
+   ],
+   "EDU_20260918_56_three_inside_up": [
+    "batch_code"
+   ],
+   "IMG_0141": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0142": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0143": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0144": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0149": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0150": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0151": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0152": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0153": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0177": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0178": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0179": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0267": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0289": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0290": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0291": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0292": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0293": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0294": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0295": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0296": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0297": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0298": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0299": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0300": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0301": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0302": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0303": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0304": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0305": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0306": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0314": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0315": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0316": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0317": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0318": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0319": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0320": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0329": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0339": [
+    "visual_v31"
+   ],
+   "IMG_0358": [
+    "dup_cluster_reviewed"
+   ],
+   "IMG_0359": [
+    "dup_cluster_reviewed"
+   ],
+   "IMG_0361": [
+    "visual_v31"
+   ],
+   "IMG_0362": [
+    "visual_v31"
+   ],
+   "IMG_0363": [
+    "visual_v31"
+   ],
+   "IMG_0391": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0392": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0393": [
+    "img_bare",
+    "visual_v31"
+   ],
+   "IMG_0394": [
+    "dup_cluster_reviewed"
+   ],
+   "IMG_0395": [
+    "visual_v31"
+   ],
+   "IMG_0402": [
+    "visual_v31"
+   ],
+   "IMG_0413": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0414": [
+    "img_bare"
+   ],
+   "IMG_0426": [
+    "visual_v31"
+   ],
+   "IMG_0430": [
+    "visual_v31"
+   ],
+   "IMG_0486": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0488": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0494": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0495": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0496": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0497": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0498": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0500": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0505": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0506": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0507": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0508": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0509": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0510": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0511": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0512": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0513": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0531": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0566": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0567": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0568": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0569": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0570": [
+    "dup_cluster_reviewed",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0587": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0602": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0617": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0618": [
+    "img_bare",
+    "range"
+   ],
+   "IMG_0627": [
+    "exact",
+    "img_bare",
+    "visual_v31"
+   ],
+   "IMG_0628": [
+    "exact",
+    "img_bare",
+    "visual_v31"
+   ],
+   "IMG_0645": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0647": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0648": [
+    "img_bare"
+   ],
+   "IMG_0659": [
+    "img_bare"
+   ],
+   "IMG_0688": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0689": [
+    "img_bare",
+    "range"
+   ],
+   "IMG_0690": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0691": [
+    "exact",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0692": [
+    "dup_cluster_reviewed",
+    "img_bare",
+    "range"
+   ],
+   "IMG_0696": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_0697": [
+    "img_bare",
+    "visual_v31"
+   ],
+   "IMG_0698": [
+    "img_bare",
+    "visual_v31"
+   ],
+   "IMG_0746": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_8126": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_8127": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_8133": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_8136": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_8242": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_9493": [
+    "exact",
+    "img_bare"
+   ],
+   "IMG_9923": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "IMG_9925": [
+    "dup_cluster_reviewed",
+    "exact",
+    "img_bare"
+   ],
+   "TG_1806": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1807": [
+    "exact"
+   ],
+   "TG_1808": [
+    "exact"
+   ],
+   "TG_1809": [
+    "exact"
+   ],
+   "TG_1810": [
+    "exact"
+   ],
+   "TG_1811": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1812": [
+    "exact"
+   ],
+   "TG_1813": [
+    "exact"
+   ],
+   "TG_1814": [
+    "exact"
+   ],
+   "TG_1815": [
+    "exact"
+   ],
+   "TG_1816": [
+    "exact"
+   ],
+   "TG_1817": [
+    "exact"
+   ],
+   "TG_1818": [
+    "exact"
+   ],
+   "TG_1819": [
+    "exact"
+   ],
+   "TG_1820": [
+    "exact"
+   ],
+   "TG_1821": [
+    "exact"
+   ],
+   "TG_1822": [
+    "exact"
+   ],
+   "TG_1823": [
+    "exact"
+   ],
+   "TG_1824": [
+    "exact"
+   ],
+   "TG_1825": [
+    "exact"
+   ],
+   "TG_1826": [
+    "exact"
+   ],
+   "TG_1827": [
+    "exact"
+   ],
+   "TG_1828": [
+    "exact"
+   ],
+   "TG_1829": [
+    "exact"
+   ],
+   "TG_1830": [
+    "exact"
+   ],
+   "TG_1831": [
+    "exact"
+   ],
+   "TG_1832": [
+    "exact"
+   ],
+   "TG_1833": [
+    "exact"
+   ],
+   "TG_1834": [
+    "exact"
+   ],
+   "TG_1835": [
+    "exact"
+   ],
+   "TG_1836": [
+    "exact"
+   ],
+   "TG_1837": [
+    "exact"
+   ],
+   "TG_1838": [
+    "exact"
+   ],
+   "TG_1839": [
+    "exact"
+   ],
+   "TG_1840": [
+    "exact"
+   ],
+   "TG_1841": [
+    "exact"
+   ],
+   "TG_1842": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1843": [
+    "exact"
+   ],
+   "TG_1844": [
+    "exact"
+   ],
+   "TG_1845": [
+    "exact"
+   ],
+   "TG_1846": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1847": [
+    "exact"
+   ],
+   "TG_1848": [
+    "exact"
+   ],
+   "TG_1849": [
+    "exact"
+   ],
+   "TG_1850": [
+    "exact"
+   ],
+   "TG_1851": [
+    "exact"
+   ],
+   "TG_1853": [
+    "exact"
+   ],
+   "TG_1854": [
+    "exact"
+   ],
+   "TG_1855": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1856": [
+    "exact"
+   ],
+   "TG_1857": [
+    "exact"
+   ],
+   "TG_1858": [
+    "exact"
+   ],
+   "TG_1859": [
+    "exact"
+   ],
+   "TG_1860": [
+    "exact"
+   ],
+   "TG_1861": [
+    "exact"
+   ],
+   "TG_1862": [
+    "exact"
+   ],
+   "TG_1863": [
+    "exact"
+   ],
+   "TG_1864": [
+    "exact"
+   ],
+   "TG_1865": [
+    "exact"
+   ],
+   "TG_1866": [
+    "exact"
+   ],
+   "TG_1867": [
+    "exact"
+   ],
+   "TG_1868": [
+    "exact"
+   ],
+   "TG_1869": [
+    "exact"
+   ],
+   "TG_1870": [
+    "exact"
+   ],
+   "TG_1871": [
+    "exact"
+   ],
+   "TG_1872": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1873": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1874": [
+    "exact"
+   ],
+   "TG_1875": [
+    "exact"
+   ],
+   "TG_1876": [
+    "exact"
+   ],
+   "TG_1877": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1878": [
+    "exact"
+   ],
+   "TG_1879": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1880": [
+    "exact"
+   ],
+   "TG_1881": [
+    "exact"
+   ],
+   "TG_1882": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1883": [
+    "exact"
+   ],
+   "TG_1884": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1885": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1886": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1887": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1888": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1889": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1890": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1891": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1892": [
+    "exact"
+   ],
+   "TG_1893": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1894": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1895": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1896": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1900": [
+    "exact"
+   ],
+   "TG_1901": [
+    "exact"
+   ],
+   "TG_1902": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1903": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1905": [
+    "exact"
+   ],
+   "TG_1906": [
+    "exact"
+   ],
+   "TG_1907": [
+    "exact"
+   ],
+   "TG_1908": [
+    "exact",
+    "visual_v3"
+   ],
+   "TG_1909": [
+    "exact"
+   ],
+   "TG_1910": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1911": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1912": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1913": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1914": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1915": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1916": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1917": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1918": [
+    "exact"
+   ],
+   "TG_1919": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1920": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1921": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1922": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1923": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1924": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1925": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1926": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1927": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1928": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1929": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1930": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1931": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1932": [
+    "exact"
+   ],
+   "TG_1933": [
+    "exact"
+   ],
+   "TG_1934": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1935": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1936": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1937": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1938": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1939": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1940": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1941": [
+    "exact"
+   ],
+   "TG_1942": [
+    "exact"
+   ],
+   "TG_1943": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1944": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1945": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1946": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1947": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1948": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1949": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1950": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1951": [
+    "exact"
+   ],
+   "TG_1952": [
+    "exact"
+   ],
+   "TG_1953": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1954": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1955": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1956": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1957": [
+    "exact"
+   ],
+   "TG_1958": [
+    "exact"
+   ],
+   "TG_1959": [
+    "exact"
+   ],
+   "TG_1960": [
+    "exact"
+   ],
+   "TG_1961": [
+    "exact"
+   ],
+   "TG_1962": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1963": [
+    "exact"
+   ],
+   "TG_1964": [
+    "exact"
+   ],
+   "TG_1965": [
+    "exact"
+   ],
+   "TG_1966": [
+    "exact"
+   ],
+   "TG_1967": [
+    "exact"
+   ],
+   "TG_1968": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1969": [
+    "exact"
+   ],
+   "TG_1970": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1971": [
+    "exact"
+   ],
+   "TG_1972": [
+    "exact"
+   ],
+   "TG_1973": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1974": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1975": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1976": [
+    "exact"
+   ],
+   "TG_1977": [
+    "exact"
+   ],
+   "TG_1978": [
+    "exact"
+   ],
+   "TG_1979": [
+    "exact"
+   ],
+   "TG_1980": [
+    "exact"
+   ],
+   "TG_1981": [
+    "exact"
+   ],
+   "TG_1982": [
+    "exact"
+   ],
+   "TG_1983": [
+    "exact"
+   ],
+   "TG_1984": [
+    "exact"
+   ],
+   "TG_1985": [
+    "exact",
+    "visual_v3"
+   ],
+   "TG_1986": [
+    "exact"
+   ],
+   "TG_1987": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1988": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1989": [
+    "exact"
+   ],
+   "TG_1990": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1992": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1993": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1994": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1995": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1996": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1997": [
+    "exact"
+   ],
+   "TG_1998": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_1999": [
+    "exact"
+   ],
+   "TG_2000": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2001": [
+    "exact"
+   ],
+   "TG_2002": [
+    "exact"
+   ],
+   "TG_2003": [
+    "exact"
+   ],
+   "TG_2004": [
+    "exact"
+   ],
+   "TG_2005": [
+    "exact"
+   ],
+   "TG_2007": [
+    "exact",
+    "range"
+   ],
+   "TG_2008": [
+    "exact",
+    "range"
+   ],
+   "TG_2009": [
+    "exact",
+    "range"
+   ],
+   "TG_2010": [
+    "exact"
+   ],
+   "TG_2011": [
+    "exact"
+   ],
+   "TG_2012": [
+    "exact"
+   ],
+   "TG_2013": [
+    "exact"
+   ],
+   "TG_2014": [
+    "exact"
+   ],
+   "TG_2015": [
+    "exact"
+   ],
+   "TG_2016": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2017": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2018": [
+    "exact"
+   ],
+   "TG_2019": [
+    "exact"
+   ],
+   "TG_2020": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2021": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2022": [
+    "exact"
+   ],
+   "TG_2023": [
+    "exact"
+   ],
+   "TG_2024": [
+    "exact"
+   ],
+   "TG_2025": [
+    "exact"
+   ],
+   "TG_2026": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_20260905_01": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_02": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_03": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_04": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_05": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_06": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "TG_20260905_07": [
+    "exact",
+    "range"
+   ],
+   "TG_20260905_08": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "TG_20260905_09": [
+    "abbrev",
+    "exact",
+    "range"
+   ],
+   "TG_20260918_06_CPOP": [
+    "batch_code"
+   ],
+   "TG_20260918_08_NTCL": [
+    "batch_code"
+   ],
+   "TG_20260918_30_targets7": [
+    "batch_code"
+   ],
+   "TG_20260918_37_NUWE": [
+    "batch_code",
+    "exact"
+   ],
+   "TG_20260918_38_NUWE": [
+    "batch_code",
+    "exact"
+   ],
+   "TG_20260918_40_NUWE": [
+    "batch_code",
+    "exact"
+   ],
+   "TG_20260918_42_NUWE": [
+    "batch_code",
+    "short_name"
+   ],
+   "TG_20260918_67_BRNX": [
+    "batch_code"
+   ],
+   "TG_2027": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2028": [
+    "exact"
+   ],
+   "TG_2029": [
+    "exact"
+   ],
+   "TG_2030": [
+    "exact"
+   ],
+   "TG_2031": [
+    "exact"
+   ],
+   "TG_2032": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2033": [
+    "exact"
+   ],
+   "TG_2034": [
+    "exact"
+   ],
+   "TG_2035": [
+    "exact"
+   ],
+   "TG_2036": [
+    "exact"
+   ],
+   "TG_2037": [
+    "exact"
+   ],
+   "TG_2038": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2039": [
+    "exact"
+   ],
+   "TG_2040": [
+    "exact"
+   ],
+   "TG_2041": [
+    "exact"
+   ],
+   "TG_2042": [
+    "exact"
+   ],
+   "TG_2043": [
+    "exact"
+   ],
+   "TG_2044": [
+    "exact"
+   ],
+   "TG_2045": [
+    "exact"
+   ],
+   "TG_2046": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2047": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2048": [
+    "exact"
+   ],
+   "TG_2049": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2050": [
+    "exact"
+   ],
+   "TG_2051": [
+    "exact"
+   ],
+   "TG_2052": [
+    "exact"
+   ],
+   "TG_2053": [
+    "exact"
+   ],
+   "TG_2054": [
+    "exact"
+   ],
+   "TG_2058": [
+    "exact"
+   ],
+   "TG_2059": [
+    "exact"
+   ],
+   "TG_2060": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2062": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2063": [
+    "exact"
+   ],
+   "TG_2064": [
+    "exact"
+   ],
+   "TG_2065": [
+    "exact"
+   ],
+   "TG_2066": [
+    "exact"
+   ],
+   "TG_2067": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2068": [
+    "exact"
+   ],
+   "TG_2069": [
+    "exact"
+   ],
+   "TG_2070": [
+    "exact"
+   ],
+   "TG_2071": [
+    "exact"
+   ],
+   "TG_2072": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2073": [
+    "exact"
+   ],
+   "TG_2075": [
+    "exact"
+   ],
+   "TG_2076": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2077": [
+    "exact"
+   ],
+   "TG_2078": [
+    "exact"
+   ],
+   "TG_2079": [
+    "exact"
+   ],
+   "TG_2080": [
+    "exact"
+   ],
+   "TG_2081": [
+    "exact"
+   ],
+   "TG_2082": [
+    "exact"
+   ],
+   "TG_2085": [
+    "exact"
+   ],
+   "TG_2086": [
+    "exact"
+   ],
+   "TG_2087": [
+    "exact"
+   ],
+   "TG_2088": [
+    "exact"
+   ],
+   "TG_2089": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2090": [
+    "exact"
+   ],
+   "TG_2091": [
+    "exact"
+   ],
+   "TG_2092": [
+    "exact"
+   ],
+   "TG_2093": [
+    "exact"
+   ],
+   "TG_2094": [
+    "exact"
+   ],
+   "TG_2095": [
+    "exact"
+   ],
+   "TG_2096": [
+    "exact"
+   ],
+   "TG_2097": [
+    "exact"
+   ],
+   "TG_2098": [
+    "exact"
+   ],
+   "TG_2099": [
+    "exact"
+   ],
+   "TG_2100": [
+    "exact"
+   ],
+   "TG_2101": [
+    "exact"
+   ],
+   "TG_2102": [
+    "exact"
+   ],
+   "TG_2103": [
+    "exact"
+   ],
+   "TG_2104": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2105": [
+    "exact"
+   ],
+   "TG_2106": [
+    "exact"
+   ],
+   "TG_2107": [
+    "exact"
+   ],
+   "TG_2108": [
+    "exact"
+   ],
+   "TG_2109": [
+    "exact"
+   ],
+   "TG_2110": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2111": [
+    "exact"
+   ],
+   "TG_2112": [
+    "exact"
+   ],
+   "TG_2113": [
+    "exact"
+   ],
+   "TG_2114": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2115": [
+    "exact"
+   ],
+   "TG_2116": [
+    "exact"
+   ],
+   "TG_2117": [
+    "exact"
+   ],
+   "TG_2118": [
+    "exact"
+   ],
+   "TG_2119": [
+    "exact"
+   ],
+   "TG_2120": [
+    "exact"
+   ],
+   "TG_2121": [
+    "exact"
+   ],
+   "TG_2122": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2123": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2124": [
+    "exact"
+   ],
+   "TG_2126": [
+    "exact"
+   ],
+   "TG_2127": [
+    "exact"
+   ],
+   "TG_2128": [
+    "exact"
+   ],
+   "TG_2169": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2170": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2171": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2172": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2173": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2174": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2175": [
+    "exact"
+   ],
+   "TG_2176": [
+    "exact"
+   ],
+   "TG_2177": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2178": [
+    "exact"
+   ],
+   "TG_2179": [
+    "exact"
+   ],
+   "TG_2180": [
+    "exact"
+   ],
+   "TG_2181": [
+    "exact"
+   ],
+   "TG_2182": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2183": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2184": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2185": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2186": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2187": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2188": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2189": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2190": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2191": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2192": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2193": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2194": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2195": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2196": [
+    "exact"
+   ],
+   "TG_2197": [
+    "exact"
+   ],
+   "TG_2198": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2199": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2200": [
+    "exact"
+   ],
+   "TG_2201": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2202": [
+    "exact"
+   ],
+   "TG_2203": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2204": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2205": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2206": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2207": [
+    "exact"
+   ],
+   "TG_2208": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2209": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2210": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2211": [
+    "exact"
+   ],
+   "TG_2212": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2213": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2214": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2215": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2216": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2217": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2218": [
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "TG_2249": [
+    "exact"
+   ],
+   "TG_2274": [
+    "exact"
+   ],
+   "TG_2275": [
+    "exact"
+   ],
+   "TG_2405": [
+    "exact"
+   ],
+   "TG_2523": [
+    "exact"
+   ],
+   "TG_2525": [
+    "exact"
+   ],
+   "TG_2530": [
+    "exact"
+   ],
+   "TG_2533": [
+    "exact"
+   ],
+   "TG_2536": [
+    "exact"
+   ],
+   "TG_2539": [
+    "exact"
+   ],
+   "TG_2541": [
+    "exact"
+   ],
+   "TG_2544": [
+    "exact"
+   ],
+   "TG_2545": [
+    "exact"
+   ],
+   "TG_50575": [
+    "exact",
+    "range"
+   ],
+   "TG_50576": [
+    "exact",
+    "range"
+   ],
+   "TG_50577": [
+    "exact",
+    "range"
+   ],
+   "TG_50578": [
+    "exact",
+    "range"
+   ],
+   "TG_50579": [
+    "exact",
+    "range"
+   ],
+   "TG_50580": [
+    "exact",
+    "range"
+   ],
+   "TG_50581": [
+    "exact",
+    "range"
+   ],
+   "TG_50582": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_50583": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_50584": [
+    "exact",
+    "range"
+   ],
+   "TG_50585": [
+    "exact",
+    "range"
+   ],
+   "TG_50586": [
+    "exact",
+    "range"
+   ],
+   "TG_50587": [
+    "exact",
+    "range"
+   ],
+   "TG_50588": [
+    "exact",
+    "range"
+   ],
+   "TG_50589": [
+    "exact",
+    "range"
+   ],
+   "TG_50590": [
+    "exact",
+    "range"
+   ],
+   "TG_50591": [
+    "exact",
+    "range"
+   ],
+   "TG_50592": [
+    "exact",
+    "range"
+   ],
+   "TG_50593": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_50594": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_50595": [
+    "exact",
+    "range"
+   ],
+   "TG_50596": [
+    "exact",
+    "range"
+   ],
+   "TG_50597": [
+    "range"
+   ],
+   "TG_50598": [
+    "exact",
+    "range"
+   ],
+   "TG_50599": [
+    "exact",
+    "range"
+   ],
+   "TG_50600": [
+    "exact",
+    "range"
+   ],
+   "TG_50601": [
+    "exact",
+    "range"
+   ],
+   "TG_50602": [
+    "exact",
+    "range"
+   ],
+   "TG_50603": [
+    "exact",
+    "range"
+   ],
+   "TG_50604": [
+    "exact",
+    "range"
+   ],
+   "TG_50605": [
+    "exact",
+    "range"
+   ],
+   "TG_50606": [
+    "exact",
+    "range"
+   ],
+   "TG_50817": [
+    "exact",
+    "range"
+   ],
+   "TG_50818": [
+    "exact",
+    "range"
+   ],
+   "TG_50819": [
+    "exact",
+    "range"
+   ],
+   "TG_50820": [
+    "exact",
+    "range"
+   ],
+   "TG_50821": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_50822": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_50823": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_50824": [
+    "exact",
+    "range"
+   ],
+   "TG_50825": [
+    "exact",
+    "range"
+   ],
+   "TG_50826": [
+    "exact",
+    "range"
+   ],
+   "TG_50827": [
+    "exact",
+    "range"
+   ],
+   "TG_50828": [
+    "exact",
+    "range"
+   ],
+   "TG_50829": [
+    "exact",
+    "range"
+   ],
+   "TG_50830": [
+    "exact",
+    "range"
+   ],
+   "TG_50831": [
+    "exact",
+    "range"
+   ],
+   "TG_50832": [
+    "exact",
+    "range"
+   ],
+   "TG_50833": [
+    "exact",
+    "range"
+   ],
+   "TG_57858": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_57859": [
+    "exact",
+    "range"
+   ],
+   "TG_57860": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_57861": [
+    "exact",
+    "range"
+   ],
+   "TG_57862": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_57863": [
+    "exact",
+    "range"
+   ],
+   "TG_57864": [
+    "exact",
+    "range"
+   ],
+   "TG_57865": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_57866": [
+    "exact",
+    "range"
+   ],
+   "TG_57867": [
+    "exact",
+    "range"
+   ],
+   "TG_57868": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_57869": [
+    "exact",
+    "range"
+   ],
+   "TG_57870": [
+    "exact",
+    "range"
+   ],
+   "TG_57871": [
+    "exact",
+    "range"
+   ],
+   "TG_57872": [
+    "exact",
+    "range"
+   ],
+   "TG_57873": [
+    "exact",
+    "range"
+   ],
+   "TG_57874": [
+    "exact",
+    "range"
+   ],
+   "TG_57875": [
+    "exact",
+    "range"
+   ],
+   "TG_57876": [
+    "exact",
+    "range"
+   ],
+   "TG_57877": [
+    "exact",
+    "range"
+   ],
+   "TG_57878": [
+    "exact",
+    "range"
+   ],
+   "TG_57879": [
+    "exact",
+    "range"
+   ],
+   "TG_57880": [
+    "exact",
+    "range"
+   ],
+   "TG_57881": [
+    "exact",
+    "range"
+   ],
+   "TG_57882": [
+    "exact",
+    "range"
+   ],
+   "TG_57883": [
+    "exact",
+    "range"
+   ],
+   "TG_57884": [
+    "exact",
+    "range"
+   ],
+   "TG_57885": [
+    "exact",
+    "range"
+   ],
+   "TG_57886": [
+    "exact",
+    "range"
+   ],
+   "TG_57887": [
+    "exact",
+    "range"
+   ],
+   "TG_57888": [
+    "exact",
+    "range"
+   ],
+   "TG_57889": [
+    "exact",
+    "range"
+   ],
+   "TG_57890": [
+    "exact",
+    "range"
+   ],
+   "TG_57891": [
+    "exact",
+    "range"
+   ],
+   "TG_57892": [
+    "exact",
+    "range"
+   ],
+   "TG_57893": [
+    "exact",
+    "range"
+   ],
+   "TG_57894": [
+    "exact",
+    "range"
+   ],
+   "TG_57912": [
+    "exact",
+    "range"
+   ],
+   "TG_57913": [
+    "exact",
+    "range"
+   ],
+   "TG_57914": [
+    "exact",
+    "range"
+   ],
+   "TG_57915": [
+    "exact",
+    "range"
+   ],
+   "TG_57916": [
+    "exact",
+    "range"
+   ],
+   "TG_57917": [
+    "exact",
+    "range"
+   ],
+   "TG_57918": [
+    "exact",
+    "range"
+   ],
+   "TG_57919": [
+    "exact",
+    "range"
+   ],
+   "TG_57921": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_57922": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_57923": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_57924": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_57925": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_57926": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_57927": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_57928": [
+    "exact",
+    "range"
+   ],
+   "TG_57929": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range"
+   ],
+   "TG_58042": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_58043": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_58044": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_58045": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_58046": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_58047": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_58048": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_58049": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_58050": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_58051": [
+    "dup_cluster_reviewed",
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "TG_58052": [
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "WA_20260918_31_SXTC": [
+    "batch_code"
+   ],
+   "WA_20260918_46_NUWE": [
+    "batch_code"
+   ],
+   "X_20260827_amix_3m_inflow": [
+    "short_name"
+   ],
+   "X_20260827_amix_hcwb_ready": [
+    "short_name",
+    "visual_v31"
+   ],
+   "X_20260827_amix_pressure_497": [
+    "short_name"
+   ],
+   "X_20260827_checklist_7points": [
+    "short_name"
+   ],
+   "X_20260827_checklist_7points_cont": [
+    "short_name"
+   ],
+   "X_20260827_ciit_targets": [
+    "short_name"
+   ],
+   "X_20260827_hcwb_leak_close_dm": [
+    "short_name"
+   ],
+   "X_20260827_hcwb_leak_read": [
+    "short_name"
+   ],
+   "X_20260827_indicators_canf": [
+    "short_name"
+   ],
+   "X_20260827_kwm_150_watch3": [
+    "short_name"
+   ],
+   "X_20260827_kwm_annotated_levels": [
+    "short_name"
+   ],
+   "X_20260827_kwm_hammer_support": [
+    "short_name"
+   ],
+   "X_20260827_kwm_offering_notready": [
+    "short_name"
+   ],
+   "X_20260827_labt_supports_wait": [
+    "short_name",
+    "visual_v31"
+   ],
+   "X_20260827_operator_candle_ride": [
+    "short_name"
+   ],
+   "X_20260827_pfsa_500pct": [
+    "short_name"
+   ],
+   "X_20260827_raya_notready": [
+    "dup_cluster_reviewed",
+    "short_name",
+    "visual_v3"
+   ],
+   "X_20260827_raya_notready_2": [
+    "dup_cluster_reviewed",
+    "short_name"
+   ],
+   "X_20260827_rubi_4h_levels": [
+    "short_name"
+   ],
+   "X_20260827_rubi_daily_ma_rsi": [
+    "short_name"
+   ],
+   "X_20260827_rubi_read_short150k": [
+    "short_name",
+    "visual_v31"
+   ],
+   "X_20260827_target10_entry_below": [
+    "short_name",
+    "visual_v31"
+   ],
+   "X_20260828_01": [
+    "visual_v31"
+   ],
+   "X_20260828_02": [
+    "visual_v31"
+   ],
+   "X_20260828_03": [
+    "visual_v31"
+   ],
+   "X_20260828_04": [
+    "visual_v31"
+   ],
+   "X_20260828_05": [
+    "visual_v31"
+   ],
+   "X_20260828_06": [
+    "visual_v31"
+   ],
+   "X_20260828_07": [
+    "visual_v31"
+   ],
+   "X_20260828_08": [
+    "visual_v31"
+   ],
+   "X_20260828_09": [
+    "visual_v31"
+   ],
+   "X_20260828_10": [
+    "visual_v31"
+   ],
+   "X_20260828_11": [
+    "visual_v31"
+   ],
+   "X_20260828_12": [
+    "visual_v31"
+   ],
+   "X_20260828_13": [
+    "visual_v31"
+   ],
+   "X_20260828_14": [
+    "visual_v31"
+   ],
+   "X_20260828_15": [
+    "visual_v31"
+   ],
+   "X_20260905_01": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_02": [
+    "abbrev",
+    "range"
+   ],
+   "X_20260905_03": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_04": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "X_20260905_05": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_06": [
+    "abbrev",
+    "range"
+   ],
+   "X_20260905_07": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_08": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_09": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_10": [
+    "exact",
+    "range"
+   ],
+   "X_20260905_11": [
+    "batch_code",
+    "exact",
+    "range",
+    "visual_v3"
+   ],
+   "X_20260905_12": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "X_20260905_13": [
+    "batch_code",
+    "exact",
+    "range"
+   ],
+   "X_20260905_14": [
+    "abbrev",
+    "range"
+   ],
+   "X_20260918_04_ELPW": [
+    "batch_code"
+   ],
+   "X_20260918_11_afterhours": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20260918_12_doublebottom": [
+    "batch_code",
+    "visual_v3"
+   ],
+   "X_20260918_13_NUWE": [
+    "batch_code"
+   ],
+   "X_20260918_15_NTCL": [
+    "batch_code"
+   ],
+   "X_20260918_21_entry_below_ma": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20260918_22_pipeline": [
+    "batch_code"
+   ],
+   "X_20260918_23_watchlist": [
+    "batch_code"
+   ],
+   "X_20260918_24_SXTC": [
+    "batch_code"
+   ],
+   "X_20260918_26_GRI": [
+    "batch_code"
+   ],
+   "X_20260918_27_CUPR": [
+    "batch_code",
+    "exact",
+    "visual_v31"
+   ],
+   "X_20260918_28_CUPR": [
+    "batch_code"
+   ],
+   "X_20260918_29_KWM": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20260918_48_WETO": [
+    "batch_code"
+   ],
+   "X_20260918_54_indicators": [
+    "batch_code",
+    "dup_cluster_reviewed",
+    "exact"
+   ],
+   "X_20260918_61_VEEE": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20260918_66_ELPW": [
+    "batch_code"
+   ],
+   "X_20260918_85_YMT": [
+    "batch_code",
+    "exact"
+   ],
+   "X_20261001_HS_03_LS": [
+    "exact"
+   ]
+  }
+ },
+ "transcript": {
+  "status": "ACCESSIBLE",
+  "path": "59271cc5-48be-5019-b321-70eeaec06f58.jsonl",
+  "bytes": 1230620717,
+  "owner_sent_blocks": 104,
+  "owner_sent_unique": 91,
+  "owner_sent_exact_in_corpus": 54,
+  "owner_sent_exact_in_uploads": 40,
+  "owner_sent_not_exact": 32,
+  "owner_sent_not_exact_near_dup": 32,
+  "owner_sent_new": 0,
+  "tool_result_blocks": 896,
+  "tool_result_unique": 804,
+  "unmatched_detail": [
+   {
+    "sha256_12": "055c5911cd5a",
+    "first_seen": "2026-09-18T11:49:30.150Z",
+    "nearest": "corpus:X_20260918_26_GRI",
+    "dhash256": 3,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "0d030cfb0904",
+    "first_seen": "2026-09-18T12:02:09.384Z",
+    "nearest": "corpus:X_20260905_10",
+    "dhash256": 0,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "1830db696eb5",
+    "first_seen": "2026-09-18T12:00:10.488Z",
+    "nearest": "corpus:X_20260905_07",
+    "dhash256": 5,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "1af1e730c0ed",
+    "first_seen": "2026-09-18T11:44:45.749Z",
+    "nearest": "corpus:X_20260918_24_SXTC",
+    "dhash256": 6,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "1eb4d7b21fce",
+    "first_seen": "2026-10-01T15:48:13.101Z",
+    "nearest": "upload:28d68211-image.png",
+    "dhash256": 1,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "1f1bd3ea8b3c",
+    "first_seen": "2026-09-18T11:55:15.088Z",
+    "nearest": "corpus:APP_20260918_52_ELPW",
+    "dhash256": 3,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "22e164ce739d",
+    "first_seen": "2026-09-18T11:55:15.088Z",
+    "nearest": "upload:d4ff027b-image.png",
+    "dhash256": 7,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "2bf2133a9f36",
+    "first_seen": "2026-09-18T11:44:45.749Z",
+    "nearest": "corpus:X_20260918_23_watchlist",
+    "dhash256": 4,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "2d1010e42ac3",
+    "first_seen": "2026-09-18T12:02:09.384Z",
+    "nearest": "corpus:X_20260905_09",
+    "dhash256": 2,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "353cebcf7b4d",
+    "first_seen": "2026-09-18T11:49:30.150Z",
+    "nearest": "corpus:X_20260918_29_KWM",
+    "dhash256": 2,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "3f91b269a156",
+    "first_seen": "2026-09-18T12:00:10.488Z",
+    "nearest": "corpus:X_20260905_08",
+    "dhash256": 5,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "3fddfc16d0ab",
+    "first_seen": "2026-09-24T19:41:33.568Z",
+    "nearest": "upload:933a9f58-image.png",
+    "dhash256": 5,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "4106a29a8240",
+    "first_seen": "2026-09-18T12:02:09.384Z",
+    "nearest": "corpus:X_20260905_02",
+    "dhash256": 1,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "4551d8065f6f",
+    "first_seen": "2026-09-18T11:53:00.167Z",
+    "nearest": "corpus:TG_20260918_42_NUWE",
+    "dhash256": 2,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "5208c4dfaaf4",
+    "first_seen": "2026-09-18T11:44:45.749Z",
+    "nearest": "corpus:X_20260918_21_entry_below_ma",
+    "dhash256": 3,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "5441b9f70f0b",
+    "first_seen": "2026-09-18T11:58:55.091Z",
+    "nearest": "corpus:TG_20260905_05",
+    "dhash256": 5,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "5b81f0874302",
+    "first_seen": "2026-09-18T12:02:09.384Z",
+    "nearest": "corpus:X_20260905_01",
+    "dhash256": 2,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "61f90e41c800",
+    "first_seen": "2026-09-26T16:53:11.790Z",
+    "nearest": "upload:5491ccd3-image.png",
+    "dhash256": 5,
+    "phash": 2,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "763482478767",
+    "first_seen": "2026-09-18T11:44:45.749Z",
+    "nearest": "corpus:X_20260918_22_pipeline",
+    "dhash256": 5,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "7c79581d70bc",
+    "first_seen": "2026-09-18T12:02:09.384Z",
+    "nearest": "corpus:X_20260905_03",
+    "dhash256": 9,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "857a0962b6e0",
+    "first_seen": "2026-09-18T12:02:09.384Z",
+    "nearest": "corpus:X_20260905_04",
+    "dhash256": 3,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "87de6b66ea4d",
+    "first_seen": "2026-09-18T11:55:15.088Z",
+    "nearest": "corpus:TG_57929",
+    "dhash256": 7,
+    "phash": 2,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "9d2186ce6332",
+    "first_seen": "2026-09-18T11:38:50.017Z",
+    "nearest": "corpus:X_20260918_04_ELPW",
+    "dhash256": 3,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "9df169e3f696",
+    "first_seen": "2026-09-18T11:55:15.088Z",
+    "nearest": "corpus:TG_57927",
+    "dhash256": 2,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "a97e45ec0c8d",
+    "first_seen": "2026-09-18T11:42:59.076Z",
+    "nearest": "corpus:X_20260918_15_NTCL",
+    "dhash256": 2,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "b8f3ab81faeb",
+    "first_seen": "2026-09-18T11:57:30.244Z",
+    "nearest": "corpus:X_20260918_61_VEEE",
+    "dhash256": 20,
+    "phash": 6,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "ba2b27dc9bb2",
+    "first_seen": "2026-09-18T11:42:59.076Z",
+    "nearest": "corpus:X_20260918_11_afterhours",
+    "dhash256": 4,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "c5b74f656719",
+    "first_seen": "2026-09-26T16:53:11.790Z",
+    "nearest": "upload:7e92c069-image.png",
+    "dhash256": 0,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "d2d77e253074",
+    "first_seen": "2026-09-18T12:08:11.288Z",
+    "nearest": "upload:4386f49b-image.png",
+    "dhash256": 1,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "edc0b67fe503",
+    "first_seen": "2026-09-18T11:49:30.150Z",
+    "nearest": "corpus:X_20260918_28_CUPR",
+    "dhash256": 2,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "f6672320de91",
+    "first_seen": "2026-09-18T11:42:59.076Z",
+    "nearest": "corpus:X_20260918_13_NUWE",
+    "dhash256": 6,
+    "phash": 0,
+    "near_duplicate": true
+   },
+   {
+    "sha256_12": "fa90f1359c11",
+    "first_seen": "2026-10-01T15:48:13.101Z",
+    "nearest": "upload:3f5f023e-image.jpg",
+    "dhash256": 4,
+    "phash": 0,
+    "near_duplicate": true
+   }
+  ]
+ }
+}

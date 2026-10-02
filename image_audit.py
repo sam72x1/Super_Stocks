@@ -43,13 +43,29 @@ def image_id(fname):
     return f"IMG_{m.group(1)}" if m else stem.strip().replace(" ", "_")
 
 
+# 🔄 V3.1 (2026-10-02 · عطلٌ مُثبَت): الماسحُ كان يعرف `IMG_xxxx` وحدَها ⟵ صورُ العائلات الأخرى (TG_ · X_ · CH_ · EDU_ · APP_ · WA_)
+#    تُعَدّ «لم تُقرأ بعد» ولو وثّقها الكاتالوجُ باسمها (التقرير قال 638 والمقيسُ 23 بلا سجلٍّ — faisal_method_v3/v31/reconcile_v31.json).
+FAMILY_RE = re.compile(r"\b((?:TG|X|CH|EDU|APP|WA|NEW)_\d{8}_[0-9A-Za-z_]+|TG_\d{3,6}(?![0-9A-Za-z_]))")   # أسماءُ ملفّاتٍ لا رموزُ دفعةٍ محلّيّة
+V31_RECORD = os.path.join("faisal_method_v3", "v31", "reconcile_v31.json")
+V3_VISUAL = [os.path.join("faisal_method_v3", "data", "visual_review.json"),
+             os.path.join("faisal_method_v3", "data", "visual_review_v31.json")]
+
+
 def scan_docs(paths):
-    """يجمع كل معرّفات `IMG_xxxx` المذكورة في ملفات التوثيق → set. نقيّة (تقبل نصوصًا)."""
+    """يجمع معرّفات الصور المذكورة في ملفات التوثيق → set: `IMG_xxxx` (وصيغُها) ‏+ أسماءُ العائلات الأخرى حرفًا.
+    نقيّة (تقبل نصوصًا)."""
     seen = set()
     for txt in paths:
         for m in re.finditer(r"IMG[_\-]?(\d{3,5})", txt or "", re.I):
             seen.add(f"IMG_{m.group(1)}")
+        for m in FAMILY_RE.finditer(txt or ""):
+            seen.add(m.group(1).rstrip("_"))
     return seen
+
+
+def _not_a_missing_image(token, have):
+    """إحالةٌ ليست صورةً غائبة: قالبٌ (`_NN`) أو بادئةُ اسمٍ مرفوع (`X_20260918_27` ⟵ `X_20260918_27_CUPR`). نقيّة."""
+    return bool(re.search(r"_NN(_|$)", token)) or any(h.startswith(token + "_") for h in have)
 
 
 def _doc_texts():
@@ -74,11 +90,13 @@ def _sha(path):
         return ""
 
 
-def build(state=None, docs=None, files=None):
+def build(state=None, docs=None, files=None, also=None):
     """يبني السجلّ: لكل صورة معرّف · ملف · بصمة · موثّقة؟ · الحالة اليدوية · السبب.
-    `docs`/`files` قابلان للحقن (اختبار بلا قرص). نقيّة بالنسبة للحقن."""
+    `docs`/`files` قابلان للحقن (اختبار بلا قرص). نقيّة بالنسبة للحقن.
+    `also`: معرّفاتٌ لها سجلٌّ مكتوبٌ لكلّ صورة خارج المسح النصّيّ (مراجعةٌ بصريّة · ذكرٌ بمدًى أو رمزِ دفعة — V3.1)."""
     state = dict(state or {})
     mentioned = scan_docs(docs if docs is not None else _doc_texts())
+    also = set(also or ())
     if files is None:
         files = ([os.path.join(IMG_DIR, f) for f in sorted(os.listdir(IMG_DIR))
                   if f.lower().endswith(EXTS)] if os.path.isdir(IMG_DIR) else [])
@@ -90,17 +108,22 @@ def build(state=None, docs=None, files=None):
         if sha:
             by_sha.setdefault(sha, iid)
         prev = state.get(iid) or {}
+        doc = iid in mentioned or iid in also
+        ps = prev.get("status")
+        if ps == "unread" and doc:          # 🔄 V3.1: الحالةُ الآليّة كانت تُثبَّت «unread» للأبد ولو وُثّقت الصورةُ بعدها
+            ps = None
         rows.append({
             "id": iid, "file": os.path.basename(p), "sha": sha,
-            "documented": iid in mentioned,
-            "status": prev.get("status") or ("confirmed" if iid in mentioned
-                                             else "unread"),
+            "documented": doc,
+            "status": ps or ("confirmed" if doc else "unread"),
             "note": prev.get("note") or "",
             "duplicate_of": dup if dup and dup != iid else None,
         })
     # معرّفات موثّقة بلا ملف مرفوع (وثّقناها من المحادثة) — تُدرَج للاكتمال
     have = {r["id"] for r in rows}
     for iid in sorted(mentioned - have):
+        if _not_a_missing_image(iid, have):
+            continue
         prev = state.get(iid) or {}
         rows.append({"id": iid, "file": "", "sha": "", "documented": True,
                      "status": prev.get("status") or "confirmed",
@@ -108,6 +131,25 @@ def build(state=None, docs=None, files=None):
                      "duplicate_of": None})
     rows.sort(key=lambda r: r["id"])
     return rows
+
+
+def _v31_documented():
+    """سجلُّ V3.1 لكلّ صورة (إن وُجد): ذكرٌ في الوثائق بأيّ طريقةٍ مسجَّلة ‏+ المراجعاتُ البصريّة. فاشلةٌ-آمنة ⟵ set()."""
+    out = set()
+    try:
+        rec = json.load(open(V31_RECORD, encoding="utf-8"))
+        out |= {k for k, v in rec["corpus"]["per_image_record"].items() if v}
+    except Exception:                                    # noqa: BLE001
+        pass
+    for p in V3_VISUAL:
+        try:
+            d = json.load(open(p, encoding="utf-8"))
+            out |= set(d.get("new", d) if isinstance(d, dict) else ())
+        except Exception:                                # noqa: BLE001
+            pass
+    out.discard("meta")
+    out.discard("amend")
+    return out
 
 
 def summarize(rows):
@@ -169,9 +211,10 @@ def main(argv=None):
             print(f"⚠️ حالة غير معروفة: {st} (المسموح: {', '.join(VALID)})")
             return 2
         state[image_id(iid)] = {"status": st, "note": note.strip().strip('"')}
-    rows = build(state)
-    for r in rows:                      # ثبّت الحالة المحسوبة في الحالة الدائمة
-        state.setdefault(r["id"], {"status": r["status"], "note": r["note"]})
+    rows = build(state, also=_v31_documented())
+    for r in rows:                      # ثبّت الحالة المحسوبة في الحالة الدائمة (والآليّةُ «unread» تُرقّى حين تُوثَّق)
+        if (state.get(r["id"]) or {}).get("status") in (None, "unread"):
+            state[r["id"]] = {"status": r["status"], "note": r["note"]}
     sm = summarize(rows)
     json.dump(state, open(STATE, "w", encoding="utf-8"),
               ensure_ascii=False, indent=1, sort_keys=True)

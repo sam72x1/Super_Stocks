@@ -56,7 +56,7 @@ def detect_events(A: dict) -> list:
         conf = i2 + k
         if conf >= n - 1:
             continue
-        w = T.find_w(o, h, l, c, conf, k, sw=sw_all)
+        w = T.find_w(o, h, l, c, conf, k, sw=sw_all, span_rule=False)   # T-W (V3) بقاعدته المدموجة · V3.1 لا يمسّها
         if not w or w["i2"] != i2:
             continue
         key = (w["i1"], w["i2"])
