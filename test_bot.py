@@ -77445,6 +77445,356 @@ check("⚠️ YF5 التجديدُ (تشغيلٌ حقيقيّ): السطرُ أ�
 check("⚠️ YF6 حدُّ التنبيه `TV_FALLBACK_ALERT_PCT` موسومٌ `engineering` في دفتر المصادر بمِجَسّه",
       any("TV_FALLBACK_ALERT_PCT" in _ln and "`engineering`" in _ln and "1.8%" in _ln
           for _ln in open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read().splitlines()))
+# ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# 🔬 HSX1-HSX3 · HFX1-HFX12 — **التحقيقُ الجنائيّ في الرأس والكتفين `T-HS-FX`** (‏2026-10-02 · أمرُ المالك «FINAL FORENSIC RESEARCH MISSION»
+#    · العقد `hs_forensic/hs_fx_prereg.md` مدموجٌ قبل أيّ رقم): أداةُ بحثٍ `hs_forensic.py` ‏+ خياران جديدان في `HS._evaluate` (‏`brk_mode` ·
+#    `head_rule`) **غائبان عن STRICT/LOOSE فالكشفُ بت-بت** (‏بصمةٌ محسوبةٌ على `42ba432d2` قبل التعديل). سلوكيّةٌ بلا شبكة.
+# ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+import hashlib as _hfx_hash                                               # noqa: E402
+import json as _hfx_json                                                  # noqa: E402
+import ast as _hfx_ast                                                    # noqa: E402
+import zlib as _hfx_zlib                                                  # noqa: E402
+import numpy as _hfx_np                                                   # noqa: E402
+import pandas as _hfx_pd                                                  # noqa: E402
+try:
+    import hs_forensic as FX                                              # noqa: E402
+except Exception as _e:                                                   # noqa: BLE001
+    FX = None
+    print(f"⛔ hs_forensic لا يُستورد: {type(_e).__name__}: {_e}")
+
+
+def _hfx_frames():
+    """إطاراتٌ اصطناعيّة حتميّة (نماذجُ مزروعة · مركّبة · سيرٌ عشوائيّ) — هي نفسُها التي حُسبت عليها بصمةُ `42ba432d2`."""
+    out = []
+    for _sd in range(4):
+        for _nm in ("SYN_IHS", "SYN_IHS_COMPOUND", "SYN_IHS_COMPOUND_B"):
+            out.append(HS.synth_bars(getattr(HS, _nm), seed=_sd))
+    _parts = [HS.synth_walk(220, seed=11), HS.synth_bars(HS.SYN_IHS, seed=12), HS.synth_walk(180, seed=13),
+              HS.synth_bars(HS.SYN_IHS_COMPOUND, seed=14), HS.synth_walk(260, seed=15)]
+    _df = _hfx_pd.concat(_parts, ignore_index=True)
+    _df.index = _hfx_pd.bdate_range("2016-01-04", periods=len(_df))
+    out.append(_df)
+    for _sd in range(6):
+        out.append(HS.synth_walk(900, seed=100 + _sd, sigma=0.03))
+    return out
+
+
+def _hfx_rows(p_by_cfg):
+    rows = []
+    for _k, _df in enumerate(_hfx_frames()):
+        for _cfg, _p in p_by_cfg:
+            for _s in HS.detect(_df, _p):
+                rows.append([_k, _cfg, _s["pid"], int(_s["b_i"]), round(float(_s["neck_b"]), 6), round(float(_s["height"]), 6)])
+    return rows
+
+
+# HSX1 — **الكشفُ بت-بت**: STRICT/LOOSE بلا المفتاحين · وبصمةُ كشفهما على الإطارات الاصطناعيّة = بصمةُ `42ba432d2` قبل التعديل
+#    (‏82 إشارة · sha256 `8cc32dc9a095…`) — أيُّ تغييرٍ في `_evaluate` يمسّ الافتراضيّ يُسقطه.
+_HSX1_SHA = "8cc32dc9a09518746173047b621d3867739a5801790fccce65787249e9db6a0e"
+try:
+    _hsx1_rows = _hfx_rows((("STRICT", HS.STRICT), ("LOOSE", HS.LOOSE)))
+    _hsx1_sha = _hfx_hash.sha256(_hfx_json.dumps(_hsx1_rows).encode()).hexdigest()
+    _hsx1 = {"keys": not any(k in HS.STRICT or k in HS.LOOSE for k in ("brk_mode", "head_rule")),
+             "n": len(_hsx1_rows), "sha": _hsx1_sha == _HSX1_SHA}
+except Exception as _e:                                                   # noqa: BLE001
+    _hsx1 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HSX1 خيارا `_evaluate` الجديدان (`brk_mode` · `head_rule`) غائبان عن STRICT/LOOSE · وبصمةُ كشفهما = بصمةُ `42ba432d2` قبل التعديل (82 إشارة)",
+      _hsx1 == {"keys": True, "n": 82, "sha": True}, str(_hsx1)[:200])
+
+# HSX2 — **المدخلان A وB كشفان سببيّان مستقلّان لا تقديمٌ لإشارة C**: لكلّ رأسٍ يكشفه الثلاثة ⟵ بارُ A ‏≤ بار B ‏≤ بار C · وسعرُ A
+#    ‏`max(Open، العتبة)` · ولا يختلف المعرّفُ (الرأسُ نفسُه) · وفي إطارٍ واحدٍ على الأقلّ يسبق A الإغلاقَ فعلًا (لا مفتاحَ ميّت).
+try:
+    _hsx2_ok, _hsx2_strict_lt, _hsx2_n = True, 0, 0
+    for _df in _hfx_frames()[:12]:
+        _c = {s["head_i"]: s for s in HS.detect(_df, FX.P_C)}
+        _b = {s["head_i"]: s for s in HS.detect(_df, FX.P_B)}
+        _a = {s["head_i"]: s for s in HS.detect(_df, FX.P_A)}
+        for _h, _sc in _c.items():
+            if _h in _a and _h in _b:
+                _hsx2_n += 1
+                _hsx2_ok &= int(_a[_h]["b_i"]) <= int(_b[_h]["b_i"]) <= int(_sc["b_i"])
+                _hsx2_strict_lt += int(int(_a[_h]["b_i"]) < int(_sc["b_i"]))
+    _hsx2 = {"ok": bool(_hsx2_ok), "n": _hsx2_n > 0, "earlier": _hsx2_strict_lt > 0}
+except Exception as _e:                                                   # noqa: BLE001
+    _hsx2 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HSX2 المدخلان A (أوّلُ تجاوزٍ بالأعلى) وB (أوّلُ إغلاقٍ بلا هامش) كشفان مستقلّان: بارُ A ‏≤ B ‏≤ C للرأس نفسِه · وA يسبق فعلًا",
+      _hsx2 == {"ok": True, "n": True, "earlier": True}, str(_hsx2)[:200])
+
+# HSX3 — **`head_rule="below_shoulders"` يُسقط شرطَ «لا قاعَ أدنى داخل النموذج» وحدَه**: يُغيّر الكشفَ على الإطارات المركّبة (مفتاحٌ حيّ) ·
+#    ورأسُه يبقى تحت الكتفين (HS-E1 لا يُمَسّ).
+try:
+    _hsx3_rows = []
+    for _df in _hfx_frames():
+        for _s in HS.detect(_df, dict(HS.STRICT, head_rule="below_shoulders")):
+            _hsx3_rows.append(_s)
+    _hsx3 = {"head_below": all(float(s["head_px"]) < min(float(s["ls_px"]), float(s["rs_px"])) for s in _hsx3_rows),
+             "differs": _hfx_hash.sha256(_hfx_json.dumps([[s["pid"], int(s["b_i"])] for s in _hsx3_rows]).encode()).hexdigest()
+             != _hfx_hash.sha256(_hfx_json.dumps([[r[2], r[3]] for r in _hsx1_rows if r[1] == "STRICT"]).encode()).hexdigest()}
+except Exception as _e:                                                   # noqa: BLE001
+    _hsx3 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HSX3 `head_rule=\"below_shoulders\"` مفتاحٌ حيّ (يُغيّر كشفَ الإطارات المركّبة) ورأسُه تحت الكتفين دائمًا (HS-E1 بت-بت)",
+      _hsx3 == {"head_below": True, "differs": True}, str(_hsx3)[:200])
+
+# HSX4 — **المدخل A «أوّلُ تجاوزٍ بالأعلى» حرفًا**: على بنيةٍ حقيقيّة من الكاشف عند بار A · رفعُ **أعلى** بارٍ سابقٍ فوق العنق (الإغلاقُ كما هو)
+#    يجعلها «ليست الأولى» فتُرفض · وبلا الرفع تُقبل — فـ`not_first` في وضع `high` يقرأ الأعلى لا الإغلاق (طفرةُ «الإغلاق» نجت من HSX2).
+try:
+    _df4 = _hfx_frames()[0]
+    _o4, _h4, _l4, _c4, _v4 = HS._arrays(_df4)
+    _a4 = HS.atr_np(_h4, _l4, _c4, FX.P_A["atr_n"])
+    _sA4 = HS.detect(_df4, FX.P_A)[0]
+    _bA4, _P24 = int(_sA4["b_i"]), int(_sA4["p2_i"])
+    _st4 = None
+    for _t4, _cand4, _Z4 in HS._walk(_h4, _l4, _a4, FX.P_A, len(_c4)):
+        if _t4 == _bA4:
+            _st4 = next((x for x in _cand4 if x["head"][0] == int(_sA4["head_i"])), None)
+            break
+    _neck4, _sl4 = HS._neck_fn(_st4["p1"], _st4["p2"])
+    _x4 = _bA4 - 1
+    _hm4 = _h4.copy()
+    _hm4[_x4] = max(_h4[_x4], float(_neck4(_x4)) * 1.0005)
+    _base4 = HS._evaluate(_st4, _bA4, _h4, _l4, _c4, _a4, FX.P_A)
+    _mod4 = HS._evaluate(_st4, _bA4, _hm4, _l4, _c4, _a4, FX.P_A)
+    _hsx4 = {"gap": _x4 > _P24, "base": isinstance(_base4, dict) and int(_base4["b_i"]) == _bA4, "mod": _mod4 is None,
+             "close_below": float(_c4[_x4]) < float(_neck4(_x4))}
+except Exception as _e:                                                   # noqa: BLE001
+    _hsx4 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HSX4 المدخل A أوّلُ تجاوزٍ **بالأعلى**: بارٌ سابقٌ أعلاه فوق العنق وإغلاقُه تحته يُسقط الإشارةَ (ليست الأولى) · وبدونه تُقبل",
+      _hsx4 == {"gap": True, "base": True, "mod": True, "close_below": True}, str(_hsx4)[:300])
+
+# HFX1 — **ترتيبُ الأحداث والتعادل الأحوط** (§⑤): الهدفُ بالأعلى والإبطالُ بالإغلاق · CLEAN = الهدفُ **قبل** الإبطال حصرًا · والتعادلُ في البار
+#    نفسِه **إبطالٌ أوّلًا** (DIRTY إن لُمس الهدفُ فيه · لا CLEAN) · وصفقةُ القوس في التعادل وقف · والنافذةُ الناقصة ⟵ None.
+try:
+    _h1 = _hfx_np.array([10, 11, 12, 13, 14, 15, 16], float)
+    _c1 = _hfx_np.array([10, 10.5, 9.0, 12, 13, 14, 15], float)
+    _o1 = _h1 - 0.5
+    _tie_h = _hfx_np.array([10, 20, 1, 1, 1, 1, 1.0])
+    _tie_c = _hfx_np.array([10, 8, 1, 1, 1, 1, 1.0])
+    _hfx1 = {"eb": FX.event_bars(_h1, _c1, 0, 13.5, 9.5, 5), "inc": FX.event_bars(_h1, _c1, 3, 13.5, 9.5, 5),
+             "cls": [FX.classify(4, 2), FX.classify(2, None), FX.classify(None, 3), FX.classify(None, None), FX.classify(3, 3)],
+             "tie_ev": FX.classify(*FX.event_bars(_tie_h, _tie_c, 0, 15.0, 9.0, 5)),
+             "tie_br": (FX.bracket(_o1, _tie_h, _tie_c, 0, 10.0, 15.0, 9.0, 5) or {}).get("why"),
+             "tgt_px": round((FX.bracket(_hfx_np.array([10, 12, 16, 1, 1, 1, 1.0]), _hfx_np.array([10, 13, 17, 1, 1, 1, 1.0]),
+                                   _hfx_np.array([10, 12.5, 16.5, 1, 1, 1, 1.0]), 0, 10.0, 15.0, 9.0, 5) or {}).get("ret"), 9),
+             "br_inc": FX.bracket(_o1, _h1, _c1, 3, 10.0, 13.5, 9.5, 5),
+             "i3": FX.event_bars(_h1, _c1, 0, 99.0, 1.0, 5, extra_stop_i=3)}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx1 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX1 ترتيبُ الأحداث: الهدفُ بالأعلى والإبطالُ بالإغلاق · CLEAN قبل الإبطال حصرًا · التعادلُ إبطالٌ أوّلًا (DIRTY لا CLEAN) · "
+      "القوسُ في التعادل وقف · الجنيُ `max(Open، الهدف)` عند الفجوة · النافذةُ الناقصة None · وفشلُ الاختبار يدخل I3",
+      _hfx1 == {"eb": (4, 2), "inc": None, "cls": ["DIRTY", "CLEAN", "STOP", "NEITHER", "DIRTY"], "tie_ev": "DIRTY",
+                "tie_br": "stop", "tgt_px": 0.6, "br_inc": None, "i3": (None, 3)}, str(_hfx1)[:300])
+
+# HFX2 — **التسلسل** (§⑤): عودةٌ قبل الهدف ⟵ RETEST · نظيفٌ خلال 10 بلا عودة ⟵ مباشر · بعدها ⟵ SIDEWAYS · وDIRTY/STOP/لا شيء بأسمائها.
+try:
+    _hfx2 = [FX.seq_label(4, None, 2), FX.seq_label(4, None, None), FX.seq_label(15, None, None), FX.seq_label(4, 2, None),
+             FX.seq_label(None, 2, None), FX.seq_label(None, None, None), FX.seq_label(4, None, 6), FX.seq_label(10, None, None)]
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx2 = [f"⛔ {type(_e).__name__}"]
+check("🔬 HFX2 التسلسل: RETEST قبل الهدف · مباشرٌ خلال 10 · SIDEWAYS بعدها · STOP→TARGET · FAILURE · NEITHER · وعودةٌ بعد الهدف لا تُحسب",
+      _hfx2 == ["BREAKOUT→RETEST→TARGET", "BREAKOUT→TARGET", "BREAKOUT→SIDEWAYS→TARGET", "BREAKOUT→STOP→TARGET",
+                "BREAKOUT→FAILURE", "BREAKOUT→NEITHER", "BREAKOUT→TARGET", "BREAKOUT→TARGET"], str(_hfx2)[:300])
+
+# HFX3 — **الفرقُ المطابَق** (§⑦): متوسّطُ (الإشارة − متوسّطُ ضبطها) على الإشارات التي لها ضبط · لا المجمَّعُ الموزون بعدد الضبط ·
+#    والبوتستراب حتميٌّ بالبذرة والفاصلُ يحوي التقدير.
+try:
+    _b3 = FX.boot_diff([1, 0, 1, 1], [[0, 0], [0], [1, 0, 0], []], b=400)
+    _b3b = FX.boot_diff([1, 0, 1, 1], [[0, 0], [0], [1, 0, 0], []], b=400)
+    _hfx3 = {"n": (_b3["n_sig"], _b3["n_ctrl"]), "diff": round(_b3["diff"], 6), "ctrl": round(_b3["mean_ctrl"], 6),
+             "det": _b3 == _b3b, "in": _b3["lo"] <= _b3["diff"] <= _b3["hi"],
+             "empty": FX.boot_diff([1], [[]])["diff"] is None}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx3 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX3 الفرقُ المطابَق: 5/9 على المثال (لا 1/2 المجمَّع) · متوسّطُ الضبط 1/9 · حتميّ · والفاصلُ يحوي التقدير · وبلا ضبطٍ None",
+      _hfx3 == {"n": (3, 6), "diff": round(5 / 9, 6), "ctrl": round(1 / 9, 6), "det": True, "in": True, "empty": True}, str(_hfx3)[:300])
+
+# HFX4 — **السعرُ الخامّ**: عاملُ إلغاء التسوية حاصلُ نسب ما بعد اليوم **حصرًا** (يومُ الإشارة نفسُه لا يُحسب) · وبلا أزواج 1.0 ·
+#    وفئاتُ السعر عند الحدّين.
+try:
+    _hfx4 = [FX.split_factor_after([("2020-01-01", 10.0), ("2021-06-01", 2.0)], "2020-06-01"),
+             FX.split_factor_after([("2020-06-01", 10.0)], "2020-06-01"), FX.split_factor_after(None, "2020-06-01"),
+             FX.px_bucket(0.99), FX.px_bucket(1.0), FX.px_bucket(4.99), FX.px_bucket(5.0), FX.px_bucket(float("nan"))]
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx4 = [f"⛔ {type(_e).__name__}"]
+check("🔬 HFX4 السعرُ الخامّ: نسبُ ما بعد اليوم حصرًا · بلا أزواج 1.0 · والفئاتُ أقلُّ من دولار · 1-5 · 5 فأكثر عند حدودها",
+      _hfx4 == [2.0, 1.0, 1.0, "lt1", "1to5", "1to5", "ge5", None], str(_hfx4)[:300])
+
+# HFX5 — **التدقيقُ الأعمى أعمى** (§⑫): المخطّطاتُ أرقامُ OHLC وحدَها (لا رمز ولا تاريخ ولا نوع) · والمفتاحُ منفصلٌ مختوم (لا يُقرأ نصًّا)
+#    ويُفتح ببصمته · والخلطُ حتميّ بالبذرة.
+try:
+    _items5 = [{"kind": k, "sym": f"S{j}", "b_date": "2017-01-0%d" % (j + 1), "pid": None, "detector": k != "NEG",
+                "bars": [[1.0 + j, 2.0, 0.5, 1.5]] * 3} for j, k in enumerate(("OLD", "NEW", "NEG"))]
+    _ch5, _key5 = FX.blind_mix(_items5)
+    _ch5b, _key5b = FX.blind_mix(_items5)
+    _seal5, _sha5 = FX.seal_key(_key5)
+    _open5, _sha5b = FX.open_key(_seal5)
+    _flat5 = _hfx_json.dumps(_ch5)
+    _hfx5 = {"bare": all(isinstance(v, list) and all(len(r) == 4 and all(isinstance(x, float) for x in r) for r in v)
+                         for v in _ch5.values()) and not any(t in _flat5 for t in ("S0", "S1", "S2", "2017", "NEG", "OLD")),
+             "det": (_ch5, _key5) == (_ch5b, _key5b), "ids": sorted(_ch5) == ["BX01", "BX02", "BX03"],
+             "sealed": "NEG" not in _seal5 and "sym" not in _seal5, "open": _open5 == _key5 and _sha5 == _sha5b}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx5 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX5 التدقيقُ الأعمى: المخطّطاتُ OHLC وحدَها (لا رمز ولا تاريخ ولا نوع) · المفتاحُ منفصلٌ مختوم يُفتح ببصمته · والخلطُ حتميّ",
+      _hfx5 == {"bare": True, "det": True, "ids": True, "sealed": True, "open": True}, str(_hfx5)[:300])
+
+# HFX6 — **النظرُ المستقبليّ** (§⑨): على إطارٍ اصطناعيٍّ بإشارات · `detect(df[:b+1])` يُعيد الإشارةَ نفسَها · وآخرُ معلومةٍ = أقصى (محور ‏+ k)
+#    بالضبط ‏≤ b · والكتفُ الأيمن قبل b.
+try:
+    _df6 = _hfx_frames()[12]
+    _s6 = HS.detect(_df6, FX.P_C)
+    _la6 = [FX.lookahead(_df6, s, FX.P_C) for s in _s6]
+    _mx6 = [max(int(s[k]) for k in ("p0_i", "ls_i", "p1_i", "head_i", "p2_i") if s.get(k) is not None) + int(FX.P_C["k"]) for s in _s6]
+    _hfx6 = {"n": len(_s6) >= 2, "prefix": all(x["prefix_ok"] for x in _la6), "info": all(x["info_ok"] for x in _la6),
+             "conf": [x["max_confirm"] for x in _la6] == _mx6}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx6 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX6 النظرُ المستقبليّ: الكشفُ على الإطار مقصوصًا عند الاختراق يُعيد الإشارةَ نفسَها · وآخرُ معلومةٍ = أقصى (محور ‏+ k) ‏≤ b",
+      _hfx6 == {"n": True, "prefix": True, "info": True, "conf": True}, str(_hfx6)[:300])
+
+# HFX7 — **القياسُ لكلّ إشارة** (§⑤): كلُّ مفاتيح الأحداث الثمانية عشر · والقوسُ الأساسيّ B1 = (T-C · I2 · 60) · وB3 = (‏+100% · I2 · 90) ·
+#    والعوائدُ لكلّ أفق · و`analyze_sym` (main) بلا خطأ ومداخلُه C/A/B وضبطُه وهيكلاه.
+try:
+    _df7 = _hfx_frames()[12]
+    _A7 = FX.arrays(_df7)
+    _s7 = HS.detect(_df7, FX.P_C)[0]
+    _rt7 = HS.retest_state(_df7, _s7, FX.P_C)
+    _e7 = int(_s7["b_i"])
+    _E7 = float(_A7["c"][_e7])
+    _m7 = FX.measure(_A7, _s7, _e7, _E7, _rt7)
+    _r7 = FX.analyze_sym(("SYN", _df7, [], [], {}, "main"))
+    _hfx7 = {"keys": set(_m7["ev"]) == {f"{t}|{s}|{w}" for t, s, w in FX.EVENT_SET} and len(_m7["ev"]) == 18,
+             "B1": _m7["B1"] == FX.bracket(_A7["o"], _A7["h"], _A7["c"], _e7, _E7, _s7["target"], _s7["rs_px"], 60),
+             "B3": _m7["B3"] == FX.bracket(_A7["o"], _A7["h"], _A7["c"], _e7, _E7, 2.0 * _E7, _s7["rs_px"], 90),
+             "hz": all(f"ret{x}" in _m7 for x in FX.HZ),
+             "sym": _r7["err"] is None and len(_r7["C"]) >= 2 and len(_r7["A"]) >= 1 and len(_r7["B"]) >= 1
+             and len(_r7["ctrl"]) > 0 and all("la" in x and "blA" in x for x in _r7["C"])}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx7 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX7 القياس: 18 مفتاحَ حدث · B1 = (T-C · I2 · 60) · B3 = (‏+100% · I2 · 90) · العوائدُ لكلّ أفق · و`analyze_sym` (main) سليم",
+      _hfx7 == {"keys": True, "B1": True, "B3": True, "hz": True, "sym": True}, str(_hfx7)[:300])
+
+# HFX8 — **الـworkflow بحثٌ يدويّ**: لا كرون · `contents: write` · بلا أسرار تلغرام ولا `BARS_SOURCE` · والوضعُ من المُدخَل عبر env لا نصّ الصدفة ·
+#    وPython 3.11 · ويُشغّل `hs_forensic.py`.
+try:
+    import yaml as _hfx_yaml                                              # noqa: E402
+    _wtxt8 = open(".github/workflows/hs_forensic.yml", encoding="utf-8").read()
+    _w8 = _hfx_yaml.safe_load(_wtxt8)
+    _on8 = _w8.get("on") or _w8.get(True) or {}
+    _st8 = [s for j in (_w8.get("jobs") or {}).values() for s in (j.get("steps") or [])]
+    _run8 = [s for s in _st8 if "hs_forensic.py" in str(s.get("run", ""))]
+    _envk8 = set(_w8.get("env") or {}) | {k for j in (_w8.get("jobs") or {}).values() for k in (j.get("env") or {})} \
+        | {k for s in _st8 for k in (s.get("env") or {})}
+    _hfx8 = {"manual": "schedule" not in _on8 and "workflow_dispatch" in _on8,
+             "perm": (_w8.get("permissions") or {}).get("contents") == "write",
+             "no_tg": not any(k.startswith("TELEGRAM") for k in _envk8) and "secrets.TELEGRAM" not in _wtxt8,
+             "no_bars": "BARS_SOURCE" not in _envk8,
+             "env_mode": len(_run8) == 1 and (_run8[0].get("env") or {}).get("HS_FX_MODE") == "${{ inputs.mode }}"
+             and "inputs." not in str(_run8[0].get("run")),
+             "py": '"3.11"' in _wtxt8}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx8 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX8 الـworkflow يدويٌّ بحثيّ: لا كرون · contents: write · بلا تلغرام ولا BARS_SOURCE · الوضعُ عبر env · Python 3.11",
+      _hfx8 == {"manual": True, "perm": True, "no_tg": True, "no_bars": True, "env_mode": True, "py": True}, str(_hfx8)[:300])
+
+# HFX9 — **بحثٌ فقط** (AST): لا نداءَ لتلغرام ولا لكاتبي حالة الإنتاج · و`git_save` وحدَه عبر `_save` على ملفّات `FX_DIR` · ولا جذرَ ولا أداةَ إنتاجٍ
+#    تستورد `hs_forensic`.
+try:
+    _src9 = open("hs_forensic.py", encoding="utf-8").read()
+    _t9 = _hfx_ast.parse(_src9)
+    _calls9 = {(_hfx_ast.unparse(n.func)) for n in _hfx_ast.walk(_t9) if isinstance(n, _hfx_ast.Call)}
+    _bad9 = sorted(c for c in _calls9 if any(w in c for w in ("send_telegram", "save_watchlist", "save_state", "write_state",
+                                                                 "save_alerts", "record_", "update_tracking")))
+    _gs9 = sorted(c for c in _calls9 if "git_save" in c)
+    _imp9 = [f for f in ("Super_stock.py", "head_shoulders.py", "split_hunter.py", "pullback_live.py", "three_cond_daily.py")
+             if "hs_forensic" in open(f, encoding="utf-8").read()]
+    _hfx9 = {"bad": _bad9, "git_save": _gs9, "importers": _imp9}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx9 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX9 بحثٌ فقط: لا تلغرام ولا كاتبَ حالة · `git_save` نداءٌ واحد (`S.git_save` داخل `_save`) · ولا إنتاجَ يستورد الأداة",
+      _hfx9 == {"bad": [], "git_save": ["S.git_save"], "importers": []}, str(_hfx9)[:300])
+
+# HFX10 — **الجداولُ تُحفظ فعلًا**: `.gitignore` يستثني `hs_research/forensic/*.csv` (وإلّا رفضها `git add` — درسُ HS38) · ومخرجاتُ الأداة كلُّها
+#    تحت `FX_DIR` = `hs_research/forensic`.
+try:
+    _gi10 = [ln.strip() for ln in open(".gitignore", encoding="utf-8")]
+    _hfx10 = {"neg": "!hs_research/forensic/*.csv" in _gi10 and _gi10.index("!hs_research/forensic/*.csv") > _gi10.index("*.csv"),
+              "dir": FX.FX_DIR == _os.path.join("hs_research", "forensic"),
+              "files": all(f"os.path.join(FX_DIR, " in ln for ln in _src9.splitlines()
+                           if "open(os.path.join(" in ln and '"w"' in ln)}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx10 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX10 الجداولُ تُحفظ: `.gitignore` يستثني `hs_research/forensic/*.csv` بعد `*.csv` · وكلُّ كتابةٍ تحت `hs_research/forensic`",
+      _hfx10 == {"neg": True, "dir": True, "files": True}, str(_hfx10)[:300])
+
+# HFX11 — **خطُّ الأساس D «بلا شرط الرأس» يستثني النموذجَ نفسَه**: على إطارٍ فيه رؤوسٌ وأكتافٌ مزروعة لا يقع حدثُ D على بار اختراق إشارةٍ
+#    مكتشَفة · وE (قمّتان متقاربتان) حيٌّ.
+try:
+    _df11 = _hfx_frames()[12]
+    _A11 = FX.arrays(_df11)
+    _cb11 = {int(s["b_i"]) for s in HS.detect(_df11, FX.P_C)}
+    _d11 = FX.skeleton_events(_df11, _A11, "D")
+    _e11 = FX.skeleton_events(_df11, _A11, "E")
+    _hfx11 = {"no_ihs": not ({int(x["b_i"]) for x in _d11} & _cb11), "cb": len(_cb11) >= 2, "E": len(_e11) > 0,
+              "shape": all({"b_i", "E", "height", "line"} <= set(x) for x in _d11 + _e11)}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx11 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX11 خطُّ الأساس D يستثني الرأسَ والكتفين نفسَه (لا يقع على بار اختراق إشارة) · وE حيّ · وشكلُ الحدث ثابت",
+      _hfx11 == {"no_ihs": True, "cb": True, "E": True, "shape": True}, str(_hfx11)[:300])
+
+# HFX12 — **العقدُ قبل الرقم ومكتمل**: `hs_fx_prereg.md` بأقسامه ⓪-⑯ · التنبّؤاتُ F1-F11 · الحقبُ بحدودها كما في الكود · وبذرةُ البوتستراب ·
+#    والوثائقُ الخمس قبله · و`CLAUDE.md` يسمّي الأداة.
+try:
+    _pr12 = open("hs_forensic/hs_fx_prereg.md", encoding="utf-8").read()
+    _hfx12 = {"sec": all(f"## {m}" in _pr12 for m in "⓪①②③④⑤⑥⑦⑧⑨⑩⑪⑫⑬⑭⑮⑯"),
+              "pred": all(f"| F{i} |" in _pr12 for i in range(1, 12)),
+              "eras": all(a in _pr12 and b in _pr12 for _n, a, b in FX.ERAS if b != "2099-12-31"),
+              "seed": str(FX.BOOT_SEED) in _pr12 and str(FX.MIX_SEED) in _pr12,
+              "docs": all(_os.path.exists(f"hs_forensic/{d}") for d in ("IMAGE_INVENTORY.md", "VISUAL_METHOD_SPEC.md",
+                                                                       "TARGET_DEFINITION.md", "RULE_AUDIT.md",
+                                                                       "CURRENT_VS_RECONSTRUCTED.md")),
+              "claude": "hs_forensic.py" in open("CLAUDE.md", encoding="utf-8").read()}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx12 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX12 العقدُ مكتمل قبل الرقم: الأقسامُ ⓪-⑯ · F1-F11 · الحقبُ كما في الكود · البذرتان · الوثائقُ الخمس · و`CLAUDE.md` يسمّي الأداة",
+      _hfx12 == {"sec": True, "pred": True, "eras": True, "seed": True, "docs": True, "claude": True}, str(_hfx12)[:300])
+
+
+# HFX13 — **الحكمُ الآليّ** (§⑦): main وحدَها حالةٌ جزئيّة لا حكم (ولا تسميةَ FX) · «تُدعَم» = حدُّ POP-BOT فوق الصفر **و**تقديرُ POP-NDQ موجب
+#    (الأضعف) · n دون 30 ⟵ «لا قياس» · وتسمياتُ FX-1..FX-4 بقاعدة العقد · ووضعُ verdict بلا أحد الملفّين ⟵ خروج 3 بلا حكم.
+try:
+    def _hx(n, lo, d):
+        return {"n_sig": n, "lo": lo, "diff": d}
+
+    def _blk(h1, h2, h3):
+        return {"C": {"clean_I2_60": h1, "B1": h2}, "RECON": {"B1": h3}}
+    _up, _dn, _few = _hx(40, 0.01, 0.05), _hx(40, -0.01, 0.02), _hx(10, 0.5, 0.6)
+    _nd_pos, _nd_neg = _blk(_hx(99, 0, 0.01), _hx(99, 0, 0.01), _hx(99, 0, 0.01)), _blk(_hx(99, 0, -0.01), _hx(99, 0, -0.01), _hx(99, 0, -0.01))
+    _p13 = FX.hypotheses(_blk(_up, _dn, _few))
+    _f13 = FX.hypotheses(_blk(_up, _dn, _few), _nd_pos)
+    _w13 = FX.hypotheses(_blk(_up, _up, _up), _nd_neg)
+    _fx1 = FX.hypotheses(_blk(_dn, _dn, _up), _nd_pos)["FX"]
+    _fx2 = FX.hypotheses(_blk(_dn, _dn, _dn), _nd_pos)["FX"]
+    _fx4 = FX.hypotheses(_blk(_few, _few, _few), _nd_pos)["FX"]
+    _sv13 = FX.FX_DIR
+    import tempfile as _hfx_tmp                                           # noqa: E402
+    try:
+        FX.FX_DIR = _hfx_tmp.mkdtemp(prefix="hfx13_")
+        _rc13 = FX.run_verdict()
+    finally:
+        FX.FX_DIR = _sv13
+    _hfx13 = {"partial": (_p13["H1"]["status"], _p13["H2"]["status"], _p13["H3"]["status"], _p13["FX"]),
+              "full": (_f13["H1"]["status"], _f13["H2"]["status"], _f13["FX"]),
+              "weakest": (_w13["H1"]["status"], _w13["H2"]["status"], _w13["H3"]["status"]),
+              "fx": (_fx1, _fx2, _fx4), "rc": _rc13}
+except Exception as _e:                                                   # noqa: BLE001
+    _hfx13 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔬 HFX13 الحكمُ الآليّ: main وحدَها جزئيّةٌ بلا FX · «تُدعَم» بالأضعف (POP-BOT فوق الصفر وPOP-NDQ موجب) · n دون 30 «لا قياس» · "
+      "FX-1/FX-2/FX-4 بقاعدة العقد · وverdict بلا ملفّين خروج 3",
+      _hfx13 == {"partial": ("POP-BOT فوق الصفر — بانتظار POP-NDQ", "لا تُدعَم", "لا قياس", None),
+                 "full": ("تُدعَم", "لا تُدعَم", "FX-3 «المقياسُ القديم ظلم»"),
+                 "weakest": ("لا تُدعَم", "لا تُدعَم", "لا تُدعَم"),
+                 "fx": ("FX-1 «خطأُ بناء»", "FX-2 «لا ميزة بأيّ بناء»", "FX-4 «لا قياس»"), "rc": 3}, str(_hfx13)[:400])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

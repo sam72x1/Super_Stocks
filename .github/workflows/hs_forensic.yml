@@ -1,0 +1,49 @@
+name: "🔬 التحقيق الجنائي في الرأس والكتفين (T-HS-FX · hs_fx_prereg)"
+
+# 🔬 أمرُ المالك 2026-10-01 «FINAL FORENSIC RESEARCH MISSION — HEAD & SHOULDERS» · العقد hs_forensic/hs_fx_prereg.md (مدموجٌ قبل أيّ رقم).
+# الأوضاع: main (POP-BOT من 2016 · المداخل A-E · خطوطُ الأساس الستّة · النظرُ المستقبليّ · إجراءاتُ الشركات · عيّنتا الإعادة والتدقيق الأعمى)
+#   · ndq (كونُ ناسداك الحاليّ: C · D · RECON مع BL-A وBL-B) · sens (الحساسيّة TRAIN ⟵ VAL ⟵ TEST مرّةً واحدة لما عبرهما)
+#   · verdict (الحكمُ الآليّ §⑦ من fx_bot.json وfx_ndq.json · بلا شبكة).
+# 📺 الشموعُ من TradingView مباشرةً (`S.tv_download`) — **بلا `BARS_SOURCE`** (مفتاحُه محصورٌ بعشرة workflows · قفلُ TVB9).
+# 🔒 بحثٌ فقط: **لا تلغرام** (بلا أسرارِه) · لا حالةَ إنتاج · `git_save` يدفع `hs_research/forensic/` وحدَه.
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "main · ndq · sens · verdict"
+        type: choice
+        options: [main, ndq, sens, verdict]
+        default: main
+
+concurrency:
+  # وضعٌ واحدٌ في المرّة لكلّ مخرَج (الأوضاعُ الثلاثة تكتب ملفّاتٍ مختلفة فتتوازى) · ولا يُلغي طلبٌ طلبًا قائمًا.
+  group: hs-forensic-${{ inputs.mode }}
+  cancel-in-progress: false
+
+jobs:
+  fx:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔬 التحقيق الجنائي
+        env:
+          PYTHONUNBUFFERED: "1"
+          HS_FX_MODE: ${{ inputs.mode }}
+          # 14ج: بريد تواصلٍ لطلبات SEC (تدقيقُ إجراءات الشركات §⑩) — فارغ = الافتراضيّ القديم.
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+        run: python hs_forensic.py
