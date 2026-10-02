@@ -14024,7 +14024,7 @@ check("📥 الجامع·بلوغ السقف يُصرَّح به (لا «لا �
       and "المكرّرة تُحسب ضمن السقف" in _insp0.getsource(TC.main))
 
 
-def _run_daily(stocks, results=None, hist=None, yfs=None):
+def _run_daily(stocks, results=None, hist=None, yfs=None, scan=None):
     """يقود `run_daily_watchlist` فعليًّا ببيئة معزولة ⇒ (رسائل مُرسَلة، القائمة).
 
     ⚠️ **أكبر ثغرة تغطية وُجدت في تدقيق 2026-07-27:** الدالّة — وهي التي تُنتج
@@ -14042,7 +14042,7 @@ def _run_daily(stocks, results=None, hist=None, yfs=None):
     try:
         #    👀🏢 لا شبكةَ من السويّة: فلوتُ «تحت المتابعة» يُجلب بعد الرسائل (2026-09-26) ⟵ جالبٌ «تعذّر» لا ياهو الحقيقيّ
         S._yahoo_float_status = yfs or (lambda sym: ("fail", None))
-        S.scan_market = lambda *a, **k: (results or [], hist or {})
+        S.scan_market = scan or (lambda *a, **k: (results or [], hist or {}))
         S.download_history = lambda u, **k: {}
         S.send_telegram = lambda m, *a, **k: sent.append(m) or True
         S.save_watchlist = lambda w, *a, **k: saved.append(w) or True
@@ -77264,6 +77264,179 @@ finally:
     _hs_sh.rmtree(_hsf13_dir, ignore_errors=True)
 check("🧪 HSF13 قياسٌ يرمي لا يُسقط الحصاد: الإشارةُ تُحصَد مجهولةَ القياس بسببه («measure_exc») ويُعلَن السطرُ ويُكتب الصفّ — لا تضيع صامتة",
       _hsf13_ok, str(_hsf13)[:300])
+
+# ══════════════════════════════════════════════════════════
+# ⚠️ YF1-YF6 — «نبهني لو رجع الفرز لياهو» (أمرُ المالك 2026-10-01): سطرٌ في رسالة الفرز **القائمة** (اليوميّ · التجديد · وتأجيلُه)
+#    حين يرجع فرزُ الكون لياهو — تعذّر TradingView كلُّه · أو فُتح قاطعُه أو انقضت مهلتُه · أو بلغت حصّةُ ياهو `TV_FALLBACK_ALERT_PCT`.
+#    والتقريرُ يُنسَخ **بعد `scan_market` مباشرةً** (تحميلُ رموز القائمة الناقصة بعده يدهسه · `36832727347`) · وما عدا الرجوع بت-بت.
+# ══════════════════════════════════════════════════════════
+import ast as _yf_ast                                              # noqa: E402
+import os as _yf_os                                                # noqa: E402
+import re as _yf_re                                                # noqa: E402
+import textwrap as _yf_tw                                          # noqa: E402
+
+
+def _yf_rep(**k):
+    """تقريرُ 10-01 الحقيقيّ (`36832727347`: TradingView 3360 من 3583 · احتياطُ ياهو 63 من 223) ‏+ تعديلات."""
+    r = {"src": "tradingview", "asked": 3583, "tv": 3360, "none": ["OPNW"], "empty": ["THRMV"], "short": ["S"] * 221,
+         "gate": {"open": False, "timeout": False, "done": 3583, "fail": 1, "skipped": 0}, "yahoo_asked": 223, "yahoo_got": 63}
+    r.update(k)
+    return r
+
+
+_YF_HEAD = "الفرز اليوم رجع لياهو"
+_YF_GATE = {"open": True, "timeout": False, "done": 32, "fail": 32, "skipped": 3551}
+try:
+    _yf1 = {
+        "1001": S.yahoo_fallback_line(_yf_rep()),
+        "0930": S.yahoo_fallback_line(_yf_rep(tv=3361, yahoo_got=62)),
+        "gate": S.yahoo_fallback_line(_yf_rep(tv=0, yahoo_got=3400, gate=_YF_GATE)),
+        "timeout": S.yahoo_fallback_line(_yf_rep(tv=1500, yahoo_got=1900,
+                                                 gate={"open": True, "timeout": True, "skipped": 2000})),
+        "error": S.yahoo_fallback_line({"src": "tradingview", "error": "ConnectionError", "asked": 3583, "yahoo_got": 3402}),
+        "at": S.yahoo_fallback_line(_yf_rep(tv=900, yahoo_got=100)),
+        "below": S.yahoo_fallback_line(_yf_rep(tv=901, yahoo_got=99)),
+        "none": S.yahoo_fallback_line(None),
+        "yahoo": S.yahoo_fallback_line(_yf_rep(src="yahoo", tv=0, yahoo_got=3400)),
+        "bad": S.yahoo_fallback_line({"src": "tradingview", "tv": "x"}),
+    }
+    _yf1_ok = (all(_yf1[k] == "" for k in ("1001", "0930", "below", "none", "yahoo", "bad"))
+               and _YF_HEAD in _yf1["gate"] and "3,400 سهمًا من ياهو و0 من TradingView (100% من ياهو)" in _yf1["gate"]
+               and "قاطعُ TradingView فُتح" in _yf1["gate"]
+               and "انقضت مهلةُ جلب TradingView" in _yf1["timeout"] and "قاطع" not in _yf1["timeout"]
+               and "TradingView تعذّر كلُّه (ConnectionError)" in _yf1["error"] and "3,402 سهمًا من ياهو" in _yf1["error"]
+               and "حصّةُ ياهو بلغت حدَّ التنبيه 10%" in _yf1["at"] and "(10% من ياهو)" in _yf1["at"])
+except Exception as _e:                                                  # noqa: BLE001
+    _yf1, _yf1_ok = {"⛔": f"{type(_e).__name__}: {_e}"}, False
+check("⚠️ YF1 «الفرز رجع لياهو»: صامتٌ على تشغيلتَي 09-30 و10-01 الحقيقيّتين (1.8%) ودون الحدّ (9.9%) وبلا تقرير وبمصدرٍ غيرِ "
+      "TradingView وبتقريرٍ تالف · ويظهر عند الحدّ 10% وعند فتح القاطع والمهلة والتعذّر الكامل — بأعداده وسببه الصحيح",
+      _yf1_ok, str({k: v[:60] for k, v in _yf1.items()})[:400])
+check("⚠️ YF2 سطرُ «رجع لياهو» بلا علامة مقارنة (قاعدةُ العرض) خارج وسوم HTML — في كلّ صيغه",
+      _yf1_ok and not any(c in _yf_re.sub(r"</?b>", "", _yf1[k]) for k in ("gate", "timeout", "error", "at")
+                          for c in "≥≤<>"))
+
+
+def _yf_next_is_snapshot(fn):
+    """بعد `results, hist = scan_market()` مباشرةً (جملةُ الدالّة التالية) ‏`_scan_bars = scan_bars_report()` — وإلّا False."""
+    body = _yf_ast.parse(_yf_tw.dedent(_insp0.getsource(fn))).body[0].body
+    for i, st in enumerate(body):
+        if (isinstance(st, _yf_ast.Assign) and isinstance(st.value, _yf_ast.Call)
+                and getattr(st.value.func, "id", None) == "scan_market"):
+            nx = body[i + 1] if i + 1 < len(body) else None
+            return (isinstance(nx, _yf_ast.Assign) and isinstance(nx.value, _yf_ast.Call)
+                    and getattr(nx.value.func, "id", None) == "scan_bars_report"
+                    and [t.id for t in nx.targets if isinstance(t, _yf_ast.Name)] == ["_scan_bars"])
+    return False
+
+
+try:
+    _yf3 = (_yf_next_is_snapshot(S.run_daily_watchlist), _yf_next_is_snapshot(S.run_weekly_renewal))
+except Exception as _e:                                                  # noqa: BLE001
+    _yf3 = (f"⛔ {type(_e).__name__}", None)
+check("⚠️ YF3 التقريرُ يُنسَخ **بعد `scan_market` مباشرةً** في اليوميّ والتجديد (AST) — قبل تحميل الناقص الذي يدهس "
+      "`BARS_SOURCE_LAST` بتقريرٍ صغير («5 من 5» بعد «3360 من 3583» في `36832727347`)",
+      _yf3 == (True, True), str(_yf3))
+
+
+def _yf_env(val):
+    """يضبط `BARS_SOURCE` ⟵ القيمةُ السابقة (للاسترجاع)."""
+    old = _yf_os.environ.get("BARS_SOURCE")
+    if val is None:
+        _yf_os.environ.pop("BARS_SOURCE", None)
+    else:
+        _yf_os.environ["BARS_SOURCE"] = val
+    return old
+
+
+_YF_EHC = {"ok": 0, "nohour": 0, "fail": 0, "nodata": 0, "nokey": 0}
+
+
+def _yf_daily(rep, env="tradingview"):
+    """يقود `run_daily_watchlist` (بـ`_run_daily`) وفرزُه يترك `rep` في `BARS_SOURCE_LAST` ⟵ الرسائلُ المُرسَلة."""
+    def _scan(*a, **k):
+        S.BARS_SOURCE_LAST.clear()
+        S.BARS_SOURCE_LAST.update(rep)
+        return ([], {})
+    _old, _reh0 = _yf_env(env), S.refresh_exact_hold
+    try:
+        S.refresh_exact_hold = lambda *a, **k: dict(_YF_EHC)   # 🔒 لا شبكةَ TradingView من السويّة
+        return _run_daily([], scan=_scan)[0]
+    finally:
+        S.refresh_exact_hold = _reh0
+        S.BARS_SOURCE_LAST.clear()
+        _yf_env(_old)
+
+
+try:
+    _yf4_fb, _yf4_base = _yf_daily(_yf_rep(tv=0, yahoo_got=3400, gate=_YF_GATE)), _yf_daily(_yf_rep())
+    _yf4_stale = _yf_daily(_yf_rep(tv=0, yahoo_got=3400, gate=_YF_GATE), env=None)
+    _yf4_line = S.yahoo_fallback_line(_yf_rep(tv=0, yahoo_got=3400, gate=_YF_GATE))
+    _yf4 = {"fb": bool(_yf4_fb) and _YF_HEAD in _yf4_fb[0], "base": not any(_YF_HEAD in m for m in _yf4_base),
+            "stale": not any(_YF_HEAD in m for m in _yf4_stale),
+            "only": bool(_yf4_fb) and bool(_yf4_base) and _yf4_fb[0].replace("\n\n" + _yf4_line, "", 1) == _yf4_base[0]}
+except Exception as _e:                                                  # noqa: BLE001
+    _yf4 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("⚠️ YF4 التقريرُ اليوميّ (تشغيلٌ حقيقيّ): السطرُ يظهر حين يرجع الفرزُ لياهو · ويغيب على تقرير 10-01 · ويغيب بلا "
+      "`BARS_SOURCE=tradingview` ولو بقي تقريرٌ قديم · والفرقُ الوحيد عن الرسالة بلا رجوع هو السطرُ نفسُه (بت-بت)",
+      _yf4 == {"fb": True, "base": True, "stale": True, "only": True}, str(_yf4)[:300])
+
+
+def _yf_renew(rep, cov_ok=True):
+    """يقود `run_weekly_renewal` (نمطُ F-01) وفرزُه يترك `rep` ⟵ الرسائلُ المُرسَلة. `cov_ok=False` ⟵ تغطيةٌ 10% ⟵ مسارُ التأجيل."""
+    sent = []
+
+    def _scan(*a, **k):
+        S._SCAN_STATS.update({"universe": 10, "valid": 10 if cov_ok else 1, "universe_fallback": False})
+        S.BARS_SOURCE_LAST.clear()
+        S.BARS_SOURCE_LAST.update(rep)
+        return ([_f01_r], {"F01T": _f01_df}) if cov_ok else ([], {})
+    _names = ("scan_market", "send_telegram", "save_watchlist", "yf", "download_history", "build_wrapup_message", "enrich",
+              "load_alerts", "build_dev_assistant_report", "export_weekly_csvs", "write_csv", "run_performance_system",
+              "borrow_second_chance", "refresh_exact_hold")
+    _sv = {n: getattr(S, n) for n in _names}
+    _old = _yf_env("tradingview")
+    try:
+        S.scan_market = _scan
+        S.send_telegram = lambda m, *a, **k: sent.append(m) or True
+        S.save_watchlist = lambda w, *a, **k: None
+        S.yf = None                       # يتخطّى تحديث الأسبوع المنتهي (شبكة)
+        S.download_history = lambda syms, **k: {}
+        S.build_wrapup_message = lambda w: ""
+        S.enrich = lambda rs: None
+        S.load_alerts = lambda: {"alerts": []}
+        S.build_dev_assistant_report = lambda wl_, ad=None: ""
+        S.export_weekly_csvs = lambda *a, **k: None
+        S.write_csv = lambda *a, **k: None
+        S.run_performance_system = lambda *a, **k: None
+        S.borrow_second_chance = lambda got, **k: {}
+        S.refresh_exact_hold = lambda *a, **k: dict(_YF_EHC)
+        S.run_weekly_renewal({"week_start": "2026-07-03", "stocks": [], "removed": [], "notes": [], "pullback": [],
+                              "history": []})
+        return sent
+    finally:
+        for n in _names:
+            setattr(S, n, _sv[n])
+        S.BARS_SOURCE_LAST.clear()
+        _yf_env(_old)
+
+
+try:
+    _yf5_fb = _yf_renew(_yf_rep(tv=0, yahoo_got=3400, gate=_YF_GATE))
+    _yf5_base = _yf_renew(_yf_rep())
+    _yf5_post = _yf_renew(_yf_rep(tv=0, yahoo_got=1, gate=_YF_GATE), cov_ok=False)
+    _yf5_card = [m for m in _yf5_fb if "القائمة التأسيسية" in m or "القائمة الأسبوعية الجديدة" in m]
+    _yf5 = {"card": bool(_yf5_card) and _YF_HEAD in _yf5_card[0]
+            and _yf5_card[0].find(_YF_HEAD) < (_yf5_card[0].find("━━━") if "━━━" in _yf5_card[0] else 10 ** 9),
+            "base": not any(_YF_HEAD in m for m in _yf5_base),
+            "post": any("تأجّل تجديد القائمة الأسبوعية" in m and _YF_HEAD in m for m in _yf5_post)}
+except Exception as _e:                                                  # noqa: BLE001
+    _yf5 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("⚠️ YF5 التجديدُ (تشغيلٌ حقيقيّ): السطرُ أعلى رسالة القائمة الجديدة (قبل أوّل كرت) حين يرجع الفرزُ لياهو · ويغيب على تقرير 10-01 · "
+      "ويُلحَق برسالة «تأجّل التجديد» حين تسقط التغطيةُ أيضًا",
+      _yf5 == {"card": True, "base": True, "post": True}, str(_yf5)[:300])
+check("⚠️ YF6 حدُّ التنبيه `TV_FALLBACK_ALERT_PCT` موسومٌ `engineering` في دفتر المصادر بمِجَسّه",
+      any("TV_FALLBACK_ALERT_PCT" in _ln and "`engineering`" in _ln and "1.8%" in _ln
+          for _ln in open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read().splitlines()))
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
