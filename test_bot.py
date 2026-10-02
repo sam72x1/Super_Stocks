@@ -79165,7 +79165,7 @@ try:
     _rt13 = _fv_json.loads("".join(p[4] for p in _parts13)) == _obj13 and len(_parts13) == _n13 and _n13 > 1 \
         and all(p[3] == str(_n13) for p in _parts13)
     _miss13 = "V3OUT|absent.json|missing" in _L13
-    _modes13 = set(FVR.EMIT) == {"cases", "validate", "poolcap"}
+    _modes13 = set(FVR.EMIT) == {"cases", "validate", "poolcap", "dump"}   # 🔄 V3.1: ‏+dump (تفريغُ شموع الحالات · FV14)
     _t13 = _fv_ast.parse(open(_fv_os.path.join("faisal_method_v3", "run_v3.py"), encoding="utf-8").read())
     _fin13 = any(isinstance(n, _fv_ast.Try) and any(isinstance(c, _fv_ast.Call) and getattr(c.func, "id", None) == "emit"
                                                      for b in n.finalbody for c in _fv_ast.walk(b)) for n in _fv_ast.walk(_t13))
@@ -79176,10 +79176,54 @@ try:
 except Exception as _e:                                                    # noqa: BLE001
     _rt13 = _miss13 = _modes13 = _fin13 = _err13 = False
     _L13 = [f"⛔ {type(_e).__name__}: {_e}"]
-check("🧭 FV13 مخرَجُ الأوضاع في السجلّ: أجزاءٌ تُجمَّع إلى الـJSON الأصل حرفًا · والغائبُ «missing» · والأوضاعُ الثلاثة · "
+check("🧭 FV13 مخرَجُ الأوضاع في السجلّ: أجزاءٌ تُجمَّع إلى الـJSON الأصل حرفًا · والغائبُ «missing» · والأوضاعُ الأربعة · "
       "والإصدارُ في `finally` · و`faisal_cases` يطبع الحالةَ المتعذّرة لا يُسقطها صامتةً",
       _rt13 and _miss13 and _modes13 and _fin13 and _err13,
       f"rt={_rt13} miss={_miss13} modes={_modes13} fin={_fin13} err={_err13} {str(_L13[:1])[:80]}")
+
+# ── FV14 (V3.1) تفريغُ شموع حالات الصور `case_dump` — قراءةٌ فقط: مضغوطٌ يُستعاد حرفًا · وحلُّ الرمز يجرّب البورصاتِ بالترتيب
+#    (عطلُ ATMV في V3: جُرِّب NASDAQ وحدَه فقيل «لا شموع») · والذهبيّةُ يوميّ ‏+ 30 دقيقة نظاميّة وممتدّة · والتحقّقيّةُ يوميّةٌ وحدَها
+#    (حجمُ السجلّ) · والرمزُ بلا شموعٍ على البورصات الأربع يُعلَن بمحاولاته · وصفرُ تلغرام (AST).
+try:
+    import tempfile as _fv14_tf
+    FVD = _fv_imp.import_module("case_dump")
+    _o14 = {"x": "عنق " * 50, "n": [1.5, None, 3]}
+    _rt14 = FVD.unpack(FVD.pack(_o14)) == _o14
+    import gzip as _fv14_gz, base64 as _fv14_b64                        # noqa: E401
+    _gz14 = _fv14_gz.decompress(_fv14_b64.b64decode(FVD.pack(_o14)))[:1] == b"{"
+
+    class _FC14:
+        def __init__(self):
+            self.calls = []
+
+        def bars(self, full, interval, n=600, extended=False):
+            self.calls.append((full, interval, extended))
+            if full in ("NASDAQ:ATMV",) or full.endswith(":ZZZZ"):
+                return None
+            st = 86400 if interval == "1D" else 1800
+            return [(1759000000 + i * st, 1.0, 1.1, 0.9, 1.05, 100 + i) for i in range(4)]
+    _c14 = _FC14()
+    _d14 = _fv14_tf.mkdtemp()
+    with _fv_cl.redirect_stdout(_fv_io.StringIO()):                    # لا يُلوّث سجلَّ السويّة
+        _rc14 = FVD.main(out_dir=_d14, golden=["DXST", "ATMV"], validation=["LABT", "ZZZZ"], chart=_c14,
+                         tmap={"DXST": "NASDAQ:DXST"})
+    _r14 = _fv_json.load(open(_fv_os.path.join(_d14, "case_dump.json"), encoding="utf-8"))
+    _dd14 = FVD.unpack(_r14["b64gz"])
+    _res14 = (_dd14["ATMV"]["full"] == "NYSE:ATMV" and _dd14["ATMV"]["tries"][0] == ["NASDAQ:ATMV", None]
+              and [t[0] for t in _dd14["ZZZZ"]["tries"]] == ["NASDAQ:ZZZZ", "NYSE:ZZZZ", "AMEX:ZZZZ", "OTC:ZZZZ"]
+              and _dd14["ZZZZ"]["full"] is None)
+    _gold14 = all(len(_dd14[s].get("m30", [])) == 4 and len(_dd14[s].get("m30x", [])) == 4 for s in ("DXST", "ATMV")) \
+        and ("NASDAQ:DXST", "30", True) in _c14.calls
+    _val14 = "m30" not in _dd14["LABT"] and "m30x" not in _dd14["LABT"] and len(_dd14["LABT"]["daily"]) == 4
+    _t14 = _fv_ast.parse(open(FVD.__file__, encoding="utf-8").read())
+    _tg14 = not any(isinstance(n, _fv_ast.Attribute) and n.attr in ("send_telegram", "post") for n in _fv_ast.walk(_t14))
+except Exception as _e:                                                    # noqa: BLE001
+    _rt14 = _gz14 = _res14 = _gold14 = _val14 = _tg14 = False
+    _rc14 = f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 FV14 تفريغُ شموع الحالات (V3.1): مضغوطٌ gzip يُستعاد حرفًا · وحلُّ الرمز يجرّب NASDAQ ثمّ NYSE ثمّ AMEX ثمّ OTC ويُعلن محاولاته · "
+      "والذهبيّةُ يوميّ ‏+ 30 دقيقة نظاميّة وممتدّة · والتحقّقيّةُ يوميّةٌ وحدَها · وصفرُ تلغرام",
+      _rt14 and _gz14 and _res14 and _gold14 and _val14 and _tg14 and _rc14 == 0,
+      f"rt={_rt14} gz={_gz14} res={_res14} gold={_gold14} val={_val14} tg={_tg14} rc={_rc14}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
