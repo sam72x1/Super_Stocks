@@ -167,6 +167,150 @@ def evaluate():
     return 0
 
 
+# ── V3.1 §15: الأثرُ على الكروت الفعليّة (المعاييرُ في pressure_pool_cap_audit.md §④ مكتوبةٌ قبل التشغيل) ─────────────
+MEM_FILE = os.path.join(HERE, "data", "pool_sessions_mem.json")
+LEDGER_FILE = os.path.join(ROOT, "press_radar_ledger.jsonl")
+DQ_SINCE = "2026-10-01"               # أوّلُ جلسةٍ عملت فيها بوّابةُ سلامة البيانات في الإنتاج (#519)
+REPRO_MIN = 0.60                      # §④: حارسُ إعادة الإنتاج (تطابقُ المطابقين المُحاكَين في A مع سجلّ الحصاد)
+
+
+def cards_of(rows):
+    """ترتيبُ الإنتاج حرفًا: `alert_rank` ⟵ الجاهزُ (`hold_sessions ≥ READY_HOLD`) ⟵ `card_base(…)[:ALERT_CAP]`."""
+    import press_radar as PR
+    rs = sorted(rows, key=PR.alert_rank)
+    rdy = [r for r in rs if int((r.get("read") or {}).get("hold_sessions") or 0) >= PR.READY_HOLD]
+    fire = [r for r in rdy if (r.get("wake") or {}).get("awake")]
+    return [r["symbol"] for r in PR.card_base(rdy, fire)[:PR.ALERT_CAP]]
+
+
+def classify_downstream(tot: dict, n_sessions: int, coverage: float, repro: float) -> str:
+    """§④ حرفًا."""
+    if coverage < 0.90 or n_sessions < 10 or repro < REPRO_MIN:
+        return "UNKNOWN"
+    lost, cards_B = tot["cap_only_lost_cards"], tot["cards_B"]
+    if lost >= 3 or tot["sessions_flip"] >= 1 or (cards_B and lost / cards_B >= 0.05):
+        return "MATERIAL"
+    return "LOW"
+
+
+def _ledger_by_session(path=LEDGER_FILE):
+    out = {}
+    try:
+        for ln in open(path, encoding="utf-8"):
+            if ln.strip():
+                r = json.loads(ln)
+                out.setdefault(r.get("session"), set()).add(str(r.get("symbol")))
+    except Exception:                                                    # noqa: BLE001
+        pass
+    return out
+
+
+def downstream(frames=None, sess=None, mem=None, ledger=None, prevq=None, dq=None, out_dir=None):
+    """لكلّ جلسةٍ وذراع: المطابقُ ⟵ دِدوبُ السهم (حالةُ الجلسة من تاريخ git) ⟵ بوّابةُ السلامة (منذ DQ_SINCE) ⟵ prev_q ·
+    الصحوة ⟵ `alert_rank` ⟵ الكروتُ الثمانية. والمحقوناتُ للاختبار بلا شبكة."""
+    import press_radar as PR
+    sess = sess if sess is not None else json.load(open(SESS_FILE, encoding="utf-8"))["sessions"]
+    memd = {m["session"]: m for m in (mem if mem is not None else json.load(open(MEM_FILE, encoding="utf-8"))["sessions"])}
+    led = ledger if ledger is not None else _ledger_by_session()
+    syms = sorted({s for x in sess for s in x["B"]})
+    rep = {}
+    if frames is None:
+        import Super_stock as S
+        frames, rep = S.tv_download(syms, "2025-06-01")
+    if prevq is None:
+        prevq = lambda s, dd: PR.prev_qualified(s, dd, "9999-12-31")        # noqa: E731
+    if dq is None:
+        def dq(rows, hist, d):
+            import Super_stock as S
+            S.set_data_basis(d, S._data_basis_note())
+            return S.dq_filter(rows, hist, "رادار الضغط (محاكاة V3.1)", expected=d,
+                               ref_of=lambda r: PR.window_high_date(hist.get(r["symbol"])))
+    cov = len([s for s in syms if s in frames]) / max(1, len(syms))
+    tot = {k: 0 for k in ("truncated", "qual_A", "qual_B", "qual_C", "cards_A", "cards_B", "cards_C", "lost_cards",
+                          "cap_only_lost_cards", "displaced_A_cards", "sessions_flip", "dup_B_only", "dq_holds",
+                          "faisal_hold_B_only", "ready_B_only")}
+    per, jac = [], []
+    for x in sess:
+        d = x["session"]
+        m = memd.get(d) or {"dedup_blocked": [], "plan": {}}
+        blocked, plans = set(m.get("dedup_blocked") or []), m.get("plan") or {}
+        A, C = set(x["A"]), set(x["C"])
+        rows, hist = [], {}
+        dup_b = hold_b = ready_b = 0
+        for s in x["B"]:
+            df = frames.get(s)
+            if df is None:
+                continue
+            dd = df[[str(i)[:10] <= d for i in df.index]]
+            if len(dd) < PR.ALERT_W + 5:
+                continue
+            r = PR.press_read(dd, w=PR.ALERT_W)
+            if not r:
+                continue
+            if s in blocked:
+                dup_b += 0 if s in A else 1
+                continue
+            ready = int(r.get("hold_sessions") or 0) >= PR.READY_HOLD
+            if s not in A:
+                hold_b += 0 if ready else 1
+                ready_b += 1 if ready else 0
+            rows.append({"symbol": s, "read": r, "plan": plans.get(s), "src": (x.get("src") or {}).get(s)})
+            hist[s] = dd
+        n_dq = 0
+        if d >= DQ_SINCE and rows:
+            try:
+                kept = dq(rows, hist, d)
+                n_dq = len(rows) - len(kept)
+                rows = kept
+            except Exception as e:                                       # noqa: BLE001
+                print(f"⚠️ {d}: بوّابةُ السلامة في المحاكاة تعذّرت ({type(e).__name__}) — تُحسب بلا حجز")
+        for r in rows:
+            if int((r.get("read") or {}).get("hold_sessions") or 0) >= PR.READY_HOLD:
+                try:
+                    r["prev_q"] = prevq(r["symbol"], hist[r["symbol"]])
+                except Exception:                                        # noqa: BLE001
+                    r["prev_q"] = None
+                try:
+                    r["wake"] = PR.wake_read(hist[r["symbol"]], ah_pct=None)
+                except Exception:                                        # noqa: BLE001
+                    r["wake"] = {}
+        rA = [r for r in rows if r["symbol"] in A]
+        rC = [r for r in rows if r["symbol"] in C]
+        cA, cB, cC = cards_of(rA), cards_of(rows), cards_of(rC)
+        lost = [s for s in cB if s not in cA]
+        cap_only = [s for s in lost if s not in A]
+        displaced = [s for s in cA if s not in cB]
+        flip = 1 if (not cA and cB) else 0
+        L = led.get(d)
+        j = None
+        if L is not None:
+            simA = {r["symbol"] for r in rA}
+            j = len(simA & L) / max(1, len(simA | L))
+            jac.append(j)
+        for k, v in (("truncated", len(x["B"]) - len(x["A"])), ("qual_A", len(rA)), ("qual_B", len(rows)),
+                     ("qual_C", len(rC)), ("cards_A", len(cA)), ("cards_B", len(cB)), ("cards_C", len(cC)),
+                     ("lost_cards", len(lost)), ("cap_only_lost_cards", len(cap_only)),
+                     ("displaced_A_cards", len(displaced)), ("sessions_flip", flip), ("dup_B_only", dup_b),
+                     ("dq_holds", n_dq), ("faisal_hold_B_only", hold_b), ("ready_B_only", ready_b)):
+            tot[k] += v
+        per.append({"session": d, "cards_A": cA, "cards_B": cB, "cards_C": cC, "cap_only_lost": cap_only,
+                    "displaced_A": displaced, "flip": flip, "qual_A": len(rA), "qual_B": len(rows), "dq_holds": n_dq,
+                    "ledger_jaccard_A": None if j is None else round(j, 3)})
+        print(f"{d}: كروت A {cA} · B {cB} · مفقودٌ بالسقف وحدَه {cap_only} · مُزاحٌ من A {displaced}"
+              f" · تطابقُ السجلّ {None if j is None else round(j, 2)}")
+    repro = sum(jac) / len(jac) if jac else 0.0
+    verdict = classify_downstream(tot, len(per), cov, repro)
+    out = {"sessions": len(per), "coverage": round(cov, 4), "repro_ledger_jaccard_mean": round(repro, 4),
+           "repro_sessions": len(jac), "totals": tot, "verdict": verdict, "rows": per,
+           "fetch_report": {k: (v if not isinstance(v, list) else len(v)) for k, v in (rep or {}).items()}}
+    od = out_dir or os.path.join(HERE, "out")
+    os.makedirs(od, exist_ok=True)
+    json.dump(out, open(os.path.join(od, "pool_cap_downstream.json"), "w", encoding="utf-8"),
+              ensure_ascii=False, indent=1, default=str)
+    print(f"🏁 الكروت: {verdict} · {json.dumps(tot, ensure_ascii=False)} · إعادةُ الإنتاج {repro:.3f}")
+    return 0
+
+
 def main(argv=None):
     a = sys.argv[1:] if argv is None else argv
     return rebuild() if "--rebuild" in a else evaluate()

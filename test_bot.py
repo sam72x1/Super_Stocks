@@ -79165,7 +79165,7 @@ try:
     _rt13 = _fv_json.loads("".join(p[4] for p in _parts13)) == _obj13 and len(_parts13) == _n13 and _n13 > 1 \
         and all(p[3] == str(_n13) for p in _parts13)
     _miss13 = "V3OUT|absent.json|missing" in _L13
-    _modes13 = set(FVR.EMIT) == {"cases", "validate", "poolcap"}
+    _modes13 = set(FVR.EMIT) == {"cases", "validate", "poolcap", "dump", "poolcap2"}   # 🔄 V3.1: ‏+dump (FV14) ‏+poolcap2 (FV15)
     _t13 = _fv_ast.parse(open(_fv_os.path.join("faisal_method_v3", "run_v3.py"), encoding="utf-8").read())
     _fin13 = any(isinstance(n, _fv_ast.Try) and any(isinstance(c, _fv_ast.Call) and getattr(c.func, "id", None) == "emit"
                                                      for b in n.finalbody for c in _fv_ast.walk(b)) for n in _fv_ast.walk(_t13))
@@ -79176,10 +79176,120 @@ try:
 except Exception as _e:                                                    # noqa: BLE001
     _rt13 = _miss13 = _modes13 = _fin13 = _err13 = False
     _L13 = [f"⛔ {type(_e).__name__}: {_e}"]
-check("🧭 FV13 مخرَجُ الأوضاع في السجلّ: أجزاءٌ تُجمَّع إلى الـJSON الأصل حرفًا · والغائبُ «missing» · والأوضاعُ الثلاثة · "
+check("🧭 FV13 مخرَجُ الأوضاع في السجلّ: أجزاءٌ تُجمَّع إلى الـJSON الأصل حرفًا · والغائبُ «missing» · والأوضاعُ الخمسة · "
       "والإصدارُ في `finally` · و`faisal_cases` يطبع الحالةَ المتعذّرة لا يُسقطها صامتةً",
       _rt13 and _miss13 and _modes13 and _fin13 and _err13,
       f"rt={_rt13} miss={_miss13} modes={_modes13} fin={_fin13} err={_err13} {str(_L13[:1])[:80]}")
+
+# ── FV14 (V3.1) تفريغُ شموع حالات الصور `case_dump` — قراءةٌ فقط: مضغوطٌ يُستعاد حرفًا · وحلُّ الرمز يجرّب البورصاتِ بالترتيب
+#    (عطلُ ATMV في V3: جُرِّب NASDAQ وحدَه فقيل «لا شموع») · والذهبيّةُ يوميّ ‏+ 30 دقيقة نظاميّة وممتدّة · والتحقّقيّةُ يوميّةٌ وحدَها
+#    (حجمُ السجلّ) · والرمزُ بلا شموعٍ على البورصات الأربع يُعلَن بمحاولاته · وصفرُ تلغرام (AST).
+try:
+    import tempfile as _fv14_tf
+    FVD = _fv_imp.import_module("case_dump")
+    _o14 = {"x": "عنق " * 50, "n": [1.5, None, 3]}
+    _rt14 = FVD.unpack(FVD.pack(_o14)) == _o14
+    import gzip as _fv14_gz, base64 as _fv14_b64                        # noqa: E401
+    _gz14 = _fv14_gz.decompress(_fv14_b64.b64decode(FVD.pack(_o14)))[:1] == b"{"
+
+    class _FC14:
+        def __init__(self):
+            self.calls = []
+
+        def bars(self, full, interval, n=600, extended=False):
+            self.calls.append((full, interval, extended))
+            if full in ("NASDAQ:ATMV",) or full.endswith(":ZZZZ"):
+                return None
+            st = 86400 if interval == "1D" else 1800
+            return [(1759000000 + i * st, 1.0, 1.1, 0.9, 1.05, 100 + i) for i in range(4)]
+    _c14 = _FC14()
+    _d14 = _fv14_tf.mkdtemp()
+    with _fv_cl.redirect_stdout(_fv_io.StringIO()):                    # لا يُلوّث سجلَّ السويّة
+        _rc14 = FVD.main(out_dir=_d14, golden=["DXST", "ATMV"], validation=["LABT", "ZZZZ"], chart=_c14,
+                         tmap={"DXST": "NASDAQ:DXST"})
+    _r14 = _fv_json.load(open(_fv_os.path.join(_d14, "case_dump.json"), encoding="utf-8"))
+    _dd14 = FVD.unpack(_r14["b64gz"])
+    _res14 = (_dd14["ATMV"]["full"] == "NYSE:ATMV" and _dd14["ATMV"]["tries"][0] == ["NASDAQ:ATMV", None]
+              and [t[0] for t in _dd14["ZZZZ"]["tries"]] == ["NASDAQ:ZZZZ", "NYSE:ZZZZ", "AMEX:ZZZZ", "OTC:ZZZZ"]
+              and _dd14["ZZZZ"]["full"] is None)
+    _gold14 = all(len(_dd14[s].get("m30", [])) == 4 and len(_dd14[s].get("m30x", [])) == 4 for s in ("DXST", "ATMV")) \
+        and ("NASDAQ:DXST", "30", True) in _c14.calls
+    _val14 = "m30" not in _dd14["LABT"] and "m30x" not in _dd14["LABT"] and len(_dd14["LABT"]["daily"]) == 4
+    _t14 = _fv_ast.parse(open(FVD.__file__, encoding="utf-8").read())
+    _tg14 = not any(isinstance(n, _fv_ast.Attribute) and n.attr in ("send_telegram", "post") for n in _fv_ast.walk(_t14))
+except Exception as _e:                                                    # noqa: BLE001
+    _rt14 = _gz14 = _res14 = _gold14 = _val14 = _tg14 = False
+    _rc14 = f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 FV14 تفريغُ شموع الحالات (V3.1): مضغوطٌ gzip يُستعاد حرفًا · وحلُّ الرمز يجرّب NASDAQ ثمّ NYSE ثمّ AMEX ثمّ OTC ويُعلن محاولاته · "
+      "والذهبيّةُ يوميّ ‏+ 30 دقيقة نظاميّة وممتدّة · والتحقّقيّةُ يوميّةٌ وحدَها · وصفرُ تلغرام",
+      _rt14 and _gz14 and _res14 and _gold14 and _val14 and _tg14 and _rc14 == 0,
+      f"rt={_rt14} gz={_gz14} res={_res14} gold={_gold14} val={_val14} tg={_tg14} rc={_rc14}")
+
+# ── FV15 (V3.1 §15) أثرُ سقف البِركة على الكروت الثمانية — قراءةٌ فقط: دِدوبُ السهم من حالة الجلسة · بوّابةُ السلامة منذ
+#    `DQ_SINCE` وحدَها (لم تكن في الإنتاج قبلها) · الكروتُ بترتيب الإنتاج حرفًا (`alert_rank` ⟵ الجاهز ⟵ `card_base[:ALERT_CAP]`) ·
+#    المفقودُ بالسقف وحدَه = كرتٌ في B رمزُه خارج A · والانقلابُ = A بلا كرتٍ وB بكرت · والتصنيفُ بمعايير §④ (وحارسُ إعادة الإنتاج).
+try:
+    import contextlib as _fv_cl
+    import io as _fv_io
+    import tempfile as _fv_tf
+    import pandas as _fv15_pd
+    import press_radar as _fv15_PR
+    FVP = _fv_imp.import_module("pool_cap_audit")
+    _i15 = _fv15_pd.date_range("2026-07-01", periods=80, freq="B")
+    _rd15 = {"A1": (5, 80), "A2": (1, 70), "A3": (4, 60), "CUT1": (6, 90), "CUT2": (0, 95), "BLK": (7, 99), "DQX": (5, 85)}
+    _opr15, _owr15 = _fv15_PR.press_read, _fv15_PR.wake_read
+    try:
+        _fv15_PR.press_read = lambda dd, w=None, band_pct=None: (
+            None if dd.attrs.get("sym") not in _rd15 else
+            {"hold_sessions": _rd15[dd.attrs["sym"]][0], "drop_pct": _rd15[dd.attrs["sym"]][1], "tested_level": None,
+             "runup_pct": 0, "close": 1.0})
+        _fv15_PR.wake_read = lambda dd, ah_pct=None: {"awake": False}
+        _fr15 = {}
+        for _s15 in _rd15:
+            _f15 = _fv15_pd.DataFrame({"Open": 1.0, "High": 1.1, "Low": 0.9, "Close": 1.0, "Volume": 1000}, index=_i15)
+            _f15.attrs["sym"] = _s15
+            _fr15[_s15] = _f15
+        _se15 = [{"session": "2026-09-30", "A": ["A1", "A2", "A3", "BLK"], "B": ["A1", "A2", "A3", "BLK", "CUT1", "CUT2"],
+                  "C": ["A1", "CUT1"]},
+                 {"session": "2026-10-01", "A": ["A2"], "B": ["A2", "CUT1", "DQX"], "C": ["A2"]}]
+        _me15 = [{"session": "2026-09-30", "dedup_blocked": ["BLK"], "plan": {}},
+                 {"session": "2026-10-01", "dedup_blocked": [], "plan": {}}]
+        _dqc15 = []
+
+        def _dq15(rows, hist, d):
+            _dqc15.append(d)
+            return [r for r in rows if r["symbol"] != "DQX"]
+        _od15 = _fv_tf.mkdtemp()
+        with _fv_cl.redirect_stdout(_fv_io.StringIO()):
+            _rc15 = FVP.downstream(frames=_fr15, sess=_se15, mem=_me15, ledger={"2026-09-30": {"A1", "A2", "A3"},
+                                                                                  "2026-10-01": {"A2"}},
+                                   prevq=lambda s, dd: None, dq=_dq15, out_dir=_od15)
+        _o15 = _fv_json.load(open(_fv_os.path.join(_od15, "pool_cap_downstream.json"), encoding="utf-8"))
+    finally:
+        _fv15_PR.press_read, _fv15_PR.wake_read = _opr15, _owr15
+    _r150, _r151 = _o15["rows"]
+    _cards15 = (_r150["cards_A"] == ["A1", "A3"] and _r150["cards_B"] == ["CUT1", "A1", "A3"]
+                and _r150["cap_only_lost"] == ["CUT1"] and "BLK" not in _r150["cards_A"])
+    _flip15 = _r151["flip"] == 1 and _r151["cards_A"] == [] and _r151["cards_B"] == ["CUT1"]
+    _dq15ok = _dqc15 == ["2026-10-01"] and _r151["dq_holds"] == 1 and _r150["dq_holds"] == 0
+    _tot15 = _o15["totals"]
+    _cnt15 = (_tot15["cap_only_lost_cards"] == 2 and _tot15["sessions_flip"] == 1 and _tot15["faisal_hold_B_only"] == 1
+              and _tot15["ready_B_only"] == 3 and _o15["repro_ledger_jaccard_mean"] == 1.0 and _o15["verdict"] == "UNKNOWN")
+    _cl15 = [FVP.classify_downstream(t, n, cv, rp) for t, n, cv, rp in (
+        ({"cap_only_lost_cards": 0, "cards_B": 10, "sessions_flip": 0}, 12, 0.95, 0.7),
+        ({"cap_only_lost_cards": 3, "cards_B": 100, "sessions_flip": 0}, 12, 0.95, 0.7),
+        ({"cap_only_lost_cards": 0, "cards_B": 10, "sessions_flip": 1}, 12, 0.95, 0.7),
+        ({"cap_only_lost_cards": 9, "cards_B": 10, "sessions_flip": 1}, 12, 0.95, 0.5),
+        ({"cap_only_lost_cards": 2, "cards_B": 100, "sessions_flip": 0}, 12, 0.95, 0.7),
+        ({"cap_only_lost_cards": 9, "cards_B": 10, "sessions_flip": 1}, 12, 0.85, 0.9))]
+    _clok15 = _cl15 == ["LOW", "MATERIAL", "MATERIAL", "UNKNOWN", "LOW", "UNKNOWN"]
+except Exception as _e:                                                    # noqa: BLE001
+    _cards15 = _flip15 = _dq15ok = _cnt15 = _clok15 = False
+    _rc15, _cl15 = f"⛔ {type(_e).__name__}: {_e}", None
+check("🧭 FV15 أثرُ السقف على الكروت (V3.1 §15): دِدوبُ الجلسة · السلامةُ منذ DQ_SINCE وحدَها · الكروتُ بترتيب الإنتاج · "
+      "المفقودُ بالسقف وحدَه · الانقلابُ · وتصنيفُ §④ بحارس إعادة الإنتاج",
+      _cards15 and _flip15 and _dq15ok and _cnt15 and _clok15 and _rc15 == 0,
+      f"cards={_cards15} flip={_flip15} dq={_dq15ok} cnt={_cnt15} cls={_cl15} rc={_rc15}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

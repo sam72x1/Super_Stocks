@@ -10,7 +10,8 @@ sys.path.insert(0, HERE)
 
 # 📦 مخرَجُ كلّ وضعٍ يُطبع في السجلّ أيضًا (عطلٌ مُثبَت 2026-10-02: تنزيلُ الـartifact محجوبٌ من بيئة الجلسة بسياسة الشبكة
 #    ⟵ نتيجةُ التشغيلة لا تُقرأ إلّا من السجلّ) · أجزاءٌ ثابتةُ الطول تُجمَّع بالترتيب · والغائبُ يُعلَن «missing» لا صمتًا.
-EMIT = {"cases": "cases_summary.json", "validate": "w_validate.json", "poolcap": "pool_cap_audit.json"}
+EMIT = {"cases": "cases_summary.json", "validate": "w_validate.json", "poolcap": "pool_cap_audit.json",
+        "dump": "case_dump.json", "poolcap2": "pool_cap_downstream.json"}
 CHUNK = 3500
 
 
@@ -38,6 +39,12 @@ def main():
             if mode == "poolcap":
                 import pool_cap_audit
                 return pool_cap_audit.evaluate()
+            if mode == "poolcap2":
+                import pool_cap_audit
+                return pool_cap_audit.downstream()
+            if mode == "dump":
+                import case_dump
+                return case_dump.main()
             import w_validate
             return w_validate.main()
         finally:
