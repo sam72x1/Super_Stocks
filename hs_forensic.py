@@ -57,6 +57,10 @@ RX_ALPHA = 0.05 / 4              # §⑦ بونفيروني على الفرضي�
 RX_EXCH = ("N", "A")             # §② NYSE · NYSE American من `otherlisted.txt`
 RX_URL = "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt"
 RX_SEED_V2, RX_SEED_V1, RX_SEED_NEG, RX_MIX_SEED = 20261006, 20261007, 20261008, 20261009
+RX_GATE_RATIO = 2.0              # §⑬ (engineering): قاطعُ هذا الوضع لا يُفتح بالإخفاق (لا احتياطَ ياهو في البحث) · ومهلةُ الجلب الإنتاجيّة باقية
+RX_COV_MIN = 0.90                # §⑬ (engineering): شموعٌ لأقلَّ منها من POP-RX ⟵ «جزئيّ» (نظيرُ حدّ مجهول التقسيم في §②)
+RX_UNK_MAX = 0.10                # §② حرفًا: مجهولُ التقسيم **فوقه** من إشارات RECON أو RECON-v2 (ALL) ⟵ «جزئيّ»
+RX_TV_EXCH = {"N": "NYSE", "A": "AMEX"}   # §⑬: سوقُ الرمز الغائب عن ماسح TradingView من `otherlisted.txt` — لا «NASDAQ:» الافتراضيّ
 ALL_ERA = "ALL"                  # §③ مجموعُ الحقب الأربع (التأكيديّ في POP-RX)
 
 P_C = dict(HS.STRICT)                                         # CURRENT
@@ -961,11 +965,13 @@ def corp_audit(cases: list, frames: dict, sp_pairs: dict) -> list:
 # ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 # ⑥ التشغيل
 # ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
-def _fetch(syms):
-    """شموعُ TradingView اليوميّة من 2016 (جلساتٌ مكتملة) ‏+ أزواجُ تقسيمات ياهو وتواريخُها (بالتوازي · مجهولُ ياهو ⟵ None)."""
+def _fetch(syms, gate=None, scan=None):
+    """شموعُ TradingView اليوميّة من 2016 (جلساتٌ مكتملة) ‏+ أزواجُ تقسيمات ياهو وتواريخُها (بالتوازي · مجهولُ ياهو ⟵ None).
+    `gate`/`scan` لوضع `rx` وحدَه (`hs_rx_prereg.md §⑬`) · وغيابُهما ⟵ نداءُ `S.tv_download` السابق بت-بت (الأوضاعُ الأخرى)."""
     import Super_stock as S
     from concurrent.futures import ThreadPoolExecutor
-    frames, rep = S.tv_download(list(syms), FX_START)
+    frames, rep = (S.tv_download(list(syms), FX_START) if gate is None and scan is None
+                   else S.tv_download(list(syms), FX_START, scan=scan, gate=gate))
     frames = HS._completed_all(frames, rep)
     log(S._tv_bars_line(rep))
 
@@ -991,10 +997,11 @@ def _fetch(syms):
     return frames, rep, sp
 
 
-def rx_population(text: str = None, exclude=()) -> list:
+def rx_population(text: str = None, exclude=(), with_exch: bool = False) -> list:
     """`T-HS-RX §②` — POP-RX: `otherlisted.txt` (ملفُّ البورصات الأخرى من مصدر كون ناسداك نفسِه) ⟵ البورصة N/A · ETF = N · Test Issue = N ·
     رمزٌ أبجديّ · لا وارنت/حقوق/وحدات (فلاترُ `S.get_universe` حرفًا) ⟵ ناقص `exclude` (POP-BOT ∪ كونُ ناسداك). `text` محقونٌ للاختبار ·
-    وتعذّرُ الجلب أو ترويسةٌ غيرُ متوقّعة ⟵ [] (لا قياسَ على كونٍ فارغ)."""
+    وتعذّرُ الجلب أو ترويسةٌ غيرُ متوقّعة ⟵ [] (لا قياسَ على كونٍ فارغ) · و`with_exch` ⟵ أزواجُ (رمز · رمزُ البورصة) لخريطة TradingView (§⑬)
+    — وغيابُه ⟵ الرموزُ وحدَها كما كانت."""
     if text is None:
         import requests
         import Super_stock as S
@@ -1013,7 +1020,7 @@ def rx_population(text: str = None, exclude=()) -> list:
     if any(k not in idx for k in ("ACT Symbol", "Security Name", "Exchange", "ETF", "Test Issue")):
         log(f"⛔ ترويسةٌ غيرُ متوقّعة: {header[:8]}")
         return []
-    ex, out = set(exclude or ()), set()
+    ex, out = set(exclude or ()), {}
     for ln in lines[1:]:
         if ln.startswith("File Creation Time"):
             continue
@@ -1031,8 +1038,35 @@ def rx_population(text: str = None, exclude=()) -> list:
         if any(b in name for b in ("WARRANT", "RIGHT", " UNIT", "UNITS")):
             continue
         if sym not in ex:
-            out.add(sym)
-    return sorted(out)
+            out[sym] = parts[idx["Exchange"]].strip()
+    return sorted(out.items()) if with_exch else sorted(out)
+
+
+def rx_tv_snapshot(pairs, tmap) -> tuple:
+    """`hs_rx_prereg.md §⑬` — لقطةٌ بشكل ماسح TradingView لـPOP-RX ⟵ ({«EXCH:SYM»: {"name": SYM}} · {رمز: "scan" | "otherlisted"}):
+    الماسحُ أوّلًا (`tmap` = `S._tv_ticker_map()`) ثمّ **سوقُ `otherlisted.txt`** للغائب عنه (‏N ⟵ NYSE · A ⟵ AMEX) — **لا «NASDAQ:» الافتراضيّ**
+    الذي يناسب كونَ البوت وحدَه. تُحقن في `S.tv_download(scan=…)` فيبقى نداؤه هو."""
+    snap, src = {}, {}
+    for sym, exch in pairs:
+        full = (tmap or {}).get(sym)
+        src[sym] = "scan" if full else "otherlisted"
+        snap[full or f"{RX_TV_EXCH.get(exch, 'NYSE')}:{sym}"] = {"name": sym}
+    return snap, src
+
+
+def rx_partial(out: dict, cov_min: float = RX_COV_MIN, unk_max: float = RX_UNK_MAX) -> list:
+    """`§⑬` و`§②` — أسبابُ «جزئيّ» (تُكتب مع التسمية ولا تغيّرها): شموعٌ لأقلَّ من `cov_min` من POP-RX · ومجهولُ التقسيم **فوق** `unk_max`
+    من إشارات RECON أو RECON-v2 في ALL (المقامُ صالحٌ ‏+ مستبعَدٌ ‏+ مجهول كما في `T-HS-FX §⑰`)."""
+    why = []
+    pop, got = int(out.get("population") or 0), int(out.get("fetched") or 0)
+    if pop and got / pop < cov_min:
+        why.append(f"التغطية {got}/{pop} = {100 * got / pop:.1f}% دون {100 * cov_min:.0f}%")
+    for k, name in (("RECON", "RECON"), ("RECON2", "RECON-v2")):
+        e = (out.get("split_exclusion") or {}).get(f"{k}|{ALL_ERA}") or {}
+        tot = int(e.get("valid") or 0) + int(e.get("excluded") or 0) + int(e.get("unknown") or 0)
+        if tot and int(e.get("unknown") or 0) / tot > unk_max:
+            why.append(f"مجهولُ التقسيم في {name} {e.get('unknown')}/{tot} = {100 * int(e.get('unknown')) / tot:.1f}% فوق {100 * unk_max:.0f}%")
+    return why
 
 
 def _retry_splits(miss, fetch, reset=None, sleep=time.sleep, clock=time.monotonic,
@@ -1355,12 +1389,16 @@ def run_rx() -> int:
     import Super_stock as S
     t0 = time.time()
     excl = set(HS.load_population()) | set(S.get_universe() or [])
-    pop = rx_population(exclude=excl)
+    pairs = rx_population(exclude=excl, with_exch=True)
+    pop = [s_ for s_, _e in pairs]
     log(f"🔬 T-HS-RX · POP-RX {len(pop)} رمزًا (المستبعَد POP-BOT ∪ ناسداك {len(excl)}) · من {FX_START} · q={RX_Q}")
     if not pop:
         log("⛔ POP-RX فارغ ⟵ لا قياس")
         return 3
-    frames, rep, sp = _fetch(pop)
+    snap, msrc = rx_tv_snapshot(pairs, S._tv_ticker_map())
+    log(f"🗺️ خريطةُ TradingView (§⑬): الماسح {sum(1 for v in msrc.values() if v == 'scan')} · سوقُ otherlisted "
+        f"{sum(1 for v in msrc.values() if v == 'otherlisted')} · والقاطعُ لا يُفتح بالإخفاق (نسبة {RX_GATE_RATIO})")
+    frames, rep, sp = _fetch(pop, gate=S.TVBarsGate(ratio=RX_GATE_RATIO), scan=lambda *_a, **_k: snap)
     log(f"📊 شموعٌ لـ{len(frames)} من {len(pop)} · تقسيماتٌ مجهولة {sum(1 for v in sp.values() if v is None)}")
     regime, reg_src = _regime()
     tasks = [(s, frames[s], sp.get(s), (None if sp.get(s) is None else sorted({d for d, _r in sp[s]})), regime, "rx")
@@ -1388,7 +1426,9 @@ def run_rx() -> int:
            "population": len(pop), "excluded": len(excl), "fetched": len(frames), "regime_src": reg_src,
            "fetch_report": {k: (v if not isinstance(v, list) else len(v)) for k, v in rep.items()},
            "splits_unknown": sum(1 for v in sp.values() if v is None), "eras": ERAS, "survivorship": _survivorship(frames, len(pop)),
-           "errors": errs[:50], "summary": {}, "compare": {}, "split_exclusion": {}}
+           "errors": errs[:50], "summary": {}, "compare": {}, "split_exclusion": {},
+           "tv_map": {"scan": sum(1 for v in msrc.values() if v == "scan"), "otherlisted": sum(1 for v in msrc.values() if v == "otherlisted")},
+           "fetch_lists": {k: [{"sym": x, "map": msrc.get(x)} for x in (rep.get(k) or [])] for k in ("none", "empty", "short")}}
     matched = {k: match_controls(allsig[k], pool, "B") for k in kinds}
     for era in eras + [ALL_ERA]:
         alpha = RX_ALPHA if era == ALL_ERA else EXPL_ALPHA
@@ -1403,6 +1443,7 @@ def run_rx() -> int:
     out["lookahead"] = {"checked": len(la), "prefix_ok": sum(1 for x in la if x["prefix_ok"]), "info_ok": sum(1 for x in la if x["info_ok"]),
                         "violations": [r["pid"] for r in allsig["RECON2"] if r.get("la") and not (r["la"]["prefix_ok"] and r["la"]["info_ok"])][:100]}
     out["hypotheses"] = hypotheses_rx(out["compare"])
+    out["partial"] = rx_partial(out)
     items = []
     v2 = [r for r in allsig["RECON2"] if valid(r) and in_era(r, ALL_ERA)]
     v1 = [r for r in allsig["RECON"] if valid(r) and in_era(r, ALL_ERA) and not (r.get("hd1") and r.get("hd2"))]
@@ -1430,7 +1471,8 @@ def run_rx() -> int:
     log(f"🔐 مفتاحُ أمانة RX مختوم · sha256 {ksha} · لا يُفتح قبل دفع الوسوم · العيّنة {out['samples']['blind_kinds']}")
     hyp = out["hypotheses"]
     log(f"⚖️ {hyp['RX']} · " + " · ".join(f"{h}: {hyp[h]['status']}" for h in ("RX-H1a", "RX-H2a", "RX-H1b", "RX-H2b"))
-        + (f" · لم يُقَس: {hyp['note']}" if hyp["note"] else ""))
+        + (f" · لم يُقَس: {hyp['note']}" if hyp["note"] else "")
+        + (f" · ⚠️ جزئيّ: {'؛ '.join(out['partial'])}" if out["partial"] else ""))
     for k in kinds:
         for bk in ("BL-B", "BL-A"):
             x = out["compare"].get(f"{k}|{ALL_ERA}|{bk}") or {}

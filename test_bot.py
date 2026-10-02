@@ -78010,15 +78010,24 @@ check("🔁 RXF4 `hypotheses_rx`: الأضعفُ بين BL-B وBL-A · n = 30 ي
 import tempfile as _rx5_tmp                                               # noqa: E402
 import os as _rx5_os                                                      # noqa: E402
 _rx5_orig = (FX.rx_population, FX._fetch, FX._regime, FX._pool_run, FX.FX_DIR, FX.HS.detect, FX.HS.retest_state,
-             FX.HS.control_events, FX.HS.load_population, S.get_universe, _rx5_os.environ.get("HS_FX_SAVE"))
+             FX.HS.control_events, FX.HS.load_population, S.get_universe, _rx5_os.environ.get("HS_FX_SAVE"), S._tv_ticker_map)
 try:
     _rx5_dir = _rx5_tmp.mkdtemp(prefix="rxf5_")
     _rx5_calls = {}
 
     def _rx5_ctrl(df, sig_bars=(), wbs=None):
         return [{"b_i": i, "entry": float(df["Close"].iloc[i]), "height": 1.0, "wb": 30} for i in (60, 80, 160, 180, 250, 270)]
-    FX.rx_population = lambda text=None, exclude=(): (_rx5_calls.setdefault("excl", sorted(exclude)), ["ZZRA", "ZZRB"])[1]
-    FX._fetch = lambda syms: ({s: _rx3_df for s in syms}, {"src": "stub", "none": []}, {s: [] for s in syms})
+    FX.rx_population = lambda text=None, exclude=(), with_exch=False: (
+        _rx5_calls.setdefault("excl", sorted(exclude)),
+        [("ZZRA", "N"), ("ZZRB", "A"), ("ZZRC", "N")] if with_exch else ["ZZRA", "ZZRB", "ZZRC"])[1]
+
+    def _rx5_fetch(syms, gate=None, scan=None):                          # ZZRC يتعذّر ⟵ تغطيةُ 2/3 ⟵ «جزئيّ» ويُسمّى في القوائم بمصدر خريطته
+        _rx5_calls["gate"] = getattr(gate, "ratio", None)
+        _rx5_calls["snap"] = scan(["name"]) if scan else None
+        got = [s for s in syms if s != "ZZRC"]
+        return {s: _rx3_df for s in got}, {"src": "stub", "none": ["ZZRC"]}, {s: [] for s in got}
+    FX._fetch = _rx5_fetch
+    S._tv_ticker_map = lambda scan=None, now=None: {"ZZRA": "NYSE:ZZRA"}            # الماسحُ يعرف ZZRA وحدَه ⟵ ZZRB بسوق otherlisted
     FX._regime = lambda: ({}, None)
     FX._pool_run = lambda fn, tasks, workers=4: [fn(t) for t in tasks]
     FX.FX_DIR = _rx5_dir
@@ -78042,12 +78051,16 @@ try:
             "ids": sorted(_rx5_charts) == [f"RX{j:02d}" for j in range(1, len(_rx5_charts) + 1)] and len(_rx5_charts) > 0,
             "bars_only": _rx5_bars_only, "kinds": sorted({v["kind"] for v in _rx5_key.values()}),
             "sha": _rx5_ksha == _rx5_js["samples"]["key_sha256"], "label": _rx5_js["hypotheses"]["RX"],
-            "csv_hd": "hd1" in _rx5_csv.columns, "bx": sorted(_rx5_bx)}
+            "csv_hd": "hd1" in _rx5_csv.columns, "bx": sorted(_rx5_bx),
+            "gate": _rx5_calls.get("gate"), "snap": sorted(_rx5_calls.get("snap") or {}), "tv_map": _rx5_js.get("tv_map"),
+            "partial": _rx5_js.get("partial"), "lists": sorted((_rx5_js.get("fetch_lists") or {}).keys()),
+            "none": (_rx5_js.get("fetch_lists") or {}).get("none"), "cov": (_rx5_js.get("population"), _rx5_js.get("fetched"))}
 except Exception as _e:                                                   # noqa: BLE001
     _rx5 = {"⛔": f"{type(_e).__name__}: {_e}"}
 finally:
     (FX.rx_population, FX._fetch, FX._regime, FX._pool_run, FX.FX_DIR, FX.HS.detect, FX.HS.retest_state, FX.HS.control_events,
      FX.HS.load_population, S.get_universe) = _rx5_orig[:10]
+    S._tv_ticker_map = _rx5_orig[11]
     if _rx5_orig[10] is None:
         _rx5_os.environ.pop("HS_FX_SAVE", None)
     else:
@@ -78055,9 +78068,13 @@ finally:
     import shutil as _rx5_sh
     _rx5_sh.rmtree(_rx5_dir, ignore_errors=True) if "_rx5_dir" in dir() else None
 check("🔁 RXF5 `run_rx` طرفًا لطرف: يُرجع 0 ويكتب الأربعة في مجلّده · المستبعَدُ POP-BOT ∪ ناسداك · «RX01…» شموعٌ وحدَها · المفتاحُ يُفتح إلى "
-      "V1/V2/NEG ببصمته المطبوعة · و`hd1` في الـCSV · و`blind_mix` الافتراضيّ «BX» كما كان",
+      "V1/V2/NEG ببصمته المطبوعة · و`hd1` في الـCSV · و`blind_mix` الافتراضيّ «BX» كما كان · و§⑬: قاطعُ RX وخريطةُ الماسح ثمّ otherlisted "
+      "مُمرَّران إلى `_fetch` · والتغطيةُ 2/3 «جزئيّ» · والمتعذّرُ بمصدر خريطته",
       _rx5 == {"rc": 0, "excl": ["ZZBOT", "ZZNDQ"], "files": True, "ids": True, "bars_only": True, "kinds": ["NEG", "V1", "V2"],
-               "sha": True, "label": "RX-4 «لا قياس»", "csv_hd": True, "bx": ["BX01"]}, str(_rx5)[:500])
+               "sha": True, "label": "RX-4 «لا قياس»", "csv_hd": True, "bx": ["BX01"],
+               "gate": 2.0, "snap": ["AMEX:ZZRB", "NYSE:ZZRA", "NYSE:ZZRC"], "tv_map": {"scan": 1, "otherlisted": 2},
+               "partial": ["التغطية 2/3 = 66.7% دون 90%"], "lists": ["empty", "none", "short"],
+               "none": [{"sym": "ZZRC", "map": "otherlisted"}], "cov": (3, 2)}, str(_rx5)[:700])
 
 # RXF6 — **العقدُ والـworkflow**: `hs_rx_prereg.md` موجودٌ بثوابته (q = 1/5 · 98.75% · الفرضيّاتُ الأربع · بذورُ العيّنة) · ووضعُ `rx` في خيارات
 #    `hs_forensic.yml` (بلا كرون) · و`main()` يوجّهه إلى `run_rx` (‏AST).
@@ -78075,6 +78092,120 @@ except Exception as _e:                                                   # noqa
     _rx6 = {"⛔": f"{type(_e).__name__}: {_e}"}
 check("🔁 RXF6 العقدُ بثوابته · ووضعُ `rx` في خيارات الـworkflow بلا كرون · و`main()` يوجّهه إلى `run_rx` (AST)",
       _rx6 == {"doc": True, "opt": True, "no_cron": True, "dispatch": True}, str(_rx6)[:300])
+
+# RXF7 — **§⑬ الأزواجُ (رمز · بورصة)**: `with_exch` يُرجع البورصةَ من `otherlisted.txt` نفسِه (N · A) للمجتمع نفسِه بترتيبه ·
+#    وبلا `with_exch` الرموزُ وحدَها كما كانت (RXF2 بت-بت).
+try:
+    _rx7 = {"pairs": FX.rx_population(text=_rx_txt, exclude={"JJJ"}, with_exch=True),
+            "plain": FX.rx_population(text=_rx_txt, exclude={"JJJ"})}
+except Exception as _e:                                                   # noqa: BLE001
+    _rx7 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔁 RXF7 `rx_population(with_exch=True)` ⟵ أزواجُ (رمز · N/A) للمجتمع نفسِه · وبلاه الرموزُ وحدَها كما كانت",
+      _rx7 == {"pairs": [("AAA", "N"), ("BBB", "A")], "plain": ["AAA", "BBB"]}, str(_rx7)[:300])
+
+# RXF8 — **§⑬ العطلُ مُعادًا ومُصلَحًا بلا شبكة** (`S.tv_download` الحقيقيّ · جالبٌ مزيّف يحترم بروتوكولَ القاطع: `skip()` ثمّ `record(ok)`):
+#    30 رمزَ AMEX وNYSE يعرفها الماسح ‏+ 40 رمزَ NYSE يجهلها ⟵ «NASDAQ:» الافتراضيّ يتعذّر ⟵ **شاهدُ الضبط** (القاطعُ الإنتاجيّ والخريطةُ القديمة)
+#    يُعيد عطلَ التشغيلة الأولى: يُفتح ويُتخطّى ما بعده · **وقاطعُ RX وحدَه** يُبقي الإخفاقَ إخفاقًا ولا يتخطّى · **والإصلاحُ كاملًا** (القاطعُ ‏+ سوقُ
+#    otherlisted) يجلب الكلّ · و`rx_tv_snapshot`: الماسحُ يغلب ولو ناسداك · والغائبُ بسوقه لا «NASDAQ:».
+try:
+    import datetime as _rx8_dt
+    _rx8_t0 = int(_rx8_dt.datetime(2016, 1, 4, 15, 0, tzinfo=_rx8_dt.timezone.utc).timestamp())
+    _rx8_bars = [(_rx8_t0 + 86400 * j, 10.0, 10.5, 9.5, 10.0 + 0.01 * j, 1000.0) for j in range(140)]
+
+    def _rx8_fetch(names, interval="1D", n=0, workers=1, gate=None, stagger=0.0, retry_pass=False, retry_pause=0.0, **_k):
+        out = {}
+        for nm in names:
+            if gate is not None and gate.skip():
+                out[nm] = None
+                continue
+            ok = not nm.startswith("NASDAQ:")
+            out[nm] = list(_rx8_bars) if ok else None
+            if gate is not None:
+                gate.record(ok)
+        return out
+    _rx8_known = {f"AK{i:02d}": f"AMEX:AK{i:02d}" for i in range(15)}
+    _rx8_known.update({f"NK{i:02d}": f"NYSE:NK{i:02d}" for i in range(15)})
+    _rx8_pairs = sorted([(k, "A" if k.startswith("AK") else "N") for k in _rx8_known] + [(f"MU{i:02d}", "N") for i in range(40)])
+    _rx8_syms = [x for x, _e in _rx8_pairs]
+    _rx8_old_scan = (lambda *_a, **_k: {v: {"name": k} for k, v in _rx8_known.items()})
+    _rx8_snap, _rx8_src = FX.rx_tv_snapshot(_rx8_pairs, _rx8_known)
+    _rx8_today = _rx8_dt.date(2016, 9, 30)
+    _f_ctrl, _r_ctrl = S.tv_download(_rx8_syms, FX.FX_START, fetch=_rx8_fetch, scan=_rx8_old_scan, gate=S.TVBarsGate(budget=False),
+                                     today=_rx8_today)
+    _f_gate, _r_gate = S.tv_download(_rx8_syms, FX.FX_START, fetch=_rx8_fetch, scan=_rx8_old_scan,
+                                     gate=S.TVBarsGate(ratio=FX.RX_GATE_RATIO, budget=False), today=_rx8_today)
+    _f_fix, _r_fix = S.tv_download(_rx8_syms, FX.FX_START, fetch=_rx8_fetch, scan=lambda *_a, **_k: _rx8_snap,
+                                   gate=S.TVBarsGate(ratio=FX.RX_GATE_RATIO, budget=False), today=_rx8_today)
+    _rx8_s2, _rx8_m2 = FX.rx_tv_snapshot([("QQA", "N"), ("QQB", "A"), ("QQC", "N")], {"QQC": "NASDAQ:QQC"})
+    _rx8 = {"ctrl": (len(_f_ctrl), _r_ctrl["gate"]["open"], _r_ctrl["gate"]["skipped"] > 0),
+            "gate_only": (len(_f_gate), _r_gate["gate"]["open"], _r_gate["gate"]["skipped"], len(_r_gate["none"])),
+            "fixed": (len(_f_fix), _r_fix["gate"]["open"], len(_r_fix["none"])),
+            "src": (sum(1 for v in _rx8_src.values() if v == "scan"), sum(1 for v in _rx8_src.values() if v == "otherlisted")),
+            "no_nasdaq_default": not any(k.startswith("NASDAQ:MU") for k in _rx8_snap),
+            "snap2": (sorted(_rx8_s2), _rx8_m2)}
+except Exception as _e:                                                   # noqa: BLE001
+    _rx8 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔁 RXF8 §⑬ العطلُ مُعادًا: شاهدُ الضبط (القاطعُ الإنتاجيّ ‏+ «NASDAQ:» الافتراضيّ) يُفتح ويتخطّى NYSE ⟵ 15 من 70 · وقاطعُ RX لا يُفتح ولا يتخطّى "
+      "(70 − 40 متعذّرًا) · والإصلاحُ كاملًا يجلب السبعين · والماسحُ يغلب ولو ناسداك والغائبُ بسوقه",
+      _rx8 == {"ctrl": (15, True, True), "gate_only": (30, False, 0, 40), "fixed": (70, False, 0), "src": (30, 40),
+               "no_nasdaq_default": True,
+               "snap2": (["AMEX:QQB", "NASDAQ:QQC", "NYSE:QQA"], {"QQA": "otherlisted", "QQB": "otherlisted", "QQC": "scan"})},
+      str(_rx8)[:500])
+
+# RXF9 — **§⑬/§② «جزئيّ» بالحدود**: التغطيةُ 90% تمامًا لا تُجزّئ و89% تُجزّئ · ومجهولُ التقسيم 10% تمامًا لا يُجزّئ (العقد: «أكثرُ من 10%»)
+#    وفوقه يُجزّئ لكلّ ذراعٍ باسمه (RECON · RECON-v2) · وC لا تُحتسب (ليست حاكمة) · ومجتمعٌ صفريّ لا يقسم على صفر.
+try:
+    def _rx9_out(pop, got, r_unk, r_tot, v_unk, v_tot, c_unk=0):
+        return {"population": pop, "fetched": got,
+                "split_exclusion": {"RECON|ALL": {"valid": r_tot - r_unk, "excluded": 0, "unknown": r_unk},
+                                    "RECON2|ALL": {"valid": v_tot - v_unk, "excluded": 0, "unknown": v_unk},
+                                    "C|ALL": {"valid": 10, "excluded": 0, "unknown": c_unk}}}
+    _rx9 = {"edge": FX.rx_partial(_rx9_out(100, 90, 1, 10, 3, 30)),
+            "cov": [w.split(" ")[0] for w in FX.rx_partial(_rx9_out(100, 89, 0, 10, 0, 30))],
+            "recon": [w.split(" في ")[-1].split(" ")[0] for w in FX.rx_partial(_rx9_out(100, 95, 2, 10, 0, 30))],
+            "v2": [w.split(" في ")[-1].split(" ")[0] for w in FX.rx_partial(_rx9_out(100, 95, 0, 10, 4, 30))],
+            "c_ignored": FX.rx_partial(_rx9_out(100, 95, 0, 10, 0, 30, c_unk=9)),
+            "zero": FX.rx_partial({"population": 0, "fetched": 0, "split_exclusion": {}})}
+except Exception as _e:                                                   # noqa: BLE001
+    _rx9 = {"⛔": f"{type(_e).__name__}: {_e}"}
+check("🔁 RXF9 `rx_partial`: 90% و10% تمامًا لا يُجزّئان · 89% يُجزّئ بالتغطية · ومجهولُ RECON وRECON-v2 فوق 10% كلٌّ باسمه · وC لا تُحتسب · وصفرٌ بلا قسمة",
+      _rx9 == {"edge": [], "cov": ["التغطية"], "recon": ["RECON"], "v2": ["RECON-v2"], "c_ignored": [], "zero": []}, str(_rx9)[:400])
+
+# RXF10 — **الأوضاعُ الأخرى بت-بت**: `_fetch` بلا `gate`/`scan` ينادي `S.tv_download` بـNone/None (قاطعُه الإنتاجيّ وخريطتُه كما كانا) ·
+#    و(‏AST) كلُّ نداءٍ لـ`_fetch` خارج `run_rx` بوسيطٍ موضعيٍّ واحدٍ بلا مفاتيح · وفي `run_rx` بالمفتاحين `gate` و`scan`.
+_rx10_orig = (S.tv_download, S._fetch_splits)
+try:
+    _rx10_seen = {}
+
+    def _rx10_dl(tickers, start, fetch=None, scan=None, gate=None, today=None):
+        _rx10_seen.update(scan=scan, gate=gate, start=start)
+        return {}, {"src": "tradingview", "asked": len(tickers), "tv": 0, "none": list(tickers), "empty": [], "short": [], "map": "scan",
+                    "gate": None, "secs": 0.0, "n": 0}
+    S.tv_download = _rx10_dl
+    S._fetch_splits = lambda sym: {}
+    _rx10_g, _rx10_sc = object(), (lambda *_a, **_k: {})
+    FX._fetch(["ZZQ"], gate=_rx10_g, scan=_rx10_sc)
+    _rx10_fwd = (_rx10_seen.get("gate") is _rx10_g, _rx10_seen.get("scan") is _rx10_sc)
+    _rx10_seen.clear()
+    FX._fetch(["ZZQ"])
+    _rx10_tree = _hfx_ast.parse(_insp.getsource(FX))
+    _rx10_calls = {}
+    for _fn in _rx10_tree.body:
+        if isinstance(_fn, _hfx_ast.FunctionDef):
+            for _c in _hfx_ast.walk(_fn):
+                if isinstance(_c, _hfx_ast.Call) and getattr(_c.func, "id", None) == "_fetch":
+                    _rx10_calls.setdefault(_fn.name, []).append((len(_c.args), sorted(k.arg for k in _c.keywords)))
+    _rx10 = {"default": (_rx10_seen.get("scan"), _rx10_seen.get("gate"), _rx10_seen.get("start") == FX.FX_START), "forward": _rx10_fwd,
+             "others": sorted({v for k, xs in _rx10_calls.items() if k != "run_rx" for v in map(str, xs)}),
+             "rx": _rx10_calls.get("run_rx"), "n_callers": len([k for k in _rx10_calls if k != "run_rx"])}
+except Exception as _e:                                                   # noqa: BLE001
+    _rx10 = {"⛔": f"{type(_e).__name__}: {_e}"}
+finally:
+    S.tv_download, S._fetch_splits = _rx10_orig
+check("🔁 RXF10 الأوضاعُ الأخرى بت-بت: `_fetch` الافتراضيّ ينادي `S.tv_download` بلا قاطعٍ ولا خريطةٍ مُمرَّرة · و`gate`/`scan` يُمرَّران كما هما حين يُعطَيان · "
+      "وكلُّ نداءٍ خارج `run_rx` بوسيطٍ واحد بلا مفاتيح · و`run_rx` بـ`gate` و`scan` (AST)",
+      _rx10 == {"default": (None, None, True), "forward": (True, True), "others": ["(1, [])"], "rx": [(1, ["gate", "scan"])], "n_callers": 2},
+      str(_rx10)[:400])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
