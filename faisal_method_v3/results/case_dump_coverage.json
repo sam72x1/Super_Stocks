@@ -1,0 +1,522 @@
+{
+ "_source_run": 37036590477,
+ "_note": "تغطيةُ وضع dump (§16) منقولةٌ من V3OUT · الشموعُ نفسُها في v31/golden_fixtures.json (نوافذ)",
+ "tool": "case_dump V3.1",
+ "golden": [
+  "DXST",
+  "VEEE",
+  "RAYA",
+  "ATMV",
+  "EZRA"
+ ],
+ "validation": [
+  "LABT",
+  "ZNB",
+  "RUBI",
+  "AMIX",
+  "HCWB",
+  "CUPR",
+  "SPRC",
+  "KWM",
+  "PPCB",
+  "NUWE",
+  "SXTC",
+  "NTCL",
+  "ELPW",
+  "CPOP",
+  "DAIC",
+  "WETO",
+  "MSGY",
+  "SNAL",
+  "STKH",
+  "DCOY",
+  "BTOG",
+  "YMT",
+  "ONCO",
+  "KUST",
+  "ZCMD"
+ ],
+ "coverage": {
+  "DXST": {
+   "full": "NASDAQ:DXST",
+   "tries": [
+    [
+     "NASDAQ:DXST",
+     427
+    ]
+   ],
+   "daily": {
+    "n": 427,
+    "first": "2025-01-22",
+    "last": "2026-10-02"
+   },
+   "m30": {
+    "n": 3363,
+    "first": "2025-01-22 12:00",
+    "last": "2026-10-02 12:30"
+   },
+   "m30x": {
+    "n": 5000,
+    "first": "2025-03-25 15:00",
+    "last": "2026-10-02 12:30"
+   }
+  },
+  "VEEE": {
+   "full": "NASDAQ:VEEE",
+   "tries": [
+    [
+     "NASDAQ:VEEE",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   },
+   "m30": {
+    "n": 5000,
+    "first": "2024-07-12 12:00",
+    "last": "2026-10-02 12:30"
+   },
+   "m30x": {
+    "n": 5000,
+    "first": "2025-10-24 15:30",
+    "last": "2026-10-02 12:30"
+   }
+  },
+  "RAYA": {
+   "full": "NASDAQ:RAYA",
+   "tries": [
+    [
+     "NASDAQ:RAYA",
+     945
+    ]
+   ],
+   "daily": {
+    "n": 945,
+    "first": "2022-12-14",
+    "last": "2026-10-02"
+   },
+   "m30": {
+    "n": 5000,
+    "first": "2023-01-11 14:30",
+    "last": "2026-10-02 12:00"
+   },
+   "m30x": {
+    "n": 5000,
+    "first": "2025-07-24 13:00",
+    "last": "2026-10-02 12:00"
+   }
+  },
+  "ATMV": {
+   "full": null,
+   "tries": [
+    [
+     "NASDAQ:ATMV",
+     null
+    ],
+    [
+     "NYSE:ATMV",
+     null
+    ],
+    [
+     "AMEX:ATMV",
+     null
+    ],
+    [
+     "OTC:ATMV",
+     null
+    ]
+   ],
+   "daily": {
+    "n": 0,
+    "first": null,
+    "last": null
+   }
+  },
+  "EZRA": {
+   "full": "NASDAQ:EZRA",
+   "tries": [
+    [
+     "NASDAQ:EZRA",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   },
+   "m30": {
+    "n": 1807,
+    "first": "2026-01-26 09:30",
+    "last": "2026-10-02 12:30"
+   },
+   "m30x": {
+    "n": 3066,
+    "first": "2026-01-26 06:00",
+    "last": "2026-10-02 12:30"
+   }
+  },
+  "LABT": {
+   "full": "NASDAQ:LABT",
+   "tries": [
+    [
+     "NASDAQ:LABT",
+     113
+    ]
+   ],
+   "daily": {
+    "n": 113,
+    "first": "2026-04-23",
+    "last": "2026-10-02"
+   }
+  },
+  "ZNB": {
+   "full": "NASDAQ:ZNB",
+   "tries": [
+    [
+     "NASDAQ:ZNB",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   }
+  },
+  "RUBI": {
+   "full": "NASDAQ:RUBI",
+   "tries": [
+    [
+     "NASDAQ:RUBI",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2017-09-11",
+    "last": "2026-10-02"
+   }
+  },
+  "AMIX": {
+   "full": "NASDAQ:AMIX",
+   "tries": [
+    [
+     "NASDAQ:AMIX",
+     673
+    ]
+   ],
+   "daily": {
+    "n": 673,
+    "first": "2024-01-29",
+    "last": "2026-10-02"
+   }
+  },
+  "HCWB": {
+   "full": "NASDAQ:HCWB",
+   "tries": [
+    [
+     "NASDAQ:HCWB",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-09-30",
+    "last": "2026-10-02"
+   }
+  },
+  "CUPR": {
+   "full": "NASDAQ:CUPR",
+   "tries": [
+    [
+     "NASDAQ:CUPR",
+     372
+    ]
+   ],
+   "daily": {
+    "n": 372,
+    "first": "2025-04-10",
+    "last": "2026-10-02"
+   }
+  },
+  "SPRC": {
+   "full": "NASDAQ:SPRC",
+   "tries": [
+    [
+     "NASDAQ:SPRC",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   }
+  },
+  "KWM": {
+   "full": "NASDAQ:KWM",
+   "tries": [
+    [
+     "NASDAQ:KWM",
+     781
+    ]
+   ],
+   "daily": {
+    "n": 781,
+    "first": "2022-11-10",
+    "last": "2026-10-02"
+   }
+  },
+  "PPCB": {
+   "full": "NASDAQ:PPCB",
+   "tries": [
+    [
+     "NASDAQ:PPCB",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-01-07",
+    "last": "2026-10-02"
+   }
+  },
+  "NUWE": {
+   "full": "NASDAQ:NUWE",
+   "tries": [
+    [
+     "NASDAQ:NUWE",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   }
+  },
+  "SXTC": {
+   "full": "NASDAQ:SXTC",
+   "tries": [
+    [
+     "NASDAQ:SXTC",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   }
+  },
+  "NTCL": {
+   "full": "NASDAQ:NTCL",
+   "tries": [
+    [
+     "NASDAQ:NTCL",
+     451
+    ]
+   ],
+   "daily": {
+    "n": 451,
+    "first": "2024-12-13",
+    "last": "2026-10-02"
+   }
+  },
+  "ELPW": {
+   "full": "NASDAQ:ELPW",
+   "tries": [
+    [
+     "NASDAQ:ELPW",
+     696
+    ]
+   ],
+   "daily": {
+    "n": 696,
+    "first": "2023-05-01",
+    "last": "2026-10-02"
+   }
+  },
+  "CPOP": {
+   "full": "NASDAQ:CPOP",
+   "tries": [
+    [
+     "NASDAQ:CPOP",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   }
+  },
+  "DAIC": {
+   "full": "NASDAQ:DAIC",
+   "tries": [
+    [
+     "NASDAQ:DAIC",
+     638
+    ]
+   ],
+   "daily": {
+    "n": 638,
+    "first": "2022-01-10",
+    "last": "2026-10-02"
+   }
+  },
+  "WETO": {
+   "full": "NASDAQ:WETO",
+   "tries": [
+    [
+     "NASDAQ:WETO",
+     400
+    ]
+   ],
+   "daily": {
+    "n": 400,
+    "first": "2025-02-27",
+    "last": "2026-10-02"
+   }
+  },
+  "MSGY": {
+   "full": "NASDAQ:MSGY",
+   "tries": [
+    [
+     "NASDAQ:MSGY",
+     313
+    ]
+   ],
+   "daily": {
+    "n": 313,
+    "first": "2025-07-08",
+    "last": "2026-10-02"
+   }
+  },
+  "SNAL": {
+   "full": "NASDAQ:SNAL",
+   "tries": [
+    [
+     "NASDAQ:SNAL",
+     975
+    ]
+   ],
+   "daily": {
+    "n": 975,
+    "first": "2022-11-10",
+    "last": "2026-10-02"
+   }
+  },
+  "STKH": {
+   "full": "NASDAQ:STKH",
+   "tries": [
+    [
+     "NASDAQ:STKH",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   }
+  },
+  "DCOY": {
+   "full": "NASDAQ:DCOY",
+   "tries": [
+    [
+     "NASDAQ:DCOY",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   }
+  },
+  "BTOG": {
+   "full": "NASDAQ:BTOG",
+   "tries": [
+    [
+     "NASDAQ:BTOG",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   }
+  },
+  "YMT": {
+   "full": "NASDAQ:YMT",
+   "tries": [
+    [
+     "NASDAQ:YMT",
+     283
+    ]
+   ],
+   "daily": {
+    "n": 283,
+    "first": "2025-08-19",
+    "last": "2026-10-02"
+   }
+  },
+  "ONCO": {
+   "full": "NASDAQ:ONCO",
+   "tries": [
+    [
+     "NASDAQ:ONCO",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   }
+  },
+  "KUST": {
+   "full": "NASDAQ:KUST",
+   "tries": [
+    [
+     "NASDAQ:KUST",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-10-07",
+    "last": "2026-10-02"
+   }
+  },
+  "ZCMD": {
+   "full": "NASDAQ:ZCMD",
+   "tries": [
+    [
+     "NASDAQ:ZCMD",
+     1000
+    ]
+   ],
+   "daily": {
+    "n": 1000,
+    "first": "2022-09-21",
+    "last": "2026-10-02"
+   }
+  }
+ },
+ "tv_calls": {
+  "scan": 3,
+  "scan_fail": 0,
+  "bars": 41,
+  "bars_fail": 4,
+  "bars_empty": 0,
+  "reconnect": 0,
+  "recovered": 0
+ }
+}

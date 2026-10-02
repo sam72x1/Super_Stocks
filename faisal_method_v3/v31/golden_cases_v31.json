@@ -1,0 +1,875 @@
+{
+ "dates": {
+  "RAYA": {
+   "asof": "2026-08-21",
+   "how": "أقربُ جلسةٍ ≤ 2026-08-27 إغلاقُها 2.35 ±1%",
+   "candidates": [
+    "2026-07-31",
+    "2026-08-18",
+    "2026-08-19",
+    "2026-08-21"
+   ]
+  },
+  "LABT": {
+   "asof": "2026-08-21",
+   "how": "2026-08-21 وإغلاقُها 2.24 ±1%",
+   "close": 2.24
+  },
+  "ZNB": {
+   "asof": "2026-07-31",
+   "how": "2026-07-31 وإغلاقُها 2.38 ±1%",
+   "close": 2.38
+  },
+  "RUBI": {
+   "asof": "2026-08-21",
+   "how": "الشمعة O 1.870 · H 1.877 · L 1.740 · C 1.760 ±0.5%",
+   "candidates": [
+    "2026-08-21"
+   ]
+  },
+  "AMIX": {
+   "asof": "2026-08-21",
+   "how": "آخرُ جلسةٍ ≤ 2026-08-27 إغلاقُها 5.27 ±1% وقمّةُ الستّين 24.68 ±2%",
+   "candidates": [
+    "2026-08-20",
+    "2026-08-21"
+   ]
+  },
+  "HCWB": {
+   "asof": "2026-08-21",
+   "how": "تاريخُ AMIX نفسُه (الرسالةُ نفسُها)"
+  },
+  "DXST": {
+   "asof": "2026-06-15",
+   "asof_30m_end": "2026-06-16 12:30",
+   "how": "منشور 2026/6/16 · 30 دقيقة حتى 12:30 نيويورك"
+  },
+  "VEEE": {
+   "asof": null,
+   "how": "جلسةٌ إغلاقُها 6.76 ±1% وفي الستّين قبلها قمّةٌ 9.67 ±2% وقاعٌ 5.00 ±2% · وإن تعدّدت فلا تاريخ",
+   "candidates": [],
+   "status": "UNKNOWN"
+  },
+  "ATMV": {
+   "asof": null,
+   "how": "لا شموع",
+   "status": "DATA_UNAVAILABLE",
+   "tries": [
+    [
+     "NASDAQ:ATMV",
+     null
+    ],
+    [
+     "NYSE:ATMV",
+     null
+    ],
+    [
+     "AMEX:ATMV",
+     null
+    ],
+    [
+     "OTC:ATMV",
+     null
+    ]
+   ]
+  }
+ },
+ "rows": [
+  {
+   "case": "RAYA",
+   "faisal": "WAIT",
+   "asof": "2026-08-21",
+   "date_rule": "أقربُ جلسةٍ ≤ 2026-08-27 إغلاقُها 2.35 ±1%",
+   "date_status": "OK",
+   "close": 2.35,
+   "v3": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.5,
+     "low2": 2.49,
+     "neckline": 3.0485
+    }
+   },
+   "tool_v31": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "main_support": {
+     "price": 2.0,
+     "date": "2026-08-07",
+     "cycle_high": 11.0,
+     "cycle_high_date": "2026-04-10",
+     "status": "ADVISORY",
+     "rule": "R-SUP-MAIN (C1)",
+     "low2_above_pct": 24.5
+    },
+    "w": {
+     "low1": 2.5,
+     "low2": 2.49,
+     "neckline": 3.0485
+    }
+   },
+   "C1": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.5,
+     "low2": 2.49,
+     "neckline": 3.0485
+    }
+   },
+   "C2": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.5,
+     "low2": 2.49,
+     "neckline": 3.0485
+    }
+   },
+   "C1+C2": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.5,
+     "low2": 2.49,
+     "neckline": 3.0485
+    }
+   },
+   "v3_w_span_min_low": 2.49,
+   "v3_w_dates": [
+    "2026-07-06",
+    "2026-07-10",
+    "2026-07-17"
+   ]
+  },
+  {
+   "case": "LABT",
+   "faisal": "WAIT",
+   "asof": "2026-08-21",
+   "date_rule": "2026-08-21 وإغلاقُها 2.24 ±1%",
+   "date_status": "OK",
+   "close": 2.24,
+   "v3": {
+    "state": "UNSAFE_MIDDLE",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.1,
+     "low2": 2.0437,
+     "neckline": 6.85
+    }
+   },
+   "tool_v31": {
+    "state": "FAILED_BREAKOUT",
+    "label": "WAIT",
+    "main_support": {
+     "price": 1.66,
+     "date": "2026-07-17",
+     "cycle_high": 98.2,
+     "cycle_high_date": "2026-04-23",
+     "status": "ADVISORY",
+     "rule": "R-SUP-MAIN (C1)",
+     "low2_above_pct": 255.42
+    },
+    "w": {
+     "low1": 6.6,
+     "low2": 5.9,
+     "neckline": 7.399
+    }
+   },
+   "C1": {
+    "state": "UNSAFE_MIDDLE",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.1,
+     "low2": 2.0437,
+     "neckline": 6.85
+    }
+   },
+   "C2": {
+    "state": "FAILED_BREAKOUT",
+    "label": "WAIT",
+    "w": {
+     "low1": 6.6,
+     "low2": 5.9,
+     "neckline": 7.399
+    }
+   },
+   "C1+C2": {
+    "state": "FAILED_BREAKOUT",
+    "label": "WAIT",
+    "w": {
+     "low1": 6.6,
+     "low2": 5.9,
+     "neckline": 7.399
+    }
+   },
+   "v3_w_span_min_low": 1.66,
+   "v3_w_dates": [
+    "2026-07-08",
+    "2026-07-22",
+    "2026-08-18"
+   ]
+  },
+  {
+   "case": "ZNB",
+   "faisal": "WAIT",
+   "asof": "2026-07-31",
+   "date_rule": "2026-07-31 وإغلاقُها 2.38 ±1%",
+   "date_status": "OK",
+   "close": 2.38,
+   "v3": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 12.8,
+     "low2": 12.16,
+     "neckline": 14.2
+    }
+   },
+   "tool_v31": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "main_support": {
+     "price": 1.8304,
+     "date": "2026-07-23",
+     "cycle_high": 624.0,
+     "cycle_high_date": "2026-02-06",
+     "status": "ADVISORY",
+     "rule": "R-SUP-MAIN (C1)",
+     "low2_above_pct": 564.34
+    },
+    "w": {
+     "low1": 12.8,
+     "low2": 12.16,
+     "neckline": 14.2
+    }
+   },
+   "C1": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 12.8,
+     "low2": 12.16,
+     "neckline": 14.2
+    }
+   },
+   "C2": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 12.8,
+     "low2": 12.16,
+     "neckline": 14.2
+    }
+   },
+   "C1+C2": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 12.8,
+     "low2": 12.16,
+     "neckline": 14.2
+    }
+   },
+   "v3_w_span_min_low": 12.16,
+   "v3_w_dates": [
+    "2026-05-08",
+    "2026-05-18",
+    "2026-05-18"
+   ]
+  },
+  {
+   "case": "RUBI",
+   "faisal": "WAIT",
+   "asof": "2026-08-21",
+   "date_rule": "الشمعة O 1.870 · H 1.877 · L 1.740 · C 1.760 ±0.5%",
+   "date_status": "OK",
+   "close": 1.76,
+   "v3": {
+    "state": "AT_SUPPORT2",
+    "label": "READY",
+    "w": {
+     "low1": 2.17,
+     "low2": 2.01,
+     "neckline": 2.85
+    }
+   },
+   "tool_v31": {
+    "state": "AT_SUPPORT2",
+    "label": "READY",
+    "main_support": {
+     "price": 1.63,
+     "date": "2026-08-12",
+     "cycle_high": 350.0,
+     "cycle_high_date": "2026-03-03",
+     "status": "ADVISORY",
+     "rule": "R-SUP-MAIN (C1)",
+     "low2_above_pct": 23.31
+    },
+    "w": {
+     "low1": 2.17,
+     "low2": 2.01,
+     "neckline": 2.85
+    }
+   },
+   "C1": {
+    "state": "SUB_SUPPORT_WAIT",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.17,
+     "low2": 2.01,
+     "neckline": 2.85
+    },
+    "main_support": 1.63,
+    "low2_over_ms_pct": 23.31
+   },
+   "C2": {
+    "state": "AT_SUPPORT2",
+    "label": "READY",
+    "w": {
+     "low1": 2.17,
+     "low2": 2.01,
+     "neckline": 2.85
+    }
+   },
+   "C1+C2": {
+    "state": "SUB_SUPPORT_WAIT",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.17,
+     "low2": 2.01,
+     "neckline": 2.85
+    },
+    "main_support": 1.63,
+    "low2_over_ms_pct": 23.31
+   },
+   "v3_w_span_min_low": 2.01,
+   "v3_w_dates": [
+    "2026-07-20",
+    "2026-07-20",
+    "2026-07-27"
+   ]
+  },
+  {
+   "case": "AMIX",
+   "faisal": "READY",
+   "asof": "2026-08-21",
+   "date_rule": "آخرُ جلسةٍ ≤ 2026-08-27 إغلاقُها 5.27 ±1% وقمّةُ الستّين 24.68 ±2%",
+   "date_status": "OK",
+   "close": 5.27,
+   "v3": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 7.77,
+     "low2": 7.581,
+     "neckline": 8.7612
+    }
+   },
+   "tool_v31": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "main_support": {
+     "price": 5.14,
+     "date": "2026-08-20",
+     "cycle_high": 24.68,
+     "cycle_high_date": "2026-08-04",
+     "status": "ADVISORY",
+     "rule": "R-SUP-MAIN (C1)",
+     "low2_above_pct": 47.49
+    },
+    "w": {
+     "low1": 7.77,
+     "low2": 7.581,
+     "neckline": 8.7612
+    }
+   },
+   "C1": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 7.77,
+     "low2": 7.581,
+     "neckline": 8.7612
+    }
+   },
+   "C2": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 7.77,
+     "low2": 7.581,
+     "neckline": 8.7612
+    }
+   },
+   "C1+C2": {
+    "state": "INVALIDATED",
+    "label": "WAIT",
+    "w": {
+     "low1": 7.77,
+     "low2": 7.581,
+     "neckline": 8.7612
+    }
+   },
+   "v3_w_span_min_low": 7.581,
+   "v3_w_dates": [
+    "2026-05-29",
+    "2026-05-29",
+    "2026-06-11"
+   ]
+  },
+  {
+   "case": "HCWB",
+   "faisal": "READY",
+   "asof": "2026-08-21",
+   "date_rule": "تاريخُ AMIX نفسُه (الرسالةُ نفسُها)",
+   "date_status": "OK",
+   "close": 2.18,
+   "v3": {
+    "state": "UNSAFE_MIDDLE",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.3501,
+     "low2": 2.05,
+     "neckline": 4.24
+    }
+   },
+   "tool_v31": {
+    "state": "UNSAFE_MIDDLE",
+    "label": "WAIT",
+    "main_support": {
+     "price": 2.05,
+     "date": "2026-08-18",
+     "cycle_high": 23.94,
+     "cycle_high_date": "2026-05-20",
+     "status": "ADVISORY",
+     "rule": "R-SUP-MAIN (C1)",
+     "low2_above_pct": 0.0
+    },
+    "w": {
+     "low1": 2.3501,
+     "low2": 2.05,
+     "neckline": 4.24
+    }
+   },
+   "C1": {
+    "state": "UNSAFE_MIDDLE",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.3501,
+     "low2": 2.05,
+     "neckline": 4.24
+    }
+   },
+   "C2": {
+    "state": "UNSAFE_MIDDLE",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.3501,
+     "low2": 2.05,
+     "neckline": 4.24
+    }
+   },
+   "C1+C2": {
+    "state": "UNSAFE_MIDDLE",
+    "label": "WAIT",
+    "w": {
+     "low1": 2.3501,
+     "low2": 2.05,
+     "neckline": 4.24
+    }
+   },
+   "v3_w_span_min_low": 2.05,
+   "v3_w_dates": [
+    "2026-07-29",
+    "2026-08-03",
+    "2026-08-18"
+   ]
+  },
+  {
+   "case": "DXST",
+   "faisal": "WAIT",
+   "asof": "2026-06-15",
+   "date_rule": "منشور 2026/6/16 · 30 دقيقة حتى 12:30 نيويورك",
+   "date_status": "OK",
+   "close": 2.7,
+   "v3": {
+    "state": "BREAKOUT",
+    "label": "READY",
+    "w": {
+     "low1": 1.715,
+     "low2": 1.5,
+     "neckline": 1.88
+    }
+   },
+   "tool_v31": {
+    "state": "BREAKOUT",
+    "label": "READY",
+    "main_support": {
+     "price": 1.5,
+     "date": "2026-05-29",
+     "cycle_high": 62.0,
+     "cycle_high_date": "2026-01-29",
+     "status": "ADVISORY",
+     "rule": "R-SUP-MAIN (C1)",
+     "low2_above_pct": 0.0
+    },
+    "w": {
+     "low1": 1.715,
+     "low2": 1.5,
+     "neckline": 1.88
+    }
+   },
+   "C1": {
+    "state": "BREAKOUT",
+    "label": "READY",
+    "w": {
+     "low1": 1.715,
+     "low2": 1.5,
+     "neckline": 1.88
+    }
+   },
+   "C2": {
+    "state": "BREAKOUT",
+    "label": "READY",
+    "w": {
+     "low1": 1.715,
+     "low2": 1.5,
+     "neckline": 1.88
+    }
+   },
+   "C1+C2": {
+    "state": "BREAKOUT",
+    "label": "READY",
+    "w": {
+     "low1": 1.715,
+     "low2": 1.5,
+     "neckline": 1.88
+    }
+   },
+   "v3_w_span_min_low": 1.5,
+   "v3_w_dates": [
+    "2026-05-20",
+    "2026-05-22",
+    "2026-05-29"
+   ]
+  },
+  {
+   "case": "VEEE",
+   "faisal": "WAIT",
+   "asof": null,
+   "date_rule": "جلسةٌ إغلاقُها 6.76 ±1% وفي الستّين قبلها قمّةٌ 9.67 ±2% وقاعٌ 5.00 ±2% · وإن تعدّدت فلا تاريخ",
+   "date_status": "UNKNOWN"
+  },
+  {
+   "case": "ATMV",
+   "faisal": "WAIT",
+   "asof": null,
+   "date_rule": "لا شموع",
+   "date_status": "DATA_UNAVAILABLE"
+  }
+ ],
+ "agreement": {
+  "v3": {
+   "matched": 3,
+   "of": 7,
+   "ready_flipped": [
+    "AMIX",
+    "HCWB"
+   ]
+  },
+  "C1": {
+   "matched": 4,
+   "of": 7,
+   "ready_flipped": [
+    "AMIX",
+    "HCWB"
+   ]
+  },
+  "C2": {
+   "matched": 3,
+   "of": 7,
+   "ready_flipped": [
+    "AMIX",
+    "HCWB"
+   ]
+  },
+  "C1+C2": {
+   "matched": 4,
+   "of": 7,
+   "ready_flipped": [
+    "AMIX",
+    "HCWB"
+   ]
+  },
+  "tool_v31": {
+   "matched": 3,
+   "of": 7,
+   "ready_flipped": [
+    "AMIX",
+    "HCWB"
+   ]
+  }
+ },
+ "dxst_30m": {
+  "regular": {
+   "bars": 2742,
+   "first": "2025-01-22 12:00",
+   "last": "2026-06-16 12:30",
+   "w": {
+    "t1": "2026-06-10 15:00",
+    "low1": 2.54,
+    "tneck": "2026-06-15 10:30",
+    "neckline": 3.89,
+    "t2": "2026-06-15 14:30",
+    "low2": 2.51
+   },
+   "state": "UNSAFE_MIDDLE",
+   "match": {
+    "low1": 5.83,
+    "neck": 35.82,
+    "low2": -1.57
+   },
+   "within_2pct": false,
+   "raw_presence": {
+    "lows_near_2.40": [
+     [
+      "2026-04-27 10:00",
+      2.36
+     ],
+     [
+      "2026-04-27 10:30",
+      2.37
+     ],
+     [
+      "2026-06-12 15:30",
+      2.36
+     ]
+    ],
+    "highs_near_2.864": [
+     [
+      "2026-04-14 11:30",
+      2.87
+     ],
+     [
+      "2026-06-12 11:00",
+      2.85
+     ],
+     [
+      "2026-06-15 11:30",
+      2.85
+     ],
+     [
+      "2026-06-15 12:00",
+      2.86
+     ],
+     [
+      "2026-06-16 11:30",
+      2.87
+     ]
+    ]
+   }
+  },
+  "extended": {
+   "bars": 3908,
+   "first": "2025-03-25 15:00",
+   "last": "2026-06-16 12:30",
+   "w": {
+    "t1": "2026-06-16 04:00",
+    "low1": 2.48,
+    "tneck": "2026-06-16 04:00",
+    "neckline": 2.76,
+    "t2": "2026-06-16 08:00",
+    "low2": 2.585
+   },
+   "state": "RETEST_HOLD",
+   "match": {
+    "low1": 3.33,
+    "neck": -3.63,
+    "low2": 1.37
+   },
+   "within_2pct": false,
+   "raw_presence": {
+    "lows_near_2.40": [
+     [
+      "2026-06-12 15:30",
+      2.36
+     ],
+     [
+      "2026-06-15 04:00",
+      2.36
+     ],
+     [
+      "2026-06-15 05:00",
+      2.43
+     ]
+    ],
+    "highs_near_2.864": [
+     [
+      "2026-06-11 19:00",
+      2.86
+     ],
+     [
+      "2026-06-12 11:00",
+      2.85
+     ],
+     [
+      "2026-06-15 11:30",
+      2.85
+     ],
+     [
+      "2026-06-15 12:00",
+      2.86
+     ],
+     [
+      "2026-06-16 11:30",
+      2.87
+     ]
+    ]
+   }
+  },
+  "regular_v31": {
+   "bars": 2742,
+   "first": "2025-01-22 12:00",
+   "last": "2026-06-16 12:30",
+   "w": {
+    "t1": "2026-06-12 12:00",
+    "low1": 2.5,
+    "tneck": "2026-06-12 15:00",
+    "neckline": 2.66,
+    "t2": "2026-06-12 15:30",
+    "low2": 2.36
+   },
+   "state": "FAILED_BREAKOUT",
+   "match": {
+    "low1": 4.17,
+    "neck": -7.12,
+    "low2": -7.45
+   },
+   "within_2pct": false,
+   "raw_presence": {
+    "lows_near_2.40": [
+     [
+      "2026-04-27 10:00",
+      2.36
+     ],
+     [
+      "2026-04-27 10:30",
+      2.37
+     ],
+     [
+      "2026-06-12 15:30",
+      2.36
+     ]
+    ],
+    "highs_near_2.864": [
+     [
+      "2026-04-14 11:30",
+      2.87
+     ],
+     [
+      "2026-06-12 11:00",
+      2.85
+     ],
+     [
+      "2026-06-15 11:30",
+      2.85
+     ],
+     [
+      "2026-06-15 12:00",
+      2.86
+     ],
+     [
+      "2026-06-16 11:30",
+      2.87
+     ]
+    ]
+   }
+  },
+  "extended_v31": {
+   "bars": 3908,
+   "first": "2025-03-25 15:00",
+   "last": "2026-06-16 12:30",
+   "w": {
+    "t1": "2026-06-16 04:00",
+    "low1": 2.48,
+    "tneck": "2026-06-16 04:00",
+    "neckline": 2.76,
+    "t2": "2026-06-16 08:00",
+    "low2": 2.585
+   },
+   "state": "RETEST_HOLD",
+   "match": {
+    "low1": 3.33,
+    "neck": -3.63,
+    "low2": 1.37
+   },
+   "within_2pct": false,
+   "raw_presence": {
+    "lows_near_2.40": [
+     [
+      "2026-06-12 15:30",
+      2.36
+     ],
+     [
+      "2026-06-15 04:00",
+      2.36
+     ],
+     [
+      "2026-06-15 05:00",
+      2.43
+     ]
+    ],
+    "highs_near_2.864": [
+     [
+      "2026-06-11 19:00",
+      2.86
+     ],
+     [
+      "2026-06-12 11:00",
+      2.85
+     ],
+     [
+      "2026-06-15 11:30",
+      2.85
+     ],
+     [
+      "2026-06-15 12:00",
+      2.86
+     ],
+     [
+      "2026-06-16 11:30",
+      2.87
+     ]
+    ]
+   }
+  }
+ },
+ "c3_accepted": false,
+ "raya_v3_date": {
+  "v3": {
+   "state": "AT_SUPPORT2",
+   "w": [
+    "2026-07-17",
+    2.49,
+    "2026-08-19",
+    2.2,
+    3.24
+   ],
+   "span_min_low": 2.0
+  },
+  "tool_v31": {
+   "state": "INVALIDATED",
+   "main_support": {
+    "price": 2.0,
+    "date": "2026-08-07",
+    "cycle_high": 11.0,
+    "cycle_high_date": "2026-04-10",
+    "status": "ADVISORY",
+    "rule": "R-SUP-MAIN (C1)",
+    "low2_above_pct": 24.5
+   }
+  }
+ }
+}

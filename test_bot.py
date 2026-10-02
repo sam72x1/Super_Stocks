@@ -79291,6 +79291,243 @@ check("🧭 FV15 أثرُ السقف على الكروت (V3.1 §15): دِدوب
       _cards15 and _flip15 and _dq15ok and _cnt15 and _clok15 and _rc15 == 0,
       f"cards={_cards15} flip={_flip15} dq={_dq15ok} cnt={_cnt15} cls={_cl15} rc={_rc15}")
 
+# ── FV16 (V3.1 §3/§4) مطابقةُ تلغرام والمدوَّنة `v31_reconcile` — العددُ من المصدر: رقمُ الرسالة وزمنُ إرسالها من
+#    `file_reference` داخل file_id المحفوظ (لا من اقتباس) · والإرسالاتُ بفاصلٍ فوق دقيقة · والمكرَّرُ لا يُعَدّ دليلًا مستقلًّا ·
+#    والإحالةُ المختصرة لملفٍّ موجود والقالبُ لا يُعَدّان «بلا ملفّ» · والمدى ورمزُ الدفعة بتاريخ قسمه يُعَدّان سجلًّا لكلّ صورة ·
+#    وعلى البيانات الحقيقيّة: دفعةُ TG_58042…TG_58052 = إرسالان 9 ثمّ 2 · والمحفوظُ في v31/reconcile_v31.json يطابق إعادةَ الحساب.
+try:
+    import base64 as _fv16_b64
+    import struct as _fv16_st
+    FVR16 = _fv_imp.import_module("v31_reconcile")
+
+    def _fv16_fid(mid, ts):
+        ref = b"\x02" + mid.to_bytes(4, "big") + ts.to_bytes(4, "big") + b"\x00\x00\x00\x07"
+        raw = _fv16_st.pack("<ii", 2, 4) + bytes([len(ref)]) + ref + b"\x00\x00\x00\x00\x01\x02"
+        enc, i = bytearray(), 0
+        while i < len(raw):                                              # ترميزُ RLE للأصفار كما يفعل Bot API
+            if raw[i] == 0:
+                j = i
+                while j < len(raw) and raw[j] == 0 and j - i < 255:
+                    j += 1
+                enc += bytes([0, j - i])
+                i = j
+            else:
+                enc.append(raw[i])
+                i += 1
+        return _fv16_b64.urlsafe_b64encode(bytes(enc)).decode().rstrip("=")
+    _dec16 = [FVR16.file_ref(_fv16_fid(m, t)) for m, t in ((58042, 1759386073), (58052, 1759387199))]
+    _decok16 = _dec16 == [(58042, 1759386073), (58052, 1759387199)] and FVR16.file_ref("!!") is None
+    _sg16 = [len(g) for g in FVR16.send_groups([100, 100, 100, 160, 1226, 1226])]
+    _sgok16 = _sg16 == [4, 2]
+    _cat16 = FVR16.catalog_rows("x\n## §ثلاثة وثلاثون — د\n| `TG_1` | **فيصل** | — | «نص» | `faisal_verbatim` (R) |\n"
+                                "| `TG_2` | تعليميّ | — | نسخة | `third_party` |\n## §تالٍ\n| `TG_3` | x | y | z | `inferred` |")
+    _catok16 = sorted(_cat16) == ["TG_1", "TG_2"] and _cat16["TG_1"][0] == "**فيصل**"
+    _keep16, _drop16 = FVR16.doc_only_refs(["X_20260918_27_CUPR", "IMG_0001"],
+                                           {"a.md": "X_20260918_27 · EDU_20260918_NN_ · IMG_0001 · IMG_0002 · TG_99999",
+                                            "b.md": "(`TG_57895 ≡ IMG_0001`) · `TG_7777` = `IMG_0001` مبنيّ"})
+    _dook16 = (sorted(_keep16) == ["IMG_0002", "TG_7777", "TG_99999"]
+               and sorted(_drop16) == ["EDU_20260918_NN_", "TG_57895", "X_20260918_27"] and "IMG_0001" in _drop16["TG_57895"])
+    _st16 = ["IMG_0010", "IMG_0011", "IMG_0012", "X_20260828_04", "X_20260828_05_ABC", "TG_5", "IMG_0099"]
+    _how16, _ = FVR16.doc_record(_st16, {"r.md": "`IMG_0010` … `IMG_0012`", "c.md": "## د 2026-08-28\nX_04 و X_05_ABC\n## آخر\nX_07",
+                                         "e.md": "TG_5 ثمّ TG_6"})
+    _drok16 = (sorted(_how16["IMG_0011"]) == ["range"] and "batch_code" in _how16["X_20260828_04"]
+               and "batch_code" in _how16["X_20260828_05_ABC"] and _how16["TG_5"] == {"exact"} and not _how16["IMG_0099"])
+    import tempfile as _fv16_tf
+    _d16 = _fv16_tf.mkdtemp()
+    for _n in ("TG_7", "TG_8"):
+        open(_fv_os.path.join(_d16, _n + ".jpg"), "wb").write(_n.encode())
+    import hashlib as _fv16_h
+    _sh16 = {n: _fv16_h.sha256(n.encode()).hexdigest() for n in ("TG_7", "TG_8")}
+    _syn16 = FVR16.telegram_reconcile(
+        {"seen_file_ids": [_fv16_fid(7, 1000), _fv16_fid(8, 1000), _fv16_fid(9, 5000)]},
+        {"images": [{"id": "TG_7", "sha256": _sh16["TG_7"], "dup_cluster": "C7", "ocr_text": "x"},
+                    {"id": "TG_8", "sha256": _sh16["TG_8"], "dup_cluster": "CE", "ocr_text": ""},
+                    {"id": "EDU_1", "sha256": "0", "dup_cluster": "CE", "ocr_text": "y"}]},
+        {"C7", "CE"}, "## §ثلاثة وثلاثون\n| `TG_7` | **فيصل** | — | ن | `faisal_verbatim` |\n", img_dir=_d16,
+        batch=["TG_7", "TG_8", "TG_9"])
+    _sp16 = {x["id"]: x for x in _syn16["per_image"]}
+    _synok16 = (_sp16["TG_7"]["used_as_evidence"] and not _sp16["TG_8"]["used_as_evidence"]
+                and _sp16["TG_8"]["duplicate_of"] == ["EDU_1"] and not _sp16["TG_9"]["exists"]
+                and _syn16["totals"]["TELEGRAM_TOTAL_UNAVAILABLE"] == 1 and _syn16["totals"]["TELEGRAM_TOTAL_INSPECTED"] == 1
+                and [x["count"] for x in _syn16["sends"]] == [2, 1] and _sp16["TG_7"]["sha_matches_corpus"]
+                and _sp16["TG_7"]["evidence_status"] == "faisal_verbatim" and _sp16["TG_7"]["ocr"] and not _sp16["TG_8"]["ocr"])
+    _state16 = _fv_json.load(open("telegram_collect_state.json", encoding="utf-8"))
+    _refs16 = {}
+    for _f in _state16["seen_file_ids"]:
+        _r = FVR16.file_ref(_f)
+        if _r and 58042 <= _r[0] <= 58052:
+            _refs16[_r[0]] = _r[1]
+    _grp16 = [len(g) for g in FVR16.send_groups(list(_refs16.values()))]
+    _real16 = sorted(_refs16) == list(range(58042, 58053)) and _grp16 == [9, 2]
+    _saved16 = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "v31", "reconcile_v31.json"), encoding="utf-8"))
+    _tg16 = FVR16.telegram_reconcile(_state16, _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "image_corpus.json"), encoding="utf-8")),
+                                     set(_fv_json.load(open(_fv_os.path.join("faisal_method_v3", "evidence_matrix.json"), encoding="utf-8"))["by_unit"]),
+                                     open("FAISAL_IMAGES_CATALOG.md", encoding="utf-8").read())
+    _same16 = (_tg16["totals"] == _saved16["telegram"]["totals"] and _tg16["sends"] == _saved16["telegram"]["sends"]
+               and _tg16["totals"]["TELEGRAM_TOTAL_REFERENCED"] == 11 and _tg16["totals"]["TELEGRAM_TOTAL_DUPLICATES"] == 1)
+    _cm16 = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "image_corpus.json"), encoding="utf-8"))["meta"]
+    _ct16 = {r["metric"]: r for r in _saved16["corpus"]["table"]}
+    _corp16 = (_ct16["unique_units_hash_ocr"]["v31"] == _cm16["independent_units"] and _ct16["discovered"]["v31"] == _cm16["images"]
+               and _saved16["corpus"]["cluster_sets_identical_to_v3"] is True and _saved16["corpus"]["no_record_after_v31"] == [])
+except Exception as _e:                                                    # noqa: BLE001
+    _decok16 = _sgok16 = _catok16 = _dook16 = _drok16 = _real16 = _same16 = _corp16 = _synok16 = False
+    _sg16 = f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 FV16 مطابقةُ تلغرام والمدوَّنة (V3.1 §3/§4): رقمُ الرسالة وزمنُها من file_reference · الإرسالاتُ بفاصل دقيقة · "
+      "الإحالةُ المختصرة والقالبُ والمكرَّرُ المحفوظُ باسمٍ آخر (≡ لا =) ليست «بلا ملفّ» · المدى ورمزُ الدفعة بتاريخ قسمه سجلٌّ لكلّ صورة · "
+      "والدفعةُ الحقيقيّة 9 ثمّ 2 والمحفوظُ يطابق",
+      _decok16 and _sgok16 and _catok16 and _dook16 and _drok16 and _synok16 and _real16 and _same16 and _corp16,
+      f"dec={_decok16} groups={_sg16} cat={_catok16} doconly={_dook16} docrec={_drok16} syn={_synok16} real={_real16} saved={_same16} corpus={_corp16}")
+
+# ── IAV1 (V3.1 §4) سجلُّ تغطية الصور `image_audit` لا يكذب: كان يعرف `IMG_xxxx` وحدَها فقال «638 لم تُقرأ» والمقيسُ 23 بلا سجلّ ·
+#    والآن: أسماءُ العائلات الأخرى (TG_رقم · العائلةُ بتاريخها) تُعرَف · ورمزُ الدفعة المحلّيّ (X_04) والبادئةُ من اسمٍ أطول لا تُعَدّ
+#    صورةً غائبة · والقالبُ والإحالةُ المختصرة لا تصنع صفًّا «بلا ملفّ» · والحالةُ الآليّة «unread» تُرقّى حين تُوثَّق · وسجلُّ V3.1 يُحتسب.
+try:
+    import image_audit as _IAV
+    _sd = _IAV.scan_docs(["`TG_58042` و X_20260918_27_CUPR و X_04 و TG_20260918_42_NUWE و IMG-0153"])
+    _sdok = (_sd == {"TG_58042", "X_20260918_27_CUPR", "TG_20260918_42_NUWE", "IMG_0153"})
+    _rows_iav = _IAV.build(state={"TG_901": {"status": "unread", "note": ""}, "TG_802": {"status": "rejected", "note": "سبب"}},
+                           docs=["TG_901 و X_20260918_27 و EDU_20260918_NN_ و TG_802 و TG_5555"],
+                           files=["faisal_images/TG_901.jpg", "faisal_images/X_20260918_27_CUPR.jpg", "faisal_images/TG_802.jpg",
+                                  "faisal_images/TG_703.jpg"], also={"TG_703"})
+    _ri = {r["id"]: r for r in _rows_iav}
+    _iavok = (_ri["TG_901"]["documented"] and _ri["TG_901"]["status"] == "confirmed"            # «unread» الآليّة رُقّيت
+              and _ri["TG_802"]["status"] == "rejected"                                       # اليدويّةُ لا تُدهَس
+              and _ri["TG_703"]["documented"] and _ri["TG_703"]["status"] == "confirmed"        # سجلُّ V3.1 (also)
+              and not _ri["X_20260918_27_CUPR"]["documented"]                              # البادئةُ لا توثّق الاسمَ الأطول
+              and "X_20260918_27" not in _ri and "EDU_20260918_NN" not in _ri               # ولا تصنع صفًّا «بلا ملفّ»
+              and "TG_5555" in _ri and not _ri["TG_5555"]["file"])                          # والغائبُ حقًّا يُدرَج
+except Exception as _e:                                                    # noqa: BLE001
+    _sdok = _iavok = False
+    _sd = f"⛔ {type(_e).__name__}: {_e}"
+check("📸 IAV1 سجلُّ تغطية الصور لا يكذب (V3.1): العائلاتُ كلُّها تُعرَف بأسماء ملفّاتها · رمزُ الدفعة والبادئةُ والقالبُ لا تصنع غائبًا · "
+      "و«unread» الآليّة تُرقّى حين تُوثَّق واليدويّةُ لا تُدهَس · وسجلُّ V3.1 يُحتسب",
+      _sdok and _iavok, f"scan={_sd} build={_iavok}")
+
+# ── FV17 (V3.1 §21) الحالاتُ الذهبيّة — ملفٌّ دائمٌ بلا شبكة (`v31/golden_fixtures.json` · شموعُ TradingView من وضع dump):
+#    تواريخُ §③ من العقد `V31_prereg.md` حرفًا (RAYA/LABT/RUBI/AMIX/HCWB = 2026-08-21 · ZNB 07-31 · VEEE «لا تاريخ» · ATMV «لا بيانات») ·
+#    والحالاتُ بكلّ ذراعٍ تطابق المنشورَ في `v31/golden_cases_v31.json` · والتطابقُ مع فيصل V3 = V3.1 = 3 من 7 (C1 4 من 7 معلومةٌ لا قاعدة) ·
+#    ولا قلبَ لحالةٍ «جاهزة» · وRAYA بتاريخ V3 (08-26): W V3 يحوي ذيلَ 2.00 بين قاعَيه ⟵ V3 «عند الدعم الثاني» وV3.1 يرفض ذلك الـW ·
+#    وC3 مرفوضة (لا جلسةَ 30 دقيقة تعيد عنقَ 2.864) · ولا نظرَ للأمام · وT-W يبقى على قاعدته (span_rule=False في w_validate).
+try:
+    FVC = _fv_imp.import_module("v31_cases")
+    _gx = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "v31", "golden_fixtures.json"), encoding="utf-8"))
+    _gr = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "v31", "golden_cases_v31.json"), encoding="utf-8"))
+    _D17 = {k: {"daily": v} for k, v in _gx["daily"].items()}
+    _D17["DXST"].update({"m30": _gx["m30"]["DXST"], "m30x": _gx["m30x"]["DXST"]})
+    _D17["ATMV"] = {"daily": []}
+    _ev17 = FVC.evaluate(_D17)
+    _dt17 = {k: (v.get("asof"), v.get("status")) for k, v in _ev17["dates"].items()}
+    _datesok = (all(_dt17[k][0] == "2026-08-21" for k in ("RAYA", "LABT", "RUBI", "AMIX", "HCWB"))
+                and _dt17["ZNB"][0] == "2026-07-31" and _dt17["VEEE"] == (None, "UNKNOWN") and _dt17["ATMV"] == (None, "DATA_UNAVAILABLE"))
+    _rowsok = all(_fv_json.dumps(x, sort_keys=True, default=str) == _fv_json.dumps(y, sort_keys=True, default=str)
+                  for x, y in zip(_ev17["rows"], _gr["rows"])) and len(_ev17["rows"]) == len(_gr["rows"])
+    _ag17 = _ev17["agreement"]
+    _agok = ((_ag17["v3"]["matched"], _ag17["v3"]["of"]) == (3, 7) and (_ag17["tool_v31"]["matched"], _ag17["tool_v31"]["of"]) == (3, 7)
+             and _ag17["C1"]["matched"] == 4 and set(_ag17["tool_v31"]["ready_flipped"]) <= set(_ag17["v3"]["ready_flipped"]))
+    _rd = _gx["daily"]["RAYA"]
+    _dR, _oR, _hR, _lR, _cR = FVC._arr(_rd)
+    _aR = max(i for i in range(len(_dR)) if _dR[i] <= "2026-08-26")
+    _w3R = FVT.find_w(_oR, _hR, _lR, _cR, _aR, span_rule=False)
+    _w31R = FVT.find_w(_oR, _hR, _lR, _cR, _aR, span_rule=True)
+    _rayaok = (FVT.w_state(_oR, _hR, _lR, _cR, _w3R, _aR)["state"] == "AT_SUPPORT2"
+               and float(min(_lR[_w3R["i1"]:_w3R["i2"] + 1])) < min(_w3R["low1"], _w3R["low2"]) * 0.98
+               and FVT.analyze_arrays(_oR, _hR, _lR, _cR, _dR, _aR)["state"]["state"] != "AT_SUPPORT2"
+               and (_w31R["i1"], _w31R["i2"]) != (_w3R["i1"], _w3R["i2"]))
+    _c3 = [FVC.dxst_30m(_gx[k]["DXST"], span_rule=sp).get("within_2pct") for k in ("m30", "m30x") for sp in (False, True)]
+    _c3ok = _c3 == [False, False, False, False] and _gr["c3_accepted"] is False
+    _la = []
+    for _k17 in ("RAYA", "LABT", "ZNB", "RUBI", "AMIX", "HCWB", "DXST"):
+        _dd, _oo, _hh, _ll, _cc = FVC._arr(_gx["daily"][_k17])
+        _a17 = max(i for i in range(len(_dd)) if _dd[i] <= _dt17[_k17][0])
+        _full = FVT.analyze_arrays(_oo, _hh, _ll, _cc, _dd, _a17)
+        _cut = FVT.analyze_arrays(_oo[:_a17 + 1], _hh[:_a17 + 1], _ll[:_a17 + 1], _cc[:_a17 + 1], _dd[:_a17 + 1], _a17)
+        _la.append(_full["state"] == _cut["state"] and _full["w"] == _cut["w"] and _full["main_support"] == _cut["main_support"]
+                   and _a17 < len(_dd) - 1)
+    _rules17 = (FVT.RULES_V31["R-W-SPAN"]["active"] is True and FVT.RULES_V31["R-SUP-MAIN"]["active"] is False
+                and FVT.RULES_V31["H-D2"]["active"] is False)
+    _wv17 = any(isinstance(n, _fv_ast.Call) and getattr(n.func, "attr", None) == "find_w"
+                and any(kw.arg == "span_rule" and isinstance(kw.value, _fv_ast.Constant) and kw.value.value is False for kw in n.keywords)
+                for n in _fv_ast.walk(_fv_ast.parse(open(FVW.__file__, encoding="utf-8").read())))
+    _txt17 = FVT.render_text(FVT.analyze_arrays(_oR, _hR, _lR, _cR, _dR, _aR, symbol="RAYA"))
+    _txtok = "🧱 الدعم الأساسيّ (معلومة)" in _txt17 and not any(x in _txt17 for x in ("≥", "≤", ">", "<"))
+except Exception as _e:                                                    # noqa: BLE001
+    _datesok = _rowsok = _agok = _rayaok = _c3ok = _rules17 = _wv17 = _txtok = False
+    _la, _ag17 = [False], f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 FV17 الحالاتُ الذهبيّة V3.1 (§21 · بلا شبكة): تواريخُ العقد · الحالاتُ بكلّ ذراعٍ كالمنشور · التطابقُ V3 = V3.1 = 3 من 7 بلا قلبٍ لجاهز · "
+      "RAYA بتاريخ V3: ذيلُ 2.00 بين القاعين يُسقط W V3 · C3 مرفوضة · لا نظرَ للأمام · وT-W على قاعدته",
+      _datesok and _rowsok and _agok and _rayaok and _c3ok and all(_la) and _rules17 and _wv17 and _txtok,
+      f"dates={_datesok} rows={_rowsok} agree={_agok} raya={_rayaok} c3={_c3ok} lookahead={_la} rules={_rules17} tw={_wv17} txt={_txtok} ag={str(_ag17)[:160]}")
+
+# ── FV18 (V3.1 §15 · §27) الأرقامُ المنشورة لا تكذب: حكمُ سقف البِركة يُعاد من أرقامه المحفوظة بمصنِّف §④ نفسِه (لا يُكتب باليد) ·
+#    ومجاميعُ الجلسات = الإجماليّات · وقسمُ §⑤ في pressure_pool_cap_audit.md يحمل الأرقامَ نفسَها · ووثائقُ v31/*.md = مخرَجُ بنّائها
+#    حرفًا (لا تحريرَ يدويّ) · وإضافاتُ معاني الأهداف لا تُنسَب لفيصل إلّا وفي أدلّتها صورةٌ كاتبُها فيصل (درسُ F100-8: لقطةُ مجموعة).
+try:
+    FVP18 = _fv_imp.import_module("pool_cap_audit")
+    FVD18 = _fv_imp.import_module("v31_docs")
+    FVTG18 = _fv_imp.import_module("v31_targets")
+    _pc18 = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "results", "pool_cap_downstream.json"), encoding="utf-8"))
+    _t18 = _pc18["totals"]
+    _vd18 = FVP18.classify_downstream(_t18, _pc18["sessions"], _pc18["coverage"], _pc18["repro_ledger_jaccard_mean"])
+    _rw18 = _pc18["rows"]
+    _sum18 = (len(_rw18) == _pc18["sessions"]
+              and sum(len(r["cap_only_lost"]) for r in _rw18) == _t18["cap_only_lost_cards"]
+              and all(sum(len(r["cards_" + k]) for r in _rw18) == _t18["cards_" + k] for k in "ABC"))
+    _pcok18 = _vd18 == _pc18["verdict"] and _t18["cap_only_lost_cards"] == _t18["lost_cards"] and _sum18
+    _md18 = open(_fv_os.path.join("faisal_method_v3", "pressure_pool_cap_audit.md"), encoding="utf-8").read()
+    _i18 = _md18.find("## ⑤ V3.1 §15 — النتيجة")
+    _sec18 = _md18[_i18:] if _i18 >= 0 else ""
+    _secok18 = bool(_sec18) and all(x in _sec18 for x in (
+        f"`{_pc18['verdict']}`", f"**{_pc18['repro_ledger_jaccard_mean']}**", f"**{_t18['truncated']:,}**",
+        f"**{_t18['lost_cards']}** من {_t18['cards_B']}", f"**{_t18['dup_B_only']}**", f"**{_t18['dq_holds']}**",
+        f"**{_t18['faisal_hold_B_only']:,}**", str(_pc18["_source_run"])))
+    _rd18 = FVD18.render_all() or {}
+    _dk18 = {n: open(_fv_os.path.join("faisal_method_v3", "v31", n), encoding="utf-8").read()
+             if _fv_os.path.exists(_fv_os.path.join("faisal_method_v3", "v31", n)) else None for n in _rd18}
+    _docsdiff18 = sorted(n for n in _rd18 if _rd18[n] != _dk18[n])
+    _docsok18 = len(_rd18) == 9 and not _docsdiff18
+    _tf18 = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "v31", "target_forensics_v31.json"), encoding="utf-8"))
+    _bad18 = []
+    for _k18, _a18 in _tf18["v31_additions"].items():
+        _au18 = {FVTG18.READ[e][1] for e in _a18["evidence"] if e in FVTG18.READ}
+        if str(_a18["source_type"]).startswith("faisal") and "faisal" not in _au18:
+            _bad18.append(_k18)
+    _provok18 = not _bad18 and _tf18["v31_additions"]["F100-8"]["status"] not in ("CONFIRMED", "SUPPORTED")
+except Exception as _e:                                                    # noqa: BLE001
+    _pcok18 = _secok18 = _docsok18 = _provok18 = False
+    _vd18, _docsdiff18, _bad18 = f"⛔ {type(_e).__name__}: {_e}", None, None
+check("🧭 FV18 أرقامُ V3.1 المنشورة لا تكذب: حكمُ سقف البِركة يُعاد بمصنِّف §④ من أرقامه · المجاميعُ تطابق الجلسات · §⑤ يحمل الأرقامَ نفسَها · "
+      "وثائقُ v31 = مخرَجُ بنّائها حرفًا · ولا معنى هدفٍ يُنسَب لفيصل بلا صورةٍ كاتبُها فيصل",
+      _pcok18 and _secok18 and _docsok18 and _provok18,
+      f"pc={_pcok18} verdict={_vd18} sec={_secok18} docs={_docsok18} diff={_docsdiff18} prov={_provok18} bad={_bad18}")
+
+# ── FV19 (V3.1) بنّاءُ المطابقة لا يدهس قياسًا محفوظًا بـnull — عطلٌ مُثبَت 2026-10-02: تشغيلُ `v31_reconcile.py` بلا وسائط كتب
+#    uploads=null وtranscript=NOT_SCANNED فوق قياس المرفقات وسجلّ المحادثة ⟵ `carry_over` يحملهما من المحفوظ حين يغيب المصدر ·
+#    ومع المصدر يُكتب الجديد · وبلا محفوظٍ يبقى الغياب صريحًا · و`main` يناديه قبل الكتابة (AST).
+try:
+    FVR19 = _fv_imp.import_module("v31_reconcile")
+    _pv19 = {"corpus": {"uploads": {"files": 79}}, "transcript": {"status": "ACCESSIBLE", "owner_sent_new": 0}}
+    _cr19, _tx19, _c19 = FVR19.carry_over({"uploads": None, "x": 1}, {"status": "NOT_SCANNED"}, _pv19)
+    _a19 = (_cr19 == {"uploads": {"files": 79}, "x": 1} and _tx19 == _pv19["transcript"] and _c19 == ["uploads", "transcript"])
+    _ud19 = _fv_os.path.dirname(_fv_os.path.abspath(__file__))           # مجلّدٌ موجود ⟵ المصدرُ مُمرَّر فيُكتب الجديد
+    _cr19b, _tx19b, _c19b = FVR19.carry_over({"uploads": {"files": 1}}, {"status": "ACCESSIBLE", "n": 2}, _pv19, _ud19, "x.jsonl")
+    _b19 = _cr19b == {"uploads": {"files": 1}} and _tx19b == {"status": "ACCESSIBLE", "n": 2} and _c19b == []
+    _cr19c, _tx19c, _c19c = FVR19.carry_over({"uploads": None}, {"status": "NOT_SCANNED"}, {})
+    _d19 = _cr19c == {"uploads": None} and _tx19c == {"status": "NOT_SCANNED"} and _c19c == []
+    _cr19e, _tx19e, _c19e = FVR19.carry_over({"uploads": None}, {"status": "NOT_SCANNED"},
+                                              {"corpus": {"uploads": None}, "transcript": {"status": "NOT_SCANNED"}})
+    _e19 = _cr19e == {"uploads": None} and _c19e == []
+    _mn19 = next(n for n in _fv_ast.walk(_fv_ast.parse(open(FVR19.__file__, encoding="utf-8").read()))
+                 if isinstance(n, _fv_ast.FunctionDef) and n.name == "main")
+    _dmp19 = [c for c in _fv_ast.walk(_mn19) if isinstance(c, _fv_ast.Call) and getattr(c.func, "attr", None) == "dump"]
+    _co19 = [c for c in _fv_ast.walk(_mn19) if isinstance(c, _fv_ast.Call) and getattr(c.func, "id", None) == "carry_over"]
+    _f19 = bool(_co19) and bool(_dmp19) and _co19[0].lineno < _dmp19[0].lineno
+except Exception as _e:                                                    # noqa: BLE001
+    _a19 = _b19 = _d19 = _e19 = _f19 = False
+    _c19 = f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 FV19 بنّاءُ المطابقة لا يدهس قياسًا محفوظًا بـnull: بلا مصدرٍ يُحمَل المحفوظ · ومع المصدر يُكتب الجديد · وبلا محفوظٍ يبقى الغيابُ صريحًا · "
+      "و`main` يناديه قبل الكتابة",
+      _a19 and _b19 and _d19 and _e19 and _f19, f"carry={_a19} fresh={_b19} none={_d19} nullprev={_e19} wired={_f19} c={_c19}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

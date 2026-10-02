@@ -561,5 +561,114 @@
     ]
    }
   }
- ]
+ ],
+ "v31": {
+  "audit_date": "2026-10-02",
+  "note": "V3.1 فوق V3 (لا يُدهَس ما فوقه) — المصدر: v31/reconcile_v31.json · v31/IMAGE_SOURCE_ACCESS.md",
+  "telegram": {
+   "sends": [
+    {
+     "sent_utc": "2026-10-02T06:21:13Z",
+     "count": 9,
+     "ids": [
+      "TG_58042",
+      "TG_58043",
+      "TG_58044",
+      "TG_58045",
+      "TG_58046",
+      "TG_58047",
+      "TG_58048",
+      "TG_58049",
+      "TG_58050"
+     ]
+    },
+    {
+     "sent_utc": "2026-10-02T06:39:59Z",
+     "count": 2,
+     "ids": [
+      "TG_58051",
+      "TG_58052"
+     ]
+    }
+   ],
+   "totals": {
+    "TELEGRAM_TOTAL_REFERENCED": 11,
+    "TELEGRAM_TOTAL_ACCESSIBLE": 11,
+    "TELEGRAM_TOTAL_INSPECTED": 11,
+    "TELEGRAM_TOTAL_USED_AS_EVIDENCE": 9,
+    "TELEGRAM_TOTAL_UNAVAILABLE": 0,
+    "TELEGRAM_TOTAL_DUPLICATES": 1
+   },
+   "how": "رقمُ الرسالة وزمنُ الإرسال من file_reference داخل file_id في telegram_collect_state.json",
+   "sender": "لا يُخزَّن ⟵ «أرسلها المالك» للإرسال الثاني استنتاجٌ قويّ"
+  },
+  "conversation_transcripts": {
+   "status": [
+    "ACCESSIBLE",
+    "RETRIEVED",
+    "INSPECTED"
+   ],
+   "scope": "سجلُّ هذه الجلسة (jsonl) — عدٌّ وبصمةٌ فقط",
+   "owner_sent_blocks": 104,
+   "owner_sent_unique": 91,
+   "owner_sent_exact_in_corpus": 54,
+   "owner_sent_exact_in_uploads": 40,
+   "owner_sent_not_exact": 32,
+   "owner_sent_not_exact_near_dup": 32,
+   "owner_sent_new": 0,
+   "other_conversations": "غيرُ مرئيّةٍ من الحاوية (بلا تغيير)"
+  },
+  "x_live": {
+   "status": [
+    "KNOWN_TO_EXIST",
+    "NOT_ACCESSIBLE"
+   ],
+   "retest": "2026-10-02: x.com · api.x.com · syndication.twitter.com ⟵ CONNECT 403"
+  },
+  "doc_only_images": {
+   "v3": 101,
+   "v31": 116,
+   "new_vs_v3": [
+    "IMG_0140",
+    "IMG_0440",
+    "IMG_0448",
+    "IMG_0449",
+    "IMG_0451",
+    "IMG_0453",
+    "IMG_0454",
+    "IMG_0455",
+    "IMG_0456",
+    "IMG_0457",
+    "IMG_0485",
+    "IMG_0487",
+    "IMG_0490",
+    "IMG_7367",
+    "IMG_7369",
+    "IMG_7402",
+    "IMG_9509",
+    "IMG_9510"
+   ],
+   "stored_under_other_name": [
+    "TG_57895",
+    "TG_57896",
+    "TG_57920",
+    "TG_20260918_68",
+    "X_20260918_81",
+    "TG_20260918_73",
+    "TG_20260918_72"
+   ]
+  },
+  "uploads": {
+   "files": 79,
+   "images": 75,
+   "unique_by_sha": 63,
+   "exact_in_corpus": 50,
+   "not_in_corpus_by_sha": 13,
+   "other": {
+    ".ogg": 1,
+    ".txt": 1,
+    ".pdf": 2
+   }
+  }
+ }
 }

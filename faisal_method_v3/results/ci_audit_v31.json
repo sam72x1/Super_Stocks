@@ -1,0 +1,41 @@
+{
+ "_note": "V3.1 — تدقيقُ CI من سجلّ Actions (لا بالافتراض) · يُكمل results/ci_audit.json (V3: #540 · #541 · d0cd19e98) ولا يدهسه",
+ "#542 (V3 corpus · forensics · tool · T-W prereg · pool-cap audit)": {
+  "merge commit": "09549570b",
+  "PR Tests (push)": "37001559873 ✅ success",
+  "PR Tests (pull_request)": "37001665169 ✅ success",
+  "PR Lint": "37001665213 ✅ success",
+  "main Tests": "37002340327 ✅ success",
+  "main Lint": "37002340251 ✅ success",
+  "local suite": "5,150 passed · 0 failed (merge message)"
+ },
+ "#543 (V3OUT in job log · failed cases announced)": {
+  "merge commit": "3a81615cb",
+  "PR Tests (push)": "37003515460 ✅ success",
+  "PR Tests (pull_request)": "37003537848 ✅ success",
+  "PR Lint": "37003537872 ✅ success",
+  "main Tests": "37004207635 ✅ success",
+  "main Lint": "37004207586 ✅ success",
+  "local suite": "5,151 passed · 0 failed (merge message)"
+ },
+ "#544 (V3 results · docs 01-30 · memory)": {
+  "merge commit": "c7abe0694",
+  "PR Tests (push)": "37005859931 ✅ success",
+  "PR Tests (pull_request)": "37005892768 ✅ success",
+  "PR Lint": "37005892797 ✅ success",
+  "main Tests": "37006563586 ✅ success",
+  "main Lint": "37006563660 ✅ success",
+  "local suite": "5,151 passed · 0 failed (merge message)"
+ },
+ "#545 (V3.1 prereg · dump · poolcap2 · visual reviews)": {
+  "merge commit": "760996255",
+  "PR Tests (push)": "37035551417 ✅ success",
+  "PR Tests (pull_request)": "37035599579 ✅ success (5153 passed · 0 failed — من السجلّ)",
+  "PR Lint": "37035599567 ✅ success",
+  "main Tests": "37036585823 ✅ success",
+  "main Lint": "37036585724 ✅ success",
+  "local suite": "5,153 passed · 0 failed (worktree على 607331e89)"
+ },
+ "bot data commits between merges": "8d4f127a3 (bot data 2026-10-02) · 2678c7db5 (📥 صور التلغرام: 0 ملفًا) — commits بيانات من github-actions لا كودٌ مراجَع",
+ "finding": "كلُّ PR من #540 إلى #545 أخضر على الحدثين وعلى main بعد الدمج · لا تشغيلةَ فاشلة · والملغاةُ الوحيدة (#541 7c941ae48) محتواها مغطّى في dffdff019 (V3)"
+}
