@@ -45,6 +45,10 @@ OLD_FILE = os.path.join(HS.RES_DIR, "audit_2022_labels_iter2.json")
 PX_CUTS = (1.0, 5.0)             # فئاتُ السعر الخامّ: أقلُّ من دولار · 1-5 · 5 فأكثر
 SENS_CUT_TRAINVAL = "2019-06-30" # إطارُ الحساسيّة لـTRAIN/VAL (90 جلسةً بعد آخر إشارة VAL)
 SENS_CUT_TEST = "2021-10-31"     # وما عبرهما يُختبر في TEST على إطارٍ يكفي 90 جلسةً بعدها
+SPLIT_RETRY_PAUSE_S = 0.35       # §⑰ engineering — فاصلُ التمريرة الثانية لتقسيمات ياهو (خنقُ ndq الأولى)
+SPLIT_RETRY_COOL_S = 45.0        # §⑰ engineering — تبريدٌ بعد تعذّرٍ متتالٍ
+SPLIT_RETRY_STREAK = 15          # §⑰ engineering — طولُ التعذّر المتتالي قبل التبريد
+SPLIT_RETRY_BUDGET_S = 75 * 60   # §⑰ engineering — سقفُ زمن التمريرة الثانية (الجوبُ 330 د)
 
 P_C = dict(HS.STRICT)                                         # CURRENT
 P_B = dict(HS.STRICT, brk_atr=0.0)                            # المدخل B: أوّلُ إغلاقٍ فوق العنق بلا هامش
@@ -942,7 +946,38 @@ def _fetch(syms):
             return s, None
     with ThreadPoolExecutor(max_workers=8) as ex:
         sp = dict(ex.map(_sp, sorted(frames)))
+    miss = sorted(s for s, v in sp.items() if v is None)
+    if miss:
+        got = _retry_splits(miss, fetch=_sp, reset=lambda s: S._SPLITS_MEMO.pop(s, None))
+        sp.update({s: v for s, v in got.items() if v is not None})
+        log(f"🔁 تقسيماتٌ مجهولةٌ بعد الجولة الأولى {len(miss)} ⟵ استُعيد {sum(1 for v in got.values() if v is not None)} · "
+            f"بقي مجهولًا {sum(1 for s in miss if sp.get(s) is None)}")
     return frames, rep, sp
+
+
+def _retry_splits(miss, fetch, reset=None, sleep=time.sleep, clock=time.monotonic,
+                  pause: float = SPLIT_RETRY_PAUSE_S, cool: float = SPLIT_RETRY_COOL_S, streak: int = SPLIT_RETRY_STREAK,
+                  budget: float = SPLIT_RETRY_BUDGET_S) -> dict:
+    """§⑰ تمريرةٌ ثانيةٌ **متسلسلةٌ بطيئة** لما تعذّرت تقسيماتُه (خنقُ ياهو — عطلٌ مُثبَت في ndq الأولى `36949458245`: 2,045 من 3,368
+    مجهولًا = الرموزُ H-Z كلُّها): `reset` تُفرغ ذاكرةَ الرمز (`_SPLITS_MEMO` تخزّن None فلا تُعاد) ثمّ `fetch` بفاصل `pause` · وبعد `streak`
+    تعذّرًا متتاليًا تبريدٌ `cool` · وسقفُ زمن `budget` ⟵ {رمز: أزواجٌ أو None} (ما لم يُسأل لا يُدرَج · فيبقى مجهولًا ويُعلَن)."""
+    out, fails, t0 = {}, 0, clock()
+    for s in miss:
+        if clock() - t0 > budget:
+            break
+        if reset is not None:
+            reset(s)
+        _s, v = fetch(s)
+        out[s] = v
+        if v is None:
+            fails += 1
+            if fails >= streak:
+                sleep(cool)
+                fails = 0
+        else:
+            fails = 0
+        sleep(pause)
+    return out
 
 
 def _regime():
