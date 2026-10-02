@@ -1,7 +1,7 @@
-# 📸 سجلّ تغطية صور منهجية فيصل — 2026-10-01
+# 📸 سجلّ تغطية صور منهجية فيصل — 2026-10-02
 
-- **المجموع المُدرَج:** 824  ·  **بملف مرفوع:** 708
-- **📗 موثّقة:** 200  ·  **📕 لم تُقرأ بعد:** 624  ·  **مكرّرة:** 0
+- **المجموع المُدرَج:** 838  ·  **بملف مرفوع:** 722
+- **📗 موثّقة:** 200  ·  **📕 لم تُقرأ بعد:** 638  ·  **مكرّرة:** 0
 
 **الدفعة التالية المقترحة (8):** APP_20260918_18_NTCL · APP_20260918_19_NTCL · APP_20260918_20_NTCL · APP_20260918_49_main · APP_20260918_50_ZNB · APP_20260918_52_ELPW · APP_20260918_53_ELPW · APP_20260918_59_VEEE
 
@@ -35,6 +35,8 @@
 | CH_20260918_63_ELPW | CH_20260918_63_ELPW.jpg | ❌ | unread | — |
 | CH_20260918_64_ELPW | CH_20260918_64_ELPW.jpg | ❌ | unread | — |
 | CH_20260918_65_ELPW | CH_20260918_65_ELPW.jpg | ❌ | unread | — |
+| CH_20261001_HS_01_DRMA | CH_20261001_HS_01_DRMA.jpg | ❌ | unread | — |
+| CH_20261001_HS_02_DCOY | CH_20261001_HS_02_DCOY.jpg | ❌ | unread | — |
 | EDU_20260827_dki_group_candle | EDU_20260827_dki_group_candle.png | ❌ | unread | — |
 | EDU_20260827_ma_rizq_rule_sle | EDU_20260827_ma_rizq_rule_sle.png | ❌ | unread | — |
 | EDU_20260827_school_two_models_ma_ladder | EDU_20260827_school_two_models_ma_ladder.png | ❌ | unread | — |
@@ -760,6 +762,17 @@
 | TG_57927 | TG_57927.jpg | ❌ | unread | — |
 | TG_57928 | TG_57928.jpg | ❌ | unread | — |
 | TG_57929 | TG_57929.jpg | ❌ | unread | — |
+| TG_58042 | TG_58042.jpg | ❌ | unread | — |
+| TG_58043 | TG_58043.jpg | ❌ | unread | — |
+| TG_58044 | TG_58044.jpg | ❌ | unread | — |
+| TG_58045 | TG_58045.jpg | ❌ | unread | — |
+| TG_58046 | TG_58046.jpg | ❌ | unread | — |
+| TG_58047 | TG_58047.jpg | ❌ | unread | — |
+| TG_58048 | TG_58048.jpg | ❌ | unread | — |
+| TG_58049 | TG_58049.jpg | ❌ | unread | — |
+| TG_58050 | TG_58050.jpg | ❌ | unread | — |
+| TG_58051 | TG_58051.jpg | ❌ | unread | — |
+| TG_58052 | TG_58052.jpg | ❌ | unread | — |
 | WA_20260918_31_SXTC | WA_20260918_31_SXTC.jpg | ❌ | unread | — |
 | WA_20260918_46_NUWE | WA_20260918_46_NUWE.jpg | ❌ | unread | — |
 | X_20260827_amix_3m_inflow | X_20260827_amix_3m_inflow.png | ❌ | unread | — |
@@ -831,6 +844,7 @@
 | X_20260918_61_VEEE | X_20260918_61_VEEE.jpg | ❌ | unread | — |
 | X_20260918_66_ELPW | X_20260918_66_ELPW.jpg | ❌ | unread | — |
 | X_20260918_85_YMT | X_20260918_85_YMT.jpg | ❌ | unread | — |
+| X_20261001_HS_03_LS | X_20261001_HS_03_LS.jpg | ❌ | unread | — |
 
 > **الحالات:** `implemented` نُفِّذت بالكود · `confirmed` تأكيد لما هو منفَّذ · `rejected` رُفضت بدليل (يُذكر) · `open` فرضية مفتوحة تحتاج تسجيلًا مسبقًا · `unread` لم تُقرأ بعد.
 > تُحدَّث بـ`python3 image_audit.py` بعد كل رفع، وبـ`--set` بعد قراءة كل دفعة.
