@@ -3742,3 +3742,5 @@
 {"key": "envelope|2026-10-01|XTLB", "hunter": "envelope", "session": "2026-10-01", "symbol": "XTLB", "kind": "candidate", "ref_close": 2.13, "fwd": 40, "outcome": null, "float": 1748461.0, "src": "tradingview"}
 {"key": "envelope|2026-10-01|YJ", "hunter": "envelope", "session": "2026-10-01", "symbol": "YJ", "kind": "candidate", "ref_close": 1.65, "fwd": 40, "outcome": null, "float": 1871018.0, "src": "tradingview"}
 {"key": "envelope|2026-10-01|ZDAI", "hunter": "envelope", "session": "2026-10-01", "symbol": "ZDAI", "kind": "candidate", "ref_close": 1.51, "fwd": 40, "outcome": null, "float": 8115009.0, "src": "tradingview"}
+{"key": "split|2026-10-01|WOK", "hunter": "split", "session": "2026-10-01", "symbol": "WOK", "kind": "candidate", "ref_close": 1.76, "fwd": 40, "outcome": null, "price": 1.76, "float": 15400.0, "half": 1.6, "ref": 3.2, "src": "tradingview"}
+{"key": "split|2026-10-01|YHC", "hunter": "split", "session": "2026-10-01", "symbol": "YHC", "kind": "candidate", "ref_close": 1.28, "fwd": 40, "outcome": null, "price": 1.28, "float": 1277897.0, "half": 1.22, "ref": 2.43, "src": "tradingview"}
