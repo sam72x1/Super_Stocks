@@ -3,7 +3,9 @@
 
 • العقد (مدموجٌ قبل أيّ رقم): `hs_forensic/hs_fx_prereg.md` · وثائقُ المصادر: `hs_forensic/*.md` · الكاشف: `head_shoulders.py` **بالاسم**.
 • الأوضاع (`HS_FX_MODE`): **verdict** (الحكمُ الآليّ §⑦ من ملفّي main وndq · بلا شبكة) · **main** (POP-BOT كاملًا · المداخل A-E · خطوطُ الأساس الستّة · النظرُ المستقبليّ · إجراءاتُ الشركات · عيّنتا الإعادة
-  البصريّة والتدقيق الأعمى) · **ndq** (كونُ ناسداك: C · D · RECON مع BL-A وBL-B) · **sens** (الحساسيّة TRAIN ⟵ VAL ⟵ TEST).
+  البصريّة والتدقيق الأعمى) · **ndq** (كونُ ناسداك: C · D · RECON مع BL-A وBL-B) · **sens** (الحساسيّة TRAIN ⟵ VAL ⟵ TEST) ·
+  **rx** (`T-HS-RX` · العقد `hs_forensic/hs_rx_prereg.md`: POP-RX = NYSE/AMEX ناقص POP-BOT وناسداك · RECON وRECON-v2 أمام BL-A وBL-B ·
+  عيّنةُ أمانةٍ عمياء بمفتاحٍ مختوم).
 • القياسُ كلُّه من بار الدخول `e` وسعره `E` **بعد** الكشف السببيّ (`HS.detect`) — ولا يستعمل الكشفُ شيئًا بعد بار الاختراق (§⑨ يتحقّق).
 🔒 بحثٌ فقط: **لا تلغرام · لا حالةَ إنتاج · لا مساسَ بالمسح الحيّ** — يكتب `hs_research/forensic/` ويدفعه `git_save`."""
 from __future__ import annotations
@@ -49,6 +51,13 @@ SPLIT_RETRY_PAUSE_S = 0.35       # §⑰ engineering — فاصلُ التمري
 SPLIT_RETRY_COOL_S = 45.0        # §⑰ engineering — تبريدٌ بعد تعذّرٍ متتالٍ
 SPLIT_RETRY_STREAK = 15          # §⑰ engineering — طولُ التعذّر المتتالي قبل التبريد
 SPLIT_RETRY_BUDGET_S = 75 * 60   # §⑰ engineering — سقفُ زمن التمريرة الثانية (الجوبُ 330 د)
+# 🔁 `T-HS-RX` (العقد `hs_forensic/hs_rx_prereg.md` · مدموجٌ قبل أيّ رقمٍ من POP-RX)
+RX_Q = 0.2                       # §④ «بنحو خُمس الارتفاع» — القراءةُ التشغيليّة للتدقيق الأعمى حرفًا (engineering · UNVERIFIED · لا ضبط)
+RX_ALPHA = 0.05 / 4              # §⑦ بونفيروني على الفرضيّات الأربع ⟵ فاصلُ 98.75%
+RX_EXCH = ("N", "A")             # §② NYSE · NYSE American من `otherlisted.txt`
+RX_URL = "https://www.nasdaqtrader.com/dynamic/SymDir/otherlisted.txt"
+RX_SEED_V2, RX_SEED_V1, RX_SEED_NEG, RX_MIX_SEED = 20261006, 20261007, 20261008, 20261009
+ALL_ERA = "ALL"                  # §③ مجموعُ الحقب الأربع (التأكيديّ في POP-RX)
 
 P_C = dict(HS.STRICT)                                         # CURRENT
 P_B = dict(HS.STRICT, brk_atr=0.0)                            # المدخل B: أوّلُ إغلاقٍ فوق العنق بلا هامش
@@ -469,6 +478,27 @@ def bl_a(A: dict, s: dict, rec: dict, sp_dates) -> list:
     return out
 
 
+def head_distinct(A: dict, s: dict, q: float = RX_Q) -> dict:
+    """`T-HS-RX §④` — تميّزُ الرأس (من القراءة التشغيليّة للتدقيق الأعمى · لا من عائد):
+    **HD1** «أدنى بجسمه»: ‏min(Open, Close) لبار الرأس (وبارِه الثاني إن كان مركّبًا `pm_i`) ‏≤ min(LS, RS) − q × الارتفاع ·
+    **HD2** «لا قاعَ قبله بمستواه»: أدنى Low في W = (rs_i − ls_i) بارًا قبل الكتف الأيسر **أعلى من** قاع الرأس ‏+ q × الارتفاع —
+    وبلا بارٍ قبله لا تتحقّق (مُحافِظ). يقرأ بارات ‏≤ الكتف الأيمن وحدَها (قبل الاختراق) ⟵ القيمُ مع الحكم."""
+    o, c, low = A["o"], A["c"], A["l"]
+    H = float(s["height"])
+    bars = [int(s["head_i"])] + ([int(s["pm_i"])] if s.get("pm_i") is not None else [])
+    body = min(min(float(o[i]), float(c[i])) for i in bars)
+    shoulders = min(float(s["ls_px"]), float(s["rs_px"]))
+    ls_i = int(s["ls_i"])
+    w = max(1, int(s["rs_i"]) - ls_i)
+    seg = np.asarray(low[max(0, ls_i - w):ls_i], float)
+    seg = seg[np.isfinite(seg)]
+    prior = float(seg.min()) if len(seg) else None
+    return {"hd1": bool(H > 0 and body <= shoulders - q * H),
+            "hd2": bool(H > 0 and prior is not None and prior > float(s["head_px"]) + q * H),
+            "hd_body_gap": (float((shoulders - body) / H) if H > 0 else None),
+            "hd_prior_gap": (float((prior - float(s["head_px"])) / H) if prior is not None and H > 0 else None), "hd_w": int(w)}
+
+
 # ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
 # ③ رمزٌ واحد (يُشغَّل في عمليّةٍ مستقلّة)
 # ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -490,7 +520,13 @@ def analyze_sym(task) -> dict:
             out["C"].append(rec)
             if rt["retest"] == "success" and rt["cont_i"] is not None:
                 e = int(rt["cont_i"])
-                out["D"].append(dict(base, entry="D", retest=rt["retest"], **measure(A, s, e, float(A["c"][e]), None)))
+                rec_d = dict(base, entry="D", retest=rt["retest"], **measure(A, s, e, float(A["c"][e]), None))
+                if mode == "rx":                                     # T-HS-RX §④/§⑥/§⑨ (main وndq بت-بت)
+                    rec_d.update(head_distinct(A, s))
+                    rec_d["blA"] = bl_a(A, dict(s, b_i=e, pid=f"{s['pid']}|D"), dict(rec_d, year=int(A["dates"][e][:4])), sp_dates)
+                    if rec_d.get("neck_type") == "horizontal" and rec_d["hd1"] and rec_d["hd2"]:
+                        rec_d["la"] = lookahead(df, s, P_C)
+                out["D"].append(rec_d)
         if mode == "main":
             for s in HS.detect(df, P_B, sym=sym):
                 rt = HS.retest_state(df, s, P_B)
@@ -805,13 +841,13 @@ def blind_bars(df, b: int, n: int = BLIND_BARS) -> list:
     return [[float(o), float(h), float(l), float(c)] for o, h, l, c in seg[["Open", "High", "Low", "Close"]].to_numpy()]
 
 
-def blind_mix(items: list, seed: int = MIX_SEED):
-    """خلطٌ حتميّ ⟵ (المخطّطات: {معرّف: شموع} · المفتاح: {معرّف: النوع والهويّة}) — **ملفّان منفصلان**."""
+def blind_mix(items: list, seed: int = MIX_SEED, prefix: str = "BX"):
+    """خلطٌ حتميّ ⟵ (المخطّطات: {معرّف: شموع} · المفتاح: {معرّف: النوع والهويّة}) — **ملفّان منفصلان** · و`prefix` بادئةُ المعرّف (‏RX لـ`T-HS-RX`)."""
     rng = np.random.default_rng(seed)
     order = rng.permutation(len(items))
     charts, key = {}, {}
     for j, i in enumerate(order):
-        bid = f"BX{j + 1:02d}"
+        bid = f"{prefix}{j + 1:02d}"
         charts[bid] = items[int(i)]["bars"]
         key[bid] = {k: v for k, v in items[int(i)].items() if k != "bars"}
     return charts, key
@@ -955,6 +991,50 @@ def _fetch(syms):
     return frames, rep, sp
 
 
+def rx_population(text: str = None, exclude=()) -> list:
+    """`T-HS-RX §②` — POP-RX: `otherlisted.txt` (ملفُّ البورصات الأخرى من مصدر كون ناسداك نفسِه) ⟵ البورصة N/A · ETF = N · Test Issue = N ·
+    رمزٌ أبجديّ · لا وارنت/حقوق/وحدات (فلاترُ `S.get_universe` حرفًا) ⟵ ناقص `exclude` (POP-BOT ∪ كونُ ناسداك). `text` محقونٌ للاختبار ·
+    وتعذّرُ الجلب أو ترويسةٌ غيرُ متوقّعة ⟵ [] (لا قياسَ على كونٍ فارغ)."""
+    if text is None:
+        import requests
+        import Super_stock as S
+        try:
+            r = requests.get(RX_URL, headers=S.UA, timeout=40)
+            r.raise_for_status()
+            text = r.text
+        except Exception as e:                                               # noqa: BLE001
+            log(f"⛔ تعذّر جلبُ {RX_URL}: {type(e).__name__}")
+            return []
+    lines = [ln for ln in (text or "").splitlines() if ln.strip()]
+    if not lines:
+        return []
+    header = lines[0].split("|")
+    idx = {name: i for i, name in enumerate(header)}
+    if any(k not in idx for k in ("ACT Symbol", "Security Name", "Exchange", "ETF", "Test Issue")):
+        log(f"⛔ ترويسةٌ غيرُ متوقّعة: {header[:8]}")
+        return []
+    ex, out = set(exclude or ()), set()
+    for ln in lines[1:]:
+        if ln.startswith("File Creation Time"):
+            continue
+        parts = ln.split("|")
+        if len(parts) < len(header):
+            continue
+        sym = parts[idx["ACT Symbol"]].strip()
+        name = parts[idx["Security Name"]].strip().upper()
+        if parts[idx["Exchange"]].strip() not in RX_EXCH:
+            continue
+        if parts[idx["ETF"]].strip() == "Y" or parts[idx["Test Issue"]].strip() == "Y":
+            continue
+        if not sym.isalpha() or (len(sym) == 5 and sym[-1] in "WRU"):
+            continue
+        if any(b in name for b in ("WARRANT", "RIGHT", " UNIT", "UNITS")):
+            continue
+        if sym not in ex:
+            out.add(sym)
+    return sorted(out)
+
+
 def _retry_splits(miss, fetch, reset=None, sleep=time.sleep, clock=time.monotonic,
                   pause: float = SPLIT_RETRY_PAUSE_S, cool: float = SPLIT_RETRY_COOL_S, streak: int = SPLIT_RETRY_STREAK,
                   budget: float = SPLIT_RETRY_BUDGET_S) -> dict:
@@ -1071,7 +1151,8 @@ def _csv_rows(recs: list) -> list:
                      "t_stop_I1_60": e1.get("t_stop"), "seq": r.get("seq"), "mfe30": r.get("mfe30"), "mae30": r.get("mae30"),
                      "mfe90": r.get("mfe90"), "mae90": r.get("mae90"), **{f"ret{x}": r.get(f"ret{x}") for x in HZ},
                      "B1_ret": _bget(r.get("B1")), "B1_why": _bget(r.get("B1"), "why"), "raw_px": r.get("raw_px"),
-                     "regime": r.get("regime")})
+                     "regime": r.get("regime"),
+                     **({k: r.get(k) for k in ("hd1", "hd2", "hd_body_gap", "hd_prior_gap")} if "hd1" in r else {})})
     return rows
 
 
@@ -1229,6 +1310,136 @@ def run_main(mode: str) -> int:
     return 0
 
 
+def bl_a_compare(sigs: list, alpha: float) -> dict:
+    """BL-A لأيّ ذراع (`T-HS-RX §⑥`): الفرقُ المطابَق بين الإشارة وأيّامها العشوائيّة الصالحة (`blA`) في CLEAN والقوس وret30 — بحرف كتلة C في `run_main`."""
+    rows = [(r, [c for c in r.get("blA") or [] if c.get("valid")]) for r in sigs if valid(r)]
+    return {"B1": boot_diff([_bget(r.get("B1")) for r, _ in rows], [[_bget(c.get("B1")) for c in cs] for _r, cs in rows], alpha=alpha),
+            "clean_I2_60": boot_diff([clean_of(r) for r, _ in rows], [[c.get("clean_I2") for c in cs] for _r, cs in rows], alpha=alpha),
+            "ret30": boot_diff([r.get("ret30") for r, _ in rows], [[c.get("ret30") for c in cs] for _r, cs in rows], alpha=alpha)}
+
+
+def hypotheses_rx(cmp: dict) -> dict:
+    """`T-HS-RX §⑦` على ALL: RX-H1a/H2a (RECON) · RX-H1b/H2b (RECON-v2) — «تُدعَم» = الحدُّ الأدنى (‏98.75%) فوق الصفر أمام BL-B **و** BL-A ·
+    و**n ‏≥ 30 أمام كلٍّ منهما** وإلّا «لا قياس» ⟵ التسمية: RX-1 (قوسٌ يُدعَم) · RX-2 (CLEAN وحدَه) · RX-4 (الأربعُ «لا قياس») · وإلّا RX-3 ·
+    و`note` يُسمّي الذراعَ غيرَ المقيسة (فلا تُقرأ RX-3 حكمًا على ذراعٍ لم تُقَس)."""
+    out = {}
+    for h, k, metric in (("RX-H1a", "RECON", "clean_I2_60"), ("RX-H2a", "RECON", "B1"),
+                         ("RX-H1b", "RECON2", "clean_I2_60"), ("RX-H2b", "RECON2", "B1")):
+        b = ((cmp.get(f"{k}|{ALL_ERA}|BL-B") or {}).get(metric)) or {}
+        a = ((cmp.get(f"{k}|{ALL_ERA}|BL-A") or {}).get(metric)) or {}
+        if min(b.get("n_sig") or 0, a.get("n_sig") or 0) < MIN_N:
+            st = "لا قياس"
+        elif b.get("lo") is not None and b["lo"] > 0 and a.get("lo") is not None and a["lo"] > 0:
+            st = "تُدعَم"
+        else:
+            st = "لا تُدعَم"
+        out[h] = {"status": st, "BL-B": b, "BL-A": a}
+    s_ = {h: v["status"] for h, v in out.items()}
+    if "تُدعَم" in (s_["RX-H2a"], s_["RX-H2b"]):
+        lab = "RX-1 «البناءُ الأمين يربح»"
+    elif "تُدعَم" in (s_["RX-H1a"], s_["RX-H1b"]):
+        lab = "RX-2 «يبلغ ولا يربح»"
+    elif all(v == "لا قياس" for v in s_.values()):
+        lab = "RX-4 «لا قياس»"
+    else:
+        lab = "RX-3 «لا ميزةَ حتى بالبناء الأمين»"
+    out["RX"] = lab
+    out["note"] = [arm for arm, hs_ in (("RECON", ("RX-H1a", "RX-H2a")), ("RECON-v2", ("RX-H1b", "RX-H2b")))
+                   if all(s_[h] == "لا قياس" for h in hs_)]
+    return out
+
+
+def run_rx() -> int:
+    """`T-HS-RX` (العقد `hs_forensic/hs_rx_prereg.md` · مدموجٌ قبل أيّ رقم): POP-RX ⟵ C · RECON · RECON-v2 بقياس `T-HS-FX` نفسِه ⟵ BL-A وBL-B
+    لكلّ ذراع (الحقب ‏+ ALL) ⟵ الفرضيّاتُ الأربع ⟵ عيّنةُ الأمانة العمياء (30 v2 ‏+ 30 RECON∖v2 ‏+ 30 ضبط · مفتاحٌ مختوم) ⟵ الحفظ."""
+    import Super_stock as S
+    t0 = time.time()
+    excl = set(HS.load_population()) | set(S.get_universe() or [])
+    pop = rx_population(exclude=excl)
+    log(f"🔬 T-HS-RX · POP-RX {len(pop)} رمزًا (المستبعَد POP-BOT ∪ ناسداك {len(excl)}) · من {FX_START} · q={RX_Q}")
+    if not pop:
+        log("⛔ POP-RX فارغ ⟵ لا قياس")
+        return 3
+    frames, rep, sp = _fetch(pop)
+    log(f"📊 شموعٌ لـ{len(frames)} من {len(pop)} · تقسيماتٌ مجهولة {sum(1 for v in sp.values() if v is None)}")
+    regime, reg_src = _regime()
+    tasks = [(s, frames[s], sp.get(s), (None if sp.get(s) is None else sorted({d for d, _r in sp[s]})), regime, "rx")
+             for s in sorted(frames)]
+    res = _pool_run(analyze_sym, tasks)
+    errs = [(r["sym"], r["err"]) for r in res if r.get("err")]
+    log(f"⚙️ حُلّل {len(res)} رمزًا في {time.time() - t0:.0f}ث · أخطاء {len(errs)} {errs[:5]}")
+    allsig = {"C": [x for r in res for x in r["C"]], "D": [x for r in res for x in r["D"]]}
+    allsig["RECON"] = [dict(r, entry="RECON") for r in allsig["D"] if r.get("neck_type") == "horizontal"]
+    allsig["RECON2"] = [dict(r, entry="RECON2") for r in allsig["RECON"] if r.get("hd1") and r.get("hd2")]
+    pool = [x for r in res for x in r["ctrl"]]
+    for c in pool:
+        pr = sp.get(c["sym"])
+        raw = c["E"] * split_factor_after(pr, c["b_date"]) if pr is not None else None
+        c["raw_px"], c["px_bucket"] = raw, px_bucket(raw)
+    frames_arr = {s: arrays(frames[s]) for s in frames}
+    log(f"🎯 إشاراتٌ: C {len(allsig['C'])} · D {len(allsig['D'])} · RECON {len(allsig['RECON'])} · RECON-v2 {len(allsig['RECON2'])} · "
+        f"ضبطُ B {len(pool)}")
+    eras = [e[0] for e in ERAS]
+
+    def in_era(r, era):
+        return r.get("era") in eras if era == ALL_ERA else r.get("era") == era
+    kinds = ("C", "RECON", "RECON2")
+    out = {"tool": "T-HS-RX", "mode": "rx", "generated": dt.datetime.utcnow().isoformat(timespec="seconds") + "Z", "q": RX_Q,
+           "population": len(pop), "excluded": len(excl), "fetched": len(frames), "regime_src": reg_src,
+           "fetch_report": {k: (v if not isinstance(v, list) else len(v)) for k, v in rep.items()},
+           "splits_unknown": sum(1 for v in sp.values() if v is None), "eras": ERAS, "survivorship": _survivorship(frames, len(pop)),
+           "errors": errs[:50], "summary": {}, "compare": {}, "split_exclusion": {}}
+    matched = {k: match_controls(allsig[k], pool, "B") for k in kinds}
+    for era in eras + [ALL_ERA]:
+        alpha = RX_ALPHA if era == ALL_ERA else EXPL_ALPHA
+        for k in kinds:
+            sigs = [r for r in allsig[k] if in_era(r, era)]
+            out["summary"][f"{k}|{era}"] = summarize(sigs)
+            out["compare"][f"{k}|{era}|BL-B"] = compare(sigs, matched[k], frames_arr, alpha=alpha)
+            out["compare"][f"{k}|{era}|BL-A"] = bl_a_compare(sigs, alpha)
+            out["split_exclusion"][f"{k}|{era}"] = {"valid": sum(1 for r in sigs if valid(r)), "excluded": sum(1 for r in sigs if r.get("split_win")),
+                                                    "unknown": sum(1 for r in sigs if r.get("split_win") is None)}
+    la = [r.get("la") for r in allsig["RECON2"] if r.get("la")]
+    out["lookahead"] = {"checked": len(la), "prefix_ok": sum(1 for x in la if x["prefix_ok"]), "info_ok": sum(1 for x in la if x["info_ok"]),
+                        "violations": [r["pid"] for r in allsig["RECON2"] if r.get("la") and not (r["la"]["prefix_ok"] and r["la"]["info_ok"])][:100]}
+    out["hypotheses"] = hypotheses_rx(out["compare"])
+    items = []
+    v2 = [r for r in allsig["RECON2"] if valid(r) and in_era(r, ALL_ERA)]
+    v1 = [r for r in allsig["RECON"] if valid(r) and in_era(r, ALL_ERA) and not (r.get("hd1") and r.get("hd2"))]
+    for tag, grp, seed in (("V2", v2, RX_SEED_V2), ("V1", v1, RX_SEED_V1)):
+        for r in pick(grp, f"rx|{tag}|{seed}", BLIND_N):
+            items.append({"kind": tag, "sym": r["sym"], "b_date": r["b_date"], "pid": r["pid"], "detector": True,
+                          "bars": blind_bars(frames[r["sym"]], int(r["b_i"]))})
+    neg = [c for c in pool if valid(c) and in_era(c, ALL_ERA)]
+    for c in pick(neg, f"rx|NEG|{RX_SEED_NEG}", BLIND_N):
+        items.append({"kind": "NEG", "sym": c["sym"], "b_date": c["b_date"], "pid": None, "detector": False,
+                      "bars": blind_bars(frames[c["sym"]], int(c["b_i"]))})
+    charts, key = blind_mix(items, seed=RX_MIX_SEED, prefix="RX")
+    sealed, ksha = seal_key(key)
+    out["samples"] = {"blind": len(items), "key_sha256": ksha, "blind_kinds": {k: sum(1 for x in items if x["kind"] == k) for k in ("V2", "V1", "NEG")}}
+    out["secs"] = round(time.time() - t0, 1)
+    paths = {k: os.path.join(FX_DIR, f) for k, f in (("json", "fx_rx.json"), ("csv", "fx_signals_rx.csv"),
+                                                       ("charts", "fx_rx_blind_charts.json"), ("key", "fx_rx_blind_key.b64"))}
+    pd.DataFrame(_csv_rows([r for k in kinds for r in allsig[k]])).to_csv(paths["csv"], index=False)
+    with open(paths["charts"], "w", encoding="utf-8") as fh:
+        json.dump(charts, fh)
+    with open(paths["key"], "w", encoding="utf-8") as fh:
+        fh.write(sealed)
+    with open(paths["json"], "w", encoding="utf-8") as fh:
+        json.dump(out, fh, ensure_ascii=False, indent=1, default=str)
+    log(f"🔐 مفتاحُ أمانة RX مختوم · sha256 {ksha} · لا يُفتح قبل دفع الوسوم · العيّنة {out['samples']['blind_kinds']}")
+    hyp = out["hypotheses"]
+    log(f"⚖️ {hyp['RX']} · " + " · ".join(f"{h}: {hyp[h]['status']}" for h in ("RX-H1a", "RX-H2a", "RX-H1b", "RX-H2b"))
+        + (f" · لم يُقَس: {hyp['note']}" if hyp["note"] else ""))
+    for k in kinds:
+        for bk in ("BL-B", "BL-A"):
+            x = out["compare"].get(f"{k}|{ALL_ERA}|{bk}") or {}
+            log(f"   {k} ⟵ {bk} (ALL): CLEAN {_fmt(x.get('clean_I2_60'))} · القوس {_fmt(x.get('B1'))}")
+    log(f"💾 {list(paths.values())} · {out['secs']}ث")
+    _save(list(paths.values()))
+    return 0
+
+
 def _fmt(d) -> str:
     if not d or d.get("diff") is None:
         return "—"
@@ -1365,6 +1576,8 @@ def main() -> int:
         return run_sens()
     if mode == "verdict":
         return run_verdict()
+    if mode == "rx":
+        return run_rx()
     log(f"⛔ وضعٌ مجهول: {mode}")
     return 2
 

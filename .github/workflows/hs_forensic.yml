@@ -13,9 +13,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "main · ndq · sens · verdict"
+        description: "main · ndq · sens · verdict · rx (T-HS-RX)"
         type: choice
-        options: [main, ndq, sens, verdict]
+        options: [main, ndq, sens, verdict, rx]
         default: main
 
 concurrency:
