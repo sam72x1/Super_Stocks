@@ -778,19 +778,15 @@
     "verdict_rule": "2026-09-26b"
   },
   "2026-09-29": {
-    "deferred_reasons": [
-      "open:segment_window_capped(max_runtime_cap)"
-    ],
+    "deferred_reasons": [],
     "incomplete_reasons": [
-      "ended_before_expected_close(34.5 د)",
-      "path_not_reaching_close(SXTP)",
-      "segment_incomplete(close:segment_window_not_covered)"
+      "missing_segment(close)"
     ],
-    "n_delivered": 1,
-    "n_emitted": 1,
+    "n_delivered": 0,
+    "n_emitted": 0,
     "n_executable": 0,
     "n_executable_emitted": 0,
-    "n_raw_candidates": 1,
+    "n_raw_candidates": 0,
     "n_symbols": 15,
     "session_complete": false,
     "termination": "normal",
