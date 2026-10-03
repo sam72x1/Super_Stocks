@@ -380,7 +380,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.48
+   "last_price": 1.48,
+   "live_alert": {}
   },
   {
    "symbol": "AMIX",
@@ -776,7 +777,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.78
+   "last_price": 3.78,
+   "live_alert": {}
   },
   {
    "symbol": "NTHI",
@@ -1171,7 +1173,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.99
+   "last_price": 2.99,
+   "live_alert": {}
   },
   {
    "symbol": "KMRK",
@@ -1536,7 +1539,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.15
+   "last_price": 1.15,
+   "live_alert": {}
   },
   {
    "symbol": "JZXN",
@@ -1918,7 +1922,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.13
+   "last_price": 1.13,
+   "live_alert": {}
   },
   {
    "symbol": "ZDAI",
@@ -2290,7 +2295,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.5784
+   "last_price": 1.5784,
+   "live_alert": {}
   },
   {
    "symbol": "TRAW",
@@ -2680,7 +2686,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.5685
+   "last_price": 0.5685,
+   "live_alert": {}
   },
   {
    "symbol": "MOBX",
@@ -3059,7 +3066,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.8426
+   "last_price": 0.8426,
+   "live_alert": {}
   },
   {
    "symbol": "CSAI",
@@ -3431,7 +3439,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.68
+   "last_price": 2.68,
+   "live_alert": {}
   },
   {
    "symbol": "MSAI",
@@ -13955,8 +13964,8 @@
    "country": "China",
    "float": 323905,
    "last_price": 3.2,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-03"
   },
   {
    "symbol": "BIRD",
@@ -14023,8 +14032,8 @@
    "country": "China",
    "float": 1035979,
    "last_price": 0.507,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-03"
   },
   {
    "symbol": "TAOP",
@@ -14057,8 +14066,8 @@
    "country": "China",
    "float": 4159915,
    "last_price": 0.4066,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-03"
   },
   {
    "symbol": "ATCX",
@@ -14091,8 +14100,8 @@
    "country": null,
    "float": null,
    "last_price": 2.91,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-03"
   },
   {
    "symbol": "TGL",
@@ -14125,8 +14134,8 @@
    "country": "United States",
    "float": 1651159,
    "last_price": 1.29,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-03"
   }
  ],
  "history": [
