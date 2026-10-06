@@ -1,0 +1,480 @@
+{
+ "contradictions": [
+  {
+   "engine_effect": "R4-ENT-02 INFORMATIONAL — لا يقلب الحالة",
+   "id": "C-BREAKOUT",
+   "rules": [
+    "R4-ENT-02"
+   ],
+   "side_a": [
+    "TG_2197 «دخول المضاربين > بعد الاختراق ربح سريع قليل امن»",
+    "TG_57862",
+    "IMG_0602"
+   ],
+   "side_b": [
+    "TG_1840 «تشري ع الاختراق اعرف انك خسران … الاختراق فاشل الدخول فيه»"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "حالتان فنيّتان: BASE_HELD (قائمةُ الفحص) وRETEST_HELD (الدورة) — كلتاهما جاهزيّةٌ فنيّة",
+   "id": "C-CYCLE-VS-CHECKLIST",
+   "rules": [
+    "R4-CYC-01",
+    "R4-HOLD-01"
+   ],
+   "side_a": [
+    "X_20260918_85_YMT «هذا اصل التحليل»",
+    "TG_50584"
+   ],
+   "side_b": [
+    "X_20260827_checklist_7points: دخولٌ عند القاع بعد ثبات 5 جلسات بلا صعود اختبار"
+   ],
+   "status": "PARTIALLY_RESOLVED"
+  },
+  {
+   "engine_effect": "بصمةُ المضارب غيرُ مرئيّةٍ في الشموع إلّا بالسحب والعودة ⟵ R4-OP-01 قراريّتُها UNKNOWN · والجاهزيّةُ الفنيّةُ بلا معلومة ⟵ UNKNOWN لا READY",
+   "id": "C-OPTIMING",
+   "rules": [
+    "R4-OP-01"
+   ],
+   "side_a": [
+    "TG_1822 EHGO «ننتظر فقط مضارب»",
+    "TG_2218 CDIO «جاهز … بانتظار فقط دخول المضارب»",
+    "X_20260827_amix_hcwb_ready HCWB «ننتظر ضغط المضارب»"
+   ],
+   "side_b": [
+    "X_20260827_checklist_7points_cont «ماتم ضغطه … تدخل مباشره ع خط متوسط 50 > 200»",
+    "X_20260827_amix_hcwb_ready AMIX «جاهز جدا · دخولنا دفعات من 4.65 > 4.75 > 4.85 · لازم يضغطه تحت 5» — طلباتٌ قبل الضغط"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "R4-VAL-SHORT-01 PROBABLE: متاحٌ فوق 20,000 ⟵ WAIT حين تُعطى المعلومة · وغيابُها ⟵ UNKNOWN (لا ترقية)",
+   "id": "C-SHORT-THRESHOLD",
+   "rules": [
+    "R4-VAL-SHORT-01"
+   ],
+   "side_a": [
+    "IMG_0150 WORX «تابعه لين يبقى الشورت تحت 20 الف»",
+    "IMG_0151 «شورته تحت 20 الف»",
+    "TG_50578 DCOY «باقي 80 الف شورت ننتظر»"
+   ],
+   "side_b": [
+    "TG_2196 ONCO «شورت 150 الف» وخطّةٌ كاملة",
+    "TG_1831 LABT «الشورت 55 الف متوفر» ولم يمنع التحليل (طبقة 2)"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "كسرٌ أعمق من SWEEP_MAX_PCT (13%) ⟵ BROKEN_NEW_BASE (WAIT) · وما بعده قاعٌ جديد يُعاد تحليلُه — لا READY",
+   "id": "C-SUPPORT10",
+   "rules": [
+    "R4-INV-01",
+    "R4-SWEEP-01"
+   ],
+   "side_a": [
+    "X_20260905_10 YMT «كسر 1.81 تصنع تحليل اخر بنفس النهج»",
+    "X_20260905_07 BTOG «إن كسر قاع 2.08 يذهب إلى 1.70»",
+    "IMG_0569 MNDR «1.40 اخطر مرحله للوقف»"
+   ],
+   "side_b": [
+    "TG_2017 ENPH «هبوط مسح سيوله اسفل الدعم 29» (‏−11..−13%) ثمّ صعود",
+    "TG_2127 ELAB كسرٌ ‏≈−39% تحت الأحمر 3.033 ثمّ صعودٌ كبير"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "SWEEP_MAX_PCT = 13 (faisal_tier2b) حدٌّ أعلى · وإسقاطا 5/10 معلومة · لا رقمَ واحدًا لفيصل",
+   "id": "C-SWEEP-DEPTH",
+   "rules": [
+    "R4-SWEEP-01"
+   ],
+   "side_a": [
+    "TG_50584 «سحب السيوله 5٪ ادنى شمعة القاع»",
+    "IMG_0177 «مسح سيوله 10٪ تحت القاع»"
+   ],
+   "side_b": [
+    "TG_57874 «سبرنت داون 10٪ > 15٪»",
+    "TG_57870 «15٪ من متوسط التجميع»",
+    "IMG_0297 (EDU) «7٪ ل 13٪»"
+   ],
+   "status": "RANGE_NOT_NUMBER"
+  },
+  {
+   "engine_effect": "ثلاثُ عائلاتِ وقفٍ موسومة في كائن القرار (القاع · ‏−5/−7% تحت الدعم · 7% من الدخول) — لا تُخلط ولا تغيّر الحالة",
+   "id": "C-STOP-REF",
+   "rules": [
+    "R4-STOP-01"
+   ],
+   "side_a": [
+    "X_20260827_checklist_7points «الوقف القاع»",
+    "TG_2106 «وقفك صارم الدعم الاول»"
+   ],
+   "side_b": [
+    "X_20260918_61_VEEE «7٪ من دخولنا»",
+    "TG_1978 «الاحمر دعم + وقف -5٪»",
+    "TG_2098 HUBC «وقف 7٪»"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "وقفُ 5-7% يقع داخل مدى السحب المقبول (حتى 13%) ⟵ الإبطالُ في المحرّك كسرٌ أعمق من 13% لا ضربُ الوقف",
+   "id": "C-STOP-VS-SWEEP",
+   "rules": [
+    "R4-STOP-01",
+    "R4-SWEEP-01"
+   ],
+   "side_a": [
+    "TG_1978 «وقف -5٪»",
+    "TG_2098 HUBC «وقف 7٪»",
+    "TG_2017 «الوقف عند المتداولين من 5-7٪»"
+   ],
+   "side_b": [
+    "IMG_0297 (EDU) «7٪ ل 13٪»",
+    "TG_57875 OMH ‏−11.8%",
+    "TG_57881 CIIT ‏−11.5%",
+    "TG_57894 DKI ‏−8.4%"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "HOLD_MIN = 5 (faisal_verbatim) للقاع · وHOLD_ZONE = 3 للمنطقة — يُدوَّن ولا يُحسم (و«الخمسة» قِيست في T-GOLD-ENTRY P6 ربحًا لا وفاءً)",
+   "id": "C-HOLD-SESSIONS",
+   "rules": [
+    "R4-HOLD-01"
+   ],
+   "side_a": [
+    "X_20260918_85_YMT «اكثر من 5 جلسات»",
+    "X_20260827_checklist_7points «5 جلسات»"
+   ],
+   "side_b": [
+    "IMG_0151 «حافظ ع قاعه لمدة 3 جلسات»",
+    "X_20260827_kwm_150_watch3 «مراقبه لمدة 3 جلسات»",
+    "TG_2066 «3-5 جلسات» (طبقة 2)"
+   ],
+   "status": "RANGE_NOT_NUMBER"
+  },
+  {
+   "engine_effect": "groups = True ⟵ REJECT للقرار الجديد · وسهمُ متابعةٍ قائمٌ يبقى بأهداف المضارب (YMT) — الفرقُ دخولٌ جديد مقابل مركزٍ قائم",
+   "id": "C-GROUPS",
+   "rules": [
+    "R4-VAL-GRP-01"
+   ],
+   "side_a": [
+    "IMG_0151 «الشرط خالي من القروبات ✅»",
+    "IMG_0488 «دخول سيوله قروبات … لا انا ولا اكبر محلل يستطيع قراءة الشموع»",
+    "IMG_0316 JZ «دخل قروب غبي … المضارب الغى جميع الاهداف»"
+   ],
+   "side_b": [
+    "X_20260905_10 YMT «لايهم حتى لو دخل قروب ورفعه 20٪ · المضارب اذا بيحقق اهدافه راح يهبط فيه»"
+   ],
+   "status": "PARTIALLY_RESOLVED"
+  },
+  {
+   "engine_effect": "خطوطُ التطبيق تتبع مدى العرض ⟵ وسومُ المستويات من نصّ فيصل وحدَه ولا تُعدّ الخطوطُ سندًا (C13)",
+   "id": "C-AUTO-LEVELS",
+   "rules": [],
+   "side_a": [
+    "CH_20260918_32_SXTC مقابل CH_20260918_25_SXTC (اليومُ نفسُه بطقمي خطوط)",
+    "CH_20260918_45_NUWE مقابل CH_20260918_39_NUWE (السعرُ نفسُه 0.7755)",
+    "CH_20260918_63_ELPW مقابل CH_20260918_65_ELPW (اللحظةُ نفسُها)"
+   ],
+   "side_b": [
+    "X_20260905_10 «دايما ارسم المقاومه باللاين الاسود»"
+   ],
+   "status": "RESOLVED_FOR_V4"
+  },
+  {
+   "engine_effect": "لا مقياسَ ربحٍ في V4 (§24) · والتعريفان يُعلَنان ولا يُوفَّقان",
+   "id": "C-SUCCESS-DEF",
+   "rules": [
+    "R4-TGT-01"
+   ],
+   "side_a": [
+    "IMG_0628 «يبقى علم التحليل وان خرب السهم فتره لابد يرجع يحقق شموعه»"
+   ],
+   "side_b": [
+    "تعريفُ الأداة: الهدفُ قبل الإبطال (T-TGT · hs_forensic/TARGET_FORENSICS.md)"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "منشوراتُ القناة طبقة 2b (حساسيّةٌ فقط) ولا تصنع وسمًا · وهويّةُ القناة سؤالٌ للمالك",
+   "id": "C-AUTHOR-DARKCHANNEL",
+   "rules": [],
+   "side_a": [
+    "IMG_0303 نسخةٌ حرفيّة من منشور فيصل الظاهر TG_1807 بوسم «# نصائح تعليمية»"
+   ],
+   "side_b": [
+    "IMG_0289 · IMG_0294 · IMG_0295 منشوراتٌ بلا اسمٍ ظاهر · والقناةُ تنشر لنفسها أيضًا (TG_50596 · TG_20260918_30_targets7)"
+   ],
+   "status": "UNRESOLVED_OWNER_QUESTION"
+  },
+  {
+   "engine_effect": "سُحب الاستنتاج (C10) · لقطاتُ النخلة غيرُ المنشورة طبقة 2 (INFERRED_DEVICE_LINKED · حساسيّةٌ فقط)",
+   "id": "C-AUTHOR-PALMTREE",
+   "rules": [],
+   "side_a": [
+    "استنتاجٌ مبكّر في مرور V4: فقاعاتُ واتساب الخضراء بخلفيّة النخلة = مشرفُ القناة لا فيصل"
+   ],
+   "side_b": [
+    "X_20260827_amix_pressure_497: منشورُ فيصل على X (‏@kisar_) يضمّن لقطةَ المجموعة بالخلفيّة نفسِها"
+   ],
+   "status": "RESOLVED (النخيلُ جهازُ فيصل)"
+  },
+  {
+   "engine_effect": "الصريحُ يعلو الاصطلاح (V4_prereg §③) · وشرطُ «فوق السعر» لحاملٍ ⟵ HOLD_STATUS لا WAIT جديد",
+   "id": "C-TRIG-ABOVE-HOLDER",
+   "rules": [],
+   "side_a": [
+    "IMG_0319 JZ «في حال صعد المضارب 4 مقاومه مهم يتحرر منها» ⟵ WAIT بالاصطلاح",
+    "IMG_0393 SPRC «5.50 لو تجاوزها تكمن الاجابيه»"
+   ],
+   "side_b": [
+    "IMG_0393 «تحديث لبعض الاسهم السابقه» — تحديثٌ لحاملي مركزٍ قائم لا قرارُ دخولٍ جديد",
+    "IMG_0645 TDIC «2.69 مهم ثباته فوقها» ثمّ READY صريحٌ (IMG_0659)"
+   ],
+   "status": "RESOLVED_BY_CONVENTION"
+  },
+  {
+   "engine_effect": "تصحيحُ الكاتالوج (C06) · لا كود",
+   "id": "C-T7",
+   "rules": [
+    "R4-TGT-01"
+   ],
+   "side_a": [
+    "الكاتالوج (:1463 · §سابع وعشرون) «الهدف السابع»"
+   ],
+   "side_b": [
+    "TG_20260918_30_targets7 «يوصل 7» — سعرٌ ($7 · ‏+250% من ‏≈$2)",
+    "TG_20260918_08_NTCL"
+   ],
+   "status": "RESOLVED ($7 سعر · STRONGLY_SUPPORTED)"
+  },
+  {
+   "engine_effect": "قراءةٌ معكوسة صُحّحت (C07) ⟵ فيصل والقناة يتّفقان: لا دخولَ في المناطق الضبابيّة",
+   "id": "C-FOGGY",
+   "rules": [],
+   "side_a": [
+    "الكاتالوج :1470 «مدخلي بالمناطق الضبابيّة الأولى» (إثبات)"
+   ],
+   "side_b": [
+    "X_20260918_13_NUWE (فيصل ظاهر) «مادخل السهم بالمناطق الضبابيه الاولى» (نفي)",
+    "TG_20260918_38_NUWE «مادخل مناطق ضبابيه الان»"
+   ],
+   "status": "DISSOLVED (خطأُ قراءة)"
+  },
+  {
+   "engine_effect": "لا هدفَ من متوسّط",
+   "id": "C-MA-TARGET",
+   "rules": [
+    "R4-TGT-01"
+   ],
+   "side_a": [
+    "TG_2063 «ثاني هدف: متوسط 20 أو 50» (كاتبٌ غيرُ مؤكَّد)"
+   ],
+   "side_b": [
+    "الأهدافُ = سلّمُ المقاومات (D5)"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "الألوانُ لا تدخل المحرّك",
+   "id": "C-PURPLE",
+   "rules": [],
+   "side_a": [
+    "FUSE «ثبات دعم = دخول» · PPBT «مناطق طلب»"
+   ],
+   "side_b": [
+    "ELPW هدفُ شمعةٍ هابطة · TG_2003 مستوياتٌ وسيطة"
+   ],
+   "status": "PRIMARY=DEMAND · NOT EXCLUSIVE"
+  }
+ ],
+ "corrections_as_contradictions": [
+  {
+   "anchor": null,
+   "claim": "استنتاجٌ مبكّرٌ في مرور V4: «فقاعاتُ واتساب الخضراء بخلفيّة النخلة = مشرفُ القناة التعليميّة لا فيصل»",
+   "correction": "سُحب الاستنتاج: لقطاتُ النخلة غيرُ المنشورة من فيصل نفسِه طبقة 2 (INFERRED_DEVICE_LINKED · حساسيّةٌ فقط)",
+   "effect": "لا كود · لا وسم",
+   "evidence": [
+    "منشوراتُ فيصل على X (ترويسة @kisar_) تضمّن لقطاتِ مجموعة «ستوك» بخلفيّة النخلة نفسِها (amix_pressure_497 · 2026-08-24)"
+   ],
+   "file": "(ملاحظاتُ عمل V4 — لا ملفّ في المستودع)",
+   "id": "C10",
+   "line": null,
+   "status": "WITHDRAWN_INFERENCE"
+  },
+  {
+   "anchor": "«دائمًا أرسم المقاومة باللاين الأسود» `X_84`",
+   "claim": "خطوطُ شارتات فيصل رسمٌ يدويّ («أرسم»)",
+   "correction": "تعارضٌ مفتوح لا يُحسم: وسومُ V4 من النصّ وحدَه والخطوطُ لا تُعدّ سندًا للمستويات",
+   "effect": "لا كود",
+   "evidence": [
+    "C-AUTO-LEVELS: خطوطُ التطبيق تتغيّر بتغيّر مدى العرض في اليوم نفسِه (ملحق V4 · `forensics_v4.json`)",
+    "X_84 «دايما ارسم المقاومه باللاين الاسود»"
+   ],
+   "file": "FAISAL_IMAGES_CATALOG.md",
+   "id": "C13",
+   "line": 1488,
+   "status": "CONTRADICTION_RECORDED"
+  }
+ ],
+ "downgrade_policy": "قاعدةٌ بتعارضاتٍ قويّةٍ متكرّرة تُخفَّض أو يُعاد تصنيفُها (§28) — R-W-SPAN مُدمَجة · H-D2 CONTRADICTED · R4-OP-01 قراريّتُها UNKNOWN",
+ "generated_by": "faisal_method_v4/v4_docs.py ⟵ results/forensics_v4.json · rules_v4.py · data/corrections_v4.json",
+ "per_rule_contradicting_examples": {
+  "H-D2": {
+   "contradicting": [
+    "DXST: لا النظاميّ ولا الممتدّ أعاد W فيصل"
+   ],
+   "decisionality": "UNKNOWN",
+   "status": "CONTRADICTED"
+  },
+  "R-SUP-MAIN": {
+   "contradicting": [
+    "ZNB · LABT (V3.1 C1)"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "SUPPORTED"
+  },
+  "R-W-SPAN": {
+   "contradicting": [],
+   "decisionality": "UNKNOWN",
+   "status": "SUPPORTED"
+  },
+  "R4-BOT-01": {
+   "contradicting": [
+    "C1 (V3.1): دعومُ فيصل فوق الذيل أحيانًا (ZNB 1.963 · LABT 2/1.80) — حُلّ بفصل القاع (ذيل) عن الدعم (جسم · دعمٌ ثانٍ · منطقة)"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "SUPPORTED"
+  },
+  "R4-CYC-01": {
+   "contradicting": [
+    "X_20260918_85_YMT نفسُه: «يصعد مباشره بعد القاع … نادر» (استثناءٌ معترَف به)",
+    "TG_1985 «اسهم تصعد مباشره لاتصلح لها هذي النظريه»",
+    "X_20260827_checklist_7points: دخولٌ عند القاع بلا صعود اختبار (C-CYCLE-VS-CHECKLIST)"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "CONFIRMED"
+  },
+  "R4-DATA-01": {
+   "contradicting": [],
+   "decisionality": "DECISIONAL",
+   "status": "CONFIRMED"
+  },
+  "R4-ENT-01": {
+   "contradicting": [
+    "TG_1963 ERNA «اللي ماتفرق معاه ومتعود يشري من العرض قدامك السهم»",
+    "IMG_0291 DSY «اخذته الان من العرض الليلي»",
+    "IMG_0290 AZI «شيله من العرض باي سعر» (عند التحرّر)",
+    "TG_2059 PPCB «ماركت ناخذه»"
+   ],
+   "decisionality": "SUPPORTING",
+   "status": "CONFIRMED"
+  },
+  "R4-ENT-02": {
+   "contradicting": [
+    "TG_1840 «تشري ع الاختراق اعرف انك خسران … الاختراق فاشل الدخول فيه» (C-BREAKOUT)"
+   ],
+   "decisionality": "INFORMATIONAL",
+   "status": "SUPPORTED"
+  },
+  "R4-HOLD-01": {
+   "contradicting": [
+    "WA_20260918_31_SXTC: READY يومَ الضغط (طبقة 2)",
+    "TG_2059 PPCB: «ماركت ناخذه» بعد الضغط والارتداد"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "SUPPORTED"
+  },
+  "R4-HOLDZ-01": {
+   "contradicting": [
+    "IMG_0395 SPRC: «حقق الدعوم بالامس» ثمّ شراء (جلسةٌ واحدة)",
+    "WA_20260918_31_SXTC: READY يومَ الضغط",
+    "IMG_0659 TDIC (EDU): الدخولُ على شمعة الهمر"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "PROBABLE"
+  },
+  "R4-INV-01": {
+   "contradicting": [
+    "C-SUPPORT10: ENPH ‏−11..−13% وELAB ‏−39% ثمّ صعودٌ كبير (TG_2017 · TG_2127)"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "SUPPORTED"
+  },
+  "R4-LOC-01": {
+   "contradicting": [
+    "T-W (V3): «الوسط غير آمن» عُكس يوميًّا بقياسٍ تداوليّ (A − M ‏−0.98) — مقياسُ ربحٍ لا وفاء (§24)"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "CONFIRMED"
+  },
+  "R4-OP-01": {
+   "contradicting": [
+    "X_20260827_checklist_7points_cont «ماتم ضغطه … تدخل مباشره ع خط متوسط 50 > 200»",
+    "AMIX READY قبل الضغط (طلبات)"
+   ],
+   "decisionality": "UNKNOWN",
+   "status": "SUPPORTED"
+  },
+  "R4-STOP-01": {
+   "contradicting": [
+    "TG_1978 «الوقف −5٪»",
+    "TG_2098 HUBC «وقف 7٪»",
+    "X_20260918_61_VEEE «7٪ من دخولنا» (C-STOP-REF)"
+   ],
+   "decisionality": "SUPPORTING",
+   "status": "SUPPORTED"
+  },
+  "R4-SWEEP-01": {
+   "contradicting": [
+    "IMG_0153 وصفةُ المقسّم: هبوطٌ إلى 2 من ÷2≈2.75 (‏−27%)",
+    "C-STOP-VS-SWEEP: وقفُ 5-7% يُضرب بسحب 8%"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "SUPPORTED"
+  },
+  "R4-TF-01": {
+   "contradicting": [],
+   "decisionality": "INFORMATIONAL",
+   "status": "SUPPORTED"
+  },
+  "R4-TGT-01": {
+   "contradicting": [
+    "IMG_0587 «100٪ مضمونه» = يقين لا مسافة (فئةٌ ثالثة)"
+   ],
+   "decisionality": "INFORMATIONAL",
+   "status": "CONFIRMED"
+  },
+  "R4-VAL-GRP-01": {
+   "contradicting": [
+    "X_20260905_10 YMT «لايهم حتى لو دخل قروب ورفعه 20٪ · المضارب اذا بيحقق اهدافه راح يهبط فيه»"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "SUPPORTED"
+  },
+  "R4-VAL-OFF-01": {
+   "contradicting": [],
+   "decisionality": "DECISIONAL",
+   "status": "SUPPORTED"
+  },
+  "R4-VAL-SHORT-01": {
+   "contradicting": [
+    "TG_2196 ONCO: شورت 150 ألفًا وخطّةٌ كاملة",
+    "TG_1831 LABT: «الشورت 55 ألف متاح ولم يمنع التحليل» (طبقة 2)"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "PROBABLE"
+  },
+  "R4-ZONE-01": {
+   "contradicting": [
+    "TG_1963 ERNA: طلباتٌ 5.00-5.40 فوق قاعٍ قديم 3.70 بـ35%+ (القاعُ المرجعيُّ مختلف)"
+   ],
+   "decisionality": "DECISIONAL",
+   "status": "SUPPORTED"
+  }
+ }
+}

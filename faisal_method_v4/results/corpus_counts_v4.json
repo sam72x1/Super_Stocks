@@ -1,0 +1,38 @@
+{
+ "accessible": 722,
+ "cluster_members_reviewed_v3": 113,
+ "content_third_party": 162,
+ "definitions": {
+  "ACCESSIBLE": "PIL يفتحه ‏+ SHA-256 = السجلّ",
+  "EXISTS": "الملفُّ على القرص",
+  "PRIMARY": "a = F بطبقة 1",
+  "USED_AS_EVIDENCE": "عبارةُ قرار (cases_v4) أو شاهدُ قاعدة (rules) بطبقةٍ غيرِ X",
+  "VISUALLY_INSPECTED": "ممثّلُ الوحدة في مرور V4 · وعضوُ العنقود في مراجعة V3 البصريّة",
+  "content_third_party": "الكاتبُ غيرُ فيصل أو المحتوى المضمَّن لغيره"
+ },
+ "files_exist": 722,
+ "generated_by": "faisal_method_v4/v4_corpus.py",
+ "images_in_corpus_record": 722,
+ "multi_member_clusters": 102,
+ "opened_representatives": 609,
+ "primary_images": 265,
+ "rules_v31_inventory": 369,
+ "sha256_match": 722,
+ "tiers_by_image": {
+  "1": 267,
+  "2": 302,
+  "2b": 75,
+  "X": 78
+ },
+ "units_after_v31_visual_merges": 602,
+ "units_by_hash_ocr": 609,
+ "used_as_evidence": {
+  "DECISION_STATEMENT": 220,
+  "NOT_USED": 277,
+  "RULE_WITNESS": 190,
+  "THIRD_PARTY": 35
+ },
+ "used_as_evidence_total": 410,
+ "v4_pass_records": 609,
+ "visually_inspected": 722
+}

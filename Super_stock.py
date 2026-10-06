@@ -4939,12 +4939,22 @@ def _parse_ce_borrow(html: str) -> dict:
       «As of <b>2026-07-10 03:54 AM EDT</b>, there were <b>550,000</b> shares
        available with a fee of <b>0.40%</b>.»
     (بيانات Interactive Brokers، تُحدَّث كل 15 دقيقة.) نقتصّ نافذة بعد المرساة،
-    نجرّد الوسوم، ثم regex بسيط. {} عند أي شكل غير متوقّع (فاشل-آمن)."""
+    نجرّد الوسوم، ثم regex بسيط. {} عند أي شكل غير متوقّع (فاشل-آمن).
+
+    🩹 (2026-10-06 · عطلٌ مُثبَت: حصّادُ 37430703426 «parse:empty» 26 من 26 والصفحةُ ‏≈117 ألف محرف): الموقعُ انتقل
+    إلى Next.js فغابت المرساةُ `name="ctbtoday"` (عنوانُ القسم يحمل `href="#ctbtoday"`) · **والجملةُ نفسُها باقية** في فقرة
+    `<p class="… bf-summary">` بعد أيقونةٍ ‏≈700 محرف (مِجَسّ 37536166300 على GWAV/LABT: «there were <strong>40,000</strong>
+    shares available with a fee of<!-- --> <strong>5.21<!-- -->%</strong>»). ⇒ المرساةُ القديمة أوّلًا **بت-بت**، وإلّا
+    الفقرةُ بصنفها — لا بحثَ في الصفحة كلِّها (حمولةُ Next.js المضمَّنة نسخةٌ ثانية من المحتوى)."""
     try:
         i = html.find('name="ctbtoday"')
-        if i < 0:
-            return {}
-        window = re.sub(r"<[^>]+>", " ", html[i:i + 1200])
+        if i >= 0:
+            window = re.sub(r"<[^>]+>", " ", html[i:i + 1200])
+        else:
+            p = re.search(r'<p\b[^>]*\bclass="[^"]*\bbf-summary\b[^"]*"[^>]*>(.*?)</p>', html, re.S)
+            if not p:
+                return {}
+            window = re.sub(r"<[^>]+>", " ", p.group(1))
         m = re.search(r"there were\s*([\d,]+)\s*shares available with a fee of"
                       r"\s*([\d,]+(?:\.\d+)?)\s*%", window)
         if not m:
@@ -4982,6 +4992,8 @@ def ce_borrow_info(sym: str, diag: dict = None) -> dict:
                               else "parse:empty")
             # 🩺 ما الذي عاد فعلًا؟ طولُ الصفحة ومقتطفُ جملة «ctbtoday» (أو عنوانُ الصفحة)
             _i = _t.find('name="ctbtoday"')
+            if _i < 0:                    # 🩹 (2026-10-06) صيغةُ Next.js: عنوانُ القسم يحمل `href="#ctbtoday"`
+                _i = _t.find('href="#ctbtoday"')
             _m = re.search(r"<title[^>]*>(.*?)</title>", _t, re.S | re.I)
             diag["len"] = len(_t)
             diag["snip"] = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", (

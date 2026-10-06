@@ -1,0 +1,189 @@
+{
+ "caught": 36,
+ "total": 36,
+ "rows": [
+  {
+   "mutation": "M1 HOLD_MIN 5→4",
+   "result": "CAUGHT V4L10,V4L11,V4L13,V4L14",
+   "crash": ""
+  },
+  {
+   "mutation": "M2 groups→WAIT",
+   "result": "CAUGHT V4L6",
+   "crash": ""
+  },
+  {
+   "mutation": "M3 no UNKNOWN on missing",
+   "result": "CAUGHT V4L6,V4L11,V4L14",
+   "crash": ""
+  },
+  {
+   "mutation": "M4 asof <=",
+   "result": "CAUGHT V4L4,V4L11,V4L14",
+   "crash": ""
+  },
+  {
+   "mutation": "M5 no slicing",
+   "result": "CAUGHT V4L4,V4L5,V4L6",
+   "crash": ""
+  },
+  {
+   "mutation": "M6 RETEST_PENDING→TECH_READY",
+   "result": "CAUGHT V4L6,V4L11,V4L13,V4L14,V4L16",
+   "crash": ""
+  },
+  {
+   "mutation": "M7 tier X makes label",
+   "result": "CAUGHT V4L1,V4L3",
+   "crash": ""
+  },
+  {
+   "mutation": "M8 H-LEVEL 0.15→0.10",
+   "result": "CAUGHT V4L8",
+   "crash": ""
+  },
+  {
+   "mutation": "M9 BOTH agrees AT",
+   "result": "CAUGHT V4L8",
+   "crash": ""
+  },
+  {
+   "mutation": "M10 band 0.5/1.5",
+   "result": "CAUGHT V4L8,V4L11",
+   "crash": ""
+  },
+  {
+   "mutation": "M11 label 1.52→1.53",
+   "result": "CAUGHT V4L1,V4L2",
+   "crash": ""
+  },
+  {
+   "mutation": "M12 workflow schedule",
+   "result": "CAUGHT V4L9",
+   "crash": ""
+  },
+  {
+   "mutation": "M13 backtest flag",
+   "result": "CAUGHT V4L7,V4L13",
+   "crash": ""
+  },
+  {
+   "mutation": "M14 golden ticker in engine",
+   "result": "CAUGHT V4L7",
+   "crash": ""
+  },
+  {
+   "mutation": "M15 scale tol 0.5",
+   "result": "CAUGHT V4L8,V4L11",
+   "crash": ""
+  },
+  {
+   "mutation": "M16 emit chunk drop",
+   "result": "CAUGHT V4L9",
+   "crash": ""
+  },
+  {
+   "mutation": "M17 VEEE ambiguous→dated",
+   "result": "CAUGHT V4L8",
+   "crash": ""
+  },
+  {
+   "mutation": "M18 DXST E→C",
+   "result": "CAUGHT V4L8",
+   "crash": ""
+  },
+  {
+   "mutation": "M19 SWEEP_MAX 13→20",
+   "result": "CAUGHT V4L6,V4L10,V4L11,V4L13",
+   "crash": ""
+  },
+  {
+   "mutation": "M20 prior base not established",
+   "result": "CAUGHT V4L6,V4L11,V4L14",
+   "crash": ""
+  },
+  {
+   "mutation": "M21 Actions metrics diff edited",
+   "result": "CAUGHT V4L11,V4L13",
+   "crash": ""
+  },
+  {
+   "mutation": "M22 fixture sha file edited",
+   "result": "CAUGHT V4L11",
+   "crash": ""
+  },
+  {
+   "mutation": "M23 ledger sweep tag back to verbatim",
+   "result": "CAUGHT V4L12",
+   "crash": ""
+  },
+  {
+   "mutation": "M24 catalog drops C07",
+   "result": "CAUGHT V4L12",
+   "crash": ""
+  },
+  {
+   "mutation": "M25 doc hand-edited",
+   "result": "CAUGHT V4L13",
+   "crash": ""
+  },
+  {
+   "mutation": "M26 status COMPLETE",
+   "result": "CAUGHT V4L13,V4L15",
+   "crash": ""
+  },
+  {
+   "mutation": "M27 golden count edited",
+   "result": "CAUGHT V4L13,V4L14",
+   "crash": ""
+  },
+  {
+   "mutation": "M28 VEEE anchor change 0.640",
+   "result": "CAUGHT V4L14",
+   "crash": ""
+  },
+  {
+   "mutation": "M29 pool cards_B 272→271",
+   "result": "CAUGHT V4L11,V4L13,V4L14",
+   "crash": ""
+  },
+  {
+   "mutation": "M30 C07 anchor erased from catalog",
+   "result": "CAUGHT V4L12",
+   "crash": ""
+  },
+  {
+   "mutation": "M31 doc renamed",
+   "result": "CAUGHT V4L13",
+   "crash": ""
+  },
+  {
+   "mutation": "M32 P1 flipped",
+   "result": "CAUGHT V4L13,V4L15",
+   "crash": ""
+  },
+  {
+   "mutation": "M33 contradiction status softened",
+   "result": "CAUGHT V4L16",
+   "crash": ""
+  },
+  {
+   "mutation": "M34 primary includes unknown author",
+   "result": "CAUGHT V4L16",
+   "crash": ""
+  },
+  {
+   "mutation": "M35 registry sha tampered",
+   "result": "CAUGHT V4L11",
+   "crash": ""
+  },
+  {
+   "mutation": "M36 fixture byte flipped",
+   "result": "CAUGHT V4L11",
+   "crash": ""
+  }
+ ],
+ "clean_before": "fail: 0 of 16",
+ "clean_after": "fail: 0 of 16",
+ "harness": "mutate_v4.py · -B ‏+ PYTHONDONTWRITEBYTECODE ‏+ مسحُ __pycache__ قبل كلّ تشغيل (درسُ الـ.pyc البائت 2026-10-02)"
+}

@@ -1,0 +1,1661 @@
+{
+ "_commit": "2ebf7250d",
+ "_job": 111046070399,
+ "_note": "إعادةُ V4 لوضع poolcap2 كما هو (V4_prereg §⑫) · أجزاءُ V3OUT أُعيد تجميعُها برمجيًّا من سجلّ التشغيلة",
+ "_source_run": 37069735610,
+ "_v4_compare": {
+  "identical_except_timing": true,
+  "prereg_rule": "تطابقٌ تامّ ⟵ «أُعيد إنتاجُه» · والحكمُ بعقد V31_prereg §④: الاتّفاقُ ≥ 0.60 شرطُ القراءة وإلّا UNKNOWN",
+  "reproduced": true,
+  "secs_v31": 26.6,
+  "secs_v4": 27.7,
+  "v31_source_run": 37036594447,
+  "verdict": "UNKNOWN"
+ },
+ "coverage": 0.9772,
+ "fetch_report": {
+  "asked": 613,
+  "empty": 0,
+  "gate": {
+   "done": 613,
+   "fail": 13,
+   "open": false,
+   "skipped": 0,
+   "timeout": false
+  },
+  "map": "scan",
+  "n": 360,
+  "none": 13,
+  "secs": 27.7,
+  "short": 1,
+  "src": "tradingview",
+  "tv": 599
+ },
+ "repro_ledger_jaccard_mean": 0.5061,
+ "repro_sessions": 34,
+ "rows": [
+  {
+   "cap_only_lost": [
+    "ONFO"
+   ],
+   "cards_A": [
+    "ICCM",
+    "BRAI",
+    "LMFA",
+    "NVCT",
+    "QTI",
+    "WRAP",
+    "QTTB",
+    "AEMD"
+   ],
+   "cards_B": [
+    "ICCM",
+    "BRAI",
+    "LMFA",
+    "ONFO",
+    "NVCT",
+    "QTI",
+    "WRAP",
+    "QTTB"
+   ],
+   "cards_C": [
+    "ICCM",
+    "BRAI",
+    "ONFO",
+    "QTI",
+    "WRAP",
+    "QTTB",
+    "AEMD",
+    "GRNQ"
+   ],
+   "displaced_A": [
+    "AEMD"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": null,
+   "qual_A": 16,
+   "qual_B": 21,
+   "session": "2026-08-13"
+  },
+  {
+   "cap_only_lost": [],
+   "cards_A": [
+    "GNPX",
+    "CODX",
+    "ICCM",
+    "BRAI",
+    "MTVA",
+    "HTCO",
+    "CTNT",
+    "SEGG"
+   ],
+   "cards_B": [
+    "GNPX",
+    "CODX",
+    "ICCM",
+    "BRAI",
+    "MTVA",
+    "HTCO",
+    "CTNT",
+    "SEGG"
+   ],
+   "cards_C": [
+    "CODX",
+    "ICCM",
+    "BRAI",
+    "MTVA",
+    "HTCO",
+    "CTNT",
+    "SEGG",
+    "PN"
+   ],
+   "displaced_A": [],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.67,
+   "qual_A": 64,
+   "qual_B": 76,
+   "session": "2026-08-14"
+  },
+  {
+   "cap_only_lost": [
+    "FTFT",
+    "MSGY",
+    "ELPW"
+   ],
+   "cards_A": [
+    "GCTK",
+    "AEMD"
+   ],
+   "cards_B": [
+    "FTFT",
+    "GCTK",
+    "MSGY",
+    "AEMD",
+    "ELPW"
+   ],
+   "cards_C": [
+    "GCTK",
+    "MSGY",
+    "AEMD",
+    "ELPW"
+   ],
+   "displaced_A": [],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.015,
+   "qual_A": 8,
+   "qual_B": 19,
+   "session": "2026-08-15"
+  },
+  {
+   "cap_only_lost": [
+    "FTFT",
+    "MSGY",
+    "ELPW"
+   ],
+   "cards_A": [
+    "GCTK",
+    "AEMD"
+   ],
+   "cards_B": [
+    "FTFT",
+    "GCTK",
+    "MSGY",
+    "AEMD",
+    "ELPW"
+   ],
+   "cards_C": [
+    "GCTK",
+    "MSGY",
+    "AEMD",
+    "ELPW"
+   ],
+   "displaced_A": [],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.0,
+   "qual_A": 7,
+   "qual_B": 18,
+   "session": "2026-08-16"
+  },
+  {
+   "cap_only_lost": [
+    "IPW",
+    "FTFT",
+    "ELPW",
+    "TNON",
+    "JWEL"
+   ],
+   "cards_A": [
+    "CDT",
+    "NEXR",
+    "AIIO",
+    "AEMD"
+   ],
+   "cards_B": [
+    "IPW",
+    "CDT",
+    "NEXR",
+    "FTFT",
+    "ELPW",
+    "TNON",
+    "AIIO",
+    "JWEL"
+   ],
+   "cards_C": [
+    "IPW",
+    "NEXR",
+    "ELPW",
+    "TNON",
+    "JWEL",
+    "AEMD"
+   ],
+   "displaced_A": [
+    "AEMD"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.014,
+   "qual_A": 19,
+   "qual_B": 31,
+   "session": "2026-08-17"
+  },
+  {
+   "cap_only_lost": [
+    "FTFT",
+    "THH"
+   ],
+   "cards_A": [
+    "NAMI",
+    "WXM",
+    "WLDS",
+    "AIIO",
+    "ATPC",
+    "CALC",
+    "DSY",
+    "NXTT"
+   ],
+   "cards_B": [
+    "FTFT",
+    "NAMI",
+    "WXM",
+    "WLDS",
+    "AIIO",
+    "ATPC",
+    "THH",
+    "CALC"
+   ],
+   "cards_C": [
+    "NAMI",
+    "WXM",
+    "WLDS",
+    "THH",
+    "CALC",
+    "DSY",
+    "NXTT",
+    "JUNS"
+   ],
+   "displaced_A": [
+    "DSY",
+    "NXTT"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.538,
+   "qual_A": 24,
+   "qual_B": 36,
+   "session": "2026-08-18"
+  },
+  {
+   "cap_only_lost": [
+    "VSME",
+    "THH",
+    "GMM"
+   ],
+   "cards_A": [
+    "XAIR",
+    "JUNS",
+    "AMIX"
+   ],
+   "cards_B": [
+    "XAIR",
+    "VSME",
+    "THH",
+    "JUNS",
+    "AMIX",
+    "GMM"
+   ],
+   "cards_C": [
+    "XAIR",
+    "THH",
+    "JUNS",
+    "AMIX"
+   ],
+   "displaced_A": [],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.308,
+   "qual_A": 10,
+   "qual_B": 20,
+   "session": "2026-08-19"
+  },
+  {
+   "cap_only_lost": [
+    "VSME",
+    "CUPR",
+    "ATPC",
+    "THH",
+    "GMM",
+    "FCEL"
+   ],
+   "cards_A": [
+    "NEXR",
+    "DFNS"
+   ],
+   "cards_B": [
+    "VSME",
+    "NEXR",
+    "DFNS",
+    "CUPR",
+    "ATPC",
+    "THH",
+    "GMM",
+    "FCEL"
+   ],
+   "cards_C": [
+    "NEXR",
+    "DFNS",
+    "THH",
+    "RMCF"
+   ],
+   "displaced_A": [],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.5,
+   "qual_A": 13,
+   "qual_B": 31,
+   "session": "2026-08-20"
+  },
+  {
+   "cap_only_lost": [
+    "VSME",
+    "THH",
+    "ATPC",
+    "PLSM",
+    "FGI",
+    "GMM"
+   ],
+   "cards_A": [
+    "SEGG",
+    "YYAI",
+    "LEDS"
+   ],
+   "cards_B": [
+    "VSME",
+    "SEGG",
+    "THH",
+    "ATPC",
+    "PLSM",
+    "YYAI",
+    "FGI",
+    "GMM"
+   ],
+   "cards_C": [
+    "SEGG",
+    "THH",
+    "FGI",
+    "TRUG",
+    "LEDS",
+    "RMCF",
+    "MYSZ"
+   ],
+   "displaced_A": [
+    "LEDS"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.25,
+   "qual_A": 9,
+   "qual_B": 33,
+   "session": "2026-08-21"
+  },
+  {
+   "cap_only_lost": [
+    "KPTI",
+    "VSME",
+    "NVNI",
+    "BYAH"
+   ],
+   "cards_A": [
+    "MTVA",
+    "CLIK",
+    "KITT",
+    "YYAI",
+    "PN",
+    "WXM",
+    "GCTK",
+    "SKYQ"
+   ],
+   "cards_B": [
+    "KPTI",
+    "VSME",
+    "MTVA",
+    "NVNI",
+    "CLIK",
+    "BYAH",
+    "KITT",
+    "YYAI"
+   ],
+   "cards_C": [
+    "MTVA",
+    "CLIK",
+    "BYAH",
+    "KITT",
+    "KIDZ",
+    "WXM",
+    "LFS",
+    "AUUD"
+   ],
+   "displaced_A": [
+    "PN",
+    "WXM",
+    "GCTK",
+    "SKYQ"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.765,
+   "qual_A": 51,
+   "qual_B": 91,
+   "session": "2026-08-24"
+  },
+  {
+   "cap_only_lost": [
+    "KPTI",
+    "ATGL",
+    "AIIO",
+    "VSME",
+    "NVNI",
+    "BYAH"
+   ],
+   "cards_A": [
+    "KWM",
+    "KITT",
+    "GCTK",
+    "STKH",
+    "LBGJ",
+    "YYAI",
+    "JZ",
+    "AIRO"
+   ],
+   "cards_B": [
+    "KPTI",
+    "KWM",
+    "ATGL",
+    "AIIO",
+    "VSME",
+    "NVNI",
+    "BYAH",
+    "KITT"
+   ],
+   "cards_C": [
+    "KWM",
+    "ATGL",
+    "BYAH",
+    "KITT",
+    "STKH",
+    "LBGJ",
+    "JZ",
+    "AIRO"
+   ],
+   "displaced_A": [
+    "GCTK",
+    "STKH",
+    "LBGJ",
+    "YYAI",
+    "JZ",
+    "AIRO"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.429,
+   "qual_A": 30,
+   "qual_B": 70,
+   "session": "2026-08-25"
+  },
+  {
+   "cap_only_lost": [
+    "KPTI",
+    "GMM",
+    "APVO",
+    "CCHH"
+   ],
+   "cards_A": [
+    "YAAS",
+    "BYAH",
+    "NTCL",
+    "VRAX",
+    "LBGJ",
+    "MYPS",
+    "MVIS",
+    "KUST"
+   ],
+   "cards_B": [
+    "KPTI",
+    "YAAS",
+    "GMM",
+    "BYAH",
+    "NTCL",
+    "APVO",
+    "CCHH",
+    "VRAX"
+   ],
+   "cards_C": [
+    "YAAS",
+    "BYAH",
+    "NTCL",
+    "CXAI",
+    "SMXT",
+    "LBGJ",
+    "ONFO",
+    "FGI"
+   ],
+   "displaced_A": [
+    "LBGJ",
+    "MYPS",
+    "MVIS",
+    "KUST"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.091,
+   "qual_A": 29,
+   "qual_B": 76,
+   "session": "2026-08-28"
+  },
+  {
+   "cap_only_lost": [
+    "ATGL",
+    "HUIZ",
+    "GMM",
+    "CCHH"
+   ],
+   "cards_A": [
+    "BYAH",
+    "ONFO",
+    "CDTG",
+    "DFNS",
+    "VRAX",
+    "PCLA",
+    "XPON",
+    "EUDA"
+   ],
+   "cards_B": [
+    "ATGL",
+    "HUIZ",
+    "GMM",
+    "BYAH",
+    "ONFO",
+    "CDTG",
+    "DFNS",
+    "CCHH"
+   ],
+   "cards_C": [
+    "CDTG",
+    "CXAI",
+    "XPON",
+    "SMXT",
+    "JWEL",
+    "VIP",
+    "NCTY",
+    "XOS"
+   ],
+   "displaced_A": [
+    "VRAX",
+    "PCLA",
+    "XPON",
+    "EUDA"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.605,
+   "qual_A": 38,
+   "qual_B": 99,
+   "session": "2026-08-31"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "KPTI",
+    "CRMT",
+    "ICCM",
+    "SLBT",
+    "CPOP"
+   ],
+   "cards_A": [
+    "SLMT",
+    "NXTT",
+    "KIDZ",
+    "DFSC",
+    "WYHG",
+    "HAO",
+    "JLHL",
+    "EJH"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "KPTI",
+    "CRMT",
+    "ICCM",
+    "SLBT",
+    "SLMT",
+    "NXTT",
+    "CPOP"
+   ],
+   "cards_C": [
+    "SLMT",
+    "KIDZ",
+    "GRML",
+    "DFSC",
+    "IMCC",
+    "HAO",
+    "JWEL",
+    "EJH"
+   ],
+   "displaced_A": [
+    "KIDZ",
+    "DFSC",
+    "WYHG",
+    "HAO",
+    "JLHL",
+    "EJH"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.5,
+   "qual_A": 26,
+   "qual_B": 92,
+   "session": "2026-09-01"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "EHGO",
+    "CRMT",
+    "CPOP"
+   ],
+   "cards_A": [
+    "DSY",
+    "CLIK",
+    "NXTT",
+    "SEGG",
+    "IVF",
+    "CLRO",
+    "SKYQ",
+    "SLE"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "EHGO",
+    "CRMT",
+    "DSY",
+    "CLIK",
+    "NXTT",
+    "SEGG",
+    "CPOP"
+   ],
+   "cards_C": [
+    "CLIK",
+    "SEGG",
+    "GRML",
+    "IVF",
+    "SLE",
+    "CELZ",
+    "TRIB",
+    "BYND"
+   ],
+   "displaced_A": [
+    "IVF",
+    "CLRO",
+    "SKYQ",
+    "SLE"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.464,
+   "qual_A": 58,
+   "qual_B": 124,
+   "session": "2026-09-02"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "CRMT",
+    "CPOP",
+    "STAK",
+    "JZXN",
+    "AZI"
+   ],
+   "cards_A": [
+    "DCX",
+    "BRAI",
+    "BYND",
+    "FVN",
+    "SUNE"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "CRMT",
+    "DCX",
+    "CPOP",
+    "STAK",
+    "JZXN",
+    "BRAI",
+    "AZI"
+   ],
+   "cards_C": [
+    "DCX",
+    "BRAI",
+    "BYND",
+    "JWEL",
+    "FVN"
+   ],
+   "displaced_A": [
+    "BYND",
+    "FVN",
+    "SUNE"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.227,
+   "qual_A": 21,
+   "qual_B": 86,
+   "session": "2026-09-03"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "CPOP",
+    "STAK",
+    "MSGY",
+    "LIMN",
+    "AZI",
+    "JZXN"
+   ],
+   "cards_A": [
+    "INBS",
+    "BRAI",
+    "AUUD",
+    "BYND",
+    "QTI",
+    "SGLY"
+   ],
+   "cards_B": [
+    "INBS",
+    "HUIZ",
+    "CPOP",
+    "STAK",
+    "MSGY",
+    "LIMN",
+    "AZI",
+    "JZXN"
+   ],
+   "cards_C": [
+    "INBS",
+    "MSGY",
+    "BRAI",
+    "BYND",
+    "QTI",
+    "JWEL"
+   ],
+   "displaced_A": [
+    "BRAI",
+    "AUUD",
+    "BYND",
+    "QTI",
+    "SGLY"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.56,
+   "qual_A": 20,
+   "qual_B": 83,
+   "session": "2026-09-04"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "TDUP",
+    "SLBT",
+    "SLMT",
+    "CIIT"
+   ],
+   "cards_A": [
+    "SKYQ",
+    "LFS",
+    "MBAI",
+    "CLRO",
+    "XPON",
+    "AIRO",
+    "EUDA",
+    "FEAM"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "TDUP",
+    "SKYQ",
+    "LFS",
+    "SLBT",
+    "SLMT",
+    "MBAI",
+    "CIIT"
+   ],
+   "cards_C": [
+    "LFS",
+    "MBAI",
+    "KIDZ",
+    "MSGY",
+    "XPON",
+    "AIRO",
+    "YFOR",
+    "MB"
+   ],
+   "displaced_A": [
+    "CLRO",
+    "XPON",
+    "AIRO",
+    "EUDA",
+    "FEAM"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.765,
+   "qual_A": 60,
+   "qual_B": 138,
+   "session": "2026-09-08"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "KWM",
+    "TDUP",
+    "SKYQ",
+    "GMM"
+   ],
+   "cards_A": [
+    "INBS",
+    "AIXI",
+    "WXM",
+    "MLEC",
+    "SXTC",
+    "JEM",
+    "CISS",
+    "BYND"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "INBS",
+    "KWM",
+    "AIXI",
+    "TDUP",
+    "WXM",
+    "SKYQ",
+    "GMM"
+   ],
+   "cards_C": [
+    "INBS",
+    "AIXI",
+    "MLEC",
+    "JEM",
+    "CISS",
+    "BYND",
+    "FVN",
+    "AAOI"
+   ],
+   "displaced_A": [
+    "MLEC",
+    "SXTC",
+    "JEM",
+    "CISS",
+    "BYND"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.844,
+   "qual_A": 30,
+   "qual_B": 114,
+   "session": "2026-09-09"
+  },
+  {
+   "cap_only_lost": [
+    "TDUP",
+    "LIMN",
+    "GMM",
+    "STAK",
+    "JUNS",
+    "CLRO"
+   ],
+   "cards_A": [
+    "AIXI",
+    "LRHC",
+    "HTZ",
+    "AIFU",
+    "TRUG",
+    "REAX"
+   ],
+   "cards_B": [
+    "AIXI",
+    "TDUP",
+    "LIMN",
+    "GMM",
+    "LRHC",
+    "STAK",
+    "JUNS",
+    "CLRO"
+   ],
+   "cards_C": [
+    "AIXI",
+    "LRHC",
+    "CISS",
+    "AIFU",
+    "TRUG",
+    "XHG",
+    "REAX"
+   ],
+   "displaced_A": [
+    "HTZ",
+    "AIFU",
+    "TRUG",
+    "REAX"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.5,
+   "qual_A": 14,
+   "qual_B": 97,
+   "session": "2026-09-10"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "SMTK",
+    "TDUP",
+    "LIMN",
+    "AIIO",
+    "GMM",
+    "VRAX"
+   ],
+   "cards_A": [
+    "HCWB",
+    "LRHC",
+    "DFNS"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "SMTK",
+    "TDUP",
+    "LIMN",
+    "AIIO",
+    "GMM",
+    "HCWB",
+    "VRAX"
+   ],
+   "cards_C": [
+    "HCWB",
+    "LRHC",
+    "DFNS"
+   ],
+   "displaced_A": [
+    "LRHC",
+    "DFNS"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.455,
+   "qual_A": 8,
+   "qual_B": 88,
+   "session": "2026-09-11"
+  },
+  {
+   "cap_only_lost": [
+    "SMTK",
+    "TDUP"
+   ],
+   "cards_A": [
+    "EHGO",
+    "INBS",
+    "WHLR",
+    "NXL",
+    "LFS",
+    "MBAI",
+    "TRON",
+    "LRHC"
+   ],
+   "cards_B": [
+    "EHGO",
+    "INBS",
+    "SMTK",
+    "WHLR",
+    "TDUP",
+    "NXL",
+    "LFS",
+    "MBAI"
+   ],
+   "cards_C": [
+    "EHGO",
+    "WHLR",
+    "NXL",
+    "LFS",
+    "MBAI",
+    "TRON",
+    "LRHC",
+    "BRTX"
+   ],
+   "displaced_A": [
+    "TRON",
+    "LRHC"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.921,
+   "qual_A": 62,
+   "qual_B": 148,
+   "session": "2026-09-14"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "STAK",
+    "BRTX",
+    "ZCMD",
+    "WYHG"
+   ],
+   "cards_A": [
+    "MB",
+    "WSHP",
+    "LRHC",
+    "PSQL",
+    "FVN",
+    "REAX",
+    "YMT"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "STAK",
+    "MB",
+    "WSHP",
+    "BRTX",
+    "LRHC",
+    "ZCMD",
+    "WYHG"
+   ],
+   "cards_C": [
+    "WSHP",
+    "BRTX",
+    "LRHC",
+    "BANL",
+    "PSQL",
+    "FVN",
+    "REAX",
+    "YMT"
+   ],
+   "displaced_A": [
+    "PSQL",
+    "FVN",
+    "REAX",
+    "YMT"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.788,
+   "qual_A": 30,
+   "qual_B": 122,
+   "session": "2026-09-15"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "SMTK",
+    "CURX",
+    "ZCMD",
+    "WYHG"
+   ],
+   "cards_A": [
+    "SKYE",
+    "THH",
+    "ZYBT",
+    "NXTC",
+    "CAST",
+    "NVX"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "SMTK",
+    "CURX",
+    "ZCMD",
+    "WYHG",
+    "SKYE",
+    "THH",
+    "ZYBT"
+   ],
+   "cards_C": [
+    "SKYE",
+    "THH",
+    "NXTC",
+    "NFE",
+    "BANL",
+    "CAST",
+    "NVX"
+   ],
+   "displaced_A": [
+    "NXTC",
+    "CAST",
+    "NVX"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.652,
+   "qual_A": 18,
+   "qual_B": 118,
+   "session": "2026-09-16"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "SMTK",
+    "KWM",
+    "WYHG",
+    "LIMN",
+    "JUNS"
+   ],
+   "cards_A": [
+    "YDES",
+    "TRUG"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "YDES",
+    "SMTK",
+    "KWM",
+    "TRUG",
+    "WYHG",
+    "LIMN",
+    "JUNS"
+   ],
+   "cards_C": [
+    "TRUG",
+    "NFE",
+    "BANL",
+    "CTSO"
+   ],
+   "displaced_A": [],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.5,
+   "qual_A": 6,
+   "qual_B": 90,
+   "session": "2026-09-17"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "ATGL",
+    "SMTK",
+    "KWM",
+    "WYHG",
+    "LIMN",
+    "SKYQ",
+    "JZXN"
+   ],
+   "cards_A": [
+    "SUPX",
+    "SFWL",
+    "MYSZ",
+    "CTSO"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "ATGL",
+    "SMTK",
+    "KWM",
+    "WYHG",
+    "LIMN",
+    "SKYQ",
+    "JZXN"
+   ],
+   "cards_C": [
+    "SUPX",
+    "NFE",
+    "SFWL",
+    "MYSZ",
+    "CTSO"
+   ],
+   "displaced_A": [
+    "SUPX",
+    "SFWL",
+    "MYSZ",
+    "CTSO"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.238,
+   "qual_A": 10,
+   "qual_B": 92,
+   "session": "2026-09-18"
+  },
+  {
+   "cap_only_lost": [
+    "ATGL",
+    "KWM",
+    "DFNS",
+    "WYHG",
+    "FFAI"
+   ],
+   "cards_A": [
+    "YAAS",
+    "GCTK",
+    "NAMI",
+    "MB",
+    "ZYBT",
+    "LFS",
+    "MBAI",
+    "GPRO"
+   ],
+   "cards_B": [
+    "ATGL",
+    "YAAS",
+    "KWM",
+    "DFNS",
+    "WYHG",
+    "GCTK",
+    "FFAI",
+    "NAMI"
+   ],
+   "cards_C": [
+    "GCTK",
+    "NAMI",
+    "ZYBT",
+    "LFS",
+    "GPRO",
+    "WSHP",
+    "CXAI",
+    "MSGY"
+   ],
+   "displaced_A": [
+    "MB",
+    "ZYBT",
+    "LFS",
+    "MBAI",
+    "GPRO"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.932,
+   "qual_A": 59,
+   "qual_B": 142,
+   "session": "2026-09-21"
+  },
+  {
+   "cap_only_lost": [
+    "KWM",
+    "DFNS",
+    "WYHG",
+    "AZI",
+    "KITT",
+    "JZXN",
+    "AREC"
+   ],
+   "cards_A": [
+    "BRNX",
+    "KIDZ",
+    "CJMB",
+    "CTSO",
+    "GRNQ",
+    "EJH",
+    "NCTY",
+    "FIEE"
+   ],
+   "cards_B": [
+    "KWM",
+    "BRNX",
+    "DFNS",
+    "WYHG",
+    "AZI",
+    "KITT",
+    "JZXN",
+    "AREC"
+   ],
+   "cards_C": [
+    "BRNX",
+    "KIDZ",
+    "CJMB",
+    "CTSO",
+    "EJH",
+    "FIEE"
+   ],
+   "displaced_A": [
+    "KIDZ",
+    "CJMB",
+    "CTSO",
+    "GRNQ",
+    "EJH",
+    "NCTY",
+    "FIEE"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.143,
+   "qual_A": 16,
+   "qual_B": 93,
+   "session": "2026-09-22"
+  },
+  {
+   "cap_only_lost": [
+    "KWM",
+    "DFNS",
+    "WYHG",
+    "NEXR",
+    "AZI",
+    "TDIC"
+   ],
+   "cards_A": [
+    "NCRA",
+    "SKYQ",
+    "LNAI",
+    "SUPX",
+    "PTLE",
+    "MEDS",
+    "WXM",
+    "CRE"
+   ],
+   "cards_B": [
+    "KWM",
+    "DFNS",
+    "WYHG",
+    "NEXR",
+    "NCRA",
+    "SKYQ",
+    "AZI",
+    "TDIC"
+   ],
+   "cards_C": [
+    "NCRA",
+    "SKYQ",
+    "LNAI",
+    "PTLE",
+    "MEDS",
+    "WXM",
+    "CRE",
+    "DSY"
+   ],
+   "displaced_A": [
+    "LNAI",
+    "SUPX",
+    "PTLE",
+    "MEDS",
+    "WXM",
+    "CRE"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.774,
+   "qual_A": 30,
+   "qual_B": 100,
+   "session": "2026-09-23"
+  },
+  {
+   "cap_only_lost": [
+    "KWM",
+    "DFNS",
+    "WYHG",
+    "NEXR",
+    "BIYA",
+    "GWAV"
+   ],
+   "cards_A": [
+    "BRNX",
+    "TRUG",
+    "SFWL"
+   ],
+   "cards_B": [
+    "BRNX",
+    "KWM",
+    "TRUG",
+    "DFNS",
+    "WYHG",
+    "NEXR",
+    "BIYA",
+    "GWAV"
+   ],
+   "cards_C": [
+    "BRNX",
+    "TRUG",
+    "SFWL"
+   ],
+   "displaced_A": [
+    "SFWL"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.529,
+   "qual_A": 15,
+   "qual_B": 97,
+   "session": "2026-09-24"
+  },
+  {
+   "cap_only_lost": [
+    "KWM",
+    "YXT",
+    "DFNS",
+    "NEXR",
+    "GWAV",
+    "AZI",
+    "ZJYL"
+   ],
+   "cards_A": [
+    "GDC",
+    "NIPG",
+    "LRHC",
+    "EJH"
+   ],
+   "cards_B": [
+    "GDC",
+    "KWM",
+    "YXT",
+    "DFNS",
+    "NEXR",
+    "GWAV",
+    "AZI",
+    "ZJYL"
+   ],
+   "cards_C": [
+    "GDC",
+    "NIPG",
+    "LRHC",
+    "EJH"
+   ],
+   "displaced_A": [
+    "NIPG",
+    "LRHC",
+    "EJH"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.25,
+   "qual_A": 8,
+   "qual_B": 100,
+   "session": "2026-09-25"
+  },
+  {
+   "cap_only_lost": [
+    "KWM",
+    "MVIS",
+    "YXT",
+    "INHD"
+   ],
+   "cards_A": [
+    "FGL",
+    "LGHL",
+    "CVKD",
+    "MB",
+    "CXAI",
+    "SKYQ",
+    "PFSA",
+    "ARTL"
+   ],
+   "cards_B": [
+    "KWM",
+    "FGL",
+    "LGHL",
+    "CVKD",
+    "MVIS",
+    "YXT",
+    "INHD",
+    "MB"
+   ],
+   "cards_C": [
+    "FGL",
+    "LGHL",
+    "CVKD",
+    "MB",
+    "CXAI",
+    "SKYQ",
+    "PFSA",
+    "ARTL"
+   ],
+   "displaced_A": [
+    "CXAI",
+    "SKYQ",
+    "PFSA",
+    "ARTL"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.853,
+   "qual_A": 71,
+   "qual_B": 180,
+   "session": "2026-09-28"
+  },
+  {
+   "cap_only_lost": [
+    "FGL",
+    "NXTT",
+    "CVKD",
+    "YXT",
+    "INHD",
+    "NCRA",
+    "ZJYL"
+   ],
+   "cards_A": [
+    "BRNX",
+    "VEEE",
+    "CTSO",
+    "LEXX",
+    "GLMD"
+   ],
+   "cards_B": [
+    "BRNX",
+    "FGL",
+    "NXTT",
+    "CVKD",
+    "YXT",
+    "INHD",
+    "NCRA",
+    "ZJYL"
+   ],
+   "cards_C": [
+    "BRNX",
+    "VEEE",
+    "CTSO",
+    "LEXX",
+    "GLMD"
+   ],
+   "displaced_A": [
+    "VEEE",
+    "CTSO",
+    "LEXX",
+    "GLMD"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 0.571,
+   "qual_A": 17,
+   "qual_B": 130,
+   "session": "2026-09-29"
+  },
+  {
+   "cap_only_lost": [
+    "HUIZ",
+    "FGL",
+    "CVKD",
+    "LGCL",
+    "YXT",
+    "GAUZ",
+    "GWAV",
+    "AZI"
+   ],
+   "cards_A": [
+    "MEDS",
+    "TNMG",
+    "SWVL",
+    "GRI",
+    "MKDW",
+    "GLMD"
+   ],
+   "cards_B": [
+    "HUIZ",
+    "FGL",
+    "CVKD",
+    "LGCL",
+    "YXT",
+    "GAUZ",
+    "GWAV",
+    "AZI"
+   ],
+   "cards_C": [
+    "MEDS",
+    "TNMG",
+    "SWVL",
+    "GRI",
+    "MKDW",
+    "GLMD"
+   ],
+   "displaced_A": [
+    "MEDS",
+    "TNMG",
+    "SWVL",
+    "GRI",
+    "MKDW",
+    "GLMD"
+   ],
+   "dq_holds": 0,
+   "flip": 0,
+   "ledger_jaccard_A": 1.0,
+   "qual_A": 12,
+   "qual_B": 129,
+   "session": "2026-09-30"
+  },
+  {
+   "cap_only_lost": [
+    "GDC",
+    "HUIZ",
+    "GWAV",
+    "ZJYL",
+    "JZXN",
+    "SPRC",
+    "FXHO",
+    "ARBK"
+   ],
+   "cards_A": [
+    "YFOR",
+    "TANH"
+   ],
+   "cards_B": [
+    "GDC",
+    "HUIZ",
+    "GWAV",
+    "ZJYL",
+    "JZXN",
+    "SPRC",
+    "FXHO",
+    "ARBK"
+   ],
+   "cards_C": [
+    "INLF",
+    "YFOR",
+    "TANH"
+   ],
+   "displaced_A": [
+    "YFOR",
+    "TANH"
+   ],
+   "dq_holds": 24,
+   "flip": 0,
+   "ledger_jaccard_A": 0.556,
+   "qual_A": 6,
+   "qual_B": 108,
+   "session": "2026-10-01"
+  }
+ ],
+ "sessions": 35,
+ "totals": {
+  "cap_only_lost_cards": 177,
+  "cards_A": 203,
+  "cards_B": 272,
+  "cards_C": 221,
+  "displaced_A_cards": 108,
+  "dq_holds": 24,
+  "dup_B_only": 113,
+  "faisal_hold_B_only": 1346,
+  "lost_cards": 177,
+  "qual_A": 915,
+  "qual_B": 3092,
+  "qual_C": 965,
+  "ready_B_only": 850,
+  "sessions_flip": 0,
+  "truncated": 7770
+ },
+ "verdict": "UNKNOWN"
+}

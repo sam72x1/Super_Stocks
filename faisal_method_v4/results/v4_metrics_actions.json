@@ -1,0 +1,595 @@
+{
+ "S1_all": {
+  "by_level_name": {
+   "bid_lo": 3,
+   "bottom": 11,
+   "bottom_body": 4,
+   "prior_base": 6,
+   "resistance1": 1,
+   "support2": 2,
+   "sweep_10": 3,
+   "sweep_5": 1,
+   "test_high": 2,
+   "zone_hi": 4
+  },
+  "cases": 22,
+  "h_class": {
+   "agree": 8,
+   "majority_class": "BELOW",
+   "majority_rate": 0.4737,
+   "n": 19,
+   "plan_counts": {
+    "ABOVE": 3,
+    "AT": 1,
+    "BELOW": 9,
+    "BOTH": 2,
+    "NONE": 4
+   },
+   "rate": 0.4211,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.2314,
+    0.6372
+   ]
+  },
+  "h_class_excl_none": {
+   "agree": 8,
+   "majority_class": "BELOW",
+   "majority_rate": 0.6,
+   "n": 15,
+   "plan_counts": {
+    "ABOVE": 3,
+    "AT": 1,
+    "BELOW": 9,
+    "BOTH": 2
+   },
+   "rate": 0.5333,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.3012,
+    0.7519
+   ]
+  },
+  "h_level": {
+   "cases": 14,
+   "ci95": [
+    0.1364,
+    0.5246
+   ],
+   "diff": 0.3239,
+   "hit_rate": 0.6,
+   "levels": 45,
+   "random_rate": 0.2761
+  },
+  "h_level_text_only": {
+   "cases": 14,
+   "ci95": [
+    0.1186,
+    0.5117
+   ],
+   "diff": 0.3073,
+   "hit_rate": 0.5814,
+   "levels": 43,
+   "random_rate": 0.2741
+  },
+  "h_level_verdict": "PASS",
+  "h_state": {
+   "READY": {
+    "WAIT": 1
+   },
+   "WAIT": {
+    "UNKNOWN": 3,
+    "WAIT": 15
+   }
+  },
+  "h_tech": {
+   "READY": {
+    "WAIT": 1
+   },
+   "WAIT": {
+    "TECH_READY": 3,
+    "WAIT": 15
+   }
+  },
+  "ok": 19,
+  "status_counts": {
+   "OK": 19,
+   "SCALE_MISMATCH": 3
+  }
+ },
+ "S1_discovery": {
+  "by_level_name": {
+   "bid_lo": 2,
+   "bottom": 5,
+   "bottom_body": 2,
+   "prior_base": 5,
+   "resistance1": 1,
+   "support2": 1,
+   "sweep_10": 1,
+   "sweep_5": 1,
+   "zone_hi": 2
+  },
+  "cases": 12,
+  "h_class": {
+   "agree": 4,
+   "majority_class": "NONE",
+   "majority_rate": 0.3,
+   "n": 10,
+   "plan_counts": {
+    "ABOVE": 2,
+    "BELOW": 3,
+    "BOTH": 2,
+    "NONE": 3
+   },
+   "rate": 0.4,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.1682,
+    0.6873
+   ]
+  },
+  "h_class_excl_none": {
+   "agree": 4,
+   "majority_class": "BELOW",
+   "majority_rate": 0.4286,
+   "n": 7,
+   "plan_counts": {
+    "ABOVE": 2,
+    "BELOW": 3,
+    "BOTH": 2
+   },
+   "rate": 0.5714,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.2505,
+    0.8418
+   ]
+  },
+  "h_level": {
+   "cases": 7,
+   "ci95": [
+    0.1961,
+    0.5977
+   ],
+   "diff": 0.3978,
+   "hit_rate": 0.6957,
+   "levels": 23,
+   "random_rate": 0.2978
+  },
+  "h_level_text_only": {
+   "cases": 7,
+   "ci95": [
+    0.1961,
+    0.5977
+   ],
+   "diff": 0.3978,
+   "hit_rate": 0.6957,
+   "levels": 23,
+   "random_rate": 0.2978
+  },
+  "h_level_verdict": "PASS",
+  "h_state": {
+   "READY": {
+    "WAIT": 1
+   },
+   "WAIT": {
+    "UNKNOWN": 2,
+    "WAIT": 7
+   }
+  },
+  "h_tech": {
+   "READY": {
+    "WAIT": 1
+   },
+   "WAIT": {
+    "TECH_READY": 2,
+    "WAIT": 7
+   }
+  },
+  "ok": 10,
+  "status_counts": {
+   "OK": 10,
+   "SCALE_MISMATCH": 2
+  }
+ },
+ "S1_holdout": {
+  "by_level_name": {
+   "bid_lo": 1,
+   "bottom": 6,
+   "bottom_body": 2,
+   "prior_base": 1,
+   "support2": 1,
+   "sweep_10": 2,
+   "test_high": 2,
+   "zone_hi": 2
+  },
+  "cases": 10,
+  "h_class": {
+   "agree": 4,
+   "majority_class": "BELOW",
+   "majority_rate": 0.6667,
+   "n": 9,
+   "plan_counts": {
+    "ABOVE": 1,
+    "AT": 1,
+    "BELOW": 6,
+    "NONE": 1
+   },
+   "rate": 0.4444,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.1888,
+    0.7333
+   ]
+  },
+  "h_class_excl_none": {
+   "agree": 4,
+   "majority_class": "BELOW",
+   "majority_rate": 0.75,
+   "n": 8,
+   "plan_counts": {
+    "ABOVE": 1,
+    "AT": 1,
+    "BELOW": 6
+   },
+   "rate": 0.5,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.2152,
+    0.7848
+   ]
+  },
+  "h_level": {
+   "cases": 7,
+   "ci95": [
+    -0.0094,
+    0.5873
+   ],
+   "diff": 0.2466,
+   "hit_rate": 0.5,
+   "levels": 22,
+   "random_rate": 0.2534
+  },
+  "h_level_text_only": {
+   "cases": 7,
+   "ci95": [
+    -0.0499,
+    0.5766
+   ],
+   "diff": 0.2031,
+   "hit_rate": 0.45,
+   "levels": 20,
+   "random_rate": 0.2469
+  },
+  "h_level_verdict": "FAIL",
+  "h_state": {
+   "WAIT": {
+    "UNKNOWN": 1,
+    "WAIT": 8
+   }
+  },
+  "h_tech": {
+   "WAIT": {
+    "TECH_READY": 1,
+    "WAIT": 8
+   }
+  },
+  "ok": 9,
+  "status_counts": {
+   "OK": 9,
+   "SCALE_MISMATCH": 1
+  }
+ },
+ "S2": {
+  "by_level_name": {
+   "bid_lo": 1,
+   "bottom": 6,
+   "bottom_body": 1,
+   "prior_base": 1,
+   "resistance1": 1,
+   "sweep_10": 4,
+   "sweep_5": 3,
+   "test_high": 5,
+   "zone_hi": 1
+  },
+  "cases": 63,
+  "h_class": {
+   "agree": 14,
+   "majority_class": "BELOW",
+   "majority_rate": 0.4815,
+   "n": 27,
+   "plan_counts": {
+    "ABOVE": 6,
+    "AT": 4,
+    "BELOW": 13,
+    "BOTH": 2,
+    "NONE": 2
+   },
+   "rate": 0.5185,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.3399,
+    0.6926
+   ]
+  },
+  "h_class_excl_none": {
+   "agree": 14,
+   "majority_class": "BELOW",
+   "majority_rate": 0.52,
+   "n": 25,
+   "plan_counts": {
+    "ABOVE": 6,
+    "AT": 4,
+    "BELOW": 13,
+    "BOTH": 2
+   },
+   "rate": 0.56,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.3707,
+    0.7333
+   ]
+  },
+  "h_level": {
+   "cases": 18,
+   "ci95": [
+    -0.0042,
+    0.3765
+   ],
+   "diff": 0.1814,
+   "hit_rate": 0.4444,
+   "levels": 36,
+   "random_rate": 0.2631
+  },
+  "h_level_text_only": {
+   "cases": 18,
+   "ci95": [
+    -0.0042,
+    0.3765
+   ],
+   "diff": 0.1814,
+   "hit_rate": 0.4444,
+   "levels": 36,
+   "random_rate": 0.2631
+  },
+  "h_level_verdict": "FAIL",
+  "h_state": {
+   "READY": {
+    "WAIT": 3
+   },
+   "REJECT": {
+    "WAIT": 1
+   },
+   "UNKNOWN": {
+    "UNKNOWN": 6,
+    "WAIT": 17
+   },
+   "WAIT": {
+    "UNKNOWN": 3,
+    "WAIT": 21
+   }
+  },
+  "h_tech": {
+   "READY": {
+    "WAIT": 3
+   },
+   "REJECT": {
+    "WAIT": 1
+   },
+   "UNKNOWN": {
+    "TECH_READY": 6,
+    "WAIT": 17
+   },
+   "WAIT": {
+    "TECH_READY": 3,
+    "WAIT": 21
+   }
+  },
+  "ok": 51,
+  "status_counts": {
+   "DATA_INSUFFICIENT": 1,
+   "NO_BARS": 1,
+   "OK": 51,
+   "SCALE_MISMATCH": 10
+  }
+ },
+ "S3_golden": {
+  "by_level_name": {
+   "bid_lo": 1,
+   "bottom": 1,
+   "bottom_body": 2,
+   "resistance1": 2,
+   "support2": 3,
+   "sweep_10": 1,
+   "test_high": 1,
+   "zone_hi": 1
+  },
+  "cases": 19,
+  "h_class": {
+   "agree": 5,
+   "majority_class": "BELOW",
+   "majority_rate": 0.4,
+   "n": 15,
+   "plan_counts": {
+    "ABOVE": 4,
+    "AT": 2,
+    "BELOW": 6,
+    "NONE": 3
+   },
+   "rate": 0.3333,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.1518,
+    0.5829
+   ]
+  },
+  "h_class_excl_none": {
+   "agree": 5,
+   "majority_class": "BELOW",
+   "majority_rate": 0.5,
+   "n": 12,
+   "plan_counts": {
+    "ABOVE": 4,
+    "AT": 2,
+    "BELOW": 6
+   },
+   "rate": 0.4167,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.1933,
+    0.6805
+   ]
+  },
+  "h_level": {
+   "cases": 11,
+   "ci95": [
+    -0.0316,
+    0.2939
+   ],
+   "diff": 0.1272,
+   "hit_rate": 0.3793,
+   "levels": 29,
+   "random_rate": 0.2522
+  },
+  "h_level_text_only": {
+   "cases": 11,
+   "ci95": [
+    -0.0316,
+    0.2939
+   ],
+   "diff": 0.1272,
+   "hit_rate": 0.3793,
+   "levels": 29,
+   "random_rate": 0.2522
+  },
+  "h_level_verdict": "FAIL",
+  "h_state": {
+   "READY": {
+    "WAIT": 2
+   },
+   "REJECT": {
+    "WAIT": 1
+   },
+   "UNKNOWN": {
+    "UNKNOWN": 1,
+    "WAIT": 1
+   },
+   "WAIT": {
+    "WAIT": 11
+   }
+  },
+  "h_tech": {
+   "READY": {
+    "WAIT": 2
+   },
+   "REJECT": {
+    "WAIT": 1
+   },
+   "UNKNOWN": {
+    "TECH_READY": 1,
+    "WAIT": 1
+   },
+   "WAIT": {
+    "WAIT": 11
+   }
+  },
+  "ok": 16,
+  "status_counts": {
+   "NO_BARS": 1,
+   "OK": 16,
+   "SCALE_MISMATCH": 2
+  }
+ },
+ "S4_edu": {
+  "by_level_name": {
+   "sweep_10": 1
+  },
+  "cases": 13,
+  "h_class": {
+   "agree": 5,
+   "majority_class": "BELOW",
+   "majority_rate": 0.7,
+   "n": 10,
+   "plan_counts": {
+    "ABOVE": 2,
+    "AT": 1,
+    "BELOW": 7
+   },
+   "rate": 0.5,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.2366,
+    0.7634
+   ]
+  },
+  "h_class_excl_none": {
+   "agree": 5,
+   "majority_class": "BELOW",
+   "majority_rate": 0.7,
+   "n": 10,
+   "plan_counts": {
+    "ABOVE": 2,
+    "AT": 1,
+    "BELOW": 7
+   },
+   "rate": 0.5,
+   "verdict": "FAIL",
+   "wilson95": [
+    0.2366,
+    0.7634
+   ]
+  },
+  "h_level": {
+   "cases": 6,
+   "ci95": [
+    -0.2405,
+    0.0696
+   ],
+   "diff": -0.1089,
+   "hit_rate": 0.0909,
+   "levels": 11,
+   "random_rate": 0.1998
+  },
+  "h_level_text_only": {
+   "cases": 6,
+   "ci95": [
+    -0.2405,
+    0.0696
+   ],
+   "diff": -0.1089,
+   "hit_rate": 0.0909,
+   "levels": 11,
+   "random_rate": 0.1998
+  },
+  "h_level_verdict": "FAIL",
+  "h_state": {
+   "MIXED": {
+    "UNKNOWN": 1
+   },
+   "UNKNOWN": {
+    "WAIT": 1
+   },
+   "WAIT": {
+    "UNKNOWN": 1,
+    "WAIT": 9
+   }
+  },
+  "h_tech": {
+   "MIXED": {
+    "TECH_READY": 1
+   },
+   "UNKNOWN": {
+    "WAIT": 1
+   },
+   "WAIT": {
+    "TECH_READY": 1,
+    "WAIT": 9
+   }
+  },
+  "ok": 12,
+  "status_counts": {
+   "OK": 12,
+   "SCALE_MISMATCH": 1
+  }
+ }
+}
