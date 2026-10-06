@@ -73,10 +73,10 @@
 | V4 implementation complete where justified | ⚠️ جزئيّ | H-LEVEL الاحتجاز FAIL ⟵ «عرضُ بنية» لا أداةُ قرار |
 | V3.1 preserved | ✅ | لا ملفَّ في faisal_method_v3/ عُدِّل في V4 (يُتحقَّق بـgit diff قبل كلّ دمج) |
 | Mutation tests pass | ✅ | 36/36 |
-| Unit/Integration/Regression/Mutation/Look-ahead/Data-quality/Determinism tests pass | ❌ | — |
+| Unit/Integration/Regression/Mutation/Look-ahead/Data-quality/Determinism tests pass | ✅ | 5177/0 |
 | Visual validation complete where data exists | ✅ | 26 طبقة |
-| CI green | ✅ (#547) · ⏳ PR النتائج | 37068980702 · 37068947244 · 37068980761 · ومعرّفاتُ PR النتائج تُسجَّل في الذاكرة بعد الدمج |
-| Main CI green | ✅ (#547) · ⏳ بعد دمج النتائج | 37069716913 |
+| CI green | ✅ (#547) | 37068980702 · 37068947244 · 37068980761 · 37539280988 · 37539239068 · 37539280848 |
+| Main CI green | ✅ (#547) | 37069716913 · 37540151985 · 37540151956 |
 | Production unchanged | ✅ | §37 |
 | Every READY/WAIT/REJECT/UNKNOWN explainable | ✅ | explain في كلّ كائن (05) |
 
@@ -123,13 +123,13 @@ TOOL:
 محرّكُ V4 (`FAISAL-V4 1.0 (2026-10-02)`) فوق دوالّ V3.1 المحفوظة · سجلُّ 21 قاعدة · كائنُ قرارٍ قابلٌ للتفسير · faisal_v4.yml يدويٌّ للقراءة · ولا تغييرَ في V3/V3.1
 
 TESTS:
-لم تُشغَّل بعد
+السويّة 5177 نجح · 0 فشل · خروج 0 (worktree معزول · 0e909a7)
 
 MUTATIONS:
 36/36 سقطت كلٌّ بقفلها
 
 CI:
-Tests 37068980702 success · Tests 37068947244 success · Lint 37068980761 success · Tests 37069716913 success (العقد #547) · وCI لـPR النتائج يُسجَّل في الذاكرة بعد الدمج
+Tests 37068980702 success · Tests 37068947244 success · Lint 37068980761 success · Tests 37069716913 success · Tests 37539280988 success · Tests 37539239068 success · Lint 37539280848 success · Tests 37540151985 success · Lint 37540151956 success
 
 PRODUCTION:
 UNCHANGED — لا كرون · لا ماسح · لا تلغرام · لا عتبة · لا سقف بِركة · لا كون · لا منطقَ دخول · والوسومُ المصحَّحة توثيقٌ (الأرقامُ في الكود بت-بت)
