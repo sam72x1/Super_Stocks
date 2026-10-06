@@ -132,5 +132,47 @@
    "v4_eval_results": "مطابقةُ Actions True · H-STATE والذهبيّة 3/4/7/5 · VEEE البعديّ 2026-05-15 · 26 طبقة"
   },
   "method_note": "المقارنةُ مع مخرجاتٍ طُبعت في سجلّ الجلسة يوم 10-02 (لا تُعاد في CI) · وما يُعاد في CI أقفالُ V4L11-V4L16 على الملفّات نفسِها"
+ },
+ "pr_results": {
+  "pr": 548,
+  "merge_sha": "7daaeaece53abd0228fe60fb24e17d2d9651a623",
+  "head_sha": "0e909a77283cb904e833e958e9bbc13fc5381450",
+  "ci": [
+   {
+    "workflow": "Tests",
+    "run": 37539280988,
+    "event": "pull_request",
+    "conclusion": "success",
+    "summary": "5177 نجح · 0 فشل"
+   },
+   {
+    "workflow": "Tests",
+    "run": 37539239068,
+    "event": "push",
+    "conclusion": "success"
+   },
+   {
+    "workflow": "Lint",
+    "run": 37539280848,
+    "event": "pull_request",
+    "conclusion": "success"
+   }
+  ],
+  "ci_main": [
+   {
+    "workflow": "Tests",
+    "run": 37540151985,
+    "event": "push",
+    "conclusion": "success",
+    "summary": "5177 نجح · 0 فشل"
+   },
+   {
+    "workflow": "Lint",
+    "run": 37540151956,
+    "event": "push",
+    "conclusion": "success"
+   }
+  ],
+  "read_from_logs": "2026-10-06 · سطرُ «النتيجة» من سجلّ كلّ جوبِ Tests · والنتيجةُ من check-runs"
  }
 }
