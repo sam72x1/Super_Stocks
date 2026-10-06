@@ -1989,7 +1989,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.9,
-   "last_price": 0.5208,
+   "last_price": 0.52,
    "live_alert": {},
    "exact_hold": {
     "pivot": 0.46,
@@ -2382,7 +2382,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.36,
+   "last_price": 2.35,
    "exact_hold": {
     "pivot": 2.26,
     "pivot_date": "2026-09-23",
@@ -3164,7 +3164,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.175,
+   "last_price": 1.18,
    "exact_hold": {
     "pivot": 1.06,
     "pivot_date": "2026-09-18",
@@ -6034,7 +6034,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.42,
+   "last_price": 3.43,
    "exact_hold": {
     "pivot": 3.17,
     "pivot_date": "2026-10-01",
@@ -8826,7 +8826,7 @@
    "hit": "t2",
    "hit_date": "2026-10-05",
    "max_gain_pct": 34.3,
-   "last_price": 3.32,
+   "last_price": 3.34,
    "borrow_hist": [
     [
      "2026-09-18",
@@ -9271,7 +9271,7 @@
    "hit": "t2",
    "hit_date": "2026-09-15",
    "max_gain_pct": 52.5,
-   "last_price": 1.13,
+   "last_price": 1.12,
    "live_alert": {
     "breakout": "2026-10-05",
     "premarket": "2026-09-15"
@@ -10141,7 +10141,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 16.505,
+   "last_price": 16.11,
    "live_alert": {
     "breakout": "2026-09-16"
    },
@@ -10574,7 +10574,7 @@
    "hit": "t2",
    "hit_date": "2026-09-17",
    "max_gain_pct": 24.4,
-   "last_price": 4.05,
+   "last_price": 4.02,
    "live_alert": {
     "breakout": "2026-09-17"
    },
@@ -12759,7 +12759,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 333.0,
-   "last_price": 4.655,
+   "last_price": 4.66,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -13245,10 +13245,11 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -7.1,
-   "last_price": 1.36,
+   "last_price": 1.423,
    "live_alert": {
-    "buyzone": "2026-10-05",
-    "break": "2026-10-06"
+    "buyzone": "2026-10-06",
+    "break": "2026-10-06",
+    "sweep": "2026-10-06"
    },
    "exact_hold": {
     "pivot": 1.41,
@@ -14520,7 +14521,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.1,
-   "last_price": 4.19,
+   "last_price": 4.21,
    "borrow_hist": [
     [
      "2026-09-18",
