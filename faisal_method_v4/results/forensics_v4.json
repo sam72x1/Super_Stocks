@@ -1,0 +1,4681 @@
+{
+ "accept_despite_missing": {
+  "cases": [
+   {
+    "case": "SPRC_2026-07-17",
+    "faisal": "«محملين فيه وشاري» عند الدعم · والتحرّرُ 5.60 «إيجابيّة» لاحقة لا شرطُ دخول",
+    "golden": true,
+    "ids": [
+     "IMG_0395",
+     "TG_1843"
+    ],
+    "missing_generic": "اختراقٌ مؤكَّد قبل الشراء"
+   },
+   {
+    "case": "WA_20260918_31_SXTC",
+    "faisal": "«تم الضغط اليوم ✅ · دخول 1.80 > 1.90» — READY يومَ الضغط (طبقة 2)",
+    "ids": [
+     "WA_20260918_31_SXTC"
+    ],
+    "missing_generic": "ثباتٌ عدّة جلسات بعد الاختبار"
+   },
+   {
+    "case": "DSY_2026-04",
+    "faisal": "«اخذته الان من العرض الليلي 1.85» (طبقة 2)",
+    "ids": [
+     "IMG_0291"
+    ],
+    "missing_generic": "شراءٌ بالطلب عند الدعم / إغلاقٌ يوميٌّ مؤكِّد"
+   },
+   {
+    "case": "PPCB_2026-05/06",
+    "faisal": "«ماركت ناخذه» بعد «ضغطه المضارب الى 2 وارتد» (ظاهرٌ بوسم)",
+    "ids": [
+     "TG_2059"
+    ],
+    "missing_generic": "إعادةُ اختبارٍ بعد الضغط"
+   },
+   {
+    "case": "AMIX_2026-08-24",
+    "faisal": "«جاهز جدا · دخولنا دفعات من 4.65 > 4.75 > 4.85 · لازم يضغطه تحت 5» — طلباتٌ قبل الضغط",
+    "golden": true,
+    "ids": [
+     "X_20260827_amix_hcwb_ready"
+    ],
+    "missing_generic": "شمعةُ انعكاسٍ مؤكِّدة قبل الطلبات"
+   },
+   {
+    "case": "EZRA_flash",
+    "faisal": "شراءٌ منفَّذٌ عند عودةٍ فوق VWAP بعد هبوطٍ خاطف (2.2597) — نوعُ دخولٍ لحظيّ",
+    "ids": [
+     "IMG_0617"
+    ],
+    "missing_generic": "قاعٌ ثابتٌ 5 جلسات"
+   },
+   {
+    "case": "ELPW_2026-01",
+    "faisal": "«جاهز دخول سيوله عاليه من العرض» (مُستعاد) — ثمّ ‏−78% قبل ‏+3000%",
+    "ids": [
+     "X_20260918_66_ELPW"
+    ],
+    "missing_generic": "حجمٌ/مؤشّراتٌ مؤكِّدة"
+   }
+  ],
+  "generic_conditions_not_implemented": [
+   {
+    "condition": "اختراقٌ مؤكَّدٌ شرطًا لـREADY",
+    "why_not": "SPRC/AMIX/DSY/SXTC: READY عند الدعم قبل أيّ اختراق · والاختراقُ «إيجابيّةٌ» أو دخولٌ ثانٍ متنازَع عليه (C-BREAKOUT · R4-ENT-02 معلومة)"
+   },
+   {
+    "condition": "ثباتُ 3-5 جلسات بعد الاختبار شرطًا لـREADY",
+    "why_not": "SXTC يومَ الضغط · SPRC بعد جلسة · TDIC على شمعة الهمر ⇒ HOLD_ZONE يحدّد الجاهزيّةَ الفنيّة لمسار المنطقة وحدَه · ومسارُ السحب ثمّ العودة (PRESS_RECLAIM) بلا ثبات"
+   },
+   {
+    "condition": "حجمٌ مؤكِّد (Volume confirmation)",
+    "why_not": "لا عبارةَ READY واحدةٌ تشترطه · «لا تهمّك السيولة الآن — يهمّك الفوليوم» (DCOY) سياقٌ لا شرط ⇒ معلومةٌ في كائن القرار (volume_vs_20d) لا شرط"
+   },
+   {
+    "condition": "تشبّعُ RSI شرطًا",
+    "why_not": "محورُ «الدخول بسعر RSI» مُغلَق (اقفل RSI) · والقائمةُ تذكره سياقًا ⇒ لا يدخل القرار"
+   }
+  ]
+ },
+ "contradictions": [
+  {
+   "engine_effect": "R4-ENT-02 INFORMATIONAL — لا يقلب الحالة",
+   "id": "C-BREAKOUT",
+   "rules": [
+    "R4-ENT-02"
+   ],
+   "side_a": [
+    "TG_2197 «دخول المضاربين > بعد الاختراق ربح سريع قليل امن»",
+    "TG_57862",
+    "IMG_0602"
+   ],
+   "side_b": [
+    "TG_1840 «تشري ع الاختراق اعرف انك خسران … الاختراق فاشل الدخول فيه»"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "حالتان فنيّتان: BASE_HELD (قائمةُ الفحص) وRETEST_HELD (الدورة) — كلتاهما جاهزيّةٌ فنيّة",
+   "id": "C-CYCLE-VS-CHECKLIST",
+   "rules": [
+    "R4-CYC-01",
+    "R4-HOLD-01"
+   ],
+   "side_a": [
+    "X_20260918_85_YMT «هذا اصل التحليل»",
+    "TG_50584"
+   ],
+   "side_b": [
+    "X_20260827_checklist_7points: دخولٌ عند القاع بعد ثبات 5 جلسات بلا صعود اختبار"
+   ],
+   "status": "PARTIALLY_RESOLVED"
+  },
+  {
+   "engine_effect": "بصمةُ المضارب غيرُ مرئيّةٍ في الشموع إلّا بالسحب والعودة ⟵ R4-OP-01 قراريّتُها UNKNOWN · والجاهزيّةُ الفنيّةُ بلا معلومة ⟵ UNKNOWN لا READY",
+   "id": "C-OPTIMING",
+   "rules": [
+    "R4-OP-01"
+   ],
+   "side_a": [
+    "TG_1822 EHGO «ننتظر فقط مضارب»",
+    "TG_2218 CDIO «جاهز … بانتظار فقط دخول المضارب»",
+    "X_20260827_amix_hcwb_ready HCWB «ننتظر ضغط المضارب»"
+   ],
+   "side_b": [
+    "X_20260827_checklist_7points_cont «ماتم ضغطه … تدخل مباشره ع خط متوسط 50 > 200»",
+    "X_20260827_amix_hcwb_ready AMIX «جاهز جدا · دخولنا دفعات من 4.65 > 4.75 > 4.85 · لازم يضغطه تحت 5» — طلباتٌ قبل الضغط"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "R4-VAL-SHORT-01 PROBABLE: متاحٌ فوق 20,000 ⟵ WAIT حين تُعطى المعلومة · وغيابُها ⟵ UNKNOWN (لا ترقية)",
+   "id": "C-SHORT-THRESHOLD",
+   "rules": [
+    "R4-VAL-SHORT-01"
+   ],
+   "side_a": [
+    "IMG_0150 WORX «تابعه لين يبقى الشورت تحت 20 الف»",
+    "IMG_0151 «شورته تحت 20 الف»",
+    "TG_50578 DCOY «باقي 80 الف شورت ننتظر»"
+   ],
+   "side_b": [
+    "TG_2196 ONCO «شورت 150 الف» وخطّةٌ كاملة",
+    "TG_1831 LABT «الشورت 55 الف متوفر» ولم يمنع التحليل (طبقة 2)"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "كسرٌ أعمق من SWEEP_MAX_PCT (13%) ⟵ BROKEN_NEW_BASE (WAIT) · وما بعده قاعٌ جديد يُعاد تحليلُه — لا READY",
+   "id": "C-SUPPORT10",
+   "rules": [
+    "R4-INV-01",
+    "R4-SWEEP-01"
+   ],
+   "side_a": [
+    "X_20260905_10 YMT «كسر 1.81 تصنع تحليل اخر بنفس النهج»",
+    "X_20260905_07 BTOG «إن كسر قاع 2.08 يذهب إلى 1.70»",
+    "IMG_0569 MNDR «1.40 اخطر مرحله للوقف»"
+   ],
+   "side_b": [
+    "TG_2017 ENPH «هبوط مسح سيوله اسفل الدعم 29» (‏−11..−13%) ثمّ صعود",
+    "TG_2127 ELAB كسرٌ ‏≈−39% تحت الأحمر 3.033 ثمّ صعودٌ كبير"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "SWEEP_MAX_PCT = 13 (faisal_tier2b) حدٌّ أعلى · وإسقاطا 5/10 معلومة · لا رقمَ واحدًا لفيصل",
+   "id": "C-SWEEP-DEPTH",
+   "rules": [
+    "R4-SWEEP-01"
+   ],
+   "side_a": [
+    "TG_50584 «سحب السيوله 5٪ ادنى شمعة القاع»",
+    "IMG_0177 «مسح سيوله 10٪ تحت القاع»"
+   ],
+   "side_b": [
+    "TG_57874 «سبرنت داون 10٪ > 15٪»",
+    "TG_57870 «15٪ من متوسط التجميع»",
+    "IMG_0297 (EDU) «7٪ ل 13٪»"
+   ],
+   "status": "RANGE_NOT_NUMBER"
+  },
+  {
+   "engine_effect": "ثلاثُ عائلاتِ وقفٍ موسومة في كائن القرار (القاع · ‏−5/−7% تحت الدعم · 7% من الدخول) — لا تُخلط ولا تغيّر الحالة",
+   "id": "C-STOP-REF",
+   "rules": [
+    "R4-STOP-01"
+   ],
+   "side_a": [
+    "X_20260827_checklist_7points «الوقف القاع»",
+    "TG_2106 «وقفك صارم الدعم الاول»"
+   ],
+   "side_b": [
+    "X_20260918_61_VEEE «7٪ من دخولنا»",
+    "TG_1978 «الاحمر دعم + وقف -5٪»",
+    "TG_2098 HUBC «وقف 7٪»"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "وقفُ 5-7% يقع داخل مدى السحب المقبول (حتى 13%) ⟵ الإبطالُ في المحرّك كسرٌ أعمق من 13% لا ضربُ الوقف",
+   "id": "C-STOP-VS-SWEEP",
+   "rules": [
+    "R4-STOP-01",
+    "R4-SWEEP-01"
+   ],
+   "side_a": [
+    "TG_1978 «وقف -5٪»",
+    "TG_2098 HUBC «وقف 7٪»",
+    "TG_2017 «الوقف عند المتداولين من 5-7٪»"
+   ],
+   "side_b": [
+    "IMG_0297 (EDU) «7٪ ل 13٪»",
+    "TG_57875 OMH ‏−11.8%",
+    "TG_57881 CIIT ‏−11.5%",
+    "TG_57894 DKI ‏−8.4%"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "HOLD_MIN = 5 (faisal_verbatim) للقاع · وHOLD_ZONE = 3 للمنطقة — يُدوَّن ولا يُحسم (و«الخمسة» قِيست في T-GOLD-ENTRY P6 ربحًا لا وفاءً)",
+   "id": "C-HOLD-SESSIONS",
+   "rules": [
+    "R4-HOLD-01"
+   ],
+   "side_a": [
+    "X_20260918_85_YMT «اكثر من 5 جلسات»",
+    "X_20260827_checklist_7points «5 جلسات»"
+   ],
+   "side_b": [
+    "IMG_0151 «حافظ ع قاعه لمدة 3 جلسات»",
+    "X_20260827_kwm_150_watch3 «مراقبه لمدة 3 جلسات»",
+    "TG_2066 «3-5 جلسات» (طبقة 2)"
+   ],
+   "status": "RANGE_NOT_NUMBER"
+  },
+  {
+   "engine_effect": "groups = True ⟵ REJECT للقرار الجديد · وسهمُ متابعةٍ قائمٌ يبقى بأهداف المضارب (YMT) — الفرقُ دخولٌ جديد مقابل مركزٍ قائم",
+   "id": "C-GROUPS",
+   "rules": [
+    "R4-VAL-GRP-01"
+   ],
+   "side_a": [
+    "IMG_0151 «الشرط خالي من القروبات ✅»",
+    "IMG_0488 «دخول سيوله قروبات … لا انا ولا اكبر محلل يستطيع قراءة الشموع»",
+    "IMG_0316 JZ «دخل قروب غبي … المضارب الغى جميع الاهداف»"
+   ],
+   "side_b": [
+    "X_20260905_10 YMT «لايهم حتى لو دخل قروب ورفعه 20٪ · المضارب اذا بيحقق اهدافه راح يهبط فيه»"
+   ],
+   "status": "PARTIALLY_RESOLVED"
+  },
+  {
+   "engine_effect": "خطوطُ التطبيق تتبع مدى العرض ⟵ وسومُ المستويات من نصّ فيصل وحدَه ولا تُعدّ الخطوطُ سندًا (C13)",
+   "id": "C-AUTO-LEVELS",
+   "rules": [],
+   "side_a": [
+    "CH_20260918_32_SXTC مقابل CH_20260918_25_SXTC (اليومُ نفسُه بطقمي خطوط)",
+    "CH_20260918_45_NUWE مقابل CH_20260918_39_NUWE (السعرُ نفسُه 0.7755)",
+    "CH_20260918_63_ELPW مقابل CH_20260918_65_ELPW (اللحظةُ نفسُها)"
+   ],
+   "side_b": [
+    "X_20260905_10 «دايما ارسم المقاومه باللاين الاسود»"
+   ],
+   "status": "RESOLVED_FOR_V4"
+  },
+  {
+   "engine_effect": "لا مقياسَ ربحٍ في V4 (§24) · والتعريفان يُعلَنان ولا يُوفَّقان",
+   "id": "C-SUCCESS-DEF",
+   "rules": [
+    "R4-TGT-01"
+   ],
+   "side_a": [
+    "IMG_0628 «يبقى علم التحليل وان خرب السهم فتره لابد يرجع يحقق شموعه»"
+   ],
+   "side_b": [
+    "تعريفُ الأداة: الهدفُ قبل الإبطال (T-TGT · hs_forensic/TARGET_FORENSICS.md)"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "منشوراتُ القناة طبقة 2b (حساسيّةٌ فقط) ولا تصنع وسمًا · وهويّةُ القناة سؤالٌ للمالك",
+   "id": "C-AUTHOR-DARKCHANNEL",
+   "rules": [],
+   "side_a": [
+    "IMG_0303 نسخةٌ حرفيّة من منشور فيصل الظاهر TG_1807 بوسم «# نصائح تعليمية»"
+   ],
+   "side_b": [
+    "IMG_0289 · IMG_0294 · IMG_0295 منشوراتٌ بلا اسمٍ ظاهر · والقناةُ تنشر لنفسها أيضًا (TG_50596 · TG_20260918_30_targets7)"
+   ],
+   "status": "UNRESOLVED_OWNER_QUESTION"
+  },
+  {
+   "engine_effect": "سُحب الاستنتاج (C10) · لقطاتُ النخلة غيرُ المنشورة طبقة 2 (INFERRED_DEVICE_LINKED · حساسيّةٌ فقط)",
+   "id": "C-AUTHOR-PALMTREE",
+   "rules": [],
+   "side_a": [
+    "استنتاجٌ مبكّر في مرور V4: فقاعاتُ واتساب الخضراء بخلفيّة النخلة = مشرفُ القناة لا فيصل"
+   ],
+   "side_b": [
+    "X_20260827_amix_pressure_497: منشورُ فيصل على X (‏@kisar_) يضمّن لقطةَ المجموعة بالخلفيّة نفسِها"
+   ],
+   "status": "RESOLVED (النخيلُ جهازُ فيصل)"
+  },
+  {
+   "engine_effect": "الصريحُ يعلو الاصطلاح (V4_prereg §③) · وشرطُ «فوق السعر» لحاملٍ ⟵ HOLD_STATUS لا WAIT جديد",
+   "id": "C-TRIG-ABOVE-HOLDER",
+   "rules": [],
+   "side_a": [
+    "IMG_0319 JZ «في حال صعد المضارب 4 مقاومه مهم يتحرر منها» ⟵ WAIT بالاصطلاح",
+    "IMG_0393 SPRC «5.50 لو تجاوزها تكمن الاجابيه»"
+   ],
+   "side_b": [
+    "IMG_0393 «تحديث لبعض الاسهم السابقه» — تحديثٌ لحاملي مركزٍ قائم لا قرارُ دخولٍ جديد",
+    "IMG_0645 TDIC «2.69 مهم ثباته فوقها» ثمّ READY صريحٌ (IMG_0659)"
+   ],
+   "status": "RESOLVED_BY_CONVENTION"
+  },
+  {
+   "engine_effect": "تصحيحُ الكاتالوج (C06) · لا كود",
+   "id": "C-T7",
+   "rules": [
+    "R4-TGT-01"
+   ],
+   "side_a": [
+    "الكاتالوج (:1463 · §سابع وعشرون) «الهدف السابع»"
+   ],
+   "side_b": [
+    "TG_20260918_30_targets7 «يوصل 7» — سعرٌ ($7 · ‏+250% من ‏≈$2)",
+    "TG_20260918_08_NTCL"
+   ],
+   "status": "RESOLVED ($7 سعر · STRONGLY_SUPPORTED)"
+  },
+  {
+   "engine_effect": "قراءةٌ معكوسة صُحّحت (C07) ⟵ فيصل والقناة يتّفقان: لا دخولَ في المناطق الضبابيّة",
+   "id": "C-FOGGY",
+   "rules": [],
+   "side_a": [
+    "الكاتالوج :1470 «مدخلي بالمناطق الضبابيّة الأولى» (إثبات)"
+   ],
+   "side_b": [
+    "X_20260918_13_NUWE (فيصل ظاهر) «مادخل السهم بالمناطق الضبابيه الاولى» (نفي)",
+    "TG_20260918_38_NUWE «مادخل مناطق ضبابيه الان»"
+   ],
+   "status": "DISSOLVED (خطأُ قراءة)"
+  },
+  {
+   "engine_effect": "لا هدفَ من متوسّط",
+   "id": "C-MA-TARGET",
+   "rules": [
+    "R4-TGT-01"
+   ],
+   "side_a": [
+    "TG_2063 «ثاني هدف: متوسط 20 أو 50» (كاتبٌ غيرُ مؤكَّد)"
+   ],
+   "side_b": [
+    "الأهدافُ = سلّمُ المقاومات (D5)"
+   ],
+   "status": "UNRESOLVED"
+  },
+  {
+   "engine_effect": "الألوانُ لا تدخل المحرّك",
+   "id": "C-PURPLE",
+   "rules": [],
+   "side_a": [
+    "FUSE «ثبات دعم = دخول» · PPBT «مناطق طلب»"
+   ],
+   "side_b": [
+    "ELPW هدفُ شمعةٍ هابطة · TG_2003 مستوياتٌ وسيطة"
+   ],
+   "status": "PRIMARY=DEMAND · NOT EXCLUSIVE"
+  }
+ ],
+ "decision_combos": {
+  "cases_by_label": {
+   "READY": 12,
+   "REJECT": 4,
+   "WAIT": 80
+  },
+  "combinations": [
+   {
+    "cases": [
+     "ATMV_UNK",
+     "CDIO_None",
+     "CIIT_2026-09-26",
+     "CLIR_2026-04-0x",
+     "IPDN_2026-09-2x",
+     "NRSN_2026-09-27",
+     "UNK_TG_2001",
+     "WETO_2026-09-1x"
+    ],
+    "components": "STRUCTURE + SUPPORT",
+    "label": "WAIT",
+    "n": 8
+   },
+   {
+    "cases": [
+     "DSY_2026-09-2x",
+     "LABT_2026-07-27",
+     "RAYA_2026-08-2x",
+     "SMX_2026-04-25",
+     "UNK_X_20260827_target10_entry_below",
+     "ZCMD_2026-07-02"
+    ],
+    "components": "NONE_MENTIONED",
+    "label": "WAIT",
+    "n": 6
+   },
+   {
+    "cases": [
+     "DCOY_2026-09-22",
+     "DKI_2026-09-2x",
+     "ELPW_2026-09-1x",
+     "HTCR_2026-06",
+     "KWM_2026-08-2x",
+     "YYAI_2026-07"
+    ],
+    "components": "STRUCTURE + SUPPORT + VALIDITY",
+    "label": "WAIT",
+    "n": 6
+   },
+   {
+    "cases": [
+     "BCG_None",
+     "CRE_2026-09-2x",
+     "ELPW_2026-01-22",
+     "HCWB_2026-08-24",
+     "NUWE_2026-07"
+    ],
+    "components": "STRUCTURE",
+    "label": "WAIT",
+    "n": 5
+   },
+   {
+    "cases": [
+     "JZ_2026-07",
+     "LABT_2026-07-2x",
+     "PPBT_2026-09-04",
+     "SMX_2026-05-24"
+    ],
+    "components": "BREAKOUT + STRUCTURE + SUPPORT + VALIDITY",
+    "label": "WAIT",
+    "n": 4
+   },
+   {
+    "cases": [
+     "MBRX_06-2x (السنة غير متحقَّقة)",
+     "MBRX_2026-06",
+     "MNDR_2026-07-31",
+     "NUWE_2026-09-1x"
+    ],
+    "components": "RETEST + STRUCTURE + SUPPORT + VALIDITY",
+    "label": "WAIT",
+    "n": 4
+   },
+   {
+    "cases": [
+     "LABT_2026-08-23",
+     "TRUG_2026-07-2x",
+     "UNK_SCIMETHOD_2026-07-31",
+     "UNK_TG_2106"
+    ],
+    "components": "SUPPORT + VALIDITY",
+    "label": "WAIT",
+    "n": 4
+   },
+   {
+    "cases": [
+     "CETX_2026-09-2x",
+     "EHGO_2026-05-22",
+     "UNK_TG_50584"
+    ],
+    "components": "INDICATORS + STRUCTURE + SUPPORT + VALIDITY",
+    "label": "WAIT",
+    "n": 3
+   },
+   {
+    "cases": [
+     "EDBL_2026-09-22",
+     "SLXN_2026-08-06",
+     "SXTC_2026-09-1x_b"
+    ],
+    "components": "RETEST + SUPPORT",
+    "label": "WAIT",
+    "n": 3
+   },
+   {
+    "cases": [
+     "MWC_2026-06",
+     "PCLA_2026-03-2x",
+     "UNK_TG_2036"
+    ],
+    "components": "STRUCTURE + VALIDITY",
+    "label": "WAIT",
+    "n": 3
+   },
+   {
+    "cases": [
+     "BETA_2026-04-05",
+     "ELPW_2026-05-0x",
+     "ZNB_2026-08-01"
+    ],
+    "components": "SUPPORT",
+    "label": "WAIT",
+    "n": 3
+   },
+   {
+    "cases": [
+     "DXST_2026-06-16",
+     "UNK_TG_2197"
+    ],
+    "components": "BREAKOUT + PATTERN + STRUCTURE + SUPPORT",
+    "label": "WAIT",
+    "n": 2
+   },
+   {
+    "cases": [
+     "STKH_2026-09-04",
+     "SXTC_2026-09-2x"
+    ],
+    "components": "BREAKOUT + STRUCTURE + SUPPORT",
+    "label": "WAIT",
+    "n": 2
+   },
+   {
+    "cases": [
+     "ONCO_2026-07-26",
+     "SPRC_2026-07-20"
+    ],
+    "components": "BREAKOUT + STRUCTURE + VALIDITY",
+    "label": "WAIT",
+    "n": 2
+   },
+   {
+    "cases": [
+     "DSY_2026-04",
+     "SPRC_2026-07-17"
+    ],
+    "components": "BREAKOUT + SUPPORT + VALIDITY",
+    "label": "READY",
+    "n": 2
+   },
+   {
+    "cases": [
+     "CDIO_2026-02-2x",
+     "LIMN_2026-09-22"
+    ],
+    "components": "INDICATORS + RETEST + SUPPORT",
+    "label": "WAIT",
+    "n": 2
+   },
+   {
+    "cases": [
+     "RUBI_2026-08",
+     "UNK_TG_2037"
+    ],
+    "components": "INDICATORS + SUPPORT + VALIDITY",
+    "label": "WAIT",
+    "n": 2
+   },
+   {
+    "cases": [
+     "CDIO_2026-01-28/02",
+     "YYAI_2026-07-0x"
+    ],
+    "components": "INDICATORS + VALIDITY",
+    "label": "WAIT",
+    "n": 2
+   },
+   {
+    "cases": [
+     "EHGO_2026-06",
+     "UNK_TG_1864"
+    ],
+    "components": "NONE_MENTIONED",
+    "label": "READY",
+    "n": 2
+   },
+   {
+    "cases": [
+     "MSGY_2026-09-0x",
+     "UNK_TG_20260905_04"
+    ],
+    "components": "RETEST + STRUCTURE + SUPPORT",
+    "label": "WAIT",
+    "n": 2
+   },
+   {
+    "cases": [
+     "PPCB_2026-05/06 (بعد تقسيم 18/5)",
+     "SXTC_2026-09-1x_a"
+    ],
+    "components": "STRUCTURE + VALIDITY",
+    "label": "READY",
+    "n": 2
+   },
+   {
+    "cases": [
+     "ELAB_2026-04-12",
+     "TRUG_2026-03-30"
+    ],
+    "components": "VALIDITY",
+    "label": "WAIT",
+    "n": 2
+   },
+   {
+    "cases": [
+     "AZI_2026"
+    ],
+    "components": "BREAKOUT",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "EZRA_flash"
+    ],
+    "components": "BREAKOUT + INDICATORS",
+    "label": "READY",
+    "n": 1
+   },
+   {
+    "cases": [
+     "VEEE_2026-05"
+    ],
+    "components": "BREAKOUT + INDICATORS + PATTERN",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "OMH_2026-09-26"
+    ],
+    "components": "BREAKOUT + INDICATORS + RETEST + STRUCTURE + SUPPORT",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "FRSX_2026-03-28"
+    ],
+    "components": "BREAKOUT + INDICATORS + STRUCTURE",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "CANF_2026-08-01"
+    ],
+    "components": "BREAKOUT + INDICATORS + STRUCTURE + SUPPORT + VALIDITY",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "FTFT_2026-07-2x"
+    ],
+    "components": "BREAKOUT + INDICATORS + SUPPORT + VALIDITY",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "UNK_X_20260918_12_doublebottom"
+    ],
+    "components": "BREAKOUT + PATTERN + STRUCTURE",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "NUWE_2026-09-04"
+    ],
+    "components": "BREAKOUT + RETEST + STRUCTURE + SUPPORT",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "ERNA_2026-05-0x"
+    ],
+    "components": "BREAKOUT + STRUCTURE + VALIDITY",
+    "label": "READY",
+    "n": 1
+   },
+   {
+    "cases": [
+     "PIII_2026-0x"
+    ],
+    "components": "BREAKOUT + SUPPORT",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "LNAI_2026-06-1x"
+    ],
+    "components": "BREAKOUT + SUPPORT + VALIDITY",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "CANF_2026-07-20"
+    ],
+    "components": "BREAKOUT + VALIDITY",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "CDIO_2026-01-28"
+    ],
+    "components": "INDICATORS",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "DXST_2026-08-04"
+    ],
+    "components": "INDICATORS + RETEST + STRUCTURE + SUPPORT",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "WORX_2026-04-11"
+    ],
+    "components": "INDICATORS + STRUCTURE + VALIDITY",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "DCOY_2026-09-2x"
+    ],
+    "components": "NONE_MENTIONED",
+    "label": "REJECT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "YMT_2026-09-04"
+    ],
+    "components": "RETEST + SUPPORT + VALIDITY",
+    "label": "WAIT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "AMIX_2026-08-24"
+    ],
+    "components": "STRUCTURE",
+    "label": "READY",
+    "n": 1
+   },
+   {
+    "cases": [
+     "PIII_2026-05-16"
+    ],
+    "components": "STRUCTURE + SUPPORT",
+    "label": "READY",
+    "n": 1
+   },
+   {
+    "cases": [
+     "UNK_TG_2099"
+    ],
+    "components": "STRUCTURE + SUPPORT",
+    "label": "REJECT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "ELPW_2026-01"
+    ],
+    "components": "STRUCTURE + SUPPORT + VALIDITY",
+    "label": "READY",
+    "n": 1
+   },
+   {
+    "cases": [
+     "LABT_2026-07-05"
+    ],
+    "components": "STRUCTURE + VALIDITY",
+    "label": "REJECT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "BTOG_2026-09-04"
+    ],
+    "components": "SUPPORT + VALIDITY",
+    "label": "REJECT",
+    "n": 1
+   },
+   {
+    "cases": [
+     "UPC_2026-07"
+    ],
+    "components": "VALIDITY",
+    "label": "READY",
+    "n": 1
+   }
+  ],
+  "component_x_label": {
+   "BREAKOUT": {
+    "READY": 4,
+    "REJECT": 0,
+    "WAIT": 21
+   },
+   "INDICATORS": {
+    "READY": 1,
+    "REJECT": 0,
+    "WAIT": 17
+   },
+   "PATTERN": {
+    "READY": 0,
+    "REJECT": 0,
+    "WAIT": 4
+   },
+   "RETEST": {
+    "READY": 0,
+    "REJECT": 0,
+    "WAIT": 15
+   },
+   "STRUCTURE": {
+    "READY": 6,
+    "REJECT": 2,
+    "WAIT": 48
+   },
+   "SUPPORT": {
+    "READY": 4,
+    "REJECT": 2,
+    "WAIT": 53
+   },
+   "VALIDITY": {
+    "READY": 7,
+    "REJECT": 2,
+    "WAIT": 38
+   }
+  },
+  "component_x_label_cases": {
+   "BREAKOUT+READY": [
+    "DSY_2026-04",
+    "ERNA_2026-05-0x",
+    "EZRA_flash",
+    "SPRC_2026-07-17"
+   ],
+   "BREAKOUT+WAIT": [
+    "AZI_2026",
+    "CANF_2026-07-20",
+    "CANF_2026-08-01",
+    "DXST_2026-06-16",
+    "FRSX_2026-03-28",
+    "FTFT_2026-07-2x",
+    "JZ_2026-07",
+    "LABT_2026-07-2x",
+    "LNAI_2026-06-1x",
+    "NUWE_2026-09-04",
+    "OMH_2026-09-26",
+    "ONCO_2026-07-26",
+    "PIII_2026-0x",
+    "PPBT_2026-09-04",
+    "SMX_2026-05-24",
+    "SPRC_2026-07-20",
+    "STKH_2026-09-04",
+    "SXTC_2026-09-2x",
+    "UNK_TG_2197",
+    "UNK_X_20260918_12_doublebottom",
+    "VEEE_2026-05"
+   ],
+   "INDICATORS+READY": [
+    "EZRA_flash"
+   ],
+   "INDICATORS+WAIT": [
+    "CANF_2026-08-01",
+    "CDIO_2026-01-28",
+    "CDIO_2026-01-28/02",
+    "CDIO_2026-02-2x",
+    "CETX_2026-09-2x",
+    "DXST_2026-08-04",
+    "EHGO_2026-05-22",
+    "FRSX_2026-03-28",
+    "FTFT_2026-07-2x",
+    "LIMN_2026-09-22",
+    "OMH_2026-09-26",
+    "RUBI_2026-08",
+    "UNK_TG_2037",
+    "UNK_TG_50584",
+    "VEEE_2026-05",
+    "WORX_2026-04-11",
+    "YYAI_2026-07-0x"
+   ],
+   "PATTERN+WAIT": [
+    "DXST_2026-06-16",
+    "UNK_TG_2197",
+    "UNK_X_20260918_12_doublebottom",
+    "VEEE_2026-05"
+   ],
+   "RETEST+WAIT": [
+    "CDIO_2026-02-2x",
+    "DXST_2026-08-04",
+    "EDBL_2026-09-22",
+    "LIMN_2026-09-22",
+    "MBRX_06-2x (السنة غير متحقَّقة)",
+    "MBRX_2026-06",
+    "MNDR_2026-07-31",
+    "MSGY_2026-09-0x",
+    "NUWE_2026-09-04",
+    "NUWE_2026-09-1x",
+    "OMH_2026-09-26",
+    "SLXN_2026-08-06",
+    "SXTC_2026-09-1x_b",
+    "UNK_TG_20260905_04",
+    "YMT_2026-09-04"
+   ],
+   "STRUCTURE+READY": [
+    "AMIX_2026-08-24",
+    "ELPW_2026-01",
+    "ERNA_2026-05-0x",
+    "PIII_2026-05-16",
+    "PPCB_2026-05/06 (بعد تقسيم 18/5)",
+    "SXTC_2026-09-1x_a"
+   ],
+   "STRUCTURE+REJECT": [
+    "LABT_2026-07-05",
+    "UNK_TG_2099"
+   ],
+   "STRUCTURE+WAIT": [
+    "ATMV_UNK",
+    "BCG_None",
+    "CANF_2026-08-01",
+    "CDIO_None",
+    "CETX_2026-09-2x",
+    "CIIT_2026-09-26",
+    "CLIR_2026-04-0x",
+    "CRE_2026-09-2x",
+    "DCOY_2026-09-22",
+    "DKI_2026-09-2x",
+    "DXST_2026-06-16",
+    "DXST_2026-08-04",
+    "EHGO_2026-05-22",
+    "ELPW_2026-01-22",
+    "ELPW_2026-09-1x",
+    "FRSX_2026-03-28",
+    "HCWB_2026-08-24",
+    "HTCR_2026-06",
+    "IPDN_2026-09-2x",
+    "JZ_2026-07",
+    "KWM_2026-08-2x",
+    "LABT_2026-07-2x",
+    "MBRX_06-2x (السنة غير متحقَّقة)",
+    "MBRX_2026-06",
+    "MNDR_2026-07-31",
+    "MSGY_2026-09-0x",
+    "MWC_2026-06",
+    "NRSN_2026-09-27",
+    "NUWE_2026-07",
+    "NUWE_2026-09-04",
+    "NUWE_2026-09-1x",
+    "OMH_2026-09-26",
+    "ONCO_2026-07-26",
+    "PCLA_2026-03-2x",
+    "PPBT_2026-09-04",
+    "SMX_2026-05-24",
+    "SPRC_2026-07-20",
+    "STKH_2026-09-04",
+    "SXTC_2026-09-2x",
+    "UNK_TG_2001",
+    "UNK_TG_20260905_04",
+    "UNK_TG_2036",
+    "UNK_TG_2197",
+    "UNK_TG_50584",
+    "UNK_X_20260918_12_doublebottom",
+    "WETO_2026-09-1x",
+    "WORX_2026-04-11",
+    "YYAI_2026-07"
+   ],
+   "SUPPORT+READY": [
+    "DSY_2026-04",
+    "ELPW_2026-01",
+    "PIII_2026-05-16",
+    "SPRC_2026-07-17"
+   ],
+   "SUPPORT+REJECT": [
+    "BTOG_2026-09-04",
+    "UNK_TG_2099"
+   ],
+   "SUPPORT+WAIT": [
+    "ATMV_UNK",
+    "BETA_2026-04-05",
+    "CANF_2026-08-01",
+    "CDIO_2026-02-2x",
+    "CDIO_None",
+    "CETX_2026-09-2x",
+    "CIIT_2026-09-26",
+    "CLIR_2026-04-0x",
+    "DCOY_2026-09-22",
+    "DKI_2026-09-2x",
+    "DXST_2026-06-16",
+    "DXST_2026-08-04",
+    "EDBL_2026-09-22",
+    "EHGO_2026-05-22",
+    "ELPW_2026-05-0x",
+    "ELPW_2026-09-1x",
+    "FTFT_2026-07-2x",
+    "HTCR_2026-06",
+    "IPDN_2026-09-2x",
+    "JZ_2026-07",
+    "KWM_2026-08-2x",
+    "LABT_2026-07-2x",
+    "LABT_2026-08-23",
+    "LIMN_2026-09-22",
+    "LNAI_2026-06-1x",
+    "MBRX_06-2x (السنة غير متحقَّقة)",
+    "MBRX_2026-06",
+    "MNDR_2026-07-31",
+    "MSGY_2026-09-0x",
+    "NRSN_2026-09-27",
+    "NUWE_2026-09-04",
+    "NUWE_2026-09-1x",
+    "OMH_2026-09-26",
+    "PIII_2026-0x",
+    "PPBT_2026-09-04",
+    "RUBI_2026-08",
+    "SLXN_2026-08-06",
+    "SMX_2026-05-24",
+    "STKH_2026-09-04",
+    "SXTC_2026-09-1x_b",
+    "SXTC_2026-09-2x",
+    "TRUG_2026-07-2x",
+    "UNK_SCIMETHOD_2026-07-31",
+    "UNK_TG_2001",
+    "UNK_TG_20260905_04",
+    "UNK_TG_2037",
+    "UNK_TG_2106",
+    "UNK_TG_2197",
+    "UNK_TG_50584",
+    "WETO_2026-09-1x",
+    "YMT_2026-09-04",
+    "YYAI_2026-07",
+    "ZNB_2026-08-01"
+   ],
+   "VALIDITY+READY": [
+    "DSY_2026-04",
+    "ELPW_2026-01",
+    "ERNA_2026-05-0x",
+    "PPCB_2026-05/06 (بعد تقسيم 18/5)",
+    "SPRC_2026-07-17",
+    "SXTC_2026-09-1x_a",
+    "UPC_2026-07"
+   ],
+   "VALIDITY+REJECT": [
+    "BTOG_2026-09-04",
+    "LABT_2026-07-05"
+   ],
+   "VALIDITY+WAIT": [
+    "CANF_2026-07-20",
+    "CANF_2026-08-01",
+    "CDIO_2026-01-28/02",
+    "CETX_2026-09-2x",
+    "DCOY_2026-09-22",
+    "DKI_2026-09-2x",
+    "EHGO_2026-05-22",
+    "ELAB_2026-04-12",
+    "ELPW_2026-09-1x",
+    "FTFT_2026-07-2x",
+    "HTCR_2026-06",
+    "JZ_2026-07",
+    "KWM_2026-08-2x",
+    "LABT_2026-07-2x",
+    "LABT_2026-08-23",
+    "LNAI_2026-06-1x",
+    "MBRX_06-2x (السنة غير متحقَّقة)",
+    "MBRX_2026-06",
+    "MNDR_2026-07-31",
+    "MWC_2026-06",
+    "NUWE_2026-09-1x",
+    "ONCO_2026-07-26",
+    "PCLA_2026-03-2x",
+    "PPBT_2026-09-04",
+    "RUBI_2026-08",
+    "SMX_2026-05-24",
+    "SPRC_2026-07-20",
+    "TRUG_2026-03-30",
+    "TRUG_2026-07-2x",
+    "UNK_SCIMETHOD_2026-07-31",
+    "UNK_TG_2036",
+    "UNK_TG_2037",
+    "UNK_TG_2106",
+    "UNK_TG_50584",
+    "WORX_2026-04-11",
+    "YMT_2026-09-04",
+    "YYAI_2026-07",
+    "YYAI_2026-07-0x"
+   ]
+  },
+  "method": "الحالاتُ بطبقة 1/2 وبكلمة READY/WAIT/REJECT · المكوّنُ «موجود» إن ذكره فيصل حرفيًّا داخل «…» في سجلّ عبارته (نصُّ الشارت الآليّ مستبعد)",
+  "single_example_combinations": 25
+ },
+ "decision_graph": {
+  "hierarchy_note": "ترتيبُ المهمّة مُعدَّلٌ بالدليل: الصلاحيّةُ (أخبار · طرح · قروبات · شورت) **حاجبٌ** يأتي بعد البنية ولا يرقّي (ADIL TG_2064 · KWM) · والنموذجُ (W) معلومةٌ لا قرار · والتأكيدُ = ثباتٌ في المنطقة أو سحبٌ ثمّ عودة · والدخولُ آليّةٌ لا قرار",
+  "hierarchy_reconstructed": [
+   "DATA",
+   "DATA_QUALITY",
+   "MARKET_CONTEXT",
+   "STRUCTURE",
+   "PATTERN",
+   "SUPPORT_RESISTANCE",
+   "PRICE_LOCATION",
+   "CONFIRMATION",
+   "VALIDITY",
+   "ENTRY",
+   "INVALIDATION",
+   "TARGET",
+   "DECISION",
+   "EXPLANATION"
+  ],
+  "rules": {
+   "H-D2": {
+    "decisionality": "UNKNOWN",
+    "source_level": 5,
+    "status": "CONTRADICTED"
+   },
+   "R-SUP-MAIN": {
+    "decisionality": "DECISIONAL",
+    "source_level": 6,
+    "status": "SUPPORTED"
+   },
+   "R-W-SPAN": {
+    "decisionality": "UNKNOWN",
+    "source_level": 4,
+    "status": "SUPPORTED"
+   },
+   "R4-BOT-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 2,
+    "status": "SUPPORTED"
+   },
+   "R4-CYC-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 3,
+    "status": "CONFIRMED"
+   },
+   "R4-DATA-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 7,
+    "status": "CONFIRMED"
+   },
+   "R4-ENT-01": {
+    "decisionality": "SUPPORTING",
+    "source_level": 2,
+    "status": "CONFIRMED"
+   },
+   "R4-ENT-02": {
+    "decisionality": "INFORMATIONAL",
+    "source_level": 2,
+    "status": "SUPPORTED"
+   },
+   "R4-HOLD-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 3,
+    "status": "SUPPORTED"
+   },
+   "R4-HOLDZ-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 2,
+    "status": "PROBABLE"
+   },
+   "R4-INV-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 2,
+    "status": "SUPPORTED"
+   },
+   "R4-LOC-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 2,
+    "status": "CONFIRMED"
+   },
+   "R4-OP-01": {
+    "decisionality": "UNKNOWN",
+    "source_level": 2,
+    "status": "SUPPORTED"
+   },
+   "R4-STOP-01": {
+    "decisionality": "SUPPORTING",
+    "source_level": 2,
+    "status": "SUPPORTED"
+   },
+   "R4-SWEEP-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 2,
+    "status": "SUPPORTED"
+   },
+   "R4-TF-01": {
+    "decisionality": "INFORMATIONAL",
+    "source_level": 2,
+    "status": "SUPPORTED"
+   },
+   "R4-TGT-01": {
+    "decisionality": "INFORMATIONAL",
+    "source_level": 2,
+    "status": "CONFIRMED"
+   },
+   "R4-VAL-GRP-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 2,
+    "status": "SUPPORTED"
+   },
+   "R4-VAL-OFF-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 2,
+    "status": "SUPPORTED"
+   },
+   "R4-VAL-SHORT-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 2,
+    "status": "PROBABLE"
+   },
+   "R4-ZONE-01": {
+    "decisionality": "DECISIONAL",
+    "source_level": 1,
+    "status": "SUPPORTED"
+   }
+  },
+  "state_order": [
+   {
+    "rule": "R4-DATA-01",
+    "state": "DATA_INSUFFICIENT"
+   },
+   {
+    "rule": "R4-INV-01",
+    "state": "BROKEN_NEW_BASE"
+   },
+   {
+    "rule": "R4-SWEEP-01",
+    "state": "PRESS_RECLAIM"
+   },
+   {
+    "rule": "R4-SWEEP-01",
+    "state": "SWEEP_ACTIVE"
+   },
+   {
+    "rule": "R4-HOLD-01",
+    "state": "BASE_FORMING"
+   },
+   {
+    "rule": "R4-CYC-01",
+    "state": "BASE_HELD"
+   },
+   {
+    "rule": "R4-LOC-01",
+    "state": "RETEST_PENDING"
+   },
+   {
+    "rule": "R4-HOLDZ-01",
+    "state": "RETEST_HELD"
+   },
+   {
+    "rule": "R4-HOLDZ-01",
+    "state": "RETEST_IN_PROGRESS"
+   }
+  ],
+  "states": [
+   {
+    "decision": "UNKNOWN",
+    "id": "DATA_INSUFFICIENT",
+    "label": "بياناتٌ غيرُ كافية",
+    "rule": "R4-DATA-01"
+   },
+   {
+    "decision": "WAIT",
+    "id": "BASE_FORMING",
+    "label": "القاعُ لم يثبت 5 جلسات بعد",
+    "rule": "R4-HOLD-01"
+   },
+   {
+    "decision": "WAIT",
+    "id": "BROKEN_NEW_BASE",
+    "label": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد",
+    "rule": "R4-INV-01"
+   },
+   {
+    "decision": "WAIT",
+    "id": "SWEEP_ACTIVE",
+    "label": "سحبُ سيولةٍ تحت القاع السابق ولم يعد فوقه بعد",
+    "rule": "R4-SWEEP-01"
+   },
+   {
+    "decision": "WAIT",
+    "id": "RETEST_PENDING",
+    "label": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم",
+    "rule": "R4-LOC-01"
+   },
+   {
+    "decision": "WAIT",
+    "id": "RETEST_IN_PROGRESS",
+    "label": "رجع إلى المنطقة ولم يثبت فيها جلساتٍ كافية",
+    "rule": "R4-HOLDZ-01"
+   },
+   {
+    "decision": "TECH_READY",
+    "id": "PRESS_RECLAIM",
+    "label": "سحبُ سيولةٍ ثمّ عودةٌ فوق القاع السابق (ضغطٌ مكتمل)",
+    "rule": "R4-SWEEP-01"
+   },
+   {
+    "decision": "TECH_READY",
+    "id": "RETEST_HELD",
+    "label": "اختبر الدعم وثبت في المنطقة",
+    "rule": "R4-HOLDZ-01"
+   },
+   {
+    "decision": "TECH_READY",
+    "id": "BASE_HELD",
+    "label": "قاعٌ ثابتٌ والسعرُ في المنطقة بلا صعود اختبارٍ بعد",
+    "rule": "R4-HOLD-01"
+   }
+  ],
+  "validity_edges": [
+   {
+    "from": "TECH_READY",
+    "rule": "R4-VAL-GRP-01",
+    "to": "REJECT",
+    "when": "groups = True (وفي أيّ حالة)"
+   },
+   {
+    "from": "TECH_READY",
+    "rule": "R4-VAL-OFF-01 · R4-VAL-SHORT-01",
+    "to": "WAIT",
+    "when": "طرحٌ معلَّق أو متاحٌ فوق 20,000"
+   },
+   {
+    "from": "TECH_READY",
+    "rule": "R4-OP-01",
+    "to": "UNKNOWN",
+    "when": "معلومةٌ ناقصة (قروبات · طرح · شورت · بصمةُ المضارب)"
+   },
+   {
+    "from": "TECH_READY",
+    "rule": "—",
+    "to": "READY",
+    "when": "الصلاحيّةُ كاملةٌ نظيفة"
+   }
+  ]
+ },
+ "generated_by": "faisal_method_v4/v4_forensics.py",
+ "orders_at_support": {
+  "classification": "ENTRY_MECHANISM_PREFERRED (SUPPORTING · ليس شرطَ قرار)",
+  "conclusion": "آليّةُ الدخول الأولى المفضّلة («ما اخاطر» · «شرا من العرض خساره») · والشراءُ من العرض مقبولٌ في الدخول الثاني وعند التحرّر (AZI · DSY · PPCB) ⇒ لا يُبنى عليه READY/WAIT — جوابُ §15: لا تُطبَّق شرطًا",
+  "contradicting": [
+   "TG_1963 ERNA «اللي ماتفرق معاه ومتعود يشري من العرض قدامك السهم»",
+   "IMG_0291 DSY «اخذته الان من العرض الليلي»",
+   "IMG_0290 AZI «شيله من العرض باي سعر» (عند التحرّر)",
+   "TG_2059 PPCB «ماركت ناخذه»"
+  ],
+  "question": "هل يشترط فيصل الطلباتِ عند الدعم؟",
+  "supporting": [
+   "IMG_0569 MNDR «طلبات عند الدعوم · شرا من العرض خساره»",
+   "X_20260918_85_YMT «طلبات فوارق 5 سنت عند الدعم»",
+   "IMG_0510 CANF «نشري مع المضارب طلبات صغيره»",
+   "IMG_0505 ADIL «شرحنا طريقة الدخول والتجميع»"
+  ]
+ },
+ "pattern_audit": {
+  "components": {
+   "BOS_CHOCH": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "UNKNOWN",
+    "tier1_examples": [],
+    "verbatim_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "BREAKOUT": {
+    "described_by_tier": {
+     "1": 2,
+     "2": 3,
+     "2b": 2,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0143",
+     "IMG_0153",
+     "IMG_0302",
+     "IMG_0316",
+     "IMG_0319",
+     "IMG_0391",
+     "IMG_0393",
+     "IMG_0395"
+    ],
+    "verbatim_by_tier": {
+     "1": 43,
+     "2": 18,
+     "2b": 11,
+     "X": 1
+    }
+   },
+   "CCI": {
+    "described_by_tier": {
+     "1": 39,
+     "2": 36,
+     "2b": 24,
+     "X": 2
+    },
+    "note": null,
+    "status": "OBSERVED_ONLY",
+    "tier1_examples": [],
+    "verbatim_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "CHANNEL": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "UNKNOWN",
+    "tier1_examples": [],
+    "verbatim_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "CONSOLIDATION": {
+    "described_by_tier": {
+     "1": 3,
+     "2": 6,
+     "2b": 4,
+     "X": 1
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0150",
+     "IMG_0302",
+     "IMG_0319",
+     "IMG_0361",
+     "IMG_0391",
+     "IMG_0393",
+     "IMG_0506",
+     "IMG_0531"
+    ],
+    "verbatim_by_tier": {
+     "1": 51,
+     "2": 14,
+     "2b": 12,
+     "X": 11
+    }
+   },
+   "ELLIOTT": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 1,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0393",
+     "TG_1845",
+     "TG_1849",
+     "TG_1860",
+     "TG_1980",
+     "TG_1985",
+     "TG_2077",
+     "TG_2097"
+    ],
+    "verbatim_by_tier": {
+     "1": 24,
+     "2": 2,
+     "2b": 2,
+     "X": 5
+    }
+   },
+   "FALLING_CANDLE": {
+    "described_by_tier": {
+     "1": 2,
+     "2": 0,
+     "2b": 2,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0143",
+     "IMG_0153",
+     "IMG_0302",
+     "IMG_0509",
+     "IMG_0569",
+     "IMG_0691",
+     "TG_1815",
+     "TG_1817"
+    ],
+    "verbatim_by_tier": {
+     "1": 16,
+     "2": 6,
+     "2b": 5,
+     "X": 1
+    }
+   },
+   "FALSE_BREAKOUT": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "TG_1840",
+     "TG_1854",
+     "TG_57862",
+     "X_20260827_labt_supports_wait"
+    ],
+    "verbatim_by_tier": {
+     "1": 4,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "FIBONACCI": {
+    "described_by_tier": {
+     "1": 1,
+     "2": 1,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "TG_2085",
+     "TG_57928",
+     "X_20260918_54_indicators",
+     "X_20260918_61_VEEE"
+    ],
+    "verbatim_by_tier": {
+     "1": 4,
+     "2": 0,
+     "2b": 0,
+     "X": 1
+    }
+   },
+   "FLAG": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "UNKNOWN",
+    "tier1_examples": [],
+    "verbatim_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "FSTO": {
+    "described_by_tier": {
+     "1": 43,
+     "2": 39,
+     "2b": 24,
+     "X": 4
+    },
+    "note": null,
+    "status": "SINGLE_SOURCE",
+    "tier1_examples": [
+     "TG_1812"
+    ],
+    "verbatim_by_tier": {
+     "1": 1,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "GAP": {
+    "described_by_tier": {
+     "1": 4,
+     "2": 2,
+     "2b": 0,
+     "X": 3
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0486",
+     "IMG_0512",
+     "IMG_0513",
+     "TG_20260905_06",
+     "TG_2196",
+     "TG_57869"
+    ],
+    "verbatim_by_tier": {
+     "1": 6,
+     "2": 7,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "GROUPS": {
+    "described_by_tier": {
+     "1": 3,
+     "2": 1,
+     "2b": 0,
+     "X": 1
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0143",
+     "IMG_0151",
+     "IMG_0153",
+     "IMG_0177",
+     "IMG_0179",
+     "IMG_0316",
+     "IMG_0488",
+     "IMG_0497"
+    ],
+    "verbatim_by_tier": {
+     "1": 24,
+     "2": 12,
+     "2b": 6,
+     "X": 2
+    }
+   },
+   "HAMMER": {
+    "described_by_tier": {
+     "1": 1,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0569",
+     "IMG_0691",
+     "TG_1824"
+    ],
+    "verbatim_by_tier": {
+     "1": 3,
+     "2": 4,
+     "2b": 2,
+     "X": 0
+    }
+   },
+   "HEAD_SHOULDERS": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": "محورٌ مُغلَق (HSFX_REOPEN · T-HS-FX/RX) — أمثلةُ فيصل قممٌ يُخرَج عندها",
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "TG_2197",
+     "TG_50589"
+    ],
+    "verbatim_by_tier": {
+     "1": 2,
+     "2": 2,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "INVERSE_HEAD_SHOULDERS": {
+    "described_by_tier": {
+     "1": 1,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": "محورٌ مُغلَق (HSFX_REOPEN)",
+    "status": "OBSERVED_ONLY",
+    "tier1_examples": [],
+    "verbatim_by_tier": {
+     "1": 0,
+     "2": 2,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "KLINGER": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 1,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "TG_2085",
+     "TG_2090",
+     "TG_2218",
+     "TG_57928",
+     "X_20260918_54_indicators"
+    ],
+    "verbatim_by_tier": {
+     "1": 5,
+     "2": 1,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "KST": {
+    "described_by_tier": {
+     "1": 6,
+     "2": 26,
+     "2b": 0,
+     "X": 1
+    },
+    "note": null,
+    "status": "OBSERVED_ONLY",
+    "tier1_examples": [],
+    "verbatim_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "MACD": {
+    "described_by_tier": {
+     "1": 21,
+     "2": 42,
+     "2b": 2,
+     "X": 2
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "TG_1814",
+     "TG_2085",
+     "TG_57928",
+     "X_20260918_54_indicators"
+    ],
+    "verbatim_by_tier": {
+     "1": 4,
+     "2": 3,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "MOVING_AVERAGE": {
+    "described_by_tier": {
+     "1": 7,
+     "2": 9,
+     "2b": 2,
+     "X": 2
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0143",
+     "IMG_0150",
+     "IMG_0151",
+     "IMG_0152",
+     "IMG_0153",
+     "IMG_0177",
+     "IMG_0179",
+     "IMG_0486"
+    ],
+    "verbatim_by_tier": {
+     "1": 39,
+     "2": 8,
+     "2b": 8,
+     "X": 8
+    }
+   },
+   "M_DOUBLE_TOP": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 1,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "TG_58044",
+     "TG_58050"
+    ],
+    "verbatim_by_tier": {
+     "1": 2,
+     "2": 1,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "OFFERING": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0497",
+     "IMG_0587",
+     "IMG_8127",
+     "IMG_8136",
+     "TG_1810",
+     "TG_1813",
+     "TG_2042",
+     "TG_2064"
+    ],
+    "verbatim_by_tier": {
+     "1": 13,
+     "2": 2,
+     "2b": 0,
+     "X": 1
+    }
+   },
+   "PENNANT": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "UNKNOWN",
+    "tier1_examples": [],
+    "verbatim_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "PRESS": {
+    "described_by_tier": {
+     "1": 2,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0177",
+     "IMG_0179",
+     "IMG_0316",
+     "IMG_0531",
+     "TG_1860",
+     "TG_1963",
+     "TG_1964",
+     "TG_1999"
+    ],
+    "verbatim_by_tier": {
+     "1": 29,
+     "2": 7,
+     "2b": 4,
+     "X": 1
+    }
+   },
+   "RETEST": {
+    "described_by_tier": {
+     "1": 1,
+     "2": 0,
+     "2b": 1,
+     "X": 1
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0486",
+     "IMG_0508",
+     "IMG_0566",
+     "IMG_8133",
+     "TG_1989",
+     "TG_2019",
+     "TG_20260905_07",
+     "TG_50579"
+    ],
+    "verbatim_by_tier": {
+     "1": 15,
+     "2": 3,
+     "2b": 5,
+     "X": 4
+    }
+   },
+   "RSI": {
+    "described_by_tier": {
+     "1": 4,
+     "2": 4,
+     "2b": 3,
+     "X": 3
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0177",
+     "IMG_0531",
+     "TG_1810",
+     "TG_1812",
+     "TG_1814",
+     "TG_1822",
+     "TG_1967",
+     "TG_1989"
+    ],
+    "verbatim_by_tier": {
+     "1": 19,
+     "2": 7,
+     "2b": 3,
+     "X": 0
+    }
+   },
+   "SHORT_BORROW": {
+    "described_by_tier": {
+     "1": 2,
+     "2": 1,
+     "2b": 0,
+     "X": 4
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0143",
+     "IMG_0150",
+     "IMG_0151",
+     "IMG_0152",
+     "IMG_0153",
+     "IMG_0177",
+     "IMG_0179",
+     "IMG_0361"
+    ],
+    "verbatim_by_tier": {
+     "1": 60,
+     "2": 23,
+     "2b": 8,
+     "X": 17
+    }
+   },
+   "SPLIT": {
+    "described_by_tier": {
+     "1": 7,
+     "2": 11,
+     "2b": 1,
+     "X": 6
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0143",
+     "IMG_0150",
+     "IMG_0151",
+     "IMG_0152",
+     "IMG_0153",
+     "IMG_0177",
+     "IMG_0179",
+     "IMG_0509"
+    ],
+    "verbatim_by_tier": {
+     "1": 29,
+     "2": 14,
+     "2b": 3,
+     "X": 13
+    }
+   },
+   "STRUCTURE_HH_HL_LH_LL": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "SINGLE_SOURCE",
+    "tier1_examples": [
+     "IMG_8127"
+    ],
+    "verbatim_by_tier": {
+     "1": 1,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "SUPPORT_RESISTANCE": {
+    "described_by_tier": {
+     "1": 3,
+     "2": 7,
+     "2b": 1,
+     "X": 4
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0179",
+     "IMG_0302",
+     "IMG_0319",
+     "IMG_0361",
+     "IMG_0395",
+     "IMG_0486",
+     "IMG_0488",
+     "IMG_0496"
+    ],
+    "verbatim_by_tier": {
+     "1": 97,
+     "2": 46,
+     "2b": 28,
+     "X": 23
+    }
+   },
+   "SWEEP": {
+    "described_by_tier": {
+     "1": 1,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0143",
+     "IMG_0153",
+     "IMG_0177",
+     "IMG_0179",
+     "TG_1822",
+     "TG_1964",
+     "TG_2097",
+     "TG_2197"
+    ],
+    "verbatim_by_tier": {
+     "1": 25,
+     "2": 10,
+     "2b": 6,
+     "X": 2
+    }
+   },
+   "TRIANGLE": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "UNKNOWN",
+    "tier1_examples": [],
+    "verbatim_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    }
+   },
+   "VOLUME": {
+    "described_by_tier": {
+     "1": 1,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "TG_50576",
+     "TG_50577",
+     "TG_50829",
+     "TG_57870",
+     "X_20260918_04_ELPW",
+     "X_20261001_HS_03_LS"
+    ],
+    "verbatim_by_tier": {
+     "1": 6,
+     "2": 0,
+     "2b": 0,
+     "X": 1
+    }
+   },
+   "VWAP": {
+    "described_by_tier": {
+     "1": 9,
+     "2": 9,
+     "2b": 13,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "IMG_0617",
+     "IMG_0688"
+    ],
+    "verbatim_by_tier": {
+     "1": 2,
+     "2": 0,
+     "2b": 1,
+     "X": 1
+    }
+   },
+   "WYCKOFF": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 0,
+     "2b": 0,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "TG_1980",
+     "TG_50581",
+     "TG_50584",
+     "TG_50831"
+    ],
+    "verbatim_by_tier": {
+     "1": 4,
+     "2": 0,
+     "2b": 2,
+     "X": 2
+    }
+   },
+   "W_DOUBLE_BOTTOM": {
+    "described_by_tier": {
+     "1": 0,
+     "2": 1,
+     "2b": 2,
+     "X": 0
+    },
+    "note": null,
+    "status": "PROVEN_IN_TEXT",
+    "tier1_examples": [
+     "TG_50589",
+     "TG_58044",
+     "TG_58046",
+     "TG_58048",
+     "TG_58050",
+     "X_20260918_12_doublebottom"
+    ],
+    "verbatim_by_tier": {
+     "1": 6,
+     "2": 2,
+     "2b": 2,
+     "X": 0
+    }
+   }
+  },
+  "rule": "حرفيٌّ في وحدتين فأكثر من الطبقة 1 ⟵ PROVEN_IN_TEXT · وحدة ⟵ SINGLE_SOURCE · وصفُ المراجع وحدَه ⟵ OBSERVED_ONLY · صفر ⟵ UNKNOWN"
+ },
+ "r_w_span": {
+  "contradiction_search": "بحثٌ في 609 وحدة عن W مقبولٍ رغم قاعٍ داخليٍّ أدنى: صفرُ مثالٍ لفيصل · وRAYA (ذهبيّ) يوافق (دعمُه 1.999 = القاعُ الداخليّ)",
+  "decision": "SUBSUMED — يُعمَّم في R4-BOT-01 (القاع = أدنى ذيلٍ منذ قمّة الدورة) ولا يُستعمل قاعدةً مستقلّة في V4 · وV3.1 محفوظٌ كما هو",
+  "question": "هل R-W-SPAN قاعدةٌ عامّةٌ لفيصل؟",
+  "status": "SUPPORTED (المعنى العامّ) · والصيغةُ الهندسيّة الخاصّة بـW (2% بين القاعين) POSSIBLE",
+  "v31_basis": "تعريفُ طرفٍ ثالث (TG_58042/43/50/51) يطابقه رسمُ فيصل IMG_0627 · وصفرُ مثالٍ يناقضه",
+  "v4_finding": "المعنى العامّ «القاعُ الحقيقيُّ هو الأدنى · وكسرُه يعيد التحليل» مسنودٌ مستقلًّا (R4-BOT-01 · R4-INV-01): TG_50584 «أدنى شمعة القاع» · X_20260905_10 «كسر 1.81 تصنع تحليل اخر» · X_20260905_07 «إن كسر 2.08 يذهب إلى 1.70» · IMG_0689"
+ },
+ "rejection_forensics": {
+  "by_reason": {
+   "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)": 14,
+   "HOLD_CONFIRMATION (عند الدعم وينتظر الثبات)": 3,
+   "OPERATOR_OR_TIMING (مضارب · بريماركت)": 10,
+   "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)": 26,
+   "PRICE_LOCATION + CONFIRMATION": 2,
+   "VALIDITY (قروبات · طرح · شورت · تسريب) + CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)": 2,
+   "VALIDITY (قروبات · طرح · شورت · تسريب) + OPERATOR_OR_TIMING (مضارب · بريماركت)": 2,
+   "VALIDITY (قروبات · طرح · شورت · تسريب) + PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)": 6,
+   "VALIDITY (قروبات · طرح · شورت · تسريب) + PRICE_LOCATION + CONFIRMATION": 2
+  },
+  "n": 67,
+  "rows": [
+   {
+    "case": "LABT_2026-07-27",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "ENTRY_TRIGGER_ABOVE_PRICE"
+    ]
+   },
+   {
+    "case": "EHGO_2026-05-22",
+    "label": "WAIT",
+    "plan": "NONE",
+    "quote": "جاهزٌ فنيًّا (÷2 ‏+ متوسط الهبوط بعد التقسيم ‏+ دعمٌ أساسيّ ‏+ سحب ≈10% ثمّ عودة ‏+ المتوسطات وRSI في التشبّع) ⟵ «ننتظر فقط مضارب يصعد بالسهم» ⟵ «انت كمتابع لاتشري»",
+    "reason_class": "OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "CHINA",
+     "FLOAT_SMALL",
+     "FOLLOWER_DONT_BUY",
+     "MAIN_SUPPORT_HELD",
+     "MA_DOWN_ACHIEVED",
+     "NO_NEWS",
+     "RSI_OVERSOLD",
+     "SHORT_LOW",
+     "SPLIT_HALF_REACHED",
+     "SWEEP_10PCT_RECLAIM",
+     "WAIT_OPERATOR"
+    ]
+   },
+   {
+    "case": "ZCMD_2026-07-02",
+    "label": "WAIT",
+    "plan": "NONE",
+    "quote": "",
+    "reason_class": "OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "WATCHLIST_CALL"
+    ]
+   },
+   {
+    "case": "LABT_2026-07-2x",
+    "label": "WAIT",
+    "plan": "NONE",
+    "quote": "لا دخول قبل المضارب (خوارزميّاتُه تُعلَن حين تظهر)",
+    "reason_class": "OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "LIBERATION_LEVEL_ABOVE",
+     "WAIT_OPERATOR"
+    ]
+   },
+   {
+    "case": "CANF_2026-07-20",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "تحت مستوى التحرّر ليس إيجابيًّا بعد · تجاوزُه يحوّله إيجابيًّا",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "FEE_HIGH",
+     "LIBERATION_TRIGGER_ABOVE",
+     "SHORT_ZERO"
+    ]
+   },
+   {
+    "case": "LABT_2026-07-05",
+    "label": "REJECT",
+    "plan": "NONE",
+    "quote": "سيولة قروبات داخلة ⟵ المضارب يُسقطه (لا تجمع معه)",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "GROUPS_PRESENT"
+    ]
+   },
+   {
+    "case": "TRUG_2026-07-2x",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "تحت المراقبة حتّى يُضمن دخول المضارب (تحرّكٌ فوق مستوى)",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "LIBERATION_TRIGGER_ABOVE",
+     "OPERATOR_PRESENT",
+     "TRIGGER_ABOVE_PRICE",
+     "WAIT_OPERATOR",
+     "WATCHLIST_CALL"
+    ]
+   },
+   {
+    "case": "YYAI_2026-07-0x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "منطقة الدخول المنهجيّة تحت السعر بكثير ⟵ انتظار حتّى تصل",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "ENTRY_ZONE_FAR_BELOW",
+     "NOT_RISING_SCIENTIFICALLY"
+    ]
+   },
+   {
+    "case": "SMX_2026-04-25",
+    "label": "WAIT",
+    "plan": "NONE",
+    "quote": "تحت المراقبة ‏+ انتظار البري قبل القرار",
+    "reason_class": "OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "WAIT_SESSION_BEHAVIOR",
+     "WATCHLIST_CALL"
+    ]
+   },
+   {
+    "case": "ELPW_2026-05-0x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "موجةٌ باقية بشرط اختبار الدعم وعدم فشله",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "DOUBLE_BOTTOM",
+     "ENTRY_BOX_DRAWN",
+     "PATTERN_BREAKOUT_DRAWN",
+     "WAIT_SUPPORT_TEST"
+    ]
+   },
+   {
+    "case": "CDIO_2026-02-2x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "بعد صعود 30% من القاع يرجع يختبر الدعم الثاني ⟵ راقب حتى يهبط إليه",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "ENTRY_CONDITION_HOLD",
+     "MA50",
+     "RSI_OVERSOLD",
+     "STOP_STATED",
+     "SUPPORT2_ZONE_BELOW_PRICE",
+     "TARGETS_STATED",
+     "WAIT_SUPPORT_TEST"
+    ]
+   },
+   {
+    "case": "ELAB_2026-04-12",
+    "label": "WAIT",
+    "plan": "NONE",
+    "quote": "تدويرٌ 750% من الفلوت ‏+ لا أسهم متاحة للشورت ⟵ «متابعة فقط ليس توصية شراء»",
+    "reason_class": "OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "BORROW_ZERO",
+     "ROTATION_750",
+     "SHORT_COVERING_ROTATION"
+    ]
+   },
+   {
+    "case": "LNAI_2026-06-1x",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "المقاومة 3.27-3.57 فوق السعر · التحرّرُ منها «ممتاز» ⟵ أهداف 4-5",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "FLOAT_SMALL",
+     "HAMMER_AT_LOW_4H",
+     "LIBERATION_LEVEL",
+     "LIBERATION_TRIGGER_ABOVE",
+     "NEWS",
+     "SHORT_ZERO",
+     "SPLIT_RECENT"
+    ]
+   },
+   {
+    "case": "SMX_2026-05-24",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "الدخولُ الآمن: قاعٌ ‏+ سحبُ سيولة (≈5.80 تحت قاع 6.11) أو — بلا سحب — ثباتُه عند 7 (تحت السعر 7.85)",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "ENTRY_ZONE_BELOW_PRICE",
+     "POST_SPLIT_LOW",
+     "SWEEP_OR_HOLD_ENTRY",
+     "TARGETS_STATED"
+    ]
+   },
+   {
+    "case": "FRSX_2026-03-28",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "متابعةُ الأسبوع القادم: الثباتُ فوق 3 = تحرّرُ السهم (فوق السعر 2.40-2.50)",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "LIBERATION_TRIGGER_ABOVE",
+     "MA30",
+     "POST_SPLIT_LOW",
+     "SPLIT_RECENT",
+     "WATCHLIST_CALL"
+    ]
+   },
+   {
+    "case": "ELPW_2026-01-22",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "دخولٌ مشروط «لو اعطى» عند 1.20-1.25 (تحت السعر 1.31) على دفعتين · وقف 1.16 (≈−3.3% تحت 1.20)",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "ENTRY_ZONE_BELOW_PRICE",
+     "RSI_OVERSOLD",
+     "STOP_STATED",
+     "TARGETS_STATED",
+     "TRANCHE_PLAN"
+    ]
+   },
+   {
+    "case": "CLIR_2026-04-0x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "شمعةٌ هابطة «الرجل المشنوق» بعد صعودٍ 50% ⟵ انتظارُ تكوين دعوم ارتداد 3.60-4",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "ENTRY_ZONE_BELOW_PRICE",
+     "HANGING_MAN",
+     "HOLD_2_3_SESSIONS",
+     "PRIOR_RISE_50PCT"
+    ]
+   },
+   {
+    "case": "BETA_2026-04-05",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "متابعةُ الدعم 14 (تحت السعر 15.40)",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "SUPPORT_ZONE_BELOW_PRICE",
+     "WATCHLIST_CALL"
+    ]
+   },
+   {
+    "case": "TRUG_2026-03-30",
+    "label": "WAIT",
+    "plan": "NONE",
+    "quote": "متابعةُ الغد: مقسّمٌ الجمعة ‏+ شورتٌ صفر ‏+ 466 ألف سهم",
+    "reason_class": "OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "FLOAT_TINY",
+     "SHORT_ZERO",
+     "SPLIT_RECENT",
+     "WATCHLIST_CALL"
+    ]
+   },
+   {
+    "case": "PCLA_2026-03-2x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "هدفُ الشورت 1.70 تحت السعر · مراقبةُ «ثبات أعلى أو هبوط أكثر»",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "HOLD_OR_FAIL",
+     "SHORT_TARGET_BELOW",
+     "WATCHLIST_CALL"
+    ]
+   },
+   {
+    "case": "ONCO_2026-07-26",
+    "label": "WAIT",
+    "plan": "BOTH",
+    "quote": "الثباتُ فوق 0.92 = تحرّر (السعر ≈0.82-0.84)",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + PRICE_LOCATION + CONFIRMATION",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "ENTER_WITH_OPERATOR",
+     "FLOAT_SMALL",
+     "GAP_ABOVE",
+     "HOLD_OR_SWEEP",
+     "LIBERATION_TRIGGER_ABOVE",
+     "NOT_NOW",
+     "SHORT_HIGH_150K",
+     "SPLIT_HALF_REACHED",
+     "WAIT_HOLD_FIRST",
+     "WAIT_OPERATOR",
+     "ZONE_BELOW_0_60_0_70"
+    ]
+   },
+   {
+    "case": "FTFT_2026-07-2x",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "(فيصل) لا بدّ أن يثبت فوق 1.30 (فوق السعر) ⟵ 1.50 مقاومة ‏+ تحرّر 1.78 · «الباقي بيد المضارب»",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "SPLIT_HALF_REACHED",
+     "SHORT_FALLING",
+     "BIDS_PLACED",
+     "BOTTOM_TODAY",
+     "HOLD_ABOVE_TRIGGER",
+     "WAIT_OPERATOR"
+    ]
+   },
+   {
+    "case": "CDIO_2026-01-28",
+    "label": "WAIT",
+    "plan": "NONE",
+    "quote": "«جاهز» على جميع المؤشّرات والشموع ‏+ «بانتظار فقط دخول المضارب» ⟵ انتظار",
+    "reason_class": "OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S1",
+    "tech_ready_stated": true,
+    "tier": "1",
+    "why_codes": [
+     "KLINGER",
+     "TECH_READY",
+     "WAIT_OPERATOR"
+    ]
+   },
+   {
+    "case": "MSGY_2026-09-0x",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "ACCUMULATION_ZONE",
+     "EXPECT_RESISTANCE_TEST_THEN_SUPPORT_RETEST",
+     "RETEST_NOT_EXACT_LEVEL",
+     "SPLIT_RECENT"
+    ]
+   },
+   {
+    "case": "STKH_2026-09-04",
+    "label": "WAIT",
+    "plan": "AT",
+    "quote": "",
+    "reason_class": "HOLD_CONFIRMATION (عند الدعم وينتظر الثبات)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "AT_SUPPORT_NOW",
+     "GAP_FILLED_ACTIVATION",
+     "HOLD_5_SESSIONS_4H",
+     "LIBERATION_SECOND_LINE",
+     "LIKED",
+     "SEQUENCE_SUPPORT_RESISTANCE_HOLD",
+     "SPLIT_RECENT"
+    ]
+   },
+   {
+    "case": "NUWE_2026-09-04",
+    "label": "WAIT",
+    "plan": "BOTH",
+    "quote": "",
+    "reason_class": "PRICE_LOCATION + CONFIRMATION",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "COUNT_DAYS_SINCE_LOW",
+     "EXPECT_SUPPORT_RETEST",
+     "LAST_SUPPORT_0_60",
+     "LIBERATION_0_95",
+     "LOW_DIFFERS_BY_TIMEFRAME",
+     "NO_FOGGY_ZONE_ENTRY",
+     "RISE_PCT_FROM_LOW",
+     "TARGETS_1_35_THEN_2_2_30",
+     "WAIT_HOLD_ABOVE_LAST_BODY_80C",
+     "WAIT_LOW_TEST_NO_BREAK",
+     "WAIT_SWEEP_TO_60C"
+    ]
+   },
+   {
+    "case": "DCOY_2026-09-22",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "DECISION_DEFERRED_AFTER_LONDON_SESSION",
+     "LAST_SUPPORT_3_70",
+     "WAIT_MARKET_PRESS",
+     "SHORT_80K_REMAINING",
+     "WAIT_LEVEL_2_THEN_DECIDE"
+    ]
+   },
+   {
+    "case": "EDBL_2026-09-22",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "EXPECT_RESISTANCE_TEST_THEN_SUPPORT_RETEST",
+     "WAVES_CONTEXT"
+    ]
+   },
+   {
+    "case": "DCOY_2026-09-2x",
+    "label": "REJECT",
+    "plan": "BELOW",
+    "quote": "لا دخولَ بعد انفجار ‏+114% — «مايدخل الان بالسهم»",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BUY_LOW_NOT_HIGH",
+     "CHASING_AFTER_EXPLOSION_114PCT"
+    ]
+   },
+   {
+    "case": "LIMN_2026-09-22",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BORROW_AVAIL_1K",
+     "FLOAT_SMALL",
+     "MUST_RETEST_SUPPORT",
+     "RESISTANCE_TEST_DONE",
+     "SPLIT_31D",
+     "WAIT_BOTTOM_RETEST"
+    ]
+   },
+   {
+    "case": "CETX_2026-09-2x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "إغلاقُ طرحٍ معلَّق حتى نهاية الشهر ⟵ انتظار",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "NEWS_CANDLE_RESISTANCE",
+     "OFFERING_CLOSING_PENDING",
+     "POSSIBLE_SWEEP_TO_1_80",
+     "RSI_31",
+     "SHORT_20K"
+    ]
+   },
+   {
+    "case": "IPDN_2026-09-2x",
+    "label": "WAIT",
+    "plan": "NONE",
+    "quote": "بعد صعود الافتر: أوّلَ البري يُتابَع «كم الضغط وكم الثبات» قبل الدخول",
+    "reason_class": "OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "AH_EXPLOSION_71PCT",
+     "AH_TARGET_9",
+     "SUPPORT_MUST_HOLD_5_50",
+     "WAIT_PREMARKET_PRESS_AND_HOLD"
+    ]
+   },
+   {
+    "case": "SXTC_2026-09-2x",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BREAKOUT_REJECTION_EQUALS_DROP",
+     "NEW_ENTRY_AFTER_BREAKOUT_AND_SUPPORT_CONFIRM",
+     "TAKE_PROFIT_AT_RESISTANCE_3"
+    ]
+   },
+   {
+    "case": "NRSN_2026-09-27",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "بعد اختبار المقاومة: ضغطٌ متوقَّع 20-30% ⟵ انتظارُ تحقيق الدعم أو سحب السيولة",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "EXPECTED_PRESS_20_30PCT",
+     "FALLING_CANDLE_BEFORE_SPLIT_5",
+     "NEWS_RERUN",
+     "RESISTANCE_TESTED",
+     "WAIT_SUPPORT_OR_SWEEP"
+    ]
+   },
+   {
+    "case": "CRE_2026-09-2x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "GAP_BELOW_MUST_FILL",
+     "ZONE_BELOW_PRICE_13PCT"
+    ]
+   },
+   {
+    "case": "OMH_2026-09-26",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "بعد تحقيق المقاومة 2.64: انتظارُ سحب السيولة (1.808) أو ثباتِ القاع (2.05)",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "EXPECT_SUPPORT_RETEST",
+     "LOAD_AFTER_SWEEP_NOT_BEFORE",
+     "RESISTANCE_3_NOT_EXCEEDED",
+     "RESISTANCE_TESTED_2_64",
+     "RETAIL_STOPS_15PCT_BELOW_AVG",
+     "RETEST_IS_BASIC_CONDITION",
+     "SWEEP_EXPECTED_90PCT",
+     "WAIT_SWEEP_OR_LOW_HOLD"
+    ]
+   },
+   {
+    "case": "DSY_2026-09-2x",
+    "label": "WAIT",
+    "plan": "AT",
+    "quote": "",
+    "reason_class": "HOLD_CONFIRMATION (عند الدعم وينتظر الثبات)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "FILL_GAP_THEN_GOOD",
+     "GAP_ZONE_BETWEEN_TWO_RED"
+    ]
+   },
+   {
+    "case": "CIIT_2026-09-26",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "DOWNWAVE_EXPECTED_25PCT_AFTER_RESISTANCE_TEST",
+     "POSITIVE_IF_HOLD_BELOW_SUPPORT",
+     "POSITIVE_IF_HOLD_BELOW_SUPPORT_DURING_SWEEP",
+     "SWEEP_TO_2_EXPECTED",
+     "THEN_RETURN_ABOVE_SUPPORT",
+     "WAIT_SUPPORTS_AND_SWEEP"
+    ]
+   },
+   {
+    "case": "DKI_2026-09-2x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "ENTER_AFTER_SWEEP_NOT_BEFORE",
+     "GROUP_BUYING_CANDLE_2_97",
+     "NEWS_SHORT_CHECK",
+     "OFFERING_RISK",
+     "SWEEP_TO_2_EXPECTED",
+     "WAIT_OPERATOR_PRESS"
+    ]
+   },
+   {
+    "case": "VEEE_2026-05",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "«تحليل الاسهم هذي للانتظار وليس للدخول بكميات»",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "ABOVE_BAND_POSITIVE",
+     "DECISION_BAND_6_18_6_34",
+     "FOR_WAITING_NOT_SIZE",
+     "LIBERATION_8_27",
+     "NEGATIVE_CLOSE_6_17",
+     "PRIOR_CONCENTRATED_LIQUIDITY",
+     "STOP_7PCT_FROM_ENTRY_6_50",
+     "WAIT_SECOND_CANDLE_DAILY_CLOSE",
+     "W_INCOMPLETE"
+    ]
+   },
+   {
+    "case": "DXST_2026-06-16",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "«شرح فني فقط · الرجا عدم الشرا ممكن يهبط السهم»",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "DONT_BUY_MAY_DROP",
+     "FOLLOW_TODAY_OR_TOMORROW",
+     "HOLD_ABOVE_NECKLINE_2_86_OVER_15MIN",
+     "LIBERATION_RES2_3_11_TO_3_30",
+     "NECKLINE_REQUESTED",
+     "NEGATIVE_LIQUIDITY_NOW",
+     "ONLY_OPERATOR_LIQUIDITY_COMPLETES_MODEL",
+     "TECH_EXPLANATION_ONLY",
+     "TF_30M_REQUESTED",
+     "WARN_OTHERS_BUY_CALL",
+     "W_NOT_YET_DRAWN"
+    ]
+   },
+   {
+    "case": "ATMV_UNK",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "DAILY_CLOSE_8_76_IMPORTANT",
+     "HOLD_6_70_AFTER_REBOUND",
+     "NO_CONFIRMING_CANDLE"
+    ]
+   },
+   {
+    "case": "HCWB_2026-08-24",
+    "label": "WAIT",
+    "plan": "NONE",
+    "quote": "السهمُ المسرَّب ينتظر ضغطَ المضارب",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S3",
+    "tech_ready_stated": true,
+    "tier": "1",
+    "why_codes": [
+     "TECH_READY",
+     "LEAKED",
+     "WAIT_OPERATOR_PRESS"
+    ]
+   },
+   {
+    "case": "KWM_2026-08-2x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "هبوطٌ سببُه طرحُ 500 ألف سهم ⇒ انتظارُ تعافي السهم وثباتِ الدعوم",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "GRADUAL_RISE_DISFAVOURED",
+     "HOLD_3_SESSIONS_WATCH",
+     "LOW_1_50_YESTERDAY",
+     "NOT_TECH_READY",
+     "OFFERING_500K_DROP",
+     "SHORT_10K_BORROW_580",
+     "SUPPORT_1_50_UNSTABLE",
+     "WAIT_RECOVERY_AND_SUPPORT_HOLD"
+    ]
+   },
+   {
+    "case": "LABT_2026-08-23",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "انتظارُ الدعوم الأساسيّة 2.00 ثمّ 1.80 (تحت السعر 2.22)",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BORROW_687",
+     "SHORT_15K",
+     "SPIKE_AFTER_ANALYSIS_IGNORED",
+     "ZONE_BELOW_2_00_1_80"
+    ]
+   },
+   {
+    "case": "RAYA_2026-08-2x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "«غير جاهز فنيا · انتظار الهبوط» — الدعومُ الحمراء 1.999 ثمّ 1.454 تحت السعر",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "NOT_TECH_READY",
+     "WAIT_FOR_DECLINE",
+     "ZONE_BELOW_1_999_1_454"
+    ]
+   },
+   {
+    "case": "RUBI_2026-08",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "لازم يثبت السهم فوق المتوسّط الأسّيّ 50 (1.96) — المؤشّراتُ كلُّها سلبيّة (MA5 ‏1.81 · MA20 ‏2)",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "ALL_INDICATORS_NEGATIVE",
+     "LOW_1_65",
+     "OFFER_WALL_20K_AT_2_30",
+     "RSI_20_OVERSOLD_ENOUGH",
+     "SHORT_HIGH_150K",
+     "SUPPORT_1_74",
+     "TRIG_ABOVE_EMA50_1_96"
+    ]
+   },
+   {
+    "case": "PPBT_2026-09-04",
+    "label": "WAIT",
+    "plan": "NONE",
+    "quote": "«كم مره ذكرنا انتظار ضغط البري» — الانتظارُ لضغط البريماركت هو القاعدة (لا دخولَ مع قروبٍ عند 2.40)",
+    "reason_class": "OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "FALLING_CANDLE_5",
+     "HOLD_ABOVE_1_70",
+     "LIBERATION_BASELINE_2_50",
+     "NOT_NOMINATED",
+     "RECLAIM_2_30_AS_SUPPORT",
+     "WAIT_PM_PRESS_NORM",
+     "WAVE_SUPPORT_1_68",
+     "WEEKLY_DAILY_SUPPORT_AGREE_1_70",
+     "YELLOW_ZONES_GATE_TARGETS"
+    ]
+   },
+   {
+    "case": "BTOG_2026-09-04",
+    "label": "REJECT",
+    "plan": "NONE",
+    "quote": "«غير جاهز»",
+    "reason_class": "OPERATOR_OR_TIMING (مضارب · بريماركت)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BREAK_TO_PRESPLIT_SUPPORT_1_70",
+     "LOW_2_08",
+     "NEWS_THEN_OPERATOR_DROPPED_IT",
+     "NOT_READY",
+     "SHORT_ROSE"
+    ]
+   },
+   {
+    "case": "YMT_2026-09-04",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BIDS_5C_AT_SUPPORT",
+     "BOTTOM_HELD_5_SESSIONS",
+     "BREAK_1_81_NEW_ANALYSIS",
+     "ENTRY_AFTER_TEST",
+     "GROUP_20PCT_DOES_NOT_VOID_OPERATOR",
+     "NEWS_OFFERING_SHORT",
+     "OPERATOR_PRESSES_BEFORE_TARGETS",
+     "REBOUND_20PCT",
+     "RETEST_SECOND_SUPPORT",
+     "TF_4H_AND_30M",
+     "WATCH_STOCK"
+    ]
+   },
+   {
+    "case": "ELPW_2026-09-1x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "«متبقي شمعتين فوليوم للهبوط» — هبوطٌ بحجمٍ متوقَّعٌ قبل القاع (السهمُ الأحمر إلى 2.270)",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "TWO_VOLUME_CANDLES_LEFT_FOR_DROP",
+     "WATCH_ONLY",
+     "ZONE_BELOW_2_27_2_186",
+     "BOTTOM_3_HOLD_PENDING",
+     "TESTED_RESISTANCE_3_80",
+     "SHORT_NEAR_EXCELLENT",
+     "HIGH_GAPS"
+    ]
+   },
+   {
+    "case": "NUWE_2026-09-1x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BOTTOM_RISE_TEST_RES_DROP_TEST_SUP",
+     "HOLD_S1_POSITIVE_LOAD_OR_BREAK_FOR_SWEEP",
+     "NO_ENTRY_IN_FIRST_FOGGY_ZONES",
+     "REBOUND_23PCT",
+     "SHORT_ZERO"
+    ]
+   },
+   {
+    "case": "SXTC_2026-09-1x_b",
+    "label": "WAIT",
+    "plan": "AT",
+    "quote": "«هل يستمر · هل يفشل» — الحكمُ معلّقٌ على اختبار الدعم",
+    "reason_class": "HOLD_CONFIRMATION (عند الدعم وينتظر الثبات)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "CONTINUE_OR_FAIL_PENDING",
+     "DROP_TO_TEST_SUPPORT",
+     "FIRST_RESISTANCE_HIT_2_98",
+     "REBOUND_40PCT"
+    ]
+   },
+   {
+    "case": "WETO_2026-09-1x",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "متابعةُ الهبوط: هل يهبط إلى 1.87-2.00 (الشموع الحمراء السفليّة)",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "STABILITY_MEASURED_BY_15PCT_OPERATOR_REBOUND_AND_RETEST",
+     "SUPPORT_2_43_UNCONFIRMED",
+     "TF_5M",
+     "WATCH_ONLY",
+     "ZONE_BELOW_1_87_2_00"
+    ]
+   },
+   {
+    "case": "WORX_2026-04-11",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "الشورتُ 550 ألفًا ⟵ تابعه حتى يبقى الشورتُ تحت 20 ألفًا",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "DIV2_1_16",
+     "HOLD_ABOVE_1_DECIDE",
+     "SHORT_550K_WAIT_UNDER_20K",
+     "SPLIT_NO_RISE",
+     "WATCH_MA_20_30"
+    ]
+   },
+   {
+    "case": "JZ_2026-07",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "«الاثنين نقرر التحليل نهاية التداول»",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "DECIDE_MONDAY_EOD",
+     "GROUP_PUMP_2_50_3_30",
+     "HELD_WITH_SELL_ORDER_11",
+     "HOLD_ABOVE_5_PERFECT",
+     "INVALIDATION_BELOW_2_30_2_35",
+     "OPERATOR_PRESS_86K_2_80_1_90",
+     "OPERATOR_PRESS_NEW_LOW_1_88",
+     "PRIOR_RESISTANCE_NOW_SUPPORT",
+     "RES_4H_2_87_FALLING_CANDLE_RANGE_TESTED_REJECTED",
+     "STUPID_CANDLE",
+     "TARGETS_CANCELLED",
+     "TARGETS_MIN_100PCT"
+    ]
+   },
+   {
+    "case": "YYAI_2026-07",
+    "label": "WAIT",
+    "plan": "BOTH",
+    "quote": "القرارُ: ثباتُ الدعم اللحظيّ 0.90 أو ثباتٌ سعريٌّ فوق المقاومة 1.10 (1.09)",
+    "reason_class": "PRICE_LOCATION + CONFIRMATION",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "ACQUISITION_ANNOUNCEMENT",
+     "CRASH_11_TO_0_85",
+     "DECISION_HOLD_SUPPORT_OR_HOLD_ABOVE_RES",
+     "MOMENT_SUPPORT_0_90",
+     "NO_SHORT_OPERATOR_DROPPED",
+     "RES_1_09_1_10",
+     "ROTATION_6M_USD",
+     "TF_5M_30M_ONLY"
+    ]
+   },
+   {
+    "case": "SPRC_2026-07-20",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "ما زال في نطاق تجميعٍ تحت الإيجابيّة ولم يصل للسلبيّة",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "ACCUMULATION_RANGE_BELOW_POSITIVE",
+     "BORROW_FEE_500PCT",
+     "NOT_NEGATIVE_YET",
+     "TRIG_ABOVE_5_50"
+    ]
+   },
+   {
+    "case": "NUWE_2026-07",
+    "label": "WAIT",
+    "plan": "ABOVE",
+    "quote": "",
+    "reason_class": "CONFIRMATION (زنادٌ/تحرّرٌ فوق السعر)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "BOTTOM_STRIKE_FRIDAY_1_80",
+     "CONDITION_HOLD_1_95",
+     "FOMC_TOMORROW",
+     "GAP_ABOVE",
+     "INVALIDATION_1_83",
+     "NEAREST_TARGET_4X_IF_HOLDS",
+     "PATH_ALL_AT_ONCE_OR_WAVES",
+     "T1_SPLIT_CANDLE_3_81",
+     "T2_FALLING_GAP_CANDLE",
+     "T3_FALLING_GAP_CANDLE_HEAD"
+    ]
+   },
+   {
+    "case": "MWC_2026-06",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "طرحٌ جديدٌ بـ10 · هبط 4.70 · «مستهدف هبوط 2.35» (منطقةٌ تحت السعر)",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "EXPECTED_DROP_2_35",
+     "FLOAT_26M",
+     "HOLD_LATER_FOR_EACH_EVENT",
+     "LOW_4_70_HISTORIC_HIGH_26",
+     "NEW_IPO_AT_10"
+    ]
+   },
+   {
+    "case": "MBRX_2026-06",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "عدمُ الثبات فوق 3.15 ⟵ يرجع يختبر الدعوم · و2.34 «الدعم الافضل» (منطقةٌ تحت السعر)",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BEST_SUPPORT_2_34",
+     "FLOAT_5_29M",
+     "HARD_TO_ANALYSE",
+     "NEWS_REJECTION_DROP",
+     "NO_HOLD_ABOVE_3_15_RETEST_SUPPORTS",
+     "SCHEDULED_DATA_30_6",
+     "SHORT_ZERO"
+    ]
+   },
+   {
+    "case": "HTCR_2026-06",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "«انتظار اختبار دعم او سحب سيوله 2 < 2.30» (8-20% تحت القاع)",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S2",
+    "tech_ready_stated": false,
+    "tier": "2",
+    "why_codes": [
+     "BOTTOM_2_50",
+     "FIRST_RISE_50PCT",
+     "REBOUND_DONE_TEST_RES_DONE",
+     "WAIT_SUPPORT_TEST_OR_SWEEP_2_00_2_30"
+    ]
+   },
+   {
+    "case": "SLXN_2026-08-06",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "«الان انتظر 1.39 يرجع يختبرها اذا ثبت لكل حادث حديث»",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "OPERATOR_DROPPED_TO_1_39",
+     "PROMOTER_QUICK_PUMP_TO_3_TRAPPED",
+     "SUPPORT_2_45_FORMED",
+     "WAIT_RETEST_1_39_HOLD"
+    ]
+   },
+   {
+    "case": "CANF_2026-08-01",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "«الان انتظر 2.80 يختبرها اولا»",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "ADD_QUANTITY_CONDITIONAL",
+     "ASKS_ENTRY_PRICE_FIRST",
+     "BIDS_SMALL_DISTRIBUTED_100_90_70",
+     "BUY_LOW_SELL_HIGH_WITH_OPERATOR",
+     "DONT_LIFT_OFFER",
+     "DONT_TIGHTEN_STOP_HASTILY",
+     "FALLING_GAP_CLOSED_AT_3_100_SHARES",
+     "GAP_3_TO_3_20",
+     "INVALIDATION_BREAK_2_80",
+     "MENTIONED_THEN_OVERNIGHT_BUYING",
+     "NO_BREAK_2_80_NEXT_WEEK",
+     "NO_OPERATOR_OVERNIGHT"
+    ]
+   },
+   {
+    "case": "MNDR_2026-07-31",
+    "label": "WAIT",
+    "plan": "BOTH",
+    "quote": "«اما ثبات فوق المقاومه 1.90 · او يرجع يختبر 1.60 · عن نفسي ما اخاطر انتظر 1.60»",
+    "reason_class": "VALIDITY (قروبات · طرح · شورت · تسريب) + PRICE_LOCATION + CONFIRMATION",
+    "set": "S1",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BIDS_AT_SUPPORTS_NOT_OFFER",
+     "EITHER_HOLD_ABOVE_RES_1_90_OR_RETEST_1_60",
+     "ENTRY_ZONE_1_50_1_60_ON_4H",
+     "FALLING_CANDLE_BODY_1_55_TESTED_BY_TWO_GREEN_WICKS",
+     "GRADUAL_RISE_50PCT_FROM_BOTTOM",
+     "HAMMER_BODY_1_50_NO_HEAD",
+     "HOLD_1_60_NO_BREAK_POSITIVE",
+     "OWN_CHOICE_WAIT_1_60_NO_RISK",
+     "RED_HAMMER_SHORT_RISE",
+     "RES_1_90_TESTED_4H_OK_2_12_FAILED",
+     "RETEST_1_40_LIKELY_FAILS",
+     "SHORT_6000"
+    ]
+   },
+   {
+    "case": "DXST_2026-08-04",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "«انتظار 2.67 هل يختبرها ويثبت او يكسرها الى 2.50»",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BREAK_BY_5_CENTS_HARMLESS",
+     "CYCLE_AH_NIGHT_PM_MARKET",
+     "CYCLE_PROTECTS_CAPITAL",
+     "LOWEST_SUPPORT_5M_15MIN_HOLD",
+     "MONITOR_INTRADAY_SUPPORT_2_72",
+     "OR_PRIOR_SUPPORT_2_50",
+     "RETEST_BREAK_MEANS_LOWER_SUPPORTS",
+     "TARGET_TO_3_20_FROM_2_72",
+     "TOTAL_15PCT",
+     "VWAP_TARGET_3_10",
+     "WAIT_2_67_HOLD_OR_BREAK_TO_2_50",
+     "WAIT_MARKET_PRESS_OR_HOLD_2_72"
+    ]
+   },
+   {
+    "case": "ZNB_2026-08-01",
+    "label": "WAIT",
+    "plan": "BELOW",
+    "quote": "«انتظر 1.96 هل يثبت او يكسرها · مافيه دخول لين يختبر 2 > 1.96»",
+    "reason_class": "PRICE_LOCATION (انتظارُ منطقةٍ تحت السعر/إعادةُ الاختبار)",
+    "set": "S3",
+    "tech_ready_stated": false,
+    "tier": "1",
+    "why_codes": [
+     "BREAK_1_96_NO_ENTRY",
+     "BREAK_GOES_LOWER",
+     "FAR_TARGETS_NEED_HOLDS_ON_NEARER_TARGETS",
+     "JUST_SPLIT",
+     "SAFE_ENTRY_STOP_SUPPORT_BEFORE_TARGETS",
+     "SUPPORT_2_ON_4H",
+     "WAIT_TEST_2_TO_1_96"
+    ]
+   }
+  ],
+  "tech_ready_but_wait_or_reject": [
+   "CDIO_2026-01-28",
+   "HCWB_2026-08-24"
+  ]
+ },
+ "rule_generalization": {
+  "H-D2": {
+   "active": false,
+   "contradiction_count": 1,
+   "decisionality": "UNKNOWN",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 0,
+   "patterns": [],
+   "source_level": 5,
+   "status": "CONTRADICTED",
+   "support_count": 0,
+   "tickers": [],
+   "timeframes": [],
+   "unique_images": 0,
+   "unique_patterns": 0,
+   "unique_tickers": 0,
+   "unique_timeframes": 0
+  },
+  "R-SUP-MAIN": {
+   "active": false,
+   "contradiction_count": 1,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 0,
+   "patterns": [],
+   "source_level": 6,
+   "status": "SUPPORTED",
+   "support_count": 0,
+   "tickers": [],
+   "timeframes": [],
+   "unique_images": 0,
+   "unique_patterns": 0,
+   "unique_tickers": 0,
+   "unique_timeframes": 0
+  },
+  "R-W-SPAN": {
+   "active": false,
+   "contradiction_count": 0,
+   "decisionality": "UNKNOWN",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 3,
+   "patterns": [
+    "BREAKOUT",
+    "CONSOLIDATION",
+    "HAMMER",
+    "SUPPORT_RESISTANCE",
+    "W_DOUBLE_BOTTOM"
+   ],
+   "source_level": 4,
+   "status": "SUPPORTED",
+   "support_count": 0,
+   "tickers": [
+    "DXST"
+   ],
+   "timeframes": [
+    "D",
+    "intraday"
+   ],
+   "unique_images": 3,
+   "unique_patterns": 5,
+   "unique_tickers": 1,
+   "unique_timeframes": 2
+  },
+  "R4-BOT-01": {
+   "active": true,
+   "contradiction_count": 1,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [
+    "RAYA: دعمُ فيصل 1.999 = القاعُ الداخليّ 2.0 (تحقّقٌ لا مصدر)"
+   ],
+   "images_missing_from_pass": [],
+   "independent_sources": 5,
+   "patterns": [
+    "CONSOLIDATION",
+    "ELLIOTT",
+    "GROUPS",
+    "MOVING_AVERAGE",
+    "PRESS",
+    "RETEST",
+    "RSI",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE",
+    "SWEEP",
+    "WYCKOFF"
+   ],
+   "source_level": 2,
+   "status": "SUPPORTED",
+   "support_count": 5,
+   "tickers": [
+    "BTOG",
+    "DXST",
+    "YMT"
+   ],
+   "timeframes": [
+    "30m",
+    "4H",
+    "D",
+    "W",
+    "intraday"
+   ],
+   "unique_images": 5,
+   "unique_patterns": 12,
+   "unique_tickers": 3,
+   "unique_timeframes": 5
+  },
+  "R4-CYC-01": {
+   "active": true,
+   "contradiction_count": 3,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 13,
+   "patterns": [
+    "CONSOLIDATION",
+    "ELLIOTT",
+    "GROUPS",
+    "MOVING_AVERAGE",
+    "OFFERING",
+    "PRESS",
+    "RETEST",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE",
+    "SWEEP",
+    "WYCKOFF"
+   ],
+   "source_level": 3,
+   "status": "CONFIRMED",
+   "support_count": 12,
+   "tickers": [
+    "CIIT",
+    "EDBL",
+    "LIMN",
+    "MNDR",
+    "MSGY",
+    "NRSN",
+    "NUWE",
+    "OMH",
+    "STKH",
+    "SXTC",
+    "UNK",
+    "YMT"
+   ],
+   "timeframes": [
+    "4H",
+    "D"
+   ],
+   "unique_images": 13,
+   "unique_patterns": 12,
+   "unique_tickers": 12,
+   "unique_timeframes": 2
+  },
+  "R4-DATA-01": {
+   "active": true,
+   "contradiction_count": 0,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 0,
+   "patterns": [],
+   "source_level": 7,
+   "status": "CONFIRMED",
+   "support_count": 0,
+   "tickers": [],
+   "timeframes": [],
+   "unique_images": 0,
+   "unique_patterns": 0,
+   "unique_tickers": 0,
+   "unique_timeframes": 0
+  },
+  "R4-ENT-01": {
+   "active": true,
+   "contradiction_count": 4,
+   "decisionality": "SUPPORTING",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 6,
+   "patterns": [
+    "BREAKOUT",
+    "CONSOLIDATION",
+    "FALLING_CANDLE",
+    "GROUPS",
+    "HAMMER",
+    "MOVING_AVERAGE",
+    "OFFERING",
+    "PRESS",
+    "RETEST",
+    "RSI",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE"
+   ],
+   "source_level": 2,
+   "status": "CONFIRMED",
+   "support_count": 4,
+   "tickers": [
+    "ADIL",
+    "CANF",
+    "ERNA",
+    "MNDR",
+    "YMT"
+   ],
+   "timeframes": [
+    "4H",
+    "5m",
+    "D"
+   ],
+   "unique_images": 6,
+   "unique_patterns": 13,
+   "unique_tickers": 5,
+   "unique_timeframes": 3
+  },
+  "R4-ENT-02": {
+   "active": true,
+   "contradiction_count": 1,
+   "decisionality": "INFORMATIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 5,
+   "patterns": [
+    "BREAKOUT",
+    "FALSE_BREAKOUT",
+    "FIBONACCI",
+    "GROUPS",
+    "HEAD_SHOULDERS",
+    "MOVING_AVERAGE",
+    "PRESS",
+    "RSI",
+    "SUPPORT_RESISTANCE",
+    "SWEEP"
+   ],
+   "source_level": 2,
+   "status": "SUPPORTED",
+   "support_count": 4,
+   "tickers": [
+    "CANF",
+    "SXTC",
+    "VEEE"
+   ],
+   "timeframes": [
+    "D"
+   ],
+   "unique_images": 5,
+   "unique_patterns": 10,
+   "unique_tickers": 3,
+   "unique_timeframes": 1
+  },
+  "R4-HOLD-01": {
+   "active": true,
+   "contradiction_count": 2,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 5,
+   "patterns": [
+    "CONSOLIDATION",
+    "GROUPS",
+    "MOVING_AVERAGE",
+    "OFFERING",
+    "RETEST",
+    "RSI",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE"
+   ],
+   "source_level": 3,
+   "status": "SUPPORTED",
+   "support_count": 5,
+   "tickers": [
+    "ENPH",
+    "STKH",
+    "YMT"
+   ],
+   "timeframes": [
+    "4H",
+    "D",
+    "W"
+   ],
+   "unique_images": 5,
+   "unique_patterns": 9,
+   "unique_tickers": 3,
+   "unique_timeframes": 3
+  },
+  "R4-HOLDZ-01": {
+   "active": true,
+   "contradiction_count": 3,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [
+    "ZNB «مافيه دخول لين يختبر 2 > 1.96»"
+   ],
+   "images_missing_from_pass": [],
+   "independent_sources": 4,
+   "patterns": [
+    "CONSOLIDATION",
+    "RETEST",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE"
+   ],
+   "source_level": 2,
+   "status": "PROBABLE",
+   "support_count": 4,
+   "tickers": [
+    "CLIR",
+    "MNDR",
+    "STKH",
+    "ZNB"
+   ],
+   "timeframes": [
+    "4H",
+    "D"
+   ],
+   "unique_images": 4,
+   "unique_patterns": 5,
+   "unique_tickers": 4,
+   "unique_timeframes": 2
+  },
+  "R4-INV-01": {
+   "active": true,
+   "contradiction_count": 1,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [
+    "SPRC «كسر 4 يفشل التحليل»",
+    "ZNB «كسرها = مافيه دخول»"
+   ],
+   "images_missing_from_pass": [],
+   "independent_sources": 5,
+   "patterns": [
+    "FALLING_CANDLE",
+    "GAP",
+    "GROUPS",
+    "HAMMER",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE"
+   ],
+   "source_level": 2,
+   "status": "SUPPORTED",
+   "support_count": 4,
+   "tickers": [
+    "BTOG",
+    "CANF",
+    "MNDR",
+    "YMT"
+   ],
+   "timeframes": [
+    "30m",
+    "4H",
+    "W"
+   ],
+   "unique_images": 5,
+   "unique_patterns": 7,
+   "unique_tickers": 4,
+   "unique_timeframes": 3
+  },
+  "R4-LOC-01": {
+   "active": true,
+   "contradiction_count": 1,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 4,
+   "patterns": [
+    "BREAKOUT",
+    "ELLIOTT",
+    "PRESS",
+    "SUPPORT_RESISTANCE",
+    "SWEEP",
+    "W_DOUBLE_BOTTOM"
+   ],
+   "source_level": 2,
+   "status": "CONFIRMED",
+   "support_count": 4,
+   "tickers": [
+    "DCOY",
+    "ICU",
+    "UNK"
+   ],
+   "timeframes": [
+    "D"
+   ],
+   "unique_images": 4,
+   "unique_patterns": 6,
+   "unique_tickers": 3,
+   "unique_timeframes": 1
+  },
+  "R4-OP-01": {
+   "active": true,
+   "contradiction_count": 2,
+   "decisionality": "UNKNOWN",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 6,
+   "patterns": [
+    "BREAKOUT",
+    "CONSOLIDATION",
+    "ELLIOTT",
+    "FALLING_CANDLE",
+    "GROUPS",
+    "KLINGER",
+    "MOVING_AVERAGE",
+    "PRESS",
+    "RSI",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE",
+    "SWEEP",
+    "WYCKOFF"
+   ],
+   "source_level": 2,
+   "status": "SUPPORTED",
+   "support_count": 6,
+   "tickers": [
+    "AMIX",
+    "CDIO",
+    "DCOY",
+    "EHGO",
+    "HCWB",
+    "PPBT"
+   ],
+   "timeframes": [
+    "4H",
+    "D"
+   ],
+   "unique_images": 6,
+   "unique_patterns": 14,
+   "unique_tickers": 6,
+   "unique_timeframes": 2
+  },
+  "R4-STOP-01": {
+   "active": true,
+   "contradiction_count": 3,
+   "decisionality": "SUPPORTING",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 5,
+   "patterns": [
+    "BREAKOUT",
+    "CONSOLIDATION",
+    "FIBONACCI",
+    "GROUPS",
+    "MOVING_AVERAGE",
+    "RSI",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE"
+   ],
+   "source_level": 2,
+   "status": "SUPPORTED",
+   "support_count": 3,
+   "tickers": [
+    "ELPW",
+    "ENVB",
+    "HUBC",
+    "VEEE"
+   ],
+   "timeframes": [
+    "4H",
+    "D"
+   ],
+   "unique_images": 5,
+   "unique_patterns": 9,
+   "unique_tickers": 4,
+   "unique_timeframes": 2
+  },
+  "R4-SWEEP-01": {
+   "active": true,
+   "contradiction_count": 2,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 7,
+   "patterns": [
+    "CONSOLIDATION",
+    "ELLIOTT",
+    "GROUPS",
+    "MOVING_AVERAGE",
+    "PRESS",
+    "RETEST",
+    "RSI",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE",
+    "SWEEP",
+    "VOLUME",
+    "WYCKOFF"
+   ],
+   "source_level": 2,
+   "status": "SUPPORTED",
+   "support_count": 7,
+   "tickers": [
+    "CCHH",
+    "CIIT",
+    "EHGO",
+    "OMH"
+   ],
+   "timeframes": [
+    "4H",
+    "D"
+   ],
+   "unique_images": 7,
+   "unique_patterns": 13,
+   "unique_tickers": 4,
+   "unique_timeframes": 2
+  },
+  "R4-TF-01": {
+   "active": true,
+   "contradiction_count": 0,
+   "decisionality": "INFORMATIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 4,
+   "patterns": [
+    "BREAKOUT",
+    "CONSOLIDATION",
+    "GROUPS",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE",
+    "W_DOUBLE_BOTTOM"
+   ],
+   "source_level": 2,
+   "status": "SUPPORTED",
+   "support_count": 3,
+   "tickers": [
+    "DXST",
+    "LNAI",
+    "YMT",
+    "YYAI"
+   ],
+   "timeframes": [
+    "30m",
+    "4H",
+    "5m"
+   ],
+   "unique_images": 4,
+   "unique_patterns": 7,
+   "unique_tickers": 4,
+   "unique_timeframes": 3
+  },
+  "R4-TGT-01": {
+   "active": true,
+   "contradiction_count": 1,
+   "decisionality": "INFORMATIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 5,
+   "patterns": [
+    "BREAKOUT",
+    "ELLIOTT",
+    "OFFERING",
+    "PRESS",
+    "RETEST",
+    "SUPPORT_RESISTANCE",
+    "SWEEP"
+   ],
+   "source_level": 2,
+   "status": "CONFIRMED",
+   "support_count": 3,
+   "tickers": [
+    "AMIX",
+    "HCWB",
+    "ICU",
+    "PFSA",
+    "SLXN",
+    "UPC"
+   ],
+   "timeframes": [
+    "4H",
+    "D",
+    "W"
+   ],
+   "unique_images": 5,
+   "unique_patterns": 7,
+   "unique_tickers": 6,
+   "unique_timeframes": 3
+  },
+  "R4-VAL-GRP-01": {
+   "active": true,
+   "contradiction_count": 1,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 6,
+   "patterns": [
+    "BREAKOUT",
+    "CONSOLIDATION",
+    "GROUPS",
+    "KLINGER",
+    "MOVING_AVERAGE",
+    "PRESS",
+    "RETEST",
+    "RSI",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE"
+   ],
+   "source_level": 2,
+   "status": "SUPPORTED",
+   "support_count": 6,
+   "tickers": [
+    "CDIO",
+    "JZ",
+    "LABT",
+    "SLXN",
+    "UNK"
+   ],
+   "timeframes": [
+    "30m",
+    "4H",
+    "D"
+   ],
+   "unique_images": 6,
+   "unique_patterns": 11,
+   "unique_tickers": 5,
+   "unique_timeframes": 3
+  },
+  "R4-VAL-OFF-01": {
+   "active": true,
+   "contradiction_count": 0,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 4,
+   "patterns": [
+    "CONSOLIDATION",
+    "OFFERING",
+    "RETEST",
+    "RSI",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE",
+    "SWEEP"
+   ],
+   "source_level": 2,
+   "status": "SUPPORTED",
+   "support_count": 4,
+   "tickers": [
+    "ADIL",
+    "CETX",
+    "KWM",
+    "YMT"
+   ],
+   "timeframes": [
+    "30m",
+    "D"
+   ],
+   "unique_images": 4,
+   "unique_patterns": 8,
+   "unique_tickers": 4,
+   "unique_timeframes": 2
+  },
+  "R4-VAL-SHORT-01": {
+   "active": true,
+   "contradiction_count": 2,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 3,
+   "patterns": [
+    "CONSOLIDATION",
+    "MOVING_AVERAGE",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE"
+   ],
+   "source_level": 2,
+   "status": "PROBABLE",
+   "support_count": 3,
+   "tickers": [
+    "DCOY",
+    "RUBI",
+    "WORX"
+   ],
+   "timeframes": [
+    "4H",
+    "D"
+   ],
+   "unique_images": 3,
+   "unique_patterns": 5,
+   "unique_tickers": 3,
+   "unique_timeframes": 2
+  },
+  "R4-ZONE-01": {
+   "active": true,
+   "contradiction_count": 1,
+   "decisionality": "DECISIONAL",
+   "golden_witness": [],
+   "images_missing_from_pass": [],
+   "independent_sources": 5,
+   "patterns": [
+    "BREAKOUT",
+    "CONSOLIDATION",
+    "FALLING_CANDLE",
+    "GROUPS",
+    "HAMMER",
+    "MOVING_AVERAGE",
+    "OFFERING",
+    "PRESS",
+    "RETEST",
+    "RSI",
+    "SHORT_BORROW",
+    "SPLIT",
+    "SUPPORT_RESISTANCE"
+   ],
+   "source_level": 1,
+   "status": "SUPPORTED",
+   "support_count": 5,
+   "tickers": [
+    "LIMN",
+    "MNDR",
+    "YMT"
+   ],
+   "timeframes": [
+    "4H",
+    "D"
+   ],
+   "unique_images": 5,
+   "unique_patterns": 13,
+   "unique_tickers": 3,
+   "unique_timeframes": 2
+  }
+ },
+ "single_image_rules": [],
+ "target_forensics": {
+  "method": "كلُّ «50/70/100٪» داخل اقتباسٍ حرفيٍّ «…» في المرور البصريّ ⟵ صنفٌ من سياق ±40 محرفًا (الترتيب: يقين ⟵ كمّيّة ⟵ هدف/توقّع ⟵ صعودٌ تحقّق ⟵ هبوط/ضغط ⟵ غيره)",
+  "occurrences": [
+   {
+    "author": "F",
+    "class": "OTHER",
+    "context": "متوسط حركه 50 يعطي دلاله لصعود اقلها 30>50٪",
+    "id": "TG_1809",
+    "tier": "1",
+    "value": 50
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "ت 20 الف · عدد اسهمه تحت 2 مليون · هدفك 100٪ اقل شي · الشرط خالي من القروبات ✅",
+    "id": "TG_1819",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "حقق 7 فوق 100٪ ✅✅✅ $DSy",
+    "id": "TG_1827",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "0٪ اذا بيصعد السهم · كنا نحقق بالارتكاز 100٪ واكثر باقل من 5 جلسات · نذكرها الان هجو",
+    "id": "TG_1867",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "DECLINE_OR_PRESS",
+    "context": "خساره · ارتفاعه سابقا سبوع سبوعين ناخذ 100٪ واكثر · اللي حصل فيه قروبات تاخذ السهم",
+    "id": "TG_1959",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "20٪ يبيع يهبط … · اهداف الاسهم من 20٪ ل 100٪ مع المضارب · اهداف 10 سنت … مااافيه",
+    "id": "TG_1959",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "OTHER",
+    "context": "بحول الله بيكون هذا القاع اللي يرتد منه 100٪ · 3قيعان = ارتفاع لاختبار المقاومه الاو",
+    "id": "TG_2037",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "د الارتفاع عند 4.21 صعد منها الى 8.50 = 100٪",
+    "id": "TG_2040",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "دم دخول قروبات فيه · اجابية السهم تحقيق 100٪ · دخول قروبات = تغيير اعدادات الشموع ال",
+    "id": "TG_2044",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "يوصل 86 طبعا لا · كانت الاهداف المتوقعه 100٪ ل 200٪ · حقق 4000٪ · $BNAI · الفرصه الث",
+    "id": "TG_2091",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "م السهم 2 السعر الحالي 2.80 · الهدف 4 = 100٪ · ماذا يفعل صانع السوق او المضارب او ال",
+    "id": "TG_2097",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "EDU",
+    "class": "ACHIEVED_RISE",
+    "context": "مثال وشرح بالصور · سهم حقق قاع ارتفع 100٪ · هبط دعم ارتفاع 90٪ · الان تحت المراقب",
+    "id": "TG_2102",
+    "tier": "2b",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "OTHER",
+    "context": "6- $FGF 20% · 7- $SNGX 300% · 8- $FIEE 50% · 9- $NAMM 100٪ · 10- $CRE مفتوحه · 11-",
+    "id": "TG_2103",
+    "tier": "1",
+    "value": 50
+   },
+   {
+    "author": "F",
+    "class": "OTHER",
+    "context": "7- $SNGX 300% · 8- $FIEE 50% · 9- $NAMM 100٪ · 10- $CRE مفتوحه · 11- $XCUR جديد",
+    "id": "TG_2103",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "عد تدريجي بعد ادنى قاع · حقق 5 تقريبا > 50٪ · حاليا عنده شمعه هابطه الرجل المشنوق ه",
+    "id": "TG_2108",
+    "tier": "1",
+    "value": 50
+   },
+   {
+    "author": "U",
+    "class": "ACHIEVED_RISE",
+    "context": "زها نعطيه فرصه · فيواب هبط من [مطموس] = 100٪ لو صعد",
+    "id": "TG_20260905_01",
+    "tier": "X",
+    "value": 100
+   },
+   {
+    "author": "U",
+    "class": "OTHER",
+    "context": "صعود المضارب ل100٪ تكون بشمعه مدتها لاتتجاوز 5 دقايق · جني",
+    "id": "TG_20260905_01",
+    "tier": "X",
+    "value": 100
+   },
+   {
+    "author": "U",
+    "class": "OTHER",
+    "context": "5 دقايق · جني الربح مفعل مسبقا غالبا · 100٪ جني ربح > 70٪ من سيولتك · 30٪ تترك لاعل",
+    "id": "TG_20260905_01",
+    "tier": "X",
+    "value": 100
+   },
+   {
+    "author": "U",
+    "class": "TARGET_PROFIT",
+    "context": "الربح مفعل مسبقا غالبا · 100٪ جني ربح > 70٪ من سيولتك · 30٪ تترك لاعلى هدف · هبط ال",
+    "id": "TG_20260905_01",
+    "tier": "X",
+    "value": 70
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "الاهداف فوق 100٪ · 7 مؤكده والله اعلم 250٪ · 13> 15 شموع",
+    "id": "TG_20260918_08_NTCL",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "CERTAINTY",
+    "context": "ا السلوك وطبق عليه قواعد الشورت اضمن لك 100٪ بكل صفقه",
+    "id": "TG_50589",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "DECLINE_OR_PRESS",
+    "context": "وصيات · ضغط من المضارب 4 الى 2.20 خساره 50٪",
+    "id": "TG_50817",
+    "tier": "1",
+    "value": 50
+   },
+   {
+    "author": "TP",
+    "class": "OTHER",
+    "context": "دخول فيبوناتشي 50%",
+    "id": "TG_57861",
+    "tier": "X",
+    "value": 50
+   },
+   {
+    "author": "F",
+    "class": "PARTIAL_EXIT_QUANTITY",
+    "context": "xtc · جني الربح عند مقاومه 3 > باكثر من 70٪ من الكميه · ليش · الصفقه ممكن تنعكس علي",
+    "id": "TG_57862",
+    "tier": "1",
+    "value": 70
+   },
+   {
+    "author": "F",
+    "class": "OTHER",
+    "context": "تنعكس عليك ويفشل السهم · يروح عليك ربح 50٪ · كل الصور باختلاف النماذج رفض الاختراق",
+    "id": "TG_57862",
+    "tier": "1",
+    "value": 50
+   },
+   {
+    "author": "F",
+    "class": "OTHER",
+    "context": "$sphl · 100%",
+    "id": "TG_57892",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "EDU",
+    "class": "OTHER",
+    "context": "50%",
+    "id": "TG_58042",
+    "tier": "2b",
+    "value": 50
+   },
+   {
+    "author": "EDU",
+    "class": "OTHER",
+    "context": "100%",
+    "id": "TG_58042",
+    "tier": "2b",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "يه · صفقاتي ارتكازيه تعتمد ع ربح يتجاوز 100٪",
+    "id": "X_20260827_indicators_canf",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "· دعومه الاساسيه · [مطموس] · - · هدفنا 100٪ · 9.45",
+    "id": "X_20260827_amix_3m_inflow",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "حقق 28 · 500٪ تقريبا · - · من 12 فوق 100٪ · $PFSA",
+    "id": "X_20260827_pfsa_500pct",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "EDU",
+    "class": "OTHER",
+    "context": "نه الان · - · اختبر المقاومه اليوم بربح 50٪ مجمل · - · دعومه الان 2.60 · 2.90 · الا",
+    "id": "X_20260828_09",
+    "tier": "2b",
+    "value": 50
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "سهم الافتر حقق فوق 100٪ · - · الشمعه الساقطه من 2.50 الى 1.83 ·",
+    "id": "X_20260918_11_afterhours",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "ه الساقطه · 1.98 دعم انطلق منه وحقق فوق 100٪ · - · كيف دخول سهم بعد تحقيق اختبار مقا",
+    "id": "X_20260918_11_afterhours",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "صعود السهم = 100٪ · لو حققت منها 80٪ انت بطل · - · تاريخ",
+    "id": "IMG_0141",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "الرحمن يغرد خارج الكوكب · شكرا شبل غامد 100٪ · فوق الهدف جاب 9 · $PAVS",
+    "id": "IMG_0142",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "لف · الهدف الشمعه الساقطه الاولى 5.50 = 100٪ · تجاوزها يحقق نسبه اعلى · الشرط عدم دخ",
+    "id": "IMG_0143",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "TP",
+    "class": "OTHER",
+    "context": "ar_ تطبيق عملي لما تعلمته من ابو بدر 🌹: 100%",
+    "id": "IMG_0144",
+    "tier": "X",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "الف · عدد اسهمه تحت 2 مليون · - · هدفك 100٪ اقل شي · - · الشرط خالي من القروبات. ✅",
+    "id": "IMG_0151",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "لف · الهدف الشمعه الساقطه الاولى 5.50 = 100٪ · تجاوزها يحقق نسبه اعلى · الشرط عدم دخ",
+    "id": "IMG_0153",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "OTHER",
+    "context": "مراقبة السهم فترة 5 جلسات اقل اكثر يرجع 100٪ · - · 4- الدخول بالسهم اثناء تحقيق القا",
+    "id": "IMG_0153",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "$KUST · دبل الان فوق 100٪ · عشان تعرف سهم الارتكاز · كيف يدبل وكي",
+    "id": "IMG_0179",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "ماجا يومه · حمل واصبر هدفك فوق 100٪",
+    "id": "IMG_0293",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "كانت عاليه جدا ومحققه بيد مضارب · اقلها 100٪ > هدف 5 لاشي · تفعيلي للبيع ع سعر 11 مس",
+    "id": "IMG_0316",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "AI",
+    "class": "ACHIEVED_RISE",
+    "context": "ي عندنا سهم nuwe سهم كان مرشح امس و حقق 100٪ لا تكون هذي التعديلات تخرب اداة الأسهم",
+    "id": "IMG_0430",
+    "tier": "X",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "قاع · ارتداد تمت + اختبار مقاومات تمت · 50٪ تمت بصعود اول ✅ · - · انتظار اختبار دعم",
+    "id": "IMG_8242",
+    "tier": "2",
+    "value": 50
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "1.40 الهدف يحدد لاحقا 20 او 30 او 50 او 100٪",
+    "id": "IMG_0505",
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "OTHER",
+    "context": "· فجواته عاليه يعني 10 الاف دولار ترفعه 50٪ ع طول · - · بني ستوك مضاربيها اي كان مو",
+    "id": "IMG_0506",
+    "tier": "1",
+    "value": 50
+   },
+   {
+    "author": "F",
+    "class": "TARGET_PROFIT",
+    "context": "ارب هبط بالسهم ل 1.39 · عشان يصعد ل 3 = 100٪ · - · الان انتظر 1.39 يرجع يختبرها · اذ",
+    "id": "IMG_0508",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "جميل السهم لكن صعوده تدريجي حقق 50٪ الان من القاع · - · اما ثبات فوق المقاو",
+    "id": "IMG_0566",
+    "tier": "1",
+    "value": 50
+   },
+   {
+    "author": "F",
+    "class": "CERTAINTY",
+    "context": "موعدنا الافتر باذن الله 100٪ مضمونه عند 5 · الامل 10 · 7> 8",
+    "id": "IMG_0587",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "EDU",
+    "class": "OTHER",
+    "context": "بيه · - · رسالتي له · السهم في بطنه فوق 100٪ اذا دخل المضارب خلك رجال لاتهيض السهم ع",
+    "id": "IMG_0647",
+    "tier": "2b",
+    "value": 100
+   },
+   {
+    "author": "F",
+    "class": "ACHIEVED_RISE",
+    "context": "سهم ارتكاز حقق 100٪",
+    "id": "IMG_0690",
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "author": "EDU",
+    "class": "ACHIEVED_RISE",
+    "context": "· السهم اذا صعد اذا ماشده المضارب جميع 100٪ يكون سلوكه · 30٪ مقاومه يدقر عندها تقرر",
+    "id": "EDU_20260827_school_two_models_ma_ladder",
+    "tier": "2b",
+    "value": 100
+   },
+   {
+    "author": "EDU",
+    "class": "OTHER",
+    "context": "· ربع ساعه ماكسر اعلى شمعه وصلها · - · 50٪ مقاومه ثانيه ينزل يتخبر مقاومه 30٪ وهكذ",
+    "id": "EDU_20260827_school_two_models_ma_ladder",
+    "tier": "2b",
+    "value": 50
+   },
+   {
+    "author": "EDU",
+    "class": "OTHER",
+    "context": "50% level of the first candle",
+    "id": "EDU_20260918_56_three_inside_up",
+    "tier": "2b",
+    "value": 50
+   }
+  ],
+  "summary": [
+   {
+    "class": "OTHER",
+    "n": 4,
+    "tier": "1",
+    "value": 50
+   },
+   {
+    "class": "OTHER",
+    "n": 4,
+    "tier": "2b",
+    "value": 50
+   },
+   {
+    "class": "ACHIEVED_RISE",
+    "n": 2,
+    "tier": "1",
+    "value": 50
+   },
+   {
+    "class": "DECLINE_OR_PRESS",
+    "n": 1,
+    "tier": "1",
+    "value": 50
+   },
+   {
+    "class": "OTHER",
+    "n": 1,
+    "tier": "X",
+    "value": 50
+   },
+   {
+    "class": "ACHIEVED_RISE",
+    "n": 1,
+    "tier": "2",
+    "value": 50
+   },
+   {
+    "class": "TARGET_PROFIT",
+    "n": 1,
+    "tier": "X",
+    "value": 70
+   },
+   {
+    "class": "PARTIAL_EXIT_QUANTITY",
+    "n": 1,
+    "tier": "1",
+    "value": 70
+   },
+   {
+    "class": "TARGET_PROFIT",
+    "n": 10,
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "class": "ACHIEVED_RISE",
+    "n": 6,
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "class": "TARGET_PROFIT",
+    "n": 5,
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "class": "ACHIEVED_RISE",
+    "n": 4,
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "class": "OTHER",
+    "n": 3,
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "class": "OTHER",
+    "n": 3,
+    "tier": "X",
+    "value": 100
+   },
+   {
+    "class": "ACHIEVED_RISE",
+    "n": 2,
+    "tier": "2b",
+    "value": 100
+   },
+   {
+    "class": "ACHIEVED_RISE",
+    "n": 2,
+    "tier": "X",
+    "value": 100
+   },
+   {
+    "class": "CERTAINTY",
+    "n": 2,
+    "tier": "1",
+    "value": 100
+   },
+   {
+    "class": "OTHER",
+    "n": 2,
+    "tier": "2b",
+    "value": 100
+   },
+   {
+    "class": "DECLINE_OR_PRESS",
+    "n": 1,
+    "tier": "2",
+    "value": 100
+   },
+   {
+    "class": "OTHER",
+    "n": 1,
+    "tier": "2",
+    "value": 100
+   }
+  ]
+ }
+}

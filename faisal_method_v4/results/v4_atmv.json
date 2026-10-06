@@ -1,0 +1,175 @@
+{
+ "_commit": "2ebf7250d",
+ "_job": 111046051795,
+ "_note": "أجزاءُ V4OUT في سجلّ التشغيلة أُعيد تجميعُها برمجيًّا (الـartifact محجوبٌ من الجلسة) · ياهو: «Quote not found» و«possibly delisted»",
+ "_source_run": 37069729275,
+ "sources": [
+  {
+   "result": null,
+   "source": "TradingView scanner map",
+   "symbol": "ATMV"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "NASDAQ:ATMV"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "NYSE:ATMV"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "AMEX:ATMV"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "OTC:ATMV"
+  },
+  {
+   "bars": 0,
+   "first": null,
+   "last": null,
+   "source": "Yahoo (yfinance)",
+   "symbol": "ATMV"
+  },
+  {
+   "result": null,
+   "source": "TradingView scanner map",
+   "symbol": "ATMVU"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "NASDAQ:ATMVU"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "NYSE:ATMVU"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "AMEX:ATMVU"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "OTC:ATMVU"
+  },
+  {
+   "bars": 0,
+   "first": null,
+   "last": null,
+   "source": "Yahoo (yfinance)",
+   "symbol": "ATMVU"
+  },
+  {
+   "result": null,
+   "source": "TradingView scanner map",
+   "symbol": "ATMVR"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "NASDAQ:ATMVR"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "NYSE:ATMVR"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "AMEX:ATMVR"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "OTC:ATMVR"
+  },
+  {
+   "bars": 0,
+   "first": null,
+   "last": null,
+   "source": "Yahoo (yfinance)",
+   "symbol": "ATMVR"
+  },
+  {
+   "result": null,
+   "source": "TradingView scanner map",
+   "symbol": "ATMVW"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "NASDAQ:ATMVW"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "NYSE:ATMVW"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "AMEX:ATMVW"
+  },
+  {
+   "bars": null,
+   "first": null,
+   "last": null,
+   "source": "TradingView chart",
+   "symbol": "OTC:ATMVW"
+  },
+  {
+   "bars": 0,
+   "first": null,
+   "last": null,
+   "source": "Yahoo (yfinance)",
+   "symbol": "ATMVW"
+  },
+  {
+   "members": [],
+   "source": "NASDAQ universe (production list)",
+   "symbol": "ATMV*"
+  }
+ ],
+ "symbol": "ATMV",
+ "verdict": "DATA_UNAVAILABLE"
+}

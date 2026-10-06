@@ -1,0 +1,525 @@
+{
+ "_commit": "2ebf7250d",
+ "_job": 111046061360,
+ "_note": "أجزاءُ V4OUT أُعيد تجميعُها برمجيًّا · الطلب 5000 شمعة 30 دقيقة لكلّ رمزٍ في S1 وS3 (نظاميّ وممتدّ) من TradingView بلا تسجيل دخول",
+ "_source_run": 37069733057,
+ "coverage": {
+  "AMIX": {
+   "extended": {
+    "first": "2025-07-31 07:00",
+    "last": "2026-10-02 17:30",
+    "returned": 5000,
+    "sessions": 296
+   },
+   "full": "NASDAQ:AMIX",
+   "regular": {
+    "first": "2024-09-17 14:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 512
+   },
+   "requested": 5000
+  },
+  "ATMV": {
+   "full": null,
+   "tries": [
+    [
+     "NASDAQ:ATMV",
+     null
+    ],
+    [
+     "NYSE:ATMV",
+     null
+    ],
+    [
+     "AMEX:ATMV",
+     null
+    ],
+    [
+     "OTC:ATMV",
+     null
+    ]
+   ]
+  },
+  "BETA": {
+   "extended": {
+    "first": "2025-11-10 09:30",
+    "last": "2026-10-02 16:30",
+    "returned": 5000,
+    "sessions": 225
+   },
+   "full": "NYSE:BETA",
+   "regular": {
+    "first": "2025-11-04 13:30",
+    "last": "2026-10-02 15:30",
+    "returned": 2957,
+    "sessions": 229
+   },
+   "requested": 5000
+  },
+  "CANF": {
+   "extended": {
+    "first": "2025-02-27 13:30",
+    "last": "2026-10-02 17:00",
+    "returned": 5000,
+    "sessions": 402
+   },
+   "full": "AMEX:CANF",
+   "regular": {
+    "first": "2024-06-03 14:30",
+    "last": "2026-10-02 12:30",
+    "returned": 5000,
+    "sessions": 586
+   },
+   "requested": 5000
+  },
+  "CDIO": {
+   "extended": {
+    "first": "2025-01-29 13:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 422
+   },
+   "full": "NASDAQ:CDIO",
+   "regular": {
+    "first": "2024-08-06 13:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 542
+   },
+   "requested": 5000
+  },
+  "CIIT": {
+   "extended": {
+    "first": "2025-04-10 11:30",
+    "last": "2026-10-02 17:30",
+    "returned": 4594,
+    "sessions": 371
+   },
+   "full": "NASDAQ:CIIT",
+   "regular": {
+    "first": "2025-04-10 11:30",
+    "last": "2026-10-02 14:30",
+    "returned": 2880,
+    "sessions": 371
+   },
+   "requested": 5000
+  },
+  "CUPR": {
+   "extended": {
+    "first": "2025-04-10 11:30",
+    "last": "2026-10-02 16:00",
+    "returned": 4902,
+    "sessions": 371
+   },
+   "full": "NASDAQ:CUPR",
+   "regular": {
+    "first": "2025-04-10 11:30",
+    "last": "2026-10-02 15:30",
+    "returned": 3158,
+    "sessions": 371
+   },
+   "requested": 5000
+  },
+  "DXST": {
+   "extended": {
+    "first": "2025-03-26 12:30",
+    "last": "2026-10-02 16:00",
+    "returned": 5000,
+    "sessions": 383
+   },
+   "full": "NASDAQ:DXST",
+   "regular": {
+    "first": "2025-01-22 12:00",
+    "last": "2026-10-02 15:30",
+    "returned": 3368,
+    "sessions": 427
+   },
+   "requested": 5000
+  },
+  "EDBL": {
+   "extended": {
+    "first": "2025-07-29 11:00",
+    "last": "2026-10-02 16:30",
+    "returned": 5000,
+    "sessions": 298
+   },
+   "full": "NASDAQ:EDBL",
+   "regular": {
+    "first": "2024-10-15 13:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 493
+   },
+   "requested": 5000
+  },
+  "EHGO": {
+   "extended": {
+    "first": "2025-01-21 13:30",
+    "last": "2026-10-02 16:30",
+    "returned": 5000,
+    "sessions": 423
+   },
+   "full": "NASDAQ:EHGO",
+   "regular": {
+    "first": "2024-07-02 11:30",
+    "last": "2026-10-02 15:30",
+    "returned": 3817,
+    "sessions": 559
+   },
+   "requested": 5000
+  },
+  "FRSX": {
+   "extended": {
+    "first": "2024-12-04 16:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 455
+   },
+   "full": "NASDAQ:FRSX",
+   "regular": {
+    "first": "2024-01-18 10:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 676
+   },
+   "requested": 5000
+  },
+  "HCWB": {
+   "extended": {
+    "first": "2025-06-11 11:00",
+    "last": "2026-10-02 16:30",
+    "returned": 5000,
+    "sessions": 330
+   },
+   "full": "NASDAQ:HCWB",
+   "regular": {
+    "first": "2024-06-11 14:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 575
+   },
+   "requested": 5000
+  },
+  "IPDN": {
+   "extended": {
+    "first": "2025-03-14 12:00",
+    "last": "2026-10-02 17:00",
+    "returned": 5000,
+    "sessions": 388
+   },
+   "full": "NASDAQ:IPDN",
+   "regular": {
+    "first": "2024-01-25 09:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 668
+   },
+   "requested": 5000
+  },
+  "LABT": {
+   "extended": {
+    "first": "2026-04-23 10:30",
+    "last": "2026-10-02 15:30",
+    "returned": 2500,
+    "sessions": 113
+   },
+   "full": "NASDAQ:LABT",
+   "regular": {
+    "first": "2026-04-23 10:30",
+    "last": "2026-10-02 15:30",
+    "returned": 1302,
+    "sessions": 113
+   },
+   "requested": 5000
+  },
+  "LIMN": {
+   "extended": {
+    "first": "2025-10-21 12:00",
+    "last": "2026-10-02 16:30",
+    "returned": 5000,
+    "sessions": 239
+   },
+   "full": "NASDAQ:LIMN",
+   "regular": {
+    "first": "2025-05-01 09:30",
+    "last": "2026-10-02 15:30",
+    "returned": 4158,
+    "sessions": 358
+   },
+   "requested": 5000
+  },
+  "MNDR": {
+   "extended": {
+    "first": "2025-06-16 06:30",
+    "last": "2026-10-02 16:30",
+    "returned": 5000,
+    "sessions": 327
+   },
+   "full": "NASDAQ:MNDR",
+   "regular": {
+    "first": "2024-07-19 14:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 554
+   },
+   "requested": 5000
+  },
+  "NRSN": {
+   "extended": {
+    "first": "2024-12-03 05:30",
+    "last": "2026-10-02 16:00",
+    "returned": 5000,
+    "sessions": 459
+   },
+   "full": "NASDAQ:NRSN",
+   "regular": {
+    "first": "2024-06-18 10:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 575
+   },
+   "requested": 5000
+  },
+  "OMH": {
+   "extended": {
+    "first": "2024-10-29 07:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 478
+   },
+   "full": "NASDAQ:OMH",
+   "regular": {
+    "first": "2023-12-06 14:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 698
+   },
+   "requested": 5000
+  },
+  "ONCO": {
+   "extended": {
+    "first": "2025-07-16 10:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 307
+   },
+   "full": "NASDAQ:ONCO",
+   "regular": {
+    "first": "2024-11-01 12:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 480
+   },
+   "requested": 5000
+  },
+  "PPBT": {
+   "extended": {
+    "first": "2024-11-22 12:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 464
+   },
+   "full": "NASDAQ:PPBT",
+   "regular": {
+    "first": "2024-02-15 09:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 654
+   },
+   "requested": 5000
+  },
+  "RAYA": {
+   "extended": {
+    "first": "2025-07-24 15:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 301
+   },
+   "full": "NASDAQ:RAYA",
+   "regular": {
+    "first": "2023-01-13 10:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 865
+   },
+   "requested": 5000
+  },
+  "RUBI": {
+   "extended": {
+    "first": "2025-11-12 09:00",
+    "last": "2026-10-02 17:00",
+    "returned": 5000,
+    "sessions": 223
+   },
+   "full": "NASDAQ:RUBI",
+   "regular": {
+    "first": "2025-08-04 09:30",
+    "last": "2026-10-02 15:30",
+    "returned": 3167,
+    "sessions": 294
+   },
+   "requested": 5000
+  },
+  "SLXN": {
+   "extended": {
+    "first": "2025-07-17 08:00",
+    "last": "2026-10-02 17:30",
+    "returned": 5000,
+    "sessions": 306
+   },
+   "full": "NASDAQ:SLXN",
+   "regular": {
+    "first": "2024-09-24 14:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 508
+   },
+   "requested": 5000
+  },
+  "SMX": {
+   "extended": {
+    "first": "2025-12-15 06:30",
+    "last": "2026-10-02 17:30",
+    "returned": 5000,
+    "sessions": 201
+   },
+   "full": "NASDAQ:SMX",
+   "regular": {
+    "first": "2025-01-06 12:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 437
+   },
+   "requested": 5000
+  },
+  "SPRC": {
+   "extended": {
+    "first": "2025-06-17 09:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 325
+   },
+   "full": "NASDAQ:SPRC",
+   "regular": {
+    "first": "2024-07-15 09:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 556
+   },
+   "requested": 5000
+  },
+  "STKH": {
+   "extended": {
+    "first": "2025-04-22 14:00",
+    "last": "2026-10-02 17:30",
+    "returned": 5000,
+    "sessions": 364
+   },
+   "full": "NASDAQ:STKH",
+   "regular": {
+    "first": "2023-09-29 13:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 751
+   },
+   "requested": 5000
+  },
+  "UPC": {
+   "extended": {
+    "first": "2025-03-24 09:30",
+    "last": "2026-10-02 14:30",
+    "returned": 5000,
+    "sessions": 383
+   },
+   "full": "NASDAQ:UPC",
+   "regular": {
+    "first": "2024-06-14 10:00",
+    "last": "2026-10-02 14:30",
+    "returned": 5000,
+    "sessions": 570
+   },
+   "requested": 5000
+  },
+  "VEEE": {
+   "extended": {
+    "first": "2025-10-27 09:00",
+    "last": "2026-10-02 16:00",
+    "returned": 5000,
+    "sessions": 235
+   },
+   "full": "NASDAQ:VEEE",
+   "regular": {
+    "first": "2024-07-15 13:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 557
+   },
+   "requested": 5000
+  },
+  "WORX": {
+   "extended": {
+    "first": "2025-08-11 19:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 273
+   },
+   "full": "OTC:WORX",
+   "regular": {
+    "first": "2024-09-26 14:00",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 490
+   },
+   "requested": 5000
+  },
+  "YMT": {
+   "extended": {
+    "first": "2025-08-19 10:00",
+    "last": "2026-10-02 17:00",
+    "returned": 3738,
+    "sessions": 283
+   },
+   "full": "NASDAQ:YMT",
+   "regular": {
+    "first": "2025-08-19 10:00",
+    "last": "2026-10-02 15:30",
+    "returned": 2527,
+    "sessions": 283
+   },
+   "requested": 5000
+  },
+  "ZCMD": {
+   "extended": {
+    "first": "2024-10-15 12:30",
+    "last": "2026-10-02 17:30",
+    "returned": 5000,
+    "sessions": 470
+   },
+   "full": "NASDAQ:ZCMD",
+   "regular": {
+    "first": "2021-03-26 11:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 1031
+   },
+   "requested": 5000
+  },
+  "ZNB": {
+   "extended": {
+    "first": "2025-09-17 19:00",
+    "last": "2026-10-02 17:30",
+    "returned": 5000,
+    "sessions": 263
+   },
+   "full": "NASDAQ:ZNB",
+   "regular": {
+    "first": "2024-11-04 15:30",
+    "last": "2026-10-02 15:30",
+    "returned": 5000,
+    "sessions": 479
+   },
+   "requested": 5000
+  }
+ }
+}

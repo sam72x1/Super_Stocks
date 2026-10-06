@@ -1,0 +1,309 @@
+{
+ "engine_version": "FAISAL-V4 1.0 (2026-10-02)",
+ "generated_by": "faisal_method_v4/v4_docs.py ⟵ results/forensics_v4.json · decision_engine.py · rules_v4.py",
+ "hierarchy_note": "ترتيبُ المهمّة مُعدَّلٌ بالدليل: الصلاحيّةُ (أخبار · طرح · قروبات · شورت) **حاجبٌ** يأتي بعد البنية ولا يرقّي (ADIL TG_2064 · KWM) · والنموذجُ (W) معلومةٌ لا قرار · والتأكيدُ = ثباتٌ في المنطقة أو سحبٌ ثمّ عودة · والدخولُ آليّةٌ لا قرار",
+ "hierarchy_reconstructed": [
+  "DATA",
+  "DATA_QUALITY",
+  "MARKET_CONTEXT",
+  "STRUCTURE",
+  "PATTERN",
+  "SUPPORT_RESISTANCE",
+  "PRICE_LOCATION",
+  "CONFIRMATION",
+  "VALIDITY",
+  "ENTRY",
+  "INVALIDATION",
+  "TARGET",
+  "DECISION",
+  "EXPLANATION"
+ ],
+ "params": {
+  "AT_BAND_PCT": {
+   "source": "production",
+   "value": 3.0
+  },
+  "BID_LO_PCT": {
+   "source": "faisal_verbatim",
+   "value": 5.0
+  },
+  "CYCLE_BARS": {
+   "source": "production",
+   "value": 120
+  },
+  "HOLD_MIN": {
+   "source": "faisal_verbatim",
+   "value": 5
+  },
+  "HOLD_ZONE": {
+   "source": "faisal_inferred",
+   "value": 3
+  },
+  "LEVEL_TOL_PCT": {
+   "source": "faisal_verbatim",
+   "value": 2.0
+  },
+  "MIN_BARS": {
+   "source": "engineering",
+   "value": 40
+  },
+  "RECLAIM_BARS": {
+   "source": "engineering",
+   "value": 2
+  },
+  "RISE_TEST_PCT": {
+   "source": "faisal_inferred",
+   "value": 15.0
+  },
+  "SHORT_AVAIL_MAX": {
+   "source": "faisal_verbatim",
+   "value": 20000
+  },
+  "SWEEP_MAX_PCT": {
+   "source": "faisal_tier2b",
+   "value": 13.0
+  },
+  "SWEEP_PROJ_PCT": {
+   "source": "faisal_verbatim",
+   "value": [
+    5.0,
+    10.0
+   ]
+  },
+  "SWING_K": {
+   "source": "engineering",
+   "value": 3
+  },
+  "ZONE_PCT": {
+   "source": "faisal_verbatim",
+   "value": 15.0
+  }
+ },
+ "rules": {
+  "H-D2": {
+   "decisionality": "UNKNOWN",
+   "source_level": 5,
+   "status": "CONTRADICTED"
+  },
+  "R-SUP-MAIN": {
+   "decisionality": "DECISIONAL",
+   "source_level": 6,
+   "status": "SUPPORTED"
+  },
+  "R-W-SPAN": {
+   "decisionality": "UNKNOWN",
+   "source_level": 4,
+   "status": "SUPPORTED"
+  },
+  "R4-BOT-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 2,
+   "status": "SUPPORTED"
+  },
+  "R4-CYC-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 3,
+   "status": "CONFIRMED"
+  },
+  "R4-DATA-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 7,
+   "status": "CONFIRMED"
+  },
+  "R4-ENT-01": {
+   "decisionality": "SUPPORTING",
+   "source_level": 2,
+   "status": "CONFIRMED"
+  },
+  "R4-ENT-02": {
+   "decisionality": "INFORMATIONAL",
+   "source_level": 2,
+   "status": "SUPPORTED"
+  },
+  "R4-HOLD-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 3,
+   "status": "SUPPORTED"
+  },
+  "R4-HOLDZ-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 2,
+   "status": "PROBABLE"
+  },
+  "R4-INV-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 2,
+   "status": "SUPPORTED"
+  },
+  "R4-LOC-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 2,
+   "status": "CONFIRMED"
+  },
+  "R4-OP-01": {
+   "decisionality": "UNKNOWN",
+   "source_level": 2,
+   "status": "SUPPORTED"
+  },
+  "R4-STOP-01": {
+   "decisionality": "SUPPORTING",
+   "source_level": 2,
+   "status": "SUPPORTED"
+  },
+  "R4-SWEEP-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 2,
+   "status": "SUPPORTED"
+  },
+  "R4-TF-01": {
+   "decisionality": "INFORMATIONAL",
+   "source_level": 2,
+   "status": "SUPPORTED"
+  },
+  "R4-TGT-01": {
+   "decisionality": "INFORMATIONAL",
+   "source_level": 2,
+   "status": "CONFIRMED"
+  },
+  "R4-VAL-GRP-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 2,
+   "status": "SUPPORTED"
+  },
+  "R4-VAL-OFF-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 2,
+   "status": "SUPPORTED"
+  },
+  "R4-VAL-SHORT-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 2,
+   "status": "PROBABLE"
+  },
+  "R4-ZONE-01": {
+   "decisionality": "DECISIONAL",
+   "source_level": 1,
+   "status": "SUPPORTED"
+  }
+ },
+ "state_order": [
+  {
+   "rule": "R4-DATA-01",
+   "state": "DATA_INSUFFICIENT"
+  },
+  {
+   "rule": "R4-INV-01",
+   "state": "BROKEN_NEW_BASE"
+  },
+  {
+   "rule": "R4-SWEEP-01",
+   "state": "PRESS_RECLAIM"
+  },
+  {
+   "rule": "R4-SWEEP-01",
+   "state": "SWEEP_ACTIVE"
+  },
+  {
+   "rule": "R4-HOLD-01",
+   "state": "BASE_FORMING"
+  },
+  {
+   "rule": "R4-CYC-01",
+   "state": "BASE_HELD"
+  },
+  {
+   "rule": "R4-LOC-01",
+   "state": "RETEST_PENDING"
+  },
+  {
+   "rule": "R4-HOLDZ-01",
+   "state": "RETEST_HELD"
+  },
+  {
+   "rule": "R4-HOLDZ-01",
+   "state": "RETEST_IN_PROGRESS"
+  }
+ ],
+ "states": [
+  {
+   "decision": "UNKNOWN",
+   "id": "DATA_INSUFFICIENT",
+   "label": "بياناتٌ غيرُ كافية",
+   "rule": "R4-DATA-01"
+  },
+  {
+   "decision": "WAIT",
+   "id": "BASE_FORMING",
+   "label": "القاعُ لم يثبت 5 جلسات بعد",
+   "rule": "R4-HOLD-01"
+  },
+  {
+   "decision": "WAIT",
+   "id": "BROKEN_NEW_BASE",
+   "label": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد",
+   "rule": "R4-INV-01"
+  },
+  {
+   "decision": "WAIT",
+   "id": "SWEEP_ACTIVE",
+   "label": "سحبُ سيولةٍ تحت القاع السابق ولم يعد فوقه بعد",
+   "rule": "R4-SWEEP-01"
+  },
+  {
+   "decision": "WAIT",
+   "id": "RETEST_PENDING",
+   "label": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم",
+   "rule": "R4-LOC-01"
+  },
+  {
+   "decision": "WAIT",
+   "id": "RETEST_IN_PROGRESS",
+   "label": "رجع إلى المنطقة ولم يثبت فيها جلساتٍ كافية",
+   "rule": "R4-HOLDZ-01"
+  },
+  {
+   "decision": "TECH_READY",
+   "id": "PRESS_RECLAIM",
+   "label": "سحبُ سيولةٍ ثمّ عودةٌ فوق القاع السابق (ضغطٌ مكتمل)",
+   "rule": "R4-SWEEP-01"
+  },
+  {
+   "decision": "TECH_READY",
+   "id": "RETEST_HELD",
+   "label": "اختبر الدعم وثبت في المنطقة",
+   "rule": "R4-HOLDZ-01"
+  },
+  {
+   "decision": "TECH_READY",
+   "id": "BASE_HELD",
+   "label": "قاعٌ ثابتٌ والسعرُ في المنطقة بلا صعود اختبارٍ بعد",
+   "rule": "R4-HOLD-01"
+  }
+ ],
+ "validity_edges": [
+  {
+   "from": "TECH_READY",
+   "rule": "R4-VAL-GRP-01",
+   "to": "REJECT",
+   "when": "groups = True (وفي أيّ حالة)"
+  },
+  {
+   "from": "TECH_READY",
+   "rule": "R4-VAL-OFF-01 · R4-VAL-SHORT-01",
+   "to": "WAIT",
+   "when": "طرحٌ معلَّق أو متاحٌ فوق 20,000"
+  },
+  {
+   "from": "TECH_READY",
+   "rule": "R4-OP-01",
+   "to": "UNKNOWN",
+   "when": "معلومةٌ ناقصة (قروبات · طرح · شورت · بصمةُ المضارب)"
+  },
+  {
+   "from": "TECH_READY",
+   "rule": "—",
+   "to": "READY",
+   "when": "الصلاحيّةُ كاملةٌ نظيفة"
+  }
+ ]
+}

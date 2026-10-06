@@ -1,0 +1,136 @@
+{
+ "generated_by": "سجلُّ النسب §26 — معرّفاتُ التشغيلات من GitHub API (actions_get/list) وبصماتُ المخرجات محسوبةٌ من الملفّات",
+ "commit_main": "2ebf7250de7ed797ae9c581d11b88422eed3ab8c",
+ "pr_contract": {
+  "pr": 547,
+  "merge_sha": "2ebf7250de7ed797ae9c581d11b88422eed3ab8c",
+  "head_sha": "d8b493727af71516e285fb12a816ecdd1950a0fb",
+  "ci_pr": [
+   {
+    "workflow": "Tests",
+    "run": 37068980702,
+    "event": "pull_request",
+    "conclusion": "success",
+    "summary": "5168 نجح · 0 فشل"
+   },
+   {
+    "workflow": "Tests",
+    "run": 37068947244,
+    "event": "push",
+    "conclusion": "success"
+   },
+   {
+    "workflow": "Lint",
+    "run": 37068980761,
+    "event": "pull_request",
+    "conclusion": "success"
+   }
+  ],
+  "ci_main": [
+   {
+    "workflow": "Tests",
+    "run": 37069716913,
+    "event": "push",
+    "conclusion": "success"
+   }
+  ],
+  "suite_isolated_worktree": {
+   "commit": "d8b493727",
+   "passed": 5168,
+   "failed": 0,
+   "exit": 0,
+   "secs": 587
+  }
+ },
+ "runs": [
+  {
+   "mode": "fetch",
+   "workflow": "faisal_v4.yml",
+   "run": 37069721266,
+   "job": 111046023777,
+   "created": "2026-10-02T21:56:12Z",
+   "step_secs": 13,
+   "outputs": {
+    "data/v4_bars_fixture.json": "6b107ceaca682d0c814da79f61210b8b471eb248f6de3d8fb33603b87f4574d8",
+    "results/v4_metrics_actions.json": "(المقاييسُ كما طُبعت · تُقارَن قانونيًّا)"
+   },
+   "note": "التشغيلةُ الكاملةُ الأولى = النتيجة (§⑭) · 79 من 80 رمزًا بشموع · ATMV بلا شموع"
+  },
+  {
+   "mode": "atmv",
+   "workflow": "faisal_v4.yml",
+   "run": 37069729275,
+   "job": 111046051795,
+   "created": "2026-10-02T21:56:17Z",
+   "outputs": {
+    "results/v4_atmv.json": "9a87f6ca68febd79137e1af5c9fd4349d18ad87c01007fa22a5cced1fd21df1e"
+   }
+  },
+  {
+   "mode": "cov30",
+   "workflow": "faisal_v4.yml",
+   "run": 37069733057,
+   "job": 111046061360,
+   "created": "2026-10-02T21:56:19Z",
+   "outputs": {
+    "results/v4_cov30.json": "b5303ebc6cf8c828df224db909e0be0d106c3bab3c93d006b716179337889d60"
+   }
+  },
+  {
+   "mode": "poolcap2",
+   "workflow": "faisal_v3.yml",
+   "run": 37069735610,
+   "job": 111046070399,
+   "created": "2026-10-02T21:56:21Z",
+   "outputs": {
+    "results/pool_cap_downstream_v4rerun.json": "be38a196f23a7a27b91f9aea00b634e715c6aeceda2cdcb824b732cef9ec3981"
+   },
+   "compare_to": {
+    "run": 37036594447,
+    "file": "faisal_method_v3/results/pool_cap_downstream.json"
+   }
+  }
+ ],
+ "reassembly": "أجزاءُ V4OUT/V3OUT في سجلّ كلّ تشغيلة ⟵ `v4_offline.reassemble` (الـartifact وروابطُ السجلّ الموقَّعة محجوبةٌ من الجلسة: الوكيلُ يردّ 403)",
+ "offline": {
+  "command": "python3 faisal_method_v4/v4_offline.py",
+  "reproduces_actions_metrics": true
+ },
+ "rebuild": {
+  "date": "2026-10-06",
+  "cause": "حاويةُ الجلسة أُعيدت أثناء التوقّف بحدّ الاستخدام الأسبوعيّ (2026-10-02 22:13Z ⟵ 2026-10-06 21:03Z) فضاع كلُّ عملٍ غيرِ مدفوعٍ بعد #547",
+  "exact_from_session_log": [
+   "v4_offline.py",
+   "v4_docs.py",
+   "data/corrections_v4.json",
+   "results/run_registry_v4.json (الأصل)",
+   "../FAISAL_SOURCE_LEDGER.md (خلايا ‏+ ملاحظات)",
+   "../FAISAL_IMAGES_CATALOG.md (§أربعة وثلاثون)",
+   "../SOURCE_ANALYSIS.md",
+   "../FAISAL_SCIENTIFIC_METHOD.md",
+   "../test_bot.py (PC6)"
+  ],
+  "exact_method": "إعادةُ تشغيل كلّ كتابةٍ وتعديلٍ بترتيبه من سجلّ الجلسة على الملفّات نفسِها في main (لم تتغيّر منذ 2ebf7250d إلّا ببيانات البوت)",
+  "refetched_from_actions": [
+   111046023777,
+   111046051795,
+   111046061360,
+   111046070399
+  ],
+  "fixture_sha256_after_rebuild": "6b107ceaca682d0c814da79f61210b8b471eb248f6de3d8fb33603b87f4574d8",
+  "fixture_sha_equals_recorded": true,
+  "rebuilt_code": {
+   "v4_forensics.py": "الدوالُّ والثوابتُ من نصّها المحفوظ في سجلّ الجلسة حرفًا · وأُكملت ثلاثُ جملٍ مقصوصة في GENERIC_NOT_IMPLEMENTED · وأُعيدت نصوصُ خمسةَ عشرَ تعارضًا من شواهدها (المعرّفاتُ والحالاتُ كما طُبعت يوم 10-02 حرفًا)",
+   "v4_corpus.py": "أُعيدت كتابتُه كلُّه بتعريفاتٍ مكتوبةٍ في رأسه تعيد الأرقامَ المطبوعة يوم 10-02 حرفًا"
+  },
+  "verified_in_session_against_10_02_prints": {
+   "forensics_v4.json — أوّلُ 700 حرفٍ لكلّ قسم": "9 من 9 متطابقة",
+   "rule_generalization": "21 من 21 قاعدةً متطابقة",
+   "decision_combos": "47 · 25 بمثالٍ واحد · وأعلى 12 تركيبةً متطابقة",
+   "corpus_counts": "722 · 722 · 722 · 609 · 102 · 602 · 609 · 265 · 369 · واستعمالُ الدليل 220/190/277/35",
+   "telegram": "11/11 · مكرّر 1 · أوّليّ 6 · محتوى أوّليّ 3 · طرفٌ ثالث 7",
+   "v4_eval_results": "مطابقةُ Actions True · H-STATE والذهبيّة 3/4/7/5 · VEEE البعديّ 2026-05-15 · 26 طبقة"
+  },
+  "method_note": "المقارنةُ مع مخرجاتٍ طُبعت في سجلّ الجلسة يوم 10-02 (لا تُعاد في CI) · وما يُعاد في CI أقفالُ V4L11-V4L16 على الملفّات نفسِها"
+ }
+}

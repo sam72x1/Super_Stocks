@@ -60611,8 +60611,11 @@ check("🪜 PC5: الجذورُ لا تذكر `pivot_cycle` **إلّا نداء�
 _pc_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
 _PC_TAGS = ("faisal_verbatim", "faisal_inferred", "faisal_adopted",
             "engineering", "third_party", "unsourced")
+# 🔄 تحديثٌ إقراريّ V4 2026-10-02: `PIVOT_SWEEP_PCT` ⟵ `faisal_adopted` — «متعارف عليه من 7٪ ل 13٪» (`IMG_0297`) منشورُ قناةٍ
+#    بلا اسمٍ ظاهر (طبقة 2b · `faisal_method_v4/data/visual_pass_v4.jsonl`) فالرقمُ 13 ليس لفظَ فيصل · وأمثلتُه هو 8.4-11.8% تُبقيه
+#    تبنّيًا (`faisal_method_v4/docs/15_V4_CHANGELOG.md`) — الرقمُ في الكود بت-بت (‏13) · والقفلُ يحرس الوسمَ المصحَّح لا يُرخى.
 _PC6_WANT = {"PIVOT_TEST_TYPICAL_PCT": "faisal_verbatim",
-             "PIVOT_SWEEP_PCT": "faisal_verbatim", "PIVOT_CYCLE_WIN": "engineering"}
+             "PIVOT_SWEEP_PCT": "faisal_adopted", "PIVOT_CYCLE_WIN": "engineering"}
 _pc6_bad = []
 for _k, _tg in _PC6_WANT.items():
     _rows = [ln for ln in _pc_led.splitlines() if _k in ln and ln.lstrip().startswith("|")]
@@ -79806,6 +79809,183 @@ except Exception as _e:                                                    # noq
     _v4l10ok, _miss10, _par10 = False, f"⛔ {type(_e).__name__}: {_e}", None
 check("🧭 V4L10 عقدُ V4 والكود متّفقان: نسخةُ المحرّك والعتباتُ والمراسي وأرقامُ المجموعات في V4_prereg.md هي ثوابتُ الكود",
       _v4l10ok, f"missing={_miss10} params={_par10}")
+
+# ══ FAISAL V4 — أقفالُ ما بعد التشغيلة الأولى (2026-10-02 · أُعيد بناؤها 2026-10-06 بعد ضياع الحاوية): الإعادةُ من الشموع المحفوظة ·
+#    التصحيحات · الوثائق · الذهبيّة · التنبّؤات · الجنائيّاتُ والمدوّنة — بلا شبكة (المثبّتُ في المستودع) · ولا تكتب ملفًّا (LEAK1/LEAK2).
+# ── V4L11 الإعادةُ من الشموع المحفوظة (§⑭ · §36 · §26): بصمةُ المثبّت = ملفُّ البصمة · والمقاييسُ من الشموع = ما طبعه Actions = النتيجةُ
+#    المحفوظة (قانونيًّا) · وبصماتُ مخرجات التشغيلات في سجلّ النسب = الملفّات — لا رقمَ باليد.
+try:
+    V4OF = _fv_imp.import_module("v4_offline")
+    _pay11, _bars11, _sha11, _shaok11 = V4OF.load_fixture()
+    _shafile11 = open(V4OF.FIXTURE_SHA, encoding="utf-8").read().split()[0]
+    _cases11 = _fv_json.load(open(_fv_os.path.join("faisal_method_v4", "results", "cases_v4.json"), encoding="utf-8"))["cases"]
+    _met11 = V4V.evaluate(_cases11, _bars11)["metrics"]
+    _act11 = _fv_json.load(open(V4OF.ACTIONS_METRICS, encoding="utf-8"))
+    _res11 = _fv_json.load(open(V4OF.OUT, encoding="utf-8"))
+    _reg11 = _fv_json.load(open(_fv_os.path.join("faisal_method_v4", "results", "run_registry_v4.json"), encoding="utf-8"))
+    import hashlib as _hl11                                                 # noqa: E402
+    _regbad11 = [k for _r11 in _reg11["runs"] for k, v in _r11["outputs"].items()
+                 if len(str(v)) == 64 and _hl11.sha256(open(_fv_os.path.join("faisal_method_v4", k), "rb").read()).hexdigest() != v]
+    _nreg11 = sum(1 for _r11 in _reg11["runs"] for v in _r11["outputs"].values() if len(str(v)) == 64)
+    _v4l11ok = (_shafile11 == _sha11 and _shaok11 is True and len(_sha11) == 64
+                and V4OF.canon(_met11) == V4OF.canon(_act11) == V4OF.canon(_res11["metrics"])
+                and _res11["reproduces_actions_metrics"] is True and _res11["fixture_sha_ok"] is True
+                and _res11["fixture_sha256"] == _sha11 and not _regbad11 and _nreg11 == 4)
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l11ok, _regbad11, _nreg11 = False, f"⛔ {type(_e).__name__}: {_e}", None
+check("🧭 V4L11 نتائجُ V4 تُعاد من الشموع المحفوظة: البصمةُ = ملفُّ البصمة · المقاييسُ المحسوبة = Actions = المحفوظة · "
+      "وبصماتُ مخرجات التشغيلات الأربع في سجلّ النسب = الملفّات",
+      _v4l11ok, f"reg_bad={_regbad11} n={_nreg11}")
+
+# ── V4L12 التصحيحاتُ C01-C15 تُضاف ولا تحذف: كلُّ مرسًى باقٍ في ملفّه (لم يُمحَ الأصل) · ووسومُ الدفتر المصحَّحة في خلاياها ·
+#    وقسمُ الكاتالوج المضاف آخرَه يسرد الخمسةَ عشر ولا يصنع تغطيةً لصورةٍ غيرِ موثَّقةٍ قبله.
+try:
+    _corr12 = _fv_json.load(open(_fv_os.path.join(_V4D, "corrections_v4.json"), encoding="utf-8"))
+    _ids12 = [x["id"] for x in _corr12["items"]]
+    _anch12 = [x["id"] for x in _corr12["items"]
+               if x.get("anchor") and x["anchor"] not in open(x["file"], encoding="utf-8").read()]
+    _noanch12 = [x["id"] for x in _corr12["items"] if not x.get("anchor")]
+    _led12 = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read().splitlines()
+    _tags12 = ("faisal_verbatim", "faisal_inferred", "faisal_adopted", "engineering", "third_party", "unsourced")
+
+    def _row_tag12(key):
+        _rows = [ln for ln in _led12 if key in ln and ln.lstrip().startswith("|")]
+        if len(_rows) != 1:
+            return None, f"rows={len(_rows)}"
+        _hit = [t for t in _tags12 if t in _rows[0]]
+        return (_hit[0] if len(_hit) == 1 and _rows[0].count(_hit[0]) == 1 else None), _rows[0]
+    _want12 = {"PIVOT_SWEEP_PCT=": ("faisal_adopted", None), "SPLIT_SWEEP_MIN/MID/MAX": ("faisal_adopted", None),
+               "TG_38_NUWE": ("third_party", None), "OPERATOR_SUSTAIN_MIN=15": ("faisal_verbatim", "IMG_0627"),
+               "full_stoch(period=14": ("faisal_verbatim", "TG_1812")}
+    _ledbad12 = []
+    for _k12, (_t12, _cite12) in _want12.items():
+        _got12, _row12 = _row_tag12(_k12)
+        if _got12 != _t12 or (_cite12 and _cite12 not in str(_row12)):
+            _ledbad12.append((_k12, _got12))
+    _cat12 = open("FAISAL_IMAGES_CATALOG.md", encoding="utf-8").read()
+    _h33, _h34 = "## §ثلاثة وثلاثون", "## §أربعة وثلاثون"
+    _i33, _i34 = _cat12.find(_h33), _cat12.find(_h34)
+    _e34 = _cat12.find("\n## ", _i34 + 1) if _i34 >= 0 else -1
+    _sec12 = (_cat12[_i34:_e34] if _e34 > 0 else _cat12[_i34:]) if _i34 >= 0 else ""     # القسمُ حتى العنوانِ التالي (أقسامُ الدفعات القادمة خارجه)
+    import re as _re12                                                       # noqa: E402
+    _idrx12 = _re12.compile(r"\b(?:TG|IMG|X|APP|EDU|CH|WA)_[A-Za-z0-9_]+")
+    _before12 = _cat12[:_i34] if _i34 >= 0 else _cat12
+    _newcov12 = sorted({i for i in _idrx12.findall(_sec12) if i not in _before12})
+    _order12 = [m for m in _re12.findall(r"- \*\*(C\d\d)\*\*", _sec12)]
+    _lines12 = _cat12.split("\n")
+    _v4l12ok = (_ids12 == [f"C{i:02d}" for i in range(1, 16)] and not _anch12 and _noanch12 == ["C10"] and not _ledbad12
+                and 0 <= _i33 < _i34 and _order12 == _ids12 and not _newcov12
+                and len(_lines12) > 1470 and "مدخلي" in _lines12[1469])
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l12ok, _anch12, _ledbad12, _newcov12 = False, f"⛔ {type(_e).__name__}: {_e}", None, None
+check("🧭 V4L12 تصحيحاتُ V4 تُضاف ولا تحذف: C01-C15 بمراسٍ باقية · وسومُ الدفتر المصحَّحة (السحب ⟵ تبنٍّ · NUWE ⟵ طرفٌ ثالث · "
+      "ربعُ الساعة وFSTO بسندٍ من الطبقة 1) · وقسمُ الكاتالوج الأخير يسردها بلا تغطيةٍ جديدة · والسطرُ الأصليّ 1470 باقٍ",
+      _v4l12ok, f"anchors_missing={_anch12} ledger={_ledbad12} new_cov={_newcov12}")
+
+# ── V4L13 الوثائقُ الثماني عشرة = بنّاؤها حرفًا (§38 · «لا رقمَ باليد»): `v4_docs.render_all()` يعيد كلَّ ملفٍّ في docs/ بايتًا بايتًا ·
+#    والأسماءُ هي أسماءُ المهمّة الثمانية عشر بالضبط.
+try:
+    V4DOC = _fv_imp.import_module("v4_docs")
+    _ren13 = V4DOC.render_all()
+    _ddir13 = _fv_os.path.join("faisal_method_v4", "docs")
+    _disk13 = {n: open(_fv_os.path.join(_ddir13, n), encoding="utf-8").read() for n in sorted(_fv_os.listdir(_ddir13))}
+    _names13 = ["01_FAISAL_V4_FINAL_REPORT.md", "02_FAISAL_DECISION_PIPELINE_V4.md", "03_FAISAL_DECISION_GRAPH_V4.json",
+                "04_READY_WAIT_REJECT_FORENSICS.md", "05_READY_WAIT_CASE_MATRIX.md", "06_REJECTION_FORENSICS_V4.md",
+                "07_CONTRADICTION_MATRIX_V4.json", "08_TARGET_FORENSICS_ALL_PATTERNS.md", "09_GOLDEN_CASES.md",
+                "10_GOLDEN_CASE_GENERALIZATION.md", "11_PRESSURE_POOL_DOWNSTREAM_IMPACT_V4.md", "12_RULE_AUDIT_V4.md",
+                "13_SOURCE_ACCESS_V4.md", "14_TELEGRAM_IMAGE_RECONCILIATION_V4.json", "15_V4_CHANGELOG.md",
+                "16_V4_VALIDATION_REPORT.md", "17_IMPLEMENTATION_READINESS_REPORT.md", "18_V4_HANDOFF.md"]
+    _diff13 = sorted(n for n in set(_ren13) | set(_disk13) if _ren13.get(n) != _disk13.get(n))
+    _v4l13ok = sorted(_ren13) == _names13 == sorted(_disk13) and not _diff13
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l13ok, _diff13 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 V4L13 وثائقُ V4 الثماني عشرة مولَّدةٌ لا محرَّرة: render_all() يعيد كلَّ ملفٍّ في docs/ حرفًا · وأسماؤها أسماءُ المهمّة بالضبط",
+      _v4l13ok, f"diff={_diff13}")
+
+# ── V4L14 الذهبيّةُ والحالاتُ الخاصّة تُعاد ولا تُنقَل باليد: V3.1 مقابل V4 (‏3 · 4 من 7 · و«دائمًا WAIT» 5) · DXST ⟵ D ·
+#    VEEE ⟵ UNKNOWN بعقدها والبعديُّ موسومٌ POST-HOC بجلسةٍ واحدة · ATMV ⟵ DATA_UNAVAILABLE ومصادرُها كلُّها بلا شموع ·
+#    وإعادةُ poolcap2 = V3.1 عدا زمن الجلب (تُعاد المقارنةُ من الملفّين).
+try:
+    _gold14 = _fv_json.load(open(V4OF.GOLDEN, encoding="utf-8"))
+    _v31_14 = _fv_json.load(open(V4OF.GOLDEN_V31, encoding="utf-8"))
+    _g14 = V4OF.golden_v31_vs_v4(_gold14, _v31_14)
+    _sv14 = _res11["golden_v31_vs_v4"]
+    _dx14 = V4V.dxst_classify({"regular": _gold14["m30"].get("DXST") or [], "extended": _gold14["m30x"].get("DXST") or []})
+    _ve14 = V4OF.veee(_gold14, _bars11)
+    _at14 = _fv_json.load(open(_fv_os.path.join("faisal_method_v4", "results", "v4_atmv.json"), encoding="utf-8"))
+    _atbars14 = [s for s in _at14["sources"] if (s.get("bars") or 0) > 0 or s.get("members") or s.get("result")]
+    _pc14 = _fv_json.load(open(_fv_os.path.join("faisal_method_v4", "results", "pool_cap_downstream_v4rerun.json"), encoding="utf-8"))
+    _pa14 = _fv_json.load(open(_fv_os.path.join("faisal_method_v3", "results", "pool_cap_downstream.json"), encoding="utf-8"))
+
+    def _strip14(d):
+        d = _fv_json.loads(_fv_json.dumps(d))
+        for k in [k for k in d if k.startswith("_")]:
+            d.pop(k)
+        d.get("fetch_report", {}).pop("secs", None)
+        return d
+    _same14 = _strip14(_pa14) == _strip14(_pc14)
+    _v4l14ok = (V4OF.canon(_g14) == V4OF.canon(_sv14)
+                and (_g14["v31_matched"], _g14["v4_matched"], _g14["dated"], _g14["always_wait_baseline"]) == (3, 4, 7, 5)
+                and _dx14["verdict"] == _res11["dxst"]["verdict"] == "D"
+                and V4OF.canon(_ve14) == V4OF.canon(_res11["veee"]) and _ve14["verdict"] == "UNKNOWN"
+                and _ve14["tag"] == "POST-HOC-INSPECTED" and _ve14["posthoc"]["tag"] == "POST-HOC"
+                and _ve14["posthoc"]["candidates"] == ["2026-05-15"] and _ve14["posthoc"]["verdict"] == "DATED_POSTHOC"
+                and _at14["verdict"] == "DATA_UNAVAILABLE" and not _atbars14 and len(_at14["sources"]) == 25
+                and _same14 is True and _pc14["_v4_compare"]["identical_except_timing"] is _same14 and _pc14["verdict"] == "UNKNOWN")
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l14ok, _g14, _same14 = False, f"⛔ {type(_e).__name__}: {_e}", None
+check("🧭 V4L14 الذهبيّةُ وDXST وVEEE وATMV وبِركةُ الضغط تُعاد من ملفّاتها: V3.1 ‏3 · V4 ‏4 من 7 · «دائمًا WAIT» 5 · DXST D · "
+      "VEEE UNKNOWN والبعديّ POST-HOC (2026-05-15) · ATMV بلا شموع · وpoolcap2 = V3.1 عدا الزمن",
+      _v4l14ok, f"golden={(_g14 or {}).get('v4_matched') if isinstance(_g14, dict) else _g14} pool_same={_same14}")
+
+# ── V4L15 التنبّؤاتُ تُنشر كما خابت أو صدقت (§⑬) · والتقريرُ النهائيّ بصيغة §43 حرفًا (العناوينُ بترتيبها) · والحالةُ PARTIALLY COMPLETE
+#    لا COMPLETE (§39 · «Never upgrade this to COMPLETE merely because tests are green») · والاحتجازُ FAIL مذكورٌ صريحًا.
+try:
+    _D15 = V4DOC.load()
+    _pr15 = V4DOC.predictions(_D15)
+    _hold15 = _D15["M"]["S1_holdout"]
+    _exp15 = [_hold15["h_level_verdict"] == "PASS", _hold15["h_class"]["verdict"] == "FAIL",
+              not any(r["set"] == "S1" and r["state"] == "READY" for r in _D15["R"]["rows"]),
+              _D15["R"]["dxst"]["verdict"] in ("B", "D"), _D15["R"]["veee"]["verdict"] == "AMBIGUOUS",
+              _D15["AT"]["verdict"] == "DATA_UNAVAILABLE",
+              (not _D15["PC"]["_v4_compare"]["identical_except_timing"]) and _D15["PC"]["verdict"] == "UNKNOWN"]
+    _rep15 = _ren13["01_FAISAL_V4_FINAL_REPORT.md"]
+    _hdr15 = ["STATUS:", "CORPUS:", "METHODOLOGY:", "DECISION ENGINE:", "NEW GENERAL RULES:", "RULES REJECTED:", "TARGET:",
+              "GOLDEN CASES:", "CONTRADICTIONS:", "PRESSURE POOL:", "DATA LIMITATIONS:", "TOOL:", "TESTS:", "MUTATIONS:", "CI:",
+              "PRODUCTION:", "REMAINING BLOCKERS:", "NEXT HIGHEST-VALUE ACTION:"]
+    _blk15 = _rep15[_rep15.find("FAISAL METHOD V4 — FINAL STATUS"):]
+    _pos15 = [_blk15.find("\n" + h + "\n") for h in _hdr15]
+    _v4l15ok = ([p[0] for p in _pr15] == [f"P{i}" for i in range(1, 8)] and [bool(p[3]) for p in _pr15] == _exp15
+                and _exp15 == [False, True, True, True, False, True, False]
+                and V4DOC.status_word(_D15) == "PARTIALLY COMPLETE" and "\nSTATUS:\nPARTIALLY COMPLETE\n" in _blk15
+                and all(p > 0 for p in _pos15) and _pos15 == sorted(_pos15)
+                and "H-LEVEL على الاحتجاز FAIL" in _rep15 and "PRESSURE POOL:\nUNKNOWN" in _blk15)
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l15ok, _exp15, _pos15 = False, f"⛔ {type(_e).__name__}: {_e}", None
+check("🧭 V4L15 تنبّؤاتُ V4 منشورةٌ كما صدقت وخابت (4 من 7) · والتقريرُ النهائيّ بعناوين §43 بترتيبها · والحالةُ PARTIALLY COMPLETE "
+      "· والاحتجازُ FAIL وبِركةُ الضغط UNKNOWN مذكوران صريحًا",
+      _v4l15ok, f"pred={_exp15} pos={_pos15}")
+
+# ── V4L16 مخرجاتُ الجنائيّات والمدوّنة مولَّدةٌ لا محرَّرة (§26): `v4_forensics.build()` يعيد forensics_v4.json · و`v4_corpus.build()` يعيد
+#    المطابقةَ والعدَّ وتلغرام حرفًا (722 صورةً بصماتُها محسوبة) — وأُعيد بناؤهما 2026-10-06 بعد ضياع الحاوية فقيست مخرجاتُهما على المطبوع قبله.
+try:
+    V4FX = _fv_imp.import_module("v4_forensics")
+    V4CO = _fv_imp.import_module("v4_corpus")
+    _rd16 = lambda n: _fv_json.load(open(_fv_os.path.join("faisal_method_v4", "results", n), encoding="utf-8"))  # noqa: E731
+    _fx16 = V4FX.build()
+    _rows16, _cnt16, _tg16 = V4CO.build()
+    _cmp16 = {"forensics": V4OF.canon(_fx16) == V4OF.canon(_rd16("forensics_v4.json")),
+              "images": V4OF.canon({"generated_by": "faisal_method_v4/v4_corpus.py", "rows": _rows16}) == V4OF.canon(_rd16("image_reconciliation_v4.json")),
+              "counts": V4OF.canon(_cnt16) == V4OF.canon(_rd16("corpus_counts_v4.json")),
+              "telegram": V4OF.canon(_tg16) == V4OF.canon(_rd16("telegram_reconciliation_v4.json"))}
+    _key16 = (_cnt16["images_in_corpus_record"], _cnt16["sha256_match"], _cnt16["units_by_hash_ocr"], _cnt16["primary_images"],
+              _cnt16["used_as_evidence"].get("DECISION_STATEMENT"), _tg16["summary"]["found_in_corpus"], len(_fx16["contradictions"]))
+    _v4l16ok = all(_cmp16.values()) and _key16 == (722, 722, 609, 265, 220, 11, 19)
+except Exception as _e:                                                    # noqa: BLE001
+    _v4l16ok, _cmp16, _key16 = False, f"⛔ {type(_e).__name__}: {_e}", None
+check("🧭 V4L16 جنائيّاتُ V4 والمدوّنةُ وتلغرام مولَّدةٌ لا محرَّرة: البنّاءان يعيدان ملفّاتها حرفًا · 722 بصمة · 609 وحدة · 265 أوّليّة · "
+      "220 عبارةَ قرار · تلغرام 11 · 19 تعارضًا",
+      _v4l16ok, f"cmp={_cmp16} key={_key16}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
