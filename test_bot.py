@@ -7834,11 +7834,64 @@ check("🌐 ChartExchange: يستخرج المتاح/الرسوم من مقطع 
                                           "borrow_fee": 12.43})
 check("🌐 ChartExchange: رسوم بفاصلة آلاف (صعب جدًّا 1,234.5%) تُقرأ سليمة",
       S._parse_ce_borrow('name="ctbtoday" there were <b>500</b> shares available '
-                         'with a fee of <b>1,234.5%</b>')["borrow_fee"] == 1234.5)
+                         'with a fee of <b>1,234.5%</b>').get("borrow_fee") == 1234.5)   # .get: يفشل نظيفًا لا ينهار (طفرة C4 · 2026-10-06)
 check("🌐 ChartExchange·فاشل-آمن: HTML بلا مرساة/بلا جملة ⇒ {}",
       S._parse_ce_borrow("<html>لا شيء</html>") == {}
       and S._parse_ce_borrow('name="ctbtoday" نص بلا أرقام') == {}
       and S._parse_ce_borrow("") == {})
+# 🩹 CEN1/CEN2 (2026-10-06 · عطلٌ مُثبَت: حصّادُ الاقتراض 37430703426 «parse:empty» 26 من 26 · الصفحةُ ‏≈117 ألف محرف): الموقعُ انتقل
+#    إلى Next.js فغابت المرساةُ `name="ctbtoday"` والجملةُ باقية في فقرة `bf-summary` بعد أيقونةٍ طويلة. الثابتُ من مِجَسّ 37536166300
+#    حرفًا (GWAV · LABT) · و«الحمولةُ» المضمَّنة نسخةٌ ثانية من المحتوى ⇒ لا تُقرأ (شَركٌ برقمٍ مختلف قبل الفقرة).
+_CEN_SVG = ('<div class="ui-popover"><button type="button" class="btn btn-sm bf-alert-trigger btn-plain bf-alert-trigger-icon" '
+            'aria-label="Create alert" title="Create Alert" aria-haspopup="menu" aria-expanded="false"><svg xmlns="http://www.w3.org/2000/svg" '
+            'width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" '
+            'stroke-linejoin="round" class="lucide lucide-bell-plus" aria-hidden="true"><path d="M10.268 21a2 2 0 0 0 3.464 0"></path>'
+            '<path d="M15 8h6"></path><path d="M18 5v6"></path><path d="M20.002 14.464a9 9 0 0 0 .738.863A1 1 0 0 1 20 17H4a1 1 0 0 1-.74-1.673'
+            'C4.59 13.956 6 12.499 6 8a6 6 0 0 1 8.75-5.332"></path></svg></button></div></div>')
+
+
+def _cen_page(sym, n, fee, decoy=""):
+    return (f'<html><head><title>{sym} Borrow Rate (CTB) | ChartExchange</title></head><body>{decoy}'
+            f'<h2 class="section-title"><a class="symbol-section-anchor" href="#ctbtoday">{sym}<!-- --> Borrow Fee (CTB) · Latest</a></h2>'
+            f'{_CEN_SVG}<p class="symbol-profile bf-summary">As of <strong>2026-10-06 05:30:45 PM EDT</strong>, there were '
+            f'<strong>{n}</strong> shares available with a fee of<!-- --> <strong>{fee}<!-- -->%</strong>.</p>'
+            '<h2 id="ctbrecent" class="section-title"><a class="symbol-section-anchor" href="#ctbrecent">'
+            f'{sym}<!-- --> Borrow Fee (CTB) · Changes</a></h2><table class="data bf-changes-table"><tr><td>2026-10-06 09:40:34 AM EDT</td>'
+            '<td>5.21</td><td>35,000</td><td>-1.33</td></tr></table>'
+            # حمولةُ Next.js المضمَّنة (الصفحةُ الحقيقيّة ‏≈117 ألف محرف · وما دون 2000 يُشخَّص «قِشرة» parse:shell)
+            '<script>self.__next_f.push([1,"' + "0:{\\\"P\\\":null,\\\"c\\\":[]}" * 120 + '"])</script></body></html>')
+
+
+_cen_decoy = ('<script>self.__next_f.push([1,"there were 999,999 shares available with a fee of 0.01 %"])</script>'
+              '<p class="symbol-profile">there were 123 shares available with a fee of 9.99%.</p>')
+check("🩹 CEN1 ChartExchange بصيغة Next.js (مِجَسّ 37536166300 حرفًا): المتاحُ والرسومُ من فقرة `bf-summary` — GWAV ‏40,000/‏5.21% · "
+      "LABT ‏900/‏592.90% · وشَركُ الحمولة والفقرةِ بلا الصنف لا يُقرأ · وبلا الفقرة {} (لا بحثَ في الصفحة كلِّها) · والصيغةُ القديمة بت-بت",
+      S._parse_ce_borrow(_cen_page("GWAV", "40,000", "5.21")) == {"shares_available": 40000, "borrow_fee": 5.21}
+      and S._parse_ce_borrow(_cen_page("LABT", "900", "592.90")) == {"shares_available": 900, "borrow_fee": 592.90}
+      and S._parse_ce_borrow(_cen_page("GWAV", "40,000", "5.21", decoy=_cen_decoy)) == {"shares_available": 40000, "borrow_fee": 5.21}
+      and S._parse_ce_borrow(_cen_decoy + '<a href="#ctbtoday">x</a>') == {}
+      and S._parse_ce_borrow(_cen_page("GWAV", "—", "—")) == {}
+      and S._parse_ce_borrow(_CE_GEOS) == {"shares_available": 550000, "borrow_fee": 0.40},
+      str([S._parse_ce_borrow(_cen_page("GWAV", "40,000", "5.21")), S._parse_ce_borrow(_cen_page("GWAV", "40,000", "5.21", decoy=_cen_decoy)),
+           S._parse_ce_borrow(_cen_decoy + '<a href="#ctbtoday">x</a>')]))
+_sv_req_cen = S.requests
+try:
+    _cen_pages = {"GWAV": _cen_page("GWAV", "40,000", "5.21"), "BROKE": _cen_page("BROKE", "—", "—")}
+    S.requests = _ty0.SimpleNamespace(get=lambda url, **k: _ty0.SimpleNamespace(
+        status_code=200, text=_cen_pages["GWAV" if "gwav" in url else "BROKE"]))
+    _cen_ok = S.ce_borrow_info("GWAV")
+    _cen_dg = {}
+    _cen_bad = S.ce_borrow_info("BROKE", diag=_cen_dg)
+except Exception as _e:                                          # noqa: BLE001
+    _cen_ok, _cen_bad, _cen_dg = f"⛔ رمى: {type(_e).__name__}", None, {}
+finally:
+    S.requests = _sv_req_cen
+check("🩹 CEN2 ChartExchange بصيغة Next.js عبر الغلاف الشبكيّ: الصفحةُ السليمة ⟵ القيمتان · والمعطوبةُ ⟵ {} وتشخيصُها «parse:empty» "
+      "ومقتطفُه من عنوان القسم (`href=\"#ctbtoday\"`) لا من عنوان الصفحة",
+      _cen_ok == {"shares_available": 40000, "borrow_fee": 5.21} and _cen_bad == {}
+      and _cen_dg.get("reason") == "parse:empty" and "Borrow Fee (CTB) · Latest" in str(_cen_dg.get("snip"))
+      and "| ChartExchange" not in str(_cen_dg.get("snip")),
+      f"ok={_cen_ok} · diag={_cen_dg}")
 # فاشل-آمن بحقن فشل الشبكة (لا بالاعتماد على غياب الإنترنت — كان يفشل على رنر CI
 # حيث الشبكة متاحة وCE يرد 200؛ إصلاح تحديد 2026-07-12).
 _sv_req_ce = S.requests
