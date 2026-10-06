@@ -42,9 +42,20 @@ jobs:
           set -u
           LIST="${IDS//,/ }"
           # فارغ ⇒ **اكتشاف آليّ** لآخر تشغيلات الرادار (لا قائمة مثبَّتة تتقادم).
+          # 🧊 (2026-10-06 · عطلٌ مُثبَت `37404303763`): بعد تجميد الرادار (IGZ1 · 2026-09-30) صارت آخرُ 15 تشغيلةً كلُّها
+          #    `skipped` بلا artifacts ⇒ «لم يُنزَّل أيّ artifact» أسقط الجوبَ **قبل** صيانة الأرشيف الخامّ (تجديدُ الـ90 يومًا)
+          #    ⇒ المتخطّاةُ لا تُطلَب · وإن كانت كلُّها متخطّاةً فالرادارُ مُجمَّد: يُعلَن ويمضي الجوبُ إلى الأرشيف (لا جلسةَ تُسترجَع)
+          #    · ويبقى الخطأُ حين توجد جلساتٌ حقيقيّة ولم يُنزَّل منها شيء.
           if [ -z "${LIST// /}" ]; then
-            LIST=$(gh run list --workflow ignition.yml --limit 15 \
-                     --json databaseId -q '.[].databaseId' | tr '\n' ' ')
+            RUNS=$(gh run list --workflow ignition.yml --limit 15 --json databaseId,conclusion \
+                     -q '.[] | "\(.databaseId) \(.conclusion)"')
+            LIST=$(echo "$RUNS" | awk 'NF && $2 != "skipped" {print $1}' | tr '\n' ' ')
+            NRUNS=$(echo "$RUNS" | awk 'NF {n++} END {print n + 0}')
+            if [ -z "${LIST// /}" ] && [ "$NRUNS" -gt 0 ]; then
+              mkdir -p recovered
+              echo "🧊 الرادارُ مُجمَّد: آخرُ $NRUNS تشغيلةً كلُّها skipped ⇒ لا جلسةَ تُسترجَع الليلة · ويمضي الجوبُ إلى صيانة الأرشيف الخامّ"
+              exit 0
+            fi
           fi
           if [ -z "${LIST// /}" ]; then
             echo "::error::⛔ تعذّر اكتشاف أي تشغيلة رادار"; exit 1

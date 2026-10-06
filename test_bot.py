@@ -6541,6 +6541,49 @@ check("🔴 ARC5 تنزيلُ artifacts الجلسات: **محاولتان** (ا
       and "انتهت مدّة الاحتفاظ" not in _arc5_run
       and _arc5_calls == {"111": "1", "222": "2", "333": "2", "444": "2"},
       f"rc={_arc5_rc} · نداءات={_arc5_calls} · {_arc5_out[-160:]}")
+# 🧊 E2F1 (2026-10-06 · عطلٌ مُثبَت `37404303763`): بعد تجميد الرادار (IGZ1) صارت آخرُ 15 تشغيلةً `skipped` بلا artifacts ⇒
+#    «لم يُنزَّل أيّ artifact» أسقط الجوبَ الليليّ **قبل** صيانة الأرشيف الخامّ ⇒ لا تجديدَ للـ90 يومًا. **سلوكيًّا** بـ`gh` مزيَّف على
+#    الاكتشاف الآليّ: كلُّها متخطّاة ⟵ إعلانٌ وخروجٌ 0 بلا تنزيل · مختلطة ⟵ تُطلب غيرُ المتخطّاة وحدَها · حقيقيّةٌ كلُّ تنزيلها فشل ⟵ خروجٌ 1 ·
+#    ولا تشغيلات (تعذّر API) ⟵ خروجٌ 1.
+_e2f = _tmp.mkdtemp(prefix="e2f_")
+_os.makedirs(_os.path.join(_e2f, "bin"), exist_ok=True)
+with open(_os.path.join(_e2f, "bin", "gh"), "w", encoding="utf-8") as _fh:
+    _fh.write("#!/bin/bash\n"
+              "if [ \"$1 $2\" = \"run list\" ]; then printf '%b' \"$FAKE_LIST\"; exit 0; fi\n"
+              "if [ \"$1 $2\" = \"run download\" ]; then id=\"$3\"; dir=\"$7\"; echo \"$id\" >> \"$FAKE_CALLS\"\n"
+              "  case \" $FAKE_OK \" in *\" $id \"*) mkdir -p \"$dir\"; exit 0;; esac\n"
+              "  echo 'no valid artifacts found to download' >&2; exit 1; fi\n"
+              "exit 2\n")
+_os.chmod(_os.path.join(_e2f, "bin", "gh"), 0o755)
+
+
+def _e2f_run(tag, lst, ok):
+    _w = _os.path.join(_e2f, "w_" + tag)
+    _os.makedirs(_w, exist_ok=True)
+    _calls = _os.path.join(_e2f, "calls_" + tag)
+    try:
+        _p = __import__("subprocess").run(
+            ["bash", "-e", "-c", _arc5_run], cwd=_w, capture_output=True, text=True, timeout=60,
+            env={**_os.environ, "PATH": _os.path.join(_e2f, "bin") + ":" + _os.environ.get("PATH", ""),
+                 "IDS": "", "FAKE_LIST": lst, "FAKE_OK": ok, "FAKE_CALLS": _calls, "GH_TOKEN": "x"})
+        _c = open(_calls).read().split() if _os.path.exists(_calls) else []
+        return _p.returncode, _p.stdout + _p.stderr, _c, _os.path.isdir(_os.path.join(_w, "recovered"))
+    except Exception as _e:                                      # noqa: BLE001
+        return -1, f"⛔ رمى: {type(_e).__name__}", [], False
+
+
+_e2f_a = _e2f_run("frozen", "".join(f"{900 + i} skipped\\n" for i in range(15)), "")
+_e2f_b = _e2f_run("mixed", "101 skipped\\n102 success\\n103 failure\\n104 cancelled\\n105 skipped\\n", "102 103")
+_e2f_c = _e2f_run("real_fail", "201 success\\n202 success\\n", "")
+_e2f_d = _e2f_run("none", "", "")
+check("🧊 E2F1 استرجاعُ E2 الليليّ والرادارُ مُجمَّد: كلُّها skipped ⟵ إعلانٌ وخروجٌ 0 بلا تنزيلٍ ويمضي إلى الأرشيف · المختلطةُ تُطلب غيرُ المتخطّاة وحدَها · "
+      "والحقيقيّةُ الفاشلةُ كلُّها أو غيابُ التشغيلات ⟵ خروجٌ 1",
+      _e2f_a[0] == 0 and "🧊 الرادارُ مُجمَّد: آخرُ 15 تشغيلةً كلُّها skipped" in _e2f_a[1] and _e2f_a[2] == [] and _e2f_a[3]
+      and _e2f_b[0] == 0 and _e2f_b[2] == ["102", "103", "104", "104"] and "نُزِّل 2 · مفقود: 104" in _e2f_b[1]
+      and "مُجمَّد" not in _e2f_b[1]
+      and _e2f_c[0] == 1 and "⛔ لم يُنزَّل أي artifact" in _e2f_c[1] and _e2f_c[2] == ["201", "201", "202", "202"]
+      and _e2f_d[0] == 1 and "⛔ تعذّر اكتشاف أي تشغيلة رادار" in _e2f_d[1],
+      f"A={_e2f_a[0]},{_e2f_a[2]} B={_e2f_b[0]},{_e2f_b[2]} C={_e2f_c[0]} D={_e2f_d[0]} · {_e2f_a[1][-120:]}")
 # 🔴 WFH1/WFH2 (2026-09-25): **سطرُ عرضٍ يكذب على الجدولة** — رأسُ `e2_recover.yml` وصفه بأنه يدويٌّ حصرًا
 #    و`CLAUDE.md` «(يدويّ)»، والكرونُ الليليّ أُضيف بعد السطر بـ33 دقيقة (‏2026-07-28 · `1cc9dd323`) فبقيا بائتَين
 #    شهرين. ⇒ **الجدولةُ تُقرأ من YAML (`on.schedule`) لا من النصّ** · والرأسُ = التعليقاتُ قبل مفتاح `on:` ·
