@@ -81399,6 +81399,235 @@ except Exception as _e:                                                    # noq
 check("🔎📺 CID4 تجميعُ نصف الساعة بحدودٍ يوميّة (a30): خمسُ شموعٍ 3/8/8/8/5 بافتتاحها وإغلاقها وأقصاها وتوقيتِ بدايتها · "
       "والنظاميّةُ وحدَها شمعتان والممتدُّ يُسقَط · وحدودٌ معكوسة تُرفض", _cid4, _cid4w)
 
+# 🧾📚 EXA1-EXA9 — تدقيقُ اكتمال مدوّنة فيصل (‏2026-10-07 · أمرُ المالك «RESUME MAIN MISSION — FAISAL COMPLETE CORPUS EXHAUSTIVENESS AUDIT» ·
+#    العقدُ `faisal_method_v41/corpus_audit/EX_PROTOCOL.md` مدموجٌ قبل أيّ عدد #561): `corpus_audit.py` بنّاءٌ حتميٌّ بلا شبكة يقرأ V3/V3.1/V4/V4.1/B48
+#    وقراءةَ العين (`eye_pass_ex.jsonl`) فيُخرج الجردَ الرئيسيّ والطابورَ وتسعَ وثائق — والأقفالُ تعيد التوليد وتقارنه بالمدفوع بايتًا بايتًا ·
+#    ولكلّ شرط إغلاقٍ (C1-C6) شاهدُ ضبطٍ داخل القفل (سياقٌ معطوبٌ يجب أن يُمسَك) وطفرةٌ خارجه.
+import importlib.util as _exa_ilu                                          # noqa: E402
+_EXA_DIR = _os_hc.path.join("faisal_method_v41", "corpus_audit")
+try:
+    _exa_spec = _exa_ilu.spec_from_file_location("_exa_corpus_audit", _os_hc.path.join(_EXA_DIR, "corpus_audit.py"))
+    _EXA = _exa_ilu.module_from_spec(_exa_spec)
+    _exa_spec.loader.exec_module(_EXA)
+    _exa_out, _exa_ctx = _EXA.build()
+    _exa_core, _exa_N, _exa_d, _exa_A = list(_exa_ctx["core"]), _exa_ctx["N"], _exa_ctx["d"], _exa_ctx["A"]
+    _exa_err = ""
+except Exception as _e:                                                    # noqa: BLE001
+    _EXA, _exa_out, _exa_ctx, _exa_core, _exa_N, _exa_d, _exa_A = None, {}, {}, ["⛔"], {}, {}, {}
+    _exa_err = f"⛔ رمى: {type(_e).__name__}: {_e}"
+
+
+def _exa_pick(prefix):
+    return [p for p in _exa_core if p.startswith(prefix)]
+
+
+def _exa_ctl(**kw):
+    """شاهدُ ضبط: `validate_core` على نسخةٍ سطحيّةٍ معدَّلة من السياق (الأصلُ لا يُمسّ)."""
+    return _EXA.validate_core(dict(_exa_ctx, **kw))
+
+
+# EXA1 إعادةُ التوليد: المخرَجاتُ الإحدى عشرة = المدفوعُ بايتًا بايتًا · وبناءٌ ثانٍ = الأوّل (حتميّ) · ولا مخرَجَ زائدًا ولا ناقصًا.
+try:
+    if _exa_err:
+        raise RuntimeError(_exa_err)
+    _exa_names = {_EXA.OUT_INV, _EXA.OUT_QUEUE, *_EXA.DOCS}
+    _exa_diff = sorted(n for n, t in _exa_out.items()
+                       if open(_os_hc.path.join(_EXA_DIR, n), encoding="utf-8").read() != t)
+    _exa_again = _EXA.build()[0] == _exa_out
+    _exa1 = set(_exa_out) == _exa_names and len(_exa_names) == 11 and not _exa_diff and _exa_again
+    _exa1w = f"مختلف={_exa_diff} · حتميّ={_exa_again} · مخرَجات={len(_exa_out)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _exa1, _exa1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📚 EXA1 إعادةُ التوليد: المخرَجاتُ الإحدى عشرة (الجرد · الطابور · تسعُ وثائق) تطابق المدفوعَ بايتًا بايتًا · والبناءُ حتميّ",
+      _exa1, _exa1w)
+
+# EXA2 C1 الجرد: صفٌّ لكلّ ملفٍّ في اللقطة (722 ‏+ 46) ببصمته ‏+ المرفق · حقولُ المالك الواحد والعشرون في كلّ صفّ · والوحداتُ 563 ‏+ 40 ·
+#      وشاهدا ضبط: صفٌّ محذوف ⟵ «صفوفُ الجرد» · وبصمةٌ مزوَّرة ⟵ «بصمةٌ لا تطابق».
+_EXA_FIELDS = ("IMAGE_ID", "SOURCE", "HASH", "PERCEPTUAL_HASH", "DATE", "TICKER", "TIMEFRAME", "OCR", "ANNOTATIONS", "PATTERN",
+               "STRUCTURE", "INDICATORS", "ENTRY", "STOP", "INVALIDATION", "TARGET", "FAISAL_DECISION", "CONTEXT", "DUPLICATE_STATUS",
+               "DERIVATIVE_STATUS", "ANALYSIS_STATUS")
+try:
+    _exa_inv = _exa_ctx["inv"]
+    _exa_ids = [r["IMAGE_ID"] for r in _exa_inv]
+    _exa_c1a = _exa_ctl(inv=_exa_inv[:-1])
+    _exa_c1b = _exa_ctl(inv=[dict(r, HASH="0" * 64) if k == 0 else r for k, r in enumerate(_exa_inv)])
+    _exa2 = (not _exa_pick("C1:") and len(_exa_inv) == 769 and len(set(_exa_ids)) == 769
+             and sum(1 for r in _exa_inv if r["SOURCE"].startswith("A1")) == 768
+             and all(all(f in r for f in _EXA_FIELDS) for r in _exa_inv)
+             and all(r["DEPTH"] in _EXA.DEPTHS and r["ROLE"] in _EXA.ROLES and r["FILE_ROLE"] in _EXA.ROLES for r in _exa_inv)
+             and (_exa_N["units"], _exa_N["units_corpus_root"], _exa_N["units_b48_root"]) == (603, 563, 40)
+             and "C1: صفوفُ الجرد لا تطابق اللقطة" in _exa_c1a and f"C1: بصمةٌ لا تطابق {_exa_ids[0]}" in _exa_c1b)
+    _exa2w = (f"C1={_exa_pick('C1:')[:2]} · صفوف={len(_exa_inv)} · وحدات={_exa_N.get('units')} · "
+              f"ضبط={[p[:34] for p in _exa_c1a[:1]]} {[p[:34] for p in _exa_c1b[:1]]}")
+except Exception as _e:                                                    # noqa: BLE001
+    _exa2, _exa2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📚 EXA2 C1 الجرد: 769 صفًّا فريدًا (768 ملفًّا ببصمته ‏+ المرفق) بحقول المالك الواحد والعشرين · 603 وحدة (563 ‏+ 40) · "
+      "والصفُّ المحذوفُ والبصمةُ المزوَّرة يُمسَكان", _exa2, _exa2w)
+
+# EXA3 C3 التتبّع: كلُّ عبارةٍ (942) بصنفٍ من الثمانية ومؤشّرٍ يُفحص · عباراتُ V4 (871) مرّةً واحدة ببصمتها · وT-NONE ثلاثٌ كلُّها في الطابور ·
+#      وشواهدُ ضبط: قاعدةٌ مخترَعة · صنفٌ مجهول · T-NONE بلا صنفِ فائت ⟵ تُرفض · والعبارةُ الحقيقيّة ⟵ تمرّ · وحذفُ تتبّعٍ واحد ⟵ «ناقص».
+try:
+    _exa_q = _EXA.queue_ids(_exa_d)
+    _exa_t0 = next(o for o in _exa_d["E"]["trace"] if o["cls"] == "T-V4")
+
+    def _exa_sp(st):
+        return _EXA.statement_problems(_exa_d, st, _exa_t0["unit"], _exa_q)
+    _exa_bad = [_exa_sp(dict(_exa_t0, ptr=["rule:R4-NOPE-01"])), _exa_sp(dict(_exa_t0, cls="T-XX")),
+                _exa_sp(dict(_exa_t0, cls="T-NONE", ptr=["queue:RQ-EX-04"]))]
+    _exa_c3 = _exa_ctl(d=dict(_exa_d, E=dict(_exa_d["E"], trace=_exa_d["E"]["trace"][1:])))
+    _exa_tr = _exa_N["trace"]
+    _exa3 = (not _exa_pick("C3:") and _exa_N["statements"] == 942 == sum(_exa_tr.values())
+             and set(_exa_tr) <= set(_EXA.TRACE_CLASSES) and _exa_tr.get("T-NONE") == 3
+             and len(_exa_d["E"]["trace"]) == 871 and _exa_sp(_exa_t0) == [] and all(_exa_bad)
+             and "C3: تتبّعُ عبارات V4 ناقصٌ أو مكرَّر" in _exa_c3)
+    _exa3w = f"C3={_exa_pick('C3:')[:2]} · أصناف={_exa_tr} · ضبط={[b[:1] for b in _exa_bad]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _exa3, _exa3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📚 EXA3 C3 التتبّع: 942 عبارةً بأصنافٍ ومؤشّراتٍ صالحة · 871 من V4 مرّةً واحدة ببصمتها · T-NONE ثلاثٌ في الطابور · "
+      "والقاعدةُ المخترَعة والصنفُ المجهول والفائتُ بلا صنفٍ والتتبّعُ الناقص تُمسَك", _exa3, _exa3w)
+
+# EXA4 C4 التكرار: 285 مرشَّحًا كلُّها محكومة (لا NEEDS_EYE) · أعضاءُ العناقيد = سجلّ V4 (113 · 4 بمعلومةٍ زائدة) · وحسابُ الوحدات يُغلق:
+#      609 عنقودًا ‏+ 4 − 7 (دمجُ V3.1) − 43 (دمجُ EX) = 563 · و46 − 6 = 40 · وشاهدا ضبط: مرشَّحٌ بلا حكم · وعضوٌ ساقط ⟵ يُمسَكان.
+try:
+    _exa_cr = dict(_exa_ctx["cres"])
+    _exa_cr[sorted(_exa_cr)[0]] = "NEEDS_EYE"
+    _exa_c4a = _exa_ctl(cres=_exa_cr)
+    _exa_m0 = sorted(_exa_d["MEM"])[0]
+    _exa_c4b = _exa_ctl(d=dict(_exa_d, MEM={k: v for k, v in _exa_d["MEM"].items() if k != _exa_m0}))
+    _exa_n4 = _exa_N
+    _exa4 = (not _exa_pick("C4:") and _exa_n4["candidates"] == 285 and _exa_n4["needs_eye"] == 0
+             and len(_exa_d["E"]["member"]) == 113 and _exa_n4["member_new_info"] == 4
+             and (_exa_n4["v3_clusters"], _exa_n4["v31_merges"], _exa_n4["ex_merges"], _exa_n4["b48_merged"]) == (609, 7, 43, 6)
+             and _exa_n4["v3_clusters"] + _exa_n4["member_new_info"] - _exa_n4["v31_merges"] - _exa_n4["ex_merges"] == _exa_n4["units_corpus_root"]
+             and _exa_n4["files_b48"] - _exa_n4["b48_merged"] == _exa_n4["units_b48_root"]
+             and "C4: مرشَّحُ تكرارٍ بلا حكم" in _exa_c4a and "C4: أعضاءُ العناقيد لا يطابقون سجلّ V4" in _exa_c4b)
+    _exa4w = f"C4={_exa_pick('C4:')[:2]} · مرشَّحون={_exa_n4.get('candidates')} · ضبط={len(_exa_c4a)}/{len(_exa_c4b)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _exa4, _exa4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📚 EXA4 C4 التكرار: 285 مرشَّحًا محكومة · 113 عضوًا = سجلّ V4 (4 بمعلومةٍ زائدة) · والوحداتُ 609+4−7−43 = 563 و46−6 = 40 · "
+      "والمرشَّحُ بلا حكمٍ والعضوُ الساقط يُمسَكان", _exa4, _exa4w)
+
+# EXA5 C5 «NOT_USED»: 218 ممثّلًا أُعيد فحصُها كلُّها (216 متّسق ‏+ 2 مصغَّرٌ غيرُ مقروء: TG_2539 · TG_2541 ⟵ PARTIALLY لا FULLY) ·
+#      وشاهدُ ضبط: حذفُ حكمٍ واحد ⟵ «إعادةُ فحص NOT_USED ناقصة».
+try:
+    _exa_nu = _exa_d["E"]["not_used"]
+    _exa_un = sorted(o["id"] for o in _exa_nu if o["verdict"] == "UNREADABLE_RESOLUTION")
+    _exa_n0 = sorted(_exa_d["NU"])[0]
+    _exa_c5 = _exa_ctl(d=dict(_exa_d, NU={k: v for k, v in _exa_d["NU"].items() if k != _exa_n0}))
+    _exa5 = (not _exa_pick("C5:") and len(_exa_nu) == 218 and _exa_un == ["TG_2539", "TG_2541"]
+             and all(_exa_A["depth"][x][0] == "PARTIALLY_ANALYZED" for x in _exa_un)
+             and "C5: إعادةُ فحص NOT_USED ناقصة" in _exa_c5)
+    _exa5w = f"C5={_exa_pick('C5:')} · NOT_USED={len(_exa_nu)} · غيرُ مقروء={_exa_un} · ضبط={_exa_c5[:1]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _exa5, _exa5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📚 EXA5 C5 «NOT_USED»: 218 أُعيد فحصُها (216 متّسق ‏+ TG_2539 · TG_2541 غيرُ مقروءين ⟵ PARTIALLY) · والحكمُ الساقطُ يُمسَك",
+      _exa5, _exa5w)
+
+# EXA6 C2 · C6 · الجواب: كلُّ وحدةٍ عاليةِ المعلومة (430) مقروءةٌ كاملًا · وغيرُ المتاح (N1-N3) مسمًّى بسببه · وصفرُ عيبٍ في التحقّق ⟵ «YES —
+#      محدودةٌ بالمتاح» · والتنبّؤُ الخائب (Q1) منشور · وشواهدُ ضبط: وحدةٌ عاليةُ المعلومة سطحيّة ⟵ C2 · صفُّ N1 غائب ⟵ C6 · وأيُّ عيبٍ ⟵ «NO».
+try:
+    _exa_hi = sorted(k for k, v in _exa_A["unit_info"].items() if v["high_info"])
+    _exa_ui = dict(_exa_A["unit_info"])
+    _exa_ui[_exa_hi[0]] = dict(_exa_ui[_exa_hi[0]], depth="SUPERFICIAL")
+    _exa_c2 = _exa_ctl(A=dict(_exa_A, unit_info=_exa_ui))
+    _exa_ds0 = _EXA.doc_sources
+    try:
+        _EXA.doc_sources = lambda d, N: _exa_ds0(d, N).replace("| N1 | ", "| N0 | ")
+        _exa_c6 = _exa_ctl()
+    finally:
+        _EXA.doc_sources = _exa_ds0
+    _exa_rep = _exa_out.get("CORPUS_EXHAUSTIVENESS_REPORT.md", "")
+    _exa_no = _EXA.doc_report(_exa_d, _exa_A, _exa_N, _exa_ctx["RA"], _exa_ctx["Q"], _exa_ctx["cres"], ["C3: ضبط"])
+    _exa6 = (not _exa_core and _exa_N["high_info"] == _exa_N["high_info_fully"] == 430
+             and "**YES — محدودةٌ بالمتاح.**" in _exa_rep
+             and any(ln.startswith("| Q1 |") and "❌ (يُنشر)" in ln for ln in _exa_rep.splitlines())
+             and f"C2: وحدةٌ عاليةُ المعلومة غيرُ مقروءة {_exa_hi[0]}" in _exa_c2
+             and "C6: مصدرٌ غيرُ متاحٍ بلا تسميةٍ أو سببٍ N1" in _exa_c6
+             and "**NO** —" in _exa_no and "**YES" not in _exa_no)
+    _exa6w = f"عيوب={_exa_core[:3]} · عاليةُ المعلومة={_exa_N.get('high_info')}/{_exa_N.get('high_info_fully')} · ضبط={_exa_c2[:1]} {_exa_c6[:1]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _exa6, _exa6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📚 EXA6 C2 · C6 · الجواب: 430 وحدةً عاليةَ المعلومة مقروءةٌ كاملًا · وغيرُ المتاح مسمًّى · وصفرُ عيبٍ ⟵ «YES — محدودةٌ بالمتاح» "
+      "وQ1 الخائبُ منشور · والوحدةُ السطحيّةُ وصفُّ N1 الغائبُ وأيُّ عيبٍ (⟵ NO) تُمسَك", _exa6, _exa6w)
+
+# EXA7 B48 والخصوصيّة: سجلُّ العين = ملفّاتُ الدفعة (46 ‏+ رسالتان) وأدوارُه = التعريف · والحالةُ الأماميّةُ الكاملة واحدة (CASE_0001 · BRTX ·
+#      V4 WAIT · فيصل WAIT) والنسختان التاريخيّتان ملوَّثتان لا تُحسبان · وصفرُ معرّفٍ أو رقمِ هويّةٍ أو اسمٍ خاصّ في المخرَجات وسجلّ العين ·
+#      ولا نصَّ OCR في الجرد · وشواهدُ ضبط: دورٌ مخالف ⟵ «B48:» · و«@حساب» ورقمٌ من تسع خانات واسمٌ مُبصَّم ⟵ تُمسَك.
+try:
+    _exa_b0 = sorted(_exa_d["B48"])[0]
+    _exa_r0 = "CONTEXT_ONLY" if _exa_d["B48"][_exa_b0].get("role") == "NON_EVIDENCE" else "NON_EVIDENCE"
+    _exa_c7 = _exa_ctl(d=dict(_exa_d, B48={**_exa_d["B48"], _exa_b0: dict(_exa_d["B48"][_exa_b0], role=_exa_r0)}))
+    _exa_v = _EXA.b48_validation(_exa_d, _exa_A)
+    _exa_priv = [p for p in _EXA.validate(_exa_out, _exa_ctx) if p not in _exa_core]
+    _exa_h0 = _EXA.PRIVATE_NAME_HASHES
+    try:
+        _EXA.PRIVATE_NAME_HASHES = _exa_h0 + (_rej_h.sha256("Zxqvb".encode("utf-8")).hexdigest()[:16],)
+        _exa_pc = _EXA.privacy_problems({"ضبط": "راسلني @someone على 123456789 · كتب Zxqvb"})
+    finally:
+        _EXA.PRIVATE_NAME_HASHES = _exa_h0
+    _exa_ocr = all(r["OCR"] is None or set(r["OCR"]) <= {"ref", "text_sha256", "chars", "tokens"} for r in _exa_ctx["inv"])
+    _exa7 = (not _exa_pick("B48:") and len(_exa_d["E"]["b48"]) == 46 and len(_exa_d["E"]["msg"]) == 2
+             and _exa_v["n"] == 1 and _exa_v["pros_cases"] == ["CASE_0001"] and _exa_v["rows"] == [("CASE_0001", "BRTX", "WAIT", "WAIT")]
+             and _exa_v["vc_files"] - _exa_v["pros_files"] == len(_exa_v["hist_cases"]) == 2
+             and f"B48: دورُ العين لا يطابق التعريف {_exa_b0}" in _exa_c7
+             and not _exa_priv and _exa_ocr and len(_exa_pc) == 3)
+    _exa7w = (f"B48={_exa_pick('B48:')[:2]} · أماميّة={_exa_v.get('pros_cases')} · تاريخيّة={_exa_v.get('hist_cases')} · "
+              f"خصوصيّة={_exa_priv[:2]} · ضبط={len(_exa_pc)}")
+except Exception as _e:                                                    # noqa: BLE001
+    _exa7, _exa7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📚 EXA7 B48 والخصوصيّة: 46 ملفًّا ‏+ رسالتان بأدوارٍ = التعريف · حالةٌ أماميّةٌ كاملةٌ واحدة (CASE_0001 · BRTX) والتاريخيّتان لا تُحسبان · "
+      "وصفرُ معرّفٍ أو رقمٍ أو اسمٍ خاصّ أو نصِّ OCR · والدورُ المخالفُ والمعرّفُ والرقمُ والاسمُ المُبصَّم تُمسَك", _exa7, _exa7w)
+
+# EXA8 الطابور وعدمُ التفصيل: لا رمزَ سهمٍ ولا تاريخَ في قاعدةٍ مرشَّحة · وكلُّ بندٍ يضمّ وحداتِ تتبّعه بحقول §8 وصنفٍ من الخمسة ·
+#      ومرساةٍ (مؤشّرُ تتبّعٍ أو قاعدةٌ من V4 موجودة) ·
+#      والبنودُ السبعة والتحديثاتُ الستّة في `V4_2_RESEARCH_QUEUE.md` · ومؤشّراتُ السالبة والأهداف ووحداتُها صالحة ·
+#      وشواهدُ ضبط: «DXST» أو تاريخٌ في القاعدة ⟵ يُرفضان · والقاعدةُ العامّة ⟵ تمرّ.
+try:
+    _exa_Q = _exa_ctx["Q"]
+    _exa_tk = _EXA.corpus_tickers(_exa_d)
+    _exa_of = [_EXA.overfit_problems([{"id": "Z", "candidate_rule": x}], _exa_tk)
+               for x in ("إذا حافظ DXST على الدعم ثلاثَ جلسات", "بعد 2026-10-07 يُنتظر الثبات", "إذا حافظ السهمُ على الدعم ثلاثَ جلسات")]
+    _exa_md = open(_os_hc.path.join("faisal_method_v41", "docs", "V4_2_RESEARCH_QUEUE.md"), encoding="utf-8").read()
+    _exa_keys = ("observation", "candidate_rule", "supporting_cases", "confidence", "generality", "why_not_v4", "v4_effect")
+    _exa_r4 = set(_exa_d["rules4"])
+    _exa8 = (not [p for p in _exa_core if p.startswith(("§11", "§14", "§6", "§8", "وحدةٌ غيرُ موجودة"))]
+             and len(_exa_Q["items"]) == 7 and len(_exa_Q["updates"]) == 6
+             and all(set(x["rules"]) <= _exa_r4 for x in _exa_Q["items"] + _exa_Q["updates"])
+             and all(all(it.get(k) for k in _exa_keys) and isinstance(it.get("contradictory_cases"), list)
+                     and (it["trace_pointers"] or it["rules"])
+                     and it["cls"] in ("CONFIRMED_MISSED_RULE", "PROBABLE_MISSED_RULE", "HYPOTHESIS", "V4_COVERAGE_GAP", "CONTRADICTION")
+                     for it in _exa_Q["items"])
+             and all(f"### {x['id']} ·" in _exa_md for x in _exa_Q["items"]) and all(f"**{u['id']} ⟵" in _exa_md for u in _exa_Q["updates"])
+             and bool(_exa_of[0]) and bool(_exa_of[1]) and not _exa_of[2])
+    _exa8w = f"بنود={len(_exa_Q.get('items', []))}/{len(_exa_Q.get('updates', []))} · ضبط={[len(x) for x in _exa_of]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _exa8, _exa8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📚 EXA8 الطابور: سبعةُ بنودٍ بحقول §8 وستّةُ تحديثات في V4_2_RESEARCH_QUEUE.md · لا رمزَ ولا تاريخَ في قاعدةٍ مرشَّحة "
+      "(DXST والتاريخُ يُرفضان والعامّةُ تمرّ) · ومؤشّراتُ السالبة والأهداف صالحة", _exa8, _exa8w)
+
+# EXA9 العزل (AST): `corpus_audit.py` يستورد المكتبةَ القياسيّة وحدَها (لا شبكةَ ولا subprocess ولا البوت) · ولا يفتح للكتابة إلّا داخل `main` ·
+#      والمجلّدُ نصوصٌ وبياناتٌ وحدَها (لا صورةَ تُدفع) وفيه المخرَجاتُ الإحدى عشرة والبروتوكولُ وسجلُّ العين.
+try:
+    _exa_t = _ast0.parse(open(_os_hc.path.join(_EXA_DIR, "corpus_audit.py"), encoding="utf-8").read())
+    _exa_imp = ({a.name.split(".")[0] for n in _ast0.walk(_exa_t) if isinstance(n, _ast0.Import) for a in n.names}
+                | {n.module.split(".")[0] for n in _ast0.walk(_exa_t) if isinstance(n, _ast0.ImportFrom) and n.module})
+
+    def _exa_wopen(node):
+        return [c for c in _ast0.walk(node) if isinstance(c, _ast0.Call) and getattr(c.func, "id", None) == "open"
+                and any(isinstance(a, _ast0.Constant) and isinstance(a.value, str) and any(m in a.value for m in "wax")
+                        for a in list(c.args[1:]) + [kw.value for kw in c.keywords if kw.arg == "mode"])]
+    _exa_main = next(n for n in _exa_t.body if isinstance(n, _ast0.FunctionDef) and n.name == "main")
+    _exa_files = sorted(x for x in _os_hc.listdir(_EXA_DIR) if x != "__pycache__")
+    _exa9 = (_exa_imp <= {"collections", "datetime", "glob", "hashlib", "importlib", "itertools", "json", "os", "re", "sys"}
+             and len(_exa_wopen(_exa_t)) == len(_exa_wopen(_exa_main)) == 1
+             and all(_os_hc.path.splitext(x)[1] in (".py", ".json", ".jsonl", ".md") for x in _exa_files)
+             and {"corpus_audit.py", "eye_pass_ex.jsonl", "EX_PROTOCOL.md", *_exa_out} <= set(_exa_files))
+    _exa9w = f"استيراد={sorted(_exa_imp)} · كتابة={len(_exa_wopen(_exa_t))}/{len(_exa_wopen(_exa_main))} · ملفّات={len(_exa_files)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _exa9, _exa9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾📚 EXA9 العزل (AST): المكتبةُ القياسيّة وحدَها · والكتابةُ داخل main وحدَه · والمجلّدُ نصوصٌ وبياناتٌ بلا صورة وفيه المخرَجاتُ كاملة",
+      _exa9, _exa9w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
