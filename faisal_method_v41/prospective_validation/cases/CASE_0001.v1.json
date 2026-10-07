@@ -1,0 +1,15 @@
+{
+ "capture_utc": "2026-10-07T10:16:44Z",
+ "case_id": "CASE_0001",
+ "date_precision": "day",
+ "date_source": "image_visible",
+ "decision_date": "2026-10-03",
+ "image": "faisal_images/TG_58402.jpg",
+ "image_sha256": "7f5fb9510a0cce302fb2291b422bdb3f6a213e2f6bf1c261df9cead9f320c187",
+ "layer": "1",
+ "near_duplicates": [],
+ "notes": "B48_20261007 · رسالة 58402",
+ "symbol": "BRTX",
+ "timeframe_f": "D",
+ "unit_id": "TG_58402"
+}

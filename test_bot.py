@@ -80882,6 +80882,265 @@ except Exception as _e:                                                    # noq
 check("🧾 TCM6 الجامع: `_store(info=)` يملأ البصمةَ والاسمَ **المحفوظ فعلًا** (بعد تفادي التصادم) أو المطابَق · والإرجاعُ بت-بت",
       _tgm6ok, _tgm6w)
 
+# 🧾 FV43b · BIM1-BIM7 — دفعةُ المالك «48» للتحقّق الأماميّ (‏2026-10-07 · `B48_20261007` · أمرُه «48 NEW FAISAL IMAGES»):
+#    الاستلامُ ⟵ التلوّثُ ⟵ الختمُ في السجلّ الإلحاقيّ **قبل** تشغيل V4 المجمَّد (`faisal_method_v41/batch_intake.py`). الصورُ تقيس V4 ولا
+#    تدرّبه: لا قاعدةَ ولا عتبةَ تتغيّر بها (FV41 يحرس) · وكلُّ رقمٍ في المانيفست والوثيقة مولَّدٌ ويُعاد هنا بلا شبكةٍ ولا tesseract.
+import importlib as _bim_imp                                                # noqa: E402
+import json as _bim_json                                                    # noqa: E402
+import os as _bim_os                                                        # noqa: E402
+import re as _bim_re                                                        # noqa: E402
+import shutil as _bim_sh                                                    # noqa: E402
+import tempfile as _bim_tmp                                                 # noqa: E402
+
+_BIM_RUN = "37616553357"                  # تشغيلةُ الجامع التي سحبت الدفعة (‏`telegram_collect_meta.jsonl`)
+
+# ── FV43b النسخةُ القريبة «و» لا «أو» (BB4 · قاعدةُ V3 `corpus_build.dedup` حرفًا): pHash64 وحدَه يلتقط تخطيطَ الواجهة لا الصورة —
+#    بطاقةُ التطبيق `TG_58386` كانت «قريبةً» من عشرات الصور في عناقيدَ مختلفة ⟵ [] · والمقصوصُ/المصغَّرُ الحقيقيّ يبقى مكشوفًا
+#    (`TG_58428` ⟵ `TG_58052` · `TG_58426` ⟵ `CH_20260918_14_NUWE`) · وشاهدُ الضبط يُثبت أن الصورةَ الأولى تفرّق القاعدتين فعلًا.
+try:
+    LG = _bim_imp.import_module("ledger")
+    _CB43b = _bim_imp.import_module("corpus_build")
+    from PIL import Image as _bim_Image
+    with open(_bim_os.path.join("faisal_method_v3", "image_corpus.json"), encoding="utf-8") as _f43b:
+        _img43b = _bim_json.load(_f43b)["images"]
+    _nd43b = {k: LG.near_duplicates(_bim_os.path.join("faisal_images", k + ".jpg"), _img43b)
+              for k in ("TG_58386", "TG_58428", "TG_58426")}
+    with _bim_Image.open(_bim_os.path.join("faisal_images", "TG_58386.jpg")) as _im43b:
+        _d43b, _p43b = _CB43b.bits_hex(_CB43b.dhash_bits(_im43b, 16)), _CB43b.bits_hex(_CB43b.phash_bits(_im43b))
+    _or43b = sum(1 for _i43b in _img43b if _CB43b.hamming_hex(_d43b, _i43b["dhash256"]) <= 24
+                 or _CB43b.hamming_hex(_p43b, _i43b["phash64"]) <= 10)
+    _fv43bok = (_nd43b == {"TG_58386": [], "TG_58428": ["TG_58052"], "TG_58426": ["CH_20260918_14_NUWE"]} and _or43b >= 20)
+    _fv43bw = f"near={_nd43b} · «أو» كانت تَسِم {_or43b}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fv43bok, _fv43bw = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧬 FV43b النسخةُ القريبة «و» لا «أو» (BB4 · قاعدةُ V3): بطاقةُ التطبيق ليست نسخةً من عشرات الصور (وكانت بـ«أو») · "
+      "والمقصوصُ والمصغَّرُ الحقيقيّان مكشوفان", _fv43bok, _fv43bw)
+
+# ── BIM1 الاستلامُ والتلوّثُ مولَّدان لا محرَّران (§1 · §2 · §9): المانيفستُ يُعاد من مُدخَلاته المحفوظة (صفوفُ الجامع · الصور · بصماتُ OCR ·
+#    `input_annotations.json`) فيطابق المدفوعَ حرفًا · والوثيقةُ منه حرفًا · ووصل 48 = ما قاله المالك والفئاتُ تُجمع إليه · وبصمةُ كلّ صورةٍ
+#    محفوظة = البصمةُ التي كتبها الجامعُ لحظةَ التنزيل (لا عبثَ بعده) · والدفعةُ مختومةٌ بأعدادها.
+try:
+    BI = _bim_imp.import_module("batch_intake")
+    _m_b1 = BI.build_manifest([_BIM_RUN])
+    with open(_bim_os.path.join(BI.BATCH_DIR, "PROSPECTIVE_BATCH_48_MANIFEST.json"), encoding="utf-8") as _f_b1:
+        _disk_b1 = _bim_json.load(_f_b1)
+    with open(_bim_os.path.join(BI.BATCH_DIR, "PROSPECTIVE_BATCH_48_CONTAMINATION.md"), encoding="utf-8") as _f_b1:
+        _md_b1 = _f_b1.read()
+    _same_b1 = _bim_json.loads(_bim_json.dumps(_m_b1, sort_keys=True, ensure_ascii=False, default=str)) == _disk_b1
+    _meta_b1 = {r["message_id"]: r for r in BI.load_meta() if str(r.get("run_id")) == _BIM_RUN}
+    _saved_b1 = [i for i in _m_b1["items"] if i["telegram"]["status"] == "saved"]
+    _sha_b1 = [i["image_id"] for i in _saved_b1 if not i["sha256"] or i["sha256"] != _meta_b1[i["telegram"]["message_id"]].get("sha256")]
+    _c_b1 = _m_b1["counts"]
+    _bim1ok = (_same_b1 and BI.render_contamination(_m_b1) == _md_b1 and _m_b1["total_received"] == 48 == len(_meta_b1)
+               and _m_b1["count_matches_owner"] and sum(_c_b1.values()) == 48 and len(_saved_b1) == 46 and not _sha_b1
+               and _c_b1 == {"CLEAN_PROSPECTIVE": 2, "CONTAMINATED": 9, "DUPLICATE": 2, "DERIVATIVE": 9, "UNKNOWN": 26}
+               and _m_b1["validation_cases"] == 1 and _m_b1["received_not_image"] == 0)
+    _bim1w = f"same={_same_b1} counts={_c_b1} sha_mismatch={_sha_b1[:3]} cases={_m_b1['validation_cases']}"
+except Exception as _e:                                                    # noqa: BLE001
+    _m_b1 = None
+    _bim1ok, _bim1w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 BIM1 دفعةُ الـ48: المانيفستُ يُعاد من مُدخَلاته فيطابق المدفوعَ حرفًا · ووثيقةُ التلوّث منه حرفًا · وصل 48 = قولُ المالك · "
+      "والفئاتُ تُجمع إلى 48 · وبصمةُ كلّ صورةٍ = بصمةُ الجامع لحظةَ التنزيل", _bim1ok, _bim1w)
+
+# ── BIM2 التصنيفُ والأهليّةُ بأسبقيّتهما المكتوبة قبل أيّ نتيجة (§2 · `classify`/`eligibility` نقيّتان): التكرارُ ⟵ الاشتقاقُ ⟵ غيرُ المقروء
+#    ⟵ غيرُ المراجَع ⟵ الحالةُ نفسُها ⟵ المثالُ المرئيّ ⟵ قبل النافذة (والحدُّ الأعلى يكفي) ⟵ الكاتبُ لا يُثبَت ⟵ التاريخُ لا يُثبَت ⟵ نظيف ·
+#    ويومُ النافذة نفسُه نظيف لا «قبل» · والنظيفُ لا يصير حالةً إلّا بفيصل ‏+ رمز ‏+ عبارة قرار · والمستبعَدُ بقائمة السجلّ الثابتة.
+try:
+    BI = _bim_imp.import_module("batch_intake")
+    LG = _bim_imp.import_module("ledger")
+    _it2 = {"accessible": True, "duplicate_status": "NONE", "derivative_status": "NONE"}
+    _an2 = {"author": "F", "faisal_author": True, "symbol": "SYNB", "decision_date": "2026-10-05", "has_decision_statement": True}
+    _cl2 = [("dup", dict(_it2, duplicate_status="EXACT:TG_1"), dict(_an2, same_case_of=["V4:X"]), ("DUPLICATE", "EXACT:TG_1")),
+            ("near", dict(_it2, derivative_status="NEAR:TG_2"), _an2, ("DERIVATIVE", "NEAR:TG_2")),
+            ("visual", _it2, dict(_an2, visual_derivative_of=["TG_3"]), ("DERIVATIVE", "VISUAL:TG_3")),
+            ("unread", dict(_it2, accessible=False), _an2, ("UNKNOWN", "UNREADABLE")),
+            ("noann", _it2, None, ("UNKNOWN", "NOT_REVIEWED")),
+            ("same", _it2, dict(_an2, same_case_of=["GOLDEN:X"], decision_date="2026-09-01"), ("CONTAMINATED", "SAME_CASE:GOLDEN:X")),
+            ("seen", _it2, dict(_an2, seen_example_of=["TG_4"]), ("CONTAMINATED", "SEEN_EXAMPLE:TG_4")),
+            ("before", _it2, dict(_an2, decision_date="2026-10-02", author="UNKNOWN"),
+             ("CONTAMINATED", "HISTORICAL_BEFORE_WINDOW:2026-10-02")),
+            ("dmax", _it2, dict(_an2, decision_date=None, decision_date_max="2026-10-02"),
+             ("CONTAMINATED", "HISTORICAL_BEFORE_WINDOW:≤2026-10-02")),
+            ("dmax_in", _it2, dict(_an2, decision_date=None, decision_date_max=LG.WINDOW_START), ("UNKNOWN", "DATE_NOT_ESTABLISHED")),
+            ("author", _it2, dict(_an2, author="UNKNOWN"), ("UNKNOWN", "AUTHOR_NOT_ESTABLISHED")),
+            ("nodate", _it2, dict(_an2, decision_date=None), ("UNKNOWN", "DATE_NOT_ESTABLISHED")),
+            ("edge", _it2, dict(_an2, decision_date=LG.WINDOW_START), ("CLEAN_PROSPECTIVE", "—")),
+            ("clean", _it2, _an2, ("CLEAN_PROSPECTIVE", "—"))]
+    _bad2 = [(n, BI.classify(i, a)) for n, i, a, w in _cl2 if BI.classify(i, a) != w]
+    _el2 = [(("CLEAN_PROSPECTIVE", _an2), ("CASE", None)),
+            (("CLEAN_PROSPECTIVE", dict(_an2, symbol=None)), (None, "NO_TICKER")),
+            (("CLEAN_PROSPECTIVE", dict(_an2, has_decision_statement=False)), (None, "NO_DECISION")),
+            (("CLEAN_PROSPECTIVE", dict(_an2, faisal_author=False)), (None, "NOT_FAISAL")),
+            (("DERIVATIVE", dict(_an2, _reason="VISUAL:TG_3,TG_9")), (None, "DUPLICATE_OF:TG_3")),
+            (("DUPLICATE", dict(_an2, _reason="EXACT:TG_1")), (None, "DUPLICATE_OF:TG_1")),
+            (("CONTAMINATED", dict(_an2, _reason="SAME_CASE:V4:X")), (None, "DUPLICATE_OF:V4:X")),
+            (("CONTAMINATED", dict(_an2, _reason="HISTORICAL_BEFORE_WINDOW:2026-10-02")), (None, "BEFORE_WINDOW")),
+            (("UNKNOWN", dict(_an2, _reason="AUTHOR_NOT_ESTABLISHED")), (None, "NOT_FAISAL")),
+            (("UNKNOWN", dict(_an2, _reason="DATE_NOT_ESTABLISHED")), (None, "DATE_IMPRECISE")),
+            (("UNKNOWN", dict(_an2, _reason="DATE_NOT_ESTABLISHED", faisal_author=False)), (None, "NOT_FAISAL"))]
+    _bad2e = [(a[0], BI.eligibility(*a)) for a, w in _el2 if BI.eligibility(*a) != w]
+    _ex2 = [i["image_id"] for i in (_m_b1 or {}).get("items", []) if i["exclusion"]
+            and not (i["exclusion"] in LG.EXCLUSIONS or i["exclusion"].startswith("DUPLICATE_OF:"))]
+    _bim2ok = not _bad2 and not _bad2e and not _ex2 and _m_b1 is not None
+    _bim2w = f"classify={_bad2[:3]} eligibility={_bad2e[:3]} exclusion_out_of_list={_ex2[:3]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _bim2ok, _bim2w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 BIM2 التصنيفُ بأسبقيّته المكتوبة قبل النتيجة (تكرار ⟵ اشتقاق ⟵ غيرُ مقروء ⟵ غيرُ مراجَع ⟵ الحالةُ نفسُها ⟵ مثالٌ مرئيّ ⟵ قبل النافذة "
+      "⟵ الكاتب ⟵ التاريخ ⟵ نظيف) · ويومُ النافذة نظيف · والحالةُ بفيصل ‏+ رمز ‏+ عبارة قرار · والمستبعَدُ بقائمة السجلّ", _bim2ok, _bim2w)
+
+# ── BIM3 الخصوصيّة (المستودعُ عامّ · وفي صور الدفعة محادثاتٌ خاصّة بأسماء أفراد): نصُّ OCR لا يُحفَظ — بصمةُ كلّ كلمةٍ (16 خانة) وبصمةُ النصّ
+#    وحدَهما · وصفوفُ الجامع لغير المشرف «redacted» بلا توجيهٍ ولا تعليقٍ ولا نصٍّ ولا روابط · ولا معرّفَ مستخدمٍ أو محادثةٍ أو اسمَ أحدٍ في
+#    أيّ صفّ · والمانيفستُ يرث ذلك فلا يحمل تعليقًا أو توجيهًا لرسالةٍ محجوبة.
+try:
+    BI = _bim_imp.import_module("batch_intake")
+    with open(BI.OCR_FILE, encoding="utf-8") as _f3:
+        _ocr3 = _bim_json.load(_f3)
+    _hx3 = _bim_re.compile(r"^[0-9a-f]{16}$")
+    _ocrbad3 = [k for k, v in _ocr3["texts"].items()
+                if set(v) - {"engine", "image_sha256", "n_tokens", "text_sha256", "token_sha"}
+                or not all(isinstance(t, str) and _hx3.match(t) for t in (v.get("token_sha") or []))]
+    _rows3 = [r for r in BI.load_meta() if str(r.get("run_id")) == _BIM_RUN]
+    _priv3 = [r.get("message_id") for r in _rows3 if not r.get("from_admin")
+              and (not r.get("redacted") or set(r) & {"forward", "caption", "text", "links"})]
+    _ids3 = [r.get("message_id") for r in _rows3
+             if set(r) & {"chat", "chat_id", "from", "from_id", "user_id", "sender_id", "first_name", "last_name", "username"}]
+    _mtg3 = [i["image_id"] for i in (_m_b1 or {}).get("items", []) if not i["telegram"].get("from_admin")
+             and any(i["telegram"].get(k) for k in ("forward", "caption", "links"))]
+    _bim3ok = (not _ocrbad3 and len(_ocr3["texts"]) == 46 and "privacy" in _ocr3 and len(_rows3) == 48
+               and not _priv3 and not _ids3 and not _mtg3 and _m_b1 is not None)
+    _bim3w = f"ocr_bad={_ocrbad3[:3]} n_ocr={len(_ocr3['texts'])} redaction={_priv3[:3]} ids={_ids3[:3]} manifest={_mtg3[:3]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _bim3ok, _bim3w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 BIM3 خصوصيّةُ الدفعة: نصُّ OCR بصماتٌ لا نصّ (16 خانة لكلّ كلمة) · وصفوفُ غير المشرف محجوبةٌ بلا توجيهٍ ولا تعليق · "
+      "ولا معرّفَ ولا اسمَ في أيّ صفّ · والمانيفستُ يرث الحجب", _bim3ok, _bim3w)
+
+# ── BIM4 الختمُ قبل V4 (§4 · العقد §⑥): لكلّ صورةٍ محفوظةٍ من الدفعة (46) قيدُ مرشَّحٍ بقرارٍ = خطّةِ `plan_seal` المولَّدة وببصمة ملفّها ·
+#    والحالاتُ المختومة = حالاتُ الخطّة حرفًا (واحدة: BRTX — نظيفٌ ‏+ فيصل ‏+ رمز ‏+ عبارة قرار · يومُ القرار في النافذة) · وبلا نسخةٍ قريبة
+#    بالقاعدة المصحّحة · والسجلُّ سليمٌ بترتيبه (حالة ⟵ V4 ⟵ فيصل · `verify`).
+try:
+    BI = _bim_imp.import_module("batch_intake")
+    LG = _bim_imp.import_module("ledger")
+    _lg4 = LG.Ledger()
+    with open(BI.INPUT_ANN, encoding="utf-8") as _f4:
+        _ann4 = _bim_json.load(_f4)["images"]
+    _plan4 = BI.plan_seal(_m_b1, _ann4, existing_cases=0)
+    _cand4 = {e["case_id"]: _lg4.read(e["path"]) for e in _lg4.entries("candidate")}
+    _mis4 = [p["unit_id"] for p in _plan4 if (_cand4.get(p["unit_id"]) or {}).get("decision") != p["decision"]
+             or (_cand4.get(p["unit_id"]) or {}).get("image_sha256") != p["sha256"]]
+    _cases4 = [c for c in (_lg4.read(e["path"]) for e in _lg4.entries("case")) if str(c.get("notes", "")).startswith(BI.BATCH_ID)]
+    _want4 = [p["case"] for p in _plan4 if p["case"]]
+    _nd4 = [c["case_id"] for c in _want4 if LG.near_duplicates(_bim_os.path.join(BI.ROOT, c["image"]))]
+    _ver4 = _lg4.verify()
+    _bim4ok = (len(_plan4) == 46 and not _mis4 and _cases4 == _want4 and len(_want4) == 1 and _want4[0]["symbol"] == "BRTX"
+               and _want4[0]["decision_date"] >= LG.WINDOW_START and not _nd4 and _ver4[0])
+    _bim4w = (f"plan={len(_plan4)} mismatch={_mis4[:3]} cases={[c.get('case_id') for c in _cases4]} "
+              f"want={[c['case_id'] for c in _want4]} near={_nd4} verify={_ver4[0]}:{_ver4[1][:3]}")
+except Exception as _e:                                                    # noqa: BLE001
+    _bim4ok, _bim4w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 BIM4 الختمُ قبل V4: لكلّ صورةٍ محفوظة (46) قيدُ مرشَّحٍ = خطّةِ الختم المولَّدة وببصمتها · والحالةُ المختومة = حالةُ الخطّة حرفًا "
+      "(BRTX وحدَها) · بلا نسخةٍ قريبة · والسجلُّ سليمٌ بترتيبه", _bim4ok, _bim4w)
+
+# ── BIM5 المُدخَلُ أعمى عن كلمة فيصل (§4 · §6): `input_annotations.json` (يُكتب قبل V4) يحمل الرمزَ والتاريخَ والفريمَ والكاتبَ ووجودَ عبارة
+#    القرار **بلا القرار**: مفاتيحُه من قائمةٍ مغلقة (لا label/label4/state/quote/levels/plan…) · ولا READY/WAIT/WATCH/REJECT/MIXED في أيّ
+#    قيمة · والمرحلةُ «INPUT» · ولكلّ صورةٍ محفوظةٍ مُدخَلٌ واحد.
+_BIM5_KEYS = frozenset({"author", "content", "date_evidence", "date_evidence_level", "date_source", "decision_date", "decision_date_max",
+                        "faisal_author", "has_decision_statement", "layer", "provenance_evidence", "same_case_of", "seen_example_of",
+                        "symbol", "timeframe", "visual_derivative_of"})
+
+
+def _bim5_strings(o):
+    if isinstance(o, str):
+        yield o
+    elif isinstance(o, dict):
+        for k, v in o.items():
+            yield str(k)
+            yield from _bim5_strings(v)
+    elif isinstance(o, (list, tuple)):
+        for v in o:
+            yield from _bim5_strings(v)
+
+
+try:
+    BI = _bim_imp.import_module("batch_intake")
+    with open(BI.INPUT_ANN, encoding="utf-8") as _f5:
+        _ia5 = _bim_json.load(_f5)
+    _keys5 = sorted({k for v in _ia5["images"].values() for k in v} - _BIM5_KEYS)
+    _lab5 = _bim_re.compile(r"(?<![A-Za-z])(READY|WAIT|WATCH|REJECT|MIXED)(?![A-Za-z])")
+    _vals5 = [s[:40] for s in _bim5_strings(_ia5) if _lab5.search(s)]
+    _ids5 = sorted(i["image_id"] for i in (_m_b1 or {}).get("items", []) if i["telegram"]["status"] == "saved")
+    _bim5ok = (not _keys5 and not _vals5 and str(_ia5.get("stage", "")).startswith("INPUT")
+               and sorted(_ia5["images"]) == _ids5 and len(_ids5) == 46)
+    _bim5w = f"extra_keys={_keys5[:3]} label_values={_vals5[:3]} stage={str(_ia5.get('stage'))[:12]} n={len(_ia5['images'])}/{len(_ids5)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _bim5ok, _bim5w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 BIM5 مُدخَلُ الدفعة أعمى عن كلمة فيصل: مفاتيحُ من قائمةٍ مغلقة (لا label/state/quote/levels) · ولا READY/WAIT/WATCH/REJECT/MIXED "
+      "في أيّ قيمة · والمرحلةُ INPUT · ومُدخَلٌ لكلّ صورةٍ محفوظة", _bim5ok, _bim5w)
+
+# ── BIM6 تصنيفُ المقارنة مكتوبٌ قبل أيّ قرارٍ لـV4 أو فيصل (§7 · §12 · `compare` نقيّة): الخطأُ من حالتَي فيصل وV4 · والسببُ بأسبقيّته —
+#    خطأُ تنفيذ ⟵ فجوةُ بيانات ⟵ معلومةٌ خارجيّة (V4 UNKNOWN بنقصٍ معلَن أو فيصل يستند لخارج الشارت) ⟵ تقدير ⟵ منهج ⟵ غيرُ محسوم ·
+#    والتطابقُ بلا سبب · وMIXED/UNKNOWN عند فيصل «غيرُ قابل للمقارنة».
+try:
+    BI = _bim_imp.import_module("batch_intake")
+    _cmp6 = [(("WAIT", {"state": "WAIT"}, "VALID", False, False), ("MATCH", "NONE")),
+             (("WAIT", {"state": "READY"}, "VALID", False, False), ("FALSE_READY", "METHODOLOGY_GAP")),
+             (("READY", {"state": "WAIT"}, "VALID", False, False), ("FALSE_WAIT", "METHODOLOGY_GAP")),
+             (("WAIT", {"state": "REJECT"}, "VALID", False, False), ("FALSE_REJECT", "METHODOLOGY_GAP")),
+             (("WAIT", {"state": "UNKNOWN", "missing_information": ["groups"]}, "VALID", False, False),
+              ("FALSE_UNKNOWN", "EXTERNAL_INFORMATION_GAP")),
+             (("WAIT", {"state": "UNKNOWN"}, "VALID", False, False), ("FALSE_UNKNOWN", "UNRESOLVED")),
+             (("READY", {"state": "WAIT"}, "VALID", True, False), ("FALSE_WAIT", "EXTERNAL_INFORMATION_GAP")),
+             (("READY", {"state": "WAIT"}, "VALID", False, True), ("FALSE_WAIT", "DISCRETIONARY")),
+             (("READY", {"state": "WAIT"}, "INVALID", True, True), ("FALSE_WAIT", "DATA_GAP")),
+             (("READY", {"state": "WAIT", "tech_state": "DATA_INSUFFICIENT"}, "VALID", True, True), ("FALSE_WAIT", "DATA_GAP")),
+             (("READY", {"state": "WAIT"}, "INVALID", True, True, False), ("FALSE_WAIT", "IMPLEMENTATION_BUG")),
+             (("WAIT", {"state": "WAIT"}, "VALID", False, False, False), ("MATCH", "IMPLEMENTATION_BUG")),
+             (("MIXED", {"state": "WAIT"}, "VALID", False, False), ("NOT_COMPARABLE", "UNRESOLVED")),
+             (("UNKNOWN", {"state": "UNKNOWN"}, "VALID", False, False), ("NOT_COMPARABLE", "UNRESOLVED"))]
+    _bad6 = [(a[0], a[1].get("state"), BI.compare(*a)) for a, w in _cmp6 if BI.compare(*a) != w]
+    _enum6 = all(BI.compare(*a)[0] in BI.ERRORS and BI.compare(*a)[1] in BI.CAUSES for a, _ in _cmp6)
+    _bim6ok = not _bad6 and _enum6
+    _bim6w = f"bad={_bad6[:3]} enums={_enum6}"
+except Exception as _e:                                                    # noqa: BLE001
+    _bim6ok, _bim6w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 BIM6 تصنيفُ المقارنة مكتوبٌ قبل أيّ قرار: الخطأُ من حالتَي فيصل وV4 · والسببُ بأسبقيّته (تنفيذ ⟵ بيانات ⟵ معلومةٌ خارجيّة ⟵ تقدير "
+      "⟵ منهج ⟵ غيرُ محسوم) · وMIXED/UNKNOWN عند فيصل غيرُ قابلٍ للمقارنة", _bim6ok, _bim6w)
+
+# ── BIM7 حالةُ التحقّق الأماميّ صادقةٌ في كلّ مرحلة (العقد §⑧ · دفعة B48): لا حالةَ ⟵ NOT STARTED · حالةٌ مختومةٌ تنتظر V4/فيصل ⟵
+#    SEALED_PENDING («NOT STARTED» بعدها تكذب) · كاملةٌ واحدة ⟵ INSUFFICIENT · والإجماليُّ «VALIDATION IN PROGRESS» للأوّليَين · وتنبّؤ Q5
+#    يُقيَّم على حالة التقرير الأوّل المسجَّلة (‏NOT STARTED · لا ينقلب بأثرٍ رجعيّ حين تصل حالات).
+try:
+    AN = _bim_imp.import_module("analysis")
+    DV = _bim_imp.import_module("docs_v41")
+    LG = _bim_imp.import_module("ledger")
+    _td7 = _bim_tmp.mkdtemp(prefix="bim7_")
+    try:
+        _st7 = [AN.prospective(LG.Ledger(root=_bim_os.path.join(_td7, "a")))["status"]]
+        _lg7 = LG.Ledger(root=_bim_os.path.join(_td7, "b"))
+        _lg7.seal_case(_v41_case(), "2026-10-15T20:00:00Z")
+        _st7.append(AN.prospective(_lg7)["status"])
+        _lgf7 = _v41_flow(_bim_os.path.join(_td7, "c"))[0]
+        _st7.append(AN.prospective(_lgf7)["status"])
+        _orig7 = AN.prospective
+        _ov7 = []
+        try:
+            for _s7 in ("SEALED_PENDING", "NOT STARTED"):
+                AN.prospective = (lambda s: (lambda lg=None: dict(_orig7(_lg7), status=s)))(_s7)
+                _ov7.append(AN.build()["status"])
+        finally:
+            AN.prospective = _orig7
+    finally:
+        _bim_sh.rmtree(_td7, ignore_errors=True)
+    with open(_bim_os.path.join(DV.HERE, "results", "run_registry_v41.json"), encoding="utf-8") as _f7:
+        _fr7 = _bim_json.load(_f7)["first_report"]
+    _q5 = [ln for ln in DV.doc_predictions(DV.load()).splitlines() if ln.startswith("| Q5 |")]
+    _bim7ok = (_st7 == ["NOT STARTED", "SEALED_PENDING", "INSUFFICIENT"] and _ov7 == ["VALIDATION IN PROGRESS"] * 2
+               and _fr7["prospective_status"] == "NOT STARTED" and len(_q5) == 1 and "✅" in _q5[0] and "التقرير الأوّل" in _q5[0])
+    _bim7w = f"statuses={_st7} overall={_ov7} first_report={_fr7.get('prospective_status')} q5={(_q5 or [''])[0][-30:]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _bim7ok, _bim7w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 BIM7 حالةُ التحقّق الأماميّ صادقة: بلا حالة NOT STARTED · مختومةٌ تنتظر SEALED_PENDING · كاملةٌ واحدة INSUFFICIENT · "
+      "والإجماليُّ «قيد التحقّق» للأوّليَين · وQ5 على حالة التقرير الأوّل", _bim7ok, _bim7w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
