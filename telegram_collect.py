@@ -26,6 +26,11 @@ API = "https://api.telegram.org"
 REPORT = "telegram_collect_report.md"   # 🧾 تقرير كل سحبة (يُدفَع ليُقرأ)
 OUT_DIR = "faisal_images"
 STATE = "telegram_collect_state.json"
+# 🧾 بياناتُ كلِّ رسالةٍ مسحوبة (‏2026-10-07 · دفعةُ الـ48 للتحقّق الأماميّ V4.1): إلحاقٌ فقط · سطرٌ لكلّ رسالة.
+#    `getUpdates` يُقَرّ ثمّ يُحذَف عند تلغرام ⇒ تاريخُ الرسالة ومصدرُ إعادة التوجيه (القناة · تاريخُ المنشور الأصليّ)
+#    والنصُّ المرفق **تضيع نهائيًّا** لو لم تُكتب هنا — وهي الطابعُ الزمنيّ الذي تشترطه الأهليّةُ الأماميّة.
+#    🔒 بلا معرّف المحادثة ولا هويّة المرسِل ولا الاسمِ الأوّل لأيّ مستخدم (المستودعُ عامّ).
+META = "telegram_collect_meta.jsonl"
 IMG_EXT = (".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif")
 PENDING_MAX = 500                                # سقف طابور الإعادة (صمّام أمان)
 PENDING_TRIES = 6                                # محاولات قبل الاستسلام والإبلاغ
@@ -51,6 +56,188 @@ def _mask(s):
     """يخفي التوكن من أي نص قبل الطباعة (لا سرّ في السجل)."""
     tok = os.environ.get("TELEGRAM_BOT_TOKEN", "")
     return str(s).replace(tok, "***") if tok else str(s)
+
+
+TEXT_CAP = 4000                                  # سقفُ النصّ/التعليق المحفوظ لكلّ رسالة
+
+
+def _iso(ts):
+    """طابعُ يونكس ⇒ ISO بتوقيت UTC (`…Z`) · فارغٌ/غيرُ رقميٍّ/صفر ⇒ None. نقيّة."""
+    try:
+        v = int(ts)
+    except Exception:                                # noqa: BLE001
+        return None
+    return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(v)) if v > 0 else None
+
+
+def admin_id(raw=None):
+    """المشرف = **أوّلُ** رقمٍ في `TELEGRAM_CHAT_ID` بقواعد مُحلِّل البوت نفسِها (الفاصلة ·
+    المنقوطة · الفاصلة والمنقوطة العربيّتان «،» «؛» · السطر الجديد · المسافة) ⇒ نصٌّ أو None.
+    نقيّة حين يُمرَّر `raw` · ومطابقتُها لمُحلِّل البوت مقفولةٌ في السويّة (لا تستورده: أداةٌ مستقلّة)."""
+    raw = os.environ.get("TELEGRAM_CHAT_ID", "") if raw is None else raw
+    raw = str(raw or "")
+    for sep in (";", "،", "؛", "\n", "\r", "\t", " "):
+        raw = raw.replace(sep, ",")
+    for c in raw.split(","):
+        if c.strip():
+            return c.strip()
+    return None
+
+
+def forward_meta(msg):
+    """🧾 مصدرُ إعادة التوجيه **بلا هويّةٍ شخصيّة** ⇒ dict أو None (رسالةٌ غيرُ مُعادٍ توجيهُها). نقيّة.
+
+    يقرأ `forward_origin` (‏Bot API 7.0+: channel · chat · user · hidden_user) ثمّ الحقولَ القديمة
+    (`forward_date` …) احتياطًا. **يُكتب:** النوع · تاريخُ المنشور الأصليّ (هو طابعُ قرار فيصل حين
+    يُعاد توجيهُ منشوره) · عنوانُ القناة/المجموعة ومعرّفُها العامّ ونوعُها · رقمُ المنشور في القناة ·
+    توقيعُ الكاتب · واسمُ المستخدم العامّ (@username). 🔒 **ولا يُكتب أبدًا:** المعرّفُ الرقميّ لأيّ
+    مستخدمٍ أو محادثة · الاسمُ الأوّل والأخير · واسمُ صاحب الحساب المخفيّ (اختار الإخفاء ⇒ وسمٌ فقط)."""
+    if not isinstance(msg, dict):
+        return None
+    o = msg.get("forward_origin")
+    out = {}
+    if isinstance(o, dict) and o.get("type"):
+        t = str(o.get("type"))
+        out["type"] = t
+        out["date"] = _iso(o.get("date"))
+        ch = o.get("chat") if t == "channel" else o.get("sender_chat") if t == "chat" else None
+        su = o.get("sender_user") if t == "user" else None
+        if t == "channel" and o.get("message_id"):
+            out["origin_message_id"] = int(o.get("message_id"))
+        hidden = t == "hidden_user"
+    elif msg.get("forward_date"):                    # قبل Bot API 7.0
+        out["type"] = "legacy"
+        out["date"] = _iso(msg.get("forward_date"))
+        ch, su = msg.get("forward_from_chat"), msg.get("forward_from")
+        if msg.get("forward_from_message_id"):
+            out["origin_message_id"] = int(msg.get("forward_from_message_id"))
+        hidden = bool(msg.get("forward_sender_name"))
+        o = {"author_signature": msg.get("forward_signature")}
+    else:
+        return None
+    if isinstance(ch, dict):
+        out["chat_title"] = ch.get("title")
+        out["chat_username"] = ch.get("username")
+        out["chat_type"] = ch.get("type")
+    if isinstance(su, dict):
+        out["user_username"] = su.get("username")
+        out["user_is_bot"] = bool(su.get("is_bot"))
+    if o.get("author_signature"):
+        out["author_signature"] = str(o.get("author_signature"))
+    if hidden:
+        out["hidden"] = True
+    if msg.get("is_automatic_forward"):
+        out["automatic"] = True
+    return {k: v for k, v in out.items() if v is not None}
+
+
+def file_meta(msg, f):
+    """🧾 بياناتُ **الملفّ الذي اختاره `pick_file` نفسُه** لا غيره ⇒ dict. نقيّة.
+    المستند: المعرّفُ الثابت والحجمُ والنوعُ والاسمُ الأصليّ (الأبعادُ تُقاس من الملفّ المحفوظ) ·
+    الصورة: المعرّفُ الثابت والعرضُ والارتفاعُ والحجم **للمقاس المختار** (يُطابَق بـ`file_id`)."""
+    if not isinstance(msg, dict) or not isinstance(f, dict):
+        return {}
+    if f.get("kind") == "document":
+        d = msg.get("document") if isinstance(msg.get("document"), dict) else {}
+        got = {"file_unique_id": d.get("file_unique_id"), "file_size": d.get("file_size"),
+               "mime": d.get("mime_type"), "orig_name": d.get("file_name")}
+    else:
+        p = next((p for p in (msg.get("photo") or [])
+                  if isinstance(p, dict) and p.get("file_id") == f.get("file_id")), {})
+        got = {"file_unique_id": p.get("file_unique_id"), "width": p.get("width"),
+               "height": p.get("height"), "file_size": p.get("file_size")}
+    return {k: v for k, v in got.items() if v is not None}
+
+
+def msg_meta(u, msg, status, f=None, admin=None, **extra):
+    """🧾 صفُّ بياناتٍ لرسالةٍ واحدة ⇒ dict جاهزٌ لسطر JSONL (نقيّةٌ عدا `collected_utc`).
+
+    `admin` = معرّفُ المشرف يُقارَن بمعرّف المحادثة **ولا يُكتب أيٌّ منهما** — يُكتب `from_admin`
+    (صح · خطأ · None حين لا يُعرف المشرف). 🔒 **النصُّ والتعليقُ والتوجيهُ والروابطُ للمشرف وحده**
+    (`redacted` لغيره): البوتُ نفسُه يُراسله مستلمو التقرير الآخرون، ورسالتُهم الخاصّة لا تُدفَع
+    لمستودعٍ عامّ. والصفُّ يُكتب **قبل** أن يُقَرّ تحديثُه عند تلغرام (`_append_meta`)."""
+    msg = msg if isinstance(msg, dict) else {}
+    chat = msg.get("chat") if isinstance(msg.get("chat"), dict) else {}
+    cid = chat.get("id")
+    from_admin = None if (not admin or cid is None) else (str(cid) == str(admin))
+    row = {"update_id": u.get("update_id") if isinstance(u, dict) else None,
+           "message_id": msg.get("message_id"), "date": _iso(msg.get("date")),
+           "media_group_id": msg.get("media_group_id"), "status": status,
+           "from_admin": from_admin, "kind": (f or {}).get("kind"),
+           "file": (file_meta(msg, f) or None) if f else None,
+           "collected_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+           "run_id": os.environ.get("GITHUB_RUN_ID") or None}
+    if from_admin:
+        row["forward"] = forward_meta(msg)
+        if msg.get("caption"):
+            row["caption"] = str(msg.get("caption"))[:TEXT_CAP]
+        if msg.get("text"):
+            row["text"] = str(msg.get("text"))[:TEXT_CAP]
+        links = [e.get("url") for e in (list(msg.get("caption_entities") or [])
+                                        + list(msg.get("entities") or []))
+                 if isinstance(e, dict) and e.get("type") == "text_link" and e.get("url")]
+        if links:
+            row["links"] = links[:20]
+    else:
+        row["redacted"] = True
+    row.update(extra)
+    return {k: v for k, v in row.items() if v is not None}
+
+
+def meta_summary(rows):
+    """🧾 ملخّصُ صفوف بيانات الرسائل لهذا التشغيل ⇒ أسطرٌ جاهزة (فارغةٌ بلا صفوف). نقيّة."""
+    rows = [r for r in (rows or []) if isinstance(r, dict)]
+    if not rows:
+        return []
+
+    def _cnt(keys):
+        c = {}
+        for k in keys:
+            c[k] = c.get(k, 0) + 1
+        return c
+
+    st = _cnt(str(r.get("status")) for r in rows)
+    ad = _cnt(r.get("from_admin") for r in rows)
+    fw = [r["forward"] for r in rows if isinstance(r.get("forward"), dict)]
+    ft = _cnt(str(x.get("type")) for x in fw)
+    fd = sorted(x["date"] for x in fw if x.get("date"))
+    md = sorted(r["date"] for r in rows if r.get("date"))
+    groups = {r.get("media_group_id") for r in rows if r.get("media_group_id")}
+    src = _cnt((x.get("chat_title") or (f"@{x['user_username']}" if x.get("user_username")
+                                        else "حسابٌ مخفيّ" if x.get("hidden") else "؟"),
+                x.get("chat_username")) for x in fw)
+    out = [f"🧾 بياناتُ الرسائل: {len(rows)} صفًّا · "
+           + " · ".join(f"{k} {v}" for k, v in sorted(st.items())),
+           f"   من المشرف {ad.get(True, 0)} · من غيره {ad.get(False, 0)} (نصُّه محجوب) · "
+           f"غيرُ معروف {ad.get(None, 0)} · ألبومات {len(groups)}"]
+    if md:
+        out.append(f"   تاريخُ الإرسال للبوت: {md[0]} … {md[-1]}")
+    out.append(f"   مُعاد توجيهُها {len(fw)}"
+               + (" (" + " · ".join(f"{k} {v}" for k, v in sorted(ft.items())) + ")" if ft else "")
+               + (f" · تاريخُ المنشور الأصليّ {fd[0]} … {fd[-1]}" if fd else ""))
+    for (t, un), n in sorted(src.items(), key=lambda kv: (-kv[1], str(kv[0])))[:12]:
+        out.append(f"   ↳ {t}" + (f" (@{un})" if un else "") + f" × {n}")
+    cap = sum(1 for r in rows if r.get("caption"))
+    if cap:
+        out.append(f"   بتعليقٍ مرفق {cap}")
+    return out
+
+
+def _append_meta(rows):
+    """يُلحق الصفوفَ بـ`META` **إلحاقًا لا إعادةَ كتابة** ثمّ يُفرغ القائمة ⇒ عددُ المكتوب ·
+    و`-1` عند التعذّر (يُعلَن) — فيمتنع `main` عن إقرار صفحةٍ لم تُكتب بياناتُها."""
+    if not rows:
+        return 0
+    try:
+        with open(META, "a", encoding="utf-8") as fh:
+            for r in rows:
+                fh.write(json.dumps(r, ensure_ascii=False, sort_keys=True) + "\n")
+    except Exception as e:                           # noqa: BLE001
+        print(f"⛔ تعذّر إلحاق بيانات الرسائل بـ{META}: {_mask(e)} — لا تُقَرّ هذه الصفحة")
+        return -1
+    n = len(rows)
+    rows.clear()
+    return n
 
 
 def safe_name(name, fallback):
@@ -166,18 +353,24 @@ def fetch_blob(tok, file_id, get=None, sleep=None):
     return None, False, why or "تعذّر التنزيل"
 
 
-def _store(body, name, shas, exts, matched=None):
+def _store(body, name, shas, exts, matched=None, info=None):
     """يحفظ المحتوى باسم غير مُصادِم ⇒ `"saved"` أو `"dup"` (مكرّرة بالمحتوى).
     يحدّث `shas`/`exts` في المكان.
 
     🔍 **`matched` (قائمة اختيارية)**: عند التكرار يُلحَق بها `(الاسم، الملفّ المطابق)`
     — فبدل ادّعاء «93 مكرّرة» يصير بالإمكان **إثبات** أيّ ملفٍّ طابق أيًّا (سؤال المالك
-    2026-07-28: «مب ملفات — صور خام»). يعمل مع `shas` قاموسًا (بصمة→اسم) أو مجموعةً."""
+    2026-07-28: «مب ملفات — صور خام»). يعمل مع `shas` قاموسًا (بصمة→اسم) أو مجموعةً.
+    🧾 **`info` (قاموسٌ اختياريّ)**: يُملأ بـ`sha256` و`saved_name` (المحفوظ فعلًا بعد تفادي
+    التصادم) أو `matched` — لصفّ بيانات الرسالة. وبدونه السلوكُ والإرجاعُ بت-بت."""
     digest = hashlib.sha256(body).hexdigest()
+    if isinstance(info, dict):
+        info["sha256"] = digest
     if digest in shas:
+        _prev = shas.get(digest) if isinstance(shas, dict) else None
         if matched is not None:
-            _prev = shas.get(digest) if isinstance(shas, dict) else None
             matched.append((name, _prev or "؟"))
+        if isinstance(info, dict):
+            info["matched"] = _prev or "؟"
         return "dup"
     path = os.path.join(OUT_DIR, name)
     n = 1
@@ -193,6 +386,8 @@ def _store(body, name, shas, exts, matched=None):
         shas.add(digest)
     e = os.path.splitext(path)[1].lower() or "?"
     exts[e] = exts.get(e, 0) + 1
+    if isinstance(info, dict):
+        info["saved_name"] = os.path.basename(path)
     return "saved"
 
 
@@ -284,17 +479,29 @@ def main():
     dropped, no_media = [], []   # 🔍 وسائط غير مقبولة · ورسائل بلا وسائط
     matched = []                 # 🔍 (اسم الواردة، الملفّ الذي طابقته)
     seen_skip = []               # 🔍 وصلت لكن `file_id` نُزِّل سابقًا
+    # 🧾 بياناتُ الرسائل: `meta_rows` صفوفُ الصفحة الجارية (تُلحَق بـ`META` قبل طلب الصفحة
+    #    التالية — فطلبُها يُقِرّ هذه عند تلغرام فيحذفها) · `meta_all` نسخةٌ للملخّص.
+    adm = admin_id()
+    meta_rows, meta_all, meta_n, meta_fail = [], [], 0, False
+
+    def _mrow(row):
+        meta_rows.append(row)
+        meta_all.append(row)
 
     if pending:                                      # الطابور أولًا قبل أي جديد
         print(f"🔁 إعادة محاولة {len(pending)} صورة مؤجَّلة من تشغيل سابق…")
         for fid, meta in list(pending.items()):
             nm = str((meta or {}).get("name") or f"TG_{fid[:8]}.jpg")
+            _pm = {"message_id": (meta or {}).get("msg")}
             body, perm, why = fetch_blob(tok, fid)
             if body is not None:
-                if _store(body, nm, shas, exts, matched) == "saved":
+                _inf = {}
+                if _store(body, nm, shas, exts, matched, _inf) == "saved":
                     saved += 1
+                    _mrow(msg_meta(None, _pm, "saved_from_pending", None, adm, **_inf))
                 else:
                     skipped += 1
+                    _mrow(msg_meta(None, _pm, "dup_from_pending", None, adm, **_inf))
                 seen_uid.add(fid)
                 if (meta or {}).get("msg"):
                     acct.add(int(meta["msg"]))
@@ -304,11 +511,16 @@ def main():
             if perm or tries >= PENDING_TRIES:
                 perm_failed.append(f"{nm} — {why} (بعد {tries} محاولات)")
                 pending.pop(fid, None)
+                _mrow(msg_meta(None, _pm, "perm_failed_from_pending", None, adm, why=why))
             else:
                 pending[fid] = {**(meta or {}), "name": nm, "tries": tries}
                 deferred.append(nm)
+                _mrow(msg_meta(None, _pm, "deferred_again", None, adm, why=why))
+        _w = _append_meta(meta_rows)
+        meta_fail = _w < 0
+        meta_n += max(_w, 0)
 
-    while saved + skipped < MAX_FILES and pages < 40:
+    while saved + skipped < MAX_FILES and pages < 40 and not meta_fail:
         pages += 1
         try:
             r = requests.get(f"{API}/bot{tok}/getUpdates", timeout=60,
@@ -347,6 +559,8 @@ def main():
                     dropped.append(f"{msg.get('message_id')}:{_media}")
                 else:
                     no_media.append(int(msg.get("message_id") or 0))
+                _mrow(msg_meta(u, msg, f"dropped:{_media}" if _media else "no_media",
+                               None, adm))
                 marks.append((uid, True))            # نصّ ⇒ لا شيء يُفقَد
                 continue
             if f["file_id"] in seen_uid:
@@ -358,6 +572,7 @@ def main():
                 # بلا أي أثر في التقرير.
                 seen_skip.append(int(msg.get("message_id") or 0))
                 acct.add(int(msg.get("message_id") or 0))
+                _mrow(msg_meta(u, msg, "seen", f, adm))
                 marks.append((uid, True))            # نُزِّلت سابقًا
                 continue
             body, perm, why = fetch_blob(tok, f["file_id"])
@@ -367,23 +582,29 @@ def main():
                                        f"(رسالة {msg.get('message_id')})")
                     seen_uid.add(f["file_id"])
                     acct.add(int(msg.get("message_id") or 0))
+                    _mrow(msg_meta(u, msg, "perm_failed", f, adm, why=why))
                     marks.append((uid, True))
                 elif len(pending) < PENDING_MAX:      # عابر ⇒ للطابور الدائم
                     pending[f["file_id"]] = {"name": f["name"],
                                              "msg": msg.get("message_id"),
                                              "tries": 1}
                     deferred.append(f["name"])
+                    _mrow(msg_meta(u, msg, "deferred", f, adm, why=why))
                     marks.append((uid, True))         # آمن: `file_id` محفوظ عندنا
                 else:                                 # صمّام: الطابور ممتلئ ⇒ لا نُقِرّ
                     failed.append(f"{f['name']} ({why})")
+                    _mrow(msg_meta(u, msg, "failed", f, adm, why=why))
                     marks.append((uid, False))
                 continue
-            if _store(body, f["name"], shas, exts, matched) == "dup":
+            _inf = {}
+            if _store(body, f["name"], shas, exts, matched, _inf) == "dup":
                 skipped += 1                         # مكرّرة بالمحتوى ⇒ تُتخطّى
                 seen_uid.add(f["file_id"])
                 acct.add(int(msg.get("message_id") or 0))
+                _mrow(msg_meta(u, msg, "dup", f, adm, **_inf))
                 marks.append((uid, True))
                 continue
+            _mrow(msg_meta(u, msg, "saved", f, adm, **_inf))
             seen_uid.add(f["file_id"])
             saved += 1
             got_ids.append(int(msg.get("message_id") or 0))
@@ -391,6 +612,13 @@ def main():
             docs += 1 if f["kind"] == "document" else 0
             photos += 1 if f["kind"] == "photo" else 0
             marks.append((uid, True))
+        # 🔒 بياناتُ هذه الصفحة تُكتب **قبل** أن يُقَرّ أيُّ تحديثٍ منها: طلبُ الصفحة التالية
+        #    بـ`offset` أعلى يحذفها عند تلغرام ⇒ إن تعذّرت الكتابةُ فلا تقدّمَ للإزاحة ولا طلبَ تالٍ.
+        _w = _append_meta(meta_rows)
+        if _w < 0:
+            meta_fail = True
+            break
+        meta_n += _w
         new_off = safe_offset(marks, offset)
         if new_off == offset and failed:
             break            # أول تحديث نفسه فاشل ⇒ لا تقدّم، خلّه للتشغيل التالي
@@ -410,6 +638,12 @@ def main():
     print(f"📥 حُفِظت {saved} صورة جديدة · مكرّرة متخطّاة {skipped} "
           f"· (مستندات {docs} · صور مضغوطة {photos})")
     print(f"📁 مجموع الصور في {OUT_DIR}/ الآن: {total}")
+    _ms = meta_summary(meta_all)
+    for _ln in _ms:
+        print(_ln)
+    if meta_fail:
+        print("⛔ **تعذّرت كتابةُ بيانات الرسائل** — لم تُقَرّ الصفحةُ المتعذّرة (يُعاد سحبُها "
+              "بالتشغيل التالي ببياناتها). أعِد تشغيل الـworkflow.")
     # ⚠️ **إصلاح 2026-07-27:** بلوغ السقف كان يقطع السحب **صامتًا**، وبما أن المكرّرة
     # تُحسب ضمنه (`saved + skipped`) والصور الجديدة تأتي غالبًا **آخر** الدفعة، كان
     # القطع يقع عليها بالضبط — ثم يُطبع «لا جديد» فيُقرأ «وصل كل شي». الآن يُصرَّح.
@@ -448,7 +682,12 @@ def main():
               f"- حُفِظت جديدة: **{saved}** · مكرّرة متخطّاة: **{skipped}**",
               f"- مجموع الصور الآن: **{total}**",
               f"- وصلت بمعرّف سبق تنزيله: **{len(seen_skip)}**",
-              f"- عالق بالطابور: **{len(pending)}**", ""]
+              f"- عالق بالطابور: **{len(pending)}**",
+              f"- بياناتُ الرسائل: **{meta_n}** صفًّا أُلحقت بـ`{META}`"
+              + (" · ⛔ **تعذّرت كتابةُ صفحةٍ — لم تُقَرّ**" if meta_fail else ""), ""]
+        if _ms:
+            _R += ["## 🧾 بياناتُ الرسائل (هذا التشغيل · بلا هويّةٍ شخصيّة)", "",
+                   "```"] + _ms + ["```", ""]
         if seen_skip:
             _R += ["## ♻️ وصلت لكن `file_id` نُزِّل سابقًا (هي نفسها عندنا)", "",
                    f"العدد: **{len(seen_skip)}** · أرقام الرسائل: `{seen_skip[:60]}`",
