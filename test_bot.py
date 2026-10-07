@@ -80083,6 +80083,79 @@ check("🧭 V4L16 جنائيّاتُ V4 والمدوّنةُ وتلغرام مو
       "220 عبارةَ قرار · تلغرام 11 · 19 تعارضًا",
       _v4l16ok, f"cmp={_cmp16} key={_key16}")
 
+# ══ FAISAL V4.1 (2026-10-07 · «EVIDENCE HARDENING + PROSPECTIVE VALIDATION») — أقفالُ التجميد والتحقّق الأماميّ (بلا شبكة) ══
+#    العقد `faisal_method_v41/V41_prereg.md` مدموجٌ قبل أيّ رقم · وV4 مرشَّحٌ مجمَّد (`docs/V4_FREEZE_MANIFEST.json`).
+import importlib as _v41_imp                                                # noqa: E402
+import json as _v41_json                                                    # noqa: E402
+import os as _v41_os                                                        # noqa: E402
+import shutil as _v41_sh                                                    # noqa: E402
+import sys as _v41_sys                                                      # noqa: E402
+import tempfile as _v41_tmp                                                 # noqa: E402
+_V41 = _v41_os.path.join(_v41_os.path.dirname(_v41_os.path.abspath(__file__)), "faisal_method_v41")
+if _V41 not in _v41_sys.path:
+    _v41_sys.path.insert(0, _V41)
+
+# ── FV41 تجميدُ V4 سليم (§1 · العقد §②): كلُّ ملفٍّ مجمَّد ببصمته · لا ملفَّ أُضيف/حُذف · freeze_id يُعاد · الإعدادُ الحيّ = المسجَّل ·
+#    والمراجعةُ لا تقبل إلّا خطأَ تنفيذٍ بقفلِ ارتداد — وسلوكيًّا على نسخةٍ مؤقّتة: بايتٌ تغيّر ⟵ HASH · ملفٌّ زائد ⟵ EXTRA · ملفٌّ ناقص ⟵ MISSING ·
+#    مراجعةٌ «منهجيّة» ⟵ REVISION_CLASS · خطأُ تنفيذٍ بلا قفلٍ ⟵ REVISION_POLICY · وPARAMS تغيّرت في الذاكرة ⟵ CONFIG_LIVE · والتقريرُ مولَّدٌ لا محرَّر.
+try:
+    FZ = _v41_imp.import_module("freeze")
+    _m41 = FZ.load()
+    _ok41, _pr41 = FZ.verify(_m41)
+    _cur41 = FZ.current_revision(_m41)
+    _neg41 = {}
+    _td41 = _v41_tmp.mkdtemp(prefix="fv41_")
+    try:
+        for _p41 in _cur41["files"]:
+            _dst41 = _v41_os.path.join(_td41, _p41)
+            _v41_os.makedirs(_v41_os.path.dirname(_dst41), exist_ok=True)
+            _v41_sh.copyfile(_p41, _dst41)
+        _neg41["tmp_clean"] = FZ.verify(_m41, root=_td41, live_config=False)[0]
+        _victim41 = "faisal_method_v4/rules_v4.py"
+        with open(_v41_os.path.join(_td41, _victim41), "ab") as _f41:
+            _f41.write(b"\n# tamper\n")
+        _neg41["hash"] = any(x == "HASH:" + _victim41 for x in FZ.verify(_m41, root=_td41, live_config=False)[1])
+        _v41_sh.copyfile(_victim41, _v41_os.path.join(_td41, _victim41))
+        open(_v41_os.path.join(_td41, "faisal_method_v4", "new_rule.py"), "w").close()
+        _neg41["extra"] = any(x.startswith("EXTRA:") for x in FZ.verify(_m41, root=_td41, live_config=False)[1])
+        _v41_os.remove(_v41_os.path.join(_td41, "faisal_method_v4", "new_rule.py"))
+        _v41_os.remove(_v41_os.path.join(_td41, "faisal_method_v4", "v4_eval.py"))
+        _neg41["missing"] = any(x.startswith("MISSING:") for x in FZ.verify(_m41, root=_td41, live_config=False)[1])
+    finally:
+        _v41_sh.rmtree(_td41, ignore_errors=True)
+    _cp = lambda: _v41_json.loads(_v41_json.dumps(_m41))                     # noqa: E731
+    _mm = _cp()
+    _mm["revisions"].append(dict(_cur41, rev=2, reason_class="METHODOLOGY_CHANGE", supersedes=1, regression_test="X", invalidates=[]))
+    _mm["current"] = 2
+    _neg41["method_rev"] = any(x.startswith("REVISION_CLASS:2") for x in FZ.verify(_mm, live_config=False)[1])
+    _mm = _cp()
+    _mm["revisions"].append(dict(_cur41, rev=2, reason_class="IMPLEMENTATION_BUG", supersedes=1, regression_test=None, invalidates=[]))
+    _mm["current"] = 2
+    _neg41["bug_no_test"] = any(x == "REVISION_POLICY:2" for x in FZ.verify(_mm, live_config=False)[1])
+    _mm = _cp()
+    _mm["revisions"].append(dict(_cur41, rev=2, reason_class="IMPLEMENTATION_BUG", supersedes=1, regression_test="FV-REG-1", invalidates=["run-x"]))
+    _mm["current"] = 2
+    _neg41["bug_ok"] = FZ.verify(_mm, live_config=False)[0]
+    _mm = _cp()
+    _mm["revisions"][0]["config"]["params"]["HOLD_MIN"]["value"] = 4
+    _neg41["config_record"] = "CONFIG_RECORD" in FZ.verify(_mm, live_config=False)[1]
+    _E41 = _v41_sys.modules.get("decision_engine") or _v41_imp.import_module("decision_engine")
+    _keep41 = _E41.PARAMS["HOLD_MIN"]
+    try:
+        _E41.PARAMS["HOLD_MIN"] = (4,) + tuple(_keep41[1:])
+        _neg41["config_live"] = "CONFIG_LIVE" in FZ.verify(_m41)[1]
+    finally:
+        _E41.PARAMS["HOLD_MIN"] = _keep41
+    with open(FZ.REPORT, encoding="utf-8") as _f41:
+        _neg41["report_generated"] = _f41.read() == FZ.report_md(_m41)
+    _neg41["engine_frozen_since"] = (_m41.get("git") or {}).get("engine_last_change_commit", "")[:7] == "d8b4937"
+    _fv41ok = _ok41 and all(_neg41.values()) and _cur41["n_files"] >= 80
+except Exception as _e:                                                    # noqa: BLE001
+    _fv41ok, _pr41, _neg41 = False, f"⛔ {type(_e).__name__}: {_e}", None
+check("🧊 FV41 تجميدُ V4 سليم: 81 ملفًّا ببصماتها · freeze_id · الإعدادُ الحيّ = المسجَّل · والطفرةُ على نسخةٍ مؤقّتة تُكشف "
+      "(بايت · زائد · ناقص · مراجعةٌ منهجيّة · خطأُ تنفيذٍ بلا قفل · PARAMS حيّة) · والتقريرُ مولَّد",
+      _fv41ok, f"verify={_pr41} neg={_neg41}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
