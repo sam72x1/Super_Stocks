@@ -1,0 +1,1320 @@
+{
+ "generated_by": "faisal_method_v41/provenance.py",
+ "rubric": "V41-RUBRIC 1.0 (V41_prereg §④)",
+ "rules": [
+  {
+   "AUTHOR": "—",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [],
+   "COUNTS": {
+    "c1": 0,
+    "c2": 0,
+    "contra_units": 0,
+    "n1": 0,
+    "n2": 0,
+    "support_units": 0
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": false,
+    "engine_functions": [],
+    "params": [],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "UNKNOWN",
+   "DESCRIPTION": "(V3.1 · مرفوضة) جلسةٌ ممتدّة لـW على 30 دقيقة",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "UNKNOWN",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": false,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "لا أثر",
+    "تناقض: DXST: لا النظاميّ ولا الممتدّ أعاد W فيصل"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [],
+   "REGISTRY_STATUS": "CONTRADICTED",
+   "RULE_ID": "H-D2",
+   "SOURCE_LEVEL": 5,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": true,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "—",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [],
+   "COUNTS": {
+    "c1": 0,
+    "c2": 0,
+    "contra_units": 0,
+    "n1": 0,
+    "n2": 0,
+    "support_units": 0
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": false,
+    "engine_functions": [],
+    "params": [],
+    "states": [],
+    "superseded_by": "R4-BOT-01"
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "(V3.1 · معلومة) أدنى ذيلٍ منذ قمّة الدورة",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [],
+   "ENGINEERING": true,
+   "EVIDENCE_STATUS": "UNKNOWN",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": false,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "في V4: هو تعريفُ القاع (R4-BOT-01) · والدعمُ فوقه يُقرأ بالجسم والدعم الثاني والمنطقة",
+    "تناقض: ZNB · LABT (V3.1 C1)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R-SUP-MAIN",
+   "SOURCE_LEVEL": 6,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": true,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "طرفٌ ثالث + رسمُ فيصل",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [],
+   "COUNTS": {
+    "c1": 0,
+    "c2": 0,
+    "contra_units": 0,
+    "n1": 1,
+    "n2": 2,
+    "support_units": 3
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": false,
+    "engine_functions": [
+     "analyze"
+    ],
+    "params": [],
+    "states": [],
+    "superseded_by": "R4-BOT-01"
+   },
+   "DECISIONALITY": "UNKNOWN",
+   "DESCRIPTION": "(V3.1) لا قاعَ بين قاعَي W أدنى منهما بأكثر من 2%",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0627",
+    "TG_58042",
+    "TG_58043"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "PROBABLE",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": false,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "في V4: مُدمَجةٌ في R4-BOT-01 (القاعُ = الأدنى) — لا تُستعمل منفصلة"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0627",
+    "TG_58042",
+    "TG_58043"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R-W-SPAN",
+   "SOURCE_LEVEL": 4,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": true,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [],
+   "COUNTS": {
+    "c1": 0,
+    "c2": 0,
+    "contra_units": 0,
+    "n1": 3,
+    "n2": 2,
+    "support_units": 5
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "structure",
+     "analyze"
+    ],
+    "params": [],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "القاعُ = أدنى ذيلٍ منذ قمّة الدورة (نافذة 120 جلسة) · وكسرُه بأبعد من مدى السحب يعيد التحليل من القاع الجديد (يعمّم R-W-SPAN: القاعُ الحقيقيُّ هو الأدنى)",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0689",
+    "TG_50584",
+    "X_20260827_checklist_7points",
+    "X_20260905_07",
+    "X_20260905_10"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "CONFIRMED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "مرساةُ البنية (القاع والمنطقة والوقف)",
+    "تناقض: C1 (V3.1): دعومُ فيصل فوق الذيل أحيانًا (ZNB 1.963 · LABT 2/1.80) — حُلّ بفصل القاع (ذيل) عن الدعم (جسم · دعمٌ ثانٍ · منطقة)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0689",
+    "TG_50584",
+    "X_20260827_checklist_7points",
+    "X_20260905_07",
+    "X_20260905_10"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-BOT-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "TG_1985",
+    "X_20260827_checklist_7points",
+    "X_20260918_85_YMT"
+   ],
+   "COUNTS": {
+    "c1": 3,
+    "c2": 0,
+    "contra_units": 3,
+    "n1": 13,
+    "n2": 0,
+    "support_units": 13
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [],
+    "params": [
+     "RISE_TEST_PCT"
+    ],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "الدورة: قاع ⟵ صعودُ اختبارٍ (15% فأكثر · غالبًا 20%) ⟵ رجوعٌ يختبر الدعم ⟵ الحكمُ عند الاختبار «هذا اصل التحليل»",
+   "DIRECTLY_OBSERVED": true,
+   "DISCOVERY_DATASET": [
+    "IMG_0488",
+    "IMG_0566",
+    "TG_1985",
+    "TG_20260905_07",
+    "TG_20260905_09",
+    "TG_50579",
+    "TG_50584",
+    "TG_50585",
+    "TG_57867",
+    "TG_57872",
+    "TG_57884",
+    "X_20260827_checklist_7points",
+    "X_20260918_13_NUWE",
+    "X_20260918_24_SXTC",
+    "X_20260918_85_YMT"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": false,
+   "KNOWN_LIMITATIONS": [
+    "بعد صعود الاختبار والسعرُ فوق المنطقة ⟵ WAIT (RETEST_PENDING)",
+    "تناقض: X_20260918_85_YMT نفسُه: «يصعد مباشره بعد القاع … نادر» (استثناءٌ معترَف به)",
+    "تناقض: TG_1985 «اسهم تصعد مباشره لاتصلح لها هذي النظريه»",
+    "تناقض: X_20260827_checklist_7points: دخولٌ عند القاع بلا صعود اختبار (C-CYCLE-VS-CHECKLIST)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0488",
+    "IMG_0566",
+    "TG_20260905_07",
+    "TG_20260905_09",
+    "TG_50579",
+    "TG_50584",
+    "TG_50585",
+    "TG_57867",
+    "TG_57872",
+    "TG_57884",
+    "X_20260918_13_NUWE",
+    "X_20260918_24_SXTC",
+    "X_20260918_85_YMT"
+   ],
+   "REGISTRY_STATUS": "CONFIRMED",
+   "RULE_ID": "R4-CYC-01",
+   "SOURCE_LEVEL": 3,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": true,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "—",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [],
+   "COUNTS": {
+    "c1": 0,
+    "c2": 0,
+    "contra_units": 0,
+    "n1": 0,
+    "n2": 0,
+    "support_units": 0
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "_unknown"
+    ],
+    "params": [
+     "MIN_BARS"
+    ],
+    "states": [
+     "DATA_INSUFFICIENT"
+    ],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "جودةُ البيانات: 40 جلسةً يوميّةً فأكثر حتى تاريخ القراءة · بلا قيمٍ ناقصة · والقراءةُ لا ترى ما بعد asof",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [],
+   "ENGINEERING": true,
+   "EVIDENCE_STATUS": "UNKNOWN",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "نقصُ البيانات ⟵ UNKNOWN",
+    "قاعدةٌ هندسيّة (ليست دعوى عن فيصل)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [],
+   "REGISTRY_STATUS": "CONFIRMED",
+   "RULE_ID": "R4-DATA-01",
+   "SOURCE_LEVEL": 7,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": true,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "IMG_0290",
+    "IMG_0291",
+    "TG_1963",
+    "TG_2059"
+   ],
+   "COUNTS": {
+    "c1": 2,
+    "c2": 2,
+    "contra_units": 4,
+    "n1": 5,
+    "n2": 1,
+    "support_units": 6
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "analyze"
+    ],
+    "params": [],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "SUPPORTING",
+   "DESCRIPTION": "الدخولُ الأوّل: طلباتٌ عند الدعم بدفعاتٍ (فوارق 5 سنتات) — آليّةُ دخولٍ مفضّلة لا شرطُ قرار",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0290",
+    "IMG_0291",
+    "IMG_0505",
+    "IMG_0510",
+    "IMG_0569",
+    "TG_1963",
+    "TG_2059",
+    "X_20260827_checklist_7points",
+    "X_20260918_85_YMT"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "يشرح طريقة الدخول · لا يغيّر الحالة (جوابُ §15)",
+    "تناقض: TG_1963 ERNA «اللي ماتفرق معاه ومتعود يشري من العرض قدامك السهم»",
+    "تناقض: IMG_0291 DSY «اخذته الان من العرض الليلي»",
+    "تناقض: IMG_0290 AZI «شيله من العرض باي سعر» (عند التحرّر)",
+    "تناقض: TG_2059 PPCB «ماركت ناخذه»"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0505",
+    "IMG_0510",
+    "IMG_0569",
+    "TG_1963",
+    "X_20260827_checklist_7points",
+    "X_20260918_85_YMT"
+   ],
+   "REGISTRY_STATUS": "CONFIRMED",
+   "RULE_ID": "R4-ENT-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "TG_1840"
+   ],
+   "COUNTS": {
+    "c1": 1,
+    "c2": 0,
+    "contra_units": 1,
+    "n1": 5,
+    "n2": 0,
+    "support_units": 5
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "analyze"
+    ],
+    "params": [],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "INFORMATIONAL",
+   "DESCRIPTION": "الدخولُ الثاني: بعد التحرّر/الاختراق مع التأكيد (ثباتٌ فوقه · إقفالٌ يوميٌّ ثانٍ)",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0602",
+    "TG_1840",
+    "TG_2197",
+    "TG_57862",
+    "X_20260827_checklist_7points_cont",
+    "X_20260918_61_VEEE"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "يُعرض بديلًا (مستوى التحرّر) ولا يقلب الحالة — متنازَعٌ عليه",
+    "تناقض: TG_1840 «تشري ع الاختراق اعرف انك خسران … الاختراق فاشل الدخول فيه» (C-BREAKOUT)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0602",
+    "TG_2197",
+    "TG_57862",
+    "X_20260827_checklist_7points_cont",
+    "X_20260918_61_VEEE"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-ENT-02",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": false,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "TG_2059",
+    "WA_20260918_31_SXTC"
+   ],
+   "COUNTS": {
+    "c1": 1,
+    "c2": 1,
+    "contra_units": 2,
+    "n1": 4,
+    "n2": 1,
+    "support_units": 5
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [],
+    "params": [
+     "HOLD_MIN"
+    ],
+    "states": [
+     "BASE_FORMING",
+     "BASE_HELD"
+    ],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "القاعُ لا يُكسر 5 جلساتٍ فأكثر قبل أيّ حكمٍ بالإيجابيّة",
+   "DIRECTLY_OBSERVED": true,
+   "DISCOVERY_DATASET": [
+    "TG_20260905_09",
+    "TG_2044",
+    "TG_2059",
+    "TG_2066",
+    "WA_20260918_31_SXTC",
+    "X_20260827_checklist_7points",
+    "X_20260918_85_YMT"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": false,
+   "KNOWN_LIMITATIONS": [
+    "أقلّ من 5 ⟵ WAIT (BASE_FORMING)",
+    "تناقض: WA_20260918_31_SXTC: READY يومَ الضغط (طبقة 2)",
+    "تناقض: TG_2059 PPCB: «ماركت ناخذه» بعد الضغط والارتداد"
+   ],
+   "MUTATION_LOCK": [
+    "M1 HOLD_MIN 5→4"
+   ],
+   "PRIMARY_SOURCE_IDS": [
+    "TG_20260905_09",
+    "TG_2044",
+    "TG_2066",
+    "X_20260827_checklist_7points",
+    "X_20260918_85_YMT"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-HOLD-01",
+   "SOURCE_LEVEL": 3,
+   "STATUS_DIFFERS": false,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": true,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "IMG_0395",
+    "IMG_0659",
+    "WA_20260918_31_SXTC"
+   ],
+   "COUNTS": {
+    "c1": 1,
+    "c2": 2,
+    "contra_units": 3,
+    "n1": 5,
+    "n2": 0,
+    "support_units": 5
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [],
+    "params": [
+     "HOLD_ZONE"
+    ],
+    "states": [
+     "RETEST_IN_PROGRESS",
+     "RETEST_HELD"
+    ],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "ثباتٌ داخل المنطقة بعد الاختبار (2-5 جلسات · الأساسيّ 3) = جاهزيّةٌ فنيّة",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0395",
+    "IMG_0566",
+    "IMG_0659",
+    "IMG_0697",
+    "TG_20260905_09",
+    "TG_2066",
+    "TG_2108",
+    "WA_20260918_31_SXTC"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "أقلّ من HOLD_ZONE ⟵ WAIT (RETEST_IN_PROGRESS)",
+    "تناقض: IMG_0395 SPRC: «حقق الدعوم بالامس» ثمّ شراء (جلسةٌ واحدة)",
+    "تناقض: WA_20260918_31_SXTC: READY يومَ الضغط",
+    "تناقض: IMG_0659 TDIC (EDU): الدخولُ على شمعة الهمر"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0566",
+    "IMG_0697",
+    "TG_20260905_09",
+    "TG_2108"
+   ],
+   "REGISTRY_STATUS": "PROBABLE",
+   "RULE_ID": "R4-HOLDZ-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [
+    "TG_2066"
+   ],
+   "TESTED": true,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "TG_2017",
+    "TG_2127"
+   ],
+   "COUNTS": {
+    "c1": 0,
+    "c2": 2,
+    "contra_units": 2,
+    "n1": 4,
+    "n2": 1,
+    "support_units": 5
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [],
+    "params": [],
+    "states": [
+     "BROKEN_NEW_BASE"
+    ],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "كسرُ القاع بأبعد من مدى السحب يُفشل التحليل الحاليّ ⟵ انتظارُ قاعٍ جديد",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0512",
+    "IMG_0513",
+    "IMG_0569",
+    "TG_2017",
+    "TG_2127",
+    "X_20260905_07",
+    "X_20260905_10"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "CONFIRMED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "كسرٌ أعمق من SWEEP_MAX ⟵ WAIT (BROKEN_NEW_BASE)",
+    "تناقض: C-SUPPORT10: ENPH ‏−11..−13% وELAB ‏−39% ثمّ صعودٌ كبير (TG_2017 · TG_2127)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0512",
+    "IMG_0513",
+    "IMG_0569",
+    "X_20260905_07",
+    "X_20260905_10"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-INV-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [],
+   "COUNTS": {
+    "c1": 0,
+    "c2": 0,
+    "contra_units": 0,
+    "n1": 3,
+    "n2": 1,
+    "support_units": 4
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [],
+    "params": [],
+    "states": [
+     "RETEST_PENDING"
+    ],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "السعرُ فوق المنطقة بعد الصعود («الوسط غير الآمن») ⟵ لا دخول · انتظارُ الاختبار",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "TG_2097",
+    "TG_50580",
+    "X_20260827_target10_entry_below",
+    "X_20260918_12_doublebottom"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "CONFIRMED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "فوق المنطقة ⟵ WAIT (RETEST_PENDING)",
+    "تناقض: T-W (V3): «الوسط غير آمن» عُكس يوميًّا بقياسٍ تداوليّ (A − M ‏−0.98) — مقياسُ ربحٍ لا وفاء (§24)"
+   ],
+   "MUTATION_LOCK": [
+    "M6 RETEST_PENDING→TECH_READY"
+   ],
+   "PRIMARY_SOURCE_IDS": [
+    "TG_2097",
+    "TG_50580",
+    "X_20260827_target10_entry_below",
+    "X_20260918_12_doublebottom"
+   ],
+   "REGISTRY_STATUS": "CONFIRMED",
+   "RULE_ID": "R4-LOC-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": false,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "X_20260827_checklist_7points_cont"
+   ],
+   "COUNTS": {
+    "c1": 1,
+    "c2": 0,
+    "contra_units": 1,
+    "n1": 6,
+    "n2": 0,
+    "support_units": 6
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "validity"
+    ],
+    "params": [],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "UNKNOWN",
+   "DESCRIPTION": "بصمةُ المضارب (الضغط) هي التأكيدُ الافتراضيّ قبل READY · والجاهزيّةُ الفنيّة بلا بصمةٍ ⟵ انتظار",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "TG_1822",
+    "TG_2218",
+    "TG_50575",
+    "TG_50584",
+    "X_20260827_amix_hcwb_ready",
+    "X_20260827_checklist_7points_cont",
+    "X_20260905_01"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "غيرُ مرئيٍّ تاريخيًّا إلّا بالسحب والعودة (R4-SWEEP-01) ⟵ الجاهزيّةُ الفنيّةُ بلا معلومة ⟵ UNKNOWN لا READY",
+    "CR-01: `operator_press = False` يُعامَل معلومةً مكتملةً لا تمنع (ملتبس · لا يُصلح) · ولا مصدرَ للبصمة بعد Polygon ⟵ `None` دائمًا ⟵ READY مستحيلٌ عمليًّا",
+    "تناقض: X_20260827_checklist_7points_cont «ماتم ضغطه … تدخل مباشره ع خط متوسط 50 > 200»",
+    "تناقض: AMIX READY قبل الضغط (طلبات)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "TG_1822",
+    "TG_2218",
+    "TG_50575",
+    "TG_50584",
+    "X_20260827_amix_hcwb_ready",
+    "X_20260905_01"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-OP-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": false,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "TG_1978",
+    "TG_2098",
+    "X_20260918_61_VEEE"
+   ],
+   "COUNTS": {
+    "c1": 3,
+    "c2": 0,
+    "contra_units": 3,
+    "n1": 4,
+    "n2": 1,
+    "support_units": 5
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "analyze"
+    ],
+    "params": [],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "SUPPORTING",
+   "DESCRIPTION": "الوقف: القاعُ نفسُه (الأساسيّ) · وبدائلُ موسومة: ‏−5% · ‏−7% تحت الدعم · 7% من الدخول",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "TG_1978",
+    "TG_2098",
+    "TG_2106",
+    "X_20260827_checklist_7points",
+    "X_20260918_61_VEEE"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "ثلاثُ عائلاتِ وقفٍ موسومة لا تُخلط",
+    "تناقض: TG_1978 «الوقف −5٪»",
+    "تناقض: TG_2098 HUBC «وقف 7٪»",
+    "تناقض: X_20260918_61_VEEE «7٪ من دخولنا» (C-STOP-REF)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "TG_1978",
+    "TG_2098",
+    "TG_2106",
+    "X_20260827_checklist_7points",
+    "X_20260918_61_VEEE"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-STOP-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": false,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F (المدى) · EDU (7-13 حرفيًّا)",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "IMG_0153"
+   ],
+   "COUNTS": {
+    "c1": 1,
+    "c2": 0,
+    "contra_units": 1,
+    "n1": 6,
+    "n2": 1,
+    "support_units": 7
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [],
+    "params": [
+     "SWEEP_MAX_PCT",
+     "SWEEP_PROJ_PCT",
+     "RECLAIM_BARS"
+    ],
+    "states": [
+     "SWEEP_ACTIVE",
+     "PRESS_RECLAIM"
+    ],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "سحبُ سيولةٍ تحت القاع السابق (حتى 13% · مدى الطبقة 1: 5-15%) ثمّ عودةٌ فوقه = ضغطُ المضارب (إيجابيّ)",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0153",
+    "IMG_0177",
+    "IMG_0297",
+    "TG_1822",
+    "TG_50584",
+    "TG_57870",
+    "TG_57874",
+    "TG_57879"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "سحبٌ ثمّ عودةٌ خلال جلستين ⟵ جاهزيّةٌ فنيّة (PRESS_RECLAIM)",
+    "تناقض: IMG_0153 وصفةُ المقسّم: هبوطٌ إلى 2 من ÷2≈2.75 (‏−27%)",
+    "تناقض: C-STOP-VS-SWEEP: وقفُ 5-7% يُضرب بسحب 8%"
+   ],
+   "MUTATION_LOCK": [
+    "M19 SWEEP_MAX 13→20"
+   ],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0177",
+    "IMG_0297",
+    "TG_1822",
+    "TG_50584",
+    "TG_57870",
+    "TG_57874",
+    "TG_57879"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-SWEEP-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": false,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": true,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [],
+   "COUNTS": {
+    "c1": 0,
+    "c2": 0,
+    "contra_units": 0,
+    "n1": 2,
+    "n2": 2,
+    "support_units": 4
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "analyze"
+    ],
+    "params": [],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "INFORMATIONAL",
+   "DESCRIPTION": "الفريمات: يوميّ ‏+ 4 ساعات · و30/5 دقائق للّحظيّ · والمستوياتُ تختلف بالفريم — المحرّكُ يوميٌّ وحدَه",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0361",
+    "TG_2031",
+    "TG_58048",
+    "X_20260905_10"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "سياقُ الفريم الأدنى UNKNOWN تاريخيًّا",
+    "المحرّكُ يوميٌّ وحدَه — صورُ فيصل على 4 ساعات/30 دقيقة تُقارن بقراءةٍ يوميّة"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0361",
+    "TG_2031",
+    "TG_58048",
+    "X_20260905_10"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-TF-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": false,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "IMG_0587"
+   ],
+   "COUNTS": {
+    "c1": 1,
+    "c2": 0,
+    "contra_units": 1,
+    "n1": 5,
+    "n2": 0,
+    "support_units": 5
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "analyze"
+    ],
+    "params": [],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "INFORMATIONAL",
+   "DESCRIPTION": "الأهداف: سلّمُ المقاومات (الأسود) · رأسُ/ذيلُ الشمعة الساقطة · الفجوات · و«100٪ هدف» = مسافةُ ربح ‏+100% · والحركةُ المقيسة طرفٌ ثالث",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0508",
+    "IMG_0587",
+    "TG_2097",
+    "X_20260827_amix_hcwb_ready",
+    "X_20260827_pfsa_500pct"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "الأهدافُ لا تغيّر الحالة",
+    "تناقض: IMG_0587 «100٪ مضمونه» = يقين لا مسافة (فئةٌ ثالثة)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0508",
+    "IMG_0587",
+    "TG_2097",
+    "X_20260827_amix_hcwb_ready",
+    "X_20260827_pfsa_500pct"
+   ],
+   "REGISTRY_STATUS": "CONFIRMED",
+   "RULE_ID": "R4-TGT-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "X_20260905_10"
+   ],
+   "COUNTS": {
+    "c1": 0,
+    "c2": 1,
+    "contra_units": 1,
+    "n1": 6,
+    "n2": 0,
+    "support_units": 6
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "validity"
+    ],
+    "params": [],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "دخولُ القروبات يُبطل قراءةَ الشموع ⟵ رفض",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0316",
+    "IMG_0488",
+    "IMG_0508",
+    "TG_1835",
+    "TG_2090",
+    "X_20260827_checklist_7points",
+    "X_20260905_10"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "CONFIRMED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "context.groups = True ⟵ REJECT",
+    "لا مصدرَ نقطيٌّ لدخول القروبات ⟵ `None` دائمًا في التحقّق",
+    "تناقض: X_20260905_10 YMT «لايهم حتى لو دخل قروب ورفعه 20٪ · المضارب اذا بيحقق اهدافه راح يهبط فيه»"
+   ],
+   "MUTATION_LOCK": [
+    "M2 groups→WAIT"
+   ],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0316",
+    "IMG_0488",
+    "IMG_0508",
+    "TG_1835",
+    "TG_2090",
+    "X_20260827_checklist_7points"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-VAL-GRP-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [],
+   "COUNTS": {
+    "c1": 0,
+    "c2": 0,
+    "contra_units": 0,
+    "n1": 4,
+    "n2": 0,
+    "support_units": 4
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "validity"
+    ],
+    "params": [],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "طرحٌ أو تخفيفٌ معلَّق ⟵ انتظار",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "TG_2064",
+    "TG_50828",
+    "X_20260827_kwm_offering_notready",
+    "X_20260918_85_YMT"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "CONFIRMED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "context.offering_pending = True ⟵ WAIT",
+    "لا تعريفَ آليٌّ مُتحقَّقٌ لـ«طرحٍ معلَّق» وقتَ النقطة ⟵ `None` في التحقّق الأماميّ"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "TG_2064",
+    "TG_50828",
+    "X_20260827_kwm_offering_notready",
+    "X_20260918_85_YMT"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-VAL-OFF-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": false,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "TG_1831",
+    "TG_2196"
+   ],
+   "COUNTS": {
+    "c1": 1,
+    "c2": 1,
+    "contra_units": 2,
+    "n1": 3,
+    "n2": 0,
+    "support_units": 3
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [
+     "validity"
+    ],
+    "params": [
+     "SHORT_AVAIL_MAX"
+    ],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "المتاحُ للشورت فوق 20 ألفًا ⟵ انتظار",
+   "DIRECTLY_OBSERVED": false,
+   "DISCOVERY_DATASET": [
+    "IMG_0150",
+    "TG_1831",
+    "TG_2196",
+    "TG_50578",
+    "X_20260827_rubi_read_short150k"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": true,
+   "KNOWN_LIMITATIONS": [
+    "context.short_available > 20,000 ⟵ WAIT (لا يرقّي أبدًا)",
+    "«المتاح» من حصّاد الاقتراض (ChartExchange) لرموز الحصّاد وحدَها · وغيرُها `None`",
+    "تناقض: TG_2196 ONCO: شورت 150 ألفًا وخطّةٌ كاملة",
+    "تناقض: TG_1831 LABT: «الشورت 55 ألف متاح ولم يمنع التحليل» (طبقة 2)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0150",
+    "TG_50578",
+    "X_20260827_rubi_read_short150k"
+   ],
+   "REGISTRY_STATUS": "PROBABLE",
+   "RULE_ID": "R4-VAL-SHORT-01",
+   "SOURCE_LEVEL": 2,
+   "STATUS_DIFFERS": true,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": true,
+   "VALIDATION_DATASET": []
+  },
+  {
+   "AUTHOR": "F",
+   "BACKTEST_DERIVED": false,
+   "CONTRADICTORY_SOURCE_IDS": [
+    "TG_1963"
+   ],
+   "COUNTS": {
+    "c1": 1,
+    "c2": 0,
+    "contra_units": 1,
+    "n1": 5,
+    "n2": 0,
+    "support_units": 5
+   },
+   "CURRENT_IMPLEMENTATION": {
+    "active": true,
+    "engine_functions": [],
+    "params": [
+     "ZONE_PCT",
+     "BID_LO_PCT"
+    ],
+    "states": [],
+    "superseded_by": null
+   },
+   "DECISIONALITY": "DECISIONAL",
+   "DESCRIPTION": "منطقةُ الدخول/الاختبار: من القاع حتى 15% فوقه · والطلباتُ 5-15% فوق القاع",
+   "DIRECTLY_OBSERVED": true,
+   "DISCOVERY_DATASET": [
+    "IMG_0531",
+    "IMG_0569",
+    "TG_1963",
+    "TG_50585",
+    "X_20260827_checklist_7points",
+    "X_20260918_85_YMT"
+   ],
+   "ENGINEERING": false,
+   "EVIDENCE_STATUS": "SUPPORTED",
+   "GOLDEN_WITNESS_IDS": [],
+   "HOLDOUT_DATASET": [],
+   "IMPLEMENTED": true,
+   "INFERRED": false,
+   "KNOWN_LIMITATIONS": [
+    "السعرُ داخل المنطقة شرطُ الجاهزيّة الفنيّة",
+    "تناقض: TG_1963 ERNA: طلباتٌ 5.00-5.40 فوق قاعٍ قديم 3.70 بـ35%+ (القاعُ المرجعيُّ مختلف)"
+   ],
+   "MUTATION_LOCK": [],
+   "PRIMARY_SOURCE_IDS": [
+    "IMG_0531",
+    "IMG_0569",
+    "TG_50585",
+    "X_20260827_checklist_7points",
+    "X_20260918_85_YMT"
+   ],
+   "REGISTRY_STATUS": "SUPPORTED",
+   "RULE_ID": "R4-ZONE-01",
+   "SOURCE_LEVEL": 1,
+   "STATUS_DIFFERS": false,
+   "SUPPORTING_SOURCE_IDS": [],
+   "TESTED": true,
+   "VALIDATION_DATASET": []
+  }
+ ],
+ "summary": {
+  "active": 18,
+  "audit_status": {
+   "CONFIRMED": 5,
+   "CONTRADICTED": 0,
+   "POSSIBLE": 0,
+   "PROBABLE": 1,
+   "SUPPORTED": 12,
+   "UNKNOWN": 3
+  },
+  "cited_units_all": 81,
+  "differs": [
+   "H-D2",
+   "R-SUP-MAIN",
+   "R-W-SPAN",
+   "R4-BOT-01",
+   "R4-CYC-01",
+   "R4-DATA-01",
+   "R4-ENT-01",
+   "R4-HOLDZ-01",
+   "R4-INV-01",
+   "R4-TGT-01",
+   "R4-VAL-GRP-01",
+   "R4-VAL-OFF-01",
+   "R4-VAL-SHORT-01"
+  ],
+  "registry_status": {
+   "CONFIRMED": 5,
+   "CONTRADICTED": 1,
+   "POSSIBLE": 0,
+   "PROBABLE": 2,
+   "SUPPORTED": 13,
+   "UNKNOWN": 0
+  },
+  "registry_stronger": [
+   "H-D2",
+   "R-SUP-MAIN",
+   "R-W-SPAN",
+   "R4-CYC-01",
+   "R4-DATA-01",
+   "R4-ENT-01",
+   "R4-TGT-01"
+  ],
+  "rules": 21
+ }
+}

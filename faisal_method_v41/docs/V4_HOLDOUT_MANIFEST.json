@@ -1,0 +1,5796 @@
+{
+ "blind_fields": [
+  "case",
+  "sids",
+  "third_party_sids",
+  "tickers",
+  "dates",
+  "statement_date",
+  "date_precision",
+  "set",
+  "split",
+  "golden",
+  "tiers",
+  "best_tier"
+ ],
+ "contract": "V41_prereg §⑤",
+ "generated_by": "faisal_method_v41/holdout.py",
+ "inputs": {
+  "cases_v4_sha256": "422a28f2fe28e3a21a40032f66704128a5ebdb00367a7fc15a49bc2c66766665",
+  "cited_units": 81,
+  "corpus_sha256": "8bde6fe4766ad55abaf8b1e0ce7e344ef5047924bcbf5cb851dcd6bafcfd4379",
+  "exposed_units": 609,
+  "visual_pass_sha256": "d431061c6a841b5b2c8072978366bc52060c21a4f577229baabb971f2f077a4d"
+ },
+ "rows": [
+  {
+   "CASE_ID": "LABT_2026-07-27",
+   "DISCOVERY_CONTAMINATION": [
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1816"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-27"
+   },
+   "REASON": "GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "LABT"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "TG_1816"
+   ]
+  },
+  {
+   "CASE_ID": "INLF_2026-07-19",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1821#0"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-19"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "INLF"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1821"
+   ]
+  },
+  {
+   "CASE_ID": "HODO_2026-07-19",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1821#1"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-19"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "HODO"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1821"
+   ]
+  },
+  {
+   "CASE_ID": "XAIR_2026-07-19",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1821#2"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-19"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "XAIR"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1821"
+   ]
+  },
+  {
+   "CASE_ID": "WLDS_2026-07-19",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1821#3"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-19"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "WLDS"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1821"
+   ]
+  },
+  {
+   "CASE_ID": "RBNE_2026-07-19",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1821#4"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-19"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "RBNE"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1821"
+   ]
+  },
+  {
+   "CASE_ID": "EHGO_2026-05-22",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1822",
+    "TG_1958",
+    "TG_2071"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-22"
+   },
+   "REASON": "CITED · DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "EHGO"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_1822",
+    "TG_1958",
+    "TG_2071"
+   ]
+  },
+  {
+   "CASE_ID": "LNAI_2026-06-15",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1824"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-15"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "LNAI"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "TG_1824"
+   ]
+  },
+  {
+   "CASE_ID": "ZCMD_2026-07-02",
+   "DISCOVERY_CONTAMINATION": [
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1828"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-02"
+   },
+   "REASON": "DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "ZCMD"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "TG_1828"
+   ]
+  },
+  {
+   "CASE_ID": "LABT_2026-07-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1831"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "CITED · GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "LABT"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_1831"
+   ]
+  },
+  {
+   "CASE_ID": "CANF_2026-07-20",
+   "DISCOVERY_CONTAMINATION": [
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1833"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CANF"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_1833"
+   ]
+  },
+  {
+   "CASE_ID": "LABT_2026-07-05",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1835"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-05"
+   },
+   "REASON": "CITED · GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "LABT"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "30m"
+   ],
+   "UNITS": [
+    "TG_1835"
+   ]
+  },
+  {
+   "CASE_ID": "PPCB_2026-07-16",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1838"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-16"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "PPCB"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "TG_1838"
+   ]
+  },
+  {
+   "CASE_ID": "SPRC_2026-07-17",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0395",
+    "TG_1843"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-17"
+   },
+   "REASON": "CITED · GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1",
+     "2"
+    ]
+   },
+   "TICKER": [
+    "SPRC"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0395",
+    "TG_1843"
+   ]
+  },
+  {
+   "CASE_ID": "TRUG_2026-07-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1845",
+    "TG_1849"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "TRUG"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1845",
+    "TG_1849"
+   ]
+  },
+  {
+   "CASE_ID": "EZRA_2026-07-20",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1851"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "EZRA"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1851"
+   ]
+  },
+  {
+   "CASE_ID": "PIII_2026-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1857"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "PIII"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1857"
+   ]
+  },
+  {
+   "CASE_ID": "PIII_2026-05-16",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1860"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-16"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "PIII"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_1860"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_1864",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1864"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-04-24"
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_1864"
+   ]
+  },
+  {
+   "CASE_ID": "YYAI_2026-07-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1876"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-01"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "YYAI"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1876"
+   ]
+  },
+  {
+   "CASE_ID": "GWAV_2026-06-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1892",
+    "TG_2030"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "GWAV"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1892",
+    "TG_2030"
+   ]
+  },
+  {
+   "CASE_ID": "SMX_2026-04-25",
+   "DISCOVERY_CONTAMINATION": [
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1908"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-04-25"
+   },
+   "REASON": "DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "SMX"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "1H"
+   ],
+   "UNITS": [
+    "TG_1908"
+   ]
+  },
+  {
+   "CASE_ID": "CDIO_None",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1933"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "CDIO"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "5m"
+   ],
+   "UNITS": [
+    "TG_1933"
+   ]
+  },
+  {
+   "CASE_ID": "CLIK_None",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1947"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CLIK"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "TG_1947"
+   ]
+  },
+  {
+   "CASE_ID": "CNMD_2026-05-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1951"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "CNMD"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1951"
+   ]
+  },
+  {
+   "CASE_ID": "FRGT_None",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1956"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "FRGT"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1956"
+   ]
+  },
+  {
+   "CASE_ID": "EZRA_2026-06-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1957"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-20"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "EZRA"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_1957"
+   ]
+  },
+  {
+   "CASE_ID": "ERNA_2026-05-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1963"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-01"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "ERNA"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "5m",
+    "D"
+   ],
+   "UNITS": [
+    "TG_1963"
+   ]
+  },
+  {
+   "CASE_ID": "TLIH_2026-05-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1981"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-01"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "TLIH"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "W"
+   ],
+   "UNITS": [
+    "TG_1981"
+   ]
+  },
+  {
+   "CASE_ID": "ELPW_2026-05-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1985#0",
+    "TG_2094"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-01"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1",
+     "2"
+    ]
+   },
+   "TICKER": [
+    "ELPW"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "5m",
+    "D"
+   ],
+   "UNITS": [
+    "TG_1985",
+    "TG_2094"
+   ]
+  },
+  {
+   "CASE_ID": "CDIO_2026-02-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1989"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-02-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CDIO"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1989"
+   ]
+  },
+  {
+   "CASE_ID": "ELAB_2026-04-12",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1997"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-04-12"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "ELAB"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D",
+    "W"
+   ],
+   "UNITS": [
+    "TG_1997"
+   ]
+  },
+  {
+   "CASE_ID": "NXTT_2026-02-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_1999"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-02-01"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "NXTT"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_1999"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_2001",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2001"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-04-11"
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_2001"
+   ]
+  },
+  {
+   "CASE_ID": "ENPH_2026-05-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2017"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-20"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "ENPH"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "W"
+   ],
+   "UNITS": [
+    "TG_2017"
+   ]
+  },
+  {
+   "CASE_ID": "MBRX_06-2x (السنة غير متحقَّقة)",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2019"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "MBRX"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_2019"
+   ]
+  },
+  {
+   "CASE_ID": "LNAI_2026-06-1x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2031",
+    "TG_2053"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-10"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "LNAI"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "TG_2031",
+    "TG_2053"
+   ]
+  },
+  {
+   "CASE_ID": "SMX_2026-05-24",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2034"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-24"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "SMX"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "TG_2034"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_2036",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2036"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2036"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_2037",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2037"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_2037"
+   ]
+  },
+  {
+   "CASE_ID": "PPCB_2026-05/06 (بعد تقسيم 18/5)",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2059"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "CITED · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "PPCB"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_2059"
+   ]
+  },
+  {
+   "CASE_ID": "ADIL_2026-06-07",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2064"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-07"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "ADIL"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_2064"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_2065",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2065"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2065"
+   ]
+  },
+  {
+   "CASE_ID": "FRSX_2026-03-28",
+   "DISCOVERY_CONTAMINATION": [
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2079"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-03-28"
+   },
+   "REASON": "DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "FRSX"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2079"
+   ]
+  },
+  {
+   "CASE_ID": "CDIO_2026-01-28/02",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2090#0",
+    "TG_2090#1"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "CITED · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CDIO"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2090"
+   ]
+  },
+  {
+   "CASE_ID": "CDIO_2026-02-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2093"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-02-01"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "CDIO"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2093"
+   ]
+  },
+  {
+   "CASE_ID": "ELPW_2026-01-22",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2095"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-01-22"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "ELPW"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "5m"
+   ],
+   "UNITS": [
+    "TG_2095"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_2099",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2099#0",
+    "TG_2099#1"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "5m"
+   ],
+   "UNITS": [
+    "TG_2099"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_2102",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2102"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-17"
+   },
+   "REASON": "EDU · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2102"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_2106",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2106"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "CITED · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_2106"
+   ]
+  },
+  {
+   "CASE_ID": "CLIR_2026-04-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2108"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-04-01"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CLIR"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2108"
+   ]
+  },
+  {
+   "CASE_ID": "PPBT_2026-04-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2110"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-04-01"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "PPBT"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2110"
+   ]
+  },
+  {
+   "CASE_ID": "SVRE_2026-03-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2116"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-03-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "SVRE"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2116"
+   ]
+  },
+  {
+   "CASE_ID": "BETA_2026-04-05",
+   "DISCOVERY_CONTAMINATION": [
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2117"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-04-05"
+   },
+   "REASON": "DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "BETA"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "TG_2117"
+   ]
+  },
+  {
+   "CASE_ID": "BCG_None",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2119"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "BCG"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "5m"
+   ],
+   "UNITS": [
+    "TG_2119"
+   ]
+  },
+  {
+   "CASE_ID": "TRUG_2026-03-30",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2121"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-03-30"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "TRUG"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2121"
+   ]
+  },
+  {
+   "CASE_ID": "PCLA_2026-03-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2126"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-03-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "PCLA"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2126"
+   ]
+  },
+  {
+   "CASE_ID": "CNSP_2026-05-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2176"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-20"
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "CNSP"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2176"
+   ]
+  },
+  {
+   "CASE_ID": "NCT_None",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2179",
+    "TG_2180"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "NCT"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "5m"
+   ],
+   "UNITS": [
+    "TG_2179",
+    "TG_2180"
+   ]
+  },
+  {
+   "CASE_ID": "BGMS_2026-02-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2181"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-02-01"
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "BGMS"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2181"
+   ]
+  },
+  {
+   "CASE_ID": "ONCO_2026-07-26",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0267",
+    "IMG_0320",
+    "TG_2196",
+    "TG_2200"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-26"
+   },
+   "REASON": "CITED · DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "ONCO"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0267",
+    "IMG_0320",
+    "TG_2196",
+    "TG_2200"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_2197",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2197"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-03-20"
+   },
+   "REASON": "CITED · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2197"
+   ]
+  },
+  {
+   "CASE_ID": "FTFT_2026-07-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2207#0",
+    "TG_2207#1"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "FTFT"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2207"
+   ]
+  },
+  {
+   "CASE_ID": "CDIO_2026-01-28",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_2218"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-01-28"
+   },
+   "REASON": "CITED · DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CDIO"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_2218"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_20260905_02",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_20260905_02"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_20260905_02"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_20260905_04",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_20260905_04"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "range",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-05"
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_20260905_04"
+   ]
+  },
+  {
+   "CASE_ID": "SNAL_2026-09-04",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_20260905_06",
+    "TG_50827"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-04"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "SNAL"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_20260905_06",
+    "TG_50827"
+   ]
+  },
+  {
+   "CASE_ID": "MSGY_2026-09-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_20260905_07"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-01"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "MSGY"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_20260905_07"
+   ]
+  },
+  {
+   "CASE_ID": "STKH_2026-09-04",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_20260905_08",
+    "TG_20260905_09"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-04"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "holdout",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "STKH"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_20260905_08",
+    "TG_20260905_09"
+   ]
+  },
+  {
+   "CASE_ID": "NUWE_2026-09-04",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_20260918_38_NUWE",
+    "TG_20260918_42_NUWE",
+    "WA_20260918_46_NUWE"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-04"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2",
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "NUWE"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_20260918_38_NUWE",
+    "TG_20260918_42_NUWE",
+    "WA_20260918_46_NUWE"
+   ]
+  },
+  {
+   "CASE_ID": "BRNX_2026-09-1x",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_20260918_67_BRNX"
+   ],
+   "PATTERN": "SUPPORT_SETUP",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-10"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "BRNX"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_20260918_67_BRNX"
+   ]
+  },
+  {
+   "CASE_ID": "DCOY_2026-09-22",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_50575",
+    "TG_50576",
+    "TG_50578#0"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-22"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "DCOY"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_50575",
+    "TG_50576",
+    "TG_50578"
+   ]
+  },
+  {
+   "CASE_ID": "EDBL_2026-09-22",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_50579"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-22"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "holdout",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "EDBL"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_50579"
+   ]
+  },
+  {
+   "CASE_ID": "DCOY_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_50580"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "DCOY"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_50580"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_TG_50584",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_50584"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "CITED · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_50584"
+   ]
+  },
+  {
+   "CASE_ID": "LIMN_2026-09-22",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_50585",
+    "TG_50586"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-22"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "holdout",
+    "tiers": [
+     "1",
+     "2"
+    ]
+   },
+   "TICKER": [
+    "LIMN"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_50585",
+    "TG_50586"
+   ]
+  },
+  {
+   "CASE_ID": "NXTT_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_50588"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "NXTT"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_50588"
+   ]
+  },
+  {
+   "CASE_ID": "SXTC?_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_50590"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "SXTC?"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_50590"
+   ]
+  },
+  {
+   "CASE_ID": "MSGY_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_50592"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "MSGY"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_50592"
+   ]
+  },
+  {
+   "CASE_ID": "CETX_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_50828"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CETX"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_50828"
+   ]
+  },
+  {
+   "CASE_ID": "IPDN_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_50830",
+    "TG_50833"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-23"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "holdout",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "IPDN"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H",
+    "5m"
+   ],
+   "UNITS": [
+    "TG_50830",
+    "TG_50833"
+   ]
+  },
+  {
+   "CASE_ID": "SXTC_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57862"
+   ],
+   "PATTERN": "BREAKOUT",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "SXTC"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_57862"
+   ]
+  },
+  {
+   "CASE_ID": "NRSN_2026-09-27",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57867"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-27"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "holdout",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "NRSN"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_57867"
+   ]
+  },
+  {
+   "CASE_ID": "CRE_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57869"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CRE"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_57869"
+   ]
+  },
+  {
+   "CASE_ID": "OMH_2026-09-26",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57870",
+    "TG_57872",
+    "TG_57873",
+    "TG_57875",
+    "TG_57876"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-26"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "holdout",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "OMH"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_57870",
+    "TG_57872",
+    "TG_57873",
+    "TG_57875",
+    "TG_57876"
+   ]
+  },
+  {
+   "CASE_ID": "DSY_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57871"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "DSY"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_57871"
+   ]
+  },
+  {
+   "CASE_ID": "CIIT_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57878",
+    "TG_57880",
+    "TG_57882"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "CIIT"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_57878",
+    "TG_57880",
+    "TG_57882"
+   ]
+  },
+  {
+   "CASE_ID": "CIIT_2026-09-26",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57879",
+    "TG_57881",
+    "TG_57883",
+    "TG_57884"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-25"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "holdout",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CIIT"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_57879",
+    "TG_57881",
+    "TG_57883",
+    "TG_57884"
+   ]
+  },
+  {
+   "CASE_ID": "GCTK_2026-09-24",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57890",
+    "TG_57891"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-24"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "GCTK"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_57890",
+    "TG_57891"
+   ]
+  },
+  {
+   "CASE_ID": "SPHL_2026-09-24",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57892"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-24"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "SPHL"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "TG_57892"
+   ]
+  },
+  {
+   "CASE_ID": "DKI_2026-09-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57894"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "DKI"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_57894"
+   ]
+  },
+  {
+   "CASE_ID": "NTCL_2026-09-25",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57912",
+    "TG_57913",
+    "TG_57914"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-25"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "GCTK",
+    "NTCL"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_57912",
+    "TG_57913",
+    "TG_57914"
+   ]
+  },
+  {
+   "CASE_ID": "NTCL_2026-09-15",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57921",
+    "TG_57923"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-15"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "NTCL"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_57921",
+    "TG_57923"
+   ]
+  },
+  {
+   "CASE_ID": "ZNB_2026-09-1x",
+   "DISCOVERY_CONTAMINATION": [
+    "GOLDEN",
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_57925"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-10"
+   },
+   "REASON": "GOLDEN · THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "ZNB"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "TG_57925"
+   ]
+  },
+  {
+   "CASE_ID": "VEEE_2026-05",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_58045",
+    "X_20260918_61_VEEE"
+   ],
+   "PATTERN": "W",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-05-10"
+   },
+   "REASON": "CITED · GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1",
+     "2"
+    ]
+   },
+   "TICKER": [
+    "VEEE"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "TG_58045",
+    "X_20260918_61_VEEE"
+   ]
+  },
+  {
+   "CASE_ID": "EZRA_2026-06-30",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_58046"
+   ],
+   "PATTERN": "W",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-30"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "EZRA"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "TG_58046"
+   ]
+  },
+  {
+   "CASE_ID": "DXST_2026-06-16",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0627",
+    "TG_58048"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-16"
+   },
+   "REASON": "CITED · GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "DXST"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "30m",
+    "4H",
+    "D",
+    "intraday"
+   ],
+   "UNITS": [
+    "IMG_0627",
+    "TG_58048"
+   ]
+  },
+  {
+   "CASE_ID": "ATMV_UNK",
+   "DISCOVERY_CONTAMINATION": [
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "TG_58049"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "ATMV"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "UNK"
+   ],
+   "UNITS": [
+    "TG_58049"
+   ]
+  },
+  {
+   "CASE_ID": "AMIX_2026-08-24",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "GOLDEN",
+    "SHARED_UNIT",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260827_amix_hcwb_ready#0"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-20"
+   },
+   "REASON": "CITED · GOLDEN · SHARED_UNIT · EXPOSED",
+   "SHARED_WITH": [
+    "HCWB_2026-08-24"
+   ],
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "AMIX"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "X_20260827_amix_hcwb_ready"
+   ]
+  },
+  {
+   "CASE_ID": "HCWB_2026-08-24",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "GOLDEN",
+    "SHARED_UNIT",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260827_amix_hcwb_ready#1"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-20"
+   },
+   "REASON": "CITED · GOLDEN · SHARED_UNIT · EXPOSED",
+   "SHARED_WITH": [
+    "AMIX_2026-08-24"
+   ],
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "HCWB"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "X_20260827_amix_hcwb_ready"
+   ]
+  },
+  {
+   "CASE_ID": "CIIT_2026-08",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260827_ciit_targets"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "range",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-27"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CIIT"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "X_20260827_ciit_targets"
+   ]
+  },
+  {
+   "CASE_ID": "KWM_2026-08-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260827_kwm_150_watch3",
+    "X_20260827_kwm_offering_notready"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-20"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1",
+     "2"
+    ]
+   },
+   "TICKER": [
+    "KWM"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "30m",
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "X_20260827_kwm_150_watch3",
+    "X_20260827_kwm_offering_notready"
+   ]
+  },
+  {
+   "CASE_ID": "LABT_2026-08-23",
+   "DISCOVERY_CONTAMINATION": [
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260827_labt_supports_wait"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-23"
+   },
+   "REASON": "GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "LABT"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "X_20260827_labt_supports_wait"
+   ]
+  },
+  {
+   "CASE_ID": "KWM_2026-08-2x_a",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260827_kwm_annotated_levels"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-20"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "KWM"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "X_20260827_kwm_annotated_levels"
+   ]
+  },
+  {
+   "CASE_ID": "RAYA_2026-08-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260827_raya_notready_2"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-20"
+   },
+   "REASON": "GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "RAYA"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "X_20260827_raya_notready_2"
+   ]
+  },
+  {
+   "CASE_ID": "RUBI_2026-08",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260827_rubi_read_short150k"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-10"
+   },
+   "REASON": "CITED · GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "RUBI"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "X_20260827_rubi_read_short150k"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_X_20260827_target10_entry_below",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260827_target10_entry_below"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "month",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-01"
+   },
+   "REASON": "CITED · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "X_20260827_target10_entry_below"
+   ]
+  },
+  {
+   "CASE_ID": "CUPR_2026-08",
+   "DISCOVERY_CONTAMINATION": [
+    "GOLDEN",
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260828_02"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-28"
+   },
+   "REASON": "GOLDEN · EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "CUPR"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "X_20260828_02"
+   ]
+  },
+  {
+   "CASE_ID": "PPCB_2026-08-2x",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260828_05",
+    "X_20260828_15"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-28"
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "PPCB"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "X_20260828_05",
+    "X_20260828_15"
+   ]
+  },
+  {
+   "CASE_ID": "HCWB_2026-08-2x_edu",
+   "DISCOVERY_CONTAMINATION": [
+    "GOLDEN",
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260828_09",
+    "X_20260828_12",
+    "X_20260828_13",
+    "X_20260828_14"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-28"
+   },
+   "REASON": "GOLDEN · EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "HCWB"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D",
+    "intraday"
+   ],
+   "UNITS": [
+    "X_20260828_09",
+    "X_20260828_12",
+    "X_20260828_13",
+    "X_20260828_14"
+   ]
+  },
+  {
+   "CASE_ID": "PPBT_2026-09-04",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260905_01",
+    "X_20260905_02",
+    "X_20260905_03"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-04"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "holdout",
+    "tiers": [
+     "1",
+     "2"
+    ]
+   },
+   "TICKER": [
+    "PPBT"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D",
+    "W"
+   ],
+   "UNITS": [
+    "X_20260905_01",
+    "X_20260905_02",
+    "X_20260905_03"
+   ]
+  },
+  {
+   "CASE_ID": "BTOG_2026-09-04",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260905_07"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-04"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "BTOG"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "W"
+   ],
+   "UNITS": [
+    "X_20260905_07"
+   ]
+  },
+  {
+   "CASE_ID": "YMT_2026-09-04",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260905_10",
+    "X_20260918_85_YMT"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-04"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "holdout",
+    "tiers": [
+     "1",
+     "2"
+    ]
+   },
+   "TICKER": [
+    "YMT"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "30m",
+    "4H"
+   ],
+   "UNITS": [
+    "X_20260905_10",
+    "X_20260918_85_YMT"
+   ]
+  },
+  {
+   "CASE_ID": "RAYA_2026-09-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260905_11"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "range",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-05"
+   },
+   "REASON": "GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "RAYA"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "X_20260905_11"
+   ]
+  },
+  {
+   "CASE_ID": "MSGY_2026-09-02",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260905_12"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-02"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "MSGY"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "X_20260905_12"
+   ]
+  },
+  {
+   "CASE_ID": "ELPW_2026-09-1x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260918_04_ELPW",
+    "X_20260918_66_ELPW#1"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-10"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "ELPW"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H",
+    "D",
+    "W"
+   ],
+   "UNITS": [
+    "X_20260918_04_ELPW",
+    "X_20260918_66_ELPW"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_X_20260918_12_doublebottom",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260918_12_doublebottom"
+   ],
+   "PATTERN": "STRUCTURE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-10"
+   },
+   "REASON": "CITED · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "X_20260918_12_doublebottom"
+   ]
+  },
+  {
+   "CASE_ID": "NUWE_2026-09-1x",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260918_13_NUWE"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-10"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "NUWE"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "X_20260918_13_NUWE"
+   ]
+  },
+  {
+   "CASE_ID": "SXTC_2026-09-1x_b",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260918_24_SXTC"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-10"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "SXTC"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "X_20260918_24_SXTC"
+   ]
+  },
+  {
+   "CASE_ID": "WETO_2026-09-1x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260918_48_WETO"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-10"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "WETO"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "5m"
+   ],
+   "UNITS": [
+    "X_20260918_48_WETO"
+   ]
+  },
+  {
+   "CASE_ID": "ELPW_2026-01",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "X_20260918_66_ELPW#0"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-10"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "ELPW"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H",
+    "D",
+    "W"
+   ],
+   "UNITS": [
+    "X_20260918_66_ELPW"
+   ]
+  },
+  {
+   "CASE_ID": "PAVS_2026-07-21",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0142"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-23"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "PAVS"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "IMG_0142"
+   ]
+  },
+  {
+   "CASE_ID": "WORX_2026-04-11",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0150"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-04-11"
+   },
+   "REASON": "CITED · DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "WORX"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0150"
+   ]
+  },
+  {
+   "CASE_ID": "AZI_2026",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0290"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "CITED · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "AZI"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0290"
+   ]
+  },
+  {
+   "CASE_ID": "DSY_2026-04",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0291"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "month",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-04-01"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "DSY"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0291"
+   ]
+  },
+  {
+   "CASE_ID": "ZCMD_2026-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0292"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "AZI",
+    "DSY",
+    "EHGO",
+    "ZCMD"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0292"
+   ]
+  },
+  {
+   "CASE_ID": "EHGO_2026-06",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0293"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-10"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "EHGO"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "IMG_0293"
+   ]
+  },
+  {
+   "CASE_ID": "EZRA_2026-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0295"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "EZRA"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0295"
+   ]
+  },
+  {
+   "CASE_ID": "CCHH_2026-07",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0297"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "CITED · EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "CCHH"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "IMG_0297"
+   ]
+  },
+  {
+   "CASE_ID": "EDBL_2026-07",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0298"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "EDBL"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "IMG_0298"
+   ]
+  },
+  {
+   "CASE_ID": "DRCT_2026-07-24",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0300"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "DRCT"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0300"
+   ]
+  },
+  {
+   "CASE_ID": "JZ_2026-07",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0301",
+    "IMG_0316",
+    "IMG_0319"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1",
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "JZ"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "IMG_0301",
+    "IMG_0316",
+    "IMG_0319"
+   ]
+  },
+  {
+   "CASE_ID": "YYAI_2026-07",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0361"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "YYAI"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "30m",
+    "5m"
+   ],
+   "UNITS": [
+    "IMG_0361"
+   ]
+  },
+  {
+   "CASE_ID": "SPRC_2026-07-20",
+   "DISCOVERY_CONTAMINATION": [
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0393"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-20"
+   },
+   "REASON": "GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "SPRC"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0393"
+   ]
+  },
+  {
+   "CASE_ID": "NUWE_2026-07",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0413",
+    "IMG_0414"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-26"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "NUWE"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0413",
+    "IMG_0414"
+   ]
+  },
+  {
+   "CASE_ID": "SVRE_2026-06",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_8126"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-10"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "SVRE"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [
+    "W"
+   ],
+   "UNITS": [
+    "IMG_8126"
+   ]
+  },
+  {
+   "CASE_ID": "MWC_2026-06",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_8127"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "month",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-01"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "MWC"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "IMG_8127"
+   ]
+  },
+  {
+   "CASE_ID": "MBRX_2026-06",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_8133"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "month",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-01"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "MBRX"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "IMG_8133"
+   ]
+  },
+  {
+   "CASE_ID": "BNKK_2026-06",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_8136"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "month",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-01"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "BNKK"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "IMG_8136"
+   ]
+  },
+  {
+   "CASE_ID": "HTCR_2026-06",
+   "DISCOVERY_CONTAMINATION": [
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_8242"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "month",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-06-01"
+   },
+   "REASON": "EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "HTCO",
+    "HTCR"
+   ],
+   "TIER": "T2_EXPOSED_UNCITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "IMG_8242"
+   ]
+  },
+  {
+   "CASE_ID": "SPRC_2026-07-08",
+   "DISCOVERY_CONTAMINATION": [
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_9925"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-08"
+   },
+   "REASON": "GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "SPRC"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D",
+    "W"
+   ],
+   "UNITS": [
+    "IMG_9925"
+   ]
+  },
+  {
+   "CASE_ID": "UNK_SCIMETHOD_2026-07-31",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0488"
+   ],
+   "PATTERN": "RETEST",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-31"
+   },
+   "REASON": "CITED · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "IMG_0488"
+   ]
+  },
+  {
+   "CASE_ID": "ADIL_2026-04b",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0505"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "month",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-04-01"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "ADIL"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0505"
+   ]
+  },
+  {
+   "CASE_ID": "SLXN_2026-08-06",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0508"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-06"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "holdout",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "SLXN"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H"
+   ],
+   "UNITS": [
+    "IMG_0508"
+   ]
+  },
+  {
+   "CASE_ID": "CANF_2026-08-01",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0510",
+    "IMG_0512",
+    "IMG_0513",
+    "IMG_0602"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-31"
+   },
+   "REASON": "CITED · DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "CANF"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0510",
+    "IMG_0512",
+    "IMG_0513",
+    "IMG_0602"
+   ]
+  },
+  {
+   "CASE_ID": "MNDR_2026-07-31",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0566",
+    "IMG_0569",
+    "IMG_0691"
+   ],
+   "PATTERN": "SUPPORT_SETUP",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-31"
+   },
+   "REASON": "CITED · DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "MNDR"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0566",
+    "IMG_0569",
+    "IMG_0691"
+   ]
+  },
+  {
+   "CASE_ID": "UPC_2026-07",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "DISCOVERY",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0587"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-07-31"
+   },
+   "REASON": "CITED · DISCOVERY · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S1",
+    "split_v4": "discovery",
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "UPC"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "IMG_0587"
+   ]
+  },
+  {
+   "CASE_ID": "EZRA_flash",
+   "DISCOVERY_CONTAMINATION": [
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0617"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "EZRA"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "intraday"
+   ],
+   "UNITS": [
+    "IMG_0617"
+   ]
+  },
+  {
+   "CASE_ID": "TDIC_2026-08",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0645",
+    "IMG_0647",
+    "IMG_0648",
+    "IMG_0659"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "unknown",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": null
+   },
+   "REASON": "CITED · EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "TDIC"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0645",
+    "IMG_0647",
+    "IMG_0648",
+    "IMG_0659"
+   ]
+  },
+  {
+   "CASE_ID": "DXST_2026-08-04",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0688",
+    "IMG_0689"
+   ],
+   "PATTERN": "STRUCTURE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-04"
+   },
+   "REASON": "CITED · GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1",
+     "2"
+    ]
+   },
+   "TICKER": [
+    "DXST"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "15m",
+    "5m",
+    "intraday"
+   ],
+   "UNITS": [
+    "IMG_0688",
+    "IMG_0689"
+   ]
+  },
+  {
+   "CASE_ID": "ZNB_2026-08-01",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "GOLDEN",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "IMG_0697",
+    "IMG_0698"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-01"
+   },
+   "REASON": "CITED · GOLDEN · EXPOSED",
+   "SOURCE": {
+    "best_tier": "1",
+    "set_v4": "S3",
+    "split_v4": null,
+    "tiers": [
+     "1"
+    ]
+   },
+   "TICKER": [
+    "ZNB"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "4H",
+    "D"
+   ],
+   "UNITS": [
+    "IMG_0697",
+    "IMG_0698"
+   ]
+  },
+  {
+   "CASE_ID": "DKI_2026-08-26",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "EDU_20260827_dki_group_candle",
+    "EDU_20260827_ma_rizq_rule_sle"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-26"
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "DKI",
+    "SLE"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D",
+    "intraday"
+   ],
+   "UNITS": [
+    "EDU_20260827_dki_group_candle",
+    "EDU_20260827_ma_rizq_rule_sle"
+   ]
+  },
+  {
+   "CASE_ID": "SLE_2026-08-27",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "EDU_20260827_sle_night_4am"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-27"
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "SLE"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "intraday"
+   ],
+   "UNITS": [
+    "EDU_20260827_sle_night_4am"
+   ]
+  },
+  {
+   "CASE_ID": "SMXT_2026-08-26",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "EDU_20260827_smxt_falling_model"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-26"
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "SMXT"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "EDU_20260827_smxt_falling_model"
+   ]
+  },
+  {
+   "CASE_ID": "WNW_2026-08-26",
+   "DISCOVERY_CONTAMINATION": [
+    "THIRD_PARTY",
+    "EXCLUDED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "EDU_20260827_wnw_precall_chinese"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "day",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-08-26"
+   },
+   "REASON": "THIRD_PARTY · EXCLUDED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "X",
+    "set_v4": "EXCL",
+    "split_v4": null,
+    "tiers": []
+   },
+   "TICKER": [
+    "WNW"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [],
+   "UNITS": [
+    "EDU_20260827_wnw_precall_chinese"
+   ]
+  },
+  {
+   "CASE_ID": "DCOY_2026-09-0x",
+   "DISCOVERY_CONTAMINATION": [
+    "EDU",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "EDU_20260905_02"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-01"
+   },
+   "REASON": "EDU · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2b",
+    "set_v4": "S4",
+    "split_v4": null,
+    "tiers": [
+     "2b"
+    ]
+   },
+   "TICKER": [
+    "DCOY"
+   ],
+   "TIER": "OTHER_CONTAMINATED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "EDU_20260905_02"
+   ]
+  },
+  {
+   "CASE_ID": "SXTC_2026-09-1x_a",
+   "DISCOVERY_CONTAMINATION": [
+    "CITED",
+    "EXPOSED"
+   ],
+   "HOLDOUT_ELIGIBLE": false,
+   "IMAGE_ID": [
+    "WA_20260918_31_SXTC"
+   ],
+   "PATTERN": "NONE",
+   "PROVENANCE": {
+    "date_precision": "decade",
+    "origin": "V4 visual pass (609 units read before the rules were written)",
+    "statement_date": "2026-09-10"
+   },
+   "REASON": "CITED · EXPOSED",
+   "SOURCE": {
+    "best_tier": "2",
+    "set_v4": "S2",
+    "split_v4": null,
+    "tiers": [
+     "2"
+    ]
+   },
+   "TICKER": [
+    "SXTC"
+   ],
+   "TIER": "T1_CITED",
+   "TIMEFRAME": [
+    "D"
+   ],
+   "UNITS": [
+    "WA_20260918_31_SXTC"
+   ]
+  }
+ ],
+ "seal": {
+  "note": "بصمةُ البيان قبل الكشف — الكشفُ يتحقّق منها ويحملها",
+  "sha256": "601b800da2caf76ee580494ff0e43f040965a1b6efebf915175c99574e5c6ce8"
+ },
+ "summary": {
+  "by_flag": {
+   "CITED": 57,
+   "DISCOVERY": 12,
+   "EDU": 16,
+   "EXCLUDED": 40,
+   "EXPOSED": 157,
+   "GOLDEN": 20,
+   "SHARED_UNIT": 2,
+   "THIRD_PARTY": 14
+  },
+  "by_tier": {
+   "CLEAN": 0,
+   "OTHER_CONTAMINATED": 56,
+   "T1_CITED": 57,
+   "T2_EXPOSED_UNCITED": 44
+  },
+  "cases": 157,
+  "eligible": 0,
+  "v4_holdout_cited": [
+   "CIIT_2026-09-26",
+   "EDBL_2026-09-22",
+   "LIMN_2026-09-22",
+   "NRSN_2026-09-27",
+   "OMH_2026-09-26",
+   "PPBT_2026-09-04",
+   "SLXN_2026-08-06",
+   "STKH_2026-09-04",
+   "YMT_2026-09-04"
+  ],
+  "v4_holdout_total": 10
+ }
+}

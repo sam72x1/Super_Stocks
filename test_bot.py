@@ -80156,6 +80156,486 @@ check("🧊 FV41 تجميدُ V4 سليم: 81 ملفًّا ببصماتها · f
       "(بايت · زائد · ناقص · مراجعةٌ منهجيّة · خطأُ تنفيذٍ بلا قفل · PARAMS حيّة) · والتقريرُ مولَّد",
       _fv41ok, f"verify={_pr41} neg={_neg41}")
 
+import ast as _v41_ast                                                      # noqa: E402
+import inspect as _v41_ins                                                  # noqa: E402
+import textwrap as _v41_tw                                                   # noqa: E402
+
+
+def _mk42(c, s, **k):
+    """حالةٌ عمياء اصطناعيّة (حقول BLIND_FIELDS وحدَها)."""
+    return dict({"case": c, "sids": s, "third_party_sids": [], "tickers": ["T" + c], "set": "S1", "split": None, "golden": False,
+                 "tiers": ["1"], "best_tier": "1", "dates": [], "statement_date": "2026-10-05", "date_precision": "day"}, **k)
+
+
+# ── أدواتُ أقفال V4.1 الاصطناعيّة (بلا شبكة): جلساتٌ حقيقيّةٌ من التقويم · مسارُ أسعارٍ ثابت · سجلٌّ في مجلّدٍ مؤقّت ──
+def _v41_days(end, n):
+    import datetime as _dt
+    RN_ = _v41_imp.import_module("runner")
+    out, d = [], _dt.date.fromisoformat(end)
+    while len(out) < n:
+        if RN_.is_session(d.isoformat()):
+            out.append(d.isoformat())
+        d -= _dt.timedelta(days=1)
+    return out[::-1]
+
+
+def _v41_rows(end="2026-10-14", n=160, future=0):
+    """صفوفٌ [تاريخ · o · h · l · c · v] على جلساتٍ حقيقيّة تنتهي عند `end` ‏+ `future` جلسةً بعده بأسعارٍ شاذّة (لكشف التسرّب)."""
+    import math as _m
+    RN_ = _v41_imp.import_module("runner")
+    ds = _v41_days(end, n)
+    rows = []
+    for i, d in enumerate(ds):
+        c = 10.0 - 8.0 * min(i, 60) / 60 + (0.4 * _m.sin(i / 3.0) if i > 60 else 0.0) + (0.02 * (i - 60) if i > 60 else 0.0)
+        rows.append([d, round(c * 1.01, 4), round(c * 1.03, 4), round(c * 0.97, 4), round(c, 4), 100000 + 1000 * i])
+    d = ds[-1]
+    for k in range(future):
+        d = RN_.next_trading_day(d)
+        rows.append([d, 50.0, 60.0, 0.5, 55.0, 9e9])
+    return rows
+
+
+def _v41_case(cid="CASE_0001", date="2026-10-15", **kw):
+    c = {"case_id": cid, "symbol": "SYNT", "decision_date": date, "date_precision": "day", "date_source": "image_visible",
+         "timeframe_f": "D", "image": "faisal_images/TG_SYNT.jpg", "image_sha256": "0" * 64, "layer": "1",
+         "capture_utc": date + "T20:00:00Z", "near_duplicates": []}
+    c.update(kw)
+    return c
+
+
+def _v41_flow(root, fid="F" * 64, label="WAIT"):
+    """تدفّقٌ كامل في سجلٍّ مؤقّت: مرشَّح ⟵ ختم ⟵ V4 ⟵ فيصل ⟵ (السجلّ · الحمولة · اللقطة)."""
+    LG_ = _v41_imp.import_module("ledger")
+    RN_ = _v41_imp.import_module("runner")
+    lg = LG_.Ledger(root=root)
+    lg.record_candidate("TG_SYNT", "faisal_images/TG_SYNT.jpg", "0" * 64, "CASE:CASE_0001", "2026-10-15T20:00:00Z")
+    case = _v41_case()
+    lg.seal_case(case, "2026-10-15T20:00:01Z")
+    ctx, prov = RN_.validity_context("SYNT", case["decision_date"], [], "2026-10-15")
+    payload, snap = RN_.run_case(case, _v41_rows(future=4), ctx, prov, splits=[], exchange_status="MATCH",
+                                 meta={"freeze_id": fid, "freeze_rev": 1})
+    lg.record_v4("CASE_0001", payload, snap, "2026-10-16T00:00:00Z")
+    lg.record_faisal("CASE_0001", {"label": label, "quote": "اصطناعيّ"}, "2026-10-16T01:00:00Z")
+    return lg, payload, snap
+
+
+# ── FV42 كشفُ تلوّث الاحتجاز (العقد §⑤): الأعلامُ السبعة على حالاتٍ اصطناعيّة كلٌّ بعَلَمه · والنظيفةُ وحدَها مؤهَّلة ·
+#    والبنّاءُ **أعمى بالـAST** (لا `label`/`label4`/`plan_F`… في دوالّ الاختيار) · و`blind_view` لا يمرّر حقلًا محظورًا ·
+#    والكشفُ يرفض بيانًا تغيّر بعد ختمه ويحمل بصمتَه.
+try:
+    HO = _v41_imp.import_module("holdout")
+    _blind42 = []
+    for _fn42 in ("blind_view", "flags_for", "build_manifest", "unit_set", "pattern_of", "timeframes_of"):
+        for _n42 in _v41_ast.walk(_v41_ast.parse(_v41_ins.getsource(getattr(HO, _fn42)))):
+            if isinstance(_n42, _v41_ast.Constant) and _n42.value in HO.FORBIDDEN:
+                _blind42.append((_fn42, _n42.value))
+    _full42 = {"case": "X_1", "sids": ["U9"], "label": "READY", "label4": "READY", "plan_F": "AT", "levels_F": [1], "set": "S1"}
+    _bv42 = HO.blind_view(_full42)
+    _leak42 = sorted(set(_bv42) & set(HO.FORBIDDEN))
+    _bc42 = [_mk42("clean", ["U9"]), _mk42("cited", ["U1"]), _mk42("disc", ["U8"], split="discovery"), _mk42("gold", ["U7"], set="S3"),
+             _mk42("edu", ["U6"], best_tier="2b"), _mk42("third", ["U4"], best_tier="X"), _mk42("excl", ["U3"], set="EXCL"),
+             _mk42("exposed", ["U5"])]
+    _man42 = HO.build_manifest(_bc42, {"U1"}, {}, {}, {"U5"}, set())
+    _fl42 = {r["CASE_ID"]: r["DISCOVERY_CONTAMINATION"] for r in _man42["rows"]}
+    _want42 = {"clean": [], "cited": ["CITED"], "disc": ["DISCOVERY"], "gold": ["GOLDEN"], "edu": ["EDU"], "third": ["THIRD_PARTY"],
+               "excl": ["EXCLUDED"], "exposed": ["EXPOSED"]}
+    _elig42 = sorted(r["CASE_ID"] for r in _man42["rows"] if r["HOLDOUT_ELIGIBLE"])
+    _seal42 = HO.seal_ok(_man42)
+    _tam42 = _v41_json.loads(_v41_json.dumps(_man42))
+    _tam42["rows"][0]["HOLDOUT_ELIGIBLE"] = not _tam42["rows"][0]["HOLDOUT_ELIGIBLE"]
+    try:
+        HO.reveal(_tam42, cases=[])
+        _rej42 = False
+    except HO.SealError:
+        _rej42 = True
+    _rev42 = HO.reveal(_man42, cases=[dict(_full42, case="clean")])
+    _carry42 = all(r["REVEALED_WITH"] == _man42["seal"]["sha256"] for r in _rev42) and \
+        next(r for r in _rev42 if r["CASE_ID"] == "clean")["FAISAL"] == "READY"
+    _fv42ok = (not _blind42 and not _leak42 and _fl42 == _want42 and _elig42 == ["clean"] and _seal42 and _rej42 and _carry42)
+    _fv42w = f"blind={_blind42} leak={_leak42} flags_ok={_fl42 == _want42} elig={_elig42} seal={_seal42} rej={_rej42} carry={_carry42}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fv42ok, _fv42w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚧 FV42 كشفُ تلوّث الاحتجاز: سبعةُ أعلامٍ كلٌّ بحالته والنظيفةُ وحدَها مؤهَّلة · والاختيارُ أعمى (AST) · والكشفُ يرفض بيانًا عُبث به بعد ختمه",
+      _fv42ok, _fv42w)
+
+# ── FV43 التسرّبُ بالنسخ/الاشتقاق: صورةٌ عضوٌ في عنقود وحدةٍ مستشهَدٍ بها ⟵ CITED · حالتان تتقاسمان وحدةً وإحداهما اكتشاف ⟵ SHARED_UNIT ·
+#    ونسخةٌ مطابقة/مصغّرة لصورةٍ في المدوّنة تُكشف بالبصمة الإدراكيّة (عتباتُ V3) ⟵ والختمُ يرفض حالةً لها نسخةٌ قريبة.
+try:
+    HO = _v41_imp.import_module("holdout")
+    LG = _v41_imp.import_module("ledger")
+    _man43 = HO.build_manifest([_mk42("mate", ["I2"]), _mk42("panel", ["I2#1"]), _mk42("d1", ["U8"], split="discovery"),
+                                _mk42("d2", ["U8"])], {"U1"}, {"I2": "U1"}, {}, set(), set())
+    _f43 = {r["CASE_ID"]: r["DISCOVERY_CONTAMINATION"] for r in _man43["rows"]}
+    _cl43 = (_f43["mate"] == _f43["panel"] == ["CITED", "SHARED_UNIT"] and _f43["d2"] == ["SHARED_UNIT"]
+             and _f43["d1"] == ["DISCOVERY"])
+    _img43 = _v41_json.load(open(_v41_os.path.join("faisal_method_v3", "image_corpus.json"), encoding="utf-8"))["images"]
+    _src43 = next(i for i in _img43 if i["file"].lower().endswith((".jpg", ".png")) and i.get("width", 0) > 300)
+    from PIL import Image as _v41_Image
+    _td43 = _v41_tmp.mkdtemp(prefix="fv43_")
+    try:
+        _cp43 = _v41_os.path.join(_td43, "copy.png")
+        _sm43 = _v41_os.path.join(_td43, "small.png")
+        _nz43 = _v41_os.path.join(_td43, "noise.png")
+        with _v41_Image.open(_src43["file"]) as _im43:
+            _im43.convert("RGB").save(_cp43)
+            _im43.convert("RGB").resize((_im43.width // 2, _im43.height // 2)).save(_sm43)
+        import numpy as _v41_np
+        _v41_Image.fromarray((_v41_np.random.RandomState(20261007).rand(300, 300, 3) * 255).astype("uint8")).save(_nz43)
+        _nd43 = (_src43["id"] in LG.near_duplicates(_cp43, _img43), _src43["id"] in LG.near_duplicates(_sm43, _img43),
+                 LG.near_duplicates(_nz43, _img43) == [])
+        _lg43 = LG.Ledger(root=_v41_os.path.join(_td43, "led"))
+        try:
+            _lg43.seal_case(_v41_case(near_duplicates=[_src43["id"]]), "2026-10-15T20:00:00Z")
+            _dupref43 = False
+        except LG.SchemaError:
+            _dupref43 = True
+    finally:
+        _v41_sh.rmtree(_td43, ignore_errors=True)
+    _fv43ok = _cl43 and all(_nd43) and _dupref43
+    _fv43w = f"flags={_f43} near={_nd43} seal_refuses_dup={_dupref43}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fv43ok, _fv43w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧬 FV43 التسرّبُ بالنسخ: عضوُ العنقود يرث الاستشهاد (ومعرّفُ العبارة «#k» يرث وحدةَ صورته) · والوحدةُ المشتركة مع الاكتشاف تُلوِّث · "
+      "والنسخةُ المطابقة والمصغّرة تُكشف والضجيجُ لا · "
+      "والختمُ يرفض حالةً لها نسخةٌ في المدوّنة", _fv43ok, _fv43w)
+
+# ── FV44 كشفُ التعديل اللاحق: قرارٌ بمحرّكٍ غيرِ المجمَّد ⟵ FOREIGN_ENGINE · ملفٌّ مختومٌ عُدّل ⟵ FILE_HASH · قيدٌ في السلسلة حُرّر ⟵ ENTRY_HASH ·
+#    وبيانُ الاحتجاز بعد ختمه ⟵ seal_ok خطأ.
+try:
+    HO = _v41_imp.import_module("holdout")
+    _td44 = _v41_tmp.mkdtemp(prefix="fv44_")
+    try:
+        _lg44, _p44, _s44 = _v41_flow(_td44, fid="A" * 64)
+        _ok44, _pr44 = _lg44.verify({"A" * 64})
+        _for44 = any(x.startswith("FOREIGN_ENGINE:") for x in _lg44.verify({"B" * 64})[1])
+        _cf44 = _v41_os.path.join(_td44, _lg44.entries("case")[0]["path"])
+        with open(_cf44, "a", encoding="utf-8") as _f44:
+            _f44.write(" ")
+        _fh44 = any(x.startswith("FILE_HASH:cases/") for x in _lg44.verify({"A" * 64})[1])
+        _sp44 = _v41_os.path.join(_td44, _lg44.read(_lg44.entries("v4")[0]["path"])["snapshot_path"])
+        with open(_sp44, "a", encoding="utf-8") as _f44:
+            _f44.write(" ")
+        _sh44 = any(x.startswith("SNAPSHOT_HASH:snapshots/") for x in _lg44.verify({"A" * 64})[1])
+        _m44 = _lg44.manifest()
+        _m44["entries"][1]["utc"] = "2026-01-01T00:00:00Z"
+        _lg44._save(_m44)
+        _eh44 = any(x.startswith("ENTRY_HASH:") for x in _lg44.verify({"A" * 64})[1])
+    finally:
+        _v41_sh.rmtree(_td44, ignore_errors=True)
+    _hm44 = HO.build_manifest([_mk42("a", ["U1"]), _mk42("b", ["U2"])], set(), {}, {}, set(), set())
+    _hm44ok = HO.seal_ok(_hm44)
+    _hm44["summary"]["eligible"] = 99
+    _fv44ok = _ok44 and _for44 and _fh44 and _sh44 and _eh44 and _hm44ok and not HO.seal_ok(_hm44)
+    _fv44w = (f"clean={_ok44}:{_pr44[:3]} foreign={_for44} file={_fh44} snapshot={_sh44} entry={_eh44} "
+              f"holdout_tamper={not HO.seal_ok(_hm44)}")
+except Exception as _e:                                                    # noqa: BLE001
+    _fv44ok, _fv44w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🕵️ FV44 كشفُ التعديل اللاحق: محرّكٌ غيرُ المجمَّد · ملفٌّ مختومٌ عُدّل · لقطةٌ عُدّلت · قيدٌ حُرّر · وبيانُ احتجازٍ بعد ختمه — كلُّها تُكشف",
+      _fv44ok, _fv44w)
+
+# ── FV45 التسرّبُ المستقبليّ: اللقطةُ تقصّ يومَ القرار وما بعده · وشموعُ المستقبل الشاذّة لا تغيّر القرارَ بايتًا · والجدارُ يُسقط لقطةً ملوَّثة (F7) ·
+#    والمتاحُ لا يُقرأ من حصادٍ بعد يوم القرار ولا أقدمَ من 3 جلسات.
+try:
+    RN = _v41_imp.import_module("runner")
+    _c45 = _v41_case()
+    _rf45 = _v41_rows(future=5)
+    _sn45 = RN.snapshot(_rf45, _c45["decision_date"])
+    _cut45 = max(r[0] for r in _sn45) < _c45["decision_date"] and len(_sn45) == len(_v41_rows())
+    _pa45, _ = RN.run_case(_c45, _rf45, {}, {}, splits=[], meta={})
+    _pb45, _ = RN.run_case(_c45, _v41_rows(), {}, {}, splits=[], meta={})
+    _same45 = RN.sha(_pa45["decision"]) == RN.sha(_pb45["decision"])
+    _fw45 = RN.firewall(_rf45, _c45["decision_date"], splits=[])
+    _f7_45 = any(x.startswith("F7_FUTURE_LEAK") for x in _fw45["fails"]) and _fw45["verdict"] == "INVALID_FOR_VALIDATION"
+    _ctb45 = [{"symbol": "SYNT", "date": "2026-10-16", "shares_available": 999999, "source": "x"},
+              {"symbol": "SYNT", "date": "2026-10-01", "shares_available": 888888, "source": "x"}]
+    _cx45, _pv45 = RN.validity_context("SYNT", "2026-10-15", _ctb45, "2026-10-20")
+    _ok_ctb45 = _cx45["short_available"] is None and _pv45["short_available"].startswith("UNAVAILABLE")
+    _cy45, _ = RN.validity_context("SYNT", "2026-10-15", _ctb45 + [{"symbol": "SYNT", "date": "2026-10-13", "shares_available": 7000,
+                                                                   "source": "x"}], "2026-10-20")
+    _fv45ok = _cut45 and _same45 and _f7_45 and _ok_ctb45 and _cy45["short_available"] == 7000
+    _fv45w = f"cut={_cut45} same={_same45} f7={_f7_45} ctb_future_ignored={_ok_ctb45} ctb_window={_cy45['short_available']}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fv45ok, _fv45w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("⏳ FV45 لا تسرّبَ مستقبليّ: اللقطةُ قبل يوم القرار حصرًا · والمستقبلُ الشاذّ لا يغيّر القرار بايتًا · والجدارُ يُسقط الملوَّث (F7) · "
+      "والمتاحُ من نافذة 3 جلساتٍ قبل القرار وحدَها", _fv45ok, _fv45w)
+
+# ── FV46 ختمُ الحالة: حقلٌ ناقص · تاريخٌ قبل النافذة · التقاطٌ قبل القرار ⟵ رفض · وبصمةُ الملفّ = بصمةُ القيد · والتصحيحُ نسخةٌ ثانية بسببٍ
+#    والأولى سليمة.
+try:
+    LG = _v41_imp.import_module("ledger")
+    _td46 = _v41_tmp.mkdtemp(prefix="fv46_")
+    try:
+        _lg46 = LG.Ledger(root=_td46)
+        _rej46 = []
+        for _bad46 in ({k: v for k, v in _v41_case().items() if k != "symbol"}, _v41_case(date="2026-10-02"),
+                       _v41_case(capture_utc="2026-10-14T00:00:00Z")):
+            try:
+                _lg46.seal_case(_bad46, "2026-10-15T20:00:00Z")
+                _rej46.append(False)
+            except LG.LedgerError:
+                _rej46.append(True)
+        _e46 = _lg46.seal_case(_v41_case(), "2026-10-15T20:00:00Z")
+        _sha46 = LG.sha_file(_v41_os.path.join(_td46, _e46["path"])) == _e46["sha256"]
+        try:
+            _lg46.seal_case(_v41_case(symbol="SYNU"), "2026-10-15T21:00:00Z")
+            _nocorr46 = False
+        except LG.AppendOnlyError:
+            _nocorr46 = True
+        try:
+            _lg46.seal_case(_v41_case(symbol="SYNU", supersedes=1), "2026-10-15T21:00:00Z")
+            _noreason46 = False
+        except LG.AppendOnlyError:
+            _noreason46 = True
+        _e46b = _lg46.seal_case(_v41_case(symbol="SYNU", supersedes=1, correction_reason="رمزٌ خاطئ"), "2026-10-15T21:00:01Z")
+        _v1ok46 = LG.sha_file(_v41_os.path.join(_td46, _e46["path"])) == _e46["sha256"] and _e46b["version"] == 2
+        _clean46 = _lg46.verify()[0]
+    finally:
+        _v41_sh.rmtree(_td46, ignore_errors=True)
+    _fv46ok = all(_rej46) and _sha46 and _nocorr46 and _noreason46 and _v1ok46 and _clean46
+    _fv46w = (f"rejects={_rej46} sha={_sha46} correction_needs_supersedes={_nocorr46} needs_reason={_noreason46} "
+              f"v1_intact_v2={_v1ok46} verify={_clean46}")
+except Exception as _e:                                                    # noqa: BLE001
+    _fv46ok, _fv46w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔏 FV46 ختمُ الحالة: الناقصُ وما قبل النافذة والتقاطٌ قبل القرار تُرفض · البصمةُ تطابق القيد · والتصحيحُ نسخةٌ ثانيةٌ بسببٍ والأولى سليمة",
+      _fv46ok, _fv46w)
+
+# ── FV47 السجلُّ إلحاقيٌّ فقط: الكتابةُ فوق ملفٍّ قائم ⟵ AppendOnlyError · قرارُ V4 ثانٍ للنسخة نفسِها ⟵ رفض · وكلمةُ فيصل ثانيةٌ بلا supersedes ⟵ رفض ·
+#    وحذفُ قيدٍ أو إعادةُ ترتيبه ⟵ CHAIN/SEQ · وملفٌّ يتيم ⟵ ORPHAN.
+try:
+    LG = _v41_imp.import_module("ledger")
+    _td47 = _v41_tmp.mkdtemp(prefix="fv47_")
+    try:
+        _lg47, _p47, _s47 = _v41_flow(_td47)
+        _r47 = []
+        for _call47 in (lambda: _lg47._write_new(_lg47.entries("case")[0]["path"], {"x": 1}),
+                        lambda: _lg47.record_v4("CASE_0001", _p47, _s47, "2026-10-17T00:00:00Z"),
+                        lambda: _lg47.record_faisal("CASE_0001", {"label": "READY", "quote": "q"}, "2026-10-17T00:00:00Z")):
+            try:
+                _call47()
+                _r47.append(False)
+            except LG.AppendOnlyError:
+                _r47.append(True)
+        _keep47 = _v41_json.loads(_v41_json.dumps(_lg47.manifest()))
+
+        def _rh47(es, chain):
+            _pv47 = "GENESIS"
+            for _i47, _x47 in enumerate(es):
+                _x47["seq"] = _i47 + 1
+                if chain:
+                    _x47["prev"] = _pv47
+                _x47["entry_hash"] = LG.sha({k: v for k, v in _x47.items() if k != "entry_hash"})
+                _pv47 = _x47["entry_hash"]
+            return es
+
+        def _sc47(mut):
+            _m = _v41_json.loads(_v41_json.dumps(_keep47))
+            mut(_m)
+            _lg47._save(_m)
+            return _lg47.verify()[1]
+        # حذفٌ مع إعادة الترقيم والبصمة (والإحالةُ السابقة باقية) ⟵ السلسلةُ وحدَها تكشفه
+        _p_del47 = _sc47(lambda m: m.update(entries=_rh47(m["entries"][:1] + m["entries"][2:], False)))
+        _del47 = any(x.startswith("CHAIN:") for x in _p_del47) and not any(x.startswith(("SEQ:", "ENTRY_HASH:")) for x in _p_del47)
+        # حذفُ الأخير مع سلسلةٍ مُعادةٍ كاملة ⟵ ملفُّه اليتيمُ وحدَه يكشفه
+        _p_full47 = _sc47(lambda m: m.update(entries=_rh47(m["entries"][:-1], True)))
+        _full47 = _p_full47 == ["ORPHAN:" + _keep47["entries"][-1]["path"]]
+        # إعادةُ ترتيب ⟵ تُكشف
+        _p_ord47 = _sc47(lambda m: m["entries"].insert(1, m["entries"].pop(2)))
+        _ord47 = any(x.startswith(("CHAIN:", "SEQ:")) for x in _p_ord47)
+        # ترقيمُ القيد الأخير مع بصمته ⟵ SEQ وحدَه
+        _p_seq47 = _sc47(lambda m: (m["entries"][-1].update(seq=99),
+                                    m["entries"][-1].update(entry_hash=LG.sha({k: v for k, v in m["entries"][-1].items()
+                                                                               if k != "entry_hash"}))))
+        _seq47 = _p_seq47 == ["SEQ:" + str(len(_keep47["entries"]))]
+        _lg47._save(_keep47)
+        open(_v41_os.path.join(_td47, "cases", "CASE_9999.v1.json"), "w").close()
+        _orph47 = any(x == "ORPHAN:cases/CASE_9999.v1.json" for x in _lg47.verify()[1])
+    finally:
+        _v41_sh.rmtree(_td47, ignore_errors=True)
+    _xb47 = any(isinstance(n, _v41_ast.Call) and getattr(n.func, "id", None) == "open"
+                and any(isinstance(a, _v41_ast.Constant) and a.value == "xb" for a in n.args)
+                for n in _v41_ast.walk(_v41_ast.parse(_v41_tw.dedent(_v41_ins.getsource(LG.Ledger._write_new)))))
+    _fv47ok = all(_r47) and _del47 and _full47 and _ord47 and _seq47 and _orph47 and _xb47
+    _fv47w = (f"refuse={_r47} delete_chain={_del47} delete_rechain_orphan={_full47} reorder={_ord47} seq={_seq47}:{_p_seq47} "
+              f"orphan={_orph47} open_xb={_xb47}")
+except Exception as _e:                                                    # noqa: BLE001
+    _fv47ok, _fv47w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📒 FV47 السجلُّ إلحاقيّ: لا كتابةَ فوق قائم («xb») · لا قرارَ V4 ثانيًا للنسخة · لا كلمةَ فيصل ثانيةً بلا supersedes · والحذفُ (بالسلسلة "
+      "أو باليتيم) وإعادةُ الترتيب والترقيمُ تُكشف — كلُّ حارسٍ في سيناريو يكون فيه الكاشفَ الوحيد",
+      _fv47ok, _fv47w)
+
+# ── FV48 تجميدُ القرار: كلمةُ فيصل قبل قرار V4 ⟵ DecisionFreezeError · وقرارُ V4 بلا حالةٍ مختومة ⟵ رفض · وسجلٌّ مصطنعٌ فيه فيصل قبل V4 ⟵ ORDER ·
+#    والمحرّكُ أعمى بالـAST: `run_case` لا يقرأ من الحالة إلّا symbol وdecision_date ولا يذكر صورةً ولا فيصل.
+try:
+    LG = _v41_imp.import_module("ledger")
+    RN = _v41_imp.import_module("runner")
+    _td48 = _v41_tmp.mkdtemp(prefix="fv48_")
+    try:
+        _lg48 = LG.Ledger(root=_td48)
+        _r48 = []
+        try:
+            _lg48.record_v4("CASE_0001", {"decision": {}}, [], "2026-10-15T00:00:00Z")
+            _r48.append(False)
+        except LG.DecisionFreezeError:
+            _r48.append(True)
+        _lg48.seal_case(_v41_case(), "2026-10-15T20:00:00Z")
+        try:
+            _lg48.record_faisal("CASE_0001", {"label": "WAIT", "quote": "q"}, "2026-10-15T21:00:00Z")
+            _r48.append(False)
+        except LG.DecisionFreezeError:
+            _r48.append(True)
+    finally:
+        _v41_sh.rmtree(_td48, ignore_errors=True)
+    _td48b = _v41_tmp.mkdtemp(prefix="fv48b_")
+    try:
+        _lg48b, _, _ = _v41_flow(_td48b)
+        _m48 = _lg48b.manifest()
+        _e48 = _m48["entries"]
+        _iv, _if = next(i for i, e in enumerate(_e48) if e["kind"] == "v4"), next(i for i, e in enumerate(_e48) if e["kind"] == "faisal")
+        _e48[_iv], _e48[_if] = _e48[_if], _e48[_iv]
+        _prev48 = "GENESIS"
+        for _i48, _x48 in enumerate(_e48):
+            _x48["seq"], _x48["prev"] = _i48 + 1, _prev48
+            _x48["entry_hash"] = LG.sha({k: v for k, v in _x48.items() if k != "entry_hash"})
+            _prev48 = _x48["entry_hash"]
+        _lg48b._save(_m48)
+        _pr48 = _lg48b.verify()[1]
+        _ord48 = "ORDER:CASE_0001" in _pr48 and "ORDER_FAISAL:CASE_0001" in _pr48
+    finally:
+        _v41_sh.rmtree(_td48b, ignore_errors=True)
+    _keys48 = set()
+    _bad48 = []
+    for _n48 in _v41_ast.walk(_v41_ast.parse(_v41_ins.getsource(RN.run_case))):
+        if isinstance(_n48, _v41_ast.Subscript) and getattr(_n48.value, "id", None) == "case":
+            _keys48.add(getattr(_n48.slice, "value", "?"))
+        if isinstance(_n48, _v41_ast.Constant) and isinstance(_n48.value, str) and _n48.value.lower() in ("image", "faisal", "label", "quote"):
+            _bad48.append(_n48.value)
+    _fv48ok = all(_r48) and _ord48 and _keys48 == {"symbol", "decision_date"} and not _bad48
+    _fv48w = f"refuse={_r48} order={_ord48}:{_pr48[:3]} case_keys={sorted(_keys48)} bad={_bad48}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fv48ok, _fv48w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧊 FV48 تجميدُ القرار: V4 قبل فيصل إلزاميّ (رفضان) · والسجلُّ المصطنعُ بفيصل قبل V4 يُكشف · والمحرّكُ أعمى (لا يقرأ إلّا الرمزَ وتاريخَ القرار)",
+      _fv48ok, _fv48w)
+
+# ── FV49 سلامةُ المصدريّة: المسطرةُ جدولُ حقيقة (العقد §④ · ثمانُ حالات) · والبنّاءُ لا يقرأ نتائجَ تقييمٍ (AST: لا v4_eval/analysis/golden/metrics) ·
+#    وحقولُ السجلّ العشرون أسماؤها كما في المهمّة.
+try:
+    PV = _v41_imp.import_module("provenance")
+    _tt49 = [((7, "engineering", 0, 0, 0, False), ("UNKNOWN", True)), ((2, "faisal", 1, 0, 1, True), ("CONTRADICTED", False)),
+             ((2, "faisal", 3, 0, 0, True), ("CONFIRMED", False)), ((2, "faisal", 3, 0, 1, True), ("SUPPORTED", False)),
+             ((2, "faisal", 2, 0, 0, True), ("SUPPORTED", False)), ((2, "faisal", 1, 0, 0, True), ("PROBABLE", False)),
+             ((4, "inferred", 0, 2, 0, True), ("POSSIBLE", False)), ((5, "faisal_adopted", 0, 0, 0, False), ("UNKNOWN", False))]
+    _bad49 = [(a, PV.rubric(*a), w) for a, w in _tt49 if PV.rubric(*a) != w]
+    _src49 = _v41_ins.getsource(PV)
+    _forb49 = [w for w in ("v4_eval", "analysis", "golden_v31_vs_v4", "h_state", "metrics", "v4_eval_results") if w in _src49]
+    _imp49 = [n.names[0].name for n in _v41_ast.walk(_v41_ast.parse(_src49)) if isinstance(n, (_v41_ast.Import, _v41_ast.ImportFrom))
+              and n.names and n.names[0].name in ("v4_eval", "analysis", "v4_offline")]
+    _need49 = ["RULE_ID", "DESCRIPTION", "SOURCE_LEVEL", "PRIMARY_SOURCE_IDS", "SUPPORTING_SOURCE_IDS", "CONTRADICTORY_SOURCE_IDS", "AUTHOR",
+               "DIRECTLY_OBSERVED", "INFERRED", "IMPLEMENTED", "TESTED", "MUTATION_LOCK", "DECISIONALITY", "EVIDENCE_STATUS",
+               "DISCOVERY_DATASET", "VALIDATION_DATASET", "HOLDOUT_DATASET", "BACKTEST_DERIVED", "CURRENT_IMPLEMENTATION", "KNOWN_LIMITATIONS"]
+    _miss49 = [k for k in _need49 if f'"{k}"' not in _src49]
+    _fv49ok = not _bad49 and not _forb49 and not _imp49 and not _miss49
+    _fv49w = f"rubric_bad={_bad49} forbidden={_forb49} imports={_imp49} missing_fields={_miss49}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fv49ok, _fv49w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📜 FV49 سلامةُ المصدريّة: المسطرةُ جدولُ حقيقة (8 حالات) · ومستقلّةٌ عن الأداء (لا تقييمَ ولا ذهبيّةَ ولا مقاييس) · والحقولُ العشرون كلُّها",
+      _fv49ok, _fv49w)
+
+# ── FV50 الإعادةُ الحتميّة: تشغيلان على المُدخَل نفسِه ⟵ بصمةٌ واحدة · والإعادةُ من اللقطة (وبعد ذهابٍ وإيابٍ JSON) = البصمةُ المسجَّلة ·
+#    و`mode_replay` على سجلٍّ سليم ⟵ 0 · وعلى لقطةٍ عُبث بها ⟵ غيرُ صفر · والبصمةُ القانونيّة لا تتأثّر بترتيب المفاتيح.
+try:
+    RN = _v41_imp.import_module("runner")
+    _c50 = _v41_case()
+    _a50, _sa50 = RN.run_case(_c50, _v41_rows(), {}, {}, splits=[], meta={})
+    _b50, _ = RN.run_case(_c50, _v41_rows(), {}, {}, splits=[], meta={})
+    _h50 = RN.sha(_a50["decision"])
+    _det50 = _h50 == RN.sha(_b50["decision"]) == RN.replay(_sa50, _c50, {}) == RN.replay(_v41_json.loads(_v41_json.dumps(_sa50)), _c50, {})
+    _td50 = _v41_tmp.mkdtemp(prefix="fv50_")
+    try:
+        _lg50, _, _ = _v41_flow(_td50)
+        _rc50 = RN.mode_replay(_lg50)
+        _sp50 = _v41_os.path.join(_td50, _lg50.read(_lg50.entries("v4")[0]["path"])["snapshot_path"])
+        _snapobj = _v41_json.load(open(_sp50, encoding="utf-8"))
+        _snapobj["rows"][-1][4] = _snapobj["rows"][-1][4] * 3
+        open(_sp50, "w", encoding="utf-8").write(_v41_json.dumps(_snapobj))
+        _rc50b = RN.mode_replay(_lg50)
+    finally:
+        _v41_sh.rmtree(_td50, ignore_errors=True)
+    _ord50 = RN.sha({"b": 1, "a": [1, 2]}) == RN.sha({"a": [1, 2], "b": 1})
+    _fv50ok = _det50 and _rc50 == 0 and _rc50b != 0 and _ord50
+    _fv50w = f"det={_det50} replay_clean={_rc50} replay_tampered={_rc50b} key_order={_ord50} state={_a50['decision'].get('state')}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fv50ok, _fv50w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🔁 FV50 الإعادةُ الحتميّة: تشغيلان بصمةٌ واحدة · والإعادةُ من اللقطة تطابق المسجَّل · وmode_replay يمسك اللقطةَ المعبوث بها · والبصمةُ مستقلّةٌ عن ترتيب المفاتيح",
+      _fv50ok, _fv50w)
+
+# ── FVT1 سجلُّ الهدف (§18 · العقد §⑭): هدفٌ بحقلٍ ناقص ⟵ رفض · مرجعُ نسبةٍ أو حالةُ دليلٍ خارج القائمة ⟵ رفض · والكاملُ (ولو UNKNOWN) يُقبل —
+#    «100٪» لا يُفترض معناها: مرجعُها مكتوبٌ صراحةً أو UNKNOWN.
+try:
+    LG = _v41_imp.import_module("ledger")
+    _bt1 = {k: "UNKNOWN" for k in LG.TARGET_FIELDS}
+    _rt1 = {"case_id": "CASE_0001", "label": "WAIT", "label4": "WAIT", "quote": "q", "after_v4_seq": 3, "v4_decision_sha256": "x"}
+    _rj1 = []
+    for _bad1 in ({k: v for k, v in _bt1.items() if k != "PERCENTAGE_REFERENCE"}, dict(_bt1, PERCENTAGE_REFERENCE="FROM_ENTRY?"),
+                  dict(_bt1, EVIDENCE_STATUS="STRONG")):
+        try:
+            LG.check_schema("faisal", dict(_rt1, targets_f=[_bad1]))
+            _rj1.append(False)
+        except LG.SchemaError:
+            _rj1.append(True)
+    _ok1 = LG.check_schema("faisal", dict(_rt1, targets_f=[_bt1, dict(_bt1, PERCENTAGE="100", PERCENTAGE_TEXT="هدفنا 100٪",
+                                                                      PERCENTAGE_REFERENCE="FROM_ENTRY", EVIDENCE_STATUS="SUPPORTED")]))
+    _fvt1ok = all(_rj1) and _ok1 is True
+    _fvt1w = f"rejects={_rj1} valid={_ok1}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fvt1ok, _fvt1w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯 FVT1 سجلُّ الهدف (§18): حقلٌ ناقص · مرجعُ نسبةٍ أو حالةُ دليلٍ خارج القائمة ⟵ رفض · والكاملُ (ولو UNKNOWN) يُقبل — النسبةُ لا تُفترض",
+      _fvt1ok, _fvt1w)
+
+# ── FVO1 فضاءُ المخرَج الأماميّ (مقروءٌ من المحرّك المجمَّد لا مقيس): السياقُ الآليّ يترك القروبات والطرح والمضارب None دائمًا (ولو وُجد المتاح) ⟵
+#    `validity` تُرجع ناقصًا غيرَ فارغ ولا حاجبَ REJECT ⟵ والمحرّك (FV41) لا يقول READY مع ناقص ولا REJECT بلا قروبٍ معلوم ⟵ المخرَجُ الأماميّ ∈ {WAIT · UNKNOWN}.
+try:
+    RN = _v41_imp.import_module("runner")
+    _E_o1 = _v41_sys.modules.get("decision_engine") or _v41_imp.import_module("decision_engine")
+    _res_o1 = []
+    for _ctb_o1, _live_o1 in (([], None), ([{"symbol": "SYNT", "date": "2026-10-14", "shares_available": 100, "source": "x"}], None),
+                              ([], lambda s: 5)):
+        _cx_o1, _ = RN.validity_context("SYNT", "2026-10-15", _ctb_o1, "2026-10-15", live_borrow=_live_o1)
+        _bl_o1, _mi_o1 = _E_o1.validity(_cx_o1)
+        _res_o1.append(all(_cx_o1[k] is None for k in ("groups", "offering_pending", "operator_press")) and bool(_mi_o1)
+                       and not any(b[0] == "REJECT" for b in _bl_o1))
+    _tech_o1 = set(_E_o1.STATE_DECISION.values())
+    _fvo1ok = all(_res_o1) and "REJECT" not in _tech_o1 and "READY" not in _tech_o1
+    _fvo1w = f"contexts={_res_o1} tech_decisions={sorted(_tech_o1)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fvo1ok, _fvo1w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧭 FVO1 فضاءُ المخرَج الأماميّ: القروباتُ والطرحُ والمضاربُ None دائمًا ⟵ ناقصٌ بلا REJECT ⟵ V4 لا يقول READY ولا REJECT أماميًّا (WAIT · UNKNOWN)",
+      _fvo1ok, _fvo1w)
+
+# ── FVD1 إعادةُ التوليد (§33 · «لا رقمَ باليد»): المصدريّةُ والاحتجازُ والتحليلُ تُعاد من مُدخَلاتها فتطابق المدفوع (بلا قائمة الصور المنتظرة —
+#    حالةٌ تتغيّر بجامع التلغرام لا نتيجة) · والوثائقُ الاثنتا عشرة تُعاد من JSON بايتًا بايتًا · والسجلُّ الإلحاقيّ المدفوع سليم.
+try:
+    PV = _v41_imp.import_module("provenance")
+    HO = _v41_imp.import_module("holdout")
+    AN = _v41_imp.import_module("analysis")
+    DV = _v41_imp.import_module("docs_v41")
+    LG = _v41_imp.import_module("ledger")
+
+    def _rtd1(o):
+        o = _v41_json.loads(_v41_json.dumps(o, ensure_ascii=False, default=str))
+        (o.get("prospective") or {}).pop("pending_images", None)
+        return o
+    _same_d1 = {"provenance": _rtd1(PV.build()) == _rtd1(_v41_json.load(open(PV.OUT, encoding="utf-8"))),
+                "holdout": _rtd1(HO.build()) == _rtd1(HO.load()),
+                "analysis": _rtd1(AN.build()) == _rtd1(_v41_json.load(open(AN.OUT, encoding="utf-8")))}
+    _docs_d1 = DV.check()
+    _led_d1 = LG.Ledger().verify()
+    _fvd1ok = all(_same_d1.values()) and not _docs_d1 and _led_d1[0]
+    _fvd1w = f"same={_same_d1} docs_diff={_docs_d1} ledger={_led_d1[0]}:{_led_d1[1][:3]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fvd1ok, _fvd1w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📚 FVD1 إعادةُ التوليد: المصدريّةُ والاحتجازُ والتحليلُ تُعاد فتطابق المدفوع · والوثائقُ الاثنتا عشرة من JSON بايتًا بايتًا · والسجلُّ سليم",
+      _fvd1ok, _fvd1w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

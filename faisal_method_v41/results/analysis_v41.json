@@ -1,0 +1,6830 @@
+{
+ "contract": "V41_prereg §⑧-⑮",
+ "generated_by": "faisal_method_v41/analysis.py",
+ "golden": {
+  "always_wait_baseline": 5,
+  "dated": 7,
+  "of": 9,
+  "v31_matched": 3,
+  "v4_matched": 4
+ },
+ "golden_generalization": [
+  {
+   "CONTRADICTIONS": 0,
+   "GOLDEN_CASE_SUPPORT": [
+    "DXST",
+    "LABT",
+    "RAYA",
+    "ZNB"
+   ],
+   "HOLDOUT_SUPPORT": 0,
+   "INDEPENDENT_SUPPORT": 1,
+   "OVERFIT_RISK": false,
+   "PROSPECTIVE_SUPPORT": 0,
+   "RULE": "R-W-SPAN"
+  },
+  {
+   "CONTRADICTIONS": 0,
+   "GOLDEN_CASE_SUPPORT": [
+    "DXST",
+    "LABT",
+    "RAYA",
+    "ZNB"
+   ],
+   "HOLDOUT_SUPPORT": 0,
+   "INDEPENDENT_SUPPORT": 3,
+   "OVERFIT_RISK": false,
+   "PROSPECTIVE_SUPPORT": 0,
+   "RULE": "R4-BOT-01"
+  },
+  {
+   "CONTRADICTIONS": 1,
+   "GOLDEN_CASE_SUPPORT": [
+    "DXST",
+    "LABT",
+    "RAYA",
+    "ZNB"
+   ],
+   "HOLDOUT_SUPPORT": 0,
+   "INDEPENDENT_SUPPORT": 5,
+   "OVERFIT_RISK": false,
+   "PROSPECTIVE_SUPPORT": 0,
+   "RULE": "R4-ENT-02"
+  },
+  {
+   "CONTRADICTIONS": 0,
+   "GOLDEN_CASE_SUPPORT": [
+    "DXST",
+    "LABT",
+    "RAYA",
+    "ZNB"
+   ],
+   "HOLDOUT_SUPPORT": 0,
+   "INDEPENDENT_SUPPORT": 3,
+   "OVERFIT_RISK": false,
+   "PROSPECTIVE_SUPPORT": 0,
+   "RULE": "R4-LOC-01"
+  },
+  {
+   "CONTRADICTIONS": 3,
+   "GOLDEN_CASE_SUPPORT": [
+    "DXST",
+    "LABT",
+    "RAYA",
+    "ZNB"
+   ],
+   "HOLDOUT_SUPPORT": 0,
+   "INDEPENDENT_SUPPORT": 4,
+   "OVERFIT_RISK": false,
+   "PROSPECTIVE_SUPPORT": 0,
+   "RULE": "R4-STOP-01"
+  },
+  {
+   "CONTRADICTIONS": 0,
+   "GOLDEN_CASE_SUPPORT": [
+    "DXST",
+    "LABT",
+    "RAYA",
+    "ZNB"
+   ],
+   "HOLDOUT_SUPPORT": 0,
+   "INDEPENDENT_SUPPORT": 2,
+   "OVERFIT_RISK": false,
+   "PROSPECTIVE_SUPPORT": 0,
+   "RULE": "R4-TF-01"
+  },
+  {
+   "CONTRADICTIONS": 1,
+   "GOLDEN_CASE_SUPPORT": [
+    "DXST",
+    "LABT",
+    "RAYA",
+    "ZNB"
+   ],
+   "HOLDOUT_SUPPORT": 0,
+   "INDEPENDENT_SUPPORT": 5,
+   "OVERFIT_RISK": false,
+   "PROSPECTIVE_SUPPORT": 0,
+   "RULE": "R4-TGT-01"
+  }
+ ],
+ "historical_contaminated": {
+  "coverage": {
+   "pattern": {
+    "BREAKOUT": 1,
+    "NONE": 81,
+    "SUPPORT_SETUP": 1,
+    "W": 1
+   },
+   "timeframe": {
+    "1H": 1,
+    "30m": 3,
+    "4H": 27,
+    "5m": 6,
+    "?": 9,
+    "D": 54,
+    "W": 8
+   }
+  },
+  "dependency": {
+   "CHART-DERIVABLE": {
+    "faisal": {
+     "READY": 2,
+     "REJECT": 1,
+     "UNKNOWN": 12,
+     "WAIT": 20
+    },
+    "n": 35,
+    "v4": {
+     "UNKNOWN": 7,
+     "WAIT": 28
+    }
+   },
+   "EXTERNAL-DATA-DERIVABLE": {
+    "faisal": {
+     "READY": 2,
+     "REJECT": 1,
+     "UNKNOWN": 10,
+     "WAIT": 20
+    },
+    "n": 33,
+    "v4": {
+     "UNKNOWN": 4,
+     "WAIT": 29
+    }
+   },
+   "MANUAL/DISCRETIONARY": {
+    "faisal": {
+     "WAIT": 3
+    },
+    "n": 3,
+    "v4": {
+     "UNKNOWN": 1,
+     "WAIT": 2
+    }
+   },
+   "UNAVAILABLE": {
+    "faisal": {
+     "READY": 3,
+     "UNKNOWN": 1,
+     "WAIT": 9
+    },
+    "n": 13,
+    "v4": {
+     "UNKNOWN": 2,
+     "WAIT": 11
+    }
+   }
+  },
+  "disagreements": [
+   {
+    "CASE_ID": "EHGO_2026-05-22",
+    "CLASSIFICATION": "D",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-05-21",
+     "close_asof": 1.67,
+     "image_price_F": null,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [
+     "القروبات (R4-VAL-GRP-01)",
+     "الطرح/التخفيف (R4-VAL-OFF-01)",
+     "المتاح للشورت (R4-VAL-SHORT-01)",
+     "بصمة المضارب/الضغط (R4-OP-01)"
+    ],
+    "DIFFERENCE": "V4 يمتنع (UNKNOWN) وفيصل يقرّر WAIT",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T1_CITED",
+     "rules": {
+      "R4-OP-01": "SUPPORTED",
+      "R4-VAL-GRP-01": "CONFIRMED",
+      "R4-VAL-OFF-01": "CONFIRMED",
+      "R4-VAL-SHORT-01": "SUPPORTED"
+     }
+    },
+    "FAISAL_DECISION": "WAIT",
+    "POSSIBLE_REASON": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)",
+    "RULES_BLOCKED": [],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-STOP-01",
+     "R4-SWEEP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "UNKNOWN (PRESS_RECLAIM)",
+    "dependency": "UNAVAILABLE",
+    "set": "S1"
+   },
+   {
+    "CASE_ID": "PIII_2026-05-16",
+    "CLASSIFICATION": "B",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-05-15",
+     "close_asof": 11.29,
+     "image_price_F": null,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [],
+    "DIFFERENCE": "V4 أشدّ: WAIT وفيصل READY",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T2_EXPOSED_UNCITED",
+     "rules": {
+      "R4-HOLD-01": "SUPPORTED"
+     }
+    },
+    "FAISAL_DECISION": "READY",
+    "POSSIBLE_REASON": "فئةُ خطّة فيصل AT ≠ فئةُ مستوى V4 BELOW",
+    "RULES_BLOCKED": [
+     "R4-HOLD-01"
+    ],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-HOLD-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "WAIT (BASE_FORMING)",
+    "dependency": "UNAVAILABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "ERNA_2026-05-0x",
+    "CLASSIFICATION": "G",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-04-30",
+     "close_asof": 3.69,
+     "image_price_F": 5.81,
+     "v4_status": "SCALE_MISMATCH",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [],
+    "DIFFERENCE": "V4 أشدّ: WAIT وفيصل READY",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T1_CITED",
+     "rules": {
+      "R4-INV-01": "CONFIRMED"
+     }
+    },
+    "FAISAL_DECISION": "READY",
+    "POSSIBLE_REASON": "سعرُ الصورة يخالف إغلاقَ القراءة ×0.635 (توقيت/أفتر)",
+    "RULES_BLOCKED": [
+     "R4-INV-01"
+    ],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-INV-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "WAIT (BROKEN_NEW_BASE)",
+    "dependency": "UNAVAILABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "BETA_2026-04-05",
+    "CLASSIFICATION": "D",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-04-02",
+     "close_asof": 15.43,
+     "image_price_F": 15.43,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [
+     "القروبات (R4-VAL-GRP-01)",
+     "الطرح/التخفيف (R4-VAL-OFF-01)",
+     "المتاح للشورت (R4-VAL-SHORT-01)",
+     "بصمة المضارب/الضغط (R4-OP-01)"
+    ],
+    "DIFFERENCE": "V4 يمتنع (UNKNOWN) وفيصل يقرّر WAIT",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · OTHER_CONTAMINATED",
+     "rules": {
+      "R4-OP-01": "SUPPORTED",
+      "R4-VAL-GRP-01": "CONFIRMED",
+      "R4-VAL-OFF-01": "CONFIRMED",
+      "R4-VAL-SHORT-01": "SUPPORTED"
+     }
+    },
+    "FAISAL_DECISION": "WAIT",
+    "POSSIBLE_REASON": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)",
+    "RULES_BLOCKED": [],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-STOP-01",
+     "R4-SWEEP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "UNKNOWN (PRESS_RECLAIM)",
+    "dependency": "MANUAL/DISCRETIONARY",
+    "set": "S1"
+   },
+   {
+    "CASE_ID": "MSGY_2026-09-0x",
+    "CLASSIFICATION": "D",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-08-31",
+     "close_asof": 1.9,
+     "image_price_F": 1.86,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [
+     "القروبات (R4-VAL-GRP-01)",
+     "الطرح/التخفيف (R4-VAL-OFF-01)",
+     "المتاح للشورت (R4-VAL-SHORT-01)",
+     "بصمة المضارب/الضغط (R4-OP-01)"
+    ],
+    "DIFFERENCE": "V4 يمتنع (UNKNOWN) وفيصل يقرّر WAIT",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T1_CITED",
+     "rules": {
+      "R4-OP-01": "SUPPORTED",
+      "R4-VAL-GRP-01": "CONFIRMED",
+      "R4-VAL-OFF-01": "CONFIRMED",
+      "R4-VAL-SHORT-01": "SUPPORTED"
+     }
+    },
+    "FAISAL_DECISION": "WAIT",
+    "POSSIBLE_REASON": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)",
+    "RULES_BLOCKED": [],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-HOLD-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "UNKNOWN (BASE_HELD)",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "DCOY_2026-09-2x",
+    "CLASSIFICATION": "G",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-09-18",
+     "close_asof": 2.78,
+     "image_price_F": 5.49,
+     "v4_status": "SCALE_MISMATCH",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [
+     "القروبات (R4-VAL-GRP-01)",
+     "الطرح/التخفيف (R4-VAL-OFF-01)",
+     "المتاح للشورت (R4-VAL-SHORT-01)",
+     "بصمة المضارب/الضغط (R4-OP-01)"
+    ],
+    "DIFFERENCE": "V4 يمتنع (UNKNOWN) وفيصل يقرّر REJECT",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T1_CITED",
+     "rules": {}
+    },
+    "FAISAL_DECISION": "REJECT",
+    "POSSIBLE_REASON": "سعرُ الصورة يخالف إغلاقَ القراءة ×0.506 (توقيت/أفتر)",
+    "RULES_BLOCKED": [],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-STOP-01",
+     "R4-SWEEP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "UNKNOWN (PRESS_RECLAIM)",
+    "dependency": "CHART-DERIVABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "LIMN_2026-09-22",
+    "CLASSIFICATION": "D",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-09-21",
+     "close_asof": 3.64,
+     "image_price_F": 3.64,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [
+     "القروبات (R4-VAL-GRP-01)",
+     "الطرح/التخفيف (R4-VAL-OFF-01)",
+     "المتاح للشورت (R4-VAL-SHORT-01)",
+     "بصمة المضارب/الضغط (R4-OP-01)"
+    ],
+    "DIFFERENCE": "V4 يمتنع (UNKNOWN) وفيصل يقرّر WAIT",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T1_CITED",
+     "rules": {
+      "R4-OP-01": "SUPPORTED",
+      "R4-VAL-GRP-01": "CONFIRMED",
+      "R4-VAL-OFF-01": "CONFIRMED",
+      "R4-VAL-SHORT-01": "SUPPORTED"
+     }
+    },
+    "FAISAL_DECISION": "WAIT",
+    "POSSIBLE_REASON": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)",
+    "RULES_BLOCKED": [],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-HOLD-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "UNKNOWN (BASE_HELD)",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "set": "S1"
+   },
+   {
+    "CASE_ID": "CRE_2026-09-2x",
+    "CLASSIFICATION": "D",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-09-18",
+     "close_asof": 3.0,
+     "image_price_F": 3.0,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [
+     "القروبات (R4-VAL-GRP-01)",
+     "الطرح/التخفيف (R4-VAL-OFF-01)",
+     "المتاح للشورت (R4-VAL-SHORT-01)",
+     "بصمة المضارب/الضغط (R4-OP-01)"
+    ],
+    "DIFFERENCE": "V4 يمتنع (UNKNOWN) وفيصل يقرّر WAIT",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T2_EXPOSED_UNCITED",
+     "rules": {
+      "R4-OP-01": "SUPPORTED",
+      "R4-VAL-GRP-01": "CONFIRMED",
+      "R4-VAL-OFF-01": "CONFIRMED",
+      "R4-VAL-SHORT-01": "SUPPORTED"
+     }
+    },
+    "FAISAL_DECISION": "WAIT",
+    "POSSIBLE_REASON": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)",
+    "RULES_BLOCKED": [],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-STOP-01",
+     "R4-SWEEP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "UNKNOWN (PRESS_RECLAIM)",
+    "dependency": "CHART-DERIVABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "BTOG_2026-09-04",
+    "CLASSIFICATION": "B",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-09-03",
+     "close_asof": 2.21,
+     "image_price_F": 2.26,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [],
+    "DIFFERENCE": "V4 WAIT وفيصل REJECT",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T1_CITED",
+     "rules": {
+      "R4-INV-01": "CONFIRMED",
+      "R4-TF-01": "SUPPORTED"
+     }
+    },
+    "FAISAL_DECISION": "REJECT",
+    "POSSIBLE_REASON": "فريمُ فيصل ['W'] لا يضمّ اليوميّ (المحرّكُ يوميٌّ وحدَه · R4-TF-01)",
+    "RULES_BLOCKED": [
+     "R4-INV-01"
+    ],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-INV-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "WAIT (BROKEN_NEW_BASE)",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "ELPW_2026-01",
+    "CLASSIFICATION": "B",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-09-09",
+     "close_asof": 2.795,
+     "image_price_F": null,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [],
+    "DIFFERENCE": "V4 أشدّ: WAIT وفيصل READY",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T2_EXPOSED_UNCITED",
+     "rules": {
+      "R4-INV-01": "CONFIRMED"
+     }
+    },
+    "FAISAL_DECISION": "READY",
+    "POSSIBLE_REASON": "فئةُ خطّة فيصل None ≠ فئةُ مستوى V4 BELOW",
+    "RULES_BLOCKED": [
+     "R4-INV-01"
+    ],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-INV-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "WAIT (BROKEN_NEW_BASE)",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "DSY_2026-04",
+    "CLASSIFICATION": "G",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-03-31",
+     "close_asof": 2.45,
+     "image_price_F": 1.874,
+     "v4_status": "SCALE_MISMATCH",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [],
+    "DIFFERENCE": "V4 أشدّ: WAIT وفيصل READY",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T1_CITED",
+     "rules": {
+      "R4-INV-01": "CONFIRMED"
+     }
+    },
+    "FAISAL_DECISION": "READY",
+    "POSSIBLE_REASON": "سعرُ الصورة يخالف إغلاقَ القراءة ×1.31 (توقيت/أفتر)",
+    "RULES_BLOCKED": [
+     "R4-INV-01"
+    ],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-INV-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "WAIT (BROKEN_NEW_BASE)",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "EHGO_2026-06",
+    "CLASSIFICATION": "G",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-06-09",
+     "close_asof": 1.57,
+     "image_price_F": 1.3,
+     "v4_status": "SCALE_MISMATCH",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [],
+    "DIFFERENCE": "V4 أشدّ: WAIT وفيصل READY",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T2_EXPOSED_UNCITED",
+     "rules": {
+      "R4-HOLDZ-01": "SUPPORTED"
+     }
+    },
+    "FAISAL_DECISION": "READY",
+    "POSSIBLE_REASON": "سعرُ الصورة يخالف إغلاقَ القراءة ×1.21 (توقيت/أفتر)",
+    "RULES_BLOCKED": [
+     "R4-HOLDZ-01"
+    ],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-HOLDZ-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "WAIT (RETEST_IN_PROGRESS)",
+    "dependency": "CHART-DERIVABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "JZ_2026-07",
+    "CLASSIFICATION": "D",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-07-17",
+     "close_asof": 2.73,
+     "image_price_F": null,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [
+     "القروبات (R4-VAL-GRP-01)",
+     "الطرح/التخفيف (R4-VAL-OFF-01)",
+     "المتاح للشورت (R4-VAL-SHORT-01)",
+     "بصمة المضارب/الضغط (R4-OP-01)"
+    ],
+    "DIFFERENCE": "V4 يمتنع (UNKNOWN) وفيصل يقرّر WAIT",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T1_CITED",
+     "rules": {
+      "R4-OP-01": "SUPPORTED",
+      "R4-VAL-GRP-01": "CONFIRMED",
+      "R4-VAL-OFF-01": "CONFIRMED",
+      "R4-VAL-SHORT-01": "SUPPORTED"
+     }
+    },
+    "FAISAL_DECISION": "WAIT",
+    "POSSIBLE_REASON": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)",
+    "RULES_BLOCKED": [],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-HOLD-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "UNKNOWN (BASE_HELD)",
+    "dependency": "UNAVAILABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "MWC_2026-06",
+    "CLASSIFICATION": "E",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-05-29",
+     "close_asof": null,
+     "image_price_F": null,
+     "v4_status": "DATA_INSUFFICIENT",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [
+     "شموعٌ يوميّةٌ كافية قبل تاريخ القراءة"
+    ],
+    "DIFFERENCE": "V4 يمتنع (UNKNOWN) وفيصل يقرّر WAIT",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T2_EXPOSED_UNCITED",
+     "rules": {
+      "R4-DATA-01": "UNKNOWN"
+     }
+    },
+    "FAISAL_DECISION": "WAIT",
+    "POSSIBLE_REASON": "شموعٌ ناقصة قبل تاريخ القراءة",
+    "RULES_BLOCKED": [
+     "R4-DATA-01"
+    ],
+    "RULES_TRIGGERED": [
+     "R4-DATA-01"
+    ],
+    "V4_DECISION": "UNKNOWN (DATA_INSUFFICIENT)",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "set": "S2"
+   },
+   {
+    "CASE_ID": "UPC_2026-07",
+    "CLASSIFICATION": "B",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-07-30",
+     "close_asof": 3.48,
+     "image_price_F": null,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [],
+    "DIFFERENCE": "V4 أشدّ: WAIT وفيصل READY",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T1_CITED",
+     "rules": {
+      "R4-INV-01": "CONFIRMED"
+     }
+    },
+    "FAISAL_DECISION": "READY",
+    "POSSIBLE_REASON": "فئةُ خطّة فيصل NONE ≠ فئةُ مستوى V4 BELOW",
+    "RULES_BLOCKED": [
+     "R4-INV-01"
+    ],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-INV-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "WAIT (BROKEN_NEW_BASE)",
+    "dependency": "CHART-DERIVABLE",
+    "set": "S1"
+   },
+   {
+    "CASE_ID": "SXTC_2026-09-1x_a",
+    "CLASSIFICATION": "B",
+    "DATA_AVAILABLE": {
+     "bars_asof": "2026-09-09",
+     "close_asof": 2.14,
+     "image_price_F": 1.95,
+     "v4_status": "OK",
+     "validity_context": "لا شيء — تشغيلُ V4 التاريخيّ بلا سياق (v4_eval.run_case)"
+    },
+    "DATA_MISSING": [],
+    "DIFFERENCE": "V4 أشدّ: WAIT وفيصل READY",
+    "EVIDENCE_STATUS": {
+     "case": "HISTORICAL-CONTAMINATED · T1_CITED",
+     "rules": {
+      "R4-INV-01": "CONFIRMED"
+     }
+    },
+    "FAISAL_DECISION": "READY",
+    "POSSIBLE_REASON": "فئةُ خطّة فيصل AT ≠ فئةُ مستوى V4 BELOW",
+    "RULES_BLOCKED": [
+     "R4-INV-01"
+    ],
+    "RULES_TRIGGERED": [
+     "R-W-SPAN",
+     "R4-BOT-01",
+     "R4-ENT-02",
+     "R4-INV-01",
+     "R4-STOP-01",
+     "R4-TF-01",
+     "R4-TGT-01"
+    ],
+    "V4_DECISION": "WAIT (BROKEN_NEW_BASE)",
+    "dependency": "UNAVAILABLE",
+    "set": "S2"
+   }
+  ],
+  "h_ord": "CONTRADICTED",
+  "h_ord_ready_with_support": 5,
+  "invisible": {
+   "by_class": {
+    "A": 0,
+    "B": 5,
+    "C": 0,
+    "D": 6,
+    "E": 1,
+    "F": 0,
+    "G": 4,
+    "H": 0
+   },
+   "k_D": 6,
+   "n": 11,
+   "verdict": "SUPPORTED"
+  },
+  "matrices": {
+   "S1_all": {
+    "agreement": {
+     "READY": "0/1",
+     "REJECT": "N=0",
+     "UNKNOWN": "N=0",
+     "WAIT": "18/21"
+    },
+    "always_wait": {
+     "agree": 21,
+     "n": 22,
+     "rate": 0.9545
+    },
+    "exact": 18,
+    "exact_rate": 0.8182,
+    "exact_wilson": [
+     0.6148,
+     0.9269
+    ],
+    "false": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 3,
+     "WAIT": 1
+    },
+    "false_rate": {
+     "READY": 0.0,
+     "REJECT": 0.0,
+     "UNKNOWN": 0.1364,
+     "WAIT": 0.0455
+    },
+    "insufficient": false,
+    "matrix": {
+     "READY": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 1
+     },
+     "REJECT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 0
+     },
+     "UNKNOWN": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 0
+     },
+     "WAIT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 3,
+      "WAIT": 18
+     }
+    },
+    "n": 22,
+    "ready_precision": "UNDEFINED (V4 READY = 0)",
+    "ready_recall": "0/1",
+    "v4_not_run": 0
+   },
+   "S1_discovery": {
+    "agreement": {
+     "READY": "0/1",
+     "REJECT": "N=0",
+     "UNKNOWN": "N=0",
+     "WAIT": "9/11"
+    },
+    "always_wait": {
+     "agree": 11,
+     "n": 12,
+     "rate": 0.9167
+    },
+    "exact": 9,
+    "exact_rate": 0.75,
+    "exact_wilson": [
+     0.4677,
+     0.9111
+    ],
+    "false": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 2,
+     "WAIT": 1
+    },
+    "false_rate": {
+     "READY": 0.0,
+     "REJECT": 0.0,
+     "UNKNOWN": 0.1667,
+     "WAIT": 0.0833
+    },
+    "insufficient": false,
+    "matrix": {
+     "READY": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 1
+     },
+     "REJECT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 0
+     },
+     "UNKNOWN": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 0
+     },
+     "WAIT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 2,
+      "WAIT": 9
+     }
+    },
+    "n": 12,
+    "ready_precision": "UNDEFINED (V4 READY = 0)",
+    "ready_recall": "0/1",
+    "v4_not_run": 0
+   },
+   "S1_holdout_v4": {
+    "agreement": {
+     "READY": "N=0",
+     "REJECT": "N=0",
+     "UNKNOWN": "N=0",
+     "WAIT": "9/10"
+    },
+    "always_wait": {
+     "agree": 10,
+     "n": 10,
+     "rate": 1.0
+    },
+    "exact": 9,
+    "exact_rate": 0.9,
+    "exact_wilson": [
+     0.5958,
+     0.9821
+    ],
+    "false": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 1,
+     "WAIT": 0
+    },
+    "false_rate": {
+     "READY": 0.0,
+     "REJECT": 0.0,
+     "UNKNOWN": 0.1,
+     "WAIT": 0.0
+    },
+    "insufficient": false,
+    "matrix": {
+     "READY": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 0
+     },
+     "REJECT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 0
+     },
+     "UNKNOWN": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 0
+     },
+     "WAIT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "WAIT": 9
+     }
+    },
+    "n": 10,
+    "ready_precision": "UNDEFINED (V4 READY = 0)",
+    "ready_recall": "UNDEFINED (Faisal READY = 0)",
+    "v4_not_run": 0
+   },
+   "S2": {
+    "agreement": {
+     "READY": "0/6",
+     "REJECT": "0/2",
+     "UNKNOWN": "6/23",
+     "WAIT": "27/31"
+    },
+    "always_wait": {
+     "agree": 31,
+     "n": 62,
+     "rate": 0.5
+    },
+    "exact": 33,
+    "exact_rate": 0.5323,
+    "exact_wilson": [
+     0.4098,
+     0.6509
+    ],
+    "false": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 5,
+     "WAIT": 24
+    },
+    "false_rate": {
+     "READY": 0.0,
+     "REJECT": 0.0,
+     "UNKNOWN": 0.0806,
+     "WAIT": 0.3871
+    },
+    "insufficient": false,
+    "matrix": {
+     "READY": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 6
+     },
+     "REJECT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "WAIT": 1
+     },
+     "UNKNOWN": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 6,
+      "WAIT": 17
+     },
+     "WAIT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 4,
+      "WAIT": 27
+     }
+    },
+    "n": 62,
+    "ready_precision": "UNDEFINED (V4 READY = 0)",
+    "ready_recall": "0/6",
+    "v4_not_run": 1
+   },
+   "S3_golden": {
+    "agreement": {
+     "READY": "0/2",
+     "REJECT": "0/1",
+     "UNKNOWN": "1/2",
+     "WAIT": "13/13"
+    },
+    "always_wait": {
+     "agree": 13,
+     "n": 18,
+     "rate": 0.7222
+    },
+    "exact": 14,
+    "exact_rate": 0.7778,
+    "exact_wilson": [
+     0.5478,
+     0.91
+    ],
+    "false": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 0,
+     "WAIT": 4
+    },
+    "false_rate": {
+     "READY": 0.0,
+     "REJECT": 0.0,
+     "UNKNOWN": 0.0,
+     "WAIT": 0.2222
+    },
+    "insufficient": false,
+    "matrix": {
+     "READY": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 2
+     },
+     "REJECT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 1
+     },
+     "UNKNOWN": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "WAIT": 1
+     },
+     "WAIT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 13
+     }
+    },
+    "n": 18,
+    "ready_precision": "UNDEFINED (V4 READY = 0)",
+    "ready_recall": "0/2",
+    "v4_not_run": 1
+   },
+   "S4_edu": {
+    "agreement": {
+     "READY": "0/1",
+     "REJECT": "N=0",
+     "UNKNOWN": "0/1",
+     "WAIT": "9/10"
+    },
+    "always_wait": {
+     "agree": 10,
+     "n": 12,
+     "rate": 0.8333
+    },
+    "exact": 9,
+    "exact_rate": 0.75,
+    "exact_wilson": [
+     0.4677,
+     0.9111
+    ],
+    "false": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 1,
+     "WAIT": 2
+    },
+    "false_rate": {
+     "READY": 0.0,
+     "REJECT": 0.0,
+     "UNKNOWN": 0.0833,
+     "WAIT": 0.1667
+    },
+    "insufficient": false,
+    "matrix": {
+     "READY": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 1
+     },
+     "REJECT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 0
+     },
+     "UNKNOWN": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 1
+     },
+     "WAIT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "WAIT": 9
+     }
+    },
+    "n": 12,
+    "ready_precision": "UNDEFINED (V4 READY = 0)",
+    "ready_recall": "0/1",
+    "v4_not_run": 0
+   },
+   "T1_cited_S1S2": {
+    "agreement": {
+     "READY": "0/4",
+     "REJECT": "0/2",
+     "UNKNOWN": "0/3",
+     "WAIT": "23/27"
+    },
+    "always_wait": {
+     "agree": 27,
+     "n": 36,
+     "rate": 0.75
+    },
+    "exact": 23,
+    "exact_rate": 0.6389,
+    "exact_wilson": [
+     0.4757,
+     0.7752
+    ],
+    "false": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 5,
+     "WAIT": 8
+    },
+    "false_rate": {
+     "READY": 0.0,
+     "REJECT": 0.0,
+     "UNKNOWN": 0.1389,
+     "WAIT": 0.2222
+    },
+    "insufficient": false,
+    "matrix": {
+     "READY": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 4
+     },
+     "REJECT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 1,
+      "WAIT": 1
+     },
+     "UNKNOWN": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 3
+     },
+     "WAIT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 4,
+      "WAIT": 23
+     }
+    },
+    "n": 36,
+    "ready_precision": "UNDEFINED (V4 READY = 0)",
+    "ready_recall": "0/4",
+    "v4_not_run": 0
+   },
+   "T2_exposed_uncited_S1S2": {
+    "agreement": {
+     "READY": "0/3",
+     "REJECT": "N=0",
+     "UNKNOWN": "6/20",
+     "WAIT": "18/20"
+    },
+    "always_wait": {
+     "agree": 20,
+     "n": 43,
+     "rate": 0.4651
+    },
+    "exact": 24,
+    "exact_rate": 0.5581,
+    "exact_wilson": [
+     0.4111,
+     0.6957
+    ],
+    "false": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 2,
+     "WAIT": 17
+    },
+    "false_rate": {
+     "READY": 0.0,
+     "REJECT": 0.0,
+     "UNKNOWN": 0.0465,
+     "WAIT": 0.3953
+    },
+    "insufficient": false,
+    "matrix": {
+     "READY": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 3
+     },
+     "REJECT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 0,
+      "WAIT": 0
+     },
+     "UNKNOWN": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 6,
+      "WAIT": 14
+     },
+     "WAIT": {
+      "READY": 0,
+      "REJECT": 0,
+      "UNKNOWN": 2,
+      "WAIT": 18
+     }
+    },
+    "n": 43,
+    "ready_precision": "UNDEFINED (V4 READY = 0)",
+    "ready_recall": "0/3",
+    "v4_not_run": 1
+   }
+  },
+  "mixed_excluded_S1S2": 0,
+  "not_run": [
+   {
+    "case": "SXTC?_2026-09-2x",
+    "faisal": "UNKNOWN",
+    "set": "S2",
+    "status": "NO_BARS"
+   },
+   {
+    "case": "ATMV_UNK",
+    "faisal": "WAIT",
+    "set": "S3",
+    "status": "NO_BARS"
+   }
+  ],
+  "orders": {
+   "no_support+no_orders": {
+    "READY": 2,
+    "REJECT": 0,
+    "UNKNOWN": 10,
+    "WAIT": 7
+   },
+   "no_support+orders": {
+    "READY": 0,
+    "REJECT": 1,
+    "UNKNOWN": 7,
+    "WAIT": 6
+   },
+   "support+no_orders": {
+    "READY": 2,
+    "REJECT": 0,
+    "UNKNOWN": 5,
+    "WAIT": 23
+   },
+   "support+orders": {
+    "READY": 3,
+    "REJECT": 1,
+    "UNKNOWN": 1,
+    "WAIT": 16
+   }
+  },
+  "rows": [
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "LABT_2026-07-27",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S3",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "TG_1816"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.427,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "EHGO_2026-05-22",
+    "class": "D",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "WAIT_OPERATOR",
+     "WAIT_OPERATOR",
+     "WAIT_OPERATOR"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_1822",
+     "TG_1958",
+     "TG_2071"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "PRESS_RECLAIM"
+    },
+    "why": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)"
+   },
+   {
+    "agree": false,
+    "basis": "none",
+    "case": "LNAI_2026-06-15",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_ZERO",
+     "SPLIT_DATE",
+     "FLOAT_SMALL",
+     "COUNTRY_US"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "TG_1824"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "ZCMD_2026-07-02",
+    "dependency": "MANUAL/DISCRETIONARY",
+    "dependency_evidence": [
+     "WATCHLIST_CALL"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "TG_1828"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 2.018,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "LABT_2026-07-2x",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "WAIT_OPERATOR"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S3",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_1831"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "CANF_2026-07-20",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_ZERO",
+     "FEE_HIGH"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_1833"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0149,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "LABT_2026-07-05",
+    "class": "B",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "GROUPS_PRESENT"
+    ],
+    "faisal": "REJECT",
+    "flags": [
+     "CITED",
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S3",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "30m"
+    ],
+    "units": [
+     "TG_1835"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    },
+    "why": "فريمُ فيصل ['30m'] لا يضمّ اليوميّ (المحرّكُ يوميٌّ وحدَه · R4-TF-01)"
+   },
+   {
+    "agree": false,
+    "basis": "none",
+    "case": "PPCB_2026-07-16",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_LOW",
+     "FEE_HIGH",
+     "FLOAT_SMALL",
+     "SPLIT_RECENT"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "TG_1838"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "SPRC_2026-07-17",
+    "class": "B",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "NEWS_YESTERDAY",
+     "FEE_HIGH",
+     "NEWS"
+    ],
+    "faisal": "READY",
+    "flags": [
+     "CITED",
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "AT",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "IMG_0395",
+     "TG_1843"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0939,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    },
+    "why": "فئةُ خطّة فيصل AT ≠ فئةُ مستوى V4 BELOW"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "TRUG_2026-07-2x",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "WAIT_OPERATOR"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_1845",
+     "TG_1849"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-SWEEP-01",
+       "why": "سحبُ سيولةٍ تحت القاع السابق ولم يعد فوقه بعد"
+      }
+     ],
+     "decisive_class": "ABOVE",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "SWEEP_ACTIVE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "none",
+    "case": "EZRA_2026-07-20",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_1851"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "recalled_only",
+    "case": "PIII_2026-05-16",
+    "class": "B",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "PRESSURE_AT_LEVEL"
+    ],
+    "faisal": "READY",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "AT",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_1860"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-HOLD-01",
+       "why": "القاعُ لم يثبت 5 جلسات بعد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BASE_FORMING"
+    },
+    "why": "فئةُ خطّة فيصل AT ≠ فئةُ مستوى V4 BELOW"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "YYAI_2026-07-0x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_1876"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 20.0265,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "none",
+    "case": "GWAV_2026-06-2x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "NASDAQ_NONCOMPLIANCE",
+     "SHORT_LOW",
+     "FLOAT_SMALL",
+     "SHORT_LOW",
+     "FLOAT_SMALL",
+     "NASDAQ_NONCOMPLIANCE",
+     "NEWS"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_1892",
+     "TG_2030"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-HOLDZ-01",
+       "why": "رجع إلى المنطقة ولم يثبت فيها جلساتٍ كافية"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_IN_PROGRESS"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "SMX_2026-04-25",
+    "dependency": "MANUAL/DISCRETIONARY",
+    "dependency_evidence": [
+     "WATCHLIST_CALL"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "1H"
+    ],
+    "units": [
+     "TG_1908"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 45.7,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "none",
+    "case": "CNMD_2026-05-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_1951"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "RETEST_HELD"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "ERNA_2026-05-0x",
+    "class": "G",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "PRESSURE_AT_LEVEL"
+    ],
+    "faisal": "READY",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "5m",
+     "D"
+    ],
+    "units": [
+     "TG_1963"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.6351,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "BROKEN_NEW_BASE"
+    },
+    "why": "سعرُ الصورة يخالف إغلاقَ القراءة ×0.635 (توقيت/أفتر)"
+   },
+   {
+    "agree": true,
+    "basis": "lean",
+    "case": "TLIH_2026-05-0x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "W"
+    ],
+    "units": [
+     "TG_1981"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "RETEST_HELD"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "ELPW_2026-05-0x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "5m",
+     "D"
+    ],
+    "units": [
+     "TG_1985",
+     "TG_2094"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "CDIO_2026-02-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_1989"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.8065,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "ELAB_2026-04-12",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_COVERING_ROTATION"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D",
+     "W"
+    ],
+    "units": [
+     "TG_1997"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "NXTT_2026-02-0x",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "PRESSURE_AT_LEVEL"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_1999"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "ENPH_2026-05-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "W"
+    ],
+    "units": [
+     "TG_2017"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-HOLD-01",
+       "why": "القاعُ لم يثبت 5 جلسات بعد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BASE_FORMING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "LNAI_2026-06-1x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_ZERO",
+     "SPLIT_RECENT",
+     "FLOAT_SMALL",
+     "SHORT_ZERO",
+     "SPLIT_RECENT",
+     "FLOAT_SMALL",
+     "NEWS"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "TG_2031",
+     "TG_2053"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9502,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "SMX_2026-05-24",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "TG_2034"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 2.2588,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "ADIL_2026-06-07",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_RISING"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [],
+    "units": [
+     "TG_2064"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "FRSX_2026-03-28",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SPLIT_RECENT"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_2079"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.96,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "ELPW_2026-01-22",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "5m"
+    ],
+    "units": [
+     "TG_2095"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 4479.3893,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "CLIR_2026-04-0x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_2108"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9027,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "lean",
+    "case": "PPBT_2026-04-0x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_2110"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "BASE_HELD"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "SVRE_2026-03-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_2116"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "BETA_2026-04-05",
+    "class": "D",
+    "dependency": "MANUAL/DISCRETIONARY",
+    "dependency_evidence": [
+     "WATCHLIST_CALL"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "TG_2117"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": 1.0,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "PRESS_RECLAIM"
+    },
+    "why": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "TRUG_2026-03-30",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SPLIT_RECENT",
+     "SHORT_ZERO",
+     "FLOAT_TINY"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_2121"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 9.9333,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "PCLA_2026-03-2x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_TARGET_BELOW"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_2126"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9952,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "CNSP_2026-05-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S4",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_2176"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-HOLD-01",
+       "why": "القاعُ لم يثبت 5 جلسات بعد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0084,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BASE_FORMING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "none",
+    "case": "NCT_None",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S4",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "5m"
+    ],
+    "units": [
+     "TG_2179",
+     "TG_2180"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "BGMS_2026-02-0x",
+    "class": "D",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S4",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_2181"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "RETEST_HELD"
+    },
+    "why": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "ONCO_2026-07-26",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "WAIT_OPERATOR"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BOTH",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "IMG_0267",
+     "IMG_0320",
+     "TG_2196",
+     "TG_2200"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9776,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "FTFT_2026-07-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_2207"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 4.3492,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "CDIO_2026-01-28",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "WAIT_OPERATOR"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": false,
+    "tech_ready_f": true,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_2218"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-HOLDZ-01",
+       "why": "رجع إلى المنطقة ولم يثبت فيها جلساتٍ كافية"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_IN_PROGRESS"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "SNAL_2026-09-04",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_20260905_06",
+     "TG_50827"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "MSGY_2026-09-0x",
+    "class": "D",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SPLIT_RECENT"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_20260905_07"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": 1.0215,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "BASE_HELD"
+    },
+    "why": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "STKH_2026-09-04",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SPLIT_RECENT"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "AT",
+    "set": "S1",
+    "split": "holdout",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_20260905_08",
+     "TG_20260905_09"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0431,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "NUWE_2026-09-04",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BOTH",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_20260918_38_NUWE",
+     "TG_20260918_42_NUWE",
+     "WA_20260918_46_NUWE"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9474,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "DCOY_2026-09-22",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_50575",
+     "TG_50576",
+     "TG_50578"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "EDBL_2026-09-22",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S1",
+    "split": "holdout",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_50579"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-SWEEP-01",
+       "why": "سحبُ سيولةٍ تحت القاع السابق ولم يعد فوقه بعد"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": 1.0547,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "SWEEP_ACTIVE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "DCOY_2026-09-2x",
+    "class": "G",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "REJECT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_50580"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": 0.5064,
+     "state": "UNKNOWN",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "PRESS_RECLAIM"
+    },
+    "why": "سعرُ الصورة يخالف إغلاقَ القراءة ×0.506 (توقيت/أفتر)"
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "LIMN_2026-09-22",
+    "class": "D",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "FLOAT_SMALL"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S1",
+    "split": "holdout",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_50585",
+     "TG_50586"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": 1.0,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "BASE_HELD"
+    },
+    "why": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)"
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "NXTT_2026-09-2x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_10K"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_50588"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "SXTC?_2026-09-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_50590"
+    ],
+    "v4": {
+     "blocking": null,
+     "decisive_class": null,
+     "missing": null,
+     "scale": null,
+     "state": null,
+     "status": "NO_BARS",
+     "tech_state": null
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "CETX_2026-09-2x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "NEWS_CANDLE_RESISTANCE",
+     "SHORT_20K"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_50828"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": 0.9531,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "IPDN_2026-09-2x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "AH_EXPLOSION_71PCT",
+     "AH_TARGET_9"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S1",
+    "split": "holdout",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H",
+     "5m"
+    ],
+    "units": [
+     "TG_50830",
+     "TG_50833"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.5821,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "SXTC_2026-09-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "BREAKOUT",
+    "plan_f": "ABOVE",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [],
+    "units": [
+     "TG_57862"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "NRSN_2026-09-27",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "NEWS_RERUN"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S1",
+    "split": "holdout",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_57867"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "CRE_2026-09-2x",
+    "class": "D",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_57869"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": 1.0,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "PRESS_RECLAIM"
+    },
+    "why": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "OMH_2026-09-26",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S1",
+    "split": "holdout",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_57870",
+     "TG_57872",
+     "TG_57873",
+     "TG_57875",
+     "TG_57876"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-HOLDZ-01",
+       "why": "رجع إلى المنطقة ولم يثبت فيها جلساتٍ كافية"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": 1.0,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_IN_PROGRESS"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "DSY_2026-09-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "AT",
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_57871"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9563,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "CIIT_2026-09-26",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S1",
+    "split": "holdout",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_57879",
+     "TG_57881",
+     "TG_57883",
+     "TG_57884"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0127,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "GCTK_2026-09-24",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "AH_RISE_130PCT",
+     "PM_SUPPORT_3_12_BREAK_EQUALS_FAIL",
+     "AH_RISE_130PCT",
+     "PM_SUPPORT_3_12_BREAK_EQUALS_FAIL"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_57890",
+     "TG_57891"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "lean",
+    "case": "SPHL_2026-09-24",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "PM_RISE_39PCT"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "TG_57892"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "PRESS_RECLAIM"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "DKI_2026-09-2x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "NEWS_SHORT_CHECK"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [],
+    "units": [
+     "TG_57894"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "VEEE_2026-05",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "W",
+    "plan_f": "ABOVE",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "TG_58045",
+     "X_20260918_61_VEEE"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.8802,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "none",
+    "case": "EZRA_2026-06-30",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "W",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "TG_58046"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "PRESS_RECLAIM"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "convention",
+    "case": "DXST_2026-06-16",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "نصّ: مضارب"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S3",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "30m",
+     "4H",
+     "D",
+     "intraday"
+    ],
+    "units": [
+     "IMG_0627",
+     "TG_58048"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9712,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "ATMV_UNK",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "UNK"
+    ],
+    "units": [
+     "TG_58049"
+    ],
+    "v4": {
+     "blocking": null,
+     "decisive_class": null,
+     "missing": null,
+     "scale": null,
+     "state": null,
+     "status": "NO_BARS",
+     "tech_state": null
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "AMIX_2026-08-24",
+    "class": "B",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "READY",
+    "flags": [
+     "CITED",
+     "GOLDEN",
+     "SHARED_UNIT",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "X_20260827_amix_hcwb_ready"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-HOLDZ-01",
+       "why": "رجع إلى المنطقة ولم يثبت فيها جلساتٍ كافية"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": 1.1214,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_IN_PROGRESS"
+    },
+    "why": "فئةُ خطّة فيصل BELOW ≠ فئةُ مستوى V4 AT"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "HCWB_2026-08-24",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "GOLDEN",
+     "SHARED_UNIT",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S3",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "X_20260827_amix_hcwb_ready"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-SWEEP-01",
+       "why": "سحبُ سيولةٍ تحت القاع السابق ولم يعد فوقه بعد"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "SWEEP_ACTIVE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "CIIT_2026-08",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "X_20260827_ciit_targets"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "KWM_2026-08-2x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_10K_BORROW_580"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "30m",
+     "4H",
+     "D"
+    ],
+    "units": [
+     "X_20260827_kwm_150_watch3",
+     "X_20260827_kwm_offering_notready"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0061,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "LABT_2026-08-23",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_15K"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "X_20260827_labt_supports_wait"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.009,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "KWM_2026-08-2x_a",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_600_BORROW_700"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "X_20260827_kwm_annotated_levels"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "RAYA_2026-08-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S3",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "X_20260827_raya_notready_2"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "RUBI_2026-08",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_HIGH_150K"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "X_20260827_rubi_read_short150k"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-HOLDZ-01",
+       "why": "رجع إلى المنطقة ولم يثبت فيها جلساتٍ كافية"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": 1.2784,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "RETEST_IN_PROGRESS"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "CUPR_2026-08",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "نصّ: مضارب"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "GOLDEN",
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "X_20260828_02"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0603,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "PPCB_2026-08-2x",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S4",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "X_20260828_05",
+     "X_20260828_15"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0878,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "HCWB_2026-08-2x_edu",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "AH_LIFT_HOPE"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "GOLDEN",
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D",
+     "intraday"
+    ],
+    "units": [
+     "X_20260828_09",
+     "X_20260828_12",
+     "X_20260828_13",
+     "X_20260828_14"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0359,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "PPBT_2026-09-04",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S1",
+    "split": "holdout",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D",
+     "W"
+    ],
+    "units": [
+     "X_20260905_01",
+     "X_20260905_02",
+     "X_20260905_03"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0761,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "convention",
+    "case": "BTOG_2026-09-04",
+    "class": "B",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "NEWS_THEN_OPERATOR_DROPPED_IT",
+     "SHORT_ROSE"
+    ],
+    "faisal": "REJECT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "W"
+    ],
+    "units": [
+     "X_20260905_07"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9779,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    },
+    "why": "فريمُ فيصل ['W'] لا يضمّ اليوميّ (المحرّكُ يوميٌّ وحدَه · R4-TF-01)"
+   },
+   {
+    "agree": true,
+    "basis": "explicit_conflict",
+    "case": "YMT_2026-09-04",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "NEWS_OFFERING_SHORT"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S1",
+    "split": "holdout",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "30m",
+     "4H"
+    ],
+    "units": [
+     "X_20260905_10",
+     "X_20260918_85_YMT"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "none",
+    "case": "RAYA_2026-09-0x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "COUNTRY_EGYPT_CONTEXT"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S3",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "X_20260905_11"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "RETEST_HELD"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "none",
+    "case": "MSGY_2026-09-02",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "X_20260905_12"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "PRESS_RECLAIM"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit_conflict",
+    "case": "ELPW_2026-09-1x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "نصّ: شورت"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H",
+     "D",
+     "W"
+    ],
+    "units": [
+     "X_20260918_04_ELPW",
+     "X_20260918_66_ELPW"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "NUWE_2026-09-1x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_ZERO"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "X_20260918_13_NUWE"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9752,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "SXTC_2026-09-1x_b",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "AT",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "X_20260918_24_SXTC"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.1088,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "WETO_2026-09-1x",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "نصّ: مضارب"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "5m"
+    ],
+    "units": [
+     "X_20260918_48_WETO"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0042,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "recalled_only",
+    "case": "ELPW_2026-01",
+    "class": "B",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "نصّ: شورت"
+    ],
+    "faisal": "READY",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H",
+     "D",
+     "W"
+    ],
+    "units": [
+     "X_20260918_66_ELPW"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    },
+    "why": "فئةُ خطّة فيصل None ≠ فئةُ مستوى V4 BELOW"
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "PAVS_2026-07-21",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [],
+    "units": [
+     "IMG_0142"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "WORX_2026-04-11",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_550K_WAIT_UNDER_20K"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "IMG_0150"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "DSY_2026-04",
+    "class": "G",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "FLOAT_1_25M",
+     "SHORT_100",
+     "NEWS_UPLIST_COMPLIANCE_CONTRACT"
+    ],
+    "faisal": "READY",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "AT",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "IMG_0291"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.3074,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "BROKEN_NEW_BASE"
+    },
+    "why": "سعرُ الصورة يخالف إغلاقَ القراءة ×1.31 (توقيت/أفتر)"
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "EHGO_2026-06",
+    "class": "G",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "READY",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "IMG_0293"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-HOLDZ-01",
+       "why": "رجع إلى المنطقة ولم يثبت فيها جلساتٍ كافية"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": 1.2077,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "RETEST_IN_PROGRESS"
+    },
+    "why": "سعرُ الصورة يخالف إغلاقَ القراءة ×1.21 (توقيت/أفتر)"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "EZRA_2026-0x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_OSCILLATES_2K_20K"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S4",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "IMG_0295"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "CCHH_2026-07",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_9000",
+     "JUST_SPLIT"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S4",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "IMG_0297"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.146,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "EDBL_2026-07",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_9000"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S4",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "IMG_0298"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0353,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "DRCT_2026-07-24",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S4",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "IMG_0300"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "AT",
+     "missing": [],
+     "scale": 0.9423,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "JZ_2026-07",
+    "class": "D",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "نصّ: مضارب"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "IMG_0301",
+     "IMG_0316",
+     "IMG_0319"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "BASE_HELD"
+    },
+    "why": "V4 جاهزٌ فنيًّا وينقصه بنفسه: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "YYAI_2026-07",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BOTH",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "30m",
+     "5m"
+    ],
+    "units": [
+     "IMG_0361"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "SPRC_2026-07-20",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S3",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "IMG_0393"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0432,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "NUWE_2026-07",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "ABOVE",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "IMG_0413",
+     "IMG_0414"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.1022,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "SVRE_2026-06",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "FLOAT_934K",
+     "SHORT_50K"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [
+     "W"
+    ],
+    "units": [
+     "IMG_8126"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "MWC_2026-06",
+    "class": "E",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "FLOAT_26M"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [],
+    "units": [
+     "IMG_8127"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-DATA-01",
+       "why": "بياناتٌ 11 جلسة · قيمٌ ناقصة 0"
+      }
+     ],
+     "decisive_class": null,
+     "missing": [
+      "شموعٌ يوميّةٌ كافية قبل تاريخ القراءة"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "DATA_INSUFFICIENT",
+     "tech_state": "DATA_INSUFFICIENT"
+    },
+    "why": "شموعٌ ناقصة قبل تاريخ القراءة"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "MBRX_2026-06",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "NEWS_REJECTION_DROP",
+     "FLOAT_5_29M",
+     "SHORT_ZERO"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [],
+    "units": [
+     "IMG_8133"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "BNKK_2026-06",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "FLOAT_7_84M",
+     "SHORT_4K"
+    ],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [],
+    "units": [
+     "IMG_8136"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "HTCR_2026-06",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T2_EXPOSED_UNCITED",
+    "timeframes": [],
+    "units": [
+     "IMG_8242"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "SPRC_2026-07-08",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "AT",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D",
+     "W"
+    ],
+    "units": [
+     "IMG_9925"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.071,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "lean",
+    "case": "ADIL_2026-04b",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "UNKNOWN",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S2",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "IMG_0505"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "SLXN_2026-08-06",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "نصّ: قروب"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S1",
+    "split": "holdout",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H"
+    ],
+    "units": [
+     "IMG_0508"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0022,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "CANF_2026-08-01",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "نصّ: مضارب"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "IMG_0510",
+     "IMG_0512",
+     "IMG_0513",
+     "IMG_0602"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0314,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "MNDR_2026-07-31",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "نصّ: قروب"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "SUPPORT_SETUP",
+    "plan_f": "BOTH",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "IMG_0566",
+     "IMG_0569",
+     "IMG_0691"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.8866,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "UPC_2026-07",
+    "class": "B",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "READY",
+    "flags": [
+     "CITED",
+     "DISCOVERY",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": "NONE",
+    "set": "S1",
+    "split": "discovery",
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [],
+    "units": [
+     "IMG_0587"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    },
+    "why": "فئةُ خطّة فيصل NONE ≠ فئةُ مستوى V4 BELOW"
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "TDIC_2026-08",
+    "class": "G",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "NO_GROUPS_CONDITION"
+    ],
+    "faisal": "READY",
+    "flags": [
+     "CITED",
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "AT",
+    "set": "S4",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "IMG_0645",
+     "IMG_0647",
+     "IMG_0648",
+     "IMG_0659"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.8106,
+     "state": "WAIT",
+     "status": "SCALE_MISMATCH",
+     "tech_state": "RETEST_PENDING"
+    },
+    "why": "سعرُ الصورة يخالف إغلاقَ القراءة ×0.811 (توقيت/أفتر)"
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "DXST_2026-08-04",
+    "dependency": "CHART-DERIVABLE",
+    "dependency_evidence": [],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "STRUCTURE",
+    "plan_f": "BELOW",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "15m",
+     "5m",
+     "intraday"
+    ],
+    "units": [
+     "IMG_0688",
+     "IMG_0689"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": null,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "ZNB_2026-08-01",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "JUST_SPLIT",
+     "JUST_SPLIT"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "CITED",
+     "GOLDEN",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S3",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "4H",
+     "D"
+    ],
+    "units": [
+     "IMG_0697",
+     "IMG_0698"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0348,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "RETEST_PENDING"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit_conflict",
+    "case": "DKI_2026-08-26",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "نصّ: قروب"
+    ],
+    "faisal": "MIXED",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": false,
+    "pattern": "NONE",
+    "plan_f": null,
+    "set": "S4",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D",
+     "intraday"
+    ],
+    "units": [
+     "EDU_20260827_dki_group_candle",
+     "EDU_20260827_ma_rizq_rule_sle"
+    ],
+    "v4": {
+     "blocking": [],
+     "decisive_class": "AT",
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ],
+     "scale": null,
+     "state": "UNKNOWN",
+     "status": "OK",
+     "tech_state": "RETEST_HELD"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "convention",
+    "case": "SLE_2026-08-27",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "نصّ: مضارب"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S4",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "intraday"
+    ],
+    "units": [
+     "EDU_20260827_sle_night_4am"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-HOLD-01",
+       "why": "القاعُ لم يثبت 5 جلسات بعد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9987,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BASE_FORMING"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "SMXT_2026-08-26",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SPLIT_RECENT"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "BELOW",
+    "set": "S4",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "EDU_20260827_smxt_falling_model"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 0.9183,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": true,
+    "basis": "explicit",
+    "case": "DCOY_2026-09-0x",
+    "dependency": "EXTERNAL-DATA-DERIVABLE",
+    "dependency_evidence": [
+     "SHORT_65K_SEMI_HIGH"
+    ],
+    "faisal": "WAIT",
+    "flags": [
+     "EDU",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "AT",
+    "set": "S4",
+    "split": null,
+    "support_f": false,
+    "tech_ready_f": false,
+    "tier": "OTHER_CONTAMINATED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "EDU_20260905_02"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0339,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    }
+   },
+   {
+    "agree": false,
+    "basis": "explicit",
+    "case": "SXTC_2026-09-1x_a",
+    "class": "B",
+    "dependency": "UNAVAILABLE",
+    "dependency_evidence": [
+     "NO_GROUPS"
+    ],
+    "faisal": "READY",
+    "flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "orders_f": true,
+    "pattern": "NONE",
+    "plan_f": "AT",
+    "set": "S2",
+    "split": null,
+    "support_f": true,
+    "tech_ready_f": false,
+    "tier": "T1_CITED",
+    "timeframes": [
+     "D"
+    ],
+    "units": [
+     "WA_20260918_31_SXTC"
+    ],
+    "v4": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "decisive_class": "BELOW",
+     "missing": [],
+     "scale": 1.0974,
+     "state": "WAIT",
+     "status": "OK",
+     "tech_state": "BROKEN_NEW_BASE"
+    },
+    "why": "فئةُ خطّة فيصل AT ≠ فئةُ مستوى V4 BELOW"
+   }
+  ],
+  "stages": {
+   "setup_valid": {
+    "both": 0,
+    "faisal_only": 8,
+    "neither": 63,
+    "v4_only": 13
+   },
+   "structure_exists": {
+    "both": 55,
+    "faisal_only": 1,
+    "neither": 0,
+    "v4_only": 28
+   }
+  },
+  "unknown_behaviour": {
+   "note": "بنيويّ: operator_press = None دائمًا ⟵ الجاهزيّةُ الفنيّة بلا WAIT/REJECT صريحٍ تصير UNKNOWN",
+   "of_which_ready": 0,
+   "of_which_unknown": 16,
+   "tech_ready_outputs": 16
+  },
+  "v4_published_reproduction": {
+   "S1_all": {
+    "match": true,
+    "recomputed_ok_only": {
+     "n": 19,
+     "state_exact": 15
+    },
+    "scale_mismatch_included_v41": 3,
+    "v4_published": {
+     "n": 19,
+     "state_exact": 15
+    }
+   },
+   "S1_discovery": {
+    "match": true,
+    "recomputed_ok_only": {
+     "n": 10,
+     "state_exact": 7
+    },
+    "scale_mismatch_included_v41": 2,
+    "v4_published": {
+     "n": 10,
+     "state_exact": 7
+    }
+   },
+   "S1_holdout_v4": {
+    "match": true,
+    "recomputed_ok_only": {
+     "n": 9,
+     "state_exact": 8
+    },
+    "scale_mismatch_included_v41": 1,
+    "v4_published": {
+     "n": 9,
+     "state_exact": 8
+    }
+   },
+   "S2": {
+    "match": true,
+    "recomputed_ok_only": {
+     "n": 51,
+     "state_exact": 27
+    },
+    "scale_mismatch_included_v41": 10,
+    "v4_published": {
+     "n": 51,
+     "state_exact": 27
+    }
+   },
+   "S3_golden": {
+    "match": true,
+    "recomputed_ok_only": {
+     "n": 16,
+     "state_exact": 12
+    },
+    "scale_mismatch_included_v41": 2,
+    "v4_published": {
+     "n": 16,
+     "state_exact": 12
+    }
+   },
+   "S4_edu": {
+    "match": true,
+    "recomputed_ok_only": {
+     "n": 12,
+     "state_exact": 9
+    },
+    "scale_mismatch_included_v41": 1,
+    "v4_published": {
+     "n": 12,
+     "state_exact": 9
+    }
+   }
+  }
+ },
+ "holdout_seal": "601b800da2caf76ee580494ff0e43f040965a1b6efebf915175c99574e5c6ce8",
+ "holdout_summary": {
+  "by_flag": {
+   "CITED": 57,
+   "DISCOVERY": 12,
+   "EDU": 16,
+   "EXCLUDED": 40,
+   "EXPOSED": 157,
+   "GOLDEN": 20,
+   "SHARED_UNIT": 2,
+   "THIRD_PARTY": 14
+  },
+  "by_tier": {
+   "CLEAN": 0,
+   "OTHER_CONTAMINATED": 56,
+   "T1_CITED": 57,
+   "T2_EXPOSED_UNCITED": 44
+  },
+  "cases": 157,
+  "eligible": 0,
+  "v4_holdout_cited": [
+   "CIIT_2026-09-26",
+   "EDBL_2026-09-22",
+   "LIMN_2026-09-22",
+   "NRSN_2026-09-27",
+   "OMH_2026-09-26",
+   "PPBT_2026-09-04",
+   "SLXN_2026-08-06",
+   "STKH_2026-09-04",
+   "YMT_2026-09-04"
+  ],
+  "v4_holdout_total": 10
+ },
+ "posthoc_disclosure": {
+  "bug": "معرّفُ العبارة «#k» (17 معرّفًا · 23 ظهورًا في 157 حالة) لم يُطبَّع إلى وحدة صورته ⟵ لا يطابق المرورَ البصريّ ولا الاستشهاد",
+  "changed_cases": [
+   {
+    "case": "INLF_2026-07-19",
+    "first_flags": [
+     "THIRD_PARTY",
+     "EXCLUDED"
+    ],
+    "first_tier": "OTHER_CONTAMINATED",
+    "posthoc_flags": [
+     "THIRD_PARTY",
+     "EXCLUDED",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "OTHER_CONTAMINATED"
+   },
+   {
+    "case": "HODO_2026-07-19",
+    "first_flags": [
+     "THIRD_PARTY",
+     "EXCLUDED"
+    ],
+    "first_tier": "OTHER_CONTAMINATED",
+    "posthoc_flags": [
+     "THIRD_PARTY",
+     "EXCLUDED",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "OTHER_CONTAMINATED"
+   },
+   {
+    "case": "XAIR_2026-07-19",
+    "first_flags": [
+     "THIRD_PARTY",
+     "EXCLUDED"
+    ],
+    "first_tier": "OTHER_CONTAMINATED",
+    "posthoc_flags": [
+     "THIRD_PARTY",
+     "EXCLUDED",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "OTHER_CONTAMINATED"
+   },
+   {
+    "case": "WLDS_2026-07-19",
+    "first_flags": [
+     "THIRD_PARTY",
+     "EXCLUDED"
+    ],
+    "first_tier": "OTHER_CONTAMINATED",
+    "posthoc_flags": [
+     "THIRD_PARTY",
+     "EXCLUDED",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "OTHER_CONTAMINATED"
+   },
+   {
+    "case": "RBNE_2026-07-19",
+    "first_flags": [
+     "THIRD_PARTY",
+     "EXCLUDED"
+    ],
+    "first_tier": "OTHER_CONTAMINATED",
+    "posthoc_flags": [
+     "THIRD_PARTY",
+     "EXCLUDED",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "OTHER_CONTAMINATED"
+   },
+   {
+    "case": "ELPW_2026-05-0x",
+    "first_flags": [
+     "EXPOSED"
+    ],
+    "first_tier": "T2_EXPOSED_UNCITED",
+    "posthoc_flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "T1_CITED"
+   },
+   {
+    "case": "CDIO_2026-01-28/02",
+    "first_flags": [
+     "EXCLUDED"
+    ],
+    "first_tier": "OTHER_CONTAMINATED",
+    "posthoc_flags": [
+     "CITED",
+     "EXCLUDED",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "T1_CITED"
+   },
+   {
+    "case": "UNK_TG_2099",
+    "first_flags": [
+     "EXCLUDED"
+    ],
+    "first_tier": "OTHER_CONTAMINATED",
+    "posthoc_flags": [
+     "EXCLUDED",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "OTHER_CONTAMINATED"
+   },
+   {
+    "case": "FTFT_2026-07-2x",
+    "first_flags": [],
+    "first_tier": "CLEAN",
+    "posthoc_flags": [
+     "EXPOSED"
+    ],
+    "posthoc_tier": "T2_EXPOSED_UNCITED"
+   },
+   {
+    "case": "DCOY_2026-09-22",
+    "first_flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "first_tier": "T1_CITED",
+    "posthoc_flags": [
+     "CITED",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "T1_CITED"
+   },
+   {
+    "case": "AMIX_2026-08-24",
+    "first_flags": [
+     "GOLDEN"
+    ],
+    "first_tier": "OTHER_CONTAMINATED",
+    "posthoc_flags": [
+     "CITED",
+     "GOLDEN",
+     "SHARED_UNIT",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "T1_CITED"
+   },
+   {
+    "case": "HCWB_2026-08-24",
+    "first_flags": [
+     "GOLDEN"
+    ],
+    "first_tier": "OTHER_CONTAMINATED",
+    "posthoc_flags": [
+     "CITED",
+     "GOLDEN",
+     "SHARED_UNIT",
+     "EXPOSED"
+    ],
+    "posthoc_tier": "T1_CITED"
+   },
+   {
+    "case": "ELPW_2026-09-1x",
+    "first_flags": [
+     "EXPOSED"
+    ],
+    "first_tier": "T2_EXPOSED_UNCITED",
+    "posthoc_flags": [
+     "EXPOSED"
+    ],
+    "posthoc_tier": "T2_EXPOSED_UNCITED"
+   },
+   {
+    "case": "ELPW_2026-01",
+    "first_flags": [],
+    "first_tier": "CLEAN",
+    "posthoc_flags": [
+     "EXPOSED"
+    ],
+    "posthoc_tier": "T2_EXPOSED_UNCITED"
+   }
+  ],
+  "first_disagreements": 16,
+  "first_invisible": {
+   "by_class": {
+    "A": 0,
+    "B": 5,
+    "C": 0,
+    "D": 6,
+    "E": 1,
+    "F": 0,
+    "G": 4,
+    "H": 0
+   },
+   "k_D": 6,
+   "n": 11,
+   "verdict": "SUPPORTED"
+  },
+  "first_matrices": {
+   "S1_all": {
+    "exact": 18,
+    "exact_rate": 0.8182,
+    "n": 22
+   },
+   "S2": {
+    "exact": 33,
+    "exact_rate": 0.5323,
+    "n": 62
+   },
+   "T1_cited_S1S2": {
+    "exact": 22,
+    "exact_rate": 0.6286,
+    "n": 35
+   },
+   "T2_exposed_uncited_S1S2": {
+    "exact": 24,
+    "exact_rate": 0.5714,
+    "n": 42
+   }
+  },
+  "first_seal": "8f98d47b0d234be8ce64b273f17fd33f273395a7dbd43fb6ce01ffad304aea33",
+  "first_summary": {
+   "by_flag": {
+    "CITED": 53,
+    "DISCOVERY": 12,
+    "EDU": 16,
+    "EXCLUDED": 40,
+    "EXPOSED": 146,
+    "GOLDEN": 20,
+    "SHARED_UNIT": 0,
+    "THIRD_PARTY": 14
+   },
+   "by_tier": {
+    "CLEAN": 2,
+    "OTHER_CONTAMINATED": 59,
+    "T1_CITED": 53,
+    "T2_EXPOSED_UNCITED": 43
+   },
+   "cases": 157,
+   "eligible": 2,
+   "v4_holdout_cited": [
+    "CIIT_2026-09-26",
+    "EDBL_2026-09-22",
+    "LIMN_2026-09-22",
+    "NRSN_2026-09-27",
+    "OMH_2026-09-26",
+    "PPBT_2026-09-04",
+    "SLXN_2026-08-06",
+    "STKH_2026-09-04",
+    "YMT_2026-09-04"
+   ],
+   "v4_holdout_total": 10
+  },
+  "fix": "holdout.base_id ‏+ حالةُ «panel» في FV43 ‏+ الطفرة M43e",
+  "posthoc_seal": "601b800da2caf76ee580494ff0e43f040965a1b6efebf915175c99574e5c6ce8",
+  "posthoc_summary": {
+   "by_flag": {
+    "CITED": 57,
+    "DISCOVERY": 12,
+    "EDU": 16,
+    "EXCLUDED": 40,
+    "EXPOSED": 157,
+    "GOLDEN": 20,
+    "SHARED_UNIT": 2,
+    "THIRD_PARTY": 14
+   },
+   "by_tier": {
+    "CLEAN": 0,
+    "OTHER_CONTAMINATED": 56,
+    "T1_CITED": 57,
+    "T2_EXPOSED_UNCITED": 44
+   },
+   "cases": 157,
+   "eligible": 0,
+   "v4_holdout_cited": [
+    "CIIT_2026-09-26",
+    "EDBL_2026-09-22",
+    "LIMN_2026-09-22",
+    "NRSN_2026-09-27",
+    "OMH_2026-09-26",
+    "PPBT_2026-09-04",
+    "SLXN_2026-08-06",
+    "STKH_2026-09-04",
+    "YMT_2026-09-04"
+   ],
+   "v4_holdout_total": 10
+  }
+ },
+ "prospective": {
+  "candidates": 0,
+  "complete": 0,
+  "invalid": 0,
+  "matrix": {
+   "agreement": {
+    "READY": "N=0",
+    "REJECT": "N=0",
+    "UNKNOWN": "N=0",
+    "WAIT": "N=0"
+   },
+   "always_wait": {
+    "agree": 0,
+    "n": 0,
+    "rate": null
+   },
+   "exact": 0,
+   "exact_rate": null,
+   "exact_wilson": null,
+   "false": {
+    "READY": 0,
+    "REJECT": 0,
+    "UNKNOWN": 0,
+    "WAIT": 0
+   },
+   "false_rate": {
+    "READY": null,
+    "REJECT": null,
+    "UNKNOWN": null,
+    "WAIT": null
+   },
+   "insufficient": true,
+   "matrix": {
+    "READY": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 0,
+     "WAIT": 0
+    },
+    "REJECT": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 0,
+     "WAIT": 0
+    },
+    "UNKNOWN": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 0,
+     "WAIT": 0
+    },
+    "WAIT": {
+     "READY": 0,
+     "REJECT": 0,
+     "UNKNOWN": 0,
+     "WAIT": 0
+    }
+   },
+   "n": 0,
+   "ready_precision": "UNDEFINED (V4 READY = 0)",
+   "ready_recall": "UNDEFINED (Faisal READY = 0)",
+   "v4_not_run": 0
+  },
+  "pending_images": [],
+  "sealed_cases": 0,
+  "status": "NOT STARTED"
+ },
+ "provenance_summary": {
+  "active": 18,
+  "audit_status": {
+   "CONFIRMED": 5,
+   "CONTRADICTED": 0,
+   "POSSIBLE": 0,
+   "PROBABLE": 1,
+   "SUPPORTED": 12,
+   "UNKNOWN": 3
+  },
+  "cited_units_all": 81,
+  "differs": [
+   "H-D2",
+   "R-SUP-MAIN",
+   "R-W-SPAN",
+   "R4-BOT-01",
+   "R4-CYC-01",
+   "R4-DATA-01",
+   "R4-ENT-01",
+   "R4-HOLDZ-01",
+   "R4-INV-01",
+   "R4-TGT-01",
+   "R4-VAL-GRP-01",
+   "R4-VAL-OFF-01",
+   "R4-VAL-SHORT-01"
+  ],
+  "registry_status": {
+   "CONFIRMED": 5,
+   "CONTRADICTED": 1,
+   "POSSIBLE": 0,
+   "PROBABLE": 2,
+   "SUPPORTED": 13,
+   "UNKNOWN": 0
+  },
+  "registry_stronger": [
+   "H-D2",
+   "R-SUP-MAIN",
+   "R-W-SPAN",
+   "R4-CYC-01",
+   "R4-DATA-01",
+   "R4-ENT-01",
+   "R4-TGT-01"
+  ],
+  "rules": 21
+ },
+ "sample_size": {
+  "cases_for_43_ready": 946,
+  "formula": "1.96²·0.25/0.15² = 42.7 ⟵ 43",
+  "months": 7.98,
+  "months_to_n_min": 15.6,
+  "n_min": 43,
+  "n_min_check": 43,
+  "ready_rate": 0.0455,
+  "s1_cases": 22,
+  "s1_first": "2026-01-28",
+  "s1_last": "2026-09-27",
+  "s1_per_month": 2.757,
+  "s1_ready": 1,
+  "years_for_43_ready": 28.6
+ },
+ "status": "VALIDATION IN PROGRESS"
+}

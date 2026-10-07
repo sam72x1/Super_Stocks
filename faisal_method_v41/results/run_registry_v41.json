@@ -1,0 +1,69 @@
+{
+ "note": "حقائقُ مقيسةٌ من السجلّات (لا تُحسب في الكود) — مصدرُ كلّ قيمةٍ بجوارها · يقرؤها docs_v41.py",
+ "freeze": {
+  "contract_pr": 550,
+  "contract_pr_head": "482fed8a01e3ded9e14ff62962c5ee7db6c89ee7",
+  "official_freeze_commit": "7c8826c25e745668d33facabb2efbc488e997fb7",
+  "official_freeze_commit_source": "merge commit لـ#550 (2026-10-07 · دُمج قبل أيّ رقمٍ من أدوات V4.1)",
+  "contract_pr_ci": {
+   "tests_job": 112572145344,
+   "run": 37552845630,
+   "result": "5178 نجح · 0 فشل (من السجلّ)"
+  }
+ },
+ "prospective_inputs": {
+  "telegram_collector_run": 37550748477,
+  "telegram_collector_utc": "2026-10-07T00:12Z",
+  "telegram_new_images": 0,
+  "telegram_commit": "49f30f9",
+  "last_corpus_image_utc": "2026-10-02T10:33Z"
+ },
+ "mutations": {
+  "FV41": {
+   "caught": 6,
+   "of": 6,
+   "file": "muts_fv41.json"
+  },
+  "crash": 0,
+  "harness": "مقطعُ V4.1 من test_bot.py في مفسّرٍ جديد لكلّ طفرة · المرساةُ مرّةً واحدة بالضبط · الشجرةُ نظيفةٌ قبل وبعد",
+  "FV42-FV50+FVT1+FVO1+FVD1": {
+   "caught": 53,
+   "of": 53,
+   "file": "muts_fv42_50.json"
+  }
+ },
+ "build_bugs": [
+  {
+   "id": "BB1",
+   "tool": "ledger.verify",
+   "found_by": "FV44 (تحقّقٌ نظيف على تدفّقٍ كامل)",
+   "bug": "اللقطةُ مُحالٌ إليها من سجلّ القرار لا من البيان ⟵ كلُّ لقطةٍ سليمةٍ «يتيمة» ولا تُقارَن بصمتُها",
+   "fix": "تُضمّ snapshot_path إلى المُحال إليه وتُقارَن snapshot_sha256 (MISSING_SNAPSHOT · SNAPSHOT_HASH)",
+   "lock": "FV44 ‏+ M44c",
+   "before_first_number": true
+  },
+  {
+   "id": "BB2",
+   "tool": "holdout.unit_set",
+   "found_by": "التشغيلةُ الأولى للبنّاء: «نظيفتان» خالفتا Q1",
+   "bug": "معرّفُ العبارة «#k» لم يُطبَّع إلى وحدة صورته ⟵ لا يطابق المرورَ البصريّ ولا الاستشهاد (العددُ في analysis_v41.json · posthoc_disclosure)",
+   "fix": "holdout.base_id",
+   "lock": "FV43 (حالة panel) ‏+ M43e",
+   "before_first_number": false,
+   "tag": "POST-HOC"
+  },
+  {
+   "id": "BB3",
+   "tool": "analysis.historical",
+   "found_by": "التشغيلةُ الأولى للتحليل انهارت عند الحفظ (مفتاحٌ None)",
+   "bug": "صفّان بلا قرار V4 (NO_BARS) يُسقطان صامتًا من المصفوفة ويصيران مفتاحًا None في جدول الاعتماد",
+   "fix": "NOT_RUN صريحٌ يُعَدّ في كلّ مصفوفة (v4_not_run) ويُقصى من الجداول والخلافات",
+   "lock": "قفلُ إعادة التوليد FVD1",
+   "before_first_number": true
+  }
+ ],
+ "suite_local": null,
+ "ci": null,
+ "smoke": null,
+ "note_pending": "suite_local · ci · smoke تُملأ من السجلّ بعد قياسها — وقبلها تظهر في الوثائق «⏳ لم يُقرأ» لا «✅»"
+}
