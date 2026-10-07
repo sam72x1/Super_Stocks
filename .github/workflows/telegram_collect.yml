@@ -1,7 +1,12 @@
 name: 📥 اسحب صور التلغرام إلى المستودع
+# 🧊 مجدولٌ كلَّ 4 ساعات (الدقيقة 17) منذ 2026-10-07 — FINAL PROSPECTIVE VALIDATION PROTOCOL §⑥ (`faisal_method_v41/FINAL_PROTOCOL_prereg.md`):
+#    تلغرام يحفظ التحديثَ غيرَ المسحوب ≈24 ساعة وتأخّرُ كرون GitHub ≈6 ⟵ اليوميُّ قد يفوّت · ويبقى التشغيلُ اليدويّ كما هو.
+# ⚠️ كلُّ ما يُرسَل للبوت يُنشر في المستودع العامّ آليًّا خلال ساعات — لا تُرسَل له صورٌ خاصّة.
 permissions:
   contents: write
 on:
+  schedule:
+    - cron: "17 */4 * * *"
   workflow_dispatch:
     inputs:
       max_files:

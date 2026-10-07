@@ -237,6 +237,39 @@ def fetch_splits(symbol):
         return None
 
 
+def fetch_regime(asof):
+    """🧊 FINAL PROTOCOL §⑬ (تنوّعٌ لا مُدخَل): QQQ عند آخر جلسةٍ قبل يوم القرار فوق متوسّط 50 أو تحته ⟵ {state · close · sma50} أو None.
+    خارج إغلاق خطّ البيانات (لا يصل V4) · فاشلٌ-آمن."""
+    try:
+        rows, _, _ = fetch_rows("QQQ")
+        closes = [r[4] for r in snapshot(rows or [], asof) if r[4] is not None]
+        if len(closes) < 50:
+            return None
+        sma = sum(closes[-50:]) / 50.0
+        return {"state": "ABOVE_SMA50" if closes[-1] >= sma else "BELOW_SMA50", "close": round(closes[-1], 4), "sma50": round(sma, 4)}
+    except Exception:                                                   # noqa: BLE001
+        return None
+
+
+def fetch_sector(symbol):
+    """🧊 FINAL PROTOCOL §⑬ (تنوّعٌ لا مُدخَل): قطاعُ ياهو ⟵ نصّ أو None · فاشلٌ-آمن."""
+    try:
+        import yfinance as yf
+        return (yf.Ticker(symbol).info or {}).get("sector") or None
+    except Exception:                                                   # noqa: BLE001
+        return None
+
+
+def _protocol_gate():
+    """🧊 FINAL PROTOCOL §② (PHASE 18): لا تشغيلَ لـV4 حين VALIDATION_BLOCKED أو بلا حقبة ⟵ (None · أو رمزُ الخروج 9 مع السبب)."""
+    import final_protocol as FP
+    ok, why = FP.guard()
+    if ok:
+        return None, FP
+    print("⛔ VALIDATION_BLOCKED — V4 لا يُشغَّل ولا تُختم حالة حتى يُعلن المالكُ حقبةً جديدة: " + " · ".join(why))
+    return 9, FP
+
+
 def live_borrow(symbol):
     try:
         import Super_stock as S
@@ -298,6 +331,11 @@ def mode_smoke():
 def mode_run(ledger=None):
     """كلُّ حالةٍ مختومةٍ بلا قرار V4 لنسختها ⟵ تشغيلٌ وقيد (والـworkflow يُلحق السجلَّ بـmain)."""
     lg = ledger or LG.Ledger()
+    rc, FP = _protocol_gate()
+    if rc is not None:
+        return rc
+    pv = FP.pipeline_version(FP.pipeline_components(), FP.requirement_pins())
+    epoch = (FP.current_epoch() or {}).get("epoch")
     fm, fids = freeze_meta()
     ctb = load_ctb()
     done = 0
@@ -311,9 +349,12 @@ def mode_run(ledger=None):
             lg.record_invalid(cid, "DATA_UNAVAILABLE", f"لا شموع · {tries}", _now_utc())
             continue
         ctx, prov = validity_context(case["symbol"], case["decision_date"], ctb, _today_ny(), live_borrow=live_borrow)
+        splits = fetch_splits(case["symbol"])
         meta = dict(fm, mode="run", commit=os.environ.get("GITHUB_SHA"), run_id=os.environ.get("GITHUB_RUN_ID"),
-                    deps=deps_hashes(), utc=_now_utc(), source="TradingView via v4_run.resolve", exchange=st)
-        payload, snap = run_case(case, rows, ctx, prov, splits=fetch_splits(case["symbol"]), exchange_status=st, meta=meta)
+                    deps=deps_hashes(), utc=_now_utc(), source="TradingView via v4_run.resolve", exchange=st,
+                    pipeline_version=pv, protocol_epoch=epoch, splits=splits,
+                    regime=fetch_regime(case["decision_date"]), sector=fetch_sector(case["symbol"]))
+        payload, snap = run_case(case, rows, ctx, prov, splits=splits, exchange_status=st, meta=meta)
         e = lg.record_v4(cid, payload, snap, _now_utc())
         if payload["firewall"]["verdict"] != "VALID":
             lg.record_invalid(cid, "DATA_QUALITY", payload["firewall"]["fails"], _now_utc())

@@ -514,7 +514,27 @@ def doc_queue(d):
 ## RQ-08 · قاعدةُ الدورة `R4-CYC-01`
 تناقضاتٌ من الطبقة 1 ({next(r['COUNTS']['c1'] for r in p['rules'] if r['RULE_ID'] == 'R4-CYC-01')}) بنصّ فيصل («تصعد مباشره لا تصلح لها هذي النظريه») ⟵
 هل الدورةُ شرطٌ عامّ أم لنوعٍ من الأسهم؟ — يُقاس أماميًّا (حالاتُ «صعود مباشر» تُوسَم).
-{batch_queue_block()}{ex_queue_block()}"""
+{batch_queue_block()}{ex_queue_block()}{protocol_queue_block()}"""
+
+
+def protocol_queue_block():
+    """🧊 بنودُ التحقّق الأماميّ النهائيّ (PHASE 9 · `final_protocol/PROTOCOL_STATUS.json` · العقد `FINAL_PROTOCOL_prereg.md` §⑫) —
+    `V4_2_CANDIDATE` لكلّ عدمِ تطابقٍ بحقوله السبعة · **لا تنفيذ ولا إعادةَ تشغيل** · ومن JSON الحالة لا باليد."""
+    sp = os.path.join(HERE, "final_protocol", "PROTOCOL_STATUS.json")
+    if not os.path.exists(sp):
+        return ""
+    st = _j(sp)
+    cands = st.get("v4_2_candidates") or []
+    o = st.get("output") or {}
+    out = ["", "## 🧊 التحقّقُ الأماميّ النهائيّ (`final_protocol/PROTOCOL_STATUS.json` · FINAL PROSPECTIVE VALIDATION PROTOCOL)",
+           f"> V4 مجمَّد (V4_COMMIT `{o.get('V4_COMMIT', '—')[:12]}`) · `V4_2_CANDIDATE` لكلّ عدمِ تطابقٍ أماميّ — **لا يدخل V4 ولا يُعاد التشغيل** · "
+           f"الحالاتُ الصالحة {o.get('VALID_PROSPECTIVE_CASES', 0)} · {o.get('FINAL_VALIDATION_STATE', '—')}",
+           f"- **V4_2_CANDIDATE:** {len(cands)}" + ("" if cands else " — لا عدمَ تطابقٍ أماميّ بعد")]
+    for c in cands:
+        out += ["", f"### {c['CASE_ID']} · {c.get('MATCH_CLASS')} ({c.get('SAMPLE')})"]
+        out += [f"- **{k}:** {c.get(k)}" for k in ("OBSERVATION", "EVIDENCE", "WHY_V4_FAILED", "POSSIBLE_MISSING_RULE",
+                                                    "GENERALIZATION_STATUS", "CONTRADICTING_CASES")]
+    return "\n".join(out) + "\n"
 
 
 def ex_queue_block():

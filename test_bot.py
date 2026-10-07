@@ -81628,6 +81628,685 @@ except Exception as _e:                                                    # noq
 check("🧾📚 EXA9 العزل (AST): المكتبةُ القياسيّة وحدَها · والكتابةُ داخل main وحدَه · والمجلّدُ نصوصٌ وبياناتٌ بلا صورة وفيه المخرَجاتُ كاملة",
       _exa9, _exa9w)
 
+# 🧊🔒 FPA1-FPA19 — FAISAL V4 FINAL PROSPECTIVE VALIDATION PROTOCOL (‏2026-10-07 · أمرُ المالك «FROZEN-MODEL / BLIND-FIRST /
+#    ANTI-CONTAMINATION / ANTI-LEAKAGE» · العقد `faisal_method_v41/FINAL_PROTOCOL_prereg.md` مدموجٌ قبل أيّ رقم #563 · الأداة
+#    `faisal_method_v41/final_protocol.py`): الحقبةُ مختومة · المعرّفاتُ الخمسة · إغلاقُ خطّ البيانات · السلامةُ I1-I12 · حارسُ المشغّل ·
+#    الأصنافُ السبعة والفحوصُ الثمانية · المصدريّة · كائنا القرار · المطابقة · المكوّنات · النظرُ المستقبليّ · المقاييسُ والحالةُ النهائيّة ·
+#    كتلةُ الإخراج · الجامع (meta_v 2) · الـworkflows · الختمُ والكشف · العزل — كلٌّ بشاهد ضبطٍ داخله، وكلٌّ تُسقطه طفرة.
+_FPA_EPOCH_SHA = "9f6e64a46a95ba7d1a518c81cd40b28de8bddb465a51d42964b82f446ca85be3"                 # بصمةُ الحقبة 1 القانونيّة — تغييرُها إقرارٌ صريح (§② «لا تُعدَّل»)
+_FPA_P2 = {"NEW_PROSPECTIVE": 1, "INSUFFICIENT_CONTEXT": 14, "UNKNOWN": 13, "DERIVATIVE": 9, "PRE_EXISTING": 7, "CONTAMINATED": 2,
+           "DUPLICATE": 2}
+try:
+    FPA = _v41_imp.import_module("final_protocol")
+    _fpa_RN = _v41_imp.import_module("runner")
+    _fpa_LG = _v41_imp.import_module("ledger")
+    _fpa_err = None
+except Exception as _e:                                                    # noqa: BLE001
+    FPA = _fpa_RN = _fpa_LG = None
+    _fpa_err = f"⛔ {type(_e).__name__}: {_e}"
+
+
+def _fpa_ep(**kw):
+    """حقبةٌ اصطناعيّة من الهويّة الحيّة (فتنجح I2-I7 بالبناء) ‏+ تعديلٌ واحد ⟵ شاهدُ ضبطٍ لكلّ فحص."""
+    ident = FPA.v4_identity()
+    ep = _v41_json.loads(_v41_json.dumps(dict(ident, epoch=1, V4_COMMIT_ATTESTATION={"ok": True, "checked": 81},
+                                              LEGACY_CASES={"CASE_0001": {"equal": True}}, META_PREFIX=FPA.meta_prefix())))
+    ep.update(kw)
+    return ident, ep
+
+
+def _fpa_flow(root, label="WATCH", quote="مراقبه مبكره · شرط يهبط", ev="DIRECT", evq="مراقبه مبكره", comps=None, meta_extra=None,
+              rows=None):
+    """تدفّقٌ أماميٌّ اصطناعيّ كامل بكتلة `protocol` (ختم ⟵ V4 المجمَّد ⟵ كشف) في سجلٍّ مؤقّت ⟵ (السجلّ · الحالة · القيد · اللقطة)."""
+    lg = _fpa_LG.Ledger(root=_v41_os.path.join(root, "pv"))
+    tg = {"message_id": 9001, "date": "2026-10-15T14:00:00Z", "collected_utc": "2026-10-15T15:00:00Z", "run_id": "1", "meta_v": 2,
+          "forward_type": "channel", "forward": {"type": "channel", "date": "2026-10-15T13:30:00Z", "chat_username": "kisar_ch",
+                                                 "chat_title": "قناة فيصل", "origin_message_id": 77}}
+    fp = {"sha256": "5" * 64, "dhash256": "0" * 64, "phash64": "0" * 16}
+    ann = {"symbol": "SYNT", "timeframe": "D", "decision_date": "2026-10-15", "author": "F", "faisal_author": True,
+           "has_decision_statement": True}
+    prov = FPA.provenance(tg, fp, ann)
+    blind = {"symbol": "SYNT", "decision_date": "2026-10-15", "timeframe": "1D"}
+    case = _v41_case(image="faisal_images/TG_SYNT.jpg", image_sha256=fp["sha256"], unit_id="TG_9001", date_source="forward_origin",
+                     protocol={"provenance": prov, "blind_input": blind, "input_hash": FPA.sha(blind), "v4_freeze": {},
+                               "intake": {"class": "NEW_PROSPECTIVE"}})
+    lg.record_candidate("TG_9001", case["image"], fp["sha256"], "CASE:CASE_0001", "2026-10-15T15:00:01Z")
+    lg.seal_case(case, "2026-10-15T15:00:02Z")
+    ctx, cprov = _fpa_RN.validity_context("SYNT", "2026-10-15", [], "2026-10-15")
+    meta = {"freeze_id": FPA.FZ.current_revision(FPA.FZ.load())["freeze_id"], "freeze_rev": 1, "splits": [], "utc": "2026-10-16T00:00:00Z",
+            "pipeline_version": FPA.pipeline_version(FPA.pipeline_components(), FPA.requirement_pins())}
+    meta.update(meta_extra or {})
+    payload, snap = _fpa_RN.run_case(case, rows or _v41_rows(future=4), ctx, cprov, splits=[], exchange_status="MATCH", meta=meta)
+    lg.record_v4("CASE_0001", payload, snap, "2026-10-16T00:00:00Z")
+    rec = lg.read(lg.entries("v4", "CASE_0001")[-1]["path"])
+    if label is not None:
+        FPA.reveal("CASE_0001", {"label": label, "quote": quote, "evidence_class": ev, "evidence_quote": evq,
+                                 "components_f": comps or {}}, "2026-10-16T01:00:00Z", ledger=lg)
+    return lg, case, rec, snap
+
+
+# FPA1 الحقبةُ مختومة: ملفٌّ واحدٌ بحقبةٍ واحدة بصمتُها القانونيّة مثبَّتة · V4_COMMIT = 7c8826c · شهادةُ الملفّات الـ81 · وCASE_0001 بشهادةٍ مساوية
+try:
+    _fpa_doc = FPA.load_epochs()
+    _fpa_eps = _fpa_doc.get("epochs") or []
+    _fpa_e1 = _fpa_eps[0] if _fpa_eps else {}
+    _fpa1 = {"pinned": FPA.sha(_fpa_e1) == _FPA_EPOCH_SHA, "one": len(_fpa_eps) == 1,
+             "commit": _fpa_e1.get("V4_COMMIT") == "7c8826c25e745668d33facabb2efbc488e997fb7",
+             "attest": (_fpa_e1.get("V4_COMMIT_ATTESTATION") or {}).get("ok") is True
+             and (_fpa_e1.get("V4_COMMIT_ATTESTATION") or {}).get("checked") == 81,
+             "legacy": ((_fpa_e1.get("LEGACY_CASES") or {}).get("CASE_0001") or {}).get("equal") is True,
+             "five": all(_fpa_e1.get(k) for k in ("V4_FREEZE_ID", "V4_CONFIG_HASH", "V4_RULE_REGISTRY_HASH", "V4_TOOL_VERSION",
+                                                   "DATA_PIPELINE_VERSION", "META_PREFIX")),
+             "components": len(_fpa_e1.get("DATA_PIPELINE_COMPONENTS") or {}) == 93}
+    _fpa1ok, _fpa1w = all(_fpa1.values()), str({k: v for k, v in _fpa1.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa1ok, _fpa1w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA1 الحقبةُ 1 مختومة: بصمتُها القانونيّة مثبَّتة · حقبةٌ واحدة · V4_COMMIT 7c8826c · الملفّاتُ الـ81 عنده = البيان · "
+      "المعرّفاتُ الخمسة وإغلاقُ 93 مكوّنًا · وتشغيلةُ CASE_0001 بخطّ بياناتٍ مساوٍ", _fpa1ok, _fpa1w)
+
+# FPA2 إعادةُ التوليد: الحالةُ والوثائقُ الثلاث تُعاد من مُدخَلاتها فتطابق المدفوعَ بايتًا بايتًا (لا رقمَ باليد) · ولا حقلَ حيٌّ متقلّبٌ فيها ·
+#      والتقريرُ النهائيّ غائبٌ ما دام PRIMARY دون 43 · وتغيّرُ أيّ مدخلٍ يُكشف (شاهدُ ضبط: حالةٌ مُعدَّلة ⟵ اختلاف)
+try:
+    _fpa_st = FPA.build()
+    _fpa_bad = FPA.check(_fpa_st)
+    _fpa_txt = _v41_json.dumps(_fpa_st, ensure_ascii=False)
+    _fpa_st2 = _v41_json.loads(_v41_json.dumps(_fpa_st, default=str))
+    _fpa_st2["output"]["MATCHES"] = 99
+    _fpa_ctl2 = FPA.check(_fpa_st2)
+    _fpa2 = (not _fpa_bad and not any(k in _fpa_txt for k in ("LIVE_PENDING_IMAGES", "LIVE_META_V2_ROWS", "LIVE_RETENTION_GAPS")) and not _v41_os.path.exists(FPA.FINAL_MD)
+             and FPA.rendered(_fpa_st) == FPA.rendered(FPA.build()) and bool(_fpa_ctl2))
+    _fpa2w = f"اختلاف={_fpa_bad} · ضبط={_fpa_ctl2[:2]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa_st, _fpa2, _fpa2w = None, False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA2 إعادةُ التوليد: PROTOCOL_STATUS (JSON ‏+ md) وCASE_LEDGER وFALSE_READY_FORENSICS تطابق المدفوعَ بايتًا بايتًا وحتميّة · "
+      "بلا حقلٍ حيّ · والتقريرُ النهائيّ غائبٌ قبل 43 · والحالةُ المُعدَّلة تُكشف", _fpa2, _fpa2w)
+
+# FPA3 إغلاقُ خطّ البيانات: يتجاهل التعليقَ والـdocstring · ويلتقط تعديلَ منطقٍ في كلّ وحدة (المشغّل · tv_data · البوت · التقويم ·
+#      حاصدُ الاقتراض · v4_run) وتثبيتَ مكتبة · ولا يلتقط دالّةً خارجه · ويضمّ المكوّناتِ المعروفة
+try:
+    _fpa_src = {m: open(_v41_os.path.join(FPA.ROOT, p), encoding="utf-8").read() for m, p in FPA.PIPELINE_MODULES.items()}
+    _fpa_pins = FPA.requirement_pins()
+    _fpa_c0 = FPA.pipeline_components(_fpa_src)
+    _fpa_v0 = FPA.pipeline_version(_fpa_c0, _fpa_pins)
+
+    def _fpa_v(mod, old, new):
+        _s = dict(_fpa_src)
+        if _s[mod].count(old) != 1:
+            return "ANCHOR"
+        _s[mod] = _s[mod].replace(old, new, 1)
+        return FPA.pipeline_version(FPA.pipeline_components(_s), _fpa_pins)
+    _fpa3 = {"members": {"tv_data.Chart", "Super_stock.ce_borrow_info", "Super_stock._parse_ce_borrow", "Super_stock._tv_ticker_map",
+                         "market_calendar.is_trading_day", "market_calendar.HOLIDAYS", "runner.firewall", "runner.run_case",
+                         "v4_run.resolve", "ctb_harvest.harvest"} <= set(_fpa_c0) and len(_fpa_c0) == 93,
+             "live": _fpa_c0 == FPA.pipeline_components(),
+             "comment": _fpa_v("runner", "    snap = snapshot(rows, asof)\n", "    snap = snapshot(rows, asof)  # تعليق\n") == _fpa_v0,
+             "docstring": _fpa_v("runner", '"""الشموعُ قبل يوم القرار حصرًا', '"""(تعديل) الشموعُ قبل يوم القرار حصرًا') == _fpa_v0,
+             "runner": _fpa_v("runner", "MISS_FAIL = 3", "MISS_FAIL = 4") not in (_fpa_v0, "ANCHOR"),
+             "tv": _fpa_v("tv_data", 'TOKEN = "unauthorized_user_token"', 'TOKEN = "x"') not in (_fpa_v0, "ANCHOR"),
+             "bot": _fpa_v("Super_stock", 'f"nasdaq-{sym.lower()}/borrow-fee/"', 'f"nyse-{sym.lower()}/borrow-fee/"') not in (_fpa_v0, "ANCHOR"),
+             "calendar": _fpa_v("market_calendar", '"2027-01-18",', '"2027-01-19",') not in (_fpa_v0, "ANCHOR"),
+             "harvest": _fpa_v("ctb_harvest", "WARN_FAIL_FRAC = 0.5", "WARN_FAIL_FRAC = 0.6") not in (_fpa_v0, "ANCHOR"),
+             "v4_run": _fpa_v("v4_run", "        b = chart.bars(full, tf, n=n)", "        b = chart.bars(full, tf, n=n + 1)") not in (_fpa_v0, "ANCHOR"),
+             "unrelated": _fpa_v("Super_stock", "\ndef build_message(", "\ndef _fpa_dummy():\n    return 1\n\n\ndef build_message(") == _fpa_v0,
+             "pins": FPA.pipeline_version(_fpa_c0, dict(_fpa_pins, yfinance="9.9")) != _fpa_v0
+             and set(_fpa_pins) == {"yfinance", "websocket-client", "requests", "pandas", "numpy"}}
+    _fpa3ok, _fpa3w = all(_fpa3.values()), str({k: v for k, v in _fpa3.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa3ok, _fpa3w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA3 إغلاقُ خطّ البيانات (AST): 93 مكوّنًا بأعضائه المعروفة · التعليقُ والـdocstring لا يكسرانه · وتعديلُ منطقٍ في أيّ وحدةٍ "
+      "منه وتثبيتُ مكتبةٍ يكسرانه · ودالّةٌ خارجه لا تمسّه", _fpa3ok, _fpa3w)
+
+# FPA4 السلامة I1-I12: الحقبةُ المطابقة للهويّة الحيّة تمرّ كلُّها على المستودع · وكلُّ فحصٍ يسقط بتعديله وحدَه (شاهدُ ضبطٍ لكلٍّ)
+try:
+    _fpa_lg = _fpa_LG.Ledger()
+    _fpa_id, _fpa_e = _fpa_ep()
+    _fpa_base = FPA.integrity(_fpa_e, _fpa_id, _fpa_lg, [])
+
+    def _fpa_fail(key, **kw):
+        _i, _e2 = _fpa_ep(**kw)
+        return not FPA.integrity(_e2, _i, _fpa_lg, [])["checks"][key]["ok"]
+    _fpa_comp = dict(_fpa_e["DATA_PIPELINE_COMPONENTS"])
+    _fpa_comp["runner.firewall"] = "0" * 64
+    _fpa_td4 = _v41_tmp.mkdtemp(prefix="fpa4_")
+    try:
+        _fpa_lg4 = _fpa_LG.Ledger(root=_fpa_td4)
+        _fpa_lg4.seal_case(_v41_case(image="faisal_method_v41/FINAL_PROTOCOL_prereg.md", image_sha256="1" * 64), "2026-10-15T20:00:00Z")
+        _fpa_i10 = not FPA.integrity(_fpa_e, _fpa_id, _fpa_lg4, [])["checks"]["I10_CASE_IMAGES"]["ok"]
+        _fpa_lg5, _, _, _ = _fpa_flow(_fpa_td4 + "_b", meta_extra={"pipeline_version": "X" * 64})
+        _fpa_i11 = not FPA.integrity(_fpa_e, _fpa_id, _fpa_lg5, [])["checks"]["I11_RECORD_EPOCH"]["ok"]
+        _fpa_lg6, _, _, _ = _fpa_flow(_fpa_td4 + "_c")
+        _fpa_i11ok = FPA.integrity(_fpa_e, _fpa_id, _fpa_lg6, [])["checks"]["I11_RECORD_EPOCH"]["ok"]
+        _p8 = _v41_os.path.join(_fpa_td4 + "_c", "pv", _fpa_lg6.entries("v4")[-1]["path"])
+        with open(_p8, "a", encoding="utf-8") as _fh:
+            _fh.write(" ")
+        _fpa_i8 = not FPA.integrity(_fpa_e, _fpa_id, _fpa_lg6, [])["checks"]["I8_LEDGER"]["ok"]
+    finally:
+        for _d4 in (_fpa_td4, _fpa_td4 + "_b", _fpa_td4 + "_c"):
+            _v41_sh.rmtree(_d4, ignore_errors=True)
+    _fpa4 = {"base": _fpa_base["ok"],
+             "I2": _fpa_fail("I2_FREEZE_ID", V4_FREEZE_ID="X"), "I3": _fpa_fail("I3_CONFIG_HASH", V4_CONFIG_HASH="X"),
+             "I4": _fpa_fail("I4_RULE_REGISTRY_HASH", V4_RULE_REGISTRY_HASH="X"),
+             "I5": _fpa_fail("I5_TOOL_VERSION", V4_TOOL_VERSION=dict(_fpa_e["V4_TOOL_VERSION"], runner="X")),
+             "I6": _fpa_fail("I6_DATA_PIPELINE_VERSION", DATA_PIPELINE_COMPONENTS=_fpa_comp)
+             and "runner.firewall" in FPA.integrity(_fpa_ep(DATA_PIPELINE_COMPONENTS=_fpa_comp)[1], _fpa_id, _fpa_lg, [])
+             ["checks"]["I6_DATA_PIPELINE_VERSION"]["detail"],
+             "I6pin": _fpa_fail("I6_DATA_PIPELINE_VERSION", DATA_PIPELINE_PINS=dict(_fpa_e["DATA_PIPELINE_PINS"], numpy="0")),
+             "I7": _fpa_fail("I7_NO_REVISION", V4_FREEZE_REV=2),
+             "I8": _fpa_i8, "I9": _fpa_fail("I9_META_PREFIX", META_PREFIX=dict(_fpa_e["META_PREFIX"], sha256="0" * 64)),
+             "I10": _fpa_i10, "I11": _fpa_i11 and _fpa_i11ok,
+             "I11legacy": _fpa_fail("I11_RECORD_EPOCH", LEGACY_CASES={}),
+             "I12": not FPA.integrity(_fpa_e, _fpa_id, _fpa_lg, [{"CASE_ID": "X", "LOOKAHEAD": {"verdict": "INVALIDATED_DEFECT"}}])["ok"]}
+    _fpa4ok, _fpa4w = all(_fpa4.values()), str({k: v for k, v in _fpa4.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa4ok, _fpa4w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA4 السلامة I1-I12: الحقبةُ المطابقة تمرّ كلُّها · وكلُّ فحصٍ يسقط بعطبه وحدَه (المعرّف · الإعداد · القواعد · الأداة · "
+      "مكوّنُ الخطّ وتثبيتُه · المراجعة · السلسلة · البادئة · الصورة · خطُّ القيد · القديمُ بلا شهادة · التسرّب)", _fpa4ok, _fpa4w)
+
+# FPA5 حارسُ المشغّل: BLOCKED ⟵ `mode_run` يرجع 9 **قبل أيّ جلب** · وسليمًا ⟵ يُشغّل V4 المجمَّد ويكتب في القيد بصمةَ الخطّ والحقبةَ
+#      والتقسيماتِ ونظامَ السوق والقطاع (حقولُ §⑬ خارج الإغلاق — لا تصل V4)
+try:
+    _fpa_sv5 = (FPA.guard, _fpa_RN.fetch_rows, _fpa_RN.fetch_splits, _fpa_RN.fetch_regime, _fpa_RN.fetch_sector,
+                _fpa_RN.live_borrow, _fpa_RN.load_ctb)
+    _fpa_td5 = _v41_tmp.mkdtemp(prefix="fpa5_")
+    _fpa_fetched = []
+    try:
+        FPA.guard = lambda st=None: (False, ["I6_DATA_PIPELINE_VERSION"])
+        _fpa_RN.fetch_rows = lambda s: (_fpa_fetched.append(s), (_v41_rows(future=4), "MATCH", []))[1]
+        _lg5 = _fpa_LG.Ledger(root=_v41_os.path.join(_fpa_td5, "pv"))
+        _lg5.seal_case(_v41_case(), "2026-10-15T20:00:00Z")
+        _rc5a = _fpa_RN.mode_run(_lg5)
+        _blocked5 = _rc5a == 9 and not _fpa_fetched and not _lg5.entries("v4")
+        FPA.guard = lambda st=None: (True, [])
+        _fpa_RN.fetch_splits = lambda s: []
+        _fpa_RN.fetch_regime = lambda a: {"state": "ABOVE_SMA50", "close": 1.0, "sma50": 0.9}
+        _fpa_RN.fetch_sector = lambda s: "Healthcare"
+        _fpa_RN.live_borrow = lambda s: None
+        _fpa_RN.load_ctb = lambda path=None: []
+        _rc5b = _fpa_RN.mode_run(_lg5)
+        _m5 = (_lg5.read(_lg5.entries("v4")[-1]["path"]).get("meta") or {}) if _lg5.entries("v4") else {}
+        _ok5 = (_rc5b == 0 and _fpa_fetched == ["SYNT"] and _m5.get("pipeline_version") == FPA.pipeline_version(FPA.pipeline_components(),
+                                                                                                            FPA.requirement_pins())
+                and _m5.get("protocol_epoch") == ((FPA.current_epoch() or {}).get("epoch")) and _m5.get("splits") == []
+                and (_m5.get("regime") or {}).get("state") == "ABOVE_SMA50" and _m5.get("sector") == "Healthcare")
+    finally:
+        (FPA.guard, _fpa_RN.fetch_rows, _fpa_RN.fetch_splits, _fpa_RN.fetch_regime, _fpa_RN.fetch_sector, _fpa_RN.live_borrow,
+         _fpa_RN.load_ctb) = _fpa_sv5
+        _v41_sh.rmtree(_fpa_td5, ignore_errors=True)
+    _fpa5, _fpa5w = _blocked5 and _ok5, f"محجوب={_blocked5} ({_rc5a}) · سليم={_ok5} ({_rc5b}) · meta={sorted(_m5)[:12]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa5, _fpa5w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA5 حارسُ المشغّل: VALIDATION_BLOCKED ⟵ mode_run يرجع 9 قبل أيّ جلبٍ ولا قيد · وسليمًا ⟵ V4 يُشغَّل ويُختم بصمةُ الخطّ والحقبةُ "
+      "والتقسيماتُ ونظامُ السوق والقطاع", _fpa5, _fpa5w)
+
+# FPA6 الأصنافُ السبعة (§⑦): الأسبقيّةُ المكتوبة لكلّ شرطٍ وحدَه وللمتزاحمين · ورسمُ رموز B48 · وتنبّؤُ P2 على الدفعة نفسِها (BRTX يعبر C5/C8/C7)
+try:
+    _c7 = FPA.classify7
+    _base7 = dict(c1=[], c2=[], c3=[], c6=[], contaminated=None, pre_existing=None, readable=True, reviewed=True, author_known=True,
+                  faisal=True, symbol="ABC", decision_stmt=True, date_ok=True)
+
+    def _k7(**kw):
+        return _c7(**dict(_base7, **kw))[0]
+    _fpa6 = {"new": _k7() == "NEW_PROSPECTIVE", "dup": _k7(c1=["X"], c2=["Y"], contaminated="C4") == "DUPLICATE",
+             "deriv": _k7(c2=["Y"], contaminated="C4") == "DERIVATIVE" and _k7(c6=["Z"]) == "DERIVATIVE" and _k7(c3=["Z"]) == "DERIVATIVE",
+             "cont": _k7(contaminated="C5:EX:1", pre_existing="BEFORE_WINDOW:x") == "CONTAMINATED",
+             "pre": _k7(pre_existing="BEFORE_WINDOW:x", readable=False) == "PRE_EXISTING",
+             "unk": _k7(readable=False) == "UNKNOWN" and _k7(reviewed=False) == "UNKNOWN" and _k7(author_known=False, faisal=False) == "UNKNOWN",
+             "ctx": _k7(faisal=False) == "INSUFFICIENT_CONTEXT" and _k7(symbol=None) == "INSUFFICIENT_CONTEXT"
+             and _k7(decision_stmt=False) == "INSUFFICIENT_CONTEXT" and _k7(date_ok=False) == "INSUFFICIENT_CONTEXT",
+             "legacy": [FPA.map_legacy_class(*a)[0] for a in (("DUPLICATE", "EXACT:TG_1", "DUPLICATE_OF:TG_1", False),
+                                                              ("DERIVATIVE", "VISUAL:TG_2", "DUPLICATE_OF:TG_2", False),
+                                                              ("CONTAMINATED", "HISTORICAL_BEFORE_WINDOW:2026-09-01", "BEFORE_WINDOW", False),
+                                                              ("CONTAMINATED", "SAME_CASE:V4:X", "DUPLICATE_OF:V4:X", False),
+                                                              ("UNKNOWN", "AUTHOR_NOT_ESTABLISHED", "NOT_FAISAL", False),
+                                                              ("UNKNOWN", "DATE_NOT_ESTABLISHED", "NOT_FAISAL", False),
+                                                              ("CLEAN_PROSPECTIVE", "—", "NO_TICKER", False),
+                                                              ("CLEAN_PROSPECTIVE", "—", None, True), ("ODD", "?", None, False))]
+             == ["DUPLICATE", "DERIVATIVE", "PRE_EXISTING", "CONTAMINATED", "UNKNOWN", "INSUFFICIENT_CONTEXT", "INSUFFICIENT_CONTEXT",
+                 "NEW_PROSPECTIVE", "UNKNOWN"]}
+    _lc6 = FPA.legacy_candidates()
+    _cnt6 = {k: sum(1 for c in _lc6 if c["class7"] == k) for k in FPA.CLASSES7}
+    _new6 = [c for c in _lc6 if c["class7"] == "NEW_PROSPECTIVE"]
+    _fpa6["P2"] = _cnt6 == _FPA_P2 and len(_lc6) == 48
+    _fpa6["brtx"] = (len(_new6) == 1 and _new6[0]["image_id"] == "TG_58402" and not _new6[0]["checks"]["C5"]
+                     and not _new6[0]["checks"]["C8"] and not _new6[0]["checks"]["C7"])
+    _fpa6ok, _fpa6w = all(_fpa6.values()), str({k: v for k, v in _fpa6.items() if not v}) + f" · {_cnt6}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa6ok, _fpa6w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA6 الأصنافُ السبعة: الأسبقيّةُ المكتوبة (DUPLICATE ⟵ DERIVATIVE ⟵ CONTAMINATED ⟵ PRE_EXISTING ⟵ UNKNOWN ⟵ INSUFFICIENT_CONTEXT ⟵ "
+      "NEW_PROSPECTIVE) · ورسمُ رموز B48 · وتنبّؤُ P2 (1 · 14 · 13 · 9 · 7 · 2 · 2) وBRTX يعبر C5/C7/C8", _fpa6ok, _fpa6w)
+
+# FPA7 الفحوصُ الثمانية: نافذةُ الـ120 (داخلَها وخارجَها) · التعرّضُ التطويريّ · ±3 أيّام · البصمةُ الإدراكيّة بـ«و» عند حدّيها · التاريخُ الجزئيّ ·
+#      وصورةُ المدوّنة تُعرف وصورةُ B48 لا
+try:
+    _u7 = [("ABC", "2026-06-01", "2026-06-01", "EX:in"), ("ABC", "2026-01-02", "2026-01-02", "EX:out"),
+           ("XYZ", "2026-09-01", "2026-09-30", "EX:other"), ("ABC", "2026-04-20", "2026-04-29", "EX:span")]
+    _d7 = [("ABC", "2026-10-12", "V4:near"), ("ABC", "2026-10-11", "V4:far4"), ("ABC", "2026-05-01", "GOLDEN:ABC")]
+    _lo7 = FPA.window_lo("2026-10-15")
+    _o7 = {"id": "O", "sha256": "a" * 64, "dhash256": "0" * 64, "phash64": "0" * 16}
+
+    def _ph(d, p):
+        return {"sha256": "b" * 64, "dhash256": format((1 << d) - 1, "064x"), "phash64": format((1 << p) - 1, "016x")}
+    _img7 = (FPA._j(FPA.CORPUS, {}) or {}).get("images") or [{}]
+    _fpa7 = {"window": FPA.chart_window_hits("ABC", "2026-10-15", _u7) == ["EX:in", "EX:span"] and "2026-04" <= _lo7 <= "2026-05",
+             "exposure": FPA.v4_exposure_hits("ABC", "2026-10-15", _d7) == ["GOLDEN:ABC", "V4:far4", "V4:near"],
+             "same3": FPA.same_case_hits("ABC", "2026-10-15", _d7) == ["V4:near"],
+             "near_and": FPA.perceptual_hits(_ph(24, 10), [_o7])[1] == ["O"] and FPA.perceptual_hits(_ph(25, 0), [_o7])[1] == []
+             and FPA.perceptual_hits(_ph(0, 11), [_o7])[1] == [],
+             "exact": FPA.perceptual_hits(dict(_o7, id="N"), [_o7])[0] == ["O"],
+             "span": FPA.date_span("2026-09-1x") == ("2026-09-10", "2026-09-19") and FPA.date_span("UNK") is None
+             and FPA.date_span("2026-07-03~") == ("2026-06-26", "2026-07-10") and FPA.date_span("2026-02-2x") == ("2026-02-20", "2026-02-28"),
+             "corpus_ref": "CORPUS" in FPA.corpus_refs(_img7[0].get("id"), _img7[0].get("file"))
+             and FPA.corpus_refs("TG_58402", "faisal_images/TG_58402.jpg") == []}
+    _fpa7ok, _fpa7w = all(_fpa7.values()), str({k: v for k, v in _fpa7.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa7ok, _fpa7w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA7 الفحوصُ الثمانية: نافذةُ الـ120 جلسةً للرسم والتعرّض · ±3 أيّام للحالة نفسِها · الإدراكيّةُ dHash ≤ 24 **و** pHash ≤ 10 · "
+      "التاريخُ الجزئيّ يُمدّ · وصورةُ المدوّنة تُعرف وصورةُ B48 لا", _fpa7ok, _fpa7w)
+
+# FPA8 المصدريّة (§⑤): HIGH (طابعُ التوجيه) · MEDIUM (طابعٌ ظاهرٌ بمنطقته) · LOW (محصورٌ بلا طابع) · UNKNOWN · والصفُّ القديمُ بلا توجيهٍ
+#      مجهولُ النوع لا «none» · والقناةُ العامّة ببياناتها · والطابعُ بلا منطقةٍ لا يرفع · وCASE_0001 = LOW ⟵ SECONDARY
+try:
+    _fp8 = {"sha256": "5" * 64, "dhash256": "0" * 64, "phash64": "0" * 16}
+    _a8 = {"symbol": "SYNT", "timeframe": "D", "decision_date": "2026-10-15"}
+    _t8 = {"message_id": 1, "collected_utc": "2026-10-15T15:00:00Z", "run_id": "1", "meta_v": 2, "forward_type": "channel",
+           "forward": {"type": "channel", "date": "2026-10-15T13:30:00Z", "chat_username": "kisar_ch", "chat_title": "T"}}
+    _hi8 = FPA.provenance(_t8, _fp8, _a8)
+    _t8b = {"message_id": 1, "collected_utc": "2026-10-15T15:00:00Z", "run_id": "1", "meta_v": 2, "forward_type": "none"}
+    _me8 = FPA.provenance(_t8b, _fp8, dict(_a8, post_timestamp_visible="10:45 م", post_timestamp_utc="2026-10-15T19:45:00Z",
+                                          post_timestamp_tz="Asia/Riyadh"))
+    _notz8 = FPA.provenance(_t8b, _fp8, dict(_a8, post_timestamp_visible="10:45 م", post_timestamp_utc="2026-10-15T19:45:00Z"))
+    _old8 = FPA.provenance({"message_id": 1, "collected_utc": "2026-10-15T15:00:00Z"}, _fp8, _a8)
+    _unk8 = FPA.provenance({}, {}, {})
+    _rows8 = [r for r in (_fpa_st or FPA.build())["cases"] if r["CASE_ID"] == "CASE_0001"]
+    _fpa8 = {"high": _hi8["fields"]["PROVENANCE_CONFIDENCE"] == "HIGH" and _hi8["decision_date_from_post"] == "2026-10-15"
+             and _hi8["fields"]["PUBLIC_CHANNEL_METADATA"].get("chat_username") == "kisar_ch",
+             "medium": _me8["fields"]["PROVENANCE_CONFIDENCE"] == "MEDIUM" and _me8["fields"]["PUBLIC_CHANNEL_METADATA"] == "N/A",
+             "no_tz": _notz8["fields"]["PROVENANCE_CONFIDENCE"] == "LOW",
+             "old_row": _old8["fields"]["FORWARD_TYPE"] == "UNKNOWN" and _old8["fields"]["PROVENANCE_CONFIDENCE"] == "LOW",
+             "unknown": _unk8["fields"]["PROVENANCE_CONFIDENCE"] == "UNKNOWN" and set(_unk8["fields"]) == set(FPA.PROV_FIELDS),
+             "sample": FPA.sample_of("HIGH") == FPA.sample_of("MEDIUM") == "PRIMARY" and FPA.sample_of("LOW") == FPA.sample_of("UNKNOWN")
+             == "SECONDARY",
+             "case_0001": bool(_rows8) and _rows8[0]["SAMPLE"] == "SECONDARY" and _rows8[0]["PROVENANCE_CONFIDENCE"] == "LOW"
+             and _rows8[0]["PROVENANCE"]["missing_critical"] == ["ORIGINAL_POST_TIMESTAMP", "FORWARD_TYPE"]
+             and _rows8[0]["PROVENANCE"]["fields"]["CASE_ID"] == "CASE_0001"}
+    _fpa8ok, _fpa8w = all(_fpa8.values()), str({k: v for k, v in _fpa8.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa8ok, _fpa8w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA8 المصدريّة: HIGH بطابع التوجيه · MEDIUM بطابعٍ ظاهرٍ بمنطقته · وبلا منطقةٍ LOW · والصفُّ القديمُ بلا توجيهٍ «UNKNOWN» لا «none» · "
+      "والحقولُ الثلاثة عشر · وCASE_0001 = LOW ⟵ SECONDARY (طابعٌ ونوعُ توجيهٍ مجهولان)", _fpa8ok, _fpa8w)
+
+# FPA9 كائنُ قرار V4 (§⑨): FINAL_STATE = الحالةُ حرفًا (UNKNOWN لا يصير WAIT) · والمسارُ يُعاد بدوالّ المحرّك المجمَّد · والقرارُ المناقضُ
+#      لمواصفته يُوسَم · وCASE_0001: WAIT متّسق وبصمةُ المُدخَل الأعمى
+try:
+    _d9u = {"state": "UNKNOWN", "tech_state": "BASE_HELD", "context_input": {"groups": None, "offering_pending": None,
+                                                                             "operator_press": None, "short_available": None}}
+    _d9x = dict(_d9u, state="READY")
+    _r9 = {"case_id": "X", "decision": _d9u, "meta": {}, "firewall": {}}
+    _o9u = FPA.v4_object(_r9, {"symbol": "S", "decision_date": "2026-10-15"}, {"V4_COMMIT": "c", "V4_CONFIG_HASH": "h"})
+    _o9x = FPA.v4_object(dict(_r9, decision=_d9x), {"symbol": "S", "decision_date": "2026-10-15"}, {"V4_COMMIT": "c", "V4_CONFIG_HASH": "h"})
+    _c9 = [r for r in (_fpa_st or FPA.build())["cases"] if r["CASE_ID"] == "CASE_0001"][0]["V4"]
+    _fpa9 = {"unknown_kept": _o9u["FINAL_STATE"] == "UNKNOWN" and _o9u["GRAPH_CONSISTENT"] is True,
+             "inconsistent": _o9x["GRAPH_CONSISTENT"] is False and _o9x["FINAL_STATE"] == "READY",
+             "fields": all(k in _o9u for k in ("CASE_ID", "V4_VERSION", "V4_COMMIT", "CONFIG_HASH", "INPUT_HASH", "DATA_AVAILABLE", "TIMEFRAME",
+                                               "STRUCTURE", "PATTERN", "BOTTOM_CYCLE", "5_SESSION_HOLD", "TEST_RISE", "15_PERCENT_ZONE",
+                                               "HOLD_SWEEP_RETURN", "VALIDITY", "ENTRY_MECHANISM", "INVALIDATION", "TARGET",
+                                               "FINAL_DECISION", "DECISION_REASON", "DECISION_GRAPH", "FINAL_STATE")),
+             "case_0001": _c9["FINAL_STATE"] == "WAIT" and _c9["TECH_STATE"] == "BROKEN_NEW_BASE" and _c9["GRAPH_CONSISTENT"] is True
+             and _c9["INPUT_HASH"] == FPA.sha({"symbol": "BRTX", "decision_date": "2026-10-03", "timeframe": "1D"})
+             and _c9["V4_COMMIT"] == "7c8826c25e745668d33facabb2efbc488e997fb7"}
+    _fpa9ok, _fpa9w = all(_fpa9.values()), str({k: v for k, v in _fpa9.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa9ok, _fpa9w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA9 كائنُ قرار V4: حقولُ المرحلة 5 كاملة · FINAL_STATE حرفًا (UNKNOWN لا يصير WAIT) · المسارُ يُعاد بالمحرّك المجمَّد ويَسِم المناقِض · "
+      "وCASE_0001 WAIT/BROKEN_NEW_BASE متّسق", _fpa9ok, _fpa9w)
+
+# FPA10 قرارُ فيصل (§⑩): DIRECT/STRONG باقتباسٍ حرفيّ ⟵ الوسمُ الفعّال · وإعادةُ الصياغة ⟵ INVALID_RECORD (UNKNOWN) · وWEAK ⟵ UNKNOWN ·
+#      وMIXED يبقى · والقديمُ CASE_0001 DIRECT («مراقبه مبكره» ⟵ WAIT)
+try:
+    _f10 = FPA.faisal_object
+    _fpa10 = {"direct": _f10({"label": "WATCH", "label4": "WAIT", "quote": "مراقبه مبكره · شرط", "evidence_class": "DIRECT",
+                              "evidence_quote": "مراقبه مبكره"}, "CASE_9")["effective_label"] == "WAIT",
+              "paraphrase": _f10({"label4": "READY", "quote": "ادخل الآن", "evidence_class": "DIRECT", "evidence_quote": "ادخلوا"},
+                                 "CASE_9")["effective_label"] == "UNKNOWN",
+              "weak": _f10({"label4": "READY", "quote": "q", "evidence_class": "WEAK_INFERENCE", "evidence_quote": "q"},
+                           "CASE_9")["effective_label"] == "UNKNOWN",
+              "invalid": _f10({"label4": "WAIT", "quote": "q"}, "CASE_9")["evidence_class"] == "INVALID_RECORD",
+              "mixed": _f10({"label4": "MIXED", "quote": "q", "evidence_class": "STRONG_INFERENCE", "evidence_quote": "q"},
+                            "CASE_9")["effective_label"] == "MIXED",
+              "legacy": (lambda o: o["evidence_class"] == "DIRECT" and o["legacy"] and o["effective_label"] == "WAIT")(
+                  [r for r in (_fpa_st or FPA.build())["cases"] if r["CASE_ID"] == "CASE_0001"][0]["FAISAL"])}
+    _fpa10ok, _fpa10w = all(_fpa10.values()), str({k: v for k, v in _fpa10.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa10ok, _fpa10w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA10 قرارُ فيصل: الدليلُ حرفيّ (إعادةُ الصياغة ⟵ INVALID_RECORD) · WEAK ⟵ UNKNOWN فعّال · MIXED يبقى · وCASE_0001 DIRECT ⟵ WAIT",
+      _fpa10ok, _fpa10w)
+
+# FPA11 المطابقة (§⑪): الأصنافُ بنصّ المالك ‏+ سدُّ الفجوتين · وUNKNOWN ليس MATCH أبدًا
+try:
+    _mc = FPA.match_class
+    _tab11 = {("WAIT", "WAIT"): "MATCH", ("READY", "READY"): "MATCH", ("WAIT", "READY"): "FALSE_READY", ("REJECT", "READY"): "FALSE_READY",
+              ("READY", "WAIT"): "FALSE_WAIT", ("READY", "REJECT"): "FALSE_REJECT", ("WAIT", "UNKNOWN"): "FALSE_UNKNOWN",
+              ("REJECT", "WAIT"): "MISMATCH_WAIT_REJECT", ("WAIT", "REJECT"): "MISMATCH_REJECT_WAIT", ("UNKNOWN", "UNKNOWN"): "FAISAL_UNKNOWN",
+              ("UNKNOWN", "WAIT"): "FAISAL_UNKNOWN", ("MIXED", "WAIT"): "UNRESOLVED", ("REJECT", "REJECT"): "MATCH"}
+    _bad11 = {k: _mc(*k) for k, v in _tab11.items() if _mc(*k) != v}
+    _fpa11, _fpa11w = not _bad11 and set(_tab11.values()) == set(FPA.MATCH_CLASSES), str(_bad11)
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa11, _fpa11w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA11 المطابقة: MATCH · FALSE_READY · FALSE_WAIT · FALSE_REJECT · FALSE_UNKNOWN · FAISAL_UNKNOWN · UNRESOLVED ‏+ WAIT/REJECT وREJECT/WAIT "
+      "— وUNKNOWN مع UNKNOWN ليس تطابقًا", _fpa11, _fpa11w)
+
+# FPA12 المكوّنات (§⑮): منطقةُ الدخول ±2% عند حدّيها · STOP بقاعدته · الهدفُ ±2% · نفيٌ/غيابٌ/مقياسٌ/غيابُ V4
+try:
+    _d12 = {"entry": {"type1_bids": [2.0, 2.3], "type2_liberation": 2.9}, "structure": {"bottom": 1.95},
+            "invalidation": [{"price": 1.9, "rule": FPA.STOP_RULE}, {"price": 1.85, "rule": FPA.STOP_RULE + " (TG_1978)"}],
+            "target": [{"price": 3.5}], "price_location": {"close": 2.1}}
+    _v12 = FPA.v4_components(_d12)
+
+    def _cc(c, f, scale="OK", v=None):
+        return FPA.compare_components({c: f}, v or _v12, scale)[c]["status"]
+    _fpa12 = {"zone_in": _cc("ENTRY", [2.15]) == "MATCH", "zone_edge": _cc("ENTRY", [2.345]) == "MATCH",
+              "zone_out": _cc("ENTRY", [2.40]) == "MISMATCH", "lib": _cc("ENTRY", [2.95]) == "MATCH",
+              "stop": _cc("STOP", [1.89]) == "MATCH" and _cc("STOP", [1.70]) == "MISMATCH",
+              "inv_bottom": _cc("INVALIDATION", [1.96]) == "MATCH",
+              "target": _cc("TARGET", [3.55]) == "MATCH" and _cc("TARGET", [3.60]) == "MISMATCH",
+              "none": _cc("ENTRY", "NONE") == "FAISAL_NONE" and _cc("TARGET", None) == "FAISAL_NOT_STATED",
+              "scale": _cc("TARGET", [3.5], scale="MISMATCH") == "SCALE_MISMATCH"
+              and FPA.scale_status(1.5, _d12) == "MISMATCH" and FPA.scale_status(2.0, _d12) == "OK" and FPA.scale_status(None, _d12) == "UNCHECKED",
+              "v4_na": _cc("TARGET", [3.5], v=dict(_v12, TARGET=[])) == "V4_NOT_AVAILABLE"}
+    _fpa12ok, _fpa12w = all(_fpa12.values()), str({k: v for k, v in _fpa12.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa12ok, _fpa12w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA12 المكوّنات: منطقةُ الدخول [أدنى×0.98 · أعلى×1.02] والتحرّرُ ±2% · الوقفُ بقاعدة الوقف · الإبطالُ بالقاع · الهدفُ ±2% · "
+      "ونفيٌ وغيابٌ ومقياسٌ وغيابُ V4 كلٌّ بوسمه", _fpa12ok, _fpa12w)
+
+# FPA13 النظرُ المستقبليّ LA1-LA6 (§⑯): التدفّقُ الأعمى السليم PASS · وشمعةٌ مستقبليّة ⟵ عيب · سياقٌ غيرُ آليّ ⟵ عيب · ترتيبٌ مكسور ⟵ عيب ·
+#      بصمةٌ لا تُعاد ⟵ عيب · وقرارٌ يتغيّر بالمقياس ⟵ خارجيّ بلا تقسيماتٍ أو بتقسيمٍ لاحق · وPASS بلا تقسيم · وCASE_0001 PASS ثابتٌ بالمقياس (P3)
+try:
+    _td13 = _v41_tmp.mkdtemp(prefix="fpa13_")
+    try:
+        _lg13, _case13, _rec13, _snap13 = _fpa_flow(_td13)
+        _ord13 = FPA.ledger_order(_lg13, "CASE_0001")
+        _la0 = FPA.lookahead(_case13, _rec13, _snap13, _ord13)
+        _fut = _snap13 + [["2026-10-15", 1, 1, 1, 1, 1]]
+        _la1 = FPA.lookahead(_case13, _rec13, _fut, _ord13)
+        _rec2 = _v41_json.loads(_v41_json.dumps(_rec13))
+        _rec2["context_provenance"]["groups"] = "manual: قرأتُه من الصورة"
+        _la2 = FPA.lookahead(_case13, _rec2, _snap13, _ord13)
+        _la3 = FPA.lookahead(_case13, _rec13, _snap13, {"ok": False})
+        _la6 = FPA.lookahead(_case13, dict(_rec13, decision_sha256="0" * 64), _snap13, _ord13)
+        _c13 = _snap13[-1][4]
+
+        def _dec13(rows, asof, ctx, sym):
+            return _rec13["decision"] if rows[-1][4] == _c13 else dict(_rec13["decision"], state="REJECT")
+        _la5u = FPA.lookahead(_case13, dict(_rec13, meta=dict(_rec13["meta"], splits=None)), _snap13, _ord13, decide=_dec13)
+        _la5s = FPA.lookahead(_case13, dict(_rec13, meta=dict(_rec13["meta"], splits=[["2026-10-15", 0.1]])), _snap13, _ord13, decide=_dec13)
+        _la5n = FPA.lookahead(_case13, _rec13, _snap13, _ord13, decide=_dec13)
+    finally:
+        _v41_sh.rmtree(_td13, ignore_errors=True)
+    _cla = [r for r in (_fpa_st or FPA.build())["cases"] if r["CASE_ID"] == "CASE_0001"][0]["LOOKAHEAD"]
+    _fpa13 = {"pass": _la0["verdict"] == "PASS" and _la0["LA5_CORPORATE_ACTION"] == "PASS_SCALE_INVARIANT",
+              "LA1": _la1["verdict"] == "INVALIDATED_DEFECT" and not _la1["LA1_FUTURE_CANDLES"],
+              "LA2": _la2["verdict"] == "INVALIDATED_DEFECT" and not _la2["LA2_BLIND_INPUT"],
+              "LA3": _la3["verdict"] == "INVALIDATED_DEFECT", "LA6": _la6["verdict"] == "INVALIDATED_DEFECT" and not _la6["LA6_REPLAY"],
+              "LA5u": _la5u["verdict"] == "INVALIDATED_EXTERNAL" and _la5u["LA5_CORPORATE_ACTION"] == "INVALIDATE_SPLITS_UNKNOWN",
+              "LA5s": _la5s["LA5_CORPORATE_ACTION"] == "INVALIDATE_POST_DECISION_SPLIT",
+              "LA5n": _la5n["verdict"] == "PASS" and _la5n["LA5_CORPORATE_ACTION"] == "PASS_NO_POST_DECISION_SPLIT",
+              "LA4": FPA.run_case_blind()[0], "P3": _cla["verdict"] == "PASS" and _cla["LA5_CORPORATE_ACTION"] == "PASS_SCALE_INVARIANT"}
+    _fpa13ok, _fpa13w = all(_fpa13.values()), str({k: v for k, v in _fpa13.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa13ok, _fpa13w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA13 النظرُ المستقبليّ LA1-LA6: السليمُ PASS · الشمعةُ المستقبليّة والسياقُ اليدويّ والترتيبُ المكسور والبصمةُ غيرُ المعادة ⟵ عيبٌ يحجب · "
+      "والقرارُ المتغيّرُ بالمقياس ⟵ إبطالٌ خارجيّ (تقسيماتٌ مجهولة أو لاحقة) أو PASS بلا تقسيم · وCASE_0001 PASS (P3)", _fpa13ok, _fpa13w)
+
+# FPA14 المقاييسُ والحالةُ النهائيّة (§⑭ · §⑱): ويلسون ونيوكومب على قيمٍ منشورة · V4_BEATS_BASELINE بقواعده الخمس · READY بنيويًّا NO ·
+#      وأسبقيّةُ الحالات (BLOCKED ⟵ INSUFFICIENT ⟵ VALIDATED ⟵ PARTIAL ⟵ NOT) والأشرطة
+try:
+    def _row14(f, v, ts="BASE_FORMING"):
+        return {"MATCH_CLASS": FPA.match_class(f, v), "FAISAL": {"effective_label": f}, "V4": {"FINAL_STATE": v, "TECH_STATE": ts}}
+    _nc = FPA.newcombe(56, 70, 48, 80)
+    _m14 = {k: FPA.metrics(r)["V4_BEATS_BASELINE"] for k, r in (
+        ("n0", []), ("b0", [_row14("WAIT", "WAIT")] * 3), ("small", [_row14("READY", "READY")] * 3 + [_row14("WAIT", "UNKNOWN")]),
+        ("yes", [_row14("READY", "READY")] * 9 + [_row14("WAIT", "UNKNOWN")]),
+        ("no", [_row14("READY", "READY")] * 6 + [_row14("WAIT", "UNKNOWN")] * 4),
+        ("edge", [_row14("READY", "READY")] * 8 + [_row14("WAIT", "UNKNOWN")] * 2))}
+    _mm = FPA.metrics([_row14("WAIT", "WAIT")])
+
+    def _m(cov=(5, 5, 5), beats="NO", ready="NO", fr=0, p1=False):
+        return {"coverage": dict(zip(("READY", "WAIT", "REJECT"), cov)), "V4_BEATS_BASELINE": beats, "READY_CLASS_VALIDATED": ready,
+                "by_class": {"FALSE_READY": fr}, "P1_TECH_READY": {"met": p1}}
+    _fs = FPA.final_state
+    _fpa14 = {"wilson": FPA.wilson(5, 10) == [0.2366, 0.7634], "newcombe": bool(_nc) and abs(_nc[0] - 0.0524) < 0.002
+              and abs(_nc[1] - 0.3339) < 0.002,
+              "beats": _m14 == {"n0": "UNKNOWN", "b0": "NO", "small": "UNKNOWN", "yes": "YES", "no": "NO", "edge": "NO"}
+              and FPA.wilson(8, 10)[0] == 0.4902,
+              "ready_structural": _mm["READY_CLASS_VALIDATED"] == "NO" and _mm["READY_CLASS_BASIS"].startswith("STRUCTURAL"),
+              "states": [_fs(False, True, True, "PASS", 99, _m(), False), _fs(True, False, True, "PASS", 99, _m(), False),
+                         _fs(True, True, True, "FAIL", 99, _m(), False), _fs(True, True, True, "PASS", 42, _m(), False),
+                         _fs(True, True, True, "PASS", 43, _m(cov=(4, 30, 9)), False),
+                         _fs(True, True, True, "LIVE_PENDING", 43, _m(beats="YES", ready="YES"), False),
+                         _fs(True, True, True, "PASS", 43, _m(beats="YES", ready="YES"), True),
+                         _fs(True, True, True, "PASS", 43, _m(p1=True), False), _fs(True, True, True, "PASS", 43, _m(p1=True, fr=1), False),
+                         _fs(True, True, True, "PASS", 43, _m(), False)]
+              == ["VALIDATION_BLOCKED", "VALIDATION_BLOCKED", "VALIDATION_BLOCKED", "INSUFFICIENT_SAMPLE", "INSUFFICIENT_SAMPLE",
+                  "VALIDATED", "PARTIALLY_VALIDATED", "PARTIALLY_VALIDATED", "NOT_VALIDATED", "NOT_VALIDATED"],
+              "bands": [FPA.band(n) for n in (0, 9, 10, 24, 25, 42, 43)] == ["VERY_PRELIMINARY", "VERY_PRELIMINARY", "PRELIMINARY", "PRELIMINARY",
+                                                                          "MEANINGFUL", "MEANINGFUL", "MINIMUM_TARGET_REACHED"]}
+    _fpa14ok, _fpa14w = all(_fpa14.values()), str({k: v for k, v in _fpa14.items() if not v}) + f" · {_m14} · {_nc}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa14ok, _fpa14w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA14 المقاييس والحالةُ النهائيّة: ويلسون ونيوكومب (56/70 مقابل 48/80 = [0.0524 · 0.3339]) · V4_BEATS_BASELINE (N=0 · b=0 · b+c دون 10 · "
+      "حدُّ ويلسون فوق 0.5 — و8 مقابل 2 حدُّه 0.4902 ⟵ NO) · READY بنيويًّا NO · الأسبقيّة BLOCKED ⟵ INSUFFICIENT ⟵ VALIDATED ⟵ PARTIAL ⟵ NOT · والأشرطة", _fpa14ok, _fpa14w)
+
+# FPA15 كتلةُ الإخراج (§⑲): المفاتيحُ الواحدُ والعشرون بترتيب المالك · وقيمُها من مجالاتها · والاتّساق (VALID = تطابق ‏+ عدمُه ‏+ UNKNOWN فيصل ‏+
+#      UNRESOLVED · المستبعدُ = مجموعُ أسبابه) · والحالةُ وفق قواعدها · وCORPUS_AUDIT من جرد EX
+try:
+    _st15 = _fpa_st or FPA.build()
+    _o15 = _st15["output"]
+    _l15 = FPA.output_block(_st15)
+    _fpa15 = {"order": [x.split(" = ")[0] for x in _l15[:21]] == list(FPA.OUTPUT_KEYS) and list(_o15) == list(FPA.OUTPUT_KEYS),
+              "domains": _o15["V4_FROZEN"] in ("YES", "NO") and _o15["METHODOLOGY_CHANGED"] in ("YES", "NO")
+              and _o15["LOOKAHEAD"] in ("PASS", "FAIL") and _o15["PROVENANCE"] in ("PASS", "FAIL")
+              and _o15["V4_BEATS_BASELINE"] in ("YES", "NO", "UNKNOWN") and _o15["READY_CLASS_VALIDATED"] in ("YES", "NO", "UNKNOWN")
+              and _o15["FINAL_VALIDATION_STATE"] in FPA.FINAL_STATES and _o15["CURRENT_STATUS"] == FPA.band(_o15["VALID_PROSPECTIVE_CASES"]),
+              "sum": _o15["VALID_PROSPECTIVE_CASES"] == _o15["MATCHES"] + _o15["MISMATCHES"] + _o15["FAISAL_UNKNOWN"]
+              + _st15["metrics"]["UNRESOLVED"] and _o15["EXCLUDED_CASES"] == sum(_st15["supplementary"]["EXCLUDED_BREAKDOWN"].values()),
+              "corpus": _o15["CORPUS_AUDIT"] == "COMPLETE" and _o15["V4_COMMIT"] == "7c8826c25e745668d33facabb2efbc488e997fb7",
+              "secondary": any(x["CASE_ID"] == "CASE_0001" and x["MATCH_CLASS"] == "MATCH" for x in _st15["supplementary"]["SECONDARY_TRACKED"])}
+    _fpa15ok, _fpa15w = all(_fpa15.values()), str({k: v for k, v in _fpa15.items() if not v}) + f" · {_o15}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa15ok, _fpa15w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA15 كتلةُ الإخراج: المفاتيحُ الواحدُ والعشرون بترتيب المالك · القيمُ من مجالاتها · VALID = تطابقٌ ‏+ عدمُه ‏+ UNKNOWN ‏+ UNRESOLVED · "
+      "والمستبعدُ = أسبابُه · وCORPUS_AUDIT من جرد EX · وCASE_0001 ثانويٌّ متتبَّع", _fpa15ok, _fpa15w)
+
+# FPA16 الجامع (§⑥ · سلوكيًّا بتلغرامٍ وهميّ): كلُّ صفٍّ meta_v 2 بـforward_type صريح (channel · user · hidden_user · none) · البصمةُ الإدراكيّة
+#      مكتوبةٌ لصورةٍ حقيقيّة وnull صريحٌ لغير المقروءة · صفُّ الطابور UNKNOWN · فجوةُ الحفظ بعد 24 ساعة · قفزةُ رقم التحديث · النبض ·
+#      قبولُ المسار الحيّ · ودمجُ صفّ الحفظ بتوجيه رسالته
+try:
+    from PIL import Image as _fpa_Image
+    import io as _fpa_io
+    _b16 = _fpa_io.BytesIO()
+    _fpa_Image.new("RGB", (40, 30), (200, 10, 10)).save(_b16, "PNG")
+    _PNG16 = _b16.getvalue()
+    _ft16 = {r.get("message_id"): r.get("forward_type") for r in _r1}
+    _null16 = all("dhash256" in r and r["dhash256"] is None and "phash64" in r and r["phash64"] is None
+                  for r in _r1 if r.get("status") in ("saved", "dup"))
+    _TCM_BLOBS["PNGQ16"] = _PNG16
+    _TCM_BLOBS["PEND16"] = b"TCM-PENDING"
+    _td16 = _tcm_tf.mkdtemp()
+    try:
+        with open(_os_hc.path.join(_td16, "s.json"), "w", encoding="utf-8") as _fh:
+            _tcm_json.dump({"offset": 0, "pending": {"PEND16": {"name": "TG_77.jpg", "msg": 77, "tries": 1}}}, _fh)
+        with open(_os_hc.path.join(_td16, "meta.jsonl"), "w", encoding="utf-8") as _fh:
+            _fh.write(_tcm_json.dumps({"collected_utc": "2026-10-01T00:00:00Z", "status": "saved"}) + "\n")
+        _c16, _s16, _r16, _ = _tcm_run(_td16, [{"update_id": 30, "message": {
+            "message_id": 300, "date": 1791370000, "chat": _TCM_ADM,
+            "photo": [{"file_id": "PNGQ16", "file_unique_id": "UP16", "width": 40, "height": 30, "file_size": 9}]}}])
+        _real16 = [r for r in _r16 if r.get("message_id") == 300]
+        _fpcb = FPA._fingerprint(_os_hc.path.join(_td16, "img", "TG_300.jpg")) if _real16 else {}
+        _pend16 = [r for r in _r16 if r.get("status") == "saved_from_pending"]
+        _gap16 = [r for r in _r16 if r.get("gap") == "RETENTION_WINDOW_EXCEEDED"]
+    finally:
+        _TCM_BLOBS.pop("PNGQ16", None)
+        _TCM_BLOBS.pop("PEND16", None)
+    _fpa16 = {"meta_v": all(r.get("meta_v") == 2 for r in _r1),
+              "forward_type": _ft16 == {100: "channel", 101: "user", 102: "hidden_user", 103: "none", 104: "none", 105: "none"},
+              "null_fake": _null16,
+              "real_hash": bool(_real16) and _real16[0].get("dhash256") == _fpcb.get("dhash256")
+              and _real16[0].get("phash64") == _fpcb.get("phash64") and bool(_fpcb.get("phash64")),
+              "pending_unknown": bool(_pend16) and _pend16[0].get("forward_type") == "UNKNOWN",
+              "retention": len(_gap16) == 1 and _gap16[0].get("from_utc") == "2026-10-01T00:00:00Z",
+              "pure": TC.retention_gap("2026-10-01T00:00:00Z", "2026-10-02T00:00:00Z") is None
+              and TC.retention_gap("2026-10-01T00:00:00Z", "2026-10-02T00:00:01Z") is not None
+              and TC.heartbeat_due("2026-10-01T00:00:00Z", "2026-10-01T12:00:01Z")
+              and not TC.heartbeat_due("2026-10-01T00:00:00Z", "2026-10-01T11:59:59Z") and not TC.heartbeat_due(None, "2026-10-01T12:00:01Z")
+              and [g["missing"] for g in TC.update_id_gaps(9, [10, 11, 15], "t")] == [3]
+              and [g["missing"] for g in TC.update_id_gaps(None, [10, 15], "t")] == [4] and TC.update_id_gaps(None, [10, 11], "t") == []
+              and [g["missing"] for g in TC.update_id_gaps(5, [7], "t")] == [1] and TC.update_id_gaps(5, [6, 7], "t") == []}
+    _row16 = {"message_id": 1, "date": "d", "collected_utc": "c", "run_id": "r", "sha256": "s", "dhash256": "d1", "phash64": "p1",
+              "forward_type": "none"}
+    _fp16 = {"sha256": "s", "dhash256": "d1", "phash64": "p1"}
+    _fpa16["accept"] = (FPA.collector_row_ok(_row16, _fp16)[0]
+                        and not FPA.collector_row_ok({k: v for k, v in _row16.items() if k != "forward_type"}, _fp16)[0]
+                        and not FPA.collector_row_ok(dict(_row16, dhash256=None), _fp16)[0]
+                        and FPA.collector_row_ok(dict(_row16, dhash256=None, phash64=None), {"sha256": "s"})[0]
+                        and not FPA.collector_row_ok(dict(_row16, phash64="zz"), _fp16)[0]
+                        and not FPA.collector_row_ok({k: v for k, v in _row16.items() if k != "phash64"}, _fp16)[0])
+    _td16b = _tcm_tf.mkdtemp()
+    with open(_os_hc.path.join(_td16b, "TG_9.jpg"), "wb") as _fh:
+        _fh.write(_PNG16)
+    _sc16 = FPA.intake_scan("B_TEST", images=["TG_9.jpg"], ledger=_fpa_LG.Ledger(root=_os_hc.path.join(_td16b, "pv")), img_dir=_td16b,
+                            meta_rows=[{"message_id": 9, "status": "deferred", "meta_v": 2, "forward_type": "channel",
+                                        "forward": {"type": "channel", "date": "2026-10-15T13:30:00Z"}, "date": "2026-10-15T14:00:00Z"},
+                                       {"message_id": 9, "status": "saved_from_pending", "meta_v": 2, "forward_type": "UNKNOWN",
+                                        "saved_name": "TG_9.jpg", "collected_utc": "2026-10-15T15:00:00Z", "run_id": "5"}])
+    _fpa16["merge"] = (_sc16["items"][0]["collector_row"].get("forward_type") == "channel"
+                       and (_sc16["items"][0]["collector_row"].get("forward") or {}).get("date") == "2026-10-15T13:30:00Z"
+                       and len(_sc16["items"][0]["nearest_corpus"]) == 5)
+    _fpa16ok, _fpa16w = all(_fpa16.values()), str({k: v for k, v in _fpa16.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa16ok, _fpa16w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA16 الجامع (meta_v 2): forward_type صريح لكلّ صفّ · البصمةُ الإدراكيّة عند الجمع (وnull صريحٌ لغير المقروءة) · صفُّ الطابور UNKNOWN · "
+      "فجوةُ الحفظ بعد 24 ساعة وقفزةُ رقم التحديث والنبض · وقبولُ المسار الحيّ · ودمجُ صفّ الحفظ بتوجيه رسالته", _fpa16ok, _fpa16w)
+
+# FPA17 الـworkflows: الجامعُ مجدولٌ كلَّ 4 ساعات (الدقيقة 17) مع اليدويّ · وfaisal_v41.yml يطبع كتلةَ الإخراج في كلّ وضعٍ بلا دفع ·
+#       ودفعُ run وحدَه يعيد حالةَ البروتوكول ويضيف مجلّدها — وFVW1 قائم
+try:
+    _wf17a = _v41_yaml.safe_load(open(_v41_os.path.join(".github", "workflows", "telegram_collect.yml"), encoding="utf-8"))
+    _on17a = _wf17a.get("on") or _wf17a.get(True) or {}
+    _wf17b = _v41_yaml.safe_load(open(_v41_os.path.join(".github", "workflows", "faisal_v41.yml"), encoding="utf-8"))
+    _st17 = (_wf17b.get("jobs") or {}).get("v41", {}).get("steps") or []
+    _stat17 = [s for s in _st17 if "final_protocol.py status" in str(s.get("run", ""))]
+    _push17 = [s for s in _st17 if "git push" in str(s.get("run", ""))]
+    _fpa17 = {"cron": [c.get("cron") for c in (_on17a.get("schedule") or [])] == ["17 */4 * * *"] and "workflow_dispatch" in _on17a,
+              "status_all": len(_stat17) == 1 and _stat17[0].get("if") == "always()" and "git push" not in str(_stat17[0].get("run")),
+              "push": len(_push17) == 1 and "final_protocol.py write" in str(_push17[0].get("run"))
+              and "faisal_method_v41/final_protocol/" in str(_push17[0].get("run"))
+              and str(_push17[0].get("run")).index("final_protocol.py write") < str(_push17[0].get("run")).index("docs_v41.py")}
+    _fpa17ok, _fpa17w = all(_fpa17.values()), str({k: v for k, v in _fpa17.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa17ok, _fpa17w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA17 الـworkflows: الجامعُ `17 */4 * * *` ‏+ يدويّ · وكتلةُ الإخراج في كلّ وضعٍ (always · بلا دفع) · ودفعُ run يعيد حالةَ البروتوكول قبل الوثائق",
+      _fpa17ok, _fpa17w)
+
+# FPA18 الختمُ والكشف (§⑧ · §⑩): لا ختمَ لدفعةٍ ناقصةِ العين · NEW_PROSPECTIVE ⟵ حالةٌ بكتلة protocol (المصدريّة · المُدخَل الأعمى وبصمته · الحقبة) ·
+#       تاريخٌ يخالف طابعَ المنشور ⟵ رفض · الرمزُ والتاريخُ مكرَّرين ⟵ DUPLICATE · ورسمُ التطوير ⟵ CONTAMINATED · وقبل النافذة ⟵ PRE_EXISTING ·
+#       والكشفُ يرفض اقتباسًا معادَ الصياغة وصنفًا ومكوّنًا وسببًا خارج القوائم · ولا كشفَ قبل V4
+try:
+    _ep18 = _fpa_ep()[1]
+    _dev18 = sorted(FPA.dev_units()[0], key=lambda u: u[2])[-1]
+
+    def _it18(iid, sha):
+        return {"image_id": iid, "file": f"faisal_images/{iid}.jpg", "fingerprint": {"sha256": sha, "dhash256": "0" * 64, "phash64": "0" * 16},
+                "collector_row": {"message_id": 1, "date": "2026-10-15T14:00:00Z", "collected_utc": "2026-10-15T15:00:00Z", "run_id": "1",
+                                  "meta_v": 2, "forward_type": "channel", "forward": {"type": "channel", "date": "2026-10-15T13:30:00Z"},
+                                  "sha256": sha, "dhash256": "0" * 64, "phash64": "0" * 16},
+                "C1": [], "C2": [], "nearest_corpus": []}
+    _an18 = {"author": "F", "faisal_author": True, "has_decision_statement": True, "symbol": "QQQQ", "timeframe": "D",
+             "decision_date": "2026-10-15", "layer": "1"}
+    _scan18 = {"batch_id": "B_T", "items": [_it18("TG_1", "1" * 64), _it18("TG_2", "2" * 64), _it18("TG_3", "3" * 64),
+                                            _it18("TG_4", "4" * 64), _it18("TG_5", "5" * 64)]}
+    _anns18 = {"TG_1": _an18, "TG_2": dict(_an18), "TG_3": dict(_an18, symbol=_dev18[0], decision_date=FPA.RN.next_trading_day(_dev18[2])),
+               "TG_4": dict(_an18, symbol="ZZZZ", decision_date="2026-10-01"), "TG_5": dict(_an18, faisal_author=False, author="THIRD")}
+    try:
+        FPA.plan_intake(_scan18, {"TG_1": _an18}, 0, _ep18)
+        _miss18 = False
+    except FPA.LG.SchemaError:
+        _miss18 = True
+    _cands18, _cases18 = FPA.plan_intake(_scan18, _anns18, 0, _ep18)
+    _k18 = {c["image_id"]: c["class7"] for c in _cands18}
+    _p18 = (_cases18[0].get("protocol") or {}) if _cases18 else {}
+    try:
+        FPA.plan_intake({"batch_id": "B_T", "items": [_it18("TG_1", "1" * 64)]}, {"TG_1": dict(_an18, decision_date="2026-10-14")}, 0, _ep18)
+        _date18 = False
+    except FPA.LG.SchemaError:
+        _date18 = True
+    _td18 = _v41_tmp.mkdtemp(prefix="fpa18_")
+    _rv = []
+    try:
+        _lg18, _, _, _ = _fpa_flow(_td18, label=None)
+        for _bad in ({"label": "READY", "quote": "ادخل الآن", "evidence_class": "DIRECT", "evidence_quote": "ادخلوا"},
+                     {"label": "READY", "quote": "q", "evidence_class": "GUESS", "evidence_quote": "q"},
+                     {"label": "READY", "quote": "q", "evidence_class": "DIRECT", "evidence_quote": "q", "components_f": {"ENTRY": ["x"]}},
+                     {"label": "READY", "quote": "q", "evidence_class": "DIRECT", "evidence_quote": "q", "false_ready_cause": "BAD_LUCK"}):
+            try:
+                FPA.reveal("CASE_0001", _bad, "2026-10-16T01:00:00Z", ledger=_lg18)
+                _rv.append(False)
+            except FPA.LG.SchemaError:
+                _rv.append(True)
+        _ok18 = FPA.reveal("CASE_0001", {"label": "WATCH", "quote": "مراقبه مبكره", "evidence_class": "DIRECT", "evidence_quote": "مراقبه مبكره",
+                                         "components_f": {"ENTRY": "NONE"}}, "2026-10-16T01:00:00Z", ledger=_lg18)
+        _rv.append(_lg18.read(_ok18["path"]).get("protocol_reveal") == FPA.FP_VERSION)
+        _lg18b = FPA.LG.Ledger(root=_v41_os.path.join(_td18, "pv2"))
+        _lg18b.seal_case(_v41_case(), "2026-10-15T20:00:00Z")
+        try:
+            FPA.reveal("CASE_0001", {"label": "WAIT", "quote": "q", "evidence_class": "DIRECT", "evidence_quote": "q"}, "t", ledger=_lg18b)
+            _rv.append(False)
+        except FPA.LG.DecisionFreezeError:
+            _rv.append(True)
+    finally:
+        _v41_sh.rmtree(_td18, ignore_errors=True)
+    _fpa18 = {"missing_eye": _miss18, "date_vs_post": _date18,
+              "classes": _k18 == {"TG_1": "NEW_PROSPECTIVE", "TG_2": "DUPLICATE", "TG_3": "CONTAMINATED", "TG_4": "PRE_EXISTING",
+                                  "TG_5": "INSUFFICIENT_CONTEXT"},
+              "case": len(_cases18) == 1 and _cases18[0]["case_id"] == "CASE_0001" and _p18.get("input_hash") == FPA.sha(_p18.get("blind_input"))
+              and _p18.get("blind_input") == {"symbol": "QQQQ", "decision_date": "2026-10-15", "timeframe": "1D"}
+              and _p18["provenance"]["fields"]["PROVENANCE_CONFIDENCE"] == "HIGH"
+              and _p18["v4_freeze"]["DATA_PIPELINE_VERSION"] == _ep18["DATA_PIPELINE_VERSION"],
+              "reveal": _rv == [True, True, True, True, True, True]}
+    _fpa18ok, _fpa18w = all(_fpa18.values()), str({k: v for k, v in _fpa18.items() if not v}) + f" · {_k18} · {_rv}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa18ok, _fpa18w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA18 الختمُ والكشف: لا ختمَ بلا عين · NEW_PROSPECTIVE ⟵ حالةٌ بكتلة protocol (HIGH · المُدخَل الأعمى وبصمتُه · خطُّ الحقبة) · تاريخٌ يخالف "
+      "الطابعَ ⟵ رفض · المكرَّر/التطوير/قبل النافذة/غيرُ فيصل كلٌّ بصنفه · والكشفُ يرفض المعادَ صياغتُه وما خارج القوائم ولا يسبق V4",
+      _fpa18ok, _fpa18w)
+
+# FPA19 العزل (AST): الأداةُ بلا شبكةٍ ولا تلغرام · والكتابةُ في `write` و`main` و`seal_batch` وحدَها · وsubprocess لـgit وحدَه ·
+#       والمشغّلُ يستورد الأداةَ داخل الحارس وحدَه (لا دورة استيراد)
+try:
+    _t19 = _v41_ast.parse(open(_v41_os.path.join("faisal_method_v41", "final_protocol.py"), encoding="utf-8").read())
+    _imp19 = ({a.name.split(".")[0] for n in _v41_ast.walk(_t19) if isinstance(n, _v41_ast.Import) for a in n.names}
+              | {n.module.split(".")[0] for n in _v41_ast.walk(_t19) if isinstance(n, _v41_ast.ImportFrom) and n.module})
+
+    def _w19(fn):
+        return [c for c in _v41_ast.walk(fn) if isinstance(c, _v41_ast.Call) and getattr(c.func, "id", None) == "open"
+                and any(isinstance(a, _v41_ast.Constant) and isinstance(a.value, str) and any(m in a.value for m in "wax")
+                        for a in list(c.args[1:]) + [kw.value for kw in c.keywords if kw.arg == "mode"])]
+    _wfn19 = sorted({f.name for f in _t19.body if isinstance(f, _v41_ast.FunctionDef) and _w19(f)})
+    _sub19 = sorted({f.name for f in _t19.body if isinstance(f, _v41_ast.FunctionDef)
+                     and any(isinstance(c, _v41_ast.Attribute) and c.attr == "run" and getattr(c.value, "id", None) == "subprocess"
+                             for c in _v41_ast.walk(f))})
+    _rn19 = _v41_ast.parse(open(_v41_os.path.join("faisal_method_v41", "runner.py"), encoding="utf-8").read())
+    _rn_top = [n for n in _rn19.body if isinstance(n, (_v41_ast.Import, _v41_ast.ImportFrom))
+               and any("final_protocol" in (a.name or "") for a in n.names)]
+    _fpa19 = {"no_net": not ({"requests", "urllib", "http", "socket", "websocket"} & _imp19) and "TELEGRAM" not in open(
+        _v41_os.path.join("faisal_method_v41", "final_protocol.py"), encoding="utf-8").read(),
+              "writers": _wfn19 == ["main", "seal_batch", "write"], "subprocess": _sub19 == ["_git_show"], "no_cycle": not _rn_top}
+    _fpa19ok, _fpa19w = all(_fpa19.values()), f"{_fpa19} · كتّاب={_wfn19} · subprocess={_sub19}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa19ok, _fpa19w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA19 العزل (AST): بلا شبكةٍ ولا تلغرام · الكتابةُ في write/main/seal_batch وحدَها · subprocess لـgit وحدَه · ولا استيرادَ للأداة في رأس المشغّل",
+      _fpa19ok, _fpa19w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

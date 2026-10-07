@@ -5,6 +5,8 @@ name: "🧊 FAISAL METHOD V4.1 — التحقّقُ الأماميّ (verify · 
 # الأوضاع: verify (التجميد ‏+ السجلّ ‏+ ختمُ الاحتجاز · بلا شبكة) · smoke (رمزٌ وتاريخ ⟵ الجدارُ وقرارُ V4 مطبوعان · لا كتابة ·
 #          ليست حالةَ تحقّق) · run (الحالاتُ المختومة بلا قرار V4 ⟵ قرارٌ مختومٌ ودفعُ السجلّ — الوحيدُ الذي يكتب) · replay (الإعادةُ من اللقطات).
 # 🔒 جدارُ الإنتاج: لا كرون · لا تلغرام · لا أسرار · لا حالةَ إنتاج — والدفعُ في run وحدَه ولمجلّد السجلّ وحدَه.
+# 🧊 FINAL PROTOCOL (`FINAL_PROTOCOL_prereg.md`): كتلةُ الإخراج تُطبع في كلّ وضع · وrun يرفض تشغيلَ V4 حين VALIDATION_BLOCKED (رمز 9)
+#    ويُعيد حالةَ البروتوكول مع القيد.
 # 📺 الشموعُ من TradingView عبر مسار V4 المجمَّد (v4_run.resolve) — **بلا `BARS_SOURCE`** (قفلُ TVB9).
 permissions:
   contents: write
@@ -57,6 +59,10 @@ jobs:
           V41_ASOF: ${{ inputs.asof }}
         run: python faisal_method_v41/runner.py
 
+      - name: 📋 FINAL PROSPECTIVE VALIDATION PROTOCOL — كتلةُ الإخراج (كلَّ وضع)
+        if: always()
+        run: python faisal_method_v41/final_protocol.py status
+
       - name: 📒 دفعُ السجلّ الإلحاقيّ (run وحدَه)
         if: inputs.mode == 'run'
         run: |
@@ -64,8 +70,10 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           # التحليلُ والوثائقُ تُعاد مع القيد نفسِه — وإلّا صار المدفوعُ بائتًا وأحمرَ FVD1 على main
           python faisal_method_v41/analysis.py
+          python faisal_method_v41/final_protocol.py write
           python faisal_method_v41/docs_v41.py
-          git add faisal_method_v41/prospective_validation/ faisal_method_v41/results/analysis_v41.json faisal_method_v41/docs/
+          git add faisal_method_v41/prospective_validation/ faisal_method_v41/results/analysis_v41.json faisal_method_v41/docs/ \
+                  faisal_method_v41/final_protocol/
           if git diff --cached --quiet; then
             echo "لا قيدَ جديد — لا commit"; exit 0
           fi
