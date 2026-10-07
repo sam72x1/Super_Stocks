@@ -80882,6 +80882,65 @@ except Exception as _e:                                                    # noq
 check("🧾 TCM6 الجامع: `_store(info=)` يملأ البصمةَ والاسمَ **المحفوظ فعلًا** (بعد تفادي التصادم) أو المطابَق · والإرجاعُ بت-بت",
       _tgm6ok, _tgm6w)
 
+# 🧾 TCM7 الجامع: غيرُ المشرف يُكتب له مصدرُ التوجيه **بلا هويّة** (‏2026-10-07 · دفعةُ الـ48 وُسمت كلُّها «من غير المشرف» فحُجب توجيهُها
+#    وضاع تاريخُ المنشور الأصليّ — عطلٌ مُثبَت): القناةُ العامّة ⟵ النوعُ والتاريخُ وعنوانُها ومعرّفُها ورقمُ المنشور والتوقيع · القناةُ الخاصّة
+#    والمجموعةُ والمستخدمُ ⟵ النوعُ والتاريخُ وحدَهما · المخفيّ ⟵ وسمُه · والتعليقُ والنصُّ والروابطُ محجوبةٌ كما هي · و`from_recipient`
+#    يفرّق مستلمَ التقرير عن غيره بلا معرّف · والمشرفُ بسجلّه الكامل كما هو · وتمريرُ المشرف نصًّا (التوقيعُ القديم) بت-بت.
+try:
+    _rc7 = TC.recipient_ids("9911101،5550173")
+    _oth7 = {"id": 5550173, "type": "private", "first_name": "FriendFirstQ"}
+    _str7 = {"id": 4440001, "type": "private", "first_name": "StrangerQ"}
+
+    def _m7(chat, fo, cap=None):
+        _msg7 = {"message_id": 1, "date": 1791370000, "chat": chat, "forward_origin": fo,
+                 "caption_entities": [{"type": "text_link", "url": "https://private.example/q"}],
+                 "photo": [{"file_id": "P", "file_unique_id": "UP", "width": 1, "height": 1}]}
+        if cap:
+            _msg7["caption"] = cap
+        return TC.msg_meta({"update_id": 1}, _msg7, "saved", {"kind": "photo", "file_id": "P"}, _rc7)
+    _pub7 = _m7(_oth7, {"type": "channel", "date": 1791300000, "message_id": 7781, "author_signature": "Faisal",
+                        "chat": {"id": -1007770001, "title": "قناة فيصل", "username": "kisar_ch", "type": "channel"}},
+                cap="PRIVATE CAP Q")
+    _prv7 = _m7(_oth7, {"type": "channel", "date": 1791300000, "message_id": 5, "author_signature": "SigPrivQ",
+                        "chat": {"id": -1009990003, "title": "PrivChanQ", "type": "channel"}})
+    _usr7 = _m7(_str7, {"type": "user", "date": 1791200000,
+                        "sender_user": {"id": 1234567, "first_name": "UserFirstQ", "username": "userhandleq"}})
+    _hid7 = _m7(_str7, {"type": "hidden_user", "date": 1791100000, "sender_user_name": "HiddenNameQ"})
+    _grp7 = _m7(_str7, {"type": "chat", "date": 1791000000,
+                        "sender_chat": {"id": -1009990004, "title": "GroupTitleQ", "type": "supergroup"}})
+    _adm7 = TC.msg_meta({"update_id": 2}, {"message_id": 2, "date": 1791370000, "chat": {"id": 9911101, "type": "private"},
+                                           "forward_origin": {"type": "user", "date": 1791200000,
+                                                              "sender_user": {"id": 1, "username": "kisar_"}}},
+                        "no_media", None, _rc7)
+    _all7 = (_pub7, _prv7, _usr7, _hid7, _grp7)
+    _txt7 = _tcm_json.dumps(list(_all7), ensure_ascii=False)
+    _tcm7 = {
+        "public_channel": _pub7.get("forward") == {"type": "channel", "date": "2026-10-06T15:20:00Z", "origin_message_id": 7781,
+                                                   "author_signature": "Faisal", "chat_title": "قناة فيصل",
+                                                   "chat_username": "kisar_ch", "chat_type": "channel"},
+        "private_channel": _prv7.get("forward") == {"type": "channel", "date": "2026-10-06T15:20:00Z"},
+        "user": _usr7.get("forward") == {"type": "user", "date": "2026-10-05T11:33:20Z"},
+        "hidden": _hid7.get("forward") == {"type": "hidden_user", "date": "2026-10-04T07:46:40Z", "hidden": True},
+        "group": _grp7.get("forward") == {"type": "chat", "date": "2026-10-03T04:00:00Z"},
+        "redacted": all(r.get("redacted") is True and r.get("from_admin") is False
+                        and not any(k in r for k in ("caption", "text", "links")) for r in _all7),
+        "recipient": _pub7.get("from_recipient") is True and _usr7.get("from_recipient") is False,
+        "admin_full": _adm7.get("from_admin") is True and (_adm7.get("forward") or {}).get("user_username") == "kisar_"
+        and "from_recipient" not in _adm7 and "redacted" not in _adm7,
+        "string_admin": TC.msg_meta({}, {"chat": {"id": 9911101}}, "x", None, "9911101").get("from_admin") is True
+        and TC.msg_meta({}, {"chat": {"id": 5550173}}, "x", None, "9911101").get("from_recipient") is False,
+        "parser": _rc7 == ["9911101", "5550173"] and TC.admin_id("9911101،5550173") == "9911101",
+        "main_wiring": _by1.get(104, {}).get("from_recipient") is True and "from_recipient" not in _by1.get(100, {}),
+        "privacy": not any(_x in _txt7 for _x in ("5550173", "4440001", "1234567", "1009990003", "1009990004", "PrivChanQ",
+                                                  "GroupTitleQ", "UserFirstQ", "userhandleq", "HiddenNameQ", "StrangerQ",
+                                                  "FriendFirstQ", "PRIVATE CAP", "SigPrivQ", "private.example")),
+    }
+    _tcm7ok, _tcm7w = all(_tcm7.values()), str({k: v for k, v in _tcm7.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _tcm7ok, _tcm7w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 TCM7 الجامع: غيرُ المشرف يُكتب له مصدرُ التوجيه **بلا هويّة** (النوع · تاريخُ المنشور الأصليّ · والقناةُ العامّة وحدَها ببياناتها) "
+      "والتعليقُ محجوب · و`from_recipient` بلا معرّف · والمشرفُ كاملٌ كما هو", _tcm7ok, _tcm7w)
+
 # 🧾 FV43b · BIM1-BIM7 — دفعةُ المالك «48» للتحقّق الأماميّ (‏2026-10-07 · `B48_20261007` · أمرُه «48 NEW FAISAL IMAGES»):
 #    الاستلامُ ⟵ التلوّثُ ⟵ الختمُ في السجلّ الإلحاقيّ **قبل** تشغيل V4 المجمَّد (`faisal_method_v41/batch_intake.py`). الصورُ تقيس V4 ولا
 #    تدرّبه: لا قاعدةَ ولا عتبةَ تتغيّر بها (FV41 يحرس) · وكلُّ رقمٍ في المانيفست والوثيقة مولَّدٌ ويُعاد هنا بلا شبكةٍ ولا tesseract.
