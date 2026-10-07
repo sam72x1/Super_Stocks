@@ -227,6 +227,10 @@ import telegram_collect as _tc_head                               # noqa: E402
 
 _tc_head.REPORT = _os_hc.path.join(
     _rej_tf.gettempdir(), f"_suite_telegram_collect_report.{_SUITE_PID}.md")
+# 🧾 (‏2026-10-07) والعاشرُ بعد العاشر: ملفُّ بيانات رسائل الجامع (`META`) — `_tc_run` يقود `main()` فيُلحق به
+_tcm_meta_const = _tc_head.META
+_tc_head.META = _os_hc.path.join(
+    _rej_tf.gettempdir(), f"_suite_telegram_collect_meta.{_SUITE_PID}.jsonl")
 
 PASS, FAIL = [], []
 
@@ -80655,6 +80659,228 @@ except Exception as _e:                                                    # noq
     _fvd1ok, _fvd1w = False, f"⛔ {type(_e).__name__}: {_e}"
 check("📚 FVD1 إعادةُ التوليد: المصدريّةُ والاحتجازُ والتحليلُ تُعاد فتطابق المدفوع · والوثائقُ الاثنتا عشرة من JSON بايتًا بايتًا · والسجلُّ سليم",
       _fvd1ok, _fvd1w)
+
+# 🧾 TCM1-TCM6 — بياناتُ رسائل الجامع (‏2026-10-07 · دفعةُ الـ48 للتحقّق الأماميّ V4.1): `getUpdates` يُقِرّ ثمّ يحذف ⇒ تاريخُ
+#    الرسالة ومصدرُ توجيهها (تاريخُ المنشور الأصليّ = طابعُ قرار فيصل) ونصُّها **تضيع نهائيًّا** لو لم تُكتب قبل الإقرار.
+#    سلوكيّةٌ بـ`main()` كاملًا على تلغرام وهميّ (صفحاتٌ من 3) · والخصوصيّةُ تُثبَت بغياب كلّ معرّفٍ واسمٍ ونصٍّ خاصّ من الملفّ.
+import tempfile as _tcm_tf                                          # noqa: E402 — `_tf` يُعاد ربطُه لاحقًا في السويّة
+import json as _tcm_json                                            # noqa: E402
+import types as _tcm_types                                          # noqa: E402
+import yaml as _tcm_yaml                                            # noqa: E402
+import hashlib as _tcm_hl                                           # noqa: E402
+_TCM_ADM = {"id": 9911101, "type": "private", "first_name": "OwnerFirstQ", "username": "ownerhandleq"}
+_TCM_OTH = {"id": 5550173, "type": "private", "first_name": "FriendFirstQ"}
+_TCM_FROM = {"id": 8822201, "is_bot": False, "first_name": "OwnerFirstQ", "username": "ownerhandleq"}
+_TCM_UPS = [
+    {"update_id": 10, "message": {
+        "message_id": 100, "date": 1791370000, "chat": _TCM_ADM, "from": _TCM_FROM, "media_group_id": "G1",
+        "caption": "SPRC دعم 4.30",
+        "caption_entities": [{"type": "text_link", "offset": 0, "length": 4, "url": "https://x.com/kisar_/status/1"}],
+        "forward_origin": {"type": "channel", "date": 1791300000, "message_id": 7781, "author_signature": "Faisal",
+                           "chat": {"id": -1007770001, "title": "قناة فيصل", "username": "kisar_ch", "type": "channel"}},
+        "photo": [{"file_id": "a1", "file_unique_id": "ua1", "width": 90, "height": 60, "file_size": 10},
+                  {"file_id": "A1", "file_unique_id": "UA1", "width": 1280, "height": 853, "file_size": 99}]}},
+    {"update_id": 11, "message": {
+        "message_id": 101, "date": 1791370001, "chat": _TCM_ADM, "from": _TCM_FROM, "media_group_id": "G1",
+        "forward_origin": {"type": "user", "date": 1791200000,
+                           "sender_user": {"id": 1234567, "is_bot": False, "first_name": "FaisalFirstQ", "username": "kisar_"}},
+        "document": {"file_id": "D1", "file_unique_id": "UD1", "file_name": "IMG_9999.png", "mime_type": "image/png",
+                     "file_size": 500}}},
+    {"update_id": 12, "message": {
+        "message_id": 102, "date": 1791370002, "chat": _TCM_ADM, "from": _TCM_FROM,
+        "forward_origin": {"type": "hidden_user", "date": 1791100000, "sender_user_name": "HiddenNameQ"},
+        "photo": [{"file_id": "A2", "file_unique_id": "UA2", "width": 800, "height": 600, "file_size": 77}]}},
+    {"update_id": 13, "message": {"message_id": 103, "date": 1791370003, "chat": _TCM_ADM, "from": _TCM_FROM,
+                                  "text": "هذي 48 صورة"}},
+    {"update_id": 14, "message": {
+        "message_id": 104, "date": 1791370004, "chat": _TCM_OTH, "from": {"id": 5550173, "first_name": "FriendFirstQ"},
+        "caption": "PRIVATE FRIEND CAPTION Q",
+        "photo": [{"file_id": "A3", "file_unique_id": "UA3", "width": 10, "height": 10, "file_size": 5}]}},
+    {"update_id": 15, "message": {"message_id": 105, "date": 1791370005, "chat": _TCM_ADM, "from": _TCM_FROM,
+                                  "photo": [{"file_id": "A4", "file_unique_id": "UA4", "width": 1280, "height": 853,
+                                             "file_size": 99}]}},
+]
+_TCM_BLOBS = {"A1": b"TCM-IMG-A", "D1": b"TCM-IMG-D", "A2": b"TCM-IMG-B", "A3": b"TCM-IMG-C", "A4": b"TCM-IMG-A",
+              "A9": b"TCM-IMG-Z"}
+
+
+def _tcm_run(d, ups, meta_path=None):
+    """يقود `TC.main()` على تلغرامٍ وهميّ (صفحاتٌ من 3) في مجلّدٍ مؤقّت ⇒ (نداءاتُ getUpdates، حالة، صفوف، نصّ الملفّ).
+    كلُّ نداء getUpdates يُسجّل **ما في ملفّ البيانات لحظتَها** — لإثبات أن الصفحة كُتبت قبل أن يُقِرّها الطلبُ التالي."""
+    class _R:
+        def __init__(self, js=None, content=None):
+            self._js, self.content, self.status_code = js, content, 200
+
+        def json(self):
+            return self._js
+
+    calls = []
+
+    def _ids_in_meta():
+        try:
+            return {_tcm_json.loads(_l).get("update_id") for _l in open(TC.META, encoding="utf-8") if _l.strip()}
+        except Exception:                                                  # noqa: BLE001
+            return set()
+
+    def _get(url, **kw):
+        _p = kw.get("params", {})
+        if "getUpdates" in url:
+            _off = int(_p.get("offset") or 0)
+            calls.append((_off, _ids_in_meta()))
+            return _R({"ok": True, "result": [u for u in ups if u["update_id"] >= _off][:3]})
+        if "getFile" in url:
+            return _R({"ok": True, "result": {"file_path": "x/" + _p["file_id"]}})
+        return _R(content=_TCM_BLOBS[url.rsplit("/", 1)[1]])
+
+    _sv = (TC.STATE, TC.OUT_DIR, TC.META, TC.REPORT, TC.requests,
+           {k: _os_hc.environ.get(k) for k in ("TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_ID", "GITHUB_RUN_ID")})
+    try:
+        TC.STATE, TC.OUT_DIR = _os_hc.path.join(d, "s.json"), _os_hc.path.join(d, "img")
+        TC.META = meta_path or _os_hc.path.join(d, "meta.jsonl")
+        TC.REPORT = _os_hc.path.join(d, "r.md")
+        TC.requests = _tcm_types.SimpleNamespace(get=_get)
+        _os_hc.environ.update({"TELEGRAM_BOT_TOKEN": "T", "TELEGRAM_CHAT_ID": "9911101،5550173",
+                               "GITHUB_RUN_ID": "4242"})
+        TC.main()
+        _st = _tcm_json.load(open(TC.STATE, encoding="utf-8"))
+        try:
+            _txt = open(TC.META, encoding="utf-8").read()
+        except Exception:                                                  # noqa: BLE001
+            _txt = ""
+        _rows = [_tcm_json.loads(_l) for _l in _txt.splitlines() if _l.strip()]
+        return calls, _st, _rows, _txt
+    finally:
+        TC.STATE, TC.OUT_DIR, TC.META, TC.REPORT, TC.requests = _sv[:5]
+        for _k, _v in _sv[5].items():
+            if _v is None:
+                _os_hc.environ.pop(_k, None)
+            else:
+                _os_hc.environ[_k] = _v
+
+
+try:
+    _tcm_d = _tcm_tf.mkdtemp()
+    _c1, _s1, _r1, _t1 = _tcm_run(_tcm_d, _TCM_UPS)
+    _by1 = {r.get("message_id"): r for r in _r1}
+    _f100 = _by1.get(100, {}).get("forward") or {}
+    _f101 = _by1.get(101, {}).get("forward") or {}
+    _f102 = _by1.get(102, {}).get("forward") or {}
+    _saved_sha = _tcm_hl.sha256(
+        open(_os_hc.path.join(_tcm_d, "img", "TG_100.jpg"), "rb").read()).hexdigest()
+    _tgm1 = {
+        "statuses": [r.get("status") for r in _r1] == ["saved", "saved", "saved", "no_media", "saved", "dup"],
+        "write_before_ack": [o for o, _ in _c1] == [0, 13, 16]
+        and all({u for u in range(10, o)} <= ids for o, ids in _c1 if o),
+        "send_date": _by1.get(100, {}).get("date") == "2026-10-07T10:46:40Z",
+        "channel": _f100 == {"type": "channel", "date": "2026-10-06T15:20:00Z", "origin_message_id": 7781,
+                             "author_signature": "Faisal", "chat_title": "قناة فيصل", "chat_username": "kisar_ch",
+                             "chat_type": "channel"},
+        "caption_links_album": _by1.get(100, {}).get("caption") == "SPRC دعم 4.30"
+        and _by1.get(100, {}).get("links") == ["https://x.com/kisar_/status/1"]
+        and _by1.get(100, {}).get("media_group_id") == "G1",
+        "chosen_size": _by1.get(100, {}).get("file") == {"file_unique_id": "UA1", "width": 1280, "height": 853,
+                                                        "file_size": 99},
+        "saved_sha": _by1.get(100, {}).get("saved_name") == "TG_100.jpg" and _by1.get(100, {}).get("sha256") == _saved_sha,
+        "user": _f101 == {"type": "user", "date": "2026-10-05T11:33:20Z", "user_username": "kisar_",
+                          "user_is_bot": False},
+        "doc": _by1.get(101, {}).get("file") == {"file_unique_id": "UD1", "file_size": 500, "mime": "image/png",
+                                                "orig_name": "IMG_9999.png"},
+        "hidden": _f102 == {"type": "hidden_user", "date": "2026-10-04T07:46:40Z", "hidden": True},
+        "owner_text": _by1.get(103, {}).get("text") == "هذي 48 صورة" and _by1.get(103, {}).get("from_admin") is True,
+        "other_redacted": _by1.get(104, {}).get("redacted") is True and _by1.get(104, {}).get("from_admin") is False
+        and not any(k in _by1.get(104, {}) for k in ("caption", "text", "forward", "links")),
+        "dup_matched": _by1.get(105, {}).get("matched") == "TG_100.jpg" and _by1.get(105, {}).get("sha256") == _saved_sha,
+        "run_id": all(r.get("run_id") == "4242" for r in _r1),
+        "privacy": not any(_x in _t1 for _x in ("9911101", "5550173", "8822201", "1234567", "1007770001", "OwnerFirstQ",
+                                                 "FaisalFirstQ", "HiddenNameQ", "FriendFirstQ", "PRIVATE FRIEND",
+                                                 "ownerhandleq")),
+    }
+    _tgm1ok, _tgm1w = all(_tgm1.values()), str({k: v for k, v in _tgm1.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _tcm_d, _r1, _t1 = None, [], ""
+    _tgm1ok, _tgm1w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 TCM1 الجامع: صفُّ بياناتٍ لكلّ رسالة **قبل** إقرار صفحتها (تاريخُ الإرسال · تاريخُ المنشور الأصليّ ومصدرُه · التعليقُ "
+      "والروابط · المقاسُ المختار · البصمة · المطابَق) — بلا أيّ معرّفٍ رقميّ ولا اسمٍ ولا نصِّ مستلمٍ آخر",
+      _tgm1ok, _tgm1w)
+
+try:
+    _c2, _s2, _r2, _t2 = _tcm_run(_tcm_d, [{"update_id": 16, "message": {
+        "message_id": 106, "date": 1791370006, "chat": _TCM_ADM,
+        "photo": [{"file_id": "A9", "file_unique_id": "UA9", "width": 5, "height": 5, "file_size": 1}]}}])
+    _tgm2ok = (len(_r1) == 6 and len(_r2) == 7 and _t2.startswith(_t1)
+               and _r2[-1].get("status") == "saved" and _r2[-1].get("message_id") == 106)
+    _tgm2w = f"قبل={len(_r1)} بعد={len(_r2)} بادئة={_t2.startswith(_t1) if _t1 else None}"
+except Exception as _e:                                                    # noqa: BLE001
+    _tgm2ok, _tgm2w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 TCM2 الجامع: ملفُّ بيانات الرسائل **إلحاقيّ** — التشغيلُ الثاني يُضيف ولا يُعيد كتابةَ ما قبله (البادئةُ بايتًا بايتًا)",
+      _tgm2ok, _tgm2w)
+
+try:
+    _tcm_d3 = _tcm_tf.mkdtemp()
+    _os_hc.makedirs(_os_hc.path.join(_tcm_d3, "meta_is_a_dir"))
+    _c3, _s3, _r3, _t3 = _tcm_run(_tcm_d3, _TCM_UPS, meta_path=_os_hc.path.join(_tcm_d3, "meta_is_a_dir"))
+    _rep3 = open(_os_hc.path.join(_tcm_d3, "r.md"), encoding="utf-8").read()
+    _tgm3ok = [o for o, _ in _c3] == [0] and int(_s3.get("offset") or 0) == 0 and "تعذّرت كتابةُ صفحةٍ" in _rep3
+    _tgm3w = f"نداءات={[o for o, _ in _c3]} الإزاحة={_s3.get('offset')}"
+except Exception as _e:                                                    # noqa: BLE001
+    _tgm3ok, _tgm3w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 TCM3 الجامع: تعذّرُ كتابة البيانات **يُغلق**: لا طلبَ صفحةٍ تالية (يُقِرّ) ولا تقدّمَ للإزاحة · ويُعلَن في التقرير",
+      _tgm3ok, _tgm3w)
+
+try:
+    _wf4 = _tcm_yaml.safe_load(open(".github/workflows/telegram_collect.yml", encoding="utf-8"))
+    _st4 = (_wf4.get("jobs") or {}).get("collect", {}).get("steps") or []
+    _pull4 = [s for s in _st4 if "telegram_collect.py" in str(s.get("run", ""))]
+    _art4 = [s for s in _st4 if "upload-artifact" in str(s.get("uses", ""))]
+    _com4 = [s for s in _st4 if "git push" in str(s.get("run", ""))]
+    _run4 = str(_com4[0].get("run", "")) if _com4 else ""
+    _main_add4 = _run4.split("2>/dev/null || true")[0] if "2>/dev/null || true" in _run4 else ""
+    _tgm4 = {"const": _tcm_meta_const == "telegram_collect_meta.jsonl",
+             "admin_env": len(_pull4) == 1 and "secrets.TELEGRAM_CHAT_ID" in str((_pull4[0].get("env") or {}).get("TELEGRAM_CHAT_ID")),
+             "artifact": len(_art4) == 1 and "telegram_collect_meta.jsonl" in str((_art4[0].get("with") or {}).get("path")),
+             "separate_add": "if [ -f telegram_collect_meta.jsonl ]; then" in _run4
+             and "git add -f telegram_collect_meta.jsonl" in _run4
+             and "telegram_collect_meta.jsonl" not in _main_add4 and "faisal_images/" in _main_add4}
+    _tgm4ok, _tgm4w = all(_tgm4.values()), str(_tgm4)
+except Exception as _e:                                                    # noqa: BLE001
+    _tgm4ok, _tgm4w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 TCM4 telegram_collect.yml: المشرفُ يُمرَّر للجامع · البياناتُ في النسخة الاحتياطيّة · وتُضاف للدفع **ببندٍ مستقلّ** "
+      "(مسارٌ غائبٌ في `git add` الأوّل يُسقطه كلَّه فلا تُدفَع الصور)",
+      _tgm4ok, _tgm4w)
+
+try:
+    _sv5 = S.TELEGRAM_CHAT
+    _cases5 = ["111,222", " 111 ;222", "111،222", "111؛222", "\n111\n222", "111 222", "", "  ", "111"]
+    _par5 = []
+    for _raw5 in _cases5:
+        S.TELEGRAM_CHAT = _raw5.strip()
+        _par5.append((TC.admin_id(_raw5), (S._chat_recipients()[:1] or [None])[0]))
+    S.TELEGRAM_CHAT = _sv5
+    _tgm5ok = all(a == b for a, b in _par5) and _par5[2][0] == "111" and _par5[6][0] is None
+    _tgm5w = str(_par5)
+except Exception as _e:                                                    # noqa: BLE001
+    _tgm5ok, _tgm5w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 TCM5 الجامع: «المشرف» = أوّلُ رقمٍ بقواعد مُحلِّل البوت نفسِها (الفاصلة العربيّة · المنقوطة · السطر · المسافة) — بلا استيراده",
+      _tgm5ok, _tgm5w)
+
+try:
+    _d6 = _tcm_tf.mkdtemp()
+    _svo6 = TC.OUT_DIR
+    TC.OUT_DIR = _d6
+    _i6a, _i6b, _i6c, _sh6 = {}, {}, {}, {}
+    _o6 = (TC._store(b"TCM6-X", "x.jpg", _sh6, {}, None, _i6a), TC._store(b"TCM6-Y", "x.jpg", _sh6, {}, None, _i6b),
+           TC._store(b"TCM6-X", "y.jpg", _sh6, {}, [], _i6c), TC._store(b"TCM6-Z", "z.jpg", set(), {}))
+    TC.OUT_DIR = _svo6
+    _h6 = _tcm_hl.sha256
+    _tgm6ok = (_o6 == ("saved", "saved", "dup", "saved") and _i6a == {"sha256": _h6(b"TCM6-X").hexdigest(), "saved_name": "x.jpg"}
+               and _i6b.get("saved_name") == "x_1.jpg"
+               and _i6c == {"sha256": _h6(b"TCM6-X").hexdigest(), "matched": "x.jpg"})
+    _tgm6w = f"{_o6} {_i6a} {_i6b} {_i6c}"
+except Exception as _e:                                                    # noqa: BLE001
+    TC.OUT_DIR = "faisal_images"
+    _tgm6ok, _tgm6w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 TCM6 الجامع: `_store(info=)` يملأ البصمةَ والاسمَ **المحفوظ فعلًا** (بعد تفادي التصادم) أو المطابَق · والإرجاعُ بت-بت",
+      _tgm6ok, _tgm6w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

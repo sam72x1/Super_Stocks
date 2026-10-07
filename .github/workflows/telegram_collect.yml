@@ -25,6 +25,8 @@ jobs:
       - name: Pull images from the Telegram bot
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          # 🧾 المشرف (أوّلُ رقم) يُقارَن ولا يُكتب: نصُّ الرسائل ومصدرُ توجيهها يُحفظان له وحده
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           TG_MAX_FILES: ${{ github.event.inputs.max_files }}
         run: python telegram_collect.py
       - name: Update the coverage ledger
@@ -39,6 +41,7 @@ jobs:
           path: |
             faisal_images/
             telegram_collect_state.json
+            telegram_collect_meta.jsonl
           retention-days: 7
           if-no-files-found: ignore
       - name: Commit what arrived
@@ -49,6 +52,11 @@ jobs:
           git add -f faisal_images/ FAISAL_IMAGE_AUDIT.md faisal_image_audit.json \
                      telegram_collect_state.json telegram_collect_report.md \
                      2>/dev/null || true
+          # 🧾 تاريخُ كلّ رسالةٍ ومصدرُ توجيهها — يضيعان نهائيًّا بعد الإقرار. بندٌ مستقلّ:
+          #    مسارٌ غائبٌ في `git add` واحدٍ يُسقطه كلَّه (فلا تُدفَع الصورُ أيضًا)
+          if [ -f telegram_collect_meta.jsonl ]; then
+            git add -f telegram_collect_meta.jsonl
+          fi
           if git diff --cached --quiet; then
             echo "لا جديد — لا commit"; exit 0
           fi
