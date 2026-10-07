@@ -46,6 +46,7 @@ STATUS_MD = os.path.join(OUT_DIR, "PROTOCOL_STATUS.md")
 LEDGER_MD = os.path.join(OUT_DIR, "CASE_LEDGER.md")
 FR_MD = os.path.join(OUT_DIR, "FALSE_READY_FORENSICS.md")
 FINAL_MD = os.path.join(OUT_DIR, "FINAL_PROSPECTIVE_VALIDATION_REPORT.md")
+PROSPECTIVE_MD = os.path.join(OUT_DIR, "PROSPECTIVE_STATUS.md")      # STEP 11 (أمرُ «BEGIN REAL PROSPECTIVE VALIDATION»)
 INTAKE_DIR = os.path.join(OUT_DIR, "intake")
 REVEAL_DIR = os.path.join(OUT_DIR, "reveal")
 META_FILE = os.path.join(ROOT, "telegram_collect_meta.jsonl")
@@ -102,6 +103,11 @@ OUTPUT_KEYS = ("V4_FROZEN", "V4_COMMIT", "CORPUS_AUDIT", "VALID_PROSPECTIVE_CASE
                "FALSE_READY", "FALSE_WAIT", "FALSE_REJECT", "FALSE_UNKNOWN", "V4_UNKNOWN", "FAISAL_UNKNOWN", "ALWAYS_WAIT_MATCH",
                "V4_BEATS_BASELINE", "READY_CLASS_VALIDATED", "METHODOLOGY_CHANGED", "LOOKAHEAD", "PROVENANCE",
                "CURRENT_STATUS", "FINAL_VALIDATION_STATE")
+# STEP 11 من أمر المالك «FAISAL V4 — BEGIN REAL PROSPECTIVE VALIDATION» (2026-10-07) — بترتيبه حرفًا
+PROSPECTIVE_KEYS = ("TOTAL_RECEIVED", "NEW_PROSPECTIVE", "DUPLICATES", "DERIVATIVES", "CONTAMINATED", "INSUFFICIENT_CONTEXT",
+                    "VALID_CASES", "MATCHES", "MISMATCHES", "FALSE_READY", "FALSE_WAIT", "FALSE_REJECT", "FALSE_UNKNOWN",
+                    "READY_PRECISION", "READY_RECALL", "WAIT_PRECISION", "WAIT_RECALL", "REJECT_PRECISION", "REJECT_RECALL",
+                    "V4_UNKNOWN", "FAISAL_UNKNOWN", "ALWAYS_WAIT_MATCH", "V4_BEATS_BASELINE", "CURRENT_SAMPLE_STATUS")
 CTX_KEYS = frozenset(("groups", "offering_pending", "operator_press", "short_available"))
 MECH_PREFIX = ("ctb_log:", "live:", "UNAVAILABLE")
 # CASE_0001 قبل العقد: الدليلُ مكتوبٌ في §⑩ — والاقتباسُ يُفحص حرفيًّا مقابل قيد فيصل المختوم
@@ -1444,6 +1450,54 @@ def render_false_ready(st):
     return "\n".join(L) + "\n"
 
 
+def _pr_txt(d, k):
+    """دقّةٌ أو استدعاءٌ بكسره (المقامُ صفرٌ ⟵ «UNDEFINED» لا 0) ‏+ فترةُ ويلسون من 10 فأكثر."""
+    den = d["v4"] if k == "precision" else d["faisal"]
+    w = d.get(k + "_wilson")
+    return f"{d[k]} ({d['tp']}/{den})" + (f" · Wilson95 {w}" if w else "")
+
+
+def prospective_block(st):
+    """STEP 11: المفاتيحُ بترتيب المالك ‏+ ما يوفّق المجموع ويُكمل STEP 9-10 (التطابقُ الإجماليّ · نسبةُ UNKNOWN · التنوّع)."""
+    o, m, s = st["output"], st["metrics"], st["supplementary"]
+    by7, pc = s["INTAKE_BY_CLASS"], m["per_class"]
+    v = {"TOTAL_RECEIVED": len(st["candidates"]), "NEW_PROSPECTIVE": by7["NEW_PROSPECTIVE"], "DUPLICATES": by7["DUPLICATE"],
+         "DERIVATIVES": by7["DERIVATIVE"], "CONTAMINATED": by7["CONTAMINATED"], "INSUFFICIENT_CONTEXT": by7["INSUFFICIENT_CONTEXT"],
+         "VALID_CASES": o["VALID_PROSPECTIVE_CASES"]}
+    for k in ("MATCHES", "MISMATCHES", "FALSE_READY", "FALSE_WAIT", "FALSE_REJECT", "FALSE_UNKNOWN"):
+        v[k] = o[k]
+    for c in ("READY", "WAIT", "REJECT"):
+        v[f"{c}_PRECISION"] = _pr_txt(pc[c], "precision")
+        v[f"{c}_RECALL"] = _pr_txt(pc[c], "recall")
+    for k in ("V4_UNKNOWN", "FAISAL_UNKNOWN", "ALWAYS_WAIT_MATCH", "V4_BEATS_BASELINE"):
+        v[k] = o[k]
+    v["CURRENT_SAMPLE_STATUS"] = f"{o['CURRENT_STATUS']} (N={o['VALID_PROSPECTIVE_CASES']} · الهدفُ الأدنى {N_MIN} — ليس برهانًا بذاته)"
+    dv = st["diversity"]
+    dline = " · ".join(f"{k} {json.dumps(dv['dims'].get(k, {}), ensure_ascii=False, sort_keys=True)}"
+                       for k in ("pattern", "timeframe", "market_regime", "decision"))
+    return [f"{k} = {v[k]}" for k in PROSPECTIVE_KEYS] + [
+        "— — —",
+        f"PRE_EXISTING = {by7['PRE_EXISTING']} · UNKNOWN = {by7['UNKNOWN']} (TOTAL_RECEIVED = مجموعُ الأصناف السبعة)",
+        f"OVERALL_AGREEMENT = {m['exact_rate']} ({m['MATCHES']}/{m['n_comparable']}) · ALWAYS_WAIT = {m['always_wait_rate']}",
+        f"UNKNOWN_RATE = {_ratio(m['V4_UNKNOWN'], m['n_valid'])} (V4_UNKNOWN / VALID_CASES)",
+        f"DIVERSITY = {dline} · LOW_DIVERSITY {'YES' if dv['LOW_DIVERSITY'] else 'NO'}",
+        f"FINAL_VALIDATION_STATE = {o['FINAL_VALIDATION_STATE']}"]
+
+
+def render_prospective(st):
+    """PROSPECTIVE_STATUS.md — يُولَّد بعد كلّ دفعة (STEP 11) مع حالة البروتوكول نفسِها."""
+    sec = st["supplementary"]["SECONDARY_TRACKED"]
+    L = ["# PROSPECTIVE_STATUS — حالةُ التحقّق الأماميّ الحقيقيّ (STEP 11)", "",
+         f"> مولَّدٌ من `faisal_method_v41/final_protocol.py` ({st['tool_version']}) بعد كلّ دفعة · **لا يُحرَّر باليد** · V4 مجمَّد "
+         f"(`{st['epoch']['V4_COMMIT'][:12]}`) · والحلقة: COLLECT ⟵ BLIND V4 ⟵ SEAL ⟵ REVEAL FAISAL ⟵ COMPARE ⟵ RECORD ⟵ REPEAT.", "",
+         "```"] + prospective_block(st) + ["```", "",
+         "- **خارجَ العيّنة الأساسيّة (يُتتبَّع ولا يُحسب):** " + (" · ".join(
+             f"{x['CASE_ID']} {x['SYMBOL']} {x['MATCH_CLASS'] or 'PENDING'} (مصدريّة {x['PROVENANCE_CONFIDENCE']})" for x in sec) or "0"),
+         "- **الدقّةُ والاستدعاء بكسرهما** · «UNDEFINED» حين المقامُ صفر · وفترةُ ويلسون من 10 فأكثر · بلا p.",
+         f"- **{st['supplementary']['STRUCTURAL']}** ⟵ لا يُعلَن نجاحٌ من التطابق الإجماليّ وحدَه.", ""]
+    return "\n".join(L) + "\n"
+
+
 def render_final(st):
     """التقريرُ النهائيّ (PHASE 20) — يُولَّد عند PRIMARY 43 فأكثر وحدَه."""
     o, m = st["output"], st["metrics"]
@@ -1461,7 +1515,8 @@ def render_final(st):
 
 def rendered(st):
     out = {STATUS_JSON: json.dumps(st, ensure_ascii=False, indent=1, sort_keys=True, default=str) + "\n",
-           STATUS_MD: render_status(st), LEDGER_MD: render_case_ledger(st), FR_MD: render_false_ready(st)}
+           STATUS_MD: render_status(st), LEDGER_MD: render_case_ledger(st), FR_MD: render_false_ready(st),
+           PROSPECTIVE_MD: render_prospective(st)}
     if st["output"]["VALID_PROSPECTIVE_CASES"] >= N_MIN:
         out[FINAL_MD] = render_final(st)
     return out
