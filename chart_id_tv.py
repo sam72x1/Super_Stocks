@@ -25,7 +25,11 @@ import tv_data as TV
 FIELDS = ("o", "h", "l", "c")
 TYPES = ("stock", "dr")              # أسهمٌ وإيصالاتُ إيداع — بلا صناديق ولا سندات
 CHUNK = 400                          # رموزٌ لكلّ دفعة جلب (الذاكرةُ لا تحمل الكونَ كلَّه بشموعه)
-TF_SPEC = {"1D": ("1D", False), "1W": ("1W", False), "240e": ("240", True)}
+TF_SPEC = {"1D": ("1D", False), "1W": ("1W", False), "240e": ("240", True), "a30": ("30", True)}
+# «a30» = شموعُ 30 دقيقة ممتدّة تُجمَّع في شموعٍ أكبر بحدودٍ يوميّة (توقيتُ نيويورك) — لأن تطبيقاتٍ تقسم فريمَ الساعات
+#    عند 09:30 لا عند 04/08/12/16 كما TradingView ⟵ الحدودُ فرضيّةٌ تُختبَر بالأرقام لا تُفترَض. «-HH:MM» آخرَ المجموعة = نهايتُها.
+DEFAULT_ANCHORS = ("04:00,08:00,12:00,16:00;04:00,05:30,09:30,13:30,17:30;05:30,09:30,13:30,17:30;"
+                   "04:00,09:30,13:30,16:00;09:30,13:30,-16:00")
 
 
 def log(m: str = "") -> None:
@@ -107,19 +111,68 @@ def context(w: dict, m: int, after: int = 26) -> dict:
             "bars_after_window": len(bars) - (i + m)}
 
 
+def parse_anchors(spec: str) -> list:
+    """«04:00,05:30,09:30;09:30,13:30,-16:00» ⟵ [(البدايات بالدقائق، النهاية)] — والنهايةُ الافتراضيّة 20:00 · وما لا يُقرأ ⟵ ValueError."""
+    out = []
+    for grp in [g.strip() for g in (spec or "").split(";") if g.strip()]:
+        starts, end = [], 20 * 60
+        for t in [x.strip() for x in grp.split(",") if x.strip()]:
+            neg = t.startswith("-")
+            hh, mm = t.lstrip("-").split(":")
+            m = int(hh) * 60 + int(mm)
+            if not (0 <= m <= 24 * 60):
+                raise ValueError(f"وقتٌ خارج اليوم {t}")
+            if neg:
+                end = m
+            else:
+                starts.append(m)
+        starts = sorted(set(starts))
+        if not starts or starts[-1] >= end:
+            raise ValueError(f"مجموعةُ حدودٍ فارغة أو بعد نهايتها {grp!r}")
+        out.append((starts, end))
+    return out
+
+
+def aggregate(bars: list, starts: list, end: int) -> list:
+    """شموعٌ صغيرة (ts بدايتُها) ⟵ شموعٌ أكبر بحدودٍ يوميّة بتوقيت نيويورك: الشمعةُ في المقطع الذي تبدأ فيه (آخرُ حدٍّ لا يتجاوزها) ·
+    وما قبل أوّل حدٍّ أو من النهاية فصاعدًا يُسقَط · الافتتاحُ أوّلُها والإغلاقُ آخرُها والأعلى/الأدنى أقصاهما · وتوقيتُ الناتج بدايةُ مقطعه."""
+    out, key = [], None
+    for b in bars or []:
+        t = TV.ny_time(b[0])
+        m = t.hour * 60 + t.minute
+        if m < starts[0] or m >= end:
+            continue
+        k = max(i for i, a in enumerate(starts) if a <= m)
+        kk = (t.date(), k)
+        if kk != key:
+            seg0 = dt.datetime(t.year, t.month, t.day, starts[k] // 60, starts[k] % 60, tzinfo=TV.NY)
+            out.append([int(seg0.timestamp()), b[1], b[2], b[3], b[4], b[5] if len(b) > 5 else 0.0])
+            key = kk
+        else:
+            r = out[-1]
+            r[2], r[3], r[4] = max(r[2], b[2]), min(r[3], b[3]), b[4]
+            r[5] = (r[5] or 0.0) + (b[5] if len(b) > 5 and b[5] else 0.0)
+    return out
+
+
+def _stamp(ts: int, intraday: bool) -> str:
+    return TV.ny_time(ts).strftime("%m-%d %H:%M") if intraday else TV.ny_day(ts)
+
+
 def print_pair(w: dict, ref: np.ndarray, sym: str, tf: str) -> None:
     """شموعُ النافذة (بمقياس البطاقة) مقابل البطاقة — شمعةً شمعة."""
     m, k, bars = len(ref), w["k"], w["bars"]
     log(f"   ↳ {sym} {tf} · k={k:.4f} · rms={w['rms']:.4f} · أكبرُ باقٍ={w['mx']:.4f}")
+    intra = not tf.startswith(("1D", "1W"))
     for j in range(m):
         b = bars[w["i"] + j]
         mine = " ".join(f"{x / k:7.3f}" for x in b[1:5])
         card = " ".join(f"{x:7.3f}" for x in ref[j])
-        log(f"     {j + 1:>2} {TV.ny_day(b[0])}  المصدر/k o h l c = {mine}   البطاقة = {card}")
-    tail = bars[w["i"] + m:w["i"] + m + 30]
+        log(f"     {j + 1:>2} {_stamp(b[0], intra)}  المصدر/k o h l c = {mine}   البطاقة = {card}")
+    tail = bars[w["i"] + m:w["i"] + m + 40]
     if tail:
-        log("     بعد النافذة (بمقياس البطاقة): " + " · ".join(
-            f"{TV.ny_day(b[0])[5:]} {b[2] / k:.2f}/{b[3] / k:.2f}/{b[4] / k:.2f}" for b in tail))
+        log("     بعد النافذة (بمقياس البطاقة · أعلى/أدنى/إغلاق): " + " · ".join(
+            f"{_stamp(b[0], intra)} {b[2] / k:.3f}/{b[3] / k:.3f}/{b[4] / k:.3f}" for b in tail))
 
 
 def universe():
@@ -132,9 +185,21 @@ def universe():
     return TV.scan(["name", "close"])
 
 
-def search(card: dict, tfs, n_by_tf: dict, top: int, workers: int, symbols=None) -> int:
+def _variants(tf: str, anchors: list) -> list:
+    """فريمٌ ⟵ [(وسم، تحويلُ الشموع)] — العاديُّ كما هو · و«a30» مجموعةٌ لكلّ حدودٍ يوميّة."""
+    if tf != "a30":
+        return [(tf, lambda b: b)]
+    out = []
+    for starts, end in anchors:
+        lab = "a30[" + ",".join(f"{a // 60:02d}:{a % 60:02d}" for a in starts) + f"-{end // 60:02d}:{end % 60:02d}]"
+        out.append((lab, (lambda st, en: (lambda b: aggregate(b, st, en)))(starts, end)))
+    return out
+
+
+def search(card: dict, tfs, n_by_tf: dict, top: int, workers: int, symbols=None, anchors=None) -> int:
     ref = card_ohlc(card)
     m = len(ref)
+    anchors = anchors or parse_anchors(DEFAULT_ANCHORS)
     log(f"🔎 البطاقة {card.get('id')} · {m} شمعة · أعلاها {ref[:, 1].max():.3f} · أدناها {ref[:, 2].min():.3f}")
     uni = universe()
     if uni is None:
@@ -148,7 +213,9 @@ def search(card: dict, tfs, n_by_tf: dict, top: int, workers: int, symbols=None)
     for tf in tfs:
         interval, ext = TF_SPEC[tf]
         n = int(n_by_tf.get(tf) or 1500)
-        found, fetched, failed, empty, short = [], 0, 0, 0, 0
+        vars_ = _variants(tf, anchors)
+        found = {lab: [] for lab, _ in vars_}
+        fetched, failed, empty, short = 0, 0, 0, 0
         for c0 in range(0, len(syms), CHUNK):
             chunk = syms[c0:c0 + CHUNK]
             got = TV.fetch_many(chunk, interval=interval, n=n, extended=ext, workers=workers, retry_pass=True)
@@ -161,35 +228,44 @@ def search(card: dict, tfs, n_by_tf: dict, top: int, workers: int, symbols=None)
                     empty += 1
                     continue
                 fetched += 1
-                ws = best_windows(bars, ref)
-                if not ws:
-                    short += 1
-                for w in ws:
-                    w["sym"] = s
-                    found.append(w)
-            found.sort(key=lambda w: w["rms"])
-            del found[max(200, top):]
-            log(f"   … {tf}: {min(c0 + CHUNK, len(syms))}/{len(syms)} · جُلب {fetched} · تعذّر {failed} · "
-                f"فارغ {empty} · أقصرُ من النافذة {short} · أفضلُ rms حتى الآن "
-                f"{found[0]['rms']:.4f} ({found[0]['sym']})" if found else f"   … {tf}: لا نافذة بعد")
+                for lab, fn in vars_:
+                    ws = best_windows(fn(bars), ref)
+                    if not ws:
+                        short += 1
+                    for w in ws:
+                        w["sym"] = s
+                        found[lab].append(w)
+            for lab in found:
+                found[lab].sort(key=lambda w: w["rms"])
+                del found[lab][max(200, top):]
+            best = min((f[0] for f in found.values() if f), key=lambda w: w["rms"], default=None)
+            log(f"   … {tf}: {min(c0 + CHUNK, len(syms))}/{len(syms)} · جُلب {fetched} · تعذّر {failed} · فارغ {empty} · "
+                + (f"أفضلُ rms حتى الآن {best['rms']:.4f} ({best['sym']})" if best else "لا نافذة بعد"))
         cov = fetched / max(1, len(syms))
-        log(f"\n══ {tf} · التغطية {fetched}/{len(syms)} = {cov:.1%} · تعذّر {failed} · فارغ {empty} ══")
+        log(f"\n══ {tf} · التغطية {fetched}/{len(syms)} = {cov:.1%} · تعذّر {failed} · فارغ {empty} · أقصرُ من النافذة {short} ══")
         if cov < 0.80:
             log("⚠️ التغطيةُ دون 80% — «لا تطابق» هنا لا يُقرأ نفيًا")
             rc = max(rc, 4)
-        log(f"{'#':>3} {'الرمز':<16} {'rms':>7} {'أكبر':>7} {'k':>9}  البداية ⟵ النهاية  "
-            "القمّةُ أعلى المدى · بعدها أعلى/أدنى (بمقياس البطاقة) · آخرُ إغلاق")
-        for r, w in enumerate(found[:top], 1):
-            cx = context(w, m)
-            d = uni.get(w["sym"], {})
-            log(f"{r:>3} {w['sym']:<16} {w['rms']:7.4f} {w['mx']:7.4f} {w['k']:9.4f}  {cx['start']} ⟵ {cx['end']}  "
-                f"{'✓' if cx['peak_is_max'] else '✗'} · {cx['after_hi']}/{cx['after_lo']} ({cx['after_n']}) · "
-                f"{cx['last_close']} يوم {cx['last_day']} · {str(d.get('description') or '')[:40]}")
-        for w in found[:5]:
-            print_pair(w, ref, w["sym"], tf)
-        log("JSON " + json.dumps({"tf": tf, "coverage": round(cov, 4), "top": [
-            {"sym": w["sym"], "rms": round(w["rms"], 5), "mx": round(w["mx"], 5), "k": round(w["k"], 5),
-             **context(w, m)} for w in found[:top]]}, ensure_ascii=False))
+        intra = tf not in ("1D", "1W")
+        for lab, _ in vars_:
+            rows = found[lab]
+            log(f"\n── {lab} · أفضلُ {min(top, len(rows))} ──")
+            log(f"{'#':>3} {'الرمز':<16} {'rms':>7} {'أكبر':>7} {'k':>9}  البداية ⟵ النهاية  "
+                "القمّةُ أعلى المدى · بعدها أعلى/أدنى (بمقياس البطاقة) · آخرُ إغلاق")
+            for r, w in enumerate(rows[:top], 1):
+                cx = context(w, m)
+                d = uni.get(w["sym"], {})
+                st = _stamp(w["bars"][w["i"]][0], intra)
+                en = _stamp(w["bars"][w["i"] + m - 1][0], intra)
+                log(f"{r:>3} {w['sym']:<16} {w['rms']:7.4f} {w['mx']:7.4f} {w['k']:9.4f}  {st} ⟵ {en}  "
+                    f"{'✓' if cx['peak_is_max'] else '✗'} · {cx['after_hi']}/{cx['after_lo']} ({cx['after_n']}) · "
+                    f"{cx['last_close']} يوم {cx['last_day']} · {str(d.get('description') or '')[:40]}")
+            for w in rows[:3]:
+                print_pair(w, ref, w["sym"], lab)
+            log("JSON " + json.dumps({"tf": lab, "coverage": round(cov, 4), "top": [
+                {"sym": w["sym"], "rms": round(w["rms"], 5), "mx": round(w["mx"], 5), "k": round(w["k"], 5),
+                 "start": _stamp(w["bars"][w["i"]][0], intra), **context(w, m)} for w in rows[:top]]},
+                ensure_ascii=False))
     log(f"\n📊 نداءاتُ TradingView: {TV.CALLS}")
     return rc
 
@@ -211,11 +287,16 @@ def main() -> int:
         log(f"⛔ فريمٌ مجهول {bad} — المتاح {sorted(TF_SPEC)}")
         return 2
     n_by_tf = {"1D": int(os.environ.get("CHART_ID_N1D") or 1500), "1W": int(os.environ.get("CHART_ID_N1W") or 520),
-               "240e": int(os.environ.get("CHART_ID_N4H") or 3000)}
+               "240e": int(os.environ.get("CHART_ID_N4H") or 3000), "a30": int(os.environ.get("CHART_ID_N30") or 1400)}
+    try:
+        anchors = parse_anchors(os.environ.get("CHART_ID_ANCHORS") or DEFAULT_ANCHORS)
+    except ValueError as e:
+        log(f"⛔ الحدود: {e}")
+        return 2
     syms = [s.strip() for s in (os.environ.get("CHART_ID_SYMS") or "").split(",") if s.strip()]
     log(f"🕒 {dt.datetime.now(dt.timezone.utc):%Y-%m-%d %H:%M} UTC · الفريمات {tfs} · الشموع {n_by_tf}")
     return search(card, tfs, n_by_tf, int(os.environ.get("CHART_ID_TOP") or 40),
-               int(os.environ.get("CHART_ID_WORKERS") or 10), symbols=syms or None)
+                  int(os.environ.get("CHART_ID_WORKERS") or 10), symbols=syms or None, anchors=anchors)
 
 
 if __name__ == "__main__":

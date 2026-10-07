@@ -14,9 +14,13 @@ on:
         required: true
         default: "chart_cards/blind/2026-10-07/owner-2026-10-07-1.json"
       timeframes:
-        description: "الفريمات بفاصلة: 1D · 1W · 240e (4 ساعات ممتدّة)"
+        description: "الفريمات بفاصلة: 1D · 1W · 240e (4 ساعات TradingView) · a30 (30 دقيقة تُجمَّع بحدود anchors)"
         required: false
-        default: "1D,1W,240e"
+        default: "1D,1W,a30"
+      anchors:
+        description: "حدودُ التجميع اليوميّة لـa30 (نيويورك): مجموعاتٌ بـ; وأوقاتٌ بفاصلة و«-HH:MM» نهاية — فارغ = الافتراضيّ"
+        required: false
+        default: ""
       symbols:
         description: "رموزٌ بعينها بفاصلة (فارغ = الكونُ كلُّه)"
         required: false
@@ -49,4 +53,5 @@ jobs:
           CHART_ID_CARD: ${{ inputs.card }}
           CHART_ID_TF: ${{ inputs.timeframes }}
           CHART_ID_SYMS: ${{ inputs.symbols }}
+          CHART_ID_ANCHORS: ${{ inputs.anchors }}
         run: python chart_id_tv.py
