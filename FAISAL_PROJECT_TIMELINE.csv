@@ -1,0 +1,47 @@
+date,version,event,ref,category,metric,evidence,accuracy_claim,note
+2026-06-20,PRE-REPO,v1.0-v2.2 described only in v2.3 docstring,—,baseline,BASELINE_UNKNOWN,Super_stock.py@4510eb3 docstring,NO,"no code, no tests, no measurement before the repo"
+2026-06-20,REPO_INIT,repository created (README only),c73a0c0,repo,1 file · 1 line,git show c73a0c0 --stat,NO,candidate start rejected: no bot code
+2026-06-20,STUB,Super_stock.py created empty,0d3bc11,code,1 line,git show 0d3bc11:Super_stock.py,NO,candidate start rejected: empty file
+2026-06-20,INITIAL (v2.3),first real bot uploaded — CANONICAL START,4510eb3,code,"Super_stock.py 2,807 lines · 75 functions · gates M1-M14 · 85 CONFIG keys · 10 files / 4,094 lines · 0 tests",git show 4510eb3 --stat,NO,alerts tracking (record_new_alerts/update_tracking) already present
+2026-06-21,INITIAL,first Faisal methodology notes,0943827,methodology,~65 images read,FAISAL_METHODOLOGY_NOTES.md@0943827,NO,
+2026-06-21,INITIAL,catalog extended,ce0f74b,corpus,68 unique IMG ids catalogued (images not stored in git),FAISAL_IMAGES_CATALOG.md@ce0f74b,NO,
+2026-06-21,INITIAL,first test suite,59fccdc,tests,74 tests (commit message),git log -1 59fccdc,NO,
+2026-06-21,INITIAL,first live alert recorded / PR #1 merged,#1,live,alerts_history starts 2026-06-21,alerts_history.json,NO,
+2026-07-05,V2.x,first full-market backtest (Jan-May 2026),760bdd59a,accuracy,t1-before-stop 21/74 = 28.4% · stopped 72%,MARKET_BACKTEST_FINDINGS.md §1,YES,first measured accuracy of the screener
+2026-07-05,V2.x,A/B tier retired (no discriminator),—,method,tier A reached by 0 stocks,CLAUDE.md «تقاعد تصنيف A/B»,NO,removal backed by evidence
+2026-07-08,V2.x,T-ACC silent accumulation fails both years,—,experiment,8 tests (4 axes x 2 years) fail,DECISIONS_ARCHIVE.md (T-ACC),NO,axis closed
+2026-07-12,V2.x,deep audit 13 fixes · tests.yml on every push,—,engineering,tests 713 (CI 29192660215),CI log,NO,
+2026-07-22,V2.x,tests,—,tests,955 (CI 29957896689),CI log,NO,
+2026-07-24,V2.x,2025 full-market live-code backtest,30081028228,accuracy,38/147 = 25.9% · -0.2R,DECISIONS_ARCHIVE.md L1065,YES,
+2026-07-27,V2.x,3-year backtest · images enter git,#204-#206,accuracy,2023 27.4% · 2024 33.6% · 2025 25.9% · images 308,DECISIONS_ARCHIVE.md L1132,YES,easing gates neither helps nor hurts
+2026-07-30,V2.x,tests · images,—,tests/corpus,"1,399 tests (CI 30507173797) · 434 images",CI log · git ls-files,NO,
+2026-07-31,V2.x,source ledger created,76cbe6381,rules,152 rows · 120 tagged (verbatim 23 · inferred 25 · engineering 57),FAISAL_SOURCE_LEDGER.md@76cbe6381,NO,rule provenance begins
+2026-08-06,FAISAL_ONLY,production gates switched to catalog envelope numbers,—,rules,FAISAL_ONLY=1,DECISIONS_ARCHIVE.md,NO,live era B starts
+2026-08-08,V2.x,"T-MINFLOOR P100 adopted (PIT, 3 years)",—,accuracy,"P90 304/1,341 = 22.6% -> P100 1,686/6,459 = 26.1% · R -0.32 -> -0.195",minfloor_result.md,YES,only like-for-like screener gain proven; expectancy still negative
+2026-08-08,V2.x,tests,—,tests,"2,365 (CI 31236555843) · 476 images",CI log,NO,
+2026-08-14,V2.x,T-PRESS-BT-2 HOLD3 — first positive edge (pressure channel),—,accuracy,"+0.174R [+0.110, +0.240]",DECISIONS_ARCHIVE.md,YES,"separate channel, not the full method"
+2026-08-15,V2.x,tests,—,tests,"2,723 (CI 31866768884)",CI log,NO,
+2026-08-29,V2.x,tests,—,tests,"3,550 (CI 33230970603) · 506 images (08-27)",CI log,NO,
+2026-09-12,V2.x,tests,—,tests,"4,007 (CI 34685290871)",CI log,NO,
+2026-09-18,V2.x,image batch,—,corpus,605 images,git ls-files,NO,
+2026-09-29,V2.x,Polygon subscription ends,—,regression,live intraday tools silent/frozen,CLAUDE.md,NO,"tests 4,858 (CI 36634047015)"
+2026-09-30,V2.x,bars moved to TradingView (unofficial),#491 #502 #505,engineering,691 images,CLAUDE.md,NO,«هنا الدخول» on TV failed its gate (#520)
+2026-10-01,H&S,T-HS registered (#522) · audit E1,#522 #523,accuracy(detector),visual precision 19/30 = 63.3% (below 70%),hs_prereg.md §⑤,YES,detector only
+2026-10-01,H&S,audit E3 + first verdict,#524,accuracy(detector),29/30 = 96.7% · verdict branch 2 «no edge vs control»,hs_prereg.md §⑤-ج §⑥-ب,YES,auditor = builder
+2026-10-01,H&S,daily scan scheduled · re-verdict «restored» · T-HS-SF harvest,#525 #526 #527,engineering,—,hs_result.md,NO,
+2026-10-02,H&S,T-HS-FX forensic verdict FX-3,#530-#532,accuracy(edge),"blind audit 21/51 = 41.2% · NDQ TEST vs BL-A +1.08 [-2.28,+4.58]",hs_forensic/FINAL_FORENSIC_REPORT.md,YES,no trading edge
+2026-10-02,H&S,T-HS-RX verdict RX-3 · axis closed,#533-#535,accuracy(edge),"V2 blind fidelity 83.3% vs V1 50.0% · CLEAN +5.20 [-7.46,+18.05]",hs_forensic/hs_rx_result.md,YES,HSFX_REOPEN
+2026-10-02,T-TGT,target forensics,#536-#539,method,«100%» + «هدف» = +100% profit · +100% hit before invalidation 10.9%,hs_forensic/TARGET_FORENSICS.md,YES,
+2026-10-02,—,memory · data-quality gate fix,#540 #541,engineering,—,CLAUDE.md,NO,
+2026-10-02,V3,image corpus · rule graph · tool · T-W,#542-#544,method,722 images / 609 units · 357 rules (CONFIRMED 49 · UNKNOWN 117) · T-W W-3 «no difference»,faisal_method_v3/,YES,
+2026-10-02,V3.1,gap closure,#545 #546,method,369 rules · golden 3/7,faisal_method_v3/v31/,YES,
+2026-10-02,V4,prereg + decision engine,#547,method,engine READY/WAIT/REJECT/UNKNOWN · 21 rules,faisal_method_v4/,NO,before any market number
+2026-10-06,V4,results,#548 #549,accuracy,golden 4/7 vs Always-WAIT 5/7 · H-LEVEL holdout FAIL · H-CLASS FAIL,faisal_method_v4/docs/01,YES,PARTIALLY COMPLETE
+2026-10-07,V4.1,V4 frozen + prereg,#550 (7c8826c),validation,freeze_id 5f291a3b…,faisal_method_v41/docs/V4_FREEZE_REPORT.md,NO,
+2026-10-07,V4.1,provenance · holdout · ledger · runner,#551 #552,validation,historical S1 18/22 vs Always-WAIT 21/22 (contaminated),faisal_method_v41/docs/V4.1_VALIDATION_REPORT.md,YES,descriptive only
+2026-10-07,V4.1,reminder · prospective intake,#553 #554,validation,PROSPECTIVE CASES = 0,DECISIONS_ARCHIVE.md,NO,
+2026-10-07,V4.1,collector metadata · B48 intake and results,#555-#558,validation,48 received · 1 case · BRTX 1/1 = Always-WAIT 1/1,faisal_method_v41/batches/B48_20261007/,YES,N=1 secondary provenance
+2026-10-07,—,chart-to-ticker identification,#559 #560,tool,HUBC 0.0269 vs 0.0732,chart_cards/blind/2026-10-07/RESULT.md,NO,separate task
+2026-10-07,CORPUS AUDIT,exhaustiveness audit,#561 #562,corpus,768 files + 1 attachment · 603 units · 430 high-info all analysed · answer YES (limited to accessible),faisal_method_v41/corpus_audit/,NO,
+2026-10-07,FINAL PROTOCOL,prereg · epoch 1 sealed · scheduled collector,#563 #564,validation,integrity I1-I12 · 20 phases · FPA1-FPA19,faisal_method_v41/final_protocol/,NO,
+2026-10-07,CURRENT,BEGIN REAL PROSPECTIVE VALIDATION run 1,#565 (02fa561),validation,"VALID 0 · collector 0 new · INSUFFICIENT_SAMPLE · tests 5,242 (CI 37698227582) · 768 images",faisal_method_v41/final_protocol/PROSPECTIVE_STATUS.md,NO,current state

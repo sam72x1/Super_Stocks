@@ -9,6 +9,9 @@ __pycache__/
 # 🎯 (2026-10-02) جدولُ كلّ إشارة لـ`T-TGT` (`tf_pop_signals.csv` · §⑫ من العقد) — تشغيلةُ pop الأولى `36980912940` لم تحفظه لأن `*.csv`
 #    يتجاهله فرفضه `git add` صامتًا (عطلٌ مُثبَت · صنفُ HS38) ⟵ استثناءٌ صريح · مقفولٌ بـTGF15
 !hs_research/target/*.csv
+# 📊 (2026-10-07) جدولا تدقيق «MASTER DEVELOPMENT PROGRESS & ACCURACY AUDIT» في الجذر — توثيقٌ لا يقرؤه كود (لولا الاستثناء رفضهما `git add`)
+!FAISAL_PROJECT_TIMELINE.csv
+!FAISAL_ACCURACY_COMPARISON.csv
 
 # ملفات إنشاء/مخرجات مؤقتة (ليست من كود البوت)
 make_pdf.py

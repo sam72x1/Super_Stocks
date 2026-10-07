@@ -1,0 +1,32 @@
+task,system_version,date,metric,numerator,denominator,value,ci95,comparator,comparator_value,like_for_like,verdict,evidence
+SCREENER t1-before-stop (backtest),V2.x code of 2026-07-05,2026-07-05,hit rate,21,74,28.4%,—,—,—,"NO (5-month sample, early code)",first measurement; 72% stopped,MARKET_BACKTEST_FINDINGS.md §1
+SCREENER t1-before-stop (backtest),code of 2026-07-27,2026-07-27,hit rate 2023,—,—,27.4%,—,—,—,"PARTIAL (same code, different year)",descriptive,DECISIONS_ARCHIVE.md L1132
+SCREENER t1-before-stop (backtest),code of 2026-07-27,2026-07-27,hit rate 2024,—,—,33.6%,—,—,—,PARTIAL,descriptive,DECISIONS_ARCHIVE.md L1132
+SCREENER t1-before-stop (backtest),code 8c9612f,2026-07-24,hit rate 2025,38,147,25.9%,19-33%,—,—,PARTIAL,expectancy -0.2R,DECISIONS_ARCHIVE.md L1065
+SCREENER t1-before-stop (PIT 2023),code of 2026-08-12,2026-08-12,hit rate,45,168,26.8%,—,published 2023,27.4%,YES (same year),survivorship bias did not change it,DECISIONS_ARCHIVE.md L10228
+SCREENER gate floor (PIT 3 years),P90 -> P100,2026-08-08,hit rate,1686,6459,26.1%,—,P90,304/1341 = 22.6%,"YES (same PIT snapshots, same years)",PROVEN +3.5 points in all 3 years; R -0.32 -> -0.195 (still negative),minfloor_result.md
+SCREENER pressure channel,T-PRESS-BT-2 HOLD3,2026-08-14,expectancy,—,—,+0.174R,"[+0.110, +0.240]",engine baseline,—,YES (prereg arms),first positive edge; separate channel,DECISIONS_ARCHIVE.md (T-PRESS-BT-2)
+SCREENER live alerts era A,production 06-21..08-05,2026-10-07,t1-before-stop,29,46,63.0%,"[48.6, 75.5]",—,—,"NO (regime, small n)",descriptive,alerts_history.json
+SCREENER live alerts era B,production 08-06..09-29,2026-10-07,t1-before-stop,62,156,39.7%,"[32.4, 47.6]",era A,63.0%,NO (market regime not controlled),"POSSIBLE REGRESSION (A-B +23.3 [6.9, 37.7]); not causal",alerts_history.json
+SCREENER live alerts era C,production 09-30..,2026-10-07,t1-before-stop,1,11,9.1%,"[1.6, 37.7]",—,—,NO (15 open; immature),INSUFFICIENT,alerts_history.json
+SCREENER live alerts all,production,2026-10-07,t1-before-stop,92,213,43.2%,"[36.7, 49.9]",—,—,—,expired 27 · withdrawn 12 · open 18 excluded,alerts_history.json
+SCREENER ready=True alerts,production,2026-10-07,t1-before-stop,0,5,0.0%,—,—,—,—,INSUFFICIENT (3 expired),alerts_history.json
+H&S detector visual precision,E1,2026-10-01,true pattern,19,30,63.3%,—,threshold,70%,YES,FAIL (below 70%),hs_prereg.md §⑤
+H&S detector visual precision,E3 (fixed definition),2026-10-01,true pattern,29,30,96.7%,—,E1,63.3%,"YES (same protocol, new sample)",PASS but auditor = builder; borderline-as-false 22/30 = 73.3%; new-only 23/24 = 95.8%; weakest 17/24 = 70.8%,hs_prereg.md §⑤-ج
+H&S detector blind audit,T-HS-FX,2026-10-02,true pattern,21,51,41.2%,—,E3,96.7%,PARTIAL (blind vs non-blind),E3 DID NOT REPLICATE blind,hs_forensic/FINAL_FORENSIC_REPORT.md
+H&S reconstruction blind fidelity,T-HS-RX V2,2026-10-02,faithful,20,24,83.3%,—,V1,50.0%,YES,fidelity improved; control 16% (failed criterion),hs_forensic/hs_rx_result.md
+H&S trading edge,T-HS,2026-10-01,edge vs matched control,—,—,branch 2,—,generic breakout,—,YES,NO EDGE,hs_prereg.md §⑥-ب
+H&S trading edge,T-HS-FX,2026-10-02,CLEAN vs BL-A (NDQ TEST),—,—,+1.08,"[-2.28, +4.58]",BL-A,0,YES,NO EDGE (FX-3),hs_forensic/FINAL_FORENSIC_REPORT.md
+H&S trading edge,T-HS-RX,2026-10-02,CLEAN vs BL-A,—,100,+5.20,"[-7.46, +18.05]",BL-A,0,YES,NO EDGE (RX-3); axis closed,hs_forensic/hs_rx_result.md
+target reach before invalidation (pop C · I2 · 60),T-TGT,2026-10-02,T-R1,—,—,71.3%,—,T-C / +100%,48.4% / 10.9%,YES (same signals),monotonic in distance,hs_forensic/TARGET_FORENSICS.md
+W support (T-W),V3 tool,2026-10-02,second-support edge vs control,—,—,W-3,—,control,—,"YES (2 runs, weakest)",NO DIFFERENCE,faisal_method_v3/T_W_result.md
+golden cases (decision),V3,2026-10-02,exact,3,7,42.9%,—,Always-WAIT,5/7,YES,BELOW BASELINE,faisal_method_v3/v31/GOLDEN_CASES.md
+golden cases (decision),V3.1,2026-10-02,exact,3,7,42.9%,—,Always-WAIT,5/7,YES,BELOW BASELINE,faisal_method_v3/v31/GOLDEN_CASES.md
+golden cases (decision),V4,2026-10-06,exact,4,7,57.1%,—,Always-WAIT,5/7,YES,BELOW BASELINE (+1 vs V3.1 is not significant),faisal_method_v4/docs/01
+H-LEVEL holdout,V4,2026-10-06,levels vs random (matched count),—,—,+0.2466,"[-0.0094, +0.5873]",random,0,YES,FAIL,faisal_method_v4/docs/01
+H-CLASS,V4,2026-10-06,class vs majority,—,—,FAIL in every set,—,majority,—,YES,FAIL,faisal_method_v4/docs/01
+H-STATE holdout,V4,2026-10-06,state,8,9,88.9%,—,Always-WAIT,9/9,YES,BELOW BASELINE,faisal_method_v4/docs/01
+historical S1 (contaminated),V4 frozen,2026-10-07,decision,18,22,81.8%,—,Always-WAIT,21/22,YES,BELOW BASELINE; descriptive only,faisal_method_v41/docs/V4.1_VALIDATION_REPORT.md
+prospective (secondary),V4 frozen,2026-10-07,decision,1,1,100%,—,Always-WAIT,1/1,YES,"NO ADVANTAGE (N=1, LOW provenance)",faisal_method_v41/batches/B48_20261007/
+prospective (primary),V4 frozen,2026-10-07,VALID cases,0,43,0%,—,N_MIN,43,—,INSUFFICIENT_SAMPLE,faisal_method_v41/final_protocol/PROSPECTIVE_STATUS.md
+chart finder (ticker identification),v1.2,2026-09-24,K1 confident correct,9,10,90%,—,acceptance,—,—,NOT READY (K2 34/46 = 73.9%),CLAUDE.md (chart_finder)
