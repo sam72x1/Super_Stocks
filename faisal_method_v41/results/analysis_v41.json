@@ -6700,7 +6700,7 @@
   }
  },
  "prospective": {
-  "candidates": 0,
+  "candidates": 46,
   "complete": 0,
   "invalid": 0,
   "matrix": {
@@ -6763,8 +6763,8 @@
    "v4_not_run": 0
   },
   "pending_images": [],
-  "sealed_cases": 0,
-  "status": "NOT STARTED"
+  "sealed_cases": 1,
+  "status": "SEALED_PENDING"
  },
  "provenance_summary": {
   "active": 18,

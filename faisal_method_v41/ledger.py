@@ -320,7 +320,11 @@ def pending_new_images(ledger=None, root=ROOT):
 
 
 def near_duplicates(image_path, corpus_images=None, dmax=24, pmax=10):
-    """نسخةٌ قريبة من صورةٍ في المدوّنة المجمَّدة (dHash256 ≤ 24 أو pHash64 ≤ 10 — عتباتُ V3) ⟵ قائمةُ المعرّفات (§⑤ · FV43)."""
+    """نسخةٌ قريبة من صورةٍ في المدوّنة المجمَّدة (dHash256 ≤ 24 **و** pHash64 ≤ 10 — قاعدةُ V3 `corpus_build.dedup`) ⟵ قائمةُ المعرّفات (§⑤ · FV43).
+
+    🔴 BB4 (2026-10-07 · دفعة B48 · قبل أيّ قرارٍ أماميّ): كانت «أو» ⟵ صورةٌ واحدة «قريبة» من 53 صورةً في عناقيدَ مختلفة · وعلى المدوّنة
+    نفسِها تضيف «أو» 2,121 زوجًا pHash-فقط منها 2,119 عبر عناقيدَ فصلتها V3 (و«و» = 126 زوجًا: 123 في العنقود نفسِه والثلاثةُ أزواجُ
+    «ليست تكرارًا» المراجَعةُ بصريًّا) ⟵ pHash64 وحدَه يلتقط تخطيطَ الواجهة (شاشة X الداكنة · التطبيق نفسُه) لا الصورة. قفل FV43b."""
     import corpus_build as CB          # V3: دوالّ البصمة الإدراكيّة نفسُها
     from PIL import Image
     if corpus_images is None:
@@ -330,4 +334,4 @@ def near_duplicates(image_path, corpus_images=None, dmax=24, pmax=10):
         d = CB.bits_hex(CB.dhash_bits(im, 16))
         p = CB.bits_hex(CB.phash_bits(im))
     return sorted(i["id"] for i in corpus_images
-                  if CB.hamming_hex(d, i["dhash256"]) <= dmax or CB.hamming_hex(p, i["phash64"]) <= pmax)
+                  if CB.hamming_hex(d, i["dhash256"]) <= dmax and CB.hamming_hex(p, i["phash64"]) <= pmax)

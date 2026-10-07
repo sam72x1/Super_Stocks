@@ -333,7 +333,7 @@ def doc_prospective(d):
 **PROSPECTIVE STATUS: {p['status']}** · **STATUS: {a['status']}** — **NOT COMPLETE**.
 - مرشَّحون {p['candidates']} · حالاتٌ مختومة {p['sealed_cases']} · كاملة (ختم ‏+ V4 ‏+ فيصل) {p['complete']} · INVALID {p['invalid']} ·
   صورٌ جديدةٌ لم تُسجَّل {len(p['pending_images'])}.
-- {'**لا حالاتٍ مصنوعة (§38):** لا عبارةَ قرارٍ لفيصل مؤرَّخةً من ' + LG.WINDOW_START + ' وصلت المستودع بعد التجميد ⟵ **PROSPECTIVE VALIDATION = NOT STARTED** وV4 باقٍ مجمَّدًا.' if p['status'] == 'NOT STARTED' else 'الحالاتُ من السجلّ الإلحاقيّ وحدَه — ولا حالةَ مصنوعة (§38).'}
+- {'**لا حالاتٍ مصنوعة (§38):** لا عبارةَ قرارٍ لفيصل مؤرَّخةً من ' + LG.WINDOW_START + ' وصلت المستودع بعد التجميد ⟵ **PROSPECTIVE VALIDATION = NOT STARTED** وV4 باقٍ مجمَّدًا.' if p['status'] == 'NOT STARTED' else ('**حالاتٌ مختومةٌ تنتظر قرارَ V4 المجمَّد ثمّ كلمةَ فيصل** (الترتيبُ مختومٌ في السجلّ) — ولا حالةَ مصنوعة (§38).' if p['status'] == 'SEALED_PENDING' else 'الحالاتُ من السجلّ الإلحاقيّ وحدَه — ولا حالةَ مصنوعة (§38).')}
 
 ## ② المصفوفة الأماميّة (الرسميّة)
 {mat_table(p['matrix'])}
@@ -346,7 +346,28 @@ def doc_prospective(d):
 - **READY عند فيصل {ss['s1_ready']} من {ss['s1_cases']}** (نسبة {ss['ready_rate']}) ⟵ {ss['n_min']} READY تحتاج ‏≈{ss['cases_for_43_ready']} حالة ‏≈ **{ss['years_for_43_ready']} سنة** ⟵
   **استدعاءُ READY لا يُقاس عمليًّا بهذا المعدّل** — والأهمُّ أنّ V4 لا يقول READY بلا معلومة المضارب أصلًا (بنيويّ).
 - ⚠️ التقديرُ يفترض استمرارَ معدّل النشر والالتقاط كما كان — **وصفٌ لا وعد**.
+
+## ④ الدفعات (`faisal_method_v41/batches/` · مولَّدةٌ من بيانها)
+{batches_block()}
 """
+
+
+def batches_block():
+    """سطرٌ لكلّ دفعة من `PROSPECTIVE_BATCH_*_MANIFEST.json` (ونتائجها إن وُجدت) — لا رقمَ باليد."""
+    import glob
+    rows = []
+    for mp in sorted(glob.glob(os.path.join(HERE, "batches", "*", "PROSPECTIVE_BATCH_*_MANIFEST.json"))):
+        m = _j(mp)
+        c = m["counts"]
+        line = (f"- **{m['batch_id']}** — وصل {m['total_received']} (قال المالك {m['expected_by_owner']}) · "
+                + " · ".join(f"{k} {c[k]}" for k in ("CLEAN_PROSPECTIVE", "CONTAMINATED", "DUPLICATE", "DERIVATIVE", "UNKNOWN"))
+                + f" · حالاتُ تحقّق {m['validation_cases']}")
+        rp = mp.replace("_MANIFEST.json", "_RESULTS.json")
+        if os.path.exists(rp):
+            r = _j(rp)["aggregate"]
+            line += f" · قورنت {r['N']} · تطابق {r['exact']}"
+        rows.append(line + f" — `{os.path.relpath(os.path.dirname(mp), ROOT)}/`")
+    return "\n".join(rows) or "- لا دفعة."
 
 
 def doc_confusion(d):
@@ -552,7 +573,8 @@ def doc_predictions(d):
           f"{len(a['provenance_summary']['registry_stronger'])}"),
          ("Q4", "S1: FALSE READY 0 واستدعاء READY 0/1 بنيويًّا", s1["false"]["READY"] == 0 and s1["ready_recall"] == "0/1",
           f"FALSE READY {s1['false']['READY']} · استدعاء {s1['ready_recall']}"),
-         ("Q5", "PROSPECTIVE NOT STARTED", a["prospective"]["status"] == "NOT STARTED", a["prospective"]["status"]),
+         ("Q5", "PROSPECTIVE NOT STARTED (عند التقرير الأوّل)", d["reg"]["first_report"]["prospective_status"] == "NOT STARTED",
+          f"{d['reg']['first_report']['prospective_status']} عند التقرير الأوّل ({d['reg']['first_report']['utc']}) · والآن {a['prospective']['status']}"),
          ("Q6", "N_MIN بعد أكثرَ من 12 شهرًا · واستدعاءُ READY سنوات", ss["months_to_n_min"] > 12 and ss["years_for_43_ready"] > 1,
           f"{ss['months_to_n_min']} شهرًا · {ss['years_for_43_ready']} سنة"),
          ("Q7", "اتّفاقُ T1 أعلى من T2", (t1["exact_rate"] or 0) > (t2["exact_rate"] or 0),

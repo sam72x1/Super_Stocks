@@ -356,10 +356,13 @@ def prospective(lg=None):
     pairs = [(c["faisal"]["label4"], c["v4"]["decision"].get("state")) for c in done]
     mat = matrix(pairs)
     n = mat["n"]
-    status = "NOT STARTED" if n == 0 and not invalid else ("SUFFICIENT" if n >= N_MIN else "INSUFFICIENT")
+    sealed = len({e["case_id"] for e in lg.entries("case")})
+    # «SEALED_PENDING» (2026-10-07 · دفعة B48): حالةٌ مختومةٌ تنتظر قرارَ V4 أو كلمةَ فيصل — «NOT STARTED» بعدها تكذب («لا عبارةَ وصلت»)
+    status = ("NOT STARTED" if n == 0 and not invalid and not sealed else "SEALED_PENDING" if n == 0 and not invalid
+              else ("SUFFICIENT" if n >= N_MIN else "INSUFFICIENT"))
     return {"complete": n, "invalid": len(invalid), "matrix": mat, "status": status,
             "pending_images": LG.pending_new_images(lg), "candidates": len(lg.entries("candidate")),
-            "sealed_cases": len({e["case_id"] for e in lg.entries("case")})}
+            "sealed_cases": sealed}
 
 
 def first_run_reconstruction(ev, prov, posthoc):
@@ -395,7 +398,7 @@ def build():
     cases = json.load(open(HO.CASES, encoding="utf-8"))["cases"]
     hist = historical(man, ev, prov)
     pro = prospective()
-    overall = ("VALIDATION IN PROGRESS" if pro["status"] == "NOT STARTED" else
+    overall = ("VALIDATION IN PROGRESS" if pro["status"] in ("NOT STARTED", "SEALED_PENDING") else
                "INSUFFICIENT PROSPECTIVE EVIDENCE" if pro["status"] == "INSUFFICIENT" else "SUFFICIENT — CHECK §35 BOXES")
     return {"generated_by": "faisal_method_v41/analysis.py", "contract": "V41_prereg §⑧-⑮",
             "holdout_seal": man["seal"]["sha256"], "holdout_summary": man["summary"], "provenance_summary": prov["summary"],
