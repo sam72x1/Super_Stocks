@@ -80611,6 +80611,26 @@ except Exception as _e:                                                    # noq
 check("🧭 FVO1 فضاءُ المخرَج الأماميّ: القروباتُ والطرحُ والمضاربُ None دائمًا ⟵ ناقصٌ بلا REJECT ⟵ V4 لا يقول READY ولا REJECT أماميًّا (WAIT · UNKNOWN)",
       _fvo1ok, _fvo1w)
 
+# ── FVW1 الـworkflow (‏`faisal_v41.yml`): يدويٌّ وحدَه (لا كرون) · الدفعُ في run وحدَه · ومجموعةُ التزامن تسلسل run وحدَه — والأوضاعُ القارئة
+#    مجموعتُها تشغيلتُها (عطلٌ مُثبَت: طابورُ GitHub يُلغي المعلَّقَ في المجموعة الواحدة فأُلغي smoke `37557325140` صامتًا).
+try:
+    import yaml as _v41_yaml
+    _wf_w1 = _v41_yaml.safe_load(open(_v41_os.path.join(".github", "workflows", "faisal_v41.yml"), encoding="utf-8"))
+    _on_w1 = _wf_w1.get("on") or _wf_w1.get(True) or {}
+    _grp_w1 = str((_wf_w1.get("concurrency") or {}).get("group", ""))
+    _steps_w1 = (_wf_w1.get("jobs") or {}).get("v41", {}).get("steps") or []
+    _push_w1 = [st for st in _steps_w1 if "git push" in str(st.get("run", ""))]
+    _fvw1 = {"dispatch_only": list(_on_w1.keys()) == ["workflow_dispatch"],
+             "run_serialized": "inputs.mode == 'run'" in _grp_w1 and "'faisal-v41-ledger'" in _grp_w1,
+             "readers_unique": "github.run_id" in _grp_w1,
+             "push_only_in_run": len(_push_w1) == 1 and _push_w1[0].get("if") == "inputs.mode == 'run'",
+             "regenerates": all(x in str(_push_w1[0].get("run", "")) for x in ("analysis.py", "docs_v41.py")) if _push_w1 else False}
+    _fvw1ok, _fvw1w = all(_fvw1.values()), str(_fvw1)
+except Exception as _e:                                                    # noqa: BLE001
+    _fvw1ok, _fvw1w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧊 FVW1 faisal_v41.yml: يدويٌّ وحدَه · الدفعُ في run وحدَه مع إعادة التحليل والوثائق · والتزامنُ يسلسل run ولا يُلغي القارئَ صامتًا",
+      _fvw1ok, _fvw1w)
+
 # ── FVD1 إعادةُ التوليد (§33 · «لا رقمَ باليد»): المصدريّةُ والاحتجازُ والتحليلُ تُعاد من مُدخَلاتها فتطابق المدفوع (بلا قائمة الصور المنتظرة —
 #    حالةٌ تتغيّر بجامع التلغرام لا نتيجة) · والوثائقُ الاثنتا عشرة تُعاد من JSON بايتًا بايتًا · والسجلُّ الإلحاقيّ المدفوع سليم.
 try:

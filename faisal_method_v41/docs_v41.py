@@ -142,7 +142,7 @@ def doc_provenance(d):
 - **مختلفة {len(s['differs'])}:** {' · '.join('`' + x + '`' for x in s['differs'])}.
 - **السجلُّ أعلى من دليله {len(s['registry_stronger'])}:** {' · '.join('`' + x + '`' for x in s['registry_stronger'])} — ادّعاءٌ أقوى من مصدره (يُنقل إلى `V4_2_RESEARCH_QUEUE.md`).
 - **قراءة:** الاختلافُ في الاتّجاهين — المسطرةُ أعلى في {len(s['differs']) - len(s['registry_stronger'])} وأدنى في {len(s['registry_stronger'])} ⟵ السجلُّ ليس منحازًا لاتّجاهٍ واحد ·
-  والقاعدتان الهندسيّتان بلا صورة (`R4-DATA-01` · `R-SUP-MAIN`) ليستا دعوى عن فيصل.
+  والهندسيّةُ بلا صورة ({' · '.join('`' + r['RULE_ID'] + '`' for r in p['rules'] if r['ENGINEERING'])}) ليست دعوى عن فيصل.
 
 ## ③ كلُّ قاعدة (الحقولُ العشرون كاملةً في `V4_RULE_PROVENANCE.json`)
 {chr(10).join(rows)}
@@ -214,7 +214,7 @@ def doc_holdout(d):
 - **FV42:** الأعلامُ السبعة كلٌّ على حالته · النظيفةُ وحدَها مؤهَّلة · العمى بالـAST · والكشفُ يرفض بيانًا عُبث به.
 - **FV43:** عضوُ العنقود يرث الاستشهاد · ومعرّفُ العبارة «#k» يرث وحدةَ صورته · والوحدةُ المشتركة مع الاكتشاف تُلوِّث · والنسخةُ المطابقة والمصغّرة
   تُكشف بالبصمة الإدراكيّة (dHash ≤ {dmax} · pHash ≤ {pmax} من V3) والضجيجُ لا · والختمُ يرفض حالةً لها نسخةٌ في المدوّنة.
-- **الطفرات:** {reg['mutations']['FV42-FV50+FVT1+FVO1+FVD1']['caught']}/{reg['mutations']['FV42-FV50+FVT1+FVO1+FVD1']['of']} لأقفال FV42-FV50 وFVT1 وFVO1 وFVD1 سقطت كلٌّ بقفلها (صفرُ انهيار).
+- **الطفرات:** {reg['mutations']['FV42-FV50+FVT1+FVO1+FVW1+FVD1']['caught']}/{reg['mutations']['FV42-FV50+FVT1+FVO1+FVW1+FVD1']['of']} لأقفال FV42-FV50 وFVT1 وFVO1 وFVW1 وFVD1 سقطت كلٌّ بقفلها (صفرُ انهيار).
 """
 
 
@@ -580,7 +580,10 @@ def checklist(d):
              ("Discovery/validation contamination controlled", "✅", "أعلامٌ عمياء · FV42/FV43"),
              ("Holdout sealed", "✅", f"مختومٌ ببصمة — نظيفة {hs['eligible']}" + (" **(فارغ)**" if not hs["eligible"] else "")),
              ("Holdout leakage tested", "✅", "FV42 · FV43 بطفراتها"),
-             ("Prospective protocol implemented", "✅", "السجلّ · المشغّل · الجدار · workflow"),
+             ("Prospective protocol implemented", "✅", "السجلّ · المشغّل · الجدار · workflow" + (
+                 f" · smoke حيٌّ `{reg['smoke']['run']}` ({reg['smoke']['symbol']} {reg['smoke']['asof']} ⟵ {reg['smoke']['state']} · "
+                 f"الجدار {reg['smoke']['firewall']} · الإعادة {'مطابقة' if reg['smoke']['replay_equal'] else '⛔ مختلفة'})"
+                 if reg.get("smoke") else " · smoke ⏳")),
              ("Case sealing implemented", "✅", "FV46"),
              ("V4 decisions frozen before Faisal decisions are revealed", "✅", "FV48 (لم يُمارَس على حالةٍ حقيقيّة بعد)"),
              ("No post-hoc rule changes occurred", "✅", "FV41 أخضر · النواةُ منذ d8b4937"),
@@ -599,7 +602,7 @@ def checklist(d):
               (f"السويّةُ في worktree معزول: {reg['suite_local']['passed']} نجح · {reg['suite_local']['failed']} فشل · خروج "
                f"{reg['suite_local']['exit']} على `{reg['suite_local']['commit'][:7]}`") if reg.get("suite_local") else "لم يُقرأ بعد"),
              ("Mutation suite green", "✅", f"{reg['mutations']['FV41']['caught']}/{reg['mutations']['FV41']['of']} ‏+ "
-                                          f"{reg['mutations']['FV42-FV50+FVT1+FVO1+FVD1']['caught']}/{reg['mutations']['FV42-FV50+FVT1+FVO1+FVD1']['of']}"),
+                                          f"{reg['mutations']['FV42-FV50+FVT1+FVO1+FVW1+FVD1']['caught']}/{reg['mutations']['FV42-FV50+FVT1+FVO1+FVW1+FVD1']['of']}"),
              ("CI green", "✅" if reg.get("ci") else "⏳",
               (f"PR #{reg['ci']['pr']} ({reg['ci']['pr_result']}) · main ({reg['ci']['main_result']})") if reg.get("ci")
               else "يُقرأ من سجلّ CI بعد الدفع ثمّ يُملأ هنا (PR لاحق)"),
@@ -741,12 +744,22 @@ def doc_report(d):
 """
 
 
+def smoke_line(d):
+    sm = d["reg"].get("smoke")
+    if not sm:
+        return "⏳ smoke حيٌّ على Actions لم يُقرأ بعد"
+    return (f"smoke على Actions `{sm['run']}` (commit `{sm['commit'][:7]}`): {sm['symbol']} بتاريخ {sm['asof']} ⟵ شموع {sm['snapshot_rows']} · "
+            f"الجدار {sm['firewall']} ({sm['firewall_detail']}) · قرارُ V4 {sm['state']} ({sm['tech_state']}) · الإعادةُ من اللقطة {'مطابقةٌ بايتًا' if sm['replay_equal'] else '⛔ مختلفة'} · "
+            f"والمتاح {sm['short_provenance']} · وverify `{sm['verify_run']}`: «{sm['verify_line']}» · وreplay `{sm['replay_run']}`: «{sm['replay_line']}»")
+
+
 def doc_readiness(d):
     a = d["a"]
     return head(d, "V4.1_IMPLEMENTATION_READINESS — الجاهزيّة") + f"""## ① الحكم
 **أداةُ قياسٍ جاهزة · لا استعمالَ إنتاجيّ.** البنيةُ الأماميّة تعمل ومحروسة · **ولا قرارَ تداولٍ يُبنى على V4**: لا دليلَ مستقلّ (STATE B) ولا أماميّ (STATE C).
 
 ## ② ما هو جاهز
+- **المسارُ الحيّ:** {smoke_line(d)}.
 - التجميدُ وكشفُ أيّ تعديلٍ لاحق (FV41 · FV44) · المصدريّة (FV49) · الاحتجازُ الأعمى المختوم (FV42 · FV43).
 - السجلُّ الإلحاقيّ بترتيبه الإلزاميّ (FV46-FV48) · سجلُّ الهدف (FVT1) · الجدارُ F1-F9 · منعُ التسرّب المستقبليّ (FV45) · الإعادةُ الحتميّة (FV50).
 - التحليلُ والوثائقُ مولَّدةٌ من JSON (FVD1) · وworkflow يدويٌّ بأربعة أوضاع.
