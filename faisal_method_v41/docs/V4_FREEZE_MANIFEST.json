@@ -1,0 +1,948 @@
+{
+ "candidate": "FAISAL V4 (ENGINE FAISAL-V4 1.0 · RULES V4-RULES 1.0)",
+ "current": 1,
+ "freeze_version": "V4.1-FREEZE 1.0 (2026-10-07)",
+ "git": {
+  "build_head": "49f30f95c7c7d368371c5addd11669b469c5c1c3",
+  "engine_last_change_commit": "d8b493727af71516e285fb12a816ecdd1950a0fb",
+  "engine_last_change_subject": "🧭📝 FAISAL V4 — prereg + decision engine + decision cases (before any market number)",
+  "engine_last_change_utc": "2026-10-02T21:36:57+00:00"
+ },
+ "inventories": {
+  "cases": {
+   "EXCL": 40,
+   "S1": 22,
+   "S1_by_label": {
+    "READY": 1,
+    "WAIT": 21
+   },
+   "S1_by_split": {
+    "discovery": 12,
+    "holdout": 10
+   },
+   "S2": 63,
+   "S3": 19,
+   "S4": 13,
+   "statements": 217,
+   "total": 157
+  },
+  "corpus": {
+   "images_in_corpus_record": 722,
+   "multi_member_clusters": 102,
+   "opened_representatives": 609,
+   "primary_images": 265,
+   "sha256_match": 722
+  },
+  "golden": {
+   "always_wait_baseline": 5,
+   "dated": 7,
+   "dxst": "D",
+   "of": 9,
+   "v31_matched": 3,
+   "v4_matched": 4,
+   "veee": "UNKNOWN"
+  },
+  "h_class_holdout": {
+   "agree": 4,
+   "majority_rate": 0.6667,
+   "n": 9,
+   "rate": 0.4444,
+   "verdict": "FAIL"
+  },
+  "h_level_holdout": {
+   "cases": 7,
+   "ci95": [
+    -0.0094,
+    0.5873
+   ],
+   "diff": 0.2466,
+   "hit_rate": 0.5,
+   "levels": 22,
+   "random_rate": 0.2534,
+   "verdict": "FAIL"
+  },
+  "h_state": {
+   "S1_all": {
+    "always_wait": 18,
+    "engine_ready": 0,
+    "engine_unknown": 3,
+    "faisal_ready": 1,
+    "n": 19,
+    "state_exact": 15
+   },
+   "S1_discovery": {
+    "always_wait": 9,
+    "engine_ready": 0,
+    "engine_unknown": 2,
+    "faisal_ready": 1,
+    "n": 10,
+    "state_exact": 7
+   },
+   "S1_holdout": {
+    "always_wait": 9,
+    "engine_ready": 0,
+    "engine_unknown": 1,
+    "faisal_ready": 0,
+    "n": 9,
+    "state_exact": 8
+   }
+  },
+  "mutations": {
+   "caught": 36,
+   "total": 36
+  },
+  "rules": {
+   "active": 18,
+   "total": 21
+  },
+  "tests": {
+   "commit": "0e909a7",
+   "exit": 0,
+   "failed": 0,
+   "passed": 5177
+  }
+ },
+ "policy": {
+  "implementation_bugs": "a new revision with reason_class=IMPLEMENTATION_BUG · regression_test · invalidates (§30)",
+  "methodology_changes": "FORBIDDEN during prospective validation (§1 · §27 · §36) ⟵ V4_CHANGE_REQUESTS.md / V4_2_RESEARCH_QUEUE.md",
+  "recorded_not_frozen": [
+   "tv_data.py",
+   "market_calendar.py",
+   "Super_stock.py"
+  ]
+ },
+ "revisions": [
+  {
+   "config": {
+    "engine_version": "FAISAL-V4 1.0 (2026-10-02)",
+    "params": {
+     "AT_BAND_PCT": {
+      "basis": "DECISION_BAND_PCT (V3.1): «عند» = ضمن 3%",
+      "source": "production",
+      "value": 3.0
+     },
+     "BID_LO_PCT": {
+      "basis": "R4-ZONE-01: الحدُّ الأدنى للطلبات فوق القاع (IMG_0531)",
+      "source": "faisal_verbatim",
+      "value": 5.0
+     },
+     "CYCLE_BARS": {
+      "basis": "R-SUP-MAIN (V3.1 · V31_prereg §②): نافذةُ قمّة الدورة 2 × W_BARS_MAX",
+      "source": "production",
+      "value": 120
+     },
+     "HOLD_MIN": {
+      "basis": "R4-HOLD-01: «اذا ماكسر القاع اكثر من 5 جلسات» (X_20260918_85_YMT)",
+      "source": "faisal_verbatim",
+      "value": 5
+     },
+     "HOLD_ZONE": {
+      "basis": "R4-HOLDZ-01: المدى 2-5 (CLIR «جلستين او 3» · STKH «5»)",
+      "source": "faisal_inferred",
+      "value": 3
+     },
+     "LEVEL_TOL_PCT": {
+      "basis": "«دقة الخطأ لاتتجاوز 2٪» — حدُّ القاع المزدوج ومطابقةُ المستويات",
+      "source": "faisal_verbatim",
+      "value": 2.0
+     },
+     "MIN_BARS": {
+      "basis": "R4-DATA-01: أقلُّ من 40 جلسة ⟵ UNKNOWN",
+      "source": "engineering",
+      "value": 40
+     },
+     "RECLAIM_BARS": {
+      "basis": "R4-SWEEP-01: العودةُ فوق القاع السابق خلال جلستين («الضغط قبل الصعود بيوم» IMG_0531)",
+      "source": "engineering",
+      "value": 2
+     },
+     "RISE_TEST_PCT": {
+      "basis": "R4-CYC-01: المدى 10-50 · الغالب 20 · المقبول 17 (IMG_0488)",
+      "source": "faisal_inferred",
+      "value": 15.0
+     },
+     "SHORT_AVAIL_MAX": {
+      "basis": "R4-VAL-SHORT-01: «تابعه لين يبقى الشورت تحت 20 الف» (IMG_0150)",
+      "source": "faisal_verbatim",
+      "value": 20000
+     },
+     "SWEEP_MAX_PCT": {
+      "basis": "R4-SWEEP-01: IMG_0297 (EDU) «7٪ ل 13٪» · ومدى الطبقة 1 حتى 15",
+      "source": "faisal_tier2b",
+      "value": 13.0
+     },
+     "SWEEP_PROJ_PCT": {
+      "basis": "R4-SWEEP-01: «5٪ تحت أدنى شمعة القاع» (TG_50584) · «10٪» (IMG_0177)",
+      "source": "faisal_verbatim",
+      "value": [
+       5.0,
+       10.0
+      ]
+     },
+     "SWING_K": {
+      "basis": "عرضُ المحور اليوميّ (V3.1)",
+      "source": "engineering",
+      "value": 3
+     },
+     "ZONE_PCT": {
+      "basis": "R4-ZONE-01: «طلبات 5-15٪ فوق القاع» (IMG_0531)",
+      "source": "faisal_verbatim",
+      "value": 15.0
+     }
+    },
+    "rules": {
+     "H-D2": {
+      "active": false,
+      "author": "—",
+      "backtest_derived": false,
+      "contradicting": [
+       "DXST: لا النظاميّ ولا الممتدّ أعاد W فيصل"
+      ],
+      "decisionality": "UNKNOWN",
+      "description": "(V3.1 · مرفوضة) جلسةٌ ممتدّة لـW على 30 دقيقة",
+      "effect": "لا أثر",
+      "golden_witness": [],
+      "image_ids": [],
+      "params": {},
+      "source": "faisal_adopted",
+      "source_level": 5,
+      "status": "CONTRADICTED",
+      "superseded_by": null,
+      "supporting": []
+     },
+     "R-SUP-MAIN": {
+      "active": false,
+      "author": "—",
+      "backtest_derived": false,
+      "contradicting": [
+       "ZNB · LABT (V3.1 C1)"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "(V3.1 · معلومة) أدنى ذيلٍ منذ قمّة الدورة",
+      "effect": "في V4: هو تعريفُ القاع (R4-BOT-01) · والدعمُ فوقه يُقرأ بالجسم والدعم الثاني والمنطقة",
+      "golden_witness": [],
+      "image_ids": [],
+      "params": {},
+      "source": "engineering (V3.1)",
+      "source_level": 6,
+      "status": "SUPPORTED",
+      "superseded_by": "R4-BOT-01",
+      "supporting": []
+     },
+     "R-W-SPAN": {
+      "active": false,
+      "author": "طرفٌ ثالث + رسمُ فيصل",
+      "backtest_derived": false,
+      "contradicting": [],
+      "decisionality": "UNKNOWN",
+      "description": "(V3.1) لا قاعَ بين قاعَي W أدنى منهما بأكثر من 2%",
+      "effect": "في V4: مُدمَجةٌ في R4-BOT-01 (القاعُ = الأدنى) — لا تُستعمل منفصلة",
+      "golden_witness": [],
+      "image_ids": [
+       "IMG_0627",
+       "TG_58042",
+       "TG_58043"
+      ],
+      "params": {},
+      "source": "inferred (V3.1)",
+      "source_level": 4,
+      "status": "SUPPORTED",
+      "superseded_by": "R4-BOT-01",
+      "supporting": []
+     },
+     "R4-BOT-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "C1 (V3.1): دعومُ فيصل فوق الذيل أحيانًا (ZNB 1.963 · LABT 2/1.80) — حُلّ بفصل القاع (ذيل) عن الدعم (جسم · دعمٌ ثانٍ · منطقة)"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "القاعُ = أدنى ذيلٍ منذ قمّة الدورة (نافذة 120 جلسة) · وكسرُه بأبعد من مدى السحب يعيد التحليل من القاع الجديد (يعمّم R-W-SPAN: القاعُ الحقيقيُّ هو الأدنى)",
+      "effect": "مرساةُ البنية (القاع والمنطقة والوقف)",
+      "golden_witness": [
+       "RAYA: دعمُ فيصل 1.999 = القاعُ الداخليّ 2.0 (تحقّقٌ لا مصدر)"
+      ],
+      "image_ids": [
+       "TG_50584",
+       "X_20260827_checklist_7points",
+       "X_20260905_10",
+       "X_20260905_07",
+       "IMG_0689"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "TG_50584 «أدنى شمعة القاع»",
+       "X_20260827_checklist_7points «ادنى شمعه … الوقف القاع»",
+       "X_20260905_10 «كسر 1.81 تصنع تحليل اخر بنفس النهج» (طبقة 2)",
+       "X_20260905_07 «إن كسر قاع 2.08 يذهب إلى 1.70»",
+       "IMG_0689 «كسره = ذهاب الى دعوم اخرى»"
+      ]
+     },
+     "R4-CYC-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "X_20260918_85_YMT نفسُه: «يصعد مباشره بعد القاع … نادر» (استثناءٌ معترَف به)",
+       "TG_1985 «اسهم تصعد مباشره لاتصلح لها هذي النظريه»",
+       "X_20260827_checklist_7points: دخولٌ عند القاع بلا صعود اختبار (C-CYCLE-VS-CHECKLIST)"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "الدورة: قاع ⟵ صعودُ اختبارٍ (15% فأكثر · غالبًا 20%) ⟵ رجوعٌ يختبر الدعم ⟵ الحكمُ عند الاختبار «هذا اصل التحليل»",
+      "effect": "بعد صعود الاختبار والسعرُ فوق المنطقة ⟵ WAIT (RETEST_PENDING)",
+      "golden_witness": [],
+      "image_ids": [
+       "X_20260918_85_YMT",
+       "TG_50584",
+       "X_20260918_13_NUWE",
+       "TG_50585",
+       "TG_57872",
+       "TG_57884",
+       "TG_57867",
+       "TG_50579",
+       "IMG_0566",
+       "IMG_0488",
+       "X_20260918_24_SXTC",
+       "TG_20260905_07",
+       "TG_20260905_09"
+      ],
+      "params": {
+       "RISE_TEST_PCT": "15 (المدى 10-50 · الغالب 20 · المقبول 17 في IMG_0488)"
+      },
+      "source": "faisal",
+      "source_level": 3,
+      "status": "CONFIRMED",
+      "superseded_by": null,
+      "supporting": [
+       "X_20260918_85_YMT «يصعد 20٪ بعد القاع · يرجع يختبر الدعم · هذا اصل التحليل»",
+       "TG_50584 «ارتداد لاختبار المقاومة 20% غالبًا»",
+       "X_20260918_13_NUWE «قاع ⟵ صعود ⟵ اختبار مقاومة ⟵ هبوط ⟵ اختبار دعم»",
+       "TG_50585 LIMN «اختبار مقاومه ✅ · تبقى اختبار القاع»",
+       "TG_57872 OMH «اعادة الاختبار شرط اساسي»",
+       "TG_57884 CIIT «موجه هابطه … بعد اختبار المقاومه»",
+       "TG_57867 NRSN «ضغط متوقع 20> 30٪»",
+       "TG_50579 EDBL «لازم يرجع يحقق المقاومه · بعده يرجع للدعم»",
+       "IMG_0566 MNDR «حقق 50٪ … او يرجع يختبر 1.60»",
+       "IMG_0488 «قاع صعد 17٪ · هبط اختبار شمعه الصعود»",
+       "X_20260918_24_SXTC «حقق المقاومة الأولى ثمّ هبط لاختبار الدعم»",
+       "TG_20260905_07 MSGY «يختبر المقاومة ثمّ يرجع يختبر الدعم»"
+      ]
+     },
+     "R4-DATA-01": {
+      "active": true,
+      "author": "—",
+      "backtest_derived": false,
+      "contradicting": [],
+      "decisionality": "DECISIONAL",
+      "description": "جودةُ البيانات: 40 جلسةً يوميّةً فأكثر حتى تاريخ القراءة · بلا قيمٍ ناقصة · والقراءةُ لا ترى ما بعد asof",
+      "effect": "نقصُ البيانات ⟵ UNKNOWN",
+      "golden_witness": [],
+      "image_ids": [],
+      "params": {},
+      "source": "engineering (§26 · §35)",
+      "source_level": 7,
+      "status": "CONFIRMED",
+      "superseded_by": null,
+      "supporting": []
+     },
+     "R4-ENT-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "TG_1963 ERNA «اللي ماتفرق معاه ومتعود يشري من العرض قدامك السهم»",
+       "IMG_0291 DSY «اخذته الان من العرض الليلي»",
+       "IMG_0290 AZI «شيله من العرض باي سعر» (عند التحرّر)",
+       "TG_2059 PPCB «ماركت ناخذه»"
+      ],
+      "decisionality": "SUPPORTING",
+      "description": "الدخولُ الأوّل: طلباتٌ عند الدعم بدفعاتٍ (فوارق 5 سنتات) — آليّةُ دخولٍ مفضّلة لا شرطُ قرار",
+      "effect": "يشرح طريقة الدخول · لا يغيّر الحالة (جوابُ §15)",
+      "golden_witness": [],
+      "image_ids": [
+       "IMG_0569",
+       "X_20260918_85_YMT",
+       "X_20260827_checklist_7points",
+       "IMG_0510",
+       "TG_1963",
+       "IMG_0505"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "CONFIRMED",
+      "superseded_by": null,
+      "supporting": [
+       "IMG_0569 MNDR «طلبات عند الدعوم · شرا من العرض خساره»",
+       "X_20260918_85_YMT «طلبات فوارق 5 سنت عند الدعم»",
+       "IMG_0510 CANF «نشري مع المضارب طلبات صغيره»",
+       "IMG_0505 ADIL «شرحنا طريقة الدخول والتجميع»"
+      ]
+     },
+     "R4-ENT-02": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "TG_1840 «تشري ع الاختراق اعرف انك خسران … الاختراق فاشل الدخول فيه» (C-BREAKOUT)"
+      ],
+      "decisionality": "INFORMATIONAL",
+      "description": "الدخولُ الثاني: بعد التحرّر/الاختراق مع التأكيد (ثباتٌ فوقه · إقفالٌ يوميٌّ ثانٍ)",
+      "effect": "يُعرض بديلًا (مستوى التحرّر) ولا يقلب الحالة — متنازَعٌ عليه",
+      "golden_witness": [],
+      "image_ids": [
+       "TG_2197",
+       "X_20260827_checklist_7points_cont",
+       "TG_57862",
+       "IMG_0602",
+       "X_20260918_61_VEEE"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "TG_2197 «دخول المضاربين > بعد الاختراق ربح سريع قليل امن»",
+       "TG_57862 «دخول جديد بعد الاختراق وتأكيد الدعوم»",
+       "IMG_0602 CANF «اذا تجاوز 3.67 ممتاز»",
+       "X_20260918_61_VEEE «انتظر تكوين الشمعه الثانيه باقفال يومي»"
+      ]
+     },
+     "R4-HOLD-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "WA_20260918_31_SXTC: READY يومَ الضغط (طبقة 2)",
+       "TG_2059 PPCB: «ماركت ناخذه» بعد الضغط والارتداد"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "القاعُ لا يُكسر 5 جلساتٍ فأكثر قبل أيّ حكمٍ بالإيجابيّة",
+      "effect": "أقلّ من 5 ⟵ WAIT (BASE_FORMING)",
+      "golden_witness": [],
+      "image_ids": [
+       "X_20260918_85_YMT",
+       "X_20260827_checklist_7points",
+       "TG_20260905_09",
+       "TG_2066",
+       "TG_2044"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 3,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "X_20260918_85_YMT «اذا ماكسر القاع اكثر من 5 جلسات»",
+       "X_20260827_checklist_7points «5 جلسات»",
+       "TG_20260905_09 «ثبات ٥ جلسات دخول ذا نهج علمي» (المالك يشهد)",
+       "TG_2066 «3-5 جلسات» (طبقة 2)",
+       "TG_2044 «ثبات السعر 5 جلسات» (للمبتدئ)"
+      ]
+     },
+     "R4-HOLDZ-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "IMG_0395 SPRC: «حقق الدعوم بالامس» ثمّ شراء (جلسةٌ واحدة)",
+       "WA_20260918_31_SXTC: READY يومَ الضغط",
+       "IMG_0659 TDIC (EDU): الدخولُ على شمعة الهمر"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "ثباتٌ داخل المنطقة بعد الاختبار (2-5 جلسات · الأساسيّ 3) = جاهزيّةٌ فنيّة",
+      "effect": "أقلّ من HOLD_ZONE ⟵ WAIT (RETEST_IN_PROGRESS)",
+      "golden_witness": [
+       "ZNB «مافيه دخول لين يختبر 2 > 1.96»"
+      ],
+      "image_ids": [
+       "TG_2108",
+       "TG_20260905_09",
+       "IMG_0566",
+       "IMG_0697"
+      ],
+      "params": {
+       "HOLD_ZONE": "3 (المدى 2-5)"
+      },
+      "source": "faisal",
+      "source_level": 2,
+      "status": "PROBABLE",
+      "superseded_by": null,
+      "supporting": [
+       "TG_2108 CLIR «الدخول بعد ثبات الدعوم بجلستين او 3»",
+       "TG_20260905_09 STKH «ثبات ٥ جلسات دخول»",
+       "IMG_0566 MNDR «في حال اختبر 1.60 ولاكسرها وحافظ ع قاعه يعتبر اجابي»",
+       "TG_2066 «3-5 جلسات» (طبقة 2)"
+      ]
+     },
+     "R4-INV-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "C-SUPPORT10: ENPH ‏−11..−13% وELAB ‏−39% ثمّ صعودٌ كبير (TG_2017 · TG_2127)"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "كسرُ القاع بأبعد من مدى السحب يُفشل التحليل الحاليّ ⟵ انتظارُ قاعٍ جديد",
+      "effect": "كسرٌ أعمق من SWEEP_MAX ⟵ WAIT (BROKEN_NEW_BASE)",
+      "golden_witness": [
+       "SPRC «كسر 4 يفشل التحليل»",
+       "ZNB «كسرها = مافيه دخول»"
+      ],
+      "image_ids": [
+       "IMG_0512",
+       "IMG_0513",
+       "IMG_0569",
+       "X_20260905_10",
+       "X_20260905_07"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "IMG_0512 CANF «السهم اذا ماكسر 2.80 بيصعد»",
+       "IMG_0569 MNDR «1.40 اخطر مرحله للوقف»",
+       "X_20260905_10 YMT «كسر 1.81 تصنع تحليل اخر بنفس النهج»",
+       "X_20260905_07 BTOG «إن كسر قاع 2.08 يذهب إلى 1.70»"
+      ]
+     },
+     "R4-LOC-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "T-W (V3): «الوسط غير آمن» عُكس يوميًّا بقياسٍ تداوليّ (A − M ‏−0.98) — مقياسُ ربحٍ لا وفاء (§24)"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "السعرُ فوق المنطقة بعد الصعود («الوسط غير الآمن») ⟵ لا دخول · انتظارُ الاختبار",
+      "effect": "فوق المنطقة ⟵ WAIT (RETEST_PENDING)",
+      "golden_witness": [],
+      "image_ids": [
+       "X_20260918_12_doublebottom",
+       "TG_2097",
+       "TG_50580",
+       "X_20260827_target10_entry_below"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "CONFIRMED",
+      "superseded_by": null,
+      "supporting": [
+       "X_20260918_12_doublebottom «الدخول بين خط العنق والقاع المزدوج غير امن · ضبابيه الدخول بين وبين ليست جيده»",
+       "TG_2097 «هل تعتقد يرتفع من سعره الحالي … لايمكن … ABC لابد تتحقق»",
+       "TG_50580 DCOY «العقل بالأسهم تشري تحت»",
+       "X_20260827_target10_entry_below «السعر الحالي غير صالح للدخول» (طبقة 2)"
+      ]
+     },
+     "R4-OP-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "X_20260827_checklist_7points_cont «ماتم ضغطه … تدخل مباشره ع خط متوسط 50 > 200»",
+       "AMIX READY قبل الضغط (طلبات)"
+      ],
+      "decisionality": "UNKNOWN",
+      "description": "بصمةُ المضارب (الضغط) هي التأكيدُ الافتراضيّ قبل READY · والجاهزيّةُ الفنيّة بلا بصمةٍ ⟵ انتظار",
+      "effect": "غيرُ مرئيٍّ تاريخيًّا إلّا بالسحب والعودة (R4-SWEEP-01) ⟵ الجاهزيّةُ الفنيّةُ بلا معلومة ⟵ UNKNOWN لا READY",
+      "golden_witness": [],
+      "image_ids": [
+       "TG_1822",
+       "TG_2218",
+       "X_20260827_amix_hcwb_ready",
+       "X_20260905_01",
+       "TG_50575",
+       "TG_50584"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "TG_1822 EHGO «ننتظر فقط مضارب»",
+       "TG_2218 CDIO «جاهز … بانتظار فقط دخول المضارب»",
+       "X_20260827_amix_hcwb_ready HCWB «ننتظر ضغط المضارب»",
+       "X_20260905_01 PPBT «انتظار ضغط البري»",
+       "TG_50575 DCOY «ننتظر ضغط الماركت»",
+       "TG_50584 «تبقى الضغط ✅»"
+      ]
+     },
+     "R4-STOP-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "TG_1978 «الوقف −5٪»",
+       "TG_2098 HUBC «وقف 7٪»",
+       "X_20260918_61_VEEE «7٪ من دخولنا» (C-STOP-REF)"
+      ],
+      "decisionality": "SUPPORTING",
+      "description": "الوقف: القاعُ نفسُه (الأساسيّ) · وبدائلُ موسومة: ‏−5% · ‏−7% تحت الدعم · 7% من الدخول",
+      "effect": "ثلاثُ عائلاتِ وقفٍ موسومة لا تُخلط",
+      "golden_witness": [],
+      "image_ids": [
+       "X_20260827_checklist_7points",
+       "TG_2106",
+       "TG_1978",
+       "TG_2098",
+       "X_20260918_61_VEEE"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "X_20260827_checklist_7points «الوقف القاع»",
+       "TG_2106 «وقفك صارم الدعم الاول»",
+       "AMIX 4.60 تحت أدنى دفعة"
+      ]
+     },
+     "R4-SWEEP-01": {
+      "active": true,
+      "author": "F (المدى) · EDU (7-13 حرفيًّا)",
+      "backtest_derived": false,
+      "contradicting": [
+       "IMG_0153 وصفةُ المقسّم: هبوطٌ إلى 2 من ÷2≈2.75 (‏−27%)",
+       "C-STOP-VS-SWEEP: وقفُ 5-7% يُضرب بسحب 8%"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "سحبُ سيولةٍ تحت القاع السابق (حتى 13% · مدى الطبقة 1: 5-15%) ثمّ عودةٌ فوقه = ضغطُ المضارب (إيجابيّ)",
+      "effect": "سحبٌ ثمّ عودةٌ خلال جلستين ⟵ جاهزيّةٌ فنيّة (PRESS_RECLAIM)",
+      "golden_witness": [],
+      "image_ids": [
+       "TG_50584",
+       "IMG_0177",
+       "TG_57874",
+       "TG_57870",
+       "TG_57879",
+       "TG_1822",
+       "IMG_0297"
+      ],
+      "params": {
+       "SWEEP_MAX_PCT": "13 (حدُّ EDU · ومدى الطبقة 1 حتى 15)",
+       "SWEEP_PROJ": "5 و10 (الطبقة 1)"
+      },
+      "source": "faisal + EDU",
+      "source_level": 2,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "TG_50584 «سحب سيولة 5% تحت أدنى شمعة القاع»",
+       "IMG_0177 «مسح سيوله 10٪ تحت القاع»",
+       "TG_57874 «10-15٪»",
+       "TG_57870 «15٪ تحت متوسط التجميع»",
+       "TG_57879 CIIT «الاجابيه ثبات اسفل الدعم … بعدها العوده فوق الدعم»",
+       "TG_1822 EHGO «سحب السيوله اسفل الشمعه 10٪ تقريبا ورجع صعد فوق الدعم»",
+       "IMG_0297 (EDU) «7٪ ل 13٪»"
+      ]
+     },
+     "R4-TF-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [],
+      "decisionality": "INFORMATIONAL",
+      "description": "الفريمات: يوميّ ‏+ 4 ساعات · و30/5 دقائق للّحظيّ · والمستوياتُ تختلف بالفريم — المحرّكُ يوميٌّ وحدَه",
+      "effect": "سياقُ الفريم الأدنى UNKNOWN تاريخيًّا",
+      "golden_witness": [],
+      "image_ids": [
+       "X_20260905_10",
+       "IMG_0361",
+       "TG_58048",
+       "TG_2031"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "X_20260905_10 «فريم 4 ساعات كذلك 30 دقيقه»",
+       "IMG_0361 «5 دقائق ادق واوضح»",
+       "TG_58048 «W يُرسم على 30 دقيقة»"
+      ]
+     },
+     "R4-TGT-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "IMG_0587 «100٪ مضمونه» = يقين لا مسافة (فئةٌ ثالثة)"
+      ],
+      "decisionality": "INFORMATIONAL",
+      "description": "الأهداف: سلّمُ المقاومات (الأسود) · رأسُ/ذيلُ الشمعة الساقطة · الفجوات · و«100٪ هدف» = مسافةُ ربح ‏+100% · والحركةُ المقيسة طرفٌ ثالث",
+      "effect": "الأهدافُ لا تغيّر الحالة",
+      "golden_witness": [],
+      "image_ids": [
+       "X_20260827_amix_hcwb_ready",
+       "IMG_0508",
+       "TG_2097",
+       "IMG_0587",
+       "X_20260827_pfsa_500pct"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "CONFIRMED",
+      "superseded_by": null,
+      "supporting": [
+       "AMIX «هدفنا 100٪ 9.45» = ضعفُ الدخول",
+       "IMG_0508 SLXN «يصعد ل 3 = 100٪»",
+       "TG_2097 «الهدف 4 = 100٪» من الدعم 2"
+      ]
+     },
+     "R4-VAL-GRP-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "X_20260905_10 YMT «لايهم حتى لو دخل قروب ورفعه 20٪ · المضارب اذا بيحقق اهدافه راح يهبط فيه»"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "دخولُ القروبات يُبطل قراءةَ الشموع ⟵ رفض",
+      "effect": "context.groups = True ⟵ REJECT",
+      "golden_witness": [],
+      "image_ids": [
+       "IMG_0488",
+       "TG_1835",
+       "X_20260827_checklist_7points",
+       "TG_2090",
+       "IMG_0316",
+       "IMG_0508"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "IMG_0488 «دخول سيوله قروبات … لا انا ولا اكبر محلل يستطيع قراءة الشموع»",
+       "TG_1835 LABT «سيولة قروبات داخلة»",
+       "X_20260827_checklist_7points ⑥ «خالٍ من القروبات»",
+       "TG_2090 CDIO «مالم تدخل قروبات»",
+       "IMG_0316 JZ «دخل قروب غبي … المضارب الغى جميع الاهداف»",
+       "IMG_0508 SLXN «رفعه سريعه من اللي وصى عليه»"
+      ]
+     },
+     "R4-VAL-OFF-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [],
+      "decisionality": "DECISIONAL",
+      "description": "طرحٌ أو تخفيفٌ معلَّق ⟵ انتظار",
+      "effect": "context.offering_pending = True ⟵ WAIT",
+      "golden_witness": [],
+      "image_ids": [
+       "X_20260827_kwm_offering_notready",
+       "TG_50828",
+       "TG_2064",
+       "X_20260918_85_YMT"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "X_20260827_kwm_offering_notready «غير جاهز فنيا» بعد طرح 500 ألف",
+       "TG_50828 CETX «إغلاق طرح معلّق ⟵ انتظار»",
+       "TG_2064 ADIL «هل عنده تقسيم قادم او طرح او تخفيف»",
+       "X_20260918_85_YMT «يهمك قراءة الاخبار هل هناك طرح اسهم»"
+      ]
+     },
+     "R4-VAL-SHORT-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "TG_2196 ONCO: شورت 150 ألفًا وخطّةٌ كاملة",
+       "TG_1831 LABT: «الشورت 55 ألف متاح ولم يمنع التحليل» (طبقة 2)"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "المتاحُ للشورت فوق 20 ألفًا ⟵ انتظار",
+      "effect": "context.short_available > 20,000 ⟵ WAIT (لا يرقّي أبدًا)",
+      "golden_witness": [],
+      "image_ids": [
+       "IMG_0150",
+       "TG_50578",
+       "X_20260827_rubi_read_short150k"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 2,
+      "status": "PROBABLE",
+      "superseded_by": null,
+      "supporting": [
+       "IMG_0150 WORX «تابعه لين يبقى الشورت تحت 20 الف»",
+       "TG_50578 DCOY «باقي 80 الف شورت ننتظر»",
+       "X_20260827_rubi_read_short150k RUBI «المشكله بالشورت» (150 ألفًا)"
+      ]
+     },
+     "R4-ZONE-01": {
+      "active": true,
+      "author": "F",
+      "backtest_derived": false,
+      "contradicting": [
+       "TG_1963 ERNA: طلباتٌ 5.00-5.40 فوق قاعٍ قديم 3.70 بـ35%+ (القاعُ المرجعيُّ مختلف)"
+      ],
+      "decisionality": "DECISIONAL",
+      "description": "منطقةُ الدخول/الاختبار: من القاع حتى 15% فوقه · والطلباتُ 5-15% فوق القاع",
+      "effect": "السعرُ داخل المنطقة شرطُ الجاهزيّة الفنيّة",
+      "golden_witness": [],
+      "image_ids": [
+       "IMG_0531",
+       "IMG_0569",
+       "X_20260827_checklist_7points",
+       "TG_50585",
+       "X_20260918_85_YMT"
+      ],
+      "params": {},
+      "source": "faisal",
+      "source_level": 1,
+      "status": "SUPPORTED",
+      "superseded_by": null,
+      "supporting": [
+       "IMG_0531 «طلبات جاهزه 5-15٪ فوق القاع» · «تذبذب 10-20٪ فوق القاع»",
+       "IMG_0569 MNDR 1.50-1.60 فوق قاع 1.40",
+       "X_20260827_checklist_7points «1.50 ⟵ 1.60-1.70»",
+       "TG_50585 LIMN 3.40 فوق 3.29",
+       "X_20260918_85_YMT الدعم الثاني 1.84 فوق 1.81"
+      ]
+     }
+    },
+    "rules_version": "V4-RULES 1.0 (2026-10-02)",
+    "state_decision": {
+     "BASE_FORMING": "WAIT",
+     "BASE_HELD": "TECH_READY",
+     "BROKEN_NEW_BASE": "WAIT",
+     "DATA_INSUFFICIENT": "UNKNOWN",
+     "PRESS_RECLAIM": "TECH_READY",
+     "RETEST_HELD": "TECH_READY",
+     "RETEST_IN_PROGRESS": "WAIT",
+     "RETEST_PENDING": "WAIT",
+     "SWEEP_ACTIVE": "WAIT"
+    },
+    "state_rule": {
+     "BASE_FORMING": "R4-HOLD-01",
+     "BASE_HELD": "R4-HOLD-01",
+     "BROKEN_NEW_BASE": "R4-INV-01",
+     "DATA_INSUFFICIENT": "R4-DATA-01",
+     "PRESS_RECLAIM": "R4-SWEEP-01",
+     "RETEST_HELD": "R4-HOLDZ-01",
+     "RETEST_IN_PROGRESS": "R4-HOLDZ-01",
+     "RETEST_PENDING": "R4-LOC-01",
+     "SWEEP_ACTIVE": "R4-SWEEP-01"
+    }
+   },
+   "config_hash": "3829aa5ed84827c68d04daa14cd3bd4e8cf1b1040fe3c04724a81d784879397e",
+   "files": {
+    ".github/workflows/faisal_v4.yml": "2d4e13c04154acc6c26e71b7256363c077a3f2dee978464806aa702b7a52f029",
+    "faisal_method_v3/dedup_clusters.json": "049c064b58bd00de3028efe1d368981a612559ab7906dfad556a966c2cfe9f64",
+    "faisal_method_v3/faisal_tool.py": "b646d32dcc5e851ad16da996238ca0a5e8f597dfef67946682b4b3497b710534",
+    "faisal_method_v3/image_corpus.json": "8bde6fe4766ad55abaf8b1e0ce7e344ef5047924bcbf5cb851dcd6bafcfd4379",
+    "faisal_method_v3/source_access.json": "759c2dc08f6812040787ca95e658c4ebe1e715edfacc333d0c3b8656f2a29c0a",
+    "faisal_method_v3/v31/golden_cases_v31.json": "64a16333c7a74cc5311588806cef1e71a71d3834878862cac601e38ffce71dd3",
+    "faisal_method_v3/v31/golden_fixtures.json": "ca1c6c57ac2bd3cc830f00d541e6f2686e5157df31173e59a085bb744c5bff52",
+    "faisal_method_v3/v31/reconcile_v31.json": "582bf857d694ae7910f8c32e2ad0cbd6bc877a0adff93d3c4e4b8f497ee9c55a",
+    "faisal_method_v3/v31/rule_audit_v31.json": "064d7a7952dfb9731ad1b75cf08fce8ccb48f52fd033f7c6727f79bc701511b6",
+    "faisal_method_v4/V4_prereg.md": "c5871bdb203a6db39e454f7cec69c4f774cde849635bb95115f658fb192d7623",
+    "faisal_method_v4/data/case_labels_v4.json": "b7d47bc0bd5fa85aa8b5c7d91cd5426593addb4e1cc863dc52192e898a7f5524",
+    "faisal_method_v4/data/corrections_v4.json": "db754ff230a466b9ad835a79817950b7bc4fd876eb5e88558f9d9e8baa3cc601",
+    "faisal_method_v4/data/v4_bars_fixture.json": "6b107ceaca682d0c814da79f61210b8b471eb248f6de3d8fb33603b87f4574d8",
+    "faisal_method_v4/data/v4_bars_fixture.sha256": "fbe9583ebc92f8b4c1088c671f78c18e781828c4ebe12fa0ddac978ed2f9c4e0",
+    "faisal_method_v4/data/visual_pass_v4.jsonl": "d431061c6a841b5b2c8072978366bc52060c21a4f577229baabb971f2f077a4d",
+    "faisal_method_v4/decision_engine.py": "2675cb394f74d029f9e043f20f6984004b378b2af31edd3a22c1c6b7ccf2e68c",
+    "faisal_method_v4/docs/01_FAISAL_V4_FINAL_REPORT.md": "eab0dc35e1610763b26c0791b9708b9700ff45603d9bed9da67659707ce4fe84",
+    "faisal_method_v4/docs/02_FAISAL_DECISION_PIPELINE_V4.md": "e3ec34c97a86b667293874f64b2e26fb72b1c89dd93fb7ccc2ef0fed6d4e27c8",
+    "faisal_method_v4/docs/03_FAISAL_DECISION_GRAPH_V4.json": "b91803cc3eadd48cbb777ef055408611f0e6ce22497b3ab0696a373ba96dd503",
+    "faisal_method_v4/docs/04_READY_WAIT_REJECT_FORENSICS.md": "035edfe28d5087b1fa67d6e284a3934171011887a9c81f6c18d7457c6406a00e",
+    "faisal_method_v4/docs/05_READY_WAIT_CASE_MATRIX.md": "636d9e9555fa1029cb9239b06ae6c98fa56661a4b19b20d167c1ccdf42302957",
+    "faisal_method_v4/docs/06_REJECTION_FORENSICS_V4.md": "5d459999d43bd763747c527127ca88af877dcb26859e5c2351dec28a8779919e",
+    "faisal_method_v4/docs/07_CONTRADICTION_MATRIX_V4.json": "7795e22c06691674f576b9e7501af505fa9f695f6628391aa1b1ee46cce8aafe",
+    "faisal_method_v4/docs/08_TARGET_FORENSICS_ALL_PATTERNS.md": "405cfc2b1b973f1b37e9c65d22450fc761f0638d94cb8ca864f7c35c42ae0d65",
+    "faisal_method_v4/docs/09_GOLDEN_CASES.md": "2c3a4706af7d3dacf7e412834eed91784d2241474f14d7b6cc992d0f9e7b37e3",
+    "faisal_method_v4/docs/10_GOLDEN_CASE_GENERALIZATION.md": "a4c380e1fac03e8e22d4c3fe265fdc8338bfd374f5f5888fd678e0bcd5d1b379",
+    "faisal_method_v4/docs/11_PRESSURE_POOL_DOWNSTREAM_IMPACT_V4.md": "a7a1276a19666cc91b80f1b51b436b7eab9ffe11dd293234512a948b4e4922c3",
+    "faisal_method_v4/docs/12_RULE_AUDIT_V4.md": "6efbf25f4f1538c8d5222b916de745374bbcca086434f27caf7b054843e89440",
+    "faisal_method_v4/docs/13_SOURCE_ACCESS_V4.md": "7488225a9ab75a42745fd5814be0e0b39987e28373d0cde82695c5bead14f11a",
+    "faisal_method_v4/docs/14_TELEGRAM_IMAGE_RECONCILIATION_V4.json": "b45793a4f152d004609569a26cabda445a124f7ba7fd4260204ad822659387ea",
+    "faisal_method_v4/docs/15_V4_CHANGELOG.md": "aaa01adcb6b86cf0ef038a551be9529aab08e8cdea7cf89b05ad7ab2c616618f",
+    "faisal_method_v4/docs/16_V4_VALIDATION_REPORT.md": "a72d24b702cf1c4689f90b9666d62a79bf225a9c2ad63120e5892a4ef3a868eb",
+    "faisal_method_v4/docs/17_IMPLEMENTATION_READINESS_REPORT.md": "08a4cb55aee03aedf8ac3003663e21c78024743fd12908e081f3f3d1e7315f39",
+    "faisal_method_v4/docs/18_V4_HANDOFF.md": "415e7a3cd8ab394e66008b217ec3381333ea712dab6dc8a292324445822aca45",
+    "faisal_method_v4/overlays/BETA_2026-04-05.png": "cefa6067be3dd8b4fbdc0a28e2c6591ea5319a5813701f9db93fe49bccec6ded",
+    "faisal_method_v4/overlays/CANF_2026-07-20.png": "00bad1218ea60a67bc274f381462961784ac7a59a0e47c95beea0832fd990541",
+    "faisal_method_v4/overlays/CANF_2026-08-01.png": "515323772ac0e506eab30a8e3a506afb29e20c726a2ce70c179c29fe59e8269d",
+    "faisal_method_v4/overlays/CDIO_2026-01-28.png": "7499be1b459ac0ee22fdfc00115b74d8e99f84a74fb3dcfdf918da8f8edcd647",
+    "faisal_method_v4/overlays/CIIT_2026-09-26.png": "008f77bc1c08c98df70d46b76c3f47acd9fe9aed0ac995d21f07b81590e5f033",
+    "faisal_method_v4/overlays/EDBL_2026-09-22.png": "82932e71ceb1483c83370aeb12c0e5aeef9e75160880b38e422c3a77e11d87bf",
+    "faisal_method_v4/overlays/EHGO_2026-05-22.png": "d15b04f4c1e66d127a21837c49b5c492c96d595acc428670eb1ff6e10327f0f1",
+    "faisal_method_v4/overlays/FRSX_2026-03-28.png": "47ed97cbccbba327a2e809358b6b0d2d40a43f5fe46f190d0cb6d79092bd70a5",
+    "faisal_method_v4/overlays/GOLDEN_AMIX.png": "bc1381a9a522463637966f103bf4937211e3789376c9a69f9facf1c2da80ff54",
+    "faisal_method_v4/overlays/GOLDEN_DXST.png": "b21cc1e472efab87c56a4caff539dd3607d2cae9864b25e7e4945581e91fe155",
+    "faisal_method_v4/overlays/GOLDEN_HCWB.png": "adfd8a431b24a9c67c0aeff79500aba0d3a7ef3a7842a5834a8e37ac438a1181",
+    "faisal_method_v4/overlays/GOLDEN_LABT.png": "b9eda48e028802dacd6b1d7f45b0e58714aa89e00943e458c1f76247294c1dd2",
+    "faisal_method_v4/overlays/GOLDEN_RAYA.png": "25fa4aab769dcc5afe8a13b2fe3682dfb3ecad9b47cb5d302cb75086280fb7b6",
+    "faisal_method_v4/overlays/GOLDEN_RUBI.png": "bf20538f353730a28fa105558a5085e3e7204dd6204a52209317d32b12f3588c",
+    "faisal_method_v4/overlays/GOLDEN_ZNB.png": "7628ac2094fd358e121cee78faffb1de385de8f2dc421938035662250646e897",
+    "faisal_method_v4/overlays/LIMN_2026-09-22.png": "d5467d6075c8788292ff2b97c8d4e8a2b1f5035e8de19b44ee8949892e7be058",
+    "faisal_method_v4/overlays/MNDR_2026-07-31.png": "767d2056c67448004c70c0421b7abd506a4ae9297e2ccadbc570d969bc636bba",
+    "faisal_method_v4/overlays/NRSN_2026-09-27.png": "115d2bd7bc36eefcfc2c2b46218e39d7fdb8fd883f66094bc7fbeae4056a9845",
+    "faisal_method_v4/overlays/OMH_2026-09-26.png": "2b4b2aa83ec93b162fb4523070eb1dd0f05877a2eb3ee02d3a7ca82d310a93e9",
+    "faisal_method_v4/overlays/ONCO_2026-07-26.png": "b8bd055c842a1f4cb5bbca6dd7da0dec2a062e4f5bed50c2f77f033e1bc2ae5b",
+    "faisal_method_v4/overlays/PPBT_2026-09-04.png": "7af8d9680ef29276ff1312055b714a8cb616f3a7d91045cb7c01adfb3a810e30",
+    "faisal_method_v4/overlays/SLXN_2026-08-06.png": "b0ee50a40e55abeaa3c5bee71a4fbf37c35de6ff408ce0a6434097b4f455a794",
+    "faisal_method_v4/overlays/STKH_2026-09-04.png": "45baf57bc7f25d70de03365a981d2593ee94266468de2a6d0b7c8288d50926b8",
+    "faisal_method_v4/overlays/UPC_2026-07.png": "7b17c8f54fdc0f05712a55f7e95b542797f293a46d6ce8f8e0ffc052bf5b18ba",
+    "faisal_method_v4/overlays/WORX_2026-04-11.png": "09f0efaf8b95c0031300465f5d9cc640ca38f066bb0b44ebea4ad4a75e4c2053",
+    "faisal_method_v4/overlays/YMT_2026-09-04.png": "17b8b6fb6b5667d4e008bc4d9ff1ca35621a446325fe48d81c88e3a0380c1ec6",
+    "faisal_method_v4/results/cases_v4.json": "422a28f2fe28e3a21a40032f66704128a5ebdb00367a7fc15a49bc2c66766665",
+    "faisal_method_v4/results/corpus_counts_v4.json": "70e8fa35dc8ea8f49ee61f5d4b9a67a20b65b0ae04e8524a86a772ac74fa2181",
+    "faisal_method_v4/results/forensics_v4.json": "b0f7beac75fd6ec723d5121f29d8701ea619f1743b485f6d0168417f781b2692",
+    "faisal_method_v4/results/image_reconciliation_v4.json": "7c398fee9d216d79b4e9d69da7ce01a62297d8da869b1f514f7f7493fc80a9f7",
+    "faisal_method_v4/results/mutations_v4.json": "30f6691ab44e5a532af9127b47d0b729b7956dd243d55e14f692b23e8635268b",
+    "faisal_method_v4/results/pool_cap_downstream_v4rerun.json": "be38a196f23a7a27b91f9aea00b634e715c6aeceda2cdcb824b732cef9ec3981",
+    "faisal_method_v4/results/run_registry_v4.json": "7603ef3c24f5f0d87800b08558e0e42009699b78b72aea9d6a6f81eda1795adf",
+    "faisal_method_v4/results/suite_result_v4.json": "39c0ff86d5d8b253de125af34668c2e93ceabe63052141979204b39aa8adbf34",
+    "faisal_method_v4/results/telegram_reconciliation_v4.json": "001f2bd06aff40f7311d4a000bf2f117f2f58e9fb167928c658eb95010297b86",
+    "faisal_method_v4/results/v4_atmv.json": "9a87f6ca68febd79137e1af5c9fd4349d18ad87c01007fa22a5cced1fd21df1e",
+    "faisal_method_v4/results/v4_cov30.json": "b5303ebc6cf8c828df224db909e0be0d106c3bab3c93d006b716179337889d60",
+    "faisal_method_v4/results/v4_eval_results.json": "636195a589d3c1014d930bbccac05fbc0bd5bd06db11b02f1d146137718456ac",
+    "faisal_method_v4/results/v4_metrics_actions.json": "45a3a001ae8a8a44125ab5aa806c4afee8ed9c9b3230f0c768196d52462ae8c0",
+    "faisal_method_v4/rules_v4.py": "335e18af335c0e9eef3b364c249b1a8b05cf9c5c27ba13d66a4a6cc71517d151",
+    "faisal_method_v4/v4_cases.py": "fb5bfc21b461ce17dadf4e4cc2e772f786f0bda839ac00ed5af089fd59657628",
+    "faisal_method_v4/v4_corpus.py": "4c5881fb31e7de88589ad16fe780f40c8c374340cf7b6de4b3b48e59aebd2f19",
+    "faisal_method_v4/v4_docs.py": "1da80ad37e50e6a57e8d07fdb03bb1460ad8bdc0623d192e70fa1d744f820cf5",
+    "faisal_method_v4/v4_eval.py": "c6b7121d9e1b576a19cdceb8fa36fa48cf03b89cfaeb99b558c440f80acac64c",
+    "faisal_method_v4/v4_forensics.py": "6f55039a9e3dd4f4c7d4c643dbecec5e5268c098cbf52124971384e0b8c1cc8f",
+    "faisal_method_v4/v4_offline.py": "91c5c487bda983d16d427c72d8bee96883413571722680ef68bb74e839bc4a0b",
+    "faisal_method_v4/v4_run.py": "e7f1a6c7a487ee27467332a5977803958b6459da66b41c464a3fd9fb02a0290c"
+   },
+   "freeze_id": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+   "invalidates": [],
+   "n_files": 81,
+   "reason_class": "INITIAL",
+   "recorded_deps": {
+    "Super_stock.py": "40d5f89884a8f1b43aa4be87923f201a1f7575c073e9ea7a7004a9ec686159c6",
+    "market_calendar.py": "01909d48247223d4e38b7bf457f48e11f6b45cc170881f2a4c8aab6ed2750fd7",
+    "tv_data.py": "2523e156ccdab30067ece16fa77c9068c49c7c5a5c2c16539b1594161fb19e33"
+   },
+   "regression_test": null,
+   "rev": 1,
+   "supersedes": null
+  }
+ ],
+ "status": "FROZEN"
+}
