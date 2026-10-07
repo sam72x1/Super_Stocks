@@ -471,6 +471,18 @@
    "seq": 47,
    "sha256": "951cf7f11f14e7e27e7e049d10899140ae90a606cde349d1d43a7fde97c2009c",
    "utc": "2026-10-07T12:06:18Z"
+  },
+  {
+   "case_id": "CASE_0001",
+   "case_version": 1,
+   "entry_hash": "6bbb2cf38dd6e8f6db30ad5e626699ba5af3005f8b35fe6c7b4d722d762d56bf",
+   "kind": "v4",
+   "path": "decisions/CASE_0001.v1.r11.v4.json",
+   "prev": "7b005ce5461e3f0c449d846dc0ba1e72a581f5857f18a992114bc713970efbf6",
+   "run": 1,
+   "seq": 48,
+   "sha256": "f2fe31e0190c0df736c84c44b1df41e116a5becafd40702cd8cd22600aa5bb25",
+   "utc": "2026-10-07T12:42:47Z"
   }
  ],
  "schema": 1,
