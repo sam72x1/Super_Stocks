@@ -1035,11 +1035,13 @@ def doc_missed(d, A, Q):
     t += "\n## ② بنودُ الطابور (لا تدخل V4)\n"
     for it in Q["items"]:
         t += (f"\n### {it['id']} · {it['title']} ({it['cls']})\n- **الملاحظة:** {it['observation']}\n- **القاعدةُ المرشَّحة:** {it['candidate_rule']}\n"
+              f"- **قواعدُ V4 المعنيّة:** {' · '.join('`' + r + '`' for r in it['rules']) or '— (فجوةٌ لا قاعدةَ لها في V4)'}\n"
               f"- **حالاتٌ تدعم ({len(it['supporting_cases'])}):** {' · '.join('`' + x + '`' for x in it['supporting_cases'])}\n"
               f"- **حالاتٌ تعارض:** {' · '.join(it['contradictory_cases']) or 'لا شيء معروف'}\n"
               f"- **الثقة:** {it['confidence']} · **العموم:** {it['generality']}\n- **لماذا لا تدخل V4 الآن:** {it['why_not_v4']} · **الأثر:** {it['v4_effect']}\n")
     t += "\n## ③ تحديثاتٌ لبنودٍ قائمة (سجلٌّ جديد — البندُ المختوم لا يُعدَّل)\n"
-    t += "".join(f"- **{u['id']} ⟵ {u['updates']}:** {u['note']} ({' · '.join('`' + e + '`' for e in u['evidence'])})\n" for u in Q["updates"])
+    t += "".join(f"- **{u['id']} ⟵ {u['updates']}:** {u['note']} ({' · '.join('`' + e + '`' for e in u['evidence'])})"
+                 + (f" · قواعدُ V4: {' · '.join('`' + r + '`' for r in u['rules'])}" if u["rules"] else "") + "\n" for u in Q["updates"])
     t += ("\n## ④ لا إفراطَ في الملاءمة (§11)\nلا بندَ لرمزٍ أو تاريخٍ أو لقطةٍ بعينها · ولا لحالةٍ ذهبيّة (DXST · VEEE · RAYA · ATMV) · ولا من الشارت الأخير وحدَه · "
           "ولا لتحسين رقم — والقفلُ يُسقط قاعدةً مرشَّحةً فيها رمزُ سهمٍ أو تاريخ.\n")
     return t
