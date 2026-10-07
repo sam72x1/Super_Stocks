@@ -514,7 +514,29 @@ def doc_queue(d):
 ## RQ-08 · قاعدةُ الدورة `R4-CYC-01`
 تناقضاتٌ من الطبقة 1 ({next(r['COUNTS']['c1'] for r in p['rules'] if r['RULE_ID'] == 'R4-CYC-01')}) بنصّ فيصل («تصعد مباشره لا تصلح لها هذي النظريه») ⟵
 هل الدورةُ شرطٌ عامّ أم لنوعٍ من الأسهم؟ — يُقاس أماميًّا (حالاتُ «صعود مباشر» تُوسَم).
-{batch_queue_block()}"""
+{batch_queue_block()}{ex_queue_block()}"""
+
+
+def ex_queue_block():
+    """بنودُ تدقيق اكتمال المدوّنة (`corpus_audit/research_queue_ex.json` · EX_PROTOCOL §⑥ · §⑦) — مرشَّحاتٌ وتحديثاتٌ لبنودٍ قائمة · لا تدخل V4."""
+    qp = os.path.join(HERE, "corpus_audit", "research_queue_ex.json")
+    if not os.path.exists(qp):
+        return ""
+    q = _j(qp)
+    out = ["", f"## تدقيقُ اكتمال المدوّنة {q['batch_id']} (`{os.path.relpath(qp, ROOT)}`)", f"> {q['rule']}"]
+    for it in q["items"]:
+        out += ["", f"### {it['id']} · {it['title']} ({it['cls']})",
+                f"- **الملاحظة:** {it['observation']}",
+                f"- **القاعدةُ المرشَّحة:** {it['candidate_rule']}",
+                f"- **قواعدُ V4 المعنيّة:** {' · '.join('`' + r + '`' for r in it.get('rules') or []) or '— (فجوةٌ لا قاعدةَ لها في V4)'}",
+                f"- **حالاتٌ تدعم ({len(it['supporting_cases'])}):** {' · '.join(it['supporting_cases']) or '—'} · "
+                f"**حالاتٌ تعارض:** {' · '.join(it['contradictory_cases']) or 'لا شيء معروف'}",
+                f"- **الثقة:** {it['confidence']} · **العموم:** {it['generality']}",
+                f"- **لماذا لا تدخل V4 الآن:** {it['why_not_v4']} · **الأثر على V4:** {it['v4_effect']}"]
+    out += ["", "### تحديثاتٌ لبنودٍ قائمة (سجلٌّ جديد · البندُ الأصليّ لا يُعدَّل)"]
+    out += [f"- **{u['id']} ⟵ {u['updates']}:** {u['note']} ({' · '.join(u['evidence'])})"
+            + (f" · قواعدُ V4: {' · '.join('`' + r + '`' for r in u['rules'])}" if u.get("rules") else "") for u in q["updates"]]
+    return "\n".join(out) + "\n"
 
 
 def batch_queue_block():
