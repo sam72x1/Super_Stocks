@@ -70,18 +70,21 @@ def _iso(ts):
     return time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(v)) if v > 0 else None
 
 
-def admin_id(raw=None):
-    """المشرف = **أوّلُ** رقمٍ في `TELEGRAM_CHAT_ID` بقواعد مُحلِّل البوت نفسِها (الفاصلة ·
-    المنقوطة · الفاصلة والمنقوطة العربيّتان «،» «؛» · السطر الجديد · المسافة) ⇒ نصٌّ أو None.
-    نقيّة حين يُمرَّر `raw` · ومطابقتُها لمُحلِّل البوت مقفولةٌ في السويّة (لا تستورده: أداةٌ مستقلّة)."""
+def recipient_ids(raw=None):
+    """كلُّ أرقام `TELEGRAM_CHAT_ID` بقواعد مُحلِّل البوت نفسِها (الفاصلة · المنقوطة · الفاصلة والمنقوطة
+    العربيّتان «،» «؛» · السطر الجديد · المسافة) ⇒ قائمةُ نصوصٍ بترتيبها (الأوّلُ = المشرف). نقيّة حين يُمرَّر `raw`."""
     raw = os.environ.get("TELEGRAM_CHAT_ID", "") if raw is None else raw
     raw = str(raw or "")
     for sep in (";", "،", "؛", "\n", "\r", "\t", " "):
         raw = raw.replace(sep, ",")
-    for c in raw.split(","):
-        if c.strip():
-            return c.strip()
-    return None
+    return [c.strip() for c in raw.split(",") if c.strip()]
+
+
+def admin_id(raw=None):
+    """المشرف = **أوّلُ** رقمٍ في `TELEGRAM_CHAT_ID` (`recipient_ids`) ⇒ نصٌّ أو None.
+    نقيّة حين يُمرَّر `raw` · ومطابقتُها لمُحلِّل البوت مقفولةٌ في السويّة (لا تستورده: أداةٌ مستقلّة)."""
+    ids = recipient_ids(raw)
+    return ids[0] if ids else None
 
 
 def forward_meta(msg):
@@ -131,6 +134,20 @@ def forward_meta(msg):
     return {k: v for k, v in out.items() if v is not None}
 
 
+def forward_public(fwd):
+    """🧾 مصدرُ التوجيه **لأيّ مُرسِل** ⇒ dict أو None (2026-10-07 · دفعةُ الـ48: وُسمت كلُّها «من غير المشرف» فحُجب توجيهُها
+    كلُّه وضاع تاريخُ المنشور الأصليّ — وهو لا يحمل هويّةَ أحد). نقيّة: من مُخرَج `forward_meta` تُبقي النوعَ وتاريخَ المنشور الأصليّ
+    ووسمَ الإخفاء/الآليّ · وعنوانَ القناة ومعرّفَها ورقمَ منشورها وتوقيعَها **للقناة العامّة وحدَها** (لها @معرّف) · ولا اسمَ
+    مستخدمٍ ولا عنوانَ مجموعةٍ ولا قناةٍ خاصّة."""
+    if not isinstance(fwd, dict) or not fwd.get("type"):
+        return None
+    out = {k: fwd[k] for k in ("type", "date", "hidden", "automatic") if k in fwd}
+    if fwd.get("chat_type") == "channel" and fwd.get("chat_username"):
+        out.update({k: fwd[k] for k in ("chat_title", "chat_username", "chat_type", "origin_message_id", "author_signature")
+                    if k in fwd})
+    return out
+
+
 def file_meta(msg, f):
     """🧾 بياناتُ **الملفّ الذي اختاره `pick_file` نفسُه** لا غيره ⇒ dict. نقيّة.
     المستند: المعرّفُ الثابت والحجمُ والنوعُ والاسمُ الأصليّ (الأبعادُ تُقاس من الملفّ المحفوظ) ·
@@ -152,14 +169,17 @@ def file_meta(msg, f):
 def msg_meta(u, msg, status, f=None, admin=None, **extra):
     """🧾 صفُّ بياناتٍ لرسالةٍ واحدة ⇒ dict جاهزٌ لسطر JSONL (نقيّةٌ عدا `collected_utc`).
 
-    `admin` = معرّفُ المشرف يُقارَن بمعرّف المحادثة **ولا يُكتب أيٌّ منهما** — يُكتب `from_admin`
-    (صح · خطأ · None حين لا يُعرف المشرف). 🔒 **النصُّ والتعليقُ والتوجيهُ والروابطُ للمشرف وحده**
-    (`redacted` لغيره): البوتُ نفسُه يُراسله مستلمو التقرير الآخرون، ورسالتُهم الخاصّة لا تُدفَع
-    لمستودعٍ عامّ. والصفُّ يُكتب **قبل** أن يُقَرّ تحديثُه عند تلغرام (`_append_meta`)."""
+    `admin` = معرّفُ المشرف · أو قائمةُ المستلمين كلِّهم (`recipient_ids` · الأوّلُ = المشرف) يُقارَن بمعرّف المحادثة **ولا
+    يُكتب أيٌّ منهما** — يُكتب `from_admin` (صح · خطأ · None حين لا يُعرف المشرف) و`from_recipient` لغير المشرف (هل
+    المُرسِلُ أحدُ مستلمي التقرير؟ — تشخيصٌ بلا هويّة). 🔒 **النصُّ والتعليقُ والروابطُ ومصدرُ التوجيه الكاملُ للمشرف وحده**
+    (`redacted` لغيره): البوتُ نفسُه يُراسله مستلمو التقرير الآخرون، ورسالتُهم الخاصّة لا تُدفَع لمستودعٍ عامّ — **وغيرُ المشرف
+    يُكتب له مصدرُ التوجيه بلا هويّة** (`forward_public`: النوعُ وتاريخُ المنشور الأصليّ وبياناتُ القناة العامّة وحدَها).
+    والصفُّ يُكتب **قبل** أن يُقَرّ تحديثُه عند تلغرام (`_append_meta`)."""
     msg = msg if isinstance(msg, dict) else {}
     chat = msg.get("chat") if isinstance(msg.get("chat"), dict) else {}
     cid = chat.get("id")
-    from_admin = None if (not admin or cid is None) else (str(cid) == str(admin))
+    ids = [str(x) for x in admin] if isinstance(admin, (list, tuple)) else ([str(admin)] if admin else [])
+    from_admin = None if (not ids or cid is None) else (str(cid) == ids[0])
     row = {"update_id": u.get("update_id") if isinstance(u, dict) else None,
            "message_id": msg.get("message_id"), "date": _iso(msg.get("date")),
            "media_group_id": msg.get("media_group_id"), "status": status,
@@ -180,6 +200,9 @@ def msg_meta(u, msg, status, f=None, admin=None, **extra):
             row["links"] = links[:20]
     else:
         row["redacted"] = True
+        row["forward"] = forward_public(forward_meta(msg))
+        if from_admin is False:
+            row["from_recipient"] = str(cid) in ids
     row.update(extra)
     return {k: v for k, v in row.items() if v is not None}
 
@@ -198,17 +221,20 @@ def meta_summary(rows):
 
     st = _cnt(str(r.get("status")) for r in rows)
     ad = _cnt(r.get("from_admin") for r in rows)
+    rc = sum(1 for r in rows if r.get("from_recipient") is True)
     fw = [r["forward"] for r in rows if isinstance(r.get("forward"), dict)]
     ft = _cnt(str(x.get("type")) for x in fw)
     fd = sorted(x["date"] for x in fw if x.get("date"))
     md = sorted(r["date"] for r in rows if r.get("date"))
     groups = {r.get("media_group_id") for r in rows if r.get("media_group_id")}
     src = _cnt((x.get("chat_title") or (f"@{x['user_username']}" if x.get("user_username")
-                                        else "حسابٌ مخفيّ" if x.get("hidden") else "؟"),
+                                        else "حسابٌ مخفيّ" if x.get("hidden")
+                                        else {"user": "مستخدم", "chat": "مجموعة", "channel": "قناةٌ خاصّة"}.get(x.get("type"), "؟")),
                 x.get("chat_username")) for x in fw)
     out = [f"🧾 بياناتُ الرسائل: {len(rows)} صفًّا · "
            + " · ".join(f"{k} {v}" for k, v in sorted(st.items())),
-           f"   من المشرف {ad.get(True, 0)} · من غيره {ad.get(False, 0)} (نصُّه محجوب) · "
+           f"   من المشرف {ad.get(True, 0)} · من غيره {ad.get(False, 0)} (نصُّه محجوب"
+           + (f" · منهم من مستلمي التقرير {rc} — المشرفُ أوّلُ رقمٍ في TELEGRAM_CHAT_ID" if rc else "") + ") · "
            f"غيرُ معروف {ad.get(None, 0)} · ألبومات {len(groups)}"]
     if md:
         out.append(f"   تاريخُ الإرسال للبوت: {md[0]} … {md[-1]}")
@@ -481,7 +507,7 @@ def main():
     seen_skip = []               # 🔍 وصلت لكن `file_id` نُزِّل سابقًا
     # 🧾 بياناتُ الرسائل: `meta_rows` صفوفُ الصفحة الجارية (تُلحَق بـ`META` قبل طلب الصفحة
     #    التالية — فطلبُها يُقِرّ هذه عند تلغرام فيحذفها) · `meta_all` نسخةٌ للملخّص.
-    adm = admin_id()
+    adm = recipient_ids() or None              # الأوّلُ = المشرف · والباقون مستلمون (`from_recipient` بلا هويّة)
     meta_rows, meta_all, meta_n, meta_fail = [], [], 0, False
 
     def _mrow(row):
