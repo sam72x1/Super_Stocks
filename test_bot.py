@@ -82307,6 +82307,37 @@ except Exception as _e:                                                    # noq
 check("🧊🔒 FPA19 العزل (AST): بلا شبكةٍ ولا تلغرام · الكتابةُ في write/main/seal_batch وحدَها · subprocess لـgit وحدَه · ولا استيرادَ للأداة في رأس المشغّل",
       _fpa19ok, _fpa19w)
 
+# FPA20 PROSPECTIVE_STATUS.md (STEP 11 من أمر المالك «FAISAL V4 — BEGIN REAL PROSPECTIVE VALIDATION»): المفاتيحُ الأربعة والعشرون
+#       بترتيبه حرفًا · كلُّ عدّادٍ من مصدره (الأصنافُ السبعة · المخرَج) · المجموعُ = الأصنافُ السبعة = المرشَّحون · والدقّةُ والاستدعاءُ
+#       بكسرهما من المقاييس («UNDEFINED» حين المقامُ صفر — شاهدُ ضبطٍ اصطناعيّ) · والملفُّ ضمن المولَّد (فـFPA2 يحرس تطابقَه)
+try:
+    _fpa20_owner = ("TOTAL_RECEIVED", "NEW_PROSPECTIVE", "DUPLICATES", "DERIVATIVES", "CONTAMINATED", "INSUFFICIENT_CONTEXT", "VALID_CASES",
+                    "MATCHES", "MISMATCHES", "FALSE_READY", "FALSE_WAIT", "FALSE_REJECT", "FALSE_UNKNOWN", "READY_PRECISION",
+                    "READY_RECALL", "WAIT_PRECISION", "WAIT_RECALL", "REJECT_PRECISION", "REJECT_RECALL", "V4_UNKNOWN",
+                    "FAISAL_UNKNOWN", "ALWAYS_WAIT_MATCH", "V4_BEATS_BASELINE", "CURRENT_SAMPLE_STATUS")
+    _st20 = _fpa_st if _fpa_st is not None else FPA.build()
+    _b20 = FPA.prospective_block(_st20)
+    _kv20 = dict(_l.split(" = ", 1) for _l in _b20[:_b20.index("— — —")])
+    _by20, _o20 = _st20["supplementary"]["INTAKE_BY_CLASS"], _st20["output"]
+    _st20b = _v41_json.loads(_v41_json.dumps(_st20, default=str))
+    _st20b["metrics"] = FPA.metrics([_row14("READY", "READY"), _row14("WAIT", "READY")])     # V4 READY مرّتين · صحيحةٌ واحدة
+    _kv20b = dict(_l.split(" = ", 1) for _l in FPA.prospective_block(_st20b)[:len(_fpa20_owner)])
+    _fpa20 = {"order": tuple(_kv20) == _fpa20_owner == FPA.PROSPECTIVE_KEYS,
+              "reconcile": int(_kv20["TOTAL_RECEIVED"]) == sum(_by20.values()) == len(_st20["candidates"]),
+              "mapping": [_kv20[k] for k in ("NEW_PROSPECTIVE", "DUPLICATES", "DERIVATIVES", "CONTAMINATED", "INSUFFICIENT_CONTEXT")]
+              == [str(_by20[k]) for k in ("NEW_PROSPECTIVE", "DUPLICATE", "DERIVATIVE", "CONTAMINATED", "INSUFFICIENT_CONTEXT")]
+              and all(_kv20[k] == str(_o20[k]) for k in ("MATCHES", "MISMATCHES", "FALSE_READY", "FALSE_WAIT", "FALSE_REJECT", "FALSE_UNKNOWN",
+                                                         "V4_UNKNOWN", "FAISAL_UNKNOWN", "ALWAYS_WAIT_MATCH", "V4_BEATS_BASELINE"))
+              and _kv20["VALID_CASES"] == str(_o20["VALID_PROSPECTIVE_CASES"]),
+              "synthetic": _kv20b["READY_PRECISION"] == "0.5 (1/2)" and _kv20b["READY_RECALL"] == "1.0 (1/1)"
+              and _kv20b["WAIT_RECALL"] == "0.0 (0/1)" and _kv20b["WAIT_PRECISION"] == "UNDEFINED (0/0)",
+              "rendered": FPA.PROSPECTIVE_MD in FPA.rendered(_st20)}
+    _fpa20ok, _fpa20w = all(_fpa20.values()), str({k: v for k, v in _fpa20.items() if not v}) + f" · {_kv20b.get('READY_PRECISION')}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa20ok, _fpa20w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA20 PROSPECTIVE_STATUS (STEP 11): المفاتيحُ الأربعة والعشرون بترتيب المالك · كلُّ عدّادٍ من مصدره · المجموعُ = الأصنافُ السبعة = "
+      "المرشَّحون · الدقّةُ والاستدعاءُ بكسرهما و«UNDEFINED» حين المقامُ صفر · والملفُّ ضمن المولَّد", _fpa20ok, _fpa20w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
