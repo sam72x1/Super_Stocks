@@ -59,6 +59,12 @@ def _mask(s):
 
 
 TEXT_CAP = 4000                                  # سقفُ النصّ/التعليق المحفوظ لكلّ رسالة
+# 🧊 FINAL PROTOCOL §⑥ (`faisal_method_v41/FINAL_PROTOCOL_prereg.md`): صفُّ الإصدار 2 يحمل `forward_type` صريحًا («none» حين لا توجيه —
+#    فغيابُه في الصفوف الأقدم = مجهول لا «غيرُ مُعاد توجيهُه») والبصمةَ الإدراكيّة عند الجمع · وصفوفُ فجوة/نبضٍ لا تُخترع فيها رسالة.
+META_V = 2
+KEEP_NULL = ("dhash256", "phash64")              # تعذّرُ البصمة يُكتب null صريحًا لا يُحذف
+RETENTION_HOURS = 24                             # تلغرام يحفظ التحديثَ غيرَ المسحوب ≈24 ساعة
+HEARTBEAT_HOURS = 12                             # نبضٌ يُبقي آخرَ صفٍّ أحدثَ من نافذة الحفظ (كرون 4 ساعات ‏+ تأخّر GitHub ≈6)
 
 
 def _iso(ts):
@@ -180,7 +186,9 @@ def msg_meta(u, msg, status, f=None, admin=None, **extra):
     cid = chat.get("id")
     ids = [str(x) for x in admin] if isinstance(admin, (list, tuple)) else ([str(admin)] if admin else [])
     from_admin = None if (not ids or cid is None) else (str(cid) == ids[0])
-    row = {"update_id": u.get("update_id") if isinstance(u, dict) else None,
+    fm = forward_meta(msg)
+    row = {"meta_v": META_V, "forward_type": (fm or {}).get("type") or "none",
+           "update_id": u.get("update_id") if isinstance(u, dict) else None,
            "message_id": msg.get("message_id"), "date": _iso(msg.get("date")),
            "media_group_id": msg.get("media_group_id"), "status": status,
            "from_admin": from_admin, "kind": (f or {}).get("kind"),
@@ -188,7 +196,7 @@ def msg_meta(u, msg, status, f=None, admin=None, **extra):
            "collected_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
            "run_id": os.environ.get("GITHUB_RUN_ID") or None}
     if from_admin:
-        row["forward"] = forward_meta(msg)
+        row["forward"] = fm
         if msg.get("caption"):
             row["caption"] = str(msg.get("caption"))[:TEXT_CAP]
         if msg.get("text"):
@@ -200,11 +208,83 @@ def msg_meta(u, msg, status, f=None, admin=None, **extra):
             row["links"] = links[:20]
     else:
         row["redacted"] = True
-        row["forward"] = forward_public(forward_meta(msg))
+        row["forward"] = forward_public(fm)
         if from_admin is False:
             row["from_recipient"] = str(cid) in ids
     row.update(extra)
-    return {k: v for k, v in row.items() if v is not None}
+    return {k: v for k, v in row.items() if v is not None or k in KEEP_NULL}
+
+
+def perceptual(path):
+    """🧾 dHash256 · pHash64 للصورة المحفوظة **عند الجمع** بدوالّ V3 نفسِها (`faisal_method_v3/corpus_build.image_fingerprint`
+    — مقارنةُ الاستلام بالمدوّنة بالبصمة نفسِها) ⇒ dict · وتعذّرُها ⇒ None مكتوبٌ صريحًا (لا حذف · §⑥)."""
+    try:
+        v3 = os.path.join(os.path.dirname(os.path.abspath(__file__)), "faisal_method_v3")
+        if v3 not in sys.path:
+            sys.path.insert(0, v3)
+        import corpus_build as CB                    # noqa: E402 — كسولٌ: numpy/Pillow من requirements
+        fp = CB.image_fingerprint(path)
+        return {"dhash256": fp["dhash256"], "phash64": fp["phash64"]}
+    except Exception:                                # noqa: BLE001
+        return {"dhash256": None, "phash64": None}
+
+
+def _parse_iso(s):
+    """«…Z» ⇒ ثوانٍ منذ الحقبة (UTC · `calendar.timegm`) أو None. نقيّة."""
+    try:
+        import calendar
+        return calendar.timegm(time.strptime(str(s), "%Y-%m-%dT%H:%M:%SZ"))
+    except Exception:                                # noqa: BLE001
+        return None
+
+
+def retention_gap(last_utc, now_utc, run_id=None):
+    """🕳️ صفُّ فجوة حين مضى على آخر صفٍّ مكتوب أكثرُ من نافذة حفظ تلغرام ⇒ dict أو None. نقيّة.
+    ما أُرسل للبوت خلالها **ربّما** حُذف عند تلغرام قبل سحبه — يُسجَّل المدى ولا تُخترع رسالة (§⑥)."""
+    a, b = _parse_iso(last_utc), _parse_iso(now_utc)
+    if a is None or b is None or b - a <= RETENTION_HOURS * 3600:
+        return None
+    return {"meta_v": META_V, "kind": "gap", "status": "gap", "gap": "RETENTION_WINDOW_EXCEEDED", "from_utc": last_utc,
+            "to_utc": now_utc, "hours": round((b - a) / 3600.0, 1), "collected_utc": now_utc, "run_id": run_id}
+
+
+def update_id_gaps(prev_uid, uids, now_utc, run_id=None):
+    """🕳️ قفزاتُ رقم التحديث (`UPDATE_ID_GAP`) ⇒ صفوف. نقيّة. «محتمل» لا «فقدٌ مؤكَّد»: أنواعُ تحديثٍ غيرُ مطلوبة تستهلك أرقامًا ·
+    ولا مرجعَ قبل أوّل تشغيل (`prev_uid` None)."""
+    out = []
+    for uid in uids:
+        if prev_uid is not None and uid > prev_uid + 1:
+            out.append({"meta_v": META_V, "kind": "gap", "status": "gap", "gap": "UPDATE_ID_GAP", "after_update_id": prev_uid,
+                        "before_update_id": uid, "missing": uid - prev_uid - 1, "meaning": "POSSIBLE_LOSS_OR_FILTERED_UPDATE",
+                        "collected_utc": now_utc, "run_id": run_id})
+        prev_uid = uid if prev_uid is None else max(prev_uid, uid)
+    return out
+
+
+def heartbeat_due(last_utc, now_utc):
+    """💓 نبضٌ حين يقدُم آخرُ صفٍّ أكثرَ من `HEARTBEAT_HOURS` (وبلا صفٍّ أصلًا ⇒ لا نبض). نقيّة."""
+    a, b = _parse_iso(last_utc), _parse_iso(now_utc)
+    return a is not None and b is not None and b - a > HEARTBEAT_HOURS * 3600
+
+
+def last_row_utc(path=None, tail=1 << 16):
+    """آخرُ `collected_utc` في ملفّ البيانات (الذيلُ وحدَه) ⇒ نصّ أو None (لا ملفّ · تعذّر)."""
+    try:
+        with open(path or META, "rb") as fh:
+            fh.seek(0, 2)
+            n = fh.tell()
+            fh.seek(max(0, n - tail))
+            lines = fh.read().decode("utf-8", "replace").splitlines()
+        for ln in reversed(lines):
+            try:
+                v = json.loads(ln).get("collected_utc")
+            except Exception:                        # noqa: BLE001
+                continue
+            if v:
+                return v
+    except Exception:                                # noqa: BLE001
+        return None
+    return None
 
 
 def meta_summary(rows):
@@ -514,6 +594,15 @@ def main():
         meta_rows.append(row)
         meta_all.append(row)
 
+    # 🕳️ §⑥: نافذةُ الحفظ (24 ساعة) منذ آخر صفٍّ مكتوب ⇒ صفُّ فجوةٍ بمداه — قبل أيّ سحب · وتعذّرُ كتابته لا يمنع السحب (يُعلَن)
+    _now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    _rid = os.environ.get("GITHUB_RUN_ID") or None
+    _gap0 = retention_gap(last_row_utc(), _now, _rid)
+    gaps = [_gap0] if _gap0 else []
+    if _gap0 and _append_meta([dict(_gap0)]) < 0:
+        print("⚠️ تعذّرت كتابةُ صفّ فجوة الحفظ — يُعلَن هنا فقط")
+    prev_uid = (offset - 1) if offset > 0 else None
+
     if pending:                                      # الطابور أولًا قبل أي جديد
         print(f"🔁 إعادة محاولة {len(pending)} صورة مؤجَّلة من تشغيل سابق…")
         for fid, meta in list(pending.items()):
@@ -524,10 +613,11 @@ def main():
                 _inf = {}
                 if _store(body, nm, shas, exts, matched, _inf) == "saved":
                     saved += 1
-                    _mrow(msg_meta(None, _pm, "saved_from_pending", None, adm, **_inf))
+                    _inf.update(perceptual(os.path.join(OUT_DIR, _inf["saved_name"])))
+                    _mrow(msg_meta(None, _pm, "saved_from_pending", None, adm, forward_type="UNKNOWN", **_inf))
                 else:
                     skipped += 1
-                    _mrow(msg_meta(None, _pm, "dup_from_pending", None, adm, **_inf))
+                    _mrow(msg_meta(None, _pm, "dup_from_pending", None, adm, forward_type="UNKNOWN", **_inf))
                 seen_uid.add(fid)
                 if (meta or {}).get("msg"):
                     acct.add(int(meta["msg"]))
@@ -537,11 +627,11 @@ def main():
             if perm or tries >= PENDING_TRIES:
                 perm_failed.append(f"{nm} — {why} (بعد {tries} محاولات)")
                 pending.pop(fid, None)
-                _mrow(msg_meta(None, _pm, "perm_failed_from_pending", None, adm, why=why))
+                _mrow(msg_meta(None, _pm, "perm_failed_from_pending", None, adm, forward_type="UNKNOWN", why=why))
             else:
                 pending[fid] = {**(meta or {}), "name": nm, "tries": tries}
                 deferred.append(nm)
-                _mrow(msg_meta(None, _pm, "deferred_again", None, adm, why=why))
+                _mrow(msg_meta(None, _pm, "deferred_again", None, adm, forward_type="UNKNOWN", why=why))
         _w = _append_meta(meta_rows)
         meta_fail = _w < 0
         meta_n += max(_w, 0)
@@ -568,6 +658,11 @@ def main():
         if not ups:
             break
         marks = []
+        _ug = update_id_gaps(prev_uid, [int(x.get("update_id") or 0) for x in ups], _now, _rid)
+        for _g in _ug:
+            _mrow(_g)
+        gaps += _ug
+        prev_uid = max([prev_uid or 0] + [int(x.get("update_id") or 0) for x in ups])
         for u in ups:
             uid = int(u.get("update_id") or 0)
             msg = u.get("message") or u.get("channel_post") or {}
@@ -627,9 +722,12 @@ def main():
                 skipped += 1                         # مكرّرة بالمحتوى ⇒ تُتخطّى
                 seen_uid.add(f["file_id"])
                 acct.add(int(msg.get("message_id") or 0))
+                if _inf.get("matched") and _inf["matched"] != "؟":
+                    _inf.update(perceptual(os.path.join(OUT_DIR, _inf["matched"])))
                 _mrow(msg_meta(u, msg, "dup", f, adm, **_inf))
                 marks.append((uid, True))
                 continue
+            _inf.update(perceptual(os.path.join(OUT_DIR, _inf["saved_name"])))
             _mrow(msg_meta(u, msg, "saved", f, adm, **_inf))
             seen_uid.add(f["file_id"])
             saved += 1
@@ -652,6 +750,9 @@ def main():
         if failed:
             break            # لا نتجاوز الإخفاق: التشغيل التالي يستأنف منه
 
+    # 💓 §⑥: نبضٌ إن لم يُكتب صفٌّ منذ `HEARTBEAT_HOURS` — فيدلّ صمتٌ أطولُ من 24 ساعة بين الصفوف على تعطّل الجامع لا على هدوء البوت
+    if not meta_fail and heartbeat_due(last_row_utc(), _now):
+        _append_meta([{"meta_v": META_V, "kind": "heartbeat", "status": "heartbeat", "collected_utc": _now, "run_id": _rid}])
     state["offset"] = offset
     state["seen_file_ids"] = sorted(seen_uid)[-4000:]
     state["seen_msg_ids"] = sorted(x for x in acct if x)[-6000:]
@@ -710,7 +811,8 @@ def main():
               f"- وصلت بمعرّف سبق تنزيله: **{len(seen_skip)}**",
               f"- عالق بالطابور: **{len(pending)}**",
               f"- بياناتُ الرسائل: **{meta_n}** صفًّا أُلحقت بـ`{META}`"
-              + (" · ⛔ **تعذّرت كتابةُ صفحةٍ — لم تُقَرّ**" if meta_fail else ""), ""]
+              + (" · ⛔ **تعذّرت كتابةُ صفحةٍ — لم تُقَرّ**" if meta_fail else ""),
+              f"- 🕳️ فجواتٌ مسجَّلة: **{len(gaps)}**" + (" (" + " · ".join(sorted({str(g.get('gap')) for g in gaps})) + ")" if gaps else ""), ""]
         if _ms:
             _R += ["## 🧾 بياناتُ الرسائل (هذا التشغيل · بلا هويّةٍ شخصيّة)", "",
                    "```"] + _ms + ["```", ""]
