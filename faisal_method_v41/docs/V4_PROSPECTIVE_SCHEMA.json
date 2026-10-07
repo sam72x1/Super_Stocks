@@ -1,0 +1,245 @@
+{
+ "append_only": {
+  "chain": "seq · prev · entry_hash",
+  "correction": "new version with supersedes + correction_reason",
+  "open_mode": "xb"
+ },
+ "context_unavailable": {
+  "groups": "UNAVAILABLE: لا مصدرَ نقطيٌّ لدخول القروبات",
+  "offering_pending": "UNAVAILABLE: لا تعريفَ آليٌّ مُتحقَّقٌ لـ«طرحٍ معلَّق» وقتَ النقطة (V41_prereg §⑥)",
+  "operator_press": "UNAVAILABLE: لا مصدرَ لبصمة المضارب بعد انتهاء Polygon 2026-09-29 (CR-01)"
+ },
+ "contract": "V41_prereg §⑥-⑦ · §⑭",
+ "exclusions": [
+  "NOT_FAISAL",
+  "NO_TICKER",
+  "NO_DECISION",
+  "DATE_IMPRECISE",
+  "BEFORE_WINDOW",
+  "DUPLICATE_OF"
+ ],
+ "firewall": {
+  "MIN_BARS": 40,
+  "MISS_FAIL": 3,
+  "MISS_WINDOW": 60,
+  "SPLIT_MIN_LOG": 0.4054651081081644,
+  "SPLIT_TOL_LOG": 0.22314355131420976,
+  "WINDOW": 120
+ },
+ "generated_by": "faisal_method_v41/docs_v41.py",
+ "label4": {
+  "MIXED": "MIXED",
+  "READY": "READY",
+  "REJECT": "REJECT",
+  "UNKNOWN": "UNKNOWN",
+  "WAIT": "WAIT",
+  "WATCH": "WAIT"
+ },
+ "labels": [
+  "READY",
+  "WAIT",
+  "WATCH",
+  "REJECT",
+  "UNKNOWN",
+  "MIXED"
+ ],
+ "ledger_dir": "faisal_method_v41/prospective_validation",
+ "mission_field_map": {
+  "CASE_ID": "case.case_id",
+  "CHART_IMAGE": "case.image · case.image_sha256",
+  "DATA_TIMESTAMP": "v4.firewall.last_bar",
+  "ENTRY": "v4.decision.entry · faisal.entry_f",
+  "FAISAL_DECISION": "faisal.label · faisal.label4 · faisal.quote",
+  "INDICATORS": "v4.decision.market_context.rsi14",
+  "INVALIDATION": "v4.decision.invalidation · faisal.invalidation_f",
+  "MARKET_STRUCTURE": "v4.decision.structure",
+  "PATTERN": "v4.decision.patterns · faisal.pattern_f",
+  "PRICE_LOCATION": "v4.decision.price_location",
+  "RAW_DATA_VERSION": "v4.snapshot_path · v4.snapshot_sha256 · v4.meta.deps",
+  "RESISTANCE": "v4.decision.support_resistance.levels",
+  "SUPPORT": "v4.decision.support_resistance · faisal.levels_f / support_f",
+  "SYMBOL": "case.symbol",
+  "TARGET": "v4.decision.target · faisal.targets_f (حقول §18)",
+  "TIMEFRAME": "case.timeframe_f (فيصل) · v4.decision.timeframe (المحرّك: يوميّ وحدَه)",
+  "TIMESTAMP": "case.decision_date (+ date_precision · date_source) · case.capture_utc",
+  "V4_DECISION": "v4.decision.state · v4.decision.tech_state",
+  "VALIDITY_INFORMATION": "v4.context · v4.context_provenance",
+  "VOLUME": "v4.decision.market_context.volume_vs_20d · اللقطة"
+ },
+ "ordering": [
+  "candidate",
+  "case (seal)",
+  "v4 (decision sealed)",
+  "faisal (after v4 only)",
+  "compare"
+ ],
+ "record_kinds": [
+  "candidate",
+  "case",
+  "v4",
+  "faisal",
+  "invalid"
+ ],
+ "schema": {
+  "candidate": {
+   "enums": {
+    "decision": [
+     "CASE:<CASE_ID>",
+     "NOT_FAISAL",
+     "NO_TICKER",
+     "NO_DECISION",
+     "DATE_IMPRECISE",
+     "BEFORE_WINDOW",
+     "DUPLICATE_OF"
+    ]
+   },
+   "note": "كلُّ وحدةٍ جديدة تصل المستودع بعد التجميد — لا تخطّيَ صامت",
+   "required": [
+    "unit_id",
+    "image",
+    "image_sha256",
+    "decision"
+   ]
+  },
+  "case": {
+   "enums": {
+    "date_precision": [
+     "day"
+    ],
+    "date_source": [
+     "image_visible",
+     "forward_origin",
+     "owner_attested"
+    ],
+    "layer": [
+     "1",
+     "2"
+    ]
+   },
+   "note": "مُدخَلُ المحرّك وحدَه: الرمزُ والتاريخ — لا كلمةَ قرارٍ ولا مستوياتٍ لفيصل هنا (تُكتب بعد قرار V4)",
+   "optional": [
+    "decision_time",
+    "post_url",
+    "unit_id",
+    "supersedes",
+    "correction_reason",
+    "notes"
+   ],
+   "required": [
+    "case_id",
+    "symbol",
+    "decision_date",
+    "date_precision",
+    "date_source",
+    "timeframe_f",
+    "image",
+    "image_sha256",
+    "layer",
+    "capture_utc",
+    "near_duplicates"
+   ]
+  },
+  "faisal": {
+   "enums": {
+    "label": [
+     "READY",
+     "WAIT",
+     "WATCH",
+     "REJECT",
+     "UNKNOWN",
+     "MIXED"
+    ],
+    "label4": [
+     "READY",
+     "WAIT",
+     "REJECT",
+     "UNKNOWN",
+     "MIXED"
+    ]
+   },
+   "note": "يُكتب بعد قرار V4 وحدَه · اقتباسٌ حرفيّ · والأهدافُ بنصّها ومرجعِ نسبتها (من الدخول/القاع/الارتفاع/UNKNOWN)",
+   "optional": [
+    "levels_f",
+    "plan_f",
+    "pattern_f",
+    "targets_f",
+    "entry_f",
+    "invalidation_f",
+    "external_codes",
+    "tech_ready_f",
+    "orders_f",
+    "support_f",
+    "timeframe_f",
+    "supersedes",
+    "correction_reason",
+    "notes"
+   ],
+   "required": [
+    "case_id",
+    "label",
+    "label4",
+    "quote",
+    "after_v4_seq",
+    "v4_decision_sha256"
+   ],
+   "target_enums": {
+    "EVIDENCE_STATUS": [
+     "CONFIRMED",
+     "SUPPORTED",
+     "PROBABLE",
+     "POSSIBLE",
+     "CONTRADICTED",
+     "UNKNOWN"
+    ],
+    "PERCENTAGE_REFERENCE": [
+     "FROM_ENTRY",
+     "FROM_BOTTOM",
+     "OF_RISE",
+     "OTHER",
+     "UNKNOWN"
+    ]
+   },
+   "target_fields": [
+    "TARGET_SOURCE",
+    "TARGET_FORMULA",
+    "SOURCE_IMAGE",
+    "ENTRY_PRICE",
+    "SUPPORT_PRICE",
+    "TARGET_PRICE",
+    "PERCENTAGE",
+    "PERCENTAGE_TEXT",
+    "PERCENTAGE_REFERENCE",
+    "AUTHOR",
+    "EVIDENCE_STATUS"
+   ]
+  },
+  "invalid": {
+   "note": "INVALID_FOR_VALIDATION — يُعَدّ ويُعلَّل ولا يدخل المقاييس",
+   "required": [
+    "case_id",
+    "reason",
+    "detail"
+   ]
+  },
+  "v4": {
+   "note": "قرارُ V4 المجمَّد على لقطة الشموع قبل يوم القرار حصرًا ‏+ بصماتُ الجالبين وcommit التشغيلة",
+   "required": [
+    "case_id",
+    "case_path",
+    "case_sha256",
+    "freeze_id",
+    "freeze_rev",
+    "snapshot_path",
+    "snapshot_sha256",
+    "decision",
+    "decision_sha256",
+    "firewall",
+    "context",
+    "context_provenance",
+    "meta"
+   ]
+  }
+ },
+ "short_available_lookback_sessions": 3,
+ "window_start": "2026-10-03"
+}

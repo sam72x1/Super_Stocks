@@ -1,0 +1,90 @@
+name: "🧊 FAISAL METHOD V4.1 — التحقّقُ الأماميّ (verify · smoke · run · replay)"
+
+# 🧊 أمرُ المالك 2026-10-07 «FAISAL METHOD V4.1 — EVIDENCE HARDENING + PROSPECTIVE VALIDATION» · العقد faisal_method_v41/V41_prereg.md
+#    مدموجٌ قبل أيّ رقم (#550). V4 مجمَّد (FV41) — هذا الـworkflow أداةُ قياسٍ وسجلٌّ إلحاقيّ لا غير.
+# الأوضاع: verify (التجميد ‏+ السجلّ ‏+ ختمُ الاحتجاز · بلا شبكة) · smoke (رمزٌ وتاريخ ⟵ الجدارُ وقرارُ V4 مطبوعان · لا كتابة ·
+#          ليست حالةَ تحقّق) · run (الحالاتُ المختومة بلا قرار V4 ⟵ قرارٌ مختومٌ ودفعُ السجلّ — الوحيدُ الذي يكتب) · replay (الإعادةُ من اللقطات).
+# 🔒 جدارُ الإنتاج: لا كرون · لا تلغرام · لا أسرار · لا حالةَ إنتاج — والدفعُ في run وحدَه ولمجلّد السجلّ وحدَه.
+# 📺 الشموعُ من TradingView عبر مسار V4 المجمَّد (v4_run.resolve) — **بلا `BARS_SOURCE`** (قفلُ TVB9).
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "verify · smoke · run · replay"
+        type: choice
+        options: [verify, smoke, run, replay]
+        default: verify
+      symbol:
+        description: "الرمز (لوضع smoke)"
+        required: false
+        default: ""
+      asof:
+        description: "تاريخ القرار YYYY-MM-DD (لوضع smoke · فارغ = اليوم بتوقيت نيويورك)"
+        required: false
+        default: ""
+
+concurrency:
+  group: faisal-v41-ledger
+  cancel-in-progress: false
+
+jobs:
+  v41:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧊 FAISAL V4.1
+        env:
+          PYTHONUNBUFFERED: "1"
+          V41_MODE: ${{ inputs.mode }}
+          V41_SYMBOL: ${{ inputs.symbol }}
+          V41_ASOF: ${{ inputs.asof }}
+        run: python faisal_method_v41/runner.py
+
+      - name: 📒 دفعُ السجلّ الإلحاقيّ (run وحدَه)
+        if: inputs.mode == 'run'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          # التحليلُ والوثائقُ تُعاد مع القيد نفسِه — وإلّا صار المدفوعُ بائتًا وأحمرَ FVD1 على main
+          python faisal_method_v41/analysis.py
+          python faisal_method_v41/docs_v41.py
+          git add faisal_method_v41/prospective_validation/ faisal_method_v41/results/analysis_v41.json faisal_method_v41/docs/
+          if git diff --cached --quiet; then
+            echo "لا قيدَ جديد — لا commit"; exit 0
+          fi
+          git commit -q -m "🧊 V4.1: قراراتُ V4 المجمَّد للحالات المختومة (run ${GITHUB_RUN_ID})"
+          ok=0
+          for i in 1 2 3 4 5; do
+            if git push; then ok=1; break; fi
+            git fetch origin "$GITHUB_REF_NAME" \
+              && git rebase "origin/$GITHUB_REF_NAME" || git rebase --abort || true
+            sleep $((2**i))
+          done
+          if [ "$ok" != 1 ]; then
+            echo "::error::⛔ فشل دفع السجلّ بعد 5 محاولات"
+            exit 1
+          fi
+
+      - name: Upload outputs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: faisal-v41-${{ inputs.mode }}
+          path: faisal_method_v4/out/
+          retention-days: 30
+          if-no-files-found: ignore
