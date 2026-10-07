@@ -1,12 +1,71 @@
 {
- "contract": "V41_prereg §⑥",
- "entries": [
+ "batch_id": "B48_20261007",
+ "files": {
+  "faisal_method_v41/batches/B48_20261007/PROSPECTIVE_BATCH_48_CONTAMINATION.md": "9a6a23b6d2be75c0b38747a6befc7d3a2233e0107abad292bdefa5d688d6ddf9",
+  "faisal_method_v41/batches/B48_20261007/PROSPECTIVE_BATCH_48_MANIFEST.json": "85f438c97a656308a3116a6b06945bb97b8a8109f53f4add98816fe91bccc932",
+  "faisal_method_v41/batches/B48_20261007/PROSPECTIVE_BATCH_48_REPORT.md": "1dedae732260cafa925bf389681da62a291ce172c28e76a34721fb263f4862fa",
+  "faisal_method_v41/batches/B48_20261007/PROSPECTIVE_BATCH_48_RESULTS.json": "1b14015ffd7feb877eef859066081d10faa13d9181295bfee2736f8295cec766",
+  "faisal_method_v41/batches/B48_20261007/faisal_annotations.json": "bdddee519cf53153b591819c1bf61356c635b62f90eb00fd4dbec5cd86995bed",
+  "faisal_method_v41/batches/B48_20261007/input_annotations.json": "f12590e0ee2d385af0572e3155b8b7cd7f9be844bc7a607157ee11748c08104b",
+  "faisal_method_v41/batches/B48_20261007/ocr_text.json": "db0059ad761f78b3a99e95d093d2c6ecd8c43fd1e7659c7d614f99ced0baae2a",
+  "faisal_method_v41/batches/B48_20261007/research_queue.json": "ceaeceb33c0fced26c0095bbca99740d86d96c3b8bfb25571dc6f387f536f238"
+ },
+ "inputs": {
+  "MSG_58424": "cc6b8a54d75b2e9a16a577102260043da53b0bc57c1e2ec2754a5769002be9e7",
+  "MSG_58425": "66f2d2c3f5b0bf7a96a94ee45f4ee97be190334964f4b2ad65fa0661928eb9e0",
+  "TG_58382": "7d9c221028bc5cca8a34dd45c55c7b727479dc14dce31f35470affc71f91610d",
+  "TG_58383": "603163fccbfba864f04c382c7e97b27fac28906080d3d6543ebc5b24212a1929",
+  "TG_58384": "d6d723bd6d7bd97f3c3a4403b6c77fc07c4f992076a71a21f99b7766db54ddec",
+  "TG_58385": "0716776dac0b1f3150a0c2e8857a10b647e0f6747ee7a721707ce9b6544eada4",
+  "TG_58386": "3e05d8c7601a613b315ef332bcb5ea8bd1859441735e9f943fb4bc1f593ff698",
+  "TG_58387": "b465566c3d4a90e8f443578f36852f175ef79dd22543bc741e367e2c5ed64c40",
+  "TG_58388": "0c094c4c28c68a0b6ab502f0e9966b9fcc4fe496b66fd2f0346063ee2bfaaec6",
+  "TG_58389": "0f397852700ce4d5f90a4f4c94ed5a927741aac25dfb2ce8d9317c14dff6d054",
+  "TG_58390": "551c1e4be345ec716c70331497d22a04fa513286bc17265773f0cfde9bfde953",
+  "TG_58391": "fdf18e77b80ca153ae36dbfa87b4f5bf75f0f7808d1da13dd48437b6dda2c279",
+  "TG_58392": "aa4f538cf237676a3547135e1429923e4a81354d73a2ef53047d3658e0105a58",
+  "TG_58393": "a264b4df9997349ba59f3b82cce6714726c6c3807966a3959e61175ab3b1c99a",
+  "TG_58394": "b571212dc64b98acf1d817e449c778445004f2674cfaa0405027a84280b4f6e2",
+  "TG_58395": "a1dcc136f179ed3b8d80da0d3ad025291ab1a2a0b3210f9a3d84567aad8b0f7b",
+  "TG_58396": "651391e6559c9c243b15ea3449c907c17757a9a22cc608d2cad1aca3be013fa0",
+  "TG_58397": "bf0d1cbf923524fcfd010465134a34f94838e0eade3905fd5cac90dd025e032f",
+  "TG_58398": "5244fc0a4340ee56f9c35ceca78c9f5001fef164c792d1538d577c9617c2566f",
+  "TG_58399": "5f5b125a30b333c94fd6e3ff6f4e205bfbd51dd522d43c43f4fc5cf8311210c1",
+  "TG_58400": "200231117ef1ab6ba91be5935c0dd7fbf909a2459cc38af8754f4337ef7d1eee",
+  "TG_58401": "e34f76e7e948048e4ca81866842113a0d7d6c837ff04c5022ad4d65b6cdef07c",
+  "TG_58402": "7f5fb9510a0cce302fb2291b422bdb3f6a213e2f6bf1c261df9cead9f320c187",
+  "TG_58403": "1109a534310fb66895981622e03e847cf6e204603bbb1c7cadafab17359f3bab",
+  "TG_58404": "ef54a2008fb154e06182804d5556059df96fb3344af3a924f611a9c6a944ad6a",
+  "TG_58405": "362c4cf2fd461e176f9aa57d543333a779ec517a632b1590cc9fe210ccd07b35",
+  "TG_58406": "e022ab26084c7476449f373005d1220e813eb8654b0468a6c7167ad776b39a39",
+  "TG_58407": "a997bb50bb37b1951fffcba25b74d1c04289346e6d93062376a55d853e65a083",
+  "TG_58408": "7655606256dfa2c2abdda53217d8d81b15cb84d8135fe4ac17a596fecb1f4e6d",
+  "TG_58409": "e1a73eed4536bbd537847e27d5d05b10c5618d34e51cb81594cb2936d342561b",
+  "TG_58410": "34c161ff39364d4dbf137527f397938f20064515f997ad624f3e2ce46cc71778",
+  "TG_58411": "d2142e7e20a6a1a060c2bf87a7ad48c9ee4252cdf94a2c3696883b94d2446240",
+  "TG_58412": "68e47b70b61369d0b6f6d5cf9f7c90d3ed3b8ea8430c224cf7ea68df2f3f649d",
+  "TG_58413": "eaf9dfdc13a429250bddd5bfbddcf1e56e3e4957af075e7ccaf8afb0820f41ac",
+  "TG_58414": "f39fa09b43c281ca53554778b99381c53e4fb9d55f33a48577341086138dd27d",
+  "TG_58415": "30b0c364af821b8611bf4e9631c4961390ab6ce317f4898f44176398400f4ac9",
+  "TG_58416": "1a147571f8dc84ec6340fd3a1d66e8012601a89832f5e2fb70edb4d03f0bf499",
+  "TG_58417": "d743c7ff0989a3e287563050cfb5b32250fe456126292ee017ca042d174e863b",
+  "TG_58418": "9502c3e5185a685bff773b7c7c29cdec2d0383cd820d68e0f6c6ca90326074ce",
+  "TG_58419": "d243e89496cb3583c148b1fddba56ca7627defc9646b01fa17f77f700b16f49b",
+  "TG_58420": "36346b35f0ab685f2316be4c3627bdd7ef3a8f03ca7b2025b85d9f449dbbf655",
+  "TG_58421": "7bd74ceea2f526df8b3d1eed22d59d5535f25334af30a2b5ca5091c974d76c55",
+  "TG_58422": "db398d7967e857f5805f35828fc91d4188f18ae86e8a2902a06886b9afa7004f",
+  "TG_58423": "67b7900b5fc49654ac18822fda37156609b35785fb446961394deb8f386c3ef0",
+  "TG_58426": "5f2345d263260c38876692c1dea96b2b93a898614a9c2de02b0697e6152a8d53",
+  "TG_58427": "492ee0f58cc25b4e55570514f3c668e36231cc6eeffd43d4e7f7145496643162",
+  "TG_58428": "d7f88c06171a09fc330e0d1d1808e6c841ec0fed2085f15a29752f9691e922f0",
+  "TG_58429": "f1f3ebd86c6994f1e81b6662f9d501b61150ff647bc9a617df3347037700cbf3"
+ },
+ "ledger_entries": [
   {
    "case_id": "TG_58382",
    "entry_hash": "bf0cbd288dfc75434e5bd9e3706c3f67510d1c3dabf6878d04c65510dde6ff1a",
    "kind": "candidate",
    "path": "candidates/TG_58382.v1.json",
-   "prev": "GENESIS",
    "seq": 1,
    "sha256": "399e852a53e38c03f2686403e4dbd1211a4774808c4edfbd17fbd13bdbab607a",
    "utc": "2026-10-07T12:06:18Z"
@@ -16,7 +75,6 @@
    "entry_hash": "239aff0dda16114aa09f046b236836ed4b6eae63800ae3b49e7cf4de06c33b52",
    "kind": "candidate",
    "path": "candidates/TG_58383.v1.json",
-   "prev": "bf0cbd288dfc75434e5bd9e3706c3f67510d1c3dabf6878d04c65510dde6ff1a",
    "seq": 2,
    "sha256": "a7bea6254d5af20943d3804f7d30addd2bc299681f51adbdeeb648b7b718c0e9",
    "utc": "2026-10-07T12:06:18Z"
@@ -26,7 +84,6 @@
    "entry_hash": "c4528007d4cd8fe25425775428b8797a620137e11de37b469ce891a490a751d6",
    "kind": "candidate",
    "path": "candidates/TG_58384.v1.json",
-   "prev": "239aff0dda16114aa09f046b236836ed4b6eae63800ae3b49e7cf4de06c33b52",
    "seq": 3,
    "sha256": "58f4d72ad8df0fe4efeafbb08e75cd10c2f1e82eee4be7eabf6a6ed05c9e4a8e",
    "utc": "2026-10-07T12:06:18Z"
@@ -36,7 +93,6 @@
    "entry_hash": "c4780bbf98c0a9867247fcf9c62ba6829a2c786b8993056f6ee5e6b695b758e6",
    "kind": "candidate",
    "path": "candidates/TG_58385.v1.json",
-   "prev": "c4528007d4cd8fe25425775428b8797a620137e11de37b469ce891a490a751d6",
    "seq": 4,
    "sha256": "70c0bd59ecd83a78b3252a1fc5d8c495dae0499ea59eec6cee367d48f4ef14eb",
    "utc": "2026-10-07T12:06:18Z"
@@ -46,7 +102,6 @@
    "entry_hash": "d62d625e691c5c7e247fb5b8542f03961f157147baa084b53778d1a5555d30b0",
    "kind": "candidate",
    "path": "candidates/TG_58386.v1.json",
-   "prev": "c4780bbf98c0a9867247fcf9c62ba6829a2c786b8993056f6ee5e6b695b758e6",
    "seq": 5,
    "sha256": "abd2287ba04cd1519b7bf546c76205e4767ea90c4714b558a7ba138a96d5e5fe",
    "utc": "2026-10-07T12:06:18Z"
@@ -56,7 +111,6 @@
    "entry_hash": "49cc9e1f7dd56312e0cef3f4dc2defdb7469fc7945df7a9cedf466f51aef56e4",
    "kind": "candidate",
    "path": "candidates/TG_58387.v1.json",
-   "prev": "d62d625e691c5c7e247fb5b8542f03961f157147baa084b53778d1a5555d30b0",
    "seq": 6,
    "sha256": "b4e507f5ac4b837af26c3e39421bc989c4079fd12c9b27f9624643d5f0b0059d",
    "utc": "2026-10-07T12:06:18Z"
@@ -66,7 +120,6 @@
    "entry_hash": "8dacce24c70a973b9ef52c250535694dc429e29619939176c5e13cc96dec8327",
    "kind": "candidate",
    "path": "candidates/TG_58388.v1.json",
-   "prev": "49cc9e1f7dd56312e0cef3f4dc2defdb7469fc7945df7a9cedf466f51aef56e4",
    "seq": 7,
    "sha256": "81174d7f09db4b7303fc7815d4d8ad441f1b09ec40427aace2bb998c39509482",
    "utc": "2026-10-07T12:06:18Z"
@@ -76,7 +129,6 @@
    "entry_hash": "662e790dffdd24a1ba0a5b6d7f878d250161a8b6e734786a771e4dce1c9bb597",
    "kind": "candidate",
    "path": "candidates/TG_58389.v1.json",
-   "prev": "8dacce24c70a973b9ef52c250535694dc429e29619939176c5e13cc96dec8327",
    "seq": 8,
    "sha256": "576eb0b4ba5bf6127194cabedd307ff481f938867f9a6cfbefd24c0f7fc30e68",
    "utc": "2026-10-07T12:06:18Z"
@@ -86,7 +138,6 @@
    "entry_hash": "bf550b5721c56c897d923db7c93959b303e8546120efd1ab89f5e1a370b0e894",
    "kind": "candidate",
    "path": "candidates/TG_58390.v1.json",
-   "prev": "662e790dffdd24a1ba0a5b6d7f878d250161a8b6e734786a771e4dce1c9bb597",
    "seq": 9,
    "sha256": "2f268411ec8bd8d8c7ba7d9c7eeb2006cca7fcd4d1b6f03ae131a86d3831a231",
    "utc": "2026-10-07T12:06:18Z"
@@ -96,7 +147,6 @@
    "entry_hash": "4a4b6f6fc4b1891f95f51e83878446099f35e7086b0614d662b392d5a030fa8a",
    "kind": "candidate",
    "path": "candidates/TG_58391.v1.json",
-   "prev": "bf550b5721c56c897d923db7c93959b303e8546120efd1ab89f5e1a370b0e894",
    "seq": 10,
    "sha256": "a203fad64336b42fdb371e7f36238ebb3bf5655965be0e70019fb18206fb53c4",
    "utc": "2026-10-07T12:06:18Z"
@@ -106,7 +156,6 @@
    "entry_hash": "a075ae2e4d3aa5945c37905b07c889d8db4ea5568763f26001c0141d89ac3dd5",
    "kind": "candidate",
    "path": "candidates/TG_58392.v1.json",
-   "prev": "4a4b6f6fc4b1891f95f51e83878446099f35e7086b0614d662b392d5a030fa8a",
    "seq": 11,
    "sha256": "fd770bef18518439476ace6d2e8d2f57c2f8af298955aca73a628e3fb6b047b0",
    "utc": "2026-10-07T12:06:18Z"
@@ -116,7 +165,6 @@
    "entry_hash": "2e82c4e40752f44f320a2842f6cad984c1e5a5ce450202bc4ffeb2cd9d12241e",
    "kind": "candidate",
    "path": "candidates/TG_58393.v1.json",
-   "prev": "a075ae2e4d3aa5945c37905b07c889d8db4ea5568763f26001c0141d89ac3dd5",
    "seq": 12,
    "sha256": "34a22b925df237d188986a79dce10d7d764c5f4c86c2cdd2601923eaf713eca3",
    "utc": "2026-10-07T12:06:18Z"
@@ -126,7 +174,6 @@
    "entry_hash": "19333b0049a2243e6de887e9beb937f25f653770b613a7db5fd8cac2b766bc50",
    "kind": "candidate",
    "path": "candidates/TG_58394.v1.json",
-   "prev": "2e82c4e40752f44f320a2842f6cad984c1e5a5ce450202bc4ffeb2cd9d12241e",
    "seq": 13,
    "sha256": "00677c54c823cbec0a777864a31540fe70f65931f5c0e8ef63f9ac3ecba748c7",
    "utc": "2026-10-07T12:06:18Z"
@@ -136,7 +183,6 @@
    "entry_hash": "5f217b4030882df061739dc864d4e45fb495de3567d38d9cb2327b8bdb66b472",
    "kind": "candidate",
    "path": "candidates/TG_58395.v1.json",
-   "prev": "19333b0049a2243e6de887e9beb937f25f653770b613a7db5fd8cac2b766bc50",
    "seq": 14,
    "sha256": "53e0d320a98adda73b56a5aa92ce1a790e61183e648de5c83fbb1fdea21e8f51",
    "utc": "2026-10-07T12:06:18Z"
@@ -146,7 +192,6 @@
    "entry_hash": "0ea8b51056b1ae42eed6752d3db25751752e7242e0c688220d449d0e91ef3e04",
    "kind": "candidate",
    "path": "candidates/TG_58396.v1.json",
-   "prev": "5f217b4030882df061739dc864d4e45fb495de3567d38d9cb2327b8bdb66b472",
    "seq": 15,
    "sha256": "8937735b53cee79204730a0c933b6cd98532d17480e092d988cecb8bf7afc2e3",
    "utc": "2026-10-07T12:06:18Z"
@@ -156,7 +201,6 @@
    "entry_hash": "b6ad6ec55ac016654f972f0787509a33115c16df2180dfab24cb4c274bc304bc",
    "kind": "candidate",
    "path": "candidates/TG_58397.v1.json",
-   "prev": "0ea8b51056b1ae42eed6752d3db25751752e7242e0c688220d449d0e91ef3e04",
    "seq": 16,
    "sha256": "fe070b24c579ec513e565ef0a658127fd6e3e1b09c3ef42a14036c57fd5524bd",
    "utc": "2026-10-07T12:06:18Z"
@@ -166,7 +210,6 @@
    "entry_hash": "47bee89b7baacc64c34936f3daef893f31d6cccf6aaf5dd07f4e271b30c9a45e",
    "kind": "candidate",
    "path": "candidates/TG_58398.v1.json",
-   "prev": "b6ad6ec55ac016654f972f0787509a33115c16df2180dfab24cb4c274bc304bc",
    "seq": 17,
    "sha256": "d38488cd4adf40d53193e17fd31802a69d3966c50a74214a9e9ce48145e774be",
    "utc": "2026-10-07T12:06:18Z"
@@ -176,7 +219,6 @@
    "entry_hash": "a0f8d072102b4091ce816d1ee9311019784a87829f89041a114f8cef0bf38f71",
    "kind": "candidate",
    "path": "candidates/TG_58399.v1.json",
-   "prev": "47bee89b7baacc64c34936f3daef893f31d6cccf6aaf5dd07f4e271b30c9a45e",
    "seq": 18,
    "sha256": "955362a485a9d8c1294508f2840a9c29b319d78aca880b155edf6afc334aaaee",
    "utc": "2026-10-07T12:06:18Z"
@@ -186,7 +228,6 @@
    "entry_hash": "2efcb85494dc9521fd6dc381b2e68e503175543fb0d0402375962c9ede2f217d",
    "kind": "candidate",
    "path": "candidates/TG_58400.v1.json",
-   "prev": "a0f8d072102b4091ce816d1ee9311019784a87829f89041a114f8cef0bf38f71",
    "seq": 19,
    "sha256": "fa2b9a4d52ca6cb7eb2a9a867c9e6666d7b91e39f521e71aeb091ccdfcc85695",
    "utc": "2026-10-07T12:06:18Z"
@@ -196,7 +237,6 @@
    "entry_hash": "61107f19aeb018052bbc66e0ba751eb7b858333d8c46d71bca5ff30dc5180893",
    "kind": "candidate",
    "path": "candidates/TG_58401.v1.json",
-   "prev": "2efcb85494dc9521fd6dc381b2e68e503175543fb0d0402375962c9ede2f217d",
    "seq": 20,
    "sha256": "8933714162fdbca27552707779df35a56f3698e6138947dfb04c7b5521eafe83",
    "utc": "2026-10-07T12:06:18Z"
@@ -206,7 +246,6 @@
    "entry_hash": "262bbc5f36b57590bf379a7fe6e96f99f90d15231fb437c01cb27d565a32c03a",
    "kind": "candidate",
    "path": "candidates/TG_58402.v1.json",
-   "prev": "61107f19aeb018052bbc66e0ba751eb7b858333d8c46d71bca5ff30dc5180893",
    "seq": 21,
    "sha256": "76e3e48bba768dd4d57c3b722ea84b6ba605e3f222f61ac9e800cee45a2f1963",
    "utc": "2026-10-07T12:06:18Z"
@@ -216,18 +255,15 @@
    "entry_hash": "3dad7b7beaa937ecead3a43ca04ee02c83028569e0f38f4215a429d478404d9f",
    "kind": "case",
    "path": "cases/CASE_0001.v1.json",
-   "prev": "262bbc5f36b57590bf379a7fe6e96f99f90d15231fb437c01cb27d565a32c03a",
    "seq": 22,
    "sha256": "694f0a8dc49ca416d6ca66806c9e73b73c5afb8f5dbb8423110943260cb815ce",
-   "utc": "2026-10-07T12:06:18Z",
-   "version": 1
+   "utc": "2026-10-07T12:06:18Z"
   },
   {
    "case_id": "TG_58403",
    "entry_hash": "4b023de5cddec2ca9374b3ac8ec8da89cef58ea4b9b4ef510ed998a93a11cf8c",
    "kind": "candidate",
    "path": "candidates/TG_58403.v1.json",
-   "prev": "3dad7b7beaa937ecead3a43ca04ee02c83028569e0f38f4215a429d478404d9f",
    "seq": 23,
    "sha256": "03fd6fba565b4bbd3426041e7892a47ee6fc90e2a59f8b7f61e481293557d7f4",
    "utc": "2026-10-07T12:06:18Z"
@@ -237,7 +273,6 @@
    "entry_hash": "259c7e9d8e4ca0604e365c280588c228395947b8e37e852a63a713ffc1b29d79",
    "kind": "candidate",
    "path": "candidates/TG_58404.v1.json",
-   "prev": "4b023de5cddec2ca9374b3ac8ec8da89cef58ea4b9b4ef510ed998a93a11cf8c",
    "seq": 24,
    "sha256": "1a3780ec5a1992cd13a090b9621092d3475c3d7eb525eab396759daa2204da47",
    "utc": "2026-10-07T12:06:18Z"
@@ -247,7 +282,6 @@
    "entry_hash": "8ae9401e9c7f9c8eee9bca682fb898b4a56f865f7ac929dcc747f5aa282c9302",
    "kind": "candidate",
    "path": "candidates/TG_58405.v1.json",
-   "prev": "259c7e9d8e4ca0604e365c280588c228395947b8e37e852a63a713ffc1b29d79",
    "seq": 25,
    "sha256": "7ba55c2d9f18b3b883cadff10cfeeff36b4a90c94c7a1d3a6e72988ee6c2360b",
    "utc": "2026-10-07T12:06:18Z"
@@ -257,7 +291,6 @@
    "entry_hash": "0cdce1d43b863dc4be896f09451e13076b3fc0b28b3df25948255611e37171d8",
    "kind": "candidate",
    "path": "candidates/TG_58406.v1.json",
-   "prev": "8ae9401e9c7f9c8eee9bca682fb898b4a56f865f7ac929dcc747f5aa282c9302",
    "seq": 26,
    "sha256": "77a81025119988aef1b881a2dd81ce6b8c6de1bf973c31873f9c68e378f3e6b9",
    "utc": "2026-10-07T12:06:18Z"
@@ -267,7 +300,6 @@
    "entry_hash": "4acebb3bac914929a673a1ffbe8892a7e0b873333f7891fadee43c8fb818cee4",
    "kind": "candidate",
    "path": "candidates/TG_58407.v1.json",
-   "prev": "0cdce1d43b863dc4be896f09451e13076b3fc0b28b3df25948255611e37171d8",
    "seq": 27,
    "sha256": "4ca15351c1c87e99f72f6701aed325fa892df07fc1521490e5d0f4b7b7e30aeb",
    "utc": "2026-10-07T12:06:18Z"
@@ -277,7 +309,6 @@
    "entry_hash": "b5946c78af9821a5df567909f10dfe97450b335e5a9f15442b4d314c092535e6",
    "kind": "candidate",
    "path": "candidates/TG_58408.v1.json",
-   "prev": "4acebb3bac914929a673a1ffbe8892a7e0b873333f7891fadee43c8fb818cee4",
    "seq": 28,
    "sha256": "ad1cb47f65e57af8fcba3d409f7a88dc6490431ae1130d45022da58f1e1144b4",
    "utc": "2026-10-07T12:06:18Z"
@@ -287,7 +318,6 @@
    "entry_hash": "94df06832a1e61c9879677a94592ffaeaa432992dd4c34edd7eda43a73002758",
    "kind": "candidate",
    "path": "candidates/TG_58409.v1.json",
-   "prev": "b5946c78af9821a5df567909f10dfe97450b335e5a9f15442b4d314c092535e6",
    "seq": 29,
    "sha256": "f7e4de53abd05099d05fb6f5b61c0cc402e75228429856bb818958adb76e5610",
    "utc": "2026-10-07T12:06:18Z"
@@ -297,7 +327,6 @@
    "entry_hash": "6b70f417d3bd174d506d0d943eced0326d3d37b10bf6f3ccd25207fb87ecf1e2",
    "kind": "candidate",
    "path": "candidates/TG_58410.v1.json",
-   "prev": "94df06832a1e61c9879677a94592ffaeaa432992dd4c34edd7eda43a73002758",
    "seq": 30,
    "sha256": "928b4c8f56b6e62915da6c852f46e2c85a242eeb2f683f9c052dd6059cf9e5c8",
    "utc": "2026-10-07T12:06:18Z"
@@ -307,7 +336,6 @@
    "entry_hash": "f7d5a12bb7b15014ca6d83dcaadf680f324acbc0562e0681edbd34aa26145deb",
    "kind": "candidate",
    "path": "candidates/TG_58411.v1.json",
-   "prev": "6b70f417d3bd174d506d0d943eced0326d3d37b10bf6f3ccd25207fb87ecf1e2",
    "seq": 31,
    "sha256": "1e2ec8fac9b158fba73d183c9452b0d39dbe4509c780f81a7be86018b6528715",
    "utc": "2026-10-07T12:06:18Z"
@@ -317,7 +345,6 @@
    "entry_hash": "27ac5ed5c77a89921850b6fcf93bf83f79e94f6d42ebd33f950fad4113941ad9",
    "kind": "candidate",
    "path": "candidates/TG_58412.v1.json",
-   "prev": "f7d5a12bb7b15014ca6d83dcaadf680f324acbc0562e0681edbd34aa26145deb",
    "seq": 32,
    "sha256": "8b92d7cf909244473da29da1044337fe6356737b3229a56fea3bee2898d6ee0a",
    "utc": "2026-10-07T12:06:18Z"
@@ -327,7 +354,6 @@
    "entry_hash": "3804dc92852708602e4915817af0b3c53fc17cf57ff5db0d6ea414a022c19d63",
    "kind": "candidate",
    "path": "candidates/TG_58413.v1.json",
-   "prev": "27ac5ed5c77a89921850b6fcf93bf83f79e94f6d42ebd33f950fad4113941ad9",
    "seq": 33,
    "sha256": "e321fa6fdeb3f2494e841705e60ab4de17f2c5be3b256799c983d31cb2b70f4e",
    "utc": "2026-10-07T12:06:18Z"
@@ -337,7 +363,6 @@
    "entry_hash": "98e6619b8266ad8c16639d7e545e0e9a5b8a8ee18e097abe611e5a43127a6ce3",
    "kind": "candidate",
    "path": "candidates/TG_58414.v1.json",
-   "prev": "3804dc92852708602e4915817af0b3c53fc17cf57ff5db0d6ea414a022c19d63",
    "seq": 34,
    "sha256": "87909cfa189e5896015ee91a616d43daf13b31b6b596dd891d5a6998c37f8dbb",
    "utc": "2026-10-07T12:06:18Z"
@@ -347,7 +372,6 @@
    "entry_hash": "f1ce582694b9941b09e56abcf89230ae9562464114129236451df3dd4ea31019",
    "kind": "candidate",
    "path": "candidates/TG_58415.v1.json",
-   "prev": "98e6619b8266ad8c16639d7e545e0e9a5b8a8ee18e097abe611e5a43127a6ce3",
    "seq": 35,
    "sha256": "30b481d7d91cd8d6bd3de1a626673260ba55aaf27bc7dcb4adbcc2c311a50ecd",
    "utc": "2026-10-07T12:06:18Z"
@@ -357,7 +381,6 @@
    "entry_hash": "57a7d3eeb9c7b2475c0e56812a7551d77bf6b07fd1db8c1502059ca12fae2b11",
    "kind": "candidate",
    "path": "candidates/TG_58416.v1.json",
-   "prev": "f1ce582694b9941b09e56abcf89230ae9562464114129236451df3dd4ea31019",
    "seq": 36,
    "sha256": "f8643f1752173b188c5febcb2fea9aba31fdacfd3df8e0e7aade5ee4fb25db48",
    "utc": "2026-10-07T12:06:18Z"
@@ -367,7 +390,6 @@
    "entry_hash": "03b1ac6f12f135288b516f7e8eccc5bef595dff0df66362c58fe8de05d94a692",
    "kind": "candidate",
    "path": "candidates/TG_58417.v1.json",
-   "prev": "57a7d3eeb9c7b2475c0e56812a7551d77bf6b07fd1db8c1502059ca12fae2b11",
    "seq": 37,
    "sha256": "f27102ba090c769961c78ffed15b08873046311a9827c4765753630e0e2261d2",
    "utc": "2026-10-07T12:06:18Z"
@@ -377,7 +399,6 @@
    "entry_hash": "36af6abaea669e1c95b75fef25777766f7a4e879aaa2b410860174e0d41c811b",
    "kind": "candidate",
    "path": "candidates/TG_58418.v1.json",
-   "prev": "03b1ac6f12f135288b516f7e8eccc5bef595dff0df66362c58fe8de05d94a692",
    "seq": 38,
    "sha256": "e16fe1ebfb1ea8607ff8202bbe561dbd76d818105fc7f1ed8cb219d7c4fe287f",
    "utc": "2026-10-07T12:06:18Z"
@@ -387,7 +408,6 @@
    "entry_hash": "05241635537b2a144983daa51350808921fc8f2fea175a973287bc88451855f2",
    "kind": "candidate",
    "path": "candidates/TG_58419.v1.json",
-   "prev": "36af6abaea669e1c95b75fef25777766f7a4e879aaa2b410860174e0d41c811b",
    "seq": 39,
    "sha256": "83961dc72f441a64f22008df443b19b08c4c0ff72c704247853f250c90558d09",
    "utc": "2026-10-07T12:06:18Z"
@@ -397,7 +417,6 @@
    "entry_hash": "78fb1491a830728720dd7584d31800bb2587207e54f650a52d428717c6ab0b60",
    "kind": "candidate",
    "path": "candidates/TG_58420.v1.json",
-   "prev": "05241635537b2a144983daa51350808921fc8f2fea175a973287bc88451855f2",
    "seq": 40,
    "sha256": "b5fc275fc7ca2526b25542a982ec06593b4f15b304f875aa7863ab3d03a4f9a6",
    "utc": "2026-10-07T12:06:18Z"
@@ -407,7 +426,6 @@
    "entry_hash": "ede7835afab1ad58f02768a777d33204ac28189dc5a954ddefe4fe33b573cbaa",
    "kind": "candidate",
    "path": "candidates/TG_58421.v1.json",
-   "prev": "78fb1491a830728720dd7584d31800bb2587207e54f650a52d428717c6ab0b60",
    "seq": 41,
    "sha256": "94a42136abf15f708fedd4bebadf63cb7f3ce9dad1d86b70e052535d913f3bdc",
    "utc": "2026-10-07T12:06:18Z"
@@ -417,7 +435,6 @@
    "entry_hash": "491ff60c54098c5083b17a8d79c07ee5350b56110a98aa408c3b1b951292eb1f",
    "kind": "candidate",
    "path": "candidates/TG_58422.v1.json",
-   "prev": "ede7835afab1ad58f02768a777d33204ac28189dc5a954ddefe4fe33b573cbaa",
    "seq": 42,
    "sha256": "9541520b8854518720ae7b5a185acc982f2783c38432310687e82a0af0740b05",
    "utc": "2026-10-07T12:06:18Z"
@@ -427,7 +444,6 @@
    "entry_hash": "78361ab6c3457426d67d47317f18b8eee185c4866e997f3cdba85f943549a6f3",
    "kind": "candidate",
    "path": "candidates/TG_58423.v1.json",
-   "prev": "491ff60c54098c5083b17a8d79c07ee5350b56110a98aa408c3b1b951292eb1f",
    "seq": 43,
    "sha256": "85e15dd1712137046653d55e9b070991a67a823c84c761bdc652728fc7c2010e",
    "utc": "2026-10-07T12:06:18Z"
@@ -437,7 +453,6 @@
    "entry_hash": "d00a0263733b55ec8538a45f0c119041515037df20185c12b8d50aea987b57a7",
    "kind": "candidate",
    "path": "candidates/TG_58426.v1.json",
-   "prev": "78361ab6c3457426d67d47317f18b8eee185c4866e997f3cdba85f943549a6f3",
    "seq": 44,
    "sha256": "76f25db5422acd3cd0690133cf4b6c24f14e179781f494a5769b440f5a546307",
    "utc": "2026-10-07T12:06:18Z"
@@ -447,7 +462,6 @@
    "entry_hash": "207b206bdbabc5ac071ac432108698e51baaaf56f166c90b99f2915bc571b742",
    "kind": "candidate",
    "path": "candidates/TG_58427.v1.json",
-   "prev": "d00a0263733b55ec8538a45f0c119041515037df20185c12b8d50aea987b57a7",
    "seq": 45,
    "sha256": "fe2da7c0e07ab650949e59803ef132eacf2b68fecdf4561d9b0d5dfb0192941c",
    "utc": "2026-10-07T12:06:18Z"
@@ -457,7 +471,6 @@
    "entry_hash": "197f8cd6587288c1db69939ec0b730548089f1b06d7a53bd33e68d9ac75ce27a",
    "kind": "candidate",
    "path": "candidates/TG_58428.v1.json",
-   "prev": "207b206bdbabc5ac071ac432108698e51baaaf56f166c90b99f2915bc571b742",
    "seq": 46,
    "sha256": "49331fdf8ad9371ac27b46cbc90f2d6acd35af736bbb12fb8809dcc56656f3c8",
    "utc": "2026-10-07T12:06:18Z"
@@ -467,19 +480,15 @@
    "entry_hash": "7b005ce5461e3f0c449d846dc0ba1e72a581f5857f18a992114bc713970efbf6",
    "kind": "candidate",
    "path": "candidates/TG_58429.v1.json",
-   "prev": "197f8cd6587288c1db69939ec0b730548089f1b06d7a53bd33e68d9ac75ce27a",
    "seq": 47,
    "sha256": "951cf7f11f14e7e27e7e049d10899140ae90a606cde349d1d43a7fde97c2009c",
    "utc": "2026-10-07T12:06:18Z"
   },
   {
    "case_id": "CASE_0001",
-   "case_version": 1,
    "entry_hash": "6bbb2cf38dd6e8f6db30ad5e626699ba5af3005f8b35fe6c7b4d722d762d56bf",
    "kind": "v4",
    "path": "decisions/CASE_0001.v1.r11.v4.json",
-   "prev": "7b005ce5461e3f0c449d846dc0ba1e72a581f5857f18a992114bc713970efbf6",
-   "run": 1,
    "seq": 48,
    "sha256": "f2fe31e0190c0df736c84c44b1df41e116a5becafd40702cd8cd22600aa5bb25",
    "utc": "2026-10-07T12:42:47Z"
@@ -489,13 +498,23 @@
    "entry_hash": "947bc40b3e7cc6a9fd46ec2edf0f9909850669895a01f266a2e2d00d84abdcc2",
    "kind": "faisal",
    "path": "faisal/CASE_0001.v1.json",
-   "prev": "6bbb2cf38dd6e8f6db30ad5e626699ba5af3005f8b35fe6c7b4d722d762d56bf",
    "seq": 49,
    "sha256": "48ccfdb89bd101b29cfc5ad3fd02ef02ec2f434145384cb063832c3304236772",
-   "utc": "2026-10-07T12:52:33Z",
-   "version": 1
+   "utc": "2026-10-07T12:52:33Z"
   }
  ],
- "schema": 1,
- "window_start": "2026-10-03"
+ "seal_sha256": "460097c7713babf36d9c54f0a2e879ec48a2cc8b347e2c1acdb1fbb236b79755",
+ "tool_version": "B48-INTAKE 1.0 (2026-10-07)",
+ "v4": {
+  "CASE_0001": {
+   "commit": "ea9e266549c385097ef3961205a0875f120cceac",
+   "decision_file_sha256": "f2fe31e0190c0df736c84c44b1df41e116a5becafd40702cd8cd22600aa5bb25",
+   "decision_path": "decisions/CASE_0001.v1.r11.v4.json",
+   "decision_sha256": "b242fc6d5fca3a6c2f19240f57cf03b6115d77802d985f56f6923d1cf0ce4258",
+   "freeze_id": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+   "run_id": "37622924792",
+   "snapshot_path": "snapshots/CASE_0001.v1.r11.bars.json",
+   "snapshot_sha256": "740710c341bc88621431fea073f6fe775b901795f690e21abc12104485426d88"
+  }
+ }
 }

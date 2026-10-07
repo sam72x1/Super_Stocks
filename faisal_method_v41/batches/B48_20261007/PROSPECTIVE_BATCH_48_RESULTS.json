@@ -1,0 +1,512 @@
+{
+ "aggregate": {
+  "N": 1,
+  "always_wait_baseline": {
+   "agree": 1,
+   "n": 1
+  },
+  "breakdown": {
+   "decision_state": {
+    "WAIT": {
+     "match": 1,
+     "n": 1
+    }
+   },
+   "pattern": {
+    "UNSPECIFIED (V4 معلوماتيّ: W (V3.1))": {
+     "match": 1,
+     "n": 1
+    }
+   },
+   "provenance": {
+    "layer 1": {
+     "match": 1,
+     "n": 1
+    }
+   },
+   "source": {
+    "image_visible": {
+     "match": 1,
+     "n": 1
+    }
+   },
+   "timeframe": {
+    "D": {
+     "match": 1,
+     "n": 1
+    }
+   }
+  },
+  "by_state": {
+   "READY": {
+    "FAISAL": 0,
+    "V4": 0,
+    "agree": 0,
+    "false_READY": 0,
+    "false_REJECT": 0,
+    "false_UNKNOWN": 0,
+    "false_WAIT": 0
+   },
+   "REJECT": {
+    "FAISAL": 0,
+    "V4": 0,
+    "agree": 0,
+    "false_READY": 0,
+    "false_REJECT": 0,
+    "false_UNKNOWN": 0,
+    "false_WAIT": 0
+   },
+   "UNKNOWN": {
+    "FAISAL": 0,
+    "V4": 0,
+    "agree": 0,
+    "false_READY": 0,
+    "false_REJECT": 0,
+    "false_UNKNOWN": 0,
+    "false_WAIT": 0
+   },
+   "WAIT": {
+    "FAISAL": 1,
+    "V4": 1,
+    "agree": 1,
+    "false_READY": 0,
+    "false_REJECT": 0,
+    "false_UNKNOWN": 0,
+    "false_WAIT": 0
+   }
+  },
+  "causes": {
+   "DATA_GAP": 0,
+   "DISCRETIONARY": 0,
+   "EXTERNAL_INFORMATION_GAP": 0,
+   "IMPLEMENTATION_BUG": 0,
+   "METHODOLOGY_GAP": 0,
+   "NONE": 0,
+   "UNRESOLVED": 0
+  },
+  "errors": {
+   "FALSE_READY": 0,
+   "FALSE_REJECT": 0,
+   "FALSE_UNKNOWN": 0,
+   "FALSE_WAIT": 0,
+   "MATCH": 1,
+   "NOT_COMPARABLE": 0
+  },
+  "exact": 1,
+  "exact_rate": 1.0,
+  "exact_wilson": "INSUFFICIENT (N=1 < 10)",
+  "invalid_for_validation": 0,
+  "not_comparable": 0
+ },
+ "answer_q11": "نعم في 1 من 1 — دون أن يتغيّر V4 (FV41 · مراجعةُ التجميد 1). ⚠️ وخطُّ «دائمًا WAIT» يطابق 1 من 1 أيضًا: مخرَجُ V4 الأماميّ ∈ {WAIT · UNKNOWN} بالبناء (FVO1) ⟵ تطابقٌ لا يميّز V4 عن الخطّ التافه · والعيّنةُ 1 دون حدّ الفاصل (INSUFFICIENT (N=1 < 10)) ⟵ **لا ادّعاءَ دلالةٍ ولا «V4 صحيح»**.",
+ "batch_id": "B48_20261007",
+ "contract": "V41_prereg §⑥ · أمرُ المالك 2026-10-07 (§5-§15)",
+ "final_block": "V4 FROZEN = YES\n48 IMAGES RECEIVED = 48\nCLEAN PROSPECTIVE = 2\nCONTAMINATED = 9\nDUPLICATES = 2\nVALIDATION CASES = 1\nEXACT MATCH = 1\nFALSE READY = 0\nFALSE WAIT = 0\nFALSE REJECT = 0\nFALSE UNKNOWN = 0\nEXTERNAL INFORMATION GAPS = 0\nDATA GAPS = 0\nMETHODOLOGY GAPS = 0\nUNRESOLVED = 0\nV4 CHANGED DURING VALIDATION = NO",
+ "freeze": {
+  "cases_v4_sha256": "422a28f2fe28e3a21a40032f66704128a5ebdb00367a7fc15a49bc2c66766665",
+  "config_hash": "3829aa5ed84827c68d04daa14cd3bd4e8cf1b1040fe3c04724a81d784879397e",
+  "corpus_images": 722,
+  "corpus_sha256": "8bde6fe4766ad55abaf8b1e0ce7e344ef5047924bcbf5cb851dcd6bafcfd4379",
+  "decision_engine_py_sha256": "2675cb394f74d029f9e043f20f6984004b378b2af31edd3a22c1c6b7ccf2e68c",
+  "decision_graph_sha256": "2214d9a3191d3a092bfb15f9b90a14fa744adfd417ad109a9540a384087a6db9",
+  "engine_last_change_commit": "d8b493727af71516e285fb12a816ecdd1950a0fb",
+  "engine_last_change_utc": "2026-10-02T21:36:57+00:00",
+  "engine_version": "FAISAL-V4 1.0 (2026-10-02)",
+  "freeze_id": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+  "golden_sha256": "64a16333c7a74cc5311588806cef1e71a71d3834878862cac601e38ffce71dd3",
+  "holdout_seal": "601b800da2caf76ee580494ff0e43f040965a1b6efebf915175c99574e5c6ce8",
+  "n_files": 81,
+  "official_freeze_commit": "7c8826c25e745668d33facabb2efbc488e997fb7",
+  "rev": 1,
+  "revisions": 1,
+  "rule_graph_sha256": "1149bf80ac15b44805f7dd36015cfd243e520a799d311c109d764b8a3937c905",
+  "rules_v4_py_sha256": "335e18af335c0e9eef3b364c249b1a8b05cf9c5c27ba13d66a4a6cc71517d151",
+  "rules_version": "V4-RULES 1.0 (2026-10-02)",
+  "runner_version": [
+   "V41-RUNNER 1.0 (2026-10-07)"
+  ],
+  "tool_version": "B48-INTAKE 1.0 (2026-10-07)",
+  "verify_ok": true,
+  "verify_problems": []
+ },
+ "generated_by": "faisal_method_v41/batch_intake.py results",
+ "received": {
+  "count_matches_owner": true,
+  "counts": {
+   "CLEAN_PROSPECTIVE": 2,
+   "CONTAMINATED": 9,
+   "DERIVATIVE": 9,
+   "DUPLICATE": 2,
+   "UNKNOWN": 26
+  },
+  "expected_by_owner": 48,
+  "total": 48,
+  "validation_cases": 1
+ },
+ "research_queue": [
+  "RQ-B48-01",
+  "RQ-B48-02",
+  "RQ-B48-03",
+  "RQ-B48-04"
+ ],
+ "rows": [
+  {
+   "ASOF": "2026-10-02",
+   "BLOCKING": [
+    {
+     "rule": "R4-INV-01",
+     "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+    }
+   ],
+   "CASE_ID": "CASE_0001",
+   "CAUSE": "NONE",
+   "DATA_QUALITY": {
+    "bars": 998,
+    "fails": [],
+    "last_bar": "2026-10-02",
+    "verdict": "VALID",
+    "warns": []
+   },
+   "DIRECTLY_OBSERVED": [
+    "النصُّ الحرفيّ للمنشور والردّ «شرط يهبط ويحافظ» والكاتبُ Faisal @kisar_ على الردّ",
+    "الخطوطُ وتسمياتُها على الشارت اليوميّ (Daily) وقيمُ RSI14 21.920 وMACD ‏−0.439/−0.473/0.034",
+    "التنبيهاتُ الثلاثة تحت السعر (1.71 · 1.60 · 1.50 · مرّةً واحدة)",
+    "بطاقةُ التطبيق: مراقبة مبكرة 48/100 · الدعم المعتمد $2.14 · منذ التقسيم 25 يوم · Free Float 1.29M · الشورت المتاح 55K · الاقتراض 11.9%"
+   ],
+   "ENTRY": {
+    "type1_bids": [
+     2.247,
+     2.461
+    ],
+    "type1_rule": "R4-ENT-01 (SUPPORTING)",
+    "type2_liberation": 2.9288,
+    "type2_rule": "R4-ENT-02 (INFORMATIONAL · C-BREAKOUT)"
+   },
+   "ERROR": "MATCH",
+   "EXTERNAL_DATA_REQUIRED": {
+    "context_unavailable": [
+     "group information",
+     "offering",
+     "short availability",
+     "trader identity/context"
+    ],
+    "missing_information": []
+   },
+   "FAISAL_ALERTS": [
+    {
+     "price": 1.71,
+     "src": "TG_58405",
+     "text": "آخر سعر ينخفض إلى 1.71 · مرة واحدة فقط"
+    },
+    {
+     "price": 1.6,
+     "src": "TG_58405",
+     "text": "آخر سعر ينخفض إلى 1.60 · مرة واحدة فقط"
+    },
+    {
+     "price": 1.5,
+     "src": "TG_58405",
+     "text": "آخر سعر ينخفض إلى 1.50 · مرة واحدة فقط"
+    }
+   ],
+   "FAISAL_ANNOTATIONS": [
+    {
+     "color": "بنفسجيّ",
+     "kind": "gap",
+     "label": "",
+     "price": 4.208,
+     "src": "TG_58407"
+    },
+    {
+     "color": "بنفسجيّ",
+     "kind": "gap",
+     "label": "",
+     "price": 3.904,
+     "src": "TG_58407"
+    },
+    {
+     "color": "بنفسجيّ",
+     "kind": "gap",
+     "label": "فجوة سعريه",
+     "price": 3.579,
+     "src": "TG_58407"
+    },
+    {
+     "color": "أزرق",
+     "kind": "split_candle",
+     "label": "شمعة التقسيم S",
+     "price": 3.224,
+     "src": "TG_58407"
+    },
+    {
+     "color": "برتقاليّ",
+     "kind": "falling_wave",
+     "label": "الموجه الهابطه",
+     "price": 2.922,
+     "src": "TG_58407"
+    },
+    {
+     "color": "برتقاليّ",
+     "kind": "falling_wave",
+     "label": "الموجه الهابطه",
+     "price": 2.705,
+     "src": "TG_58407"
+    },
+    {
+     "color": "أسود",
+     "kind": "resistance",
+     "label": "ستكون مقاومه عاليه",
+     "price": 2.479,
+     "src": "TG_58407"
+    },
+    {
+     "color": "أسود",
+     "kind": "resistance",
+     "label": "ستكون مقاومه عاليه",
+     "price": 2.256,
+     "src": "TG_58407"
+    },
+    {
+     "color": "أحمر",
+     "kind": "expected_drop",
+     "label": "هبوط متوقع",
+     "price": 1.588,
+     "src": "TG_58407"
+    },
+    {
+     "color": "أحمر",
+     "kind": "expected_drop",
+     "label": "هبوط متوقع",
+     "price": 1.353,
+     "src": "TG_58407"
+    }
+   ],
+   "FAISAL_AUTHOR": "F — الاسمُ «Faisal» والحسابُ الموثَّق @kisar_ ظاهران على الردّ في الصورة نفسِها · وصورةُ الحساب على المنشور = صورةُ @kisar_",
+   "FAISAL_DISCRETIONARY": false,
+   "FAISAL_ENTRY": "لا دخول — «مراقبه مبكره» و«يضاف للمفضله + تنبيهات للهبوط» و«شرط يهبط ويحافظ»",
+   "FAISAL_EVIDENCE": "TG_58402 (المنشور والردّ) · TG_58405 (التنبيهات) · TG_58406 (البطاقة) · TG_58407 (الشارت) — والثلاثُ الأخيرة مشتقّةٌ من الأولى (DERIVATIVE · VISUAL) فلا تصنع حالاتٍ مستقلّة",
+   "FAISAL_EXTERNAL_REFS": [
+    "تاريخُ التقسيم 8-9-2026 (حدثُ شركة)",
+    "«امريكي» (بلدُ الشركة)",
+    "بطاقةُ تطبيق «مراقب استراتيجية فيصل» المرفقة: Free Float 1.29M · الشورت المتاح 55K · نسبة الاقتراض 11.9%",
+    "«لايوجد اجابيه» — لا يُحدَّد أهي من الشارت أم من خارجه"
+   ],
+   "FAISAL_IMAGES": {
+    "TG_58402": "منشورُ فيصل على X (النصّ ‏+ ثلاثةُ مرفقات) وردُّه على سؤال متابِع — الصورةُ الحاملة للحالة",
+    "TG_58405": "المرفقُ الأوّل كاملًا: قائمةُ تنبيهات BioRestorative Therapies",
+    "TG_58406": "المرفقُ الثالث كاملًا: بطاقةُ تطبيق «مراقب استراتيجية فيصل» لـBRTX",
+    "TG_58407": "المرفقُ الثاني كاملًا: الشارتُ اليوميّ بخطوط فيصل وتسمياتها"
+   },
+   "FAISAL_INDICATORS": {
+    "MACD_12_26_9": -0.439,
+    "RSI14": 21.92,
+    "after_hours": "2.200 (+2.80%)",
+    "book": "Bid 2 @ 2.200 · Ask 2.420 × 500",
+    "histogram": 0.034,
+    "signal": -0.473,
+    "src": "TG_58407"
+   },
+   "FAISAL_LABEL": "WATCH",
+   "FAISAL_QUOTE": "مراقبه مبكره / امريكي تاريخ التقسيم / 8-9-2026 / لايوجد اجابيه / يضاف للمفضله + تنبيهات للهبوط ‖ «شرط يطلع فوق المتوسطات ؟» ⟵ «شرط يهبط ويحافظ»",
+   "FAISAL_REPLY": {
+    "answer": "شرط يهبط ويحافظ",
+    "answer_author": "Faisal @kisar_",
+    "question": "شرط يطلع فوق المتوسطات ؟",
+    "question_author": "متابِعٌ (حسابٌ عامّ — لا يُسجَّل اسمُه)"
+   },
+   "FAISAL_RESISTANCE": "2.256-2.479 «ستكون مقاومه عاليه» · 2.705-2.922 «الموجه الهابطه» · 3.224 «شمعة التقسيم» · 3.579-4.208 «فجوة سعريه» (TG_58407)",
+   "FAISAL_STATE": "WAIT",
+   "FAISAL_STRUCTURE": "بعد تقسيمٍ عكسيّ (8-9-2026) وهبوطٍ متتابع إلى 2.14 · و«هبوط متوقع» إلى 1.588 ثمّ 1.353",
+   "FAISAL_SUPPORT": "2.14 — «الدعم المعتمد $2.14» في بطاقة التطبيق المرفقة (TG_58406) = آخرُ سعر · ولا دعمَ مسمًّى في نصّ فيصل",
+   "FAISAL_TARGET": "UNKNOWN — لا هدفَ صاعدٌ مذكورٌ في النصّ ولا موسومٌ على الشارت (الخطوطُ فوق السعر مسمّاةٌ مقاومةً وفجوةً وشمعةَ تقسيم لا هدفًا)",
+   "FAISAL_TEXT": "مراقبه مبكره / امريكي تاريخ التقسيم / 8-9-2026 / لايوجد اجابيه / يضاف للمفضله + تنبيهات للهبوط",
+   "FAISAL_TIMEFRAME": "D",
+   "FREEZE_ID": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+   "INFERRED": [
+    "FAISAL_STATE = WAIT: «مراقبه مبكره» ⟵ WATCH ⟵ WAIT بجدول `v4_cases.L4` (الوسمُ الرباعيّ — قاعدةٌ مكتوبةٌ لا تقدير)",
+    "تاريخُ القرار 2026-10-03: التقسيمُ 8-9-2026 ‏+ «منذ التقسيم 25 يوم» في بطاقةٍ صوّرها فيصل ‏+ آخرُ شمعةٍ يوميّة 2.14 = إغلاقُ الجمعة 10-02 مع سعر الأفتر",
+    "خطّةُ فيصل «المستوى الحاسم تحت السعر» (BELOW): التنبيهاتُ والهبوطُ المتوقَّع تحت 2.14 وشرطُه «يهبط ويحافظ»",
+    "لا جاهزيّةَ فنيّة: «مراقبه مبكره» و«لايوجد اجابيه»",
+    "الخطّان البنفسجيّان 4.208 و3.904 بلا تسمية ⟵ يُعدّان من «فجوة سعريه» بلونهما · وخطُّ 2.140 المتقطّع خطُّ السعر في المنصّة لا خطٌّ لفيصل (أُسقط)"
+   ],
+   "INVALIDATION": [
+    {
+     "name": "القاع (الأساسيّ)",
+     "price": 2.14,
+     "rule": "R4-STOP-01"
+    },
+    {
+     "name": "‏−5% تحت القاع",
+     "price": 2.033,
+     "rule": "R4-STOP-01 (TG_1978)"
+    },
+    {
+     "name": "‏−7% تحت القاع",
+     "price": 1.9902,
+     "rule": "R4-STOP-01 (الإنتاج 5-7)"
+    }
+   ],
+   "PATTERN": [
+    {
+     "decisionality": "INFORMATIONAL",
+     "low1": 2.61,
+     "low2": 2.55,
+     "neckline": 2.905,
+     "pattern": "W (V3.1)"
+    }
+   ],
+   "RULE_IDS": [
+    "R-W-SPAN",
+    "R4-BOT-01",
+    "R4-ENT-02",
+    "R4-INV-01",
+    "R4-STOP-01",
+    "R4-TF-01",
+    "R4-TGT-01"
+   ],
+   "STRUCTURE": {
+    "bottom": 2.14,
+    "bottom_body_low": 2.14,
+    "bottom_date": "2026-10-02",
+    "depth_pct": 16.08,
+    "hold_sessions": 0,
+    "labels": [
+     {
+      "i": 953,
+      "label": "LL",
+      "price": 3.859,
+      "type": "L"
+     },
+     {
+      "i": 962,
+      "label": "LH",
+      "price": 4.72,
+      "type": "H"
+     },
+     {
+      "i": 965,
+      "label": "HL",
+      "price": 4.2,
+      "type": "L"
+     },
+     {
+      "i": 980,
+      "label": "LL",
+      "price": 2.61,
+      "type": "L"
+     },
+     {
+      "i": 985,
+      "label": "LL",
+      "price": 2.55,
+      "type": "L"
+     },
+     {
+      "i": 989,
+      "label": "LH",
+      "price": 2.9288,
+      "type": "H"
+     }
+    ],
+    "prior_base": 2.55,
+    "rise_pct": 0.0,
+    "support2": null,
+    "test_high": 2.14,
+    "undercut_pct": 16.078
+   },
+   "SUPPORT": {
+    "ladder": [
+     2.9288,
+     4.72,
+     5.24
+    ],
+    "levels": {
+     "bid_lo": 2.247,
+     "bottom": 2.14,
+     "bottom_body": 2.14,
+     "prior_base": 2.55,
+     "resistance1": 2.9288,
+     "sweep_10": 1.926,
+     "sweep_5": 2.033,
+     "test_high": 2.14,
+     "zone_hi": 2.461
+    },
+    "zone": [
+     2.14,
+     2.461
+    ]
+   },
+   "TARGET": [
+    {
+     "family": "faisal_ladder",
+     "name": "T1",
+     "price": 2.9288,
+     "rule": "R-W-08",
+     "source": "faisal_verbatim",
+     "status": "CONFIRMED"
+    },
+    {
+     "family": "faisal_ladder",
+     "name": "T2",
+     "price": 4.72,
+     "rule": "R-W-08",
+     "source": "faisal_verbatim",
+     "status": "CONFIRMED"
+    },
+    {
+     "family": "faisal_ladder",
+     "name": "T3",
+     "price": 5.24,
+     "rule": "R-W-08",
+     "source": "faisal_verbatim",
+     "status": "CONFIRMED"
+    },
+    {
+     "family": "faisal_gain100",
+     "name": "+100%",
+     "price": 4.708,
+     "rule": "R-100-01 · F100-1",
+     "source": "faisal_verbatim",
+     "status": "CONFIRMED"
+    }
+   ],
+   "UNKNOWN": [
+    "الهدفُ الصاعد (لا يُذكر)",
+    "معنى «الإيجابيّات» في «لايوجد اجابيه» (من الشارت أم من الأخبار/الشركة)",
+    "اشتقاقُ 1.588 و1.71 (و1.353 ≈ ½ أدنى شمعة التقسيم · 1.50 ≈ ½ افتتاحها — تطابقٌ تقريبيّ لا يُفصل عن الصدفة بحالةٍ واحدة · RQ-B48-01)",
+    "صاحبُ تطبيق «مراقب استراتيجية فيصل» ومصدرُ أرقامه (RQ-B48-03)",
+    "وقتُ النشر بالساعة (لقطةُ المنشور بلا طابعٍ مطلق)"
+   ],
+   "V4_COMMIT": "ea9e266549c385097ef3961205a0875f120cceac",
+   "V4_DECISION_SHA256": "b242fc6d5fca3a6c2f19240f57cf03b6115d77802d985f56f6923d1cf0ce4258",
+   "V4_REASON": [
+    "لماذا WAIT؟ كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد (R4-INV-01)",
+    "المستوى الحاسم 2.14 (السعر 2.14)"
+   ],
+   "V4_RUN": "37622924792",
+   "V4_RUNNER": "V41-RUNNER 1.0 (2026-10-07)",
+   "V4_SNAPSHOT_SHA256": "740710c341bc88621431fea073f6fe775b901795f690e21abc12104485426d88",
+   "V4_STATE": "WAIT",
+   "V4_TECH_STATE": "BROKEN_NEW_BASE",
+   "case_seq": 22,
+   "chart_alone": "YES — حالةُ WAIT يُعيدها V4 من الشارت وحدَه (قالها والسياقُ كلُّه UNAVAILABLE)",
+   "date_source": "image_visible",
+   "decision_date": "2026-10-03",
+   "faisal_seq": 49,
+   "image": "faisal_images/TG_58402.jpg",
+   "invalid": [],
+   "layer": "1",
+   "missing_for_v4": [],
+   "order_ok": true,
+   "pattern_f": null,
+   "plan_f": "BELOW",
+   "symbol": "BRTX",
+   "timeframe_f": "D",
+   "v4_consistent": true,
+   "v4_seq": 48
+  }
+ ],
+ "tool_version": "B48-INTAKE 1.0 (2026-10-07)",
+ "v4_changed_during_validation": false,
+ "v4_frozen": true
+}

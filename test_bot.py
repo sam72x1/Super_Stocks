@@ -81141,6 +81141,98 @@ except Exception as _e:                                                    # noq
 check("🧾 BIM7 حالةُ التحقّق الأماميّ صادقة: بلا حالة NOT STARTED · مختومةٌ تنتظر SEALED_PENDING · كاملةٌ واحدة INSUFFICIENT · "
       "والإجماليُّ «قيد التحقّق» للأوّليَين · وQ5 على حالة التقرير الأوّل", _bim7ok, _bim7w)
 
+# ── BIM8 النتائجُ مولَّدةٌ لا محرَّرة (§5-§15): صفوفُ الحالات والتجميعُ وحقائقُ التجميد وكتلةُ §15 تُعاد من السجلّ و`faisal_annotations.json` فتطابق
+#    `PROSPECTIVE_BATCH_48_RESULTS.json` حرفًا · والتقريرُ منها حرفًا · وكتلةُ §15 بأسطر المالك الستّة عشر وترتيبِها · وV4 لم يتغيّر (FV41 · المراجعة 1)
+#    · وكلُّ حالةٍ بترتيبها (حالة ⟵ V4 ⟵ فيصل) · وجوابُ §11 يحمل خطَّ «دائمًا WAIT» حين يساوي التطابق (لا يُقرأ تطابقٌ تافهٌ مهارةً).
+_BIM8_KEYS = ("V4 FROZEN", "48 IMAGES RECEIVED", "CLEAN PROSPECTIVE", "CONTAMINATED", "DUPLICATES", "VALIDATION CASES", "EXACT MATCH",
+              "FALSE READY", "FALSE WAIT", "FALSE REJECT", "FALSE UNKNOWN", "EXTERNAL INFORMATION GAPS", "DATA GAPS", "METHODOLOGY GAPS",
+              "UNRESOLVED", "V4 CHANGED DURING VALIDATION")
+try:
+    BI = _bim_imp.import_module("batch_intake")
+    LG = _bim_imp.import_module("ledger")
+    _lg8 = LG.Ledger()
+    _m8 = _bim_json.load(open(BI.MANIFEST, encoding="utf-8"))
+    _fa8 = _bim_json.load(open(BI.FAISAL_ANN, encoding="utf-8"))["cases"]
+    _rq8 = _bim_json.load(open(BI.RESEARCH_Q, encoding="utf-8"))
+    _rows8 = BI.build_results(_m8, _fa8, _lg8)
+    _agg8 = BI.aggregate(_rows8)
+    _fz8 = BI.freeze_facts(_rows8)
+    _ch8 = BI.v4_changed(_rows8, _fz8)
+    _res8 = BI.results_doc(_m8, _rows8, _agg8, _fz8, _ch8, _rq8)
+    _disk8 = _bim_json.load(open(BI.RESULTS, encoding="utf-8"))
+    _same8 = _bim_json.loads(_bim_json.dumps(_res8, sort_keys=True, ensure_ascii=False, default=str)) == _disk8
+    _rep8 = BI.render_report(_m8, _rows8, _agg8, _fz8, _res8["final_block"], _rq8) == open(BI.REPORT, encoding="utf-8").read()
+    _fb8 = [ln.split(" = ")[0] for ln in _res8["final_block"].splitlines()]
+    _ans8 = (_agg8["exact"] != _agg8["always_wait_baseline"]["agree"]) or ("دائمًا WAIT" in _res8["answer_q11"])
+    _bim8ok = (_same8 and _rep8 and tuple(_fb8) == _BIM8_KEYS and not _ch8 and _fz8["verify_ok"] and _fz8["rev"] == 1
+               and _res8["final_block"].endswith("V4 CHANGED DURING VALIDATION = NO") and all(r["order_ok"] for r in _rows8)
+               and len(_rows8) == 1 and _ans8)
+    _bim8w = (f"same={_same8} report={_rep8} keys_ok={tuple(_fb8) == _BIM8_KEYS} changed={_ch8} rev={_fz8['rev']} "
+              f"order={[r['order_ok'] for r in _rows8]} answer_baseline={_ans8}")
+except Exception as _e:                                                    # noqa: BLE001
+    _bim8ok, _bim8w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 BIM8 نتائجُ الدفعة مولَّدة: الصفوفُ والتجميعُ والتجميدُ وكتلةُ §15 من السجلّ تطابق RESULTS حرفًا والتقريرُ منها · أسطرُ §15 الستّة عشر "
+      "بترتيبها · V4 لم يتغيّر · والترتيبُ حالة ⟵ V4 ⟵ فيصل · وجوابُ §11 يحمل خطَّ «دائمًا WAIT»", _bim8ok, _bim8w)
+
+# ── BIM9 ختمُ الدفعة (§13): `BATCH_SEAL.json` يُعاد من الملفّات والسجلّ فيطابق حرفًا (وبصمتُه الجامعة) · ويبصم الملفّاتِ الثمانية (المانيفست ·
+#    التلوّث · المُدخَل الأعمى · OCR · كلمة فيصل · الطابور · النتائج · التقرير) ومُدخَلاتِ الصور الـ48 · وقرارَ V4 (commit التشغيلة ورقمُها
+#    واللقطة) · وقيودَ السجلّ للدفعة (46 مرشَّحًا ‏+ حالة ‏+ V4 ‏+ فيصل) ⟵ أيُّ تغييرٍ بعد الختم يُسقطه.
+try:
+    BI = _bim_imp.import_module("batch_intake")
+    LG = _bim_imp.import_module("ledger")
+    _m9 = _bim_json.load(open(BI.MANIFEST, encoding="utf-8"))
+    _s9 = BI.batch_seal(_m9, LG.Ledger())
+    _disk9 = _bim_json.load(open(BI.SEAL, encoding="utf-8"))
+    _same9 = _bim_json.loads(_bim_json.dumps(_s9, sort_keys=True, ensure_ascii=False)) == _disk9
+    _kinds9 = sorted(e["kind"] for e in _s9["ledger_entries"])
+    _v49 = _s9["v4"].get("CASE_0001") or {}
+    _bim9ok = (_same9 and len(_s9["files"]) == 8 and all(len(v) == 64 for v in _s9["files"].values()) and len(_s9["inputs"]) == 48
+               and _kinds9.count("candidate") == 46 and _kinds9.count("case") == 1 and _kinds9.count("v4") == 1 and _kinds9.count("faisal") == 1
+               and _v49.get("run_id") == "37622924792" and str(_v49.get("commit", "")).startswith("ea9e266")
+               and _s9["seal_sha256"] == BI.sha_obj({k: v for k, v in _s9.items() if k != "seal_sha256"}))
+    _bim9w = f"same={_same9} files={len(_s9['files'])} inputs={len(_s9['inputs'])} kinds={dict((k, _kinds9.count(k)) for k in set(_kinds9))} v4={_v49.get('run_id')}"
+except Exception as _e:                                                    # noqa: BLE001
+    _bim9ok, _bim9w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 BIM9 ختمُ الدفعة يُعاد فيطابق: ثمانيةُ ملفّات ‏+ 48 مُدخَلًا ‏+ قرارُ V4 (تشغيلتُه وcommitها ولقطتُه) ‏+ قيودُ السجلّ (46 مرشَّحًا · حالة · V4 · فيصل) "
+      "ببصمةٍ جامعة ⟵ أيُّ تغييرٍ بعد الختم يُسقطه", _bim9ok, _bim9w)
+
+# ── BIM10 كلمةُ فيصل منضبطة (§6 · §8): الحالةُ = جدولُ L4 لوسمه (WATCH ⟵ WAIT) · والحقولُ الثلاثةُ منفصلةٌ وغيرُ فارغة (DIRECTLY_OBSERVED ·
+#    INFERRED · UNKNOWN) · وقيدُ السجلّ = `faisal_record` المولَّد من الملفّ (الرقمُ يُكتب مرّةً) وبعد قيد V4 لنسخته · وبنودُ الطابور بحقول §8 كلِّها ·
+#    وأرقامُ RQ-B48-01 من لقطة V4 المختومة تُعاد حسابًا (نصفُ افتتاح شمعة التقسيم وأعلاها وأدناها) فلا رقمَ باليد.
+_BIM10_RQ = ("id", "title", "observation", "candidate_rule", "supporting_cases", "contradictory_cases", "confidence", "generality", "why_not_v4")
+try:
+    BI = _bim_imp.import_module("batch_intake")
+    LG = _bim_imp.import_module("ledger")
+    _lg10 = LG.Ledger()
+    _fa10 = _bim_json.load(open(BI.FAISAL_ANN, encoding="utf-8"))["cases"]
+    _bad10 = []
+    for _cid10, _a10 in _fa10.items():
+        _fs10 = _lg10.entries("faisal", _cid10)
+        _vs10 = _lg10.entries("v4", _cid10)
+        _rec10 = _lg10.read(_fs10[-1]["path"]) if _fs10 else {}
+        _gen10 = BI.faisal_record(_a10)
+        if _a10.get("FAISAL_STATE") != LG.L4.get(_a10.get("label")) or _a10["FAISAL_STATE"] not in ("READY", "WAIT", "REJECT", "UNKNOWN"):
+            _bad10.append((_cid10, "state"))
+        if not all(isinstance(_a10.get(k), list) and _a10[k] for k in ("DIRECTLY_OBSERVED", "INFERRED", "UNKNOWN")):
+            _bad10.append((_cid10, "evidence_split"))
+        if any(_rec10.get(k) != v for k, v in _gen10.items()) or _rec10.get("label4") != _a10["FAISAL_STATE"]:
+            _bad10.append((_cid10, "ledger≠file"))
+        if not (_fs10 and _vs10 and _vs10[-1]["seq"] < _fs10[-1]["seq"] and _rec10.get("after_v4_seq") == _vs10[-1]["seq"]):
+            _bad10.append((_cid10, "order"))
+    _rq10 = _bim_json.load(open(BI.RESEARCH_Q, encoding="utf-8"))
+    _rqbad10 = [i.get("id") for i in _rq10["items"] if any(k not in i or i[k] in (None, "") for k in _BIM10_RQ)]
+    _snap10 = _lg10.read("snapshots/CASE_0001.v1.r11.bars.json")["rows"]
+    _sp10 = next(r for r in _snap10 if r[0] == "2026-09-08")
+    _obs10 = next(i for i in _rq10["items"] if i["id"] == "RQ-B48-01")["observation"]
+    _nums10 = [f"{_sp10[1]:g}", f"{_sp10[2]:g}", f"{_sp10[3]:g}", f"{_sp10[1] / 2:g}", f"{_sp10[2] / 2:g}", f"{_sp10[3] / 2:g}"]
+    _miss10 = [x for x in _nums10 if x not in _obs10]
+    _bim10ok = not _bad10 and not _rqbad10 and not _miss10 and len(_fa10) == 1 and len(_rq10["items"]) >= 1
+    _bim10w = f"cases={_bad10} rq_missing={_rqbad10} snapshot_numbers_missing={_miss10} ({_nums10})"
+except Exception as _e:                                                    # noqa: BLE001
+    _bim10ok, _bim10w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧾 BIM10 كلمةُ فيصل منضبطة: الحالةُ = L4 لوسمه · المباشرُ والمستنتَجُ والمجهولُ منفصلةٌ وغيرُ فارغة · وقيدُ السجلّ مولَّدٌ من الملفّ وبعد V4 · "
+      "وبنودُ الطابور بحقول §8 · وأرقامُ RQ-B48-01 تُعاد من لقطة V4 المختومة", _bim10ok, _bim10w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

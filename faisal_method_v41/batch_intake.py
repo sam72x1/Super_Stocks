@@ -487,10 +487,40 @@ def apply_seal(plan, utc, ledger=None):
 
 
 # ── ⑦ النتائج (بعد قيد فيصل) ───────────────────────────────────────────────────
+TOOL_VERSION = "B48-INTAKE 1.0 (2026-10-07)"
+RUN_IDS = ["37616553357"]                       # تشغيلةُ الجامع التي سحبت الدفعة
+MANIFEST = os.path.join(BATCH_DIR, f"PROSPECTIVE_BATCH_{EXPECTED}_MANIFEST.json")
+CONTAM = os.path.join(BATCH_DIR, f"PROSPECTIVE_BATCH_{EXPECTED}_CONTAMINATION.md")
+RESULTS = os.path.join(BATCH_DIR, f"PROSPECTIVE_BATCH_{EXPECTED}_RESULTS.json")
+REPORT = os.path.join(BATCH_DIR, f"PROSPECTIVE_BATCH_{EXPECTED}_REPORT.md")
+SEAL = os.path.join(BATCH_DIR, "BATCH_SEAL.json")
+RESEARCH_Q = os.path.join(BATCH_DIR, "research_queue.json")
+REGISTRY = os.path.join(HERE, "results", "run_registry_v41.json")
 MISSING_KINDS = ("group information", "offering", "short availability", "float", "trader identity/context", "timestamp",
                  "another external factor", "manual judgment", "unavailable data")
 _CTX_KIND = {"groups": "group information", "offering_pending": "offering", "operator_press": "trader identity/context",
              "short_available": "short availability"}
+
+
+def faisal_record(fa):
+    """مُدخَلُ `faisal_annotations.json` لحالةٍ ⟵ قيدُ فيصل في السجلّ (حقولُ المخطّط الاختياريّة) — نقيّة: الرقمُ يُكتب مرّةً في الملفّ."""
+    r = fa.get("reply") or {}
+    quote = fa["text"] + (f" ‖ «{r['question']}» ⟵ «{r['answer']}»" if r.get("answer") else "")
+    rec = {"label": fa["label"], "quote": quote, "plan_f": fa.get("plan"), "timeframe_f": fa.get("timeframe"),
+           "levels_f": [{"kind": a["kind"], "price": a["price"], "q": a["label"] or a["color"], "src": a["src"]}
+                        for a in fa.get("annotations") or []],
+           "orders_f": [{"type": "alert_below", "price": a["price"], "q": a["text"], "src": a["src"]} for a in fa.get("alerts") or []],
+           "external_codes": list(fa.get("external_refs") or []),
+           "notes": f"{BATCH_ID} · كُتب بعد قيد V4 لحالته · الحقولُ الكاملة (DIRECTLY_OBSERVED · INFERRED · UNKNOWN) في faisal_annotations.json"}
+    if fa.get("pattern"):
+        rec["pattern_f"] = fa["pattern"]
+    return {k: v for k, v in rec.items() if v not in (None, [], "")}
+
+
+def apply_faisal(f_ann, utc, ledger=None):
+    """قيدُ فيصل لكلّ حالةٍ في `faisal_annotations.json` — `record_faisal` يرفض قبل قيد V4 لنسختها (FV48) ⟵ الترتيبُ مختوم."""
+    lg = ledger or LG.Ledger()
+    return [lg.record_faisal(cid, faisal_record(fa), utc) for cid, fa in sorted((f_ann.get("cases") or {}).items())]
 
 
 def batch_case_ids(lg, batch_id=BATCH_ID):
@@ -515,11 +545,21 @@ def v4_fields(rec):
             "TARGET": d.get("target"), "DATA_QUALITY": {"verdict": fw.get("verdict"), "fails": fw.get("fails"), "warns": fw.get("warns"),
                                                          "bars": fw.get("bars"), "last_bar": fw.get("last_bar")},
             "EXTERNAL_DATA_REQUIRED": {"missing_information": d.get("missing_information") or [], "context_unavailable": ext},
-            "BLOCKING": d.get("blocking_reasons") or [], "ASOF": d.get("asof")}
+            "BLOCKING": d.get("blocking_reasons") or [], "ASOF": d.get("asof"), "FREEZE_ID": rec.get("freeze_id"),
+            "V4_RUN": (rec.get("meta") or {}).get("run_id"), "V4_COMMIT": (rec.get("meta") or {}).get("commit"),
+            "V4_RUNNER": (rec.get("meta") or {}).get("runner"),
+            "V4_DECISION_SHA256": rec.get("decision_sha256"), "V4_SNAPSHOT_SHA256": rec.get("snapshot_sha256")}
+
+
+_FA_FIELDS = (("FAISAL_AUTHOR", "author"), ("FAISAL_TEXT", "text"), ("FAISAL_REPLY", "reply"), ("FAISAL_ANNOTATIONS", "annotations"),
+              ("FAISAL_ALERTS", "alerts"), ("FAISAL_TARGET", "target"), ("FAISAL_ENTRY", "entry"), ("FAISAL_SUPPORT", "support"),
+              ("FAISAL_RESISTANCE", "resistance"), ("FAISAL_STRUCTURE", "structure"), ("FAISAL_INDICATORS", "indicators"),
+              ("FAISAL_TIMEFRAME", "timeframe"), ("FAISAL_IMAGES", "images"), ("DIRECTLY_OBSERVED", "DIRECTLY_OBSERVED"),
+              ("INFERRED", "INFERRED"), ("UNKNOWN", "UNKNOWN"))
 
 
 def build_results(manifest, f_ann_map, ledger=None, consistent=None):
-    """⟵ `PROSPECTIVE_BATCH_<N>_RESULTS.json` — من المانيفست والسجلّ (V4 · فيصل) و`faisal_annotations.json`. حتميّ."""
+    """⟵ صفوفُ `PROSPECTIVE_BATCH_<N>_RESULTS.json` — من السجلّ (V4 · فيصل) و`faisal_annotations.json`. حتميّ."""
     lg = ledger or LG.Ledger()
     if consistent is None:
         import analysis as AN                                   # noqa: PLC0415 — `consistent` بمواصفة V4 نفسِها
@@ -542,17 +582,26 @@ def build_results(manifest, f_ann_map, ledger=None, consistent=None):
                       else ("NOT_COMPARABLE", "UNRESOLVED"))
         rows.append({"CASE_ID": cid, "symbol": case["symbol"], "decision_date": case["decision_date"], "date_source": case["date_source"],
                      "timeframe_f": case.get("timeframe_f"), "image": case["image"], "layer": case["layer"],
-                     "v4_seq": vs[-1]["seq"] if vs else None, "faisal_seq": fs[-1]["seq"] if fs else None,
-                     "order_ok": bool(vs and fs and vs[-1]["seq"] < fs[-1]["seq"]), "invalid": [lg.read(e["path"]) for e in inv],
+                     "case_seq": c_e["seq"], "v4_seq": vs[-1]["seq"] if vs else None, "faisal_seq": fs[-1]["seq"] if fs else None,
+                     "order_ok": bool(vs and fs and c_e["seq"] < vs[-1]["seq"] < fs[-1]["seq"]),
+                     "invalid": [lg.read(e["path"]) for e in inv],
                      **vf, "FAISAL_STATE": (fr or {}).get("label4"), "FAISAL_LABEL": (fr or {}).get("label"),
                      "FAISAL_QUOTE": (fr or {}).get("quote"), "FAISAL_EVIDENCE": fa.get("evidence"),
+                     **{k: fa.get(src) for k, src in _FA_FIELDS},
                      "FAISAL_EXTERNAL_REFS": fa.get("external_refs") or [], "FAISAL_DISCRETIONARY": bool(fa.get("discretionary")),
-                     "pattern_f": (fr or {}).get("pattern_f"), "v4_consistent": ok, "ERROR": err, "CAUSE": cause,
-                     "chart_alone": fa.get("chart_alone"), "missing_for_v4": fa.get("missing_for_v4") or []})
+                     "pattern_f": (fr or {}).get("pattern_f"), "plan_f": (fr or {}).get("plan_f"), "v4_consistent": ok,
+                     "ERROR": err, "CAUSE": cause, "chart_alone": fa.get("chart_alone"), "missing_for_v4": fa.get("missing_for_v4") or []})
     return rows
 
 
 STATES4 = ("READY", "WAIT", "REJECT", "UNKNOWN")
+
+
+def _pattern_key(r):
+    if r.get("pattern_f"):
+        return "فيصل:" + str(r["pattern_f"])
+    v = [p.get("pattern") for p in (r.get("PATTERN") or []) if p.get("pattern")]
+    return ("UNSPECIFIED (V4 معلوماتيّ: " + " · ".join(v) + ")") if v else "UNSPECIFIED"
 
 
 def aggregate(rows):
@@ -587,11 +636,53 @@ def aggregate(rows):
             "by_state": by_state, "errors": err, "causes": cause,
             "invalid_for_validation": sum(1 for r in rows if r["invalid"]),
             "not_comparable": sum(1 for r in rows if r["ERROR"] == "NOT_COMPARABLE"),
-            "breakdown": {"pattern": brk(lambda r: (r.get("pattern_f") or "UNSPECIFIED")),
+            "breakdown": {"pattern": brk(_pattern_key),
                           "timeframe": brk(lambda r: r.get("timeframe_f") or "UNKNOWN"),
                           "decision_state": brk(lambda r: r["FAISAL_STATE"]),
                           "source": brk(lambda r: r.get("date_source")),
                           "provenance": brk(lambda r: f"layer {r.get('layer')}")}}
+
+
+def freeze_facts(rows=()):
+    """§3: التجميدُ كما سُجّل — commit · بصمةُ رسم القرار · بصمةُ الإعداد · نسخُ الأدوات · نسخةُ البيانات (من البيان والسجلّ · لا يدًا)."""
+    import freeze as FZ                                         # noqa: PLC0415
+    import holdout as HO                                        # noqa: PLC0415
+    m = FZ.load()
+    cur = FZ.current_revision(m)
+    ok, probs = FZ.verify(m)
+    cfg = cur["config"]
+    f = cur["files"]
+    rg = os.path.join(V3, "rule_graph.json")
+    runners = sorted({str(r.get("V4_RUNNER")) for r in rows if r.get("V4_RUNNER")})
+    return {"official_freeze_commit": _j(REGISTRY)["freeze"]["official_freeze_commit"], "freeze_id": cur["freeze_id"], "rev": cur["rev"],
+            "revisions": len(m["revisions"]), "config_hash": cur["config_hash"], "n_files": cur["n_files"],
+            "engine_last_change_commit": m["git"]["engine_last_change_commit"], "engine_last_change_utc": m["git"]["engine_last_change_utc"],
+            "engine_version": cfg["engine_version"], "rules_version": cfg["rules_version"], "runner_version": runners,
+            "tool_version": TOOL_VERSION,
+            "decision_graph_sha256": sha_obj({k: cfg[k] for k in ("rules", "state_decision", "state_rule")}),
+            "rules_v4_py_sha256": f["faisal_method_v4/rules_v4.py"], "decision_engine_py_sha256": f["faisal_method_v4/decision_engine.py"],
+            "rule_graph_sha256": sha_file(rg) if os.path.exists(rg) else None,
+            "corpus_sha256": f["faisal_method_v3/image_corpus.json"], "corpus_images": len(_j(CORPUS)["images"]),
+            "cases_v4_sha256": f["faisal_method_v4/results/cases_v4.json"], "golden_sha256": f["faisal_method_v3/v31/golden_cases_v31.json"],
+            "holdout_seal": HO.load()["seal"]["sha256"], "verify_ok": ok, "verify_problems": probs[:10]}
+
+
+def v4_changed(rows, fz):
+    """§15: تغيّر V4 أثناء التحقّق؟ ⟵ التجميدُ لا يتحقّق الآن · أو مراجعةٌ بعد الأولى · أو قرارٌ لحالةٍ بمعرّف تجميدٍ غيرِ الحاليّ."""
+    return (not fz["verify_ok"]) or fz["rev"] != 1 or fz["revisions"] != 1 or any(
+        r.get("FREEZE_ID") != fz["freeze_id"] for r in rows if r.get("v4_seq"))
+
+
+def answer_q11(agg, changed):
+    """§11 بجملٍ مولَّدة — ومعها خطُّ «دائمًا WAIT» لأن مخرَج V4 الأماميّ ∈ {WAIT · UNKNOWN} بالبناء (FVO1)."""
+    n, k, b = agg["N"], agg["exact"], agg["always_wait_baseline"]["agree"]
+    if changed:
+        return "V4 تغيّر أثناء التحقّق ⟵ نتيجةُ الدفعة كلُّها باطلة (§15)."
+    if not n:
+        return "لا حالةَ قابلةً للمقارنة ⟵ لا جواب."
+    return (f"نعم في {k} من {n} — دون أن يتغيّر V4 (FV41 · مراجعةُ التجميد 1). ⚠️ وخطُّ «دائمًا WAIT» يطابق {b} من {n} أيضًا: "
+            "مخرَجُ V4 الأماميّ ∈ {WAIT · UNKNOWN} بالبناء (FVO1) ⟵ تطابقٌ لا يميّز V4 عن الخطّ التافه · "
+            f"والعيّنةُ {n} دون حدّ الفاصل ({agg['exact_wilson']}) ⟵ **لا ادّعاءَ دلالةٍ ولا «V4 صحيح»**.")
 
 
 def final_block(m, agg, frozen, changed, n_cases):
@@ -617,43 +708,97 @@ def final_block(m, agg, frozen, changed, n_cases):
         f"V4 CHANGED DURING VALIDATION = {'YES — BATCH RESULT INVALIDATED' if changed else 'NO'}"])
 
 
-def render_report(m, rows, agg, fz, final, seal=None):
-    """`PROSPECTIVE_BATCH_<N>_REPORT.md` — الجوابُ أوّلًا (§11) ثمّ كتلةُ §15 حرفًا ثمّ التفصيل. كلُّ رقمٍ من JSON."""
+def results_doc(m, rows, agg, fz, changed, rq):
+    return {"batch_id": BATCH_ID, "generated_by": "faisal_method_v41/batch_intake.py results", "tool_version": TOOL_VERSION,
+            "contract": "V41_prereg §⑥ · أمرُ المالك 2026-10-07 (§5-§15)", "freeze": fz, "v4_frozen": bool(fz["verify_ok"]),
+            "v4_changed_during_validation": changed,
+            "received": {"total": m["total_received"], "expected_by_owner": m["expected_by_owner"],
+                         "count_matches_owner": m["count_matches_owner"], "counts": m["counts"], "validation_cases": m["validation_cases"]},
+            "rows": rows, "aggregate": agg, "answer_q11": answer_q11(agg, changed),
+            "final_block": final_block(m, agg, bool(fz["verify_ok"]), changed, len(rows)),
+            "research_queue": [i["id"] for i in (rq or {}).get("items", [])]}
+
+
+def _kv(d, skip=("src",)):
+    """قاموسٌ ⟵ «مفتاح قيمة · …» (لا تمثيلَ بايثون في وثيقةٍ تُقرأ)."""
+    if not isinstance(d, dict):
+        return str(d if d not in (None, "") else "—")
+    return " · ".join(f"{k} {(', '.join(map(str, v)) or '—') if isinstance(v, list) else v}" for k, v in d.items() if k not in skip) or "—"
+
+
+def _fmt_levels(xs, key="price"):
+    return " · ".join(f"{x.get('name') or x.get('kind') or x.get('rule') or ''} {x.get(key)}".strip() for x in xs or []) or "—"
+
+
+def render_report(m, rows, agg, fz, final, rq=None):
+    """`PROSPECTIVE_BATCH_<N>_REPORT.md` — الجوابُ أوّلًا (§11) ثمّ كتلةُ §15 حرفًا ثمّ التفصيل. كلُّ رقمٍ من JSON/السجلّ."""
     c = m["counts"]
     mism = [r for r in rows if r["ERROR"] not in ("MATCH",)]
+    changed = "YES" in final.splitlines()[-1]
     L = [f"# PROSPECTIVE_BATCH_{EXPECTED}_REPORT — دفعةُ المالك ({m['batch_id']})", "",
-         "> مولَّدٌ من `faisal_method_v41/batch_intake.py` (لا رقمَ باليد) · V4 مجمَّد بت-بت · الصورُ **تقيس V4 ولا تدرّبه**.", "",
+         "> مولَّدٌ من `faisal_method_v41/batch_intake.py results` (لا رقمَ باليد) · V4 مجمَّد بت-بت · الصورُ **تقيس V4 ولا تدرّبه**.", "",
          "## ① الجوابُ أوّلًا (§11: هل طابق V4 قراراتِ فيصل **الجديدة** دون أن يتغيّر بعد رؤيتها؟)",
-         (f"- حالاتٌ قورنت **{agg['N']}** · تطابقٌ تامّ **{agg['exact']}**" +
-          (f" ({agg['exact_rate']:.1%})" if agg['exact_rate'] is not None else "") +
-          f" · فاصلٌ: {agg['exact_wilson']} · وخطُّ «دائمًا WAIT» {agg['always_wait_baseline']['agree']}/{agg['always_wait_baseline']['n']}."),
-         f"- **V4 لم يتغيّر أثناء التحقّق** (FV41 · بصمةُ التجميد `{fz['freeze_id'][:16]}…` قبل الدفعة وبعدها) — والترتيبُ مختومٌ في السجلّ:"
-         " كلُّ قيد V4 قبل قيد فيصل لحالته.", "",
+         "- " + answer_q11(agg, changed),
+         f"- حالاتٌ قورنت **{agg['N']}** · تطابقٌ تامّ **{agg['exact']}** · فاصل: {agg['exact_wilson']} · "
+         f"وخطُّ «دائمًا WAIT» {agg['always_wait_baseline']['agree']}/{agg['always_wait_baseline']['n']}.", "",
          "## ② كتلةُ §15", "```", final, "```", "",
          "## ③ الاستلام (§1 · §9)",
          f"- **TOTAL_RECEIVED {m['total_received']}** مقابل {m['expected_by_owner']} قالها المالك ⟵ "
-         f"**{'يطابق' if m['count_matches_owner'] else 'لا يطابق'}** · رسائلُ بلا صورة {m['received_not_image']} · تشغيلاتُ الجامع "
+         f"**{'يطابق' if m['count_matches_owner'] else 'لا يطابق'}** · رسائلُ بلا صورة {m['received_not_image']} · تشغيلةُ الجامع "
          + ", ".join("`" + x + "`" for x in m["run_ids"]) + ".",
-         "- " + " · ".join(f"{k} **{c[k]}**" for k in CLASSES) + " ⟵ التفصيلُ في `PROSPECTIVE_BATCH_48_CONTAMINATION.md`.", "",
+         "- " + " · ".join(f"{k} **{c[k]}**" for k in CLASSES) + f" · VALIDATION CASES **{m['validation_cases']}** ⟵ التفصيلُ في"
+         f" `PROSPECTIVE_BATCH_{EXPECTED}_CONTAMINATION.md`.", "",
          "## ④ التجميد (§3)",
-         f"- commit التجميد الرسميّ `{fz['official_freeze_commit']}` · `FREEZE_ID {fz['freeze_id']}` · المراجعة {fz['rev']} · "
+         f"- commit التجميد الرسميّ `{fz['official_freeze_commit']}` · `FREEZE_ID {fz['freeze_id']}` · المراجعة {fz['rev']} من {fz['revisions']} · "
          f"`config_hash {fz['config_hash']}` · ملفّات {fz['n_files']} · آخرُ تغييرٍ في نواة المحرّك `{fz['engine_last_change_commit'][:7]}` "
-         f"({fz['engine_last_change_utc']}).",
-         f"- المحرّك `{fz['engine_version']}` · القواعد `{fz['rules_version']}` · المشغّل `{fz['runner_version']}` · بصمةُ رسم القرار "
-         f"`{fz['decision_graph_sha256'][:16]}…` · بصمةُ رسم القواعد V3 `{fz['rule_graph_sha256'][:16]}…` · المدوّنة `{fz['corpus_sha256'][:16]}…` "
-         f"({fz['corpus_images']} صورة) · حالاتُ V4 `{fz['cases_v4_sha256'][:16]}…` · ختمُ الاحتجاز `{fz['holdout_seal'][:16]}…`.", "",
+         f"({fz['engine_last_change_utc']}) · التحقّقُ الآن: **{'سليم' if fz['verify_ok'] else '⛔ ' + ' · '.join(fz['verify_problems'])}**.",
+         f"- الأدوات: المحرّك `{fz['engine_version']}` · القواعد `{fz['rules_version']}` · المشغّل `{', '.join(fz['runner_version']) or '—'}` · "
+         f"أداةُ الدفعة `{fz['tool_version']}`.",
+         f"- رسمُ القرار (القواعدُ وانتقالاتُ الحالة في الإعداد المجمَّد) `{fz['decision_graph_sha256']}` · `rules_v4.py` `{fz['rules_v4_py_sha256']}` · "
+         f"`decision_engine.py` `{fz['decision_engine_py_sha256']}` · رسمُ قواعد V3 (مصدريّةٌ لا مجمَّد) `{fz['rule_graph_sha256']}`.",
+         f"- البيانات: المدوّنة `{fz['corpus_sha256']}` ({fz['corpus_images']} صورة) · حالاتُ V4 `{fz['cases_v4_sha256']}` · الذهبيّة "
+         f"`{fz['golden_sha256']}` · ختمُ الاحتجاز `{fz['holdout_seal']}`.", "",
          "## ⑤ العمى (§4) — الحدُّ بنصّه",
          "- **لم يكن عمًى تقنيًّا كاملًا ولا يُدّعى:** المحلّلُ نفسُه فتح كلَّ صورةٍ ليقرأ الرمزَ والتاريخَ والفريمَ ووجودَ عبارة القرار — فرأى"
          " الشارتَ وما عليه (حدٌّ مسجَّلٌ سلفًا في `V41_prereg §⑥`).",
-         "- **الضماناتُ الفعليّة:** ① V4 كودٌ مجمَّد (FV41) لا يتغيّر برؤية أحد · ② مُدخَلُه الرمزُ وتاريخُ القرار والسياقُ الآليّ وحدَها (FV48 بالـAST)"
-         " · ③ الحالاتُ خُتمت ودُمجت في main **قبل** تشغيل V4 · ④ V4 شُغّل على Actions وقيدُه دُفع بيد Actions · ⑤ كلمةُ فيصل كُتبت **بعد** قيد V4"
-         " لحالتها (`ledger.verify` · ORDER) — وترتيبُ git نفسُه شاهد.", "",
-         "## ⑥ لكلّ حالة (§5-7)",
-         "| الحالة | الرمز | تاريخ القرار | فيصل | V4 (الفنّيّة) | الخطأ | السبب | جودةُ البيانات |",
-         "|---|---|---|---|---|---|---|---|"]
+         "- **الضماناتُ الفعليّة:** ① V4 كودٌ مجمَّد (FV41) لا يتغيّر برؤية أحد · ② مُدخَلُه الرمزُ وتاريخُ القرار والسياقُ الآليّ وحدَها (FV48)"
+         " · ③ `input_annotations.json` بلا كلمة القرار (BIM5) · ④ الحالاتُ خُتمت ودُمجت في main **قبل** تشغيل V4 · ⑤ V4 شُغّل على Actions"
+         " وقيدُه دُفع بيد Actions · ⑥ كلمةُ فيصل كُتبت **بعد** قيد V4 لحالتها (`ledger.verify` · ORDER) — وترتيبُ git نفسُه شاهد.", "",
+         "## ⑥ لكلّ حالة (§5-§7)",
+         "| الحالة | الرمز | تاريخ القرار | فيصل | V4 (الفنّيّة) | الخطأ | السبب | جودةُ البيانات | الترتيب (حالة ⟵ V4 ⟵ فيصل) |",
+         "|---|---|---|---|---|---|---|---|---|"]
     for r in rows:
-        L.append(f"| `{r['CASE_ID']}` | {r['symbol']} | {r['decision_date']} | {r['FAISAL_STATE'] or '—'} | {r.get('V4_STATE') or '—'}"
-                 f" ({r.get('V4_TECH_STATE') or '—'}) | **{r['ERROR']}** | {r['CAUSE']} | {(r.get('DATA_QUALITY') or {}).get('verdict') or '—'} |")
+        L.append(f"| `{r['CASE_ID']}` | {r['symbol']} | {r['decision_date']} | {r['FAISAL_STATE'] or '—'} ({r.get('FAISAL_LABEL') or '—'})"
+                 f" | {r.get('V4_STATE') or '—'} ({r.get('V4_TECH_STATE') or '—'}) | **{r['ERROR']}** | {r['CAUSE']} | "
+                 f"{(r.get('DATA_QUALITY') or {}).get('verdict') or '—'} | {r['case_seq']} ⟵ {r['v4_seq']} ⟵ {r['faisal_seq']} "
+                 f"{'✅' if r['order_ok'] else '⛔'} |")
+    for r in rows:
+        st = r.get("STRUCTURE") or {}
+        sr = (r.get("SUPPORT") or {})
+        ent = r.get("ENTRY") or {}
+        L += ["", f"### `{r['CASE_ID']}` {r['symbol']} — قرارُ V4 (§5 · بصمةُ القرار المختوم `{r.get('V4_DECISION_SHA256', '')[:16]}…` · تشغيلة "
+              f"`{r.get('V4_RUN')}` على `{(r.get('V4_COMMIT') or '')[:7]}`)",
+              f"- **V4_STATE {r.get('V4_STATE')}** ({r.get('V4_TECH_STATE')}) · as-of {r.get('ASOF')} · السبب: {' — '.join(r.get('V4_REASON') or [])}",
+              f"- RULE_IDS: {' · '.join(r.get('RULE_IDS') or []) or '—'} · PATTERN: "
+              + (" · ".join(f"{p.get('pattern')} ({p.get('decisionality')})" for p in r.get("PATTERN") or []) or "—"),
+              f"- STRUCTURE: القاع {st.get('bottom')} ({st.get('bottom_date')}) · القاعدةُ السابقة {st.get('prior_base')} · الكسرُ "
+              f"{st.get('undercut_pct')}% · الثبات {st.get('hold_sessions')} جلسة",
+              f"- SUPPORT/ZONE: المنطقة {sr.get('zone')} · السلّم {sr.get('ladder')} · ENTRY: طلبات {ent.get('type1_bids')} ({ent.get('type1_rule')})"
+              f" · التحرّر {ent.get('type2_liberation')}",
+              f"- INVALIDATION: {_fmt_levels(r.get('INVALIDATION'))} · TARGET: {_fmt_levels(r.get('TARGET'))}",
+              f"- DATA_QUALITY: {_kv(r.get('DATA_QUALITY'))} · EXTERNAL_DATA_REQUIRED: {_kv(r.get('EXTERNAL_DATA_REQUIRED'))}",
+              "", f"#### كلمةُ فيصل (§6 · بعد قيد V4)",
+              f"- **FAISAL_STATE {r.get('FAISAL_STATE')}** (`{r.get('FAISAL_LABEL')}`) · الكاتب: {r.get('FAISAL_AUTHOR')}",
+              f"- النصّ: «{r.get('FAISAL_TEXT')}»" + (f" · والردّ: «{(r.get('FAISAL_REPLY') or {}).get('answer')}»" if r.get("FAISAL_REPLY") else ""),
+              "- الخطوطُ المرسومة: " + (" · ".join(f"{a['price']} {a['label'] or a['color']}" for a in r.get("FAISAL_ANNOTATIONS") or []) or "—"),
+              "- التنبيهات: " + (" · ".join(f"{a['price']:.2f}" for a in r.get("FAISAL_ALERTS") or []) or "—"),
+              f"- الهدف: {r.get('FAISAL_TARGET')} · الدخول: {r.get('FAISAL_ENTRY')}",
+              f"- الدعم: {r.get('FAISAL_SUPPORT')} · المقاومة: {r.get('FAISAL_RESISTANCE')}",
+              f"- البنية: {r.get('FAISAL_STRUCTURE')} · المؤشّرات: {_kv(r.get('FAISAL_INDICATORS'))} · الفريم: {r.get('FAISAL_TIMEFRAME')}",
+              "- مراجعُ خارج الشارت: " + (" · ".join(r.get("FAISAL_EXTERNAL_REFS") or []) or "—"),
+              "- **DIRECTLY_OBSERVED:** " + " · ".join(r.get("DIRECTLY_OBSERVED") or []),
+              "- **INFERRED:** " + " · ".join(r.get("INFERRED") or []),
+              "- **UNKNOWN:** " + " · ".join(r.get("UNKNOWN") or [])]
     L += ["", "## ⑦ حسب الفئة (§10 · النظيفُ وحدَه · بلا ادّعاء دلالة)", "",
           "| حالةُ فيصل | فيصل | V4 | اتّفاق | READY كاذب | WAIT كاذب | REJECT كاذب | UNKNOWN كاذب |", "|---|---|---|---|---|---|---|---|"]
     for s in STATES4:
@@ -665,13 +810,66 @@ def render_report(m, rows, agg, fz, final, seal=None):
         L.append(f"- **{title}:** " + (" · ".join(f"{kk} {vv['match']}/{vv['n']}" for kk, vv in agg["breakdown"][k].items()) or "—"))
     L += ["", "## ⑧ المعلومةُ الخارجيّة لكلّ خلاف (§12)"]
     if not mism:
-        L.append("- لا خلاف.")
+        L.append("- لا خلافَ بين V4 وفيصل في حالات الدفعة ⟵ لا فجوةَ تُعلَّل.")
     for r in mism:
         L.append(f"- `{r['CASE_ID']}` {r['symbol']}: **{r['ERROR']} · {r['CAUSE']}** — هل يعيده V4 من الشارت وحدَه؟ "
                  f"**{r.get('chart_alone') or 'UNKNOWN'}** · الناقص: {', '.join(r.get('missing_for_v4') or []) or '—'} · "
                  f"V4 ينقصه بنفسه: {', '.join((r.get('EXTERNAL_DATA_REQUIRED') or {}).get('missing_information') or []) or '—'}")
-    L += ["", "## ⑨ لا تغييرَ قواعد (§8)",
-          "- ما ظهر من أنماطٍ ذهب إلى `V4_2_RESEARCH_QUEUE.md` (بندُ الدفعة) — **ولم يدخل V4 منه شيء**."]
-    if seal:
-        L += ["", "## ⑩ الختم (§13)", f"- `BATCH_SEAL.json` · بصمةُ الختم `{seal}`."]
+    L += ["", "## ⑨ لا تغييرَ قواعد (§8) — طابورُ V4.2",
+          "- ما ظهر من أنماطٍ ذهب إلى `research_queue.json` ⟵ `docs/V4_2_RESEARCH_QUEUE.md` — **ولم يدخل V4 منه شيء** (FV41):"]
+    for it in (rq or {}).get("items", []):
+        L.append(f"  - **{it['id']}** {it['title']} — الثقة: {it['confidence']}")
+    L += ["", "## ⑩ الختم (§13)",
+          "- `BATCH_SEAL.json` يحمل بصماتِ المانيفست والمُدخَلات (الصور · OCR · المُدخَل الأعمى) وcommit V4 ومخرجاته (القرار واللقطة)"
+          " وقيدِ فيصل وملفّاته وهذا التقريرِ وملفّ النتائج — وبصمتُه الجامعة فيه لا هنا (لا دائرة)."]
     return "\n".join(L) + "\n"
+
+
+def batch_seal(m, lg=None):
+    """§13: بصماتُ الدفعة ⟵ `BATCH_SEAL.json` (يُكتب آخرًا). حتميّ: يُعاد في السويّة فيطابق."""
+    lg = lg or LG.Ledger()
+    rel = lambda p: os.path.relpath(p, ROOT)                    # noqa: E731
+    files = {rel(p): sha_file(p) for p in (MANIFEST, CONTAM, INPUT_ANN, OCR_FILE, FAISAL_ANN, RESEARCH_Q, RESULTS, REPORT)}
+    units = {i["image_id"] for i in m["items"]}
+    cases = set(batch_case_ids(lg))
+    ent = [{k: e.get(k) for k in ("seq", "kind", "case_id", "path", "sha256", "utc", "entry_hash")}
+           for e in lg.manifest()["entries"] if (e["kind"] == "candidate" and e["case_id"] in units) or e["case_id"] in cases]
+    v4 = {}
+    for cid in sorted(cases):
+        for e in lg.entries("v4", cid):
+            r = lg.read(e["path"])
+            v4[cid] = {"decision_path": e["path"], "decision_file_sha256": e["sha256"], "decision_sha256": r.get("decision_sha256"),
+                       "snapshot_path": r.get("snapshot_path"), "snapshot_sha256": r.get("snapshot_sha256"),
+                       "commit": (r.get("meta") or {}).get("commit"), "run_id": (r.get("meta") or {}).get("run_id"),
+                       "freeze_id": r.get("freeze_id")}
+    body = {"batch_id": BATCH_ID, "tool_version": TOOL_VERSION, "files": files,
+            "inputs": {i["image_id"]: i["sha256"] for i in m["items"]}, "v4": v4, "ledger_entries": ent}
+    return dict(body, seal_sha256=sha_obj(body))
+
+
+def write_results(lg=None):
+    """المرحلةُ الأخيرة: النتائجُ والتقريرُ ثمّ الختم (يُكتب آخرًا لأنه يبصم الاثنين)."""
+    lg = lg or LG.Ledger()
+    m = _j(MANIFEST)
+    fa = (_j(FAISAL_ANN, {}) or {}).get("cases") or {}
+    rq = _j(RESEARCH_Q, {"items": []})
+    rows = build_results(m, fa, lg)
+    agg = aggregate(rows)
+    fz = freeze_facts(rows)
+    changed = v4_changed(rows, fz)
+    res = results_doc(m, rows, agg, fz, changed, rq)
+    dump(RESULTS, res)
+    with open(REPORT, "w", encoding="utf-8") as f:
+        f.write(render_report(m, rows, agg, fz, res["final_block"], rq))
+    dump(SEAL, batch_seal(m, lg))
+    return res
+
+
+if __name__ == "__main__":
+    stage = sys.argv[1] if len(sys.argv) > 1 else ""
+    if stage == "faisal":                    # قيدُ فيصل (بعد قيد V4 وحدَه) — الطابعُ الزمنيّ وسيطٌ صريح
+        print(apply_faisal(_j(FAISAL_ANN), sys.argv[2]))
+    elif stage == "results":
+        print(write_results()["final_block"])
+    else:
+        print("الاستعمال: batch_intake.py faisal <utc> · batch_intake.py results")

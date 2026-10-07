@@ -8,6 +8,7 @@
     مقابل كلمات فيصل بعد الكشف من البيان المختوم (`holdout.reveal`) — كلُّ حالةٍ فيه مكشوفة (§⑤) فلا يُدّعى منه تعميم.
 المخرَج: `results/analysis_v41.json` — والوثائقُ تُبنى منه (`docs_v41.py`).
 """
+import collections
 import json
 import math
 import os
@@ -360,9 +361,17 @@ def prospective(lg=None):
     # «SEALED_PENDING» (2026-10-07 · دفعة B48): حالةٌ مختومةٌ تنتظر قرارَ V4 أو كلمةَ فيصل — «NOT STARTED» بعدها تكذب («لا عبارةَ وصلت»)
     status = ("NOT STARTED" if n == 0 and not invalid and not sealed else "SEALED_PENDING" if n == 0 and not invalid
               else ("SUFFICIENT" if n >= N_MIN else "INSUFFICIENT"))
+    # التغطيةُ الأماميّة (2026-10-07 · دفعة B48): ما تعرضه الوثائقُ «prospective …» يُحسب من الحالات الكاملة لا يُكتب صفرًا ثابتًا
+    with open(os.path.join(os.path.dirname(HERE), "faisal_method_v3", "v31", "golden_cases_v31.json"), encoding="utf-8") as f:
+        golden = set((json.load(f).get("dates") or {}).keys())
+    cov = {"pattern": dict(sorted(collections.Counter(c["faisal"].get("pattern_f") or "UNSPECIFIED" for c in done).items())),
+           "timeframe": dict(sorted(collections.Counter(c["case"].get("timeframe_f") or "UNKNOWN" for c in done).items())),
+           "targets_stated": sum(1 for c in done if c["faisal"].get("targets_f")),
+           "golden": sum(1 for c in done if c["case"]["symbol"] in golden),
+           "disagreements": n - mat["exact"]}
     return {"complete": n, "invalid": len(invalid), "matrix": mat, "status": status,
             "pending_images": LG.pending_new_images(lg), "candidates": len(lg.entries("candidate")),
-            "sealed_cases": sealed}
+            "sealed_cases": sealed, "coverage": cov}
 
 
 def first_run_reconstruction(ev, prov, posthoc):

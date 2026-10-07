@@ -6701,22 +6701,33 @@
  },
  "prospective": {
   "candidates": 46,
-  "complete": 0,
+  "complete": 1,
+  "coverage": {
+   "disagreements": 0,
+   "golden": 0,
+   "pattern": {
+    "UNSPECIFIED": 1
+   },
+   "targets_stated": 0,
+   "timeframe": {
+    "D": 1
+   }
+  },
   "invalid": 0,
   "matrix": {
    "agreement": {
     "READY": "N=0",
     "REJECT": "N=0",
     "UNKNOWN": "N=0",
-    "WAIT": "N=0"
+    "WAIT": "1/1"
    },
    "always_wait": {
-    "agree": 0,
-    "n": 0,
-    "rate": null
+    "agree": 1,
+    "n": 1,
+    "rate": 1.0
    },
-   "exact": 0,
-   "exact_rate": null,
+   "exact": 1,
+   "exact_rate": 1.0,
    "exact_wilson": null,
    "false": {
     "READY": 0,
@@ -6725,10 +6736,10 @@
     "WAIT": 0
    },
    "false_rate": {
-    "READY": null,
-    "REJECT": null,
-    "UNKNOWN": null,
-    "WAIT": null
+    "READY": 0.0,
+    "REJECT": 0.0,
+    "UNKNOWN": 0.0,
+    "WAIT": 0.0
    },
    "insufficient": true,
    "matrix": {
@@ -6754,17 +6765,17 @@
      "READY": 0,
      "REJECT": 0,
      "UNKNOWN": 0,
-     "WAIT": 0
+     "WAIT": 1
     }
    },
-   "n": 0,
+   "n": 1,
    "ready_precision": "UNDEFINED (V4 READY = 0)",
    "ready_recall": "UNDEFINED (Faisal READY = 0)",
    "v4_not_run": 0
   },
   "pending_images": [],
   "sealed_cases": 1,
-  "status": "SEALED_PENDING"
+  "status": "INSUFFICIENT"
  },
  "provenance_summary": {
   "active": 18,
@@ -6826,5 +6837,5 @@
   "s1_ready": 1,
   "years_for_43_ready": 28.6
  },
- "status": "VALIDATION IN PROGRESS"
+ "status": "INSUFFICIENT PROSPECTIVE EVIDENCE"
 }
