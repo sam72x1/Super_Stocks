@@ -27,7 +27,9 @@ on:
         default: ""
 
 concurrency:
-  group: faisal-v41-ledger
+  # run وحدَه يكتب السجلّ ⟵ يتسلسل في مجموعةٍ واحدة · والأوضاعُ القارئة مجموعتُها تشغيلتُها — فطابورُ GitHub (معلَّقٌ واحدٌ لكلّ مجموعة)
+  # لا يُلغي smoke/verify/replay صامتًا (عطلٌ مُثبَت 2026-10-07: smoke `37557325140` أُلغي بإرسال replay بعده) · FVW1
+  group: ${{ inputs.mode == 'run' && 'faisal-v41-ledger' || format('faisal-v41-{0}', github.run_id) }}
   cancel-in-progress: false
 
 jobs:

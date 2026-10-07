@@ -26,9 +26,9 @@
   },
   "crash": 0,
   "harness": "مقطعُ V4.1 من test_bot.py في مفسّرٍ جديد لكلّ طفرة · المرساةُ مرّةً واحدة بالضبط · الشجرةُ نظيفةٌ قبل وبعد",
-  "FV42-FV50+FVT1+FVO1+FVD1": {
-   "caught": 53,
-   "of": 53,
+  "FV42-FV50+FVT1+FVO1+FVW1+FVD1": {
+   "caught": 55,
+   "of": 55,
    "file": "muts_fv42_50.json"
   }
  },
@@ -62,8 +62,40 @@
    "before_first_number": true
   }
  ],
- "suite_local": null,
- "ci": null,
- "smoke": null,
- "note_pending": "suite_local · ci · smoke تُملأ من السجلّ بعد قياسها — وقبلها تظهر في الوثائق «⏳ لم يُقرأ» لا «✅»"
+ "suite_local": {
+  "commit": "a8526086f5f9b7569f13bdcb310e0473fd656953",
+  "passed": 5190,
+  "failed": 0,
+  "exit": 0,
+  "secs": 409,
+  "where": "worktree معزول (scratchpad/wt41b) · الشجرةُ نظيفةٌ بعده"
+ },
+ "ci": {
+  "pr": 551,
+  "merge_commit": "85e1ddd7ce70cd4d6c34904bb81c584bc38ce282",
+  "pr_result": "Tests 37556685437 · 37556719532 — 5190 نجح · 0 فشل (من السجلّ) · Lint 37556719485 ✅",
+  "main_result": "Tests 37557317193 — 5190 نجح · 0 فشل (من السجلّ) · Lint 37557316992 ✅"
+ },
+ "smoke": {
+  "run": 37557621641,
+  "commit": "85e1ddd7ce70cd4d6c34904bb81c584bc38ce282",
+  "symbol": "OMH",
+  "asof": "2026-10-07",
+  "state": "WAIT",
+  "tech_state": "RETEST_PENDING",
+  "firewall": "VALID",
+  "firewall_detail": "890 شمعة · آخرُها 2026-10-06 · بلا فشلٍ ولا تحذير",
+  "replay_equal": true,
+  "snapshot_rows": 890,
+  "snapshot_sha256": "e1c23c33fe5e242a19ccc406946ab2444c957a23495f5a3d34fad00c4e3fd1b0",
+  "decision_sha256": "9ec2dfc709b92c5bab466f45afd65444b904dfdd5f39602d6cf68c8fd21b11d4",
+  "short_provenance": "live:2026-10-06 (7,000)",
+  "verify_run": 37557323482,
+  "verify_line": "🧊 التجميد سليم · 📒 السجلّ سليم · 🚧 ختمُ الاحتجاز سليم · صورٌ جديدةٌ تنتظر الالتقاط 0",
+  "replay_run": 37557327003,
+  "replay_line": "🔁 الإعادة: 0 قرارًا · مختلفٌ 0",
+  "cancelled_run": 37557325140,
+  "cancelled_note": "smoke أوّلُ أُلغي بطابور التزامن (إرسالُ replay بعده) ⟵ عطلٌ مُثبَت أُصلح بـFVW1"
+ },
+ "note_pending": "تُملأ الحقولُ من السجلّ بعد قياسها — CI ‏#552 وmain بعده في الذاكرة (لا تُكتب في الـPR نفسِه)"
 }
