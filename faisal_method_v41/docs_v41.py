@@ -432,8 +432,11 @@ def doc_invisible(d):
     dep = "\n".join(f"| {k} | {v['n']} | {counts(v['faisal'])} | {counts(v['v4'])} |" for k, v in sorted(h["dependency"].items()))
     ords = "\n".join(f"| {k} | " + " | ".join(str(v[s]) for s in STATES) + " |" for k, v in sorted(h["orders"].items()))
     u = h["unknown_behaviour"]
+    pm = a["prospective"]["matrix"]
+    pro = (f"N = {pm['n']}" if not pm["n"] else
+           f"N = {pm['n']} (دون حدّ الحكم بالنسبة 10) · خلافاتٌ أماميّة {a['prospective']['coverage']['disagreements']}")
     return head(d, "INVISIBLE_INFORMATION_AUDIT — فرضيّةُ «المعلومة الخفيّة» (§11 · §13-15)") + f"""## ① الحكم
-- **الأماميّ (الرسميّ): UNKNOWN** — N = 0.
+- **الأماميّ (الرسميّ): UNKNOWN** — {pro}.
 - **التاريخيّ الملوَّث (وصفيّ): {inv['verdict']}** — k (D بعد البدائل) = {inv['k_D']} من N (الخلافاتُ عدا E/G) = {inv['n']} ⟵ {inv['k_D'] / inv['n']:.3f}.
   ❌ **تنبّؤي Q8 «الحكمُ PARTIAL» خاب** (الأكثرُ D صدق) — يُنشر ولا يُحذف.
 - **ما يعنيه بالضبط:** كلُّ D هنا من نوعٍ واحد — **V4 جاهزٌ فنيًّا ويمتنع (UNKNOWN) لأنّ الصلاحيّةَ غائبة وفيصل قال WAIT** ⟵ فيصل يقرّر بمعلومةٍ
@@ -511,7 +514,24 @@ def doc_queue(d):
 ## RQ-08 · قاعدةُ الدورة `R4-CYC-01`
 تناقضاتٌ من الطبقة 1 ({next(r['COUNTS']['c1'] for r in p['rules'] if r['RULE_ID'] == 'R4-CYC-01')}) بنصّ فيصل («تصعد مباشره لا تصلح لها هذي النظريه») ⟵
 هل الدورةُ شرطٌ عامّ أم لنوعٍ من الأسهم؟ — يُقاس أماميًّا (حالاتُ «صعود مباشر» تُوسَم).
-"""
+{batch_queue_block()}"""
+
+
+def batch_queue_block():
+    """بنودُ الدفعات الأماميّة (`batches/*/research_queue.json`) — ملاحظةٌ وقاعدةٌ مرشَّحة وحالاتٌ تدعم وتعارض وثقةٌ وعمومٌ ولماذا لا تدخل V4 (§8)."""
+    import glob
+    out = []
+    for qp in sorted(glob.glob(os.path.join(HERE, "batches", "*", "research_queue.json"))):
+        q = _j(qp)
+        out += ["", f"## دفعة {q['batch_id']} (`{os.path.relpath(qp, ROOT)}`)", f"> {q['rule']}"]
+        for it in q["items"]:
+            out += ["", f"### {it['id']} · {it['title']}",
+                    f"- **الملاحظة:** {it['observation']}",
+                    f"- **القاعدةُ المرشَّحة:** {it['candidate_rule']}",
+                    f"- **حالاتٌ تدعم:** {' · '.join(it['supporting_cases']) or '—'} · **حالاتٌ تعارض:** {' · '.join(it['contradictory_cases']) or 'لا شيء معروف'}",
+                    f"- **الثقة:** {it['confidence']} · **العموم:** {it['generality']}",
+                    f"- **لماذا لا تدخل V4 الآن:** {it['why_not_v4']}"]
+    return "\n".join(out) + ("\n" if out else "")
 
 
 def doc_change_requests(d):
@@ -594,9 +614,13 @@ def doc_predictions(d):
 def checklist(d):
     a, reg = d["a"], d["reg"]
     p = a["prospective"]
-    n0 = p["matrix"]["n"] == 0
+    n = p["matrix"]["n"]
+    n0 = n == 0
+    nmin = a["sample_size"]["n_min"]
+    meas = "⚠️" if n < nmin else "✅"
     hs = a["holdout_summary"]
-    hist = ("التاريخيّ الملوَّث فقط (وصفيّ) · الأماميّ N = 0" if n0 else f"الأماميّ N = {p['matrix']['n']} ‏+ التاريخيّ الملوَّث (وصفيّ)")
+    hist = ("التاريخيّ الملوَّث فقط (وصفيّ) · الأماميّ N = 0" if n0 else
+            f"الأماميّ N = {n}" + (f" (دون {nmin} ⟵ INSUFFICIENT)" if n < nmin else "") + " ‏+ التاريخيّ الملوَّث (وصفيّ)")
     items = [("V4 is frozen", "✅", f"FV41 · `{reg['freeze']['official_freeze_commit'][:7]}`"),
              ("V4 rule provenance audited", "✅", f"{a['provenance_summary']['rules']} قاعدة × 20 حقلًا"),
              ("Discovery/validation contamination controlled", "✅", "أعلامٌ عمياء · FV42/FV43"),
@@ -607,18 +631,20 @@ def checklist(d):
                  f"الجدار {reg['smoke']['firewall']} · الإعادة {'مطابقة' if reg['smoke']['replay_equal'] else '⛔ مختلفة'})"
                  if reg.get("smoke") else " · smoke ⏳")),
              ("Case sealing implemented", "✅", "FV46"),
-             ("V4 decisions frozen before Faisal decisions are revealed", "✅", "FV48 (لم يُمارَس على حالةٍ حقيقيّة بعد)"),
+             ("V4 decisions frozen before Faisal decisions are revealed", "✅", "FV48 (لم يُمارَس على حالةٍ حقيقيّة بعد)" if n0 else
+              f"FV48 · مُمارَسٌ على {n} حالةٍ حقيقيّة (حالة ⟵ V4 ⟵ فيصل في السجلّ · `ledger.verify`)"),
              ("No post-hoc rule changes occurred", "✅", "FV41 أخضر · النواةُ منذ d8b4937"),
              ("READY/WAIT/REJECT comparison exists", "⚠️" if n0 else "✅", hist),
-             ("False READY measured", "⚠️" if n0 else "✅", hist + " · وصفرٌ بنيويّ"),
-             ("False WAIT measured", "⚠️" if n0 else "✅", hist),
-             ("False REJECT measured", "⚠️" if n0 else "✅", hist),
-             ("UNKNOWN measured", "⚠️" if n0 else "✅", hist),
+             ("False READY measured", meas, hist + " · وصفرٌ بنيويّ"),
+             ("False WAIT measured", meas, hist),
+             ("False REJECT measured", meas, hist),
+             ("UNKNOWN measured", meas, hist),
              ("Pattern coverage reported", "✅", "INSUFFICIENT لكلّ نموذجٍ مسمّى"),
              ("Timeframe coverage reported", "✅", "INSUFFICIENT خارج اليوميّ"),
              ("External-information dependency quantified", "✅", "S1+S2 تاريخيًّا"),
              ("Invisible-information hypothesis tested", "⚠️", "تاريخيًّا SUPPORTED وصفًا · الرسميُّ UNKNOWN"),
-             ("Target logic frozen and validated", "⚠️", "مجمَّد · والتحقّقُ الأماميّ " + ("N = 0 ⟵ UNKNOWN" if n0 else "جارٍ")),
+             ("Target logic frozen and validated", "⚠️", "مجمَّد · والتحقّقُ الأماميّ " + ("N = 0 ⟵ UNKNOWN" if n0 else
+              f"جارٍ — أهدافٌ مذكورةٌ في {p['coverage']['targets_stated']} من {n} ⟵ UNKNOWN")),
              ("Golden Cases kept separate from holdout", "✅", "عَلَم GOLDEN · تقريرٌ منفصل"),
              ("Full test suite green", "✅" if reg.get("suite_local") else "⏳",
               (f"السويّةُ في worktree معزول: {reg['suite_local']['passed']} نجح · {reg['suite_local']['failed']} فشل · خروج "
@@ -646,6 +672,9 @@ def final_block(d):
     risk = [x["RULE"] for x in a["golden_generalization"] if x["OVERFIT_RISK"]]
     near = sorted(x["RULE"] for x in a["golden_generalization"] if x["INDEPENDENT_SUPPORT"] <= 1)
     ph = a["posthoc_disclosure"]
+    pc = a["prospective"]["coverage"]
+    pex = (f"prospective {p['exact']}/{p['n']} (always-WAIT {p['always_wait']['agree']}/{p['n']} · INSUFFICIENT N < {a['sample_size']['n_min']})"
+           if p["n"] else "prospective N=0 — UNKNOWN")
     return f"""================================================
 FAISAL METHOD V4.1
 PROSPECTIVE VALIDATION STATUS
@@ -670,7 +699,7 @@ CONTAMINATED CASES:
 {hs['cases']}/{hs['cases']} (T1_CITED {hs['by_tier']['T1_CITED']} · T2_EXPOSED_UNCITED {hs['by_tier']['T2_EXPOSED_UNCITED']} · other {hs['by_tier']['OTHER_CONTAMINATED']})
 
 EXACT AGREEMENT:
-prospective N=0 — UNKNOWN · historical-contaminated S1 {s1['exact']}/{s1['n']} (descriptive only)
+{pex} · historical-contaminated S1 {s1['exact']}/{s1['n']} (descriptive only)
 
 READY:
 prospective precision {p['ready_precision']} / recall {p['ready_recall']} / N {p['n']} · historical S1: precision {s1['ready_precision']} / recall {s1['ready_recall']} / N {s1['n']}
@@ -694,22 +723,22 @@ FALSE REJECT:
 prospective {p['false']['REJECT']}/{p['n']} · historical S1 {s1['false']['REJECT']}
 
 INVISIBLE INFORMATION:
-UNKNOWN (prospective N=0) · historical-contaminated descriptive: {inv['verdict']} ({inv['k_D']}/{inv['n']})
+UNKNOWN (prospective N={p['n']} · disagreements {pc['disagreements']}) · historical-contaminated descriptive: {inv['verdict']} ({inv['k_D']}/{inv['n']})
 
 EXTERNAL DATA DEPENDENCY:
 historical S1+S2 N={depn}: {counts({k: v['n'] for k, v in dep.items()})} · V4 tech-ready outputs {h['unknown_behaviour']['tech_ready_outputs']} → UNKNOWN {h['unknown_behaviour']['of_which_unknown']} · READY {h['unknown_behaviour']['of_which_ready']}
 
 GOLDEN CASES:
-reported separately — V3.1 {gg['v31_matched']}/{gg['dated']} · V4 frozen {gg['v4_matched']}/{gg['dated']} · always-WAIT {gg['always_wait_baseline']}/{gg['dated']} · prospective 0
+reported separately — V3.1 {gg['v31_matched']}/{gg['dated']} · V4 frozen {gg['v4_matched']}/{gg['dated']} · always-WAIT {gg['always_wait_baseline']}/{gg['dated']} · prospective {pc['golden']}
 
 TARGET VALIDATION:
-V4 target logic frozen · prospective targets 0 → UNKNOWN · historical (T-TGT, republished): «100٪ هدف» = +100% profit (CONFIRMED) · «50٪» never a pattern projection · «70٪» UNKNOWN
+V4 target logic frozen · prospective targets stated {pc['targets_stated']} of {p['n']} → UNKNOWN · historical (T-TGT, republished): «100٪ هدف» = +100% profit (CONFIRMED) · «50٪» never a pattern projection · «70٪» UNKNOWN
 
 PATTERN COVERAGE:
-historical S1+S2: {counts(cov['pattern'])} → INSUFFICIENT for every named pattern · prospective 0
+historical S1+S2: {counts(cov['pattern'])} → INSUFFICIENT for every named pattern · prospective {counts(pc['pattern']) or 0}
 
 TIMEFRAME COVERAGE:
-historical S1+S2: {counts(cov['timeframe'])} → engine is daily-only; every timeframe INSUFFICIENT prospectively (0)
+historical S1+S2: {counts(cov['timeframe'])} → engine is daily-only; every timeframe INSUFFICIENT prospectively ({counts(pc['timeframe']) or 0})
 
 RULES WITH STRONG HOLDOUT SUPPORT:
 none (clean holdout {hs['eligible']} · prospective {a['prospective']['complete']})
@@ -718,7 +747,7 @@ RULES WITH OVERFIT RISK:
 {', '.join(risk) if risk else 'none flagged by the pre-registered rule'} (lowest independent support: {', '.join(near) or '—'})
 
 UNRESOLVED DISAGREEMENTS:
-historical H = {inv['by_class']['H']} of {len(h['disagreements'])} (classified {counts({k: v for k, v in inv['by_class'].items() if v})}) · prospective 0
+historical H = {inv['by_class']['H']} of {len(h['disagreements'])} (classified {counts({k: v for k, v in inv['by_class'].items() if v})}) · prospective {pc['disagreements']}
 
 V4 STATUS:
 FROZEN
@@ -737,11 +766,15 @@ Capture Faisal's next dated decision posts (on or after {LG.WINDOW_START}) throu
 def doc_report(d):
     a = d["a"]
     h = a["historical_contaminated"]
+    pm = a["prospective"]["matrix"]
+    stc = ("صفرُ حالةٍ أماميّة" if not pm["n"] else
+           f"{pm['n']} حالةً أماميّةً كاملة (دون N_MIN {a['sample_size']['n_min']}) — تطابقٌ {pm['exact']}/{pm['n']} و«دائمًا WAIT» "
+           f"{pm['always_wait']['agree']}/{pm['n']} ⟵ لا يميّز V4 عن الخطّ التافه")
     return head(d, "V4.1_VALIDATION_REPORT — تقريرُ التحقّق") + f"""## ① الخلاصة
 - **STATUS: {a['status']}** — **NOT COMPLETE** (§35). **PROSPECTIVE: {a['prospective']['status']}**.
 - **STATE A (ENGINE VERIFIED):** قائمة — V4 مجمَّدٌ ومحروس (FV41) والأدواتُ محروسةٌ بأقفالٍ تُسقطها طفرات.
 - **STATE B (METHODOLOGY SUPPORTED):** **لا دليلَ مستقلّ** — الاحتجازُ التاريخيُّ النظيف {a['holdout_summary']['eligible']} · ودعمُ القواعد من صور البناء نفسِها (المسطرة).
-- **STATE C (PROSPECTIVE FIDELITY):** **لا يُدّعى** — صفرُ حالةٍ أماميّة.
+- **STATE C (PROSPECTIVE FIDELITY):** **لا يُدّعى** — {stc}.
 - 🧭 **وقيدٌ يحكم كلَّ رقمٍ أماميٍّ قادم (من المحرّك المجمَّد · FVO1):** مخرَجُ V4 الأماميّ ∈ {{WAIT · UNKNOWN}} — لا READY ولا REJECT ما دامت
   الصلاحيّةُ (القروبات · الطرح · المضارب) بلا مصدرٍ آليّ ⟵ استدعاءُ READY واتّفاقُ REJECT صفرٌ بالبناء · و«دائمًا WAIT» هو الحدّ.
 - **التاريخيّ ملوَّثٌ كلُّه** (كلُّ وحدةٍ مكشوفة) ⟵ أرقامُه وصفٌ لا تحقّق: S1 {h['matrices']['S1_all']['exact']}/{h['matrices']['S1_all']['n']} مقابل «دائمًا WAIT»

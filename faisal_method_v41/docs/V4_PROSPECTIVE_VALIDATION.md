@@ -3,24 +3,24 @@
 > مولَّدٌ من `faisal_method_v41/docs_v41.py` — كلُّ رقمٍ من JSON (لا رقمَ باليد · FVD1) · العقدُ `V41_prereg.md` مدموجٌ قبل أيّ رقم (#550) · V4 مجمَّد: `FREEZE_ID 5f291a3b301be047…` · commit التجميد الرسميّ `7c8826c`.
 
 ## ① الحالة
-**PROSPECTIVE STATUS: SEALED_PENDING** · **STATUS: VALIDATION IN PROGRESS** — **NOT COMPLETE**.
-- مرشَّحون 46 · حالاتٌ مختومة 1 · كاملة (ختم ‏+ V4 ‏+ فيصل) 0 · INVALID 0 ·
+**PROSPECTIVE STATUS: INSUFFICIENT** · **STATUS: INSUFFICIENT PROSPECTIVE EVIDENCE** — **NOT COMPLETE**.
+- مرشَّحون 46 · حالاتٌ مختومة 1 · كاملة (ختم ‏+ V4 ‏+ فيصل) 1 · INVALID 0 ·
   صورٌ جديدةٌ لم تُسجَّل 0.
-- **حالاتٌ مختومةٌ تنتظر قرارَ V4 المجمَّد ثمّ كلمةَ فيصل** (الترتيبُ مختومٌ في السجلّ) — ولا حالةَ مصنوعة (§38).
+- الحالاتُ من السجلّ الإلحاقيّ وحدَه — ولا حالةَ مصنوعة (§38).
 
 ## ② المصفوفة الأماميّة (الرسميّة)
 | فيصل ⟍ V4 | READY | WAIT | REJECT | UNKNOWN | المجموع |
 |---|---|---|---|---|---|
 | **READY** | 0 | 0 | 0 | 0 | 0 |
-| **WAIT** | 0 | 0 | 0 | 0 | 0 |
+| **WAIT** | 0 | 1 | 0 | 0 | 1 |
 | **REJECT** | 0 | 0 | 0 | 0 | 0 |
 | **UNKNOWN** | 0 | 0 | 0 | 0 | 0 |
-| المجموع | 0 | 0 | 0 | 0 | 0 |
+| المجموع | 0 | 1 | 0 | 0 | 1 |
 
-- **N** 0 · **التطابقُ التامّ** 0/0 (N=0) · ويلسون 95% — (المقامُ دون 10 ⟵ لا فاصل) · ⚠️ **INSUFFICIENT SAMPLE**
-- **READY:** دقّة UNDEFINED (V4 READY = 0) · استدعاء UNDEFINED (Faisal READY = 0) · **WAIT** N=0 · **REJECT** N=0 · **UNKNOWN** N=0
-- **FALSE READY 0** (نسبة None) · FALSE WAIT 0 (None) · FALSE REJECT 0 (None) · FALSE UNKNOWN 0 (None)
-- خطُّ الأساس «دائمًا WAIT» (وصفيّ لا هدف): 0/0 (N=0) · بلا قرار V4 (NOT_RUN) 0
+- **N** 1 · **التطابقُ التامّ** 1/1 = 1.000 · ويلسون 95% — (المقامُ دون 10 ⟵ لا فاصل) · ⚠️ **INSUFFICIENT SAMPLE**
+- **READY:** دقّة UNDEFINED (V4 READY = 0) · استدعاء UNDEFINED (Faisal READY = 0) · **WAIT** 1/1 · **REJECT** N=0 · **UNKNOWN** N=0
+- **FALSE READY 0** (نسبة 0.0) · FALSE WAIT 0 (0.0) · FALSE REJECT 0 (0.0) · FALSE UNKNOWN 0 (0.0)
+- خطُّ الأساس «دائمًا WAIT» (وصفيّ لا هدف): 1/1 = 1.000 · بلا قرار V4 (NOT_RUN) 0
 
 ## ③ ما يلزم للحكم (§28 — تقديرٌ وصفيّ من معدّل S1 التاريخيّ)
 - **N_MIN 43** (1.96²·0.25/0.15² = 42.7 ⟵ 43) · حالاتُ S1 التاريخيّة 22 بين 2026-01-28 و2026-09-27 (7.98 شهرًا) ⟵
@@ -30,4 +30,4 @@
 - ⚠️ التقديرُ يفترض استمرارَ معدّل النشر والالتقاط كما كان — **وصفٌ لا وعد**.
 
 ## ④ الدفعات (`faisal_method_v41/batches/` · مولَّدةٌ من بيانها)
-- **B48_20261007** — وصل 48 (قال المالك 48) · CLEAN_PROSPECTIVE 2 · CONTAMINATED 9 · DUPLICATE 2 · DERIVATIVE 9 · UNKNOWN 26 · حالاتُ تحقّق 1 — `faisal_method_v41/batches/B48_20261007/`
+- **B48_20261007** — وصل 48 (قال المالك 48) · CLEAN_PROSPECTIVE 2 · CONTAMINATED 9 · DUPLICATE 2 · DERIVATIVE 9 · UNKNOWN 26 · حالاتُ تحقّق 1 · قورنت 1 · تطابق 1 — `faisal_method_v41/batches/B48_20261007/`
