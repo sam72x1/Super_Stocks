@@ -81292,6 +81292,113 @@ except Exception as _e:                                                    # noq
 check("🧾 BIM10 كلمةُ فيصل منضبطة: الحالةُ = L4 لوسمه · المباشرُ والمستنتَجُ والمجهولُ منفصلةٌ وغيرُ فارغة · وقيدُ السجلّ مولَّدٌ من الملفّ وبعد V4 · "
       "وبنودُ الطابور بحقول §8 · وأرقامُ RQ-B48-01 تُعاد من لقطة V4 المختومة", _bim10ok, _bim10w)
 
+# 🔎📺 CID1-CID3 — بصمةُ الشموع على TradingView (‏2026-10-07 · أمرُ المالك «FAISAL CHART → TICKER IDENTIFICATION»):
+#    `chart_id_tv.py` قراءةٌ فقط ترتّب نوافذ السوق حول بطاقة الاختبار الأعمى بمعامل مقياسٍ حرّ · والبطاقةُ كُتبت قبل أيّ بحث
+#    ومجمَّدةٌ ببصمتها في `chart_cards/blind/2026-10-07/` (مجلّدٌ فرعيّ فلا يمسّ عقدَ CFD59) · والصورةُ لا تُدفع.
+import chart_id_tv as _CID                                                 # noqa: E402
+import chart_finder as _CID_CF                                             # noqa: E402
+import chart_eval as _CID_CE                                               # noqa: E402
+try:
+    _cid_card = json.load(open("chart_cards/blind/2026-10-07/owner-2026-10-07-1.json", encoding="utf-8"))
+    _cid_ref = _CID.card_ohlc(_cid_card)
+    _cid_rng = np.random.default_rng(20261007)
+
+    def _cid_walk(n=400, plant=None, k=10.0):
+        p, out = 5.0, []
+        for i in range(n):
+            o = p
+            c = p * float(np.exp(_cid_rng.normal(0, 0.03)))
+            out.append([1.7e9 + i * 86400, o, max(o, c) * 1.01, min(o, c) * 0.99, c, 1000.0])
+            p = c
+        if plant is not None:
+            for j, row in enumerate(_cid_ref):
+                o, h, l_, c = (float(x) * k * float(np.exp(_cid_rng.normal(0, 0.002))) for x in row)
+                out[plant + j][1:5] = [o, max(h, o, c), min(l_, o, c), c]
+        return out
+    _cid_hit = _CID.best_windows(_cid_walk(plant=230), _cid_ref)
+    _cid_ctl = _CID.best_windows(_cid_walk(), _cid_ref, keep=1)
+    try:
+        _CID.card_ohlc({"bars": [{"o": "1", "h": "2", "l": "0.5", "c": "1.5"}] * 6 + [{"o": "1", "h": "2", "l": "0.5"}]})
+        _cid_strict = False
+    except ValueError:
+        _cid_strict = True
+    _cid1 = (bool(_cid_hit) and _cid_hit[0]["i"] == 230 and abs(_cid_hit[0]["k"] / 10.0 - 1) < 0.01
+             and _cid_hit[0]["rms"] < 0.01 and bool(_cid_ctl) and _cid_ctl[0]["rms"] > 0.05 and _cid_strict
+             and _cid_ref.shape == (21, 4) and abs(float(_cid_ref[0][1]) - 4.125) < 1e-9)
+    _cid1w = (f"hit={[(w['i'], round(w['k'], 3), round(w['rms'], 4)) for w in _cid_hit[:1]]} · "
+              f"ctl={[round(w['rms'], 4) for w in _cid_ctl]} · strict={_cid_strict} · ref={_cid_ref.shape}")
+except Exception as _e:                                                    # noqa: BLE001
+    _cid1, _cid1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎📺 CID1 البصمة: نافذةٌ مزروعة (×10 بتشويش 0.2%) تُلتقَط بموضعها و`k`≈10 و`rms` دون 0.01 · والمشيُ العشوائيّ بلا زرعٍ فوق 0.05 · "
+      "وبطاقةٌ بشمعةٍ ناقصة تُرفض (لا يُخمَّن) · والبطاقةُ 21 شمعة أوّلُها أعلى 4.125", _cid1, _cid1w)
+
+# CID2 قراءةٌ فقط بالـAST: صفرُ إرسالٍ وصفرُ حفظِ حالةٍ وصفرُ فتحٍ للكتابة · والـworkflow يدويٌّ بلا أسرارٍ ولا كرون وصلاحيّتُه قراءة.
+try:
+    _cid_src = open("chart_id_tv.py", encoding="utf-8").read()
+    _cid_t = _ast0.parse(_cid_src)
+    _cid_calls = {(getattr(n.func, "attr", None) or getattr(n.func, "id", None))
+                  for n in _ast0.walk(_cid_t) if isinstance(n, _ast0.Call)}
+    _cid_banned = {"send_telegram", "git_save", "save_watchlist", "save_op_entry_state", "post", "put", "system", "Popen", "run"}
+    _cid_writes = [n for n in _ast0.walk(_cid_t) if isinstance(n, _ast0.Call)
+                   and getattr(n.func, "id", None) == "open"
+                   and any(isinstance(a, _ast0.Constant) and isinstance(a.value, str) and any(m in a.value for m in "wax")
+                           for a in list(n.args[1:]) + [kw.value for kw in n.keywords if kw.arg == "mode"])]
+    _cid_imp = {a.name.split(".")[0] for n in _ast0.walk(_cid_t) if isinstance(n, _ast0.Import) for a in n.names}
+    _cid_wf = open(".github/workflows/chart_id_tv.yml", encoding="utf-8").read()
+    _cid2 = (not (_cid_calls & _cid_banned) and not _cid_writes and "Super_stock" not in _cid_imp
+             and "contents: read" in _cid_wf and "secrets." not in _cid_wf and "schedule:" not in _cid_wf
+             and "cron" not in _cid_wf and "workflow_dispatch:" in _cid_wf)
+    _cid2w = f"محظور={sorted(_cid_calls & _cid_banned)} · كتابة={len(_cid_writes)} · استيراد={sorted(_cid_imp)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _cid2, _cid2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎📺 CID2 قراءةٌ فقط: صفرُ إرسالٍ/حفظٍ/كتابةٍ/نداءِ نظام (AST) ولا استيرادَ للبوت · والـworkflow يدويٌّ بلا أسرارٍ ولا كرون وصلاحيّتُه قراءة",
+      _cid2, _cid2w)
+
+# CID3 البطاقةُ قبل البحث: مجمَّدةٌ ببصمتها في مجلّدٍ فرعيّ · سليمةٌ بلا رمز (validate_card) · وبصمةُ الصورة مسجَّلةٌ والصورةُ نفسُها غائبة.
+try:
+    _cid_ok, _cid_files, _cid_bad = _CID_CE.verify_manifest("chart_cards/blind/2026-10-07")
+    _cid_man = open("chart_cards/blind/2026-10-07/MANIFEST.sha256", encoding="utf-8").read()
+    _cid_img = "8da0db5fcc5ec9efb1d424bd06389570c866aadae0b05df7ce81a433c84b4a01"
+    _cid_tracked = _sp_fp.run(["git", "ls-files"], capture_output=True, text=True).stdout.split("\n")
+    _cid_imgs = [f for f in _cid_tracked if f.lower().endswith((".jpg", ".jpeg", ".png", ".webp"))
+                 and _os_hc.path.getsize(f) == 122304]
+    _cid_same = [f for f in _cid_imgs if _rej_h.sha256(open(f, "rb").read()).hexdigest() == _cid_img]
+    _cid3 = (_cid_ok and [_os_hc.path.basename(f) for f in _cid_files] == ["owner-2026-10-07-1.json"]
+             and _CID_CF.validate_card(_cid_card) == [] and _cid_img in _cid_man and not _cid_same
+             and "ticker" not in json.dumps(_cid_card) and _CID_CE.verify_manifest("chart_cards/blind")[0])
+    _cid3w = f"بصمة={_cid_ok} {_cid_bad[:2]} · ملفّات={_cid_files} · الصورةُ مدفوعة={_cid_same}"
+except Exception as _e:                                                    # noqa: BLE001
+    _cid3, _cid3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎📺 CID3 بطاقةُ owner-2026-10-07-1 مجمَّدةٌ قبل البحث (MANIFEST) · سليمةٌ بلا رمز · وبصمةُ الصورة مسجَّلة والصورةُ غيرُ مدفوعة · "
+      "وعقدُ الاختبار الأعمى الأوّل (CFD59) سليم", _cid3, _cid3w)
+
+# CID4 التجميعُ بحدودٍ يوميّة (a30): يومٌ مصطنع بـ32 شمعة نصف ساعة ⟵ خمسُ شموعٍ بحدود 04:00/05:30/09:30/13:30/17:30 بأعدادها 3/8/8/8/5
+#    وافتتاحِ أوّلها وإغلاقِ آخرها وأقصاها · والنظاميّةُ وحدَها (09:30-16:00) ⟵ شمعتان والممتدُّ يُسقَط · والحدُّ الخاطئ يُرفض.
+try:
+    _cid_day = __import__("datetime").datetime(2026, 9, 23, 4, 0, tzinfo=_CID.TV.NY)
+    _cid_b30 = [[int((_cid_day + __import__("datetime").timedelta(minutes=30 * k)).timestamp()), float(k), k + 0.5, k - 0.5, k + 0.2, 10.0]
+                for k in range(32)]
+    _cid_A = _CID.parse_anchors("04:00,05:30,09:30,13:30,17:30;09:30,13:30,-16:00")
+    _cid_g5 = _CID.aggregate(_cid_b30, *_cid_A[0])
+    _cid_g2 = _CID.aggregate(_cid_b30, *_cid_A[1])
+    try:
+        _CID.parse_anchors("13:30,-09:30")
+        _cid_rej = False
+    except ValueError:
+        _cid_rej = True
+    _cid4 = ([(r[1], r[2], r[3], round(r[4], 1), r[5]) for r in _cid_g5]
+             == [(0.0, 2.5, -0.5, 2.2, 30.0), (3.0, 10.5, 2.5, 10.2, 80.0), (11.0, 18.5, 10.5, 18.2, 80.0),
+                 (19.0, 26.5, 18.5, 26.2, 80.0), (27.0, 31.5, 26.5, 31.2, 50.0)]
+             and [(r[1], r[2], r[3], round(r[4], 1), r[5]) for r in _cid_g2]
+             == [(11.0, 18.5, 10.5, 18.2, 80.0), (19.0, 23.5, 18.5, 23.2, 50.0)]
+             and [_CID._stamp(r[0], True) for r in _cid_g5] == ["09-23 04:00", "09-23 05:30", "09-23 09:30", "09-23 13:30", "09-23 17:30"]
+             and _cid_rej)
+    _cid4w = f"خمس={[(r[1], r[4]) for r in _cid_g5]} · نظاميّة={[(r[1], r[4]) for r in _cid_g2]} · رفض={_cid_rej}"
+except Exception as _e:                                                    # noqa: BLE001
+    _cid4, _cid4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎📺 CID4 تجميعُ نصف الساعة بحدودٍ يوميّة (a30): خمسُ شموعٍ 3/8/8/8/5 بافتتاحها وإغلاقها وأقصاها وتوقيتِ بدايتها · "
+      "والنظاميّةُ وحدَها شمعتان والممتدُّ يُسقَط · وحدودٌ معكوسة تُرفض", _cid4, _cid4w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

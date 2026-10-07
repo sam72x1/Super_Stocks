@@ -1,0 +1,57 @@
+name: "🔎📺 بصمةُ الشموع على TradingView — أيُّ سهمٍ هذا الشارت؟ (chart_id_tv)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · لا أسرار · **والصورةُ لا تُدفَع** (المستودعُ عامّ):
+#    المُدخَلُ بطاقةٌ في chart_cards/blind/… (شموعٌ مقروءةٌ بالبكسل بلا رمز) ⟵ ماسحُ TradingView ومِقبسُ شموعه ⟵ أفضلُ النوافذ.
+#    أمرُ المالك 2026-10-07 «FAISAL CHART → TICKER IDENTIFICATION».
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      card:
+        description: "مسارُ البطاقة في المستودع"
+        required: true
+        default: "chart_cards/blind/2026-10-07/owner-2026-10-07-1.json"
+      timeframes:
+        description: "الفريمات بفاصلة: 1D · 1W · 240e (4 ساعات TradingView) · a30 (30 دقيقة تُجمَّع بحدود anchors)"
+        required: false
+        default: "1D,1W,a30"
+      anchors:
+        description: "حدودُ التجميع اليوميّة لـa30 (نيويورك): مجموعاتٌ بـ; وأوقاتٌ بفاصلة و«-HH:MM» نهاية — فارغ = الافتراضيّ"
+        required: false
+        default: ""
+      symbols:
+        description: "رموزٌ بعينها بفاصلة (فارغ = الكونُ كلُّه)"
+        required: false
+        default: ""
+
+concurrency:
+  group: chart-id-tv
+  cancel-in-progress: false
+
+jobs:
+  search:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔎 البصمة على TradingView
+        env:
+          PYTHONUNBUFFERED: "1"
+          CHART_ID_CARD: ${{ inputs.card }}
+          CHART_ID_TF: ${{ inputs.timeframes }}
+          CHART_ID_SYMS: ${{ inputs.symbols }}
+          CHART_ID_ANCHORS: ${{ inputs.anchors }}
+        run: python chart_id_tv.py
