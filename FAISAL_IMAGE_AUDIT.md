@@ -1,9 +1,9 @@
 # 📸 سجلّ تغطية صور منهجية فيصل — 2026-10-07
 
-- **المجموع المُدرَج:** 845  ·  **بملف مرفوع:** 722
-- **📗 موثّقة:** 845  ·  **📕 لم تُقرأ بعد:** 0  ·  **مكرّرة:** 0
+- **المجموع المُدرَج:** 893  ·  **بملف مرفوع:** 768
+- **📗 موثّقة:** 847  ·  **📕 لم تُقرأ بعد:** 46  ·  **مكرّرة:** 0
 
-✅ **لا صورة غير مقروءة** — التغطية مكتملة على المرفوع حاليًا.
+**الدفعة التالية المقترحة (8):** TG_58382 · TG_58383 · TG_58384 · TG_58385 · TG_58386 · TG_58387 · TG_58388 · TG_58389
 
 | المعرّف | الملف | 📗 موثّقة | الحالة | ملاحظة |
 |---|---|---|---|---|
@@ -779,6 +779,54 @@
 | TG_58050 | TG_58050.jpg | ✅ | confirmed | — |
 | TG_58051 | TG_58051.jpg | ✅ | confirmed | — |
 | TG_58052 | TG_58052.jpg | ✅ | confirmed | — |
+| TG_58382 | TG_58382.jpg | ❌ | unread | — |
+| TG_58383 | TG_58383.jpg | ❌ | unread | — |
+| TG_58384 | TG_58384.jpg | ❌ | unread | — |
+| TG_58385 | TG_58385.jpg | ❌ | unread | — |
+| TG_58386 | TG_58386.jpg | ❌ | unread | — |
+| TG_58387 | TG_58387.jpg | ❌ | unread | — |
+| TG_58388 | TG_58388.jpg | ❌ | unread | — |
+| TG_58389 | TG_58389.jpg | ❌ | unread | — |
+| TG_58390 | TG_58390.jpg | ❌ | unread | — |
+| TG_58391 | TG_58391.jpg | ❌ | unread | — |
+| TG_58392 | TG_58392.jpg | ❌ | unread | — |
+| TG_58393 | TG_58393.jpg | ❌ | unread | — |
+| TG_58394 | TG_58394.jpg | ❌ | unread | — |
+| TG_58395 | TG_58395.jpg | ❌ | unread | — |
+| TG_58396 | TG_58396.jpg | ❌ | unread | — |
+| TG_58397 | TG_58397.jpg | ❌ | unread | — |
+| TG_58398 | TG_58398.jpg | ❌ | unread | — |
+| TG_58399 | TG_58399.jpg | ❌ | unread | — |
+| TG_58400 | TG_58400.jpg | ❌ | unread | — |
+| TG_58401 | TG_58401.jpg | ❌ | unread | — |
+| TG_58402 | TG_58402.jpg | ❌ | unread | — |
+| TG_58403 | TG_58403.jpg | ❌ | unread | — |
+| TG_58404 | TG_58404.jpg | ❌ | unread | — |
+| TG_58405 | TG_58405.jpg | ❌ | unread | — |
+| TG_58406 | TG_58406.jpg | ❌ | unread | — |
+| TG_58407 | TG_58407.jpg | ❌ | unread | — |
+| TG_58408 | TG_58408.jpg | ❌ | unread | — |
+| TG_58409 | TG_58409.jpg | ❌ | unread | — |
+| TG_58410 | TG_58410.jpg | ❌ | unread | — |
+| TG_58411 | TG_58411.jpg | ❌ | unread | — |
+| TG_58412 | TG_58412.jpg | ❌ | unread | — |
+| TG_58413 | TG_58413.jpg | ❌ | unread | — |
+| TG_58414 | TG_58414.jpg | ❌ | unread | — |
+| TG_58415 | TG_58415.jpg | ❌ | unread | — |
+| TG_58416 | TG_58416.jpg | ❌ | unread | — |
+| TG_58417 | TG_58417.jpg | ❌ | unread | — |
+| TG_58418 | TG_58418.jpg | ❌ | unread | — |
+| TG_58419 | TG_58419.jpg | ❌ | unread | — |
+| TG_58420 | TG_58420.jpg | ❌ | unread | — |
+| TG_58421 | TG_58421.jpg | ❌ | unread | — |
+| TG_58422 | TG_58422.jpg | ❌ | unread | — |
+| TG_58423 | TG_58423.jpg | ❌ | unread | — |
+| TG_58424 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| TG_58425 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
+| TG_58426 | TG_58426.jpg | ❌ | unread | — |
+| TG_58427 | TG_58427.jpg | ❌ | unread | — |
+| TG_58428 | TG_58428.jpg | ❌ | unread | — |
+| TG_58429 | TG_58429.jpg | ❌ | unread | — |
 | WA_20260918_31_SXTC | WA_20260918_31_SXTC.jpg | ✅ | confirmed | — |
 | WA_20260918_46_NUWE | WA_20260918_46_NUWE.jpg | ✅ | confirmed | — |
 | X_20260827_amix_3m_inflow | X_20260827_amix_3m_inflow.png | ✅ | confirmed | — |
