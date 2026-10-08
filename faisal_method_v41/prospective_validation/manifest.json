@@ -557,6 +557,17 @@
    "seq": 55,
    "sha256": "68372fa21fdb3143a08ebd801c5269ff3a977be62dd83a9fe44659fed07964ea",
    "utc": "2026-10-08T09:41:34Z"
+  },
+  {
+   "case_id": "CASE_0002",
+   "entry_hash": "367fb1058d89c4f3d6f281a737999c8a8f679d771ee21a8e31f14b23e76484ce",
+   "kind": "faisal",
+   "path": "faisal/CASE_0002.v1.json",
+   "prev": "b1e2d44ac002717364b5c1cd08767c5f8ecad036467fb452cb038a3239ae863e",
+   "seq": 56,
+   "sha256": "a8dc2aefc2d2873b44a3eccc3ca290a104dbf29cf50c4dbb79db283b25c15a02",
+   "utc": "2026-10-08T09:43:39Z",
+   "version": 1
   }
  ],
  "schema": 1,

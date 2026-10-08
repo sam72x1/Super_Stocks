@@ -27,7 +27,7 @@ PROVENANCE = PASS
 CURRENT_STATUS = VERY_PRELIMINARY
 FINAL_VALIDATION_STATE = INSUFFICIENT_SAMPLE
 — — —
-SECONDARY_TRACKED = CASE_0001 BRTX MATCH (provenance LOW) · CASE_0002 CDT PENDING (provenance LOW)
+SECONDARY_TRACKED = CASE_0001 BRTX MATCH (provenance LOW) · CASE_0002 CDT MATCH (provenance LOW)
 PENDING_PRIMARY = 0
 EXCLUDED_BREAKDOWN = intake_not_new 50 · secondary_provenance 2 · invalid_data_quality 0 · invalidated_lookahead 0
 INTAKE_BY_CLASS = NEW_PROSPECTIVE 2 · DUPLICATE 3 · DERIVATIVE 9 · CONTAMINATED 4 · PRE_EXISTING 7 · UNKNOWN 13 · INSUFFICIENT_CONTEXT 14
@@ -76,7 +76,7 @@ STRUCTURAL = V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY و�
 | الحالة | الرمز | التاريخ | العيّنة (المصدريّة) | V4 (فنّيّ) | فيصل (الدليل) | المطابقة | النظرُ المستقبليّ | الحالة |
 |---|---|---|---|---|---|---|---|---|
 | `CASE_0001` | BRTX | 2026-10-03 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | WAIT (DIRECT) | MATCH | PASS | COMPLETE |
-| `CASE_0002` | CDT | 2026-10-07 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | — (—) | — | PASS | PENDING_FAISAL |
+| `CASE_0002` | CDT | 2026-10-07 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | WAIT (STRONG_INFERENCE) | MATCH | PASS | COMPLETE |
 
 ## ⑥ الاستلامُ بالأصناف السبعة (PHASE 3)
 
