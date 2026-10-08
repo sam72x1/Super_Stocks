@@ -11,7 +11,6 @@ import sys
 import datetime as dt
 
 os.environ.setdefault("FAISAL_ONLY", "1")
-os.environ.setdefault("BARS_SOURCE", "tradingview")
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import Super_stock as S          # noqa: E402
 

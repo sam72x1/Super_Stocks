@@ -35,7 +35,6 @@ jobs:
       - name: 📺 جلب الشموع
         env:
           FM_START: ${{ github.event.inputs.start }}
-          BARS_SOURCE: tradingview
           FAISAL_ONLY: "1"
         run: python fm_forensics/fm_bars_probe.py
       - name: 💾 دفع الملفّ للفرع
