@@ -1,0 +1,77 @@
+{
+ "faisal_max_consec_obs": {
+  "n": 41,
+  "median": 1.0,
+  "q1": 1.0,
+  "q3": 1.0,
+  "min": 1,
+  "max": 3
+ },
+ "faisal_chains": {
+  "n": 41,
+  "median": 1.0,
+  "q1": 1.0,
+  "q3": 1.0,
+  "min": 1,
+  "max": 2
+ },
+ "faisal_span": {
+  "n": 9,
+  "median": 11.0,
+  "q1": 2.0,
+  "q3": 21.0,
+  "min": 1,
+  "max": 34
+ },
+ "faisal_state_changes": {
+  "n": 41,
+  "median": 0.0,
+  "q1": 0.0,
+  "q3": 0.0,
+  "min": 0,
+  "max": 3
+ },
+ "watch_to_ready": {
+  "n": 1,
+  "median": -1.0,
+  "q1": -1.0,
+  "q3": -1.0,
+  "min": -1,
+  "max": -1
+ },
+ "watch_to_entry": {
+  "n": 0,
+  "median": null,
+  "q1": null,
+  "q3": null,
+  "min": null,
+  "max": null
+ },
+ "bot_candidate_run": {
+  "n": 630,
+  "median": 2.0,
+  "q1": 1.0,
+  "q3": 5.0,
+  "min": 1,
+  "max": 37
+ },
+ "bot_watchlist_run": {
+  "n": 44,
+  "median": 2.5,
+  "q1": 1.0,
+  "q3": 8.2,
+  "min": 1,
+  "max": 23
+ },
+ "bot_ready_run": {
+  "n": 39,
+  "median": 1.0,
+  "q1": 1.0,
+  "q3": 2.5,
+  "min": 1,
+  "max": 9
+ },
+ "multi_obs_tickers": 9,
+ "tickers": 41,
+ "multi_with_consec2": 5
+}
