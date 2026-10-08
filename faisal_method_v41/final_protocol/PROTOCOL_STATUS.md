@@ -77,7 +77,7 @@ STRUCTURAL = V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY و�
 |---|---|---|---|---|---|---|---|---|
 | `CASE_0001` | BRTX | 2026-10-03 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | WAIT (DIRECT) | MATCH | PASS | COMPLETE |
 | `CASE_0002` | CDT | 2026-10-07 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | WAIT (STRONG_INFERENCE) | MATCH | PASS | COMPLETE |
-| `CASE_0003` | NCT | 2026-10-07 | SECONDARY (LOW) | — (—) | — (—) | — | — | PENDING_V4 |
+| `CASE_0003` | NCT | 2026-10-07 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | — (—) | — | PASS | PENDING_FAISAL |
 
 ## ⑥ الاستلامُ بالأصناف السبعة (PHASE 3)
 
