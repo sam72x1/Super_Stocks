@@ -82338,6 +82338,31 @@ except Exception as _e:                                                    # noq
 check("🧊🔒 FPA20 PROSPECTIVE_STATUS (STEP 11): المفاتيحُ الأربعة والعشرون بترتيب المالك · كلُّ عدّادٍ من مصدره · المجموعُ = الأصنافُ السبعة = "
       "المرشَّحون · الدقّةُ والاستدعاءُ بكسرهما و«UNDEFINED» حين المقامُ صفر · والملفُّ ضمن المولَّد", _fpa20ok, _fpa20w)
 
+# FPA21 سلامةُ البادئة (I9) بلا حجمٍ حيّ: ملفٌّ اصطناعيّ في مجلّدٍ مؤقّت = البادئة ‏+ إلحاقٌ قصير ثمّ أطول ⟵ التفصيلُ والحكمُ متطابقان ·
+#       وتغيُّرُ البادئة نفسِها ⟵ «تغيّرت البادئة» (عطلٌ مُثبَت 2026-10-08: «الحجم الآن N» في التفصيل جعل كلَّ نبضٍ للجامع يُحمّر FPA2 —
+#       تشغيلتا Tests ‏37713103105/37713107902 على دمج main بعد نبض التشغيلة 37712531520).
+try:
+    import tempfile as _fpa21_tmp
+    with _fpa21_tmp.TemporaryDirectory() as _d21:
+        _p21 = _v41_os.path.join(_d21, "m.jsonl")
+        _pref21 = b'{"a": 1}\n'
+        _rec21 = {"path": "m.jsonl", "bytes": len(_pref21), "sha256": FPA.sha_bytes(_pref21)}
+        with open(_p21, "wb") as _fh21:
+            _fh21.write(_pref21 + b'{"kind": "heartbeat"}\n')
+        _r21a = FPA._meta_prefix_ok(_rec21, root=_d21)
+        with open(_p21, "ab") as _fh21:
+            _fh21.write(b'{"kind": "heartbeat"}\n' * 3)
+        _r21b = FPA._meta_prefix_ok(_rec21, root=_d21)
+        with open(_p21, "wb") as _fh21:
+            _fh21.write(b'{"a": 2}\n{"kind": "x"}\n')
+        _r21c = FPA._meta_prefix_ok(_rec21, root=_d21)
+    _fpa21 = _r21a == _r21b and _r21a[0] is True and _r21c[0] is False and "تغيّرت البادئة" in _r21c[1]
+    _fpa21w = f"{_r21a} · {_r21b} · {_r21c}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa21, _fpa21w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA21 سلامةُ البادئة I9 بلا حجمٍ حيّ: إلحاقُ الجامع (نبضٌ أو صفّ) لا يغيّر التفصيلَ ولا الحكم · وتغيُّرُ البادئة نفسِها يُمسَك",
+      _fpa21, _fpa21w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

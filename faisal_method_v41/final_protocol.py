@@ -375,9 +375,10 @@ def _meta_prefix_ok(rec, root=ROOT):
         return rec["bytes"] == 0, "الملفّ غائب"
     with open(p, "rb") as f:
         b = f.read(rec["bytes"])
-    size = os.path.getsize(p)
     ok = len(b) == rec["bytes"] and sha_bytes(b) == rec["sha256"]
-    return ok, f"البادئة {rec['bytes']} بايت · الحجم الآن {size}" + ("" if ok else " ⟵ تغيّرت البادئة (ليس إلحاقًا)")
+    # 🩹 (2026-10-08) لا حجمَ حيًّا في التفصيل: كلُّ إلحاقٍ من الجامع (نبضٌ أو صفّ) كان يُغيّر «الحجم الآن» فتختلف الحالةُ المدفوعة
+    #    عن إعادة توليدها ⟵ FPA2 أحمرُ على كلّ PR بعد أوّل نبض (عطلٌ مُثبَت: تشغيلتا Tests ‏37713103105/37713107902) · الحكمُ نفسُه بت-بت
+    return ok, f"البادئة {rec['bytes']} بايت" + (" سليمة (الإلحاقُ بعدها لا يغيّرها)" if ok else " ⟵ تغيّرت البادئة (ليس إلحاقًا)")
 
 
 def _latest_cases(lg):
