@@ -1,0 +1,10 @@
+FEATURE,POS,DATE_MATCHED_CTRL,ODDS,NOTE
+one_touch_fresh_low,7/7,38/42,1.75,"post-hoc supplementary (not pre-registered): date-matched non-Faisal names from the probe universe, 6 per positive, seed 20261008"
+post_split_reference_frame,6/7,25/42,2.97,"post-hoc supplementary (not pre-registered): date-matched non-Faisal names from the probe universe, 6 per positive, seed 20261008"
+rsi_below_33,2/7,9/42,1.6,"post-hoc supplementary (not pre-registered): date-matched non-Faisal names from the probe universe, 6 per positive, seed 20261008"
+price_below_ema30,5/7,30/42,0.9,"post-hoc supplementary (not pre-registered): date-matched non-Faisal names from the probe universe, 6 per positive, seed 20261008"
+unfilled_gap_below,2/7,14/42,0.89,"post-hoc supplementary (not pre-registered): date-matched non-Faisal names from the probe universe, 6 per positive, seed 20261008"
+held_>=3_sessions,6/7,29/42,1.98,"post-hoc supplementary (not pre-registered): date-matched non-Faisal names from the probe universe, 6 per positive, seed 20261008"
+drop_in_band,4/7,26/42,0.8,"post-hoc supplementary (not pre-registered): date-matched non-Faisal names from the probe universe, 6 per positive, seed 20261008"
+spike_>=78,5/7,34/42,0.54,"post-hoc supplementary (not pre-registered): date-matched non-Faisal names from the probe universe, 6 per positive, seed 20261008"
+base_range<=120,3/7,34/42,0.19,"post-hoc supplementary (not pre-registered): date-matched non-Faisal names from the probe universe, 6 per positive, seed 20261008"

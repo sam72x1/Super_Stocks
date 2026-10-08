@@ -1,0 +1,476 @@
+{
+ "ALL": {
+  "n": 53,
+  "n_with_20_after": 34,
+  "hit_50_20": 12,
+  "hit_25_10": 17,
+  "hit_100_20": 10,
+  "lead_50": {
+   "n": 12,
+   "median": 7.5,
+   "q1": 2.0,
+   "q3": 10.5,
+   "min": 1,
+   "max": 18
+  },
+  "lead_25": {
+   "n": 17,
+   "median": 2.0,
+   "q1": 2.0,
+   "q3": 4.0,
+   "min": 1,
+   "max": 9
+  },
+  "lead_100": {
+   "n": 10,
+   "median": 9.0,
+   "q1": 4.0,
+   "q3": 18.8,
+   "min": 2,
+   "max": 20
+  },
+  "cand_T-1": 7,
+  "watch_T-1": 1,
+  "cand_T-2": 7,
+  "watch_T-2": 1,
+  "cand_T-3": 6,
+  "watch_T-3": 0,
+  "cand_T-4": 6,
+  "watch_T-4": 0,
+  "cand_T-5": 6,
+  "watch_T-5": 0,
+  "cand_T-6": 7,
+  "watch_T-6": 1,
+  "cand_T-7": 6,
+  "watch_T-7": 0,
+  "cand_T-8": 4,
+  "watch_T-8": 0,
+  "cand_T-9": 6,
+  "watch_T-9": 0,
+  "cand_T-10": 3,
+  "watch_T-10": 0,
+  "cand_T-15": 6,
+  "watch_T-15": 1,
+  "cand_T-20": 1,
+  "watch_T-20": 0,
+  "cand_T": 3,
+  "watch_T": 0,
+  "nw_T": 17,
+  "ready_T": 0,
+  "gate_T": [
+   [
+    "ANCHOR",
+    20
+   ],
+   [
+    "M3",
+    13
+   ],
+   [
+    "M2_CEIL",
+    7
+   ],
+   [
+    "M4_RANGE",
+    6
+   ],
+   [
+    "DEPTH",
+    2
+   ],
+   [
+    "M2_FLOOR",
+    1
+   ]
+  ]
+ },
+ "NON_ANCHOR": {
+  "n": 47,
+  "n_with_20_after": 31,
+  "hit_50_20": 10,
+  "hit_25_10": 15,
+  "hit_100_20": 8,
+  "lead_50": {
+   "n": 10,
+   "median": 7.5,
+   "q1": 2.2,
+   "q3": 9.0,
+   "min": 2,
+   "max": 18
+  },
+  "lead_25": {
+   "n": 15,
+   "median": 3.0,
+   "q1": 2.0,
+   "q3": 4.0,
+   "min": 1,
+   "max": 9
+  },
+  "lead_100": {
+   "n": 8,
+   "median": 7.5,
+   "q1": 2.8,
+   "q3": 12.0,
+   "min": 2,
+   "max": 19
+  },
+  "cand_T-1": 7,
+  "watch_T-1": 1,
+  "cand_T-2": 7,
+  "watch_T-2": 1,
+  "cand_T-3": 6,
+  "watch_T-3": 0,
+  "cand_T-4": 6,
+  "watch_T-4": 0,
+  "cand_T-5": 6,
+  "watch_T-5": 0,
+  "cand_T-6": 7,
+  "watch_T-6": 1,
+  "cand_T-7": 6,
+  "watch_T-7": 0,
+  "cand_T-8": 4,
+  "watch_T-8": 0,
+  "cand_T-9": 5,
+  "watch_T-9": 0,
+  "cand_T-10": 3,
+  "watch_T-10": 0,
+  "cand_T-15": 6,
+  "watch_T-15": 1,
+  "cand_T-20": 1,
+  "watch_T-20": 0,
+  "cand_T": 3,
+  "watch_T": 0,
+  "nw_T": 12,
+  "ready_T": 0,
+  "gate_T": [
+   [
+    "ANCHOR",
+    19
+   ],
+   [
+    "M3",
+    13
+   ],
+   [
+    "M4_RANGE",
+    5
+   ],
+   [
+    "M2_CEIL",
+    3
+   ],
+   [
+    "DEPTH",
+    2
+   ],
+   [
+    "M2_FLOOR",
+    1
+   ]
+  ]
+ },
+ "FOCUS": {
+  "n": 7,
+  "n_with_20_after": 0,
+  "hit_50_20": 0,
+  "hit_25_10": 0,
+  "hit_100_20": 0,
+  "lead_50": {
+   "n": 0,
+   "median": null,
+   "q1": null,
+   "q3": null,
+   "min": null,
+   "max": null
+  },
+  "lead_25": {
+   "n": 0,
+   "median": null,
+   "q1": null,
+   "q3": null,
+   "min": null,
+   "max": null
+  },
+  "lead_100": {
+   "n": 0,
+   "median": null,
+   "q1": null,
+   "q3": null,
+   "min": null,
+   "max": null
+  },
+  "cand_T-1": 1,
+  "watch_T-1": 0,
+  "cand_T-2": 1,
+  "watch_T-2": 0,
+  "cand_T-3": 1,
+  "watch_T-3": 0,
+  "cand_T-4": 1,
+  "watch_T-4": 0,
+  "cand_T-5": 1,
+  "watch_T-5": 0,
+  "cand_T-6": 1,
+  "watch_T-6": 0,
+  "cand_T-7": 1,
+  "watch_T-7": 0,
+  "cand_T-8": 1,
+  "watch_T-8": 0,
+  "cand_T-9": 2,
+  "watch_T-9": 0,
+  "cand_T-10": 0,
+  "watch_T-10": 0,
+  "cand_T-15": 1,
+  "watch_T-15": 0,
+  "cand_T-20": 0,
+  "watch_T-20": 0,
+  "cand_T": 1,
+  "watch_T": 0,
+  "nw_T": 6,
+  "ready_T": 0,
+  "gate_T": [
+   [
+    "ANCHOR",
+    4
+   ],
+   [
+    "M2_CEIL",
+    1
+   ],
+   [
+    "M3",
+    1
+   ]
+  ]
+ },
+ "WATCH": {
+  "n": 37,
+  "n_with_20_after": 27,
+  "hit_50_20": 7,
+  "hit_25_10": 10,
+  "hit_100_20": 6,
+  "lead_50": {
+   "n": 7,
+   "median": 8.0,
+   "q1": 5.0,
+   "q3": 12.0,
+   "min": 2,
+   "max": 18
+  },
+  "lead_25": {
+   "n": 10,
+   "median": 2.5,
+   "q1": 1.2,
+   "q3": 3.8,
+   "min": 1,
+   "max": 9
+  },
+  "lead_100": {
+   "n": 6,
+   "median": 7.5,
+   "q1": 4.0,
+   "q3": 15.5,
+   "min": 2,
+   "max": 19
+  },
+  "cand_T-1": 4,
+  "watch_T-1": 0,
+  "cand_T-2": 4,
+  "watch_T-2": 0,
+  "cand_T-3": 5,
+  "watch_T-3": 0,
+  "cand_T-4": 5,
+  "watch_T-4": 0,
+  "cand_T-5": 4,
+  "watch_T-5": 0,
+  "cand_T-6": 5,
+  "watch_T-6": 1,
+  "cand_T-7": 4,
+  "watch_T-7": 0,
+  "cand_T-8": 3,
+  "watch_T-8": 0,
+  "cand_T-9": 4,
+  "watch_T-9": 0,
+  "cand_T-10": 3,
+  "watch_T-10": 0,
+  "cand_T-15": 5,
+  "watch_T-15": 1,
+  "cand_T-20": 1,
+  "watch_T-20": 0,
+  "cand_T": 2,
+  "watch_T": 0,
+  "nw_T": 7,
+  "ready_T": 0,
+  "gate_T": [
+   [
+    "ANCHOR",
+    13
+   ],
+   [
+    "M3",
+    11
+   ],
+   [
+    "M4_RANGE",
+    6
+   ],
+   [
+    "M2_CEIL",
+    3
+   ],
+   [
+    "DEPTH",
+    1
+   ],
+   [
+    "RSI_NOW",
+    1
+   ]
+  ]
+ },
+ "READY": {
+  "n": 5,
+  "n_with_20_after": 4,
+  "hit_50_20": 3,
+  "hit_25_10": 4,
+  "hit_100_20": 3,
+  "lead_50": {
+   "n": 3,
+   "median": 9.0,
+   "q1": 5.5,
+   "q3": 12.5,
+   "min": 2,
+   "max": 16
+  },
+  "lead_25": {
+   "n": 4,
+   "median": 3.0,
+   "q1": 2.0,
+   "q3": 5.2,
+   "min": 2,
+   "max": 9
+  },
+  "lead_100": {
+   "n": 3,
+   "median": 10.0,
+   "q1": 6.0,
+   "q3": 15.0,
+   "min": 2,
+   "max": 20
+  },
+  "cand_T-1": 2,
+  "watch_T-1": 1,
+  "cand_T-2": 2,
+  "watch_T-2": 1,
+  "cand_T-3": 0,
+  "watch_T-3": 0,
+  "cand_T-4": 0,
+  "watch_T-4": 0,
+  "cand_T-5": 1,
+  "watch_T-5": 0,
+  "cand_T-6": 1,
+  "watch_T-6": 0,
+  "cand_T-7": 1,
+  "watch_T-7": 0,
+  "cand_T-8": 0,
+  "watch_T-8": 0,
+  "cand_T-9": 0,
+  "watch_T-9": 0,
+  "cand_T-10": 0,
+  "watch_T-10": 0,
+  "cand_T-15": 0,
+  "watch_T-15": 0,
+  "cand_T-20": 0,
+  "watch_T-20": 0,
+  "cand_T": 0,
+  "watch_T": 0,
+  "nw_T": 2,
+  "ready_T": 0,
+  "gate_T": [
+   [
+    "ANCHOR",
+    3
+   ],
+   [
+    "M2_FLOOR",
+    1
+   ],
+   [
+    "M2_CEIL",
+    1
+   ]
+  ]
+ },
+ "ENTRY": {
+  "n": 4,
+  "n_with_20_after": 3,
+  "hit_50_20": 2,
+  "hit_25_10": 3,
+  "hit_100_20": 1,
+  "lead_50": {
+   "n": 2,
+   "median": 1.5,
+   "q1": 1.2,
+   "q3": 1.8,
+   "min": 1,
+   "max": 2
+  },
+  "lead_25": {
+   "n": 3,
+   "median": 2.0,
+   "q1": 1.5,
+   "q3": 3.0,
+   "min": 1,
+   "max": 4
+  },
+  "lead_100": {
+   "n": 1,
+   "median": 19.0,
+   "q1": 19.0,
+   "q3": 19.0,
+   "min": 19,
+   "max": 19
+  },
+  "cand_T-1": 0,
+  "watch_T-1": 0,
+  "cand_T-2": 0,
+  "watch_T-2": 0,
+  "cand_T-3": 0,
+  "watch_T-3": 0,
+  "cand_T-4": 0,
+  "watch_T-4": 0,
+  "cand_T-5": 0,
+  "watch_T-5": 0,
+  "cand_T-6": 0,
+  "watch_T-6": 0,
+  "cand_T-7": 0,
+  "watch_T-7": 0,
+  "cand_T-8": 0,
+  "watch_T-8": 0,
+  "cand_T-9": 0,
+  "watch_T-9": 0,
+  "cand_T-10": 0,
+  "watch_T-10": 0,
+  "cand_T-15": 0,
+  "watch_T-15": 0,
+  "cand_T-20": 0,
+  "watch_T-20": 0,
+  "cand_T": 0,
+  "watch_T": 0,
+  "nw_T": 2,
+  "ready_T": 0,
+  "gate_T": [
+   [
+    "M2_CEIL",
+    2
+   ],
+   [
+    "M3",
+    1
+   ],
+   [
+    "DEPTH",
+    1
+   ]
+  ]
+ }
+}

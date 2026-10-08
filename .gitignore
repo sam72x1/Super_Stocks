@@ -59,3 +59,6 @@ faisal_method_v4/out/
 # 🔎🧭② (2026-10-08) جداولُ المرحلة الثانية من المهمّة الجنائيّة (`fm_forensics/phase2/` · الإعادةُ الكاملة مضغوطة `.csv.gz`)
 !fm_forensics/phase2/*.csv
 !fm_forensics/phase2/out/*.csv
+# 🔎🧭③ (2026-10-08) جداولُ المرحلة الثالثة (`fm_forensics/phase3/` · حالاتُ البوت اليوميّة مضغوطة `.csv.gz`)
+!fm_forensics/phase3/*.csv
+!fm_forensics/phase3/out/*.csv

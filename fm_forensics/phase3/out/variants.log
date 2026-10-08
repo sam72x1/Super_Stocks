@@ -1,0 +1,13 @@
+{'group': 'faisal', 'n': 53, 'PASS_current': 3, 'PASS_tol3': 5, 'PASS_tol5': 5, 'PASS_lb60': 2, 'PASS_touch1': 23, 'PASS_tol3_lb60': 5}
+{'group': 'neg', 'n': 1120, 'PASS_current': 296, 'PASS_tol3': 407, 'PASS_tol5': 440, 'PASS_lb60': 220, 'PASS_touch1': 896, 'PASS_tol3_lb60': 316}
+{'group': 'm2hi', 'n': 200, 'PASS_current': 3, 'PASS_tol3': 7, 'PASS_tol5': 12, 'PASS_lb60': 3, 'PASS_touch1': 18, 'PASS_tol3_lb60': 7}
+Traceback (most recent call last):
+  File "/home/user/Super_Stocks/fm_forensics/phase3/variants.py", line 92, in <module>
+    supp_features()
+  File "/home/user/Super_Stocks/fm_forensics/phase3/variants.py", line 56, in supp_features
+    faisal_t = {r["TICKER"] for r in L.faisal_rows()}
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/Super_Stocks/fm_forensics/phase3/variants.py", line 56, in <setcomp>
+    faisal_t = {r["TICKER"] for r in L.faisal_rows()}
+                ~^^^^^^^^^^
+KeyError: 'TICKER'
