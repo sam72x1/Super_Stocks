@@ -82338,6 +82338,233 @@ except Exception as _e:                                                    # noq
 check("🧊🔒 FPA20 PROSPECTIVE_STATUS (STEP 11): المفاتيحُ الأربعة والعشرون بترتيب المالك · كلُّ عدّادٍ من مصدره · المجموعُ = الأصنافُ السبعة = "
       "المرشَّحون · الدقّةُ والاستدعاءُ بكسرهما و«UNDEFINED» حين المقامُ صفر · والملفُّ ضمن المولَّد", _fpa20ok, _fpa20w)
 
+# FPA21 سلامةُ البادئة (I9) بلا حجمٍ حيّ: ملفٌّ اصطناعيّ في مجلّدٍ مؤقّت = البادئة ‏+ إلحاقٌ قصير ثمّ أطول ⟵ التفصيلُ والحكمُ متطابقان ·
+#       وتغيُّرُ البادئة نفسِها ⟵ «تغيّرت البادئة» (عطلٌ مُثبَت 2026-10-08: «الحجم الآن N» في التفصيل جعل كلَّ نبضٍ للجامع يُحمّر FPA2 —
+#       تشغيلتا Tests ‏37713103105/37713107902 على دمج main بعد نبض التشغيلة 37712531520).
+try:
+    import tempfile as _fpa21_tmp
+    with _fpa21_tmp.TemporaryDirectory() as _d21:
+        _p21 = _v41_os.path.join(_d21, "m.jsonl")
+        _pref21 = b'{"a": 1}\n'
+        _rec21 = {"path": "m.jsonl", "bytes": len(_pref21), "sha256": FPA.sha_bytes(_pref21)}
+        with open(_p21, "wb") as _fh21:
+            _fh21.write(_pref21 + b'{"kind": "heartbeat"}\n')
+        _r21a = FPA._meta_prefix_ok(_rec21, root=_d21)
+        with open(_p21, "ab") as _fh21:
+            _fh21.write(b'{"kind": "heartbeat"}\n' * 3)
+        _r21b = FPA._meta_prefix_ok(_rec21, root=_d21)
+        with open(_p21, "wb") as _fh21:
+            _fh21.write(b'{"a": 2}\n{"kind": "x"}\n')
+        _r21c = FPA._meta_prefix_ok(_rec21, root=_d21)
+    _fpa21 = _r21a == _r21b and _r21a[0] is True and _r21c[0] is False and "تغيّرت البادئة" in _r21c[1]
+    _fpa21w = f"{_r21a} · {_r21b} · {_r21c}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa21, _fpa21w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧊🔒 FPA21 سلامةُ البادئة I9 بلا حجمٍ حيّ: إلحاقُ الجامع (نبضٌ أو صفّ) لا يغيّر التفصيلَ ولا الحكم · وتغيُّرُ البادئة نفسِها يُمسَك",
+      _fpa21, _fpa21w)
+
+# 🔎🧾 PHA1-PHA8 — «FAISAL BOT — MASTER FORENSIC RECOVERY → FROZEN VALIDATION PROTOCOL» · المرحلة أ (‏2026-10-08):
+#    `faisal_recovery/phase_a.py` يبني مخرجات A13 الستّة وجدولَ A10 والختمَ A14 من بياناتٍ مجمَّدة (القياسُ نفسُه في
+#    `faisal_recovery/measure/`) — والأقفالُ تعيد الاشتقاق وتقارنه بالمدفوع بايتًا بايتًا · ولكلّ شرطٍ شاهدُ ضبطٍ داخل القفل
+#    (نسخةٌ معطوبة يجب أن تُمسَك) وطفرةٌ خارجه. 🔒 قراءةٌ فقط: لا تُكتب ملفّاتٌ ولا يُستورَد V4 ولا شبكة.
+import importlib.util as _pha_ilu                                          # noqa: E402
+import ast as _pha_ast                                                     # noqa: E402
+import os as _pha_os                                                       # noqa: E402
+import collections as _pha_col                                             # noqa: E402
+_PHA_DIR = "faisal_recovery"
+_PHA_OWNER28 = ("IMAGE_ID", "SOURCE_ID", "CONVERSATION_ID", "MESSAGE_ID", "TIMESTAMP", "PATH/REFERENCE", "SHA256", "PERCEPTUAL_HASH",
+                "WIDTH", "HEIGHT", "TICKER", "TIMEFRAME", "VISIBLE_DATE", "AUTHOR", "CHANNEL", "VISIBLE_TEXT", "PATTERN", "STRUCTURE",
+                "INDICATORS", "ANNOTATIONS", "ENTRY", "STOP", "TARGET", "SUPPORT", "RESISTANCE", "FAISAL_DECISION", "PROVENANCE",
+                "CORPUS_CLASSIFICATION")                                    # A4 بنصّ المالك («/» ⟵ «_» في ترويسة CSV)
+_PHA_SEAL_REQ = ("timestamp", "main_commit", "v4_commit", "source_manifest_hash", "corpus_manifest_hash", "total_discovered",
+                 "total_recovered", "new_to_corpus", "duplicates", "derivatives", "reference_only", "inaccessible", "missing",
+                 "non_faisal", "unknown", "unresolved", "status")           # A14 بنصّ المالك
+_PHA_SEAL_ID = "PHA-ea12cb86a3f39a5b"   # الختمُ المدموج — تغييرُه إعادةُ ختمٍ للتاريخ = إقرارٌ صريح بإذن المالك لا إصلاح (`build` يعيد قياس النصوص)
+try:
+    _pha_spec = _pha_ilu.spec_from_file_location("_pha_phase_a", _pha_os.path.join(_PHA_DIR, "phase_a.py"))
+    PHA = _pha_ilu.module_from_spec(_pha_spec)
+    _pha_spec.loader.exec_module(PHA)
+    _pha_fz = PHA.load_frozen()
+    _pha_P = PHA.validate(_pha_fz)
+    _pha_seal, _pha_recs, _pha_srcs = _pha_fz["seal"], _pha_fz["records"], _pha_fz["sources"]
+    _pha_rc = PHA.reconcile(_pha_recs)
+    _pha_err = ""
+except Exception as _e:                                                    # noqa: BLE001
+    PHA, _pha_fz, _pha_P, _pha_seal, _pha_recs, _pha_srcs, _pha_rc = None, {}, ["⛔"], {}, [], [], {}
+    _pha_err = f"⛔ رمى: {type(_e).__name__}: {_e}"
+
+
+def _pha_ctl(**parts):
+    """شاهدُ ضبط: validate على نسخةٍ سطحيّةٍ معدَّلة (الأصلُ لا يُمسّ)."""
+    return PHA.validate(dict(_pha_fz, **parts))
+
+
+def _pha_seal_args():
+    s = _pha_seal
+    return (s["main_commit"], s["branch_head_at_seal"], s["timestamp"], s["telegram_drained_at_seal"], s["evidence_cutoff_utc"])
+
+
+# PHA1 إعادةُ الاشتقاق: validate سليم · والمخرجاتُ السبعة (ستّةُ A13 ‏+ جدولُ A10) تطابق المدفوعَ بايتًا بايتًا · وشاهدُ ضبط:
+#      سجلٌّ واحدٌ يُقلَب صنفُه إلى NEW_TO_CORPUS ⟵ يُمسَك عددُ الختم.
+try:
+    if _pha_err:
+        raise RuntimeError(_pha_err)
+    _pha_ren = PHA.render_all(_pha_fz)
+    _pha_diff = sorted(n for n, t in _pha_ren.items()
+                       if open(_pha_os.path.join(_PHA_DIR, n), encoding="utf-8", newline="").read() != t)
+    _pha_c1 = _pha_ctl(records=[dict(r, CORPUS_CLASSIFICATION="NEW_TO_CORPUS") if i == 0 else r for i, r in enumerate(_pha_recs)])
+    _pha1 = (not _pha_P and not _pha_diff and len(_pha_ren) == 7
+             and set(_pha_ren) == {PHA.OUT[k] for k in PHA.OUT if k != "seal"}
+             and any(p.startswith("seal field new_to_corpus") for p in _pha_c1))
+    _pha1w = f"مشاكل={_pha_P[:3]} · مختلف={_pha_diff} · ضبط={[p[:40] for p in _pha_c1[:2]]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _pha1, _pha1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧾 PHA1 المرحلة أ: validate سليم · المخرجاتُ السبعة تُعاد من البيانات المجمَّدة بايتًا بايتًا · وقلبُ صنفِ سجلٍّ واحد يُمسَك",
+      _pha1, _pha1w)
+
+# PHA2 المعادلة A7 والإغلاق: الباقي 0 · مجموعُ الأصناف الثمانية = الكلّ · UNKNOWN 0 · لا معرّفَ مكرّر · NEW_TO_CORPUS 0 ⟵ المدوّنة 769
+#      قبل وبعد · والختمُ CLOSED · وشاهدا ضبط: سجلٌّ UNKNOWN مضاف ⟵ BLOCKED · وجوابُ السؤال 8 «YES» ⟵ BLOCKED.
+try:
+    _c2 = _pha_rc["classes"]
+    _aud2 = PHA.exhaustiveness(_pha_rc, _pha_srcs, _pha_fz["docrefs"])
+    _recs_u = _pha_recs + [dict(_pha_recs[0], IMAGE_ID="CTL:UNKNOWN", CORPUS_CLASSIFICATION="UNKNOWN")]
+    _rcu = PHA.reconcile(_recs_u)
+    _bl1 = PHA.make_seal(_rcu, _pha_srcs, _pha_fz["manifest"], _recs_u, PHA.exhaustiveness(_rcu, _pha_srcs, _pha_fz["docrefs"]),
+                         *_pha_seal_args())["status"]
+    _bl2 = PHA.make_seal(_pha_rc, _pha_srcs, _pha_fz["manifest"], _pha_recs,
+                         [dict(a, answer="YES") if a["n"] == 8 else a for a in _aud2], *_pha_seal_args())["status"]
+    _pha2 = (_pha_rc["remainder"] == 0 and sum(_c2.values()) == _pha_rc["total"] == len(_pha_recs) and _c2["UNKNOWN"] == 0
+             and not _pha_rc["duplicate_ids"] and tuple(_c2) == PHA.CLASSES and len(PHA.CLASSES) == 8 and _c2["NEW_TO_CORPUS"] == 0
+             and PHA.CORPUS_BEFORE == _pha_seal["corpus_before"] == _pha_seal["corpus_after"] == 769
+             and _pha_seal["status"] == "CLOSED" and _bl1 == "BLOCKED" and _bl2 == "BLOCKED")
+    _pha2w = f"باقٍ={_pha_rc.get('remainder')} · أصناف={dict(_c2)} · ختم={_pha_seal.get('status')} · ضبط={_bl1}/{_bl2}"
+except Exception as _e:                                                    # noqa: BLE001
+    _pha2, _pha2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧾 PHA2 المعادلة A7: الباقي 0 · الأصنافُ الثمانية = الكلّ · UNKNOWN 0 · NEW_TO_CORPUS 0 (769 قبل وبعد) · الختمُ CLOSED · "
+      "وUNKNOWN مضافٌ أو سؤالٌ مفتوح ⟵ BLOCKED", _pha2, _pha2w)
+
+# PHA3 هويّةُ الختم A14: حقولُ المالك كلُّها · seal_id = بصمةُ الجسم · V4 المجمَّد = عهدُ البروتوكول · حدُّ الأدلّة = بدءُ الساعة
+#      الأماميّة ولا يتأخّر عن الختم · وشاهدُ ضبط: قلبُ الحالة في الختم ⟵ «seal_id» و«recomputation» كلاهما.
+try:
+    _epoch3 = json.load(open(_pha_os.path.join("faisal_method_v41", "final_protocol", "EPOCH_FREEZE.json"), encoding="utf-8"))
+    _body3 = {k: v for k, v in _pha_seal.items() if k != "seal_id"}
+    _c3 = _pha_ctl(seal=dict(_pha_seal, status="BLOCKED"))
+    _pha3 = (all(k in _pha_seal for k in _PHA_SEAL_REQ) and _pha_seal["seal_id"] == "PHA-" + PHA.canon_hash(_body3)[:16]
+             and _pha_seal["seal_id"] == _PHA_SEAL_ID
+             and _pha_seal["v4_commit"] == PHA.V4_COMMIT == _epoch3["epochs"][-1]["V4_COMMIT"]
+             == "7c8826c25e745668d33facabb2efbc488e997fb7"
+             and _pha_seal["evidence_cutoff_utc"] == _pha_seal["prospective_clock_starts_after"] <= _pha_seal["timestamp"]
+             and len(_pha_seal["main_commit"]) == 40 and len(_pha_seal["branch_head_at_seal"]) == 40
+             and "seal_id does not match the seal body" in _c3
+             and any(p.startswith("seal differs from its recomputation") for p in _c3))
+    _pha3w = f"ختم={_pha_seal.get('seal_id')} · ناقص={[k for k in _PHA_SEAL_REQ if k not in _pha_seal]} · ضبط={[p[:30] for p in _c3[:3]]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _pha3, _pha3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧾 PHA3 الختم A14: حقولُ المالك كلُّها · seal_id بصمةُ جسمه ومثبَّتٌ (لا إعادةَ ختمٍ صامتة) · V4 = 7c8826c (عهدُ البروتوكول نفسُه) · "
+      "حدُّ الأدلّة = بدءُ الساعة الأماميّة · وقلبُ الحالة يُمسَك", _pha3, _pha3w)
+
+# PHA4 ثباتُ المدوّنة المختومة: 769 = 768 ملفًّا ‏+ مرفق · كلُّ ملفٍّ حاضرٌ ببصمته (validate) · بصمةُ القائمة = الختم ·
+#      وشاهدُ ضبط: بصمةُ ملفٍّ واحدٍ مزوَّرة ⟵ «sealed historical image changed».
+try:
+    _man4 = _pha_fz["manifest"]
+    _kinds4 = _pha_col.Counter(m["kind"] for m in _man4)
+    _bad4 = next(i for i, m in enumerate(_man4) if m["kind"] == "file")
+    _c4 = _pha_ctl(manifest=[dict(m, sha256="0" * 64) if i == _bad4 else m for i, m in enumerate(_man4)])
+    _pha4 = (len(_man4) == 769 and _kinds4 == {"file": 768, "attachment": 1}
+             and PHA.canon_hash(_man4) == _pha_seal["corpus_manifest_hash"]
+             and any(p.startswith("sealed historical image changed") for p in _c4))
+    _pha4w = f"أنواع={dict(_kinds4)} · ضبط={[p[:40] for p in _c4[:2]]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _pha4, _pha4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧾 PHA4 المدوّنةُ المختومة ثابتة: 768 ملفًّا ‏+ المرفق ببصماتها · بصمةُ القائمة في الختم · والبصمةُ المزوَّرة تُمسَك", _pha4, _pha4w)
+
+# PHA5 مخطَّطُ السجلّ: حقولُ A4 الثمانية والعشرون بنصّ المالك وترتيبه · ترويسةُ الجرد = الحقولُ ‏+ الخمسةُ المضافة · كلُّ صنفٍ من
+#      الثمانية · كلُّ EXACT_DUPLICATE له هدف · ولا صنفَ مضمونٍ بلا بايتات · والمصادرُ 28 بحالاتٍ من الخمس وكلُّ سجلٍّ لمصدرٍ معروف.
+try:
+    with open(_pha_os.path.join(_PHA_DIR, PHA.OUT["inventory"]), encoding="utf-8", newline="") as _fh5:
+        _hdr5 = _fh5.readline().rstrip("\n").split(",")
+    _sids5 = {s["SOURCE_ID"] for s in _pha_srcs}
+    _pha5 = (tuple(f.replace("/", "_") for f in _PHA_OWNER28) == PHA.A4_FIELDS and _hdr5 == list(PHA.CSV_FIELDS)
+             and PHA.ACCESS == ("FULLY_ACCESSIBLE", "PARTIALLY_ACCESSIBLE", "TEXT_ONLY", "METADATA_ONLY", "INACCESSIBLE")
+             and all(r["CORPUS_CLASSIFICATION"] in PHA.CLASSES for r in _pha_recs)
+             and all(r["DUPLICATE_OF_CLASS"] for r in _pha_recs if r["CORPUS_CLASSIFICATION"] == "EXACT_DUPLICATE")
+             and not [r for r in _pha_recs if r["BYTES_OPENED_THIS_MISSION"] == "no"
+                      and r["CORPUS_CLASSIFICATION"] in ("NEW_TO_CORPUS", "INFORMATIVE_DERIVATIVE")]
+             and len(_pha_srcs) == 28 and all(s["ACCESS_STATUS"] in PHA.ACCESS for s in _pha_srcs)
+             and all(r["SOURCE_ID"] in _sids5 for r in _pha_recs))
+    _pha5w = f"ترويسة={_hdr5[:3]}…{len(_hdr5)} · مصادر={len(_pha_srcs)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _pha5, _pha5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧾 PHA5 مخطَّطُ A4: الثمانيةُ والعشرون بنصّ المالك وترتيبه · الأصنافُ من الثمانية · كلُّ مكرَّرٍ بهدفه · لا صنفَ مضمونٍ بلا بايتات · "
+      "28 مصدرًا بحالاتٍ من الخمس", _pha5, _pha5w)
+
+# PHA6 العزل (AST): المكتبةُ القياسيّة وحدَها (لا شبكةَ ولا V4 ولا البوت) · الكتابةُ في `_write` وحدَها · ومِجَسُّ الـartifacts المؤقّت
+#      أُزيل قبل الدمج (لا workflow يحمله ولا يسمّيه).
+try:
+    _t6 = _pha_ast.parse(open(_pha_os.path.join(_PHA_DIR, "phase_a.py"), encoding="utf-8").read())
+    _imp6 = set()
+    for _n6 in _pha_ast.walk(_t6):
+        if isinstance(_n6, _pha_ast.Import):
+            _imp6 |= {a.name.split(".")[0] for a in _n6.names}
+        elif isinstance(_n6, _pha_ast.ImportFrom) and _n6.module:
+            _imp6.add(_n6.module.split(".")[0])
+    _w6 = []
+    for _f6 in [n for n in _pha_ast.walk(_t6) if isinstance(n, _pha_ast.FunctionDef)]:
+        for _c6 in _pha_ast.walk(_f6):
+            if isinstance(_c6, _pha_ast.Call) and getattr(_c6.func, "id", None) == "open" and any(
+                    isinstance(a, _pha_ast.Constant) and isinstance(a.value, str) and ("w" in a.value or "a" in a.value)
+                    for a in list(_c6.args[1:]) + [k.value for k in _c6.keywords if k.arg == "mode"]):
+                _w6.append(_f6.name)
+    _wfd6 = _pha_os.path.join(".github", "workflows")
+    _probe6 = [f for f in sorted(_pha_os.listdir(_wfd6))
+               if f == "artifact_probe.yml" or "artifact_probe" in open(_pha_os.path.join(_wfd6, f), encoding="utf-8").read()]
+    _pha6 = (_imp6 <= {"argparse", "collections", "csv", "datetime", "hashlib", "io", "json", "os", "re", "sys", "subprocess"}
+             and sorted(set(_w6)) == ["_write"] and not _probe6)
+    _pha6w = f"استيراد={sorted(_imp6)} · كتّاب={sorted(set(_w6))} · مِجَسّ={_probe6}"
+except Exception as _e:                                                    # noqa: BLE001
+    _pha6, _pha6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧾 PHA6 العزل (AST): المكتبةُ القياسيّة وحدَها · الكتابةُ في _write وحدَها · ومِجَسُّ الـartifacts المؤقّت أُزيل", _pha6, _pha6w)
+
+# PHA7 A10 تحليلُ القرار: الجدولُ يُعاد من مجموعة V4 المجمَّدة (cases_v4.json) بايتًا بايتًا · 157 حالة بأربعة أحكامٍ لا غير ·
+#      EXTERNAL_CONTEXT_REQUIRED فقط حين يذكر فيصل سببًا خارجيًّا بنفسه (لا يُستنتَج من صمت الشارت) · وشواهدُ الأسرة على رموزٍ اصطناعيّة.
+try:
+    _dec7 = _pha_fz["decisions"]
+    _cnt7 = _pha_col.Counter(r["EVIDENCE_REQUIREMENT"] for r in _dec7)
+    _again7 = PHA.render_decisions_csv(PHA.decision_forensics()) == open(
+        _pha_os.path.join(_PHA_DIR, PHA.OUT["decisions"]), encoding="utf-8", newline="").read()
+    _ext7 = [r for r in _dec7 if r["EVIDENCE_REQUIREMENT"] == "EXTERNAL_CONTEXT_REQUIRED"]
+    _pha7 = (_again7 and len(_dec7) == 157 and set(_cnt7) <= {"CHART_SUFFICIENT", "EXTERNAL_CONTEXT_REQUIRED",
+                                                               "EXTERNAL_CONTEXT_UNKNOWN", "DATA_INSUFFICIENT"}
+             and all(r["CONTEXT"] != "NONE_STATED" and all(PHA.code_family(x) == "EXTERNAL" for x in r["CONTEXT"].split(" · "))
+                     for r in _ext7)
+             and all(r["CONTEXT"] == "NONE_STATED" for r in _dec7
+                     if r["EVIDENCE_REQUIREMENT"] in ("CHART_SUFFICIENT", "EXTERNAL_CONTEXT_UNKNOWN"))
+             and PHA.code_family("SHORT_TARGET_X") == "CHART" and PHA.code_family("FLOAT_SMALL") == "EXTERNAL"
+             and PHA.code_family("STATED_X") == "META" and PHA.code_family("SUPPORT_HOLD") == "CHART")
+    _pha7w = f"يُعاد={_again7} · أحكام={dict(_cnt7)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _pha7, _pha7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧾 PHA7 A10: الجدولُ يُعاد من cases_v4 المجمَّدة بايتًا بايتًا · 157 حالة بأربعة أحكام · «الخارجيّ» حين يذكره فيصل وحدَه",
+      _pha7, _pha7w)
+
+# PHA8 حدُّ الأدلّة: الختمُ = قائمةُ الـartifacts الأخيرة = حدُّ النصّ · لا كتلةَ بعد الحدّ · وطابورُ البوت فارغٌ عند الحدّ (تشغيلةُ تحقّقٍ
+#      بعده) · وكلُّ مصدرٍ حيٍّ قُرئ حتى الحدّ أو بعده · وشاهدُ ضبط: كتلةٌ بعد الحدّ لم تُستبعد ⟵ تُمسَك.
+try:
+    _in8, _pr8, _co8 = _pha_fz["inputs"], _pha_fz["probe"], _pha_fz["collector"]
+    _cut8 = _pha_seal["evidence_cutoff_utc"]
+    _tc8 = _in8["transcript_current"]
+    _c8 = _pha_ctl(inputs=dict(_in8, transcript_current=dict(_tc8, recheck=dict(_tc8["recheck"], blocks_after_cutoff=1))))
+    _pha8 = (_cut8 == _pr8["listed_at_utc"] == _tc8["recheck"]["cutoff_utc"] and _tc8["recheck"]["blocks_after_cutoff"] == 0
+             and _co8["cutoff_verification"]["updates_of_any_kind"] == 0 and _co8["cutoff_verification"]["get_updates_utc"] > _cut8
+             and all(w["READ_UNTIL"] >= _cut8 for w in PHA.evidence_window(_in8, _pr8, _co8))
+             and _pr8["artifacts_listed"] == _pr8["downloaded"] and _pr8["failed"] == 0
+             and any(p.startswith("evidence after the cutoff") for p in _c8))
+    _pha8w = f"حدّ={_cut8} · نافذة={[w['READ_UNTIL'] for w in PHA.evidence_window(_in8, _pr8, _co8)]} · ضبط={[p[:30] for p in _c8[:2]]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _pha8, _pha8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧾 PHA8 حدُّ الأدلّة: الختم = قائمةُ الـartifacts = حدُّ النصّ · لا كتلةَ بعده · طابورُ البوت فارغٌ عنده · كلُّ مصدرٍ قُرئ حتى الحدّ · "
+      "والكتلةُ غيرُ المستبعدة تُمسَك", _pha8, _pha8w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

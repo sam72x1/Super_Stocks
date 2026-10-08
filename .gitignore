@@ -12,6 +12,10 @@ __pycache__/
 # 📊 (2026-10-07) جدولا تدقيق «MASTER DEVELOPMENT PROGRESS & ACCURACY AUDIT» في الجذر — توثيقٌ لا يقرؤه كود (لولا الاستثناء رفضهما `git add`)
 !FAISAL_PROJECT_TIMELINE.csv
 !FAISAL_ACCURACY_COMPARISON.csv
+# 🔎 (2026-10-08) جردُ المرحلة أ وجدولُ تحليل القرارات (`faisal_recovery/phase_a.py`) — الجردُ هو السجلُّ المختوم نفسُه
+#    (بصمتُه `records_hash` في الختم) ⟵ لولا الاستثناء لرفضه `git add` صامتًا فانكسر `--check` على main · مقفولٌ بـPHA1
+!faisal_recovery/HISTORICAL_IMAGE_INVENTORY.csv
+!faisal_recovery/HISTORICAL_DECISION_FORENSICS.csv
 
 # ملفات إنشاء/مخرجات مؤقتة (ليست من كود البوت)
 make_pdf.py

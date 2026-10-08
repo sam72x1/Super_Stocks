@@ -1,0 +1,4221 @@
+{
+"counts": {
+"equivalent": 4,
+"excluded": 22,
+"files_scanned": 1164,
+"reference_only": 217,
+"resolved_by_name": 15,
+"telegram_dup": 5,
+"tokens": 263
+},
+"refs": {
+"CH_20260918_01_X": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"CH_20260918_a": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"EDU_20260918_10": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_method_v3/data/dedup_review.json",
+"faisal_method_v3/dedup_clusters.json"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"EDU_20260918_NN": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "template, not a name"
+},
+"EDU_20260918_NN_": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"test_bot.py"
+],
+"why": "template, not a name"
+},
+"IMG_0001": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"IMG_0002": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"IMG_0010": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"IMG_0011": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"IMG_0012": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"IMG_0076": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_IMAGE_PASS3.md",
+"FAISAL_SOURCE_LEDGER.md",
+"HANDOFF.md",
+"HANDOFF_ARCHIVE.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_combo_backtest.py",
+"faisal_combo_prereg.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0077": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0078": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R3-range"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0079": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R3-range"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0080": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"REQUIREMENTS_MATRIX.md",
+"SOURCE_ANALYSIS.md",
+"Super_stock.py",
+"architecture_proposal.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_reconcile.py",
+"faisal_method_v3/v31_targets.py",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0081": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0082": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0083": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"Super_stock.py",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0084": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"Super_stock.py",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0085": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"Super_stock.py",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0086": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"Super_stock.py",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0087": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0088": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0089": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0090": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0091": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"HANDOFF_ARCHIVE.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"Super_stock.py",
+"faisal_combo_backtest.py",
+"faisal_combo_prereg.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py",
+"fsto_backtest_prereg.md",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0092": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0093": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0094": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"HANDOFF_ARCHIVE.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_combo_backtest.py",
+"faisal_combo_prereg.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0095": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"HANDOFF_ARCHIVE.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_combo_backtest.py",
+"faisal_combo_prereg.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0096": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"HANDOFF_ARCHIVE.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_combo_backtest.py",
+"faisal_combo_prereg.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0097": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/docs/09_TARGET_FORENSICS_50.md",
+"faisal_method_v3/forensics_build.py",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/target_forensics.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py",
+"faisal_quotes_inventory.tsv",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0098": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/target_forensics_v31.json",
+"faisal_method_v3/v31_targets.py",
+"faisal_method_v4/docs/13_SOURCE_ACCESS_V4.md",
+"faisal_method_v4/v4_docs.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0099": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"IMG_0125": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_IMAGE_PASS3.md",
+"FAISAL_SOURCE_LEDGER.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/docs/13_SOURCE_ACCESS_V4.md",
+"faisal_method_v4/v4_docs.py",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0140": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"m2_split_ref_prereg.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_017": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_quotes_inventory.tsv"
+],
+"why": "truncated text (too short to be an ID; a prefix of existing corpus IDs)"
+},
+"IMG_0440": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_PRESSURE_MODEL.md",
+"FAISAL_TEACHING_MODELS.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0441": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"DECISIONS_ARCHIVE.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0442": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"DECISIONS_ARCHIVE.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0443": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"DECISIONS_ARCHIVE.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0444": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"DECISIONS_ARCHIVE.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0445": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"DECISIONS_ARCHIVE.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0446": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"OPUS_METHOD_UPDATES_PACKAGE.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"method_window_prereg.md",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0447": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"DECISIONS_ARCHIVE.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0448": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_PRESSURE_MODEL.md",
+"HANDOFF_ARCHIVE.md",
+"Super_stock.py",
+"candle_arms.py",
+"candle_prereg.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0449": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_PRESSURE_MODEL.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0450": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"Super_stock.py",
+"candle_prereg.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0451": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGE_AUDIT.md",
+"Super_stock.py",
+"anchor_arms.py",
+"anchor_prereg.md",
+"entry_points_audit.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"wall_stack.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0453": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"sprc_case.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0454": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"sprc_case.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0455": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"sprc_case.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0456": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"sprc_case.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0457": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"sprc_case.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0485": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SCIENTIFIC_METHOD.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl",
+"faisal_method_v4/docs/13_SOURCE_ACCESS_V4.md",
+"faisal_method_v4/v4_docs.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0487": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SCIENTIFIC_METHOD.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/corrections_v4.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl",
+"faisal_method_v4/docs/13_SOURCE_ACCESS_V4.md",
+"faisal_method_v4/docs/15_V4_CHANGELOG.md",
+"faisal_method_v4/v4_docs.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0489": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SCIENTIFIC_METHOD.md",
+"FAISAL_SOURCE_LEDGER.md",
+"HANDOFF_ARCHIVE.md",
+"OPUS_METHOD_UPDATES_PACKAGE.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/corrections_v4.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl",
+"faisal_method_v4/docs/13_SOURCE_ACCESS_V4.md",
+"faisal_method_v4/docs/15_V4_CHANGELOG.md",
+"faisal_method_v4/v4_docs.py",
+"hs_sf_prereg.md",
+"method_hunter.py",
+"method_prereg.md",
+"method_scan.py",
+"method_window_prereg.md",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0490": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SCIENTIFIC_METHOD.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/corrections_v4.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl",
+"faisal_method_v4/docs/13_SOURCE_ACCESS_V4.md",
+"faisal_method_v4/v4_docs.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_0499": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_SCIENTIFIC_METHOD.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_1066": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"HANDOFF_ARCHIVE.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"kasih_prereg.md",
+"radar_frames_prereg.md",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_4123": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"IMG_4685": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_4717": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_5954": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6001": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6004": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6005": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6006": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6131": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6184": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6206": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6215": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6216": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6240": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6243": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6293": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"OPUS_EXECUTION_PLAN.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6295": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6297": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6298": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6334": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6335": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6337": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6390": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6455": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_PASS3.md",
+"faisal_levels_table.tsv",
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6456": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_IMAGE_PASS3.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6457": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_IMAGE_PASS3.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6458": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_PASS3.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6459": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_PASS3.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6460": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_IMAGE_PASS3.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6461": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_IMAGE_PASS3.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6462": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_IMAGE_PASS3.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6464": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_IMAGE_PASS3.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6465": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6466": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6468": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6470": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6471": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6472": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_IMAGE_PASS3.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6473": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"OPUS_EXECUTION_PLAN.md",
+"Super_stock.py",
+"analyze_one.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6475": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"Super_stock.py",
+"ctb_harvest.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6478": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6479": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6480": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6481": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6482": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6701": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6702": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6703": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6705": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6714": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6748": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6760": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6761": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"OPUS_EXECUTION_PLAN.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6776": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6778": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6779": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6782": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6807": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6814": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6816": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6824": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6844": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6916": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6919": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6975": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6976": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6977": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6988": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6989": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/forensics_build.py",
+"faisal_method_v3/pattern_catalog.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_6990": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7014": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7024": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7027": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7028": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7029": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7339": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7344": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7360": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7362": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7363": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_IMAGE_PASS3.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7364": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_PASS3.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7365": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_PASS3.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7366": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md",
+"MARKET_BACKTEST_FINDINGS.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7367": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"MARKET_BACKTEST_FINDINGS.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7369": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"MARKET_BACKTEST_FINDINGS.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7370": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7371": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7372": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7375": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7379": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7388": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7391": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7393": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7397": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7399": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7400": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7401": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7402": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"MARKET_BACKTEST_FINDINGS.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7403": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7405": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7713": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7714": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_7715": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8051": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8052": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8053": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8055": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8056": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8074": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8080": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8082": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8090": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R4-paren",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8094": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8095": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8096": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_levels_table.tsv",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8097": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8099": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8101": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R4-paren"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8102": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8103": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8104": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8107": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8108": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8109": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8110": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8111": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8112": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R4-paren"
+],
+"where": [
+"FAISAL_METHODOLOGY_NOTES.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8114": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8115": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8116": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8118": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8120": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8130": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8134": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8135": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8137": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R5-levels"
+],
+"where": [
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8187": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8188": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R4-paren",
+"R5-levels"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_levels_table.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8261": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"FAISAL_SOURCE_LEDGER.md",
+"faisal_image_audit.json",
+"faisal_method_v3/V31_prereg.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8262": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"faisal_method_v3/V31_prereg.md",
+"faisal_method_v3/rule_graph.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8263": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"faisal_method_v3/V31_prereg.md",
+"faisal_method_v3/rule_graph.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8264": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"faisal_method_v3/V31_prereg.md",
+"faisal_method_v3/rule_graph.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8265": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"faisal_method_v3/V31_prereg.md",
+"faisal_method_v3/rule_graph.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_8266": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"faisal_method_v3/V31_prereg.md",
+"faisal_method_v3/rule_graph.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9424": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/rule_audit_v31.json",
+"faisal_quotes_inventory.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9425": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/rule_audit_v31.json",
+"faisal_quotes_inventory.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9426": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/rule_audit_v31.json",
+"faisal_quotes_inventory.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9427": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash",
+"R3-range"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/rule_audit_v31.json",
+"faisal_quotes_inventory.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9428": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/rule_audit_v31.json",
+"faisal_quotes_inventory.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9429": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/rule_audit_v31.json",
+"faisal_quotes_inventory.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9430": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/rule_audit_v31.json",
+"faisal_quotes_inventory.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9431": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/rule_audit_v31.json",
+"faisal_quotes_inventory.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9432": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_EXECUTION_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31/rule_audit_v31.json",
+"faisal_quotes_inventory.tsv"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9443": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9495": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9496": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R3-range"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9497": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9498": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9499": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9504": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"HANDOFF.md",
+"HANDOFF_ARCHIVE.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9505": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"HANDOFF.md",
+"HANDOFF_ARCHIVE.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9506": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"HANDOFF.md",
+"HANDOFF_ARCHIVE.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9508": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"HANDOFF.md",
+"HANDOFF_ARCHIVE.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9509": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"HANDOFF.md",
+"HANDOFF_ARCHIVE.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9510": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R2-slash",
+"R3-range",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"COMMON_LINK_REPORT_FOR_OPUS.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"HANDOFF.md",
+"HANDOFF_ARCHIVE.md",
+"Super_stock.py",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl",
+"test_bot.py"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9754": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9915": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9917": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9920": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R2-slash"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9933": {
+"equivalent_to": null,
+"resolution": "REFERENCE_ONLY",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"CLAUDE.md",
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"FAISAL_METHODOLOGY_NOTES.md",
+"FAISAL_SOURCE_LEDGER.md",
+"faisal_image_audit.json",
+"faisal_method_v3/docs/10_TARGET_FORENSICS_100.md",
+"faisal_method_v3/forensics_build.py",
+"faisal_method_v3/pattern_catalog.json",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/target_forensics.json",
+"faisal_method_v3/v31/TARGET_FORENSICS_ALL_PATTERNS.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"hs_forensic/TARGET_FORENSICS.md",
+"hs_forensic/target_forensics_prereg.md",
+"targets_and_operator_report.md"
+],
+"why": "named in text; no file in any accessible source"
+},
+"IMG_9999": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"TG_100": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"TG_20260905_0": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_quotes_inventory.tsv"
+],
+"why": "truncated text (too short to be an ID; a prefix of existing corpus IDs)"
+},
+"TG_20260918_06": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"TG_20260918_08": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"TG_20260918_30": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"TG_20260918_37": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
+"Super_stock.py",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"TG_20260918_38": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
+"Super_stock.py",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"test_bot.py"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"TG_20260918_42": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"TG_20260918_68": {
+"equivalent_to": "TG_20260905_07",
+"resolution": "EQUIVALENT_STORED_UNDER_OTHER_NAME",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "≡ TG_20260905_07 (documented duplicate never saved twice)"
+},
+"TG_20260918_72": {
+"equivalent_to": "TG_20260905_02",
+"resolution": "EQUIVALENT_STORED_UNDER_OTHER_NAME",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "≡ TG_20260905_02 (documented duplicate never saved twice)"
+},
+"TG_20260918_73": {
+"equivalent_to": "TG_20260905_01",
+"resolution": "EQUIVALENT_STORED_UNDER_OTHER_NAME",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "≡ TG_20260905_01 (documented duplicate never saved twice)"
+},
+"TG_300": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"TG_5555": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"TG_57895": {
+"equivalent_to": "TG_50818",
+"resolution": "TELEGRAM_DUPLICATE_MESSAGE",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"test_bot.py"
+],
+"why": "name of a received-but-not-saved Telegram message (record in S10)"
+},
+"TG_57896": {
+"equivalent_to": "TG_50817",
+"resolution": "TELEGRAM_DUPLICATE_MESSAGE",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"DECISIONS_ARCHIVE.md",
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_batches/2026-09-30/EVIDENCE_REPORT.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "name of a received-but-not-saved Telegram message (record in S10)"
+},
+"TG_57920": {
+"equivalent_to": "TG_50592",
+"resolution": "TELEGRAM_DUPLICATE_MESSAGE",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"FAISAL_IMAGE_AUDIT.md",
+"faisal_image_audit.json",
+"faisal_images/README.md",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "name of a received-but-not-saved Telegram message (record in S10)"
+},
+"TG_58424": {
+"equivalent_to": null,
+"resolution": "TELEGRAM_DUPLICATE_MESSAGE",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_image_audit.json"
+],
+"why": "name of a received-but-not-saved Telegram message (record in S10)"
+},
+"TG_58425": {
+"equivalent_to": null,
+"resolution": "TELEGRAM_DUPLICATE_MESSAGE",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_image_audit.json"
+],
+"why": "name of a received-but-not-saved Telegram message (record in S10)"
+},
+"TG_703": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"TG_7777": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"TG_802": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"TG_9001": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"TG_901": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"TG_99999": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"X_20260828_05_ABC": {
+"equivalent_to": null,
+"resolution": "EXCLUDED",
+"rules": [
+"R1-token"
+],
+"where": [
+"test_bot.py"
+],
+"why": "test fixture token (only in test_bot.py)"
+},
+"X_20260918_04": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"X_20260918_11": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
+"faisal_method_v3/docs/26_NEW_TOOL_RULES.md",
+"faisal_method_v3/faisal_tool.py",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/PATTERN_SPECIFICATIONS.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"X_20260918_12": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"FAISAL_IMAGES_CATALOG.md",
+"faisal_method_v3/faisal_tool.py",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"X_20260918_22": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"faisal_method_v4/data/visual_pass_v4.jsonl"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"X_20260918_27": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
+"Super_stock.py",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"faisal_method_v3/v31_reconcile.py",
+"faisal_method_v4/data/visual_pass_v4.jsonl",
+"image_audit.py",
+"test_bot.py"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"X_20260918_54": {
+"equivalent_to": null,
+"resolution": "RESOLVED_BY_NAME",
+"rules": [
+"R1-token"
+],
+"where": [
+"FAISAL_SOURCE_LEDGER.md",
+"Super_stock.py",
+"faisal_images/README.md",
+"faisal_method_v3/rule_graph.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json",
+"test_bot.py"
+],
+"why": "abbreviation of an existing corpus file name"
+},
+"X_20260918_81": {
+"equivalent_to": "X_20260905_04",
+"resolution": "EQUIVALENT_STORED_UNDER_OTHER_NAME",
+"rules": [
+"R1-token",
+"R6-audit"
+],
+"where": [
+"FAISAL_IMAGE_AUDIT.md",
+"OPUS_FAISAL_BATCH_2026-09-18_PACKAGE.md",
+"faisal_image_audit.json",
+"faisal_method_v3/source_access.json",
+"faisal_method_v3/v31/IMAGE_PROVENANCE.md",
+"faisal_method_v3/v31/reconcile_v31.json"
+],
+"why": "≡ X_20260905_04 (documented duplicate never saved twice)"
+}
+}
+}

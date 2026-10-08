@@ -57,7 +57,7 @@ STRUCTURAL = V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY و�
 | `I6_DATA_PIPELINE_VERSION` | ✅ | [] |
 | `I7_NO_REVISION` | ✅ | rev 1 · revisions 1 |
 | `I8_LEDGER` | ✅ | [] |
-| `I9_META_PREFIX` | ✅ | البادئة 22264 بايت · الحجم الآن 22264 |
+| `I9_META_PREFIX` | ✅ | البادئة 22264 بايت سليمة (الإلحاقُ بعدها لا يغيّرها) |
 | `I10_CASE_IMAGES` | ✅ | [] |
 | `I11_RECORD_EPOCH` | ✅ | [] |
 | `I12_NO_LOOKAHEAD_DEFECT` | ✅ | [] |
