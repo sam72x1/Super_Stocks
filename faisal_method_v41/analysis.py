@@ -370,7 +370,8 @@ def prospective(lg=None):
            "golden": sum(1 for c in done if c["case"]["symbol"] in golden),
            "disagreements": n - mat["exact"]}
     return {"complete": n, "invalid": len(invalid), "matrix": mat, "status": status,
-            "pending_images": LG.pending_new_images(lg), "candidates": len(lg.entries("candidate")),
+            # الوحدات لا القيود: التصحيحُ نسخةٌ ثانية للوحدة نفسِها (التعديل 1 §⑥) فلا تُعَدّ مرّتين
+            "pending_images": LG.pending_new_images(lg), "candidates": len({e["case_id"] for e in lg.entries("candidate")}),
             "sealed_cases": sealed, "coverage": cov}
 
 

@@ -568,6 +568,27 @@
    "sha256": "a8dc2aefc2d2873b44a3eccc3ca290a104dbf29cf50c4dbb79db283b25c15a02",
    "utc": "2026-10-08T09:43:39Z",
    "version": 1
+  },
+  {
+   "case_id": "TG_58526",
+   "entry_hash": "bb2ecfdc455a1e644d7f869d68d370afcec19f26d42990a1cc85e03fb09a0593",
+   "kind": "candidate",
+   "path": "candidates/TG_58526.v2.json",
+   "prev": "367fb1058d89c4f3d6f281a737999c8a8f679d771ee21a8e31f14b23e76484ce",
+   "seq": 57,
+   "sha256": "d92a79bbd653006d42624d38c5895baa200fc028cca14cde940fed04004acc3c",
+   "utc": "2026-10-08T11:13:30Z"
+  },
+  {
+   "case_id": "CASE_0003",
+   "entry_hash": "e14448bff15dd6c41696c6c294ab2958d374a0613fa3b4ce85b28a091a4b1d1c",
+   "kind": "case",
+   "path": "cases/CASE_0003.v1.json",
+   "prev": "bb2ecfdc455a1e644d7f869d68d370afcec19f26d42990a1cc85e03fb09a0593",
+   "seq": 58,
+   "sha256": "81f226351da896490f3efaab79bec31b57c2393f3510e70b3e1c68e1d1f13522",
+   "utc": "2026-10-08T11:13:30Z",
+   "version": 1
   }
  ],
  "schema": 1,

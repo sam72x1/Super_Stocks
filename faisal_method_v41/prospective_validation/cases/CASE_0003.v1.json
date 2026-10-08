@@ -1,0 +1,115 @@
+{
+ "capture_utc": "2026-10-08T08:58:20Z",
+ "case_id": "CASE_0003",
+ "date_precision": "day",
+ "date_source": "image_visible",
+ "decision_date": "2026-10-07",
+ "image": "faisal_images/TG_58526.jpg",
+ "image_sha256": "53053f090c8bec46164f842234c824487b9690d990d2d0b6c3780b69d8109bf0",
+ "layer": "1",
+ "near_duplicates": [],
+ "notes": "B4_20261008 · رسالة 58526 · CORRECTION_01 (التعديل 1 §⑥) يحلّ محلّ CONTAMINATED SEEN_EXAMPLE:V4:NCT_None@2026-10-02",
+ "protocol": {
+  "blind_input": {
+   "decision_date": "2026-10-07",
+   "symbol": "NCT",
+   "timeframe": "1D"
+  },
+  "input_hash": "136a720dfc544958f78292486d3bb3514ba2c7c214b5be47e8f5a3d014896320",
+  "intake": {
+   "batch": "B4_20261008",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 51,
+      "id": "X_20260918_29_KWM",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 76,
+      "id": "TG_57867",
+      "phash_dist": 10
+     },
+     {
+      "dhash256_dist": 70,
+      "id": "TG_50578",
+      "phash_dist": 14
+     },
+     {
+      "dhash256_dist": 76,
+      "id": "TG_50830",
+      "phash_dist": 14
+     },
+     {
+      "dhash256_dist": 68,
+      "id": "X_20260827_labt_supports_wait",
+      "phash_dist": 18
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class": "NEW_PROSPECTIVE",
+   "correction": {
+    "contract": "faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md",
+    "id": "CORRECTION_01",
+    "reason": "خطأُ تطبيقٍ في علامة العين (لا خطأُ قاعدة): `SEEN_EXAMPLE:V4:NCT_None@2026-10-02` أحالت إلى حالةٍ تعليميّة (S4) بلا تاريخ قيّمها `v4_eval` عند آخر شمعةٍ افتراضيًّا (كلُّ حالةٍ بلا تاريخٍ وشموعٍ أخذت asof 2026-10-02) · بلا وسمٍ لفيصل (label UNKNOWN · لا تُقاس ولا يُضبط عليها) · ولا شموعَ بعد القرار في الفِكستشر (آخرُها 10-02) · ولا قاعدةَ في V4 تذكر NCT. «مثالٌ رآه V3/V4» (§⑦-3) يعني هذا المثالَ نفسَه، والمطبَّقُ كان تعرّضًا على مستوى الرمز. وفحوصُ الأداة المجمَّدة C1-C8 كلُّها فارغة. حالةُ الشارت جديدة: قاعٌ 1.140 تحت قاع V4 ‏1.29 وتحت سحبه 10% ‏1.161.",
+    "supersedes": {
+     "class7": "CONTAMINATED",
+     "reason": "SEEN_EXAMPLE:V4:NCT_None@2026-10-02",
+     "version": 1
+    }
+   }
+  },
+  "provenance": {
+   "basis": "UNKNOWN",
+   "decision_date_from_post": null,
+   "fields": {
+    "CAPTURE_TIMESTAMP": "2026-10-08T08:58:20Z",
+    "CASE_ID": "—",
+    "DATE_VISIBLE": "لا طابعَ للمنشور · المرفقُ «07/10-20:45:28 EDT» و«أربعاء 07/10» (= الأربعاء 7 أكتوبر 2026) حدٌّ أدنى ⟵ وساعةُ جهاز اللقطة 3:51 بتوقيت الرياض لا تقع بعده إلّا صباحَ 10-08 (00:51Z) ⟵ المنشورُ بين 20:45 و20:51 نيويورك يومَ 10-07",
+    "FORWARD_TYPE": "none",
+    "IMAGE_HASH": "53053f090c8bec46164f842234c824487b9690d990d2d0b6c3780b69d8109bf0",
+    "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+    "PERCEPTUAL_HASH": {
+     "dhash256": "c01e80d600cad9340001f0ea8080a4d294c4bce2aa82bc9abc92ecda93229126",
+     "phash64": "013e2fd0b1c4ec3b"
+    },
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "PUBLIC_CHANNEL_METADATA": "N/A",
+    "SOURCE": "telegram_bot · run 37753340291",
+    "SOURCE_MESSAGE_ID": 58526,
+    "TICKER": "NCT",
+    "TIMEFRAME": "4H"
+   },
+   "meta_v": 2,
+   "missing_critical": [
+    "ORIGINAL_POST_TIMESTAMP"
+   ]
+  },
+  "v4_freeze": {
+   "DATA_PIPELINE_VERSION": "e7d44195e6ad26340ce38cdd2143948a37cc2b2eb4c8fe911e387009101118c9",
+   "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+   "V4_CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+   "V4_FREEZE_ID": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+   "V4_RULE_REGISTRY_HASH": "5a2a86262511ac2143920c2d8cc1e910740f1325ed47f5c199ed07b3910e3531",
+   "V4_TOOL_VERSION": {
+    "engine": "FAISAL-V4 1.0 (2026-10-02)",
+    "freeze": "V4.1-FREEZE 1.0 (2026-10-07)",
+    "rules": "V4-RULES 1.0 (2026-10-02)",
+    "runner": "V41-RUNNER 1.0 (2026-10-07)"
+   },
+   "epoch": 1
+  }
+ },
+ "symbol": "NCT",
+ "timeframe_f": "4H",
+ "unit_id": "TG_58526"
+}

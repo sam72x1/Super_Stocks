@@ -1,4 +1,5 @@
 {
+ "amendment": "faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md",
  "blocked_external": 0,
  "checkpoints_reached": [],
  "collector": {
@@ -292,7 +293,7 @@
    },
    {
     "id": "PB:TG_58526",
-    "protocol_case": null,
+    "protocol_case": "CASE_0003",
     "why": "Faisal's decision day is on/before the cutoff's New-York day"
    },
    {
@@ -368,7 +369,7 @@
   "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
   "V4_FROZEN": "YES",
   "candidates": 52,
-  "cases": 2,
+  "cases": 3,
   "collector_live": "PASS",
   "config_hash": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
   "integrity_failed": [],
@@ -467,5 +468,5 @@
  "seal_id": "PHA-ea12cb86a3f39a5b",
  "setups": {},
  "state": "INSUFFICIENT_SAMPLE",
- "tool_version": "PHASE-B 1.0 (2026-10-08)"
+ "tool_version": "PHASE-B 1.1 (2026-10-08 · amendment 1)"
 }

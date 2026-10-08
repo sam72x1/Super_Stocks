@@ -1,13 +1,13 @@
 # PROSPECTIVE_STATUS — حالةُ التحقّق الأماميّ الحقيقيّ (STEP 11)
 
-> مولَّدٌ من `faisal_method_v41/final_protocol.py` (V4-FINAL-PROTOCOL 1.0 (2026-10-07)) بعد كلّ دفعة · **لا يُحرَّر باليد** · V4 مجمَّد (`7c8826c25e74`) · والحلقة: COLLECT ⟵ BLIND V4 ⟵ SEAL ⟵ REVEAL FAISAL ⟵ COMPARE ⟵ RECORD ⟵ REPEAT.
+> مولَّدٌ من `faisal_method_v41/final_protocol.py` (V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)) بعد كلّ دفعة · **لا يُحرَّر باليد** · V4 مجمَّد (`7c8826c25e74`) · والحلقة: COLLECT ⟵ BLIND V4 ⟵ SEAL ⟵ REVEAL FAISAL ⟵ COMPARE ⟵ RECORD ⟵ REPEAT.
 
 ```
 TOTAL_RECEIVED = 52
-NEW_PROSPECTIVE = 2
+NEW_PROSPECTIVE = 3
 DUPLICATES = 3
 DERIVATIVES = 9
-CONTAMINATED = 4
+CONTAMINATED = 3
 INSUFFICIENT_CONTEXT = 14
 VALID_CASES = 0
 MATCHES = 0
@@ -35,7 +35,7 @@ DIVERSITY = pattern {} · timeframe {} · market_regime {} · decision {} · LOW
 FINAL_VALIDATION_STATE = INSUFFICIENT_SAMPLE
 ```
 
-- **خارجَ العيّنة الأساسيّة (يُتتبَّع ولا يُحسب):** CASE_0001 BRTX MATCH (مصدريّة LOW) · CASE_0002 CDT MATCH (مصدريّة LOW)
+- **خارجَ العيّنة الأساسيّة (يُتتبَّع ولا يُحسب):** CASE_0001 BRTX MATCH (مصدريّة LOW) · CASE_0002 CDT MATCH (مصدريّة LOW) · CASE_0003 NCT PENDING (مصدريّة LOW)
 - **الدقّةُ والاستدعاء بكسرهما** · «UNDEFINED» حين المقامُ صفر · وفترةُ ويلسون من 10 فأكثر · بلا p.
 - **V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY ولا REJECT · وكلُّ تطابقٍ لـV4 تطابقٌ لـALWAYS_WAIT** ⟵ لا يُعلَن نجاحٌ من التطابق الإجماليّ وحدَه.
 

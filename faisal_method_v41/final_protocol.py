@@ -37,8 +37,15 @@ import runner as RN              # noqa: E402 — يستورد المحرّكَ 
 
 E = sys.modules["decision_engine"]
 
-FP_VERSION = "V4-FINAL-PROTOCOL 1.0 (2026-10-07)"
+FP_VERSION = "V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)"
 CONTRACT = "faisal_method_v41/FINAL_PROTOCOL_prereg.md"
+# 🧵 التعديل 1 (أمرُ المالك «الاثنين» بعد تدقيق B4 · مدموجٌ قبل أيّ رقمٍ من B5): A1 حاملُ السلسلة بأقدم منشور · A2 «تاريخُ» C8 قرارٌ مؤرَّخ ·
+#    A3 `SEEN_EXAMPLE` = المثالُ نفسُه · §⑤ لا ختمَ ثانيًا · §⑥ التصحيحُ إلحاقًا. والدفعاتُ المختومة قبله لا يُعاد تخطيطُها.
+AMENDMENT_CONTRACT = "faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md"
+AMENDMENT = 1
+PRE_AMENDMENT_BATCHES = ("B4_20261008",)                   # خُتمت بالعقد الأصليّ قبل التعديل 1
+_SEEN_EX = re.compile(r"^EX:(\S+)$")                        # A3: `EX:<IMAGE_ID>` لمثالٍ في المدوّنة أو جرد EX التطويريّ
+_CORR_ID = re.compile(r"^CORRECTION_\d{2}$")
 OUT_DIR = os.path.join(HERE, "final_protocol")
 EPOCH_FILE = os.path.join(OUT_DIR, "EPOCH_FREEZE.json")
 STATUS_JSON = os.path.join(OUT_DIR, "PROTOCOL_STATUS.json")
@@ -608,6 +615,31 @@ def same_case_hits(symbol, decision_date, decisions=None, days=SAME_CASE_DAYS):
     return sorted({d[2] for d in decisions if d[0] == symbol.upper() and abs((dt.date.fromisoformat(d[1]) - d0).days) <= days})
 
 
+def v4_undated_cases(symbol):
+    """🧵 A2: حالاتُ V4 المحسوبة **بلا تاريخ** على الرمز — قيّمها `v4_eval` عند آخر شمعةٍ افتراضيًّا فليست قرارًا مؤرَّخًا ⟵ إفصاحٌ لا C8."""
+    if not symbol:
+        return []
+    return sorted("V4:" + c["case"] for c in (_j(CASES_V4, {}) or {}).get("cases") or []
+                  if not c.get("statement_date") and symbol.upper() in {str(t).upper() for t in c.get("tickers") or []})
+
+
+def known_example_ids():
+    """🧵 A3: معرّفاتُ الأمثلة التي رآها V3/V4 = المدوّنةُ المجمَّدة ‏+ وحداتُ جرد EX التطويريّة (مصدرُها V3)."""
+    ids = {i.get("id") for i in (_j(CORPUS, {}) or {}).get("images") or []}
+    ids |= {r.get("IMAGE_ID") for r in (_j(INVENTORY, {}) or {}).get("rows") or [] if " · V3" in str(r.get("SOURCE"))}
+    return ids - {None}
+
+
+def seen_example_errors(refs, known):
+    """🧵 A3: إحالاتُ `seen_example_of` غيرُ الصالحة — كلُّ إحالةٍ `EX:<IMAGE_ID>` لمثالٍ معروف (لا حالةَ V4 محسوبة ولا رمز). نقيّة."""
+    bad = []
+    for r in refs or []:
+        m = _SEEN_EX.match(str(r))
+        if not m or m.group(1) not in known:
+            bad.append(str(r))
+    return bad
+
+
 def corpus_index():
     """المدوّنةُ المجمَّدة لـC1/C2/C7: {sha256 · dhash256 · phash64 · id · file}."""
     return [{"id": i["id"], "file": i.get("file"), "sha256": i.get("sha256"), "dhash256": i.get("dhash256"), "phash64": i.get("phash64")}
@@ -1165,14 +1197,28 @@ def legacy_candidates():
     return out
 
 
-def protocol_candidates():
-    """دفعاتُ الاستلام بعد العقد: `final_protocol/intake/<BATCH>/INTAKE.json` (يكتبها `seal`)."""
+def batch_candidates(bdir):
+    """مرشَّحو دفعةٍ مختومة: `INTAKE.json` ثمّ تصحيحاتُه بترتيبها (`CORRECTION_NN.INTAKE.json` · التعديل 1 §⑥) — الأحدثُ يحلّ محلّ المرشَّح
+    نفسِه في موضعه (لا عدَّ مرّتين · والمختومُ لا يُكتب فوقه)."""
+    doc = _j(os.path.join(bdir, "INTAKE.json")) if os.path.isdir(bdir) else None
+    if not doc:
+        return []
+    cands = list(doc.get("candidates") or [])
+    pos = {c.get("image_id"): i for i, c in enumerate(cands)}
+    for fn in sorted(f for f in os.listdir(bdir) if re.fullmatch(r"CORRECTION_\d{2}\.INTAKE\.json", f)):
+        for c in (_j(os.path.join(bdir, fn), {}) or {}).get("candidates") or []:
+            if c.get("image_id") in pos:
+                cands[pos[c["image_id"]]] = c
+    return cands
+
+
+def protocol_candidates(intake_dir=None):
+    """دفعاتُ الاستلام بعد العقد: `final_protocol/intake/<BATCH>/INTAKE.json` (يكتبها `seal`) ‏+ تصحيحاتُها (يكتبها `correct`)."""
+    d = intake_dir or INTAKE_DIR
     out = []
-    if os.path.isdir(INTAKE_DIR):
-        for b in sorted(os.listdir(INTAKE_DIR)):
-            doc = _j(os.path.join(INTAKE_DIR, b, "INTAKE.json"))
-            if doc:
-                out += doc.get("candidates") or []
+    if os.path.isdir(d):
+        for b in sorted(os.listdir(d)):
+            out += batch_candidates(os.path.join(d, b))
     return out
 
 
@@ -1641,18 +1687,35 @@ def _exclusion(cls, reason):
     return "NOT_FAISAL" if reason == "AUTHOR_NOT_ESTABLISHED" else "NO_DECISION"
 
 
-def plan_intake(scan, annotations, existing_cases, ep):
-    """الأصنافُ السبعة لكلّ صورة (عينٌ إلزاميّة) ⟵ مرشَّحون وحالات (PHASE 3-4). نقيّة · ترفض صورةً بلا قراءة عين (لا تخطّيَ صامت)."""
+def _post_orders(group, annotations):
+    """🧵 A1: `post_order` لكلّ عضوٍ في قرارٍ واحدٍ بصورتين فأكثر — أعدادٌ صحيحة موجبة مختلفة وإلّا SchemaError (لا رجوعَ صامتًا لرقم الرسالة)."""
+    vals = [annotations[it["image_id"]].get("post_order") for it in group]
+    if not all(isinstance(v, int) and not isinstance(v, bool) and v >= 1 for v in vals) or len(set(vals)) != len(vals):
+        raise LG.SchemaError(f"A1: قرارٌ واحدٌ بالصور {[it['image_id'] for it in group]} بلا `post_order` صحيحٍ مختلفٍ لكلٍّ ({vals}) — "
+                             "العينُ تُثبت أقدمَ منشورٍ لفيصل بأدلّة المنشور (التعديل 1 §②)")
+    return vals
+
+
+def plan_intake(scan, annotations, existing_cases, ep, amendment=0):
+    """الأصنافُ السبعة لكلّ صورة (عينٌ إلزاميّة) ⟵ مرشَّحون وحالات (PHASE 3-4). نقيّة · ترفض صورةً بلا قراءة عين (لا تخطّيَ صامت).
+    `amendment` 0 = العقدُ الأصليّ (الدفعاتُ المختومة قبله · بت-بت) · 1 = التعديل 1: حاملُ القرار الواحد أصغرُ `post_order` (A1) ·
+    `C8_DISCLOSURE` للحالات غير المؤرَّخة (A2) · و`seen_example_of` بصيغة `EX:<IMAGE_ID>` معروف (A3) — وكلٌّ فاشلٌ-مغلق."""
     miss = [it["image_id"] for it in scan["items"] if it["image_id"] not in annotations]
     if miss:
         raise LG.SchemaError(f"صورٌ بلا قراءة عين: {miss[:8]} — لا تُختم دفعةٌ ناقصة")
-    units, _ = dev_units()
+    units, undated = dev_units()
     decs = v4_dev_decisions()
-    cands, cases, by_key, n = [], [], {}, existing_cases
+    known = known_example_ids() if amendment >= 1 else None
+    rows = []
     for it in scan["items"]:
         a = annotations[it["image_id"]]
         fp = it["fingerprint"]
         sym, dd = (a.get("symbol") or "").upper() or None, a.get("decision_date")
+        if amendment >= 1:
+            bad = seen_example_errors(a.get("seen_example_of"), known)
+            if bad:
+                raise LG.SchemaError(f"A3: {it['image_id']}: `seen_example_of` {bad} ليست `EX:<IMAGE_ID>` لمثالٍ رآه V3/V4 — التعرّضُ على "
+                                     "مستوى الرمز تحكمه C5/C8 وحدَهما (التعديل 1 §④)")
         c4 = same_case_hits(sym, dd, decs) + list(a.get("same_case_of") or [])
         c5 = chart_window_hits(sym, dd, units) if sym and dd else []
         c8 = v4_exposure_hits(sym, dd, decs) if sym and dd else []
@@ -1678,33 +1741,41 @@ def plan_intake(scan, annotations, existing_cases, ep):
                 "fingerprint": {k: fp.get(k) for k in ("sha256", "dhash256", "phash64")},
                 "collector_row": {k: tg[k] for k in ("message_id", "date", "collected_utc", "run_id", "sha256", "dhash256", "phash64",
                                                      "forward_type", "meta_v") if k in tg}}
-        case = None
-        if cls == "NEW_PROSPECTIVE":
-            key = (sym, dd)
-            if key in by_key:
-                cand["class7"], cand["reason"] = "DUPLICATE", "SAME_DECISION:" + by_key[key]
-            else:
-                n += 1
-                cid = f"CASE_{n:04d}"
-                by_key[key] = cid
-                blind = {"symbol": sym, "decision_date": dd, "timeframe": "1D"}
-                case = {"case_id": cid, "symbol": sym, "decision_date": dd, "date_precision": "day",
-                        "date_source": "forward_origin" if prov["basis"] == "FORWARD_METADATA" else "image_visible",
-                        "timeframe_f": a.get("timeframe"), "image": it["file"], "image_sha256": fp["sha256"], "layer": str(a.get("layer") or "1"),
-                        "capture_utc": tg.get("collected_utc") or tg.get("date"), "near_duplicates": [], "unit_id": it["image_id"],
-                        "notes": f"{scan['batch_id']} · رسالة {tg.get('message_id')}",
-                        "protocol": {"provenance": prov, "blind_input": blind, "input_hash": sha(blind),
-                                     "v4_freeze": {k: ep[k] for k in ("epoch", "V4_COMMIT", "V4_FREEZE_ID", "V4_CONFIG_HASH",
-                                                                      "V4_RULE_REGISTRY_HASH", "V4_TOOL_VERSION", "DATA_PIPELINE_VERSION")},
-                                     "intake": {"class": "NEW_PROSPECTIVE", "batch": scan["batch_id"], "checks": cand["checks"]}}}
-                cand["case_id"] = cid
-        cands.append(cand)
-        if case:
-            cases.append(case)
-    return cands, cases
+        if amendment >= 1:
+            cand["checks"]["C8_DISCLOSURE"] = {"v4_undated": v4_undated_cases(sym), "ex_undated": int(undated.get(sym or "", 0))}
+        rows.append({"it": it, "a": a, "cand": cand, "sym": sym, "dd": dd, "prov": prov, "tg": tg, "fp": fp})
+    groups = collections.OrderedDict()                     # القرارُ الواحد (الرمز · تاريخ نيويورك) بترتيب أوّل ظهور
+    for k, r in enumerate(rows):
+        if r["cand"]["class7"] == "NEW_PROSPECTIVE":
+            groups.setdefault((r["sym"], r["dd"]), []).append(k)
+    cases, n = [], existing_cases
+    for idxs in groups.values():
+        car = idxs[0]                                      # العقدُ الأصليّ: أسبقُها برقم الرسالة (ترتيبُ المسح)
+        if amendment >= 1 and len(idxs) >= 2:              # 🧵 A1: أقدمُ منشورٍ بالعين
+            orders = _post_orders([rows[k]["it"] for k in idxs], annotations)
+            car = idxs[orders.index(min(orders))]
+        r = rows[car]
+        it, a, cand, sym, dd, prov, tg, fp = (r[k] for k in ("it", "a", "cand", "sym", "dd", "prov", "tg", "fp"))
+        n += 1
+        cid = f"CASE_{n:04d}"
+        blind = {"symbol": sym, "decision_date": dd, "timeframe": "1D"}
+        cases.append({"case_id": cid, "symbol": sym, "decision_date": dd, "date_precision": "day",
+                      "date_source": "forward_origin" if prov["basis"] == "FORWARD_METADATA" else "image_visible",
+                      "timeframe_f": a.get("timeframe"), "image": it["file"], "image_sha256": fp["sha256"], "layer": str(a.get("layer") or "1"),
+                      "capture_utc": tg.get("collected_utc") or tg.get("date"), "near_duplicates": [], "unit_id": it["image_id"],
+                      "notes": f"{scan['batch_id']} · رسالة {tg.get('message_id')}",
+                      "protocol": {"provenance": prov, "blind_input": blind, "input_hash": sha(blind),
+                                   "v4_freeze": {k: ep[k] for k in ("epoch", "V4_COMMIT", "V4_FREEZE_ID", "V4_CONFIG_HASH",
+                                                                    "V4_RULE_REGISTRY_HASH", "V4_TOOL_VERSION", "DATA_PIPELINE_VERSION")},
+                                   "intake": {"class": "NEW_PROSPECTIVE", "batch": scan["batch_id"], "checks": cand["checks"]}}})
+        cand["case_id"] = cid
+        for k in idxs:
+            if k != car:
+                rows[k]["cand"]["class7"], rows[k]["cand"]["reason"] = "DUPLICATE", "SAME_DECISION:" + cid
+    return [r["cand"] for r in rows], cases
 
 
-def seal_batch(batch_id, utc, ledger=None, annotations=None, scan=None):
+def seal_batch(batch_id, utc, ledger=None, annotations=None, scan=None, amendment=None):
     """الختم (PHASE 4): `intake/<ID>/SCAN.json` ‏+ `annotations.json` ⟵ `INTAKE.json` ‏+ قيودُ المرشَّحين والحالات — قبل V4."""
     lg = ledger or LG.Ledger()
     ep = current_epoch()
@@ -1712,10 +1783,17 @@ def seal_batch(batch_id, utc, ledger=None, annotations=None, scan=None):
     if not ok:
         raise LG.SchemaError(f"VALIDATION_BLOCKED {why} — لا ختم")
     bdir = os.path.join(INTAKE_DIR, batch_id)
+    if os.path.exists(os.path.join(bdir, "INTAKE.json")):         # 🧵 التعديل 1 §⑤: كان ختمٌ ثانٍ يُلحق نسخةً لكلّ مرشَّح ويختم الحالةَ برقمٍ جديد
+        raise LG.SchemaError(f"{batch_id}: مختومةٌ سلفًا (INTAKE.json موجود) — لا ختمَ ثانيًا · والتصحيحُ بـ`correct` (التعديل 1 §⑥)")
     scan = scan or _j(os.path.join(bdir, "SCAN.json"))
-    annotations = annotations if annotations is not None else (_j(os.path.join(bdir, "annotations.json"), {}) or {}).get("images") or {}
+    doc = _j(os.path.join(bdir, "annotations.json"), {}) or {}
+    annotations = annotations if annotations is not None else doc.get("images") or {}
+    amendment = int(doc.get("protocol_amendment") or 0) if amendment is None else int(amendment)
+    if batch_id not in PRE_AMENDMENT_BATCHES and amendment < AMENDMENT:
+        raise LG.SchemaError(f"{batch_id}: دفعةٌ بعد التعديل 1 تتطلّب `\"protocol_amendment\": {AMENDMENT}` في annotations.json "
+                             f"({AMENDMENT_CONTRACT})")
     n0 = len({e["case_id"] for e in lg.entries("case")})
-    cands, cases = plan_intake(scan, annotations, n0, ep)
+    cands, cases = plan_intake(scan, annotations, n0, ep, amendment=amendment)
     for c in cands:
         dec = ("CASE:" + c["case_id"]) if c.get("case_id") else _exclusion(c["class7"], c["reason"])
         lg.record_candidate(c["image_id"], c["file"], (c["provenance"]["fields"]["IMAGE_HASH"]), dec, utc,
@@ -1727,6 +1805,83 @@ def seal_batch(batch_id, utc, ledger=None, annotations=None, scan=None):
         json.dump({"batch_id": batch_id, "tool_version": FP_VERSION, "candidates": cands}, f, ensure_ascii=False, indent=1, sort_keys=True)
         f.write("\n")
     return cands, cases
+
+
+def correct_batch(batch_id, corr_id, utc, ledger=None, intake_dir=None):
+    """🧵 التصحيح (التعديل 1 §⑥): قراءةُ عينٍ مصحّحة لصورٍ في دفعةٍ مختومة (`<BATCH>/CORRECTION_NN.json`) ⟵ إعادةُ تخطيطها وحدَها بقواعد
+    العقد (C1-C8 من الأداة) ⟵ مرشَّحٌ نسخةٌ جديدة ‏+ حالةٌ مختومة ‏+ `CORRECTION_NN.INTAKE.json`. إلحاقٌ فقط: لا يُكتب فوق annotations.json
+    ولا INTAKE.json · ولا تصحيحَ بلا سبب أو بلا تغيير صنف أو لصورةٍ خارج الدفعة · ولا تشغيلَ ثانيًا · ولا حالةَ ثانيةً لقرارٍ مختوم."""
+    lg = ledger or LG.Ledger()
+    ep = current_epoch()
+    ok, why = guard() if ledger is None else (True, [])
+    if not ok:
+        raise LG.SchemaError(f"VALIDATION_BLOCKED {why} — لا تصحيح")
+    if not _CORR_ID.match(str(corr_id or "")):
+        raise LG.SchemaError(f"معرّفُ التصحيح بصيغة CORRECTION_NN: {corr_id!r}")
+    bdir = os.path.join(intake_dir or INTAKE_DIR, batch_id)
+    out_path = os.path.join(bdir, f"{corr_id}.INTAKE.json")
+    if os.path.exists(out_path):
+        raise LG.SchemaError(f"{batch_id}/{corr_id}: طُبّق سلفًا — الإلحاقُ فقط")
+    corr, scan = _j(os.path.join(bdir, f"{corr_id}.json")), _j(os.path.join(bdir, "SCAN.json"))
+    if not corr or not scan or not os.path.exists(os.path.join(bdir, "INTAKE.json")):
+        raise LG.SchemaError(f"{batch_id}/{corr_id}: التصحيحُ أو المسحُ غائب أو الدفعةُ غيرُ مختومة")
+    if corr.get("batch_id") != batch_id or corr.get("correction_id") != corr_id:
+        raise LG.SchemaError(f"{corr_id}: الدفعةُ أو المعرّفُ داخل الملفّ لا يطابقان")
+    imgs = corr.get("images") or {}
+    prior = {c.get("image_id"): c for c in batch_candidates(bdir)}
+    if not imgs or any(i not in prior for i in imgs):
+        raise LG.SchemaError(f"{corr_id}: صورٌ خارج الدفعة المختومة {[i for i in imgs if i not in prior]}")
+    if any(not str((a or {}).get("correction_reason") or "").strip() for a in imgs.values()):
+        raise LG.SchemaError(f"{corr_id}: تصحيحٌ بلا `correction_reason` مكتوب")
+    sub = {"batch_id": batch_id, "items": [it for it in scan["items"] if it["image_id"] in imgs]}
+    latest = _latest_cases(lg)
+    keys = {}
+    for cid, e in sorted(latest.items()):
+        c = lg.read(e["path"])
+        keys[(str(c.get("symbol") or "").upper(), c.get("decision_date"))] = cid
+    cands, cases = plan_intake(sub, imgs, len(latest), ep, amendment=int(corr.get("protocol_amendment") or 0))
+    ids, kept, n = {}, [], len(latest)
+    for case in cases:                                    # قرارٌ مختومٌ سلفًا بالرمز والتاريخ ⟵ DUPLICATE لا حالةٌ ثانية
+        k = (case["symbol"], case["decision_date"])
+        if k in keys:
+            ids[case["case_id"]] = ("DUP", keys[k])
+        else:
+            n += 1
+            ids[case["case_id"]] = ("CASE", f"CASE_{n:04d}")
+            case["case_id"] = keys[k] = f"CASE_{n:04d}"
+            kept.append(case)
+    for c in cands:
+        if c.get("case_id") in ids:
+            kind, tgt = ids[c["case_id"]]
+            if kind == "DUP":
+                c.pop("case_id")
+                c["class7"], c["reason"] = "DUPLICATE", "SAME_DECISION:" + tgt
+            else:
+                c["case_id"] = tgt
+        elif str(c.get("reason") or "").startswith("SAME_DECISION:") and c["reason"].split(":", 1)[1] in ids:
+            c["reason"] = "SAME_DECISION:" + ids[c["reason"].split(":", 1)[1]][1]
+        p = prior[c["image_id"]]
+        if (c["class7"], c["reason"]) == (p.get("class7"), p.get("reason")):
+            raise LG.SchemaError(f"{corr_id}: {c['image_id']} لا يتغيّر صنفُه ({c['class7']} {c['reason']}) — تصحيحٌ بلا أثر")
+        c["corrected_by"] = corr_id
+        c["correction_reason"] = imgs[c["image_id"]]["correction_reason"]
+        c["supersedes"] = {"version": len(lg.entries("candidate", c["image_id"])), "class7": p.get("class7"), "reason": p.get("reason")}
+    for c in cands:
+        dec = ("CASE:" + c["case_id"]) if c.get("case_id") else _exclusion(c["class7"], c["reason"])
+        sp = c["supersedes"]
+        lg.record_candidate(c["image_id"], c["file"], c["provenance"]["fields"]["IMAGE_HASH"], dec, utc,
+                            note=f"{batch_id} · {corr_id} · يحلّ محلّ v{sp['version']} ({sp['class7']} {sp['reason']}) · {c['class7']} · {c['reason']}")
+    for case in kept:
+        c = next(x for x in cands if x.get("case_id") == case["case_id"])
+        case["notes"] += f" · {corr_id} (التعديل 1 §⑥) يحلّ محلّ {c['supersedes']['class7']} {c['supersedes']['reason']}"
+        case["protocol"]["intake"]["correction"] = {"id": corr_id, "contract": AMENDMENT_CONTRACT, "supersedes": c["supersedes"],
+                                                    "reason": c["correction_reason"]}
+        lg.seal_case(case, utc)
+    with open(out_path, "x", encoding="utf-8") as f:
+        json.dump({"batch_id": batch_id, "correction_id": corr_id, "tool_version": FP_VERSION, "contract": AMENDMENT_CONTRACT + " §⑥",
+                   "candidates": cands}, f, ensure_ascii=False, indent=1, sort_keys=True)
+        f.write("\n")
+    return cands, kept
 
 
 def reveal(case_id, ann, utc, ledger=None):
@@ -1791,6 +1946,11 @@ def main(argv=None):
     if cmd == "seal":
         cands, cases = seal_batch(argv[1], _now_utc())
         print(f"🔏 {argv[1]}: مرشَّحون {len(cands)} · حالات {len(cases)}")
+        return 0
+    if cmd == "correct":
+        cands, cases = correct_batch(argv[1], argv[2], _now_utc())
+        print(f"🧵 {argv[1]}/{argv[2]}: مرشَّحون {len(cands)} ({' · '.join(c['image_id'] + ' ⟵ ' + c['class7'] for c in cands)}) · "
+              f"حالات {len(cases)} ({' · '.join(c['case_id'] for c in cases)})")
         return 0
     if cmd == "reveal":
         cid = argv[1]
