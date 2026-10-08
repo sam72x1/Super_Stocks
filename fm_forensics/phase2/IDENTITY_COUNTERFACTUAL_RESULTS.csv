@@ -1,0 +1,459 @@
+symbol,log_date,asof,world,result,rsplits_in_252,last_rsplit,price,hi52,drop,spike,base_range,dollar_vol,bars,score,soft_fails,tier,WORLD_MEANING
+CRE,2026-09-11,2026-09-10,A,M4_base_واسعة,1,2026-02-13,2.85,14.64,80.53,111.2,248.2,22793100.0,286,,,,production representation
+CRE,2026-09-11,2026-09-10,ID,M4_base_واسعة,1,2026-02-13,2.85,14.64,80.53,111.2,248.2,22793100.0,286,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-11,2026-09-10,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.85,14.64,80.53,111.2,248.2,22793100.0,286,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-11,2026-09-10,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.85,14.64,80.53,111.2,248.2,22793100.0,286,,,,continuity-only: + split-aware base range
+CRE,2026-09-11,2026-09-10,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.85,8.6,66.86,1847.5,248.2,22793100.0,286,,,,continuity-only: unadjusted prices
+CRE,2026-09-11,2026-09-10,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.85,8.6,66.86,111.2,248.2,22793100.0,144,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-12,2026-09-11,A,M4_base_واسعة,1,2026-02-13,2.76,14.64,81.15,111.2,247.2,22793391.0,287,,,,production representation
+CRE,2026-09-12,2026-09-11,ID,M4_base_واسعة,1,2026-02-13,2.76,14.64,81.15,111.2,247.2,22793391.0,287,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-12,2026-09-11,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.76,14.64,81.15,111.2,247.2,22793391.0,287,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-12,2026-09-11,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.76,14.64,81.15,111.2,247.2,22793391.0,287,,,,continuity-only: + split-aware base range
+CRE,2026-09-12,2026-09-11,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.76,8.6,67.91,1847.5,247.2,22793391.0,287,,,,continuity-only: unadjusted prices
+CRE,2026-09-12,2026-09-11,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.76,8.6,67.91,111.2,247.2,22793391.0,145,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-15,2026-09-14,A,M4_base_واسعة,1,2026-02-13,2.74,14.64,81.28,111.2,238.6,22798452.0,288,,,,production representation
+CRE,2026-09-15,2026-09-14,ID,M4_base_واسعة,1,2026-02-13,2.74,14.64,81.28,111.2,238.6,22798452.0,288,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-15,2026-09-14,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.74,14.64,81.28,111.2,238.6,22798452.0,288,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-15,2026-09-14,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.74,14.64,81.28,111.2,238.6,22798452.0,288,,,,continuity-only: + split-aware base range
+CRE,2026-09-15,2026-09-14,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.74,8.6,68.14,1847.5,238.6,22798452.0,288,,,,continuity-only: unadjusted prices
+CRE,2026-09-15,2026-09-14,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.74,8.6,68.14,111.2,238.6,22798452.0,146,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-16,2026-09-15,A,M4_base_واسعة,1,2026-02-13,2.71,14.64,81.49,111.2,235.9,22796696.0,289,,,,production representation
+CRE,2026-09-16,2026-09-15,ID,M4_base_واسعة,1,2026-02-13,2.71,14.64,81.49,111.2,235.9,22796696.0,289,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-16,2026-09-15,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.71,14.64,81.49,111.2,235.9,22796696.0,289,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-16,2026-09-15,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.71,14.64,81.49,111.2,235.9,22796696.0,289,,,,continuity-only: + split-aware base range
+CRE,2026-09-16,2026-09-15,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.71,8.6,68.49,1847.5,235.9,22796696.0,289,,,,continuity-only: unadjusted prices
+CRE,2026-09-16,2026-09-15,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.71,8.6,68.49,111.2,235.9,22796696.0,147,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-17,2026-09-16,A,M4_base_واسعة,1,2026-02-13,2.78,14.64,81.01,111.2,230.8,22773638.0,290,,,,production representation
+CRE,2026-09-17,2026-09-16,ID,M4_base_واسعة,1,2026-02-13,2.78,14.64,81.01,111.2,230.8,22773638.0,290,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-17,2026-09-16,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.78,14.64,81.01,111.2,230.8,22773638.0,290,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-17,2026-09-16,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.78,14.64,81.01,111.2,230.8,22773638.0,290,,,,continuity-only: + split-aware base range
+CRE,2026-09-17,2026-09-16,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.78,8.6,67.67,1847.5,230.8,22773638.0,290,,,,continuity-only: unadjusted prices
+CRE,2026-09-17,2026-09-16,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.78,8.6,67.67,111.2,230.8,22773638.0,148,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-18,2026-09-17,A,M4_base_واسعة,1,2026-02-13,2.97,14.64,79.71,182.0,134.6,22773603.0,291,,,,production representation
+CRE,2026-09-18,2026-09-17,ID,M4_base_واسعة,1,2026-02-13,2.97,14.64,79.71,182.0,134.6,22773603.0,291,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-18,2026-09-17,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.97,14.64,79.71,182.0,134.6,22773603.0,291,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-18,2026-09-17,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.97,14.64,79.71,182.0,134.6,22773603.0,291,,,,continuity-only: + split-aware base range
+CRE,2026-09-18,2026-09-17,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.97,8.6,65.47,1847.5,134.6,22773603.0,291,,,,continuity-only: unadjusted prices
+CRE,2026-09-18,2026-09-17,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.97,8.6,65.47,182.0,134.6,22773603.0,149,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-19,2026-09-18,A,M4_base_واسعة,1,2026-02-13,3.0,14.64,79.51,182.0,134.6,22773174.0,292,,,,production representation
+CRE,2026-09-19,2026-09-18,ID,M4_base_واسعة,1,2026-02-13,3.0,14.64,79.51,182.0,134.6,22773174.0,292,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-19,2026-09-18,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,3.0,14.64,79.51,182.0,134.6,22773174.0,292,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-19,2026-09-18,B_M4,M2_هبوط_تحت_40,1,2026-02-13,3.0,14.64,79.51,182.0,134.6,22773174.0,292,,,,continuity-only: + split-aware base range
+CRE,2026-09-19,2026-09-18,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,3.0,8.6,65.12,1847.5,134.6,22773174.0,292,,,,continuity-only: unadjusted prices
+CRE,2026-09-19,2026-09-18,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,3.0,8.6,65.12,182.0,134.6,22773174.0,150,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-22,2026-09-21,A,M_لا_مستوى_مختبر,1,2026-02-13,3.07,14.64,79.03,182.0,36.5,22774506.0,293,,,,production representation
+CRE,2026-09-22,2026-09-21,ID,M_لا_مستوى_مختبر,1,2026-02-13,3.07,14.64,79.03,182.0,36.5,22774506.0,293,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-22,2026-09-21,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,3.07,14.64,79.03,182.0,36.5,22774506.0,293,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-22,2026-09-21,B_M4,M2_هبوط_تحت_40,1,2026-02-13,3.07,14.64,79.03,182.0,36.5,22774506.0,293,,,,continuity-only: + split-aware base range
+CRE,2026-09-22,2026-09-21,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,3.07,8.6,64.3,1847.5,36.5,22774506.0,293,,,,continuity-only: unadjusted prices
+CRE,2026-09-22,2026-09-21,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,3.07,8.6,64.3,182.0,36.5,22774506.0,151,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-23,2026-09-22,A,M_لا_مستوى_مختبر,1,2026-02-13,2.95,14.64,79.85,182.0,23.1,22774272.0,294,,,,production representation
+CRE,2026-09-23,2026-09-22,ID,M_لا_مستوى_مختبر,1,2026-02-13,2.95,14.64,79.85,182.0,23.1,22774272.0,294,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-23,2026-09-22,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.95,14.64,79.85,182.0,23.1,22774272.0,294,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-23,2026-09-22,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.95,14.64,79.85,182.0,23.1,22774272.0,294,,,,continuity-only: + split-aware base range
+CRE,2026-09-23,2026-09-22,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.95,8.6,65.7,1847.5,23.1,22774272.0,294,,,,continuity-only: unadjusted prices
+CRE,2026-09-23,2026-09-22,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.95,8.6,65.7,182.0,23.1,22774272.0,152,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-24,2026-09-23,A,M_لا_مستوى_مختبر,1,2026-02-13,2.91,14.64,80.12,182.0,23.1,22792541.0,295,,,,production representation
+CRE,2026-09-24,2026-09-23,ID,M_لا_مستوى_مختبر,1,2026-02-13,2.91,14.64,80.12,182.0,23.1,22792541.0,295,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-24,2026-09-23,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.91,14.64,80.12,182.0,23.1,22792541.0,295,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-24,2026-09-23,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.91,14.64,80.12,182.0,23.1,22792541.0,295,,,,continuity-only: + split-aware base range
+CRE,2026-09-24,2026-09-23,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.91,8.6,66.16,1847.5,23.1,22792541.0,295,,,,continuity-only: unadjusted prices
+CRE,2026-09-24,2026-09-23,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.91,8.6,66.16,182.0,23.1,22792541.0,153,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-25,2026-09-24,A,M_لا_مستوى_مختبر,1,2026-02-13,3.01,14.64,79.44,182.0,23.1,577821.0,296,,,,production representation
+CRE,2026-09-25,2026-09-24,ID,M_لا_مستوى_مختبر,1,2026-02-13,3.01,14.64,79.44,182.0,23.1,577821.0,296,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-25,2026-09-24,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,3.01,14.64,79.44,182.0,23.1,577821.0,296,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-25,2026-09-24,B_M4,M2_هبوط_تحت_40,1,2026-02-13,3.01,14.64,79.44,182.0,23.1,577821.0,296,,,,continuity-only: + split-aware base range
+CRE,2026-09-25,2026-09-24,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,3.01,8.6,65.0,1847.5,23.1,577821.0,296,,,,continuity-only: unadjusted prices
+CRE,2026-09-25,2026-09-24,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,3.01,8.6,65.0,182.0,23.1,577821.0,154,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-26,2026-09-25,A,M_لا_مستوى_مختبر,1,2026-02-13,2.82,14.64,80.74,182.0,52.3,238379.0,297,,,,production representation
+CRE,2026-09-26,2026-09-25,ID,M_لا_مستوى_مختبر,1,2026-02-13,2.82,14.64,80.74,182.0,52.3,238379.0,297,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-26,2026-09-25,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.82,14.64,80.74,182.0,52.3,238379.0,297,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-26,2026-09-25,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.82,14.64,80.74,182.0,52.3,238379.0,297,,,,continuity-only: + split-aware base range
+CRE,2026-09-26,2026-09-25,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.82,8.6,67.21,1847.5,52.3,238379.0,297,,,,continuity-only: unadjusted prices
+CRE,2026-09-26,2026-09-25,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.82,8.6,67.21,182.0,52.3,238379.0,155,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-29,2026-09-28,A,M_لا_مستوى_مختبر,1,2026-02-13,2.62,14.64,82.1,182.0,54.7,177209.0,298,,,,production representation
+CRE,2026-09-29,2026-09-28,ID,M_لا_مستوى_مختبر,1,2026-02-13,2.62,14.64,82.1,182.0,54.7,177209.0,298,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-29,2026-09-28,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.62,14.64,82.1,182.0,54.7,177209.0,298,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-29,2026-09-28,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.62,14.64,82.1,182.0,54.7,177209.0,298,,,,continuity-only: + split-aware base range
+CRE,2026-09-29,2026-09-28,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.62,8.6,69.53,1847.5,54.7,177209.0,298,,,,continuity-only: unadjusted prices
+CRE,2026-09-29,2026-09-28,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.62,8.6,69.53,182.0,54.7,177209.0,156,,,,continuity-only: history starts at the last reverse split
+CRE,2026-09-30,2026-09-29,A,M_لا_مستوى_مختبر,1,2026-02-13,2.61,14.64,82.17,182.0,54.7,158678.0,299,,,,production representation
+CRE,2026-09-30,2026-09-29,ID,M_لا_مستوى_مختبر,1,2026-02-13,2.61,14.64,82.17,182.0,54.7,158678.0,299,,,,"identity-only: same bars, different ticker label"
+CRE,2026-09-30,2026-09-29,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.61,14.64,82.17,182.0,54.7,158678.0,299,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-09-30,2026-09-29,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.61,14.64,82.17,182.0,54.7,158678.0,299,,,,continuity-only: + split-aware base range
+CRE,2026-09-30,2026-09-29,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.61,8.6,69.65,1847.5,54.7,158678.0,299,,,,continuity-only: unadjusted prices
+CRE,2026-09-30,2026-09-29,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.61,8.6,69.65,182.0,54.7,158678.0,157,,,,continuity-only: history starts at the last reverse split
+CRE,2026-10-01,2026-09-30,A,M_لا_مستوى_مختبر,1,2026-02-13,2.61,14.64,82.17,182.0,54.7,146895.0,300,,,,production representation
+CRE,2026-10-01,2026-09-30,ID,M_لا_مستوى_مختبر,1,2026-02-13,2.61,14.64,82.17,182.0,54.7,146895.0,300,,,,"identity-only: same bars, different ticker label"
+CRE,2026-10-01,2026-09-30,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.61,14.64,82.17,182.0,54.7,146895.0,300,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-10-01,2026-09-30,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.61,14.64,82.17,182.0,54.7,146895.0,300,,,,continuity-only: + split-aware base range
+CRE,2026-10-01,2026-09-30,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.61,8.6,69.65,1847.5,54.7,146895.0,300,,,,continuity-only: unadjusted prices
+CRE,2026-10-01,2026-09-30,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.61,8.6,69.65,182.0,54.7,146895.0,158,,,,continuity-only: history starts at the last reverse split
+CRE,2026-10-02,2026-10-01,A,M_لا_مستوى_مختبر,1,2026-02-13,2.71,11.2212,75.85,182.0,54.7,145784.0,301,,,,production representation
+CRE,2026-10-02,2026-10-01,ID,M_لا_مستوى_مختبر,1,2026-02-13,2.71,11.2212,75.85,182.0,54.7,145784.0,301,,,,"identity-only: same bars, different ticker label"
+CRE,2026-10-02,2026-10-01,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.71,11.2212,75.85,182.0,54.7,145784.0,301,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-10-02,2026-10-01,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.71,11.2212,75.85,182.0,54.7,145784.0,301,,,,continuity-only: + split-aware base range
+CRE,2026-10-02,2026-10-01,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.71,8.6,68.49,1847.5,54.7,145784.0,301,,,,continuity-only: unadjusted prices
+CRE,2026-10-02,2026-10-01,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.71,8.6,68.49,182.0,54.7,145784.0,159,,,,continuity-only: history starts at the last reverse split
+CRE,2026-10-03,2026-10-02,A,M_لا_مستوى_مختبر,1,2026-02-13,2.7,10.44,74.14,182.0,54.7,140119.0,302,,,,production representation
+CRE,2026-10-03,2026-10-02,ID,M_لا_مستوى_مختبر,1,2026-02-13,2.7,10.44,74.14,182.0,54.7,140119.0,302,,,,"identity-only: same bars, different ticker label"
+CRE,2026-10-03,2026-10-02,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.7,10.44,74.14,182.0,54.7,140119.0,302,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-10-03,2026-10-02,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.7,10.44,74.14,182.0,54.7,140119.0,302,,,,continuity-only: + split-aware base range
+CRE,2026-10-03,2026-10-02,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.7,8.6,68.6,1847.5,54.7,140119.0,302,,,,continuity-only: unadjusted prices
+CRE,2026-10-03,2026-10-02,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.7,8.6,68.6,182.0,54.7,140119.0,160,,,,continuity-only: history starts at the last reverse split
+CRE,2026-10-06,2026-10-05,A,PASS,1,2026-02-13,2.67,9.84,72.87,182.0,54.7,138768.0,303,50,6,B,production representation
+CRE,2026-10-06,2026-10-05,ID,PASS,1,2026-02-13,2.67,9.84,72.87,182.0,54.7,138768.0,303,50,6,B,"identity-only: same bars, different ticker label"
+CRE,2026-10-06,2026-10-05,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.67,9.84,72.87,182.0,54.7,138768.0,303,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-10-06,2026-10-05,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.67,9.84,72.87,182.0,54.7,138768.0,303,,,,continuity-only: + split-aware base range
+CRE,2026-10-06,2026-10-05,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.67,8.6,68.95,1847.5,54.7,138768.0,303,,,,continuity-only: unadjusted prices
+CRE,2026-10-06,2026-10-05,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.67,8.6,68.95,182.0,54.7,138768.0,161,,,,continuity-only: history starts at the last reverse split
+CRE,2026-10-07,2026-10-06,A,PASS,1,2026-02-13,2.6,9.6,72.92,182.0,54.7,137819.0,304,45,6,B,production representation
+CRE,2026-10-07,2026-10-06,ID,PASS,1,2026-02-13,2.6,9.6,72.92,182.0,54.7,137819.0,304,45,6,B,"identity-only: same bars, different ticker label"
+CRE,2026-10-07,2026-10-06,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.6,9.6,72.92,182.0,54.7,137819.0,304,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-10-07,2026-10-06,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.6,9.6,72.92,182.0,54.7,137819.0,304,,,,continuity-only: + split-aware base range
+CRE,2026-10-07,2026-10-06,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.6,8.6,69.77,1847.5,54.7,137819.0,304,,,,continuity-only: unadjusted prices
+CRE,2026-10-07,2026-10-06,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.6,8.6,69.77,182.0,54.7,137819.0,162,,,,continuity-only: history starts at the last reverse split
+CRE,2026-10-08,2026-10-07,A,M2_هبوط_تحت_40,1,2026-02-13,2.65,9.198,71.19,182.0,54.7,137558.0,305,,,,production representation
+CRE,2026-10-08,2026-10-07,ID,M2_هبوط_تحت_40,1,2026-02-13,2.65,9.198,71.19,182.0,54.7,137558.0,305,,,,"identity-only: same bars, different ticker label"
+CRE,2026-10-08,2026-10-07,B_PSH,M2_هبوط_تحت_40,1,2026-02-13,2.65,9.198,71.19,182.0,54.7,137558.0,305,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+CRE,2026-10-08,2026-10-07,B_M4,M2_هبوط_تحت_40,1,2026-02-13,2.65,9.198,71.19,182.0,54.7,137558.0,305,,,,continuity-only: + split-aware base range
+CRE,2026-10-08,2026-10-07,B_RAW,M2_هبوط_تحت_40,1,2026-02-13,2.65,8.6,69.19,1847.5,54.7,137558.0,305,,,,continuity-only: unadjusted prices
+CRE,2026-10-08,2026-10-07,B_CUT,M2_هبوط_تحت_40,1,2026-02-13,2.65,8.6,69.19,182.0,54.7,137558.0,163,,,,continuity-only: history starts at the last reverse split
+DKI,2026-09-11,2026-09-10,A,M_لا_مستوى_مختبر,0,,2.47,188.8,98.69,228.1,80.8,190176.0,274,,,,production representation
+DKI,2026-09-11,2026-09-10,ID,M_لا_مستوى_مختبر,0,,2.47,188.8,98.69,228.1,80.8,190176.0,274,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-11,2026-09-10,B_PSH,M_لا_مستوى_مختبر,0,,2.47,188.8,98.69,228.1,80.8,190176.0,274,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-11,2026-09-10,B_M4,M_لا_مستوى_مختبر,0,,2.47,188.8,98.69,228.1,80.8,190176.0,274,,,,continuity-only: + split-aware base range
+DKI,2026-09-11,2026-09-10,B_RAW,M_لا_مستوى_مختبر,0,,2.47,188.8,98.69,228.1,80.8,190176.0,274,,,,continuity-only: unadjusted prices
+DKI,2026-09-12,2026-09-11,A,M_لا_مستوى_مختبر,0,,2.66,188.8,98.59,228.1,85.3,186180.0,275,,,,production representation
+DKI,2026-09-12,2026-09-11,ID,M_لا_مستوى_مختبر,0,,2.66,188.8,98.59,228.1,85.3,186180.0,275,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-12,2026-09-11,B_PSH,M_لا_مستوى_مختبر,0,,2.66,188.8,98.59,228.1,85.3,186180.0,275,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-12,2026-09-11,B_M4,M_لا_مستوى_مختبر,0,,2.66,188.8,98.59,228.1,85.3,186180.0,275,,,,continuity-only: + split-aware base range
+DKI,2026-09-12,2026-09-11,B_RAW,M_لا_مستوى_مختبر,0,,2.66,188.8,98.59,228.1,85.3,186180.0,275,,,,continuity-only: unadjusted prices
+DKI,2026-09-15,2026-09-14,A,M_لا_مستوى_مختبر,0,,2.535,188.8,98.66,228.1,85.3,178920.0,276,,,,production representation
+DKI,2026-09-15,2026-09-14,ID,M_لا_مستوى_مختبر,0,,2.535,188.8,98.66,228.1,85.3,178920.0,276,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-15,2026-09-14,B_PSH,M_لا_مستوى_مختبر,0,,2.535,188.8,98.66,228.1,85.3,178920.0,276,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-15,2026-09-14,B_M4,M_لا_مستوى_مختبر,0,,2.535,188.8,98.66,228.1,85.3,178920.0,276,,,,continuity-only: + split-aware base range
+DKI,2026-09-15,2026-09-14,B_RAW,M_لا_مستوى_مختبر,0,,2.535,188.8,98.66,228.1,85.3,178920.0,276,,,,continuity-only: unadjusted prices
+DKI,2026-09-16,2026-09-15,A,M_لا_مستوى_مختبر,0,,2.46,188.8,98.7,228.1,85.3,177564.0,277,,,,production representation
+DKI,2026-09-16,2026-09-15,ID,M_لا_مستوى_مختبر,0,,2.46,188.8,98.7,228.1,85.3,177564.0,277,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-16,2026-09-15,B_PSH,M_لا_مستوى_مختبر,0,,2.46,188.8,98.7,228.1,85.3,177564.0,277,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-16,2026-09-15,B_M4,M_لا_مستوى_مختبر,0,,2.46,188.8,98.7,228.1,85.3,177564.0,277,,,,continuity-only: + split-aware base range
+DKI,2026-09-16,2026-09-15,B_RAW,M_لا_مستوى_مختبر,0,,2.46,188.8,98.7,228.1,85.3,177564.0,277,,,,continuity-only: unadjusted prices
+DKI,2026-09-17,2026-09-16,A,M_لا_مستوى_مختبر,0,,2.63,188.8,98.61,228.1,85.3,172670.0,278,,,,production representation
+DKI,2026-09-17,2026-09-16,ID,M_لا_مستوى_مختبر,0,,2.63,188.8,98.61,228.1,85.3,172670.0,278,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-17,2026-09-16,B_PSH,M_لا_مستوى_مختبر,0,,2.63,188.8,98.61,228.1,85.3,172670.0,278,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-17,2026-09-16,B_M4,M_لا_مستوى_مختبر,0,,2.63,188.8,98.61,228.1,85.3,172670.0,278,,,,continuity-only: + split-aware base range
+DKI,2026-09-17,2026-09-16,B_RAW,M_لا_مستوى_مختبر,0,,2.63,188.8,98.61,228.1,85.3,172670.0,278,,,,continuity-only: unadjusted prices
+DKI,2026-09-18,2026-09-17,A,M_لا_مستوى_مختبر,0,,2.68,188.8,98.58,228.1,70.7,168320.0,279,,,,production representation
+DKI,2026-09-18,2026-09-17,ID,M_لا_مستوى_مختبر,0,,2.68,188.8,98.58,228.1,70.7,168320.0,279,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-18,2026-09-17,B_PSH,M_لا_مستوى_مختبر,0,,2.68,188.8,98.58,228.1,70.7,168320.0,279,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-18,2026-09-17,B_M4,M_لا_مستوى_مختبر,0,,2.68,188.8,98.58,228.1,70.7,168320.0,279,,,,continuity-only: + split-aware base range
+DKI,2026-09-18,2026-09-17,B_RAW,M_لا_مستوى_مختبر,0,,2.68,188.8,98.58,228.1,70.7,168320.0,279,,,,continuity-only: unadjusted prices
+DKI,2026-09-19,2026-09-18,A,M_لا_مستوى_مختبر,0,,2.75,188.8,98.54,228.1,56.9,167223.0,280,,,,production representation
+DKI,2026-09-19,2026-09-18,ID,M_لا_مستوى_مختبر,0,,2.75,188.8,98.54,228.1,56.9,167223.0,280,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-19,2026-09-18,B_PSH,M_لا_مستوى_مختبر,0,,2.75,188.8,98.54,228.1,56.9,167223.0,280,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-19,2026-09-18,B_M4,M_لا_مستوى_مختبر,0,,2.75,188.8,98.54,228.1,56.9,167223.0,280,,,,continuity-only: + split-aware base range
+DKI,2026-09-19,2026-09-18,B_RAW,M_لا_مستوى_مختبر,0,,2.75,188.8,98.54,228.1,56.9,167223.0,280,,,,continuity-only: unadjusted prices
+DKI,2026-09-22,2026-09-21,A,M_لا_مستوى_مختبر,0,,2.7,188.8,98.57,228.1,54.3,164714.0,281,,,,production representation
+DKI,2026-09-22,2026-09-21,ID,M_لا_مستوى_مختبر,0,,2.7,188.8,98.57,228.1,54.3,164714.0,281,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-22,2026-09-21,B_PSH,M_لا_مستوى_مختبر,0,,2.7,188.8,98.57,228.1,54.3,164714.0,281,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-22,2026-09-21,B_M4,M_لا_مستوى_مختبر,0,,2.7,188.8,98.57,228.1,54.3,164714.0,281,,,,continuity-only: + split-aware base range
+DKI,2026-09-22,2026-09-21,B_RAW,M_لا_مستوى_مختبر,0,,2.7,188.8,98.57,228.1,54.3,164714.0,281,,,,continuity-only: unadjusted prices
+DKI,2026-09-23,2026-09-22,A,M_لا_مستوى_مختبر,0,,2.54,188.8,98.65,228.1,44.0,165204.0,282,,,,production representation
+DKI,2026-09-23,2026-09-22,ID,M_لا_مستوى_مختبر,0,,2.54,188.8,98.65,228.1,44.0,165204.0,282,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-23,2026-09-22,B_PSH,M_لا_مستوى_مختبر,0,,2.54,188.8,98.65,228.1,44.0,165204.0,282,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-23,2026-09-22,B_M4,M_لا_مستوى_مختبر,0,,2.54,188.8,98.65,228.1,44.0,165204.0,282,,,,continuity-only: + split-aware base range
+DKI,2026-09-23,2026-09-22,B_RAW,M_لا_مستوى_مختبر,0,,2.54,188.8,98.65,228.1,44.0,165204.0,282,,,,continuity-only: unadjusted prices
+DKI,2026-09-24,2026-09-23,A,M_لا_مستوى_مختبر,0,,2.58,188.8,98.63,228.1,40.1,162445.0,283,,,,production representation
+DKI,2026-09-24,2026-09-23,ID,M_لا_مستوى_مختبر,0,,2.58,188.8,98.63,228.1,40.1,162445.0,283,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-24,2026-09-23,B_PSH,M_لا_مستوى_مختبر,0,,2.58,188.8,98.63,228.1,40.1,162445.0,283,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-24,2026-09-23,B_M4,M_لا_مستوى_مختبر,0,,2.58,188.8,98.63,228.1,40.1,162445.0,283,,,,continuity-only: + split-aware base range
+DKI,2026-09-24,2026-09-23,B_RAW,M_لا_مستوى_مختبر,0,,2.58,188.8,98.63,228.1,40.1,162445.0,283,,,,continuity-only: unadjusted prices
+DKI,2026-09-25,2026-09-24,A,M_لا_مستوى_مختبر,0,,2.9,188.8,98.46,228.1,33.2,189225.0,284,,,,production representation
+DKI,2026-09-25,2026-09-24,ID,M_لا_مستوى_مختبر,0,,2.9,188.8,98.46,228.1,33.2,189225.0,284,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-25,2026-09-24,B_PSH,M_لا_مستوى_مختبر,0,,2.9,188.8,98.46,228.1,33.2,189225.0,284,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-25,2026-09-24,B_M4,M_لا_مستوى_مختبر,0,,2.9,188.8,98.46,228.1,33.2,189225.0,284,,,,continuity-only: + split-aware base range
+DKI,2026-09-25,2026-09-24,B_RAW,M_لا_مستوى_مختبر,0,,2.9,188.8,98.46,228.1,33.2,189225.0,284,,,,continuity-only: unadjusted prices
+DKI,2026-09-26,2026-09-25,A,M_لا_مستوى_مختبر,0,,2.73,188.8,98.55,228.1,33.2,194554.0,285,,,,production representation
+DKI,2026-09-26,2026-09-25,ID,M_لا_مستوى_مختبر,0,,2.73,188.8,98.55,228.1,33.2,194554.0,285,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-26,2026-09-25,B_PSH,M_لا_مستوى_مختبر,0,,2.73,188.8,98.55,228.1,33.2,194554.0,285,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-26,2026-09-25,B_M4,M_لا_مستوى_مختبر,0,,2.73,188.8,98.55,228.1,33.2,194554.0,285,,,,continuity-only: + split-aware base range
+DKI,2026-09-26,2026-09-25,B_RAW,M_لا_مستوى_مختبر,0,,2.73,188.8,98.55,228.1,33.2,194554.0,285,,,,continuity-only: unadjusted prices
+DKI,2026-09-29,2026-09-28,A,M_لا_مستوى_مختبر,0,,2.6,188.8,98.62,228.1,26.7,195206.0,286,,,,production representation
+DKI,2026-09-29,2026-09-28,ID,M_لا_مستوى_مختبر,0,,2.6,188.8,98.62,228.1,26.7,195206.0,286,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-29,2026-09-28,B_PSH,M_لا_مستوى_مختبر,0,,2.6,188.8,98.62,228.1,26.7,195206.0,286,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-29,2026-09-28,B_M4,M_لا_مستوى_مختبر,0,,2.6,188.8,98.62,228.1,26.7,195206.0,286,,,,continuity-only: + split-aware base range
+DKI,2026-09-29,2026-09-28,B_RAW,M_لا_مستوى_مختبر,0,,2.6,188.8,98.62,228.1,26.7,195206.0,286,,,,continuity-only: unadjusted prices
+DKI,2026-09-30,2026-09-29,A,M_لا_مستوى_مختبر,0,,2.55,185.44,98.62,228.1,25.0,198414.0,287,,,,production representation
+DKI,2026-09-30,2026-09-29,ID,M_لا_مستوى_مختبر,0,,2.55,185.44,98.62,228.1,25.0,198414.0,287,,,,"identity-only: same bars, different ticker label"
+DKI,2026-09-30,2026-09-29,B_PSH,M_لا_مستوى_مختبر,0,,2.55,185.44,98.62,228.1,25.0,198414.0,287,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-09-30,2026-09-29,B_M4,M_لا_مستوى_مختبر,0,,2.55,185.44,98.62,228.1,25.0,198414.0,287,,,,continuity-only: + split-aware base range
+DKI,2026-09-30,2026-09-29,B_RAW,M_لا_مستوى_مختبر,0,,2.55,185.44,98.62,228.1,25.0,198414.0,287,,,,continuity-only: unadjusted prices
+DKI,2026-10-01,2026-09-30,A,M_لا_مستوى_مختبر,0,,1.57,185.44,99.15,228.1,105.7,547489.0,288,,,,production representation
+DKI,2026-10-01,2026-09-30,ID,M_لا_مستوى_مختبر,0,,1.57,185.44,99.15,228.1,105.7,547489.0,288,,,,"identity-only: same bars, different ticker label"
+DKI,2026-10-01,2026-09-30,B_PSH,M_لا_مستوى_مختبر,0,,1.57,185.44,99.15,228.1,105.7,547489.0,288,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-10-01,2026-09-30,B_M4,M_لا_مستوى_مختبر,0,,1.57,185.44,99.15,228.1,105.7,547489.0,288,,,,continuity-only: + split-aware base range
+DKI,2026-10-01,2026-09-30,B_RAW,M_لا_مستوى_مختبر,0,,1.57,185.44,99.15,228.1,105.7,547489.0,288,,,,continuity-only: unadjusted prices
+DKI,2026-10-02,2026-10-01,A,M4_base_واسعة,0,,1.29,20.0,93.55,228.1,163.6,574754.0,289,,,,production representation
+DKI,2026-10-02,2026-10-01,ID,M4_base_واسعة,0,,1.29,20.0,93.55,228.1,163.6,574754.0,289,,,,"identity-only: same bars, different ticker label"
+DKI,2026-10-02,2026-10-01,B_PSH,M4_base_واسعة,0,,1.29,20.0,93.55,228.1,163.6,574754.0,289,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-10-02,2026-10-01,B_M4,M4_base_واسعة,0,,1.29,20.0,93.55,228.1,163.6,574754.0,289,,,,continuity-only: + split-aware base range
+DKI,2026-10-02,2026-10-01,B_RAW,M4_base_واسعة,0,,1.29,20.0,93.55,228.1,163.6,574754.0,289,,,,continuity-only: unadjusted prices
+DKI,2026-10-03,2026-10-02,A,M4_base_واسعة,0,,1.38,20.0,93.1,228.1,163.6,592073.0,290,,,,production representation
+DKI,2026-10-03,2026-10-02,ID,M4_base_واسعة,0,,1.38,20.0,93.1,228.1,163.6,592073.0,290,,,,"identity-only: same bars, different ticker label"
+DKI,2026-10-03,2026-10-02,B_PSH,M4_base_واسعة,0,,1.38,20.0,93.1,228.1,163.6,592073.0,290,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-10-03,2026-10-02,B_M4,M4_base_واسعة,0,,1.38,20.0,93.1,228.1,163.6,592073.0,290,,,,continuity-only: + split-aware base range
+DKI,2026-10-03,2026-10-02,B_RAW,M4_base_واسعة,0,,1.38,20.0,93.1,228.1,163.6,592073.0,290,,,,continuity-only: unadjusted prices
+DKI,2026-10-06,2026-10-05,A,M4_base_واسعة,0,,1.5,19.36,92.25,228.1,163.6,607344.0,291,,,,production representation
+DKI,2026-10-06,2026-10-05,ID,M4_base_واسعة,0,,1.5,19.36,92.25,228.1,163.6,607344.0,291,,,,"identity-only: same bars, different ticker label"
+DKI,2026-10-06,2026-10-05,B_PSH,M4_base_واسعة,0,,1.5,19.36,92.25,228.1,163.6,607344.0,291,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-10-06,2026-10-05,B_M4,M4_base_واسعة,0,,1.5,19.36,92.25,228.1,163.6,607344.0,291,,,,continuity-only: + split-aware base range
+DKI,2026-10-06,2026-10-05,B_RAW,M4_base_واسعة,0,,1.5,19.36,92.25,228.1,163.6,607344.0,291,,,,continuity-only: unadjusted prices
+DKI,2026-10-07,2026-10-06,A,M4_base_واسعة,0,,1.36,19.36,92.98,228.1,163.6,613140.0,292,,,,production representation
+DKI,2026-10-07,2026-10-06,ID,M4_base_واسعة,0,,1.36,19.36,92.98,228.1,163.6,613140.0,292,,,,"identity-only: same bars, different ticker label"
+DKI,2026-10-07,2026-10-06,B_PSH,M4_base_واسعة,0,,1.36,19.36,92.98,228.1,163.6,613140.0,292,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-10-07,2026-10-06,B_M4,M4_base_واسعة,0,,1.36,19.36,92.98,228.1,163.6,613140.0,292,,,,continuity-only: + split-aware base range
+DKI,2026-10-07,2026-10-06,B_RAW,M4_base_واسعة,0,,1.36,19.36,92.98,228.1,163.6,613140.0,292,,,,continuity-only: unadjusted prices
+DKI,2026-10-08,2026-10-07,A,M4_base_واسعة,0,,1.67,19.36,91.37,228.1,230.9,4603882.0,293,,,,production representation
+DKI,2026-10-08,2026-10-07,ID,M4_base_واسعة,0,,1.67,19.36,91.37,228.1,230.9,4603882.0,293,,,,"identity-only: same bars, different ticker label"
+DKI,2026-10-08,2026-10-07,B_PSH,M4_base_واسعة,0,,1.67,19.36,91.37,228.1,230.9,4603882.0,293,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+DKI,2026-10-08,2026-10-07,B_M4,M4_base_واسعة,0,,1.67,19.36,91.37,228.1,230.9,4603882.0,293,,,,continuity-only: + split-aware base range
+DKI,2026-10-08,2026-10-07,B_RAW,M4_base_واسعة,0,,1.67,19.36,91.37,228.1,230.9,4603882.0,293,,,,continuity-only: unadjusted prices
+HUBC,2026-09-11,2026-09-10,A,M2_هبوط_فوق_97,3,2026-09-14,10.4075,1038712.5,100.0,512.8,95.2,137459.0,423,,,,production representation
+HUBC,2026-09-11,2026-09-10,ID,M2_هبوط_فوق_97,3,2026-09-14,10.4075,1038712.5,100.0,512.8,95.2,137459.0,423,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-11,2026-09-10,B_PSH,M_لا_مستوى_مختبر,3,2026-09-14,10.4075,1038712.5,100.0,512.8,95.2,137459.0,423,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-11,2026-09-10,B_M4,M_لا_مستوى_مختبر,3,2026-09-14,10.4075,1038712.5,100.0,512.8,95.2,137459.0,423,,,,continuity-only: + split-aware base range
+HUBC,2026-09-11,2026-09-10,B_RAW,M_لا_مستوى_مختبر,3,2026-09-14,0.4163,7.0,94.05,7400.0,95.2,137459.0,423,,,,continuity-only: unadjusted prices
+HUBC,2026-09-12,2026-09-11,A,M2_هبوط_فوق_97,3,2026-09-14,8.5125,980925.0,100.0,512.8,134.4,134413.0,424,,,,production representation
+HUBC,2026-09-12,2026-09-11,ID,M2_هبوط_فوق_97,3,2026-09-14,8.5125,980925.0,100.0,512.8,134.4,134413.0,424,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-12,2026-09-11,B_PSH,M4_base_واسعة,3,2026-09-14,8.5125,980925.0,100.0,512.8,134.4,134413.0,424,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-12,2026-09-11,B_M4,M4_base_واسعة,3,2026-09-14,8.5125,980925.0,100.0,512.8,134.4,134413.0,424,,,,continuity-only: + split-aware base range
+HUBC,2026-09-12,2026-09-11,B_RAW,M1_سعر,3,2026-09-14,0.3405,7.0,95.14,7400.0,134.4,134413.0,424,,,,continuity-only: unadjusted prices
+HUBC,2026-09-15,2026-09-14,A,M2_هبوط_فوق_97,4,2026-09-14,7.635,948750.0,100.0,512.8,201.1,139817.0,425,,,,production representation
+HUBC,2026-09-15,2026-09-14,ID,M2_هبوط_فوق_97,4,2026-09-14,7.635,948750.0,100.0,512.8,201.1,139817.0,425,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-15,2026-09-14,B_PSH,M2_هبوط_تحت_40,4,2026-09-14,7.635,948750.0,100.0,512.8,201.1,139817.0,425,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-15,2026-09-14,B_M4,M2_هبوط_تحت_40,4,2026-09-14,7.635,948750.0,100.0,512.8,201.1,139817.0,425,,,,continuity-only: + split-aware base range
+HUBC,2026-09-15,2026-09-14,B_RAW,M2_هبوط_تحت_40,4,2026-09-14,7.635,8.675,11.99,7400.0,2451.5,139817.0,425,,,,continuity-only: unadjusted prices
+HUBC,2026-09-15,2026-09-14,B_CUT,TOO_FEW_BARS,4,2026-09-14,7.635,8.675,11.99,0.0,31.1,230531.0,1,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-16,2026-09-15,A,M2_هبوط_فوق_97,4,2026-09-14,6.33,948750.0,100.0,512.8,216.3,141464.0,426,,,,production representation
+HUBC,2026-09-16,2026-09-15,ID,M2_هبوط_فوق_97,4,2026-09-14,6.33,948750.0,100.0,512.8,216.3,141464.0,426,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-16,2026-09-15,B_PSH,M2_هبوط_تحت_40,4,2026-09-14,6.33,948750.0,100.0,512.8,216.3,141464.0,426,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-16,2026-09-15,B_M4,M2_هبوط_تحت_40,4,2026-09-14,6.33,948750.0,100.0,512.8,216.3,141464.0,426,,,,continuity-only: + split-aware base range
+HUBC,2026-09-16,2026-09-15,B_RAW,M2_هبوط_تحت_40,4,2026-09-14,6.33,8.675,27.03,7400.0,2451.5,141464.0,426,,,,continuity-only: unadjusted prices
+HUBC,2026-09-16,2026-09-15,B_CUT,TOO_FEW_BARS,4,2026-09-14,6.33,8.675,27.03,0.0,37.7,218885.0,2,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-17,2026-09-16,A,M2_هبوط_فوق_97,4,2026-09-14,6.03,906750.0,100.0,512.8,245.7,136621.0,427,,,,production representation
+HUBC,2026-09-17,2026-09-16,ID,M2_هبوط_فوق_97,4,2026-09-14,6.03,906750.0,100.0,512.8,245.7,136621.0,427,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-17,2026-09-16,B_PSH,M2_هبوط_تحت_40,4,2026-09-14,6.03,906750.0,100.0,512.8,245.7,136621.0,427,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-17,2026-09-16,B_M4,M2_هبوط_تحت_40,4,2026-09-14,6.03,906750.0,100.0,512.8,245.7,136621.0,427,,,,continuity-only: + split-aware base range
+HUBC,2026-09-17,2026-09-16,B_RAW,M2_هبوط_تحت_40,4,2026-09-14,6.03,8.675,30.49,7400.0,2451.5,136621.0,427,,,,continuity-only: unadjusted prices
+HUBC,2026-09-17,2026-09-16,B_CUT,TOO_FEW_BARS,4,2026-09-14,6.03,8.675,30.49,0.0,50.5,173762.0,3,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-18,2026-09-17,A,M2_هبوط_فوق_97,4,2026-09-14,5.165,900000.0,100.0,512.8,297.7,142752.0,428,,,,production representation
+HUBC,2026-09-18,2026-09-17,ID,M2_هبوط_فوق_97,4,2026-09-14,5.165,900000.0,100.0,512.8,297.7,142752.0,428,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-18,2026-09-17,B_PSH,M2_هبوط_تحت_40,4,2026-09-14,5.165,900000.0,100.0,512.8,297.7,142752.0,428,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-18,2026-09-17,B_M4,M2_هبوط_تحت_40,4,2026-09-14,5.165,900000.0,100.0,512.8,297.7,142752.0,428,,,,continuity-only: + split-aware base range
+HUBC,2026-09-18,2026-09-17,B_RAW,M2_هبوط_تحت_40,4,2026-09-14,5.165,8.675,40.46,7400.0,2451.5,142752.0,428,,,,continuity-only: unadjusted prices
+HUBC,2026-09-18,2026-09-17,B_CUT,TOO_FEW_BARS,4,2026-09-14,5.165,8.675,40.46,0.0,73.2,178296.0,4,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-19,2026-09-18,A,M2_هبوط_فوق_97,4,2026-09-14,4.6,900000.0,100.0,512.8,333.1,136584.0,429,,,,production representation
+HUBC,2026-09-19,2026-09-18,ID,M2_هبوط_فوق_97,4,2026-09-14,4.6,900000.0,100.0,512.8,333.1,136584.0,429,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-19,2026-09-18,B_PSH,M2_هبوط_تحت_40,4,2026-09-14,4.6,900000.0,100.0,512.8,333.1,136584.0,429,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-19,2026-09-18,B_M4,M2_هبوط_تحت_40,4,2026-09-14,4.6,900000.0,100.0,512.8,333.1,136584.0,429,,,,continuity-only: + split-aware base range
+HUBC,2026-09-19,2026-09-18,B_RAW,M2_هبوط_تحت_40,4,2026-09-14,4.6,8.675,46.97,7400.0,2451.5,136584.0,429,,,,continuity-only: unadjusted prices
+HUBC,2026-09-19,2026-09-18,B_CUT,TOO_FEW_BARS,4,2026-09-14,4.6,8.675,46.97,0.0,88.6,156596.0,5,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-22,2026-09-21,A,M2_هبوط_فوق_97,4,2026-09-14,6.0,877500.0,100.0,512.8,317.4,493033.0,430,,,,production representation
+HUBC,2026-09-22,2026-09-21,ID,M2_هبوط_فوق_97,4,2026-09-14,6.0,877500.0,100.0,512.8,317.4,493033.0,430,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-22,2026-09-21,B_PSH,M2_هبوط_تحت_40,4,2026-09-14,6.0,877500.0,100.0,512.8,317.4,493033.0,430,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-22,2026-09-21,B_M4,M2_هبوط_تحت_40,4,2026-09-14,6.0,877500.0,100.0,512.8,317.4,493033.0,430,,,,continuity-only: + split-aware base range
+HUBC,2026-09-22,2026-09-21,B_RAW,M2_هبوط_تحت_40,4,2026-09-14,6.0,8.675,30.84,7400.0,2451.5,493033.0,430,,,,continuity-only: unadjusted prices
+HUBC,2026-09-22,2026-09-21,B_CUT,TOO_FEW_BARS,4,2026-09-14,6.0,8.675,30.84,0.0,89.8,1329991.0,6,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-23,2026-09-22,A,M2_هبوط_فوق_97,4,2026-09-14,4.24,877500.0,100.0,512.8,413.9,628063.0,431,,,,production representation
+HUBC,2026-09-23,2026-09-22,ID,M2_هبوط_فوق_97,4,2026-09-14,4.24,877500.0,100.0,512.8,413.9,628063.0,431,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-23,2026-09-22,B_PSH,M2_هبوط_تحت_40,4,2026-09-14,4.24,877500.0,100.0,512.8,413.9,628063.0,431,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-23,2026-09-22,B_M4,M2_هبوط_تحت_40,4,2026-09-14,4.24,877500.0,100.0,512.8,413.9,628063.0,431,,,,continuity-only: + split-aware base range
+HUBC,2026-09-23,2026-09-22,B_RAW,M2_هبوط_تحت_40,4,2026-09-14,4.24,8.675,51.12,7400.0,2451.5,628063.0,431,,,,continuity-only: unadjusted prices
+HUBC,2026-09-23,2026-09-22,B_CUT,TOO_FEW_BARS,4,2026-09-14,4.24,8.675,51.12,0.0,134.5,1541135.0,7,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-24,2026-09-23,A,M2_هبوط_فوق_97,4,2026-09-14,3.21,877500.0,100.0,512.8,499.8,690813.0,432,,,,production representation
+HUBC,2026-09-24,2026-09-23,ID,M2_هبوط_فوق_97,4,2026-09-14,3.21,877500.0,100.0,512.8,499.8,690813.0,432,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-24,2026-09-23,B_PSH,M2_هبوط_تحت_40,4,2026-09-14,3.21,877500.0,100.0,512.8,499.8,690813.0,432,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-24,2026-09-23,B_M4,M2_هبوط_تحت_40,4,2026-09-14,3.21,877500.0,100.0,512.8,499.8,690813.0,432,,,,continuity-only: + split-aware base range
+HUBC,2026-09-24,2026-09-23,B_RAW,M2_هبوط_تحت_40,4,2026-09-14,3.21,8.675,63.0,7400.0,2451.5,690813.0,432,,,,continuity-only: unadjusted prices
+HUBC,2026-09-24,2026-09-23,B_CUT,TOO_FEW_BARS,4,2026-09-14,3.21,8.675,63.0,0.0,173.7,1523232.0,8,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-25,2026-09-24,A,M2_هبوط_فوق_97,4,2026-09-14,2.33,821250.0,100.0,512.8,707.5,729891.0,433,,,,production representation
+HUBC,2026-09-25,2026-09-24,ID,M2_هبوط_فوق_97,4,2026-09-14,2.33,821250.0,100.0,512.8,707.5,729891.0,433,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-25,2026-09-24,B_PSH,M4_base_واسعة,4,2026-09-14,2.33,821250.0,100.0,512.8,707.5,729891.0,433,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-25,2026-09-24,B_M4,M4_base_واسعة,4,2026-09-14,2.33,821250.0,100.0,512.8,707.5,729891.0,433,,,,continuity-only: + split-aware base range
+HUBC,2026-09-25,2026-09-24,B_RAW,M4_base_واسعة,4,2026-09-14,2.33,8.675,73.14,7400.0,2451.5,729891.0,433,,,,continuity-only: unadjusted prices
+HUBC,2026-09-25,2026-09-24,B_CUT,TOO_FEW_BARS,4,2026-09-14,2.33,8.675,73.14,0.0,283.8,1452738.0,9,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-26,2026-09-25,A,M2_هبوط_فوق_97,4,2026-09-14,1.9,816112.5,100.0,512.8,909.2,792632.0,434,,,,production representation
+HUBC,2026-09-26,2026-09-25,ID,M2_هبوط_فوق_97,4,2026-09-14,1.9,816112.5,100.0,512.8,909.2,792632.0,434,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-26,2026-09-25,B_PSH,M4_base_واسعة,4,2026-09-14,1.9,816112.5,100.0,512.8,909.2,792632.0,434,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-26,2026-09-25,B_M4,M4_base_واسعة,4,2026-09-14,1.9,816112.5,100.0,512.8,909.2,792632.0,434,,,,continuity-only: + split-aware base range
+HUBC,2026-09-26,2026-09-25,B_RAW,M4_base_واسعة,4,2026-09-14,1.9,8.675,78.1,7400.0,2451.5,792632.0,434,,,,continuity-only: unadjusted prices
+HUBC,2026-09-26,2026-09-25,B_CUT,TOO_FEW_BARS,4,2026-09-14,1.9,8.675,78.1,0.0,388.7,1443617.0,10,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-29,2026-09-28,A,M2_هبوط_فوق_97,4,2026-09-14,1.49,787500.0,100.0,512.8,1038.6,816931.0,435,,,,production representation
+HUBC,2026-09-29,2026-09-28,ID,M2_هبوط_فوق_97,4,2026-09-14,1.49,787500.0,100.0,512.8,1038.6,816931.0,435,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-29,2026-09-28,B_PSH,M4_base_واسعة,4,2026-09-14,1.49,787500.0,100.0,512.8,1038.6,816931.0,435,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-29,2026-09-28,B_M4,M4_base_واسعة,4,2026-09-14,1.49,787500.0,100.0,512.8,1038.6,816931.0,435,,,,continuity-only: + split-aware base range
+HUBC,2026-09-29,2026-09-28,B_RAW,M4_base_واسعة,4,2026-09-14,1.49,8.675,82.82,7400.0,2451.5,816931.0,435,,,,continuity-only: unadjusted prices
+HUBC,2026-09-29,2026-09-28,B_CUT,TOO_FEW_BARS,4,2026-09-14,1.49,8.675,82.82,0.0,490.1,1366205.0,11,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-09-30,2026-09-29,A,M2_هبوط_فوق_97,4,2026-09-14,0.995,787500.0,100.0,512.8,1576.5,850341.0,436,,,,production representation
+HUBC,2026-09-30,2026-09-29,ID,M2_هبوط_فوق_97,4,2026-09-14,0.995,787500.0,100.0,512.8,1576.5,850341.0,436,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-09-30,2026-09-29,B_PSH,M4_base_واسعة,4,2026-09-14,0.995,787500.0,100.0,512.8,1576.5,850341.0,436,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-09-30,2026-09-29,B_M4,M4_base_واسعة,4,2026-09-14,0.995,787500.0,100.0,512.8,1576.5,850341.0,436,,,,continuity-only: + split-aware base range
+HUBC,2026-09-30,2026-09-29,B_RAW,M4_base_واسعة,4,2026-09-14,0.995,8.675,88.53,7400.0,2451.5,850341.0,436,,,,continuity-only: unadjusted prices
+HUBC,2026-09-30,2026-09-29,B_CUT,TOO_FEW_BARS,4,2026-09-14,0.995,8.675,88.53,0.0,785.2,1315344.0,12,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-10-01,2026-09-30,A,M2_هبوط_فوق_97,4,2026-09-14,0.995,787500.0,100.0,512.8,1372.9,871771.0,437,,,,production representation
+HUBC,2026-10-01,2026-09-30,ID,M2_هبوط_فوق_97,4,2026-09-14,0.995,787500.0,100.0,512.8,1372.9,871771.0,437,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-10-01,2026-09-30,B_PSH,M4_base_واسعة,4,2026-09-14,0.995,787500.0,100.0,512.8,1372.9,871771.0,437,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-10-01,2026-09-30,B_M4,M4_base_واسعة,4,2026-09-14,0.995,787500.0,100.0,512.8,1372.9,871771.0,437,,,,continuity-only: + split-aware base range
+HUBC,2026-10-01,2026-09-30,B_RAW,M4_base_واسعة,4,2026-09-14,0.995,8.675,88.53,7400.0,2451.5,871771.0,437,,,,continuity-only: unadjusted prices
+HUBC,2026-10-01,2026-09-30,B_CUT,TOO_FEW_BARS,4,2026-09-14,0.995,8.675,88.53,0.0,882.9,1249855.0,13,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-10-02,2026-10-01,A,M2_هبوط_فوق_97,4,2026-09-14,1.03,787500.0,100.0,512.8,1093.9,876882.0,438,,,,production representation
+HUBC,2026-10-02,2026-10-01,ID,M2_هبوط_فوق_97,4,2026-09-14,1.03,787500.0,100.0,512.8,1093.9,876882.0,438,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-10-02,2026-10-01,B_PSH,M4_base_واسعة,4,2026-09-14,1.03,787500.0,100.0,512.8,1093.9,876882.0,438,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-10-02,2026-10-01,B_M4,M4_base_واسعة,4,2026-09-14,1.03,787500.0,100.0,512.8,1093.9,876882.0,438,,,,continuity-only: + split-aware base range
+HUBC,2026-10-02,2026-10-01,B_RAW,M4_base_واسعة,4,2026-09-14,1.03,8.675,88.13,7400.0,2451.5,876882.0,438,,,,continuity-only: unadjusted prices
+HUBC,2026-10-02,2026-10-01,B_CUT,TOO_FEW_BARS,4,2026-09-14,1.03,8.675,88.13,0.0,882.9,1177232.0,14,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-10-03,2026-10-02,A,M2_هبوط_فوق_97,4,2026-09-14,1.01,787500.0,100.0,512.8,882.9,884101.0,439,,,,production representation
+HUBC,2026-10-03,2026-10-02,ID,M2_هبوط_فوق_97,4,2026-09-14,1.01,787500.0,100.0,512.8,882.9,884101.0,439,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-10-03,2026-10-02,B_PSH,M4_base_واسعة,4,2026-09-14,1.01,787500.0,100.0,512.8,882.9,884101.0,439,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-10-03,2026-10-02,B_M4,M4_base_واسعة,4,2026-09-14,1.01,787500.0,100.0,512.8,882.9,884101.0,439,,,,continuity-only: + split-aware base range
+HUBC,2026-10-03,2026-10-02,B_RAW,M4_base_واسعة,4,2026-09-14,1.01,8.675,88.36,7400.0,882.9,884101.0,439,,,,continuity-only: unadjusted prices
+HUBC,2026-10-03,2026-10-02,B_CUT,TOO_FEW_BARS,4,2026-09-14,1.01,8.675,88.36,0.0,882.9,1116906.0,15,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-10-06,2026-10-05,A,M2_هبوط_فوق_97,4,2026-09-14,0.9999,787500.0,100.0,512.8,736.2,885928.0,440,,,,production representation
+HUBC,2026-10-06,2026-10-05,ID,M2_هبوط_فوق_97,4,2026-09-14,0.9999,787500.0,100.0,512.8,736.2,885928.0,440,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-10-06,2026-10-05,B_PSH,M4_base_واسعة,4,2026-09-14,0.9999,787500.0,100.0,512.8,736.2,885928.0,440,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-10-06,2026-10-05,B_M4,M4_base_واسعة,4,2026-09-14,0.9999,787500.0,100.0,512.8,736.2,885928.0,440,,,,continuity-only: + split-aware base range
+HUBC,2026-10-06,2026-10-05,B_RAW,M4_base_واسعة,4,2026-09-14,0.9999,8.675,88.47,7400.0,736.2,885928.0,440,,,,continuity-only: unadjusted prices
+HUBC,2026-10-06,2026-10-05,B_CUT,TOO_FEW_BARS,4,2026-09-14,0.9999,8.675,88.47,0.0,736.2,1056542.0,16,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-10-07,2026-10-06,A,M2_هبوط_فوق_97,4,2026-09-14,1.05,787500.0,100.0,512.8,635.3,898212.0,441,,,,production representation
+HUBC,2026-10-07,2026-10-06,ID,M2_هبوط_فوق_97,4,2026-09-14,1.05,787500.0,100.0,512.8,635.3,898212.0,441,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-10-07,2026-10-06,B_PSH,M4_base_واسعة,4,2026-09-14,1.05,787500.0,100.0,512.8,635.3,898212.0,441,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-10-07,2026-10-06,B_M4,M4_base_واسعة,4,2026-09-14,1.05,787500.0,100.0,512.8,635.3,898212.0,441,,,,continuity-only: + split-aware base range
+HUBC,2026-10-07,2026-10-06,B_RAW,M4_base_واسعة,4,2026-09-14,1.05,8.675,87.9,7400.0,635.3,898212.0,441,,,,continuity-only: unadjusted prices
+HUBC,2026-10-07,2026-10-06,B_CUT,TOO_FEW_BARS,4,2026-09-14,1.05,8.675,87.9,0.0,635.3,1018617.0,17,,,,continuity-only: history starts at the last reverse split
+HUBC,2026-10-08,2026-10-07,A,M2_هبوط_فوق_97,4,2026-09-14,0.9456,742500.0,100.0,512.8,635.3,901609.0,442,,,,production representation
+HUBC,2026-10-08,2026-10-07,ID,M2_هبوط_فوق_97,4,2026-09-14,0.9456,742500.0,100.0,512.8,635.3,901609.0,442,,,,"identity-only: same bars, different ticker label"
+HUBC,2026-10-08,2026-10-07,B_PSH,M4_base_واسعة,4,2026-09-14,0.9456,742500.0,100.0,512.8,635.3,901609.0,442,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+HUBC,2026-10-08,2026-10-07,B_M4,M4_base_واسعة,4,2026-09-14,0.9456,742500.0,100.0,512.8,635.3,901609.0,442,,,,continuity-only: + split-aware base range
+HUBC,2026-10-08,2026-10-07,B_RAW,M4_base_واسعة,4,2026-09-14,0.9456,8.675,89.1,7400.0,635.3,901609.0,442,,,,continuity-only: unadjusted prices
+HUBC,2026-10-08,2026-10-07,B_CUT,TOO_FEW_BARS,4,2026-09-14,0.9456,8.675,89.1,0.0,635.3,970590.0,18,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-11,2026-09-10,A,M2_هبوط_فوق_97,2,2026-08-10,1.93,83758.2416,100.0,145.7,146.9,7982728.0,423,,,,production representation
+SXTC,2026-09-11,2026-09-10,ID,M2_هبوط_فوق_97,2,2026-08-10,1.93,83758.2416,100.0,145.7,146.9,7982728.0,423,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-11,2026-09-10,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,1.93,83758.2416,100.0,145.7,146.9,7982728.0,423,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-11,2026-09-10,B_M4,M2_هبوط_تحت_40,2,2026-08-10,1.93,83758.2416,100.0,145.7,146.9,7982728.0,423,,,,continuity-only: + split-aware base range
+SXTC,2026-09-11,2026-09-10,B_RAW,M4_base_واسعة,2,2026-08-10,1.93,6.9799,72.35,14513.0,146.9,7982728.0,423,,,,continuity-only: unadjusted prices
+SXTC,2026-09-11,2026-09-10,B_CUT,TOO_FEW_BARS,2,2026-08-10,1.93,5.55,65.23,0.0,146.9,7982728.0,23,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-12,2026-09-11,A,M2_هبوط_فوق_97,2,2026-08-10,2.56,83758.2416,100.0,145.7,139.3,9741596.0,424,,,,production representation
+SXTC,2026-09-12,2026-09-11,ID,M2_هبوط_فوق_97,2,2026-08-10,2.56,83758.2416,100.0,145.7,139.3,9741596.0,424,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-12,2026-09-11,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.56,83758.2416,100.0,145.7,139.3,9741596.0,424,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-12,2026-09-11,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.56,83758.2416,100.0,145.7,139.3,9741596.0,424,,,,continuity-only: + split-aware base range
+SXTC,2026-09-12,2026-09-11,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.56,6.9799,63.32,14513.0,139.3,9741596.0,424,,,,continuity-only: unadjusted prices
+SXTC,2026-09-12,2026-09-11,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.56,5.55,53.87,0.0,139.3,9741596.0,24,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-15,2026-09-14,A,M2_هبوط_فوق_97,2,2026-08-10,2.66,83758.2416,100.0,145.7,124.7,6294940.0,425,,,,production representation
+SXTC,2026-09-15,2026-09-14,ID,M2_هبوط_فوق_97,2,2026-08-10,2.66,83758.2416,100.0,145.7,124.7,6294940.0,425,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-15,2026-09-14,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.66,83758.2416,100.0,145.7,124.7,6294940.0,425,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-15,2026-09-14,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.66,83758.2416,100.0,145.7,124.7,6294940.0,425,,,,continuity-only: + split-aware base range
+SXTC,2026-09-15,2026-09-14,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.66,6.9799,61.89,14513.0,124.7,6294940.0,425,,,,continuity-only: unadjusted prices
+SXTC,2026-09-15,2026-09-14,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.66,5.55,52.07,0.0,124.7,6294940.0,25,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-16,2026-09-15,A,M2_هبوط_فوق_97,2,2026-08-10,2.36,83758.2416,100.0,145.7,112.9,6217418.0,426,,,,production representation
+SXTC,2026-09-16,2026-09-15,ID,M2_هبوط_فوق_97,2,2026-08-10,2.36,83758.2416,100.0,145.7,112.9,6217418.0,426,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-16,2026-09-15,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.36,83758.2416,100.0,145.7,112.9,6217418.0,426,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-16,2026-09-15,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.36,83758.2416,100.0,145.7,112.9,6217418.0,426,,,,continuity-only: + split-aware base range
+SXTC,2026-09-16,2026-09-15,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.36,6.9799,66.19,14513.0,112.9,6217418.0,426,,,,continuity-only: unadjusted prices
+SXTC,2026-09-16,2026-09-15,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.36,5.55,57.48,0.0,112.9,6217418.0,26,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-17,2026-09-16,A,M2_هبوط_فوق_97,2,2026-08-10,2.19,83758.2416,100.0,145.7,109.6,2837544.0,427,,,,production representation
+SXTC,2026-09-17,2026-09-16,ID,M2_هبوط_فوق_97,2,2026-08-10,2.19,83758.2416,100.0,145.7,109.6,2837544.0,427,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-17,2026-09-16,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.19,83758.2416,100.0,145.7,109.6,2837544.0,427,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-17,2026-09-16,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.19,83758.2416,100.0,145.7,109.6,2837544.0,427,,,,continuity-only: + split-aware base range
+SXTC,2026-09-17,2026-09-16,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.19,6.9799,68.62,14513.0,109.6,2837544.0,427,,,,continuity-only: unadjusted prices
+SXTC,2026-09-17,2026-09-16,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.19,5.55,60.54,0.0,109.6,2837544.0,27,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-18,2026-09-17,A,M2_هبوط_فوق_97,2,2026-08-10,2.435,83758.2416,100.0,145.7,103.9,2763323.0,428,,,,production representation
+SXTC,2026-09-18,2026-09-17,ID,M2_هبوط_فوق_97,2,2026-08-10,2.435,83758.2416,100.0,145.7,103.9,2763323.0,428,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-18,2026-09-17,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.435,83758.2416,100.0,145.7,103.9,2763323.0,428,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-18,2026-09-17,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.435,83758.2416,100.0,145.7,103.9,2763323.0,428,,,,continuity-only: + split-aware base range
+SXTC,2026-09-18,2026-09-17,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.435,6.9799,65.11,14513.0,103.9,2763323.0,428,,,,continuity-only: unadjusted prices
+SXTC,2026-09-18,2026-09-17,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.435,5.55,56.13,0.0,103.9,2763323.0,28,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-19,2026-09-18,A,M2_هبوط_فوق_97,2,2026-08-10,2.4,83758.2416,100.0,145.7,87.6,2720515.0,429,,,,production representation
+SXTC,2026-09-19,2026-09-18,ID,M2_هبوط_فوق_97,2,2026-08-10,2.4,83758.2416,100.0,145.7,87.6,2720515.0,429,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-19,2026-09-18,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.4,83758.2416,100.0,145.7,87.6,2720515.0,429,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-19,2026-09-18,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.4,83758.2416,100.0,145.7,87.6,2720515.0,429,,,,continuity-only: + split-aware base range
+SXTC,2026-09-19,2026-09-18,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.4,6.9799,65.62,14513.0,87.6,2720515.0,429,,,,continuity-only: unadjusted prices
+SXTC,2026-09-19,2026-09-18,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.4,5.55,56.76,0.0,87.6,2720515.0,29,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-22,2026-09-21,A,M2_هبوط_فوق_97,2,2026-08-10,2.38,83758.2416,100.0,145.7,71.3,2113136.0,430,,,,production representation
+SXTC,2026-09-22,2026-09-21,ID,M2_هبوط_فوق_97,2,2026-08-10,2.38,83758.2416,100.0,145.7,71.3,2113136.0,430,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-22,2026-09-21,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.38,83758.2416,100.0,145.7,71.3,2113136.0,430,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-22,2026-09-21,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.38,83758.2416,100.0,145.7,71.3,2113136.0,430,,,,continuity-only: + split-aware base range
+SXTC,2026-09-22,2026-09-21,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.38,6.9799,65.9,14513.0,71.3,2113136.0,430,,,,continuity-only: unadjusted prices
+SXTC,2026-09-22,2026-09-21,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.38,5.55,57.12,55.5,71.3,2113136.0,30,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-23,2026-09-22,A,M2_هبوط_فوق_97,2,2026-08-10,2.47,83758.2416,100.0,145.7,68.5,2093137.0,431,,,,production representation
+SXTC,2026-09-23,2026-09-22,ID,M2_هبوط_فوق_97,2,2026-08-10,2.47,83758.2416,100.0,145.7,68.5,2093137.0,431,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-23,2026-09-22,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.47,83758.2416,100.0,145.7,68.5,2093137.0,431,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-23,2026-09-22,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.47,83758.2416,100.0,145.7,68.5,2093137.0,431,,,,continuity-only: + split-aware base range
+SXTC,2026-09-23,2026-09-22,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.47,6.9799,64.61,14513.0,68.5,2093137.0,431,,,,continuity-only: unadjusted prices
+SXTC,2026-09-23,2026-09-22,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.47,5.55,55.5,55.5,68.5,2093137.0,31,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-24,2026-09-23,A,M2_هبوط_فوق_97,2,2026-08-10,2.51,83758.2416,100.0,145.7,68.5,2070560.0,432,,,,production representation
+SXTC,2026-09-24,2026-09-23,ID,M2_هبوط_فوق_97,2,2026-08-10,2.51,83758.2416,100.0,145.7,68.5,2070560.0,432,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-24,2026-09-23,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.51,83758.2416,100.0,145.7,68.5,2070560.0,432,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-24,2026-09-23,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.51,83758.2416,100.0,145.7,68.5,2070560.0,432,,,,continuity-only: + split-aware base range
+SXTC,2026-09-24,2026-09-23,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.51,6.9799,64.04,14513.0,68.5,2070560.0,432,,,,continuity-only: unadjusted prices
+SXTC,2026-09-24,2026-09-23,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.51,5.55,54.77,55.5,68.5,2070560.0,32,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-25,2026-09-24,A,M2_هبوط_فوق_97,2,2026-08-10,2.55,83758.2416,100.0,145.7,68.5,2062207.0,433,,,,production representation
+SXTC,2026-09-25,2026-09-24,ID,M2_هبوط_فوق_97,2,2026-08-10,2.55,83758.2416,100.0,145.7,68.5,2062207.0,433,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-25,2026-09-24,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.55,83758.2416,100.0,145.7,68.5,2062207.0,433,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-25,2026-09-24,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.55,83758.2416,100.0,145.7,68.5,2062207.0,433,,,,continuity-only: + split-aware base range
+SXTC,2026-09-25,2026-09-24,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.55,6.9799,63.47,14513.0,68.5,2062207.0,433,,,,continuity-only: unadjusted prices
+SXTC,2026-09-25,2026-09-24,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.55,5.55,54.05,55.5,68.5,2062207.0,33,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-26,2026-09-25,A,M2_هبوط_فوق_97,2,2026-08-10,2.57,83758.2416,100.0,145.7,68.5,2045347.0,434,,,,production representation
+SXTC,2026-09-26,2026-09-25,ID,M2_هبوط_فوق_97,2,2026-08-10,2.57,83758.2416,100.0,145.7,68.5,2045347.0,434,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-26,2026-09-25,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.57,83758.2416,100.0,145.7,68.5,2045347.0,434,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-26,2026-09-25,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.57,83758.2416,100.0,145.7,68.5,2045347.0,434,,,,continuity-only: + split-aware base range
+SXTC,2026-09-26,2026-09-25,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.57,6.9799,63.18,14513.0,68.5,2045347.0,434,,,,continuity-only: unadjusted prices
+SXTC,2026-09-26,2026-09-25,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.57,5.55,53.69,55.5,68.5,2045347.0,34,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-29,2026-09-28,A,M2_هبوط_فوق_97,2,2026-08-10,2.52,83758.2416,100.0,145.7,68.5,2030150.0,435,,,,production representation
+SXTC,2026-09-29,2026-09-28,ID,M2_هبوط_فوق_97,2,2026-08-10,2.52,83758.2416,100.0,145.7,68.5,2030150.0,435,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-29,2026-09-28,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.52,83758.2416,100.0,145.7,68.5,2030150.0,435,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-29,2026-09-28,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.52,83758.2416,100.0,145.7,68.5,2030150.0,435,,,,continuity-only: + split-aware base range
+SXTC,2026-09-29,2026-09-28,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.52,6.9799,63.9,14513.0,68.5,2030150.0,435,,,,continuity-only: unadjusted prices
+SXTC,2026-09-29,2026-09-28,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.52,5.55,54.59,55.5,68.5,2030150.0,35,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-09-30,2026-09-29,A,M2_هبوط_فوق_97,2,2026-08-10,2.81,83758.2416,100.0,145.7,71.3,2131433.0,436,,,,production representation
+SXTC,2026-09-30,2026-09-29,ID,M2_هبوط_فوق_97,2,2026-08-10,2.81,83758.2416,100.0,145.7,71.3,2131433.0,436,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-09-30,2026-09-29,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.81,83758.2416,100.0,145.7,71.3,2131433.0,436,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-09-30,2026-09-29,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.81,83758.2416,100.0,145.7,71.3,2131433.0,436,,,,continuity-only: + split-aware base range
+SXTC,2026-09-30,2026-09-29,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.81,6.9799,59.74,14513.0,71.3,2131433.0,436,,,,continuity-only: unadjusted prices
+SXTC,2026-09-30,2026-09-29,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.81,5.55,49.37,55.5,71.3,2131433.0,36,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-10-01,2026-09-30,A,M2_هبوط_فوق_97,2,2026-08-10,3.01,83758.2416,100.0,145.7,74.2,2144424.0,437,,,,production representation
+SXTC,2026-10-01,2026-09-30,ID,M2_هبوط_فوق_97,2,2026-08-10,3.01,83758.2416,100.0,145.7,74.2,2144424.0,437,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-10-01,2026-09-30,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,3.01,83758.2416,100.0,145.7,74.2,2144424.0,437,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-10-01,2026-09-30,B_M4,M2_هبوط_تحت_40,2,2026-08-10,3.01,83758.2416,100.0,145.7,74.2,2144424.0,437,,,,continuity-only: + split-aware base range
+SXTC,2026-10-01,2026-09-30,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,3.01,6.9799,56.88,14513.0,74.2,2144424.0,437,,,,continuity-only: unadjusted prices
+SXTC,2026-10-01,2026-09-30,B_CUT,TOO_FEW_BARS,2,2026-08-10,3.01,5.55,45.77,55.5,74.2,2144424.0,37,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-10-02,2026-10-01,A,M2_هبوط_فوق_97,2,2026-08-10,2.96,83758.2416,100.0,145.7,54.2,2176953.0,438,,,,production representation
+SXTC,2026-10-02,2026-10-01,ID,M2_هبوط_فوق_97,2,2026-08-10,2.96,83758.2416,100.0,145.7,54.2,2176953.0,438,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-10-02,2026-10-01,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.96,83758.2416,100.0,145.7,54.2,2176953.0,438,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-10-02,2026-10-01,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.96,83758.2416,100.0,145.7,54.2,2176953.0,438,,,,continuity-only: + split-aware base range
+SXTC,2026-10-02,2026-10-01,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.96,6.9799,57.59,14513.0,54.2,2176953.0,438,,,,continuity-only: unadjusted prices
+SXTC,2026-10-02,2026-10-01,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.96,5.55,46.67,55.5,54.2,2176953.0,38,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-10-03,2026-10-02,A,M2_هبوط_فوق_97,2,2026-08-10,2.41,83758.2416,100.0,145.7,68.5,2265463.0,439,,,,production representation
+SXTC,2026-10-03,2026-10-02,ID,M2_هبوط_فوق_97,2,2026-08-10,2.41,83758.2416,100.0,145.7,68.5,2265463.0,439,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-10-03,2026-10-02,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.41,83758.2416,100.0,145.7,68.5,2265463.0,439,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-10-03,2026-10-02,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.41,83758.2416,100.0,145.7,68.5,2265463.0,439,,,,continuity-only: + split-aware base range
+SXTC,2026-10-03,2026-10-02,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.41,6.9799,65.47,14513.0,68.5,2265463.0,439,,,,continuity-only: unadjusted prices
+SXTC,2026-10-03,2026-10-02,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.41,5.55,56.58,55.5,68.5,2265463.0,39,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-10-06,2026-10-05,A,M2_هبوط_فوق_97,2,2026-08-10,2.08,83758.2416,100.0,145.7,112.3,2358678.0,440,,,,production representation
+SXTC,2026-10-06,2026-10-05,ID,M2_هبوط_فوق_97,2,2026-08-10,2.08,83758.2416,100.0,145.7,112.3,2358678.0,440,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-10-06,2026-10-05,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.08,83758.2416,100.0,145.7,112.3,2358678.0,440,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-10-06,2026-10-05,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.08,83758.2416,100.0,145.7,112.3,2358678.0,440,,,,continuity-only: + split-aware base range
+SXTC,2026-10-06,2026-10-05,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.08,6.9799,70.2,14513.0,112.3,2358678.0,440,,,,continuity-only: unadjusted prices
+SXTC,2026-10-06,2026-10-05,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.08,5.55,62.52,55.5,112.3,2358678.0,40,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-10-07,2026-10-06,A,M2_هبوط_فوق_97,2,2026-08-10,1.25,83758.2416,100.0,145.7,177.1,2951237.0,441,,,,production representation
+SXTC,2026-10-07,2026-10-06,ID,M2_هبوط_فوق_97,2,2026-08-10,1.25,83758.2416,100.0,145.7,177.1,2951237.0,441,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-10-07,2026-10-06,B_PSH,M4_base_واسعة,2,2026-08-10,1.25,83758.2416,100.0,145.7,177.1,2951237.0,441,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-10-07,2026-10-06,B_M4,M4_base_واسعة,2,2026-08-10,1.25,83758.2416,100.0,145.7,177.1,2951237.0,441,,,,continuity-only: + split-aware base range
+SXTC,2026-10-07,2026-10-06,B_RAW,M4_base_واسعة,2,2026-08-10,1.25,6.9799,82.09,14513.0,177.1,2951237.0,441,,,,continuity-only: unadjusted prices
+SXTC,2026-10-07,2026-10-06,B_CUT,TOO_FEW_BARS,2,2026-08-10,1.25,5.55,77.48,55.5,177.1,2951237.0,41,,,,continuity-only: history starts at the last reverse split
+SXTC,2026-10-08,2026-10-07,A,M2_هبوط_فوق_97,2,2026-08-10,2.83,83758.2416,100.0,145.7,712.7,23684939.0,442,,,,production representation
+SXTC,2026-10-08,2026-10-07,ID,M2_هبوط_فوق_97,2,2026-08-10,2.83,83758.2416,100.0,145.7,712.7,23684939.0,442,,,,"identity-only: same bars, different ticker label"
+SXTC,2026-10-08,2026-10-07,B_PSH,M2_هبوط_تحت_40,2,2026-08-10,2.83,83758.2416,100.0,145.7,712.7,23684939.0,442,,,,continuity-only: M2 reference = post-split high (BT_SPLIT_REF_M2 flag)
+SXTC,2026-10-08,2026-10-07,B_M4,M2_هبوط_تحت_40,2,2026-08-10,2.83,83758.2416,100.0,145.7,712.7,23684939.0,442,,,,continuity-only: + split-aware base range
+SXTC,2026-10-08,2026-10-07,B_RAW,M2_هبوط_تحت_40,2,2026-08-10,2.83,9.59,70.49,14513.0,712.7,23684939.0,442,,,,continuity-only: unadjusted prices
+SXTC,2026-10-08,2026-10-07,B_CUT,TOO_FEW_BARS,2,2026-08-10,2.83,9.59,70.49,55.5,712.7,23684939.0,42,,,,continuity-only: history starts at the last reverse split

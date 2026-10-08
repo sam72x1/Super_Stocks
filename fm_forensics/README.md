@@ -17,3 +17,20 @@
 | `fm_bars_probe.py` · `data/bars_2026-10-08.json.gz` | the temporary TradingView bars probe (its workflow was removed after run 37807953508) and its output |
 
 Reproduce the shadow numbers: `python3 fm_forensics/fm_shadow_v2.py` (reads the latest `data/bars_*.json.gz`; deterministic; seed 20261008).
+
+## Phase 2 — «FORENSIC ROOT-CAUSE PROTOCOL — CAUSAL ROOT-CAUSE INVESTIGATION» (2026-10-08) · `phase2/`
+
+Attempted to **disprove** the Phase 1 hypothesis that identity / corporate-action / continuity handling loses Faisal's names before READY NOW. Verdict: identity **rejected** as primary explanation; the first causally supported failure is the **candidate-generation layer** (gate definitions on the provider-adjusted regime vs Faisal's post-split lifecycle frame), Level 4. Read `phase2/PHASE2_FINAL_VERDICT.md` first, then `phase2/PHASE2_ROOT_CAUSE_REPORT.md` (22 answers · Phase 1 re-check · evidence matrix · 15-pass review · integrity checklist).
+
+| File | What |
+|---|---|
+| `phase2/PHASE2_FINAL_VERDICT.md` · `phase2/PHASE2_ROOT_CAUSE_REPORT.md` | verdict sentence + evidence chain; the full report |
+| `phase2/ROOT_CAUSE_MATRIX.csv` · `phase2/ANCHOR_FORENSIC_MATRIX.csv` · `phase2/FIRST_DIVERGENCE_MATRIX.csv` | per-anchor first divergence, necessity/sufficiency, levels; 63 independent Faisal-dated cases |
+| `phase2/IDENTITY_PIPELINE_TRACE.md` · `phase2/SECURITY_IDENTITY_LEDGER.csv` | 16-stage code trace of where the ticker/bars/splits flow; 232-symbol identity ledger (UNKNOWN where unavailable) |
+| `phase2/M2_FORENSICS.md` · `phase2/SXTC_FORENSICS.md` · `phase2/DKI_FORENSICS.md` · `phase2/HUBC_FORENSICS.md` | what M2 is; the three anchors (HUBC Faisal state = UNKNOWN) |
+| `phase2/IDENTITY_COUNTERFACTUAL_RESULTS.csv` · `phase2/MATCHED_CONTROL_RESULTS.csv` · `phase2/NEGATIVE_CONTROL_RESULTS.csv` · `phase2/REJECT_LOG_FORENSICS.csv` · `phase2/FAISAL_DATED_REPLAY.csv` | the controlled experiments (worlds A / ID / B_PSH / B_M4 / B_RAW / B_CUT), matched and negative controls, reject-log reproduction, dated-decision replay |
+| `phase2/CORPUS_EVIDENCE_STATUS.csv` · `phase2/CORPUS_REVERIFICATION_REPORT.md` | 772 units by status class; 34 re-read, 20 material, 3 conclusion changes |
+| `phase2/FAISAL_STATE_MODEL_REASSESSMENT.md` · `phase2/READY_NOW_TARGET_REASSESSMENT.md` | per-state CONFIRMED/MODIFIED verdicts; READY NOW's target variable |
+| `phase2/replay.py` · `phase2/replay_faisal_dates.py` · `phase2/out/` | the replay harness (production `analyze_ticker` unmodified, lookahead-safe) and its raw outputs (`replay_all.csv.gz` 26,769 rows · `replay_anchors.csv` · `groups.json`) |
+
+🔒 Research only: no production, V4, protocol, Telegram or threshold change; no V2/V3/V5 model; no ticker hard-coded as a target.
