@@ -1,6 +1,6 @@
 # 🧊🔒 FAISAL V4 — FINAL PROSPECTIVE VALIDATION — الحالة
 
-> مولَّدٌ من `faisal_method_v41/final_protocol.py` (V4-FINAL-PROTOCOL 1.0 (2026-10-07)) · العقد `faisal_method_v41/FINAL_PROTOCOL_prereg.md` · **لا يُحرَّر باليد**.
+> مولَّدٌ من `faisal_method_v41/final_protocol.py` (V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)) · العقد `faisal_method_v41/FINAL_PROTOCOL_prereg.md` · **لا يُحرَّر باليد**.
 
 ## ① كتلةُ الإخراج (FINAL OUTPUT)
 
@@ -27,10 +27,10 @@ PROVENANCE = PASS
 CURRENT_STATUS = VERY_PRELIMINARY
 FINAL_VALIDATION_STATE = INSUFFICIENT_SAMPLE
 — — —
-SECONDARY_TRACKED = CASE_0001 BRTX MATCH (provenance LOW) · CASE_0002 CDT MATCH (provenance LOW)
+SECONDARY_TRACKED = CASE_0001 BRTX MATCH (provenance LOW) · CASE_0002 CDT MATCH (provenance LOW) · CASE_0003 NCT PENDING (provenance LOW)
 PENDING_PRIMARY = 0
-EXCLUDED_BREAKDOWN = intake_not_new 50 · secondary_provenance 2 · invalid_data_quality 0 · invalidated_lookahead 0
-INTAKE_BY_CLASS = NEW_PROSPECTIVE 2 · DUPLICATE 3 · DERIVATIVE 9 · CONTAMINATED 4 · PRE_EXISTING 7 · UNKNOWN 13 · INSUFFICIENT_CONTEXT 14
+EXCLUDED_BREAKDOWN = intake_not_new 49 · secondary_provenance 3 · invalid_data_quality 0 · invalidated_lookahead 0
+INTAKE_BY_CLASS = NEW_PROSPECTIVE 3 · DUPLICATE 3 · DERIVATIVE 9 · CONTAMINATED 3 · PRE_EXISTING 7 · UNKNOWN 13 · INSUFFICIENT_CONTEXT 14
 COLLECTOR = PASS_SIMULATED · PASS
 INTEGRITY = PASS
 BASELINE_B = NONE (لا خطَّ أساسٍ فنّيًّا مسجَّلًا مسبقًا — §⑭)
@@ -77,10 +77,11 @@ STRUCTURAL = V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY و�
 |---|---|---|---|---|---|---|---|---|
 | `CASE_0001` | BRTX | 2026-10-03 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | WAIT (DIRECT) | MATCH | PASS | COMPLETE |
 | `CASE_0002` | CDT | 2026-10-07 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | WAIT (STRONG_INFERENCE) | MATCH | PASS | COMPLETE |
+| `CASE_0003` | NCT | 2026-10-07 | SECONDARY (LOW) | — (—) | — (—) | — | — | PENDING_V4 |
 
 ## ⑥ الاستلامُ بالأصناف السبعة (PHASE 3)
 
-**NEW_PROSPECTIVE** 2 · **DUPLICATE** 3 · **DERIVATIVE** 9 · **CONTAMINATED** 4 · **PRE_EXISTING** 7 · **UNKNOWN** 13 · **INSUFFICIENT_CONTEXT** 14
+**NEW_PROSPECTIVE** 3 · **DUPLICATE** 3 · **DERIVATIVE** 9 · **CONTAMINATED** 3 · **PRE_EXISTING** 7 · **UNKNOWN** 13 · **INSUFFICIENT_CONTEXT** 14
 
 ## ⑦ طابورُ V4.2 من التحقّق الأماميّ (PHASE 9)
 

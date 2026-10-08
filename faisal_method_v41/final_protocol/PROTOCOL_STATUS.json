@@ -2519,6 +2519,7 @@
   },
   {
    "batch": "B4_20261008",
+   "case_id": "CASE_0003",
    "checks": {
     "C1": [],
     "C2": [],
@@ -2557,7 +2558,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "CONTAMINATED",
+   "class7": "NEW_PROSPECTIVE",
    "collector_row": {
     "collected_utc": "2026-10-08T08:58:20Z",
     "date": "2026-10-08T08:54:40Z",
@@ -2569,6 +2570,8 @@
     "run_id": "37753340291",
     "sha256": "53053f090c8bec46164f842234c824487b9690d990d2d0b6c3780b69d8109bf0"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "خطأُ تطبيقٍ في علامة العين (لا خطأُ قاعدة): `SEEN_EXAMPLE:V4:NCT_None@2026-10-02` أحالت إلى حالةٍ تعليميّة (S4) بلا تاريخ قيّمها `v4_eval` عند آخر شمعةٍ افتراضيًّا (كلُّ حالةٍ بلا تاريخٍ وشموعٍ أخذت asof 2026-10-02) · بلا وسمٍ لفيصل (label UNKNOWN · لا تُقاس ولا يُضبط عليها) · ولا شموعَ بعد القرار في الفِكستشر (آخرُها 10-02) · ولا قاعدةَ في V4 تذكر NCT. «مثالٌ رآه V3/V4» (§⑦-3) يعني هذا المثالَ نفسَه، والمطبَّقُ كان تعرّضًا على مستوى الرمز. وفحوصُ الأداة المجمَّدة C1-C8 كلُّها فارغة. حالةُ الشارت جديدة: قاعٌ 1.140 تحت قاع V4 ‏1.29 وتحت سحبه 10% ‏1.161.",
    "decision_date": "2026-10-07",
    "file": "faisal_images/TG_58526.jpg",
    "fingerprint": {
@@ -2603,8 +2606,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "SEEN_EXAMPLE:V4:NCT_None@2026-10-02",
+   "reason": "—",
    "saved": true,
+   "supersedes": {
+    "class7": "CONTAMINATED",
+    "reason": "SEEN_EXAMPLE:V4:NCT_None@2026-10-02",
+    "version": 1
+   },
    "symbol": "NCT"
   },
   {
@@ -3222,6 +3230,42 @@
      "missing": []
     }
    }
+  },
+  {
+   "CASE_ID": "CASE_0003",
+   "DECISION_DATE": "2026-10-07",
+   "INTAKE_CLASS": "NEW_PROSPECTIVE",
+   "LEGACY": false,
+   "PROVENANCE": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-08T08:58:20Z",
+     "CASE_ID": "CASE_0003",
+     "DATE_VISIBLE": "لا طابعَ للمنشور · المرفقُ «07/10-20:45:28 EDT» و«أربعاء 07/10» (= الأربعاء 7 أكتوبر 2026) حدٌّ أدنى ⟵ وساعةُ جهاز اللقطة 3:51 بتوقيت الرياض لا تقع بعده إلّا صباحَ 10-08 (00:51Z) ⟵ المنشورُ بين 20:45 و20:51 نيويورك يومَ 10-07",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "53053f090c8bec46164f842234c824487b9690d990d2d0b6c3780b69d8109bf0",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "c01e80d600cad9340001f0ea8080a4d294c4bce2aa82bc9abc92ecda93229126",
+      "phash64": "013e2fd0b1c4ec3b"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 37753340291",
+     "SOURCE_MESSAGE_ID": 58526,
+     "TICKER": "NCT",
+     "TIMEFRAME": "4H"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "PROVENANCE_CONFIDENCE": "LOW",
+   "SAMPLE": "SECONDARY",
+   "STATUS": "PENDING_V4",
+   "SYMBOL": "NCT"
   }
  ],
  "contract": "faisal_method_v41/FINAL_PROTOCOL_prereg.md",
@@ -3444,17 +3488,17 @@
    "simulated": "PASS_SIMULATED"
   },
   "EXCLUDED_BREAKDOWN": {
-   "intake_not_new": 50,
+   "intake_not_new": 49,
    "invalid_data_quality": 0,
    "invalidated_lookahead": 0,
-   "secondary_provenance": 2
+   "secondary_provenance": 3
   },
   "INTAKE_BY_CLASS": {
-   "CONTAMINATED": 4,
+   "CONTAMINATED": 3,
    "DERIVATIVE": 9,
    "DUPLICATE": 3,
    "INSUFFICIENT_CONTEXT": 14,
-   "NEW_PROSPECTIVE": 2,
+   "NEW_PROSPECTIVE": 3,
    "PRE_EXISTING": 7,
    "UNKNOWN": 13
   },
@@ -3478,6 +3522,15 @@
     "missing_critical": [
      "ORIGINAL_POST_TIMESTAMP"
     ]
+   },
+   {
+    "CASE_ID": "CASE_0003",
+    "MATCH_CLASS": null,
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "SYMBOL": "NCT",
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
    }
   ],
   "STRUCTURAL": "V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY ولا REJECT · وكلُّ تطابقٍ لـV4 تطابقٌ لـALWAYS_WAIT",
@@ -3487,6 +3540,6 @@
    "n_valid": 2
   }
  },
- "tool_version": "V4-FINAL-PROTOCOL 1.0 (2026-10-07)",
+ "tool_version": "V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)",
  "v4_2_candidates": []
 }

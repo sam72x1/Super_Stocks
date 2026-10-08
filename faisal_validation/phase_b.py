@@ -32,8 +32,9 @@ from zoneinfo import ZoneInfo
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
-PB_VERSION = "PHASE-B 1.0 (2026-10-08)"
+PB_VERSION = "PHASE-B 1.1 (2026-10-08 · amendment 1)"
 CONTRACT = "faisal_validation/PHASE_B_prereg.md"
+AMENDMENT = "faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md"   # 🧵 A1: E1 على مستوى السلسلة (أقدمُ تعبيرٍ عن القرار)
 SEAL_ID = "PHA-ea12cb86a3f39a5b"
 CUTOFF = "2026-10-08T01:29:04Z"                  # Phase A evidence cutoff = prospective_clock_starts_after (seal A14)
 V4_COMMIT = "7c8826c25e745668d33facabb2efbc488e997fb7"
@@ -220,6 +221,30 @@ def is_historical(it):
         return "Faisal's post is timestamped on/before the cutoff"
     if not prec and day and day <= cutoff_ny_date():
         return "Faisal's decision day is on/before the cutoff's New-York day"
+    return None
+
+
+def threads_of(items):
+    """🧵 A1 → {protocol case id: [items whose intake reason is SAME_DECISION:<that case>]} — the other posts of the same decision. Pure."""
+    out = collections.defaultdict(list)
+    for it in items:
+        why = str((it.get("cand") or {}).get("reason") or "")
+        if why.startswith("SAME_DECISION:"):
+            out[why.split(":", 1)[1]].append(it)
+    return out
+
+
+def historical_reason(it, threads):
+    """HISTORICAL by the item itself, or (🧵 amendment 1 · A1) — for a case carrier — by any post of its own decision thread: Faisal's
+    decision time is its earliest expression, so a later reply cannot carry a decision that predates the cutoff. Duplicates keep
+    their own path (E3): a decided item never changes. Pure."""
+    h = is_historical(it)
+    if h or not it.get("case"):
+        return h
+    for m in threads.get(it["case"].get("CASE_ID"), []):
+        hm = is_historical(m)
+        if hm:
+            return f"thread member {m['pb_id']} of the same decision (A1): {hm}"
     return None
 
 
@@ -509,14 +534,15 @@ def build(gate=None, protocol=None, ledger_rows=None, steps=None, collector=None
     obs = collector if collector is not None else _collector()
     lp = ledger_verify(rows)
     items = items_of(st)
-    hist_case_imgs = {image_sha(it) for it in items if it.get("case") and is_historical(it)} - {None}
+    threads = threads_of(items)
+    hist_case_imgs = {image_sha(it) for it in items if it.get("case") and historical_reason(it, threads)} - {None}
     have = collections.defaultdict(list)
     for r in rows:
         if r.get("event") != "CHECKPOINT":
             have[r.get("case_id")].append(r.get("event"))
     used, counts, new, out_rows, historical = set(), collections.Counter(), [], [], []
     for it in items:
-        h = is_historical(it)
+        h = historical_reason(it, threads)
         if h:
             historical.append({"id": it["pb_id"], "why": h, "protocol_case": (it.get("case") or {}).get("CASE_ID")})
             continue
@@ -576,7 +602,8 @@ def build(gate=None, protocol=None, ledger_rows=None, steps=None, collector=None
     for r in out_rows:
         r.pop("_case")
     status = {
-        "generated_by": "faisal_validation/phase_b.py", "tool_version": PB_VERSION, "contract": CONTRACT, "seal_id": SEAL_ID,
+        "generated_by": "faisal_validation/phase_b.py", "tool_version": PB_VERSION, "contract": CONTRACT, "amendment": AMENDMENT,
+        "seal_id": SEAL_ID,
         "cutoff": CUTOFF, "cutoff_ny_day": cutoff_ny_date(), "gate": g,
         "protocol": {"V4_FROZEN": o.get("V4_FROZEN"), "V4_COMMIT": o.get("V4_COMMIT"), "LOOKAHEAD": o.get("LOOKAHEAD"),
                      "PROVENANCE": o.get("PROVENANCE"), "integrity_ok": integ.get("ok") is True,

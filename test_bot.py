@@ -82300,11 +82300,11 @@ try:
                and any("final_protocol" in (a.name or "") for a in n.names)]
     _fpa19 = {"no_net": not ({"requests", "urllib", "http", "socket", "websocket"} & _imp19) and "TELEGRAM" not in open(
         _v41_os.path.join("faisal_method_v41", "final_protocol.py"), encoding="utf-8").read(),
-              "writers": _wfn19 == ["main", "seal_batch", "write"], "subprocess": _sub19 == ["_git_show"], "no_cycle": not _rn_top}
+              "writers": _wfn19 == ["correct_batch", "main", "seal_batch", "write"], "subprocess": _sub19 == ["_git_show"], "no_cycle": not _rn_top}
     _fpa19ok, _fpa19w = all(_fpa19.values()), f"{_fpa19} · كتّاب={_wfn19} · subprocess={_sub19}"
 except Exception as _e:                                                    # noqa: BLE001
     _fpa19ok, _fpa19w = False, f"⛔ {type(_e).__name__}: {_e}"
-check("🧊🔒 FPA19 العزل (AST): بلا شبكةٍ ولا تلغرام · الكتابةُ في write/main/seal_batch وحدَها · subprocess لـgit وحدَه · ولا استيرادَ للأداة في رأس المشغّل",
+check("🧊🔒 FPA19 العزل (AST): بلا شبكةٍ ولا تلغرام · الكتابةُ في write/main/seal_batch/correct_batch وحدَها · subprocess لـgit وحدَه · ولا استيرادَ للأداة في رأس المشغّل",
       _fpa19ok, _fpa19w)
 
 # FPA20 PROSPECTIVE_STATUS.md (STEP 11 من أمر المالك «FAISAL V4 — BEGIN REAL PROSPECTIVE VALIDATION»): المفاتيحُ الأربعة والعشرون
@@ -82362,6 +82362,222 @@ except Exception as _e:                                                    # noq
     _fpa21, _fpa21w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
 check("🧊🔒 FPA21 سلامةُ البادئة I9 بلا حجمٍ حيّ: إلحاقُ الجامع (نبضٌ أو صفّ) لا يغيّر التفصيلَ ولا الحكم · وتغيُّرُ البادئة نفسِها يُمسَك",
       _fpa21, _fpa21w)
+
+# 🧵 FPA22-FPA26 — التعديل 1 (‏2026-10-08 · أمرُ المالك «STOP — AUDIT THE CLASSIFICATION OF B4 …» ثمّ «الاثنين» · العقد
+#    `faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md` مدموجٌ قبل الأداة): A1 حاملُ القرار الواحد أصغرُ `post_order` (فاشلٌ-مغلق) ·
+#    A2 الحالةُ غيرُ المؤرَّخة إفصاحٌ لا C8 · A3 `SEEN_EXAMPLE` = `EX:<IMAGE_ID>` معروف · §⑤ لا ختمَ ثانيًا · §⑥ التصحيحُ إلحاقًا ·
+#    §① الدفعاتُ المختومة بت-بت. 🔒 بلا كتابةٍ في المستودع: السجلّاتُ ومجلّداتُ الدفعة الاصطناعيّة مؤقّتة.
+def _it22(iid, sha, sym_row=None, fwd=False):
+    row = {"message_id": int(iid.split("_")[-1]), "date": "2026-10-15T14:00:00Z", "collected_utc": "2026-10-15T15:00:00Z", "run_id": "1",
+           "meta_v": 2, "forward_type": "none", "sha256": sha, "dhash256": "0" * 64, "phash64": "0" * 16}
+    if fwd:
+        row.update(forward_type="channel", forward={"type": "channel", "date": "2026-10-15T13:30:00Z"})
+    return {"image_id": iid, "file": f"faisal_images/{iid}.jpg", "fingerprint": {"sha256": sha, "dhash256": "0" * 64, "phash64": "0" * 16},
+            "collector_row": row, "C1": [], "C2": [], "nearest_corpus": []}
+
+
+_AN22 = {"author": "F", "faisal_author": True, "has_decision_statement": True, "symbol": "QQQQ", "timeframe": "D",
+         "decision_date": "2026-10-15", "layer": "1"}
+
+
+def _raises22(fn):
+    try:
+        fn()
+        return False
+    except Exception as _e:                                                # noqa: BLE001
+        return isinstance(_e, FPA.LG.SchemaError)
+
+
+# FPA22 A1: ثلاثُ صورٍ لقرارٍ واحد ⟵ بلا `post_order` أو بقيمٍ مكرّرة لا ختم · وبها الحاملُ أصغرُها مهما كان ترتيبُ الرسائل (ومصدريّتُه هو) ·
+#       وصورةٌ وحيدة لا تحتاجه · وبلا التعديل (amendment 0) السلوكُ القديم: أسبقُها برقم الرسالة
+try:
+    _ep22 = _fpa_ep()[1]
+    _sc22 = {"batch_id": "B_T22", "items": [_it22("TG_8701", "a" * 64), _it22("TG_8702", "b" * 64, fwd=True), _it22("TG_8703", "c" * 64)]}
+    _po22 = {"TG_8701": 3, "TG_8702": 1, "TG_8703": 2}
+    _anA22 = {k: dict(_AN22) for k in _po22}
+    _anB22 = {k: dict(_AN22, post_order=v, post_order_evidence="ساعةُ اللقطة") for k, v in _po22.items()}
+    _c22, _k22 = FPA.plan_intake(_sc22, _anB22, 0, _ep22, amendment=1)
+    _c0, _k0 = FPA.plan_intake(_sc22, _anA22, 0, _ep22, amendment=0)
+    _cls22 = {c["image_id"]: (c["class7"], c["reason"]) for c in _c22}
+    _one22 = FPA.plan_intake({"batch_id": "B_T22", "items": [_it22("TG_8701", "a" * 64)]}, {"TG_8701": dict(_AN22)}, 0, _ep22, amendment=1)
+    _fpa22 = {"no_order": _raises22(lambda: FPA.plan_intake(_sc22, _anA22, 0, _ep22, amendment=1)),
+              "dup_order": _raises22(lambda: FPA.plan_intake(_sc22, dict(_anB22, TG_8703=dict(_anB22["TG_8703"], post_order=1)), 0, _ep22,
+                                                             amendment=1)),
+              "bool_order": _raises22(lambda: FPA.plan_intake(_sc22, dict(_anB22, TG_8702=dict(_anB22["TG_8702"], post_order=True)), 0,
+                                                              _ep22, amendment=1)),
+              "carrier": len(_k22) == 1 and _k22[0]["unit_id"] == "TG_8702" and _k22[0]["case_id"] == "CASE_0001"
+              and _cls22 == {"TG_8701": ("DUPLICATE", "SAME_DECISION:CASE_0001"), "TG_8702": ("NEW_PROSPECTIVE", "—"),
+                             "TG_8703": ("DUPLICATE", "SAME_DECISION:CASE_0001")},
+              "own_provenance": _k22[0]["protocol"]["provenance"] == next(c for c in _c22 if c["image_id"] == "TG_8702")["provenance"]
+              and _k22[0]["protocol"]["provenance"]["fields"]["PROVENANCE_CONFIDENCE"] == "HIGH"
+              and next(c for c in _c22 if c["image_id"] == "TG_8701")["provenance"]["fields"]["PROVENANCE_CONFIDENCE"] != "HIGH",
+              "single": len(_one22[1]) == 1,
+              "legacy_first": len(_k0) == 1 and _k0[0]["unit_id"] == "TG_8701"}
+    _fpa22ok, _fpa22w = all(_fpa22.values()), str({k: v for k, v in _fpa22.items() if not v}) + f" · {_cls22}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa22ok, _fpa22w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧵 FPA22 A1 حاملُ القرار الواحد = أصغرُ `post_order` بالعين لا أسبقُ رسالة · بلا ترتيبٍ صحيحٍ مختلفٍ لا ختم · والمصدريّةُ للحامل وحدَه · "
+      "وبلا التعديل السلوكُ القديم", _fpa22ok, _fpa22w)
+
+# FPA23 A2: الحالةُ المحسوبة بلا تاريخ (`NCT_None`) لا تُطلق C8 بل تُفصَح في `C8_DISCLOSURE` · والقرارُ المؤرَّخ داخل النافذة (SXTC) يُطلقها كما هي ·
+#       وبلا التعديل لا مفتاحَ إفصاح
+try:
+    _ep23 = _fpa_ep()[1]
+    _an23 = {"TG_8711": dict(_AN22, symbol="NCT", decision_date="2026-10-07")}
+    _sc23 = {"batch_id": "B_T23", "items": [_it22("TG_8711", "d" * 64)]}
+    _c23 = FPA.plan_intake(_sc23, _an23, 0, _ep23, amendment=1)[0][0]
+    _c23b = FPA.plan_intake(_sc23, _an23, 0, _ep23, amendment=0)[0][0]
+    _sx23 = FPA.plan_intake({"batch_id": "B_T23", "items": [_it22("TG_8712", "e" * 64)]},
+                            {"TG_8712": dict(_AN22, symbol="SXTC", decision_date="2026-10-05")}, 0, _ep23, amendment=1)[0][0]
+    _fpa23 = {"undated": FPA.v4_undated_cases("NCT") == ["V4:NCT_None"] and FPA.v4_exposure_hits("NCT", "2026-10-07") == [],
+              "disclosed": _c23["class7"] == "NEW_PROSPECTIVE" and _c23["checks"]["C8"] == []
+              and _c23["checks"]["C8_DISCLOSURE"] == {"v4_undated": ["V4:NCT_None"], "ex_undated": FPA.dev_units()[1].get("NCT", 0)}
+              and FPA.dev_units()[1].get("NCT", 0) == 6,          # TG_1906 · TG_2100 · TG_2101 (فيصل) · TG_2175 · TG_2179 · TG_2180 (تعليميّة)
+              "legacy_no_key": "C8_DISCLOSURE" not in _c23b["checks"] and _c23b["class7"] == "NEW_PROSPECTIVE",
+              "dated_hits": _sx23["class7"] == "CONTAMINATED" and bool(_sx23["checks"]["C8"])}
+    _fpa23ok, _fpa23w = all(_fpa23.values()), str({k: v for k, v in _fpa23.items() if not v}) + f" · {_c23['checks'].get('C8_DISCLOSURE')}"
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa23ok, _fpa23w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧵 FPA23 A2 «تاريخُ» C8 قرارٌ مؤرَّخ: حالةُ V4 بلا تاريخ (NCT_None) إفصاحٌ في C8_DISCLOSURE لا استبعاد · والمؤرَّخةُ داخل النافذة تُطلق C8",
+      _fpa23ok, _fpa23w)
+
+# FPA24 A3: `seen_example_of` = `EX:<IMAGE_ID>` لمثالٍ معروف ⟵ CONTAMINATED · وحالةُ V4 أو رمزٌ أو مثالٌ مجهول ⟵ لا ختم (التعديل 1) ·
+#       وبلا التعديل الصيغةُ القديمة تمرّ (الدفعاتُ المختومة)
+try:
+    _ep24 = _fpa_ep()[1]
+    _kn24 = FPA.known_example_ids()
+    _sc24 = {"batch_id": "B_T24", "items": [_it22("TG_8721", "f" * 64)]}
+
+    def _pl24(refs, amd=1):
+        return FPA.plan_intake(_sc24, {"TG_8721": dict(_AN22, seen_example_of=refs)}, 0, _ep24, amendment=amd)[0][0]
+    _fpa24 = {"known": "TG_2179" in _kn24 and FPA.seen_example_errors(["EX:TG_2179"], _kn24) == [],
+              "bad_forms": FPA.seen_example_errors(["V4:NCT_None@2026-10-02", "NCT", "EX:NOPE_0000", "EX:"], _kn24)
+              == ["V4:NCT_None@2026-10-02", "NCT", "EX:NOPE_0000", "EX:"],
+              "contaminated": (lambda c: (c["class7"], c["reason"]))(_pl24(["EX:TG_2179"])) == ("CONTAMINATED", "SEEN_EXAMPLE:EX:TG_2179"),
+              "refused": _raises22(lambda: _pl24(["V4:NCT_None@2026-10-02"])) and _raises22(lambda: _pl24(["EX:NOPE_0000"])),
+              "legacy": _pl24(["V4:NCT_None@2026-10-02"], amd=0)["class7"] == "CONTAMINATED"}
+    _fpa24ok, _fpa24w = all(_fpa24.values()), str({k: v for k, v in _fpa24.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa24ok, _fpa24w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧵 FPA24 A3 `SEEN_EXAMPLE` = المثالُ نفسُه: `EX:<IMAGE_ID>` معروف ⟵ CONTAMINATED · وحالةُ V4/رمز/مثالٌ مجهول ⟵ لا ختم · والقديمُ بلا التعديل كما هو",
+      _fpa24ok, _fpa24w)
+
+# FPA25 §⑤ و§⑥: `seal` يرفض دفعةً مختومة (B4) ودفعةً جديدة بلا `protocol_amendment` قبل أيّ قيد · و`correct` على دفعةٍ اصطناعيّة في مجلّدٍ
+#       مؤقّت: مرشَّحٌ نسخة 2 ‏+ حالةٌ بكتلة التصحيح ‏+ مُخرَجٌ إلحاقيّ · المختومُ لا يُمسّ · والحالةُ تعدّ الصورةَ مرّةً بصنفها المصحَّح · وإعادةُ
+#       التشغيل · والتصحيحُ بلا أثر · وبلا سبب · وصورةٌ خارج الدفعة · كلٌّ مرفوض · وقرارٌ مختومٌ سلفًا ⟵ DUPLICATE لا حالةٌ ثانية ·
+#       وعدُّ المرشَّحين في V4.1 بالوحدات
+try:
+    import tempfile as _fpa25_tmp
+    import shutil as _fpa25_sh
+    _AN25 = _v41_imp.import_module("analysis")
+    _td25 = _fpa25_tmp.mkdtemp(prefix="fpa25_")
+    try:
+        _lg25a = FPA.LG.Ledger(root=_v41_os.path.join(_td25, "pv_seal"))
+        _in25 = _v41_os.path.join(_td25, "intake_seal")              # نسخةٌ مؤقّتة من B4: طفرةُ الحارس لا تكتب فوق المختوم الحقيقيّ
+        _fpa25_sh.copytree(_v41_os.path.join(FPA.INTAKE_DIR, "B4_20261008"), _v41_os.path.join(_in25, "B4_20261008"))
+        _b4in25 = open(_v41_os.path.join(_in25, "B4_20261008", "INTAKE.json"), "rb").read()
+        _orig25 = FPA.INTAKE_DIR
+        try:
+            FPA.INTAKE_DIR = _in25
+            _seal25 = {"sealed": _raises22(lambda: FPA.seal_batch("B4_20261008", "2026-10-15T16:00:00Z", ledger=_lg25a)),
+                       "needs_amendment": _raises22(lambda: FPA.seal_batch("B_T25_NEW", "2026-10-15T16:00:00Z", ledger=_lg25a,
+                                                                           annotations={}, scan={"batch_id": "B_T25_NEW", "items": []}))}
+        finally:
+            FPA.INTAKE_DIR = _orig25
+        _seal25["no_entry"] = not _lg25a.entries() and open(_v41_os.path.join(_in25, "B4_20261008", "INTAKE.json"), "rb").read() == _b4in25
+
+        def _mk25(root, bid, seen, reason="خطأُ تطبيقٍ في علامة العين", extra_case=None):
+            d = _v41_os.path.join(root, "intake", bid)
+            _v41_os.makedirs(d, exist_ok=True)
+            it = _it22("TG_8731", "9" * 64)
+            sealed = FPA.plan_intake({"batch_id": bid, "items": [it]}, {"TG_8731": dict(_AN22, seen_example_of=["V4:X@2026-10-01"])}, 0,
+                                     _fpa_ep()[1])[0]
+            for nm, obj in (("SCAN.json", {"batch_id": bid, "items": [it]}), ("INTAKE.json", {"batch_id": bid, "candidates": sealed}),
+                            ("CORRECTION_01.json", {"correction_id": "CORRECTION_01", "batch_id": bid, "protocol_amendment": 0,
+                                                    "images": {"TG_8731": dict(_AN22, seen_example_of=seen, correction_reason=reason)}})):
+                with open(_v41_os.path.join(d, nm), "w", encoding="utf-8") as fh:
+                    _v41_json.dump(obj, fh, ensure_ascii=False, sort_keys=True)
+            lg = FPA.LG.Ledger(root=_v41_os.path.join(root, "pv"))
+            lg.record_candidate("TG_8731", it["file"], "9" * 64, "DUPLICATE_OF:V4:X@2026-10-01", "2026-10-15T15:30:00Z")
+            if extra_case:
+                lg.seal_case(_v41_case(cid="CASE_0001", symbol="QQQQ", date="2026-10-15"), "2026-10-15T15:40:00Z")
+            return d, lg
+
+        _r25 = _v41_os.path.join(_td25, "ok")
+        _d25, _lg25 = _mk25(_r25, "B_T25", [])
+        _b25 = {nm: open(_v41_os.path.join(_d25, nm), "rb").read() for nm in ("SCAN.json", "INTAKE.json", "CORRECTION_01.json")}
+        _cc25, _ks25 = FPA.correct_batch("B_T25", "CORRECTION_01", "2026-10-15T16:00:00Z", ledger=_lg25,
+                                         intake_dir=_v41_os.path.join(_r25, "intake"))
+        _pc25 = FPA.protocol_candidates(intake_dir=_v41_os.path.join(_r25, "intake"))
+        _case25 = _lg25.read(_lg25.entries("case", "CASE_0001")[-1]["path"]) if _lg25.entries("case") else {}
+        _cand25 = [_lg25.read(e["path"]) for e in _lg25.entries("candidate", "TG_8731")]
+        _corr25 = {"applied": [c["class7"] for c in _cc25] == ["NEW_PROSPECTIVE"] and [k["case_id"] for k in _ks25] == ["CASE_0001"],
+                   "ledger": [c["decision"] for c in _cand25] == ["DUPLICATE_OF:V4:X@2026-10-01", "CASE:CASE_0001"]
+                   and "يحلّ محلّ v1" in _cand25[-1].get("note", "") and _lg25.verify()[0],
+                   "case_block": (_case25.get("protocol") or {}).get("intake", {}).get("correction", {}).get("id") == "CORRECTION_01"
+                   and "CORRECTION_01" in _case25.get("notes", ""),
+                   "untouched": all(open(_v41_os.path.join(_d25, nm), "rb").read() == b for nm, b in _b25.items())
+                   and _v41_os.path.exists(_v41_os.path.join(_d25, "CORRECTION_01.INTAKE.json")),
+                   "counted_once": [(c["image_id"], c["class7"], c.get("corrected_by")) for c in _pc25]
+                   == [("TG_8731", "NEW_PROSPECTIVE", "CORRECTION_01")],
+                   "units": _AN25.prospective(_lg25)["candidates"] == 1 and len(_lg25.entries("candidate")) == 2,
+                   "rerun": _raises22(lambda: FPA.correct_batch("B_T25", "CORRECTION_01", "t", ledger=_lg25,
+                                                                intake_dir=_v41_os.path.join(_r25, "intake")))}
+        _r25b = _v41_os.path.join(_td25, "noop")
+        _mk25(_r25b, "B_T25", ["V4:X@2026-10-01"])
+        _r25c = _v41_os.path.join(_td25, "noreason")
+        _mk25(_r25c, "B_T25", [], reason=" ")
+        _r25d = _v41_os.path.join(_td25, "dup")
+        _dd25, _lg25d = _mk25(_r25d, "B_T25", [], extra_case=True)
+        _cd25, _kd25 = FPA.correct_batch("B_T25", "CORRECTION_01", "t", ledger=_lg25d, intake_dir=_v41_os.path.join(_r25d, "intake"))
+
+        def _lgx(r):
+            return FPA.LG.Ledger(root=_v41_os.path.join(r, "pv"))
+        _corr25.update({
+            "noop": _raises22(lambda: FPA.correct_batch("B_T25", "CORRECTION_01", "t", ledger=_lgx(_r25b),
+                                                        intake_dir=_v41_os.path.join(_r25b, "intake"))),
+            "noreason": _raises22(lambda: FPA.correct_batch("B_T25", "CORRECTION_01", "t", ledger=_lgx(_r25c),
+                                                            intake_dir=_v41_os.path.join(_r25c, "intake"))),
+            "bad_id": _raises22(lambda: FPA.correct_batch("B_T25", "FIX_1", "t", ledger=_lgx(_r25c),
+                                                          intake_dir=_v41_os.path.join(_r25c, "intake"))),
+            "dup_of_sealed": [(c["class7"], c["reason"]) for c in _cd25] == [("DUPLICATE", "SAME_DECISION:CASE_0001")] and _kd25 == []
+            and len(_lg25d.entries("case")) == 1})
+        _v41_os.remove(_v41_os.path.join(_r25c, "intake", "B_T25", "CORRECTION_01.json"))
+        with open(_v41_os.path.join(_r25c, "intake", "B_T25", "CORRECTION_01.json"), "w", encoding="utf-8") as fh:
+            _v41_json.dump({"correction_id": "CORRECTION_01", "batch_id": "B_T25",
+                            "images": {"TG_9999": dict(_AN22, correction_reason="x")}}, fh)
+        _corr25["outside"] = _raises22(lambda: FPA.correct_batch("B_T25", "CORRECTION_01", "t", ledger=_lgx(_r25c),
+                                                                 intake_dir=_v41_os.path.join(_r25c, "intake")))
+    finally:
+        _fpa25_sh.rmtree(_td25, ignore_errors=True)
+    _fpa25 = dict(_seal25, **_corr25)
+    _fpa25ok, _fpa25w = all(_fpa25.values()), str({k: v for k, v in _fpa25.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa25ok, _fpa25w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧵 FPA25 لا ختمَ ثانيًا ولا ختمَ بعد التعديل بلا إعلانه · و`correct` إلحاقيّ: نسخةٌ 2 ‏+ حالةٌ بكتلة التصحيح · المختومُ لا يُمسّ · الصورةُ تُعَدّ "
+      "مرّةً · وإعادةُ التشغيل/بلا أثر/بلا سبب/خارج الدفعة مرفوضة · وقرارٌ مختومٌ ⟵ DUPLICATE · والعدُّ بالوحدات", _fpa25ok, _fpa25w)
+
+# FPA26 §①: إعادةُ تخطيط B4_20261008 من مسحه وقراءة العين المختومَين بالعقد الأصليّ = INTAKE.json المختوم بايتًا بايتًا (المرشَّحون) وحالةُ
+#       CASE_0002 في السجلّ · وشاهدُ ضبط: بالتعديل 1 تُرفض (A3 على TG_58526) فلا يُطبَّق التعديلُ على ماضٍ مختوم بصمت
+try:
+    _b26 = _v41_os.path.join(FPA.INTAKE_DIR, "B4_20261008")
+    _sc26 = _v41_json.load(open(_v41_os.path.join(_b26, "SCAN.json"), encoding="utf-8"))
+    _an26 = _v41_json.load(open(_v41_os.path.join(_b26, "annotations.json"), encoding="utf-8"))["images"]
+    _in26 = _v41_json.load(open(_v41_os.path.join(_b26, "INTAKE.json"), encoding="utf-8"))
+    _cs26 = _v41_json.load(open(_v41_os.path.join("faisal_method_v41", "prospective_validation", "cases", "CASE_0002.v1.json"),
+                                encoding="utf-8"))
+    _ep26 = FPA.current_epoch()
+    _c26, _k26 = FPA.plan_intake(_sc26, _an26, 1, _ep26)
+    _j26 = lambda o: _v41_json.dumps(o, ensure_ascii=False, sort_keys=True)  # noqa: E731
+    _fpa26 = {"candidates": _j26(_c26) == _j26(_in26["candidates"]),
+              "case": len(_k26) == 1 and _j26(_k26[0]) == _j26(_cs26),
+              "amend_refused": _raises22(lambda: FPA.plan_intake(_sc26, _an26, 1, _ep26, amendment=1)),
+              "pre_amendment": "B4_20261008" in FPA.PRE_AMENDMENT_BATCHES}
+    _fpa26ok, _fpa26w = all(_fpa26.values()), str({k: v for k, v in _fpa26.items() if not v})
+except Exception as _e:                                                    # noqa: BLE001
+    _fpa26ok, _fpa26w = False, _fpa_err or f"⛔ {type(_e).__name__}: {_e}"
+check("🧵 FPA26 B4 المختومة بت-بت: إعادةُ تخطيطها بالعقد الأصليّ = INTAKE.json وحالةُ CASE_0002 المختومان · وبالتعديل 1 تُرفض (لا تطبيقَ صامتًا على الماضي)",
+      _fpa26ok, _fpa26w)
 
 # 🔎🧾 PHA1-PHA8 — «FAISAL BOT — MASTER FORENSIC RECOVERY → FROZEN VALIDATION PROTOCOL» · المرحلة أ (‏2026-10-08):
 #    `faisal_recovery/phase_a.py` يبني مخرجات A13 الستّة وجدولَ A10 والختمَ A14 من بياناتٍ مجمَّدة (القياسُ نفسُه في
@@ -82932,6 +83148,31 @@ finally:
         setattr(PB, _k10, _v10)
 check("🧪 PHB10 `write` بقيودٍ مستحقّة: المكتوبُ = إعادةُ بناءٍ طازجة من السجلّ كما سُجّل (لا `due_now` قبل الإلحاق) · وشاهدُ ضبطٍ يفرّق",
       _phb10, _phb10w)
+
+# PHB11 🧵 التعديل 1 (A1 · E1 على مستوى السلسلة): حاملُ حالةٍ غيرُ تاريخيٍّ بنفسه وعضوٌ في سلسلة قراره (SAME_DECISION) تاريخيّ ⟵ HISTORICAL
+#       بسبب العضو (السيناريو المعكوس في تدقيق B4: الردّ بعد الحدّ يحمل قرارًا نُشر قبله) · والعضوُ المكرَّر يبقى بمساره (تاريخيٌّ بنفسه أو E3) ·
+#       وشاهدا ضبط: عضوٌ بعد الحدّ ⟵ الحاملُ PRIMARY والعضوُ E3 · وبلا سلسلة ⟵ الحاملُ PRIMARY
+try:
+    if PB is None:
+        raise RuntimeError(_phb_err or "phase_b غير محمَّل")
+    _car11 = _phb_item(1)
+    _mem11 = _phb_item(2, post="2026-10-08T01:24:00Z", day="2026-10-07", cls="DUPLICATE", reason="SAME_DECISION:CASE_0001", case=False)
+    _late11 = _phb_item(3, cls="DUPLICATE", reason="SAME_DECISION:CASE_0001", case=False)
+    _st11a = _phb_build([_car11, _mem11])[0]
+    _st11b = _phb_build([_car11, _late11])[0]
+    _st11c = _phb_build([_car11])[0]
+    _h11 = {h["id"]: h["why"] for h in _st11a["historical"]["items"]}
+    _r11b = {r["case_id"]: (r["status"], r["code"]) for r in _st11b["rows"]}
+    _r11c = {r["case_id"]: (r["status"], r["code"]) for r in _st11c["rows"]}
+    _phb11 = ("thread member PB:TG_90002" in _h11.get("PB:TG_90001", "") and "on/before" in _h11.get("PB:TG_90002", "")
+              and not _st11a["rows"] and _r11b == {"PB:TG_90001": ("PRIMARY", ""), "PB:TG_90003": ("EXCLUDED", "E3")}
+              and _r11c == {"PB:TG_90001": ("PRIMARY", "")} and PB.threads_of(PB.items_of(_phb_state([_car11, _mem11])))
+              .keys() == {"CASE_0001"})
+    _phb11w = f"تاريخيّ={_h11} · ضبطٌ متأخّر={_r11b} · بلا سلسلة={_r11c}"
+except Exception as _e:                                                    # noqa: BLE001
+    _phb11, _phb11w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧵 PHB11 E1 على مستوى السلسلة: الحاملُ تاريخيٌّ إن كان عضوٌ في سلسلة قراره تاريخيًّا (الردُّ لا يحمل قرارًا سابقًا للحدّ) · "
+      "والمكرَّرُ بمساره · وشاهدا ضبط", _phb11, _phb11w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
