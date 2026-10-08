@@ -1,0 +1,13 @@
+EVENT,TARGET_STATE,N_EVALUABLE,SHARE_BEFORE,SHARE_AFTER,NEVER,ROLE_READING
+E2_production,FOCUS,1,0.0,0.0,4,mixed/insufficient
+E2_production,WATCH,5,0.4,0.6,24,mixed/insufficient
+E2_production,READY,0,,,4,mixed/insufficient
+E2_production,ENTRY,0,,,2,mixed/insufficient
+E3_retest,FOCUS,4,0.5,0.25,1,mixed/insufficient
+E3_retest,WATCH,21,0.286,0.667,8,mixed/insufficient
+E3_retest,READY,4,0.25,0.5,0,mixed/insufficient
+E3_retest,ENTRY,0,,,2,mixed/insufficient
+E4_trigger,FOCUS,3,0.667,0.333,2,mixed/insufficient
+E4_trigger,WATCH,15,0.4,0.533,14,mixed/insufficient
+E4_trigger,READY,4,0.25,0.5,0,mixed/insufficient
+E4_trigger,ENTRY,0,,,2,mixed/insufficient

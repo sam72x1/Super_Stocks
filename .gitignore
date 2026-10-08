@@ -62,3 +62,6 @@ faisal_method_v4/out/
 # 🔎🧭③ (2026-10-08) جداولُ المرحلة الثالثة (`fm_forensics/phase3/` · حالاتُ البوت اليوميّة مضغوطة `.csv.gz`)
 !fm_forensics/phase3/*.csv
 !fm_forensics/phase3/out/*.csv
+# 🔎🧭④ (2026-10-08) جداولُ المرحلة الرابعة (`fm_forensics/phase4/`)
+!fm_forensics/phase4/*.csv
+!fm_forensics/phase4/out/*.csv
