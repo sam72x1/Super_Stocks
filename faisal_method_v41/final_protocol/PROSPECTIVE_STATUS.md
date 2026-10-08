@@ -35,7 +35,7 @@ DIVERSITY = pattern {} · timeframe {} · market_regime {} · decision {} · LOW
 FINAL_VALIDATION_STATE = INSUFFICIENT_SAMPLE
 ```
 
-- **خارجَ العيّنة الأساسيّة (يُتتبَّع ولا يُحسب):** CASE_0001 BRTX MATCH (مصدريّة LOW) · CASE_0002 CDT MATCH (مصدريّة LOW) · CASE_0003 NCT PENDING (مصدريّة LOW)
+- **خارجَ العيّنة الأساسيّة (يُتتبَّع ولا يُحسب):** CASE_0001 BRTX MATCH (مصدريّة LOW) · CASE_0002 CDT MATCH (مصدريّة LOW) · CASE_0003 NCT MATCH (مصدريّة LOW)
 - **الدقّةُ والاستدعاء بكسرهما** · «UNDEFINED» حين المقامُ صفر · وفترةُ ويلسون من 10 فأكثر · بلا p.
 - **V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY ولا REJECT · وكلُّ تطابقٍ لـV4 تطابقٌ لـALWAYS_WAIT** ⟵ لا يُعلَن نجاحٌ من التطابق الإجماليّ وحدَه.
 
