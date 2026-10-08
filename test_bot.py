@@ -82565,6 +82565,45 @@ except Exception as _e:                                                    # noq
 check("🔎🧾 PHA8 حدُّ الأدلّة: الختم = قائمةُ الـartifacts = حدُّ النصّ · لا كتلةَ بعده · طابورُ البوت فارغٌ عنده · كلُّ مصدرٍ قُرئ حتى الحدّ · "
       "والكتلةُ غيرُ المستبعدة تُمسَك", _pha8, _pha8w)
 
+# 🧪📝 PHB0 — عقدُ المرحلة ب «PROSPECTIVE VALIDATION» (‏2026-10-08 · أمرُ المالك «MASTER FORENSIC RECOVERY → FROZEN VALIDATION
+#    PROTOCOL» B1-B21): `faisal_validation/PHASE_B_prereg.md` مدموجٌ **قبل أيّ رقمٍ من المرحلة ب** ⟵ بصمتُه مثبَّتة (أيُّ حرفٍ ⟵ يسقط ·
+#    والتعديلُ ملحقٌ مؤرَّخٌ بإقرارٍ صريح لا تحرير) · ويطابق الختمَ المدموج (المعرّف · الحدّ · ‏V4) · ويحمل الشروطَ التسعة وخطوطَ الأساس
+#    الثلاثة · وتردّداتُ HISTORICAL_PRIOR تُعاد من جدول A10 المختوم نفسِه لا باليد · وشاهدا ضبط: ختمٌ آخر وجدولٌ بحكمٍ مُبدَّل يُمسَكان.
+import csv as _phb_csv                                                     # noqa: E402
+import hashlib as _phb_hl                                                  # noqa: E402
+_PHB_PREREG = "faisal_validation/PHASE_B_prereg.md"
+_PHB_PREREG_SHA = "615bf037dd33e108de01e41a2727a272b636f2ec8fd8f327adf9310c708d0737"
+
+
+def _phb0_ok(txt, seal, a10):
+    """العقدُ = البصمةُ المثبَّتة ∧ الختمُ المدموج CLOSED بمعرّفه وحدِّه وV4 ∧ E1-E9 ∧ الخطوطُ الثلاثة ∧ تردّداتُ A10 المختوم بنصّها."""
+    lab = _pha_col.Counter(r["FINAL_DECISION"] for r in a10)
+    dec = lab["READY"] + lab["WAIT"] + lab["REJECT"]
+    return (_phb_hl.sha256(txt.encode("utf-8")).hexdigest() == _PHB_PREREG_SHA
+            and seal.get("seal_id") == _PHA_SEAL_ID and seal.get("status") == "CLOSED"
+            and all(x in txt for x in (_PHA_SEAL_ID, seal.get("evidence_cutoff_utc") or "⛔", seal.get("v4_commit") or "⛔"))
+            and all(f"| E{i} |" in txt for i in range(1, 10))
+            and all(f"**{b}**" in txt for b in ("ALWAYS_WAIT", "EXISTING_BASELINE", "HISTORICAL_PRIOR"))
+            and dec > 0 and f"READY {lab['READY']} · WAIT {lab['WAIT']} · REJECT {lab['REJECT']} of {dec}" in txt
+            and f"u < {lab['READY']}/{dec}" in txt and f"u ≥ {dec - lab['REJECT']}/{dec}" in txt)
+
+
+try:
+    with open(_PHB_PREREG, encoding="utf-8") as _f:
+        _phb_t = _f.read()
+    with open(_pha_os.path.join(_PHA_DIR, "HISTORICAL_DECISION_FORENSICS.csv"), encoding="utf-8", newline="") as _f:
+        _phb_a10 = list(_phb_csv.DictReader(_f))
+    _phb_a10c = [dict(_phb_a10[0], FINAL_DECISION="WAIT" if _phb_a10[0]["FINAL_DECISION"] == "READY" else "READY")] + _phb_a10[1:]
+    _phb0 = (_phb0_ok(_phb_t, _pha_seal, _phb_a10)
+             and not _phb0_ok(_phb_t, dict(_pha_seal, seal_id="PHA-0000000000000000"), _phb_a10)
+             and not _phb0_ok(_phb_t, _pha_seal, _phb_a10c))
+    _phb0w = (f"بصمة={_phb_hl.sha256(_phb_t.encode('utf-8')).hexdigest()[:12]} · ختم={_pha_seal.get('seal_id')} · "
+              f"A10={dict(_pha_col.Counter(r['FINAL_DECISION'] for r in _phb_a10))}")
+except Exception as _e:                                                    # noqa: BLE001
+    _phb0, _phb0w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪📝 PHB0 عقدُ المرحلة ب مثبَّتٌ ببصمته قبل أيّ رقم · يطابق الختمَ المدموج · E1-E9 والخطوطُ الثلاثة · تردّداتُ A10 من الجدول المختوم "
+      "· والختمُ الآخرُ والجدولُ المُبدَّل يُمسَكان", _phb0, _phb0w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
