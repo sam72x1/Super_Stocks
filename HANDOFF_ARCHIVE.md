@@ -19,6 +19,8 @@
 
 ---
 
+> 🔎🧾 **2026-10-08 (أمرُ المالك «MASTER FORENSIC RECOVERY → FROZEN VALIDATION PROTOCOL» · بالتفويض):** **المرحلة أ مختومةٌ CLOSED** (`faisal_recovery/HISTORICAL_PHASE_A_SEAL.json` · `PHA-ea12cb86a3f39a5b`) — لا صورةَ لفيصل متاحةٌ خارج المدوّنة (NEW_TO_CORPUS 0 من 9,930 · المدوّنة 769) · **وحدُّ الأدلّة 2026-10-08T01:29:04Z = بدءُ الساعة الأماميّة** ⟵ **المرحلة ب** (التسجيلُ المسبق قبل أيّ رقم ثمّ الأداة والسجلّ الإلحاقيّ) **تبدأ بعد دمج الختم** · 🔴 لا يُعاد بناءُ الختم · ولا تغييرَ على V4 ولا الإنتاج · وأُصلح معه عطلُ FPA2 (حجمٌ حيٌّ في I9 · `FPA21`).
+
 > 📊🧾 **2026-10-07 — MASTER DEVELOPMENT PROGRESS & ACCURACY AUDIT (قراءةٌ فقط)**: `FAISAL_PROJECT_DEVELOPMENT_AUDIT.md` (§⓪-§㉚) ‏+ `FAISAL_PROJECT_TIMELINE.csv` ‏+ `FAISAL_ACCURACY_COMPARISON.csv` في الجذر · البداية `4510eb3` (2026-06-20) · **NO DEFENSIBLE END-TO-END ACCURACY DELTA EXISTS YET** · الهندسة 13/14 · المنهجيّة 18/20 · التحقّق 0/43 · الجاهزيّة 0/3 · الذهبيّة V4 4/7 دون «دائمًا WAIT» 5/7. **لا تطويرَ بعده (أمرُ STOP)** — والحلقةُ الأماميّة تنتظر صورًا جديدة كما هي.
 
 > 🧊📥 **2026-10-07 — BEGIN REAL PROSPECTIVE VALIDATION (التشغيلةُ الأولى)**: الحقبةُ سليمة (guard PASS · I1-I12) · الجامعُ سحب 0 (`37695016642`) ⟵ لا حالةَ جديدة · و`final_protocol/PROSPECTIVE_STATUS.md` (STEP 11) يُولَّد مع `write` (FPA20). **التالي عند وصول صور:** `intake-scan <BATCH>` ⟵ عين ⟵ `seal` ⟵ PR ⟵ دمج ⟵ `faisal_v41.yml run` ⟵ **ثمّ فقط** الكشف ⟵ `write` ⟵ PR · وصفُّ meta_v 2 الأوّل يُتحقَّق منه من أوّل تشغيلٍ مجدول (تذكير 10-08) · **ولا تطوير.**
