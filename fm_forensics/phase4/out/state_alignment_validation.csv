@@ -1,0 +1,21 @@
+SET,ARCHITECTURE,FAISAL_STATE,STAGE_USED,ALIGNED,N,SHARE,WILSON95
+validation,A,FOCUS,A_candidate,1,5,0.2,"(0.036, 0.624)"
+validation,A,WATCH,A_candidate,2,23,0.087,"(0.024, 0.268)"
+validation,A,READY,A_candidate,0,1,0.0,
+validation,A,ENTRY,A_candidate,0,0,,
+validation,REMOVE,FOCUS,REMOVE_candidate,4,5,0.8,"(0.376, 0.964)"
+validation,REMOVE,WATCH,REMOVE_candidate,16,23,0.696,"(0.491, 0.844)"
+validation,REMOVE,READY,REMOVE_candidate,1,1,1.0,
+validation,REMOVE,ENTRY,REMOVE_candidate,0,0,,
+validation,B,FOCUS,B_observation,4,5,0.8,"(0.376, 0.964)"
+validation,B,WATCH,B_observation,19,23,0.826,"(0.629, 0.93)"
+validation,B,READY,B_watch_ready,0,1,0.0,
+validation,B,ENTRY,B_watch_ready,0,0,,
+validation,C,FOCUS,C_focus_watch,4,5,0.8,"(0.376, 0.964)"
+validation,C,WATCH,C_focus_watch,19,23,0.826,"(0.629, 0.93)"
+validation,C,READY,C_ready,0,1,0.0,
+validation,C,ENTRY,C_ready,0,0,,
+validation,D,FOCUS,D_observation,4,5,0.8,"(0.376, 0.964)"
+validation,D,WATCH,D_observation,19,23,0.826,"(0.629, 0.93)"
+validation,D,READY,D_retest,0,1,0.0,
+validation,D,ENTRY,D_trigger,0,0,,
