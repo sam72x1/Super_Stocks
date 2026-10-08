@@ -2972,7 +2972,59 @@
   },
   {
    "CASE_ID": "CASE_0002",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-07",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "split",
+     "short_borrow"
+    ],
+    "market_regime": "ABOVE_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "<1",
+    "sector": "Healthcare",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "CDT",
+    "timeframe": "4H",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "STRONG_INFERENCE",
+    "evidence_quote": "هل يضغط 64 او يكتفي / تحت المجهر",
+    "external_codes": [
+     "«مقسم قبل سبوع» (حدثُ شركة: تقسيم)",
+     "«لايوجد شورت اقتراض 293٪» (الشورت المتاح ورسومُ الاقتراض)",
+     "«مضارب مايعترف بالدعوم والمقاومات … هذا سلوكه» (بصمةُ المضارب — لا مصدرَ لها في V4 بعد Polygon)"
+    ],
+    "false_ready_cause": null,
+    "label": "WATCH",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BELOW",
+    "px_f": 0.8399,
+    "quote_verbatim": true,
+    "timeframe_f": "4H",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -2984,6 +3036,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -3012,7 +3065,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "CDT",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -3419,7 +3472,7 @@
    },
    {
     "CASE_ID": "CASE_0002",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "MATCH",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "CDT",
     "missing_critical": [
@@ -3429,9 +3482,9 @@
   ],
   "STRUCTURAL": "V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY ولا REJECT · وكلُّ تطابقٍ لـV4 تطابقٌ لـALWAYS_WAIT",
   "secondary_metrics": {
-   "MATCHES": 1,
+   "MATCHES": 2,
    "MISMATCHES": 0,
-   "n_valid": 1
+   "n_valid": 2
   }
  },
  "tool_version": "V4-FINAL-PROTOCOL 1.0 (2026-10-07)",
