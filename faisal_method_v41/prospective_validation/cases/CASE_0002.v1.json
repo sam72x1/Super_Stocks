@@ -1,0 +1,105 @@
+{
+ "capture_utc": "2026-10-08T08:58:17Z",
+ "case_id": "CASE_0002",
+ "date_precision": "day",
+ "date_source": "image_visible",
+ "decision_date": "2026-10-07",
+ "image": "faisal_images/TG_58524.jpg",
+ "image_sha256": "014fcadb8a8169ddfe5146774fca375b35580252b6ba9cea035060586c30f0ef",
+ "layer": "1",
+ "near_duplicates": [],
+ "notes": "B4_20261008 · رسالة 58524",
+ "protocol": {
+  "blind_input": {
+   "decision_date": "2026-10-07",
+   "symbol": "CDT",
+   "timeframe": "1D"
+  },
+  "input_hash": "ecaa4ae2723d475256b11e21bc5629a3db98b5c2a46b66d021358314e15b58d7",
+  "intake": {
+   "batch": "B4_20261008",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 36,
+      "id": "X_20260905_02",
+      "phash_dist": 2
+     },
+     {
+      "dhash256_dist": 43,
+      "id": "X_20260905_10",
+      "phash_dist": 2
+     },
+     {
+      "dhash256_dist": 45,
+      "id": "X_20260905_07",
+      "phash_dist": 4
+     },
+     {
+      "dhash256_dist": 54,
+      "id": "X_20260905_01",
+      "phash_dist": 2
+     },
+     {
+      "dhash256_dist": 48,
+      "id": "IMG_0697",
+      "phash_dist": 6
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class": "NEW_PROSPECTIVE"
+  },
+  "provenance": {
+   "basis": "UNKNOWN",
+   "decision_date_from_post": null,
+   "fields": {
+    "CAPTURE_TIMESTAMP": "2026-10-08T08:58:17Z",
+    "CASE_ID": "—",
+    "DATE_VISIBLE": "لا طابعَ مطلق: عمرُ المنشور «12 د» (دقائق) بجوار @kisar_ وساعةُ جهاز اللقطة 4:36 بلا تاريخ · والشارتُ المرفق «After Hours: 0.8399 +0.47%» ⟵ إغلاقٌ نظاميّ 0.8360 = إغلاقُ CDT يومَ 2026-10-07 في بيانات البوت نفسِه (`near_watch.json` · مسحُ 10-08 · 0.836) ⟵ الأفترُ ظاهرٌ من 16:00 نيويورك 10-07 حتى 04:00 نيويورك 10-08 فلا تقع 4:36 بتوقيت الرياض فيه إلّا صباحَ 10-08 ⟵ المنشورُ ≈04:24 الرياض = ≈01:24Z يومَ 10-08 = ≈21:24 نيويورك يومَ 10-07",
+    "FORWARD_TYPE": "none",
+    "IMAGE_HASH": "014fcadb8a8169ddfe5146774fca375b35580252b6ba9cea035060586c30f0ef",
+    "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+    "PERCEPTUAL_HASH": {
+     "dhash256": "c19c03facf688f7800b017a017c9168116e116e1162916a91601c6d991269326",
+     "phash64": "1c63639cea946363"
+    },
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "PUBLIC_CHANNEL_METADATA": "N/A",
+    "SOURCE": "telegram_bot · run 37753340291",
+    "SOURCE_MESSAGE_ID": 58524,
+    "TICKER": "CDT",
+    "TIMEFRAME": "4H"
+   },
+   "meta_v": 2,
+   "missing_critical": [
+    "ORIGINAL_POST_TIMESTAMP"
+   ]
+  },
+  "v4_freeze": {
+   "DATA_PIPELINE_VERSION": "e7d44195e6ad26340ce38cdd2143948a37cc2b2eb4c8fe911e387009101118c9",
+   "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+   "V4_CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+   "V4_FREEZE_ID": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+   "V4_RULE_REGISTRY_HASH": "5a2a86262511ac2143920c2d8cc1e910740f1325ed47f5c199ed07b3910e3531",
+   "V4_TOOL_VERSION": {
+    "engine": "FAISAL-V4 1.0 (2026-10-02)",
+    "freeze": "V4.1-FREEZE 1.0 (2026-10-07)",
+    "rules": "V4-RULES 1.0 (2026-10-02)",
+    "runner": "V41-RUNNER 1.0 (2026-10-07)"
+   },
+   "epoch": 1
+  }
+ },
+ "symbol": "CDT",
+ "timeframe_f": "4H",
+ "unit_id": "TG_58524"
+}

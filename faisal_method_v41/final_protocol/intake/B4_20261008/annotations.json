@@ -1,0 +1,53 @@
+{
+ "batch_id": "B4_20261008",
+ "stage": "INPUT",
+ "blind": "يُكتب قبل تشغيل V4 — الرمزُ والتاريخُ والفريمُ والكاتبُ ووجودُ عبارة القرار والمصدريّة وحدَها · بلا قرار فيصل ولا هدفٍ ولا دخولٍ ولا وقف (FINAL_PROTOCOL §⑦ · أمرُ المالك «BLIND-FIRST»)",
+ "source": {"original_content": "X/TWITTER (لقطاتٌ أرسلها المالك يدويًّا · بلا رابط X)", "ingestion": "TELEGRAM", "collector_run": "37753340291",
+            "messages": 4, "media_group": 1, "telegram_date_utc": "2026-10-08T08:54:40Z", "forward_type": "none",
+            "update_ids": "136263663…136263666 (متّصلةٌ بآخر صفٍّ قبلها 136263662 · لا فجوة)"},
+ "images": {
+  "TG_58524": {
+   "author": "F", "faisal_author": true, "symbol": "CDT", "timeframe": "4H", "layer": "1", "has_decision_statement": true,
+   "content": "منشورُ فيصل على X (@kisar_ · رأسُ المنشور مقصوص) عن CDT ‏+ شارت 4 ساعات مرفق",
+   "date_evidence": "لا طابعَ مطلق: عمرُ المنشور «12 د» (دقائق) بجوار @kisar_ وساعةُ جهاز اللقطة 4:36 بلا تاريخ · والشارتُ المرفق «After Hours: 0.8399 +0.47%» ⟵ إغلاقٌ نظاميّ 0.8360 = إغلاقُ CDT يومَ 2026-10-07 في بيانات البوت نفسِه (`near_watch.json` · مسحُ 10-08 · 0.836) ⟵ الأفترُ ظاهرٌ من 16:00 نيويورك 10-07 حتى 04:00 نيويورك 10-08 فلا تقع 4:36 بتوقيت الرياض فيه إلّا صباحَ 10-08 ⟵ المنشورُ ≈04:24 الرياض = ≈01:24Z يومَ 10-08 = ≈21:24 نيويورك يومَ 10-07",
+   "date_evidence_level": "INFERRED", "date_source": "image_visible", "decision_date": "2026-10-07", "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "Faisal @kisar_ بالشارة الزرقاء ظاهران · جهازُ اللقطة جوّالُ المالك (شريطُ الحالة نفسُه في TG_58525/TG_58526)",
+   "visual_review": ["NONE"], "visual_review_note": "أقربُ الخمس بالعين: X_20260905_02 (‏pHash 2 · dHash 36 · PPBT منشورٌ آخر بالقالب الداكن نفسِه) · X_20260905_10 · X_20260905_07 — ليست مشتقّة",
+   "derivative_of": [], "same_case_of": [], "seen_example_of": [], "ocr_jaccard": "NOT_RUN"
+  },
+  "TG_58525": {
+   "author": "F", "faisal_author": true, "symbol": "CDT", "timeframe": "D", "layer": "1", "has_decision_statement": true,
+   "content": "منشورُ فيصل على X (Faisal @kisar_ ‏+ X.com) عن CDT ‏+ شارت يوميّ مرفق — المنشورُ التالي في السلسلة نفسِها (اللقطةُ 4:36 كـTG_58524)",
+   "date_evidence": "طابعٌ مطلقٌ ظاهر تحت المنشور: «4:35 ص · 2026/10/8» (موضعُه: سطرُ المشاهدات أسفلَ المرفق) ⟵ بتوقيت الرياض (جهازُ المالك · §⑤) = 2026-10-08T01:35:00Z = 21:35 نيويورك يومَ 2026-10-07",
+   "date_evidence_level": "DIRECTLY_OBSERVED", "date_source": "image_visible", "decision_date": "2026-10-07", "decision_date_max": null,
+   "post_timestamp_visible": "4:35 ص · 2026/10/8", "post_timestamp_utc": "2026-10-08T01:35:00Z", "post_timestamp_tz": "Asia/Riyadh",
+   "provenance_evidence": "Faisal @kisar_ بالشارة الزرقاء ظاهران · جهازُ اللقطة جوّالُ المالك",
+   "visual_review": ["NONE"], "visual_review_note": "أقربُ الخمس (‏TG_1828 · TG_1834 · TG_58046 · pHash 12 · dHash 51-52) بعيدةٌ وليست مشتقّة",
+   "derivative_of": [], "same_case_of": [], "seen_example_of": [], "ocr_jaccard": "NOT_RUN"
+  },
+  "TG_58526": {
+   "author": "F", "faisal_author": true, "symbol": "NCT", "timeframe": "4H", "layer": "1", "has_decision_statement": true,
+   "content": "منشورُ فيصل على X (@kisar_ · رأسُه مقصوصٌ بلا طابع) عن NCT ‏+ شارت 4 ساعات ‏+ لقطة Intercont NCT",
+   "date_evidence": "لا طابعَ للمنشور · المرفقُ «07/10-20:45:28 EDT» و«أربعاء 07/10» (= الأربعاء 7 أكتوبر 2026) حدٌّ أدنى ⟵ وساعةُ جهاز اللقطة 3:51 بتوقيت الرياض لا تقع بعده إلّا صباحَ 10-08 (00:51Z) ⟵ المنشورُ بين 20:45 و20:51 نيويورك يومَ 10-07",
+   "date_evidence_level": "INFERRED", "date_source": "image_visible", "decision_date": "2026-10-07", "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "@kisar_ ظاهرٌ بصورة الحساب · جهازُ اللقطة جوّالُ المالك («Claude ▸» في شريط الحالة)",
+   "visual_review": ["NONE"], "visual_review_note": "أقربُ الخمس (‏X_20260918_29_KWM · TG_57867 · TG_50578) رموزٌ أخرى",
+   "derivative_of": [], "same_case_of": [],
+   "seen_example_of": ["V4:NCT_None@2026-10-02"],
+   "seen_example_note": "C8 بنصّ العقد («قراراتُ V4 التطويريّة — حالاتُ V4 المحسوبة»): تقييمُ V4 التطويريّ حسب NCT_None كما في 2026-10-02 (‏`v4_eval_results.json` rows[35]: asof 2026-10-02 · close 1.68) — داخل نافذة الـ120 قبل 10-07 · والدالّةُ `v4_exposure_hits` تقرأ `statement_date` وحدَه (None هنا) فلم تلتقطه ⟵ يُسجَّل بالعين (§⑦-3) · ومعه وحدتا V4 غيرُ المؤرَّختين TG_2179/TG_2180 (NCT · قناةٌ تعليميّة)",
+   "ocr_jaccard": "NOT_RUN"
+  },
+  "TG_58527": {
+   "author": "F_inferred", "faisal_author": true, "symbol": "SXTC", "timeframe": "D", "layer": "2", "has_decision_statement": true,
+   "content": "لقطةُ رسالة واتساب خضراء بخلفية الشاطئ عن SXTC ‏+ لقطةُ تطبيق SXTC يوميّ",
+   "date_evidence": "المرفقُ «24/09-13:00:03 EDT» وساعةُ اللقطة 8:00 والرسالةُ «8:02 م» ⟵ 2026-09-24 ≈13:02 نيويورك (قبل نافذة الحقبة 10-03 وقبل حدّ المرحلة أ)",
+   "date_evidence_level": "INFERRED", "date_source": "image_visible", "decision_date": "2026-09-24", "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "بلا اسمٍ ظاهر · خلفيةُ الشاطئ نفسُها في TG_58418 وWA_20260918_31_SXTC وفيصل أرفق لقطتَها في منشوره (B48: TG_58417 ⟵ F_inferred)",
+   "visual_review": ["NONE"], "visual_review_note": "قورنت بالعين بـTG_58418 وWA_20260918_31_SXTC (رسالةُ 1.94 · 7:32 م/1:00 م) — رسالةٌ أخرى لا نسخة · وأقربُ الخمس الآليّة بعيدة (pHash 16-18)",
+   "derivative_of": [], "same_case_of": [], "seen_example_of": [], "ocr_jaccard": "NOT_RUN"
+  }
+ }
+}

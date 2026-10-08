@@ -4,7 +4,7 @@
 
 ## ① الحالة
 **PROSPECTIVE STATUS: INSUFFICIENT** · **STATUS: INSUFFICIENT PROSPECTIVE EVIDENCE** — **NOT COMPLETE**.
-- مرشَّحون 46 · حالاتٌ مختومة 1 · كاملة (ختم ‏+ V4 ‏+ فيصل) 1 · INVALID 0 ·
+- مرشَّحون 50 · حالاتٌ مختومة 2 · كاملة (ختم ‏+ V4 ‏+ فيصل) 1 · INVALID 0 ·
   صورٌ جديدةٌ لم تُسجَّل 0.
 - الحالاتُ من السجلّ الإلحاقيّ وحدَه — ولا حالةَ مصنوعة (§38).
 

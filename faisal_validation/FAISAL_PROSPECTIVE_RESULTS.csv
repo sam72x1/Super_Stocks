@@ -1,1 +1,2 @@
 case_id,protocol_case,status,code,reason,capture_timestamp,faisal_timestamp,ticker,timeframe,v4_decision,faisal_decision,match_class,always_wait,historical_prior,external_context,setup,pattern,regime,cause,image_hash
+PB:TG_58525,,EXCLUDED,E3,E3 not a duplicate: intake DUPLICATE SAME_DECISION:CASE_0002,2026-10-08T08:58:18Z,2026-10-08T01:35:00Z,CDT,D,,,,WAIT,READY,NOT_EVALUATED,,,,,57928e202617c5203ec721808563770253737d14375da70ecd55ed613ce2fd8a

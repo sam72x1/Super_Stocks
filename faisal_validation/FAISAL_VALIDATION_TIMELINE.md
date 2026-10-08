@@ -4,5 +4,7 @@
 
 - **2026-10-08T01:29:04Z** — Phase A evidence cutoff · seal `PHA-ea12cb86a3f39a5b` CLOSED · the prospective clock starts after this instant.
 - **Contract** — `faisal_validation/PHASE_B_prereg.md` merged before any Phase B number (pinned by PHB0).
-- **Collector** — LIVE_PENDING · MANUAL_ONLY_SO_FAR (26 runs: workflow_dispatch 26 · schedule `17 */4 * * *` fired 0 time(s) · last run 37714136682 success · 0 update(s) · observed 2026-10-08T03:13:55Z)
-- **Ledger** — 0 event(s), append-only and hash-chained (`faisal_validation/PROSPECTIVE_LEDGER.jsonl`).
+- **Collector** — PASS · SCHEDULED_ACTIVE (28 runs: schedule 1 · workflow_dispatch 27 · schedule `17 */4 * * *` fired 1 time(s) · last run 37753340291 success · 4 update(s) · observed 2026-10-08T09:08:23Z)
+- **Ledger** — 2 event(s), append-only and hash-chained (`faisal_validation/PROSPECTIVE_LEDGER.jsonl`).
+- `2026-10-08T08:58:18Z` · #1 CAPTURED · `PB:TG_58525`
+- `2026-10-08T09:08:01Z` · #2 EXCLUDED · `PB:TG_58525`

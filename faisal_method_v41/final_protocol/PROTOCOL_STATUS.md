@@ -9,7 +9,7 @@ V4_FROZEN = YES
 V4_COMMIT = 7c8826c25e745668d33facabb2efbc488e997fb7
 CORPUS_AUDIT = COMPLETE
 VALID_PROSPECTIVE_CASES = 0
-EXCLUDED_CASES = 48
+EXCLUDED_CASES = 52
 MATCHES = 0
 MISMATCHES = 0
 FALSE_READY = 0
@@ -27,11 +27,11 @@ PROVENANCE = PASS
 CURRENT_STATUS = VERY_PRELIMINARY
 FINAL_VALIDATION_STATE = INSUFFICIENT_SAMPLE
 — — —
-SECONDARY_TRACKED = CASE_0001 BRTX MATCH (provenance LOW)
+SECONDARY_TRACKED = CASE_0001 BRTX MATCH (provenance LOW) · CASE_0002 CDT PENDING (provenance LOW)
 PENDING_PRIMARY = 0
-EXCLUDED_BREAKDOWN = intake_not_new 47 · secondary_provenance 1 · invalid_data_quality 0 · invalidated_lookahead 0
-INTAKE_BY_CLASS = NEW_PROSPECTIVE 1 · DUPLICATE 2 · DERIVATIVE 9 · CONTAMINATED 2 · PRE_EXISTING 7 · UNKNOWN 13 · INSUFFICIENT_CONTEXT 14
-COLLECTOR = PASS_SIMULATED · LIVE_PENDING
+EXCLUDED_BREAKDOWN = intake_not_new 50 · secondary_provenance 2 · invalid_data_quality 0 · invalidated_lookahead 0
+INTAKE_BY_CLASS = NEW_PROSPECTIVE 2 · DUPLICATE 3 · DERIVATIVE 9 · CONTAMINATED 4 · PRE_EXISTING 7 · UNKNOWN 13 · INSUFFICIENT_CONTEXT 14
+COLLECTOR = PASS_SIMULATED · PASS
 INTEGRITY = PASS
 BASELINE_B = NONE (لا خطَّ أساسٍ فنّيًّا مسجَّلًا مسبقًا — §⑭)
 STRUCTURAL = V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY ولا REJECT · وكلُّ تطابقٍ لـV4 تطابقٌ لـALWAYS_WAIT
@@ -76,10 +76,11 @@ STRUCTURAL = V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY و�
 | الحالة | الرمز | التاريخ | العيّنة (المصدريّة) | V4 (فنّيّ) | فيصل (الدليل) | المطابقة | النظرُ المستقبليّ | الحالة |
 |---|---|---|---|---|---|---|---|---|
 | `CASE_0001` | BRTX | 2026-10-03 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | WAIT (DIRECT) | MATCH | PASS | COMPLETE |
+| `CASE_0002` | CDT | 2026-10-07 | SECONDARY (LOW) | — (—) | — (—) | — | — | PENDING_V4 |
 
 ## ⑥ الاستلامُ بالأصناف السبعة (PHASE 3)
 
-**NEW_PROSPECTIVE** 1 · **DUPLICATE** 2 · **DERIVATIVE** 9 · **CONTAMINATED** 2 · **PRE_EXISTING** 7 · **UNKNOWN** 13 · **INSUFFICIENT_CONTEXT** 14
+**NEW_PROSPECTIVE** 2 · **DUPLICATE** 3 · **DERIVATIVE** 9 · **CONTAMINATED** 4 · **PRE_EXISTING** 7 · **UNKNOWN** 13 · **INSUFFICIENT_CONTEXT** 14
 
 ## ⑦ طابورُ V4.2 من التحقّق الأماميّ (PHASE 9)
 

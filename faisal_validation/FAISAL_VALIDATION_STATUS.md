@@ -8,10 +8,10 @@ FAISAL VALIDATION STATUS
 V4_FROZEN = YES (protocol epoch 1 · I1-I12 PASS)
 V4_COMMIT = 7c8826c25e745668d33facabb2efbc488e997fb7
 EPOCH_INTEGRITY = PASS
-COLLECTOR_STATUS = LIVE_PENDING · MANUAL_ONLY_SO_FAR (26 runs: workflow_dispatch 26 · schedule `17 */4 * * *` fired 0 time(s) · last run 37714136682 success · 0 update(s) · observed 2026-10-08T03:13:55Z)
-PRIMARY_CASES = 0 of 43 minimum (HISTORICAL 48 outside Phase B by definition)
+COLLECTOR_STATUS = PASS · SCHEDULED_ACTIVE (28 runs: schedule 1 · workflow_dispatch 27 · schedule `17 */4 * * *` fired 1 time(s) · last run 37753340291 success · 4 update(s) · observed 2026-10-08T09:08:23Z)
+PRIMARY_CASES = 0 of 43 minimum (HISTORICAL 51 outside Phase B by definition)
 VALID_CASES = 0 (PRIMARY 0 minus 0 external-context-blocked)
-EXCLUDED_CASES = 0
+EXCLUDED_CASES = 1 (E3 1)
 UNKNOWN_CASES = 0
 FAISAL_READY = 0
 FAISAL_WAIT = 0
@@ -37,15 +37,15 @@ TIMEFRAME_DIVERSITY = NONE (0 valid cases)
 REGIME_DIVERSITY = NONE (0 valid cases)
 LOOKAHEAD_TEST = PASS (protocol LA1-LA6) · E9 exclusions 0
 PROVENANCE_TEST = PASS (protocol I8-I10) · E7 exclusions 0
-CONTAMINATION_TEST = PASS · E2 0 · E3 0 · E4 0 · E5 0 excluded · vacuous: 0 PRIMARY
+CONTAMINATION_TEST = PASS · E2 0 · E3 1 · E4 0 · E5 0 excluded · vacuous: 0 PRIMARY
 FREEZE_TEST = PASS
-LEDGER_INTEGRITY = PASS · 0 record(s) · head 0000000000000000
+LEDGER_INTEGRITY = PASS · 2 record(s) · head 8bd83ad67c38bec2
 VALIDATION_STATE = INSUFFICIENT_SAMPLE
 V5_CANDIDATES = 0
 TESTS = test_bot.py — PHB0-PHB9 (the number is read from the CI log, never written by this tool)
 CI = tests.yml on the PR and on main (read from the log)
-MOST_IMPORTANT_FINDING = 0 prospective Faisal decisions exist after the cutoff 2026-10-08T01:29:04Z: every protocol item (48) is HISTORICAL, so Phase B has nothing to judge yet — no accuracy claim is possible
-BIGGEST_REMAINING_LIMITATION = V4's forward output is {WAIT, UNKNOWN} by construction (FVO1: no source for groups · offering · operator), so READY and REJECT recall cannot exceed 0 and VALIDATED is unreachable in epoch 1; and the collector has never fired on its schedule (manual runs only)
+MOST_IMPORTANT_FINDING = 1 Phase B item(s) after the cutoff (pending 0 · excluded 1 · unknown 0) and 0 PRIMARY — no accuracy claim is possible
+BIGGEST_REMAINING_LIMITATION = V4's forward output is {WAIT, UNKNOWN} by construction (FVO1: no source for groups · offering · operator), so READY and REJECT recall cannot exceed 0 and VALIDATED is unreachable in epoch 1
 NEXT_ALLOWED_ACTION = Forward Faisal's new posts (original timestamp kept) to the bot; then intake-scan ⟶ seal ⟶ run frozen V4 ⟶ reveal ⟶ phase_b.py write — no rule, threshold or baseline change
 ```
 
@@ -53,10 +53,10 @@ NEXT_ALLOWED_ACTION = Forward Faisal's new posts (original timestamp kept) to th
 
 | status | count |
 |---|---|
-| HISTORICAL (outside Phase B) | 48 |
+| HISTORICAL (outside Phase B) | 51 |
 | PRIMARY | 0 |
 | PENDING | 0 |
-| EXCLUDED | 0 |
+| EXCLUDED | 1 |
 | UNKNOWN | 0 |
 
 **HISTORICAL** = captured or dated on/before the cutoff (a day-only date counts when its New-York day — 2026-10-07 for this cutoff — is after it). Phase A sealed that period; these are not exclusions and never enter a denominator.
@@ -88,8 +88,8 @@ N = 10, 20, 30, 43 — an immutable ledger event when reached; reached: none. No
 
 ## Predictions (contract ⑰ — kept if wrong)
 
-- **P1** HELD
-- **P2** HELD (vacuous — 0 Phase B cases)
+- **P1** FIRST_BUILD_ONLY (not re-judged once Phase B items exist — the first-build verdict is in the git history)
+- **P2** HELD
 - **P3** HELD (FVO1: V4's forward output ∈ {WAIT, UNKNOWN})
 
 ## Error columns

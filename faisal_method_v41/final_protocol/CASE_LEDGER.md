@@ -60,6 +60,10 @@ N = 0 · MATCH = 0 · MISMATCH = 0 · FALSE_READY = 0 · FALSE_WAIT = 0 · FALSE
 | B48_20261007 | `TG_58427` | **DERIVATIVE** | VISUAL | 0 | 0 | NUWE | — | UNKNOWN |
 | B48_20261007 | `TG_58428` | **DERIVATIVE** | NEAR | 0 | 0 | — | 2026-02-14 | LOW |
 | B48_20261007 | `TG_58429` | **CONTAMINATED** | SAME_CASE | 0 | 0 | DXST | — | UNKNOWN |
+| B4_20261008 | `TG_58524` | **NEW_PROSPECTIVE** | — | 0 | 0 | CDT | 2026-10-07 | LOW |
+| B4_20261008 | `TG_58525` | **DUPLICATE** | SAME_DECISION:CASE_0002 | 0 | 0 | CDT | 2026-10-07 | MEDIUM |
+| B4_20261008 | `TG_58526` | **CONTAMINATED** | SEEN_EXAMPLE:V4:NCT_None@2026-10-02 | 0 | 0 | NCT | 2026-10-07 | LOW |
+| B4_20261008 | `TG_58527` | **CONTAMINATED** | C5:EX:CH_20260918_25_SXTC,EX:CH_20260918_32_SXTC,EX:TG_50600,EX:TG_57862,EX:WA_20260918_31_SXTC,EX:X_20260918_22_pipeline,EX:X_20260918_23_watchlist,EX:X_20260918_24_SXTC | 8 | 3 | SXTC | 2026-09-24 | LOW |
 
 ## الحالات (المصدريّةُ بالحقول الثلاثة عشر)
 
@@ -84,4 +88,24 @@ N = 0 · MATCH = 0 · MISMATCH = 0 · FALSE_READY = 0 · FALSE_WAIT = 0 · FALSE
 - الحرجُ المجهول: ORIGINAL_POST_TIMESTAMP · FORWARD_TYPE · أساسُ الطابع: UNKNOWN
 - المكوّنات: ENTRY FAISAL_NOT_STATED · INVALIDATION FAISAL_NOT_STATED · STOP FAISAL_NOT_STATED · TARGET FAISAL_NOT_STATED
 - النظرُ المستقبليّ: LA1_FUTURE_CANDLES True · LA2_BLIND_INPUT True · LA3_ORDER True · LA4_NO_IMAGE_TO_V4 True · LA6_REPLAY True · LA5_CORPORATE_ACTION PASS_SCALE_INVARIANT · verdict PASS
+
+### CASE_0002 · CDT · 2026-10-07 — SECONDARY
+
+| الحقل | القيمة |
+|---|---|
+| `CASE_ID` | "CASE_0002" |
+| `SOURCE` | "telegram_bot · run 37753340291" |
+| `SOURCE_MESSAGE_ID` | 58524 |
+| `CAPTURE_TIMESTAMP` | "2026-10-08T08:58:17Z" |
+| `ORIGINAL_POST_TIMESTAMP` | "UNKNOWN" |
+| `FORWARD_TYPE` | "none" |
+| `PUBLIC_CHANNEL_METADATA` | "N/A" |
+| `IMAGE_HASH` | "014fcadb8a8169ddfe5146774fca375b35580252b6ba9cea035060586c30f0ef" |
+| `PERCEPTUAL_HASH` | {"dhash256": "c19c03facf688f7800b017a017c9168116e116e1162916a91601c6d991269326", "phash64": "1c63639cea946363"} |
+| `TICKER` | "CDT" |
+| `TIMEFRAME` | "4H" |
+| `DATE_VISIBLE` | "لا طابعَ مطلق: عمرُ المنشور «12 د» (دقائق) بجوار @kisar_ وساعةُ جهاز اللقطة 4:36 بلا تاريخ · والشارتُ المرفق «After Hours: 0.8399 +0.47%» ⟵ إغلاقٌ نظاميّ 0.8360 = إغلاقُ CDT يومَ 2026-10-07 في بيانات البوت نفسِه (`near_watch.json` · مسحُ 10-08 · 0.836) ⟵ الأفترُ ظاهرٌ من 16:00 نيويورك 10-07 حتى 04:00 نيويورك 10-08 فلا تقع 4:36 بتوقيت الرياض فيه إلّا صباحَ 10-08 ⟵ المنشورُ ≈04:24 الرياض = ≈01:24Z يومَ 10-08 = ≈21:24 نيويورك يومَ 10-07" |
+| `PROVENANCE_CONFIDENCE` | "LOW" |
+
+- الحرجُ المجهول: ORIGINAL_POST_TIMESTAMP · أساسُ الطابع: UNKNOWN
 
