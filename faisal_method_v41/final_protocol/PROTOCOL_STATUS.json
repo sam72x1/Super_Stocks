@@ -3233,7 +3233,58 @@
   },
   {
    "CASE_ID": "CASE_0003",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-07",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "other"
+    ],
+    "market_regime": "ABOVE_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Industrials",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "NCT",
+    "timeframe": "4H",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "STRONG_INFERENCE",
+    "evidence_quote": "1.24 دعم لابد يختبره",
+    "external_codes": [
+     "«الحاصل مضارب هبده 1.14» (بصمةُ المضارب — لا مصدرَ لها في V4 بعد Polygon)",
+     "«مافيه عقل بشري يصدق ان قروب يستطيع رفع سهم» (القروبات)",
+     "«السهم كان فيه حراج عليه» (ضغطُ بيعٍ في دفتر الأوامر)"
+    ],
+    "false_ready_cause": null,
+    "label": "WAIT",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BELOW",
+    "px_f": 1.47,
+    "quote_verbatim": true,
+    "timeframe_f": "4H",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -3245,6 +3296,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -3273,7 +3325,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "NCT",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -3689,7 +3741,7 @@
    },
    {
     "CASE_ID": "CASE_0003",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "MATCH",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "NCT",
     "missing_critical": [
@@ -3699,9 +3751,9 @@
   ],
   "STRUCTURAL": "V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY ولا REJECT · وكلُّ تطابقٍ لـV4 تطابقٌ لـALWAYS_WAIT",
   "secondary_metrics": {
-   "MATCHES": 2,
+   "MATCHES": 3,
    "MISMATCHES": 0,
-   "n_valid": 2
+   "n_valid": 3
   }
  },
  "tool_version": "V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)",

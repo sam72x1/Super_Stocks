@@ -6701,16 +6701,16 @@
  },
  "prospective": {
   "candidates": 50,
-  "complete": 2,
+  "complete": 3,
   "coverage": {
    "disagreements": 0,
    "golden": 0,
    "pattern": {
-    "UNSPECIFIED": 2
+    "UNSPECIFIED": 3
    },
    "targets_stated": 0,
    "timeframe": {
-    "4H": 1,
+    "4H": 2,
     "D": 1
    }
   },
@@ -6720,14 +6720,14 @@
     "READY": "N=0",
     "REJECT": "N=0",
     "UNKNOWN": "N=0",
-    "WAIT": "2/2"
+    "WAIT": "3/3"
    },
    "always_wait": {
-    "agree": 2,
-    "n": 2,
+    "agree": 3,
+    "n": 3,
     "rate": 1.0
    },
-   "exact": 2,
+   "exact": 3,
    "exact_rate": 1.0,
    "exact_wilson": null,
    "false": {
@@ -6766,10 +6766,10 @@
      "READY": 0,
      "REJECT": 0,
      "UNKNOWN": 0,
-     "WAIT": 2
+     "WAIT": 3
     }
    },
-   "n": 2,
+   "n": 3,
    "ready_precision": "UNDEFINED (V4 READY = 0)",
    "ready_recall": "UNDEFINED (Faisal READY = 0)",
    "v4_not_run": 0
