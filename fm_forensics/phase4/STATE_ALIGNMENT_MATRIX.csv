@@ -1,0 +1,61 @@
+SET,ARCHITECTURE,FAISAL_STATE,STAGE_USED,ALIGNED,N,SHARE,WILSON95
+discovery,A,FOCUS,A_candidate,0,0,,
+discovery,A,WATCH,A_candidate,2,40,0.05,"(0.014, 0.165)"
+discovery,A,READY,A_candidate,0,4,0.0,
+discovery,A,ENTRY,A_candidate,0,2,0.0,
+discovery,REMOVE,FOCUS,REMOVE_candidate,0,0,,
+discovery,REMOVE,WATCH,REMOVE_candidate,10,40,0.25,"(0.142, 0.402)"
+discovery,REMOVE,READY,REMOVE_candidate,3,4,0.75,
+discovery,REMOVE,ENTRY,REMOVE_candidate,0,2,0.0,
+discovery,B,FOCUS,B_observation,0,0,,
+discovery,B,WATCH,B_observation,12,40,0.3,"(0.181, 0.454)"
+discovery,B,READY,B_watch_ready,0,4,0.0,
+discovery,B,ENTRY,B_watch_ready,0,2,0.0,
+discovery,C,FOCUS,C_focus_watch,0,0,,
+discovery,C,WATCH,C_focus_watch,12,40,0.3,"(0.181, 0.454)"
+discovery,C,READY,C_ready,2,4,0.5,
+discovery,C,ENTRY,C_ready,0,2,0.0,
+discovery,D,FOCUS,D_observation,0,0,,
+discovery,D,WATCH,D_observation,12,40,0.3,"(0.181, 0.454)"
+discovery,D,READY,D_retest,2,4,0.5,
+discovery,D,ENTRY,D_trigger,0,2,0.0,
+validation,A,FOCUS,A_candidate,1,5,0.2,"(0.036, 0.624)"
+validation,A,WATCH,A_candidate,2,23,0.087,"(0.024, 0.268)"
+validation,A,READY,A_candidate,0,1,0.0,
+validation,A,ENTRY,A_candidate,0,0,,
+validation,REMOVE,FOCUS,REMOVE_candidate,4,5,0.8,"(0.376, 0.964)"
+validation,REMOVE,WATCH,REMOVE_candidate,16,23,0.696,"(0.491, 0.844)"
+validation,REMOVE,READY,REMOVE_candidate,1,1,1.0,
+validation,REMOVE,ENTRY,REMOVE_candidate,0,0,,
+validation,B,FOCUS,B_observation,4,5,0.8,"(0.376, 0.964)"
+validation,B,WATCH,B_observation,19,23,0.826,"(0.629, 0.93)"
+validation,B,READY,B_watch_ready,0,1,0.0,
+validation,B,ENTRY,B_watch_ready,0,0,,
+validation,C,FOCUS,C_focus_watch,4,5,0.8,"(0.376, 0.964)"
+validation,C,WATCH,C_focus_watch,19,23,0.826,"(0.629, 0.93)"
+validation,C,READY,C_ready,0,1,0.0,
+validation,C,ENTRY,C_ready,0,0,,
+validation,D,FOCUS,D_observation,4,5,0.8,"(0.376, 0.964)"
+validation,D,WATCH,D_observation,19,23,0.826,"(0.629, 0.93)"
+validation,D,READY,D_retest,0,1,0.0,
+validation,D,ENTRY,D_trigger,0,0,,
+anchor,A,FOCUS,A_candidate,0,4,0.0,
+anchor,A,WATCH,A_candidate,0,1,0.0,
+anchor,A,READY,A_candidate,0,1,0.0,
+anchor,A,ENTRY,A_candidate,0,2,0.0,
+anchor,REMOVE,FOCUS,REMOVE_candidate,2,4,0.5,
+anchor,REMOVE,WATCH,REMOVE_candidate,0,1,0.0,
+anchor,REMOVE,READY,REMOVE_candidate,0,1,0.0,
+anchor,REMOVE,ENTRY,REMOVE_candidate,0,2,0.0,
+anchor,B,FOCUS,B_observation,2,4,0.5,
+anchor,B,WATCH,B_observation,0,1,0.0,
+anchor,B,READY,B_watch_ready,0,1,0.0,
+anchor,B,ENTRY,B_watch_ready,0,2,0.0,
+anchor,C,FOCUS,C_focus_watch,2,4,0.5,
+anchor,C,WATCH,C_focus_watch,0,1,0.0,
+anchor,C,READY,C_ready,0,1,0.0,
+anchor,C,ENTRY,C_ready,0,2,0.0,
+anchor,D,FOCUS,D_observation,2,4,0.5,
+anchor,D,WATCH,D_observation,0,1,0.0,
+anchor,D,READY,D_retest,0,1,0.0,
+anchor,D,ENTRY,D_trigger,0,2,0.0,

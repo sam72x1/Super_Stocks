@@ -1,0 +1,9 @@
+TICKER,SET,DECISION_DATE,FAISAL_STATE,EVIDENCE_ID,EVIDENCE_CLASS,DATA_CUTOFF,EVIDENCE_CUTOFF,FUTURE_REVEAL_DATE,A_candidate,A_gate,REMOVE_candidate,B_observation,B_watch_ready,C_focus_watch,C_ready,D_observation,D_retest,D_trigger,OBS_SINCE,LEVEL,FIRST_TOUCH,E2,E3,E4
+DKI,anchor,2026-09-14,FOCUS,X_20260918_22_pipeline,DIRECT_TEXT,bars < 2026-09-14,units <= 2026-09-13,none (states use events <= decision date only),0,ANCHOR,1,1,0,1,0,1,0,0,2026-09-14,2.32,2026-09-11,,,
+DKI,anchor,2026-09-14,FOCUS,X_20260918_23_watchlist,DIRECT_TEXT,bars < 2026-09-14,units <= 2026-09-13,none (states use events <= decision date only),0,ANCHOR,1,1,0,1,0,1,0,0,2026-09-14,2.32,2026-09-11,,,
+HUBC,anchor,2026-04-24,WATCH,TG_2098,DIRECT_TEXT,bars < 2026-04-24,units <= 2026-04-24,none (states use events <= decision date only),0,M4_RANGE,0,0,0,0,0,0,0,0,,795.0,2026-04-23,,,
+SXTC,anchor,2026-09-10,READY,WA_20260918_31_SXTC,DIRECT_TEXT,bars < 2026-09-10,units <= 2026-09-10,none (states use events <= decision date only),0,M2_CEIL,0,0,0,0,0,0,0,0,,2.06,2026-09-02,,,
+SXTC,anchor,2026-09-11,ENTRY,X_20260918_24_SXTC,ACTION,bars < 2026-09-11,units <= 2026-09-11,none (states use events <= decision date only),0,M2_CEIL,0,0,0,0,0,0,0,0,,1.78,2026-09-10,,,
+SXTC,anchor,2026-09-14,FOCUS,X_20260918_22_pipeline,DIRECT_TEXT,bars < 2026-09-14,units <= 2026-09-13,none (states use events <= decision date only),0,M2_CEIL,0,0,0,0,0,0,0,0,,1.78,2026-09-10,,,
+SXTC,anchor,2026-09-14,FOCUS,X_20260918_23_watchlist,DIRECT_TEXT,bars < 2026-09-14,units <= 2026-09-13,none (states use events <= decision date only),0,M2_CEIL,0,0,0,0,0,0,0,0,,1.78,2026-09-10,,,
+SXTC,anchor,2026-09-24,ENTRY,TG_58527,ACTION,bars < 2026-09-24,units <= 2026-09-24,none (states use events <= decision date only),0,M2_CEIL,0,0,0,0,0,0,0,0,,1.78,2026-09-10,,,

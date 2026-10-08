@@ -1,0 +1,21 @@
+SET,ARCHITECTURE,FAISAL_STATE,STAGE_USED,ALIGNED,N,SHARE,WILSON95
+discovery,A,FOCUS,A_candidate,0,0,,
+discovery,A,WATCH,A_candidate,2,40,0.05,"(0.014, 0.165)"
+discovery,A,READY,A_candidate,0,4,0.0,
+discovery,A,ENTRY,A_candidate,0,2,0.0,
+discovery,REMOVE,FOCUS,REMOVE_candidate,0,0,,
+discovery,REMOVE,WATCH,REMOVE_candidate,10,40,0.25,"(0.142, 0.402)"
+discovery,REMOVE,READY,REMOVE_candidate,3,4,0.75,
+discovery,REMOVE,ENTRY,REMOVE_candidate,0,2,0.0,
+discovery,B,FOCUS,B_observation,0,0,,
+discovery,B,WATCH,B_observation,12,40,0.3,"(0.181, 0.454)"
+discovery,B,READY,B_watch_ready,0,4,0.0,
+discovery,B,ENTRY,B_watch_ready,0,2,0.0,
+discovery,C,FOCUS,C_focus_watch,0,0,,
+discovery,C,WATCH,C_focus_watch,12,40,0.3,"(0.181, 0.454)"
+discovery,C,READY,C_ready,2,4,0.5,
+discovery,C,ENTRY,C_ready,0,2,0.0,
+discovery,D,FOCUS,D_observation,0,0,,
+discovery,D,WATCH,D_observation,12,40,0.3,"(0.181, 0.454)"
+discovery,D,READY,D_retest,2,4,0.5,
+discovery,D,ENTRY,D_trigger,0,2,0.0,

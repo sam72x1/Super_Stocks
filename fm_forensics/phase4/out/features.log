@@ -1,0 +1,17 @@
+FIRST_TOUCH(§18) documented Faisal any_state within 20 sessions 181/5911 0.0306 vs 230/8383 0.0274 ratio 1.12
+FIRST_TOUCH(§18) documented Faisal watch within 20 sessions 171/5911 0.0289 vs 206/8383 0.0246 ratio 1.18
+FIRST_TOUCH(§18) documented Faisal ready within 20 sessions 14/5911 0.0024 vs 33/8383 0.0039 ratio 0.6
+FIRST_TOUCH(§18) documented Faisal entry within 20 sessions 0/5911 0.0 vs 0/8383 0.0 ratio None
+SECOND_TOUCH_E2(§19) documented Faisal ready within 20 sessions 7/2872 0.0024 vs 40/11422 0.0035 ratio 0.7
+SECOND_TOUCH_E2(§19) documented Faisal entry within 20 sessions 0/2872 0.0 vs 0/11422 0.0 ratio None
+SECOND_TOUCH_E2(§19) documented Faisal any_state within 20 sessions 89/2872 0.031 vs 322/11422 0.0282 ratio 1.1
+RETEST_E3(§19) documented Faisal ready within 20 sessions 0/694 0.0 vs 47/13600 0.0035 ratio 0.0
+RETEST_E3(§19) documented Faisal entry within 20 sessions 0/694 0.0 vs 0/13600 0.0 ratio None
+RETEST_E3(§19) documented Faisal any_state within 20 sessions 10/694 0.0144 vs 401/13600 0.0295 ratio 0.49
+eligible symbol-days 14294 faisal-ticker days 5162
+FOCUS→WATCH 0 30 30
+WATCH→READY 0 5 5
+READY→ENTRY 1 3 2
+WATCH→ENTRY 0 3 3
+FOCUS→READY 0 5 5
+EXIT 0

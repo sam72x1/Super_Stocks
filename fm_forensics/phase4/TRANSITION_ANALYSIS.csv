@@ -1,0 +1,6 @@
+TRANSITION,DIRECTLY_SUPPORTED_TICKERS,N_DIRECT,N_WITH_TARGET_STATE,TARGET_WITHOUT_PRECEDING,TARGET_WITHOUT_PRECEDING_TICKERS,VERDICT,NOTE
+FOCUS→WATCH,,0,30,30,BETA;BRTX;CANF;CDIO;CIIT;DCOY;DXST;EDBL;EHGO;ELAB;ELPW;FRSX;HUBC;IPDN;LIMN;MNDR;NRSN;NUWE;OMH;ONCO;PPBT;SLXN;SMX;SPRC;STKH;TRUG;WORX;YMT;ZCMD;ZNB,UNKNOWN,dated units only; 'without preceding' counts tickers whose first dated unit of the target state has no earlier dated unit of the preceding state (text may still describe it)
+WATCH→READY,,0,5,5,GCTK;PIII;SPRC;SXTC;UPC,UNKNOWN,dated units only; 'without preceding' counts tickers whose first dated unit of the target state has no earlier dated unit of the preceding state (text may still describe it)
+READY→ENTRY,SXTC,1,3,2,AMIX;CRE,MODIFIED,dated units only; 'without preceding' counts tickers whose first dated unit of the target state has no earlier dated unit of the preceding state (text may still describe it)
+WATCH→ENTRY,,0,3,3,AMIX;CRE;SXTC,UNKNOWN,dated units only; 'without preceding' counts tickers whose first dated unit of the target state has no earlier dated unit of the preceding state (text may still describe it)
+FOCUS→READY,,0,5,5,GCTK;PIII;SPRC;SXTC;UPC,UNKNOWN,dated units only; 'without preceding' counts tickers whose first dated unit of the target state has no earlier dated unit of the preceding state (text may still describe it)

@@ -1,0 +1,13 @@
+GATE,CONCEPT,CURRENT_STAGE,EVIDENCE_STAGE,DIRECT_SUPPORT,CONTRADICTIONS,KEEP_STAGE,MOVE_STAGE,UNKNOWN,CONFIDENCE
+DEPTH (MIN_BARS=120),data sufficiency,EARLY (silent drop),UNKNOWN (Faisal measures from the split date — TG_1807/1811),NONE,post-split histories of 22-42 bars rejected (Phase 2 B_CUT),,,x,n/a
+M1 price ≥ 0.40,exclude sub-penny,EARLY,EARLY (identity),PARTIAL (IMG_0153 concept; number from envelope),HCAI 0.46 on his list,x,,,medium
+M2 ceiling drop ≤ 99.95%,not a dead/split-trap name,EARLY,UNKNOWN (no Faisal concept; cumulative-adjusted artefact),NONE,SXTC/HUBC (Phase 2),,,x,low
+M2 floor drop ≥ 71.7%,pivot = exploded then collapsed,EARLY,"EARLY (identity, IMG_0151/TG_2077)",PARTIAL (concept direct; number envelope),post-split reference frame (Phase 2 B_PSH),x,,,medium
+M3 prior spike ≥ 78% in 20 sessions,exploded before,EARLY,"EARLY (identity) — but Faisal's «100%» is the target, not the prior spike",PARTIAL/MISREAD,first wall on 13/53 Faisal rows (Phase 3),x (concept),,window/number,low
+M4 range: 15-session range ≤ 120%,narrow base,EARLY,LATER (Faisal: stability 3-5 sessions ABOVE the low after the test — a post-retest condition),NONE for the 15-bar metric,Faisal's names have wider 15-bar ranges than date-matched names (Phase 3 inverse odds),,x (as stability after the test),,medium
+M4 rise: 5-session gain ≤ 215%,don't chase,EARLY,BOTH (chase guard at entry),INFERRED,second-wave entries (TG_58417),,x (entry),,low
+M5 $vol20 ≥ $14.3K,liquidity floor,EARLY,"UNKNOWN (Faisal: prior concentrated liquidity, not current)",NONE,his picks at $10-170K/day,,,x,low
+RSI min25 ≤ 69 / RSI now ≤ 71,was oversold / not flown,EARLY,LATER (RSI <30-33 is an entry/watch condition — three-condition tool),PARTIAL,RSI_NOW contradicted by his READY calls (Phase 1),,x (watch/entry),,medium
+SOFT ≤ 8 / SCORE ≥ 5,enough confirmations,EARLY,UNKNOWN (engineering),NONE,—,,,x,n/a
+ANCHOR two-touch (tested_level 30/1.5%/2),level tested twice and not broken (IMG_0451) = entry/stop reference,EARLY (admission),LATER (retest/confirmation — the thing Faisal waits for after Watch),DIRECT for the entry reference; NONE for admission,"Watch at touch #1 (SMX TG_1908, KWM, ELPW, DKI TG_57894); sweep retests invalidate it by construction",,x (tested in this phase),,measured here
+BORROW ≤ 20k / FLOAT ≤ 50M (post-select),"short under 20k, small float",LATER (after select_top),LATER (READY validity: «الشورت 20 ع وشك» CETX TG_50828),DIRECT (borrow),—,x,,,high

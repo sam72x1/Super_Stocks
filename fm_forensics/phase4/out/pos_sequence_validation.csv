@@ -1,0 +1,17 @@
+TICKER,SET,DECISION_DATE,FWD_E2,FWD_E3,FWD_E4,FWD_E3_BRANCH
+BRTX,validation,2026-10-05,0,0,0,
+CETX,validation,2026-09-14,1,1,0,sweep
+CIIT,validation,2026-09-25,0,0,0,
+CUPR,validation,2026-09-14,0,1,1,sweep
+DCOY,validation,2026-09-22,0,1,0,sweep
+EDBL,validation,2026-09-22,0,1,0,hold
+GCTK,validation,2026-09-24,0,1,1,sweep
+IPDN,validation,2026-09-23,0,1,1,sweep
+LIMN,validation,2026-09-22,1,1,1,sweep
+MSGY,validation,2026-09-14,0,1,1,sweep
+NRSN,validation,2026-09-28,0,1,0,hold
+OMH,validation,2026-09-28,0,0,0,
+PPBT,validation,2026-09-04,0,0,0,
+STKH,validation,2026-09-04,0,0,0,
+SVRE,validation,2026-09-14,0,0,0,
+YMT,validation,2026-09-04,0,1,1,sweep

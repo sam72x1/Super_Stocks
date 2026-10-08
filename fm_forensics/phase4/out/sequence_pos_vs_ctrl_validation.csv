@@ -1,0 +1,4 @@
+SET,EVENT,POSITIVES,CONTROLS,RATIO
+validation,FWD_E2,2/16,16/64,0.5
+validation,FWD_E3,10/16,40/64,1.0
+validation,FWD_E4,6/16,31/64,0.77
