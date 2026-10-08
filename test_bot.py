@@ -82618,7 +82618,8 @@ _PHB_OWNER_KEYS = ("V4_FROZEN", "V4_COMMIT", "EPOCH_INTEGRITY", "COLLECTOR_STATU
                    "UNRESOLVED", "PATTERN_DIVERSITY", "TIMEFRAME_DIVERSITY", "REGIME_DIVERSITY", "LOOKAHEAD_TEST", "PROVENANCE_TEST",
                    "CONTAMINATION_TEST", "FREEZE_TEST", "LEDGER_INTEGRITY", "VALIDATION_STATE", "V5_CANDIDATES", "TESTS", "CI",
                    "MOST_IMPORTANT_FINDING", "BIGGEST_REMAINING_LIMITATION", "NEXT_ALLOWED_ACTION")   # B · بنصّ المالك وترتيبه
-_PHB_LEDGER_PINS = ((0, "0" * 64),)   # (عددُ القيود · بصمةُ آخرها) لكلّ نسخةٍ مدموجة — يُضاف ولا يُعدَّل (الإلحاقُ عبر الـPRs في CI الضحل)
+_PHB_LEDGER_PINS = ((0, "0" * 64),    # (عددُ القيود · بصمةُ آخرها) لكلّ نسخةٍ مدموجة — يُضاف ولا يُعدَّل (الإلحاقُ عبر الـPRs في CI الضحل)
+                    (2, "8bd83ad67c38bec2d3e1f7bb5c743805c781719535ffee7d9f4ec0faf08a4607"))   # B4_20261008 · TG_58525 CAPTURED/EXCLUDED
 _PHB_HSHA = "f" * 64
 try:
     _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))
@@ -82899,6 +82900,38 @@ except Exception as _e:                                                    # noq
     _phb9, _phb9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧪 PHB9 الثوابت: HISTORICAL_PRIOR من A10 المختوم · 43/10/5 من البروتوكول · الختمُ والحدُّ وV4 · يومُ نيويورك · ودبابيسُ السجلّ",
       _phb9, _phb9w)
+
+# PHB10 `write` بقيودٍ مستحقّة يكتب المخرجاتِ من السجلّ كما سُجّل (عطلٌ مُثبَت 2026-10-08 · B4_20261008): كان يرسم حالةَ ما قبل الإلحاق
+#       (`due_now` 2) فيسقط `check` فورَ `write` — سلوكيًّا: سجلٌّ فارغٌ في الذاكرة ⟵ `main(["write"])` بإدخالٍ وإخراجٍ محقونَين ⟵ ما كُتب =
+#       إعادةُ بناءٍ طازجة بلا قيدٍ مستحقّ · وشاهدُ ضبط: الرسمُ من بناء ما قبل الإلحاق يختلف (فالقفلُ يفرّق)
+try:
+    _st10, _w10, _io10 = [], {}, {}
+    if PB is None:
+        raise RuntimeError(_phb_err or "phase_b غير محمَّل")
+    _io10 = {k: getattr(PB, k) for k in ("ledger_read", "_append_ledger", "_write", "load_protocol")}
+    PB.ledger_read = lambda path=None: list(_st10)
+    PB._append_ledger = lambda rows: _st10.extend(rows)
+    PB._write = lambda name, text: _w10.__setitem__(name, text)
+    PB.load_protocol = lambda: (_phb_fp, _phb_pst)
+    _pre10 = PB.build(protocol=(_phb_fp, _phb_pst))
+    import contextlib as _ctx10
+    import io as _iom10
+    with _ctx10.redirect_stdout(_iom10.StringIO()):
+        _rc10 = PB.main(["write"])
+    _st10b, _rows10b, _new10b = PB.build(protocol=(_phb_fp, _phb_pst))
+    _fresh10 = PB.rendered(_st10b, _rows10b, _phb_fp)
+    _stale10 = PB.rendered(_pre10[0], _pre10[1], _phb_fp)
+    _phb10 = (_rc10 == 0 and len(_pre10[2]) > 0 and len(_st10) == len(_pre10[2]) and not _new10b
+              and set(_w10) == set(PB.OUT.values()) and _w10 == _fresh10 and _stale10 != _fresh10
+              and _st10b["ledger"]["due_now"] == 0)
+    _phb10w = f"rc={_rc10} · مستحقّ={len(_pre10[2])} · أُلحق={len(_st10)} · بعده={len(_new10b)} · مكتوب={len(_w10)} · مطابق={_w10 == _fresh10}"
+except Exception as _e:                                                    # noqa: BLE001
+    _phb10, _phb10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    for _k10, _v10 in _io10.items():
+        setattr(PB, _k10, _v10)
+check("🧪 PHB10 `write` بقيودٍ مستحقّة: المكتوبُ = إعادةُ بناءٍ طازجة من السجلّ كما سُجّل (لا `due_now` قبل الإلحاق) · وشاهدُ ضبطٍ يفرّق",
+      _phb10, _phb10w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

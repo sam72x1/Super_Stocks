@@ -2,11 +2,11 @@
  "workflow": ".github/workflows/telegram_collect.yml",
  "schedule": "17 */4 * * *",
  "schedule_added_utc": "2026-10-07T21:39:54Z",
- "observed_utc": "2026-10-08T03:13:55Z",
- "runs_total": 26,
- "runs_by_event": {"workflow_dispatch": 26},
- "last_run": {"id": 37714136682, "event": "workflow_dispatch", "created_utc": "2026-10-08T01:40:58Z", "conclusion": "success"},
- "last_run_updates": 0,
- "last_run_updates_evidence": "job 113106621673 log «حُفِظت 0 صورة جديدة · مكرّرة متخطّاة 0» · «ℹ️ لا جديد» (the Phase A cutoff verification run)",
+ "observed_utc": "2026-10-08T09:08:23Z",
+ "runs_total": 28,
+ "runs_by_event": {"schedule": 1, "workflow_dispatch": 27},
+ "last_run": {"id": 37753340291, "event": "workflow_dispatch", "created_utc": "2026-10-08T08:57:43Z", "conclusion": "success"},
+ "last_run_updates": 4,
+ "last_run_updates_evidence": "telegram_collect_report.md on main ca3bd7ee7 «حُفِظت جديدة: 4 · مكرّرة متخطّاة: 0» · 4 meta_v 2 rows (TG_58524…TG_58527 · one album · sent 2026-10-08T08:54:40Z) · the first scheduled run 37735493599 (2026-10-08T06:02:52Z, success) saved 0 («لا جديد — لا commit»)",
  "source": "GitHub Actions REST API (actions/workflows/telegram_collect.yml/runs) read from the session — CI has no network, so the observation is recorded with its time and goes stale until re-recorded"
 }

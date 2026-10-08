@@ -1,0 +1,378 @@
+{
+ "batch_id": "B4_20261008",
+ "candidates": [
+  {
+   "batch": "B4_20261008",
+   "case_id": "CASE_0002",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 36,
+      "id": "X_20260905_02",
+      "phash_dist": 2
+     },
+     {
+      "dhash256_dist": 43,
+      "id": "X_20260905_10",
+      "phash_dist": 2
+     },
+     {
+      "dhash256_dist": 45,
+      "id": "X_20260905_07",
+      "phash_dist": 4
+     },
+     {
+      "dhash256_dist": 54,
+      "id": "X_20260905_01",
+      "phash_dist": 2
+     },
+     {
+      "dhash256_dist": 48,
+      "id": "IMG_0697",
+      "phash_dist": 6
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "NEW_PROSPECTIVE",
+   "collector_row": {
+    "collected_utc": "2026-10-08T08:58:17Z",
+    "date": "2026-10-08T08:54:40Z",
+    "dhash256": "c19c03facf688f7800b017a017c9168116e116e1162916a91601c6d991269326",
+    "forward_type": "none",
+    "message_id": 58524,
+    "meta_v": 2,
+    "phash64": "1c63639cea946363",
+    "run_id": "37753340291",
+    "sha256": "014fcadb8a8169ddfe5146774fca375b35580252b6ba9cea035060586c30f0ef"
+   },
+   "decision_date": "2026-10-07",
+   "file": "faisal_images/TG_58524.jpg",
+   "fingerprint": {
+    "dhash256": "c19c03facf688f7800b017a017c9168116e116e1162916a91601c6d991269326",
+    "phash64": "1c63639cea946363",
+    "sha256": "014fcadb8a8169ddfe5146774fca375b35580252b6ba9cea035060586c30f0ef"
+   },
+   "image_id": "TG_58524",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-08T08:58:17Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "لا طابعَ مطلق: عمرُ المنشور «12 د» (دقائق) بجوار @kisar_ وساعةُ جهاز اللقطة 4:36 بلا تاريخ · والشارتُ المرفق «After Hours: 0.8399 +0.47%» ⟵ إغلاقٌ نظاميّ 0.8360 = إغلاقُ CDT يومَ 2026-10-07 في بيانات البوت نفسِه (`near_watch.json` · مسحُ 10-08 · 0.836) ⟵ الأفترُ ظاهرٌ من 16:00 نيويورك 10-07 حتى 04:00 نيويورك 10-08 فلا تقع 4:36 بتوقيت الرياض فيه إلّا صباحَ 10-08 ⟵ المنشورُ ≈04:24 الرياض = ≈01:24Z يومَ 10-08 = ≈21:24 نيويورك يومَ 10-07",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "014fcadb8a8169ddfe5146774fca375b35580252b6ba9cea035060586c30f0ef",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "c19c03facf688f7800b017a017c9168116e116e1162916a91601c6d991269326",
+      "phash64": "1c63639cea946363"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 37753340291",
+     "SOURCE_MESSAGE_ID": 58524,
+     "TICKER": "CDT",
+     "TIMEFRAME": "4H"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "—",
+   "saved": true,
+   "symbol": "CDT"
+  },
+  {
+   "batch": "B4_20261008",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 51,
+      "id": "TG_1828",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 52,
+      "id": "TG_1834",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 52,
+      "id": "TG_58046",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 62,
+      "id": "TG_2080",
+      "phash_dist": 10
+     },
+     {
+      "dhash256_dist": 47,
+      "id": "X_20260827_amix_pressure_497",
+      "phash_dist": 14
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "DUPLICATE",
+   "collector_row": {
+    "collected_utc": "2026-10-08T08:58:18Z",
+    "date": "2026-10-08T08:54:40Z",
+    "dhash256": "c05cc336d8063bc80b000b420bc20b7a0b3a0b720b4e0b0007d4b41193229126",
+    "forward_type": "none",
+    "message_id": 58525,
+    "meta_v": 2,
+    "phash64": "19a5667466b99954",
+    "run_id": "37753340291",
+    "sha256": "57928e202617c5203ec721808563770253737d14375da70ecd55ed613ce2fd8a"
+   },
+   "decision_date": "2026-10-07",
+   "file": "faisal_images/TG_58525.jpg",
+   "fingerprint": {
+    "dhash256": "c05cc336d8063bc80b000b420bc20b7a0b3a0b720b4e0b0007d4b41193229126",
+    "phash64": "19a5667466b99954",
+    "sha256": "57928e202617c5203ec721808563770253737d14375da70ecd55ed613ce2fd8a"
+   },
+   "image_id": "TG_58525",
+   "provenance": {
+    "basis": "VISIBLE_POST_TIMESTAMP",
+    "decision_date_from_post": "2026-10-07",
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-08T08:58:18Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "طابعٌ مطلقٌ ظاهر تحت المنشور: «4:35 ص · 2026/10/8» (موضعُه: سطرُ المشاهدات أسفلَ المرفق) ⟵ بتوقيت الرياض (جهازُ المالك · §⑤) = 2026-10-08T01:35:00Z = 21:35 نيويورك يومَ 2026-10-07",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "57928e202617c5203ec721808563770253737d14375da70ecd55ed613ce2fd8a",
+     "ORIGINAL_POST_TIMESTAMP": "2026-10-08T01:35:00Z",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "c05cc336d8063bc80b000b420bc20b7a0b3a0b720b4e0b0007d4b41193229126",
+      "phash64": "19a5667466b99954"
+     },
+     "PROVENANCE_CONFIDENCE": "MEDIUM",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 37753340291",
+     "SOURCE_MESSAGE_ID": 58525,
+     "TICKER": "CDT",
+     "TIMEFRAME": "D"
+    },
+    "meta_v": 2,
+    "missing_critical": []
+   },
+   "reason": "SAME_DECISION:CASE_0002",
+   "saved": true,
+   "symbol": "CDT"
+  },
+  {
+   "batch": "B4_20261008",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 51,
+      "id": "X_20260918_29_KWM",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 76,
+      "id": "TG_57867",
+      "phash_dist": 10
+     },
+     {
+      "dhash256_dist": 70,
+      "id": "TG_50578",
+      "phash_dist": 14
+     },
+     {
+      "dhash256_dist": 76,
+      "id": "TG_50830",
+      "phash_dist": 14
+     },
+     {
+      "dhash256_dist": 68,
+      "id": "X_20260827_labt_supports_wait",
+      "phash_dist": 18
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "CONTAMINATED",
+   "collector_row": {
+    "collected_utc": "2026-10-08T08:58:20Z",
+    "date": "2026-10-08T08:54:40Z",
+    "dhash256": "c01e80d600cad9340001f0ea8080a4d294c4bce2aa82bc9abc92ecda93229126",
+    "forward_type": "none",
+    "message_id": 58526,
+    "meta_v": 2,
+    "phash64": "013e2fd0b1c4ec3b",
+    "run_id": "37753340291",
+    "sha256": "53053f090c8bec46164f842234c824487b9690d990d2d0b6c3780b69d8109bf0"
+   },
+   "decision_date": "2026-10-07",
+   "file": "faisal_images/TG_58526.jpg",
+   "fingerprint": {
+    "dhash256": "c01e80d600cad9340001f0ea8080a4d294c4bce2aa82bc9abc92ecda93229126",
+    "phash64": "013e2fd0b1c4ec3b",
+    "sha256": "53053f090c8bec46164f842234c824487b9690d990d2d0b6c3780b69d8109bf0"
+   },
+   "image_id": "TG_58526",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-08T08:58:20Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "لا طابعَ للمنشور · المرفقُ «07/10-20:45:28 EDT» و«أربعاء 07/10» (= الأربعاء 7 أكتوبر 2026) حدٌّ أدنى ⟵ وساعةُ جهاز اللقطة 3:51 بتوقيت الرياض لا تقع بعده إلّا صباحَ 10-08 (00:51Z) ⟵ المنشورُ بين 20:45 و20:51 نيويورك يومَ 10-07",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "53053f090c8bec46164f842234c824487b9690d990d2d0b6c3780b69d8109bf0",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "c01e80d600cad9340001f0ea8080a4d294c4bce2aa82bc9abc92ecda93229126",
+      "phash64": "013e2fd0b1c4ec3b"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 37753340291",
+     "SOURCE_MESSAGE_ID": 58526,
+     "TICKER": "NCT",
+     "TIMEFRAME": "4H"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "SEEN_EXAMPLE:V4:NCT_None@2026-10-02",
+   "saved": true,
+   "symbol": "NCT"
+  },
+  {
+   "batch": "B4_20261008",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [
+     "EX:CH_20260918_25_SXTC",
+     "EX:CH_20260918_32_SXTC",
+     "EX:TG_50600",
+     "EX:TG_57862",
+     "EX:WA_20260918_31_SXTC",
+     "EX:X_20260918_22_pipeline",
+     "EX:X_20260918_23_watchlist",
+     "EX:X_20260918_24_SXTC"
+    ],
+    "C6": [],
+    "C7": [],
+    "C8": [
+     "V4:SXTC_2026-09-1x_a",
+     "V4:SXTC_2026-09-1x_b",
+     "V4:SXTC_2026-09-2x"
+    ],
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 88,
+      "id": "IMG_0413",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 87,
+      "id": "EDU_20260827_dki_group_candle",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 89,
+      "id": "IMG_0290",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 84,
+      "id": "IMG_0414",
+      "phash_dist": 20
+     },
+     {
+      "dhash256_dist": 94,
+      "id": "TG_20260918_40_NUWE",
+      "phash_dist": 18
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "CONTAMINATED",
+   "collector_row": {
+    "collected_utc": "2026-10-08T08:58:21Z",
+    "date": "2026-10-08T08:54:40Z",
+    "dhash256": "b948a3caa04eb04fa90daa02b44c9a0bab43a34fbb48a1a0a189b8c19081b24b",
+    "forward_type": "none",
+    "message_id": 58527,
+    "meta_v": 2,
+    "phash64": "4a4924be5b34b55a",
+    "run_id": "37753340291",
+    "sha256": "8035af886096147fca1776db641f4b73e458b3213d3a18f392b69701737503dc"
+   },
+   "decision_date": "2026-09-24",
+   "file": "faisal_images/TG_58527.jpg",
+   "fingerprint": {
+    "dhash256": "b948a3caa04eb04fa90daa02b44c9a0bab43a34fbb48a1a0a189b8c19081b24b",
+    "phash64": "4a4924be5b34b55a",
+    "sha256": "8035af886096147fca1776db641f4b73e458b3213d3a18f392b69701737503dc"
+   },
+   "image_id": "TG_58527",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-08T08:58:21Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "المرفقُ «24/09-13:00:03 EDT» وساعةُ اللقطة 8:00 والرسالةُ «8:02 م» ⟵ 2026-09-24 ≈13:02 نيويورك (قبل نافذة الحقبة 10-03 وقبل حدّ المرحلة أ)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "8035af886096147fca1776db641f4b73e458b3213d3a18f392b69701737503dc",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "b948a3caa04eb04fa90daa02b44c9a0bab43a34fbb48a1a0a189b8c19081b24b",
+      "phash64": "4a4924be5b34b55a"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 37753340291",
+     "SOURCE_MESSAGE_ID": 58527,
+     "TICKER": "SXTC",
+     "TIMEFRAME": "D"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "C5:EX:CH_20260918_25_SXTC,EX:CH_20260918_32_SXTC,EX:TG_50600,EX:TG_57862,EX:WA_20260918_31_SXTC,EX:X_20260918_22_pipeline,EX:X_20260918_23_watchlist,EX:X_20260918_24_SXTC",
+   "saved": true,
+   "symbol": "SXTC"
+  }
+ ],
+ "tool_version": "V4-FINAL-PROTOCOL 1.0 (2026-10-07)"
+}

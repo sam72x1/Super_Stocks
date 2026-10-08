@@ -4,33 +4,36 @@
  "collector": {
   "last_run": {
    "conclusion": "success",
-   "created_utc": "2026-10-08T01:40:58Z",
+   "created_utc": "2026-10-08T08:57:43Z",
    "event": "workflow_dispatch",
-   "id": 37714136682
+   "id": 37753340291
   },
-  "last_run_updates": 0,
-  "last_run_updates_evidence": "job 113106621673 log «حُفِظت 0 صورة جديدة · مكرّرة متخطّاة 0» · «ℹ️ لا جديد» (the Phase A cutoff verification run)",
-  "observed_utc": "2026-10-08T03:13:55Z",
+  "last_run_updates": 4,
+  "last_run_updates_evidence": "telegram_collect_report.md on main ca3bd7ee7 «حُفِظت جديدة: 4 · مكرّرة متخطّاة: 0» · 4 meta_v 2 rows (TG_58524…TG_58527 · one album · sent 2026-10-08T08:54:40Z) · the first scheduled run 37735493599 (2026-10-08T06:02:52Z, success) saved 0 («لا جديد — لا commit»)",
+  "observed_utc": "2026-10-08T09:08:23Z",
   "runs_by_event": {
-   "workflow_dispatch": 26
+   "schedule": 1,
+   "workflow_dispatch": 27
   },
-  "runs_total": 26,
+  "runs_total": 28,
   "schedule": "17 */4 * * *",
   "schedule_added_utc": "2026-10-07T21:39:54Z",
   "source": "GitHub Actions REST API (actions/workflows/telegram_collect.yml/runs) read from the session — CI has no network, so the observation is recorded with its time and goes stale until re-recorded",
   "workflow": ".github/workflows/telegram_collect.yml"
  },
- "collector_status": "LIVE_PENDING · MANUAL_ONLY_SO_FAR (26 runs: workflow_dispatch 26 · schedule `17 */4 * * *` fired 0 time(s) · last run 37714136682 success · 0 update(s) · observed 2026-10-08T03:13:55Z)",
+ "collector_status": "PASS · SCHEDULED_ACTIVE (28 runs: schedule 1 · workflow_dispatch 27 · schedule `17 */4 * * *` fired 1 time(s) · last run 37753340291 success · 4 update(s) · observed 2026-10-08T09:08:23Z)",
  "contract": "faisal_validation/PHASE_B_prereg.md",
  "counts": {
-  "EXCLUDED": 0,
+  "EXCLUDED": 1,
   "PENDING": 0,
   "PRIMARY": 0,
   "UNKNOWN": 0
  },
  "cutoff": "2026-10-08T01:29:04Z",
  "cutoff_ny_day": "2026-10-07",
- "excluded_by_code": {},
+ "excluded_by_code": {
+  "E3": 1
+ },
  "gate": {
   "cutoff": "2026-10-08T01:29:04Z",
   "historical_hashes": 1149,
@@ -40,7 +43,7 @@
  },
  "generated_by": "faisal_validation/phase_b.py",
  "historical": {
-  "count": 48,
+  "count": 51,
   "items": [
    {
     "id": "PB:TG_58382",
@@ -281,15 +284,30 @@
     "id": "PB:TG_58429",
     "protocol_case": null,
     "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58524",
+    "protocol_case": "CASE_0002",
+    "why": "Faisal's decision day is on/before the cutoff's New-York day"
+   },
+   {
+    "id": "PB:TG_58526",
+    "protocol_case": null,
+    "why": "Faisal's decision day is on/before the cutoff's New-York day"
+   },
+   {
+    "id": "PB:TG_58527",
+    "protocol_case": null,
+    "why": "Faisal's decision day is on/before the cutoff's New-York day"
    }
   ]
  },
  "ledger": {
   "due_now": 0,
-  "file_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-  "head_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "file_sha256": "b9d2efcd4a7b9e0afd35f32de88c966b5a09a9e290843c5a26bdd3a0993c4706",
+  "head_sha256": "8bd83ad67c38bec2d3e1f7bb5c743805c781719535ffee7d9f4ec0faf08a4607",
   "problems": [],
-  "records": 0
+  "records": 2
  },
  "main": 0,
  "metrics_main": {
@@ -339,8 +357,8 @@
   }
  },
  "predictions": {
-  "P1": "HELD",
-  "P2": "HELD (vacuous — 0 Phase B cases)",
+  "P1": "FIRST_BUILD_ONLY (not re-judged once Phase B items exist — the first-build verdict is in the git history)",
+  "P2": "HELD",
   "P3": "HELD (FVO1: V4's forward output ∈ {WAIT, UNKNOWN})"
  },
  "primary": 0,
@@ -349,9 +367,9 @@
   "PROVENANCE": "PASS",
   "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
   "V4_FROZEN": "YES",
-  "candidates": 48,
-  "cases": 1,
-  "collector_live": "LIVE_PENDING",
+  "candidates": 52,
+  "cases": 2,
+  "collector_live": "PASS",
   "config_hash": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
   "integrity_failed": [],
   "integrity_ok": true,
@@ -419,7 +437,33 @@
    "WAIT": 0
   }
  },
- "rows": [],
+ "rows": [
+  {
+   "always_wait": "WAIT",
+   "blocked": false,
+   "capture_timestamp": "2026-10-08T08:58:18Z",
+   "case_id": "PB:TG_58525",
+   "categories": [],
+   "cause": null,
+   "code": "E3",
+   "components": {},
+   "external_context": "NOT_EVALUATED",
+   "faisal_decision": null,
+   "faisal_timestamp": "2026-10-08T01:35:00Z",
+   "historical_prior": "READY",
+   "image_hash": "57928e202617c5203ec721808563770253737d14375da70ecd55ed613ce2fd8a",
+   "match_class": null,
+   "pattern": null,
+   "protocol_case": null,
+   "reason": "E3 not a duplicate: intake DUPLICATE SAME_DECISION:CASE_0002",
+   "regime": null,
+   "setup": null,
+   "status": "EXCLUDED",
+   "ticker": "CDT",
+   "timeframe": "D",
+   "v4_decision": null
+  }
+ ],
  "seal_id": "PHA-ea12cb86a3f39a5b",
  "setups": {},
  "state": "INSUFFICIENT_SAMPLE",

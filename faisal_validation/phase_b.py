@@ -911,9 +911,14 @@ def main(argv=None):
     st, rows, new = build(gate=(g, hist), protocol=(fp, pst))
     if cmd == "write":
         _append_ledger(new)
+        n_new = len(new)
+        if new:
+            # The artifacts describe the ledger as recorded (`due_now` 0), so they equal a fresh rebuild byte for byte
+            # (B4_20261008: rendering the pre-append state left `due_now` 2 on disk and `check` failed right after `write`).
+            st, rows, new = build(gate=(g, hist), protocol=(fp, pst))
         for name, text in rendered(st, rows, fp).items():
             _write(name, text)
-        print(f"✍️ PHASE B: {len(new)} ledger event(s) appended · {len(OUT)} artifacts written")
+        print(f"✍️ PHASE B: {n_new} ledger event(s) appended · {len(OUT)} artifacts written")
     elif cmd == "check":
         bad = check(st, rows, new, fp)
         print("📋 PHASE B", "مطابق" if not bad else "⛔ " + " · ".join(bad[:5]))

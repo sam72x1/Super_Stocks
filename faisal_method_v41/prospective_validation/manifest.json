@@ -494,6 +494,57 @@
    "sha256": "48ccfdb89bd101b29cfc5ad3fd02ef02ec2f434145384cb063832c3304236772",
    "utc": "2026-10-07T12:52:33Z",
    "version": 1
+  },
+  {
+   "case_id": "TG_58524",
+   "entry_hash": "bf085a41881ad089d931abe15d75b64fff6631476ce4fea3e40943eda19e518e",
+   "kind": "candidate",
+   "path": "candidates/TG_58524.v1.json",
+   "prev": "947bc40b3e7cc6a9fd46ec2edf0f9909850669895a01f266a2e2d00d84abdcc2",
+   "seq": 50,
+   "sha256": "9d2631c66b9adfe3594afbe7df81070f6c764d84935bf2826a1dd7ccd265c113",
+   "utc": "2026-10-08T09:08:01Z"
+  },
+  {
+   "case_id": "TG_58525",
+   "entry_hash": "714687f639134743f9f3d48707cb3d2f03597d3c7ad96e4775f1a047ec990310",
+   "kind": "candidate",
+   "path": "candidates/TG_58525.v1.json",
+   "prev": "bf085a41881ad089d931abe15d75b64fff6631476ce4fea3e40943eda19e518e",
+   "seq": 51,
+   "sha256": "535e6b036609d50f938835f735d131843755ca0907f0c52785d1685135573673",
+   "utc": "2026-10-08T09:08:01Z"
+  },
+  {
+   "case_id": "TG_58526",
+   "entry_hash": "035f677426d680fa99b9f4fc9a0de5aaa3cddf9aea348206e6158b56c9758604",
+   "kind": "candidate",
+   "path": "candidates/TG_58526.v1.json",
+   "prev": "714687f639134743f9f3d48707cb3d2f03597d3c7ad96e4775f1a047ec990310",
+   "seq": 52,
+   "sha256": "d1bfb5932f6334ee5c485ece10a4c8105dc25a39efe3bec5633afbc0033fb624",
+   "utc": "2026-10-08T09:08:01Z"
+  },
+  {
+   "case_id": "TG_58527",
+   "entry_hash": "90ebee21b653a8794f35c8d8b6dabf2d6736ec7939f348c40781a5f01062aa34",
+   "kind": "candidate",
+   "path": "candidates/TG_58527.v1.json",
+   "prev": "035f677426d680fa99b9f4fc9a0de5aaa3cddf9aea348206e6158b56c9758604",
+   "seq": 53,
+   "sha256": "de51039e197452c0b6f1bf383cb251fd3a0bf05aa0bc22d75e8096131abf91e5",
+   "utc": "2026-10-08T09:08:01Z"
+  },
+  {
+   "case_id": "CASE_0002",
+   "entry_hash": "ef7398ca94dc2c7dfc55ddc8b285fb1295755a2db32679accc3d74ef378e4224",
+   "kind": "case",
+   "path": "cases/CASE_0002.v1.json",
+   "prev": "90ebee21b653a8794f35c8d8b6dabf2d6736ec7939f348c40781a5f01062aa34",
+   "seq": 54,
+   "sha256": "9b3c5fcf7b19e2b246e4fee014217124ec1901f0f9171d0a308a8d8f7fc6632d",
+   "utc": "2026-10-08T09:08:01Z",
+   "version": 1
   }
  ],
  "schema": 1,
