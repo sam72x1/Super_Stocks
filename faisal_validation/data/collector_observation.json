@@ -1,0 +1,12 @@
+{
+ "workflow": ".github/workflows/telegram_collect.yml",
+ "schedule": "17 */4 * * *",
+ "schedule_added_utc": "2026-10-07T21:39:54Z",
+ "observed_utc": "2026-10-08T03:13:55Z",
+ "runs_total": 26,
+ "runs_by_event": {"workflow_dispatch": 26},
+ "last_run": {"id": 37714136682, "event": "workflow_dispatch", "created_utc": "2026-10-08T01:40:58Z", "conclusion": "success"},
+ "last_run_updates": 0,
+ "last_run_updates_evidence": "job 113106621673 log «حُفِظت 0 صورة جديدة · مكرّرة متخطّاة 0» · «ℹ️ لا جديد» (the Phase A cutoff verification run)",
+ "source": "GitHub Actions REST API (actions/workflows/telegram_collect.yml/runs) read from the session — CI has no network, so the observation is recorded with its time and goes stale until re-recorded"
+}

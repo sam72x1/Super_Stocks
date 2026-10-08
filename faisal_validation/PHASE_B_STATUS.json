@@ -1,0 +1,427 @@
+{
+ "blocked_external": 0,
+ "checkpoints_reached": [],
+ "collector": {
+  "last_run": {
+   "conclusion": "success",
+   "created_utc": "2026-10-08T01:40:58Z",
+   "event": "workflow_dispatch",
+   "id": 37714136682
+  },
+  "last_run_updates": 0,
+  "last_run_updates_evidence": "job 113106621673 log «حُفِظت 0 صورة جديدة · مكرّرة متخطّاة 0» · «ℹ️ لا جديد» (the Phase A cutoff verification run)",
+  "observed_utc": "2026-10-08T03:13:55Z",
+  "runs_by_event": {
+   "workflow_dispatch": 26
+  },
+  "runs_total": 26,
+  "schedule": "17 */4 * * *",
+  "schedule_added_utc": "2026-10-07T21:39:54Z",
+  "source": "GitHub Actions REST API (actions/workflows/telegram_collect.yml/runs) read from the session — CI has no network, so the observation is recorded with its time and goes stale until re-recorded",
+  "workflow": ".github/workflows/telegram_collect.yml"
+ },
+ "collector_status": "LIVE_PENDING · MANUAL_ONLY_SO_FAR (26 runs: workflow_dispatch 26 · schedule `17 */4 * * *` fired 0 time(s) · last run 37714136682 success · 0 update(s) · observed 2026-10-08T03:13:55Z)",
+ "contract": "faisal_validation/PHASE_B_prereg.md",
+ "counts": {
+  "EXCLUDED": 0,
+  "PENDING": 0,
+  "PRIMARY": 0,
+  "UNKNOWN": 0
+ },
+ "cutoff": "2026-10-08T01:29:04Z",
+ "cutoff_ny_day": "2026-10-07",
+ "excluded_by_code": {},
+ "gate": {
+  "cutoff": "2026-10-08T01:29:04Z",
+  "historical_hashes": 1149,
+  "ok": true,
+  "seal_id": "PHA-ea12cb86a3f39a5b",
+  "why": []
+ },
+ "generated_by": "faisal_validation/phase_b.py",
+ "historical": {
+  "count": 48,
+  "items": [
+   {
+    "id": "PB:TG_58382",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58383",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58384",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58385",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58386",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58387",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58388",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58389",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58390",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58391",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58392",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58393",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58394",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58395",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58396",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58397",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58398",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58399",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58400",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58401",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58402",
+    "protocol_case": "CASE_0001",
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58403",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58404",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58405",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58406",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58407",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58408",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58409",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58410",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58411",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58412",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58413",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58414",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58415",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58416",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58417",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58418",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58419",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58420",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58421",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58422",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58423",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:MSG_58424",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:MSG_58425",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58426",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58427",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58428",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   },
+   {
+    "id": "PB:TG_58429",
+    "protocol_case": null,
+    "why": "captured on/before the cutoff"
+   }
+  ]
+ },
+ "ledger": {
+  "due_now": 0,
+  "file_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "head_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "problems": [],
+  "records": 0
+ },
+ "main": 0,
+ "metrics_main": {
+  "always_wait": 0,
+  "exact": 0,
+  "faisal": {
+   "READY": 0,
+   "REJECT": 0,
+   "WAIT": 0
+  },
+  "false": {
+   "READY": 0,
+   "REJECT": 0,
+   "UNKNOWN": 0,
+   "WAIT": 0
+  },
+  "n": 0,
+  "prior": 0,
+  "v4": {
+   "READY": 0,
+   "REJECT": 0,
+   "UNKNOWN": 0,
+   "WAIT": 0
+  }
+ },
+ "metrics_sensitivity": {
+  "always_wait": 0,
+  "exact": 0,
+  "faisal": {
+   "READY": 0,
+   "REJECT": 0,
+   "WAIT": 0
+  },
+  "false": {
+   "READY": 0,
+   "REJECT": 0,
+   "UNKNOWN": 0,
+   "WAIT": 0
+  },
+  "n": 0,
+  "prior": 0,
+  "v4": {
+   "READY": 0,
+   "REJECT": 0,
+   "UNKNOWN": 0,
+   "WAIT": 0
+  }
+ },
+ "predictions": {
+  "P1": "HELD",
+  "P2": "HELD (vacuous — 0 Phase B cases)",
+  "P3": "HELD (FVO1: V4's forward output ∈ {WAIT, UNKNOWN})"
+ },
+ "primary": 0,
+ "protocol": {
+  "LOOKAHEAD": "PASS",
+  "PROVENANCE": "PASS",
+  "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+  "V4_FROZEN": "YES",
+  "candidates": 48,
+  "cases": 1,
+  "collector_live": "LIVE_PENDING",
+  "config_hash": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+  "integrity_failed": [],
+  "integrity_ok": true,
+  "ready_structurally_impossible": true
+ },
+ "protocol_metrics_main": {
+  "P1_TECH_READY": {
+   "faisal_ready": 0,
+   "faisal_wait_reject": 0,
+   "met": false,
+   "newcombe95": null,
+   "tech_ready_given_ready": 0,
+   "tech_ready_given_wait_reject": 0
+  },
+  "READY_CLASS_VALIDATED": "NO",
+  "V4_BEATS_BASELINE": "UNKNOWN",
+  "baseline_discordant": {
+   "b_v4_only": 0,
+   "c_baseline_only": 0
+  },
+  "coverage": {
+   "READY": 0,
+   "REJECT": 0,
+   "WAIT": 0
+  },
+  "per_class": {
+   "READY": {
+    "faisal": 0,
+    "precision": "UNDEFINED",
+    "precision_wilson": null,
+    "recall": "UNDEFINED",
+    "recall_wilson": null,
+    "tp": 0,
+    "v4": 0
+   },
+   "REJECT": {
+    "faisal": 0,
+    "precision": "UNDEFINED",
+    "precision_wilson": null,
+    "recall": "UNDEFINED",
+    "recall_wilson": null,
+    "tp": 0,
+    "v4": 0
+   },
+   "WAIT": {
+    "faisal": 0,
+    "precision": "UNDEFINED",
+    "precision_wilson": null,
+    "recall": "UNDEFINED",
+    "recall_wilson": null,
+    "tp": 0,
+    "v4": 0
+   }
+  }
+ },
+ "protocol_metrics_sensitivity": {
+  "V4_BEATS_BASELINE": "UNKNOWN",
+  "baseline_discordant": {
+   "b_v4_only": 0,
+   "c_baseline_only": 0
+  },
+  "coverage": {
+   "READY": 0,
+   "REJECT": 0,
+   "WAIT": 0
+  }
+ },
+ "rows": [],
+ "seal_id": "PHA-ea12cb86a3f39a5b",
+ "setups": {},
+ "state": "INSUFFICIENT_SAMPLE",
+ "tool_version": "PHASE-B 1.0 (2026-10-08)"
+}
