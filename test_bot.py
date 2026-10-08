@@ -82379,6 +82379,7 @@ _PHA_OWNER28 = ("IMAGE_ID", "SOURCE_ID", "CONVERSATION_ID", "MESSAGE_ID", "TIMES
 _PHA_SEAL_REQ = ("timestamp", "main_commit", "v4_commit", "source_manifest_hash", "corpus_manifest_hash", "total_discovered",
                  "total_recovered", "new_to_corpus", "duplicates", "derivatives", "reference_only", "inaccessible", "missing",
                  "non_faisal", "unknown", "unresolved", "status")           # A14 بنصّ المالك
+_PHA_SEAL_ID = "PHA-ea12cb86a3f39a5b"   # الختمُ المدموج — تغييرُه إعادةُ ختمٍ للتاريخ = إقرارٌ صريح بإذن المالك لا إصلاح (`build` يعيد قياس النصوص)
 try:
     _pha_spec = _pha_ilu.spec_from_file_location("_pha_phase_a", _pha_os.path.join(_PHA_DIR, "phase_a.py"))
     PHA = _pha_ilu.module_from_spec(_pha_spec)
@@ -82449,6 +82450,7 @@ try:
     _body3 = {k: v for k, v in _pha_seal.items() if k != "seal_id"}
     _c3 = _pha_ctl(seal=dict(_pha_seal, status="BLOCKED"))
     _pha3 = (all(k in _pha_seal for k in _PHA_SEAL_REQ) and _pha_seal["seal_id"] == "PHA-" + PHA.canon_hash(_body3)[:16]
+             and _pha_seal["seal_id"] == _PHA_SEAL_ID
              and _pha_seal["v4_commit"] == PHA.V4_COMMIT == _epoch3["epochs"][-1]["V4_COMMIT"]
              == "7c8826c25e745668d33facabb2efbc488e997fb7"
              and _pha_seal["evidence_cutoff_utc"] == _pha_seal["prospective_clock_starts_after"] <= _pha_seal["timestamp"]
@@ -82458,8 +82460,8 @@ try:
     _pha3w = f"ختم={_pha_seal.get('seal_id')} · ناقص={[k for k in _PHA_SEAL_REQ if k not in _pha_seal]} · ضبط={[p[:30] for p in _c3[:3]]}"
 except Exception as _e:                                                    # noqa: BLE001
     _pha3, _pha3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🔎🧾 PHA3 الختم A14: حقولُ المالك كلُّها · seal_id بصمةُ جسمه · V4 = 7c8826c (عهدُ البروتوكول نفسُه) · حدُّ الأدلّة = بدءُ "
-      "الساعة الأماميّة · وقلبُ الحالة يُمسَك", _pha3, _pha3w)
+check("🔎🧾 PHA3 الختم A14: حقولُ المالك كلُّها · seal_id بصمةُ جسمه ومثبَّتٌ (لا إعادةَ ختمٍ صامتة) · V4 = 7c8826c (عهدُ البروتوكول نفسُه) · "
+      "حدُّ الأدلّة = بدءُ الساعة الأماميّة · وقلبُ الحالة يُمسَك", _pha3, _pha3w)
 
 # PHA4 ثباتُ المدوّنة المختومة: 769 = 768 ملفًّا ‏+ مرفق · كلُّ ملفٍّ حاضرٌ ببصمته (validate) · بصمةُ القائمة = الختم ·
 #      وشاهدُ ضبط: بصمةُ ملفٍّ واحدٍ مزوَّرة ⟵ «sealed historical image changed».
