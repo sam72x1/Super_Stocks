@@ -70,6 +70,26 @@ def main():
             print(f"⏱️ {s}: شموع ساعة {len(h) if h is not None else None}")
     except Exception as e:                                        # noqa: BLE001
         print("⚠️ hourly:", type(e).__name__, e)
+    # 🧾 التقسيمات (ياهو ∪ تقويمُ ناسداك عبر `_fetch_splits_dq` بالاسم · فاشلٌ-آمن · بميزانية زمن) — لإعادة مرجع M2 بعد التقسيم
+    #    في المُقيِّم الظلّيّ. الغائبُ يُسجَّل None (مجهولٌ لا «لا تقسيم»).
+    out["splits"] = {}
+    t0 = dt.datetime.now(); budget = float(os.environ.get("FM_SPLIT_BUDGET_S") or 900)
+    n_ok = n_fail = 0
+    for s in syms:
+        if (dt.datetime.now() - t0).total_seconds() > budget:
+            print(f"⏱️ ميزانيةُ التقسيمات انتهت عند {n_ok + n_fail} من {len(syms)} — الباقي مجهول")
+            break
+        try:
+            sp = S._fetch_splits_dq(s)
+            if sp is None:
+                out["splits"][s] = None; n_fail += 1
+            elif isinstance(sp, list):
+                out["splits"][s] = [[str(d)[:10], float(r)] for d, r in sp]; n_ok += 1
+            else:
+                out["splits"][s] = [[str(d)[:10], float(r)] for d, r in sp.items()]; n_ok += 1
+        except Exception:                                         # noqa: BLE001
+            out["splits"][s] = None; n_fail += 1
+    print(f"🧾 تقسيمات: معلوم {n_ok} · مجهول {n_fail} · لم يُسأل {len(syms) - n_ok - n_fail}")
     os.makedirs("fm_forensics/data", exist_ok=True)
     path = f"fm_forensics/data/bars_{dt.date.today().isoformat()}.json.gz"
     with gzip.open(path, "wt", encoding="utf-8") as f:
