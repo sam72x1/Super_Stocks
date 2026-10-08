@@ -62,6 +62,11 @@ def fingerprints(data):
         return None, None, None, None
 
 
+def manifest_digest(lines):
+    """بصمةُ قائمة «المُدخَل\tSHA256» مرتّبةً — تُطابَق محلّيًّا مع شجرة git للتشغيلة دون طباعة كلّ مُدخَل. نقيّة."""
+    return hashlib.sha256("\n".join(sorted(lines)).encode("utf-8")).hexdigest()
+
+
 def ham(a, b):
     return bin(int(a, 16) ^ int(b, 16)).count("1")
 
@@ -130,7 +135,8 @@ def download(url, token, dest):
 
 def scan_zip(path, repo_rows):
     """لكلّ مُدخَل: هل هو صورة؟ وإن كانت: في المستودع بالـSHA؟ وإلّا أقربُ صورةٍ فيه. نقيّة على الملفّ."""
-    res = {"entries": 0, "images": 0, "in_repo": 0, "not_in_repo": [], "ext_image_not_magic": 0, "bad_zip": False}
+    res = {"entries": 0, "images": 0, "in_repo": 0, "not_in_repo": [], "ext_image_not_magic": 0, "bad_zip": False,
+           "image_manifest": []}
     try:
         z = zipfile.ZipFile(path)
     except zipfile.BadZipFile:
@@ -151,6 +157,7 @@ def scan_zip(path, repo_rows):
             data = z.read(info)
             res["images"] += 1
             sha = hashlib.sha256(data).hexdigest()
+            res["image_manifest"].append(f"{info.filename}\t{sha}")
             if sha in repo_rows:
                 res["in_repo"] += 1
                 continue
@@ -192,7 +199,8 @@ def main():
         os.remove(dest)
         rec = {"id": a["id"], "name": a["name"], "created": a["created_at"], "run": (a.get("workflow_run") or {}).get("id"),
                "size": a["size_in_bytes"], "entries": r["entries"], "images": r["images"], "in_repo": r["in_repo"],
-               "not_in_repo": len(r["not_in_repo"]), "ext_image_not_magic": r["ext_image_not_magic"], "bad_zip": r["bad_zip"]}
+               "not_in_repo": len(r["not_in_repo"]), "ext_image_not_magic": r["ext_image_not_magic"], "bad_zip": r["bad_zip"],
+               "image_manifest_sha256": manifest_digest(r["image_manifest"])}
         summary["per_artifact"].append(rec)
         for x in r["not_in_repo"]:
             summary["not_in_repo"].append(dict(x, artifact_id=a["id"], artifact=a["name"], created=a["created_at"]))
