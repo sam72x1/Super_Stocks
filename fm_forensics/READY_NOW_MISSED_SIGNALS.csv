@@ -1,0 +1,280 @@
+SYMBOL,EXPL_DATE,GAIN_PCT,KIND,WAS_PIVOT_IDENTITY,BASE_REASON,BLOCKING_LAYER,READY_CLASS,READY_DAYS_BEFORE,NEAR_WATCH_14D,SUSPECT_SPLIT
+NFE,2026-07-17,4894.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,True
+INO,2026-08-10,113.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,False
+SCKT,2026-08-10,446.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,True
+MRNA,2026-08-10,195.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+CELU,2026-08-11,206.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,False
+XHLD,2026-08-11,203.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NO_SNAPSHOT,False
+BRNX,2026-08-11,163.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NO_SNAPSHOT,False
+LEXX,2026-08-11,158.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,False
+FBLG,2026-08-11,115.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,False
+NWGL,2026-08-11,318.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,True
+ARCT,2026-08-11,137.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+QMCO,2026-08-11,122.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+CAN,2026-08-11,121.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,False
+SWVL,2026-08-11,359.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,True
+BANL,2026-08-11,321.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,True
+MRNA,2026-08-11,192.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+TJGC,2026-08-11,188.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+AVAT,2026-08-11,153.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,False
+DFDV,2026-08-12,113.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,False
+MF,2026-08-12,121.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NO_SNAPSHOT,False
+IPST,2026-08-12,684.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,True
+XHLD,2026-08-12,194.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NO_SNAPSHOT,False
+CAPR,2026-08-12,156.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NO_SNAPSHOT,False
+LEXX,2026-08-12,144.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,False
+NWGL,2026-08-12,298.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,False
+BANL,2026-08-12,292.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+MRNA,2026-08-12,188.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+AVAT,2026-08-12,183.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,False
+ARCT,2026-08-12,123.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+CAN,2026-08-12,120.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,False
+FCUV,2026-08-13,263.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NO_SNAPSHOT,False
+CELU,2026-08-13,204.0,تجمّع,True,مرشّح,L8/L10 (was a candidate; not selected or not ready),MISSED_READY,,NO_SNAPSHOT,False
+IPST,2026-08-13,684.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,True
+CAPR,2026-08-13,140.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NO_SNAPSHOT,False
+LEXX,2026-08-13,131.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,False
+DFDV,2026-08-13,112.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,False
+RNXT,2026-08-13,125.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+TJGC,2026-08-13,182.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+HOWL,2026-08-13,161.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,False
+NWGL,2026-08-13,280.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,False
+AVAT,2026-08-13,180.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,False
+BANL,2026-08-13,166.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+FGI,2026-08-13,148.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+ARCT,2026-08-13,120.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+CAN,2026-08-13,114.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NO_SNAPSHOT,False
+XHLD,2026-08-13,103.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NO_SNAPSHOT,False
+ZSTK,2026-08-14,288.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NO_SNAPSHOT,False
+MF,2026-08-14,117.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NO_SNAPSHOT,False
+PFSA,2026-08-17,663.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,OVERSOLD,True
+ASST,2026-08-17,120.0,تجمّع,True,مرشّح,L8/L10 (was a candidate; not selected or not ready),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+FCUV,2026-08-17,250.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+CELU,2026-08-17,202.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+HOWL,2026-08-17,146.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+BRLS,2026-08-17,116.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+TJGC,2026-08-17,188.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+AVAT,2026-08-17,176.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,False
+XHLD,2026-08-17,113.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+HSCS,2026-08-17,100.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+TNON,2026-08-18,132.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+FBLG,2026-08-18,107.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+CYPH,2026-08-18,273.0,تجمّع,True,مرشّح,L8/L10 (was a candidate; not selected or not ready),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+FCUV,2026-08-18,203.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+CELU,2026-08-18,202.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+HOWL,2026-08-18,146.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+BRLS,2026-08-18,112.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+SWVL,2026-08-18,405.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+RFAI,2026-08-18,524.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+NWGL,2026-08-18,259.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+NTRB,2026-08-18,115.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+ARCT,2026-08-18,106.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+TJGC,2026-08-18,188.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+AVAT,2026-08-18,172.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,False
+BRNX,2026-08-19,135.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+GPRO,2026-08-19,187.0,تجمّع,True,مرشّح,L8/L10 (was a candidate; not selected or not ready),MISSED_READY,,INSIDE,False
+INDP,2026-08-19,289.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+ASST,2026-08-19,127.0,تجمّع,True,مرشّح,L8/L10 (was a candidate; not selected or not ready),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+BNC,2026-08-19,109.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+CYPH,2026-08-19,227.0,تجمّع,True,مرشّح,L8/L10 (was a candidate; not selected or not ready),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+CELU,2026-08-19,185.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+MGN,2026-08-19,175.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+FCUV,2026-08-19,153.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+HOWL,2026-08-19,144.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+PSIG,2026-08-19,141.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),TRUE_READY(before),2026-08-14|2026-08-16|2026-08-17,INSIDE,False
+BRLS,2026-08-19,108.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+MRNA,2026-08-19,177.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+RNXT,2026-08-19,115.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+CAN,2026-08-19,103.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+TNMG,2026-08-19,819.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+RFAI,2026-08-19,480.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+NWGL,2026-08-19,368.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+AVAT,2026-08-19,172.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,False
+ARCT,2026-08-19,104.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+NTRB,2026-08-19,104.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+INDP,2026-08-20,318.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,True
+NWGL,2026-08-20,257.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+BTCT,2026-08-20,150.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+HOWL,2026-08-20,144.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+FCUV,2026-08-20,141.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+BRNX,2026-08-20,110.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+BNC,2026-08-20,105.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+SWVL,2026-08-20,453.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+TJGC,2026-08-20,163.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+RFAI,2026-08-20,418.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+NCPL,2026-08-20,350.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+CYPH,2026-08-20,187.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+AVAT,2026-08-20,147.0,تجمّع,False,M3_انفجار_تحت_60,L2 M3 prior spike,MISSED_READY,,OVERSOLD,False
+NTRB,2026-08-20,115.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+TNMG,2026-08-20,892.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+CELU,2026-08-21,174.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+SVRN,2026-08-21,147.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+BNC,2026-08-21,129.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+CTSO,2026-08-21,1961.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+SFWL,2026-08-21,1247.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+GIPR,2026-08-21,158.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,INSIDE,False
+MNOV,2026-08-21,152.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+SWVL,2026-08-21,444.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+RFAI,2026-08-21,356.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+CYPH,2026-08-21,202.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+TJGC,2026-08-21,190.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+AVAT,2026-08-21,139.0,تجمّع,False,M3_انفجار_تحت_60,L2 M3 prior spike,MISSED_READY,,OVERSOLD,False
+NTRB,2026-08-21,101.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+NCPL,2026-08-21,340.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+FCUV,2026-08-24,126.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+SVRN,2026-08-24,272.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+NWGL,2026-08-24,200.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+SWVL,2026-08-24,444.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+NCPL,2026-08-24,331.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+CYPH,2026-08-24,154.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+MNOV,2026-08-24,148.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+MTC,2026-08-24,113.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+TELA,2026-08-24,101.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+VIOT,2026-08-25,158.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+CELU,2026-08-25,171.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+FCUV,2026-08-25,120.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+RNXT,2026-08-25,102.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+RDIB,2026-08-25,111.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+TNMG,2026-08-25,990.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,INSIDE,True
+SWVL,2026-08-25,440.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+NWGL,2026-08-25,183.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+INDP,2026-08-26,259.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+SVRN,2026-08-26,292.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+CELU,2026-08-26,162.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+VIOT,2026-08-26,134.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+SWVL,2026-08-26,259.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+NWGL,2026-08-26,159.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+GPRO,2026-08-27,185.0,تجمّع,True,مرشّح,L8/L10 (was a candidate; not selected or not ready),MISSED_READY,,INSIDE,False
+FCUV,2026-08-27,103.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+FNGR,2026-08-27,146.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+CYPH,2026-08-27,129.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+VIOT,2026-08-28,117.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+MNOV,2026-08-28,143.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+TELA,2026-08-28,100.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+SWVL,2026-08-28,259.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+TJGC,2026-08-28,255.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+FNGR,2026-08-28,130.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+NWGL,2026-08-28,110.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+SUNE,2026-08-31,109.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+SVRN,2026-08-31,440.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,True
+GPRO,2026-08-31,183.0,تجمّع,True,مرشّح,L8/L10 (was a candidate; not selected or not ready),MISSED_READY,,INSIDE,False
+VIOT,2026-08-31,105.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+CTSO,2026-08-31,1808.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+DLXY,2026-08-31,554.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,INSIDE,True
+AVAT,2026-08-31,247.0,تجمّع,False,M3_انفجار_تحت_60,L2 M3 prior spike,MISSED_READY,,OVERSOLD,False
+TELA,2026-08-31,101.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+BIAF,2026-09-01,235.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+PSIG,2026-09-01,172.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+FCUV,2026-09-01,100.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+SVRN,2026-09-01,643.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,True
+DLXY,2026-09-01,503.0,تجمّع,True,M5_سيولة,L2 M5 liquidity,MISSED_READY,,INSIDE,True
+SWVL,2026-09-01,173.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+NWGL,2026-09-01,105.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+ATER,2026-09-01,114.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,INSIDE,False
+AMBR,2026-09-02,102.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+BNC,2026-09-02,134.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+INDP,2026-09-02,254.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+AEHL,2026-09-02,146.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+BIAF,2026-09-02,132.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+SFWL,2026-09-02,1214.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+PDSB,2026-09-02,386.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+ETS,2026-09-02,223.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+AVAT,2026-09-02,214.0,تجمّع,False,M3_انفجار_تحت_60,L2 M3 prior spike,MISSED_READY,,OVERSOLD,False
+ZEO,2026-09-02,133.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,INSIDE,False
+YQ,2026-09-02,120.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+SWVL,2026-09-02,107.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+AIXI,2026-09-03,592.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,True
+EEIQ,2026-09-03,104.0,تجمّع,True,مرشّح,L8/L10 (was a candidate; not selected or not ready),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+LRHC,2026-09-03,561.0,تجمّع,False,M2_هبوط_فوق_97,L2 M2 ceiling (split),MISSED_READY,,INSIDE,True
+CYPH,2026-09-03,145.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+MNOV,2026-09-03,141.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+XRPN,2026-09-03,123.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+WCT,2026-09-04,521.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,True
+LRHC,2026-09-04,159.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+AIXI,2026-09-04,112.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+SUNE,2026-09-04,100.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+MGN,2026-09-04,3754.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+CTSO,2026-09-04,1819.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+SFWL,2026-09-04,1686.0,قفزة,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+GTBP,2026-09-04,1593.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+TNMG,2026-09-04,928.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,INSIDE,True
+BRTX,2026-09-04,786.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+TJGC,2026-09-04,189.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+AIXI,2026-09-08,591.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,True
+SVRN,2026-09-08,642.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+DLXY,2026-09-08,470.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,True
+IPDN,2026-09-08,6470.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+VRME,2026-09-08,128.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+OPNW,2026-09-08,128.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+TNMG,2026-09-09,685.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+WCT,2026-09-09,382.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+GTBP,2026-09-09,2381.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+BRTX,2026-09-09,1751.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+CTSO,2026-09-09,1709.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+SFWL,2026-09-09,1048.0,قفزة,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,True
+LRHC,2026-09-09,482.0,قفزة,False,M2_هبوط_فوق_97,L2 M2 ceiling (split),MISSED_READY,,INSIDE,True
+MGN,2026-09-09,176.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+NFE,2026-09-09,4850.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+FFR,2026-09-09,151.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+UCAR,2026-09-10,1471.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,True
+TNON,2026-09-10,117.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+MEDS,2026-09-10,613.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,True
+PSIG,2026-09-10,159.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+ALP,2026-09-10,3647.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,INSIDE,True
+NRSN,2026-09-11,2063.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+FTFT,2026-09-14,179.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+VEEA,2026-09-14,291.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+VEEA,2026-09-15,149.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+NCPL,2026-09-15,149.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+NFE,2026-09-15,3770.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+IPDN,2026-09-15,3600.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+NRSN,2026-09-15,1926.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+HUBC,2026-09-15,1756.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+CPOP,2026-09-15,1290.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+RETO,2026-09-15,676.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,INSIDE,True
+NXXT,2026-09-15,674.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+IZM,2026-09-15,542.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,True
+DLXY,2026-09-16,452.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,True
+MEDS,2026-09-16,275.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+QCLS,2026-09-16,119.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+IMCC,2026-09-16,160.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+USDE,2026-09-16,182.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+SNYR,2026-09-16,234.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+REFR,2026-09-16,119.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,False
+GIPR,2026-09-16,102.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+AEMD,2026-09-17,374.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,True
+DAIC,2026-09-17,164.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+DTSS,2026-09-17,106.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+BFRG,2026-09-17,122.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+VWAV,2026-09-17,1842.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,INSIDE,True
+WHLR,2026-09-17,786.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,True
+QNME,2026-09-17,198.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+BTTC,2026-09-17,126.0,تجمّع,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,False
+AIFA,2026-09-17,104.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+IMCC,2026-09-18,247.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+GIPR,2026-09-18,240.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+QNME,2026-09-18,100.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+REFR,2026-09-18,128.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,False
+GRML,2026-09-21,231.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+VEEE,2026-09-21,101.0,قفزة,True,مرشّح,L8/L10 (was a candidate; not selected or not ready),MISSED_READY,,INSIDE,False
+LHSW,2026-09-21,107.0,تجمّع,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+GLND,2026-09-21,140.0,قفزة,False,M3_انفجار_تحت_60,L2 M3 prior spike,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+BTTC,2026-09-21,118.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,OVERSOLD,False
+ZKIN,2026-09-21,120.0,تجمّع,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+JAGX,2026-09-22,1191.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,True
+LHSW,2026-09-22,105.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+YDES,2026-09-22,118.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+BENF,2026-09-23,439.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,True
+WHLR,2026-09-23,191.0,قفزة,False,M2_هبوط_فوق_97,L2 M2 ceiling (split),MISSED_READY,,OVERSOLD,False
+SRZN,2026-09-24,108.0,قفزة,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+MSGY,2026-09-25,310.0,قفزة,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,True
+KOD,2026-09-28,178.0,قفزة,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
+NIVF,2026-09-30,133.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,INSIDE,False
+QTEX,2026-09-30,126.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),TRUE_READY(before),2026-09-22|2026-09-23,INSIDE,False
+SCKT,2026-10-01,109.0,تجمّع,True,M_لا_مستوى_مختبر,L5 anchor (tested_level 2 touches),MISSED_READY,,INSIDE,False
+WORX,2026-10-01,250.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+AMOD,2026-10-02,198.0,قفزة,True,M4_base_واسعة,L2 M4 base range,MISSED_READY,,INSIDE,False
+SAIQ,2026-10-05,261.0,قفزة,False,M3_انفجار_تحت_60,L2 M3 prior spike,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+OLB,2026-10-06,118.0,قفزة,False,M1_سعر,L2 M1 price,MISSED_READY,,NOT_IN_NEAR_WATCH,False
+SXTC,2026-10-07,126.0,قفزة,False,M2_هبوط_فوق_97,L2 M2 ceiling (split),MISSED_READY,,OVERSOLD,False
+PFAI,2026-10-07,117.0,قفزة,False,M2_هبوط_تحت_40,L2 M2 (drop < 71.7%: not a pivot by envelope),MISSED_READY,,NOT_IN_NEAR_WATCH,False
