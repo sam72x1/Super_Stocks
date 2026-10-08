@@ -53,3 +53,6 @@ hs_*.png
 # FAISAL METHOD V3 — مخرَجاتُ التشغيل المحلّيّ (artifacts على Actions · لا تُدفَع)
 faisal_method_v3/out/
 faisal_method_v4/out/
+
+# 🔎🧭 (2026-10-08) جداولُ المهمّة الجنائيّة READY NOW — `*.csv` يتجاهلها الجذر
+!fm_forensics/*.csv
