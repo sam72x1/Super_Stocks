@@ -1,0 +1,413 @@
+{
+ "case_id": "CASE_0002",
+ "case_path": "cases/CASE_0002.v1.json",
+ "case_sha256": "9b3c5fcf7b19e2b246e4fee014217124ec1901f0f9171d0a308a8d8f7fc6632d",
+ "context": {
+  "groups": null,
+  "offering_pending": null,
+  "operator_press": null,
+  "short_available": 0
+ },
+ "context_provenance": {
+  "groups": "UNAVAILABLE: لا مصدرَ نقطيٌّ لدخول القروبات",
+  "offering_pending": "UNAVAILABLE: لا تعريفَ آليٌّ مُتحقَّقٌ لـ«طرحٍ معلَّق» وقتَ النقطة (V41_prereg §⑥)",
+  "operator_press": "UNAVAILABLE: لا مصدرَ لبصمة المضارب بعد انتهاء Polygon 2026-09-29 (CR-01)",
+  "short_available": "live:2026-10-08"
+ },
+ "decision": {
+  "asof": "2026-10-06",
+  "blocking_reasons": [
+   {
+    "rule": "R4-INV-01",
+    "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+   }
+  ],
+  "confidence": {
+   "decision": "rule-based",
+   "note": "الصلاحيّةُ وبصمةُ المضارب لا تُرى في الشموع",
+   "tech_state": "rule-based (§34)"
+  },
+  "confirmation": {
+   "depth_pct": 98.66
+  },
+  "context_input": {
+   "groups": null,
+   "offering_pending": null,
+   "operator_press": null,
+   "short_available": 0
+  },
+  "data_quality": {
+   "bars": 962,
+   "min_bars": 40,
+   "nan": 0
+  },
+  "decision_reasons": [],
+  "decisive_class": "BELOW",
+  "decisive_level": 0.8502,
+  "engine": "FAISAL-V4 1.0 (2026-10-02)",
+  "entry": {
+   "type1_bids": [
+    0.89271,
+    0.97773
+   ],
+   "type1_rule": "R4-ENT-01 (SUPPORTING)",
+   "type2_liberation": 85.0,
+   "type2_rule": "R4-ENT-02 (INFORMATIONAL · C-BREAKOUT)"
+  },
+  "evidence": {
+   "R-W-SPAN": [
+    "IMG_0627",
+    "TG_58042",
+    "TG_58043"
+   ],
+   "R4-BOT-01": [
+    "TG_50584",
+    "X_20260827_checklist_7points",
+    "X_20260905_10",
+    "X_20260905_07",
+    "IMG_0689"
+   ],
+   "R4-ENT-02": [
+    "TG_2197",
+    "X_20260827_checklist_7points_cont",
+    "TG_57862",
+    "IMG_0602",
+    "X_20260918_61_VEEE"
+   ],
+   "R4-INV-01": [
+    "IMG_0512",
+    "IMG_0513",
+    "IMG_0569",
+    "X_20260905_10",
+    "X_20260905_07"
+   ],
+   "R4-STOP-01": [
+    "X_20260827_checklist_7points",
+    "TG_2106",
+    "TG_1978",
+    "TG_2098",
+    "X_20260918_61_VEEE"
+   ],
+   "R4-TF-01": [
+    "X_20260905_10",
+    "IMG_0361",
+    "TG_58048",
+    "TG_2031"
+   ],
+   "R4-TGT-01": [
+    "X_20260827_amix_hcwb_ready",
+    "IMG_0508",
+    "TG_2097",
+    "IMG_0587",
+    "X_20260827_pfsa_500pct"
+   ]
+  },
+  "explain": [
+   "لماذا WAIT؟ كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد (R4-INV-01)",
+   "المستوى الحاسم 0.8502 (السعر 0.9301)"
+  ],
+  "informational_factors": [
+   {
+    "rule": "R4-TF-01",
+    "why": "المحرّكُ يوميٌّ وحدَه — سياقُ 4 ساعات و30 دقيقة غيرُ مقروء هنا"
+   },
+   {
+    "rule": "R-W-SPAN",
+    "why": "W (V3.1 معلومة): قاعان 63.25/66.5 · عنق 93.5"
+   },
+   {
+    "rule": "R4-ENT-02",
+    "why": "البديلُ (متنازَعٌ عليه C-BREAKOUT): التحرّرُ فوق 85 بإقفالين"
+   }
+  ],
+  "invalidation": [
+   {
+    "name": "القاع (الأساسيّ)",
+    "price": 0.8502,
+    "rule": "R4-STOP-01"
+   },
+   {
+    "name": "‏−5% تحت القاع",
+    "price": 0.80769,
+    "rule": "R4-STOP-01 (TG_1978)"
+   },
+   {
+    "name": "‏−7% تحت القاع",
+    "price": 0.790686,
+    "rule": "R4-STOP-01 (الإنتاج 5-7)"
+   }
+  ],
+  "market_context": {
+   "cycle_high": 1234.975,
+   "cycle_high_date": "2026-04-15",
+   "rsi14": 0.31,
+   "volume_vs_20d": 1.829
+  },
+  "missing_information": [],
+  "params": {
+   "AT_BAND_PCT": {
+    "source": "production",
+    "value": 3.0
+   },
+   "BID_LO_PCT": {
+    "source": "faisal_verbatim",
+    "value": 5.0
+   },
+   "CYCLE_BARS": {
+    "source": "production",
+    "value": 120
+   },
+   "HOLD_MIN": {
+    "source": "faisal_verbatim",
+    "value": 5
+   },
+   "HOLD_ZONE": {
+    "source": "faisal_inferred",
+    "value": 3
+   },
+   "LEVEL_TOL_PCT": {
+    "source": "faisal_verbatim",
+    "value": 2.0
+   },
+   "MIN_BARS": {
+    "source": "engineering",
+    "value": 40
+   },
+   "RECLAIM_BARS": {
+    "source": "engineering",
+    "value": 2
+   },
+   "RISE_TEST_PCT": {
+    "source": "faisal_inferred",
+    "value": 15.0
+   },
+   "SHORT_AVAIL_MAX": {
+    "source": "faisal_verbatim",
+    "value": 20000
+   },
+   "SWEEP_MAX_PCT": {
+    "source": "faisal_tier2b",
+    "value": 13.0
+   },
+   "SWEEP_PROJ_PCT": {
+    "source": "faisal_verbatim",
+    "value": [
+     5.0,
+     10.0
+    ]
+   },
+   "SWING_K": {
+    "source": "engineering",
+    "value": 3
+   },
+   "ZONE_PCT": {
+    "source": "faisal_verbatim",
+    "value": 15.0
+   }
+  },
+  "patterns": [
+   {
+    "decisionality": "INFORMATIONAL",
+    "low1": 63.25,
+    "low2": 66.5025,
+    "neckline": 93.4975,
+    "pattern": "W (V3.1)"
+   }
+  ],
+  "price_location": {
+   "close": 0.9301,
+   "in_zone": true,
+   "vs_bottom_pct": 9.398
+  },
+  "rule_ids": [
+   "R-W-SPAN",
+   "R4-BOT-01",
+   "R4-ENT-02",
+   "R4-INV-01",
+   "R4-STOP-01",
+   "R4-TF-01",
+   "R4-TGT-01"
+  ],
+  "rules_version": "V4-RULES 1.0 (2026-10-02)",
+  "state": "WAIT",
+  "structure": {
+   "bottom": 0.8502,
+   "bottom_body_low": 0.9177,
+   "bottom_date": "2026-10-05",
+   "depth_pct": 98.66,
+   "hold_sessions": 1,
+   "labels": [
+    {
+     "i": 904,
+     "label": "LL",
+     "price": 75.0,
+     "type": "L"
+    },
+    {
+     "i": 907,
+     "label": "LH",
+     "price": 97.5,
+     "type": "H"
+    },
+    {
+     "i": 913,
+     "label": "LL",
+     "price": 63.25,
+     "type": "L"
+    },
+    {
+     "i": 918,
+     "label": "LH",
+     "price": 93.4975,
+     "type": "H"
+    },
+    {
+     "i": 927,
+     "label": "HL",
+     "price": 66.5025,
+     "type": "L"
+    },
+    {
+     "i": 930,
+     "label": "LH",
+     "price": 85.0,
+     "type": "H"
+    }
+   ],
+   "prior_base": 63.25,
+   "rise_pct": 10.562,
+   "support2": null,
+   "test_high": 0.94,
+   "undercut_pct": 98.656
+  },
+  "support_resistance": {
+   "ladder": [
+    85.0,
+    93.4975,
+    97.5
+   ],
+   "levels": {
+    "bid_lo": 0.89271,
+    "bottom": 0.8502,
+    "bottom_body": 0.9177,
+    "prior_base": 63.25,
+    "resistance1": 85.0,
+    "sweep_10": 0.76518,
+    "sweep_5": 0.80769,
+    "test_high": 0.94,
+    "zone_hi": 0.97773
+   },
+   "zone": [
+    0.8502,
+    0.97773
+   ]
+  },
+  "symbol": "CDT",
+  "target": [
+   {
+    "family": "faisal_ladder",
+    "name": "T1",
+    "price": 85.0,
+    "rule": "R-W-08",
+    "source": "faisal_verbatim",
+    "status": "CONFIRMED"
+   },
+   {
+    "family": "faisal_ladder",
+    "name": "T2",
+    "price": 93.4975,
+    "rule": "R-W-08",
+    "source": "faisal_verbatim",
+    "status": "CONFIRMED"
+   },
+   {
+    "family": "faisal_ladder",
+    "name": "T3",
+    "price": 97.5,
+    "rule": "R-W-08",
+    "source": "faisal_verbatim",
+    "status": "CONFIRMED"
+   },
+   {
+    "family": "faisal_gain100",
+    "name": "+100%",
+    "price": 1.8704,
+    "rule": "R-100-01 · F100-1",
+    "source": "faisal_verbatim",
+    "status": "CONFIRMED"
+   }
+  ],
+  "tech_state": "BROKEN_NEW_BASE",
+  "tech_state_ar": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد",
+  "timeframe": "1D"
+ },
+ "decision_sha256": "14776a9e272cfb395955d20d95157dff648adabec3019acda124be42f8c15de6",
+ "firewall": {
+  "bars": 962,
+  "fails": [],
+  "last_bar": "2026-10-06",
+  "verdict": "VALID",
+  "warns": []
+ },
+ "freeze_id": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+ "freeze_rev": 1,
+ "meta": {
+  "commit": "0037c76e9161f105aea4d9542f21d2bd76e9c975",
+  "deps": {
+   "Super_stock.py": "40d5f89884a8f1b43aa4be87923f201a1f7575c073e9ea7a7004a9ec686159c6",
+   "faisal_method_v41/freeze.py": "9f49a2d1c5c628c5a61f244ddbd672762fff16aeaaaddf521544674fb7d41bc1",
+   "faisal_method_v41/ledger.py": "0f2694d8d505c3f6814fb460359db6e207169ed4d0af388ee869c1bb0b694f40",
+   "faisal_method_v41/runner.py": "e8887ff22608e1828d6c15d598c766f762ea7a74ad3fb22dc43f0255123638af",
+   "market_calendar.py": "01909d48247223d4e38b7bf457f48e11f6b45cc170881f2a4c8aab6ed2750fd7",
+   "tv_data.py": "2523e156ccdab30067ece16fa77c9068c49c7c5a5c2c16539b1594161fb19e33"
+  },
+  "exchange": "MATCH",
+  "freeze_id": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+  "freeze_rev": 1,
+  "mode": "run",
+  "pipeline_version": "e7d44195e6ad26340ce38cdd2143948a37cc2b2eb4c8fe911e387009101118c9",
+  "protocol_epoch": 1,
+  "regime": {
+   "close": 759.66,
+   "sma50": 719.8072,
+   "state": "ABOVE_SMA50"
+  },
+  "run_id": "37758334365",
+  "runner": "V41-RUNNER 1.0 (2026-10-07)",
+  "sector": "Healthcare",
+  "snapshot_rows": 962,
+  "snapshot_sha256": "0f3d6c18e96058e48e7b8301f959a0b9908455f6baf3494b45c662138dedebc6",
+  "source": "TradingView via v4_run.resolve",
+  "splits": [
+   [
+    "2025-01-27",
+    0.01
+   ],
+   [
+    "2025-05-20",
+    0.06666666666666667
+   ],
+   [
+    "2025-10-13",
+    0.125
+   ],
+   [
+    "2026-03-27",
+    0.04
+   ],
+   [
+    "2026-07-20",
+    0.1
+   ],
+   [
+    "2026-09-29",
+    0.04
+   ]
+  ],
+  "state": "WAIT",
+  "tech_state": "BROKEN_NEW_BASE",
+  "utc": "2026-10-08T09:41:34Z"
+ },
+ "snapshot_path": "snapshots/CASE_0002.v1.r11.bars.json",
+ "snapshot_sha256": "da6a1fbdadf5e2771a7a6dc80d448bf59149d916bd4a431708e80a8855c1660d"
+}
