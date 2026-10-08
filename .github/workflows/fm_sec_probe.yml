@@ -1,0 +1,46 @@
+name: "🔎🏛️ FM-SEC-PROBE — سجلُّ إيداعات SEC لكون التحقيق (قراءةٌ فقط)"
+
+# 🔒 مِجَسٌّ مؤقّت للمرحلة 5 (2026-10-08): لا كرون · لا تلغرام · لا أسرار · لا حالةَ إنتاج — يكتب ملفًّا مضغوطًا في
+#    fm_forensics/data/ على الفرع الذي شُغِّل منه. جمعٌ أعمى عن المخرَج. يُحذف بعد انتهاء المهمّة.
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      extra:
+        description: "رموزٌ إضافيّة (مفصولة بمسافة)"
+        required: false
+        default: ""
+
+concurrency:
+  group: fm-sec-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref }}
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🏛️ جلب سجلّ SEC
+        env:
+          SEC_EXTRA: ${{ github.event.inputs.extra }}
+        run: python fm_forensics/phase5/sec_probe.py
+      - name: 💾 دفع الملفّ للفرع
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f fm_forensics/data/sec_*.json.gz
+          git commit -m "🔎🏛️ FM-SEC-PROBE: سجلّ إيداعات SEC لكون التحقيق (قراءة فقط)" || echo "لا تغيير"
+          git pull --rebase origin "${GITHUB_REF_NAME}" || true
+          git push origin "HEAD:${GITHUB_REF_NAME}"
