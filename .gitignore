@@ -16,6 +16,9 @@ __pycache__/
 #    (بصمتُه `records_hash` في الختم) ⟵ لولا الاستثناء لرفضه `git add` صامتًا فانكسر `--check` على main · مقفولٌ بـPHA1
 !faisal_recovery/HISTORICAL_IMAGE_INVENTORY.csv
 !faisal_recovery/HISTORICAL_DECISION_FORENSICS.csv
+# 🧪 (2026-10-08) جدولُ نتائج المرحلة ب (`faisal_validation/phase_b.py` · B21) — مخرَجٌ مولَّد يقارنه `check` وPHB1 بايتًا بايتًا ⟵ لولا
+#    الاستثناء لرفضه `git add` صامتًا فغاب عن CI وسقط PHB1 («artifact missing»)
+!faisal_validation/FAISAL_PROSPECTIVE_RESULTS.csv
 
 # ملفات إنشاء/مخرجات مؤقتة (ليست من كود البوت)
 make_pdf.py

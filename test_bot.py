@@ -82604,6 +82604,302 @@ except Exception as _e:                                                    # noq
 check("🧪📝 PHB0 عقدُ المرحلة ب مثبَّتٌ ببصمته قبل أيّ رقم · يطابق الختمَ المدموج · E1-E9 والخطوطُ الثلاثة · تردّداتُ A10 من الجدول المختوم "
       "· والختمُ الآخرُ والجدولُ المُبدَّل يُمسَكان", _phb0, _phb0w)
 
+# 🧪 PHB1-PHB9 — أداةُ المرحلة ب `faisal_validation/phase_b.py` (‏B16 · كلُّ قفلٍ بشاهد ضبطٍ داخله وطفرةٍ خارجه): بوّابةُ المرحلة أ ·
+#    الأهليّةُ E1-E9 على حالاتٍ اصطناعيّة · السجلُّ الإلحاقيّ (السلسلة · المسار · العمى · الثابت) · المقامُ يُعاد عدُّه من السجلّ · الحالةُ
+#    النهائيّة بدوالّ البروتوكول المجمَّد والأدنى من التحليلين · الجدار · كتلةُ المالك · الثوابتُ وHISTORICAL_PRIOR ودبابيسُ السجلّ.
+#    🔒 قراءةٌ فقط: لا يُكتب ملفّ (‏main يُختبَر بالبوّابة مغلقةً وكاتبيه مُستبدَلَين) ولا شبكة.
+import contextlib as _phb_ctx                                              # noqa: E402
+import io as _phb_io                                                       # noqa: E402
+import types as _phb_types                                                 # noqa: E402
+_PHB_OWNER_KEYS = ("V4_FROZEN", "V4_COMMIT", "EPOCH_INTEGRITY", "COLLECTOR_STATUS", "PRIMARY_CASES", "VALID_CASES", "EXCLUDED_CASES",
+                   "UNKNOWN_CASES", "FAISAL_READY", "FAISAL_WAIT", "FAISAL_REJECT", "V4_READY", "V4_WAIT", "V4_REJECT", "V4_UNKNOWN",
+                   "EXACT_AGREEMENT", "BASELINE_AGREEMENT", "V4_VS_BASELINE", "FALSE_READY", "FALSE_WAIT", "FALSE_REJECT",
+                   "FALSE_UNKNOWN", "EXTERNAL_CONTEXT_BLOCKED", "DATA_BLOCKED", "METHODOLOGY_MISMATCH", "IMPLEMENTATION_ERROR",
+                   "UNRESOLVED", "PATTERN_DIVERSITY", "TIMEFRAME_DIVERSITY", "REGIME_DIVERSITY", "LOOKAHEAD_TEST", "PROVENANCE_TEST",
+                   "CONTAMINATION_TEST", "FREEZE_TEST", "LEDGER_INTEGRITY", "VALIDATION_STATE", "V5_CANDIDATES", "TESTS", "CI",
+                   "MOST_IMPORTANT_FINDING", "BIGGEST_REMAINING_LIMITATION", "NEXT_ALLOWED_ACTION")   # B · بنصّ المالك وترتيبه
+_PHB_LEDGER_PINS = ((0, "0" * 64),)   # (عددُ القيود · بصمةُ آخرها) لكلّ نسخةٍ مدموجة — يُضاف ولا يُعدَّل (الإلحاقُ عبر الـPRs في CI الضحل)
+_PHB_HSHA = "f" * 64
+try:
+    _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))
+    PB = _pha_ilu.module_from_spec(_phb_spec)
+    _phb_spec.loader.exec_module(PB)
+    _phb_fp, _phb_pst = PB.load_protocol()
+    _phb_st, _phb_rows, _phb_new = PB.build(protocol=(_phb_fp, _phb_pst))
+    _phb_err = ""
+except Exception as _e:                                                    # noqa: BLE001
+    PB, _phb_fp, _phb_pst, _phb_st, _phb_rows, _phb_new = None, None, {}, {}, [], []
+    _phb_err = f"⛔ رمى: {type(_e).__name__}: {_e}"
+_PHB_GATE = ({"ok": True, "why": [], "seal_id": _PHA_SEAL_ID, "cutoff": "2026-10-08T01:29:04Z", "historical_hashes": 1}, {_PHB_HSHA})
+
+
+def _phb_item(n, cap="2026-10-09T12:00:00Z", post="2026-10-09T11:00:00Z", day="2026-10-09", img=None, cls="NEW_PROSPECTIVE", reason="—",
+              checks=None, case=True, lab="WAIT", v4="WAIT", ev="DIRECT", conf="HIGH", status="COMPLETE", la="PASS", setup="S1",
+              codes=(), tech=None, faisal=True):
+    """(مرشَّح · حالة) اصطناعيّان بشكل البروتوكول — حقولُ ما يقرؤه `phase_b` وحدَها."""
+    f = {"CAPTURE_TIMESTAMP": cap, "ORIGINAL_POST_TIMESTAMP": post, "IMAGE_HASH": img or f"{n:064x}", "SOURCE": "telegram_bot · run 1",
+         "SOURCE_MESSAGE_ID": n, "FORWARD_TYPE": "channel", "PROVENANCE_CONFIDENCE": conf, "TICKER": f"S{n}", "TIMEFRAME": "D",
+         "PERCEPTUAL_HASH": {"dhash256": "0" * 64, "phash64": "0" * 16}}
+    prov = {"basis": "FORWARD_METADATA", "fields": f, "missing_critical": []}
+    ch = dict({k: [] for k in ("C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8")}, **(checks or {}))
+    cand = {"image_id": f"TG_9{n:04d}", "class7": cls, "reason": reason, "checks": ch, "decision_date": day, "provenance": prov}
+    if not case:
+        return cand, None
+    tr = sorted(s for s, v in _phb_fp.E.STATE_DECISION.items() if v == "TECH_READY")
+    nt = sorted(s for s, v in _phb_fp.E.STATE_DECISION.items() if v != "TECH_READY")
+    c = {"CASE_ID": f"CASE_{n:04d}", "INTAKE_CLASS": cls, "LEGACY": False, "STATUS": status, "PROVENANCE_CONFIDENCE": conf,
+         "DECISION_DATE": day, "PROVENANCE": prov, "COMPONENTS": {},
+         "DIVERSITY": {"setup": setup, "pattern": "W", "timeframe": "D", "market_regime": "UNKNOWN"},
+         "LOOKAHEAD": dict({k: True for k in PB.LA_KEYS}, LA5_CORPORATE_ACTION="PASS", verdict=la),
+         "V4": {"FINAL_STATE": v4, "TECH_STATE": tr[0] if tech == "TR" else nt[0], "CONFIG_HASH": "c" * 64, "DECISION_REASON": ["r"],
+                "V4_RESULT_SHA256": "a" * 64, "INPUT_HASH": "b" * 64,
+                "DATA_AVAILABLE": {"context": {"short_available": "UNAVAILABLE: x"}}}}
+    if faisal:
+        c["FAISAL"] = {"effective_label": lab, "evidence_class": ev, "external_codes": list(codes), "components": {},
+                       "plan_f": "BELOW", "pattern_f": None, "false_ready_cause": None, "v4_2": None}
+        c["MATCH_CLASS"] = _phb_fp.match_class(lab, v4)
+    return cand, c
+
+
+def _phb_state(items):
+    return {"candidates": [c for c, _ in items], "cases": [k for _, k in items if k],
+            "output": {"V4_FROZEN": "YES", "V4_COMMIT": PB.V4_COMMIT, "LOOKAHEAD": "PASS", "PROVENANCE": "PASS"},
+            "integrity": {"ok": True, "checks": {}}, "epoch": {"V4_CONFIG_HASH": "c" * 64}, "supplementary": {"COLLECTOR": {"live": "PASS"}}}
+
+
+def _phb_build(items, rows=None):
+    return PB.build(gate=_PHB_GATE, protocol=(_phb_fp, _phb_state(items)), ledger_rows=list(rows or []), steps={}, collector={})
+
+
+def _phb_big(n_wait=35, n_ready=5, n_reject=5, setups=("S1", "S2", "S3"), blocked_fr=0):
+    """حالاتٌ PRIMARY كاملة: فيصل READY/REJECT/WAIT و V4 دائمًا WAIT · الطبقةُ الفنيّة TECH_READY على READY فيصل وحدَه (P1)."""
+    out, k = [], 100
+    for lab, cnt in (("READY", n_ready), ("REJECT", n_reject), ("WAIT", n_wait)):
+        for _ in range(cnt):
+            d = f"2026-10-{10 + k % 15:02d}"
+            out.append(_phb_item(k, cap=f"{d}T12:00:00Z", post=f"{d}T11:00:00Z", day=d, lab=lab, setup=setups[k % len(setups)],
+                                 tech="TR" if lab == "READY" else None))
+            k += 1
+    out += [_phb_item(k + i, lab="WAIT", v4="READY", codes=["«امريكي» (بلدُ الشركة)"]) for i in range(blocked_fr)]
+    return out
+
+
+def _phb_rechain(rs):
+    """يعيد السلسلة على قيودٍ عُدّلت عمدًا (شاهدُ ضبط: العيبُ يُمسَك بغير البصمة)."""
+    out = []
+    for r in rs:
+        r = {k: v for k, v in r.items() if k not in ("seq", "prev_sha256", "sha256")}
+        r.update(seq=len(out) + 1, prev_sha256=out[-1]["sha256"] if out else PB.GENESIS)
+        r["sha256"] = PB.record_sha(r)
+        out.append(r)
+    return out
+
+
+_PHB_ELIG = (("hist_cap", dict(cap="2026-10-07T12:00:00Z"), "HISTORICAL"), ("hist_day", dict(post="UNKNOWN", day="2026-10-07"), "HISTORICAL"),
+             ("E1", dict(post="UNKNOWN", day=None), ("EXCLUDED", "E1")), ("E2", dict(img=_PHB_HSHA), ("EXCLUDED", "E2")),
+             ("E3", dict(checks={"C1": ["X"]}, cls="DUPLICATE", reason="C1:X", case=False), ("EXCLUDED", "E3")),
+             ("E4", dict(cls="DERIVATIVE", reason="C2:Y", checks={"C2": ["Y"]}, case=False), ("EXCLUDED", "E4")),
+             ("E5", dict(cls="CONTAMINATED", reason="C8:Z", checks={"C8": ["Z"]}, case=False), ("EXCLUDED", "E5")),
+             ("E6u", dict(lab="UNKNOWN"), ("UNKNOWN", "E6")), ("E6w", dict(ev="WEAK_INFERENCE"), ("EXCLUDED", "E6")),
+             ("E7", dict(conf="LOW"), ("EXCLUDED", "E7")), ("E8", dict(status="INVALID_FOR_VALIDATION"), ("EXCLUDED", "E8")),
+             ("E9", dict(la="INVALIDATED_DEFECT"), ("EXCLUDED", "E9")),
+             ("pending", dict(status="PENDING_FAISAL", faisal=False), ("PENDING", "")), ("primary", dict(), ("PRIMARY", "")),
+             ("day_ok", dict(post="UNKNOWN", day="2026-10-08"), ("PRIMARY", "")),
+             ("E3_reuse", dict(img=f"{14:064x}", cap="2026-10-09T13:00:00Z", case=False), ("EXCLUDED", "E3")),
+             ("intake_E8", dict(cls="INSUFFICIENT_CONTEXT", reason="NO_TICKER", case=False), ("EXCLUDED", "E8")),
+             ("await_seal", dict(case=False), ("PENDING", "")))
+try:
+    _phb_ei = [_phb_item(i + 1, **kw) for i, (_, kw, _x) in enumerate(_PHB_ELIG)]
+    _phb_est, _phb_erows, _phb_enew = _phb_build(_phb_ei)
+except Exception as _e:                                                    # noqa: BLE001
+    _phb_ei, _phb_est, _phb_erows, _phb_enew = [], {"rows": [], "ledger": {"problems": ["⛔"]}}, [], []
+    _phb_err = _phb_err or f"⛔ رمى: {type(_e).__name__}: {_e}"
+
+# PHB1 الإعادة: المخرجاتُ الستّة المدفوعة = إعادةُ البناء بايتًا بايتًا · لا قيدَ مستحقّ · السجلُّ بصيغته القانونيّة — وشاهدُ ضبط: حالةٌ مقلوبة تُمسَك
+try:
+    _phb1b = PB.check(_phb_st, _phb_rows, _phb_new, _phb_fp)
+    _phb1c = PB.check(dict(_phb_st, state="VALIDATED"), _phb_rows, _phb_new, _phb_fp)
+    _phb1 = not _phb_err and not _phb1b and any("artifact differs" in b for b in _phb1c)
+    _phb1w = f"{_phb_err} فروق={_phb1b[:3]} · ضبط={_phb1c[:2]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _phb1, _phb1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪 PHB1 مخرجاتُ المرحلة ب الستّة = إعادةُ البناء بايتًا بايتًا · لا قيدَ مستحقّ · والحالةُ المقلوبة تُمسَك", _phb1, _phb1w)
+
+# PHB2 البوّابة: الختمُ المدموج يفتحها · وتُغلقها حالةٌ غيرُ CLOSED أو مشكلةُ تحقّق · و`main` بالبوّابة مغلقةً يخرج 9 بلا قراءةٍ ولا كتابة
+try:
+    _g2, _h2 = PB.phase_a_gate()
+    _orig2 = (PB._load, PB.phase_a_gate, PB.load_protocol, PB._write, PB._append_ledger)
+    _calls2 = []
+    try:
+        PB._load = lambda name, rel: _phb_types.SimpleNamespace(load_frozen=lambda: dict(_pha_fz, seal=dict(_pha_seal, status="OPEN")),
+                                                                 validate=lambda fz: [])
+        _c2a = PB.phase_a_gate()[0]
+        PB._load = lambda name, rel: _phb_types.SimpleNamespace(load_frozen=lambda: dict(_pha_fz), validate=lambda fz: ["synthetic"])
+        _c2b = PB.phase_a_gate()[0]
+        PB._load = _orig2[0]
+        PB.phase_a_gate = lambda: ({"ok": False, "why": ["synthetic closed gate"], "seal_id": None, "cutoff": None}, set())
+        PB.load_protocol = lambda: _calls2.append("load_protocol")
+        PB._write = lambda *a: _calls2.append("write")
+        PB._append_ledger = lambda *a: _calls2.append("append")
+        with _phb_ctx.redirect_stdout(_phb_io.StringIO()) as _o2:
+            _rc2 = PB.main(["write"])
+    finally:
+        PB._load, PB.phase_a_gate, PB.load_protocol, PB._write, PB._append_ledger = _orig2
+    _phb2 = (_g2["ok"] and _g2["seal_id"] == _PHA_SEAL_ID and len(_h2) >= 769 and not _c2a["ok"] and not _c2b["ok"]
+             and any("status" in w for w in _c2a["why"]) and _rc2 == 9 and not _calls2 and "VALIDATION_BLOCKED" in _o2.getvalue())
+    _phb2w = f"بوّابة={_g2['ok']} بصمات={len(_h2)} · OPEN={_c2a['ok']} · مشكلة={_c2b['ok']} · rc={_rc2} · نداءات={_calls2}"
+except Exception as _e:                                                    # noqa: BLE001
+    _phb2, _phb2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪 PHB2 بوّابةُ المرحلة أ: الختمُ المدموج يفتحها · OPEN ومشكلةُ التحقّق تُغلقانها · والمغلقةُ تخرج 9 بلا قراءةٍ ولا كتابة", _phb2, _phb2w)
+
+# PHB3 الأهليّة E1-E9 بالترتيب على 18 بندًا اصطناعيًّا (التاريخيّ · كلُّ شرطٍ يسقط وحدَه · المعلّق · PRIMARY · إعادةُ استعمال الصورة ·
+#      يومُ نيويورك للحدّ) · والعمى: لا قرارَ لـV4 قبل V4_SEALED ولا لفيصل قبل REVEALED · والمعلّقُ بلا REVEALED · وإعادةُ البناء لا تُضيف قيدًا
+try:
+    _got3 = {r["case_id"]: (r["status"], r["code"]) for r in _phb_est["rows"]}
+    _bad3 = [n for i, (n, _kw, x) in enumerate(_PHB_ELIG) if _got3.get(f"PB:TG_9{i + 1:04d}", "HISTORICAL") != x]
+    _pend3 = [r["event"] for r in _phb_erows if r["case_id"] == "PB:TG_90013"]
+    _re3 = _phb_build(_phb_ei, _phb_erows)
+    _phb3 = (not _bad3 and _phb_est["historical"]["count"] == 2 and not PB.ledger_verify(_phb_erows)
+             and _pend3 == ["CAPTURED", "SEALED_INPUT", "V4_SEALED"] and not _re3[2] and not _re3[0]["ledger"]["problems"]
+             and all(r["faisal_decision"] is None for r in _phb_erows if r["event"] in ("CAPTURED", "SEALED_INPUT", "V4_SEALED"))
+             and all(r["v4_decision"] is None for r in _phb_erows if r["event"] in ("CAPTURED", "SEALED_INPUT")))
+    _phb3w = f"خطأ={_bad3} · معلّق={_pend3} · جديدٌ عند الإعادة={len(_re3[2])} · قيود={len(_phb_erows)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _phb3, _phb3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪 PHB3 الأهليّة E1-E9 بالترتيب على 18 بندًا اصطناعيًّا · التاريخيُّ خارجها · والعمى بالمراحل · والإعادةُ لا تُضيف قيدًا", _phb3, _phb3w)
+
+# PHB4 السجلّ: سليمٌ بلا مشكلة · وسبعةُ شواهد ضبط تُمسَك — حذفُ قيد · تعديلٌ بلا إعادة بصمة · قرارُ فيصل قبل REVEALED (القيمةُ نفسُها في كلّ
+#      قيدٍ قبله فلا يمسكه إلّا قيدُ العمى — طفرةُ MB5 نجت من شاهدٍ أضعف) · قيدٌ بعد الاستبعاد
+#      (المستبعدُ يبقى مستبعدًا) · خطُّ أساسٍ تغيّر بعد الالتقاط · بادئةٌ غيرُ إلحاقيّة · وتراجعُ حالة البروتوكول/اختفاءُ بندٍ ⟵ VALIDATION_BLOCKED
+try:
+    _r4 = _phb_erows
+    _i4 = next(i for i, r in enumerate(_r4) if r["case_id"] == "PB:TG_90014" and r["event"] == "CAPTURED")
+    _x4 = next(r["case_id"] for r in _r4 if r["event"] == "EXCLUDED")
+    _c4 = {"drop": PB.ledger_verify(_r4[:3] + _r4[4:]),
+           "edit": PB.ledger_verify(_r4[:5] + [dict(_r4[5], ticker="ZZZ")] + _r4[6:]),
+           "blind": PB.ledger_verify(_phb_rechain([dict(r, faisal_decision="WAIT") if r["case_id"] == "PB:TG_90014" and r["event"] in
+                                                   ("CAPTURED", "SEALED_INPUT", "V4_SEALED") else r for r in _r4])),
+           "after_excluded": PB.ledger_verify(_phb_rechain(_r4 + [dict(next(r for r in _r4 if r["case_id"] == _x4), event="CLASSIFIED")])),
+           "baseline": PB.ledger_verify(_phb_rechain(_r4[:_i4 + 1] + [dict(_r4[_i4 + 1], baseline_decisions={"ALWAYS_WAIT": "READY"})]
+                                                     + _r4[_i4 + 2:]))}
+    _ei4 = [it if n != "E7" else _phb_item(10) for (n, _kw, _x), it in zip(_PHB_ELIG, _phb_ei)]
+    _reg4 = _phb_build(_ei4, _r4)[0]
+    _van4 = _phb_build([it for (n, _kw, _x), it in zip(_PHB_ELIG, _phb_ei) if n != "await_seal"], _r4)[0]
+    _phb4 = (not PB.ledger_verify(_r4) and all(_c4.values()) and PB.is_append_only(b"ab", b"abc") and not PB.is_append_only(b"ab", b"ac")
+             and any("regression" in p for p in _reg4["ledger"]["problems"]) and _reg4["state"] == "VALIDATION_BLOCKED"
+             and any("no longer" in p for p in _van4["ledger"]["problems"]) and _van4["state"] == "VALIDATION_BLOCKED")
+    _phb4w = f"ضبط={ {k: (v[0][:28] if v else '∅') for k, v in _c4.items()} } · تراجع={_reg4['state']} · اختفاء={_van4['state']}"
+except Exception as _e:                                                    # noqa: BLE001
+    _phb4, _phb4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪 PHB4 السجلُّ الإلحاقيّ: سلسلةٌ · مسارٌ · عمًى · ثبات — وسبعةُ شواهد ضبط تُمسَك (والتراجعُ والاختفاءُ ⟵ VALIDATION_BLOCKED)",
+      _phb4, _phb4w)
+
+# PHB5 المقام يُعاد عدُّه من السجلّ: PRIMARY = قيودُ CLASSIFIED · الرئيسيّ = غيرُ المحجوب خارجيًّا · المقاييسُ على n نفسه · ونقاطُ الفحص
+#      10/20/30/43 قيدٌ واحدٌ لكلٍّ في سجلٍّ سليم
+try:
+    _s5, _r5, _n5 = _phb_build(_phb_big(blocked_fr=1))
+    _cl5 = [r for r in _r5 if r["event"] == "CLASSIFIED"]
+    _cp5 = sorted(r["case_id"] for r in _r5 if r["event"] == "CHECKPOINT")
+    _phb5 = (_s5["primary"] == len(_cl5) == 46 and _s5["blocked_external"] == 1
+             and _s5["main"] == sum("VALIDATION_BLOCKED_EXTERNAL_CONTEXT" not in (r["external_context_status"] or "") for r in _cl5) == 45
+             and _s5["metrics_main"]["n"] == _s5["main"] and _s5["metrics_sensitivity"]["n"] == _s5["primary"]
+             and _cp5 == ["CHECKPOINT_10", "CHECKPOINT_20", "CHECKPOINT_30", "CHECKPOINT_43"] and not PB.ledger_verify(_r5))
+    _phb5w = f"PRIMARY={_s5['primary']} CLASSIFIED={len(_cl5)} · main={_s5['main']} · فحص={_cp5}"
+except Exception as _e:                                                    # noqa: BLE001
+    _phb5, _phb5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪 PHB5 المقامُ = إعادةُ العدّ من السجلّ (PRIMARY · الرئيسيّ · المقاييس) · ونقاطُ الفحص الأربع قيدٌ واحدٌ لكلٍّ", _phb5, _phb5w)
+
+# PHB6 الحالةُ النهائيّة: دوالُّ البروتوكول المجمَّد على مجموعة المرحلة ب ‏+ أرضيّةُ ⑨ ‏+ الأدنى من التحليلين — سبعُ حالاتٍ اصطناعيّة
+try:
+    _st6 = {k: _phb_build(v)[0]["state"] for k, v in (("full", _phb_big()), ("sens_false_ready", _phb_big(blocked_fr=1)),
+                                                     ("reject4", _phb_big(n_reject=4, n_wait=36)), ("one_setup", _phb_big(setups=("S1",))),
+                                                     ("n43", _phb_big(n_wait=33)), ("n42", _phb_big(n_wait=32)))}
+    _st6["ledger_problem"] = PB.phase_b_state(True, False, _phb_state([]), _phb_fp, [], [], {})
+    _phb6 = _st6 == {"full": "PARTIALLY_VALIDATED", "sens_false_ready": "NOT_VALIDATED", "reject4": "INSUFFICIENT_SAMPLE",
+                     "one_setup": "INSUFFICIENT_SAMPLE", "n43": "PARTIALLY_VALIDATED", "n42": "INSUFFICIENT_SAMPLE",
+                     "ledger_problem": "VALIDATION_BLOCKED"} and _phb_fp.ready_structurally_impossible()
+    _phb6w = str(_st6)
+except Exception as _e:                                                    # noqa: BLE001
+    _phb6, _phb6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪 PHB6 الحالةُ بدوالّ البروتوكول المجمَّد ‏+ أرضيّةُ ⑨ (43 · REJECT 5 · لا إعدادَ فوق النصف) ‏+ الأدنى من الرئيسيّ والحساسيّة",
+      _phb6, _phb6w)
+
+# PHB7 الجدار (‏B17 · AST): استيراداتُ المكتبة القياسيّة وحدَها · الكتابةُ في `_write` ("w" على المخرجات الستّة) و`_append_ledger` ("a")
+#      وحدَهما · لا حذفَ ولا شبكة · وgit للقراءة فقط (rev-parse · log · show) · و`_write` يرفض غيرَ المخرجات
+try:
+    _src7 = open(_pha_os.path.join("faisal_validation", "phase_b.py"), encoding="utf-8").read()
+    _t7 = _pha_ast.parse(_src7)
+    _imp7 = set()
+    for _n in _pha_ast.walk(_t7):
+        if isinstance(_n, _pha_ast.Import):
+            _imp7 |= {a.name.split(".")[0] for a in _n.names}
+        elif isinstance(_n, _pha_ast.ImportFrom):
+            _imp7.add((_n.module or "").split(".")[0])
+    _ok_imp7 = _imp7 <= {"collections", "csv", "datetime", "hashlib", "importlib", "io", "json", "os", "re", "subprocess", "sys",
+                         "zoneinfo", "final_protocol"}
+    _opens7 = []
+    for _fn in [n for n in _t7.body if isinstance(n, _pha_ast.FunctionDef)]:
+        for _c in _pha_ast.walk(_fn):
+            if isinstance(_c, _pha_ast.Call) and getattr(_c.func, "id", None) == "open":
+                _md = next((a.value for a in _c.args[1:2] if isinstance(a, _pha_ast.Constant)), "r")
+                _opens7.append((_fn.name, _md))
+    _wr7 = sorted({x for x in _opens7 if any(ch in x[1] for ch in "wax+")})
+    _bad_calls7 = [_pha_ast.unparse(c.func) for c in _pha_ast.walk(_t7) if isinstance(c, _pha_ast.Call)
+                   and _pha_ast.unparse(c.func) in ("os.remove", "os.unlink", "os.rename", "os.replace", "shutil.rmtree", "os.system")]
+    _git7 = [c for c in _pha_ast.walk(_t7) if isinstance(c, _pha_ast.Call) and getattr(c.func, "id", None) == "_git"]
+    _git_ok7 = all(isinstance(c.args[0], _pha_ast.Constant) and c.args[0].value in ("rev-parse", "log", "show") for c in _git7) and _git7
+    _sub7 = [_fn.name for _fn in _t7.body if isinstance(_fn, _pha_ast.FunctionDef)
+             for c in _pha_ast.walk(_fn) if isinstance(c, _pha_ast.Call) and _pha_ast.unparse(c.func).startswith("subprocess.")]
+    try:
+        PB._write("../x.txt", "")
+        _rej7 = False
+    except ValueError:
+        _rej7 = True
+    _phb7 = (_ok_imp7 and _wr7 == [("_append_ledger", "a"), ("_write", "w")] and not _bad_calls7 and _git_ok7 and _sub7 == ["_git"]
+             and _rej7)
+    _phb7w = f"استيراد={sorted(_imp7)} · كتابة={_wr7} · حذف={_bad_calls7} · git={len(_git7)} · subprocess={_sub7} · رفض={_rej7}"
+except Exception as _e:                                                    # noqa: BLE001
+    _phb7, _phb7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪 PHB7 جدارُ المرحلة ب (AST): المكتبةُ القياسيّة وحدَها · الكتابةُ في `_write`(w) و`_append_ledger`(a) وحدَهما · لا حذفَ ولا شبكة · "
+      "git للقراءة", _phb7, _phb7w)
+
+# PHB8 كتلةُ المالك: المفاتيحُ الاثنان والأربعون بنصّه وترتيبه في الأداة وفي الوثيقة المدفوعة · وحكمُ كلّ تنبّؤٍ من قيمه المسموحة
+try:
+    _md8 = open(_pha_os.path.join("faisal_validation", "FAISAL_VALIDATION_STATUS.md"), encoding="utf-8").read()
+    _pos8 = [_md8.find(f"\n{k} = ") for k in _PHB_OWNER_KEYS]
+    _pred8 = _phb_st.get("predictions") or {}
+    _phb8 = (tuple(PB.OWNER_KEYS) == _PHB_OWNER_KEYS and "FAISAL VALIDATION STATUS" in _md8 and all(p > 0 for p in _pos8)
+             and _pos8 == sorted(_pos8) and sorted(_pred8) == ["P1", "P2", "P3"]
+             and all(str(v).startswith(("HELD", "FAILED", "FIRST_BUILD_ONLY")) for v in _pred8.values()))
+    _phb8w = f"مفاتيح={len(PB.OWNER_KEYS)} · مرتّبة={_pos8 == sorted(_pos8)} · تنبّؤات={_pred8}"
+except Exception as _e:                                                    # noqa: BLE001
+    _phb8, _phb8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪 PHB8 كتلةُ «FAISAL VALIDATION STATUS» بمفاتيح المالك الاثنين والأربعين وترتيبها · والتنبّؤاتُ P1-P3 محكومة", _phb8, _phb8w)
+
+# PHB9 الثوابت: HISTORICAL_PRIOR = تردّداتُ A10 المختوم وتوزيعُه على 11,000 معرّفٍ قريبٌ منها · ثوابتُ البروتوكول (43 · 10 · 5) · الختمُ
+#      والحدُّ وV4 من مصادرها · يومُ نيويورك للحدّ 2026-10-07 · ودبابيسُ السجلّ المدموجة باقيةٌ بادئةً (وشاهدُ ضبط: دبّوسٌ على سجلٍّ أُعيد كتابتُه يسقط)
+try:
+    _lab9 = _pha_col.Counter(r["FINAL_DECISION"] for r in _phb_a10)
+    _dist9 = _pha_col.Counter(PB.historical_prior(f"PB:SYN{i}") for i in range(11000))
+
+    def _pin_ok9(rows, pins):
+        return all(len(rows) >= n and (rows[n - 1]["sha256"] if n else PB.GENESIS) == h for n, h in pins)
+    _led9 = PB.ledger_read()
+    _pin9 = ((3, _phb_erows[2]["sha256"]),)
+    _rw9 = _phb_rechain(_phb_erows[:1] + [dict(_phb_erows[1], notes="rewritten")] + _phb_erows[2:])
+    _phb9 = (PB.PRIOR == (("READY", _lab9["READY"]), ("WAIT", _lab9["WAIT"]), ("REJECT", _lab9["REJECT"]))
+             and all(abs(_dist9[k] / 11000 - n / 110) < 0.02 for k, n in PB.PRIOR) and PB.historical_prior("X") == PB.historical_prior("X")
+             and (PB.N_MIN, PB.WILSON_MIN, PB.COVER) == (_phb_fp.N_MIN, _phb_fp.WILSON_MIN, _phb_fp.READY_COVER)
+             and PB.SEAL_ID == _PHA_SEAL_ID and PB.CUTOFF == _pha_seal["evidence_cutoff_utc"] == _pha_seal["prospective_clock_starts_after"]
+             and PB.V4_COMMIT == _pha_seal["v4_commit"] == (_phb_pst.get("epoch") or {}).get("V4_COMMIT")
+             and PB.cutoff_ny_date() == "2026-10-07" and _pin_ok9(_led9, _PHB_LEDGER_PINS)
+             and _pin_ok9(_phb_erows, _pin9) and not _pin_ok9(_rw9, _pin9))
+    _phb9w = f"A10={dict(_lab9)} · توزيع={dict(_dist9)} · سجلّ={len(_led9)} · يوم={PB.cutoff_ny_date()}"
+except Exception as _e:                                                    # noqa: BLE001
+    _phb9, _phb9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪 PHB9 الثوابت: HISTORICAL_PRIOR من A10 المختوم · 43/10/5 من البروتوكول · الختمُ والحدُّ وV4 · يومُ نيويورك · ودبابيسُ السجلّ",
+      _phb9, _phb9w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

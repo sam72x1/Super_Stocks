@@ -19,6 +19,8 @@
 
 ---
 
+> 🧪 **2026-10-08 · المرحلة ب «PROSPECTIVE VALIDATION» (بالتفويض):** العقدُ `faisal_validation/PHASE_B_prereg.md` مدموجٌ قبل أيّ رقم (#568 · `PHB0`) ثمّ الأداةُ `faisal_validation/phase_b.py` (بوّابةُ المرحلة أ · E1-E9 بالترتيب · سجلٌّ إلحاقيّ مقنَّعٌ بالمراحل · الحالةُ بدوالّ البروتوكول المجمَّد ‏+ أرضيّةُ ⑨ والأدنى من التحليلين) ⟵ **أوّلُ بناء: 48 بندًا كلُّها HISTORICAL · PRIMARY 0 · السجلّ 0 قيد · `INSUFFICIENT_SAMPLE` · P1-P3 صدقت** · والجامعُ يدويٌّ حتى الآن (26 تشغيلة · المجدولُ لم يُطلَق) · `PHB1`-`PHB9` و15 طفرةً كلٌّ أسقط قفلَه بلا Traceback (MB5 نجت أوّلًا فشُدّ شاهدُها) · 🔴 لا تغييرَ على V4 ولا العقد ولا الإنتاج · وكلُّ فكرةٍ ⟵ `FAISAL_V5_CANDIDATES.md`.
+
 > 🔎🧾 **2026-10-08 (أمرُ المالك «MASTER FORENSIC RECOVERY → FROZEN VALIDATION PROTOCOL» · بالتفويض):** **المرحلة أ مختومةٌ CLOSED** (`faisal_recovery/HISTORICAL_PHASE_A_SEAL.json` · `PHA-ea12cb86a3f39a5b`) — لا صورةَ لفيصل متاحةٌ خارج المدوّنة (NEW_TO_CORPUS 0 من 9,930 · المدوّنة 769) · **وحدُّ الأدلّة 2026-10-08T01:29:04Z = بدءُ الساعة الأماميّة** ⟵ **المرحلة ب** (التسجيلُ المسبق قبل أيّ رقم ثمّ الأداة والسجلّ الإلحاقيّ) **تبدأ بعد دمج الختم** · 🔴 لا يُعاد بناءُ الختم · ولا تغييرَ على V4 ولا الإنتاج · وأُصلح معه عطلُ FPA2 (حجمٌ حيٌّ في I9 · `FPA21`).
 
 > 📊🧾 **2026-10-07 — MASTER DEVELOPMENT PROGRESS & ACCURACY AUDIT (قراءةٌ فقط)**: `FAISAL_PROJECT_DEVELOPMENT_AUDIT.md` (§⓪-§㉚) ‏+ `FAISAL_PROJECT_TIMELINE.csv` ‏+ `FAISAL_ACCURACY_COMPARISON.csv` في الجذر · البداية `4510eb3` (2026-06-20) · **NO DEFENSIBLE END-TO-END ACCURACY DELTA EXISTS YET** · الهندسة 13/14 · المنهجيّة 18/20 · التحقّق 0/43 · الجاهزيّة 0/3 · الذهبيّة V4 4/7 دون «دائمًا WAIT» 5/7. **لا تطويرَ بعده (أمرُ STOP)** — والحلقةُ الأماميّة تنتظر صورًا جديدة كما هي.
