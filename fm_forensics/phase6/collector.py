@@ -38,6 +38,7 @@ FIELDS = ("public_float", "shares_outstanding", "short_interest", "borrow_availa
 SHARE_COUNT_FIELDS = ("public_float", "shares_outstanding", "short_interest", "borrow_available")
 STATUS = ("OK", "UNKNOWN", "FAILED", "NOT_ATTEMPTED")
 CE_QUOTA = 48            # ChartExchange returns a shell page after ≈50 requests per runner (ctb_harvest measurement)
+SEC_FILINGS_SINCE = "2025-01-01"   # filings older than the frozen bar history are not re-collected for new tickers
 STALE_ASOF_DAYS = 45     # short-interest as-of older than this at collection ⇒ quality flag (not a rejection)
 PACE_S = float(os.environ.get("P6_PACE_S") or 0.4)
 ANCHORS = ("DKI", "SXTC", "HUBC")
@@ -518,6 +519,8 @@ class Collector:
         forms, dates, acc, acct = rec.get("form") or [], rec.get("filingDate") or [], rec.get("accessionNumber") or [], rec.get("acceptanceDateTime") or []
         n = 0
         for i in range(min(len(forms), len(dates), len(acc))):
+            if (dates[i] or "") < SEC_FILINGS_SINCE:          # cap the one-time backfill (31 MB on the first live run)
+                continue
             a = acct[i] if i < len(acct) else ""
             n += int(self._emit(self._rec(t, "sec_filing", "sec_submissions", acc[i], json.dumps({"form": forms[i], "filingDate": dates[i], "accession": acc[i], "acceptance": a}, sort_keys=True),
                                           "json", (a or dates[i]), "PROVIDER", "OK", raw_sha=sha,
@@ -575,7 +578,20 @@ class Collector:
                                  d, "PROVIDER", "OK"))
 
     # -- run ---------------------------------------------------------------
+    def borrow_order(self, tickers):
+        """ChartExchange quota rotation: tickers never attempted first, then NOT_ATTEMPTED/failed, then the oldest successful
+        observation — so a 48-page quota covers 89 tickers across consecutive runs instead of the same 48 every day
+        (live run 37884481989: 41 of 89 were NOT_ATTEMPTED in alphabetical order)."""
+        last = {}
+        for r in self.L.rows:
+            if r["field"] == "borrow_available" and r["source"] == "chartexchange":
+                key = (0 if r["status"] == "NOT_ATTEMPTED" else 1, r["collected_utc"])
+                if r["ticker"] not in last or key > last[r["ticker"]]:
+                    last[r["ticker"]] = key
+        return sorted(tickers, key=lambda t: (t.upper() in last, last.get(t.upper(), (0, ""))[0], last.get(t.upper(), (0, ""))[1], t.upper()))
+
     def run(self, tickers, resume=True):
+        tickers = self.borrow_order(list(tickers))
         cal, cerr = self._call("nasdaq_calendar")
         if cal:
             store_raw({"provider": "nasdaq_calendar", "collected_utc": self.collected, "payload": cal}, self.raw_dir)
