@@ -1,0 +1,32 @@
+name: FE universe bars (بحثٌ فقط · مؤقّت · لا تلغرام)
+
+# 🧭📐 يجلب شموعَ TradingView لرموز اختبار الكون (faisal_engine/UNIVERSE_TEST_PROTOCOL.md) ويلتزمها في الفرع المُشغَّل منه.
+#    يدويٌّ فقط · يُحذَف بعد الاختبار.
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Fetch
+        run: python3 faisal_engine/universe_bars_fetch.py
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add faisal_engine/data/universe_bars.json.gz
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "🧭📐 FE universe bars: run ${{ github.run_id }}"
+          for i in 1 2 3 4; do git pull --rebase origin ${{ github.ref_name }} && git push origin HEAD:${{ github.ref_name }} && exit 0; sleep $((i*5)); done
+          exit 1
