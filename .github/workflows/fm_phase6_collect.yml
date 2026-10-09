@@ -1,0 +1,71 @@
+name: FM Phase 6 — prospective collector (بحثٌ فقط · لا تلغرام)
+
+# 🔎🧭⑥ يحصد يوميًّا (float · short interest · borrow · SEC · splits · identity) لأسهم فيصل المذكورة في سجلٍّ إلحاقيّ مسلسل
+#    بالبصمات (`fm_forensics/phase6/data/PHASE6_LEDGER.jsonl`). لا يمسّ الفرز ولا القائمة ولا يُرسل تلغرام.
+#    ⏰ 02:41 UTC الثلاثاء-السبت: بعد حصاد الاقتراض (01:20) ولا يزاحم الفرز (01:50 + تأخّر GitHub).
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      tickers:
+        description: "رموزٌ بفاصلة (فارغ = كلُّ أسهم فيصل المذكورة)"
+        required: false
+        default: ""
+      dry:
+        description: "1 = يجمع ويرفع artifact ولا يلتزم"
+        required: false
+        default: "0"
+  schedule:
+    - cron: "41 2 * * 2-6"
+
+concurrency:
+  group: fm-phase6-collect
+  cancel-in-progress: false
+
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Collect
+        env:
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          P6_TICKERS: ${{ inputs.tickers }}
+          P6_RAW_DIR: ${{ format('{0}/phase6_raw', runner.temp) }}
+        run: python3 fm_forensics/phase6/collector.py run
+
+      - name: Verify ledger chain
+        run: python3 fm_forensics/phase6/collector.py verify
+
+      - name: Upload raw responses (90 days)
+        uses: actions/upload-artifact@v4
+        with:
+          name: phase6-raw-${{ github.run_id }}
+          path: ${{ runner.temp }}/phase6_raw
+          if-no-files-found: ignore
+          retention-days: 90
+
+      - name: Commit ledger
+        if: ${{ inputs.dry != '1' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add fm_forensics/phase6/data fm_forensics/phase6/out
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "🔎🧭⑥ phase6 collector: run ${{ github.run_id }}"
+          for i in 1 2 3 4; do git pull --rebase origin main && git push origin HEAD:main && exit 0; sleep $((i*5)); done
+          exit 1
