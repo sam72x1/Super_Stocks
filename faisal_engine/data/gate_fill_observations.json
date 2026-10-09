@@ -1,0 +1,9 @@
+{
+ "source": "daily_screener scheduled-run logs (GitHub Actions job logs, read 2026-10-09); lines «🎯 تعبئةُ الخانات», «🔒 لم يُضَف (متاحُ اقتراضٍ فوق 20,000)», «🛡️ سلامةُ البيانات · الفرز اليوميّ · المرشّحون»",
+ "why_these_days": "the first three runs after the ChartExchange parser fix (2026-10-06, merged in #548): before it, availability was unknown and passed by benefit of the doubt, so the borrow gate did not eject",
+ "runs": [
+  {"date": "2026-10-07", "run_id": 37589176908, "space": 8, "filled": 2, "rounds": 4, "borrow_ejected": 28, "fl_ejected": 0, "pool_after_dq": null},
+  {"date": "2026-10-08", "run_id": 37747202124, "space": 6, "filled": 1, "rounds": 4, "borrow_ejected": 23, "fl_ejected": 0, "pool_after_dq": 103},
+  {"date": "2026-10-09", "run_id": 37902530011, "space": 12, "filled": 4, "rounds": 4, "borrow_ejected": 40, "fl_ejected": 0, "pool_after_dq": 104}
+ ]
+}

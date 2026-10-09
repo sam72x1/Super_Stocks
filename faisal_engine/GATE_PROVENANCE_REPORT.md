@@ -129,9 +129,19 @@ Case notes:
 
 Displayed gates now mirror the scanner: M1–M5 + RSI hard (catalog numbers), M6 info at 0, M7/M9/M11/M12 soft, **M13 soft** (was shown hard), **M14 hard**, **borrow hard** (was absent), **anchor hard** (was absent). The verdict line now equals the scanner's post-enrich decision (`post_enrich_verdict`): a stock removed by M14 or the borrow gate is no longer called «مؤهّل — كان سيدخل قائمة المراقبة». Attention (technical identity) and owner eligibility remain one verdict in production; separating them is proposed research-only (no production change).
 
+## 4b. Slot filling after the borrow gate (production logs, recorded in `data/gate_fill_observations.json`)
+
+| date | run | free slots | filled | rounds | ejected by borrow | examined | pool after DQ | unexamined (≤) |
+|---|---|---|---|---|---|---|---|---|
+| 2026-10-07 | 37589176908 | 8 | 2 | 4 | 28 | 30 | — | — |
+| 2026-10-08 | 37747202124 | 6 | 1 | 4 | 23 | 24 | 103 | 79 |
+| 2026-10-09 | 37902530011 | 12 | 4 | 4 | 40 | 44 | 104 | 60 |
+
+Over these runs 7 of 26 free slots were filled; the borrow gate ejected 91 of 98 examined (93%), and every run stopped at the rounds cap with qualified names unexamined (the «unexamined» column is an upper bound: names already held or stopped are excluded too). Why these days: the first three runs after the ChartExchange parser fix (2026-10-06, merged in #548): before it, availability was unknown and passed by benefit of the doubt, so the borrow gate did not eject.
+
 ## 5. Next permitted action
 
 - The dominant first wall on Faisal's episodes is `ANCHOR_TWO_TOUCH` (owner policy, FROZEN by the H6 control-pool dependency and the perf verdict): no production change is permitted; the admissible evidence is the prospective H6 collection already running.
-- `FILL_ROUNDS` (engineering cap) left 8 of 12 slots empty in production run 37902530011 (2026-10-09 log, not recomputed here) with eligible names unexamined; the new log line (`fill_shortfall_note`) measures how often the cap binds. A change is a live-threshold change ⇒ prereg + owner.
+- `FILL_ROUNDS` × `BORROW_AVAIL` (§4b): the rounds cap, not the pool, ended slot filling in all three post-fix runs. More rounds would push ChartExchange lookups past its ~50-page runner quota, and an unknown availability passes the gate, so raising the cap alone would weaken the borrow gate; harvesting availability for the ranked pool before the screen would not. Either is a change to live candidate generation ⇒ owner decision (and a prereg for a threshold). The new log line (`fill_shortfall_note`) now records the binding cause daily.
 - `M2_CEIL` / `M4_RANGE` artefacts on reverse-split names: closed / owner-decided axes; reopening needs the owner.
 
