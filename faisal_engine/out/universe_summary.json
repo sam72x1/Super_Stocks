@@ -1,0 +1,131 @@
+{
+ "protocol": "UNIVERSE_TEST_PROTOCOL.md",
+ "label": "EXPLORATORY",
+ "runtime_s": 1296.2,
+ "dates": 34,
+ "window": [
+  "2026-08-14",
+  "2026-10-08"
+ ],
+ "excluded_sampled_dates": "see manifest (walls_n > 400)",
+ "faisal_units_window": 41,
+ "faisal_units_evaluable": 38,
+ "faisal_units_unevaluable": 3,
+ "capture": {
+  "bot_pass": [
+   0.07895,
+   0.02721,
+   0.208
+  ],
+  "engine_screen": [
+   0.60526,
+   0.44718,
+   0.74402
+  ],
+  "engine_inproc": [
+   0.60526,
+   0.44718,
+   0.74402
+  ],
+  "engine_watch_stage": [
+   0.10526,
+   0.0417,
+   0.24131
+  ]
+ },
+ "burden_daily": {
+  "bot_pass_median": 108.0,
+  "bot_pass_range": [
+   65,
+   129
+  ],
+  "bot_added_median": 3.5,
+  "engine_screen_median": 482.5,
+  "engine_screen_range": [
+   367,
+   524
+  ],
+  "engine_inproc_median_lo_hi": [
+   343.0,
+   446.5
+  ],
+  "engine_watch_median_lo_hi": [
+   55.0,
+   165.5
+  ],
+  "wall_ready_median": 55.0,
+  "valid_median": 3396.5
+ },
+ "universe_fraction": {
+  "bot_pass": [
+   0.03227,
+   0.03126,
+   0.03331
+  ],
+  "bot_added_pct_median": 0.10250000000000001,
+  "engine_screen": [
+   0.14172,
+   0.13972,
+   0.14375
+  ],
+  "engine_inproc_lo_hi": [
+   [
+    0.09989,
+    0.09817,
+    0.10164
+   ],
+   [
+    0.13216,
+    0.13022,
+    0.13413
+   ]
+  ],
+  "engine_watch_lo_hi": [
+   [
+    0.0167,
+    0.01598,
+    0.01746
+   ],
+   [
+    0.04897,
+    0.04774,
+    0.05023
+   ]
+  ]
+ },
+ "concentration_LR": {
+  "bot_pass": 2.45,
+  "engine_screen": 4.27,
+  "engine_inproc_lo_hi": [
+   4.58,
+   6.06
+  ],
+  "engine_watch_lo_hi": [
+   2.15,
+   6.3
+  ]
+ },
+ "consistency_wall_vs_replay": {
+  "agree": 37,
+  "n": 38
+ },
+ "coverage": {
+  "wall_bars_mean": 0.9863,
+  "symbols_asked": 800,
+  "symbols_got": 783
+ },
+ "unknown_note": "كلُّ رمزٍ من الكون لم يذكره فيصل = UNKNOWN (لا إنذارَ كاذبًا مؤكَّدًا) — سجلّاتُه لا تغطّي اختياراته كلَّها",
+ "verdict": "لا توجد أدلة كافية على تحسن الفرز",
+ "verdict_inputs": {
+  "undecidable": false,
+  "lr_engine_lo": 4.58,
+  "lr_bot": 2.45,
+  "capture_ci_disjoint": true,
+  "burden_ok": false
+ },
+ "falsification": {
+  "P1_burden_ratio_screen_over_bot": 4.47,
+  "P2_engine_capture_gt_bot_but_LR_not_disjoint": false,
+  "P3_wall_ready_median": 55.0
+ }
+}
