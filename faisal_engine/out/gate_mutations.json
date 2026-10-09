@@ -165,8 +165,15 @@
     "GPV10"
    ],
    "crash": false
+  },
+  {
+   "mutation": "M16 technical_report depth-section scope line removed",
+   "killed_by": [
+    "GPV12"
+   ],
+   "crash": false
   }
  ],
- "killed": 22,
- "total": 22
+ "killed": 23,
+ "total": 23
 }
