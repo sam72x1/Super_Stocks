@@ -1,0 +1,18 @@
+{
+ "H1_FLOAT": [
+  "NOT TESTABLE (F — missing history)",
+  "NOT_TESTABLE (fewer than 10 positives with a point-in-time value — prereg §O)"
+ ],
+ "H2_OFFERING": [
+  "UNSUPPORTED (98.75% CI includes 0)",
+  "discovery +0.132 (-0.1316, 0.4211) · validation -0.1667 · pooled 0.0 (-0.1765, 0.1912)"
+ ],
+ "H3_BORROW": [
+  "NOT TESTABLE (F — missing history)",
+  "NOT_TESTABLE (fewer than 10 positives with a point-in-time value — prereg §O)"
+ ],
+ "H4_SPLIT": [
+  "UNSUPPORTED (availability not point-in-time verified ≥ 80%)",
+  "0.417"
+ ]
+}
