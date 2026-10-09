@@ -84536,6 +84536,166 @@ if _SL is not None:
 else:
     check("🧭🗂️ STG0: `stage_ledger.py` يُستورَد ومخرَجُه يُقرأ (شرطُ STG1-STG14)", False, str(_ss_err)[:120])
 
+# 🧭🔀 STX1-STX12 — مقارنةُ الحالات المصدريّة بحالات المحرّك (`faisal_engine/stage_crosswalk.py`) حرفًا بعقد STAGE_SEMANTICS_PROTOCOL.md:
+#    قراءةُ المحرّك = replay.read · VARIES/نافذةٌ واسعة/غيابُ شموع ⟵ لا يُعَدّ · المجهولُ ليس خطأً ولا سالبًا · قواعدُ H1-H3 والحكمُ كما كُتبت قبل
+#    الأرقام · والطبقةُ المصدريّة منفصلةٌ عن المحرّك ولا تُمَدّ عبر الفجوات ولا ترى ما بعد يومها.
+try:
+    _XW = _ss_imp.import_module("stage_crosswalk")
+    _xw_err = None
+except Exception as _e:                                    # noqa: BLE001
+    _XW = None; _xw_err = f"⛔ {type(_e).__name__}: {_e}"
+if _XW is not None:
+    def _xe(**k):
+        base = dict(event_id="E", identity="AAA", episode_id="EP1", source_ref="T", statement="s1", is_faisal="1", ts_quality="EXACT_PRINTED",
+                    asof_lo="2026-09-14", asof_hi="2026-09-14", confidence="HIGH", identity_basis="VISIBLE", md_available="YES", raw_label="",
+                    raw_action="", A_list="", B_stage="", readiness_recalled="0", C_action="", E_trigger="", carry_forward_state="")
+        base.update(k); return base
+    def _xr(sym, days, stage):
+        return {(sym, d): dict(symbol=sym, session=d, stage=stage, first_failed="", tech_state="", v4_state="", frame="", blocks="", missing="0", bars_last="")
+                for d in days}
+    # STX1 — engine reading is replay.read verbatim (same call), imported lazily (the analysis never imports the engine)
+    try:
+        _tx = _ss_ast.parse(open(_ss_os.path.join(_ss_dir, "stage_crosswalk.py"), encoding="utf-8").read())
+        _tr = _ss_ast.parse(open(_ss_os.path.join(_ss_dir, "replay.py"), encoding="utf-8").read())
+        _call = lambda t, fn: [_ss_ast.dump(n.value) for f in _ss_ast.walk(t) if isinstance(f, _ss_ast.FunctionDef) and f.name == fn  # noqa: E731
+                                for n in _ss_ast.walk(f) if isinstance(n, _ss_ast.Return)]
+        _top = {(a.name if isinstance(n, _ss_ast.Import) else (n.module or "")).split(".")[0] for n in _tx.body
+                if isinstance(n, (_ss_ast.Import, _ss_ast.ImportFrom)) for a in n.names}
+        _ok = (_call(_tx, "engine_read") == _call(_tr, "read") and _call(_tx, "engine_read") and not (_top & {"engine", "data", "replay", "Super_stock"}))
+        _w = f"same={_call(_tx, 'engine_read') == _call(_tr, 'read')} top={sorted(_top)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX1: قراءةُ المحرّك = `replay.read` حرفًا (النداءُ نفسُه بالـAST) · والتحليلُ لا يستورد المحرّك ولا البوت", _ok, _w)
+    # STX2 — window rules: one stage across the window ⟵ that stage · differing ⟵ VARIES · over 10 sessions ⟵ WINDOW_TOO_WIDE · no bars/read ⟵ UNAVAILABLE
+    try:
+        _cal = [d for d in _SL.calendar() if "2026-09-14" <= d <= "2026-10-08"]
+        _rd = _xr("AAA", _cal[:2], "WATCH"); _rd2 = dict(_rd); _rd2[("AAA", _cal[1])] = dict(_rd[("AAA", _cal[1])], stage="REJECTED")
+        _q = (_XW.engine_at(_xe(asof_hi=_cal[1]), _rd)[0], _XW.engine_at(_xe(asof_hi=_cal[1]), _rd2)[0],
+              _XW.engine_at(_xe(asof_hi=_cal[11]), _xr("AAA", _cal[:12], "WATCH"))[0], _XW.engine_at(_xe(md_available="NO_BARS"), _rd)[0],
+              _XW.engine_at(_xe(asof_lo=_cal[5], asof_hi=_cal[5]), _rd)[0])
+        _ok = _q == ("WATCH", "VARIES", "WINDOW_TOO_WIDE", "UNAVAILABLE", "UNAVAILABLE"); _w = f"{_q}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX2: نافذةُ يوم القرار — مرحلةٌ واحدة ⟵ هي · مختلفة ⟵ VARIES · أطولُ من 10 جلسات ⟵ WINDOW_TOO_WIDE · بلا شموعٍ أو قراءة ⟵ UNAVAILABLE", _ok, _w)
+    # STX3 — unknown is never an error or a negative: ambiguous/low/non-Faisal are EXCLUDED and never enter H1/H2/H3 tables
+    try:
+        _ev3 = [_xe(event_id="E1", B_stage="READY", ts_quality="AMBIGUOUS", asof_lo="", asof_hi=""),
+                _xe(event_id="E2", episode_id="EP2", B_stage="READY", confidence="LOW"),
+                _xe(event_id="E3", episode_id="EP3", B_stage="READY", is_faisal="0"),
+                _xe(event_id="E4", episode_id="EP4", B_stage="READY", md_available="NO_BARS")]
+        _rw3 = _XW.analyze(_ev3, {}); _h3 = _XW.h1(_rw3, "BROAD")
+        _ok = ([r["subset"] for r in _rw3] == ["EXCLUDED:AMBIGUOUS_TIMESTAMP", "EXCLUDED:LOW_CONFIDENCE", "STRICT"]
+               and _h3["determinable"] == 0 and _h3["engine_ready_with_faisal_not_ready"] == 0 and _h3["verdict"] == "INSUFFICIENT EVIDENCE")
+        _w = f"subsets={[r['subset'] for r in _rw3]} h1={_h3['verdict']} det={_h3['determinable']}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX3: المجهولُ ليس خطأً ولا سالبًا — الملتبسُ والضعيفُ وغيرُ فيصل خارجَ المقارنة · وبلا شموعٍ UNAVAILABLE لا يُعَدّ", _ok, _w)
+    # STX4 — H1 rules as written: 3 engine-READY with Faisal READY ⟵ SUPPORTED · 2 engine-READY with NOT_READY ⟵ CONTRADICTED · recalled/tab titles inadmissible
+    try:
+        _d = [d for d in _SL.calendar() if d >= "2026-09-14"][:6]
+        _ev4 = [_xe(event_id=f"R{i}", episode_id=f"P{i}", identity=f"S{i}", B_stage="READY", asof_lo=_d[i], asof_hi=_d[i]) for i in range(3)]
+        _rd4 = {}
+        for i in range(3):
+            _rd4.update(_xr(f"S{i}", [_d[i]], "READY"))
+        _sup = _XW.h1(_XW.analyze(_ev4, _rd4), "STRICT")["verdict"]
+        _ev4b = [_xe(event_id=f"N{i}", episode_id=f"Q{i}", identity=f"S{i}", B_stage="NOT_READY", asof_lo=_d[i], asof_hi=_d[i]) for i in range(2)]
+        _con = _XW.h1(_XW.analyze(_ev4b, _rd4), "STRICT")["verdict"]
+        _ev4c = [_xe(event_id=f"C{i}", episode_id=f"Z{i}", identity=f"S{i}", B_stage="READY", readiness_recalled="1", asof_lo=_d[i], asof_hi=_d[i]) for i in range(3)]
+        _ev4c.append(_xe(event_id="T", episode_id="ZT", identity="S0", raw_label="«تحت الجاهزيه»", B_stage="UNDER_READINESS", asof_lo=_d[0], asof_hi=_d[0]))
+        _ins = _XW.h1(_XW.analyze(_ev4c, _rd4), "STRICT")
+        _ok = (_sup, _con, _ins["verdict"], _ins["episodes"]) == ("SUPPORTED", "CONTRADICTED", "INSUFFICIENT EVIDENCE", 0)
+        _w = f"sup={_sup} con={_con} recalled/tab={_ins['verdict']} eps={_ins['episodes']}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX4: قواعدُ H1 كما كُتبت — 3 READY متّفقة ⟵ SUPPORTED · READY مع «غير جاهز» مرّتين ⟵ CONTRADICTED · والمسترجَعُ وعنوانُ التبويب غيرُ مقبولَين", _ok, _w)
+    # STX5 — H2: only visible members are tabled (no negatives, no confusion matrix); classes decide; fewer than 5 determinable ⟵ INSUFFICIENT
+    try:
+        _ev5 = [_xe(source_ref="X_20260918_22_pipeline", statement="s1", identity="", B_stage="READINESS_NOUN+SORT")]
+        _ev5 += [_xe(event_id=f"L{i}", episode_id=f"L{i}", identity=f"M{i}", A_list="LIST_SNAPSHOT_VISIBLE") for i in range(5)]
+        _rd5 = {}
+        for i, st in enumerate(("REJECTED", "WATCH", "READY", "REJECTED", "FOCUS")):
+            _rd5.update(_xr(f"M{i}", ["2026-09-14"], st))
+        _a5 = _XW.h2(_XW.analyze(_ev5, _rd5), _ev5, "STRICT")
+        _rd5b = {}
+        for i in range(5):
+            _rd5b.update(_xr(f"M{i}", ["2026-09-14"], "WATCH"))
+        _b5 = _XW.h2(_XW.analyze(_ev5, _rd5b), _ev5, "STRICT")
+        _c5 = _XW.h2(_XW.analyze(_ev5[:4], _rd5), _ev5[:4], "STRICT")
+        _ok = (_a5["verdict"] == "SUPPORTED" and _b5["verdict"] == "CONTRADICTED" and _c5["verdict"] == "INSUFFICIENT EVIDENCE"
+               and {t["identity"] for t in _a5["table"]} == {f"M{i}" for i in range(5)} and not any("confusion" in k for k in _a5))
+        _w = f"{_a5['verdict']}/{_b5['verdict']}/{_c5['verdict']} classes={_a5['classes']}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX5: قواعدُ H2 — الأعضاءُ الظاهرون وحدَهم (لا سالب ولا مصفوفةَ التباس) · صنفان فأكثر ⟵ SUPPORTED · صنفٌ واحدٌ في العملية ⟵ CONTRADICTED · دون 5 ⟵ INSUFFICIENT", _ok, _w)
+    # STX6 — H3: per-symbol OUT/IN/MIXED; 3 symbols with 2 OUT ⟵ SUPPORTED; all IN ⟵ CONTRADICTED; fewer than 3 ⟵ INSUFFICIENT
+    try:
+        _ev6 = [_xe(event_id=f"K{i}", episode_id=f"K{i}", identity=f"H{i}", carry_forward_state="«كان جاهز»") for i in range(3)]
+        _mk6 = lambda sts: {k: v for i, st in enumerate(sts) for k, v in _xr(f"H{i}", ["2026-09-14"], st).items()}  # noqa: E731
+        _q6 = (_XW.h3(_XW.analyze(_ev6, _mk6(("REJECTED", "INSUFFICIENT_DATA", "WATCH"))), "STRICT")["verdict"],
+               _XW.h3(_XW.analyze(_ev6, _mk6(("WATCH", "READY", "FOCUS"))), "STRICT")["verdict"],
+               _XW.h3(_XW.analyze(_ev6[:2], _mk6(("REJECTED", "REJECTED", "REJECTED"))), "STRICT")["verdict"])
+        _ok = _q6 == ("SUPPORTED", "CONTRADICTED", "INSUFFICIENT EVIDENCE"); _w = f"{_q6}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX6: قواعدُ H3 — رمزان من ثلاثة خارجَ العملية ⟵ SUPPORTED · كلُّها داخلَها ⟵ CONTRADICTED · دون 3 رموز ⟵ INSUFFICIENT", _ok, _w)
+    # STX7 — verdict mapping fixed in §9: H1 strict decides (INSUFFICIENT ⟵ 3 whatever H2/H3 show)
+    try:
+        _vm = lambda a, b, c: _XW.verdict({"H1": {"STRICT": {"verdict": a}}, "H2": {"STRICT": {"verdict": b}}, "H3": {"BROAD": {"verdict": c}}})[0]  # noqa: E731
+        _q7 = (_vm("INSUFFICIENT EVIDENCE", "SUPPORTED", "SUPPORTED"), _vm("SUPPORTED", "SUPPORTED", "INSUFFICIENT EVIDENCE"),
+               _vm("SUPPORTED", "CONTRADICTED", "SUPPORTED"), _vm("CONTRADICTED", "SUPPORTED", "SUPPORTED"))
+        _ok = _q7 == (3, 1, 2, 4); _w = f"{_q7}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX7: خريطةُ الحكم §9 — H1 (strict) يحكم: غيرُ كافٍ ⟵ 3 مهما قالت H2/H3 · مدعومٌ ⟵ 1 أو 2 · متناقضٌ ⟵ 4", _ok, _w)
+    # STX8 — overlay: no extension across gaps, never reads an observation after the day
+    try:
+        _ov = [dict(identity="AAA", asof_lo="2026-09-14", asof_hi="2026-09-15", SOURCE_LIST_STATE="VISIBLE_IN_TAB «قائمتي»", SOURCE_SELECTION_STAGE="UNKNOWN",
+                    TECHNICAL_ENGINE_STAGE="WATCH", OBSERVED_ACTION="UNKNOWN", TRIGGER_STATE="UNKNOWN", EVIDENCE_STATUS="STRICT · E"),
+               dict(identity="AAA", asof_lo="2026-09-30", asof_hi="2026-09-30", SOURCE_LIST_STATE="UNKNOWN", SOURCE_SELECTION_STAGE="READY",
+                    TECHNICAL_ENGINE_STAGE="REJECTED", OBSERVED_ACTION="WAIT", TRIGGER_STATE="UNKNOWN", EVIDENCE_STATUS="STRICT · F")]
+        _in = _XW.overlay_asof("AAA", "2026-09-15", _ov); _gap = _XW.overlay_asof("AAA", "2026-09-22", _ov); _bef = _XW.overlay_asof("AAA", "2026-09-10", _ov)
+        _ok = (_in["observed"] == "IN_WINDOW" and _in["SOURCE_LIST_STATE"].startswith("VISIBLE") and _gap["observed"] == "GAP"
+               and _gap["SOURCE_LIST_STATE"] == "UNKNOWN" and _gap["last_observed"] == "2026-09-14..2026-09-15"
+               and _bef["observed"] == "GAP" and _bef["last_observed"] == "" and _bef["SOURCE_SELECTION_STAGE"] == "UNKNOWN")
+        _w = f"in={_in['observed']} gap={_gap['observed']}/{_gap['SOURCE_LIST_STATE']} before={_bef['last_observed']!r}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX8: الطبقةُ المصدريّة لا تمتدّ عبر الفجوة ولا ترى ما بعد يومها — داخلَ النافذة ⟵ المرصود · بينهما ⟵ UNKNOWN بآخر رصدٍ سابق · قبلها ⟵ لا شيء", _ok, _w)
+    # STX9 — overlay source fields never come from the engine: engine READY with no source label stays UNKNOWN
+    try:
+        _rw9 = _XW.analyze([_xe(C_action="MONITOR")], _xr("AAA", ["2026-09-14"], "READY"))
+        _o9 = _XW.overlay_rows(_rw9)
+        _ok = (len(_o9) == 1 and _o9[0]["TECHNICAL_ENGINE_STAGE"] == "READY" and _o9[0]["SOURCE_SELECTION_STAGE"] == "UNKNOWN"
+               and _o9[0]["SOURCE_LIST_STATE"] == "UNKNOWN" and _o9[0]["TRIGGER_STATE"] == "UNKNOWN" and _o9[0]["OBSERVED_ACTION"] == "MONITOR")
+        _w = f"{(_o9 or [{}])[0]}"[:160]
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX9: حقولُ المصدر لا تأتي من المحرّك — محرّكٌ READY بلا وسمٍ مصدريّ ⟵ SOURCE_SELECTION_STAGE وSOURCE_LIST_STATE وTRIGGER_STATE = UNKNOWN", _ok, _w)
+    # STX10 — the committed engine reads cover every (symbol, session) the contract needs (reads match this ledger)
+    try:
+        _need = set(_XW.needed_reads(_XW.load_events())); _have = set(_XW.load_reads())
+        _ok = bool(_need) and _need <= _have; _w = f"need={len(_need)} have={len(_have)} missing={len(_need - _have)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX10: قراءاتُ المحرّك الملتزَمة تغطّي كلَّ (رمز · جلسة) يطلبها العقدُ من هذا السجلّ", _ok, _w)
+    # STX11 — deterministic: the analysis regenerates every committed crosswalk output byte for byte
+    try:
+        _bad = _XW.check(); _ok = _bad == []; _w = f"differs={_bad}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX11: حتميّ — `stage_crosswalk.py --check` يعيد كلَّ مخرَجٍ ملتزَمٍ بايتًا بايتًا (من السجلّ وقراءات المحرّك المخزَّنة)", _ok, _w)
+    # STX12 — the result is labelled EXPLORATORY and records the contract verdict mapping; comparisons A-E are separate (no merged score)
+    try:
+        _sm = _XW.run()[1]                                  # يُحسَب الآن من الكود (لا يُقرأ الملتزَم) ⟵ STX11 وحدَه يقارن بالملتزَم
+        _ok = ("EXPLORATORY" in _sm["label"] and set(_sm) >= {"H1", "H2", "H3", "C", "D", "E", "verdict", "predictions"}
+               and not any(k in _sm for k in ("score", "accuracy", "merged_score")) and _sm["verdict"][0] in (1, 2, 3, 4))
+        _w = f"keys={sorted(_sm)} verdict={_sm.get('verdict')}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔀 STX12: النتيجةُ موسومةٌ EXPLORATORY والمقارناتُ A-E منفصلة بلا درجةٍ مدموجة · والحكمُ من خريطة العقد", _ok, _w)
+else:
+    check("🧭🔀 STX0: `stage_crosswalk.py` يُستورَد (شرطُ STX1-STX12)", False, str(_xw_err)[:120])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

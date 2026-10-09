@@ -1,0 +1,133 @@
+{
+ "locks": "STX1-STX12",
+ "mutations": [
+  {
+   "id": "X1",
+   "target": "STX1",
+   "status": "KILLED",
+   "failed": [
+    "STX1"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X2",
+   "target": "STX2",
+   "status": "KILLED",
+   "failed": [
+    "STX2",
+    "STX11"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X3",
+   "target": "STX3",
+   "status": "KILLED",
+   "failed": [
+    "STX3",
+    "STX11"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X4",
+   "target": "STX4",
+   "status": "KILLED",
+   "failed": [
+    "STX4"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X5",
+   "target": "STX5",
+   "status": "KILLED",
+   "failed": [
+    "STX5"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X6",
+   "target": "STX6",
+   "status": "KILLED",
+   "failed": [
+    "STX6",
+    "STX11"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X7",
+   "target": "STX7",
+   "status": "KILLED",
+   "failed": [
+    "STX7",
+    "STX11"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X8",
+   "target": "STX8",
+   "status": "KILLED",
+   "failed": [
+    "STX8"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X9",
+   "target": "STX9",
+   "status": "KILLED",
+   "failed": [
+    "STX9",
+    "STX11"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X10",
+   "target": "STX10",
+   "status": "KILLED",
+   "failed": [
+    "STX2",
+    "STX10",
+    "STX11"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X11",
+   "target": "STX11",
+   "status": "KILLED",
+   "failed": [
+    "STX11"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "X12",
+   "target": "STX12",
+   "status": "SURVIVED",
+   "failed": [
+    "STX11"
+   ],
+   "crashed": false,
+   "note": "first round: STX12 read the committed summary — rewritten to recompute via run()"
+  },
+  {
+   "id": "X12",
+   "target": "STX12",
+   "status": "KILLED",
+   "failed": [
+    "STX11",
+    "STX12"
+   ],
+   "crashed": false,
+   "note": "after the fix"
+  }
+ ],
+ "final": "12/12 killed (X12 after strengthening STX12)"
+}
