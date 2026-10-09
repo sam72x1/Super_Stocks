@@ -3689,7 +3689,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.6,
-   "last_price": 2.92,
+   "last_price": 2.9552,
    "live_alert": {
     "buyzone": "2026-10-09"
    },
@@ -6782,7 +6782,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.585,
+   "last_price": 3.5,
    "borrow_hist": [
     [
      "2026-10-09",
@@ -6800,7 +6800,9 @@
     "daily_low": 3.331,
     "asof": "2026-10-08"
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-10-09"
+   }
   },
   {
    "symbol": "SEV",
@@ -7597,7 +7599,7 @@
    "hit": "t2",
    "hit_date": "2026-10-05",
    "max_gain_pct": 41.9,
-   "last_price": 0.9959,
+   "last_price": 0.9462,
    "live_alert": {
     "breakout": "2026-10-05",
     "dump": "2026-10-06"
@@ -8851,7 +8853,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 335.7,
-   "last_price": 5.0,
+   "last_price": 5.01,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -10213,7 +10215,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.1,
-   "last_price": 4.0605,
+   "last_price": 4.05,
    "borrow_hist": [
     [
      "2026-09-18",
@@ -11077,7 +11079,7 @@
    "hit": "t1",
    "hit_date": "2026-09-21",
    "max_gain_pct": 13.3,
-   "last_price": 1.2991,
+   "last_price": 1.29,
    "live_alert": {
     "breakout": "2026-09-28"
    },
@@ -12384,7 +12386,7 @@
    "hit": "t2",
    "hit_date": "2026-09-22",
    "max_gain_pct": 50.4,
-   "last_price": 4.95,
+   "last_price": 4.96,
    "borrow_hist": [
     [
      "2026-09-16",
@@ -21141,7 +21143,7 @@
    "sector": "Technology",
    "country": "United States",
    "float": 7464945,
-   "last_price": 2.93,
+   "last_price": 2.94,
    "status": "watching",
    "triggered_date": null
   },
