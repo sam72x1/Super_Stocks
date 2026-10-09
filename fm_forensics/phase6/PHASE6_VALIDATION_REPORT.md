@@ -16,7 +16,7 @@
 Mutation round (each mutation applied to a copy, suite lock expected to fail, file restored): see §5.
 
 ## 3. Isolated suite / CI
-- Isolated suite (copy of the working tree, `python3 test_bot.py`): __SUITE__
+- Isolated suite (git worktree at `799a0cd`, `python3 test_bot.py`): 5284 pass · 0 fail (16 new locks included)
 - PR CI: tests __CI_T__ · lint __CI_L__ · PR #__PR__ merged `__SHA__`
 - CI on `main` after merge: __MAIN__
 - First live collector run on Actions: __RUN__
