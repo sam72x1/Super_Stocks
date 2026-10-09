@@ -1,0 +1,368 @@
+{
+ "what": "mutation campaign for the fill-pool capture (Super_stock.py) and its evaluator (faisal_engine/pool_funnel.py) — each mutation applied once (anchor count 1), the PFC/PFE locks run, the file restored",
+ "date": "2026-10-09",
+ "harness": "PFC1-PFC22 + PFE1-PFE11 (the same blocks as test_bot.py)",
+ "summary": {
+  "applied": 26,
+  "killed": 26,
+  "crashed": 0,
+  "expected_lock_hit": 26
+ },
+ "first_round_survivors": [
+  "M3 added inferred from passing",
+  "M9 shortfall order at the rounds cap",
+  "M10 writer failure propagates"
+ ],
+ "first_round_fix": "three locks added (PFC20 · PFC21 · PFC22); the second round kills all three",
+ "mutations": [
+  {
+   "m": "M1 trace writes 0 for unknown availability",
+   "applied": true,
+   "killed_by": [
+    "PFC12",
+    "PFC19",
+    "PFC3",
+    "PFC5",
+    "PFE1",
+    "PFE4"
+   ],
+   "expected": [
+    "PFC12",
+    "PFC5"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M2 unknown availability recorded as known pass",
+   "applied": true,
+   "killed_by": [
+    "PFC5",
+    "PFE1",
+    "PFE10",
+    "PFE4"
+   ],
+   "expected": [
+    "PFC5"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M3 added inferred from passing",
+   "applied": true,
+   "killed_by": [
+    "PFC20"
+   ],
+   "expected": [
+    "PFC20"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M4 log file dropped from git_save",
+   "applied": true,
+   "killed_by": [
+    "PFC16"
+   ],
+   "expected": [
+    "PFC16"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M5 daily fill without trace",
+   "applied": true,
+   "killed_by": [
+    "PFC15"
+   ],
+   "expected": [
+    "PFC15"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M6 no row cap",
+   "applied": true,
+   "killed_by": [
+    "PFC18"
+   ],
+   "expected": [
+    "PFC18"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M7 sha covers itself",
+   "applied": true,
+   "killed_by": [
+    "PFC18",
+    "PFE2",
+    "PFE4"
+   ],
+   "expected": [
+    "PFC18",
+    "PFE2"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M8 snapshot re-sorted alphabetically",
+   "applied": true,
+   "killed_by": [
+    "PFC1",
+    "PFC2",
+    "PFC7",
+    "PFE1",
+    "PFE10",
+    "PFE4"
+   ],
+   "expected": [
+    "PFC1",
+    "PFC7"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M9 shortfall: rounds cap checked before exhaustion",
+   "applied": true,
+   "killed_by": [
+    "PFC21"
+   ],
+   "expected": [
+    "PFC21"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M10 writer failure propagates",
+   "applied": true,
+   "killed_by": [
+    "PFC22"
+   ],
+   "expected": [
+    "PFC22"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M11 switch ignored",
+   "applied": true,
+   "killed_by": [
+    "PFC13"
+   ],
+   "expected": [
+    "PFC13"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M12 second-chance counts dropped",
+   "applied": true,
+   "killed_by": [
+    "PFC19"
+   ],
+   "expected": [
+    "PFC19"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "M13 trace swallows enrich exception path changed: trace before select",
+   "applied": true,
+   "killed_by": [
+    "PFC1",
+    "PFC10",
+    "PFC2",
+    "PFC20",
+    "PFC3",
+    "PFC4",
+    "PFC5",
+    "PFC8",
+    "PFC9",
+    "PFE1",
+    "PFE10",
+    "PFE11",
+    "PFE4"
+   ],
+   "expected": [
+    "PFC2"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E1 evaluator ignores borrow rejects",
+   "applied": true,
+   "killed_by": [
+    "PFE1",
+    "PFE10",
+    "PFE11",
+    "PFE3",
+    "PFE4"
+   ],
+   "expected": [
+    "PFE1"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E2 unknown counted as F when added",
+   "applied": true,
+   "killed_by": [
+    "PFE1"
+   ],
+   "expected": [
+    "PFE1",
+    "PFE4"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E3 exhaustion never detected",
+   "applied": true,
+   "killed_by": [
+    "PFC21",
+    "PFE11"
+   ],
+   "expected": [
+    "PFE11"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E4 selection replay disabled",
+   "applied": true,
+   "killed_by": [
+    "PFE3"
+   ],
+   "expected": [
+    "PFE3"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E5 sha not verified",
+   "applied": true,
+   "killed_by": [
+    "PFE3"
+   ],
+   "expected": [
+    "PFE3"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E6 legacy rounds cap claimed without bound",
+   "applied": true,
+   "killed_by": [
+    "PFE6",
+    "PFE7"
+   ],
+   "expected": [
+    "PFE7"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E7 freeze accepts tampered",
+   "applied": true,
+   "killed_by": [
+    "PFE8"
+   ],
+   "expected": [
+    "PFE8"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E8 freeze rewrites file",
+   "applied": true,
+   "killed_by": [
+    "PFE8"
+   ],
+   "expected": [
+    "PFE8"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E9 live mode writes outputs",
+   "applied": true,
+   "killed_by": [
+    "PFE10"
+   ],
+   "expected": [
+    "PFE10"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E10 bad JSON lines skipped silently",
+   "applied": true,
+   "killed_by": [
+    "PFE10"
+   ],
+   "expected": [
+    "PFE10"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E11 never-examined availability not checked",
+   "applied": true,
+   "killed_by": [
+    "PFE3"
+   ],
+   "expected": [
+    "PFE3"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E12 unexamined availability reported as zero",
+   "applied": true,
+   "killed_by": [
+    "PFE1"
+   ],
+   "expected": [
+    "PFE1"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  },
+  {
+   "m": "E13 evaluator: rounds cap before exhaustion",
+   "applied": true,
+   "killed_by": [
+    "PFC21"
+   ],
+   "expected": [
+    "PFC21"
+   ],
+   "expected_hit": true,
+   "crashed": false
+  }
+ ]
+}

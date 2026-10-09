@@ -1334,10 +1334,10 @@
      ]
     }
    },
-   "line": 1732,
+   "line": 1734,
    "function_lines": [
-    1729,
-    1769
+    1731,
+    1771
    ],
    "config": {},
    "production_counts": null,
@@ -1437,10 +1437,10 @@
      "threshold:MIN_BARS": []
     }
    },
-   "line": 1813,
+   "line": 1815,
    "function_lines": [
-    1798,
-    1816
+    1800,
+    1818
    ],
    "config": {
     "MIN_BARS": 120
@@ -1515,10 +1515,10 @@
      ]
     }
    },
-   "line": 2143,
+   "line": 2145,
    "function_lines": [
-    2143,
-    2181
+    2145,
+    2183
    ],
    "config": {},
    "production_counts": null,
@@ -1627,10 +1627,10 @@
      "hardness": []
     }
    },
-   "line": 4046,
+   "line": 4048,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "MIN_PRICE": 0.4
@@ -1710,10 +1710,10 @@
      ]
     }
    },
-   "line": 4068,
+   "line": 4070,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {},
    "production_counts": {
@@ -1829,10 +1829,10 @@
      ]
     }
    },
-   "line": 4071,
+   "line": 4073,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "MAX_DROP_PCT": 99.95
@@ -1950,10 +1950,10 @@
      "hardness": []
     }
    },
-   "line": 4073,
+   "line": 4075,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "MIN_DROP_FLOOR": 71.7203
@@ -2101,10 +2101,10 @@
      "hardness": []
     }
    },
-   "line": 4085,
+   "line": 4087,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "PRIOR_SPIKE_FLOOR": 78.2738,
@@ -2190,10 +2190,10 @@
      ]
     }
    },
-   "line": 4095,
+   "line": 4097,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {},
    "production_counts": {
@@ -2320,10 +2320,10 @@
      "hardness": []
     }
    },
-   "line": 4117,
+   "line": 4119,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "BASE_RANGE_MAX_PCT": 120,
@@ -2436,10 +2436,10 @@
      ]
     }
    },
-   "line": 4128,
+   "line": 4130,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {},
    "production_counts": {
@@ -2554,10 +2554,10 @@
      "hardness": []
     }
    },
-   "line": 4139,
+   "line": 4141,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "RECENT_RISE_BLOCK_PCT": 214.7287
@@ -2671,10 +2671,10 @@
      "hardness": []
     }
    },
-   "line": 4144,
+   "line": 4146,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "MIN_DOLLAR_VOL": 14314.7701
@@ -2755,10 +2755,10 @@
      "hardness": []
     }
    },
-   "line": 4166,
+   "line": 4168,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "GAP_REQUIRED": false
@@ -2883,10 +2883,10 @@
      "hardness": []
     }
    },
-   "line": 4194,
+   "line": 4196,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "RSI_OS_HARD": 69,
@@ -3004,10 +3004,10 @@
      "hardness": []
     }
    },
-   "line": 4201,
+   "line": 4203,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "RSI_NOW_HARD": 71.1186
@@ -3123,10 +3123,10 @@
      "hardness": []
     }
    },
-   "line": 4244,
+   "line": 4246,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "WATCH_MAX_FAILS": 8
@@ -3229,10 +3229,10 @@
      ]
     }
    },
-   "line": 4338,
+   "line": 4340,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "BT_STABILITY_GATE": "",
@@ -3350,10 +3350,10 @@
      ]
     }
    },
-   "line": 4355,
+   "line": 4357,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "NEAR_PCT": 0
@@ -3466,10 +3466,10 @@
      "hardness": []
     }
    },
-   "line": 4499,
+   "line": 4501,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "SCORE_MIN": 5
@@ -3634,10 +3634,10 @@
      ]
     }
    },
-   "line": 4541,
+   "line": 4543,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "ANCHOR_MODE": "tested_strict"
@@ -3793,10 +3793,10 @@
      "hardness": []
     }
    },
-   "line": 4758,
+   "line": 4760,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "MIN_RR_T1": 0.5,
@@ -3875,10 +3875,10 @@
      ]
     }
    },
-   "line": 4791,
+   "line": 4793,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {},
    "production_counts": null,
@@ -3948,10 +3948,10 @@
      ]
     }
    },
-   "line": 4834,
+   "line": 4836,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {},
    "production_counts": null,
@@ -4042,10 +4042,10 @@
      ]
     }
    },
-   "line": 4079,
+   "line": 4081,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "MIN_DROP_PCT": 96.9178
@@ -4139,10 +4139,10 @@
      ]
     }
    },
-   "line": 4088,
+   "line": 4090,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "PRIOR_SPIKE_PCT": 164.0212
@@ -4234,10 +4234,10 @@
      ]
     }
    },
-   "line": 4150,
+   "line": 4152,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "TF_MIN_REVERSALS": 0
@@ -4309,10 +4309,10 @@
      ]
     }
    },
-   "line": 4155,
+   "line": 4157,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {},
    "production_counts": null,
@@ -4415,10 +4415,10 @@
      ]
     }
    },
-   "line": 4180,
+   "line": 4182,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "GAP_ABOVE_REQUIRED": true,
@@ -4542,10 +4542,10 @@
      ]
     }
    },
-   "line": 4198,
+   "line": 4200,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "RSI_OVERSOLD": 33,
@@ -4620,10 +4620,10 @@
      ]
     }
    },
-   "line": 4213,
+   "line": 4215,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "MACD_GATE_REQUIRED": true
@@ -4718,10 +4718,10 @@
      ]
     }
    },
-   "line": 4240,
+   "line": 4242,
    "function_lines": [
-    4029,
-    4837
+    4031,
+    4839
    ],
    "config": {
     "MA_GATE_REQUIRED": true,
@@ -4813,10 +4813,10 @@
      "threshold:SHORT_GATE_MAX": []
     }
    },
-   "line": 12602,
+   "line": 12604,
    "function_lines": [
-    12544,
-    12616
+    12546,
+    12618
    ],
    "config": {
     "SHORT_GATE_MAX": 40000,
@@ -4944,10 +4944,10 @@
      ]
     }
    },
-   "line": 12672,
+   "line": 12674,
    "function_lines": [
-    12619,
-    12685
+    12621,
+    12687
    ],
    "config": {
     "FLOAT_GATE_MAX": 50000000,
@@ -5054,10 +5054,10 @@
      "hardness": []
     }
    },
-   "line": 12973,
+   "line": 13237,
    "function_lines": [
-    12961,
-    12975
+    13225,
+    13239
    ],
    "config": {
     "WATCH_MAX_FAILS": 8
@@ -5130,10 +5130,10 @@
      ]
     }
    },
-   "line": 12995,
+   "line": 13259,
    "function_lines": [
-    12995,
-    13016
+    13259,
+    13280
    ],
    "config": {},
    "production_counts": null,
@@ -5284,10 +5284,10 @@
      ]
     }
    },
-   "line": 2429,
+   "line": 2431,
    "function_lines": [
-    2429,
-    2456
+    2431,
+    2458
    ],
    "config": {
     "DQ_GATE": null,
@@ -5379,10 +5379,10 @@
      "threshold:DATA_HEALTH_MIN_PCT": []
     }
    },
-   "line": 22144,
+   "line": 22421,
    "function_lines": [
-    22069,
-    22507
+    22346,
+    22798
    ],
    "config": {
     "DATA_HEALTH_MIN_PCT": 85
@@ -5473,10 +5473,10 @@
      "hardness": []
     }
    },
-   "line": 22148,
+   "line": 22425,
    "function_lines": [
-    22069,
-    22507
+    22346,
+    22798
    ],
    "config": {
     "EXCLUDE_STOPPED_FROM_RENEWAL": true
@@ -5569,10 +5569,10 @@
      ]
     }
    },
-   "line": 22177,
+   "line": 22454,
    "function_lines": [
-    22069,
-    22507
+    22346,
+    22798
    ],
    "config": {
     "WATCHLIST_SIZE": 15
@@ -5665,10 +5665,10 @@
      "threshold:PICK_FILL_ROUNDS": []
     }
    },
-   "line": 12893,
+   "line": 12899,
    "function_lines": [
-    12863,
-    12924
+    12865,
+    12938
    ],
    "config": {
     "PICK_FILL_ROUNDS": 4
@@ -5767,10 +5767,10 @@
      ]
     }
    },
-   "line": 12761,
+   "line": 12763,
    "function_lines": [
-    12720,
-    12764
+    12722,
+    12766
    ],
    "config": {
     "FLOAT_GATE_MAX": 50000000
@@ -5842,10 +5842,10 @@
      ]
     }
    },
-   "line": 12810,
+   "line": 12812,
    "function_lines": [
-    12810,
-    12860
+    12812,
+    12862
    ],
    "config": {},
    "production_counts": null,
@@ -5974,10 +5974,10 @@
      ]
     }
    },
-   "line": 12800,
+   "line": 12802,
    "function_lines": [
-    12767,
-    12807
+    12769,
+    12809
    ],
    "config": {
     "BORROW_AVAIL_MAX": 20000,
@@ -6085,10 +6085,10 @@
      "threshold:far_above": []
     }
    },
-   "line": 14951,
+   "line": 15221,
    "function_lines": [
-    14951,
-    15024
+    15221,
+    15294
    ],
    "config": {},
    "production_counts": null,

@@ -796,8 +796,10 @@ def report(inv, fx):
         ej = sum(o["borrow_ejected"] for o in obs["runs"])
         exs = sum(o["filled"] + o["borrow_ejected"] + o["fl_ejected"] for o in obs["runs"])
         L += ["", f"Over these runs {tot_fill} of {tot_free} free slots were filled; the borrow gate ejected {ej} of {exs} examined "
-              f"({100.0 * ej / exs:.0f}%), and every run stopped at the rounds cap with qualified names unexamined (the «unexamined» "
-              "column is an upper bound: names already held or stopped are excluded too). Why these days: " + obs["why_these_days"] + ".", ""]
+              f"({100.0 * ej / exs:.0f}%). The «unexamined» column is an upper bound (names already held or stopped are excluded too); "
+              "with the held ∪ stopped bound from the committed watchlist, the rounds cap is the verified cause on 2026-10-08 and "
+              "2026-10-09 and the cause is not determinable on 2026-10-07 (pool size not logged) — `POOL_FUNNEL_REPORT.md` §3. "
+              "Why these days: " + obs["why_these_days"] + ".", ""]
     pq = sm.get("pool_question")
     if pq:
         c, e, r9 = pq["cohorts"], pq["examined"], pq["run_1009"]
@@ -821,7 +823,9 @@ def report(inv, fx):
               f"Hypothesis (unmeasured): if the ≤{r9['unexamined_le']} unexamined names of 2026-10-09 passed like the examined names or "
               f"like the universe controls, ≈{lo9:.0f}–{hi9:.0f} would pass — which would need ≈{r9['unexamined_le']} more lookups, "
               "above the per-runner quota. What would answer it: logging the ranked post-DQ names (no extra request) and harvesting "
-              "their availability at decision time (extra requests ⇒ owner decision).", ""]
+              "their availability at decision time (extra requests ⇒ owner decision). The first part ships with the pool log "
+              "(`fill_pool_log.jsonl`, one record per screening run, evaluated by `pool_funnel.py`); names below the cutoff keep their "
+              "availability NOT_COLLECTED, so for them the question stays open unless availability is harvested.", ""]
     L += ["## 5. Next permitted action", "",
           "- Two active gates have no supporting evidence at all — `M13_SHORT` (FINRA short volume, 40,000: no Faisal source, no owner "
           "order; Faisal's «شورت» is availability) and `STOPPED_EXCLUSION` (inherited switch). Removing or changing either changes live "
@@ -831,7 +835,8 @@ def report(inv, fx):
           "- The dominant first wall on Faisal's episodes is `ANCHOR_TWO_TOUCH` (owner policy, FROZEN by the H6 control-pool "
           "dependency and the perf verdict): no production change is permitted; the admissible evidence is the prospective H6 "
           "collection already running.",
-          "- `FILL_ROUNDS` × `BORROW_AVAIL` (§4b): the rounds cap, not the pool, ended slot filling in all three post-fix runs. More "
+          "- `FILL_ROUNDS` × `BORROW_AVAIL` (§4b): the rounds cap, not the pool, ended slot filling in the two post-fix runs whose "
+          "pool size was logged (2026-10-08 · 2026-10-09; not determinable for 2026-10-07 — `POOL_FUNNEL_REPORT.md` §3). More "
           "rounds would push ChartExchange lookups past its ~50-page runner quota, and an unknown availability passes the gate, so "
           "raising the cap alone would weaken the borrow gate; harvesting availability for the ranked pool before the screen would "
           "not. Either is a change to live candidate generation ⇒ owner decision (and a prereg for a threshold). The new log line "
