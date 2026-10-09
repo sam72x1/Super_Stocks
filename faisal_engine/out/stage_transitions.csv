@@ -1,0 +1,69 @@
+identity,from_episode,to_episode,from_window,to_window,from_observed,to_observed,from_strict,to_strict,status,why,change_date
+ADIL,EP0002,EP0003,2026-04-01..2026-05-01,2026-05-11..2026-05-12,C=ENTRY_PLAN,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+ADIL,EP0003,EP0004,2026-05-11..2026-05-12,2026-05-20..2026-06-01,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+ADIL,EP0004,EP0005,2026-05-20..2026-06-01,2026-06-08..2026-06-08,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+CANF,EP0024,EP0025,2026-07-20..2026-07-21,2026-07-31..2026-08-03,NONE,C=ENTRY_PLAN+WAIT,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+CANF,EP0025,EP0026,2026-07-31..2026-08-03,2026-08-20..2026-08-31,C=ENTRY_PLAN+WAIT,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+CDIO,EP0028,EP0029,2026-01-28..2026-01-29,2026-02-02..2026-02-10,B=READY ; C=ENTRY_PLAN+WAIT,C=MONITOR,1,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+CDIO,EP0029,EP0030,2026-02-02..2026-02-10,2026-02-20..2026-03-02,C=MONITOR,C=EXIT+MONITOR+WAIT,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+CETX,EP0033,EP0034,2026-09-14..2026-09-14,2026-09-21..2026-09-30,A=LIST_SNAPSHOT_VISIBLE,NONE,1,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+CRE,EP0040,EP0041,2025-08-06..2025-08-07,2026-09-21..2026-09-30,C=ENTRY_PLAN,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+CUPR,EP0042,EP0043,2026-08-03..2026-08-03,2026-08-28..2026-08-31,C=ENTRY_PLAN+MONITOR+WAIT,NONE,0,0,UNKNOWN,one side has no Faisal-attributed observation,
+CUPR,EP0043,EP0044,2026-08-28..2026-08-31,2026-09-10..2026-09-21,NONE,A=LIST_SNAPSHOT_VISIBLE ; C=ENTRY_PLAN+NO_ENTRY,0,1,UNKNOWN,one side has no Faisal-attributed observation,
+DCOY,EP0046,EP0047,2026-09-01..2026-09-10,2026-09-21..2026-09-30,NONE,C=EXIT+WAIT+WAIT_FOR_PRESS,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+DKI,EP0049,EP0050,2026-08-26..2026-08-27,2026-09-14..2026-09-14,NONE,A=LIST_SNAPSHOT_VISIBLE,0,1,UNKNOWN,one side has no Faisal-attributed observation,
+DKI,EP0050,EP0051,2026-09-14..2026-09-14,2026-09-20..2026-09-30,A=LIST_SNAPSHOT_VISIBLE,C=PRESS_MENTION,1,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+DSY,EP0054,EP0055,2026-04-01..2026-05-01,2026-06-26..2026-06-29,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+DSY,EP0055,EP0056,2026-06-26..2026-06-29,2026-07-01..2026-07-10,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+DSY,EP0056,EP0057,2026-07-01..2026-07-10,2026-09-21..2026-09-30,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+DXST,EP0058,EP0059,2026-06-10..2026-06-22,2026-08-04..2026-08-05,C=MONITOR,C=MONITOR+WAIT+WAIT_FOR_PRESS,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+EDBL,EP0060,EP0061,2026-07-20..2026-07-30,2026-09-22..2026-09-22,NONE,NONE,0,0,UNKNOWN,one side has no Faisal-attributed observation,
+EHGO,EP0062,EP0063,2026-05-20..2026-06-01,2026-06-10..2026-06-22,C=NO_ENTRY+WAIT,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+ELAB,EP0064,EP0065,2026-01-30..2026-02-10,2026-03-02..2026-03-20,C=INVALID,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+ELAB,EP0065,EP0066,2026-03-02..2026-03-20,2026-04-10..2026-04-20,NONE,C=MONITOR,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+ELPW,EP0067,EP0068,2026-01-22..2026-01-23,2026-04-24..2026-04-27,C=ENTRY_PLAN,NONE,0,1,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+ELPW,EP0068,EP0069,2026-04-24..2026-04-27,2026-05-01..2026-05-11,NONE,C=INVALID+MONITOR,1,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+ELPW,EP0069,EP0070,2026-05-01..2026-05-11,2026-09-01..2026-09-30,C=INVALID+MONITOR,B=READY(RECALLED) ; C=EXIT+MONITOR+RECALLED_OPERATOR_MONEY_OBSERVED,0,0,INFERRED,later source states the move or recalls the earlier state,UNKNOWN (between windows)
+EZRA,EP0073,EP0074,2026-05-20..2026-06-01,2026-06-22..2026-06-30,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+EZRA,EP0074,EP0075,2026-06-22..2026-06-30,2026-07-20..2026-07-21,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+GCTK,EP0082,EP0083,2026-09-24..2026-09-24,2026-09-25..2026-09-28,C=EXIT+INVALID ; E=ENTRY_STATED+PRESS_OBSERVED,NONE,1,0,UNKNOWN,one side has no Faisal-attributed observation,
+GRI,EP0084,EP0085,2026-04-20..2026-04-30,2026-09-08..2026-09-09,NONE,C=ENTRY_PLAN+INVALID+MONITOR,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+GWAV,EP0086,EP0087,2026-06-16..2026-06-17,2026-06-22..2026-06-30,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+KWM,EP0104,EP0105,2026-08-19..2026-08-31,2026-09-10..2026-09-21,B=NOT_READY ; C=ENTRY_PLAN+MONITOR+WAIT,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+LABT,EP0106,EP0107,2026-07-06..2026-07-06,2026-07-20..2026-07-30,NONE,C=ENTRY_PLAN ; E=PRESS_OBSERVED,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+LABT,EP0107,EP0108,2026-07-20..2026-07-30,2026-08-03..2026-08-10,C=ENTRY_PLAN ; E=PRESS_OBSERVED,C=ENTRY_PLAN,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+LABT,EP0108,EP0109,2026-08-03..2026-08-10,2026-08-24..2026-08-24,C=ENTRY_PLAN,C=WAIT,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+LABT,EP0109,EP0110,2026-08-24..2026-08-24,2026-08-31..2026-09-01,C=WAIT,NONE,0,0,UNKNOWN,one side has no Faisal-attributed observation,
+LNAI,EP0113,EP0114,2026-06-10..2026-06-22,2026-07-24..2026-07-27,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+MSGY,EP0117,EP0118,2026-09-01..2026-09-10,2026-09-14..2026-09-14,NONE,A=LIST_SNAPSHOT_VISIBLE,0,1,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+MSGY,EP0118,EP0119,2026-09-14..2026-09-14,2026-09-21..2026-09-30,A=LIST_SNAPSHOT_VISIBLE,C=EXIT,1,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+NAMM,EP0123,EP0124,2025-08-06..2025-08-07,2026-06-02..2026-06-03,C=ENTRY_PLAN,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+NCT,EP0125,EP0126,2026-09-30..2026-09-30,2026-10-02..2026-10-02,NONE,NONE,1,1,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+NCT,EP0126,EP0127,2026-10-02..2026-10-02,2026-10-08..2026-10-08,NONE,NONE,1,1,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+NEXR,EP0128,EP0129,2026-04-01..2026-04-10,2026-09-29..2026-10-07,NONE,NONE,0,0,UNKNOWN,one side has no Faisal-attributed observation,
+NTCL,EP0131,EP0132,2026-09-10..2026-09-21,2026-09-25..2026-09-28,NONE,NONE,0,0,UNKNOWN,one side has no Faisal-attributed observation,
+NUWE,EP0133,EP0134,2026-07-27..2026-07-30,2026-09-04..2026-09-08,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+NUWE,EP0134,EP0135,2026-09-04..2026-09-08,2026-09-10..2026-09-21,NONE,C=NO_ENTRY,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+NXTT,EP0136,EP0137,2026-01-29..2026-01-30,2026-02-02..2026-02-10,NONE,C=PRESS_MENTION,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+NXTT,EP0137,EP0138,2026-02-02..2026-02-10,2026-09-21..2026-09-30,C=PRESS_MENTION,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+ONCO,EP0140,EP0141,2026-05-20..2026-06-01,2026-07-27..2026-07-27,NONE,C=ENTRY_PLAN+WAIT,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+PCLA,EP0143,EP0144,2026-03-20..2026-03-30,2026-05-20..2026-06-01,C=MONITOR,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+PPBT,EP0147,EP0148,2026-04-01..2026-04-10,2026-09-04..2026-09-08,NONE,C=INVALID+WAIT+WAIT_FOR_PRESS,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+PPCB,EP0149,EP0150,2026-07-16..2026-07-17,2026-08-20..2026-08-31,NONE,NONE,0,0,UNKNOWN,one side has no Faisal-attributed observation,
+RAYA,EP0153,EP0154,2026-02-02..2026-02-10,2026-08-20..2026-08-26,NONE,B=NOT_READY ; C=WAIT,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+SMX,EP0163,EP0164,2025-08-06..2025-08-07,2025-12-01..2026-01-02,C=ENTRY_PLAN,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+SMX,EP0164,EP0165,2025-12-01..2026-01-02,2026-04-13..2026-04-13,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+SMX,EP0165,EP0166,2026-04-13..2026-04-13,2026-04-27..2026-04-27,NONE,C=MONITOR+WAIT,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+SMX,EP0166,EP0167,2026-04-27..2026-04-27,2026-05-26..2026-05-26,C=MONITOR+WAIT,C=ENTRY_PLAN,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+SPPL,EP0172,EP0173,2026-03-10..2026-03-11,2026-04-20..2026-04-30,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+SVRE,EP0176,EP0177,2026-03-20..2026-03-30,2026-06-10..2026-06-22,NONE,NONE,0,0,NO_CHANGE_OBSERVED,same observed concepts on both occasions (continuity NOT claimed),
+SVRE,EP0177,EP0178,2026-06-10..2026-06-22,2026-09-14..2026-09-14,NONE,A=LIST_SNAPSHOT_VISIBLE,0,1,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+TRUG,EP0181,EP0182,2026-03-20..2026-04-01,2026-07-20..2026-07-30,C=MONITOR,C=ENTRY_PLAN+EXIT+MONITOR+WAIT,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+VMAR,EP0186,EP0187,2026-03-02..2026-03-10,2026-03-18..2026-03-20,NONE,C=ENTRY_PLAN,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+WNW,EP0192,EP0193,2026-08-26..2026-08-27,2026-09-21..2026-09-30,NONE,NONE,0,0,UNKNOWN,one side has no Faisal-attributed observation,
+YMT,EP0198,EP0199,2026-09-04..2026-09-08,2026-09-14..2026-09-14,C=ENTRY_PLAN+MONITOR,A=LIST_SNAPSHOT_VISIBLE,0,1,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+YYAI,EP0200,EP0201,2026-06-22..2026-06-30,2026-07-01..2026-07-10,NONE,C=WAIT,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+YYAI,EP0201,EP0202,2026-07-01..2026-07-10,2026-07-20..2026-07-30,C=WAIT,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+ZCMD,EP0203,EP0204,2026-07-02..2026-07-06,2026-07-08..2026-07-09,C=MONITOR,NONE,0,0,INFERRED,observed concepts differ; timestamps or labels not strict,UNKNOWN (between windows)
+ZCMD,EP0204,EP0205,2026-07-08..2026-07-09,2026-08-28..2026-08-31,NONE,NONE,0,0,UNKNOWN,one side has no Faisal-attributed observation,
+ZNB,EP0206,EP0207,2026-08-03..2026-08-03,2026-09-10..2026-09-21,C=ENTRY_PLAN+WAIT,NONE,0,0,UNKNOWN,one side has no Faisal-attributed observation,

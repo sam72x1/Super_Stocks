@@ -1,0 +1,963 @@
+{
+ "meta": {
+  "read_on": "2026-10-09",
+  "method": "each image opened and read by eye in this task; text transcribed verbatim (line breaks as « / »); private names in chats omitted; nothing here replaces visual_pass_v4 — both are kept and compared",
+  "capture_ts": "first git commit date of the image (UTC) = an upper bound on publication, not the publication time",
+  "timezone": "printed X/Telegram times are device times; read as Asia/Riyadh (UTC+3) — a stated assumption",
+  "derived_ts.basis": "VISIBLE = computed only from timestamps visible in the image(s) · INFERRED = needs one stated inference step"
+ },
+ "reads": [
+  {
+   "id": "X_20260918_22_pipeline",
+   "file": "faisal_images/X_20260918_22_pipeline.png",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-09-18",
+   "note": "Faisal @kisar_ (verified) post; same post as X_20260918_23_watchlist (printed 2026/9/13 1:44 م there). App screenshot 1:41 «الأمريكي · مغلق»; tabs: قائمتي (selected) · الأسهم المملوكة · تحت الجاهزيه · جاهز 100%; bottom nav «قائمة المتابعة»; only the «قائمتي» tab contents are shown",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [],
+     "speaker": "F",
+     "channel": "X post text",
+     "text": "متابعة قائمه فرز اول فرز ثاني جاهزيه / - / ضع لك قائمه / فرز / تحقيق متوسطات شورت الخ تنقل السهم الى فرز 2 / - / ضغط السهم بعد جميع ماذكر نقل الى جاهزيه / - / فسال الله من فضله / فالاسهم رزق لن تسبق رزقك ماحييت",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "13",
+      "hh": "1",
+      "mm": "44",
+      "ampm": "م"
+     },
+     "interpretation": "a general pipeline rule (no ticker): list → first sort → second sort → readiness; moving to sort 2 requires averages/short etc.; moving to readiness requires the stock's pressure after all of that"
+    },
+    {
+     "key": "s2",
+     "tickers": [
+      "SXTC",
+      "MSGY",
+      "DKI",
+      "CUPR",
+      "YMT"
+     ],
+     "speaker": "APP_TAB",
+     "channel": "Faisal's own app screenshot attached to the post",
+     "text": "قائمتي",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "13",
+      "hh": "1",
+      "mm": "44",
+      "ampm": "م"
+     },
+     "list_snapshot": {
+      "selected_tab": "قائمتي",
+      "tabs_visible": [
+       "قائمتي",
+       "الأسهم المملوكة",
+       "تحت الجاهزيه",
+       "جاهز 100%"
+      ],
+      "visible_symbols": [
+       "SXTC",
+       "MSGY",
+       "DKI",
+       "CUPR",
+       "YMT"
+      ],
+      "other_tabs_contents": "NOT SHOWN",
+      "snapshot_clock": "1:41"
+     },
+     "interpretation": "visible membership of the «قائمتي» tab at the snapshot time only (top 5 rows)"
+    }
+   ]
+  },
+  {
+   "id": "X_20260918_23_watchlist",
+   "file": "faisal_images/X_20260918_23_watchlist.png",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-09-18",
+   "note": "continuation of X_20260918_22 — printed «2026/9/13 1:44 م · 886» ; full «قائمتي» list (8 rows + Nasdaq index row) ; selected tab «قائمتي» ; no stage/status text on any row (only bid/ask/price/change)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "SXTC",
+      "MSGY",
+      "DKI",
+      "CUPR",
+      "YMT",
+      "CETX",
+      "ATPC",
+      "SVRE"
+     ],
+     "speaker": "APP_TAB",
+     "channel": "Faisal's own app screenshot attached to the post",
+     "text": "قائمتي",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "13",
+      "hh": "1",
+      "mm": "44",
+      "ampm": "م"
+     },
+     "list_snapshot": {
+      "selected_tab": "قائمتي",
+      "tabs_visible": [
+       "قائمتي",
+       "الأسهم المملوكة",
+       "تحت الجاهزيه",
+       "جاهز 100%"
+      ],
+      "visible_symbols": [
+       "SXTC",
+       "MSGY",
+       "DKI",
+       "CUPR",
+       "YMT",
+       "CETX",
+       "ATPC",
+       "SVRE"
+      ],
+      "other_tabs_contents": "NOT SHOWN",
+      "snapshot_clock": "1:41"
+     },
+     "interpretation": "visible membership of the «قائمتي» tab at the snapshot time; says nothing about the other three tabs"
+    }
+   ]
+  },
+  {
+   "id": "TG_2218",
+   "file": "faisal_images/TG_2218.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-07-28",
+   "note": "Faisal post; no date and no ticker visible in this image — the same text is quoted in TG_2090 (printed @kisar_ · 2026/1/28) inside a $CDIO post found by search «from:kisar_ cdio»",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "CDIO"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "لاتعجل ع رزقك السهم جاهز ع جميع المؤشرات والشموع / يعجبني بعض الاحيان مؤشر كلنجر / بانتظار فقط دخول المضارب يتم ذكره",
+     "printed": {
+      "y": "2026",
+      "m": "1",
+      "d": "28"
+     },
+     "identity_basis": "STRONGLY_SUPPORTED — quoted under a $CDIO post (TG_2090); the post itself shows no ticker",
+     "interpretation": "explicit technical readiness («جاهز ع جميع المؤشرات والشموع») + waiting for the operator's entry"
+    }
+   ]
+  },
+  {
+   "id": "TG_2090",
+   "file": "faisal_images/TG_2090.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-07-27",
+   "note": "search «from:kisar_ cdio»: a $CDIO post (date not visible, later than the quoted post) quoting @kisar_ · 2026/1/28",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "CDIO"
+     ],
+     "speaker": "F",
+     "channel": "X post (quoting)",
+     "text": "$CDIO / الشرط كالعاده مالم تدخل قروبات بيحقق نسبه طيبه / والله اعلم / ( معلومات ليست توصيه )",
+     "ts_note": "quoting post undated; it quotes the 2026/1/28 post",
+     "interpretation": "conditional expectation; no stage word"
+    },
+    {
+     "key": "s2",
+     "tickers": [
+      "CDIO"
+     ],
+     "speaker": "F",
+     "channel": "quoted X post",
+     "text": "لاتعجل ع رزقك السهم جاهز ع جميع المؤشرات والشموع يعجبني بعض الاحيان مؤشر كلنجر بانتظار فقط دخول المضارب يت…",
+     "printed": {
+      "y": "2026",
+      "m": "1",
+      "d": "28"
+     },
+     "duplicate_of": "TG_2218:s1",
+     "interpretation": "same statement as TG_2218 (quoted, truncated)"
+    }
+   ]
+  },
+  {
+   "id": "X_20260827_amix_hcwb_ready",
+   "file": "faisal_images/X_20260827_amix_hcwb_ready.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-08-26",
+   "note": "Faisal post («10 س» relative, no absolute date) with his group-chat screenshot «ستوك» (outgoing green bubbles = the phone owner) and an AMIX daily chart (After Hours 5.27)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "AMIX",
+      "HCWB"
+     ],
+     "speaker": "F",
+     "channel": "X post text",
+     "text": "هذي مؤشرات السهم قبل يصعد / لذلك نجح التحليل بتوفيق الله / حقق السهم 200% / - / Hcwb تم تسريبه من ضعاف النفوس / ننتظر ضغط المضارب لتحقيق الاجابية",
+     "ts_note": "relative «10 س» only; after AMIX's +200% (≥ the 2026/8/24 pressure post)",
+     "interpretation": "AMIX: retrospective (indicators before the rise); HCWB: waiting for operator pressure"
+    },
+    {
+     "key": "s2",
+     "tickers": [
+      "AMIX"
+     ],
+     "speaker": "F",
+     "channel": "group chat (embedded, outgoing) 1:29 ص",
+     "text": "Amix / جاهز جدا / لو بس يضرب 4.70 ويرتد ممتاز نركب / هدفه 9 فوقها ممكن 11",
+     "derived_ts": {
+      "quality": "DERIVED_INFERRED",
+      "asof_lo": "2026-08-24",
+      "asof_hi": "2026-08-24",
+      "original": "chat 1:29 ص (date not shown)",
+      "basis": "INFERRED — same chat day as the message edited 2:08 ص under the «اليوم» header in X_20260827_amix_3m_inflow, screenshot taken the evening of the post printed 2026/8/24 11:10 م; any date from 2026-08-22 01:29 Riyadh onward maps to as-of 2026-08-24"
+     },
+     "interpretation": "explicit readiness («جاهز جدا») with a conditional entry (hit 4.70 and bounce → ride)"
+    },
+    {
+     "key": "s3",
+     "tickers": [
+      "AMIX",
+      "HCWB"
+     ],
+     "speaker": "F",
+     "channel": "group chat (embedded, outgoing) 1:47 ص",
+     "text": "عندنا سهمين حاهزه / Amix / Hcwb",
+     "derived_ts": {
+      "quality": "DERIVED_INFERRED",
+      "asof_lo": "2026-08-24",
+      "asof_hi": "2026-08-24",
+      "original": "chat 1:47 ص (date not shown)",
+      "basis": "INFERRED — as s2"
+     },
+     "interpretation": "explicit readiness for two named stocks («حاهزه» = typo of جاهزه)"
+    },
+    {
+     "key": "s4",
+     "tickers": [
+      "AMIX"
+     ],
+     "speaker": "F",
+     "channel": "group chat (embedded, outgoing) 1:50 ص",
+     "text": "عموما وقفنا 4.60 / دخولنا دفعات من 4.65 > 4.75 > 4.85 / - / لازم يضغطه تحت 5 والله اعلم / او نركب معه اذا صعد",
+     "derived_ts": {
+      "quality": "DERIVED_INFERRED",
+      "asof_lo": "2026-08-24",
+      "asof_hi": "2026-08-24",
+      "original": "chat 1:50 ص (date not shown)",
+      "basis": "INFERRED — as s2"
+     },
+     "interpretation": "entry plan in tranches with a stop; expects the operator to press it below 5 (pressure not yet observed)"
+    }
+   ]
+  },
+  {
+   "id": "X_20260827_amix_pressure_497",
+   "file": "faisal_images/X_20260827_amix_pressure_497.png",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-08-26",
+   "note": "Faisal post printed «11:10 م · 2026/8/24 · 4 ألف» with the same group-chat screenshot (11:08): messages 1:47 ص and 1:50 ص, then an AMIX chart message «Amix 4.88 دعومه الاساسيه»",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "AMIX"
+     ],
+     "speaker": "F",
+     "channel": "X post text",
+     "text": "الضغط حصل 4.97 / الحق الزخم الحق المحللين بمنصة سهم",
+     "printed": {
+      "y": "2026",
+      "m": "8",
+      "d": "24",
+      "hh": "11",
+      "mm": "10",
+      "ampm": "م"
+     },
+     "interpretation": "pressure stated as having happened (at 4.97) — posted after the 2026-08-24 close"
+    },
+    {
+     "key": "s2",
+     "tickers": [
+      "AMIX",
+      "HCWB"
+     ],
+     "speaker": "F",
+     "channel": "group chat (embedded, outgoing) 1:47 ص",
+     "text": "عندنا سهمين حاهزه / Amix / Hcwb",
+     "duplicate_of": "X_20260827_amix_hcwb_ready:s3",
+     "derived_ts": {
+      "quality": "DERIVED_INFERRED",
+      "asof_lo": "2026-08-24",
+      "asof_hi": "2026-08-24",
+      "original": "chat 1:47 ص",
+      "basis": "INFERRED — as amix_hcwb_ready:s2"
+     },
+     "interpretation": "same message re-shown"
+    }
+   ]
+  },
+  {
+   "id": "X_20260827_amix_3m_inflow",
+   "file": "faisal_images/X_20260827_amix_3m_inflow.png",
+   "author": "F",
+   "author_visible": false,
+   "capture_ts": "2026-08-26",
+   "note": "post header cropped (author not visible; text style and the embedded «ستوك» chat match Faisal's posts); embedded chat 11:16 with date header «اليوم» above «Amix 4.88 دعومه الاساسيه / - / هدفنا 100٪ 9.45 · تم التعديل 2:08 ص»",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "AMIX"
+     ],
+     "speaker": "F",
+     "channel": "X post text (header cropped)",
+     "text": "عرفت الحين ياضعيف نعطيك سهم جاهز تخمد فيه لين يصعد المضارب تروح توزع السهم ع الهمل / شف كيف صعد السهم الان / 3 مليون دولار دخلت ع السهم / - / شمعة 3 دقايق اغلاق رفسة باب رفستك ناقه فاطر",
+     "derived_ts": {
+      "quality": "DERIVED_INFERRED",
+      "asof_lo": "2026-08-24",
+      "asof_hi": "2026-08-24",
+      "original": "post undated; device 11:24; embedded chat 11:16 «اليوم»",
+      "basis": "INFERRED — same evening as the post printed 2026/8/24 11:10 م (identical chat state)"
+     },
+     "interpretation": "readiness recalled («نعطيك سهم جاهز») + operator money observed (3M USD, 3-minute candle)",
+     "readiness_recalled": 1,
+     "readiness_recalled_basis": "«نعطيك سهم جاهز … لين يصعد المضارب» is said after the rise («شف كيف صعد السهم الان») about the stock given earlier — the readiness refers to a time before the post"
+    }
+   ]
+  },
+  {
+   "id": "X_20260827_hcwb_leak_close_dm",
+   "file": "faisal_images/X_20260827_hcwb_leak_close_dm.png",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-08-26",
+   "note": "Faisal post «1 س» (device 12:48); attached HCWB app quote «24/08-04:21:57 EDT قبل الافتتاح» 2.18",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "HCWB"
+     ],
+     "speaker": "F",
+     "channel": "X post text",
+     "text": "البعض ارسلت له السهم هذا خاص / ربما نشره او تمسكن لين تمكن / - / السهم فنيا كان جاهز من اسهمي الخاصه / هذي شمعة ضعاف النفوس / - / لذلك نرجع نقفل الخاص مره اخرى / فقط نستمر مع عبدالرحمن / - / لاحد يعاتبنا ويشره علينا / ويفتح على نفسه من الريع بيبان",
+     "derived_ts": {
+      "quality": "EXACT_DERIVED",
+      "asof_lo": "2026-08-24",
+      "asof_hi": "2026-08-24",
+      "original": "post after 2026-08-24 04:21:57 EDT (attached quote) and ≈1 h before a 12:48 device clock",
+      "basis": "VISIBLE"
+     },
+     "interpretation": "technical readiness stated in the past tense («كان جاهز») and a leak candle in the 08-24 pre-market"
+    }
+   ]
+  },
+  {
+   "id": "X_20260827_kwm_offering_notready",
+   "file": "faisal_images/X_20260827_kwm_offering_notready.png",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-08-26",
+   "note": "Faisal profile timeline; post «20 س» (no absolute date); two KWM charts (30 min, daily)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "KWM"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "فريم 30 دقيقه شموع الهبوط واضحه / سبب الهبوط طرح 500 الف سهم / - / انتظار تعافي السهم وثبات الدعوم / 1.50 دعم غير مستقر / - / شورت 10 الاف نسبة اقتراض 580٪ / - / سهم غير جاهز فنيا حاليا",
+     "derived_ts": {
+      "quality": "BOUNDED",
+      "asof_lo": "2026-08-20",
+      "asof_hi": "2026-08-26",
+      "original": "relative «20 س»; V4 decade 2026-08-2x; committed 2026-08-26",
+      "basis": "V4 decade label + commit upper bound"
+     },
+     "interpretation": "explicit technical NOT-ready + waiting for recovery and support stability; cause stated: an offering"
+    }
+   ]
+  },
+  {
+   "id": "X_20260827_raya_notready_2",
+   "file": "faisal_images/X_20260827_raya_notready_2.png",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-08-26",
+   "note": "Faisal post page; no date visible; RAYA daily chart (After Hours 2.440)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "RAYA"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "غير. جاهز فنيا / انتظار الهبوط",
+     "derived_ts": {
+      "quality": "BOUNDED",
+      "asof_lo": "2026-08-20",
+      "asof_hi": "2026-08-26",
+      "original": "no date; V4 decade 2026-08-2x; committed 2026-08-26",
+      "basis": "V4 decade label + commit upper bound"
+     },
+     "interpretation": "explicit technical NOT-ready + waiting for a drop"
+    }
+   ]
+  },
+  {
+   "id": "X_20260905_07",
+   "file": "faisal_images/X_20260905_07.png",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-09-05",
+   "note": "Faisal post «16 س»; BTOG weekly chart (2.260) with the last weekly candle at 2.080",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "BTOG"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "صدر خبر / صعد اختبر مقاومه هبط فيه المضارب مباشره / - / هل مازال مرتبط بالتكوين لم ابحث / - / هبط لقاع 2.08 / الشورت ارتفع / اذا كسر الرقم هذا بيروح لدعومه قبل التقسيم 1.70 / شموع الفريم الاسبوعي / - / غير جاهز",
+     "derived_ts": {
+      "quality": "BOUNDED",
+      "asof_lo": "2026-08-31",
+      "asof_hi": "2026-09-05",
+      "original": "relative «16 س»; V4 2026-09-04; committed 2026-09-05",
+      "basis": "weekly chart last candle week of 08-31 + commit upper bound"
+     },
+     "interpretation": "explicit NOT-ready (no «فنيا» qualifier)"
+    }
+   ]
+  },
+  {
+   "id": "X_20260918_66_ELPW",
+   "file": "faisal_images/X_20260918_66_ELPW.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-09-18",
+   "note": "Faisal post page; no date visible; three ELPW charts (After Hours 3.110)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "ELPW"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "3 صور للتحليل يومي سبوعي 4 ساعات / - / اقتباس التغريده / ذكرنا سابقا بشهر 1 جاهز دخول سيوله عاليه من العرض / هبط فيه المضارب من 1.25 الى 28 سنت / - / مضارب هذا اقشر / - / صعد من 28 سنت بيوم واحد الى 13 دولار / 3000٪ / - / الان كون قاع عند 3 / الشورت شبه ممتاز / عنده فجوات عاليه / - / هل يثبت ع 3 اولا / اختبر المقاومه 3.80 / عدم ثبات 3 = هبوط اخر / مازال تحت المجهر",
+     "derived_ts": {
+      "quality": "BOUNDED",
+      "asof_lo": "2026-09-10",
+      "asof_hi": "2026-09-18",
+      "original": "no date; V4 decade 2026-09-1x; committed 2026-09-18",
+      "basis": "V4 decade label + commit upper bound"
+     },
+     "interpretation": "readiness recalled for month 1 («ذكرنا سابقا بشهر 1 جاهز»); current: still under close watch («مازال تحت المجهر») = an explicit continuation of attention"
+    }
+   ]
+  },
+  {
+   "id": "X_20260918_04_ELPW",
+   "file": "faisal_images/X_20260918_04_ELPW.png",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-09-18",
+   "note": "Faisal post page; no date; ELPW daily + 4 h (Pre Market 2.397 −4.12%)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "ELPW"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "متبقي شمعتين فوليوم للهبوط / - / تحت المتابعه فقط",
+     "derived_ts": {
+      "quality": "BOUNDED",
+      "asof_lo": "2026-09-10",
+      "asof_hi": "2026-09-18",
+      "original": "no date; V4 decade 2026-09-1x; committed 2026-09-18",
+      "basis": "V4 decade label + commit upper bound"
+     },
+     "interpretation": "monitoring only («تحت المتابعه فقط»); order relative to X_20260918_66 not established by any source timestamp"
+    }
+   ]
+  },
+  {
+   "id": "TG_57890",
+   "file": "faisal_images/TG_57890.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-09-30",
+   "note": "Faisal post (device 1:18; bottom date partly cut «…2026/9/24») quoting his post «10 س» = TG_57891 printed 2026/9/24 2:26 ص",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "GCTK"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "دخولنا بالملي مع شمعة الضغط اثناء التحليل / 3.60 / خروج بالتداول الليلي 15٪ / - / فنيا يهبط اول مايفتح البري 3.50 اقل حاجه / ويرجع يصعد / - / هذا صعد مباشره ل 5 / لذلك ما لحقته راحت 40٪",
+     "derived_ts": {
+      "quality": "EXACT_DERIVED",
+      "asof_lo": "2026-09-24",
+      "asof_hi": "2026-09-24",
+      "original": "entry «اثناء التحليل» = at the analysis post printed 2026/9/24 2:26 ص Riyadh = 2026-09-23 19:26 New York (after-hours)",
+      "basis": "VISIBLE"
+     },
+     "interpretation": "entry with the pressure candle during the after-hours of 2026-09-23, exit in overnight trading +15% — an executed trade, not a readiness label"
+    },
+    {
+     "key": "s2",
+     "tickers": [
+      "GCTK"
+     ],
+     "speaker": "F",
+     "channel": "quoted X post",
+     "text": "السهم الصاعد 130٪ بالافتر / - / الدعوم للبري 3.12 كسرها = فشل",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "24",
+      "hh": "2",
+      "mm": "26",
+      "ampm": "ص"
+     },
+     "duplicate_of": "TG_57891",
+     "interpretation": "validity rule for the pre-market"
+    }
+   ]
+  },
+  {
+   "id": "X_20260827_operator_candle_ride",
+   "file": "faisal_images/X_20260827_operator_candle_ride.png",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-08-26",
+   "note": "Faisal post printed «11:26 ص · 2026/8/24» (chart of an unnamed symbol) and below it another Faisal post «10 س»",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "تبي تعرف شمعة المضارب اللي نربح منه",
+     "printed": {
+      "y": "2026",
+      "m": "8",
+      "d": "24",
+      "hh": "11",
+      "mm": "26",
+      "ampm": "ص"
+     },
+     "interpretation": "the operator candle as the trade trigger (general; symbol not named)"
+    },
+    {
+     "key": "s2",
+     "tickers": [],
+     "speaker": "F",
+     "channel": "X post («10 س»)",
+     "text": "منصة سهم تقدر تضيف فيها قائمه وتفعل تنبهات الهبوط كل 5٪ تنبيه / يكون تحت عينك",
+     "interpretation": "a list is a monitoring tool with drop alerts (general, no ticker)"
+    }
+   ]
+  },
+  {
+   "id": "TG_57862",
+   "file": "faisal_images/TG_57862.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-09-30",
+   "note": "Faisal post (undated) quoting @kisar_ · 2026/9/11",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "SXTC"
+     ],
+     "speaker": "F",
+     "channel": "X post (undated)",
+     "text": "عدة اساله عن sxtc / جني الربح عند مقاومه 3 > باكثر من 70٪ من الكميه / ليش / الصفقه ممكن تنعكس عليك ويفشل السهم / يروح عليك ربح 50٪ / كل الصور باختلاف النماذج رفض الاختراق = هبوط / - / بعد الاختراق وتاكيد الدعوم يكون دخول جديد",
+     "derived_ts": {
+      "quality": "AMBIGUOUS",
+      "asof_lo": "",
+      "asof_hi": "",
+      "original": "undated; after 2026/9/11; committed 2026-09-30",
+      "basis": "bounds only"
+     },
+     "interpretation": "profit-taking at resistance 3 (executed or advised — not stated which) and a new entry only after breakout + support confirmation"
+    },
+    {
+     "key": "s2",
+     "tickers": [
+      "SXTC"
+     ],
+     "speaker": "F",
+     "channel": "quoted X post",
+     "text": "اضافة كميات مع الضغط",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "11"
+     },
+     "interpretation": "adding position size with the pressure (entry action tied to pressure); ticker from the quoting post"
+    }
+   ]
+  },
+  {
+   "id": "WA_20260918_31_SXTC",
+   "file": "faisal_images/WA_20260918_31_SXTC.jpg",
+   "author": "F_inferred",
+   "author_visible": false,
+   "capture_ts": "2026-09-18",
+   "note": "private WhatsApp chat (the other party's name omitted); outgoing green bubbles = the phone owner (inferred Faisal); no date",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "SXTC"
+     ],
+     "speaker": "F",
+     "channel": "WhatsApp (outgoing) 1:00 م",
+     "text": "Sxtc / لايوجد قروبات / لايوجد شورت / الهدف [مطموس] / تم الضغط اليوم✅ / دخول 1.80 > 1.90 / الان 1.95 طلب ✅",
+     "derived_ts": {
+      "quality": "BOUNDED",
+      "asof_lo": "2026-09-10",
+      "asof_hi": "2026-09-18",
+      "original": "1:00 م, no date; V4 2026-09-1x; committed 2026-09-18",
+      "basis": "V4 decade label + commit upper bound"
+     },
+     "interpretation": "pressure observed «اليوم» and entry zone 1.80–1.90; current bid 1.95"
+    }
+   ]
+  },
+  {
+   "id": "TG_57894",
+   "file": "faisal_images/TG_57894.jpg",
+   "author": "F_inferred",
+   "author_visible": false,
+   "capture_ts": "2026-09-30",
+   "note": "text-only crop (no header, no ticker, no date); V4 attributes it to DKI (2026-09-2x)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "DKI"
+     ],
+     "speaker": "F",
+     "channel": "post text (cropped)",
+     "text": "2.74=2.18+26٪ / الشمعه الحمرا 2.97 هذي والله اعلم مشتريات قروب / - / يهمنا ارتداد من القاع لاختبار المقاومه 20٪ غالبا / يهبط يختبر القاع / - / اما ثبات ع القاع او مسح سيوله الى 2 تقريبا / - / انا كيف بدخل السهم هذا / بنتظر وين يضغطه المضارب لابد فنيا قبل يصعد / ويغطي شمعة التقسيم 5.70 / لابد يتم ضغطه الضغط هذا مسح سيوله",
+     "identity_basis": "INFERRED (V4) — no ticker visible",
+     "derived_ts": {
+      "quality": "BOUNDED",
+      "asof_lo": "2026-09-20",
+      "asof_hi": "2026-09-30",
+      "original": "no date; V4 2026-09-2x; committed 2026-09-30",
+      "basis": "V4 decade label + commit upper bound"
+     },
+     "interpretation": "entry plan conditioned on operator pressure (waiting for pressure)"
+    }
+   ]
+  },
+  {
+   "id": "TG_2098",
+   "file": "faisal_images/TG_2098.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-07-27",
+   "note": "search «from:kisar_ elpw» (Latest): top post undated; the post below is printed 2026/4/24 — the 2026/4/24 date belongs to the ELPW post, NOT to the HUBC line",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "ELPW",
+      "ENVB",
+      "HUBC"
+     ],
+     "speaker": "F",
+     "channel": "X post (undated, listed above a 2026/4/24 post)",
+     "text": "الربح العالي يعتمد ع القراءة الفنيه بعد توفيق الله / 3 اسهم الاسبوع الماضي / 2 نجاح مجمل 400٪ / $ELPW / 200% / $ENVB / 150٪ / 1 فشل دخول وقف 7٪ واعطى دخول اخر ربح 40٪ / ✅ $HUBC",
+     "derived_ts": {
+      "quality": "AMBIGUOUS",
+      "asof_lo": "",
+      "asof_hi": "",
+      "original": "undated; refers to «الاسبوع الماضي»; ordered above a 2026/4/24 post in a Latest search",
+      "basis": "bounds only"
+     },
+     "interpretation": "HUBC: two executed entries last week (first stopped at −7%, second +40%) — recalled outcomes, dates unknown"
+    },
+    {
+     "key": "s2",
+     "tickers": [
+      "ELPW"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "1.57 تم التحليل قبل يومين / الان حقق 4.37 / 200٪ تقريبا / - / سونقات ربح 10 سنت ماعرفها بالاسهم ولله الحمد / $ELPW / حقق جل الاهداف / المضارب يحقق اهدافه بناء ع شموع وخوارزميات",
+     "printed": {
+      "y": "2026",
+      "m": "4",
+      "d": "24"
+     },
+     "interpretation": "recalled analysis two days earlier and outcome"
+    }
+   ]
+  },
+  {
+   "id": "WA_20260918_46_NUWE",
+   "file": "faisal_images/WA_20260918_46_NUWE.jpg",
+   "author": "F_inferred",
+   "author_visible": false,
+   "capture_ts": "2026-09-18",
+   "note": "WhatsApp group (members' names omitted); outgoing green bubble 12:38 ص with two NUWE charts; no date",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "NUWE"
+     ],
+     "speaker": "F",
+     "channel": "WhatsApp group (outgoing)",
+     "text": "اخر دعم للسهم 60 سنت / - / تحرر السهم 95 سنت / - / الاهداف المتوقعه 1.35 / فوقها ممكن 2 > 2.30",
+     "interpretation": "levels and targets; no stage or action word"
+    }
+   ]
+  },
+  {
+   "id": "X_20260918_13_NUWE",
+   "file": "faisal_images/X_20260918_13_NUWE.png",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-09-18",
+   "note": "Faisal post page; no date; NUWE 4 h chart (After Hours 0.8201)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "NUWE"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "اليوم صعد اختبر مقاومه الهبوط / يرجع يختبر الدعم الان / 0.87=0.71+23٪ / - / التحليل الفني ثابت لجميع الاسهم / قاع صعود اختبار مقاومه هبوط اختبار دعم / - / بالنسبه لي مادخل السهم بالمناطق الضبابيه الاولى / هذي قواعد ثابته للاسهم / يخالفها فقط قروبات سوا داخليه او اجنبيه / المضاربين يمشون ع خوارزميات متعارف عليها للمحللين / - / الان اما ثبات ع الدعم الاول = اجابيه تحميل مشاركات / او كسره لسحب السيوله / - / شورت لازال صفر",
+     "interpretation": "no entry by himself in the first foggy zones; waiting: hold of the first support or a break for a liquidity sweep"
+    }
+   ]
+  },
+  {
+   "id": "TG_58400",
+   "file": "faisal_images/TG_58400.jpg",
+   "author": "UNKNOWN",
+   "author_visible": false,
+   "capture_ts": "2026-10-07",
+   "note": "NEXR 4-hour chart (After Hours 0.9900) with annotations; no author, no post, no date (axis 09/17 … 10/05); batch B48 annotates the author as UNKNOWN",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "NEXR"
+     ],
+     "speaker": "UNKNOWN",
+     "channel": "chart annotation",
+     "text": "تحت الجاهزيه انتظار ضغط مضارب / مقاومه 1 / مقاومه 2 / مقاومه 3 / الموجه الهابطه",
+     "derived_ts": {
+      "quality": "BOUNDED",
+      "asof_lo": "2026-09-29",
+      "asof_hi": "2026-10-07",
+      "original": "no date; chart axis to 10/05; committed 2026-10-07",
+      "basis": "chart axis + commit upper bound"
+     },
+     "interpretation": "the only image in the corpus that applies «تحت الجاهزيه» to a named stock — and it pairs it with waiting for operator pressure; author UNKNOWN ⇒ not a Faisal label"
+    }
+   ]
+  },
+  {
+   "id": "TG_58417",
+   "file": "faisal_images/TG_58417.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-10-07",
+   "note": "Faisal post page; no date (device 5:54; live widget SXTC 2.070)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "SXTC"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "Sxtc / بعد الضغط وسحب السيوله تم الدخول / والخروج عند 3 / - / والدخول مره اخرى عند 2.15> 2.25 / الان فوق 3 / - / يعني اخذنا منه فوق 100٪ بموجتين / - / الاسهم مافيها دنفسه مضارب تركب معه يصعد يحقق الشموع وتجي ربحك معه",
+     "derived_ts": {
+      "quality": "AMBIGUOUS",
+      "asof_lo": "",
+      "asof_hi": "",
+      "original": "undated; committed 2026-10-07",
+      "basis": "upper bound only"
+     },
+     "interpretation": "recalled sequence: pressure + sweep → entry → exit at 3 → re-entry 2.15–2.25 → now above 3"
+    }
+   ]
+  },
+  {
+   "id": "TG_58421",
+   "file": "faisal_images/TG_58421.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-10-07",
+   "note": "Faisal post printed «2:02 ص · 2026/9/30 · 23 ألف» with an NCT borrow-fee table (as of 2026-09-29 18:49 EDT, 600 available, 516.79%) and an NCT quote (after close 1.89 −24.40%)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "NCT"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "هابط من 8 بعد التقسيم",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "30",
+      "hh": "2",
+      "mm": "2",
+      "ampm": "ص"
+     },
+     "interpretation": "first observed attention to NCT (a mention with borrow data); no stage or action word"
+    }
+   ]
+  },
+  {
+   "id": "TG_58423",
+   "file": "faisal_images/TG_58423.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-10-07",
+   "note": "Faisal post printed «11:42 ص · 2026/10/2» — an annotated NCT 4-hour chart (Pre Market 1.550 +6.16%)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "NCT"
+     ],
+     "speaker": "F",
+     "channel": "chart annotations in a Faisal post",
+     "text": "6 تخضع لامور فنية كبير شرط وصول السهم الى شمعة الهبوط العاليه / 6 لازم السهم يتحرر من 3 ويثبت عليها / 2.60 مقاومه عاليه للموجات الهابطه",
+     "printed": {
+      "y": "2026",
+      "m": "10",
+      "d": "2",
+      "hh": "11",
+      "mm": "42",
+      "ampm": "ص"
+     },
+     "interpretation": "conditional targets/resistances; no stage or action word"
+    }
+   ]
+  },
+  {
+   "id": "TG_58402",
+   "file": "faisal_images/TG_58402.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-10-07",
+   "prospective_case": "CASE_0001",
+   "note": "prospective sealed case CASE_0001 (text read at intake; derived date per CASE_LEDGER)",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "BRTX"
+     ],
+     "speaker": "F",
+     "channel": "X post + Faisal reply",
+     "text": "مراقبه مبكره / امريكي تاريخ التقسيم / 8-9-2026 / لايوجد اجابيه / يضاف للمفضله + تنبيهات للهبوط / شرط يهبط ويحافظ",
+     "derived_ts": {
+      "quality": "BOUNDED",
+      "asof_lo": "2026-10-05",
+      "asof_hi": "2026-10-07",
+      "original": "after the 2026-10-02 close (last daily candle 2.140 + after-hours); captured 2026-10-07T11:48:53Z",
+      "basis": "VISIBLE bounds (CASE_LEDGER)"
+     },
+     "interpretation": "early monitoring + add to favourites list + drop alerts + condition (drop and hold)"
+    }
+   ]
+  },
+  {
+   "id": "TG_58524",
+   "file": "faisal_images/TG_58524.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-10-08",
+   "prospective_case": "CASE_0002",
+   "note": "prospective sealed case CASE_0002",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "CDT"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "مقسم قبل سبوع / اليوم قاع جديد / لايوجد شورت اقتراض 293٪ / - / مضارب مايعترف بالدعوم والمقاومات ولا يمشي عليه / لاتحليل شموع ولا موجات / يهبط عالي / صعود بشمعه هبوط مباشره / هذا سلوكه / - / هل يضغط 64 او يكتفي / تحت المجهر",
+     "derived_ts": {
+      "quality": "EXACT_DERIVED",
+      "asof_lo": "2026-10-08",
+      "asof_hi": "2026-10-08",
+      "original": "after the 2026-10-07 close (after-hours 0.8399) and before capture 2026-10-08T08:58:17Z",
+      "basis": "VISIBLE (CASE_LEDGER)"
+     },
+     "interpretation": "close watch («تحت المجهر») with an open question on pressure to 0.64"
+    }
+   ]
+  },
+  {
+   "id": "TG_58526",
+   "file": "faisal_images/TG_58526.jpg",
+   "author": "F",
+   "author_visible": true,
+   "capture_ts": "2026-10-08",
+   "prospective_case": "CASE_0003",
+   "note": "prospective sealed case CASE_0003",
+   "statements": [
+    {
+     "key": "s1",
+     "tickers": [
+      "NCT"
+     ],
+     "speaker": "F",
+     "channel": "X post",
+     "text": "السهم كان فيه حراج عليه / الحاصل مضارب هبده 1.14 / - / علمنا فهمنا كررنا / مافيه عقل بشري يصدق ان قروب يستطيع رفع سهم / - / 1.24 دعم لابد يختبره",
+     "derived_ts": {
+      "quality": "EXACT_DERIVED",
+      "asof_lo": "2026-10-08",
+      "asof_hi": "2026-10-08",
+      "original": "posted 20:45–20:51 New York on 2026-10-07 (attachment 07/10-20:45:28 EDT; device 3:51 Riyadh)",
+      "basis": "VISIBLE (CASE_LEDGER)"
+     },
+     "interpretation": "waiting for a support test (1.24)"
+    }
+   ]
+  }
+ ]
+}
