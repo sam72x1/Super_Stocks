@@ -1,0 +1,1454 @@
+{
+ "protocol": "RANKING_PROTOCOL.md",
+ "label": "EXPLORATORY",
+ "ranker": "FE-RANK 1.0 (2026-10-09)",
+ "inputs": {
+  "universe.json": {
+   "sha256": "d7315d29814db8f456fbbbeeaf4de92afd0fe5f855b891cf05e3e01c11f6debc",
+   "bytes": 28518
+  },
+  "bars.json.gz": {
+   "sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c",
+   "bytes": 29162182
+  },
+  "splits.json": {
+   "sha256": "6c9ac022d43d877c96ae362a87bdfa530f3515b803d85a1ebd1738bd0ce93b01",
+   "bytes": 132274
+  },
+  "sec.json.gz": {
+   "sha256": "68448c52257ad6f82c5bba7220a88bd85358940dbe91c138eb073b324d67975a",
+   "bytes": 106317
+  },
+  "rows.csv.gz": {
+   "sha256": "8a506495a17dcd1849283e6607d1018e4339f9cf253f587a83297225da59d890",
+   "bytes": 3277755
+  },
+  "sessions.csv": {
+   "sha256": "65720537f292b0868968454822dd917668f02a526394c2ab392667abe6ae8a54",
+   "bytes": 3693
+  }
+ },
+ "run_id": "37942829821",
+ "sessions_computed": 65,
+ "eval_sessions": 44,
+ "window": [
+  "2026-08-14",
+  "2026-10-08"
+ ],
+ "units": 41,
+ "units_evaluable": 40,
+ "episodes": 23,
+ "episodes_evaluable": 22,
+ "unevaluable": [
+  {
+   "episode": "MI_E1",
+   "reason": "NOT_IN_RECONSTRUCTED_UNIVERSE"
+  }
+ ],
+ "tickers_evaluable": 22,
+ "daily": {
+  "universe_median": 3543.5,
+  "pool_median": 515.5,
+  "pool_range": [
+   490,
+   554
+  ],
+  "bot_pass_median": 113.5,
+  "bot_pass_range": [
+   92,
+   138
+  ],
+  "shortlist_max": {
+   "25": 25,
+   "50": 50,
+   "108": 108
+  },
+  "pct_universe_108_median": 3.048,
+  "stage_median": {
+   "TRIGGER": 0.0,
+   "READY": 83.5,
+   "WATCH": 327.0,
+   "FOCUS": 90.5,
+   "HOLD": 17.0
+  },
+  "temporal_median": {
+   "PROGRESSED": 84.0,
+   "NEW": 63.5,
+   "PERSISTENT": 279.5,
+   "REGRESSED": 90.0
+  }
+ },
+ "capture": {
+  "A": {
+   "25": {
+    "exact": [
+     2,
+     22,
+     0.0909,
+     0.0253,
+     0.2782
+    ],
+    "early": [
+     5,
+     22,
+     0.2273,
+     0.1012,
+     0.4344
+    ],
+    "unit_exact": [
+     3,
+     40
+    ],
+    "unit_early": [
+     7,
+     40
+    ]
+   },
+   "50": {
+    "exact": [
+     2,
+     22,
+     0.0909,
+     0.0253,
+     0.2782
+    ],
+    "early": [
+     6,
+     22,
+     0.2727,
+     0.1315,
+     0.4815
+    ],
+    "unit_exact": [
+     3,
+     40
+    ],
+    "unit_early": [
+     9,
+     40
+    ]
+   },
+   "108": {
+    "exact": [
+     4,
+     22,
+     0.1818,
+     0.0731,
+     0.3852
+    ],
+    "early": [
+     8,
+     22,
+     0.3636,
+     0.1973,
+     0.5705
+    ],
+    "unit_exact": [
+     5,
+     40
+    ],
+    "unit_early": [
+     14,
+     40
+    ]
+   },
+   "rank_buckets": {
+    "1-25": 2,
+    "26-50": 0,
+    "51-108": 2,
+    ">108": 11,
+    "not_in_pool": 7
+   },
+   "rank_median_in_pool": 281,
+   "stage_at_T": {
+    "FOCUS": 5,
+    "READY": 4,
+    "REJECTED": 7,
+    "WATCH": 6
+   },
+   "lift_108_exact": 5.97
+  },
+  "B": {
+   "25": {
+    "exact": [
+     2,
+     22,
+     0.0909,
+     0.0253,
+     0.2782
+    ],
+    "early": [
+     6,
+     22,
+     0.2727,
+     0.1315,
+     0.4815
+    ],
+    "unit_exact": [
+     3,
+     40
+    ],
+    "unit_early": [
+     9,
+     40
+    ]
+   },
+   "50": {
+    "exact": [
+     3,
+     22,
+     0.1364,
+     0.0475,
+     0.3334
+    ],
+    "early": [
+     6,
+     22,
+     0.2727,
+     0.1315,
+     0.4815
+    ],
+    "unit_exact": [
+     4,
+     40
+    ],
+    "unit_early": [
+     9,
+     40
+    ]
+   },
+   "108": {
+    "exact": [
+     4,
+     22,
+     0.1818,
+     0.0731,
+     0.3852
+    ],
+    "early": [
+     9,
+     22,
+     0.4091,
+     0.2326,
+     0.6127
+    ],
+    "unit_exact": [
+     5,
+     40
+    ],
+    "unit_early": [
+     15,
+     40
+    ]
+   },
+   "rank_buckets": {
+    "1-25": 2,
+    "26-50": 1,
+    "51-108": 1,
+    ">108": 11,
+    "not_in_pool": 7
+   },
+   "rank_median_in_pool": 258,
+   "stage_at_T": {
+    "FOCUS": 5,
+    "READY": 4,
+    "REJECTED": 7,
+    "WATCH": 6
+   },
+   "lift_108_exact": 5.97
+  },
+  "C": {
+   "25": {
+    "exact": [
+     0,
+     22,
+     0.0,
+     0.0,
+     0.1487
+    ],
+    "early": [
+     2,
+     22,
+     0.0909,
+     0.0253,
+     0.2782
+    ],
+    "unit_exact": [
+     0,
+     40
+    ],
+    "unit_early": [
+     4,
+     40
+    ]
+   },
+   "50": {
+    "exact": [
+     0,
+     22,
+     0.0,
+     0.0,
+     0.1487
+    ],
+    "early": [
+     5,
+     22,
+     0.2273,
+     0.1012,
+     0.4344
+    ],
+    "unit_exact": [
+     0,
+     40
+    ],
+    "unit_early": [
+     8,
+     40
+    ]
+   },
+   "108": {
+    "exact": [
+     6,
+     22,
+     0.2727,
+     0.1315,
+     0.4815
+    ],
+    "early": [
+     8,
+     22,
+     0.3636,
+     0.1973,
+     0.5705
+    ],
+    "unit_exact": [
+     8,
+     40
+    ],
+    "unit_early": [
+     17,
+     40
+    ]
+   },
+   "rank_buckets": {
+    "1-25": 0,
+    "26-50": 0,
+    "51-108": 6,
+    ">108": 9,
+    "not_in_pool": 7
+   },
+   "rank_median_in_pool": 224,
+   "stage_at_T": {
+    "FOCUS": 5,
+    "READY": 4,
+    "REJECTED": 7,
+    "WATCH": 6
+   },
+   "lift_108_exact": 8.95
+  },
+  "D1": {
+   "25": {
+    "exact": [
+     1,
+     22,
+     0.0455,
+     0.0081,
+     0.218
+    ],
+    "early": [
+     4,
+     22,
+     0.1818,
+     0.0731,
+     0.3852
+    ],
+    "unit_exact": [
+     1,
+     40
+    ],
+    "unit_early": [
+     7,
+     40
+    ]
+   },
+   "50": {
+    "exact": [
+     2,
+     22,
+     0.0909,
+     0.0253,
+     0.2782
+    ],
+    "early": [
+     5,
+     22,
+     0.2273,
+     0.1012,
+     0.4344
+    ],
+    "unit_exact": [
+     2,
+     40
+    ],
+    "unit_early": [
+     8,
+     40
+    ]
+   },
+   "108": {
+    "exact": [
+     5,
+     22,
+     0.2273,
+     0.1012,
+     0.4344
+    ],
+    "early": [
+     8,
+     22,
+     0.3636,
+     0.1973,
+     0.5705
+    ],
+    "unit_exact": [
+     6,
+     40
+    ],
+    "unit_early": [
+     12,
+     40
+    ]
+   },
+   "rank_buckets": {
+    "1-25": 1,
+    "26-50": 1,
+    "51-108": 3,
+    ">108": 10,
+    "not_in_pool": 7
+   },
+   "rank_median_in_pool": 223,
+   "stage_at_T": {
+    "FOCUS": 5,
+    "READY": 4,
+    "REJECTED": 7,
+    "WATCH": 6
+   },
+   "lift_108_exact": 7.46
+  },
+  "bot_operational": {
+   "exact": [
+    2,
+    22,
+    0.0909,
+    0.0253,
+    0.2782
+   ],
+   "early": [
+    6,
+    22,
+    0.2727,
+    0.1315,
+    0.4815
+   ],
+   "unit_exact": [
+    3,
+    40
+   ],
+   "unit_early": [
+    8,
+    40
+   ],
+   "daily_size_median": 113.5,
+   "daily_size_range": [
+    92,
+    138
+   ]
+  },
+  "bot_standardized": {
+   "25": {
+    "exact": [
+     1,
+     22
+    ],
+    "early": [
+     4,
+     22
+    ]
+   },
+   "50": {
+    "exact": [
+     1,
+     22
+    ],
+    "early": [
+     6,
+     22
+    ]
+   },
+   "108": {
+    "exact": [
+     2,
+     22
+    ],
+    "early": [
+     6,
+     22
+    ]
+   }
+  },
+  "random_U": {
+   "25": {
+    "exact_expected": 0.155,
+    "early_expected": 0.765,
+    "exact_mc": {
+     "mean": 0.154,
+     "p2_5": 0,
+     "p97_5": 1,
+     "sims": 100000,
+     "seed": 20261034
+    },
+    "early_mc": {
+     "mean": 0.766,
+     "p2_5": 0,
+     "p97_5": 3,
+     "sims": 100000,
+     "seed": 20261041
+    }
+   },
+   "50": {
+    "exact_expected": 0.31,
+    "early_expected": 1.508,
+    "exact_mc": {
+     "mean": 0.31,
+     "p2_5": 0,
+     "p97_5": 2,
+     "sims": 100000,
+     "seed": 20261059
+    },
+    "early_mc": {
+     "mean": 1.509,
+     "p2_5": 0,
+     "p97_5": 4,
+     "sims": 100000,
+     "seed": 20261066
+    }
+   },
+   "108": {
+    "exact_expected": 0.669,
+    "early_expected": 3.152,
+    "exact_mc": {
+     "mean": 0.665,
+     "p2_5": 0,
+     "p97_5": 3,
+     "sims": 100000,
+     "seed": 20261117
+    },
+    "early_mc": {
+     "mean": 3.154,
+     "p2_5": 0,
+     "p97_5": 7,
+     "sims": 100000,
+     "seed": 20261124
+    }
+   }
+  },
+  "random_P": {
+   "25": {
+    "exact_expected": 0.712
+   },
+   "50": {
+    "exact_expected": 1.425
+   },
+   "108": {
+    "exact_expected": 3.077
+   }
+  }
+ },
+ "comparisons": {
+  "A": {
+   "exact": {
+    "vs_operational": {
+     "point": 0.0909,
+     "ci95": [
+      0.0,
+      0.2273
+     ],
+     "ci9833": [
+      0.0,
+      0.2727
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "vs_standardized_108": {
+     "point": 0.0909,
+     "ci95": [
+      0.0,
+      0.2273
+     ],
+     "ci9833": [
+      0.0,
+      0.2727
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "loo_vs_operational": {
+     "ticker": {
+      "AMIX": 0.0952,
+      "ATPC": 0.0476,
+      "BRTX": 0.0952,
+      "CETX": 0.0952,
+      "CIIT": 0.0952,
+      "CUPR": 0.0952,
+      "DCOY": 0.0952,
+      "DKI": 0.0952,
+      "EDBL": 0.0952,
+      "GCTK": 0.0952,
+      "IPDN": 0.0952,
+      "LABT": 0.0952,
+      "LIMN": 0.0952,
+      "MSGY": 0.0476,
+      "NRSN": 0.0952,
+      "NUWE": 0.0952,
+      "OMH": 0.0952,
+      "PPBT": 0.0952,
+      "STKH": 0.0952,
+      "SVRE": 0.0952,
+      "SXTC": 0.0952,
+      "YMT": 0.0952
+     },
+     "date": {
+      "2026-08-24": 0.1,
+      "2026-09-04": 0.1111,
+      "2026-09-10": 0.0952,
+      "2026-09-14": 0.0,
+      "2026-09-22": 0.1053,
+      "2026-09-23": 0.0952,
+      "2026-09-24": 0.0952,
+      "2026-09-25": 0.0952,
+      "2026-09-28": 0.1,
+      "2026-10-05": 0.0952
+     },
+     "min_ticker": 0.0476,
+     "min_date": 0.0,
+     "argmin_ticker": "ATPC"
+    },
+    "folds": {
+     "DISCOVERY": {
+      "episodes": 13,
+      "tickers": 13,
+      "variant": 3,
+      "bot_op": 1,
+      "diff": 0.1538
+     },
+     "VALIDATION": {
+      "episodes": 9,
+      "tickers": 9,
+      "variant": 1,
+      "bot_op": 1,
+      "diff": 0.0
+     }
+    }
+   },
+   "early": {
+    "vs_operational": {
+     "point": 0.0909,
+     "ci95": [
+      -0.1364,
+      0.3182
+     ],
+     "ci9833": [
+      -0.1818,
+      0.3636
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "vs_standardized_108": {
+     "point": 0.0909,
+     "ci95": [
+      -0.1364,
+      0.3182
+     ],
+     "ci9833": [
+      -0.1818,
+      0.3636
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "loo_vs_operational": {
+     "ticker": {
+      "AMIX": 0.0952,
+      "ATPC": 0.0476,
+      "BRTX": 0.0476,
+      "CETX": 0.0952,
+      "CIIT": 0.0476,
+      "CUPR": 0.0952,
+      "DCOY": 0.0952,
+      "DKI": 0.0952,
+      "EDBL": 0.1429,
+      "GCTK": 0.1429,
+      "IPDN": 0.0952,
+      "LABT": 0.0952,
+      "LIMN": 0.0952,
+      "MSGY": 0.0476,
+      "NRSN": 0.0952,
+      "NUWE": 0.0952,
+      "OMH": 0.0952,
+      "PPBT": 0.0952,
+      "STKH": 0.0952,
+      "SVRE": 0.0952,
+      "SXTC": 0.0952,
+      "YMT": 0.0952
+     },
+     "date": {
+      "2026-08-24": 0.1,
+      "2026-09-04": 0.1111,
+      "2026-09-10": 0.0952,
+      "2026-09-14": 0.0,
+      "2026-09-22": 0.1579,
+      "2026-09-23": 0.0952,
+      "2026-09-24": 0.1429,
+      "2026-09-25": 0.0476,
+      "2026-09-28": 0.1,
+      "2026-10-05": 0.0476
+     },
+     "min_ticker": 0.0476,
+     "min_date": 0.0,
+     "argmin_ticker": "ATPC"
+    },
+    "folds": {
+     "DISCOVERY": {
+      "episodes": 13,
+      "tickers": 13,
+      "variant": 4,
+      "bot_op": 2,
+      "diff": 0.1538
+     },
+     "VALIDATION": {
+      "episodes": 9,
+      "tickers": 9,
+      "variant": 4,
+      "bot_op": 4,
+      "diff": 0.0
+     }
+    }
+   }
+  },
+  "B": {
+   "exact": {
+    "vs_operational": {
+     "point": 0.0909,
+     "ci95": [
+      0.0,
+      0.2273
+     ],
+     "ci9833": [
+      0.0,
+      0.2727
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "vs_standardized_108": {
+     "point": 0.0909,
+     "ci95": [
+      0.0,
+      0.2273
+     ],
+     "ci9833": [
+      0.0,
+      0.2727
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "loo_vs_operational": {
+     "ticker": {
+      "AMIX": 0.0952,
+      "ATPC": 0.0476,
+      "BRTX": 0.0952,
+      "CETX": 0.0952,
+      "CIIT": 0.0952,
+      "CUPR": 0.0952,
+      "DCOY": 0.0952,
+      "DKI": 0.0952,
+      "EDBL": 0.0952,
+      "GCTK": 0.0952,
+      "IPDN": 0.0952,
+      "LABT": 0.0952,
+      "LIMN": 0.0952,
+      "MSGY": 0.0476,
+      "NRSN": 0.0952,
+      "NUWE": 0.0952,
+      "OMH": 0.0952,
+      "PPBT": 0.0952,
+      "STKH": 0.0952,
+      "SVRE": 0.0952,
+      "SXTC": 0.0952,
+      "YMT": 0.0952
+     },
+     "date": {
+      "2026-08-24": 0.1,
+      "2026-09-04": 0.1111,
+      "2026-09-10": 0.0952,
+      "2026-09-14": 0.0,
+      "2026-09-22": 0.1053,
+      "2026-09-23": 0.0952,
+      "2026-09-24": 0.0952,
+      "2026-09-25": 0.0952,
+      "2026-09-28": 0.1,
+      "2026-10-05": 0.0952
+     },
+     "min_ticker": 0.0476,
+     "min_date": 0.0,
+     "argmin_ticker": "ATPC"
+    },
+    "folds": {
+     "DISCOVERY": {
+      "episodes": 13,
+      "tickers": 13,
+      "variant": 3,
+      "bot_op": 1,
+      "diff": 0.1538
+     },
+     "VALIDATION": {
+      "episodes": 9,
+      "tickers": 9,
+      "variant": 1,
+      "bot_op": 1,
+      "diff": 0.0
+     }
+    }
+   },
+   "early": {
+    "vs_operational": {
+     "point": 0.1364,
+     "ci95": [
+      -0.0909,
+      0.3636
+     ],
+     "ci9833": [
+      -0.1364,
+      0.4091
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "vs_standardized_108": {
+     "point": 0.1364,
+     "ci95": [
+      -0.0909,
+      0.3636
+     ],
+     "ci9833": [
+      -0.1364,
+      0.4091
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "loo_vs_operational": {
+     "ticker": {
+      "AMIX": 0.1429,
+      "ATPC": 0.0952,
+      "BRTX": 0.0952,
+      "CETX": 0.1429,
+      "CIIT": 0.0952,
+      "CUPR": 0.0952,
+      "DCOY": 0.1429,
+      "DKI": 0.1429,
+      "EDBL": 0.1905,
+      "GCTK": 0.1905,
+      "IPDN": 0.1429,
+      "LABT": 0.1429,
+      "LIMN": 0.1429,
+      "MSGY": 0.0952,
+      "NRSN": 0.1429,
+      "NUWE": 0.1429,
+      "OMH": 0.1429,
+      "PPBT": 0.1429,
+      "STKH": 0.1429,
+      "SVRE": 0.1429,
+      "SXTC": 0.1429,
+      "YMT": 0.1429
+     },
+     "date": {
+      "2026-08-24": 0.15,
+      "2026-09-04": 0.1667,
+      "2026-09-10": 0.1429,
+      "2026-09-14": 0.0,
+      "2026-09-22": 0.2105,
+      "2026-09-23": 0.1429,
+      "2026-09-24": 0.1905,
+      "2026-09-25": 0.0952,
+      "2026-09-28": 0.15,
+      "2026-10-05": 0.0952
+     },
+     "min_ticker": 0.0952,
+     "min_date": 0.0,
+     "argmin_ticker": "ATPC"
+    },
+    "folds": {
+     "DISCOVERY": {
+      "episodes": 13,
+      "tickers": 13,
+      "variant": 5,
+      "bot_op": 2,
+      "diff": 0.2308
+     },
+     "VALIDATION": {
+      "episodes": 9,
+      "tickers": 9,
+      "variant": 4,
+      "bot_op": 4,
+      "diff": 0.0
+     }
+    }
+   }
+  },
+  "C": {
+   "exact": {
+    "vs_operational": {
+     "point": 0.1818,
+     "ci95": [
+      0.0455,
+      0.3636
+     ],
+     "ci9833": [
+      0.0,
+      0.4091
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "vs_standardized_108": {
+     "point": 0.1818,
+     "ci95": [
+      0.0455,
+      0.3636
+     ],
+     "ci9833": [
+      0.0,
+      0.4091
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "loo_vs_operational": {
+     "ticker": {
+      "AMIX": 0.1905,
+      "ATPC": 0.1429,
+      "BRTX": 0.1905,
+      "CETX": 0.1905,
+      "CIIT": 0.1429,
+      "CUPR": 0.1905,
+      "DCOY": 0.1905,
+      "DKI": 0.1905,
+      "EDBL": 0.1429,
+      "GCTK": 0.1905,
+      "IPDN": 0.1905,
+      "LABT": 0.1905,
+      "LIMN": 0.1905,
+      "MSGY": 0.1429,
+      "NRSN": 0.1905,
+      "NUWE": 0.1905,
+      "OMH": 0.1905,
+      "PPBT": 0.1905,
+      "STKH": 0.1905,
+      "SVRE": 0.1905,
+      "SXTC": 0.1905,
+      "YMT": 0.1905
+     },
+     "date": {
+      "2026-08-24": 0.2,
+      "2026-09-04": 0.2222,
+      "2026-09-10": 0.1905,
+      "2026-09-14": 0.125,
+      "2026-09-22": 0.1579,
+      "2026-09-23": 0.1905,
+      "2026-09-24": 0.1905,
+      "2026-09-25": 0.1429,
+      "2026-09-28": 0.2,
+      "2026-10-05": 0.1905
+     },
+     "min_ticker": 0.1429,
+     "min_date": 0.125,
+     "argmin_ticker": "ATPC"
+    },
+    "folds": {
+     "DISCOVERY": {
+      "episodes": 13,
+      "tickers": 13,
+      "variant": 3,
+      "bot_op": 1,
+      "diff": 0.1538
+     },
+     "VALIDATION": {
+      "episodes": 9,
+      "tickers": 9,
+      "variant": 3,
+      "bot_op": 1,
+      "diff": 0.2222
+     }
+    }
+   },
+   "early": {
+    "vs_operational": {
+     "point": 0.0909,
+     "ci95": [
+      -0.1818,
+      0.3182
+     ],
+     "ci9833": [
+      -0.2273,
+      0.4091
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "vs_standardized_108": {
+     "point": 0.0909,
+     "ci95": [
+      -0.1818,
+      0.3182
+     ],
+     "ci9833": [
+      -0.2273,
+      0.4091
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "loo_vs_operational": {
+     "ticker": {
+      "AMIX": 0.0952,
+      "ATPC": 0.0476,
+      "BRTX": 0.0476,
+      "CETX": 0.0952,
+      "CIIT": 0.0476,
+      "CUPR": 0.0952,
+      "DCOY": 0.0952,
+      "DKI": 0.0952,
+      "EDBL": 0.1429,
+      "GCTK": 0.1429,
+      "IPDN": 0.0952,
+      "LABT": 0.0952,
+      "LIMN": 0.0952,
+      "MSGY": 0.0476,
+      "NRSN": 0.0952,
+      "NUWE": 0.0952,
+      "OMH": 0.0476,
+      "PPBT": 0.0952,
+      "STKH": 0.0952,
+      "SVRE": 0.1429,
+      "SXTC": 0.0952,
+      "YMT": 0.0952
+     },
+     "date": {
+      "2026-08-24": 0.1,
+      "2026-09-04": 0.1111,
+      "2026-09-10": 0.0952,
+      "2026-09-14": 0.0625,
+      "2026-09-22": 0.1579,
+      "2026-09-23": 0.0952,
+      "2026-09-24": 0.1429,
+      "2026-09-25": 0.0476,
+      "2026-09-28": 0.05,
+      "2026-10-05": 0.0476
+     },
+     "min_ticker": 0.0476,
+     "min_date": 0.0476,
+     "argmin_ticker": "ATPC"
+    },
+    "folds": {
+     "DISCOVERY": {
+      "episodes": 13,
+      "tickers": 13,
+      "variant": 3,
+      "bot_op": 2,
+      "diff": 0.0769
+     },
+     "VALIDATION": {
+      "episodes": 9,
+      "tickers": 9,
+      "variant": 5,
+      "bot_op": 4,
+      "diff": 0.1111
+     }
+    }
+   }
+  },
+  "D1": {
+   "exact": {
+    "vs_operational": {
+     "point": 0.1364,
+     "ci95": [
+      -0.0909,
+      0.3636
+     ],
+     "ci9833": [
+      -0.1364,
+      0.4091
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "vs_standardized_108": {
+     "point": 0.1364,
+     "ci95": [
+      -0.0909,
+      0.3636
+     ],
+     "ci9833": [
+      -0.1364,
+      0.4091
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "loo_vs_operational": {
+     "ticker": {
+      "AMIX": 0.1429,
+      "ATPC": 0.1429,
+      "BRTX": 0.1429,
+      "CETX": 0.1905,
+      "CIIT": 0.1429,
+      "CUPR": 0.1429,
+      "DCOY": 0.1429,
+      "DKI": 0.0952,
+      "EDBL": 0.0952,
+      "GCTK": 0.0952,
+      "IPDN": 0.1429,
+      "LABT": 0.1429,
+      "LIMN": 0.1905,
+      "MSGY": 0.0952,
+      "NRSN": 0.1429,
+      "NUWE": 0.0952,
+      "OMH": 0.1429,
+      "PPBT": 0.1429,
+      "STKH": 0.1429,
+      "SVRE": 0.1429,
+      "SXTC": 0.1429,
+      "YMT": 0.1429
+     },
+     "date": {
+      "2026-08-24": 0.15,
+      "2026-09-04": 0.1111,
+      "2026-09-10": 0.1429,
+      "2026-09-14": 0.125,
+      "2026-09-22": 0.1579,
+      "2026-09-23": 0.1429,
+      "2026-09-24": 0.0952,
+      "2026-09-25": 0.1429,
+      "2026-09-28": 0.15,
+      "2026-10-05": 0.1429
+     },
+     "min_ticker": 0.0952,
+     "min_date": 0.0952,
+     "argmin_ticker": "DKI"
+    },
+    "folds": {
+     "DISCOVERY": {
+      "episodes": 13,
+      "tickers": 13,
+      "variant": 3,
+      "bot_op": 1,
+      "diff": 0.1538
+     },
+     "VALIDATION": {
+      "episodes": 9,
+      "tickers": 9,
+      "variant": 2,
+      "bot_op": 1,
+      "diff": 0.1111
+     }
+    }
+   },
+   "early": {
+    "vs_operational": {
+     "point": 0.0909,
+     "ci95": [
+      -0.1818,
+      0.3182
+     ],
+     "ci9833": [
+      -0.2273,
+      0.4091
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "vs_standardized_108": {
+     "point": 0.0909,
+     "ci95": [
+      -0.1818,
+      0.3182
+     ],
+     "ci9833": [
+      -0.2273,
+      0.4091
+     ],
+     "clusters": 22,
+     "B": 10000,
+     "seed": 20261009
+    },
+    "loo_vs_operational": {
+     "ticker": {
+      "AMIX": 0.0952,
+      "ATPC": 0.0952,
+      "BRTX": 0.0476,
+      "CETX": 0.1429,
+      "CIIT": 0.0952,
+      "CUPR": 0.0952,
+      "DCOY": 0.0952,
+      "DKI": 0.0476,
+      "EDBL": 0.1429,
+      "GCTK": 0.0952,
+      "IPDN": 0.0476,
+      "LABT": 0.0952,
+      "LIMN": 0.0952,
+      "MSGY": 0.0476,
+      "NRSN": 0.0952,
+      "NUWE": 0.0476,
+      "OMH": 0.0952,
+      "PPBT": 0.0952,
+      "STKH": 0.0952,
+      "SVRE": 0.1429,
+      "SXTC": 0.0952,
+      "YMT": 0.0952
+     },
+     "date": {
+      "2026-08-24": 0.1,
+      "2026-09-04": 0.0556,
+      "2026-09-10": 0.0952,
+      "2026-09-14": 0.125,
+      "2026-09-22": 0.1579,
+      "2026-09-23": 0.0476,
+      "2026-09-24": 0.0952,
+      "2026-09-25": 0.0952,
+      "2026-09-28": 0.1,
+      "2026-10-05": 0.0476
+     },
+     "min_ticker": 0.0476,
+     "min_date": 0.0476,
+     "argmin_ticker": "BRTX"
+    },
+    "folds": {
+     "DISCOVERY": {
+      "episodes": 13,
+      "tickers": 13,
+      "variant": 3,
+      "bot_op": 2,
+      "diff": 0.0769
+     },
+     "VALIDATION": {
+      "episodes": 9,
+      "tickers": 9,
+      "variant": 5,
+      "bot_op": 4,
+      "diff": 0.1111
+     }
+    }
+   }
+  }
+ },
+ "folds_disjoint_tickers": true,
+ "sensitivity_unambiguous": {
+  "episodes": 6,
+  "A": {
+   "exact_108": 1,
+   "early_108": 3
+  },
+  "B": {
+   "exact_108": 1,
+   "early_108": 3
+  },
+  "C": {
+   "exact_108": 3,
+   "early_108": 3
+  },
+  "D1": {
+   "exact_108": 2,
+   "early_108": 4
+  },
+  "bot_op_exact": 1,
+  "bot_op_early": 4
+ },
+ "H_C_by_temporal_class": {
+  "not_in_pool": [
+   0,
+   7
+  ],
+  "PERSISTENT": [
+   4,
+   10
+  ],
+  "REGRESSED": [
+   0,
+   2
+  ],
+  "PROGRESSED": [
+   2,
+   2
+  ],
+  "NEW": [
+   0,
+   1
+  ]
+ },
+ "fidelity": {
+  "F1_pass_abs_rel_err_median": 0.03685,
+  "F2_wall_recall_median": 0.95685,
+  "F2_wall_jaccard_median": 0.8483,
+  "F3_universe_ratio_median": 1.04325,
+  "dates_F1": 40,
+  "dates_F2": 34,
+  "operational_baseline_label": "reproduced",
+  "stage_consistency_with_previous_test": {
+   "compared": 12430,
+   "agree": 11403,
+   "rate": 0.9174,
+   "previous_rows": 12604
+  }
+ },
+ "preferred_variant": "C",
+ "verdict": {
+  "verdict": 2,
+  "text": "IMPROVEMENT NOT DEMONSTRATED",
+  "variant": "C",
+  "criteria": {
+   "A_budget": true,
+   "B_ci9833_lb_gt0": false,
+   "B_vs_standardized_point_gt0": true,
+   "E_loo_ticker_gt0": true,
+   "E_loo_date_gt0": true,
+   "E_folds_gt0": true,
+   "F_locks": "suite locks RNK0-RNK14 (exit code recorded in RANKING_REPORT.md)",
+   "G_reproduced": "see --check"
+  },
+  "early_point_vs_operational": 0.0909,
+  "label": "EXPLORATORY"
+ },
+ "posthoc": {
+  "D1": {
+   "label": "POST-HOC · EXPLORATORY — cannot carry verdict 1 (validation rows were viewed during the iteration-2 diagnosis · ADDENDA §1)",
+   "acceptance_i_targeted": {
+    "DKI_E1": true,
+    "NUWE_E1": true
+   },
+   "acceptance_ii_discovery": {
+    "D": 3,
+    "C": 3
+   },
+   "gained_vs_C": [
+    "DKI_E1",
+    "GCTK_E1",
+    "NUWE_E1"
+   ],
+   "lost_vs_C": [
+    "ATPC_E1",
+    "CETX_E1",
+    "CIIT_E1",
+    "LIMN_E1"
+   ],
+   "early_gained_vs_C": [
+    "DKI_E1",
+    "GCTK_E1",
+    "IPDN_E1",
+    "NUWE_E1"
+   ],
+   "early_lost_vs_C": [
+    "ATPC_E1",
+    "CETX_E1",
+    "CIIT_E1",
+    "OMH_E1"
+   ],
+   "criteria_if_it_were_preregistered": {
+    "A_budget": true,
+    "B_ci9833_lb_gt0": false,
+    "B_vs_standardized_point_gt0": true,
+    "E_loo_ticker_gt0": true,
+    "E_loo_date_gt0": true,
+    "E_folds_gt0": true,
+    "F_locks": "suite locks RNK0-RNK14 (exit code recorded in RANKING_REPORT.md)",
+    "G_reproduced": "see --check"
+   },
+   "acceptance_passed": true
+  }
+ },
+ "predictions": {
+  "P1_bot_median_within_25pct_of_108": true,
+  "P1_note": "reconstructed median 113.5 · F1 median |rel err| 0.03685",
+  "P2_wall_recall_median_ge_0.80": true,
+  "P3_no_FOCUS_case_captured_exact_108": true,
+  "P4_best_exact_108_le_6": true,
+  "P4_best": 6,
+  "P5_no_variant_meets_verdict1": true,
+  "P6_persistent_largest_temporal_class": true
+ },
+ "failures_primary": {
+  "A": {
+   "1 Candidate-generation failure": 7,
+   "11 Candidate is ranked too low despite satisfying the existing rules": 6,
+   "2 Candidate-ranking failure (stage priority cut-off)": 5,
+   "8 Missing historical data": 1
+  },
+  "B": {
+   "1 Candidate-generation failure": 7,
+   "11 Candidate is ranked too low despite satisfying the existing rules": 6,
+   "2 Candidate-ranking failure (stage priority cut-off)": 5,
+   "8 Missing historical data": 1
+  },
+  "C": {
+   "1 Candidate-generation failure": 7,
+   "2 Candidate-ranking failure (stage priority cut-off)": 5,
+   "11 Candidate is ranked too low despite satisfying the existing rules": 4,
+   "8 Missing historical data": 1
+  },
+  "D1": {
+   "11 Candidate is ranked too low despite satisfying the existing rules": 8,
+   "1 Candidate-generation failure": 7,
+   "2 Candidate-ranking failure (stage priority cut-off)": 2,
+   "8 Missing historical data": 1
+  }
+ },
+ "failures_primary_discovery": {
+  "A": {
+   "1 Candidate-generation failure": 6,
+   "11 Candidate is ranked too low despite satisfying the existing rules": 2,
+   "2 Candidate-ranking failure (stage priority cut-off)": 2
+  },
+  "B": {
+   "1 Candidate-generation failure": 6,
+   "11 Candidate is ranked too low despite satisfying the existing rules": 2,
+   "2 Candidate-ranking failure (stage priority cut-off)": 2
+  },
+  "C": {
+   "1 Candidate-generation failure": 6,
+   "11 Candidate is ranked too low despite satisfying the existing rules": 2,
+   "2 Candidate-ranking failure (stage priority cut-off)": 2
+  },
+  "D1": {
+   "1 Candidate-generation failure": 6,
+   "11 Candidate is ranked too low despite satisfying the existing rules": 4
+  }
+ }
+}

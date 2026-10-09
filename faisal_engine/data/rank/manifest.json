@@ -1,0 +1,108 @@
+{
+ "utc": "2026-10-09T14:29:37+00:00",
+ "run_id": "37942829821",
+ "commit": "dafb13a85075bff94e95e3edebadcae90fb502c5",
+ "sessions": 65,
+ "rows": 229449,
+ "sess_from": "2026-07-09",
+ "sess_to": "2026-10-08",
+ "bars_start": "2024-05-01",
+ "stale_sessions": 10,
+ "cal_min_symbols": 1000,
+ "files": {
+  "universe.json": {
+   "sha256": "d7315d29814db8f456fbbbeeaf4de92afd0fe5f855b891cf05e3e01c11f6debc",
+   "bytes": 28518
+  },
+  "bars.json.gz": {
+   "sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c",
+   "bytes": 29162182
+  },
+  "splits.json": {
+   "sha256": "6c9ac022d43d877c96ae362a87bdfa530f3515b803d85a1ebd1738bd0ce93b01",
+   "bytes": 132274
+  },
+  "sec.json.gz": {
+   "sha256": "68448c52257ad6f82c5bba7220a88bd85358940dbe91c138eb073b324d67975a",
+   "bytes": 106317
+  },
+  "rows.csv.gz": {
+   "sha256": "8a506495a17dcd1849283e6607d1018e4339f9cf253f587a83297225da59d890",
+   "bytes": 3277755
+  },
+  "sessions.csv": {
+   "sha256": "65720537f292b0868968454822dd917668f02a526394c2ab392667abe6ae8a54",
+   "bytes": 3693
+  }
+ },
+ "parts": {
+  "sec_0.json": {
+   "shard": "0/2",
+   "asked": 1800,
+   "ok": 1791,
+   "cik_map": 10435
+  },
+  "sec_1.json": {
+   "shard": "1/2",
+   "asked": 1800,
+   "ok": 1788,
+   "cik_map": 10435
+  },
+  "splits_0.json": {
+   "shard": "0/8",
+   "asked": 450,
+   "ok": 450,
+   "fail": 0,
+   "not_asked": 0
+  },
+  "splits_1.json": {
+   "shard": "1/8",
+   "asked": 450,
+   "ok": 449,
+   "fail": 1,
+   "not_asked": 0
+  },
+  "splits_2.json": {
+   "shard": "2/8",
+   "asked": 450,
+   "ok": 450,
+   "fail": 0,
+   "not_asked": 0
+  },
+  "splits_3.json": {
+   "shard": "3/8",
+   "asked": 450,
+   "ok": 448,
+   "fail": 2,
+   "not_asked": 0
+  },
+  "splits_4.json": {
+   "shard": "4/8",
+   "asked": 450,
+   "ok": 448,
+   "fail": 2,
+   "not_asked": 0
+  },
+  "splits_5.json": {
+   "shard": "5/8",
+   "asked": 450,
+   "ok": 449,
+   "fail": 1,
+   "not_asked": 0
+  },
+  "splits_6.json": {
+   "shard": "6/8",
+   "asked": 450,
+   "ok": 450,
+   "fail": 0,
+   "not_asked": 0
+  },
+  "splits_7.json": {
+   "shard": "7/8",
+   "asked": 450,
+   "ok": 450,
+   "fail": 0,
+   "not_asked": 0
+  }
+ }
+}

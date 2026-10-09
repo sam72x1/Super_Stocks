@@ -1,0 +1,135 @@
+{
+ "locks": "RNK8-RNK14",
+ "harness": "each mutation applied alone; locks RNK0-RNK13 run; restored in finally",
+ "note": "M19 first SURVIVED (RNK12 read only the committed summary); RNK12 now re-applies the verdict rule to the committed summary and was re-run against M19 -> KILLED. M12/M13 do not change the committed outputs (no bottom after T and no gap above 30 sessions inside the 41-session window) -> killed by the synthetic locks only.",
+ "mutations": [
+  {
+   "id": "M11",
+   "file": "faisal_engine/ranker.py",
+   "old": "0 <= since < FRESH_SESSIONS",
+   "new": "0 <= since <= FRESH_SESSIONS + 1",
+   "target": "RNK8",
+   "status": "KILLED",
+   "failed": [
+    "RNK8",
+    "RNK13"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "M12",
+   "file": "faisal_engine/ranker.py",
+   "old": "0 <= since < FRESH_SESSIONS",
+   "new": "-1 <= since < FRESH_SESSIONS",
+   "target": "RNK8",
+   "status": "KILLED",
+   "failed": [
+    "RNK8"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "M13",
+   "file": "faisal_engine/rank_eval.py",
+   "old": "if cur is None or i - last > EPISODE_GAP:",
+   "new": "if cur is None or i - last > EPISODE_GAP + 100:",
+   "target": "RNK9",
+   "status": "KILLED",
+   "failed": [
+    "RNK9"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "M14",
+   "file": "faisal_engine/rank_eval.py",
+   "old": "    return sessions[max(0, i - n):i]",
+   "new": "    return sessions[max(0, i - n + 1):i + 1]",
+   "target": "RNK10",
+   "status": "KILLED",
+   "failed": [
+    "RNK10",
+    "RNK13"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "M15",
+   "file": "faisal_engine/rank_eval.py",
+   "old": "rec[\"unevaluable_reason\"] = \"NOT_IN_RECONSTRUCTED_UNIVERSE\" if tk not in universe_syms else \"NO_ELIGIBLE_BARS_AT_T\"",
+   "new": "rec[\"unevaluable_reason\"] = \"NO_ELIGIBLE_BARS_AT_T\"",
+   "target": "RNK10",
+   "status": "KILLED",
+   "failed": [
+    "RNK10",
+    "RNK13"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "M16",
+   "file": "faisal_engine/rank_eval.py",
+   "old": "min(K, N), size=sims)",
+   "new": "N, size=sims)",
+   "target": "RNK11",
+   "status": "KILLED",
+   "failed": [
+    "RNK11",
+    "RNK13"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "M17",
+   "file": "faisal_engine/ranker.py",
+   "old": "return (ft[\"ft\"], pri, TEMPORAL[tm[\"cls\"]], tm[\"age\"]) + eb + (tb,)",
+   "new": "return (pri, ft[\"ft\"], TEMPORAL[tm[\"cls\"]], tm[\"age\"]) + eb + (tb,)",
+   "target": "RNK8",
+   "status": "KILLED",
+   "failed": [
+    "RNK8",
+    "RNK13"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "M18",
+   "file": "faisal_engine/rank_eval.py",
+   "old": "\"wb\", mtime=0) as gz",
+   "new": "\"wb\") as gz",
+   "target": "RNK13",
+   "status": "KILLED",
+   "failed": [
+    "RNK13"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "M19",
+   "file": "faisal_engine/rank_eval.py",
+   "old": "c[\"vs_operational\"].get(\"ci9833\") and c[\"vs_operational\"][\"ci9833\"][0] > 0",
+   "new": "c[\"vs_operational\"].get(\"ci95\") and c[\"vs_operational\"][\"ci95\"][0] > 0",
+   "target": "RNK12",
+   "status": "KILLED",
+   "failed": [
+    "RNK12",
+    "RNK13"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "M20",
+   "file": "faisal_engine/rank_eval.py",
+   "old": "    return (t or \"\").upper().strip()",
+   "new": "    return (t or \"\").strip()",
+   "target": "RNK14",
+   "status": "KILLED",
+   "failed": [
+    "RNK14"
+   ],
+   "crashed": false
+  }
+ ],
+ "killed": 10,
+ "total": 10
+}

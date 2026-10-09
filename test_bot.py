@@ -84210,6 +84210,130 @@ if _FR is not None and _FRU is not None:
         _ok7 = False; _why7 = f"⛔ {type(_e).__name__}: {_e}"
     check("🧭🏁 RNK7: عقدُ الترتيب مجمَّدٌ ببصمته قبل أيّ ترتيب (الإضافاتُ في ملفٍّ مستقلّ) · المرتِّبُ نقيٌّ بلا شبكةٍ ولا بوت · وأداةُ الرنر بلا "
           "تلغرام/حفظ حالة · والـworkflow يدويٌّ بلا أسرار تلغرام", _ok7, _why7)
+# 🧭🏁 RNK8-RNK14 — تقييمُ المرتِّب (`faisal_engine/rank_eval.py` · الإضافة 1 · 2026-10-09): D1 «اللمسةُ الأولى» بشموعٍ < T ·
+#    الحلقاتُ بقاعدة الثلاثين جلسة · المقاماتُ والرتبةُ الغائبة والميزانيّة · المبكرُ قبل القرار حصرًا · المرجعُ العشوائيّ ·
+#    واتّساقُ الجلسة الواحدة مع التصدير · والتوليدُ من المدخلات الملتزَمة بايتًا بايتًا.
+try:
+    _RE = _fe_imp.import_module("rank_eval")
+    _re_err = None
+except Exception as _e:                                   # noqa: BLE001
+    _RE = None; _re_err = f"{type(_e).__name__}: {_e}"
+if _FR is not None and _RE is not None:
+    # RNK8 — D1: first touch (bottom within 5 sessions before T, as-of) before stage; missing/at-T bottom is not first touch
+    try:
+        _ss8 = ["2026-09-08", "2026-09-09", "2026-09-10", "2026-09-11", "2026-09-14", "2026-09-15", "2026-09-16", "2026-09-17", "2026-09-18"]
+        _T8 = _ss8[-1]
+        _r8 = [_fr_row("NEWLOW", "FOCUS", date=_T8, bottom_date=_ss8[-2]), _fr_row("OLDRDY", "READY", date=_T8, bottom_date=_ss8[1]),
+               _fr_row("NOBOT", "READY", date=_T8, bottom_date=""), _fr_row("ATT", "READY", date=_T8, bottom_date=_T8)]
+        _d1 = _FR.rank_session(_T8, _r8, "D1", {}, _ss8); _c8 = _FR.rank_session(_T8, _r8, "C", {}, _ss8)
+        _ft = {s: _FR.first_touch(next(r for r in _r8 if r["symbol"] == s), _T8, _ss8) for s in ("NEWLOW", "OLDRDY", "NOBOT", "ATT")}
+        _ok8 = ([x["symbol"] for x in _d1][0] == "NEWLOW" and [x["symbol"] for x in _c8][-1] == "NEWLOW"
+                and _ft["NEWLOW"]["ft"] == 0 and _ft["NEWLOW"]["since"] == 0 and _ft["OLDRDY"]["ft"] == 1 and _ft["OLDRDY"]["since"] == 6
+                and _ft["NOBOT"]["ft"] == 1 and _ft["ATT"]["ft"] == 1 and "D1" not in _FR.VARIANTS and "D1" in _FR.POSTHOC_VARIANTS
+                and all(x["stage"] == next(r["eng_stage"] for r in _r8 if r["symbol"] == x["symbol"]) for x in _d1))
+        _why8 = f"D1={[x['symbol'] for x in _d1]} C={[x['symbol'] for x in _c8]} ft={ {k: (v['ft'], v['since']) for k, v in _ft.items()} }"
+    except Exception as _e:                                # noqa: BLE001
+        _ok8 = False; _why8 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK8: D1 (لاحقٌ موسوم) — اللمسةُ الأولى (قاعُ V4 خلال 5 جلسات قبل T) قبل المرحلة · والقاعُ الغائب أو يومَ T ليس لمسةً أولى · "
+          "ولا يغيّر مرحلةً · ولا يدخل المتغيّراتِ المسجَّلة", _ok8, _why8)
+    # RNK9 — episodes: 30-session rule; repeated mentions inside one episode are one unit of analysis
+    try:
+        _ss9 = [f"S{i:03d}" for i in range(100)]
+        _u9 = [dict(ticker="AAA", session="S010", evidence_id="e1", state="WATCH", ambiguity=""),
+               dict(ticker="AAA", session="S015", evidence_id="e2", state="READY", ambiguity=""),
+               dict(ticker="AAA", session="S015", evidence_id="e3", state="WATCH", ambiguity=""),
+               dict(ticker="AAA", session="S050", evidence_id="e4", state="FOCUS", ambiguity="AMBIGUOUS_ID"),
+               dict(ticker="BBB", session="S020", evidence_id="e5", state="WATCH", ambiguity="")]
+        _ep9 = _RE.episodes(_u9, _ss9)
+        _ok9 = ([(e["episode_id"], e["T_e"], e["n_units"]) for e in _ep9] == [("AAA_E1", "S010", 3), ("AAA_E2", "S050", 1), ("BBB_E1", "S020", 1)]
+                and _ep9[1]["ambiguity"] == "AMBIGUOUS_ID" and _ep9[0]["first_state"] == "WATCH")
+        _why9 = str([(e["episode_id"], e["T_e"], e["n_units"]) for e in _ep9])
+    except Exception as _e:                                # noqa: BLE001
+        _ok9 = False; _why9 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK9: الحلقات — فجوةٌ فوق 30 جلسة تفتح حلقةً جديدة · والذِّكرُ المكرَّر داخل الحلقة وحدةٌ واحدة · وقرارُها أوّلُ جلسة · والغموضُ يُحمَل لا يُحذف",
+          _ok9, _why9)
+    # RNK10 — denominators: absent ⇒ UNEVALUABLE with reason; outside pool ⇒ rank ""; K enforced; early = strictly before T
+    try:
+        _ss10 = ["D1", "D2", "D3", "D4", "D5", "D6", "D7", "D8"]
+        _by10 = {d: [{"symbol": "AAA", "eng_stage": "WATCH", "bot_res": "FAIL"}, {"symbol": "BBB", "eng_stage": "REJECTED", "bot_res": "FAIL"}] + [{"symbol": f"Z{i}", "eng_stage": "WATCH", "bot_res": "FAIL"} for i in range(3)] for d in _ss10}
+
+        def _mk(rank_on):
+            return {v: {d: ({"AAA": {"rank": rank_on[d], "explain": "", "temporal": "", "stage": "WATCH"}} if d in rank_on else {}) for d in _ss10} for v in ("A",)}
+        _cA = _RE.eval_case("AAA", "D8", _ss10, _by10, _mk({"D8": 1}), {}, {"AAA", "BBB"}, ["A"])
+        _cB = _RE.eval_case("AAA", "D8", _ss10, _by10, _mk({"D7": 1, "D8": 200}), {}, {"AAA", "BBB"}, ["A"])
+        _cC = _RE.eval_case("AAA", "D8", _ss10, _by10, _mk({"D2": 1}), {}, {"AAA", "BBB"}, ["A"])
+        _cD = _RE.eval_case("CCC", "D8", _ss10, _by10, _mk({}), {}, {"AAA", "BBB"}, ["A"])
+        _cE = _RE.eval_case("BBB", "D8", _ss10, _by10, _mk({}), {}, {"AAA", "BBB"}, ["A"])
+        _ok10 = ((_cA["A_exact_25"], _cA["A_early_25"]) == (1, 0) and (_cB["A_exact_108"], _cB["A_early_108"]) == (0, 1)
+                 and (_cC["A_exact_108"], _cC["A_early_108"]) == (0, 0) and _cD["evaluable"] == 0 and _cD["unevaluable_reason"] == "NOT_IN_RECONSTRUCTED_UNIVERSE"
+                 and _cE["evaluable"] == 1 and _cE["A_rank"] == "" and _RE.rank_bucket(_cE["A_rank"]) == "not_in_pool"
+                 and _RE.rank_bucket(108) == "51-108" and _RE.rank_bucket(109) == ">108" and _cA["rnd_U_exact_25"] == 1.0)
+        _why10 = f"A={(_cA['A_exact_25'], _cA['A_early_25'])} B={(_cB['A_exact_108'], _cB['A_early_108'])} C={(_cC['A_exact_108'], _cC['A_early_108'])} D={_cD.get('unevaluable_reason')}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok10 = False; _why10 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK10: المقامات — الغائبُ عن الكون UNEVALUABLE بسببه · خارجُ المجتمع رتبةٌ فارغة لا صفر · الميزانيّةُ K تُطبَّق · "
+          "والمبكرُ من الجلسات الخمس قبل القرار حصرًا (لا يومُه ولا ما قبل الخمس)", _ok10, _why10)
+    # RNK11 — random reference: seeded, reproducible, mean = Σ K/N (joint draws on a shared session)
+    try:
+        _by11 = {"T1": [{"symbol": f"S{i}"} for i in range(40)], "T2": [{"symbol": f"S{i}"} for i in range(20)]}
+        _ep11 = [dict(ticker="S1", T_e="T1"), dict(ticker="S2", T_e="T1"), dict(ticker="S3", T_e="T2")]
+        _m1 = _RE.random_mc(_ep11, _by11, ["T1", "T2"], 10, "exact", seed=7, sims=20000)
+        _m2 = _RE.random_mc(_ep11, _by11, ["T1", "T2"], 10, "exact", seed=7, sims=20000)
+        _exp = 10 / 40 * 2 + 10 / 20
+        _ok11 = (_m1 == _m2 and abs(_m1["mean"] - _exp) < 0.03 and _m1["sims"] == 20000)
+        _why11 = f"mean={_m1['mean']} expected={_exp}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok11 = False; _why11 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK11: المرجعُ العشوائيّ — بذرةٌ موثَّقة تُعيد الرقمَ نفسَه · ومتوسّطُه = مجموعُ K/N (الحالاتُ في الجلسة نفسِها تُسحب معًا)", _ok11, _why11)
+    # RNK12 — committed outputs: preferred variant among A/B/C only; D1 post-hoc only; verdict follows the rule; single-date list = export
+    try:
+        _od = _fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "faisal_engine", "out")
+        _S12 = _fe_json.load(open(_fe_os.path.join(_od, "rank_summary.json"), encoding="utf-8"))
+        _rows12 = _FR.load_rows(); _ss12 = _FR.sessions_of(_rows12); _h12 = _FR.stage_history(_rows12)
+        _rk12 = _FR.rank_session("2026-09-22", [r for r in _rows12 if r["date"] == "2026-09-22"], "C", _h12, _ss12)[:108]
+        import gzip as _gz12, csv as _csv12
+        _ex12 = [r["symbol"] for r in _csv12.DictReader(_gz12.open(_fe_os.path.join(_od, "rank_top108_C.csv.gz"), "rt", encoding="utf-8")) if r["date"] == "2026-09-22"]
+        _vc = _S12["verdict"]["criteria"]
+        _d12 = [{"shortlist_108": int(r["shortlist_108"])} for r in _csv12.DictReader(open(_fe_os.path.join(_od, "rank_daily.csv"), encoding="utf-8"))]
+        _rv12 = _RE.verdict(_S12, _S12["preferred_variant"], _d12)          # القاعدةُ تُعاد على الملخّص الملتزَم ⟵ الحكمُ نفسُه
+        _ok12 = (_S12["preferred_variant"] in ("A", "B", "C") and _S12["verdict"]["variant"] == _S12["preferred_variant"]
+                 and "D1" in _S12["posthoc"] and "POST-HOC" in _S12["posthoc"]["D1"]["label"]
+                 and (_S12["verdict"]["verdict"] == 1) == all(v is True for k, v in _vc.items() if k[0] in "ABE")
+                 and _vc["B_ci9833_lb_gt0"] == (_S12["comparisons"][_S12["preferred_variant"]]["exact"]["vs_operational"]["ci9833"][0] > 0)
+                 and _rv12["verdict"] == _S12["verdict"]["verdict"] and _rv12["criteria"] == _vc
+                 and [x["symbol"] for x in _rk12] == _ex12 and len(_ex12) == 108
+                 and _S12["label"] == "EXPLORATORY" and _S12["fidelity"]["operational_baseline_label"] in ("reproduced", "reconstructed (not reproduced from historical outputs)"))
+        _why12 = f"pref={_S12['preferred_variant']} verdict={_S12['verdict']['verdict']} export={len(_ex12)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok12 = False; _why12 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK12: الملخّصُ الملتزَم — المفضَّلُ من A/B/C وحدَها والحكمُ تابعٌ للقاعدة (B·A·E) · D1 لاحقٌ موسوم · وقائمةُ جلسةٍ واحدةٍ من المرتِّب = التصديرُ نفسُه",
+          _ok12, _why12)
+    # RNK13 — reproducibility: a fresh run from committed inputs regenerates every committed output byte-identically
+    try:
+        import contextlib as _cl13, io as _io13
+        with _cl13.redirect_stdout(_io13.StringIO()):
+            _rc13 = _RE.check()
+        _ok13 = (_rc13 == 0)
+    except Exception as _e:                                # noqa: BLE001
+        _ok13 = False; _rc13 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK13: إعادةُ التوليد من المدخلات الملتزَمة (data/rank) تطابق كلَّ مخرَجٍ ملتزَم بايتًا بايتًا (الملخّص · الحالات · الوحدات · اليوميّ · الأمانة · "
+          "التشخيص · المراسي · سجلّ الميزات · قوائمُ أعلى 108)", _ok13, str(_rc13))
+    # RNK14 — symbol identity: one key everywhere (units · universe · ranks); no rename map ⇒ absence is UNEVALUABLE with its reason
+    try:
+        _n14 = [_RE.norm_ticker(x) for x in (" dki ", "Dki", "SXTC\n", None)]
+        import csv as _csv14
+        _c14 = list(_csv14.DictReader(open(_fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "faisal_engine", "out", "rank_cases.csv"), encoding="utf-8")))
+        _bad14 = [c["ticker"] for c in _c14 if c["ticker"] != _RE.norm_ticker(c["ticker"])]
+        _un14 = [(c["ticker"], c.get("unevaluable_reason")) for c in _c14 if c["evaluable"] == "0"]
+        _ok14 = (_n14 == ["DKI", "DKI", "SXTC", ""] and not _bad14 and len(_c14) == 23
+                 and all(r in ("NOT_IN_RECONSTRUCTED_UNIVERSE", "NO_ELIGIBLE_BARS_AT_T") for _, r in _un14))
+        _why14 = f"norm={_n14} bad={_bad14} unevaluable={_un14}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok14 = False; _why14 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK14: هُويّةُ الرمز — مفتاحٌ واحدٌ في الوحدات والكون والرتب (حروفٌ كبيرة بلا فراغ) · ولا خريطةَ لتغيّر الرمز ⟵ الغائبُ UNEVALUABLE بسببه",
+          _ok14, _why14)
+else:
+    check("🧭🏁 RNK15: `rank_eval.py` يُستورَد (شرطُ أقفال RNK8-RNK14)", False, str(_re_err)[:120])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
