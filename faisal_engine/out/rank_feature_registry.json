@@ -1,0 +1,109 @@
+{
+ "ranker": "FE-RANK 1.0 (2026-10-09)",
+ "variants": [
+  "A",
+  "B",
+  "C"
+ ],
+ "posthoc": [
+  "D1"
+ ],
+ "features": [
+  {
+   "name": "stage_priority",
+   "variants": "A B C",
+   "definition": "TRIGGER 0 · READY 1 · WATCH 2 · FOCUS 3 · HOLD 4 (أصغرُ أولى)",
+   "source": "engine.evaluate → rec['stage'] (rows.eng_stage)",
+   "evidence_class": "INFERRED (FE-STAGE-01 PROBABLE: خريطةُ V4 ⟵ مراحل فيصل)",
+   "availability": "شموعٌ < T وسياقٌ ≤ T",
+   "direction": "المرحلةُ الأقربُ إلى الفعل أوّلًا · HOLD آخرًا (مانعٌ مؤرَّخ)",
+   "reason": "سلسلةُ NEXT_CONDITION في engine.py: FOCUS ⟵ WATCH ⟵ READY ⟵ TRIGGER",
+   "failure_modes": "اهتمامُ فيصل الموثَّق أغلبُه WATCH/FOCUS — قد يُعاكس الالتقاط",
+   "faisal_support": "المراحلُ مستنبطةٌ من آلة حالة فيصل (مرحلة 3/4) · الترتيبُ بينها ليس منصوصًا"
+  },
+  {
+   "name": "tie_break",
+   "variants": "A B C",
+   "definition": "sha256('FE-RANK-1|T|symbol') تصاعديًّا",
+   "source": "ranker.tiebreak",
+   "evidence_class": "N/A (حياديّ)",
+   "availability": "دائمًا",
+   "direction": "لا اتّجاه — كسرُ تعادلٍ ثابت",
+   "reason": "حتميٌّ ولا يعرف التسميات ولا الأسعار",
+   "failure_modes": "اعتباطيٌّ بالتصميم داخل التعادل",
+   "faisal_support": "لا"
+  },
+  {
+   "name": "state_rule_strength",
+   "variants": "B C",
+   "definition": "حالةُ القاعدة V4.STATE_RULE[tech_state] في FAISAL_RULE_LEDGER: CONFIRMED 3 · SUPPORTED 2 · PROBABLE 1",
+   "source": "rows.state_rule + FAISAL_RULE_LEDGER.json",
+   "evidence_class": "تصنيفُ السجلّ نفسُه (DIRECTLY_OBSERVED/REPEATEDLY_SUPPORTED/INFERRED)",
+   "availability": "ثابتٌ (سجلٌّ مجمَّد)",
+   "direction": "الأقوى دليلًا أوّلًا",
+   "reason": "§7 B: لا يُعامَل المنصوصُ والمستنبَط سواءً",
+   "failure_modes": "يقيس قوّةَ دليل القاعدة لا قوّةَ الإعداد · مرتبطٌ بالحالة الفنيّة",
+   "faisal_support": "التصنيفُ نفسُه من أدلّة فيصل"
+  },
+  {
+   "name": "contradicted",
+   "variants": "B C",
+   "definition": "أيُّ قاعدةٍ مطبَّقة حالتُها CONTRADICTED ⟵ بعد",
+   "source": "rows.rules_passed|v4_rule_ids + ledger",
+   "evidence_class": "CONTRADICTED",
+   "availability": "ثابت",
+   "direction": "المناقَضُ آخرًا",
+   "reason": "§6 B: الدليلُ المعاكس",
+   "failure_modes": "نادرٌ (H-D2 وحدَها)",
+   "faisal_support": "مناقَضةٌ بسلوكه الموثَّق"
+  },
+  {
+   "name": "validity_offering",
+   "variants": "B C",
+   "definition": "الطرحُ متحقَّقٌ غيابُه (False) قبل المجهول (UNKNOWN) · المعلَّقُ (True) ⟵ HOLD بالمرحلة",
+   "source": "rows.offering (SEC 424B1/4/5 ≤ 90 يومًا ≤ T)",
+   "evidence_class": "REPEATEDLY_SUPPORTED (R4-VAL-OFF-01)",
+   "availability": "إيداعاتٌ مؤرَّخة ≤ T",
+   "direction": "المتحقَّقُ أوّلًا — المجهولُ ليس «لا»",
+   "reason": "§6 B: الموانعُ الصريحة · UNKNOWN ≠ false",
+   "failure_modes": "غيابُ CIK ⟵ مجهولٌ لا سلبيّ · نماذجُ أخرى للطرح خارج التغطية",
+   "faisal_support": "R4-VAL-OFF-01"
+  },
+  {
+   "name": "identity_frame",
+   "variants": "B C",
+   "definition": "FULL (FE-SCREEN-01 SUPPORTED) قبل POST_SPLIT (FE-FRAME-01 PROBABLE)",
+   "source": "rows.frame",
+   "evidence_class": "REPEATEDLY_SUPPORTED vs INFERRED",
+   "availability": "تقسيماتٌ ≤ T",
+   "direction": "الإطارُ الأقوى دليلًا أوّلًا",
+   "reason": "§7 B: درجةُ الدليل",
+   "failure_modes": "أسهمُ فيصل كثيرًا ما تكون بعد تقسيم — قد يؤخّرها",
+   "faisal_support": "إطارُ ما بعد التقسيم مستنبَط (المرحلة 2)"
+  },
+  {
+   "name": "temporal_class",
+   "variants": "C",
+   "definition": "PROGRESSED 0 · NEW 1 · PERSISTENT 2 (≥5 جلسات في المرحلة) · REGRESSED 3",
+   "source": "مراحلُ المحرّك في الجلسات السابقة (rows.eng_stage)",
+   "evidence_class": "فرضيّةٌ مسجَّلة H-C (اتّجاهُها من نصّ المهمّة §7 وسلسلة المراحل)",
+   "availability": "جلساتٌ < T فقط",
+   "direction": "الطازجُ قبل القديم داخل المرحلة · التراجعُ آخرًا",
+   "reason": "§7 C: لا يعلو الثابتُ القديم على الإعداد الجديد",
+   "failure_modes": "حدودُ التاريخ المحسوب (20 جلسة) · الدخولُ/الخروجُ المتكرّر عند الحدّ",
+   "faisal_support": "استنتاج: المرحلتان 3/4 (انتباهُه عند اللمسة الأولى) من المدوّنة نفسِها — تلوّثٌ مُعلَن"
+  },
+  {
+   "name": "age_in_stage",
+   "variants": "C",
+   "definition": "جلساتٌ متتاليةٌ سابقة في المرحلة نفسِها (سقف 20)",
+   "source": "rows.eng_stage",
+   "evidence_class": "فرضيّةٌ مسجَّلة H-C",
+   "availability": "جلساتٌ < T",
+   "direction": "الأحدثُ أوّلًا",
+   "reason": "§7 C",
+   "failure_modes": "مرتبطٌ بالصنف الزمنيّ (لا يُعَدّ دليلًا مستقلًّا — كسرُ تعادلٍ داخله)",
+   "faisal_support": "كما فوق"
+  }
+ ]
+}

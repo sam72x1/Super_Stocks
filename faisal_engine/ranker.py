@@ -15,7 +15,9 @@ import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 RANKER_VERSION = "FE-RANK 1.0 (2026-10-09)"
-VARIANTS = ("A", "B", "C")
+VARIANTS = ("A", "B", "C")                 # المسجَّلة مسبقًا (RANKING_PROTOCOL.md §④) — لا تُعدَّل
+POSTHOC_VARIANTS = ("D1",)                 # تصحيحٌ لاحق (RANKING_PROTOCOL_ADDENDA.md · الإضافة 1) — موسومٌ POST-HOC
+ALL_VARIANTS = VARIANTS + POSTHOC_VARIANTS
 STAGE_PRIORITY = {"TRIGGER": 0, "READY": 1, "WATCH": 2, "FOCUS": 3, "HOLD": 4}
 POOL = tuple(STAGE_PRIORITY)
 TIE_TAG = "FE-RANK-1"
@@ -125,7 +127,20 @@ def temporal(symbol, date, stage, hist, sessions):
     return {"cls": cls, "age": age, "prev": prev, "truncated": truncated}
 
 
-def key(variant, row, ev=None, tm=None):
+def first_touch(row, date, sessions):
+    """D1 (الإضافة 1): قاعُ V4 البنيويّ (`bottom_date` من شموعٍ < date) خلال آخر FRESH_SESSIONS جلسات قبل date ⟵ 0 · وإلّا 1 ·
+    والقاعُ الغائب ⟵ 1 (موسومٌ · لا يُستنتَج «لمسةٌ أولى»)."""
+    import bisect
+    b = (row.get("bottom_date") or "")[:10]
+    if not b or date not in sessions:
+        return {"ft": 1, "since": None, "bottom": b or None}
+    last = sessions.index(date) - 1
+    k = bisect.bisect_right(sessions, b) - 1
+    since = last - k if k >= 0 else None
+    return {"ft": 0 if (since is not None and 0 <= since < FRESH_SESSIONS) else 1, "since": since, "bottom": b}
+
+
+def key(variant, row, ev=None, tm=None, ft=None):
     pri = STAGE_PRIORITY[row["eng_stage"]]
     tb = tiebreak(row["date"], row["symbol"])
     if variant == "A":
@@ -136,18 +151,23 @@ def key(variant, row, ev=None, tm=None):
         return (pri,) + eb + (tb,)
     if variant == "C":
         return (pri, TEMPORAL[tm["cls"]], tm["age"]) + eb + (tb,)
+    if variant == "D1":
+        return (ft["ft"], pri, TEMPORAL[tm["cls"]], tm["age"]) + eb + (tb,)
     raise ValueError(variant)
 
 
-def explain(variant, rank, row, ev, tm):
+def explain(variant, rank, row, ev, tm, ft=None):
     off = {"False": "verified absent", "True": "PENDING (HOLD)"}.get(str(row.get("offering")), "UNKNOWN")
     parts = [f"#{rank} {row['symbol']} @ {row['date']} [{variant}]",
              f"stage {row['eng_stage']} (priority {STAGE_PRIORITY[row['eng_stage']]}) · tech {row.get('tech_state') or '—'}"]
-    if variant in ("B", "C"):
+    if variant in ("B", "C", "D1"):
         parts.append(f"stage rule {ev['state_rule'] or '—'} {ev['status']}" + (" · CONTRADICTED rule present" if ev["contradicted"] else ""))
         parts.append(f"offering {off} · frame {row.get('frame') or '—'}")
-    if variant == "C":
+    if variant in ("C", "D1"):
         parts.append(f"temporal {tm['cls']} (age {tm['age']}, prev {tm['prev'] or 'out-of-pool'}{', history truncated' if tm['truncated'] else ''})")
+    if variant == "D1":
+        parts.append(("FIRST-TOUCH" if ft["ft"] == 0 else "not first-touch") + f" (V4 bottom {ft['bottom'] or 'UNKNOWN'}"
+                     + (f", {ft['since']} sessions before the last bar)" if ft["since"] is not None else ")"))
     if row.get("missing_rules"):
         parts.append("UNKNOWN: " + row["missing_rules"].replace("|", ", "))
     if row.get("blocks"):
@@ -162,15 +182,16 @@ def rank_session(date, rows_t, variant, hist=None, sessions=None):
     items = []
     for r in pool:
         ev = evidence(r)
-        tm = temporal(r["symbol"], date, r["eng_stage"], hist or {}, sessions or []) if variant == "C" else None
-        items.append((key(variant, r, ev, tm), r, ev, tm))
+        tm = temporal(r["symbol"], date, r["eng_stage"], hist or {}, sessions or []) if variant in ("C", "D1") else None
+        ft = first_touch(r, date, sessions or []) if variant == "D1" else None
+        items.append((key(variant, r, ev, tm, ft), r, ev, tm, ft))
     items.sort(key=lambda x: x[0])
     out = []
-    for k, (kk, r, ev, tm) in enumerate(items, 1):
+    for k, (kk, r, ev, tm, ft) in enumerate(items, 1):
         out.append({"rank": k, "symbol": r["symbol"], "date": date, "stage": r["eng_stage"], "tech_state": r.get("tech_state"),
                     "frame": r.get("frame"), "offering": r.get("offering"), "state_rule": ev["state_rule"], "rule_status": ev["status"],
-                    "temporal": (tm or {}).get("cls", ""), "age": (tm or {}).get("age", ""), "key": json.dumps(list(kk)),
-                    "explain": explain(variant, k, r, ev, tm)})
+                    "temporal": (tm or {}).get("cls", ""), "age": (tm or {}).get("age", ""), "first_touch": ("" if ft is None else ft["ft"] == 0),
+                    "key": json.dumps(list(kk)), "explain": explain(variant, k, r, ev, tm, ft)})
     return out
 
 
@@ -187,14 +208,14 @@ if __name__ == "__main__":
     import argparse
     ap = argparse.ArgumentParser(description="FAISAL RESEARCH RANKER — قائمةُ جلسةٍ مرتّبة أو رتبةُ رمز")
     ap.add_argument("--date", required=True)
-    ap.add_argument("--variant", default="C", choices=VARIANTS)
+    ap.add_argument("--variant", default="C", choices=ALL_VARIANTS)
     ap.add_argument("--k", type=int, default=108)
     ap.add_argument("--symbol")
     ap.add_argument("--rows", default=ROWS)
     a = ap.parse_args()
     rows = load_rows(a.rows)
     ss = sessions_of(rows)
-    hist = stage_history(rows) if a.variant == "C" else None
+    hist = stage_history(rows) if a.variant in ("C", "D1") else None
     rk = rank_session(a.date, [r for r in rows if r["date"] == a.date], a.variant, hist, ss)
     if a.symbol:
         hit = [x for x in rk if x["symbol"] == a.symbol.upper()]
