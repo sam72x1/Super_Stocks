@@ -184,6 +184,8 @@ CONFIG = {
     "BORROW_AVAIL_MAX": 20_000,    # فوقه = «حرب وتصريف/ذخيرة هبوط» بإطار فيصل
     # 🎯 «صلّح الترتيب»: جولاتُ تعبئةِ الخانات بعد إخراج M14/المتاح (سقفُ كلفةٍ مُعلَن).
     "PICK_FILL_ROUNDS": 4,
+    # 🗂️ سجلُّ بِركة التعبئة (2026-10-09 · رصدٌ لا قرار): `False` ⟵ لا لقطةَ ولا أثرَ ولا كتابة (القرارُ نفسُه بت-بت · PFC13).
+    "FILL_POOL_LOG": True,
     "FLOAT_GATE_REQUIRED": True,  # M14: رفض الفلوت الكبير (أقوى رابط في أسهم فيصل)
     "FLOAT_GATE_MAX": 50_000_000, # حد الفلوت: كل أسهم فيصل تحته (HCAI 163ألف ←
                                   # MWC 26.68م). الفلوت الصغير = ينفجر بسهولة.
@@ -12861,7 +12863,7 @@ def borrow_second_chance(picks, today_iso=None, harvested=None, fetch_ce=None,
 
 
 def fill_picks(results, space, exclude, enrich_fn=None, rounds=None,
-               second_chance=None):
+               second_chance=None, trace=None):
     """🎯 **تعبئةُ الخانات بالترتيب مع بوّابتَي ما بعد الإثراء** (أمرُ المالك
     2026-08-11 «صلّح الترتيب»).
 
@@ -12885,7 +12887,11 @@ def fill_picks(results, space, exclude, enrich_fn=None, rounds=None,
     ناقصًا يُعلَن بعددِه لا يُطوى.
 
     ترجّع `(picks, fl_out, bw_out, used_rounds)` — والقائمةُ مرتَّبةٌ كما تُنتجها
-    `select_top`. 🔒 فاشلةٌ-آمنة: انكسارُ الإثراء يُسجَّل ولا يُسقط التعبئة."""
+    `select_top`. 🔒 فاشلةٌ-آمنة: انكسارُ الإثراء يُسجَّل ولا يُسقط التعبئة.
+
+    🗂️ **`trace` (2026-10-09 · رصدٌ لا قرار):** قائمةٌ يُلحَق بها أثرُ كلّ جولة (المختارون بالترتيب · المتاحُ بعد الإثراء · المُخرَجون
+    بالفلوت · المتاحُ عند البوّابة · المُخرَجون بالمتاح) عبر `_fill_trace_note` — **قراءةٌ لحقولٍ قائمة** بلا نداءٍ ولا تعديل، وانكسارُها
+    يُبتلَع. `None` (الافتراض) ⟵ لا شيء يُقرأ ⟵ **السلوكُ السابق بت-بت** (PFC12: 300 عالَم بالأثر وبدونه متطابقة)."""
     rounds = int(CONFIG.get("PICK_FILL_ROUNDS", 4) if rounds is None else rounds)
     picks, fl_out, bw_out = [], [], []
     excl = set(exclude or set())
@@ -12896,16 +12902,20 @@ def fill_picks(results, space, exclude, enrich_fn=None, rounds=None,
         if not got:
             break
         excl |= {r["symbol"] for r in got}
+        _tn = _fill_trace_note(trace, used, got) if trace is not None else None
         try:
             (enrich_fn or enrich)(got)
         except Exception as e:                                   # noqa: BLE001
             log(f"⚠️ الإثراء (جولة {used}): {e}")
+        if _tn is not None:
+            _fill_trace_note(trace, used, got, _tn, "av_enrich")
         got, _fl = refloat_gate_recheck(got)
         fl_out += _fl
         # 🔒⏱️ فرصةٌ ثانية لمتاح البوّابة (2026-09-26): **الإنتاجُ وحدَه افتراضًا** — الاختباراتُ
         #    تحقن `enrich_fn` فلا نداءَ شبكةٍ منها (وتحقن `second_chance` صراحةً لتقيسها).
         _sc = (second_chance if second_chance is not None
                else (borrow_second_chance if enrich_fn is None else None))
+        _c = None
         if _sc is not None:
             try:
                 _c = _sc(got) or {}
@@ -12916,8 +12926,12 @@ def fill_picks(results, space, exclude, enrich_fn=None, rounds=None,
                            if _c.get("تعذّر") else ""))
             except Exception as e:                               # noqa: BLE001
                 log(f"⚠️ الفرصة الثانية للمتاح (جولة {used}): {e}")
+        if _tn is not None:
+            _fill_trace_note(trace, used, got, _tn, "av_gate", fl=_fl, sc=_c)
         got, _bw = borrow_gate_recheck(got)
         bw_out += _bw
+        if _tn is not None:
+            _fill_trace_note(trace, used, got, _tn, "bw", bw=_bw)
         picks += got
         if not _fl and not _bw:
             break                     # لم يُخرَج أحد ⇒ لا حاجة لجولةٍ أخرى
@@ -12956,6 +12970,256 @@ def fill_shortfall_note(pool, exclude, picks, fl_out, bw_out, space, rounds_used
         return f" — نقصَ {n} ({why})"
     except Exception:                                            # noqa: BLE001
         return ""
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🎯🗂️ سجلُّ بِركة التعبئة (2026-10-09 · متابعةُ #599 · رصدٌ لا قرار)
+#    كان الفارزُ يعدّ المؤهَّلين والمارّين بالسلامة **ولا يسمّيهم**، والمرئيُّ من البِركة هو المفحوصُ وحدَه ⇒ «هل في الباقين
+#    مَن يجتاز؟» غيرُ قابلٍ للتحديد (`faisal_engine/GATE_PROVENANCE_REPORT.md §4c`). هنا: لقطةٌ مرتَّبةٌ **قبل** `fill_picks`
+#    (المفتاحُ كما حسبه `rank_key` · حالةُ السلامة · الاستثناء) ‏+ أثرُ كلّ جولة (`trace`) ‏+ سطرٌ مُلحَقٌ واحدٌ لكلّ تشغيلة.
+#    🔒 لا نداءَ شبكة · لا تعديلَ لصفٍّ ولا لترتيب · والمجهولُ `None`/«NOT_COLLECTED» لا صفر · وانكسارُ أيّ جزءٍ يُبتلَع (PFC11).
+#    النتائجُ لكلّ صفّ: DQ_HELD · EXCLUDED · NOT_EXAMINED · FLOAT_REJECT · BORROW_REJECT · PASSED_UNKNOWN_AV · PASSED_KNOWN_AV ·
+#    DUPLICATE — و`added` منفصلٌ يُقرأ من الإضافة الفعليّة لا يُستنتج من عدّ.
+# ════════════════════════════════════════════════════════════════════════════
+FILL_POOL_COLS = ("sym", "rank", "pool_pos", "rk", "dq", "excl", "round", "outcome", "av", "av_state",
+                  "av_src", "added")
+
+
+_FP_SC_KEYS = {"مجهول": "unknown", "حصاد": "harvest", "موقع": "site", "تعذّر": "failed"}
+
+
+def _fp_av(v):
+    """قيمةُ متاحٍ قابلةٌ للتسلسل: رقمٌ كما هو · `None` يبقى `None` · وغيرُ الرقميّ نصٌّ موسومٌ لا يُقرأ رقمًا."""
+    if v is None:
+        return None
+    try:
+        f = float(v)
+        if f != f:
+            return "NaN"
+        return int(f) if f == int(f) else round(f, 6)
+    except (TypeError, ValueError, OverflowError):
+        return "MALFORMED:" + str(v)[:16]
+
+
+def _fill_trace_note(trace, rnd, got, entry=None, stage=None, fl=None, bw=None, sc=None):
+    """يُلحق أثرَ جولةٍ واحدة بـ`trace` — **قراءةُ حقولٍ قائمة فقط** (بلا نداءٍ ولا تعديل) · وأيُّ عطبٍ يُبتلَع فلا يمسّ التعبئة.
+    بلا `entry` ⟵ صفٌّ جديد `{r, sel}` يُرجَع · ومعه مرحلةٌ: `av_enrich` (بعد الإثراء) · `av_gate` (قبل البوّابة ‏+ `fl` ‏+ `sc`
+    عدّاداتُ الفرصة الثانية كما رجّعتها) · `bw`."""
+    try:
+        if entry is None:
+            entry = {"r": int(rnd), "sel": [str(x.get("symbol")) for x in (got or [])]}
+            trace.append(entry)
+            return entry
+        if stage == "av_enrich":
+            entry["av_enrich"] = {str(x.get("symbol")): _fp_av(x.get("shares_available")) for x in (got or [])}
+        elif stage == "av_gate":
+            entry["fl"] = [str(s) for s, _ in (fl or [])]
+            # عدّاداتُ الفرصة الثانية للجولة كما رجّعتها (مصدرُ المتاح لكلّ رمزٍ لا يُسجَّل ⟵ NOT_COLLECTED)
+            entry["sc"] = ({_FP_SC_KEYS.get(k, str(k)): v for k, v in sc.items()}
+                           if isinstance(sc, dict) else None)
+            entry["av_gate"] = {str(x.get("symbol")): _fp_av(x.get("shares_available")) for x in (got or [])}
+        elif stage == "bw":
+            entry["bw"] = [str(s) for s, _ in (bw or [])]
+            entry["kept"] = [str(x.get("symbol")) for x in (got or [])]
+        return entry
+    except Exception:                                            # noqa: BLE001
+        return entry
+
+
+def fill_pool_begin(ranked, pool, exclude, exclude_reason=None, dq_scope=None, dq_dropped=None):
+    """لقطةُ البِركة **قبل** `fill_picks` ⟵ `(snap, trace)` أو `(None, None)` حين يُطفأ السجلّ (`FILL_POOL_LOG`) أو ينكسر شيء.
+
+    `ranked` = المؤهَّلون **مرتَّبين بـ`rank_key` كما خرجوا من `scan_market`** (قبل السلامة) · `pool` = المارّون بالسلامة (ما يُعطى
+    لـ`fill_picks` نفسِه) · `exclude` = المستثنى من التعبئة و`exclude_reason` سببُه (HELD · STOPPED) · وحالةُ المحجوز من سجلّ البوّابة
+    القائم (`DQ_LAST[dq_scope]`) أو `dq_dropped` المحقون — **صفرُ نداء**. المفتاحُ يُسجَّل كما يحسبه `rank_key` الآن (لم يتغيّر بين
+    الترتيب وهنا: السلامةُ تضيف `dq` وحدَه) · والترتيبُ ترتيبُ الإنتاج **لا يُعاد فرزُه** (المتعادلون بموضعهم · PFC7)."""
+    try:
+        if not CONFIG.get("FILL_POOL_LOG", True):
+            return None, None
+        _dd = dq_dropped
+        if _dd is None and dq_scope:
+            _dd = ((DQ_LAST.get(dq_scope) or {}).get("dropped")) or []
+        dq_state = {}
+        for t in (_dd or []):
+            try:
+                dq_state[str(t[0])] = str(t[1])
+            except Exception:                                    # noqa: BLE001
+                continue
+        pool_pos, k = {}, 0
+        for r in (pool or []):
+            if isinstance(r, dict) and r.get("symbol") is not None:
+                pool_pos.setdefault(str(r["symbol"]), k)
+                k += 1
+        excl = {str(s) for s in (exclude or set())}
+        why = {str(s): str(v) for s, v in (exclude_reason or {}).items()}
+        rows, seen = [], set()
+        for i, r in enumerate(ranked or []):
+            if not isinstance(r, dict) or r.get("symbol") is None:
+                continue
+            s = str(r["symbol"])
+            try:
+                rk = [round(float(v), 6) if isinstance(v, float) else v for v in rank_key(r)]
+            except Exception:                                    # noqa: BLE001
+                rk = None
+            rows.append({"sym": s, "rank": i, "pool_pos": pool_pos.get(s), "rk": rk,
+                         "dq": ("PASS" if s in pool_pos else dq_state.get(s, "NOT_IN_POOL")),
+                         "excl": (why.get(s, "EXCLUDED") if s in excl else None),
+                         "dup": s in seen})
+            seen.add(s)
+        return {"rows": rows, "n_ranked": len(ranked or []), "n_pool": len(pool or []),
+                "snap_ts": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}, []
+    except Exception:                                            # noqa: BLE001
+        return None, None
+
+
+def fill_pool_sha(rec) -> str:
+    """بصمةُ السجلّ بلا حقل `sha` نفسِه (JSON مرتَّب المفاتيح) — تُعاد في المُقيِّم ويكسرها تحريفُ صفٍّ واحد (PFC18)."""
+    import hashlib as _hl
+    body = {k: v for k, v in (rec or {}).items() if k != "sha"}
+    return _hl.sha256(json.dumps(body, ensure_ascii=False, sort_keys=True,
+                                 separators=(",", ":")).encode("utf-8")).hexdigest()
+
+
+def fill_pool_record(snap, trace, picks, added, source, today, space, rounds_used, n_qualified,
+                     rounds_max=None, no_fill=None, meta=None) -> dict:
+    """يبني سطرَ التشغيلة من اللقطة والأثر والمختارين والمضافين **فعلًا** — نقيّة (لا ملفّ ولا شبكة).
+
+    كلُّ صفٍّ بنتيجته من الأثر لا من العدّ: مفحوصٌ (جولتُه · مُخرَجٌ بالفلوت أو بالمتاح بقيمته · أو اجتاز بمتاحٍ معلومٍ أو
+    **مجهول**) · أو لم يُفحَص · أو محجوزٌ بالسلامة · أو مستثنًى · أو مكرَّر. `added` من القائمة المضافة نفسِها (لا «اجتاز ⇒ أُضيف»).
+    و`funnel` عدّاداتُ التشغيلة الفريدة بالرمز · و`shortfall` أوّلُ سببٍ للنقص: NONE · POOL_EXHAUSTED · ROUNDS_CAP · LOOP_ENDED."""
+    rmax = int(CONFIG.get("PICK_FILL_ROUNDS", 4) if rounds_max is None else rounds_max)
+    trace = trace if isinstance(trace, list) else []
+    exam = {}                       # رمز ⟵ (جولة، نتيجة، متاح، مصدر)
+    for t in trace:
+        try:
+            rnd = int(t.get("r"))
+            fl, bw = set(t.get("fl") or []), set(t.get("bw") or [])
+            a1, a2 = t.get("av_enrich") or {}, t.get("av_gate") or {}
+            for s in t.get("sel") or []:
+                if s in exam:
+                    continue
+                if s in fl:
+                    out, av = "FLOAT_REJECT", a1.get(s)
+                elif s in bw:
+                    out, av = "BORROW_REJECT", a2.get(s)
+                else:
+                    av = a2.get(s, a1.get(s))
+                    # تالفٌ (نصّ) يمرّ في الإنتاج بفائدة الشك كالمجهول ⇒ لا «معلوم»
+                    out = "PASSED_UNKNOWN_AV" if (av is None or isinstance(av, str)) else "PASSED_KNOWN_AV"
+                src = ("ENRICH" if a1.get(s) is not None
+                       else ("SECOND_CHANCE" if a2.get(s) is not None else None))
+                exam[s] = (rnd, out, av, src)
+        except Exception:                                        # noqa: BLE001
+            continue
+    added_set = {str(s) for s in (added or [])}
+    rows_d = []
+    for r in ((snap or {}).get("rows") or []):
+        s = r.get("sym")
+        rnd = out = av = src = None
+        if r.get("dup"):
+            out = "DUPLICATE"
+        elif r.get("dq") != "PASS":
+            out = "DQ_HELD"
+        elif r.get("excl"):
+            out = "EXCLUDED"
+        elif s in exam:
+            rnd, out, av, src = exam[s]
+        else:
+            out = "NOT_EXAMINED"
+        st = ("NOT_COLLECTED" if rnd is None else ("UNKNOWN" if av is None else
+              ("MALFORMED" if isinstance(av, str) else "KNOWN")))
+        rows_d.append({"sym": s, "rank": r.get("rank"), "pool_pos": r.get("pool_pos"), "rk": r.get("rk"),
+                       "dq": r.get("dq"), "excl": r.get("excl"), "round": rnd, "outcome": out, "av": av,
+                       "av_state": st, "av_src": src,
+                       "added": bool(s in added_set and out not in ("DUPLICATE",))})
+    cap = int(FILL_POOL_MAX_ROWS)
+    cut = max(0, len(rows_d) - cap)
+    uniq = [x for x in rows_d if x["outcome"] != "DUPLICATE"]
+    cnt = lambda o: sum(1 for x in uniq if x["outcome"] == o)     # noqa: E731
+    _added_n = len(added_set)
+    try:
+        unfilled = max(0, int(space) - _added_n)
+    except (TypeError, ValueError):
+        unfilled = None
+    ne = cnt("NOT_EXAMINED")
+    if no_fill or snap is None:
+        short = "NO_FILL"
+    elif not unfilled:
+        short = "NONE"
+    elif ne == 0:
+        short = "POOL_EXHAUSTED"
+    elif int(rounds_used or 0) >= rmax:
+        short = "ROUNDS_CAP"
+    else:
+        short = "LOOP_ENDED"
+    funnel = {"ranked": len(rows_d), "duplicates": len(rows_d) - len(uniq), "dq_held": cnt("DQ_HELD"),
+              "pool_unique": sum(1 for x in uniq if x["dq"] == "PASS"), "excluded": cnt("EXCLUDED"),
+              "examined": sum(1 for x in uniq if x["round"] is not None), "not_examined": ne,
+              "float_reject": cnt("FLOAT_REJECT"), "borrow_reject": cnt("BORROW_REJECT"),
+              "passed_known_av": cnt("PASSED_KNOWN_AV"), "passed_unknown_av": cnt("PASSED_UNKNOWN_AV"),
+              "added": _added_n, "unfilled": unfilled, "shortfall": short}
+    _env = os.environ
+    rid = _env.get("GITHUB_RUN_ID")
+    ts = dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
+    rec = {"v": FILL_POOL_SCHEMA, "key": f"{source}:{today}:{rid or 'local'}:{_env.get('GITHUB_RUN_ATTEMPT') or '1'}:{ts}",
+           "source": str(source), "date": str(today), "ts": ts, "snap_ts": (snap or {}).get("snap_ts"),
+           "run_id": rid, "run_attempt": _env.get("GITHUB_RUN_ATTEMPT"),
+           "run_url": (f"{_env.get('GITHUB_SERVER_URL', 'https://github.com')}/{_env.get('GITHUB_REPOSITORY')}"
+                       f"/actions/runs/{rid}") if rid and _env.get("GITHUB_REPOSITORY") else None,
+           "sha_code": (_env.get("GITHUB_SHA") or "")[:12] or None,
+           "status": "NO_FILL" if (no_fill or snap is None) else "FILLED", "no_fill": no_fill,
+           "ranking": "rank_key@scan_market: (in_band 0/1, -readiness, -h4_confirm, -score, -rr) — pre-fill values",
+           "n_qualified": n_qualified, "space": space, "rounds_used": rounds_used, "rounds_max": rmax,
+           "borrow_gate": bool(CONFIG.get("BORROW_GATE_REQUIRED", False)),
+           "borrow_max": CONFIG.get("BORROW_AVAIL_MAX"), "float_max": CONFIG.get("FLOAT_GATE_MAX"),
+           "borrow_asof": "NOT_COLLECTED", "refs": {"reject_log_date": str(today), "watch_file": WATCH_FILE},
+           "funnel": funnel, "rows_cut": cut, "cols": list(FILL_POOL_COLS),
+           "rows": [[x[c] for c in FILL_POOL_COLS] for x in rows_d[:cap]],
+           "trace": trace, "meta": dict(meta or {})}
+    rec["sha"] = fill_pool_sha(rec)
+    return rec
+
+
+def fill_pool_rows(rec) -> list:
+    """صفوفُ السجلّ قواميسَ بأسماء أعمدته (قراءةٌ فقط)."""
+    cols = list((rec or {}).get("cols") or FILL_POOL_COLS)
+    return [dict(zip(cols, r)) for r in ((rec or {}).get("rows") or [])]
+
+
+def append_fill_pool(rec, path=None) -> bool:
+    """يُلحق السطرَ بالسجلّ (**إلحاقٌ فقط**) ⟵ True/False · لا يرمي (السجلُّ رصدٌ لا يُسقط تشغيلة)."""
+    try:
+        with open(path or FILL_POOL_FILE, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, ensure_ascii=False, separators=(",", ":")) + "\n")
+        return True
+    except Exception:                                            # noqa: BLE001
+        return False
+
+
+def record_fill_pool(snap, trace, picks, added, source, today, space, rounds_used, n_qualified,
+                     no_fill=None, path=None) -> bool:
+    """نقطةُ النداء الإنتاجيّة: يبني السطر ويُلحقه ويطبع عدّاداته في السجلّ ⟵ True/False. **فاشلٌ-آمنٌ مطلق** (PFC11):
+    مسارٌ لا يُكتب أو بانٍ يرمي ⟵ False وسطرُ سجلّ · والقرارُ كان قد اتُّخذ قبله. ومطفأٌ (`FILL_POOL_LOG`) ⟵ False بلا ملفّ."""
+    try:
+        if not CONFIG.get("FILL_POOL_LOG", True):
+            return False
+        rec = fill_pool_record(snap, trace, picks, added, source, today, space, rounds_used, n_qualified,
+                               no_fill=no_fill)
+        ok = append_fill_pool(rec, path)
+        f = rec.get("funnel") or {}
+        log(f"🗂️ سجلُّ البِركة ({source}): " + ("لا تعبئة — " + str(no_fill) if rec.get("status") == "NO_FILL" else
+            f"مؤهَّل {n_qualified} · بعد السلامة {f.get('pool_unique')} · مستثنًى {f.get('excluded')} · مفحوص "
+            f"{f.get('examined')} · لم يُفحَص {f.get('not_examined')} · المتاح: رُفض {f.get('borrow_reject')} · مجهولٌ مرّ "
+            f"{f.get('passed_unknown_av')} · معلومٌ مرّ {f.get('passed_known_av')} · فلوت {f.get('float_reject')} · أُضيف "
+            f"{f.get('added')} · نقص {f.get('unfilled')} ({f.get('shortfall')})")
+            + ("" if ok else " — ⚠️ تعذّرت الكتابة (لا يمسّ الفرز)"))
+        return bool(ok)
+    except Exception as e:                                       # noqa: BLE001
+        try:
+            log(f"⚠️ سجلُّ البِركة تعذّر (لا يمسّ الفرز): {type(e).__name__}")
+        except Exception:                                        # noqa: BLE001
+            pass
+        return False
 
 
 def classify_tier(soft_fails, two_tier=None, maxf=None):
@@ -13221,6 +13485,12 @@ def record_reject_stats(wl: dict) -> None:
 
 
 REJECT_LOG_FILE = "reject_log.json"     # 🗂️ م-ب: سجلّ المرفوضين اليوميّ
+# 🎯🗂️ سجلُّ بِركة التعبئة (2026-10-09): سطرٌ لكلّ تشغيلة · يُلحَق فقط · `.jsonl` فيتّحد في `git_save` عند التعارض.
+#    ولماذا لا القائمةُ ولا `reject_log`: القائمةُ ‏≈1.4 ميغابايت يقرؤها المراقبُ كلَّ دورة (والبِركةُ ‏≈10 كيلوبايت لكلّ تشغيلة)
+#    · و`reject_log` نافذةٌ دوّارةٌ 20 يومًا للمرفوضين قبل التأهّل (دلالةٌ أخرى · وتدويرُها يحذف من الملفّ).
+FILL_POOL_FILE = "fill_pool_log.jsonl"
+FILL_POOL_MAX_ROWS = 400                # سقفُ صفوف التشغيلة (البِركةُ المقيسة 92-109) — وما فوقه يُعَدّ في `rows_cut`
+FILL_POOL_SCHEMA = 1
 REJECT_LOG_DAYS = 20                    # نافذة القياس المسجَّلة (20 يوم تداول)
 REJECT_LOG_MAX_SYMS = 400               # سقفٌ لكل جدارٍ في اليوم — لا انفجار حجم
 
@@ -21777,10 +22047,13 @@ def run_weekly_renewal(wl: dict) -> None:
     # 🥇⑦➡️ حصادُ كاسر التعادل — **بعد** الاختيار ويقرأ مُخرَجَه (صفرُ أثرٍ عليه).
     record_tie_cohort(wl, _dq_results, CONFIG["WATCHLIST_SIZE"], exclude,
                       today_iso, "renew")
+    # 🗂️ سجلُّ بِركة التعبئة (2026-10-09 · رصدٌ لا قرار): لقطةُ المرتَّبين **قبل** التعبئة وأثرُ جولاتها — صفرُ نداء · وانكسارُها ⟵ (None, None).
+    _fp_snap, _fp_trace = fill_pool_begin(results, _dq_results, exclude,
+                                          {s_: "STOPPED" for s_ in exclude}, dq_scope="التجديد · المرشّحون")
     # 🎯 «صلّح الترتيب» (أمرُ المالك 2026-08-11): اختيارٌ ⟶ إثراءٌ ⟶ بوّابتا M14/المتاح
     #    ⟶ **وتعبئةُ ما أُخرِج من بقيّة المرتَّبين** (كانت الخانةُ تبقى فارغة).
     picks, _fl_out, _bw_out, _rnd = fill_picks(
-        _dq_results, CONFIG["WATCHLIST_SIZE"], exclude)
+        _dq_results, CONFIG["WATCHLIST_SIZE"], exclude, trace=_fp_trace)
     if _fl_out:
         log("🔁 أُخرِج بفلوت كبير ظهر بعد الإثراء: "
             + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
@@ -21896,6 +22169,10 @@ def run_weekly_renewal(wl: dict) -> None:
             fate.append((x["symbol"], "🗑️ أُزيل (صمّام أمان: تجاوز السعة القصوى "
                          f"{_cap} + خرج من النموذج قديمًا)"))
         final_stocks = [x for x in final_stocks if id(x) not in _drop]
+    # 🗂️ سجلُّ بِركة التعبئة: «أُضيف» = المختارُ الذي دخل القائمةَ النهائيّة **فعلًا** (لا «اجتاز ⇒ أُضيف») · فاشلٌ-آمنٌ داخل الدالّة.
+    record_fill_pool(_fp_snap, _fp_trace, picks,
+                     [x.get("symbol") for x in final_stocks if x.get("symbol") in new_syms],
+                     "renew", today_iso, CONFIG["WATCHLIST_SIZE"], _rnd, len(results))
     new_wl = dict(wl)
     new_wl.update({"week_start": today_iso, "created": today_iso,
                    # 🗓️ ختمُ الجيل (2026-09-26): يفرّق تجديدَين في اليوم نفسِه لـ`_merge_watchlist`
@@ -22181,6 +22458,7 @@ def run_daily_watchlist(wl: dict) -> None:
     space = CONFIG["WATCHLIST_SIZE"] - len(_slot_holders)
     added = []
     low_coverage_note = None
+    _fp_tried = False
     if space > 0 and not coverage_ok:
         low_coverage_note = ("فشل جلب كون ناسداك (عيّنة اختبار صغيرة)" if _fallback
                              else f"تغطية بيانات ضعيفة ({_cov:.0f}%)")
@@ -22192,9 +22470,15 @@ def run_daily_watchlist(wl: dict) -> None:
         _dq_results = dq_filter(results, hist, "الفرز اليوميّ · المرشّحون")
         # 🥇⑦➡️ حصادُ كاسر التعادل — نفسُ الموضع: **بعد** الاختيار لا قبله.
         record_tie_cohort(wl, _dq_results, space, held | stopped, today_iso, "daily")
+        # 🗂️ سجلُّ بِركة التعبئة (2026-10-09 · رصدٌ لا قرار): لقطةُ المرتَّبين قبل التعبئة · والممسوكُ HELD والمشطوبُ STOPPED.
+        _fp_snap, _fp_trace = fill_pool_begin(
+            results, _dq_results, held | stopped,
+            {**{s_: "STOPPED" for s_ in stopped}, **{s_: "HELD" for s_ in held}},
+            dq_scope="الفرز اليوميّ · المرشّحون")
+        _fp_tried = True
         # 🎯 «صلّح الترتيب» — نفسُ التعبئة في المسار اليوميّ (لا تُنسى إحداهما).
         picks, _fl_out, _bw_out, _rnd = fill_picks(
-            _dq_results, space, held | stopped)
+            _dq_results, space, held | stopped, trace=_fp_trace)
         if _fl_out:
             log("🔁 لم يُضَف (فلوت كبير ظهر بعد الإثراء): "
                 + "، ".join(f"{s_}({int(v):,})" for s_, v in _fl_out))
@@ -22224,6 +22508,13 @@ def run_daily_watchlist(wl: dict) -> None:
                 added.append(r)
             if added:
                 log("أُضيف للقائمة: " + "، ".join(p["symbol"] for p in added))
+        # 🗂️ «أُضيف» من القائمة المضافة نفسِها · فاشلٌ-آمنٌ داخل الدالّة (لا يمسّ ما قُرّر قبله).
+        record_fill_pool(_fp_snap, _fp_trace, picks, [p["symbol"] for p in added],
+                         "daily", today_iso, space, _rnd, len(results))
+    if not _fp_tried:
+        # 🗂️ لا تعبئةَ اليوم ⟵ سطرٌ يقول لماذا (فلا يُقرأ غيابُ السطر «لم يُسجَّل») · بلا لقطة: السلامةُ لم تُشغَّل ولا تُشغَّل لأجله.
+        record_fill_pool(None, None, [], [], "daily", today_iso, space, 0, len(results),
+                         no_fill=("LOW_COVERAGE" if low_coverage_note else "NO_FREE_SLOT"))
     # 5) ترقية B→A (إنذار مبكر) + نسبة الجاهزية اليومية
     promoted = []
     try:
@@ -26675,8 +26966,9 @@ def run_performance_system(results, weekly_report_now=False):
     #    المتابعة الحيّة لا يجده أصلًا. **والدليلُ أن الملفّ غائبٌ من المستودع
     #    بعد تشغيلةٍ كاملة ناجحة** (`31957908070`) رغم أن الحفظ غيرُ مشروط.
     #    👀🏢 ومخزنُ فلوت «تحت المتابعة» (2026-09-26) — وإلّا مات مع الرنر كما مات `NEAR_WATCH_FILE` قبل 08-16.
+    #    🗂️ وسجلُّ بِركة التعبئة (2026-10-09) — `.jsonl` فيتّحد عند التعارض (`_union_jsonl`) ولا يموت مع الرنر.
     git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE, REJECT_LOG_FILE,
-              HUNTER_WATCH_FILE, NEAR_WATCH_FILE, NEAR_WATCH_FLOAT_FILE])
+              HUNTER_WATCH_FILE, NEAR_WATCH_FILE, NEAR_WATCH_FLOAT_FILE, FILL_POOL_FILE])
 
 
 if __name__ == "__main__":

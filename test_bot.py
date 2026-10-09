@@ -197,6 +197,10 @@ S.NEAR_WATCH_FILE = _os_hc.path.join(
 # 👀🏢 **وعاشرُ ملفِّ حالة — يُحوَّل فورَ إنشائه** (‏مخزنُ فلوت «تحت المتابعة» · أمرُ «احفظ فلوت تحت المتابعة» 2026-09-26).
 S.NEAR_WATCH_FLOAT_FILE = _os_hc.path.join(
     _rej_tf.gettempdir(), f"_suite_near_watch_float.{_SUITE_PID}.json")
+# 🎯🗂️ **وملفُّ حالةٍ آخر — يُحوَّل فورَ إنشائه** (‏سجلُّ بِركة التعبئة 2026-10-09 · يُلحَق فقط): السويّةُ تقود `run_daily_watchlist`
+#    فيكتب سطرَ «لا تعبئة» ⇒ بلا تحويلٍ يُلوَّث السجلُّ الحقيقيّ الذي يُدفَع مع حالة البوت (`LEAK2` يمسكه).
+S.FILL_POOL_FILE = _os_hc.path.join(
+    _rej_tf.gettempdir(), f"_suite_fill_pool_log.{_SUITE_PID}.jsonl")
 
 # 🎯 **وسادسُ ملفِّ حالة — يُحوَّل فورَ إنشائه** (‏دِدوبُ «هنا الدخول»).
 _OE_REAL_PATH = S.OP_ENTRY_STATE_FILE
@@ -85573,6 +85577,653 @@ try:
 except Exception as _e:                                    # noqa: BLE001
     _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🧩 GPS10: مفهومُ فيصل لا يسند الرقمَ المنفَّذ — M10_RSI_OS جزئيّ بالرقم ويصير مباشرًا لو كان الرقمُ والصلابةُ من نصّه", _ok, _w)
+
+# 🎯🗂️ PFC1-PFC18 — سجلُّ بِركة التعبئة (2026-10-09 · متابعةُ #599 · «PROSPECTIVE CANDIDATE-POOL CAPTURE»): كان الفارزُ يعدّ
+#    المؤهَّلين (109) والمارّين بالسلامة (104) **ولا يسمّيهم**، وما يُرى من البِركة هو المفحوصُ وحدَه (المضافُ أو المُخرَجُ بمتاحه)
+#    ⇒ سؤالُ «هل كان في الباقين من يجتاز؟» **غيرُ قابلٍ للتحديد** (`GATE_PROVENANCE_REPORT.md §4c`). العلاجُ رصدٌ لا قرار: لقطةٌ
+#    مرتَّبةٌ للبِركة **قبل** التعبئة · وأثرُ كلّ جولةٍ من `fill_picks` (`trace` قراءةٌ فقط) · وسجلٌّ مُلحَقٌ واحدٌ لكلّ تشغيلة.
+#    الأقفالُ **سلوكيّة**: نفسُ المدخلات بالسجلّ وبدونه ⟵ نفسُ القرارات ونفسُ النداءات (شبكةُ 300 عالَم) · والمجهولُ مجهول.
+import copy as _pfc_copy                                              # noqa: E402
+import json as _pfc_json                                              # noqa: E402
+import random as _pfc_rand                                            # noqa: E402
+import tempfile as _pfc_tf                                            # noqa: E402
+import ast as _pfc_ast                                                # noqa: E402
+import inspect as _pfc_insp                                           # noqa: E402
+import textwrap as _pfc_tw                                            # noqa: E402
+
+_PFC_LIM = float(S.CONFIG.get("BORROW_AVAIL_MAX", 20_000))
+_PFC_FLMAX = float(S.CONFIG.get("FLOAT_GATE_MAX", 50_000_000))
+
+
+def _pfc_r(sym, rdy=50, score=10, rr=1.0, band=False):
+    return {"symbol": sym, "readiness": rdy, "score": score, "rr": rr, "h4_confirm": 0, "price": 1.0,
+            "tranches": [1.1, 1.2] if band else [0.5, 0.6], "soft_fails": [], "flags": []}
+
+
+def _pfc_world(av, fl=None, sc_av=None):
+    """إثراءٌ وفرصةٌ ثانيةٌ حتميّان يسجّلان كلَّ نداء (بلا شبكة) — بديلا `enrich`/`borrow_second_chance`."""
+    calls = {"enrich": [], "sc": []}
+
+    def en(got):
+        calls["enrich"].append([r["symbol"] for r in got])
+        for r in got:
+            r["shares_available"] = (av or {}).get(r["symbol"])
+            r["float"] = (fl or {}).get(r["symbol"])
+
+    def sc(got):
+        calls["sc"].append([r["symbol"] for r in got])
+        c = {"مجهول": 0, "حصاد": 0, "موقع": 0, "تعذّر": 0}
+        for r in got:
+            if r.get("shares_available") is None:
+                c["مجهول"] += 1
+                v = (sc_av or {}).get(r["symbol"])
+                if v is None:
+                    c["تعذّر"] += 1
+                else:
+                    r["shares_available"] = v
+                    c["موقع"] += 1
+        return c
+    return calls, en, sc
+
+
+def _pfc_pipe(ranked, space, exclude, av, fl=None, sc_av=None, rounds=4, reasons=None, dq_dropped=None,
+              pool_syms=None, log_on=True):
+    """مرآةُ نقطة النداء الإنتاجيّة: لقطةٌ ⟵ `fill_picks(trace)` ⟵ سجلّ. يرجّع (المُخرَج، النداءات، السجلّ، الأثر)."""
+    res = _pfc_copy.deepcopy(ranked)
+    pool = [r for r in res if pool_syms is None or r["symbol"] in pool_syms]
+    calls, en, sc = _pfc_world(av, fl, sc_av)
+    _old = S.CONFIG.get("FILL_POOL_LOG")
+    S.CONFIG["FILL_POOL_LOG"] = log_on
+    try:
+        snap, tr = S.fill_pool_begin(res, pool, exclude, reasons or {}, dq_dropped=dq_dropped)
+        out = S.fill_picks(pool, space, exclude, enrich_fn=en, rounds=rounds, second_chance=sc, trace=tr)
+        rec = S.fill_pool_record(snap, tr, out[0], [r["symbol"] for r in out[0]], source="test",
+                                 today="2026-10-09", space=space, rounds_used=out[3], n_qualified=len(res))
+    finally:
+        if _old is None:
+            S.CONFIG.pop("FILL_POOL_LOG", None)
+        else:
+            S.CONFIG["FILL_POOL_LOG"] = _old
+    return out, calls, rec, tr
+
+
+def _pfc_rows(rec):
+    try:
+        return {r["sym"] + ("#dup" if r["outcome"] == "DUPLICATE" else ""): r for r in S.fill_pool_rows(rec)}
+    except Exception:                                                # noqa: BLE001
+        return {}
+
+
+# المشهدُ أ — البِركةُ أكبرُ من المفحوص والجولاتُ الأربع تنفد · ومعه محجوزُ سلامة · ومستثنًى ممسوك · وتعادلٌ · وتكرار
+_PFC_A = [_pfc_r("P01", 80, band=True), _pfc_r("DQH", 75), _pfc_r("P02", 70), _pfc_r("HLD", 65), _pfc_r("P03", 60),
+          _pfc_r("P04", 55), _pfc_r("P05", 50), _pfc_r("P06", 45), _pfc_r("P07", 44), _pfc_r("P08", 43),
+          _pfc_r("ZZT", 40, 9, 1.0), _pfc_r("AAT", 40, 9, 1.0), _pfc_r("P09", 30), _pfc_r("P10", 20), _pfc_r("P10", 20)]
+_PFC_A_AV = {"P01": _PFC_LIM * 0.25, "P02": _PFC_LIM * 5, "P03": None, "P04": _PFC_LIM * 4.5, "P05": _PFC_LIM * 0.15,
+             "P06": None, "P07": _PFC_LIM * 2.5, "P08": _PFC_LIM * 3, "ZZT": 1000, "AAT": 1000}
+_PFC_A_FL = {"P05": _PFC_FLMAX * 2}
+_PFC_A_SC = {"P06": 1000}
+_PFC_A_POOL = {r["symbol"] for r in _PFC_A} - {"DQH"}
+try:
+    _pa_out, _pa_calls, _pa_rec, _pa_tr = _pfc_pipe(
+        _PFC_A, 4, {"HLD"}, _PFC_A_AV, _PFC_A_FL, _PFC_A_SC, reasons={"HLD": "HELD"},
+        dq_dropped=[("DQH", "CORPORATE_ACTION_PENDING", "quarantine", ["x"])], pool_syms=_PFC_A_POOL)
+    _pa_rows = _pfc_rows(_pa_rec)
+    _pa_err = ""
+except Exception as _e:                                              # noqa: BLE001
+    _pa_out, _pa_calls, _pa_rec, _pa_tr, _pa_rows = None, {}, {}, None, {}
+    _pa_err = f"⛔ {type(_e).__name__}: {_e}"
+
+# PFC1 — (حالة 1 · 3) البِركةُ كلُّها مسجَّلةٌ **بترتيب الإنتاج** والمفحوصُ أقلُّ منها
+try:
+    _l = S.fill_pool_rows(_pa_rec)
+    _order = [r["sym"] for r in _l]
+    _ok = (_order == [r["symbol"] for r in _PFC_A]
+           and [r["rank"] for r in _l] == list(range(len(_PFC_A)))
+           and sum(1 for r in _l if r["round"] is not None) == 8
+           and len({r["sym"] for r in _l if r["dq"] == "PASS"}) == 13)
+    _w = f"order={_order} examined={sum(1 for r in _l if r['round'] is not None)}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pa_err}"
+check("🎯🗂️ PFC1 لقطةُ البِركة كاملةٌ بترتيب الإنتاج نفسِه (لا يُعاد ترتيبُها) والمفحوصُ 8 من بِركةٍ فريدةٍ 13", _ok, _w)
+
+# PFC2 — (حالة 2) الجولاتُ الأربع وحدَها تُفحَص · والباقون مسجَّلون «لم يُفحَص» بالاسم وبالترتيب
+try:
+    _ne = [r["sym"] for r in S.fill_pool_rows(_pa_rec) if r["outcome"] == "NOT_EXAMINED"]
+    _ok = (_pa_out[3] == 4 and len(_pa_tr) == 4 and _pa_rec.get("rounds_used") == 4
+           and _ne == ["ZZT", "AAT", "P09", "P10"]
+           and [t["sel"] for t in _pa_tr] == _pa_calls["enrich"])
+    _w = f"used={_pa_out[3] if _pa_out else None} ne={_ne} trace={[t.get('sel') for t in (_pa_tr or [])]}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pa_err}"
+check("🎯🗂️ PFC2 سقفُ الجولات 4 ⟵ الباقون «لم يُفحَص» بأسمائهم وبالترتيب · وأثرُ كلّ جولةٍ = ما أُثري فعلًا", _ok, _w)
+
+# PFC3 — (حالة 4) مفحوصٌ متاحُه معلومٌ دون الحدّ ⟵ اجتاز بمعلوم وأُضيف · ومن الفرصة الثانية مصدرُه موسوم
+try:
+    _a, _b = _pa_rows["P01"], _pa_rows["P06"]
+    _ok = (_a["outcome"] == "PASSED_KNOWN_AV" and _a["av"] == _PFC_LIM * 0.25 and _a["av_state"] == "KNOWN"
+           and _a["av_src"] == "ENRICH" and _a["added"] is True and _a["round"] == 1
+           and _b["outcome"] == "PASSED_KNOWN_AV" and _b["av_src"] == "SECOND_CHANCE" and _b["round"] == 2)
+    _w = f"P01={_a} P06={_b}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pa_err}"
+check("🎯🗂️ PFC3 متاحٌ معلومٌ دون الحدّ ⟵ «اجتاز بمعلوم» وأُضيف (الجولة 1) · والمعلومُ بالفرصة الثانية مصدرُه SECOND_CHANCE", _ok, _w)
+
+# PFC4 — (حالة 5) مفحوصٌ متاحُه فوق الحدّ ⟵ رفضُ المتاح بقيمته ولم يُضَف
+try:
+    _a = _pa_rows["P02"]
+    _ok = (_a["outcome"] == "BORROW_REJECT" and _a["av"] == _PFC_LIM * 5 and _a["av_state"] == "KNOWN"
+           and _a["added"] is False and _a["round"] == 1
+           and sorted(s for s, _ in _pa_out[2]) == ["P02", "P04", "P07", "P08"])
+    _w = str(_a)
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pa_err}"
+check("🎯🗂️ PFC4 متاحٌ معلومٌ فوق الحدّ ⟵ BORROW_REJECT بقيمته المجلوبة ولم يُضَف (= ما أخرجته البوّابة)", _ok, _w)
+
+# PFC5 — (حالة 6) المتاحُ المجهول يبقى مجهولًا: لا صفر · لا «معلوم» · ويُعَدّ منفصلًا
+try:
+    _a = _pa_rows["P03"]
+    _ok = (_a["outcome"] == "PASSED_UNKNOWN_AV" and _a["av"] is None and _a["av_state"] == "UNKNOWN"
+           and _a["av_src"] is None and _a["added"] is True
+           and all(r["av"] is None and r["av_state"] == "NOT_COLLECTED"
+                   for r in S.fill_pool_rows(_pa_rec) if r["outcome"] == "NOT_EXAMINED"))
+    _w = str(_a)
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pa_err}"
+check("🎯🗂️ PFC5 المجهولُ مجهول: المفحوصُ بلا متاحٍ «UNKNOWN» (None لا صفر) وغيرُ المفحوص «NOT_COLLECTED» — ولا اجتيازَ بمعلوم", _ok, _w)
+
+# PFC6 — (حالة 7) المحجوزُ بالسلامة قبل التعبئة لم يبلغ البِركة ⟵ DQ_HELD بحالته · بلا جولةٍ ولا متاح
+try:
+    _a = _pa_rows["DQH"]
+    _ok = (_a["outcome"] == "DQ_HELD" and _a["dq"] == "CORPORATE_ACTION_PENDING" and _a["pool_pos"] is None
+           and _a["round"] is None and _a["av_state"] == "NOT_COLLECTED" and _a["added"] is False)
+    _w = str(_a)
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pa_err}"
+check("🎯🗂️ PFC6 المحجوزُ بسلامة البيانات لم يبلغ بِركة التعبئة ⟵ DQ_HELD بحالة البوّابة · بلا موضعٍ ولا جولةٍ ولا متاح", _ok, _w)
+
+# PFC7 — (حالة 8) التعادلُ في مفتاح الترتيب يحفظ ترتيبَ الإنتاج (ZZT قبل AAT) ولا يُعاد فرزُه أبجديًّا
+try:
+    _z, _a = _pa_rows["ZZT"], _pa_rows["AAT"]
+    _ok = (_z["rk"] == _a["rk"] and _z["rank"] < _a["rank"] and _z["pool_pos"] < _a["pool_pos"]
+           and _z["rk"] == list(S.rank_key(_PFC_A[10])))
+    _w = f"ZZT={_z['rank']},{_z['rk']} AAT={_a['rank']},{_a['rk']}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pa_err}"
+check("🎯🗂️ PFC7 مفتاحُ `rank_key` يُسجَّل كما حُسب · والمتعادلان بترتيب الإنتاج (ZZT ثمّ AAT) لا بالأبجديّة", _ok, _w)
+
+# PFC8 — (حالة 9) التكرارُ والاستثناء لا يُعَدّان مستقلَّين: P10 المكرّر DUPLICATE · والممسوك EXCLUDED
+try:
+    _d, _h = _pa_rows["P10#dup"], _pa_rows["HLD"]
+    _f = _pa_rec.get("funnel") or {}
+    _ok = (_d["outcome"] == "DUPLICATE" and _pa_rows["P10"]["outcome"] == "NOT_EXAMINED"
+           and _h["outcome"] == "EXCLUDED" and _h["excl"] == "HELD" and _h["round"] is None
+           and _f.get("pool_unique") == 13 and _f.get("excluded") == 1 and _f.get("duplicates") == 1
+           and _f.get("not_examined") == 4)
+    _w = f"dup={_d} hld={_h} funnel={_f}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pa_err}"
+check("🎯🗂️ PFC8 الرمزُ المكرّر يُعَدّ مرّةً (DUPLICATE) والممسوكُ مسبقًا EXCLUDED بسببه — فلا يتضخّم «لم يُفحَص»", _ok, _w)
+
+# PFC9 — (حالة 10) القائمةُ امتلأت قبل نفاد البِركة ⟵ لا نقص · والباقون «لم يُفحَص» لا «مرفوض»
+try:
+    _B = [_pfc_r(f"F{i}", 60 - i) for i in range(5)]
+    _o, _c, _r, _t = _pfc_pipe(_B, 2, set(), {f"F{i}": 1000 for i in range(5)})
+    _l = S.fill_pool_rows(_r)
+    _f = _r.get("funnel") or {}
+    _ok = (len(_o[0]) == 2 and _o[3] == 1 and _f.get("unfilled") == 0 and _f.get("shortfall") == "NONE"
+           and [x["outcome"] for x in _l] == ["PASSED_KNOWN_AV"] * 2 + ["NOT_EXAMINED"] * 3)
+    _w = f"funnel={_f}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC9 امتلأت الخاناتُ في الجولة الأولى ⟵ shortfall NONE والثلاثةُ الباقون NOT_EXAMINED لا رفض", _ok, _w)
+
+# PFC10 — (حالة 11) نفدت البِركةُ قبل الامتلاء ⟵ POOL_EXHAUSTED (لا «سقفُ الجولات»)
+try:
+    _C = [_pfc_r("E1", 60), _pfc_r("E2", 50), _pfc_r("E3", 40)]
+    _o, _c, _r, _t = _pfc_pipe(_C, 5, set(), {"E1": 1000, "E2": _PFC_LIM * 9, "E3": 2000})
+    _f = _r.get("funnel") or {}
+    _ok = (len(_o[0]) == 2 and _f.get("unfilled") == 3 and _f.get("not_examined") == 0
+           and _f.get("shortfall") == "POOL_EXHAUSTED" and _f.get("borrow_reject") == 1)
+    _w = f"used={_o[3]} funnel={_f}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC10 نفدت البِركةُ وفي الخانات نقص ⟵ POOL_EXHAUSTED · وسقفُ الجولات حين يبقى مؤهَّلون ROUNDS_CAP (المشهد أ)", _ok
+      and (_pa_rec.get("funnel") or {}).get("shortfall") == "ROUNDS_CAP", _w)
+
+# PFC11 — (حالة 12) انكسارُ الكاتب لا يمسّ القرار: مسارٌ لا يُكتب · بانٍ يرمي · لقطةٌ تالفة ⟵ False / (None, None) والقرارُ نفسُه
+try:
+    _bad = S.record_fill_pool(None, None, [], [], "test", "2026-10-09", 1, 0, 0, path="/proc/لا-يوجد/x.jsonl")
+    _orig = S.fill_pool_record
+    S.fill_pool_record = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("boom"))
+    try:
+        _bad2 = S.record_fill_pool(None, None, [], [], "test", "2026-10-09", 1, 0, 0)
+    finally:
+        S.fill_pool_record = _orig
+    _g = S.fill_pool_begin([None, 5, {"symbol": None}], [], set(), {})
+    _res1 = _pfc_copy.deepcopy(_PFC_A)
+    _calls1, _en1, _sc1 = _pfc_world(_PFC_A_AV, _PFC_A_FL, _PFC_A_SC)
+    _p1 = [r for r in _res1 if r["symbol"] in _PFC_A_POOL]
+    _out1 = S.fill_picks(_p1, 4, {"HLD"}, enrich_fn=_en1, second_chance=_sc1, trace=_g[1])
+    _ok = (_bad is False and _bad2 is False and isinstance(_g, tuple)
+           and [r["symbol"] for r in _out1[0]] == [r["symbol"] for r in _pa_out[0]]
+           and _out1[2] == _pa_out[2] and _out1[3] == _pa_out[3])
+    _w = f"bad={_bad} bad2={_bad2} begin={type(_g).__name__}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC11 انكسارُ الكاتب أو البانيّ أو اللقطة ⟵ False بلا استثناء · والقرارُ (المختارون · المُخرَجون · الجولات) كما هو", _ok, _w)
+
+# PFC12 — رصدٌ لا قرار: 300 عالَمٍ عشوائيّ · بالأثر وبدونه ⟵ نفسُ المختارين والمُخرَجين والجولات **ونفسُ نداءات الإثراء والفرصة الثانية**
+try:
+    _rng = _pfc_rand.Random(20261009)
+    _diff = []
+    for _k in range(300):
+        _n = _rng.randint(0, 22)
+        _rk = [_pfc_r(f"S{_rng.randint(0, 30):02d}", _rng.randint(0, 100), _rng.randint(0, 20),
+                      round(_rng.random() * 3, 2), _rng.random() < 0.3) for _ in range(_n)]
+        _rk.sort(key=S.rank_key)
+        _avs = {r["symbol"]: _rng.choice([None, 0, 500, _PFC_LIM, _PFC_LIM + 1, _PFC_LIM * 10, "abc"]) for r in _rk}
+        _fls = {r["symbol"]: _rng.choice([None, 1e6, _PFC_FLMAX, _PFC_FLMAX * 3, "x"]) for r in _rk}
+        _scs = {r["symbol"]: _rng.choice([None, 900, _PFC_LIM * 7]) for r in _rk}
+        _ex = {r["symbol"] for r in _rk if _rng.random() < 0.15}
+        _sp, _ro = _rng.randint(0, 8), _rng.randint(1, 5)
+        _A = _pfc_copy.deepcopy(_rk)
+        _cA, _enA, _scA = _pfc_world(_avs, _fls, _scs)
+        _oA = S.fill_picks(_A, _sp, set(_ex), enrich_fn=_enA, rounds=_ro, second_chance=_scA)
+        _B2 = _pfc_copy.deepcopy(_rk)
+        _cB, _enB, _scB = _pfc_world(_avs, _fls, _scs)
+        _snB, _trB = S.fill_pool_begin(_B2, _B2, set(_ex), {s: "HELD" for s in _ex})
+        _oB = S.fill_picks(_B2, _sp, set(_ex), enrich_fn=_enB, rounds=_ro, second_chance=_scB, trace=_trB)
+        _recB = S.fill_pool_record(_snB, _trB, _oB[0], [r["symbol"] for r in _oB[0]], source="fz",
+                                   today="2026-10-09", space=_sp, rounds_used=_oB[3], n_qualified=len(_B2))
+        if ([r["symbol"] for r in _oA[0]] != [r["symbol"] for r in _oB[0]] or _oA[1] != _oB[1]
+                or _oA[2] != _oB[2] or _oA[3] != _oB[3] or _cA != _cB or _A != _B2
+                or not isinstance(_recB, dict) or _trB is None):
+            _diff.append(_k)
+    _ok = not _diff
+    _w = f"اختلف={_diff[:5]} من 300"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC12 رصدٌ لا قرار (300 عالَم): بالأثر وبدونه ⟵ المختارون والمُخرَجون والجولاتُ ونداءاتُ الإثراء والفرصة الثانية والسجلّاتُ نفسُها", _ok, _w)
+
+# PFC13 — إطفاءُ السجلّ (`FILL_POOL_LOG=False`) ⟵ لا لقطةَ ولا أثرَ ولا كتابة · والقرارُ نفسُه
+try:
+    _oD, _cD, _rD, _tD = _pfc_pipe(_PFC_A, 4, {"HLD"}, _PFC_A_AV, _PFC_A_FL, _PFC_A_SC,
+                                   reasons={"HLD": "HELD"}, pool_syms=_PFC_A_POOL, log_on=False)
+    _tmp = _pfc_tf.mktemp(suffix=".jsonl")
+    _old = S.CONFIG.get("FILL_POOL_LOG")
+    S.CONFIG["FILL_POOL_LOG"] = False
+    try:
+        _wr = S.record_fill_pool(None, None, [], [], "test", "2026-10-09", 1, 0, 0, path=_tmp)
+    finally:
+        S.CONFIG["FILL_POOL_LOG"] = _old if _old is not None else True
+    _ok = (_tD is None and [r["symbol"] for r in _oD[0]] == [r["symbol"] for r in _pa_out[0]]
+           and _oD[2] == _pa_out[2] and _cD == _pa_calls and _wr is False and not _os_hc.path.exists(_tmp))
+    _w = f"trace={_tD} wrote={_wr}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC13 إطفاءُ السجلّ ⟵ لا لقطةَ ولا أثرَ ولا ملفّ · والقرارُ والنداءاتُ مطابقةٌ لتشغيله", _ok, _w)
+
+# PFC14 — صفرُ طلبٍ خارجيّ: الدوالُّ الجديدة لا تنادي جالبًا ولا إثراءً ولا بوّابة (AST)
+try:
+    _ban = ("fetch", "download", "ce_", "iborrow", "enrich", "requests", "urlopen", "send_telegram", "dq_filter",
+            "dq_assess", "dq_close", "_yahoo", "polygon", "tv_", "select_top", "borrow_", "refloat", "git_save")
+    _hits = []
+    for _fn in ("fill_pool_begin", "fill_pool_record", "fill_pool_rows", "append_fill_pool", "record_fill_pool",
+                "fill_pool_sha", "_fill_trace_note"):
+        _f = getattr(S, _fn)
+        for _nd in _pfc_ast.walk(_pfc_ast.parse(_pfc_tw.dedent(_pfc_insp.getsource(_f)))):
+            if isinstance(_nd, _pfc_ast.Call):
+                _nm = getattr(_nd.func, "id", None) or getattr(_nd.func, "attr", None) or ""
+                if any(b in _nm for b in _ban):
+                    _hits.append((_fn, _nm))
+    _ok = not _hits
+    _w = str(_hits)
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC14 صفرُ طلبٍ خارجيّ: دوالُّ السجلّ لا تنادي جالبًا ولا إثراءً ولا بوّابةً ولا `git_save` (AST)", _ok, _w)
+
+
+# PFC15 — موصولٌ من نقطة النداء الحيّة (AST): اللقطةُ قبل `fill_picks` وبالبِركة نفسِها · و`trace=` الأثرُ نفسُه · والسجلُّ بعدها
+def _pfc_wired(fn_name):
+    _t = _pfc_ast.parse(_pfc_tw.dedent(_pfc_insp.getsource(getattr(S, fn_name))))
+    _calls = sorted((c for c in _pfc_ast.walk(_t) if isinstance(c, _pfc_ast.Call)),
+                    key=lambda c: (c.lineno, c.col_offset))
+    _nm = lambda c: getattr(c.func, "id", None)                     # noqa: E731
+    beg = [c for c in _calls if _nm(c) == "fill_pool_begin"]
+    fp = [c for c in _calls if _nm(c) == "fill_picks"]
+    rec = [c for c in _calls if _nm(c) == "record_fill_pool"]
+    if len(beg) != 1 or len(fp) != 1 or not rec:
+        return False, f"{fn_name}: begin={len(beg)} fill={len(fp)} rec={len(rec)}"
+    _kw = {k.arg: k.value for k in fp[0].keywords}
+    _tr_ok = isinstance(_kw.get("trace"), _pfc_ast.Name)
+    _same_pool = (isinstance(beg[0].args[1], _pfc_ast.Name) and isinstance(fp[0].args[0], _pfc_ast.Name)
+                  and beg[0].args[1].id == fp[0].args[0].id)
+    _order = beg[0].lineno < fp[0].lineno < max(c.lineno for c in rec)
+    return (_tr_ok and _same_pool and _order), f"{fn_name}: trace={_tr_ok} pool={_same_pool} order={_order}"
+
+
+try:
+    _w1 = _pfc_wired("run_daily_watchlist")
+    _w2 = _pfc_wired("run_weekly_renewal")
+    _ok, _w = _w1[0] and _w2[0], f"{_w1[1]} · {_w2[1]}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC15 موصولٌ في المسارين (AST): `fill_pool_begin(…, البِركة)` قبل `fill_picks(البِركة, …, trace=…)` ثمّ `record_fill_pool` بعدها", _ok, _w)
+
+# PFC16 — الحفظُ في مسار الإنتاج الفعليّ: `git_save` في `run_performance_system` يحمل الملفَّ · وهو `.jsonl` (اتّحادٌ عند التعارض)
+try:
+    _t = _pfc_ast.parse(_pfc_tw.dedent(_pfc_insp.getsource(S.run_performance_system)))
+    _gs = [c for c in _pfc_ast.walk(_t) if isinstance(c, _pfc_ast.Call) and getattr(c.func, "id", None) == "git_save"]
+    _names = [getattr(e, "id", None) for c in _gs for a in c.args if isinstance(a, _pfc_ast.List) for e in a.elts]
+    _ok = ("FILL_POOL_FILE" in _names and str(S.FILL_POOL_FILE).endswith(".jsonl")
+           and S.FILL_POOL_FILE != S.REJECT_LOG_FILE and "tmp" in str(S.FILL_POOL_FILE).lower())
+    _w = f"git_save={_names} file={S.FILL_POOL_FILE}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC16 يُدفَع مع حالة البوت (`git_save` في `run_performance_system`) · `.jsonl` فيتّحد عند التعارض · والسويّةُ تكتب في مؤقّت", _ok, _w)
+
+# PFC17 — إلحاقٌ فقط · سطرٌ لكلّ تشغيلة · مفتاحٌ فريد · واتّحادُ `git_save` يحفظ السجلّين
+try:
+    _tmp = _pfc_tf.mktemp(suffix=".jsonl")
+    _r1 = S.fill_pool_record(None, None, [], [], source="daily", today="2026-10-13", space=0, rounds_used=0,
+                             n_qualified=7, no_fill="NO_FREE_SLOT")
+    _ok1 = S.append_fill_pool(_r1, _tmp) and S.append_fill_pool(_pa_rec, _tmp)
+    _lines = [_pfc_json.loads(x) for x in open(_tmp, encoding="utf-8").read().splitlines() if x.strip()]
+    _u = S._union_jsonl(open(_tmp, "rb").read().splitlines()[0] + b"\n",
+                        open(_tmp, "rb").read().splitlines()[1] + b"\n")
+    _ok = (_ok1 and len(_lines) == 2 and _lines[0]["key"] != _lines[1]["key"] and _lines[0]["status"] == "NO_FILL"
+           and _lines[0]["no_fill"] == "NO_FREE_SLOT" and _lines[0].get("rows") == []
+           and len([x for x in _u.decode().splitlines() if x.strip()]) == 2)
+    _w = f"keys={[x['key'] for x in _lines]}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC17 إلحاقٌ فقط: سطرٌ لكلّ تشغيلة (ومنها «لا تعبئة» بسببها) بمفتاحٍ فريد · واتّحادُ `git_save` يُبقي السطرين", _ok, _w)
+
+# PFC18 — سلامةُ السجلّ: بصمةٌ تُعاد · وأيُّ تحريفٍ لصفٍّ يكسرها · وسقفُ الصفوف مُعلَنٌ بعدّه
+try:
+    _s0 = S.fill_pool_sha(_pa_rec)
+    _bad = _pfc_copy.deepcopy(_pa_rec)
+    _bad["rows"][2][_bad["cols"].index("outcome")] = "PASSED_KNOWN_AV"
+    _big = [_pfc_r(f"B{i:04d}", 50) for i in range(int(S.FILL_POOL_MAX_ROWS) + 7)]
+    _sn, _tr = S.fill_pool_begin(_big, _big, set(), {})
+    _rb = S.fill_pool_record(_sn, _tr, [], [], source="t", today="2026-10-09", space=0, rounds_used=0,
+                             n_qualified=len(_big))
+    _ok = (_s0 == _pa_rec.get("sha") and S.fill_pool_sha(_bad) != _bad.get("sha")
+           and len(_rb["rows"]) == int(S.FILL_POOL_MAX_ROWS) and _rb.get("rows_cut") == 7)
+    _w = f"sha={_s0[:12]} cut={_rb.get('rows_cut')}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC18 بصمةُ السجلّ تُعاد ويكسرها تحريفُ صفٍّ واحد · وما فوق سقف الصفوف يُقَصّ مُعلَنًا (`rows_cut`)", _ok, _w)
+
+# PFC19 — عدّاداتُ الفرصة الثانية تُسجَّل في أثر كلّ جولة كما رجّعتها (مفاتيحُ لاتينيّة) · ولا تُسجَّل جولةٌ لم تُنادَ فيها
+try:
+    _sc = [t.get("sc") for t in (_pa_tr or [])]
+    _ok = (len(_sc) == 4 and _sc[0] == {"unknown": 1, "harvest": 0, "site": 0, "failed": 1}
+           and _sc[1] == {"unknown": 1, "harvest": 0, "site": 1, "failed": 0}
+           and all(set(x) == {"unknown", "harvest", "site", "failed"} for x in _sc))
+    _tr0 = []
+    S.fill_picks([_pfc_r("Q1", 50)], 1, set(), enrich_fn=lambda g: None, rounds=1, trace=_tr0)
+    _ok = _ok and len(_tr0) == 1 and _tr0[0].get("sc") is None
+    _w = f"sc={_sc} no_sc={_tr0[0].get('sc') if _tr0 else '—'}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pa_err}"
+check("🎯🗂️ PFC19 عدّاداتُ الفرصة الثانية لكلّ جولة في الأثر (unknown · harvest · site · failed) كما رجّعتها · وبلا فرصةٍ ثانية None لا أصفار", _ok, _w)
+
+# 🎯🗂️📊 PFE1-PFE10 — مُقيِّمُ قمع البِركة `faisal_engine/pool_funnel.py` (قراءةٌ فقط): يعيد اشتقاقَ كلّ صفٍّ من الأثر ويعيد اختيارَ
+#    `select_top` جولةً جولة ويعيد العدّادات · وحالاتُ المهمّة A-F لكلّ صفّ · والمجهولُ لا يُعدّ مجتازًا والمفحوصُ لا يُستنتج من عدّ.
+import importlib.util as _pfe_iu                                      # noqa: E402
+import contextlib as _pfe_cl                                          # noqa: E402
+import io as _pfe_io                                                  # noqa: E402
+try:
+    _pfe_sp = _pfe_iu.spec_from_file_location("_pfe_pool_funnel", _os_hc.path.join(_os_hc.path.dirname(_os_hc.path.abspath(__file__)),
+                                                                                    "faisal_engine", "pool_funnel.py"))
+    PFE = _pfe_iu.module_from_spec(_pfe_sp)
+    _pfe_sp.loader.exec_module(PFE)
+    _pfe_err = ""
+except Exception as _e:                                              # noqa: BLE001
+    PFE, _pfe_err = None, f"⛔ {type(_e).__name__}: {_e}"
+
+
+def _pfe_resha(rec):
+    rec["sha"] = S.fill_pool_sha(rec)
+    return rec
+
+
+def _pfe_set(rec, sym, col, val):
+    r2 = _pfc_copy.deepcopy(rec)
+    i = r2["cols"].index(col)
+    for row in r2["rows"]:
+        if row[0] == sym:
+            row[i] = val
+            break
+    return r2
+
+
+# PFC20 — (طفرةٌ نجت: «أُضيف» من الاجتياز) — «أُضيف» يُقرأ من القائمة المضافة فعلًا: اجتاز بمعلومٍ ولم يُضَف ⟵ added=False
+try:
+    _res20 = _pfc_copy.deepcopy(_PFC_A)
+    _pool20 = [r for r in _res20 if r["symbol"] in _PFC_A_POOL]
+    _cl20, _en20, _sc20 = _pfc_world(_PFC_A_AV, _PFC_A_FL, _PFC_A_SC)
+    _sn20, _tr20 = S.fill_pool_begin(_res20, _pool20, {"HLD"}, {"HLD": "HELD"},
+                                     dq_dropped=[("DQH", "CORPORATE_ACTION_PENDING", "quarantine", ["x"])])
+    _o20 = S.fill_picks(_pool20, 4, {"HLD"}, enrich_fn=_en20, rounds=4, second_chance=_sc20, trace=_tr20)
+    _picks20 = [r["symbol"] for r in _o20[0]]
+    _r20 = S.fill_pool_record(_sn20, _tr20, _o20[0], [x for x in _picks20 if x != "P06"], source="test",
+                              today="2026-10-09", space=4, rounds_used=_o20[3], n_qualified=len(_res20))
+    _rw20 = {r["sym"]: r for r in S.fill_pool_rows(_r20) if r["outcome"] != "DUPLICATE"}
+    _ok = ("P06" in _picks20 and _rw20["P06"]["outcome"] == "PASSED_KNOWN_AV" and _rw20["P06"]["added"] is False
+           and _rw20["P01"]["added"] is True and (_r20.get("funnel") or {}).get("added") == len(_picks20) - 1
+           and PFE.evaluate_record(_r20)["states"]["E"] == 1)
+    _w = f"picks={_picks20} P06={_rw20.get('P06')}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC20 «أُضيف» من القائمة المضافة نفسِها لا من الاجتياز: P06 اجتاز بمعلومٍ ولم يُضَف ⟵ added=False والحالةُ E", _ok, _w)
+
+# PFC21 — (طفرةٌ نجت: ترتيبُ السبب) — نفدت البِركةُ **في الجولة الأخيرة نفسِها** ⟵ POOL_EXHAUSTED لا ROUNDS_CAP (جولةٌ خامسة لا تنفع)
+try:
+    _D = [_pfc_r(f"X{i}", 60 - i) for i in range(4)]
+    _o21, _c21, _r21, _t21 = _pfc_pipe(_D, 1, set(), {f"X{i}": _PFC_LIM * 3 for i in range(4)})
+    _f21 = _r21.get("funnel") or {}
+    _ok = (_o21[3] == 4 and _f21.get("not_examined") == 0 and _f21.get("borrow_reject") == 4
+           and _f21.get("shortfall") == "POOL_EXHAUSTED" and PFE.evaluate_record(_r21)["shortfall"] == "POOL_EXHAUSTED")
+    _w = f"used={_o21[3]} funnel={_f21}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC21 نفدت البِركةُ في الجولة الرابعة نفسِها ⟵ POOL_EXHAUSTED في السجلّ وفي المُقيِّم (النفادُ يسبق سقفَ الجولات)", _ok, _w)
+
+# PFC22 — (طفرةٌ نجت: الكاتبُ وحدَه) — `append_fill_pool` لا يرمي على مسارٍ لا يُكتب (عقدُه بنفسه لا بحارس نادِيه)
+try:
+    _bad22 = _os_hc.path.join(_pfc_tf.gettempdir(), "_no_such_dir_pfc22", "x", "log.jsonl")
+    _r22 = S.append_fill_pool(_pa_rec, _bad22)
+    _ok = _r22 is False and not _os_hc.path.exists(_bad22)
+    _w = f"ret={_r22}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯🗂️ PFC22 الكاتبُ نفسُه فاشلٌ-آمن: مسارٌ لا يُكتب ⟵ False بلا استثناء (لا يعتمد على حارس `record_fill_pool`)", _ok, _w)
+
+# PFE1 — المشهدُ أ مقيَّمًا: سلامةٌ تامّة · العدّاداتُ والحالاتُ A-F · والناقصُ بسقف الجولات · وغيرُ المفحوصين بأسمائهم
+try:
+    _e1 = PFE.evaluate_record(_pa_rec)
+    _c = _e1["counts"]
+    _ok = (_e1["integrity"] == "OK" and _e1["issues"] == []
+           and _e1["states"] == {"A": 2, "B": 4, "C": 5, "D": 1, "E": 0, "F": 2}
+           and (_c["pool_after_dq"], _c["examined"], _c["not_examined"], _c["borrow_reject_known"], _c["float_reject"],
+                _c["passed_unknown_av"], _c["passed_known_av"], _c["added"], _c["added_with_unknown_av"], _c["unfilled"])
+           == (13, 8, 4, 4, 1, 1, 2, 3, 1, 1)
+           and _e1["shortfall"] == "ROUNDS_CAP" and _e1["not_examined_names"] == ["ZZT", "AAT", "P09", "P10"]
+           and _e1["not_examined_availability"] == "NOT_COLLECTED" and _e1["availability_timestamp"] == "NOT_COLLECTED")
+    _w = f"{_e1['states']} {_c} {_e1['shortfall']} {_e1['issues'][:2]}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE1 المُقيِّمُ على المشهد أ: سلامةٌ تامّة · A2 B4 C5 D1 E0 F2 · بِركة 13 مفحوص 8 لم يُفحَص 4 · المجهولُ المضافُ يُعَدّ وحدَه · ROUNDS_CAP", _ok, _w)
+
+# PFE2 — بصمةُ المُقيِّم = بصمةُ البوت (لا يستورده) — على سجلٍّ ممتلئ وعلى «لا تعبئة»
+try:
+    _stub = S.fill_pool_record(None, None, [], [], source="daily", today="2026-10-13", space=0, rounds_used=0,
+                               n_qualified=7, no_fill="NO_FREE_SLOT")
+    _ok = (PFE.record_sha(_pa_rec) == S.fill_pool_sha(_pa_rec) == _pa_rec["sha"]
+           and PFE.record_sha(_stub) == _stub["sha"])
+    _w = f"{PFE.record_sha(_pa_rec)[:12]} {_pa_rec.get('sha', '')[:12]}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE2 بصمةُ المُقيِّم تطابق `fill_pool_sha` حرفًا (سجلٌّ ممتلئ و«لا تعبئة») — والمُقيِّمُ لا يستورد البوت", _ok, _w)
+
+# PFE3 — التحريفُ يُمسَك بأربع طرق: بلا إعادة بصمة · نتيجةُ صفٍّ تخالف الأثر · اختيارٌ يخالف `select_top` · ترتيبٌ يخالف الإنتاج
+try:
+    _t_a = _pfe_set(_pa_rec, "P02", "outcome", "PASSED_KNOWN_AV")
+    _t_b = _pfe_resha(_pfe_set(_pa_rec, "P02", "outcome", "PASSED_KNOWN_AV"))
+    _t_c = _pfc_copy.deepcopy(_pa_rec)
+    _t_c["trace"][0]["sel"] = list(reversed(_t_c["trace"][0]["sel"]))
+    _t_c = _pfe_resha(_t_c)
+    _t_d = _pfc_copy.deepcopy(_pa_rec)
+    _t_d["rows"][2], _t_d["rows"][4] = _t_d["rows"][4], _t_d["rows"][2]
+    _t_d = _pfe_resha(_t_d)
+    _t_e = _pfe_resha(_pfe_set(_pa_rec, "ZZT", "av", 500))
+    _r = [PFE.evaluate_record(x) for x in (_t_a, _t_b, _t_c, _t_d, _t_e)]
+    _ok = (all(x["integrity"] == "FAIL" for x in _r)
+           and any("sha mismatch" in i for i in _r[0]["issues"])
+           and any("P02: recorded outcome" in i for i in _r[1]["issues"])
+           and any("trace selection" in i for i in _r[2]["issues"])
+           and any("rank not increasing" in i for i in _r[3]["issues"])
+           and any("never examined" in i for i in _r[4]["issues"]))
+    _w = " | ".join((x["issues"] or ["—"])[0][:50] for x in _r)
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE3 التحريفُ يُمسَك: بصمة · نتيجةٌ تخالف الأثر · اختيارٌ يخالف select_top · ترتيبٌ مقلوب · ومتاحٌ لاسمٍ لم يُفحَص", _ok, _w)
+
+# PFE4 — الحالةُ E (اجتاز بمعلومٍ ولم يُضَف) تُقرأ من الصفّ لا من العدّ · والمجهولُ لا يصير E ولا F أبدًا
+try:
+    _r4 = _pfc_copy.deepcopy(_pa_rec)
+    _r4 = _pfe_set(_r4, "P06", "added", False)
+    _r4 = _pfe_set(_r4, "P03", "added", False)
+    _r4["funnel"]["added"] = 1
+    _e4 = PFE.evaluate_record(_pfe_resha(_r4))
+    _ok = (_e4["integrity"] == "OK" and _e4["states"]["E"] == 1 and _e4["states"]["F"] == 1 and _e4["states"]["D"] == 1
+           and _e4["counts"]["added_with_unknown_av"] == 0)
+    _w = f"{_e4['states']} {_e4['issues'][:2]}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE4 «اجتاز ولم يُضَف» (E) من علم الصفّ · والمجهولُ يبقى D مضافًا كان أو لا (لا يصير E/F)", _ok, _w)
+
+# PFE5 — «لا تعبئة» بسببها: سلامةٌ تامّة · قمعٌ صفريّ · والسببُ NO_FILL لا «امتلأ»
+try:
+    _e5 = PFE.evaluate_record(_stub)
+    _ok = (_e5["integrity"] == "OK" and _e5["shortfall"] == "NO_FILL" and _e5["no_fill"] == "NO_FREE_SLOT"
+           and sum(_e5["states"].values()) == 0)
+    _w = f"{_e5['integrity']} {_e5['shortfall']} {_e5['issues']}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE5 سطرُ «لا تعبئة» يُقيَّم سليمًا بسببه (NO_FILL) بلا حالاتٍ مخترَعة", _ok, _w)
+
+# PFE6 — المخرجاتُ المدفوعة (`out/POOL_FUNNEL.json` · `POOL_FUNNEL_REPORT.md`) تُعاد من المدخلات المجمَّدة حرفًا
+try:
+    with _pfe_cl.redirect_stdout(_pfe_io.StringIO()) as _b6:
+        _rc6 = PFE.main(["--check"])
+    _ok = _rc6 == 0 and "check OK" in _b6.getvalue()
+    _w = _b6.getvalue().strip()[-120:]
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE6 `pool_funnel.py --check`: المخرجان المدفوعان يُعادان من المدخلات المجمَّدة بايتًا بايتًا", _ok, _w)
+
+# PFE7 — الأيّامُ السابقة: ما سُجّل رقمٌ وما لم يُسجَّل NOT_COLLECTED · وسقفُ الجولات لا يُدّعى إلّا بحدٍّ أدنى موجبٍ لغير المفحوصين
+try:
+    _lg = {x["date"]: x for x in PFE.legacy()}
+    _ok = (_lg["2026-10-07"]["shortfall"] == "NOT_DETERMINABLE" and _lg["2026-10-07"]["pool_after_dq"] == "NOT_COLLECTED"
+           and _lg["2026-10-08"]["shortfall"] == "ROUNDS_CAP" and _lg["2026-10-08"]["not_examined_lower"] == 33
+           and _lg["2026-10-09"]["shortfall"] == "ROUNDS_CAP" and _lg["2026-10-09"]["not_examined_lower"] == 10
+           and all(x["not_examined_availability"] == "NOT_COLLECTED" and x["passed_unknown_av"] == "NOT_COLLECTED"
+                   and x["not_examined_names"] == "NOT_COLLECTED" for x in _lg.values())
+           and _lg["2026-10-09"]["added_names"] == ["BRAI", "JEM", "NNE", "SEV"])
+    # الحدُّ نفسُه يقلب الحكم: لو كان المستثنى ≥ الباقي ⟵ NOT_DETERMINABLE لا «سقف»
+    _leg0 = PFE.F_LEG
+    _tmp7 = _pfc_tf.mktemp(suffix=".json")
+    _d7 = _pfc_json.load(open(_leg0, encoding="utf-8"))
+    for _x in _d7["runs"]:
+        _x["excluded_upper"] = 1000
+    open(_tmp7, "w", encoding="utf-8").write(_pfc_json.dumps(_d7))
+    try:
+        PFE.F_LEG = _tmp7
+        _lg2 = {x["date"]: x["shortfall"] for x in PFE.legacy()}
+    finally:
+        PFE.F_LEG = _leg0
+    _ok = _ok and set(_lg2.values()) == {"NOT_DETERMINABLE"}
+    _w = f"{[(d, x['shortfall'], x['not_examined_lower']) for d, x in _lg.items()]} wide={_lg2}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE7 الأيّامُ السابقة: 10-07 غيرُ قابلٍ للتحديد · 10-08/09 سقفُ الجولات بحدٍّ أدنى 33/10 · وغيرُ المسجَّل NOT_COLLECTED · وحدٌّ أوسع يُسقط الادّعاء", _ok, _w)
+
+# PFE8 — التجميدُ إلحاقٌ فقط: سطرٌ جديدٌ بمفتاحه مرّةً واحدة · والمحرَّفُ يُرفض · والأسطرُ السابقة لا تُمَسّ
+try:
+    _fz0 = PFE.F_FROZEN
+    _fz = _pfc_tf.mktemp(suffix=".jsonl")
+    _log8 = _pfc_tf.mktemp(suffix=".jsonl")
+    with open(_log8, "w", encoding="utf-8") as _f8:
+        for _x in (_pa_rec, _stub, _pfe_set(_pa_rec, "P02", "outcome", "PASSED_KNOWN_AV")):
+            _f8.write(_pfc_json.dumps(_x, ensure_ascii=False) + "\n")
+    try:
+        PFE.F_FROZEN = _fz
+        _n1, _rj1 = PFE.freeze(_log8)
+        _b1 = open(_fz, "rb").read()
+        _n2, _rj2 = PFE.freeze(_log8)
+        _b2 = open(_fz, "rb").read()
+    finally:
+        PFE.F_FROZEN = _fz0
+    _ok = (_n1 == 2 and len(_rj1) == 1 and _n2 == 0 and _b1 == _b2 and len(_b1.splitlines()) == 2)
+    _w = f"+{_n1} rej={len(_rj1)} then +{_n2}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE8 `--freeze` إلحاقٌ بالمفتاح مرّةً واحدة · والمحرَّفُ (بصمةٌ لا تطابق) يُرفض · والمجمَّدُ لا يُعاد كتابتُه", _ok, _w)
+
+# PFE9 — حدودُ المُقيِّم (AST): لا شبكةَ ولا بوت ولا مزوّدَ بيانات · و`subprocess` في لقطة git وحدَها
+try:
+    _t9 = _pfc_ast.parse(open(PFE.__file__, encoding="utf-8").read())
+    _imps = {(a.name if isinstance(n, _pfc_ast.Import) else (n.module or "")).split(".")[0]
+             for n in _pfc_ast.walk(_t9) if isinstance(n, (_pfc_ast.Import, _pfc_ast.ImportFrom))
+             for a in (n.names if isinstance(n, _pfc_ast.Import) else [n])}
+    _bad9 = _imps & {"requests", "urllib", "http", "socket", "Super_stock", "tv_data", "yfinance", "websocket"}
+    _sub = [f.name for f in _t9.body if isinstance(f, _pfc_ast.FunctionDef)
+            and any(isinstance(c, _pfc_ast.Attribute) and getattr(c.value, "id", None) == "subprocess"
+                    for c in _pfc_ast.walk(f))]
+    _ok = not _bad9 and _sub == ["legacy_snapshot"]
+    _w = f"imports={sorted(_imps)} subprocess_in={_sub}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE9 المُقيِّمُ بلا شبكةٍ ولا بوتٍ ولا مزوّد (AST) · و`subprocess` (git) في `legacy_snapshot` وحدَها", _ok, _w)
+
+# PFE10 — `--live` يقرأ السجلَّ الحيّ ولا يكتب شيئًا · ويخرج بغير صفرٍ عند سطرٍ تالف أو سجلٍّ محرَّف
+try:
+    _l10 = _pfc_tf.mktemp(suffix=".jsonl")
+    open(_l10, "w", encoding="utf-8").write(_pfc_json.dumps(_pa_rec, ensure_ascii=False) + "\n"
+                                             + _pfc_json.dumps(_stub, ensure_ascii=False) + "\n")
+    _m0 = (_os_hc.path.getmtime(PFE.F_JSON), _os_hc.path.getmtime(PFE.F_MD))
+    with _pfe_cl.redirect_stdout(_pfe_io.StringIO()):
+        _ra = PFE.main(["--live", _l10])
+    open(_l10, "a", encoding="utf-8").write("{not json\n")
+    with _pfe_cl.redirect_stdout(_pfe_io.StringIO()):
+        _rb = PFE.main(["--live", _l10])
+    _ok = _ra == 0 and _rb == 1 and (_os_hc.path.getmtime(PFE.F_JSON), _os_hc.path.getmtime(PFE.F_MD)) == _m0
+    _w = f"clean={_ra} broken={_rb}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE10 `--live` يقيّم السجلَّ الحيّ ولا يكتب المخرجات · وسطرٌ تالفٌ يُخرج 1 لا يُتجاوَز صامتًا", _ok, _w)
+
+# PFE11 — السببُ يُعاد اشتقاقُه لا يُنسخ: امتلأت ⟵ NONE · نفدت البِركة ⟵ POOL_EXHAUSTED · وسقفُ الجولات ⟵ ROUNDS_CAP (المشهد أ)
+try:
+    _o9, _c9, _r9, _t9x = _pfc_pipe([_pfc_r(f"F{i}", 60 - i) for i in range(5)], 2, set(), {f"F{i}": 1000 for i in range(5)})
+    _o10, _c10, _r10, _t10 = _pfc_pipe([_pfc_r("E1", 60), _pfc_r("E2", 50), _pfc_r("E3", 40)], 5, set(),
+                                       {"E1": 1000, "E2": _PFC_LIM * 9, "E3": 2000})
+    _e9, _e10 = PFE.evaluate_record(_r9), PFE.evaluate_record(_r10)
+    # والسببُ المسجَّل إن خالف الصفوفَ يُمسَك (نُسخ «سقف» على بِركةٍ نافدة)
+    _r10b = _pfc_copy.deepcopy(_r10)
+    _r10b["funnel"]["shortfall"] = "ROUNDS_CAP"
+    _e10b = PFE.evaluate_record(_pfe_resha(_r10b))
+    _ok = (_e9["integrity"] == _e10["integrity"] == "OK" and _e9["shortfall"] == "NONE" and _e9["states"]["B"] == 3
+           and _e10["shortfall"] == "POOL_EXHAUSTED" and _e10["states"]["C"] == 1 and _e10["states"]["B"] == 0
+           and _e10b["integrity"] == "FAIL" and any("shortfall recorded" in i for i in _e10b["issues"]))
+    _w = f"{_e9['shortfall']} {_e10['shortfall']} {_e10b['issues'][:1]}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
+check("🎯🗂️📊 PFE11 السببُ مُعادُ الاشتقاق: امتلأت NONE (والباقون B لا C) · نفدت البِركة POOL_EXHAUSTED · وسببٌ مسجَّلٌ يخالف الصفوف يُمسَك", _ok, _w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
