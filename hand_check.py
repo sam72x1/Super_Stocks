@@ -366,6 +366,17 @@ def hand_check(sym: str):
     try:
         bot._REJECT_STATS.clear()
         official = bot.analyze_ticker(sym, df)
+        # ⚖️ حكمُ ما بعد الإثراء = مرآةُ الإنتاج (عطلٌ مُثبَت 2026-10-09 · GPV6): `analyze_ticker`
+        #    وحدَه كان يُكتب «🎯 سهم ارتكاز مؤهّل» لسهمٍ يحذفه الفارز بعده (فلوتٌ كبير M14 ·
+        #    متاحٌ فوق 20 ألفًا · نواقصُ فوق الحدّ بعد الشورت) — والقائمةُ فوقه تُظهر ❌ صلبة.
+        _pv = (AO.post_enrich_verdict(
+            {"symbol": sym, "soft_fails": official.get("soft_fails"),
+             "float": diag.get("float"), "shares_available": diag.get("shares_available"),
+             "fintel": diag.get("fintel"), "finra_short": diag.get("finra_short")})
+            if official else (True, None, None))
+        if official and not _pv[0]:
+            r["reject_reason"] = _pv[1]
+            official = None
         if official:
             # ⚠️ **إصلاح 2026-07-27 (تدقيق «أعلى مستوى»):** كنّا ننسخ تسعة مفاتيح فقط
             # ثم نبني التفسير — و`build_interpretation` تقرأ **ستّة أخرى** غائبة عن `r`

@@ -1,0 +1,3064 @@
+{
+ "schema": 1,
+ "summary": {
+  "gates": 49,
+  "by_provenance": {
+   "DIRECT_FAISAL_EVIDENCE": 1,
+   "INFERRED_FROM_FAISAL_EVIDENCE": 17,
+   "OWNER_POLICY": 12,
+   "ENGINEERING_GUARD": 19,
+   "DATA_OR_ADJUSTMENT_ARTIFACT": 0,
+   "UNKNOWN_OR_UNSUPPORTED": 0
+  },
+  "reject_codes_in_analyze_ticker": 19,
+  "bare_none_returns": 3,
+  "cases": 24,
+  "first_gate_counts": {
+   "ANCHOR": 13,
+   "M4_RANGE": 4,
+   "PASS": 2,
+   "DEPTH": 1,
+   "M2_CEIL": 1,
+   "M3": 1,
+   "RSI_NOW": 1,
+   "UNIVERSE": 1
+  },
+  "replay_mismatches": [],
+  "chain_presence": {
+   "ANCHOR": 21,
+   "M4_RANGE": 6,
+   "M3": 2,
+   "DEPTH": 1,
+   "M2_CEIL": 1,
+   "RSI_NOW": 1,
+   "UNIVERSE": 1
+  },
+  "errors": [],
+  "inputs": {
+   "provenance_sha256": "eb209519baec1c59e62a8c04a6fd9718a61637f211396ef1294af7ffeae55e6c",
+   "snapshot_sha256": "8447b31e642a8593e84bacf081843b94e5ce4254172cdd476bd603d89989180c",
+   "rank_bars_sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c",
+   "rank_rows_sha256": "8a506495a17dcd1849283e6607d1018e4339f9cf253f587a83297225da59d890"
+  }
+ },
+ "categories": [
+  "DIRECT_FAISAL_EVIDENCE",
+  "INFERRED_FROM_FAISAL_EVIDENCE",
+  "OWNER_POLICY",
+  "ENGINEERING_GUARD",
+  "DATA_OR_ADJUSTMENT_ARTIFACT",
+  "UNKNOWN_OR_UNSUPPORTED"
+ ],
+ "gates": [
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "CLAUDE.md «ما هو المشروع»",
+     "verbatim": "بوت تيليجرام يفرز أسهم الارتكاز في ناسداك",
+     "author_confidence": "owner",
+     "timestamp_confidence": "—",
+     "meaning": "project scope set by the owner",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "an owner definition, not a Faisal rule"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "download failure ⇒ fallback universe flag; coverage guard skips additions",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "U_NASDAQ",
+   "stage": "UNIVERSE",
+   "order": 10,
+   "file": "Super_stock.py",
+   "function": "get_universe",
+   "anchor": "\"https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt\"",
+   "condition": "symbol in nasdaqlisted.txt, not ETF, not test issue, alphabetic, not a 5-letter W/R/U, name without WARRANT/RIGHT/UNIT",
+   "inputs": "nasdaqlisted.txt",
+   "provider": "nasdaqtrader.com (daily file)",
+   "on_pass": "enters the scan",
+   "on_fail": "never analysed (no reject code)",
+   "role": "reject",
+   "kind": "owner_policy",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OWNER_DECIDED",
+   "status_ref": "project definition",
+   "next_action": "none without an owner decision; MI_E1 (a reliable own pre-move unit) is absent from the nasdaqlisted snapshot — its listing venue is UNKNOWN in repository data",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 1732,
+   "function_lines": [
+    1729,
+    1769
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [
+    "MI_E1"
+   ],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "MIN_BARS"
+   ],
+   "evidence": [
+    {
+     "source_unit": "CONFIG comment",
+     "verbatim": "أقل عدد شموع مقبول للتحليل",
+     "author_confidence": "code",
+     "timestamp_confidence": "—",
+     "meaning": "minimum history for indicators",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "engineering minimum"
+    },
+    {
+     "source_unit": "TG_1807 · TG_1811",
+     "verbatim": "",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "Faisal measures a reverse-split stock from the split date (short post-split history)",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "contradicts a 120-bar minimum for freshly split names (Phase 2 B_CUT)"
+    }
+   ],
+   "artifact_risk": "MEDIUM — short post-split histories are dropped silently",
+   "blocks_downstream": true,
+   "on_unavailable": "provider failure ⇒ Yahoo fallback ⇒ dropped if still short",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "D_DEPTH",
+   "stage": "DATA",
+   "order": 20,
+   "file": "Super_stock.py",
+   "function": "_extract_into",
+   "anchor": "if len(df) >= CONFIG[\"MIN_BARS\"]:",
+   "condition": "at least MIN_BARS daily bars after download",
+   "inputs": "daily OHLCV",
+   "provider": "TradingView (BARS_SOURCE=tradingview) → Yahoo per-symbol fallback",
+   "on_pass": "analysed",
+   "on_fail": "dropped before analysis (log: «دون 120 شمعة N»)",
+   "role": "reject",
+   "kind": "coverage_guard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "no closing decision found",
+   "next_action": "research-only counterfactual already run (Phase 2 B_CUT); no production change without prereg",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 1813,
+   "function_lines": [
+    1798,
+    1816
+   ],
+   "config": {
+    "MIN_BARS": 120
+   },
+   "production_counts": null,
+   "affected_cases": [
+    "LABT_E1"
+   ],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "faisal_engine/data/rank/bars.json.gz",
+     "verbatim": "SXTC 2024-05-01 open 101759.32",
+     "author_confidence": "data",
+     "timestamp_confidence": "frozen 2026-10-09",
+     "meaning": "four reverse splits scale the history ×10^4–10^5 (correct adjustment)",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "the adjusted series measures the economic move; Faisal reads reverse-split names from the post-split frame — a frame difference, not a data error (splits of IPDN/HUBC/NRSN/YMT/SXTC are adjusted at their dates: no jump)"
+    }
+   ],
+   "artifact_risk": "FRAME — adjusted economic frame vs Faisal's post-split frame (M2_CEIL, M2_FLOOR, M4_RANGE)",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "D_ADJUST",
+   "stage": "DATA",
+   "order": 25,
+   "file": "Super_stock.py",
+   "function": "tv_download",
+   "anchor": "def tv_download",
+   "condition": "every price gate reads a split-adjusted daily series (TradingView adjustment=splits; Yahoo auto-adjust in fallback)",
+   "inputs": "daily OHLCV",
+   "provider": "TradingView / Yahoo",
+   "on_pass": "—",
+   "on_fail": "—",
+   "role": "input",
+   "kind": "info",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "T-M2REF/T-ENVREF measured split-aware references: no material aggregate difference; owner «خلّ السقف»",
+   "next_action": "none (adjustment method unchanged by rule)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 2143,
+   "function_lines": [
+    2143,
+    2181
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M1_سعر"
+   ],
+   "config_keys": [
+    "MIN_PRICE"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "IMG_0153",
+     "verbatim": "السنتات خارج الشرح أعلاه",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "cents are outside the ÷2 split recipe he described",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "a statement about the split recipe, not the pivot screener; the live number 0.40 is the catalog minimum"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M1_PRICE",
+   "stage": "ANALYZE_HARD",
+   "order": 30,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M1_سعر\")",
+   "condition": "last close ≥ MIN_PRICE",
+   "inputs": "close[-1]",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "STRONGLY SUPPORTED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none (first wall on 0 of 22 evaluable episodes)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4046,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "MIN_PRICE": 0.4
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 78,
+    "max_per_day": 83,
+    "last_day": "2026-10-09",
+    "last_day_count": 81
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M2_hi52"
+   ],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M2_HI52_GUARD",
+   "stage": "ANALYZE_HARD",
+   "order": 31,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M2_hi52\")",
+   "condition": "252-bar high > 0",
+   "inputs": "high.tail(252)",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "ops_safety",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none (division guard)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4068,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {},
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 0,
+    "max_per_day": 0,
+    "last_day": "2026-10-09",
+    "last_day_count": 0
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M2_هبوط_فوق_97"
+   ],
+   "config_keys": [
+    "MAX_DROP_PCT"
+   ],
+   "evidence": [
+    {
+     "source_unit": "code comment",
+     "verbatim": "محتضر/فخ تقسيم",
+     "author_confidence": "code",
+     "timestamp_confidence": "—",
+     "meaning": "exclude dying stocks / split traps",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "engineering concept; the number is the catalog P100 so all catalogued bottoms pass"
+    },
+    {
+     "source_unit": "TG_1807 · TG_1811 · TG_1824 · TG_2200",
+     "verbatim": "",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "Faisal reads reverse-split names from the post-split frame",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "contradicts a cumulative-adjusted ceiling on multi-split names (SXTC)"
+    }
+   ],
+   "artifact_risk": "FRAME — adjusted drop vs post-split drop (SXTC_E1: 99.997% adjusted, 61.4% post-split — excluded in both frames)",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M2_CEIL",
+   "stage": "ANALYZE_HARD",
+   "order": 32,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M2_هبوط_فوق_97\")",
+   "condition": "drop from the 252-bar adjusted high ≤ MAX_DROP_PCT",
+   "inputs": "close[-1], high.tail(252)",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "CLOSED",
+   "status_ref": "T-CEILING · owner «خلّ السقف» 2026-08-16 (DECISIONS_ARCHIVE)",
+   "next_action": "closed axis — no change; reopening needs the owner",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4071,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "MAX_DROP_PCT": 99.95
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 23,
+    "max_per_day": 26,
+    "last_day": "2026-10-09",
+    "last_day_count": 22
+   },
+   "affected_cases": [
+    "SXTC_E1"
+   ],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M2_هبوط_تحت_40"
+   ],
+   "config_keys": [
+    "MIN_DROP_FLOOR"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "IMG_0151 · TG_2077",
+     "verbatim": "",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "a pivot stock exploded then collapsed (concept)",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "concept from his descriptions; no Faisal number for the floor"
+    }
+   ],
+   "artifact_risk": "FRAME — a post-split reference would change it (Phase 2 B_PSH: 46/52 WAIT cases fail)",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M2_FLOOR",
+   "stage": "ANALYZE_HARD",
+   "order": 33,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M2_هبوط_تحت_40\")",
+   "condition": "drop from the 252-bar adjusted high ≥ MIN_DROP_FLOOR",
+   "inputs": "close[-1], high.tail(252)",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "STRONGLY SUPPORTED",
+   "status": "CLOSED",
+   "status_ref": "T-M2REF «لا فرق مادي» (2026-08-08); envelope axis closed by owner 2026-08-05",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4073,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "MIN_DROP_FLOOR": 71.7203
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 2643,
+    "max_per_day": 2667,
+    "last_day": "2026-10-09",
+    "last_day_count": 2612
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M3_انفجار_تحت_60"
+   ],
+   "config_keys": [
+    "PRIOR_SPIKE_FLOOR",
+    "PRIOR_SPIKE_WINDOW",
+    "BASE_WINDOW"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "IMG_0151",
+     "verbatim": "هدفك 100٪ اقل شي",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "a target of at least +100%",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "the text is about the TARGET, not the prior spike (ledger: misread); the 20-session window is engineering"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M3_FLOOR",
+   "stage": "ANALYZE_HARD",
+   "order": 34,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M3_انفجار_تحت_60\")",
+   "condition": "best prior spike (within PRIOR_SPIKE_WINDOW sessions, excluding the last BASE_WINDOW bars) ≥ PRIOR_SPIKE_FLOOR",
+   "inputs": "close series",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "INFERRED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "research-only counterfactual (faisal_engine replay: M3 is the first wall on 23 of Faisal's rejected stocks)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4085,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "PRIOR_SPIKE_FLOOR": 78.2738,
+    "PRIOR_SPIKE_WINDOW": 20,
+    "BASE_WINDOW": 15
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 66,
+    "max_per_day": 72,
+    "last_day": "2026-10-09",
+    "last_day_count": 71
+   },
+   "affected_cases": [
+    "YMT_E1"
+   ],
+   "chain_cases": [
+    "MI_E1"
+   ]
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M4_base_lo"
+   ],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M4_BASE_LO_GUARD",
+   "stage": "ANALYZE_HARD",
+   "order": 35,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M4_base_lo\")",
+   "condition": "base low > 0",
+   "inputs": "low.tail(BASE_WINDOW)",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "ops_safety",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4095,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {},
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 0,
+    "max_per_day": 0,
+    "last_day": "2026-10-09",
+    "last_day_count": 0
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M4_base_واسعة"
+   ],
+   "config_keys": [
+    "BASE_RANGE_MAX_PCT",
+    "BASE_WINDOW"
+   ],
+   "evidence": [
+    {
+     "source_unit": "owner «اعتمد 120» 2026-08-10 (T-BASE-2)",
+     "verbatim": "",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-08-10",
+     "meaning": "the live 120 is an owner number, not a catalog number",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "the catalog values are 475.2 (P90) and 23,684.6 (P100)"
+    },
+    {
+     "source_unit": "IMG_0151 · TG_2066",
+     "verbatim": "ضرب قاع وحافظ عليه 3 جلسات",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "Faisal measures stability above the low, not a 15-bar range",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "no Faisal source for the range metric"
+    }
+   ],
+   "artifact_risk": "LOW — the series is adjusted at the split dates; HUBC (1012%) and IPDN (123%) ranges are genuine spikes inside the window",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M4_RANGE",
+   "stage": "ANALYZE_HARD",
+   "order": 36,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M4_base_واسعة\")",
+   "condition": "(max high / min low − 1) over the last BASE_WINDOW bars ≤ BASE_RANGE_MAX_PCT",
+   "inputs": "high/low tail(15)",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT (normal mode)",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OWNER_DECIDED",
+   "status_ref": "T-BASE-2 · OWNER_GATE_OVERRIDES",
+   "next_action": "none in production; research-only post-split window exists (BT_M4_POST_SPLIT, T-GATES G6)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4117,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "BASE_RANGE_MAX_PCT": 120,
+    "BASE_WINDOW": 15
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 77,
+    "max_per_day": 97,
+    "last_day": "2026-10-09",
+    "last_day_count": 88
+   },
+   "affected_cases": [
+    "AMIX_E1",
+    "IPDN_E1",
+    "STKH_E1",
+    "HUBC_2026-04-24"
+   ],
+   "chain_cases": [
+    "SXTC_E1",
+    "YMT_E1"
+   ]
+  },
+  {
+   "system": "LIVE_SCANNER (pullback mode only)",
+   "reject_codes": [
+    "M4_base_واسعة_هبوطًا"
+   ],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "owner «اقفل الباب» 2026-08-11 · «رقّهم» 2026-08-14",
+     "verbatim": "",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-08-11",
+     "meaning": "owner orders after T-REBOUND-2",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "engineering geometry; no Faisal text for the half-range split"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M4_RANGE_PULLBACK",
+   "stage": "ANALYZE_HARD",
+   "order": 37,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M4_base_واسعة_هبوطًا\")",
+   "condition": "pullback mode: wide base accepted only if price in the upper half (base_rose) or held at a tested level",
+   "inputs": "price, base high/low, tested level",
+   "provider": "adjusted daily",
+   "on_pass": "pullback candidate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "owner_policy",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OWNER_DECIDED",
+   "status_ref": "T-REBOUND-2",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4128,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {},
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 0,
+    "max_per_day": 0,
+    "last_day": "2026-10-09",
+    "last_day_count": 0
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M4_انفجر_فعلاً"
+   ],
+   "config_keys": [
+    "RECENT_RISE_BLOCK_PCT"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "concept «لا تلاحق»",
+     "verbatim": "",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "do not chase",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "inferred concept; no Faisal number"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M4_RISE",
+   "stage": "ANALYZE_HARD",
+   "order": 38,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M4_انفجر_فعلاً\")",
+   "condition": "5-session gain ≤ RECENT_RISE_BLOCK_PCT",
+   "inputs": "close[-1]/close[-6]",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT (also in pullback mode)",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "INFERRED",
+   "status": "OPEN",
+   "status_ref": "D11 (owner: keep 35/5d in legacy mode)",
+   "next_action": "none (first wall on 0 of 22)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4139,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "RECENT_RISE_BLOCK_PCT": 214.7287
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 0,
+    "max_per_day": 0,
+    "last_day": "2026-10-09",
+    "last_day_count": 0
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M5_سيولة"
+   ],
+   "config_keys": [
+    "MIN_DOLLAR_VOL"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "X_61_VEEE",
+     "verbatim": "تحليلي لأسهم الارتكاز لا يُبنى ع السيولة الحالية — نبحث عن السيولة السابقة المتمركّزة",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "his analysis is not built on current liquidity",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "contradicts a current-liquidity floor as identity evidence; the gate is a tradability guard"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "non-finite ⇒ REJECT",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M5_DOLLAR_VOL",
+   "stage": "ANALYZE_HARD",
+   "order": 39,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M5_سيولة\")",
+   "condition": "mean(close×volume, 20) is finite and ≥ MIN_DOLLAR_VOL (NaN ⇒ REJECT)",
+   "inputs": "close, volume tail(20)",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "STRONGLY SUPPORTED",
+   "status": "OPEN",
+   "status_ref": "C6 «هندسية معلنة»",
+   "next_action": "none (first wall on 0 of 22)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4144,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "MIN_DOLLAR_VOL": 14314.7701
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 7,
+    "max_per_day": 11,
+    "last_day": "2026-10-09",
+    "last_day_count": 5
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "GAP_REQUIRED"
+   ],
+   "evidence": [
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M8_GAP_REQUIRED",
+   "stage": "ANALYZE_HARD",
+   "order": 40,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return None  # لا فجوة معتبرة حديثة",
+   "condition": "INACTIVE (GAP_REQUIRED=False); when on: recent gap within GAP_REQ_WINDOW",
+   "inputs": "gap_analysis",
+   "provider": "adjusted daily",
+   "on_pass": "—",
+   "on_fail": "return None WITHOUT a reject code (silent)",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "INACTIVE",
+   "status_ref": "ledger: «مُطفأة عمدًا»",
+   "next_action": "none (inactive); if ever re-enabled it must record a reject code",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4166,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "GAP_REQUIRED": false
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M10_RSI_ما_تشبّع"
+   ],
+   "config_keys": [
+    "RSI_OS_HARD",
+    "RSI_OS_LOOKBACK"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "TG_2043",
+     "verbatim": "ضغط الارتكاز لابد قبل ينفجر يكون RSI بين 23-27",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "the ideal oversold band",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "DIRECT for the ideal (soft) part; the hard 69 is the envelope"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "RSI NaN is filled with 50 by rsi(); a series with no down-close in its whole history would read 50 instead of 100 (theoretical)",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M10_RSI_OS",
+   "stage": "ANALYZE_HARD",
+   "order": 41,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M10_RSI_ما_تشبّع\")",
+   "condition": "min RSI14 over RSI_OS_LOOKBACK ≤ RSI_OS_HARD",
+   "inputs": "RSI14 (EWM; NaN filled with 50)",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT (pullback: watch reason)",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "STRONGLY SUPPORTED",
+   "status": "CLOSED",
+   "status_ref": "«اقفل RSI» 2026-09-09 (entry-by-RSI axis)",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4194,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "RSI_OS_HARD": 69,
+    "RSI_OS_LOOKBACK": 25
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 0,
+    "max_per_day": 0,
+    "last_day": "2026-10-09",
+    "last_day_count": 0
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M10_RSI_فات_القطار"
+   ],
+   "config_keys": [
+    "RSI_NOW_HARD"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "TG_2043",
+     "verbatim": "لايمكن ومستحيل يصعد اذا RSI بمناطق 40",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "a stock with RSI near 40 will not rise",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "contradicted by his own READY calls above 40 (Phase 1); the hard 71.1 is the envelope"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "M10_RSI_NOW",
+   "stage": "ANALYZE_HARD",
+   "order": 42,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M10_RSI_فات_القطار\")",
+   "condition": "RSI14 now ≤ RSI_NOW_HARD",
+   "inputs": "RSI14",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT (pullback: risen)",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "INFERRED",
+   "status": "CLOSED",
+   "status_ref": "T-RSI40 closed (exit 6) · «اقفل RSI»",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4201,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "RSI_NOW_HARD": 71.1186
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 2,
+    "max_per_day": 4,
+    "last_day": "2026-10-09",
+    "last_day_count": 3
+   },
+   "affected_cases": [
+    "PPBT_E1"
+   ],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "نواقص_فوق_"
+   ],
+   "config_keys": [
+    "WATCH_MAX_FAILS"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "SOFT_COUNT",
+   "stage": "ANALYZE_HARD",
+   "order": 43,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(f\"نواقص_فوق_{CONFIG.get('WATCH_MAX_FAILS',3)}\")",
+   "condition": "count(soft_fails from M2/M3 ideals, M6, M7, M9, M10 soft, M11, M12) ≤ WATCH_MAX_FAILS",
+   "inputs": "soft gates",
+   "provider": "—",
+   "on_pass": "next gate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none (first wall on 0 of 22)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4244,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "WATCH_MAX_FAILS": 8
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 0,
+    "max_per_day": 0,
+    "last_day": "2026-10-09",
+    "last_day_count": 0
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "BACKTEST ONLY",
+   "reject_codes": [
+    "M_ثبات_تحت_الأرضية",
+    "M_ثبات_لم_يكتمل"
+   ],
+   "config_keys": [
+    "BT_STABILITY_GATE",
+    "STABILITY_MIN"
+   ],
+   "evidence": [
+    {
+     "source_unit": "IMG_0151",
+     "verbatim": "ضرب قاع وحافظ عليه 3 جلسات",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "hold the low for 3 sessions",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "DIRECT text; as a production rejection it failed T-STABILITY (2026-08-13)"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "STABILITY_BT",
+   "stage": "ANALYZE_HARD",
+   "order": 44,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M_ثبات_لم_يكتمل\")",
+   "condition": "INACTIVE in production (BT_STABILITY_GATE empty): bars held after the pivot low ≥ STABILITY_MIN",
+   "inputs": "pivot_stability",
+   "provider": "adjusted daily",
+   "on_pass": "—",
+   "on_fail": "REJECT (backtest arm only)",
+   "role": "reject",
+   "kind": "info",
+   "provenance": "DIRECT_FAISAL_EVIDENCE",
+   "confidence": "VERIFIED",
+   "status": "CLOSED",
+   "status_ref": "T-STABILITY failed (3 of 4 guards)",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4338,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "BT_STABILITY_GATE": "",
+    "STABILITY_MIN": 3
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 0,
+    "max_per_day": 0,
+    "last_day": "2026-10-09",
+    "last_day_count": 0
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "بعيد_عن_الدخول"
+   ],
+   "config_keys": [
+    "NEAR_PCT"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "None ⇒ pass (benefit of doubt)",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "NEAR_READINESS",
+   "stage": "ANALYZE_HARD",
+   "order": 45,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(f\"بعيد_عن_الدخول({readiness_pct:.0f}%)\")",
+   "condition": "INACTIVE at NEAR_PCT=0: readiness ≥ NEAR_PCT (None passes)",
+   "inputs": "entry_readiness",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "INACTIVE",
+   "status_ref": "catalog NEAR_PCT=0",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4355,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "NEAR_PCT": 0
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 0,
+    "max_per_day": 0,
+    "last_day": "2026-10-09",
+    "last_day_count": 0
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "نقاط_تحت_"
+   ],
+   "config_keys": [
+    "SCORE_MIN"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "SCORE_MIN",
+   "stage": "ANALYZE_HARD",
+   "order": 46,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(f\"نقاط_تحت_{CONFIG['SCORE_MIN']}\")",
+   "condition": "technical score ≥ SCORE_MIN",
+   "inputs": "score components",
+   "provider": "adjusted daily",
+   "on_pass": "next gate",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none (first wall on 0 of 22)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4499,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "SCORE_MIN": 5
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 4,
+    "max_per_day": 8,
+    "last_day": "2026-10-09",
+    "last_day_count": 8
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "M_لا_مستوى_مختبر"
+   ],
+   "config_keys": [
+    "ANCHOR_MODE"
+   ],
+   "evidence": [
+    {
+     "source_unit": "owner «1» 2026-08-14 (anchor_prereg §⑫/⑬, B2)",
+     "verbatim": "",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-08-14",
+     "meaning": "the owner adopted tested_strict after T-ANCHOR",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "rejection on a missing tested level is our adoption"
+    },
+    {
+     "source_unit": "IMG_0451",
+     "verbatim": "1.75 ضربها مرّتين ولا كسرها · إذا الدخول من 1.80 لـ1.90 · الوقف 1.70",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "an ENTRY/STOP anchor said at entry time",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "DIRECT for the entry anchor; NOT for rejecting a candidate before the second touch (Phase 3/4: his attention starts at the first low)"
+    }
+   ],
+   "artifact_risk": "LOW (geometry on the adjusted 30-bar window)",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "ANCHOR_TWO_TOUCH",
+   "stage": "ANALYZE_HARD",
+   "order": 47,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"M_لا_مستوى_مختبر\")",
+   "condition": "tested_level(df): the 30-bar low touched in ≥2 independent clusters within 1.5% (ANCHOR_MODE=tested_strict)",
+   "inputs": "low.tail(30)",
+   "provider": "adjusted daily",
+   "on_pass": "anchor = tested level (entries/stop from it)",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "owner_policy",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "FROZEN",
+   "status_ref": "H6 contract (fm_forensics/perf/H6_PREREG.md §4) draws its control pool from this wall; perf experiment #586 «C. NO DEMONSTRATED IMPROVEMENT»; owner: no new phase without permission",
+   "next_action": "no production change (would alter the frozen H6 control pool); Phase 4 architecture B remains research-only",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4541,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "ANCHOR_MODE": "tested_strict"
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 395,
+    "max_per_day": 416,
+    "last_day": "2026-10-09",
+    "last_day_count": 407
+   },
+   "affected_cases": [
+    "ATPC_E1",
+    "BRTX_E1",
+    "CIIT_E1",
+    "CUPR_E1",
+    "DCOY_E1",
+    "DKI_E1",
+    "EDBL_E1",
+    "GCTK_E1",
+    "MSGY_E1",
+    "NRSN_E1",
+    "NUWE_E1",
+    "OMH_E1",
+    "SVRE_E1"
+   ],
+   "chain_cases": [
+    "AMIX_E1",
+    "IPDN_E1",
+    "LABT_E1",
+    "PPBT_E1",
+    "STKH_E1",
+    "SXTC_E1",
+    "YMT_E1",
+    "HUBC_2026-04-24"
+   ]
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [
+    "RR+نواقص_فوق_الحد"
+   ],
+   "config_keys": [
+    "MIN_RR_T1",
+    "WATCH_MAX_FAILS"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "RR_SOFT_COUNT",
+   "stage": "ANALYZE_HARD",
+   "order": 48,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "return _reject(\"RR+نواقص_فوق_الحد\")",
+   "condition": "if RR(t1) < MIN_RR_T1 a soft fail is added; then the soft-fail count must stay ≤ WATCH_MAX_FAILS",
+   "inputs": "targets, stop",
+   "provider": "adjusted daily",
+   "on_pass": "result",
+   "on_fail": "REJECT",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4758,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "MIN_RR_T1": 0.5,
+    "WATCH_MAX_FAILS": 8
+   },
+   "production_counts": {
+    "days": 20,
+    "median_per_day": 0,
+    "max_per_day": 1,
+    "last_day": "2026-10-09",
+    "last_day_count": 0
+   },
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER (pullback mode only)",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "PULLBACK_NOT_RISEN",
+   "stage": "ANALYZE_HARD",
+   "order": 49,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "if pullback and not risen:",
+   "condition": "pullback mode: return only stocks that rose above entry",
+   "inputs": "risen flag",
+   "provider": "—",
+   "on_pass": "pullback watch",
+   "on_fail": "return None without a reject code (routing)",
+   "role": "reject",
+   "kind": "info",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none (routing, not a selection rule)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4791,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "ANALYZE_EXCEPTION",
+   "stage": "ANALYZE_HARD",
+   "order": 50,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "log(f\"⚠️ استثناء تحليل {sym}: {type(exc).__name__}: {exc}\")",
+   "condition": "any exception inside analyze_ticker",
+   "inputs": "—",
+   "provider": "—",
+   "on_pass": "—",
+   "on_fail": "return None with a log line (no reject code)",
+   "role": "reject",
+   "kind": "ops_safety",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "C4 (2026-07-03)",
+   "next_action": "none (logged)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4834,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "MIN_DROP_PCT"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "SOFT_M2_IDEAL",
+   "stage": "ANALYZE_SOFT",
+   "order": 60,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "f\"(المثالي {CONFIG['MIN_DROP_PCT']:.0f}% فأكثر)\")",
+   "condition": "drop < MIN_DROP_PCT adds a soft fail",
+   "inputs": "adjusted daily",
+   "provider": "adjusted daily",
+   "on_pass": "no soft fail",
+   "on_fail": "soft fail (counts toward SOFT_COUNT)",
+   "role": "describe",
+   "kind": "soft",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "INFERRED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4079,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "MIN_DROP_PCT": 96.9178
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "PRIOR_SPIKE_PCT"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "SOFT_M3_IDEAL",
+   "stage": "ANALYZE_SOFT",
+   "order": 60,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "f\"(المثالي {CONFIG['PRIOR_SPIKE_PCT']:.0f}% فأكثر)\")",
+   "condition": "spike < PRIOR_SPIKE_PCT adds a soft fail",
+   "inputs": "adjusted daily",
+   "provider": "adjusted daily",
+   "on_pass": "no soft fail",
+   "on_fail": "soft fail (counts toward SOFT_COUNT)",
+   "role": "describe",
+   "kind": "soft",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "INFERRED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4088,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "PRIOR_SPIKE_PCT": 164.0212
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "TF_MIN_REVERSALS"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "SOFT_M6_TF",
+   "stage": "ANALYZE_SOFT",
+   "order": 60,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "soft_fails.append(f\"توافق الفريمات {mtf['count']} من 3 (نحتاج 2 على الأقل)\")",
+   "condition": "INACTIVE at TF_MIN_REVERSALS=0",
+   "inputs": "adjusted daily",
+   "provider": "adjusted daily",
+   "on_pass": "no soft fail",
+   "on_fail": "soft fail (counts toward SOFT_COUNT)",
+   "role": "describe",
+   "kind": "soft",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "VERIFIED",
+   "status": "INACTIVE",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4150,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "TF_MIN_REVERSALS": 0
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "TG_1871",
+     "verbatim": "Hammer",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "a hammer shown on a chart",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "pattern concept; the requirement is ours"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "SOFT_M7_PATTERN",
+   "stage": "ANALYZE_SOFT",
+   "order": 60,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "soft_fails.append(\"لا نمط شمعة انعكاسي\")",
+   "condition": "no reversal candle pattern adds a soft fail",
+   "inputs": "adjusted daily",
+   "provider": "adjusted daily",
+   "on_pass": "no soft fail",
+   "on_fail": "soft fail (counts toward SOFT_COUNT)",
+   "role": "describe",
+   "kind": "soft",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "INFERRED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4155,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "GAP_ABOVE_REQUIRED",
+    "GAP_ABOVE_MAX_DIST_PCT"
+   ],
+   "evidence": [
+    {
+     "source_unit": "IMG_0153",
+     "verbatim": "تجاوزها يحقق نسبه اعلى",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "a gap is a target zone",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "concept; the requirement is ours"
+    },
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "SOFT_M9_GAP_ABOVE",
+   "stage": "ANALYZE_SOFT",
+   "order": 60,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "soft_fails.append(\"ما فيه فجوة سعرية فوقه (هدف)\")",
+   "condition": "no unfilled gap above within distance adds a soft fail",
+   "inputs": "adjusted daily",
+   "provider": "adjusted daily",
+   "on_pass": "no soft fail",
+   "on_fail": "soft fail (counts toward SOFT_COUNT)",
+   "role": "describe",
+   "kind": "soft",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "INFERRED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4180,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "GAP_ABOVE_REQUIRED": true,
+    "GAP_ABOVE_MAX_DIST_PCT": 1134.7826
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "RSI_OVERSOLD",
+    "RSI_MAX_NOW"
+   ],
+   "evidence": [
+    {
+     "source_unit": "TG_2043",
+     "verbatim": "RSI بين 23-27",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "ideal band",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "the live 33/35.8 are catalog medians"
+    },
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "SOFT_M10_RSI",
+   "stage": "ANALYZE_SOFT",
+   "order": 60,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "f\"(المثالي {CONFIG['RSI_OVERSOLD']:.0f} أو أقل)\")",
+   "condition": "RSI bottom above RSI_OVERSOLD or RSI now above RSI_MAX_NOW adds a soft fail",
+   "inputs": "adjusted daily",
+   "provider": "adjusted daily",
+   "on_pass": "no soft fail",
+   "on_fail": "soft fail (counts toward SOFT_COUNT)",
+   "role": "describe",
+   "kind": "soft",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "STRONGLY SUPPORTED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4198,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "RSI_OVERSOLD": 33,
+    "RSI_MAX_NOW": 35.7789
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "MACD_GATE_REQUIRED"
+   ],
+   "evidence": [
+    {
+     "source_unit": "TG_2062",
+     "verbatim": "MACD(12,26,9)",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "the indicator on his chart",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "parameters DIRECT; a required cross is ours"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "SOFT_M11_MACD",
+   "stage": "ANALYZE_SOFT",
+   "order": 60,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "soft_fails.append(\"MACD لسّا ما أعطى إشارة إيجابية\")",
+   "condition": "no positive MACD cross in 5 bars adds a soft fail",
+   "inputs": "adjusted daily",
+   "provider": "adjusted daily",
+   "on_pass": "no soft fail",
+   "on_fail": "soft fail (counts toward SOFT_COUNT)",
+   "role": "describe",
+   "kind": "soft",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "INFERRED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4213,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "MACD_GATE_REQUIRED": true
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "MA_GATE_REQUIRED",
+    "MA_GATE_MAX_ABOVE_PCT"
+   ],
+   "evidence": [
+    {
+     "source_unit": "IMG_0151",
+     "verbatim": "متوسط حركه 30< 50",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "moving averages in his split recipe",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "concept from another recipe; the band is ours"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "SOFT_M12_EMA",
+   "stage": "ANALYZE_SOFT",
+   "order": 60,
+   "file": "Super_stock.py",
+   "function": "analyze_ticker",
+   "anchor": "\"(يفتح برجوعه قرب متوسطه)\")",
+   "condition": "price not within [−2%, +MA_GATE_MAX_ABOVE_PCT] of EMA30/50 adds a soft fail",
+   "inputs": "adjusted daily",
+   "provider": "adjusted daily",
+   "on_pass": "no soft fail",
+   "on_fail": "soft fail (counts toward SOFT_COUNT)",
+   "role": "describe",
+   "kind": "soft",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "INFERRED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 4240,
+   "function_lines": [
+    4029,
+    4837
+   ],
+   "config": {
+    "MA_GATE_REQUIRED": true,
+    "MA_GATE_MAX_ABOVE_PCT": 95.4707
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "SHORT_GATE_MAX",
+    "SHORT_GATE_REQUIRED"
+   ],
+   "evidence": [
+    {
+     "source_unit": "ledger M13 · owner C3",
+     "verbatim": "",
+     "author_confidence": "owner",
+     "timestamp_confidence": "—",
+     "meaning": "40,000 is an owner number; its claimed sources («SPPL 35ألف», TG_1818) were refuted",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "a different measure from Faisal's «شورت» (= shares available)"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "pass (benefit of doubt)",
+   "on_malformed": "non-numeric/NaN ⇒ unknown ⇒ pass",
+   "timestamp_rule": "latest FINRA file at run time (not point-in-time for history)",
+   "id": "M13_SHORT",
+   "stage": "POST_SCAN",
+   "order": 70,
+   "file": "Super_stock.py",
+   "function": "apply_short_gate",
+   "anchor": "r.setdefault(\"soft_fails\", []).append(\"شورت عالٍ\")",
+   "condition": "FINRA/Fintel daily short volume ≥ SHORT_GATE_MAX adds a soft fail (stock kept)",
+   "inputs": "FINRA daily short file / Fintel",
+   "provider": "FINRA (latest available day)",
+   "on_pass": "kept",
+   "on_fail": "kept with soft fail «شورت عالٍ»",
+   "role": "describe",
+   "kind": "soft",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OWNER_DECIDED",
+   "status_ref": "BBLG 2026-08-13 (soft, owner decision pending on tightening)",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 12602,
+   "function_lines": [
+    12544,
+    12616
+   ],
+   "config": {
+    "SHORT_GATE_MAX": 40000,
+    "SHORT_GATE_REQUIRED": true
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "FLOAT_GATE_MAX",
+    "FLOAT_GATE_REQUIRED"
+   ],
+   "evidence": [
+    {
+     "source_unit": "owner 2026-07-29",
+     "verbatim": "يكون مستبعد تماما",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-07-29",
+     "meaning": "big float is excluded outright",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "50M is our conservative bound; the largest documented Faisal float is 26.68M (MWC)"
+    },
+    {
+     "source_unit": "IMG_0151",
+     "verbatim": "عدد اسهمه تحت 2 مليون",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "float under 2M in the split recipe",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "a different system's number"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "pass (benefit of doubt)",
+   "on_malformed": "non-numeric/NaN ⇒ unknown ⇒ pass",
+   "timestamp_rule": "current snapshot at run time",
+   "id": "M14_FLOAT",
+   "stage": "POST_SCAN",
+   "order": 71,
+   "file": "Super_stock.py",
+   "function": "apply_float_gate",
+   "anchor": "rejected.append((r[\"symbol\"], fl_num))",
+   "condition": "known float ≥ FLOAT_GATE_MAX ⇒ removed",
+   "inputs": "Yahoo floatShares",
+   "provider": "Yahoo .info (current snapshot)",
+   "on_pass": "kept",
+   "on_fail": "REMOVED",
+   "role": "reject",
+   "kind": "owner_policy",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OWNER_DECIDED",
+   "status_ref": "m14hard (LOGIC_VERSION)",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 12672,
+   "function_lines": [
+    12619,
+    12685
+   ],
+   "config": {
+    "FLOAT_GATE_MAX": 50000000,
+    "FLOAT_GATE_REQUIRED": true
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "WATCH_MAX_FAILS"
+   ],
+   "evidence": [
+    {
+     "source_unit": "envelope_p100.json (catalog envelope)",
+     "verbatim": "",
+     "author_confidence": "derived",
+     "timestamp_confidence": "—",
+     "meaning": "number = P100/median of the measured values of Faisal's catalogued stocks at their bottoms (FAISAL_ONLY=1, owner order 2026-08-06)",
+     "independence": "aggregate of catalogued stocks",
+     "informed_methodology": true,
+     "reasoning": "measured from his chosen stocks, not stated by him; the envelope admits every catalogued stock by construction"
+    },
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "TIER",
+   "stage": "POST_SCAN",
+   "order": 72,
+   "file": "Super_stock.py",
+   "function": "classify_tier",
+   "anchor": "if n == 0 or (two_tier and n <= maxf):",
+   "condition": "soft fails (now including «شورت عالٍ») ≤ WATCH_MAX_FAILS",
+   "inputs": "soft_fails",
+   "provider": "—",
+   "on_pass": "tier B",
+   "on_fail": "removed",
+   "role": "reject",
+   "kind": "hard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "A/B retired 2026-07-05",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 12973,
+   "function_lines": [
+    12961,
+    12975
+   ],
+   "config": {
+    "WATCH_MAX_FAILS": 8
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "RANK_KEY",
+   "stage": "POST_SCAN",
+   "order": 73,
+   "file": "Super_stock.py",
+   "function": "rank_key",
+   "anchor": "def rank_key",
+   "condition": "order by readiness / proximity (T-PROX) / 4h / score / RR",
+   "inputs": "result fields",
+   "provider": "—",
+   "on_pass": "—",
+   "on_fail": "—",
+   "role": "rank",
+   "kind": "info",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "CLOSED",
+   "status_ref": "ranking verdict 2 (#593) · T-RANKER/T-RANKER2/T-RANKER3",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 12995,
+   "function_lines": [
+    12995,
+    13016
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "DQ_GATE",
+    "DQ_POLICY"
+   ],
+   "evidence": [
+    {
+     "source_unit": "owner «CRITICAL MISSION» 2026-10-01",
+     "verbatim": "",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-10-01",
+     "meaning": "data-integrity gate before every output",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "owner order"
+    },
+    {
+     "source_unit": "IMG_0151 · IMG_0143",
+     "verbatim": "حافظ 3 جلسات",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "the split-hunter recipe's settle condition",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "a split-recipe rule reused as the quarantine release for the pivot screener (cross-system coupling)"
+    }
+   ],
+   "artifact_risk": "MEDIUM — couples the pivot screener to the split recipe (EDBL quarantined 2026-10-09)",
+   "blocks_downstream": true,
+   "on_unavailable": "split sources unavailable ⇒ UNVERIFIED (warn, pass)",
+   "on_malformed": "n/a",
+   "timestamp_rule": "last_closed_session (New York clock)",
+   "id": "DQ_GATE",
+   "stage": "QUALITY",
+   "order": 80,
+   "file": "Super_stock.py",
+   "function": "dq_filter",
+   "anchor": "def dq_filter",
+   "condition": "data-quality state per candidate; STALE/INCOMPLETE/SPLIT_UNADJUSTED/SOURCE_CONFLICT/SYMBOL_CHANGED ⇒ block; CORPORATE_ACTION_PENDING ⇒ quarantine until the split-hunter recipe settles (½ post-split high band, 3 held closes)",
+   "inputs": "bars + Yahoo splits ∪ Nasdaq calendar + Yahoo close",
+   "provider": "Yahoo / Nasdaq / TradingView",
+   "on_pass": "kept",
+   "on_fail": "held out of the list (counted)",
+   "role": "reject",
+   "kind": "coverage_guard",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OWNER_DECIDED",
+   "status_ref": "data_integrity_result.md",
+   "next_action": "document the coupling; no production change without the owner",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 2429,
+   "function_lines": [
+    2429,
+    2456
+   ],
+   "config": {
+    "DQ_GATE": null,
+    "DQ_POLICY": null
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "DATA_HEALTH_MIN_PCT"
+   ],
+   "evidence": [
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "COVERAGE_GUARD",
+   "stage": "QUALITY",
+   "order": 81,
+   "file": "Super_stock.py",
+   "function": "run_daily_watchlist",
+   "anchor": "coverage_ok = bool(results) and _cov >= CONFIG[\"DATA_HEALTH_MIN_PCT\"]",
+   "condition": "valid frames / universe ≥ DATA_HEALTH_MIN_PCT, else no additions today",
+   "inputs": "scan coverage",
+   "provider": "—",
+   "on_pass": "additions allowed",
+   "on_fail": "no new candidates today (list kept)",
+   "role": "reject",
+   "kind": "coverage_guard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "(D) 2026-06-26",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 22144,
+   "function_lines": [
+    22069,
+    22507
+   ],
+   "config": {
+    "DATA_HEALTH_MIN_PCT": 85
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "EXCLUDE_STOPPED_FROM_RENEWAL"
+   ],
+   "evidence": [
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "STOPPED_EXCLUSION",
+   "stage": "CAPACITY",
+   "order": 82,
+   "file": "Super_stock.py",
+   "function": "run_daily_watchlist",
+   "anchor": "if rm.get(\"status\") == \"stopped\"}",
+   "condition": "symbols stopped out this list-week are not re-added (the removed list resets at renewal)",
+   "inputs": "watchlist removed[]",
+   "provider": "state",
+   "on_pass": "eligible",
+   "on_fail": "excluded until renewal",
+   "role": "reject",
+   "kind": "owner_policy",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "list rule «تُشطب بالستوب فقط»",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 22148,
+   "function_lines": [
+    22069,
+    22507
+   ],
+   "config": {
+    "EXCLUDE_STOPPED_FROM_RENEWAL": true
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "WATCHLIST_SIZE"
+   ],
+   "evidence": [
+    {
+     "source_unit": "owner «اعتمد سعة 15» 2026-08-12",
+     "verbatim": "",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-08-12",
+     "meaning": "list capacity 15",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "owner decision"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "CAPACITY_SLOTS",
+   "stage": "CAPACITY",
+   "order": 83,
+   "file": "Super_stock.py",
+   "function": "run_daily_watchlist",
+   "anchor": "_slot_holders = [s for s in wl[\"stocks\"]",
+   "condition": "new candidates fill only free slots (15 minus slot holders)",
+   "inputs": "watchlist",
+   "provider": "state",
+   "on_pass": "added",
+   "on_fail": "not added (capacity)",
+   "role": "reject",
+   "kind": "owner_policy",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OWNER_DECIDED",
+   "status_ref": "cap15",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 22177,
+   "function_lines": [
+    22069,
+    22507
+   ],
+   "config": {
+    "WATCHLIST_SIZE": 15
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "PICK_FILL_ROUNDS"
+   ],
+   "evidence": [
+    {
+     "source_unit": "fill_picks docstring",
+     "verbatim": "الكلفةُ مسقوفةٌ مُعلَنة",
+     "author_confidence": "code",
+     "timestamp_confidence": "2026-10-09 log",
+     "meaning": "a cost cap tied to the ChartExchange page quota (~50 pages per runner)",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "engineering; production run 37902530011 (2026-10-09) filled 4 of 12 after 4 rounds with about 60 of 104 post-quality candidates unexamined (log)"
+    }
+   ],
+   "artifact_risk": "MEDIUM — couples list size to the borrow-data quota",
+   "blocks_downstream": true,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "FILL_ROUNDS",
+   "stage": "CAPACITY",
+   "order": 84,
+   "file": "Super_stock.py",
+   "function": "fill_picks",
+   "anchor": "while len(picks) < space and used < max(rounds, 1):",
+   "condition": "slot filling re-selects after ejections for at most PICK_FILL_ROUNDS rounds",
+   "inputs": "ranked pool",
+   "provider": "—",
+   "on_pass": "filled",
+   "on_fail": "slots left empty with eligible names unexamined (now logged by fill_shortfall_note)",
+   "role": "reject",
+   "kind": "ops_safety",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "«صلّح الترتيب» 2026-08-11",
+   "next_action": "measure how often the cap binds from the new log line before any change (live threshold ⇒ prereg + owner)",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 12893,
+   "function_lines": [
+    12863,
+    12924
+   ],
+   "config": {
+    "PICK_FILL_ROUNDS": 4
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "FLOAT_GATE_MAX"
+   ],
+   "evidence": [
+    {
+     "source_unit": "owner 2026-07-28/29",
+     "verbatim": "يكون مستبعد تماما",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-07-29",
+     "meaning": "same as M14",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "same owner decision"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": true,
+   "on_unavailable": "pass",
+   "on_malformed": "pass",
+   "timestamp_rule": "current snapshot",
+   "id": "M14_REFLOAT",
+   "stage": "POST_ENRICH",
+   "order": 85,
+   "file": "Super_stock.py",
+   "function": "refloat_gate_recheck",
+   "anchor": "ejected.append((r.get(\"symbol\"), r.get(\"float\")))",
+   "condition": "float that became known after enrich and is ≥ FLOAT_GATE_MAX ⇒ ejected",
+   "inputs": "enriched float",
+   "provider": "Yahoo",
+   "on_pass": "kept",
+   "on_fail": "EJECTED",
+   "role": "reject",
+   "kind": "owner_policy",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OWNER_DECIDED",
+   "status_ref": "docstring corrected 2026-10-09 (no classify_tier here)",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 12761,
+   "function_lines": [
+    12720,
+    12764
+   ],
+   "config": {
+    "FLOAT_GATE_MAX": 50000000
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "—",
+     "verbatim": "",
+     "author_confidence": "—",
+     "timestamp_confidence": "—",
+     "meaning": "no Faisal source states this rule",
+     "independence": "—",
+     "informed_methodology": false,
+     "reasoning": "searched FAISAL_SOURCE_LEDGER.md, FAISAL_IMAGES_CATALOG.md and fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv; none found"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "BORROW_SECOND_CHANCE",
+   "stage": "POST_ENRICH",
+   "order": 86,
+   "file": "Super_stock.py",
+   "function": "borrow_second_chance",
+   "anchor": "def borrow_second_chance",
+   "condition": "unknown availability ⇒ today's harvest row, then one ChartExchange call",
+   "inputs": "ctb_log.jsonl, ChartExchange",
+   "provider": "ChartExchange (IBKR data)",
+   "on_pass": "value filled",
+   "on_fail": "stays unknown (passes the gate)",
+   "role": "input",
+   "kind": "coverage_guard",
+   "provenance": "ENGINEERING_GUARD",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "2026-09-26",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 12810,
+   "function_lines": [
+    12810,
+    12860
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [
+    "BORROW_AVAIL_MAX",
+    "BORROW_GATE_REQUIRED"
+   ],
+   "evidence": [
+    {
+     "source_unit": "owner «طبّق 20» 2026-08-11",
+     "verbatim": "",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-08-11",
+     "meaning": "apply Faisal's 20K to the pivot list",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "owner order"
+    },
+    {
+     "source_unit": "IMG_0151",
+     "verbatim": "شورته تحت 20 الف",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "UNKNOWN",
+     "meaning": "short (= available, per XHLD/DSY) under 20K in the split recipe",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "DIRECT number from the split recipe, applied to the pivot screener by the owner"
+    }
+   ],
+   "artifact_risk": "MEDIUM — unknown passes; effectiveness depends on the ChartExchange quota",
+   "blocks_downstream": true,
+   "on_unavailable": "pass (benefit of doubt)",
+   "on_malformed": "pass",
+   "timestamp_rule": "current page at run time (no history)",
+   "id": "BORROW_AVAIL",
+   "stage": "POST_ENRICH",
+   "order": 87,
+   "file": "Super_stock.py",
+   "function": "borrow_gate_recheck",
+   "anchor": "over = av is not None and float(av) > limit",
+   "condition": "known shares available to borrow > BORROW_AVAIL_MAX ⇒ ejected",
+   "inputs": "ChartExchange Available",
+   "provider": "ChartExchange (IBKR, current)",
+   "on_pass": "kept",
+   "on_fail": "EJECTED",
+   "role": "reject",
+   "kind": "owner_policy",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OWNER_DECIDED",
+   "status_ref": "borrow20 · borrow_gate_result.md",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 12800,
+   "function_lines": [
+    12767,
+    12807
+   ],
+   "config": {
+    "BORROW_AVAIL_MAX": 20000,
+    "BORROW_GATE_REQUIRED": true
+   },
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "LIVE_SCANNER",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "P0-5 (methodology)",
+     "verbatim": "",
+     "author_confidence": "VERIFIED",
+     "timestamp_confidence": "—",
+     "meaning": "Faisal's decision = price location, not gate completeness",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "inferred structure; not a source-documented stage (STAGE_SEMANTICS verdict 3)"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "ENTRY_STATUS",
+   "stage": "READINESS",
+   "order": 90,
+   "file": "Super_stock.py",
+   "function": "entry_status",
+   "anchor": "def entry_status",
+   "condition": "READY NOW vs WATCH from the price location (entry_mode)",
+   "inputs": "interp",
+   "provider": "—",
+   "on_pass": "ready card",
+   "on_fail": "watch (counted, no card)",
+   "role": "display",
+   "kind": "info",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "INFERRED",
+   "status": "OPEN",
+   "status_ref": "—",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "line": 14951,
+   "function_lines": [
+    14951,
+    15024
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "MANUAL_TOOLS (hand_check · analyze_one)",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "owner 2026-08-08",
+     "verbatim": "13 بوابة هذي أصلًا من البوابات اللي حنا مسوينها مب اللي من فيصل",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-08-08",
+     "meaning": "show the truthful split of gates",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "owner request; fixed 2026-10-09 (GPV4/GPV5)"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "HC_GATE_DISPLAY",
+   "stage": "DISPLAY",
+   "order": 95,
+   "file": "analyze_one.py",
+   "function": "append_short_float_gates",
+   "anchor": "def append_short_float_gates",
+   "condition": "gate list shown in full: hard/soft/info kinds mirror the scanner (M13 soft; M14, borrow, anchor hard)",
+   "inputs": "diag + enrich",
+   "provider": "as scanner",
+   "on_pass": "✅",
+   "on_fail": "❌ under its kind",
+   "role": "display",
+   "kind": "info",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "GPV4 · GPV5",
+   "next_action": "none",
+   "repro": "python3 test_bot.py (GPV4, GPV5)",
+   "line": 709,
+   "function_lines": [
+    709,
+    743
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "MANUAL_TOOLS (hand_check · analyze_one)",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "analyze_one docstring",
+     "verbatim": "الفحص اليدوي = الأساسي",
+     "author_confidence": "owner",
+     "timestamp_confidence": "—",
+     "meaning": "the manual check must equal the scanner",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "fixed 2026-10-09 (GPV1-GPV3, GPV6, GPV7)"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "HC_VERDICT",
+   "stage": "DISPLAY",
+   "order": 96,
+   "file": "analyze_one.py",
+   "function": "post_enrich_verdict",
+   "anchor": "def post_enrich_verdict",
+   "condition": "manual verdict = scanner decision after enrich (M13 soft → M14 removal → tier → borrow ejection)",
+   "inputs": "official + enrich",
+   "provider": "as scanner",
+   "on_pass": "«مؤهّل»",
+   "on_fail": "«لم يكن ليرشّحه» with the gate named",
+   "role": "display",
+   "kind": "info",
+   "provenance": "OWNER_POLICY",
+   "confidence": "VERIFIED",
+   "status": "OPEN",
+   "status_ref": "GPV1-GPV7",
+   "next_action": "none",
+   "repro": "python3 test_bot.py (GPV1-GPV7)",
+   "line": 746,
+   "function_lines": [
+    746,
+    779
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "RESEARCH_ENGINE (faisal_engine)",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "faisal_engine/FAISAL_RULE_LEDGER.csv",
+     "verbatim": "",
+     "author_confidence": "ledger",
+     "timestamp_confidence": "—",
+     "meaning": "per-rule sources",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "reconstruction, not production"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "RESEARCH_ENGINE",
+   "stage": "RESEARCH",
+   "order": 97,
+   "file": "faisal_engine/engine.py",
+   "function": "evaluate",
+   "anchor": "def evaluate",
+   "condition": "27 rules in faisal_engine/FAISAL_RULE_LEDGER.csv (post-split frame, stages)",
+   "inputs": "frozen bars",
+   "provider": "frozen artifacts",
+   "on_pass": "—",
+   "on_fail": "—",
+   "role": "describe",
+   "kind": "info",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "STRONGLY SUPPORTED",
+   "status": "OPEN",
+   "status_ref": "research only",
+   "next_action": "none",
+   "repro": "python3 faisal_engine/rank_eval.py --check",
+   "line": 142,
+   "function_lines": [
+    142,
+    227
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  },
+  {
+   "system": "V4/V4.1 (frozen)",
+   "reject_codes": [],
+   "config_keys": [],
+   "evidence": [
+    {
+     "source_unit": "faisal_method_v41/final_protocol/EPOCH_FREEZE.json",
+     "verbatim": "",
+     "author_confidence": "freeze",
+     "timestamp_confidence": "2026-10-07",
+     "meaning": "frozen",
+     "independence": "single unit",
+     "informed_methodology": true,
+     "reasoning": "not modified by this inventory"
+    }
+   ],
+   "artifact_risk": "NONE",
+   "blocks_downstream": false,
+   "on_unavailable": "n/a",
+   "on_malformed": "n/a",
+   "timestamp_rule": "bars with date < T (morning run sees yesterday's close)",
+   "id": "V4_FROZEN",
+   "stage": "RESEARCH",
+   "order": 98,
+   "file": "faisal_method_v4/decision_engine.py",
+   "function": "analyze",
+   "anchor": "def analyze(",
+   "condition": "frozen epoch 1 (freeze_id 5f291a3b…)",
+   "inputs": "—",
+   "provider": "—",
+   "on_pass": "—",
+   "on_fail": "—",
+   "role": "describe",
+   "kind": "info",
+   "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
+   "confidence": "VERIFIED",
+   "status": "FROZEN",
+   "status_ref": "FINAL_PROTOCOL epoch 1",
+   "next_action": "none",
+   "repro": "python3 faisal_method_v41/freeze.py verify",
+   "line": 215,
+   "function_lines": [
+    215,
+    309
+   ],
+   "config": {},
+   "production_counts": null,
+   "affected_cases": [],
+   "chain_cases": []
+  }
+ ]
+}

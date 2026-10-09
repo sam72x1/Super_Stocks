@@ -119,8 +119,8 @@ def render_gate_lines(gates, truthful=None) -> list:
     if hard:
         hp = sum(1 for g in hard if g[1])
         L.append(f"🚪 بوابات فيصل الصلبة (ترفض): <b>{hp}/{len(hard)}</b> — "
-                 "أرقامها مقيسة من كتالوجه (ظرف P90) · الشورت/الفلوت بقرار "
-                 "المالك · تظهر كاملة حتى لو سقط على واحدة:")
+                 "أرقامها من ظرف كتالوجه · الفلوت والمِرساة بقرار المالك · "
+                 "حدّ المتاح نصُّه · تظهر كاملة حتى لو سقط على واحدة:")
         for g in hard:
             L.append(f"  {'✅' if g[1] else '❌'} {g[0]} — {g[2]}")
     if soft:
@@ -276,6 +276,18 @@ def analyze_on_demand(sym: str):
             _d12 = (f"السعر أعلى بـ{ma_dist:.0f}% من متوسطه المتحرك "
                     "(يفتح برجوعه قرب متوسطه)")
         gates.append(("السعر قرب متوسطه المتحرك 30/50", g12, _d12, "soft"))
+
+    # 🎯 المِرساة (صلبةٌ في الإنتاج تحت `tested_strict` · اعتماد المالك «1» 2026-08-14 · B2):
+    #    `analyze_ticker` يرفض باسم `M_لا_مستوى_مختبر` مَن لا قاعَ مُختبَرًا له — **ثاني أكبر
+    #    جدارٍ يوميّ** (‏407 يومَ 2026-10-09) وكان **غائبًا عن هذه القائمة** فتقول «الصلبة كلّها ✅»
+    #    والحكمُ «مرفوض» (عطلٌ مُثبَت · GPV5). نفسُ الدالّة ونفسُ الإطار ⇒ مرآةٌ لا تقدير.
+    if bot._anchor_mode(C.get("BT_ANCHOR"), C.get("ANCHOR_MODE")) == "tested_strict":
+        _tlg = bot.tested_level(df)
+        gates.append(("مِرساة: قاعٌ مُختبَر (لُمِس مرّتين مستقلّتين في 30 جلسة)",
+                      bool(_tlg),
+                      (f"${float(_tlg['level']):.4g} · {int(_tlg['touches'])} لمسات"
+                       if _tlg else "لا مستوى مُختبَر — القاعُ لُمِس مرّةً واحدة"),
+                      "hard"))
 
     # ===== الدرجة الفنية (نفس أوزان البوت — تُحسب دائماً) =====
     score = 0
@@ -673,30 +685,98 @@ def analyze_on_demand(sym: str):
     return result, gates, df
 
 
+def _num(x):
+    """رقمٌ أو `None`: المجهول وNaN وغيرُ الرقميّ ⇒ `None` (مجهولٌ يمرّ بفائدة الشك —
+    نفسُ حارس النوع في `apply_short_gate`/`apply_float_gate`)."""
+    try:
+        v = float(x) if x is not None else None
+    except (TypeError, ValueError):
+        return None
+    return None if (v is None or v != v) else v
+
+
+def _short_value(result: dict):
+    """حجمُ الشورت اليوميّ بسلسلة الإنتاج نفسِها (Fintel ثمّ FINRA) — رقمٌ أو `None`."""
+    fd = result.get("fintel") or {}
+    srt = fd.get("short_volume") if isinstance(fd, dict) else None
+    if srt is None:
+        srt = result.get("finra_short")
+    if isinstance(srt, dict):
+        srt = srt.get("short_volume")
+    return _num(srt)
+
+
 def append_short_float_gates(result: dict, gates: list) -> list:
-    """يضيف بوابتي الشورت (M13) والفلوت (M14) بعد الإثراء — لأنهما يحتاجان
-    بيانات شبكية يجلبها enrich. نفس منطق البوت: يعدّي لو البيانة مفقودة."""
+    """يضيف بوّابات ما بعد الإثراء — لأنها تحتاج بيانات شبكية يجلبها enrich.
+
+    🔴 **تصحيحٌ مؤرَّخ 2026-10-09 (عطلٌ مُثبَت · GPV4):** كان الشورت (M13) يُوسَم «صلبة»
+    والفارزُ يعامله **نقصًا لينًا** منذ v2.7 (`apply_short_gate` · مسكةُ `BBLG` 2026-08-13)
+    ⇒ صار «لينة» · وأُضيفت بوّابةُ **المتاح للاقتراض** الصلبة (`borrow_gate_recheck` ·
+    20 ألفًا نصُّ فيصل `IMG_0151` بأمر المالك «طبّق 20») وكانت غائبة. المجهولُ في الثلاث
+    يمرّ بفائدة الشك كما في الإنتاج."""
     gates = list(gates)
-    # M13 — الشورت العالي (صلبة · الرقم قرار المالك C3 — خارج قياس الكاتالوج)
+    # M13 — الشورت العالي (لينة — نقصٌ يُحسب ضمن حدّ النواقص · الرقم قرار المالك C3)
     if C.get("SHORT_GATE_REQUIRED", False):
-        fd = result.get("fintel") or {}
-        srt = fd.get("short_volume")
-        if srt is None:
-            srt = result.get("finra_short")
+        srt = _short_value(result)
         g13 = (srt is None) or (srt < C["SHORT_GATE_MAX"])
         d13 = (f"{bot.fmt_money(srt)} (الحد {bot.fmt_money(C['SHORT_GATE_MAX'])})"
                if srt is not None else "غير متاح — مُرِّر بفائدة الشك")
         gates.append((f"الشورت تحت {bot.fmt_money(C['SHORT_GATE_MAX'])}",
-                      g13, d13, "hard"))
+                      g13, d13, "soft"))
     # M14 — الفلوت الكبير (صلبة · الرقم قرار المالك 2026-07-29 — خارج الكاتالوج)
     if C.get("FLOAT_GATE_REQUIRED", False):
-        fl = result.get("float")
+        fl = _num(result.get("float"))
         g14 = (fl is None) or (fl < C["FLOAT_GATE_MAX"])
         d14 = (f"{bot.fmt_money(fl)} (الحد {bot.fmt_money(C['FLOAT_GATE_MAX'])})"
                if fl is not None else "غير متاح — مُرِّر بفائدة الشك")
         gates.append((f"الفلوت تحت {bot.fmt_money(C['FLOAT_GATE_MAX'])}",
                       g14, d14, "hard"))
+    # 🔒 المتاح للاقتراض (صلبة بعد الإثراء · `borrow_gate_recheck` نفسُها ⇒ مرآةٌ بت-بت)
+    if C.get("BORROW_GATE_REQUIRED", False):
+        av = result.get("shares_available")
+        _kept, _ej = bot.borrow_gate_recheck([{"symbol": "", "shares_available": av}])
+        _av = _num(av)
+        dbw = (f"{bot.fmt_money(_av)} (الحد {bot.fmt_money(C['BORROW_AVAIL_MAX'])})"
+               if _av is not None else "غير متاح — مُرِّر بفائدة الشك")
+        gates.append((f"المتاح للاقتراض {bot.fmt_money(C['BORROW_AVAIL_MAX'])} أو أقل",
+                      not _ej, dbw, "hard"))
     return gates
+
+
+def post_enrich_verdict(rec: dict):
+    """⚖️ **حكمُ ما بعد الإثراء — مرآةُ الإنتاج** (عطلٌ مُثبَت 2026-10-09 · GPV1-GPV3).
+
+    الإنتاجُ بعد `analyze_ticker`: M13 نقصٌ لين (`apply_short_gate`) ⟶ M14 حذفٌ تامّ
+    (`apply_float_gate` · قرار المالك 2026-07-29 «يكون مستبعد تماما») ⟶ `classify_tier` ⟶
+    `refloat_gate_recheck` ⟶ `borrow_gate_recheck` (حذفُ المتاح فوق 20 ألفًا). وكان الفحصُ
+    اليدويّ يضيف «فلوت كبير» **نقصًا** ولا يسأل عن المتاح ⇒ يقول «مؤهّل — كان سيدخل قائمة
+    المراقبة» لسهمٍ يحذفه الإنتاج (فلوت 277م · متاح 30 ألفًا).
+
+    ترجّع `(ok, reason, soft_fails)`. دوالُّ الإنتاج نفسُها تُنادى (لا إعادةَ كتابةٍ للعتبات)
+    والمجهولُ يمرّ بفائدة الشك كما هناك. **عرضٌ/حكمٌ للأدوات اليدويّة فقط — لا يمسّ الفرز.**"""
+    sf = list((rec or {}).get("soft_fails") or [])
+    sym = (rec or {}).get("symbol") or ""
+    if C.get("SHORT_GATE_REQUIRED", False):
+        srt = _short_value(rec or {})
+        if srt is not None and srt >= C["SHORT_GATE_MAX"]:
+            sf.append("شورت عالٍ")
+    if C.get("FLOAT_GATE_REQUIRED", False):
+        _k, _ej = bot.refloat_gate_recheck(
+            [{"symbol": sym, "float": (rec or {}).get("float"),
+              "soft_fails": [], "flags": []}])
+        if _ej:
+            return (False, f"فلوت كبير {bot.fmt_money(_num(_ej[0][1]))} — M14 صلبة: "
+                    "يُستبعد تمامًا (قرار المالك 2026-07-29)", sf)
+    if bot.classify_tier(sf) is None:
+        return (False, f"نواقص أكثر من الحد ({len(sf)}): " + "، ".join(sf), sf)
+    if C.get("BORROW_GATE_REQUIRED", False):
+        _k, _ej = bot.borrow_gate_recheck(
+            [{"symbol": sym, "shares_available": (rec or {}).get("shares_available")}])
+        if _ej:
+            return (False, f"متاحُ الاقتراض {bot.fmt_money(_num(_ej[0][1]))} فوق "
+                    f"{bot.fmt_money(C['BORROW_AVAIL_MAX'])} — بوّابةٌ صلبة بعد الإثراء "
+                    "(ذخيرةُ هبوط بإطار فيصل)", sf)
+    return True, None, sf
 
 
 # ==========================================================
@@ -830,21 +910,15 @@ def main():
     except Exception as e:
         bot.log(f"⚠️ الإثراء فشل (نُكمل بدونه): {e}")
 
-    # تثبيت تصنيف A/B بعد الشورت/الفلوت (مطابق لـ scan_market تمامًا)
+    # ⚖️ حكمُ ما بعد الإثراء = مرآةُ الإنتاج (M13 لين · M14 حذفٌ تامّ · حدُّ النواقص · المتاح).
+    #    🔴 كان هنا «فلوت كبير» نقصًا (مطابقًا لـscan_market قبل 2026-07-29 لا بعده) وبلا
+    #    بوّابة المتاح ⇒ «مؤهّل» لسهمٍ يحذفه الإنتاج (عطلٌ مُثبَت 2026-10-09 · GPV1-GPV3).
     if official is not None:
-        sf = list(official.get("soft_fails", []))
-        srt = ((official.get("fintel") or {}).get("short_volume")
-               or official.get("finra_short"))
-        if srt is not None and srt >= C["SHORT_GATE_MAX"]:
-            sf.append("شورت عالٍ")
-        fl = official.get("float")
-        if fl is not None and fl >= C["FLOAT_GATE_MAX"]:
-            sf.append("فلوت كبير")
+        _ok, _why, sf = post_enrich_verdict(official)
         official["soft_fails"] = sf
-        official["tier"] = bot.classify_tier(sf)
-        if official["tier"] is None:        # تجاوز حد النواقص بعد الشورت/الفلوت
-            reject_reason = (f"نواقص أكثر من الحد ({len(sf)}): "
-                             + "، ".join(sf))
+        official["tier"] = bot.classify_tier(sf) if _ok else None
+        if not _ok:
+            reject_reason = _why
             official = None                 # يُعرض كمرفوض
 
     gates = append_short_float_gates(card_result, gates)

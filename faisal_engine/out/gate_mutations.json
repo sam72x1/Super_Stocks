@@ -1,0 +1,179 @@
+{
+ "harness": "each lock block run in isolation on the mutated tree (scratch quick harness: suite environment FAISAL_ONLY=0 · DQ_GATE=0 · ANCHOR_MODE='', synth_pivot from test_bot.py); full suite run separately on the final tree",
+ "test_first": {
+  "tree": "f6afbb81 (main before this change)",
+  "result": "GPV1-GPV3 AttributeError (no post_enrich_verdict) · GPV4 kinds={'الشورت': (False, 'hard'), 'الفلوت': (True, 'hard')} · GPV5 anchor=[] · GPV6 ok=True fl=True bw=True · GPV7 ok=True fl=True bw=True — 0 of 7 pass"
+ },
+ "mutations": [
+  {
+   "mutation": "M1 float-reject removed from post_enrich_verdict",
+   "killed_by": [
+    "GPV1",
+    "GPV6",
+    "GPV7"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M2 short soft-fail not appended",
+   "killed_by": [
+    "GPV2"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M3 borrow verdict removed",
+   "killed_by": [
+    "GPV3",
+    "GPV6",
+    "GPV7"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M4 short display kind back to hard",
+   "killed_by": [
+    "GPV4"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M5 borrow display line removed",
+   "killed_by": [
+    "GPV4"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M6 anchor display always passes",
+   "killed_by": [
+    "GPV5"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M7 anchor line shown in pivot mode",
+   "killed_by": [
+    "GPV5"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M8 analyze_one.main ignores the verdict",
+   "killed_by": [
+    "GPV6"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M9 hand_check ignores the verdict",
+   "killed_by": [
+    "GPV7"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M10 tier check skipped in post_enrich_verdict",
+   "killed_by": [
+    "GPV2"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M11 fill_shortfall_note ignores exclude",
+   "killed_by": [
+    "GPV8"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M12 fill_shortfall_note always «pool dry»",
+   "killed_by": [
+    "GPV8"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M13 daily log site unwired",
+   "killed_by": [
+    "GPV8"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M14 borrow ejections not counted as examined",
+   "killed_by": [
+    "GPV8"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M15 renewal log site unwired",
+   "killed_by": [
+    "GPV8"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "MI1 gate removed from gate_provenance.json",
+   "killed_by": [
+    "GPV9",
+    "GPV10"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "MI2 classify() always returns artefact",
+   "killed_by": [
+    "GPV9"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "MI3 bare-None completeness check disabled",
+   "killed_by": [
+    "GPV10"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "MI4 reject-code completeness check disabled",
+   "killed_by": [
+    "GPV10"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "MI5 committed first-exclusion row corrupted",
+   "killed_by": [
+    "GPV9",
+    "GPV11"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "MI6 neutralisation not restored in run_once",
+   "killed_by": [
+    "GPV9"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "MI7 invalid provenance category in source",
+   "killed_by": [
+    "GPV9",
+    "GPV10"
+   ],
+   "crash": false
+  },
+  {
+   "mutation": "M16 technical_report depth-section scope line removed",
+   "killed_by": [
+    "GPV12"
+   ],
+   "crash": false
+  }
+ ],
+ "killed": 23,
+ "total": 23
+}
