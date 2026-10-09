@@ -1,0 +1,861 @@
+{
+ "meta": {
+  "task": "HISTORICAL GROUND-TRUTH RECOVERY (2026-10-09) — eye reads of the original images behind the 23 ranking episodes that were not already read in faisal_engine/data/stage/eye_reads.json",
+  "method": "each image opened and read by eye in this task; text copied as it appears (line breaks as ' / '); private names and follower handles omitted; no statement here is taken from V4 transcriptions",
+  "clock_assumption": "printed X times and in-image phone clocks are read as Asia/Riyadh (UTC+3), as in STAGE_SEMANTICS_PROTOCOL §0; GCTK shows Faisal's phone clock (2:24/2:25) equal to the X printed time (2:26 ص) of the same post, so the two clocks share a zone",
+  "label": "EXPLORATORY"
+ },
+ "reads": [
+  {
+   "id": "X_20260827_labt_supports_wait",
+   "file": "faisal_images/X_20260827_labt_supports_wait.png",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) — post page",
+   "printed": "2026/8/23 4:51 م",
+   "note": "two LABT 4-hour charts (Faisal's phone 4:49/4:50 · After Hours 2.220 -0.89%)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "LABT"
+     ],
+     "text": "انتظار الدعوم الاساسيه / 2 > 1.80 / 15 الف شورت / 687٪ اقتراض",
+     "printed": {
+      "y": "2026",
+      "m": "8",
+      "d": "23",
+      "hh": "4",
+      "mm": "51",
+      "ampm": "م"
+     }
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "annotation on the attached chart",
+     "tickers": [
+      "LABT"
+     ],
+     "text": "شمعة غبيه بعد تحليلنا السابق"
+    }
+   ]
+  },
+  {
+   "id": "TG_58407",
+   "file": "faisal_images/TG_58407.jpg",
+   "author_visible": false,
+   "header": "none — the BRTX daily chart attached to the post in TG_58402 (same drawing, phone 7:17, After Hours 2.200 +2.80%)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F_chart",
+     "channel": "chart annotations",
+     "tickers": [
+      "BRTX"
+     ],
+     "text": "فجوة سعريه / شمعة التقسيم S / الموجه الهابطه / ستكون مقاومه عاليه / هبوط متوقع",
+     "duplicate_of": "TG_58402"
+    }
+   ]
+  },
+  {
+   "id": "TG_57884",
+   "file": "faisal_images/TG_57884.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) — post page; quotes a follower's post (19 س) ; no printed time",
+   "note": "attached images: CIIT app screenshot (2:24 · «مغلق 25/09-16:00:00 EDT» · 2.75 -1.26%) with drawn annotations, and a third-party app screen «استراتيجية فيصل» showing the app label «مراقبة» (an app label, not Faisal's word)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "CIIT"
+     ],
+     "text": "ربما عنده موجه هابطه لتحقيق الدعوم وسحب السيوله / تمثل الموجات الهابطه -25٪ / بعد اختبار المقاومه"
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "annotation on the attached CIIT chart",
+     "tickers": [
+      "CIIT"
+     ],
+     "text": "القاع 2.26 / سحب السيوله 2 / الاجابيه ثبات اسفل الدعم"
+    },
+    {
+     "key": "s3",
+     "speaker": "APP",
+     "channel": "third-party app screen attached",
+     "tickers": [
+      "CIIT"
+     ],
+     "text": "مراقبة"
+    }
+   ]
+  },
+  {
+   "id": "TG_57881",
+   "file": "faisal_images/TG_57881.jpg",
+   "author_visible": false,
+   "header": "none — the CIIT app screenshot attached to the post in TG_57884 (2:24 · data «25/09-16:00:00 EDT»)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F_chart",
+     "channel": "chart annotations",
+     "tickers": [
+      "CIIT"
+     ],
+     "text": "القاع 2.26 / سحب السيوله 2 / الاجابيه ثبات اسفل الدعم",
+     "duplicate_of": "TG_57884:s2"
+    }
+   ]
+  },
+  {
+   "id": "TG_57883",
+   "file": "faisal_images/TG_57883.jpg",
+   "author_visible": false,
+   "header": "none — the owner's enlarged view (2:32) of the same CIIT chart",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F_chart",
+     "channel": "chart annotations",
+     "tickers": [
+      "CIIT"
+     ],
+     "text": "القاع 2.26 / سحب السيوله 2 / الاجابيه ثبات اسفل الدعم",
+     "duplicate_of": "TG_57884:s2"
+    }
+   ]
+  },
+  {
+   "id": "TG_57879",
+   "file": "faisal_images/TG_57879.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) reply in the CIIT thread",
+   "printed": "2026/9/26 4:49 م",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "OTHER",
+     "channel": "follower reply (handle omitted)",
+     "tickers": [],
+     "text": "لاحظت انك كاتب الايجابيه ثبات اسفل الدعم .. القصد منه وقت سحب السيوله (تقريبا -25%) كما ذكرت.. بعدها العوده فوق الدعم 2.26"
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "X reply",
+     "tickers": [
+      "CIIT"
+     ],
+     "text": "✅",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "26",
+      "hh": "4",
+      "mm": "49",
+      "ampm": "م"
+     }
+    }
+   ]
+  },
+  {
+   "id": "TG_50575",
+   "file": "faisal_images/TG_50575.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) — post page; the post is a screenshot of a chat (no message times or dates shown)",
+   "printed": "2026/9/22 7:47 م",
+   "note": "blue bubbles = the chat's sender (the account that posts it); one grey bubble from another participant (name omitted); below: another Faisal post «الان موجة اليوت C» (31 د) with a DCOY chart",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "chat embedded in the post (undated)",
+     "tickers": [
+      "DCOY"
+     ],
+     "text": "Dcoy / ننتظر ضغط الماركت عنده 13 يجيبها اولا"
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "chat embedded in the post (undated)",
+     "tickers": [
+      "DCOY"
+     ],
+     "text": "3.70 اخر دعم ننتظر"
+    },
+    {
+     "key": "s3",
+     "speaker": "OTHER",
+     "channel": "chat embedded in the post (undated)",
+     "tickers": [],
+     "text": "ماشاءالله لحقتو عليه / الله يبارك لكم"
+    },
+    {
+     "key": "s4",
+     "speaker": "F",
+     "channel": "chat embedded in the post (undated)",
+     "tickers": [],
+     "text": "عزالله ماقصر / 7 طلعت 6"
+    },
+    {
+     "key": "s5",
+     "speaker": "F",
+     "channel": "X post (the post that publishes the chat)",
+     "tickers": [
+      "DCOY"
+     ],
+     "text": "[post = the chat screenshot above]",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "22",
+      "hh": "7",
+      "mm": "47",
+      "ampm": "م"
+     }
+    }
+   ]
+  },
+  {
+   "id": "TG_50576",
+   "file": "faisal_images/TG_50576.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) reply",
+   "printed": "2026/9/22 7:35 م",
+   "note": "the parent post is cut off at the top («…يهمك الان الفوليوم حجم التداول كم / فيه مقطع د ديفيد بحسابي ارج…» + a chart whose symbol is not visible); no ticker is visible anywhere in the image",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "OTHER",
+     "channel": "follower reply (handle omitted)",
+     "tickers": [],
+     "text": "اتعبت من بعدك يا ابو بدر / لاهنت ثباته على الدعوم ممكن يعطي نسبه ولا يعتبر السهم منتهي فنيا"
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "X reply",
+     "tickers": [],
+     "text": "اصبر بعد جلسة لندن نقرر",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "22",
+      "hh": "7",
+      "mm": "35",
+      "ampm": "م"
+     }
+    }
+   ]
+  },
+  {
+   "id": "TG_50579",
+   "file": "faisal_images/TG_50579.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) — post page; the post is a chat screenshot",
+   "printed": "2026/9/22 5:25 م",
+   "note": "grey bubble from another participant, blue bubbles = sender; the embedded EDBL daily chart shows the phone clock 5:22",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "OTHER",
+     "channel": "chat embedded in the post",
+     "tickers": [],
+     "text": "ولا وش رايك انت"
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "chat embedded in the post",
+     "tickers": [
+      "EDBL"
+     ],
+     "text": "بيشلغنا بالموجات / لازم يرجع يحقق المقاومه / بعده يرجع للدعم",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "22",
+      "hh": "5",
+      "mm": "25",
+      "ampm": "م"
+     }
+    }
+   ]
+  },
+  {
+   "id": "TG_50833",
+   "file": "faisal_images/TG_50833.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) reply under a post of his (falcon photo)",
+   "printed": "2026/9/23 10:20 ص",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "OTHER",
+     "channel": "follower reply (handle omitted · 5 س)",
+     "tickers": [
+      "IPDN"
+     ],
+     "text": "مساء الخير ابو بدر، سهم ipdn ارتفعت في الافتر، وثبت ماكسر دعمه ٦.١٥ واختبر تحتها مرتين ومباشره يرجع ، متى يعتبر الدخول ايجابي في البري ؟ وهل في مثل ذي الاسهم الاخذ من العرض او الطلب ؟ والله يكتب اجرك"
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "X reply",
+     "tickers": [
+      "IPDN"
+     ],
+     "text": "اول البري نتابعه كم الضغط وكم الثبات",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "23",
+      "hh": "10",
+      "mm": "20",
+      "ampm": "ص"
+     }
+    }
+   ]
+  },
+  {
+   "id": "TG_50585",
+   "file": "faisal_images/TG_50585.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) — post page",
+   "printed": "2026/9/22 3:39 ص",
+   "note": "attached: LIMN broker screenshot (3:37 · 21/09/2026 · 3.64 +4.60%) and a third-party app screen «مراقب استراتيجية فيصل» with the app label «مراقبة مبكرة» (an app label, not Faisal's word)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "LIMN"
+     ],
+     "text": "3.29 قاع / اختبار مقاومه ✅ / تبقى اختبار القاع 3.40 / $limn",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "22",
+      "hh": "3",
+      "mm": "39",
+      "ampm": "ص"
+     }
+    },
+    {
+     "key": "s2",
+     "speaker": "APP",
+     "channel": "third-party app screen attached",
+     "tickers": [
+      "LIMN"
+     ],
+     "text": "مراقبة مبكرة"
+    }
+   ]
+  },
+  {
+   "id": "TG_50586",
+   "file": "faisal_images/TG_50586.jpg",
+   "author_visible": false,
+   "header": "none — LIMN daily chart (phone 3:36 · After Hours 3.640 0.00%) with blue annotations; same drawing session as TG_50585",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F_chart",
+     "channel": "chart annotations",
+     "tickers": [
+      "LIMN"
+     ],
+     "text": "اختتبار مقاومه لازم يرجع يختبر الدعم / هذي قواعد ثابته لكل الاسهم"
+    }
+   ]
+  },
+  {
+   "id": "TG_57867",
+   "file": "faisal_images/TG_57867.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) — post page; the printed line is the LAST EDIT time «تاريخ آخر تعديل 1:43 م · 2026/9/27»",
+   "note": "attached: NRSN 4-hour chart (1:42 · After Hours 7.07 +1.71%) and NRSN app screenshot (1:32 · «25/09-16:00:00 EDT» close 6.95)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "NRSN"
+     ],
+     "text": "اعادة الاخبار شمعة ساقطه قبل التقسيم 5 / ضغط متوقع 20> 30٪ / 🇮🇱 سهم يهودي اسرائيلي لباحث عن الشرعيه",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "27",
+      "hh": "1",
+      "mm": "43",
+      "ampm": "م"
+     }
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "annotation on the attached chart",
+     "tickers": [
+      "NRSN"
+     ],
+     "text": "انتظار تحقيق الدعم او سحب السيوله"
+    }
+   ]
+  },
+  {
+   "id": "TG_57870",
+   "file": "faisal_images/TG_57870.jpg",
+   "author_visible": true,
+   "header": "Faisal profile page («18,034 من المنشورات») · post header «@kisar_ · ١٠ س» (relative) · owner's phone 10:46",
+   "note": "attached OMH app screenshot (Faisal's phone 9:34 · «25/09-16:00:00 EDT» close 2.35 · after-close 19:57 EDT 2.35)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "OMH"
+     ],
+     "text": "هذا الاصل في اسهم الارتكاز 90٪ يحدث فيها سحب سيوله / المضارب يخرج من متمركز في السهم / هناك تجميع بين 2.10 ل 2.30 كميات فوليوم تجدها بالاسفل / - / متوسطهم 2.20 / لما يسحب السيوله ل 1.90 > 1.80 / هذي اوامر وقف الخساره للافراد 15٪ ليست سهله / الجميع يخرج يترك مركزه / 1.87=2.20-15٪ / - / لذلك اسهم الارتكاز تحميل المشاركات يتم بعد سحب السيوله وليس قبل"
+    }
+   ]
+  },
+  {
+   "id": "TG_57872",
+   "file": "faisal_images/TG_57872.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) quote post «🇸🇬 سنغافوري» (12 د) with OMH images, then a question from the project owner (name omitted) and Faisal's reply",
+   "printed": "2026/9/26 9:20 م",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "annotation on the OMH chart in the quote post",
+     "tickers": [
+      "OMH"
+     ],
+     "text": "انتظار تحقيق سحب سيوله او ثبات قاع"
+    },
+    {
+     "key": "s2",
+     "speaker": "OWNER",
+     "channel": "reply (name omitted)",
+     "tickers": [],
+     "text": "في حال عدم سحب السيولة، هل يلزم اعادة الاختبار قبل الدخول؟"
+    },
+    {
+     "key": "s3",
+     "speaker": "F",
+     "channel": "X reply",
+     "tickers": [
+      "OMH"
+     ],
+     "text": "اعادة الاختبار شرط اساسي / يطبق عليه متوسط 10<20",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "26",
+      "hh": "9",
+      "mm": "20",
+      "ampm": "م"
+     }
+    }
+   ]
+  },
+  {
+   "id": "TG_57873",
+   "file": "faisal_images/TG_57873.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) reply in the same OMH thread",
+   "printed": "2026/9/26 9:22 م",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "OTHER",
+     "channel": "follower reply (handle omitted)",
+     "tickers": [],
+     "text": "الفرق بين الخطوط والزرقاء هل كلها اهداف؟"
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "X reply",
+     "tickers": [
+      "OMH"
+     ],
+     "text": "الاسود مقاومات 3 مقاومه 2.60 تتحول لدعم في حال الاختراق لاحقا / بمعني عدم تجاوز 3 يهبط لاختبار الدعم / بعدها يكمل مشواره ع حسب قوة السيوله",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "26",
+      "hh": "9",
+      "mm": "22",
+      "ampm": "م"
+     }
+    }
+   ]
+  },
+  {
+   "id": "TG_57875",
+   "file": "faisal_images/TG_57875.jpg",
+   "author_visible": false,
+   "header": "none — the OMH daily chart (9:10 · After Hours 2.352 +0.09%) attached to the quote post in TG_57872",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F_chart",
+     "channel": "chart annotations",
+     "tickers": [
+      "OMH"
+     ],
+     "text": "تحقيق مقاومه 2.64 / قاع / انتظار تحقيق سحب سيوله او ثبات قاع",
+     "duplicate_of": "TG_57872:s1"
+    }
+   ]
+  },
+  {
+   "id": "X_20260905_01",
+   "file": "faisal_images/X_20260905_01.png",
+   "author_visible": false,
+   "header": "the same post as X_20260905_02 scrolled so that the name line is cut (avatar fragment visible); owner's phone 10:24",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "PPBT"
+     ],
+     "text": "البعض ارسلي قروب مدخلهم امس ع 2.40",
+     "duplicate_of": "X_20260905_02:s1"
+    }
+   ]
+  },
+  {
+   "id": "X_20260905_02",
+   "file": "faisal_images/X_20260905_02.png",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) · «21 س» (relative to the owner's phone 10:23)",
+   "note": "attached PPBT daily chart (Faisal's phone 1:04 · «Pre Market: 1.840 -7.07%»)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "PPBT"
+     ],
+     "text": "البعض ارسلي قروب مدخلهم امس ع 2.40 / - / كم مره ذكرنا انتظار ضغط البري / - / الان مهم يستمر تداول السهم فوق 1.70 / لو كسرها مهم يرجع فوقها / - / 2.30 الان مقاومه لازم يرجع فوقها تكون دعم / المناطق الصفرا لو تجاوزها تعطيه اهداف / عنده شمعه ساقطه 5 / مشروط الثبات الان فوق 1.70 / هذا شرح التحليل الفني"
+    }
+   ]
+  },
+  {
+   "id": "X_20260905_03",
+   "file": "faisal_images/X_20260905_03.png",
+   "author_visible": false,
+   "header": "thread continuation without a header (owner's phone 10:23); its first line continues a sentence that is not in any captured image",
+   "note": "attached PPBT daily and weekly charts (5:06 / 4:56 · «After Hours: 1.920 -3.03%»)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X thread text",
+     "tickers": [
+      "PPBT"
+     ],
+     "text": "وغير مرشح ابدا لذلك / - / الدعم الاسبوعي واليَومي يتفقان على 1.70 / بمعنى فشل السهم تحت الرقم هذا مباشره / - / دعوم الموجات نفس الشموع 1.68 / - / تحرر من الاتجاه العام السلبيً عبر الموجات او خط الاساس / 2.50 = / تداول السهم لاحقا فوق الموجات الهابطه = ثبات / للموجات الصاعده"
+    }
+   ]
+  },
+  {
+   "id": "TG_20260905_08",
+   "file": "faisal_images/TG_20260905_08.jpg",
+   "author_visible": false,
+   "header": "a chat screenshot (dark theme) with no participant name, no header, no read ticks; STKH daily chart (2:43 · «After Hours: 2.320 -5.31%»)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "UNKNOWN",
+     "channel": "chat (sender not identifiable)",
+     "tickers": [
+      "STKH"
+     ],
+     "text": "غطا فجوته الان المفروض يطلع الصدق هذا المفروض يعني / الابيض مقاومات / الخط الثاني يتحرر منها بيعطي شي / عاجبني"
+    }
+   ]
+  },
+  {
+   "id": "TG_20260905_09",
+   "file": "faisal_images/TG_20260905_09.jpg",
+   "author_visible": false,
+   "header": "the same chat (dark theme, no name); STKH 4-hour chart (2:42 · «After Hours: 2.320 -5.31%»)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "UNKNOWN",
+     "channel": "chat (sender not identifiable)",
+     "tickers": [
+      "STKH"
+     ],
+     "text": "ممتاااااز / اختبار دعم رجع اختبر مقاومة ثبات ٥ جلسات / دخول ذا نهج علمي"
+    }
+   ]
+  },
+  {
+   "id": "X_20260918_24_SXTC",
+   "file": "faisal_images/X_20260918_24_SXTC.png",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) post quoting his own post «10 س» with an SXTC chart; no printed time; owner's phone 11:12",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "SXTC"
+     ],
+     "text": "حقق 2.98 المقاومه الاولى / هبط لاختبار الدعم / هل يستمر / هل يفشل / اعطى من 2.10 ل 2.90 / 2.94=2.10+40٪ / 40٪"
+    }
+   ]
+  },
+  {
+   "id": "TG_58527",
+   "file": "faisal_images/TG_58527.jpg",
+   "author_visible": false,
+   "header": "a chat screenshot with the beach wallpaper seen in the chats Faisal posts himself (X_20260827_amix_pressure_497); outgoing green bubble with read ticks; no participant name",
+   "note": "attached SXTC app screenshot (8:00 · «24/09-13:00:03 EDT» open · 2.54 +1.20% · pre-market 2.62)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "chat (outgoing · 8:02 م)",
+     "tickers": [
+      "SXTC"
+     ],
+     "text": "Sxtc / مضارب الان متواجد بالسهم / الليله بحول الله يدبل / 6.31 هدف اعلى / عنده 7-8 كذلك / قوة الزخم تحكم الهدف / نلتقي بالافتر ان شاءالله"
+    }
+   ]
+  },
+  {
+   "id": "X_20260905_09",
+   "file": "faisal_images/X_20260905_09.png",
+   "author_visible": false,
+   "header": "thread continuation without a header (owner's phone 10:23); quotes a follower's post (9 س)",
+   "note": "attached YMT app screenshot (Faisal's phone 1:10 · «بعد الإغلاق 03/09-18:10:05 EDT» · 1.89 -14.86%)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X thread text",
+     "tickers": [
+      "YMT"
+     ],
+     "text": "قس ع ذلك كل الاسهم / الان شهر 9 متعارف الاسهم تضرب قيعان"
+    },
+    {
+     "key": "s2",
+     "speaker": "OTHER",
+     "channel": "quoted follower post (handle omitted · 9 س)",
+     "tickers": [
+      "YMT"
+     ],
+     "text": "ابو بدر سهم ymt rsi 22 وشورت اقل من ٢٠الف ونسبه"
+    }
+   ]
+  },
+  {
+   "id": "X_20260905_10",
+   "file": "faisal_images/X_20260905_10.png",
+   "author_visible": false,
+   "header": "thread continuation with Faisal's avatar fragment, name line cut (owner's phone 1:32)",
+   "note": "attached YMT 4-hour chart (Faisal's phone 1:19 · «After Hours: 2.010 +6.35%» · low 1.811)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X thread text",
+     "tickers": [
+      "YMT"
+     ],
+     "text": "يهمك تحليل السهم ع فريم 4 ساعات / كذلك 30 دقيقه / - / الشموع واضحه والارقام واضحه / دايما ارسم المقاومه باللاين الاسود / - / هذا كان سهم متابعه دامك سالت يكون تحليله للجميع / - / لايهم حتى لو دخل قروب ورفعه 20٪ / المضارب اذا بيحقق اهدافه / راح يهبط فيه / مثل ماصار معنا في الاسهم اللي دبلت سابقا / - / كسر 1.81 تصنع تحليل اخر بنفس النهج"
+    }
+   ]
+  },
+  {
+   "id": "X_20260918_85_YMT",
+   "file": "faisal_images/X_20260918_85_YMT.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) — post page; no printed time (owner's phone 10:22)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "YMT"
+     ],
+     "text": "صحيح / متى تقرر اجابية السهم / اذا ماكسر القاع اكثر من 5 جلسات / يصعد 20٪ بعد القاع / - / يرجع يختبر الدعم / هذا اصل التحليل / - / هل يصعد مباشره بعد القاع بعض الاسهم نعم لكن نادر / - / الاصل يصعد يختبر المقاومه الاولى / يرجع يختبر الدعم / - / مثلا ثبت السهم هذا ع 1.81 ولاكسره / يصعد يختبر 2.10 > حد اعلى 2.20 / يرجع يختبر الدعم الثاني 1.84 / - / اذا هبط يختبر الدعم الثاني ولا كسره هنا نقول اجابي / - / كيف ندخل / الدخول بعد الاختبار / طلبات فوارق 5 سنت عند الدعم / يهمك قراءة الاخبار هل هناك طرح اسهم كذلك الشورت / الخ"
+    }
+   ]
+  },
+  {
+   "id": "TG_58387",
+   "file": "faisal_images/TG_58387.jpg",
+   "author_visible": false,
+   "header": "a chat screenshot with the beach wallpaper (see TG_58527); printed date header «اثنين، 28 سبتمبر»; outgoing green bubble with read ticks",
+   "note": "attached MI daily chart (12:53 · «After Hours: 2.520 +11.01%»)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "chat (outgoing · 12:59 ص · under the date header «اثنين، 28 سبتمبر»)",
+     "tickers": [
+      "MI"
+     ],
+     "text": "Mi / سهم بطل انتظار الضغط 2.10 / او سحب السيوله 1.80 / الهدف الفجوه السعريه",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "28",
+      "hh": "12",
+      "mm": "59",
+      "ampm": "ص"
+     }
+    }
+   ]
+  },
+  {
+   "id": "X_20260905_12",
+   "file": "faisal_images/X_20260905_12.png",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) — post page",
+   "printed": "2026/9/2 12:30 ص",
+   "note": "attached MSGY 4-hour chart (12:29 · «After Hours: 1.820 0.00%») with drawn levels",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "MSGY"
+     ],
+     "text": "$MSGY / يطبق ماذكر ادناه",
+     "printed": {
+      "y": "2026",
+      "m": "9",
+      "d": "2",
+      "hh": "12",
+      "mm": "30",
+      "ampm": "ص"
+     }
+    }
+   ]
+  },
+  {
+   "id": "X_20260905_13",
+   "file": "faisal_images/X_20260905_13.jpg",
+   "author_visible": false,
+   "header": "a bare DCOY 4-hour chart (2:14 · «Pre Market: 3.175 +9.50%») with drawn levels and an alert line; no text, no author mark",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "UNKNOWN",
+     "channel": "chart only (levels and an alert bell; no words)",
+     "tickers": [
+      "DCOY"
+     ],
+     "text": "[chart only]"
+    }
+   ]
+  },
+  {
+   "id": "TG_1817",
+   "file": "faisal_images/TG_1817.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) · «2 س» (relative); quotes his own post «2 ي»; LABT charts with the axis ending near 08/07",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "LABT"
+     ],
+     "text": "الظهر مع الدكتور عماد نقرر الاهداف / غطا كل اهدافه بشمعه مضارب / مضارب ماعنده دنفسه اذا دخل شلع السهم / ويربح الجميع / $LABT / 300%"
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "chat bubble inside the attached image",
+     "tickers": [
+      "LABT"
+     ],
+     "text": "الامان دخول من 2"
+    }
+   ]
+  },
+  {
+   "id": "TG_50578",
+   "file": "faisal_images/TG_50578.jpg",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) — post page, no printed time (owner's phone 5:26); the post embeds a chat whose attached DCOY chart reads «After Hours: 2.780 0.00%» (phone 12:29) with the low marker 2.588",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "DCOY"
+     ],
+     "text": "هذا ياالله لحقناه لحوق هههه / ماعطا مجال ولا نقرر / هبط امس بذيل شمعه / اليوم صعد بشمعه / - / هبط للارتداد 3 وطلع ل 5 نعمه"
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "chat bubble (blue, sender) sent with the DCOY chart",
+     "tickers": [
+      "DCOY"
+     ],
+     "text": "Dcoy / باقي 80 الف شورت / ننتظر 2 ونقرر"
+    }
+   ]
+  },
+  {
+   "id": "X_20260827_ciit_targets",
+   "file": "faisal_images/X_20260827_ciit_targets.png",
+   "author_visible": true,
+   "header": "Faisal @kisar_ (verified) — post page, no printed time (owner's phone 5:32); the post embeds his «ستوك» group chat (phone 12:09) with a CIIT chart under the date header «الأحد» (message 8:47 م)",
+   "statements": [
+    {
+     "key": "s1",
+     "speaker": "F",
+     "channel": "X post text",
+     "tickers": [
+      "CIIT"
+     ],
+     "text": "الحق خوياك 😂🤷‍♂️ / $ciit"
+    },
+    {
+     "key": "s2",
+     "speaker": "F",
+     "channel": "group chat (outgoing · under «الأحد» · chart message 8:47 م)",
+     "tickers": [
+      "CIIT"
+     ],
+     "text": "Ciit / هدفه من [مطموس] / - / السعر الحالي3.50"
+    }
+   ]
+  }
+ ]
+}

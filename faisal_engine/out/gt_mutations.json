@@ -1,0 +1,144 @@
+{
+ "locks": "GTA1-GTA12",
+ "date": "2026-10-09",
+ "target_file": "faisal_engine/gt_audit.py (G12: GROUND_TRUTH_AUDIT.md)",
+ "mutations": [
+  {
+   "id": "G1",
+   "target": "GTA1",
+   "status": "KILLED",
+   "failed": [
+    "GTA1"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G2",
+   "target": "GTA2",
+   "status": "KILLED",
+   "failed": [
+    "GTA2"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G3",
+   "target": "GTA3",
+   "status": "KILLED",
+   "failed": [
+    "GTA3"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G4",
+   "target": "GTA4",
+   "status": "KILLED",
+   "failed": [
+    "GTA4"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G5",
+   "target": "GTA5",
+   "status": "SURVIVED",
+   "failed": [
+    "GTA1"
+   ],
+   "crashed": false,
+   "note": "first run: survived (only GTA1 fell) — GTA5 had no retrospective statement whose other fields all pass"
+  },
+  {
+   "id": "G5-rerun",
+   "target": "GTA5",
+   "status": "KILLED",
+   "failed": [
+    "GTA1",
+    "GTA5"
+   ],
+   "crashed": false,
+   "note": "after adding YMT X_20260905_10:s1 (retrospective + WAITING + all fields OK) to GTA5"
+  },
+  {
+   "id": "G6",
+   "target": "GTA6",
+   "status": "KILLED",
+   "failed": [
+    "GTA1",
+    "GTA6",
+    "GTA12"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G7",
+   "target": "GTA7",
+   "status": "KILLED",
+   "failed": [
+    "GTA7"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G8",
+   "target": "GTA8",
+   "status": "KILLED",
+   "failed": [
+    "GTA1",
+    "GTA8"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G9a",
+   "target": "GTA9",
+   "status": "KILLED",
+   "failed": [
+    "GTA9"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G9b",
+   "target": "GTA9",
+   "status": "KILLED",
+   "failed": [
+    "GTA1",
+    "GTA9",
+    "GTA12"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G10",
+   "target": "GTA10",
+   "status": "KILLED",
+   "failed": [
+    "GTA10"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G11",
+   "target": "GTA11",
+   "status": "KILLED",
+   "failed": [
+    "GTA11"
+   ],
+   "crashed": false
+  },
+  {
+   "id": "G12",
+   "target": "GTA12",
+   "status": "KILLED",
+   "failed": [
+    "GTA12"
+   ],
+   "crashed": false
+  }
+ ],
+ "killed_final": 13,
+ "total": 13,
+ "crashed": 0
+}

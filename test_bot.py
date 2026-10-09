@@ -84696,6 +84696,205 @@ if _XW is not None:
 else:
     check("🧭🔀 STX0: `stage_crosswalk.py` يُستورَد (شرطُ STX1-STX12)", False, str(_xw_err)[:120])
 
+# 🧭🧾 GTA1-GTA12 — «HISTORICAL GROUND-TRUTH RECOVERY» (2026-10-09): تدقيقُ أدلّة حلقات الترتيب (`faisal_engine/gt_audit.py`).
+#    كلُّ مقتطفٍ حرفيٌّ من قراءة العين · والطابعُ المطبوع يُعيد يومَ القرار · وكلُّ وحدة ترتيبٍ محسوبة · والاسترجاعيُّ والمجهولُ لا يصيران
+#    اختيارًا مؤرَّخًا · وتعريفُ الحركة هو تعريفُ المرحلة 3 بلا تعديل · والمجهولُ ليس سالبًا · والمتعلّقاتُ وحدةٌ واحدة · والبوّابةُ كما كُتبت.
+import ast as _gt_ast, copy as _gt_copy, csv as _gt_csv, hashlib as _gt_hash, importlib as _gt_imp, os as _gt_os, sys as _gt_sys
+import tempfile as _gt_tmp, contextlib as _gt_ctx, io as _gt_io
+_gt_dir = _gt_os.path.join(_gt_os.path.dirname(_gt_os.path.abspath(__file__)), "faisal_engine")
+try:
+    if _gt_dir not in _gt_sys.path:
+        _gt_sys.path.insert(0, _gt_dir)
+    _GT = _gt_imp.import_module("gt_audit")
+    with _gt_tmp.TemporaryDirectory(prefix="gta_") as _gt_t:   # يُبنى من الكود الآن ⟵ GTA1 وحدَه يقارن بالملتزَم
+        _gt_sum = _GT.write(_gt_t, _gt_t)
+        _gt_ep = {r["episode_id"]: r for r in _gt_csv.DictReader(open(_gt_os.path.join(_gt_t, "gt_episodes.csv"), encoding="utf-8"))}
+        _gt_un = list(_gt_csv.DictReader(open(_gt_os.path.join(_gt_t, "gt_units.csv"), encoding="utf-8")))
+    _gt_ev = _GT.load_json(_GT.EVID)
+    _gt_stm, _gt_reads = _GT.load_eye()
+    _gt_cases, _gt_units = _GT.load_rank()
+    _gt_err = None
+except Exception as _e:                                    # noqa: BLE001
+    _GT = None; _gt_err = f"⛔ {type(_e).__name__}: {_e}"
+if _GT is not None:
+    def _gt_find(ev, ep, ref):
+        return next(s for e in ev["episodes"] if e["episode_id"] == ep for s in e["statements"] if s["ref"] == ref)
+
+    def _gt_raises(mut):
+        ev = _gt_copy.deepcopy(_gt_ev)
+        mut(ev)
+        try:
+            _GT.validate(ev, _gt_stm, _gt_reads, _gt_units)
+            return False
+        except _GT.AuditError:
+            return True
+
+    def _gt_bars(rows):
+        _orig = _GT.bars
+        _GT.bars = lambda sym: ("rank", rows)
+        return _orig
+
+    def _gt_rows(closes_highs):
+        return [[f"D{i:03d}", c, h, c, c, 1] for i, (c, h) in enumerate(closes_highs)]
+
+    # GTA1 — deterministic: regenerating from the committed inputs gives the committed outputs byte for byte
+    try:
+        with _gt_ctx.redirect_stdout(_gt_io.StringIO()):
+            _rc = _GT.check()
+        _ok = _rc == 0; _w = f"check()=={_rc}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA1: `gt_audit.py --check` يعيد كلَّ مخرَجٍ ملتزَمٍ بايتًا بايتًا (المدخلاتُ مجمَّدة)", _ok, _w)
+    # GTA2 — every excerpt is verbatim from the eye read of its own image
+    try:
+        _base = not _gt_raises(lambda ev: None)
+        _mut = _gt_raises(lambda ev: _gt_find(ev, "AMIX_E1", "X_20260827_amix_hcwb_ready:s2").update(excerpt="جاهز جدا للدخول"))
+        _ok = _base and _mut; _w = f"base_ok={_base} altered_excerpt_rejected={_mut}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA2: كلُّ مقتطفٍ نصٌّ حرفيٌّ من قراءة العين لصورته — والمقتطفُ المعدَّل يُرفَض", _ok, _w)
+    # GTA3 — a VERIFIED timestamp must re-derive its as-of from the printed time (Riyadh ⟶ New York ⟶ session); no printed time ⟶ not VERIFIED
+    try:
+        _m1 = _gt_raises(lambda ev: _gt_find(ev, "LABT_E1", "X_20260827_labt_supports_wait:s1").update(asof=["2026-08-21", "2026-08-21"]))
+        _m2 = _gt_raises(lambda ev: _gt_find(ev, "CIIT_E1", "TG_57881:s1").update(ts="VERIFIED"))
+        _m3 = _gt_raises(lambda ev: _gt_find(ev, "NUWE_E1", "WA_20260918_46_NUWE:s1").update(asof=["2026-09-04", "2026-09-04"]))
+        _ex = _GT.expected_asof(_gt_stm["X_20260918_23_watchlist:s1"])
+        _ok = _m1 and _m2 and _m3 and _ex == ["2026-09-14", "2026-09-14"]
+        _w = f"wrong_asof={_m1} unprinted_verified={_m2} inferred_with_asof={_m3} list={_ex}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA3: الطابعُ VERIFIED يُعيد يومَ القرار من الوقت المطبوع · وبلا طابعٍ مطبوعٍ لا VERIFIED · والمستنتَجُ بلا يوم", _ok, _w)
+    # GTA4 — every one of the 41 ranking units is accounted for, none invented
+    try:
+        def _drop(ev):
+            e = next(x for x in ev["episodes"] if x["episode_id"] == "DCOY_E1")
+            e["statements"] = [s for s in e["statements"] if s["ref"] != "TG_50576:s2"]
+        def _add(ev):
+            s = dict(_gt_find(ev, "LABT_E1", "X_20260827_labt_supports_wait:s2")); s.update(role="UNIT", unit="X_20260827_labt_extra")
+            next(x for x in ev["episodes"] if x["episode_id"] == "LABT_E1")["statements"].append(s)
+        _ok = _gt_raises(_drop) and _gt_raises(_add) and len(_gt_un) == len(_gt_units) == 41
+        _w = f"units={len(_gt_un)} rank_units={len(_gt_units)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA4: كلُّ وحدات الترتيب الـ41 محسوبةٌ بلا نقصٍ ولا زيادة", _ok, _w)
+    # GTA5 — a retrospective, unknown-author, inferred-time or analysis-only statement is never the defensible selection
+    try:
+        _c = lambda ep, ref: _GT.is_candidate(_gt_find(_gt_ev, ep, ref))  # noqa: E731
+        _q = (_c("AMIX_E1", "X_20260827_amix_3m_inflow:s1"), _c("STKH_E1", "TG_20260905_09:s1"), _c("NUWE_E1", "X_20260918_13_NUWE:s1"),
+              _c("EDBL_E1", "TG_50579:s2"), _c("YMT_E1", "X_20260905_10:s1"), _c("AMIX_E1", "X_20260827_amix_hcwb_ready:s2"))
+        _ex5 = (_gt_ep["EDBL_E1"]["exclusion_reason"], _gt_ep["NUWE_E1"]["exclusion_reason"], _gt_ep["STKH_E1"]["exclusion_reason"])
+        _ok = _q == (False, False, False, False, False, True) and _ex5 == ("NO_SELECTION_STATEMENT", "TIMESTAMP_INFERRED", "AUTHOR_UNKNOWN")
+        _w = f"candidates={_q} reasons={_ex5}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA5: الاسترجاعيُّ ومجهولُ الكاتب والمستنتَجُ الوقت والتحليلُ بلا اختيار لا يصير اختيارًا مؤرَّخًا — ويُستبعَد بسببه المسمّى", _ok, _w)
+    # GTA6 — unknown is not a negative: fewer than 20 sessions without a move ⟵ CENSORED · no bars ⟵ NO_BARS · no defensible ⟵ UNDETERMINED
+    try:
+        _o = _gt_bars(_gt_rows([(10, 10)] * 2 + [(10, 14)] * 5))
+        try:
+            _r1 = _GT.relation_at("X", "D001", "")[0]
+            _GT.bars = lambda sym: (None, [])
+            _r2 = _GT.relation_at("X", "D001", "")[0]
+        finally:
+            _GT.bars = _o
+        _und = [e for e, r in _gt_ep.items() if r["relation"] == "UNDETERMINED"]
+        _ok = (_r1, _r2) == ("CENSORED", "NO_BARS") and sorted(_und) == ["EDBL_E1", "NUWE_E1", "STKH_E1"] and all(
+            _gt_ep[e]["MOVE_50_20"] == "" for e in _und)
+        _w = f"short={_r1} nobars={_r2} undetermined={sorted(_und)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA6: المجهولُ ليس سالبًا — أقلُّ من 20 جلسةً بلا حركة ⟵ CENSORED · بلا شموع ⟵ NO_BARS · بلا اختيارٍ مؤرَّخ ⟵ UNDETERMINED بلا رقم", _ok, _w)
+    # GTA7 — the move is the Phase-3 one (MOVE_50_20 from close(T−1), highs from T) and the relation rules are as written
+    try:
+        _base7 = [(10, 10)] * 3
+        _cases7 = {"pre": _base7 + [(10, 14), (15, 15)] + [(10, 10)] * 20, "near": _base7 + [(15, 15)] + [(10, 10)] * 20,
+                   "none": _base7 + [(10, 14.9)] * 21, "edge": _base7 + [(10, 14.99)] + [(10, 10)] * 20}
+        _res7 = {}
+        for k, rows in _cases7.items():
+            _o = _gt_bars(_gt_rows(rows))
+            try:
+                _res7[k] = _GT.relation_at("X", "D003", "")[0]
+            finally:
+                _GT.bars = _o
+        _o = _gt_bars(_gt_rows(_cases7["pre"]))
+        try:
+            _after = _GT.relation_at("X", "D003", "سهم صعد")[0]
+            _amb = _GT.relation("X", ["D003", "D004"], "")[0]
+        finally:
+            _GT.bars = _o
+        _ok = (_res7 == {"pre": "PRE_MOVE", "near": "NEAR_MOVE_START", "none": "NO_QUALIFYING_MOVE", "edge": "NO_QUALIFYING_MOVE"}
+               and _after == "AFTER_MOVE_BEGAN" and _amb == "AMBIGUOUS" and _GT.MOVE == (50, 20) and _GT.SENS == ((100, 20), (25, 10)))
+        _w = f"{_res7} after={_after} window={_amb} MOVE={_GT.MOVE}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA7: الحركةُ تعريفُ المرحلة 3 حرفًا (MOVE_50_20 من إغلاق T−1) · وقواعدُ العلاقة كما كُتبت قبل الأرقام", _ok, _w)
+    # GTA8 — dependence: one list snapshot is one decision unit; a duplicate screenshot is never preferred to its original
+    try:
+        _lst = {_gt_ep[e]["cluster"] for e in ("ATPC_E1", "CETX_E1", "CUPR_E1", "DKI_E1", "SVRE_E1")}
+        _elig = {r["cluster"] for r in _gt_ep.values() if r["eligibility"] == "ELIGIBLE"}
+        _ok = (len(_lst) == 1 and _gt_sum["independent_units_eligible"] == len(_elig)
+               and _gt_ep["DKI_E1"]["defensible_ref"] == "X_20260918_23_watchlist:s1" and _gt_ep["PPBT_E1"]["defensible_ref"] == "X_20260905_02:s1"
+               and sum(1 for u in _gt_un if u["duplicate_of"]) == _gt_sum["units_duplicate"])
+        _w = f"list_clusters={_lst} eligible_units={len(_elig)} dki={_gt_ep['DKI_E1']['defensible_ref']} ppbt={_gt_ep['PPBT_E1']['defensible_ref']}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA8: لقطةُ القائمة الواحدة وحدةُ قرارٍ واحدة · والنسخةُ المكرّرة لا تُقدَّم على أصلها", _ok, _w)
+    # GTA9 — the decision gate as fixed before the numbers: floor 15 independent own pre-move units
+    try:
+        def _fake(n):
+            return [dict(episode_id=f"E{i}", rank_evaluable="1", eligibility="ELIGIBLE", reliable_pre_move=1, relation="PRE_MOVE",
+                         fully_supported=1, blockers="", cluster=f"C{i}", resolvable=0, exclusion_reason="", origin="OWN",
+                         T_e_check="MATCH", defensible_in_method_docs=0, n_observations=1) for i in range(n)]
+        _a = _GT.summarize(_fake(15), [], {"episodes": []})["decision"]
+        _c9 = _GT.summarize(_fake(14), [], {"episodes": []})["decision"]
+        _cen = _fake(15)[14]; _cen.update(relation="CENSORED", reliable_pre_move=0)
+        _s15 = _GT.summarize(_fake(14) + [_cen], [], {"episodes": []})
+        _R = _gt_sum["independent_units_reliable_pre_move"]; _res = _gt_sum["resolvable_units"]
+        _want = "A" if _R >= 15 else ("B" if _R + _res >= 15 else "C")
+        _ok = (_GT.FLOOR == 15 and _a == "A" and _c9 == "C" and _gt_sum["decision"] == _want
+               and (_s15["decision"], _s15["favourable_bound"]) == ("C", 15)
+               and _R <= _gt_sum["favourable_bound"] and _gt_sum["favourable_bound_22"] <= _gt_sum["favourable_bound"])
+        _w = (f"floor={_GT.FLOOR} 15→{_a} 14→{_c9} censored_not_counted={_s15['decision']}/{_s15['favourable_bound']} R={_R} "
+              f"resolvable={_res} bound={_gt_sum['favourable_bound']} decision={_gt_sum['decision']}")
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA9: البوّابةُ كما كُتبت — A عند 15 وحدةً مستقلّة فأكثر · وإلّا B إن أكملها مصدرٌ مسمّى · وإلّا C · والمعلَّقُ (CENSORED) لا يُعَدّ نجاحًا إلّا في الحدّ المؤاتي", _ok, _w)
+    # GTA10 — provenance and privacy: unit hashes are the image files' hashes; no private name or handle is stored
+    try:
+        _bad = [u["unit"] for u in _gt_un if u["sha256"] != _gt_hash.sha256(open(_gt_os.path.join(_GT.ROOT, _gt_reads[u["statement"].split(":")[0]]["file"]), "rb").read()).hexdigest()]
+        _priv = _gt_raises(lambda ev: _gt_find(ev, "MI_E1", "TG_58387:s1").update(note="sent by KHALID"))
+        _ok = not _bad and _priv; _w = f"hash_mismatch={_bad} private_rejected={_priv}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA10: بصمةُ كلّ وحدةٍ بصمةُ ملفّ صورتها · ولا اسمَ خاصًّا ولا معرّفَ متابعٍ في الملفّات", _ok, _w)
+    # GTA11 — research only: no production/engine import; frozen engine and ranking outputs unchanged
+    try:
+        _ta = _gt_ast.parse(open(_gt_os.path.join(_gt_dir, "gt_audit.py"), encoding="utf-8").read())
+        _top = {(a.name if isinstance(n, _gt_ast.Import) else (n.module or "")).split(".")[0] for n in _gt_ast.walk(_ta)
+                if isinstance(n, (_gt_ast.Import, _gt_ast.ImportFrom)) for a in n.names}
+        _eng = _gt_hash.sha256(open(_gt_os.path.join(_gt_dir, "engine.py"), "rb").read()).hexdigest()
+        _rk = _gt_hash.sha256(open(_gt_os.path.join(_gt_dir, "out", "rank_summary.json"), "rb").read()).hexdigest()
+        _ok = (not (_top & {"Super_stock", "engine", "data", "replay", "ranker", "rank_eval", "requests", "urllib"})
+               and _eng == "896d49470aa6430a7cc776dcba7d98891d1cdbb889908230adcc283be2494a63"
+               and _rk == "5c2719735c9c060c1d26f0d1485c3484089f10a83889806a9a163f98688081b2")
+        _w = f"imports={sorted(_top)} engine={_eng[:12]} rank={_rk[:12]}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA11: بحثٌ فقط — لا استيرادَ للإنتاج ولا للمحرّك ولا للشبكة · والمحرّكُ ومخرَجُ الترتيب المجمَّدان بلا تغيير", _ok, _w)
+    # GTA12 — the final report states the generated decision and counts, labelled EXPLORATORY
+    try:
+        _rep = open(_gt_os.path.join(_gt_dir, "GROUND_TRUTH_AUDIT.md"), encoding="utf-8").read()
+        _ok = (f"OUTCOME {_gt_sum['decision']}" in _rep and "EXPLORATORY" in _rep
+               and f"{_gt_sum['independent_units_reliable_pre_move']} independent" in _rep
+               and f"**{_gt_sum['favourable_bound']}** ({_gt_sum['favourable_bound_22']} among the ranking-evaluable)" in _rep
+               and "confirmatory" not in _rep.lower().replace("not a confirmatory", "").replace("no result here is confirmatory", ""))
+        _w = f"decision={_gt_sum['decision']} R={_gt_sum['independent_units_reliable_pre_move']} bound={_gt_sum['favourable_bound']}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok = False; _w = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🧾 GTA12: التقريرُ النهائيّ يذكر القرارَ والعددَ المولَّدين · موسومًا EXPLORATORY · ولا يسمّي شيئًا تحقّقًا مؤكِّدًا", _ok, _w)
+else:
+    check("🧭🧾 GTA0: `gt_audit.py` يُستورَد ويبني مخرجاتِه (شرطُ GTA1-GTA12)", False, str(_gt_err)[:120])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

@@ -1,0 +1,399 @@
+{
+ "T_e_corrected": [
+  "CIIT_E1",
+  "DCOY_E1",
+  "MSGY_E1",
+  "PPBT_E1"
+ ],
+ "clusters_eligible": [
+  "TG_50578",
+  "TG_50585",
+  "TG_50833",
+  "TG_57867",
+  "TG_57870",
+  "TG_57890",
+  "TG_58387",
+  "TG_58402",
+  "X_20260827_amix_3m_inflow",
+  "X_20260827_ciit_targets",
+  "X_20260827_labt_supports_wait",
+  "X_20260905_01",
+  "X_20260905_12",
+  "X_20260918_22_pipeline",
+  "X_20260918_85_YMT"
+ ],
+ "corrections": [
+  {
+   "corrected": "that unit is a post-move retrospective (as-of 2026-08-25); the defensible selection is the group-chat readiness at 01:29–01:50 ص (as-of 2026-08-24, not a ranking unit)",
+   "episode_id": "AMIX_E1",
+   "evidence": "X_20260827_amix_hcwb_ready:s2-s4 · X_20260827_amix_pressure_497",
+   "prior": "unit X_20260827_amix_3m_inflow (ENTRY, 2026-08-24)",
+   "what": "evidence for the episode"
+  },
+  {
+   "corrected": "2026-08-25 (≈16:16 New York, after the close)",
+   "episode_id": "AMIX_E1",
+   "evidence": "the 11:08/11:16 chat clocks vs the printed 11:10 م",
+   "prior": "2026-08-24",
+   "what": "stage ledger derived as-of of X_20260827_amix_3m_inflow:s1"
+  },
+  {
+   "corrected": "LIST_MEMBERSHIP only — no stage is shown on the row",
+   "episode_id": "ATPC_E1",
+   "evidence": "X_20260918_23_watchlist",
+   "prior": "FOCUS (Phase 3)",
+   "what": "stage label"
+  },
+  {
+   "corrected": "LIST_MEMBERSHIP only — no stage is shown on the row",
+   "episode_id": "CETX_E1",
+   "evidence": "X_20260918_23_watchlist",
+   "prior": "FOCUS (Phase 3)",
+   "what": "stage label"
+  },
+  {
+   "corrected": "LIST_MEMBERSHIP only — no stage is shown on the row",
+   "episode_id": "CUPR_E1",
+   "evidence": "X_20260918_23_watchlist",
+   "prior": "FOCUS (Phase 3)",
+   "what": "stage label"
+  },
+  {
+   "corrected": "LIST_MEMBERSHIP only — no stage is shown on the row",
+   "episode_id": "SVRE_E1",
+   "evidence": "X_20260918_23_watchlist",
+   "prior": "FOCUS (Phase 3)",
+   "what": "stage label"
+  },
+  {
+   "corrected": "earliest dated Faisal attention 2026-09-02 (printed post, 8 sessions earlier, inside the 30-session episode gap); it was not a ranking unit because V4 labelled it a mention",
+   "episode_id": "MSGY_E1",
+   "evidence": "X_20260905_12",
+   "prior": "T_e 2026-09-14 (list snapshot)",
+   "what": "episode start"
+  },
+  {
+   "corrected": "1 observation (two screenshots of one post)",
+   "episode_id": "DKI_E1",
+   "evidence": "X_20260918_22/23",
+   "prior": "2 units",
+   "what": "unit count"
+  },
+  {
+   "corrected": "1 observation (the post and its own chart)",
+   "episode_id": "BRTX_E1",
+   "evidence": "TG_58402/TG_58407",
+   "prior": "2 units",
+   "what": "unit count"
+  },
+  {
+   "corrected": "2026-09-25 is the chart's last-close stamp; the post is after it ⟶ as-of 2026-09-28",
+   "episode_id": "CIIT_E1",
+   "evidence": "TG_57881 «25/09-16:00:00 EDT» · TG_57879 printed 2026/9/26 4:49 م",
+   "prior": "TG_57881/TG_57883 dated 2026-09-25",
+   "what": "unit date"
+  },
+  {
+   "corrected": "earliest dated Faisal selection: the group target call, as-of 2026-08-24 (not a ranking unit: V4 left it undated)",
+   "episode_id": "CIIT_E1",
+   "evidence": "X_20260827_ciit_targets",
+   "prior": "T_e 2026-09-25",
+   "what": "episode start"
+  },
+  {
+   "corrected": "2 observations (one post with two chart copies + one reply)",
+   "episode_id": "CIIT_E1",
+   "evidence": "TG_57881/83/84",
+   "prior": "4 units",
+   "what": "unit count"
+  },
+  {
+   "corrected": "TG_50575 publishes an undated chat during the move with a congratulation («لحقتو عليه»); TG_50576 shows no ticker. The datable pre-move selection is TG_50578's chat (as-of 2026-09-21), not a ranking unit",
+   "episode_id": "DCOY_E1",
+   "evidence": "TG_50575 · TG_50576 · TG_50578",
+   "prior": "T_e 2026-09-22 from TG_50575 (WAIT) and TG_50576",
+   "what": "episode evidence"
+  },
+  {
+   "corrected": "CHART_ANALYSIS_ONLY, prompted — no demonstrated selection",
+   "episode_id": "EDBL_E1",
+   "evidence": "TG_50579",
+   "prior": "WATCH (wait/plan)",
+   "what": "label"
+  },
+  {
+   "corrected": "ENTRY executed after the after-hours move had begun (source-stated); not a readiness label",
+   "episode_id": "GCTK_E1",
+   "evidence": "TG_57890",
+   "prior": "READY (declared ready)",
+   "what": "label"
+  },
+  {
+   "corrected": "follower-prompted attention after an after-hours rise",
+   "episode_id": "IPDN_E1",
+   "evidence": "TG_50833",
+   "prior": "WATCH (Faisal)",
+   "what": "origin"
+  },
+  {
+   "corrected": "1 observation (post + its chart)",
+   "episode_id": "LIMN_E1",
+   "evidence": "TG_50585/86",
+   "prior": "2 units",
+   "what": "unit count"
+  },
+  {
+   "corrected": "undated chat with no visible symbol and no selection word",
+   "episode_id": "NUWE_E1",
+   "evidence": "WA_20260918_46_NUWE",
+   "prior": "WATCH 2026-09-04",
+   "what": "unit date and identity"
+  },
+  {
+   "corrected": "2 posts (one with a chart copy and two rule replies)",
+   "episode_id": "OMH_E1",
+   "evidence": "TG_57870/72/73/75",
+   "prior": "4 units",
+   "what": "unit count"
+  },
+  {
+   "corrected": "2026-09-03 (price identity of the attached pre-market quote + «امس ع 2.40»)",
+   "episode_id": "PPBT_E1",
+   "evidence": "X_20260905_02",
+   "prior": "2026-09-04",
+   "what": "unit date"
+  },
+  {
+   "corrected": "2 observations (one post captured twice + one continuation)",
+   "episode_id": "PPBT_E1",
+   "evidence": "X_20260905_01/02/03",
+   "prior": "3 units",
+   "what": "unit count"
+  },
+  {
+   "corrected": "2026-09-08 (the quote is the 2026-09-04 after-hours)",
+   "episode_id": "STKH_E1",
+   "evidence": "TG_20260905_09",
+   "prior": "2026-09-04",
+   "what": "unit date"
+  },
+  {
+   "corrected": "UNKNOWN — no sender is identifiable in the image",
+   "episode_id": "STKH_E1",
+   "evidence": "TG_20260905_08/09",
+   "prior": "Faisal (V4)",
+   "what": "author"
+  },
+  {
+   "corrected": "WA_31 = pressure observed + entry zone (not a readiness word); X_24 = a retrospective outcome report, undated",
+   "episode_id": "SXTC_E1",
+   "evidence": "WA_20260918_31_SXTC · X_20260918_24_SXTC",
+   "prior": "READY (WA_20260918_31_SXTC) · ENTRY (X_20260918_24_SXTC)",
+   "what": "unit labels"
+  },
+  {
+   "corrected": "follower-prompted analysis of a stock Faisal says «was» on his watch (undated)",
+   "episode_id": "YMT_E1",
+   "evidence": "X_20260905_09/10",
+   "prior": "WATCH (Faisal)",
+   "what": "origin"
+  }
+ ],
+ "decision": "C",
+ "defensible_in_method_docs": [
+  "AMIX_E1",
+  "DCOY_E1",
+  "GCTK_E1",
+  "IPDN_E1",
+  "LIMN_E1",
+  "MSGY_E1",
+  "NRSN_E1",
+  "OMH_E1",
+  "YMT_E1"
+ ],
+ "eligible": [
+  "AMIX_E1",
+  "ATPC_E1",
+  "BRTX_E1",
+  "CETX_E1",
+  "CIIT_E1",
+  "CUPR_E1",
+  "DCOY_E1",
+  "DKI_E1",
+  "GCTK_E1",
+  "IPDN_E1",
+  "LABT_E1",
+  "LIMN_E1",
+  "MI_E1",
+  "MSGY_E1",
+  "NRSN_E1",
+  "OMH_E1",
+  "PPBT_E1",
+  "SVRE_E1",
+  "YMT_E1"
+ ],
+ "episodes_rank_evaluable": 22,
+ "episodes_total": 23,
+ "evaluable22": {
+  "eligible": 18,
+  "excluded": 4,
+  "fully_source_supported": 19,
+  "independent_units_eligible": 14,
+  "independent_units_reliable_pre_move": 3,
+  "reliable_pre_move": [
+   "AMIX_E1",
+   "DCOY_E1",
+   "MSGY_E1"
+  ]
+ },
+ "excluded": {
+  "EDBL_E1": "NO_SELECTION_STATEMENT",
+  "NUWE_E1": "TIMESTAMP_INFERRED",
+  "STKH_E1": "AUTHOR_UNKNOWN",
+  "SXTC_E1": "RELATION_AMBIGUOUS"
+ },
+ "favourable_bound": 13,
+ "favourable_bound_22": 12,
+ "floor": 15,
+ "fully_source_supported": [
+  "AMIX_E1",
+  "ATPC_E1",
+  "BRTX_E1",
+  "CETX_E1",
+  "CIIT_E1",
+  "CUPR_E1",
+  "DCOY_E1",
+  "DKI_E1",
+  "GCTK_E1",
+  "IPDN_E1",
+  "LABT_E1",
+  "LIMN_E1",
+  "MI_E1",
+  "MSGY_E1",
+  "NRSN_E1",
+  "OMH_E1",
+  "PPBT_E1",
+  "SVRE_E1",
+  "SXTC_E1",
+  "YMT_E1"
+ ],
+ "independent_units_eligible": 15,
+ "independent_units_reliable_pre_move": 4,
+ "inferred_or_ambiguous": [
+  "NUWE_E1",
+  "STKH_E1",
+  "SXTC_E1"
+ ],
+ "label": "EXPLORATORY",
+ "missing_items": [
+  {
+   "artifact": "an earlier dated snapshot of the same tab (or Faisal's dated post adding the symbol)",
+   "effect": "could move the as-of earlier; it cannot turn the 2026-09-13 snapshot itself into earlier evidence",
+   "episode_id": "ATPC_E1",
+   "provenance": "printed post date/time with the tab visible",
+   "unknown": "when the symbol entered «قائمتي»",
+   "why": "the snapshot proves membership on 2026-09-13 only; a pre-move selection date cannot be inferred from it"
+  },
+  {
+   "artifact": "an earlier dated snapshot of the same tab (or Faisal's dated post adding the symbol)",
+   "effect": "could move the as-of earlier; it cannot turn the 2026-09-13 snapshot itself into earlier evidence",
+   "episode_id": "CETX_E1",
+   "provenance": "printed post date/time with the tab visible",
+   "unknown": "when the symbol entered «قائمتي»",
+   "why": "the snapshot proves membership on 2026-09-13 only; a pre-move selection date cannot be inferred from it"
+  },
+  {
+   "artifact": "an earlier dated snapshot of the same tab (or Faisal's dated post adding the symbol)",
+   "effect": "could move the as-of earlier; it cannot turn the 2026-09-13 snapshot itself into earlier evidence",
+   "episode_id": "CUPR_E1",
+   "provenance": "printed post date/time with the tab visible",
+   "unknown": "when the symbol entered «قائمتي»",
+   "why": "the snapshot proves membership on 2026-09-13 only; a pre-move selection date cannot be inferred from it"
+  },
+  {
+   "artifact": "an earlier dated snapshot of the same tab (or Faisal's dated post adding the symbol)",
+   "effect": "could move the as-of earlier; it cannot turn the 2026-09-13 snapshot itself into earlier evidence",
+   "episode_id": "SVRE_E1",
+   "provenance": "printed post date/time with the tab visible",
+   "unknown": "when the symbol entered «قائمتي»",
+   "why": "the snapshot proves membership on 2026-09-13 only; a pre-move selection date cannot be inferred from it"
+  },
+  {
+   "artifact": "an earlier dated snapshot or post",
+   "effect": "could move the as-of earlier",
+   "episode_id": "DKI_E1",
+   "provenance": "printed date",
+   "unknown": "when DKI entered «قائمتي»",
+   "why": "membership is shown only on 2026-09-13"
+  },
+  {
+   "artifact": "the original chat with message timestamps",
+   "effect": "would add a second dated DCOY statement; the episode is already datable by TG_50578",
+   "episode_id": "DCOY_E1",
+   "provenance": "message date and time",
+   "unknown": "the send time of the chat messages in TG_50575",
+   "why": "they may be pre-move waiting statements, but nothing in the image dates them"
+  },
+  {
+   "artifact": "the original WhatsApp message (with the date header and the chart header visible)",
+   "effect": "would make the statement datable, but it would remain levels-only (no selection word)",
+   "episode_id": "NUWE_E1",
+   "provenance": "message date + symbol",
+   "unknown": "the date of the 12:38 ص group message and the symbol of its charts",
+   "why": "without both, the statement cannot be placed in time or tied to NUWE from the image itself"
+  },
+  {
+   "artifact": "the original chat or the post that published it",
+   "effect": "would decide whether the episode can be kept at all",
+   "episode_id": "STKH_E1",
+   "provenance": "the sender's name/handle and the message date",
+   "unknown": "who wrote the STKH chat messages",
+   "why": "without the sender the statement cannot be attributed to Faisal"
+  },
+  {
+   "artifact": "the original WhatsApp message with its date header",
+   "effect": "decides PRE_MOVE (09-10) vs NEAR_MOVE_START (09-11)",
+   "episode_id": "SXTC_E1",
+   "provenance": "message date",
+   "unknown": "the date of the 1:00 م WhatsApp message (2026-09-10 vs 2026-09-11 pre-market)",
+   "why": "the stock reached +50% on 2026-09-11; the two dates give different move relations"
+  },
+  {
+   "artifact": "the earlier post or list snapshot that put YMT on watch",
+   "effect": "could provide an own, dated selection",
+   "episode_id": "YMT_E1",
+   "provenance": "printed date",
+   "unknown": "when YMT was on Faisal's watch («كان سهم متابعه»)",
+   "why": "the only own-selection claim is retrospective and undated"
+  }
+ ],
+ "prompted": [
+  "IPDN_E1",
+  "YMT_E1"
+ ],
+ "relations": {
+  "AFTER_MOVE_BEGAN": 3,
+  "AMBIGUOUS": 1,
+  "CENSORED": 9,
+  "NO_QUALIFYING_MOVE": 3,
+  "PRE_MOVE": 4,
+  "UNDETERMINED": 3
+ },
+ "reliable_pre_move": [
+  "AMIX_E1",
+  "DCOY_E1",
+  "MI_E1",
+  "MSGY_E1"
+ ],
+ "resolvable_units": 1,
+ "unit_observations": 33,
+ "units_duplicate": 8,
+ "units_rank_label_word_in_source": 22,
+ "units_rank_session_in_asof": {
+  "NO": 6,
+  "UNKNOWN": 3,
+  "YES": 32
+ },
+ "units_retrospective": 3,
+ "units_total": 41
+}
