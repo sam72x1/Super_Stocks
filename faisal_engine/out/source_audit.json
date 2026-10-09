@@ -1,0 +1,287 @@
+{
+ "corpus": {
+  "image_corpus_images": 722,
+  "inventory_files": 769,
+  "inventory_units": 604,
+  "visual_pass_v4_units": 609,
+  "inventory_status": {
+   "FULLY_ANALYZED/NO_UNIQUE_INFO": 165,
+   "FULLY_ANALYZED/CONTEXT_ONLY": 192,
+   "FULLY_ANALYZED/RULE_EVIDENCE": 181,
+   "FULLY_ANALYZED/VALIDATION_CASE": 203,
+   "FULLY_ANALYZED/COUNTEREXAMPLE": 17,
+   "FULLY_ANALYZED/NON_EVIDENCE": 9,
+   "PARTIALLY_ANALYZED/CONTEXT_ONLY": 2
+  },
+  "inventory_source_channel": {
+   "APP": 8,
+   "CH": 22,
+   "EDU": 13,
+   "IMG": 105,
+   "TG": 548,
+   "WA": 2,
+   "X": 70,
+   "مرفقُ الجلسة (لا يُدفَع)": 1
+  },
+  "inventory_author": {
+   "APP": 33,
+   "F": 576,
+   "U": 31,
+   "EDU": 58,
+   "FG": 2,
+   "TP": 22,
+   "AI": 6,
+   "FA": 7,
+   "FO": 5,
+   "UNKNOWN": 17,
+   "F_inferred": 4,
+   "THIRD_PARTY": 8
+  },
+  "high_info": 565,
+  "partially_analyzed": 2
+ },
+ "sources": [
+  {
+   "id": "S-REPO-IMG",
+   "name": "faisal_images/ + faisal_batches/ + chart_cards (repo)",
+   "status": "ACCESSIBLE · INSPECTED (eye pass 609/609 units · inventory 769 files)"
+  },
+  {
+   "id": "S-TG-BOT",
+   "name": "Telegram bot updates (telegram_collect.py · scheduled)",
+   "status": "ACCESSIBLE · collector pulls only what is sent to the bot; 2026-10-09 pull = 0"
+  },
+  {
+   "id": "S-TG-CHANNEL",
+   "name": "Faisal's Telegram channel history (pre-bot)",
+   "status": "UNAVAILABLE (no API access; only images the owner forwarded)"
+  },
+  {
+   "id": "S-X",
+   "name": "X (@kisar_) posts",
+   "status": "UNAVAILABLE live (blocked from runners); 70 X images present in corpus via owner forwards"
+  },
+  {
+   "id": "S-WA",
+   "name": "WhatsApp cases",
+   "status": "ACCESSIBLE only as 2 forwarded images (NUWE · SXTC); chat export UNAVAILABLE"
+  },
+  {
+   "id": "S-APP",
+   "name": "Faisal's app screenshots",
+   "status": "ACCESSIBLE · 8 images (V3) · 1 dated WATCH unit (VEEE)"
+  },
+  {
+   "id": "S-GIT",
+   "name": "git history of state files (weekly_watchlist · company_cache · near_watch)",
+   "status": "ACCESSIBLE · used by Phase 5 (S01/S02) for bot-era floats/borrow only"
+  },
+  {
+   "id": "S-SEC",
+   "name": "SEC EDGAR submissions (fm_forensics/data/sec_2026-10-08.json.gz · 234/238 ok)",
+   "status": "ACCESSIBLE · dated filings · used for offering validity"
+  },
+  {
+   "id": "S-BARS",
+   "name": "TradingView daily bars frozen 2026-10-08 (232/238 symbols · from 2025-01-01)",
+   "status": "ACCESSIBLE · split-adjusted · 6 symbols without bars"
+  },
+  {
+   "id": "S-PDF",
+   "name": "منهج فيصل.pdf + Elliott guide + audio transcript",
+   "status": "ACCESSIBLE locally · NOT PUSHED (public repo) · tagged faisal_adopted"
+  },
+  {
+   "id": "S-SESSIONS",
+   "name": "earlier Claude sessions / artifacts (Phase A probe)",
+   "status": "INSPECTED by Phase A: NEW_TO_CORPUS 0 of 9,930 records"
+  }
+ ],
+ "owner_examples_outside_whatsapp": {
+  "dated_decision_units": 88,
+  "dated_tickers": 45,
+  "whatsapp_tickers": [
+   "NUWE",
+   "SXTC"
+  ],
+  "non_whatsapp_dated_tickers": [
+   "AMIX",
+   "ATPC",
+   "BETA",
+   "BRTX",
+   "CANF",
+   "CDIO",
+   "CETX",
+   "CIIT",
+   "CRE",
+   "CUPR",
+   "DCOY",
+   "DKI",
+   "DXST",
+   "EDBL",
+   "EHGO",
+   "ELAB",
+   "ELPW",
+   "FRSX",
+   "GCTK",
+   "HUBC",
+   "IPDN",
+   "LABT",
+   "LIMN",
+   "MI",
+   "MNDR",
+   "MSGY",
+   "NRSN",
+   "OMH",
+   "ONCO",
+   "PIII",
+   "PPBT",
+   "SLXN",
+   "SMX",
+   "SPRC",
+   "STKH",
+   "SVRE",
+   "TRUG",
+   "UPC",
+   "WORX",
+   "YMT",
+   "ZCMD",
+   "ZNB"
+  ],
+  "by_evidence_type": {
+   "APP_SCREENSHOT": [
+    "VEEE"
+   ],
+   "CHART_IMAGE": [
+    "CANF",
+    "CUPR",
+    "DXST",
+    "JEM",
+    "LABT",
+    "MNDR",
+    "NUWE",
+    "ONCO",
+    "PAVS",
+    "SLXN",
+    "SPRC",
+    "UNK",
+    "UPC",
+    "WORX",
+    "ZCMD",
+    "ZNB"
+   ],
+   "OTHER": [
+    "DCOY",
+    "DRMA",
+    "VEEE"
+   ],
+   "TELEGRAM": [
+    "ADIL",
+    "ADVB",
+    "BETA",
+    "BNAI",
+    "BRTX",
+    "CANF",
+    "CDIO",
+    "CIIT",
+    "CRE",
+    "DCOY",
+    "DSY",
+    "DXST",
+    "EDBL",
+    "EHGO",
+    "ELAB",
+    "ELPW",
+    "ENPH",
+    "ENVB",
+    "EZRA",
+    "FGF",
+    "FIEE",
+    "FRSX",
+    "FUBO",
+    "FULC",
+    "GCTK",
+    "GWAV",
+    "HAO",
+    "HCAI",
+    "HUBC",
+    "HWH",
+    "IMCC",
+    "IPDN",
+    "JAGX",
+    "LABT",
+    "LIMN",
+    "LNAI",
+    "MI",
+    "MTEX",
+    "NAMM",
+    "NCT",
+    "NRSN",
+    "NUWE",
+    "NXTT",
+    "OMH",
+    "ONCO",
+    "PAVS",
+    "PIII",
+    "PPCB",
+    "PRFX",
+    "QMMM",
+    "RGC",
+    "SBDS",
+    "SCNI",
+    "SMX",
+    "SNAL",
+    "SNGX",
+    "SPHL",
+    "SPPL",
+    "SPRC",
+    "STKH",
+    "SXTC",
+    "TRUG",
+    "VEEE",
+    "VMAR",
+    "WHLR",
+    "WORX",
+    "XCUR",
+    "ZCMD"
+   ],
+   "X_POST": [
+    "AMIX",
+    "ATPC",
+    "BTOG",
+    "CETX",
+    "CUPR",
+    "DKI",
+    "GRI",
+    "HCWB",
+    "KWM",
+    "LABT",
+    "MSGY",
+    "PPBT",
+    "SGRX",
+    "SVRE",
+    "SXTC",
+    "UNK",
+    "YMT"
+   ]
+  },
+  "no_bars": [
+   "ATPC",
+   "LABT",
+   "MI",
+   "UNK"
+  ]
+ },
+ "duplicates": {
+  "DUPLICATE/DERIVATIVE": 174,
+  "UNIQUE": 595
+ },
+ "research_queue_ex": 7,
+ "unresolved": [
+  "Faisal channel history before the bot (not retrievable)",
+  "X live timeline (blocked)",
+  "WhatsApp chat text (only 2 images)",
+  "10 chat images cited in Phase 3 (not recovered)",
+  "float/borrow/short dated before bot logs (no source)"
+ ]
+}

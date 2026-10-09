@@ -1,0 +1,709 @@
+{
+ "version": "FAISAL_RULE_LEDGER 1.0 (2026-10-09)",
+ "rules_v4": "V4-RULES 1.0 (2026-10-02)",
+ "n": 27,
+ "rules": [
+  {
+   "rule_id": "R4-DATA-01",
+   "dimension": "DATA",
+   "description": "جودةُ البيانات: 40 جلسةً يوميّةً فأكثر حتى تاريخ القراءة · بلا قيمٍ ناقصة · والقراءةُ لا ترى ما بعد asof",
+   "status": "CONFIRMED",
+   "evidence_class": "DIRECTLY_OBSERVED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "engineering (§26 · §35)",
+   "image_ids": [],
+   "image_in_corpus": 0,
+   "supporting": [],
+   "contradicting": [],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "R4-BOT-01",
+   "dimension": "CHART",
+   "description": "القاعُ = أدنى ذيلٍ منذ قمّة الدورة (نافذة 120 جلسة) · وكسرُه بأبعد من مدى السحب يعيد التحليل من القاع الجديد (يعمّم R-W-SPAN: القاعُ الحقيقيُّ هو الأدنى)",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "TG_50584",
+    "X_20260827_checklist_7points",
+    "X_20260905_10",
+    "X_20260905_07",
+    "IMG_0689"
+   ],
+   "image_in_corpus": 5,
+   "supporting": [
+    "TG_50584 «أدنى شمعة القاع»",
+    "X_20260827_checklist_7points «ادنى شمعه … الوقف القاع»",
+    "X_20260905_10 «كسر 1.81 تصنع تحليل اخر بنفس النهج» (طبقة 2)",
+    "X_20260905_07 «إن كسر قاع 2.08 يذهب إلى 1.70»",
+    "IMG_0689 «كسره = ذهاب الى دعوم اخرى»"
+   ],
+   "contradicting": [
+    "C1 (V3.1): دعومُ فيصل فوق الذيل أحيانًا (ZNB 1.963 · LABT 2/1.80) — حُلّ بفصل القاع (ذيل) عن الدعم (جسم · دعمٌ ثانٍ · منطقة)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "R4-HOLD-01",
+   "dimension": "TEMPORAL",
+   "description": "القاعُ لا يُكسر 5 جلساتٍ فأكثر قبل أيّ حكمٍ بالإيجابيّة",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "X_20260918_85_YMT",
+    "X_20260827_checklist_7points",
+    "TG_20260905_09",
+    "TG_2066",
+    "TG_2044"
+   ],
+   "image_in_corpus": 5,
+   "supporting": [
+    "X_20260918_85_YMT «اذا ماكسر القاع اكثر من 5 جلسات»",
+    "X_20260827_checklist_7points «5 جلسات»",
+    "TG_20260905_09 «ثبات ٥ جلسات دخول ذا نهج علمي» (المالك يشهد)",
+    "TG_2066 «3-5 جلسات» (طبقة 2)",
+    "TG_2044 «ثبات السعر 5 جلسات» (للمبتدئ)"
+   ],
+   "contradicting": [
+    "WA_20260918_31_SXTC: READY يومَ الضغط (طبقة 2)",
+    "TG_2059 PPCB: «ماركت ناخذه» بعد الضغط والارتداد"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "stage mapping"
+  },
+  {
+   "rule_id": "R4-CYC-01",
+   "dimension": "CHART",
+   "description": "الدورة: قاع ⟵ صعودُ اختبارٍ (15% فأكثر · غالبًا 20%) ⟵ رجوعٌ يختبر الدعم ⟵ الحكمُ عند الاختبار «هذا اصل التحليل»",
+   "status": "CONFIRMED",
+   "evidence_class": "DIRECTLY_OBSERVED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "X_20260918_85_YMT",
+    "TG_50584",
+    "X_20260918_13_NUWE",
+    "TG_50585",
+    "TG_57872",
+    "TG_57884",
+    "TG_57867",
+    "TG_50579",
+    "IMG_0566",
+    "IMG_0488",
+    "X_20260918_24_SXTC",
+    "TG_20260905_07",
+    "TG_20260905_09"
+   ],
+   "image_in_corpus": 13,
+   "supporting": [
+    "X_20260918_85_YMT «يصعد 20٪ بعد القاع · يرجع يختبر الدعم · هذا اصل التحليل»",
+    "TG_50584 «ارتداد لاختبار المقاومة 20% غالبًا»",
+    "X_20260918_13_NUWE «قاع ⟵ صعود ⟵ اختبار مقاومة ⟵ هبوط ⟵ اختبار دعم»",
+    "TG_50585 LIMN «اختبار مقاومه ✅ · تبقى اختبار القاع»",
+    "TG_57872 OMH «اعادة الاختبار شرط اساسي»",
+    "TG_57884 CIIT «موجه هابطه … بعد اختبار المقاومه»",
+    "TG_57867 NRSN «ضغط متوقع 20> 30٪»",
+    "TG_50579 EDBL «لازم يرجع يحقق المقاومه · بعده يرجع للدعم»",
+    "IMG_0566 MNDR «حقق 50٪ … او يرجع يختبر 1.60»",
+    "IMG_0488 «قاع صعد 17٪ · هبط اختبار شمعه الصعود»",
+    "X_20260918_24_SXTC «حقق المقاومة الأولى ثمّ هبط لاختبار الدعم»",
+    "TG_20260905_07 MSGY «يختبر المقاومة ثمّ يرجع يختبر الدعم»"
+   ],
+   "contradicting": [
+    "X_20260918_85_YMT نفسُه: «يصعد مباشره بعد القاع … نادر» (استثناءٌ معترَف به)",
+    "TG_1985 «اسهم تصعد مباشره لاتصلح لها هذي النظريه»",
+    "X_20260827_checklist_7points: دخولٌ عند القاع بلا صعود اختبار (C-CYCLE-VS-CHECKLIST)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "R4-ZONE-01",
+   "dimension": "RISK",
+   "description": "منطقةُ الدخول/الاختبار: من القاع حتى 15% فوقه · والطلباتُ 5-15% فوق القاع",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "IMG_0531",
+    "IMG_0569",
+    "X_20260827_checklist_7points",
+    "TG_50585",
+    "X_20260918_85_YMT"
+   ],
+   "image_in_corpus": 5,
+   "supporting": [
+    "IMG_0531 «طلبات جاهزه 5-15٪ فوق القاع» · «تذبذب 10-20٪ فوق القاع»",
+    "IMG_0569 MNDR 1.50-1.60 فوق قاع 1.40",
+    "X_20260827_checklist_7points «1.50 ⟵ 1.60-1.70»",
+    "TG_50585 LIMN 3.40 فوق 3.29",
+    "X_20260918_85_YMT الدعم الثاني 1.84 فوق 1.81"
+   ],
+   "contradicting": [
+    "TG_1963 ERNA: طلباتٌ 5.00-5.40 فوق قاعٍ قديم 3.70 بـ35%+ (القاعُ المرجعيُّ مختلف)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "R4-HOLDZ-01",
+   "dimension": "TEMPORAL",
+   "description": "ثباتٌ داخل المنطقة بعد الاختبار (2-5 جلسات · الأساسيّ 3) = جاهزيّةٌ فنيّة",
+   "status": "PROBABLE",
+   "evidence_class": "INFERRED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "TG_2108",
+    "TG_20260905_09",
+    "IMG_0566",
+    "IMG_0697"
+   ],
+   "image_in_corpus": 4,
+   "supporting": [
+    "TG_2108 CLIR «الدخول بعد ثبات الدعوم بجلستين او 3»",
+    "TG_20260905_09 STKH «ثبات ٥ جلسات دخول»",
+    "IMG_0566 MNDR «في حال اختبر 1.60 ولاكسرها وحافظ ع قاعه يعتبر اجابي»",
+    "TG_2066 «3-5 جلسات» (طبقة 2)"
+   ],
+   "contradicting": [
+    "IMG_0395 SPRC: «حقق الدعوم بالامس» ثمّ شراء (جلسةٌ واحدة)",
+    "WA_20260918_31_SXTC: READY يومَ الضغط",
+    "IMG_0659 TDIC (EDU): الدخولُ على شمعة الهمر"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "stage mapping"
+  },
+  {
+   "rule_id": "R4-SWEEP-01",
+   "dimension": "CHART",
+   "description": "سحبُ سيولةٍ تحت القاع السابق (حتى 13% · مدى الطبقة 1: 5-15%) ثمّ عودةٌ فوقه = ضغطُ المضارب (إيجابيّ)",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal + EDU",
+   "image_ids": [
+    "TG_50584",
+    "IMG_0177",
+    "TG_57874",
+    "TG_57870",
+    "TG_57879",
+    "TG_1822",
+    "IMG_0297"
+   ],
+   "image_in_corpus": 7,
+   "supporting": [
+    "TG_50584 «سحب سيولة 5% تحت أدنى شمعة القاع»",
+    "IMG_0177 «مسح سيوله 10٪ تحت القاع»",
+    "TG_57874 «10-15٪»",
+    "TG_57870 «15٪ تحت متوسط التجميع»",
+    "TG_57879 CIIT «الاجابيه ثبات اسفل الدعم … بعدها العوده فوق الدعم»",
+    "TG_1822 EHGO «سحب السيوله اسفل الشمعه 10٪ تقريبا ورجع صعد فوق الدعم»",
+    "IMG_0297 (EDU) «7٪ ل 13٪»"
+   ],
+   "contradicting": [
+    "IMG_0153 وصفةُ المقسّم: هبوطٌ إلى 2 من ÷2≈2.75 (‏−27%)",
+    "C-STOP-VS-SWEEP: وقفُ 5-7% يُضرب بسحب 8%"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "stage mapping"
+  },
+  {
+   "rule_id": "R4-INV-01",
+   "dimension": "RISK",
+   "description": "كسرُ القاع بأبعد من مدى السحب يُفشل التحليل الحاليّ ⟵ انتظارُ قاعٍ جديد",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "IMG_0512",
+    "IMG_0513",
+    "IMG_0569",
+    "X_20260905_10",
+    "X_20260905_07"
+   ],
+   "image_in_corpus": 5,
+   "supporting": [
+    "IMG_0512 CANF «السهم اذا ماكسر 2.80 بيصعد»",
+    "IMG_0569 MNDR «1.40 اخطر مرحله للوقف»",
+    "X_20260905_10 YMT «كسر 1.81 تصنع تحليل اخر بنفس النهج»",
+    "X_20260905_07 BTOG «إن كسر قاع 2.08 يذهب إلى 1.70»"
+   ],
+   "contradicting": [
+    "C-SUPPORT10: ENPH ‏−11..−13% وELAB ‏−39% ثمّ صعودٌ كبير (TG_2017 · TG_2127)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "stage mapping"
+  },
+  {
+   "rule_id": "R4-LOC-01",
+   "dimension": "TEMPORAL",
+   "description": "السعرُ فوق المنطقة بعد الصعود («الوسط غير الآمن») ⟵ لا دخول · انتظارُ الاختبار",
+   "status": "CONFIRMED",
+   "evidence_class": "DIRECTLY_OBSERVED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "X_20260918_12_doublebottom",
+    "TG_2097",
+    "TG_50580",
+    "X_20260827_target10_entry_below"
+   ],
+   "image_in_corpus": 4,
+   "supporting": [
+    "X_20260918_12_doublebottom «الدخول بين خط العنق والقاع المزدوج غير امن · ضبابيه الدخول بين وبين ليست جيده»",
+    "TG_2097 «هل تعتقد يرتفع من سعره الحالي … لايمكن … ABC لابد تتحقق»",
+    "TG_50580 DCOY «العقل بالأسهم تشري تحت»",
+    "X_20260827_target10_entry_below «السعر الحالي غير صالح للدخول» (طبقة 2)"
+   ],
+   "contradicting": [
+    "T-W (V3): «الوسط غير آمن» عُكس يوميًّا بقياسٍ تداوليّ (A − M ‏−0.98) — مقياسُ ربحٍ لا وفاء (§24)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "stage mapping"
+  },
+  {
+   "rule_id": "R4-OP-01",
+   "dimension": "TEMPORAL",
+   "description": "بصمةُ المضارب (الضغط) هي التأكيدُ الافتراضيّ قبل READY · والجاهزيّةُ الفنيّة بلا بصمةٍ ⟵ انتظار",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "UNKNOWN",
+   "source_tag": "faisal",
+   "image_ids": [
+    "TG_1822",
+    "TG_2218",
+    "X_20260827_amix_hcwb_ready",
+    "X_20260905_01",
+    "TG_50575",
+    "TG_50584"
+   ],
+   "image_in_corpus": 6,
+   "supporting": [
+    "TG_1822 EHGO «ننتظر فقط مضارب»",
+    "TG_2218 CDIO «جاهز … بانتظار فقط دخول المضارب»",
+    "X_20260827_amix_hcwb_ready HCWB «ننتظر ضغط المضارب»",
+    "X_20260905_01 PPBT «انتظار ضغط البري»",
+    "TG_50575 DCOY «ننتظر ضغط الماركت»",
+    "TG_50584 «تبقى الضغط ✅»"
+   ],
+   "contradicting": [
+    "X_20260827_checklist_7points_cont «ماتم ضغطه … تدخل مباشره ع خط متوسط 50 > 200»",
+    "AMIX READY قبل الضغط (طلبات)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "stage mapping"
+  },
+  {
+   "rule_id": "R4-VAL-GRP-01",
+   "dimension": "SELECTION",
+   "description": "دخولُ القروبات يُبطل قراءةَ الشموع ⟵ رفض",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "IMG_0488",
+    "TG_1835",
+    "X_20260827_checklist_7points",
+    "TG_2090",
+    "IMG_0316",
+    "IMG_0508"
+   ],
+   "image_in_corpus": 6,
+   "supporting": [
+    "IMG_0488 «دخول سيوله قروبات … لا انا ولا اكبر محلل يستطيع قراءة الشموع»",
+    "TG_1835 LABT «سيولة قروبات داخلة»",
+    "X_20260827_checklist_7points ⑥ «خالٍ من القروبات»",
+    "TG_2090 CDIO «مالم تدخل قروبات»",
+    "IMG_0316 JZ «دخل قروب غبي … المضارب الغى جميع الاهداف»",
+    "IMG_0508 SLXN «رفعه سريعه من اللي وصى عليه»"
+   ],
+   "contradicting": [
+    "X_20260905_10 YMT «لايهم حتى لو دخل قروب ورفعه 20٪ · المضارب اذا بيحقق اهدافه راح يهبط فيه»"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "validity"
+  },
+  {
+   "rule_id": "R4-VAL-OFF-01",
+   "dimension": "SELECTION",
+   "description": "طرحٌ أو تخفيفٌ معلَّق ⟵ انتظار",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "X_20260827_kwm_offering_notready",
+    "TG_50828",
+    "TG_2064",
+    "X_20260918_85_YMT"
+   ],
+   "image_in_corpus": 4,
+   "supporting": [
+    "X_20260827_kwm_offering_notready «غير جاهز فنيا» بعد طرح 500 ألف",
+    "TG_50828 CETX «إغلاق طرح معلّق ⟵ انتظار»",
+    "TG_2064 ADIL «هل عنده تقسيم قادم او طرح او تخفيف»",
+    "X_20260918_85_YMT «يهمك قراءة الاخبار هل هناك طرح اسهم»"
+   ],
+   "contradicting": [],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "validity"
+  },
+  {
+   "rule_id": "R4-VAL-SHORT-01",
+   "dimension": "SELECTION",
+   "description": "المتاحُ للشورت فوق 20 ألفًا ⟵ انتظار",
+   "status": "PROBABLE",
+   "evidence_class": "INFERRED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "IMG_0150",
+    "TG_50578",
+    "X_20260827_rubi_read_short150k"
+   ],
+   "image_in_corpus": 3,
+   "supporting": [
+    "IMG_0150 WORX «تابعه لين يبقى الشورت تحت 20 الف»",
+    "TG_50578 DCOY «باقي 80 الف شورت ننتظر»",
+    "X_20260827_rubi_read_short150k RUBI «المشكله بالشورت» (150 ألفًا)"
+   ],
+   "contradicting": [
+    "TG_2196 ONCO: شورت 150 ألفًا وخطّةٌ كاملة",
+    "TG_1831 LABT: «الشورت 55 ألف متاح ولم يمنع التحليل» (طبقة 2)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "validity"
+  },
+  {
+   "rule_id": "R4-ENT-01",
+   "dimension": "RISK",
+   "description": "الدخولُ الأوّل: طلباتٌ عند الدعم بدفعاتٍ (فوارق 5 سنتات) — آليّةُ دخولٍ مفضّلة لا شرطُ قرار",
+   "status": "CONFIRMED",
+   "evidence_class": "DIRECTLY_OBSERVED",
+   "decisionality": "SUPPORTING",
+   "source_tag": "faisal",
+   "image_ids": [
+    "IMG_0569",
+    "X_20260918_85_YMT",
+    "X_20260827_checklist_7points",
+    "IMG_0510",
+    "TG_1963",
+    "IMG_0505"
+   ],
+   "image_in_corpus": 6,
+   "supporting": [
+    "IMG_0569 MNDR «طلبات عند الدعوم · شرا من العرض خساره»",
+    "X_20260918_85_YMT «طلبات فوارق 5 سنت عند الدعم»",
+    "IMG_0510 CANF «نشري مع المضارب طلبات صغيره»",
+    "IMG_0505 ADIL «شرحنا طريقة الدخول والتجميع»"
+   ],
+   "contradicting": [
+    "TG_1963 ERNA «اللي ماتفرق معاه ومتعود يشري من العرض قدامك السهم»",
+    "IMG_0291 DSY «اخذته الان من العرض الليلي»",
+    "IMG_0290 AZI «شيله من العرض باي سعر» (عند التحرّر)",
+    "TG_2059 PPCB «ماركت ناخذه»"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "R4-ENT-02",
+   "dimension": "RISK",
+   "description": "الدخولُ الثاني: بعد التحرّر/الاختراق مع التأكيد (ثباتٌ فوقه · إقفالٌ يوميٌّ ثانٍ)",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "INFORMATIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "TG_2197",
+    "X_20260827_checklist_7points_cont",
+    "TG_57862",
+    "IMG_0602",
+    "X_20260918_61_VEEE"
+   ],
+   "image_in_corpus": 5,
+   "supporting": [
+    "TG_2197 «دخول المضاربين > بعد الاختراق ربح سريع قليل امن»",
+    "TG_57862 «دخول جديد بعد الاختراق وتأكيد الدعوم»",
+    "IMG_0602 CANF «اذا تجاوز 3.67 ممتاز»",
+    "X_20260918_61_VEEE «انتظر تكوين الشمعه الثانيه باقفال يومي»"
+   ],
+   "contradicting": [
+    "TG_1840 «تشري ع الاختراق اعرف انك خسران … الاختراق فاشل الدخول فيه» (C-BREAKOUT)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "R4-STOP-01",
+   "dimension": "RISK",
+   "description": "الوقف: القاعُ نفسُه (الأساسيّ) · وبدائلُ موسومة: ‏−5% · ‏−7% تحت الدعم · 7% من الدخول",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "SUPPORTING",
+   "source_tag": "faisal",
+   "image_ids": [
+    "X_20260827_checklist_7points",
+    "TG_2106",
+    "TG_1978",
+    "TG_2098",
+    "X_20260918_61_VEEE"
+   ],
+   "image_in_corpus": 5,
+   "supporting": [
+    "X_20260827_checklist_7points «الوقف القاع»",
+    "TG_2106 «وقفك صارم الدعم الاول»",
+    "AMIX 4.60 تحت أدنى دفعة"
+   ],
+   "contradicting": [
+    "TG_1978 «الوقف −5٪»",
+    "TG_2098 HUBC «وقف 7٪»",
+    "X_20260918_61_VEEE «7٪ من دخولنا» (C-STOP-REF)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "R4-TGT-01",
+   "dimension": "RISK",
+   "description": "الأهداف: سلّمُ المقاومات (الأسود) · رأسُ/ذيلُ الشمعة الساقطة · الفجوات · و«100٪ هدف» = مسافةُ ربح ‏+100% · والحركةُ المقيسة طرفٌ ثالث",
+   "status": "CONFIRMED",
+   "evidence_class": "DIRECTLY_OBSERVED",
+   "decisionality": "INFORMATIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "X_20260827_amix_hcwb_ready",
+    "IMG_0508",
+    "TG_2097",
+    "IMG_0587",
+    "X_20260827_pfsa_500pct"
+   ],
+   "image_in_corpus": 5,
+   "supporting": [
+    "AMIX «هدفنا 100٪ 9.45» = ضعفُ الدخول",
+    "IMG_0508 SLXN «يصعد ل 3 = 100٪»",
+    "TG_2097 «الهدف 4 = 100٪» من الدعم 2"
+   ],
+   "contradicting": [
+    "IMG_0587 «100٪ مضمونه» = يقين لا مسافة (فئةٌ ثالثة)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "R4-TF-01",
+   "dimension": "CHART",
+   "description": "الفريمات: يوميّ ‏+ 4 ساعات · و30/5 دقائق للّحظيّ · والمستوياتُ تختلف بالفريم — المحرّكُ يوميٌّ وحدَه",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "INFORMATIONAL",
+   "source_tag": "faisal",
+   "image_ids": [
+    "X_20260905_10",
+    "IMG_0361",
+    "TG_58048",
+    "TG_2031"
+   ],
+   "image_in_corpus": 4,
+   "supporting": [
+    "X_20260905_10 «فريم 4 ساعات كذلك 30 دقيقه»",
+    "IMG_0361 «5 دقائق ادق واوضح»",
+    "TG_58048 «W يُرسم على 30 دقيقة»"
+   ],
+   "contradicting": [],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "R-W-SPAN",
+   "dimension": "CHART",
+   "description": "(V3.1) لا قاعَ بين قاعَي W أدنى منهما بأكثر من 2%",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "UNKNOWN",
+   "source_tag": "inferred (V3.1)",
+   "image_ids": [
+    "IMG_0627",
+    "TG_58042",
+    "TG_58043"
+   ],
+   "image_in_corpus": 3,
+   "supporting": [],
+   "contradicting": [],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "R-SUP-MAIN",
+   "dimension": "CHART",
+   "description": "(V3.1 · معلومة) أدنى ذيلٍ منذ قمّة الدورة",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "engineering (V3.1)",
+   "image_ids": [],
+   "image_in_corpus": 0,
+   "supporting": [],
+   "contradicting": [
+    "ZNB · LABT (V3.1 C1)"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "H-D2",
+   "dimension": "CHART",
+   "description": "(V3.1 · مرفوضة) جلسةٌ ممتدّة لـW على 30 دقيقة",
+   "status": "CONTRADICTED",
+   "evidence_class": "CONTRADICTED",
+   "decisionality": "UNKNOWN",
+   "source_tag": "faisal_adopted",
+   "image_ids": [],
+   "image_in_corpus": 0,
+   "supporting": [],
+   "contradicting": [
+    "DXST: لا النظاميّ ولا الممتدّ أعاد W فيصل"
+   ],
+   "origin": "rules_v4 V4-RULES 1.0 (2026-10-02)",
+   "engine_use": "levels/informational"
+  },
+  {
+   "rule_id": "FE-DATA-01",
+   "dimension": "DATA",
+   "description": "40 جلسةً يوميّةً فأكثر قبل تاريخ القراءة وإلّا INSUFFICIENT_DATA (= R4-DATA-01)",
+   "status": "CONFIRMED",
+   "evidence_class": "DIRECTLY_OBSERVED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "engineering",
+   "image_ids": [],
+   "image_in_corpus": 0,
+   "supporting": [
+    "V4 PARAMS MIN_BARS (engineering)"
+   ],
+   "contradicting": [],
+   "origin": "faisal_engine (2026-10-09)",
+   "engine_use": "stage"
+  },
+  {
+   "rule_id": "FE-SCREEN-01",
+   "dimension": "SELECTION",
+   "description": "هُويّةُ الارتكاز = بوّاباتُ الفارز الإنتاجيّ المجمَّد (M1-M5 · RSI · النواقص) **بلا جدار اللمستين** (REMOVE_candidate · المرحلة 4)",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "inferred",
+   "image_ids": [
+    "IMG_0151",
+    "IMG_0143",
+    "TG_50584"
+   ],
+   "image_in_corpus": 3,
+   "supporting": [
+    "Phase 3: الجدارُ الأوّل مرساةُ اللمستين 20/53 · لمساتُها 0 في 20/20",
+    "Phase 4: اللمستان لا تقعان على 32/38 من مستويات فيصل"
+   ],
+   "contradicting": [
+    "Phase 4: الضوابطُ المطابَقة تُظهر التسلسلَ نفسَه (0.94/1.00) — الوعاءُ ضروريٌّ لا مُميِّز"
+   ],
+   "origin": "faisal_engine (2026-10-09)",
+   "engine_use": "stage"
+  },
+  {
+   "rule_id": "FE-FRAME-01",
+   "dimension": "SELECTION",
+   "description": "بعد تقسيمٍ عكسيٍّ داخل نافذة الدورة تُقرأ الهُويّةُ أيضًا على إطار ما بعد التقسيم (بعمقٍ 40 جلسة) ويمرّ السهم إن مرّ أحدُ الإطارين",
+   "status": "PROBABLE",
+   "evidence_class": "INFERRED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "inferred",
+   "image_ids": [
+    "IMG_0143",
+    "IMG_0151",
+    "IMG_0150"
+   ],
+   "image_in_corpus": 3,
+   "supporting": [
+    "Phase 2: سقفُ M2 على SXTC/HUBC أثرُ تراكم التسوية · مستوى 4: تعريفاتُ البوّابات على النظام المسوّى مقابل إطار فيصل بعد التقسيم"
+   ],
+   "contradicting": [
+    "Phase 2: تصحيحُ السقف لا يصنع ترشيحًا لأيّ مِرساة ويُسقط 33 من 56 ضابطًا سالبًا"
+   ],
+   "origin": "faisal_engine (2026-10-09)",
+   "engine_use": "stage"
+  },
+  {
+   "rule_id": "FE-STAGE-01",
+   "dimension": "TEMPORAL",
+   "description": "الحالةُ الفنيّة في V4 ⟵ المرحلةُ الزمنيّة: BASE_FORMING/BROKEN_NEW_BASE ⟵ FOCUS · SWEEP_ACTIVE/RETEST_* ⟵ WATCH · TECH_READY ⟵ READY · والضغطُ المعلوم ⟵ TRIGGER",
+   "status": "PROBABLE",
+   "evidence_class": "INFERRED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "inferred",
+   "image_ids": [
+    "X_20260918_85_YMT",
+    "IMG_0531",
+    "TG_50584"
+   ],
+   "image_in_corpus": 3,
+   "supporting": [
+    "FAISAL_STATE_MACHINE.md (FOCUS→WATCH→READY→TRIGGERED)",
+    "Phase 3: فيصل يراقب عند اللمسة الأولى لقاعٍ غيرِ مُختبَر (13 قبل إعادة الاختبار مقابل 8 بعدها)"
+   ],
+   "contradicting": [
+    "Phase 4: H1 مكذَّبة — اللمسةُ الأولى الحديثة لا ترفع احتمالَ انتباهه (1.12×)"
+   ],
+   "origin": "faisal_engine (2026-10-09)",
+   "engine_use": "stage"
+  },
+  {
+   "rule_id": "FE-VAL-FLOAT-01",
+   "dimension": "SELECTION",
+   "description": "الفلوتُ 5 ملايين أو أقلّ شرطُ صلاحيّة؛ وغيابُه UNKNOWN لا رفض",
+   "status": "SUPPORTED",
+   "evidence_class": "REPEATEDLY_SUPPORTED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "faisal_adopted",
+   "image_ids": [
+    "IMG_0150",
+    "IMG_9510"
+   ],
+   "image_in_corpus": 1,
+   "supporting": [
+    "H6 §3 A (faisal_adopted)",
+    "T-HS-SF FWD_FLOAT_MAX"
+   ],
+   "contradicting": [
+    "Phase 5: NOT TESTABLE تاريخيًّا (5/23)"
+   ],
+   "origin": "faisal_engine (2026-10-09)",
+   "engine_use": "stage"
+  },
+  {
+   "rule_id": "FE-UNKNOWN-01",
+   "dimension": "DATA",
+   "description": "المعلومةُ الغائبة (فلوت · متاح · قروبات · ضغط · طرح بلا سجلّ) تُسجَّل UNKNOWN وتمنع READY المُتحقَّق ولا تُستنتَج «لا»",
+   "status": "CONFIRMED",
+   "evidence_class": "DIRECTLY_OBSERVED",
+   "decisionality": "DECISIONAL",
+   "source_tag": "engineering",
+   "image_ids": [],
+   "image_in_corpus": 0,
+   "supporting": [
+    "FVO1 (V4.1): لا READY ولا REJECT بلا مصدر"
+   ],
+   "contradicting": [],
+   "origin": "faisal_engine (2026-10-09)",
+   "engine_use": "stage"
+  }
+ ]
+}

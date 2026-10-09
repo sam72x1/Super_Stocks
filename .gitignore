@@ -76,3 +76,8 @@ faisal_method_v4/out/
 fm_forensics/phase6/raw/
 # 🎯 (2026-10-09) جداولُ تجربة الأداء (`fm_forensics/perf/out/`) — صفوفُ المقارنة وضوابطُها
 !fm_forensics/perf/out/*.csv
+
+# 🧭 (2026-10-09) مخرجاتُ محرّك البحث المعزول — `*.csv` مُتجاهَلٌ عامًّا فتُستثنى
+!faisal_engine/out/*.csv
+!faisal_engine/FAISAL_RULE_LEDGER.csv
+faisal_engine/out/replay_std*.txt
