@@ -86,6 +86,56 @@
    "snapshot_sha256": "8447b31e642a8593e84bacf081843b94e5ce4254172cdd476bd603d89989180c",
    "rank_bars_sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c",
    "rank_rows_sha256": "8a506495a17dcd1849283e6607d1018e4339f9cf253f587a83297225da59d890"
+  },
+  "pool_question": {
+   "threshold": 20000.0,
+   "rows_sha_ok": true,
+   "cohorts": {
+    "control_market": {
+     "k": 37,
+     "n": 448,
+     "ci": [
+      6.1,
+      11.2
+     ],
+     "unknown": 0
+    },
+    "bot_selected": {
+     "k": 131,
+     "n": 444,
+     "ci": [
+      25.5,
+      33.9
+     ],
+     "unknown": 0
+    },
+    "bot_pullback": {
+     "k": 32,
+     "n": 105,
+     "ci": [
+      22.5,
+      39.8
+     ],
+     "unknown": 0
+    }
+   },
+   "examined": {
+    "k": 7,
+    "n": 98,
+    "ci": [
+     3.5,
+     14.0
+    ]
+   },
+   "run_1009": {
+    "after_dq": 104,
+    "examined": 44,
+    "unexamined_le": 60,
+    "ejected_n": 40,
+    "ejected_all_above": true
+   },
+   "determinable": false,
+   "why_not_logged": "the screener logs the qualified count (109) and the post-DQ count (104) but not the ranked names; only examined names appear (added, or ejected with their availability)"
   }
  },
  "categories": [

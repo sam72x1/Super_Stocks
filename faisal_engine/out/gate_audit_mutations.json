@@ -1,7 +1,7 @@
 {
- "what": "mutations of the four-dimension gate audit and of the five verdict layers (2026-10-09) — each applied alone, the named locks run, the file restored",
- "killed": 27,
- "total": 27,
+ "what": "mutations of the four-dimension gate audit, the five verdict layers and the pool question (2026-10-09) — each applied alone, the named locks run, the file restored",
+ "killed": 30,
+ "total": 30,
  "rows": [
   {
    "mutation": "m1 absence counts as support",
@@ -230,6 +230,30 @@
    "verdict": "SURVIVED → lock fixed (grid 0..12) → KILLED",
    "failed_locks": [
     "GPS0"
+   ]
+  },
+  {
+   "mutation": "p1 unknown availability counted as passing",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA8"
+   ]
+  },
+  {
+   "mutation": "p2 threshold read as strict",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA8"
+   ]
+  },
+  {
+   "mutation": "p3 answer printed as determinable",
+   "file": "faisal_engine/gate_inventory.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPV9"
    ]
   }
  ]

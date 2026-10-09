@@ -142,3 +142,12 @@ def check_fidelity(audit, reg, justification):
                                                       for t in audit.get("thresholds") or []):
         return "SAMPLE_NUMERICAL_RELATIONSHIP requires a catalog-percentile threshold"
     return None
+
+
+def pass_rate(rows, cohort, threshold):
+    """(passing, known, unknown) of one harvest cohort against the borrow threshold — the production rule (an availability above
+    the threshold is ejected, at or below passes). **An unknown availability is neither passing nor failing: it is counted apart.**"""
+    rs = [r for r in rows or [] if r.get("cohort") == cohort]
+    known = [r for r in rs if r.get("shares_available") is not None]
+    k = sum(1 for r in known if float(r["shares_available"]) <= float(threshold))
+    return k, len(known), len(rs) - len(known)

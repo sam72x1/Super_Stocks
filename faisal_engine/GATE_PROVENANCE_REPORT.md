@@ -238,6 +238,14 @@ Displayed gates now mirror the scanner: M1–M5 + RSI hard (catalog numbers), M6
 
 Over these runs 7 of 26 free slots were filled; the borrow gate ejected 91 of 98 examined (93%), and every run stopped at the rounds cap with qualified names unexamined (the «unexamined» column is an upper bound: names already held or stopped are excluded too). Why these days: the first three runs after the ChartExchange parser fix (2026-10-06, merged in #548): before it, availability was unknown and passed by benefit of the doubt, so the borrow gate did not eject.
 
+## 4c. Would the next-ranked names pass the owner gates beyond the fill rounds? (read-only · existing point-in-time data)
+
+**Answer: NOT DETERMINABLE from existing point-in-time data.** Missing fields: ① the ranked post-DQ pool **by name** beyond the examined names — the screener logs the qualified count (109) and the post-DQ count (104) but not the ranked names; only examined names appear (added, or ejected with their availability) (2026-10-09: after DQ 104 · examined 44 · at most 60 never examined); ② `shares_available` **at decision time** for those names — never looked up (the rounds cap ends the lookups and ChartExchange serves ≈50 pages per runner) and not collected for them elsewhere: the harvest cohorts are the list, the pullback list, Faisal tickers and 20 random universe controls a day, and the Phase 6 ledger holds Faisal tickers and anchor-wall controls — a pool name could appear there only by chance, and without ① no match can be made. An unknown availability is not counted as passing.
+
+Context, not an answer (borrow threshold 20,000): examined fill candidates passed 7 of 98 (7.1% [3.5, 14.0]) over the three post-fix runs · the universe control cohort 37 of 448 (8.3% [6.1, 11.2]) · names already on the list 131 of 444 (29.5% [25.5, 33.9]) · the pullback list 32 of 105 (30.5% [22.5, 39.8]). Every one of the 40 names ejected on 2026-10-09 was above the threshold: yes.
+
+Hypothesis (unmeasured): if the ≤60 unexamined names of 2026-10-09 passed like the examined names or like the universe controls, ≈4–5 would pass — which would need ≈60 more lookups, above the per-runner quota. What would answer it: logging the ranked post-DQ names (no extra request) and harvesting their availability at decision time (extra requests ⇒ owner decision).
+
 ## 5. Next permitted action
 
 - Two active gates have no supporting evidence at all — `M13_SHORT` (FINRA short volume, 40,000: no Faisal source, no owner order; Faisal's «شورت» is availability) and `STOPPED_EXCLUSION` (inherited switch). Removing or changing either changes live candidate generation ⇒ owner decision; any removal needs a preregistered measurement (the M13 tightening experiments were null).

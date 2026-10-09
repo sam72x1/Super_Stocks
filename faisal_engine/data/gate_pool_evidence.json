@@ -1,0 +1,6177 @@
+{
+ "what": "frozen point-in-time evidence for «would the next-ranked names pass the owner gates beyond the fill rounds?» — read-only",
+ "frozen_at": "2026-10-09",
+ "threshold_key": "BORROW_AVAIL_MAX",
+ "harvest": {
+  "source": "ctb_log.jsonl (ctb_harvest.py) rows dated ≤ 2026-10-09 for the cohorts that are not Faisal tickers",
+  "cohort_meaning": {
+   "control_market": "deterministic draw from the NASDAQ universe, no selection (ctb_harvest.py:17)",
+   "bot_selected": "names on the bot's list, re-harvested daily",
+   "bot_pullback": "pullback list"
+  },
+  "rows_sha256": "8929fa280a14e1b52903f864cddf055938a2cb49c62470274fb2db5a659d453d",
+  "rows": [
+   {
+    "date": "2026-08-07",
+    "symbol": "AFJK",
+    "cohort": "bot_selected",
+    "shares_available": 55000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "ALAR",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "APVO",
+    "cohort": "bot_selected",
+    "shares_available": 65000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "CMND",
+    "cohort": "bot_selected",
+    "shares_available": 5000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "CMTL",
+    "cohort": "bot_selected",
+    "shares_available": 900000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "ERNA",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "HCWB",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "IDN",
+    "cohort": "bot_selected",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "IMNN",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "IPWR",
+    "cohort": "bot_selected",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "ISPC",
+    "cohort": "bot_selected",
+    "shares_available": 4000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "KLXE",
+    "cohort": "bot_selected",
+    "shares_available": 1400000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "LENZ",
+    "cohort": "bot_selected",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 3000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 3800000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1400000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 3300000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "LBRDP",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 2500000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 900000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 5900000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-07",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 1000
+   },
+   {
+    "date": "2026-08-08",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-08-08",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 3000
+   },
+   {
+    "date": "2026-08-08",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 3400000
+   },
+   {
+    "date": "2026-08-08",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-08",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1700000
+   },
+   {
+    "date": "2026-08-08",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 1400000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "CVKD",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "EMPD",
+    "cohort": "bot_selected",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3200000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "LGHL",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "LPCN",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "QTI",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "TIL",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "VHUB",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 3900000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1600000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 5100000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1600000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "LBRDP",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 1100000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 4200000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 1100000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 4500000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 800000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-11",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "AIXI",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "ARBK",
+    "cohort": "bot_selected",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "CVKD",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3000000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "FLYE",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "LPCN",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "PLSM",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "QTI",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "TIL",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "TURB",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 3700000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 1400000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 4000000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1900000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 3500000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 4500000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 850000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-12",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "AIXI",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "ARBK",
+    "cohort": "bot_selected",
+    "shares_available": 80000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "BBLG",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "CLIK",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "CVKD",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3100000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "FEMY",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "FLYE",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "FTCI",
+    "cohort": "bot_selected",
+    "shares_available": 1900000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "LPCN",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "PRHI",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 3700000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 1600000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 4400000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1600000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "LBRDP",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 1600000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 3400000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 1100000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 4400000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 850000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-13",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "APVO",
+    "cohort": "bot_selected",
+    "shares_available": 6000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "ARBK",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "BBLG",
+    "cohort": "bot_selected",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "CALC",
+    "cohort": "bot_selected",
+    "shares_available": 3700000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "CLIK",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "CODX",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "CVKD",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3100000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "FEMY",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "FLYE",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "FTCI",
+    "cohort": "bot_selected",
+    "shares_available": 1900000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 3800000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1700000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 1600000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 5100000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1600000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "LBRDP",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 1700000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 3200000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 1100000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 3800000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 850000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-14",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 400
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "AGMH",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "ARBK",
+    "cohort": "bot_selected",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "BBLG",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 8000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "CALC",
+    "cohort": "bot_selected",
+    "shares_available": 3600000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "CLIK",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "CODX",
+    "cohort": "bot_selected",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "CTNT",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "CVKD",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3400000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "FEMY",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 4400000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1300000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 4800000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1700000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "LBRDP",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 2200000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 50000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 1100000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 4600000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 850000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-15",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 3000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "AGMH",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "ARBK",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "BBLG",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "CALC",
+    "cohort": "bot_selected",
+    "shares_available": 3500000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "CLIK",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "CODX",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "CTNT",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 2000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3300000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "FLYE",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "FTCI",
+    "cohort": "bot_selected",
+    "shares_available": 1900000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 9000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 4800000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1800000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 4500000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1700000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "LBRDP",
+    "cohort": "control_market",
+    "shares_available": 80000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 950000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 2200000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 4200000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 850000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-20",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 6000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "AGMH",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "ARBK",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "BBLG",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "CLIK",
+    "cohort": "bot_selected",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "CTNT",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3600000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "FLYE",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "FTCI",
+    "cohort": "bot_selected",
+    "shares_available": 1800000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "HTCO",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 8000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 4400000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1800000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 750000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 3500000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1700000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "LBRDP",
+    "cohort": "control_market",
+    "shares_available": 85000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 1800000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 1100000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 900000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 4700000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 950000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-21",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 8000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "AGMH",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "ARBK",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "BBLG",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "CLIK",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "CTNT",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3200000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "FLYE",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "HCWB",
+    "cohort": "bot_selected",
+    "shares_available": 3000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "AIXI",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 4200000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 2100000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 1600000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 4800000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1700000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 1400000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 4500000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 750000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-25",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 5000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "AGMH",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "ARBK",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "BBLG",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "BENF",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "CLIK",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "CTNT",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 65000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3600000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "FLYE",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "AIXI",
+    "cohort": "control_market",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 4500000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1700000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 1600000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 750000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 5200000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1700000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 2200000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 80000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 4700000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 750000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-27",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 4000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "ACLS",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "AIXI",
+    "cohort": "control_market",
+    "shares_available": 55000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "ATPC",
+    "cohort": "control_market",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "BBIO",
+    "cohort": "control_market",
+    "shares_available": 4300000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "BGDE",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "CHGA",
+    "cohort": "control_market",
+    "shares_available": 1100000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "CRMD",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "DLTH",
+    "cohort": "control_market",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "EXEL",
+    "cohort": "control_market",
+    "shares_available": 5700000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "HCIC",
+    "cohort": "control_market",
+    "shares_available": 1700000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "HFWA",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "LIDR",
+    "cohort": "control_market",
+    "shares_available": 1500000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "LKQ",
+    "cohort": "control_market",
+    "shares_available": 2500000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "LNKS",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "MIDD",
+    "cohort": "control_market",
+    "shares_available": 900000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "MVST",
+    "cohort": "control_market",
+    "shares_available": 4000000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "MWYN",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "PMCB",
+    "cohort": "control_market",
+    "shares_available": 750000
+   },
+   {
+    "date": "2026-08-28",
+    "symbol": "QQQX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-03",
+    "symbol": "AAPG",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-03",
+    "symbol": "ADAMM",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "ACTU",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "ATPC",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "BLNE",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 7000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3400000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 80000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 5000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "AAPG",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "ADAMM",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "AERT",
+    "cohort": "control_market",
+    "shares_available": 85000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "AEVA",
+    "cohort": "control_market",
+    "shares_available": 3200000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "BYFC",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "CBAT",
+    "cohort": "control_market",
+    "shares_available": 4600000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "CCEC",
+    "cohort": "control_market",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "FIZZ",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "HIHO",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "HODO",
+    "cohort": "control_market",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "LXEO",
+    "cohort": "control_market",
+    "shares_available": 3900000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "NTSK",
+    "cohort": "control_market",
+    "shares_available": 6400000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "PFX",
+    "cohort": "control_market",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "QLYS",
+    "cohort": "control_market",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "SPEG",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 4000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "STRA",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "TLX",
+    "cohort": "control_market",
+    "shares_available": 1300000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "TVIV",
+    "cohort": "control_market",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-09-19",
+    "symbol": "XNCR",
+    "cohort": "control_market",
+    "shares_available": 3900000
+   },
+   {
+    "date": "2026-09-23",
+    "symbol": "AAPG",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-23",
+    "symbol": "ADAMM",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-09-23",
+    "symbol": "AERT",
+    "cohort": "control_market",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-09-23",
+    "symbol": "AEVA",
+    "cohort": "control_market",
+    "shares_available": 2400000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "BIYA",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "BLNE",
+    "cohort": "bot_selected",
+    "shares_available": 900000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 5000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3600000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "DFSC",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "DXST",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3700000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "AAPG",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "ADAMM",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "AERT",
+    "cohort": "control_market",
+    "shares_available": 80000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "AEVA",
+    "cohort": "control_market",
+    "shares_available": 2500000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "CBAT",
+    "cohort": "control_market",
+    "shares_available": 4800000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "CCEC",
+    "cohort": "control_market",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "FIZZ",
+    "cohort": "control_market",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "HIHO",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "LXEO",
+    "cohort": "control_market",
+    "shares_available": 4000000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "NTSK",
+    "cohort": "control_market",
+    "shares_available": 2400000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "PFX",
+    "cohort": "control_market",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "QLYS",
+    "cohort": "control_market",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "SPEG",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 2000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "STRA",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "TLX",
+    "cohort": "control_market",
+    "shares_available": 1100000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "TVIV",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-09-25",
+    "symbol": "XNCR",
+    "cohort": "control_market",
+    "shares_available": 900000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "ASST",
+    "cohort": "bot_pullback",
+    "shares_available": 800000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "BDRX",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "BRNX",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "CDTG",
+    "cohort": "bot_pullback",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "CVKD",
+    "cohort": "bot_pullback",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "ENLV",
+    "cohort": "bot_pullback",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "FGL",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "GDC",
+    "cohort": "bot_pullback",
+    "shares_available": 80000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "GRML",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "HCAI",
+    "cohort": "bot_pullback",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "IPW",
+    "cohort": "bot_pullback",
+    "shares_available": 2000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "LGHL",
+    "cohort": "bot_pullback",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "MTVA",
+    "cohort": "bot_pullback",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "NXTT",
+    "cohort": "bot_pullback",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "PBM",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "SUGP",
+    "cohort": "bot_pullback",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "TGL",
+    "cohort": "bot_pullback",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "TRUG",
+    "cohort": "bot_pullback",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "VBIO",
+    "cohort": "bot_pullback",
+    "shares_available": 1000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "YDES",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "ZOOZ",
+    "cohort": "bot_pullback",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "AFJK",
+    "cohort": "bot_selected",
+    "shares_available": 60000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "BIYA",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "BLNE",
+    "cohort": "bot_selected",
+    "shares_available": 850000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3600000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "CGTL",
+    "cohort": "bot_selected",
+    "shares_available": 1000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "DFNS",
+    "cohort": "bot_selected",
+    "shares_available": 80000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "DXST",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "EFOI",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3800000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "GDHG",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "GEOS",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "GVH",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "KELYB",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "KMRK",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "LFS",
+    "cohort": "bot_selected",
+    "shares_available": 55000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "MNDR",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "MTEK",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "NNNN",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "OM",
+    "cohort": "bot_selected",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "ONMD",
+    "cohort": "bot_selected",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "PHIO",
+    "cohort": "bot_selected",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "PRHI",
+    "cohort": "bot_selected",
+    "shares_available": 50000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "PSIG",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "PTLE",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "RBNE",
+    "cohort": "bot_selected",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "RDAC",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "SCLX",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "SKYQ",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "TRON",
+    "cohort": "bot_selected",
+    "shares_available": 3300000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "UPC",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "WSHP",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "WYHG",
+    "cohort": "bot_selected",
+    "shares_available": 4000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "AAPG",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "ADAMM",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "AERT",
+    "cohort": "control_market",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "AEVA",
+    "cohort": "control_market",
+    "shares_available": 2800000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "BYFC",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "CBAT",
+    "cohort": "control_market",
+    "shares_available": 4900000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "CCEC",
+    "cohort": "control_market",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "FIZZ",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "HIHO",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "HODO",
+    "cohort": "control_market",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "LXEO",
+    "cohort": "control_market",
+    "shares_available": 4200000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "NTSK",
+    "cohort": "control_market",
+    "shares_available": 4900000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "PFX",
+    "cohort": "control_market",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "QLYS",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "SPEG",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 600
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "STRA",
+    "cohort": "control_market",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "TLX",
+    "cohort": "control_market",
+    "shares_available": 1100000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "TVIV",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-26",
+    "symbol": "XNCR",
+    "cohort": "control_market",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "BDRX",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "FCUV",
+    "cohort": "bot_pullback",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "IPW",
+    "cohort": "bot_pullback",
+    "shares_available": 60000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "SGRX",
+    "cohort": "bot_pullback",
+    "shares_available": 85000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "TGL",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "YDES",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "ADVB",
+    "cohort": "bot_selected",
+    "shares_available": 3000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "BIYA",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "BLNE",
+    "cohort": "bot_selected",
+    "shares_available": 850000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 9000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3700000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "CGTL",
+    "cohort": "bot_selected",
+    "shares_available": 2000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 4000000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "GNPX",
+    "cohort": "bot_selected",
+    "shares_available": 3000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "GVH",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "KELYB",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "KMRK",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "LFS",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "NNNN",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "ONMD",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "PHIO",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "PRHI",
+    "cohort": "bot_selected",
+    "shares_available": 50000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "PSIG",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "PTLE",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "RDAC",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "SKYQ",
+    "cohort": "bot_selected",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "SXTP",
+    "cohort": "bot_selected",
+    "shares_available": 70000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "TRON",
+    "cohort": "bot_selected",
+    "shares_available": 3100000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "UFG",
+    "cohort": "bot_selected",
+    "shares_available": 4000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "UONE",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "UPC",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "WKHS",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "WSHP",
+    "cohort": "bot_selected",
+    "shares_available": 55000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "WYHG",
+    "cohort": "bot_selected",
+    "shares_available": 6000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "AAPG",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "ADAMM",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "AERT",
+    "cohort": "control_market",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "AEVA",
+    "cohort": "control_market",
+    "shares_available": 2500000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "BYFC",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "CBAT",
+    "cohort": "control_market",
+    "shares_available": 4900000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "CCEC",
+    "cohort": "control_market",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "FIZZ",
+    "cohort": "control_market",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "HIHO",
+    "cohort": "control_market",
+    "shares_available": 65000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "HODO",
+    "cohort": "control_market",
+    "shares_available": 1300000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "LXEO",
+    "cohort": "control_market",
+    "shares_available": 4200000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "NTSK",
+    "cohort": "control_market",
+    "shares_available": 5200000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "PFX",
+    "cohort": "control_market",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "QLYS",
+    "cohort": "control_market",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "SPEG",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 3000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "STRA",
+    "cohort": "control_market",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "TLX",
+    "cohort": "control_market",
+    "shares_available": 1100000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "TVIV",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-29",
+    "symbol": "XNCR",
+    "cohort": "control_market",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "BDRX",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "FCUV",
+    "cohort": "bot_pullback",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "HCAI",
+    "cohort": "bot_pullback",
+    "shares_available": 9000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "IPW",
+    "cohort": "bot_pullback",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "SGRX",
+    "cohort": "bot_pullback",
+    "shares_available": 80000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "SUNE",
+    "cohort": "bot_pullback",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "TGL",
+    "cohort": "bot_pullback",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "YDES",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "ADVB",
+    "cohort": "bot_selected",
+    "shares_available": 7000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "BLNE",
+    "cohort": "bot_selected",
+    "shares_available": 800000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3700000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "CGTL",
+    "cohort": "bot_selected",
+    "shares_available": 6000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 4100000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "GVH",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "KELYB",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "KMRK",
+    "cohort": "bot_selected",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "LFS",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "NCRA",
+    "cohort": "bot_selected",
+    "shares_available": 1000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "NNNN",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "ONMD",
+    "cohort": "bot_selected",
+    "shares_available": 4000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "PHIO",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "PRHI",
+    "cohort": "bot_selected",
+    "shares_available": 50000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "PSIG",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "RDAC",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "SKYQ",
+    "cohort": "bot_selected",
+    "shares_available": 8000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "SXTP",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "TRON",
+    "cohort": "bot_selected",
+    "shares_available": 3200000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "UONE",
+    "cohort": "bot_selected",
+    "shares_available": 8000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "UPC",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "WKHS",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "WSHP",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "WXM",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "AAPG",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "ADAMM",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "AERT",
+    "cohort": "control_market",
+    "shares_available": 65000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "AEVA",
+    "cohort": "control_market",
+    "shares_available": 2500000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "BYFC",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "CBAT",
+    "cohort": "control_market",
+    "shares_available": 4900000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "CCEC",
+    "cohort": "control_market",
+    "shares_available": 50000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "FIZZ",
+    "cohort": "control_market",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "HIHO",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "HODO",
+    "cohort": "control_market",
+    "shares_available": 1300000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "LXEO",
+    "cohort": "control_market",
+    "shares_available": 4400000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "NTSK",
+    "cohort": "control_market",
+    "shares_available": 4800000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "PFX",
+    "cohort": "control_market",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "QLYS",
+    "cohort": "control_market",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "SPEG",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "SPHL",
+    "cohort": "control_market",
+    "shares_available": 7000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "STRA",
+    "cohort": "control_market",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "TLX",
+    "cohort": "control_market",
+    "shares_available": 1200000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "TVIV",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-09-30",
+    "symbol": "XNCR",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "BDRX",
+    "cohort": "bot_pullback",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "FCUV",
+    "cohort": "bot_pullback",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "HCAI",
+    "cohort": "bot_pullback",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "HCTI",
+    "cohort": "bot_pullback",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "IPW",
+    "cohort": "bot_pullback",
+    "shares_available": 50000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "NFE",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "SGRX",
+    "cohort": "bot_pullback",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "SUNE",
+    "cohort": "bot_pullback",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "TGL",
+    "cohort": "bot_pullback",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "YDES",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "ADVB",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 9000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 9000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3800000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "CGTL",
+    "cohort": "bot_selected",
+    "shares_available": 4000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 4100000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "GVH",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "HUCK",
+    "cohort": "bot_selected",
+    "shares_available": 5200000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "KELYB",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "KMRK",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "LFS",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "MSAI",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "NCRA",
+    "cohort": "bot_selected",
+    "shares_available": 100
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "NNNN",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "PHIO",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "PRHI",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "PSIG",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "RDAC",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "SXTP",
+    "cohort": "bot_selected",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "TRON",
+    "cohort": "bot_selected",
+    "shares_available": 3200000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "UONE",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "UPC",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "WKHS",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "WSHP",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "ACET",
+    "cohort": "control_market",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "ACRS",
+    "cohort": "control_market",
+    "shares_available": 2000000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "ADAG",
+    "cohort": "control_market",
+    "shares_available": 5500000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "AHCO",
+    "cohort": "control_market",
+    "shares_available": 1900000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "BRKRP",
+    "cohort": "control_market",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "CAAS",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "CASH",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "DFNS",
+    "cohort": "control_market",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "ELE",
+    "cohort": "control_market",
+    "shares_available": 65000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "FGII",
+    "cohort": "control_market",
+    "shares_available": 2800000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "FSBW",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "HUBG",
+    "cohort": "control_market",
+    "shares_available": 5300000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "LFTO",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "MRAM",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "NWFL",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "NWPX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "OPAL",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "VERU",
+    "cohort": "control_market",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "VRXA",
+    "cohort": "control_market",
+    "shares_available": 70000
+   },
+   {
+    "date": "2026-10-01",
+    "symbol": "WCT",
+    "cohort": "control_market",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "BDRX",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "FCUV",
+    "cohort": "bot_pullback",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "HCAI",
+    "cohort": "bot_pullback",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "HCTI",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "IPW",
+    "cohort": "bot_pullback",
+    "shares_available": 100
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "NFE",
+    "cohort": "bot_pullback",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "NXXT",
+    "cohort": "bot_pullback",
+    "shares_available": 50000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "SGRX",
+    "cohort": "bot_pullback",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "SUNE",
+    "cohort": "bot_pullback",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "TGL",
+    "cohort": "bot_pullback",
+    "shares_available": 85000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "UZX",
+    "cohort": "bot_pullback",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "YDES",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "BRAI",
+    "cohort": "bot_selected",
+    "shares_available": 1000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3600000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "CGTL",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 4100000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "GVH",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "HUCK",
+    "cohort": "bot_selected",
+    "shares_available": 5500000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "KELYB",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "KMRK",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "LFS",
+    "cohort": "bot_selected",
+    "shares_available": 70000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "MSAI",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "NNNN",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "NPT",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "PHIO",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "PRHI",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "PSIG",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "QNRX",
+    "cohort": "bot_selected",
+    "shares_available": 80000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "RDAC",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "SXTP",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "TRON",
+    "cohort": "bot_selected",
+    "shares_available": 3200000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "UPC",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "WKHS",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "WSHP",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "ACET",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "ACRS",
+    "cohort": "control_market",
+    "shares_available": 2100000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "ADAG",
+    "cohort": "control_market",
+    "shares_available": 5400000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "AHCO",
+    "cohort": "control_market",
+    "shares_available": 2100000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "BRKRP",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "CAAS",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "CASH",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "DFNS",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "ELE",
+    "cohort": "control_market",
+    "shares_available": 900000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "FGII",
+    "cohort": "control_market",
+    "shares_available": 2800000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "FSBW",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "HUBG",
+    "cohort": "control_market",
+    "shares_available": 5300000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "LFTO",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "MRAM",
+    "cohort": "control_market",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "NWFL",
+    "cohort": "control_market",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "NWPX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "OPAL",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "VERU",
+    "cohort": "control_market",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "VRXA",
+    "cohort": "control_market",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-10-02",
+    "symbol": "WCT",
+    "cohort": "control_market",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "ATCX",
+    "cohort": "bot_pullback",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "BIRD",
+    "cohort": "bot_pullback",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "CPOP",
+    "cohort": "bot_pullback",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "HCAI",
+    "cohort": "bot_pullback",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "HCTI",
+    "cohort": "bot_pullback",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "TAOP",
+    "cohort": "bot_pullback",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "TGL",
+    "cohort": "bot_pullback",
+    "shares_available": 55000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "AMIX",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3800000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "CGTL",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "CSAI",
+    "cohort": "bot_selected",
+    "shares_available": 55000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 3900000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "GVH",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "JZXN",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "KELYB",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "KMRK",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "LFS",
+    "cohort": "bot_selected",
+    "shares_available": 55000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "MOBX",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "MSAI",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "MVIS",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "NNNN",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "NTHI",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "PHIO",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "PRHI",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "PSIG",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "RDAC",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "SXTP",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "TRAW",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "TRON",
+    "cohort": "bot_selected",
+    "shares_available": 3300000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "UPC",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "WKHS",
+    "cohort": "bot_selected",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "WSHP",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "ZDAI",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "ACET",
+    "cohort": "control_market",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "ACRS",
+    "cohort": "control_market",
+    "shares_available": 1800000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "ADAG",
+    "cohort": "control_market",
+    "shares_available": 5300000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "AHCO",
+    "cohort": "control_market",
+    "shares_available": 2000000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "BRKRP",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "CAAS",
+    "cohort": "control_market",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "CASH",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "DFNS",
+    "cohort": "control_market",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "ELE",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "FGII",
+    "cohort": "control_market",
+    "shares_available": 2600000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "FSBW",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "HUBG",
+    "cohort": "control_market",
+    "shares_available": 4900000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "LFTO",
+    "cohort": "control_market",
+    "shares_available": 800000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "MRAM",
+    "cohort": "control_market",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "NWFL",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "NWPX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "OPAL",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "VERU",
+    "cohort": "control_market",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "VRXA",
+    "cohort": "control_market",
+    "shares_available": 60000
+   },
+   {
+    "date": "2026-10-03",
+    "symbol": "WCT",
+    "cohort": "control_market",
+    "shares_available": 8000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "ARTL",
+    "cohort": "bot_pullback",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "ATCX",
+    "cohort": "bot_pullback",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "BEAT",
+    "cohort": "bot_pullback",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "BIRD",
+    "cohort": "bot_pullback",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "CPOP",
+    "cohort": "bot_pullback",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "HCAI",
+    "cohort": "bot_pullback",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "HCTI",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "IPDN",
+    "cohort": "bot_pullback",
+    "shares_available": 3000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "MKDW",
+    "cohort": "bot_pullback",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "PMAX",
+    "cohort": "bot_pullback",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "TAOP",
+    "cohort": "bot_pullback",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "TGL",
+    "cohort": "bot_pullback",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "WETO",
+    "cohort": "bot_pullback",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "ADVB",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "AFJK",
+    "cohort": "bot_selected",
+    "shares_available": 70000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3500000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "CGTL",
+    "cohort": "bot_selected",
+    "shares_available": 2000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "CHR",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "CRE",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "CSAI",
+    "cohort": "bot_selected",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 4300000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 750000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "GDHG",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "GVH",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "KELYB",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "KMRK",
+    "cohort": "bot_selected",
+    "shares_available": 850000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "LFS",
+    "cohort": "bot_selected",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "METCB",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "MVIS",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "NERV",
+    "cohort": "bot_selected",
+    "shares_available": 2500000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "NIKI",
+    "cohort": "bot_selected",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "PHIO",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "PRHI",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "PSIG",
+    "cohort": "bot_selected",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "RDAC",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "SXTP",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "TRAW",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "TRON",
+    "cohort": "bot_selected",
+    "shares_available": 3500000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "UPC",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "WKHS",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "WNW",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "WSHP",
+    "cohort": "bot_selected",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "WXM",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "ZDAI",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "ACET",
+    "cohort": "control_market",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "ACRS",
+    "cohort": "control_market",
+    "shares_available": 1800000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "ADAG",
+    "cohort": "control_market",
+    "shares_available": 5500000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "AHCO",
+    "cohort": "control_market",
+    "shares_available": 2000000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "BRKRP",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "CAAS",
+    "cohort": "control_market",
+    "shares_available": 700000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "CASH",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "DFNS",
+    "cohort": "control_market",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "ELE",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "FGII",
+    "cohort": "control_market",
+    "shares_available": 2700000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "FSBW",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "HUBG",
+    "cohort": "control_market",
+    "shares_available": 4000000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "LFTO",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "MRAM",
+    "cohort": "control_market",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "NWFL",
+    "cohort": "control_market",
+    "shares_available": 85000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "NWPX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "OPAL",
+    "cohort": "control_market",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "VERU",
+    "cohort": "control_market",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "VRXA",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-07",
+    "symbol": "WCT",
+    "cohort": "control_market",
+    "shares_available": 7000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "ARTL",
+    "cohort": "bot_pullback",
+    "shares_available": 9000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "ATCX",
+    "cohort": "bot_pullback",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "BEAT",
+    "cohort": "bot_pullback",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "BIRD",
+    "cohort": "bot_pullback",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "CPOP",
+    "cohort": "bot_pullback",
+    "shares_available": 8000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "HCAI",
+    "cohort": "bot_pullback",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "HCTI",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "IPDN",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "KPLT",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "MKDW",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "PMAX",
+    "cohort": "bot_pullback",
+    "shares_available": 35000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "TAOP",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "TGL",
+    "cohort": "bot_pullback",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "WETO",
+    "cohort": "bot_pullback",
+    "shares_available": 900000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "ADVB",
+    "cohort": "bot_selected",
+    "shares_available": 7000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "AFJK",
+    "cohort": "bot_selected",
+    "shares_available": 70000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3700000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "CGTL",
+    "cohort": "bot_selected",
+    "shares_available": 4000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "CRE",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "CSAI",
+    "cohort": "bot_selected",
+    "shares_available": 80000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 4300000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "GDHG",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "GVH",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "KELYB",
+    "cohort": "bot_selected",
+    "shares_available": 3000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "KMRK",
+    "cohort": "bot_selected",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "LFS",
+    "cohort": "bot_selected",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "METCB",
+    "cohort": "bot_selected",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "MVIS",
+    "cohort": "bot_selected",
+    "shares_available": 1000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "NERV",
+    "cohort": "bot_selected",
+    "shares_available": 2400000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "NIKI",
+    "cohort": "bot_selected",
+    "shares_available": 70000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "PLCE",
+    "cohort": "bot_selected",
+    "shares_available": 65000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "PRHI",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "PSIG",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "RDAC",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "SXTP",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "TRAW",
+    "cohort": "bot_selected",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "TRON",
+    "cohort": "bot_selected",
+    "shares_available": 3500000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "TVGN",
+    "cohort": "bot_selected",
+    "shares_available": 9000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "UPC",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "WKHS",
+    "cohort": "bot_selected",
+    "shares_available": 6000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "WNW",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "WSHP",
+    "cohort": "bot_selected",
+    "shares_available": 50000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "ACET",
+    "cohort": "control_market",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "ACRS",
+    "cohort": "control_market",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "ADAG",
+    "cohort": "control_market",
+    "shares_available": 5200000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "AHCO",
+    "cohort": "control_market",
+    "shares_available": 2100000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "BRKRP",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "CAAS",
+    "cohort": "control_market",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "CASH",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "DFNS",
+    "cohort": "control_market",
+    "shares_available": 50000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "ELE",
+    "cohort": "control_market",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "FGII",
+    "cohort": "control_market",
+    "shares_available": 2600000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "FSBW",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "HUBG",
+    "cohort": "control_market",
+    "shares_available": 4100000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "LFTO",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "MRAM",
+    "cohort": "control_market",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "NWFL",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "NWPX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "OPAL",
+    "cohort": "control_market",
+    "shares_available": 2000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "VERU",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "VRXA",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-08",
+    "symbol": "WCT",
+    "cohort": "control_market",
+    "shares_available": 32
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "ARTL",
+    "cohort": "bot_pullback",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "ATCX",
+    "cohort": "bot_pullback",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "BEAT",
+    "cohort": "bot_pullback",
+    "shares_available": 800000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "BIRD",
+    "cohort": "bot_pullback",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "CPOP",
+    "cohort": "bot_pullback",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "HCAI",
+    "cohort": "bot_pullback",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "HCTI",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "IPDN",
+    "cohort": "bot_pullback",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "KPLT",
+    "cohort": "bot_pullback",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "MKDW",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "PMAX",
+    "cohort": "bot_pullback",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "TAOP",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "TGL",
+    "cohort": "bot_pullback",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "WETO",
+    "cohort": "bot_pullback",
+    "shares_available": 1000000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "AFJK",
+    "cohort": "bot_selected",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "BCTX",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "BNR",
+    "cohort": "bot_selected",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "BTCS",
+    "cohort": "bot_selected",
+    "shares_available": 3400000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "CELU",
+    "cohort": "bot_selected",
+    "shares_available": 300000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "CGTL",
+    "cohort": "bot_selected",
+    "shares_available": 5000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "CRE",
+    "cohort": "bot_selected",
+    "shares_available": 9000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "CRVO",
+    "cohort": "bot_selected",
+    "shares_available": 800000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "CSAI",
+    "cohort": "bot_selected",
+    "shares_available": 95000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "CURX",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "ENGN",
+    "cohort": "bot_selected",
+    "shares_available": 4600000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "FUFU",
+    "cohort": "bot_selected",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "GDHG",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "GVH",
+    "cohort": "bot_selected",
+    "shares_available": 350000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "KELYB",
+    "cohort": "bot_selected",
+    "shares_available": 10000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "KMRK",
+    "cohort": "bot_selected",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "LFS",
+    "cohort": "bot_selected",
+    "shares_available": 70000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "METCB",
+    "cohort": "bot_selected",
+    "shares_available": 600000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "MVIS",
+    "cohort": "bot_selected",
+    "shares_available": 0
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "NERV",
+    "cohort": "bot_selected",
+    "shares_available": 2300000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "NIKI",
+    "cohort": "bot_selected",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "NUWE",
+    "cohort": "bot_selected",
+    "shares_available": 75000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "PLCE",
+    "cohort": "bot_selected",
+    "shares_available": 40000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "PRHI",
+    "cohort": "bot_selected",
+    "shares_available": 30000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "PSIG",
+    "cohort": "bot_selected",
+    "shares_available": 45000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "RDAC",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "SXTP",
+    "cohort": "bot_selected",
+    "shares_available": 85000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "TVGN",
+    "cohort": "bot_selected",
+    "shares_available": 15000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "UPC",
+    "cohort": "bot_selected",
+    "shares_available": 25000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "WKHS",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "WNW",
+    "cohort": "bot_selected",
+    "shares_available": 20000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "WSHP",
+    "cohort": "bot_selected",
+    "shares_available": 65000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "ACET",
+    "cohort": "control_market",
+    "shares_available": 500000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "ACRS",
+    "cohort": "control_market",
+    "shares_available": 1200000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "ADAG",
+    "cohort": "control_market",
+    "shares_available": 5500000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "AHCO",
+    "cohort": "control_market",
+    "shares_available": 2300000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "BRKRP",
+    "cohort": "control_market",
+    "shares_available": 150000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "CAAS",
+    "cohort": "control_market",
+    "shares_available": 650000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "CASH",
+    "cohort": "control_market",
+    "shares_available": 250000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "DFNS",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "ELE",
+    "cohort": "control_market",
+    "shares_available": 400000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "FGII",
+    "cohort": "control_market",
+    "shares_available": 2700000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "FSBW",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "HUBG",
+    "cohort": "control_market",
+    "shares_available": 4100000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "LFTO",
+    "cohort": "control_market",
+    "shares_available": 800000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "MRAM",
+    "cohort": "control_market",
+    "shares_available": 450000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "NWFL",
+    "cohort": "control_market",
+    "shares_available": 90000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "NWPX",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "OPAL",
+    "cohort": "control_market",
+    "shares_available": 100000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "VERU",
+    "cohort": "control_market",
+    "shares_available": 550000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "VRXA",
+    "cohort": "control_market",
+    "shares_available": 200000
+   },
+   {
+    "date": "2026-10-09",
+    "symbol": "WCT",
+    "cohort": "control_market",
+    "shares_available": 6000
+   }
+  ]
+ },
+ "run_2026_10_09": {
+  "run_id": "37902530011",
+  "job_id": "113728168409",
+  "qualified": 109,
+  "after_dq": 104,
+  "free_slots": 12,
+  "rounds": 4,
+  "added": [
+   "JEM",
+   "SEV",
+   "NNE",
+   "BRAI"
+  ],
+  "borrow_ejected": [
+   {
+    "symbol": "ANPA",
+    "shares_available": 45000
+   },
+   {
+    "symbol": "TOYO",
+    "shares_available": 850000
+   },
+   {
+    "symbol": "HERE",
+    "shares_available": 2100000
+   },
+   {
+    "symbol": "MRM",
+    "shares_available": 200000
+   },
+   {
+    "symbol": "AURE",
+    "shares_available": 800000
+   },
+   {
+    "symbol": "SKYQ",
+    "shares_available": 100000
+   },
+   {
+    "symbol": "GURE",
+    "shares_available": 70000
+   },
+   {
+    "symbol": "ATPC",
+    "shares_available": 30000
+   },
+   {
+    "symbol": "FGC",
+    "shares_available": 75000
+   },
+   {
+    "symbol": "ATXG",
+    "shares_available": 85000
+   },
+   {
+    "symbol": "AIRS",
+    "shares_available": 8200000
+   },
+   {
+    "symbol": "FRMM",
+    "shares_available": 350000
+   },
+   {
+    "symbol": "IXHL",
+    "shares_available": 500000
+   },
+   {
+    "symbol": "WLDS",
+    "shares_available": 250000
+   },
+   {
+    "symbol": "ACXP",
+    "shares_available": 200000
+   },
+   {
+    "symbol": "POLA",
+    "shares_available": 250000
+   },
+   {
+    "symbol": "AEC",
+    "shares_available": 100000
+   },
+   {
+    "symbol": "CDIO",
+    "shares_available": 100000
+   },
+   {
+    "symbol": "ACON",
+    "shares_available": 500000
+   },
+   {
+    "symbol": "MKZR",
+    "shares_available": 75000
+   },
+   {
+    "symbol": "GAUZ",
+    "shares_available": 35000
+   },
+   {
+    "symbol": "ASPC",
+    "shares_available": 100000
+   },
+   {
+    "symbol": "AARD",
+    "shares_available": 350000
+   },
+   {
+    "symbol": "JSPR",
+    "shares_available": 25000
+   },
+   {
+    "symbol": "MPLT",
+    "shares_available": 550000
+   },
+   {
+    "symbol": "FEMY",
+    "shares_available": 400000
+   },
+   {
+    "symbol": "DRMA",
+    "shares_available": 150000
+   },
+   {
+    "symbol": "AZI",
+    "shares_available": 60000
+   },
+   {
+    "symbol": "PAVM",
+    "shares_available": 550000
+   },
+   {
+    "symbol": "CTXR",
+    "shares_available": 90000
+   },
+   {
+    "symbol": "PRFX",
+    "shares_available": 200000
+   },
+   {
+    "symbol": "MB",
+    "shares_available": 100000
+   },
+   {
+    "symbol": "SCWO",
+    "shares_available": 300000
+   },
+   {
+    "symbol": "TRNR",
+    "shares_available": 75000
+   },
+   {
+    "symbol": "ICON",
+    "shares_available": 400000
+   },
+   {
+    "symbol": "BIOA",
+    "shares_available": 1200000
+   },
+   {
+    "symbol": "LSTA",
+    "shares_available": 600000
+   },
+   {
+    "symbol": "QNRX",
+    "shares_available": 80000
+   },
+   {
+    "symbol": "SSII",
+    "shares_available": 750000
+   },
+   {
+    "symbol": "ABTC",
+    "shares_available": 200000
+   }
+  ],
+  "log_line": "🎯 تعبئةُ الخانات: 4 من 12 بعد 4 جولة — نقصَ 8 (نفدت البِركة أو انتهت الجولات)"
+ },
+ "pool_names_logged": false,
+ "why_not_logged": "the screener logs the qualified count (109) and the post-DQ count (104) but not the ranked names; only examined names appear (added, or ejected with their availability)"
+}

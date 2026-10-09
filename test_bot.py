@@ -85382,6 +85382,37 @@ except Exception as _e:                                    # noqa: BLE001
     _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🚪⚖️ GPA7: المنشأُ والتسويغُ والدورُ والأمانةُ لا يحلّ أحدُها محلّ الآخر — وحالاتُها مُشتقّةٌ من أدلّتها", _ok, _w)
 
+# GPA8 — §7 «هل يجتاز المرتَّبون بعد الجولات بوّاباتِ المالك؟» يُجاب من بياناتٍ نقطيّة مجمَّدة: «غيرُ قابلٍ للتحديد» ما دامت
+#         أسماءُ البِركة المرتَّبة ومتاحُها وقتَ القرار غائبةً · والأعدادُ تُعاد مستقلّةً من الملفّين · والمتاحُ المجهول لا يُعدّ ناجحًا
+try:
+    _sp8 = _ga_iu.spec_from_file_location("_ga8_audit", _os_hc.path.join(_gp_root, "faisal_engine", "gate_audit.py"))
+    _GA8 = _ga_iu.module_from_spec(_sp8)
+    _sp8.loader.exec_module(_GA8)
+    _ev8 = _gp_json.load(open(_os_hc.path.join(_gp_root, "faisal_engine", "data", "gate_pool_evidence.json"), encoding="utf-8"))
+    _ob8 = _gp_json.load(open(_os_hc.path.join(_gp_root, "faisal_engine", "data", "gate_fill_observations.json"), encoding="utf-8"))
+    _inv8 = _gp_json.load(open(_os_hc.path.join(_gp_root, "faisal_engine", "out", "GATE_INVENTORY.json"), encoding="utf-8"))
+    _md8 = open(_os_hc.path.join(_gp_root, "faisal_engine", "GATE_PROVENANCE_REPORT.md"), encoding="utf-8").read()
+    _pq8 = _inv8["summary"]["pool_question"]
+    _rows8 = _ev8["harvest"]["rows"]
+    _ctl = [r for r in _rows8 if r["cohort"] == "control_market" and r.get("shares_available") is not None]
+    _k8 = sum(1 for r in _ctl if float(r["shares_available"]) <= 20_000)
+    _ex8 = sum(o["filled"] + o["borrow_ejected"] + o["fl_ejected"] for o in _ob8["runs"])
+    _fi8 = sum(o["filled"] for o in _ob8["runs"])
+    _sec8 = _md8.split("## 4c.")[1].split("\n## ")[0] if "## 4c." in _md8 else ""
+    _syn = [{"cohort": "c", "shares_available": None}, {"cohort": "c", "shares_available": 20_000},
+            {"cohort": "c", "shares_available": 20_001}, {"cohort": "x", "shares_available": 1}]
+    _ok = (_GA8.pass_rate(_syn, "c", 20_000) == (1, 2, 1)
+           and _pq8["determinable"] is False and _ev8["pool_names_logged"] is False and _pq8["rows_sha_ok"]
+           and (_pq8["cohorts"]["control_market"]["k"], _pq8["cohorts"]["control_market"]["n"]) == (_k8, len(_ctl))
+           and (_pq8["examined"]["k"], _pq8["examined"]["n"]) == (_fi8, _ex8)
+           and "**Answer: NOT DETERMINABLE from existing point-in-time data.**" in _sec8 and "`shares_available`" in _sec8
+           and "**by name**" in _sec8 and f"{_k8} of {len(_ctl)}" in _sec8 and f"{_fi8} of {_ex8}" in _sec8
+           and "Hypothesis (unmeasured)" in _sec8)
+    _w = f"ctl={_k8}/{len(_ctl)} ex={_fi8}/{_ex8} det={_pq8.get('determinable')}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪⚖️ GPA8: «هل يملأ المرتَّبون بعد الجولات الخانات؟» غيرُ قابلٍ للتحديد ببيانات اليوم ويُسمّى الحقلُ الناقص — والمجهولُ لا يُعدّ ناجحًا", _ok, _w)
+
 # 🧩 GPS0-GPS10 — طبقاتُ الحكم الخمس في الفحص اليدويّ وفحص اليد (متابعةُ #598 · 2026-10-09): فعلُ فيصل · مرحلةُ المصدر ·
 #    التقييمُ الفنيّ · أهليّةُ سياسة المالك · قابليّةُ التنفيذ — لا تحلّ إحداها محلّ الأخرى · والمجهولُ مجهولٌ لا صفر ·
 #    ورفضُ المالك ليس رفضًا من المنهج · و«جاهز» الفنيّ ليس دخولًا. عرضٌ فقط: حكمُ الإنتاج (`post_enrich_verdict`) لم يتغيّر.

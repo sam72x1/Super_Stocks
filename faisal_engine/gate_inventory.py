@@ -553,11 +553,53 @@ def build():
                "inputs": {"provenance_sha256": _sha(PROV), "snapshot_sha256": (_sha(SNAP) if snap else ""),
                           "rank_bars_sha256": _sha(os.path.join(DATA, "rank", "bars.json.gz")),
                           "rank_rows_sha256": _sha(os.path.join(DATA, "rank", "rows.csv.gz"))}}
+    summary["pool_question"] = pool_question(S)
+    if summary["pool_question"] and not summary["pool_question"]["rows_sha_ok"]:
+        errors.append("gate_pool_evidence.json: rows_sha256 does not match its rows")
     inv = {"schema": 2, "summary": summary, "categories": CATS, "legacy_label": prov.get("legacy_label", ""),
            "audit_vocab": {"origin": GA.ORIGIN, "justification": GA.JUSTIFICATION, "impl_role": GA.IMPL_ROLE, "fidelity": GA.FIDELITY,
                            "number_origin": GA.NUMBER_ORIGIN, "evidence_kinds": GA.KINDS},
            "evidence_registry": reg, "gates": gates}
     return inv, fx
+
+
+def _wilson(k, n, z=1.96):
+    if not n:
+        return None, None
+    p = k / n
+    d = 1 + z * z / n
+    c = (p + z * z / (2 * n)) / d
+    h = z * ((p * (1 - p) / n + z * z / (4 * n * n)) ** 0.5) / d
+    return round(100 * (c - h), 1), round(100 * (c + h), 1)
+
+
+def pool_question(S):
+    """§7 of the owner follow-up: would the next-ranked names beyond the fill rounds pass the owner gates? Read-only, from the
+    frozen point-in-time evidence (`data/gate_pool_evidence.json` · `data/gate_fill_observations.json`). Unknown availability is
+    never counted as passing; the answer is NOT DETERMINABLE unless the ranked names and their availability exist."""
+    pe = os.path.join(DATA, "gate_pool_evidence.json")
+    fo = os.path.join(DATA, "gate_fill_observations.json")
+    if not (os.path.exists(pe) and os.path.exists(fo)):
+        return None
+    ev = json.load(open(pe, encoding="utf-8"))
+    obs = json.load(open(fo, encoding="utf-8"))
+    thr = float(S.CONFIG.get(ev["threshold_key"]))
+    rows = ev["harvest"]["rows"]
+    sha = hashlib.sha256(json.dumps(rows, ensure_ascii=False, sort_keys=True).encode()).hexdigest()
+    coh = {}
+    for c in ("control_market", "bot_selected", "bot_pullback"):
+        k, n, unk = GA.pass_rate(rows, c, thr)
+        coh[c] = {"k": k, "n": n, "ci": _wilson(k, n), "unknown": unk}
+    ex = sum(o["filled"] + o["borrow_ejected"] + o["fl_ejected"] for o in obs["runs"])
+    fill = sum(o["filled"] for o in obs["runs"])
+    r9 = ev["run_2026_10_09"]
+    ex9 = len(r9["added"]) + len(r9["borrow_ejected"])
+    return {"threshold": thr, "rows_sha_ok": sha == ev["harvest"]["rows_sha256"], "cohorts": coh,
+            "examined": {"k": fill, "n": ex, "ci": _wilson(fill, ex)},
+            "run_1009": {"after_dq": r9["after_dq"], "examined": ex9, "unexamined_le": r9["after_dq"] - ex9,
+                         "ejected_n": len(r9["borrow_ejected"]),
+                         "ejected_all_above": all(float(x["shares_available"]) > thr for x in r9["borrow_ejected"])},
+            "determinable": bool(ev.get("pool_names_logged")), "why_not_logged": ev["why_not_logged"]}
 
 
 def _count(it):
@@ -756,6 +798,30 @@ def report(inv, fx):
         L += ["", f"Over these runs {tot_fill} of {tot_free} free slots were filled; the borrow gate ejected {ej} of {exs} examined "
               f"({100.0 * ej / exs:.0f}%), and every run stopped at the rounds cap with qualified names unexamined (the «unexamined» "
               "column is an upper bound: names already held or stopped are excluded too). Why these days: " + obs["why_these_days"] + ".", ""]
+    pq = sm.get("pool_question")
+    if pq:
+        c, e, r9 = pq["cohorts"], pq["examined"], pq["run_1009"]
+
+        def kn(x):
+            return f"{x['k']} of {x['n']} ({100.0 * x['k'] / x['n']:.1f}% [{x['ci'][0]}, {x['ci'][1]}])"
+        lo9, hi9 = r9["unexamined_le"] * e["k"] / e["n"], r9["unexamined_le"] * c["control_market"]["k"] / c["control_market"]["n"]
+        L += ["## 4c. Would the next-ranked names pass the owner gates beyond the fill rounds? (read-only · existing point-in-time data)", "",
+              ("**Answer: NOT DETERMINABLE from existing point-in-time data.** " if not pq["determinable"] else "**Answer: determinable.** ")
+              + "Missing fields: ① the ranked post-DQ pool **by name** beyond the examined names — " + pq["why_not_logged"]
+              + f" (2026-10-09: after DQ {r9['after_dq']} · examined {r9['examined']} · at most {r9['unexamined_le']} never examined); "
+              "② `shares_available` **at decision time** for those names — never looked up (the rounds cap ends the lookups and "
+              "ChartExchange serves ≈50 pages per runner) and not collected for them elsewhere: the harvest cohorts are the list, "
+              "the pullback list, Faisal tickers and 20 random universe controls a day, and the Phase 6 ledger holds Faisal tickers "
+              "and anchor-wall controls — a pool name could appear there only by chance, and without ① no match can be made. An "
+              "unknown availability is not counted as passing.", "",
+              f"Context, not an answer (borrow threshold {pq['threshold']:,.0f}): examined fill candidates passed {kn(e)} over the three "
+              f"post-fix runs · the universe control cohort {kn(c['control_market'])} · names already on the list {kn(c['bot_selected'])} · "
+              f"the pullback list {kn(c['bot_pullback'])}. Every one of the {r9['ejected_n']} names ejected on 2026-10-09 was above the "
+              f"threshold: {'yes' if r9['ejected_all_above'] else 'NO'}.", "",
+              f"Hypothesis (unmeasured): if the ≤{r9['unexamined_le']} unexamined names of 2026-10-09 passed like the examined names or "
+              f"like the universe controls, ≈{lo9:.0f}–{hi9:.0f} would pass — which would need ≈{r9['unexamined_le']} more lookups, "
+              "above the per-runner quota. What would answer it: logging the ranked post-DQ names (no extra request) and harvesting "
+              "their availability at decision time (extra requests ⇒ owner decision).", ""]
     L += ["## 5. Next permitted action", "",
           "- Two active gates have no supporting evidence at all — `M13_SHORT` (FINRA short volume, 40,000: no Faisal source, no owner "
           "order; Faisal's «شورت» is availability) and `STOPPED_EXCLUSION` (inherited switch). Removing or changing either changes live "
