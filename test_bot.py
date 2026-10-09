@@ -83443,6 +83443,25 @@ except Exception as _e:                                                    # noq
 check("🔎🧭⑥ P6C12 الـworkflow: صلاحيّاتٌ معلنة · كرونٌ واحد `41 2 * * 2-6` · بلا سرّ تلغرام · يلتزم مجلّدَي phase6 وحدَهما · والخامُّ في runner.temp · ويتحقّق من السلسلة بعد الجمع",
       _p6c12, _p6c12w)
 
+# P6C13 ChartExchange quota rotation across runs
+try:
+    _L13 = P6.Ledger(_p6os.path.join(_p6_dir, "c13.jsonl"))
+    _att13 = []
+    _f13 = _p6_fetchers(ce_borrow=lambda s: (_att13.append(s), ({"shares_available": 5, "borrow_fee": 1.0}, {}))[1])
+    _C13a = P6.Collector(_L13, _f13, "c13a", now=_P6_NOW, raw_dir=_p6os.path.join(_p6_dir, "raw"), ce_quota=1, log=lambda *a: None)
+    _C13a.run(["DKI", "SXTC"], resume=False)
+    _C13b = P6.Collector(_L13, _f13, "c13b", now=_P6_NOW + _p6dt.timedelta(days=1), raw_dir=_p6os.path.join(_p6_dir, "raw"), ce_quota=1, log=lambda *a: None)
+    _C13b.run(["DKI", "SXTC"], resume=False)
+    _C13c = P6.Collector(_L13, _f13, "c13c", now=_P6_NOW + _p6dt.timedelta(days=2), raw_dir=_p6os.path.join(_p6_dir, "raw"), ce_quota=1, log=lambda *a: None)
+    _C13c.run(["DKI", "SXTC"], resume=False)
+    _na13 = [r["ticker"] for r in _L13.rows if r["field"] == "borrow_available" and r["status"] == "NOT_ATTEMPTED"]
+    _p6c13 = _att13 == ["DKI", "SXTC", "DKI"] and _na13 == ["SXTC", "DKI", "SXTC"]
+    _p6c13w = f"attempted={_att13} · not_attempted={_na13}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c13, _p6c13w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C13 حصّةُ ChartExchange تدور بين التشغيلات: مَن لم يُحاوَل أوّلًا ثمّ الأقدمُ نجاحًا — فلا يبقى 41 من 89 خارج الحصّة كلَّ يوم (تشغيلةُ 37884481989)",
+      _p6c13, _p6c13w)
+
 # P6T1 trace: deterministic and cwd-independent (subprocess from a temp cwd; output to a temp dir) ⟵ identical to the committed summary
 try:
     _out_t1 = _p6os.path.join(_p6_dir, "trace_out")

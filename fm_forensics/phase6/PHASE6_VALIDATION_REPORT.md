@@ -17,9 +17,10 @@ Mutation round (each mutation applied to a copy, suite lock expected to fail, fi
 
 ## 3. Isolated suite / CI
 - Isolated suite (git worktree at `799a0cd`, `python3 test_bot.py`): 5284 pass · 0 fail (16 new locks included)
-- PR CI: tests __CI_T__ · lint __CI_L__ · PR #__PR__ merged `__SHA__`
-- CI on `main` after merge: __MAIN__
-- First live collector run on Actions: __RUN__
+- PR #584 CI (head `b6050ca5`): tests `113669701156` / `113669606050` · lint `113669700658` — merged `e09ec830`
+- CI on `main` (`e09ec830`): tests `113671272739` · lint `113671272879` ✅
+- First live collector run on Actions: `37884481989` (6 min 10 s): 89 tickers · 33,569 rows · OK 33,321 · UNKNOWN 153 · FAILED 8 · NOT_ATTEMPTED 87 · audit gaps 0 · chain problems 0 · raw artifact 426 files (1.6 MB) · committed `7f7e549` (ledger 31 MB, dominated by 30,457 SEC filing rows — a one-time backfill; later runs add only new events and ≈ 9 snapshot rows per ticker).
+  Live findings acted on: (a) ChartExchange quota hit after 48 tickers in alphabetical order (41 `NOT_ATTEMPTED`) → quota rotation by last attempt (`borrow_order`, lock `P6C13`, mutation caught); (b) filings backfill capped at `SEC_FILINGS_SINCE=2025-01-01` for tickers not yet in the ledger (existing rows are kept — nothing deleted). Observed but not "fixed": 5 of 48 borrow rows are explicit provider zeros (BTOG, HWH, IPDN, JAGX, KWM); OTC-listed SBDS/WORX carry short-interest as-of 2026-03-31 (`STALE_ASOF`); STKH Yahoo float 6.9 B shares (recorded as reported, snapshot); KWM/QMMM not in the SEC CIK map (`security_id` UNKNOWN).
 
 ## 4. Collector offline validation (injected providers, lock fixtures)
 Run with two tickers: 22 rows (OK 11 · UNKNOWN 10 · NOT_ATTEMPTED 1; categories 1:6 · 2:5 · 4:11); re-run same day with and
@@ -46,7 +47,9 @@ first Actions run (§3).
 | 14 | workflow cron changed | P6C12 | caught |
 | 15 | document summary row edited | P6T3 | caught |
 
-14/15 caught by a named lock; the one survivor is a non-behavioural redundancy, documented rather than "fixed" by weakening the ledger.
+| 16 | borrow quota order reverted to alphabetical | P6C13 | caught |
+
+15/16 caught by a named lock; the one survivor is a non-behavioural redundancy, documented rather than "fixed" by weakening the ledger.
 
 ## 6. Adversarial review — ten perspectives
 1. **Collector storing current values as historical** — prevented structurally: CAT 2 requires a provider as-of (`schema_problems`), CAT 1 carries `asof_basis=COLLECTION`, and `evidence_class(rec, T)` returns 3 for any as-of after T; `P6C6` includes the mislabel mutation. Residual: the SEC `dei` "end" date is a fiscal period end — it is historical, but it describes the period, not the mention day (documented in the spec).
