@@ -74,3 +74,5 @@ faisal_method_v4/out/
 !fm_forensics/phase6/data/*.csv
 !fm_forensics/phase6/out/*.csv
 fm_forensics/phase6/raw/
+# 🎯 (2026-10-09) جداولُ تجربة الأداء (`fm_forensics/perf/out/`) — صفوفُ المقارنة وضوابطُها
+!fm_forensics/perf/out/*.csv

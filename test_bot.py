@@ -83527,6 +83527,32 @@ check("🔎🧭⑥ P6T4 التتبّعُ لا يكتب إلّا ملفّاتِه
 _p6sh.rmtree(_p6_dir, ignore_errors=True)
 _p6os.chdir(_p6_cwd)
 
+
+# ═════ 🎯 PERFORMANCE EXPERIMENT — تجربةُ الأداء المسجَّلة مسبقًا (2026-10-09 · بحثٌ فقط) ═════
+print("\n=== 🎯 PERF: verdict integrity ===")
+try:
+    import ast as _pxast
+    import json as _pxjson
+    _px_res = _pxjson.load(open("fm_forensics/perf/out/perf_results.json", encoding="utf-8"))
+    _px_md = open("fm_forensics/perf/PERFORMANCE_VERDICT.md", encoding="utf-8").read()
+    _px_src = open("fm_forensics/perf/perf.py", encoding="utf-8").read()
+    _px_calls = {_pxast.unparse(n.func) for n in _pxast.walk(_pxast.parse(_px_src)) if isinstance(n, _pxast.Call)}
+    _px_assign = [_pxast.unparse(n.targets[0]) for n in _pxast.walk(_pxast.parse(_px_src)) if isinstance(n, _pxast.Assign)]
+    _px_rules = _px_res["acceptance"]
+    _px1 = (_px_res["verdict"] == "C. NO DEMONSTRATED IMPROVEMENT" and _px_md.lstrip("# \n").startswith("PERFORMANCE VERDICT")
+            and "## C. NO DEMONSTRATED IMPROVEMENT" in _px_md and "→ NO." in _px_md
+            and not _px_rules["1_LR_B>=2xLR_A_discovery"] and not _px_rules["1_LR_B>=2xLR_A_validation"]
+            and not _px_rules["6_B_beats_BASE2_LR_discovery"] and not _px_rules["6_B_beats_BASE2_LR_validation"]
+            and _px_res["summary"]["discovery"]["A_recall_sec"] == "0/22" and _px_res["summary"]["validation"]["A_recall_sec"] == "2/16"
+            and _px_res["summary"]["discovery"]["A_ctrl_rate"] == "15/88" and _px_res["summary"]["validation"]["A_ctrl_rate"] == "15/64"
+            and not any(c in _px_calls for c in ("send_telegram", "git_save", "S.send_telegram", "P.S.send_telegram", "L.S.send_telegram", "save_watchlist"))
+            and not any("CONFIG" in a for a in _px_assign) and "save_extra" not in _px_calls and "P.save_extra" not in _px_calls)
+    _px1w = f"verdict={_px_res['verdict']} · A={_px_res['summary']['discovery']['A_recall_sec']}/{_px_res['summary']['validation']['A_recall_sec']}"
+except Exception as _e:                                                    # noqa: BLE001
+    _px1, _px1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎯 PX1 حكمُ تجربة الأداء = JSON النتائج (C · القواعد 1 و6 ساقطةٌ في المجموعتين · أرقامُ الأساس A 0/22 · 2/16 · 15/88 · 15/64) · والسكربتُ بلا تلغرام ولا حفظٍ ولا إسناد CONFIG",
+      _px1, _px1w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

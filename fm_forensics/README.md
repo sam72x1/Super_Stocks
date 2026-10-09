@@ -94,3 +94,7 @@ downstream ever ran. Root-cause matrix H1–H7 in `PHASE6_ROOT_CAUSE_MATRIX.md`;
 CI, 10-perspective adversarial review) in `PHASE6_VALIDATION_REPORT.md`. Baseline manifest written first: `PHASE6_BASELINE.md`.
 Found and fixed in Phase 6 tooling only: the catalog envelope loads relative to the working directory (scripts now `chdir`
 to the repo root and force `FAISAL_ONLY=1`; lock `P6T1`/`P6T4`). Locks `P6T1`–`P6T4`.
+
+## Performance experiment — one preregistered comparison (2026-10-09 · `perf/`)
+
+Question: can the frozen Phase 4 architecture B (anchor rule moved from admission to the alert stage, name held from its first touch) identify Faisal-selected securities before his dated decision better than the frozen bot, without more false alerts? Prereg merged first (PR #586). Result on the frozen split (22 / 16 securities, 88 / 64 matched control-days): at the common alert stage B equals A (recall 1/22 vs 0/22, 2/16 vs 2/16; LR 0.44 / 1.14 vs 0 / 0.53; control flags 10% vs 17–23%); B's observation pool flags 100% of controls; the simple two-condition screen (RSI < 33 ∧ drop ≥ 70%) has the highest LR (0.91 / 2.00) yet ≤ 31% recall. Acceptance rules 1, 2, 6 fail in both sets ⇒ **C. NO DEMONSTRATED IMPROVEMENT** (`PERFORMANCE_VERDICT.md`; baseline, comparison and first-divergence reports alongside). Exploratory guard: 45–88% of Faisal's names were bot candidates at some day within 60 sessions before his decision — but so were 84–90% of matched controls. No production change; lock `PX1`.
