@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """🧭🏁 rank_eval — تقييمُ المرتِّب حرفًا بعقد RANKING_PROTOCOL.md (مدموجٌ قبل أيّ ترتيب). قراءةٌ فقط · لا إنتاج · لا تلغرام.
 
-المدخلات: data/rank/rows.csv.gz (إعادةُ بناء الكون على رنر) · data/universe_manifest.json (الجدرانُ المخزَّنة) · weekly_watchlist.json
+المدخلات: data/rank/rows.csv.gz (إعادةُ بناء الكون على رنر) · data/universe_manifest.json (الجدرانُ المخزَّنة) · data/rank/reject_stats.json (لقطةُ reject_stats عند #592)
 (reject_stats) · fm_forensics/phase3/FAISAL_TIMELINE.csv (الوحداتُ الموثَّقة) · out/universe_stages.csv (للاتّساق مع الاختبار السابق).
 المخرجات: out/rank_summary.json · out/rank_cases.csv · out/rank_units.csv · out/rank_daily.csv · out/rank_fidelity.csv ·
 out/rank_failures.csv · out/rank_anchor_cases.csv · out/rank_top108_<v>.csv.gz · RANKING_RESULT.md
@@ -64,7 +64,8 @@ def load():
     man = json.load(open(os.path.join(DATA, "manifest.json"), encoding="utf-8"))
     uni = json.load(open(os.path.join(DATA, "universe.json"), encoding="utf-8"))
     umf = json.load(open(os.path.join(HERE, "data", "universe_manifest.json"), encoding="utf-8"))
-    wl = json.load(open(os.path.join(ROOT, "weekly_watchlist.json"), encoding="utf-8"))
+    # لقطةٌ مجمَّدة من reject_stats (الإنتاجُ يحفظ 56 يومًا متدحرجة ⟵ القراءةُ الحيّة كانت ستُسقط تواريخَ الأمانة يومًا بعد يوم)
+    wl = {"reject_stats": json.load(open(os.path.join(DATA, "reject_stats.json"), encoding="utf-8"))["reject_stats"]}
     return rows, man, uni, umf, wl
 
 
