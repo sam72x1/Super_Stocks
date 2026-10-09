@@ -84351,6 +84351,191 @@ if _FR is not None and _RE is not None:
 else:
     check("🧭🏁 RNK15: `rank_eval.py` يُستورَد (شرطُ أقفال RNK8-RNK14 وRNK16)", False, str(_re_err)[:120])
 
+# 🧭🗂️ STG1-STG14 — «STAGE SEMANTICS RECONSTRUCTION» (2026-10-09): سجلُّ الأحداث المصدريّ `faisal_engine/stage_ledger.py`.
+#    الوسمُ الخامّ نصٌّ حرفيٌّ لا يُترجَم إلى مرحلة محرّك · القائمةُ ليست جاهزيّة · التبويبُ لا يُثبت محتوى غيره · المجهولُ UNKNOWN ·
+#    الطابعُ من المصدر لا من رقم الملفّ · المرصودُ والمستنتَجُ حقلان · حتميّ · وكلُّ وسمٍ يعود إلى مصدره.
+import ast as _ss_ast, csv as _ss_csv, hashlib as _ss_hash, importlib as _ss_imp, json as _ss_json, os as _ss_os, sys as _ss_sys
+_ss_dir = _ss_os.path.join(_ss_os.path.dirname(_ss_os.path.abspath(__file__)), "faisal_engine")
+try:
+    if _ss_dir not in _ss_sys.path:
+        _ss_sys.path.insert(0, _ss_dir)
+    _SL = _ss_imp.import_module("stage_ledger")
+    import tempfile as _ss_tmp
+    with _ss_tmp.TemporaryDirectory(prefix="stg_") as _ss_t:    # يُبنى من الكود الآن (لا يُقرأ الملتزَم) ⟵ STG11 وحدَه يقارن بالملتزَم
+        _SL.write(_ss_t)
+        _ss_ev = list(_ss_csv.DictReader(open(_ss_os.path.join(_ss_t, "stage_events.csv"), encoding="utf-8")))
+        _ss_sum = _ss_json.load(open(_ss_os.path.join(_ss_t, "stage_ledger_summary.json"), encoding="utf-8"))
+    _ss_err = None
+except Exception as _e:                                    # noqa: BLE001
+    _SL = None; _ss_ev = []; _ss_err = f"⛔ {type(_e).__name__}: {_e}"
+if _SL is not None:
+    _ss_by = lambda ref, sym: [e for e in _ss_ev if e["source_ref"] == ref and e["identity"] == sym]  # noqa: E731
+    # STG1 — exact source terminology preserved (literal substrings, never translated to an engine stage)
+    try:
+        _h1 = [(h[1], h[2]) for h in _SL.lex("سهم غير. جاهز فنيا حاليا / انتظار الهبوط")[0]]
+        _k1 = _ss_by("X_20260827_kwm_offering_notready", "KWM"); _g1 = _ss_by("TG_57890", "GCTK"); _x1 = _ss_by("X_20260918_23_watchlist", "DKI")
+        _ok1 = (("NOT_READY", "غير. جاهز") in _h1 and ("WAIT", "انتظار") in _h1
+                and _k1 and "«غير جاهز»" in _k1[0]["raw_label"] and _x1 and _x1[0]["raw_label"] == "«قائمتي»"
+                and _g1 and "«دخولنا»" in _g1[0]["raw_action"] and "«شمعة الضغط»" in _g1[0]["raw_action"]
+                and not any(x in e["raw_label"] + e["raw_action"] for e in _ss_ev for x in ("FOCUS", "WATCH", "TRIGGER", "HOLD")))
+        _w1 = f"lex={_h1} kwm={(_k1 or [{}])[0].get('raw_label')} gctk={(_g1 or [{}])[0].get('raw_action')}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok1 = False; _w1 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG1: المصطلحُ الحرفيّ محفوظ — «غير. جاهز» · «قائمتي» · «دخولنا» · «شمعة الضغط» نصوصٌ من المصدر لا مراحلُ محرّك", _ok1, _w1)
+    # STG2 — list membership is not readiness: a visible «قائمتي» row sets A only (no B/C/E), even with readiness tabs on screen
+    try:
+        _snap = {"selected_tab": "قائمتي", "tabs_visible": ["قائمتي", "تحت الجاهزيه", "جاهز 100%"], "visible_symbols": ["AAA"], "other_tabs_contents": "NOT SHOWN"}
+        _u2 = {"id": "T_STG2", "a": "F", "d": None, "g": "", "t": [], "rules": []}
+        _e2 = _SL.unit_events(_u2, {"T_STG2": {"author": "F", "author_visible": True, "statements": [
+            {"key": "s1", "tickers": ["AAA"], "speaker": "APP_TAB", "text": "قائمتي", "list_snapshot": _snap,
+             "printed": {"y": "2026", "m": "9", "d": "13", "hh": "1", "mm": "44", "ampm": "م"}}]}})
+        _real2 = [e for e in _ss_ev if e["A_list"] == "LIST_SNAPSHOT_VISIBLE"]
+        _ok2 = (len(_e2) == 1 and _e2[0]["A_list"] == "LIST_SNAPSHOT_VISIBLE" and not (_e2[0]["B_stage"] or _e2[0]["C_action"] or _e2[0]["E_trigger"])
+                and len(_real2) >= 8 and all(not (e["B_stage"] or e["C_action"] or e["E_trigger"]) for e in _real2))
+        _w2 = f"synthetic={[(e['A_list'], e['B_stage']) for e in _e2]} real={len(_real2)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok2 = False; _w2 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG2: عضويّةُ القائمة ليست جاهزيّة — صفٌّ ظاهرٌ في «قائمتي» يضع A وحدَه ولا B/C/E ولو ظهرت تبويباتُ الجاهزيّة على الشاشة", _ok2, _w2)
+    # STG3 — technical READY never implies source READY: the ledger never imports the engine; B comes from text only
+    try:
+        _t3 = _ss_ast.parse(open(_ss_os.path.join(_ss_dir, "stage_ledger.py"), encoding="utf-8").read())
+        _imp3 = {(a.name if isinstance(n, _ss_ast.Import) else (n.module or "")).split(".")[0]
+                 for n in _ss_ast.walk(_t3) if isinstance(n, (_ss_ast.Import, _ss_ast.ImportFrom)) for a in n.names}
+        _e3 = _SL.unit_events({"id": "T_STG3", "a": "F", "ab": "VISIBLE", "d": "2026-09-14", "g": "«تحت المتابعه فقط»", "t": ["DKI"], "dec": "READY", "rules": []}, {})
+        _ok3 = (not (_imp3 & {"engine", "replay", "data", "p3lib", "p4lib", "ranker", "rank_eval", "Super_stock", "v4_engine"})
+                and _e3 and "READY" not in _e3[0]["B_stage"] and _e3[0]["v4_decision"] == "READY")
+        _w3 = f"imports={sorted(_imp3)} B={(_e3 or [{}])[0].get('B_stage')!r}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok3 = False; _w3 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG3: READY الفنيّ لا يصنع READY مصدريًّا — السجلُّ لا يستورد المحرّك · ووسمُ V4 `dec=READY` يبقى حقلًا مستنتَجًا لا يصير B", _ok3, _w3)
+    # STG4 — a tab heading does not establish an unshown tab: no event gets «تحت الجاهزيه»/«جاهز 100%» from a tab list; hidden rows stay empty
+    try:
+        _u4 = {"id": "T_STG4", "a": "F", "d": None, "g": "", "t": [], "rules": []}
+        _e4 = _SL.unit_events(_u4, {"T_STG4": {"author": "F", "author_visible": True, "statements": [
+            {"key": "s1", "tickers": ["BBB"], "speaker": "APP_TAB", "text": "قائمتي", "list_snapshot": _snap}]}})
+        _x4 = [e for e in _ss_ev if e["source_ref"] in ("X_20260918_22_pipeline", "X_20260918_23_watchlist") and e["identity"]]
+        _ok4 = (_e4 and _e4[0]["A_list"] == "" and _e4[0]["can_establish_membership"] == "NO"
+                and _x4 and all(e["can_establish_membership"] == "VISIBLE_TAB_ONLY" and "جاهز" not in e["raw_label"] and "NOT SHOWN" in e["A_basis"] for e in _x4))
+        _w4 = f"hidden={[(e['A_list'], e['can_establish_membership']) for e in _e4]} x={len(_x4)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok4 = False; _w4 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG4: عنوانُ التبويب لا يُثبت محتواه — رمزٌ غيرُ ظاهرٍ في اللقطة بلا عضويّة · وأعضاءُ «قائمتي» «VISIBLE_TAB_ONLY» والتبويباتُ الأخرى «NOT SHOWN»", _ok4, _w4)
+    # STG5 — missing stays UNKNOWN (no lexicon ⟵ UNKNOWN · no bars ⟵ NO_BARS · never "NO")
+    try:
+        _e5 = _SL.unit_events({"id": "T_STG5", "a": "F", "ab": "VISIBLE", "d": "2026-09-14", "g": "«1.24 2.10»", "t": ["DKI"], "rules": []}, {})
+        _cdt = _ss_by("TG_58524", "CDT")
+        _ok5 = (_e5 and _e5[0]["F_unknown"] == "UNKNOWN" and not (_e5[0]["A_list"] or _e5[0]["B_stage"] or _e5[0]["C_action"] or _e5[0]["E_trigger"])
+                and _cdt and _cdt[0]["md_available"] == "NO_BARS" and _SL.md_available("", "2026-09-14") == "UNKNOWN")
+        _w5 = f"F={(_e5 or [{}])[0].get('F_unknown')!r} cdt={(_cdt or [{}])[0].get('md_available')}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok5 = False; _w5 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG5: الغائبُ يبقى UNKNOWN — نصٌّ بلا معجمٍ ⟵ UNKNOWN (لا «لا») · ورمزٌ بلا شموعٍ ⟵ NO_BARS", _ok5, _w5)
+    # STG6 — ambiguous timestamps stay flagged (approximate / missing / upper-bound-only ⟵ AMBIGUOUS · decade ⟵ BOUNDED)
+    try:
+        _q6 = [_SL.timestamp(d, None)[0] for d in ("2026-07-23~", None, "≤2026-08-01", "2026-05-1x", "2026-09")]
+        _amb = [e for e in _ss_ev if e["ts_quality"] == "AMBIGUOUS"]
+        _ok6 = (_q6 == ["AMBIGUOUS", "AMBIGUOUS", "AMBIGUOUS", "BOUNDED", "BOUNDED"] and _amb and all(not e["asof_lo"] for e in _amb))
+        _w6 = f"q={_q6} ambiguous={len(_amb)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok6 = False; _w6 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG6: الطابعُ الملتبس يبقى موسومًا — «~» و«≤» والغائبُ ⟵ AMBIGUOUS بلا يوم قرار · والعِقدُ والشهرُ ⟵ BOUNDED", _ok6, _w6)
+    # STG7 — duplicates collapse into one episode without deleting events
+    try:
+        _d7 = _ss_by("TG_2090", "CDIO"); _o7 = _ss_by("TG_2218", "CDIO")
+        _dup7 = [e for e in _d7 if e["duplicate_of"] == "TG_2218:s1"]
+        _ok7 = (_dup7 and _o7 and _dup7[0]["episode_id"] == _o7[0]["episode_id"] and len(_ss_ev) == len({e["event_id"] for e in _ss_ev})
+                and len(_SL.build()[0]) == len(_ss_ev))
+        _w7 = f"dup={[e['episode_id'] for e in _dup7]} orig={[e['episode_id'] for e in _o7]} n={len(_ss_ev)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok7 = False; _w7 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG7: المكرَّرُ يُطوى في حلقةٍ واحدة ولا يُحذف — TG_2090:s2 في حلقة TG_2218 · ومعرّفاتُ الأحداث فريدة · والعددُ = البناء", _ok7, _w7)
+    # STG8 — a later event cannot change an earlier date's reconstruction (episodes/transitions only read forward)
+    try:
+        _mk = lambda i, d, g: _SL.unit_events({"id": i, "a": "F", "ab": "VISIBLE", "d": d, "g": g, "t": ["ZZZ"], "rules": []}, {})[0]  # noqa: E731
+        _a8 = _mk("T8A", "2026-08-24", "«جاهز فنيا»"); _b8 = _mk("T8B", "2026-09-14", "«غير جاهز»")
+        for _x, _i in ((_a8, "E8A"), (_b8, "E8B")):
+            _x["event_id"] = _i
+        _snap8 = dict(_a8)
+        _ep8 = _SL.episodes([_a8, _b8]); _tr8 = _SL.transitions(_ep8)
+        _ok8 = (len(_ep8) == 2 and {k: v for k, v in _a8.items() if k != "episode_id"} == {k: v for k, v in _snap8.items() if k != "episode_id"}
+                and _ep8[0]["events"] == [_a8] and _tr8 and _tr8[0]["from_episode"] == _ep8[0]["id"] and "UNKNOWN" in (_tr8[0]["change_date"] or "UNKNOWN"))
+        _w8 = f"eps={len(_ep8)} tr={[(t['status'], t['change_date']) for t in _tr8]}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok8 = False; _w8 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG8: الحدثُ اللاحق لا يغيّر حالةَ تاريخٍ أسبق — حلقتان منفصلتان والسابقُ بت-بت · وتاريخُ التغيّر بينهما UNKNOWN لا يُخترَع", _ok8, _w8)
+    # STG9 — file/message order never substitutes for a publication time (higher id earlier date sorts first; timestamp() never reads ids)
+    try:
+        _p9 = _SL.unit_events({"id": "TG_99999", "a": "F", "ab": "VISIBLE", "d": "2026-08-03", "g": "«مراقبه»", "t": ["QQQ"], "rules": []}, {})[0]
+        _q9 = _SL.unit_events({"id": "TG_00001", "a": "F", "ab": "VISIBLE", "d": "2026-09-14", "g": "«انتظار»", "t": ["QQQ"], "rules": []}, {})[0]
+        _p9["event_id"], _q9["event_id"] = "Z9", "A9"
+        _ep9 = _SL.episodes([_q9, _p9])
+        _args9 = [a.arg for a in [n for n in _ss_ast.walk(_ss_ast.parse(open(_ss_os.path.join(_ss_dir, "stage_ledger.py"), encoding="utf-8").read()))
+                                     if isinstance(n, _ss_ast.FunctionDef) and n.name == "timestamp"][0].args.args]
+        _ok9 = ([e["source_ref"] for ep in _ep9 for e in ep["events"]] == ["TG_99999", "TG_00001"] and "id" not in " ".join(_args9)
+                and _SL.timestamp(None, None)[1] is None)
+        _w9 = f"order={[e['source_ref'] for ep in _ep9 for e in ep['events']]} args={_args9}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok9 = False; _w9 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG9: رقمُ الملفّ لا يصير طابعًا — TG_99999 بتاريخٍ أبكر يسبق TG_00001 · و`timestamp` لا يأخذ معرّفًا · وبلا تاريخٍ لا يومَ قرار", _ok9, _w9)
+    # STG10 — observed vs inferred stored separately: excerpt == the eye statement text verbatim; interpretation is a different field
+    try:
+        _eye = _SL.load_eye(); _bad10 = []
+        for _e in _ss_ev:
+            if _e["excerpt_source"] == "EYE_2026-10-09":
+                _st = [s for s in _eye[_e["source_ref"]]["statements"] if s["key"] == _e["statement"]][0]
+                if _e["excerpt"] != _st["text"] or (_st.get("interpretation") and _st["interpretation"] in _e["excerpt"]):
+                    _bad10.append(_e["event_id"])
+        _ok10 = (not _bad10 and sum(1 for e in _ss_ev if e["excerpt_source"] == "EYE_2026-10-09") >= 30
+                 and "interpretation" in _SL.COLS and "excerpt" in _SL.COLS and "v4_rules" in _SL.COLS)
+        _w10 = f"bad={_bad10[:4]}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok10 = False; _w10 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG10: المرصودُ والمستنتَجُ حقلان — `excerpt` = نصُّ العبارة المقروءة بالعين حرفًا · والتفسيرُ في `interpretation` لا يدخله", _ok10, _w10)
+    # STG11 — deterministic: regenerating reproduces every committed output byte for byte
+    try:
+        _bad11 = _SL.check()
+        _ok11 = (_bad11 == []); _w11 = f"differs={_bad11}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok11 = False; _w11 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG11: حتميّ — `stage_ledger.py --check` يعيد كلَّ مخرَجٍ ملتزَمٍ بايتًا بايتًا", _ok11, _w11)
+    # STG12 — every mapped concept traces back to an existing source file and to literals inside its own excerpt
+    try:
+        _root = _ss_os.path.dirname(_ss_os.path.abspath(__file__)); _bad12 = []
+        for _e in _ss_ev:
+            if _e["A_list"] or _e["B_stage"] or _e["E_trigger"] or _e["C_action"]:
+                _lits = [x.strip("«»") for x in (_e["raw_label"] + " | " + _e["raw_action"]).split(" | ") if x.strip()]
+                if not _ss_os.path.exists(_ss_os.path.join(_root, _e["source_file"] or "∅")) or any(l not in _e["excerpt"] for l in _lits):
+                    _bad12.append(_e["event_id"])
+        _ok12 = not _bad12; _w12 = f"bad={len(_bad12)} {_bad12[:4]}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok12 = False; _w12 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG12: كلُّ مفهومٍ يعود إلى مصدره — ملفُّ الصورة موجود وكلُّ وسمٍ خامٍّ نصٌّ داخل اقتباس الحدث نفسِه", _ok12, _w12)
+    # STG13 — recalled readiness is never assigned to the post's as-of; prospective texts equal the sealed V4.1 texts
+    try:
+        _h13 = _ss_by("X_20260827_hcwb_leak_close_dm", "HCWB"); _e13 = _ss_by("X_20260918_66_ELPW", "ELPW")
+        _sm13 = _ss_sum
+        _ok13 = (_h13 and _h13[0]["readiness_recalled"] == "1" and _e13 and _e13[0]["readiness_recalled"] == "1"
+                 and "RECALLED_OPERATOR_MONEY_OBSERVED" in _e13[0]["C_action"] and not _e13[0]["E_trigger"]
+                 and _sm13["prospective_text_matches_sealed"] == {"CASE_0001": True, "CASE_0002": True, "CASE_0003": True})
+        _w13 = f"hcwb={(_h13 or [{}])[0].get('readiness_recalled')} elpw={(_e13 or [{}])[0].get('C_action')}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok13 = False; _w13 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG13: الجاهزيّةُ المسترجَعة («كان جاهز» · «ذكرنا سابقا … جاهز») لا تُنسَب ليوم النشر · ونصُّ الحالات الأماميّة = المختومُ في V4.1", _ok13, _w13)
+    # STG14 — the contract pins the ledger files it was written against; the frozen research engine and ranking outputs are untouched
+    try:
+        _pr = open(_ss_os.path.join(_ss_dir, "STAGE_SEMANTICS_PROTOCOL.md"), encoding="utf-8").read()
+        _pins = {"out/stage_events.csv": None, "out/stage_episodes.csv": None, "data/stage/eye_reads.json": None}
+        _miss14 = [k for k in _pins if _ss_hash.sha256(open(_ss_os.path.join(_ss_dir, k), "rb").read()).hexdigest() not in _pr]
+        _eng = _ss_hash.sha256(open(_ss_os.path.join(_ss_dir, "engine.py"), "rb").read()).hexdigest()
+        _rk = _ss_hash.sha256(open(_ss_os.path.join(_ss_dir, "out", "rank_summary.json"), "rb").read()).hexdigest()
+        _ok14 = (not _miss14 and _eng == "896d49470aa6430a7cc776dcba7d98891d1cdbb889908230adcc283be2494a63" and _rk == "5c2719735c9c060c1d26f0d1485c3484089f10a83889806a9a163f98688081b2")
+        _w14 = f"unpinned={_miss14} engine={_eng[:12]} rank={_rk[:12]}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok14 = False; _w14 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🗂️ STG14: العقدُ يثبّت بصماتِ ملفّات السجلّ التي كُتب عليها · والمحرّكُ البحثيُّ المجمَّد ومخرَجُ الترتيب بلا تغيير", _ok14, _w14)
+else:
+    check("🧭🗂️ STG0: `stage_ledger.py` يُستورَد ومخرَجُه يُقرأ (شرطُ STG1-STG14)", False, str(_ss_err)[:120])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

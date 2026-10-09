@@ -1,0 +1,102 @@
+{
+ "ambiguous_ts_faisal": 87,
+ "carry_forward_events": 17,
+ "carry_forward_state_events": 7,
+ "carry_forward_state_symbols": [
+  "AMIX",
+  "CUPR",
+  "ELPW",
+  "HCWB",
+  "YMT",
+  "ZCMD"
+ ],
+ "carry_forward_symbols": [
+  "ADIL",
+  "AMIX",
+  "CANF",
+  "CIIT",
+  "CUPR",
+  "EHGO",
+  "ELPW",
+  "HCWB",
+  "JZ",
+  "KWM",
+  "PIII",
+  "PPBT",
+  "YMT",
+  "ZCMD"
+ ],
+ "chart_only_events": 112,
+ "concept_counts": {
+  "A_list": {
+   "ADD_TO_LIST_STATED": 1,
+   "LIST_SNAPSHOT_VISIBLE": 13
+  },
+  "B_stage": {
+   "NOT_READY": 3,
+   "READY": 10
+  },
+  "C_action": 120,
+  "E_trigger": {
+   "ENTRY_STATED": 1,
+   "ENTRY_STATED+PRESS_OBSERVED": 2,
+   "OPERATOR_MONEY_OBSERVED": 1,
+   "PRESS_OBSERVED": 4
+  }
+ },
+ "direct_list_snapshot_events": 13,
+ "direct_list_state_events": 16,
+ "episodes_total": 207,
+ "episodes_with_faisal": 179,
+ "events_faisal": 507,
+ "events_faisal_dated": 390,
+ "events_faisal_with_identity": 462,
+ "events_total": 631,
+ "explicit_readiness_events": 13,
+ "explicit_readiness_not_recalled": 10,
+ "eye_reads": 28,
+ "eye_statements": 38,
+ "phase3_findings": {
+  "LIST_MEMBERSHIP_ONLY (tab «قائمتي»; stage not shown)": 10,
+  "NO_ENTRY_TERM_IN_VERBATIM": 1,
+  "NO_LEDGER_EVENT": 10,
+  "NO_READY_TERM": 4,
+  "NO_READY_TERM; source states ENTRY_STATED+PRESS_OBSERVED": 1,
+  "NO_READY_TERM; source states PRESS_OBSERVED": 1,
+  "NO_WAIT_OR_MONITOR_TERM_IN_VERBATIM": 29,
+  "PLAN_ONLY (ENTRY_PLAN)": 1,
+  "SOURCE OPERATOR_MONEY_OBSERVED": 1,
+  "SOURCE_MONITOR": 10,
+  "SOURCE_MONITOR+WAIT": 2,
+  "SOURCE_MONITOR+WAIT+WAIT_FOR_PRESS": 1,
+  "SOURCE_WAIT": 14,
+  "SOURCE_WAIT+WAIT_FOR_PRESS": 3
+ },
+ "phase3_rows": 88,
+ "phase3_symbols": 45,
+ "prospective_text_matches_sealed": {
+  "CASE_0001": true,
+  "CASE_0002": true,
+  "CASE_0003": true
+ },
+ "source_units_faisal_dated": 350,
+ "strict_timestamp_events": 25,
+ "symbols_faisal_dated": 122,
+ "technical_only_events": 1,
+ "timezone_assumption": "printed X/Telegram times read as device time in Asia/Riyadh (UTC+3) — stated assumption",
+ "transitions": {
+  "INFERRED": 41,
+  "NO_CHANGE_OBSERVED": 15,
+  "UNKNOWN": 12
+ },
+ "ts_quality_faisal": {
+  "AMBIGUOUS": 87,
+  "BOUNDED": 191,
+  "DERIVED_INFERRED": 7,
+  "EXACT_DATE_PRINTED": 32,
+  "EXACT_DERIVED": 4,
+  "EXACT_PRINTED": 48,
+  "RECORDED_UNVERIFIED": 138
+ },
+ "unknown_events": 248
+}

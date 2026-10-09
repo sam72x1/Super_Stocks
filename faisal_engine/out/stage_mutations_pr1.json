@@ -1,0 +1,140 @@
+[
+ {
+  "id": "S1",
+  "target": "STG1",
+  "status": "KILLED",
+  "failed": [
+   "STG1",
+   "STG11",
+   "STG12"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S2",
+  "target": "STG2",
+  "status": "KILLED",
+  "failed": [
+   "STG2",
+   "STG11"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S3",
+  "target": "STG3",
+  "status": "KILLED",
+  "failed": [
+   "STG3",
+   "STG11"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S4",
+  "target": "STG4",
+  "status": "KILLED",
+  "failed": [
+   "STG4"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S5",
+  "target": "STG5",
+  "status": "KILLED",
+  "failed": [
+   "STG5",
+   "STG11"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S6",
+  "target": "STG6",
+  "status": "KILLED",
+  "failed": [
+   "STG6",
+   "STG11"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S7",
+  "target": "STG7",
+  "status": "KILLED",
+  "failed": [
+   "STG7",
+   "STG11"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S8",
+  "target": "STG8",
+  "status": "KILLED",
+  "failed": [
+   "STG8",
+   "STG11"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S9",
+  "target": "STG9",
+  "status": "KILLED",
+  "failed": [
+   "STG9",
+   "STG11"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S10",
+  "target": "STG10",
+  "status": "KILLED",
+  "failed": [
+   "STG10",
+   "STG11"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S11",
+  "target": "STG11",
+  "status": "KILLED",
+  "failed": [
+   "STG11"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S12",
+  "target": "STG12",
+  "status": "KILLED",
+  "failed": [
+   "STG11",
+   "STG12"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S13",
+  "target": "STG13",
+  "status": "KILLED",
+  "failed": [
+   "STG11",
+   "STG13"
+  ],
+  "crashed": false
+ },
+ {
+  "id": "S14",
+  "target": "STG14",
+  "status": "KILLED",
+  "failed": [
+   "STG14"
+  ],
+  "crashed": false
+ }
+]
