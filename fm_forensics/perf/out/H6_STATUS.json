@@ -1,0 +1,95 @@
+{
+ "contract_sha256": "a6f68f745cba189223b1f8258e733dc5e1e538382dfe6533307092d8e942c7ed",
+ "today": "2026-10-09",
+ "cutoff": "2026-10-09",
+ "window_end": "2027-04-09",
+ "floor": 15,
+ "candidates": 3,
+ "by_status": {
+  "HISTORICAL": 3
+ },
+ "eligible": 0,
+ "units": [],
+ "items": [
+  {
+   "case_id": "CASE_0001",
+   "ticker": "BRTX",
+   "T": "2026-10-03",
+   "status": "HISTORICAL",
+   "code": "before_cutoff",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0002",
+   "ticker": "CDT",
+   "T": "2026-10-07",
+   "status": "HISTORICAL",
+   "code": "before_cutoff",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0003",
+   "ticker": "NCT",
+   "T": "2026-10-07",
+   "status": "HISTORICAL",
+   "code": "before_cutoff",
+   "sample": "SECONDARY"
+  }
+ ],
+ "coverage_failures": 0,
+ "coverage_failure_share": 0.0,
+ "lag_sessions": {
+  "n": 0,
+  "median": null,
+  "max": null
+ },
+ "families": {
+  "A_float": {
+   "units_with_value": 0,
+   "units": 0,
+   "controls_with_value": 0,
+   "controls": 0,
+   "coverage_units": 0.0,
+   "coverage_controls": 0.0,
+   "testable": false
+  },
+  "B_offering": {
+   "units_with_value": 0,
+   "units": 0,
+   "controls_with_value": 0,
+   "controls": 0,
+   "coverage_units": 0.0,
+   "coverage_controls": 0.0,
+   "testable": false
+  },
+  "C_borrow": {
+   "units_with_value": 0,
+   "units": 0,
+   "controls_with_value": 0,
+   "controls": 0,
+   "coverage_units": 0.0,
+   "coverage_controls": 0.0,
+   "testable": false
+  },
+  "D_split": {
+   "units_with_value": 0,
+   "units": 0,
+   "controls_with_value": 0,
+   "controls": 0,
+   "coverage_units": 0.0,
+   "coverage_controls": 0.0,
+   "testable": false
+  }
+ },
+ "any_testable": false,
+ "panel": {
+  "days": 0,
+  "first": null,
+  "last": null,
+  "no_pool_days": 0,
+  "k": null
+ },
+ "ledger_rows": 33569,
+ "floor_reached": false,
+ "window_closed": false
+}

@@ -83553,6 +83553,313 @@ except Exception as _e:                                                    # noq
 check("🎯 PX1 حكمُ تجربة الأداء = JSON النتائج (C · القواعد 1 و6 ساقطةٌ في المجموعتين · أرقامُ الأساس A 0/22 · 2/16 · 15/88 · 15/64) · والسكربتُ بلا تلغرام ولا حفظٍ ولا إسناد CONFIG",
       _px1, _px1w)
 
+# ═════ 🧪🔒 H6 — العقدُ الأماميّ المسجَّل (2026-10-09 · `fm_forensics/perf/H6_PREREG.md` · بحثٌ فقط · بلا شبكة) ═════
+print("\n=== 🧪🔒 H6: control panel + gated test ===")
+import datetime as _h6dt
+import hashlib as _h6hl
+import importlib.util as _h6ilu
+import io as _h6io
+import json as _h6json
+import os as _h6os
+import contextlib as _h6ctx
+import tempfile as _h6tf
+
+_h6_dir = _h6tf.mkdtemp(prefix="_suite_h6_")
+_h6_cwd = _h6os.getcwd()
+_h6_spec = _h6ilu.spec_from_file_location("p6collector_h6", _h6os.path.join("fm_forensics", "phase6", "collector.py"))
+P6H = _h6ilu.module_from_spec(_h6_spec)
+_h6_spec.loader.exec_module(P6H)
+_h6os.chdir(_h6_cwd)
+_h6t_spec = _h6ilu.spec_from_file_location("h6_test", _h6os.path.join("fm_forensics", "perf", "h6_test.py"))
+H6 = _h6ilu.module_from_spec(_h6t_spec)
+_h6t_spec.loader.exec_module(H6)
+_h6os.chdir(_h6_cwd)
+_H6_NOW = _h6dt.datetime(2026, 10, 9, 2, 0, tzinfo=_h6dt.timezone.utc)
+_H6_RL = [dict(date="2026-10-07", walls={"M_لا_مستوى_مختبر": ["AAA", "BBB", "CCC", "DKI", "EEE"]}, walls_n={"M_لا_مستوى_مختبر": 5}, sampled=[]),
+          dict(date="2026-10-08", walls={"M_لا_مستوى_مختبر": ["AAA", "BBB"]}, walls_n={"M_لا_مستوى_مختبر": 7}, sampled=[]),          # truncated ⟹ refused
+          dict(date="2026-10-08", walls={"M_لا_مستوى_مختبر": ["XXX", "YYY"]}, walls_n={"M_لا_مستوى_مختبر": 2}, sampled=["M_لا_مستوى_مختبر"]),  # sampled ⟹ refused
+          dict(date="2026-10-10", walls={"M_لا_مستوى_مختبر": ["ZZZ"]}, walls_n={"M_لا_مستوى_مختبر": 1}, sampled=[])]                 # future ⟹ refused
+
+
+def _h6_fetchers(**over):
+    base = dict(
+        yahoo_info=lambda s: {"floatShares": 373432, "sharesShort": 1200, "dateShortInterest": 1758844800, "sharesOutstanding": 500000},
+        yahoo_splits=lambda s: [],
+        tv_scan=lambda: {},
+        ce_borrow=lambda s: ({"shares_available": 5, "borrow_fee": 1.0}, {}),
+        sec_cik=lambda s: 1000 + sum(map(ord, s)),
+        sec_submissions=lambda cik: {"name": f"C{cik}", "tickers": [], "exchanges": ["Nasdaq"], "formerNames": [],
+                                     "filings": {"recent": {"form": ["424B4", "8-K"], "filingDate": ["2025-03-01", "2026-09-30"],
+                                                            "accessionNumber": [f"{cik}-old", f"{cik}-new"], "acceptanceDateTime": ["", ""]}}},
+        sec_dei=lambda cik, c: {"units": {"shares": [{"end": "2024-05-01", "filed": "2024-06-01", "val": 0, "accn": "a0"},
+                                                     {"end": "2025-02-01", "filed": "2025-02-10", "val": 1, "accn": "a1"},
+                                                     {"end": "2026-09-01", "filed": "2026-09-10", "val": 2, "accn": "a2"}]}},
+        nasdaq_calendar=lambda: {})
+    base.update(over)
+    return base
+
+
+def _h6_strip(r):
+    return {k: v for k, v in r.items() if k not in ("seq", "prev_sha256", "sha256", "run_id")}
+
+
+# H6C1 — control pool & draw: newest FULL wall ≤ obs_date; truncated/sampled/future refused; draw deterministic, excludes, k
+try:
+    _c1_pd, _c1_pool = P6H.control_pool(_H6_RL, "2026-10-09")
+    _c1_a = P6H.sample_controls(_c1_pool, ["DKI"], k=3, seed="2026-10-09")
+    _c1_b = P6H.sample_controls(_c1_pool, ["DKI"], k=3, seed="2026-10-09")
+    _c1_c = P6H.sample_controls(_c1_pool, ["DKI"], k=3, seed="2026-10-10")
+    _c1_x = P6H.sample_controls(_c1_pool, _c1_a[:2], k=3, seed="2026-10-09")      # excluding the two top-ranked ⟹ they vanish, the rest keep their order
+    _h6c1 = (_c1_pd == "2026-10-07" and _c1_pool == ["AAA", "BBB", "CCC", "DKI", "EEE"] and _c1_a == _c1_b and len(_c1_a) == 3
+             and "DKI" not in _c1_a and set(_c1_a) <= {"AAA", "BBB", "CCC", "EEE"} and _c1_c != _c1_a
+             and not (set(_c1_a[:2]) & set(_c1_x)) and _c1_x[0] == _c1_a[2] and len(_c1_x) == 3
+             and P6H.control_pool([_H6_RL[1], _H6_RL[2]], "2026-10-09") == (None, [])
+             and P6H.sample_controls(_c1_pool, [], k=0) == [])
+    _h6c1w = f"pool_date={_c1_pd} n={len(_c1_pool)} draw={_c1_a} other_seed={_c1_c}"
+except Exception as _e:                                                    # noqa: BLE001
+    _h6c1, _h6c1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔒 H6C1 بِركةُ الضوابط = أحدثُ جدارٍ كاملٍ بتاريخٍ ≤ اليوم (المقصوصُ والمعيَّنُ والمستقبليُّ مرفوضون) · والسحبُ حتميٌّ بالبذرة · يستبعد أسهمَ فيصل · ويحترم k",
+      _h6c1, _h6c1w)
+
+# H6C2 — run_controls: panel append-only (one line per run/day) · excludes Faisal+anchors · CE quota reserved = k · SEC history limited for controls only
+try:
+    _c2_att = []
+    _c2_f = _h6_fetchers(ce_borrow=lambda s: (_c2_att.append(s), ({"shares_available": 5, "borrow_fee": 1.0}, {}))[1])
+    _c2_L = P6H.Ledger(_h6os.path.join(_h6_dir, "c2.jsonl"))
+    _c2_panel = _h6os.path.join(_h6_dir, "panel_c2.jsonl")
+    _c2_C = P6H.Collector(_c2_L, _c2_f, "c2", now=_H6_NOW, raw_dir=_h6os.path.join(_h6_dir, "raw"), ce_quota=3, log=lambda *a: None)
+    _c2_r = _c2_C.run_controls(_H6_RL, exclude=["DKI", "EEE"], k=2, panel_path=_c2_panel)
+    _c2_r2 = _c2_C.run_controls(_H6_RL, exclude=["DKI", "EEE"], k=2, panel_path=_c2_panel)     # same run/day ⟹ no second line
+    _c2_lines = P6H.read_panel(_c2_panel)
+    _c2_quota_after = _c2_C.ce_quota
+    _c2_C.run(["DKI"], resume=False)                                                             # Faisal ticker keeps the remaining quota (1)
+    _c2_L1 = P6H.Ledger(_h6os.path.join(_h6_dir, "c2q.jsonl"))
+    _c2_C1 = P6H.Collector(_c2_L1, _h6_fetchers(), "c2q", now=_H6_NOW, raw_dir=_h6os.path.join(_h6_dir, "raw"), ce_quota=1, log=lambda *a: None)
+    _c2_C1.run_controls(_H6_RL, exclude=["DKI", "EEE"], k=2, panel_path=_h6os.path.join(_h6_dir, "panel_c2q.jsonl"))
+    _c2_C1.run(["DKI"], resume=False)
+    _c2_q1 = {r["ticker"]: r["status"] for r in _c2_L1.rows if r["field"] == "borrow_available"}
+    _c2_ctl = _c2_r["done"]
+    _c2_old = [r for r in _c2_L.rows if r["field"] == "sec_filing" and r["ticker"] in _c2_ctl and r["status"] == "OK" and "2025-03-01" in str(r["value"])]
+    _c2_new = [r for r in _c2_L.rows if r["field"] == "sec_filing" and r["ticker"] in _c2_ctl and r["status"] == "OK" and "2026-09-30" in str(r["value"])]
+    _c2_dki_old = [r for r in _c2_L.rows if r["field"] == "sec_filing" and r["ticker"] == "DKI" and r["status"] == "OK" and "2025-03-01" in str(r["value"])]
+    _c2_dei_ctl = [r for r in _c2_L.rows if r["field"] == "shares_outstanding" and r["source"].startswith("sec_dei") and r["ticker"] in _c2_ctl and r["status"] == "OK"]
+    _c2_dei_dki = [r for r in _c2_L.rows if r["field"] == "shares_outstanding" and r["source"].startswith("sec_dei") and r["ticker"] == "DKI" and r["status"] == "OK"]
+    _h6c2 = (_c2_r["status"] == "OK" and _c2_r["pool_date"] == "2026-10-07" and len(_c2_ctl) == 2 and not ({"DKI", "EEE"} & set(_c2_ctl))
+             and len(_c2_lines) == 1 and sorted(_c2_lines[0]["tickers"]) == sorted(_c2_ctl) and _c2_lines[0]["seed"] == "2026-10-09" and _c2_lines[0]["pool_n"] == 5
+             and _c2_quota_after == 3 and _c2_att == _c2_ctl + ["DKI"]
+             and sorted(_c2_q1.items()) == [("AAA", "OK"), ("BBB", "NOT_ATTEMPTED"), ("DKI", "NOT_ATTEMPTED")]
+             and not _c2_old and len(_c2_new) == 2 and len(_c2_dki_old) == 1 and len(_c2_dei_ctl) == 2 and len(_c2_dei_dki) == 3)
+    _h6c2w = f"controls={_c2_ctl} lines={len(_c2_lines)} ce_attempts={_c2_att} old_filings(ctl/DKI)={len(_c2_old)}/{len(_c2_dki_old)} dei(ctl/DKI)={len(_c2_dei_ctl)}/{len(_c2_dei_dki)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _h6c2, _h6c2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔒 H6C2 لوحةُ الضوابط إلحاقيّةٌ (سطرٌ واحد للتشغيلة/اليوم) · تستبعد أسهمَ فيصل والمراسي · حصّةُ ChartExchange المحجوزة = k والباقي لأسهم فيصل · وتاريخُ SEC مقصوصٌ للضوابط وحدَها (الإيداعاتُ ونقاطُ DEI)",
+      _h6c2, _h6c2w)
+
+# H6C3 — Faisal tickers' rows are bit-identical (content fields) with and without the panel; sec_block default signature unchanged
+try:
+    _c3_La = P6H.Ledger(_h6os.path.join(_h6_dir, "c3a.jsonl"))
+    _c3_Ca = P6H.Collector(_c3_La, _h6_fetchers(), "c3", now=_H6_NOW, raw_dir=_h6os.path.join(_h6_dir, "raw"), log=lambda *a: None)
+    _c3_Ca.run(["DKI", "EEE"], resume=False)
+    _c3_Lb = P6H.Ledger(_h6os.path.join(_h6_dir, "c3b.jsonl"))
+    _c3_Cb = P6H.Collector(_c3_Lb, _h6_fetchers(), "c3", now=_H6_NOW, raw_dir=_h6os.path.join(_h6_dir, "raw"), log=lambda *a: None)
+    _c3_Cb.run_controls(_H6_RL, exclude=["DKI", "EEE"], k=2, panel_path=_h6os.path.join(_h6_dir, "panel_c3.jsonl"))
+    _c3_Cb.run(["DKI", "EEE"], resume=False)
+    _c3_a = [_h6_strip(r) for r in _c3_La.rows if r["ticker"] in ("DKI", "EEE")]
+    _c3_b = [_h6_strip(r) for r in _c3_Lb.rows if r["ticker"] in ("DKI", "EEE")]
+    import inspect as _h6insp
+    _c3_sig = _h6insp.signature(P6H.Collector.sec_block)
+    _h6c3 = (_c3_a == _c3_b and len(_c3_a) > 10 and _c3_sig.parameters["since"].default == P6H.SEC_FILINGS_SINCE and _c3_sig.parameters["dei_since"].default is None
+             and _h6insp.signature(P6H.Collector.run).parameters["dei_since"].default is None)
+    _h6c3w = f"rows={len(_c3_a)}/{len(_c3_b)} equal={_c3_a == _c3_b} since_default={_c3_sig.parameters['since'].default}"
+except Exception as _e:                                                    # noqa: BLE001
+    _h6c3, _h6c3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔒 H6C3 صفوفُ أسهم فيصل بت-بت (حقولُ المحتوى) مع اللوحة وبدونها · وافتراضاتُ sec_block/run كما كانت (SEC منذ 2025-01-01 · DEI كاملة)",
+      _h6c3, _h6c3w)
+
+# H6C4 — wiring: main() draws the panel only for the full run (no P6_TICKERS) and honours P6_CONTROLS=0; the workflow passes the input
+try:
+    import ast as _h6ast
+    _c4_src = _h6insp.getsource(P6H.main)
+    _c4_t = _h6ast.parse(_c4_src)
+    _c4_calls = [n for n in _h6ast.walk(_c4_t) if isinstance(n, _h6ast.Call) and getattr(n.func, "attr", None) == "run_controls"]
+    _c4_guard = any(isinstance(n, _h6ast.If) and "P6_CONTROLS" in _h6ast.unparse(n.test) and "sel" in _h6ast.unparse(n.test) for n in _h6ast.walk(_c4_t))
+    _c4_yml = open(_h6os.path.join(".github", "workflows", "fm_phase6_collect.yml"), encoding="utf-8").read()
+    _c4_order = _c4_src.find("run_controls(") < _c4_src.find("res = C.run(tickers)")
+    _h6c4 = (len(_c4_calls) == 1 and _c4_guard and _c4_order and "P6_CONTROLS: ${{ inputs.controls }}" in _c4_yml and "controls:" in _c4_yml
+             and _c4_src.count("P6_CONTROLS") == 1)
+    _h6c4w = f"calls={len(_c4_calls)} guard={_c4_guard} order={_c4_order} yml={'P6_CONTROLS' in _c4_yml}"
+except Exception as _e:                                                    # noqa: BLE001
+    _h6c4, _h6c4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔒 H6C4 الوصل: `main` يسحب اللوحةَ مرّةً قبل أسهم فيصل · للتشغيل الكامل وحدَه · خلف `P6_CONTROLS` (0 = بت-بت) · والـworkflow يمرّر المُدخَل",
+      _h6c4, _h6c4w)
+
+
+# ---- synthetic H6 world for the tool locks
+def _h6_row(t, field, source, value, day, asof=None, category=1, status="OK", frame="pre:none"):
+    return dict(ticker=t, field=field, source=source, value=value, collected_utc=f"{day}T02:00:00Z", source_asof=asof or f"{day}T02:00:00Z",
+                asof_basis="COLLECTION" if category == 1 else "PROVIDER", category=category, status=status, split_frame=frame, units="shares")
+
+
+def _h6_world(n_units, pos_true=True, ctl_true=False, miss_fam=None, extra_cases=(), ctl_true_n=None):
+    root = _h6tf.mkdtemp(prefix="_suite_h6w_")
+    fp = _h6os.path.join(root, "faisal_method_v41", "final_protocol")
+    _h6os.makedirs(_h6os.path.join(fp, "intake", "B9"))
+    cases, imgs, rows, panel = [], {}, [], {}
+    day0 = _h6dt.date(2026, 10, 12)                                           # Monday
+    for i in range(n_units):
+        t = f"U{i:02d}"
+        T = day0 + _h6dt.timedelta(days=7 * (i // 5) + (i % 5))                # weekdays only
+        Ts, C = T.isoformat(), H6.add_sessions(T.isoformat(), 1)
+        cases.append(dict(CASE_ID=f"CASE_{i:04d}", SYMBOL=t, DECISION_DATE=Ts, SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE", STATUS="COMPLETE",
+                          FAISAL=dict(label="WATCH", effective_label="WAIT")))
+        imgs[f"TG_{i}"] = dict(symbol=t, decision_date=Ts, decision_date_max=None, faisal_author=True)
+        ctl = [f"K{i:02d}{j}" for j in range(4)]
+        panel[C] = dict(obs_date=C, status="OK", tickers=ctl + ["DKI"], pool_date=Ts, pool_n=400, k=4, seed=C, run_id=f"r{i}")
+        for tk, truth in [(t, pos_true)] + [(c, (ctl_true if ctl_true_n is None else j < ctl_true_n)) for j, c in enumerate(ctl)]:
+            if miss_fam != "A_float":
+                rows.append(_h6_row(tk, "public_float", "yahoo_info", 1_000_000 if truth else 50_000_000, C))
+            if miss_fam != "C_borrow":
+                rows.append(_h6_row(tk, "borrow_available", "chartexchange", 100 if truth else 900_000, C))
+            rows.append(_h6_row(tk, "identity", "sec_submissions", "{}", C))
+            if miss_fam != "B_offering":
+                fd = (T - _h6dt.timedelta(days=10 if not truth else 200)).isoformat()                # B direction −1: positives WITHOUT prospectus
+                rows.append(_h6_row(tk, "sec_filing", "sec_submissions", _h6json.dumps({"form": "424B4", "filingDate": fd, "accession": f"{tk}-1"}), C, fd, 2))
+            if miss_fam != "D_split":
+                sd = (T - _h6dt.timedelta(days=30 if truth else 400)).isoformat()
+                rows.append(_h6_row(tk, "reverse_split", "yahoo_splits", "{}", C, sd, 2))
+            rows.append(_h6_row(tk, "short_interest", "yahoo_info", 1234, C, (T - _h6dt.timedelta(days=5)).isoformat(), 2))
+    for c in extra_cases:
+        cases.append(c["case"])
+        if c.get("img"):
+            imgs[c["img"]["id"]] = {k: v for k, v in c["img"].items() if k != "id"}
+        rows += c.get("rows", [])
+        panel.update(c.get("panel", {}))
+    _h6json.dump({"cases": cases}, open(_h6os.path.join(fp, "PROTOCOL_STATUS.json"), "w", encoding="utf-8"))
+    _h6json.dump({"images": imgs}, open(_h6os.path.join(fp, "intake", "B9", "annotations.json"), "w", encoding="utf-8"))
+    return root, rows, panel
+
+
+# H6T1 — contract pinned by SHA-256: the tool refuses (9) when the contract text changes; the committed file matches the pin
+try:
+    _t1_ok = H6.prereg_ok() and _h6hl.sha256(open(H6.PREREG, "rb").read()).hexdigest() == H6.PREREG_SHA256
+    _t1_tmp = _h6os.path.join(_h6_dir, "H6_PREREG.md")
+    open(_t1_tmp, "w", encoding="utf-8").write(open(H6.PREREG, encoding="utf-8").read().replace("FLOOR = 15", "FLOOR = 14").replace("15 eligible units", "14 eligible units"))
+    _t1_saved = H6.PREREG
+    H6.PREREG = _t1_tmp
+    try:
+        with _h6ctx.redirect_stdout(_h6io.StringIO()):
+            _t1_rc = H6.main(["status"])
+    finally:
+        H6.PREREG = _t1_saved
+    _h6t1 = _t1_ok and _t1_rc == 9 and H6.FLOOR == 15 and H6.CUTOFF_DATE == "2026-10-09" and H6.WINDOW_END == "2027-04-09" and H6.CI_LEVEL == 0.9875
+    _h6t1w = f"pinned={_t1_ok} tampered_rc={_t1_rc} floor={H6.FLOOR} window={H6.WINDOW_END}"
+except Exception as _e:                                                    # noqa: BLE001
+    _h6t1, _h6t1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔒 H6T1 العقدُ مثبَّتٌ ببصمته في الأداة (نصٌّ مغيَّر ⟵ رفضٌ 9) · والأرضيّةُ 15 · والحدُّ 2026-10-09 · والنافذةُ حتى 2027-04-09 · والفاصلُ 98.75%",
+      _h6t1, _h6t1w)
+
+# H6T2 — eligibility codes E1-E7 in order on a synthetic world (+ feature values and MISSING)
+try:
+    _t2_T = "2026-10-13"
+    _t2_extra = [
+        dict(case=dict(CASE_ID="H_OLD", SYMBOL="OLD", DECISION_DATE="2026-10-07", SAMPLE="SECONDARY", INTAKE_CLASS="NEW_PROSPECTIVE", FAISAL=dict(label="WATCH"))),
+        dict(case=dict(CASE_ID="H_DUP", SYMBOL="DUP", DECISION_DATE=_t2_T, SAMPLE="PRIMARY", INTAKE_CLASS="DUPLICATE", FAISAL=dict(label="WATCH")),
+             img=dict(id="TG_D", symbol="DUP", decision_date=_t2_T, decision_date_max=None, faisal_author=True)),
+        dict(case=dict(CASE_ID="H_AMB", SYMBOL="AMB", DECISION_DATE=_t2_T, SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE", FAISAL=dict(label="WATCH")),
+             img=dict(id="TG_A", symbol="AMB", decision_date=_t2_T, decision_date_max="2026-10-14", faisal_author=True)),
+        dict(case=dict(CASE_ID="H_PEND", SYMBOL="PND", DECISION_DATE=_t2_T, SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE", FAISAL={}),
+             img=dict(id="TG_P", symbol="PND", decision_date=_t2_T, decision_date_max=None, faisal_author=True)),
+        dict(case=dict(CASE_ID="H_REJ", SYMBOL="REJ", DECISION_DATE=_t2_T, SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE", FAISAL=dict(label="REJECT")),
+             img=dict(id="TG_R", symbol="REJ", decision_date=_t2_T, decision_date_max=None, faisal_author=True)),
+        dict(case=dict(CASE_ID="H_REP", SYMBOL="U00", DECISION_DATE="2026-10-20", SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE", FAISAL=dict(label="WATCH")),
+             img=dict(id="TG_E", symbol="U00", decision_date="2026-10-20", decision_date_max=None, faisal_author=True)),
+        dict(case=dict(CASE_ID="H_NOC", SYMBOL="NOC", DECISION_DATE=_t2_T, SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE", FAISAL=dict(label="WATCH")),
+             img=dict(id="TG_N", symbol="NOC", decision_date=_t2_T, decision_date_max=None, faisal_author=True),
+             rows=[_h6_row("NOC", "public_float", "yahoo_info", 1, "2026-10-21")]),                       # first collection 6 sessions after T
+        dict(case=dict(CASE_ID="H_NOP", SYMBOL="NOP", DECISION_DATE="2026-10-30", SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE", FAISAL=dict(label="WATCH")),
+             img=dict(id="TG_O", symbol="NOP", decision_date="2026-10-30", decision_date_max=None, faisal_author=True),
+             rows=[_h6_row("NOP", "public_float", "yahoo_info", 1, "2026-10-30")]),                       # no panel that day
+        dict(case=dict(CASE_ID="H_FRM", SYMBOL="FRM", DECISION_DATE=_t2_T, SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE", FAISAL=dict(label="WATCH")),
+             img=dict(id="TG_F", symbol="FRM", decision_date=_t2_T, decision_date_max=None, faisal_author=True),
+             rows=[_h6_row("FRM", "public_float", "yahoo_info", 1, "2026-10-14"), _h6_row("FRM", "reverse_split", "yahoo_splits", "{}", "2026-10-14", "2026-10-14", 2)]),
+        dict(case=dict(CASE_ID="H_ANC", SYMBOL="DKI", DECISION_DATE=_t2_T, SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE", FAISAL=dict(label="WATCH"))),
+    ]
+    _t2_root, _t2_rows, _t2_panel = _h6_world(3, extra_cases=_t2_extra)
+    with _h6ctx.redirect_stdout(_h6io.StringIO()):
+        _t2_st, _t2_units, _t2_ix = H6.build_status("2026-11-01", root=_t2_root, ledger_rows=_t2_rows, panel=_t2_panel)
+    _t2_codes = {e["case_id"]: (e["status"], e["code"]) for e in _t2_st["items"]}
+    _t2_u0 = next(u for u in _t2_units if u["ticker"] == "U00")
+    _t2_feat = {f: H6.feature(_t2_ix["U00"]["rows"], f, _t2_u0["T"], _t2_u0["C"]) for f in H6.FAMILIES}
+    _t2_featc = {f: H6.feature(_t2_ix["K000"]["rows"], f, _t2_u0["T"], _t2_u0["panel_day"]) for f in H6.FAMILIES}
+    _t2_miss = H6.feature([r for r in _t2_ix["U00"]["rows"] if r["field"] != "borrow_available"], "C_borrow", _t2_u0["T"], _t2_u0["C"])
+    _h6t2 = (_t2_st["eligible"] == 3 and _t2_u0["lag"] == 1 and len(_t2_u0["controls"]) == 4 and "DKI" not in _t2_u0["controls"]
+             and _t2_codes["H_OLD"] == ("HISTORICAL", "before_cutoff") and _t2_codes["H_DUP"][1] == "E3:DUPLICATE" and _t2_codes["H_AMB"][1] == "E1:date_ambiguous"
+             and _t2_codes["H_PEND"][0] == "PENDING_REVEAL" and _t2_codes["H_REJ"][0] == "NEGATIVE" and _t2_codes["H_REP"][0] == "REPEAT"
+             and _t2_codes["H_NOC"][0] == "NOT_COVERED" and _t2_codes["H_NOP"][0] == "NO_CONTROLS" and _t2_codes["H_FRM"][0] == "FRAME_CHANGED"
+             and _t2_codes["H_ANC"][0] == "ANCHOR"
+             and _t2_feat == {"A_float": True, "B_offering": False, "C_borrow": True, "D_split": True}
+             and _t2_featc == {"A_float": False, "B_offering": True, "C_borrow": False, "D_split": False} and _t2_miss is None
+             and "p_pos" not in _h6json.dumps(_t2_st) and "effect" not in _h6json.dumps(_t2_st))
+    _h6t2w = f"eligible={_t2_st['eligible']} codes={ {k: v[0] for k, v in _t2_codes.items()} } feat={_t2_feat}"
+except Exception as _e:                                                    # noqa: BLE001
+    _h6t2, _h6t2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔒 H6T2 الأهليّةُ E1-E7 بالترتيب على عالمٍ اصطناعيّ (تاريخيّ · مكرَّر · غامض · غيرُ مكشوف · REJECT · إعادةٌ خلال 30 جلسة · غيرُ مغطًّى · بلا ضوابط · إطارٌ تغيّر · مِرساة) · والميزاتُ الأربع بالاتّجاه المسجَّل · والمفقودُ None · والحالةُ بلا انتشارٍ ولا أثر",
+      _h6t2, _h6t2w)
+
+# H6T3 — the gate: refuses before the floor (8) · writes INSUFFICIENT_SAMPLE after the window · one analysis only (8) · verdict rules on 15 units
+try:
+    def _t3_run(root, rows, panel, today, mode, out):
+        """Runs the real CLI (`H6.main`) with the data sources patched to the synthetic world (no network, no repo write)."""
+        _saved = (H6.OUT, H6.ROOT, H6.HERE, H6.load_ledger, H6.load_panel, _h6os.environ.get("H6_TODAY"))
+        H6.OUT, H6.ROOT, H6.HERE = out, root, out
+        H6.load_ledger, H6.load_panel = (lambda path=None: rows), (lambda path=None: panel)
+        _h6os.environ["H6_TODAY"] = today
+        try:
+            with _h6ctx.redirect_stdout(_h6io.StringIO()):
+                rc = H6.main([mode])
+            st = _h6json.load(open(_h6os.path.join(out, "H6_STATUS.json"), encoding="utf-8"))
+            rp = _h6os.path.join(out, "H6_RESULT.json")
+            res = _h6json.load(open(rp, encoding="utf-8")) if _h6os.path.exists(rp) else None
+            return rc, st, res
+        finally:
+            H6.OUT, H6.ROOT, H6.HERE, H6.load_ledger, H6.load_panel = _saved[:5]
+            if _saved[5] is None:
+                _h6os.environ.pop("H6_TODAY", None)
+            else:
+                _h6os.environ["H6_TODAY"] = _saved[5]
+    _t3_r3, _t3_rows3, _t3_p3 = _h6_world(3)
+    _t3_rc_a, _t3_st_a, _ = _t3_run(_t3_r3, _t3_rows3, _t3_p3, "2026-12-01", "analyze", _h6os.path.join(_h6_dir, "o_a"))
+    _t3_rc_b, _t3_st_b, _t3_res_b = _t3_run(_t3_r3, _t3_rows3, _t3_p3, "2027-04-10", "analyze", _h6os.path.join(_h6_dir, "o_b"))
+    _t3_rc_b2, _, _t3_res_b2 = _t3_run(_t3_r3, _t3_rows3, _t3_p3, "2027-04-10", "analyze", _h6os.path.join(_h6_dir, "o_b"))
+    _t3_r15, _t3_rows15, _t3_p15 = _h6_world(15, pos_true=True, ctl_true=False)
+    _t3_rc_c, _t3_st_c, _t3_res_c = _t3_run(_t3_r15, _t3_rows15, _t3_p15, "2026-12-01", "analyze", _h6os.path.join(_h6_dir, "o_c"))
+    _t3_r15n, _t3_rows15n, _t3_p15n = _h6_world(15, pos_true=True, ctl_true=True)                       # controls have it too ⟹ no separation
+    _t3_rc_d, _, _t3_res_d = _t3_run(_t3_r15n, _t3_rows15n, _t3_p15n, "2026-12-01", "analyze", _h6os.path.join(_h6_dir, "o_d"))
+    _t3_r15m, _t3_rows15m, _t3_p15m = _h6_world(15, miss_fam="C_borrow")                              # one family MISSING everywhere
+    _t3_rc_e, _t3_st_e, _t3_res_e = _t3_run(_t3_r15m, _t3_rows15m, _t3_p15m, "2026-12-01", "analyze", _h6os.path.join(_h6_dir, "o_e"))
+    _t3_r15h, _t3_rows15h, _t3_p15h = _h6_world(15, pos_true=True, ctl_true_n=3)                      # controls 75% ⟹ effect +0.25 but no separation
+    _t3_rc_f, _, _t3_res_f = _t3_run(_t3_r15h, _t3_rows15h, _t3_p15h, "2026-12-01", "analyze", _h6os.path.join(_h6_dir, "o_f"))
+    _t3_fam_f = {k: v["verdict"] for k, v in _t3_res_f["families"].items()}
+    _t3_fam_c = {k: v["verdict"] for k, v in _t3_res_c["families"].items()}
+    _t3_ci_c = _t3_res_c["families"]["A_float"]["ci"]
+    _t3_fam_d = {k: v["verdict"] for k, v in _t3_res_d["families"].items()}
+    _t3_md = open(_h6os.path.join(_h6_dir, "o_c", "H6_VERDICT.md"), encoding="utf-8").read()
+    _h6t3 = (_t3_rc_a == 8 and not _h6os.path.exists(_h6os.path.join(_h6_dir, "o_a", "H6_RESULT.json"))
+             and _t3_rc_b == 0 and _t3_res_b["H6"] == "INSUFFICIENT_SAMPLE" and all(v["verdict"] == "NOT TESTABLE" for v in _t3_res_b["families"].values())
+             and _t3_rc_b2 == 8 and _t3_res_b2 == _t3_res_b and _h6os.path.exists(_h6os.path.join(_h6_dir, "o_c", "H6_VERDICT.md"))
+             and _t3_rc_c == 0 and _t3_st_c["eligible"] == 15 and _t3_res_c["H6"] == "SUPPORTED" and all(v == "SUPPORTED" for v in _t3_fam_c.values())
+             and _t3_ci_c["lo"] > 0 and _t3_ci_c["B"] == 2000 and _t3_res_c["families"]["B_offering"]["summary"]["effect"] > 0
+             and _t3_rc_d == 0 and _t3_res_d["H6"] == "UNSUPPORTED" and all(v == "UNSUPPORTED" for v in _t3_fam_d.values())
+             and _t3_rc_f == 0 and _t3_res_f["families"]["A_float"]["ci"]["lo"] > 0 and _t3_fam_f["A_float"] == "UNSUPPORTED" and _t3_res_f["H6"] == "UNSUPPORTED"
+             and _t3_rc_e == 0 and _t3_res_e["families"]["C_borrow"]["verdict"] == "NOT TESTABLE" and not _t3_st_e["families"]["C_borrow"]["testable"]
+             and _t3_res_e["H6"] == "SUPPORTED"
+             and "## H6 = SUPPORTED" in _t3_md and "No production change" in _t3_md)
+    _h6t3w = f"high_ctl={_t3_fam_f.get('A_float')} before_floor={_t3_rc_a} window_closed={_t3_res_b['H6']} second={_t3_rc_b2} fam15={_t3_fam_c} ci={_t3_ci_c} null={_t3_fam_d} missing={_t3_res_e['families']['C_borrow']['verdict']}"
+except Exception as _e:                                                    # noqa: BLE001
+    _h6t3, _h6t3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔒 H6T3 البوّابة: رفضٌ 8 قبل الأرضيّة بلا كتابة · INSUFFICIENT_SAMPLE بعد النافذة · تحليلٌ واحدٌ فقط (الثاني 8) · وعلى 15 وحدة: SUPPORTED بفاصل 98.75% موجب (B بالاتّجاه المعكوس) · UNSUPPORTED حين تملكه الضوابطُ أيضًا · وعائلةٌ مفقودةٌ NOT TESTABLE لا تُقدَّر",
+      _h6t3, _h6t3w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

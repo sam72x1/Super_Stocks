@@ -17,6 +17,10 @@ on:
         description: "1 = يجمع ويرفع artifact ولا يلتزم"
         required: false
         default: "0"
+      controls:
+        description: "1 = لوحةُ ضوابط H6 اليوميّة (العقد fm_forensics/perf/H6_PREREG.md §4) · 0 = بلا لوحة (بت-بت)"
+        required: false
+        default: "1"
   schedule:
     - cron: "41 2 * * 2-6"
 
@@ -45,6 +49,7 @@ jobs:
         env:
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
           P6_TICKERS: ${{ inputs.tickers }}
+          P6_CONTROLS: ${{ inputs.controls }}
           P6_RAW_DIR: ${{ format('{0}/phase6_raw', runner.temp) }}
         run: python3 fm_forensics/phase6/collector.py run
 
