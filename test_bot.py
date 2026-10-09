@@ -84332,8 +84332,24 @@ if _FR is not None and _RE is not None:
         _ok14 = False; _why14 = f"⛔ {type(_e).__name__}: {_e}"
     check("🧭🏁 RNK14: هُويّةُ الرمز — مفتاحٌ واحدٌ في الوحدات والكون والرتب (حروفٌ كبيرة بلا فراغ) · ولا خريطةَ لتغيّر الرمز ⟵ الغائبُ UNEVALUABLE بسببه",
           _ok14, _why14)
+    # RNK16 — frozen inputs only: rank_eval reads the reject_stats snapshot in data/rank, never the live rolling weekly_watchlist.json
+    try:
+        _src16 = open(_fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "faisal_engine", "rank_eval.py"), encoding="utf-8").read()
+        _live16 = [n.value for n in _fe_ast.walk(_fe_ast.parse(_src16))
+                   if isinstance(n, _fe_ast.Constant) and isinstance(n.value, str) and "weekly_watchlist" in n.value]
+        _snap16 = _fe_json.load(open(_fe_os.path.join(_RE.DATA, "reject_stats.json"), encoding="utf-8"))
+        import csv as _csv16
+        _fd16 = {r["run_date"] for r in _csv16.DictReader(open(_fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "faisal_engine", "out", "rank_fidelity.csv"), encoding="utf-8"))}
+        _sd16 = {e["date"] for e in _snap16["reject_stats"]}
+        _ok16 = (not _live16 and _fd16 and _fd16 <= _sd16 and _RE.load()[4]["reject_stats"] == _snap16["reject_stats"]
+                 and len(_snap16.get("source_blob_sha256", "")) == 64)
+        _why16 = f"live={_live16} fidelity_dates={len(_fd16)} snapshot={len(_sd16)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok16 = False; _why16 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK16: مدخلاتٌ مجمَّدة وحدَها — `rank_eval.py` يقرأ لقطةَ reject_stats في data/rank لا `weekly_watchlist.json` الحيّ (نافذتُه 56 يومًا متدحرجة) "
+          "وتواريخُ الأمانة كلُّها داخل اللقطة", _ok16, _why16)
 else:
-    check("🧭🏁 RNK15: `rank_eval.py` يُستورَد (شرطُ أقفال RNK8-RNK14)", False, str(_re_err)[:120])
+    check("🧭🏁 RNK15: `rank_eval.py` يُستورَد (شرطُ أقفال RNK8-RNK14 وRNK16)", False, str(_re_err)[:120])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
