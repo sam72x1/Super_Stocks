@@ -83174,6 +83174,340 @@ except Exception as _e:                                                    # noq
 check("🧵 PHB11 E1 على مستوى السلسلة: الحاملُ تاريخيٌّ إن كان عضوٌ في سلسلة قراره تاريخيًّا (الردُّ لا يحمل قرارًا سابقًا للحدّ) · "
       "والمكرَّرُ بمساره · وشاهدا ضبط", _phb11, _phb11w)
 
+
+# ═════ 🔎🧭⑥ PHASE 6 — المُلتقِطُ الأماميّ وتتبّعُ خطّ الأنابيب (2026-10-09 · بحثٌ فقط · بلا شبكة) ═════
+print("\n=== 🔎🧭⑥ PHASE 6: collector + trace ===")
+import ast as _p6ast
+import csv as _p6csv
+import datetime as _p6dt
+import importlib.util as _p6ilu
+import json as _p6json
+import os as _p6os
+import shutil as _p6sh
+import subprocess as _p6sp
+import sys as _p6sys
+import tempfile as _p6tf
+
+_p6_dir = _p6tf.mkdtemp(prefix="_suite_p6_")
+_p6_spec = _p6ilu.spec_from_file_location("p6collector", _p6os.path.join("fm_forensics", "phase6", "collector.py"))
+P6 = _p6ilu.module_from_spec(_p6_spec)
+_p6_cwd = _p6os.getcwd()
+_p6_spec.loader.exec_module(P6)
+_p6os.chdir(_p6_cwd)
+_P6_NOW = _p6dt.datetime(2026, 10, 9, 2, 0, tzinfo=_p6dt.timezone.utc)
+_P6_SPLITS = {"SXTC": [["2026-02-03", 1 / 150], ["2026-08-10", 1 / 80]]}
+
+
+def _p6_fetchers(**over):
+    base = dict(
+        yahoo_info=lambda s: {"floatShares": 373432, "sharesShort": 1200, "dateShortInterest": 1758844800, "sharesOutstanding": 500000} if s == "DKI" else {},
+        yahoo_splits=lambda s: [("2026-02-03", 1 / 150), ("2026-02-03", 1 / 150), ("2026-08-10", 1 / 80)] if s == "SXTC" else [],
+        tv_scan=lambda: {"NASDAQ:DKI": {"float_shares_outstanding": 373000}},
+        ce_borrow=lambda s: ({"shares_available": 0, "borrow_fee": 12.5}, {}) if s == "DKI" else ({}, {"reason": "parse:empty"}),
+        sec_cik=lambda s: 2058584 if s == "DKI" else None,
+        sec_submissions=lambda cik: {"name": "DarkIris Inc.", "tickers": ["DKI"], "exchanges": ["Nasdaq"], "formerNames": [],
+                                     "filings": {"recent": {"form": ["6-K"], "filingDate": ["2026-10-06"], "accessionNumber": ["0001493152-26-045828"],
+                                                            "acceptanceDateTime": ["2026-10-06T14:30:16.000Z"]}}},
+        sec_dei=lambda cik, c: (_ for _ in ()).throw(RuntimeError("http:404")),
+        nasdaq_calendar=lambda: {"SXTC": [("2026-08-10", 1 / 80, "2026-08-05")]})
+    base.update(over)
+    return base
+
+
+def _p6_num0(v):
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
+def _p6_run(tag, fetchers=None, tickers=("DKI", "SXTC"), ledger=None, now=None, resume=True, splits=None):
+    L = ledger or P6.Ledger(_p6os.path.join(_p6_dir, f"{tag}.jsonl"))
+    C = P6.Collector(L, fetchers or _p6_fetchers(), tag, now=now or _P6_NOW, raw_dir=_p6os.path.join(_p6_dir, "raw"),
+                     splits_known=splits if splits is not None else _P6_SPLITS, log=lambda *a: None)
+    res = C.run(list(tickers), resume=resume)
+    return L, C, res
+
+
+# P6C1 idempotence: same day re-run (resume on/off) adds nothing; chain sound; audit complete
+try:
+    _L1, _C1, _r1 = _p6_run("c1")
+    _n1 = len(_L1.rows)
+    _p6_run("c1b", ledger=_L1)
+    _p6_run("c1c", ledger=_L1, resume=False)
+    _a1 = P6.audit(_L1, "c1")
+    _p6c1 = (_n1 > 0 and len(_L1.rows) == _n1 and not _L1.verify() and not _a1["missing"] and _a1["rows"] == _n1
+             and P6.Ledger(_L1.path).verify() == [])
+    _p6c1w = f"rows={_n1} · after={len(_L1.rows)} · audit={_a1['by_status']} · gaps={_a1['missing']}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c1, _p6c1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C1 الالتقاطُ idempotent: إعادةُ اليوم نفسِه (مع الاستئناف وبدونه) لا تضيف صفًّا · والسلسلةُ سليمةٌ من القرص · وتدقيقُ الاكتمال بلا فجوة",
+      _p6c1, _p6c1w)
+
+# P6C2 timestamp / tz integrity
+try:
+    _p6c2_naive = False
+    try:
+        P6.utc_now_iso(_p6dt.datetime(2026, 10, 9, 2, 0))
+    except ValueError:
+        _p6c2_naive = True
+    _rows2 = _L1.rows
+    _p6c2 = (_p6c2_naive and P6.parse_ts("2026-10-09T01:00:00") is None and P6.parse_ts("2026-10-09T01:00:00+03:00").hour == 22
+             and all(r["collected_utc"].endswith("Z") and P6.parse_ts(r["collected_utc"]) is not None for r in _rows2)
+             and all(m["post_timestamp"] == P6.UNKNOWN or P6.parse_ts(m["post_timestamp"]) is not None for m in P6.build_mentions()))
+    _p6c2w = f"naive refused={_p6c2_naive} · rows={len(_rows2)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c2, _p6c2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C2 سلامةُ الزمن: الطابعُ الساذج يُرفَض (لا يُفترَض UTC) · `collected_utc` دائمًا tz-aware بـZ · وطوابعُ الذكر إمّا UNKNOWN أو tz-aware",
+      _p6c2, _p6c2w)
+
+# P6C3 duplicate events & duplicate posts
+try:
+    _sp3 = [r for r in _L1.rows if r["ticker"] == "SXTC" and r["field"] == "reverse_split" and r["source"] == "yahoo_splits" and r["status"] == "OK"]
+    _root3 = _p6os.path.join(_p6_dir, "root3", "fm_forensics", "phase3")
+    _p6os.makedirs(_root3)
+    with open(_p6os.path.join(_root3, "FAISAL_TIMELINE.csv"), "w", encoding="utf-8", newline="") as _f3:
+        _w3 = _p6csv.DictWriter(_f3, fieldnames=["TICKER", "DATE", "EVIDENCE_ID", "AUTHOR", "IS_FAISAL"])
+        _w3.writeheader()
+        for _ in range(3):
+            _w3.writerow({"TICKER": "dki", "DATE": "2026-09-13", "EVIDENCE_ID": "TG_1", "AUTHOR": "F", "IS_FAISAL": "1"})
+        _w3.writerow({"TICKER": "DKI", "DATE": "2026-09-13", "EVIDENCE_ID": "TG_2", "AUTHOR": "EDU", "IS_FAISAL": "0"})
+    _m3 = P6.build_mentions(_p6os.path.join(_p6_dir, "root3"))
+    _p6c3 = (len(_sp3) == 2 and sorted(_p6json.loads(r["value"])["effective"] for r in _sp3) == ["2026-02-03", "2026-08-10"]
+             and len(_m3) == 2 and P6.mention_tickers(_m3) == ["DKI"] and P6.mention_tickers(_m3, faisal_only=False) == ["DKI"])
+    _p6c3w = f"splits={len(_sp3)} · mentions={len(_m3)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c3, _p6c3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C3 المكرَّر: صفّا تقسيمٍ متطابقان من ياهو ⟵ حدثٌ واحد · والمنشورُ المكرَّر (evidence × ticker) ⟵ ذكرٌ واحد · والمذكورُ من غير فيصل لا يُجمَع",
+      _p6c3, _p6c3w)
+
+# P6C4 missing provider responses ⟵ FAILED/UNKNOWN rows with value UNKNOWN (never zero)
+try:
+    def _boom(*a):
+        raise RuntimeError("timeout")
+    _L4, _C4, _r4 = _p6_run("c4", _p6_fetchers(yahoo_info=_boom, tv_scan=lambda: None, ce_borrow=_boom, sec_cik=lambda s: None,
+                                                 yahoo_splits=lambda s: None, nasdaq_calendar=lambda: None), tickers=("DKI",))
+    _st4 = {(r["field"], r["source"]): (r["status"], r["value"], r["category"], r["failure_reason"]) for r in _L4.rows}
+    _p6c4 = (all(v[0] in ("FAILED", "UNKNOWN", "NOT_ATTEMPTED") and v[1] == P6.UNKNOWN and v[2] == 4 for v in _st4.values())
+             and _st4[("public_float", "yahoo_info")][0] == "FAILED" and "RuntimeError" in _st4[("public_float", "yahoo_info")][3]
+             and _st4[("public_float", "tv_scan")][0] == "FAILED" and _st4[("reverse_split", "nasdaq_calendar")][0] == "FAILED"
+             and _st4[("sec_filing", "sec_submissions")][0] == "NOT_ATTEMPTED" and not P6.audit(_L4, "c4")["missing"]
+             and not any(r["value"] in (0, 0.0, "0") for r in _L4.rows)
+             and next(r for r in _L1.rows if r["ticker"] == "SXTC" and r["field"] == "public_float" and r["source"] == "yahoo_info")["status"] == "UNKNOWN"
+             and not any(r["status"] == "OK" and _p6_num0(r["value"]) == 0 and r["units"] != "shares_zero_reported" for r in _L1.rows))
+    _p6c4w = f"{sorted(_st4.items())[:4]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c4, _p6c4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C4 المزوّدُ الغائب/المنهار ⟵ صفُّ FAILED/UNKNOWN بقيمة UNKNOWN وفئة 4 وسببٍ مسمًّى — ولا صفرَ قطّ · ولا يُسقط التشغيلة",
+      _p6c4, _p6c4w)
+
+# P6C5 invalid / stale observations
+try:
+    _L5, _C5, _r5 = _p6_run("c5", _p6_fetchers(yahoo_info=lambda s: {"floatShares": "n/a", "sharesShort": float("nan"), "dateShortInterest": 1758844800}), tickers=("DKI",))
+    _f5 = next(r for r in _L5.rows if r["field"] == "public_float" and r["source"] == "yahoo_info")
+    _s5 = next(r for r in _L5.rows if r["field"] == "short_interest")
+    _si1 = next(r for r in _L1.rows if r["ticker"] == "DKI" and r["field"] == "short_interest")
+    _p6c5 = (_f5["status"] == "UNKNOWN" and _f5["value"] == P6.UNKNOWN and _s5["status"] == "UNKNOWN"
+             and "STALE_ASOF" in _si1["extra"]["quality_flags"] and _si1["source_asof"] == "2025-09-26" and _si1["category"] == 2)
+    _p6c5w = f"float={_f5['status']}/{_f5['failure_reason']} · si={_s5['status']} · stale={_si1['extra']}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c5, _p6c5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C5 القيمةُ غيرُ الرقميّة وNaN ⟵ UNKNOWN لا رقم · وأصلُ الشورت الأقدمُ من 45 يومًا يُوسَم STALE_ASOF ويبقى فئةً 2 بتاريخ المزوّد",
+      _p6c5, _p6c5w)
+
+# P6C6 historical vs current separation (categories at capture · class at use · schema refuses mislabels)
+try:
+    _fl6 = next(r for r in _L1.rows if r["ticker"] == "DKI" and r["field"] == "public_float" and r["source"] == "yahoo_info")
+    _fi6 = next(r for r in _L1.rows if r["ticker"] == "DKI" and r["field"] == "sec_filing")
+    _bad6 = dict(_fl6, category=2)
+    _bad6b = dict(_si1, asof_basis="COLLECTION")
+    _bad6c = dict(_fl6, status="FAILED")
+    _p6c6 = (_fl6["category"] == 1 and _fl6["asof_basis"] == "COLLECTION" and _fi6["category"] == 2 and _fi6["asof_basis"] == "PROVIDER"
+             and P6.evidence_class(_fl6, "2026-09-13") == 3 and P6.evidence_class(_fl6, "2026-10-09") == 1
+             and P6.evidence_class(_fi6, "2026-10-06") == 2 and P6.evidence_class(_fi6, "2026-10-05") == 3
+             and P6.evidence_class(dict(_fl6, status="UNKNOWN", value=P6.UNKNOWN, category=4), "2026-10-09") == 4
+             and P6.schema_problems(_fl6) == [] and P6.schema_problems(_bad6) and P6.schema_problems(_bad6b) and P6.schema_problems(_bad6c))
+    _p6c6w = f"float cat={_fl6['category']} · filing cat={_fi6['category']} · bad={P6.schema_problems(_bad6)[:1]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c6, _p6c6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C6 الفصلُ تاريخيّ/حاليّ: لقطةُ الفلوت فئةٌ 1 بأصل الجمع · الإيداعُ فئةٌ 2 بأصل المزوّد · والصنفُ عند الاستعمال 3 لتاريخٍ أسبقَ من الأصل · "
+      "والمخطّطُ يرفض فئةً 2 بلا أصل مزوّدٍ وفئةً 1 بأصلٍ مزوّد وصفًّا فاشلًا بقيمة", _p6c6, _p6c6w)
+
+# P6C7 float ≠ short interest ≠ borrow
+try:
+    _L7, _C7, _r7 = _p6_run("c7", _p6_fetchers(yahoo_info=lambda s: {"sharesShort": 999999, "dateShortInterest": 1758844800}), tickers=("DKI",))
+    _f7 = next(r for r in _L7.rows if r["field"] == "public_float" and r["source"] == "yahoo_info")
+    _s7 = next(r for r in _L7.rows if r["field"] == "short_interest")
+    _b7 = next(r for r in _L1.rows if r["ticker"] == "DKI" and r["field"] == "borrow_available")
+    _fields7 = {r["field"] for r in _L1.rows}
+    _p6c7 = (_f7["status"] == "UNKNOWN" and _f7["value"] == P6.UNKNOWN and _s7["value"] == 999999.0
+             and _b7["value"] == 0.0 and _b7["units"] == "shares_zero_reported" and _b7["status"] == "OK"
+             and {"public_float", "short_interest", "borrow_available", "borrow_fee"} <= _fields7
+             and P6.schema_problems(dict(_b7, units="shares")) != [])
+    _p6c7w = f"float={_f7['status']} · si={_s7['value']} · borrow={_b7['value']}/{_b7['units']}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c7, _p6c7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C7 الفلوت ≠ فائدةُ الشورت ≠ المتاحُ للاقتراض: مزوّدٌ يعطي الشورت وحدَه لا يملأ الفلوت · والمتاحُ صفرًا يُوسَم صفرًا مُبلَّغًا صراحةً (والمخطّطُ يرفض صفرًا بلا وسم)",
+      _p6c7, _p6c7w)
+
+# P6C8 ticker / identity change
+try:
+    _L8, _C8, _r8 = _p6_run("c8", _p6_fetchers(sec_submissions=lambda cik: {"name": "New Co", "tickers": ["NEWT"], "exchanges": ["Nasdaq"],
+                                                                             "formerNames": [{"name": "Old Co", "from": "2020-01-01", "to": "2026-01-01"}],
+                                                                             "filings": {"recent": {}}}), tickers=("DKI",))
+    _id8 = next(r for r in _L8.rows if r["field"] == "identity" and r["status"] == "OK")
+    _root8 = _p6os.path.join(_p6_dir, "root8", "fm_forensics", "phase5")
+    _p6os.makedirs(_root8)
+    with open(_p6os.path.join(_root8, "PHASE5_COHORT_MANIFEST.csv"), "w", encoding="utf-8", newline="") as _f8:
+        _w8 = _p6csv.DictWriter(_f8, fieldnames=["SECURITY_ID", "TICKER_AT_DECISION", "DECISION_DATE", "DATE_AMBIGUOUS", "EVIDENCE_ID"])
+        _w8.writeheader()
+        _w8.writerow({"SECURITY_ID": "NEWT", "TICKER_AT_DECISION": "OLDT", "DECISION_DATE": "2026-09-01", "DATE_AMBIGUOUS": "0", "EVIDENCE_ID": "X_1"})
+    _m8 = P6.build_mentions(_p6os.path.join(_p6_dir, "root8"))
+    _p6c8 = (_id8["extra"]["ticker_listed_by_sec"] is False and _id8["original_ticker"] == "DKI" and _id8["security_id"] == "CIK0002058584"
+             and "Old Co" in _id8["value"] and len(_m8) == 1 and _m8[0]["original_ticker"] == "OLDT" and _m8[0]["canonical_ticker"] == "NEWT")
+    _p6c8w = f"listed={_id8['extra']} · sid={_id8['security_id']} · mention={_m8[0]['original_ticker'] if _m8 else None}→{_m8[0]['canonical_ticker'] if _m8 else None}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c8, _p6c8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C8 تغيّرُ الرمز/الهُويّة: SEC لا يُدرج الرمزَ المطلوب ⟵ وسمٌ صريح · الأسماءُ السابقة تُحفَظ حرفًا · `security_id`=CIK · والذكرُ يحفظ الرمزَ الأصليّ والقانونيّ معًا",
+      _p6c8, _p6c8w)
+
+# P6C9 reverse-split handling
+try:
+    _si9 = next(r for r in _L1.rows if r["ticker"] == "SXTC" and r["field"] == "public_float" and r["source"] == "yahoo_info")
+    _a9 = dict(field="public_float", split_frame="post:2026-02-03")
+    _b9 = dict(field="public_float", split_frame="post:2026-08-10")
+    _p6c9 = (P6.split_frame(_P6_SPLITS["SXTC"], "2026-10-09") == "post:2026-08-10" and P6.split_frame(_P6_SPLITS["SXTC"], "2026-05-01") == "post:2026-02-03"
+             and P6.split_frame(_P6_SPLITS["SXTC"], "2026-01-01") == "pre:none" and P6.split_frame([["2026-01-01", 2.0]], "2026-10-09") == "pre:none"
+             and _si9["split_frame"] == "post:2026-08-10" and not P6.comparable(_a9, _b9) and P6.comparable(_a9, dict(_a9))
+             and not P6.comparable(_a9, dict(_a9, field="short_interest")))
+    _p6c9w = f"frame={_si9['split_frame']}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c9, _p6c9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C9 التقسيمُ العكسيّ: إطارُ كلّ عدد أسهمٍ = آخرُ تقسيمٍ عكسيٍّ ≤ أصله (والأماميُّ لا يُعَدّ) · ولا مقارنةَ عبر إطارين ولا بين حقلين",
+      _p6c9, _p6c9w)
+
+# P6C10 audit-log completeness & tamper evidence
+try:
+    _p10 = _p6os.path.join(_p6_dir, "c10.jsonl")
+    _p6sh.copy(_L1.path, _p10)
+    _lines10 = open(_p10, encoding="utf-8").read().splitlines()
+    _t10 = _p6json.loads(_lines10[3]); _t10["value"] = 1.0
+    _lines10[3] = _p6json.dumps(_t10, ensure_ascii=False, sort_keys=True)
+    open(_p10, "w", encoding="utf-8").write("\n".join(_lines10) + "\n")
+    _bad10 = P6.Ledger(_p10).verify()
+    _p11 = _p6os.path.join(_p6_dir, "c10b.jsonl")
+    open(_p11, "w", encoding="utf-8").write("\n".join(_lines10[:3] + _lines10[4:]) + "\n")
+    _bad10b = P6.Ledger(_p11).verify()
+    _p6c10 = (any("sha256 mismatch" in b for b in _bad10) and any("prev_sha256 mismatch" in b for b in _bad10b)
+              and all(_L1.rows[i]["prev_sha256"] == _L1.rows[i - 1]["sha256"] for i in range(1, len(_L1.rows))) and _L1.rows[0]["prev_sha256"] == P6.GENESIS
+              and all(r["raw_sha256"] for r in _L1.rows if r["status"] == "OK" and r["source"] in ("yahoo_info", "chartexchange", "sec_submissions"))
+              and all(_p6os.path.exists(_p6os.path.join(_p6_dir, "raw", r["raw_sha256"] + ".json.gz")) for r in _L1.rows if r["raw_sha256"]))
+    _p6c10w = f"tamper={_bad10[:1]} · gap={_bad10b[:1]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c10, _p6c10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C10 سجلُّ التدقيق: تعديلُ قيمةٍ أو حذفُ صفٍّ يكسر السلسلة ويُسمّى · وكلُّ صفٍّ ناجحٍ من مزوّدٍ خامٍّ يحمل بصمةَ ردّه والخامُّ موجودٌ بها",
+      _p6c10, _p6c10w)
+
+# P6C11 no production decision change (static)
+try:
+    _src11 = {f: open(_p6os.path.join("fm_forensics", "phase6", f), encoding="utf-8").read() for f in ("collector.py", "trace.py")}
+    _calls11 = set()
+    for _f, _s in _src11.items():
+        for _n in _p6ast.walk(_p6ast.parse(_s)):
+            if isinstance(_n, _p6ast.Call):
+                _calls11.add(_p6ast.unparse(_n.func))
+    _forbid11 = {"send_telegram", "git_save", "save_watchlist", "save_near_watch", "save_near_watch_float", "S.send_telegram", "L.S.send_telegram",
+                 "S.git_save", "L.S.git_save", "S.save_watchlist", "L.S.save_watchlist"}
+    _assign11 = [_p6ast.unparse(_n.targets[0]) for _n in _p6ast.walk(_p6ast.parse(_src11["trace.py"])) if isinstance(_n, _p6ast.Assign)]
+    _p6c11 = (not (_calls11 & _forbid11) and not any("CONFIG" in a for a in _assign11)
+              and "import Super_stock" not in _src11["collector.py"].split("def default_fetchers")[0]
+              and "phase6" not in open("Super_stock.py", encoding="utf-8").read())
+    _p6c11w = f"forbidden={sorted(_calls11 & _forbid11)} · config_assign={[a for a in _assign11 if 'CONFIG' in a]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c11, _p6c11w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C11 لا قرارَ إنتاجيًّا يتغيّر: المُلتقِطُ والتتبّعُ لا يناديان تلغرام ولا حفظَ حالة · والتتبّعُ لا يُسند `CONFIG` · والمُلتقِطُ لا يستورد البوت إلّا داخل المزوّدات الافتراضيّة · "
+      "و`Super_stock.py` لا يعرف `phase6`", _p6c11, _p6c11w)
+
+# P6C12 the runner workflow
+try:
+    import yaml as _p6yaml
+    _wf12 = open(".github/workflows/fm_phase6_collect.yml", encoding="utf-8").read()
+    _y12 = _p6yaml.safe_load(_wf12)
+    _on12 = _y12.get(True, _y12.get("on"))
+    _p6c12 = ("permissions" in _y12 and [c["cron"] for c in _on12["schedule"]] == ["41 2 * * 2-6"] and "TELEGRAM" not in _wf12
+              and "git add fm_forensics/phase6/data fm_forensics/phase6/out" in _wf12 and "runner.temp" in _wf12
+              and "collector.py verify" in _wf12 and "collector.py run" in _wf12)
+    _p6c12w = f"crons={[c['cron'] for c in _on12.get('schedule', [])]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c12, _p6c12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C12 الـworkflow: صلاحيّاتٌ معلنة · كرونٌ واحد `41 2 * * 2-6` · بلا سرّ تلغرام · يلتزم مجلّدَي phase6 وحدَهما · والخامُّ في runner.temp · ويتحقّق من السلسلة بعد الجمع",
+      _p6c12, _p6c12w)
+
+# P6T1 trace: deterministic and cwd-independent (subprocess from a temp cwd; output to a temp dir) ⟵ identical to the committed summary
+try:
+    _out_t1 = _p6os.path.join(_p6_dir, "trace_out")
+    _cfg_t1 = dict(S.CONFIG)
+    _env_t1 = dict(_p6os.environ, P6_OUT=_out_t1)
+    _pr_t1 = _p6sp.run([_p6sys.executable, _p6os.path.join(_p6_cwd, "fm_forensics", "phase6", "trace.py")], cwd=_p6_dir, env=_env_t1,
+                       capture_output=True, text=True, timeout=600)
+    _p6os.chdir(_p6_cwd)
+    _got_t1 = open(_p6os.path.join(_out_t1, "PHASE6_TRACE_SUMMARY.csv"), encoding="utf-8").read()
+    _ref_t1 = open(_p6os.path.join("fm_forensics", "phase6", "out", "PHASE6_TRACE_SUMMARY.csv"), encoding="utf-8").read()
+    _rows_t1 = list(_p6csv.DictReader(_got_t1.splitlines()))
+    _p6t1 = _pr_t1.returncode == 0 and _got_t1 == _ref_t1 and len(_rows_t1) == 6
+    _p6t1w = f"rc={_pr_t1.returncode} · rows={len(_rows_t1)} · identical={_got_t1 == _ref_t1} · {(_pr_t1.stderr or '')[-160:]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6t1, _p6t1w, _rows_t1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}", []
+check("🔎🧭⑥ P6T1 التتبّعُ حتميٌّ ومستقلٌّ عن مجلّد التشغيل (يُشغَّل من مجلّدٍ مؤقّت ويُخرج إلى مؤقّت) ⟵ مطابقٌ للمُلتزَم بايتًا بايتًا · 6 صفوف",
+      _p6t1, _p6t1w)
+
+# P6T2 reproducible rejection attribution ⟵ agrees with Phase 3's independent reconstruction and LOGO on every row; first gate per anchor as recorded
+try:
+    _exp_t2 = {("DKI", "2026-09-14"): ("M_لا_مستوى_مختبر", "ANCHOR"), ("HUBC", "2026-04-24"): ("M4_base_واسعة", "M4_RANGE"),
+               ("SXTC", "2026-09-10"): ("M2_هبوط_فوق_97", "M2_CEIL"), ("SXTC", "2026-09-24"): ("M2_هبوط_فوق_97", "M2_CEIL")}
+    _got_t2 = {(r["ticker"], r["mention_date"]): (r["candidate_reason"], r["first_failing_gate"]) for r in _rows_t1}
+    _p6t2 = (all(r["bot_states_agrees"] == "YES" and r["logo_agrees"] == "YES" for r in _rows_t1)
+             and all(_got_t2.get(k) == v for k, v in _exp_t2.items())
+             and all(r["earliest_ineligible_stage"].startswith("S4_CANDIDATE_GATES/") for r in _rows_t1)
+             and all(r["input_data_unavailable"].startswith("NO") for r in _rows_t1)
+             and all("ANCHOR" in r["failing_gates_independent"] for r in _rows_t1))
+    _p6t2w = f"{_got_t2}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6t2, _p6t2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6T2 إسنادُ الرفض قابلٌ للإعادة: 6/6 تطابق إعادةَ المرحلة الثالثة وجدولَ LOGO · والبوّابةُ الأولى لكلّ مرساةٍ كما سُجِّلت (DKI اللمستان · SXTC سقفُ M2 · HUBC مدى M4) "
+      "· والمرحلةُ الأولى غيرُ المؤهَّلة S4 دائمًا · والشموعُ حاضرة · ومرساةُ اللمستين تسقط مستقلّةً في الستّة", _p6t2, _p6t2w)
+
+# P6T3 the trace document's summary table equals the CSV
+try:
+    _md_t3 = open(_p6os.path.join("fm_forensics", "phase6", "PHASE6_PIPELINE_TRACE.md"), encoding="utf-8").read()
+    _tbl_t3 = [l for l in _md_t3.splitlines() if l.startswith("| DKI") or l.startswith("| HUBC") or l.startswith("| SXTC")]
+    _tbl_t3 = [l for l in _tbl_t3 if "REJECT" in l]
+    _ok_t3 = []
+    for r in _rows_t1:
+        _line = next((l for l in _tbl_t3 if l.startswith(f"| {r['ticker']} | {r['mention_date']} |")), "")
+        _ok_t3.append(bool(_line) and f"`{r['candidate_reason']}`" in _line and f"| {r['first_failing_gate']} |" in _line
+                      and f"S4/{r['first_failing_gate']}" in _line and ("agrees | agrees" in _line) == (r["bot_states_agrees"] == "YES" == r["logo_agrees"]))
+    _p6t3 = len(_tbl_t3) == 6 and all(_ok_t3)
+    _p6t3w = f"table rows={len(_tbl_t3)} · ok={_ok_t3}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6t3, _p6t3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6T3 جدولُ الملخّص في `PHASE6_PIPELINE_TRACE.md` = صفوفُ CSV التتبّع (الرمز · التاريخ · السبب · البوّابةُ الأولى · الموافقة)",
+      _p6t3, _p6t3w)
+
+# P6T4 the trace writes only inside its output dir and leaves the bot's config untouched
+try:
+    _p6t4 = (not any(_p6os.path.exists(_p6os.path.join(_p6_dir, f)) for f in ("reject_log.json", "near_watch.json", "weekly_watchlist.json", "alerts_history.json"))
+             and set(_p6os.listdir(_out_t1)) == {"PHASE6_TRACE_SUMMARY.csv", "PHASE6_TRACE_STAGES.csv", "PHASE6_TRACE_SUMMARY.json"}
+             and dict(S.CONFIG) == _cfg_t1
+             and any('"MAX_DROP_PCT": 99.95' in r["predicate"] for r in _p6csv.DictReader(open(_p6os.path.join(_out_t1, "PHASE6_TRACE_STAGES.csv"), encoding="utf-8"))))
+    _p6t4w = f"out={sorted(_p6os.listdir(_out_t1))} · config unchanged={dict(S.CONFIG) == _cfg_t1}"
+except Exception as _e:                                                    # noqa: BLE001
+    _p6t4, _p6t4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6T4 التتبّعُ لا يكتب إلّا ملفّاتِه الثلاثة في مجلّد خرجه · ولا ملفَّ حالةٍ في مجلّد تشغيله · وإعداداتُ السويّة بت-بت بعده · ويُطبَّق على عتبات الإنتاج (99.95) لا السويّة (97)",
+      _p6t4, _p6t4w)
+_p6sh.rmtree(_p6_dir, ignore_errors=True)
+_p6os.chdir(_p6_cwd)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

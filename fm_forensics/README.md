@@ -72,3 +72,25 @@ Pre-registered (`phase4/PHASE4_PREREG.md`, merged via #580 before any number; di
 ## Phase 5 — non-candle information × Faisal selection (2026-10-08 · `phase5/`)
 
 Pre-registered (`phase5/PHASE5_PREREG.md`, PR #582 before any number): four feature families with point-in-time vintages — float ≤ 5M, final prospectus ≤ 90 d (SEC EDGAR), borrow available < 20k, reverse split ≤ 120 d — on 38 primary Faisal selections vs 134 matched control-days (matching never uses the tested features), discovery 23 / validation 15 by hash, Bonferroni 98.75% CIs, placebo at T−60, Phase 4 audited first (`PHASE5_PHASE4_RECONCILIATION.md`, 51/51 reproduced; 4 bar-less tickers named). **Verdict** (`PHASE5_FINAL_VERDICT.md`): float and borrow **NOT TESTABLE** (no point-in-time history before the bot's own records); offering status **UNSUPPORTED** (sign flips between halves); split age — association present and directionally replicated (+0.30 / +0.27) but **UNSUPPORTED by the pre-registered verification floor** (foreign filers cannot be SEC-confirmed; amendment A1) and not distinguishable from the eligible population's split profile; H6 null stands. Outputs: manifest, availability inventory (`PHASE5_FEATURE_AVAILABILITY.csv`), source ledger, matched-control manifest, exploratory register, `out/results_*.csv`, report. SEC data collected once on a runner (`phase5/sec_probe.py` → `data/sec_2026-10-08.json.gz`; the temporary workflow was removed). No production change.
+
+## Phase 6 — prospective data capture + candidate-pipeline forensics (2026-10-09 · `phase6/`)
+
+Two strictly separated workstreams, no production change. **A — collector** (`phase6/collector.py`, daily runner
+`.github/workflows/fm_phase6_collect.yml` 02:41 UTC Tue–Sat, manual too): for every Faisal-authored mention (registry
+`phase6/data/PHASE6_MENTIONS.csv`, 303 mentions / 89 tickers built deterministically from the Phase 3 timeline, Phase 5 cohort,
+V4.1 intake and the prospective ledger) it records public float (Yahoo, TradingView, SEC `dei` in USD), shares outstanding,
+short interest with its FINRA as-of, borrow availability + fee (ChartExchange, quota 48/run), SEC filings with acceptance
+timestamps, reverse splits (Yahoo ∪ Nasdaq calendar) and SEC identity (CIK, tickers, former names) into an append-only,
+hash-chained JSONL ledger (`phase6/data/PHASE6_LEDGER.jsonl`; raw responses as a 90-day artifact). Every row carries status
+(`OK`/`UNKNOWN`/`FAILED`/`NOT_ATTEMPTED`), as-of basis, category (1 point-in-time · 2 historical/provider-dated · 4
+unavailable; 3 "current-only" is computed at use time relative to a mention date), split frame and raw hash; missing is never
+zero; float ≠ short interest ≠ borrow. Spec: `PHASE6_DATA_CAPTURE_SPEC.md`. Locks `P6C1`–`P6C12`.
+**B — trace** (`phase6/trace.py` → `PHASE6_PIPELINE_TRACE.md`, `out/PHASE6_TRACE_*.csv`): stage-by-stage walk (raw data →
+identity → universe → DQ gate → each candidate gate with function/line, inputs, predicate + live parameter, ran?, pass/fail →
+selection → near-watch → ready → trigger → notification) for the six Faisal-dated mentions of DKI/SXTC/HUBC on frozen bars with
+a lookahead firewall; 6/6 reproduce Phase 3's reconstruction and LOGO table. Earliest ineligible stage = candidate gates for all
+six (DKI: two-touch anchor; SXTC: M2 ceiling on the split-adjusted series; HUBC: M4 base range across its split window), nothing
+downstream ever ran. Root-cause matrix H1–H7 in `PHASE6_ROOT_CAUSE_MATRIX.md`; validation (roots fingerprint unchanged, suite,
+CI, 10-perspective adversarial review) in `PHASE6_VALIDATION_REPORT.md`. Baseline manifest written first: `PHASE6_BASELINE.md`.
+Found and fixed in Phase 6 tooling only: the catalog envelope loads relative to the working directory (scripts now `chdir`
+to the repo root and force `FAISAL_ONLY=1`; lock `P6T1`/`P6T4`). Locks `P6T1`–`P6T4`.

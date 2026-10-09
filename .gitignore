@@ -69,3 +69,8 @@ faisal_method_v4/out/
 # 🔬 (2026-10-08) المرحلة 5 — المصالحةُ والمانيفست والمصادرُ والنتائجُ ملفّاتُ تسليمٍ لا بياناتُ تشغيل
 !fm_forensics/phase5/*.csv
 !fm_forensics/phase5/out/*.csv
+# 🔎🧭⑥ (2026-10-09) جداولُ المرحلة السادسة (`fm_forensics/phase6/` · سجلُّ الالتقاط الأماميّ JSONL + سجلُّ الذكر CSV) · والخامُ لا يُدفَع
+!fm_forensics/phase6/*.csv
+!fm_forensics/phase6/data/*.csv
+!fm_forensics/phase6/out/*.csv
+fm_forensics/phase6/raw/
