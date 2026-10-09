@@ -84024,6 +84024,192 @@ if _FE:
     check("🧭🔒 FE9: البروتوكولُ مكتوبٌ والملخّصُ يُحيل إليه بوسم EXPLORATORY وتنبّؤاتِ التكذيب الثلاثة · والصلاحيّةُ لم تُتحقَّق لأيّ وحدة · "
           "وسجلُّ القواعد بأصناف الدليل الخمسة ويحفظ المتناقِض ولا يدّعي صورةً خارج المدوّنة", _ok9, _why9)
 
+# 🧭🏁 FR — مُرتِّبُ محرّك البحث (`faisal_engine/ranker.py` · `rank_universe.py` · RANKING_PROTOCOL.md · 2026-10-09): الحتميّة ·
+#    كسرُ التعادل الثابت · الترتيبُ لا يغيّر المرحلة · «القديمُ لا يعلو الطازج» · جدارُ النظر للأمام · UNKNOWN ≠ false · الأهليّة ·
+#    البوتُ المجمَّد = `p3lib.run_gates` · والعقدُ مجمَّدٌ قبل أيّ ترتيب.
+try:
+    _FR = _fe_imp.import_module("ranker")
+    _FRU = _fe_imp.import_module("rank_universe")
+    _fr_err = None
+except Exception as _e:                                   # noqa: BLE001
+    _FR = _FRU = None; _fr_err = f"{type(_e).__name__}: {_e}"
+check("🧭🏁 RNK0: `ranker.py` و`rank_universe.py` يُستوردان بلا شبكة", _FR is not None and _FRU is not None, str(_fr_err)[:120])
+
+
+def _fr_row(sym, stage, date="2026-09-22", **kw):
+    r = {"date": date, "symbol": sym, "eng_stage": stage, "tech_state": {"READY": "BASE_HELD", "WATCH": "RETEST_PENDING", "FOCUS": "BASE_FORMING",
+         "HOLD": "BASE_HELD", "TRIGGER": "BASE_HELD"}.get(stage, ""), "state_rule": {"READY": _fe_rid("HOLD"), "WATCH": _fe_rid("LOC"), "FOCUS": _fe_rid("HOLD"),
+         "HOLD": _fe_rid("HOLD"), "TRIGGER": _fe_rid("HOLD")}.get(stage, ""), "frame": "FULL", "offering": "False", "rules_passed": "", "v4_rule_ids": "",
+         "missing_rules": "", "blocks": ""}
+    r.update(kw)
+    return r
+
+
+if _FR is not None and _FRU is not None:
+    # RNK1 — determinism, stage order, stable label-free tie-break, ranking never alters stage, input-order invariance
+    try:
+        _rows = [_fr_row("AAA", "WATCH"), _fr_row("BBB", "READY"), _fr_row("CCC", "FOCUS"), _fr_row("DDD", "HOLD", offering="True"),
+                 _fr_row("EEE", "WATCH"), _fr_row("FFF", "TRIGGER"), _fr_row("GGG", "REJECTED")]
+        _r1 = _FR.rank_session("2026-09-22", _rows, "A"); _r2 = _FR.rank_session("2026-09-22", list(reversed(_rows)), "A")
+        _pris = [_FR.STAGE_PRIORITY[x["stage"]] for x in _r1]
+        _w = [x["symbol"] for x in _r1 if x["stage"] == "WATCH"]
+        _ok1 = ([x["symbol"] for x in _r1] == [x["symbol"] for x in _r2] and _pris == sorted(_pris) and _r1[-1]["stage"] == "HOLD"
+                and _r1[0]["stage"] == "TRIGGER" and len(_r1) == 6 and "GGG" not in [x["symbol"] for x in _r1]
+                and _w == sorted(_w, key=lambda s: _FR.tiebreak("2026-09-22", s))
+                and all(x["stage"] == next(r["eng_stage"] for r in _rows if r["symbol"] == x["symbol"]) for x in _r1)
+                and all(x["explain"].startswith(f"#{x['rank']} ") for x in _r1)
+                and _FR.tiebreak("2026-09-22", "AAA") == _FR.tiebreak("2026-09-22", "AAA") != _FR.tiebreak("2026-09-23", "AAA"))
+        _why1 = str([x["symbol"] for x in _r1])
+    except Exception as _e:                                # noqa: BLE001
+        _ok1 = False; _why1 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK1: الترتيبُ حتميٌّ ومستقلٌّ عن ترتيب المدخل · المرحلةُ أوّلًا (TRIGGER ثمّ … HOLD آخرًا) · كسرُ التعادل sha256 ثابتٌ ومرتبطٌ بالتاريخ · "
+          "خارجُ المجتمع لا يُرتَّب · والترتيبُ لا يغيّر مرحلةً · ولكلّ صفٍّ تفسيرٌ برتبته", _ok1, _why1)
+    # RNK2 — variant B evidence keys; UNKNOWN ≠ false (offering) ; POST_SPLIT after FULL ; CONFIRMED before PROBABLE
+    try:
+        _e1 = _FR.evidence(_fr_row("X", "WATCH", offering="False")); _e2 = _FR.evidence(_fr_row("X", "WATCH", offering=""))
+        _e3 = _FR.evidence(_fr_row("X", "WATCH", offering="None")); _e4 = _FR.evidence(_fr_row("X", "WATCH", frame="POST_SPLIT"))
+        _rb = _FR.rank_session("2026-09-22", [_fr_row("P1", "READY", tech_state="RETEST_HELD", state_rule=_fe_rid("HOLDZ")),
+                                              _fr_row("P2", "READY", offering=""), _fr_row("P3", "READY"),
+                                              _fr_row("P4", "READY", frame="POST_SPLIT")], "B")
+        _ok2 = (_e1["validity"] == 0 and _e2["validity"] == 1 and _e3["validity"] == 1 and _e4["frame"] == 1 and _e1["frame"] == 0
+                and [x["symbol"] for x in _rb] == ["P3", "P4", "P2", "P1"] and _e1["status"] == "CONFIRMED")
+        _why2 = str([x["symbol"] for x in _rb])
+    except Exception as _e:                                # noqa: BLE001
+        _ok2 = False; _why2 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK2: B — قاعدةٌ مؤكَّدة قبل مدعومة قبل محتملة · الطرحُ المتحقَّقُ غيابُه قبل المجهول (المجهولُ ليس «لا») · الإطارُ الكامل قبل ما بعد التقسيم",
+          _ok2, _why2)
+    # RNK3 — variant C temporal: fresh never below stale within a stage; only sessions < T used
+    try:
+        _ss = [f"2026-09-{d:02d}" for d in (8, 9, 10, 11, 14, 15, 16, 17, 18)]
+        _h = {}
+        for _d in _ss[:8]:
+            _h[_d] = {"OLD": "WATCH", "REG": "READY" if _d == _ss[7] else "WATCH"}
+        _h[_ss[7]].update({"PRG": "FOCUS"})
+        _T = _ss[8]
+        _h[_T] = {"OLD": "WATCH", "REG": "WATCH", "PRG": "WATCH", "NEW": "WATCH", "RDY": "READY"}
+        for _d in _ss[:8]:
+            _h[_d]["RDY"] = "READY"
+        _rows3 = [_fr_row(s, st, date=_T) for s, st in _h[_T].items()]
+        _rc = _FR.rank_session(_T, _rows3, "C", _h, _ss)
+        _cls = {x["symbol"]: x["temporal"] for x in _rc}
+        _h2 = {k: dict(v) for k, v in _h.items()}; _h2["2026-09-21"] = {"OLD": "FOCUS", "NEW": "READY"}
+        _rc2 = _FR.rank_session(_T, _rows3, "C", _h2, _ss + ["2026-09-21"])
+        _ok3 = ([x["symbol"] for x in _rc] == ["RDY", "PRG", "NEW", "OLD", "REG"]
+                and _cls == {"RDY": "PERSISTENT", "PRG": "PROGRESSED", "NEW": "NEW", "OLD": "PERSISTENT", "REG": "REGRESSED"}
+                and [x["symbol"] for x in _rc2] == [x["symbol"] for x in _rc])
+        _why3 = f"{[x['symbol'] for x in _rc]} {_cls}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok3 = False; _why3 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK3: C — داخلَ المرحلة: تقدّمٌ ثمّ جديدٌ ثمّ ثابتٌ قديم ثمّ تراجع (القديمُ لا يعلو الطازج) · والمرحلةُ تبقى أوّلًا · "
+          "وجلسةٌ بعد T لا تغيّر رتبةَ T", _ok3, _why3)
+    # RNK4 — as-of wall in rank_universe.row_for: bot and engine see only bars < T and within HISTORY_DAYS
+    try:
+        class _FS:
+            CONFIG = {"MIN_BARS": 3, "HISTORY_DAYS": 30}
+            _REJECT_REASONS = {}
+            _BT_SPLITS_CTX = None
+            seen = []
+
+            @staticmethod
+            def analyze_ticker(sym, df):
+                _FS.seen.append(list(df["d"])); return None
+
+        class _FL:
+            @staticmethod
+            def frame(rows):
+                return {"d": [r[0] for r in rows], "__len__": len(rows)}
+
+            @staticmethod
+            def reason_gate(x):
+                return "G"
+
+        class _FDF(dict):
+            def __len__(self):
+                return self["__len__"]
+        _FL.frame = staticmethod(lambda rows: _FDF({"d": [r[0] for r in rows], "__len__": len(rows)}))
+        _eseen = []
+
+        class _FE4:
+            class V4:
+                STATE_RULE = {}
+
+            @staticmethod
+            def evaluate(sym, rows, T, ctx, label):
+                _eseen.append(([r[0] for r in rows], T, label)); return {"stage": "REJECTED", "first_failed": {"rule": "X"}}
+        _rows4 = []
+        _d = _fe_dt.date(2026, 7, 1)
+        while _d <= _fe_dt.date(2026, 9, 30):
+            if _d.weekday() < 5:
+                _rows4.append([_d.isoformat(), 1, 1, 1, 1, 1])
+            _d += _fe_dt.timedelta(days=1)
+        _o4 = _FRU.row_for(_FS, _FL, _FE4, "ZZZ", _rows4, "2026-09-15", None, None)
+        _bd = _FS.seen[-1]; _ed = _eseen[-1][0]
+        _ok4 = (max(_bd) < "2026-09-15" and min(_bd) >= "2026-08-16" and _bd == _ed and _eseen[-1][1] == "2026-09-15"
+                and _eseen[-1][2] == "HISTORICAL" and _o4["last_bar"] == "2026-09-14" and _o4["eng_stage"] == "REJECTED")
+        _why4 = f"bot {min(_bd)}..{max(_bd)} eng {len(_ed)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok4 = False; _why4 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK4: إعادةُ بناء الكون — البوتُ والمحرّكُ يريان الشموعَ نفسَها: قبل T حصرًا وضمن HISTORY_DAYS (لا شمعةَ يومِ القراءة ولا بعده)",
+          _ok4, _why4)
+    # RNK5 — eligibility + SEC compaction: stale/absent ⇒ out; UNKNOWN stays UNKNOWN through the engine's offering_state
+    try:
+        _cal = [f"2026-08-{d:02d}" for d in range(3, 32) if _fe_dt.date(2026, 8, d).weekday() < 5]
+        _el = (_FRU.eligible([["2026-08-20"]], "2026-08-21", _cal), _FRU.eligible([["2026-08-03"]], "2026-08-31", _cal),
+               _FRU.eligible([], "2026-08-21", _cal), _FRU.eligible([["2026-08-20"]], "2026-08-22", _cal))
+        _sf = (_FRU.sec_filings(None), _FRU.sec_filings({"status": "no_cik"}),
+               _FRU.sec_filings({"status": "ok", "first": "2026-01-05", "off": []}),
+               _FRU.sec_filings({"status": "ok", "first": "2026-01-05", "off": [["424B4", "2026-08-01"]]}))
+        _os = (_FE.offering_state(_sf[0], "2026-09-01")[0], _FE.offering_state(_sf[2], "2026-09-01")[0], _FE.offering_state(_sf[2], "2025-12-01")[0],
+               _FE.offering_state(_sf[3], "2026-09-01")[0], _FE.offering_state(_sf[3], "2026-07-01")[0])
+        _ok5 = (_el == (True, False, False, False) and _sf[0] is None and _sf[1] is None and _os == (None, False, None, True, False))
+        _why5 = f"el={_el} os={_os}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok5 = False; _why5 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK5: الأهليّة — آخرُ شمعةٍ خلال 10 جلسات وإلّا خارجَ الكون · وسجلُّ SEC المضغوط يحفظ UNKNOWN (بلا CIK/قبل أوّل إيداع ⟵ None) "
+          "ويحكم الطرحَ بتاريخه (≤ T) كما المحرّك", _ok5, _why5)
+    # RNK6 — the frozen bot in rank_universe = p3lib.run_gates on real frozen bars (incl. a short frame)
+    try:
+        _fr_sys = _fe_sys
+        _fr_sys.path.insert(0, _fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "fm_forensics", "phase3"))
+        _P3 = _fe_imp.import_module("p3lib")
+        _D = _P3.load(); _same = []
+        for _s in ("ADIL", "AEHL", "AFJK", "AMIX", "ARCT", "ARTL"):
+            _rw = _P3.bars_before(_s, "2026-09-15")
+            for _cut in (None, 100):
+                _rr = _rw[-_cut:] if _cut else _rw
+                _a = _FRU.bot_eval(S, _P3, _s, _rr)[:2]; _b = _P3.run_gates(_s, _P3.frame(_rr))[:2]
+                _same.append(tuple(_a) == tuple(_b))
+        _ok6 = all(_same) and len(_same) == 12
+        _why6 = f"{sum(_same)}/{len(_same)}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok6 = False; _why6 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK6: البوتُ المجمَّد في إعادة البناء = `p3lib.run_gates` بلا تعطيل على شموعٍ مجمَّدة (ومنها إطارٌ قصيرٌ ⟵ TOO_FEW_BARS)", _ok6, _why6)
+    # RNK7 — contract frozen before outputs; ranker is pure; runner tool has no production side effects; workflow has no Telegram
+    try:
+        _fdir = _fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "faisal_engine")
+        _psha = _fe_hash.sha256(open(_fe_os.path.join(_fdir, "RANKING_PROTOCOL.md"), "rb").read()).hexdigest()
+        _bad7 = []
+        for _fn, _forb in (("ranker.py", ("requests", "subprocess", "telegram", "urllib", "tv_data", "Super_stock")),
+                           ("rank_universe.py", ("subprocess", "telegram"))):
+            _t = _fe_ast.parse(open(_fe_os.path.join(_fdir, _fn), encoding="utf-8").read())
+            for _n in _fe_ast.walk(_t):
+                if isinstance(_n, (_fe_ast.Import, _fe_ast.ImportFrom)):
+                    _nm = [a.name for a in _n.names] + ([_n.module] if isinstance(_n, _fe_ast.ImportFrom) and _n.module else [])
+                    if any(x and x.split(".")[0] in _forb for x in _nm):
+                        _bad7.append(f"{_fn}:import {_nm}")
+                if isinstance(_n, _fe_ast.Call):
+                    _c = getattr(_n.func, "id", None) or getattr(_n.func, "attr", None)
+                    if _c in ("send_telegram", "git_save", "save_watchlist", "save_extra", "save_near_watch", "execve", "system"):
+                        _bad7.append(f"{_fn}:{_c}")
+        _wf = _fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), ".github", "workflows", "fe_rank_universe.yml")
+        _wft = open(_wf, encoding="utf-8").read() if _fe_os.path.exists(_wf) else ""
+        _ok7 = (_psha == "1a458fef45ddf42003d89720972c48fdda95f61690b597a7b9200778cb76d529" and not _bad7 and "TELEGRAM" not in _wft
+                and "schedule" not in _wft)
+        _why7 = f"sha={_psha[:12]} bad={_bad7[:3]}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok7 = False; _why7 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK7: عقدُ الترتيب مجمَّدٌ ببصمته قبل أيّ ترتيب (الإضافاتُ في ملفٍّ مستقلّ) · المرتِّبُ نقيٌّ بلا شبكةٍ ولا بوت · وأداةُ الرنر بلا "
+          "تلغرام/حفظ حالة · والـworkflow يدويٌّ بلا أسرار تلغرام", _ok7, _why7)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
