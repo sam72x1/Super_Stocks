@@ -1,0 +1,136 @@
+name: FE rank universe (بحثٌ فقط · مؤقّت · لا تلغرام)
+
+# 🧭🏁 إعادةُ بناء الكون الكامل لعقد الترتيب (faisal_engine/RANKING_PROTOCOL.md §②): شموعُ TradingView · تقسيماتٌ · SEC ·
+#    البوتُ المجمَّد والمحرّك لكلّ (جلسة · رمز) ⟵ يلتزم faisal_engine/data/rank/ في الفرع المُشغَّل منه. يدويٌّ · يُحذف بعد الاختبار.
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: fe-rank-universe
+  cancel-in-progress: false
+
+jobs:
+  universe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - run: python3 faisal_engine/rank_universe.py universe
+      - uses: actions/upload-artifact@v4
+        with: {name: rank-universe, path: faisal_engine/data/rank/universe.json, retention-days: 7}
+
+  bars:
+    needs: universe
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with: {name: rank-universe, path: faisal_engine/data/rank}
+      - run: python3 faisal_engine/rank_universe.py bars
+      - uses: actions/upload-artifact@v4
+        with: {name: rank-bars, path: faisal_engine/data/rank/bars.json.gz, retention-days: 7}
+
+  splits:
+    needs: universe
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix: {shard: [0, 1, 2, 3, 4, 5, 6, 7]}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with: {name: rank-universe, path: faisal_engine/data/rank}
+      - run: python3 faisal_engine/rank_universe.py splits --shard ${{ matrix.shard }}/8
+      - uses: actions/upload-artifact@v4
+        with: {name: "rank-splits-${{ matrix.shard }}", path: "faisal_engine/data/rank/parts/splits_${{ matrix.shard }}.json", retention-days: 7}
+
+  sec:
+    needs: universe
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix: {shard: [0, 1]}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with: {name: rank-universe, path: faisal_engine/data/rank}
+      - run: python3 faisal_engine/rank_universe.py sec --shard ${{ matrix.shard }}/2
+        env:
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+      - uses: actions/upload-artifact@v4
+        with: {name: "rank-sec-${{ matrix.shard }}", path: "faisal_engine/data/rank/parts/sec_${{ matrix.shard }}.json", retention-days: 7}
+
+  compute:
+    needs: [bars, splits, sec]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix: {shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with: {name: rank-universe, path: faisal_engine/data/rank}
+      - uses: actions/download-artifact@v4
+        with: {name: rank-bars, path: faisal_engine/data/rank}
+      - uses: actions/download-artifact@v4
+        with: {pattern: "rank-splits-*", path: faisal_engine/data/rank/parts, merge-multiple: true}
+      - uses: actions/download-artifact@v4
+        with: {pattern: "rank-sec-*", path: faisal_engine/data/rank/parts, merge-multiple: true}
+      - run: python3 faisal_engine/rank_universe.py merge
+      - run: python3 faisal_engine/rank_universe.py compute --shard ${{ matrix.shard }}/16
+      - uses: actions/upload-artifact@v4
+        with: {name: "rank-rows-${{ matrix.shard }}", path: "faisal_engine/data/rank/parts/rows_${{ matrix.shard }}.csv.gz", retention-days: 7}
+
+  assemble:
+    needs: compute
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.11", cache: pip}
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with: {name: rank-universe, path: faisal_engine/data/rank}
+      - uses: actions/download-artifact@v4
+        with: {name: rank-bars, path: faisal_engine/data/rank}
+      - uses: actions/download-artifact@v4
+        with: {pattern: "rank-splits-*", path: faisal_engine/data/rank/parts, merge-multiple: true}
+      - uses: actions/download-artifact@v4
+        with: {pattern: "rank-sec-*", path: faisal_engine/data/rank/parts, merge-multiple: true}
+      - uses: actions/download-artifact@v4
+        with: {pattern: "rank-rows-*", path: faisal_engine/data/rank/parts, merge-multiple: true}
+      - run: python3 faisal_engine/rank_universe.py merge
+      - run: python3 faisal_engine/rank_universe.py assemble
+      - name: Commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          cd faisal_engine/data/rank
+          git add universe.json bars.json.gz splits.json sec.json.gz rows.csv.gz sessions.csv manifest.json
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "🧭🏁 FE rank universe: run ${{ github.run_id }}"
+          for i in 1 2 3 4; do git pull --rebase origin ${{ github.ref_name }} && git push origin HEAD:${{ github.ref_name }} && exit 0; sleep $((i*5)); done
+          exit 1

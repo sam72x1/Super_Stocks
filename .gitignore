@@ -80,4 +80,6 @@ fm_forensics/phase6/raw/
 # 🧭 (2026-10-09) مخرجاتُ محرّك البحث المعزول — `*.csv` مُتجاهَلٌ عامًّا فتُستثنى
 !faisal_engine/out/*.csv
 !faisal_engine/FAISAL_RULE_LEDGER.csv
+# 🧭🏁 (2026-10-09) جدولُ جلسات إعادة بناء الكون لعقد الترتيب (RANKING_PROTOCOL.md)
+!faisal_engine/data/rank/*.csv
 faisal_engine/out/replay_std*.txt

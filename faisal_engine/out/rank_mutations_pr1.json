@@ -1,0 +1,78 @@
+{
+ "suite": "RNK0-RNK7",
+ "harness": "quick exec of the lock block (same code as test_bot.py)",
+ "mutations": [
+  {
+   "id": "M1",
+   "change": "STAGE_PRIORITY HOLD 4→0",
+   "expected_lock": "RNK1",
+   "result": "KILLED",
+   "crash": false
+  },
+  {
+   "id": "M2",
+   "change": "key A drops tie-break",
+   "expected_lock": "RNK1",
+   "result": "KILLED",
+   "crash": false
+  },
+  {
+   "id": "M3",
+   "change": "stale threshold +10",
+   "expected_lock": "RNK3",
+   "result": "KILLED",
+   "crash": false
+  },
+  {
+   "id": "M4",
+   "change": "temporal reads future session",
+   "expected_lock": "RNK3",
+   "result": "KILLED",
+   "crash": false
+  },
+  {
+   "id": "M5",
+   "change": "row_for includes bar of day T",
+   "expected_lock": "RNK4",
+   "result": "KILLED",
+   "crash": false
+  },
+  {
+   "id": "M6",
+   "change": "offering UNKNOWN treated as verified",
+   "expected_lock": "RNK2",
+   "result": "KILLED",
+   "crash": false
+  },
+  {
+   "id": "M7",
+   "change": "eligibility ignores staleness",
+   "expected_lock": "RNK5",
+   "result": "KILLED",
+   "crash": false
+  },
+  {
+   "id": "M8",
+   "change": "bot_eval MIN_BARS −50",
+   "expected_lock": "RNK6",
+   "result": "KILLED",
+   "crash": false
+  },
+  {
+   "id": "M9",
+   "change": "protocol K edited",
+   "expected_lock": "RNK7",
+   "result": "KILLED",
+   "crash": false
+  },
+  {
+   "id": "M10",
+   "change": "sec_filings(None) → [] (UNKNOWN→empty)",
+   "expected_lock": "RNK5",
+   "result": "KILLED",
+   "crash": false
+  }
+ ],
+ "killed": 10,
+ "total": 10
+}
