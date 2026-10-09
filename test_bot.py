@@ -84895,6 +84895,277 @@ if _GT is not None:
 else:
     check("🧭🧾 GTA0: `gt_audit.py` يُستورَد ويبني مخرجاتِه (شرطُ GTA1-GTA12)", False, str(_gt_err)[:120])
 
+# ⚖️ GPV1-GPV7 — «حكمُ الفحص اليدويّ = حكمُ الإنتاج بعد الإثراء» (عطلٌ مُثبَت 2026-10-09 · مهمّةُ
+#    «GATE PROVENANCE»): كان `analyze_one.main` يضيف «فلوت كبير» **نقصًا** (والإنتاجُ يحذفه منذ
+#    2026-07-29) ولا يسأل عن المتاح (والإنتاجُ يحذف فوق 20 ألفًا) · وفحصُ اليد يكتب «مؤهّل» من
+#    `analyze_ticker` وحدَه · وقائمةُ البوّابات تسمّي الشورت «صلبة» (والفارزُ يعدّه نقصًا) وتُغفل
+#    المِرساةَ والمتاح. الأقفالُ **تقارن بدوالّ الإنتاج نفسِها** على شبكة قيمٍ لا على مثالٍ واحد.
+import analyze_one as _gp_AO                                    # noqa: E402
+_gp_W = int(S.CONFIG.get("WATCH_MAX_FAILS", 3))
+# GPV1 — M14: حكمُ الفحص = `apply_float_gate` (المعلوم) و`refloat_gate_recheck` (بعد الإثراء)
+try:
+    _gp_rows = []
+    for _fl in (None, float("nan"), "abc", 49_999_999, 50_000_000, 277_657_352):
+        _man = _gp_AO.post_enrich_verdict({"symbol": "Z", "soft_fails": [], "float": _fl})[0]
+        _ref = not S.refloat_gate_recheck([{"symbol": "Z", "float": _fl,
+                                              "soft_fails": [], "flags": []}])[1]
+        _app = (bool(S.apply_float_gate([{"symbol": "Z", "float": _fl, "soft_fails": []}]))
+                if _fl is not None else True)
+        _gp_rows.append((_fl, _man, _ref, _app))
+    _ok = (all(m == r == a for _, m, r, a in _gp_rows)
+           and [m for _, m, _, _ in _gp_rows] == [True, True, True, True, False, False])
+    _w = str([(str(f)[:6], m) for f, m, _, _ in _gp_rows])
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("⚖️ GPV1: الفلوت الكبير يُسقط حكمَ الفحص اليدويّ كما يحذفه الإنتاج (لا نقصًا) — والمجهولُ يمرّ", _ok, _w)
+# GPV2 — M13: نقصٌ لين ثمّ حدُّ النواقص = `apply_short_gate` ‏+ `classify_tier`
+_gp_fs, _gp_ff = S.fintel_short, S.finra_daily_short
+try:
+    _gp_rows = []
+    for _n in (0, _gp_W - 1, _gp_W):
+        for _srt in (None, 39_999, 40_000, float("nan"), "x"):
+            _man = _gp_AO.post_enrich_verdict({"symbol": "Z", "soft_fails": ["أ"] * _n,
+                                           "finra_short": _srt})[0]
+            S.fintel_short = lambda syms: {}
+            S.finra_daily_short = (lambda syms, _v=_srt: {"Z": _v} if _v is not None else {})
+            _out = S.apply_short_gate([{"symbol": "Z", "soft_fails": ["أ"] * _n}])
+            _prod = bool(_out) and S.classify_tier(_out[0].get("soft_fails", [])) is not None
+            _gp_rows.append((_n, _srt, _man, _prod))
+    _ok = (all(m == p for _, _, m, p in _gp_rows)
+           and any(not m for _, _, m, _ in _gp_rows) and any(m for _, _, m, _ in _gp_rows))
+    _w = str([(n, str(s)[:5], m) for n, s, m, _ in _gp_rows if not m])
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    S.fintel_short, S.finra_daily_short = _gp_fs, _gp_ff
+check("⚖️ GPV2: الشورت نقصٌ لينٌ يُحسب ضمن حدّ النواقص في الفحص كما في الإنتاج (شبكة 15 حالة)", _ok, _w)
+# GPV3 — المتاح: حكمُ الفحص = `borrow_gate_recheck`
+try:
+    _gp_rows = []
+    for _av in (None, 20_000, 20_001, 30_000, "bad", float("nan")):
+        _man = _gp_AO.post_enrich_verdict({"symbol": "Z", "soft_fails": [], "float": 1_000_000,
+                                       "shares_available": _av})[0]
+        _prod = not S.borrow_gate_recheck([{"symbol": "Z", "shares_available": _av}])[1]
+        _gp_rows.append((_av, _man, _prod))
+    _ok = (all(m == p for _, m, p in _gp_rows)
+           and [m for _, m, _ in _gp_rows] == [True, True, False, False, True, True])
+    _w = str([(str(a)[:6], m) for a, m, _ in _gp_rows])
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("⚖️ GPV3: المتاحُ فوق 20 ألفًا يُسقط حكمَ الفحص كما تُخرجه بوّابةُ الإنتاج — والمجهولُ يمرّ", _ok, _w)
+# GPV4 — قائمةُ البوّابات المعروضة: الشورت «لينة» · الفلوت والمتاح «صلبة» · والشورت تحت قسم اللينة
+try:
+    _g4 = _gp_AO.append_short_float_gates({"finra_short": 786_805, "float": 1_790_000,
+                                        "shares_available": 30_000}, [])
+    _k4 = {(_x[0].split(" ")[0]): (_x[1], _x[3]) for _x in _g4}
+    _lines4 = _gp_AO.render_gate_lines(_g4)
+    _soft_i = next((i for i, l in enumerate(_lines4) if l.startswith("🔸")), 10 ** 6)
+    _short_i = next((i for i, l in enumerate(_lines4) if "الشورت تحت" in l), -1)
+    _gu = _gp_AO.append_short_float_gates({}, [])
+    _ok = (_k4.get("الشورت") == (False, "soft") and _k4.get("الفلوت") == (True, "hard")
+           and _k4.get("المتاح") == (False, "hard") and _short_i > _soft_i
+           and all(_x[1] and "بفائدة الشك" in _x[2] for _x in _gu) and len(_gu) == 3)
+    _w = f"kinds={_k4} soft_i={_soft_i} short_i={_short_i}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("⚖️ GPV4: العرضُ يطابق الإنتاج — الشورت لينة · الفلوت والمتاح صلبتان · والمجهولُ يُعلَن «بفائدة الشك»", _ok, _w)
+# GPV5 — المِرساة: سطرٌ صلبٌ في القائمة من `tested_level` نفسِها — ويسقط حيث يرفض `analyze_ticker`
+_gp_dl, _gp_4h, _gp_tl = S.download_history, getattr(S, "fetch_4h", None), S.tested_level
+_gp_am = S.CONFIG.get("ANCHOR_MODE")
+try:
+    S.CONFIG["ANCHOR_MODE"] = ""                       # السويّةُ على pivot ⇒ لا سطرَ مِرساة
+    S.download_history = lambda syms: {"ANC": synth_pivot(seed=2)}
+    S.fetch_4h = lambda *a, **k: (None, None) if k.get("with_h1") else None
+    _g5off = _gp_AO.analyze_on_demand("ANC")[1]
+    _a5off = [x for x in (_g5off or []) if x[0].startswith("مِرساة")]
+    S.CONFIG["ANCHOR_MODE"] = "tested_strict"          # وضعُ الإنتاج (اعتماد B2)
+    S.fetch_4h = lambda *a, **k: (None, None) if k.get("with_h1") else None
+    _df5 = synth_pivot(seed=2)
+    _d5, _g5, _ = _gp_AO.analyze_on_demand("ANC")
+    _a5 = [x for x in (_g5 or []) if x[0].startswith("مِرساة")]
+    S.tested_level = lambda df, *a, **k: {"level": 3.3, "touches": 2}
+    _a5y = [x for x in (_gp_AO.analyze_on_demand("ANC")[1] or []) if x[0].startswith("مِرساة")]
+    S.tested_level = lambda df, *a, **k: None
+    _d5n, _g5n, _ = _gp_AO.analyze_on_demand("ANC")
+    _a5n = [x for x in (_g5n or []) if x[0].startswith("مِرساة")]
+    S._REJECT_STATS.clear()
+    _r5n = S.analyze_ticker("ANC", _df5)
+    _rej5 = dict(S._REJECT_STATS)
+    _ok = (_a5off == [] and len(_a5) == 1 and _a5[0][3] == "hard" and _a5[0][1] == bool(_gp_tl(_df5))
+           and len(_a5y) == 1 and _a5y[0][1] is True and "$3.3" in _a5y[0][2]
+           and len(_a5n) == 1 and _a5n[0][1] is False
+           and _r5n is None and "M_لا_مستوى_مختبر" in _rej5)
+    _w = f"anchor={_a5} forced={_a5n} rej={_rej5}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+finally:
+    S.download_history, S.tested_level = _gp_dl, _gp_tl
+    S.CONFIG["ANCHOR_MODE"] = _gp_am
+    if _gp_4h is not None:
+        S.fetch_4h = _gp_4h
+check("⚖️ GPV5: بوّابةُ المِرساة (ثاني أكبر جدار) سطرٌ صلبٌ في القائمة — يسقط حيث يرفض `analyze_ticker` باسمها", _ok, _w)
+
+
+def _gp_run_main(fl, av):
+    """يشغّل `analyze_one.main` بجذوعٍ بلا شبكة ويُرجع نصَّ الرسالة."""
+    _sv = {k: getattr(S, k, None) for k in ("download_history", "fetch_4h", "enrich",
+                                             "send_telegram", "dq_disclosure_line")}
+    _sent = []
+    _env = _os_hc.environ.get("ANALYZE")
+    try:
+        S.download_history = lambda syms: {"TEST": synth_pivot(seed=2)}
+        S.fetch_4h = lambda *a, **k: (None, None) if k.get("with_h1") else None
+        S.enrich = lambda rows: [r.update({"float": fl, "shares_available": av}) for r in rows]
+        S.send_telegram = lambda msg, *a, **k: _sent.append(msg)
+        S.dq_disclosure_line = lambda *a, **k: None
+        _os_hc.environ["ANALYZE"] = "TEST"
+        _gp_AO.main()
+    finally:
+        for k, v in _sv.items():
+            if v is not None:
+                setattr(S, k, v)
+        if _env is None:
+            _os_hc.environ.pop("ANALYZE", None)
+        else:
+            _os_hc.environ["ANALYZE"] = _env
+    return "\n".join(_sent)
+
+
+def _gp_run_hc(fl, av):
+    """يشغّل `hand_check.hand_check` بجذوعٍ بلا شبكة ويُرجع نصَّه."""
+    _sv = {k: getattr(S, k, None) for k in ("download_history", "fetch_4h", "enrich",
+                                             "dq_disclosure_line", "order_snapshot",
+                                             "polygon_flow", "polygon_minute_bars", "yf")}
+    try:
+        S.download_history = lambda syms: {"TEST": synth_pivot(seed=2)}
+        S.fetch_4h = lambda *a, **k: (None, None) if k.get("with_h1") else None
+        S.enrich = lambda rows: [r.update({"float": fl, "shares_available": av}) for r in rows]
+        S.dq_disclosure_line = lambda *a, **k: None
+        S.order_snapshot = lambda *a, **k: None
+        S.polygon_flow = lambda *a, **k: None
+        S.polygon_minute_bars = lambda *a, **k: None
+        S.yf = None
+        _txt, _err = HC.hand_check("TEST")
+    finally:
+        for k, v in _sv.items():
+            setattr(S, k, v)
+    return _txt or str(_err)
+
+
+# GPV6 — الفحصُ اليدويّ (analyze_one.main) من أوّله لآخره: فلوت كبير/متاح عالٍ ⇒ «لم يكن ليرشّحه» · والضابط ⇒ «مؤهّل»
+try:
+    _m_ok = _gp_run_main(1_000_000, 5_000)
+    _m_fl = _gp_run_main(277_657_352, 5_000)
+    _m_bw = _gp_run_main(1_000_000, 30_000)
+    _q = "مؤهّل — كان سيدخل قائمة المراقبة"
+    _ok = (_q in _m_ok and _q not in _m_fl and _q not in _m_bw
+           and "لم يكن البوت ليرشّحه" in _m_fl and "فلوت كبير" in _m_fl
+           and "لم يكن البوت ليرشّحه" in _m_bw and "متاحُ الاقتراض" in _m_bw)
+    _w = f"ok={_q in _m_ok} fl={_q in _m_fl} bw={_q in _m_bw}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("⚖️ GPV6: الفحصُ اليدويّ لا يقول «كان سيدخل القائمة» لسهمٍ يحذفه الإنتاج بالفلوت أو المتاح (والضابطُ يمرّ)", _ok, _w)
+# GPV7 — فحصُ اليد من أوّله لآخره: الحكمُ نفسُه
+try:
+    _h_ok = _gp_run_hc(1_000_000, 5_000)
+    _h_fl = _gp_run_hc(277_657_352, 5_000)
+    _h_bw = _gp_run_hc(1_000_000, 30_000)
+    _q = "الحكم: 🎯 <b>سهم ارتكاز مؤهّل</b>"
+    _no = "ليس سهم ارتكاز مؤهّلًا حاليًا"
+    _ok = (_q in _h_ok and _q not in _h_fl and _q not in _h_bw
+           and _no in _h_fl and "فلوت كبير" in _h_fl and _no in _h_bw and "متاحُ الاقتراض" in _h_bw)
+    _w = f"ok={_q in _h_ok} fl={_q in _h_fl} bw={_q in _h_bw}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("⚖️ GPV7: فحصُ اليد لا يكتب «سهم ارتكاز مؤهّل» لسهمٍ يحذفه الإنتاج بعد الإثراء (والضابطُ يمرّ)", _ok, _w)
+
+# GPV8 — سببُ نقص الخانات مقيسٌ لا «أو» (عطلُ إفصاحٍ مُثبَت 2026-10-09 · `37902530011`)
+import textwrap as _gp_tw                                         # noqa: E402
+try:
+    _g8r = lambda s, av: {"symbol": s, "shares_available": av, "float": 1_000_000, "soft_fails": []}
+    _g8pool = [_g8r(f"S{i}", 9_000_000) for i in range(50)] + [_g8r("GOOD", 1_000)]
+    _g8p, _g8fl, _g8bw, _g8n = S.fill_picks(_g8pool, 1, {"S49"}, enrich_fn=lambda _x: None)
+    _n_cap = S.fill_shortfall_note(_g8pool, {"S49"}, _g8p, _g8fl, _g8bw, 1, _g8n)
+    _g8p2, _g8fl2, _g8bw2, _g8n2 = S.fill_picks([_g8r("K", 9_000_000)], 3, set(),
+                                                  enrich_fn=lambda _x: None)
+    _n_dry = S.fill_shortfall_note([_g8r("K", 9_000_000)], set(), _g8p2, _g8fl2, _g8bw2, 3, _g8n2)
+    _n_full = S.fill_shortfall_note(_g8pool, set(), [_g8r("A", 1)], [], [], 1, 1)
+    _rmax = int(S.CONFIG["PICK_FILL_ROUNDS"])
+    _left = 51 - 1 - _rmax                                   # ناقصَ المستثنى والمفحوص
+    _src8 = _insp0.getsource(S.run_daily_watchlist) + _insp0.getsource(S.run_weekly_renewal)
+    _calls8 = [n for n in _ast0.walk(_ast0.parse(_gp_tw.dedent(_insp0.getsource(S.run_daily_watchlist))))
+               if isinstance(n, _ast0.Call) and getattr(n.func, "id", "") == "fill_shortfall_note"]
+    _calls8w = [n for n in _ast0.walk(_ast0.parse(_gp_tw.dedent(_insp0.getsource(S.run_weekly_renewal))))
+                if isinstance(n, _ast0.Call) and getattr(n.func, "id", "") == "fill_shortfall_note"]
+    _ok = (_g8p == [] and _g8n == _rmax
+           and f"انتهت الجولات {_rmax} وفي البِركة {_left} مؤهَّلًا لم يُفحَص" in _n_cap
+           and _n_cap.startswith(" — نقصَ 1 (")
+           and _n_dry == " — نقصَ 3 (نفدت البِركة)" and _n_full == ""
+           and len(_calls8) == 1 and len(_calls8w) == 1
+           and "نفدت البِركة أو انتهت الجولات" not in _src8)
+    _w = f"cap={_n_cap!r} dry={_n_dry!r} full={_n_full!r} wired={len(_calls8)}/{len(_calls8w)}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🎯 GPV8: سببُ نقص الخانات مقيس — «انتهت الجولات وفي البِركة N» يُفرَّق عن «نفدت البِركة» · موصولٌ في المسارين", _ok, _w)
+
+# 🚪🧭 GPV9-GPV11 — جردُ البوّابات ومصدرُها (`faisal_engine/gate_inventory.py` · بحثٌ فقط): المخرجاتُ مولَّدةٌ لا مكتوبةٌ باليد،
+#    وكلُّ رمزِ رفضٍ ومسارِ `return None` صامتٍ في `analyze_ticker` وكلُّ دالّةِ بوّابةٍ بعد الفرز مجرودة، والاستبعادُ الأوّلُ
+#    لكلّ حلقةٍ يطابق صفوفَ الترتيب المجمَّدة. تُشغَّل الأداةُ في عمليّةٍ منفصلة (تفرض `FAISAL_ONLY=1` لنفسها فلا تمسّ السويّة).
+import subprocess as _gp_sp                                       # noqa: E402
+import sys as _gp_sys                                             # noqa: E402
+import json as _gp_json                                           # noqa: E402
+import gzip as _gp_gz                                             # noqa: E402
+import csv as _gp_csv                                             # noqa: E402
+import tempfile as _gp_tf                                         # noqa: E402
+_gp_root = _os_hc.path.dirname(_os_hc.path.abspath(__file__))
+_gp_tool = _os_hc.path.join(_gp_root, "faisal_engine", "gate_inventory.py")
+_gp_env = {k: v for k, v in _os_hc.environ.items() if k not in ("FAISAL_ONLY", "GATE_PROV_FILE")}
+# GPV9 — `--check`: إعادةُ البناء تطابق المخرجاتِ المدفوعة (الأسطرُ مُطبَّعة) وبلا أخطاءِ بناء
+try:
+    _p9 = _gp_sp.run([_gp_sys.executable, _gp_tool, "--check"], cwd=_gp_root, env=_gp_env, capture_output=True, text=True, timeout=1500)
+    _ok, _w = (_p9.returncode == 0 and "--check: OK" in _p9.stdout), (_p9.stdout + _p9.stderr)[-300:]
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪 GPV9: جردُ البوّابات يُعاد توليدُه بايتًا (‏--check) — لا رقمَ باليد ولا بوّابةَ غيرَ مجرودة", _ok, _w)
+# GPV10 — الاكتمالُ يسقط فعلًا: حذفُ بوّابةٍ صلبة ومسارٍ صامت من الجرد ⇒ خطآن مسمّيان وخروجٌ غيرُ صفريّ
+try:
+    _d10 = _gp_json.load(open(_os_hc.path.join(_gp_root, "faisal_engine", "data", "gate_provenance.json"), encoding="utf-8"))
+    _d10["gates"] = [g for g in _d10["gates"] if g["id"] not in ("M4_RANGE", "M8_GAP_REQUIRED")]
+    _t10 = _gp_tf.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8")
+    _gp_json.dump(_d10, _t10, ensure_ascii=False)
+    _t10.close()
+    try:
+        _p10 = _gp_sp.run([_gp_sys.executable, _gp_tool, "--completeness"], cwd=_gp_root, env={**_gp_env, "GATE_PROV_FILE": _t10.name},
+                          capture_output=True, text=True, timeout=600)
+        _p10ok = _gp_sp.run([_gp_sys.executable, _gp_tool, "--completeness"], cwd=_gp_root, env=_gp_env, capture_output=True, text=True, timeout=600)
+    finally:
+        _os_hc.unlink(_t10.name)
+    _ok = (_p10.returncode == 1 and "reject code not inventoried: M4_base_واسعة" in _p10.stdout
+           and "bare `return None` paths in analyze_ticker: 3 vs inventoried 2" in _p10.stdout and _p10ok.returncode == 0)
+    _w = (_p10.stdout + " | ok=" + str(_p10ok.returncode))[-300:]
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪 GPV10: الاكتمالُ مُلزِم — بوّابةٌ صلبة أو مسارُ `return None` صامتٌ غيرُ مجرودٍ يُسقط البناء باسمه", _ok, _w)
+# GPV11 — الاستبعادُ الأوّل لكلّ حلقةٍ قابلةٍ للتقييم = بوّابةُ البوت في صفوف الترتيب المجمَّدة (قراءةٌ مستقلّة لا عبر الأداة)
+try:
+    _fx = list(_gp_csv.DictReader(open(_os_hc.path.join(_gp_root, "faisal_engine", "out", "gate_first_exclusion.csv"), encoding="utf-8")))
+    _rows = {}
+    with _gp_gz.open(_os_hc.path.join(_gp_root, "faisal_engine", "data", "rank", "rows.csv.gz"), "rt", encoding="utf-8") as _f11:
+        for _r in _gp_csv.DictReader(_f11):
+            _rows[(_r["date"], _r["symbol"])] = (_r["bot_res"], _r["bot_gate"])
+    _cmp = [(r["case"], r["first_gate"], _rows[(r["T"], r["ticker"])]) for r in _fx if (r["T"], r["ticker"]) in _rows]
+    _bad = [c for c in _cmp if not ((c[2][0] == "PASS" and c[1] == "PASS") or c[2][1] == c[1])]
+    _inv = _gp_json.load(open(_os_hc.path.join(_gp_root, "faisal_engine", "out", "GATE_INVENTORY.json"), encoding="utf-8"))
+    _cats = set(_inv["categories"])
+    _ok = (len(_cmp) == 22 and not _bad and _inv["summary"]["errors"] == []
+           and all(g["provenance"] in _cats for g in _inv["gates"]) and len(_cats) == 6
+           and not [g for g in _inv["gates"] if g["provenance"] == "DIRECT_FAISAL_EVIDENCE" and g["status"] not in ("INACTIVE", "CLOSED")
+                    and g["role"] == "reject"])
+    _w = f"compared={len(_cmp)} bad={_bad[:3]}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪 GPV11: الاستبعادُ الأوّل للحلقات الـ22 يطابق صفوفَ الترتيب المجمَّدة · الأصنافُ الستّة وحدَها · ولا بوّابةَ رفضٍ نشطة بدليلٍ مباشر", _ok, _w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

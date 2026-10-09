@@ -12730,6 +12730,9 @@ def refloat_gate_recheck(picks):
     **ما تفعله:** للمُختار الذي ظهر فلوته كبيرًا بعد الإثراء ولم يُوسَم بعد: تُضيف نقص
     «فلوت كبير» · تُزيل وسم «غير متاح» المتناقض · ثم **تُعيد الحكم بـ`classify_tier`
     نفسها** (لا معيار جديد) فتُخرجه إن تجاوز الحدّ. ترجّع `(kept, ejected)`.
+    🔴 **تصحيحٌ مؤرَّخ 2026-10-09 (سطرٌ بائت · الفقرةُ أعلاه باقيةٌ نقلًا):** منذ قرار المالك
+    2026-07-29 «يكون مستبعد تماما» **لا `classify_tier` هنا** — الفلوتُ المعلومُ الكبير يُخرَج
+    **بلا شرطٍ على عدد النواقص** (الكودُ أدناه)، والنقصُ والوسمُ يُكتبان للسجلّ وحدَه.
 
     🔒 **لا تمسّ جذرًا:** `apply_float_gate`/`classify_tier`/`select_top` byte-identical —
     هذي طبقة تالية تستدعي المعيار القائم على بيانات صارت متاحة. مطفأة تلقائيًّا لو
@@ -12919,6 +12922,40 @@ def fill_picks(results, space, exclude, enrich_fn=None, rounds=None,
         if not _fl and not _bw:
             break                     # لم يُخرَج أحد ⇒ لا حاجة لجولةٍ أخرى
     return picks, fl_out, bw_out, used
+
+
+def fill_shortfall_note(pool, exclude, picks, fl_out, bw_out, space, rounds_used,
+                        rounds_max=None) -> str:
+    """🎯 **سببُ نقص الخانات بعد `fill_picks` — مقيسٌ لا «أو»** (سجلٌّ فقط · لا تلغرام).
+
+    🔴 **عطلُ إفصاحٍ مُثبَت (2026-10-09 · `37902530011`):** «تعبئةُ الخانات: 4 من 12 بعد 4 جولة —
+    نقصَ 8 (نفدت البِركة أو انتهت الجولات)» وفي البِركة **104** مؤهَّلين بعد السلامة لم يُفحَص منهم
+    إلّا نحوُ 44 ⇒ **الجولاتُ هي التي انتهت لا البِركة**، والسطرُ لا يقول أيَّهما. والعقدُ
+    (`fill_picks`: «ما بقي ناقصًا يُعلَن بعددِه لا يُطوى») يلزمه السبب.
+
+    المفحوصُ = المختارون ∪ المُخرَجون بالفلوت ∪ بالمتاح (كلُّ جولةٍ إمّا أبقت أو أخرجت) ·
+    والباقي = البِركةُ ناقصَ المستثنى والمفحوص. ترجّع "" عند الامتلاء وإلّا «— نقصَ N (…)».
+    🔒 نقيّة · لا تمسّ الاختيار ولا الترتيب ولا البوّابات."""
+    try:
+        n = int(space) - len(picks or [])
+        if n <= 0:
+            return ""
+        seen = {r.get("symbol") for r in (picks or []) if isinstance(r, dict)}
+        seen |= {x[0] for x in (fl_out or [])} | {x[0] for x in (bw_out or [])}
+        excl = set(exclude or set())
+        left = sum(1 for r in (pool or []) if isinstance(r, dict)
+                   and r.get("symbol") not in excl and r.get("symbol") not in seen)
+        rmax = int(CONFIG.get("PICK_FILL_ROUNDS", 4) if rounds_max is None else rounds_max)
+        if left == 0:
+            why = "نفدت البِركة"
+        elif int(rounds_used) >= rmax:
+            why = (f"انتهت الجولات {rmax} وفي البِركة {left} مؤهَّلًا لم يُفحَص — "
+                   "سقفُ الكلفة لا نفادُ المرشّحين")
+        else:
+            why = f"توقّفت التعبئة وفي البِركة {left} لم يُفحَص"
+        return f" — نقصَ {n} ({why})"
+    except Exception:                                            # noqa: BLE001
+        return ""
 
 
 def classify_tier(soft_fails, two_tier=None, maxf=None):
@@ -21754,9 +21791,8 @@ def run_weekly_renewal(wl: dict) -> None:
     if _fl_out or _bw_out:
         log(f"🎯 تعبئةُ الخانات: {len(picks)} من {CONFIG['WATCHLIST_SIZE']} "
             f"بعد {_rnd} جولة"
-            + ("" if len(picks) >= CONFIG["WATCHLIST_SIZE"]
-               else f" — نقصَ {CONFIG['WATCHLIST_SIZE'] - len(picks)} "
-                    "(نفدت البِركة أو انتهت الجولات)"))
+            + fill_shortfall_note(_dq_results, exclude, picks, _fl_out, _bw_out,
+                                  CONFIG["WATCHLIST_SIZE"], _rnd))
     # 📰 شمعة الخبر (R-01 — عرضٌ فقط): التاريخُ من الإثراء (`news_filing`) والشمعةُ من `hist`
     #    نفسِه ⇒ صفرُ جلب · ولا تمسّ العضويّة ولا الترتيب (بعد `fill_picks`).
     for _r in picks:
@@ -22180,9 +22216,8 @@ def run_daily_watchlist(wl: dict) -> None:
             log(f"⚠️ حصادُ المتاح تعذّر (لا يمسّ الفرز): {_e}")
         if _fl_out or _bw_out:
             log(f"🎯 تعبئةُ الخانات: {len(picks)} من {space} بعد {_rnd} جولة"
-                + ("" if len(picks) >= space
-                   else f" — نقصَ {space - len(picks)} "
-                        "(نفدت البِركة أو انتهت الجولات)"))
+                + fill_shortfall_note(_dq_results, held | stopped, picks, _fl_out,
+                                      _bw_out, space, _rnd))
         if picks:
             for r in picks:
                 wl["stocks"].append(make_watch_entry(r, today_iso))
