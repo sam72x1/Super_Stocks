@@ -22,3 +22,22 @@ python3 test_bot.py                                     # أقفال FE0-FE9 (ق
 ```
 المراحل: `INSUFFICIENT_DATA` · `REJECTED` (أوّلُ بوّابةٍ ساقطة مسمّاة) · `FOCUS` · `WATCH` · `READY` · `TRIGGER` · `HOLD` (مانعُ صلاحيّةٍ مؤرَّخ).
 الوسوم: `HISTORICAL` · `EXPLORATORY` · `LIVE`. الحكمُ الحاليّ: **IMPLEMENTED, BUT PERFORMANCE NOT ESTABLISHED** (`VALIDATION_REPORT.md`).
+
+## 🏁 المرتِّب تحت ميزانيةٍ ثابتة (2026-10-09 · `RANKING_PROTOCOL.md` مدموجٌ قبل أيّ ترتيب #592 · EXPLORATORY)
+
+| الملفّ | الدور |
+|---|---|
+| `RANKING_PROTOCOL.md` | العقد (مجمَّدٌ ببصمته في RNK7) · `RANKING_PROTOCOL_ADDENDA.md` الإضافاتُ المؤرَّخة (D1 لاحقٌ موسوم) |
+| `rank_universe.py` | إعادةُ بناء الكون كلِّه لكلّ جلسة على رنر (شموع TradingView · التقسيمات · SEC · البوتُ المجمَّد · المحرّك) ⟵ `data/rank/` (‏`rows.csv.gz` ‏229,449 صفًّا · `manifest.json` بالبصمات · تشغيلة `37942829821`) |
+| `ranker.py` | المتغيّرات A/B/C المسجَّلة و D1 اللاحق — مفاتيحُ معجميّةٌ حتميّة بلا أوزان · سجلُّ الميزات (8 حقول لكلّ ميزة) · تفسيرٌ لكلّ صفّ |
+| `rank_eval.py` · `rank_report.py` | التقييمُ كلُّه (الحلقات · K = 25/50/108 · الدقيق والمبكر منفصلان · خطّا الأساس · العشوائيّ · البوتستراب العنقوديّ · LOO · الطيّان · التشخيص · DKI/SXTC/HUBC) ⟵ `out/rank_*` و`RANKING_RESULT.md` |
+| `RANKING_REPORT.md` | التقريرُ النهائيّ (A–J ‏+ تدقيقُ النزاهة العشريّ) |
+
+```bash
+python3 faisal_engine/ranker.py --date 2026-09-14 --variant C --symbol DKI   # رتبةُ رمزٍ في يوم (مع التفسير)
+python3 faisal_engine/ranker.py --date 2026-09-14 --variant C --k 108        # قائمةُ اليوم (25 · 50 · 108 بـ--k)
+python3 faisal_engine/rank_eval.py            # الإعادةُ الكاملة (≈10 ث) ⟵ out/rank_* + RANKING_RESULT.md
+python3 faisal_engine/rank_eval.py --check    # إعادةُ التوليد في مجلّدٍ مؤقّت ومقارنةُ البايتات بالملتزَم (خروج 0)
+python3 test_bot.py                           # أقفال RNK0-RNK14 (قبل LEAK0)
+```
+الحكم: **2 — IMPROVEMENT NOT DEMONSTRATED** (C ‏6/22 مقابل البوت 2/22 عند 108 · الحدُّ الأدنى 98.33% = 0.000 لا أكبر منه).

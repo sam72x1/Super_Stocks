@@ -1341,7 +1341,7 @@
    "E_loo_ticker_gt0": true,
    "E_loo_date_gt0": true,
    "E_folds_gt0": true,
-   "F_locks": "suite locks RNK0-RNK13 (exit code recorded in RANKING_REPORT.md)",
+   "F_locks": "suite locks RNK0-RNK14 (exit code recorded in RANKING_REPORT.md)",
    "G_reproduced": "see --check"
   },
   "early_point_vs_operational": 0.0909,
@@ -1388,7 +1388,7 @@
     "E_loo_ticker_gt0": true,
     "E_loo_date_gt0": true,
     "E_folds_gt0": true,
-    "F_locks": "suite locks RNK0-RNK13 (exit code recorded in RANKING_REPORT.md)",
+    "F_locks": "suite locks RNK0-RNK14 (exit code recorded in RANKING_REPORT.md)",
     "G_reproduced": "see --check"
    },
    "acceptance_passed": true

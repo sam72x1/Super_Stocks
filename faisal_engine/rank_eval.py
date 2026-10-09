@@ -75,6 +75,12 @@ def session_of(sessions, day):
     return None
 
 
+def norm_ticker(t):
+    """هُويّةُ الرمز للمطابقة (§⑱): حروفٌ كبيرة بلا فراغ — المفتاحُ نفسُه في الوحدات والكون والرتب · ولا خريطةَ لتغيّر الرمز
+    (رمزٌ غيّر اسمه داخل النافذة يبقى بمفتاحه كما ورد ⟵ غيابُه عن الكون UNEVALUABLE بسببه لا «لم يُلتقط»)."""
+    return (t or "").upper().strip()
+
+
 def units(sessions):
     """الوحداتُ الموثَّقة (§③): IS_FAISAL=1 · الصنفُ من الأربعة · تاريخٌ كامل · الجلسةُ أوّلُ جلسةٍ ≥ DATE · داخل النافذة."""
     out = []
@@ -91,7 +97,7 @@ def units(sessions):
             amb.append("AMBIGUOUS_WEEKEND")
         if id_date and id_date != r["DATE"]:
             amb.append("AMBIGUOUS_ID")
-        out.append(dict(ticker=r["TICKER"].upper().strip(), date=r["DATE"], session=s, state=r["OBSERVATION_CLASS"], evidence_id=r["EVIDENCE_ID"],
+        out.append(dict(ticker=norm_ticker(r["TICKER"]), date=r["DATE"], session=s, state=r["OBSERVATION_CLASS"], evidence_id=r["EVIDENCE_ID"],
                         evidence_type=r["EVIDENCE_TYPE"], id_date=id_date, ambiguity="|".join(amb), action=r["ACTION"],
                         decision_raw=r["DECISION_RAW"], confidence=r["CONFIDENCE"], gist=(r["GIST"] or "")[:160]))
     return sorted(out, key=lambda u: (u["ticker"], u["session"], u["evidence_id"]))
@@ -335,7 +341,7 @@ def run(out_dir=OUT, write_md=True):
     rows, man, uni, umf, wl = load()
     sessions, by, hist, ranks, bot = build(rows)
     variants = list(R.VARIANTS) + list(POSTHOC)
-    usyms = set(uni["symbols"])
+    usyms = {norm_ticker(x) for x in uni["symbols"]}
     us = units(sessions)
     eps = episodes(us, sessions)
     for e in eps:
@@ -547,7 +553,7 @@ def verdict(S, v, daily):
     reasons["E_loo_ticker_gt0"] = bool((c["loo_vs_operational"].get("min_ticker") or -1) > 0)
     reasons["E_loo_date_gt0"] = bool((c["loo_vs_operational"].get("min_date") or -1) > 0)
     reasons["E_folds_gt0"] = all((x.get("diff") or -1) > 0 for x in c["folds"].values())
-    reasons["F_locks"] = "suite locks RNK0-RNK13 (exit code recorded in RANKING_REPORT.md)"
+    reasons["F_locks"] = "suite locks RNK0-RNK14 (exit code recorded in RANKING_REPORT.md)"
     reasons["G_reproduced"] = "see --check"
     early = S["comparisons"][v]["early"]["vs_operational"].get("point")
     ok = all(val is True for k, val in reasons.items() if k[0] in "ABE")

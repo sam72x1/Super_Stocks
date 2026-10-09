@@ -103,12 +103,12 @@
 ## ⑦-ب التصحيحُ اللاحق D1 (`RANKING_PROTOCOL_ADDENDA.md` · POST-HOC · EXPLORATORY — cannot carry verdict 1 (validation rows were viewed during the iteration-2 diagnosis · ADDENDA §1))
 - اختبارُ القبول (i) مستهدَف DKI/NUWE: {'DKI_E1': True, 'NUWE_E1': True} · (ii) الاستكشافيّ: {'D': 3, 'C': 3} ⟵ **مقبول**
 - مكسوبٌ مقابل C (دقيق 108): ['DKI_E1', 'GCTK_E1', 'NUWE_E1'] · مفقود: ['ATPC_E1', 'CETX_E1', 'CIIT_E1', 'LIMN_E1'] · مبكر مكسوب ['DKI_E1', 'GCTK_E1', 'IPDN_E1', 'NUWE_E1'] · مفقود ['ATPC_E1', 'CETX_E1', 'CIIT_E1', 'OMH_E1']
-- معاييرُ §⑪ لو كان مسجَّلًا (للعلم وحدَه): {'A_budget': True, 'B_ci9833_lb_gt0': False, 'B_vs_standardized_point_gt0': True, 'E_loo_ticker_gt0': True, 'E_loo_date_gt0': True, 'E_folds_gt0': True, 'F_locks': 'suite locks RNK0-RNK13 (exit code recorded in RANKING_REPORT.md)', 'G_reproduced': 'see --check'}
+- معاييرُ §⑪ لو كان مسجَّلًا (للعلم وحدَه): {'A_budget': True, 'B_ci9833_lb_gt0': False, 'B_vs_standardized_point_gt0': True, 'E_loo_ticker_gt0': True, 'E_loo_date_gt0': True, 'E_folds_gt0': True, 'F_locks': 'suite locks RNK0-RNK14 (exit code recorded in RANKING_REPORT.md)', 'G_reproduced': 'see --check'}
 
 ## ⑧ التنبّؤات المسجَّلة
 - {'P1_bot_median_within_25pct_of_108': True, 'P1_note': 'reconstructed median 113.5 · F1 median |rel err| 0.03685', 'P2_wall_recall_median_ge_0.80': True, 'P3_no_FOCUS_case_captured_exact_108': True, 'P4_best_exact_108_le_6': True, 'P4_best': 6, 'P5_no_variant_meets_verdict1': True, 'P6_persistent_largest_temporal_class': True}
 
 ## ⑨ الحكم بقاعدة §⑪
 - المتغيّرُ المفضَّل (قاعدة §⑩ · بين A/B/C المسجَّلة وحدَها): **C** — اختيارٌ بين ثلاثة ⟵ عدمُ يقينِ اختيارٍ مُعلَن (بونفيروني 98.33%)
-- **2 — IMPROVEMENT NOT DEMONSTRATED** · {'A_budget': True, 'B_ci9833_lb_gt0': False, 'B_vs_standardized_point_gt0': True, 'E_loo_ticker_gt0': True, 'E_loo_date_gt0': True, 'E_folds_gt0': True, 'F_locks': 'suite locks RNK0-RNK13 (exit code recorded in RANKING_REPORT.md)', 'G_reproduced': 'see --check'}
+- **2 — IMPROVEMENT NOT DEMONSTRATED** · {'A_budget': True, 'B_ci9833_lb_gt0': False, 'B_vs_standardized_point_gt0': True, 'E_loo_ticker_gt0': True, 'E_loo_date_gt0': True, 'E_folds_gt0': True, 'F_locks': 'suite locks RNK0-RNK14 (exit code recorded in RANKING_REPORT.md)', 'G_reproduced': 'see --check'}
 

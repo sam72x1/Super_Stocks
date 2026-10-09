@@ -84210,7 +84210,7 @@ if _FR is not None and _FRU is not None:
         _ok7 = False; _why7 = f"⛔ {type(_e).__name__}: {_e}"
     check("🧭🏁 RNK7: عقدُ الترتيب مجمَّدٌ ببصمته قبل أيّ ترتيب (الإضافاتُ في ملفٍّ مستقلّ) · المرتِّبُ نقيٌّ بلا شبكةٍ ولا بوت · وأداةُ الرنر بلا "
           "تلغرام/حفظ حالة · والـworkflow يدويٌّ بلا أسرار تلغرام", _ok7, _why7)
-# 🧭🏁 RNK8-RNK13 — تقييمُ المرتِّب (`faisal_engine/rank_eval.py` · الإضافة 1 · 2026-10-09): D1 «اللمسةُ الأولى» بشموعٍ < T ·
+# 🧭🏁 RNK8-RNK14 — تقييمُ المرتِّب (`faisal_engine/rank_eval.py` · الإضافة 1 · 2026-10-09): D1 «اللمسةُ الأولى» بشموعٍ < T ·
 #    الحلقاتُ بقاعدة الثلاثين جلسة · المقاماتُ والرتبةُ الغائبة والميزانيّة · المبكرُ قبل القرار حصرًا · المرجعُ العشوائيّ ·
 #    واتّساقُ الجلسة الواحدة مع التصدير · والتوليدُ من المدخلات الملتزَمة بايتًا بايتًا.
 try:
@@ -84318,8 +84318,22 @@ if _FR is not None and _RE is not None:
         _ok13 = False; _rc13 = f"⛔ {type(_e).__name__}: {_e}"
     check("🧭🏁 RNK13: إعادةُ التوليد من المدخلات الملتزَمة (data/rank) تطابق كلَّ مخرَجٍ ملتزَم بايتًا بايتًا (الملخّص · الحالات · الوحدات · اليوميّ · الأمانة · "
           "التشخيص · المراسي · سجلّ الميزات · قوائمُ أعلى 108)", _ok13, str(_rc13))
+    # RNK14 — symbol identity: one key everywhere (units · universe · ranks); no rename map ⇒ absence is UNEVALUABLE with its reason
+    try:
+        _n14 = [_RE.norm_ticker(x) for x in (" dki ", "Dki", "SXTC\n", None)]
+        import csv as _csv14
+        _c14 = list(_csv14.DictReader(open(_fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "faisal_engine", "out", "rank_cases.csv"), encoding="utf-8")))
+        _bad14 = [c["ticker"] for c in _c14 if c["ticker"] != _RE.norm_ticker(c["ticker"])]
+        _un14 = [(c["ticker"], c.get("unevaluable_reason")) for c in _c14 if c["evaluable"] == "0"]
+        _ok14 = (_n14 == ["DKI", "DKI", "SXTC", ""] and not _bad14 and len(_c14) == 23
+                 and all(r in ("NOT_IN_RECONSTRUCTED_UNIVERSE", "NO_ELIGIBLE_BARS_AT_T") for _, r in _un14))
+        _why14 = f"norm={_n14} bad={_bad14} unevaluable={_un14}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok14 = False; _why14 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🏁 RNK14: هُويّةُ الرمز — مفتاحٌ واحدٌ في الوحدات والكون والرتب (حروفٌ كبيرة بلا فراغ) · ولا خريطةَ لتغيّر الرمز ⟵ الغائبُ UNEVALUABLE بسببه",
+          _ok14, _why14)
 else:
-    check("🧭🏁 RNK8-13: `rank_eval.py` يُستورَد", False, str(_re_err)[:120])
+    check("🧭🏁 RNK8-14: `rank_eval.py` يُستورَد", False, str(_re_err)[:120])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
