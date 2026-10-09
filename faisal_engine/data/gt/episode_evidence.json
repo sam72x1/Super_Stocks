@@ -1,0 +1,2064 @@
+{
+ "meta": {
+  "task": "HISTORICAL GROUND-TRUTH RECOVERY (2026-10-09)",
+  "label": "EXPLORATORY",
+  "statuses": {
+   "VERIFIED": "directly visible in the original artifact (verified header on the same post, symbol printed, full date printed)",
+   "STRONGLY_SUPPORTED": "not printed, but derived from anchors visible in the artifact by an explicit chain with no competing reading in the frozen data",
+   "INFERRED": "assigned from context outside the artifact (adjacent images, V4 label, batch, file name)",
+   "AMBIGUOUS": "two or more readings remain that change the classification",
+   "UNKNOWN": "no evidence in the artifact"
+  },
+  "D": [
+   "ATTENTION",
+   "LIST_MEMBERSHIP",
+   "TECH_READINESS",
+   "WAITING_CONDITION",
+   "PRESSURE_OBSERVED",
+   "ENTRY",
+   "RETROSPECTIVE",
+   "CHART_ANALYSIS_ONLY",
+   "UNKNOWN_STATE"
+  ]
+ },
+ "episodes": [
+  {
+   "episode_id": "AMIX_E1",
+   "ticker": "AMIX",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "X_20260827_amix_3m_inflow:s1",
+     "role": "UNIT",
+     "unit": "X_20260827_amix_3m_inflow",
+     "artifact": "POST_HEADER_CROPPED",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "name line cropped; the embedded «ستوك» chat is the same chat Faisal shows in his verified post X_20260827_amix_pressure_497 (only its owner can screenshot it)",
+     "identity": "VERIFIED",
+     "identity_basis": "«Amix» in the embedded chat + AMIX chart",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "embedded chat 11:16 eight minutes after the 11:08 chat screenshot in the post printed «2026/8/24 11:10 م» ⟶ ≈23:16 Riyadh = 16:16 New York, after the 2026-08-24 close ⟶ as-of 2026-08-25",
+     "asof": [
+      "2026-08-25",
+      "2026-08-25"
+     ],
+     "D": [
+      "RETROSPECTIVE",
+      "PRESSURE_OBSERVED"
+     ],
+     "excerpt": "نعطيك سهم جاهز تخمد فيه",
+     "retro": true,
+     "prompted": false,
+     "states_move": "شف كيف صعد السهم الان",
+     "dup_of": null,
+     "note": "«3 مليون دولار دخلت» is operator money observed, not Faisal's entry; «نعطيك سهم جاهز» recalls an earlier readiness"
+    },
+    {
+     "ref": "X_20260827_amix_hcwb_ready:s2",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "POST_EMBEDDED_CHAT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "outgoing bubble of the «ستوك» group chat shown in Faisal's own verified post (the poster is the phone owner)",
+     "identity": "VERIFIED",
+     "identity_basis": "«Amix» written in the message + AMIX daily chart",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "chat 1:29 ص; the chart screenshot 1:28 reads «After Hours: 5.27 0.00%» = the 2026-08-21 close 5.27 (no session in between); the same chat continues to the chart message under the «اليوم» header of the 2026-08-24 evening screenshot ⟶ 2026-08-24 01:29 Riyadh = 2026-08-23 18:29 New York ⟶ as-of 2026-08-24",
+     "asof": [
+      "2026-08-24",
+      "2026-08-24"
+     ],
+     "D": [
+      "TECH_READINESS",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "جاهز جدا / لو بس يضرب 4.70 ويرتد ممتاز نركب",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "X_20260827_amix_hcwb_ready:s3",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "POST_EMBEDDED_CHAT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "as hcwb_ready:s2",
+     "identity": "VERIFIED",
+     "identity_basis": "«Amix» written",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "chat 1:47 ص, same chain as s2",
+     "asof": [
+      "2026-08-24",
+      "2026-08-24"
+     ],
+     "D": [
+      "TECH_READINESS"
+     ],
+     "excerpt": "عندنا سهمين حاهزه / Amix / Hcwb",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "the same message names HCWB, which is not one of the 22 episodes"
+    },
+    {
+     "ref": "X_20260827_amix_hcwb_ready:s4",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "POST_EMBEDDED_CHAT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "as hcwb_ready:s2",
+     "identity": "STRONGLY_SUPPORTED",
+     "identity_basis": "same chat thread directly after «Amix»",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "chat 1:50 ص, same chain as s2",
+     "asof": [
+      "2026-08-24",
+      "2026-08-24"
+     ],
+     "D": [
+      "ENTRY",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "دخولنا دفعات من 4.65 > 4.75 > 4.85",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "an entry plan in tranches with a stop (4.60); not an executed entry"
+    },
+    {
+     "ref": "X_20260827_amix_pressure_497:s1",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header «Faisal @kisar_»",
+     "identity": "VERIFIED",
+     "identity_basis": "AMIX chat chart in the post",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/8/24 11:10 م» = 16:10 New York after the close ⟶ as-of 2026-08-25",
+     "asof": [
+      "2026-08-25",
+      "2026-08-25"
+     ],
+     "D": [
+      "PRESSURE_OBSERVED"
+     ],
+     "excerpt": "الضغط حصل 4.97",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "the 2026-08-24 regular-session low was 4.97"
+    },
+    {
+     "ref": "X_20260827_amix_hcwb_ready:s1",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "«Hcwb»/AMIX chart",
+     "ts": "INFERRED",
+     "ts_basis": "relative «10 س» only; collected with the 2026-08-26 batch",
+     "asof": null,
+     "D": [
+      "RETROSPECTIVE"
+     ],
+     "excerpt": "هذي مؤشرات السهم قبل يصعد",
+     "retro": true,
+     "prompted": false,
+     "states_move": "حقق السهم 200%",
+     "dup_of": null,
+     "note": ""
+    }
+   ],
+   "corrections": [
+    {
+     "what": "evidence for the episode",
+     "prior": "unit X_20260827_amix_3m_inflow (ENTRY, 2026-08-24)",
+     "corrected": "that unit is a post-move retrospective (as-of 2026-08-25); the defensible selection is the group-chat readiness at 01:29–01:50 ص (as-of 2026-08-24, not a ranking unit)",
+     "evidence": "X_20260827_amix_hcwb_ready:s2-s4 · X_20260827_amix_pressure_497"
+    },
+    {
+     "what": "stage ledger derived as-of of X_20260827_amix_3m_inflow:s1",
+     "prior": "2026-08-24",
+     "corrected": "2026-08-25 (≈16:16 New York, after the close)",
+     "evidence": "the 11:08/11:16 chat clocks vs the printed 11:10 م"
+    }
+   ],
+   "missing": []
+  },
+  {
+   "episode_id": "ATPC_E1",
+   "ticker": "ATPC",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "X_20260918_23_watchlist:s1",
+     "role": "UNIT",
+     "unit": "X_20260918_23_watchlist",
+     "artifact": "APP_LIST_SNAPSHOT",
+     "author": "VERIFIED",
+     "author_basis": "post header «Faisal @kisar_» (verified) in X_20260918_22_pipeline; X_20260918_23_watchlist is the same post scrolled (identical closing text and identical attached screenshot 1:41)",
+     "identity": "VERIFIED",
+     "identity_basis": "symbol printed on the visible row of Faisal's «قائمتي» tab",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/13 1:44 م» (= 06:44 New York, Sunday) ⟶ as-of 2026-09-14",
+     "asof": [
+      "2026-09-14",
+      "2026-09-14"
+     ],
+     "D": [
+      "LIST_MEMBERSHIP"
+     ],
+     "excerpt": "قائمتي",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "membership is visible at the snapshot only; the date the symbol entered the list is not shown"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "stage label",
+     "prior": "FOCUS (Phase 3)",
+     "corrected": "LIST_MEMBERSHIP only — no stage is shown on the row",
+     "evidence": "X_20260918_23_watchlist"
+    }
+   ],
+   "missing": [
+    {
+     "unknown": "when the symbol entered «قائمتي»",
+     "why": "the snapshot proves membership on 2026-09-13 only; a pre-move selection date cannot be inferred from it",
+     "artifact": "an earlier dated snapshot of the same tab (or Faisal's dated post adding the symbol)",
+     "provenance": "printed post date/time with the tab visible",
+     "effect": "could move the as-of earlier; it cannot turn the 2026-09-13 snapshot itself into earlier evidence"
+    }
+   ]
+  },
+  {
+   "episode_id": "CETX_E1",
+   "ticker": "CETX",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "X_20260918_23_watchlist:s1",
+     "role": "UNIT",
+     "unit": "X_20260918_23_watchlist",
+     "artifact": "APP_LIST_SNAPSHOT",
+     "author": "VERIFIED",
+     "author_basis": "post header «Faisal @kisar_» (verified) in X_20260918_22_pipeline; X_20260918_23_watchlist is the same post scrolled (identical closing text and identical attached screenshot 1:41)",
+     "identity": "VERIFIED",
+     "identity_basis": "symbol printed on the visible row of Faisal's «قائمتي» tab",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/13 1:44 م» (= 06:44 New York, Sunday) ⟶ as-of 2026-09-14",
+     "asof": [
+      "2026-09-14",
+      "2026-09-14"
+     ],
+     "D": [
+      "LIST_MEMBERSHIP"
+     ],
+     "excerpt": "قائمتي",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "membership is visible at the snapshot only; the date the symbol entered the list is not shown"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "stage label",
+     "prior": "FOCUS (Phase 3)",
+     "corrected": "LIST_MEMBERSHIP only — no stage is shown on the row",
+     "evidence": "X_20260918_23_watchlist"
+    }
+   ],
+   "missing": [
+    {
+     "unknown": "when the symbol entered «قائمتي»",
+     "why": "the snapshot proves membership on 2026-09-13 only; a pre-move selection date cannot be inferred from it",
+     "artifact": "an earlier dated snapshot of the same tab (or Faisal's dated post adding the symbol)",
+     "provenance": "printed post date/time with the tab visible",
+     "effect": "could move the as-of earlier; it cannot turn the 2026-09-13 snapshot itself into earlier evidence"
+    }
+   ]
+  },
+  {
+   "episode_id": "CUPR_E1",
+   "ticker": "CUPR",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "X_20260918_23_watchlist:s1",
+     "role": "UNIT",
+     "unit": "X_20260918_23_watchlist",
+     "artifact": "APP_LIST_SNAPSHOT",
+     "author": "VERIFIED",
+     "author_basis": "post header «Faisal @kisar_» (verified) in X_20260918_22_pipeline; X_20260918_23_watchlist is the same post scrolled (identical closing text and identical attached screenshot 1:41)",
+     "identity": "VERIFIED",
+     "identity_basis": "symbol printed on the visible row of Faisal's «قائمتي» tab",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/13 1:44 م» (= 06:44 New York, Sunday) ⟶ as-of 2026-09-14",
+     "asof": [
+      "2026-09-14",
+      "2026-09-14"
+     ],
+     "D": [
+      "LIST_MEMBERSHIP"
+     ],
+     "excerpt": "قائمتي",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "membership is visible at the snapshot only; the date the symbol entered the list is not shown"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "stage label",
+     "prior": "FOCUS (Phase 3)",
+     "corrected": "LIST_MEMBERSHIP only — no stage is shown on the row",
+     "evidence": "X_20260918_23_watchlist"
+    }
+   ],
+   "missing": [
+    {
+     "unknown": "when the symbol entered «قائمتي»",
+     "why": "the snapshot proves membership on 2026-09-13 only; a pre-move selection date cannot be inferred from it",
+     "artifact": "an earlier dated snapshot of the same tab (or Faisal's dated post adding the symbol)",
+     "provenance": "printed post date/time with the tab visible",
+     "effect": "could move the as-of earlier; it cannot turn the 2026-09-13 snapshot itself into earlier evidence"
+    }
+   ]
+  },
+  {
+   "episode_id": "SVRE_E1",
+   "ticker": "SVRE",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "X_20260918_23_watchlist:s1",
+     "role": "UNIT",
+     "unit": "X_20260918_23_watchlist",
+     "artifact": "APP_LIST_SNAPSHOT",
+     "author": "VERIFIED",
+     "author_basis": "post header «Faisal @kisar_» (verified) in X_20260918_22_pipeline; X_20260918_23_watchlist is the same post scrolled (identical closing text and identical attached screenshot 1:41)",
+     "identity": "VERIFIED",
+     "identity_basis": "symbol printed on the visible row of Faisal's «قائمتي» tab",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/13 1:44 م» (= 06:44 New York, Sunday) ⟶ as-of 2026-09-14",
+     "asof": [
+      "2026-09-14",
+      "2026-09-14"
+     ],
+     "D": [
+      "LIST_MEMBERSHIP"
+     ],
+     "excerpt": "قائمتي",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "membership is visible at the snapshot only; the date the symbol entered the list is not shown"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "stage label",
+     "prior": "FOCUS (Phase 3)",
+     "corrected": "LIST_MEMBERSHIP only — no stage is shown on the row",
+     "evidence": "X_20260918_23_watchlist"
+    }
+   ],
+   "missing": [
+    {
+     "unknown": "when the symbol entered «قائمتي»",
+     "why": "the snapshot proves membership on 2026-09-13 only; a pre-move selection date cannot be inferred from it",
+     "artifact": "an earlier dated snapshot of the same tab (or Faisal's dated post adding the symbol)",
+     "provenance": "printed post date/time with the tab visible",
+     "effect": "could move the as-of earlier; it cannot turn the 2026-09-13 snapshot itself into earlier evidence"
+    }
+   ]
+  },
+  {
+   "episode_id": "MSGY_E1",
+   "ticker": "MSGY",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "X_20260918_23_watchlist:s1",
+     "role": "UNIT",
+     "unit": "X_20260918_23_watchlist",
+     "artifact": "APP_LIST_SNAPSHOT",
+     "author": "VERIFIED",
+     "author_basis": "post header «Faisal @kisar_» (verified) in X_20260918_22_pipeline; X_20260918_23_watchlist is the same post scrolled (identical closing text and identical attached screenshot 1:41)",
+     "identity": "VERIFIED",
+     "identity_basis": "symbol printed on the visible row of Faisal's «قائمتي» tab",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/13 1:44 م» (= 06:44 New York, Sunday) ⟶ as-of 2026-09-14",
+     "asof": [
+      "2026-09-14",
+      "2026-09-14"
+     ],
+     "D": [
+      "LIST_MEMBERSHIP"
+     ],
+     "excerpt": "قائمتي",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "membership is visible at the snapshot only; the date the symbol entered the list is not shown"
+    },
+    {
+     "ref": "X_20260905_12:s1",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header «Faisal @kisar_»",
+     "identity": "VERIFIED",
+     "identity_basis": "«$MSGY» in the text + MSGY chart",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/2 12:30 ص» = 2026-09-01 17:30 New York (after the close; the chart reads «After Hours: 1.820 0.00%» = the 2026-09-01 close) ⟶ as-of 2026-09-02",
+     "asof": [
+      "2026-09-02",
+      "2026-09-02"
+     ],
+     "D": [
+      "ATTENTION"
+     ],
+     "excerpt": "$MSGY / يطبق ماذكر ادناه",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "names the stock and applies the method below to it; no stage word"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "episode start",
+     "prior": "T_e 2026-09-14 (list snapshot)",
+     "corrected": "earliest dated Faisal attention 2026-09-02 (printed post, 8 sessions earlier, inside the 30-session episode gap); it was not a ranking unit because V4 labelled it a mention",
+     "evidence": "X_20260905_12"
+    }
+   ],
+   "missing": []
+  },
+  {
+   "episode_id": "DKI_E1",
+   "ticker": "DKI",
+   "same_post": [
+    [
+     "X_20260918_22_pipeline",
+     "X_20260918_23_watchlist"
+    ]
+   ],
+   "statements": [
+    {
+     "ref": "X_20260918_22_pipeline:s2",
+     "role": "UNIT",
+     "unit": "X_20260918_22_pipeline",
+     "artifact": "APP_LIST_SNAPSHOT",
+     "author": "VERIFIED",
+     "author_basis": "post header «Faisal @kisar_» (verified) in X_20260918_22_pipeline; X_20260918_23_watchlist is the same post scrolled (identical closing text and identical attached screenshot 1:41)",
+     "identity": "VERIFIED",
+     "identity_basis": "symbol printed on the visible row of Faisal's «قائمتي» tab",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/13 1:44 م» (= 06:44 New York, Sunday) ⟶ as-of 2026-09-14",
+     "asof": [
+      "2026-09-14",
+      "2026-09-14"
+     ],
+     "D": [
+      "LIST_MEMBERSHIP"
+     ],
+     "excerpt": "قائمتي",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": "X_20260918_23_watchlist:s1",
+     "note": "the same post as X_20260918_23_watchlist (top five rows only)"
+    },
+    {
+     "ref": "X_20260918_23_watchlist:s1",
+     "role": "UNIT",
+     "unit": "X_20260918_23_watchlist",
+     "artifact": "APP_LIST_SNAPSHOT",
+     "author": "VERIFIED",
+     "author_basis": "post header «Faisal @kisar_» (verified) in X_20260918_22_pipeline; X_20260918_23_watchlist is the same post scrolled (identical closing text and identical attached screenshot 1:41)",
+     "identity": "VERIFIED",
+     "identity_basis": "symbol printed on the visible row of Faisal's «قائمتي» tab",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/13 1:44 م» (= 06:44 New York, Sunday) ⟶ as-of 2026-09-14",
+     "asof": [
+      "2026-09-14",
+      "2026-09-14"
+     ],
+     "D": [
+      "LIST_MEMBERSHIP"
+     ],
+     "excerpt": "قائمتي",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "membership is visible at the snapshot only; the date the symbol entered the list is not shown"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "unit count",
+     "prior": "2 units",
+     "corrected": "1 observation (two screenshots of one post)",
+     "evidence": "X_20260918_22/23"
+    }
+   ],
+   "missing": [
+    {
+     "unknown": "when DKI entered «قائمتي»",
+     "why": "membership is shown only on 2026-09-13",
+     "artifact": "an earlier dated snapshot or post",
+     "provenance": "printed date",
+     "effect": "could move the as-of earlier"
+    }
+   ]
+  },
+  {
+   "episode_id": "BRTX_E1",
+   "ticker": "BRTX",
+   "same_post": [
+    [
+     "TG_58402",
+     "TG_58407"
+    ]
+   ],
+   "statements": [
+    {
+     "ref": "TG_58402:s1",
+     "role": "UNIT",
+     "unit": "TG_58402",
+     "artifact": "ORIGINAL_POST",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "the post avatar is Faisal's; his verified reply «شرط يهبط ويحافظ» continues the same thread",
+     "identity": "VERIFIED",
+     "identity_basis": "BRTX chart + «Restorative Therapies» in the attached app",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "no printed time; the attached charts read «After Hours: 2.200 +2.80%» = the 2026-10-02 close 2.14 ×1.028 (taken before the 2026-10-05 pre-market); the owner forwarded it 2026-10-07 10:16 UTC ⟶ as-of between 2026-10-05 and 2026-10-07",
+     "asof": [
+      "2026-10-05",
+      "2026-10-07"
+     ],
+     "D": [
+      "ATTENTION",
+      "LIST_MEMBERSHIP",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "مراقبه مبكره",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "explicitly not ready («لايوجد اجابيه») and waiting for a drop that holds («شرط يهبط ويحافظ»)"
+    },
+    {
+     "ref": "TG_58407:s1",
+     "role": "UNIT",
+     "unit": "TG_58407",
+     "artifact": "CHART_ATTACHMENT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "the chart attached to TG_58402",
+     "identity": "VERIFIED",
+     "identity_basis": "BRTX chart",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "as TG_58402",
+     "asof": [
+      "2026-10-05",
+      "2026-10-07"
+     ],
+     "D": [
+      "CHART_ANALYSIS_ONLY"
+     ],
+     "excerpt": "هبوط متوقع",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": "TG_58402:s1",
+     "note": ""
+    }
+   ],
+   "corrections": [
+    {
+     "what": "unit count",
+     "prior": "2 units",
+     "corrected": "1 observation (the post and its own chart)",
+     "evidence": "TG_58402/TG_58407"
+    }
+   ],
+   "missing": []
+  },
+  {
+   "episode_id": "CIIT_E1",
+   "ticker": "CIIT",
+   "same_post": [
+    [
+     "TG_57884",
+     "TG_57881",
+     "TG_57883"
+    ]
+   ],
+   "statements": [
+    {
+     "ref": "TG_57881:s1",
+     "role": "UNIT",
+     "unit": "TG_57881",
+     "artifact": "CHART_ATTACHMENT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "the chart attached to Faisal's post TG_57884",
+     "identity": "VERIFIED",
+     "identity_basis": "CIIT on the app header",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "the chart's data stamp «25/09-16:00:00 EDT» is the last CLOSE, not the post time; the post is after it ⟶ as-of 2026-09-28",
+     "asof": [
+      "2026-09-28",
+      "2026-09-28"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "الاجابيه ثبات اسفل الدعم",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": "TG_57884:s2",
+     "note": ""
+    },
+    {
+     "ref": "TG_57883:s1",
+     "role": "UNIT",
+     "unit": "TG_57883",
+     "artifact": "CHART_ATTACHMENT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "the owner's enlarged view of the same chart",
+     "identity": "VERIFIED",
+     "identity_basis": "CIIT",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "as TG_57881",
+     "asof": [
+      "2026-09-28",
+      "2026-09-28"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "الاجابيه ثبات اسفل الدعم",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": "TG_57884:s2",
+     "note": ""
+    },
+    {
+     "ref": "TG_57879:s2",
+     "role": "UNIT",
+     "unit": "TG_57879",
+     "artifact": "REPLY",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "STRONGLY_SUPPORTED",
+     "identity_basis": "reply inside the CIIT thread (the follower quotes «الايجابيه ثبات اسفل الدعم» and 2.26)",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/26 4:49 م» = 09:49 New York Saturday ⟶ as-of 2026-09-28",
+     "asof": [
+      "2026-09-28",
+      "2026-09-28"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "✅",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "endorses the reading: wait for a liquidity sweep (≈ −25%) then a return above 2.26"
+    },
+    {
+     "ref": "TG_57884:s1",
+     "role": "UNIT",
+     "unit": "TG_57884",
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "CIIT app chart attached",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "after the 2026-09-25 close (attached data stamp) and before the 2026-09-26 16:49 reply that quotes it ⟶ as-of 2026-09-28",
+     "asof": [
+      "2026-09-28",
+      "2026-09-28"
+     ],
+     "D": [
+      "ATTENTION",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "ربما عنده موجه هابطه لتحقيق الدعوم وسحب السيوله",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "X_20260827_ciit_targets:s2",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "POST_EMBEDDED_CHAT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "outgoing message in Faisal's «ستوك» group chat shown in his verified post",
+     "identity": "VERIFIED",
+     "identity_basis": "«Ciit» written + «$ciit» in the post",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "date header «الأحد» + message 8:47 م; «السعر الحالي3.50» equals the 2026-08-21 close 3.50 — the only Friday close of 3.50 before the 2026-08-26 commit (08-07 3.63 · 08-14 3.64) ⟶ Sunday 2026-08-23 20:47 Riyadh = 13:47 New York ⟶ as-of 2026-08-24",
+     "asof": [
+      "2026-08-24",
+      "2026-08-24"
+     ],
+     "D": [
+      "ATTENTION"
+     ],
+     "excerpt": "Ciit / هدفه من [مطموس]",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "a target call in his group (the target number is blurred); 24 sessions before the ranking's T_e, inside the 30-session episode gap"
+    },
+    {
+     "ref": "X_20260827_ciit_targets:s1",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "«$ciit»",
+     "ts": "INFERRED",
+     "ts_basis": "no printed time; collected with the 2026-08-26 batch",
+     "asof": null,
+     "D": [
+      "RETROSPECTIVE"
+     ],
+     "excerpt": "الحق خوياك",
+     "retro": true,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    }
+   ],
+   "corrections": [
+    {
+     "what": "unit date",
+     "prior": "TG_57881/TG_57883 dated 2026-09-25",
+     "corrected": "2026-09-25 is the chart's last-close stamp; the post is after it ⟶ as-of 2026-09-28",
+     "evidence": "TG_57881 «25/09-16:00:00 EDT» · TG_57879 printed 2026/9/26 4:49 م"
+    },
+    {
+     "what": "episode start",
+     "prior": "T_e 2026-09-25",
+     "corrected": "earliest dated Faisal selection: the group target call, as-of 2026-08-24 (not a ranking unit: V4 left it undated)",
+     "evidence": "X_20260827_ciit_targets"
+    },
+    {
+     "what": "unit count",
+     "prior": "4 units",
+     "corrected": "2 observations (one post with two chart copies + one reply)",
+     "evidence": "TG_57881/83/84"
+    }
+   ],
+   "missing": []
+  },
+  {
+   "episode_id": "DCOY_E1",
+   "ticker": "DCOY",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "TG_50575:s1",
+     "role": "UNIT",
+     "unit": "TG_50575",
+     "artifact": "POST_EMBEDDED_CHAT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "blue (sender) bubble of a chat posted by Faisal's verified account",
+     "identity": "VERIFIED",
+     "identity_basis": "«Dcoy» written",
+     "ts": "UNKNOWN",
+     "ts_basis": "the chat shows no message time or date; it was published 2026-09-22 12:47 New York, during the 2026-09-22 explosion, after the other participant's «لحقتو عليه»",
+     "asof": null,
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "Dcoy / ننتظر ضغط الماركت عنده 13 يجيبها اولا",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "TG_50575:s2",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "POST_EMBEDDED_CHAT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "as TG_50575:s1",
+     "identity": "STRONGLY_SUPPORTED",
+     "identity_basis": "same chat directly after «Dcoy»",
+     "ts": "UNKNOWN",
+     "ts_basis": "undated chat",
+     "asof": null,
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "3.70 اخر دعم ننتظر",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "TG_50575:s5",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "the chat names Dcoy",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/22 7:47 م» = 12:47 New York ⟶ as-of 2026-09-22",
+     "asof": [
+      "2026-09-22",
+      "2026-09-22"
+     ],
+     "D": [
+      "RETROSPECTIVE"
+     ],
+     "excerpt": "[post = the chat screenshot above]",
+     "retro": true,
+     "prompted": false,
+     "states_move": "ماشاءالله لحقتو عليه",
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "TG_50576:s2",
+     "role": "UNIT",
+     "unit": "TG_50576",
+     "artifact": "REPLY",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "INFERRED",
+     "identity_basis": "no ticker visible anywhere in the image; DCOY was assigned from neighbouring images",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/22 7:35 م» ⟶ as-of 2026-09-22",
+     "asof": [
+      "2026-09-22",
+      "2026-09-22"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "اصبر بعد جلسة لندن نقرر",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "TG_50578:s2",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "POST_EMBEDDED_CHAT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "blue (sender) bubble in a chat posted by Faisal's verified account",
+     "identity": "VERIFIED",
+     "identity_basis": "«Dcoy» written + DCOY chart",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "the attached chart reads «After Hours: 2.780 0.00%» = the 2026-09-18 close 2.78 and its low marker 2.588 = the 2026-09-15 low; the 2026-09-21 low 2.18 is absent ⟶ sent after the 2026-09-18 close and before the 2026-09-21 session ⟶ as-of 2026-09-21",
+     "asof": [
+      "2026-09-21",
+      "2026-09-21"
+     ],
+     "D": [
+      "ATTENTION",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "ننتظر 2 ونقرر",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "not a ranking unit (V4 left TG_50578 undated)"
+    },
+    {
+     "ref": "TG_50578:s1",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "DCOY",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "describes «اليوم صعد» = the 2026-09-22 session",
+     "asof": [
+      "2026-09-22",
+      "2026-09-22"
+     ],
+     "D": [
+      "RETROSPECTIVE"
+     ],
+     "excerpt": "هذا ياالله لحقناه لحوق",
+     "retro": true,
+     "prompted": false,
+     "states_move": "اليوم صعد بشمعه",
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "X_20260905_13:s1",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "CHART_ATTACHMENT",
+     "author": "INFERRED",
+     "author_basis": "bare chart in Faisal's drawing style; no author mark",
+     "identity": "VERIFIED",
+     "identity_basis": "DCOY header",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "«Pre Market: 3.175 +9.50%» = the 2026-08-28 close 2.90 ×1.095 ⟶ 2026-08-31 pre-market",
+     "asof": [
+      "2026-08-31",
+      "2026-08-31"
+     ],
+     "D": [
+      "CHART_ANALYSIS_ONLY"
+     ],
+     "excerpt": "[chart only]",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    }
+   ],
+   "corrections": [
+    {
+     "what": "episode evidence",
+     "prior": "T_e 2026-09-22 from TG_50575 (WAIT) and TG_50576",
+     "corrected": "TG_50575 publishes an undated chat during the move with a congratulation («لحقتو عليه»); TG_50576 shows no ticker. The datable pre-move selection is TG_50578's chat (as-of 2026-09-21), not a ranking unit",
+     "evidence": "TG_50575 · TG_50576 · TG_50578"
+    }
+   ],
+   "missing": [
+    {
+     "unknown": "the send time of the chat messages in TG_50575",
+     "why": "they may be pre-move waiting statements, but nothing in the image dates them",
+     "artifact": "the original chat with message timestamps",
+     "provenance": "message date and time",
+     "effect": "would add a second dated DCOY statement; the episode is already datable by TG_50578"
+    }
+   ]
+  },
+  {
+   "episode_id": "EDBL_E1",
+   "ticker": "EDBL",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "TG_50579:s2",
+     "role": "UNIT",
+     "unit": "TG_50579",
+     "artifact": "POST_EMBEDDED_CHAT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "blue (sender) bubbles in a chat posted by Faisal's verified account",
+     "identity": "VERIFIED",
+     "identity_basis": "EDBL chart in the chat",
+     "ts": "VERIFIED",
+     "ts_basis": "post printed «2026/9/22 5:25 م» (chat chart 5:22) = 10:25 New York ⟶ as-of 2026-09-22",
+     "asof": [
+      "2026-09-22",
+      "2026-09-22"
+     ],
+     "D": [
+      "CHART_ANALYSIS_ONLY"
+     ],
+     "excerpt": "بيشلغنا بالموجات / لازم يرجع يحقق المقاومه / بعده يرجع للدعم",
+     "retro": false,
+     "prompted": true,
+     "states_move": null,
+     "dup_of": null,
+     "note": "an opinion given when asked («ولا وش رايك انت»); no attention, list, readiness, waiting-to-enter or entry word"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "label",
+     "prior": "WATCH (wait/plan)",
+     "corrected": "CHART_ANALYSIS_ONLY, prompted — no demonstrated selection",
+     "evidence": "TG_50579"
+    }
+   ],
+   "missing": []
+  },
+  {
+   "episode_id": "GCTK_E1",
+   "ticker": "GCTK",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "TG_57890:s1",
+     "role": "UNIT",
+     "unit": "TG_57890",
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "GCTK charts in the quoted post",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "entry «اثناء التحليل» = at the quoted analysis post printed «2026/9/24 2:26 ص» = 2026-09-23 19:26 New York (after-hours) ⟶ as-of 2026-09-24",
+     "asof": [
+      "2026-09-24",
+      "2026-09-24"
+     ],
+     "D": [
+      "ENTRY",
+      "PRESSURE_OBSERVED"
+     ],
+     "excerpt": "دخولنا بالملي مع شمعة الضغط اثناء التحليل",
+     "retro": false,
+     "prompted": false,
+     "states_move": "السهم الصاعد 130٪ بالافتر",
+     "dup_of": null,
+     "note": "an executed entry reported afterwards (exit +15% overnight); the quoted analysis states the stock had already risen 130% in the after-hours"
+    },
+    {
+     "ref": "TG_57890:s2",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "QUOTE_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header of the quoted post",
+     "identity": "VERIFIED",
+     "identity_basis": "GCTK charts",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/24 2:26 ص» ⟶ as-of 2026-09-24",
+     "asof": [
+      "2026-09-24",
+      "2026-09-24"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "الدعوم للبري 3.12 كسرها = فشل",
+     "retro": false,
+     "prompted": false,
+     "states_move": "السهم الصاعد 130٪ بالافتر",
+     "dup_of": null,
+     "note": ""
+    }
+   ],
+   "corrections": [
+    {
+     "what": "label",
+     "prior": "READY (declared ready)",
+     "corrected": "ENTRY executed after the after-hours move had begun (source-stated); not a readiness label",
+     "evidence": "TG_57890"
+    }
+   ],
+   "missing": []
+  },
+  {
+   "episode_id": "IPDN_E1",
+   "ticker": "IPDN",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "TG_50833:s2",
+     "role": "UNIT",
+     "unit": "TG_50833",
+     "artifact": "REPLY",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "«ipdn» named in the follower post he answers",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/23 10:20 ص» = 03:20 New York ⟶ as-of 2026-09-23",
+     "asof": [
+      "2026-09-23",
+      "2026-09-23"
+     ],
+     "D": [
+      "ATTENTION",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "اول البري نتابعه كم الضغط وكم الثبات",
+     "retro": false,
+     "prompted": true,
+     "states_move": "سهم ipdn ارتفعت في الافتر",
+     "dup_of": null,
+     "note": "a follower brought the stock after its after-hours rise; Faisal answers how he would follow it in the pre-market"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "origin",
+     "prior": "WATCH (Faisal)",
+     "corrected": "follower-prompted attention after an after-hours rise",
+     "evidence": "TG_50833"
+    }
+   ],
+   "missing": []
+  },
+  {
+   "episode_id": "LABT_E1",
+   "ticker": "LABT",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "X_20260827_labt_supports_wait:s1",
+     "role": "UNIT",
+     "unit": "X_20260827_labt_supports_wait",
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "LABT 4-hour charts attached",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/8/23 4:51 م» = 09:51 New York Sunday ⟶ as-of 2026-08-24",
+     "asof": [
+      "2026-08-24",
+      "2026-08-24"
+     ],
+     "D": [
+      "ATTENTION",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "انتظار الدعوم الاساسيه / 2 > 1.80",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "X_20260827_labt_supports_wait:s2",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "CHART_ATTACHMENT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "annotation on the chart in the verified post",
+     "identity": "VERIFIED",
+     "identity_basis": "LABT",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "same post as s1 (printed time belongs to the post text)",
+     "asof": [
+      "2026-08-24",
+      "2026-08-24"
+     ],
+     "D": [
+      "RETROSPECTIVE"
+     ],
+     "excerpt": "بعد تحليلنا السابق",
+     "retro": true,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "TG_1817:s1",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "«$LABT»",
+     "ts": "INFERRED",
+     "ts_basis": "relative «2 س»; chart axis ends near 08/07",
+     "asof": null,
+     "D": [
+      "RETROSPECTIVE"
+     ],
+     "excerpt": "$LABT / 300%",
+     "retro": true,
+     "prompted": false,
+     "states_move": "غطا كل اهدافه بشمعه مضارب",
+     "dup_of": null,
+     "note": "the prior explosion (2026-07-22) that this episode follows"
+    },
+    {
+     "ref": "TG_1817:s2",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "CHART_ATTACHMENT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "blue bubble inside the verified post's image",
+     "identity": "VERIFIED",
+     "identity_basis": "LABT",
+     "ts": "INFERRED",
+     "ts_basis": "as TG_1817:s1",
+     "asof": null,
+     "D": [
+      "ENTRY"
+     ],
+     "excerpt": "الامان دخول من 2",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    }
+   ],
+   "corrections": [],
+   "missing": []
+  },
+  {
+   "episode_id": "LIMN_E1",
+   "ticker": "LIMN",
+   "same_post": [
+    [
+     "TG_50585",
+     "TG_50586"
+    ]
+   ],
+   "statements": [
+    {
+     "ref": "TG_50585:s1",
+     "role": "UNIT",
+     "unit": "TG_50585",
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "«$limn» + LIMN broker screenshot",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/22 3:39 ص» = 2026-09-21 20:39 New York ⟶ as-of 2026-09-22",
+     "asof": [
+      "2026-09-22",
+      "2026-09-22"
+     ],
+     "D": [
+      "ATTENTION",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "تبقى اختبار القاع 3.40",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "the attached third-party app label «مراقبة مبكرة» is not Faisal's word and is not used"
+    },
+    {
+     "ref": "TG_50586:s1",
+     "role": "UNIT",
+     "unit": "TG_50586",
+     "artifact": "CHART_ATTACHMENT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "Faisal's drawn chart from the same session (3:36, «After Hours: 3.640» = the 2026-09-21 close)",
+     "identity": "VERIFIED",
+     "identity_basis": "LIMN header",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "as TG_50585",
+     "asof": [
+      "2026-09-22",
+      "2026-09-22"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "لازم يرجع يختبر الدعم",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": "TG_50585:s1",
+     "note": ""
+    }
+   ],
+   "corrections": [
+    {
+     "what": "unit count",
+     "prior": "2 units",
+     "corrected": "1 observation (post + its chart)",
+     "evidence": "TG_50585/86"
+    }
+   ],
+   "missing": []
+  },
+  {
+   "episode_id": "MI_E1",
+   "ticker": "MI",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "TG_58387:s1",
+     "role": "UNIT",
+     "unit": "TG_58387",
+     "artifact": "CHAT_SCREENSHOT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "outgoing bubble with the beach wallpaper of the chat Faisal shows in his verified posts (X_20260827_amix_pressure_497)",
+     "identity": "VERIFIED",
+     "identity_basis": "«Mi» written + MI chart",
+     "ts": "VERIFIED",
+     "ts_basis": "printed date header «اثنين، 28 سبتمبر» (year from the weekday: 2026-09-28 is a Monday) + 12:59 ص = 2026-09-27 17:59 New York ⟶ as-of 2026-09-28",
+     "asof": [
+      "2026-09-28",
+      "2026-09-28"
+     ],
+     "D": [
+      "ATTENTION",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "سهم بطل انتظار الضغط 2.10",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "the ranking could not evaluate it (MI absent from the reconstructed universe)"
+    }
+   ],
+   "corrections": [],
+   "missing": []
+  },
+  {
+   "episode_id": "NRSN_E1",
+   "ticker": "NRSN",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "TG_57867:s1",
+     "role": "UNIT",
+     "unit": "TG_57867",
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "NRSN charts + «Neurosense Therapeutics» app",
+     "ts": "VERIFIED",
+     "ts_basis": "printed LAST-EDIT time «2026/9/27 1:43 م» (= 06:43 New York Sunday); creation lies between the attached screenshots (1:32/1:42) and the edit ⟶ as-of 2026-09-28",
+     "asof": [
+      "2026-09-28",
+      "2026-09-28"
+     ],
+     "D": [
+      "ATTENTION",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "ضغط متوقع 20> 30٪",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    }
+   ],
+   "corrections": [],
+   "missing": []
+  },
+  {
+   "episode_id": "NUWE_E1",
+   "ticker": "NUWE",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "WA_20260918_46_NUWE:s1",
+     "role": "UNIT",
+     "unit": "WA_20260918_46_NUWE",
+     "artifact": "CHAT_SCREENSHOT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "outgoing bubble with the same beach wallpaper",
+     "identity": "INFERRED",
+     "identity_basis": "no symbol is visible in the image (chart headers cut); NUWE comes from the file name / V4",
+     "ts": "INFERRED",
+     "ts_basis": "no date; message 12:38 ص; V4 recorded 2026-09-04; the file was committed 2026-09-18",
+     "asof": null,
+     "D": [
+      "CHART_ANALYSIS_ONLY"
+     ],
+     "excerpt": "اخر دعم للسهم 60 سنت",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "levels and targets only; no selection word"
+    },
+    {
+     "ref": "X_20260918_13_NUWE:s1",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "Faisal post page",
+     "identity": "VERIFIED",
+     "identity_basis": "NUWE 4-hour chart",
+     "ts": "INFERRED",
+     "ts_basis": "no date; «0.87=0.71+23٪» after the 2026-09-03 low 0.7112; committed 2026-09-18",
+     "asof": null,
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "بالنسبه لي مادخل السهم بالمناطق الضبابيه الاولى",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "explicitly not entering yet; undated"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "unit date and identity",
+     "prior": "WATCH 2026-09-04",
+     "corrected": "undated chat with no visible symbol and no selection word",
+     "evidence": "WA_20260918_46_NUWE"
+    }
+   ],
+   "missing": [
+    {
+     "unknown": "the date of the 12:38 ص group message and the symbol of its charts",
+     "why": "without both, the statement cannot be placed in time or tied to NUWE from the image itself",
+     "artifact": "the original WhatsApp message (with the date header and the chart header visible)",
+     "provenance": "message date + symbol",
+     "effect": "would make the statement datable, but it would remain levels-only (no selection word)"
+    }
+   ]
+  },
+  {
+   "episode_id": "OMH_E1",
+   "ticker": "OMH",
+   "same_post": [
+    [
+     "TG_57872",
+     "TG_57875"
+    ]
+   ],
+   "statements": [
+    {
+     "ref": "TG_57870:s1",
+     "role": "UNIT",
+     "unit": "TG_57870",
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "Faisal profile page + post header «@kisar_»",
+     "identity": "VERIFIED",
+     "identity_basis": "OMH app screenshot attached",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "relative «١٠ س» only; the attached app shows the 2026-09-25 close and the 19:57 EDT after-close quote ⟶ posted after 2026-09-25 19:57 New York and before the 2026-09-28 session ⟶ as-of 2026-09-28",
+     "asof": [
+      "2026-09-28",
+      "2026-09-28"
+     ],
+     "D": [
+      "ATTENTION",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "لذلك اسهم الارتكاز تحميل المشاركات يتم بعد سحب السيوله وليس قبل",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "TG_57872:s3",
+     "role": "UNIT",
+     "unit": "TG_57872",
+     "artifact": "REPLY",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "STRONGLY_SUPPORTED",
+     "identity_basis": "reply in the OMH quote-post thread («🇸🇬 سنغافوري»)",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/26 9:20 م» ⟶ as-of 2026-09-28",
+     "asof": [
+      "2026-09-28",
+      "2026-09-28"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "اعادة الاختبار شرط اساسي",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "TG_57873:s2",
+     "role": "UNIT",
+     "unit": "TG_57873",
+     "artifact": "REPLY",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "STRONGLY_SUPPORTED",
+     "identity_basis": "same OMH thread",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/26 9:22 م» ⟶ as-of 2026-09-28",
+     "asof": [
+      "2026-09-28",
+      "2026-09-28"
+     ],
+     "D": [
+      "CHART_ANALYSIS_ONLY"
+     ],
+     "excerpt": "بمعني عدم تجاوز 3 يهبط لاختبار الدعم",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "TG_57875:s1",
+     "role": "UNIT",
+     "unit": "TG_57875",
+     "artifact": "CHART_ATTACHMENT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "the chart of the quote post in TG_57872",
+     "identity": "VERIFIED",
+     "identity_basis": "OMH header",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "as TG_57872",
+     "asof": [
+      "2026-09-28",
+      "2026-09-28"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "انتظار تحقيق سحب سيوله او ثبات قاع",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": "TG_57872:s1",
+     "note": ""
+    }
+   ],
+   "corrections": [
+    {
+     "what": "unit count",
+     "prior": "4 units",
+     "corrected": "2 posts (one with a chart copy and two rule replies)",
+     "evidence": "TG_57870/72/73/75"
+    }
+   ],
+   "missing": []
+  },
+  {
+   "episode_id": "PPBT_E1",
+   "ticker": "PPBT",
+   "same_post": [
+    [
+     "X_20260905_01",
+     "X_20260905_02"
+    ]
+   ],
+   "statements": [
+    {
+     "ref": "X_20260905_01:s1",
+     "role": "UNIT",
+     "unit": "X_20260905_01",
+     "artifact": "POST_HEADER_CROPPED",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "the same post as X_20260905_02 (header cropped)",
+     "identity": "VERIFIED",
+     "identity_basis": "PPBT chart",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "as X_20260905_02",
+     "asof": [
+      "2026-09-03",
+      "2026-09-03"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "البعض ارسلي قروب مدخلهم امس ع 2.40",
+     "retro": false,
+     "prompted": false,
+     "states_move": "البعض ارسلي قروب مدخلهم امس ع 2.40",
+     "dup_of": "X_20260905_02:s1",
+     "note": ""
+    },
+    {
+     "ref": "X_20260905_02:s1",
+     "role": "UNIT",
+     "unit": "X_20260905_02",
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "PPBT chart attached",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "relative «21 س»; the attached chart reads «Pre Market: 1.840 -7.07%» ⟶ previous close 1.98 (2026-09-02 or 09-03), and «مدخلهم امس ع 2.40» needs yesterday's range to reach 2.40: only 2026-09-02 (high 2.59; 09-03 high 2.07) ⟶ written in the 2026-09-03 pre-market ⟶ as-of 2026-09-03",
+     "asof": [
+      "2026-09-03",
+      "2026-09-03"
+     ],
+     "D": [
+      "WAITING_CONDITION",
+      "RETROSPECTIVE"
+     ],
+     "excerpt": "مشروط الثبات الان فوق 1.70",
+     "retro": false,
+     "prompted": false,
+     "states_move": "البعض ارسلي قروب مدخلهم امس ع 2.40",
+     "dup_of": null,
+     "note": "comments on a group pump of the previous day; «كم مره ذكرنا انتظار ضغط البري» recalls earlier undated statements"
+    },
+    {
+     "ref": "X_20260905_03:s1",
+     "role": "UNIT",
+     "unit": "X_20260905_03",
+     "artifact": "POST_CONTINUATION",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "thread continuation in the same capture session (no header)",
+     "identity": "VERIFIED",
+     "identity_basis": "PPBT charts",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "charts «After Hours: 1.920 -3.03%» ⟶ after the 2026-09-02 or 09-03 close",
+     "asof": [
+      "2026-09-03",
+      "2026-09-04"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "بمعنى فشل السهم تحت الرقم هذا مباشره",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "its first line «وغير مرشح ابدا لذلك» continues a sentence that is not captured — meaning UNKNOWN"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "unit date",
+     "prior": "2026-09-04",
+     "corrected": "2026-09-03 (price identity of the attached pre-market quote + «امس ع 2.40»)",
+     "evidence": "X_20260905_02"
+    },
+    {
+     "what": "unit count",
+     "prior": "3 units",
+     "corrected": "2 observations (one post captured twice + one continuation)",
+     "evidence": "X_20260905_01/02/03"
+    }
+   ],
+   "missing": []
+  },
+  {
+   "episode_id": "STKH_E1",
+   "ticker": "STKH",
+   "same_post": [
+    [
+     "TG_20260905_08",
+     "TG_20260905_09"
+    ]
+   ],
+   "statements": [
+    {
+     "ref": "TG_20260905_09:s1",
+     "role": "UNIT",
+     "unit": "TG_20260905_09",
+     "artifact": "CHAT_SCREENSHOT",
+     "author": "UNKNOWN",
+     "author_basis": "a chat with no participant name, header or read ticks; the sender cannot be identified (V4 attributed it to Faisal from the batch)",
+     "identity": "VERIFIED",
+     "identity_basis": "STKH chart in the chat",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "«After Hours: 2.320 -5.31%» = the 2026-09-04 close 2.45 ⟶ after the 2026-09-04 close; committed 2026-09-05 16:35 UTC ⟶ as-of 2026-09-08",
+     "asof": [
+      "2026-09-08",
+      "2026-09-08"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "اختبار دعم رجع اختبر مقاومة ثبات ٥ جلسات",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "TG_20260905_08:s1",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "CHAT_SCREENSHOT",
+     "author": "UNKNOWN",
+     "author_basis": "same unnamed chat",
+     "identity": "VERIFIED",
+     "identity_basis": "STKH chart",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "as TG_20260905_09",
+     "asof": [
+      "2026-09-08",
+      "2026-09-08"
+     ],
+     "D": [
+      "CHART_ANALYSIS_ONLY"
+     ],
+     "excerpt": "غطا فجوته الان المفروض يطلع الصدق",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    }
+   ],
+   "corrections": [
+    {
+     "what": "unit date",
+     "prior": "2026-09-04",
+     "corrected": "2026-09-08 (the quote is the 2026-09-04 after-hours)",
+     "evidence": "TG_20260905_09"
+    },
+    {
+     "what": "author",
+     "prior": "Faisal (V4)",
+     "corrected": "UNKNOWN — no sender is identifiable in the image",
+     "evidence": "TG_20260905_08/09"
+    }
+   ],
+   "missing": [
+    {
+     "unknown": "who wrote the STKH chat messages",
+     "why": "without the sender the statement cannot be attributed to Faisal",
+     "artifact": "the original chat or the post that published it",
+     "provenance": "the sender's name/handle and the message date",
+     "effect": "would decide whether the episode can be kept at all"
+    }
+   ]
+  },
+  {
+   "episode_id": "SXTC_E1",
+   "ticker": "SXTC",
+   "same_post": [
+    [
+     "X_20260918_22_pipeline",
+     "X_20260918_23_watchlist"
+    ]
+   ],
+   "statements": [
+    {
+     "ref": "WA_20260918_31_SXTC:s1",
+     "role": "UNIT",
+     "unit": "WA_20260918_31_SXTC",
+     "artifact": "CHAT_SCREENSHOT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "outgoing bubble with the beach wallpaper of the chat Faisal shows in his verified posts",
+     "identity": "VERIFIED",
+     "identity_basis": "«Sxtc» written + chart",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "message 1:00 م, no date; the chart's low marker 1.780 = the 2026-09-10 low and «الان 1.95 طلب» sits on the 09-10 close 1.93 before the 09-11 open 2.24 ⟶ 2026-09-10 (if the chart includes extended hours) or the 2026-09-11 pre-market (if not)",
+     "asof": [
+      "2026-09-10",
+      "2026-09-11"
+     ],
+     "D": [
+      "PRESSURE_OBSERVED",
+      "ENTRY"
+     ],
+     "excerpt": "تم الضغط اليوم✅ / دخول 1.80 > 1.90",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "TG_57862:s2",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "QUOTE_POST",
+     "author": "VERIFIED",
+     "author_basis": "quoted post of «@kisar_»",
+     "identity": "STRONGLY_SUPPORTED",
+     "identity_basis": "quoted inside a post about «sxtc»",
+     "ts": "VERIFIED",
+     "ts_basis": "printed date «2026/9/11» (no time) ⟶ as-of 2026-09-11 or 2026-09-14",
+     "asof": [
+      "2026-09-11",
+      "2026-09-14"
+     ],
+     "D": [
+      "ENTRY"
+     ],
+     "excerpt": "اضافة كميات مع الضغط",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "X_20260918_24_SXTC:s1",
+     "role": "UNIT",
+     "unit": "X_20260918_24_SXTC",
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "VERIFIED",
+     "identity_basis": "SXTC chart",
+     "ts": "INFERRED",
+     "ts_basis": "no printed time (quotes his own post «10 س»); committed 2026-09-18",
+     "asof": null,
+     "D": [
+      "RETROSPECTIVE"
+     ],
+     "excerpt": "اعطى من 2.10 ل 2.90",
+     "retro": true,
+     "prompted": false,
+     "states_move": "حقق 2.98 المقاومه الاولى",
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "X_20260918_22_pipeline:s2",
+     "role": "UNIT",
+     "unit": "X_20260918_22_pipeline",
+     "artifact": "APP_LIST_SNAPSHOT",
+     "author": "VERIFIED",
+     "author_basis": "post header «Faisal @kisar_» (verified) in X_20260918_22_pipeline; X_20260918_23_watchlist is the same post scrolled (identical closing text and identical attached screenshot 1:41)",
+     "identity": "VERIFIED",
+     "identity_basis": "symbol printed on the visible row of Faisal's «قائمتي» tab",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/13 1:44 م» (= 06:44 New York, Sunday) ⟶ as-of 2026-09-14",
+     "asof": [
+      "2026-09-14",
+      "2026-09-14"
+     ],
+     "D": [
+      "LIST_MEMBERSHIP"
+     ],
+     "excerpt": "قائمتي",
+     "retro": false,
+     "prompted": false,
+     "states_move": "+32.64% on the visible row",
+     "dup_of": "X_20260918_23_watchlist:s1",
+     "note": ""
+    },
+    {
+     "ref": "X_20260918_23_watchlist:s1",
+     "role": "UNIT",
+     "unit": "X_20260918_23_watchlist",
+     "artifact": "APP_LIST_SNAPSHOT",
+     "author": "VERIFIED",
+     "author_basis": "post header «Faisal @kisar_» (verified) in X_20260918_22_pipeline; X_20260918_23_watchlist is the same post scrolled (identical closing text and identical attached screenshot 1:41)",
+     "identity": "VERIFIED",
+     "identity_basis": "symbol printed on the visible row of Faisal's «قائمتي» tab",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/13 1:44 م» (= 06:44 New York, Sunday) ⟶ as-of 2026-09-14",
+     "asof": [
+      "2026-09-14",
+      "2026-09-14"
+     ],
+     "D": [
+      "LIST_MEMBERSHIP"
+     ],
+     "excerpt": "قائمتي",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "membership is visible at the snapshot only; the date the symbol entered the list is not shown"
+    },
+    {
+     "ref": "TG_58527:s1",
+     "role": "UNIT",
+     "unit": "TG_58527",
+     "artifact": "CHAT_SCREENSHOT",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "outgoing bubble with the same beach wallpaper",
+     "identity": "VERIFIED",
+     "identity_basis": "«Sxtc» written + SXTC app",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "message 8:02 م with the attached app stamped «24/09-13:00:03 EDT» ⟶ 2026-09-24 13:02 New York ⟶ as-of 2026-09-24",
+     "asof": [
+      "2026-09-24",
+      "2026-09-24"
+     ],
+     "D": [
+      "ATTENTION"
+     ],
+     "excerpt": "الليله بحول الله يدبل",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "a forward call (operator present, «doubles tonight», target 6.31) 10 sessions after the first entry, inside the same episode"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "unit labels",
+     "prior": "READY (WA_20260918_31_SXTC) · ENTRY (X_20260918_24_SXTC)",
+     "corrected": "WA_31 = pressure observed + entry zone (not a readiness word); X_24 = a retrospective outcome report, undated",
+     "evidence": "WA_20260918_31_SXTC · X_20260918_24_SXTC"
+    }
+   ],
+   "missing": [
+    {
+     "unknown": "the date of the 1:00 م WhatsApp message (2026-09-10 vs 2026-09-11 pre-market)",
+     "why": "the stock reached +50% on 2026-09-11; the two dates give different move relations",
+     "artifact": "the original WhatsApp message with its date header",
+     "provenance": "message date",
+     "effect": "decides PRE_MOVE (09-10) vs NEAR_MOVE_START (09-11)"
+    }
+   ]
+  },
+  {
+   "episode_id": "YMT_E1",
+   "ticker": "YMT",
+   "same_post": [],
+   "statements": [
+    {
+     "ref": "X_20260905_10:s1",
+     "role": "UNIT",
+     "unit": "X_20260905_10",
+     "artifact": "POST_CONTINUATION",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "thread continuation with Faisal's avatar fragment",
+     "identity": "VERIFIED",
+     "identity_basis": "YMT 4-hour chart attached",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "the chart reads «After Hours: 2.010 +6.35%» = the 2026-09-03 close 1.89 ×1.0635 (the thread's other chart is stamped «03/09-18:10:05 EDT»); the owner captured it at 1:32 ⟶ 01:19–01:32 Riyadh on 2026-09-04 ⟶ as-of 2026-09-04",
+     "asof": [
+      "2026-09-04",
+      "2026-09-04"
+     ],
+     "D": [
+      "RETROSPECTIVE",
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "هذا كان سهم متابعه دامك سالت يكون تحليله للجميع",
+     "retro": true,
+     "prompted": true,
+     "states_move": null,
+     "dup_of": null,
+     "note": "a follower asked about YMT (X_20260905_09); «كان سهم متابعه» recalls an earlier undated watch"
+    },
+    {
+     "ref": "X_20260918_85_YMT:s1",
+     "role": "UNIT",
+     "unit": "X_20260918_85_YMT",
+     "artifact": "ORIGINAL_POST",
+     "author": "VERIFIED",
+     "author_basis": "verified header",
+     "identity": "STRONGLY_SUPPORTED",
+     "identity_basis": "«السهم هذا ع 1.81» = YMT's 2026-09-03 low and the 1.81 of X_20260905_10",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "no printed time; captured at 10:22 in the same session as X_20260905_09 (10:23, same battery and network) which was committed 2026-09-05 12:36 UTC; written after the 2026-09-03 low ⟶ written between the 2026-09-03 close and the capture (2026-09-04 or 2026-09-05 10:22 Riyadh) ⟶ as-of 2026-09-04 … 2026-09-08",
+     "asof": [
+      "2026-09-04",
+      "2026-09-08"
+     ],
+     "D": [
+      "WAITING_CONDITION"
+     ],
+     "excerpt": "اذا هبط يختبر الدعم الثاني ولا كسره هنا نقول اجابي",
+     "retro": false,
+     "prompted": true,
+     "states_move": null,
+     "dup_of": null,
+     "note": ""
+    },
+    {
+     "ref": "X_20260918_23_watchlist:s1",
+     "role": "UNIT",
+     "unit": "X_20260918_23_watchlist",
+     "artifact": "APP_LIST_SNAPSHOT",
+     "author": "VERIFIED",
+     "author_basis": "post header «Faisal @kisar_» (verified) in X_20260918_22_pipeline; X_20260918_23_watchlist is the same post scrolled (identical closing text and identical attached screenshot 1:41)",
+     "identity": "VERIFIED",
+     "identity_basis": "symbol printed on the visible row of Faisal's «قائمتي» tab",
+     "ts": "VERIFIED",
+     "ts_basis": "printed «2026/9/13 1:44 م» (= 06:44 New York, Sunday) ⟶ as-of 2026-09-14",
+     "asof": [
+      "2026-09-14",
+      "2026-09-14"
+     ],
+     "D": [
+      "LIST_MEMBERSHIP"
+     ],
+     "excerpt": "قائمتي",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "membership is visible at the snapshot only; the date the symbol entered the list is not shown"
+    },
+    {
+     "ref": "X_20260905_09:s2",
+     "role": "SUPP",
+     "unit": null,
+     "artifact": "QUOTE_POST",
+     "author": "STRONGLY_SUPPORTED",
+     "author_basis": "follower post quoted in Faisal's thread",
+     "identity": "VERIFIED",
+     "identity_basis": "«ymt» written",
+     "ts": "STRONGLY_SUPPORTED",
+     "ts_basis": "as X_20260905_10",
+     "asof": [
+      "2026-09-04",
+      "2026-09-04"
+     ],
+     "D": [
+      "UNKNOWN_STATE"
+     ],
+     "excerpt": "ابو بدر سهم ymt rsi 22",
+     "retro": false,
+     "prompted": false,
+     "states_move": null,
+     "dup_of": null,
+     "note": "the follower's prompt, not Faisal's statement"
+    }
+   ],
+   "corrections": [
+    {
+     "what": "origin",
+     "prior": "WATCH (Faisal)",
+     "corrected": "follower-prompted analysis of a stock Faisal says «was» on his watch (undated)",
+     "evidence": "X_20260905_09/10"
+    }
+   ],
+   "missing": [
+    {
+     "unknown": "when YMT was on Faisal's watch («كان سهم متابعه»)",
+     "why": "the only own-selection claim is retrospective and undated",
+     "artifact": "the earlier post or list snapshot that put YMT on watch",
+     "provenance": "printed date",
+     "effect": "could provide an own, dated selection"
+    }
+   ]
+  }
+ ]
+}
