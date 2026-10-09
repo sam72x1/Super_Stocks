@@ -730,8 +730,12 @@ def report(inv, fx):
           "Displayed gates now mirror the scanner: M1–M5 + RSI hard (catalog numbers), M6 info at 0, M7/M9/M11/M12 soft, "
           "**M13 soft** (was shown hard), **M14 hard**, **borrow hard** (was absent), **anchor hard** (was absent). "
           "The verdict line now equals the scanner's post-enrich decision (`post_enrich_verdict`): a stock removed by M14 or the "
-          "borrow gate is no longer called «مؤهّل — كان سيدخل قائمة المراقبة». Attention (technical identity) and owner eligibility "
-          "remain one verdict in production; separating them is proposed research-only (no production change).", "",
+          "borrow gate is no longer called «مؤهّل — كان سيدخل قائمة المراقبة». Below that verdict both tools now print five separate "
+          "layers (`analyze_one.verdict_layers`, display only): ① Faisal's observed action and ② the source stage — UNKNOWN unless a "
+          "source establishes them, never inferred from candles · ③ the technical assessment (the screener's technical gates, not a "
+          "certificate of Faisal's method) · ④ owner-policy eligibility (float, borrow — unknown stays unknown) · ⑤ actionability "
+          "(a technical «ready» is a price location, not an entry: without a confirmed trigger it is «not determined»). A name that "
+          "passes technically and is removed by the float or borrow gate is no longer called «ليس سهم ارتكاز مؤهّلًا» in `hand_check`.", "",
           ]
     fo = os.path.join(DATA, "gate_fill_observations.json")
     if os.path.exists(fo):
@@ -753,6 +757,11 @@ def report(inv, fx):
               f"({100.0 * ej / exs:.0f}%), and every run stopped at the rounds cap with qualified names unexamined (the «unexamined» "
               "column is an upper bound: names already held or stopped are excluded too). Why these days: " + obs["why_these_days"] + ".", ""]
     L += ["## 5. Next permitted action", "",
+          "- Two active gates have no supporting evidence at all — `M13_SHORT` (FINRA short volume, 40,000: no Faisal source, no owner "
+          "order; Faisal's «شورت» is availability) and `STOPPED_EXCLUSION` (inherited switch). Removing or changing either changes live "
+          "candidate generation ⇒ owner decision; any removal needs a preregistered measurement (the M13 tightening experiments were null).",
+          "- Guards with a supported concept and an unsupported number (`COVERAGE_GUARD` 85% · `FILL_ROUNDS` 4 · `D_DEPTH` 120 · the "
+          "`DQ_GATE` mapping and 5% tolerance): the concept stays; the number is a disclosed engineering default, not evidence.",
           "- The dominant first wall on Faisal's episodes is `ANCHOR_TWO_TOUCH` (owner policy, FROZEN by the H6 control-pool "
           "dependency and the perf verdict): no production change is permitted; the admissible evidence is the prospective H6 "
           "collection already running.",

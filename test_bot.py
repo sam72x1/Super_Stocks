@@ -85071,9 +85071,12 @@ try:
     _h_fl = _gp_run_hc(277_657_352, 5_000)
     _h_bw = _gp_run_hc(1_000_000, 30_000)
     _q = "الحكم: 🎯 <b>سهم ارتكاز مؤهّل</b>"
-    _no = "ليس سهم ارتكاز مؤهّلًا حاليًا"
+    # 🔄 (2026-10-09 · متابعةُ #598): الصيغةُ الأولى اشترطت «ليس سهم ارتكاز مؤهّلًا» لسهمٍ اجتاز فنيًّا وأخرجته سياسةُ المالك —
+    #    أي قفلت خلطَ رفض المالك برفض المنهج ⟵ الآن «لا يدخل قائمة البوت — سياسةُ المالك» وغيابُ «ليس سهم ارتكاز» (GPS1/GPS9)
+    _no = "لا يدخل قائمة البوت حاليًا"
     _ok = (_q in _h_ok and _q not in _h_fl and _q not in _h_bw
-           and _no in _h_fl and "فلوت كبير" in _h_fl and _no in _h_bw and "متاحُ الاقتراض" in _h_bw)
+           and _no in _h_fl and "فلوت كبير" in _h_fl and _no in _h_bw and "متاحُ الاقتراض" in _h_bw
+           and "ليس سهم ارتكاز مؤهّلًا" not in _h_fl and "ليس سهم ارتكاز مؤهّلًا" not in _h_bw)
     _w = f"ok={_q in _h_ok} fl={_q in _h_fl} bw={_q in _h_bw}"
 except Exception as _e:                                    # noqa: BLE001
     _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
@@ -85378,6 +85381,167 @@ try:
 except Exception as _e:                                    # noqa: BLE001
     _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🚪⚖️ GPA7: المنشأُ والتسويغُ والدورُ والأمانةُ لا يحلّ أحدُها محلّ الآخر — وحالاتُها مُشتقّةٌ من أدلّتها", _ok, _w)
+
+# 🧩 GPS0-GPS10 — طبقاتُ الحكم الخمس في الفحص اليدويّ وفحص اليد (متابعةُ #598 · 2026-10-09): فعلُ فيصل · مرحلةُ المصدر ·
+#    التقييمُ الفنيّ · أهليّةُ سياسة المالك · قابليّةُ التنفيذ — لا تحلّ إحداها محلّ الأخرى · والمجهولُ مجهولٌ لا صفر ·
+#    ورفضُ المالك ليس رفضًا من المنهج · و«جاهز» الفنيّ ليس دخولًا. عرضٌ فقط: حكمُ الإنتاج (`post_enrich_verdict`) لم يتغيّر.
+_gs_AO = _gp_AO
+_GS_READY = {"status": "ready_now", "label": "🟢", "reason": ""}
+_GS_LATE = {"status": "watch", "label": "👀", "reason": "بعيد فوق منطقة الدفعات"}
+_GS_YES = {"status": "YES", "reason": ""}
+_GS_PASS = {"status": "PASS", "fails": [], "unknown": [], "passes": ["الفلوت", "المتاح للاقتراض"]}
+
+# GPS0 — الطبقتان تعيدان حكمَ الإنتاج نفسَه: `post_enrich_verdict` ⟺ (الفنيّ ∧ المالكُ ليس «لا تمرّ») على شبكة 468 حالة
+try:
+    _bad = []
+    for _fl in (None, 1_000_000, 277_657_352):
+        for _av in (None, 0, 5_000, 30_000):
+            for _sh in (None, 10_000, 60_000):
+                for _n in range(0, 13):            # كلُّ عددٍ حول حدّ النواقص أيًّا كانت قيمتُه في الإعداد
+                    _r0 = {"symbol": "TEST", "soft_fails": [f"n{i}" for i in range(_n)], "float": _fl,
+                           "shares_available": _av, "finra_short": _sh}
+                    _pv0 = _gs_AO.post_enrich_verdict(dict(_r0))[0]
+                    _tk0 = _gs_AO.technical_soft_check(dict(_r0))[0]
+                    _ow0 = _gs_AO.owner_policy_layer(dict(_r0))["status"]
+                    if _pv0 != (_tk0 and _ow0 != "FAIL"):
+                        _bad.append((_fl, _av, _sh, _n, _pv0, _tk0, _ow0))
+    _ok, _w = (not _bad), f"bad={_bad[:3]}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS0: الطبقتان الفنيّةُ والمالكُ تعيدان حكمَ الإنتاج بعد الإثراء نفسَه (468 حالة) — الفصلُ عرضٌ لا تغييرُ حكم", _ok, _w)
+
+# GPS1 — فنيًّا اجتاز · والمالكُ يمنع: فحصُ اليد لا يكتب «ليس سهم ارتكاز» والفحصُ اليدويّ يُظهر ③ نعم و④ لا تمرّ
+try:
+    _h1 = _gp_run_hc(277_657_352, 5_000)
+    _m1 = _gp_run_main(277_657_352, 5_000)
+    _L1 = _gs_AO.verdict_layers(tech=_GS_YES, owner=_gs_AO.owner_policy_layer({"symbol": "T", "float": 277_657_352,
+                                                                               "shares_available": 5_000}), entry=_GS_READY)
+    _ok = ("لا يدخل قائمة البوت حاليًا" in _h1 and "ليس سهم ارتكاز مؤهّلًا" not in _h1 and "فنيًّا اجتاز" in _h1
+           and "③ التقييمُ الفنيّ" in _h1 and "④ أهليّةُ سياسة المالك (الفلوت · المتاح): ❌ لا تمرّ" in _h1
+           and "④ أهليّةُ سياسة المالك (الفلوت · المتاح): ❌ لا تمرّ" in _m1 and "③ التقييمُ الفنيّ (بوّابات الفارز الفنيّة — ليست شهادةً بمنهج فيصل): ✅ نعم" in _m1
+           and _L1["technical"]["status"] == "YES" and _L1["owner"]["status"] == "FAIL" and _L1["actionable"]["status"] == "NO")
+    _w = f"hc_owner={'لا يدخل قائمة البوت حاليًا' in _h1} main_layers={'④ أهليّةُ' in _m1} act={_L1['actionable']}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS1: فنيًّا مجتازٌ وسياسةُ المالك تمنعه ⇒ «لا يدخل القائمة — سياسة المالك» لا «ليس سهم ارتكاز» · ③ نعم ④ لا ⑤ لا", _ok, _w)
+
+# GPS2 — فنيًّا لم يجتز · والمصدرُ أظهر انتباهًا: الطبقتان تبقيان منفصلتين (لا ترفع إحداهما الأخرى ولا تمحوها)
+try:
+    _L2 = _gs_AO.verdict_layers(tech={"status": "NO", "reason": "M_لا_مستوى_مختبر=1"}, owner=_GS_PASS, entry=None,
+                                source={"action": "«مراقبه مبكره»", "stage": "WATCH", "stage_established": True})
+    _t2 = "\n".join(_gs_AO.render_layers(_L2))
+    _ok = (_L2["observed_faisal_action"] == "«مراقبه مبكره»" and _L2["source_stage"] == "WATCH"
+           and _L2["technical"]["status"] == "NO" and _L2["actionable"]["status"] == "NO"
+           and "«مراقبه مبكره»" in _t2 and "③ التقييمُ الفنيّ (بوّابات الفارز الفنيّة — ليست شهادةً بمنهج فيصل): ❌ لا" in _t2)
+    _w = str(_L2)[:160]
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS2: انتباهُ فيصل المرصود لا يقلب الرفضَ الفنيّ ولا يمحوه الرفضُ — طبقتان منفصلتان", _ok, _w)
+
+# GPS3 — عضويّةُ «قائمتي» ليست مرحلة: بلا إثباتٍ صريحٍ من المصدر تبقى المرحلةُ UNKNOWN (ولا تُستنتَج من الشموع)
+try:
+    _L3 = _gs_AO.verdict_layers(tech=_GS_YES, owner=_GS_PASS, entry=_GS_READY,
+                                source={"action": "أدرجه في «قائمتي»", "stage": "READY"})
+    _L3b = _gs_AO.verdict_layers(tech=_GS_YES, owner=_GS_PASS, entry=_GS_READY)
+    _t3 = "\n".join(_gs_AO.render_layers(_L3b))
+    _ok = (_L3["source_stage"] == "UNKNOWN" and _L3["observed_faisal_action"] == "أدرجه في «قائمتي»"
+           and _L3b["source_stage"] == "UNKNOWN" and _L3b["observed_faisal_action"] == "NOT_RECORDED"
+           and "② انتباهُ المصدر/مرحلتُه: UNKNOWN — لا تُستنتَج من الشموع" in _t3 and "غيرُ مسجَّلٍ في هذا الفحص" in _t3)
+    _w = f"{_L3['source_stage']} · {_L3b['source_stage']}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS3: «قائمتي» عضويّةٌ لا مرحلة — المرحلةُ UNKNOWN ما لم يثبتها المصدرُ صراحةً", _ok, _w)
+
+# GPS4 — «جاهز» الفنيّ ليس دخولًا: الموقعُ جاهز بلا زنادٍ مؤكَّد ⇒ «غيرُ محسومة» · وبالزناد ⇒ نعم
+try:
+    _a4 = _gs_AO.actionable_layer(_GS_YES, _GS_PASS, _GS_READY, trigger=None)
+    _a4t = _gs_AO.actionable_layer(_GS_YES, _GS_PASS, _GS_READY, trigger=True)
+    _ok = _a4["status"] == "NOT_DETERMINED" and "زنادُ الدخول" in _a4["reason"] and _a4t["status"] == "YES"
+    _w = f"{_a4} | {_a4t}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS4: «جاهز للدخول» موقعُ سعرٍ لا دخول — بلا زنادٍ مؤكَّد لا يقول «نعم»", _ok, _w)
+
+# GPS5 — الضغطُ/الدخولُ بعد أن بدأت الحركة: السعرُ فوق منطقة الدفعات ⇒ «لا» ولو أطلق الزناد
+try:
+    _a5 = _gs_AO.actionable_layer(_GS_YES, _GS_PASS, _GS_LATE, trigger=True)
+    _ok = _a5["status"] == "NO" and "بعيد فوق منطقة الدفعات" in _a5["reason"]
+    _w = str(_a5)
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS5: زنادٌ بعد بدء الحركة (فوق منطقة الدفعات) لا يجعله قابلًا للتنفيذ", _ok, _w)
+
+# GPS6 — حارسُ سلامة البيانات يمنع التقييم: الحجزُ ⇒ الفنيّ «غيرُ قابلٍ للتقييم» و⑤ لا · والذيلُ نصُّ `dq_disclosure_line` نفسِها
+try:
+    _L6 = _gs_AO.verdict_layers(tech=_GS_YES, owner=_GS_PASS, entry=_GS_READY, trigger=True, dq_hold=True)
+    _src6 = _insp0.getsource(S.dq_disclosure_line)
+    _ok = (_L6["technical"]["status"] == "NOT_ASSESSABLE" and _L6["actionable"]["status"] == "NO"
+           and _gs_AO._DQ_HOLD_TAIL in _src6 and _gs_AO.dq_blocks("🛡️ x (" + _gs_AO._DQ_HOLD_TAIL + ")")
+           and not _gs_AO.dq_blocks("🛡️ سلامة البيانات: ⚠️ تقسيمٌ حديث") and not _gs_AO.dq_blocks(None))
+    _w = f"{_L6['technical']} {_L6['actionable']}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS6: حجزُ سلامة البيانات يجعل التقييمَ الفنيّ «غيرَ قابلٍ للتقييم» ويمنع التنفيذ", _ok, _w)
+
+# GPS7 — بياناتُ المالك المجهولة مجهولةٌ لا صفر ولا نجاح: الفلوتُ/المتاحُ المجهول ⇒ «مجهولة» تُسمّي الحقل · والصفرُ المعلوم يُحكم
+try:
+    _o7 = _gs_AO.owner_policy_layer({"symbol": "T", "float": None, "shares_available": None})
+    _o7z = _gs_AO.owner_policy_layer({"symbol": "T", "float": 1_000_000, "shares_available": 0})
+    _a7 = _gs_AO.actionable_layer(_GS_YES, _o7, _GS_READY, trigger=True)
+    _t7 = "\n".join(_gs_AO.render_layers(_gs_AO.verdict_layers(tech=_GS_YES, owner=_o7, entry=_GS_READY)))
+    _ok = (_o7["status"] == "UNKNOWN" and set(_o7["unknown"]) == {"الفلوت", "المتاح للاقتراض"}
+           and _o7z["status"] == "PASS" and _o7z["unknown"] == [] and _a7["status"] == "NOT_DETERMINED"
+           and "❔ مجهولة — مجهول: الفلوت، المتاح للاقتراض (الإنتاجُ يمرّره بفائدة الشك)" in _t7)
+    _w = f"{_o7} | {_o7z['status']} | {_a7}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS7: المجهولُ من الفلوت والمتاح يبقى «مجهولًا» ويُسمّى — والصفرُ المعلوم يُحكم به", _ok, _w)
+
+# GPS8 — بوّابةُ العرض الساقطة لا ترفض صامتة: «معلومة» ساقطة لا تُعدّ في الصلبة ولا تُسقط الحكمَ ولا الطبقة الفنيّة
+try:
+    _df8 = synth_pivot(seed=2)
+    _o8 = S.analyze_ticker("TEST", _df8)
+    _o8 = dict(_o8, symbol="TEST")
+    _g8 = [("السعر", True, "", "hard"), ("توافق الفريمات", False, "0 من 3", "info")]
+    _L8 = _gs_AO.verdict_layers(tech=_GS_YES, owner=_GS_PASS, entry=None)
+    _t8 = _gs_AO.render_ondemand(dict(_o8), _g8, dict(_o8), None, None, _L8)
+    _ok = ("بوابات فيصل الصلبة: <b>1/1</b>" in _t8 and "مؤهّل — كان سيدخل قائمة المراقبة" in _t8
+           and "③ التقييمُ الفنيّ (بوّابات الفارز الفنيّة — ليست شهادةً بمنهج فيصل): ✅ نعم" in _t8)
+    _w = _t8[:200]
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS8: بوّابةُ عرضٍ ساقطة لا تُعدّ صلبةً ولا تُسقط الحكمَ ولا التقييمَ الفنيّ", _ok, _w)
+
+# GPS9 — قيدُ المالك لا يُنسب لفيصل: كلُّ سبب منعٍ في ④ يقول «سياسة المالك» · و③ يقول إنه ليس شهادةً بمنهج فيصل ·
+#         وسطرُ فحص اليد للمتاح العالي لا يقول «ليس سهم ارتكاز»
+try:
+    _o9 = _gs_AO.owner_policy_layer({"symbol": "T", "float": 277_657_352, "shares_available": 30_000})
+    _h9 = _gp_run_hc(1_000_000, 30_000)
+    _ok = (_o9["status"] == "FAIL" and len(_o9["fails"]) == 2 and all("سياسة المالك" in f for f in _o9["fails"])
+           and "لا يدخل قائمة البوت حاليًا" in _h9 and "ليس سهم ارتكاز مؤهّلًا" not in _h9 and "متاحُ الاقتراض" in _h9)
+    _w = f"{_o9['fails']}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS9: قيدُ المالك يُسمّى قيدَ المالك — لا «ليس سهم ارتكاز» ولا يُنسب لمنهج فيصل", _ok, _w)
+
+# GPS10 — المفهومُ مسنودٌ والعتبةُ لا: M10_RSI_OS بنصّ فيصل (TG_2043) ورقمُه من عيّنة الكاتالوج ⇒ جزئيّ · واستبدالُ مراجع الرقم
+#          والصلابة بنصّه يجعله مباشرًا ⇒ الفجوةُ في الرقم لا في المفهوم (اشتقاقٌ على السجلّ الحقيقيّ)
+try:
+    _inv10 = _gp_json.load(open(_os_hc.path.join(_gp_root, "faisal_engine", "out", "GATE_INVENTORY.json"), encoding="utf-8"))
+    _reg10 = _inv10["evidence_registry"]
+    _a10 = next(g["audit"] for g in _inv10["gates"] if g["id"] == "M10_RSI_OS")
+    _sp10 = _ga_iu.spec_from_file_location("_gs_audit", _os_hc.path.join(_gp_root, "faisal_engine", "gate_audit.py"))
+    _GA10 = _ga_iu.module_from_spec(_sp10)
+    _sp10.loader.exec_module(_GA10)
+    _j0 = _GA10.derive_justification(_a10, _reg10)[0]
+    _a10b = dict(_a10, thresholds=[dict(t, refs=["F_TG2043_23_27"]) for t in _a10["thresholds"]], hardness_refs=["F_TG2043_23_27"])
+    _j1 = _GA10.derive_justification(_a10b, _reg10)[0]
+    _ok = (_j0 == "PARTIAL_OR_CONCEPT_ONLY_SUPPORT" and _j1 == "DIRECT_SOURCE_SUPPORT" and _a10["fidelity"] == "SAMPLE_NUMERICAL_RELATIONSHIP"
+           and any(t["number_origin"] == "CATALOG_PERCENTILE" for t in _a10["thresholds"]))
+    _w = f"{_j0} → {_j1}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS10: مفهومُ فيصل لا يسند الرقمَ المنفَّذ — M10_RSI_OS جزئيّ بالرقم ويصير مباشرًا لو كان الرقمُ والصلابةُ من نصّه", _ok, _w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

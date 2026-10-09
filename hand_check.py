@@ -35,6 +35,25 @@ def _verdict(n: int) -> str:
     return "🟢 <b>لا قرائن واضحة على يد نشطة</b> (بالبيانات المتاحة)"
 
 
+def _layer_lines(r: dict) -> list:
+    """🧩 الطبقاتُ الخمس لفحص اليد (عرضٌ فقط · `analyze_one.verdict_layers`) — فعلُ فيصل ومرحلتُه لا تُستنتَج هنا
+    من الشموع (UNKNOWN) · والمجهولُ من بيانات المالك يبقى مجهولًا."""
+    import analyze_one as AO
+    try:
+        tech = r.get("layer_tech")
+        if r.get("analysis_error"):
+            tech = {"status": "NOT_ASSESSABLE", "reason": "تعذّر التحليل"}
+        elif tech is None:
+            tech = {"status": "NO", "reason": r.get("reject_reason") or "لم يجتز بوابة صلبة"}
+        entry = None
+        if tech.get("status") == "YES":
+            entry = bot.entry_status(r if r.get("interp") else (r.get("tech_rec") or {}))
+        owner = r.get("layer_owner") or {"status": "UNKNOWN", "fails": [], "unknown": ["الفلوت", "المتاح للاقتراض"], "passes": []}
+        return AO.render_layers(AO.verdict_layers(tech=tech, owner=owner, entry=entry, dq_hold=AO.dq_blocks(r.get("dq_line"))))
+    except Exception:                                            # noqa: BLE001 — عرضٌ فاشل-آمن
+        return []
+
+
 def render_hand_check(sym: str, r: dict, df=None) -> str:
     """يبني رسالة فحص اليد من نتيجة مُجمّعة `r` (تحوي behav/pump_scar/h4_levels/
     rotation_pct/session_ctx/interp). دالة نقية قابلة للاختبار (بلا شبكة)."""
@@ -227,12 +246,17 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
         # واثقًا «ليس ارتكازًا» — الآن يُصرَّح بالتعذّر (تعذّر ≠ رفض).
         L.append("الحكم: ⚠️ <b>تعذّر تقييمه كارتكاز</b> (خطأ أثناء التحليل — "
                  "ليس رفضًا؛ أعد المحاولة أو افحص السجل)")
+    elif r.get("owner_blocked"):
+        # 🧩 اجتاز بوّابات الفارز الفنيّة وأخرجته سياسةُ المالك (الفلوت/المتاح) — لا يُكتب «ليس سهم ارتكاز»
+        L.append(f"الحكم: ❌ <b>لا يدخل قائمة البوت حاليًا</b> — سياسةُ المالك "
+                 f"(السبب: {r.get('reject_reason')}) · فنيًّا اجتاز بوّابات الفارز")
     else:
         why = r.get("reject_reason") or "لم يجتز بوابة صلبة (انظر ❌ أعلاه)"
         L.append(f"الحكم: ❌ <b>ليس سهم ارتكاز مؤهّلًا حاليًا</b> "
                  f"(أول سبب: {why})")
         L.append("<i>القرائن أعلاه عن اليد تبقى صالحة — لكن الفارز لا يرشّحه الآن "
                  "كارتكاز.</i>")
+    L += _layer_lines(r)
     L.append("")
     # تذييل صادق حسب المصدر الفعلي لسطر «تدفق الأوامر» أعلاه (order_snapshot يوسمه):
     # مع اشتراك Polygon = تدفق حي فعلي (شراء/بيع + عرض/طلب)؛ بدونه = لقطة bid/ask فقط.
@@ -369,13 +393,20 @@ def hand_check(sym: str):
         # ⚖️ حكمُ ما بعد الإثراء = مرآةُ الإنتاج (عطلٌ مُثبَت 2026-10-09 · GPV6): `analyze_ticker`
         #    وحدَه كان يُكتب «🎯 سهم ارتكاز مؤهّل» لسهمٍ يحذفه الفارز بعده (فلوتٌ كبير M14 ·
         #    متاحٌ فوق 20 ألفًا · نواقصُ فوق الحدّ بعد الشورت) — والقائمةُ فوقه تُظهر ❌ صلبة.
-        _pv = (AO.post_enrich_verdict(
-            {"symbol": sym, "soft_fails": official.get("soft_fails"),
-             "float": diag.get("float"), "shares_available": diag.get("shares_available"),
-             "fintel": diag.get("fintel"), "finra_short": diag.get("finra_short")})
-            if official else (True, None, None))
+        _rec = {"symbol": sym, "soft_fails": official.get("soft_fails") if official else [],
+                "float": diag.get("float"), "shares_available": diag.get("shares_available"),
+                "fintel": diag.get("fintel"), "finra_short": diag.get("finra_short")}
+        _pv = AO.post_enrich_verdict(_rec) if official else (True, None, None)
+        # 🧩 الطبقاتُ (عرضٌ فقط · متابعةُ #598): الفنيُّ والمالكُ كلٌّ على حدة قبل دمجهما في حكم الإنتاج
+        r["layer_owner"] = AO.owner_policy_layer(_rec)
+        if official:
+            _tok, _twhy, _ = AO.technical_soft_check(_rec)
+            r["layer_tech"] = {"status": "YES" if _tok else "NO", "reason": "" if _tok else _twhy}
+            r["tech_rec"] = {k: official.get(k) for k in ("price", "tranches", "stop", "pivot")}
         if official and not _pv[0]:
             r["reject_reason"] = _pv[1]
+            # رفضُ المالك ليس رفضًا من المنهج: اجتاز فنيًّا وأخرجه الفلوتُ أو المتاح
+            r["owner_blocked"] = r["layer_tech"]["status"] == "YES"
             official = None
         if official:
             # ⚠️ **إصلاح 2026-07-27 (تدقيق «أعلى مستوى»):** كنّا ننسخ تسعة مفاتيح فقط

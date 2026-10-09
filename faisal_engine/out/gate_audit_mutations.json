@@ -1,7 +1,7 @@
 {
- "what": "mutations of the four-dimension gate audit (2026-10-09) — each applied alone, the named locks run, the file restored",
- "killed": 14,
- "total": 14,
+ "what": "mutations of the four-dimension gate audit and of the five verdict layers (2026-10-09) — each applied alone, the named locks run, the file restored",
+ "killed": 27,
+ "total": 27,
  "rows": [
   {
    "mutation": "m1 absence counts as support",
@@ -116,6 +116,120 @@
    "verdict": "KILLED",
    "failed_locks": [
     "GPV9"
+   ]
+  },
+  {
+   "mutation": "s1 unknown float read as pass",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS7"
+   ]
+  },
+  {
+   "mutation": "s2 zero availability read as unknown",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS7"
+   ]
+  },
+  {
+   "mutation": "s3 trigger not required",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS4"
+   ]
+  },
+  {
+   "mutation": "s4 price location not required",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS5"
+   ]
+  },
+  {
+   "mutation": "s5 data-quality hold ignored",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS6"
+   ]
+  },
+  {
+   "mutation": "s6 list membership read as stage",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS3"
+   ]
+  },
+  {
+   "mutation": "s7 owner block shown as method rejection",
+   "file": "hand_check.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS1",
+    "GPS9",
+    "GPV7"
+   ]
+  },
+  {
+   "mutation": "s8 technical layer skips M13",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS0"
+   ]
+  },
+  {
+   "mutation": "s9 unknown owner data not rendered",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS7"
+   ]
+  },
+  {
+   "mutation": "s10 layers not passed to the manual report",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS1"
+   ]
+  },
+  {
+   "mutation": "s11 owner rule attributed to Faisal",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS9"
+   ]
+  },
+  {
+   "mutation": "s12 attention fabricated from the technical result",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS3"
+   ]
+  },
+  {
+   "mutation": "s13 owner layer stops at the first fail",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS9"
+   ]
+  },
+  {
+   "mutation": "s8 (first run) — survived: the GPS0 grid had no soft-fail count at the limit of the suite configuration",
+   "file": "analyze_one.py",
+   "verdict": "SURVIVED → lock fixed (grid 0..12) → KILLED",
+   "failed_locks": [
+    "GPS0"
    ]
   }
  ]
