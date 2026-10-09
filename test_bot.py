@@ -85071,9 +85071,12 @@ try:
     _h_fl = _gp_run_hc(277_657_352, 5_000)
     _h_bw = _gp_run_hc(1_000_000, 30_000)
     _q = "الحكم: 🎯 <b>سهم ارتكاز مؤهّل</b>"
-    _no = "ليس سهم ارتكاز مؤهّلًا حاليًا"
+    # 🔄 (2026-10-09 · متابعةُ #598): الصيغةُ الأولى اشترطت «ليس سهم ارتكاز مؤهّلًا» لسهمٍ اجتاز فنيًّا وأخرجته سياسةُ المالك —
+    #    أي قفلت خلطَ رفض المالك برفض المنهج ⟵ الآن «لا يدخل قائمة البوت — سياسةُ المالك» وغيابُ «ليس سهم ارتكاز» (GPS1/GPS9)
+    _no = "لا يدخل قائمة البوت حاليًا"
     _ok = (_q in _h_ok and _q not in _h_fl and _q not in _h_bw
-           and _no in _h_fl and "فلوت كبير" in _h_fl and _no in _h_bw and "متاحُ الاقتراض" in _h_bw)
+           and _no in _h_fl and "فلوت كبير" in _h_fl and _no in _h_bw and "متاحُ الاقتراض" in _h_bw
+           and "ليس سهم ارتكاز مؤهّلًا" not in _h_fl and "ليس سهم ارتكاز مؤهّلًا" not in _h_bw)
     _w = f"ok={_q in _h_ok} fl={_q in _h_fl} bw={_q in _h_bw}"
 except Exception as _e:                                    # noqa: BLE001
     _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
@@ -85177,6 +85180,399 @@ try:
 except Exception as _e:                                    # noqa: BLE001
     _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
 check("⚖️ GPV12: قسمُ «عمق منهجية الارتكاز» يقول إنه فنيٌّ وحدَه قبل بوّابات الفلوت والمتاح والسلامة (لا يُقرأ تأهّلًا للقائمة)", _ok, _w)
+
+# 🚪⚖️ GPA1-GPA7 — تدقيقُ البوّابات الخصوميّ (‏2026-10-09 · متابعةُ #598): المنشأُ غيرُ المسوِّغ · وغيابُ سندِ فيصل
+#    لا يصنع «حارسًا هندسيًّا مسوَّغًا» · والمفهومُ المسنود لا يسند العتبةَ بعينها. تقرأ مخرجاتِ الجرد المدفوعة (مولَّدةٌ ومقيسةٌ بـGPV9)
+#    وتنادي الاشتقاقَ النقيّ `faisal_engine/gate_audit.py` في العمليّة نفسِها (بلا أثرٍ على البيئة).
+import json as _ga_json                                           # noqa: E402
+import csv as _ga_csv                                             # noqa: E402
+import importlib.util as _ga_iu                                   # noqa: E402
+_ga_root = _os_hc.path.dirname(_os_hc.path.abspath(__file__))
+_ga_inv_p = _os_hc.path.join(_ga_root, "faisal_engine", "out", "GATE_INVENTORY.json")
+_ga_md_p = _os_hc.path.join(_ga_root, "faisal_engine", "GATE_PROVENANCE_REPORT.md")
+_GA_JUST = ("DIRECT_SOURCE_SUPPORT", "EXPLICIT_OWNER_REQUIREMENT", "DOCUMENTED_OPERATIONAL_INVARIANT",
+            "TESTED_RELIABILITY_REQUIREMENT", "EMPIRICAL_SUPPORT_UNDER_VALID_CONTRACT", "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+            "UNJUSTIFIED_BY_CURRENT_EVIDENCE", "UNKNOWN")
+
+
+def _ga_load():
+    _inv = _ga_json.load(open(_ga_inv_p, encoding="utf-8"))
+    _md = open(_ga_md_p, encoding="utf-8").read()
+    return _inv, _md
+
+
+def _ga_supporting(g, inv):
+    """أدلّةُ السند الموجبة لبوّابة — بالمخطَّط الجديد (سجلُّ الأدلّة المصنَّف) أو القديم (قائمةُ evidence)."""
+    a = g.get("audit")
+    if a:
+        reg = inv.get("evidence_registry") or {}
+        refs = list(a.get("concept_refs") or []) + list(a.get("hardness_refs") or [])
+        for t in a.get("thresholds") or []:
+            refs += list(t.get("refs") or [])
+        return [r for r in refs if (reg.get(r) or {}).get("stance") == "supports"
+                and (reg.get(r) or {}).get("kind") not in ("ABSENCE", "CODE_RECORD", "INHERITED_RECORD", "CONTRADICTION")]
+    return [e for e in g.get("evidence") or [] if e.get("source_unit") not in ("—", "") and e.get("informed_methodology")]
+
+
+def _ga_unjust_line(md):
+    return next((ln for ln in md.splitlines() if ln.startswith("5. ")), "")
+
+
+# GPA1 — غيابُ السند لا يُسوِّغ: كلُّ بوّابةٍ بلا دليلٍ موجبٍ واحد تُوسَم «غير مسوَّغة/مجهولة» وتُسمّى في سطر السؤال 5
+try:
+    _inv, _md = _ga_load()
+    _l5 = _ga_unjust_line(_md)
+    _bad = []
+    for _g in _inv["gates"]:
+        if _ga_supporting(_g, _inv):
+            continue
+        _j = (_g.get("audit") or {}).get("justification")
+        if _j not in ("UNJUSTIFIED_BY_CURRENT_EVIDENCE", "UNKNOWN") or f"`{_g['id']}`" not in _l5:
+            _bad.append(f"{_g['id']}:{_j}")
+    _ok, _w = (not _bad and bool(_l5)), f"bad={_bad[:6]} l5={_l5[:120]}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪⚖️ GPA1: بوّابةٌ بلا دليلٍ موجب لا تُصنَّف حارسًا مسوَّغًا — تُوسَم غيرَ مسوَّغة وتُسمّى في السؤال 5", _ok, _w)
+
+# GPA2 — القاعدةُ المعيبة أُزيلت: لا «هندسيٌّ بالبناء» ولا صنفٌ واحدٌ يجمع المنشأَ والتسويغ
+try:
+    _inv, _md = _ga_load()
+    _ok = ("by construction" not in _md and all(isinstance(_g.get("audit"), dict) for _g in _inv["gates"])
+           and all(k in _g["audit"] for _g in _inv["gates"] for k in ("origin", "justification", "impl_role", "fidelity")))
+    _w = f"by_construction={'by construction' in _md} audit={sum(1 for _g in _inv['gates'] if _g.get('audit'))}/{len(_inv['gates'])}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪⚖️ GPA2: لا «هندسيٌّ بالبناء» — كلُّ بوّابةٍ بأربعة أبعادٍ مستقلّة (المنشأ · التسويغ · الدور · الأمانة)", _ok, _w)
+
+# GPA3 — العتبةُ بمصدرها: كلُّ بوّابةٍ نشطةٍ ترفض ولها مفاتيحُ إعداد ⟵ سجلُّ عتبةٍ لكلّ مفتاحٍ بالحقول التسعة · والمصدرُ من الثمانية ·
+#         و«سندٌ مباشر» لا يُعطى ما لم تكن كلُّ عتبةٍ من نصّ فيصل · وجدولُ العتبات يسمّي البوّاباتِ العشرين التي سمّاها المالك
+try:
+    _inv, _md = _ga_load()
+    _ORIG8 = {"FAISAL_SOURCE", "OWNER", "CATALOG_PERCENTILE", "INFERRED", "ENGINEERING_DEFAULT", "INHERITED", "EXPERIMENT", "UNEXPLAINED"}
+    _F9 = ("key", "concept", "value", "window", "basis", "data_at_decision", "pipeline_point", "hard_why", "number_origin")
+    _bad = []
+    for _g in _inv["gates"]:
+        _a = _g.get("audit") or {}
+        if _g.get("status") == "INACTIVE" or _a.get("impl_role") not in ("HARD_REJECTION", "OWNER_TRADING_ELIGIBILITY", "DATA_QUALITY", "OPS_SAFETY"):
+            continue
+        _tk = {t.get("key") for t in _a.get("thresholds") or []}
+        for _k in _g.get("config_keys") or []:
+            if _k not in _tk:
+                _bad.append(f"{_g['id']}:{_k}:missing")
+        for _t in _a.get("thresholds") or []:
+            if any(not str(_t.get(f, "")).strip() for f in _F9) or _t.get("number_origin") not in _ORIG8:
+                _bad.append(f"{_g['id']}:{_t.get('key')}:fields")
+        if _a.get("justification") == "DIRECT_SOURCE_SUPPORT" and any(t.get("number_origin") != "FAISAL_SOURCE" for t in _a.get("thresholds") or []):
+            _bad.append(f"{_g['id']}:direct-with-non-faisal-number")
+    _sec = _md.split("## 3b.")[1].split("\n## ")[0] if "## 3b." in _md else ""
+    _need = ["M1_PRICE", "M2_FLOOR", "M3_FLOOR", "M4_RISE", "M5_DOLLAR_VOL", "M10_RSI_OS", "M10_RSI_NOW", "SOFT_COUNT", "SCORE_MIN",
+             "RR_SOFT_COUNT", "M4_RANGE", "ANCHOR_TWO_TOUCH", "M14_FLOAT", "BORROW_AVAIL", "D_DEPTH", "D_ADJUST", "DQ_GATE",
+             "COVERAGE_GUARD", "CAPACITY_SLOTS", "FILL_ROUNDS"]
+    _miss = [x for x in _need if f"`{x}`" not in _sec]
+    _ok, _w = (not _bad and not _miss and bool(_sec)), f"bad={_bad[:5]} miss={_miss[:5]}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪⚖️ GPA3: لكلّ عتبةٍ صلبةٍ نشطة مصدرُها ونافذتُها وأساسُ قياسها ولماذا صلبة — ولا «سندٌ مباشر» برقمٍ ليس من نصّ فيصل", _ok, _w)
+
+# GPA4 — الاشتقاقُ النقيّ (‏`gate_audit.derive_justification`) سلوكيًّا: الغيابُ لا يُسوِّغ · المفهومُ لا يسند العتبة ·
+#         المنقولُ من نظامٍ آخر لا يصير مباشرًا · والصلابةُ بلا سند تُنقص المسوَّغ إلى جزئيّ
+try:
+    _sp = _ga_iu.spec_from_file_location("_ga_audit", _os_hc.path.join(_ga_root, "faisal_engine", "gate_audit.py"))
+    _GA = _ga_iu.module_from_spec(_sp)
+    _sp.loader.exec_module(_GA)
+    _R = {"A": {"kind": "ABSENCE", "stance": "supports"}, "FV": {"kind": "FAISAL_SOURCE", "stance": "supports", "context": "pivot"},
+          "FX": {"kind": "FAISAL_SOURCE", "stance": "supports", "context": "split_recipe"},
+          "O": {"kind": "OWNER_ORDER", "stance": "supports"}, "I": {"kind": "OPERATIONAL_INVARIANT", "stance": "supports"},
+          "T": {"kind": "TESTED_INCIDENT", "stance": "supports"}, "C": {"kind": "CONTRADICTION", "stance": "contradicts"},
+          "S": {"kind": "FAISAL_SAMPLE", "stance": "supports"}, "R": {"kind": "CODE_RECORD", "stance": "supports"},
+          "EN": {"kind": "EXPERIMENT", "stance": "null"}}
+    _D = _GA.derive_justification
+
+    def _j(concept, thr, hard=None, role="HARD_REJECTION", ctx="pivot"):
+        return _D({"concept_refs": concept, "thresholds": [{"refs": t} for t in thr], "hardness_refs": hard or [],
+                   "impl_role": role, "context": ctx}, _R)[0]
+    _cases = [
+        (_j(["A"], [], role="OPS_SAFETY"), "UNJUSTIFIED_BY_CURRENT_EVIDENCE"),
+        (_j(["A", "R"], [["S"]], ["R"]), "UNJUSTIFIED_BY_CURRENT_EVIDENCE"),
+        (_j(["FV"], [["S", "O"]], ["O"]), "PARTIAL_OR_CONCEPT_ONLY_SUPPORT"),
+        (_j(["FV"], [["FV"]], ["FV"]), "DIRECT_SOURCE_SUPPORT"),
+        (_j(["FX"], [["FX"]], ["FX"]), "PARTIAL_OR_CONCEPT_ONLY_SUPPORT"),
+        (_j(["I"], [], role="OPS_SAFETY"), "DOCUMENTED_OPERATIONAL_INVARIANT"),
+        (_j(["T"], [["R"]], role="DATA_QUALITY"), "PARTIAL_OR_CONCEPT_ONLY_SUPPORT"),
+        (_j(["T"], [], role="DATA_QUALITY"), "TESTED_RELIABILITY_REQUIREMENT"),
+        (_j(["O"], [["O"]], ["O"]), "EXPLICIT_OWNER_REQUIREMENT"),
+        (_j(["O"], [["O"]], ["R"]), "PARTIAL_OR_CONCEPT_ONLY_SUPPORT"),
+        (_j(["C"], [["O"]], ["R"]), "PARTIAL_OR_CONCEPT_ONLY_SUPPORT"),
+        (_j(["C", "EN"], [["R"]], ["R"]), "UNJUSTIFIED_BY_CURRENT_EVIDENCE"),
+        (_j([], [], role="SOFT"), "UNKNOWN"),
+        (_j(["O", "C"], [["O"]], ["O"]), "EXPLICIT_OWNER_REQUIREMENT"),
+        (_j(["FV", "C"], [["FV"]], ["FV"]), "PARTIAL_OR_CONCEPT_ONLY_SUPPORT"),
+    ]
+    _bad = [(i, a, b) for i, (a, b) in enumerate(_cases) if a != b]
+    _ok, _w = (not _bad), f"bad={_bad[:4]}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪⚖️ GPA4: اشتقاقُ التسويغ من الدليل وحدَه — الغيابُ والتعليقُ لا يسوِّغان · المفهومُ لا يسند العتبة · والمنقولُ من وصفةٍ أخرى ليس مباشرًا", _ok, _w)
+
+# GPA5 — سجلُّ الأدلّة يُتحقَّق منه: اقتباسٌ لا يوجد في ملفّه أو غيابٌ يُستشهَد به سندًا ⟵ خطأُ بناءٍ مسمّى وخروجٌ غيرُ صفريّ
+try:
+    _d5 = _gp_json.load(open(_os_hc.path.join(_ga_root, "faisal_engine", "data", "gate_provenance.json"), encoding="utf-8"))
+    _reg5 = _d5["evidence_registry"]
+    _k_q = next(k for k, v in _reg5.items() if v.get("verify") and v["verify"].get("contains"))
+    _reg5[_k_q]["verify"]["contains"] = _reg5[_k_q]["verify"]["contains"] + "‹مزوَّر›"
+    _k_a = next(k for k, v in _reg5.items() if v.get("kind") == "ABSENCE")
+    _g5 = next(g for g in _d5["gates"] if (g.get("audit") or {}).get("justification") == "DOCUMENTED_OPERATIONAL_INVARIANT")
+    _g5["audit"]["concept_refs"] = [_k_a]
+    _g5b = next(g for g in _d5["gates"] if g["id"] == "M5_DOLLAR_VOL")
+    _g5b["audit"]["origin"], _g5b["audit"]["fidelity"] = "DIRECT_FAISAL_SOURCE", "SOURCE_OBSERVED_RULE"
+    _t5 = _gp_tf.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8")
+    _gp_json.dump(_d5, _t5, ensure_ascii=False)
+    _t5.close()
+    try:
+        _p5 = _gp_sp.run([_gp_sys.executable, _gp_tool, "--completeness"], cwd=_ga_root, env={**_gp_env, "GATE_PROV_FILE": _t5.name},
+                         capture_output=True, text=True, timeout=600)
+    finally:
+        _os_hc.unlink(_t5.name)
+    _ok = (_p5.returncode == 1 and f"evidence {_k_q}: quote not found" in _p5.stdout
+           and f"{_g5['id']}: justification DOCUMENTED_OPERATIONAL_INVARIANT but evidence derives UNJUSTIFIED_BY_CURRENT_EVIDENCE" in _p5.stdout
+           and "M5_DOLLAR_VOL: origin DIRECT_FAISAL_SOURCE has no origin reference" in _p5.stdout
+           and "M5_DOLLAR_VOL: SOURCE_OBSERVED_RULE requires DIRECT_SOURCE_SUPPORT" in _p5.stdout)
+    _w = _p5.stdout[-300:]
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪⚖️ GPA5: كلُّ دليلٍ يُتحقَّق من نصّه في ملفّه · ووسمُ تسويغٍ أو منشأٍ أو أمانةٍ لا يسنده دليلُه يُسقط البناء باسمه", _ok, _w)
+
+# GPA6 — اتّساقٌ مع تدقيق المرحلة 3 المستقلّ (`GATE_CONCEPT_MATRIX.csv`): ما وُسم هناك «غير مسنود/متناقض» لا يصير هنا سندًا من فيصل
+try:
+    _inv, _md = _ga_load()
+    _m6 = {r["GATE"]: r["STATUS"] for r in _ga_csv.DictReader(open(_os_hc.path.join(_ga_root, "fm_forensics", "phase3", "GATE_CONCEPT_MATRIX.csv"), encoding="utf-8"))}
+    _map6 = {"M2_CEIL": "M2_CEIL", "M4_RANGE": "M4_RANGE", "M4_RISE": "M4_RISE", "M5": "M5_DOLLAR_VOL", "RSI_NOW": "M10_RSI_NOW",
+             "SOFT": "SOFT_COUNT", "SCORE": "SCORE_MIN", "DEPTH": "D_DEPTH", "NEAR": "NEAR_READINESS"}
+    _gi = {g["id"]: g for g in _inv["gates"]}
+    _bad = []
+    for _p3, _gid in _map6.items():
+        if _m6.get(_p3) not in ("UNSUPPORTED", "CONTRADICTED"):
+            _bad.append(f"{_p3}:status={_m6.get(_p3)}")
+            continue
+        _a = _gi[_gid].get("audit") or {}
+        if not _a or _a.get("justification") == "DIRECT_SOURCE_SUPPORT" or _a.get("fidelity") in ("SOURCE_OBSERVED_RULE", "SUPPORTED_RECONSTRUCTION"):
+            _bad.append(f"{_gid}:{_a.get('justification')}/{_a.get('fidelity')}")
+    _ok, _w = (not _bad), f"bad={_bad[:5]}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪⚖️ GPA6: ما حكمت عليه المرحلةُ 3 «غير مسنود/متناقض» لا يُعاد وسمُه سندًا من فيصل ولا أمانةً للمنهج", _ok, _w)
+
+# GPA7 — الأبعادُ لا تحلّ محلّ بعضها (حالاتٌ مُثبَتةٌ من أدلّتها): منشأٌ بقرار مالكٍ برقمٍ موروث ⟵ جزئيّ · وبوّابةٌ أبقاها المالكُ
+#         ويناقضها إطارُ فيصل ⟵ مسوَّغةٌ بالمالك وأمانتُها «لا تطابق» · وشورتُ FINRA بلا سند ⟵ غيرُ مسوَّغ · وكلُّ قيمةٍ من مفرداتها
+try:
+    _inv, _md = _ga_load()
+    _gi = {g["id"]: g["audit"] for g in _inv["gates"]}
+    _V = _inv["audit_vocab"]
+    _voc = all(_a["origin"] in _V["origin"] and _a["justification"] in _V["justification"] and _a["impl_role"] in _V["impl_role"]
+               and _a["fidelity"] in _V["fidelity"] for _a in _gi.values())
+    _ok = (_voc and set(_V["justification"]) == set(_GA_JUST)
+           and (_gi["M14_FLOAT"]["origin"], _gi["M14_FLOAT"]["justification"]) == ("EXPLICIT_OWNER_POLICY", "PARTIAL_OR_CONCEPT_ONLY_SUPPORT")
+           and (_gi["M2_CEIL"]["justification"], _gi["M2_CEIL"]["fidelity"], _gi["M2_CEIL"]["contradicted"])
+           == ("EXPLICIT_OWNER_REQUIREMENT", "NO_DEFENSIBLE_MAPPING", True)
+           and _gi["M13_SHORT"]["justification"] == "UNJUSTIFIED_BY_CURRENT_EVIDENCE"
+           and _gi["M2_HI52_GUARD"]["justification"] == "DOCUMENTED_OPERATIONAL_INVARIANT"
+           and _gi["BORROW_AVAIL"]["justification"] == "EXPLICIT_OWNER_REQUIREMENT" and _gi["BORROW_AVAIL"]["fidelity"] != "SOURCE_OBSERVED_RULE")
+    _w = f"voc={_voc} M14={_gi.get('M14_FLOAT', {}).get('justification')} M2C={_gi.get('M2_CEIL', {}).get('justification')}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪⚖️ GPA7: المنشأُ والتسويغُ والدورُ والأمانةُ لا يحلّ أحدُها محلّ الآخر — وحالاتُها مُشتقّةٌ من أدلّتها", _ok, _w)
+
+# GPA8 — §7 «هل يجتاز المرتَّبون بعد الجولات بوّاباتِ المالك؟» يُجاب من بياناتٍ نقطيّة مجمَّدة: «غيرُ قابلٍ للتحديد» ما دامت
+#         أسماءُ البِركة المرتَّبة ومتاحُها وقتَ القرار غائبةً · والأعدادُ تُعاد مستقلّةً من الملفّين · والمتاحُ المجهول لا يُعدّ ناجحًا
+try:
+    _sp8 = _ga_iu.spec_from_file_location("_ga8_audit", _os_hc.path.join(_gp_root, "faisal_engine", "gate_audit.py"))
+    _GA8 = _ga_iu.module_from_spec(_sp8)
+    _sp8.loader.exec_module(_GA8)
+    _ev8 = _gp_json.load(open(_os_hc.path.join(_gp_root, "faisal_engine", "data", "gate_pool_evidence.json"), encoding="utf-8"))
+    _ob8 = _gp_json.load(open(_os_hc.path.join(_gp_root, "faisal_engine", "data", "gate_fill_observations.json"), encoding="utf-8"))
+    _inv8 = _gp_json.load(open(_os_hc.path.join(_gp_root, "faisal_engine", "out", "GATE_INVENTORY.json"), encoding="utf-8"))
+    _md8 = open(_os_hc.path.join(_gp_root, "faisal_engine", "GATE_PROVENANCE_REPORT.md"), encoding="utf-8").read()
+    _pq8 = _inv8["summary"]["pool_question"]
+    _rows8 = _ev8["harvest"]["rows"]
+    _ctl = [r for r in _rows8 if r["cohort"] == "control_market" and r.get("shares_available") is not None]
+    _k8 = sum(1 for r in _ctl if float(r["shares_available"]) <= 20_000)
+    _ex8 = sum(o["filled"] + o["borrow_ejected"] + o["fl_ejected"] for o in _ob8["runs"])
+    _fi8 = sum(o["filled"] for o in _ob8["runs"])
+    _sec8 = _md8.split("## 4c.")[1].split("\n## ")[0] if "## 4c." in _md8 else ""
+    _syn = [{"cohort": "c", "shares_available": None}, {"cohort": "c", "shares_available": 20_000},
+            {"cohort": "c", "shares_available": 20_001}, {"cohort": "x", "shares_available": 1}]
+    _ok = (_GA8.pass_rate(_syn, "c", 20_000) == (1, 2, 1)
+           and _pq8["determinable"] is False and _ev8["pool_names_logged"] is False and _pq8["rows_sha_ok"]
+           and (_pq8["cohorts"]["control_market"]["k"], _pq8["cohorts"]["control_market"]["n"]) == (_k8, len(_ctl))
+           and (_pq8["examined"]["k"], _pq8["examined"]["n"]) == (_fi8, _ex8)
+           and "**Answer: NOT DETERMINABLE from existing point-in-time data.**" in _sec8 and "`shares_available`" in _sec8
+           and "**by name**" in _sec8 and f"{_k8} of {len(_ctl)}" in _sec8 and f"{_fi8} of {_ex8}" in _sec8
+           and "Hypothesis (unmeasured)" in _sec8)
+    _w = f"ctl={_k8}/{len(_ctl)} ex={_fi8}/{_ex8} det={_pq8.get('determinable')}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🚪⚖️ GPA8: «هل يملأ المرتَّبون بعد الجولات الخانات؟» غيرُ قابلٍ للتحديد ببيانات اليوم ويُسمّى الحقلُ الناقص — والمجهولُ لا يُعدّ ناجحًا", _ok, _w)
+
+# 🧩 GPS0-GPS10 — طبقاتُ الحكم الخمس في الفحص اليدويّ وفحص اليد (متابعةُ #598 · 2026-10-09): فعلُ فيصل · مرحلةُ المصدر ·
+#    التقييمُ الفنيّ · أهليّةُ سياسة المالك · قابليّةُ التنفيذ — لا تحلّ إحداها محلّ الأخرى · والمجهولُ مجهولٌ لا صفر ·
+#    ورفضُ المالك ليس رفضًا من المنهج · و«جاهز» الفنيّ ليس دخولًا. عرضٌ فقط: حكمُ الإنتاج (`post_enrich_verdict`) لم يتغيّر.
+_gs_AO = _gp_AO
+_GS_READY = {"status": "ready_now", "label": "🟢", "reason": ""}
+_GS_LATE = {"status": "watch", "label": "👀", "reason": "بعيد فوق منطقة الدفعات"}
+_GS_YES = {"status": "YES", "reason": ""}
+_GS_PASS = {"status": "PASS", "fails": [], "unknown": [], "passes": ["الفلوت", "المتاح للاقتراض"]}
+
+# GPS0 — الطبقتان تعيدان حكمَ الإنتاج نفسَه: `post_enrich_verdict` ⟺ (الفنيّ ∧ المالكُ ليس «لا تمرّ») على شبكة 468 حالة
+try:
+    _bad = []
+    for _fl in (None, 1_000_000, 277_657_352):
+        for _av in (None, 0, 5_000, 30_000):
+            for _sh in (None, 10_000, 60_000):
+                for _n in range(0, 13):            # كلُّ عددٍ حول حدّ النواقص أيًّا كانت قيمتُه في الإعداد
+                    _r0 = {"symbol": "TEST", "soft_fails": [f"n{i}" for i in range(_n)], "float": _fl,
+                           "shares_available": _av, "finra_short": _sh}
+                    _pv0 = _gs_AO.post_enrich_verdict(dict(_r0))[0]
+                    _tk0 = _gs_AO.technical_soft_check(dict(_r0))[0]
+                    _ow0 = _gs_AO.owner_policy_layer(dict(_r0))["status"]
+                    if _pv0 != (_tk0 and _ow0 != "FAIL"):
+                        _bad.append((_fl, _av, _sh, _n, _pv0, _tk0, _ow0))
+    _ok, _w = (not _bad), f"bad={_bad[:3]}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS0: الطبقتان الفنيّةُ والمالكُ تعيدان حكمَ الإنتاج بعد الإثراء نفسَه (468 حالة) — الفصلُ عرضٌ لا تغييرُ حكم", _ok, _w)
+
+# GPS1 — فنيًّا اجتاز · والمالكُ يمنع: فحصُ اليد لا يكتب «ليس سهم ارتكاز» والفحصُ اليدويّ يُظهر ③ نعم و④ لا تمرّ
+try:
+    _h1 = _gp_run_hc(277_657_352, 5_000)
+    _m1 = _gp_run_main(277_657_352, 5_000)
+    _L1 = _gs_AO.verdict_layers(tech=_GS_YES, owner=_gs_AO.owner_policy_layer({"symbol": "T", "float": 277_657_352,
+                                                                               "shares_available": 5_000}), entry=_GS_READY)
+    _ok = ("لا يدخل قائمة البوت حاليًا" in _h1 and "ليس سهم ارتكاز مؤهّلًا" not in _h1 and "فنيًّا اجتاز" in _h1
+           and "③ التقييمُ الفنيّ" in _h1 and "④ أهليّةُ سياسة المالك (الفلوت · المتاح): ❌ لا تمرّ" in _h1
+           and "④ أهليّةُ سياسة المالك (الفلوت · المتاح): ❌ لا تمرّ" in _m1 and "③ التقييمُ الفنيّ (بوّابات الفارز الفنيّة — ليست شهادةً بمنهج فيصل): ✅ نعم" in _m1
+           and _L1["technical"]["status"] == "YES" and _L1["owner"]["status"] == "FAIL" and _L1["actionable"]["status"] == "NO")
+    _w = f"hc_owner={'لا يدخل قائمة البوت حاليًا' in _h1} main_layers={'④ أهليّةُ' in _m1} act={_L1['actionable']}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS1: فنيًّا مجتازٌ وسياسةُ المالك تمنعه ⇒ «لا يدخل القائمة — سياسة المالك» لا «ليس سهم ارتكاز» · ③ نعم ④ لا ⑤ لا", _ok, _w)
+
+# GPS2 — فنيًّا لم يجتز · والمصدرُ أظهر انتباهًا: الطبقتان تبقيان منفصلتين (لا ترفع إحداهما الأخرى ولا تمحوها)
+try:
+    _L2 = _gs_AO.verdict_layers(tech={"status": "NO", "reason": "M_لا_مستوى_مختبر=1"}, owner=_GS_PASS, entry=None,
+                                source={"action": "«مراقبه مبكره»", "stage": "WATCH", "stage_established": True})
+    _t2 = "\n".join(_gs_AO.render_layers(_L2))
+    _ok = (_L2["observed_faisal_action"] == "«مراقبه مبكره»" and _L2["source_stage"] == "WATCH"
+           and _L2["technical"]["status"] == "NO" and _L2["actionable"]["status"] == "NO"
+           and "«مراقبه مبكره»" in _t2 and "③ التقييمُ الفنيّ (بوّابات الفارز الفنيّة — ليست شهادةً بمنهج فيصل): ❌ لا" in _t2)
+    _w = str(_L2)[:160]
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS2: انتباهُ فيصل المرصود لا يقلب الرفضَ الفنيّ ولا يمحوه الرفضُ — طبقتان منفصلتان", _ok, _w)
+
+# GPS3 — عضويّةُ «قائمتي» ليست مرحلة: بلا إثباتٍ صريحٍ من المصدر تبقى المرحلةُ UNKNOWN (ولا تُستنتَج من الشموع)
+try:
+    _L3 = _gs_AO.verdict_layers(tech=_GS_YES, owner=_GS_PASS, entry=_GS_READY,
+                                source={"action": "أدرجه في «قائمتي»", "stage": "READY"})
+    _L3b = _gs_AO.verdict_layers(tech=_GS_YES, owner=_GS_PASS, entry=_GS_READY)
+    _t3 = "\n".join(_gs_AO.render_layers(_L3b))
+    _ok = (_L3["source_stage"] == "UNKNOWN" and _L3["observed_faisal_action"] == "أدرجه في «قائمتي»"
+           and _L3b["source_stage"] == "UNKNOWN" and _L3b["observed_faisal_action"] == "NOT_RECORDED"
+           and "② انتباهُ المصدر/مرحلتُه: UNKNOWN — لا تُستنتَج من الشموع" in _t3 and "غيرُ مسجَّلٍ في هذا الفحص" in _t3)
+    _w = f"{_L3['source_stage']} · {_L3b['source_stage']}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS3: «قائمتي» عضويّةٌ لا مرحلة — المرحلةُ UNKNOWN ما لم يثبتها المصدرُ صراحةً", _ok, _w)
+
+# GPS4 — «جاهز» الفنيّ ليس دخولًا: الموقعُ جاهز بلا زنادٍ مؤكَّد ⇒ «غيرُ محسومة» · وبالزناد ⇒ نعم
+try:
+    _a4 = _gs_AO.actionable_layer(_GS_YES, _GS_PASS, _GS_READY, trigger=None)
+    _a4t = _gs_AO.actionable_layer(_GS_YES, _GS_PASS, _GS_READY, trigger=True)
+    _ok = _a4["status"] == "NOT_DETERMINED" and "زنادُ الدخول" in _a4["reason"] and _a4t["status"] == "YES"
+    _w = f"{_a4} | {_a4t}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS4: «جاهز للدخول» موقعُ سعرٍ لا دخول — بلا زنادٍ مؤكَّد لا يقول «نعم»", _ok, _w)
+
+# GPS5 — الضغطُ/الدخولُ بعد أن بدأت الحركة: السعرُ فوق منطقة الدفعات ⇒ «لا» ولو أطلق الزناد
+try:
+    _a5 = _gs_AO.actionable_layer(_GS_YES, _GS_PASS, _GS_LATE, trigger=True)
+    _ok = _a5["status"] == "NO" and "بعيد فوق منطقة الدفعات" in _a5["reason"]
+    _w = str(_a5)
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS5: زنادٌ بعد بدء الحركة (فوق منطقة الدفعات) لا يجعله قابلًا للتنفيذ", _ok, _w)
+
+# GPS6 — حارسُ سلامة البيانات يمنع التقييم: الحجزُ ⇒ الفنيّ «غيرُ قابلٍ للتقييم» و⑤ لا · والذيلُ نصُّ `dq_disclosure_line` نفسِها
+try:
+    _L6 = _gs_AO.verdict_layers(tech=_GS_YES, owner=_GS_PASS, entry=_GS_READY, trigger=True, dq_hold=True)
+    _src6 = _insp0.getsource(S.dq_disclosure_line)
+    _ok = (_L6["technical"]["status"] == "NOT_ASSESSABLE" and _L6["actionable"]["status"] == "NO"
+           and _gs_AO._DQ_HOLD_TAIL in _src6 and _gs_AO.dq_blocks("🛡️ x (" + _gs_AO._DQ_HOLD_TAIL + ")")
+           and not _gs_AO.dq_blocks("🛡️ سلامة البيانات: ⚠️ تقسيمٌ حديث") and not _gs_AO.dq_blocks(None))
+    _w = f"{_L6['technical']} {_L6['actionable']}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS6: حجزُ سلامة البيانات يجعل التقييمَ الفنيّ «غيرَ قابلٍ للتقييم» ويمنع التنفيذ", _ok, _w)
+
+# GPS7 — بياناتُ المالك المجهولة مجهولةٌ لا صفر ولا نجاح: الفلوتُ/المتاحُ المجهول ⇒ «مجهولة» تُسمّي الحقل · والصفرُ المعلوم يُحكم
+try:
+    _o7 = _gs_AO.owner_policy_layer({"symbol": "T", "float": None, "shares_available": None})
+    _o7z = _gs_AO.owner_policy_layer({"symbol": "T", "float": 1_000_000, "shares_available": 0})
+    _a7 = _gs_AO.actionable_layer(_GS_YES, _o7, _GS_READY, trigger=True)
+    _t7 = "\n".join(_gs_AO.render_layers(_gs_AO.verdict_layers(tech=_GS_YES, owner=_o7, entry=_GS_READY)))
+    _ok = (_o7["status"] == "UNKNOWN" and set(_o7["unknown"]) == {"الفلوت", "المتاح للاقتراض"}
+           and _o7z["status"] == "PASS" and _o7z["unknown"] == [] and _a7["status"] == "NOT_DETERMINED"
+           and "❔ مجهولة — مجهول: الفلوت، المتاح للاقتراض (الإنتاجُ يمرّره بفائدة الشك)" in _t7)
+    _w = f"{_o7} | {_o7z['status']} | {_a7}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS7: المجهولُ من الفلوت والمتاح يبقى «مجهولًا» ويُسمّى — والصفرُ المعلوم يُحكم به", _ok, _w)
+
+# GPS8 — بوّابةُ العرض الساقطة لا ترفض صامتة: «معلومة» ساقطة لا تُعدّ في الصلبة ولا تُسقط الحكمَ ولا الطبقة الفنيّة
+try:
+    _df8 = synth_pivot(seed=2)
+    _o8 = S.analyze_ticker("TEST", _df8)
+    _o8 = dict(_o8, symbol="TEST")
+    _g8 = [("السعر", True, "", "hard"), ("توافق الفريمات", False, "0 من 3", "info")]
+    _L8 = _gs_AO.verdict_layers(tech=_GS_YES, owner=_GS_PASS, entry=None)
+    _t8 = _gs_AO.render_ondemand(dict(_o8), _g8, dict(_o8), None, None, _L8)
+    _ok = ("بوابات فيصل الصلبة: <b>1/1</b>" in _t8 and "مؤهّل — كان سيدخل قائمة المراقبة" in _t8
+           and "③ التقييمُ الفنيّ (بوّابات الفارز الفنيّة — ليست شهادةً بمنهج فيصل): ✅ نعم" in _t8)
+    _w = _t8[:200]
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS8: بوّابةُ عرضٍ ساقطة لا تُعدّ صلبةً ولا تُسقط الحكمَ ولا التقييمَ الفنيّ", _ok, _w)
+
+# GPS9 — قيدُ المالك لا يُنسب لفيصل: كلُّ سبب منعٍ في ④ يقول «سياسة المالك» · و③ يقول إنه ليس شهادةً بمنهج فيصل ·
+#         وسطرُ فحص اليد للمتاح العالي لا يقول «ليس سهم ارتكاز»
+try:
+    _o9 = _gs_AO.owner_policy_layer({"symbol": "T", "float": 277_657_352, "shares_available": 30_000})
+    _h9 = _gp_run_hc(1_000_000, 30_000)
+    _ok = (_o9["status"] == "FAIL" and len(_o9["fails"]) == 2 and all("سياسة المالك" in f for f in _o9["fails"])
+           and "لا يدخل قائمة البوت حاليًا" in _h9 and "ليس سهم ارتكاز مؤهّلًا" not in _h9 and "متاحُ الاقتراض" in _h9)
+    _w = f"{_o9['fails']}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS9: قيدُ المالك يُسمّى قيدَ المالك — لا «ليس سهم ارتكاز» ولا يُنسب لمنهج فيصل", _ok, _w)
+
+# GPS10 — المفهومُ مسنودٌ والعتبةُ لا: M10_RSI_OS بنصّ فيصل (TG_2043) ورقمُه من عيّنة الكاتالوج ⇒ جزئيّ · واستبدالُ مراجع الرقم
+#          والصلابة بنصّه يجعله مباشرًا ⇒ الفجوةُ في الرقم لا في المفهوم (اشتقاقٌ على السجلّ الحقيقيّ)
+try:
+    _inv10 = _gp_json.load(open(_os_hc.path.join(_gp_root, "faisal_engine", "out", "GATE_INVENTORY.json"), encoding="utf-8"))
+    _reg10 = _inv10["evidence_registry"]
+    _a10 = next(g["audit"] for g in _inv10["gates"] if g["id"] == "M10_RSI_OS")
+    _sp10 = _ga_iu.spec_from_file_location("_gs_audit", _os_hc.path.join(_gp_root, "faisal_engine", "gate_audit.py"))
+    _GA10 = _ga_iu.module_from_spec(_sp10)
+    _sp10.loader.exec_module(_GA10)
+    _j0 = _GA10.derive_justification(_a10, _reg10)[0]
+    _a10b = dict(_a10, thresholds=[dict(t, refs=["F_TG2043_23_27"]) for t in _a10["thresholds"]], hardness_refs=["F_TG2043_23_27"])
+    _j1 = _GA10.derive_justification(_a10b, _reg10)[0]
+    _ok = (_j0 == "PARTIAL_OR_CONCEPT_ONLY_SUPPORT" and _j1 == "DIRECT_SOURCE_SUPPORT" and _a10["fidelity"] == "SAMPLE_NUMERICAL_RELATIONSHIP"
+           and any(t["number_origin"] == "CATALOG_PERCENTILE" for t in _a10["thresholds"]))
+    _w = f"{_j0} → {_j1}"
+except Exception as _e:                                    # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🧩 GPS10: مفهومُ فيصل لا يسند الرقمَ المنفَّذ — M10_RSI_OS جزئيّ بالرقم ويصير مباشرًا لو كان الرقمُ والصلابةُ من نصّه", _ok, _w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

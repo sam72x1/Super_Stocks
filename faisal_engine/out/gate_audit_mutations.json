@@ -1,0 +1,260 @@
+{
+ "what": "mutations of the four-dimension gate audit, the five verdict layers and the pool question (2026-10-09) — each applied alone, the named locks run, the file restored",
+ "killed": 30,
+ "total": 30,
+ "rows": [
+  {
+   "mutation": "m1 absence counts as support",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA4",
+    "GPA5"
+   ]
+  },
+  {
+   "mutation": "m2 transferred Faisal counts as direct",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA4"
+   ]
+  },
+  {
+   "mutation": "m3 thresholds ignored",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA4"
+   ]
+  },
+  {
+   "mutation": "m4 hardness ignored",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA4"
+   ]
+  },
+  {
+   "mutation": "m5 contradiction does not block direct",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA4"
+   ]
+  },
+  {
+   "mutation": "m6 missing concept reads unjustified",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA4"
+   ]
+  },
+  {
+   "mutation": "m7 quotes not verified",
+   "file": "faisal_engine/gate_inventory.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA5"
+   ]
+  },
+  {
+   "mutation": "m8 curated justification not compared",
+   "file": "faisal_engine/gate_inventory.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA5"
+   ]
+  },
+  {
+   "mutation": "m9 origin unchecked",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA5"
+   ]
+  },
+  {
+   "mutation": "m10 fidelity unchecked",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA5"
+   ]
+  },
+  {
+   "mutation": "m11 data: M13 relabelled owner",
+   "file": "faisal_engine/data/gate_provenance.json",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPV10",
+    "GPV9"
+   ]
+  },
+  {
+   "mutation": "m12 data: M5 threshold record removed",
+   "file": "faisal_engine/data/gate_provenance.json",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPV10",
+    "GPV9"
+   ]
+  },
+  {
+   "mutation": "m13 report line 5 lists active gates only",
+   "file": "faisal_engine/gate_inventory.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPV9"
+   ]
+  },
+  {
+   "mutation": "m14 threshold value not read from CONFIG",
+   "file": "faisal_engine/gate_inventory.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPV9"
+   ]
+  },
+  {
+   "mutation": "s1 unknown float read as pass",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS7"
+   ]
+  },
+  {
+   "mutation": "s2 zero availability read as unknown",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS7"
+   ]
+  },
+  {
+   "mutation": "s3 trigger not required",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS4"
+   ]
+  },
+  {
+   "mutation": "s4 price location not required",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS5"
+   ]
+  },
+  {
+   "mutation": "s5 data-quality hold ignored",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS6"
+   ]
+  },
+  {
+   "mutation": "s6 list membership read as stage",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS3"
+   ]
+  },
+  {
+   "mutation": "s7 owner block shown as method rejection",
+   "file": "hand_check.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS1",
+    "GPS9",
+    "GPV7"
+   ]
+  },
+  {
+   "mutation": "s8 technical layer skips M13",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS0"
+   ]
+  },
+  {
+   "mutation": "s9 unknown owner data not rendered",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS7"
+   ]
+  },
+  {
+   "mutation": "s10 layers not passed to the manual report",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS1"
+   ]
+  },
+  {
+   "mutation": "s11 owner rule attributed to Faisal",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS9"
+   ]
+  },
+  {
+   "mutation": "s12 attention fabricated from the technical result",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS3"
+   ]
+  },
+  {
+   "mutation": "s13 owner layer stops at the first fail",
+   "file": "analyze_one.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPS9"
+   ]
+  },
+  {
+   "mutation": "s8 (first run) — survived: the GPS0 grid had no soft-fail count at the limit of the suite configuration",
+   "file": "analyze_one.py",
+   "verdict": "SURVIVED → lock fixed (grid 0..12) → KILLED",
+   "failed_locks": [
+    "GPS0"
+   ]
+  },
+  {
+   "mutation": "p1 unknown availability counted as passing",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA8"
+   ]
+  },
+  {
+   "mutation": "p2 threshold read as strict",
+   "file": "faisal_engine/gate_audit.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPA8"
+   ]
+  },
+  {
+   "mutation": "p3 answer printed as determinable",
+   "file": "faisal_engine/gate_inventory.py",
+   "verdict": "KILLED",
+   "failed_locks": [
+    "GPV9"
+   ]
+  }
+ ]
+}

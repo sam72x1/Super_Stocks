@@ -775,15 +775,135 @@ def post_enrich_verdict(rec: dict):
         if _ej:
             return (False, f"متاحُ الاقتراض {bot.fmt_money(_num(_ej[0][1]))} فوق "
                     f"{bot.fmt_money(C['BORROW_AVAIL_MAX'])} — بوّابةٌ صلبة بعد الإثراء "
-                    "(ذخيرةُ هبوط بإطار فيصل)", sf)
+                    "(سياسةُ المالك «طبّق 20» — والرقمُ من وصفة فيصل للمقسّم)", sf)
     return True, None, sf
+
+
+# ==========================================================
+# 🧩 طبقاتُ الحكم الخمس — منفصلةٌ لا تحلّ إحداها محلّ الأخرى (متابعةُ #598 · 2026-10-09)
+# ==========================================================
+# كان الحكمُ سطرًا واحدًا يخلط ما رآه فيصل وما يحكم به الفارزُ فنيًّا وما تمنعه سياسةُ المالك:
+# سهمٌ اجتاز البوّابات الفنيّة وأخرجه الفلوتُ أو المتاح كان يُكتب «ليس سهم ارتكاز». الطبقاتُ هنا
+# عرضٌ فقط — حكمُ الإنتاج («الحكم» أعلاها · `post_enrich_verdict`) لا يتغيّر، ولا عتبةَ تُمَسّ.
+_DQ_HOLD_TAIL = "لا يدخل قوائمَ البوت حتى يزول"          # ذيلُ `dq_disclosure_line` لحالتَي الحجز والمنع
+
+
+def dq_blocks(dq_line) -> bool:
+    """🛡️ هل سطرُ سلامة البيانات يقول إن الإنتاج يحجز الرمز (quarantine/block)؟"""
+    return bool(dq_line) and _DQ_HOLD_TAIL in str(dq_line)
+
+
+def technical_soft_check(rec: dict):
+    """③ الجزءُ الفنيّ من حكم ما بعد الإثراء: نقصُ الشورت (M13 لين) ثمّ حدُّ النواقص — بلا بوّابتَي المالك.
+    ترجّع `(ok, reason, soft_fails)` بمنطق `post_enrich_verdict` نفسِه."""
+    sf = list((rec or {}).get("soft_fails") or [])
+    if C.get("SHORT_GATE_REQUIRED", False):
+        srt = _short_value(rec or {})
+        if srt is not None and srt >= C["SHORT_GATE_MAX"]:
+            sf.append("شورت عالٍ")
+    if bot.classify_tier(sf) is None:
+        return False, f"نواقص أكثر من الحد ({len(sf)}): " + "، ".join(sf), sf
+    return True, None, sf
+
+
+def owner_policy_layer(rec: dict) -> dict:
+    """④ أهليّةُ سياسة المالك — الفلوت (M14 · «يكون مستبعد تماما» 2026-07-29) والمتاح («طبّق 20» 2026-08-11)، كلٌّ
+    على حدة (لا «أوّلُ سبب»). **المجهولُ يبقى مجهولًا** (الإنتاجُ يمرّره بفائدة الشك — يُقال ولا يُخفى) ولا يُقرأ صفرًا
+    ولا نجاحًا. `status` ∈ PASS · FAIL · UNKNOWN (FAIL يغلب)."""
+    sym = (rec or {}).get("symbol") or ""
+    fails, unknown, passes = [], [], []
+    if C.get("FLOAT_GATE_REQUIRED", False):
+        fv = _num((rec or {}).get("float"))
+        if fv is None:
+            unknown.append("الفلوت")
+        else:
+            _k, _ej = bot.refloat_gate_recheck([{"symbol": sym, "float": fv, "soft_fails": [], "flags": []}])
+            if _ej:
+                fails.append(f"الفلوت {bot.fmt_money(fv)} فوق {bot.fmt_money(C['FLOAT_GATE_MAX'])} "
+                             "(سياسة المالك 2026-07-29 — والحدُّ 50م تحفّظُنا لا رقمُ فيصل)")
+            else:
+                passes.append("الفلوت")
+    if C.get("BORROW_GATE_REQUIRED", False):
+        av = _num((rec or {}).get("shares_available"))
+        if av is None:
+            unknown.append("المتاح للاقتراض")
+        else:
+            _k, _ej = bot.borrow_gate_recheck([{"symbol": sym, "shares_available": av}])
+            if _ej:
+                fails.append(f"المتاح {bot.fmt_money(av)} فوق {bot.fmt_money(C['BORROW_AVAIL_MAX'])} "
+                             "(سياسة المالك «طبّق 20» — رقمُ فيصل في وصفة المقسّم)")
+            else:
+                passes.append("المتاح للاقتراض")
+    status = "FAIL" if fails else ("UNKNOWN" if unknown else "PASS")
+    return {"status": status, "fails": fails, "unknown": unknown, "passes": passes}
+
+
+def actionable_layer(tech: dict, owner: dict, entry=None, trigger=None, dq_hold=False) -> dict:
+    """⑤ قابليّةُ التنفيذ الآن. «جاهز» الفنيّ (موقعُ السعر) **ليس دخولًا**: الدخولُ عند فيصل على زنادٍ (الضغط/دخول
+    المضارب) لا تقيسه هذي الأدوات ⇒ بلا `trigger=True` لا يُقال «نعم». `entry` = مُخرَجُ `entry_status`."""
+    if (tech or {}).get("status") == "PULLBACK":
+        return {"status": "NO", "reason": "ارتكازٌ ارتفع فوق دخوله — انتظر رجوعه للدعم"}
+    if (tech or {}).get("status") != "YES":
+        return {"status": "NO", "reason": "التقييمُ الفنيّ لا يجيزه"}
+    if (owner or {}).get("status") == "FAIL":
+        return {"status": "NO", "reason": "سياسةُ المالك تمنعه"}
+    if dq_hold:
+        return {"status": "NO", "reason": "سلامةُ البيانات تحجزه"}
+    if not entry:
+        return {"status": "NOT_DETERMINED", "reason": "موقعُ السعر من الدخول غيرُ محسوب"}
+    if entry.get("status") != "ready_now":
+        return {"status": "NO", "reason": "موقعُ السعر: " + (entry.get("reason") or "متابعة")}
+    if (owner or {}).get("status") == "UNKNOWN":
+        return {"status": "NOT_DETERMINED", "reason": "بياناتُ المالك ناقصة: " + "، ".join(owner.get("unknown") or [])}
+    if trigger is not True:
+        return {"status": "NOT_DETERMINED", "reason": "الموقعُ جاهز — وزنادُ الدخول (الضغط/دخول المضارب) غيرُ مؤكَّدٍ في هذا الفحص"}
+    return {"status": "YES", "reason": ""}
+
+
+def verdict_layers(*, tech: dict, owner: dict, entry=None, trigger=None, dq_hold=False, source=None) -> dict:
+    """🧩 الطبقاتُ الخمس: ① فعلُ فيصل المرصود (من المصدر وحدَه) ② انتباهُ المصدر/مرحلتُه (UNKNOWN ما لم يُثبتها
+    المصدرُ صراحةً — عضويّةُ «قائمتي» ليست مرحلة) ③ التقييمُ الفنيّ ④ أهليّةُ سياسة المالك ⑤ قابليّةُ التنفيذ. **لا تُشتقّ
+    ① ولا ② من الشموع** ولا يُقرأ رفضُ المالك رفضًا من فيصل."""
+    src = source or {}
+    if dq_hold and (tech or {}).get("status") == "YES":
+        tech = {"status": "NOT_ASSESSABLE", "reason": "سلامةُ البيانات تحجز الرمز — التقييمُ على بياناتٍ غير موثوقة"}
+    return {"observed_faisal_action": src.get("action") or "NOT_RECORDED",
+            "source_stage": (src.get("stage") if src.get("stage_established") and src.get("stage") else "UNKNOWN"),
+            "technical": tech, "owner": owner,
+            "actionable": actionable_layer(tech, owner, entry, trigger, dq_hold)}
+
+
+_LAYER_ICON = {"YES": "✅ نعم", "NO": "❌ لا", "NOT_ASSESSABLE": "⚠️ غيرُ قابلٍ للتقييم", "PULLBACK": "👁️ ارتكازٌ ارتفع (ارتداد)",
+               "PASS": "✅ تمرّ", "FAIL": "❌ لا تمرّ", "UNKNOWN": "❔ مجهولة", "NOT_DETERMINED": "❔ غيرُ محسومة"}
+
+
+def render_layers(L: dict) -> list:
+    """أسطرُ العرض للطبقات الخمس (بلا علامات مقارنة · المجهولُ مكتوبٌ «مجهول»)."""
+    if not L:
+        return []
+    t, o, a = L["technical"], L["owner"], L["actionable"]
+    act = L["observed_faisal_action"]
+    stg = L["source_stage"]
+    o_txt = _LAYER_ICON.get(o["status"], o["status"])
+    if o["status"] == "FAIL":
+        o_txt += " — " + "؛ ".join(o["fails"])
+    if o.get("unknown"):
+        o_txt += (" — " if o["status"] != "FAIL" else " · ") + "مجهول: " + "، ".join(o["unknown"]) + " (الإنتاجُ يمرّره بفائدة الشك)"
+    return ["🧩 <b>طبقاتُ الحكم (منفصلة — لا تحلّ إحداها محلّ الأخرى):</b>",
+            "① فعلُ فيصل المرصود: " + ("غيرُ مسجَّلٍ في هذا الفحص" if act == "NOT_RECORDED" else bot.esc(str(act))),
+            "② انتباهُ المصدر/مرحلتُه: " + ("UNKNOWN — لا تُستنتَج من الشموع" if stg == "UNKNOWN" else bot.esc(str(stg))),
+            "③ التقييمُ الفنيّ (بوّابات الفارز الفنيّة — ليست شهادةً بمنهج فيصل): " + _LAYER_ICON.get(t["status"], t["status"])
+            + (f" — {bot.esc(str(t['reason']))}" if t.get("reason") else ""),
+            "④ أهليّةُ سياسة المالك (الفلوت · المتاح): " + o_txt,
+            "⑤ قابليّةُ التنفيذ الآن: " + _LAYER_ICON.get(a["status"], a["status"])
+            + (f" — {a['reason']}" if a.get("reason") else "")]
 
 
 # ==========================================================
 # بناء الرسالة: ترويسة البوابات + النسبة + البطاقة الكاملة
 # ==========================================================
 def render_ondemand(result: dict, gates: list, official, reject_reason=None,
-                    pullback=None) -> str:
+                    pullback=None, layers=None) -> str:
     # ترويسة العدّ على **الصلبة وحدها** — عدّ الثلاث عشرة كلها كان يعرض
     # التأكيدات اللينة والميّت (توافق=0) كأنها شروط رفض (مسكة المالك 2026-08-08)
     _hard = [g for g in gates if _gate_kind(g) == "hard"]
@@ -819,6 +939,7 @@ def render_ondemand(result: dict, gates: list, official, reject_reason=None,
             g[0] for g in gates if not g[1] and _gate_kind(g) == "hard") \
             or "لم يجتز بوابة صلبة"
         head.append(f"الحكم: ❌ <b>لم يكن البوت ليرشّحه</b> (السبب: {why})")
+    head += render_layers(layers)          # 🧩 الطبقاتُ الخمس — لا تغيّر «الحكم» أعلاها
     head.append("")
     # تفصيل نسبة الجاهزية (المتوفر/الجزئي/الناقص)
     if result.get("readiness") is not None:
@@ -910,6 +1031,25 @@ def main():
     except Exception as e:
         bot.log(f"⚠️ الإثراء فشل (نُكمل بدونه): {e}")
 
+    # 🧩 الطبقاتُ الخمس (عرضٌ فقط): الفنيُّ والمالكُ يُقيَّمان كلٌّ على حدة **قبل** دمجهما في حكم الإنتاج أدناه.
+    card_result["dq_line"] = bot.dq_disclosure_line(sym, df)
+    if official is not None:
+        _tok, _twhy, _ = technical_soft_check(official)
+        _tech = {"status": "YES" if _tok else "NO", "reason": "" if _tok else _twhy}
+    elif pull is not None:
+        _tech = {"status": "PULLBACK", "reason": "، ".join(pull.get("watch_reasons") or []) or "ارتفع عن دخوله"}
+    else:
+        _tech = {"status": "NO", "reason": reject_reason or "لم يجتز بوابة صلبة"}
+    _entry = None
+    if _tech["status"] == "YES":
+        try:
+            card_result["interp"] = bot.build_interpretation(card_result)
+            _entry = bot.entry_status(card_result)
+        except Exception:                                        # noqa: BLE001 — الموقعُ غيرُ محسوب ⇒ «غير محسومة»
+            _entry = None
+    layers = verdict_layers(tech=_tech, owner=owner_policy_layer(card_result), entry=_entry,
+                            dq_hold=dq_blocks(card_result.get("dq_line")))
+
     # ⚖️ حكمُ ما بعد الإثراء = مرآةُ الإنتاج (M13 لين · M14 حذفٌ تامّ · حدُّ النواقص · المتاح).
     #    🔴 كان هنا «فلوت كبير» نقصًا (مطابقًا لـscan_market قبل 2026-07-29 لا بعده) وبلا
     #    بوّابة المتاح ⇒ «مؤهّل» لسهمٍ يحذفه الإنتاج (عطلٌ مُثبَت 2026-10-09 · GPV1-GPV3).
@@ -923,8 +1063,8 @@ def main():
 
     gates = append_short_float_gates(card_result, gates)
     # 🛡️ سلامةُ البيانات (عطلٌ مُثبَت · مِجَسّ D4 2026-10-01: MGN يومَ 09-26 بتقسيمٍ معلَّق بلا إفصاح) — يُعلَن ولا يحجب · فاشلٌ-آمن
-    card_result["dq_line"] = bot.dq_disclosure_line(sym, df)
-    msg = render_ondemand(card_result, gates, official, reject_reason, pull)
+    #    (يُحسب أعلاه قبل الطبقات لأن حجزَه يجعل التقييمَ الفنيّ «غيرَ قابلٍ للتقييم»)
+    msg = render_ondemand(card_result, gates, official, reject_reason, pull, layers)
     bot.send_telegram(msg)
     bot.log("✅ أُرسل التحليل اليدوي.")
 
