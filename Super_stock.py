@@ -21962,11 +21962,19 @@ def run_weekly_renewal(wl: dict) -> None:
                        "أسبوعًا غير محسوم. القائمة النشطة محفوظة، يُعاد التجديد لاحقًا.")
                 log(msg)
                 send_telegram(msg + "\n\n" + FOOTER)
+                # 🗂️💾 (2026-10-09 · RDF3): سطرُ «لا تعبئة» بسببه يُدفَع وحدَه — والقائمةُ لا تُحفظ (لا أرشفةَ لأسبوعٍ غير محسوم)
+                record_fill_pool(None, None, [], [], "renew", today_iso, CONFIG["WATCHLIST_SIZE"], 0, None,
+                                 no_fill="OLD_WEEK_LOW_COVERAGE")
+                git_save([FILL_POOL_FILE])
                 return
             update_watchlist_status(wl, hist_old)
         except Exception as e:
             log(f"⚠️ تحديث الأسبوع المنتهي فشل كليًا: {e} — تأجيل التجديد "
                 "(لا أرشفة لأسبوع غير محسوم)")
+            # 🗂️💾 (RDF4): السطرُ نفسُه بسببه — والقائمةُ كما هي
+            record_fill_pool(None, None, [], [], "renew", today_iso, CONFIG["WATCHLIST_SIZE"], 0, None,
+                             no_fill="OLD_WEEK_UPDATE_FAILED")
+            git_save([FILL_POOL_FILE])
             return
     # رسالة الحصاد تُرسل دائماً (حتى لو تعذر التحديث الأخير)
     wrap = build_wrapup_message(wl)
@@ -21991,17 +21999,27 @@ def run_weekly_renewal(wl: dict) -> None:
     _cov = (_val / _uni * 100.0) if _uni else 0.0
     _fallback = _SCAN_STATS.get("universe_fallback", False)
     if not results or _cov < CONFIG["DATA_HEALTH_MIN_PCT"] or _fallback:
+        # 🔴 (2026-10-09 · RDF2): فرزٌ بلا نتائجَ بتغطيةٍ سليمة كان يُعلَن «تغطية بيانات ضعيفة (99%)» ⟵ يُسمّى سببُه
+        _low = _cov < CONFIG["DATA_HEALTH_MIN_PCT"]
         _why = ("فشل جلب كون ناسداك (عيّنة اختبار صغيرة)" if _fallback
-                else f"تغطية بيانات ضعيفة ({_cov:.0f}%) — غالبًا خنق مؤقت من Yahoo")
+                else (f"تغطية بيانات ضعيفة ({_cov:.0f}%) — غالبًا خنق مؤقت من Yahoo" if _low
+                      else f"الفرز لم يُرجع أيَّ مرشّح (تغطية {_cov:.0f}%)"))
         log(f"⚠️ تجديد مُلغى: {_why} — القائمة النشطة محفوظة، يُعاد التجديد لاحقًا.")
         save_watchlist(wl)   # نحفظ الستوبات المرصودة (لا تضيع) — القائمة كما هي
+        # 🗂️💾 (2026-10-09 · RDF1): سطرُ «لا تعبئة» بسببه · ثمّ `git_save` أدناه — كان الحفظُ محلّيًّا وحدَه (والـworkflow بلا خطوة
+        #    دفع) فتضيع الستوباتُ المرصودة مع الرنر رغم «لا تضيع».
+        record_fill_pool(None, None, [], [], "renew", today_iso, CONFIG["WATCHLIST_SIZE"], 0, len(results or []),
+                         no_fill=("UNIVERSE_FALLBACK" if _fallback else ("LOW_COVERAGE" if _low else "NO_RESULTS")))
         try:
+            # 🔴 (RDF5): كانت «ويُعاد التجديد تلقائيًا في التشغيل القادم» — والتشغيلُ القادم متابعةٌ يوميّة لا تجدّد
+            #    (`should_renew`: إشارةُ الجمعة أو الإجبار)
             send_telegram("⚠️ <b>تأجّل تجديد القائمة الأسبوعية</b>\n"
                           f"السبب: {_why}.\nالقائمة النشطة الحالية محفوظة كما هي، "
-                          "ويُعاد التجديد تلقائيًا في التشغيل القادم."
+                          "والتجديد التالي الجمعة القادمة بعد الإغلاق، أو الآن بـ<code>force_renew=1</code>."
                           + ("\n" + _yfl if _yfl else ""))
         except Exception as e:
             log(f"⚠️ إشعار تأجيل التجديد: {e}")
+        git_save([WATCH_FILE, FILL_POOL_FILE])
         return
     # 2) أرشفة الأسبوع المنتهي (فقط عند تجديد فعلي — لا على مسار التأجيل) —
     #    نحفظ سمات الدخول مع النتيجة لربط «ليش نجح/فشل» لاحقًا.
