@@ -1,0 +1,475 @@
+{
+ "C": [
+  {
+   "E": "OPERATOR_MONEY_OBSERVED",
+   "asof": "2026-08-24",
+   "engine_before_trigger": "REJECTED",
+   "identity": "AMIX",
+   "ref": "X_20260827_amix_3m_inflow:s1",
+   "subset": "BROAD",
+   "trigger": "NOT_REPRESENTABLE (operator_press UNKNOWN historically)"
+  },
+  {
+   "E": "PRESS_OBSERVED",
+   "asof": "2026-08-25",
+   "engine_before_trigger": "REJECTED",
+   "identity": "AMIX",
+   "ref": "X_20260827_amix_pressure_497:s1",
+   "subset": "STRICT",
+   "trigger": "NOT_REPRESENTABLE (operator_press UNKNOWN historically)"
+  },
+  {
+   "E": "ENTRY_STATED+PRESS_OBSERVED",
+   "asof": "2026-09-24",
+   "engine_before_trigger": "FOCUS",
+   "identity": "GCTK",
+   "ref": "TG_57890:s1",
+   "subset": "STRICT",
+   "trigger": "NOT_REPRESENTABLE (operator_press UNKNOWN historically)"
+  },
+  {
+   "E": "PRESS_OBSERVED",
+   "asof": "2026-05-18",
+   "engine_before_trigger": "REJECTED",
+   "identity": "PIII",
+   "ref": "TG_1964:v4",
+   "subset": "BROAD",
+   "trigger": "NOT_REPRESENTABLE (operator_press UNKNOWN historically)"
+  },
+  {
+   "E": "PRESS_OBSERVED",
+   "asof": "2026-09-10",
+   "engine_before_trigger": "REJECTED",
+   "identity": "SXTC",
+   "ref": "WA_20260918_31_SXTC:s1",
+   "subset": "BROAD",
+   "trigger": "NOT_REPRESENTABLE (operator_press UNKNOWN historically)"
+  },
+  {
+   "E": "ENTRY_STATED+PRESS_OBSERVED",
+   "asof": "2026-09-11",
+   "engine_before_trigger": "REJECTED",
+   "identity": "SXTC",
+   "ref": "TG_57862:s2",
+   "subset": "STRICT",
+   "trigger": "NOT_REPRESENTABLE (operator_press UNKNOWN historically)"
+  }
+ ],
+ "D": [
+  {
+   "episodes": 3,
+   "identity": "CDIO",
+   "in_process_share": 0.0,
+   "per_episode": "EP0028[2026-01-28..2026-01-29]=REJECTED ; EP0029[2026-02-02..2026-02-10]=REJECTED ; EP0030[2026-02-20..2026-03-02]=REJECTED",
+   "span_sessions": 23
+  },
+  {
+   "episodes": 2,
+   "identity": "CUPR",
+   "in_process_share": 0.4857,
+   "per_episode": "EP0042[2026-08-03..2026-08-03]=REJECTED ; EP0044[2026-09-10..2026-09-21]=REJECTED/WATCH",
+   "span_sessions": 35
+  },
+  {
+   "episodes": 2,
+   "identity": "DXST",
+   "in_process_share": 0.5714,
+   "per_episode": "EP0058[2026-06-16..2026-06-17]=REJECTED ; EP0059[2026-08-04..2026-08-05]=WATCH",
+   "span_sessions": 35
+  },
+  {
+   "episodes": 3,
+   "identity": "ELPW",
+   "in_process_share": "",
+   "per_episode": "EP0068[2026-04-24..2026-04-27]=REJECTED ; EP0069[2026-05-01..2026-05-11]=REJECTED ; EP0070[2026-09-10..2026-09-18]=REJECTED",
+   "span_sessions": 102
+  }
+ ],
+ "E": {
+  "BROAD": {
+   "categories": {
+    "engine WATCH": 4,
+    "engine other in-process": 6,
+    "engine out-of-process": 19,
+    "not determinable": 9
+   },
+   "episodes": 38,
+   "subset": "BROAD"
+  },
+  "STRICT": {
+   "categories": {
+    "engine WATCH": 0,
+    "engine other in-process": 0,
+    "engine out-of-process": 1,
+    "not determinable": 1
+   },
+   "episodes": 2,
+   "subset": "STRICT"
+  }
+ },
+ "H1": {
+  "BROAD": {
+   "determinable": 4,
+   "engine_ready": 0,
+   "engine_ready_with_faisal_not_ready": 0,
+   "episodes": 6,
+   "source_by_engine": {
+    "NOT_READY": {
+     "WATCH": 1
+    },
+    "READY": {
+     "FOCUS": 1,
+     "REJECTED": 2
+    }
+   },
+   "subset": "BROAD",
+   "table": [
+    {
+     "asof": "2026-08-24..2026-08-24",
+     "engine": "REJECTED",
+     "episode": "EP0008",
+     "first_failed": "FE-SCREEN-01/M3",
+     "identity": "AMIX",
+     "refs": "X_20260827_amix_hcwb_ready:s2 X_20260827_amix_hcwb_ready:s3 X_20260827_amix_pressure_497:s2",
+     "source": "READY"
+    },
+    {
+     "asof": "2026-08-31..2026-09-05",
+     "engine": "VARIES",
+     "episode": "EP0023",
+     "first_failed": "",
+     "identity": "BTOG",
+     "refs": "X_20260905_07:s1",
+     "source": "NOT_READY"
+    },
+    {
+     "asof": "2026-01-28..2026-01-29",
+     "engine": "REJECTED",
+     "episode": "EP0028",
+     "first_failed": "FE-SCREEN-01/M3",
+     "identity": "CDIO",
+     "refs": "TG_2090:s2 TG_2218:s1",
+     "source": "READY"
+    },
+    {
+     "asof": "2026-08-24..2026-08-24",
+     "engine": "FOCUS",
+     "episode": "EP0090",
+     "first_failed": "",
+     "identity": "HCWB",
+     "refs": "X_20260827_amix_hcwb_ready:s3 X_20260827_amix_pressure_497:s2",
+     "source": "READY"
+    },
+    {
+     "asof": "2026-08-20..2026-08-26",
+     "engine": "VARIES",
+     "episode": "EP0104",
+     "first_failed": "",
+     "identity": "KWM",
+     "refs": "X_20260827_kwm_offering_notready:s1",
+     "source": "NOT_READY"
+    },
+    {
+     "asof": "2026-08-20..2026-08-26",
+     "engine": "WATCH",
+     "episode": "EP0154",
+     "first_failed": "",
+     "identity": "RAYA",
+     "refs": "X_20260827_raya_notready_2:s1",
+     "source": "NOT_READY"
+    }
+   ],
+   "verdict": "INSUFFICIENT EVIDENCE"
+  },
+  "STRICT": {
+   "determinable": 1,
+   "engine_ready": 0,
+   "engine_ready_with_faisal_not_ready": 0,
+   "episodes": 1,
+   "source_by_engine": {
+    "READY": {
+     "REJECTED": 1
+    }
+   },
+   "subset": "STRICT",
+   "table": [
+    {
+     "asof": "2026-01-28..2026-01-29",
+     "engine": "REJECTED",
+     "episode": "EP0028",
+     "first_failed": "FE-SCREEN-01/M3",
+     "identity": "CDIO",
+     "refs": "TG_2090:s2 TG_2218:s1",
+     "source": "READY"
+    }
+   ],
+   "verdict": "INSUFFICIENT EVIDENCE"
+  }
+ },
+ "H2": {
+  "BROAD": {
+   "classes": [
+    "FOCUS",
+    "OUT",
+    "READY",
+    "WATCH"
+   ],
+   "determinable": 7,
+   "entry_within_10_sessions": [
+    "SXTC:TG_57862:s2:ENTRY_STATED+PRESS_OBSERVED"
+   ],
+   "members": 8,
+   "pipeline_statement": true,
+   "subset": "BROAD",
+   "table": [
+    {
+     "asof": "2026-09-14",
+     "engine": "UNAVAILABLE",
+     "first_failed": "",
+     "identity": "ATPC",
+     "included": "UNKNOWN",
+     "rank_C": 84
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "READY",
+     "first_failed": "",
+     "identity": "CETX",
+     "included": "YES",
+     "rank_C": 75
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "WATCH",
+     "first_failed": "",
+     "identity": "CUPR",
+     "included": "YES",
+     "rank_C": ""
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "FOCUS",
+     "first_failed": "",
+     "identity": "DKI",
+     "included": "YES",
+     "rank_C": ""
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "READY",
+     "first_failed": "",
+     "identity": "MSGY",
+     "included": "YES",
+     "rank_C": 67
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "WATCH",
+     "first_failed": "",
+     "identity": "SVRE",
+     "included": "YES",
+     "rank_C": ""
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "REJECTED",
+     "first_failed": "FE-SCREEN-01/M2_CEIL",
+     "identity": "SXTC",
+     "included": "NO",
+     "rank_C": ""
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "REJECTED",
+     "first_failed": "FE-SCREEN-01/M3",
+     "identity": "YMT",
+     "included": "NO",
+     "rank_C": ""
+    }
+   ],
+   "verdict": "SUPPORTED"
+  },
+  "STRICT": {
+   "classes": [
+    "FOCUS",
+    "OUT",
+    "READY",
+    "WATCH"
+   ],
+   "determinable": 7,
+   "entry_within_10_sessions": [
+    "SXTC:TG_57862:s2:ENTRY_STATED+PRESS_OBSERVED"
+   ],
+   "members": 8,
+   "pipeline_statement": true,
+   "subset": "STRICT",
+   "table": [
+    {
+     "asof": "2026-09-14",
+     "engine": "UNAVAILABLE",
+     "first_failed": "",
+     "identity": "ATPC",
+     "included": "UNKNOWN",
+     "rank_C": 84
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "READY",
+     "first_failed": "",
+     "identity": "CETX",
+     "included": "YES",
+     "rank_C": 75
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "WATCH",
+     "first_failed": "",
+     "identity": "CUPR",
+     "included": "YES",
+     "rank_C": ""
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "FOCUS",
+     "first_failed": "",
+     "identity": "DKI",
+     "included": "YES",
+     "rank_C": ""
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "READY",
+     "first_failed": "",
+     "identity": "MSGY",
+     "included": "YES",
+     "rank_C": 67
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "WATCH",
+     "first_failed": "",
+     "identity": "SVRE",
+     "included": "YES",
+     "rank_C": ""
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "REJECTED",
+     "first_failed": "FE-SCREEN-01/M2_CEIL",
+     "identity": "SXTC",
+     "included": "NO",
+     "rank_C": ""
+    },
+    {
+     "asof": "2026-09-14",
+     "engine": "REJECTED",
+     "first_failed": "FE-SCREEN-01/M3",
+     "identity": "YMT",
+     "included": "NO",
+     "rank_C": ""
+    }
+   ],
+   "verdict": "SUPPORTED"
+  }
+ },
+ "H3": {
+  "BROAD": {
+   "determinable": 3,
+   "out_of_process": 2,
+   "subset": "BROAD",
+   "symbols": 4,
+   "table": [
+    {
+     "events": "X_20260827_amix_3m_inflow:s1@2026-08-24=REJECTED",
+     "identity": "AMIX",
+     "markers": "«نعطيك سهم جاهز»",
+     "status": "OUT"
+    },
+    {
+     "events": "X_20260918_27_CUPR:v4@2026-09-10=VARIES",
+     "identity": "CUPR",
+     "markers": "«تحليل سابق» | «ذاكره قبل»",
+     "status": "UNDETERMINED"
+    },
+    {
+     "events": "TG_2098:s2@2026-04-24=REJECTED X_20260918_66_ELPW:s1@2026-09-10=REJECTED",
+     "identity": "ELPW",
+     "markers": "«تم التحليل قبل» «ذكرنا سابقا» | «مازال تحت»",
+     "status": "OUT"
+    },
+    {
+     "events": "X_20260827_hcwb_leak_close_dm:s1@2026-08-24=FOCUS",
+     "identity": "HCWB",
+     "markers": "«كان جاهز»",
+     "status": "IN"
+    }
+   ],
+   "verdict": "SUPPORTED"
+  },
+  "STRICT": {
+   "determinable": 2,
+   "out_of_process": 1,
+   "subset": "STRICT",
+   "symbols": 2,
+   "table": [
+    {
+     "events": "TG_2098:s2@2026-04-24=REJECTED",
+     "identity": "ELPW",
+     "markers": "«تم التحليل قبل»",
+     "status": "OUT"
+    },
+    {
+     "events": "X_20260827_hcwb_leak_close_dm:s1@2026-08-24=FOCUS",
+     "identity": "HCWB",
+     "markers": "«كان جاهز»",
+     "status": "IN"
+    }
+   ],
+   "verdict": "INSUFFICIENT EVIDENCE"
+  }
+ },
+ "counts": {
+  "broad_events": 184,
+  "compared_events": 209,
+  "diagnosis": {
+   "Ambiguous source timestamp": 106,
+   "Missing source evidence": 272,
+   "No demonstrable failure": 26,
+   "Unobservable decision or trigger": 6,
+   "Wrong candidate-generation logic": 5,
+   "Wrong mapping from technical state to Faisal's attention state": 12,
+   "Wrong ranking among candidates with comparable states": 11,
+   "Wrong technical pattern classification": 2,
+   "Wrong temporal persistence representation": 22
+  },
+  "engine_stage": {
+   "FOCUS": 19,
+   "HOLD": 1,
+   "INSUFFICIENT_DATA": 1,
+   "NOT_COMPARED": 253,
+   "READY": 6,
+   "REJECTED": 87,
+   "UNAVAILABLE": 26,
+   "VARIES": 32,
+   "WATCH": 35,
+   "WINDOW_TOO_WIDE": 2
+  },
+  "excluded": {
+   "EXCLUDED:AMBIGUOUS_TIMESTAMP": 72,
+   "EXCLUDED:LOW_CONFIDENCE": 181
+  },
+  "strict_events": 25
+ },
+ "label": "EXPLORATORY — historical cases already shaped the method (STAGE_SEMANTICS_PROTOCOL.md §0)",
+ "predictions": {
+  "P1 H1 strict INSUFFICIENT ⟹ verdict 3": true,
+  "P2 broad Faisal-READY mostly out-of-process": true,
+  "P3 «قائمتي» members span 2+ engine classes": true,
+  "P4 under half of C episodes engine READY": true,
+  "P5 engine WATCH under half of broad E": true
+ },
+ "verdict": [
+  3,
+  "INSUFFICIENT EVIDENCE TO ESTABLISH THE MAPPING"
+ ]
+}

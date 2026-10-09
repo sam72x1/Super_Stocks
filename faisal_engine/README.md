@@ -42,3 +42,19 @@ python3 faisal_engine/rank_eval.py --check    # إعادةُ التوليد في
 python3 test_bot.py                           # أقفال RNK0-RNK16 (قبل LEAK0)
 ```
 الحكم: **2 — IMPROVEMENT NOT DEMONSTRATED** (C ‏6/22 مقابل البوت 2/22 عند 108 · الحدُّ الأدنى 98.33% = 0.000 لا أكبر منه).
+
+## 🔀 دلالاتُ المراحل: «قائمتي» و«جاهز» عند فيصل مقابل مراحل المحرّك (2026-10-09 · العقد `STAGE_SEMANTICS_PROTOCOL.md` مدموجٌ قبل أيّ قراءة محرّك #595 · EXPLORATORY · بحثٌ فقط)
+
+| الملفّ | الدور |
+|---|---|
+| `stage_ledger.py` · `data/stage/eye_reads.json` | سجلُّ أحداثٍ من المصدر (عبارةٌ × رمز): `RAW_LABEL`/`RAW_ACTION` حرفيّان · جودةُ الطابع من وقتٍ مطبوعٍ أو مشتقّ لا من ترتيب الملفّات · المفاهيمُ منفصلة (A عضويّةُ القائمة · B مرحلةُ الاختيار · C الفعل · E الزناد) · المُسترجَع لا يُنسَب ليوم المنشور ⟵ `out/stage_events.csv` · `stage_episodes.csv` · `stage_transitions.csv` · `stage_phase3_reconciliation.csv` · `stage_ledger_summary.json` · بلا استيرادٍ للمحرّك |
+| `stage_crosswalk.py` | قراءاتُ المحرّك (`engine`) ⟵ `out/stage_engine_reads.csv` · ثمّ H1-H3 والمقارنات A-E منفصلة (صارمٌ/عريض · المجهولُ ليس خطأ) ⟵ `stage_crosswalk.csv` · `stage_overlay.csv` (SOURCE_LIST_STATE · SOURCE_SELECTION_STAGE · TECHNICAL_ENGINE_STAGE · OBSERVED_ACTION · TRIGGER_STATE · EVIDENCE_STATUS · والفجوةُ UNKNOWN) · `stage_case_timelines.csv` · `STAGE_SEMANTICS_RESULT.md` |
+| `STAGE_SEMANTICS_REPORT.md` | التقريرُ النهائيّ (A–J) |
+
+```bash
+python3 faisal_engine/stage_ledger.py --check            # إعادةُ توليد السجلّ ومقارنتُه بالملتزَم (خروج 0)
+python3 faisal_engine/stage_crosswalk.py engine          # قراءاتُ المحرّك (FAISAL_ONLY=1 داخليًّا · ≈دقيقة)
+python3 faisal_engine/stage_crosswalk.py --check         # إعادةُ توليد المقارنة ومقارنتُها (خروج 0)
+python3 test_bot.py                                      # أقفال STG1-STG14 · STX1-STX12 (قبل LEAK0)
+```
+الحكم: **3 — INSUFFICIENT EVIDENCE TO ESTABLISH THE MAPPING** (H1 «جاهز» = READY: حلقةٌ صارمةٌ واحدة دون حدّ 3 · H2 عضويّةُ القائمة مستقلّةٌ عن الحالة الفنّيّة: **مسنودة** · H3 الانتباهُ المحمول لا يُقرأ من الشموع: مسنودةٌ على المجموعة المقبولة بالعقد (2 من 3 خارج المسار) وصارمًا وحدَه لا كفاية) · وFOCUS في المرحلة 3 = عضويّةُ قائمةٍ وحدَها (10/10) و«جاهز» صريحٌ في 0 من 6 صفوف READY.
