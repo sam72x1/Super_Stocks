@@ -42,6 +42,11 @@ SEC_FILINGS_SINCE = "2025-01-01"   # filings older than the frozen bar history a
 STALE_ASOF_DAYS = 45     # short-interest as-of older than this at collection ⇒ quality flag (not a rejection)
 PACE_S = float(os.environ.get("P6_PACE_S") or 0.4)
 ANCHORS = ("DKI", "SXTC", "HUBC")
+# ---- H6 control panel (contract `fm_forensics/perf/H6_PREREG.md` §4 · research only · added 2026-10-09)
+CONTROL_PANEL_PATH = os.path.join(DATA, "PHASE6_CONTROL_PANEL.jsonl")
+CONTROL_WALL = "M_لا_مستوى_مختبر"       # reject_log wall = identity-eligible without the anchor (Phase 4/5/perf control pool)
+CONTROL_K = 16                           # controls sampled per run (reserved ChartExchange quota = CONTROL_K of CE_QUOTA)
+CONTROL_SEC_DAYS = 200                   # SEC filings / DEI points for a control: this many calendar days before the run day (H2 90 d · H4 120 d + 21 d confirmation)
 
 
 # ---------------------------------------------------------------- helpers
@@ -275,6 +280,49 @@ def write_mentions(mentions, path=MENTIONS_PATH):
         w.writerows(mentions)
 
 
+# ---------------------------------------------------------------- H6 control panel (pure)
+def control_pool(reject_log, obs_date: str, wall: str = CONTROL_WALL):
+    """(pool_date, symbols) = the newest `reject_log.json` entry dated ≤ obs_date whose wall `wall` is stored in full
+    (len(list) == walls_n[wall]); a truncated/sampled wall is refused. (None, []) when nothing qualifies."""
+    best = None
+    for e in reject_log or []:
+        if not isinstance(e, dict) or str(e.get("date", "")) > obs_date:
+            continue
+        syms = (e.get("walls") or {}).get(wall)
+        n = (e.get("walls_n") or {}).get(wall)
+        if not isinstance(syms, list) or n is None or len(syms) != int(n) or wall in (e.get("sampled") or []):
+            continue
+        if best is None or str(e["date"]) > best[0]:
+            best = (str(e["date"]), [str(x).upper() for x in syms])
+    return best if best else (None, [])
+
+
+def sample_controls(pool, exclude, k: int = CONTROL_K, seed: str = "") -> list:
+    """Deterministic draw of `k` symbols from `pool` ranked by sha256(seed + '|' + symbol); `exclude` (Faisal mention
+    tickers and anchors) never enter. Same (pool, exclude, seed) ⟹ same list in the same order. Pure."""
+    ex = {str(x).upper() for x in (exclude or [])}
+    cand = sorted({str(x).upper() for x in pool if str(x).upper() not in ex and str(x).upper() not in PLACEHOLDER_TICKERS},
+                  key=lambda t: hashlib.sha256(f"{seed}|{t}".encode("utf-8")).hexdigest())
+    return cand[:max(0, int(k))]
+
+
+def read_panel(path=CONTROL_PANEL_PATH) -> list:
+    if not os.path.exists(path):
+        return []
+    return [json.loads(x) for x in open(path, encoding="utf-8") if x.strip()]
+
+
+def append_panel(entry: dict, path=CONTROL_PANEL_PATH) -> bool:
+    """Append-only: one line per (run_id, obs_date); an existing (run_id, obs_date) is not rewritten (False)."""
+    for e in read_panel(path):
+        if e.get("run_id") == entry.get("run_id") and e.get("obs_date") == entry.get("obs_date"):
+            return False
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(entry, ensure_ascii=False, sort_keys=True) + "\n")
+    return True
+
+
 # ---------------------------------------------------------------- identity / split frame
 def frozen_sec(root=ROOT) -> dict:
     p = os.path.join(root, "fm_forensics", "data", "sec_2026-10-08.json.gz")
@@ -497,7 +545,7 @@ class Collector:
         else:
             self._emit(self._rec(t, "borrow_fee", "chartexchange", self.obs_date, fee, "pct_annual", self.collected, "COLLECTION", "OK", raw_sha=sha, source_url=url))
 
-    def sec_block(self, t):
+    def sec_block(self, t, since: str = SEC_FILINGS_SINCE, dei_since=None):
         cik, err = self._call("sec_cik", t)
         if not cik:
             self._emit(self._rec(t, "identity", "sec_cik_map", self.obs_date, status="FAILED" if err else "UNKNOWN", failure_reason=err or "ticker_not_in_cik_map"))
@@ -519,7 +567,7 @@ class Collector:
         forms, dates, acc, acct = rec.get("form") or [], rec.get("filingDate") or [], rec.get("accessionNumber") or [], rec.get("acceptanceDateTime") or []
         n = 0
         for i in range(min(len(forms), len(dates), len(acc))):
-            if (dates[i] or "") < SEC_FILINGS_SINCE:          # cap the one-time backfill (31 MB on the first live run)
+            if (dates[i] or "") < since:                      # cap the one-time backfill (31 MB on the first live run) · controls: CONTROL_SEC_DAYS
                 continue
             a = acct[i] if i < len(acct) else ""
             n += int(self._emit(self._rec(t, "sec_filing", "sec_submissions", acc[i], json.dumps({"form": forms[i], "filingDate": dates[i], "accession": acc[i], "acceptance": a}, sort_keys=True),
@@ -536,6 +584,8 @@ class Collector:
                 for x in arr:
                     pts.append((x.get("end"), x.get("filed"), x.get("val"), x.get("accn"), u))
             for end, filed, val, accn, u in pts:
+                if dei_since and str(filed or end or "") < dei_since:   # controls only (None for Faisal tickers ⟹ bit-identical)
+                    continue
                 ev = f"{accn}:{end}"
                 if fld == "public_float":
                     self._emit(self._rec(t, fld, f"sec_dei:{concept}", ev, val, units, end or filed, "PROVIDER", "OK", raw_sha=sha2,
@@ -590,7 +640,7 @@ class Collector:
                     last[r["ticker"]] = key
         return sorted(tickers, key=lambda t: (t.upper() in last, last.get(t.upper(), (0, ""))[0], last.get(t.upper(), (0, ""))[1], t.upper()))
 
-    def run(self, tickers, resume=True):
+    def run(self, tickers, resume=True, sec_since: str = SEC_FILINGS_SINCE, dei_since=None):
         tickers = self.borrow_order(list(tickers))
         cal, cerr = self._call("nasdaq_calendar")
         if cal:
@@ -604,11 +654,30 @@ class Collector:
             self.yahoo_block(t)
             self.tv_block(t)
             self.borrow_block(t)
-            self.sec_block(t)
+            self.sec_block(t, since=sec_since, dei_since=dei_since)
             self.splits_block(t, cal)
             done.append(t)
             self.log(f"  {t}: rows so far {len(self.L.rows)}")
         return dict(done=done, skipped=skipped, calendar_error=cerr, ce_used=self.ce_used)
+
+    def run_controls(self, reject_log, exclude, k: int = CONTROL_K, panel_path=CONTROL_PANEL_PATH, resume=True):
+        """H6 control panel (contract §4): draw `k` identity-eligible-without-anchor symbols from the newest full reject_log
+        wall dated ≤ today, excluding Faisal mention tickers; record the draw append-only; collect them with a ChartExchange
+        at most `k` ChartExchange pages (called before the Faisal tickers, which keep CE_QUOTA − k); SEC history limited to CONTROL_SEC_DAYS."""
+        pool_date, pool = control_pool(reject_log, self.obs_date)
+        entry = dict(run_id=self.run_id, obs_date=self.obs_date, collected_utc=self.collected, pool_date=pool_date, pool_n=len(pool),
+                     wall=CONTROL_WALL, k=int(k), seed=self.obs_date, excluded_n=len({str(x).upper() for x in exclude}), tickers=[])
+        if not pool:
+            entry["status"] = "NO_POOL"
+            append_panel(entry, panel_path)
+            return dict(done=[], skipped=[], pool_date=None, status="NO_POOL")
+        picks = sample_controls(pool, exclude, k, seed=self.obs_date)
+        entry["tickers"], entry["status"] = picks, "OK"
+        append_panel(entry, panel_path)
+        since = (dt.date.fromisoformat(self.obs_date) - dt.timedelta(days=CONTROL_SEC_DAYS)).isoformat()
+        res = self.run(picks, resume=resume, sec_since=since, dei_since=since)   # k tickers ⟹ at most k ChartExchange pages; run before Faisal tickers
+        res.update(pool_date=pool_date, pool_n=len(pool), status="OK")
+        return res
 
 
 def audit(ledger: Ledger, run_id: str) -> dict:
@@ -687,7 +756,17 @@ def main(argv=None):
         sec = frozen_sec()
         ids = {t: f"CIK{int(v['cik']):010d}" for t, v in sec.items() if isinstance(v, dict) and v.get("cik")}
         C = Collector(L, default_fetchers(), run_id, splits_known=frozen_splits(), security_ids=ids, pace_s=PACE_S)
+        ctl = None
+        if not sel and os.environ.get("P6_CONTROLS", "1") != "0":          # H6 control panel (contract §4) · reserved quota first
+            try:
+                rl = json.load(open(os.path.join(ROOT, "reject_log.json"), encoding="utf-8"))
+            except Exception as e:                                        # noqa: BLE001
+                rl, ctl = [], dict(status=f"NO_REJECT_LOG:{type(e).__name__}")
+            if rl:
+                ctl = C.run_controls(rl, exclude=list(tickers) + list(ANCHORS))
+            print(f"P6CTL {json.dumps({k: v for k, v in (ctl or {}).items() if k != 'skipped'}, default=str)}")
         res = C.run(tickers)
+        res["controls"] = ctl
         a = audit(L, run_id)
         os.makedirs(OUT, exist_ok=True)
         rep = coverage_report(L, run_id, m)
