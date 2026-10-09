@@ -1,8 +1,55 @@
 {
- "schema": 1,
+ "schema": 2,
  "summary": {
   "gates": 49,
-  "by_provenance": {
+  "by_origin": {
+   "DIRECT_FAISAL_SOURCE": 0,
+   "INFERRED_FROM_FAISAL_SOURCE": 17,
+   "EXPLICIT_OWNER_POLICY": 11,
+   "ENGINEERING_INTRODUCED": 6,
+   "INHERITED_OR_EXTERNAL": 15,
+   "ORIGIN_UNKNOWN": 0
+  },
+  "by_justification": {
+   "DIRECT_SOURCE_SUPPORT": 0,
+   "EXPLICIT_OWNER_REQUIREMENT": 8,
+   "DOCUMENTED_OPERATIONAL_INVARIANT": 5,
+   "TESTED_RELIABILITY_REQUIREMENT": 1,
+   "EMPIRICAL_SUPPORT_UNDER_VALID_CONTRACT": 0,
+   "PARTIAL_OR_CONCEPT_ONLY_SUPPORT": 32,
+   "UNJUSTIFIED_BY_CURRENT_EVIDENCE": 3,
+   "UNKNOWN": 0
+  },
+  "by_impl_role": {
+   "HARD_REJECTION": 18,
+   "SOFT": 9,
+   "RANKING": 1,
+   "DISPLAY": 2,
+   "DATA_QUALITY": 5,
+   "OPS_SAFETY": 4,
+   "NOTIFICATION_ELIGIBILITY": 1,
+   "OWNER_TRADING_ELIGIBILITY": 4,
+   "OTHER": 5
+  },
+  "by_fidelity": {
+   "SOURCE_OBSERVED_RULE": 0,
+   "SUPPORTED_RECONSTRUCTION": 1,
+   "CONCEPT_ONLY": 11,
+   "SAMPLE_NUMERICAL_RELATIONSHIP": 9,
+   "NO_DEFENSIBLE_MAPPING": 28,
+   "UNKNOWN": 0
+  },
+  "contradicted": [
+   "D_ADJUST",
+   "M1_PRICE",
+   "M2_CEIL",
+   "M4_RISE",
+   "M5_DOLLAR_VOL",
+   "M10_RSI_NOW",
+   "ANCHOR_TWO_TOUCH",
+   "M13_SHORT"
+  ],
+  "legacy_by_label": {
    "DIRECT_FAISAL_EVIDENCE": 1,
    "INFERRED_FROM_FAISAL_EVIDENCE": 17,
    "OWNER_POLICY": 12,
@@ -35,7 +82,7 @@
   },
   "errors": [],
   "inputs": {
-   "provenance_sha256": "eb209519baec1c59e62a8c04a6fd9718a61637f211396ef1294af7ffeae55e6c",
+   "provenance_sha256": "04ffe5ae0ade9f94ad5366f1265a2b265b492d8876920f4485b1f7b013fc9ce1",
    "snapshot_sha256": "8447b31e642a8593e84bacf081843b94e5ce4254172cdd476bd603d89989180c",
    "rank_bars_sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c",
    "rank_rows_sha256": "8a506495a17dcd1849283e6607d1018e4339f9cf253f587a83297225da59d890"
@@ -49,6 +96,1106 @@
   "DATA_OR_ADJUSTMENT_ARTIFACT",
   "UNKNOWN_OR_UNSUPPORTED"
  ],
+ "legacy_label": "`provenance` is the single label of PR #598 (superseded 2026-10-09): it conflated origin and justification and read «no Faisal source» as an engineering guard. Kept as history; the four `audit` dimensions replace it.",
+ "audit_vocab": {
+  "origin": [
+   "DIRECT_FAISAL_SOURCE",
+   "INFERRED_FROM_FAISAL_SOURCE",
+   "EXPLICIT_OWNER_POLICY",
+   "ENGINEERING_INTRODUCED",
+   "INHERITED_OR_EXTERNAL",
+   "ORIGIN_UNKNOWN"
+  ],
+  "justification": [
+   "DIRECT_SOURCE_SUPPORT",
+   "EXPLICIT_OWNER_REQUIREMENT",
+   "DOCUMENTED_OPERATIONAL_INVARIANT",
+   "TESTED_RELIABILITY_REQUIREMENT",
+   "EMPIRICAL_SUPPORT_UNDER_VALID_CONTRACT",
+   "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+   "UNJUSTIFIED_BY_CURRENT_EVIDENCE",
+   "UNKNOWN"
+  ],
+  "impl_role": [
+   "HARD_REJECTION",
+   "SOFT",
+   "RANKING",
+   "DISPLAY",
+   "DATA_QUALITY",
+   "OPS_SAFETY",
+   "NOTIFICATION_ELIGIBILITY",
+   "OWNER_TRADING_ELIGIBILITY",
+   "OTHER"
+  ],
+  "fidelity": [
+   "SOURCE_OBSERVED_RULE",
+   "SUPPORTED_RECONSTRUCTION",
+   "CONCEPT_ONLY",
+   "SAMPLE_NUMERICAL_RELATIONSHIP",
+   "NO_DEFENSIBLE_MAPPING",
+   "UNKNOWN"
+  ],
+  "number_origin": [
+   "FAISAL_SOURCE",
+   "OWNER",
+   "CATALOG_PERCENTILE",
+   "INFERRED",
+   "ENGINEERING_DEFAULT",
+   "INHERITED",
+   "EXPERIMENT",
+   "UNEXPLAINED"
+  ],
+  "evidence_kinds": [
+   "FAISAL_SOURCE",
+   "FAISAL_INFERRED",
+   "FAISAL_SAMPLE",
+   "OWNER_ORDER",
+   "OPERATIONAL_INVARIANT",
+   "TESTED_INCIDENT",
+   "EXPERIMENT",
+   "CONTRADICTION",
+   "ABSENCE",
+   "CODE_RECORD",
+   "INHERITED_RECORD",
+   "PRIOR_AUDIT"
+  ]
+ },
+ "evidence_registry": {
+  "F_IMG0151_RECIPE": {
+   "kind": "FAISAL_SOURCE",
+   "stance": "supports",
+   "ref": "IMG_0151",
+   "summary": "split-stock recipe «سهم مقسّم … ضرب قاع وحافظ عليه 3 جلسات · شورت تحت 20ألف · عدد أسهمه تحت 2 مليون · هدفك 100% أقل شي · خالٍ من القروبات»",
+   "verify": {
+    "file": "FAISAL_IMAGES_CATALOG.md",
+    "contains": "**شورت تحت 20ألف** · **عدد أسهمه تحت 2 مليون**"
+   },
+   "context": "split_recipe"
+  },
+  "F_IMG0151_MA": {
+   "kind": "FAISAL_SOURCE",
+   "stance": "supports",
+   "ref": "IMG_0151",
+   "summary": "split-stock recipe «متوسط حركة 30<50»",
+   "verify": {
+    "file": "FAISAL_IMAGES_CATALOG.md",
+    "contains": "سهم مقسّم متوسط حركة 30<50"
+   },
+   "context": "split_recipe"
+  },
+  "F_IMG0153_SCOPE": {
+   "kind": "FAISAL_SOURCE",
+   "stance": "supports",
+   "ref": "IMG_0153",
+   "summary": "÷2 recipe after a reverse split: «السنتات خارج الشرح أعلاه»",
+   "verify": {
+    "file": "FAISAL_IMAGES_CATALOG.md",
+    "contains": "السنتات خارج الشرح أعلاه"
+   },
+   "context": "split_recipe"
+  },
+  "F_IMG0153_GAP": {
+   "kind": "FAISAL_SOURCE",
+   "stance": "supports",
+   "ref": "IMG_0153",
+   "summary": "÷2 recipe: the first falling candle is the target «تجاوزها يحقق نسبة أعلى»",
+   "verify": {
+    "file": "FAISAL_IMAGES_CATALOG.md",
+    "contains": "تجاوزها يحقق نسبة أعلى"
+   },
+   "context": "split_recipe"
+  },
+  "F_TG2043_23_27": {
+   "kind": "FAISAL_SOURCE",
+   "stance": "supports",
+   "ref": "TG_2043",
+   "summary": "«ضغط الارتكاز لابد قبل ينفجر يكون RSI بين 23-27»",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "RSI بين 23-27"
+   },
+   "context": "pivot"
+  },
+  "F_TG2043_40": {
+   "kind": "FAISAL_SOURCE",
+   "stance": "supports",
+   "ref": "TG_2043",
+   "summary": "«لايمكن ومستحيل يصعد اذا RSI بمناطق 40»",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "RSI بمناطق 40"
+   },
+   "context": "pivot"
+  },
+  "F_IMG0451_ANCHOR": {
+   "kind": "FAISAL_SOURCE",
+   "stance": "supports",
+   "ref": "IMG_0451",
+   "summary": "«1.75 ضربها مرّتين ولا كسرها · إذا الدخول من 1.80 لـ1.90 · الوقف 1.70» — said for the entry and the stop",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "1.75 ضربها مرّتين ولا كسرها"
+   },
+   "context": "entry"
+  },
+  "F_AVAIL_MEASURE": {
+   "kind": "FAISAL_SOURCE",
+   "stance": "supports",
+   "ref": "XHLD · DSY · ELAB",
+   "summary": "his «شورت» is the available-to-borrow count: XHLD «شورته 600 ألف؟ طاخ طيخ» · DSY «7000 متوفّر» · ELAB «لايوجد اسهم متاحه»",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "شورته 600 ألف؟"
+   },
+   "context": "general"
+  },
+  "F_TG50580_NOCHASE": {
+   "kind": "FAISAL_SOURCE",
+   "stance": "supports",
+   "ref": "TG_50580",
+   "summary": "after a +114% rise: «العقل بالاسهم تشري تحت تبقي كميه … مايدخل الان بالسهم»",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "مايدخل الان بالسهم"
+   },
+   "context": "pivot"
+  },
+  "F_TG2062_MACD": {
+   "kind": "FAISAL_INFERRED",
+   "stance": "supports",
+   "ref": "TG_2062",
+   "summary": "his chart shows MACD(12,26,9) — the indicator and its parameters; the positive-crossing requirement is inferred, not stated",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "`TG_2062`"
+   },
+   "context": "pivot"
+  },
+  "F_DRCT_10K": {
+   "kind": "FAISAL_SOURCE",
+   "stance": "supports",
+   "ref": "DRCT",
+   "summary": "entry trigger «اختبرها وثبت مع شورت اقل من 10K»",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "شورت اقل من 10K"
+   },
+   "context": "entry"
+  },
+  "F_PIVOT_IDENTITY": {
+   "kind": "FAISAL_INFERRED",
+   "stance": "supports",
+   "ref": "ledger M2/M3 rows",
+   "summary": "exploded then collapsed — a concept recurring in his explanations; no image states 50% or 100% for the prior move",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "مفهومٌ متكرّر في شروحه"
+   },
+   "context": "pivot"
+  },
+  "F_TG1871_HAMMER": {
+   "kind": "FAISAL_INFERRED",
+   "stance": "supports",
+   "ref": "TG_1871",
+   "summary": "Hammer named on SPPL; the image was not opened for the ledger",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "TG_1871"
+   },
+   "context": "pivot"
+  },
+  "S_ENV_P100": {
+   "kind": "FAISAL_SAMPLE",
+   "stance": "supports",
+   "ref": "envelope_p100.json",
+   "summary": "edge (P100) of the values measured on 25 catalogued Faisal stocks at their bottoms — admits every catalogued stock by construction",
+   "verify": {
+    "file": "envelope_p100.json",
+    "contains": "\"pct\": 100"
+   }
+  },
+  "S_ENV_MEDIAN": {
+   "kind": "FAISAL_SAMPLE",
+   "stance": "supports",
+   "ref": "envelope_p100.json soft_median",
+   "summary": "median of the same 25 catalogued stocks",
+   "verify": {
+    "file": "envelope_p100.json",
+    "contains": "\"soft_median\""
+   }
+  },
+  "X_POST_SPLIT_FRAME": {
+   "kind": "CONTRADICTION",
+   "stance": "contradicts",
+   "ref": "TG_1807 · TG_1811 · TG_1824 · TG_2200",
+   "summary": "Faisal reads reverse-split names from the post-split frame; a cumulative-adjusted measure disagrees with it",
+   "verify": {
+    "file": "fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv",
+    "contains": "TG_1807,TG_1811,TG_1824,TG_2200"
+   }
+  },
+  "X_VEEE_LIQUIDITY": {
+   "kind": "CONTRADICTION",
+   "stance": "contradicts",
+   "ref": "X_61_VEEE",
+   "summary": "«تحليلي لأسهم الارتكاز لا يُبنى ع السيولة الحالية — نبحث عن السيولة السابقة المتمركّزة»",
+   "verify": {
+    "file": "fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv",
+    "contains": "X_61_VEEE"
+   }
+  },
+  "X_SECOND_WAVE": {
+   "kind": "CONTRADICTION",
+   "stance": "contradicts",
+   "ref": "TG_58417",
+   "summary": "his second-wave entries come after a first rise",
+   "verify": {
+    "file": "fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv",
+    "contains": "TG_58417"
+   }
+  },
+  "X_RSI40_READY": {
+   "kind": "CONTRADICTION",
+   "stance": "contradicts",
+   "ref": "Phase 1 RSI_READY_FORENSICS",
+   "summary": "his own READY calls with RSI above 40",
+   "verify": {
+    "file": "fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv",
+    "contains": "Phase 1 RSI_READY_FORENSICS"
+   }
+  },
+  "X_ANCHOR_STAGE": {
+   "kind": "CONTRADICTION",
+   "stance": "contradicts",
+   "ref": "Phase 3 · DKI",
+   "summary": "his watch begins at the first low (one touch); 27 of 63 dated cases rejected by the two-touch wall",
+   "verify": {
+    "file": "fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv",
+    "contains": "27/63 dated cases rejected here"
+   }
+  },
+  "X_FINRA_MEASURE": {
+   "kind": "CONTRADICTION",
+   "stance": "contradicts",
+   "ref": "ledger M13",
+   "summary": "his «شورت» is availability, not the FINRA daily short volume that M13 measures (two different quantities)",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "مقياسان مختلفان"
+   }
+  },
+  "X_M1_SCOPE": {
+   "kind": "CONTRADICTION",
+   "stance": "contradicts",
+   "ref": "IMG_0153 · HCAI",
+   "summary": "the live floor 0.40 admits cents that IMG_0153 leaves outside his explanation (≈ $1), while HCAI 0.46 sits in his own list",
+   "verify": {
+    "file": "fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv",
+    "contains": "floor ≈ $1"
+   }
+  },
+  "P_M3_MISREAD": {
+   "kind": "PRIOR_AUDIT",
+   "stance": "neutral",
+   "ref": "ledger M3",
+   "summary": "«هدفك 100٪ اقل شي» is about the target, not the prior spike (cited source misread)",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "لكنه عن الهدف لا عن الانفجار السابق"
+   }
+  },
+  "P_M4_METRIC": {
+   "kind": "PRIOR_AUDIT",
+   "stance": "neutral",
+   "ref": "Phase 3 M4_RANGE",
+   "summary": "his stability (3-5 sessions above the low) is a different measure",
+   "verify": {
+    "file": "fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv",
+    "contains": "not a 15-session range cap"
+   }
+  },
+  "O_NASDAQ_V23": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "v2.3 header (initial upload)",
+   "summary": "«البورصة بقيت ناسداك فقط (بطلب صريح)»",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "ناسداك فقط (بطلب صريح)"
+   }
+  },
+  "O_FAISAL_ONLY_0806": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-06",
+   "summary": "«لازم نلتزم بمعايير فيصل فقط وهذي نجيبها عن طريق الكتالوج» · «ابن الحد الادنى و اعتمد على بواباته فقط» — catalogue numbers for the gates",
+   "verify": {
+    "file": ".claude/skills/faisal-gates/SKILL.md",
+    "contains": "ابن الحد الادنى و اعتمد على بواباته فقط"
+   }
+  },
+  "O_P100_0808": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-08 (T-MINFLOOR)",
+   "summary": "the minimum is the catalogue edge P100, not P90",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-MINFLOOR — حدُّ المالك المنصوص (P100)"
+   }
+  },
+  "O_SOFT_MEDIAN_0807": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-07 «سوّها»",
+   "summary": "the «ideal» soft thresholds from the catalogue median",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "أمرُ المالك «سوّها» · معايرة `31167905785`"
+   }
+  },
+  "O_CEILING_KEEP_0816": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-16 «خلّ السقف»",
+   "summary": "keep the drop ceiling MAX_DROP_PCT after T-CEILING",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "«خلّ السقف» (2026-08-16)"
+   }
+  },
+  "O_BASE120_0810": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-10 «اعتمد 120»",
+   "summary": "base-range number 120 after T-BASE-2",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "«اعتمد 120»"
+   }
+  },
+  "O_SHUTDOOR_0811": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-11 «اقفل الباب»",
+   "summary": "a wide base admits a pullback only when the price rose",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**② «اقفل الباب»**"
+   }
+  },
+  "O_REBOUND_0814": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-14 «رقّهم»",
+   "summary": "a wide base held at a tested level is admitted",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "«رقّهم» نُفِّذ حيًّا"
+   }
+  },
+  "O_BORROW20_0811": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-11 «طبّق 20»",
+   "summary": "apply Faisal's «تحت 20 ألف» as the borrow gate",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**① «طبّق 20»**"
+   }
+  },
+  "O_FILL_0811": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-11 «صلّح الترتيب»",
+   "summary": "refill slots emptied by M14/borrow from the ranked pool",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**③ «صلّح الترتيب»**"
+   }
+  },
+  "O_M14_HARD_0729": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-07-29 «يكون مستبعد تماما»",
+   "summary": "a known large float is excluded outright",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "M14 صارت بوّابة صلبة — «يكون مستبعد تماما»"
+   }
+  },
+  "O_M14_REFLOAT_0728": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-07-28",
+   "summary": "re-evaluate M14 after enrichment",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "إعادة تقييم M14 بعد الإثراء"
+   }
+  },
+  "O_CAP15_0812": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-12 «اعتمد سعة 15»",
+   "summary": "list capacity 15",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "«اعتمد سعة 15»"
+   }
+  },
+  "O_ANCHOR_0814": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-14 «1» (anchor_prereg §⑫/⑬)",
+   "summary": "anchor on a tested level, strict",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "اعتمادُ الذراع الصارمة حيًّا"
+   }
+  },
+  "O_DQ_1001": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-10-01 CRITICAL MISSION",
+   "summary": "data freshness / corporate actions gate — «يفضل UNKNOWN / UNVERIFIED على FALSE CONFIDENCE»",
+   "verify": {
+    "file": "data_integrity_result.md",
+    "contains": "يفضل UNKNOWN / UNVERIFIED على FALSE CONFIDENCE"
+   }
+  },
+  "O_READY_ONLY_0709": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-07-09",
+   "summary": "«ما يوصلني إلا الجاهز» — only ready cards are pushed daily",
+   "verify": {
+    "file": "CLAUDE.md",
+    "contains": "ما يوصلني إلا الجاهز"
+   }
+  },
+  "O_HC13_0808": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-08",
+   "summary": "«13 بوابة هذي أصلًا من اللي حنا مسوينها» — show the gates split honestly",
+   "verify": {
+    "file": "CLAUDE.md",
+    "contains": "13 بوابة هذي أصلًا"
+   }
+  },
+  "O_PROX_0807": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-08-07 (T-PROX option ②)",
+   "summary": "the name near its entry ranks first",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-PROX — «القريبُ من الدخول يتقدّم»"
+   }
+  },
+  "O_NEAR_USER": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "code record of a user decision",
+   "summary": "«قرار المستخدم: السهم \"بعيد عن الدخول\" … لا يدخل القائمة»",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "قرار المستخدم: السهم \"بعيد عن الدخول\""
+   }
+  },
+  "I_DIV_HI52": {
+   "kind": "OPERATIONAL_INVARIANT",
+   "stance": "supports",
+   "ref": "Super_stock.analyze_ticker",
+   "summary": "the drop divides by the 52-week high",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "drop_pct = (1.0 - price / hi52) * 100.0"
+   }
+  },
+  "I_DIV_BASELO": {
+   "kind": "OPERATIONAL_INVARIANT",
+   "stance": "supports",
+   "ref": "Super_stock.analyze_ticker",
+   "summary": "the base range divides by the base low",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "base_range = (base_hi / base_lo - 1.0) * 100.0"
+   }
+  },
+  "I_SCAN_CONTINUES": {
+   "kind": "OPERATIONAL_INVARIANT",
+   "stance": "supports",
+   "ref": "Super_stock.analyze_ticker",
+   "summary": "one symbol's computation failure must not abort the universe scan; it is logged, not silent",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "كان استثناءً صامتًا يخفي أخطاء بيانات/حسابات"
+   }
+  },
+  "I_MIN_HISTORY": {
+   "kind": "OPERATIONAL_INVARIANT",
+   "stance": "supports",
+   "ref": "Super_stock.analyze_ticker",
+   "summary": "the gates compute EMA50, a 25-bar RSI window and 20+15-bar spike/base windows — some minimum history is required",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "ema50 = ema(close, 50)"
+   }
+  },
+  "I_ADJUSTED": {
+   "kind": "OPERATIONAL_INVARIANT",
+   "stance": "supports",
+   "ref": "CLAUDE.md test C",
+   "summary": "unadjusted reverse splits fabricate drops and spikes (VMAR $515) — indicator series must be split-adjusted",
+   "verify": {
+    "file": "CLAUDE.md",
+    "contains": "تشويهات التقسيمات التاريخية (VMAR $515)"
+   }
+  },
+  "I_PULLBACK_DEF": {
+   "kind": "OPERATIONAL_INVARIANT",
+   "stance": "supports",
+   "ref": "CLAUDE.md §3",
+   "summary": "the pullback list holds pivot stocks that rose above their entry",
+   "verify": {
+    "file": "CLAUDE.md",
+    "contains": "أسهم ارتكاز ارتفعت فوق دخولها"
+   }
+  },
+  "T_COVERAGE_RENEWAL": {
+   "kind": "TESTED_INCIDENT",
+   "stance": "supports",
+   "ref": "test_bot ⑫",
+   "summary": "a throttled source must postpone the renewal, not archive an unsettled week",
+   "verify": {
+    "file": "test_bot.py",
+    "contains": "⑫ خنق الأسبوع المنتهي (تغطية 0%) → التجديد مؤجَّل ولا أرشفة"
+   }
+  },
+  "T_COVERAGE_DAILY": {
+   "kind": "TESTED_INCIDENT",
+   "stance": "supports",
+   "ref": "audit 2026-06-26 (D)",
+   "summary": "the daily path lacked the coverage guard on 4 of 5 days — the most dangerous silent-miss vector",
+   "verify": {
+    "file": "CLAUDE.md",
+    "contains": "حارس التغطية في المسار"
+   }
+  },
+  "T_BSC": {
+   "kind": "TESTED_INCIDENT",
+   "stance": "supports",
+   "ref": "BSC1-BSC8 (2026-09-26)",
+   "summary": "the ChartExchange breaker tripped in round 1 and unknown availability passed the gate",
+   "verify": {
+    "file": "test_bot.py",
+    "contains": "BSC1"
+   }
+  },
+  "T_CE_QUOTA": {
+   "kind": "TESTED_INCIDENT",
+   "stance": "supports",
+   "ref": "ctb_harvest dry runs (2026-09-26)",
+   "summary": "ChartExchange returns a shell after ≈50 pages per runner",
+   "verify": {
+    "file": "CLAUDE.md",
+    "contains": "بعد ‏≈50 صفحة"
+   }
+  },
+  "T_DQ_PROBE": {
+   "kind": "TESTED_INCIDENT",
+   "stance": "supports",
+   "ref": "probe 36863655877 (2026-10-01)",
+   "summary": "stale bars and unflagged splits reached outputs (F1-F4)",
+   "verify": {
+    "file": "data_integrity_result.md",
+    "contains": "36863655877"
+   }
+  },
+  "E_TBASE2": {
+   "kind": "EXPERIMENT",
+   "stance": "mixed",
+   "ref": "T-BASE-2",
+   "summary": "B120 met its guards but the sign flips across years",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**③ T-BASE-2**"
+   }
+  },
+  "E_TFAILS": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "ref": "T-FAILS",
+   "summary": "the soft-count veto's difference ≈ 0 (strong null)",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-FAILS — «فيتو النواقص»"
+   }
+  },
+  "E_TM13": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "ref": "T-SHORT · T-M13",
+   "summary": "tightening the FINRA short gate flips sign across years",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**② T-M13**"
+   }
+  },
+  "E_TREBOUND2": {
+   "kind": "EXPERIMENT",
+   "stance": "supports",
+   "ref": "T-REBOUND-2",
+   "summary": "held-at-tested-level pullbacks delivered more per episode 5/5",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-REBOUND-2 — نجحت 5/5"
+   }
+  },
+  "E_TCAP": {
+   "kind": "EXPERIMENT",
+   "stance": "mixed",
+   "ref": "T-CAP",
+   "summary": "capacity 15 delivered more exploders but the registered return guard failed",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**① T-CAP**"
+   }
+  },
+  "E_TSTABILITY": {
+   "kind": "EXPERIMENT",
+   "stance": "against",
+   "ref": "T-STABILITY",
+   "summary": "the 3-session hold as a rejection gate failed",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-STABILITY — «سجّل الثبات وقِسه»"
+   }
+  },
+  "E_TRSI40": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "ref": "T-RSI40",
+   "summary": "tightening RSI-now to Faisal's 40 costs deliveries; the sign flips",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "`T-RSI40` «سجّل RSI 40»"
+   }
+  },
+  "A_SEARCHED": {
+   "kind": "ABSENCE",
+   "stance": "neutral",
+   "ref": "ledger · catalogue · Phase 3 matrix",
+   "summary": "searched; no Faisal source states this rule",
+   "verify": {
+    "file": "fm_forensics/phase3/GATE_CONCEPT_MATRIX.csv",
+    "contains": "none — engineering count of M6-M14 soft gates"
+   }
+  },
+  "A_SHORT_40K": {
+   "kind": "ABSENCE",
+   "stance": "neutral",
+   "ref": "ledger §①-أ",
+   "summary": "SHORT_GATE_MAX=40,000 has no Faisal source (both claimed sources fell)",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "بلا أي سند فيصليّ"
+   }
+  },
+  "R_IDENTITY_STRICT": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "CLAUDE.md «النظام الحالي»",
+   "summary": "M1-M5 kept strict as the identity block (design record)",
+   "verify": {
+    "file": "CLAUDE.md",
+    "contains": "الأساسية (الهوية، صارمة): M1-M5"
+   }
+  },
+  "R_SOFT_V27": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "Super_stock v2.7",
+   "summary": "soft fails counted against a limit (introduced v2.7)",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "نواقص التأكيد (v2.7)"
+   }
+  },
+  "R_MIDPOINT": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "archive 2026-08-11",
+   "summary": "the half-range split is a disclosed design choice, not a calibrated number",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "المنتصفُ قسمةٌ محايدةٌ صفريّةُ المعالم"
+   }
+  },
+  "R_FILL_CAP": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "fill_picks docstring",
+   "summary": "a declared cost cap",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "والكلفةُ مسقوفةٌ مُعلَنة"
+   }
+  },
+  "R_FILL_ROUNDS_4": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "CONFIG",
+   "summary": "PICK_FILL_ROUNDS = 4 (no derivation recorded)",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "\"PICK_FILL_ROUNDS\": 4"
+   }
+  },
+  "R_RSI_V27": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "CONFIG fallback",
+   "summary": "RSI hard floor/ceiling split introduced v2.7 (32/50 fallback)",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "\"RSI_OS_HARD\": 32.0"
+   }
+  },
+  "R_DQ_POLICY": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "data_quality.DEFAULT_POLICY",
+   "summary": "state → action mapping chosen in the implementation",
+   "verify": {
+    "file": "data_quality.py",
+    "contains": "DEFAULT_POLICY = {"
+   }
+  },
+  "R_DQ_RATIO_TOL": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "data_quality",
+   "summary": "a split-ratio conflict above 5%",
+   "verify": {
+    "file": "data_quality.py",
+    "contains": "(أكثر من 5%)"
+   }
+  },
+  "R_DQ_HELD": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "data_quality",
+   "summary": "quarantine ends after three held sessions (recipe borrowed from IMG_0151)",
+   "verify": {
+    "file": "data_quality.py",
+    "contains": "SPLIT_HELD_SESSIONS = 3"
+   }
+  },
+  "R_ANCHOR_PARAMS": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "Super_stock.tested_level",
+   "summary": "30-bar lookback and 1.5% touch tolerance are code defaults",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "def tested_level(df, lookback=30, tol=0.015, min_touches=2):"
+   }
+  },
+  "R_COVERAGE_85": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "CONFIG",
+   "summary": "DATA_HEALTH_MIN_PCT = 85 (no derivation recorded)",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "\"DATA_HEALTH_MIN_PCT\": 85"
+   }
+  },
+  "R_M14_50M": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "ledger M14",
+   "summary": "the 50M limit is our reserve, not his number (highest documented example 26.68M)",
+   "verify": {
+    "file": "FAISAL_SOURCE_LEDGER.md",
+    "contains": "فالحدّ تحفّظُنا لا رقمُه"
+   }
+  },
+  "R_RANK_KEY": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "Super_stock.rank_key",
+   "summary": "the ranking key is ours (no Faisal ranking exists)",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "def rank_key("
+   }
+  },
+  "V23_MIN_PRICE": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 MIN_PRICE",
+   "summary": "MIN_PRICE = 2.0 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"MIN_PRICE\": \"2.0\""
+   }
+  },
+  "V23_MIN_DROP_PCT": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 MIN_DROP_PCT",
+   "summary": "MIN_DROP_PCT = 50.0 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"MIN_DROP_PCT\": \"50.0\""
+   }
+  },
+  "V23_MAX_DROP_PCT": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 MAX_DROP_PCT",
+   "summary": "MAX_DROP_PCT = 97.0 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"MAX_DROP_PCT\": \"97.0\""
+   }
+  },
+  "V23_PRIOR_SPIKE_WINDOW": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 PRIOR_SPIKE_WINDOW",
+   "summary": "PRIOR_SPIKE_WINDOW = 20 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"PRIOR_SPIKE_WINDOW\": \"20\""
+   }
+  },
+  "V23_BASE_WINDOW": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 BASE_WINDOW",
+   "summary": "BASE_WINDOW = 15 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"BASE_WINDOW\": \"15\""
+   }
+  },
+  "V23_BASE_RANGE_MAX_PCT": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 BASE_RANGE_MAX_PCT",
+   "summary": "BASE_RANGE_MAX_PCT = 40.0 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"BASE_RANGE_MAX_PCT\": \"40.0\""
+   }
+  },
+  "V23_RECENT_RISE_BLOCK_PCT": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 RECENT_RISE_BLOCK_PCT",
+   "summary": "RECENT_RISE_BLOCK_PCT = 35.0 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"RECENT_RISE_BLOCK_PCT\": \"35.0\""
+   }
+  },
+  "V23_MIN_DOLLAR_VOL": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 MIN_DOLLAR_VOL",
+   "summary": "MIN_DOLLAR_VOL = 200_000 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"MIN_DOLLAR_VOL\": \"200_000\""
+   }
+  },
+  "V23_SCORE_MIN": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 SCORE_MIN",
+   "summary": "SCORE_MIN = 40 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"SCORE_MIN\": \"40\""
+   }
+  },
+  "V23_MIN_RR_T1": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 MIN_RR_T1",
+   "summary": "MIN_RR_T1 = 1.0 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"MIN_RR_T1\": \"1.0\""
+   }
+  },
+  "V23_NEAR_PCT": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 NEAR_PCT",
+   "summary": "NEAR_PCT = 50 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"NEAR_PCT\": \"50\""
+   }
+  },
+  "V23_FLOAT_GATE_MAX": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 FLOAT_GATE_MAX",
+   "summary": "FLOAT_GATE_MAX = 50_000_000 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"FLOAT_GATE_MAX\": \"50_000_000\""
+   }
+  },
+  "V23_SHORT_GATE_MAX": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 SHORT_GATE_MAX",
+   "summary": "SHORT_GATE_MAX = 20_000 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"SHORT_GATE_MAX\": \"20_000\""
+   }
+  },
+  "V23_MIN_BARS": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 MIN_BARS",
+   "summary": "MIN_BARS = 120 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"MIN_BARS\": \"120\""
+   }
+  },
+  "V23_EXCLUDE_STOPPED_FROM_RENEWAL": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 EXCLUDE_STOPPED_FROM_RENEWAL",
+   "summary": "EXCLUDE_STOPPED_FROM_RENEWAL = True in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"EXCLUDE_STOPPED_FROM_RENEWAL\": \"True\""
+   }
+  },
+  "V23_GAP_REQUIRED": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 GAP_REQUIRED",
+   "summary": "GAP_REQUIRED = False in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"GAP_REQUIRED\": \"False\""
+   }
+  },
+  "V23_TF_MIN_REVERSALS": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 TF_MIN_REVERSALS",
+   "summary": "TF_MIN_REVERSALS = 2 in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"TF_MIN_REVERSALS\": \"2\""
+   }
+  },
+  "V23_HI52_GUARD": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 code",
+   "summary": "«hi52 <= 0» present in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"hi52 <= 0\": true"
+   }
+  },
+  "V23_BASE_LO_GUARD": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 code",
+   "summary": "«base_lo <= 0» present in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"base_lo <= 0\": true"
+   }
+  },
+  "V23_NASDAQ": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 code",
+   "summary": "«nasdaqlisted.txt» present in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"nasdaqlisted.txt\": true"
+   }
+  },
+  "V23_EXCEPT": {
+   "kind": "INHERITED_RECORD",
+   "stance": "neutral",
+   "ref": "v2.3 code",
+   "summary": "«except Exception» present in the initial upload",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"except Exception\": true"
+   }
+  },
+  "R_PULLBACK_INTRO": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "Super_stock.analyze_ticker",
+   "summary": "pullback mode added after v2.3 (absent from the initial upload)",
+   "verify": {
+    "file": "faisal_engine/data/gate_v23_extract.json",
+    "contains": "\"pullback\": false"
+   }
+  },
+  "R_BSC_INTRO": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "Super_stock.borrow_second_chance",
+   "summary": "added 2026-09-26 after a measured breaker failure",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "def borrow_second_chance("
+   }
+  },
+  "R_ENTRY_FAR": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "Super_stock.entry_status",
+   "summary": "«far above the tranches» = 5% above the top tranche (no derivation)",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "elif lp > hi_z * 1.05:"
+   }
+  },
+  "F_TRANCHES_EXAMPLE": {
+   "kind": "FAISAL_INFERRED",
+   "stance": "supports",
+   "ref": "Faisal tranche example",
+   "summary": "his entries in steps at the support (1.70/1.75/1.80 · stop 1.50) — generalised to ≈3% steps",
+   "verify": {
+    "file": "CLAUDE.md",
+    "contains": "1.70/1.75/1.80 وقف 1.50"
+   },
+   "context": "pivot"
+  },
+  "R_RANK_INTRO": {
+   "kind": "CODE_RECORD",
+   "stance": "neutral",
+   "ref": "Super_stock.rank_key",
+   "summary": "rank_key absent from the initial upload",
+   "verify": {
+    "file": "Super_stock.py",
+    "contains": "def rank_key("
+   }
+  }
+ },
  "gates": [
   {
    "system": "LIVE_SCANNER",
@@ -90,6 +1237,53 @@
    "status_ref": "project definition",
    "next_action": "none without an owner decision; MI_E1 (a reliable own pre-move unit) is absent from the nasdaqlisted snapshot — its listing venue is UNKNOWN in repository data",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_NASDAQ_V23",
+     "V23_NASDAQ"
+    ],
+    "concept_refs": [
+     "O_NASDAQ_V23"
+    ],
+    "hardness_refs": [
+     "O_NASDAQ_V23"
+    ],
+    "impl_role": "OWNER_TRADING_ELIGIBILITY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "UNIVERSE",
+      "concept": "NASDAQ-listed symbols only",
+      "window": "the universe list fetched each run",
+      "basis": "nasdaqtrader nasdaqlisted.txt",
+      "data_at_decision": "the symbol directory at run time",
+      "pipeline_point": "get_universe — before any data is loaded",
+      "hard_why": "the exchange restriction was an explicit request recorded in the initial upload",
+      "number_origin": "OWNER",
+      "refs": [
+       "O_NASDAQ_V23"
+      ],
+      "value": "nasdaqlisted.txt"
+     }
+    ],
+    "note": "owner trading scope, not a Faisal rule",
+    "derived_justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "OWNER"
+     ],
+     "threshold:UNIVERSE": [
+      "OWNER"
+     ],
+     "hardness": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 1732,
    "function_lines": [
     1729,
@@ -154,6 +1348,45 @@
    "status_ref": "no closing decision found",
    "next_action": "research-only counterfactual already run (Phase 2 B_CUT); no production change without prereg",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_MIN_BARS"
+    ],
+    "concept_refs": [
+     "I_MIN_HISTORY"
+    ],
+    "hardness_refs": [],
+    "impl_role": "DATA_QUALITY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "MIN_BARS",
+      "concept": "minimum daily history for the indicators",
+      "window": "whole downloaded history",
+      "basis": "count of daily bars",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "_extract_into — data loading, before analyze_ticker",
+      "hard_why": "a symbol below the count is dropped before analysis (silent in the reject log)",
+      "number_origin": "INHERITED",
+      "refs": [
+       "V23_MIN_BARS"
+      ],
+      "value": 120
+     }
+    ],
+    "note": "the indicators need ≈50+ bars; nothing derives 120",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "INVARIANT"
+     ],
+     "threshold:MIN_BARS": []
+    }
+   },
    "line": 1813,
    "function_lines": [
     1798,
@@ -208,6 +1441,30 @@
    "status_ref": "T-M2REF/T-ENVREF measured split-aware references: no material aggregate difference; owner «خلّ السقف»",
    "next_action": "none (adjustment method unchanged by rule)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_EXCEPT"
+    ],
+    "concept_refs": [
+     "I_ADJUSTED",
+     "X_POST_SPLIT_FRAME"
+    ],
+    "hardness_refs": [],
+    "impl_role": "DATA_QUALITY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "DOCUMENTED_OPERATIONAL_INVARIANT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "split-adjusted economic frame; Faisal reads reverse-split names in the post-split frame (frame difference, not a data error)",
+    "derived_justification": "DOCUMENTED_OPERATIONAL_INVARIANT",
+    "contradicted": true,
+    "support": {
+     "concept": [
+      "INVARIANT"
+     ]
+    }
+   },
    "line": 2143,
    "function_lines": [
     2143,
@@ -272,6 +1529,54 @@
    "status_ref": "—",
    "next_action": "none (first wall on 0 of 22 evaluable episodes)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_IMG0153_SCOPE",
+     "V23_MIN_PRICE"
+    ],
+    "concept_refs": [
+     "F_IMG0153_SCOPE"
+    ],
+    "hardness_refs": [
+     "R_IDENTITY_STRICT"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "MIN_PRICE",
+      "concept": "price floor",
+      "window": "last close",
+      "basis": "last daily close",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808",
+       "X_M1_SCOPE"
+      ],
+      "value": 0.4
+     }
+    ],
+    "note": "the $1 scope comes from the split-stock recipe; 0.40 is the lowest catalogued bottom price",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": true,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:MIN_PRICE": [
+      "OWNER"
+     ],
+     "hardness": []
+    }
+   },
    "line": 4046,
    "function_lines": [
     4029,
@@ -332,6 +1637,29 @@
    "status_ref": "—",
    "next_action": "none (division guard)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_HI52_GUARD"
+    ],
+    "concept_refs": [
+     "I_DIV_HI52"
+    ],
+    "hardness_refs": [],
+    "impl_role": "OPS_SAFETY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "DOCUMENTED_OPERATIONAL_INVARIANT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "",
+    "derived_justification": "DOCUMENTED_OPERATIONAL_INVARIANT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "INVARIANT"
+     ]
+    }
+   },
    "line": 4068,
    "function_lines": [
     4029,
@@ -402,6 +1730,55 @@
    "status_ref": "T-CEILING · owner «خلّ السقف» 2026-08-16 (DECISIONS_ARCHIVE)",
    "next_action": "closed axis — no change; reopening needs the owner",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_MAX_DROP_PCT"
+    ],
+    "concept_refs": [
+     "O_CEILING_KEEP_0816",
+     "X_POST_SPLIT_FRAME"
+    ],
+    "hardness_refs": [
+     "O_CEILING_KEEP_0816"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "MAX_DROP_PCT",
+      "concept": "exclude dying / split-trap names",
+      "window": "252 bars",
+      "basis": "(1 − close ÷ max(high, 252 bars)) on split-adjusted bars",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "the owner kept the ceiling as a hard wall after T-CEILING measured its cost",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 99.95
+     }
+    ],
+    "note": "owner-required; contradicted by Faisal's post-split frame (closed axis)",
+    "derived_justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "contradicted": true,
+    "support": {
+     "concept": [
+      "OWNER"
+     ],
+     "threshold:MAX_DROP_PCT": [
+      "OWNER"
+     ],
+     "hardness": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 4071,
    "function_lines": [
     4029,
@@ -476,6 +1853,53 @@
    "status_ref": "T-M2REF «لا فرق مادي» (2026-08-08); envelope axis closed by owner 2026-08-05",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_PIVOT_IDENTITY",
+     "V23_MIN_DROP_PCT"
+    ],
+    "concept_refs": [
+     "F_PIVOT_IDENTITY"
+    ],
+    "hardness_refs": [
+     "R_IDENTITY_STRICT"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "MIN_DROP_FLOOR",
+      "concept": "collapsed far from the 52-week high",
+      "window": "252 bars",
+      "basis": "(1 − close ÷ max(high, 252 bars)) on split-adjusted bars",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 71.7203
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:MIN_DROP_FLOOR": [
+      "OWNER"
+     ],
+     "hardness": []
+    }
+   },
    "line": 4073,
    "function_lines": [
     4029,
@@ -550,6 +1974,83 @@
    "status_ref": "—",
    "next_action": "research-only counterfactual (faisal_engine replay: M3 is the first wall on 23 of Faisal's rejected stocks)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_PIVOT_IDENTITY"
+    ],
+    "concept_refs": [
+     "F_PIVOT_IDENTITY",
+     "P_M3_MISREAD"
+    ],
+    "hardness_refs": [
+     "R_IDENTITY_STRICT"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "PRIOR_SPIKE_FLOOR",
+      "concept": "exploded before",
+      "window": "spike within PRIOR_SPIKE_WINDOW sessions, excluding the last BASE_WINDOW bars",
+      "basis": "best low-to-high rise of daily closes (spike_info)",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 78.2738
+     },
+     {
+      "key": "PRIOR_SPIKE_WINDOW",
+      "concept": "speed of the prior explosion",
+      "window": "20 sessions",
+      "basis": "sessions from base to peak",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "INHERITED",
+      "refs": [
+       "V23_PRIOR_SPIKE_WINDOW"
+      ],
+      "value": 20
+     },
+     {
+      "key": "BASE_WINDOW",
+      "concept": "the current base excluded from the spike search",
+      "window": "15 sessions",
+      "basis": "last 15 daily bars",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "INHERITED",
+      "refs": [
+       "V23_BASE_WINDOW"
+      ],
+      "value": 15
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:PRIOR_SPIKE_FLOOR": [
+      "OWNER"
+     ],
+     "threshold:PRIOR_SPIKE_WINDOW": [],
+     "threshold:BASE_WINDOW": [],
+     "hardness": []
+    }
+   },
    "line": 4085,
    "function_lines": [
     4029,
@@ -616,6 +2117,29 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_BASE_LO_GUARD"
+    ],
+    "concept_refs": [
+     "I_DIV_BASELO"
+    ],
+    "hardness_refs": [],
+    "impl_role": "OPS_SAFETY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "DOCUMENTED_OPERATIONAL_INVARIANT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "",
+    "derived_justification": "DOCUMENTED_OPERATIONAL_INVARIANT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "INVARIANT"
+     ]
+    }
+   },
    "line": 4095,
    "function_lines": [
     4029,
@@ -687,6 +2211,65 @@
    "status_ref": "T-BASE-2 · OWNER_GATE_OVERRIDES",
    "next_action": "none in production; research-only post-split window exists (BT_M4_POST_SPLIT, T-GATES G6)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_BASE_RANGE_MAX_PCT"
+    ],
+    "concept_refs": [
+     "A_SEARCHED",
+     "P_M4_METRIC"
+    ],
+    "hardness_refs": [
+     "R_IDENTITY_STRICT"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "BASE_RANGE_MAX_PCT",
+      "concept": "narrow current base",
+      "window": "15 sessions",
+      "basis": "(max high ÷ min low − 1) over the last 15 bars",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "OWNER",
+      "refs": [
+       "O_BASE120_0810",
+       "E_TBASE2"
+      ],
+      "value": 120
+     },
+     {
+      "key": "BASE_WINDOW",
+      "concept": "base window",
+      "window": "15 sessions",
+      "basis": "last 15 daily bars",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "INHERITED",
+      "refs": [
+       "V23_BASE_WINDOW"
+      ],
+      "value": 15
+     }
+    ],
+    "note": "the owner set the number; no source supports a range cap as a concept",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [],
+     "threshold:BASE_RANGE_MAX_PCT": [
+      "OWNER"
+     ],
+     "threshold:BASE_WINDOW": [],
+     "hardness": []
+    }
+   },
    "line": 4117,
    "function_lines": [
     4029,
@@ -756,6 +2339,53 @@
    "status_ref": "T-REBOUND-2",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_SHUTDOOR_0811"
+    ],
+    "concept_refs": [
+     "O_SHUTDOOR_0811",
+     "O_REBOUND_0814",
+     "E_TREBOUND2"
+    ],
+    "hardness_refs": [
+     "O_SHUTDOOR_0811"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "base_rose",
+      "concept": "a wide base is a pullback candidate only when the price rose",
+      "window": "15 sessions",
+      "basis": "close in the upper half of the 15-bar range",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker pullback mode",
+      "hard_why": "«اقفل الباب»: a falling wide base is rejected",
+      "number_origin": "ENGINEERING_DEFAULT",
+      "refs": [
+       "R_MIDPOINT"
+      ],
+      "value": "half of the range"
+     }
+    ],
+    "note": "pullback routing policy; the half-range split is a disclosed design choice",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "EMPIRICAL",
+      "OWNER"
+     ],
+     "threshold:base_rose": [],
+     "hardness": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 4128,
    "function_lines": [
     4029,
@@ -826,6 +2456,54 @@
    "status_ref": "D11 (owner: keep 35/5d in legacy mode)",
    "next_action": "none (first wall on 0 of 22)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_TG50580_NOCHASE",
+     "V23_RECENT_RISE_BLOCK_PCT"
+    ],
+    "concept_refs": [
+     "F_TG50580_NOCHASE",
+     "X_SECOND_WAVE"
+    ],
+    "hardness_refs": [
+     "R_IDENTITY_STRICT"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "RECENT_RISE_BLOCK_PCT",
+      "concept": "do not chase a name that already exploded",
+      "window": "5 sessions",
+      "basis": "close ÷ close 5 sessions earlier − 1",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 214.7287
+     }
+    ],
+    "note": "his example blocks after +114%; the live edge 214.7% barely binds",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": true,
+    "support": {
+     "concept": [
+      "FAISAL_DIRECT"
+     ],
+     "threshold:RECENT_RISE_BLOCK_PCT": [
+      "OWNER"
+     ],
+     "hardness": []
+    }
+   },
    "line": 4139,
    "function_lines": [
     4029,
@@ -898,6 +2576,51 @@
    "status_ref": "C6 «هندسية معلنة»",
    "next_action": "none (first wall on 0 of 22)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_MIN_DOLLAR_VOL"
+    ],
+    "concept_refs": [
+     "X_VEEE_LIQUIDITY",
+     "A_SEARCHED"
+    ],
+    "hardness_refs": [
+     "R_IDENTITY_STRICT"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "MIN_DOLLAR_VOL",
+      "concept": "tradability floor",
+      "window": "20 sessions",
+      "basis": "mean of close × volume over 20 daily bars",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 14314.7701
+     }
+    ],
+    "note": "the concept is contradicted as identity evidence; only the number is owner-adopted",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": true,
+    "support": {
+     "concept": [],
+     "threshold:MIN_DOLLAR_VOL": [
+      "OWNER"
+     ],
+     "hardness": []
+    }
+   },
    "line": 4144,
    "function_lines": [
     4029,
@@ -958,6 +2681,30 @@
    "status_ref": "ledger: «مُطفأة عمدًا»",
    "next_action": "none (inactive); if ever re-enabled it must record a reject code",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_GAP_REQUIRED"
+    ],
+    "concept_refs": [
+     "A_SEARCHED"
+    ],
+    "hardness_refs": [
+     "R_IDENTITY_STRICT"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "UNJUSTIFIED_BY_CURRENT_EVIDENCE",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "inactive (GAP_REQUIRED=False)",
+    "derived_justification": "UNJUSTIFIED_BY_CURRENT_EVIDENCE",
+    "contradicted": false,
+    "support": {
+     "concept": [],
+     "hardness": []
+    }
+   },
    "line": 4166,
    "function_lines": [
     4029,
@@ -1025,6 +2772,67 @@
    "status_ref": "«اقفل RSI» 2026-09-09 (entry-by-RSI axis)",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_TG2043_23_27"
+    ],
+    "concept_refs": [
+     "F_TG2043_23_27"
+    ],
+    "hardness_refs": [
+     "R_RSI_V27"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "RSI_OS_HARD",
+      "concept": "the RSI reached oversold before the move",
+      "window": "RSI_OS_LOOKBACK sessions",
+      "basis": "minimum RSI(14) over the window",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "split into hard/soft in v2.7; no source makes the floor hard",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 69
+     },
+     {
+      "key": "RSI_OS_LOOKBACK",
+      "concept": "how recent the oversold touch must be",
+      "window": "25 sessions",
+      "basis": "trailing daily bars",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "ENGINEERING_DEFAULT",
+      "refs": [
+       "R_RSI_V27"
+      ],
+      "value": 25
+     }
+    ],
+    "note": "his 23-27 sits in the soft «ideal» (median 33); the hard edge 69 is not oversold in any reading",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_DIRECT"
+     ],
+     "threshold:RSI_OS_HARD": [
+      "OWNER"
+     ],
+     "threshold:RSI_OS_LOOKBACK": [],
+     "hardness": []
+    }
+   },
    "line": 4194,
    "function_lines": [
     4029,
@@ -1098,6 +2906,54 @@
    "status_ref": "T-RSI40 closed (exit 6) · «اقفل RSI»",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_TG2043_40"
+    ],
+    "concept_refs": [
+     "F_TG2043_40",
+     "X_RSI40_READY",
+     "E_TRSI40"
+    ],
+    "hardness_refs": [
+     "R_RSI_V27"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "RSI_NOW_HARD",
+      "concept": "not already flown",
+      "window": "last bar",
+      "basis": "RSI(14) of the last close",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "split into hard/soft in v2.7; tightening to his 40 was measured and the axis closed",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 71.1186
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": true,
+    "support": {
+     "concept": [
+      "FAISAL_DIRECT"
+     ],
+     "threshold:RSI_NOW_HARD": [
+      "OWNER"
+     ],
+     "hardness": []
+    }
+   },
    "line": 4201,
    "function_lines": [
     4029,
@@ -1172,6 +3028,51 @@
    "status_ref": "—",
    "next_action": "none (first wall on 0 of 22)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "ENGINEERING_INTRODUCED",
+    "origin_refs": [
+     "R_SOFT_V27"
+    ],
+    "concept_refs": [
+     "A_SEARCHED",
+     "E_TFAILS"
+    ],
+    "hardness_refs": [
+     "R_SOFT_V27"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "WATCH_MAX_FAILS",
+      "concept": "too many missing confirmations",
+      "window": "all soft gates of the current bar",
+      "basis": "count of soft fails",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "a count limit rejects by definition (v2.7 design)",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 8
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [],
+     "threshold:WATCH_MAX_FAILS": [
+      "OWNER"
+     ],
+     "hardness": []
+    }
+   },
    "line": 4244,
    "function_lines": [
     4029,
@@ -1236,6 +3137,48 @@
    "status_ref": "T-STABILITY failed (3 of 4 guards)",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_IMG0151_RECIPE"
+    ],
+    "concept_refs": [
+     "F_IMG0151_RECIPE",
+     "E_TSTABILITY"
+    ],
+    "hardness_refs": [],
+    "impl_role": "OTHER",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "STABILITY_MIN",
+      "concept": "held its low for three sessions",
+      "window": "sessions after the pivot low",
+      "basis": "pivot_stability bars_after",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "backtest arm only (BT_STABILITY_GATE); never active in production",
+      "number_origin": "FAISAL_SOURCE",
+      "refs": [
+       "F_IMG0151_RECIPE"
+      ],
+      "value": 3
+     }
+    ],
+    "note": "statement from the split-stock recipe; inactive backtest arm",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:STABILITY_MIN": [
+      "FAISAL_TRANSFERRED"
+     ]
+    }
+   },
    "line": 4338,
    "function_lines": [
     4029,
@@ -1309,6 +3252,54 @@
    "status_ref": "catalog NEAR_PCT=0",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_NEAR_PCT"
+    ],
+    "concept_refs": [
+     "O_NEAR_USER"
+    ],
+    "hardness_refs": [
+     "O_NEAR_USER"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "NEAR_PCT",
+      "concept": "far from entry",
+      "window": "last bar",
+      "basis": "entry_readiness percent",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 0
+     }
+    ],
+    "note": "inactive (catalogue edge 0)",
+    "derived_justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "OWNER"
+     ],
+     "threshold:NEAR_PCT": [
+      "OWNER"
+     ],
+     "hardness": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 4355,
    "function_lines": [
     4029,
@@ -1381,6 +3372,50 @@
    "status_ref": "—",
    "next_action": "none (first wall on 0 of 22)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_SCORE_MIN"
+    ],
+    "concept_refs": [
+     "A_SEARCHED"
+    ],
+    "hardness_refs": [
+     "V23_SCORE_MIN"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "SCORE_MIN",
+      "concept": "enough confirmations",
+      "window": "last bar",
+      "basis": "additive score of the signal flags",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "inherited from v2.3; no source makes it hard",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 5
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [],
+     "threshold:SCORE_MIN": [
+      "OWNER"
+     ],
+     "hardness": []
+    }
+   },
    "line": 4499,
    "function_lines": [
     4029,
@@ -1453,6 +3488,102 @@
    "status_ref": "H6 contract (fm_forensics/perf/H6_PREREG.md §4) draws its control pool from this wall; perf experiment #586 «C. NO DEMONSTRATED IMPROVEMENT»; owner: no new phase without permission",
    "next_action": "no production change (would alter the frozen H6 control pool); Phase 4 architecture B remains research-only",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_ANCHOR_0814"
+    ],
+    "concept_refs": [
+     "O_ANCHOR_0814",
+     "F_IMG0451_ANCHOR",
+     "X_ANCHOR_STAGE"
+    ],
+    "hardness_refs": [
+     "O_ANCHOR_0814"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "ANCHOR_MODE",
+      "concept": "anchor on a tested level; reject when none",
+      "window": "—",
+      "basis": "tested_strict",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "the owner chose the strict arm (reject without a tested level)",
+      "number_origin": "OWNER",
+      "refs": [
+       "O_ANCHOR_0814"
+      ],
+      "value": "tested_strict"
+     },
+     {
+      "key": "min_touches",
+      "concept": "tested twice",
+      "window": "lookback",
+      "basis": "independent touch clusters within the tolerance",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "FAISAL_SOURCE",
+      "refs": [
+       "F_IMG0451_ANCHOR"
+      ],
+      "value": "2"
+     },
+     {
+      "key": "lookback",
+      "concept": "where the touches are counted",
+      "window": "30 sessions",
+      "basis": "trailing daily lows",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "ENGINEERING_DEFAULT",
+      "refs": [
+       "R_ANCHOR_PARAMS"
+      ],
+      "value": "30"
+     },
+     {
+      "key": "tol",
+      "concept": "what counts as a touch",
+      "window": "lookback",
+      "basis": "low within 1.5% of the window's lowest low",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "ENGINEERING_DEFAULT",
+      "refs": [
+       "R_ANCHOR_PARAMS"
+      ],
+      "value": "0.015"
+     }
+    ],
+    "note": "his rule is for the entry and the stop; applied here as candidate rejection (FROZEN by the H6 control pool)",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": true,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED",
+      "OWNER"
+     ],
+     "threshold:ANCHOR_MODE": [
+      "OWNER"
+     ],
+     "threshold:min_touches": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:lookback": [],
+     "threshold:tol": [],
+     "hardness": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 4541,
    "function_lines": [
     4029,
@@ -1549,6 +3680,69 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_MIN_RR_T1"
+    ],
+    "concept_refs": [
+     "A_SEARCHED"
+    ],
+    "hardness_refs": [
+     "R_SOFT_V27"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "MIN_RR_T1",
+      "concept": "reward/risk to the first target",
+      "window": "last bar",
+      "basis": "(t1 − price) ÷ (price − stop)",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 0.5
+     },
+     {
+      "key": "WATCH_MAX_FAILS",
+      "concept": "count limit after adding the RR fail",
+      "window": "soft gates",
+      "basis": "count of soft fails",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "a count limit rejects by definition (v2.7 design)",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 8
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [],
+     "threshold:MIN_RR_T1": [
+      "OWNER"
+     ],
+     "threshold:WATCH_MAX_FAILS": [
+      "OWNER"
+     ],
+     "hardness": []
+    }
+   },
    "line": 4758,
    "function_lines": [
     4029,
@@ -1608,6 +3802,29 @@
    "status_ref": "—",
    "next_action": "none (routing, not a selection rule)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "ENGINEERING_INTRODUCED",
+    "origin_refs": [
+     "R_PULLBACK_INTRO"
+    ],
+    "concept_refs": [
+     "I_PULLBACK_DEF"
+    ],
+    "hardness_refs": [],
+    "impl_role": "OTHER",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "DOCUMENTED_OPERATIONAL_INVARIANT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "routing inside pullback mode, not a selection rule",
+    "derived_justification": "DOCUMENTED_OPERATIONAL_INVARIANT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "INVARIANT"
+     ]
+    }
+   },
    "line": 4791,
    "function_lines": [
     4029,
@@ -1658,6 +3875,29 @@
    "status_ref": "C4 (2026-07-03)",
    "next_action": "none (logged)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_EXCEPT"
+    ],
+    "concept_refs": [
+     "I_SCAN_CONTINUES"
+    ],
+    "hardness_refs": [],
+    "impl_role": "OPS_SAFETY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "DOCUMENTED_OPERATIONAL_INVARIANT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "",
+    "derived_justification": "DOCUMENTED_OPERATIONAL_INVARIANT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "INVARIANT"
+     ]
+    }
+   },
    "line": 4834,
    "function_lines": [
     4029,
@@ -1710,6 +3950,48 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_PIVOT_IDENTITY"
+    ],
+    "concept_refs": [
+     "F_PIVOT_IDENTITY"
+    ],
+    "hardness_refs": [],
+    "impl_role": "SOFT",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "MIN_DROP_PCT",
+      "concept": "ideal collapse",
+      "window": "252 bars",
+      "basis": "drop from the 52-week high",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "soft (counts toward SOFT_COUNT)",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_MEDIAN",
+       "O_SOFT_MEDIAN_0807"
+      ],
+      "value": 96.9178
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:MIN_DROP_PCT": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 4079,
    "function_lines": [
     4029,
@@ -1764,6 +4046,49 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_PIVOT_IDENTITY"
+    ],
+    "concept_refs": [
+     "F_PIVOT_IDENTITY",
+     "P_M3_MISREAD"
+    ],
+    "hardness_refs": [],
+    "impl_role": "SOFT",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "PRIOR_SPIKE_PCT",
+      "concept": "ideal prior explosion",
+      "window": "20 sessions",
+      "basis": "spike_info best rise",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "soft (counts toward SOFT_COUNT)",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_MEDIAN",
+       "O_SOFT_MEDIAN_0807"
+      ],
+      "value": 164.0212
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:PRIOR_SPIKE_PCT": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 4088,
    "function_lines": [
     4029,
@@ -1818,6 +4143,47 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_TF_MIN_REVERSALS"
+    ],
+    "concept_refs": [
+     "A_SEARCHED"
+    ],
+    "hardness_refs": [],
+    "impl_role": "SOFT",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "TF_MIN_REVERSALS",
+      "concept": "multi-timeframe agreement",
+      "window": "monthly/weekly/daily",
+      "basis": "count of reversal frames",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "soft; inactive at 0",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 0
+     }
+    ],
+    "note": "inactive (catalogue edge 0)",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [],
+     "threshold:TF_MIN_REVERSALS": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 4150,
    "function_lines": [
     4029,
@@ -1870,6 +4236,29 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_TG1871_HAMMER"
+    ],
+    "concept_refs": [
+     "F_TG1871_HAMMER"
+    ],
+    "hardness_refs": [],
+    "impl_role": "SOFT",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ]
+    }
+   },
    "line": 4155,
    "function_lines": [
     4029,
@@ -1933,6 +4322,49 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_IMG0153_GAP"
+    ],
+    "concept_refs": [
+     "F_IMG0153_GAP"
+    ],
+    "hardness_refs": [],
+    "impl_role": "SOFT",
+    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "GAP_ABOVE_MAX_DIST_PCT",
+      "concept": "an unfilled gap above as a target",
+      "window": "all unfilled gaps",
+      "basis": "distance to the nearest gap bottom",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "soft (counts toward SOFT_COUNT)",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 1134.7826
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:GAP_ABOVE_MAX_DIST_PCT": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 4180,
    "function_lines": [
     4029,
@@ -1999,6 +4431,67 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_TG2043_23_27"
+    ],
+    "concept_refs": [
+     "F_TG2043_23_27",
+     "F_TG2043_40"
+    ],
+    "hardness_refs": [],
+    "impl_role": "SOFT",
+    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "RSI_OVERSOLD",
+      "concept": "ideal oversold depth",
+      "window": "25 sessions",
+      "basis": "minimum RSI(14)",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "soft (counts toward SOFT_COUNT)",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_MEDIAN",
+       "O_SOFT_MEDIAN_0807"
+      ],
+      "value": 33
+     },
+     {
+      "key": "RSI_MAX_NOW",
+      "concept": "ideal RSI now",
+      "window": "last bar",
+      "basis": "RSI(14)",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "soft (counts toward SOFT_COUNT)",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_MEDIAN",
+       "O_SOFT_MEDIAN_0807"
+      ],
+      "value": 35.7789
+     }
+    ],
+    "note": "his words say 23-27 and 40; the live soft numbers are the catalogue medians 33/35.8",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_DIRECT"
+     ],
+     "threshold:RSI_OVERSOLD": [
+      "OWNER"
+     ],
+     "threshold:RSI_MAX_NOW": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 4198,
    "function_lines": [
     4029,
@@ -2054,6 +4547,29 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_TG2062_MACD"
+    ],
+    "concept_refs": [
+     "F_TG2062_MACD"
+    ],
+    "hardness_refs": [],
+    "impl_role": "SOFT",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "parameters are his; the crossing requirement is ours",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ]
+    }
+   },
    "line": 4213,
    "function_lines": [
     4029,
@@ -2109,6 +4625,49 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_IMG0151_MA"
+    ],
+    "concept_refs": [
+     "F_IMG0151_MA"
+    ],
+    "hardness_refs": [],
+    "impl_role": "SOFT",
+    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "MA_GATE_MAX_ABOVE_PCT",
+      "concept": "price based on its EMA30/50",
+      "window": "EMA30/EMA50",
+      "basis": "price ÷ EMA − 1",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
+      "hard_why": "soft (counts toward SOFT_COUNT)",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 95.4707
+     }
+    ],
+    "note": "his «30<50» comes from the split-stock recipe",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:MA_GATE_MAX_ABOVE_PCT": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 4240,
    "function_lines": [
     4029,
@@ -2165,6 +4724,45 @@
    "status_ref": "BBLG 2026-08-13 (soft, owner decision pending on tightening)",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_SHORT_GATE_MAX"
+    ],
+    "concept_refs": [
+     "X_FINRA_MEASURE",
+     "A_SHORT_40K",
+     "E_TM13"
+    ],
+    "hardness_refs": [],
+    "impl_role": "SOFT",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "UNJUSTIFIED_BY_CURRENT_EVIDENCE",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "SHORT_GATE_MAX",
+      "concept": "high short",
+      "window": "last FINRA day",
+      "basis": "FINRA daily short volume (Fintel/FINRA/cache)",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "apply_short_gate inside scan_market",
+      "hard_why": "soft (counts toward SOFT_COUNT)",
+      "number_origin": "UNEXPLAINED",
+      "refs": [
+       "A_SHORT_40K"
+      ],
+      "value": 40000
+     }
+    ],
+    "note": "PR #598 called this owner policy; no owner order sets 40,000 — tightening experiments were null and the number stayed",
+    "derived_justification": "UNJUSTIFIED_BY_CURRENT_EVIDENCE",
+    "contradicted": true,
+    "support": {
+     "concept": [],
+     "threshold:SHORT_GATE_MAX": []
+    }
+   },
    "line": 12602,
    "function_lines": [
     12544,
@@ -2231,6 +4829,71 @@
    "status_ref": "m14hard (LOGIC_VERSION)",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_M14_HARD_0729",
+     "V23_FLOAT_GATE_MAX"
+    ],
+    "concept_refs": [
+     "O_M14_HARD_0729",
+     "F_IMG0151_RECIPE"
+    ],
+    "hardness_refs": [
+     "O_M14_HARD_0729"
+    ],
+    "impl_role": "OWNER_TRADING_ELIGIBILITY",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "FLOAT_GATE_MAX",
+      "concept": "small float",
+      "window": "latest known float",
+      "basis": "float shares (Yahoo strict · company cache); unknown passes",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "apply_float_gate inside scan_market (known float)",
+      "hard_why": "owner 2026-07-29: a known large float is excluded outright",
+      "number_origin": "INHERITED",
+      "refs": [
+       "V23_FLOAT_GATE_MAX",
+       "R_M14_50M"
+      ],
+      "value": 50000000
+     },
+     {
+      "key": "FLOAT_GATE_REQUIRED",
+      "concept": "the float gate is on",
+      "window": "—",
+      "basis": "switch",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "apply_float_gate · refloat_gate_recheck",
+      "hard_why": "owner 2026-07-29: exclude outright",
+      "number_origin": "OWNER",
+      "refs": [
+       "O_M14_HARD_0729"
+      ],
+      "value": true
+     }
+    ],
+    "note": "his number is 2M for the split-stock recipe; 50M is ours",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED",
+      "OWNER"
+     ],
+     "threshold:FLOAT_GATE_MAX": [],
+     "threshold:FLOAT_GATE_REQUIRED": [
+      "OWNER"
+     ],
+     "hardness": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 12672,
    "function_lines": [
     12619,
@@ -2296,6 +4959,51 @@
    "status_ref": "A/B retired 2026-07-05",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "ENGINEERING_INTRODUCED",
+    "origin_refs": [
+     "R_SOFT_V27"
+    ],
+    "concept_refs": [
+     "A_SEARCHED",
+     "E_TFAILS"
+    ],
+    "hardness_refs": [
+     "R_SOFT_V27"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "WATCH_MAX_FAILS",
+      "concept": "soft-fail limit after M13/M14 marks",
+      "window": "all soft gates",
+      "basis": "count of soft fails",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "classify_tier after the scan gates",
+      "hard_why": "a count limit rejects by definition",
+      "number_origin": "CATALOG_PERCENTILE",
+      "refs": [
+       "S_ENV_P100",
+       "O_FAISAL_ONLY_0806",
+       "O_P100_0808"
+      ],
+      "value": 8
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [],
+     "threshold:WATCH_MAX_FAILS": [
+      "OWNER"
+     ],
+     "hardness": []
+    }
+   },
    "line": 12973,
    "function_lines": [
     12961,
@@ -2348,6 +5056,30 @@
    "status_ref": "ranking verdict 2 (#593) · T-RANKER/T-RANKER2/T-RANKER3",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "ENGINEERING_INTRODUCED",
+    "origin_refs": [
+     "R_RANK_INTRO"
+    ],
+    "concept_refs": [
+     "O_PROX_0807",
+     "R_RANK_KEY"
+    ],
+    "hardness_refs": [],
+    "impl_role": "RANKING",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "ranking is ours; the proximity-first order is the owner's choice",
+    "derived_justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 12995,
    "function_lines": [
     12995,
@@ -2411,6 +5143,97 @@
    "status_ref": "data_integrity_result.md",
    "next_action": "document the coupling; no production change without the owner",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_DQ_1001"
+    ],
+    "concept_refs": [
+     "O_DQ_1001",
+     "T_DQ_PROBE"
+    ],
+    "hardness_refs": [],
+    "impl_role": "DATA_QUALITY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "data",
+    "thresholds": [
+     {
+      "key": "DQ_POLICY",
+      "concept": "fail-closed action per data state",
+      "window": "per run",
+      "basis": "state → action (allow/warn/quarantine/block)",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "dq_filter after scan_market",
+      "hard_why": "blocked/quarantined states are removed before slots",
+      "number_origin": "ENGINEERING_DEFAULT",
+      "refs": [
+       "R_DQ_POLICY"
+      ],
+      "value": "DEFAULT_POLICY"
+     },
+     {
+      "key": "SPLIT_HELD_SESSIONS",
+      "concept": "quarantine after a reverse split ends after three held sessions",
+      "window": "sessions after the split",
+      "basis": "closes held within the ÷2 band",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "data_quality.classify",
+      "hard_why": "quarantine release condition",
+      "number_origin": "FAISAL_SOURCE",
+      "refs": [
+       "R_DQ_HELD",
+       "F_IMG0151_RECIPE"
+      ],
+      "value": "3"
+     },
+     {
+      "key": "split_ratio_tol",
+      "concept": "two sources disagree on a split",
+      "window": "split events within tol_days",
+      "basis": "ratio difference",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "data_quality.classify",
+      "hard_why": "SOURCE_CONFLICT blocks",
+      "number_origin": "ENGINEERING_DEFAULT",
+      "refs": [
+       "R_DQ_RATIO_TOL"
+      ],
+      "value": "5%"
+     },
+     {
+      "key": "DQ_GATE",
+      "concept": "the data-quality gate is on",
+      "window": "—",
+      "basis": "environment switch (DQ_GATE=0 restores the previous path bit for bit)",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "dq_filter",
+      "hard_why": "owner mission: prefer UNKNOWN to false confidence",
+      "number_origin": "OWNER",
+      "refs": [
+       "O_DQ_1001"
+      ],
+      "value": "on unless DQ_GATE=0"
+     }
+    ],
+    "note": "owner mission; its release condition borrows the split-stock recipe",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "OWNER",
+      "TESTED"
+     ],
+     "threshold:DQ_POLICY": [],
+     "threshold:SPLIT_HELD_SESSIONS": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:split_ratio_tol": [],
+     "threshold:DQ_GATE": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 2429,
    "function_lines": [
     2429,
@@ -2466,6 +5289,46 @@
    "status_ref": "(D) 2026-06-26",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "ENGINEERING_INTRODUCED",
+    "origin_refs": [
+     "R_COVERAGE_85"
+    ],
+    "concept_refs": [
+     "T_COVERAGE_RENEWAL",
+     "T_COVERAGE_DAILY"
+    ],
+    "hardness_refs": [],
+    "impl_role": "DATA_QUALITY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "DATA_HEALTH_MIN_PCT",
+      "concept": "enough of the universe was measured to trust a new list",
+      "window": "the run",
+      "basis": "valid frames ÷ universe",
+      "data_at_decision": "the run's scan statistics",
+      "pipeline_point": "run_weekly_renewal · run_daily_watchlist",
+      "hard_why": "below it the renewal is postponed and the daily list is not refilled",
+      "number_origin": "ENGINEERING_DEFAULT",
+      "refs": [
+       "R_COVERAGE_85"
+      ],
+      "value": 85
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "TESTED"
+     ],
+     "threshold:DATA_HEALTH_MIN_PCT": []
+    }
+   },
    "line": 22144,
    "function_lines": [
     22069,
@@ -2520,6 +5383,46 @@
    "status_ref": "list rule «تُشطب بالستوب فقط»",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INHERITED_OR_EXTERNAL",
+    "origin_refs": [
+     "V23_EXCLUDE_STOPPED_FROM_RENEWAL"
+    ],
+    "concept_refs": [
+     "A_SEARCHED"
+    ],
+    "hardness_refs": [
+     "V23_EXCLUDE_STOPPED_FROM_RENEWAL"
+    ],
+    "impl_role": "HARD_REJECTION",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "UNJUSTIFIED_BY_CURRENT_EVIDENCE",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "EXCLUDE_STOPPED_FROM_RENEWAL",
+      "concept": "a stopped name is not re-picked",
+      "window": "until the next renewal",
+      "basis": "status stopped in wl.removed",
+      "data_at_decision": "the watchlist state",
+      "pipeline_point": "run_weekly_renewal · daily fill (exclude set)",
+      "hard_why": "inherited switch; no statement makes it a rule",
+      "number_origin": "INHERITED",
+      "refs": [
+       "V23_EXCLUDE_STOPPED_FROM_RENEWAL"
+      ],
+      "value": "True"
+     }
+    ],
+    "note": "",
+    "derived_justification": "UNJUSTIFIED_BY_CURRENT_EVIDENCE",
+    "contradicted": false,
+    "support": {
+     "concept": [],
+     "threshold:EXCLUDE_STOPPED_FROM_RENEWAL": [],
+     "hardness": []
+    }
+   },
    "line": 22148,
    "function_lines": [
     22069,
@@ -2574,6 +5477,48 @@
    "status_ref": "cap15",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_CAP15_0812"
+    ],
+    "concept_refs": [
+     "O_CAP15_0812",
+     "E_TCAP"
+    ],
+    "hardness_refs": [],
+    "impl_role": "OTHER",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "WATCHLIST_SIZE",
+      "concept": "list capacity",
+      "window": "the list",
+      "basis": "slots minus holders (hit targets free their slot)",
+      "data_at_decision": "the watchlist state",
+      "pipeline_point": "select_top / fill_picks",
+      "hard_why": "names beyond the free slots are not listed",
+      "number_origin": "OWNER",
+      "refs": [
+       "O_CAP15_0812"
+      ],
+      "value": 15
+     }
+    ],
+    "note": "",
+    "derived_justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "OWNER"
+     ],
+     "threshold:WATCHLIST_SIZE": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 22177,
    "function_lines": [
     22069,
@@ -2628,6 +5573,48 @@
    "status_ref": "«صلّح الترتيب» 2026-08-11",
    "next_action": "measure how often the cap binds from the new log line before any change (live threshold ⇒ prereg + owner)",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_FILL_0811"
+    ],
+    "concept_refs": [
+     "O_FILL_0811",
+     "T_CE_QUOTA"
+    ],
+    "hardness_refs": [],
+    "impl_role": "OPS_SAFETY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "PICK_FILL_ROUNDS",
+      "concept": "cost cap on refilling slots",
+      "window": "one run",
+      "basis": "rounds of select_top → enrich → M14/borrow rechecks",
+      "data_at_decision": "the ranked pool and ChartExchange lookups",
+      "pipeline_point": "fill_picks",
+      "hard_why": "after the last round the remaining slots stay empty",
+      "number_origin": "ENGINEERING_DEFAULT",
+      "refs": [
+       "R_FILL_ROUNDS_4",
+       "R_FILL_CAP"
+      ],
+      "value": 4
+     }
+    ],
+    "note": "the owner ordered refilling; the cap 4 is ours (quota ≈50 pages per runner)",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "OWNER",
+      "TESTED"
+     ],
+     "threshold:PICK_FILL_ROUNDS": []
+    }
+   },
    "line": 12893,
    "function_lines": [
     12863,
@@ -2682,6 +5669,54 @@
    "status_ref": "docstring corrected 2026-10-09 (no classify_tier here)",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_M14_REFLOAT_0728"
+    ],
+    "concept_refs": [
+     "O_M14_REFLOAT_0728",
+     "O_M14_HARD_0729",
+     "F_IMG0151_RECIPE"
+    ],
+    "hardness_refs": [
+     "O_M14_HARD_0729"
+    ],
+    "impl_role": "OWNER_TRADING_ELIGIBILITY",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "FLOAT_GATE_MAX",
+      "concept": "small float after enrichment",
+      "window": "latest known float",
+      "basis": "enriched float; unknown passes",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "refloat_gate_recheck after enrich",
+      "hard_why": "owner: re-evaluate M14 after enrichment and exclude outright",
+      "number_origin": "INHERITED",
+      "refs": [
+       "V23_FLOAT_GATE_MAX",
+       "R_M14_50M"
+      ],
+      "value": 50000000
+     }
+    ],
+    "note": "",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED",
+      "OWNER"
+     ],
+     "threshold:FLOAT_GATE_MAX": [],
+     "hardness": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 12761,
    "function_lines": [
     12720,
@@ -2734,6 +5769,29 @@
    "status_ref": "2026-09-26",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "ENGINEERING_INTRODUCED",
+    "origin_refs": [
+     "R_BSC_INTRO"
+    ],
+    "concept_refs": [
+     "T_BSC"
+    ],
+    "hardness_refs": [],
+    "impl_role": "DATA_QUALITY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "TESTED_RELIABILITY_REQUIREMENT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "adds data only (one more lookup for unknown availability)",
+    "derived_justification": "TESTED_RELIABILITY_REQUIREMENT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "TESTED"
+     ]
+    }
+   },
    "line": 12810,
    "function_lines": [
     12810,
@@ -2797,6 +5855,75 @@
    "status_ref": "borrow20 · borrow_gate_result.md",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_BORROW20_0811"
+    ],
+    "concept_refs": [
+     "O_BORROW20_0811",
+     "F_AVAIL_MEASURE",
+     "F_DRCT_10K"
+    ],
+    "hardness_refs": [
+     "O_BORROW20_0811"
+    ],
+    "impl_role": "OWNER_TRADING_ELIGIBILITY",
+    "fidelity": "SUPPORTED_RECONSTRUCTION",
+    "justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "BORROW_AVAIL_MAX",
+      "concept": "low available-to-borrow",
+      "window": "latest harvested/looked-up value",
+      "basis": "ChartExchange Available (IBKR); unknown passes",
+      "data_at_decision": "today's harvest row, else a live ChartExchange lookup",
+      "pipeline_point": "borrow_gate_recheck after enrich",
+      "hard_why": "owner «طبّق 20» made it a hard gate after enrichment",
+      "number_origin": "FAISAL_SOURCE",
+      "refs": [
+       "O_BORROW20_0811",
+       "F_IMG0151_RECIPE"
+      ],
+      "value": 20000
+     },
+     {
+      "key": "BORROW_GATE_REQUIRED",
+      "concept": "the borrow gate is on",
+      "window": "—",
+      "basis": "switch",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "borrow_gate_recheck",
+      "hard_why": "owner «طبّق 20»",
+      "number_origin": "OWNER",
+      "refs": [
+       "O_BORROW20_0811"
+      ],
+      "value": true
+     }
+    ],
+    "note": "his «تحت 20 ألف» is from the split-stock recipe; applied to every pivot candidate by owner order",
+    "derived_justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_DIRECT",
+      "FAISAL_TRANSFERRED",
+      "OWNER"
+     ],
+     "threshold:BORROW_AVAIL_MAX": [
+      "FAISAL_TRANSFERRED",
+      "OWNER"
+     ],
+     "threshold:BORROW_GATE_REQUIRED": [
+      "OWNER"
+     ],
+     "hardness": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 12800,
    "function_lines": [
     12767,
@@ -2850,6 +5977,64 @@
    "status_ref": "—",
    "next_action": "none",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_IMG0451_ANCHOR"
+    ],
+    "concept_refs": [
+     "F_IMG0451_ANCHOR",
+     "O_READY_ONLY_0709"
+    ],
+    "hardness_refs": [],
+    "impl_role": "NOTIFICATION_ELIGIBILITY",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [
+     {
+      "key": "ENTRY_STEP_PCT",
+      "concept": "entry tranches stepped from the anchor",
+      "window": "the tranche band",
+      "basis": "anchor × (1 + step × i)",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "entry_status (daily)",
+      "hard_why": "not a rejection: decides «ready now» versus «watch»",
+      "number_origin": "INFERRED",
+      "refs": [
+       "F_TRANCHES_EXAMPLE"
+      ],
+      "value": 3
+     },
+     {
+      "key": "far_above",
+      "concept": "too far above the tranches to be ready",
+      "window": "last price",
+      "basis": "price above the top tranche × 1.05",
+      "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
+      "pipeline_point": "entry_status (daily)",
+      "hard_why": "not a rejection: «watch» instead of «ready»",
+      "number_origin": "ENGINEERING_DEFAULT",
+      "refs": [
+       "R_ENTRY_FAR"
+      ],
+      "value": "5%"
+     }
+    ],
+    "note": "ready = price location near the entry band; the owner pushes only ready cards",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED",
+      "OWNER"
+     ],
+     "threshold:ENTRY_STEP_PCT": [
+      "FAISAL_TRANSFERRED"
+     ],
+     "threshold:far_above": []
+    }
+   },
    "line": 14951,
    "function_lines": [
     14951,
@@ -2900,6 +6085,29 @@
    "status_ref": "GPV4 · GPV5",
    "next_action": "none",
    "repro": "python3 test_bot.py (GPV4, GPV5)",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_HC13_0808"
+    ],
+    "concept_refs": [
+     "O_HC13_0808"
+    ],
+    "hardness_refs": [],
+    "impl_role": "DISPLAY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "",
+    "derived_justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 709,
    "function_lines": [
     709,
@@ -2950,6 +6158,29 @@
    "status_ref": "GPV1-GPV7",
    "next_action": "none",
    "repro": "python3 test_bot.py (GPV1-GPV7)",
+   "audit": {
+    "origin": "EXPLICIT_OWNER_POLICY",
+    "origin_refs": [
+     "O_HC13_0808"
+    ],
+    "concept_refs": [
+     "O_HC13_0808"
+    ],
+    "hardness_refs": [],
+    "impl_role": "DISPLAY",
+    "fidelity": "NO_DEFENSIBLE_MAPPING",
+    "justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "",
+    "derived_justification": "EXPLICIT_OWNER_REQUIREMENT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "OWNER"
+     ]
+    }
+   },
    "line": 746,
    "function_lines": [
     746,
@@ -3000,6 +6231,29 @@
    "status_ref": "research only",
    "next_action": "none",
    "repro": "python3 faisal_engine/rank_eval.py --check",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_PIVOT_IDENTITY"
+    ],
+    "concept_refs": [
+     "F_PIVOT_IDENTITY"
+    ],
+    "hardness_refs": [],
+    "impl_role": "OTHER",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "research engine (faisal_engine); not in production",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ]
+    }
+   },
    "line": 142,
    "function_lines": [
     142,
@@ -3050,6 +6304,29 @@
    "status_ref": "FINAL_PROTOCOL epoch 1",
    "next_action": "none",
    "repro": "python3 faisal_method_v41/freeze.py verify",
+   "audit": {
+    "origin": "INFERRED_FROM_FAISAL_SOURCE",
+    "origin_refs": [
+     "F_PIVOT_IDENTITY"
+    ],
+    "concept_refs": [
+     "F_PIVOT_IDENTITY"
+    ],
+    "hardness_refs": [],
+    "impl_role": "OTHER",
+    "fidelity": "CONCEPT_ONLY",
+    "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "context": "pivot",
+    "thresholds": [],
+    "note": "frozen research model (epoch 1); not in production",
+    "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
+    "contradicted": false,
+    "support": {
+     "concept": [
+      "FAISAL_TRANSFERRED"
+     ]
+    }
+   },
    "line": 215,
    "function_lines": [
     215,

@@ -30,6 +30,8 @@ import sys
 
 os.environ["FAISAL_ONLY"] = "1"                 # the subject is the production configuration
 HERE = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, HERE)
+import gate_audit as GA                          # noqa: E402 — pure derivation (no I/O, no env)
 ROOT = os.path.dirname(HERE)
 OUT = os.path.join(HERE, "out")
 DATA = os.path.join(HERE, "data")
@@ -141,6 +143,75 @@ def completeness(gates, cache):
         if f not in funcs:
             errors.append(f"required gate function not inventoried: {f}")
     return errors, codes, bare
+
+
+# ---------------------------------------------------------------- four-dimension audit (origin · justification · role · fidelity)
+REJECT_ROLES = ("HARD_REJECTION", "OWNER_TRADING_ELIGIBILITY", "DATA_QUALITY", "OPS_SAFETY")
+T_FIELDS = ("key", "concept", "window", "basis", "data_at_decision", "pipeline_point", "hard_why", "number_origin")
+
+
+def _refs(a):
+    r = list(a.get("origin_refs") or []) + list(a.get("concept_refs") or []) + list(a.get("hardness_refs") or [])
+    for t in a.get("thresholds") or []:
+        r += list(t.get("refs") or [])
+    return r
+
+
+def audit_errors(prov):
+    """Every evidence item is verified against its file; every gate's justification must be the one its evidence derives
+    (`gate_audit.derive_justification`) — absence, comments and inherited records never count; origin and fidelity may not claim
+    more than their references; every active rejecting gate states the provenance of each of its numbers."""
+    reg = prov.get("evidence_registry") or {}
+    errs, texts, cited = [], {}, set()
+    for k, e in sorted(reg.items()):
+        if e.get("kind") not in GA.KINDS or e.get("stance") not in GA.STANCES:
+            errs.append(f"evidence {k}: kind/stance {e.get('kind')}/{e.get('stance')} not in vocabulary")
+        v = e.get("verify") or {}
+        f, q = v.get("file"), v.get("contains")
+        if not f or not q:
+            errs.append(f"evidence {k}: no verify spec")
+            continue
+        if f not in texts:
+            p = os.path.join(ROOT, f)
+            texts[f] = open(p, encoding="utf-8").read() if os.path.exists(p) else None
+        if texts[f] is None:
+            errs.append(f"evidence {k}: file missing {f}")
+        elif q not in texts[f]:
+            errs.append(f"evidence {k}: quote not found in {f}")
+    for g in prov["gates"]:
+        a = g.get("audit")
+        if not isinstance(a, dict):
+            errs.append(f"{g['id']}: no audit dimensions")
+            continue
+        for r in _refs(a):
+            cited.add(r)
+            if r not in reg:
+                errs.append(f"{g['id']}: evidence {r} not in registry")
+        if a.get("impl_role") not in GA.IMPL_ROLE:
+            errs.append(f"{g['id']}: impl_role {a.get('impl_role')} not in vocabulary")
+        e = GA.check_origin(a, reg)
+        if e:
+            errs.append(f"{g['id']}: {e}")
+        j, _ = GA.derive_justification(a, reg)
+        if a.get("justification") != j:
+            errs.append(f"{g['id']}: justification {a.get('justification')} but evidence derives {j}")
+        e = GA.check_fidelity(a, reg, j)
+        if e:
+            errs.append(f"{g['id']}: {e}")
+        keys = set()
+        for t in a.get("thresholds") or []:
+            keys.add(t.get("key"))
+            if t.get("number_origin") not in GA.NUMBER_ORIGIN:
+                errs.append(f"{g['id']}: threshold {t.get('key')} number_origin {t.get('number_origin')} not in vocabulary")
+            if any(not str(t.get(x) or "").strip() for x in T_FIELDS):
+                errs.append(f"{g['id']}: threshold {t.get('key')} lacks a provenance field")
+        if g.get("status") != "INACTIVE" and a.get("impl_role") in REJECT_ROLES:
+            for k in g.get("config_keys") or []:
+                if k not in keys:
+                    errs.append(f"{g['id']}: active rejecting gate has no threshold record for {k}")
+    for k in sorted(set(reg) - cited):
+        errs.append(f"evidence {k}: never cited")
+    return errs
 
 
 # ---------------------------------------------------------------- live values and production counts
@@ -425,8 +496,8 @@ FX_COLS = ["case", "ticker", "T", "source_ref", "eligibility", "in_universe", "b
            "never_ran", "case_artifact", "case_artifact_reason", "bot_operational_list", "post_scan_gates", "evidence_needed",
            "nbars", "last_bar", "price", "drop_adj_pct", "drop_post_split_pct", "base_range_pct", "reverse_split_in_base",
            "best_spike_pct", "rsi_now", "tested_touches", "last_reverse_split", "unadjusted_splits", "classification"]
-INV_COLS = ["order", "id", "system", "stage", "file", "function", "line", "role", "kind", "blocks_downstream", "provenance",
-            "confidence", "artifact_risk", "status", "status_ref", "condition", "config", "on_pass", "on_fail",
+INV_COLS = ["order", "id", "system", "stage", "file", "function", "line", "role", "kind", "blocks_downstream", "origin",
+            "justification", "impl_role", "fidelity", "contradicted", "legacy_label_pr598", "confidence", "artifact_risk", "status", "status_ref", "condition", "config", "on_pass", "on_fail",
             "on_unavailable", "on_malformed", "inputs", "provider", "timestamp_rule", "prod_median_per_day",
             "prod_last_day_count", "affected_cases", "chain_cases", "evidence_units", "next_action", "repro"]
 
@@ -444,7 +515,17 @@ def build():
             errors.append(f"{g['id']}: provenance {g['provenance']} not one of the six categories")
     e1, cache = locate(gates)
     e2, codes, bare = completeness(gates, cache)
-    errors += e1 + e2
+    errors += e1 + e2 + audit_errors(prov)
+    reg = prov.get("evidence_registry") or {}
+    for g in gates:
+        a = g.get("audit") or {}
+        j, det = GA.derive_justification(a, reg)
+        a["derived_justification"], a["contradicted"], a["support"] = j, det["contradicted"], det["components"]
+        for t in a.get("thresholds") or []:
+            if "value" not in t:
+                if t.get("key") not in S.CONFIG:
+                    errors.append(f"{g['id']}: threshold {t.get('key')} has no value and is not a CONFIG key")
+                t["value"] = _fmt(S.CONFIG.get(t.get("key")))
     snap = json.load(open(SNAP, encoding="utf-8")) if os.path.exists(SNAP) else None
     fx = first_exclusion(S)
     for g in gates:
@@ -456,8 +537,13 @@ def build():
     for r in fx:
         gid = r.get("first_gate_id")
         gg = next((g for g in gates if g["id"] == gid), None)
-        r["classification"] = r.get("case_artifact") or (gg["provenance"] if gg else ("PASS" if r.get("first_gate") == "PASS" else "UNKNOWN_OR_UNSUPPORTED"))
-    summary = {"gates": len(gates), "by_provenance": {c: sum(1 for g in gates if g["provenance"] == c) for c in CATS},
+        r["classification"] = r.get("case_artifact") or (gg["audit"]["justification"] if gg else ("PASS" if r.get("first_gate") == "PASS" else "UNKNOWN"))
+    def by(field, vocab):
+        return {c: sum(1 for g in gates if (g.get("audit") or {}).get(field) == c) for c in vocab}
+    summary = {"gates": len(gates), "by_origin": by("origin", GA.ORIGIN), "by_justification": by("justification", GA.JUSTIFICATION),
+               "by_impl_role": by("impl_role", GA.IMPL_ROLE), "by_fidelity": by("fidelity", GA.FIDELITY),
+               "contradicted": [g["id"] for g in gates if (g.get("audit") or {}).get("contradicted")],
+               "legacy_by_label": {c: sum(1 for g in gates if g["provenance"] == c) for c in CATS},
                "reject_codes_in_analyze_ticker": len(codes), "bare_none_returns": bare,
                "cases": len(fx), "first_gate_counts": _count(r["first_gate"] for r in fx),
                "replay_mismatches": [r["case"] for r in fx if r.get("replay_matches_frozen") == 0],
@@ -467,7 +553,10 @@ def build():
                "inputs": {"provenance_sha256": _sha(PROV), "snapshot_sha256": (_sha(SNAP) if snap else ""),
                           "rank_bars_sha256": _sha(os.path.join(DATA, "rank", "bars.json.gz")),
                           "rank_rows_sha256": _sha(os.path.join(DATA, "rank", "rows.csv.gz"))}}
-    inv = {"schema": 1, "summary": summary, "categories": CATS, "gates": gates}
+    inv = {"schema": 2, "summary": summary, "categories": CATS, "legacy_label": prov.get("legacy_label", ""),
+           "audit_vocab": {"origin": GA.ORIGIN, "justification": GA.JUSTIFICATION, "impl_role": GA.IMPL_ROLE, "fidelity": GA.FIDELITY,
+                           "number_origin": GA.NUMBER_ORIGIN, "evidence_kinds": GA.KINDS},
+           "evidence_registry": reg, "gates": gates}
     return inv, fx
 
 
@@ -485,8 +574,10 @@ def render(inv, fx):
     w.writerow(INV_COLS)
     for g in sorted(inv["gates"], key=lambda g: (g["order"], g["id"])):
         pc = g.get("production_counts") or {}
+        a = g.get("audit") or {}
         w.writerow([g["order"], g["id"], g["system"], g["stage"], g["file"], g["function"], g.get("line"), g["role"], g["kind"],
-                    int(bool(g["blocks_downstream"])), g["provenance"], g["confidence"], g["artifact_risk"], g["status"],
+                    int(bool(g["blocks_downstream"])), a.get("origin"), a.get("justification"), a.get("impl_role"), a.get("fidelity"),
+                    int(bool(a.get("contradicted"))), g["provenance"], g["confidence"], g["artifact_risk"], g["status"],
                     g["status_ref"], g["condition"], json.dumps(g["config"], ensure_ascii=False), g["on_pass"], g["on_fail"],
                     g["on_unavailable"], g["on_malformed"], g["inputs"], g["provider"], g["timestamp_rule"],
                     pc.get("median_per_day", ""), pc.get("last_day_count", ""), " ".join(g["affected_cases"]),
@@ -512,6 +603,12 @@ HC13 = [("السعر", "M1_PRICE", "hard", "hard"), ("الهبوط ضمن الأ
         ("المتاح للاقتراض 20K أو أقل", "BORROW_AVAIL", "absent", "hard")]
 
 
+def _why(a):
+    sup = a.get("support") or {}
+    miss = [k for k, v in sup.items() if not v]
+    return ("unsupported: " + ", ".join(miss)) if miss else "—"
+
+
 def _q(gates, pred):
     return [g["id"] for g in gates if pred(g)]
 
@@ -528,33 +625,72 @@ def report(inv, fx):
          "and move with edits (the check verifies each anchor still sits inside its function).", "",
          f"**{sm['gates']} gates inventoried** · reject codes in `analyze_ticker`: {sm['reject_codes_in_analyze_ticker']} (all inventoried) · "
          f"silent `return None` paths: {sm['bare_none_returns']} (all inventoried) · build errors: {len(sm['errors'])}", "",
-         "## 1. The seven decision questions", ""]
+         "## 1. The decision questions", ""]
     def ids(pred):
         x = _q(G, pred)
         return ", ".join(f"`{i}`" for i in x) or "none"
     hard_ids = {g["id"] for g in hard}
-    L += [f"1. **Hard exclusions with direct Faisal evidence:** {ids(lambda g: g['id'] in hard_ids and g['provenance'] == 'DIRECT_FAISAL_EVIDENCE')} "
-          "(the only DIRECT row, `STABILITY_BT`, is a backtest arm and inactive in production).",
-          f"2. **Hard exclusions inferred from Faisal evidence (catalog envelope / concept):** {ids(lambda g: g['id'] in hard_ids and g['provenance'] == 'INFERRED_FROM_FAISAL_EVIDENCE')}.",
-          f"3. **Engineering guards:** {ids(lambda g: g['id'] in hard_ids and g['provenance'] == 'ENGINEERING_GUARD')} · "
-          f"**owner policy:** {ids(lambda g: g['id'] in hard_ids and g['provenance'] == 'OWNER_POLICY')}.",
+    A = {g["id"]: g.get("audit") or {} for g in G}
+    rej = [g["id"] for g in G if g["status"] != "INACTIVE" and A[g["id"]].get("impl_role") in ("HARD_REJECTION", "OWNER_TRADING_ELIGIBILITY")]
+
+    def jl(ids_, just):
+        x = [f"`{i}`" for i in ids_ if A[i].get("justification") in just]
+        return ", ".join(x) or "none"
+    allid = [g["id"] for g in G]
+    L += [f"1. **Active rejecting gates with direct Faisal-source support (concept, every number and the hard role):** "
+          f"{jl(rej, ('DIRECT_SOURCE_SUPPORT',))}.",
+          f"2. **Active rejecting gates with partial support only** (some part — the concept, a number or the hard role — is "
+          f"supported, but not every part by one kind of evidence; a supported concept does not support the exact threshold): "
+          f"{jl(rej, ('PARTIAL_OR_CONCEPT_ONLY_SUPPORT',))}.",
+          f"3. **Justified as engineering guards** (documented operational invariant or tested reliability requirement): "
+          f"{jl(allid, ('DOCUMENTED_OPERATIONAL_INVARIANT', 'TESTED_RELIABILITY_REQUIREMENT'))} · **guards whose concept is supported "
+          f"but whose number is not:** {jl([i for i in allid if A[i].get('impl_role') in ('DATA_QUALITY', 'OPS_SAFETY')], ('PARTIAL_OR_CONCEPT_ONLY_SUPPORT',))} · "
+          f"**explicit owner requirement** (owner policy — not Faisal's method): {jl(allid, ('EXPLICIT_OWNER_REQUIREMENT',))}.",
           f"4. **Possible data/adjustment/order artefacts or frame differences:** {ids(lambda g: str(g['artifact_risk']).startswith(('HIGH', 'MEDIUM', 'FRAME')))}; "
           f"cases whose first wall is an artefact: {', '.join(r['case'] for r in fx if r.get('case_artifact')) or 'none'}.",
-          f"5. **Without supporting evidence (UNKNOWN_OR_UNSUPPORTED):** {ids(lambda g: g['provenance'] == 'UNKNOWN_OR_UNSUPPORTED')}; "
-          "rows whose evidence list is only «no Faisal source» are engineering by construction (question 3).",
+          f"5. **Without supporting evidence (UNJUSTIFIED_BY_CURRENT_EVIDENCE or UNKNOWN):** "
+          f"{jl(allid, ('UNJUSTIFIED_BY_CURRENT_EVIDENCE', 'UNKNOWN'))} — the absence of a Faisal source, a code comment or an "
+          "inherited record is never read as support (`gate_audit.derive_justification`).",
           f"6. **Change the candidate set** (hard, active): {', '.join(f'`{g}`' for g in sorted(hard_ids, key=lambda i: next(x['order'] for x in G if x['id'] == i)))} · "
           f"**ranking only:** {ids(lambda g: g['role'] == 'rank')} · **display/readiness only:** {ids(lambda g: g['role'] == 'display')} · "
           f"**soft (count toward `SOFT_COUNT`):** {ids(lambda g: g['kind'] == 'soft')}.",
-          "7. **Highest-value permitted next action:** see §5.", "",
-          "## 2. Gate table (pipeline order)", "",
-          "| # | gate | where (as of build) | role · kind | provenance | confidence | status | live value | prod/day (median · 10-09) |",
-          "|---|---|---|---|---|---|---|---|---|"]
+          f"7. **Contradicted by a Faisal source** (concept or number): {', '.join(f'`{i}`' for i in sm['contradicted']) or 'none'}.",
+          "8. **Highest-value permitted next action:** see §5.", "",
+          "## 2. Gate table (pipeline order) — four independent dimensions", "",
+          "Origin = where the rule came from · justification = what currently supports the rule **as implemented** (derived from the "
+          "evidence attached to its concept, to every number and, for rejecting roles, to the hard role) · role = what it does · "
+          "fidelity = how it maps to Faisal's method. None of the four stands in for another.", "",
+          "| # | gate | where (as of build) | role | origin | justification | fidelity | contradicted | status | live value | prod/day (median · 10-09) |",
+          "|---|---|---|---|---|---|---|---|---|---|---|"]
     for g in G:
         pc = g.get("production_counts") or {}
+        a = A[g["id"]]
         cfg = " · ".join(f"{k}={v}" for k, v in g["config"].items()) or "—"
-        L.append(f"| {g['order']} | `{g['id']}` | `{g['file']}::{g['function']}` L{g.get('line')} | {g['role']} · {g['kind']} | "
-                 f"{g['provenance']} | {g['confidence']} | {g['status']} | {cfg} | "
-                 f"{(str(pc.get('median_per_day')) + ' · ' + str(pc.get('last_day_count'))) if pc else '—'} |")
+        L.append(f"| {g['order']} | `{g['id']}` | `{g['file']}::{g['function']}` L{g.get('line')} | {a.get('impl_role')} | "
+                 f"{a.get('origin')} | {a.get('justification')} | {a.get('fidelity')} | {'yes' if a.get('contradicted') else ''} | "
+                 f"{g['status']} | {cfg} | {(str(pc.get('median_per_day')) + ' · ' + str(pc.get('last_day_count'))) if pc else '—'} |")
+    labs = list(sm["legacy_by_label"])
+    L += ["", "## 2b. What changed against the single label of PR #598", "",
+          "PR #598 gave each gate one label and read «no Faisal source» as an engineering guard. Rows = that label; columns = the "
+          "justification derived now from the evidence (counts of gates).", "",
+          "| PR #598 label | " + " | ".join(j.replace("_", " ").title() for j in GA.JUSTIFICATION) + " |",
+          "|---|" + "---|" * len(GA.JUSTIFICATION)]
+    for lab in labs:
+        row = [sum(1 for g in G if g["provenance"] == lab and A[g["id"]].get("justification") == j) for j in GA.JUSTIFICATION]
+        if sum(row):
+            L.append(f"| {lab} | " + " | ".join(str(x) for x in row) + " |")
+    moved = [g for g in G if (g["provenance"] == "OWNER_POLICY" and A[g["id"]].get("justification") != "EXPLICIT_OWNER_REQUIREMENT")
+             or (g["provenance"] == "ENGINEERING_GUARD" and A[g["id"]].get("justification") not in
+                 ("DOCUMENTED_OPERATIONAL_INVARIANT", "TESTED_RELIABILITY_REQUIREMENT"))
+             or (g["provenance"].startswith(("DIRECT", "INFERRED")) and A[g["id"]].get("justification") == "DIRECT_SOURCE_SUPPORT")]
+    L += ["", f"Gates whose old label does not hold ({len(moved)}): an owner label without a full owner requirement, or an "
+          "engineering label without a documented invariant or a tested requirement.", "",
+          "| gate | PR #598 label | origin now | justification now | change | why |", "|---|---|---|---|---|---|"]
+    for g in moved:
+        a = A[g["id"]]
+        chg = ("support was overstated" if a.get("justification") in ("PARTIAL_OR_CONCEPT_ONLY_SUPPORT", "UNJUSTIFIED_BY_CURRENT_EVIDENCE", "UNKNOWN")
+               else "re-attributed to the owner (not an engineering guard)")
+        L.append(f"| `{g['id']}` | {g['provenance']} | {a.get('origin')} | {a.get('justification')} | {chg} | {a.get('note') or _why(a)} |")
     L += ["", "## 3. First exclusion per Faisal episode (frozen bars < T, production `analyze_ticker`)", "",
           "The cause is the **first** wall; the chain lists what would block next if each wall were neutralised (research only).",
           "", "| case | T | first wall | value · threshold | case class | chain | frozen replay | operational list |", "|---|---|---|---|---|---|---|---|"]
@@ -568,11 +704,28 @@ def report(inv, fx):
     notes = [r for r in fx if r.get("case_artifact_reason")]
     if notes:
         L += ["Case notes:"] + [f"- **{r['case']}** ({r['first_gate']}): {r['case_artifact_reason']}." for r in notes] + [""]
-    prov = {g["id"]: g["provenance"] for g in G}
+    L += ["## 3b. Exact thresholds of the active gates that reject, guard data or bound the list", "",
+          "One row per number. **number origin** is where the exact value came from (Faisal source · owner · catalogue percentile · "
+          "inferred · engineering default · inherited · experiment · unexplained) — independent of where the concept came from. "
+          "A catalogue percentile is a number fitted to his chosen stocks under the owner's 2026-08-06 order, not a number he stated.", "",
+          "| gate | key | live value | concept | window | measurement basis | data at decision | pipeline point | why hard (not soft) | number origin | evidence |",
+          "|---|---|---|---|---|---|---|---|---|---|---|"]
+    for g in G:
+        a = A[g["id"]]
+        if g["status"] == "INACTIVE" or not (a.get("thresholds") or a.get("impl_role") in REJECT_ROLES):
+            continue
+        for t in a.get("thresholds") or [{"key": "—", "value": "—", "concept": a.get("note") or "no numeric threshold", "window": "—",
+                                          "basis": "—", "data_at_decision": "—", "pipeline_point": g["function"], "hard_why": "—",
+                                          "number_origin": "—", "refs": a.get("concept_refs")}]:
+            L.append(f"| `{g['id']}` | `{t['key']}` | {t.get('value')} | {t['concept']} | {t['window']} | {t['basis']} | "
+                     f"{t['data_at_decision']} | {t['pipeline_point']} | {t['hard_why']} | {t['number_origin']} | "
+                     f"{' · '.join(t.get('refs') or [])} |")
+    L += [""]
     L += ["## 4. The manual tools (`hand_check.py` · `analyze_one.py`) — the owner's «13 gates»", "",
-          "| displayed gate | inventory id | shown before | shown now | scanner provenance |", "|---|---|---|---|---|"]
+          "| displayed gate | inventory id | shown before | shown now | origin · justification |", "|---|---|---|---|---|"]
     for lab, gid, k0, k1 in HC13:
-        L.append(f"| {lab} | `{gid}` | {k0} | {k1} | {' / '.join(prov.get(x.strip(), '?') for x in gid.split('/'))} |")
+        L.append(f"| {lab} | `{gid}` | {k0} | {k1} | "
+                 f"{' / '.join((A.get(x.strip()) or {}).get('origin', '?') + ' · ' + (A.get(x.strip()) or {}).get('justification', '?') for x in gid.split('/'))} |")
     L += ["",
           "Displayed gates now mirror the scanner: M1–M5 + RSI hard (catalog numbers), M6 info at 0, M7/M9/M11/M12 soft, "
           "**M13 soft** (was shown hard), **M14 hard**, **borrow hard** (was absent), **anchor hard** (was absent). "
@@ -637,7 +790,7 @@ def main(argv):
         e1, cache = locate(gates)
         e2, codes, bare = completeness(gates, cache)
         bad = [f"{g['id']}: provenance {g['provenance']}" for g in gates if g["provenance"] not in CATS]
-        errs = e1 + e2 + bad
+        errs = e1 + e2 + bad + audit_errors(json.load(open(PROV, encoding="utf-8")))
         print(f"🚪 completeness: codes {len(codes)} · silent returns {bare} · errors {len(errs)}")
         for e in errs:
             print("  ⛔", e)
