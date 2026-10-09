@@ -1,0 +1,182 @@
+[
+ {
+  "m": "M01 lookahead <= ",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE1: جدارُ النظر للأمام — الشموعُ بتاريخ ≥ asof لا تدخل ( ",
+  "traceback": false,
+  "expected": "FE1",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M02 data gate off",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE2: دون 40 جلسة ⟵ INSUFFICIENT_DATA بأوّل شرطٍ FE-DATA-0 ",
+  "traceback": false,
+  "expected": "FE2",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M03 screen call before gate",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE2: دون 40 جلسة ⟵ INSUFFICIENT_DATA بأوّل شرطٍ FE-DATA-0 | 🧭🔒 FE4: إطارُ ما بعد التقسيم العكسيّ يُقرأ بعمق 40 على شموع  ",
+  "traceback": false,
+  "expected": "FE2",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M04 reject -> stage FOCUS",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE3: رفضُ الهُويّة ⟵ REJECTED وأوّلُ شرطٍ ساقط يُسمّي الب ",
+  "traceback": false,
+  "expected": "FE3",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M05 post-split min_bars not passed",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE4: إطارُ ما بعد التقسيم العكسيّ يُقرأ بعمق 40 على شموع  | 🧭🔒 FE6: كلُّ سجلٍّ يحمل مفاتيحَ §8 (المرحلة · الإعداد · المس ",
+  "traceback": false,
+  "expected": "FE4",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M06 post frame uses all rows",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE4: إطارُ ما بعد التقسيم العكسيّ يُقرأ بعمق 40 على شموع  | 🧭🔒 FE6: كلُّ سجلٍّ يحمل مفاتيحَ §8 (المرحلة · الإعداد · المس ",
+  "traceback": false,
+  "expected": "FE4",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M07 forward split opens frame",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE4: إطارُ ما بعد التقسيم العكسيّ يُقرأ بعمق 40 على شموع  ",
+  "traceback": false,
+  "expected": "FE4",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M08 future filing seen",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE5: نشرةٌ نهائيّةٌ خلال 90 يومًا ⟵ True · أقدمُ ⟵ False  ",
+  "traceback": false,
+  "expected": "FE5",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M09 no record -> False",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE5: نشرةٌ نهائيّةٌ خلال 90 يومًا ⟵ True · أقدمُ ⟵ False  ",
+  "traceback": false,
+  "expected": "FE5",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M10 offering block ignored",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE5-ب: READY فنيًّا + طرحٌ معلَّق ⟵ HOLD (R4-VAL-OFF-01)  ",
+  "traceback": false,
+  "expected": "FE5",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M11 unknown treated verified",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE5-ب: READY فنيًّا + طرحٌ معلَّق ⟵ HOLD (R4-VAL-OFF-01)  ",
+  "traceback": false,
+  "expected": "FE5",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M12 short gate off",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE5-ب: READY فنيًّا + طرحٌ معلَّق ⟵ HOLD (R4-VAL-OFF-01)  ",
+  "traceback": false,
+  "expected": "FE5",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M13 label guard off",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE6: كلُّ سجلٍّ يحمل مفاتيحَ §8 (المرحلة · الإعداد · المس ",
+  "traceback": false,
+  "expected": "FE6",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M14 next_condition dropped",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE1: جدارُ النظر للأمام — الشموعُ بتاريخ ≥ asof لا تدخل ( | 🧭🔒 FE2: دون 40 جلسة ⟵ INSUFFICIENT_DATA بأوّل شرطٍ FE-DATA-0 | 🧭🔒 FE3: رفضُ الهُويّة ⟵ REJECTED وأوّلُ شرطٍ ساقط يُسمّي الب | TRACEBACK KeyError: 'tech_state' TB",
+  "traceback": false,
+  "expected": "FE6",
+  "caught": false,
+  "killed": true
+ },
+ {
+  "m": "M15 TRIGGER never",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE5-ب: READY فنيًّا + طرحٌ معلَّق ⟵ HOLD (R4-VAL-OFF-01)  ",
+  "traceback": false,
+  "expected": "FE5",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M16 stage map FOCUS->WATCH",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE3-ب: عبورُ الهُويّة ⟵ المرحلةُ = TECH_TO_STAGE[حالة V4] ",
+  "traceback": false,
+  "expected": "FE3",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M17 telegram call in engine",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE8: المحرّكُ لا يمسّ الإنتاج — لا تلغرام/subprocess/requ ",
+  "traceback": false,
+  "expected": "FE8",
+  "caught": true,
+  "killed": true
+ },
+ {
+  "m": "M18 fingerprint ignores rows",
+  "applied": true,
+  "rc": 1,
+  "fails": "الفاشل: 🧭🔒 FE1: جدارُ النظر للأمام — الشموعُ بتاريخ ≥ asof لا تدخل ( ",
+  "traceback": false,
+  "expected": "FE1",
+  "caught": true,
+  "killed": true
+ }
+]

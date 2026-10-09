@@ -83860,6 +83860,171 @@ except Exception as _e:                                                    # noq
 check("🧪🔒 H6T3 البوّابة: رفضٌ 8 قبل الأرضيّة بلا كتابة · INSUFFICIENT_SAMPLE بعد النافذة · تحليلٌ واحدٌ فقط (الثاني 8) · وعلى 15 وحدة: SUPPORTED بفاصل 98.75% موجب (B بالاتّجاه المعكوس) · UNSUPPORTED حين تملكه الضوابطُ أيضًا · وعائلةٌ مفقودةٌ NOT TESTABLE لا تُقدَّر",
       _h6t3, _h6t3w)
 
+# 🧭🔒 FE — محرّكُ البحث المعزول `faisal_engine/` (2026-10-09 · «COMPLETE RECONSTRUCTION & EXECUTION»): جدارُ النظر للأمام ·
+#    بوّابةُ البيانات · الفرزُ المحقون · إطارُ ما بعد التقسيم · الصلاحيّةُ المؤرَّخة · قابليّةُ التفسير · الإعادةُ الحتميّة ·
+#    وعدمُ مسّ الإنتاج (لا تلغرام · لا كتابةَ حالة · نواةُ V4 كما جمّدها المانيفست) · والبروتوكولُ قبل الرقم.
+import ast as _fe_ast
+import datetime as _fe_dt
+import math as _fe_math
+import os as _fe_os
+import hashlib as _fe_hash
+import json as _fe_json
+import importlib as _fe_imp
+import sys as _fe_sys
+_fe_sys.path.insert(0, _fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "faisal_engine"))
+try:
+    _FE = _fe_imp.import_module("engine")        # استيرادٌ بالاسم (ليس اعتماديّةً خارجيّة · DEP1)
+    _fe_import_err = None
+except Exception as _e:                                   # noqa: BLE001
+    _FE = None; _fe_import_err = f"{type(_e).__name__}: {_e}"
+check("🧭🔒 FE0: `faisal_engine/engine.py` يُستورَد بلا شبكةٍ وبلا أثر", _FE is not None, str(_fe_import_err)[:120])
+
+
+def _fe_bars(n_decline=130, n_flat=12, start="2026-01-02", bump=1.0):
+    d = _fe_dt.date.fromisoformat(start); rows = []; px = 100.0
+    for i in range(n_decline):
+        while d.weekday() > 4:
+            d += _fe_dt.timedelta(days=1)
+        px *= 0.983; rows.append([d.isoformat(), px * 1.01, px * 1.03, px * 0.985, px, 50000]); d += _fe_dt.timedelta(days=1)
+    for i in range(n_flat):
+        while d.weekday() > 4:
+            d += _fe_dt.timedelta(days=1)
+        p = px * (1 + 0.03 * _fe_math.sin(i)) * bump; rows.append([d.isoformat(), p, p * 1.02, max(p * 0.99, px * 1.001), p * 1.005, 50000]); d += _fe_dt.timedelta(days=1)
+    return rows
+
+
+_fe_calls = []
+
+
+def _fe_pass(sym, rows, min_bars=None):
+    _fe_calls.append((len(rows), min_bars)); return dict(result="PASS", gate="", reason="", detail=None)
+
+
+def _fe_reject(sym, rows, min_bars=None):
+    _fe_calls.append((len(rows), min_bars)); return dict(result="REJECT", gate="M3", reason="M3_انفجار_تحت_60", detail=None)
+
+
+def _fe_ev(*a, **k):
+    """غلافٌ لا ينهار: استثناءٌ في المحرّك ⟵ سجلٌّ موسومٌ ⛔ فيسقط القفلُ نظيفًا (lock-and-mutate ①)."""
+    try:
+        return _FE.evaluate(*a, **k)
+    except AssertionError:
+        raise
+    except Exception as _e:                                   # noqa: BLE001
+        return {"stage": f"⛔ {type(_e).__name__}", "provenance": {"bars": -1, "bars_sha": ""}, "levels": None, "first_failed": {"rule": "⛔", "why": str(_e)[:80]},
+                "screen": {"frame": None, "frames": {}}, "validity_verified": None, "missing_data": [], "v4": {}, "corporate_actions": {}, "label": "", "explain": [], "blocks": []}
+
+
+def _fe_rid(x):
+    return "R4-" + x + "-01"
+
+
+_fe_old = [{"form": "8-K", "filingDate": "2026-03-01"}]
+if _FE:
+    _b = _fe_bars(); _asof = "2026-12-31"
+    # FE1 — lookahead wall: future rows (even a huge spike) change nothing · rows dated == asof excluded
+    _fut = _b + [["2027-01-05", 500, 900, 400, 800, 9e6], [_asof, 1, 1, 1, 1, 1]]
+    _r1 = _fe_ev("T", _b, _asof, {"splits": [], "sec_filings": _fe_old}, screen=_fe_pass)
+    _r2 = _fe_ev("T", _fut, _asof, {"splits": [], "sec_filings": _fe_old}, screen=_fe_pass)
+    check("🧭🔒 FE1: جدارُ النظر للأمام — الشموعُ بتاريخ ≥ asof لا تدخل (البصمةُ والمرحلةُ والمستوياتُ متطابقة مع/بلا مستقبلٍ ضخم)",
+          _r1["provenance"]["bars_sha"] == _r2["provenance"]["bars_sha"] and _r1["stage"] == _r2["stage"] and _r1["levels"] == _r2["levels"]
+          and _r1["provenance"]["bars"] == len(_b)
+          and _r1["provenance"]["bars_sha"] != _fe_ev("T", _b[:-1], _asof, {"splits": [], "sec_filings": _fe_old}, screen=_fe_pass)["provenance"]["bars_sha"],
+          f"{_r1['provenance']['bars']} vs {_r2['provenance']['bars']} sha={_r1['provenance']['bars_sha'][:8]}")
+    # FE2 — data gate: < 40 bars ⟵ INSUFFICIENT_DATA (UNKNOWN لا رفض) · first_failed FE-DATA-01 · والفرزُ لا يُنادى
+    _fe_calls.clear(); _r = _fe_ev("T", _b[:30], _asof, {}, screen=_fe_pass)
+    check("🧭🔒 FE2: دون 40 جلسة ⟵ INSUFFICIENT_DATA بأوّل شرطٍ FE-DATA-01 ولا يُنادى الفرز ولا V4",
+          _r["stage"] == "INSUFFICIENT_DATA" and _r["first_failed"]["rule"] == "FE-DATA-01" and not _fe_calls and "v4" not in _r, f"{_r['stage']} calls={_fe_calls}")
+    # FE3 — screen: REJECT ⟵ REJECTED with the gate named · PASS ⟵ in process with V4 state
+    _r = _fe_ev("T", _b, _asof, {"splits": []}, screen=_fe_reject)
+    check("🧭🔒 FE3: رفضُ الهُويّة ⟵ REJECTED وأوّلُ شرطٍ ساقط يُسمّي البوّابة (FE-SCREEN-01/M3) وبلا حالة V4",
+          _r["stage"] == "REJECTED" and _r["first_failed"]["rule"] == "FE-SCREEN-01/M3" and "v4" not in _r, str(_r["first_failed"]))
+    check("🧭🔒 FE3-ب: عبورُ الهُويّة ⟵ المرحلةُ = TECH_TO_STAGE[حالة V4] (BASE_HELD ⟵ READY · BASE_FORMING ⟵ FOCUS)",
+          _r1["stage"] == "READY" and _r1["v4"]["tech_state"] == "BASE_HELD"
+          and _fe_ev("T", _fe_bars(n_flat=3), _asof, {"splits": []}, screen=_fe_pass)["stage"] == "FOCUS", f"{_r1['stage']}/{_r1['v4']['tech_state']}")
+    # FE4 — post-split frame: reverse split with ≥40 post bars ⟵ second screen call on the post rows with min_bars=40;
+    #        FULL REJECT + POST PASS ⟵ frame POST_SPLIT · fewer post bars ⟵ NOT_EVALUATED · forward split ignored
+    _sp_day = _b[-45][0]
+    _fe_calls.clear()
+    _mix = lambda s, rows, min_bars=None: (_fe_pass if min_bars else _fe_reject)(s, rows, min_bars)   # noqa: E731
+    _r = _fe_ev("T", _b, _asof, {"splits": [(_sp_day, 0.1)]}, screen=_mix)
+    _post_call = list(_fe_calls)
+    _r_few = _fe_ev("T", _b, _asof, {"splits": [(_b[-20][0], 0.1)]}, screen=_fe_reject)
+    _r_fwd = _fe_ev("T", _b, _asof, {"splits": [(_sp_day, 2.0)]}, screen=_fe_reject)
+    check("🧭🔒 FE4: إطارُ ما بعد التقسيم العكسيّ يُقرأ بعمق 40 على شموع ما بعده وحدَها ويمرّ السهمُ به · دون 40 جلسة NOT_EVALUATED · والتقسيمُ الأماميّ لا يفتح إطارًا",
+          _r["screen"]["frame"] == "POST_SPLIT" and _r["stage"] != "REJECTED" and _post_call == [(len(_b), None), (45, 40)]
+          and _r_few["screen"]["frames"]["POST_SPLIT"]["result"] == "NOT_EVALUATED" and "POST_SPLIT" not in _r_fwd["screen"]["frames"]
+          and _r["corporate_actions"]["last_reverse_split"] == _sp_day, f"{_r['screen']['frame']} calls={_post_call} few={_r_few['screen']['frames'].get('POST_SPLIT', {}).get('result')}")
+    # FE5 — dated validity: offering_state True/False/None · filings after asof ignored · READY+offering ⟵ HOLD · unknown ⟵ not verified · press ⟵ TRIGGER
+    _os = _FE.offering_state
+    check("🧭🔒 FE5: نشرةٌ نهائيّةٌ خلال 90 يومًا ⟵ True · أقدمُ ⟵ False · إيداعاتٌ بلا نشرة ⟵ False · لا سجلّ ⟵ None · وإيداعٌ بعد asof لا يُرى",
+          _os([{"form": "424B5", "filingDate": "2026-12-01"}], _asof)[0] is True and _os([{"form": "424B4", "filingDate": "2026-06-01"}], _asof)[0] is False
+          and _os(_fe_old, _asof)[0] is False and _os(None, _asof)[0] is None and _os([], _asof)[0] is None
+          and _os([{"form": "424B5", "filingDate": "2027-01-02"}, {"form": "8-K", "filingDate": "2026-01-01"}], _asof)[0] is False,
+          str([_os(x, _asof) for x in ([{"form": "424B5", "filingDate": "2027-01-02"}, {"form": "8-K", "filingDate": "2026-01-01"}],)]))
+    _hold = _fe_ev("T", _b, _asof, {"splits": [], "sec_filings": [{"form": "424B5", "filingDate": "2026-12-01"}]}, screen=_fe_pass)
+    _full = {"splits": [], "sec_filings": _fe_old, "float_shares": 1_000_000, "short_available": 100, "groups": False, "operator_press": True}
+    _trig = _fe_ev("T", _b, _asof, _full, screen=_fe_pass)
+    _blk = _fe_ev("T", _b, _asof, dict(_full, short_available=50_000), screen=_fe_pass)
+    check("🧭🔒 FE5-ب: READY فنيًّا + طرحٌ معلَّق ⟵ HOLD (" + _fe_rid("VAL-OFF") + ") · الصلاحيّةُ المجهولة ⟵ validity_verified=False والناقصُ مسمًّى · "
+          "الصلاحيّةُ الكاملة + ضغطٌ ⟵ TRIGGER مُتحقَّق · ومتاحٌ فوق 20 ألف ⟵ HOLD",
+          _hold["stage"] == "HOLD" and _hold["first_failed"]["rule"] == _fe_rid("VAL-OFF") and _r1["validity_verified"] is False
+          and any(_fe_rid("VAL-SHORT") in m for m in _r1["missing_data"]) and _trig["stage"] == "TRIGGER" and _trig["validity_verified"] is True
+          and _blk["stage"] == "HOLD" and _blk["first_failed"]["rule"] == _fe_rid("VAL-SHORT"),
+          f"{_hold['stage']}/{_r1['validity_verified']}/{_trig['stage']}/{_blk['stage']}")
+    # FE6 — explainability contract (§8 of the directive) + label guard
+    _need = ("stage", "setup", "levels", "rules_passed", "first_failed", "missing_data", "provenance", "next_condition", "label", "explain", "blocks")
+    try:
+        _fe_ev("T", _b, _asof, {}, label="GUESS", screen=_fe_pass); _lbl = False
+    except AssertionError:
+        _lbl = True
+    check("🧭🔒 FE6: كلُّ سجلٍّ يحمل مفاتيحَ §8 (المرحلة · الإعداد · المستويات · القواعدُ العابرة · أوّلُ ساقط · الناقص · المصدريّة · الشرطُ التالي · الوسم) والوسمُ من الثلاثة فقط",
+          all(k in _trig for k in _need) and all(k in _r for k in _need) and _lbl and _trig["label"] == "HISTORICAL", str([k for k in _need if k not in _trig]))
+    # FE7 — determinism
+    check("🧭🔒 FE7: القراءةُ حتميّة — نداءان متطابقان بايتًا", _FE.to_json(_trig) == _FE.to_json(_fe_ev("T", _b, _asof, _full, screen=_fe_pass)))
+    # FE8 — production immutability: engine package has no Telegram/subprocess/requests/git calls; replay writes only under OUT; V4 core untouched per freeze manifest
+    _fe_dir = _fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "faisal_engine")
+    _bad = []
+    for _fn in ("engine.py", "data.py", "replay.py", "ledger.py", "source_audit.py", "docs.py"):
+        _p = _fe_os.path.join(_fe_dir, _fn)
+        if not _fe_os.path.exists(_p):
+            continue
+        _t = _fe_ast.parse(open(_p, encoding="utf-8").read())
+        for _n in _fe_ast.walk(_t):
+            if isinstance(_n, (_fe_ast.Import, _fe_ast.ImportFrom)):
+                _names = [a.name for a in _n.names] + ([_n.module] if isinstance(_n, _fe_ast.ImportFrom) and _n.module else [])
+                if any(x and x.split(".")[0] in ("requests", "subprocess", "telegram", "urllib") for x in _names):
+                    _bad.append(f"{_fn}:import {_names}")
+            if isinstance(_n, _fe_ast.Call):
+                _nm = getattr(_n.func, "id", None) or getattr(_n.func, "attr", None)
+                if _nm in ("send_telegram", "git_save", "save_watchlist", "save_extra", "execve", "system"):
+                    _bad.append(f"{_fn}:{_nm}")
+    try:
+        _man = _fe_json.load(open(_fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "faisal_method_v41", "docs", "V4_FREEZE_MANIFEST.json"), encoding="utf-8"))
+        _want = _man["revisions"][0]["files"]["faisal_method_v4/decision_engine.py"]
+        _have = _fe_hash.sha256(open(_fe_os.path.join(_fe_os.path.dirname(_fe_os.path.abspath(__file__)), "faisal_method_v4", "decision_engine.py"), "rb").read()).hexdigest()
+        _v4ok = (_want is not None and _have.startswith(str(_want)[:16]))
+    except Exception as _e:                                # noqa: BLE001
+        _v4ok = False; _want = f"⛔ {type(_e).__name__}"
+    check("🧭🔒 FE8: المحرّكُ لا يمسّ الإنتاج — لا تلغرام/subprocess/requests/git/save_* في حزمته (AST) · ونواةُ V4 بصمتُها = مانيفست التجميد",
+          not _bad and _v4ok, f"bad={_bad[:3]} v4={_v4ok} want={str(_want)[:16]}")
+    # FE9 — protocol before numbers + ledger integrity
+    _proto = _fe_os.path.join(_fe_dir, "REPLAY_PROTOCOL.md"); _summ = _fe_os.path.join(_fe_dir, "out", "summary.json"); _led = _fe_os.path.join(_fe_dir, "FAISAL_RULE_LEDGER.json")
+    try:
+        _sj = _fe_json.load(open(_summ, encoding="utf-8")); _lj = _fe_json.load(open(_led, encoding="utf-8"))
+        _classes = {"DIRECTLY_OBSERVED", "REPEATEDLY_SUPPORTED", "INFERRED", "CONTRADICTED", "UNRESOLVED"}
+        _ok9 = (_fe_os.path.exists(_proto) and _sj.get("protocol") == "REPLAY_PROTOCOL.md" and _sj.get("label") == "EXPLORATORY"
+                and all(k in _sj.get("falsification", {}) for k in ("P1_engine_ctl_in_process_gt_50pct", "P2_LR_disjoint_discovery_and_validation", "P3_ready_at_faisal_dates"))
+                and _sj["falsification"]["validity_verified_any"] is False
+                and all(r["evidence_class"] in _classes and r["image_in_corpus"] <= len(r["image_ids"]) for r in _lj["rules"])
+                and any(r["evidence_class"] == "CONTRADICTED" for r in _lj["rules"]))
+        _why9 = f"sets={list(_sj.get('sets', {}))} rules={_lj.get('n')}"
+    except Exception as _e:                                # noqa: BLE001
+        _ok9 = False; _why9 = f"⛔ {type(_e).__name__}: {_e}"
+    check("🧭🔒 FE9: البروتوكولُ مكتوبٌ والملخّصُ يُحيل إليه بوسم EXPLORATORY وتنبّؤاتِ التكذيب الثلاثة · والصلاحيّةُ لم تُتحقَّق لأيّ وحدة · "
+          "وسجلُّ القواعد بأصناف الدليل الخمسة ويحفظ المتناقِض ولا يدّعي صورةً خارج المدوّنة", _ok9, _why9)
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
