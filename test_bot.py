@@ -86648,18 +86648,28 @@ check("📉 BFR2 العتبةُ «أقلّ من 10,000» حرفيًّا: 10,000 
 
 # BFR3 — لا نظرَ للأمام: ملاحظةُ اليوم نفسِه (مصدرٌ بلا ساعة) ليست «لاحقة» · وما قبل البذرة لا يُقرأ
 _c3 = _bfr_cls([("AAA", "2026-10-10", 5000.0, "ctb_log", None), ("AAA", "2026-10-09", 5000.0, "ctb_log", None)])
-check("📉 BFR3 لا نظرَ للأمام: ملاحظةُ يومِ البذرة «نفس اليوم» لا لاحقة · وما قبلها لا يُقرأ (لا A)",
-      _c3.get("state") == "NO_FOLLOWUP_NONE" and _c3.get("same_day_other_source") == 1 and _c3.get("known_later") == 0,
-      str({k: _c3.get(k) for k in ("state", "same_day_other_source", "known_later")}))
+# ولحظاتٌ داخل مجال القرار [snap_ts، ts] (التعبئةُ تجلب المتاحَ بينهما): ما انتهى قبل بدئه سابق · وما يتقاطع معه مُلتبس — لا A
+_s3 = dict(_bfr_seed(), seed_snap_ts="2026-10-10T01:00:00+00:00", seed_ts="2026-10-10T02:30:00+00:00")
+_c3b = _bfr_cls([("AAA", "2026-10-10", 5000.0, "phase6", "2026-10-10T00:10:00Z"),
+                 ("AAA", "2026-10-10", 5000.0, "phase6", "2026-10-10T01:10:00Z"),
+                 ("AAA", "2026-10-10", 5000.0, "phase6", "2026-10-10T02:00:00Z")], seed=_s3)
+check("📉 BFR3 لا نظرَ للأمام: يومُ UTC للبذرة بلا ساعة «مُلتبسُ الترتيب» يُعَدّ ولا يُحتسَب · وما قبلها لا يُقرأ (لا A) · "
+      "واللحظةُ داخل مجال القرار [snap_ts، ts] مُلتبسةٌ لا سابقةٌ ولا لاحقة",
+      _c3.get("state") == "NO_FOLLOWUP_NONE" and _c3.get("order_ambiguous") == 1 and _c3.get("known_later") == 0
+      and _c3.get("before_decision") == 1
+      and _c3b.get("state") == "NO_FOLLOWUP_NONE" and _c3b.get("order_ambiguous") == 2 and _c3b.get("before_decision") == 1,
+      str({k: _c3.get(k) for k in ("state", "order_ambiguous", "before_decision", "known_later")})
+      + " · " + str({k: _c3b.get(k) for k in ("state", "order_ambiguous", "before_decision")}))
 
 # BFR4 — النافذةُ 40 جلسةً بعد جلسة القرار: آخرُ يومٍ فيها يُقرأ وما بعده لا
 _c4w = _bfr_cls([], asof="2027-01-30")
 _wend = _c4w.get("window_end")
-_c4a = _bfr_cls([("AAA", _wend or "x", 5000.0, "ctb_log", None)], asof="2027-01-30")
+_c4a = _bfr_cls([("AAA", _wend or "x", 5000.0, "phase6", (_wend or "x") + "T15:00:00Z")], asof="2027-01-30")
 _c4b = _bfr_cls([("AAA", "2026-12-08", 5000.0, "ctb_log", None)], asof="2027-01-30")
-check("📉 BFR4 النافذة 40 جلسةً بعد جلسة القرار (10-09 ⟵ 2026-12-07 بعطلة الشكر): آخرُ يومٍ يُقرأ وما بعده لا",
+check("📉 BFR4 النافذة 40 جلسةً بعد جلسة القرار (10-09 ⟵ 2026-12-07 بعطلة الشكر): لحظةٌ أثناء آخرِ جلسةٍ تُقرأ وما بعدها لا",
       _wend == "2026-12-07" and _c4a.get("state") == "A_FELL_BELOW" and _c4b.get("state") == "NO_FOLLOWUP_NONE"
-      and _c4w.get("seed_session") == "2026-10-09", f"end={_wend} · {_c4a.get('state')} · {_c4b.get('state')}")
+      and _c4b.get("after_window") == 1 and _c4w.get("decision_session") == "2026-10-09",
+      f"end={_wend} · {_c4a.get('state')} · {_c4b.get('state')}")
 
 
 def _bfr_rec(date, ts, rows, borrow_max=20000):
@@ -86685,7 +86695,7 @@ check("📉 BFR5 البذرةُ أوّلُ إخراجٍ بالبوّابة (لا
 # BFR6 — B («لم ينزل قطّ») لا يُدّعى إلّا بنافذةٍ مغلقة وملاحظةٍ معلومةٍ كلَّ جلسة · والجزئيُّ يبقى جزئيًّا
 try:
     _win6 = _BFR.sessions_after("2026-10-09", 40)
-    _full = [("AAA", d, 50000.0, "ctb_log", None) for d in _win6]
+    _full = [("AAA", d, 50000.0, "phase6", d + "T15:00:00Z") for d in _win6]
     _c6a = _BFR.classify(_bfr_seed(), _full, "2026-12-31", 10000)
     _c6b = _BFR.classify(_bfr_seed(), _full[:-1], "2026-12-31", 10000)
     _c6c = _BFR.classify(_bfr_seed(), _full, "2026-11-30", 10000)
@@ -86693,7 +86703,7 @@ try:
     _w6 = f"{_c6a['state']} · {_c6b['state']} · {_c6c['state']}"
 except Exception as _e:                                            # noqa: BLE001
     _ok6, _w6 = False, f"⛔ {type(_e).__name__}: {_e}"
-check("📉 BFR6 «لم ينزل قطّ» = نافذةٌ مغلقة ‏+ ملاحظةٌ معلومة كلَّ جلسة · جلسةٌ ناقصة أو نافذةٌ مفتوحة ⟵ جزئيّ لا B", _ok6, _w6)
+check("📉 BFR6 «لم ينزل قطّ» = نافذةٌ مغلقة ‏+ ملاحظةٌ معلومة منسوبةٌ لكلّ جلسة · جلسةٌ ناقصة أو نافذةٌ مفتوحة ⟵ جزئيّ لا B", _ok6, _w6)
 
 # BFR7 — حالاتُ القرار: الفلوتُ المرفوض بمتاحٍ ≤ الحدّ «يعبر المتاحَ ويسقط بغيره» (الحدُّ نفسُه يعبر) · وغيرُ المسؤول «لم يُسأل»
 try:
@@ -86799,6 +86809,141 @@ try:
 except Exception as _e:                                            # noqa: BLE001
     _ok12, _w12 = False, f"⛔ {type(_e).__name__}: {_e}"
 check("📉 BFR12 سجلٌّ مجمَّد ببصمةٍ خاطئة لا يُقرأ ويُعَدّ · وملاحظاتُ يومِ الحالة الجاري لا تُقرأ (إعادةٌ ثابتة)", _ok12, _w12)
+
+# ══════════════════════════════════════════════════════════════════════════
+# ⏱️📉 BFR13-BFR21 — زمنُ مُقيِّم `T-BORROW-FALL` (2026-10-10 · مهمّةُ المالك «TEMPORAL AUDIT»): الحقولُ الزمنيّة من كتابتها الفعليّة —
+#    `date` في سجلّ البِركة و`ctb_log` و`borrow_watch` = `dt.date.today()` على الرنر (يومُ UTC · لا TZ في أيّ workflow) · و`ts`/`snap_ts`
+#    و`collected_utc` لحظاتُ UTC — والنافذةُ 40 جلسةً **نيويوركيّة**. ⟵ الملاحظةُ مجالٌ زمنيّ: اللحظةُ نفسُها حين تُعرَف · ويومُ UTC كاملًا
+#    حين لا يُعرَف إلّا التاريخ · والنافذة (لحظةُ القرار، إغلاقُ الجلسة 40] · وكلُّ جلسةٍ (إغلاقُ سابقتها، إغلاقُها] · والأفقُ = منتصفُ ليل
+#    UTC ليوم الحالة · والمُلتبسُ يُعَدّ ولا يُحتسَب. التقويمُ `market_calendar` نفسُه (العطل · الإغلاق المبكر) والتوقيتُ الصيفيّ بـ`zoneinfo`.
+# ══════════════════════════════════════════════════════════════════════════
+def _bft_files(pool_recs, ctb=(), p6=()):
+    _td = _bfr_tf.mkdtemp()
+    _pp, _cp, _p6p = (_os_hc.path.join(_td, n) for n in ("pool.jsonl", "ctb.jsonl", "p6.jsonl"))
+    with open(_pp, "w", encoding="utf-8") as _fh:
+        for _r in pool_recs:
+            _r = dict(_r)
+            _r["sha"] = _BFR.PF.record_sha(_r)
+            _fh.write(json.dumps(_r) + "\n")
+    with open(_cp, "w", encoding="utf-8") as _fh:
+        for _sym, _d, _v in ctb:
+            _fh.write(json.dumps({"date": _d, "symbol": _sym, "shares_available": _v}) + "\n")
+    with open(_p6p, "w", encoding="utf-8") as _fh:
+        for _sym, _t, _v in p6:
+            _fh.write(json.dumps({"ticker": _sym, "collected_utc": _t, "field": "borrow_available",
+                                  "status": "OK" if _v is not None else "FAILED", "value": _v}) + "\n")
+    return dict(pool=_pp, ctb=_cp, p6=_p6p, watch=_os_hc.path.join(_td, "none.jsonl"))
+
+
+_BFT_FACTS = {"fall_max": 10000, "cap": 40, "horizon": 40, "horizon_unit_in_code": "CALENDAR_DAYS", "persisted_by_git_save": False,
+              "persisted_by_artifact": False, "harvest_called_from": ["run_daily_watchlist"], "borrow_watch_file": "borrow_watch.jsonl",
+              "gate_max_config": 20000, "git_save_lists": 1}
+
+
+def _bft_seed_rec(syms, date="2026-10-10", ts="2026-10-10T01:53:24+00:00", snap="2026-10-10T01:49:35+00:00", source="renew"):
+    cols = ["sym", "rank", "pool_pos", "rk", "dq", "excl", "round", "outcome", "av", "av_state", "av_src", "added"]
+    return {"date": date, "ts": ts, "snap_ts": snap, "source": source, "run_id": date, "borrow_max": 20000, "cols": cols,
+            "rows": [[s, 1, 1, [], "PASS", None, 1, "BORROW_REJECT", 50000, "KNOWN", "ENRICH", False] for s in syms]}
+
+
+def _bft_states(asof, recs, ctb=(), p6=()):
+    try:
+        _d = _BFR.build(asof=asof, facts=_BFT_FACTS, **_bft_files(recs, ctb, p6))
+        return {s["symbol"]: s for s in _d["seeds"]}
+    except Exception as _e:                                        # noqa: BLE001
+        return {"⛔": {"state": f"{type(_e).__name__}: {_e}"}}
+
+
+# BFR13 — ملاحظةٌ بلحظةٍ معروفة **بعد** القرار في يوم UTC نفسِه لاحقةٌ فعلًا (Phase6 09:00Z بعد تجديد 01:53Z) — كانت تُسقَط «نفس اليوم»
+_s13 = _bft_states("2026-10-11", [_bft_seed_rec(["AAA"])], p6=[("AAA", "2026-10-10T09:00:00Z", 5000)])
+check("⏱️ BFR13 لحظةٌ معروفةٌ بعد القرار في يوم UTC نفسِه **لاحقة** (Phase6 09:00Z بعد تجديد 01:53Z ⟵ A) — لا تُسقَط «نفس اليوم» · "
+      "وسجلُّ القرار نفسُه ليس متابعة",
+      _s13.get("AAA", {}).get("state") == "A_FELL_BELOW" and _s13.get("AAA", {}).get("order_ambiguous") == 0,
+      str({k: (v.get("state"), v.get("order_ambiguous")) for k, v in _s13.items()}))
+
+# BFR14 — لحظةٌ بعد إغلاق الجلسة الأربعين في يوم UTC نفسِه **خارج النافذة** · وأثناءها داخلها (12-07 · EST · الإغلاقُ 21:00Z)
+_s14 = _bft_states("2026-12-08", [_bft_seed_rec(["AFT", "INS", "LAG"])],
+                   p6=[("AFT", "2026-12-07T22:00:00Z", 5000), ("INS", "2026-12-07T19:00:00Z", 5000),
+                       ("LAG", "2026-12-07T20:40:00Z", 5000)])
+check("⏱️ BFR14 الجلسةُ الأربعون بالضبط: 19:00Z أثناءها ⟵ داخل (A) · و22:00Z بعد إغلاقها (21:00Z شتاءً) ⟵ خارج · و20:40Z مع هامش Phase6 (40 د) ⟵ مُلتبس",
+      _s14.get("INS", {}).get("state") == "A_FELL_BELOW" and _s14.get("AFT", {}).get("state") != "A_FELL_BELOW"
+      and _s14.get("AFT", {}).get("after_window") == 1
+      and _s14.get("LAG", {}).get("state") != "A_FELL_BELOW" and _s14.get("LAG", {}).get("window_ambiguous") == 1,
+      str({k: (v.get("state"), v.get("after_window")) for k, v in _s14.items()}))
+
+# BFR15 — تاريخٌ بلا ساعة (ctb_log) يومَ نهاية النافذة **مُلتبس** (قد يكون بعد الإغلاق) فلا يُحتسَب · وقبله بيوم يقع داخلها
+_s15 = _bft_states("2026-12-08", [_bft_seed_rec(["AMB", "DIN"])], ctb=[("AMB", "2026-12-07", 5000), ("DIN", "2026-12-04", 5000)])
+check("⏱️ BFR15 يومُ UTC بلا ساعة: يومُ نهاية النافذة مُلتبسٌ (يُعَدّ ولا يُحتسَب A) · واليومُ السابق داخلها (A)",
+      _s15.get("AMB", {}).get("state") != "A_FELL_BELOW" and _s15.get("AMB", {}).get("window_ambiguous") == 1
+      and _s15.get("DIN", {}).get("state") == "A_FELL_BELOW",
+      str({k: (v.get("state"), v.get("window_ambiguous")) for k, v in _s15.items()}))
+
+# BFR16 — الأفقُ لحظةٌ لا تاريخ: حالةٌ يومَ نهاية النافذة (قبل إغلاق جلستها) نافذتُها **مفتوحة** والمنقضي 39 لا 40
+_s16 = _bft_states("2026-12-07", [_bft_seed_rec(["OPN"])])
+check("⏱️ BFR16 لا تُحتسَب جلسةٌ قبل انتهائها: حالةُ 2026-12-07 (الأفقُ 00:00Z قبل إغلاق الجلسة 40) ⟵ OPEN · منقضٍ 39",
+      _s16.get("OPN", {}).get("window") == "OPEN" and _s16.get("OPN", {}).get("sessions_elapsed") == 39,
+      str({k: (v.get("window"), v.get("sessions_elapsed")) for k, v in _s16.items()}))
+
+# BFR17 — التغطيةُ بالجلسة لا بتاريخ UTC: ملاحظةٌ 23:30Z كلَّ يومٍ تنتمي للجلسة التالية ⟵ الجلسةُ الأولى بلا ملاحظة ⟵ لا B
+try:
+    _w17 = _BFR.sessions_after("2026-10-09", 40)
+    _s17 = _bft_states("2026-12-10", [_bft_seed_rec(["COV"])],
+                       p6=[("COV", d + "T23:30:00Z", 50000) for d in _w17] + [("COV", "2026-12-07T15:00:00Z", 50000)])
+except Exception as _e:                                            # noqa: BLE001
+    _s17 = {"⛔": {"state": f"{type(_e).__name__}"}}
+check("⏱️ BFR17 التغطيةُ بالجلسة: ملاحظاتُ 23:30Z (بعد الإغلاق) تُنسَب للجلسة التالية ⟵ الأولى بلا تغطية ⟵ جزئيّ لا B",
+      _s17.get("COV", {}).get("state") == "NOT_BELOW_PARTIAL" and _s17.get("COV", {}).get("observed_sessions") == 39,
+      str({k: (v.get("state"), v.get("observed_sessions")) for k, v in _s17.items()}))
+
+# BFR18 — التقويمُ الفعليّ: نهايةُ الأسبوع · عيدُ الشكر · الإغلاقُ المبكر (13:00 ⟵ 18:00Z) · الانتقالُ الشتويّ (10-30 ‏20:00Z · 11-02 ‏21:00Z)
+try:
+    _c18 = [_BFR.session_close_utc(d).isoformat() for d in ("2026-10-30", "2026-11-02", "2026-11-27")]
+    _w18 = _BFR.sessions_after("2026-10-09", 40)
+    _a18 = [_BFR.attribute("2026-10-09", "2026-10-10T01:53:24+00:00", t) for t in
+            ("2026-11-27T17:30:00Z", "2026-11-27T18:30:00Z", "2026-10-30T20:30:00Z", "2026-11-02T20:30:00Z")]
+    _ok18 = (_c18 == ["2026-10-30T20:00:00+00:00", "2026-11-02T21:00:00+00:00", "2026-11-27T18:00:00+00:00"]
+             and _w18[0] == "2026-10-12" and "2026-11-26" not in _w18 and _w18[-1] == "2026-12-07"
+             and _a18 == ["2026-11-27", "2026-11-30", "2026-11-02", "2026-11-02"])
+    _w18x = f"{_c18} · {_w18[0]}…{_w18[-1]} · {_a18}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok18, _w18x = False, f"⛔ {type(_e).__name__}: {_e}"
+check("⏱️ BFR18 تقويمُ السوق الفعليّ: أوّلُ جلسةٍ بعد الجمعة الاثنين · عيدُ الشكر يُتخطّى · الإغلاقُ المبكر 18:00Z · التوقيتُ الشتويّ يغيّر الإغلاق",
+      _ok18, _w18x)
+
+# BFR19 — قرارٌ أثناء الجلسة (15:00Z = 11:00 نيويورك): جلسةُ القرار السابقة · وملاحظةٌ 19:00Z من اليوم نفسِه لاحقةٌ في الجلسة الأولى
+_s19 = _bft_states("2026-10-14", [_bft_seed_rec(["MID"], date="2026-10-13", ts="2026-10-13T15:00:00+00:00",
+                                                snap="2026-10-13T14:58:00+00:00", source="daily")],
+                   p6=[("MID", "2026-10-13T19:00:00Z", 5000)])
+_m19 = _s19.get("MID", {})
+check("⏱️ BFR19 قرارٌ قبل الإغلاق: جلسةُ القرار 10-12 · وملاحظةُ 19:00Z من يومه لاحقةٌ داخل الجلسة الأولى (10-13) ⟵ A",
+      _m19.get("decision_session") == "2026-10-12" and _m19.get("state") == "A_FELL_BELOW"
+      and _m19.get("first_below_session") == "2026-10-13",
+      str({k: _m19.get(k) for k in ("decision_session", "state", "first_below_session")}))
+
+# BFR20 — لا اعتمادَ على وقت التشغيل: لا `now`/`today`/`time()` في الأداة (AST) · وبناءان بالمدخلات نفسِها متطابقان
+try:
+    _src20 = open(_os_hc.path.join(_bfr_root, "borrow_fall_report.py"), encoding="utf-8").read()
+    _calls20 = {(_n.func.attr if isinstance(_n.func, _ast0.Attribute) else getattr(_n.func, "id", None))
+                for _n in _ast0.walk(_ast0.parse(_src20)) if isinstance(_n, _ast0.Call)}
+    _f20 = _bft_files([_bft_seed_rec(["AAA"])], p6=[("AAA", "2026-10-12T15:00:00Z", 30000)])
+    _ok20 = (not (_calls20 & {"now", "today", "utcnow", "time", "perf_counter"})
+             and _BFR.build(asof="2026-10-20", facts=_BFT_FACTS, **_f20) == _BFR.build(asof="2026-10-20", facts=_BFT_FACTS, **_f20))
+    _w20 = str(sorted(_calls20 & {"now", "today", "utcnow", "time", "perf_counter"}))
+except Exception as _e:                                            # noqa: BLE001
+    _ok20, _w20 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("⏱️ BFR20 لا اعتمادَ على ساعة التشغيل: لا now/today/time في الأداة · والبناءُ بالمدخلات نفسِها مكرَّرٌ بت-بت", _ok20, _w20)
+
+# BFR21 — غيابٌ ثمّ وصول: ملاحظةُ يومِ الحالة لا تُقرأ (يومٌ جارٍ) · وبتقدّم الحالة يومًا تُقرأ ⟵ A · والمجهولُ لا يصير A أبدًا
+_r21 = [_bft_seed_rec(["ARR", "UNK", "POL"]),
+        {**_bft_seed_rec([], date="2026-10-14", ts="2026-10-14T08:10:00+00:00", snap="2026-10-14T08:05:00+00:00", source="daily"),
+         "rows": [["POL", 3, 3, [], "PASS", None, 1, "PASSED_KNOWN_AV", 5000, "KNOWN", "ENRICH", True]]}]
+_c21 = [("ARR", "2026-10-14", 5000), ("UNK", "2026-10-14", None)]
+_a21, _b21 = _bft_states("2026-10-14", _r21, ctb=_c21), _bft_states("2026-10-15", _r21, ctb=_c21)
+check("⏱️ BFR21 الوصولُ بعد تقدّم الحالة: 10-14 (حصّادٌ أو بِركةٌ لاحقة) لا يُقرأ يومَ 10-14 ويُقرأ يومَ 10-15 (A) · والمجهولُ محاولةٌ لا A",
+      _a21.get("ARR", {}).get("state") == "NO_FOLLOWUP_NONE" and _b21.get("ARR", {}).get("state") == "A_FELL_BELOW"
+      and _b21.get("UNK", {}).get("state") == "NO_FOLLOWUP_UNKNOWN_ONLY"
+      and _a21.get("POL", {}).get("state") == "NO_FOLLOWUP_NONE" and _b21.get("POL", {}).get("state") == "A_FELL_BELOW",
+      str([(_a21.get("ARR", {}).get("state")), _b21.get("ARR", {}).get("state"), _b21.get("UNK", {}).get("state")]))
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
