@@ -157,3 +157,19 @@ CH_20260918_03_ELPW,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,,V4_VISUAL_PASS
 CH_20260918_03_ELPW,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 CH_20260918_05_CPOP,AUTHOR_NOT_VISIBLE,FLAG,F,U,ذيل شمعة التقسيم السابقه 5.87 هدف,V4_VISUAL_PASS,,,1
 CH_20260918_07_NUWE,AUTHOR_NOT_VISIBLE,FLAG,F,U,خط العنق · قاع مزدوج,V4_VISUAL_PASS,,,1
+CH_20260918_16_NTCL,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
+CH_20260918_16_NTCL,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+CH_20260918_16_NTCL,DATE_NOT_VISIBLE,FLAG,2026-09-1x,,,V4_VISUAL_PASS,,,1
+CH_20260918_17_NTCL,AUTHOR_NOT_VISIBLE,FLAG,F,U,مقاومات لاين اسود,V4_VISUAL_PASS,,,1
+CH_20260918_60_VEEE,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
+CH_20260918_60_VEEE,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+EDU_20260827_wnw_entry_decision_4h,DECISION,CONTRADICTED,NONE,ENTRY,رجع يختبر2.30 ولاكسرها وثبت فوق 2.40 هنا قرار الدخول · تاريخ 21 / 7 شمعة الهبوط اليوم 27 > 8 يعني حقق متوسط 30 · شورت كان 30 الف على عدد اسهمه لاشي · Rsi كان 20 وتعافى,V4_VISUAL_PASS,,,1
+EDU_20260827_wnw_entry_decision_4h,ROLE,CONTRADICTED,COUNTEREXAMPLE,VALIDATION_CASE,رجع يختبر2.30 ولاكسرها وثبت فوق 2.40 هنا قرار الدخول · تاريخ 21 / 7 شمعة الهبوط اليوم 27 > 8 يعني حقق متوسط 30 · شورت كان 30 الف على عدد اسهمه لاشي · Rsi كان 20 وتعافى,V4_VISUAL_PASS,,,1
+EDU_20260918_10_pattern,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,Double bottom · Double top · Neckline,V4_VISUAL_PASS,,,1
+EDU_20260918_44_doublebottom,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,الدخول عند إعادة اختبار خط العنق · وقف الخسارة أسفل أدنى إعادة اختبار · الهدف أقرب مقاومة أو سيولة الشراء,V4_VISUAL_PASS,,,1
+EDU_20260918_56_three_inside_up,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,Three Inside Up · Close above the 50% level of the first candle · Close above the first candle,V4_VISUAL_PASS,,,1
+IMG_0141,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,صعود السهم = 100٪ لو حققت منها 80٪ انت بطل · تاريخ التقسيم 7-14 اذا حقق متوسط 40 يوم ✅ · الشرط تم عدم دخول قروبات فيه ✅,V4_VISUAL_PASS,,,1
+IMG_0141,AUTHOR_NOT_VISIBLE,FLAG,F,U,صعود السهم = 100٪ لو حققت منها 80٪ انت بطل · تاريخ التقسيم 7-14 اذا حقق متوسط 40 يوم ✅ · الشرط تم عدم دخول قروبات فيه ✅,V4_VISUAL_PASS,,,1
+IMG_0143,ROLE,CONTRADICTED,COUNTEREXAMPLE,VALIDATION_CASE,اذا طبقنا على سهم jem · قيمة اعلى شمعة بعد التقسيم كانت ( 6:90 ) · اذا قسمناها على 2 · تطلع ٣:٤٥,PRODUCTION_LEDGER_CITED,,,1
+IMG_0143,AUTHOR,CONTRADICTED,F,T,اذا طبقنا على سهم jem · قيمة اعلى شمعة بعد التقسيم كانت ( 6:90 ) · اذا قسمناها على 2 · تطلع ٣:٤٥,PRODUCTION_LEDGER_CITED,,,1
+IMG_0153,ROLE,CONTRADICTED,COUNTEREXAMPLE,RULE_EVIDENCE,قسمة قيمة اعلى شمعه صعد اول افتتاح بعد التقسيم على 2 > شرط ما تجاوز 20٪ اثناء الصعود · مع مسح سيوله تصل عند 2 · مع هبوط شورت اقل من 50 الف · الهدف الشمعه الساقطه الاولى 5.50 = 100٪ · الشرط عدم دخول قروبات فيه · الدخول … طلبات وعدم شرا من العرض · الوقف القاع · السنتات خارج الشرح اعلاه,PRODUCTION_LEDGER_CITED,,,1
