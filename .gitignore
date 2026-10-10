@@ -83,3 +83,5 @@ fm_forensics/phase6/raw/
 # 🧭🏁 (2026-10-09) جدولُ جلسات إعادة بناء الكون لعقد الترتيب (RANKING_PROTOCOL.md)
 !faisal_engine/data/rank/*.csv
 faisal_engine/out/replay_std*.txt
+# 👁️ (2026-10-10) سجلُّ إعادة القراءة البصريّة T-REREAD — مُخرَجاتٌ حتميّة يعيدها `reread_build.py --check`
+!fm_forensics/reread/*.csv
