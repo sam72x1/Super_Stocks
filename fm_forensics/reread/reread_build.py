@@ -134,6 +134,8 @@ def validate_record(rec):
         raise RecordError(f"{rid}: تصريحٌ مباشرٌ بلا اقتباس")
     if rec["kind"] == "RS" and rec["temporal"] == "Y":
         raise RecordError(f"{rid}: الرجعيُّ لا يصلح سجلَّ قرار")
+    if rec["temporal"] == "Y" and (rec["kind"] != "DT" or rec["dprec"] not in ("EXACT", "DAY")):
+        raise RecordError(f"{rid}: سجلُّ القرار يلزمه قرارٌ وقتَ حدوثه بيومٍ ظاهر")
     if rec["leg"] == "I" and rec["ev"] in ("D", "B"):
         raise RecordError(f"{rid}: غيرُ المقروء لا يحمل دليلًا مباشرًا")
     if not isinstance(rec["topics"], list):
@@ -293,6 +295,15 @@ def build(img_dir=IMG_DIR, table_path=TABLE, records_path=RECORDS):
         d = h[-1].get("dup_of")
         if d and d not in disk:
             raise RecordError(f"{i}: dup_of لمعرّفٍ ليس على القرص {d}")
+        seen, cur = {i}, h[-1]
+        while cur.get("new") == "D":
+            nxt = cur.get("dup_of")
+            if nxt in seen:
+                raise RecordError(f"{i}: دورةُ نسخٍ بلا أصل {sorted(seen)}")
+            seen.add(nxt)
+            if nxt not in hist:
+                break
+            cur = hist[nxt][-1]
     ordered, tiers = order_ids(list(disk), table)
     reg, cor = [], []
     for n, i in enumerate(ordered, 1):
