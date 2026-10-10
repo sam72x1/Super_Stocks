@@ -1,0 +1,13 @@
+{
+ "tool": "borrow_boundary_shadow.py",
+ "rounds": [
+  {
+   "date": "2026-10-10",
+   "locks": "BBS1-BBS9",
+   "mutations": 18,
+   "fell": 18,
+   "survivors_first_round": [],
+   "note": "BBS1-BBS7 ran on synthetic records before any count at the limit (BBS8 failed until the contract merged and the output was built); BBS8 and BBS9 mutations after the build"
+  }
+ ]
+}
