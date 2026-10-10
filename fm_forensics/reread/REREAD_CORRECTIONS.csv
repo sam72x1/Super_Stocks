@@ -211,3 +211,16 @@ TG_1834,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,SPRC,V4_VISUAL_PASS,,,1
 TG_1840,DECISION,CONTRADICTED,NONE,ENTRY,اللئ دخل معنا ع 4.50 · اللي ماشرا لاتلحق السهم وتتعلق · حملنا امس ع 4.30 · CP تعني > شرا مضارب لاقفال يومي · تشري ع الاختراق اعرف انك خسران علم الاسهم نشري ع الدعم لو هبط طلعنا الخساره اقل الاختراق فاشل الدخول فيه,V4_VISUAL_PASS,,,1
 TG_1840,ROLE,CONTRADICTED,COUNTEREXAMPLE,RULE_EVIDENCE,اللئ دخل معنا ع 4.50 · اللي ماشرا لاتلحق السهم وتتعلق · حملنا امس ع 4.30 · CP تعني > شرا مضارب لاقفال يومي · تشري ع الاختراق اعرف انك خسران علم الاسهم نشري ع الدعم لو هبط طلعنا الخساره اقل الاختراق فاشل الدخول فيه,V4_VISUAL_PASS,,,1
 TG_1840,TICKER_NOT_VISIBLE,FLAG,SPRC,,اللئ دخل معنا ع 4.50 · اللي ماشرا لاتلحق السهم وتتعلق · حملنا امس ع 4.30 · CP تعني > شرا مضارب لاقفال يومي · تشري ع الاختراق اعرف انك خسران علم الاسهم نشري ع الدعم لو هبط طلعنا الخساره اقل الاختراق فاشل الدخول فيه,V4_VISUAL_PASS,,,1
+TG_1841,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
+TG_1841,TICKER_NOT_VISIBLE,FLAG,SPRC,,,V4_VISUAL_PASS,,,1
+TG_1844,AUTHOR_NOT_VISIBLE,FLAG,F,U,4.53 شمعة دعم سبوعيه · عدم ثبات 4.53 > اختبار شمعة 3.98 · تمثل شمعه 3.98 مقاومه تحولت لدعم · شورت متوفر 10K بنسبة اقتراض عاليه جدا 700٪,V4_VISUAL_PASS,,,1
+TG_1848,DECISION,CONTRADICTED,NONE,WAIT,مهم يتحرر من 1.60,V4_VISUAL_PASS,,,1
+TG_1848,AUTHOR_NOT_VISIBLE,FLAG,F,U,مهم يتحرر من 1.60,V4_VISUAL_PASS,,,1
+TG_1848,DATE_NOT_VISIBLE,FLAG,2026-07-2x,,مهم يتحرر من 1.60,V4_VISUAL_PASS,,,1
+TG_1850,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
+TG_1853,AUTHOR_NOT_VISIBLE,FLAG,F,U,اسمه خوارزميات مضارب برامج اليه للمضارب يشري بسرعه عاليه ارقام متتاليه اسعار مختلفه اب اند دوان اذا شفت اي سهم تحرك بالطريقه هذي اعلم يقين المضارب متواجد وبيصعد بالسهم · شرط سرعه عاليه مثل المقطع · لان بعض من يحرج ع الاسهم يعمل الطريقه هذي يدوي اهام وسراب,V4_VISUAL_PASS,,,1
+TG_1854,DECISION,CONTRADICTED,NONE,ENTRY,اللئ دخل معنا ع 4.50 · حملنا امس ع 4.30 · تشري ع الاختراق اعرف انك خسران · الاختراق فاشل الدخول فيه,V4_VISUAL_PASS,,,1
+TG_1854,ROLE,CONTRADICTED,COUNTEREXAMPLE,RULE_EVIDENCE,اللئ دخل معنا ع 4.50 · حملنا امس ع 4.30 · تشري ع الاختراق اعرف انك خسران · الاختراق فاشل الدخول فيه,V4_VISUAL_PASS,,,1
+TG_1854,TICKER_NOT_VISIBLE,FLAG,SPRC,,اللئ دخل معنا ع 4.50 · حملنا امس ع 4.30 · تشري ع الاختراق اعرف انك خسران · الاختراق فاشل الدخول فيه,V4_VISUAL_PASS,,,1
+TG_1854,DATE_NOT_VISIBLE,FLAG,2026-07-1x,,اللئ دخل معنا ع 4.50 · حملنا امس ع 4.30 · تشري ع الاختراق اعرف انك خسران · الاختراق فاشل الدخول فيه,V4_VISUAL_PASS,,,1
+TG_1863,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,دفعات كل دفعه تقريبا اقل ب 10 سنت مع زيادة الكمية,V4_VISUAL_PASS,,,1
