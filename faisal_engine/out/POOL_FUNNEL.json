@@ -3,7 +3,7 @@
  "source": "faisal_engine/data/pool_funnel_frozen.jsonl",
  "schema": 1,
  "integrity": {
-  "records": 0,
+  "records": 1,
   "unreadable_lines": [],
   "duplicate_keys": [],
   "records_failing": 0
@@ -16,7 +16,157 @@
   "E": "examined, passed with a KNOWN availability, not added",
   "F": "examined, passed with a KNOWN availability, added"
  },
- "prospective": [],
+ "prospective": [
+  {
+   "key": "renew:2026-10-10:38014252564:1:2026-10-10T01:53:24+00:00",
+   "source": "renew",
+   "date": "2026-10-10",
+   "run_id": "38014252564",
+   "run_url": "https://github.com/sam72x1/Super_Stocks/actions/runs/38014252564",
+   "status": "FILLED",
+   "no_fill": null,
+   "integrity": "OK",
+   "issues": [],
+   "counts": {
+    "qualified": 111,
+    "pool_after_dq": 106,
+    "excluded_held_or_stopped": 4,
+    "examined": 49,
+    "not_examined": 53,
+    "borrow_reject_known": 45,
+    "float_reject": 0,
+    "passed_unknown_av": 0,
+    "passed_known_av": 4,
+    "added": 4,
+    "added_with_unknown_av": 0,
+    "free_slots": 15,
+    "unfilled": 11,
+    "rounds_used": 4,
+    "rounds_max": 4
+   },
+   "states": {
+    "A": 9,
+    "B": 53,
+    "C": 45,
+    "D": 0,
+    "E": 0,
+    "F": 4
+   },
+   "shortfall": "ROUNDS_CAP",
+   "rounds": [
+    {
+     "r": 1,
+     "selected": 15,
+     "float_rejected": 0,
+     "borrow_rejected": 12,
+     "kept": 3,
+     "second_chance": {
+      "unknown": 0,
+      "harvest": 0,
+      "site": 0,
+      "failed": 0
+     }
+    },
+    {
+     "r": 2,
+     "selected": 12,
+     "float_rejected": 0,
+     "borrow_rejected": 11,
+     "kept": 1,
+     "second_chance": {
+      "unknown": 0,
+      "harvest": 0,
+      "site": 0,
+      "failed": 0
+     }
+    },
+    {
+     "r": 3,
+     "selected": 11,
+     "float_rejected": 0,
+     "borrow_rejected": 11,
+     "kept": 0,
+     "second_chance": {
+      "unknown": 0,
+      "harvest": 0,
+      "site": 0,
+      "failed": 0
+     }
+    },
+    {
+     "r": 4,
+     "selected": 11,
+     "float_rejected": 0,
+     "borrow_rejected": 11,
+     "kept": 0,
+     "second_chance": {
+      "unknown": 0,
+      "harvest": 0,
+      "site": 0,
+      "failed": 0
+     }
+    }
+   ],
+   "not_examined_names": [
+    "VELO",
+    "QNTM",
+    "INBS",
+    "IVF",
+    "SCWO",
+    "UONEK",
+    "QUCY",
+    "RENT",
+    "ATPC",
+    "MENS",
+    "CRMT",
+    "RVSN",
+    "LOOP",
+    "METCB",
+    "EJH",
+    "IQST",
+    "CSAI",
+    "GDHG",
+    "AEI",
+    "GWAV",
+    "JEM",
+    "MSS",
+    "PTLE",
+    "KMRK",
+    "UPLD",
+    "OM",
+    "DARE",
+    "WKSP",
+    "GSIW",
+    "TAOP",
+    "GLXG",
+    "GVH",
+    "LIMN",
+    "SLSN",
+    "PLUR",
+    "SNES",
+    "PULM",
+    "NCEL",
+    "BRAI",
+    "GDTC",
+    "BCTX",
+    "METC",
+    "IBG",
+    "PAVM",
+    "JSPR",
+    "FAC",
+    "AIOS",
+    "UPC",
+    "SUNE",
+    "MGRX",
+    "SKYA",
+    "SXTP",
+    "ARQQ"
+   ],
+   "not_examined_availability": "NOT_COLLECTED",
+   "availability_timestamp": "NOT_COLLECTED",
+   "borrow_max": 20000
+  }
+ ],
  "legacy": [
   {
    "date": "2026-10-07",

@@ -1,0 +1,11 @@
+{
+ "tool": "borrow_fall_report.py",
+ "locks": "BFR1-BFR12",
+ "mutations": 20,
+ "fell": 20,
+ "survivors_first_round": [
+  "BFR1 _num None->0.0 (parse path)",
+  "BFR7 QUERIED_UNKNOWN branch"
+ ],
+ "note": "both survivors exposed real gaps; locks strengthened; second round 20/20"
+}

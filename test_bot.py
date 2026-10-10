@@ -86591,6 +86591,215 @@ except Exception as _e:                                              # noqa: BLE
     _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
 check("📚 GPX9 البنّاءُ يُسقط بالاسم: بندٌ بلا تصنيف · نطاقٌ خارج المفردات · ونطاقٌ على غير تجربة (لا حارسَ خامد)", _ok, _w)
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🔒📉 BFR1-BFR12 — مُقيِّمُ `T-BORROW-FALL` (`borrow_fall_report.py` · 2026-10-10 · مهمّةُ المالك «BORROW EVIDENCE RECOVERY»):
+#    سجلُّ المتابعة `borrow_watch.jsonl` لا يُحفظ أبدًا (لا `git_save` ولا artifact) ⟵ كلُّ تشغيلةٍ تبدأ فارغة ⟵ «بذر 40 · تابع 0»
+#    (`37902530011`) ⟵ صفرُ ملاحظةٍ لاحقة. والمُقيِّمُ يقرأ ما يُحفَظ فعلًا وحدَه (سجلُّ البِركة · `ctb_log` · سجلّ Phase6) بلا طلبٍ خارجيّ،
+#    ولا يحسب نسبةَ نتيجةٍ قبل `W4`. والأقفالُ تحرس: المجهولُ ليس قيمةً · «أقلّ من 10K» حرفيًّا · لا نظرَ للأمام · النافذة · أوّلُ إخراجٍ
+#    هو البذرة · B لا يُدّعى بلا تغطيةٍ كاملة · حالاتُ القرار · نقطةُ الفشل مسمّاة · لا نسبةَ ولا شبكة · وتطابقُ الحالة المحفوظة مع الكود.
+# ══════════════════════════════════════════════════════════════════════════
+import importlib as _bfr_il                                        # noqa: E402
+import tempfile as _bfr_tf                                         # noqa: E402
+import subprocess as _bfr_sp                                       # noqa: E402
+import sys as _bfr_sys                                             # noqa: E402
+_bfr_root = _os_hc.path.dirname(_os_hc.path.abspath(__file__))
+try:
+    _BFR = _bfr_il.import_module("borrow_fall_report")
+except Exception as _e:                                            # noqa: BLE001
+    _BFR = None
+    print(f"⛔ borrow_fall_report import: {type(_e).__name__}: {_e}")
+
+
+def _bfr_seed(sym="AAA", date="2026-10-10", ts="2026-10-10T01:53:24+00:00", av=50000.0):
+    return {"symbol": sym, "seed_date": date, "seed_ts": ts, "source": "renew", "run_id": "1", "gate_max": 20000, "av_seed": av}
+
+
+def _bfr_cls(obs, asof="2026-10-20", seed=None):
+    try:
+        return _BFR.classify(seed or _bfr_seed(), obs, asof, 10000)
+    except Exception as _e:                                        # noqa: BLE001
+        return {"state": f"⛔ {type(_e).__name__}: {_e}"}
+
+
+# BFR1 — المجهولُ محاولةٌ لا قيمة: ملاحظةٌ لاحقةٌ بلا قيمة لا تصنع A ولا B ولا «لم ينزل» · وتُعَدّ
+_c1 = _bfr_cls([("AAA", "2026-10-13", None, "ctb_log", None)])
+try:   # ومن المصادر نفسِها: سطرُ حصّادٍ بلا متاح · Phase6 «FAILED» · صفُّ بِركةٍ UNKNOWN · NaN ⟵ كلُّها None (لا صفر) · وNOT_ATTEMPTED ليس ملاحظة
+    _o1 = _BFR.observations(
+        [{"date": "2026-10-13", "ts": "2026-10-13T08:00:00+00:00", "cols": ["sym", "av", "av_state", "outcome"],
+          "rows": [["AAA", None, "UNKNOWN", "PASSED_UNKNOWN_AV"], ["AAA", None, "NOT_COLLECTED", "NOT_EXAMINED"]]}],
+        [{"date": "2026-10-13", "symbol": "AAA", "shares_available": None}, {"date": "2026-10-14", "symbol": "AAA",
+                                                                            "shares_available": "nan"}],
+        [{"ticker": "AAA", "collected_utc": "2026-10-13T09:00:00Z", "status": "FAILED", "value": None},
+         {"ticker": "AAA", "collected_utc": "2026-10-13T09:00:00Z", "status": "NOT_ATTEMPTED", "value": None}], [])
+    _v1 = [o[2] for o in _o1]
+except Exception as _e:                                            # noqa: BLE001
+    _v1 = [f"⛔ {type(_e).__name__}"]
+check("📉 BFR1 المتاحُ المجهول محاولةٌ لا قيمة: «بلا متابعة — مجهولٌ فقط» ويُعَدّ (لا A ولا B ولا صفر) — ومن المصادر نفسِها",
+      _c1.get("state") == "NO_FOLLOWUP_UNKNOWN_ONLY" and _c1.get("unknown_later") == 1 and _c1.get("known_later") == 0
+      and _v1 == [None, None, None, None],
+      str({k: _c1.get(k) for k in ("state", "unknown_later", "known_later")}) + f" · parsed={_v1}")
+
+# BFR2 — «اقل من 10K» حرفيًّا: 10,000 بالضبط ليس نزولًا · و9,999 نزول
+_c2a = _bfr_cls([("AAA", "2026-10-13", 10000.0, "ctb_log", None)])
+_c2b = _bfr_cls([("AAA", "2026-10-13", 9999.0, "ctb_log", None)])
+check("📉 BFR2 العتبةُ «أقلّ من 10,000» حرفيًّا: 10,000 ⟵ لم ينزل · 9,999 ⟵ A بتاريخه",
+      _c2a.get("state") == "NOT_BELOW_PARTIAL" and _c2b.get("state") == "A_FELL_BELOW"
+      and _c2b.get("first_below_date") == "2026-10-13", f"{_c2a.get('state')} · {_c2b.get('state')}")
+
+# BFR3 — لا نظرَ للأمام: ملاحظةُ اليوم نفسِه (مصدرٌ بلا ساعة) ليست «لاحقة» · وما قبل البذرة لا يُقرأ
+_c3 = _bfr_cls([("AAA", "2026-10-10", 5000.0, "ctb_log", None), ("AAA", "2026-10-09", 5000.0, "ctb_log", None)])
+check("📉 BFR3 لا نظرَ للأمام: ملاحظةُ يومِ البذرة «نفس اليوم» لا لاحقة · وما قبلها لا يُقرأ (لا A)",
+      _c3.get("state") == "NO_FOLLOWUP_NONE" and _c3.get("same_day_other_source") == 1 and _c3.get("known_later") == 0,
+      str({k: _c3.get(k) for k in ("state", "same_day_other_source", "known_later")}))
+
+# BFR4 — النافذةُ 40 جلسةً بعد جلسة القرار: آخرُ يومٍ فيها يُقرأ وما بعده لا
+_c4w = _bfr_cls([], asof="2027-01-30")
+_wend = _c4w.get("window_end")
+_c4a = _bfr_cls([("AAA", _wend or "x", 5000.0, "ctb_log", None)], asof="2027-01-30")
+_c4b = _bfr_cls([("AAA", "2026-12-08", 5000.0, "ctb_log", None)], asof="2027-01-30")
+check("📉 BFR4 النافذة 40 جلسةً بعد جلسة القرار (10-09 ⟵ 2026-12-07 بعطلة الشكر): آخرُ يومٍ يُقرأ وما بعده لا",
+      _wend == "2026-12-07" and _c4a.get("state") == "A_FELL_BELOW" and _c4b.get("state") == "NO_FOLLOWUP_NONE"
+      and _c4w.get("seed_session") == "2026-10-09", f"end={_wend} · {_c4a.get('state')} · {_c4b.get('state')}")
+
+
+def _bfr_rec(date, ts, rows, borrow_max=20000):
+    cols = ["sym", "rank", "pool_pos", "rk", "dq", "excl", "round", "outcome", "av", "av_state", "av_src", "added"]
+    return {"date": date, "ts": ts, "source": "daily", "run_id": date, "borrow_max": borrow_max, "cols": cols,
+            "rows": [[s, 1, 1, [], "PASS", None, 1, o, av, st, "ENRICH", False] for s, o, av, st in rows]}
+
+
+# BFR5 — البذرةُ أوّلُ إخراج: إخراجٌ لاحقٌ بقيمةٍ أدنى لا يُعيد البذرة · ويُقرأ ملاحظةً لاحقة
+try:
+    _r5 = [_bfr_rec("2026-10-14", "2026-10-14T08:00:00+00:00", [("BBB", "BORROW_REJECT", 30000, "KNOWN")]),
+           _bfr_rec("2026-10-13", "2026-10-13T08:00:00+00:00", [("BBB", "BORROW_REJECT", 90000, "KNOWN")])]
+    _s5 = _BFR.seeds(_r5)
+    _o5 = _BFR.observations(_r5, [], [], [])
+    _c5 = _BFR.classify(_s5[0], _o5, "2026-10-20", 10000)
+    _ok5 = (len(_s5) == 1 and _s5[0]["seed_date"] == "2026-10-13" and _s5[0]["av_seed"] == 90000.0
+            and _c5["known_later"] == 1 and _c5["state"] == "NOT_BELOW_PARTIAL" and _c5["sources"] == ["pool"])
+    _w5 = f"{_s5} · {_c5.get('state')}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok5, _w5 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉 BFR5 البذرةُ أوّلُ إخراجٍ بالبوّابة (لا يُعاد بالإخراج اللاحق) · والإخراجُ اللاحق ملاحظةٌ لاحقة من البِركة", _ok5, _w5)
+
+# BFR6 — B («لم ينزل قطّ») لا يُدّعى إلّا بنافذةٍ مغلقة وملاحظةٍ معلومةٍ كلَّ جلسة · والجزئيُّ يبقى جزئيًّا
+try:
+    _win6 = _BFR.sessions_after("2026-10-09", 40)
+    _full = [("AAA", d, 50000.0, "ctb_log", None) for d in _win6]
+    _c6a = _BFR.classify(_bfr_seed(), _full, "2026-12-31", 10000)
+    _c6b = _BFR.classify(_bfr_seed(), _full[:-1], "2026-12-31", 10000)
+    _c6c = _BFR.classify(_bfr_seed(), _full, "2026-11-30", 10000)
+    _ok6 = (_c6a["state"] == "B_FULL" and _c6b["state"] == "NOT_BELOW_PARTIAL" and _c6c["state"] == "NOT_BELOW_PARTIAL")
+    _w6 = f"{_c6a['state']} · {_c6b['state']} · {_c6c['state']}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok6, _w6 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉 BFR6 «لم ينزل قطّ» = نافذةٌ مغلقة ‏+ ملاحظةٌ معلومة كلَّ جلسة · جلسةٌ ناقصة أو نافذةٌ مفتوحة ⟵ جزئيّ لا B", _ok6, _w6)
+
+# BFR7 — حالاتُ القرار: الفلوتُ المرفوض بمتاحٍ ≤ الحدّ «يعبر المتاحَ ويسقط بغيره» (الحدُّ نفسُه يعبر) · وغيرُ المسؤول «لم يُسأل»
+try:
+    _r7 = _bfr_rec("2026-10-13", "2026-10-13T08:00:00+00:00", [
+        ("F1", "FLOAT_REJECT", 20000, "KNOWN"), ("F2", "FLOAT_REJECT", 20001, "KNOWN"), ("F3", "FLOAT_REJECT", None, "UNKNOWN"),
+        ("P1", "PASSED_KNOWN_AV", 4000, "KNOWN"), ("P2", "PASSED_UNKNOWN_AV", None, "UNKNOWN"),
+        ("R1", "BORROW_REJECT", 50000, "KNOWN"), ("N1", "NOT_EXAMINED", None, "NOT_COLLECTED"), ("D1", "DQ_HELD", None, "NOT_COLLECTED"),
+        ("U1", "DUPLICATE", None, "UNKNOWN")])
+    _st7 = [_BFR.decision_state(r, 20000) for r in _BFR.PF._rows(_r7)]
+    _ok7 = _st7 == ["PASSES_BORROW_FAILS_OTHER", "FAILS_OTHER_AND_ABOVE_BORROW", "FAILS_OTHER_AV_UNKNOWN",
+                    "ELIGIBLE_PASSED_KNOWN", "ELIGIBLE_PASSED_UNKNOWN", "QUERIED_REJECTED_KNOWN",
+                    "NEVER_QUERIED_NOT_EXAMINED", "NEVER_QUERIED_DQ_HELD", "QUERIED_UNKNOWN"]
+    _w7 = str(_st7)
+except Exception as _e:                                            # noqa: BLE001
+    _ok7, _w7 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉 BFR7 حالاتُ القرار مفصولة: يعبر المتاحَ ويسقط بغيره (الحدُّ يعبر) · فوق الحدّ · مجهول · مؤهَّل · مرفوضٌ معلوم · لم يُسأل · سُئل فلم يُعرف", _ok7, _w7)
+
+# BFR8 — نقطةُ الفشل مسمّاة من الكود: سجلٌّ لا يحفظه `git_save` ⟵ TRACKING_NEVER_PERSISTED · وحين يُحفظ تختفي التسمية
+try:
+    _src8 = 'BORROW_WATCH_FILE = "borrow_watch.jsonl"\nCONFIG = {"FAISAL_ENTRY_AVAIL_MAX": 10000}\n' \
+            'def run_daily_watchlist(wl):\n    harvest_borrow_watch([], [], "d")\n    git_save([WATCH_FILE])\n'
+    _f8a = _BFR.bot_facts(src=_src8, wf="")
+    _f8b = _BFR.bot_facts(src=_src8.replace("git_save([WATCH_FILE])", "git_save([WATCH_FILE, BORROW_WATCH_FILE])"), wf="")
+    _d8a = _BFR.build(asof="2026-10-10", facts=_f8a)
+    _d8b = _BFR.build(asof="2026-10-10", facts=_f8b)
+    _ok8 = (_f8a["persisted_by_git_save"] is False and _f8b["persisted_by_git_save"] is True
+            and str(_d8a["failure_point"]).startswith("TRACKING_NEVER_PERSISTED")
+            and not str(_d8b["failure_point"]).startswith("TRACKING_NEVER_PERSISTED")
+            and _f8a["harvest_called_from"] == ["run_daily_watchlist"])
+    _w8 = f"{_f8a['persisted_by_git_save']}/{_f8b['persisted_by_git_save']} · {str(_d8a['failure_point'])[:30]} · {str(_d8b['failure_point'])[:30]}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok8, _w8 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉 BFR8 نقطةُ الفشل تُقرأ من الكود: لا `git_save` ⟵ TRACKING_NEVER_PERSISTED · وبالحفظ تختفي (لا تسميةَ ثابتة)", _ok8, _w8)
+
+# BFR9 — أعمى قبل `W4` وبلا شبكة: لا مفتاحَ نسبةٍ في المخرَج · الحكمُ NO_VERDICT · ولا استيرادَ شبكةٍ ولا للبوت (AST)
+try:
+    _d9 = _BFR.build()
+    _keys9 = set()
+
+    def _walk9(o):
+        if isinstance(o, dict):
+            for k, v in o.items():
+                _keys9.add(str(k).lower())
+                _walk9(v)
+        elif isinstance(o, list):
+            for v in o:
+                _walk9(v)
+    _walk9(_d9)
+    _imp9 = set()
+    for _n in _ast0.walk(_ast0.parse(open(_os_hc.path.join(_bfr_root, "borrow_fall_report.py"), encoding="utf-8").read())):
+        if isinstance(_n, _ast0.Import):
+            _imp9 |= {a.name.split(".")[0] for a in _n.names}
+        elif isinstance(_n, _ast0.ImportFrom) and _n.module:
+            _imp9.add(_n.module.split(".")[0])
+    _ok9 = (not any(w in k for k in _keys9 for w in ("rate", "pct", "win_", "hit", "outcome"))
+            and _d9["verdict"] == "NO_VERDICT" and _d9["gates"]["W4_sample"].startswith("NOT_MET")
+            and not (_imp9 & {"requests", "urllib", "http", "socket", "Super_stock", "yfinance", "tv_data"}))
+    _w9 = f"imports={sorted(_imp9)} · verdict={_d9['verdict']}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok9, _w9 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉 BFR9 أعمى قبل W4 وبلا شبكة: لا مفتاحَ نسبةٍ ولا نتيجة · NO_VERDICT · ولا استيرادَ شبكةٍ ولا للبوت", _ok9, _w9)
+
+# BFR10 — الحالةُ المحفوظة تُعاد بايتًا (`--check`) · وحقائقُ الحفظ فيها = حقائقُ الكود اليوم (لا تقريرَ بائتٌ حين يُحفَظ السجلّ)
+try:
+    _p10 = _bfr_sp.run([_bfr_sys.executable, "borrow_fall_report.py", "--check"], cwd=_bfr_root, capture_output=True,
+                       text=True, timeout=600)
+    _st10 = json.load(open(_os_hc.path.join(_bfr_root, "borrow_fall_status.json"), encoding="utf-8"))
+    _ok10 = _p10.returncode == 0 and "check OK" in _p10.stdout and _st10["facts"] == _BFR.bot_facts()
+    _w10 = (_p10.stdout + _p10.stderr)[-200:]
+except Exception as _e:                                            # noqa: BLE001
+    _ok10, _w10 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉 BFR10 `borrow_fall_status` يُعاد بايتًا (`--check`) وحقائقُ الحفظ فيه = الكودُ اليوم", _ok10, _w10)
+
+# BFR11 — جلسةُ القرار من الطابع (نيويورك): التجديدُ 01:53Z السبت ⟵ الجمعة · الفرزُ 08:00Z ⟵ أمس · عند الإغلاق تمامًا ⟵ اليوم ·
+#         والإغلاقُ المبكر (2026-11-27 · 13:00) يُحترَم · والعطلةُ تُتخطّى
+try:
+    _s11 = [_BFR.decision_session(t) for t in ("2026-10-10T01:53:24+00:00", "2026-10-09T08:12:20+00:00", "2026-10-09T20:00:00+00:00",
+                                                "2026-10-09T19:59:00+00:00", "2026-11-27T18:30:00+00:00", "2026-11-27T05:00:00+00:00")]
+    _ok11 = _s11 == ["2026-10-09", "2026-10-08", "2026-10-09", "2026-10-08", "2026-11-27", "2026-11-25"]
+    _w11 = str(_s11)
+except Exception as _e:                                            # noqa: BLE001
+    _ok11, _w11 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉 BFR11 جلسةُ القرار بتوقيت نيويورك (الإغلاقُ يشمل حدَّه · المبكرُ يُحترَم · العطلةُ تُتخطّى)", _ok11, _w11)
+
+# BFR12 — السجلُّ المجمَّد بلا بصمةٍ صحيحة لا يُقرأ بذرةً ويُعَدّ · وملاحظاتُ يومِ الحالة الجاري لا تُقرأ
+try:
+    _td12 = _bfr_tf.mkdtemp()
+    _good = _bfr_rec("2026-10-13", "2026-10-13T08:00:00+00:00", [("GGG", "BORROW_REJECT", 50000, "KNOWN")])
+    _good["sha"] = _BFR.PF.record_sha(_good)
+    _bad = _bfr_rec("2026-10-12", "2026-10-12T08:00:00+00:00", [("HHH", "BORROW_REJECT", 50000, "KNOWN")])
+    _bad["sha"] = "0" * 64
+    _pp = _os_hc.path.join(_td12, "pool.jsonl")
+    with open(_pp, "w", encoding="utf-8") as _fh:
+        _fh.write(json.dumps(_bad) + "\n" + json.dumps(_good) + "\n")
+    _cp = _os_hc.path.join(_td12, "ctb.jsonl")
+    with open(_cp, "w", encoding="utf-8") as _fh:
+        _fh.write(json.dumps({"date": "2026-10-13", "symbol": "GGG", "shares_available": 5000}) + "\n")
+    _e12 = _os_hc.path.join(_td12, "none.jsonl")
+    _d12 = _BFR.build(pool=_pp, ctb=_cp, p6=_e12, watch=_e12)
+    _ok12 = (_d12["inputs"]["pool"]["integrity_failed"] == 1 and [s["symbol"] for s in _d12["seeds"]] == ["GGG"]
+             and _d12["asof"] == "2026-10-13" and _d12["inputs"]["ctb_log"]["rows"] == 0)
+    _w12 = f"{_d12['inputs']['pool']} · seeds={[s['symbol'] for s in _d12['seeds']]} · ctb={_d12['inputs']['ctb_log']['rows']}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok12, _w12 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉 BFR12 سجلٌّ مجمَّد ببصمةٍ خاطئة لا يُقرأ ويُعَدّ · وملاحظاتُ يومِ الحالة الجاري لا تُقرأ (إعادةٌ ثابتة)", _ok12, _w12)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
