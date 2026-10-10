@@ -234,7 +234,8 @@ def compare(rec, inh):
         out.append(("AUTHOR_NOT_VISIBLE", ia, "U", "FLAG"))
     # التاريخ
     idate = inh.get("DATE", "")
-    if idate not in ("", "UNKNOWN", "UNK") and rec["dprec"] == "NONE":
+    # تعديلٌ مؤرَّخ 2026-10-10: الساعةُ وحدَها والنسبيُّ لا يُظهران يومًا ⟵ العلمُ نفسُه كالفارغ
+    if idate not in ("", "UNKNOWN", "UNK") and rec["dprec"] in ("NONE", "TIME", "RELATIVE"):
         out.append(("DATE_NOT_VISIBLE", idate, "", "FLAG"))
     elif idate not in ("", "UNKNOWN", "UNK") and rec["dprec"] in ("DAY", "EXACT") and \
             FULL_DAY.match(idate) and not rec["date"].startswith(idate[:10]):

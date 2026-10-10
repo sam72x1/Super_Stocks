@@ -22,9 +22,9 @@
 | `AUTHOR_NOT_VISIBLE` | FLAG | 84 |
 | `DATE` | CONTRADICTED | 1 |
 | `DATE_MD_DIFFERS` | FLAG | 3 |
-| `DATE_NOT_VISIBLE` | FLAG | 65 |
+| `DATE_NOT_VISIBLE` | FLAG | 192 |
 | `DECISION` | CONTRADICTED | 58 |
 | `ROLE` | CONTRADICTED | 168 |
 | `TICKER_NOT_VISIBLE` | FLAG | 36 |
 
-- أعلامٌ على صفوف السجلّ: 188
+- أعلامٌ على صفوف السجلّ: 315
