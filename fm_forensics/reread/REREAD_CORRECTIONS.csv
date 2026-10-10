@@ -556,3 +556,19 @@ IMG_0329,DATE_NOT_VISIBLE,FLAG,2026-07-27,,السؤال الذي فتحه قيا
 IMG_0339,DATE_NOT_VISIBLE,FLAG,2026-07,,Background tasks · 27/37,V4_VISUAL_PASS,,,1
 IMG_0359,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS(via unit TG_1872),,,1
 IMG_0359,DATE_NOT_VISIBLE,FLAG,2026-07-0x,,,V4_VISUAL_PASS(via unit TG_1872),,,1
+IMG_0362,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+IMG_0362,DATE_NOT_VISIBLE,FLAG,2026-07-2x,,,V4_VISUAL_PASS,,,1
+IMG_0363,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+IMG_0363,DATE_NOT_VISIBLE,FLAG,2026-07-2x,,,V4_VISUAL_PASS,,,1
+IMG_0391,ROLE,CONTRADICTED,CONTEXT_ONLY,VALIDATION_CASE,سبوع ودبلنا حق الرحله · تحديث لبعض الاسهم السابقه لكثرة الاستفسارات مازال السهم نطاق تجميع تحت الاجابيه لم يصل للسلبيه - 5.50 لو تجاوزها تكمن الاجابيه,V4_VISUAL_PASS,,,1
+IMG_0391,TICKER_NOT_VISIBLE,FLAG,SPRC,,سبوع ودبلنا حق الرحله · تحديث لبعض الاسهم السابقه لكثرة الاستفسارات مازال السهم نطاق تجميع تحت الاجابيه لم يصل للسلبيه - 5.50 لو تجاوزها تكمن الاجابيه,V4_VISUAL_PASS,,,1
+IMG_0391,DATE_NOT_VISIBLE,FLAG,2026-07-27,,سبوع ودبلنا حق الرحله · تحديث لبعض الاسهم السابقه لكثرة الاستفسارات مازال السهم نطاق تجميع تحت الاجابيه لم يصل للسلبيه - 5.50 لو تجاوزها تكمن الاجابيه,V4_VISUAL_PASS,,,1
+IMG_0392,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+IMG_0392,DATE_NOT_VISIBLE,FLAG,2026-07-20,,,V4_VISUAL_PASS,,,1
+IMG_0394,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+IMG_0394,DATE_NOT_VISIBLE,FLAG,2026-07-17,,,V4_VISUAL_PASS,,,1
+IMG_0402,TICKER_NOT_VISIBLE,FLAG,SPRC,,faisal-common-link-from-images · Workflow · Completed · 10 agents · 638K tokens · Check whether borrow fee enters selection at all,V4_VISUAL_PASS,,,1
+IMG_0402,DATE_NOT_VISIBLE,FLAG,2026-07,,faisal-common-link-from-images · Workflow · Completed · 10 agents · 638K tokens · Check whether borrow fee enters selection at all,V4_VISUAL_PASS,,,1
+IMG_0414,AUTHOR_NOT_VISIBLE,FLAG,F,U,Nuwe دق القاع الجمعه 1.80 عنده فجوه من [مطموس] - الهدف الاول شمعه التقسيم 3.81 هدف ثاني [مطموس] شمعة الفجوه الساقطه الهدف الثالث [مطموس] راس شمعة الفجوه الساقطه - [مطموس] اما يشده جميع ل[…] او يلعب موجات,V4_VISUAL_PASS,,,1
+IMG_0414,DATE_NOT_VISIBLE,FLAG,2026-07-26,,Nuwe دق القاع الجمعه 1.80 عنده فجوه من [مطموس] - الهدف الاول شمعه التقسيم 3.81 هدف ثاني [مطموس] شمعة الفجوه الساقطه الهدف الثالث [مطموس] راس شمعة الفجوه الساقطه - [مطموس] اما يشده جميع ل[…] او يلعب موجات,V4_VISUAL_PASS,,,1
+IMG_0426,DATE_NOT_VISIBLE,FLAG,2026-07-30,,candle-readiness-design · Workflow · 7 agents · هل سلوك آخر الشموع (يومي/4س) يميّز «على وشك الانطلاق» عن «يحقّق المعايير فقط»؟ · Mutation battery on trigger_state,V4_VISUAL_PASS,,,1
