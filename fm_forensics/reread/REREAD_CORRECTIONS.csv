@@ -5,7 +5,7 @@ TG_2076,ROLE,CONTRADICTED,CONTEXT_ONLY,RULE_EVIDENCE,تابعه لين يبقى 
 TG_58386,ROLE,CONTRADICTED,CONTEXT_ONLY,VALIDATION_CASE,,NOT_TRACED,,,1
 TG_58389,TICKER_NOT_VISIBLE,FLAG,CYCU,,,NOT_TRACED,,,1
 TG_58397,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,القاع اللي يقصده قبل الصعود · اسحب عليه ذا ما يعتبر ثبات فاهم قصدي ؟,NOT_TRACED,,,1
-TG_58405,TICKER_NOT_VISIBLE,FLAG,BRTX,,آخر سعر ينخفض إلى 1.50 · 1.60 · 1.71,NOT_TRACED,,,1
+TG_58405,TICKER_NOT_VISIBLE,FLAG,BRTX,,آخر سعر ينخفض إلى 1.50 · 1.60 · 1.71,NOT_TRACED,,,2
 APP_20260918_18_NTCL,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,2
 APP_20260918_18_NTCL,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,2
 APP_20260918_18_NTCL,DATE_NOT_VISIBLE,FLAG,2026-09-15,,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,2
@@ -100,3 +100,38 @@ TG_57880,DATE_NOT_VISIBLE,FLAG,2026-09-2x,,مراقبة مبكرة · السعر
 TG_57881,AUTHOR_NOT_VISIBLE,FLAG,F,U,القاع 2.26 · سحب السيوله 2 · الاجابيه ثبات اسفل الدعم,PRODUCTION_LEDGER_CITED,,,1
 TG_57882,DECISION,CONTRADICTED,WAIT,WATCH,الشورت المتاح 100 سهم · نسبة الاقتراض 289.9%,PRODUCTION_LEDGER_CITED,,,1
 TG_57882,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,الشورت المتاح 100 سهم · نسبة الاقتراض 289.9%,PRODUCTION_LEDGER_CITED,,,1
+TG_57883,AUTHOR_NOT_VISIBLE,FLAG,F,U,القاع 2.26 · سحب السيوله 2 · الاجابيه ثبات اسفل الدعم,V4_VISUAL_PASS,,,1
+TG_57894,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,يهمنا ارتداد من القاع لاختبار المقاومه 20٪ غالبا يهبط يختبر القاع · اما ثبات ع القاع او مسح سيوله الى 2 تقريبا · وتاخذ السهم بعد سحب السيوله مباشره وليس وضع طلبات قبل سحب السيوله · هذا نهج ثابت بكل الاسهم,PRODUCTION_LEDGER_CITED,,,1
+TG_57894,TICKER_NOT_VISIBLE,FLAG,DKI,,يهمنا ارتداد من القاع لاختبار المقاومه 20٪ غالبا يهبط يختبر القاع · اما ثبات ع القاع او مسح سيوله الى 2 تقريبا · وتاخذ السهم بعد سحب السيوله مباشره وليس وضع طلبات قبل سحب السيوله · هذا نهج ثابت بكل الاسهم,PRODUCTION_LEDGER_CITED,,,1
+TG_57894,AUTHOR_NOT_VISIBLE,FLAG,F,U,يهمنا ارتداد من القاع لاختبار المقاومه 20٪ غالبا يهبط يختبر القاع · اما ثبات ع القاع او مسح سيوله الى 2 تقريبا · وتاخذ السهم بعد سحب السيوله مباشره وليس وضع طلبات قبل سحب السيوله · هذا نهج ثابت بكل الاسهم,PRODUCTION_LEDGER_CITED,,,1
+TG_57894,DATE_NOT_VISIBLE,FLAG,2026-09-2x,,يهمنا ارتداد من القاع لاختبار المقاومه 20٪ غالبا يهبط يختبر القاع · اما ثبات ع القاع او مسح سيوله الى 2 تقريبا · وتاخذ السهم بعد سحب السيوله مباشره وليس وضع طلبات قبل سحب السيوله · هذا نهج ثابت بكل الاسهم,PRODUCTION_LEDGER_CITED,,,1
+TG_57913,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,PRODUCTION_LEDGER_CITED,,,1
+TG_57913,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,PRODUCTION_LEDGER_CITED,,,1
+TG_57913,DATE_NOT_VISIBLE,FLAG,2026-09-25,,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,PRODUCTION_LEDGER_CITED,,,1
+TG_57914,DECISION,CONTRADICTED,WAIT,WATCH,الشورت المتاح 6K سهم · نسبة الاقتراض 120% · انتظار إعادة الاختبار · ممتاز 0-5%,PRODUCTION_LEDGER_CITED,,,1
+TG_57914,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,الشورت المتاح 6K سهم · نسبة الاقتراض 120% · انتظار إعادة الاختبار · ممتاز 0-5%,PRODUCTION_LEDGER_CITED,,,1
+TG_57914,DATE_NOT_VISIBLE,FLAG,2026-09-25,,الشورت المتاح 6K سهم · نسبة الاقتراض 120% · انتظار إعادة الاختبار · ممتاز 0-5%,PRODUCTION_LEDGER_CITED,,,1
+TG_57921,DECISION,CONTRADICTED,WAIT,WATCH,اختبار ناجح · بعيد عن الدعم,PRODUCTION_LEDGER_CITED,,,1
+TG_57921,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,اختبار ناجح · بعيد عن الدعم,PRODUCTION_LEDGER_CITED,,,1
+TG_57921,DATE_NOT_VISIBLE,FLAG,2026-09-15,,اختبار ناجح · بعيد عن الدعم,PRODUCTION_LEDGER_CITED,,,1
+TG_57923,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية,PRODUCTION_LEDGER_CITED,,,1
+TG_57923,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية,PRODUCTION_LEDGER_CITED,,,1
+TG_57923,DATE_NOT_VISIBLE,FLAG,2026-09-15,,قريب من الجاهزية,PRODUCTION_LEDGER_CITED,,,1
+TG_57925,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية,PRODUCTION_LEDGER_CITED,,,1
+TG_57925,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية,PRODUCTION_LEDGER_CITED,,,1
+TG_57925,DATE_NOT_VISIBLE,FLAG,2026-09-1x,,قريب من الجاهزية,PRODUCTION_LEDGER_CITED,,,1
+TG_58045,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,هل يصعد ويكمل نموذج W الاجابي ام يهبط ويكون نموذجً M السلبي · مقرون 6.18> 6.34 > ادناهما سلبي اعلاهما اجابي,V4_VISUAL_PASS,,,1
+TG_58045,AUTHOR_NOT_VISIBLE,FLAG,F,U,هل يصعد ويكمل نموذج W الاجابي ام يهبط ويكون نموذجً M السلبي · مقرون 6.18> 6.34 > ادناهما سلبي اعلاهما اجابي,V4_VISUAL_PASS,,,1
+TG_58387,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,Mi سهم بطل انتظار الضغط 2.10 او سحب السيوله 1.80 الهدف الفجوه السعريه,TRACED:T-V4,,,1
+TG_58387,AUTHOR_NOT_VISIBLE,FLAG,F_inferred,U,Mi سهم بطل انتظار الضغط 2.10 او سحب السيوله 1.80 الهدف الفجوه السعريه,TRACED:T-V4,,,1
+TG_58402,DECISION,CONTRADICTED,WAIT,WATCH,مراقبه مبكره امريكي تاريخ التقسيم 8-9-2026 لايوجد اجابيه يضاف للمفضله + تنبيهات للهبوط · شرط يهبط ويحافظ,TRACED:T-CASE/T-V4,,,1
+TG_58402,DATE_NOT_VISIBLE,FLAG,2026-10-03,,مراقبه مبكره امريكي تاريخ التقسيم 8-9-2026 لايوجد اجابيه يضاف للمفضله + تنبيهات للهبوط · شرط يهبط ويحافظ,TRACED:T-CASE/T-V4,,,1
+TG_58407,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,فجوه سعريه · شمعة التقسيم S · الموجه الهابطه · ستكون مقاومه عاليه · هبوط متوقع,TRACED:T-CASE,,,1
+TG_58407,AUTHOR_NOT_VISIBLE,FLAG,F,U,فجوه سعريه · شمعة التقسيم S · الموجه الهابطه · ستكون مقاومه عاليه · هبوط متوقع,TRACED:T-CASE,,,1
+TG_58429,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,شرح فني فقط الرجا عدم الشرا ممكن يهبط السهم · الاهم ثبات وتداول فوق خط العنق 2.86 > اكثر من ربع ساعه · تحرر من المقاومه الثانيه 3.11 > يعطي املا صاعدا ل 3.30 · حاليا سيوله سالب من يمثل ويكمل هذا النموذج فقط سيولة المضارب,TRACED:T-CASE/T-CLOSED/T-V31/T-V4,,,1
+WA_20260918_46_NUWE,TICKER_NOT_VISIBLE,FLAG,NUWE,,اخر دعم للسهم 60 سنت · تحرر السهم 95 سنت · الاهداف المتوقعه 1.35 فوقها ممكن 2 > 2.30,V4_VISUAL_PASS,,,1
+WA_20260918_46_NUWE,AUTHOR_NOT_VISIBLE,FLAG,F,U,اخر دعم للسهم 60 سنت · تحرر السهم 95 سنت · الاهداف المتوقعه 1.35 فوقها ممكن 2 > 2.30,V4_VISUAL_PASS,,,1
+X_20260827_kwm_150_watch3,DECISION,CONTRADICTED,WAIT,WATCH,ذكرت في تغريده سابقه الصعود التدريجي ما افضله هذا صعد تدريجي 40٪ وهبط · يحتاج مراقبه لمدة 3 جلسات قادمه هل يكسر 1.50 او يحافظ عليها,V4_VISUAL_PASS,,,1
+X_20260827_kwm_150_watch3,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,ذكرت في تغريده سابقه الصعود التدريجي ما افضله هذا صعد تدريجي 40٪ وهبط · يحتاج مراقبه لمدة 3 جلسات قادمه هل يكسر 1.50 او يحافظ عليها,V4_VISUAL_PASS,,,1
+X_20260827_kwm_150_watch3,AUTHOR_NOT_VISIBLE,FLAG,F,U,ذكرت في تغريده سابقه الصعود التدريجي ما افضله هذا صعد تدريجي 40٪ وهبط · يحتاج مراقبه لمدة 3 جلسات قادمه هل يكسر 1.50 او يحافظ عليها,V4_VISUAL_PASS,,,1
+X_20260827_kwm_150_watch3,DATE_NOT_VISIBLE,FLAG,2026-08-2x,,ذكرت في تغريده سابقه الصعود التدريجي ما افضله هذا صعد تدريجي 40٪ وهبط · يحتاج مراقبه لمدة 3 جلسات قادمه هل يكسر 1.50 او يحافظ عليها,V4_VISUAL_PASS,,,1
