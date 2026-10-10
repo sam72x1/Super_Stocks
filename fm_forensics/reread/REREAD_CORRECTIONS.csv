@@ -292,3 +292,12 @@ TG_2182,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,السهم هذا مقس
 TG_2182,TICKER_NOT_VISIBLE,FLAG,LABT,,السهم هذا مقسم في 22-6 امس التاريخ 22-7 حقق متوسط 30 يوم من تاريخ التقسيم · حقق المتوسط والدخول كما شرحته بالملي 1.70> 1.80,V4_VISUAL_PASS(via unit TG_1807),,,1
 TG_2182,AUTHOR_NOT_VISIBLE,FLAG,F,U,السهم هذا مقسم في 22-6 امس التاريخ 22-7 حقق متوسط 30 يوم من تاريخ التقسيم · حقق المتوسط والدخول كما شرحته بالملي 1.70> 1.80,V4_VISUAL_PASS(via unit TG_1807),,,1
 TG_2189,ROLE,CONTRADICTED,COUNTEREXAMPLE,RULE_EVIDENCE,شمعه تلاعب واضحه وضغط من المضارب 1.99,V4_VISUAL_PASS(via unit IMG_0299),,,1
+TG_2206,ROLE,CONTRADICTED,COUNTEREXAMPLE,RULE_EVIDENCE,ماهي نماذج الهبوط الاجابيه,V4_VISUAL_PASS(via unit IMG_0153),,,1
+TG_2214,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,صعود السهم = 100٪ لو حققت منها 80٪ انت بطل · تاريخ التقسيم 7-14 اذا حقق متوسط 40 يوم ✅,V4_VISUAL_PASS(via unit IMG_0141),,,1
+TG_2214,AUTHOR_NOT_VISIBLE,FLAG,F,U,صعود السهم = 100٪ لو حققت منها 80٪ انت بطل · تاريخ التقسيم 7-14 اذا حقق متوسط 40 يوم ✅,V4_VISUAL_PASS(via unit IMG_0141),,,1
+TG_2215,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,تاريخ التقسيم 7-14 اذا حقق متوسط 40 يوم ✅ · الشرط تم عدم دخول قروبات فيه ✅,V4_VISUAL_PASS(via unit IMG_0141),,,1
+TG_2215,AUTHOR_NOT_VISIBLE,FLAG,F,U,تاريخ التقسيم 7-14 اذا حقق متوسط 40 يوم ✅ · الشرط تم عدم دخول قروبات فيه ✅,V4_VISUAL_PASS(via unit IMG_0141),,,1
+TG_2217,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,مؤشر كلنجر · تقاطع المتوسط المتحرك الأسي 9 26 · MACD 12 26 close 9 · DMI 14 14 · Stoch RSI 14 14 3 3 · ATR 14,V4_VISUAL_PASS(via unit TG_1998),,,1
+TG_2217,TICKER_NOT_VISIBLE,FLAG,ELAB,,مؤشر كلنجر · تقاطع المتوسط المتحرك الأسي 9 26 · MACD 12 26 close 9 · DMI 14 14 · Stoch RSI 14 14 3 3 · ATR 14,V4_VISUAL_PASS(via unit TG_1998),,,1
+TG_2217,DATE_NOT_VISIBLE,FLAG,2026-01-30,,مؤشر كلنجر · تقاطع المتوسط المتحرك الأسي 9 26 · MACD 12 26 close 9 · DMI 14 14 · Stoch RSI 14 14 3 3 · ATR 14,V4_VISUAL_PASS(via unit TG_1998),,,1
+TG_2274,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,اشهر نماذج الشموع التي تتاكد بنفسها او تشترط وجو تاكيد لشموع بعدها المفرده تؤكد نفسها الثنائية تتاكد بشمعة بعدها الثلاثية تاكيدها بوجودها وشمعتان بعدها,V4_VISUAL_PASS,,,1
