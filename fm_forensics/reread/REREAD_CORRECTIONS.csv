@@ -242,3 +242,7 @@ TG_1924,AUTHOR_NOT_VISIBLE,FLAG,F,U,قاب,V4_VISUAL_PASS(via unit TG_1962),,,1
 TG_1944,AUTHOR_NOT_VISIBLE,FLAG,F,U,2.14 شمعه الصعود السابقه فنيا > تكون دعم,V4_VISUAL_PASS,,,1
 TG_1945,AUTHOR_NOT_VISIBLE,FLAG,F,U,فريم يومي اخر دعم فنيا مايكسره 1.80,V4_VISUAL_PASS,,,1
 TG_1946,AUTHOR_NOT_VISIBLE,FLAG,F,U,فريم 30 دقيقه رسم المقاومه + الاهداف في حال الصعود,V4_VISUAL_PASS,,,1
+TG_1960,AUTHOR_NOT_VISIBLE,FLAG,F,U,تعني السهم حقق جميع نماذج الهبوط ولم يسبق له ارتفاع قريب متوسط حركه 30/ 50 مع تشبع بيعي RSI مع تقاطع ماكد,V4_VISUAL_PASS,,,1
+TG_1962,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,قاب,V4_VISUAL_PASS,,,1
+TG_1962,AUTHOR_NOT_VISIBLE,FLAG,F,U,قاب,V4_VISUAL_PASS,,,1
+TG_1979,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,دايم يتكلم عن اللاين الاحمر يعتبر دعم,V4_VISUAL_PASS,,,1
