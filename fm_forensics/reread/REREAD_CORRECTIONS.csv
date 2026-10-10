@@ -263,3 +263,11 @@ TG_20260918_06_CPOP,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,5.50 يجي�
 TG_20260918_06_CPOP,AUTHOR_NOT_VISIBLE,FLAG,F,U,5.50 يجيبها اليوم الباقي ممكن يكمل بالافتر · ذيل شمعة التقسيم السابقه 5.87 هدف,V4_VISUAL_PASS,,,1
 TG_20260918_08_NTCL,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,الاهداف فوق 100٪ 7 مؤكده والله اعلم 250٪ 13> 15 شموع ساقطه لايجزم فيها,V4_VISUAL_PASS,,,1
 TG_20260918_08_NTCL,AUTHOR_NOT_VISIBLE,FLAG,F,U,الاهداف فوق 100٪ 7 مؤكده والله اعلم 250٪ 13> 15 شموع ساقطه لايجزم فيها,V4_VISUAL_PASS,,,1
+TG_2028,AUTHOR_NOT_VISIBLE,FLAG,F,U,3.25 مقاومه ثانيه · 2.80 مقاومه اولى · 2.25 دعم اساسي,V4_VISUAL_PASS,,,1
+TG_2032,AUTHOR_NOT_VISIBLE,FLAG,F,U,تحرر 3.38 · مقاومه ثانيه 3.12 · مقاومة اولى 2.90 · شمعة همر مقلوبه او الشهاب الساقط,V4_VISUAL_PASS(via unit TG_2060),,,1
+TG_2040,AUTHOR_NOT_VISIBLE,FLAG,F,U,بعد التقسيم هبط الى 6 وصعد منها ل 24 200٪ · كون قاع بعد الارتفاع عند 4.21 صعد منها الى 8.50 = 100٪ · اذا الان كون قاع جديد بعد الارتفاع الاخير تقسيم ارتفاع قاع ارتفاع قاع جديد ارتفاع,V4_VISUAL_PASS,,,1
+TG_2045,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,فجوه سعريه,V4_VISUAL_PASS,,,1
+TG_2045,AUTHOR_NOT_VISIBLE,FLAG,F,U,فجوه سعريه,V4_VISUAL_PASS,,,1
+TG_2048,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,فجوه سعريه,V4_VISUAL_PASS,,,1
+TG_2048,AUTHOR_NOT_VISIBLE,FLAG,F,U,فجوه سعريه,V4_VISUAL_PASS,,,1
+TG_2060,AUTHOR_NOT_VISIBLE,FLAG,F,U,تحرر 3.38 · مقاومه ثانيه 3.12 · مقاومة اولى 2.90,V4_VISUAL_PASS,,,1
