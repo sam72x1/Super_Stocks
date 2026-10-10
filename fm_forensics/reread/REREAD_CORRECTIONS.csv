@@ -1088,6 +1088,15 @@ TG_2108,DATE_NOT_VISIBLE,FLAG,2026-04-0x,,السهم صعد تدريجي بعد 
 TG_2218,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,لاتعجل ع رزقك السهم جاهز ع جميع المؤشرات والشموع · يعجني بعض الاحيان مؤشر كلنجر · بانتظار فقط دخول المضارب يتم ذكره,V4_RULE_CITED,,R4-OP-01,1
 TG_2218,TICKER_NOT_VISIBLE,FLAG,CDIO,,لاتعجل ع رزقك السهم جاهز ع جميع المؤشرات والشموع · يعجني بعض الاحيان مؤشر كلنجر · بانتظار فقط دخول المضارب يتم ذكره,V4_RULE_CITED,,R4-OP-01,1
 TG_2218,DATE_NOT_VISIBLE,FLAG,2026-01-28,,لاتعجل ع رزقك السهم جاهز ع جميع المؤشرات والشموع · يعجني بعض الاحيان مؤشر كلنجر · بانتظار فقط دخول المضارب يتم ذكره,V4_RULE_CITED,,R4-OP-01,1
+TG_50579,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,بيشلغنا بالموجات · لازم يرجع يحقق المقاومه · بعده يرجع للدعم,PRODUCTION_LEDGER_CITED,,R4-CYC-01,1
+TG_50585,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,3.29 قاع · اختبار مقاومه ✅ · تبقى اختبار القاع 3.40 · $limn,PRODUCTION_LEDGER_CITED,,R4-CYC-01|R4-ZONE-01,1
+TG_50828,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,مش بطال · باقي اغلاق الطرح نهاية الشهر · شمعة الخبر 3 > 2.70 = E مقاومه - الشورت 20 ع وشك · Rsi 31 - باقي تكه نشوف 1.80 لو سحب السيوله - $cetx,PRODUCTION_LEDGER_CITED,SPLIT_SWEEP_MID_PCT,R4-VAL-OFF-01,1
+TG_50828,DATE_NOT_VISIBLE,FLAG,2026-09-2x,,مش بطال · باقي اغلاق الطرح نهاية الشهر · شمعة الخبر 3 > 2.70 = E مقاومه - الشورت 20 ع وشك · Rsi 31 - باقي تكه نشوف 1.80 لو سحب السيوله - $cetx,PRODUCTION_LEDGER_CITED,SPLIT_SWEEP_MID_PCT,R4-VAL-OFF-01,1
+TG_57867,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,اعادة الاخبار شمعة ساقطه قبل التقسيم 5 · ضغط متوقع 20> 30٪ · حقق المقاومه · انتظار تحقيق الدعم او سحب السيوله,PRODUCTION_LEDGER_CITED,,R4-CYC-01,1
+TG_57872,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,اعادة الاختبار شرط اساسي · يطبق عليه متوسط 10<20 · تحقيق مقاومه 2.64 · انتظار تحقيق سحب سيوله او ثبات قاع,PRODUCTION_LEDGER_CITED,,R4-CYC-01,1
+TG_57879,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,✅,PRODUCTION_LEDGER_CITED,,R4-SWEEP-01,1
+TG_57884,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,ربما عنده موجه هابطه لتحقيق الدعوم وسحب السيوله · تمثل الموجات الهابطه -25٪ · بعد اختبار المقاومه · القاع 2.26 · سحب السيوله 2 · الاجابيه ثبات اسفل الدعم,PRODUCTION_LEDGER_CITED,,R4-CYC-01,1
+TG_57884,DATE_NOT_VISIBLE,FLAG,2026-09-26,,ربما عنده موجه هابطه لتحقيق الدعوم وسحب السيوله · تمثل الموجات الهابطه -25٪ · بعد اختبار المقاومه · القاع 2.26 · سحب السيوله 2 · الاجابيه ثبات اسفل الدعم,PRODUCTION_LEDGER_CITED,,R4-CYC-01,1
 TG_20260905_06,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,هذا دعمه · الازرق فجوة لازم يغطيها,PRODUCTION_LEDGER_CITED,,,1
 TG_20260905_06,AUTHOR_NOT_VISIBLE,FLAG,F,U,هذا دعمه · الازرق فجوة لازم يغطيها,PRODUCTION_LEDGER_CITED,,,1
 TG_20260905_06,DATE_NOT_VISIBLE,FLAG,2026-09-04,,هذا دعمه · الازرق فجوة لازم يغطيها,PRODUCTION_LEDGER_CITED,,,1
