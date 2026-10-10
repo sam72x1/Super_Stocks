@@ -82,10 +82,1221 @@
   },
   "errors": [],
   "inputs": {
-   "provenance_sha256": "04ffe5ae0ade9f94ad5366f1265a2b265b492d8876920f4485b1f7b013fc9ce1",
+   "provenance_sha256": "7adf6da23dd6f6c8784ee3f53e25626fd61f0ffc7a2b79e98a04110ce1750998",
    "snapshot_sha256": "8447b31e642a8593e84bacf081843b94e5ce4254172cdd476bd603d89989180c",
    "rank_bars_sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c",
    "rank_rows_sha256": "8a506495a17dcd1849283e6607d1018e4339f9cf253f587a83297225da59d890"
+  },
+  "archive_xref": {
+   "head_chars": 400,
+   "pairs": 93,
+   "by_class": {
+    "CITED": 76,
+    "CITED_ELSEWHERE": 5,
+    "NOT_GATE_EVIDENCE": 12
+   },
+   "by_why": {
+    "IMPLEMENTATION": 2,
+    "MEMORY": 1,
+    "OTHER_SYSTEM": 3,
+    "INCIDENTAL": 6
+   },
+   "rows": [
+    {
+     "gate": "ANCHOR_TWO_TOUCH",
+     "anchor": "اعتمادُ الذراع الصارمة حيًّا",
+     "terms": [
+      "ANCHOR_MODE",
+      "T-ANCHOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "O_ANCHOR_0814"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "ANCHOR_TWO_TOUCH",
+     "anchor": "يومُ «الضغط قبل الانفجار»",
+     "terms": [
+      "T-ANCHOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TANCHOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "BORROW_AVAIL",
+     "anchor": "T-BORROW — «المتاح للاقتراض»: قِيس ثم طُبِّق",
+     "terms": [
+      "T-BORROW"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TBORROW"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "BORROW_AVAIL",
+     "anchor": "`T-BORROW-FALL` — «سجّل تجربة المتاح»",
+     "terms": [
+      "T-BORROW-FALL"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TBORROWFALL"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "BORROW_AVAIL",
+     "anchor": "«طبّق 20» + «اقفل الباب» + «صلّح الترتيب»",
+     "terms": [
+      "BORROW_AVAIL_MAX"
+     ],
+     "class": "CITED",
+     "refs": [
+      "O_BORROW20_0811"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "CAPACITY_SLOTS",
+     "anchor": "T-SLOT — سياسة الخانات: الذراعان تأهّلا",
+     "terms": [
+      "T-SLOT"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TSLOT"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "CAPACITY_SLOTS",
+     "anchor": "«اعتمد سعة 15» — قرارُ المالك",
+     "terms": [
+      "WATCHLIST_SIZE",
+      "T-CAP"
+     ],
+     "class": "CITED",
+     "refs": [
+      "O_CAP15_0812"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "CAPACITY_SLOTS",
+     "anchor": "ليلة 2026-08-07/08 — T-CAP وT-M13",
+     "terms": [
+      "T-CAP",
+      "T-SLOT"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TCAP"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "CAPACITY_SLOTS",
+     "anchor": "🧹🔴 «نفّذ كل شي المعلَّق — إذا ملف فيصل التعليمي يدعمه»",
+     "terms": [
+      "T-SLOT"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "MEMORY",
+     "note": "memory correction: T-SLOT had already shipped"
+    },
+    {
+     "gate": "DQ_GATE",
+     "anchor": "«CRITICAL MISSION — سلامةُ البيانات»",
+     "terms": [
+      "DQ_GATE"
+     ],
+     "class": "CITED_ELSEWHERE",
+     "refs": [
+      "O_DQ_1001"
+     ],
+     "why": null,
+     "note": "archive record of the owner's data-integrity order; the order is cited from data_integrity_result.md"
+    },
+    {
+     "gate": "M10_RSI_NOW",
+     "anchor": "T-CORE5 — «قد تكفي 5 بوّابات لا 14»",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TCORE5"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M10_RSI_NOW",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M10_RSI_NOW",
+     "anchor": "`T-RSI40` «سجّل RSI 40»",
+     "terms": [
+      "T-RSI40"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TRSI40"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M10_RSI_NOW",
+     "anchor": "`T-SUPDEF` — «اقفل الدعم»",
+     "terms": [
+      "T-RSI40"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "cross-reference to the closed RSI-40 axis while closing the support-definition axis"
+    },
+    {
+     "gate": "M10_RSI_NOW",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M10_RSI_OS",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M10_RSI_OS",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M13_SHORT",
+     "anchor": "T-CORE5 — «قد تكفي 5 بوّابات لا 14»",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TCORE5"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M13_SHORT",
+     "anchor": "دفتر مصادر القواعد `FAISAL_SOURCE_LEDGER.md`",
+     "terms": [
+      "SHORT_GATE_MAX"
+     ],
+     "class": "CITED_ELSEWHERE",
+     "refs": [
+      "A_SHORT_40K"
+     ],
+     "why": null,
+     "note": "the ledger itself is the cited record that 40,000 has no Faisal source"
+    },
+    {
+     "gate": "M13_SHORT",
+     "anchor": "ليلة 2026-08-07/08 — T-CAP وT-M13",
+     "terms": [
+      "T-M13"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TM13"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M13_SHORT",
+     "anchor": "يوم القياس + T-SHORT",
+     "terms": [
+      "T-SHORT"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TSHORT"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M14_FLOAT",
+     "anchor": "T-CORE5 — «قد تكفي 5 بوّابات لا 14»",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TCORE5"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M1_PRICE",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M1_PRICE",
+     "anchor": "أوّلُ تشغيلةٍ حيّة ببوّابات فيصل",
+     "terms": [
+      "MIN_PRICE"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "IMPLEMENTATION",
+     "note": "first live run printing the catalogue values"
+    },
+    {
+     "gate": "M1_PRICE",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M2_CEIL",
+     "anchor": "T-ENVREF — «الظرف الصادق» فشلت",
+     "terms": [
+      "T-ENVREF"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TENVREF"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M2_CEIL",
+     "anchor": "T-M2REF — «مرجع الهبوط الواعي بالتقسيم»",
+     "terms": [
+      "T-M2REF"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TM2REF"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M2_CEIL",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M2_CEIL",
+     "anchor": "`T-CEILING` — «قس السقف»",
+     "terms": [
+      "T-CEILING"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TCEILING"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M2_CEIL",
+     "anchor": "«خلّ السقف» (2026-08-16)",
+     "terms": [
+      "MAX_DROP_PCT"
+     ],
+     "class": "CITED",
+     "refs": [
+      "O_CEILING_KEEP_0816"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M2_CEIL",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M2_FLOOR",
+     "anchor": "T-ENVREF — «الظرف الصادق» فشلت",
+     "terms": [
+      "T-ENVREF"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TENVREF"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M2_FLOOR",
+     "anchor": "T-M2REF — «مرجع الهبوط الواعي بالتقسيم»",
+     "terms": [
+      "T-M2REF"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TM2REF"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M2_FLOOR",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M2_FLOOR",
+     "anchor": "أوّلُ تشغيلةٍ حيّة ببوّابات فيصل",
+     "terms": [
+      "MIN_DROP_FLOOR"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "IMPLEMENTATION",
+     "note": "first live run printing the catalogue values"
+    },
+    {
+     "gate": "M2_FLOOR",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M3_FLOOR",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M3_FLOOR",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M4_RANGE",
+     "anchor": "M4-ISO — ✅ أوّل تجربةٍ مسجَّلة مسبقًا",
+     "terms": [
+      "BASE_RANGE_MAX_PCT",
+      "M4-ISO"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_M4ISO"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M4_RANGE",
+     "anchor": "M4-LADDER — فشلت وسحبت اقتراح",
+     "terms": [
+      "M4-ISO",
+      "M4-LADDER"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_M4LADDER"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M4_RANGE",
+     "anchor": "`T-BASE-475` — «قِس 475»",
+     "terms": [
+      "T-BASE-475"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TBASE475"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M4_RANGE",
+     "anchor": "ذراعا المحفظة على لقطات PIT الثلاث",
+     "terms": [
+      "M4-ISO"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "names M4-ISO as the shared portfolio tool; the twenty then held the catalogue base cap (P90 475), replaced by the owner's 120 on 2026-08-10"
+    },
+    {
+     "gate": "M4_RANGE_PULLBACK",
+     "anchor": "T-REBOUND-2 — نجحت 5/5",
+     "terms": [
+      "T-REBOUND-2"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TREBOUND2"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M4_RANGE_PULLBACK",
+     "anchor": "T-REBOUND-HOLD — فشلت: الممسوكون عند مستوى مُختبَر",
+     "terms": [
+      "T-REBOUND-HOLD"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TREBOUNDHOLD"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M4_RANGE_PULLBACK",
+     "anchor": "مسكةُ WETO/CAPR ⟵ رادارُ الضغط مبنيٌّ",
+     "terms": [
+      "T-REBOUND-HOLD"
+     ],
+     "class": "CITED_ELSEWHERE",
+     "refs": [
+      "E_TREBOUNDHOLD"
+     ],
+     "why": null,
+     "note": "registration of T-REBOUND-HOLD; the verdict is cited at its own entry"
+    },
+    {
+     "gate": "M4_RISE",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M4_RISE",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M5_DOLLAR_VOL",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M5_DOLLAR_VOL",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "NEAR_READINESS",
+     "anchor": "T-CORE5 — «قد تكفي 5 بوّابات لا 14»",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TCORE5"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "NEAR_READINESS",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "NEAR_READINESS",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RANK_KEY",
+     "anchor": "T-PROX — «القريبُ من الدخول يتقدّم»",
+     "terms": [
+      "T-PROX"
+     ],
+     "class": "CITED",
+     "refs": [
+      "O_PROX_0807"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RANK_KEY",
+     "anchor": "T-RANKER — فشلت (1 من 5)",
+     "terms": [
+      "T-RANKER",
+      "T-REPLAY10"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TRANKER"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RANK_KEY",
+     "anchor": "T-RANKER-TIE — الأداةُ مبنيّة والتسجيلُ مدفوعٌ",
+     "terms": [
+      "T-RANKER-TIE",
+      "T-REPLAY10"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TRANKERTIE"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RANK_KEY",
+     "anchor": "T-RANKER2 — «حسّن المُرتِّب»",
+     "terms": [
+      "T-PROX",
+      "T-RANKER2"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TRANKER2"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RANK_KEY",
+     "anchor": "T-RANKER3 — «الارتكاز الذي يجهّزه المضارب»",
+     "terms": [
+      "T-RANKER3"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TRANKER3"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RANK_KEY",
+     "anchor": "T-REPLAY10 — ✅ البوّابة عبرت",
+     "terms": [
+      "T-REPLAY10"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TREPLAY10"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RANK_KEY",
+     "anchor": "T-TIE-4H «سجّل 4س» — تسجيلٌ لا قرار",
+     "terms": [
+      "T-TIE-4H"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TTIE4H"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RANK_KEY",
+     "anchor": "T-TIE-FWD — الحصادُ الأماميّ",
+     "terms": [
+      "T-RANKER-TIE",
+      "T-TIE-FWD"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TTIEFWD"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RANK_KEY",
+     "anchor": "`T-RANK-DENSE` «رتّب المرتب»",
+     "terms": [
+      "T-RANK-DENSE"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TRANKDENSE"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RANK_KEY",
+     "anchor": "مراجعةُ الاثني عشر مستودعًا",
+     "terms": [
+      "T-RANKER-TIE"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "external-repository review; names the fixed-budget rule applied in T-RANKER-TIE"
+    },
+    {
+     "gate": "RR_SOFT_COUNT",
+     "anchor": "M14 صارت بوّابة صلبة — «يكون مستبعد تماما»",
+     "terms": [
+      "WATCH_MAX_FAILS"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "HTZ and PONY passed at exactly the soft-count limit — the reason M14 became hard; not a measurement of the soft count"
+    },
+    {
+     "gate": "RR_SOFT_COUNT",
+     "anchor": "T-CORE5 — «قد تكفي 5 بوّابات لا 14»",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TCORE5"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RR_SOFT_COUNT",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "RR_SOFT_COUNT",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SCORE_MIN",
+     "anchor": "T-CORE5 — «قد تكفي 5 بوّابات لا 14»",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TCORE5"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SCORE_MIN",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SCORE_MIN",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_COUNT",
+     "anchor": "M14 صارت بوّابة صلبة — «يكون مستبعد تماما»",
+     "terms": [
+      "WATCH_MAX_FAILS"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "HTZ and PONY passed at exactly the soft-count limit — the reason M14 became hard; not a measurement of the soft count"
+    },
+    {
+     "gate": "SOFT_COUNT",
+     "anchor": "T-CORE5 — «قد تكفي 5 بوّابات لا 14»",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TCORE5"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_COUNT",
+     "anchor": "T-FAILS — «فيتو النواقص»",
+     "terms": [
+      "T-FAILS"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAILS"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_COUNT",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_COUNT",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_COUNT",
+     "anchor": "ذراعا المحفظة على لقطات PIT الثلاث",
+     "terms": [
+      "T-FAILS"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_PIT20"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_COUNT",
+     "anchor": "مكدّس الجدران ‏+ T-FAILS",
+     "terms": [
+      "T-FAILS"
+     ],
+     "class": "CITED_ELSEWHERE",
+     "refs": [
+      "E_TFAILS"
+     ],
+     "why": null,
+     "note": "registration and raw numbers of T-FAILS; the verdict is cited at its own entry"
+    },
+    {
+     "gate": "SOFT_M10_RSI",
+     "anchor": "«شروطك الثلاثة» بأمر المالك الثالث",
+     "terms": [
+      "RSI_OVERSOLD"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "OTHER_SYSTEM",
+     "note": "the three-conditions tool reads RSI_OVERSOLD by name; not a measurement of the soft RSI condition"
+    },
+    {
+     "gate": "SOFT_M10_RSI",
+     "anchor": "🗓️🔎⑨ «وحد 33 في التقريرين»",
+     "terms": [
+      "RSI_OVERSOLD"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "OTHER_SYSTEM",
+     "note": "the weekly and period reports read RSI_OVERSOLD by name; not a measurement of the soft RSI condition"
+    },
+    {
+     "gate": "SOFT_M12_EMA",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_M12_EMA",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_M6_TF",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_M6_TF",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_M9_GAP_ABOVE",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "SOFT_M9_GAP_ABOVE",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "STABILITY_BT",
+     "anchor": "T-STABILITY — «سجّل الثبات وقِسه»",
+     "terms": [
+      "T-STABILITY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TSTABILITY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "STOPPED_EXCLUSION",
+     "anchor": "⛏️🕐 التسجيلُ والأداة",
+     "terms": [
+      "T-SWEEP-RECLAIM"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "OTHER_SYSTEM",
+     "note": "T-RECLAIM-INTRADAY: intraday re-entry after a structural exit of a live liquidity anchor; names T-SWEEP-RECLAIM as its predecessor"
+    },
+    {
+     "gate": "TIER",
+     "anchor": "M14 صارت بوّابة صلبة — «يكون مستبعد تماما»",
+     "terms": [
+      "WATCH_MAX_FAILS"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "HTZ and PONY passed at exactly the soft-count limit — the reason M14 became hard; not a measurement of the soft count"
+    },
+    {
+     "gate": "TIER",
+     "anchor": "T-CORE5 — «قد تكفي 5 بوّابات لا 14»",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TCORE5"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "TIER",
+     "anchor": "T-FAILS — «فيتو النواقص»",
+     "terms": [
+      "T-FAILS"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAILS"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "TIER",
+     "anchor": "T-MINFLOOR — حدُّ المالك المنصوص (P100)",
+     "terms": [
+      "T-MINFLOOR"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TMINFLOOR"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "TIER",
+     "anchor": "حكم T-FAISAL-ONLY — فشلت",
+     "terms": [
+      "T-FAISAL-ONLY"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "TIER",
+     "anchor": "ذراعا المحفظة على لقطات PIT الثلاث",
+     "terms": [
+      "T-FAILS"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_PIT20"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "TIER",
+     "anchor": "مكدّس الجدران ‏+ T-FAILS",
+     "terms": [
+      "T-FAILS"
+     ],
+     "class": "CITED_ELSEWHERE",
+     "refs": [
+      "E_TFAILS"
+     ],
+     "why": null,
+     "note": "registration and raw numbers of T-FAILS; the verdict is cited at its own entry"
+    }
+   ]
   },
   "pool_question": {
    "threshold": 20000.0,
@@ -772,7 +1983,8 @@
    "verify": {
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "**③ T-BASE-2**"
-   }
+   },
+   "scope": "THIS_GATE"
   },
   "E_TFAILS": {
    "kind": "EXPERIMENT",
@@ -782,17 +1994,19 @@
    "verify": {
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "T-FAILS — «فيتو النواقص»"
-   }
+   },
+   "scope": "THIS_GATE"
   },
   "E_TM13": {
    "kind": "EXPERIMENT",
    "stance": "null",
    "ref": "T-SHORT · T-M13",
-   "summary": "tightening the FINRA short gate flips sign across years",
+   "summary": "tightening the FINRA short gate (10,000 or less vs 20–40,000) flips sign across years (T-SHORT; T-M13 on the production pool: +10 · −2 · +5, overlapping intervals); descriptively the slice above 40,000 — what M13 removes — was weaker in all three years (success 20/17/13%, m13_result.md ①), a description, not a registered test of removal",
    "verify": {
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "**② T-M13**"
-   }
+   },
+   "scope": "THIS_GATE"
   },
   "E_TREBOUND2": {
    "kind": "EXPERIMENT",
@@ -802,7 +2016,8 @@
    "verify": {
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "T-REBOUND-2 — نجحت 5/5"
-   }
+   },
+   "scope": "THIS_GATE"
   },
   "E_TCAP": {
    "kind": "EXPERIMENT",
@@ -812,7 +2027,8 @@
    "verify": {
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "**① T-CAP**"
-   }
+   },
+   "scope": "THIS_GATE"
   },
   "E_TSTABILITY": {
    "kind": "EXPERIMENT",
@@ -822,7 +2038,8 @@
    "verify": {
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "T-STABILITY — «سجّل الثبات وقِسه»"
-   }
+   },
+   "scope": "THIS_GATE"
   },
   "E_TRSI40": {
    "kind": "EXPERIMENT",
@@ -832,7 +2049,8 @@
    "verify": {
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "`T-RSI40` «سجّل RSI 40»"
-   }
+   },
+   "scope": "THIS_GATE"
   },
   "A_SEARCHED": {
    "kind": "ABSENCE",
@@ -1244,6 +2462,345 @@
     "file": "Super_stock.py",
     "contains": "def rank_key("
    }
+  },
+  "E_TSWEEP_RECLAIM": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "RELATED_RULE",
+   "ref": "T-SWEEP-RECLAIM (sweep_reclaim_result.md)",
+   "summary": "automatic re-entry when a stopped name reclaims its support failed 0 of 3 criteria (−0.041R W5 n=715 · −0.059R W10 n=937 · 2024 +0.07 · worst year −0.14); it tested re-entry at the reclaim, not the screener re-picking a stopped name — no support for removing the exclusion and none for keeping it",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "⛏️ **② `T-SWEEP-RECLAIM`**"
+   }
+  },
+  "P_ROOTCAUSE_STOP": {
+   "kind": "PRIOR_AUDIT",
+   "stance": "neutral",
+   "ref": "root-cause investigation 2026-07-30",
+   "summary": "the stop at pivot×0.93 collides with Faisal's 7–13% sweep: −8/−10/−13/−20% sweeps end stopped and the exclusion keeps them out for the week; the testable form named was re-acceptance after sweep-and-reclaim (later T-SWEEP-RECLAIM)",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "ثم `EXCLUDE_STOPPED_FROM_RENEWAL` يمنع عودته أسبوعًا"
+   }
+  },
+  "E_TCEILING": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "T-CEILING (ceiling_result.md)",
+   "summary": "raising or removing the drop ceiling (99.95 → 99.99 / 99.999 / none) adds 1 exploder (3,934 → 3,953 signals) and −0.0017R over 2024–2026 — inside noise; the names it rejects are rejected by another wall (458 firings vs 19 signals)",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "`T-CEILING` — «قس السقف»"
+   }
+  },
+  "E_TM2REF": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "T-M2REF (m2ref_result.md)",
+   "summary": "measuring the drop from the post-split high delivered 41 vs 42 exploders and the direction flips — no material difference by its registered rule; secondary: R per trade +0.10/+0.22/+0.17 and 60% of the signals' collapses were split-inflated",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-M2REF — «مرجع الهبوط الواعي بالتقسيم»"
+   }
+  },
+  "E_TENVREF": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "T-ENVREF (envref_result.md)",
+   "summary": "a split-aware («honest») M2 band from the catalogue [25.5 · 95.0] vs the adjusted band [89.6 · 99.7] (P90 era) delivered 39 vs 42 (2024 −6) — not adopted; closed unless a live split channel is built",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-ENVREF — «الظرف الصادق» فشلت"
+   }
+  },
+  "E_TMINFLOOR": {
+   "kind": "EXPERIMENT",
+   "stance": "supports",
+   "scope": "BUNDLE",
+   "ref": "T-MINFLOOR (minfloor_result.md)",
+   "summary": "all catalogue edges at P100 vs P90, jointly: precision +3.7/+4.0/+1.5 pts, R per trade −0.32 → −0.195 (still negative), delivered exploders 42 → 53, signals ×5.5 — favours P100 over P90 as a bundle; not separable per threshold",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**الأرقام:** الدقة **‏+3.7 · +4.0 · +1.5 نقطة**"
+   }
+  },
+  "E_TFAISALONLY": {
+   "kind": "EXPERIMENT",
+   "stance": "mixed",
+   "scope": "BUNDLE",
+   "ref": "T-FAISAL-ONLY (faisal_only_result.md)",
+   "summary": "the catalogue envelope (P90, 2026-08-06) as the screener's gates: enrichment ×3.80 passed; capture 14.6% (50% required) and cost 121/day (50 allowed) failed — the owner adopted the catalogue numbers by order, not on this result",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "حكم T-FAISAL-ONLY — فشلت"
+   }
+  },
+  "E_PIT20": {
+   "kind": "EXPERIMENT",
+   "stance": "supports",
+   "scope": "BUNDLE",
+   "ref": "pit_prereg.md §⑧/⑨ (2026-08-07)",
+   "summary": "the twenty Faisal-only numbers then in force (P90 edges and medians) vs the previous numbers on three PIT snapshots, top-15 portfolio: delivered +100% exploders 6·5·4 vs 1·4·1 (15 vs 6), higher per delivered trade, +50% share not lost — registered conditions met",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "ذراعا المحفظة على لقطات PIT الثلاث — «العشرون تُبقى»"
+   }
+  },
+  "E_TCORE5": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "BUNDLE",
+   "ref": "T-CORE5 (core5_result.md)",
+   "summary": "dropping the derived walls with M13/M14 (soft-count veto, near-entry, score, RR, RSI-now, short, float) on pre-catalogue values: raw ×8 signals with R up in all three years (the walls bought no measurable quality); top-15 portfolio +0.80/+2.02/−4.13 (flips in year three) ⇒ failed its non-degradation criterion",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-CORE5 — «قد تكفي 5 بوّابات لا 14»"
+   }
+  },
+  "E_C3RELAX": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "BUNDLE",
+   "ref": "measurement day 2026-07-27 ④",
+   "summary": "relaxing the hard walls 97 / 20 sessions / $200K to 99.5 / 60 / $100K jointly neither improves nor harms (success 25.9↔25.9 · 33.6↔32.4 · exploders 11↔10 on 243+213 trades); today's ceiling and dollar floor come from the catalogue",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**④ تخفيف البوابات"
+   }
+  },
+  "E_TCHASE": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "T-CHASE (chase_result.md)",
+   "summary": "restoring the chase cap from 214.73 (P100) to 35 (the owner's D11 number) met its three guards (delivered exploders 53 → 50, R −0.016, signals −0.5%) — adoptable without harm, no measured gain; no adoption recorded",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**① T-CHASE**"
+   }
+  },
+  "E_TBASE": {
+   "kind": "EXPERIMENT",
+   "stance": "mixed",
+   "scope": "SUPERSEDED_VALUE",
+   "ref": "T-BASE (base_result.md)",
+   "summary": "base cap 40 vs the P100 edge 23,684: 40 rejects LGHL but costs delivered exploders 53 → 41 (−22.6%; 2025 −31.8%) with precision +0.7..+1.8 in all three years — not adopted; neither arm is today's 120",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**② T-BASE**"
+   }
+  },
+  "E_TBASE475": {
+   "kind": "EXPERIMENT",
+   "stance": "mixed",
+   "scope": "THIS_GATE",
+   "ref": "T-BASE-475 (base475_result.md)",
+   "summary": "120 (owner) vs 475.2 (catalogue P90): 475 delivers +10 exploders (76 vs 66, higher in two of three years) with 7–8× fewer rejections, but admits LGHL (guard d) and R is inconclusive (guard c) — not adopted; 120 is kept for the LGHL protection, not for delivery",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "`T-BASE-475` — «قِس 475»"
+   }
+  },
+  "E_M4ISO": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "SUPERSEDED_VALUE",
+   "ref": "M4-ISO (m4_iso_result.md)",
+   "summary": "opening the base cap alone vs 40: top-15 portfolio +1.53/+1.17/+2.54 pts, exploders 23 → 35 — met its criterion, then withdrawn by M4-LADDER (z = 0.72, p ≈ 0.47; the criterion had no significance test)",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "M4-ISO — ✅ أوّل تجربةٍ مسجَّلة مسبقًا"
+   }
+  },
+  "E_M4LADDER": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "SUPERSEDED_VALUE",
+   "ref": "M4-LADDER (m4_ladder_result.md)",
+   "summary": "base caps 40/60/80/100/none: none meets the criterion (each negative in 2024) and the ladder is not monotone — noise; more exploders and more losers in the same proportion (volume, not edge)",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "M4-LADDER — فشلت وسحبت اقتراح"
+   }
+  },
+  "E_TREBOUNDHOLD": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "T-REBOUND-HOLD (rebound_hold_prereg.md §⑧)",
+   "summary": "wide-base names held at a tested level reached +50% at 13.8% [11.5, 16.5] vs 18.8% [13.6, 25.4] for accepted pullbacks — overlapping, no benefit or harm claimed; the per-episode delivery measured next is T-REBOUND-2",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-REBOUND-HOLD — فشلت: الممسوكون عند مستوى مُختبَر"
+   }
+  },
+  "E_TSHORT": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "T-SHORT (short_thread_prereg.md)",
+   "summary": "FINRA short volume under 10,000, point-in-time: +10 · +29 · −7 — flips in the third year, no change on M13; it tested FINRA volume, not availability",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**⛔ T-SHORT**"
+   }
+  },
+  "E_TSLOT": {
+   "kind": "EXPERIMENT",
+   "stance": "supports",
+   "scope": "THIS_GATE",
+   "ref": "T-SLOT (slot_result.md)",
+   "summary": "freeing the slot of a name unfilled after 8 sessions (S-NF8) delivered 26/19/11 vs 22/14/6 exploders (d50_adj, higher in every year, 56 vs 42) with the return guard met — shipped by owner order",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-SLOT — سياسة الخانات: الذراعان تأهّلا"
+   }
+  },
+  "E_TBORROW": {
+   "kind": "EXPERIMENT",
+   "stance": "mixed",
+   "scope": "THIS_GATE",
+   "ref": "T-BORROW (borrow_gate_result.md)",
+   "summary": "registered separation conditions met (median availability: Faisal entries 10,000 · our list 350,000 · market 700,000) and the cost measured (20,000 keeps 1 of 14) — but the separation is descriptive and circular (categories labelled after the event); applied by owner order «طبّق 20»",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-BORROW — «المتاح للاقتراض»: قِيس ثم طُبِّق"
+   }
+  },
+  "E_TBORROWFALL": {
+   "kind": "EXPERIMENT",
+   "stance": "neutral",
+   "scope": "THIS_GATE",
+   "ref": "T-BORROW-FALL (borrow_fall_prereg.md)",
+   "summary": "registered prospective harvest of ejected names' availability; no verdict — its file borrow_watch.jsonl is written on the runner but not in the git_save list, so nothing accumulates (reported 2026-10-09; persisting it would add ChartExchange lookups ⇒ owner decision)",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "`T-BORROW-FALL` — «سجّل تجربة المتاح»"
+   }
+  },
+  "E_TRANKER2": {
+   "kind": "EXPERIMENT",
+   "stance": "supports",
+   "scope": "THIS_GATE",
+   "ref": "T-RANKER2 (ranker2_result.md)",
+   "summary": "no new arm adopted; the live key (in-band first, T-PROX) delivered 42 vs the legacy key's 30 (+40%; +100%: 18 vs 13), at least equal in each of three PIT years and above all 200 random shuffles in 2024",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-RANKER2 — «حسّن المُرتِّب»"
+   }
+  },
+  "E_TRANKER": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "SUPERSEDED_VALUE",
+   "ref": "T-RANKER (ranker_result.md)",
+   "summary": "alternative keys (rr, diversification, 200 random shuffles) vs the pre-T-PROX key: every paired difference includes zero (1 of 5); the pool then delivered 0–3 exploders a year",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-RANKER — فشلت (1 من 5)"
+   }
+  },
+  "E_TRANKER3": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "T-RANKER3 (ranker3_result.md)",
+   "summary": "an operator-prepared-pivot ranking beat the random p95 in one year of three (two required) — not adopted; R +0.043 aggregate; the governing metric d50@3 nearly degenerate",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-RANKER3 — «الارتكاز الذي يجهّزه المضارب»"
+   }
+  },
+  "E_TRANKDENSE": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "T-RANK-DENSE (ranker_dense_result.md)",
+   "summary": "dense walk (873 sessions, 64,472 candidates): the alternative key failed 2 of 4; descriptively the production key's net R per day was below the random-shuffle median in all three years (−0.16/−0.16/−0.11) — possibly a trade-count effect at negative expectancy, unresolved",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "`T-RANK-DENSE` «رتّب المرتب»"
+   }
+  },
+  "E_TREPLAY10": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "SUPERSEDED_VALUE",
+   "ref": "T-REPLAY10 (replay10_result.md)",
+   "summary": "faithful replay tool (gate 1.0000); verdict inconclusive — the pre-T-PROX ranker worked at chance level",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-REPLAY10 — ✅ البوّابة عبرت"
+   }
+  },
+  "E_TRANKERTIE": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "T-RANKER-TIE (ranker_tie_result.md)",
+   "summary": "tie-breaker by catalogue depth vs the production score/rr tie-break: not better (R −0.116/−0.307/−0.142 vs −0.102/−0.229/−0.120) and the backtest density (1–2 candidates per session) does not reach the live phenomenon",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "والنتيجةُ صدرت في اليوم نفسه — `ranker_tie_result.md`"
+   }
+  },
+  "E_TTIEFWD": {
+   "kind": "EXPERIMENT",
+   "stance": "neutral",
+   "scope": "THIS_GATE",
+   "ref": "T-TIE-FWD (tie_harvest_prereg.md)",
+   "summary": "prospective harvest of tie cohorts (taken and cut) stored in the watchlist; no verdict recorded in the archive",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-TIE-FWD — الحصادُ الأماميّ"
+   }
+  },
+  "E_TTIE4H": {
+   "kind": "EXPERIMENT",
+   "stance": "neutral",
+   "scope": "THIS_GATE",
+   "ref": "T-TIE-4H (tie_harvest_prereg.md §⑩)",
+   "summary": "registration only: the 4h confirmation score is logged for tie cohorts (it is zero for everyone at decision time because enrich runs after select_top); no verdict",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "T-TIE-4H «سجّل 4س» — تسجيلٌ لا قرار"
+   }
+  },
+  "E_RANKENGINE": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "RELATED_RULE",
+   "ref": "RANKING_PROTOCOL.md · RANKING_REPORT.md (#592/#593)",
+   "summary": "research rankers on a rebuilt universe under a 108-name budget: C captured 6/22 Faisal episodes vs the bot's 2/22; C − bot +0.182 with the 98.33% lower bound at 0.000 ⇒ «IMPROVEMENT NOT DEMONSTRATED» (EXPLORATORY; pipeline vs pipeline, not the ranking key alone)",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "المرتِّبُ تحت ميزانية 108: الحكمُ 2 «IMPROVEMENT NOT DEMONSTRATED»"
+   }
+  },
+  "E_TANCHOR": {
+   "kind": "EXPERIMENT",
+   "stance": "supports",
+   "scope": "THIS_GATE",
+   "ref": "T-ANCHOR (anchor_prereg.md §⑫)",
+   "summary": "the strict tested-level anchor passed its four guards: delivered exploders 88 vs 62 (+42%) with no year lower; ΔR +0.079 aggregate but flips yearly (2026 −0.055); cost ≈52% of signals cut",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "**③ حرّاسُ `T-ANCHOR` جُمعوا"
+   }
+  },
+  "P_WALLS_0812": {
+   "kind": "PRIOR_AUDIT",
+   "stance": "neutral",
+   "ref": "«قِس الجدران» (walls_result.md)",
+   "summary": "the derived walls (NEAR_PCT, SCORE_MIN, MIN_RR_T1, WATCH_MAX_FAILS, RSI_OS_HARD, RSI_NOW_HARD) as the only wall: 25 of 19,893 market days (0.13%) and 48 of 9,023 movers (0.53%); the near-entry wall is structurally dead at NEAR_PCT 0 (0 in 35,633 days)",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "«قِس الجدران» — سُحبت قبل تسجيلها"
+   }
   }
  },
  "gates": [
@@ -1609,7 +3166,10 @@
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
        "O_P100_0808",
-       "X_M1_SCOPE"
+       "X_M1_SCOPE",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 0.4
      }
@@ -1787,7 +3347,10 @@
     ],
     "concept_refs": [
      "O_CEILING_KEEP_0816",
-     "X_POST_SPLIT_FRAME"
+     "X_POST_SPLIT_FRAME",
+     "E_TCEILING",
+     "E_TM2REF",
+     "E_TENVREF"
     ],
     "hardness_refs": [
      "O_CEILING_KEEP_0816"
@@ -1809,7 +3372,11 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_C3RELAX",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 99.95
      }
@@ -1910,7 +3477,9 @@
      "V23_MIN_DROP_PCT"
     ],
     "concept_refs": [
-     "F_PIVOT_IDENTITY"
+     "F_PIVOT_IDENTITY",
+     "E_TM2REF",
+     "E_TENVREF"
     ],
     "hardness_refs": [
      "R_IDENTITY_STRICT"
@@ -1932,7 +3501,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 71.7203
      }
@@ -2053,7 +3625,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 78.2738
      },
@@ -2067,7 +3642,8 @@
       "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
       "number_origin": "INHERITED",
       "refs": [
-       "V23_PRIOR_SPIKE_WINDOW"
+       "V23_PRIOR_SPIKE_WINDOW",
+       "E_C3RELAX"
       ],
       "value": 20
      },
@@ -2289,7 +3865,11 @@
       "number_origin": "OWNER",
       "refs": [
        "O_BASE120_0810",
-       "E_TBASE2"
+       "E_TBASE2",
+       "E_TBASE",
+       "E_TBASE475",
+       "E_M4ISO",
+       "E_M4LADDER"
       ],
       "value": 120
      },
@@ -2397,7 +3977,8 @@
     "concept_refs": [
      "O_SHUTDOOR_0811",
      "O_REBOUND_0814",
-     "E_TREBOUND2"
+     "E_TREBOUND2",
+     "E_TREBOUNDHOLD"
     ],
     "hardness_refs": [
      "O_SHUTDOOR_0811"
@@ -2536,7 +4117,11 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TCHASE",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 214.7287
      }
@@ -2655,7 +4240,11 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_C3RELAX",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 14314.7701
      }
@@ -2828,7 +4417,8 @@
      "F_TG2043_23_27"
     ],
     "concept_refs": [
-     "F_TG2043_23_27"
+     "F_TG2043_23_27",
+     "P_WALLS_0812"
     ],
     "hardness_refs": [
      "R_RSI_V27"
@@ -2850,7 +4440,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 69
      },
@@ -2964,7 +4557,9 @@
     "concept_refs": [
      "F_TG2043_40",
      "X_RSI40_READY",
-     "E_TRSI40"
+     "E_TRSI40",
+     "E_TCORE5",
+     "P_WALLS_0812"
     ],
     "hardness_refs": [
      "R_RSI_V27"
@@ -2986,7 +4581,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 71.1186
      }
@@ -3085,7 +4683,9 @@
     ],
     "concept_refs": [
      "A_SEARCHED",
-     "E_TFAILS"
+     "E_TFAILS",
+     "E_TCORE5",
+     "P_WALLS_0812"
     ],
     "hardness_refs": [
      "R_SOFT_V27"
@@ -3107,7 +4707,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 8
      }
@@ -3308,7 +4911,9 @@
      "V23_NEAR_PCT"
     ],
     "concept_refs": [
-     "O_NEAR_USER"
+     "O_NEAR_USER",
+     "E_TCORE5",
+     "P_WALLS_0812"
     ],
     "hardness_refs": [
      "O_NEAR_USER"
@@ -3330,7 +4935,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 0
      }
@@ -3428,7 +5036,9 @@
      "V23_SCORE_MIN"
     ],
     "concept_refs": [
-     "A_SEARCHED"
+     "A_SEARCHED",
+     "E_TCORE5",
+     "P_WALLS_0812"
     ],
     "hardness_refs": [
      "V23_SCORE_MIN"
@@ -3450,7 +5060,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 5
      }
@@ -3546,7 +5159,8 @@
     "concept_refs": [
      "O_ANCHOR_0814",
      "F_IMG0451_ANCHOR",
-     "X_ANCHOR_STAGE"
+     "X_ANCHOR_STAGE",
+     "E_TANCHOR"
     ],
     "hardness_refs": [
      "O_ANCHOR_0814"
@@ -3618,6 +5232,7 @@
     "contradicted": true,
     "support": {
      "concept": [
+      "EMPIRICAL",
       "FAISAL_TRANSFERRED",
       "OWNER"
      ],
@@ -3736,7 +5351,9 @@
      "V23_MIN_RR_T1"
     ],
     "concept_refs": [
-     "A_SEARCHED"
+     "A_SEARCHED",
+     "E_TCORE5",
+     "P_WALLS_0812"
     ],
     "hardness_refs": [
      "R_SOFT_V27"
@@ -3758,7 +5375,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 0.5
      },
@@ -3774,7 +5394,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 8
      }
@@ -4025,7 +5648,8 @@
       "number_origin": "CATALOG_PERCENTILE",
       "refs": [
        "S_ENV_MEDIAN",
-       "O_SOFT_MEDIAN_0807"
+       "O_SOFT_MEDIAN_0807",
+       "E_PIT20"
       ],
       "value": 96.9178
      }
@@ -4122,7 +5746,8 @@
       "number_origin": "CATALOG_PERCENTILE",
       "refs": [
        "S_ENV_MEDIAN",
-       "O_SOFT_MEDIAN_0807"
+       "O_SOFT_MEDIAN_0807",
+       "E_PIT20"
       ],
       "value": 164.0212
      }
@@ -4219,7 +5844,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 0
      }
@@ -4398,7 +6026,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 1134.7826
      }
@@ -4507,7 +6138,8 @@
       "number_origin": "CATALOG_PERCENTILE",
       "refs": [
        "S_ENV_MEDIAN",
-       "O_SOFT_MEDIAN_0807"
+       "O_SOFT_MEDIAN_0807",
+       "E_PIT20"
       ],
       "value": 33
      },
@@ -4522,7 +6154,8 @@
       "number_origin": "CATALOG_PERCENTILE",
       "refs": [
        "S_ENV_MEDIAN",
-       "O_SOFT_MEDIAN_0807"
+       "O_SOFT_MEDIAN_0807",
+       "E_PIT20"
       ],
       "value": 35.7789
      }
@@ -4701,7 +6334,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 95.4707
      }
@@ -4782,7 +6418,9 @@
     "concept_refs": [
      "X_FINRA_MEASURE",
      "A_SHORT_40K",
-     "E_TM13"
+     "E_TM13",
+     "E_TSHORT",
+     "E_TCORE5"
     ],
     "hardness_refs": [],
     "impl_role": "SOFT",
@@ -4887,7 +6525,8 @@
     ],
     "concept_refs": [
      "O_M14_HARD_0729",
-     "F_IMG0151_RECIPE"
+     "F_IMG0151_RECIPE",
+     "E_TCORE5"
     ],
     "hardness_refs": [
      "O_M14_HARD_0729"
@@ -5016,7 +6655,9 @@
     ],
     "concept_refs": [
      "A_SEARCHED",
-     "E_TFAILS"
+     "E_TFAILS",
+     "E_TCORE5",
+     "P_WALLS_0812"
     ],
     "hardness_refs": [
      "R_SOFT_V27"
@@ -5038,7 +6679,10 @@
       "refs": [
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
-       "O_P100_0808"
+       "O_P100_0808",
+       "E_TMINFLOOR",
+       "E_TFAISALONLY",
+       "E_PIT20"
       ],
       "value": 8
      }
@@ -5113,7 +6757,16 @@
     ],
     "concept_refs": [
      "O_PROX_0807",
-     "R_RANK_KEY"
+     "R_RANK_KEY",
+     "E_TRANKER2",
+     "E_TRANKER",
+     "E_TRANKER3",
+     "E_TRANKDENSE",
+     "E_TREPLAY10",
+     "E_TRANKERTIE",
+     "E_TTIEFWD",
+     "E_TTIE4H",
+     "E_RANKENGINE"
     ],
     "hardness_refs": [],
     "impl_role": "RANKING",
@@ -5126,6 +6779,7 @@
     "contradicted": false,
     "support": {
      "concept": [
+      "EMPIRICAL",
       "OWNER"
      ]
     }
@@ -5379,10 +7033,10 @@
      "threshold:DATA_HEALTH_MIN_PCT": []
     }
    },
-   "line": 22421,
+   "line": 22439,
    "function_lines": [
-    22346,
-    22798
+    22364,
+    22816
    ],
    "config": {
     "DATA_HEALTH_MIN_PCT": 85
@@ -5439,7 +7093,9 @@
      "V23_EXCLUDE_STOPPED_FROM_RENEWAL"
     ],
     "concept_refs": [
-     "A_SEARCHED"
+     "A_SEARCHED",
+     "E_TSWEEP_RECLAIM",
+     "P_ROOTCAUSE_STOP"
     ],
     "hardness_refs": [
      "V23_EXCLUDE_STOPPED_FROM_RENEWAL"
@@ -5473,10 +7129,10 @@
      "hardness": []
     }
    },
-   "line": 22425,
+   "line": 22443,
    "function_lines": [
-    22346,
-    22798
+    22364,
+    22816
    ],
    "config": {
     "EXCLUDE_STOPPED_FROM_RENEWAL": true
@@ -5534,7 +7190,8 @@
     ],
     "concept_refs": [
      "O_CAP15_0812",
-     "E_TCAP"
+     "E_TCAP",
+     "E_TSLOT"
     ],
     "hardness_refs": [],
     "impl_role": "OTHER",
@@ -5562,6 +7219,7 @@
     "contradicted": false,
     "support": {
      "concept": [
+      "EMPIRICAL",
       "OWNER"
      ],
      "threshold:WATCHLIST_SIZE": [
@@ -5569,10 +7227,10 @@
      ]
     }
    },
-   "line": 22454,
+   "line": 22472,
    "function_lines": [
-    22346,
-    22798
+    22364,
+    22816
    ],
    "config": {
     "WATCHLIST_SIZE": 15
@@ -5913,7 +7571,9 @@
     "concept_refs": [
      "O_BORROW20_0811",
      "F_AVAIL_MEASURE",
-     "F_DRCT_10K"
+     "F_DRCT_10K",
+     "E_TBORROW",
+     "E_TBORROWFALL"
     ],
     "hardness_refs": [
      "O_BORROW20_0811"

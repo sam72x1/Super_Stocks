@@ -15,7 +15,14 @@ support for the exact number that implements it. This module keeps them apart:
 Evidence items live in a registry `{id: {"kind", "stance", "context"?, ...}}`; a gate's `context` is the system it runs in
 (the pivot screener is "pivot"); a Faisal statement made for another system (the split-stock recipe, an entry rule) counts as a
 transferred concept, never as direct support for this gate.
+
+An EXPERIMENT also carries a `scope` (2026-10-09, follow-up to #600): THIS_GATE — it tested this gate's rule or its direct
+alternative · BUNDLE — several gates or thresholds changed jointly · SUPERSEDED_VALUE — it measured a value no longer live ·
+RELATED_RULE — a related but different rule. Only a THIS_GATE experiment that supports counts as support; the others are reported,
+never read as support for one exact number. Archived experiment verdicts are tied to the gates they name by `archive_join` and
+`xref_check`: a bullet of the decisions archive whose head names a gate's key or experiment code must be classified for that gate.
 """
+import re
 
 ORIGIN = ["DIRECT_FAISAL_SOURCE", "INFERRED_FROM_FAISAL_SOURCE", "EXPLICIT_OWNER_POLICY", "ENGINEERING_INTRODUCED",
           "INHERITED_OR_EXTERNAL", "ORIGIN_UNKNOWN"]
@@ -31,6 +38,10 @@ NUMBER_ORIGIN = ["FAISAL_SOURCE", "OWNER", "CATALOG_PERCENTILE", "INFERRED", "EN
 KINDS = ["FAISAL_SOURCE", "FAISAL_INFERRED", "FAISAL_SAMPLE", "OWNER_ORDER", "OPERATIONAL_INVARIANT", "TESTED_INCIDENT",
          "EXPERIMENT", "CONTRADICTION", "ABSENCE", "CODE_RECORD", "INHERITED_RECORD", "PRIOR_AUDIT"]
 STANCES = ["supports", "contradicts", "null", "mixed", "against", "neutral"]
+SCOPES = ["THIS_GATE", "BUNDLE", "SUPERSEDED_VALUE", "RELATED_RULE"]
+XREF_CLASSES = ["CITED", "CITED_ELSEWHERE", "NOT_GATE_EVIDENCE"]
+XREF_WHY = ["IMPLEMENTATION", "MEMORY", "OTHER_SYSTEM", "INCIDENTAL"]
+ARCHIVE = "DECISIONS_ARCHIVE.md"
 # roles whose hardness (reject rather than mark) must itself be supported for a full justification
 HARD_ROLES = ("HARD_REJECTION", "OWNER_TRADING_ELIGIBILITY")
 # a full justification type ← the support class every component must carry
@@ -50,6 +61,8 @@ def support_class(item, gate_context):
         return "FAISAL_DIRECT" if ctx in ("general", gate_context) else "FAISAL_TRANSFERRED"
     if k == "FAISAL_INFERRED":
         return "FAISAL_TRANSFERRED"
+    if k == "EXPERIMENT" and (item.get("scope") or "THIS_GATE") != "THIS_GATE":
+        return None                      # a bundle, a superseded value or a related rule is reported, never support
     return {"OWNER_ORDER": "OWNER", "OPERATIONAL_INVARIANT": "INVARIANT", "TESTED_INCIDENT": "TESTED",
             "EXPERIMENT": "EMPIRICAL"}.get(k)
 
@@ -151,3 +164,98 @@ def pass_rate(rows, cohort, threshold):
     known = [r for r in rs if r.get("shares_available") is not None]
     k = sum(1 for r in known if float(r["shares_available"]) <= float(threshold))
     return k, len(known), len(rs) - len(known)
+
+
+# ---------------------------------------------------------------- archived measurements ⟷ gates
+def gate_refs(audit):
+    """Every evidence id attached to a gate (origin, concept, hardness, thresholds)."""
+    r = list(audit.get("origin_refs") or []) + list(audit.get("concept_refs") or []) + list(audit.get("hardness_refs") or [])
+    for t in audit.get("thresholds") or []:
+        r += list(t.get("refs") or [])
+    return r
+
+
+def archive_bullets(text):
+    """[(first line, bullet text)] — the top-level bullets of the decisions archive (a line that starts with «- **»)."""
+    lines = (text or "").split("\n")
+    starts = [i for i, ln in enumerate(lines) if ln.startswith("- **")]
+    return [(a + 1, "\n".join(lines[a:b])) for a, b in zip(starts, starts[1:] + [len(lines)])]
+
+
+def _term_rx(t):
+    # a code or key is matched whole: «T-BASE» does not match inside «T-BASE-2» or «T-BASE-475»
+    return re.compile(r"(?<![A-Za-z0-9_-])" + re.escape(t) + r"(?![A-Za-z0-9_]|-[A-Za-z0-9])")
+
+
+def archive_join(bullets, gates, codes, head_chars):
+    """[(gate id, bullet index, terms)] — the bullet's head (its first `head_chars` characters, lines joined) names one of the
+    gate's config keys (six characters or longer) or one of its listed experiment codes."""
+    out = []
+    heads = [" ".join(txt.split("\n"))[:int(head_chars)] for _, txt in bullets]
+    for g in gates:
+        terms = [k for k in (g.get("config_keys") or []) if len(k) >= 6] + list((codes or {}).get(g["id"]) or [])
+        rx = [(t, _term_rx(t)) for t in terms]
+        for i, h in enumerate(heads):
+            hit = [t for t, r in rx if r.search(h)]
+            if hit:
+                out.append((g["id"], i, hit))
+    return out
+
+
+def xref_check(bullets, gates, reg, xref):
+    """(errors, rows) — every join pair classified for its gate; CITED refs attached to the gate with at least one anchored
+    inside the bullet; CITED_ELSEWHERE refs attached to the gate; NOT_GATE_EVIDENCE with a reason; no entry without a pair,
+    no anchor that is missing or names two bullets, no override for a gate the join does not name."""
+    errs, rows = [], []
+    xref = xref or {}
+    pairs = archive_join(bullets, gates, xref.get("codes"), xref.get("head_chars") or 400)
+    attached = {g["id"]: set(gate_refs(g.get("audit") or {})) for g in gates}
+    by_bullet = {}
+    for e in xref.get("entries") or []:
+        hits = [i for i, (_, txt) in enumerate(bullets) if e.get("anchor") and e["anchor"] in txt]
+        if len(hits) != 1:
+            errs.append(f"archive xref: anchor «{e.get('anchor')}» found in {len(hits)} bullets (needs exactly one)")
+            continue
+        if hits[0] in by_bullet:
+            errs.append(f"archive xref: two entries for the bullet at line {bullets[hits[0]][0]}")
+            continue
+        by_bullet[hits[0]] = e
+    named = {}
+    for gid, i, terms in pairs:
+        named.setdefault(i, set()).add(gid)
+        e = by_bullet.get(i)
+        line, txt = bullets[i]
+        if e is None:
+            errs.append(f"archive xref: {gid} — bullet at line {line} names {', '.join(terms)} in its head and is not classified "
+                        f"(add an entry to archive_xref in gate_provenance.json: CITED · CITED_ELSEWHERE · NOT_GATE_EVIDENCE)")
+            continue
+        c = (e.get("gates") or {}).get(gid) or e.get("default") or {}
+        cls, refs = c.get("class"), list(c.get("refs") or [])
+        if cls not in XREF_CLASSES:
+            errs.append(f"archive xref: {gid} at line {line}: class {cls} not in vocabulary")
+        elif cls in ("CITED", "CITED_ELSEWHERE"):
+            if not refs:
+                errs.append(f"archive xref: {gid} at line {line}: {cls} without refs")
+            for r in refs:
+                if r not in reg:
+                    errs.append(f"archive xref: {gid} at line {line}: {r} not in registry")
+                elif r not in attached.get(gid, set()):
+                    errs.append(f"archive xref: {gid} at line {line}: {r} is not attached to the gate")
+            if cls == "CITED" and not any(
+                    (reg.get(r) or {}).get("verify", {}).get("file") == ARCHIVE
+                    and (reg.get(r) or {}).get("verify", {}).get("contains", "\0") in txt for r in refs):
+                errs.append(f"archive xref: {gid} at line {line}: CITED but no ref is anchored inside the bullet")
+            if cls == "CITED_ELSEWHERE" and not str(c.get("note") or "").strip():
+                errs.append(f"archive xref: {gid} at line {line}: CITED_ELSEWHERE without a note")
+        else:
+            if c.get("why") not in XREF_WHY or not str(c.get("note") or "").strip():
+                errs.append(f"archive xref: {gid} at line {line}: NOT_GATE_EVIDENCE needs a reason in {XREF_WHY} and a note")
+        rows.append({"gate": gid, "line": line, "anchor": e.get("anchor"), "terms": terms, "class": cls, "refs": refs,
+                     "why": c.get("why"), "note": c.get("note") or ""})
+    for i, e in by_bullet.items():
+        if i not in named:
+            errs.append(f"archive xref: entry «{e.get('anchor')}» classifies a bullet the join no longer names (stale)")
+        for gid in (e.get("gates") or {}):
+            if gid not in named.get(i, set()):
+                errs.append(f"archive xref: entry «{e.get('anchor')}» overrides {gid}, which the join does not name there")
+    return errs, rows
