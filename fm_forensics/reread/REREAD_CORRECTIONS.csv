@@ -1,1 +1,32 @@
 IMAGE_ID,FIELD,KIND,INHERITED,EYE,QUOTE,AFFECTED_USED_CLASS,AFFECTED_LEDGER_KEYS,AFFECTED_V4_RULES,REV
+TG_1806,AUTHOR_NOT_VISIBLE,FLAG,F,U,,NOT_TRACED,,,1
+TG_2076,DECISION,CONTRADICTED,WAIT,WATCH,تابعه لين يبقى الشورت تحت 20 الف · اقسم قيمة الشمعه ع 2 · ليست قاعده ولكن تطبق ع 80٪ من الاسهم بعضها يقسم بدون شورت لها طريقة اخرى,NOT_TRACED,,,1
+TG_2076,ROLE,CONTRADICTED,CONTEXT_ONLY,RULE_EVIDENCE,تابعه لين يبقى الشورت تحت 20 الف · اقسم قيمة الشمعه ع 2 · ليست قاعده ولكن تطبق ع 80٪ من الاسهم بعضها يقسم بدون شورت لها طريقة اخرى,NOT_TRACED,,,1
+TG_58386,ROLE,CONTRADICTED,CONTEXT_ONLY,VALIDATION_CASE,,NOT_TRACED,,,1
+TG_58389,TICKER_NOT_VISIBLE,FLAG,CYCU,,,NOT_TRACED,,,1
+TG_58397,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,القاع اللي يقصده قبل الصعود · اسحب عليه ذا ما يعتبر ثبات فاهم قصدي ؟,NOT_TRACED,,,1
+TG_58405,TICKER_NOT_VISIBLE,FLAG,BRTX,,آخر سعر ينخفض إلى 1.50 · 1.60 · 1.71,NOT_TRACED,,,1
+APP_20260918_18_NTCL,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,1
+APP_20260918_18_NTCL,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,1
+APP_20260918_18_NTCL,DATE_NOT_VISIBLE,FLAG,2026-09-15,,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,1
+APP_20260918_19_NTCL,DECISION,CONTRADICTED,WAIT,WATCH,مراقب استراتيجية فيصل · اختبار ناجح · بعيد عن الدعم · أسفل جميع EMA,V4_VISUAL_PASS(via unit TG_57921),,,1
+APP_20260918_19_NTCL,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,مراقب استراتيجية فيصل · اختبار ناجح · بعيد عن الدعم · أسفل جميع EMA,V4_VISUAL_PASS(via unit TG_57921),,,1
+APP_20260918_19_NTCL,DATE_NOT_VISIBLE,FLAG,2026-09-15,,مراقب استراتيجية فيصل · اختبار ناجح · بعيد عن الدعم · أسفل جميع EMA,V4_VISUAL_PASS(via unit TG_57921),,,1
+APP_20260918_50_ZNB,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,V4_VISUAL_PASS(via unit TG_57925),,,1
+APP_20260918_50_ZNB,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,V4_VISUAL_PASS(via unit TG_57925),,,1
+APP_20260918_50_ZNB,DATE_NOT_VISIBLE,FLAG,2026-09-1x,,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,V4_VISUAL_PASS(via unit TG_57925),,,1
+EDU_20260827_dki_group_candle,DECISION,CONTRADICTED,REJECT,NONE,شمعة قروب الشكوى لله · يربح 5 يخسر 50 · هذي نماذج القروبات,V4_VISUAL_PASS,,,1
+EDU_20260827_dki_group_candle,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,شمعة قروب الشكوى لله · يربح 5 يخسر 50 · هذي نماذج القروبات,V4_VISUAL_PASS,,,1
+EDU_20260827_sle_night_4am,DECISION,CONTRADICTED,WAIT,NONE,الظاهر معنا بالقروب همل قروبات من هبوط 10٪ لصعود 4٪ يعني ربح 15٪ · تداول ليلي الساعه 4 الفجر بنصلي مضارب راقد العالم راقده,V4_VISUAL_PASS,,,1
+EDU_20260827_sle_night_4am,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,الظاهر معنا بالقروب همل قروبات من هبوط 10٪ لصعود 4٪ يعني ربح 15٪ · تداول ليلي الساعه 4 الفجر بنصلي مضارب راقد العالم راقده,V4_VISUAL_PASS,,,1
+EDU_20260905_02,TICKER_NOT_VISIBLE,FLAG,DCOY,,شورته 65 الف شبه عالي · هل يحافظ ع قاعه اولا · ماعندي تداول ولا راح افتح صفقه فقط نراقب · مهم البحث عن اخباره هل عنده اخبار سلبيه او تصدير اسهم,PRODUCTION_LEDGER_CITED,,,1
+IMG_0267,AUTHOR_NOT_VISIBLE,FLAG,F,U,ثبات فوق 92 سنت تحرر السهم · 1.19 راس الشمعه الساقطه هدف · 1.43 هدف · فجوه سعريه من 1.88 ل 3 · شورت 150 الف · عدد الاسهم 3.69 مليون,PRODUCTION_LEDGER_CITED,,,2
+IMG_0290,DECISION,CONTRADICTED,WAIT,ENTRY,AZI تحرر من 1.36 شيله من العرض باي سعر,V4_VISUAL_PASS,,,1
+IMG_0290,AUTHOR_NOT_VISIBLE,FLAG,F,U,AZI تحرر من 1.36 شيله من العرض باي سعر,V4_VISUAL_PASS,,,1
+IMG_0291,AUTHOR_NOT_VISIBLE,FLAG,F,U,اخذته الان من العرض الليلي 1.85 دفعه اخرى 1.70 غدا هدفك عالي شرط 3.20 تحرر,V4_VISUAL_PASS,,,1
+IMG_0291,DATE_NOT_VISIBLE,FLAG,2026-04,,اخذته الان من العرض الليلي 1.85 دفعه اخرى 1.70 غدا هدفك عالي شرط 3.20 تحرر,V4_VISUAL_PASS,,,1
+IMG_0293,AUTHOR_NOT_VISIBLE,FLAG,F,U,ماجا يومه حمل واصبر هدفك فوق 100٪ · 1.20 > 1.10 طلبه,V4_VISUAL_PASS,,,1
+IMG_0293,DATE_NOT_VISIBLE,FLAG,2026-06-1x,,ماجا يومه حمل واصبر هدفك فوق 100٪ · 1.20 > 1.10 طلبه,V4_VISUAL_PASS,,,1
+IMG_0319,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,يهمنا فنيا عدم كسر 2.35 2.30 تعتبر دعم مقاومه سابقه · الشمعه واضحه المقاومه ع فريم 4 ساعات 2.87 شمعة ساقطه سابقا · في حال صعد المضارب 4 مقاومه مهم يتحرر منها ثباته فوق 5 بيرفكت,V4_VISUAL_PASS,,,1
+IMG_0319,TICKER_NOT_VISIBLE,FLAG,JZ,,يهمنا فنيا عدم كسر 2.35 2.30 تعتبر دعم مقاومه سابقه · الشمعه واضحه المقاومه ع فريم 4 ساعات 2.87 شمعة ساقطه سابقا · في حال صعد المضارب 4 مقاومه مهم يتحرر منها ثباته فوق 5 بيرفكت,V4_VISUAL_PASS,,,1
+IMG_0319,DATE_NOT_VISIBLE,FLAG,2026-07-2x,,يهمنا فنيا عدم كسر 2.35 2.30 تعتبر دعم مقاومه سابقه · الشمعه واضحه المقاومه ع فريم 4 ساعات 2.87 شمعة ساقطه سابقا · في حال صعد المضارب 4 مقاومه مهم يتحرر منها ثباته فوق 5 بيرفكت,V4_VISUAL_PASS,,,1
