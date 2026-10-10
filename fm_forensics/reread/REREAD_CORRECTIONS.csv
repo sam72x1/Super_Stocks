@@ -649,6 +649,22 @@ TG_1886,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,سهم Bnkk امريكي 
 TG_1886,DATE_NOT_VISIBLE,FLAG,2026-06,,سهم Bnkk امريكي … قسم 11/12/2025 افتتاح 3.69 - اعلى 7.19 - فلوت 7.84 مليون - شورت 4 الاف …,V4_VISUAL_PASS(via unit IMG_8136),,,1
 TG_1887,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS(via unit TG_1903),,,1
 TG_1887,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,,V4_VISUAL_PASS(via unit TG_1903),,,1
+TG_1890,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS(via unit TG_1896),,,1
+TG_1890,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,,V4_VISUAL_PASS(via unit TG_1896),,,1
+TG_1891,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS(via unit TG_1893),,,1
+TG_1891,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,,V4_VISUAL_PASS(via unit TG_1893),,,1
+TG_1892,TICKER_NOT_VISIBLE,FLAG,GWAV,,تم تهييض السهم 4 مرات ويهبط فيه المضارب - الصوره باللون الاسود برنامج خاص اشتراكه الشهري الف دولار لايناسب الا المحللين - سهم امريكي - خدمات بيئه ومرافق واعادة تدوير المواد المعدنية - شورت 20 الف - فلوت 778 الف - اخباره : اشعار من ناسداك عشان التاخر فالسداد 28/5 - عدم امتثال لناسداك 22/4 - … - اعلان تقسيم في 20/8/2025,V4_VISUAL_PASS,,,1
+TG_1892,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,تم تهييض السهم 4 مرات ويهبط فيه المضارب - الصوره باللون الاسود برنامج خاص اشتراكه الشهري الف دولار لايناسب الا المحللين - سهم امريكي - خدمات بيئه ومرافق واعادة تدوير المواد المعدنية - شورت 20 الف - فلوت 778 الف - اخباره : اشعار من ناسداك عشان التاخر فالسداد 28/5 - عدم امتثال لناسداك 22/4 - … - اعلان تقسيم في 20/8/2025,V4_VISUAL_PASS,,,1
+TG_1893,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_1893,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,,V4_VISUAL_PASS,,,1
+TG_1894,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,سهم svre اسرائيلي … قسم 25/2 افتتاح 2.57 - اعلى 6.30 - فلوت 934 الف - شورت 50 الف …,V4_VISUAL_PASS(via unit IMG_8126),,,1
+TG_1894,DATE_NOT_VISIBLE,FLAG,2026-06-1x,,سهم svre اسرائيلي … قسم 25/2 افتتاح 2.57 - اعلى 6.30 - فلوت 934 الف - شورت 50 الف …,V4_VISUAL_PASS(via unit IMG_8126),,,1
+TG_1896,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_1896,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,,V4_VISUAL_PASS,,,1
+TG_1900,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_1900,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,,V4_VISUAL_PASS,,,1
+TG_1901,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_1901,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,,V4_VISUAL_PASS,,,1
 TG_1903,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_1903,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,,V4_VISUAL_PASS,,,1
 TG_1994,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
