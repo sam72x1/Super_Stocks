@@ -246,3 +246,18 @@ TG_1960,AUTHOR_NOT_VISIBLE,FLAG,F,U,تعني السهم حقق جميع نماذ
 TG_1962,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,قاب,V4_VISUAL_PASS,,,1
 TG_1962,AUTHOR_NOT_VISIBLE,FLAG,F,U,قاب,V4_VISUAL_PASS,,,1
 TG_1979,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,دايم يتكلم عن اللاين الاحمر يعتبر دعم,V4_VISUAL_PASS,,,1
+TG_1980,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,الكلاسيكي افضل نهج اتبعه واعتقد انه هو الافضل بلا منازع مع دمج بعض المدارس احيانا مثل موجات اليوت مدرسة وايكوف,V4_VISUAL_PASS,,,1
+TG_1998,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,مؤشر كلنجر · تقاطع المتوسط المتحرك الأسي 9 26 · MACD 12 26 close 9 · DMI 14 14 · Stoch RSI 14 14 3 3 · ATR 14,V4_VISUAL_PASS,,,1
+TG_1998,TICKER_NOT_VISIBLE,FLAG,ELAB,,مؤشر كلنجر · تقاطع المتوسط المتحرك الأسي 9 26 · MACD 12 26 close 9 · DMI 14 14 · Stoch RSI 14 14 3 3 · ATR 14,V4_VISUAL_PASS,,,1
+TG_1998,DATE_NOT_VISIBLE,FLAG,2026-01-30,,مؤشر كلنجر · تقاطع المتوسط المتحرك الأسي 9 26 · MACD 12 26 close 9 · DMI 14 14 · Stoch RSI 14 14 3 3 · ATR 14,V4_VISUAL_PASS,,,1
+TG_2002,AUTHOR_NOT_VISIBLE,FLAG,F,U,شمعة همر خضرا مقلوبه · شمعة همر حمرا,V4_VISUAL_PASS,,,1
+TG_2002,DATE_NOT_VISIBLE,FLAG,2026-04-10,,شمعة همر خضرا مقلوبه · شمعة همر حمرا,V4_VISUAL_PASS,,,1
+TG_2004,DECISION,CONTRADICTED,NONE,ENTRY,ثبات دعم = دخول · مقاومه لحظيه · دعم,V4_VISUAL_PASS,,,1
+TG_2004,AUTHOR_NOT_VISIBLE,FLAG,F,U,ثبات دعم = دخول · مقاومه لحظيه · دعم,V4_VISUAL_PASS,,,1
+TG_2010,AUTHOR_NOT_VISIBLE,FLAG,F,U,قبل تحلل سهم لابد تكون متمكن من علم الاسهم بحفظ مايلي … 12- مع كل العلم هذا نفشل في بعض الصفقات,V4_VISUAL_PASS,,,1
+TG_2010,DATE_NOT_VISIBLE,FLAG,2026-03-29,,قبل تحلل سهم لابد تكون متمكن من علم الاسهم بحفظ مايلي … 12- مع كل العلم هذا نفشل في بعض الصفقات,V4_VISUAL_PASS,,,1
+TG_20260905_01,DECISION,CONTRADICTED,NONE,EXIT,كسرة خط فيواب تكون هدف غالبا تجاوزها نعطيه فرصه · صعود المضارب ل100٪ تكون بشمعه مدتها لاتتجاوز 5 دقايق جني الربح مفعل مسبقا غالبا · 100٪ جني ربح > 70٪ من سيولتك · 30٪ تترك لاعلى هدف · هبط السهم اكثر من 20٪ خلال 5 دقايق جني ربح المتبقي,PRODUCTION_LEDGER_CITED,,,1
+TG_20260905_03,ROLE,CONTRADICTED,COUNTEREXAMPLE,RULE_EVIDENCE,هذي حصلت ب zcmd قبل يوصل 700٪ بجلسه الافتر · كنا نتعب مثل هالتعب هذا نطرح التحليل بالعام للجميع ماذا حصل Jz Ezra Icu كلها لقطوها قروبات ع 20٪ وهبطت علينا ودخلنا من جديد,V4_VISUAL_PASS,,,1
+TG_20260905_03,AUTHOR_NOT_VISIBLE,FLAG,F,U,هذي حصلت ب zcmd قبل يوصل 700٪ بجلسه الافتر · كنا نتعب مثل هالتعب هذا نطرح التحليل بالعام للجميع ماذا حصل Jz Ezra Icu كلها لقطوها قروبات ع 20٪ وهبطت علينا ودخلنا من جديد,V4_VISUAL_PASS,,,1
+TG_20260918_06_CPOP,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,5.50 يجيبها اليوم الباقي ممكن يكمل بالافتر · ذيل شمعة التقسيم السابقه 5.87 هدف,V4_VISUAL_PASS,,,1
+TG_20260918_06_CPOP,AUTHOR_NOT_VISIBLE,FLAG,F,U,5.50 يجيبها اليوم الباقي ممكن يكمل بالافتر · ذيل شمعة التقسيم السابقه 5.87 هدف,V4_VISUAL_PASS,,,1
