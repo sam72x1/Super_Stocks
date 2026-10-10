@@ -19,6 +19,7 @@ EDU_20260827_dki_group_candle,DECISION,CONTRADICTED,REJECT,NONE,شمعة قرو�
 EDU_20260827_dki_group_candle,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,شمعة قروب الشكوى لله · يربح 5 يخسر 50 · هذي نماذج القروبات,V4_VISUAL_PASS,,,1
 EDU_20260827_sle_night_4am,DECISION,CONTRADICTED,WAIT,NONE,الظاهر معنا بالقروب همل قروبات من هبوط 10٪ لصعود 4٪ يعني ربح 15٪ · تداول ليلي الساعه 4 الفجر بنصلي مضارب راقد العالم راقده,V4_VISUAL_PASS,,,1
 EDU_20260827_sle_night_4am,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,الظاهر معنا بالقروب همل قروبات من هبوط 10٪ لصعود 4٪ يعني ربح 15٪ · تداول ليلي الساعه 4 الفجر بنصلي مضارب راقد العالم راقده,V4_VISUAL_PASS,,,1
+EDU_20260827_sle_night_4am,DATE_MD_DIFFERS,FLAG,2026-08-27,08-26,الظاهر معنا بالقروب همل قروبات من هبوط 10٪ لصعود 4٪ يعني ربح 15٪ · تداول ليلي الساعه 4 الفجر بنصلي مضارب راقد العالم راقده,V4_VISUAL_PASS,,,1
 EDU_20260905_02,TICKER_NOT_VISIBLE,FLAG,DCOY,,شورته 65 الف شبه عالي · هل يحافظ ع قاعه اولا · ماعندي تداول ولا راح افتح صفقه فقط نراقب · مهم البحث عن اخباره هل عنده اخبار سلبيه او تصدير اسهم,PRODUCTION_LEDGER_CITED,,,1
 IMG_0267,AUTHOR_NOT_VISIBLE,FLAG,F,U,ثبات فوق 92 سنت تحرر السهم · 1.19 راس الشمعه الساقطه هدف · 1.43 هدف · فجوه سعريه من 1.88 ل 3 · شورت 150 الف · عدد الاسهم 3.69 مليون,PRODUCTION_LEDGER_CITED,,,2
 IMG_0290,DECISION,CONTRADICTED,WAIT,ENTRY,AZI تحرر من 1.36 شيله من العرض باي سعر,V4_VISUAL_PASS,,,1
@@ -163,8 +164,9 @@ CH_20260918_16_NTCL,DATE_NOT_VISIBLE,FLAG,2026-09-1x,,,V4_VISUAL_PASS,,,1
 CH_20260918_17_NTCL,AUTHOR_NOT_VISIBLE,FLAG,F,U,مقاومات لاين اسود,V4_VISUAL_PASS,,,1
 CH_20260918_60_VEEE,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
 CH_20260918_60_VEEE,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
-EDU_20260827_wnw_entry_decision_4h,DECISION,CONTRADICTED,NONE,ENTRY,رجع يختبر2.30 ولاكسرها وثبت فوق 2.40 هنا قرار الدخول · تاريخ 21 / 7 شمعة الهبوط اليوم 27 > 8 يعني حقق متوسط 30 · شورت كان 30 الف على عدد اسهمه لاشي · Rsi كان 20 وتعافى,V4_VISUAL_PASS,,,1
-EDU_20260827_wnw_entry_decision_4h,ROLE,CONTRADICTED,COUNTEREXAMPLE,VALIDATION_CASE,رجع يختبر2.30 ولاكسرها وثبت فوق 2.40 هنا قرار الدخول · تاريخ 21 / 7 شمعة الهبوط اليوم 27 > 8 يعني حقق متوسط 30 · شورت كان 30 الف على عدد اسهمه لاشي · Rsi كان 20 وتعافى,V4_VISUAL_PASS,,,1
+EDU_20260827_wnw_entry_decision_4h,DECISION,CONTRADICTED,NONE,ENTRY,رجع يختبر2.30 ولاكسرها وثبت فوق 2.40 هنا قرار الدخول · تاريخ 21 / 7 شمعة الهبوط اليوم 27 > 8 يعني حقق متوسط 30 · شورت كان 30 الف على عدد اسهمه لاشي · Rsi كان 20 وتعافى,V4_VISUAL_PASS,,,2
+EDU_20260827_wnw_entry_decision_4h,ROLE,CONTRADICTED,COUNTEREXAMPLE,VALIDATION_CASE,رجع يختبر2.30 ولاكسرها وثبت فوق 2.40 هنا قرار الدخول · تاريخ 21 / 7 شمعة الهبوط اليوم 27 > 8 يعني حقق متوسط 30 · شورت كان 30 الف على عدد اسهمه لاشي · Rsi كان 20 وتعافى,V4_VISUAL_PASS,,,2
+EDU_20260827_wnw_entry_decision_4h,DATE_MD_DIFFERS,FLAG,2026-08-26,08-27,رجع يختبر2.30 ولاكسرها وثبت فوق 2.40 هنا قرار الدخول · تاريخ 21 / 7 شمعة الهبوط اليوم 27 > 8 يعني حقق متوسط 30 · شورت كان 30 الف على عدد اسهمه لاشي · Rsi كان 20 وتعافى,V4_VISUAL_PASS,,,2
 EDU_20260918_10_pattern,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,Double bottom · Double top · Neckline,V4_VISUAL_PASS,,,1
 EDU_20260918_44_doublebottom,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,الدخول عند إعادة اختبار خط العنق · وقف الخسارة أسفل أدنى إعادة اختبار · الهدف أقرب مقاومة أو سيولة الشراء,V4_VISUAL_PASS,,,1
 EDU_20260918_56_three_inside_up,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,Three Inside Up · Close above the 50% level of the first candle · Close above the first candle,V4_VISUAL_PASS,,,1
@@ -278,3 +280,7 @@ TG_2070,TICKER_NOT_VISIBLE,FLAG,VMAR,,الشورت مسيطر ع السهم ال
 TG_2075,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,شورت ٨٠٠ قسم يوم ٦/٥/٢٠٢٦ عدد اسهم ١.٤٥ مليون · شورت ٢٠٠٠ تقسيم يوم ١٧/٤/٢٠٢٦ عدد اسهم ٨٩٢ الف مدبل من ٢ الى ٤ · Wct شورت ٧٠٠٠ عدد الاسهم ٨٤٩ الف اخر تقسيم ٦/٣/٢٠٢٦,V4_VISUAL_PASS,,,1
 TG_2082,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,Wct شورت ٧٠٠٠ عدد الاسهم ٨٤٩ الف اخر تقسيم ٦/٣/٢٠٢٦,V4_VISUAL_PASS,,,1
 TG_2085,TICKER_NOT_VISIBLE,FLAG,ELAB,,التحليل تصيد السهم قبل يطلع اما اذا طلع السهم كلن يشوفه · عموما تحليل السهم اخذ مني ساعتين تقريبا ع 4 مؤشرات + نماذج + شموع + متوسط الحركه + تقاطع الماكد + تشبع ال RSI · منها مؤشر التصحيح فيبوناتشي | مؤشر كلنجر · هل يفشل التحليل نعم,V4_VISUAL_PASS,,,1
+TG_2088,ROLE,CONTRADICTED,COUNTEREXAMPLE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
+TG_2091,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,اعظم سهم في 2026 حللناه عند 2 وصل 86 هل بعنا ب 86 طبعا لا هل تنبو بيوصل 86 طبعا لا كانت الاهداف المتوقعه 100٪ ل 200٪ حقق 4000٪ $BNAI الفرصه الثانيه سيدو $CDIO من 1 ل 10 1000٪ · الهدف كان 8 > 12 > 26 هدف اعلى لايجزم به وصل 68 اكثر من 5000٪,V4_VISUAL_PASS,,,1
+TG_2107,DATE_MD_DIFFERS,FLAG,2026-07-04,04-07,الصفقه اللحظيه لازم تدخلها بعد 11 · الاسهم الصاعده بالافتر تهبط بالبري تدخلها مباشره بعد الهبوط هدفها 50 سنت الى 1 دولار,V4_VISUAL_PASS,,,1
+TG_2113,AUTHOR_NOT_VISIBLE,FLAG,F,U,مشتريات موحده مستوى 1 3 5 7 10 100 500 من 1 الى 10 رموز خوارزميات بين مضاربين لكل مستوى دلاله معينه 100 حفاظ ع نطاق سعري معين 500 نادر تستخدم انفجار,V4_VISUAL_PASS,,,1

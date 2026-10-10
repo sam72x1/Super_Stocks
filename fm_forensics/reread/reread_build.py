@@ -239,6 +239,11 @@ def compare(rec, inh):
     elif idate not in ("", "UNKNOWN", "UNK") and rec["dprec"] in ("DAY", "EXACT") and \
             FULL_DAY.match(idate) and not rec["date"].startswith(idate[:10]):
         out.append(("DATE", idate, rec["date"], "CONTRADICTED"))
+    elif idate not in ("", "UNKNOWN", "UNK") and rec["dprec"] == "MD" and \
+            FULL_DAY.match(idate) and idate[5:10] != rec["date"]:
+        # تعديلٌ مؤرَّخ 2026-10-10: شهرٌ-يومٌ ظاهرٌ بلا سنة يخالف الموروث ⟵ علمٌ لا تناقض
+        # (قد يكون الفرقُ منطقةً زمنيّة) — والسببُ في ملاحظة السجلّ
+        out.append(("DATE_MD_DIFFERS", idate, rec["date"], "FLAG"))
     return out
 
 
