@@ -87127,6 +87127,244 @@ except Exception as _e:                                            # noqa: BLE00
     _ok9, _w9 = False, f"⛔ {type(_e).__name__}: {_e}"
 check("📏 BBS9 خطأُ العقد مُفصَحٌ عنه في المُخرَج: #604 ⑧ قاس المساواة سلفًا ⟵ لا تنبّؤَ أعمى ولا حقيقةَ جديدة (لا يُحذف بصمت)", _ok9, _w9)
 
+# 👁️ RR1-RR10 — `T-REREAD` سجلُّ إعادة القراءة البصريّة للمدوّنة كاملة (`fm_forensics/reread/` · 2026-10-10 · مهمّةُ المالك
+#    «FULL CORPUS VISUAL RE-READ» §④): العدُّ = القرص · لا معرّفَ مكرّرٌ ولا ساقط · كلُّ تصحيحٍ مُسنَد · التاريخُ المجهولُ لا يصير
+#    يومًا · الاستنتاجُ لا يُرقّى · التعارضُ والسالبُ لا يُحذفان · لا ملاحظةَ مستقبليّة في سجلّ قرارٍ ماضٍ · والبناءُ حتميٌّ بايتًا.
+#    والاستلامُ الأماميّ (صورٌ يضيفها الجامعُ بعد اللقطة) يُعَدّ حيًّا ولا يُحمّر (RR10).
+#    سلوكيّةٌ كلُّها (البنّاءُ نفسُه على سجلّاتٍ اصطناعيّة) ‏+ الحالةُ المحفوظة · ولا كتابةَ في المستودع (التدقيقُ يقرأ ويقارن).
+# ══════════════════════════════════════════════════════════════════════════
+import importlib.util as _rr_iu                                    # noqa: E402
+import os as _rr_os                                                # noqa: E402
+import tempfile as _rr_tf                                          # noqa: E402
+import json as _rr_json                                            # noqa: E402
+try:
+    _rr_spec = _rr_iu.spec_from_file_location(
+        "reread_build", _rr_os.path.join(_rr_os.path.dirname(_rr_os.path.abspath(__file__)), "fm_forensics", "reread", "reread_build.py"))
+    _RR = _rr_iu.module_from_spec(_rr_spec)
+    _rr_spec.loader.exec_module(_RR)
+except Exception as _e:                                            # noqa: BLE001
+    _RR = None
+    print(f"⛔ reread_build import: {type(_e).__name__}: {_e}")
+
+
+def _rr_rec(i, **k):
+    _r = dict(id=i, leg="C", date="", dprec="NONE", tk=[], au="F", st="NONE", q="نصّ", ev="D", role="R", topics=[],
+              seen="—", mean="—", rule="—", perm="DOC", kind="ED", temporal="N", new="N", link="", note="")
+    _r.update(k)
+    return _r
+
+
+def _rr_rejects(rec):
+    try:
+        _RR.validate_record(rec)
+        return False
+    except _RR.RecordError:
+        return True
+    except Exception:                                              # noqa: BLE001
+        return False
+
+
+def _rr_build(recs, ids=("A", "B", "C"), table=None):
+    """بناءٌ معزول على قرصٍ وجدولٍ وسجلٍّ اصطناعيّة ⟵ (المُخرَجات أو نصُّ الخطأ)."""
+    _td = _rr_tf.mkdtemp()
+    _img = _rr_os.path.join(_td, "img")
+    _rr_os.makedirs(_img)
+    for _i in ids:
+        with open(_rr_os.path.join(_img, _i + ".png"), "wb") as _fh:
+            _fh.write(_i.encode())
+    _tp = _rr_os.path.join(_td, "t.csv")
+    _cols = ["IMAGE_ID", "ROLE", "DATE", "TICKER", "AUTHOR", "DECISION", "USED_CLASS", "LEDGER_KEYS", "V4_RULES", "EYE_READ_FM"]
+    with open(_tp, "w", encoding="utf-8") as _fh:
+        _fh.write(",".join(_cols) + "\n")
+        for _i in ids:
+            _row = dict.fromkeys(_cols, "")
+            _row["IMAGE_ID"] = _i
+            _row.update((table or {}).get(_i, {}))
+            _fh.write(",".join(_row[c] for c in _cols) + "\n")
+    _rp = _rr_os.path.join(_td, "r.jsonl")
+    with open(_rp, "w", encoding="utf-8") as _fh:
+        for _r in recs:
+            _fh.write(_rr_json.dumps(_r, ensure_ascii=False) + "\n")
+    try:
+        return _RR.build(img_dir=_img, table_path=_tp, records_path=_rp)
+    except _RR.RecordError as _e:
+        return f"RecordError: {_e}"
+    except Exception as _e:                                        # noqa: BLE001
+        return f"⛔ {type(_e).__name__}: {_e}"
+
+
+def _rr_reg(outs):
+    import csv as _c
+    import io as _io
+    return list(_c.DictReader(_io.StringIO(outs[_RR.OUT_REG])))
+
+
+def _rr_cor(outs):
+    import csv as _c
+    import io as _io
+    return list(_c.DictReader(_io.StringIO(outs[_RR.OUT_COR])))
+
+
+# RR1 — العدُّ = القرص: السجلُّ = لقطةُ الجدول الموروث ∪ كلُّ صورةٍ لها سجلُّ عين · والسجلُّ ∪ الواردُ غيرُ المقروء = القرص بلا تقاطع ·
+#       لا معرّفَ مكرّرٌ ولا ساقط · و«التغطيةُ كاملة» حين لا NOT_YET_REVIEWED وحدَها (والواردُ الحيُّ يُطبع في الرسالة)
+try:
+    _o1 = _RR.build()
+    _g1 = _rr_reg(_o1)
+    _disk1 = _RR.disk_images()
+    _ids1 = [r["IMAGE_ID"] for r in _g1]
+    _ny1 = sum(r["STATUS"] == "NOT_YET_REVIEWED" for r in _g1)
+    _s1 = _o1[_RR.OUT_SUM]
+    _fw1 = _RR.forward_unread()
+    _ok1 = (len(_ids1) == len(set(_ids1)) and set(_ids1) == set(_RR.load_table()) | set(_RR.load_records())
+            and set(_ids1) | set(_fw1) == set(_disk1) and not set(_ids1) & set(_fw1)
+            and (("**التغطيةُ كاملة**" in _s1) == (_ny1 == 0)) and ("لا يُقال إن التدقيق اكتمل" in _s1) == (_ny1 > 0))
+    # وعلى قرصٍ اصطناعيّ: صورةٌ بلا سجلّ تبقى صفًّا NOT_YET_REVIEWED ولا تُعلَن التغطيةُ كاملة
+    _o1b = _rr_build([_rr_rec("A"), _rr_rec("B")])
+    _g1b = _rr_reg(_o1b) if isinstance(_o1b, dict) else []
+    _ok1 = (_ok1 and [r["STATUS"] for r in _g1b if r["IMAGE_ID"] == "C"] == ["NOT_YET_REVIEWED"] and len(_g1b) == 3
+            and "**التغطيةُ كاملة**" not in _o1b[_RR.OUT_SUM])
+    _w1 = f"disk={len(_disk1)} reg={len(_ids1)} unread={_ny1} forward_unread={len(_fw1)}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok1, _w1 = False, f"⛔ {type(_e).__name__}: {_e}"
+check(f"👁️ RR1 العدُّ = القرص: السجلُّ ∪ الواردُ غيرُ المقروء = القرص بلا تكرارٍ ولا سقوط · والتغطيةُ «كاملة» حين لا صورةَ بلا قراءة "
+      f"[واردٌ بعد اللقطة غيرُ مقروء: {len(_RR.forward_unread()) if _RR else '?'}]", _ok1, _w1)
+
+# RR2 — كلُّ تصحيحٍ مُسنَد: صفُّ تصحيحٍ لمعرّفٍ مقروء · وكلُّ CONTRADICTED في السجلّ له تصحيحٌ CONTRADICTED · والتصحيحُ يحمل الموروثَ والعين
+try:
+    _g2, _c2 = _rr_reg(_o1), _rr_cor(_o1)
+    _read2 = {r["IMAGE_ID"] for r in _g2 if r["STATUS"] != "NOT_YET_REVIEWED"}
+    _con2 = {c["IMAGE_ID"] for c in _c2 if c["KIND"] == "CONTRADICTED"}
+    _ok2 = (all(c["IMAGE_ID"] in _read2 and c["KIND"] in ("CONTRADICTED", "FLAG") and c["FIELD"] for c in _c2)
+            and {r["IMAGE_ID"] for r in _g2 if r["STATUS"] == "CONTRADICTED"} <= _con2
+            and all(c["INHERITED"] for c in _c2 if c["KIND"] == "CONTRADICTED"))
+    _w2 = f"cor={len(_c2)} contra_ids={len(_con2)}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok2, _w2 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("👁️ RR2 كلُّ تصحيحٍ مُسنَد: لمعرّفٍ مقروء · وكلُّ CONTRADICTED له صفُّ تصحيحٍ بالموروث والعين", _ok2, _w2)
+
+# RR3 — التاريخُ المجهولُ لا يصير يومًا: النسبيُّ بيوم · و«بلا دقّة» بتاريخ · والساعةُ بيوم ⟵ مرفوضة · وسجلُّ القرار (temporal=Y) يلزمه يومٌ ظاهر
+_ok3 = _RR is not None and all([
+    _rr_rejects(_rr_rec("A", date="2026-09-23", dprec="RELATIVE")),
+    _rr_rejects(_rr_rec("A", date="2026-09-23", dprec="NONE")),
+    _rr_rejects(_rr_rec("A", date="2026-09-23", dprec="TIME")),
+    _rr_rejects(_rr_rec("A", date="09:29", dprec="TIME", kind="DT", temporal="Y")),
+    _rr_rejects(_rr_rec("A", date="1 ي", dprec="RELATIVE", kind="DT", temporal="Y")),
+    _rr_rejects(_rr_rec("A", date="06-07", dprec="MD", kind="DT", temporal="Y")),
+    not _rr_rejects(_rr_rec("A", date="2026-09-23", dprec="DAY", kind="DT", temporal="Y")),
+    not _rr_rejects(_rr_rec("A", date="1 ي", dprec="RELATIVE")),
+])
+try:
+    _lat3 = [h[-1] for h in _RR.load_records().values()]
+    _ok3 = _ok3 and all(r["dprec"] in ("EXACT", "DAY") for r in _lat3 if r["temporal"] == "Y")
+except Exception as _e:                                            # noqa: BLE001
+    _ok3 = False
+check("👁️ RR3 التاريخُ المجهولُ لا يصير يومًا: النسبيُّ والساعةُ و«بلا دقّة» لا تحمل يومًا · وسجلُّ القرار يلزمه يومٌ ظاهر", _ok3)
+
+# RR4 — الاستنتاجُ لا يُرقّى: ev=I/X ⟵ INFERRED لا VERIFIED_VISUAL · وغيرُ المقروء (leg=I) لا يحمل دليلًا مباشرًا · والجزئيُّ يبقى جزئيًّا
+try:
+    _ok4 = (_RR.status_of(_rr_rec("A", ev="I"), []) == "INFERRED" and _RR.status_of(_rr_rec("A", ev="X"), []) == "INFERRED"
+            and _RR.status_of(_rr_rec("A", ev="B"), []) == "VERIFIED_VISUAL"
+            and _RR.status_of(_rr_rec("A", leg="P", ev="B"), []) == "PARTIALLY_READABLE"
+            and _rr_rejects(_rr_rec("A", leg="I", ev="D")) and _rr_rejects(_rr_rec("A", ev="D", q=" ")))
+except Exception as _e:                                            # noqa: BLE001
+    _ok4 = False
+check("👁️ RR4 الاستنتاجُ لا يُرقّى: I/X ⟵ INFERRED · وغيرُ المقروء بلا دليلٍ مباشر · والتصريحُ يلزمه اقتباس", _ok4)
+
+# RR5 — التعارضُ والسالبُ لا يُحذفان: موروثٌ READY وعينٌ REJECT ⟵ CONTRADICTED بصفّ تصحيح · وتكرارُ معرّفٍ بلا rev وسببٍ يُسقط البناء
+#        (السجلُّ إلحاقيّ: التصحيحُ نسخةٌ جديدة والقديمةُ تبقى)
+try:
+    _o5 = _rr_build([_rr_rec("A", st="REJECT")], ids=("A",), table={"A": {"DECISION": "READY", "AUTHOR": "F"}})
+    _g5, _c5 = _rr_reg(_o5), _rr_cor(_o5)
+    _b5 = _rr_build([_rr_rec("A"), _rr_rec("A", st="WAIT")], ids=("A",))
+    _r5 = _rr_build([_rr_rec("A"), dict(_rr_rec("A", st="WAIT"), rev=2, why="تصحيح")], ids=("A",))
+    _ok5 = (_g5[0]["STATUS"] == "CONTRADICTED"
+            and any(c["FIELD"] == "DECISION" and c["KIND"] == "CONTRADICTED" and c["INHERITED"] == "READY" for c in _c5)
+            and isinstance(_b5, str) and _b5.startswith("RecordError")
+            and isinstance(_r5, dict) and _rr_reg(_r5)[0]["STATE"] == "WAIT" and _rr_reg(_r5)[0]["REV"] == "2")
+    _w5 = f"{_g5[0]['STATUS']} · {str(_b5)[:40]}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok5, _w5 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("👁️ RR5 التعارضُ لا يُحذف: READY موروثٌ ضدّ REJECT بالعين ⟵ CONTRADICTED بصفّ تصحيح · والتكرارُ بلا rev وسببٍ مرفوض", _ok5, _w5)
+
+# RR6 — لا ملاحظةَ مستقبليّة في سجلّ قرارٍ ماضٍ: الرجعيُّ (RS) لا يكون temporal=Y · والتعليميُّ والسياقُ لا يكونان سجلَّ قرار (Y للقرار DT وحدَه)
+_ok6 = _RR is not None and all([
+    _rr_rejects(_rr_rec("A", date="2026-09-23", dprec="DAY", kind="RS", temporal="Y")),
+    _rr_rejects(_rr_rec("A", date="2026-09-23", dprec="DAY", kind="ED", temporal="Y")),
+    _rr_rejects(_rr_rec("A", date="2026-09-23", dprec="DAY", kind="NA", temporal="Y")),
+    not _rr_rejects(_rr_rec("A", date="2026-09-23", dprec="DAY", kind="RS", temporal="N")),
+])
+check("👁️ RR6 لا ملاحظةَ مستقبليّة في سجلّ قرار: الرجعيُّ والتعليميُّ والسياقُ لا تكون temporal=Y", _ok6)
+
+# RR7 — الأعلامُ أعلامٌ لا تعارض: الساعةُ والنسبيُّ مقابل يومٍ موروث ⟵ DATE_NOT_VISIBLE · وشهرٌ-يومٌ مختلف ⟵ DATE_MD_DIFFERS (FLAG)
+#        · ويومٌ ظاهرٌ مختلف ⟵ DATE CONTRADICTED
+try:
+    _inh7 = {"DATE": "2026-09-22", "AUTHOR": "F"}
+    _f7 = lambda **k: [(f, kk) for f, _, _, kk in _RR.compare(_rr_rec("A", **k), _inh7)]       # noqa: E731
+    _ok7 = (("DATE_NOT_VISIBLE", "FLAG") in _f7(date="09:29", dprec="TIME")
+            and ("DATE_NOT_VISIBLE", "FLAG") in _f7(date="اليوم", dprec="RELATIVE")
+            and ("DATE_MD_DIFFERS", "FLAG") in _f7(date="09-23", dprec="MD")
+            and not any(k == "CONTRADICTED" for _, k in _f7(date="09-23", dprec="MD"))
+            and ("DATE", "CONTRADICTED") in _f7(date="2026-09-23", dprec="DAY")
+            and not _f7(date="2026-09-22 13:39", dprec="EXACT"))
+except Exception as _e:                                            # noqa: BLE001
+    _ok7 = False
+check("👁️ RR7 الساعةُ والنسبيُّ ⟵ DATE_NOT_VISIBLE · وشهرٌ-يومٌ مختلف علمٌ لا تعارض · ويومٌ ظاهرٌ مختلف ⟵ CONTRADICTED", _ok7)
+
+# RR8 — النسخةُ لها أصلٌ على القرص وأصلٌ غيرُ نسخة: dup_of لمعرّفٍ غائبٍ أو دورةُ نسخٍ بلا أصل ⟵ يُسقط البناء (لا يضيع محتوى صورتين)
+try:
+    _a8 = _rr_build([_rr_rec("A", new="D", dup_of="Z")], ids=("A",))
+    _c8 = _rr_build([_rr_rec("A", new="D", dup_of="B"), _rr_rec("B", new="D", dup_of="A")], ids=("A", "B"))
+    _k8 = _rr_build([_rr_rec("A", new="D", dup_of="B"), _rr_rec("B", new="D", dup_of="C"), _rr_rec("C")])
+    _ok8 = (isinstance(_a8, str) and _a8.startswith("RecordError") and isinstance(_c8, str) and _c8.startswith("RecordError")
+            and isinstance(_k8, dict))
+    _w8 = f"{str(_a8)[:30]} · {str(_c8)[:30]} · chain={'ok' if isinstance(_k8, dict) else _k8}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok8, _w8 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("👁️ RR8 النسخةُ لها أصلٌ على القرص وسلسلتُها تنتهي بأصلٍ غيرِ نسخة (لا دورة)", _ok8, _w8)
+
+# RR9 — البناءُ حتميٌّ ويطابق المحفوظ بايتًا (`--check`): السجلُّ والتصحيحاتُ والملخّصُ والترتيبُ وبصماتُ الصور (صورةٌ معدَّلةٌ تُكشف)
+try:
+    _o9 = _RR.build()
+    _ok9 = (_RR.check(_o9) == [] and _o9 == _RR.build()
+            and all(r["SHA256"] == _RR.sha256_file(_rr_os.path.join(_RR.REPO, r["PATH"])) for r in _rr_reg(_o9)[:25]))
+    _w9 = f"bad={_RR.check(_o9)}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok9, _w9 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("👁️ RR9 سجلُّ إعادة القراءة حتميٌّ ويطابق المحفوظ بايتًا (`reread_build.py --check`)", _ok9, _w9)
+
+# RR10 — الاستلامُ الأماميّ لا يُحمّر ولا يُسقَط صامتًا: صورةٌ يضيفها الجامعُ بعد اللقطة (لا صفَّ موروث ولا سجلّ) لا تغيّر المُخرَجات المحفوظة
+#        وتُعَدّ «واردةً غيرَ مقروءة» حيّةً · وحين يُكتب لها سجلُّ عينٍ تدخل السجلَّ · وصفٌّ موروثٌ لصورةٍ غائبةٍ عن القرص يُسقط البناء
+try:
+    _td10 = _rr_tf.mkdtemp()
+    _img10 = _rr_os.path.join(_td10, "img")
+    _rr_os.makedirs(_img10)
+    for _i in ("A", "B", "C"):                                    # C صفٌّ موروثٌ بلا سجلّ
+        open(_rr_os.path.join(_img10, _i + ".png"), "wb").write(_i.encode())
+    _tp10 = _rr_os.path.join(_td10, "t.csv")
+    open(_tp10, "w", encoding="utf-8").write("IMAGE_ID,ROLE,DATE,TICKER,AUTHOR,DECISION,USED_CLASS,LEDGER_KEYS,V4_RULES,EYE_READ_FM\nA,,,,,,,,,\nB,,,,,,,,,\nC,,,,,,,,,\n")
+    _rp10 = _rr_os.path.join(_td10, "r.jsonl")
+    open(_rp10, "w", encoding="utf-8").write(_rr_json.dumps(_rr_rec("A"), ensure_ascii=False) + "\n"
+                                             + _rr_json.dumps(_rr_rec("B"), ensure_ascii=False) + "\n")
+    _b10a = _RR.build(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+    open(_rr_os.path.join(_img10, "D.png"), "wb").write(b"D")           # الجامعُ يضيف صورةً بعد اللقطة
+    _b10b = _RR.build(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+    _f10 = _RR.forward_unread(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+    open(_rp10, "a", encoding="utf-8").write(_rr_json.dumps(_rr_rec("D"), ensure_ascii=False) + "\n")
+    _b10c = _RR.build(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+    _f10c = _RR.forward_unread(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+    _rr_os.remove(_rr_os.path.join(_img10, "C.png"))              # موروثٌ بلا سجلٍّ يغيب عن القرص (لا يحرسه فحصُ السجلّ)
+    try:
+        _RR.build(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+        _gone10 = False
+    except _RR.RecordError:
+        _gone10 = True
+    _ok10 = (_b10a == _b10b and _f10 == ["D"] and "D" in [r["IMAGE_ID"] for r in _rr_reg(_b10c)] and _f10c == [] and _gone10)
+    _live10 = _RR.forward_unread()
+    _w10 = f"stable={_b10a == _b10b} fwd={_f10} after={_f10c} gone={_gone10} · live_forward_unread={len(_live10)}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok10, _w10 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("👁️ RR10 الاستلامُ الأماميّ: صورةٌ بعد اللقطة لا تغيّر المحفوظ وتُعَدّ «واردةً غيرَ مقروءة» · وبسجلّ عينٍ تدخل · والموروثُ الغائبُ يُسقط", _ok10, _w10)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
