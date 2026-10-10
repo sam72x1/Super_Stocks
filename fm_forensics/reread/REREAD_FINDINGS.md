@@ -153,6 +153,6 @@
 
 ```
 python3 fm_forensics/reread/reread_build.py --check   # المُخرَجاتُ الأربعة بايتًا من السجلّ والصور والجدول الموروث
-python3 test_bot.py                                    # RR1-RR9 ضمن السويّة
+python3 test_bot.py                                    # RR1-RR10 ضمن السويّة
 ```
 السجلُّ `data/reread_records.jsonl` **إلحاقيّ** (المراجعةُ `rev` صاعدةٌ بسبب · والقديمُ يبقى) · والبروتوكول `VISUAL_REREAD_PROTOCOL.md`.
