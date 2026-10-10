@@ -171,6 +171,10 @@ def audit_errors(prov):
         if not f or not q:
             errs.append(f"evidence {k}: no verify spec")
             continue
+        if e.get("kind") == "EXPERIMENT" and e.get("scope") not in GA.SCOPES:
+            errs.append(f"evidence {k}: experiment scope {e.get('scope')} not in vocabulary {GA.SCOPES}")
+        if e.get("kind") != "EXPERIMENT" and "scope" in e:
+            errs.append(f"evidence {k}: scope is defined for experiments only")
         if f not in texts:
             p = os.path.join(ROOT, f)
             texts[f] = open(p, encoding="utf-8").read() if os.path.exists(p) else None
@@ -211,7 +215,31 @@ def audit_errors(prov):
                     errs.append(f"{g['id']}: active rejecting gate has no threshold record for {k}")
     for k in sorted(set(reg) - cited):
         errs.append(f"evidence {k}: never cited")
+    errs += archive_xref(prov)[0]
     return errs
+
+
+def archive_xref(prov):
+    """(errors, summary) — the archived measurements tied to the gates they name (`gate_audit.archive_join` · `xref_check`):
+    every top-level bullet of the decisions archive whose head names a gate's config key or listed experiment code is
+    classified for that gate. Archive line numbers are not stored (every new memory bullet shifts them): rows carry the anchor
+    of their entry, and no total of archive bullets is recorded."""
+    x = prov.get("archive_xref")
+    if not isinstance(x, dict) or not x.get("entries"):
+        return ["archive xref: section missing from the provenance file"], None
+    p = os.path.join(ROOT, GA.ARCHIVE)
+    if not os.path.exists(p):
+        return [f"archive xref: {GA.ARCHIVE} missing"], None
+    bullets = GA.archive_bullets(open(p, encoding="utf-8").read())
+    gates = prov.get("gates") or []
+    errs, rows = GA.xref_check(bullets, gates, prov.get("evidence_registry") or {}, x)
+    pairs = GA.archive_join(bullets, gates, x.get("codes"), x.get("head_chars") or 400)
+    rows = sorted(({k: r[k] for k in ("gate", "anchor", "terms", "class", "refs", "why", "note")} for r in rows),
+                  key=lambda r: (r["gate"], r["anchor"] or ""))
+    return errs, {"head_chars": x.get("head_chars") or 400, "pairs": len(pairs),
+                  "by_class": {c: sum(1 for r in rows if r["class"] == c) for c in GA.XREF_CLASSES},
+                  "by_why": {w: sum(1 for r in rows if r["class"] == "NOT_GATE_EVIDENCE" and r["why"] == w) for w in GA.XREF_WHY},
+                  "rows": rows}
 
 
 # ---------------------------------------------------------------- live values and production counts
@@ -553,6 +581,7 @@ def build():
                "inputs": {"provenance_sha256": _sha(PROV), "snapshot_sha256": (_sha(SNAP) if snap else ""),
                           "rank_bars_sha256": _sha(os.path.join(DATA, "rank", "bars.json.gz")),
                           "rank_rows_sha256": _sha(os.path.join(DATA, "rank", "rows.csv.gz"))}}
+    summary["archive_xref"] = archive_xref(prov)[1]
     summary["pool_question"] = pool_question(S)
     if summary["pool_question"] and not summary["pool_question"]["rows_sha_ok"]:
         errors.append("gate_pool_evidence.json: rows_sha256 does not match its rows")
@@ -826,10 +855,64 @@ def report(inv, fx):
               "their availability at decision time (extra requests ⇒ owner decision). The first part ships with the pool log "
               "(`fill_pool_log.jsonl`, one record per screening run, evaluated by `pool_funnel.py`); names below the cutoff keep their "
               "availability NOT_COLLECTED, so for them the question stays open unless availability is harvested.", ""]
+    reg = inv.get("evidence_registry") or {}
+    att = {}
+    for g in G:
+        a = g.get("audit") or {}
+        comps = [("concept", a.get("concept_refs")), ("hardness", a.get("hardness_refs"))] + \
+                [(f"`{t.get('key')}`", t.get("refs")) for t in a.get("thresholds") or []]
+        for where, refs in comps:
+            for r in refs or []:
+                if (reg.get(r) or {}).get("kind") in ("EXPERIMENT", "PRIOR_AUDIT"):
+                    att.setdefault((g["id"], r), []).append(where)
+    xr = sm.get("archive_xref") or {}
+    bc, bw = xr.get("by_class") or {}, xr.get("by_why") or {}
+    L += ["## 4d. Archived measurements per gate (evidence registry · `DECISIONS_ARCHIVE.md`)", "",
+          "Every experiment and prior audit attached to a gate, with its stance and scope. Only an experiment of scope THIS_GATE "
+          "that supports counts as support (`gate_audit.support_class`): a BUNDLE (several numbers changed jointly), a "
+          "SUPERSEDED_VALUE (a value no longer live) and a RELATED_RULE (a related but different rule) are reported, never read as "
+          "support for one exact number. A null result is a measurement — running it again is a repeat, not a new test.", "",
+          "| gate | evidence | attached to | kind | stance | scope | what was measured |", "|---|---|---|---|---|---|---|"]
+    order = {g["id"]: i for i, g in enumerate(G)}
+    for (gid, r), where in sorted(att.items(), key=lambda kv: (order[kv[0][0]], kv[0][1])):
+        e = reg[r]
+        L.append(f"| `{gid}` | {r} | {' · '.join(dict.fromkeys(where))} | {e['kind']} | {e['stance']} | {e.get('scope') or '—'} | "
+                 f"{e.get('ref', '')}: {e.get('summary', '')} |")
+    L += ["", f"Archive cross-reference (`gate_audit.archive_join` · `xref_check`): {xr.get('pairs', 0)} gate–bullet pairs whose head "
+          f"(first {xr.get('head_chars', 0)} characters) names a gate's key or a listed experiment code — CITED {bc.get('CITED', 0)} · "
+          f"CITED_ELSEWHERE {bc.get('CITED_ELSEWHERE', 0)} · NOT_GATE_EVIDENCE {bc.get('NOT_GATE_EVIDENCE', 0)} (implementation "
+          f"{bw.get('IMPLEMENTATION', 0)} · memory {bw.get('MEMORY', 0)} · other system {bw.get('OTHER_SYSTEM', 0)} · incidental "
+          f"{bw.get('INCIDENTAL', 0)}) · unclassified {xr.get('pairs', 0) - sum(bc.values())}. A new archive bullet that names a gate "
+          "in its head fails the build until it is classified (`archive_xref` in `data/gate_provenance.json`); mentions further "
+          "down a bullet are cross-references and are not enforced.", ""]
+    gi = {g["id"]: g for g in G}
+    m4 = gi.get("M4_RISE") or {}
+    m4t = next((t for t in (m4.get("audit") or {}).get("thresholds") or [] if t.get("key") == "RECENT_RISE_BLOCK_PCT"), {})
+    m4pc = m4.get("production_counts") or {}
+    m4v = float(m4t.get("value") or 0)
+    if m4pc and not m4pc.get("max_per_day"):
+        m4rej = f"rejects nothing in production (0 on each of the {m4pc.get('days')} days of the frozen reject snapshot)"
+    elif m4pc:
+        m4rej = f"rejects a median of {m4pc.get('median_per_day')} a day in production (max {m4pc.get('max_per_day')})"
+    else:
+        m4rej = "has no production count in the frozen reject snapshot"
+    ch = reg.get("E_TCHASE") or {}
+    sw = reg.get("E_TSWEEP_RECLAIM") or {}
     L += ["## 5. Next permitted action", "",
           "- Two active gates have no supporting evidence at all — `M13_SHORT` (FINRA short volume, 40,000: no Faisal source, no owner "
           "order; Faisal's «شورت» is availability) and `STOPPED_EXCLUSION` (inherited switch). Removing or changing either changes live "
-          "candidate generation ⇒ owner decision; any removal needs a preregistered measurement (the M13 tightening experiments were null).",
+          "candidate generation ⇒ owner decision; any removal needs a preregistered measurement. What was already measured (§4d): for "
+          f"`M13_SHORT`, tightening ({(reg.get('E_TM13') or {}).get('ref', '')}: {(reg.get('E_TM13') or {}).get('summary', '')}) and "
+          "its removal only inside a bundle of seven walls (T-CORE5, failed its non-degradation criterion) — removing it alone was "
+          "never a registered test; for `STOPPED_EXCLUSION`, the nearest measurement is T-SWEEP-RECLAIM ("
+          f"{sw.get('stance', '?')} · {sw.get('scope', '?')}): it measured automatic re-entry at the reclaim after a stop and failed "
+          "0 of 3 criteria; it did not measure the screener re-picking a stopped name at renewal, so a test of the exclusion itself "
+          "would be new, not a repeat — but its closest relative is negative.",
+          f"- `M4_RISE` at its catalogue edge (`RECENT_RISE_BLOCK_PCT` {m4t.get('value', '?')}) {m4rej}. It was measured: "
+          f"{ch.get('ref', '')} — {ch.get('summary', '')}. "
+          + ("The value 35 is live." if abs(m4v - 35.0) < 1e-6 else
+             "35 was never adopted (the live value is the catalogue edge). Adopting it changes live candidate generation ⇒ owner "
+             "decision; testing 35 again would be a repeat."),
           "- Guards with a supported concept and an unsupported number (`COVERAGE_GUARD` 85% · `FILL_ROUNDS` 4 · `D_DEPTH` 120 · the "
           "`DQ_GATE` mapping and 5% tolerance): the concept stays; the number is a disclosed engineering default, not evidence.",
           "- The dominant first wall on Faisal's episodes is `ANCHOR_TWO_TOUCH` (owner policy, FROZEN by the H6 control-pool "

@@ -85213,8 +85213,11 @@ def _ga_supporting(g, inv):
         refs = list(a.get("concept_refs") or []) + list(a.get("hardness_refs") or [])
         for t in a.get("thresholds") or []:
             refs += list(t.get("refs") or [])
+        # 📚 (2026-10-09 · GPX3): تجربةٌ نطاقُها حزمةٌ أو قيمةٌ منسوخةٌ أو قاعدةٌ قريبة لا تُعَدّ سندًا (الغائبُ = THIS_GATE)
         return [r for r in refs if (reg.get(r) or {}).get("stance") == "supports"
-                and (reg.get(r) or {}).get("kind") not in ("ABSENCE", "CODE_RECORD", "INHERITED_RECORD", "CONTRADICTION")]
+                and (reg.get(r) or {}).get("kind") not in ("ABSENCE", "CODE_RECORD", "INHERITED_RECORD", "CONTRADICTION")
+                and not ((reg.get(r) or {}).get("kind") == "EXPERIMENT"
+                         and ((reg.get(r) or {}).get("scope") or "THIS_GATE") != "THIS_GATE")]
     return [e for e in g.get("evidence") or [] if e.get("source_unit") not in ("—", "") and e.get("informed_methodology")]
 
 
@@ -86398,6 +86401,195 @@ except Exception as _e:                                              # noqa: BLE
     _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
 check("🗓️💾 RDF6 (AST) `git_save` في `run_weekly_renewal` داخل مسارات التأجيل الثلاثة وحدَها (قبل `fill_picks` — الكاملُ يدفع عبر "
       "`run_performance_system`) · وكلُّ عودةٍ قبلها يسبقها في كتلتها سطرُ «لا تعبئة»", _ok, _w)
+
+# 📚 GPX1-GPX9 — **القياساتُ المؤرشفة لكلّ بوّابة** (‏2026-10-09 · متابعةُ #600 · بالتفويض): سجلُّ الأدلّة في جرد البوّابات لم يكن
+#    يذكر تجاربَ مؤرشفةً قاست البوّابةَ نفسَها — `STOPPED_EXCLUSION` بلا `T-SWEEP-RECLAIM` (إعادةُ الدخول بعد الستوب فشلت 0 من 3) ·
+#    `M4_RISE` بلا `T-CHASE` (‏35 عبر حرّاسه ولم يُعتمَد · والبوّابةُ عند 214.73 لا ترفض شيئًا) · و`M2_CEIL` بلا `T-CEILING` … ⟵ فصار
+#    التقريرُ يوحي «لا قياس» حيث قِيس، وهو بابُ تكرارِ تجربةٍ صفريّة. ⇒ كلُّ بندٍ في الأرشيف يسمّي في رأسه مفتاحَ بوّابةٍ أو رمزَ تجربتها
+#    يُصنَّف لها (مُستشهَد · مُستشهَدٌ في مصدره · ليس دليلَ بوّابة) · و`scope` للتجربة: الحزمةُ والقيمةُ المنسوخة والقاعدةُ القريبة تُعرَض
+#    ولا تسند رقمًا بعينه. بحثٌ فقط: لا إنتاج · ولا تغييرَ في أيّ وسم تسويغ.
+import importlib.util as _gx_iu                                       # noqa: E402
+import json as _gx_json                                               # noqa: E402
+_gx_root = _os_hc.path.dirname(_os_hc.path.abspath(__file__))
+_gx_inv_p = _os_hc.path.join(_gx_root, "faisal_engine", "out", "GATE_INVENTORY.json")
+_gx_md_p = _os_hc.path.join(_gx_root, "faisal_engine", "GATE_PROVENANCE_REPORT.md")
+try:
+    _gx_sp = _gx_iu.spec_from_file_location("_gx_audit", _os_hc.path.join(_gx_root, "faisal_engine", "gate_audit.py"))
+    GX = _gx_iu.module_from_spec(_gx_sp)
+    _gx_sp.loader.exec_module(GX)
+    _gx_err = ""
+except Exception as _e:                                              # noqa: BLE001
+    GX, _gx_err = None, f"⛔ {type(_e).__name__}: {_e}"
+
+
+def _gx_load():
+    return _gx_json.load(open(_gx_inv_p, encoding="utf-8")), open(_gx_md_p, encoding="utf-8").read()
+
+
+def _gx_gate(inv, gid):
+    return next(g for g in inv["gates"] if g["id"] == gid)
+
+
+# GPX1 — الاكتمالُ مُلزِم على الأرشيف الحقيقيّ: كلُّ زوجٍ (بوّابة · بند) يسمّي فيه رأسُ البند مفتاحَها أو رمزَ تجربتها مصنَّفٌ · وصفرُ خطأ
+try:
+    _inv, _md = _gx_load()
+    _x = (_inv.get("summary") or {}).get("archive_xref") or {}
+    _bad = [e for e in (_inv["summary"].get("errors") or []) if e.startswith("archive xref")]
+    _ok = (_x.get("pairs", 0) >= 40 and _x.get("pairs") == sum((_x.get("by_class") or {}).values()) and not _bad
+           and _x.get("head_chars") == 400 and set(_x.get("by_class") or {}) <= {"CITED", "CITED_ELSEWHERE", "NOT_GATE_EVIDENCE"})
+    _w = f"x={ {k: _x.get(k) for k in ('pairs', 'by_class', 'by_why', 'head_chars')} } errs={_bad[:2]}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📚 GPX1 كلُّ بندٍ في الأرشيف يسمّي في رأسه مفتاحَ بوّابةٍ أو رمزَ تجربتها مصنَّفٌ لها (مُستشهَد · في مصدره · ليس دليلًا) · وصفرُ خطأ", _ok, _w)
+
+# GPX2 — STOPPED_EXCLUSION: أقربُ قياسٍ (T-SWEEP-RECLAIM) مُستشهَدٌ بموقفه null ونطاقِه RELATED_RULE · والوسمُ يبقى «بلا سند» ·
+#        و§5 يقول إنه قاس إعادةَ الدخول عند الاستعادة لا إعادةَ الترشيح فلا يُكرَّر
+try:
+    _inv, _md = _gx_load()
+    _g = _gx_gate(_inv, "STOPPED_EXCLUSION")
+    _reg = _inv["evidence_registry"]
+    _e2 = _reg.get("E_TSWEEP_RECLAIM") or {}
+    _s5 = _md.split("## 5.")[-1] if "## 5." in _md else ""
+    _ok = ("E_TSWEEP_RECLAIM" in (_g["audit"].get("concept_refs") or []) and _e2.get("stance") == "null"
+           and _e2.get("scope") == "RELATED_RULE" and _g["audit"].get("justification") == "UNJUSTIFIED_BY_CURRENT_EVIDENCE"
+           and "T-SWEEP-RECLAIM" in _s5 and "re-entry at the reclaim" in _s5 and "not a repeat" in _s5)
+    _w = f"refs={_g['audit'].get('concept_refs')} e={(_e2.get('stance'), _e2.get('scope'))} j={_g['audit'].get('justification')}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📚 GPX2 `STOPPED_EXCLUSION`: `T-SWEEP-RECLAIM` مُستشهَدٌ (null · RELATED_RULE) والوسمُ يبقى «بلا سند» · و§5 يمنع تكرارَها بنصّه", _ok, _w)
+
+# GPX3 — النطاق يحكم السند: تجربةٌ «تسند» بنطاقِ الحزمة أو القيمة المنسوخة أو القاعدة القريبة لا تُعطي صنفَ EMPIRICAL · وTHIS_GATE تعطيه
+try:
+    _base = {"kind": "EXPERIMENT", "stance": "supports"}
+    _r = {s: GX.support_class(dict(_base, scope=s), "pivot") for s in GX.SCOPES}
+    _ok = (_r == {"THIS_GATE": "EMPIRICAL", "BUNDLE": None, "SUPERSEDED_VALUE": None, "RELATED_RULE": None}
+           and GX.support_class(dict(_base), "pivot") == "EMPIRICAL"
+           and GX.support_class(dict(_base, stance="null", scope="THIS_GATE"), "pivot") is None)
+    _w = f"{_r} {_gx_err}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_gx_err}"
+check("📚 GPX3 النطاقُ يحكم السند: «تسند» بنطاق BUNDLE/SUPERSEDED_VALUE/RELATED_RULE لا تعطي EMPIRICAL · وTHIS_GATE (والغائبُ) يعطيه", _ok, _w)
+
+# GPX4 — `xref_check` يسقط بأسبابه على أرشيفٍ اصطناعيّ: زوجٌ بلا تصنيف · مُستشهَدٌ مرساتُه في بندٍ آخر · مرجعٌ غيرُ موصولٍ بالبوّابة ·
+#        تصنيفٌ قديم بلا زوج · مرساةٌ في بندين · و«T-BASE» لا يطابق «T-BASE-2»
+try:
+    _arch = "\n".join(["- **T-ONE «تجربة» على `KEY_ONE` — فشلت**", "  نصّ ANCH1", "",
+                       "- **عن T-BASE-2 وحدها**", "  ANCH2", "",
+                       "- **بندٌ يذكر ANCH3 ولا يسمّي شيئًا**", "",
+                       "- **بندٌ ثانٍ يذكر ANCH3**"])
+    _b = GX.archive_bullets(_arch)
+    _gates = [{"id": "G1", "config_keys": ["KEY_ONE"], "audit": {"concept_refs": ["E1", "E3"]}},
+              {"id": "G2", "config_keys": [], "audit": {"concept_refs": ["E2"]}}]
+    _codes = {"G2": ["T-BASE"]}
+    _reg = {"E1": {"kind": "EXPERIMENT", "stance": "null", "verify": {"file": GX.ARCHIVE, "contains": "ANCH1"}},
+            "E2": {"kind": "EXPERIMENT", "stance": "null", "verify": {"file": GX.ARCHIVE, "contains": "ANCH2"}},
+            "E3": {"kind": "EXPERIMENT", "stance": "null", "verify": {"file": GX.ARCHIVE, "contains": "ANCH2"}},
+            "E9": {"kind": "EXPERIMENT", "stance": "null", "verify": {"file": GX.ARCHIVE, "contains": "ANCH1"}}}
+    _x0 = {"head_chars": 400, "codes": _codes, "entries": []}
+    _e_a, _ = GX.xref_check(_b, _gates, _reg, _x0)
+    _x1 = dict(_x0, entries=[{"anchor": "T-ONE «تجربة»", "default": {"class": "CITED", "refs": ["E1"]}}])
+    _e_ok, _rows_ok = GX.xref_check(_b, _gates, _reg, _x1)
+    _x2 = dict(_x0, entries=[{"anchor": "T-ONE «تجربة»", "default": {"class": "CITED", "refs": ["E2"]}}])
+    _e_b, _ = GX.xref_check(_b, _gates, _reg, _x2)
+    _x3 = dict(_x0, entries=[{"anchor": "T-ONE «تجربة»", "default": {"class": "CITED", "refs": ["E3"]}}])
+    _e_c, _ = GX.xref_check(_b, _gates, _reg, _x3)       # موصولٌ ومرساتُه في بندٍ آخر
+    _x6 = dict(_x0, entries=[{"anchor": "T-ONE «تجربة»", "default": {"class": "CITED", "refs": ["E9"]}}])
+    _e_f, _ = GX.xref_check(_b, _gates, _reg, _x6)       # مرساتُه في البند وغيرُ موصول
+    _x4 = dict(_x1, entries=_x1["entries"] + [{"anchor": "عن T-BASE-2", "default": {"class": "NOT_GATE_EVIDENCE", "why": "INCIDENTAL",
+                                                                                      "note": "n"}}])
+    _e_d, _ = GX.xref_check(_b, _gates, _reg, _x4)
+    _x5 = dict(_x1, entries=_x1["entries"] + [{"anchor": "ANCH3", "default": {"class": "NOT_GATE_EVIDENCE", "why": "MEMORY", "note": "n"}}])
+    _e_e, _ = GX.xref_check(_b, _gates, _reg, _x5)
+    _ok = (any("G1" in e and "not classified" in e for e in _e_a) and not _e_ok and len(_rows_ok) == 1
+           and any("not attached" in e for e in _e_b) and any("anchored inside" in e for e in _e_b)
+           and any("anchored inside" in e for e in _e_c) and not any("not attached" in e for e in _e_c)
+           and any("not attached" in e for e in _e_f) and not any("anchored inside" in e for e in _e_f)
+           and any("stale" in e for e in _e_d) and any("2 bullets" in e for e in _e_e)
+           and [p[0] for p in GX.archive_join(_b, _gates, _codes, 400)] == ["G1"])
+    _w = f"a={_e_a[:1]} ok={_e_ok} b={_e_b[:2]} c={_e_c[:2]} f={_e_f[:2]} d={_e_d[:1]} e={_e_e[:1]}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_gx_err}"
+check("📚 GPX4 `xref_check` يسقط بأسبابه: بلا تصنيف · مرساةٌ في بندٍ آخر · مرجعٌ غيرُ موصول · تصنيفٌ قديم · مرساةٌ في بندين · و«T-BASE» ليس «T-BASE-2»", _ok, _w)
+
+# GPX5 — M4_RISE: T-CHASE موصولٌ بعتبتها · وتقريرُ §5 يقول إن البوّابة عند حافّة الكاتالوج لا ترفض شيئًا وإن 35 عبر حرّاسه ولم يُعتمَد
+try:
+    _inv, _md = _gx_load()
+    _a = _gx_gate(_inv, "M4_RISE")["audit"]
+    _t = next(t for t in _a["thresholds"] if t["key"] == "RECENT_RISE_BLOCK_PCT")
+    _s5 = _md.split("## 5.")[-1] if "## 5." in _md else ""
+    _ok = ("E_TCHASE" in (_t.get("refs") or []) and "T-CHASE" in _s5 and "rejects nothing" in _s5 and "never adopted" in _s5)
+    _w = f"refs={_t.get('refs')}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📚 GPX5 `M4_RISE`: `T-CHASE` موصولٌ بالعتبة · و§5 يقول إن البوّابةَ عند 214.73 لا ترفض شيئًا وإن 35 عبر حرّاسه ولم يُعتمَد (قرارُ المالك)", _ok, _w)
+
+# GPX6 — كلُّ تجربةٍ بنطاقٍ من المفردات · وجدولُ §4d يذكر كلَّ تجربةٍ وتدقيقٍ سابقٍ موصولٍ بكلّ بوّابة (عددُ الصفوف = عددُ الإيصالات)
+try:
+    _inv, _md = _gx_load()
+    _reg = _inv["evidence_registry"]
+    _bad = [k for k, v in _reg.items() if v.get("kind") == "EXPERIMENT" and v.get("scope") not in GX.SCOPES]
+    _bad += [k for k, v in _reg.items() if v.get("kind") != "EXPERIMENT" and "scope" in v]
+    _att = sorted({(g["id"], r) for g in _inv["gates"] for r in GX.gate_refs(g.get("audit") or {})
+                   if (_reg.get(r) or {}).get("kind") in ("EXPERIMENT", "PRIOR_AUDIT")})
+    _sec = _md.split("## 4d.")[-1].split("\n## ")[0] if "## 4d." in _md else ""
+    _rows = [ln for ln in _sec.splitlines() if ln.startswith("| `")]
+    _ok = not _bad and len(_rows) == len(_att) and all(f"`{gid}` | {r} " in _sec for gid, r in _att)
+    _w = f"bad={_bad[:4]} rows={len(_rows)} attached={len(_att)}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📚 GPX6 كلُّ تجربةٍ بنطاقٍ من المفردات (ولا نطاقَ لغيرها) · وجدولُ §4d يذكر كلَّ تجربةٍ وتدقيقٍ موصولٍ بكلّ بوّابة", _ok, _w)
+
+# GPX7 — لا وسمَ تغيّر بالأدلّة المضافة إلّا اشتقاقًا: كلُّ وسم تسويغٍ = اشتقاقُه · وحزمةُ «تسند» (T-MINFLOOR) لا ترفع مكوّنَ عتبة
+try:
+    _inv, _md = _gx_load()
+    _reg = _inv["evidence_registry"]
+    _bad = [g["id"] for g in _inv["gates"] if GX.derive_justification(g["audit"], _reg)[0] != g["audit"].get("justification")]
+    _a = _gx_gate(_inv, "M1_PRICE")["audit"]
+    _t = next(t for t in _a["thresholds"] if t["key"] == "MIN_PRICE")
+    _cls = {GX.support_class(_reg.get(r), "pivot") for r in _t.get("refs") or []} - {None}
+    _ok = (not _bad and "E_TMINFLOOR" in (_t.get("refs") or []) and (_reg.get("E_TMINFLOOR") or {}).get("stance") == "supports"
+           and "EMPIRICAL" not in _cls)
+    _w = f"mismatch={_bad[:4]} min_price_classes={sorted(_cls)}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📚 GPX7 كلُّ وسمٍ = اشتقاقُه · و`T-MINFLOOR` «تسند» حزمةً فلا ترفع عتبةَ `MIN_PRICE` إلى EMPIRICAL (الحزمةُ لا تسند رقمًا بعينه)", _ok, _w)
+
+# GPX8 — الإدراجُ صادقُ المرساة: كلُّ تجربةٍ وتدقيقٍ سابقٍ جديد مرساتُه في الأرشيف مرّةً واحدة · وكلُّ «مُستشهَد» في الجدول يقرأ بنده
+try:
+    _inv, _md = _gx_load()
+    _reg = _inv["evidence_registry"]
+    _arch = open(_os_hc.path.join(_gx_root, "DECISIONS_ARCHIVE.md"), encoding="utf-8").read()
+    _new = [k for k, v in _reg.items() if v.get("kind") in ("EXPERIMENT", "PRIOR_AUDIT") and v["verify"]["file"] == GX.ARCHIVE]
+    _bad = [k for k in _new if _arch.count(_reg[k]["verify"]["contains"]) != 1]
+    _ok = len(_new) >= 30 and not _bad
+    _w = f"archive-anchored={len(_new)} bad={_bad[:4]}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📚 GPX8 كلُّ تجربةٍ أو تدقيقٍ مرساتُه في الأرشيف موجودةٌ مرّةً واحدة (لا مرساةَ تشير إلى بندين)", _ok, _w)
+
+# GPX9 — البنّاءُ نفسُه يُسقط ما يُخفيه البيانُ المتّسق (حارسٌ خامدٌ بلا هذا القفل): ملفُّ أدلّةٍ مؤقّتٌ بلا تصنيفٍ لبند `T-CEILING`
+#        وبنطاقٍ خارج المفردات لتجربةٍ وبنطاقٍ على غير تجربة ⟵ `--completeness` يخرج 1 بالأخطاء الثلاثة مسمّاة
+try:
+    _d9 = _gx_json.load(open(_os_hc.path.join(_gx_root, "faisal_engine", "data", "gate_provenance.json"), encoding="utf-8"))
+    _d9["archive_xref"]["entries"] = [e for e in _d9["archive_xref"]["entries"] if e.get("anchor") != "`T-CEILING` — «قس السقف»"]
+    _d9["evidence_registry"]["E_TCHASE"]["scope"] = "WHOLE_SYSTEM"
+    _d9["evidence_registry"]["O_DQ_1001"]["scope"] = "THIS_GATE"
+    _t9 = _gp_tf.NamedTemporaryFile("w", suffix=".json", delete=False, encoding="utf-8")
+    _gx_json.dump(_d9, _t9, ensure_ascii=False)
+    _t9.close()
+    try:
+        _p9x = _gp_sp.run([_gp_sys.executable, _gp_tool, "--completeness"], cwd=_gx_root, env={**_gp_env, "GATE_PROV_FILE": _t9.name},
+                          capture_output=True, text=True, timeout=600)
+    finally:
+        _os_hc.unlink(_t9.name)
+    _ok = (_p9x.returncode == 1 and "archive xref: M2_CEIL — bullet at line" in _p9x.stdout and "T-CEILING" in _p9x.stdout
+           and "not classified" in _p9x.stdout
+           and "evidence E_TCHASE: experiment scope WHOLE_SYSTEM not in vocabulary" in _p9x.stdout
+           and "evidence O_DQ_1001: scope is defined for experiments only" in _p9x.stdout)
+    _w = _p9x.stdout[-300:]
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📚 GPX9 البنّاءُ يُسقط بالاسم: بندٌ بلا تصنيف · نطاقٌ خارج المفردات · ونطاقٌ على غير تجربة (لا حارسَ خامد)", _ok, _w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
