@@ -233,3 +233,12 @@ TG_1877,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
 TG_1880,ROLE,CONTRADICTED,COUNTEREXAMPLE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
 TG_1888,AUTHOR_NOT_VISIBLE,FLAG,F,U,شمعة هبوط المضارب بعد رفعه · هبوط RSI من المضارب,V4_VISUAL_PASS(via unit TG_1902),,,1
 TG_1888,DATE_NOT_VISIBLE,FLAG,2026-06-16,,شمعة هبوط المضارب بعد رفعه · هبوط RSI من المضارب,V4_VISUAL_PASS(via unit TG_1902),,,1
+TG_1907,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,الاسههم هذي بالسنه تكرر مره مرتين فقط اضمن 20٪ نعمه سنه 2025 طلع فيها 3 اسهم قمم QMMM وصل 300 من 8 دولار او 16 RGC اتوقع هذا رمزه 900 SMX من 4 دولار ل 400 · الامريكي مفتوح النسب,V4_VISUAL_PASS,,,1
+TG_1911,AUTHOR_NOT_VISIBLE,FLAG,F,U,2.14 شمعه الصعود السابقه فنيا > تكون دعم,V4_VISUAL_PASS(via unit TG_1944),,,1
+TG_1912,AUTHOR_NOT_VISIBLE,FLAG,F,U,فريم يومي اخر دعم فنيا مايكسره 1.80,V4_VISUAL_PASS(via unit TG_1945),,,1
+TG_1913,AUTHOR_NOT_VISIBLE,FLAG,F,U,فريم 30 دقيقه رسم المقاومه + الاهداف في حال الصعود,V4_VISUAL_PASS(via unit TG_1946),,,1
+TG_1924,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,قاب,V4_VISUAL_PASS(via unit TG_1962),,,1
+TG_1924,AUTHOR_NOT_VISIBLE,FLAG,F,U,قاب,V4_VISUAL_PASS(via unit TG_1962),,,1
+TG_1944,AUTHOR_NOT_VISIBLE,FLAG,F,U,2.14 شمعه الصعود السابقه فنيا > تكون دعم,V4_VISUAL_PASS,,,1
+TG_1945,AUTHOR_NOT_VISIBLE,FLAG,F,U,فريم يومي اخر دعم فنيا مايكسره 1.80,V4_VISUAL_PASS,,,1
+TG_1946,AUTHOR_NOT_VISIBLE,FLAG,F,U,فريم 30 دقيقه رسم المقاومه + الاهداف في حال الصعود,V4_VISUAL_PASS,,,1
