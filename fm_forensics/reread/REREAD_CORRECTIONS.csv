@@ -284,3 +284,11 @@ TG_2088,ROLE,CONTRADICTED,COUNTEREXAMPLE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
 TG_2091,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,اعظم سهم في 2026 حللناه عند 2 وصل 86 هل بعنا ب 86 طبعا لا هل تنبو بيوصل 86 طبعا لا كانت الاهداف المتوقعه 100٪ ل 200٪ حقق 4000٪ $BNAI الفرصه الثانيه سيدو $CDIO من 1 ل 10 1000٪ · الهدف كان 8 > 12 > 26 هدف اعلى لايجزم به وصل 68 اكثر من 5000٪,V4_VISUAL_PASS,,,1
 TG_2107,DATE_MD_DIFFERS,FLAG,2026-07-04,04-07,الصفقه اللحظيه لازم تدخلها بعد 11 · الاسهم الصاعده بالافتر تهبط بالبري تدخلها مباشره بعد الهبوط هدفها 50 سنت الى 1 دولار,V4_VISUAL_PASS,,,1
 TG_2113,AUTHOR_NOT_VISIBLE,FLAG,F,U,مشتريات موحده مستوى 1 3 5 7 10 100 500 من 1 الى 10 رموز خوارزميات بين مضاربين لكل مستوى دلاله معينه 100 حفاظ ع نطاق سعري معين 500 نادر تستخدم انفجار,V4_VISUAL_PASS,,,1
+TG_2127,ROLE,CONTRADICTED,COUNTEREXAMPLE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
+TG_2172,ROLE,CONTRADICTED,RULE_EVIDENCE,NON_EVIDENCE,,V4_VISUAL_PASS,,,1
+TG_2177,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,… jz بطنه 300٪ جا مجموعة من الحمقاء رفعو السهم 30 سنت وهبط فيه المضارب ب 86 الف سهم,V4_VISUAL_PASS(via unit IMG_0314),,,1
+TG_2182,DECISION,CONTRADICTED,NONE,ENTRY,السهم هذا مقسم في 22-6 امس التاريخ 22-7 حقق متوسط 30 يوم من تاريخ التقسيم · حقق المتوسط والدخول كما شرحته بالملي 1.70> 1.80,V4_VISUAL_PASS(via unit TG_1807),,,1
+TG_2182,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,السهم هذا مقسم في 22-6 امس التاريخ 22-7 حقق متوسط 30 يوم من تاريخ التقسيم · حقق المتوسط والدخول كما شرحته بالملي 1.70> 1.80,V4_VISUAL_PASS(via unit TG_1807),,,1
+TG_2182,TICKER_NOT_VISIBLE,FLAG,LABT,,السهم هذا مقسم في 22-6 امس التاريخ 22-7 حقق متوسط 30 يوم من تاريخ التقسيم · حقق المتوسط والدخول كما شرحته بالملي 1.70> 1.80,V4_VISUAL_PASS(via unit TG_1807),,,1
+TG_2182,AUTHOR_NOT_VISIBLE,FLAG,F,U,السهم هذا مقسم في 22-6 امس التاريخ 22-7 حقق متوسط 30 يوم من تاريخ التقسيم · حقق المتوسط والدخول كما شرحته بالملي 1.70> 1.80,V4_VISUAL_PASS(via unit TG_1807),,,1
+TG_2189,ROLE,CONTRADICTED,COUNTEREXAMPLE,RULE_EVIDENCE,شمعه تلاعب واضحه وضغط من المضارب 1.99,V4_VISUAL_PASS(via unit IMG_0299),,,1
