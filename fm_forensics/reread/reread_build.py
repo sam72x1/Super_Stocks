@@ -291,6 +291,9 @@ def build(img_dir=IMG_DIR, table_path=TABLE, records_path=RECORDS):
     stray = sorted(set(hist) - set(disk))
     if stray:
         raise RecordError(f"سجلٌّ لمعرّفٍ ليس على القرص: {stray[:5]}")
+    gone = sorted(set(table) - set(disk))
+    if gone:
+        raise RecordError(f"صفٌّ موروثٌ لصورةٍ ليست على القرص: {gone[:5]}")
     for i, h in hist.items():
         d = h[-1].get("dup_of")
         if d and d not in disk:
@@ -304,7 +307,9 @@ def build(img_dir=IMG_DIR, table_path=TABLE, records_path=RECORDS):
             if nxt not in hist:
                 break
             cur = hist[nxt][-1]
-    ordered, tiers = order_ids(list(disk), table)
+    # المجموعةُ = لقطةُ الجدول الموروث ‏+ كلُّ صورةٍ لها سجلُّ عين · وما يضيفه الجامعُ بعدها بلا سجلٍّ «واردٌ غيرُ مقروء» يُعَدّ حيًّا
+    # (`forward_unread`) ولا يغيّر المُخرَجات المحفوظة — فلا تحمرّ السويّةُ باستلامٍ أماميّ ولا تُسقَط صورةٌ صامتة
+    ordered, tiers = order_ids(sorted(set(table) | set(hist)), table)
     reg, cor = [], []
     for n, i in enumerate(ordered, 1):
         inh = table.get(i, {})
@@ -340,22 +345,28 @@ def build(img_dir=IMG_DIR, table_path=TABLE, records_path=RECORDS):
                         "AFFECTED_V4_RULES": inh.get("V4_RULES", ""), "REV": rec.get("rev", 1)})
     order_txt = "".join(f"{n}\t{i}\t{reg[n - 1]['TIER']}\n" for n, i in enumerate(ordered, 1))
     return {OUT_ORDER: order_txt, OUT_REG: _csv(reg, REG_COLS), OUT_COR: _csv(cor, COR_COLS),
-            OUT_SUM: summary_md(reg, cor, len(disk), len(table), hist)}
+            OUT_SUM: summary_md(reg, cor, len(ordered), len(table), hist)}
 
 
-def summary_md(reg, cor, n_disk, n_table, hist):
+def forward_unread(img_dir=IMG_DIR, table_path=TABLE, records_path=RECORDS):
+    """صورٌ على القرص بلا صفٍّ موروثٍ ولا سجلِّ عين (استلامٌ أماميّ) — تُعَدّ حيّةً ولا يُقال معها إن التدقيق اكتمل."""
+    return sorted(set(disk_images(img_dir)) - set(load_table(table_path)) - set(load_records(records_path)))
+
+
+def summary_md(reg, cor, n_set, n_table, hist):
     from collections import Counter
     st = Counter(r["STATUS"] for r in reg)
-    read = n_disk - st["NOT_YET_REVIEWED"]
+    read = n_set - st["NOT_YET_REVIEWED"]
     revs = sum(len(h) - 1 for h in hist.values())
     lines = [
         "# 👁️ ملخّصُ إعادة القراءة البصريّة (`T-REREAD`)",
         "",
         "> مولَّدٌ من `reread_build.py` — لا يُحرَّر باليد · `--check` يعيده بايتًا.",
         "",
-        f"- **الصورُ على القرص:** {n_disk} · صفوفُ الجدول الموروث: {n_table}",
-        f"- **قُرئت بالعين في هذه المهمّة:** {read} من {n_disk}"
-        + (" — **التغطيةُ كاملة**" if read == n_disk else " — **التغطيةُ غيرُ مكتملة: لا يُقال إن التدقيق اكتمل**"),
+        f"- **صورُ المجموعة:** {n_set} (لقطةُ الجدول الموروث {n_table} ‏+ صورٌ قُرئت بعدها {n_set - n_table}) — "
+        "والواردةُ بعد اللقطة بلا سجلّ تُعَدّ حيّةً في `--check`/`--next` ولا تُحسب مقروءة",
+        f"- **قُرئت بالعين في هذه المهمّة:** {read} من {n_set}"
+        + (" — **التغطيةُ كاملة** لهذه المجموعة" if read == n_set else " — **التغطيةُ غيرُ مكتملة: لا يُقال إن التدقيق اكتمل**"),
         f"- **مراجعاتُ سجلّاتٍ سابقة (rev):** {revs}",
         "",
         "| الحالة | العدد |",
@@ -394,17 +405,19 @@ def main(argv):
     outs = build()
     if "--check" in argv:
         bad = check(outs)
+        fwd = forward_unread()
         if bad:
             print("⛔ مُخرَجاتٌ لا تطابق إعادةَ البناء:", ", ".join(bad))
             return 1
-        print("✅ المُخرَجاتُ تطابق إعادةَ البناء بايتًا")
+        print("✅ المُخرَجاتُ تطابق إعادةَ البناء بايتًا · واردٌ بعد اللقطة غيرُ مقروء:", len(fwd),
+              "" if not fwd else "⟵ لا يُقال إن التدقيق اكتمل")
         return 0
     if "--next" in argv:
         k = int(argv[argv.index("--next") + 1])
         hist = load_records()
         ids = [ln.split("\t")[1] for ln in outs[OUT_ORDER].splitlines()]
-        todo = [i for i in ids if i not in hist]
-        print(f"باقٍ {len(todo)} من {len(ids)}")
+        todo = [i for i in ids if i not in hist] + forward_unread()
+        print(f"باقٍ {len(todo)} من {len(ids) + len(forward_unread())}")
         disk = disk_images()
         for i in todo[:k]:
             print(os.path.join(IMG_DIR, disk[i]))

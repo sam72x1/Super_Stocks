@@ -87127,9 +87127,10 @@ except Exception as _e:                                            # noqa: BLE00
     _ok9, _w9 = False, f"⛔ {type(_e).__name__}: {_e}"
 check("📏 BBS9 خطأُ العقد مُفصَحٌ عنه في المُخرَج: #604 ⑧ قاس المساواة سلفًا ⟵ لا تنبّؤَ أعمى ولا حقيقةَ جديدة (لا يُحذف بصمت)", _ok9, _w9)
 
-# 👁️ RR1-RR9 — `T-REREAD` سجلُّ إعادة القراءة البصريّة للمدوّنة كاملة (`fm_forensics/reread/` · 2026-10-10 · مهمّةُ المالك
+# 👁️ RR1-RR10 — `T-REREAD` سجلُّ إعادة القراءة البصريّة للمدوّنة كاملة (`fm_forensics/reread/` · 2026-10-10 · مهمّةُ المالك
 #    «FULL CORPUS VISUAL RE-READ» §④): العدُّ = القرص · لا معرّفَ مكرّرٌ ولا ساقط · كلُّ تصحيحٍ مُسنَد · التاريخُ المجهولُ لا يصير
 #    يومًا · الاستنتاجُ لا يُرقّى · التعارضُ والسالبُ لا يُحذفان · لا ملاحظةَ مستقبليّة في سجلّ قرارٍ ماضٍ · والبناءُ حتميٌّ بايتًا.
+#    والاستلامُ الأماميّ (صورٌ يضيفها الجامعُ بعد اللقطة) يُعَدّ حيًّا ولا يُحمّر (RR10).
 #    سلوكيّةٌ كلُّها (البنّاءُ نفسُه على سجلّاتٍ اصطناعيّة) ‏+ الحالةُ المحفوظة · ولا كتابةَ في المستودع (التدقيقُ يقرأ ويقارن).
 # ══════════════════════════════════════════════════════════════════════════
 import importlib.util as _rr_iu                                    # noqa: E402
@@ -87204,7 +87205,8 @@ def _rr_cor(outs):
     return list(_c.DictReader(_io.StringIO(outs[_RR.OUT_COR])))
 
 
-# RR1 — العدُّ = القرص: صفُّ سجلٍّ لكلّ صورة · لا معرّفَ مكرّرٌ ولا ساقط · والجدولُ الموروث بالعدد نفسِه · و«التغطيةُ كاملة» حين لا NOT_YET_REVIEWED وحدَها
+# RR1 — العدُّ = القرص: السجلُّ = لقطةُ الجدول الموروث ∪ كلُّ صورةٍ لها سجلُّ عين · والسجلُّ ∪ الواردُ غيرُ المقروء = القرص بلا تقاطع ·
+#       لا معرّفَ مكرّرٌ ولا ساقط · و«التغطيةُ كاملة» حين لا NOT_YET_REVIEWED وحدَها (والواردُ الحيُّ يُطبع في الرسالة)
 try:
     _o1 = _RR.build()
     _g1 = _rr_reg(_o1)
@@ -87212,17 +87214,20 @@ try:
     _ids1 = [r["IMAGE_ID"] for r in _g1]
     _ny1 = sum(r["STATUS"] == "NOT_YET_REVIEWED" for r in _g1)
     _s1 = _o1[_RR.OUT_SUM]
-    _ok1 = (len(_ids1) == len(set(_ids1)) == len(_disk1) == len(_RR.load_table()) and set(_ids1) == set(_disk1)
+    _fw1 = _RR.forward_unread()
+    _ok1 = (len(_ids1) == len(set(_ids1)) and set(_ids1) == set(_RR.load_table()) | set(_RR.load_records())
+            and set(_ids1) | set(_fw1) == set(_disk1) and not set(_ids1) & set(_fw1)
             and (("**التغطيةُ كاملة**" in _s1) == (_ny1 == 0)) and ("لا يُقال إن التدقيق اكتمل" in _s1) == (_ny1 > 0))
     # وعلى قرصٍ اصطناعيّ: صورةٌ بلا سجلّ تبقى صفًّا NOT_YET_REVIEWED ولا تُعلَن التغطيةُ كاملة
     _o1b = _rr_build([_rr_rec("A"), _rr_rec("B")])
     _g1b = _rr_reg(_o1b) if isinstance(_o1b, dict) else []
     _ok1 = (_ok1 and [r["STATUS"] for r in _g1b if r["IMAGE_ID"] == "C"] == ["NOT_YET_REVIEWED"] and len(_g1b) == 3
             and "**التغطيةُ كاملة**" not in _o1b[_RR.OUT_SUM])
-    _w1 = f"disk={len(_disk1)} reg={len(_ids1)} unread={_ny1}"
+    _w1 = f"disk={len(_disk1)} reg={len(_ids1)} unread={_ny1} forward_unread={len(_fw1)}"
 except Exception as _e:                                            # noqa: BLE001
     _ok1, _w1 = False, f"⛔ {type(_e).__name__}: {_e}"
-check("👁️ RR1 العدُّ = القرص: صفٌّ لكلّ صورة بلا تكرارٍ ولا سقوط · والتغطيةُ «كاملة» حين لا صورةَ بلا قراءة وحدَها", _ok1, _w1)
+check(f"👁️ RR1 العدُّ = القرص: السجلُّ ∪ الواردُ غيرُ المقروء = القرص بلا تكرارٍ ولا سقوط · والتغطيةُ «كاملة» حين لا صورةَ بلا قراءة "
+      f"[واردٌ بعد اللقطة غيرُ مقروء: {len(_RR.forward_unread()) if _RR else '?'}]", _ok1, _w1)
 
 # RR2 — كلُّ تصحيحٍ مُسنَد: صفُّ تصحيحٍ لمعرّفٍ مقروء · وكلُّ CONTRADICTED في السجلّ له تصحيحٌ CONTRADICTED · والتصحيحُ يحمل الموروثَ والعين
 try:
@@ -87326,6 +87331,39 @@ try:
 except Exception as _e:                                            # noqa: BLE001
     _ok9, _w9 = False, f"⛔ {type(_e).__name__}: {_e}"
 check("👁️ RR9 سجلُّ إعادة القراءة حتميٌّ ويطابق المحفوظ بايتًا (`reread_build.py --check`)", _ok9, _w9)
+
+# RR10 — الاستلامُ الأماميّ لا يُحمّر ولا يُسقَط صامتًا: صورةٌ يضيفها الجامعُ بعد اللقطة (لا صفَّ موروث ولا سجلّ) لا تغيّر المُخرَجات المحفوظة
+#        وتُعَدّ «واردةً غيرَ مقروءة» حيّةً · وحين يُكتب لها سجلُّ عينٍ تدخل السجلَّ · وصفٌّ موروثٌ لصورةٍ غائبةٍ عن القرص يُسقط البناء
+try:
+    _td10 = _rr_tf.mkdtemp()
+    _img10 = _rr_os.path.join(_td10, "img")
+    _rr_os.makedirs(_img10)
+    for _i in ("A", "B", "C"):                                    # C صفٌّ موروثٌ بلا سجلّ
+        open(_rr_os.path.join(_img10, _i + ".png"), "wb").write(_i.encode())
+    _tp10 = _rr_os.path.join(_td10, "t.csv")
+    open(_tp10, "w", encoding="utf-8").write("IMAGE_ID,ROLE,DATE,TICKER,AUTHOR,DECISION,USED_CLASS,LEDGER_KEYS,V4_RULES,EYE_READ_FM\nA,,,,,,,,,\nB,,,,,,,,,\nC,,,,,,,,,\n")
+    _rp10 = _rr_os.path.join(_td10, "r.jsonl")
+    open(_rp10, "w", encoding="utf-8").write(_rr_json.dumps(_rr_rec("A"), ensure_ascii=False) + "\n"
+                                             + _rr_json.dumps(_rr_rec("B"), ensure_ascii=False) + "\n")
+    _b10a = _RR.build(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+    open(_rr_os.path.join(_img10, "D.png"), "wb").write(b"D")           # الجامعُ يضيف صورةً بعد اللقطة
+    _b10b = _RR.build(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+    _f10 = _RR.forward_unread(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+    open(_rp10, "a", encoding="utf-8").write(_rr_json.dumps(_rr_rec("D"), ensure_ascii=False) + "\n")
+    _b10c = _RR.build(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+    _f10c = _RR.forward_unread(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+    _rr_os.remove(_rr_os.path.join(_img10, "C.png"))              # موروثٌ بلا سجلٍّ يغيب عن القرص (لا يحرسه فحصُ السجلّ)
+    try:
+        _RR.build(img_dir=_img10, table_path=_tp10, records_path=_rp10)
+        _gone10 = False
+    except _RR.RecordError:
+        _gone10 = True
+    _ok10 = (_b10a == _b10b and _f10 == ["D"] and "D" in [r["IMAGE_ID"] for r in _rr_reg(_b10c)] and _f10c == [] and _gone10)
+    _live10 = _RR.forward_unread()
+    _w10 = f"stable={_b10a == _b10b} fwd={_f10} after={_f10c} gone={_gone10} · live_forward_unread={len(_live10)}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok10, _w10 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("👁️ RR10 الاستلامُ الأماميّ: صورةٌ بعد اللقطة لا تغيّر المحفوظ وتُعَدّ «واردةً غيرَ مقروءة» · وبسجلّ عينٍ تدخل · والموروثُ الغائبُ يُسقط", _ok10, _w10)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
