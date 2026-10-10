@@ -598,4 +598,12 @@ IMG_8136,DATE_NOT_VISIBLE,FLAG,2026-06,,سهم Bnkk امريكي - مشروبا�
 TG_1808,DECISION,CONTRADICTED,NONE,ENTRY,طلع ذا · دخلته6,V4_VISUAL_PASS,,,1
 TG_1820,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_1820,DATE_NOT_VISIBLE,FLAG,2026-07-2x,,,V4_VISUAL_PASS,,,1
+TG_1824,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,الشورت المتوفر الحالي صفر تاريخ التقسيم 22/5 اعلى صعود 3.38 = تحرر ادنى قاع 2.08 = ع فريم 4 ساعات شمعة همر صاعده عدد الاسهم 3.11 مليون امريكي - اخبار الشركه · قاضٍ فيدرالي يأمر بإجراءات كشف عاجلة لتحديد هوية المدعى عليهم المجهولين الذين قاموا ببيع أسهم شركة لوناي على المكشوف,V4_VISUAL_PASS,,,1
+TG_1827,ROLE,CONTRADICTED,CONTEXT_ONLY,VALIDATION_CASE,حقق 7 فوق 100٪ ✅✅✅ $DSy,V4_VISUAL_PASS,,,1
+TG_1827,DATE_NOT_VISIBLE,FLAG,2026-07-0x,,حقق 7 فوق 100٪ ✅✅✅ $DSy,V4_VISUAL_PASS,,,1
+TG_1832,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_1832,DATE_NOT_VISIBLE,FLAG,2026-07-2x,,,V4_VISUAL_PASS,,,1
+TG_1836,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_1836,DATE_NOT_VISIBLE,FLAG,2026-07-16,,,V4_VISUAL_PASS,,,1
+TG_1837,DATE_NOT_VISIBLE,FLAG,2026-07-16,,حبيبنا Ppcb شيك عليه · رايك به ؟ · وش تقريره ؟ · سهم ppcb الاسترالي مختص بالمستحضرات الصيدلانيه فلوته 1.94M ماركت كاب 3.16M شورت 500 فايدة الاقتراض 360% اخر تقسيم له قسم في 18-5 اخر اخباره …,V4_VISUAL_PASS,,,1
 IMG_0627,DATE_NOT_VISIBLE,FLAG,2026-06-16,,شرح فني فقط الرجا عدم الشرا ممكن يهبط السهم … —— الاهم ثبات وتداول فوق خط العنق 2.86 > اكثر من ربع ساعه تحرر من المقاومه الثانيه 3.11 > يعطي املا صاعدا ل 3.30 - حاليا سيوله سالب من يمثل ويكمل هذا النموذج فقط سيولة المضارب لذلك > تابع فقط هل يتحقق اليوم او بكرا,PRODUCTION_LEDGER_CITED,,R-W-SPAN,1
