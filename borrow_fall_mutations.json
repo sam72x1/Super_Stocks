@@ -1,11 +1,52 @@
 {
  "tool": "borrow_fall_report.py",
- "locks": "BFR1-BFR12",
- "mutations": 20,
- "fell": 20,
- "survivors_first_round": [
-  "BFR1 _num None->0.0 (parse path)",
-  "BFR7 QUERIED_UNKNOWN branch"
- ],
- "note": "both survivors exposed real gaps; locks strengthened; second round 20/20"
+ "rounds": [
+  {
+   "date": "2026-10-10",
+   "pr": 604,
+   "locks": "BFR1-BFR12",
+   "mutations": 20,
+   "fell": 20,
+   "survivors_first_round": [
+    "BFR1 _num None->0.0 (parse path)",
+    "BFR7 QUERIED_UNKNOWN branch"
+   ],
+   "note": "both survivors exposed real gaps; locks strengthened; second round 20/20"
+  },
+  {
+   "date": "2026-10-10",
+   "pr": "temporal audit",
+   "locks": "BFR13-BFR21 (time semantics)",
+   "mutations": 13,
+   "fell": 13,
+   "survivors_first_round": [
+    "BFR17 session attribution by UTC date (last window session uncovered either way)"
+   ],
+   "note": "BFR17 given an observation inside session 40 so coverage differs; second round 13/13",
+   "failing_on_pre_fix_code": [
+    "BFR3",
+    "BFR4",
+    "BFR10",
+    "BFR13",
+    "BFR14",
+    "BFR15",
+    "BFR16",
+    "BFR17",
+    "BFR18",
+    "BFR19"
+   ]
+  },
+  {
+   "date": "2026-10-10",
+   "pr": "temporal audit",
+   "locks": "BFR1-BFR12 re-anchored on the interval code",
+   "mutations": 21,
+   "fell": 21,
+   "survivors_first_round": [
+    "BFR3 BEFORE boundary (hi < snap_ts -> hi <= ts)",
+    "BFR3 ORDER_AMBIGUOUS lower bound (lo <= ts -> lo < snap_ts)"
+   ],
+   "note": "BFR3 had no instant inside [snap_ts, ts]; added three Phase6 instants around a 01:00-02:30 decision; second round 2/2"
+  }
+ ]
 }
