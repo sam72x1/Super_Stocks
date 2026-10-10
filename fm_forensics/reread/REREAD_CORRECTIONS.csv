@@ -271,3 +271,10 @@ TG_2045,AUTHOR_NOT_VISIBLE,FLAG,F,U,فجوه سعريه,V4_VISUAL_PASS,,,1
 TG_2048,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,فجوه سعريه,V4_VISUAL_PASS,,,1
 TG_2048,AUTHOR_NOT_VISIBLE,FLAG,F,U,فجوه سعريه,V4_VISUAL_PASS,,,1
 TG_2060,AUTHOR_NOT_VISIBLE,FLAG,F,U,تحرر 3.38 · مقاومه ثانيه 3.12 · مقاومة اولى 2.90,V4_VISUAL_PASS,,,1
+TG_2063,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,أول هدف: العودة لمنطقة المقاومة السابقة · ثاني هدف: متوسط 20 أو 50 · ثالث هدف: قمم الموجة السابقة (إذا استمر الصعود) · ( معلومات ليست توصيه ),V4_VISUAL_PASS,,,1
+TG_2068,ROLE,CONTRADICTED,RULE_EVIDENCE,VALIDATION_CASE,2.34-8٪=2.15,V4_VISUAL_PASS,,,1
+TG_2068,AUTHOR_NOT_VISIBLE,FLAG,F,U,2.34-8٪=2.15,V4_VISUAL_PASS,,,1
+TG_2070,TICKER_NOT_VISIBLE,FLAG,VMAR,,الشورت مسيطر ع السهم المضاربين الكبار دخولهم بعد تحرر السهم من 3 3> وقف خسارة الشورت يحدث تذبذب سريع · المضارب هبط بالسهم مسح جميع السيوله المتمركزه بوقف خساره من 2.30 ل 2.15 مسح مراكز الوقف اكثر من 50 الف سهم شالها المضارب · لكل شمعه صاعده وتد هابط 10٪ حقق الوتد الهابط,V4_VISUAL_PASS,,,1
+TG_2075,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,شورت ٨٠٠ قسم يوم ٦/٥/٢٠٢٦ عدد اسهم ١.٤٥ مليون · شورت ٢٠٠٠ تقسيم يوم ١٧/٤/٢٠٢٦ عدد اسهم ٨٩٢ الف مدبل من ٢ الى ٤ · Wct شورت ٧٠٠٠ عدد الاسهم ٨٤٩ الف اخر تقسيم ٦/٣/٢٠٢٦,V4_VISUAL_PASS,,,1
+TG_2082,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,Wct شورت ٧٠٠٠ عدد الاسهم ٨٤٩ الف اخر تقسيم ٦/٣/٢٠٢٦,V4_VISUAL_PASS,,,1
+TG_2085,TICKER_NOT_VISIBLE,FLAG,ELAB,,التحليل تصيد السهم قبل يطلع اما اذا طلع السهم كلن يشوفه · عموما تحليل السهم اخذ مني ساعتين تقريبا ع 4 مؤشرات + نماذج + شموع + متوسط الحركه + تقاطع الماكد + تشبع ال RSI · منها مؤشر التصحيح فيبوناتشي | مؤشر كلنجر · هل يفشل التحليل نعم,V4_VISUAL_PASS,,,1
