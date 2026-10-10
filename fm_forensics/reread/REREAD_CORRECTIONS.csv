@@ -876,8 +876,33 @@ TG_2080,DATE_NOT_VISIBLE,FLAG,2026-04,,اهبط زي ماتبي · رجع وحق
 TG_2081,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_2092,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_2092,DATE_NOT_VISIBLE,FLAG,2026-02-0x,,,V4_VISUAL_PASS,,,1
+TG_2094,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
+TG_2094,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2094,DATE_NOT_VISIBLE,FLAG,2026-05-0x,,,V4_VISUAL_PASS,,,1
+TG_2096,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2096,DATE_NOT_VISIBLE,FLAG,2026-05-0x,,,V4_VISUAL_PASS,,,1
+TG_2099,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,كللللل الاسهم تعتمد ع دعم مقاومه سوا سهم هابط او صاعد · هبط السهم كون دعم عند 3.63 · دعم اول مافيه دخول ابدااا خطير · دعم ثاني هبط الى 3.70 حافظ عليها · دخلته انا 3.80 تاكيد الصعود +وقفي كان 3.70 · راس الشمعه الهابطه كانت هدف 6.53 ليس بالضروره يرجع يحققها لذلك البيع الامن او الهدف الامن 5.80 وصل 6.38 · الان راح يكسر الدعم السابق ويهبط فيه بيكون دعمين ايضا · اي سهم هابط صاعد فريم 5 دقايق · مجرد ادخل السهم افعل اوامري جني ربح وقف خساره,V4_VISUAL_PASS,,,1
+TG_2100,AUTHOR_NOT_VISIBLE,FLAG,F,U,مقاومات,V4_VISUAL_PASS,,,1
+TG_2101,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
+TG_2101,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_2104,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_2104,DATE_NOT_VISIBLE,FLAG,2025-12,,,V4_VISUAL_PASS,,,1
+TG_2105,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2105,DATE_NOT_VISIBLE,FLAG,2026-04-2x,,,V4_VISUAL_PASS,,,1
+TG_2110,AUTHOR_NOT_VISIBLE,FLAG,F,U,مناطق طلب 3.70> 3.80 · STOP LOSS,V4_VISUAL_PASS,,,1
+TG_2110,DATE_NOT_VISIBLE,FLAG,2026-04-0x,,مناطق طلب 3.70> 3.80 · STOP LOSS,V4_VISUAL_PASS,,,1
+TG_2111,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2114,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,,V4_VISUAL_PASS(via unit TG_2110),,,1
+TG_2114,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS(via unit TG_2110),,,1
+TG_2114,DATE_NOT_VISIBLE,FLAG,2026-04-0x,,,V4_VISUAL_PASS(via unit TG_2110),,,1
+TG_2115,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2115,DATE_NOT_VISIBLE,FLAG,2026-04-1x,,,V4_VISUAL_PASS,,,1
+TG_2116,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,03/23/2026 Daily · Diamond Bottom · Medium-term Bullish · Close Price 3.19 · Volume 28.05K · Pattern Duration 26 Day · Target Price 4.05-4.25 · Inbound Trend Duration 25 Day,V4_VISUAL_PASS,,,1
+TG_2116,AUTHOR_NOT_VISIBLE,FLAG,F,U,03/23/2026 Daily · Diamond Bottom · Medium-term Bullish · Close Price 3.19 · Volume 28.05K · Pattern Duration 26 Day · Target Price 4.05-4.25 · Inbound Trend Duration 25 Day,V4_VISUAL_PASS,,,1
+TG_2116,DATE_NOT_VISIBLE,FLAG,2026-03-2x,,03/23/2026 Daily · Diamond Bottom · Medium-term Bullish · Close Price 3.19 · Volume 28.05K · Pattern Duration 26 Day · Target Price 4.05-4.25 · Inbound Trend Duration 25 Day,V4_VISUAL_PASS,,,1
+TG_2118,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2120,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2120,DATE_NOT_VISIBLE,FLAG,2026-04-0x,,,V4_VISUAL_PASS,,,1
 IMG_0627,DATE_NOT_VISIBLE,FLAG,2026-06-16,,شرح فني فقط الرجا عدم الشرا ممكن يهبط السهم … —— الاهم ثبات وتداول فوق خط العنق 2.86 > اكثر من ربع ساعه تحرر من المقاومه الثانيه 3.11 > يعطي املا صاعدا ل 3.30 - حاليا سيوله سالب من يمثل ويكمل هذا النموذج فقط سيولة المضارب لذلك > تابع فقط هل يتحقق اليوم او بكرا,PRODUCTION_LEDGER_CITED,,R-W-SPAN,1
 TG_20260905_06,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,هذا دعمه · الازرق فجوة لازم يغطيها,PRODUCTION_LEDGER_CITED,,,1
 TG_20260905_06,AUTHOR_NOT_VISIBLE,FLAG,F,U,هذا دعمه · الازرق فجوة لازم يغطيها,PRODUCTION_LEDGER_CITED,,,1
