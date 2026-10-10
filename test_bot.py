@@ -86225,6 +86225,180 @@ except Exception as _e:                                              # noqa: BLE
     _ok, _w = False, f"⛔ {type(_e).__name__}: {_e} {_pfe_err}"
 check("🎯🗂️📊 PFE11 السببُ مُعادُ الاشتقاق: امتلأت NONE (والباقون B لا C) · نفدت البِركة POOL_EXHAUSTED · وسببٌ مسجَّلٌ يخالف الصفوف يُمسَك", _ok, _w)
 
+# ══════════════════════════════════════════════════════════════════════════════════════════════════════════════════
+# 🗓️💾 RDF1-RDF6 — **مساراتُ تأجيل التجديد** (‏2026-10-09 · متابعةُ #600 · عطلٌ مُثبَت في مسارٍ حيّ): ثلاثُ عوداتٍ مبكّرة في
+#    `run_weekly_renewal` — (أ) تغطيةُ الأسبوع المنتهي دون `DATA_HEALTH_MIN_PCT` · (ب) استثناءٌ في تحديثه · (ج) فرزٌ جديد
+#    ضعيفُ التغطية أو بكونٍ احتياطيّ أو بلا نتائج. (ج) يحفظ القائمةَ محلّيًّا ويعود **بلا `git_save`** (والـworkflow بلا خطوةِ
+#    دفع) فـ«نحفظ الستوبات المرصودة (لا تضيع)» كانت تضيع مع الرنر · ورسالتُه تَعِد «يُعاد التجديد تلقائيًا في التشغيل القادم»
+#    و`should_renew` لا يجدّد إلّا بإشارة الجمعة أو `force_renew` · والثلاثُ لا تكتب سطرًا في سجلّ البِركة ⟵ تأجيلٌ لا يُميَّز
+#    عن عطلِ تسجيل. ⇒ سطرُ «لا تعبئة» بسببه في كلٍّ منها · و`git_save` لما تغيّر فيها وحدَه (القائمةُ في (ج) فقط) · والنصُّ صادق.
+import types as _rdf_ty                                               # noqa: E402
+import tempfile as _rdf_tf                                            # noqa: E402
+import json as _rdf_json                                              # noqa: E402
+import ast as _rdf_ast                                                # noqa: E402
+import inspect as _rdf_insp                                           # noqa: E402
+import textwrap as _rdf_tw                                            # noqa: E402
+import copy as _rdf_copy                                              # noqa: E402
+
+_RDF_WL = {"week_start": "2026-10-02", "renewed_at": "2026-10-03T01:00:00+00:00",
+           "stocks": [{"symbol": "OLD1", "status": "active", "added": "2026-10-03", "entry_ref": 2.0, "pivot": 2.0,
+                       "stop": 1.8, "t1": 2.4, "t2": 2.8, "t3": 3.2, "hit": None, "max_gain_pct": 0.0}],
+           "removed": [{"symbol": "STP1", "status": "stopped"}], "notes": [], "pullback": [], "history": []}
+
+
+def _rdf_run(mode):
+    """يشغّل `run_weekly_renewal` الحقيقيّة على مسارٍ واحد بجذوعٍ بلا شبكة ⟵ (نداءات · أسطر السجلّ · wl · مسار السجلّ)."""
+    calls = {"git": [], "sent": [], "saved": 0, "scan": 0, "perf": False}
+    names = ("scan_market", "send_telegram", "save_watchlist", "yf", "download_history", "build_wrapup_message",
+             "git_save", "await_session_bars", "scan_bars_report", "yahoo_fallback_line", "update_watchlist_status",
+             "run_performance_system", "FILL_POOL_FILE")
+    sv = {n: getattr(S, n) for n in names}
+    sv_stats = dict(S._SCAN_STATS)
+    path = _rdf_tf.mktemp(suffix=".jsonl")
+    wl = _rdf_copy.deepcopy(_RDF_WL)
+    try:
+        S.FILL_POOL_FILE = path
+        S.git_save = lambda fns, *a, **k: calls["git"].append(sorted(str(x) for x in fns))
+        S.send_telegram = lambda m, *a, **k: calls["sent"].append(m) or True
+        S.save_watchlist = lambda w, *a, **k: calls.__setitem__("saved", calls["saved"] + 1)
+        S.build_wrapup_message = lambda w: ""
+        S.await_session_bars = lambda syms, **k: {"ok": True}
+        S.scan_bars_report = lambda *a, **k: {}
+        S.yahoo_fallback_line = lambda *a, **k: ""
+        S.update_watchlist_status = lambda w, h, *a, **k: None
+        S.run_performance_system = lambda *a, **k: calls.__setitem__("perf", True)
+        _r = {"symbol": "NEW1", "pivot": 1.0}
+
+        def _scan(*a, **k):
+            calls["scan"] += 1
+            S._SCAN_STATS.clear()
+            if mode == "scan_lowcov":
+                S._SCAN_STATS.update({"universe": 100, "valid": 10})
+                return [_r], {}
+            if mode == "scan_fallback":
+                S._SCAN_STATS.update({"universe": 30, "valid": 30, "universe_fallback": True})
+                return [_r], {}
+            S._SCAN_STATS.update({"universe": 100, "valid": 99})
+            return [], {}
+        S.scan_market = _scan
+        if mode.startswith("old_"):
+            S.yf = _rdf_ty.SimpleNamespace()
+            if mode == "old_lowcov":
+                S.download_history = lambda syms, **k: {}
+            else:
+                def _boom(syms, **k):
+                    raise RuntimeError("throttled")
+                S.download_history = _boom
+        else:
+            S.yf = None
+            S.download_history = lambda syms, **k: {}
+        S.run_weekly_renewal(wl)
+        lines = ([_rdf_json.loads(x) for x in open(path, encoding="utf-8").read().splitlines() if x.strip()]
+                 if _os_hc.path.exists(path) else [])
+        return calls, lines, wl, path
+    finally:
+        for n in names:
+            setattr(S, n, sv[n])
+        S._SCAN_STATS.clear()
+        S._SCAN_STATS.update(sv_stats)
+        try:
+            _os_hc.remove(path)
+        except OSError:
+            pass
+
+
+def _rdf_case(mode, reason, with_watch, saved, scanned, nq):
+    calls, lines, wl, path = _rdf_run(mode)
+    want = sorted([str(path)] + ([str(S.WATCH_FILE)] if with_watch else []))
+    ln = lines[0] if len(lines) == 1 else {}
+    ok = (len(lines) == 1 and ln.get("source") == "renew" and ln.get("status") == "NO_FILL" and ln.get("no_fill") == reason
+          and ln.get("rows") == [] and ln.get("n_qualified") == nq and ln.get("space") == S.CONFIG["WATCHLIST_SIZE"]
+          and calls["git"] == [want] and calls["saved"] == saved and calls["scan"] == scanned
+          and wl.get("week_start") == "2026-10-02" and not calls["perf"])
+    why = (f"lines={[(x.get('source'), x.get('status'), x.get('no_fill'), x.get('n_qualified')) for x in lines]} "
+           f"git={calls['git']} want={want} saved={calls['saved']} scan={calls['scan']} week={wl.get('week_start')}")
+    return ok, why, calls
+
+
+# RDF1 — (ج) فرزٌ ضعيفُ التغطية: القائمةُ تُحفظ **وتُدفَع** مع سطر السجلّ · وسطرٌ واحد «لا تعبئة — LOW_COVERAGE» بعدد المؤهَّلين
+try:
+    _ok, _w, _rdf_c1 = _rdf_case("scan_lowcov", "LOW_COVERAGE", True, 1, 1, 1)
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w, _rdf_c1 = False, f"⛔ {type(_e).__name__}: {_e}", {"sent": []}
+check("🗓️💾 RDF1 تأجيلُ التجديد لفرزٍ ضعيف التغطية: القائمةُ (وستوباتُها) تُدفَع بـ`git_save` مع سجلّ البِركة · وسطرٌ «لا تعبئة — "
+      "LOW_COVERAGE» بعدد المؤهَّلين والسعة · ولا `week_start` جديد ولا تقرير أداء", _ok, _w)
+
+# RDF2 — (ج) بكونٍ احتياطيّ ⟵ UNIVERSE_FALLBACK · وبلا نتائج ⟵ NO_RESULTS (السببُ يُسمّى لا «تأجيل» عامّ)
+try:
+    _a = _rdf_case("scan_fallback", "UNIVERSE_FALLBACK", True, 1, 1, 1)
+    _b = _rdf_case("scan_empty", "NO_RESULTS", True, 1, 1, 0)
+    _mb = [m for m in _b[2].get("sent") or [] if "تأجّل تجديد القائمة الأسبوعية" in m]
+    _ok = (_a[0] and _b[0] and len(_mb) == 1 and "تغطية بيانات ضعيفة" not in _mb[0] and "لم يُرجع" in _mb[0])
+    _w = f"fallback: {_a[1]} · empty: {_b[1]} · msg={_mb[0][:120] if _mb else '—'}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗓️💾 RDF2 سببُ التأجيل يُسمّى: كونٌ احتياطيّ UNIVERSE_FALLBACK · وفرزٌ بلا نتائج NO_RESULTS (بعدد مؤهَّلين 0) — ورسالتُه "
+      "لا تقول «تغطية بيانات ضعيفة» على تغطيةٍ 99%", _ok, _w)
+
+# RDF3 — (أ) تغطيةُ الأسبوع المنتهي دون الحدّ: سطرُ السجلّ وحدَه يُدفَع — **والقائمةُ لا تُحفظ ولا تُدفَع** (لا أرشفةَ لأسبوعٍ غير محسوم) ·
+#        ولا فرزَ جديد · والمؤهَّلون None (لم يُفرز شيء) لا صفر
+try:
+    _ok, _w, _ = _rdf_case("old_lowcov", "OLD_WEEK_LOW_COVERAGE", False, 0, 0, None)
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗓️💾 RDF3 الأسبوعُ المنتهي ضعيفُ التغطية: سطرُ «لا تعبئة — OLD_WEEK_LOW_COVERAGE» وحدَه يُدفَع · والقائمةُ لا تُحفظ ولا تُدفَع "
+      "· ولا فرز · والمؤهَّلون None لا صفر", _ok, _w)
+
+# RDF4 — (ب) تحديثُ الأسبوع المنتهي رمى: السطرُ نفسُه بسببه OLD_WEEK_UPDATE_FAILED · والقائمةُ كما هي
+try:
+    _ok, _w, _ = _rdf_case("old_exc", "OLD_WEEK_UPDATE_FAILED", False, 0, 0, None)
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗓️💾 RDF4 تحديثُ الأسبوع المنتهي رمى: سطرُ «لا تعبئة — OLD_WEEK_UPDATE_FAILED» يُدفَع وحدَه · والقائمةُ لا تُحفظ ولا تُدفَع", _ok, _w)
+
+# RDF5 — رسالةُ التأجيل صادقة: لا وعدَ بـ«التشغيل القادم» (التشغيلُ القادم متابعةٌ يوميّة · `should_renew` بإشارة الجمعة أو الإجبار) ·
+#        وتسمّي الطريقين الفعليّين · وعنوانُها كما هو (`YF5` يقرؤه)
+try:
+    _m = [m for m in _rdf_c1.get("sent") or [] if "تأجّل تجديد القائمة الأسبوعية" in m]
+    _sr = (S.should_renew({"stocks": [{"symbol": "X"}], "removed": []}, False, False),
+           S.should_renew({"stocks": [{"symbol": "X"}], "removed": []}, False, True),
+           S.should_renew({"stocks": [{"symbol": "X"}], "removed": []}, True, False))
+    _ok = (len(_m) == 1 and "التشغيل القادم" not in _m[0] and "الجمعة القادمة" in _m[0] and "force_renew=1" in _m[0]
+           and _sr == (False, True, True))
+    _w = f"msg={_m[0][-90:] if _m else '—'} should_renew={_sr}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗓️💾 RDF5 رسالةُ «تأجّل تجديد القائمة» لا تَعِد بالتشغيل القادم (المتابعةُ اليوميّة لا تجدّد) · وتسمّي تجديدَ الجمعة القادمة و`force_renew=1`", _ok, _w)
+
+# RDF6 — بنيويًّا (AST): `git_save` في `run_weekly_renewal` **داخل مسارات التأجيل وحدَها** (قبل `fill_picks`) — التجديدُ الكامل يدفع عبر
+#        `run_performance_system` فلا دفعَ مزدوج · وكلُّ عودةٍ قبل `fill_picks` يسبقها `record_fill_pool(…, no_fill=…)`
+try:
+    _t = _rdf_ast.parse(_rdf_tw.dedent(_rdf_insp.getsource(S.run_weekly_renewal)))
+    _fn = _t.body[0]
+    _calls = [c for c in _rdf_ast.walk(_fn) if isinstance(c, _rdf_ast.Call)]
+    _nm = lambda c: getattr(c.func, "id", None)                     # noqa: E731
+    _fp = min(c.lineno for c in _calls if _nm(c) == "fill_picks")
+    _gs = [c.lineno for c in _calls if _nm(c) == "git_save"]
+    _nf = sorted(c.lineno for c in _calls if _nm(c) == "record_fill_pool" and any(k.arg == "no_fill" for k in c.keywords))
+    _rets, _paired = [], []
+    for _blk in _rdf_ast.walk(_fn):
+        for _fld in ("body", "orelse", "finalbody"):
+            _st = getattr(_blk, _fld, None)
+            if not isinstance(_st, list):
+                continue
+            for _i, _x in enumerate(_st):
+                if isinstance(_x, _rdf_ast.Return) and _x.lineno < _fp:
+                    _rets.append(_x.lineno)
+                    _paired.append(any(isinstance(_y, _rdf_ast.Expr) and isinstance(_y.value, _rdf_ast.Call)
+                                       and _nm(_y.value) == "record_fill_pool"
+                                       and any(k.arg == "no_fill" for k in _y.value.keywords) for _y in _st[:_i]))
+    _ok = len(_gs) == 3 and all(x < _fp for x in _gs) and len(_rets) == 3 and all(_paired)
+    _w = f"fill_picks@{_fp} git_save@{_gs} returns@{sorted(_rets)} paired={_paired} no_fill@{_nf}"
+except Exception as _e:                                              # noqa: BLE001
+    _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗓️💾 RDF6 (AST) `git_save` في `run_weekly_renewal` داخل مسارات التأجيل الثلاثة وحدَها (قبل `fill_picks` — الكاملُ يدفع عبر "
+      "`run_performance_system`) · وكلُّ عودةٍ قبلها يسبقها في كتلتها سطرُ «لا تعبئة»", _ok, _w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
