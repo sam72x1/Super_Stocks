@@ -5,24 +5,24 @@
  "collector": {
   "last_run": {
    "conclusion": "success",
-   "created_utc": "2026-10-08T08:57:43Z",
-   "event": "workflow_dispatch",
-   "id": 37753340291
+   "created_utc": "2026-10-10T14:28:09Z",
+   "event": "schedule",
+   "id": 38059717600
   },
-  "last_run_updates": 4,
-  "last_run_updates_evidence": "telegram_collect_report.md on main ca3bd7ee7 «حُفِظت جديدة: 4 · مكرّرة متخطّاة: 0» · 4 meta_v 2 rows (TG_58524…TG_58527 · one album · sent 2026-10-08T08:54:40Z) · the first scheduled run 37735493599 (2026-10-08T06:02:52Z, success) saved 0 («لا جديد — لا commit»)",
-  "observed_utc": "2026-10-08T09:08:23Z",
+  "last_run_updates": 0,
+  "last_run_updates_evidence": "run 38059717600 job log «لا جديد — لا commit» (job 114235319817) · telegram_collect_report.md unchanged since 1b63afa55 («حُفِظت جديدة: 0» · 772 images) · the 8 scheduled runs since 2026-10-08T06:02:52Z saved 0 new images (4 commits «0 ملفًا» a4ae332a5 · 049b280e2 · 7e243eb24 · 24bad151f, the rest «لا جديد — لا commit») · meta_v 2 rows 8 (4 TG_58524…58527 + 4 heartbeat) · previous observation 2026-10-08T09:08:23Z: 28 runs (1 schedule), last 37753340291 with 4 updates",
+  "observed_utc": "2026-10-10T17:20:00Z",
   "runs_by_event": {
-   "schedule": 1,
+   "schedule": 8,
    "workflow_dispatch": 27
   },
-  "runs_total": 28,
+  "runs_total": 35,
   "schedule": "17 */4 * * *",
   "schedule_added_utc": "2026-10-07T21:39:54Z",
   "source": "GitHub Actions REST API (actions/workflows/telegram_collect.yml/runs) read from the session — CI has no network, so the observation is recorded with its time and goes stale until re-recorded",
   "workflow": ".github/workflows/telegram_collect.yml"
  },
- "collector_status": "PASS · SCHEDULED_ACTIVE (28 runs: schedule 1 · workflow_dispatch 27 · schedule `17 */4 * * *` fired 1 time(s) · last run 37753340291 success · 4 update(s) · observed 2026-10-08T09:08:23Z)",
+ "collector_status": "PASS · SCHEDULED_ACTIVE (35 runs: schedule 8 · workflow_dispatch 27 · schedule `17 */4 * * *` fired 8 time(s) · last run 38059717600 success · 0 update(s) · observed 2026-10-10T17:20:00Z)",
  "contract": "faisal_validation/PHASE_B_prereg.md",
  "counts": {
   "EXCLUDED": 1,

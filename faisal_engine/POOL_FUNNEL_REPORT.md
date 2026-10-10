@@ -19,9 +19,11 @@ Each daily screen and weekly renewal appends one line to `fill_pool_log.jsonl` (
 
 ## 2. Prospective records (frozen copies of the bot's log)
 
-Records: **0** · unreadable lines 0 · duplicate keys 0 · failing integrity 0.
+Records: **1** · unreadable lines 0 · duplicate keys 0 · failing integrity 0.
 
-**None yet.** The capture ships with this change; the first record appears after the next scheduled screening run. Freeze it with `python3 faisal_engine/pool_funnel.py --freeze fill_pool_log.jsonl`, then rebuild.
+| date | source | run | integrity | pool | excluded | examined | not examined | borrow reject (known) | passed UNKNOWN | passed KNOWN | added | unfilled | shortfall |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 2026-10-10 | renew | 38014252564 | OK | 106 | 4 | 49 | 53 | 45 | 0 | 4 | 4 | 11 | ROUNDS_CAP |
 
 ## 3. Legacy runs (before the log existed) — what their logs recorded
 
