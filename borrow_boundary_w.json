@@ -1,0 +1,1337 @@
+{
+ "baseline_members_excluded": 14,
+ "commits_read": 356,
+ "head": "c126a2af494b0962c0448438213c9502de7820de",
+ "limit_commit": "d0919f1ad0cb1877ae4639574a2ed41a2e442bd4",
+ "members": [
+  {
+   "added": "2026-08-12",
+   "first_av": 0,
+   "first_commit": "db86e858d61c51fd4cb94dd189038fc89e6c9799",
+   "first_commit_time": "2026-08-12T04:32:36+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "FEMY"
+  },
+  {
+   "added": "2026-08-13",
+   "first_av": 15000,
+   "first_commit": "c19b21c623bf43fe9cbdfd6845bcdc7554178a3a",
+   "first_commit_time": "2026-08-13T03:07:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CLIK"
+  },
+  {
+   "added": "2026-08-13",
+   "first_av": 20000,
+   "first_commit": "c19b21c623bf43fe9cbdfd6845bcdc7554178a3a",
+   "first_commit_time": "2026-08-13T03:07:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SSM"
+  },
+  {
+   "added": "2026-08-13",
+   "first_av": null,
+   "first_commit": "c19b21c623bf43fe9cbdfd6845bcdc7554178a3a",
+   "first_commit_time": "2026-08-13T03:07:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "TWG"
+  },
+  {
+   "added": "2026-08-13",
+   "first_av": null,
+   "first_commit": "c19b21c623bf43fe9cbdfd6845bcdc7554178a3a",
+   "first_commit_time": "2026-08-13T03:07:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SNAL"
+  },
+  {
+   "added": "2026-08-13",
+   "first_av": null,
+   "first_commit": "c19b21c623bf43fe9cbdfd6845bcdc7554178a3a",
+   "first_commit_time": "2026-08-13T03:07:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SKYA"
+  },
+  {
+   "added": "2026-08-13",
+   "first_av": null,
+   "first_commit": "c19b21c623bf43fe9cbdfd6845bcdc7554178a3a",
+   "first_commit_time": "2026-08-13T03:07:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "PRHI"
+  },
+  {
+   "added": "2026-08-13",
+   "first_av": null,
+   "first_commit": "c19b21c623bf43fe9cbdfd6845bcdc7554178a3a",
+   "first_commit_time": "2026-08-13T03:07:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "FTCI"
+  },
+  {
+   "added": "2026-08-13",
+   "first_av": null,
+   "first_commit": "c19b21c623bf43fe9cbdfd6845bcdc7554178a3a",
+   "first_commit_time": "2026-08-13T03:07:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BBLG"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": 15000,
+   "first_commit": "2cc1edbc408cbd1d197b2d606c886f3a61639ae6",
+   "first_commit_time": "2026-08-14T01:57:26+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "LFS"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": 5000,
+   "first_commit": "2cc1edbc408cbd1d197b2d606c886f3a61639ae6",
+   "first_commit_time": "2026-08-14T01:57:26+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "PLCE"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": 10000,
+   "first_commit": "2cc1edbc408cbd1d197b2d606c886f3a61639ae6",
+   "first_commit_time": "2026-08-14T01:57:26+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SDOT"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": 20000,
+   "first_commit": "2cc1edbc408cbd1d197b2d606c886f3a61639ae6",
+   "first_commit_time": "2026-08-14T01:57:26+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "KG"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": 20000,
+   "first_commit": "2cc1edbc408cbd1d197b2d606c886f3a61639ae6",
+   "first_commit_time": "2026-08-14T01:57:26+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "OLOX"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": 6000,
+   "first_commit": "2cc1edbc408cbd1d197b2d606c886f3a61639ae6",
+   "first_commit_time": "2026-08-14T01:57:26+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "APVO"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "2cc1edbc408cbd1d197b2d606c886f3a61639ae6",
+   "first_commit_time": "2026-08-14T01:57:26+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CALC"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "2cc1edbc408cbd1d197b2d606c886f3a61639ae6",
+   "first_commit_time": "2026-08-14T01:57:26+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CODX"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": 10000,
+   "first_commit": "2f631ef6b1240af09b3c593150e1cb9a9ef399cd",
+   "first_commit_time": "2026-08-14T10:56:42+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BRAI"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": 10000,
+   "first_commit": "2f631ef6b1240af09b3c593150e1cb9a9ef399cd",
+   "first_commit_time": "2026-08-14T10:56:42+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SLGB"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": 600,
+   "first_commit": "2f631ef6b1240af09b3c593150e1cb9a9ef399cd",
+   "first_commit_time": "2026-08-14T10:56:42+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SPHL"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "2f631ef6b1240af09b3c593150e1cb9a9ef399cd",
+   "first_commit_time": "2026-08-14T10:56:42+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CTNT"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "2f631ef6b1240af09b3c593150e1cb9a9ef399cd",
+   "first_commit_time": "2026-08-14T10:56:42+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "KSCP"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "2f631ef6b1240af09b3c593150e1cb9a9ef399cd",
+   "first_commit_time": "2026-08-14T10:56:42+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "AGMH"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "2f631ef6b1240af09b3c593150e1cb9a9ef399cd",
+   "first_commit_time": "2026-08-14T10:56:42+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "KITT"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "2f631ef6b1240af09b3c593150e1cb9a9ef399cd",
+   "first_commit_time": "2026-08-14T10:56:42+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SMXT"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "2f631ef6b1240af09b3c593150e1cb9a9ef399cd",
+   "first_commit_time": "2026-08-14T10:56:42+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "MIMI"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": 10000,
+   "first_commit": "fc20231a8307093643ffc6c5edca2d826fc6d2bb",
+   "first_commit_time": "2026-08-14T19:25:16+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "RDAC"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "fc20231a8307093643ffc6c5edca2d826fc6d2bb",
+   "first_commit_time": "2026-08-14T19:25:16+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "HTCO"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "fc20231a8307093643ffc6c5edca2d826fc6d2bb",
+   "first_commit_time": "2026-08-14T19:25:16+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CELU"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "fc20231a8307093643ffc6c5edca2d826fc6d2bb",
+   "first_commit_time": "2026-08-14T19:25:16+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "ONMD"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "fc20231a8307093643ffc6c5edca2d826fc6d2bb",
+   "first_commit_time": "2026-08-14T19:25:16+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "MTVA"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "3722ec4b75493dd84e99f7f91eddd2501b76c294",
+   "first_commit_time": "2026-08-14T22:07:46+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "TRON"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "3722ec4b75493dd84e99f7f91eddd2501b76c294",
+   "first_commit_time": "2026-08-14T22:07:46+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "LNKS"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "3722ec4b75493dd84e99f7f91eddd2501b76c294",
+   "first_commit_time": "2026-08-14T22:07:46+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "MLEC"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "3722ec4b75493dd84e99f7f91eddd2501b76c294",
+   "first_commit_time": "2026-08-14T22:07:46+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "KMRK"
+  },
+  {
+   "added": "2026-08-14",
+   "first_av": null,
+   "first_commit": "26cb4e1060ce5de3ad3992234d9a44aadf15bea2",
+   "first_commit_time": "2026-08-14T22:50:31+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "PSIG"
+  },
+  {
+   "added": "2026-08-18",
+   "first_av": 20000,
+   "first_commit": "d5a9a889ba859fd6a4b35fdf28f2a27e35ba979f",
+   "first_commit_time": "2026-08-18T05:33:12+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "ZCMD"
+  },
+  {
+   "added": "2026-08-19",
+   "first_av": 10000,
+   "first_commit": "1246d114818253bebce0593866e3bc8804c7a6de",
+   "first_commit_time": "2026-08-19T03:25:32+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SMX"
+  },
+  {
+   "added": "2026-08-20",
+   "first_av": 0,
+   "first_commit": "7a649d7330c6c7e09c4f1d40d206f1eb44a88421",
+   "first_commit_time": "2026-08-20T05:36:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "ZNB"
+  },
+  {
+   "added": "2026-08-20",
+   "first_av": 1000,
+   "first_commit": "7a649d7330c6c7e09c4f1d40d206f1eb44a88421",
+   "first_commit_time": "2026-08-20T05:36:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "KELYB"
+  },
+  {
+   "added": "2026-08-20",
+   "first_av": null,
+   "first_commit": "7a649d7330c6c7e09c4f1d40d206f1eb44a88421",
+   "first_commit_time": "2026-08-20T05:36:04+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "YDDL"
+  },
+  {
+   "added": "2026-08-21",
+   "first_av": 10000,
+   "first_commit": "d86f5fa6352ca718a0fac1fe482eb43e1f2cd61d",
+   "first_commit_time": "2026-08-21T05:38:14+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "NTCL"
+  },
+  {
+   "added": "2026-08-21",
+   "first_av": 1000,
+   "first_commit": "d86f5fa6352ca718a0fac1fe482eb43e1f2cd61d",
+   "first_commit_time": "2026-08-21T05:38:14+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "HCWB"
+  },
+  {
+   "added": "2026-08-21",
+   "first_av": null,
+   "first_commit": "5102355db0246654b5c41e90e0a209b0aceccf74",
+   "first_commit_time": "2026-08-21T22:51:56+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BNR"
+  },
+  {
+   "added": "2026-08-21",
+   "first_av": null,
+   "first_commit": "5102355db0246654b5c41e90e0a209b0aceccf74",
+   "first_commit_time": "2026-08-21T22:51:56+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SLMT"
+  },
+  {
+   "added": "2026-08-25",
+   "first_av": null,
+   "first_commit": "166f2b731438b1e83b63e66c9687ac31e3dad144",
+   "first_commit_time": "2026-08-25T05:39:19+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BKYI"
+  },
+  {
+   "added": "2026-08-25",
+   "first_av": 20000,
+   "first_commit": "166f2b731438b1e83b63e66c9687ac31e3dad144",
+   "first_commit_time": "2026-08-25T05:39:19+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BENF"
+  },
+  {
+   "added": "2026-08-25",
+   "first_av": 10000,
+   "first_commit": "166f2b731438b1e83b63e66c9687ac31e3dad144",
+   "first_commit_time": "2026-08-25T05:39:19+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "FUSE"
+  },
+  {
+   "added": "2026-08-25",
+   "first_av": 15000,
+   "first_commit": "166f2b731438b1e83b63e66c9687ac31e3dad144",
+   "first_commit_time": "2026-08-25T05:39:19+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "XXII"
+  },
+  {
+   "added": "2026-08-25",
+   "first_av": 2000,
+   "first_commit": "166f2b731438b1e83b63e66c9687ac31e3dad144",
+   "first_commit_time": "2026-08-25T05:39:19+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "UONE"
+  },
+  {
+   "added": "2026-08-28",
+   "first_av": 10000,
+   "first_commit": "e3a920d7fd06decb93fd2050bae281fccb17b4e0",
+   "first_commit_time": "2026-08-28T17:21:35+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "ELAB"
+  },
+  {
+   "added": "2026-08-28",
+   "first_av": 9000,
+   "first_commit": "e3a920d7fd06decb93fd2050bae281fccb17b4e0",
+   "first_commit_time": "2026-08-28T17:21:35+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BTOG"
+  },
+  {
+   "added": "2026-08-29",
+   "first_av": null,
+   "first_commit": "cd353aa5ddf02cdd269516ece13fb02dc72bc22b",
+   "first_commit_time": "2026-08-29T03:53:25+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "PBK"
+  },
+  {
+   "added": "2026-08-29",
+   "first_av": 10000,
+   "first_commit": "cd353aa5ddf02cdd269516ece13fb02dc72bc22b",
+   "first_commit_time": "2026-08-29T03:53:25+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SXTP"
+  },
+  {
+   "added": "2026-08-29",
+   "first_av": 20000,
+   "first_commit": "cd353aa5ddf02cdd269516ece13fb02dc72bc22b",
+   "first_commit_time": "2026-08-29T03:53:25+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "APVO"
+  },
+  {
+   "added": "2026-08-29",
+   "first_av": 100,
+   "first_commit": "cd353aa5ddf02cdd269516ece13fb02dc72bc22b",
+   "first_commit_time": "2026-08-29T03:53:25+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "LIMN"
+  },
+  {
+   "added": "2026-09-02",
+   "first_av": 1000,
+   "first_commit": "d0f07ee91714b05a21390242590ed5cbbaa1cb4b",
+   "first_commit_time": "2026-09-02T09:23:30+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BYAH"
+  },
+  {
+   "added": "2026-09-02",
+   "first_av": 20000,
+   "first_commit": "d0f07ee91714b05a21390242590ed5cbbaa1cb4b",
+   "first_commit_time": "2026-09-02T09:23:30+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "GDHG"
+  },
+  {
+   "added": "2026-09-02",
+   "first_av": 10000,
+   "first_commit": "d0f07ee91714b05a21390242590ed5cbbaa1cb4b",
+   "first_commit_time": "2026-09-02T09:23:30+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CCTG"
+  },
+  {
+   "added": "2026-09-02",
+   "first_av": 0,
+   "first_commit": "dee4c27b7e03cce50dbc52e073d28e97419ef505",
+   "first_commit_time": "2026-09-02T17:09:32+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "NIVF"
+  },
+  {
+   "added": "2026-09-02",
+   "first_av": 900,
+   "first_commit": "dee4c27b7e03cce50dbc52e073d28e97419ef505",
+   "first_commit_time": "2026-09-02T17:09:32+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "WNW"
+  },
+  {
+   "added": "2026-09-02",
+   "first_av": null,
+   "first_commit": "dee4c27b7e03cce50dbc52e073d28e97419ef505",
+   "first_commit_time": "2026-09-02T17:09:32+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BLNE"
+  },
+  {
+   "added": "2026-09-02",
+   "first_av": null,
+   "first_commit": "dee4c27b7e03cce50dbc52e073d28e97419ef505",
+   "first_commit_time": "2026-09-02T17:09:32+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "ACTU"
+  },
+  {
+   "added": "2026-09-03",
+   "first_av": 4000,
+   "first_commit": "e3b768bc97fe777291625d37493cc2062eabbf83",
+   "first_commit_time": "2026-09-03T09:34:08+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SPHL"
+  },
+  {
+   "added": "2026-09-03",
+   "first_av": 10000,
+   "first_commit": "e3b768bc97fe777291625d37493cc2062eabbf83",
+   "first_commit_time": "2026-09-03T09:34:08+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "UONE"
+  },
+  {
+   "added": "2026-09-04",
+   "first_av": 8000,
+   "first_commit": "40eccc9f9b9967bdfb6b30b91c41bd572a47a1d1",
+   "first_commit_time": "2026-09-05T00:12:05+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SNAL"
+  },
+  {
+   "added": "2026-09-04",
+   "first_av": null,
+   "first_commit": "40eccc9f9b9967bdfb6b30b91c41bd572a47a1d1",
+   "first_commit_time": "2026-09-05T00:12:05+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "DXST"
+  },
+  {
+   "added": "2026-09-04",
+   "first_av": null,
+   "first_commit": "40eccc9f9b9967bdfb6b30b91c41bd572a47a1d1",
+   "first_commit_time": "2026-09-05T00:12:05+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BTCS"
+  },
+  {
+   "added": "2026-09-04",
+   "first_av": null,
+   "first_commit": "40eccc9f9b9967bdfb6b30b91c41bd572a47a1d1",
+   "first_commit_time": "2026-09-05T00:12:05+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "GVH"
+  },
+  {
+   "added": "2026-09-08",
+   "first_av": 6000,
+   "first_commit": "37690a6bb125ae91dd136e4e7a030e6a76f43d2c",
+   "first_commit_time": "2026-09-08T07:36:37+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "WSHP"
+  },
+  {
+   "added": "2026-09-08",
+   "first_av": 9000,
+   "first_commit": "37690a6bb125ae91dd136e4e7a030e6a76f43d2c",
+   "first_commit_time": "2026-09-08T07:36:37+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "UONE"
+  },
+  {
+   "added": "2026-09-09",
+   "first_av": 10000,
+   "first_commit": "1796c1648d2a0a7e4600ce35d477884c5083b691",
+   "first_commit_time": "2026-09-09T07:43:23+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SLGB"
+  },
+  {
+   "added": "2026-09-09",
+   "first_av": 1000,
+   "first_commit": "1796c1648d2a0a7e4600ce35d477884c5083b691",
+   "first_commit_time": "2026-09-09T07:43:23+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CIIT"
+  },
+  {
+   "added": "2026-09-10",
+   "first_av": 15000,
+   "first_commit": "c63ad6ba3ea932169385e05dd1d12606ac0f6fca",
+   "first_commit_time": "2026-09-10T07:41:28+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BJDX"
+  },
+  {
+   "added": "2026-09-12",
+   "first_av": 15000,
+   "first_commit": "e145b218c12b205255195957208c151b68ac811b",
+   "first_commit_time": "2026-09-12T00:28:28+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "INHD"
+  },
+  {
+   "added": "2026-09-12",
+   "first_av": 15000,
+   "first_commit": "e145b218c12b205255195957208c151b68ac811b",
+   "first_commit_time": "2026-09-12T00:28:28+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "FEED"
+  },
+  {
+   "added": "2026-09-12",
+   "first_av": 20000,
+   "first_commit": "e145b218c12b205255195957208c151b68ac811b",
+   "first_commit_time": "2026-09-12T00:28:28+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "TRNR"
+  },
+  {
+   "added": "2026-09-12",
+   "first_av": 10000,
+   "first_commit": "e145b218c12b205255195957208c151b68ac811b",
+   "first_commit_time": "2026-09-12T00:28:28+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "LIMN"
+  },
+  {
+   "added": "2026-09-12",
+   "first_av": null,
+   "first_commit": "e145b218c12b205255195957208c151b68ac811b",
+   "first_commit_time": "2026-09-12T00:28:28+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "NCEL"
+  },
+  {
+   "added": "2026-09-15",
+   "first_av": 9000,
+   "first_commit": "d6aacd5db6c209360e5c926c1364c89a97e325be",
+   "first_commit_time": "2026-09-15T08:12:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "TDIC"
+  },
+  {
+   "added": "2026-09-15",
+   "first_av": 0,
+   "first_commit": "d6aacd5db6c209360e5c926c1364c89a97e325be",
+   "first_commit_time": "2026-09-15T08:12:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CRIS"
+  },
+  {
+   "added": "2026-09-15",
+   "first_av": 3000,
+   "first_commit": "d6aacd5db6c209360e5c926c1364c89a97e325be",
+   "first_commit_time": "2026-09-15T08:12:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "HCTI"
+  },
+  {
+   "added": "2026-09-15",
+   "first_av": 20000,
+   "first_commit": "d6aacd5db6c209360e5c926c1364c89a97e325be",
+   "first_commit_time": "2026-09-15T08:12:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SPRC"
+  },
+  {
+   "added": "2026-09-15",
+   "first_av": 15000,
+   "first_commit": "d6aacd5db6c209360e5c926c1364c89a97e325be",
+   "first_commit_time": "2026-09-15T08:12:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "FUSE"
+  },
+  {
+   "added": "2026-09-16",
+   "first_av": 850000,
+   "first_commit": "fe685c0802443afebf010e71727b452013857a65",
+   "first_commit_time": "2026-09-16T08:07:38+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "NEUP"
+  },
+  {
+   "added": "2026-09-16",
+   "first_av": 100,
+   "first_commit": "fe685c0802443afebf010e71727b452013857a65",
+   "first_commit_time": "2026-09-16T08:07:38+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "NCRA"
+  },
+  {
+   "added": "2026-09-16",
+   "first_av": 4000,
+   "first_commit": "fe685c0802443afebf010e71727b452013857a65",
+   "first_commit_time": "2026-09-16T08:07:38+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "GNPX"
+  },
+  {
+   "added": "2026-09-16",
+   "first_av": 20000,
+   "first_commit": "fe685c0802443afebf010e71727b452013857a65",
+   "first_commit_time": "2026-09-16T08:07:38+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "LNAI"
+  },
+  {
+   "added": "2026-09-17",
+   "first_av": 0,
+   "first_commit": "101de725e6745b9914aa76ad3a7564ed674867db",
+   "first_commit_time": "2026-09-17T08:08:49+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BCTX"
+  },
+  {
+   "added": "2026-09-17",
+   "first_av": 10000,
+   "first_commit": "101de725e6745b9914aa76ad3a7564ed674867db",
+   "first_commit_time": "2026-09-17T08:08:49+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SEV"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 7000,
+   "first_commit": "cfc26de7ac9c6372f5aa623f756d88e7e5d64bc2",
+   "first_commit_time": "2026-09-18T07:49:40+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "MOBX"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 10000,
+   "first_commit": "cfc26de7ac9c6372f5aa623f756d88e7e5d64bc2",
+   "first_commit_time": "2026-09-18T07:49:40+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "UPC"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 3000,
+   "first_commit": "cfc26de7ac9c6372f5aa623f756d88e7e5d64bc2",
+   "first_commit_time": "2026-09-18T07:49:40+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CURX"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 2000,
+   "first_commit": "cfc26de7ac9c6372f5aa623f756d88e7e5d64bc2",
+   "first_commit_time": "2026-09-18T07:49:40+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SKYQ"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 10000,
+   "first_commit": "cfc26de7ac9c6372f5aa623f756d88e7e5d64bc2",
+   "first_commit_time": "2026-09-18T07:49:40+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "DSY"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 65000,
+   "first_commit": "2b58e80cfa873477520ceea780f8cf3b7a48ce3a",
+   "first_commit_time": "2026-09-18T15:26:11+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "JUNS"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 10000,
+   "first_commit": "2b58e80cfa873477520ceea780f8cf3b7a48ce3a",
+   "first_commit_time": "2026-09-18T15:26:11+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "FRGT"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 300000,
+   "first_commit": "2b58e80cfa873477520ceea780f8cf3b7a48ce3a",
+   "first_commit_time": "2026-09-18T15:26:11+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "WLDS"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 300000,
+   "first_commit": "2b58e80cfa873477520ceea780f8cf3b7a48ce3a",
+   "first_commit_time": "2026-09-18T15:26:11+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "NNNN"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": null,
+   "first_commit": "2b58e80cfa873477520ceea780f8cf3b7a48ce3a",
+   "first_commit_time": "2026-09-18T15:26:11+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "ATPC"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 15000,
+   "first_commit": "2b58e80cfa873477520ceea780f8cf3b7a48ce3a",
+   "first_commit_time": "2026-09-18T15:26:11+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "PTLE"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 85000,
+   "first_commit": "ef643ff8d66e564fbab02da10190c40ca6fd65a0",
+   "first_commit_time": "2026-09-18T19:01:57+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CRVO"
+  },
+  {
+   "added": "2026-09-18",
+   "first_av": 20000,
+   "first_commit": "ef643ff8d66e564fbab02da10190c40ca6fd65a0",
+   "first_commit_time": "2026-09-18T19:01:57+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "MSAI"
+  },
+  {
+   "added": "2026-09-19",
+   "first_av": 20000,
+   "first_commit": "d0824528d2431e5d25249a8d21407c696a28e4bb",
+   "first_commit_time": "2026-09-19T00:28:43+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "NPT"
+  },
+  {
+   "added": "2026-09-19",
+   "first_av": null,
+   "first_commit": "d0824528d2431e5d25249a8d21407c696a28e4bb",
+   "first_commit_time": "2026-09-19T00:28:43+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "QTEX"
+  },
+  {
+   "added": "2026-09-22",
+   "first_av": 65000,
+   "first_commit": "b2b16c04ef42e06de576a32dfda2f6cb43c05286",
+   "first_commit_time": "2026-09-22T08:06:59+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "GCTK"
+  },
+  {
+   "added": "2026-09-23",
+   "first_av": 10000,
+   "first_commit": "fd3adf169e084dcaf1cdcb3da19f9f83bc2e3460",
+   "first_commit_time": "2026-09-23T08:10:02+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "KITT"
+  },
+  {
+   "added": "2026-09-23",
+   "first_av": 10000,
+   "first_commit": "fd3adf169e084dcaf1cdcb3da19f9f83bc2e3460",
+   "first_commit_time": "2026-09-23T08:10:02+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "UZX"
+  },
+  {
+   "added": "2026-09-24",
+   "first_av": 400000,
+   "first_commit": "de09b2140d8e1da5be6fc4dfb31199882d8994d2",
+   "first_commit_time": "2026-09-24T08:01:40+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "PHIO"
+  },
+  {
+   "added": "2026-09-24",
+   "first_av": 100000,
+   "first_commit": "de09b2140d8e1da5be6fc4dfb31199882d8994d2",
+   "first_commit_time": "2026-09-24T08:01:40+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "BIYA"
+  },
+  {
+   "added": "2026-09-24",
+   "first_av": 10000,
+   "first_commit": "de09b2140d8e1da5be6fc4dfb31199882d8994d2",
+   "first_commit_time": "2026-09-24T08:01:40+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "WYHG"
+  },
+  {
+   "added": "2026-09-24",
+   "first_av": null,
+   "first_commit": "de09b2140d8e1da5be6fc4dfb31199882d8994d2",
+   "first_commit_time": "2026-09-24T08:01:40+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "REVB"
+  },
+  {
+   "added": "2026-09-25",
+   "first_av": 200,
+   "first_commit": "910feea528ebcf8c69953b8a578ebd5207a21788",
+   "first_commit_time": "2026-09-25T06:54:10+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "CGTL"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "EFOI"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "EHGO"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "OM"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "AZI"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "MNDR"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "DFNS"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "GDHG"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "RBNE"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "GEOS"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "SCLX"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "AFJK"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "0b0a0932dd05b3d64d0eddc211ed9839add39399",
+   "first_commit_time": "2026-09-26T00:53:55+00:00",
+   "path": "UNDETERMINED",
+   "symbol": "MTEK"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": 800,
+   "first_commit": "57c542c132f97da6a8b7f8fd0ac930efb7405e43",
+   "first_commit_time": "2026-09-26T11:35:34+00:00",
+   "path": "RENEWAL",
+   "symbol": "GNPX"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": 2000,
+   "first_commit": "57c542c132f97da6a8b7f8fd0ac930efb7405e43",
+   "first_commit_time": "2026-09-26T11:35:34+00:00",
+   "path": "RENEWAL",
+   "symbol": "UFG"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": 3000,
+   "first_commit": "57c542c132f97da6a8b7f8fd0ac930efb7405e43",
+   "first_commit_time": "2026-09-26T11:35:34+00:00",
+   "path": "RENEWAL",
+   "symbol": "ADVB"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": 9000,
+   "first_commit": "57c542c132f97da6a8b7f8fd0ac930efb7405e43",
+   "first_commit_time": "2026-09-26T11:35:34+00:00",
+   "path": "RENEWAL",
+   "symbol": "WKHS"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": 15000,
+   "first_commit": "57c542c132f97da6a8b7f8fd0ac930efb7405e43",
+   "first_commit_time": "2026-09-26T11:35:34+00:00",
+   "path": "RENEWAL",
+   "symbol": "UONE"
+  },
+  {
+   "added": "2026-09-26",
+   "first_av": null,
+   "first_commit": "57c542c132f97da6a8b7f8fd0ac930efb7405e43",
+   "first_commit_time": "2026-09-26T11:35:34+00:00",
+   "path": "RENEWAL",
+   "symbol": "SXTP"
+  },
+  {
+   "added": "2026-09-29",
+   "first_av": 200,
+   "first_commit": "6eed404a618793a892974630343d2968d831cac5",
+   "first_commit_time": "2026-09-29T07:53:28+00:00",
+   "path": "DAILY",
+   "symbol": "NCRA"
+  },
+  {
+   "added": "2026-09-29",
+   "first_av": 7000,
+   "first_commit": "6eed404a618793a892974630343d2968d831cac5",
+   "first_commit_time": "2026-09-29T07:53:28+00:00",
+   "path": "DAILY",
+   "symbol": "CCHH"
+  },
+  {
+   "added": "2026-09-29",
+   "first_av": 8000,
+   "first_commit": "6eed404a618793a892974630343d2968d831cac5",
+   "first_commit_time": "2026-09-29T07:53:28+00:00",
+   "path": "DAILY",
+   "symbol": "WXM"
+  },
+  {
+   "added": "2026-09-30",
+   "first_av": 20000,
+   "first_commit": "188309c1e9edbe6d9426b09e55b97ace62671248",
+   "first_commit_time": "2026-09-30T07:45:06+00:00",
+   "path": "DAILY",
+   "symbol": "MSAI"
+  },
+  {
+   "added": "2026-09-30",
+   "first_av": null,
+   "first_commit": "188309c1e9edbe6d9426b09e55b97ace62671248",
+   "first_commit_time": "2026-09-30T07:45:06+00:00",
+   "path": "DAILY",
+   "symbol": "HUCK"
+  },
+  {
+   "added": "2026-10-01",
+   "first_av": 15000,
+   "first_commit": "d5806e96c0d5432d98b1fdc92a955ebcfa2f5ecd",
+   "first_commit_time": "2026-10-01T08:02:36+00:00",
+   "path": "DAILY",
+   "symbol": "NPT"
+  },
+  {
+   "added": "2026-10-01",
+   "first_av": 20000,
+   "first_commit": "d5806e96c0d5432d98b1fdc92a955ebcfa2f5ecd",
+   "first_commit_time": "2026-10-01T08:02:36+00:00",
+   "path": "DAILY",
+   "symbol": "QNRX"
+  },
+  {
+   "added": "2026-10-02",
+   "first_av": 0,
+   "first_commit": "343cb18334cc2e4a44064b64796083b2e7694597",
+   "first_commit_time": "2026-10-02T07:45:00+00:00",
+   "path": "DAILY",
+   "symbol": "NUWE"
+  },
+  {
+   "added": "2026-10-03",
+   "first_av": 0,
+   "first_commit": "491c2de7004f4328c455518827e01eb3ce583471",
+   "first_commit_time": "2026-10-03T01:24:04+00:00",
+   "path": "RENEWAL",
+   "symbol": "MVIS"
+  },
+  {
+   "added": "2026-10-03",
+   "first_av": 20000,
+   "first_commit": "491c2de7004f4328c455518827e01eb3ce583471",
+   "first_commit_time": "2026-10-03T01:24:04+00:00",
+   "path": "RENEWAL",
+   "symbol": "AMIX"
+  },
+  {
+   "added": "2026-10-03",
+   "first_av": 15000,
+   "first_commit": "491c2de7004f4328c455518827e01eb3ce583471",
+   "first_commit_time": "2026-10-03T01:24:04+00:00",
+   "path": "RENEWAL",
+   "symbol": "NTHI"
+  },
+  {
+   "added": "2026-10-03",
+   "first_av": null,
+   "first_commit": "491c2de7004f4328c455518827e01eb3ce583471",
+   "first_commit_time": "2026-10-03T01:24:04+00:00",
+   "path": "RENEWAL",
+   "symbol": "JZXN"
+  },
+  {
+   "added": "2026-10-03",
+   "first_av": null,
+   "first_commit": "491c2de7004f4328c455518827e01eb3ce583471",
+   "first_commit_time": "2026-10-03T01:24:04+00:00",
+   "path": "RENEWAL",
+   "symbol": "ZDAI"
+  },
+  {
+   "added": "2026-10-03",
+   "first_av": null,
+   "first_commit": "491c2de7004f4328c455518827e01eb3ce583471",
+   "first_commit_time": "2026-10-03T01:24:04+00:00",
+   "path": "RENEWAL",
+   "symbol": "TRAW"
+  },
+  {
+   "added": "2026-10-03",
+   "first_av": null,
+   "first_commit": "491c2de7004f4328c455518827e01eb3ce583471",
+   "first_commit_time": "2026-10-03T01:24:04+00:00",
+   "path": "RENEWAL",
+   "symbol": "MOBX"
+  },
+  {
+   "added": "2026-10-03",
+   "first_av": null,
+   "first_commit": "491c2de7004f4328c455518827e01eb3ce583471",
+   "first_commit_time": "2026-10-03T01:24:04+00:00",
+   "path": "RENEWAL",
+   "symbol": "CSAI"
+  },
+  {
+   "added": "2026-10-06",
+   "first_av": null,
+   "first_commit": "5202625d95c86e8792027738cb3c9aeaecbc0a59",
+   "first_commit_time": "2026-10-06T08:20:35+00:00",
+   "path": "DAILY",
+   "symbol": "NIKI"
+  },
+  {
+   "added": "2026-10-06",
+   "first_av": null,
+   "first_commit": "5202625d95c86e8792027738cb3c9aeaecbc0a59",
+   "first_commit_time": "2026-10-06T08:20:35+00:00",
+   "path": "DAILY",
+   "symbol": "WNW"
+  },
+  {
+   "added": "2026-10-06",
+   "first_av": null,
+   "first_commit": "5202625d95c86e8792027738cb3c9aeaecbc0a59",
+   "first_commit_time": "2026-10-06T08:20:35+00:00",
+   "path": "DAILY",
+   "symbol": "CHR"
+  },
+  {
+   "added": "2026-10-06",
+   "first_av": null,
+   "first_commit": "5202625d95c86e8792027738cb3c9aeaecbc0a59",
+   "first_commit_time": "2026-10-06T08:20:35+00:00",
+   "path": "DAILY",
+   "symbol": "GDHG"
+  },
+  {
+   "added": "2026-10-06",
+   "first_av": null,
+   "first_commit": "5202625d95c86e8792027738cb3c9aeaecbc0a59",
+   "first_commit_time": "2026-10-06T08:20:35+00:00",
+   "path": "DAILY",
+   "symbol": "METCB"
+  },
+  {
+   "added": "2026-10-06",
+   "first_av": null,
+   "first_commit": "5202625d95c86e8792027738cb3c9aeaecbc0a59",
+   "first_commit_time": "2026-10-06T08:20:35+00:00",
+   "path": "DAILY",
+   "symbol": "AFJK"
+  },
+  {
+   "added": "2026-10-06",
+   "first_av": null,
+   "first_commit": "5202625d95c86e8792027738cb3c9aeaecbc0a59",
+   "first_commit_time": "2026-10-06T08:20:35+00:00",
+   "path": "DAILY",
+   "symbol": "NERV"
+  },
+  {
+   "added": "2026-10-06",
+   "first_av": null,
+   "first_commit": "5202625d95c86e8792027738cb3c9aeaecbc0a59",
+   "first_commit_time": "2026-10-06T08:20:35+00:00",
+   "path": "DAILY",
+   "symbol": "CRE"
+  },
+  {
+   "added": "2026-10-06",
+   "first_av": null,
+   "first_commit": "5202625d95c86e8792027738cb3c9aeaecbc0a59",
+   "first_commit_time": "2026-10-06T08:20:35+00:00",
+   "path": "DAILY",
+   "symbol": "ADVB"
+  },
+  {
+   "added": "2026-10-06",
+   "first_av": null,
+   "first_commit": "5202625d95c86e8792027738cb3c9aeaecbc0a59",
+   "first_commit_time": "2026-10-06T08:20:35+00:00",
+   "path": "DAILY",
+   "symbol": "WXM"
+  },
+  {
+   "added": "2026-10-07",
+   "first_av": 20000,
+   "first_commit": "3e17f20ee48361b34b7ec5883e3c3dd9f1dbee9b",
+   "first_commit_time": "2026-10-07T07:57:33+00:00",
+   "path": "DAILY",
+   "symbol": "TVGN"
+  },
+  {
+   "added": "2026-10-07",
+   "first_av": 20000,
+   "first_commit": "3e17f20ee48361b34b7ec5883e3c3dd9f1dbee9b",
+   "first_commit_time": "2026-10-07T07:57:33+00:00",
+   "path": "DAILY",
+   "symbol": "PLCE"
+  },
+  {
+   "added": "2026-10-08",
+   "first_av": 10000,
+   "first_commit": "a42606f3ff9b83922b1b53f871034d1d48a9a705",
+   "first_commit_time": "2026-10-08T08:13:59+00:00",
+   "path": "DAILY",
+   "symbol": "NUWE"
+  },
+  {
+   "added": "2026-10-09",
+   "first_av": 4000,
+   "first_commit": "993d79984e1366eb320a24c26419b2f752cfa400",
+   "first_commit_time": "2026-10-09T08:14:35+00:00",
+   "path": "DAILY",
+   "symbol": "JEM"
+  },
+  {
+   "added": "2026-10-09",
+   "first_av": 0,
+   "first_commit": "993d79984e1366eb320a24c26419b2f752cfa400",
+   "first_commit_time": "2026-10-09T08:14:35+00:00",
+   "path": "DAILY",
+   "symbol": "SEV"
+  },
+  {
+   "added": "2026-10-09",
+   "first_av": 10000,
+   "first_commit": "993d79984e1366eb320a24c26419b2f752cfa400",
+   "first_commit_time": "2026-10-09T08:14:35+00:00",
+   "path": "DAILY",
+   "symbol": "NNE"
+  },
+  {
+   "added": "2026-10-09",
+   "first_av": 9000,
+   "first_commit": "993d79984e1366eb320a24c26419b2f752cfa400",
+   "first_commit_time": "2026-10-09T08:14:35+00:00",
+   "path": "DAILY",
+   "symbol": "BRAI"
+  },
+  {
+   "added": "2026-10-10",
+   "first_av": 20000,
+   "first_commit": "807afddb7b2a1fed1dc7c5627e4fa9b32655c265",
+   "first_commit_time": "2026-10-10T01:58:35+00:00",
+   "path": "RENEWAL",
+   "symbol": "SKYQ"
+  },
+  {
+   "added": "2026-10-10",
+   "first_av": 20000,
+   "first_commit": "807afddb7b2a1fed1dc7c5627e4fa9b32655c265",
+   "first_commit_time": "2026-10-10T01:58:35+00:00",
+   "path": "RENEWAL",
+   "symbol": "VBIO"
+  }
+ ],
+ "unreadable": 0
+}

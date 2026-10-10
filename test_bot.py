@@ -86945,6 +86945,188 @@ check("⏱️ BFR21 الوصولُ بعد تقدّم الحالة: 10-14 (حصّ
       and _a21.get("POL", {}).get("state") == "NO_FOLLOWUP_NONE" and _b21.get("POL", {}).get("state") == "A_FELL_BELOW",
       str([(_a21.get("ARR", {}).get("state")), _b21.get("ARR", {}).get("state"), _b21.get("UNK", {}).get("state")]))
 
+# ══════════════════════════════════════════════════════════════════════════
+# 📏 BBS1-BBS9 — `T-BORROW-EQ` ظلُّ حدّ بوّابة المتاح (`borrow_boundary_shadow.py` · 2026-10-10 · مهمّةُ المالك §3 · العقد
+#    `borrow_boundary_prereg.md` مدموجٌ قبل أيّ عدّ): نصُّ فيصل «تحت 20 الف» (`<`) مقابل البوّابة الحيّة (تُخرج **فوق** الحدّ ⟵ 20,000 يمرّ).
+#    الفرقُ قيمةٌ واحدة (متاحٌ معلومٌ يساوي الحدّ) ⟵ الأقفالُ تحرس: القاعدةُ تُقرأ من الكود لا تُكتب باليد · الحالاتُ حصريّةٌ مستنفِدة ·
+#    فرقُ العضويّة للعضو عند الحدّ وحدَه · البديلُ UNKNOWN ولا يُسمّى غيرُ المفحوص · المجهولُ لا يُنسب له فرق · T2 على غير المرئيّ ·
+#    W بوسم NOT_DECISION_TIME وبلا git في البناء · والحالةُ المحفوظة تُعاد بايتًا.
+# ══════════════════════════════════════════════════════════════════════════
+import importlib as _bbs_il                                        # noqa: E402
+import tempfile as _bbs_tf                                         # noqa: E402
+try:
+    _BBS = _bbs_il.import_module("borrow_boundary_shadow")
+except Exception as _e:                                            # noqa: BLE001
+    _BBS = None
+    print(f"⛔ borrow_boundary_shadow import: {type(_e).__name__}: {_e}")
+
+_BBS_COLS = ["sym", "rank", "pool_pos", "rk", "dq", "excl", "round", "outcome", "av", "av_state", "av_src", "added"]
+
+
+def _bbs_rec(rows, date="2026-10-13", ts="2026-10-13T06:10:00+00:00", source="daily", rounds=(2, 4)):
+    _r = {"date": date, "ts": ts, "snap_ts": ts, "source": source, "run_id": date, "rounds_used": rounds[0], "rounds_max": rounds[1],
+          "borrow_max": 20000, "cols": _BBS_COLS,
+          "rows": [[s, k + 1, k + 1, [], dq, ex, rnd, o, av, st, "ENRICH" if st == "KNOWN" else None, ad]
+                   for k, (s, dq, ex, rnd, o, av, st, ad) in enumerate(rows)]}
+    _r["sha"] = _BBS.PF.record_sha(_r)
+    return _r
+
+
+def _bbs_build(recs, w=None, corrupt=False):
+    _td = _bbs_tf.mkdtemp()
+    _pp, _wp = _os_hc.path.join(_td, "pool.jsonl"), _os_hc.path.join(_td, "w.json")
+    with open(_pp, "w", encoding="utf-8") as _fh:
+        for _k, _r in enumerate(recs):
+            _r = dict(_r)
+            if corrupt and _k == 0:
+                _r["sha"] = "0" * 64
+            _fh.write(json.dumps(_r) + "\n")
+    if w is not None:
+        with open(_wp, "w", encoding="utf-8") as _fh:
+            _fh.write(json.dumps(w))
+    try:
+        return _BBS.build(pool=_pp, wfile=_wp)
+    except Exception as _e:                                        # noqa: BLE001
+        return {"⛔": f"{type(_e).__name__}: {_e}"}
+
+
+# BBS1 — القاعدةُ الحيّة تُقرأ من الكود: (20,000 · Gt) ⟵ الحدُّ يمرّ · وتغييرُ المقارنة إلى >= يُقرأ GtE (لا رقمَ مكتوبٌ باليد)
+try:
+    _r1 = _BBS.gate_rule()
+    _src1 = open(_os_hc.path.join(_os_hc.path.dirname(_os_hc.path.abspath(__file__)), "Super_stock.py"), encoding="utf-8").read()
+    _r1m = _BBS.gate_rule(_src1.replace("over = av is not None and float(av) > limit", "over = av is not None and float(av) >= limit"))
+    _ok1 = (_r1 == (20000, "Gt") and _r1m == (20000, "GtE") and _BBS.passes(20000, 20000, "LE") is True
+            and _BBS.passes(20000, 20000, "LT") is False and _BBS.passes(19999, 20000, "LT") is True)
+    _w1 = f"{_r1} · {_r1m}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok1, _w1 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📏 BBS1 القاعدةُ الحيّة من الكود: الحدّ 20,000 والمقارنةُ «فوق» ⟵ 20,000 يمرّ حيًّا ويُخرَج حرفيًّا · وتغييرُها يُقرأ (لا ثابتَ باليد)",
+      _ok1, _w1)
+
+# BBS2 — الحالاتُ حصريّةٌ مستنفِدة: 19,999 تحت · 20,000 عند الحدّ · 20,001 فوق · مجهول · «معلوم» بلا رقم = مجهول (لا صفر) · لم يُسأل ·
+#        ومستبعَدٌ قبل البوّابة ولو كان متاحُه 20,000
+try:
+    _st2 = [_BBS.row_state(r, 20000.0) for r in (
+        {"outcome": "PASSED_KNOWN_AV", "av": 19999, "av_state": "KNOWN"}, {"outcome": "PASSED_KNOWN_AV", "av": 20000, "av_state": "KNOWN"},
+        {"outcome": "BORROW_REJECT", "av": 20001, "av_state": "KNOWN"}, {"outcome": "PASSED_UNKNOWN_AV", "av": None, "av_state": "UNKNOWN"},
+        {"outcome": "PASSED_KNOWN_AV", "av": "nan", "av_state": "KNOWN"}, {"outcome": "NOT_EXAMINED", "av": None, "av_state": "NOT_COLLECTED"},
+        {"outcome": "DQ_HELD", "av": 20000, "av_state": "KNOWN"}, {"outcome": "EXCLUDED", "av": None, "av_state": None},
+        {"outcome": "PASSED_KNOWN_AV", "av": float("nan"), "av_state": "KNOWN"})]
+except Exception as _e:                                            # noqa: BLE001
+    _st2 = [f"⛔ {type(_e).__name__}"]
+check("📏 BBS2 حالاتُ الصفّ حصريّةٌ مستنفِدة (تحت · عند الحدّ · فوق · مجهول · «معلومٌ» بلا رقم = مجهول · لم يُسأل · مستبعَدٌ قبل البوّابة)",
+      _st2 == ["KNOWN_BELOW", "KNOWN_AT_LIMIT", "KNOWN_ABOVE", "UNKNOWN", "UNKNOWN", "NOT_EXAMINED", "OTHER_EXCLUSION",
+               "OTHER_EXCLUSION", "UNKNOWN"], str(_st2))
+
+# BBS3 — فرقُ العضويّة = عضوٌ عند الحدّ وحدَه · وعابرُ المتاح الساقطُ بالفلوت لا فرق · والمجهولُ لا يُنسب له فرق · والبديلُ UNKNOWN بلا اسم
+_rec3 = _bbs_rec([("AAA", "PASS", None, 1, "PASSED_KNOWN_AV", 20000, "KNOWN", True),
+                  ("BBB", "PASS", None, 1, "FLOAT_REJECT", 20000, "KNOWN", False),
+                  ("CCC", "PASS", None, 1, "PASSED_UNKNOWN_AV", None, "UNKNOWN", True),
+                  ("DDD", "PASS", None, 1, "BORROW_REJECT", 45000, "KNOWN", False),
+                  ("ZZNEXT", "PASS", None, None, "NOT_EXAMINED", None, "NOT_COLLECTED", False)])
+_d3 = _bbs_build([_rec3])
+try:
+    _p3 = _d3["P"]
+    _md3 = _BBS.render(_d3)
+    _ok3 = (_p3["label"] == "DIFFERS" and _p3["membership_difference"] == 1
+            and [e["symbol"] for e in _p3["at_limit"]] == ["AAA", "BBB"]
+            and [e["membership_difference"] for e in _p3["at_limit"]] == [True, False]
+            and _p3["records"][0]["membership_difference"] == ["AAA"]
+            and _p3["records"][0]["fill_context"]["replacement"] == "UNKNOWN"
+            and all(e["source_semantics"] == "SOURCE_SEMANTICS_UNRESOLVED" for e in _p3["at_limit"])
+            and "ZZNEXT" not in _md3 and "ZZNEXT" not in json.dumps(_p3) and "CCC" not in json.dumps(_p3["at_limit"]))
+    _w3 = f"{_p3['label']} · diff={_p3['membership_difference']} · {[e['symbol'] for e in _p3['at_limit']]}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok3, _w3 = False, f"⛔ {type(_e).__name__}: {_e} · {str(_d3)[:120]}"
+check("📏 BBS3 فرقُ العضويّة للعضو عند الحدّ وحدَه · الساقطُ بالفلوت عند الحدّ لا فرق · المجهولُ لا يُنسب له فرق · "
+      "والبديلُ UNKNOWN ولا يُسمّى غيرُ المفحوص في المُخرَج", _ok3, _w3)
+
+# BBS4 — اتّساقُ النتيجة المسجّلة مع القاعدة الحيّة: فوق الحدّ ويمرّ ⟵ تناقض · وعند الحدّ ومُخرَجٌ بالمتاح ⟵ تناقض · والسليمُ صفر
+_rec4 = _bbs_rec([("EEE", "PASS", None, 1, "PASSED_KNOWN_AV", 20001, "KNOWN", True),
+                  ("FFF", "PASS", None, 1, "BORROW_REJECT", 20000, "KNOWN", False),
+                  ("GGG", "PASS", None, 1, "BORROW_REJECT", 20001, "KNOWN", False)])
+_d4 = _bbs_build([_rec4])
+try:
+    _i4 = _d4["P"]["consistency_issues"]
+    _ok4 = len(_i4) == 2 and any("EEE" in x for x in _i4) and any("FFF" in x for x in _i4) and not any("GGG" in x for x in _i4)
+    _w4 = str(_i4)
+except Exception as _e:                                            # noqa: BLE001
+    _ok4, _w4 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📏 BBS4 النتيجةُ المسجّلة تُطابَق بالقاعدة الحيّة: فوق الحدّ ويمرّ أو عند الحدّ ومُخرَجٌ ⟵ تناقضٌ يُعلَن · والسليمُ لا", _ok4, _w4)
+
+# BBS5 — الحُبيبيّة وصفٌ · وT2 يُحكم على غير المُخرَج وحدَه (المُخرَجُ رُئي قبل العقد) · وبلا غير مُخرَجٍ معلوم ⟵ NOT_TESTABLE
+_rec5 = _bbs_rec([("H1", "PASS", None, 1, "BORROW_REJECT", 45000, "KNOWN", False), ("H2", "PASS", None, 1, "BORROW_REJECT", 50000, "KNOWN", False),
+                  ("H3", "PASS", None, 1, "PASSED_KNOWN_AV", 12345, "KNOWN", True)])
+_rec5b = _bbs_rec([("J1", "PASS", None, 1, "BORROW_REJECT", 45000, "KNOWN", False)], date="2026-10-14", ts="2026-10-14T06:00:00+00:00")
+_d5, _d5b = _bbs_build([_rec5]), _bbs_build([_rec5b])
+try:
+    _ga, _gu = _d5["P"]["granularity_all_known"], _d5["P"]["granularity_unseen_known"]
+    _ok5 = (_ga["n"] == 3 and _ga["multiple_of_5000"] == 2 and _gu["n"] == 1 and _gu["multiple_of_5000"] == 0
+            and _d5["predictions"]["T2"] == "FALSE" and _d5b["predictions"]["T2"] == "NOT_TESTABLE"
+            and _d5["predictions"]["T1"] == "TRUE" and _d5["P"]["label"] == "IDENTICAL_IN_DECISION_DATA")
+    _w5 = f"{_ga} · {_gu} · {_d5['predictions']} · {_d5b['predictions']['T2']}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok5, _w5 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📏 BBS5 الحُبيبيّةُ وصف · وT2 يُحكم على غير المُخرَج وحدَه (المُخرَجُ رُئي قبل العقد) · وبلاه NOT_TESTABLE · وبلا صفٍّ عند الحدّ "
+      "IDENTICAL_IN_DECISION_DATA", _ok5, _w5)
+
+# BBS6 — W بوسم NOT_DECISION_TIME: أوّلُ متاحٍ مخزَّن يُصنَّف (عند الحدّ · تحت · فوق · بلا) وبمساره · والبناءُ لا يلمس git (لا subprocess خارج refresh_w)
+_w6 = {"limit_commit": "d" * 40, "head": "e" * 40, "commits_read": 3, "unreadable": 0,
+       "members": [{"symbol": "W1", "added": "2026-09-01", "first_av": 20000, "first_commit": "a", "first_commit_time": "t", "path": "DAILY"},
+                   {"symbol": "W2", "added": "2026-09-27", "first_av": 15000, "first_commit": "b", "first_commit_time": "t", "path": "RENEWAL"},
+                   {"symbol": "W3", "added": "2026-09-27", "first_av": None, "first_commit": "c", "first_commit_time": "t", "path": "RENEWAL"},
+                   {"symbol": "W4", "added": "2026-08-11", "first_av": 40000, "first_commit": "c", "first_commit_time": "t",
+                    "path": "UNDETERMINED"}]}
+_d6 = _bbs_build([_rec5b], w=_w6)
+try:
+    _W6 = _d6["W"]
+    _tree6 = _ast0.parse(open(_BBS.__file__, encoding="utf-8").read())
+    _sub6 = sorted({f.name for f in _tree6.body if isinstance(f, _ast0.FunctionDef)
+                    and any(isinstance(n, (_ast0.Import, _ast0.ImportFrom)) and any("subprocess" in (a.name or "") for a in n.names)
+                            for n in _ast0.walk(f))})
+    _top6 = [n for n in _tree6.body if isinstance(n, (_ast0.Import, _ast0.ImportFrom))
+             and any("subprocess" in (a.name or "") for a in n.names)]
+    _ok6 = (_W6["label"] == "NOT_DECISION_TIME" and _W6["states"] == {"AT_LIMIT": 1, "BELOW": 1, "ABOVE": 1, "NONE": 1}
+            and [e["symbol"] for e in _W6["at_limit"]] == ["W1"] and _W6["by_path"]["RENEWAL"]["NONE"] == 1
+            and _W6["limit_day_members"] == 1 and _d6["predictions"]["T3"] == "TRUE" and _sub6 == ["refresh_w"] and not _top6)
+    _w6m = f"{_W6.get('states')} · sub={_sub6} · top={len(_top6)}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok6, _w6m = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📏 BBS6 فوجُ W وصفيٌّ بوسم NOT_DECISION_TIME (عند الحدّ · تحت · فوق · بلا · ومساره) · والبناءُ بلا git (subprocess في refresh_w وحدَها)",
+      _ok6, _w6m)
+
+# BBS7 — سجلٌّ مجمَّد ببصمةٍ خاطئة لا يُقرأ ويُعَدّ
+_d7 = _bbs_build([_rec3, _rec5b], corrupt=True)
+try:
+    _ok7 = (_d7["inputs"]["pool"]["records"] == 1 and _d7["inputs"]["pool"]["integrity_failed"] == 1
+            and _d7["P"]["label"] == "IDENTICAL_IN_DECISION_DATA")
+    _w7 = str(_d7["inputs"]["pool"])
+except Exception as _e:                                            # noqa: BLE001
+    _ok7, _w7 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📏 BBS7 سجلُّ بِركةٍ ببصمةٍ خاطئة لا يُقرأ ويُعَدّ (فلا يصنع صفًّا عند الحدّ)", _ok7, _w7)
+
+# BBS8 — الحالةُ المحفوظة تُعاد بايتًا (`--check`) وقاعدتُها = الكودُ اليوم
+try:
+    _d8 = _BBS.build()
+    _j8 = json.dumps(_d8, ensure_ascii=False, indent=1, sort_keys=True) + "\n"
+    _ok8 = (open(_BBS.F_JSON, encoding="utf-8").read() == _j8 and open(_BBS.F_MD, encoding="utf-8").read() == _BBS.render(_d8)
+            and (_d8["rule"]["limit"], _d8["rule"]["live_op"]) == _BBS.gate_rule())
+    _w8 = f"{_d8['P']['label']} · W={_d8['W'].get('present')}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok8, _w8 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📏 BBS8 `borrow_boundary_shadow` يُعاد بايتًا (`--check`) وقاعدتُه المطبوعة = الكودُ اليوم", _ok8, _w8)
+
+# BBS9 — خطأُ العقد مُفصَحٌ عنه في كلّ مُخرَج: بندُ #604 ⑧ قاس المساواةَ سلفًا ⟵ التنبّؤاتُ الأربعة ليست عمياء ولا تحمل وزنًا (لا يُحذف بصمت)
+try:
+    _d9 = _BBS.build()
+    _m9 = _BBS.render(_d9)
+    _ok9 = (len(_d9.get("disclosures") or []) == 3 and "#604 archive bullet ⑧" in _m9 and "none of the four predictions is blind" in _m9
+            and "Disclosed after the count" in _m9 and "adds no new fact" in _m9)
+    _w9 = f"n={len(_d9.get('disclosures') or [])}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok9, _w9 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📏 BBS9 خطأُ العقد مُفصَحٌ عنه في المُخرَج: #604 ⑧ قاس المساواة سلفًا ⟵ لا تنبّؤَ أعمى ولا حقيقةَ جديدة (لا يُحذف بصمت)", _ok9, _w9)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

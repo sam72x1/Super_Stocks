@@ -1,0 +1,273 @@
+{
+ "P": {
+  "at_limit": [
+   {
+    "added": true,
+    "av_src": "ENRICH",
+    "date": "2026-10-10",
+    "membership_difference": true,
+    "outcome": "PASSED_KNOWN_AV",
+    "round": 1,
+    "run_id": "38014252564",
+    "source_semantics": "SOURCE_SEMANTICS_UNRESOLVED",
+    "symbol": "SKYQ"
+   },
+   {
+    "added": true,
+    "av_src": "ENRICH",
+    "date": "2026-10-10",
+    "membership_difference": true,
+    "outcome": "PASSED_KNOWN_AV",
+    "round": 2,
+    "run_id": "38014252564",
+    "source_semantics": "SOURCE_SEMANTICS_UNRESOLVED",
+    "symbol": "VBIO"
+   }
+  ],
+  "consistency_issues": [],
+  "granularity_all_known": {
+   "multiple_of_1000": 49,
+   "multiple_of_10000": 43,
+   "multiple_of_5000": 48,
+   "n": 49,
+   "share_1000": 1.0,
+   "share_10000": 0.8776,
+   "share_5000": 0.9796
+  },
+  "granularity_unseen_known": {
+   "multiple_of_1000": 4,
+   "multiple_of_10000": 3,
+   "multiple_of_5000": 3,
+   "n": 4,
+   "share_1000": 1.0,
+   "share_10000": 0.75,
+   "share_5000": 0.75
+  },
+  "label": "DIFFERS",
+  "membership_difference": 2,
+  "records": [
+   {
+    "date": "2026-10-10",
+    "fill_context": {
+     "not_examined": 53,
+     "replacement": "UNKNOWN",
+     "rounds_max": 4,
+     "rounds_used": 4
+    },
+    "membership_difference": [
+     "SKYQ",
+     "VBIO"
+    ],
+    "rows": 111,
+    "run_id": "38014252564",
+    "source": "renew",
+    "states": {
+     "KNOWN_ABOVE": 45,
+     "KNOWN_AT_LIMIT": 2,
+     "KNOWN_BELOW": 2,
+     "NOT_EXAMINED": 53,
+     "OTHER_EXCLUSION": 9,
+     "UNKNOWN": 0
+    }
+   }
+  ],
+  "states": {
+   "KNOWN_ABOVE": 45,
+   "KNOWN_AT_LIMIT": 2,
+   "KNOWN_BELOW": 2,
+   "NOT_EXAMINED": 53,
+   "OTHER_EXCLUSION": 9,
+   "UNKNOWN": 0
+  }
+ },
+ "W": {
+  "at_limit": [
+   {
+    "added": "2026-08-13",
+    "first_commit_time": "2026-08-13T03:07:04+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "SSM"
+   },
+   {
+    "added": "2026-08-14",
+    "first_commit_time": "2026-08-14T01:57:26+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "KG"
+   },
+   {
+    "added": "2026-08-14",
+    "first_commit_time": "2026-08-14T01:57:26+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "OLOX"
+   },
+   {
+    "added": "2026-08-18",
+    "first_commit_time": "2026-08-18T05:33:12+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "ZCMD"
+   },
+   {
+    "added": "2026-08-25",
+    "first_commit_time": "2026-08-25T05:39:19+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "BENF"
+   },
+   {
+    "added": "2026-08-29",
+    "first_commit_time": "2026-08-29T03:53:25+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "APVO"
+   },
+   {
+    "added": "2026-09-02",
+    "first_commit_time": "2026-09-02T09:23:30+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "GDHG"
+   },
+   {
+    "added": "2026-09-12",
+    "first_commit_time": "2026-09-12T00:28:28+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "TRNR"
+   },
+   {
+    "added": "2026-09-15",
+    "first_commit_time": "2026-09-15T08:12:55+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "SPRC"
+   },
+   {
+    "added": "2026-09-16",
+    "first_commit_time": "2026-09-16T08:07:38+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "LNAI"
+   },
+   {
+    "added": "2026-09-18",
+    "first_commit_time": "2026-09-18T19:01:57+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "MSAI"
+   },
+   {
+    "added": "2026-09-19",
+    "first_commit_time": "2026-09-19T00:28:43+00:00",
+    "path": "UNDETERMINED",
+    "symbol": "NPT"
+   },
+   {
+    "added": "2026-09-30",
+    "first_commit_time": "2026-09-30T07:45:06+00:00",
+    "path": "DAILY",
+    "symbol": "MSAI"
+   },
+   {
+    "added": "2026-10-01",
+    "first_commit_time": "2026-10-01T08:02:36+00:00",
+    "path": "DAILY",
+    "symbol": "QNRX"
+   },
+   {
+    "added": "2026-10-03",
+    "first_commit_time": "2026-10-03T01:24:04+00:00",
+    "path": "RENEWAL",
+    "symbol": "AMIX"
+   },
+   {
+    "added": "2026-10-07",
+    "first_commit_time": "2026-10-07T07:57:33+00:00",
+    "path": "DAILY",
+    "symbol": "TVGN"
+   },
+   {
+    "added": "2026-10-07",
+    "first_commit_time": "2026-10-07T07:57:33+00:00",
+    "path": "DAILY",
+    "symbol": "PLCE"
+   },
+   {
+    "added": "2026-10-10",
+    "first_commit_time": "2026-10-10T01:58:35+00:00",
+    "path": "RENEWAL",
+    "symbol": "SKYQ"
+   },
+   {
+    "added": "2026-10-10",
+    "first_commit_time": "2026-10-10T01:58:35+00:00",
+    "path": "RENEWAL",
+    "symbol": "VBIO"
+   }
+  ],
+  "by_path": {
+   "DAILY": {
+    "ABOVE": 0,
+    "AT_LIMIT": 4,
+    "BELOW": 10,
+    "NONE": 11
+   },
+   "RENEWAL": {
+    "ABOVE": 0,
+    "AT_LIMIT": 3,
+    "BELOW": 7,
+    "NONE": 6
+   },
+   "UNDETERMINED": {
+    "ABOVE": 8,
+    "AT_LIMIT": 12,
+    "BELOW": 56,
+    "NONE": 49
+   }
+  },
+  "commits_read": 356,
+  "head": "c126a2af494b0962c0448438213c9502de7820de",
+  "label": "NOT_DECISION_TIME",
+  "limit_commit": "d0919f1ad0cb1877ae4639574a2ed41a2e442bd4",
+  "limit_day_members": 0,
+  "members": 166,
+  "present": true,
+  "states": {
+   "ABOVE": 8,
+   "AT_LIMIT": 19,
+   "BELOW": 73,
+   "NONE": 66
+  },
+  "unreadable": 0
+ },
+ "contract": "borrow_boundary_prereg.md",
+ "disclosures": [
+  "Contract error: the prereg says no archive entry measured equality at the limit. That is wrong — the #604 archive bullet ⑧ (2026-10-10) had already counted SKYQ and VBIO at exactly 20,000 (2 of 4 known additions in the renewal), 19 of 110 watchlist additions since 2026-08-11 at the limit, 77 of 471 `ctb_log` readings at or below 20,000 sitting on it, and described the values as quantized (15,000 · 20,000 · 25,000). The archive grep for this contract matched that line but it was read truncated.",
+  "Consequence: T1, T3 and T4 were made with that bullet in memory and T2 with its quantization remark — none of the four predictions is blind. They are published as made and carry no evidential weight.",
+  "This study therefore adds no new fact about the boundary: it re-derives #604's figures reproducibly from frozen inputs (exhaustive row states · consistency with the live rule · fill context · cohort labels · locks). The W denominator differs from #604's 110 by definition (here: members first seen after the limit commit with a numeric first value)."
+ ],
+ "inputs": {
+  "pool": {
+   "integrity_failed": 0,
+   "path": "faisal_engine/data/pool_funnel_frozen.jsonl",
+   "records": 1,
+   "sha256": "fa3d40e1749d296ca9fe7a3c18937e50c5e19965672ed2009494c5e5253d921b"
+  },
+  "watchlist_history": {
+   "path": "borrow_boundary_w.json",
+   "present": true,
+   "sha256": "a7623516101b5d45fe4af84eeea26321ba599b44be6516677943ccea6de7a7bc"
+  }
+ },
+ "not_claimed": [
+  "performance",
+  "price move",
+  "replacement symbol",
+  "a production decision"
+ ],
+ "predictions": {
+  "T1": "FALSE",
+  "T2": "FALSE",
+  "T3": "TRUE",
+  "T4": "FALSE"
+ },
+ "rule": {
+  "faisal_literal": "LT («تحت 20 الف» · IMG_0151)",
+  "limit": 20000,
+  "live_op": "Gt",
+  "live_reading": "LE (the limit passes)"
+ },
+ "schema": 1
+}
