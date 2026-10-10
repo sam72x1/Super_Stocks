@@ -811,10 +811,46 @@ TG_2022,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_2022,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,,V4_VISUAL_PASS,,,1
 TG_2023,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_2023,DATE_NOT_VISIBLE,FLAG,2026-05-22,,,V4_VISUAL_PASS,,,1
+TG_2024,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2024,DATE_NOT_VISIBLE,FLAG,2026-06-1x,,,V4_VISUAL_PASS,,,1
+TG_2025,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2025,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,,V4_VISUAL_PASS,,,1
+TG_2026,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS(via unit TG_2072),,,1
+TG_2026,DATE_NOT_VISIBLE,FLAG,2026-05-2x,,,V4_VISUAL_PASS(via unit TG_2072),,,1
+TG_20260905_02,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,راس الشمعه الساقطه [محجوب] ذيلها · اذا الهدف ذيل تجاوزه بزخم نعطيه جسم الشمعه الساقطه 4.30 · تحرر من الجسم يعطى نسبه اقل من راس الشمعه الساقطه · هذي بالنسبه للاهداف · يهمك الان الدخول كم · الشورت ممتاز · اما ثبات فوق الدعم الحالي = دخول وهذا فيه مخاطره · او دخول اول صعود تنبيه للسهم 2٪ · او انتظار ضغط قبل الصعود كما هو متعارف عليه · اذا في حال ضغط المضارب السهم عند [محجوب] مباشره الطلبات · القاع = وقف,PRODUCTION_LEDGER_CITED,,,1
+TG_20260905_02,AUTHOR_NOT_VISIBLE,FLAG,F,U,راس الشمعه الساقطه [محجوب] ذيلها · اذا الهدف ذيل تجاوزه بزخم نعطيه جسم الشمعه الساقطه 4.30 · تحرر من الجسم يعطى نسبه اقل من راس الشمعه الساقطه · هذي بالنسبه للاهداف · يهمك الان الدخول كم · الشورت ممتاز · اما ثبات فوق الدعم الحالي = دخول وهذا فيه مخاطره · او دخول اول صعود تنبيه للسهم 2٪ · او انتظار ضغط قبل الصعود كما هو متعارف عليه · اذا في حال ضغط المضارب السهم عند [محجوب] مباشره الطلبات · القاع = وقف,PRODUCTION_LEDGER_CITED,,,1
+TG_20260905_05,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,,PRODUCTION_LEDGER_CITED,,,1
+TG_20260905_05,AUTHOR_NOT_VISIBLE,FLAG,F,U,,PRODUCTION_LEDGER_CITED,,,1
+TG_20260905_05,DATE_NOT_VISIBLE,FLAG,2026-09-04,,,PRODUCTION_LEDGER_CITED,,,1
+TG_20260905_08,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,غطا فجوته الان المفروض يطلع الصدق هذا المفروض يعني · الابيض مقاومات · الخط الثاني يتحرر منها بيعطي شي شي · عاجبني,PRODUCTION_LEDGER_CITED,,,1
+TG_20260905_08,AUTHOR_NOT_VISIBLE,FLAG,F,U,غطا فجوته الان المفروض يطلع الصدق هذا المفروض يعني · الابيض مقاومات · الخط الثاني يتحرر منها بيعطي شي شي · عاجبني,PRODUCTION_LEDGER_CITED,,,1
+TG_20260905_08,DATE_NOT_VISIBLE,FLAG,2026-09-04,,غطا فجوته الان المفروض يطلع الصدق هذا المفروض يعني · الابيض مقاومات · الخط الثاني يتحرر منها بيعطي شي شي · عاجبني,PRODUCTION_LEDGER_CITED,,,1
+TG_20260918_67_BRNX,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,عنده ٢.٠٦ دعم قوي مهم ما يكسره + عنده ذيل ١.٣٤ سحب سيوله,V4_VISUAL_PASS,,,1
+TG_20260918_67_BRNX,DATE_NOT_VISIBLE,FLAG,2026-09-1x,,عنده ٢.٠٦ دعم قوي مهم ما يكسره + عنده ذيل ١.٣٤ سحب سيوله,V4_VISUAL_PASS,,,1
+TG_2027,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS(via unit TG_2072),,,1
+TG_2027,DATE_NOT_VISIBLE,FLAG,2026-05-2x,,,V4_VISUAL_PASS(via unit TG_2072),,,1
+TG_2029,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2030,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,سهم $GWAV حقق ادنى قاع اليوم - التقرير من [اسمٌ خاصّ] - امريكي - خدمات بيئه ومرافق واعادة تدوير المواد المعدنية - شورت 30 الف - فلوت 778 الف - اخباره : اشعار من ناسداك عشان التاخر فالسداد 28/5 - عدم امتثال لناسداك 22/4 - ارتفاع الايرادات وصلت 12 مليون تاريخ 7/3 - اعلان ربحية فالسهم بمقدار 8.98 دولار تاريخ 6/2 - خطاب من ناسداك لتحديد عدد الموظفين تاريخ 21/11/2025 - اعلان تقسيم في 20/8/2025,V4_VISUAL_PASS,,,1
+TG_2030,DATE_NOT_VISIBLE,FLAG,2026-06-2x,,سهم $GWAV حقق ادنى قاع اليوم - التقرير من [اسمٌ خاصّ] - امريكي - خدمات بيئه ومرافق واعادة تدوير المواد المعدنية - شورت 30 الف - فلوت 778 الف - اخباره : اشعار من ناسداك عشان التاخر فالسداد 28/5 - عدم امتثال لناسداك 22/4 - ارتفاع الايرادات وصلت 12 مليون تاريخ 7/3 - اعلان ربحية فالسهم بمقدار 8.98 دولار تاريخ 6/2 - خطاب من ناسداك لتحديد عدد الموظفين تاريخ 21/11/2025 - اعلان تقسيم في 20/8/2025,V4_VISUAL_PASS,,,1
+TG_2033,ROLE,CONTRADICTED,CONTEXT_ONLY,VALIDATION_CASE,مقاومه ثانيه 3.25 · مقاومه اولى 2.80 · دعم اساسي 2.25,V4_VISUAL_PASS,,,1
+TG_2033,AUTHOR_NOT_VISIBLE,FLAG,F,U,مقاومه ثانيه 3.25 · مقاومه اولى 2.80 · دعم اساسي 2.25,V4_VISUAL_PASS,,,1
+TG_2033,DATE_NOT_VISIBLE,FLAG,2026-06-12,,مقاومه ثانيه 3.25 · مقاومه اولى 2.80 · دعم اساسي 2.25,V4_VISUAL_PASS,,,1
+TG_2035,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2035,DATE_NOT_VISIBLE,FLAG,2026-05-24,,,V4_VISUAL_PASS,,,1
+TG_2036,AUTHOR_NOT_VISIBLE,FLAG,F,U,شمعة الارتداد بتكون عند 2 · فعل تنبيهاته 2.10> 2.20 · نحتاج RSi = عند 23 يتوافق مع شمعة الشورت · هدفه بيكون من 2.70 > 4 · مشروط 2.70 ثبات يواصل · هدفه الاعلى 6,V4_VISUAL_PASS,,,1
+TG_2037,AUTHOR_NOT_VISIBLE,FLAG,F,U,السهم حذفته من حسابي تهيض من القروبات مرتين ع نسبه 20٪ · ننتظر RSI عند 27 يتوافق مع شمعة 4 ساعات يتوافق كذلك مع هدف الشورت من 2.80> 3 · بحول الله بيكون هذا القاع اللي يرتد منه 100٪ · 3قيعان = ارتفاع لاختبار المقاومه الاولى عند 6 كهدف كذلك اختبار الاتفاع الثاني عند 8,PRODUCTION_LEDGER_CITED,,,1
 TG_2038,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_2038,DATE_NOT_VISIBLE,FLAG,2026-04-0x,,,V4_VISUAL_PASS,,,1
+TG_2039,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
+TG_2039,DATE_NOT_VISIBLE,FLAG,2026-03-0x,,,V4_VISUAL_PASS,,,1
+TG_2046,ROLE,CONTRADICTED,CONTEXT_ONLY,VALIDATION_CASE,فجوه سعريه,V4_VISUAL_PASS,,,1
+TG_2046,AUTHOR_NOT_VISIBLE,FLAG,F,U,فجوه سعريه,V4_VISUAL_PASS,,,1
+TG_2046,DATE_NOT_VISIBLE,FLAG,2026-03-2x,,فجوه سعريه,V4_VISUAL_PASS,,,1
 TG_2072,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_2072,DATE_NOT_VISIBLE,FLAG,2026-05-2x,,,V4_VISUAL_PASS,,,1
 TG_2104,AUTHOR_NOT_VISIBLE,FLAG,F,U,,V4_VISUAL_PASS,,,1
 TG_2104,DATE_NOT_VISIBLE,FLAG,2025-12,,,V4_VISUAL_PASS,,,1
 IMG_0627,DATE_NOT_VISIBLE,FLAG,2026-06-16,,شرح فني فقط الرجا عدم الشرا ممكن يهبط السهم … —— الاهم ثبات وتداول فوق خط العنق 2.86 > اكثر من ربع ساعه تحرر من المقاومه الثانيه 3.11 > يعطي املا صاعدا ل 3.30 - حاليا سيوله سالب من يمثل ويكمل هذا النموذج فقط سيولة المضارب لذلك > تابع فقط هل يتحقق اليوم او بكرا,PRODUCTION_LEDGER_CITED,,R-W-SPAN,1
+TG_20260905_06,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,هذا دعمه · الازرق فجوة لازم يغطيها,PRODUCTION_LEDGER_CITED,,,1
+TG_20260905_06,AUTHOR_NOT_VISIBLE,FLAG,F,U,هذا دعمه · الازرق فجوة لازم يغطيها,PRODUCTION_LEDGER_CITED,,,1
+TG_20260905_06,DATE_NOT_VISIBLE,FLAG,2026-09-04,,هذا دعمه · الازرق فجوة لازم يغطيها,PRODUCTION_LEDGER_CITED,,,1
