@@ -224,3 +224,12 @@ TG_1854,ROLE,CONTRADICTED,COUNTEREXAMPLE,RULE_EVIDENCE,اللئ دخل معنا 
 TG_1854,TICKER_NOT_VISIBLE,FLAG,SPRC,,اللئ دخل معنا ع 4.50 · حملنا امس ع 4.30 · تشري ع الاختراق اعرف انك خسران · الاختراق فاشل الدخول فيه,V4_VISUAL_PASS,,,1
 TG_1854,DATE_NOT_VISIBLE,FLAG,2026-07-1x,,اللئ دخل معنا ع 4.50 · حملنا امس ع 4.30 · تشري ع الاختراق اعرف انك خسران · الاختراق فاشل الدخول فيه,V4_VISUAL_PASS,,,1
 TG_1863,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,دفعات كل دفعه تقريبا اقل ب 10 سنت مع زيادة الكمية,V4_VISUAL_PASS,,,1
+TG_1866,AUTHOR_NOT_VISIBLE,FLAG,F,U,مسح سيولة الوقف بذيل شمعه,V4_VISUAL_PASS,,,1
+TG_1867,ROLE,CONTRADICTED,COUNTEREXAMPLE,RULE_EVIDENCE,ادنى شمعة سابقه فريم سبوعي او يومي يقاس عليها شمعة الدعم لايمكن تتغير اذا بيصعد السهم لايمكن تكسر اكثر من 10٪ اذا بيصعد السهم · كنا نحقق بالارتكاز 100٪ واكثر باقل من 5 جلسات,V4_VISUAL_PASS,,,1
+TG_1867,AUTHOR_NOT_VISIBLE,FLAG,F,U,ادنى شمعة سابقه فريم سبوعي او يومي يقاس عليها شمعة الدعم لايمكن تتغير اذا بيصعد السهم لايمكن تكسر اكثر من 10٪ اذا بيصعد السهم · كنا نحقق بالارتكاز 100٪ واكثر باقل من 5 جلسات,V4_VISUAL_PASS,,,1
+TG_1867,DATE_NOT_VISIBLE,FLAG,2026-05-09~,,ادنى شمعة سابقه فريم سبوعي او يومي يقاس عليها شمعة الدعم لايمكن تتغير اذا بيصعد السهم لايمكن تكسر اكثر من 10٪ اذا بيصعد السهم · كنا نحقق بالارتكاز 100٪ واكثر باقل من 5 جلسات,V4_VISUAL_PASS,,,1
+TG_1868,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,دايماً تنبهنا بالدخول دفعات الدعم مثلاً 2:50 دخولنا يكون 2:55 2:60 تحرك السهم ندخل بالدفعه الاخيره ولايكون دخولنا بالسيوله كامله,V4_VISUAL_PASS,,,1
+TG_1877,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
+TG_1880,ROLE,CONTRADICTED,COUNTEREXAMPLE,CONTEXT_ONLY,,V4_VISUAL_PASS,,,1
+TG_1888,AUTHOR_NOT_VISIBLE,FLAG,F,U,شمعة هبوط المضارب بعد رفعه · هبوط RSI من المضارب,V4_VISUAL_PASS(via unit TG_1902),,,1
+TG_1888,DATE_NOT_VISIBLE,FLAG,2026-06-16,,شمعة هبوط المضارب بعد رفعه · هبوط RSI من المضارب,V4_VISUAL_PASS(via unit TG_1902),,,1
