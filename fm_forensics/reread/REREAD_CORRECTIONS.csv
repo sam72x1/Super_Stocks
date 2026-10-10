@@ -6,15 +6,15 @@ TG_58386,ROLE,CONTRADICTED,CONTEXT_ONLY,VALIDATION_CASE,,NOT_TRACED,,,1
 TG_58389,TICKER_NOT_VISIBLE,FLAG,CYCU,,,NOT_TRACED,,,1
 TG_58397,ROLE,CONTRADICTED,RULE_EVIDENCE,CONTEXT_ONLY,القاع اللي يقصده قبل الصعود · اسحب عليه ذا ما يعتبر ثبات فاهم قصدي ؟,NOT_TRACED,,,1
 TG_58405,TICKER_NOT_VISIBLE,FLAG,BRTX,,آخر سعر ينخفض إلى 1.50 · 1.60 · 1.71,NOT_TRACED,,,1
-APP_20260918_18_NTCL,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,1
-APP_20260918_18_NTCL,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,1
-APP_20260918_18_NTCL,DATE_NOT_VISIBLE,FLAG,2026-09-15,,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,1
-APP_20260918_19_NTCL,DECISION,CONTRADICTED,WAIT,WATCH,مراقب استراتيجية فيصل · اختبار ناجح · بعيد عن الدعم · أسفل جميع EMA,V4_VISUAL_PASS(via unit TG_57921),,,1
-APP_20260918_19_NTCL,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,مراقب استراتيجية فيصل · اختبار ناجح · بعيد عن الدعم · أسفل جميع EMA,V4_VISUAL_PASS(via unit TG_57921),,,1
-APP_20260918_19_NTCL,DATE_NOT_VISIBLE,FLAG,2026-09-15,,مراقب استراتيجية فيصل · اختبار ناجح · بعيد عن الدعم · أسفل جميع EMA,V4_VISUAL_PASS(via unit TG_57921),,,1
-APP_20260918_50_ZNB,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,V4_VISUAL_PASS(via unit TG_57925),,,1
-APP_20260918_50_ZNB,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,V4_VISUAL_PASS(via unit TG_57925),,,1
-APP_20260918_50_ZNB,DATE_NOT_VISIBLE,FLAG,2026-09-1x,,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,V4_VISUAL_PASS(via unit TG_57925),,,1
+APP_20260918_18_NTCL,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,2
+APP_20260918_18_NTCL,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,2
+APP_20260918_18_NTCL,DATE_NOT_VISIBLE,FLAG,2026-09-15,,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل · السعر خارج نطاق 15% من الدعم,V4_VISUAL_PASS(via unit TG_57923),,,2
+APP_20260918_19_NTCL,DECISION,CONTRADICTED,WAIT,WATCH,مراقب استراتيجية فيصل · اختبار ناجح · بعيد عن الدعم · أسفل جميع EMA,V4_VISUAL_PASS(via unit TG_57921),,,2
+APP_20260918_19_NTCL,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,مراقب استراتيجية فيصل · اختبار ناجح · بعيد عن الدعم · أسفل جميع EMA,V4_VISUAL_PASS(via unit TG_57921),,,2
+APP_20260918_19_NTCL,DATE_NOT_VISIBLE,FLAG,2026-09-15,,مراقب استراتيجية فيصل · اختبار ناجح · بعيد عن الدعم · أسفل جميع EMA,V4_VISUAL_PASS(via unit TG_57921),,,2
+APP_20260918_50_ZNB,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,V4_VISUAL_PASS(via unit TG_57925),,,2
+APP_20260918_50_ZNB,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,V4_VISUAL_PASS(via unit TG_57925),,,2
+APP_20260918_50_ZNB,DATE_NOT_VISIBLE,FLAG,2026-09-1x,,قريب من الجاهزية · ينقصه ثبات يومي جلستين على الأقل,V4_VISUAL_PASS(via unit TG_57925),,,2
 EDU_20260827_dki_group_candle,DECISION,CONTRADICTED,REJECT,NONE,شمعة قروب الشكوى لله · يربح 5 يخسر 50 · هذي نماذج القروبات,V4_VISUAL_PASS,,,1
 EDU_20260827_dki_group_candle,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,شمعة قروب الشكوى لله · يربح 5 يخسر 50 · هذي نماذج القروبات,V4_VISUAL_PASS,,,1
 EDU_20260827_sle_night_4am,DECISION,CONTRADICTED,WAIT,NONE,الظاهر معنا بالقروب همل قروبات من هبوط 10٪ لصعود 4٪ يعني ربح 15٪ · تداول ليلي الساعه 4 الفجر بنصلي مضارب راقد العالم راقده,V4_VISUAL_PASS,,,1
@@ -72,3 +72,31 @@ TG_2181,DECISION,CONTRADICTED,WAIT,NONE,يقاس الدعم بشمعه الهب�
 TG_2181,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,يقاس الدعم بشمعه الهبوط السابقه · يلمسها مره مرتين ماتجاوزها تكون مقاومه >خلاص يهبط ويكون قيعان · تتحول الشمعه بعد الصعود الى دعم اساسي · القرار طبعا في البري · غالبا استثني اسهم شرق اسيا لانها ضخ وتفريغ,V4_VISUAL_PASS,,,1
 TG_2181,TICKER_NOT_VISIBLE,FLAG,BGMS,,يقاس الدعم بشمعه الهبوط السابقه · يلمسها مره مرتين ماتجاوزها تكون مقاومه >خلاص يهبط ويكون قيعان · تتحول الشمعه بعد الصعود الى دعم اساسي · القرار طبعا في البري · غالبا استثني اسهم شرق اسيا لانها ضخ وتفريغ,V4_VISUAL_PASS,,,1
 TG_2187,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,من القاع 1.30 سحب السيوله متعارف عليه من 7٪ ل 13٪ · 1.30-10٪=1.17 · تحت المتابعه · الخطوط تعتبر اهداف مضارب,V4_VISUAL_PASS(via unit IMG_0297),,,1
+TG_2198,DECISION,CONTRADICTED,WAIT,ENTRY,AZI تحرر من 1.36 شيله من العرض باي سعر,V4_VISUAL_PASS(via unit IMG_0290),,,1
+TG_2198,AUTHOR_NOT_VISIBLE,FLAG,F,U,AZI تحرر من 1.36 شيله من العرض باي سعر,V4_VISUAL_PASS(via unit IMG_0290),,,1
+TG_2200,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,1.44 اعلى شمعة بعد التقسيم تقسم ع 2 = 72 وصل 71 سنت · اذا اما المحافظه ع القاع الحالي او سحب سيوله 0.675=0.71-5٪ · اذا سحب السيوله لو لم يحافظ ع القاع مع ارتفاع الشورت يكون من 60 سنت واعلى · الامان متى ثبات 92 دخول مع مضارب انتظار,V4_VISUAL_PASS,,,1
+TG_2200,TICKER_NOT_VISIBLE,FLAG,ONCO,,1.44 اعلى شمعة بعد التقسيم تقسم ع 2 = 72 وصل 71 سنت · اذا اما المحافظه ع القاع الحالي او سحب سيوله 0.675=0.71-5٪ · اذا سحب السيوله لو لم يحافظ ع القاع مع ارتفاع الشورت يكون من 60 سنت واعلى · الامان متى ثبات 92 دخول مع مضارب انتظار,V4_VISUAL_PASS,,,1
+TG_2201,AUTHOR_NOT_VISIBLE,FLAG,F,U,ثبات فوق 92 سنت تحرر السهم,V4_VISUAL_PASS(via unit TG_2196),,,1
+TG_2209,DECISION,CONTRADICTED,WAIT,WATCH,تابعه لين يبقى الشورت تحت 20 الف · اقسم قيمة الشمعه ع 2 · ليست قاعده ولكن تطبق ع 80٪ من الاسهم,V4_VISUAL_PASS(via unit IMG_0150),,,1
+TG_2209,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,تابعه لين يبقى الشورت تحت 20 الف · اقسم قيمة الشمعه ع 2 · ليست قاعده ولكن تطبق ع 80٪ من الاسهم,V4_VISUAL_PASS(via unit IMG_0150),,,1
+TG_2209,TICKER_NOT_VISIBLE,FLAG,WORX,,تابعه لين يبقى الشورت تحت 20 الف · اقسم قيمة الشمعه ع 2 · ليست قاعده ولكن تطبق ع 80٪ من الاسهم,V4_VISUAL_PASS(via unit IMG_0150),,,1
+TG_50586,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,اختبار مقاومه لازم يرجع يختبر الدعم · هذي قواعد ثابته لكل الاسهم,PRODUCTION_LEDGER_CITED,,,1
+TG_50586,AUTHOR_NOT_VISIBLE,FLAG,F,U,اختبار مقاومه لازم يرجع يختبر الدعم · هذي قواعد ثابته لكل الاسهم,PRODUCTION_LEDGER_CITED,,,1
+TG_50592,DECISION,CONTRADICTED,WAIT,WATCH,قريب من الجاهزية · السعر خارج نطاق 15% من الدعم,PRODUCTION_LEDGER_CITED,,,2
+TG_50592,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,قريب من الجاهزية · السعر خارج نطاق 15% من الدعم,PRODUCTION_LEDGER_CITED,,,2
+TG_50592,DATE_NOT_VISIBLE,FLAG,2026-09-2x,,قريب من الجاهزية · السعر خارج نطاق 15% من الدعم,PRODUCTION_LEDGER_CITED,,,2
+TG_50833,DECISION,CONTRADICTED,WAIT,WATCH,اول البري نتابعه كم الضغط وكم الثبات,PRODUCTION_LEDGER_CITED,,,1
+TG_57871,AUTHOR_NOT_VISIBLE,FLAG,F,U,قل ل كلاود الشمعتين الحمراء قاب اذا نزل السهم بينهم وغطاها كويس,PRODUCTION_LEDGER_CITED,,,1
+TG_57873,ROLE,CONTRADICTED,VALIDATION_CASE,RULE_EVIDENCE,الاسود مقاومات 3 مقاومه 2.60 تتحول لدعم في حال الاختراق لاحقا بمعني عدم تجاوز 3 يهبط لاختبار الدعم بعدها يكمل مشواره ع حسب قوة السيوله,PRODUCTION_LEDGER_CITED,,,1
+TG_57875,AUTHOR_NOT_VISIBLE,FLAG,F,U,تحقيق مقاومه 2.64 · قاع · انتظار تحقيق سحب سيوله او ثبات قاع,PRODUCTION_LEDGER_CITED,,,1
+TG_57876,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,مراقبة مبكرة · السعر ليس أسفل EMA20/30/50 اليومية · ينقصه ثبات يومي جلستين على الأقل · الزخم اليومي و4H لم يتحسن بعد,PRODUCTION_LEDGER_CITED,,,1
+TG_57876,DATE_NOT_VISIBLE,FLAG,2026-09-26,,مراقبة مبكرة · السعر ليس أسفل EMA20/30/50 اليومية · ينقصه ثبات يومي جلستين على الأقل · الزخم اليومي و4H لم يتحسن بعد,PRODUCTION_LEDGER_CITED,,,1
+TG_57878,DECISION,CONTRADICTED,WAIT,WATCH,اختبار ناجح · بعيد عن الدعم · الشورت المتاح 100 سهم · نسبة الاقتراض 289.9%,PRODUCTION_LEDGER_CITED,,,1
+TG_57878,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,اختبار ناجح · بعيد عن الدعم · الشورت المتاح 100 سهم · نسبة الاقتراض 289.9%,PRODUCTION_LEDGER_CITED,,,1
+TG_57878,DATE_NOT_VISIBLE,FLAG,2026-09-2x,,اختبار ناجح · بعيد عن الدعم · الشورت المتاح 100 سهم · نسبة الاقتراض 289.9%,PRODUCTION_LEDGER_CITED,,,1
+TG_57880,DECISION,CONTRADICTED,WAIT,WATCH,مراقبة مبكرة · السعر خارج نطاق 15% من الدعم,PRODUCTION_LEDGER_CITED,,,1
+TG_57880,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,مراقبة مبكرة · السعر خارج نطاق 15% من الدعم,PRODUCTION_LEDGER_CITED,,,1
+TG_57880,DATE_NOT_VISIBLE,FLAG,2026-09-2x,,مراقبة مبكرة · السعر خارج نطاق 15% من الدعم,PRODUCTION_LEDGER_CITED,,,1
+TG_57881,AUTHOR_NOT_VISIBLE,FLAG,F,U,القاع 2.26 · سحب السيوله 2 · الاجابيه ثبات اسفل الدعم,PRODUCTION_LEDGER_CITED,,,1
+TG_57882,DECISION,CONTRADICTED,WAIT,WATCH,الشورت المتاح 100 سهم · نسبة الاقتراض 289.9%,PRODUCTION_LEDGER_CITED,,,1
+TG_57882,ROLE,CONTRADICTED,VALIDATION_CASE,CONTEXT_ONLY,الشورت المتاح 100 سهم · نسبة الاقتراض 289.9%,PRODUCTION_LEDGER_CITED,,,1
