@@ -3,28 +3,28 @@
 > مولَّدٌ من `reread_build.py` — لا يُحرَّر باليد · `--check` يعيده بايتًا.
 
 - **الصورُ على القرص:** 772 · صفوفُ الجدول الموروث: 772
-- **قُرئت بالعين في هذه المهمّة:** 577 من 772 — **التغطيةُ غيرُ مكتملة: لا يُقال إن التدقيق اكتمل**
+- **قُرئت بالعين في هذه المهمّة:** 593 من 772 — **التغطيةُ غيرُ مكتملة: لا يُقال إن التدقيق اكتمل**
 - **مراجعاتُ سجلّاتٍ سابقة (rev):** 15
 
 | الحالة | العدد |
 |---|---|
-| `NOT_YET_REVIEWED` | 195 |
-| `DUPLICATE` | 114 |
-| `CONTRADICTED` | 196 |
+| `NOT_YET_REVIEWED` | 179 |
+| `DUPLICATE` | 119 |
+| `CONTRADICTED` | 198 |
 | `UNKNOWN` | 0 |
-| `PARTIALLY_READABLE` | 4 |
+| `PARTIALLY_READABLE` | 6 |
 | `INFERRED` | 0 |
-| `VERIFIED_VISUAL` | 263 |
+| `VERIFIED_VISUAL` | 270 |
 
 | العلم/الحقل (مقابل الموروث) | النوع | العدد |
 |---|---|---|
 | `AUTHOR` | CONTRADICTED | 1 |
-| `AUTHOR_NOT_VISIBLE` | FLAG | 261 |
+| `AUTHOR_NOT_VISIBLE` | FLAG | 274 |
 | `DATE` | CONTRADICTED | 1 |
 | `DATE_MD_DIFFERS` | FLAG | 3 |
-| `DATE_NOT_VISIBLE` | FLAG | 361 |
+| `DATE_NOT_VISIBLE` | FLAG | 369 |
 | `DECISION` | CONTRADICTED | 62 |
-| `ROLE` | CONTRADICTED | 205 |
-| `TICKER_NOT_VISIBLE` | FLAG | 42 |
+| `ROLE` | CONTRADICTED | 208 |
+| `TICKER_NOT_VISIBLE` | FLAG | 45 |
 
-- أعلامٌ على صفوف السجلّ: 667
+- أعلامٌ على صفوف السجلّ: 691
