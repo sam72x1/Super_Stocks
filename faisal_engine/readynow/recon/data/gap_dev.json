@@ -1,0 +1,83 @@
+{
+ "window": [
+  "2025-05-01",
+  "2025-12-31"
+ ],
+ "lookback": 120,
+ "gap_min_pct": 3.0,
+ "evaluable": 67788,
+ "base_rate_D1": 0.0302,
+ "gap_count_distribution": {
+  "0": 54119,
+  "1": 10399,
+  "2": 2207,
+  "3": 653,
+  "4": 348,
+  "5": 62
+ },
+ "nearest_q25_q50_q75": [
+  38.2,
+  90.7,
+  187.3
+ ],
+ "GAP_ANY": {
+  "share_flagged": 0.2016,
+  "rate": 0.0299,
+  "lift": 0.989,
+  "matched": {
+   "pairs": 7087,
+   "unmatched": 6582,
+   "flag_rate": 0.0275,
+   "ctrl_rate": 0.0305,
+   "ratio": 0.903,
+   "ci95": [
+    0.678,
+    1.17
+   ],
+   "balance_median_dist": [
+    13.44,
+    13.6
+   ]
+  }
+ },
+ "GAP_FAR70": {
+  "share_flagged": 0.1188,
+  "rate": 0.0327,
+  "lift": 1.08,
+  "matched": {
+   "pairs": 4497,
+   "unmatched": 3556,
+   "flag_rate": 0.0322,
+   "ctrl_rate": 0.0294,
+   "ratio": 1.098,
+   "ci95": [
+    0.771,
+    1.539
+   ],
+   "balance_median_dist": [
+    13.0,
+    13.28
+   ]
+  }
+ },
+ "GAP_BIG": {
+  "share_flagged": 0.0524,
+  "rate": 0.0388,
+  "lift": 1.284,
+  "matched": {
+   "pairs": 2114,
+   "unmatched": 1441,
+   "flag_rate": 0.0355,
+   "ctrl_rate": 0.0284,
+   "ratio": 1.25,
+   "ci95": [
+    0.743,
+    1.957
+   ],
+   "balance_median_dist": [
+    15.245000000000001,
+    15.0
+   ]
+  }
+ }
+}

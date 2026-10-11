@@ -1,0 +1,54 @@
+{
+ "run": "2026-10-11",
+ "harness": "faisal_engine/readynow/recon/recon_mutate.py",
+ "result": [
+  [
+   "RM1 the detection label censors with MAXGAP",
+   "fell: RC1,RC2,RC7",
+   "clean",
+   "expected RC1"
+  ],
+  [
+   "RM2 the anchor window shifts one session earlier",
+   "fell: RC2,RC3",
+   "clean",
+   "expected RC3"
+  ],
+  [
+   "RM3 the symbol exclusion is not recorded",
+   "fell: RC2,RC4",
+   "clean",
+   "expected RC4"
+  ],
+  [
+   "RM4 ROOM discovery reads the holdout",
+   "fell: RC5,RC7",
+   "clean",
+   "expected RC5"
+  ],
+  [
+   "RM5 ROOM swing highs see two future sessions",
+   "fell: RC6",
+   "clean",
+   "expected RC6"
+  ],
+  [
+   "RM6 GAP_BIG threshold drifts to 25%",
+   "fell: RC7",
+   "clean",
+   "expected RC7"
+  ],
+  [
+   "RM7 the event period starts at D1 again (ignores an earlier +70% close)",
+   "fell: RC1,RC2,RC7",
+   "clean",
+   "expected RC1"
+  ],
+  [
+   "recon/data unchanged after the round",
+   "True",
+   "",
+   ""
+  ]
+ ]
+}

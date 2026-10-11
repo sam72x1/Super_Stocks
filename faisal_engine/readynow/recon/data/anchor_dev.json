@@ -1,0 +1,97 @@
+{
+ "window": [
+  "2025-05-01",
+  "2025-12-31"
+ ],
+ "rows": 69794,
+ "lab": {
+  "evaluable": 63708,
+  "base": 0.0306,
+  "rules": {
+   "RSI30": {
+    "flagged": 7366,
+    "rate": 0.0475,
+    "raw_lift": 1.551
+   },
+   "RSI33": {
+    "flagged": 11697,
+    "rate": 0.0433,
+    "raw_lift": 1.412
+   },
+   "TC_TECH": {
+    "flagged": 2200,
+    "rate": 0.0505,
+    "raw_lift": 1.647
+   },
+   "RN_A": {
+    "flagged": 4454,
+    "rate": 0.0505,
+    "raw_lift": 1.649
+   },
+   "APP_POS": {
+    "flagged": 23033,
+    "rate": 0.0329,
+    "raw_lift": 1.074
+   },
+   "NEAR15": {
+    "flagged": 33949,
+    "rate": 0.0314,
+    "raw_lift": 1.024
+   },
+   "BOUNCE10_40": {
+    "flagged": 32311,
+    "rate": 0.0329,
+    "raw_lift": 1.074
+   }
+  }
+ },
+ "labd": {
+  "evaluable": 67788,
+  "base": 0.0302,
+  "rules": {
+   "RSI30": {
+    "flagged": 7590,
+    "rate": 0.0398,
+    "raw_lift": 1.316
+   },
+   "RSI33": {
+    "flagged": 12069,
+    "rate": 0.0362,
+    "raw_lift": 1.197
+   },
+   "TC_TECH": {
+    "flagged": 2314,
+    "rate": 0.0328,
+    "raw_lift": 1.086
+   },
+   "RN_A": {
+    "flagged": 4565,
+    "rate": 0.0429,
+    "raw_lift": 1.42
+   },
+   "APP_POS": {
+    "flagged": 23702,
+    "rate": 0.0281,
+    "raw_lift": 0.928
+   },
+   "NEAR15": {
+    "flagged": 34794,
+    "rate": 0.026,
+    "raw_lift": 0.859
+   },
+   "BOUNCE10_40": {
+    "flagged": 33814,
+    "rate": 0.029,
+    "raw_lift": 0.96
+   }
+  }
+ },
+ "D1_positives_inside_run_at_t": 0.4546,
+ "agreement_on_rows_evaluable_under_both": {
+  "rows": 63708,
+  "pos_L_and_D1": 425,
+  "pos_L_only": 1527,
+  "pos_D1_only": 612,
+  "D1_pos_rows_IN_EVENT_under_L": 1013
+ }
+}
