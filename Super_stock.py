@@ -10829,6 +10829,21 @@ def build_hand_digest(wl: dict, history: dict) -> str:
     return _rtl_join(lines)
 
 
+def _cycle_sweep_reclaimed(pc) -> bool:
+    """هل في **الدورة الحاليّة** مسحُ سيولةٍ تحت القاع ثمّ استعادة؟ من مُخرَج `pivot_cycle_state` وحدَه:
+    المرحلةُ 3 أو 4 · الفرعُ «sweep» · والإغلاقُ الأخير عند القاع أو فوقه (`vs_bottom_pct` صفر فأكثر).
+    مجهولٌ/ناقص ⟵ False (لا يُدّعى مسحٌ بلا دليلٍ حاليّ). نقيّة · فاشلةٌ-آمنة (2026-10-11 · RNC1-RNC4)."""
+    try:
+        if not isinstance(pc, dict) or pc.get("branch") != "sweep":
+            return False
+        if int(pc.get("stage") or 0) < 3:
+            return False
+        vb = pc.get("vs_bottom_pct")
+        return vb is not None and float(vb) >= 0.0
+    except (TypeError, ValueError):
+        return False
+
+
 def build_interpretation(r: dict) -> dict:
     """🧭 طبقة التفسير والقرار (خطة INTERPRETATION_LAYER_PLAN.md، 2026-07-05 — **عرض/تفسير
     فقط**: لا تمسّ الفرز/الدخول/الوقف/الأهداف/العضوية · لا LOGIC_VERSION). تقرأ حقول r
@@ -10859,11 +10874,16 @@ def build_interpretation(r: dict) -> dict:
         top_tr = max(trs) if trs else price
 
         # ---- setup_type
+        # 🟢 «مسح سيولة» = مسحٌ **في الدورة الحاليّة ثمّ استعادة** (2026-10-11 · RNC1-RNC4): كان الشرطُ
+        #    `behav.sweeps >= 1 and h4l.sweep_low` — عدُّ المسوح في **تاريخ السهم كلِّه** و`min` شموع 4 ساعات
+        #    (**موجبٌ دائمًا** · سابقةُ خطة 018) ⇒ «بعد مسح مؤكَّد» على 46 من 55 «جاهزًا» مقيسًا (35 بلا مسحٍ في الدورة · 11 لم يستعد القاع).
+        #    الآن من `pivot_cycle_state` (دورةُ فيصل `TG_50584` بحدّ `PIVOT_SWEEP_PCT`): المرحلةُ 3 فأكثر · الفرعُ
+        #    sweep · والإغلاقُ عند القاع أو فوقه (الاستعادة). **وصفٌ لا قرار:** «جاهز/متابعة» لا يتغيّر بالوسم.
         if price < pivot * 0.995:
             setup = "support_reclaim"
         elif price > top_tr * 1.05:
             setup = "extended_risk"
-        elif behav.get("sweeps", 0) >= 1 and h4l.get("sweep_low"):
+        elif _cycle_sweep_reclaimed(r.get("pivot_cycle")):
             setup = "liquidity_sweep"
         elif h4l.get("flip") and abs(h4l["flip"] / price - 1.0) <= 0.05:
             setup = "h4_reclaim"
@@ -14866,9 +14886,17 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
     الستوب أولاً = افتراض محافظ (إلا إذا تحقق هدف قبله).
     يرجع قائمة المشطوبين في هذا التشغيل."""
     today_iso = dt.date.today().isoformat()
+    # 🟢 حداثةُ السعر لقرار «جاهز» (2026-10-11 · RNF1-RNF4): 8 من 228 «جاهزًا» (08-18 · 09-23 · 10-07) بُنيت على
+    #    شمعةٍ أقدمَ من آخر جلسةٍ مكتملة. التعريفُ **`data_quality.freshness` نفسُه** وجلستُه المتوقَّعة (`last_closed_session`)
+    #    كبوّابة المخرَج · وخلف `DQ_GATE` نفسِه: مطفأ ⟵ لا حقلَ يُكتب (بت-بت). `entry_status` يقرأ الحالةَ بسياستها.
+    import data_quality as _DQf
+    _dq_on = _DQf.enabled()
+    _dq_exp = last_closed_session() if _dq_on else None
     for s in [x for x in wl["stocks"] if x["status"] == "active"]:
         df = history.get(s["symbol"])
         if df is None or len(df) == 0:
+            if _dq_on:
+                s["price_state"] = _DQf.INCOMPLETE          # لا شمعةَ لهذه الجلسة ⟵ لا «جاهز» على سعرٍ قديم
             _note(wl, s["symbol"], "تعذر جلب بياناته (تداول موقوف؟)",
                   family="لا بيانات")
             continue
@@ -14883,6 +14911,12 @@ def update_watchlist_status(wl: dict, history: dict) -> list:
         except Exception:
             ref_bar = added
         s["last_price"] = round(float(df["Close"].iloc[-1]), 4)
+        if _dq_on:
+            try:
+                _fst, _fin = _DQf.freshness(df, _dq_exp)
+                s["price_state"], s["price_bar"] = _fst, _fin.get("last_bar")
+            except Exception:                                    # noqa: BLE001
+                pass
         _nf8_track(s, df)          # 🪑 NF8: تتبّع لمس نطاق الدفعات (T-SLOT)
         # §10: خط الترند يُعاد حسابه من بيانات اليوم (الخط الهابط ينزل يوميًا).
         # ⚠️ الإسناد **بلا شرط عمدًا**: None اليوم = الخط مات → يجب أن يختفي من
@@ -15230,6 +15264,18 @@ def entry_status(s: dict) -> dict:
       {"status": "ready_now"|"watch", "label": "🟢 جاهز للدخول الآن"|"👀 متابعة",
        "reason": نص عربي مبسّط (فارغ للجاهز)}"""
     try:
+        # 🟢 حداثةُ السعر (2026-10-11 · RNF1): سعرٌ من شمعةٍ أقدمَ من آخر جلسةٍ مكتملة أو بلا بياناتٍ لهذه الجلسة
+        #    ⟵ «متابعة» لا «جاهز الآن». الحالةُ من `update_watchlist_status` بتعريف `data_quality.freshness` والقرارُ
+        #    سياستُها (STALE/INCOMPLETE = block) · وبلا حقلٍ أو `DQ_GATE=0` ⟵ بت-بت.
+        _ps = s.get("price_state")
+        if _ps:
+            import data_quality as _DQf
+            if _DQf.enabled() and _DQf.policy_map().get(_ps) in ("block", "quarantine"):
+                _pb = s.get("price_bar")
+                return {"status": "watch", "label": "👀 متابعة",
+                        "reason": ("بيانات آخر جلسة غير متاحة"
+                                   + (f" (آخر شمعة {_pb})" if _pb else "")
+                                   + " — لا يُحكم بالجاهزية على سعرٍ قديم")}
         em = (s.get("interp") or {}).get("entry_mode") or {}
         mode = em.get("mode")
         reason = em.get("reason") or ""

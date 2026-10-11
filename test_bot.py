@@ -9262,7 +9262,10 @@ _ir = {"symbol": "TST", "price": 1.85, "pivot": 1.80, "tier": "B",
                       "res_major": 2.45},
        "h4_levels": {"resistances": [2.05, 2.4], "supports": [1.78], "flip": 1.82,
                      "sweep_low": 1.66},
-       "behav": {"sweeps": 2}, "warnings": ["⚠️ خبر تخفيف محتمل"]}
+       "behav": {"sweeps": 2}, "warnings": ["⚠️ خبر تخفيف محتمل"],
+       # 🔄 تحديثٌ إقراريّ 2026-10-11 (RNC1-RNC4): «مسح سيولة» صار يقرأ مسحَ **الدورة الحاليّة** ثمّ الاستعادة
+       #    (`pivot_cycle_state`) لا عدَّ المسوح في التاريخ كلِّه — فالفِكستشرُ يحمل الدورةَ التي يصفها اسمُه.
+       "pivot_cycle": {"stage": 3, "branch": "sweep", "sweep_pct": 6.0, "vs_bottom_pct": 2.8}}
 _ip = S.build_interpretation(_ir)
 check("التفسير: يُنتج الحقول الأساسية (نوع/رقم حرج/تفعيل/دخول/خطر/أدوار)",
       all(k in _ip for k in ("setup_type", "critical_number", "activation_state",
@@ -47905,7 +47908,9 @@ _FB_ROOT_FP = {
     "apply_short_gate": "6c3abbe6830c", "apply_float_gate": "750a84d4c2c5",
     "scan_market": "61552990c603", "backtest_symbol": "ee2379df02ea",
     "scan_ignition": "bf59c3a495ba", "scan_split_hunter": "1c6d651d25b5",
-    "entry_status": "a9f12435b523", "build_interpretation": "792fe1aab01b",
+    # 🔄 تحديثٌ إقراريّ 2026-10-11 (مهمّةُ المالك «READY NOW» · عطلان مُثبَتان): `entry_status` a9f12435b523 ⟵ حداثةُ السعر
+    #    (`RNF1`-`RNF4`) · `build_interpretation` 792fe1aab01b ⟵ «مسح سيولة» من الدورة الحاليّة (`RNC1`-`RNC5`) — والعشرةُ الأخرى بت-بت.
+    "entry_status": "9f8dc3bf522e", "build_interpretation": "6f3fb76f89b6",
 }
 _fb_now = {k: _fb_hash.sha256(_fb_ast.dump(v).encode()).hexdigest()[:12]
            for k, v in _fb_defs.items() if k in _FB_ROOT_FP}
@@ -60697,8 +60702,11 @@ def _pc_mentions(node):
     return n
 
 
+# 🔄 تحديثٌ إقراريّ 2026-10-11 (RNC1-RNC5): `build_interpretation` تقرأ `pivot_cycle` **قراءةً واحدةً بالضبط** لوسم «مسح سيولة»
+#    (المسحُ الحاليّ بدل العدّ التاريخيّ) — وسمٌ لا قرار: `RNC4` يُثبت أن «جاهز/متابعة» لا يتغيّر به. والجذورُ العشرةُ الأخرى كما هي.
 _pc5_leak = [r for r in _PC_ROOTS
-             if r != "scan_market" and r in _pc_defs and _pc_mentions(_pc_defs[r])]
+             if r != "scan_market" and r in _pc_defs
+             and _pc_mentions(_pc_defs[r]) != (1 if r == "build_interpretation" else 0)]
 _pc5_missing = [r for r in _PC_ROOTS if r not in _pc_defs]
 _pc5_calls = [x for x in _pc_ast.walk(_pc_defs.get("scan_market", _pc_tree))
               if isinstance(x, _pc_ast.Call) and getattr(x.func, "id", None) == "pivot_cycle_state"]
@@ -87364,6 +87372,195 @@ try:
 except Exception as _e:                                            # noqa: BLE001
     _ok10, _w10 = False, f"⛔ {type(_e).__name__}: {_e}"
 check("👁️ RR10 الاستلامُ الأماميّ: صورةٌ بعد اللقطة لا تغيّر المحفوظ وتُعَدّ «واردةً غيرَ مقروءة» · وبسجلّ عينٍ تدخل · والموروثُ الغائبُ يُسقط", _ok10, _w10)
+
+# ═══════════════════════════════════════════════════════════════════════════════════════════════════════
+# 🟢 RNF1-RNF4 · RNC1-RNC5 — «جاهز للدخول الآن» (READY NOW): **حداثةُ السعر** و**المسحُ الحاليّ لا التاريخيّ**
+#    (2026-10-11 · مهمّةُ المالك «READY NOW» · عطلان مُثبَتان من لقطات `weekly_watchlist.json` على main):
+#    ① RNF — 8 من 228 حالةَ «جاهز» (46 تشغيلةً يوميّة منذ 2026-08-08) بُنيت على شمعةٍ أقدمَ من آخر جلسةٍ مكتملة
+#       (08-18 · 09-23 · 10-07: «آخرُ شمعة» 08-14 · 09-21 · 10-05) — `entry_status` لم يكن يسأل عن حداثة السعر،
+#       والتعريفُ القائم للقِدَم هو `data_quality.freshness` وسياستُه (STALE/INCOMPLETE = block) ⇒ يُعاد استعمالُه بالاسم
+#       وخلف `DQ_GATE` نفسِه (مطفأ ⟵ بت-بت).
+#    ② RNC — «🧭 الإعداد: مسح سيولة · الدخول: بعد مسح مؤكَّد» كان شرطُه `behav.sweeps >= 1` (عدُّ المسوح في **تاريخ
+#       السهم كلِّه**) و`h4_levels.sweep_low` (‏`min` شموع 4 ساعات = **رقمٌ موجبٌ دائمًا** — سابقةُ خطة 018) ⇒ 35 من 55
+#       حالةَ «جاهز» مقيسة وُسمت «بعد مسح مؤكَّد» بلا مسحٍ في الدورة الحاليّة عند `pivot_cycle_state` نفسِها. والإصلاح:
+#       الوسمُ يتبع **مسحَ الدورة الحاليّة واستعادتَه** (‏`stage` 3 فأكثر · `branch` = sweep · الإغلاقُ عند القاع أو فوقه) —
+#       **وقرارُ «جاهز/متابعة» لا يتغيّر بالوسم** (الفرعان جاهزان بالبناء) فالإصلاحُ يصدّق الادّعاءَ ولا يمسّ العضويّة.
+import data_quality as _rn_DQ                                     # noqa: E402
+
+
+def _rn_dq(on, fn):
+    _prev = _os_hc.environ.get("DQ_GATE")
+    _os_hc.environ["DQ_GATE"] = "1" if on else "0"
+    try:
+        return fn()
+    finally:
+        if _prev is None:
+            _os_hc.environ.pop("DQ_GATE", None)
+        else:
+            _os_hc.environ["DQ_GATE"] = _prev
+
+
+def _rn_es(rec, on=True):
+    try:
+        return _rn_dq(on, lambda: S.entry_status(rec))
+    except Exception as _e:                                       # noqa: BLE001
+        return {"status": f"⛔ {type(_e).__name__}", "reason": ""}
+
+
+_rn_base = _wl_entry("RNA", "near_support")                       # السعرُ 2.0 داخل الدفعات [1.9 · 2.0]
+_rn_stale = dict(_rn_base, price_state=_rn_DQ.STALE, price_bar="2026-10-08")
+_rn_inc = dict(_rn_base, price_state=_rn_DQ.INCOMPLETE)
+_rn_valid = dict(_rn_base, price_state=_rn_DQ.VALID, price_bar="2026-10-09")
+_rn_closed = dict(_rn_base, price_state=_rn_DQ.MARKET_CLOSED)
+_rnf1_s, _rnf1_i = _rn_es(_rn_stale), _rn_es(_rn_inc)
+_rnf1_v, _rnf1_n, _rnf1_c = _rn_es(_rn_valid), _rn_es(_rn_base), _rn_es(_rn_closed)
+check("🟢 RNF1: سعرٌ **قديم** (آخرُ شمعةٍ أقدمُ من آخر جلسةٍ مكتملة) أو **غائب** ⟵ «متابعة» لا «جاهز» — وسببُه يسمّي الشمعة · "
+      "والطازجُ والمجهولُ الحقلِ (سجلٌّ لم يُحدَّث بعد) و«السوقُ مغلقٌ بلا جلسةٍ معروفة» (سياسةُ warn) ⟵ جاهزٌ كما كان",
+      _rnf1_s["status"] == "watch" and "2026-10-08" in _rnf1_s["reason"]
+      and _rnf1_i["status"] == "watch"
+      and _rnf1_v["status"] == "ready_now" and _rnf1_n["status"] == "ready_now"
+      and _rnf1_c["status"] == "ready_now",
+      f"stale={_rnf1_s} inc={_rnf1_i['status']} valid={_rnf1_v['status']} none={_rnf1_n['status']} closed={_rnf1_c['status']}")
+_rnf2 = _rn_es(_rn_stale, on=False)
+check("🟢 RNF2: `DQ_GATE=0` ⟵ **بت-بت**: السعرُ القديمُ نفسُه «جاهز» كما قبل الإصلاح (المفتاحُ نفسُه الذي يطفئ بوّابةَ سلامة البيانات)",
+      _rnf2["status"] == "ready_now", str(_rnf2))
+
+
+def _rn_df(last_day, n=120):
+    """شموعٌ مسطّحةٌ حول 2.0 (داخل دفعات `_wl_entry` · فوق وقفها 1.75) تنتهي يومَ `last_day`."""
+    _ix = pd.bdate_range(end=last_day, periods=n)
+    return pd.DataFrame({"Open": [2.0] * n, "High": [2.04] * n, "Low": [1.96] * n,
+                         "Close": [2.0] * n, "Volume": [4e5] * n}, index=_ix)
+
+
+def _rn_update(hist, on=True):
+    _wl = {"week_start": "2026-10-05", "removed": [], "notes": [],
+           "stocks": [dict(_wl_entry(s, "near_support"), symbol=s) for s in ("RNO", "RNN", "RNM")]}
+    _lcs0, _fs0 = S.last_closed_session, S._fetch_splits_dq
+    S.last_closed_session = lambda *a, **k: "2026-10-09"
+    S._fetch_splits_dq = lambda *a, **k: []                        # لا شبكة: التقسيمُ خارج هذا القفل
+    try:
+        _rn_dq(on, lambda: S.update_watchlist_status(_wl, hist))
+    except Exception as _e:                                       # noqa: BLE001
+        return {"⛔": type(_e).__name__}
+    finally:
+        S.last_closed_session, S._fetch_splits_dq = _lcs0, _fs0
+    return {x["symbol"]: (x.get("price_state"), x.get("price_bar")) for x in _wl["stocks"]}
+
+
+_rnf3 = _rn_update({"RNO": _rn_df("2026-10-08"), "RNN": _rn_df("2026-10-09")})
+_rnf3_off = _rn_update({"RNO": _rn_df("2026-10-08"), "RNN": _rn_df("2026-10-09")}, on=False)
+check("🟢 RNF3: التحديثُ اليوميّ يكتب حداثةَ السعر **بتعريف `data_quality.freshness` نفسِه** مقابل آخر جلسةٍ مكتملة: "
+      "آخرُ شمعةٍ أمسُ ⟵ STALE · شمعةُ الجلسة ⟵ VALID · بلا بيانات ⟵ INCOMPLETE · والمفتاحُ مطفأ ⟵ صفرُ حقلٍ جديد",
+      _rnf3.get("RNO") == (_rn_DQ.STALE, "2026-10-08") and _rnf3.get("RNN") == (_rn_DQ.VALID, "2026-10-09")
+      and (_rnf3.get("RNM") or (None,))[0] == _rn_DQ.INCOMPLETE
+      and all(v == (None, None) for v in _rnf3_off.values()),
+      f"on={_rnf3} off={_rnf3_off}")
+_rnf4_wl = {"week_start": "2026-10-05", "removed": [], "notes": [], "stocks": [
+    dict(_rn_valid, symbol="RNV"), dict(_rn_stale, symbol="RNS")]}
+try:
+    _rnf4 = _rn_dq(True, lambda: S.build_daily_message(_rnf4_wl, [], [], [], ready_only=True))
+except Exception as _e:                                           # noqa: BLE001
+    _rnf4 = f"⛔ {type(_e).__name__}"
+check("🟢 RNF4: الرسالةُ اليوميّة (الجاهزُ وحدَه) **لا تدفع كرتَ سهمٍ سعرُه قديم** — العدّادُ «1 جاهز» والطازجُ وحدَه بكرته",
+      "🟢 1 جاهز للدخول" in _rnf4 and "$RNV" in _rnf4 and "$RNS" not in _rnf4, _rnf4[:160])
+
+_rnc_base = dict(_ir)                                              # فِكستشرُ التفسير أعلاه (مسوحٌ تاريخيّةٌ 2 · sweep_low موجود)
+_rnc_base.pop("pivot_cycle", None)
+
+
+def _rn_ip(**kw):
+    try:
+        return S.build_interpretation(dict(_rnc_base, **kw))
+    except Exception as _e:                                       # noqa: BLE001
+        return {"setup_type": f"⛔ {type(_e).__name__}", "entry_mode": {}}
+
+
+_rnc1 = _rn_ip()
+check("🟢 RNC1: مسحٌ **تاريخيّ** وحدَه (`behav.sweeps` في تاريخ السهم كلِّه · و`sweep_low` = أدنى قاع 4 ساعات الموجودُ دائمًا) "
+      "**لا يُسمّى** «مسح سيولة · بعد مسح مؤكَّد» — لا مسحَ في الدورة الحاليّة",
+      _rnc1.get("setup_type") != "liquidity_sweep"
+      and (_rnc1.get("entry_mode") or {}).get("mode") != "sweep_confirmed",
+      f"{_rnc1.get('setup_type')} / {(_rnc1.get('entry_mode') or {}).get('mode')}")
+_rnc2 = _rn_ip(pivot_cycle={"stage": 3, "branch": "sweep", "sweep_pct": 6.0, "vs_bottom_pct": 2.8})
+_rnc2b = _rn_ip(pivot_cycle={"stage": 4, "branch": "sweep", "sweep_pct": 6.0, "vs_bottom_pct": 0.0})
+check("🟢 RNC2: مسحٌ **في الدورة الحاليّة ثمّ استعادة** (`pivot_cycle_state`: المرحلةُ 3 أو 4 · الفرعُ sweep · الإغلاقُ عند القاع "
+      "أو فوقه) ⟵ «مسح سيولة · بعد مسح مؤكَّد»",
+      _rnc2.get("setup_type") == "liquidity_sweep" and _rnc2["entry_mode"]["mode"] == "sweep_confirmed"
+      and _rnc2b.get("setup_type") == "liquidity_sweep",
+      f"{_rnc2.get('setup_type')} / {_rnc2b.get('setup_type')}")
+_rnc3 = [_rn_ip(pivot_cycle=pc).get("setup_type") for pc in (
+    {"stage": 3, "branch": "sweep", "sweep_pct": 6.0, "vs_bottom_pct": -1.5},   # ما زال تحت القاع (لا استعادة)
+    {"stage": 3, "branch": "hold", "sweep_pct": 0.0, "vs_bottom_pct": 3.0},     # اختبارٌ بلا مسح
+    {"stage": 2, "branch": None, "sweep_pct": 0.0, "vs_bottom_pct": 9.0},        # لم يرجع يختبر القاع بعد
+    # عقدُ المرحلة صريحٌ ولو جاء الفرعُ قبلها: `pivot_cycle_state` لا يكتب الفرعَ إلا من المرحلة 3 فالحارسُ خامدٌ معه —
+    # فيُقفَل بمُدخَلٍ اصطناعيّ لا يُنتجه المُنتِجُ الحاليّ (طفرةُ حذف شرط المرحلة نجت بدونه · 2026-10-11)
+    {"stage": 2, "branch": "sweep", "sweep_pct": 6.0, "vs_bottom_pct": 3.0})]
+check("🟢 RNC3: الأقرب المعاكس لا يُسمّى مسحًا: مسحٌ **لم يُستعَد** (الإغلاقُ تحت القاع) · اختبارٌ **بثبات** · ارتدادٌ **لم يختبر القاع** "
+      "· وفرعُ مسحٍ **قبل المرحلة 3** (عقدُ المرحلة صريح)",
+      all(x != "liquidity_sweep" for x in _rnc3), str(_rnc3))
+_rnc4 = [_rn_es(dict(_rn_base, interp=_ip), on=False)["status"] for _ip in (_rnc1, _rnc2)]
+# والثباتُ على **كلّ** تراكيب الدورة (المرحلة 0-4 × الفرع × الإغلاق تحت/عند/فوق القاع) وثلاثة أسعار (تحت الدعم · داخل الدفعات
+# · فوقها بعيدًا): قرارُ `entry_status` مع الدورة = قرارُه بلاها — الوسمُ يصدق أو يُحذف ولا يُدخل سهمًا «جاهز» ولا يُخرجه.
+_rnc4_grid = []
+for _px in (1.70, 1.85, 2.20):
+    _st0 = _rn_es(dict(_rnc_base, price=_px, interp=_rn_ip(price=_px)), on=False)["status"]
+    for _stg in range(5):
+        for _br in (None, "hold", "sweep"):
+            for _vb in (-5.0, 0.0, 5.0):
+                _pc = {"stage": _stg, "branch": _br, "sweep_pct": 4.0, "vs_bottom_pct": _vb}
+                _st1 = _rn_es(dict(_rnc_base, price=_px, interp=_rn_ip(price=_px, pivot_cycle=_pc)),
+                              on=False)["status"]
+                if _st1 != _st0:
+                    _rnc4_grid.append((_px, _stg, _br, _vb, _st0, _st1))
+_rnc4_hand = [any(e.get("sign") == "مسح واستعادة الآن" for e in S.hand_evidence(dict(_rnc_base, interp=_ip)))
+              for _ip in (_rnc1, _rnc2)]
+check("🟢 RNC4: الوسمُ **لا يغيّر قرار الجاهزيّة** (الحالتان «جاهز» بموقع السعر نفسِه) · و«مسح واستعادة الآن» في علامات اليد "
+      "يتبع المسحَ الحاليّ وحدَه",
+      _rnc4 == ["ready_now", "ready_now"] and _rnc4_hand == [False, True] and not _rnc4_grid,
+      f"{_rnc4} {_rnc4_hand} grid_diff={_rnc4_grid[:3]}")
+_rnc5_t = _ast0.parse(_insp0.getsource(HC))
+_rnc5_pos = {}
+for _n in _ast0.walk(_rnc5_t):
+    if isinstance(_n, _ast0.Assign) and len(_n.targets) == 1 and isinstance(_n.targets[0], _ast0.Subscript):
+        _k = getattr(_n.targets[0].slice, "value", None)
+        if _k in ("pivot_cycle", "interp") and isinstance(_n.value, _ast0.Call):
+            _fn = getattr(_n.value.func, "attr", "")
+            if _fn in ("pivot_cycle_state", "build_interpretation"):
+                _rnc5_pos.setdefault(_k, []).append(_n.lineno)
+check("🟢 RNC5: فحصُ اليد يحسب دورةَ الارتكاز **قبل** التفسير (‏AST) — وإلّا لا يرى التفسيرُ المسحَ الحاليّ فيخالف كرتَ البوت",
+      bool(_rnc5_pos.get("pivot_cycle")) and bool(_rnc5_pos.get("interp"))
+      and min(_rnc5_pos["pivot_cycle"]) < min(_rnc5_pos["interp"]), str(_rnc5_pos))
+
+
+def _rnc6_order(fn):
+    """أسطرُ إسناد `[...]["pivot_cycle"]` و`[...]["interp"]` ونداء `render_ondemand` داخل الدالّة (‏AST)."""
+    _pos = {}
+    for _n in _ast0.walk(_ast0.parse(_insp0.getsource(fn))):
+        if isinstance(_n, _ast0.Assign) and len(_n.targets) == 1 and isinstance(_n.targets[0], _ast0.Subscript) \
+                and isinstance(_n.value, _ast0.Call):
+            _k = getattr(_n.targets[0].slice, "value", None)
+            if _k in ("pivot_cycle", "interp") and getattr(_n.value.func, "attr", "") in ("pivot_cycle_state",
+                                                                                            "build_interpretation"):
+                _pos.setdefault(_k, []).append(_n.lineno)
+        if isinstance(_n, _ast0.Call) and getattr(_n.func, "id", None) == "render_ondemand":
+            _pos.setdefault("render", []).append(_n.lineno)
+    return _pos
+
+
+# RNC6 — الفحصُ اليدويّ والتقريرُ الفنيّ كانا يبنيان التفسيرَ من `behav` (المسحُ في عمر السهم) فيوافقان الكرتَ في الوسم الخاطئ ·
+#        وبعد RNC1 بلا الدورة لن يريا مسحًا حاليًّا أبدًا فيخالفان كرتَ البوت ⟵ الدورةُ قبل كلّ تفسيرٍ فيهما (2026-10-11)
+try:
+    _rnc6_ao, _rnc6_tr = _rnc6_order(_AO.main), _rnc6_order(TR.pivot_depth_section)
+    _rnc6_ok = (bool(_rnc6_ao.get("pivot_cycle")) and bool(_rnc6_ao.get("interp")) and bool(_rnc6_ao.get("render"))
+                and min(_rnc6_ao["pivot_cycle"]) < min(_rnc6_ao["interp"] + _rnc6_ao["render"])
+                and bool(_rnc6_tr.get("pivot_cycle")) and bool(_rnc6_tr.get("interp"))
+                and min(_rnc6_tr["pivot_cycle"]) < min(_rnc6_tr["interp"]))
+except Exception as _e:                                              # noqa: BLE001
+    _rnc6_ao, _rnc6_tr, _rnc6_ok = f"⛔ {type(_e).__name__}", "", False
+check("🟢 RNC6: الفحصُ اليدويّ (`analyze_one.main` قبل التفسير وقبل `render_ondemand`) والتقريرُ الفنيّ (`pivot_depth_section`) "
+      "يحسبان دورةَ الارتكاز **قبل** التفسير (‏AST) — فيوافقان كرتَ البوت في وسم المسح",
+      _rnc6_ok, f"ao={_rnc6_ao} tr={_rnc6_tr}"[:160])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

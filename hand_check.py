@@ -428,9 +428,10 @@ def hand_check(sym: str):
                 r["trendline"] = None
             # (أُزيل سطران ميّتان كانا يكتبان h4_levels على `official` بينما التفسير
             #  يُبنى من `r`، و`official` لا يُقرأ بعدها إطلاقًا.)
+            # 🪜 الدورةُ **قبل** التفسير (2026-10-11 · RNC5): وسمُ «مسح سيولة» يقرأ مسحَ الدورة الحاليّة منها
+            r["pivot_cycle"] = bot.pivot_cycle_state(df)  # 🪜 دورة الارتكاز (TG_50584 — عرض فقط)
             r["interp"] = bot.build_interpretation(r)
             r["candle_supports"] = bot.faisal_candle_supports(df, r.get("price") or 0)  # 🕯️ (عرض فقط)
-            r["pivot_cycle"] = bot.pivot_cycle_state(df)  # 🪜 دورة الارتكاز (TG_50584 — عرض فقط)
             # 🧭 دفعة 2026-09-18 — مستوياتُ فيصل (عرضٌ فقط · خارج الأهداف المقفولة).
             # ⚠️ `weekly_support` **ليس حقلًا قائمًا** فيُمرَّر 0 ⇒ `agree=False` ⇒ لا يُطبع
             #    الجزءُ — لا يُخترَع دعمٌ أسبوعيّ.
