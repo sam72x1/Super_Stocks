@@ -1,0 +1,82 @@
+{
+ "rows": 19625,
+ "evaluable": 14248,
+ "sessions": 69,
+ "symbols": 963,
+ "window": [
+  "2026-07-01",
+  "2026-10-07"
+ ],
+ "POS": {
+  "rows": 684,
+  "tracking_age_q25_med_q75": [
+   4,
+   12,
+   19
+  ],
+  "list_today": {
+   "near_watch": 606,
+   "pullback": 21,
+   "watchlist": 28,
+   "carried": 29
+  },
+  "ready_now_share": 0.0292,
+  "ready_seen_in_run_share": 0.1184
+ },
+ "NEG": {
+  "rows": 13564,
+  "tracking_age_q25_med_q75": [
+   3,
+   11,
+   18
+  ],
+  "list_today": {
+   "pullback": 676,
+   "near_watch": 11620,
+   "watchlist": 477,
+   "carried": 791
+  },
+  "ready_now_share": 0.0255,
+  "ready_seen_in_run_share": 0.1034
+ },
+ "f10_rate_by_list": {
+  "carried": [
+   820,
+   0.0354
+  ],
+  "near_watch": [
+   12226,
+   0.0496
+  ],
+  "pullback": [
+   697,
+   0.0301
+  ],
+  "watchlist": [
+   505,
+   0.0554
+  ]
+ },
+ "f10_rate_by_tracking_age": {
+  "0-4": [
+   4468,
+   0.0405
+  ],
+  "5-9": [
+   2198,
+   0.0446
+  ],
+  "10-19": [
+   4450,
+   0.0528
+  ],
+  "20-39": [
+   3124,
+   0.0544
+  ],
+  "40-+": [
+   8,
+   0.0
+  ]
+ }
+}
