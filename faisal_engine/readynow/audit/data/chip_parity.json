@@ -1,0 +1,434 @@
+{
+ "note": "definition audit; the app states are read from the screenshots; undated OMH/CIIT evaluated on every session whose support and bounce match",
+ "snapshots": [
+  {
+   "tag": "NTCL-25",
+   "session": "2026-09-25",
+   "img": "TG_57913 · TG_57914",
+   "score": "76 · 6/8 · short 1/1",
+   "undated_support_bounce_candidates": null,
+   "app_support": 1.735,
+   "rn_low25": 1.735,
+   "app_bounce": 26.8,
+   "rn_bounce": 26.8,
+   "app_dist_from_app_price": 22.2,
+   "rn_dist_close": 22.19,
+   "rn_hold_n": 15,
+   "rn_pc_stage": 2,
+   "compare": {
+    "STAB2": {
+     "app": false,
+     "proxy": true,
+     "agree": false
+    },
+    "NEAR15": {
+     "app": false,
+     "proxy": false,
+     "agree": true
+    },
+    "BOUNCE": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BELOW": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "RETEST": {
+     "app": true,
+     "proxy": false,
+     "agree": false
+    },
+    "MOMENTUM": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    }
+   }
+  },
+  {
+   "tag": "NTCL-15",
+   "session": "2026-09-15",
+   "img": "TG_57921-23 = APP_20260918_18/19/20",
+   "score": "71 · 6/8 · short 0/1",
+   "undated_support_bounce_candidates": null,
+   "app_support": 1.735,
+   "rn_low25": 1.735,
+   "app_bounce": 26.8,
+   "rn_bounce": 26.8,
+   "app_dist_from_app_price": 17.6,
+   "rn_dist_close": 17.0,
+   "rn_hold_n": 7,
+   "rn_pc_stage": 2,
+   "compare": {
+    "STAB2": {
+     "app": false,
+     "proxy": true,
+     "agree": false
+    },
+    "NEAR15": {
+     "app": false,
+     "proxy": false,
+     "agree": true
+    },
+    "BOUNCE": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BELOW": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "RETEST": {
+     "app": true,
+     "proxy": false,
+     "agree": false
+    },
+    "MOMENTUM": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    }
+   }
+  },
+  {
+   "tag": "MSGY",
+   "session": "2026-09-18",
+   "img": "TG_50592 (= TG_57920)",
+   "score": "83 · 7/8 · short 0/1",
+   "undated_support_bounce_candidates": null,
+   "app_support": 1.73,
+   "rn_low25": 1.73,
+   "app_bounce": 30.6,
+   "rn_bounce": 30.64,
+   "app_dist_from_app_price": 20.2,
+   "rn_dist_close": 20.23,
+   "rn_hold_n": 7,
+   "rn_pc_stage": 4,
+   "compare": {
+    "STAB2": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "NEAR15": {
+     "app": false,
+     "proxy": false,
+     "agree": true
+    },
+    "BOUNCE": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BELOW": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "RETEST": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "MOMENTUM": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    }
+   }
+  },
+  {
+   "tag": "ELPW-05",
+   "session": "2026-09-04",
+   "img": "TG_57924 = APP_20260918_52",
+   "score": "59 · 5/8 · short 0/1",
+   "undated_support_bounce_candidates": null,
+   "app_support": 3.01,
+   "rn_low25": 3.01,
+   "app_bounce": 8.6,
+   "rn_bounce": 8.64,
+   "app_dist_from_app_price": 2.5,
+   "rn_dist_close": 2.49,
+   "rn_hold_n": 0,
+   "rn_pc_stage": 1,
+   "compare": {
+    "STAB2": {
+     "app": false,
+     "proxy": false,
+     "agree": true
+    },
+    "NEAR15": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BOUNCE": {
+     "app": false,
+     "proxy": false,
+     "agree": true
+    },
+    "BELOW": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "RETEST": {
+     "app": false,
+     "proxy": false,
+     "agree": true
+    },
+    "MOMENTUM": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    }
+   }
+  },
+  {
+   "tag": "ZNB-04",
+   "session": "2026-09-04",
+   "img": "TG_57925 = APP_20260918_50",
+   "score": "83 · 7/8 · short 0/1",
+   "undated_support_bounce_candidates": null,
+   "app_support": 1.55,
+   "rn_low25": 1.55,
+   "app_bounce": 12.9,
+   "rn_bounce": 12.9,
+   "app_dist_from_app_price": 3.2,
+   "rn_dist_close": 3.23,
+   "rn_hold_n": 3,
+   "rn_pc_stage": 2,
+   "compare": {
+    "STAB2": {
+     "app": false,
+     "proxy": true,
+     "agree": false
+    },
+    "NEAR15": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BOUNCE": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BELOW": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "RETEST": {
+     "app": true,
+     "proxy": false,
+     "agree": false
+    },
+    "MOMENTUM": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    }
+   }
+  },
+  {
+   "tag": "OMH",
+   "session": "2026-09-25",
+   "img": "TG_57876",
+   "score": "64 · 5/8 · short 1/1",
+   "undated_support_bounce_candidates": [
+    "2026-09-18",
+    "2026-09-21",
+    "2026-09-22",
+    "2026-09-23",
+    "2026-09-24",
+    "2026-09-25",
+    "2026-09-28"
+   ],
+   "app_support": 2.05,
+   "rn_low25": 2.05,
+   "app_bounce": 27.8,
+   "rn_bounce": 27.8,
+   "app_dist_from_app_price": 14.6,
+   "rn_dist_close": 14.63,
+   "rn_hold_n": 10,
+   "rn_pc_stage": 2,
+   "compare": {
+    "STAB2": {
+     "app": false,
+     "proxy": true,
+     "agree": false
+    },
+    "NEAR15": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BOUNCE": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BELOW": {
+     "app": false,
+     "proxy": true,
+     "agree": false
+    },
+    "RETEST": {
+     "app": true,
+     "proxy": false,
+     "agree": false
+    },
+    "MOMENTUM": {
+     "app": false,
+     "proxy": true,
+     "agree": false
+    }
+   }
+  },
+  {
+   "tag": "CIIT",
+   "session": "2026-09-25",
+   "img": "TG_57880 · TG_57882",
+   "score": "64 · 5/8 · short 1/1",
+   "undated_support_bounce_candidates": [
+    "2026-09-25",
+    "2026-09-28",
+    "2026-09-29",
+    "2026-09-30",
+    "2026-10-01",
+    "2026-10-02"
+   ],
+   "app_support": 2.26,
+   "rn_low25": 2.26,
+   "app_bounce": 32.3,
+   "rn_bounce": 32.3,
+   "app_dist_from_app_price": 21.7,
+   "rn_dist_close": 21.68,
+   "rn_hold_n": 7,
+   "rn_pc_stage": 2,
+   "compare": {
+    "STAB2": {
+     "app": false,
+     "proxy": true,
+     "agree": false
+    },
+    "NEAR15": {
+     "app": false,
+     "proxy": false,
+     "agree": true
+    },
+    "BOUNCE": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BELOW": {
+     "app": false,
+     "proxy": true,
+     "agree": false
+    },
+    "RETEST": {
+     "app": true,
+     "proxy": false,
+     "agree": false
+    },
+    "MOMENTUM": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    }
+   }
+  },
+  {
+   "tag": "GCTK-25",
+   "session": "2026-09-25",
+   "img": "TG_57914 (list card only)",
+   "score": "not visible",
+   "undated_support_bounce_candidates": null,
+   "app_support": 1.77,
+   "rn_low25": 1.77,
+   "app_bounce": null,
+   "rn_bounce": 33.33,
+   "app_dist_from_app_price": 2.8,
+   "rn_dist_close": 2.82,
+   "rn_hold_n": 0,
+   "rn_pc_stage": 1,
+   "compare": {
+    "NEAR15": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BELOW": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "RETEST": {
+     "app": false,
+     "proxy": false,
+     "agree": true
+    }
+   }
+  },
+  {
+   "tag": "LIMN-21",
+   "session": "2026-09-21",
+   "img": "TG_50585 (Faisal's post 2026-09-22)",
+   "score": "64 · 3 missing (only the first is named)",
+   "undated_support_bounce_candidates": null,
+   "app_support": 3.32,
+   "rn_low25": 3.29,
+   "app_bounce": 10.7,
+   "rn_bounce": 13.07,
+   "app_dist_from_app_price": 9.6,
+   "rn_dist_close": 10.64,
+   "rn_hold_n": 5,
+   "rn_pc_stage": 3,
+   "compare": {
+    "NEAR15": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BOUNCE": {
+     "app": true,
+     "proxy": true,
+     "agree": true
+    },
+    "BELOW": {
+     "app": false,
+     "proxy": true,
+     "agree": false
+    },
+    "RETEST": {
+     "app": false,
+     "proxy": true,
+     "agree": false
+    }
+   }
+  }
+ ],
+ "agreement_by_chip": {
+  "STAB2": "2/7",
+  "NEAR15": "9/9",
+  "BOUNCE": "8/8",
+  "BELOW": "6/9",
+  "RETEST": "3/9",
+  "MOMENTUM": "6/7"
+ },
+ "proxy_of_chip": {
+  "STAB2": "HOLD2",
+  "NEAR15": "NEAR15",
+  "BOUNCE": "BOUNCE10_40",
+  "BELOW": "BELOW3",
+  "RETEST": "CYCLE3",
+  "MOMENTUM": "MACD_POS"
+ }
+}

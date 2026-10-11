@@ -1,0 +1,42 @@
+{
+ "run": "2026-10-11",
+ "harness": "faisal_engine/readynow/audit/audit_mutate.py",
+ "result": [
+  [
+   "AM1 the distance limit drifts to 14.9%",
+   "fell: A1",
+   "clean",
+   "expected A1"
+  ],
+  [
+   "AM2 seal check skipped",
+   "fell: A2",
+   "clean",
+   "expected A2"
+  ],
+  [
+   "AM3 one transcribed app state altered (MSGY stability)",
+   "fell: A3",
+   "clean",
+   "expected A3"
+  ],
+  [
+   "AM4 the seed window shifts one session earlier",
+   "fell: A4",
+   "clean",
+   "expected A4"
+  ],
+  [
+   "AM5 the evaluator uses fewer resamples",
+   "fell: A5",
+   "clean",
+   "expected A5"
+  ],
+  [
+   "audit/data unchanged after the round",
+   "True",
+   "",
+   ""
+  ]
+ ]
+}
