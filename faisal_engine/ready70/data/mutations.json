@@ -1,0 +1,9 @@
+{"run": "2026-10-11", "harness": "faisal_engine/ready70/r70_mutate.py", "result": [
+ ["M1 look-ahead in features", "fell: L1", "clean"],
+ ["M2 label reads the bar before", "fell: L2", "clean"],
+ ["M3 frame shorter than the window", "fell: L3", "clean"],
+ ["M4 identity 52w window", "fell: L4", "clean"],
+ ["M5 jump day off by one", "fell: L5", "clean"],
+ ["M6 embargo shorter than H", "fell: L6", "clean"],
+ ["M7 seal always accepted", "fell: L7", "clean"],
+ ["M8 corrupted output", "fell: L8", "clean"]]}

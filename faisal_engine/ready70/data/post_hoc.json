@@ -1,0 +1,51 @@
+{
+ "post_hoc_not_preregistered": true,
+ "p_anchor_given_stage1": 0.047,
+ "p_anchor_given_all": 0.202,
+ "rate_anchor_exists": [
+  740,
+  18268,
+  0.0405
+ ],
+ "rate_no_anchor": [
+  4031,
+  72274,
+  0.0558
+ ],
+ "p_anchor_given_pre_event_row": 0.155,
+ "sensitivity_excluding_ge300_events": {
+  "removed_pos_rows": 260,
+  "ratios_99_300reps": {
+   "STAGE1/LOC": {
+    "point": 2.036,
+    "lo": 1.51,
+    "hi": 2.628,
+    "reps_ok": 300
+   },
+   "STAGE1/ALL": {
+    "point": 1.473,
+    "lo": 1.215,
+    "hi": 1.743,
+    "reps_ok": 300
+   },
+   "STAGE1/DROP-k": {
+    "point": 0.646,
+    "lo": 0.539,
+    "hi": 0.752,
+    "reps_ok": 300
+   },
+   "STAGE1/VOL-k": {
+    "point": 0.619,
+    "lo": 0.481,
+    "hi": 0.795,
+    "reps_ok": 300
+   },
+   "STAGE1/PRICE-k": {
+    "point": 1.065,
+    "lo": 0.821,
+    "hi": 1.487,
+    "reps_ok": 300
+   }
+  }
+ }
+}
