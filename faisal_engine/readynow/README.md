@@ -17,3 +17,8 @@ Reused read-only: READY70 (`faisal_engine/ready70/`: bars, splits, the bot's exp
 `pi_obs.csv.gz`, its features) and SEQ70 (`faisal_engine/seq70/`: path descriptors, L10).
 Run order: `rn_build.py` → `rn_dev.py seeds|dev|dev2` → (seal) → `rn_eval.py final` → `test_rn.py` → `rn_mutate.py`.
 All git reads with `GIT_ALLOW_PROTOCOL=file` (partial clone).
+
+**Audit (2026-10-11): `audit/RN_AUDIT.md`.** Did READYNOW test the documented conditions? It tested one candidate. Only
+two of the app's eight conditions are reproducible from local data, with parity shown in `audit/data/chip_parity.json`.
+Those two (within 15% ∧ bounce 10–40%) were evaluated once under `audit/APP_POS_PREREG.md`: PROMISING_UNVALIDATED,
+but not a READY signal. `audit/test_audit.py` (A1–A5) · `audit/audit_mutate.py`.

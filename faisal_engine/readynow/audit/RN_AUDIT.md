@@ -6,7 +6,7 @@ request; no agents or workflows. New evidence produced here: `audit/data/chip_pa
 against the condition states the app itself displays, `rn_chip_parity.py`) and `audit/data/seed_audit.json`
 (`rn_seed_audit.py`). Sections 1–6 and the plan in §7 were written and pushed before the evaluation in §7 was run.
 
-**Short answer: no.** READYNOW's negative verdict covers one candidate (RSI < 30 ∧ bounce 10–40%). Of the app's eight
+**Short answer: no** (§8). READYNOW's negative verdict covers one candidate (RSI < 30 ∧ bounce 10–40%). Of the app's eight
 automatic conditions, only two are reproducible from local data with demonstrated parity: distance to the support
 and bounce. The proxy READYNOW used for «stability» contradicts the app's own screenshots in 5 of 7 snapshots. Retest
 and momentum were never implemented. «Below EMA» has no confirmed definition. Two conditions are unnamed, and the short
@@ -170,7 +170,51 @@ of the 25-session low ∧ bounce 10–40%, at 7–10 sessions, with READYNOW's o
 decision rules (C1–C3). The specification is `audit/APP_POS_PREREG.md`, its SHA-256 is pinned in `rn_app_eval.py`, and
 it was pushed before the run. Nothing else is resolvable with local data.
 
-*Result: pending (filled in after the sealed run).*
+**Result (one run, `audit/data/app_pos_result.json`): PROMISING_UNVALIDATED by the sealed rule — and not a READY signal.**
+
+| | development (descriptive) | validation | holdout |
+|---|---|---|---|
+| flags per session · share of evaluable pivot-days flagged | 140 · 36% | 172 · 36% | 190 · 35% |
+| precision · base · raw lift | 3.29% · 3.06% · 1.07 [0.99, 1.17] | 3.30% · 3.18% · 1.04 [0.91, 1.17] | 2.60% · 2.49% · 1.05 [0.87, 1.22] |
+| **C1** matched (pairs; unmatched flagged rows) | 1.30 [1.06, 1.59] (9,208; 13,825) | 1.28 [0.98, 1.69] ✗ (6,339; 7,548) | 1.24 [0.87, 1.68] ✗ (5,500; 5,864) |
+| **C2** minus volume ranking · minus volatility ranking (pp) | −0.03 · −0.41 | −0.22 [−0.88, 0.43] · **−1.25 [−2.05, −0.43]** ✗ | −0.55 [−1.25, 0.14] · **−1.06 [−1.86, −0.26]** ✗ |
+| **C3** beyond the tool | 1.27 [1.03, 1.56] | 1.32 [1.02, 1.73] ✓ | 1.27 [0.88, 1.78] ✗ |
+| recall (events) · lead first flag → onset · → +70% (median) | 55% · 16 · 23 | 52% · 17 · 24 | 50% · 16 · 23 |
+| the app's own domain (reverse split ≤ 120 d): lift · matched | 1.05 · 0.57 [0.24, 1.13] | 0.90 · 0.77 [0.31, 1.75] | 1.10 · 0.92 [0.40, 1.82] |
+| onset IGN instead of L: matched | 1.32 [1.10, 1.58] | 1.37 [1.04, 1.82] | 0.91 [0.65, 1.24] |
+
+Pooled (95%): C1 1.26 [1.04, 1.51] · C3 1.30 [1.07, 1.59] ⇒ PROMISING_UNVALIDATED (C1–C3 did not hold in either window
+alone). Alone: within 15% matched 1.23 · 1.30 and bounce 10–40% 1.15 · 1.42 (validation · holdout).
+**Predictions:** Q1 ✓ (172 and 190 flags/session) · Q2 ✓ (development lift 1.07) · Q3 ✓ (the volatility ranking is
+significantly better) · Q4 ✓ (C1 failed in both windows) · Q5 ✗ (expected NO_INCREMENTAL_EDGE_FOUND).
+**Reading:**
+- Against pivot-days with the same price, volume, volatility and liquidity, rows meeting the app's two reproducible
+  conditions were followed by an onset 7–10 sessions later about 1.26 times as often.
+- This holds only for the matched half of flagged rows.
+- The pair flags about 36% of all pivot-days; its raw rate equals the base rate.
+- At the same burden, ranking by 20-session volatility is significantly better.
+- Inside the app's own universe (recent reverse splits) the effect is absent.
+- Under the explosion-day onset it does not replicate in the holdout.
+
+It is a weak contextual property, not a READY NOW condition.
 
 ## 8. FINAL_DECISION
-*Pending the §7 run.*
+**No — the full set of documented, source-backed READY NOW conditions has not been tested faithfully at the 7–10-session
+lead time, and with local data it cannot be.** The existing NO_INCREMENTAL_EDGE_FOUND verdict covers one narrow
+candidate (RSI < 30 ∧ bounce 10–40%) selected from development data. It is a correctly rejected candidate, not a
+completed investigation.
+
+**What is still missing:**
+- **Unknown definitions:** six of the app's eight automatic conditions — the two unnamed conditions, plus stability,
+  retest, momentum and «below EMA». READYNOW's proxies for these contradict the app's own screenshots.
+- **No history:** the app's short condition, its float limit, and the tool's float and borrow conditions have no
+  point-in-time series.
+
+**The one locally resolvable gap is now closed.** The app's two reproducible conditions were evaluated together, out of
+sample, under sealed rules: PROMISING_UNVALIDATED statistically, but non-selective (about 36% of pivot-days), beaten by
+volatility ranking, and absent inside the app's own split-stock universe.
+
+**Stop this line of local-data research.** Continuing honestly requires one of two owner-side inputs:
+(a) the app's exact rules for the six missing conditions, or (b) a prospective record of the app's daily condition
+states and the stocks' float and borrow, kept from today, against which its «near ready» label can be tested forward.
+Nothing else in the local evidence justifies another historical experiment.
