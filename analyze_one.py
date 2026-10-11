@@ -1018,6 +1018,8 @@ def main():
         card_result["pump_scar"] = bot.group_pump_scar(df)   # 🕵️ N1 (تطابق الفرز)
         card_result["trendline"] = bot.descending_trendline(
             df, card_result.get("price") or 0)          # §10 (تطابق الفرز)
+        # 🪜 الدورةُ **قبل** التفسير (2026-10-11 · RNC6): وسمُ «مسح سيولة» يقرأ مسحَ الدورة الحاليّة منها (تطابق الفرز)
+        card_result["pivot_cycle"] = bot.pivot_cycle_state(df)
         if card_result.get("bars_after") is None:
             _ps = bot.pivot_stability(df["Low"].values.astype(float),
                                       df["Close"].values.astype(float))

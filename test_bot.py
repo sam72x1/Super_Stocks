@@ -87532,6 +87532,36 @@ check("🟢 RNC5: فحصُ اليد يحسب دورةَ الارتكاز **قب�
       bool(_rnc5_pos.get("pivot_cycle")) and bool(_rnc5_pos.get("interp"))
       and min(_rnc5_pos["pivot_cycle"]) < min(_rnc5_pos["interp"]), str(_rnc5_pos))
 
+
+def _rnc6_order(fn):
+    """أسطرُ إسناد `[...]["pivot_cycle"]` و`[...]["interp"]` ونداء `render_ondemand` داخل الدالّة (‏AST)."""
+    _pos = {}
+    for _n in _ast0.walk(_ast0.parse(_insp0.getsource(fn))):
+        if isinstance(_n, _ast0.Assign) and len(_n.targets) == 1 and isinstance(_n.targets[0], _ast0.Subscript) \
+                and isinstance(_n.value, _ast0.Call):
+            _k = getattr(_n.targets[0].slice, "value", None)
+            if _k in ("pivot_cycle", "interp") and getattr(_n.value.func, "attr", "") in ("pivot_cycle_state",
+                                                                                            "build_interpretation"):
+                _pos.setdefault(_k, []).append(_n.lineno)
+        if isinstance(_n, _ast0.Call) and getattr(_n.func, "id", None) == "render_ondemand":
+            _pos.setdefault("render", []).append(_n.lineno)
+    return _pos
+
+
+# RNC6 — الفحصُ اليدويّ والتقريرُ الفنيّ كانا يبنيان التفسيرَ من `behav` (المسحُ في عمر السهم) فيوافقان الكرتَ في الوسم الخاطئ ·
+#        وبعد RNC1 بلا الدورة لن يريا مسحًا حاليًّا أبدًا فيخالفان كرتَ البوت ⟵ الدورةُ قبل كلّ تفسيرٍ فيهما (2026-10-11)
+try:
+    _rnc6_ao, _rnc6_tr = _rnc6_order(_AO.main), _rnc6_order(TR.pivot_depth_section)
+    _rnc6_ok = (bool(_rnc6_ao.get("pivot_cycle")) and bool(_rnc6_ao.get("interp")) and bool(_rnc6_ao.get("render"))
+                and min(_rnc6_ao["pivot_cycle"]) < min(_rnc6_ao["interp"] + _rnc6_ao["render"])
+                and bool(_rnc6_tr.get("pivot_cycle")) and bool(_rnc6_tr.get("interp"))
+                and min(_rnc6_tr["pivot_cycle"]) < min(_rnc6_tr["interp"]))
+except Exception as _e:                                              # noqa: BLE001
+    _rnc6_ao, _rnc6_tr, _rnc6_ok = f"⛔ {type(_e).__name__}", "", False
+check("🟢 RNC6: الفحصُ اليدويّ (`analyze_one.main` قبل التفسير وقبل `render_ondemand`) والتقريرُ الفنيّ (`pivot_depth_section`) "
+      "يحسبان دورةَ الارتكاز **قبل** التفسير (‏AST) — فيوافقان كرتَ البوت في وسم المسح",
+      _rnc6_ok, f"ao={_rnc6_ao} tr={_rnc6_tr}"[:160])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

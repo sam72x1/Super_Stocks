@@ -681,6 +681,7 @@ def pivot_depth_section(sym, df):
         r["behav"] = bot.behavior_rise_profile(df)
         r["pump_scar"] = bot.group_pump_scar(df)
         r["trendline"] = bot.descending_trendline(df, r["price"])
+        r["pivot_cycle"] = bot.pivot_cycle_state(df)   # 🪜 الدورةُ قبل التفسير (2026-10-11 · RNC6 · تطابق الفرز)
         r["interp"] = bot.build_interpretation(r)
         interp = r["interp"] or {}
         es = bot.entry_status(r)
