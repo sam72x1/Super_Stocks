@@ -1,0 +1,23 @@
+{
+ "bars": {
+  "first": "2024-05-01",
+  "last_complete_session": "2026-10-08",
+  "sessions": 612,
+  "symbols": 3584
+ },
+ "episodes": {
+  "ok": 3727,
+  "pivot_on_session_before_launch": 1354,
+  "pivot_within_10_before_launch": 1536,
+  "rows": 3842
+ },
+ "pivot_days": {
+  "desc_ok": 174796,
+  "from": "2025-05-01",
+  "rows": 174796,
+  "spells": 2738,
+  "split_in_lookback": 29575,
+  "symbols": 1108,
+  "to": "2026-10-07"
+ }
+}
