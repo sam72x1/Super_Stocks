@@ -1,0 +1,602 @@
+{
+ "window": [
+  "2025-05-01",
+  "2025-12-31"
+ ],
+ "horizon_sessions": 10,
+ "labels": {
+  "y10": {
+   "label": "y10",
+   "counts": {
+    "POS": 1852,
+    "IN_EVENT": 5746,
+    "NEG": 62457,
+    "UNKNOWN_SPLIT": 220,
+    "CENSORED": 11
+   },
+   "base_rate": 0.0288,
+   "evaluable_rows": 64309,
+   "tickers": 794,
+   "ret5_cuts": [
+    -13.33,
+    -6.32,
+    -1.26,
+    4.9
+   ],
+   "range20_cuts": [
+    33.25,
+    47.52,
+    68.28,
+    113.22
+   ],
+   "cells": [
+    {
+     "cell": "ALL",
+     "rows": 64309,
+     "pos_rows": 1852,
+     "rate": 0.0288,
+     "lift": 1.0,
+     "tickers": 794,
+     "events_flagged_before": 347,
+     "flags_per_day": 380.53,
+     "flags_during_event": 5746
+    },
+    {
+     "cell": "stage=0",
+     "rows": 6032,
+     "pos_rows": 156,
+     "rate": 0.0259,
+     "lift": 0.898,
+     "tickers": 516,
+     "events_flagged_before": 66,
+     "flags_per_day": 35.69,
+     "flags_during_event": 516
+    },
+    {
+     "cell": "stage=1",
+     "rows": 4457,
+     "pos_rows": 328,
+     "rate": 0.0736,
+     "lift": 2.555,
+     "tickers": 623,
+     "events_flagged_before": 140,
+     "flags_per_day": 26.37,
+     "flags_during_event": 62
+    },
+    {
+     "cell": "stage=2",
+     "rows": 25795,
+     "pos_rows": 610,
+     "rate": 0.0236,
+     "lift": 0.821,
+     "tickers": 732,
+     "events_flagged_before": 190,
+     "flags_per_day": 152.63,
+     "flags_during_event": 3007
+    },
+    {
+     "cell": "stage=3",
+     "rows": 12921,
+     "pos_rows": 445,
+     "rate": 0.0344,
+     "lift": 1.196,
+     "tickers": 662,
+     "events_flagged_before": 160,
+     "flags_per_day": 76.46,
+     "flags_during_event": 476
+    },
+    {
+     "cell": "stage=4",
+     "rows": 15104,
+     "pos_rows": 313,
+     "rate": 0.0207,
+     "lift": 0.72,
+     "tickers": 603,
+     "events_flagged_before": 90,
+     "flags_per_day": 89.37,
+     "flags_during_event": 1685
+    },
+    {
+     "cell": "stage=3&sweep",
+     "rows": 11164,
+     "pos_rows": 369,
+     "rate": 0.0331,
+     "lift": 1.148,
+     "tickers": 645,
+     "events_flagged_before": 141,
+     "flags_per_day": 66.06,
+     "flags_during_event": 423
+    },
+    {
+     "cell": "stage=3&hold",
+     "rows": 1757,
+     "pos_rows": 76,
+     "rate": 0.0433,
+     "lift": 1.502,
+     "tickers": 441,
+     "events_flagged_before": 45,
+     "flags_per_day": 10.4,
+     "flags_during_event": 53
+    },
+    {
+     "cell": "stage=4&sweep",
+     "rows": 10290,
+     "pos_rows": 178,
+     "rate": 0.0173,
+     "lift": 0.601,
+     "tickers": 536,
+     "events_flagged_before": 52,
+     "flags_per_day": 60.89,
+     "flags_during_event": 1270
+    },
+    {
+     "cell": "stage=4&hold",
+     "rows": 4814,
+     "pos_rows": 135,
+     "rate": 0.028,
+     "lift": 0.974,
+     "tickers": 385,
+     "events_flagged_before": 41,
+     "flags_per_day": 28.49,
+     "flags_during_event": 415
+    },
+    {
+     "cell": "first_rise",
+     "rows": 21290,
+     "pos_rows": 520,
+     "rate": 0.0244,
+     "lift": 0.848,
+     "tickers": 648,
+     "events_flagged_before": 137,
+     "flags_per_day": 125.98,
+     "flags_during_event": 2693
+    },
+    {
+     "cell": "LOC(current rule approx)",
+     "rows": 4037,
+     "pos_rows": 129,
+     "rate": 0.032,
+     "lift": 1.11,
+     "tickers": 604,
+     "events_flagged_before": 80,
+     "flags_per_day": 23.89,
+     "flags_during_event": 41
+    },
+    {
+     "cell": "ret5_q1",
+     "rows": 12863,
+     "pos_rows": 776,
+     "rate": 0.0603,
+     "lift": 2.095,
+     "tickers": 754,
+     "events_flagged_before": 258,
+     "flags_per_day": 76.11,
+     "flags_during_event": 355
+    },
+    {
+     "cell": "ret5_q2",
+     "rows": 12885,
+     "pos_rows": 406,
+     "rate": 0.0315,
+     "lift": 1.094,
+     "tickers": 736,
+     "events_flagged_before": 202,
+     "flags_per_day": 76.24,
+     "flags_during_event": 418
+    },
+    {
+     "cell": "ret5_q3",
+     "rows": 12849,
+     "pos_rows": 299,
+     "rate": 0.0233,
+     "lift": 0.808,
+     "tickers": 725,
+     "events_flagged_before": 161,
+     "flags_per_day": 76.03,
+     "flags_during_event": 589
+    },
+    {
+     "cell": "ret5_q4",
+     "rows": 12863,
+     "pos_rows": 228,
+     "rate": 0.0177,
+     "lift": 0.615,
+     "tickers": 708,
+     "events_flagged_before": 113,
+     "flags_per_day": 76.11,
+     "flags_during_event": 938
+    },
+    {
+     "cell": "ret5_q5",
+     "rows": 12849,
+     "pos_rows": 143,
+     "rate": 0.0111,
+     "lift": 0.386,
+     "tickers": 693,
+     "events_flagged_before": 69,
+     "flags_per_day": 76.03,
+     "flags_during_event": 3446
+    },
+    {
+     "cell": "range20_q1",
+     "rows": 12862,
+     "pos_rows": 256,
+     "rate": 0.0199,
+     "lift": 0.691,
+     "tickers": 540,
+     "events_flagged_before": 55,
+     "flags_per_day": 76.11,
+     "flags_during_event": 628
+    },
+    {
+     "cell": "range20_q2",
+     "rows": 12872,
+     "pos_rows": 216,
+     "rate": 0.0168,
+     "lift": 0.583,
+     "tickers": 644,
+     "events_flagged_before": 75,
+     "flags_per_day": 76.17,
+     "flags_during_event": 726
+    },
+    {
+     "cell": "range20_q3",
+     "rows": 12857,
+     "pos_rows": 333,
+     "rate": 0.0259,
+     "lift": 0.899,
+     "tickers": 663,
+     "events_flagged_before": 116,
+     "flags_per_day": 76.08,
+     "flags_during_event": 906
+    },
+    {
+     "cell": "range20_q4",
+     "rows": 12859,
+     "pos_rows": 401,
+     "rate": 0.0312,
+     "lift": 1.083,
+     "tickers": 665,
+     "events_flagged_before": 129,
+     "flags_per_day": 76.09,
+     "flags_during_event": 1446
+    },
+    {
+     "cell": "range20_q5",
+     "rows": 12859,
+     "pos_rows": 646,
+     "rate": 0.0502,
+     "lift": 1.744,
+     "tickers": 582,
+     "events_flagged_before": 158,
+     "flags_per_day": 76.09,
+     "flags_during_event": 2040
+    }
+   ],
+   "stage_vs_rest_ci": {
+    "stage=0": [
+     0.889,
+     0.672,
+     1.143
+    ],
+    "stage=1": [
+     2.89,
+     2.285,
+     3.503
+    ],
+    "stage=2": [
+     0.733,
+     0.605,
+     0.881
+    ],
+    "stage=3": [
+     1.258,
+     1.009,
+     1.534
+    ],
+    "stage=4": [
+     0.663,
+     0.498,
+     0.877
+    ]
+   }
+  },
+  "f10": {
+   "label": "f10",
+   "counts": {
+    "POS": 3527,
+    "NEG": 64157,
+    "UNKNOWN_SPLIT": 783,
+    "DURING": 1808,
+    "CENSORED": 11
+   },
+   "base_rate": 0.0521,
+   "evaluable_rows": 67684,
+   "tickers": 798,
+   "ret5_cuts": [
+    -12.93,
+    -5.91,
+    -0.77,
+    5.75
+   ],
+   "range20_cuts": [
+    33.33,
+    47.69,
+    68.42,
+    112.96
+   ],
+   "cells": [
+    {
+     "cell": "ALL",
+     "rows": 67684,
+     "pos_rows": 3527,
+     "rate": 0.0521,
+     "lift": 1.0,
+     "tickers": 798,
+     "events_flagged_before": 1364,
+     "flags_per_day": 400.5,
+     "flags_during_event": 1808
+    },
+    {
+     "cell": "stage=0",
+     "rows": 6346,
+     "pos_rows": 345,
+     "rate": 0.0544,
+     "lift": 1.043,
+     "tickers": 526,
+     "events_flagged_before": 202,
+     "flags_per_day": 37.55,
+     "flags_during_event": 167
+    },
+    {
+     "cell": "stage=1",
+     "rows": 4448,
+     "pos_rows": 360,
+     "rate": 0.0809,
+     "lift": 1.553,
+     "tickers": 626,
+     "events_flagged_before": 208,
+     "flags_per_day": 26.32,
+     "flags_during_event": 3
+    },
+    {
+     "cell": "stage=2",
+     "rows": 27620,
+     "pos_rows": 1408,
+     "rate": 0.051,
+     "lift": 0.978,
+     "tickers": 741,
+     "events_flagged_before": 652,
+     "flags_per_day": 163.43,
+     "flags_during_event": 964
+    },
+    {
+     "cell": "stage=3",
+     "rows": 13169,
+     "pos_rows": 648,
+     "rate": 0.0492,
+     "lift": 0.944,
+     "tickers": 669,
+     "events_flagged_before": 337,
+     "flags_per_day": 77.92,
+     "flags_during_event": 65
+    },
+    {
+     "cell": "stage=4",
+     "rows": 16101,
+     "pos_rows": 766,
+     "rate": 0.0476,
+     "lift": 0.913,
+     "tickers": 605,
+     "events_flagged_before": 339,
+     "flags_per_day": 95.27,
+     "flags_during_event": 609
+    },
+    {
+     "cell": "stage=3&sweep",
+     "rows": 11386,
+     "pos_rows": 550,
+     "rate": 0.0483,
+     "lift": 0.927,
+     "tickers": 652,
+     "events_flagged_before": 287,
+     "flags_per_day": 67.37,
+     "flags_during_event": 59
+    },
+    {
+     "cell": "stage=3&hold",
+     "rows": 1783,
+     "pos_rows": 98,
+     "rate": 0.055,
+     "lift": 1.055,
+     "tickers": 445,
+     "events_flagged_before": 69,
+     "flags_per_day": 10.55,
+     "flags_during_event": 6
+    },
+    {
+     "cell": "stage=4&sweep",
+     "rows": 11037,
+     "pos_rows": 502,
+     "rate": 0.0455,
+     "lift": 0.873,
+     "tickers": 540,
+     "events_flagged_before": 228,
+     "flags_per_day": 65.31,
+     "flags_during_event": 482
+    },
+    {
+     "cell": "stage=4&hold",
+     "rows": 5064,
+     "pos_rows": 264,
+     "rate": 0.0521,
+     "lift": 1.0,
+     "tickers": 391,
+     "events_flagged_before": 117,
+     "flags_per_day": 29.96,
+     "flags_during_event": 127
+    },
+    {
+     "cell": "first_rise",
+     "rows": 22755,
+     "pos_rows": 1179,
+     "rate": 0.0518,
+     "lift": 0.994,
+     "tickers": 656,
+     "events_flagged_before": 543,
+     "flags_per_day": 134.64,
+     "flags_during_event": 1052
+    },
+    {
+     "cell": "LOC(current rule approx)",
+     "rows": 4031,
+     "pos_rows": 152,
+     "rate": 0.0377,
+     "lift": 0.724,
+     "tickers": 605,
+     "events_flagged_before": 115,
+     "flags_per_day": 23.85,
+     "flags_during_event": 0
+    },
+    {
+     "cell": "ret5_q1",
+     "rows": 13554,
+     "pos_rows": 980,
+     "rate": 0.0723,
+     "lift": 1.388,
+     "tickers": 759,
+     "events_flagged_before": 500,
+     "flags_per_day": 80.2,
+     "flags_during_event": 66
+    },
+    {
+     "cell": "ret5_q2",
+     "rows": 13526,
+     "pos_rows": 611,
+     "rate": 0.0452,
+     "lift": 0.867,
+     "tickers": 744,
+     "events_flagged_before": 420,
+     "flags_per_day": 80.04,
+     "flags_during_event": 85
+    },
+    {
+     "cell": "ret5_q3",
+     "rows": 13565,
+     "pos_rows": 576,
+     "rate": 0.0425,
+     "lift": 0.815,
+     "tickers": 731,
+     "events_flagged_before": 426,
+     "flags_per_day": 80.27,
+     "flags_during_event": 82
+    },
+    {
+     "cell": "ret5_q4",
+     "rows": 13520,
+     "pos_rows": 604,
+     "rate": 0.0447,
+     "lift": 0.857,
+     "tickers": 720,
+     "events_flagged_before": 407,
+     "flags_per_day": 80.0,
+     "flags_during_event": 157
+    },
+    {
+     "cell": "ret5_q5",
+     "rows": 13519,
+     "pos_rows": 756,
+     "rate": 0.0559,
+     "lift": 1.073,
+     "tickers": 705,
+     "events_flagged_before": 437,
+     "flags_per_day": 79.99,
+     "flags_during_event": 1418
+    },
+    {
+     "cell": "range20_q1",
+     "rows": 13643,
+     "pos_rows": 591,
+     "rate": 0.0433,
+     "lift": 0.831,
+     "tickers": 561,
+     "events_flagged_before": 245,
+     "flags_per_day": 80.73,
+     "flags_during_event": 1
+    },
+    {
+     "cell": "range20_q2",
+     "rows": 13454,
+     "pos_rows": 512,
+     "rate": 0.0381,
+     "lift": 0.73,
+     "tickers": 655,
+     "events_flagged_before": 245,
+     "flags_per_day": 79.61,
+     "flags_during_event": 10
+    },
+    {
+     "cell": "range20_q3",
+     "rows": 13515,
+     "pos_rows": 624,
+     "rate": 0.0462,
+     "lift": 0.886,
+     "tickers": 674,
+     "events_flagged_before": 320,
+     "flags_per_day": 79.97,
+     "flags_during_event": 13
+    },
+    {
+     "cell": "range20_q4",
+     "rows": 13549,
+     "pos_rows": 769,
+     "rate": 0.0568,
+     "lift": 1.089,
+     "tickers": 674,
+     "events_flagged_before": 366,
+     "flags_per_day": 80.17,
+     "flags_during_event": 462
+    },
+    {
+     "cell": "range20_q5",
+     "rows": 13523,
+     "pos_rows": 1031,
+     "rate": 0.0762,
+     "lift": 1.463,
+     "tickers": 583,
+     "events_flagged_before": 440,
+     "flags_per_day": 80.02,
+     "flags_during_event": 1322
+    }
+   ],
+   "stage_vs_rest_ci": {
+    "stage=0": [
+     1.048,
+     0.816,
+     1.252
+    ],
+    "stage=1": [
+     1.616,
+     1.341,
+     1.936
+    ],
+    "stage=2": [
+     0.964,
+     0.842,
+     1.118
+    ],
+    "stage=3": [
+     0.932,
+     0.775,
+     1.101
+    ],
+    "stage=4": [
+     0.889,
+     0.736,
+     1.06
+    ]
+   }
+  }
+ },
+ "combinations_examined": 44
+}

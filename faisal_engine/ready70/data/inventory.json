@@ -1,0 +1,143 @@
+{
+ "bars": {
+  "fetched_utc": "2026-10-09T14:18:33+00:00",
+  "file": "faisal_engine/data/rank/bars.json.gz",
+  "first_partial_dropped": "2026-10-09",
+  "first_session": "2024-05-01",
+  "last_complete_session": "2026-10-08",
+  "sessions": 612,
+  "source": "tradingview · regular session · adjustment=splits",
+  "symbols": 3584
+ },
+ "detector": {
+  "EXPLOSION_LOOKBACK": 5,
+  "EXPLOSION_PCT": 50.0,
+  "EXPLOSION_RUN_LOOKBACK": 20,
+  "EXPLOSION_RUN_PCT": 70.0,
+  "code": "Super_stock.scan_explosions / _run_explosion",
+  "price": "daily close",
+  "runs": "after the daily screener (morning) and the Friday renewal; logged to weekly_watchlist.json[explosions] (30-day retention)"
+ },
+ "episodes_recomputed_d1_from_2026_06_22": {
+  "extreme_ge_300": 21,
+  "kind_d1": {
+   "jump": 277,
+   "run": 344
+  },
+  "n": 621,
+  "split_near": 23,
+  "symbols": 502
+ },
+ "log": {
+  "commits_read": 532,
+  "match_rate_non_suspect_with_bars": 0.9502,
+  "match_status": {
+   "MATCHED": 1803,
+   "NO_BARS": 96,
+   "UNMATCHED": 296
+  },
+  "records_unique_symbol_explDate": 2195,
+  "scan_range": [
+   "2026-06-22",
+   "2026-10-10"
+  ],
+  "symbols": 638
+ },
+ "obs": {
+  "bars_missing": 368,
+  "by_src": {
+   "carried": 1106,
+   "near_watch": 17349,
+   "pullback": 926,
+   "watchlist": 612
+  },
+  "rows": 19993
+ },
+ "other_live_sources": {
+  "alerts_history.json": {
+   "range": [
+    "2026-06-21",
+    "2026-10-10"
+   ],
+   "rows": 277,
+   "symbols": 226
+  },
+  "cumrise_fwd_ledger.jsonl": {
+   "range": [
+    "2026-08-18",
+    "2026-09-28"
+   ],
+   "rows": 27,
+   "symbols": null
+  },
+  "hand_flow_log.jsonl": {
+   "range": null,
+   "rows": 49,
+   "symbols": 28
+  },
+  "hunter_ledger.jsonl": {
+   "range": [
+    "2026-08-05",
+    "2026-10-09"
+   ],
+   "rows": 4635,
+   "symbols": 705
+  },
+  "ignition_log.json": {
+   "range": [
+    "2026-07-09",
+    "2026-09-29"
+   ],
+   "rows": 117,
+   "symbols": 57
+  },
+  "pmfwd_log.jsonl": {
+   "range": [
+    "2026-09-16",
+    "2026-09-28"
+   ],
+   "rows": 446,
+   "symbols": 83
+  },
+  "presession_outcomes.jsonl": {
+   "range": [
+    "2026-09-03",
+    "2026-10-09"
+   ],
+   "rows": 2568,
+   "symbols": 899
+  },
+  "press_radar_ledger.jsonl": {
+   "range": [
+    "2026-08-14",
+    "2026-10-09"
+   ],
+   "rows": 1141,
+   "symbols": 351
+  },
+  "tier_fwd_ledger.jsonl": {
+   "range": [
+    "2026-08-24",
+    "2026-09-29"
+   ],
+   "rows": 1016,
+   "symbols": 323
+  }
+ },
+ "pi": {
+  "definition": "Super_stock._had_pivot_identity (M1 price, M2 drop band, M3 prior spike; live FAISAL_ONLY constants) evaluated per bar; M1 on the split-unadjusted price",
+  "from": "2025-05-01",
+  "rows": 174796,
+  "sessions": 361,
+  "symbols": 1108,
+  "to": "2026-10-07"
+ },
+ "tracked": {
+  "first_commit": "2026-06-20T01:15:32+00:00",
+  "last_commit": "2026-10-10T01:58:35+00:00",
+  "near_watch_commits": 50,
+  "pivot_symbols_in_obs": 339,
+  "reject_log_days": 20,
+  "watchlist_commits": 532
+ }
+}
