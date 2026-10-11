@@ -8,7 +8,7 @@
   "rows": 69794,
   "evaluable": 65306,
   "base_rate": 0.0312,
-  "eligible_events": 542,
+  "eligible_events": 540,
   "spike_mult": 5.0,
   "v1x_identity_rows": 69794,
   "v1x_identity_max_rel_diff": 4.999999999999449e-05,
@@ -31,11 +31,11 @@
      2.126
     ],
     "events_captured": 44,
-    "events_eligible": 542,
-    "recall": 0.0812,
+    "events_eligible": 540,
+    "recall": 0.0815,
     "recall_ci95": [
-     0.061,
-     0.1072
+     0.0613,
+     0.1076
     ],
     "trigger_precision": 0.0316,
     "trigger_precision_ci95": [
@@ -55,7 +55,7 @@
     "flagged_tickers": 356,
     "VOL_k": {
      "precision": 0.0297,
-     "recall": 0.0664,
+     "recall": 0.0667,
      "events_captured": 36,
      "rule_minus_pp": 2.17,
      "rule_minus_pp_ci": [
@@ -65,8 +65,8 @@
     },
     "VOLAT_k": {
      "precision": 0.0493,
-     "recall": 0.0756,
-     "events_captured": 41,
+     "recall": 0.0741,
+     "events_captured": 40,
      "rule_minus_pp": 0.21,
      "rule_minus_pp_ci": [
       -1.86,
@@ -75,7 +75,7 @@
     },
     "LOWPX_k": {
      "precision": 0.0394,
-     "recall": 0.0683,
+     "recall": 0.0685,
      "events_captured": 37,
      "rule_minus_pp": 1.2,
      "rule_minus_pp_ci": [
@@ -85,8 +85,8 @@
     },
     "MOM_k": {
      "precision": 0.0244,
-     "recall": 0.0387,
-     "events_captured": 21,
+     "recall": 0.037,
+     "events_captured": 20,
      "rule_minus_pp": 2.7,
      "rule_minus_pp_ci": [
       0.88,
@@ -95,7 +95,7 @@
     },
     "DROP_k": {
      "precision": 0.0575,
-     "recall": 0.107,
+     "recall": 0.1074,
      "events_captured": 58,
      "rule_minus_pp": -0.61,
      "rule_minus_pp_ci": [
@@ -105,7 +105,7 @@
     },
     "LOWRSI_k": {
      "precision": 0.0456,
-     "recall": 0.0775,
+     "recall": 0.0778,
      "events_captured": 42,
      "rule_minus_pp": 0.58,
      "rule_minus_pp_ci": [
@@ -141,12 +141,12 @@
      0.99,
      1.388
     ],
-    "events_captured": 140,
-    "events_eligible": 542,
-    "recall": 0.2583,
+    "events_captured": 139,
+    "events_eligible": 540,
+    "recall": 0.2574,
     "recall_ci95": [
-     0.2232,
-     0.2968
+     0.2223,
+     0.2959
     ],
     "trigger_precision": 0.0348,
     "trigger_precision_ci95": [
@@ -160,14 +160,14 @@
     ],
     "lead_to_x70_q25_med_q75": [
      12.0,
-     17.5,
-     23.25
+     18.0,
+     23.5
     ],
     "flagged_tickers": 689,
     "VOL_k": {
      "precision": 0.0361,
-     "recall": 0.2177,
-     "events_captured": 118,
+     "recall": 0.2167,
+     "events_captured": 117,
      "rule_minus_pp": 0.1,
      "rule_minus_pp_ci": [
       -0.36,
@@ -176,8 +176,8 @@
     },
     "VOLAT_k": {
      "precision": 0.0463,
-     "recall": 0.1919,
-     "events_captured": 104,
+     "recall": 0.1907,
+     "events_captured": 103,
      "rule_minus_pp": -0.91,
      "rule_minus_pp_ci": [
       -1.64,
@@ -186,7 +186,7 @@
     },
     "LOWPX_k": {
      "precision": 0.0397,
-     "recall": 0.1716,
+     "recall": 0.1722,
      "events_captured": 93,
      "rule_minus_pp": -0.25,
      "rule_minus_pp_ci": [
@@ -196,8 +196,8 @@
     },
     "MOM_k": {
      "precision": 0.0239,
-     "recall": 0.1587,
-     "events_captured": 86,
+     "recall": 0.1574,
+     "events_captured": 85,
      "rule_minus_pp": 1.32,
      "rule_minus_pp_ci": [
       0.47,
@@ -206,8 +206,8 @@
     },
     "DROP_k": {
      "precision": 0.0473,
-     "recall": 0.321,
-     "events_captured": 174,
+     "recall": 0.3204,
+     "events_captured": 173,
      "rule_minus_pp": -1.01,
      "rule_minus_pp_ci": [
       -1.64,
@@ -216,7 +216,7 @@
     },
     "LOWRSI_k": {
      "precision": 0.046,
-     "recall": 0.2325,
+     "recall": 0.2333,
      "events_captured": 126,
      "rule_minus_pp": -0.88,
      "rule_minus_pp_ci": [
@@ -252,12 +252,12 @@
      1.108,
      1.352
     ],
-    "events_captured": 268,
-    "events_eligible": 542,
-    "recall": 0.4945,
+    "events_captured": 267,
+    "events_eligible": 540,
+    "recall": 0.4944,
     "recall_ci95": [
-     0.4526,
-     0.5364
+     0.4525,
+     0.5365
     ],
     "trigger_precision": 0.0311,
     "trigger_precision_ci95": [
@@ -277,8 +277,8 @@
     "flagged_tickers": 760,
     "VOL_k": {
      "precision": 0.0335,
-     "recall": 0.441,
-     "events_captured": 239,
+     "recall": 0.4407,
+     "events_captured": 238,
      "rule_minus_pp": 0.48,
      "rule_minus_pp_ci": [
       0.11,
@@ -287,8 +287,8 @@
     },
     "VOLAT_k": {
      "precision": 0.0373,
-     "recall": 0.3413,
-     "events_captured": 185,
+     "recall": 0.3407,
+     "events_captured": 184,
      "rule_minus_pp": 0.1,
      "rule_minus_pp_ci": [
       -0.36,
@@ -297,7 +297,7 @@
     },
     "LOWPX_k": {
      "precision": 0.0348,
-     "recall": 0.3321,
+     "recall": 0.3333,
      "events_captured": 180,
      "rule_minus_pp": 0.35,
      "rule_minus_pp_ci": [
@@ -307,8 +307,8 @@
     },
     "MOM_k": {
      "precision": 0.0259,
-     "recall": 0.3819,
-     "events_captured": 207,
+     "recall": 0.3815,
+     "events_captured": 206,
      "rule_minus_pp": 1.25,
      "rule_minus_pp_ci": [
       0.69,
@@ -318,7 +318,7 @@
     "DROP_k": {
      "precision": 0.0372,
      "recall": 0.5111,
-     "events_captured": 277,
+     "events_captured": 276,
      "rule_minus_pp": 0.11,
      "rule_minus_pp_ci": [
       -0.24,
@@ -327,7 +327,7 @@
     },
     "LOWRSI_k": {
      "precision": 0.0403,
-     "recall": 0.4059,
+     "recall": 0.4074,
      "events_captured": 220,
      "rule_minus_pp": -0.19,
      "rule_minus_pp_ci": [
@@ -363,12 +363,12 @@
      0.625,
      1.091
     ],
-    "events_captured": 60,
-    "events_eligible": 542,
-    "recall": 0.1107,
+    "events_captured": 59,
+    "events_eligible": 540,
+    "recall": 0.1093,
     "recall_ci95": [
-     0.087,
-     0.1399
+     0.0857,
+     0.1384
     ],
     "trigger_precision": 0.0315,
     "trigger_precision_ci95": [
@@ -381,15 +381,15 @@
      15.0
     ],
     "lead_to_x70_q25_med_q75": [
-     10.75,
-     14.5,
+     10.5,
+     14.0,
      20.0
     ],
     "flagged_tickers": 556,
     "VOL_k": {
      "precision": 0.0338,
-     "recall": 0.1292,
-     "events_captured": 70,
+     "recall": 0.1278,
+     "events_captured": 69,
      "rule_minus_pp": -0.72,
      "rule_minus_pp_ci": [
       -1.58,
@@ -398,8 +398,8 @@
     },
     "VOLAT_k": {
      "precision": 0.0433,
-     "recall": 0.1236,
-     "events_captured": 67,
+     "recall": 0.1222,
+     "events_captured": 66,
      "rule_minus_pp": -1.67,
      "rule_minus_pp_ci": [
       -2.84,
@@ -408,7 +408,7 @@
     },
     "LOWPX_k": {
      "precision": 0.0439,
-     "recall": 0.1292,
+     "recall": 0.1296,
      "events_captured": 70,
      "rule_minus_pp": -1.73,
      "rule_minus_pp_ci": [
@@ -418,8 +418,8 @@
     },
     "MOM_k": {
      "precision": 0.0268,
-     "recall": 0.0923,
-     "events_captured": 50,
+     "recall": 0.0907,
+     "events_captured": 49,
      "rule_minus_pp": -0.02,
      "rule_minus_pp_ci": [
       -0.84,
@@ -428,7 +428,7 @@
     },
     "DROP_k": {
      "precision": 0.0478,
-     "recall": 0.1993,
+     "recall": 0.2,
      "events_captured": 108,
      "rule_minus_pp": -2.12,
      "rule_minus_pp_ci": [
@@ -438,7 +438,7 @@
     },
     "LOWRSI_k": {
      "precision": 0.0427,
-     "recall": 0.1402,
+     "recall": 0.1407,
      "events_captured": 76,
      "rule_minus_pp": -1.61,
      "rule_minus_pp_ci": [
@@ -506,7 +506,7 @@
      "free_base": 0.0287
     },
     "beyond_TC_TECH": {
-     "events_added": 57,
+     "events_added": 56,
      "events_added_list": [
       "ACON|2026-01-02",
       "AEHL|2025-08-12",
@@ -530,7 +530,6 @@
       "FEAM|2025-08-04",
       "GCTK|2025-09-12",
       "GOAI|2025-12-26",
-      "GRML|2025-06-30",
       "GRML|2025-06-30",
       "HCWB|2025-09-12",
       "HUIZ|2025-09-02",
@@ -688,8 +687,8 @@
        0.594,
        1.172
       ],
-      "events_eligible": 307,
-      "events_captured": 42,
+      "events_eligible": 305,
+      "events_captured": 41,
       "flags_per_session": 31.17,
       "rule": "BURST_UP"
      },
@@ -734,12 +733,12 @@
      0.67,
      1.065
     ],
-    "events_captured": 84,
-    "events_eligible": 542,
-    "recall": 0.155,
+    "events_captured": 83,
+    "events_eligible": 540,
+    "recall": 0.1537,
     "recall_ci95": [
-     0.127,
-     0.1879
+     0.1257,
+     0.1866
     ],
     "trigger_precision": 0.0321,
     "trigger_precision_ci95": [
@@ -747,20 +746,20 @@
      0.0424
     ],
     "lead_to_onset_q25_med_q75": [
-     9.75,
-     12.5,
+     9.5,
+     12.0,
      18.0
     ],
     "lead_to_x70_q25_med_q75": [
      11.0,
-     16.5,
+     16.0,
      21.0
     ],
     "flagged_tickers": 588,
     "VOL_k": {
      "precision": 0.0363,
-     "recall": 0.214,
-     "events_captured": 116,
+     "recall": 0.213,
+     "events_captured": 115,
      "rule_minus_pp": -0.93,
      "rule_minus_pp_ci": [
       -1.64,
@@ -769,8 +768,8 @@
     },
     "VOLAT_k": {
      "precision": 0.0419,
-     "recall": 0.1827,
-     "events_captured": 99,
+     "recall": 0.1815,
+     "events_captured": 98,
      "rule_minus_pp": -1.49,
      "rule_minus_pp_ci": [
       -2.41,
@@ -779,8 +778,8 @@
     },
     "LOWPX_k": {
      "precision": 0.0417,
-     "recall": 0.1827,
-     "events_captured": 99,
+     "recall": 0.1815,
+     "events_captured": 98,
      "rule_minus_pp": -1.47,
      "rule_minus_pp_ci": [
       -2.47,
@@ -789,8 +788,8 @@
     },
     "MOM_k": {
      "precision": 0.027,
-     "recall": 0.1624,
-     "events_captured": 88,
+     "recall": 0.1611,
+     "events_captured": 87,
      "rule_minus_pp": -0.0,
      "rule_minus_pp_ci": [
       -0.65,
@@ -799,7 +798,7 @@
     },
     "DROP_k": {
      "precision": 0.0429,
-     "recall": 0.262,
+     "recall": 0.263,
      "events_captured": 142,
      "rule_minus_pp": -1.59,
      "rule_minus_pp_ci": [
@@ -809,7 +808,7 @@
     },
     "LOWRSI_k": {
      "precision": 0.0439,
-     "recall": 0.2214,
+     "recall": 0.2222,
      "events_captured": 120,
      "rule_minus_pp": -1.69,
      "rule_minus_pp_ci": [
@@ -891,7 +890,7 @@
      "free_base": 0.0287
     },
     "beyond_TC_TECH": {
-     "events_added": 78,
+     "events_added": 77,
      "events_added_list": [
       "ACON|2026-01-02",
       "AEHL|2025-08-12",
@@ -923,7 +922,6 @@
       "GCTK|2025-09-12",
       "GITS|2025-07-03",
       "GOAI|2025-12-26",
-      "GRML|2025-06-30",
       "GRML|2025-06-30",
       "HCWB|2025-09-12",
       "HUIZ|2025-09-02",
@@ -1094,8 +1092,8 @@
        0.653,
        1.142
       ],
-      "events_eligible": 307,
-      "events_captured": 56,
+      "events_eligible": 305,
+      "events_captured": 55,
       "flags_per_session": 48.24,
       "rule": "BURST_UP_3"
      },
@@ -1140,12 +1138,12 @@
      0.964,
      1.259
     ],
-    "events_captured": 183,
-    "events_eligible": 542,
-    "recall": 0.3376,
+    "events_captured": 182,
+    "events_eligible": 540,
+    "recall": 0.337,
     "recall_ci95": [
-     0.2991,
-     0.3785
+     0.2984,
+     0.3779
     ],
     "trigger_precision": 0.0384,
     "trigger_precision_ci95": [
@@ -1165,8 +1163,8 @@
     "flagged_tickers": 683,
     "VOL_k": {
      "precision": 0.0336,
-     "recall": 0.4096,
-     "events_captured": 222,
+     "recall": 0.4093,
+     "events_captured": 221,
      "rule_minus_pp": 0.13,
      "rule_minus_pp_ci": [
       -0.11,
@@ -1175,8 +1173,8 @@
     },
     "VOLAT_k": {
      "precision": 0.0381,
-     "recall": 0.3118,
-     "events_captured": 169,
+     "recall": 0.3111,
+     "events_captured": 168,
      "rule_minus_pp": -0.33,
      "rule_minus_pp_ci": [
       -0.84,
@@ -1185,8 +1183,8 @@
     },
     "LOWPX_k": {
      "precision": 0.0364,
-     "recall": 0.3229,
-     "events_captured": 175,
+     "recall": 0.3222,
+     "events_captured": 174,
      "rule_minus_pp": -0.15,
      "rule_minus_pp_ci": [
       -0.83,
@@ -1195,8 +1193,8 @@
     },
     "MOM_k": {
      "precision": 0.027,
-     "recall": 0.3542,
-     "events_captured": 192,
+     "recall": 0.3537,
+     "events_captured": 191,
      "rule_minus_pp": 0.78,
      "rule_minus_pp_ci": [
       0.18,
@@ -1205,8 +1203,8 @@
     },
     "DROP_k": {
      "precision": 0.0388,
-     "recall": 0.5258,
-     "events_captured": 285,
+     "recall": 0.5259,
+     "events_captured": 284,
      "rule_minus_pp": -0.39,
      "rule_minus_pp_ci": [
       -0.88,
@@ -1215,7 +1213,7 @@
     },
     "LOWRSI_k": {
      "precision": 0.0406,
-     "recall": 0.4077,
+     "recall": 0.4093,
      "events_captured": 221,
      "rule_minus_pp": -0.57,
      "rule_minus_pp_ci": [
@@ -1306,7 +1304,7 @@
      "free_base": 0.0287
     },
     "beyond_TC_TECH": {
-     "events_added": 170,
+     "events_added": 169,
      "events_added_list": [
       "ACON|2026-01-02",
       "AEHL|2025-08-12",
@@ -1370,7 +1368,6 @@
       "GMEX|2025-11-24",
       "GOAI|2025-12-26",
       "GOVX|2025-07-07",
-      "GRML|2025-06-30",
       "GRML|2025-06-30",
       "HCWB|2025-09-12",
       "HUIZ|2025-09-02",
@@ -1601,8 +1598,8 @@
        0.889,
        1.234
       ],
-      "events_eligible": 307,
-      "events_captured": 110,
+      "events_eligible": 305,
+      "events_captured": 109,
       "flags_per_session": 101.27,
       "rule": "BURST_ANY_3"
      },
@@ -1647,12 +1644,12 @@
      1.048,
      1.241
     ],
-    "events_captured": 315,
-    "events_eligible": 542,
-    "recall": 0.5812,
+    "events_captured": 314,
+    "events_eligible": 540,
+    "recall": 0.5815,
     "recall_ci95": [
-     0.5392,
-     0.622
+     0.5394,
+     0.6224
     ],
     "trigger_precision": 0.0316,
     "trigger_precision_ci95": [
@@ -1672,8 +1669,8 @@
     "flagged_tickers": 769,
     "VOL_k": {
      "precision": 0.0327,
-     "recall": 0.572,
-     "events_captured": 310,
+     "recall": 0.5722,
+     "events_captured": 309,
      "rule_minus_pp": 0.3,
      "rule_minus_pp_ci": [
       0.05,
@@ -1682,8 +1679,8 @@
     },
     "VOLAT_k": {
      "precision": 0.036,
-     "recall": 0.452,
-     "events_captured": 245,
+     "recall": 0.4519,
+     "events_captured": 244,
      "rule_minus_pp": -0.03,
      "rule_minus_pp_ci": [
       -0.39,
@@ -1692,8 +1689,8 @@
     },
     "LOWPX_k": {
      "precision": 0.0342,
-     "recall": 0.4317,
-     "events_captured": 234,
+     "recall": 0.4315,
+     "events_captured": 233,
      "rule_minus_pp": 0.16,
      "rule_minus_pp_ci": [
       -0.29,
@@ -1702,8 +1699,8 @@
     },
     "MOM_k": {
      "precision": 0.0269,
-     "recall": 0.5129,
-     "events_captured": 278,
+     "recall": 0.513,
+     "events_captured": 277,
      "rule_minus_pp": 0.88,
      "rule_minus_pp_ci": [
       0.44,
@@ -1712,8 +1709,8 @@
     },
     "DROP_k": {
      "precision": 0.0358,
-     "recall": 0.6661,
-     "events_captured": 361,
+     "recall": 0.6667,
+     "events_captured": 360,
      "rule_minus_pp": -0.0,
      "rule_minus_pp_ci": [
       -0.32,
@@ -1722,7 +1719,7 @@
     },
     "LOWRSI_k": {
      "precision": 0.0375,
-     "recall": 0.5387,
+     "recall": 0.5407,
      "events_captured": 292,
      "rule_minus_pp": -0.17,
      "rule_minus_pp_ci": [
@@ -1804,7 +1801,7 @@
      "free_base": 0.0287
     },
     "beyond_TC_TECH": {
-     "events_added": 271,
+     "events_added": 270,
      "events_added_list": [
       "ACON|2026-01-02",
       "AEHL|2025-08-12",
@@ -1903,7 +1900,6 @@
       "GOAI|2025-12-26",
       "GOVX|2025-07-07",
       "GP|2026-01-09",
-      "GRML|2025-06-30",
       "GRML|2025-06-30",
       "GXAI|2025-08-19",
       "HCWB|2025-09-12",
@@ -2200,8 +2196,8 @@
        1.013,
        1.281
       ],
-      "events_eligible": 307,
-      "events_captured": 167,
+      "events_eligible": 305,
+      "events_captured": 166,
       "flags_per_session": 124.12,
       "rule": "PATH2"
      },
@@ -2247,11 +2243,11 @@
      2.438
     ],
     "events_captured": 59,
-    "events_eligible": 542,
-    "recall": 0.1089,
+    "events_eligible": 540,
+    "recall": 0.1093,
     "recall_ci95": [
-     0.0853,
-     0.1379
+     0.0857,
+     0.1384
     ],
     "trigger_precision": 0.0593,
     "trigger_precision_ci95": [
@@ -2271,7 +2267,7 @@
     "flagged_tickers": 378,
     "VOL_k": {
      "precision": 0.0297,
-     "recall": 0.0664,
+     "recall": 0.0667,
      "events_captured": 36,
      "rule_minus_pp": 3.0,
      "rule_minus_pp_ci": [
@@ -2281,8 +2277,8 @@
     },
     "VOLAT_k": {
      "precision": 0.0493,
-     "recall": 0.0756,
-     "events_captured": 41,
+     "recall": 0.0741,
+     "events_captured": 40,
      "rule_minus_pp": 1.04,
      "rule_minus_pp_ci": [
       -0.36,
@@ -2291,7 +2287,7 @@
     },
     "LOWPX_k": {
      "precision": 0.0394,
-     "recall": 0.0683,
+     "recall": 0.0685,
      "events_captured": 37,
      "rule_minus_pp": 2.03,
      "rule_minus_pp_ci": [
@@ -2301,8 +2297,8 @@
     },
     "MOM_k": {
      "precision": 0.0244,
-     "recall": 0.0387,
-     "events_captured": 21,
+     "recall": 0.037,
+     "events_captured": 20,
      "rule_minus_pp": 3.53,
      "rule_minus_pp_ci": [
       1.65,
@@ -2311,7 +2307,7 @@
     },
     "DROP_k": {
      "precision": 0.0575,
-     "recall": 0.107,
+     "recall": 0.1074,
      "events_captured": 58,
      "rule_minus_pp": 0.22,
      "rule_minus_pp_ci": [
@@ -2321,7 +2317,7 @@
     },
     "LOWRSI_k": {
      "precision": 0.0456,
-     "recall": 0.0775,
+     "recall": 0.0778,
      "events_captured": 42,
      "rule_minus_pp": 1.41,
      "rule_minus_pp_ci": [
@@ -2543,7 +2539,7 @@
        0.962,
        2.312
       ],
-      "events_eligible": 307,
+      "events_eligible": 305,
       "events_captured": 25,
       "flags_per_session": 9.93,
       "rule": "CAPIT_TC"
@@ -2590,11 +2586,11 @@
      2.117
     ],
     "events_captured": 100,
-    "events_eligible": 542,
-    "recall": 0.1845,
+    "events_eligible": 540,
+    "recall": 0.1852,
     "recall_ci95": [
-     0.1541,
-     0.2193
+     0.1547,
+     0.2201
     ],
     "trigger_precision": 0.0441,
     "trigger_precision_ci95": [
@@ -2614,8 +2610,8 @@
     "flagged_tickers": 513,
     "VOL_k": {
      "precision": 0.0345,
-     "recall": 0.131,
-     "events_captured": 71,
+     "recall": 0.1296,
+     "events_captured": 70,
      "rule_minus_pp": 2.13,
      "rule_minus_pp_ci": [
       0.98,
@@ -2624,8 +2620,8 @@
     },
     "VOLAT_k": {
      "precision": 0.0469,
-     "recall": 0.1347,
-     "events_captured": 73,
+     "recall": 0.1333,
+     "events_captured": 72,
      "rule_minus_pp": 0.89,
      "rule_minus_pp_ci": [
       -0.2,
@@ -2634,7 +2630,7 @@
     },
     "LOWPX_k": {
      "precision": 0.0374,
-     "recall": 0.1107,
+     "recall": 0.1111,
      "events_captured": 60,
      "rule_minus_pp": 1.83,
      "rule_minus_pp_ci": [
@@ -2644,8 +2640,8 @@
     },
     "MOM_k": {
      "precision": 0.0249,
-     "recall": 0.0867,
-     "events_captured": 47,
+     "recall": 0.0852,
+     "events_captured": 46,
      "rule_minus_pp": 3.09,
      "rule_minus_pp_ci": [
       1.87,
@@ -2654,7 +2650,7 @@
     },
     "DROP_k": {
      "precision": 0.0506,
-     "recall": 0.1827,
+     "recall": 0.1833,
      "events_captured": 99,
      "rule_minus_pp": 0.51,
      "rule_minus_pp_ci": [
@@ -2664,7 +2660,7 @@
     },
     "LOWRSI_k": {
      "precision": 0.0455,
-     "recall": 0.1494,
+     "recall": 0.15,
      "events_captured": 81,
      "rule_minus_pp": 1.03,
      "rule_minus_pp_ci": [
@@ -2886,7 +2882,7 @@
        1.179,
        2.199
       ],
-      "events_eligible": 307,
+      "events_eligible": 305,
       "events_captured": 43,
       "flags_per_session": 19.62,
       "rule": "TC_OR_CAPIT"

@@ -1,0 +1,759 @@
+{
+ "mode": "final",
+ "train": [
+  "2025-05-01",
+  "2025-12-31"
+ ],
+ "validation": {
+  "all": {
+   "population": "all",
+   "train_rows": 65306,
+   "train_pos": 2040,
+   "test_rows": 39395,
+   "test_pos": 1245,
+   "M_MAIN": {
+    "auc": 0.5852,
+    "ci": [
+     0.555,
+     0.6153
+    ],
+    "minus_base": -0.0061,
+    "minus_base_ci": [
+     -0.0331,
+     0.0207
+    ],
+    "train_auc": 0.589,
+    "largest_weights": [
+     [
+      "rsi_div",
+      -0.368
+     ],
+     [
+      "ema_up",
+      -0.233
+     ],
+     [
+      "first_up_missing",
+      0.188
+     ],
+     [
+      "stage1",
+      0.181
+     ],
+     [
+      "macd_pos",
+      0.152
+     ],
+     [
+      "loc",
+      -0.147
+     ],
+     [
+      "rsi",
+      -0.142
+     ],
+     [
+      "below3",
+      -0.134
+     ],
+     [
+      "r5",
+      -0.127
+     ],
+     [
+      "split120",
+      0.127
+     ],
+     [
+      "range20",
+      0.123
+     ],
+     [
+      "stage0",
+      -0.114
+     ]
+    ]
+   },
+   "M_INT": {
+    "auc": 0.5368,
+    "ci": [
+     0.5073,
+     0.5677
+    ],
+    "minus_base": -0.0545,
+    "minus_base_ci": [
+     -0.0931,
+     -0.0153
+    ],
+    "train_auc": 0.6873,
+    "largest_weights": [
+     [
+      "bounce*bot_age",
+      0.328
+     ],
+     [
+      "pos60*nlow20",
+      -0.289
+     ],
+     [
+      "bounce",
+      -0.266
+     ],
+     [
+      "hold_n*pos60",
+      -0.263
+     ],
+     [
+      "dist*bot_age",
+      -0.259
+     ],
+     [
+      "rsi*px",
+      0.238
+     ],
+     [
+      "rsi",
+      -0.23
+     ],
+     [
+      "dv20*v5x",
+      -0.23
+     ],
+     [
+      "rsi_div",
+      -0.229
+     ],
+     [
+      "rsi_low*bot_age",
+      -0.224
+     ],
+     [
+      "rsi_low*clv5",
+      0.216
+     ],
+     [
+      "pos60*px",
+      -0.199
+     ]
+    ]
+   },
+   "VOLAT_range20": {
+    "auc": 0.5913,
+    "ci": [
+     0.5591,
+     0.6238
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "DROP_r5": {
+    "auc": 0.5507,
+    "ci": [
+     0.525,
+     0.5791
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "VOL_v1x": {
+    "auc": 0.5247,
+    "ci": [
+     0.4945,
+     0.5532
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "LOWPX": {
+    "auc": 0.5436,
+    "ci": [
+     0.5127,
+     0.5751
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "LOWRSI": {
+    "auc": 0.5538,
+    "ci": [
+     0.5213,
+     0.5841
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "TC_TECH": {
+    "auc": 0.5026,
+    "ci": [
+     0.4935,
+     0.5119
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   }
+  },
+  "free": {
+   "population": "free",
+   "train_rows": 52760,
+   "train_pos": 1534,
+   "test_rows": 30646,
+   "test_pos": 920,
+   "M_MAIN": {
+    "auc": 0.5803,
+    "ci": [
+     0.5472,
+     0.6101
+    ],
+    "minus_base": -0.0111,
+    "minus_base_ci": [
+     -0.047,
+     0.024
+    ],
+    "train_auc": 0.5777,
+    "largest_weights": [
+     [
+      "rsi_div",
+      -0.321
+     ],
+     [
+      "ema_up",
+      -0.237
+     ],
+     [
+      "split120",
+      0.169
+     ],
+     [
+      "first_up_missing",
+      0.147
+     ],
+     [
+      "nlow20",
+      -0.124
+     ],
+     [
+      "stage0",
+      -0.123
+     ],
+     [
+      "pc_bottom_ago_missing",
+      -0.123
+     ],
+     [
+      "pc_vs_bottom_missing",
+      -0.123
+     ],
+     [
+      "stage3",
+      0.12
+     ],
+     [
+      "pc_bottom_ago",
+      -0.118
+     ],
+     [
+      "r5",
+      -0.117
+     ],
+     [
+      "bot_age",
+      0.103
+     ]
+    ]
+   },
+   "M_INT": {
+    "auc": 0.5048,
+    "ci": [
+     0.4735,
+     0.5363
+    ],
+    "minus_base": -0.0866,
+    "minus_base_ci": [
+     -0.1336,
+     -0.0381
+    ],
+    "train_auc": 0.6947,
+    "largest_weights": [
+     [
+      "bounce",
+      -0.503
+     ],
+     [
+      "nlow20*pc_vs_bottom",
+      0.38
+     ],
+     [
+      "bounce*bot_age",
+      0.297
+     ],
+     [
+      "pos60*nlow20",
+      -0.296
+     ],
+     [
+      "rsi*range20",
+      -0.278
+     ],
+     [
+      "hold_n*pos60",
+      -0.27
+     ],
+     [
+      "dist*rise_low10",
+      -0.255
+     ],
+     [
+      "rsi*dist",
+      0.252
+     ],
+     [
+      "v5x*pc_bottom_ago",
+      -0.24
+     ],
+     [
+      "dist*bot_age",
+      -0.236
+     ],
+     [
+      "rsi*clv5",
+      -0.232
+     ],
+     [
+      "dist*nlow20",
+      -0.231
+     ]
+    ]
+   },
+   "VOLAT_range20": {
+    "auc": 0.5914,
+    "ci": [
+     0.5567,
+     0.6264
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "DROP_r5": {
+    "auc": 0.5332,
+    "ci": [
+     0.5045,
+     0.5626
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "VOL_v1x": {
+    "auc": 0.5202,
+    "ci": [
+     0.4876,
+     0.5548
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "LOWPX": {
+    "auc": 0.5256,
+    "ci": [
+     0.49,
+     0.5592
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "LOWRSI": {
+    "auc": 0.5398,
+    "ci": [
+     0.5066,
+     0.5731
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "TC_TECH": {
+    "auc": 0.5,
+    "ci": [
+     0.5,
+     0.5
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   }
+  }
+ },
+ "holdout": {
+  "all": {
+   "population": "all",
+   "train_rows": 65306,
+   "train_pos": 2040,
+   "test_rows": 32799,
+   "test_pos": 849,
+   "M_MAIN": {
+    "auc": 0.6114,
+    "ci": [
+     0.5782,
+     0.6455
+    ],
+    "minus_base": 0.0121,
+    "minus_base_ci": [
+     -0.0155,
+     0.0428
+    ],
+    "train_auc": 0.589,
+    "largest_weights": [
+     [
+      "rsi_div",
+      -0.368
+     ],
+     [
+      "ema_up",
+      -0.233
+     ],
+     [
+      "first_up_missing",
+      0.188
+     ],
+     [
+      "stage1",
+      0.181
+     ],
+     [
+      "macd_pos",
+      0.152
+     ],
+     [
+      "loc",
+      -0.147
+     ],
+     [
+      "rsi",
+      -0.142
+     ],
+     [
+      "below3",
+      -0.134
+     ],
+     [
+      "r5",
+      -0.127
+     ],
+     [
+      "split120",
+      0.127
+     ],
+     [
+      "range20",
+      0.123
+     ],
+     [
+      "stage0",
+      -0.114
+     ]
+    ]
+   },
+   "M_INT": {
+    "auc": 0.5296,
+    "ci": [
+     0.493,
+     0.5637
+    ],
+    "minus_base": -0.0697,
+    "minus_base_ci": [
+     -0.1151,
+     -0.0217
+    ],
+    "train_auc": 0.6873,
+    "largest_weights": [
+     [
+      "bounce*bot_age",
+      0.328
+     ],
+     [
+      "pos60*nlow20",
+      -0.289
+     ],
+     [
+      "bounce",
+      -0.266
+     ],
+     [
+      "hold_n*pos60",
+      -0.263
+     ],
+     [
+      "dist*bot_age",
+      -0.259
+     ],
+     [
+      "rsi*px",
+      0.238
+     ],
+     [
+      "rsi",
+      -0.23
+     ],
+     [
+      "dv20*v5x",
+      -0.23
+     ],
+     [
+      "rsi_div",
+      -0.229
+     ],
+     [
+      "rsi_low*bot_age",
+      -0.224
+     ],
+     [
+      "rsi_low*clv5",
+      0.216
+     ],
+     [
+      "pos60*px",
+      -0.199
+     ]
+    ]
+   },
+   "VOLAT_range20": {
+    "auc": 0.5993,
+    "ci": [
+     0.5607,
+     0.6391
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "DROP_r5": {
+    "auc": 0.5255,
+    "ci": [
+     0.4918,
+     0.5616
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "VOL_v1x": {
+    "auc": 0.5498,
+    "ci": [
+     0.5109,
+     0.5874
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "LOWPX": {
+    "auc": 0.5175,
+    "ci": [
+     0.4774,
+     0.5575
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "LOWRSI": {
+    "auc": 0.54,
+    "ci": [
+     0.5018,
+     0.5799
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "TC_TECH": {
+    "auc": 0.5099,
+    "ci": [
+     0.4989,
+     0.5227
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   }
+  },
+  "free": {
+   "population": "free",
+   "train_rows": 52760,
+   "train_pos": 1534,
+   "test_rows": 26218,
+   "test_pos": 633,
+   "M_MAIN": {
+    "auc": 0.6119,
+    "ci": [
+     0.5696,
+     0.6563
+    ],
+    "minus_base": 0.0044,
+    "minus_base_ci": [
+     -0.0337,
+     0.0445
+    ],
+    "train_auc": 0.5777,
+    "largest_weights": [
+     [
+      "rsi_div",
+      -0.321
+     ],
+     [
+      "ema_up",
+      -0.237
+     ],
+     [
+      "split120",
+      0.169
+     ],
+     [
+      "first_up_missing",
+      0.147
+     ],
+     [
+      "nlow20",
+      -0.124
+     ],
+     [
+      "stage0",
+      -0.123
+     ],
+     [
+      "pc_bottom_ago_missing",
+      -0.123
+     ],
+     [
+      "pc_vs_bottom_missing",
+      -0.123
+     ],
+     [
+      "stage3",
+      0.12
+     ],
+     [
+      "pc_bottom_ago",
+      -0.118
+     ],
+     [
+      "r5",
+      -0.117
+     ],
+     [
+      "bot_age",
+      0.103
+     ]
+    ]
+   },
+   "M_INT": {
+    "auc": 0.5018,
+    "ci": [
+     0.4605,
+     0.5445
+    ],
+    "minus_base": -0.1057,
+    "minus_base_ci": [
+     -0.1689,
+     -0.0432
+    ],
+    "train_auc": 0.6947,
+    "largest_weights": [
+     [
+      "bounce",
+      -0.503
+     ],
+     [
+      "nlow20*pc_vs_bottom",
+      0.38
+     ],
+     [
+      "bounce*bot_age",
+      0.297
+     ],
+     [
+      "pos60*nlow20",
+      -0.296
+     ],
+     [
+      "rsi*range20",
+      -0.278
+     ],
+     [
+      "hold_n*pos60",
+      -0.27
+     ],
+     [
+      "dist*rise_low10",
+      -0.255
+     ],
+     [
+      "rsi*dist",
+      0.252
+     ],
+     [
+      "v5x*pc_bottom_ago",
+      -0.24
+     ],
+     [
+      "dist*bot_age",
+      -0.236
+     ],
+     [
+      "rsi*clv5",
+      -0.232
+     ],
+     [
+      "dist*nlow20",
+      -0.231
+     ]
+    ]
+   },
+   "VOLAT_range20": {
+    "auc": 0.6075,
+    "ci": [
+     0.5573,
+     0.6537
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "DROP_r5": {
+    "auc": 0.5109,
+    "ci": [
+     0.4731,
+     0.5489
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "VOL_v1x": {
+    "auc": 0.5503,
+    "ci": [
+     0.5058,
+     0.5938
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "LOWPX": {
+    "auc": 0.5006,
+    "ci": [
+     0.4565,
+     0.5489
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "LOWRSI": {
+    "auc": 0.5123,
+    "ci": [
+     0.4724,
+     0.553
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   },
+   "TC_TECH": {
+    "auc": 0.5,
+    "ci": [
+     0.5,
+     0.5
+    ],
+    "minus_base": null,
+    "minus_base_ci": null
+   }
+  }
+ }
+}

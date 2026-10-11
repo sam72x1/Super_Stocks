@@ -41,9 +41,24 @@ def load(window=WIN):
     return out, by
 
 
+def unique_events(ev):
+    """One event per (symbol, corrected onset). Ten of 3,727 clean episodes share their onset with the next episode of
+    the same symbol (the first episode's +70% close is the day the second starts), so both collapse to one final leg;
+    counting them twice inflated eligible and captured events (found after the sealed 2026 run; row-level metrics
+    are unaffected). The first episode in file order (the earlier launch) is kept."""
+    seen, out = set(), []
+    for e in ev:
+        key = (e["sym"], e["onset"], e["quality"])
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(e)
+    return out
+
+
 def events(rows, window=WIN):
     cal = json.load(open(os.path.join(K.DATA, "calendar.json"), encoding="utf-8"))["sessions"]
-    ev = [dict(e, launch=e["onset"], x70=e["q"]) for e in K.rd("events.csv.gz", DATA)]
+    ev = [dict(e, launch=e["onset"], x70=e["q"]) for e in unique_events(K.rd("events.csv.gz", DATA))]
     return K.events_index(rows, ev, cal, window), {d: k for k, d in enumerate(cal)}
 
 

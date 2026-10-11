@@ -33,6 +33,9 @@ CODE = [
     ("DM9 the seed exclusion is dropped from the development rows", C + "rn_disc_dev.py",
      'if lo <= r["t"] <= hi and r["sym"] not in K.EXCLUDE and r.get("cond_ok") == "1":',
      'if lo <= r["t"] <= hi and r.get("cond_ok") == "1":', "DG6"),
+    ("DM10 the verdict ignores criterion A3", C + "rn_disc_verdict.py",
+     '    a3 = _gt(_lo(pooled["DROP_k"]["ci95"]), 0) and _gt(_lo(pooled["VOLAT_k"]["ci95"]), 0)',
+     "    a3 = True", "DG9"),
 ]
 
 

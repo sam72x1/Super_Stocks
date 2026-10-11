@@ -221,7 +221,7 @@ def _cell(rs, f):
 def run_window(window, halves=True):
     rows, by = load(window)
     cal = json.load(open(os.path.join(K.DATA, "calendar.json"), encoding="utf-8"))["sessions"]
-    ev = [dict(e, launch=e["onset"], x70=e["q"]) for e in K.rd("events.csv.gz", DATA)]
+    ev = [dict(e, launch=e["onset"], x70=e["q"]) for e in D.unique_events(K.rd("events.csv.gz", DATA))]
     events = K.events_index(rows, ev, cal, window)
     six = {d: k for k, d in enumerate(cal)}
     chk = [r for r in rows if num(r.get("v1x")) is not None and r.get("v1x_bars") is not None]

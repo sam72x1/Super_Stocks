@@ -54,6 +54,12 @@
   "expected DG6"
  ],
  [
+  "DM10 the verdict ignores criterion A3",
+  "fell cleanly",
+  "DG9",
+  "expected DG9"
+ ],
+ [
   "baseline after restore",
   "clean",
   "",

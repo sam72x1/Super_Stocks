@@ -1,0 +1,152 @@
+{
+ "bursts": {
+  "BURST_UP": {
+   "validation": {
+    "lift_lo": 0.816,
+    "matched_lo": 0.561,
+    "extra_lo": 0.0305,
+    "free_base": 0.0284,
+    "ok": false
+   },
+   "holdout": {
+    "lift_lo": 1.065,
+    "matched_lo": 0.536,
+    "extra_lo": 0.033,
+    "free_base": 0.0225,
+    "ok": false
+   },
+   "verdict": "BURST_NOT_SUPPORTED"
+  },
+  "BURST_UP_3": {
+   "validation": {
+    "lift_lo": 0.846,
+    "matched_lo": 0.717,
+    "extra_lo": 0.0303,
+    "free_base": 0.0284,
+    "ok": false
+   },
+   "holdout": {
+    "lift_lo": 0.957,
+    "matched_lo": 0.604,
+    "extra_lo": 0.0288,
+    "free_base": 0.0225,
+    "ok": false
+   },
+   "verdict": "BURST_NOT_SUPPORTED"
+  },
+  "BURST_ANY_3": {
+   "validation": {
+    "lift_lo": 1.11,
+    "matched_lo": 0.857,
+    "extra_lo": 0.0307,
+    "free_base": 0.0284,
+    "ok": false
+   },
+   "holdout": {
+    "lift_lo": 1.176,
+    "matched_lo": 0.661,
+    "extra_lo": 0.0278,
+    "free_base": 0.0225,
+    "ok": false
+   },
+   "verdict": "BURST_NOT_SUPPORTED"
+  },
+  "PATH2": {
+   "validation": {
+    "lift_lo": 1.11,
+    "matched_lo": 0.954,
+    "extra_lo": 0.0303,
+    "free_base": 0.0284,
+    "ok": false
+   },
+   "holdout": {
+    "lift_lo": 1.198,
+    "matched_lo": 0.99,
+    "extra_lo": 0.0288,
+    "free_base": 0.0225,
+    "ok": false
+   },
+   "verdict": "BURST_NOT_SUPPORTED"
+  }
+ },
+ "CAPIT_TC": {
+  "A1": true,
+  "A2": true,
+  "A3": false,
+  "pooled": {
+   "TC_TECH": {
+    "capit_minus_ctrl_pp": 1.88,
+    "ci95": [
+     0.26,
+     3.49
+    ]
+   },
+   "VOLAT_k": {
+    "capit_minus_ctrl_pp": 0.03,
+    "ci95": [
+     -1.5,
+     1.51
+    ]
+   },
+   "DROP_k": {
+    "capit_minus_ctrl_pp": 0.18,
+    "ci95": [
+     -0.67,
+     1.06
+    ]
+   },
+   "LOWRSI_k": {
+    "capit_minus_ctrl_pp": 1.2,
+    "ci95": [
+     -0.26,
+     2.67
+    ]
+   }
+  },
+  "verdict": "IMPROVES_ON_TOOL_EQUAL_TO_GENERIC"
+ },
+ "TC_OR_CAPIT": {
+  "supported": false,
+  "beats_generic": false,
+  "verdict": "TWO_PATHS_NOT_SUPPORTED"
+ },
+ "ceiling": {
+  "verdict": "NO_INFORMATION_BEYOND_VOLATILITY",
+  "M_MAIN_validation": [
+   -0.0061,
+   [
+    -0.0331,
+    0.0207
+   ]
+  ],
+  "M_MAIN_holdout": [
+   0.0121,
+   [
+    -0.0155,
+    0.0428
+   ]
+  ],
+  "M_INT_validation": [
+   -0.0545,
+   [
+    -0.0931,
+    -0.0153
+   ]
+  ],
+  "M_INT_holdout": [
+   -0.0697,
+   [
+    -0.1151,
+    -0.0217
+   ]
+  ]
+ },
+ "predictions": {
+  "Q1 every burst candidate BURST_NOT_SUPPORTED": true,
+  "Q2 CAPIT_TC passes A1": true,
+  "Q3 CAPIT_TC fails A2": false,
+  "Q4 CAPIT_TC fails A3 against DROP_k": true,
+  "Q5 ceiling NO_INFORMATION_BEYOND_VOLATILITY": true,
+  "Q6 TC_OR_CAPIT events >= 1.5 x TC_TECH in each window": true
+ }
+}

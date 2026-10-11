@@ -39,3 +39,17 @@ but not a READY signal. `audit/test_audit.py` (A1–A5) · `audit/audit_mutate.p
   captured forward.
 - **Files.** `recon/rn_recon.py` (`--check`) · `rn_anchor_dev.py` · `rn_room_dev.py` · `rn_gap_dev.py` ·
   `test_recon.py` (RC1–RC7) · `recon_mutate.py`.
+
+**Historical discovery (2026-10-11): `disc/READY_DISCOVERY.md`.**
+- **Target.** The start of the final +70% leg, kept apart from the +70% close and the detector's first detection.
+- **Prior work.** A coverage matrix of everything tested before; none of it is repeated.
+- **Missed winners.** On every daily-bar feature they look like the inactive pivots. A model using all features,
+  with interactions, does not beat a single volatility ranking out of time.
+- **Seed pattern.** The volume burst with a rising close, seen in the seeds, failed on the population.
+- **The one survivor (sealed protocol, single 2026 run, exploratory).** CAPIT_TC — the widest 20-session range plus
+  the sharpest 5-session decline among the session's pivot-days, at the tool's own burden.
+  - It beats the tool's technical part by +1.88 pp pooled [0.26, 3.49], and catches 46 vs 31 and 28 vs 19 events.
+  - It equals ranking by the 5-session decline alone.
+- **Production.** No change.
+- **Files.** `disc/rn_disc_build.py` · `rn_disc_dev.py` · `rn_disc_seeds.py` · `rn_disc_model.py` · `rn_disc_cand.py` ·
+  `rn_disc_verdict.py` · `DISC_PROTOCOL.md` · `test_disc.py` (DG1–DG9) · `disc_mutate.py`.
