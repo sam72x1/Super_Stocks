@@ -1,0 +1,72 @@
+{
+ "run": "2026-10-11",
+ "harness": "faisal_engine/alerts70/a70_mutate.py",
+ "result": [
+  [
+   "M1 volume median reads the next bar",
+   "fell: G1",
+   "clean",
+   "expected G1"
+  ],
+  [
+   "M3 after-hours cut at 17:00",
+   "fell: G3",
+   "clean",
+   "expected G3"
+  ],
+  [
+   "M4 launch day counted as before the start",
+   "fell: G4",
+   "clean",
+   "expected G4"
+  ],
+  [
+   "M5 control drawn from any price bucket",
+   "fell: G5",
+   "clean",
+   "expected G5"
+  ],
+  [
+   "M6 GIT_ENV without the offline protocol",
+   "fell: G6",
+   "clean",
+   "expected G6"
+  ],
+  [
+   "M6b every history blob streamed (no local filter)",
+   "fell: G6",
+   "clean",
+   "expected G6"
+  ],
+  [
+   "M7 seal check skipped",
+   "fell: G7",
+   "clean",
+   "expected G7"
+  ],
+  [
+   "M2 one alert row carries another session's label",
+   "fell: G2",
+   "clean",
+   "expected G2"
+  ],
+  [
+   "M3b one after-hours alert stamped with its own date",
+   "fell: G3",
+   "clean",
+   "expected G3"
+  ],
+  [
+   "M8 corrupted output (full run)",
+   "fell: G8",
+   "clean",
+   "expected G8"
+  ],
+  [
+   "data/ unchanged after the round",
+   "True",
+   "",
+   ""
+  ]
+ ]
+}

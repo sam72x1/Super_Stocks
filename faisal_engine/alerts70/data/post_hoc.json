@@ -1,0 +1,55 @@
+{
+ "label": "post-hoc · descriptive · not preregistered · never decisive",
+ "after_hours_controls": {
+  "k2_controls_alerted_after_16_same_day": 49,
+  "k2_controls_alerted_after_16_same_day_pos": 7,
+  "k1_pool_rows_alerted_after_16_same_day": 129,
+  "k1_pool_rows_alerted_after_16_same_day_pos": 18,
+  "K1_without_them": {
+   "point": 1.822,
+   "lo": 1.233,
+   "hi": 2.471,
+   "a_rows": 674,
+   "a_pos": 61,
+   "b_rows": 10812,
+   "b_pos": 537,
+   "clusters": 832,
+   "reps_ok": 1000
+  },
+  "K2_without_them": {
+   "point": 1.109,
+   "lo": 0.644,
+   "hi": 1.878,
+   "a_rows": 674,
+   "a_pos": 61,
+   "b_rows": 674,
+   "b_pos": 55,
+   "clusters": 333,
+   "reps_ok": 1000,
+   "pairs": 674,
+   "unmatched": 0,
+   "ret1_median_alerted_vs_control": [
+    2.73,
+    2.02
+   ],
+   "volx_median_alerted_vs_control": [
+    11.79,
+    3.78
+   ]
+  }
+ },
+ "alert_price_vs_session_close": {
+  "alerts": 795,
+  "move_at_alert_q25_med_q75": [
+   7.0,
+   20.1,
+   23.3
+  ],
+  "close_vs_alert_pct_q25_med_q75": [
+   -12.1,
+   -5.0,
+   1.9
+  ],
+  "closed_below_alert_price": 544
+ }
+}
