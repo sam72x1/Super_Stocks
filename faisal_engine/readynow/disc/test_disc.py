@@ -144,8 +144,24 @@ def dg4(bars):
                 bad.append(i)
         dev = json.load(open(os.path.join(D.DATA, "cand_dev.json"), encoding="utf-8"))["development"]
         rel = dev["v1x_identity_max_rel_diff"]
-        ok = not bad and rel is not None and rel < 1e-4 and dev["v1x_identity_rows"] > 50000
-        info = f"future-dependent {bad[:3]} · identity rows {dev['v1x_identity_rows']} max rel diff {rel}"
+        # live identity on 40 symbols (recomputed now, not read from the stored result)
+        by_sym = {}
+        for r in K.rd("rows.csv.gz", D.DATA):
+            by_sym.setdefault(r["sym"], []).append(r)
+        syms = sorted(s_ for s_ in by_sym if s_ in bars)
+        syms = syms[::max(1, len(syms) // 40)][:40]
+        live, n = 0.0, 0
+        for sym in syms:
+            x = CA.v1x_series(bars[sym]["v"])
+            for r in by_sym[sym]:
+                if K.num(r.get("v1x")) is not None:
+                    i = bars[sym]["ix"].get(r["t"])
+                    if i is not None and np.isfinite(x[i]):
+                        live = max(live, abs(K.num(r["v1x"]) - x[i]) / max(1.0, abs(x[i])))
+                        n += 1
+        ok = not bad and rel is not None and rel < 1e-4 and dev["v1x_identity_rows"] > 50000 and n > 1000 and live < 1e-4
+        info = (f"future-dependent {bad[:3]} · stored identity {dev['v1x_identity_rows']} rows max {rel} · "
+                f"live {n} rows max {live:.2e}")
     except Exception as ex:                                               # noqa: BLE001
         ok, info = False, f"⛔ {type(ex).__name__}: {ex}"
     check("DG4 v1x_series is causal and equals SEQ70's v1x", ok, info)

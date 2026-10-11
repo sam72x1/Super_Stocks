@@ -1,0 +1,62 @@
+[
+ [
+  "DM1 the +70% leg uses G 1.50 instead of 1.70",
+  "fell cleanly",
+  "DG1",
+  "expected DG1"
+ ],
+ [
+  "DM2 POS710 starts one session earlier (t+6)",
+  "fell cleanly",
+  "DG2",
+  "expected DG2"
+ ],
+ [
+  "DM3 IN_EVENT ends at the peak (ignores a later detection)",
+  "fell cleanly",
+  "DG2",
+  "expected DG2"
+ ],
+ [
+  "DM4 hl_count reads the next session's close",
+  "fell cleanly",
+  "DG3",
+  "expected DG3"
+ ],
+ [
+  "DM5 the v1x baseline shifts by one session",
+  "fell cleanly",
+  "DG4",
+  "expected DG4"
+ ],
+ [
+  "DM6 the candidate development run reads the holdout",
+  "fell cleanly",
+  "DG5",
+  "expected DG5"
+ ],
+ [
+  "DM7 the pinned protocol hash drifts",
+  "fell cleanly",
+  "DG5",
+  "expected DG5"
+ ],
+ [
+  "DM8 the burst threshold is hard-coded at 4",
+  "fell cleanly",
+  "DG6",
+  "expected DG6"
+ ],
+ [
+  "DM9 the seed exclusion is dropped from the development rows",
+  "fell cleanly",
+  "DG6",
+  "expected DG6"
+ ],
+ [
+  "baseline after restore",
+  "clean",
+  "",
+  ""
+ ]
+]
