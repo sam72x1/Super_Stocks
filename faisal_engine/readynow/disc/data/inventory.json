@@ -1,0 +1,28 @@
+{
+ "bars_symbols": 3584,
+ "edge_clipped": 236,
+ "episodes": 3842,
+ "episodes_ok": 3727,
+ "first_row": "2025-05-01",
+ "labels_L": {
+  "CENSORED": 16506,
+  "IN_EVENT": 13506,
+  "NEG": 140229,
+  "POS710": 4276,
+  "UNKNOWN_SPLIT": 279
+ },
+ "labels_on": {
+  "CENSORED": 16653,
+  "IN_EVENT": 10062,
+  "NEG": 143269,
+  "POS710": 4493,
+  "UNKNOWN_SPLIT": 319
+ },
+ "last_row": "2026-10-07",
+ "no_x70": 240,
+ "onset_after_L": 1888,
+ "onset_equals_L": 1839,
+ "onset_equals_q": 1079,
+ "rows": 174796,
+ "symbols": 1108
+}

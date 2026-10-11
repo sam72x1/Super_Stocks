@@ -1,0 +1,118 @@
+{
+ "DKI": [
+  {
+   "anchor_et": "16:19",
+   "date": "2026-09-24",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": ""
+  }
+ ],
+ "DLXY": [
+  {
+   "anchor_et": "08:01",
+   "date": "2026-09-16",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": "قوي"
+  },
+  {
+   "anchor_et": "08:07",
+   "date": "2026-09-16",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": "قوي"
+  },
+  {
+   "anchor_et": "04:06",
+   "date": "2026-09-18",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": ""
+  },
+  {
+   "anchor_et": "09:14",
+   "date": "2026-09-28",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": "ضعيف"
+  },
+  {
+   "anchor_et": "09:46",
+   "date": "2026-09-28",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": "قوي"
+  }
+ ],
+ "RETO": [
+  {
+   "anchor_et": "15:13",
+   "date": "2026-09-08",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": ""
+  },
+  {
+   "anchor_et": "10:35",
+   "date": "2026-09-15",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": "قوي"
+  },
+  {
+   "anchor_et": "04:06",
+   "date": "2026-09-16",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": ""
+  },
+  {
+   "anchor_et": "04:06",
+   "date": "2026-09-17",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": "قوي"
+  },
+  {
+   "anchor_et": "17:00",
+   "date": "2026-09-18",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": "ضعيف"
+  },
+  {
+   "anchor_et": "10:02",
+   "date": "2026-09-21",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": "ضعيف"
+  },
+  {
+   "anchor_et": "05:41",
+   "date": "2026-09-24",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": "ضعيف"
+  },
+  {
+   "anchor_et": "09:34",
+   "date": "2026-09-24",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": ""
+  },
+  {
+   "anchor_et": "11:12",
+   "date": "2026-09-29",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": ""
+  }
+ ],
+ "SXTC": [
+  {
+   "anchor_et": "05:26",
+   "date": "2026-08-21",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": ""
+  },
+  {
+   "anchor_et": "04:33",
+   "date": "2026-09-11",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": "ضعيف"
+  },
+  {
+   "anchor_et": "10:55",
+   "date": "2026-09-29",
+   "src": "alerts70/alerts.csv.gz",
+   "tier": ""
+  }
+ ]
+}
