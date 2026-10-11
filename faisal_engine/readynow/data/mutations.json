@@ -1,0 +1,72 @@
+{
+ "run": "2026-10-11",
+ "harness": "faisal_engine/readynow/rn_mutate.py",
+ "result": [
+  [
+   "M1 RSI read from the next session",
+   "fell: G1",
+   "clean",
+   "expected G1"
+  ],
+  [
+   "M2 the window reader ignores its end date",
+   "fell: G2",
+   "clean",
+   "expected G2"
+  ],
+  [
+   "M3 holdout runs past the label-known limit",
+   "fell: G3",
+   "clean",
+   "expected G3"
+  ],
+  [
+   "M4 the positive window starts at t+6",
+   "fell: G4",
+   "clean",
+   "expected G4"
+  ],
+  [
+   "M4b censoring forgets the detection gap",
+   "fell: G4",
+   "clean",
+   "expected G4"
+  ],
+  [
+   "M5 matching ignores the caliper",
+   "fell: G5",
+   "clean",
+   "expected G5"
+  ],
+  [
+   "M5b matching ignores the tool status",
+   "fell: G5",
+   "clean",
+   "expected G5"
+  ],
+  [
+   "M6 seal check skipped",
+   "fell: G6",
+   "clean",
+   "expected G6"
+  ],
+  [
+   "M8 the candidate's RSI limit drifts to 31",
+   "fell: G8",
+   "clean",
+   "expected G8"
+  ],
+  [
+   "M7 corrupted output (full run)",
+   "fell: G7",
+   "clean",
+   "expected G7"
+  ],
+  [
+   "data/ unchanged after the round",
+   "True",
+   "",
+   ""
+  ]
+ ]
+}

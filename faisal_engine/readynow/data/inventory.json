@@ -1,0 +1,21 @@
+{
+ "MAXGAP_used": 19,
+ "calendar_last": "2026-10-08",
+ "episodes": 3842,
+ "episodes_ok": 3727,
+ "ewin_rows": 14908,
+ "label_known_last_decision": "2026-08-27",
+ "labels": {
+  "CENSORED": 16506,
+  "IN_EVENT": 13506,
+  "NEG": 140229,
+  "POS710": 4276,
+  "UNKNOWN_SPLIT": 279
+ },
+ "last_session": "2026-10-07",
+ "max_launch_to_detection": 19,
+ "ok_with_pivot_in_early_window": 1345,
+ "rows": 174796,
+ "seed_rows": 551,
+ "symbols": 1108
+}
