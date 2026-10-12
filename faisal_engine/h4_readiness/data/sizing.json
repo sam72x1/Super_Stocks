@@ -1,0 +1,139 @@
+{
+ "fetch_full": {
+  "bytes_per_bar_json": 90,
+  "distinct_sessions": 99,
+  "first": "2026-05-08",
+  "flat_files_mb": 2673,
+  "last": "2026-09-29",
+  "merged_ranges": 504,
+  "rest1_mb_upper_bound": 1636.9,
+  "rest30_mb_upper_bound": 54.6,
+  "rest_requests_upper_bound": 559,
+  "symbol_sessions": 18946,
+  "symbols": 502
+ },
+ "fetch_primary_only": {
+  "bytes_per_bar_json": 90,
+  "distinct_sessions": 90,
+  "first": "2026-05-20",
+  "flat_files_mb": 2430,
+  "last": "2026-09-28",
+  "merged_ranges": 504,
+  "rest1_mb_upper_bound": 1559.3,
+  "rest30_mb_upper_bound": 52.0,
+  "rest_requests_upper_bound": 540,
+  "symbol_sessions": 18048,
+  "symbols": 502
+ },
+ "inputs": {
+  "cohort.csv.gz": "c14a66b80a3fd6d957643b4904d4ccf88ea1831d520bf7b437943cdee753030d",
+  "units.csv.gz": "ef0573ec1dc6b9e1a7145bcf589ae14365ca7801c2332ccf9cb0a552d4c40f88"
+ },
+ "params": {
+  "AGG_LIMIT": 50000,
+  "BARS30": 32,
+  "EXT_MIN": 960,
+  "LOOK": 25,
+  "PRIMARY_SPAN": 31,
+  "RECENT": 5,
+  "RECLAIM": 2,
+  "WIN_FIRST": 10
+ },
+ "pilot": {
+  "requests_minute_crosscheck": 3,
+  "requests_symbols": 24,
+  "requests_total": 29,
+  "requests_witness": 2,
+  "span": [
+   "2026-06-01",
+   "2026-09-23"
+  ],
+  "split_included": [
+   "AMIX",
+   "WXM",
+   "SLMT",
+   "ZCMD"
+  ],
+  "stale_included": [],
+  "symbols": [
+   "DXST",
+   "AMIX",
+   "WXM",
+   "IVDA",
+   "EOSE",
+   "HTCO",
+   "EMAT",
+   "GVH",
+   "SLMT",
+   "CLIK",
+   "CNET",
+   "ATPC",
+   "CRVO",
+   "MTVA",
+   "KIDZ",
+   "ZYBT",
+   "USGO",
+   "ZCMD",
+   "NMRA",
+   "WHLR"
+  ]
+ },
+ "symbols_local_bars_end_before_last_session": [],
+ "units": {
+  "by_label_pre_move": {
+   "CTRL|pre_move=0": 529,
+   "CTRL|pre_move=1": 15,
+   "WIN|pre_move=0": 37,
+   "WIN|pre_move=1": 29
+  },
+  "cutoff_moved_to_t0_star_by_label_pre_move": {
+   "CTRL|pre_move=0": 71,
+   "CTRL|pre_move=1": 1,
+   "WIN|pre_move=0": 8,
+   "WIN|pre_move=1": 5
+  },
+  "daily_evaluable_by_label_pre_move": {
+   "CTRL|pre_move=0": 522,
+   "CTRL|pre_move=1": 14,
+   "WIN|pre_move=0": 36,
+   "WIN|pre_move=1": 29
+  },
+  "missing_calendar_t0": [],
+  "primary_window_missing_local_daily": 31,
+  "primary_window_missing_local_daily_list": [
+   "ADXN|2026-09-10",
+   "BMGL|2026-09-10",
+   "BNR|2026-09-02",
+   "CAPR|2026-08-18",
+   "ELOG|2026-09-18",
+   "EUDA|2026-09-10",
+   "GDHG|2026-09-01",
+   "GRNQ|2026-09-10",
+   "HUIZ|2026-08-18",
+   "INHD|2026-08-17",
+   "JDZG|2026-09-09",
+   "JWEL|2026-09-10",
+   "KELYB|2026-08-31",
+   "KXIN|2026-08-26",
+   "MB|2026-08-25",
+   "NAMI|2026-08-19",
+   "PRHI|2026-08-12",
+   "RADX|2026-08-27",
+   "RDAC|2026-08-18",
+   "RDIB|2026-09-04",
+   "RETO|2026-08-17",
+   "RETO|2026-09-04",
+   "RNAZ|2026-08-24",
+   "SQFT|2026-09-22",
+   "SSM|2026-08-12",
+   "TREO|2026-08-20",
+   "WATR|2026-08-19",
+   "XCH|2026-09-23",
+   "XHG|2026-09-11",
+   "YXT|2026-08-17",
+   "YXT|2026-09-16"
+  ],
+  "total": 610,
+  "winner_events": 65
+ }
+}

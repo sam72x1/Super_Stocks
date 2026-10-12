@@ -1,0 +1,261 @@
+{
+ "definitions": {
+  "YMAT": [
+   {
+    "event": "YMAT|2026-09-09",
+    "max_alert_price_gain": "115.1",
+    "max_alert_price_session": "pre_market",
+    "peak_gain_close": "71.3",
+    "r_after_first_priced_alert": "-17.9",
+    "r_high_regular": "76.6",
+    "w100_after_alert": "0",
+    "w100_alert_price": "1",
+    "w100_close": "0",
+    "w100_high": "0"
+   }
+  ],
+  "alert_price_hit_by_session": {
+   "after_hours": 4,
+   "pre_market": 18,
+   "regular": 21
+  },
+  "alert_price_not_close": [
+   "DBGI|2026-09-04",
+   "DXST|2026-09-29",
+   "ONCO|2026-08-31",
+   "YMAT|2026-09-09"
+  ],
+  "close_and_high": 81,
+  "close_not_after_alert": {
+   "no_priced_alert": 20,
+   "priced_alert_not_doubled": 25
+  },
+  "cohort_close_definition": 81,
+  "high_not_close": [
+   "AEHL|2026-09-08",
+   "AIFU|2026-08-20",
+   "ARTL|2026-09-17",
+   "BIAF|2026-09-17",
+   "BIYA|2026-10-07",
+   "BKYI|2026-09-29",
+   "BMGL|2026-09-14",
+   "CHAI|2026-08-28",
+   "DBGI|2026-09-04",
+   "DXST|2026-09-29",
+   "EMAT|2026-08-14",
+   "FLX|2026-09-22",
+   "FLYE|2026-09-01",
+   "FNGR|2026-09-30",
+   "INLF|2026-09-22",
+   "JEM|2026-08-25",
+   "JZ|2026-08-20",
+   "KXIN|2026-09-17",
+   "LHSW|2026-08-24",
+   "LSTA|2026-08-03",
+   "MBRX|2026-08-07",
+   "MEDS|2026-09-15",
+   "MOBX|2026-10-06",
+   "NAMI|2026-09-15",
+   "OLOX|2026-09-17",
+   "ONCO|2026-08-31",
+   "PFSA|2026-09-17",
+   "RAIN|2026-09-22",
+   "RDAC|2026-08-19",
+   "SBFM|2026-10-07",
+   "SDOT|2026-08-21",
+   "SDOT|2026-08-24",
+   "SDST|2026-09-15",
+   "SSM|2026-08-13",
+   "TDIC|2026-09-25",
+   "TNMG|2026-09-18",
+   "TRUG|2026-09-11",
+   "VIOT|2026-09-10",
+   "VSA|2026-09-23"
+  ],
+  "linked_episodes_rows": 121,
+  "max_alert_session_all": {
+   "after_hours": 11,
+   "pre_market": 41,
+   "regular": 44,
+   "unpriced": 25
+  },
+  "split_near_linked_w100": 6,
+  "unalerted_w100": 91,
+  "w100_after_alert": 40,
+  "w100_alert_price": 43,
+  "w100_close": 81,
+  "w100_high": 120
+ },
+ "fetch_alert_population": {
+  "assumptions": {
+   "flat_files": "27 MB and 6.1 s per day, measured once on 2026-08-12 (T-AH) — may differ today",
+   "rest": "one /v2/aggs minute request per 50000 base minutes at 960 minutes per session (upper bound)",
+   "window": "[earliest anchor − 35 sessions, latest anchor]; anchors = alert decision session and, for linked winners, launch"
+  },
+  "distinct_sessions": 95,
+  "first": "2026-05-15",
+  "flat_files_mb": 2565,
+  "flat_files_reduce_min": 9.7,
+  "last": "2026-09-30",
+  "rest_requests_upper_bound": 580,
+  "symbol_sessions": 20510,
+  "symbols": 502,
+  "units": 610,
+  "units_without_calendar_date": 0
+ },
+ "fetch_atlas_population": {
+  "eligible_events": 1093,
+  "excluded_symbols": [
+   "DKI",
+   "DLXY",
+   "HUBC",
+   "RETO",
+   "SXTC"
+  ],
+  "first": "2025-03-12",
+  "flat_files_mb": 9936,
+  "flat_files_reduce_min": 37.4,
+  "last": "2026-08-27",
+  "pivot_days_in_windows": 146496,
+  "rest_requests_upper_bound": 8432,
+  "sessions": 368,
+  "symbols": 1054
+ },
+ "inputs": {
+  "alt_definitions.csv.gz": "298ffd6a26a68b25080262d82ec239c1b484d1fa67fde2a74c8a8f129335186c",
+  "build_result.json": "000f2f83b52aa8b92f15a5d8e588dedb4baaf09c1a1c439d7bbd5f744e3656ba",
+  "calendar": [
+   "2024-05-01",
+   "2026-10-08",
+   612
+  ],
+  "cohort.csv.gz": "c14a66b80a3fd6d957643b4904d4ccf88ea1831d520bf7b437943cdee753030d",
+  "units.csv.gz": "ef0573ec1dc6b9e1a7145bcf589ae14365ca7801c2332ccf9cb0a552d4c40f88",
+  "windows_match_rn_lib": true
+ },
+ "local_intraday": {
+  "alert_population_units_with_4h": 0,
+  "cov30": {
+   "bars_stored_locally": false,
+   "note": "coverage metadata only (first/last/count per symbol); the 30-minute bars were not saved",
+   "oldest_regular_bar": "2021-03-26",
+   "run": 37069733057,
+   "symbols_requested": 32,
+   "symbols_returned": 31
+  },
+  "eligible_events_all_windows": 1093,
+  "eligible_events_with_any_intraday_bar": 1,
+  "eligible_events_with_intraday_ohlc": 0,
+  "neg_rows_with_intraday_ohlc": 43
+ },
+ "matching": {
+  "controls_per_winner_min_median_max": [
+   6,
+   22,
+   38
+  ],
+  "rule": "same price group (<$1 / ≥$1), same 20-session range tercile, decision within ±5 sessions",
+  "winners_with_zero_controls": 0
+ },
+ "timing": {
+  "first_alert": {
+   "AT_OR_AFTER_100": 13,
+   "LAUNCH_DAY": 12,
+   "PRE_LAUNCH": 33,
+   "SAME_SESSION_ORDER_UNKNOWN": 5,
+   "UNDERWAY_PRE100": 18
+  },
+  "first_alert_time_kind": {
+   "first_commit_upper_bound": 42,
+   "trigger_minute": 39
+  }
+ },
+ "units": {
+  "by_label": {
+   "CTRL": 544,
+   "EXCLUDED_CENSORED": 72,
+   "EXCLUDED_PEAK_CENSORED": 15,
+   "EXCLUDED_UNKNOWN_SPLIT": 5,
+   "WIN": 66
+  },
+  "chronological_thirds": {
+   "controls": [
+    38,
+    207,
+    180
+   ],
+   "cuts": [
+    "2026-08-13",
+    "2026-09-03"
+   ],
+   "decision_sessions": 46,
+   "winners": [
+    3,
+    7,
+    14
+   ]
+  },
+  "controls": 544,
+  "controls_with_daily_features": 425,
+  "excluded_reasons": {
+   "EXCLUDED_CENSORED": 72,
+   "EXCLUDED_PEAK_CENSORED": 15,
+   "EXCLUDED_UNKNOWN_SPLIT": 5
+  },
+  "primary_by_first_stream": {
+   "controls": {
+    "ignition": 6,
+    "liquidity": 182,
+    "operator_entry": 140,
+    "pullback_monitor": 97
+   },
+   "winners": {
+    "liquidity": 11,
+    "operator_entry": 7,
+    "pullback_monitor": 6
+   }
+  },
+  "primary_by_list_at_t0": {
+   "controls": {
+    "carried": 24,
+    "near_watch": 253,
+    "none": 68,
+    "pullback": 10,
+    "watchlist": 70
+   },
+   "winners": {
+    "carried": 1,
+    "near_watch": 15,
+    "none": 2,
+    "pullback": 1,
+    "watchlist": 5
+   }
+  },
+  "primary_by_month": {
+   "controls": {
+    "2026-07": 13,
+    "2026-08": 211,
+    "2026-09": 201
+   },
+   "winners": {
+    "2026-08": 8,
+    "2026-09": 16
+   }
+  },
+  "primary_by_price": {
+   "controls": {
+    "at_or_above_1": 333,
+    "below_1": 92
+   },
+   "winners": {
+    "at_or_above_1": 17,
+    "below_1": 7
+   }
+  },
+  "runs": 702,
+  "thirds_below_small_n": true,
+  "winners": 66,
+  "winners_pre_move": 29,
+  "winners_pre_move_with_daily_features": 24
+ }
+}
