@@ -552,7 +552,7 @@
  },
  "LIQ:OLB": {
   "anchor_ms": 1791830940000,
-  "last_ms": 1791830940000,
+  "last_ms": 1791831000000,
   "sent": [
    "M1"
   ],
@@ -560,7 +560,7 @@
   "vol_x": 26.9,
   "peak_usd": 503125,
   "last_eval_ms": 1791831000000,
-  "pulse_ms": 1791830940000,
+  "pulse_ms": 1791831000000,
   "anchor_price": 0.6166,
   "anchor_open": 0.5708,
   "anchor_low": 0.5699,
