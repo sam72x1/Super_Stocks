@@ -126,7 +126,7 @@
  },
  "LIQ:TCRT": {
   "anchor_ms": 1791819480000,
-  "last_ms": 1791819480000,
+  "last_ms": 1791819540000,
   "sent": [
    "M1"
   ],
@@ -134,7 +134,7 @@
   "vol_x": 8.8,
   "peak_usd": 63571,
   "last_eval_ms": 1791819540000,
-  "pulse_ms": 1791819480000,
+  "pulse_ms": 1791819540000,
   "anchor_price": 0.95,
   "anchor_open": 0.9226,
   "anchor_low": 0.9151,
