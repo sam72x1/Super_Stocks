@@ -1,0 +1,560 @@
+[
+ {
+  "source": "daily bars (rank universe)",
+  "path": "faisal_engine/data/rank/bars.json.gz",
+  "bytes": 29162182,
+  "meta": {
+   "utc": "2026-10-09T14:18:33+00:00",
+   "start": "2024-05-01",
+   "n_requested": 648,
+   "asked": 3600,
+   "got": 3585,
+   "none": [
+    "BCAB",
+    "BTAI",
+    "DRCT",
+    "FEED",
+    "FLZH",
+    "ILLR",
+    "JFB",
+    "LESL",
+    "LPSN",
+    "NVNI",
+    "SOBR"
+   ],
+   "empty": [
+    "FBYDP",
+    "RTSN",
+    "SVA",
+    "TRXB"
+   ],
+   "map": "scan",
+   "secs": 107.9,
+   "source": "tradingview · regular session · adjustment=splits"
+  },
+  "symbols": 3585,
+  "daily_rows": 1915554,
+  "fields": [
+   "date",
+   "open",
+   "high",
+   "low",
+   "close",
+   "volume"
+  ],
+  "first_date_range": [
+   "2024-05-01",
+   "2026-10-09"
+  ],
+  "last_date_range": [
+   "2025-09-12",
+   "2026-10-09"
+  ],
+  "rows_with_null_ohlc": 0,
+  "pit": "yes — every bar is dated; features read bars ≤ T; split-adjusted prices (ratios are split-invariant; traded price = adjusted × later split ratios)",
+  "original": "original TradingView download 2026-10-09 (regular session, adjustment=splits); the 2026-10-09 bar is intraday-partial and dropped by the loader",
+  "limits": "no extended-hours bars; no intraday bars; 15 requested symbols missing; delisted symbols absent (survivorship toward symbols listed on 2026-10-09)"
+ },
+ {
+  "source": "split history",
+  "path": "faisal_engine/data/rank/splits.json",
+  "bytes": 132274,
+  "symbols": 3600,
+  "symbols_with_events": 1646,
+  "events": 4411,
+  "reverse_events": 2212,
+  "forward_events": 2199,
+  "reverse_since_2024_05": 1039,
+  "date_range": [
+   "1962-10-31",
+   "2026-10-09"
+  ],
+  "fields": [
+   "date",
+   "ratio (<1 = reverse)"
+  ],
+  "pit": "yes — dated events (a split is known on its date)",
+  "original": "original Yahoo split history (snapshot)",
+  "limits": "split announcements before the effective date are not recorded; duplicates of the same ratio within days occur (collapsed)"
+ },
+ {
+  "source": "daily bars (universe test)",
+  "path": "faisal_engine/data/universe_bars.json.gz",
+  "bytes": 5245287,
+  "meta": {
+   "utc": "2026-10-09T11:33:49+00:00",
+   "start": "2025-01-01",
+   "asked": 800,
+   "got": 783,
+   "rep": {
+    "src": "tradingview",
+    "asked": 800,
+    "tv": 783,
+    "none": [
+     "BCAB",
+     "BTAI",
+     "DRCT",
+     "FEED",
+     "FLZH",
+     "ILLR",
+     "JFB",
+     "LESL",
+     "LPSN",
+     "NVNI",
+     "QMMM",
+     "SBDS",
+     "SOBR",
+     "UNK"
+    ],
+    "empty": [],
+    "short": [
+     "HWH",
+     "LABT",
+     "NUR"
+    ],
+    "map": "scan",
+    "secs": 32.3,
+    "n": 473
+   },
+   "source": "tradingview · regular session · adjustment=splits",
+   "manifest_dates": 34
+  },
+  "symbols": 783,
+  "daily_rows": 333022,
+  "fields": [
+   "date",
+   "open",
+   "high",
+   "low",
+   "close",
+   "volume"
+  ],
+  "first_date_range": [
+   "2025-01-02",
+   "2026-03-17"
+  ],
+  "last_date_range": [
+   "2025-09-12",
+   "2026-10-08"
+  ],
+  "rows_with_null_ohlc": 0,
+  "splits_symbols_with_events": 576,
+  "pit": "yes",
+  "original": "original TradingView download 2026-10-09 for the universe test",
+  "limits": "783 symbols from 2025-01-01 only"
+ },
+ {
+  "source": "daily + hourly bars (Phase 6)",
+  "path": "fm_forensics/data/bars_2026-10-08.json.gz",
+  "bytes": 1608901,
+  "meta": {
+   "utc": "2026-10-08T16:20:45+00:00",
+   "start": "2025-01-01",
+   "asked": 238,
+   "got": 232,
+   "rep": {
+    "src": "tradingview",
+    "asked": 238,
+    "tv": 232,
+    "none": [
+     "ATMV",
+     "DRCT",
+     "SNYR"
+    ],
+    "empty": [],
+    "short": [
+     "LABT",
+     "MWC",
+     "SAIQ"
+    ],
+    "map": "scan",
+    "secs": 12.7,
+    "n": 472
+   },
+   "source": "tradingview · regular session · adjustment=splits"
+  },
+  "symbols": 232,
+  "daily_rows": 97564,
+  "fields": [
+   "date",
+   "open",
+   "high",
+   "low",
+   "close",
+   "volume"
+  ],
+  "first_date_range": [
+   "2025-01-02",
+   "2025-11-14"
+  ],
+  "last_date_range": [
+   "2026-10-07",
+   "2026-10-08"
+  ],
+  "rows_with_null_ohlc": 0,
+  "hourly_symbols": [
+   "CRE",
+   "DKI",
+   "HUBC",
+   "SXTC"
+  ],
+  "hourly_rows": {
+   "DKI": 1000,
+   "SXTC": 1000,
+   "HUBC": 1000,
+   "CRE": 1000
+  },
+  "splits_symbols_with_events": 192,
+  "pit": "yes for the bars present",
+  "original": "original TradingView download 2026-10-08",
+  "limits": "hourly bars for 4 symbols only — no 4-hour frame can be rebuilt for the population"
+ },
+ {
+  "source": "SEC submissions + share counts (Phase 6 universe)",
+  "path": "fm_forensics/data/sec_2026-10-08.json.gz",
+  "bytes": 2609214,
+  "meta": {
+   "retrieved_utc": "2026-10-08T23:10:07.602837+00:00",
+   "universe": 238,
+   "cik_map_size": 10435,
+   "sources": [
+    "https://www.sec.gov/files/company_tickers.json",
+    "https://data.sec.gov/submissions/CIK##########.json",
+    "https://data.sec.gov/api/xbrl/companyconcept/CIK##########/dei/EntityCommonStockSharesOutstanding.json",
+    "https://data.sec.gov/api/xbrl/companyconcept/CIK##########/dei/EntityPublicFloat.json"
+   ],
+   "ok": 234
+  },
+  "symbols": 238,
+  "filings": 92937,
+  "offering_forms": {
+   "S-3": 543,
+   "424B5": 1093,
+   "EFFECT": 1784,
+   "424B3": 2222,
+   "S-1": 609,
+   "424B4": 379,
+   "424B8": 3,
+   "F-3": 204,
+   "F-1": 267,
+   "424B1": 28,
+   "424B2": 54,
+   "424B7": 22
+  },
+  "symbols_with_share_counts": 193,
+  "fields": [
+   "filings: form, filingDate, acceptanceDateTime",
+   "shares_outstanding: val, end, filed",
+   "public_float: val (USD), end, filed"
+  ],
+  "pit": "yes by filing date — but only for 238 symbols chosen on 2026-10-08 (the bot's Phase 6 list)",
+  "original": "original SEC EDGAR snapshot",
+  "limits": "a selected, survivorship-biased subset; share counts are as reported (not split-normalised); no float in shares; not the population"
+ },
+ {
+  "source": "pivot-day rows (READY NOW discovery)",
+  "path": "faisal_engine/readynow/disc/data/rows.csv.gz",
+  "bytes": 11689162,
+  "rows": 174796,
+  "symbols": 1108,
+  "date_range": [
+   "2025-05-01",
+   "2026-10-07"
+  ],
+  "labels": {
+   "POS710": 4493,
+   "NEG": 143269,
+   "IN_EVENT": 10062,
+   "CENSORED": 16653,
+   "UNKNOWN_SPLIT": 319
+  },
+  "fields": [
+   "t",
+   "sym",
+   "cond_ok",
+   "lab",
+   "pos110",
+   "to_onset",
+   "to_d1",
+   "ep",
+   "nxt",
+   "lab_x70",
+   "lab_l10",
+   "lab_ign",
+   "rsi",
+   "rsi_low",
+   "low25",
+   "hold_n",
+   "held",
+   "dist",
+   "bounce",
+   "boom5",
+   "ema_up",
+   "ema_x5",
+   "below3",
+   "macd_pos",
+   "split120",
+   "dv20",
+   "px",
+   "pc_stage",
+   "pc_branch",
+   "range20",
+   "tl_dist",
+   "loc",
+   "bt_src",
+   "bot_ready",
+   "spell",
+   "split60",
+   "v1x",
+   "r5",
+   "lab_on",
+   "pos110_on",
+   "ep_on",
+   "to_onset_on",
+   "to_q_on",
+   "to_d1_on",
+   "in_drift",
+   "v5x",
+   "tr5x",
+   "pos60",
+   "bot_age",
+   "nlow20",
+   "clv5",
+   "spell_age",
+   "desc_ok",
+   "pc_held",
+   "pc_bounce",
+   "pc_first_rise",
+   "pc_vs_bottom",
+   "pc_bottom_ago",
+   "ret5",
+   "ret1",
+   "rise_low10",
+   "rsi_div",
+   "rsi_div_gap",
+   "hl_count",
+   "rise10_vdry",
+   "v_then_up",
+   "first_up"
+  ],
+  "pit": "features from bars ≤ T (guarded DG3/G1); labels use later bars (targets only)",
+  "original": "rebuilt (READY70 detector + READYNOW conditions on the local bars)",
+  "limits": "identity M1-M3 only (no float/short/news); decisions 2025-05-01 → 2026-10-07; labels known up to 2026-08-27"
+ },
+ {
+  "source": "explosion episodes",
+  "path": "faisal_engine/readynow/disc/data/events.csv.gz",
+  "rows": 3842,
+  "clean": 3727,
+  "date_range": [
+   "2025-02-14",
+   "2026-10-08"
+  ],
+  "fields": [
+   "sym",
+   "quality",
+   "kind",
+   "gain_d1",
+   "peak_gain",
+   "trough",
+   "L",
+   "onset",
+   "q",
+   "g",
+   "x70",
+   "d1",
+   "ign",
+   "peak",
+   "L_to_onset",
+   "onset_to_q",
+   "onset_to_d1",
+   "l_to_d1",
+   "edge_clipped",
+   "seed",
+   "active"
+  ],
+  "pit": "no — retrospective labels (known once the +70% close prints)",
+  "original": "rebuilt (the bot's scan_explosions semantics as-of each session)",
+  "limits": "daily-close detector: intraday-only spikes are not events; 236 episodes on the 20-session lookback edge"
+ },
+ {
+  "source": "bot alert history",
+  "path": "alerts_history.json",
+  "rows": 277,
+  "symbols": 226,
+  "date_range": [
+   "2026-06-21",
+   "2026-10-10"
+  ],
+  "fields": [
+   "best_spike",
+   "borrow_fee",
+   "date",
+   "drop_pct",
+   "flags",
+   "float",
+   "max_gain_pct",
+   "mg_obs_days",
+   "mg_obs_done",
+   "mg_obs_pct",
+   "price",
+   "ready",
+   "ref_bar",
+   "result_date",
+   "rr",
+   "rsi",
+   "score",
+   "sector",
+   "shares_available",
+   "short"
+  ],
+  "pit": "yes (dated)",
+  "original": "original bot log",
+  "limits": "bot candidates only, not the population"
+ },
+ {
+  "source": "liquidity-anchor alerts (git history)",
+  "path": "faisal_engine/alerts70/data/alerts.csv.gz",
+  "rows": 1206,
+  "symbols": 390,
+  "date_range": [
+   "2026-08-17",
+   "2026-09-29"
+  ],
+  "fields": [
+   "symbol",
+   "date",
+   "anchor_ms",
+   "anchor_et",
+   "src",
+   "anchor_price",
+   "move_at_alert",
+   "vol_x",
+   "usd",
+   "tier",
+   "trig",
+   "rearm_n",
+   "pre_hi",
+   "anchor_open",
+   "prev_close_ledger",
+   "t_M1",
+   "shift",
+   "decision_t",
+   "link",
+   "to_launch",
+   "to_d1",
+   "gain_at_alert",
+   "event",
+   "event_d1",
+   "event_peak_gain",
+   "f10",
+   "f10_k",
+   "f10_gain",
+   "alert70_close"
+  ],
+  "pit": "yes (dated, intraday time)",
+  "original": "rebuilt from git history of op_entry_state.json",
+  "limits": "bot watch universe only; Polygon ended 2026-09-29"
+ },
+ {
+  "source": "borrow harvest (ChartExchange)",
+  "path": "ctb_log.jsonl",
+  "rows": 1698,
+  "symbols": 224,
+  "date_range": [
+   "2026-07-30",
+   "2026-10-10"
+  ],
+  "fields": [
+   "borrow_fee",
+   "cohort",
+   "date",
+   "label_kind",
+   "label_source",
+   "schema",
+   "shares_available",
+   "source",
+   "symbol"
+  ],
+  "pit": "yes for the rows present",
+  "original": "original harvest log",
+  "limits": "starts 2026-08 and covers the bot's lists only — no borrow history for the pivot population"
+ },
+ {
+  "source": "company cache (float, short)",
+  "path": "company_cache.json",
+  "symbols": 623,
+  "pit": "no — latest values, overwritten",
+  "original": "original bot cache",
+  "limits": "cannot be used as a historical float"
+ },
+ {
+  "source": "fill-pool log",
+  "path": "fill_pool_log.jsonl",
+  "rows": 1,
+  "date_range": [
+   "2026-10-10",
+   "2026-10-10"
+  ],
+  "pit": "yes",
+  "original": "original log",
+  "limits": "from 2026-10-08 (prospective)"
+ },
+ {
+  "source": "pre-session ledger (pre-market / after-hours)",
+  "path": "presession_ledger.jsonl",
+  "rows": 2753,
+  "date_range": [
+   "2026-09-03",
+   "2026-10-09"
+  ],
+  "pit": "yes",
+  "original": "original log",
+  "limits": "bot candidates only; Polygon-era (ended 2026-09-29)"
+ },
+ {
+  "source": "operator-flow harvest",
+  "path": "hand_flow_log.jsonl",
+  "rows": 49,
+  "date_range": [
+   "2026-08-07",
+   "2026-09-29"
+  ],
+  "pit": "yes",
+  "original": "original log",
+  "limits": "bot list only; tape-level detail not archived"
+ },
+ {
+  "source": "Phase 6 prospective ledger",
+  "path": "fm_forensics/phase6/data/PHASE6_LEDGER.jsonl",
+  "bytes": 32832828,
+  "pit": "prospective from 2026-10-08",
+  "original": "original",
+  "limits": "future collection — excluded from this historical study by instruction"
+ },
+ {
+  "source": "eye-read register of the images",
+  "path": "fm_forensics/reread/data/reread_records.jsonl",
+  "rows": 794,
+  "images": 772,
+  "by_author": {
+   "U": 417,
+   "F": 249,
+   "A": 56,
+   "T": 66,
+   "O": 6
+  },
+  "faisal_quotes_nonempty": 249,
+  "pit": "n/a (sources)",
+  "original": "eye-read 2026-10-10",
+  "limits": "dates often relative («6 س»); charts are screenshots, not data"
+ },
+ {
+  "source": "Faisal image corpus",
+  "path": "faisal_images/",
+  "files": 773,
+  "pit": "n/a",
+  "original": "original images",
+  "limits": "early IMG_6xxx-8xxx sources survive as text records only (e.g. IMG_6814, IMG_8057)"
+ }
+]

@@ -1,0 +1,50 @@
+{
+ "V1_beats_tool": false,
+ "V2_beats_drop_and_volatility": false,
+ "V3_beats_CAPIT_TC": false,
+ "V4_weights_beat_count": false,
+ "V5_graded_classes": false,
+ "monotone_by_window": {
+  "validation": false,
+  "holdout": false
+ },
+ "ready1_lift_lower_above_1_both": false,
+ "verdict": "NO_DEMONSTRATED_IMPROVEMENT",
+ "classification": "NOT_GRADED",
+ "count_vs_tool": {
+  "validation": {
+   "pp": 0.05,
+   "ci95": [
+    -1.35,
+    1.49
+   ],
+   "events_self_minus_ref": 5
+  },
+  "holdout": {
+   "pp": -1.22,
+   "ci95": [
+    -2.77,
+    0.34
+   ],
+   "events_self_minus_ref": -1
+  }
+ },
+ "app_vs_tool": {
+  "validation": {
+   "pp": 0.77,
+   "ci95": [
+    -1.0,
+    2.58
+   ],
+   "events_self_minus_ref": 8
+  },
+  "holdout": {
+   "pp": -2.3,
+   "ci95": [
+    -3.92,
+    -0.74
+   ],
+   "events_self_minus_ref": -8
+  }
+ }
+}

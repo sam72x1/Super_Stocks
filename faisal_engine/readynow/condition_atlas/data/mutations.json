@@ -1,0 +1,86 @@
+[
+ [
+  "CM1 the 3-session volume maximum reads the next session",
+  "fell cleanly",
+  "CA1",
+  "expected CA1"
+ ],
+ [
+  "CM2 the red hammer is read on a green candle",
+  "fell cleanly",
+  "CA1,CA4",
+  "expected CA1,CA4"
+ ],
+ [
+  "CM3 the harami body ratio is tightened to 0.3",
+  "fell cleanly",
+  "CA1,CA4",
+  "expected CA1,CA4"
+ ],
+ [
+  "CM4 the development test half runs into 2026",
+  "fell cleanly",
+  "CA5",
+  "expected CA5"
+ ],
+ [
+  "CM5 the pinned protocol hash drifts",
+  "fell cleanly",
+  "CA6",
+  "expected CA6"
+ ],
+ [
+  "CM6 the classes ignore invalidation",
+  "fell cleanly",
+  "CA7",
+  "expected CA7"
+ ],
+ [
+  "CM7 the app's support weight is changed to 15",
+  "fell cleanly",
+  "CA8",
+  "expected CA8"
+ ],
+ [
+  "CM8 an atlas entry names a flag that does not exist",
+  "fell cleanly",
+  "CA3",
+  "expected CA3"
+ ],
+ [
+  "CM9 the inventory document drifts from its generator",
+  "fell cleanly",
+  "CA9",
+  "expected CA9"
+ ],
+ [
+  "CM10 the verdict ignores criterion V2",
+  "fell cleanly",
+  "CA10",
+  "expected CA10"
+ ],
+ [
+  "CM11 a result report drifts from its generator",
+  "fell cleanly",
+  "CA11",
+  "expected CA11"
+ ],
+ [
+  "CM12 the reconciliation addendum drifts from its generator",
+  "fell cleanly",
+  "CA12",
+  "expected CA12"
+ ],
+ [
+  "CM13 §0 of the addendum is edited after the run",
+  "fell cleanly",
+  "CA12",
+  "expected CA12"
+ ],
+ [
+  "baseline after restore",
+  "clean",
+  "",
+  ""
+ ]
+]

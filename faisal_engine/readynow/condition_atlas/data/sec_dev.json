@@ -1,0 +1,54 @@
+{
+ "note": "descriptive; 238 symbols selected on 2026-10-08 (biased subset)",
+ "rows_covered": 14297,
+ "symbols_covered": 155,
+ "pos_covered": 420,
+ "rows_with_share_count": 12358,
+ "base": 0.0294,
+ "flags": {
+  "SH2M": {
+   "flagged": 3876,
+   "pos_flagged": 105,
+   "prev_pos": 0.25,
+   "prev_neg": 0.2717,
+   "lift": 0.922,
+   "lift_ci": [
+    0.635,
+    1.226
+   ]
+  },
+  "SH5M": {
+   "flagged": 5934,
+   "pos_flagged": 170,
+   "prev_pos": 0.4048,
+   "prev_neg": 0.4154,
+   "lift": 0.975,
+   "lift_ci": [
+    0.755,
+    1.211
+   ]
+  },
+  "OFFER30": {
+   "flagged": 1494,
+   "pos_flagged": 30,
+   "prev_pos": 0.0714,
+   "prev_neg": 0.1055,
+   "lift": 0.684,
+   "lift_ci": [
+    0.268,
+    1.2
+   ]
+  },
+  "REG90": {
+   "flagged": 5061,
+   "pos_flagged": 119,
+   "prev_pos": 0.2833,
+   "prev_neg": 0.3561,
+   "lift": 0.8,
+   "lift_ci": [
+    0.574,
+    1.046
+   ]
+  }
+ }
+}
