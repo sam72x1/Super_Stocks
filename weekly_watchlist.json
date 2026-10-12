@@ -374,7 +374,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.615,
+   "last_price": 1.6,
    "live_alert": {
     "buyzone": "2026-10-12"
    }
@@ -749,7 +749,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.92,
+   "last_price": 2.97,
    "live_alert": {
     "buyzone": "2026-10-12"
    }
@@ -1138,9 +1138,11 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.38,
+   "last_price": 2.4,
    "live_alert": {
-    "break": "2026-10-12"
+    "break": "2026-10-12",
+    "sweep": "2026-10-12",
+    "buyzone": "2026-10-12"
    }
   },
   {
@@ -1534,9 +1536,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.92,
+   "last_price": 1.7,
    "live_alert": {
-    "break": "2026-10-12"
+    "break": "2026-10-12",
+    "dump": "2026-10-12"
    }
   },
   {
@@ -1870,7 +1873,7 @@
    "hit": "t2",
    "hit_date": "2026-08-14",
    "max_gain_pct": 91.2,
-   "last_price": 2.28,
+   "last_price": 2.2,
    "borrow_hist": [
     [
      "2026-08-14",
@@ -2343,7 +2346,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.5,
-   "last_price": 1.21,
+   "last_price": 1.28,
    "live_alert": {
     "breakout": "2026-10-09"
    },
@@ -2722,7 +2725,7 @@
    "hit": "t2",
    "hit_date": "2026-08-19",
    "max_gain_pct": 262.2,
-   "last_price": 5.4,
+   "last_price": 5.3205,
    "live_alert": {
     "premarket": "2026-08-20",
     "breakout": "2026-08-21",
@@ -3200,7 +3203,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.3,
-   "last_price": 4.26,
+   "last_price": 4.36,
    "exact_hold": {
     "pivot": 4.19,
     "pivot_date": "2026-09-29",
@@ -3609,7 +3612,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.9,
-   "last_price": 1.17,
+   "last_price": 1.145,
    "exact_hold": {
     "pivot": 1.06,
     "pivot_date": "2026-09-18",
@@ -4019,7 +4022,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.6,
-   "last_price": 2.45,
+   "last_price": 2.5,
    "live_alert": {
     "buyzone": "2026-10-12"
    },
@@ -5215,7 +5218,7 @@
    "hit": "t1",
    "hit_date": "2026-09-25",
    "max_gain_pct": 15.4,
-   "last_price": 4.98,
+   "last_price": 5.0225,
    "faisal_levels": "🧭 إغلاقات الهابطة $5.48 · $5.55 · $5.60 · جسم قبل الهبوط $5.77 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-10-09"
@@ -5675,7 +5678,7 @@
    "hit": "t2",
    "hit_date": "2026-09-15",
    "max_gain_pct": 52.5,
-   "last_price": 1.06,
+   "last_price": 1.04,
    "live_alert": {
     "breakout": "2026-10-05",
     "premarket": "2026-09-15"
@@ -6107,7 +6110,7 @@
    "hit": "t2",
    "hit_date": "2026-09-17",
    "max_gain_pct": 24.4,
-   "last_price": 3.87,
+   "last_price": 3.89,
    "live_alert": {
     "breakout": "2026-09-17"
    },
@@ -6561,7 +6564,7 @@
    "hit": "t2",
    "hit_date": "2026-10-05",
    "max_gain_pct": 37.9,
-   "last_price": 2.57,
+   "last_price": 2.47,
    "borrow_hist": [
     [
      "2026-09-18",
@@ -6609,7 +6612,7 @@
     ]
    ],
    "live_alert": {
-    "buyzone": "2026-09-25",
+    "buyzone": "2026-10-12",
     "breakout": "2026-10-05",
     "dump": "2026-10-12"
    },
@@ -7491,7 +7494,7 @@
    "hit": "t1",
    "hit_date": "2026-10-09",
    "max_gain_pct": 8.1,
-   "last_price": 3.48,
+   "last_price": 3.47,
    "borrow_hist": [
     [
      "2026-10-09",
@@ -7906,7 +7909,7 @@
    "hit": "t2",
    "hit_date": "2026-10-05",
    "max_gain_pct": 41.9,
-   "last_price": 0.9333,
+   "last_price": 0.92,
    "live_alert": {
     "breakout": "2026-10-05",
     "dump": "2026-10-06"
@@ -8300,7 +8303,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 1.51,
+   "last_price": 1.49,
    "live_alert": {
     "breakout": "2026-09-01",
     "dump": "2026-08-28"
@@ -8774,7 +8777,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 15.645,
+   "last_price": 15.55,
    "live_alert": {
     "breakout": "2026-09-16"
    },
@@ -9160,7 +9163,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 365.6,
-   "last_price": 3.71,
+   "last_price": 3.49,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -9601,7 +9604,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 8.67,
+   "last_price": 8.65,
    "borrow_hist": [
     [
      "2026-08-19",
@@ -10083,7 +10086,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.1,
-   "last_price": 4.13,
+   "last_price": 4.295,
    "borrow_hist": [
     [
      "2026-09-18",
@@ -10136,7 +10139,8 @@
    ],
    "faisal_levels": "🧭 إغلاقات الهابطة $4.18 · $4.21 · $4.25 · جسم قبل الهبوط $4.86 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
-    "premarket": "2026-09-21"
+    "premarket": "2026-09-21",
+    "breakout": "2026-10-12"
    },
    "pivot_cycle": {
     "stage": 2,
@@ -10496,7 +10500,7 @@
    "hit": "t1",
    "hit_date": "2026-08-13",
    "max_gain_pct": 26.9,
-   "last_price": 1.36,
+   "last_price": 1.3,
    "borrow_hist": [
     [
      "2026-09-10",
@@ -10556,7 +10560,7 @@
     ]
    ],
    "live_alert": {
-    "buyzone": "2026-10-09",
+    "buyzone": "2026-10-12",
     "breakout": "2026-10-06",
     "premarket": "2026-08-17",
     "sweep": "2026-09-02",
@@ -11350,7 +11354,7 @@
    "hit": "t1",
    "hit_date": "2026-08-26",
    "max_gain_pct": 15.6,
-   "last_price": 1.725,
+   "last_price": 1.7,
    "borrow_hist": [
     [
      "2026-09-15",
@@ -11412,7 +11416,7 @@
    "live_alert": {
     "buyzone": "2026-10-12",
     "breakout": "2026-09-14",
-    "break": "2026-10-08",
+    "break": "2026-10-12",
     "sweep": "2026-10-08"
    },
    "spikes": [
@@ -11836,7 +11840,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.3,
-   "last_price": 14.53,
+   "last_price": 14.335,
    "borrow_hist": [
     [
      "2026-10-09",
@@ -12229,7 +12233,7 @@
    "hit": "t2",
    "hit_date": "2026-09-22",
    "max_gain_pct": 50.4,
-   "last_price": 4.67,
+   "last_price": 4.63,
    "borrow_hist": [
     [
      "2026-09-16",
@@ -12734,7 +12738,7 @@
    "sector": "Technology",
    "country": "Canada",
    "float": 10916417,
-   "last_price": 3.25,
+   "last_price": 3.36,
    "status": "watching",
    "triggered_date": null
   },
