@@ -78,6 +78,36 @@
   "expected CA12"
  ],
  [
+  "CM14 the round's runs may write bytecode again (no -B)",
+  "fell cleanly",
+  "CA14",
+  "expected CA14"
+ ],
+ [
+  "CM15 the round's environment no longer forbids bytecode",
+  "fell cleanly",
+  "CA14",
+  "expected CA14"
+ ],
+ [
+  "CM16 the module's bytecode is kept after the restore",
+  "fell cleanly",
+  "CA14",
+  "expected CA14"
+ ],
+ [
+  "CM17 the module's bytecode is kept after the mutated write",
+  "fell cleanly",
+  "CA14",
+  "expected CA14"
+ ],
+ [
+  "CM18 the purge removes every module's bytecode, not the mutated one",
+  "fell cleanly",
+  "CA14",
+  "expected CA14"
+ ],
+ [
   "baseline after restore",
   "clean",
   "",

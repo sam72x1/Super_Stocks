@@ -3,14 +3,23 @@ Run from the repo root:  python3 faisal_engine/readynow/condition_atlas/ca_mutat
 (CA_FAST=1 inside the round: the slow regeneration CA2 is skipped; no mutation targets it.)
 A change to a feature definition in ca_build.py is caught twice by design: by its synthetic check (CA4) and by CA1,
 which recomputes stored features on truncated bars and so sees any drift between the code and the stored data.
+Bytecode is neither written nor trusted (lock-and-mutate §①-ثالث/§④.4): a mutation of the same length as its anchor,
+restored within the same second, leaves a .pyc whose source mtime and size still match, so the next run can import the
+mutated code after the restore — or import the pre-mutation code during the mutation, so it seems to survive. Every
+run is `python -B` with PYTHONDONTWRITEBYTECODE=1, and the mutated module's __pycache__/<module>.*.pyc is removed after
+the mutated write and after the restore (CA14 guards all three; CM14–CM18 show it falls).
 """
+import glob
 import json
 import os
 import subprocess
 import sys
 
 C = "faisal_engine/readynow/condition_atlas/"
-ENV = dict(os.environ, CA_FAST="1")
+ENV = dict(os.environ, CA_FAST="1", PYTHONDONTWRITEBYTECODE="1")
+M = C + "ca_mutate.py"
+# CM14–CM18 mutate this file; their anchors are spelled by concatenation so that the anchor text occurs once in the
+# code it targets and never inside this list.
 CODE = [
     ("CM1 the 3-session volume maximum reads the next session", C + "ca_build.py",
      '    out["b_vmax3"] = pd.Series(v1x).rolling(3, min_periods=1).max().to_numpy()',
@@ -41,11 +50,28 @@ CODE = [
     ("CM13 §0 of the addendum is edited after the run", C + "RECONCILIATION_ADDENDUM.md",
      "(written 2026-10-11 23:50 UTC, before `ca_reconcile.py` was run)",
      "(written 2026-10-11 23:50 UTC, after `ca_reconcile.py` was run)", "CA12"),
+    ("CM14 the round's runs may write bytecode again (no -B)", M,
+     '[sys.executable, ' + '"-B", ' + 'C + "test_ca.py"]', '[sys.executable, ' + 'C + "test_ca.py"]', "CA14"),
+    ("CM15 the round's environment no longer forbids bytecode", M,
+     'CA_FAST="1", ' + 'PYTHONDONTWRITEBYTECODE="1")', 'CA_FAST="1")', "CA14"),
+    ("CM16 the module's bytecode is kept after the restore", M,
+     'write(src)\n' + '            purge(path)\n', 'write(src)\n', "CA14"),
+    ("CM17 the module's bytecode is kept after the mutated write", M,
+     'write(src.replace(old, new, 1))\n' + '            purge(path)\n', 'write(src.replace(old, new, 1))\n', "CA14"),
+    ("CM18 the purge removes every module's bytecode, not the mutated one", M,
+     'stem + ' + '".*.pyc"', '"*.pyc"', "CA14"),
 ]
 
 
+def purge(path):
+    """Remove the compiled bytecode of the module at `path` (and only that module)."""
+    stem = os.path.splitext(os.path.basename(path))[0]
+    for f in glob.glob(os.path.join(os.path.dirname(path), "__pycache__", stem + ".*.pyc")):
+        os.remove(f)
+
+
 def run():
-    p = subprocess.run([sys.executable, C + "test_ca.py"], capture_output=True, text=True, env=ENV, timeout=3600)
+    p = subprocess.run([sys.executable, "-B", C + "test_ca.py"], capture_output=True, text=True, env=ENV, timeout=3600)
     fell = [ln.split()[1] for ln in p.stdout.splitlines() if ln.startswith("❌")]
     return p.returncode, fell, ("Traceback" in p.stdout + p.stderr)
 
@@ -59,9 +85,11 @@ def main():
             continue
         try:
             open(path, "w", encoding="utf-8").write(src.replace(old, new, 1))
+            purge(path)
             rc, fell, crash = run()
         finally:
             open(path, "w", encoding="utf-8").write(src)
+            purge(path)
         ok = rc != 0 and fell == lock.split(",") and not crash
         res.append([name, "fell cleanly" if ok else "⛔", ",".join(fell) + (" (crash)" if crash else ""),
                     "expected " + lock])

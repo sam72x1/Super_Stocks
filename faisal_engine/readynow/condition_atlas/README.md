@@ -24,4 +24,5 @@ Run order from the repo root (all offline):
 10. `ca_reconcile.py` — post-seal checks R0–R7 (reads the sealed files, never writes them), then `ca_reconcile.py --render`
 11. `ca_report.py`
 
-Guards: `test_ca.py` (CA1–CA13; CA_FAST=1 skips the slow regenerations CA2 and CA13). Mutations: `ca_mutate.py`.
+Guards: `test_ca.py` (CA1–CA14; CA_FAST=1 skips the slow regenerations CA2 and CA13). Mutations: `ca_mutate.py`
+(runs without bytecode and purges the mutated module's .pyc — CA14).

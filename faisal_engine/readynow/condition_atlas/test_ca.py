@@ -1,5 +1,5 @@
 """Guards of the Faisal condition atlas study (research only). Exit 0 = all pass.
-CA_FAST=1 skips the slow regenerations (CA2 build, CA13 reconciliation; CA9 and CA12 are fast and always run).
+CA_FAST=1 skips the slow regenerations (CA2 build, CA13 reconciliation; CA9, CA12 and CA14 are fast and always run).
 Run from the repo root:  python3 faisal_engine/readynow/condition_atlas/test_ca.py
 """
 import gzip
@@ -190,6 +190,57 @@ def ca13():
     return p.returncode == 0, p.stdout[-200:]
 
 
+def ca14():
+    """The mutation round can neither run nor leave stale bytecode: every run is `python -B` with
+    PYTHONDONTWRITEBYTECODE=1, the mutated module's .pyc (and only that module's) is purged after the mutated write and
+    after the restore — checked by calling ca_mutate's own run/purge/main with the subprocess stubbed."""
+    import contextlib
+    import importlib
+    import io
+    import tempfile
+    import ca_mutate as MU
+
+    class _P:
+        returncode, stdout, stderr = 1, "❌ CA0 stub\n", ""
+    # the round itself runs this guard with PYTHONDONTWRITEBYTECODE=1 in its environment: drop the inherited value and
+    # rebuild the harness's ENV, so the check sees what ca_mutate sets, not what its parent passed down (CM15)
+    inherited = os.environ.pop("PYTHONDONTWRITEBYTECODE", None)
+    calls = []
+    try:
+        MU = importlib.reload(MU)
+        orig = MU.subprocess.run
+        try:
+            MU.subprocess.run = lambda args, **kw: (calls.append((list(args), dict(kw.get("env") or {}))), _P())[1]
+            MU.run()
+        finally:
+            MU.subprocess.run = orig
+    finally:
+        if inherited is not None:
+            os.environ["PYTHONDONTWRITEBYTECODE"] = inherited
+    flags_ok = bool(calls) and "-B" in calls[-1][0] and calls[-1][1].get("PYTHONDONTWRITEBYTECODE") == "1"
+    with tempfile.TemporaryDirectory() as d:
+        mod = os.path.join(d, "x_mod.py")
+        open(mod, "w", encoding="utf-8").write("X = 1\n")
+        os.makedirs(os.path.join(d, "__pycache__"))
+        mine, other = (os.path.join(d, "__pycache__", n) for n in ("x_mod.cpython-311.pyc", "y_mod.cpython-311.pyc"))
+        for f in (mine, other):
+            open(f, "wb").write(b"0")
+        MU.purge(mod)
+        purge_ok = not os.path.exists(mine) and os.path.exists(other)
+        events, saved = [], (MU.CODE, MU.run, MU.purge, sys.argv)
+        try:
+            MU.CODE = [("CMX", mod, "X = 1", "X = 2", "CA0")]
+            MU.run = lambda: (events.append(("run", open(mod, encoding="utf-8").read())), (1, ["CA0"], False))[1]
+            MU.purge = lambda q: events.append(("purge", open(q, encoding="utf-8").read()))
+            sys.argv = [sys.argv[0]]
+            with contextlib.redirect_stdout(io.StringIO()):
+                MU.main()
+        finally:
+            MU.CODE, MU.run, MU.purge, sys.argv = saved
+    order_ok = events == [("purge", "X = 2\n"), ("run", "X = 2\n"), ("purge", "X = 1\n"), ("run", "X = 1\n")]
+    return flags_ok and purge_ok and order_ok, f"flags={flags_ok} purge={purge_ok} order={events}"
+
+
 def main():
     guarded("CA1 look-ahead: stored atlas columns equal recomputation on truncated bars", ca1)
     if not FAST:
@@ -206,6 +257,7 @@ def main():
     guarded("CA12 the reconciliation addendum matches its sources and the sealed files are unchanged", ca12)
     if not FAST:
         guarded("CA13 the reconciliation regenerates identically", ca13)
+    guarded("CA14 the mutation round neither runs nor leaves stale bytecode", ca14)
     print("FAILED: " + ", ".join(FAILS) if FAILS else "ALL PASS")
     sys.exit(1 if FAILS else 0)
 

@@ -1,0 +1,98 @@
+[
+ [
+  "HM1 in-event decisions are not excluded",
+  "fell cleanly",
+  "H4G4",
+  "expected H4G4"
+ ],
+ [
+  "HM2 an upload bound becomes the decision date",
+  "fell cleanly",
+  "H4G3",
+  "expected H4G3"
+ ],
+ [
+  "HM3 an ambiguous price anchor dates a chart",
+  "fell cleanly",
+  "H4G5",
+  "expected H4G5"
+ ],
+ [
+  "HM4 any bar step builds any grid",
+  "fell cleanly",
+  "H4G6",
+  "expected H4G6"
+ ],
+ [
+  "HM5 the verdict is hard-coded",
+  "fell cleanly",
+  "H4G9",
+  "expected H4G9"
+ ],
+ [
+  "HM6 the verbatim check is disabled",
+  "fell cleanly",
+  "H4G2",
+  "expected H4G2"
+ ],
+ [
+  "HM7 the findings report claims the test was performed",
+  "fell cleanly",
+  "H4G1,H4G12",
+  "expected H4G1,H4G12"
+ ],
+ [
+  "HM8 a fwd/ path becomes a source",
+  "fell cleanly",
+  "H4G7",
+  "expected H4G7"
+ ],
+ [
+  "HM9 a network library is imported",
+  "fell cleanly",
+  "H4G11",
+  "expected H4G11"
+ ],
+ [
+  "HM10 a third-party caption is filed as Faisal's rule",
+  "fell cleanly",
+  "H4G10",
+  "expected H4G10"
+ ],
+ [
+  "HM11 the T−10…T−7 window starts at T−6",
+  "fell cleanly",
+  "H4G4",
+  "expected H4G4"
+ ],
+ [
+  "HM12 the intraday-only threshold drops to +60%",
+  "fell cleanly",
+  "H4G15",
+  "expected H4G15"
+ ],
+ [
+  "HM13 a cited grid number is not in its source",
+  "fell cleanly",
+  "H4G13",
+  "expected H4G13"
+ ],
+ [
+  "HM14 the file-date example misstates the capture day",
+  "fell cleanly",
+  "H4G14",
+  "expected H4G14"
+ ],
+ [
+  "HM15 a sealed hash drifts",
+  "fell cleanly",
+  "H4G8",
+  "expected H4G8"
+ ],
+ [
+  "baseline after restore",
+  "clean",
+  "",
+  ""
+ ]
+]

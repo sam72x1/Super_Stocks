@@ -1,0 +1,8673 @@
+{
+ "alerts70": {
+  "fields": "symbol, date, anchor time (ET), price/volume at the anchor — timestamps, not bars",
+  "first": "2026-08-17",
+  "last": "2026-09-29",
+  "rows": 1206
+ },
+ "atlas_prior": {
+  "I04_GROUP_PROXY": {
+   "development": {
+    "lift": 1.279,
+    "lift_ci95": [
+     1.059,
+     1.502
+    ],
+    "matched_ci95": [
+     0.755,
+     1.429
+    ],
+    "matched_ratio": 1.039,
+    "minus_DROP_k_ci95": [
+     -1.39,
+     0.28
+    ],
+    "minus_DROP_k_pp": -0.56,
+    "minus_VOLAT_k_ci95": [
+     -1.47,
+     0.16
+    ],
+    "minus_VOLAT_k_pp": -0.64
+   },
+   "holdout": {
+    "lift": 1.603,
+    "lift_ci95": [
+     1.316,
+     1.912
+    ],
+    "matched_ci95": [
+     0.887,
+     1.838
+    ],
+    "matched_ratio": 1.296,
+    "minus_DROP_k_ci95": [
+     -0.2,
+     1.59
+    ],
+    "minus_DROP_k_pp": 0.69,
+    "minus_VOLAT_k_ci95": [
+     -1.16,
+     0.56
+    ],
+    "minus_VOLAT_k_pp": -0.33
+   },
+   "validation": {
+    "lift": 1.577,
+    "lift_ci95": [
+     1.278,
+     1.898
+    ],
+    "matched_ci95": [
+     1.112,
+     2.228
+    ],
+    "matched_ratio": 1.609,
+    "minus_DROP_k_ci95": [
+     -0.7,
+     1.42
+    ],
+    "minus_DROP_k_pp": 0.33,
+    "minus_VOLAT_k_ci95": [
+     -1.34,
+     1.06
+    ],
+    "minus_VOLAT_k_pp": -0.17
+   }
+  },
+  "classification": "NOT_GRADED",
+  "verdict": "NO_DEMONSTRATED_IMPROVEMENT"
+ },
+ "calendar": {
+  "first": "2024-05-01",
+  "last": "2026-10-08",
+  "sessions": 612
+ },
+ "closed_axes": {
+  "T-CANDLE": "reversal-candle signals — failed 0/6 (candle_result.md) and treated as a closed selection axis since",
+  "T-H4": "4H bucket arms (D0/H1) and the NY 04/08/12/16 convention — closed «اقفل T-H4» 2026-08-28; reopen needs a session-anchored 4H source + evidence it is Faisal's frame + a new prereg (h4_result.md)",
+  "T-SUPDEF": "support-definition tests — closed «اقفل الدعم» 2026-09-19 (SUPDEF_REOPEN)",
+  "T-TRAIL": "exit/target management — closed (TRAIL_REOPEN)"
+ },
+ "cov30": {
+  "bars_stored_locally": false,
+  "note": "coverage metadata only (first/last/count per symbol); the 30-minute bars were not saved",
+  "oldest_regular_bar": "2021-03-26",
+  "run": 37069733057,
+  "symbols_requested": 32,
+  "symbols_returned": 31
+ },
+ "grid_evidence": [
+  {
+   "claim": "HUBC 4H on the app split: rms 0.0269",
+   "found": true,
+   "needle": "0.0269",
+   "source": "chart_cards/blind/2026-10-07/RESULT.md"
+  },
+  {
+   "claim": "TradingView native 4H: 0.0690",
+   "found": true,
+   "needle": "0.0690",
+   "source": "chart_cards/blind/2026-10-07/RESULT.md"
+  },
+  {
+   "claim": "inferred split 04:00 · 05:30 · 09:30 · 13:30 · 17:30 NY",
+   "found": true,
+   "needle": "04:00 · 05:30 · 09:30 · 13:30 · 17:30",
+   "source": "chart_cards/blind/2026-10-07/RESULT.md"
+  },
+  {
+   "claim": "the split is inferred by matching, not displayed",
+   "found": true,
+   "needle": "مستنتَجٌ بالمطابقة",
+   "source": "chart_cards/blind/2026-10-07/RESULT.md"
+  },
+  {
+   "claim": "T-H4 HV0: 137/217 buckets within 0.5% (needed 95%)",
+   "found": true,
+   "needle": "137/217",
+   "source": "h4_result.md"
+  },
+  {
+   "claim": "AAPL control 34/40 = 85%",
+   "found": true,
+   "needle": "34/40 = 85%",
+   "source": "h4_result.md"
+  }
+ ],
+ "hubc_card": {
+  "bars": 21,
+  "events_after_card": [],
+  "timeframe_field": "1D",
+  "window": "2026-09-23 09:30 → 2026-09-29 09:30 (inferred by matching, RESULT.md)"
+ },
+ "image_counts": {
+  "all_with_4h_content": 166,
+  "anchor_attempts": 63,
+  "anchor_by_status": {
+   "ambiguous": 54,
+   "no_data": 1,
+   "none": 1,
+   "unique": 7
+  },
+  "by_author": {
+   "A": 11,
+   "F": 53,
+   "O": 1,
+   "T": 12,
+   "U": 79
+  },
+  "by_basis": {
+   "AXIS_LOWER_BOUND_ONLY": 6,
+   "CONTRADICTORY_BOUNDS": 1,
+   "LOCAL_PRICE_ANCHOR(unique)": 7,
+   "UNDATED": 55,
+   "UPLOAD_BOUND_ONLY": 52,
+   "VISIBLE_DATE": 23,
+   "VISIBLE_MONTH_DAY+UPLOAD_BOUND": 7,
+   "VISIBLE_MONTH_DAY_NO_YEAR": 4,
+   "VISIBLE_MONTH_ONLY": 1
+  },
+  "by_class": {
+   "CHART": 113,
+   "CHART+FIELD": 1,
+   "CHART+TEXT": 20,
+   "CHART+TEXT+FIELD": 1,
+   "FIELD": 10,
+   "TEXT": 11
+  },
+  "charts_with_ticker": 120,
+  "near_misses": [
+   {
+    "basis": "LOCAL_PRICE_ANCHOR(unique)",
+    "decision_session": "2026-09-23",
+    "detail": "10 sessions before an intraday-only threshold on 2026-10-07 (high +167.6%, close +22.8%) — no daily-close episode",
+    "id": "TG_57893",
+    "sym": "DKI",
+    "why_not": "INTRADAY_ONLY_EVENT"
+   },
+   {
+    "basis": "LOCAL_PRICE_ANCHOR(unique)",
+    "decision_session": "2026-09-04",
+    "detail": "8 sessions before an intraday-only threshold on 2026-09-17 (high +79.1%, close +33.7%) — no daily-close episode",
+    "id": "CH_20260918_39_NUWE",
+    "sym": "NUWE",
+    "why_not": "INTRADAY_ONLY_EVENT"
+   },
+   {
+    "basis": "LOCAL_PRICE_ANCHOR(unique)",
+    "decision_session": "2026-09-04",
+    "detail": "8 sessions before an intraday-only threshold on 2026-09-17 (high +79.1%, close +33.7%) — no daily-close episode",
+    "id": "TG_20260918_40_NUWE",
+    "sym": "NUWE",
+    "why_not": "INTRADAY_ONLY_EVENT"
+   },
+   {
+    "basis": "VISIBLE_DATE",
+    "decision_session": "2026-07-08",
+    "detail": "inside ZCMD|2026-07-06 (SPLIT_NEAR); next clean onset 2026-07-22 is 10 sessions later",
+    "id": "IMG_0152",
+    "sym": "ZCMD",
+    "why_not": "IN_EVENT"
+   }
+  ],
+  "placed_T7_10_not_in_event": [],
+  "placed_by_status": {
+   "CENSORED_LT10_SESSIONS_AFTER": 6,
+   "IN_EVENT": 4,
+   "NOT_IN_LOCAL_UNIVERSE": 2,
+   "NO_EPISODE_IN_EVENTS": 3,
+   "NO_LATER_CLEAN_EPISODE": 11,
+   "T11_30": 5,
+   "T1_6": 1,
+   "T31_PLUS": 2
+  },
+  "placed_links": 34,
+  "unique": 156
+ },
+ "images": [
+  {
+   "author": "A",
+   "class": [
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-18",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "APP_20260918_19_NTCL",
+   "role": "X",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "NTCL"
+   ]
+  },
+  {
+   "author": "A",
+   "class": [
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-18",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "APP_20260918_20_NTCL",
+   "role": "X",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "NTCL"
+   ]
+  },
+  {
+   "author": "A",
+   "class": [
+    "CHART",
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-18",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "APP_20260918_53_ELPW",
+   "role": "X",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "ELPW"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "12:04",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-09-17",
+       2.5,
+       0.0
+      ],
+      [
+       "2026-09-18",
+       2.49,
+       0.4
+      ]
+     ],
+     "kind": "pre",
+     "label": "بري",
+     "n_hits": 2,
+     "pct": -4.12,
+     "px": 2.397,
+     "status": "ambiguous",
+     "sym": "ELPW",
+     "window": [
+      "2025-01-01",
+      "2026-09-18"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-18",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "CH_20260918_02_ELPW",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "ELPW"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "12:03",
+   "duplicate_of": "X_20260918_04_ELPW",
+   "id": "CH_20260918_03_ELPW",
+   "role": "X",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "ELPW"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "04:04",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-18",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "CH_20260918_07_NUWE",
+   "role": "R",
+   "state": "UNKNOWN",
+   "temporal": "N",
+   "tickers": [
+    "NUWE"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "04:27",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-06-11",
+       2.02,
+       0.489
+      ],
+      [
+       "2026-07-07",
+       2.0,
+       0.506
+      ],
+      [
+       "2026-09-16",
+       2.01,
+       0.008
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 3,
+     "pct": 73.12,
+     "px": 3.48,
+     "status": "ambiguous",
+     "sym": "DAIC",
+     "window": [
+      "2025-01-01",
+      "2026-09-18"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-18",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "CH_20260918_09_DAIC",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "DAIC"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:23",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-06-02",
+       0.845,
+       0.007
+      ],
+      [
+       "2026-05-28",
+       0.849,
+       0.48
+      ],
+      [
+       "2026-09-15",
+       0.8449,
+       0.005
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 3,
+     "pct": -2.94,
+     "px": 0.8201,
+     "status": "ambiguous",
+     "sym": "NUWE",
+     "window": [
+      "2025-01-01",
+      "2026-09-18"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-18",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "CH_20260918_14_NUWE",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "NUWE"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "06:01",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-09-04",
+       0.7809,
+       0.002
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 1,
+     "pct": -0.69,
+     "px": 0.7755,
+     "status": "unique",
+     "sym": "NUWE",
+     "window": [
+      "2025-01-01",
+      "2026-09-18"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "LOCAL_PRICE_ANCHOR(unique)",
+    "decision": "2026-09-04",
+    "md": null,
+    "upper": [
+     "2026-09-18",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "CH_20260918_39_NUWE",
+   "links": {
+    "NUWE": {
+     "decision_session": "2026-09-04",
+     "intraday_only_within_10": [
+      {
+       "close_vs_prior_close_pct": 33.7,
+       "high_vs_prior_close_pct": 79.1,
+       "session": "2026-09-17",
+       "sessions_after": 8
+      }
+     ],
+     "sessions_of_data_after": 23,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "NUWE"
+   ]
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "MD",
+   "date_text": "08-26",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY+UPLOAD_BOUND",
+    "decision": "2026-08-26",
+    "md": "08-26",
+    "upper": [
+     "2026-08-27",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "EDU_20260827_wnw_daily_after_explosion",
+   "links": {
+    "WNW": {
+     "decision_session": "2026-08-26",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 30,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "WNW"
+   ]
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "MD",
+   "date_text": "08-27",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY+UPLOAD_BOUND",
+    "decision": "2026-08-27",
+    "md": "08-27",
+    "upper": [
+     "2026-08-27",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "EDU_20260827_wnw_entry_decision_4h",
+   "links": {
+    "WNW": {
+     "decision_session": "2026-08-27",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 29,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "V",
+   "state": "ENTRY",
+   "temporal": "P",
+   "tickers": [
+    "WNW"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "06:24",
+   "dating": {
+    "anchor": null,
+    "axis_lower": "2026-08-01",
+    "basis": "CONTRADICTORY_BOUNDS",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-07-23",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0141",
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "JEM"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "DAY",
+   "date_text": "2026-07-08",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-07-08",
+    "md": null,
+    "upper": [
+     "2026-07-23",
+     "exif"
+    ],
+    "visible": "2026-07-08"
+   },
+   "duplicate_of": null,
+   "id": "IMG_0152",
+   "links": {
+    "ZCMD": {
+     "decision_session": "2026-07-08",
+     "episode": "ZCMD|2026-07-06",
+     "next_clean_onset": "2026-07-22",
+     "quality": "SPLIT_NEAR",
+     "sessions_to_next_clean_onset": 10,
+     "status": "IN_EVENT"
+    }
+   },
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "ZCMD"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "DAY",
+   "date_text": "2026-07-05",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-07-05",
+    "md": null,
+    "upper": [
+     "2026-07-24",
+     "exif"
+    ],
+    "visible": "2026-07-05"
+   },
+   "duplicate_of": null,
+   "id": "IMG_0177",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "03:05",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-12-08",
+       1.41,
+       0.717
+      ],
+      [
+       "2026-02-06",
+       1.43,
+       0.692
+      ],
+      [
+       "2026-06-23",
+       1.41,
+       0.717
+      ],
+      [
+       "2026-06-24",
+       1.42,
+       0.012
+      ],
+      [
+       "2026-06-25",
+       1.43,
+       0.692
+      ],
+      [
+       "2026-07-22",
+       1.41,
+       0.717
+      ]
+     ],
+     "kind": "pre",
+     "label": "بري",
+     "n_hits": 6,
+     "pct": 83.78,
+     "px": 2.61,
+     "status": "ambiguous",
+     "sym": "KUST",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0178",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "KUST"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "MONTH",
+   "date_text": "2026-06",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-07-24",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0179",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "KUST"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0293",
+   "role": "V",
+   "state": "ENTRY",
+   "temporal": "N",
+   "tickers": [
+    "EHGO"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:33",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-07-23",
+       1.38,
+       0.733
+      ],
+      [
+       "2026-07-24",
+       1.37,
+       0.003
+      ],
+      [
+       "2026-08-17",
+       1.37,
+       0.003
+      ],
+      [
+       "2026-08-18",
+       1.38,
+       0.733
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 4,
+     "pct": 7.23,
+     "px": 1.469,
+     "status": "ambiguous",
+     "sym": "CCHH",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0296",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "CCHH"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:42",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-07-27",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0298",
+   "role": "V",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "EDBL"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:45",
+   "dating": {
+    "anchor": {
+     "hits": [],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 0,
+     "pct": 5.29,
+     "px": 2.685,
+     "status": "no_data",
+     "sym": "DRCT",
+     "window": [
+      "2025-01-01",
+      "2026-07-27"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-07-27",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0299",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "DRCT"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:50",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-07-24",
+       2.55,
+       0.002
+      ],
+      [
+       "2026-07-27",
+       2.54,
+       0.39
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 2,
+     "pct": -5.88,
+     "px": 2.4,
+     "status": "ambiguous",
+     "sym": "JZ",
+     "window": [
+      "2025-01-01",
+      "2026-07-27"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-07-27",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0301",
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "JZ"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "30 س (السؤال)",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-07-27",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0302",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "09:29",
+   "duplicate_of": "TG_2183",
+   "id": "IMG_0304",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "LABT"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "18 س",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-07-24",
+       2.55,
+       0.002
+      ],
+      [
+       "2026-07-27",
+       2.54,
+       0.39
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 2,
+     "pct": -5.88,
+     "px": 2.4,
+     "status": "ambiguous",
+     "sym": "JZ",
+     "window": [
+      "2025-01-01",
+      "2026-07-27"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-07-27",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0314",
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "JZ"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "03:20",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-07-23",
+       2.59,
+       0.002
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 1,
+     "pct": -1.16,
+     "px": 2.56,
+     "status": "unique",
+     "sym": "JZ",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "LOCAL_PRICE_ANCHOR(unique)",
+    "decision": "2026-07-23",
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0318",
+   "links": {
+    "JZ": {
+     "d1": "2026-08-20",
+     "decision_session": "2026-07-23",
+     "earlier_episode_in_between": [],
+     "episode": "JZ|2026-08-20",
+     "kind": "jump",
+     "onset": "2026-08-20",
+     "q": "2026-08-20",
+     "sessions_to_onset": 20,
+     "status": "T11_30",
+     "x70": "2026-08-20"
+    }
+   },
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "JZ"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-07-27",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0319",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "O",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "TIME",
+   "date_text": "09:44",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-07-30",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0426",
+   "role": "N",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-08-01 03:30",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-08-01",
+    "md": null,
+    "upper": [
+     "2026-08-01",
+     "exif"
+    ],
+    "visible": "2026-08-01"
+   },
+   "duplicate_of": null,
+   "id": "IMG_0494",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:39",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-01-02",
+       1.88,
+       0.008
+      ],
+      [
+       "2026-03-10",
+       1.88,
+       0.008
+      ],
+      [
+       "2026-03-11",
+       1.88,
+       0.008
+      ],
+      [
+       "2026-07-31",
+       1.88,
+       0.008
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 4,
+     "pct": -4.46,
+     "px": 1.796,
+     "status": "ambiguous",
+     "sym": "SLXN",
+     "window": [
+      "2025-01-01",
+      "2026-08-01"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-01",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0507",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "SLXN"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-03",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0566",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:09",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-03-26",
+       1.88,
+       0.001
+      ],
+      [
+       "2025-04-01",
+       1.89,
+       0.53
+      ],
+      [
+       "2025-11-12",
+       1.87,
+       0.533
+      ],
+      [
+       "2026-07-31",
+       1.88,
+       0.001
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 4,
+     "pct": 3.19,
+     "px": 1.94,
+     "status": "ambiguous",
+     "sym": "MNDR",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0567",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "MNDR"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-03-26",
+       1.88,
+       0.001
+      ],
+      [
+       "2025-04-01",
+       1.89,
+       0.53
+      ],
+      [
+       "2025-11-12",
+       1.87,
+       0.533
+      ],
+      [
+       "2026-07-31",
+       1.88,
+       0.001
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 4,
+     "pct": 3.19,
+     "px": 1.94,
+     "status": "ambiguous",
+     "sym": "MNDR",
+     "window": [
+      "2025-01-01",
+      "2026-08-03"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-03",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0569",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "MNDR"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:57",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-03-26",
+       1.88,
+       0.001
+      ],
+      [
+       "2025-04-01",
+       1.89,
+       0.53
+      ],
+      [
+       "2025-11-12",
+       1.87,
+       0.533
+      ],
+      [
+       "2026-07-31",
+       1.88,
+       0.001
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 4,
+     "pct": 3.19,
+     "px": 1.94,
+     "status": "ambiguous",
+     "sym": "MNDR",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0570",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "MNDR"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "20:21",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-04",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0645",
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "TDIC"
+   ]
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "20:32",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-04",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0648",
+   "role": "V",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "TDIC"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "MD",
+   "date_text": "08-04",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY_NO_YEAR",
+    "decision": null,
+    "md": "08-04",
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0690",
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "DXST"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "3 ي",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-06",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0691",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:57",
+   "duplicate_of": "IMG_0570",
+   "id": "IMG_0692",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "MNDR"
+   ]
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "4 ي",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-03-25",
+       2.39,
+       0.422
+      ],
+      [
+       "2026-07-31",
+       2.38,
+       0.001
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 2,
+     "pct": -3.36,
+     "px": 2.3,
+     "status": "ambiguous",
+     "sym": "ZNB",
+     "window": [
+      "2025-01-01",
+      "2026-08-06"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-06",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0696",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "ZNB"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-08-01 20:37",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-08-01",
+    "md": null,
+    "upper": [
+     "2026-08-06",
+     "exif"
+    ],
+    "visible": "2026-08-01"
+   },
+   "duplicate_of": null,
+   "id": "IMG_0698",
+   "links": {
+    "ZNB": {
+     "decision_session": "2026-07-31",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 48,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "Y",
+   "tickers": [
+    "ZNB"
+   ]
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "TIME",
+   "date_text": "06:02",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-08",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "IMG_0746",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "11:28",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-05-08",
+       5.7,
+       0.004
+      ],
+      [
+       "2026-05-28",
+       5.71,
+       0.179
+      ],
+      [
+       "2026-05-29",
+       5.7,
+       0.004
+      ],
+      [
+       "2026-06-02",
+       5.7,
+       0.004
+      ],
+      [
+       "2026-06-05",
+       5.7,
+       0.004
+      ],
+      [
+       "2026-06-11",
+       5.69,
+       0.172
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 6,
+     "pct": 4.39,
+     "px": 5.95,
+     "status": "ambiguous",
+     "sym": "MTEX",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1806",
+   "role": "X",
+   "state": "UNKNOWN",
+   "temporal": "N",
+   "tickers": [
+    "MTEX"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "23:27",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1808",
+   "role": "X",
+   "state": "ENTRY",
+   "temporal": "N",
+   "tickers": [
+    "MTEX"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "4 س",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1815",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "اليوم",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1816",
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "LABT"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "2 س",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1817",
+   "role": "V",
+   "state": "ENTRY",
+   "temporal": "N",
+   "tickers": [
+    "LABT"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "DAY",
+   "date_text": "2026-05-22",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-05-22",
+    "md": null,
+    "upper": null,
+    "visible": "2026-05-22"
+   },
+   "duplicate_of": null,
+   "id": "TG_1822",
+   "links": {
+    "EHGO": {
+     "d1": "2026-06-17",
+     "decision_session": "2026-05-22",
+     "earlier_episode_in_between": [],
+     "episode": "EHGO|2026-06-17",
+     "kind": "jump",
+     "onset": "2026-06-17",
+     "q": "2026-06-17",
+     "sessions_to_onset": 17,
+     "status": "T11_30",
+     "x70": "2026-06-17"
+    }
+   },
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "P",
+   "tickers": [
+    "EHGO"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-06-26 16:02",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-06-26",
+    "md": null,
+    "upper": null,
+    "visible": "2026-06-26"
+   },
+   "duplicate_of": null,
+   "id": "TG_1823",
+   "links": {
+    "DSY": {
+     "d1": "2026-07-02",
+     "decision_session": "2026-06-26",
+     "earlier_episode_in_between": [],
+     "episode": "DSY|2026-07-01",
+     "kind": "jump",
+     "onset": "2026-07-01",
+     "q": "2026-07-06",
+     "sessions_to_onset": 3,
+     "status": "T1_6",
+     "x70": "2026-07-06"
+    }
+   },
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "DSY"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "DAY",
+   "date_text": "2026-06-15",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-06-15",
+    "md": null,
+    "upper": null,
+    "visible": "2026-06-15"
+   },
+   "duplicate_of": null,
+   "id": "TG_1824",
+   "links": {
+    "LNAI": {
+     "decision_session": "2026-06-15",
+     "episode": "LNAI|2026-05-21",
+     "quality": "SPLIT_NEAR",
+     "status": "IN_EVENT"
+    }
+   },
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "LNAI"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-03-20",
+       2.87,
+       0.346
+      ],
+      [
+       "2026-03-23",
+       2.9,
+       0.696
+      ],
+      [
+       "2026-06-24",
+       2.89,
+       0.349
+      ],
+      [
+       "2026-07-01",
+       2.88,
+       0.002
+      ],
+      [
+       "2026-07-21",
+       2.875,
+       0.172
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 5,
+     "pct": 81.6,
+     "px": 5.23,
+     "status": "ambiguous",
+     "sym": "DSY",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1827",
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "DSY"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-07-02 23:51",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-07-02",
+    "md": null,
+    "upper": null,
+    "visible": "2026-07-02"
+   },
+   "duplicate_of": null,
+   "id": "TG_1828",
+   "links": {
+    "ZCMD": {
+     "d1": "2026-07-22",
+     "decision_session": "2026-07-02",
+     "earlier_episode_in_between": [
+      "ZCMD|2026-07-06"
+     ],
+     "episode": "ZCMD|2026-07-22",
+     "kind": "jump",
+     "onset": "2026-07-22",
+     "q": "2026-07-22",
+     "sessions_to_onset": 13,
+     "status": "T11_30",
+     "x70": "2026-07-22"
+    }
+   },
+   "role": "R",
+   "state": "WATCH",
+   "temporal": "Y",
+   "tickers": [
+    "ZCMD"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "DAY",
+   "date_text": "2026-07-02",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-07-02",
+    "md": null,
+    "upper": null,
+    "visible": "2026-07-02"
+   },
+   "duplicate_of": null,
+   "id": "TG_1829",
+   "links": {
+    "ZCMD": {
+     "d1": "2026-07-22",
+     "decision_session": "2026-07-02",
+     "earlier_episode_in_between": [
+      "ZCMD|2026-07-06"
+     ],
+     "episode": "ZCMD|2026-07-22",
+     "kind": "jump",
+     "onset": "2026-07-22",
+     "q": "2026-07-22",
+     "sessions_to_onset": 13,
+     "status": "T11_30",
+     "x70": "2026-07-22"
+    }
+   },
+   "role": "V",
+   "state": "WATCH",
+   "temporal": "P",
+   "tickers": [
+    "ZCMD"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "11:03",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-07-17",
+       1.89,
+       0.003
+      ],
+      [
+       "2026-09-03",
+       1.9,
+       0.532
+      ],
+      [
+       "2026-09-04",
+       1.88,
+       0.526
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 3,
+     "pct": -1.32,
+     "px": 1.865,
+     "status": "ambiguous",
+     "sym": "LABT",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1830",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "LABT"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "12:02",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1831",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-07-20 13:06",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-07-20",
+    "md": null,
+    "upper": null,
+    "visible": "2026-07-20"
+   },
+   "duplicate_of": null,
+   "id": "TG_1833",
+   "links": {
+    "CANF": {
+     "status": "NOT_IN_LOCAL_UNIVERSE"
+    }
+   },
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "Y",
+   "tickers": [
+    "CANF"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "04:02",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-10-20",
+       1.64,
+       0.616
+      ],
+      [
+       "2026-05-27",
+       1.62,
+       0.611
+      ],
+      [
+       "2026-06-03",
+       1.635,
+       0.31
+      ],
+      [
+       "2026-07-14",
+       1.63,
+       0.003
+      ],
+      [
+       "2026-07-15",
+       1.63,
+       0.003
+      ]
+     ],
+     "kind": "pre",
+     "label": "بري",
+     "n_hits": 5,
+     "pct": 1.23,
+     "px": 1.65,
+     "status": "ambiguous",
+     "sym": "PPCB",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1836",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "PPCB"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "05:25",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-08-11",
+       5.335,
+       0.468
+      ],
+      [
+       "2026-07-16",
+       5.36,
+       0.002
+      ],
+      [
+       "2026-07-24",
+       5.33,
+       0.562
+      ],
+      [
+       "2026-07-28",
+       5.33,
+       0.562
+      ],
+      [
+       "2026-09-24",
+       5.39,
+       0.558
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 5,
+     "pct": 2.61,
+     "px": 5.5,
+     "status": "ambiguous",
+     "sym": "SPRC",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1839",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "SPRC"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "DAY",
+   "date_text": "2026-06-02",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-06-02",
+    "md": null,
+    "upper": null,
+    "visible": "2026-06-02"
+   },
+   "duplicate_of": null,
+   "id": "TG_1858",
+   "links": {
+    "NAMM": {
+     "decision_session": "2026-06-02",
+     "episode": "NAMM|2026-05-22",
+     "quality": "OK",
+     "status": "IN_EVENT"
+    }
+   },
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "NAMM"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "DAY",
+   "date_text": "2026-05-16",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-05-16",
+    "md": null,
+    "upper": null,
+    "visible": "2026-05-16"
+   },
+   "duplicate_of": null,
+   "id": "TG_1860",
+   "role": "R",
+   "state": "READY",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:51",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-05-15",
+       11.29,
+       0.002
+      ],
+      [
+       "2026-06-16",
+       11.35,
+       0.534
+      ],
+      [
+       "2026-06-17",
+       11.23,
+       0.529
+      ],
+      [
+       "2026-06-22",
+       11.31,
+       0.18
+      ],
+      [
+       "2026-06-26",
+       11.31,
+       0.18
+      ],
+      [
+       "2026-07-02",
+       11.37,
+       0.711
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 6,
+     "pct": -17.89,
+     "px": 9.27,
+     "status": "ambiguous",
+     "sym": "PIII",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1861",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "PIII"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:51",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-05-15",
+       11.29,
+       0.002
+      ],
+      [
+       "2026-06-16",
+       11.35,
+       0.534
+      ],
+      [
+       "2026-06-17",
+       11.23,
+       0.529
+      ],
+      [
+       "2026-06-22",
+       11.31,
+       0.18
+      ],
+      [
+       "2026-06-26",
+       11.31,
+       0.18
+      ],
+      [
+       "2026-07-02",
+       11.37,
+       0.711
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 6,
+     "pct": -17.89,
+     "px": 9.27,
+     "status": "ambiguous",
+     "sym": "PIII",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1862",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "PIII"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "DAY",
+   "date_text": "2026-05-19",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-05-19",
+    "md": null,
+    "upper": null,
+    "visible": "2026-05-19"
+   },
+   "duplicate_of": null,
+   "id": "TG_1865",
+   "links": {
+    "VEEE": {
+     "d1": "2026-07-13",
+     "decision_session": "2026-05-19",
+     "earlier_episode_in_between": [],
+     "episode": "VEEE|2026-07-13",
+     "kind": "jump",
+     "onset": "2026-07-13",
+     "q": "2026-07-13",
+     "sessions_to_onset": 36,
+     "status": "T31_PLUS",
+     "x70": "2026-07-13"
+    }
+   },
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "VEEE"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "08:38",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-06-18",
+       1.81,
+       0.002
+      ],
+      [
+       "2026-07-10",
+       1.81,
+       0.002
+      ],
+      [
+       "2026-07-13",
+       1.81,
+       0.002
+      ],
+      [
+       "2026-07-15",
+       1.82,
+       0.55
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 4,
+     "pct": 0.55,
+     "px": 1.82,
+     "status": "ambiguous",
+     "sym": "CDTG",
+     "window": [
+      "2026-06-16",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": "2026-06-16",
+    "basis": "AXIS_LOWER_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1875",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "CDTG"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:51",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-06-18",
+       3.76,
+       0.018
+      ],
+      [
+       "2026-06-24",
+       3.77,
+       0.248
+      ],
+      [
+       "2026-07-01",
+       3.75,
+       0.284
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 3,
+     "pct": 0.78,
+     "px": 3.79,
+     "status": "ambiguous",
+     "sym": "MWC",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1896",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "MWC"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:02",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-06-20",
+       1.605,
+       0.307
+      ],
+      [
+       "2025-08-27",
+       1.61,
+       0.003
+      ],
+      [
+       "2026-05-13",
+       1.61,
+       0.003
+      ],
+      [
+       "2026-05-20",
+       1.61,
+       0.003
+      ],
+      [
+       "2026-06-22",
+       1.6,
+       0.618
+      ],
+      [
+       "2026-06-25",
+       1.6,
+       0.618
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 6,
+     "pct": -1.86,
+     "px": 1.58,
+     "status": "ambiguous",
+     "sym": "PRFX",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1949",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "PRFX"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:40",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-02-05",
+       1.54,
+       0.64
+      ],
+      [
+       "2025-08-05",
+       1.54,
+       0.64
+      ],
+      [
+       "2025-09-26",
+       1.56,
+       0.65
+      ],
+      [
+       "2025-09-29",
+       1.54,
+       0.64
+      ],
+      [
+       "2026-05-20",
+       1.56,
+       0.65
+      ],
+      [
+       "2026-05-22",
+       1.55,
+       0.005
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 6,
+     "pct": 0.65,
+     "px": 1.56,
+     "status": "ambiguous",
+     "sym": "RENX",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1950",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "RENX"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "12:57",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-05-22",
+       4.0,
+       0.005
+      ],
+      [
+       "2026-05-26",
+       3.98,
+       0.505
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 2,
+     "pct": 4.67,
+     "px": 4.187,
+     "status": "ambiguous",
+     "sym": "EZRA",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1953",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "EZRA"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "12:55",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-05-22",
+       4.0,
+       0.005
+      ],
+      [
+       "2026-05-26",
+       3.98,
+       0.505
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 2,
+     "pct": 4.67,
+     "px": 4.187,
+     "status": "ambiguous",
+     "sym": "EZRA",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1954",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "EZRA"
+   ]
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "الأمس 21:11",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1957",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "EZRA"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1958",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "EHGO"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "12:28",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-06-16",
+       11.35,
+       0.527
+      ],
+      [
+       "2026-06-17",
+       11.23,
+       0.536
+      ],
+      [
+       "2026-06-22",
+       11.31,
+       0.172
+      ],
+      [
+       "2026-06-26",
+       11.31,
+       0.172
+      ],
+      [
+       "2026-07-02",
+       11.37,
+       0.704
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 5,
+     "pct": -20.11,
+     "px": 9.02,
+     "status": "ambiguous",
+     "sym": "PIII",
+     "window": [
+      "2026-05-16",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": "2026-05-16",
+    "basis": "AXIS_LOWER_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1961",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "PIII"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:35",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-10-30",
+       1.2218,
+       0.146
+      ],
+      [
+       "2025-11-10",
+       1.2218,
+       0.146
+      ],
+      [
+       "2026-05-14",
+       1.22,
+       0.002
+      ],
+      [
+       "2026-07-21",
+       1.22,
+       0.002
+      ]
+     ],
+     "kind": "pre",
+     "label": "بري",
+     "n_hits": 4,
+     "pct": 56.56,
+     "px": 1.91,
+     "status": "ambiguous",
+     "sym": "AUUD",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1968",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "AUUD"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "TIME",
+   "date_text": "03:31",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-10-30",
+       1.2218,
+       0.146
+      ],
+      [
+       "2025-11-10",
+       1.2218,
+       0.146
+      ],
+      [
+       "2026-05-14",
+       1.22,
+       0.002
+      ],
+      [
+       "2026-07-21",
+       1.22,
+       0.002
+      ]
+     ],
+     "kind": "pre",
+     "label": "بري",
+     "n_hits": 4,
+     "pct": 56.56,
+     "px": 1.91,
+     "status": "ambiguous",
+     "sym": "AUUD",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1969",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "AUUD"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "10:44",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-05-11",
+       14.4689,
+       0.145
+      ],
+      [
+       "2026-06-15",
+       14.56,
+       0.484
+      ],
+      [
+       "2026-06-23",
+       14.59,
+       0.691
+      ],
+      [
+       "2026-06-26",
+       14.5,
+       0.07
+      ],
+      [
+       "2026-08-17",
+       14.59,
+       0.691
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 5,
+     "pct": 0.76,
+     "px": 14.6,
+     "status": "ambiguous",
+     "sym": "SMX",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1971",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "SMX"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "11:41",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-04-03",
+       4.4089,
+       0.201
+      ],
+      [
+       "2025-09-08",
+       4.41,
+       0.224
+      ],
+      [
+       "2025-09-09",
+       4.4,
+       0.003
+      ],
+      [
+       "2025-12-09",
+       4.39,
+       0.23
+      ],
+      [
+       "2026-03-12",
+       4.4,
+       0.003
+      ],
+      [
+       "2026-04-14",
+       4.38,
+       0.457
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 7,
+     "pct": -2.73,
+     "px": 4.28,
+     "status": "ambiguous",
+     "sym": "ELAB",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1987",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "ELAB"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:43",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-02-06",
+       1.29,
+       0.004
+      ],
+      [
+       "2026-02-12",
+       1.29,
+       0.004
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 2,
+     "pct": -3.88,
+     "px": 1.24,
+     "status": "ambiguous",
+     "sym": "CDIO",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_1994",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "CDIO"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-04-11 02:46",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-04-11",
+    "md": null,
+    "upper": null,
+    "visible": "2026-04-11"
+   },
+   "duplicate_of": null,
+   "id": "TG_2001",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "Y",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "12:48",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-04-20",
+       5.5001,
+       0.493
+      ],
+      [
+       "2026-04-29",
+       5.47,
+       0.057
+      ]
+     ],
+     "kind": "pre",
+     "label": "بري",
+     "n_hits": 2,
+     "pct": 10.54,
+     "px": 6.05,
+     "status": "ambiguous",
+     "sym": "HCAI",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2007",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "HCAI"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "07:18",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-05-01",
+       12.02,
+       0.001
+      ],
+      [
+       "2026-05-08",
+       12.0,
+       0.165
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 2,
+     "pct": -5.49,
+     "px": 11.36,
+     "status": "ambiguous",
+     "sym": "HCAI",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2008",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "HCAI"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "04:35",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-06-05",
+       1.55,
+       0.004
+      ],
+      [
+       "2026-06-08",
+       1.55,
+       0.004
+      ],
+      [
+       "2026-06-10",
+       1.55,
+       0.004
+      ],
+      [
+       "2026-06-15",
+       1.55,
+       0.004
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 4,
+     "pct": 4.52,
+     "px": 1.62,
+     "status": "ambiguous",
+     "sym": "ACCL",
+     "window": [
+      "2026-05-15",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": "2026-05-15",
+    "basis": "AXIS_LOWER_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2011",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "ACCL"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "04:45",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-06-05",
+       1.55,
+       0.004
+      ],
+      [
+       "2026-06-08",
+       1.55,
+       0.004
+      ],
+      [
+       "2026-06-10",
+       1.55,
+       0.004
+      ],
+      [
+       "2026-06-15",
+       1.55,
+       0.004
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 4,
+     "pct": 4.52,
+     "px": 1.62,
+     "status": "ambiguous",
+     "sym": "ACCL",
+     "window": [
+      "2026-06-04",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": "2026-06-04",
+    "basis": "AXIS_LOWER_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2012",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "ACCL"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "04:39",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-03-13",
+       3.25,
+       0.312
+      ],
+      [
+       "2026-03-25",
+       3.22,
+       0.614
+      ],
+      [
+       "2026-03-27",
+       3.24,
+       0.003
+      ],
+      [
+       "2026-05-27",
+       3.25,
+       0.312
+      ],
+      [
+       "2026-06-01",
+       3.25,
+       0.312
+      ],
+      [
+       "2026-06-22",
+       3.25,
+       0.312
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 16,
+     "pct": -0.46,
+     "px": 3.225,
+     "status": "ambiguous",
+     "sym": "IXHL",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2015",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "IXHL"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "1 د",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2019",
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "MBRX"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:37",
+   "dating": {
+    "anchor": {
+     "hits": [],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 0,
+     "pct": 5.23,
+     "px": 1.61,
+     "status": "none",
+     "sym": "EHGO",
+     "window": [
+      "2026-06-11",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": "2026-06-11",
+    "basis": "AXIS_LOWER_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2024",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "EHGO"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:42",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-06-04",
+       2.44,
+       0.412
+      ],
+      [
+       "2025-06-06",
+       2.4396,
+       0.429
+      ],
+      [
+       "2026-01-14",
+       2.44,
+       0.412
+      ],
+      [
+       "2026-01-16",
+       2.44,
+       0.412
+      ],
+      [
+       "2026-09-04",
+       2.45,
+       0.004
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 5,
+     "pct": -5.31,
+     "px": 2.32,
+     "status": "ambiguous",
+     "sym": "STKH",
+     "window": [
+      "2025-01-01",
+      "2026-09-05"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-05",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_20260905_09",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "STKH"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-07",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_20260918_38_NUWE",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "17:56",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-09-04",
+       0.7809,
+       0.002
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 1,
+     "pct": -0.69,
+     "px": 0.7755,
+     "status": "unique",
+     "sym": "NUWE",
+     "window": [
+      "2025-01-01",
+      "2026-09-07"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "LOCAL_PRICE_ANCHOR(unique)",
+    "decision": "2026-09-04",
+    "md": null,
+    "upper": [
+     "2026-09-07",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_20260918_40_NUWE",
+   "links": {
+    "NUWE": {
+     "decision_session": "2026-09-04",
+     "intraday_only_within_10": [
+      {
+       "close_vs_prior_close_pct": 33.7,
+       "high_vs_prior_close_pct": 79.1,
+       "session": "2026-09-17",
+       "sessions_after": 8
+      }
+     ],
+     "sessions_of_data_after": 23,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "NUWE"
+   ]
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "17:56",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-07",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_20260918_42_NUWE",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "NUWE"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:18",
+   "dating": {
+    "anchor": null,
+    "axis_lower": "2026-05-06",
+    "basis": "AXIS_LOWER_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2028",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "LNAI"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "MD",
+   "date_text": "06-12",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY_NO_YEAR",
+    "decision": null,
+    "md": "06-12",
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2029",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "LNAI"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "09:59",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-05-22",
+       7.7487,
+       0.145
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 1,
+     "pct": 1.16,
+     "px": 7.85,
+     "status": "unique",
+     "sym": "SMX",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "LOCAL_PRICE_ANCHOR(unique)",
+    "decision": "2026-05-22",
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2035",
+   "links": {
+    "SMX": {
+     "decision_session": "2026-05-22",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 95,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "SMX"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "الآن",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2037",
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "TIME",
+   "date_text": "06:31",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2041",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "GWAV"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "11:28",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-05-08",
+       5.7,
+       0.004
+      ],
+      [
+       "2026-05-28",
+       5.71,
+       0.179
+      ],
+      [
+       "2026-05-29",
+       5.7,
+       0.004
+      ],
+      [
+       "2026-06-02",
+       5.7,
+       0.004
+      ],
+      [
+       "2026-06-05",
+       5.7,
+       0.004
+      ],
+      [
+       "2026-06-11",
+       5.69,
+       0.172
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 6,
+     "pct": 4.39,
+     "px": 5.95,
+     "status": "ambiguous",
+     "sym": "MTEX",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2049",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "MTEX"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "08:43",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2051",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2053",
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "LNAI"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:43",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-02-06",
+       1.29,
+       0.004
+      ],
+      [
+       "2026-02-12",
+       1.29,
+       0.004
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 2,
+     "pct": -3.88,
+     "px": 1.24,
+     "status": "ambiguous",
+     "sym": "CDIO",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2092",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "CDIO"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "MD",
+   "date_text": "04-07",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY_NO_YEAR",
+    "decision": null,
+    "md": "04-07",
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2107",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "ADVB"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-04-05 22:58",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-04-05",
+    "md": null,
+    "upper": null,
+    "visible": "2026-04-05"
+   },
+   "duplicate_of": null,
+   "id": "TG_2117",
+   "links": {
+    "BETA": {
+     "status": "NOT_IN_LOCAL_UNIVERSE"
+    }
+   },
+   "role": "R",
+   "state": "WATCH",
+   "temporal": "Y",
+   "tickers": [
+    "BETA"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "03:20",
+   "duplicate_of": "IMG_0318",
+   "id": "TG_2169",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "JZ"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "18 س",
+   "duplicate_of": "IMG_0314",
+   "id": "TG_2177",
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "JZ"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "09:29",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-05-01",
+       3.43,
+       0.584
+      ],
+      [
+       "2026-06-25",
+       3.43,
+       0.584
+      ],
+      [
+       "2026-07-22",
+       3.41,
+       0.003
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 3,
+     "pct": -1.85,
+     "px": 3.347,
+     "status": "ambiguous",
+     "sym": "LABT",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_2183",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "LABT"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:33",
+   "duplicate_of": "IMG_0296",
+   "id": "TG_2192",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "CCHH"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-07-26 11:19",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-07-26",
+    "md": null,
+    "upper": null,
+    "visible": "2026-07-26"
+   },
+   "duplicate_of": null,
+   "id": "TG_2196",
+   "links": {
+    "ONCO": {
+     "d1": "2026-09-28",
+     "decision_session": "2026-07-24",
+     "earlier_episode_in_between": [],
+     "episode": "ONCO|2026-09-21",
+     "kind": "run",
+     "onset": "2026-09-21",
+     "q": "2026-09-28",
+     "sessions_to_onset": 40,
+     "status": "T31_PLUS",
+     "x70": "2026-09-28"
+    }
+   },
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "Y",
+   "tickers": [
+    "ONCO"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "03:05",
+   "duplicate_of": "IMG_0178",
+   "id": "TG_2204",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "KUST"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "07:23",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-11-18",
+       2.08,
+       0.004
+      ],
+      [
+       "2026-09-11",
+       2.08,
+       0.004
+      ],
+      [
+       "2026-09-15",
+       2.0799,
+       0.001
+      ],
+      [
+       "2026-09-16",
+       2.08,
+       0.004
+      ],
+      [
+       "2026-09-17",
+       2.07,
+       0.477
+      ],
+      [
+       "2026-09-18",
+       2.08,
+       0.004
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 6,
+     "pct": -2.4,
+     "px": 2.03,
+     "status": "ambiguous",
+     "sym": "MSGY",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_50582",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "MSGY"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "12:29",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_50583",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "MSGY"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "FIELD"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-09-22 03:39",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-09-22",
+    "md": null,
+    "upper": null,
+    "visible": "2026-09-22"
+   },
+   "duplicate_of": null,
+   "id": "TG_50585",
+   "links": {
+    "LIMN": {
+     "decision_session": "2026-09-22",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 12,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "LIMN"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "MD",
+   "date_text": "09-21",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY_NO_YEAR",
+    "decision": null,
+    "md": "09-21",
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_50587",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "CIIT"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "07:23",
+   "duplicate_of": "TG_50582",
+   "id": "TG_50593",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "MSGY"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "12:29",
+   "duplicate_of": "TG_50583",
+   "id": "TG_50594",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "MSGY"
+   ]
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "05:24",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_50600",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "05:24",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_50603",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-09-23 13:53",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-09-23",
+    "md": null,
+    "upper": null,
+    "visible": "2026-09-23"
+   },
+   "duplicate_of": null,
+   "id": "TG_50817",
+   "links": {
+    "HAO": {
+     "decision_session": "2026-09-23",
+     "status": "NO_EPISODE_IN_EVENTS"
+    },
+    "WHLR": {
+     "decision_session": "2026-09-23",
+     "episode": "WHLR|2026-09-23",
+     "quality": "SPLIT_NEAR",
+     "status": "IN_EVENT"
+    }
+   },
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "HAO",
+    "WHLR"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-09-22",
+       3.9,
+       0.009
+      ],
+      [
+       "2026-09-28",
+       3.89,
+       0.265
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 2,
+     "pct": 71.78,
+     "px": 6.7,
+     "status": "ambiguous",
+     "sym": "IPDN",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_50830",
+   "role": "R",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "IPDN"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_50832",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-09-27 13:43",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-09-27",
+    "md": null,
+    "upper": null,
+    "visible": "2026-09-27"
+   },
+   "duplicate_of": null,
+   "id": "TG_57867",
+   "links": {
+    "NRSN": {
+     "decision_session": "2026-09-25",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 9,
+     "status": "CENSORED_LT10_SESSIONS_AFTER"
+    }
+   },
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "NRSN"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "10 س",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_57870",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "P",
+   "tickers": [
+    "OMH"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-09-26 21:20",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-09-26",
+    "md": null,
+    "upper": null,
+    "visible": "2026-09-26"
+   },
+   "duplicate_of": null,
+   "id": "TG_57872",
+   "links": {
+    "OMH": {
+     "decision_session": "2026-09-25",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 9,
+     "status": "CENSORED_LT10_SESSIONS_AFTER"
+    }
+   },
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "OMH"
+   ]
+  },
+  {
+   "author": "A",
+   "class": [
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_57876",
+   "role": "X",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "OMH"
+   ]
+  },
+  {
+   "author": "A",
+   "class": [
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_57878",
+   "role": "X",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "CIIT"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_57884",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "CIIT"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-01-27",
+       2.3,
+       0.255
+      ],
+      [
+       "2026-04-07",
+       2.305,
+       0.038
+      ],
+      [
+       "2026-04-24",
+       2.31,
+       0.179
+      ],
+      [
+       "2026-09-11",
+       2.31,
+       0.179
+      ],
+      [
+       "2026-09-23",
+       2.306,
+       0.006
+      ],
+      [
+       "2026-10-01",
+       2.31,
+       0.179
+      ]
+     ],
+     "kind": "pre",
+     "label": "بري",
+     "n_hits": 6,
+     "pct": 39.21,
+     "px": 3.21,
+     "status": "ambiguous",
+     "sym": "SPHL",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_57892",
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "SPHL"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "05:26",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-09-23",
+       2.58,
+       0.005
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 1,
+     "pct": 0.78,
+     "px": 2.6,
+     "status": "unique",
+     "sym": "DKI",
+     "window": [
+      "2025-01-01",
+      "2026-10-08"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "LOCAL_PRICE_ANCHOR(unique)",
+    "decision": "2026-09-23",
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_57893",
+   "links": {
+    "DKI": {
+     "decision_session": "2026-09-23",
+     "intraday_only_within_10": [
+      {
+       "close_vs_prior_close_pct": 22.8,
+       "high_vs_prior_close_pct": 167.6,
+       "session": "2026-10-07",
+       "sessions_after": 10
+      }
+     ],
+     "sessions_of_data_after": 11,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "DKI"
+   ]
+  },
+  {
+   "author": "A",
+   "class": [
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_57912",
+   "role": "X",
+   "state": "WATCH",
+   "temporal": "P",
+   "tickers": [
+    "NTCL"
+   ]
+  },
+  {
+   "author": "A",
+   "class": [
+    "CHART",
+    "TEXT",
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_57917",
+   "role": "X",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "NTCL"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "09:15",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58045",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "VEEE"
+   ]
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UNDATED",
+    "decision": null,
+    "md": null,
+    "upper": null,
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58047",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "DXST"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "04:15",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58383",
+   "role": "X",
+   "state": "UNKNOWN",
+   "temporal": "N",
+   "tickers": [
+    "CYCU"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "04:09",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58384",
+   "role": "X",
+   "state": "UNKNOWN",
+   "temporal": "N",
+   "tickers": [
+    "CYCU"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "07:20",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58386",
+   "role": "V",
+   "state": "UNKNOWN",
+   "temporal": "N",
+   "tickers": [
+    "DKI"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "38 ث",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-09-19",
+       1.76,
+       0.005
+      ],
+      [
+       "2025-10-07",
+       1.76,
+       0.005
+      ],
+      [
+       "2025-10-09",
+       1.76,
+       0.005
+      ],
+      [
+       "2026-10-01",
+       1.76,
+       0.005
+      ],
+      [
+       "2026-10-02",
+       1.76,
+       0.005
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 5,
+     "pct": -1.7,
+     "px": 1.73,
+     "status": "ambiguous",
+     "sym": "APVO",
+     "window": [
+      "2025-01-01",
+      "2026-10-07"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58390",
+   "role": "V",
+   "state": "REJECT",
+   "temporal": "P",
+   "tickers": [
+    "APVO"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "08:06",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58399",
+   "role": "X",
+   "state": "UNKNOWN",
+   "temporal": "N",
+   "tickers": [
+    "WHLR"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-04-14",
+       1.01,
+       0.5
+      ],
+      [
+       "2025-12-23",
+       1.01,
+       0.5
+      ],
+      [
+       "2026-10-01",
+       1.0,
+       0.495
+      ],
+      [
+       "2026-10-02",
+       1.005,
+       0.003
+      ],
+      [
+       "2026-10-05",
+       1.01,
+       0.5
+      ],
+      [
+       "2026-10-07",
+       1.01,
+       0.5
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 6,
+     "pct": -1.49,
+     "px": 0.99,
+     "status": "ambiguous",
+     "sym": "NEXR",
+     "window": [
+      "2025-01-01",
+      "2026-10-07"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58400",
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "NEXR"
+   ]
+  },
+  {
+   "author": "A",
+   "class": [
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58401",
+   "role": "X",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "NEXR"
+   ]
+  },
+  {
+   "author": "A",
+   "class": [
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58403",
+   "role": "X",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "GNPX"
+   ]
+  },
+  {
+   "author": "A",
+   "class": [
+    "FIELD"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58406",
+   "role": "X",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "BRTX"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "9 س",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-04-17",
+       1.69,
+       0.599
+      ],
+      [
+       "2026-10-02",
+       1.68,
+       0.004
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 2,
+     "pct": 1.79,
+     "px": 1.71,
+     "status": "ambiguous",
+     "sym": "NCT",
+     "window": [
+      "2025-01-01",
+      "2026-10-07"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58409",
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "NCT"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:36",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58410",
+   "role": "X",
+   "state": "UNKNOWN",
+   "temporal": "N",
+   "tickers": [
+    "YXT"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "MD",
+   "date_text": "10-02",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY+UPLOAD_BOUND",
+    "decision": "2026-10-02",
+    "md": "10-02",
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58414",
+   "links": {
+    "NCT": {
+     "decision_session": "2026-10-02",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 4,
+     "status": "CENSORED_LT10_SESSIONS_AFTER"
+    }
+   },
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "NCT"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "أمس",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58415",
+   "role": "V",
+   "state": "READY",
+   "temporal": "P",
+   "tickers": [
+    "NCT"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "MD",
+   "date_text": "10-02",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY+UPLOAD_BOUND",
+    "decision": "2026-10-02",
+    "md": "10-02",
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58416",
+   "links": {
+    "NCT": {
+     "decision_session": "2026-10-02",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 4,
+     "status": "CENSORED_LT10_SESSIONS_AFTER"
+    }
+   },
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "NCT"
+   ]
+  },
+  {
+   "author": "A",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58420",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "11:31",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-08-22",
+       1.46,
+       0.004
+      ],
+      [
+       "2025-10-08",
+       1.47,
+       0.681
+      ],
+      [
+       "2026-10-01",
+       1.46,
+       0.004
+      ]
+     ],
+     "kind": "pre",
+     "label": "بري",
+     "n_hits": 3,
+     "pct": 6.16,
+     "px": 1.55,
+     "status": "ambiguous",
+     "sym": "NCT",
+     "window": [
+      "2025-01-01",
+      "2026-10-07"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58422",
+   "role": "R",
+   "state": "UNKNOWN",
+   "temporal": "N",
+   "tickers": [
+    "NCT"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-10-02 11:42",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-10-02",
+    "md": null,
+    "upper": [
+     "2026-10-07",
+     "telegram_send"
+    ],
+    "visible": "2026-10-02"
+   },
+   "duplicate_of": null,
+   "id": "TG_58423",
+   "links": {
+    "NCT": {
+     "decision_session": "2026-10-02",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 4,
+     "status": "CENSORED_LT10_SESSIONS_AFTER"
+    }
+   },
+   "role": "V",
+   "state": "WATCH",
+   "temporal": "Y",
+   "tickers": [
+    "NCT"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:23",
+   "duplicate_of": "CH_20260918_14_NUWE",
+   "id": "TG_58426",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "NUWE"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-10-08",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58524",
+   "role": "V",
+   "state": "WATCH",
+   "temporal": "P",
+   "tickers": [
+    "CDT"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "MD",
+   "date_text": "10-07",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY+UPLOAD_BOUND",
+    "decision": "2026-10-07",
+    "md": "10-07",
+    "upper": [
+     "2026-10-08",
+     "telegram_send"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "TG_58526",
+   "links": {
+    "NCT": {
+     "decision_session": "2026-10-07",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 1,
+     "status": "CENSORED_LT10_SESSIONS_AFTER"
+    }
+   },
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "P",
+   "tickers": [
+    "NCT"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "RELATIVE",
+   "date_text": "15 س",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-23",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260827_checklist_7points",
+   "role": "C",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "MD",
+   "date_text": "08-24",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY+UPLOAD_BOUND",
+    "decision": "2026-08-24",
+    "md": "08-24",
+    "upper": [
+     "2026-08-24",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260827_hcwb_leak_close_dm",
+   "links": {
+    "HCWB": {
+     "decision_session": "2026-08-24",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 32,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "V",
+   "state": "READY",
+   "temporal": "N",
+   "tickers": [
+    "HCWB"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-08-19",
+       2.3,
+       0.436
+      ],
+      [
+       "2026-08-24",
+       2.31,
+       0.003
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 2,
+     "pct": -2.6,
+     "px": 2.25,
+     "status": "ambiguous",
+     "sym": "HCWB",
+     "window": [
+      "2025-01-01",
+      "2026-08-25"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-25",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260827_hcwb_leak_read",
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "HCWB"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-08-20",
+       1.72,
+       0.013
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 1,
+     "pct": -2.28,
+     "px": 1.681,
+     "status": "unique",
+     "sym": "KWM",
+     "window": [
+      "2025-01-01",
+      "2026-08-21"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "LOCAL_PRICE_ANCHOR(unique)",
+    "decision": "2026-08-20",
+    "md": null,
+    "upper": [
+     "2026-08-21",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260827_kwm_150_watch3",
+   "links": {
+    "KWM": {
+     "decision_session": "2026-08-20",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 34,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "R",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "KWM"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-08-23 16:51",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-08-23",
+    "md": null,
+    "upper": [
+     "2026-08-24",
+     "exif"
+    ],
+    "visible": "2026-08-23"
+   },
+   "duplicate_of": null,
+   "id": "X_20260827_labt_supports_wait",
+   "links": {
+    "LABT": {
+     "decision_session": "2026-08-21",
+     "status": "NO_EPISODE_IN_EVENTS"
+    }
+   },
+   "role": "V",
+   "state": "WAIT",
+   "temporal": "Y",
+   "tickers": [
+    "LABT"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:45",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-10-23",
+       1.7572,
+       0.159
+      ],
+      [
+       "2026-08-19",
+       1.76,
+       0.001
+      ],
+      [
+       "2026-08-21",
+       1.76,
+       0.001
+      ],
+      [
+       "2026-08-24",
+       1.76,
+       0.001
+      ],
+      [
+       "2026-08-27",
+       1.77,
+       0.569
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 5,
+     "pct": 3.41,
+     "px": 1.82,
+     "status": "ambiguous",
+     "sym": "RUBI",
+     "window": [
+      "2025-01-01",
+      "2026-08-27"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-27",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260827_rubi_4h_levels",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "RUBI"
+   ]
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "TIME",
+   "date_text": "14:05",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-28",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260828_01",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": []
+  },
+  {
+   "author": "T",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-28",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260828_07",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "PPCB",
+    "ZCMD"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-09-12",
+       2.22,
+       0.447
+      ],
+      [
+       "2025-09-16",
+       2.23,
+       0.002
+      ],
+      [
+       "2026-08-27",
+       2.23,
+       0.002
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 3,
+     "pct": -8.07,
+     "px": 2.05,
+     "status": "ambiguous",
+     "sym": "PPCB",
+     "window": [
+      "2025-01-01",
+      "2026-08-28"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-28",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260828_08",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "PPCB"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-09-12",
+       2.22,
+       0.445
+      ],
+      [
+       "2025-09-16",
+       2.23,
+       0.003
+      ],
+      [
+       "2026-08-27",
+       2.23,
+       0.003
+      ]
+     ],
+     "kind": "ah",
+     "label": "أفتر",
+     "n_hits": 3,
+     "pct": -13.45,
+     "px": 1.93,
+     "status": "ambiguous",
+     "sym": "PPCB",
+     "window": [
+      "2025-01-01",
+      "2026-08-28"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-08-28",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260828_15",
+   "role": "R",
+   "state": "WAIT",
+   "temporal": "N",
+   "tickers": [
+    "PPCB"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-04",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260905_08",
+   "role": "V",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "BTOG",
+    "SGRX"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "10:23",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-04",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260905_09",
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "YMT"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART",
+    "TEXT"
+   ],
+   "date_precision": "TIME",
+   "date_text": "01:32",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-09-03",
+       1.89,
+       0.001
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 1,
+     "pct": 6.35,
+     "px": 2.01,
+     "status": "unique",
+     "sym": "YMT",
+     "window": [
+      "2025-01-01",
+      "2026-09-04"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "LOCAL_PRICE_ANCHOR(unique)",
+    "decision": "2026-09-03",
+    "md": null,
+    "upper": [
+     "2026-09-04",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260905_10",
+   "links": {
+    "YMT": {
+     "decision_session": "2026-09-03",
+     "status": "NO_EPISODE_IN_EVENTS"
+    }
+   },
+   "role": "R",
+   "state": "WATCH",
+   "temporal": "P",
+   "tickers": [
+    "YMT"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "EXACT",
+   "date_text": "2026-09-02 00:30",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_DATE",
+    "decision": "2026-09-02",
+    "md": null,
+    "upper": [
+     "2026-09-02",
+     "exif"
+    ],
+    "visible": "2026-09-02"
+   },
+   "duplicate_of": null,
+   "id": "X_20260905_12",
+   "links": {
+    "MSGY": {
+     "d1": "2026-09-25",
+     "decision_session": "2026-09-02",
+     "earlier_episode_in_between": [],
+     "episode": "MSGY|2026-09-25",
+     "kind": "jump",
+     "onset": "2026-09-25",
+     "q": "2026-09-25",
+     "sessions_to_onset": 16,
+     "status": "T11_30",
+     "x70": "2026-09-25"
+    }
+   },
+   "role": "V",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "MSGY"
+   ]
+  },
+  {
+   "author": "U",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "TIME",
+   "date_text": "02:14",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-08-28",
+       2.9,
+       0.016
+      ],
+      [
+       "2026-09-03",
+       2.88,
+       0.674
+      ]
+     ],
+     "kind": "pre",
+     "label": "بري",
+     "n_hits": 2,
+     "pct": 9.5,
+     "px": 3.175,
+     "status": "ambiguous",
+     "sym": "DCOY",
+     "window": [
+      "2025-01-01",
+      "2026-09-05"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-05",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260905_13",
+   "role": "X",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "DCOY"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "NONE",
+   "date_text": "",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2026-09-17",
+       2.5,
+       0.0
+      ],
+      [
+       "2026-09-18",
+       2.49,
+       0.4
+      ]
+     ],
+     "kind": "pre",
+     "label": "بري",
+     "n_hits": 2,
+     "pct": -4.12,
+     "px": 2.397,
+     "status": "ambiguous",
+     "sym": "ELPW",
+     "window": [
+      "2025-01-01",
+      "2026-09-18"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-18",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260918_04_ELPW",
+   "role": "R",
+   "state": "WATCH",
+   "temporal": "N",
+   "tickers": [
+    "ELPW"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "CHART"
+   ],
+   "date_precision": "MD",
+   "date_text": "09-08",
+   "dating": {
+    "anchor": null,
+    "axis_lower": null,
+    "basis": "VISIBLE_MONTH_DAY+UPLOAD_BOUND",
+    "decision": "2026-09-08",
+    "md": "09-08",
+    "upper": [
+     "2026-09-08",
+     "exif"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260918_26_GRI",
+   "links": {
+    "GRI": {
+     "decision_session": "2026-09-08",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 22,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   },
+   "role": "R",
+   "state": "NONE",
+   "temporal": "N",
+   "tickers": [
+    "GRI"
+   ]
+  },
+  {
+   "author": "F",
+   "class": [
+    "TEXT"
+   ],
+   "date_precision": "TIME",
+   "date_text": "08:42",
+   "dating": {
+    "anchor": {
+     "hits": [
+      [
+       "2025-04-30",
+       3.08,
+       0.162
+      ],
+      [
+       "2025-05-01",
+       3.07,
+       0.487
+      ],
+      [
+       "2026-09-04",
+       3.085,
+       0.0
+      ]
+     ],
+     "kind": "ah",
+     "label": "بعد الإغلاق",
+     "n_hits": 3,
+     "pct": 0.81,
+     "px": 3.11,
+     "status": "ambiguous",
+     "sym": "ELPW",
+     "window": [
+      "2025-01-01",
+      "2026-09-18"
+     ]
+    },
+    "axis_lower": null,
+    "basis": "UPLOAD_BOUND_ONLY",
+    "decision": null,
+    "md": null,
+    "upper": [
+     "2026-09-18",
+     "filename"
+    ],
+    "visible": null
+   },
+   "duplicate_of": null,
+   "id": "X_20260918_66_ELPW",
+   "role": "R",
+   "state": "WATCH",
+   "temporal": "P",
+   "tickers": [
+    "ELPW"
+   ]
+  }
+ ],
+ "missed_winners": [
+  {
+   "T10": "2025-09-22",
+   "T7": "2025-09-25",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2025-10-06",
+   "peak_gain": 2256.1,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "SPRB",
+   "window": "development"
+  },
+  {
+   "T10": "2025-05-12",
+   "T7": "2025-05-15",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2025-05-27",
+   "peak_gain": 1078.7,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "SBET",
+   "window": "development"
+  },
+  {
+   "T10": "2025-10-22",
+   "T7": "2025-10-27",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2025-11-05",
+   "peak_gain": 837.5,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "MTC",
+   "window": "development"
+  },
+  {
+   "T10": "2025-06-23",
+   "T7": "2025-06-26",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2025-07-08",
+   "peak_gain": 816.5,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "PROK",
+   "window": "development"
+  },
+  {
+   "T10": "2025-06-16",
+   "T7": "2025-06-20",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2025-07-01",
+   "peak_gain": 781.0,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "YDKG",
+   "window": "development"
+  },
+  {
+   "T10": "2025-08-12",
+   "T7": "2025-08-15",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2025-08-26",
+   "peak_gain": 735.2,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "KAZR",
+   "window": "development"
+  },
+  {
+   "T10": "2026-05-12",
+   "T7": "2026-05-15",
+   "h4_images_any_date": [
+    "APP_20260918_19_NTCL",
+    "APP_20260918_20_NTCL",
+    "TG_57912",
+    "TG_57917"
+   ],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-05-27",
+   "peak_gain": 1014.9,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "NTCL",
+   "window": "validation"
+  },
+  {
+   "T10": "2026-04-29",
+   "T7": "2026-05-04",
+   "h4_images_any_date": [
+    "IMG_0645",
+    "IMG_0648"
+   ],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-05-13",
+   "peak_gain": 876.7,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "TDIC",
+   "window": "validation"
+  },
+  {
+   "T10": "2026-05-01",
+   "T7": "2026-05-06",
+   "h4_images_any_date": [
+    "X_20260827_hcwb_leak_close_dm",
+    "X_20260827_hcwb_leak_read"
+   ],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-05-15",
+   "peak_gain": 837.1,
+   "placed": [
+    {
+     "decision_session": "2026-08-24",
+     "id": "X_20260827_hcwb_leak_close_dm",
+     "intraday_only_within_10": [],
+     "sessions_of_data_after": 32,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   ],
+   "placed_at_T7_10": [],
+   "sym": "HCWB",
+   "window": "validation"
+  },
+  {
+   "T10": "2026-04-20",
+   "T7": "2026-04-23",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-05-04",
+   "peak_gain": 634.3,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "SKK",
+   "window": "validation"
+  },
+  {
+   "T10": "2026-05-08",
+   "T7": "2026-05-13",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-05-22",
+   "peak_gain": 620.6,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "AKTX",
+   "window": "validation"
+  },
+  {
+   "T10": "2026-03-31",
+   "T7": "2026-04-06",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-04-15",
+   "peak_gain": 610.9,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "BIRD",
+   "window": "validation"
+  },
+  {
+   "T10": "2026-07-23",
+   "T7": "2026-07-28",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-08-06",
+   "peak_gain": 1472.1,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "XHLD",
+   "window": "holdout"
+  },
+  {
+   "T10": "2026-07-06",
+   "T7": "2026-07-09",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-07-20",
+   "peak_gain": 1139.6,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "ZYBT",
+   "window": "holdout"
+  },
+  {
+   "T10": "2026-06-11",
+   "T7": "2026-06-16",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-06-26",
+   "peak_gain": 1065.0,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "SDOT",
+   "window": "holdout"
+  },
+  {
+   "T10": "2026-07-24",
+   "T7": "2026-07-29",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-08-07",
+   "peak_gain": 1009.2,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "SVRN",
+   "window": "holdout"
+  },
+  {
+   "T10": "2026-07-22",
+   "T7": "2026-07-27",
+   "h4_images_any_date": [
+    "TG_58410"
+   ],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-08-05",
+   "peak_gain": 801.2,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "YXT",
+   "window": "holdout"
+  },
+  {
+   "T10": "2026-08-03",
+   "T7": "2026-08-06",
+   "h4_images_any_date": [],
+   "intraday_stores_covering_T10_T7": [],
+   "onset": "2026-08-17",
+   "peak_gain": 725.1,
+   "placed": [],
+   "placed_at_T7_10": [],
+   "sym": "IPST",
+   "window": "holdout"
+  }
+ ],
+ "non_faisal": [
+  {
+   "id": "APP-1",
+   "note": "the app's design: daily for the cycle, 4H for the support timing; its «تأكيد 4H» chip has no stated formula",
+   "src": [
+    [
+     "TG_57917",
+     "اليومي يحدد الدورة و4H يؤكد توقيت الدعم"
+    ],
+    [
+     "TG_58401",
+     "تأكيد 4H اختبار ناجح"
+    ],
+    [
+     "TG_57876",
+     "الزخم اليومي و4H لم يتحسن بعد"
+    ]
+   ],
+   "who": "app (A)"
+  },
+  {
+   "id": "APP-2",
+   "note": "eight weighted conditions on 4H (RSI from the daily); measured as daily proxies in the atlas, never Faisal's",
+   "src": [
+    [
+     "TG_58420",
+     "الشروط الفنية على فريم 4 ساعات"
+    ]
+   ],
+   "who": "third-party app (A)"
+  },
+  {
+   "id": "APP-3",
+   "note": "split-day card: the first 4-hour high after a reverse split as a target zone (displayed by the bot)",
+   "src": [
+    [
+     "TG_57912",
+     "أعلى أول 4 ساعات $6.00"
+    ]
+   ],
+   "who": "app (A)"
+  },
+  {
+   "id": "EDU-1",
+   "note": "the phrase «شمعة قروب» is a channel's caption on a DKI intraday spike (4.07 → 5.05 and back) — not Faisal's definition; his rule is R4H-3",
+   "src": [
+    [
+     "EDU_20260827_dki_group_candle",
+     "شمعة قروب الشكوى لله"
+    ]
+   ],
+   "who": "third-party channel (T)"
+  }
+ ],
+ "population": {
+  "development": {
+   "captured_by_ready": 151,
+   "eligible_events": 540,
+   "eligible_events_reconcile": 540,
+   "eligible_events_with_any_intraday_bar": [],
+   "eligible_events_with_intraday_ohlc": [],
+   "labels": {
+    "CENSORED": 29,
+    "IN_EVENT": 4342,
+    "NEG": 63266,
+    "POS710": 2040,
+    "UNKNOWN_SPLIT": 117
+   },
+   "missed": 389,
+   "neg_rows_with_intraday_ohlc": 0,
+   "pivot_days": 69794,
+   "pos710_rows_with_intraday_ohlc": 0,
+   "rows_with_any_intraday_bar": 0,
+   "rows_with_any_intraday_bar_by_label": {},
+   "rows_with_intraday_ohlc": 0,
+   "symbols_with_intraday_bar": [],
+   "top6_missed": [
+    {
+     "onset": "2025-10-06",
+     "peak_gain": 2256.1,
+     "sym": "SPRB"
+    },
+    {
+     "onset": "2025-05-27",
+     "peak_gain": 1078.7,
+     "sym": "SBET"
+    },
+    {
+     "onset": "2025-11-05",
+     "peak_gain": 837.5,
+     "sym": "MTC"
+    },
+    {
+     "onset": "2025-07-08",
+     "peak_gain": 816.5,
+     "sym": "PROK"
+    },
+    {
+     "onset": "2025-07-01",
+     "peak_gain": 781.0,
+     "sym": "YDKG"
+    },
+    {
+     "onset": "2025-08-26",
+     "peak_gain": 735.2,
+     "sym": "KAZR"
+    }
+   ]
+  },
+  "holdout": {
+   "captured_by_ready": 60,
+   "eligible_events": 219,
+   "eligible_events_reconcile": 219,
+   "eligible_events_with_any_intraday_bar": [
+    "CRE|2026-08-26"
+   ],
+   "eligible_events_with_intraday_ohlc": [],
+   "labels": {
+    "CENSORED": 59,
+    "IN_EVENT": 1738,
+    "NEG": 31950,
+    "POS710": 849,
+    "UNKNOWN_SPLIT": 77
+   },
+   "missed": 159,
+   "neg_rows_with_intraday_ohlc": 10,
+   "pivot_days": 34673,
+   "pos710_rows_with_intraday_ohlc": 0,
+   "rows_with_any_intraday_bar": 70,
+   "rows_with_any_intraday_bar_by_label": {
+    "IN_EVENT": 7,
+    "NEG": 59,
+    "POS710": 4
+   },
+   "rows_with_intraday_ohlc": 11,
+   "symbols_with_intraday_bar": [
+    "CRE",
+    "DXST"
+   ],
+   "top6_missed": [
+    {
+     "onset": "2026-08-06",
+     "peak_gain": 1472.1,
+     "sym": "XHLD"
+    },
+    {
+     "onset": "2026-07-20",
+     "peak_gain": 1139.6,
+     "sym": "ZYBT"
+    },
+    {
+     "onset": "2026-06-26",
+     "peak_gain": 1065.0,
+     "sym": "SDOT"
+    },
+    {
+     "onset": "2026-08-07",
+     "peak_gain": 1009.2,
+     "sym": "SVRN"
+    },
+    {
+     "onset": "2026-08-05",
+     "peak_gain": 801.2,
+     "sym": "YXT"
+    },
+    {
+     "onset": "2026-08-17",
+     "peak_gain": 725.1,
+     "sym": "IPST"
+    }
+   ]
+  },
+  "validation": {
+   "captured_by_ready": 113,
+   "eligible_events": 334,
+   "eligible_events_reconcile": 334,
+   "eligible_events_with_any_intraday_bar": [],
+   "eligible_events_with_intraday_ohlc": [],
+   "labels": {
+    "IN_EVENT": 2549,
+    "NEG": 38150,
+    "POS710": 1245,
+    "UNKNOWN_SPLIT": 85
+   },
+   "missed": 221,
+   "neg_rows_with_intraday_ohlc": 33,
+   "pivot_days": 42029,
+   "pos710_rows_with_intraday_ohlc": 0,
+   "rows_with_any_intraday_bar": 40,
+   "rows_with_any_intraday_bar_by_label": {
+    "NEG": 40
+   },
+   "rows_with_intraday_ohlc": 33,
+   "symbols_with_intraday_bar": [
+    "CRE",
+    "DXST"
+   ],
+   "top6_missed": [
+    {
+     "onset": "2026-05-27",
+     "peak_gain": 1014.9,
+     "sym": "NTCL"
+    },
+    {
+     "onset": "2026-05-13",
+     "peak_gain": 876.7,
+     "sym": "TDIC"
+    },
+    {
+     "onset": "2026-05-15",
+     "peak_gain": 837.1,
+     "sym": "HCWB"
+    },
+    {
+     "onset": "2026-05-04",
+     "peak_gain": 634.3,
+     "sym": "SKK"
+    },
+    {
+     "onset": "2026-05-22",
+     "peak_gain": 620.6,
+     "sym": "AKTX"
+    },
+    {
+     "onset": "2026-04-15",
+     "peak_gain": 610.9,
+     "sym": "BIRD"
+    }
+   ]
+  }
+ },
+ "quote_check": [],
+ "rules": [
+  {
+   "calc": "none given in the source",
+   "daily_proxies": [
+    {
+     "dev_lift": 0.969,
+     "dev_lift_ci": [
+      0.924,
+      1.016
+     ],
+     "flag": "B05_HOLD3",
+     "recall": 0.8074
+    },
+    {
+     "dev_lift": 0.975,
+     "dev_lift_ci": [
+      0.917,
+      1.032
+     ],
+     "flag": "B05b_HOLD5",
+     "recall": 0.6926
+    },
+    {
+     "dev_lift": 1.017,
+     "dev_lift_ci": [
+      0.638,
+      1.516
+     ],
+     "flag": "B09_TIGHT_NEAR_LOW",
+     "recall": 0.0537
+    }
+   ],
+   "data": "4H OHLC (close needed) around the base for T−10…T−7, positives and matched controls",
+   "hypothesis": "HYPOTHESIS ONLY: no 4H close below the base low over the last N 4H candles and a 4H range width under W — N and W are not in the source",
+   "id": "R4H-1",
+   "interpretation": "before the rise the 4H candles stay compact at the base low; the rise is preceded by pressure or a ~10% sweep below the low",
+   "name": "holding together at the lowest low on 4H",
+   "numbers": "none for «متماسك» · 10% is the sweep depth, not a 4H width",
+   "purpose": "technical strength (readiness state)",
+   "sources": [
+    {
+     "author": "F",
+     "date": "2026-07-05",
+     "date_precision": "DAY",
+     "excerpt": "هنا بيكون ع فريم 4 ساعات متماسك عند ادنى قاع",
+     "image": "IMG_0177",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "F",
+     "date": "2026-07-05",
+     "date_precision": "DAY",
+     "excerpt": "قبل يصعد لازم يكون فيه ضغط او مسح سيوله 10٪ تحت القاع",
+     "image": "IMG_0177",
+     "owner_attribution": null,
+     "tickers": []
+    }
+   ]
+  },
+  {
+   "calc": "lowest 4H low of the base not broken during the following 5 sessions (lows only)",
+   "daily_proxies": [
+    {
+     "dev_lift": 0.975,
+     "dev_lift_ci": [
+      0.917,
+      1.032
+     ],
+     "flag": "B05b_HOLD5",
+     "recall": 0.6926
+    },
+    {
+     "dev_lift": 0.969,
+     "dev_lift_ci": [
+      0.924,
+      1.016
+     ],
+     "flag": "B05_HOLD3",
+     "recall": 0.8074
+    }
+   ],
+   "data": "4H or hourly lows (extended hours) — lows suffice",
+   "hypothesis": "the reference low (which candle) is the stock's new low; the sessions are daily sessions — both read from the example, not stated as a definition",
+   "id": "R4H-2",
+   "interpretation": "the exact low is read on the 4H frame as well as the daily, and must hold for 5 sessions",
+   "name": "supports measured on 4H and daily · lowest candle unbroken for 5 sessions on all frames",
+   "numbers": "5 sessions (explicit)",
+   "purpose": "pivot validity / technical strength",
+   "sources": [
+    {
+     "author": "F",
+     "date": "15 س",
+     "date_precision": "RELATIVE",
+     "excerpt": "مع قياس الدعوم ع فريم 4 ساعات و يومي مع قرآة الشموع",
+     "image": "X_20260827_checklist_7points",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "F",
+     "date": "15 س",
+     "date_precision": "RELATIVE",
+     "excerpt": "يبقى لك ادنى شمعه هبط لها السهم 5 جلسات هل كسرها اولا ع جميع الفريمات",
+     "image": "X_20260827_checklist_7points",
+     "owner_attribution": null,
+     "tickers": []
+    }
+   ]
+  },
+  {
+   "calc": "none — the 20% has no stated base (open, prior close, low?) and «بدون جسم» no body ratio",
+   "daily_proxies": [
+    {
+     "dev_lift": 1.279,
+     "dev_lift_ci": [
+      1.059,
+      1.502
+     ],
+     "flag": "I04_GROUP_PROXY",
+     "recall": 0.1944
+    },
+    {
+     "dev_lift": 0.961,
+     "dev_lift_ci": [
+      0.931,
+      0.992
+     ],
+     "flag": "A11_NO_GROUP_PROXY",
+     "recall": 0.8778
+    },
+    {
+     "dev_lift": 1.017,
+     "dev_lift_ci": [
+      0.638,
+      1.516
+     ],
+     "flag": "B09_TIGHT_NEAR_LOW",
+     "recall": 0.0537
+    }
+   ],
+   "data": "4H OHLC (body needs open and close) on the same grid Faisal reads",
+   "hypothesis": "HYPOTHESIS ONLY: a 4H candle with range ≥ 20% of the prior 4H close and body ≤ X% of its range (X not in the source; the atlas's daily proxy used 25%)",
+   "id": "R4H-3",
+   "interpretation": "a long green or red 4H candle without a body, reaching about 20%, marks group activity; a ready stock oscillates 10% at most; group entry makes the candles unreadable",
+   "name": "free of groups (readable candles; no bodiless ~20% 4H candles)",
+   "numbers": "20% (how far a group candle reaches) · 10% (maximum oscillation of a ready stock) · «بدون جسم» has no number",
+   "purpose": "restrict risky entries / validity — not a timing signal",
+   "sources": [
+    {
+     "author": "F",
+     "date": "15 س",
+     "date_precision": "RELATIVE",
+     "excerpt": "سهم جاهز محافظ ع تذبذب نقاط 10٪ حد اقصى",
+     "image": "X_20260827_checklist_7points",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "F",
+     "date": "15 س",
+     "date_precision": "RELATIVE",
+     "excerpt": "القروبات ترفع السهم بشموع غبيه توصل 20٪ تجد شمعه طويله خضرا او حمرا بدون جسم ع فريم 4 ساعات",
+     "image": "X_20260827_checklist_7points",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "F",
+     "date": "1 ي",
+     "date_precision": "RELATIVE",
+     "excerpt": "الشرط خالي من القروبات",
+     "image": "IMG_0151",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "F",
+     "date": "10 س",
+     "date_precision": "RELATIVE",
+     "excerpt": "دخول سيوله قروبات او غيره لا انا ولا اكبر محلل يستطيع قراءة الشموع",
+     "image": "IMG_0488",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "F",
+     "date": "2026-08-23 16:51",
+     "date_precision": "EXACT",
+     "excerpt": "شمعة غبيه بعد تحليلنا السابق",
+     "image": "X_20260827_labt_supports_wait",
+     "owner_attribution": null,
+     "tickers": [
+      "LABT"
+     ]
+    }
+   ]
+  },
+  {
+   "calc": "none given",
+   "daily_proxies": [],
+   "data": "extended-hours 4H OHLC for the population (pre-market and after-hours)",
+   "hypothesis": "HYPOTHESIS ONLY: an extended-hours 4H candle closing ≥ R% above the prior regular close (R not in the source)",
+   "id": "R4H-4",
+   "interpretation": "whether the extended-hours 4H candles already show a rise",
+   "name": "4H rise in the after-hours or pre-market",
+   "numbers": "none",
+   "purpose": "upcoming timing",
+   "sources": [
+    {
+     "author": "F",
+     "date": "15 س",
+     "date_precision": "RELATIVE",
+     "excerpt": "فريم 4 ساعات هل له صعود افتر بري او لا",
+     "image": "X_20260827_checklist_7points",
+     "owner_attribution": null,
+     "tickers": []
+    }
+   ]
+  },
+  {
+   "calc": "none — «شمعة ساقطة» is not defined numerically",
+   "daily_proxies": [
+    {
+     "dev_lift": 0.899,
+     "dev_lift_ci": [
+      0.763,
+      1.039
+     ],
+     "flag": "B22_MA20_FLAT",
+     "recall": 0.2611
+    }
+   ],
+   "data": "4H OHLC",
+   "hypothesis": "HYPOTHESIS ONLY: the head/tail of the last large red 4H candle above price as the next level",
+   "id": "R4H-5",
+   "interpretation": "a falling (red, gapped-down) 4H candle is a level the price is expected to come back to; act after the daily tests it",
+   "name": "a falling 4H candle waits for the daily to test it",
+   "numbers": "none for «ساقطة» · TG_50832's 25% per candle is a target (exit axis, closed)",
+   "purpose": "timing (WAIT) / levels",
+   "sources": [
+    {
+     "author": "F",
+     "date": "4 س",
+     "date_precision": "RELATIVE",
+     "excerpt": "اذا كان فيه شمعه ساقطه ع 4 ساعات انتظر يختبرها فريم يومي",
+     "image": "TG_1815",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "U",
+     "date": "09-21",
+     "date_precision": "MD",
+     "excerpt": "لما تشوف شمعه ساقطه ع فريم 4 ساعات انتظر السهم يختبرها",
+     "image": "TG_50587",
+     "owner_attribution": null,
+     "tickers": [
+      "CIIT"
+     ]
+    },
+    {
+     "author": "U",
+     "date": "",
+     "date_precision": "NONE",
+     "excerpt": "لكل شمعه حمرا ذيل وراس الذيل مقاومه الراس هدف",
+     "image": "TG_50832",
+     "owner_attribution": "Faisal (owner, 2026-09-23)",
+     "tickers": []
+    }
+   ]
+  },
+  {
+   "calc": "none general",
+   "closed": "T-SUPDEF",
+   "daily_proxies": [
+    {
+     "dev_lift": 1.064,
+     "dev_lift_ci": [
+      0.918,
+      1.229
+     ],
+     "flag": "B07_RETEST",
+     "recall": 0.3074
+    },
+    {
+     "dev_lift": 0.952,
+     "dev_lift_ci": [
+      0.877,
+      1.028
+     ],
+     "flag": "B18_TOUCHES",
+     "recall": 0.5778
+    }
+   ],
+   "data": "4H OHLC",
+   "hypothesis": "a support definition — testing it would be a support-definition test (closed axis T-SUPDEF)",
+   "id": "R4H-6",
+   "interpretation": "levels are taken from 4H candles: a prior falling candle's head is resistance, then support once reclaimed; a break of the 4H support means a deeper fall",
+   "name": "the head of the falling 4H candle turns from resistance into support (not broken)",
+   "numbers": "price examples only (4.71, 2.87, 2, 2.20)",
+   "purpose": "levels / entry location",
+   "sources": [
+    {
+     "author": "F",
+     "date": "2026-05-16",
+     "date_precision": "DAY",
+     "excerpt": "تحدد الشموع ع فريم 4 ساعات · ترجع للشمعه السابقه · تجد شمعة الهبوط راسها 4.71 تعتبر مقاومه",
+     "image": "TG_1860",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "F",
+     "date": "2026-05-16",
+     "date_precision": "DAY",
+     "excerpt": "كانت مقاومه تحولت لدعم · لم يكسرها السهم",
+     "image": "TG_1860",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "F",
+     "date": "",
+     "date_precision": "NONE",
+     "excerpt": "الشمعه واضحه المقاومه ع فريم 4 ساعات 2.87 شمعة ساقطه سابقا",
+     "image": "IMG_0319",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "F",
+     "date": "2026-06-02",
+     "date_precision": "DAY",
+     "excerpt": "يحول الفريم ع 4 ساعات 2 مفترض مايرجع لها كدعم اساسي 2.20 دعم فرعي",
+     "image": "TG_1858",
+     "owner_attribution": null,
+     "tickers": [
+      "NAMM"
+     ]
+    },
+    {
+     "author": "F",
+     "date": "2026-08-01 20:37",
+     "date_precision": "EXACT",
+     "excerpt": "فريم 4 ساعات دعم 2 اذا كسرها بيروح تحت",
+     "image": "IMG_0698",
+     "owner_attribution": null,
+     "tickers": [
+      "ZNB"
+     ]
+    }
+   ]
+  },
+  {
+   "calc": "the shape only (no ratios in the source)",
+   "closed": "T-CANDLE",
+   "daily_proxies": [
+    {
+     "dev_lift": 1.136,
+     "dev_lift_ci": [
+      0.935,
+      1.357
+     ],
+     "flag": "K01_HAMMER",
+     "recall": 0.1593
+    },
+    {
+     "dev_lift": 1.143,
+     "dev_lift_ci": [
+      0.883,
+      1.424
+     ],
+     "flag": "K02_RED_HAMMER",
+     "recall": 0.1037
+    },
+    {
+     "dev_lift": 0.987,
+     "dev_lift_ci": [
+      0.894,
+      1.088
+     ],
+     "flag": "B20_CANDLE_AT_SUPPORT",
+     "recall": 0.4741
+    }
+   ],
+   "data": "4H OHLC",
+   "hypothesis": "body/wick ratios are the bot's, not Faisal's",
+   "id": "R4H-7",
+   "interpretation": "the base candle on 4H is a hammer (bottom body without a head)",
+   "name": "a hammer at the 4H low",
+   "numbers": "none",
+   "purpose": "confirmation",
+   "sources": [
+    {
+     "author": "F",
+     "date": "",
+     "date_precision": "NONE",
+     "excerpt": "جسم شمعة القاع 1.50 بدون راس · تسمى مطرقه او همر",
+     "image": "IMG_0569",
+     "owner_attribution": null,
+     "tickers": [
+      "MNDR"
+     ]
+    },
+    {
+     "author": "F",
+     "date": "",
+     "date_precision": "NONE",
+     "excerpt": "ع فريم 4 ساعات الشرح",
+     "image": "IMG_0569",
+     "owner_attribution": null,
+     "tickers": [
+      "MNDR"
+     ]
+    },
+    {
+     "author": "F",
+     "date": "2026-06-15",
+     "date_precision": "DAY",
+     "excerpt": "ادنى قاع 2.08 = ع فريم 4 ساعات شمعة همر صاعده",
+     "image": "TG_1824",
+     "owner_attribution": null,
+     "tickers": [
+      "LNAI"
+     ]
+    }
+   ]
+  },
+  {
+   "calc": "4H low below the base by about 10%, then a 4H close back above the support",
+   "daily_proxies": [
+    {
+     "dev_lift": 0.917,
+     "dev_lift_ci": [
+      0.738,
+      1.1
+     ],
+     "flag": "B08_SWEEP",
+     "recall": 0.1722
+    }
+   ],
+   "data": "4H lows and closes (a close is needed for the reclaim)",
+   "hypothesis": "the depth band and the reclaim horizon are not given for 4H",
+   "id": "R4H-8",
+   "interpretation": "the sweep is seen as a 4H wick under the base and a return above the support; the 4H low can differ from the daily low",
+   "name": "a sweep shown by a 4H wick below the base, then back above the support",
+   "numbers": "~10% (EHGO example) · the project's 7–13% band is from IMG_0297 (not a 4H statement)",
+   "purpose": "upcoming timing / strength",
+   "sources": [
+    {
+     "author": "F",
+     "date": "2026-05-22",
+     "date_precision": "DAY",
+     "excerpt": "فريم 4 ساعات ذيل شمعة 1.30 ( مسح سيولة )",
+     "image": "TG_1822",
+     "owner_attribution": null,
+     "tickers": [
+      "EHGO"
+     ]
+    },
+    {
+     "author": "F",
+     "date": "2026-05-22",
+     "date_precision": "DAY",
+     "excerpt": "سحب السيوله اسفل الشمعه 10٪ تقريبا ورجع صعد فوق الدعم",
+     "image": "TG_1822",
+     "owner_attribution": null,
+     "tickers": [
+      "EHGO"
+     ]
+    },
+    {
+     "author": "U",
+     "date": "",
+     "date_precision": "NONE",
+     "excerpt": "هنا تتابع القاع 69 سنت ع 4 ساعات ع يومي يختلف 71 سنت",
+     "image": "TG_20260918_38_NUWE",
+     "owner_attribution": null,
+     "tickers": []
+    }
+   ]
+  },
+  {
+   "calc": "displayed by the bot (red-candle heads on 4H)",
+   "closed": "T-TRAIL",
+   "daily_proxies": [],
+   "data": "—",
+   "hypothesis": "—",
+   "id": "R4H-9",
+   "interpretation": "targets, not readiness — outside this question",
+   "name": "targets set on the 4H (and daily) falling candles",
+   "numbers": "price examples only",
+   "purpose": "exit / targets",
+   "sources": [
+    {
+     "author": "F",
+     "date": "2026-05-16",
+     "date_precision": "DAY",
+     "excerpt": "الاهداف تحددها ع فريم يومي + 4 ساعات",
+     "image": "TG_1860",
+     "owner_attribution": null,
+     "tickers": []
+    },
+    {
+     "author": "F",
+     "date": "03:31",
+     "date_precision": "TIME",
+     "excerpt": "تقرر الاهداف ع فريم 4 ساعات شمعة الهدف 2.18 = شمعة الهبوط",
+     "image": "TG_1969",
+     "owner_attribution": null,
+     "tickers": [
+      "AUUD"
+     ]
+    },
+    {
+     "author": "F",
+     "date": "",
+     "date_precision": "NONE",
+     "excerpt": "فريم 4 ساعات الاهداف مشروط بفريم 5 دقايق",
+     "image": "TG_50830",
+     "owner_attribution": null,
+     "tickers": [
+      "IPDN"
+     ]
+    },
+    {
+     "author": "F",
+     "date": "2026-07-26 11:19",
+     "date_precision": "EXACT",
+     "excerpt": "شمعه 4 ساعات عنده هدف 10",
+     "image": "TG_2196",
+     "owner_attribution": null,
+     "tickers": [
+      "ONCO"
+     ]
+    }
+   ]
+  }
+ ],
+ "seeds": {
+  "DKI": {
+   "bar_stores": [
+    {
+     "first": "2026-04-21",
+     "last": "2026-10-08",
+     "ohlc": false,
+     "store": "fm_forensics/data/bars_2026-10-08.json.gz · hourly"
+    }
+   ],
+   "episodes": [
+    {
+     "T10": "2026-01-16",
+     "T7": "2026-01-22",
+     "d1": "2026-02-02",
+     "episode": "DKI|2026-02-02",
+     "kind": "jump",
+     "onset": "2026-02-02",
+     "q": "2026-02-02",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-02-02"
+    },
+    {
+     "T10": "2026-03-25",
+     "T7": "2026-03-30",
+     "d1": "2026-04-09",
+     "episode": "DKI|2026-04-09",
+     "kind": "jump",
+     "onset": "2026-04-09",
+     "q": "2026-04-09",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-04-09"
+    }
+   ],
+   "h4_images": [
+    "TG_57893",
+    "TG_58386"
+   ],
+   "h4_images_placed": [
+    {
+     "decision_session": "2026-09-23",
+     "id": "TG_57893",
+     "intraday_only_within_10": [
+      {
+       "close_vs_prior_close_pct": 22.8,
+       "high_vs_prior_close_pct": 167.6,
+       "session": "2026-10-07",
+       "sessions_after": 10
+      }
+     ],
+     "sessions_of_data_after": 11,
+     "status": "NO_LATER_CLEAN_EPISODE"
+    }
+   ],
+   "intraday_only_spikes": [
+    {
+     "close_vs_prior_close_pct": -4.9,
+     "high_vs_prior_close_pct": 79.1,
+     "session": "2026-02-17",
+     "sessions_after": 199
+    },
+    {
+     "close_vs_prior_close_pct": 22.8,
+     "high_vs_prior_close_pct": 167.6,
+     "session": "2026-10-07",
+     "sessions_after": 360
+    }
+   ]
+  },
+  "DLXY": {
+   "bar_stores": [],
+   "episodes": [
+    {
+     "T10": "2025-12-12",
+     "T7": "2025-12-17",
+     "d1": "2025-12-30",
+     "episode": "DLXY|2025-12-29",
+     "kind": "jump",
+     "onset": "2025-12-29",
+     "q": "2025-12-30",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2025-12-30"
+    },
+    {
+     "T10": "2026-02-18",
+     "T7": "2026-02-23",
+     "d1": "2026-03-04",
+     "episode": "DLXY|2026-03-04",
+     "kind": "jump",
+     "onset": "2026-03-04",
+     "q": "2026-03-04",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-03-04"
+    },
+    {
+     "T10": "2026-03-27",
+     "T7": "2026-04-01",
+     "d1": "2026-04-21",
+     "episode": "DLXY|2026-04-13",
+     "kind": "run",
+     "onset": "2026-04-13",
+     "q": "2026-04-21",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-04-21"
+    },
+    {
+     "T10": "2026-09-01",
+     "T7": "2026-09-04",
+     "d1": "2026-09-16",
+     "episode": "DLXY|2026-09-16",
+     "kind": "jump",
+     "onset": "2026-09-16",
+     "q": "2026-09-16",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [
+      "2026-09-16 08:01",
+      "2026-09-16 08:07"
+     ],
+     "x70": "2026-09-16"
+    }
+   ],
+   "h4_images": [],
+   "h4_images_placed": [],
+   "intraday_only_spikes": [
+    {
+     "close_vs_prior_close_pct": -2.4,
+     "high_vs_prior_close_pct": 70.0,
+     "session": "2026-09-28",
+     "sessions_after": 353
+    }
+   ]
+  },
+  "HUBC": {
+   "bar_stores": [
+    {
+     "first": "2026-06-16",
+     "last": "2026-10-08",
+     "ohlc": false,
+     "store": "fm_forensics/data/bars_2026-10-08.json.gz · hourly"
+    }
+   ],
+   "episodes": [
+    {
+     "T10": "2025-06-26",
+     "T7": "2025-07-01",
+     "d1": "2025-07-16",
+     "episode": "HUBC|2025-07-11",
+     "kind": "run",
+     "onset": "2025-07-11",
+     "q": "2025-07-16",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2025-07-16"
+    },
+    {
+     "T10": "2025-12-29",
+     "T7": "2026-01-02",
+     "d1": "2026-01-13",
+     "episode": "HUBC|2026-01-13",
+     "kind": "jump",
+     "onset": "2026-01-13",
+     "q": "2026-01-13",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": ""
+    },
+    {
+     "T10": "2026-03-23",
+     "T7": "2026-03-26",
+     "d1": "2026-04-07",
+     "episode": "HUBC|2026-04-07",
+     "kind": "jump",
+     "onset": "2026-04-07",
+     "q": "2026-04-07",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": ""
+    },
+    {
+     "T10": "2026-03-24",
+     "T7": "2026-03-27",
+     "d1": "2026-04-08",
+     "episode": "HUBC|2026-04-08",
+     "kind": "jump",
+     "onset": "2026-04-08",
+     "q": "2026-04-08",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-04-08"
+    },
+    {
+     "T10": "2026-03-31",
+     "T7": "2026-04-06",
+     "d1": "2026-04-15",
+     "episode": "HUBC|2026-04-15",
+     "kind": "jump",
+     "onset": "2026-04-15",
+     "q": "2026-04-15",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": ""
+    },
+    {
+     "T10": "2026-05-14",
+     "T7": "2026-05-19",
+     "d1": "2026-05-29",
+     "episode": "HUBC|2026-05-29",
+     "kind": "jump",
+     "onset": "2026-05-29",
+     "q": "2026-05-29",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-05-29"
+    },
+    {
+     "T10": "2026-06-01",
+     "T7": "2026-06-04",
+     "d1": "2026-06-30",
+     "episode": "HUBC|2026-06-15",
+     "kind": "run",
+     "onset": "2026-06-15",
+     "q": "2026-06-16",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-06-16"
+    }
+   ],
+   "h4_images": [],
+   "h4_images_placed": [],
+   "intraday_only_spikes": [
+    {
+     "close_vs_prior_close_pct": 1.4,
+     "high_vs_prior_close_pct": 116.0,
+     "session": "2026-03-25",
+     "sessions_after": 225
+    },
+    {
+     "close_vs_prior_close_pct": -8.7,
+     "high_vs_prior_close_pct": 110.0,
+     "session": "2026-05-15",
+     "sessions_after": 261
+    }
+   ]
+  },
+  "RETO": {
+   "bar_stores": [],
+   "episodes": [
+    {
+     "T10": "2026-02-10",
+     "T7": "2026-02-13",
+     "d1": "2026-03-03",
+     "episode": "RETO|2026-02-25",
+     "kind": "run",
+     "onset": "2026-02-25",
+     "q": "2026-03-03",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-03-03"
+    },
+    {
+     "T10": "2026-03-30",
+     "T7": "2026-04-02",
+     "d1": "2026-04-16",
+     "episode": "RETO|2026-04-14",
+     "kind": "run",
+     "onset": "2026-04-14",
+     "q": "2026-04-16",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-04-16"
+    },
+    {
+     "T10": "2026-08-31",
+     "T7": "2026-09-03",
+     "d1": "2026-09-15",
+     "episode": "RETO|2026-09-15",
+     "kind": "jump",
+     "onset": "2026-09-15",
+     "q": "2026-09-15",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [
+      "2026-09-08 15:13",
+      "2026-09-15 10:35"
+     ],
+     "x70": "2026-09-15"
+    }
+   ],
+   "h4_images": [],
+   "h4_images_placed": [],
+   "intraday_only_spikes": [
+    {
+     "close_vs_prior_close_pct": -34.3,
+     "high_vs_prior_close_pct": 644.6,
+     "session": "2026-09-16",
+     "sessions_after": 345
+    }
+   ]
+  },
+  "SXTC": {
+   "bar_stores": [
+    {
+     "first": "2026-06-05",
+     "last": "2026-10-08",
+     "ohlc": false,
+     "store": "fm_forensics/data/bars_2026-10-08.json.gz · hourly"
+    }
+   ],
+   "episodes": [
+    {
+     "T10": "2025-05-05",
+     "T7": "2025-05-08",
+     "d1": "2025-06-06",
+     "episode": "SXTC|2025-05-19",
+     "kind": "jump",
+     "onset": "2025-05-19",
+     "q": "2025-06-06",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2025-06-06"
+    },
+    {
+     "T10": "2026-03-16",
+     "T7": "2026-03-19",
+     "d1": "2026-04-08",
+     "episode": "SXTC|2026-03-30",
+     "kind": "run",
+     "onset": "2026-03-30",
+     "q": "2026-04-08",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-04-08"
+    },
+    {
+     "T10": "2026-05-22",
+     "T7": "2026-05-28",
+     "d1": "2026-06-12",
+     "episode": "SXTC|2026-06-08",
+     "kind": "run",
+     "onset": "2026-06-08",
+     "q": "2026-06-12",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-06-12"
+    },
+    {
+     "T10": "2026-07-20",
+     "T7": "2026-07-23",
+     "d1": "2026-08-04",
+     "episode": "SXTC|2026-08-03",
+     "kind": "jump",
+     "onset": "2026-08-03",
+     "q": "2026-08-04",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [],
+     "x70": "2026-08-04"
+    },
+    {
+     "T10": "2026-09-23",
+     "T7": "2026-09-28",
+     "d1": "2026-10-07",
+     "episode": "SXTC|2026-10-07",
+     "kind": "jump",
+     "onset": "2026-10-07",
+     "q": "2026-10-07",
+     "quality": "OK",
+     "recorded_intraday_alerts_T10_to_end": [
+      "2026-09-29 10:55"
+     ],
+     "x70": "2026-10-07"
+    }
+   ],
+   "h4_images": [],
+   "h4_images_placed": [],
+   "intraday_only_spikes": [
+    {
+     "close_vs_prior_close_pct": -37.5,
+     "high_vs_prior_close_pct": 249.0,
+     "session": "2026-01-08",
+     "sessions_after": 173
+    },
+    {
+     "close_vs_prior_close_pct": 39.0,
+     "high_vs_prior_close_pct": 140.0,
+     "session": "2026-02-02",
+     "sessions_after": 189
+    },
+    {
+     "close_vs_prior_close_pct": 39.2,
+     "high_vs_prior_close_pct": 74.9,
+     "session": "2026-07-30",
+     "sessions_after": 312
+    }
+   ]
+  }
+ },
+ "sources": {
+  "alerts70": {
+   "path": "faisal_engine/alerts70/data/alerts.csv.gz",
+   "sha256": "19dbed7eec7a5d0583ec75aad5ab9fecd98d39e6638c5d16404f3423911e6c58"
+  },
+  "atlas_verdict": {
+   "path": "faisal_engine/readynow/condition_atlas/data/verdict.json",
+   "sha256": "1bb2238b7c2cb1a173bb397d541a59c74a09c9710c8db506fa6fd110447ee87a"
+  },
+  "calendar": {
+   "path": "faisal_engine/readynow/data/calendar.json",
+   "sha256": "f7b2dff191db12af0b9eeaf4f6576529e08565fb00d52e844e82aa8dd0438aae"
+  },
+  "cards_real2_key": {
+   "path": "chart_cards/real2/KEY.tsv",
+   "sha256": "8cc602070a762e41da66b8f1f9dacd48fffcce6ab02c74ada5177d736da0e0c5"
+  },
+  "cards_real_key": {
+   "path": "chart_cards/real/KEY.tsv",
+   "sha256": "b0bfeb50dcbf870d276148105072d054589c3a052babba3f085c4402a85e2290"
+  },
+  "cov30": {
+   "path": "faisal_method_v4/results/v4_cov30.json",
+   "sha256": "b5303ebc6cf8c828df224db909e0be0d106c3bab3c93d006b716179337889d60"
+  },
+  "events": {
+   "path": "faisal_engine/readynow/disc/data/events.csv.gz",
+   "sha256": "e28d0c7df5faa26c1f5d6ee294d1eda270b26081d71e7c644d0bdc7b9d7993e2"
+  },
+  "fm_bars": {
+   "path": "fm_forensics/data/bars_2026-10-08.json.gz",
+   "sha256": "414cd3a02945d6b6cca22004a1af172ed688859334b3d90bf34596593b66a1f3"
+  },
+  "golden": {
+   "path": "faisal_method_v3/v31/golden_fixtures.json",
+   "sha256": "ca1c6c57ac2bd3cc830f00d541e6f2686e5157df31173e59a085bb744c5bff52"
+  },
+  "h4_result": {
+   "path": "h4_result.md",
+   "sha256": "6dd70a1e7de240f1da1d3a55680270a140e4d6c4731e5f2f20ac048ce41b7d2a"
+  },
+  "hubc_card": {
+   "path": "chart_cards/blind/2026-10-07/owner-2026-10-07-1.json",
+   "sha256": "0114025385620012e0f365a5474793eae9f0e472f9413efa9d74a3d38dd5e663"
+  },
+  "hubc_result": {
+   "path": "chart_cards/blind/2026-10-07/RESULT.md",
+   "sha256": "bc27c79ca31464ca9f9940368d3b3b3636610cee5c1093b4f98b57aaa78cccf6"
+  },
+  "image_dates": {
+   "path": "faisal_image_dates.tsv",
+   "sha256": "06ddc29d15ea6c45136ed11fd0a5e0bfb75445118d988cbcea599ebb5de6e974"
+  },
+  "image_inventory": {
+   "path": "faisal_recovery/HISTORICAL_IMAGE_INVENTORY.csv",
+   "sha256": "54cad14ce478afdf91c3476f853589f67428f14df5d1f11ebcf16ed4e2cf29eb"
+  },
+  "phase4_audit": {
+   "path": "fm_forensics/phase4/DATA_AVAILABILITY_AUDIT.csv",
+   "sha256": "78753fbeae34b2ab1e70b79371a774e37dcea667e60c9a39e518c1df73596c8a"
+  },
+  "phase6": {
+   "path": "fm_forensics/phase6/data/PHASE6_LEDGER.jsonl",
+   "sha256": "decf49227a7262cb8dfde7d77d159ba66c7559b1bb9855d04d6a78d94beded3a"
+  },
+  "presession": {
+   "path": "presession_ledger.jsonl",
+   "sha256": "a3abc41909ae9b4c15f1d447392e03b82f8e191cb0871dcbfa225e35f83ca7cb"
+  },
+  "rank_bars": {
+   "path": "faisal_engine/data/rank/bars.json.gz",
+   "sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c"
+  },
+  "rank_splits": {
+   "path": "faisal_engine/data/rank/splits.json",
+   "sha256": "6c9ac022d43d877c96ae362a87bdfa530f3515b803d85a1ebd1738bd0ce93b01"
+  },
+  "reconcile": {
+   "path": "faisal_engine/readynow/condition_atlas/data/reconcile.json",
+   "sha256": "47bd2e40b7cd7920beec722801619fce0bb849660cf5da2d5b31992eaf88e3cb"
+  },
+  "register": {
+   "path": "fm_forensics/reread/data/reread_records.jsonl",
+   "sha256": "6f2941827280bdd0ad30808c6388a6dc2a25f8792b8719dd54fd02df5c708096"
+  },
+  "strength_dev": {
+   "path": "faisal_engine/readynow/condition_atlas/data/strength_dev.json",
+   "sha256": "887c1b2ebe0a1885ce4a0a7428bcfee43a82aaf2843ecb68d88e1a77d1d0c581"
+  },
+  "telegram_meta": {
+   "path": "telegram_collect_meta.jsonl",
+   "sha256": "2a992065cde7e5234c46837dd5b13c24e24182aa656174c016168a6306f5a478"
+  }
+ },
+ "stores": [
+  {
+   "episodes": [
+    {
+     "d1": "2026-06-17",
+     "episode": "CRE|2026-06-10",
+     "kind": "run",
+     "onset": "2026-06-10",
+     "q": "2026-06-17",
+     "quality": "OK",
+     "sessions_with_bars": 4,
+     "window_T10_T7": [
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 3,
+       "G_NY_of": 4,
+       "bars": 7,
+       "session": "2026-05-27"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 3,
+       "G_NY_of": 4,
+       "bars": 6,
+       "session": "2026-05-28"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 4,
+       "G_NY_of": 4,
+       "bars": 14,
+       "session": "2026-05-29"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 4,
+       "G_NY_of": 4,
+       "bars": 16,
+       "session": "2026-06-01"
+      }
+     ],
+     "x70": "2026-06-17"
+    },
+    {
+     "d1": "2026-08-26",
+     "episode": "CRE|2026-08-26",
+     "kind": "jump",
+     "onset": "2026-08-26",
+     "q": "2026-08-26",
+     "quality": "OK",
+     "sessions_with_bars": 4,
+     "window_T10_T7": [
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 2,
+       "G_NY_of": 4,
+       "bars": 5,
+       "session": "2026-08-12"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 2,
+       "G_NY_of": 4,
+       "bars": 3,
+       "session": "2026-08-13"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 4,
+       "G_NY_of": 4,
+       "bars": 7,
+       "session": "2026-08-14"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 3,
+       "G_NY_of": 4,
+       "bars": 5,
+       "session": "2026-08-17"
+      }
+     ],
+     "x70": "2026-08-26"
+    }
+   ],
+   "fields": "ts, high, low (no open, close, volume)",
+   "first": "2026-05-07",
+   "grids_constructible": {
+    "G_APP": false,
+    "G_NY": true
+   },
+   "last": "2026-10-08",
+   "ohlc": false,
+   "provenance": "TradingView, split-adjusted, extended hours (bars seen 04:00–19:00 NY), the 1,000 most recent bars per symbol, collected 2026-10-08T16:20:45+00:00",
+   "rows": 1000,
+   "sessions": 107,
+   "step": 60,
+   "store": "fm_forensics/data/bars_2026-10-08.json.gz · hourly",
+   "sym": "CRE"
+  },
+  {
+   "episodes": [],
+   "fields": "ts, high, low (no open, close, volume)",
+   "first": "2026-04-21",
+   "grids_constructible": {
+    "G_APP": false,
+    "G_NY": true
+   },
+   "last": "2026-10-08",
+   "ohlc": false,
+   "provenance": "TradingView, split-adjusted, extended hours (bars seen 04:00–19:00 NY), the 1,000 most recent bars per symbol, collected 2026-10-08T16:20:45+00:00",
+   "rows": 1000,
+   "sessions": 116,
+   "step": 60,
+   "store": "fm_forensics/data/bars_2026-10-08.json.gz · hourly",
+   "sym": "DKI"
+  },
+  {
+   "episodes": [],
+   "fields": "ts, high, low (no open, close, volume)",
+   "first": "2026-06-16",
+   "grids_constructible": {
+    "G_APP": false,
+    "G_NY": true
+   },
+   "last": "2026-10-08",
+   "ohlc": false,
+   "provenance": "TradingView, split-adjusted, extended hours (bars seen 04:00–19:00 NY), the 1,000 most recent bars per symbol, collected 2026-10-08T16:20:45+00:00",
+   "rows": 1000,
+   "sessions": 80,
+   "step": 60,
+   "store": "fm_forensics/data/bars_2026-10-08.json.gz · hourly",
+   "sym": "HUBC"
+  },
+  {
+   "episodes": [
+    {
+     "d1": "2026-08-04",
+     "episode": "SXTC|2026-08-03",
+     "kind": "jump",
+     "onset": "2026-08-03",
+     "q": "2026-08-04",
+     "quality": "OK",
+     "sessions_with_bars": 4,
+     "window_T10_T7": [
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 2,
+       "G_NY_of": 4,
+       "bars": 3,
+       "session": "2026-07-20"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 3,
+       "G_NY_of": 4,
+       "bars": 7,
+       "session": "2026-07-21"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 4,
+       "G_NY_of": 4,
+       "bars": 16,
+       "session": "2026-07-22"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 4,
+       "G_NY_of": 4,
+       "bars": 16,
+       "session": "2026-07-23"
+      }
+     ],
+     "x70": "2026-08-04"
+    },
+    {
+     "d1": "2026-10-07",
+     "episode": "SXTC|2026-10-07",
+     "kind": "jump",
+     "onset": "2026-10-07",
+     "q": "2026-10-07",
+     "quality": "OK",
+     "sessions_with_bars": 4,
+     "window_T10_T7": [
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 4,
+       "G_NY_of": 4,
+       "bars": 15,
+       "session": "2026-09-23"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 4,
+       "G_NY_of": 4,
+       "bars": 11,
+       "session": "2026-09-24"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 3,
+       "G_NY_of": 4,
+       "bars": 7,
+       "session": "2026-09-25"
+      },
+      {
+       "G_APP_buckets": null,
+       "G_APP_of": 5,
+       "G_NY_buckets": 4,
+       "G_NY_of": 4,
+       "bars": 13,
+       "session": "2026-09-28"
+      }
+     ],
+     "x70": "2026-10-07"
+    }
+   ],
+   "fields": "ts, high, low (no open, close, volume)",
+   "first": "2026-06-05",
+   "grids_constructible": {
+    "G_APP": false,
+    "G_NY": true
+   },
+   "last": "2026-10-08",
+   "ohlc": false,
+   "provenance": "TradingView, split-adjusted, extended hours (bars seen 04:00–19:00 NY), the 1,000 most recent bars per symbol, collected 2026-10-08T16:20:45+00:00",
+   "rows": 1000,
+   "sessions": 87,
+   "step": 60,
+   "store": "fm_forensics/data/bars_2026-10-08.json.gz · hourly",
+   "sym": "SXTC"
+  },
+  {
+   "episodes": [
+    {
+     "d1": "2026-06-02",
+     "episode": "DXST|2026-06-02",
+     "kind": "jump",
+     "onset": "2026-06-02",
+     "q": "2026-06-02",
+     "quality": "OK",
+     "sessions_with_bars": 4,
+     "window_T10_T7": [
+      {
+       "G_APP_buckets": 2,
+       "G_APP_of": 5,
+       "G_NY_buckets": 2,
+       "G_NY_of": 4,
+       "bars": 2,
+       "session": "2026-05-18"
+      },
+      {
+       "G_APP_buckets": 1,
+       "G_APP_of": 5,
+       "G_NY_buckets": 1,
+       "G_NY_of": 4,
+       "bars": 1,
+       "session": "2026-05-19"
+      },
+      {
+       "G_APP_buckets": 2,
+       "G_APP_of": 5,
+       "G_NY_buckets": 2,
+       "G_NY_of": 4,
+       "bars": 3,
+       "session": "2026-05-20"
+      },
+      {
+       "G_APP_buckets": 2,
+       "G_APP_of": 5,
+       "G_NY_buckets": 2,
+       "G_NY_of": 4,
+       "bars": 4,
+       "session": "2026-05-21"
+      }
+     ],
+     "x70": "2026-06-02"
+    }
+   ],
+   "fields": "ts, open, high, low, close, volume",
+   "first": "2026-03-31",
+   "grids_constructible": {
+    "G_APP": true,
+    "G_NY": true
+   },
+   "last": "2026-06-16",
+   "ohlc": true,
+   "provenance": "30-minute regular bars ending at Faisal's DXST post time (منشور 2026/6/16 · 30 دقيقة حتى 12:30 نيويورك)",
+   "rows": 400,
+   "sessions": 54,
+   "step": 30,
+   "store": "faisal_method_v3/v31/golden_fixtures.json · m30",
+   "sym": "DXST"
+  },
+  {
+   "episodes": [
+    {
+     "d1": "2026-06-02",
+     "episode": "DXST|2026-06-02",
+     "kind": "jump",
+     "onset": "2026-06-02",
+     "q": "2026-06-02",
+     "quality": "OK",
+     "sessions_with_bars": 4,
+     "window_T10_T7": [
+      {
+       "G_APP_buckets": 2,
+       "G_APP_of": 5,
+       "G_NY_buckets": 2,
+       "G_NY_of": 4,
+       "bars": 2,
+       "session": "2026-05-18"
+      },
+      {
+       "G_APP_buckets": 1,
+       "G_APP_of": 5,
+       "G_NY_buckets": 2,
+       "G_NY_of": 4,
+       "bars": 2,
+       "session": "2026-05-19"
+      },
+      {
+       "G_APP_buckets": 3,
+       "G_APP_of": 5,
+       "G_NY_buckets": 3,
+       "G_NY_of": 4,
+       "bars": 5,
+       "session": "2026-05-20"
+      },
+      {
+       "G_APP_buckets": 4,
+       "G_APP_of": 5,
+       "G_NY_buckets": 3,
+       "G_NY_of": 4,
+       "bars": 6,
+       "session": "2026-05-21"
+      }
+     ],
+     "x70": "2026-06-02"
+    }
+   ],
+   "fields": "ts, open, high, low, close, volume",
+   "first": "2026-05-08",
+   "grids_constructible": {
+    "G_APP": true,
+    "G_NY": true
+   },
+   "last": "2026-06-16",
+   "ohlc": true,
+   "provenance": "30-minute extended bars ending at Faisal's DXST post time (منشور 2026/6/16 · 30 دقيقة حتى 12:30 نيويورك)",
+   "rows": 400,
+   "sessions": 27,
+   "step": 30,
+   "store": "faisal_method_v3/v31/golden_fixtures.json · m30x",
+   "sym": "DXST"
+  }
+ ],
+ "verdict": {
+  "baselines_compared": "none — no candidate could be computed on the evaluable population",
+  "dated_charts_at_T7_10_not_in_event": [],
+  "eligible_events_all_windows": 1093,
+  "eligible_events_with_any_intraday_bar": [
+   "CRE|2026-08-26"
+  ],
+  "eligible_events_with_intraday_ohlc": [],
+  "formal_test_performed": false,
+  "neg_rows_with_intraday_ohlc": 43,
+  "pivot_days_all_windows": 146496,
+  "pos710_rows_with_intraday_ohlc": 0,
+  "status": "TEST_NOT_PERFORMED — EVIDENCE GAP"
+ }
+}
