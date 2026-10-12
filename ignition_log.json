@@ -1639,5 +1639,23 @@
   "usd_eff": 6450,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "SKYQ",
+  "date": "2026-10-12",
+  "sustain_min": 1,
+  "operator_ok": false,
+  "fired_ts_ms": 1791813217844,
+  "trigger_bar_ms": 1791813060000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-10-12T20:01:29Z",
+  "break_level": 2.53,
+  "price": 2.5499,
+  "vol_x": 3.7,
+  "usd": 31096,
+  "candle_class": "group",
+  "usd_eff": 31096,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
