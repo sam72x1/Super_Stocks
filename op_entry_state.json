@@ -148,7 +148,7 @@
   "updates": 0,
   "vol_x": 8.8,
   "peak_usd": 63571,
-  "last_eval_ms": 1791819540000,
+  "last_eval_ms": 1791819480000,
   "pulse_ms": 1791821100000,
   "anchor_price": 0.95,
   "anchor_open": 0.9226,
@@ -1649,9 +1649,9 @@
    "M5",
    "M30"
   ],
-  "updates": 3,
+  "updates": 2,
   "vol_x": 2.8,
-  "peak_usd": 2294827,
+  "peak_usd": 1715035,
   "last_eval_ms": 1791814500000,
   "pulse_ms": 1791821100000,
   "anchor_price": 0.8439,
@@ -3616,5 +3616,6 @@
  "LIQ:YHGJ": {
   "date": "2026-10-12"
  },
- "TMCR": "2026-10-12"
+ "TMCR": "2026-10-12",
+ "SGRX": "2026-10-12"
 }
