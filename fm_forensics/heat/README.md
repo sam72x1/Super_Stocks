@@ -9,7 +9,7 @@ GEN5 (verdict C, `f10fb23`) is not redone; its functions are reused by name only
 | `T_HEAT_prereg.md` | the contract — SHA-256 pinned in `heat_test.py`; merged into `main` before any number |
 | `heat_test.py` | the sealed run (anchors O and B, verdict by the weakest) ⟶ `data/heat_result.json` · `data/heat_units.csv` · `--guards` = synthetic guards H1–H12 |
 | `heat_mutate.py` | mutation round over the guards (each mutation must fall, not crash) |
-| `T_HEAT_result.md` | the result — written after the single run (table first, then the verdict) |
+| `T_HEAT_result.md` | the result: **D «لا قياس»** (onset anchor O: 31 events, design MDE 0.275 > 0.25) · leaky anchor B: C (Δ UNION +0.022) — table first, leads, leakage, deviations (post-seal crash fix `9b0778450`), predictions 3/7, how to enlarge |
 
 Order (repo root, no network; reads GEN5 inputs `faisal_engine/data/rank/bars.json.gz`, `fm_forensics/gen5/data/gen5_ext.json.gz` and git history):
 
