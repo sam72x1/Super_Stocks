@@ -1280,11 +1280,11 @@
   "anchor_price": 1.89,
   "anchor_open": 1.79,
   "anchor_low": 1.79,
-  "date": "2026-10-13",
   "pre_done": true,
   "pre_hi": 1.9071,
   "pre_usd": 52728,
-  "pre_n": 11
+  "pre_n": 11,
+  "date": "2026-10-13"
  },
  "LIQ:SVRN": {
   "last_eval_ms": 1791835140000,
@@ -1522,6 +1522,8 @@
    "e5": 2.0896,
    "exit_ms": 1791879060000
   },
+  "tc_cum": 6175731.589576548,
+  "tc_seen_ms": 1791879120000,
   "date": "2026-10-13"
  },
  "LIQ:PARA": {
@@ -2645,11 +2647,11 @@
   "anchor_open": 4.4,
   "anchor_low": 4.4,
   "trig": "T-C",
-  "date": "2026-10-13",
   "pre_done": true,
   "pre_hi": 5.5,
   "pre_usd": 99335,
-  "pre_n": 9
+  "pre_n": 9,
+  "date": "2026-10-13"
  },
  "LIQ:MCRB": {
   "last_eval_ms": 1791835140000,
@@ -3223,5 +3225,6 @@
  },
  "LIQ:XRPN": {
   "date": "2026-10-13"
- }
+ },
+ "NIVF": "2026-10-13"
 }
