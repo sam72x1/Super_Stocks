@@ -4633,3 +4633,4 @@
 {"key": "control|2026-10-09|INTA", "hunter": "control", "session": "2026-10-09", "symbol": "INTA", "kind": "control", "ref_close": 39.61, "fwd": 40, "outcome": null, "src": "tradingview"}
 {"key": "control|2026-10-09|CGC", "hunter": "control", "session": "2026-10-09", "symbol": "CGC", "kind": "control", "ref_close": 0.8271, "fwd": 40, "outcome": null, "src": "tradingview"}
 {"key": "control|2026-10-09|SKYA", "hunter": "control", "session": "2026-10-09", "symbol": "SKYA", "kind": "control", "ref_close": 1.82, "fwd": 40, "outcome": null, "src": "tradingview"}
+{"key": "split|2026-10-12|WOK", "hunter": "split", "session": "2026-10-12", "symbol": "WOK", "kind": "candidate", "ref_close": 1.44, "fwd": 40, "outcome": null, "price": 1.44, "float": 15400.0, "half": 1.6, "ref": 3.2, "src": "tradingview"}
