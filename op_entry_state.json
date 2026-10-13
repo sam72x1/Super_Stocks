@@ -1562,7 +1562,7 @@
  },
  "LIQ:RKDA": {
   "anchor_ms": 1791895080000,
-  "last_ms": 1791895080000,
+  "last_ms": 1791895140000,
   "sent": [
    "M1"
   ],
@@ -1570,16 +1570,16 @@
   "vol_x": 2.6,
   "peak_usd": 180143,
   "last_eval_ms": 1791895140000,
-  "pulse_ms": 1791895080000,
+  "pulse_ms": 1791895140000,
   "anchor_price": 0.2742,
   "anchor_open": 0.2503,
   "anchor_low": 0.2502,
   "trig": "T-C",
-  "date": "2026-10-13",
   "pre_done": true,
   "pre_hi": 0.322,
   "pre_usd": 390934,
-  "pre_n": 6
+  "pre_n": 6,
+  "date": "2026-10-13"
  },
  "LIQ:GP": {
   "last_eval_ms": 1791895020000,
