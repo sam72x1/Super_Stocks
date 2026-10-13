@@ -10,10 +10,12 @@ by the bot, scheduled, or sent anywhere.
 | `gen5_pit.py` | float / available-to-borrow as the bot stored them before the next open (git history of `origin/main`) |
 | `gen5_generate.py` | stage A on the five ⟶ `data/gen5_generation_days.csv` |
 | `gen5_test.py` | stage C (the sealed run ⟶ `data/gen5_result.json`) · `--guards` = 9 synthetic guards |
-| `GEN5_RESULT.md` | the verdict, written after the sealed run |
+| `gen5_post.py` | post-run readings the contract declared (LR · strict 99.5% · P5 · coverage) ⟶ `data/gen5_post.json` |
+| `GEN5_RESULT.md` | the verdict (C «no separation»), written after the sealed run |
 
 Reproduce (repo root, no network; reads `faisal_engine/data/rank/bars.json.gz` and git history):
 
     python3 fm_forensics/gen5/gen5_generate.py
     python3 fm_forensics/gen5/gen5_test.py --guards
     python3 fm_forensics/gen5/gen5_test.py
+    python3 fm_forensics/gen5/gen5_post.py
