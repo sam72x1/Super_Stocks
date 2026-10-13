@@ -3450,7 +3450,7 @@
  },
  "LIQ:BAOS": {
   "anchor_ms": 1791890040000,
-  "last_ms": 1791890040000,
+  "last_ms": 1791890100000,
   "sent": [
    "M1"
   ],
@@ -3458,15 +3458,15 @@
   "vol_x": 3.0,
   "peak_usd": 37548,
   "last_eval_ms": 1791890100000,
-  "pulse_ms": 1791890040000,
+  "pulse_ms": 1791890100000,
   "anchor_price": 0.232,
   "anchor_open": 0.2205,
   "anchor_low": 0.2128,
-  "date": "2026-10-13",
   "pre_done": true,
   "pre_hi": 0.27,
   "pre_usd": 74281,
-  "pre_n": 6
+  "pre_n": 6,
+  "date": "2026-10-13"
  },
  "LIQ:HXHX": {
   "last_eval_ms": 1791888780000,
