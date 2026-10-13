@@ -2037,6 +2037,17 @@
   "date": "2026-10-13"
  },
  "LIQ:RKDA": {
+  "last_eval_ms": 1791931440000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1791895080000,
+   "anchor_price": 0.2742,
+   "anchor_low": 0.2502,
+   "e5": null,
+   "exit_ms": 1791895260000
+  },
+  "tc_cum": 1968500.8034143015,
+  "tc_seen_ms": 1791931320000,
   "anchor_ms": 1791931380000,
   "last_ms": 1791933060000,
   "sent": [
@@ -2046,19 +2057,10 @@
   "updates": 0,
   "vol_x": 5.8,
   "peak_usd": 25600,
-  "last_eval_ms": 1791931440000,
   "pulse_ms": 1791933060000,
   "anchor_price": 0.2539,
   "anchor_open": 0.2328,
   "anchor_low": 0.2327,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1791895080000,
-   "anchor_price": 0.2742,
-   "anchor_low": 0.2502,
-   "e5": null,
-   "exit_ms": 1791895260000
-  },
   "pre_done": true,
   "pre_hi": 0.244,
   "pre_usd": 40621,
@@ -2073,10 +2075,8 @@
   },
   "e5": 0.2546,
   "exit_ms": 1791931860000,
-  "tc_cum": 1968500.8034143015,
-  "tc_seen_ms": 1791931320000,
-  "date": "2026-10-13",
-  "tgt_ms": 1791932580000
+  "tgt_ms": 1791932580000,
+  "date": "2026-10-13"
  },
  "LIQ:GP": {
   "last_eval_ms": 1791925320000,
