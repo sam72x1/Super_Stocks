@@ -93,4 +93,5 @@
     python3 fm_forensics/gen5/gen5_test.py --guards   # 9/9
     python3 fm_forensics/gen5/gen5_test.py            # الحكم ⟵ data/gen5_result.json
     python3 fm_forensics/gen5/gen5_post.py            # القراءاتُ المعلنة ⟵ data/gen5_post.json
+**مرجعُ تاريخ الحالة** (لقطاتُ المتابعة والفلوت والمتاح · `gen5_pit.REF`) كان `origin/main` المحلّيّ عند `6c56b4ae9` (‏2026-10-13T18:47:49Z) — بعد آخر يوم قرار (‏2026-10-01) وافتتاحه التالي ⟵ التاريخُ المطلوب كاملٌ فيه.
 **ولا تشغيلَ ثانٍ يُغيّر الحكم:** أيُّ مقياسٍ أو نافذةٍ أو ضابطٍ آخر = عقدٌ جديد بإذن المالك.
