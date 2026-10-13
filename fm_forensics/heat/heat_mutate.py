@@ -24,6 +24,8 @@ M = [
  ("m15 traits read A−1 (gap leak)", "        days[ld] = {\"VOLX3\": None, \"RET5\": None} if bad else day_traits(hist, k_arch - ld)", "        days[ld] = {\"VOLX3\": None, \"RET5\": None} if bad else day_traits(hist, k_arch - ld + 1)"),
  ("m17 merged gate passes anything", "    if got != PREREG_SHA256:\n        print(f\"⛔ the pinned contract is not on origin/main", "    if False:\n        print(f\"⛔ the pinned contract is not on origin/main"),
  ("m18 merged gate accepts absence", "    got = hashlib.sha256(blob).hexdigest() if blob is not None else None", "    got = hashlib.sha256(blob).hexdigest() if blob is not None else PREREG_SHA256"),
+ ("m19 control tie-break on E_reg", "    return T.pick_controls(pool, {**ev, \"E\": ev[\"A\"]})", "    return T.pick_controls(pool, {**ev, \"E\": ev[\"E_reg\"]})"),
+ ("m20 matching passes the raw event", "    return T.pick_controls(pool, {**ev, \"E\": ev[\"A\"]})", "    return T.pick_controls(pool, ev)"),
  ("m16 intersect = or", "    out[\"INTERSECT\"] = tri_and(out[\"VOLX3\"], out[\"RET5\"])", "    out[\"INTERSECT\"] = tri_or(out[\"VOLX3\"], out[\"RET5\"])"),
 ]
 orig = open(P, encoding="utf-8").read()

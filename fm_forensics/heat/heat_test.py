@@ -246,6 +246,13 @@ def final_verdict(per_anchor):
     return min(per_anchor.values(), key=lambda v: ORDER[v])
 
 
+def match_controls(pool, ev):
+    """gen5_test.pick_controls keys its deterministic tie-break on ev['E'] = the anchor day (GEN5: E is the anchor). Here the
+    anchor day is ev['A'] — passed as 'E' (post-seal crash fix 2026-10-13: the first run died on KeyError 'E', no number
+    printed or written)."""
+    return T.pick_controls(pool, {**ev, "E": ev["A"]})
+
+
 def hist_rows(df):
     """Archive DataFrame ⟶ [[date, open, high, low, close, volume], …] (the T-LINK100 row shape)."""
     ix = df.index.strftime("%Y-%m-%d")
@@ -438,7 +445,7 @@ def run_anchor(D, pop, stats, anchor, hist):
                 continue
             pool.append({"sym": c, **cs})
             info[c] = fw
-        chosen, lvl = T.pick_controls(pool, ev)
+        chosen, lvl = match_controls(pool, ev)
         if len(chosen) < T.FLOORS["min_ctrl"]:
             acc["few_controls"].append((ev["sym"], ev["A"], len(chosen)))
             continue
@@ -786,6 +793,15 @@ def guards():
             return 0
         except SystemExit as e:
             return e.code
+    _pool = [{"sym": c, "wall": "W", "price": "P", "float": "F"} for c in ("C1", "C2", "C3", "C4", "C5", "C6", "C7")]
+    _ev = {"sym": "X", "A": "2026-09-01", "E_reg": "2026-08-20", "wall": "W", "price": "P", "float": "F"}
+    try:
+        _got = match_controls(_pool, _ev)
+    except Exception as _e:                      # noqa: BLE001
+        _got = (f"⛔ {type(_e).__name__}", None)
+    chk("H13 control matching runs on a heat event (no 'E' key) and ties break on the anchor day A",
+        _got == T.pick_controls(_pool, {**_ev, "E": "2026-09-01"})
+        and _got != T.pick_controls(_pool, {**_ev, "E": "2026-08-20"}))
     _pinned = open(PREREG, "rb").read()
     chk("H12 check_merged: absent from main ⟶ 9 · altered on main ⟶ 9 · the pinned bytes ⟶ passes",
         _exit_code(lambda: check_merged(lambda: None)) == 9
