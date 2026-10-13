@@ -1072,18 +1072,6 @@
   "date": "2026-10-13"
  },
  "LIQ:CVKD": {
-  "last_eval_ms": 1791911280000,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1791906780000,
-   "anchor_price": 1.05,
-   "anchor_low": 1.025,
-   "e5": 1.045,
-   "exit_ms": 1791907140000
-  },
-  "tc_cum": 232225.66965084002,
-  "tc_seen_ms": 1791911220000,
-  "date": "2026-10-13",
   "anchor_ms": 1791911280000,
   "last_ms": 1791911280000,
   "sent": [
@@ -1092,11 +1080,21 @@
   "updates": 0,
   "vol_x": 0.4,
   "peak_usd": 1104,
+  "last_eval_ms": 1791911280000,
   "pulse_ms": 1791911280000,
   "anchor_price": 1.05,
   "anchor_open": 1.0469,
   "anchor_low": 1.0469,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1791906780000,
+   "anchor_price": 1.05,
+   "anchor_low": 1.025,
+   "e5": 1.045,
+   "exit_ms": 1791907140000
+  },
   "trig": "T-C",
+  "date": "2026-10-13",
   "pre_done": true,
   "pre_hi": 1.048,
   "pre_usd": 114722,
@@ -4609,5 +4607,6 @@
   "tc_seen_ms": 1791911220000,
   "date": "2026-10-13"
  },
- "ZSQR": "2026-10-13"
+ "ZSQR": "2026-10-13",
+ "EPSM": "2026-10-13"
 }
