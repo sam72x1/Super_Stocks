@@ -587,19 +587,19 @@
   "date": "2026-10-13"
  },
  "LIQ:GMEX": {
-  "anchor_ms": 1791921600000,
-  "last_ms": 1791921720000,
+  "anchor_ms": 1791921480000,
+  "last_ms": 1791921780000,
   "sent": [
    "M1"
   ],
   "updates": 0,
-  "vol_x": 0.0,
-  "peak_usd": 662,
-  "last_eval_ms": 1791921660000,
-  "pulse_ms": 1791921720000,
-  "anchor_price": 2.08,
-  "anchor_open": 2.08,
-  "anchor_low": 2.08,
+  "vol_x": 0.7,
+  "peak_usd": 14492,
+  "last_eval_ms": 1791921480000,
+  "pulse_ms": 1791921780000,
+  "anchor_price": 2.06,
+  "anchor_open": 2.049,
+  "anchor_low": 2.049,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1791919080000,
@@ -609,12 +609,12 @@
    "exit_ms": 1791921360000
   },
   "trig": "T-C",
-  "date": "2026-10-13",
   "pre_done": true,
   "pre_hi": 2.2638,
-  "pre_usd": 1204914,
+  "pre_usd": 1187088,
   "pre_n": 58,
-  "exit_ms": 1791921660000
+  "exit_ms": 1791921720000,
+  "date": "2026-10-13"
  },
  "LIQ:JZ": {
   "anchor_ms": 1791898500000,
@@ -1374,18 +1374,6 @@
   "date": "2026-10-13"
  },
  "LIQ:YFOR": {
-  "last_eval_ms": 1791921720000,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1791909000000,
-   "anchor_price": 1.07,
-   "anchor_low": 1.055,
-   "e5": null,
-   "exit_ms": 1791909120000
-  },
-  "tc_cum": 281163.82083812106,
-  "tc_seen_ms": 1791921660000,
-  "date": "2026-10-13",
   "anchor_ms": 1791921720000,
   "last_ms": 1791921780000,
   "sent": [
@@ -1394,14 +1382,24 @@
   "updates": 0,
   "vol_x": 45.7,
   "peak_usd": 94991,
+  "last_eval_ms": 1791921720000,
   "pulse_ms": 1791921780000,
   "anchor_price": 1.12,
   "anchor_open": 1.02,
   "anchor_low": 1.0102,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1791909000000,
+   "anchor_price": 1.07,
+   "anchor_low": 1.055,
+   "e5": null,
+   "exit_ms": 1791909120000
+  },
   "pre_done": true,
   "pre_hi": 1.02,
   "pre_usd": 46994,
-  "pre_n": 25
+  "pre_n": 25,
+  "date": "2026-10-13"
  },
  "LIQ:FCUV": {
   "anchor_ms": 1791921360000,
@@ -1520,10 +1518,6 @@
   "date": "2026-10-13"
  },
  "LIQ:LGHL": {
-  "last_eval_ms": 1791921720000,
-  "tc_cum": 784395.6041000001,
-  "tc_seen_ms": 1791921660000,
-  "date": "2026-10-13",
   "anchor_ms": 1791921720000,
   "last_ms": 1791921780000,
   "sent": [
@@ -1532,6 +1526,7 @@
   "updates": 0,
   "vol_x": 17.3,
   "peak_usd": 465128,
+  "last_eval_ms": 1791921720000,
   "pulse_ms": 1791921780000,
   "anchor_price": 3.77,
   "anchor_open": 3.55,
@@ -1539,7 +1534,8 @@
   "pre_done": true,
   "pre_hi": 3.85,
   "pre_usd": 369970,
-  "pre_n": 15
+  "pre_n": 15,
+  "date": "2026-10-13"
  },
  "LIQ:MTEK": {
   "last_eval_ms": 1791921540000,
@@ -1581,7 +1577,7 @@
   "updates": 0,
   "vol_x": 19.3,
   "peak_usd": 134729,
-  "last_eval_ms": 1791921660000,
+  "last_eval_ms": 1791921540000,
   "pulse_ms": 1791921780000,
   "anchor_price": 0.2698,
   "anchor_open": 0.2377,
@@ -1598,7 +1594,6 @@
   "pre_hi": 0.5097,
   "pre_usd": 612804,
   "pre_n": 64,
-  "date": "2026-10-13",
   "k2": {
    "c3": "صادقت (إغلاقٌ فوق المرساة)",
    "c4": "خضراء 0-1",
@@ -1607,7 +1602,9 @@
    "j1": false,
    "j1_top": false
   },
-  "e5": 0.2599
+  "e5": 0.2599,
+  "tgt_ms": 1791921600000,
+  "date": "2026-10-13"
  },
  "LIQ:TRAW": {
   "last_eval_ms": 1791921600000,
@@ -3486,18 +3483,6 @@
   "date": "2026-10-13"
  },
  "LIQ:ITOC": {
-  "last_eval_ms": 1791921720000,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1791879120000,
-   "anchor_price": 4.4,
-   "anchor_low": 4.4,
-   "e5": null,
-   "exit_ms": 1791879180000
-  },
-  "tc_cum": 212556.6378767652,
-  "tc_seen_ms": 1791921660000,
-  "date": "2026-10-13",
   "anchor_ms": 1791921720000,
   "last_ms": 1791921720000,
   "sent": [
@@ -3506,15 +3491,25 @@
   "updates": 0,
   "vol_x": 0.5,
   "peak_usd": 2039,
+  "last_eval_ms": 1791921720000,
   "pulse_ms": 1791921720000,
   "anchor_price": 4.33,
   "anchor_open": 4.26,
   "anchor_low": 4.09,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1791879120000,
+   "anchor_price": 4.4,
+   "anchor_low": 4.4,
+   "e5": null,
+   "exit_ms": 1791879180000
+  },
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 4.26,
   "pre_usd": 26632,
-  "pre_n": 7
+  "pre_n": 7,
+  "date": "2026-10-13"
  },
  "LIQ:MCRB": {
   "last_eval_ms": 1791921540000,
@@ -4795,6 +4790,5 @@
  "TRIB": "2026-10-13",
  "BAOS": "2026-10-13",
  "BIAF": "2026-10-13",
- "XLAB": "2026-10-13",
- "PRE:2026-10-13:AH": "2026-10-13T19:51:12.616365+00:00"
+ "XLAB": "2026-10-13"
 }
