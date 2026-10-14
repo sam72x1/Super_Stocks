@@ -10,15 +10,15 @@ As of **2026-10-10** (UTC date) · evidence horizon **2026-10-10T00:00:00+00:00*
 - `pool`: UTC interval [snap_ts, ts] of the screening run that fetched the availability (both recorded)
 - `ctb_log`: UTC calendar day of the harvest run (dt.date.today() on the runner) — time of day not recorded
 - `phase6`: UTC interval [collected_utc, collected_utc + 40 min] (collector start + job timeout)
-- `borrow_watch`: UTC calendar day of the screening run (today_iso) — time of day not recorded
+- `borrow_watch`: UTC instant `ts` of the screening run's harvest when recorded (rows from 2026-10-14); older rows: the UTC calendar day of the run (today_iso) — time of day not recorded
 - `source_asof`: NOT_COLLECTED — the time ChartExchange/IBKR published the value is recorded nowhere; never replaced by fetch time
 
 ## 1. Where the registered evidence disappears
 
 - Registered tracker: borrow_watch.jsonl (harvest_borrow_watch · up to 40 ChartExchange lookups per daily run for due symbols).
-- Persisted by `git_save`: **False** · by a workflow artifact: **False** · file in the repository: **False** · track rows: **0**.
-- Harvester called from: `run_daily_watchlist` · its horizon in code counts **CALENDAR_DAYS** (40) while the prereg window is 40 sessions.
-- **Failure point:** TRACKING_NEVER_PERSISTED: the harvester appends to borrow_watch.jsonl on the runner, but no git_save list and no workflow artifact carries it, so every daily run starts from an empty log ⟶ no symbol is ever due ⟶ zero tracking lookups ⟶ zero registered follow-up observations
+- Persisted by `git_save`: **True** · by a workflow artifact: **False** · file in the repository: **False** · track rows: **0**.
+- Harvester called from: `run_daily_watchlist` · its horizon in code counts **SESSIONS** (40) while the prereg window is 40 sessions.
+- **Failure point:** TRACKING_PERSISTED_BUT_EMPTY: no track rows recorded yet
 
 ## 2. Decision-time availability states (every row of every persisted pool record)
 
@@ -97,7 +97,7 @@ Observations after the decision (any relation): **0** — none persisted.
 - **W4_sample:** NOT_MET (smaller arm 0 of 30)
 - **W5_no_selection_effect:** READ_ONLY (this tool) · production harvester: BF9 lock
 
-## 5. Verdict: **NO_VERDICT** — BLIND — outcomes are not computed before W4; TRACKING_NEVER_PERSISTED: the harvester appends to borrow_watch.jsonl on the runner, but no git_save list and no workflow artifact carries it, so every daily run starts from an empty log ⟶ no symbol is ever due ⟶ zero tracking lookups ⟶ zero registered follow-up observations
+## 5. Verdict: **NO_VERDICT** — BLIND — outcomes are not computed before W4; TRACKING_PERSISTED_BUT_EMPTY: no track rows recorded yet
 
 - Arm B («never fell») needs a KNOWN observation attributed to every session of a closed window; with the persisted sources the follow-up is sparse and rank-dependent, so NOT_BELOW_PARTIAL is reported separately and never counted as B. Missing observations are never read as «did not fall».
 - A UTC-day observation (no time of day) spans a session close, so it is never attributed to one session; on the last day of a window it is WINDOW_AMBIGUOUS and counted, not used. A session counts as elapsed only once its close is at or before the horizon.

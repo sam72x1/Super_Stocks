@@ -5991,6 +5991,14 @@
       "O_ANCHOR_0814"
      ]
     }
+   },
+   {
+    "anchor": "«فعّل حفظ سجل المتاح» — سجلُّ متابعة `T-BORROW-FALL` صار يُدفَع",
+    "default": {
+     "class": "NOT_GATE_EVIDENCE",
+     "why": "IMPLEMENTATION",
+     "note": "persistence and scheduling of the T-BORROW-FALL follow-up harvester (git_save · session horizon · pool seeds · UTC instants); the gate BORROW_AVAIL_MAX is neither measured nor changed"
+    }
    }
   ]
  }

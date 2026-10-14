@@ -13996,7 +13996,7 @@ def build_near_watch_section(watch: dict, cap: int = None, dq_fn=None) -> str:
 
 
 def borrow_watch_row(symbol: str, available, fee, price, date_iso: str,
-                     kind: str) -> dict:
+                     kind: str, ts: str = None) -> dict:
     """صفٌّ واحدٌ في سجلّ `T-BORROW-FALL` — **دالّةٌ نقيّة**.
 
     ⚖️ **حقائقُ خامّة لا مقاييسَ مشتقّة:** السجلُّ يحفظ (تاريخ · رمز · متاح · رسوم ·
@@ -14006,7 +14006,11 @@ def borrow_watch_row(symbol: str, available, fee, price, date_iso: str,
     🔒 **و«تعذّرٌ ≠ صفر»** (‏`W2` من التسجيل): المتاحُ المجهول يبقى `None` ولا
     يُقرأ صفرًا — وإلّا صار عطبُ شبكةٍ «نزولًا تحت 10 آلاف» **مفبركًا** فيقلب الحكم.
 
-    `kind`: «‏seed» = يومُ إخراجه بالبوّابة · «‏track» = متابعةٌ لاحقة."""
+    `kind`: «‏seed» = يومُ إخراجه بالبوّابة · «‏track» = متابعةٌ لاحقة.
+
+    ⏱️ **`ts` = لحظةُ UTC للجلب** (‏2026-10-14 · «فعّل حفظ سجل المتاح»): بلا لحظةٍ لا يُعرَف من يوم UTC وحدَه
+    أيُّ جلسةٍ رصدها الصفّ (اليومُ يعبر إغلاقًا) ⟵ مُقيِّمُ العقد يعدّه «مُلتبسًا» فلا يُنسَب لجلسة ⟵ الذراعُ `B`
+    («ملاحظةٌ معلومةٌ كلَّ جلسة») **مستحيلةٌ بالبناء**. والصفُّ القديم بلا `ts` يبقى يومًا كما كان."""
     def _num(v):
         try:
             f = float(v)
@@ -14015,7 +14019,7 @@ def borrow_watch_row(symbol: str, available, fee, price, date_iso: str,
             return None
     return {"date": date_iso, "symbol": str(symbol or "").upper(),
             "available": _num(available), "fee": _num(fee),
-            "price": _num(price), "kind": kind}
+            "price": _num(price), "kind": kind, "ts": ts}
 
 
 def load_borrow_watch(path: str = None) -> list:
@@ -14062,8 +14066,16 @@ def borrow_watch_due(ledger: list, today_iso: str,
     """الرموزُ التي **تُتابَع اليوم**: رُصدت خلال أفق المتابعة ولم تُرصد اليومَ بعد.
 
     يرجّع `(syms, dropped)` — و`dropped` عددُ ما قصَّه السقف ⇒ **يُطبَع ولا يُطوى**
-    (‏`W3`: «كلُّ قصٍّ يُعلَن بعدّاده»). الترتيبُ **بالأحدث رصدًا** فالمتابعةُ
-    حتميّةٌ قابلةٌ لإعادة الإنتاج لا عشوائية."""
+    (‏`W3`: «كلُّ قصٍّ يُعلَن بعدّاده»).
+
+    🔄 **(‏2026-10-14 · «فعّل حفظ سجل المتاح» — عيبان مُثبَتان قبل أوّل متابعةٍ حقيقيّة):**
+    ① **الأفقُ جلساتٌ لا أيّامٌ تقويميّة** — العقدُ (`borrow_fall_prereg.md §④`) والثابتُ نفسُه يقولان «40 جلسة»
+       والكودُ كان يعدّ 40 يومًا تقويميًّا (‏≈28 جلسة) ⟵ `trading_days_between` (عطلُ `market_calendar`) ·
+       والتاريخُ التالف ⟵ خارج الأفق (لا متابعةَ للأبد).
+    ② **الترتيبُ بأوّل رصدٍ (الأقدمُ أوّلًا) وتعادلُه ببصمة الرمز** — كان «الأحدثُ رصدًا» وتعادلُه **أبجديًّا**:
+       المجتمعُ يفوق السقفَ (89 رمزًا في ثلاث بِرَكٍ مقابل 40) فكان يقصّ آخرَ الأبجديّة دائمًا (درسُ `reject_log`)
+       ويُزيح المتابَعَ بالبذرة الجديدة فلا تكتمل نافذةٌ أبدًا ⟵ والذراعُ `B` تلزمها نافذةٌ كاملة. الأقدمُ أوّلًا
+       يُبقي المتابَعَ حتى تُغلَق نافذتُه ثمّ يُدخل التالي · حتميٌّ قابلٌ لإعادة الإنتاج."""
     horizon = int(BORROW_WATCH_HORIZON if horizon is None else horizon)
     cap = int(BORROW_WATCH_CAP if cap is None else cap)
     first, last = {}, {}
@@ -14079,10 +14091,15 @@ def borrow_watch_due(ledger: list, today_iso: str,
     for s, d0 in first.items():
         if last.get(s) == today_iso:          # رُصد اليومَ سلفًا ⇒ لا تكرار
             continue
-        if _iso_days_between(d0, today_iso) > horizon:
-            continue                           # خرج من أفق المتابعة
+        try:
+            age = trading_days_between(d0, today_iso)
+        except Exception:                                        # noqa: BLE001
+            age = 10 ** 6                      # تاريخٌ تالف ⇒ خارج الأفق
+        if age > horizon:
+            continue                           # خرج من أفق المتابعة (جلسات)
         due.append(s)
-    due.sort(key=lambda s: (last.get(s, ""), s), reverse=True)
+    import hashlib as _hl
+    due.sort(key=lambda s: (first[s], _hl.sha256(s.encode()).hexdigest()))
     dropped = max(0, len(due) - cap)
     return due[:cap], dropped
 
@@ -14097,9 +14114,46 @@ def _iso_days_between(a: str, b: str) -> int:
         return 10 ** 6
 
 
+def pool_borrow_seeds(path: str = None) -> list:
+    """مجتمعُ `T-BORROW-FALL` كما يقرؤه مُقيِّمُ العقد: كلُّ رفضٍ معلومٍ ببوّابة المتاح في سجلّ بِركة التعبئة
+    (اليوميّ والتجديد) ⟵ صفوفٌ `{"symbol","date"}` من أوّل رفضٍ لكلّ رمز، ‏+ كلُّ قراءةٍ معلومةٍ لاحقةٍ له في البِركة
+    (فيُعرَف أنه رُصد يومَها فلا يُطلَب ثانيةً).
+
+    **لماذا (‏2026-10-14 · مُثبَت):** الحصّادُ كان يبذر مُخرَجي الفرز اليوميّ وحدَهم ⟵ مُخرَجو التجديد (‏45 بذرةً
+    في أوّل سجلٍّ حيّ `38014252564`) **لا يُتابَعون أبدًا** وهم نصفُ المجتمع المسجَّل. قراءةٌ فقط · فاشلٌ-آمن ⇒ []."""
+    out, first = [], {}
+    try:
+        recs = []
+        with open(path or FILL_POOL_FILE, encoding="utf-8") as fh:
+            for line in fh:
+                try:
+                    r = json.loads(line)
+                except Exception:                              # noqa: BLE001
+                    continue
+                if isinstance(r, dict) and r.get("date"):
+                    recs.append(r)
+        recs.sort(key=lambda r: (str(r.get("ts") or ""), str(r.get("date"))))
+        for r in recs:
+            cols = r.get("cols") or []
+            for row in (r.get("rows") or []):
+                d = dict(zip(cols, row)) if isinstance(row, list) else {}
+                sym = str(d.get("sym") or "").upper()
+                if not sym or d.get("av_state") != "KNOWN":
+                    continue
+                if d.get("outcome") == "BORROW_REJECT" and sym not in first:
+                    first[sym] = str(r["date"])
+                    out.append({"symbol": sym, "date": str(r["date"])})
+                elif sym in first and str(r["date"]) > first[sym]:
+                    out.append({"symbol": sym, "date": str(r["date"])})
+    except Exception:                                          # noqa: BLE001
+        return []
+    return out
+
+
 def harvest_borrow_watch(ejected, results, today_iso: str, fetch=None,
                          path: str = None, horizon: int = None,
-                         cap: int = None) -> dict:
+                         cap: int = None, pool_seeds: list = None,
+                         now: str = None) -> dict:
     """🔒📉 **حصّادُ `T-BORROW-FALL`** — يبذر المُخرَجين بالبوّابة ويتابع القدامى.
 
     ⛔ **صفرُ أثرٍ على الاختيار** (‏`W5`): لا يُعيد مُخرَجًا ولا يمسّ `picks` ولا
@@ -14107,9 +14161,13 @@ def harvest_borrow_watch(ejected, results, today_iso: str, fetch=None,
     الحيّة** فانكسارُه لا يُسقط التشغيلة.
 
     يرجّع عدّادات التغطية: `{"seeded","tracked","unknown","dropped","written"}` —
-    و`unknown` = **تعذّرَ جلبُ متاحه** (يُسجَّل `None` ويُعَدّ · `W2`)."""
+    و`unknown` = **تعذّرَ جلبُ متاحه** (يُسجَّل `None` ويُعَدّ · `W2`).
+
+    🔄 (‏2026-10-14): `pool_seeds` (من `pool_borrow_seeds`) تُضمّ إلى السجلّ **لحساب المستحقّ وحدَه** — لا تُكتَب ·
+    و`now` لحظةُ UTC تُختَم بها الصفوف (الافتراضُ ساعةُ الرنر)."""
     fetch = fetch or ce_borrow_info
     led = load_borrow_watch(path)
+    now = now or dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")
     seen_today = {r.get("symbol") for r in led if r.get("date") == today_iso}
     price_of = {}
     for r in (results or []):
@@ -14124,9 +14182,9 @@ def harvest_borrow_watch(ejected, results, today_iso: str, fetch=None,
             continue
         seen_today.add(s)
         rows.append(borrow_watch_row(s, av, None, price_of.get(s),
-                                     today_iso, "seed"))
+                                     today_iso, "seed", ts=now))
     seeded = len(rows)
-    due, dropped = borrow_watch_due(led, today_iso, horizon, cap)
+    due, dropped = borrow_watch_due(led + list(pool_seeds or []), today_iso, horizon, cap)
     for s in due:
         if s in seen_today:
             continue
@@ -14139,7 +14197,7 @@ def harvest_borrow_watch(ejected, results, today_iso: str, fetch=None,
         if av is None:
             unknown += 1
         rows.append(borrow_watch_row(s, av, d.get("borrow_fee"),
-                                     price_of.get(s), today_iso, "track"))
+                                     price_of.get(s), today_iso, "track", ts=now))
     written = append_borrow_watch(rows, path)
     return {"seeded": seeded, "tracked": len(rows) - seeded,
             "unknown": unknown, "dropped": dropped, "written": written}
@@ -22523,6 +22581,7 @@ def run_daily_watchlist(wl: dict) -> None:
     added = []
     low_coverage_note = None
     _fp_tried = False
+    _bw_out = []           # مُخرَجو بوّابة المتاح اليوم (يملؤه `fill_picks`) — لبذر T-BORROW-FALL
     if space > 0 and not coverage_ok:
         low_coverage_note = ("فشل جلب كون ناسداك (عيّنة اختبار صغيرة)" if _fallback
                              else f"تغطية بيانات ضعيفة ({_cov:.0f}%)")
@@ -22550,18 +22609,6 @@ def run_daily_watchlist(wl: dict) -> None:
             log(f"🔒 لم يُضَف (متاحُ اقتراضٍ فوق "
                 f"{int(CONFIG['BORROW_AVAIL_MAX']):,}): "
                 + "، ".join(f"{s_}({int(float(v)):,})" for s_, v in _bw_out))
-        # 🔒📉 حصادُ T-BORROW-FALL — **بعد** البوّابة وبلا أثرٍ عليها: المُخرَجُ يبقى
-        # مُخرَجًا، وإنّما يُسجَّل متاحُه ويُتابَع نزولُه (فيصل يدخل «تحت 10K»).
-        # حارسٌ مطلق: انكسارُ سجلِّ بحثٍ لا يُسقط الفرز.
-        try:
-            _bwh = harvest_borrow_watch(_bw_out, results, today_iso)
-            if _bwh.get("written"):
-                log(f"📉 حصادُ المتاح: بذر {_bwh['seeded']} · تابع "
-                    f"{_bwh['tracked']} · مجهول {_bwh['unknown']}"
-                    + (f" · قُصَّ {_bwh['dropped']}" if _bwh.get("dropped")
-                       else ""))
-        except Exception as _e:                                  # noqa: BLE001
-            log(f"⚠️ حصادُ المتاح تعذّر (لا يمسّ الفرز): {_e}")
         if _fl_out or _bw_out:
             log(f"🎯 تعبئةُ الخانات: {len(picks)} من {space} بعد {_rnd} جولة"
                 + fill_shortfall_note(_dq_results, held | stopped, picks, _fl_out,
@@ -22579,6 +22626,21 @@ def run_daily_watchlist(wl: dict) -> None:
         # 🗂️ لا تعبئةَ اليوم ⟵ سطرٌ يقول لماذا (فلا يُقرأ غيابُ السطر «لم يُسجَّل») · بلا لقطة: السلامةُ لم تُشغَّل ولا تُشغَّل لأجله.
         record_fill_pool(None, None, [], [], "daily", today_iso, space, 0, len(results),
                          no_fill=("LOW_COVERAGE" if low_coverage_note else "NO_FREE_SLOT"))
+    # 🔒📉 حصادُ T-BORROW-FALL — **بعد** البوّابة وبلا أثرٍ عليها: المُخرَجُ يبقى
+    # مُخرَجًا، وإنّما يُسجَّل متاحُه ويُتابَع نزولُه (فيصل يدخل «تحت 10K»).
+    # حارسٌ مطلق: انكسارُ سجلِّ بحثٍ لا يُسقط الفرز.
+    # 🔄 (2026-10-14 · «فعّل حفظ سجل المتاح»): بعد كتلة التعبئة لا داخلها ⟵ المتابعةُ كلَّ يوم ولو بلا خانةٍ فارغة
+    #    (البذرُ وحدَه يلزمه التعبئة) · والمستحقُّ من مجتمع العقد كلِّه: سجلُّ البِركة (اليوميّ والتجديد) ‏+ بذورُه.
+    try:
+        _bwh = harvest_borrow_watch(_bw_out, results, today_iso,
+                                    pool_seeds=pool_borrow_seeds())
+        if _bwh.get("written"):
+            log(f"📉 حصادُ المتاح: بذر {_bwh['seeded']} · تابع "
+                f"{_bwh['tracked']} · مجهول {_bwh['unknown']}"
+                + (f" · قُصَّ {_bwh['dropped']}" if _bwh.get("dropped")
+                   else ""))
+    except Exception as _e:                                      # noqa: BLE001
+        log(f"⚠️ حصادُ المتاح تعذّر (لا يمسّ الفرز): {_e}")
     # 5) ترقية B→A (إنذار مبكر) + نسبة الجاهزية اليومية
     promoted = []
     try:
@@ -27031,8 +27093,11 @@ def run_performance_system(results, weekly_report_now=False):
     #    بعد تشغيلةٍ كاملة ناجحة** (`31957908070`) رغم أن الحفظ غيرُ مشروط.
     #    👀🏢 ومخزنُ فلوت «تحت المتابعة» (2026-09-26) — وإلّا مات مع الرنر كما مات `NEAR_WATCH_FILE` قبل 08-16.
     #    🗂️ وسجلُّ بِركة التعبئة (2026-10-09) — `.jsonl` فيتّحد عند التعارض (`_union_jsonl`) ولا يموت مع الرنر.
+    #    📉 وسجلُّ متابعة المتاح `BORROW_WATCH_FILE` (2026-10-14 · «فعّل حفظ سجل المتاح») — كان يُلحَق على الرنر ويموت معه
+    #       فلم تُسجَّل ملاحظةٌ لاحقةٌ واحدة منذ 2026-08-16 · `.jsonl` فيتّحد عند التعارض.
     git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE, REJECT_LOG_FILE,
-              HUNTER_WATCH_FILE, NEAR_WATCH_FILE, NEAR_WATCH_FLOAT_FILE, FILL_POOL_FILE])
+              HUNTER_WATCH_FILE, NEAR_WATCH_FILE, NEAR_WATCH_FLOAT_FILE, FILL_POOL_FILE,
+              BORROW_WATCH_FILE])
 
 
 if __name__ == "__main__":

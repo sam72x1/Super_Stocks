@@ -96,7 +96,8 @@ def bot_facts(src=None, wf=None):
     for fn in ast.walk(tree):
         if isinstance(fn, ast.FunctionDef) and fn.name == "borrow_watch_due":
             names = {n.id for n in ast.walk(fn) if isinstance(n, ast.Name)}
-            due_unit = "CALENDAR_DAYS" if "_iso_days_between" in names else "OTHER"
+            due_unit = ("CALENDAR_DAYS" if "_iso_days_between" in names
+                        else ("SESSIONS" if "trading_days_between" in names else "OTHER"))
     return {
         "borrow_watch_file": watch_name,
         "horizon": consts.get("BORROW_WATCH_HORIZON"), "cap": consts.get("BORROW_WATCH_CAP"),
@@ -112,7 +113,8 @@ def bot_facts(src=None, wf=None):
 # ───────────────────────── time (every time field read with the semantics of the code that writes it)
 # Writers (verified in the code, 2026-10-10): pool `date` = `dt.date.today()` on the runner and `ts`/`snap_ts` = UTC instants
 # (`Super_stock.fill_pool_record`/`fill_pool_begin`); `ctb_log` `date` = `dt.date.today()` (`ctb_harvest.harvest`); Phase6
-# `collected_utc` = the collector's start instant (`Collector.__init__`); `borrow_watch` `date` = the screen's `today_iso`. No workflow
+# `collected_utc` = the collector's start instant (`Collector.__init__`); `borrow_watch` `date` = the screen's `today_iso` and, from
+# 2026-10-14, `ts` = the UTC instant of the harvest (`Super_stock.harvest_borrow_watch`). No workflow
 # sets TZ, and the bot's own log clock matches the Actions UTC stamps, so a bare date is a UTC calendar day — never a New York session.
 NY = ZoneInfo("America/New_York")
 UTC = dt.timezone.utc
@@ -123,7 +125,8 @@ TIME_SEMANTICS = {
     "pool": "UTC interval [snap_ts, ts] of the screening run that fetched the availability (both recorded)",
     "ctb_log": "UTC calendar day of the harvest run (dt.date.today() on the runner) — time of day not recorded",
     "phase6": f"UTC interval [collected_utc, collected_utc + {int(PHASE6_MAX_LAG.total_seconds() // 60)} min] (collector start + job timeout)",
-    "borrow_watch": "UTC calendar day of the screening run (today_iso) — time of day not recorded",
+    "borrow_watch": "UTC instant `ts` of the screening run's harvest when recorded (rows from 2026-10-14); older rows: the UTC "
+                    "calendar day of the run (today_iso) — time of day not recorded",
     "source_asof": "NOT_COLLECTED — the time ChartExchange/IBKR published the value is recorded nowhere; never replaced by fetch time",
 }
 
@@ -286,7 +289,7 @@ def observations(recs, ctb_rows, p6_rows, w_rows, horizon_date=None):
         out.append((r.get("ticker"), str(r.get("collected_utc", ""))[:10], v, "phase6", r.get("collected_utc"), None))
     for r in w_rows:
         if r.get("kind") == "track":
-            out.append((r.get("symbol"), r.get("date"), _num(r.get("available")), "borrow_watch", None, None))
+            out.append((r.get("symbol"), r.get("date"), _num(r.get("available")), "borrow_watch", r.get("ts"), None))
     return [o for o in out if o[0] and o[1]]
 
 
