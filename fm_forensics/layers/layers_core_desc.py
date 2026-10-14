@@ -1,6 +1,7 @@
 """T-LAYERS descriptive, non-governing (contract §④ «والبقيّةُ وصفًا»): stage B and false alarms for the CORE ALONE, run after the
 governing run 2. The governing verdict is the selected definition's (layers_test.py); this only answers «what would the core alone
 have caught and how often would it have been wrong». Writes data/core_descriptive.json.
+🔒 Gated by the executed closure of T-LAYERS (T_LAYERS_result.md §⑨): exits 8 before any read unless LAYERS_REOPEN=1.
 
     python3 fm_forensics/layers/layers_core_desc.py
 """
@@ -10,15 +11,24 @@ import json
 import os
 import sys
 
-WT = sys.argv[1] if len(sys.argv) > 1 else os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
-sys.path.insert(0, os.path.join(WT, "fm_forensics", "layers"))
-os.chdir(WT)
+ROOT = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
 
 
-def main():
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    wt = os.path.abspath(argv[0]) if argv else ROOT
+    lay = os.path.join(wt, "fm_forensics", "layers")
+    if lay not in sys.path:
+        sys.path.insert(0, lay)
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
         import layers_test as LT
+    if LT._closed_now():                       # the executed closure (T_LAYERS_result.md §⑨) gates this run too
+        for ln in LT.closure_notice():
+            print(ln)
+        return LT.CLOSED_RC
+    os.chdir(wt)
+    with contextlib.redirect_stdout(buf):
         S, T, F, H, L = LT._mods()
         nwh = T.nearwatch_history()
         wlh = LT.watchlist_history()
@@ -36,9 +46,10 @@ def main():
         if not e["captured"]:
             w = (e["best_fail"] or {}).get("fail") or "no_readable_day"
             res["missed"][w] = res["missed"].get(w, 0) + 1
-    json.dump(res, open(os.path.join(WT, "fm_forensics/layers/data/core_descriptive.json"), "w"), ensure_ascii=False, indent=1)
+    json.dump(res, open(os.path.join(wt, "fm_forensics/layers/data/core_descriptive.json"), "w"), ensure_ascii=False, indent=1)
     print(json.dumps(res, ensure_ascii=False))
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

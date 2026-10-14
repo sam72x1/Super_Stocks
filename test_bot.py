@@ -87645,6 +87645,120 @@ check("🔒 SCC1 إغلاقُ `T-SCORE` **مُنفَّذ** («اقفل T-SCORE»
       "و`SCORE_REOPEN=0` يُبقيه مُغلَقًا · والإقرارُ `1` يمضي فعلًا · و`--guards` يعمل مُغلَقًا · و8 مميَّزٌ (9 للعقد) · ونصُّ الفتح ①②③ "
       "بأرقام الحكم · ودخولٌ واحد · وقسمُ الإغلاق في النتيجة",
       _scc1, _scc1_w[:400])
+# LYC1 — 🔒 **إغلاقُ `T-LAYERS` مُنفَّذٌ لا مكتوب** (أمرُ المالك «اقفل T-LAYERS» 2026-10-14 · `fm_forensics/layers/T_LAYERS_result.md §⑨`)
+#    — سلوكيًّا من طرفيه للأداتين: (أ) `layers_test.py` مُغلَقًا ⟶ خروجُ 8 **بصفرِ نداءٍ** لـ`run` ولا سطرَ غيرُ نصّ الإغلاق · و`LAYERS_REOPEN=0`
+#    يُبقيه مُغلَقًا · وبالإقرار `1` يمضي (`run` مرّةً) · و`--guards` يعمل مُغلَقًا ويُرجع 1 حين يفشل حارس · (ب) `layers_core_desc.py` مُغلَقًا ⟶ 8
+#    قبل `_mods` (صفرُ قراءة) وبالإقرار يمضي إليها · (ج) و8 مميَّزٌ (‏9 للعقد بشاهد ضبط) · ونقطةُ دخولٍ واحدة لكلٍّ تُخرج رمزَ `main` ·
+#    (د) ونصُّ الفتح ①②③ بأرقام الحكم والسببِ البنيويّ · وقسمُ الإغلاق في النتيجة.
+try:
+    import ast as _lyc_ast
+    import os as _lyc_os
+    import sys as _lyc_sys
+    import contextlib as _lyc_ctx
+    import io as _lyc_io
+    import importlib.util as _lyc_iu
+    _lyc_dir = _lyc_os.path.join("fm_forensics", "layers")
+    _lyc_path = _lyc_os.path.join(_lyc_dir, "layers_test.py")
+    _lyc_cpath = _lyc_os.path.join(_lyc_dir, "layers_core_desc.py")
+    _lyc_sys_path = list(_lyc_sys.path)
+    _lyc_mod0 = _lyc_sys.modules.get("layers_test")
+    try:
+        _lyc_spec = _lyc_iu.spec_from_file_location("_lyc_layers_test", _lyc_path)
+        _LYC = _lyc_iu.module_from_spec(_lyc_spec)
+        _lyc_spec.loader.exec_module(_LYC)
+        _lyc_cspec = _lyc_iu.spec_from_file_location("_lyc_core_desc", _lyc_cpath)
+        _LYD = _lyc_iu.module_from_spec(_lyc_cspec)
+        _lyc_cspec.loader.exec_module(_LYD)
+    finally:
+        _lyc_sys.path[:] = _lyc_sys_path
+    _lyc_calls = []
+    _lyc_keep = (_LYC.run, _LYC.guards, _LYC._mods)
+    _lyc_env0 = _lyc_os.environ.get("LAYERS_REOPEN")
+    _lyc_guard_ret = []
+    _lyc_cwd0 = _lyc_os.getcwd()
+
+    class _LycStop(Exception):
+        pass
+
+    def _lyc_main(fn, argv, env):
+        _lyc_os.environ.pop("LAYERS_REOPEN", None)
+        if env is not None:
+            _lyc_os.environ["LAYERS_REOPEN"] = env
+        del _lyc_calls[:]
+        _buf = _lyc_io.StringIO()
+        _rc = None
+        with _lyc_ctx.redirect_stdout(_buf):
+            try:
+                _rc = fn(list(argv))
+            except _LycStop:
+                _rc = "proceeded"
+        return _rc, list(_lyc_calls), _buf.getvalue().splitlines()
+
+    def _lyc_mods_stop():
+        _lyc_calls.append("mods")
+        raise _LycStop()
+    try:
+        _LYC.run = lambda *a, **k: _lyc_calls.append("run")
+        _LYC.guards = lambda *a, **k: (_lyc_calls.append("guards"), list(_lyc_guard_ret))[1]
+        _LYC._mods = _lyc_mods_stop
+        _lyc_c_run = _lyc_main(_LYC.main, [], None)
+        _lyc_c_zero = _lyc_main(_LYC.main, [], "0")
+        _lyc_o_run = _lyc_main(_LYC.main, [], "1")
+        _lyc_g_ok = _lyc_main(_LYC.main, ["--guards"], None)
+        _lyc_guard_ret.append("LGx")
+        _lyc_g_bad = _lyc_main(_LYC.main, ["--guards"], None)
+        _lyc_sys.modules["layers_test"] = _LYC                  # the descriptive script imports the tool by this name
+        _lyc_d_closed = _lyc_main(_LYD.main, [_lyc_os.getcwd()], None)
+        _lyc_d_zero = _lyc_main(_LYD.main, [_lyc_os.getcwd()], "0")
+        _lyc_d_open = _lyc_main(_LYD.main, [_lyc_os.getcwd()], "1")
+    finally:
+        _LYC.run, _LYC.guards, _LYC._mods = _lyc_keep
+        _lyc_os.environ.pop("LAYERS_REOPEN", None)
+        if _lyc_env0 is not None:
+            _lyc_os.environ["LAYERS_REOPEN"] = _lyc_env0
+        if _lyc_mod0 is None:
+            _lyc_sys.modules.pop("layers_test", None)
+        else:
+            _lyc_sys.modules["layers_test"] = _lyc_mod0
+        _lyc_sys.path[:] = _lyc_sys_path
+        _lyc_os.chdir(_lyc_cwd0)
+    _lyc_notice = _LYC.closure_notice()
+    _lyc_closed = all(_r == (8, [], _lyc_notice) for _r in (_lyc_c_run, _lyc_c_zero, _lyc_d_closed, _lyc_d_zero))
+    _lyc_open = (_lyc_o_run[:2] == (0, ["run"]) and _lyc_d_open[:2] == ("proceeded", ["mods"])
+                 and not any("مُغلَق" in _ln for _ln in _lyc_o_run[2] + _lyc_d_open[2]))
+    _lyc_guards = _lyc_g_ok[:2] == (0, ["guards"]) and _lyc_g_bad[:2] == (1, ["guards"])
+
+    def _lyc_exits_entry(path):
+        _t = _lyc_ast.parse(open(path, encoding="utf-8").read())
+        _ex = {_c.args[0].value for _c in _lyc_ast.walk(_t)
+               if isinstance(_c, _lyc_ast.Call) and getattr(_c.func, "attr", None) == "exit"
+               and _c.args and isinstance(_c.args[0], _lyc_ast.Constant) and isinstance(_c.args[0].value, int)}
+        _mains = [_n for _n in _lyc_ast.walk(_t) if isinstance(_n, _lyc_ast.If)
+                  and isinstance(_n.test, _lyc_ast.Compare) and getattr(_n.test.left, "id", None) == "__name__"]
+        _entry = (len(_mains) == 1 and len(_mains[0].body) == 1
+                  and _lyc_ast.unparse(_mains[0].body[0]).replace(" ", "") == "sys.exit(main())")
+        return _ex, _entry
+    _lyc_exits, _lyc_entry_t = _lyc_exits_entry(_lyc_path)
+    _lyc_dexits, _lyc_entry_d = _lyc_exits_entry(_lyc_cpath)
+    _lyc_distinct = (_LYC.CLOSED_RC == 8 and 8 not in _lyc_exits and 9 in _lyc_exits and 8 not in _lyc_dexits
+                     and _LYC.CLOSED_RC not in (0, 1))
+    _lyc_txt = "\n".join(_lyc_notice)
+    _lyc_text = all(_x in _lyc_txt for _x in (
+        "①", "②", "③", "LAYERS_REOPEN=1", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد", "B-FAIL", "0 من 40", "39 من 40", "57.7%",
+        "13%", "تفصيلٌ على المقاس", "T_LAYERS_result.md §⑨"))
+    _lyc_res = open(_lyc_os.path.join(_lyc_dir, "T_LAYERS_result.md"), encoding="utf-8").read()
+    _lyc_sec = "## ⑨ 🔒 الإغلاق" in _lyc_res and "LAYERS_REOPEN=1" in _lyc_res.split("## ⑨ 🔒 الإغلاق")[-1]
+    _lyc1 = (_LYC.AXIS_CLOSED is True and _LYC.REOPEN_ENV == "LAYERS_REOPEN" and _lyc_closed and _lyc_open and _lyc_guards
+             and _lyc_distinct and _lyc_entry_t and _lyc_entry_d and _lyc_text and _lyc_sec)
+    _lyc1_w = (f"مُغلَق={[_r[:2] for _r in (_lyc_c_run, _lyc_c_zero, _lyc_d_closed, _lyc_d_zero)]} · "
+               f"مفتوح={_lyc_o_run[:2]},{_lyc_d_open[:2]} · guards={_lyc_g_ok[:2]},{_lyc_g_bad[:2]} · مميَّز={_lyc_distinct} "
+               f"exits={sorted(_lyc_exits)}/{sorted(_lyc_dexits)} · دخول={_lyc_entry_t},{_lyc_entry_d} · النصّ={_lyc_text} · القسم={_lyc_sec}")
+except Exception as _e:                                              # noqa: BLE001
+    _lyc1, _lyc1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔒 LYC1 إغلاقُ `T-LAYERS` **مُنفَّذ** («اقفل T-LAYERS»): التشغيلةُ المختومة والوصفُ يخرجان 8 بصفرِ قراءةٍ ولا سطرَ غيرُ النصّ · "
+      "و`LAYERS_REOPEN=0` يُبقيه مُغلَقًا · والإقرارُ `1` يمضي فعلًا · و`--guards` يعمل مُغلَقًا · و8 مميَّزٌ (9 للعقد) · ونصُّ الفتح ①②③ "
+      "بالسبب البنيويّ · ودخولٌ واحد لكلّ أداة · وقسمُ الإغلاق في النتيجة",
+      _lyc1, _lyc1_w[:420])
 # ══════════════════════════════════════════════════════════════════════════
 # 📉💾 BWP1-BWP7 — «فعّل حفظ سجل المتاح» (أمرُ المالك 2026-10-14 · متابعةُ `T-BORROW-FALL`): السجلُّ يُدفَع · الأفقُ جلساتٌ (العقد §④)
 #    · الترتيبُ بأوّل رصدٍ وتعادلُه ببصمةٍ لا بالأبجديّة · المجتمعُ من سجلّ البِركة (اليوميّ والتجديد) · لحظةُ UTC لكلّ صفّ ·

@@ -11,11 +11,16 @@ Telegram, threshold, root or LOGIC_VERSION change. Nothing here is imported by t
 | `layers_test.py` | stage A (frequency over 20 sessions) and stage B (the 107 movers: captured · missed with the failing condition · false alarms · production ready on the same window · sweep depth) ⟶ `data/layers_result.json` · `data/*.csv` · `--guards` LG1–LG30 |
 | `T_LAYERS_result.md` | **the result: B-FAIL «لا يُقبل»** — stage A passes only with VOL+NODE (median 0 · max 3 · silence 4) · stage B captures 0 of 40 movers vs production ready 2 · on «الجاهز» itself the core fired 0 times in 20 sessions · 39 of 40 broke the base deeper than 13 % before the move · no message built |
 | `layers_core_desc.py` | descriptive, non-governing: the core alone in stage B (3 of 40) and its false alarms (122 of 137) ⟶ `data/core_descriptive.json` |
+| `five_depth.py` · `FIVE_DEPTH.md` | owner order 2026-10-14 «قارن الخمسة بالباقي في عمق الهبوط» — descriptive, no contract, no verdict, **not gated by the closure** (a depth reading, no trigger): the five (GEN5 episodes) all fell deeper than 13 % under the base before the move (27 % ⟶ 92 % · median ≈48 %) vs the rest median 59.6 % (37 events · 1 in 7-13 %) · none of the five in 7-13 % · ⟶ `data/five_depth.json` |
 | `layers_mutate.py` | mutation round over the guards (43/43 fall, no crash) |
 
 The trigger is read on the production cycle `Super_stock.pivot_cycle_state` by name (base = `pc.bottom`); the five core conditions are
 Faisal's words (`IMG_0297` 7–13 % · `TG_57894` the reclaim · one trigger per base · invalidation under the sweep low). The boosters VOL
 (`link100_probe.daily_feats`, by name) · NODE and CANDLE (engineering) are measured one by one and combined only by the written rule.
+
+🔒 **Closed** (owner «اقفل T-LAYERS» 2026-10-14 · `T_LAYERS_result.md §⑨` · lock `LYC1`): the sealed run and `layers_core_desc.py` exit 8 before any read
+unless `LAYERS_REOPEN=1` (an acknowledgement of the three reopen conditions: a new unmeasured data source · a new preregistration · the
+owner's permission). `--guards` and `layers_mutate.py` still run.
 
 Order (repo root; the run refuses with exit 9 unless origin/main carries the pinned contract and addenda 1–2 and the production functions are unchanged):
 

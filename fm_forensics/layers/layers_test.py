@@ -62,6 +62,36 @@ BOOSTERS = ("VOL", "NODE", "CANDLE")
 ORDER = ((), ("VOL",), ("NODE",), ("CANDLE",), ("VOL", "NODE"), ("VOL", "CANDLE"), ("NODE", "CANDLE"), ("VOL", "NODE", "CANDLE"))
 FIVE = ("SXTC", "DKI", "RETO", "DLXY", "HUBC")
 
+# ── executed closure (owner «اقفل T-LAYERS» 2026-10-14 · T_LAYERS_result.md §⑨) ─────────────────────────────
+AXIS_CLOSED = True
+REOPEN_ENV = "LAYERS_REOPEN"
+CLOSED_RC = 8                     # distinct from 0 (ok) · 1 (guards failed) · 9 (contract / pins)
+
+
+def _closed_now():
+    """Closed right now? Read at call time; the acknowledgement is the literal "1" (a workflow input defaulting to "0" would
+    otherwise lift the closure on every run while looking closed)."""
+    return AXIS_CLOSED and (os.environ.get(REOPEN_ENV) or "").strip() != "1"
+
+
+def closure_notice():
+    """The closure text — a pure function so its content is locked, not its shape."""
+    return [
+        "🔒🔴 محورُ «ثلاث طبقات · زنادُ الكنسة» (`T-LAYERS`) مُغلَق — بأمر المالك «اقفل T-LAYERS» (2026-10-14) · "
+        "`fm_forensics/layers/T_LAYERS_result.md §⑨`.",
+        "",
+        "⚖️ السبب — بنيويٌّ لا في العتبات (الحكمُ B-FAIL «لا يُقبل» · التشغيلتان متطابقتان):",
+        "   • المختارُ `+VOL+NODE` التقط 0 من 40 منفجرًا مقابل «الجاهز» 2 · والنواةُ 6 يوميًّا (مزدحمة) · وعلى «الجاهز» صفرٌ في 20 جلسة.",
+        "   • و39 من 40 منفجرًا كسروا القاعدةَ أعمقَ من 13% قبل حركتهم (الوسيط 57.7%) — انهيارٌ لا كنسة ⟵ "
+        "توسيعُ الحزمة بعد رؤية الرقم تفصيلٌ على المقاس.",
+        "",
+        "🔓 ولا يُعاد فتحُه إلّا بثلاثةٍ معًا:",
+        "   ① مصدرُ بياناتٍ جديدٌ لم يُقَس — وتوسيعُ الحزمة أو تبديلُ المعزّزات على الشموع اليوميّة نفسِها ليس مصدرًا.",
+        "   ② تسجيلٌ مسبقٌ جديد — العقدُ `T_LAYERS_prereg.md` والملحقان مدموجةٌ لا تُعدَّل.",
+        "   ③ إذنُ المالك.",
+        "   ⚖️ والمفتاحُ LAYERS_REOPEN=1 إقرارٌ بالثلاثة لا التفافٌ عليها — ويُقرأ «1» حرفيًّا.",
+    ]
+
 
 def _sha(path):
     return hashlib.sha256(open(path, "rb").read()).hexdigest() if os.path.exists(path) else None
@@ -1073,7 +1103,19 @@ def guards():
     return fails
 
 
-if __name__ == "__main__":
-    if "--guards" in sys.argv:
-        sys.exit(1 if guards() else 0)
+def main(argv=None):
+    """The single entry point. `--guards` runs first (synthetic, no population, no result written); the sealed run is gated by
+    the executed closure before any read."""
+    argv = sys.argv[1:] if argv is None else argv
+    if "--guards" in argv:
+        return 1 if guards() else 0
+    if _closed_now():
+        for ln in closure_notice():
+            print(ln)
+        return CLOSED_RC
     run()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
