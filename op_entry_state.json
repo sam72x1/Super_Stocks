@@ -1145,11 +1145,11 @@
   "anchor_price": 0.7913,
   "anchor_open": 0.7501,
   "anchor_low": 0.7501,
-  "date": "2026-10-14",
   "pre_done": true,
   "pre_hi": 0.85,
   "pre_usd": 210254,
-  "pre_n": 20
+  "pre_n": 20,
+  "date": "2026-10-14"
  },
  "LIQ:FRGT": {
   "last_eval_ms": 1792009620000,
