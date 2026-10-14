@@ -87759,6 +87759,45 @@ check("🔒 LYC1 إغلاقُ `T-LAYERS` **مُنفَّذ** («اقفل T-LAYERS
       "و`LAYERS_REOPEN=0` يُبقيه مُغلَقًا · والإقرارُ `1` يمضي فعلًا · و`--guards` يعمل مُغلَقًا · و8 مميَّزٌ (9 للعقد) · ونصُّ الفتح ①②③ "
       "بالسبب البنيويّ · ودخولٌ واحد لكلّ أداة · وقسمُ الإغلاق في النتيجة",
       _lyc1, _lyc1_w[:420])
+# FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
+#    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
+#    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
+try:
+    import os as _fsw_os
+    import re as _fsw_re
+    import sys as _fsw_sys
+    import hashlib as _fsw_h
+    import subprocess as _fsw_sp
+    _fsw_dir = _fsw_os.path.join("fm_forensics", "fsweep")
+    _fsw_tool = _fsw_os.path.join(_fsw_dir, "fsweep.py")
+    _fsw_env = dict(_fsw_os.environ, PYTHONDONTWRITEBYTECODE="1")
+
+    def _fsw_run(*a):
+        _r = _fsw_sp.run([_fsw_sys.executable, "-B", _fsw_tool, *a], capture_output=True, text=True, timeout=600, env=_fsw_env)
+        return _r.returncode, _r.stdout + _r.stderr
+    _fsw_g = _fsw_run("--guards")
+    _fsw_v = _fsw_run("verify")
+    _fsw_s = _fsw_run("status")
+    _fsw_src = open(_fsw_tool, encoding="utf-8").read()
+    _fsw_doc = open(_fsw_os.path.join(_fsw_dir, "FSWEEP_prereg.md"), encoding="utf-8").read()
+    _fsw_pin = _fsw_re.search(r'^PREREG_SHA256 = "([0-9a-f]{64})"', _fsw_src, _fsw_re.M)
+    _fsw_sha = _fsw_h.sha256(_fsw_doc.encode("utf-8")).hexdigest()
+    _fsw_bd = _fsw_re.search(r"\(`BOUNDARY`\):\*\* `([0-9T:Z\-]+)`", _fsw_doc)
+    _fsw_dl = _fsw_re.search(r"\(`DEADLINE`\):\*\* `([0-9\-]+)`", _fsw_doc)
+    _fsw_tb = _fsw_re.search(r'^BOUNDARY = "([^"]+)"', _fsw_src, _fsw_re.M)
+    _fsw_td = _fsw_re.search(r'^DEADLINE = "([^"]+)"', _fsw_src, _fsw_re.M)
+    _fsw_guards = _fsw_g[0] == 0 and "❌" not in _fsw_g[1] and "✅ الحرّاس كلُّهم" in _fsw_g[1] and "Traceback" not in _fsw_g[1]
+    _fsw_ledger = _fsw_v[0] == 0 and _fsw_s[0] == 0 and "Traceback" not in _fsw_v[1] + _fsw_s[1]
+    _fsw_pinned = bool(_fsw_pin) and _fsw_pin.group(1) == _fsw_sha
+    _fsw_dates = bool(_fsw_bd and _fsw_dl and _fsw_tb and _fsw_td) and (_fsw_bd.group(1), _fsw_dl.group(1)) == (_fsw_tb.group(1), _fsw_td.group(1))
+    _fsw1 = _fsw_guards and _fsw_ledger and _fsw_pinned and _fsw_dates
+    _fsw1_w = (f"guards={_fsw_g[0]} · verify={_fsw_v[0]} · status={_fsw_s[0]} · pinned={_fsw_pinned} · dates={_fsw_dates} · "
+               f"{[_l for _l in _fsw_g[1].splitlines() if _l.startswith('❌')][:3]} {_fsw_v[1][-200:]}")
+except Exception as _e:                                              # noqa: BLE001
+    _fsw1, _fsw1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧾 FSW1 حصادُ سحوب فيصل `T-FSWEEP`: حرّاسُ الأداة تمرّ · والسجلُّ المسلسلُ بالبصمات سليم · والعقدُ ببصمته المثبَّتة · "
+      "والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد",
+      _fsw1, _fsw1_w[:420])
 # ══════════════════════════════════════════════════════════════════════════
 # 📉💾 BWP1-BWP7 — «فعّل حفظ سجل المتاح» (أمرُ المالك 2026-10-14 · متابعةُ `T-BORROW-FALL`): السجلُّ يُدفَع · الأفقُ جلساتٌ (العقد §④)
 #    · الترتيبُ بأوّل رصدٍ وتعادلُه ببصمةٍ لا بالأبجديّة · المجتمعُ من سجلّ البِركة (اليوميّ والتجديد) · لحظةُ UTC لكلّ صفّ ·
