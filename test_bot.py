@@ -87645,6 +87645,146 @@ check("🔒 SCC1 إغلاقُ `T-SCORE` **مُنفَّذ** («اقفل T-SCORE»
       "و`SCORE_REOPEN=0` يُبقيه مُغلَقًا · والإقرارُ `1` يمضي فعلًا · و`--guards` يعمل مُغلَقًا · و8 مميَّزٌ (9 للعقد) · ونصُّ الفتح ①②③ "
       "بأرقام الحكم · ودخولٌ واحد · وقسمُ الإغلاق في النتيجة",
       _scc1, _scc1_w[:400])
+# ══════════════════════════════════════════════════════════════════════════
+# 📉💾 BWP1-BWP7 — «فعّل حفظ سجل المتاح» (أمرُ المالك 2026-10-14 · متابعةُ `T-BORROW-FALL`): السجلُّ يُدفَع · الأفقُ جلساتٌ (العقد §④)
+#    · الترتيبُ بأوّل رصدٍ وتعادلُه ببصمةٍ لا بالأبجديّة · المجتمعُ من سجلّ البِركة (اليوميّ والتجديد) · لحظةُ UTC لكلّ صفّ ·
+#    والمتابعةُ كلَّ يوم (خارج كتلة التعبئة) · والمُقيِّمُ يقرأ اللحظة. سلوكيّةٌ أو بالـAST.
+# ══════════════════════════════════════════════════════════════════════════
+# BWP1 — الحفظ: قائمةُ `git_save` في `run_performance_system` تحمل `BORROW_WATCH_FILE` (‏AST) · والمُقيِّمُ يقرأ ذلك من الكود نفسِه
+try:
+    _bwp_rps = _ast0.parse(_insp0.getsource(S.run_performance_system))
+    _bwp_lists = [[getattr(e, "id", None) for e in c.args[0].elts] for c in _ast0.walk(_bwp_rps)
+                  if isinstance(c, _ast0.Call) and getattr(c.func, "id", None) == "git_save"
+                  and c.args and isinstance(c.args[0], _ast0.List)]
+    _bwp1 = (any("BORROW_WATCH_FILE" in _l and "FILL_POOL_FILE" in _l for _l in _bwp_lists)
+             and S.BORROW_WATCH_FILE.endswith(".jsonl")
+             and (_BFR is not None and _BFR.bot_facts()["persisted_by_git_save"] is True))
+    _bwp1_w = f"قوائم={_bwp_lists}"
+except Exception as _e:                                              # noqa: BLE001
+    _bwp1, _bwp1_w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉💾 BWP1 سجلُّ المتابعة يُدفَع: `BORROW_WATCH_FILE` في قائمة `git_save` النهائيّة (‏AST) · `.jsonl` فيتّحد عند التعارض · "
+      "والمُقيِّمُ يقرأ «محفوظ» من الكود", _bwp1, _bwp1_w[:200])
+
+# BWP2 — الأفقُ 40 **جلسة** (العقد §④): بذرةُ 10-13 مستحقّةٌ يومَ 11-30 (48 يومًا تقويميًّا · ‏≈33 جلسة) وخارجةٌ يومَ 12-14 ·
+#        والتاريخُ التالف خارج الأفق (لا متابعةَ للأبد)
+try:
+    _bwp_led = [{"symbol": "AAA", "date": "2026-10-13"}, {"symbol": "BAD", "date": "13-10-2026"}]
+    _bwp_d1, _ = S.borrow_watch_due(_bwp_led, "2026-11-30", 40, 40)
+    _bwp_d2, _ = S.borrow_watch_due(_bwp_led, "2026-12-14", 40, 40)
+    _bwp_s1 = S.trading_days_between("2026-10-13", "2026-11-30")
+    _bwp_s2 = S.trading_days_between("2026-10-13", "2026-12-14")
+    _bwp2 = _bwp_d1 == ["AAA"] and _bwp_d2 == [] and _bwp_s1 <= 40 < _bwp_s2
+    _bwp2_w = f"11-30={_bwp_d1} ({_bwp_s1} جلسة) · 12-14={_bwp_d2} ({_bwp_s2})"
+except Exception as _e:                                              # noqa: BLE001
+    _bwp2, _bwp2_w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉💾 BWP2 أفقُ المتابعة 40 **جلسة** لا 40 يومًا تقويميًّا (العقد §④) · والتاريخُ التالف خارج الأفق", _bwp2, _bwp2_w)
+
+# BWP3 — الترتيبُ: الأقدمُ رصدًا أوّلًا (فتكتمل نافذةُ المتابَع) · وتعادلُ اليوم الواحد ببصمة الرمز لا بالأبجديّة (لا قصَّ لآخرها دائمًا)
+try:
+    import hashlib as _bwp_hl
+    _bwp_syms = ["ALFA", "BETA", "GAMA", "DELT", "EPSI", "ZETA", "ETAA", "THET"]
+    _bwp_led3 = [{"symbol": _x, "date": "2026-10-13"} for _x in _bwp_syms]
+    _bwp_led3 += [{"symbol": "OLDX", "date": "2026-10-09"}, {"symbol": "OLDX", "date": "2026-10-13"}]
+    _bwp_d3, _bwp_dr3 = S.borrow_watch_due(_bwp_led3, "2026-10-14", 40, 4)
+    _bwp_hash = sorted(_bwp_syms, key=lambda _x: _bwp_hl.sha256(_x.encode()).hexdigest())
+    _bwp3 = (_bwp_d3[0] == "OLDX" and _bwp_d3[1:] == _bwp_hash[:3] and _bwp_dr3 == 5
+             and _bwp_d3[1:] != sorted(_bwp_syms)[:3] and _bwp_d3[1:] != sorted(_bwp_syms, reverse=True)[:3])
+    _bwp3_w = f"due={_bwp_d3} · قُصّ={_bwp_dr3} · بصمة={_bwp_hash[:3]}"
+except Exception as _e:                                              # noqa: BLE001
+    _bwp3, _bwp3_w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉💾 BWP3 الترتيبُ بأوّل رصدٍ (الأقدمُ أوّلًا ولو رُصد حديثًا) · والتعادلُ ببصمة الرمز لا أبجديًّا · والقصُّ يُعَدّ", _bwp3, _bwp3_w)
+
+# BWP4 — المجتمعُ من سجلّ البِركة: أوّلُ رفضٍ **معلوم** بالبوّابة لكلّ رمز ‏+ قراءاتُه المعلومة اللاحقة · المجهولُ وما قبل الرفض لا ·
+#        والسطرُ التالف يُتخطّى · والملفُّ الغائب ⟵ []
+try:
+    _bwp_td = _rej_tf.mkdtemp()
+    _bwp_pp = _os_hc.path.join(_bwp_td, "pool.jsonl")
+    _bwp_cols = ["sym", "outcome", "av", "av_state"]
+
+    def _bwp_rec(date, ts, rows):
+        return json.dumps({"date": date, "ts": ts, "cols": _bwp_cols, "rows": rows})
+    with open(_bwp_pp, "w", encoding="utf-8") as _fh:
+        _fh.write(_bwp_rec("2026-10-14", "2026-10-14T07:00:00+00:00",
+                           [["AAA", "PASSED_KNOWN_AV", 9000, "KNOWN"], ["CCC", "BORROW_REJECT", 60000, "KNOWN"]]) + "\n")
+        _fh.write("{تالف\n")
+        _fh.write(_bwp_rec("2026-10-10", "2026-10-10T01:53:00+00:00",
+                           [["AAA", "PASSED_KNOWN_AV", 5000, "KNOWN"], ["BBB", "BORROW_REJECT", None, "UNKNOWN"]]) + "\n")
+        _fh.write(_bwp_rec("2026-10-13", "2026-10-13T08:41:00+00:00",
+                           [["AAA", "BORROW_REJECT", 45000, "KNOWN"], ["BBB", "BORROW_REJECT", 50000, "KNOWN"]]) + "\n")
+    _bwp_ps = S.pool_borrow_seeds(_bwp_pp)
+    _bwp_none = S.pool_borrow_seeds(_os_hc.path.join(_bwp_td, "absent.jsonl"))
+    _bwp4 = (_bwp_ps == [{"symbol": "AAA", "date": "2026-10-13"}, {"symbol": "BBB", "date": "2026-10-13"},
+                         {"symbol": "AAA", "date": "2026-10-14"}, {"symbol": "CCC", "date": "2026-10-14"}]
+             and _bwp_none == [])
+    _bwp4_w = f"{_bwp_ps} · غائب={_bwp_none}"
+except Exception as _e:                                              # noqa: BLE001
+    _bwp4, _bwp4_w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉💾 BWP4 مجتمعُ المتابعة من سجلّ البِركة (اليوميّ والتجديد): أوّلُ رفضٍ معلوم ‏+ قراءاتُه اللاحقة · بالترتيب الزمنيّ · "
+      "المجهولُ وما قبل الرفض لا · والتالفُ يُتخطّى · والغائبُ []", _bwp4, _bwp4_w[:220])
+
+# BWP5 — الحصّادُ يتابع مجتمعَ البِركة (بلا كتابة بذورها) · ويختم كلَّ صفٍّ بلحظة UTC · والمرصودُ في بِركة اليوم لا يُطلَب
+try:
+    _bwp_wp = _os_hc.path.join(_bwp_td, "watch.jsonl")
+    _bwp_asked = []
+    _bwp_st = S.harvest_borrow_watch(
+        [("NEWX", 30000)], [], "2026-10-15", fetch=lambda s: (_bwp_asked.append(s), {"shares_available": 9000})[1],
+        path=_bwp_wp, horizon=40, cap=40, now="2026-10-15T07:30:00+00:00",
+        pool_seeds=[{"symbol": "PPP", "date": "2026-10-13"}, {"symbol": "TDY", "date": "2026-10-13"},
+                    {"symbol": "TDY", "date": "2026-10-15"}])
+    _bwp_rows = S.load_borrow_watch(_bwp_wp)
+    _bwp5 = (_bwp_asked == ["PPP"] and _bwp_st["seeded"] == 1 and _bwp_st["tracked"] == 1 and _bwp_st["written"] == 2
+             and [(_r["symbol"], _r["kind"], _r["ts"]) for _r in _bwp_rows]
+             == [("NEWX", "seed", "2026-10-15T07:30:00+00:00"), ("PPP", "track", "2026-10-15T07:30:00+00:00")])
+    _bwp5_w = f"طُلب={_bwp_asked} · {_bwp_st} · صفوف={[(_r['symbol'], _r['kind'], _r.get('ts')) for _r in _bwp_rows]}"
+except Exception as _e:                                              # noqa: BLE001
+    _bwp5, _bwp5_w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉💾 BWP5 الحصّادُ يتابع مجتمعَ البِركة ولا يكتب بذورَها · والمرصودُ في بِركة اليوم لا يُطلَب ثانيةً · وكلُّ صفٍّ بلحظة UTC",
+      _bwp5, _bwp5_w[:240])
+
+# BWP6 — الوصل (‏AST): نداءٌ واحدٌ في `run_daily_watchlist` **خارج كلّ `if`** (المتابعةُ كلَّ يوم ولو بلا خانة) بعد `fill_picks` ·
+#        داخل `try` · ويمرّر `pool_seeds=pool_borrow_seeds()` · و`_bw_out` مُهيَّأٌ قبل كتلة التعبئة
+try:
+    _bwp_fn = _ast0.parse(_insp0.getsource(S.run_daily_watchlist)).body[0]
+    _bwp_parent = {}
+    for _n in _ast0.walk(_bwp_fn):
+        for _c in _ast0.iter_child_nodes(_n):
+            _bwp_parent[_c] = _n
+    _bwp_calls = [c for c in _ast0.walk(_bwp_fn) if isinstance(c, _ast0.Call)
+                  and getattr(c.func, "id", None) == "harvest_borrow_watch"]
+    _bwp_c = _bwp_calls[0] if len(_bwp_calls) == 1 else None
+    _bwp_anc, _x = [], _bwp_c
+    while _x is not None and _x is not _bwp_fn:
+        _x = _bwp_parent.get(_x)
+        _bwp_anc.append(type(_x).__name__)
+    _bwp_kw = {k.arg: k.value for k in (_bwp_c.keywords if _bwp_c else [])}
+    _bwp_fill = [c.lineno for c in _ast0.walk(_bwp_fn) if isinstance(c, _ast0.Call) and getattr(c.func, "id", None) == "fill_picks"]
+    _bwp_init = [n.lineno for n in _bwp_fn.body if isinstance(n, _ast0.Assign)
+                 and any(getattr(t, "id", None) == "_bw_out" for t in n.targets)]
+    _bwp6 = (_bwp_c is not None and "If" not in _bwp_anc and "Try" in _bwp_anc
+             and isinstance(_bwp_kw.get("pool_seeds"), _ast0.Call)
+             and getattr(_bwp_kw["pool_seeds"].func, "id", None) == "pool_borrow_seeds"
+             and bool(_bwp_fill) and _bwp_c.lineno > max(_bwp_fill)
+             and bool(_bwp_init) and min(_bwp_init) < min(_bwp_fill))
+    _bwp6_w = f"نداءات={len(_bwp_calls)} · أسلاف={_bwp_anc} · pool_seeds={'pool_seeds' in _bwp_kw} · fill={_bwp_fill} · init={_bwp_init}"
+except Exception as _e:                                              # noqa: BLE001
+    _bwp6, _bwp6_w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉💾 BWP6 الحصّادُ موصولٌ مرّةً **خارج كلّ `if`** في الفرز اليوميّ (المتابعةُ كلَّ يوم) بعد `fill_picks` · داخل `try` · "
+      "بمجتمع البِركة · و`_bw_out` مُهيَّأٌ قبل التعبئة", _bwp6, _bwp6_w[:240])
+
+# BWP7 — المُقيِّمُ يقرأ اللحظة: صفُّ متابعةٍ بـ`ts` يُنسَب لجلسته (والقديمُ بلا `ts` يومٌ كما كان) · ووحدةُ الأفق في الكود «SESSIONS»
+try:
+    _bwp_seed = {"symbol": "XXX", "seed_date": "2026-10-13", "seed_ts": "2026-10-13T08:41:04+00:00",
+                 "seed_snap_ts": "2026-10-13T08:30:00+00:00", "av_seed": 50000}
+    _bwp_o = _BFR.observations([], [], [], [
+        {"symbol": "XXX", "date": "2026-10-15", "available": 50000, "kind": "track", "ts": "2026-10-15T07:30:00+00:00"},
+        {"symbol": "XXX", "date": "2026-10-16", "available": 50000, "kind": "track"}])
+    _bwp_cl = _BFR.classify(_bwp_seed, _bwp_o, "2026-10-20", 10000)
+    _bwp7 = (_bwp_o[0][4] == "2026-10-15T07:30:00+00:00" and _bwp_o[1][4] is None
+             and _bwp_cl["observed_sessions"] == 1 and _BFR.bot_facts()["horizon_unit_in_code"] == "SESSIONS")
+    _bwp7_w = f"ts={[_x[4] for _x in _bwp_o]} · جلسات={_bwp_cl['observed_sessions']} · وحدة={_BFR.bot_facts()['horizon_unit_in_code']}"
+except Exception as _e:                                              # noqa: BLE001
+    _bwp7, _bwp7_w = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉💾 BWP7 المُقيِّمُ ينسب صفَّ المتابعة ذا اللحظة لجلسته (والقديمُ يومٌ مُلتبس) · ووحدةُ الأفق في الكود «SESSIONS»", _bwp7, _bwp7_w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

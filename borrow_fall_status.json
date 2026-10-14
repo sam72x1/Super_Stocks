@@ -8,20 +8,20 @@
   "pool": "UTC interval [snap_ts, ts] of the screening run that fetched the availability (both recorded)",
   "ctb_log": "UTC calendar day of the harvest run (dt.date.today() on the runner) — time of day not recorded",
   "phase6": "UTC interval [collected_utc, collected_utc + 40 min] (collector start + job timeout)",
-  "borrow_watch": "UTC calendar day of the screening run (today_iso) — time of day not recorded",
+  "borrow_watch": "UTC instant `ts` of the screening run's harvest when recorded (rows from 2026-10-14); older rows: the UTC calendar day of the run (today_iso) — time of day not recorded",
   "source_asof": "NOT_COLLECTED — the time ChartExchange/IBKR published the value is recorded nowhere; never replaced by fetch time"
  },
  "facts": {
   "borrow_watch_file": "borrow_watch.jsonl",
   "horizon": 40,
   "cap": 40,
-  "horizon_unit_in_code": "CALENDAR_DAYS",
+  "horizon_unit_in_code": "SESSIONS",
   "fall_max": 10000,
   "gate_max_config": 20000,
   "harvest_called_from": [
    "run_daily_watchlist"
   ],
-  "persisted_by_git_save": false,
+  "persisted_by_git_save": true,
   "persisted_by_artifact": false,
   "git_save_lists": 4
  },
@@ -54,11 +54,11 @@
  },
  "tracking": {
   "registered_tracker": "borrow_watch.jsonl (harvest_borrow_watch · up to 40 ChartExchange lookups per daily run for due symbols)",
-  "persisted": false,
+  "persisted": true,
   "present_in_repo": false,
   "track_rows": 0
  },
- "failure_point": "TRACKING_NEVER_PERSISTED: the harvester appends to borrow_watch.jsonl on the runner, but no git_save list and no workflow artifact carries it, so every daily run starts from an empty log ⟶ no symbol is ever due ⟶ zero tracking lookups ⟶ zero registered follow-up observations",
+ "failure_point": "TRACKING_PERSISTED_BUT_EMPTY: no track rows recorded yet",
  "decision_states": {
   "ELIGIBLE_PASSED_KNOWN": 4,
   "NEVER_QUERIED_DQ_HELD": 5,
@@ -1630,5 +1630,5 @@
   "W5_no_selection_effect": "READ_ONLY (this tool) · production harvester: BF9 lock"
  },
  "verdict": "NO_VERDICT",
- "verdict_reason": "BLIND — outcomes are not computed before W4; TRACKING_NEVER_PERSISTED: the harvester appends to borrow_watch.jsonl on the runner, but no git_save list and no workflow artifact carries it, so every daily run starts from an empty log ⟶ no symbol is ever due ⟶ zero tracking lookups ⟶ zero registered follow-up observations"
+ "verdict_reason": "BLIND — outcomes are not computed before W4; TRACKING_PERSISTED_BUT_EMPTY: no track rows recorded yet"
 }
