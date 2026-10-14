@@ -72,6 +72,21 @@ M = [
     ("m55 written width over the max", '"width": _r((max(E) - min(E)) / min(E) * 100)', '"width": _r((max(E) - min(E)) / max(E) * 100)'),
     ("m56 entries against the tag", '            rel, side = side_of(e, u.get("price_last"))', '            rel, side = side_of(e, u.get("price_now"))'),
     ("m57 dark purple outside the family", '    return colour == "purple" or (colour == "other" and fam == "purple")', '    return colour == "purple"'),
+    ("m58 precedence: wick before body", 'HEAD_PRECEDENCE = ("RED_BODY_TOP", "RED_WICK_TOP",', 'HEAD_PRECEDENCE = ("RED_WICK_TOP", "RED_BODY_TOP",'),
+    ("m59 class not checked against contacts", "            elif not con or cls != min(con, key=HEAD_PRECEDENCE.index):", "            elif False:"),
+    ("m60 unreadable with contacts allowed", "                if con:\n                    probs.append", "                if False:\n                    probs.append"),
+    ("m61 first reading from the latest rev", '            if r.get("rev") == 1:\n                first[k] = cls', '            if True:\n                first[k] = cls'),
+    ("m62 sample seed moved", "HEAD_SEED, HEAD_N, HEAD_MIN = 20261015, 40, 10", "HEAD_SEED, HEAD_N, HEAD_MIN = 20261016, 40, 10"),
+    ("m63 purple values descending", '        v = rng.choice(sorted(x["value"] for x in u["levels"] if x["colour"] == "purple"))',
+     '        v = rng.choice(sorted((x["value"] for x in u["levels"] if x["colour"] == "purple"), reverse=True))'),
+    ("m64 unreadable in the denominator", '        readable = sum(v for k, v in cnt.items() if k != "UNREADABLE")', "        readable = sum(cnt.values())"),
+    ("m65 sensitivity without wicks", '        loose = top + cnt.get("RED_WICK_TOP", 0)', "        loose = top"),
+    ("m66 exact half not supported", '("supported_descriptive" if k * 2 >= readable else "dropped_descriptive")',
+     '("supported_descriptive" if k * 2 > readable else "dropped_descriptive")'),
+    ("m67 unknown contacts pass", "any(c not in HEAD_PRECEDENCE for c in con)", "False"),
+    ("m68 floor lowered", "HEAD_SEED, HEAD_N, HEAD_MIN = 20261015, 40, 10", "HEAD_SEED, HEAD_N, HEAD_MIN = 20261015, 40, 5"),
+    ("m69 revised counts the unchanged", 'sum(r["class"] != r["first_class"] for r in rows)', 'sum(r["class"] == r["first_class"] for r in rows)'),
+    ("m70 sample from G1 only", 'if u["author"] in ("FAISAL", "UNSIGNED")', 'if u["author"] in ("FAISAL",)'),
 ]
 orig = open(P, encoding="utf-8").read()
 env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")

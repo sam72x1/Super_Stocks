@@ -7,6 +7,7 @@ T_COLOUR_TABLES.md under the rules of T_COLOUR_protocol.md (pinned by its sha256
   python3 fm_forensics/colour/colour_build.py --check    rebuild in memory and compare the three outputs byte for byte
   python3 fm_forensics/colour/colour_build.py --guards   synthetic guards
   python3 fm_forensics/colour/colour_build.py --validate pins (local) and register checks only — no measure is computed
+  python3 fm_forensics/colour/colour_build.py --heads-sample  the seeded purple sample of amendment ④-⑪ (no measure)
 
 Exit codes: 0 done · 1 guards failed or outputs differ · 9 protocol/records pin or register invalid.
 """
@@ -16,6 +17,7 @@ import hashlib
 import json
 import math
 import os
+import random
 import re
 import statistics
 import subprocess
@@ -24,7 +26,7 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 PROTO = os.path.join(HERE, "T_COLOUR_protocol.md")
-PROTO_SHA256 = "a6dc203891b22b44f1e7707598f1d810ca66c075a8ba74d525e2393749001c35"
+PROTO_SHA256 = "f0d9d8af80f9e63d1e653df1cbdd7bab727fd41531f17f3190d52a30c8acda2e"
 DATA = os.path.join(HERE, "data")
 REC = os.path.join(DATA, "colour_records.jsonl")
 REC_SHA256 = "cd46e377b3bddd1d64a0d8ac0363467a081caeee9f9235f35254dcbf1a20d4a4"
@@ -32,6 +34,7 @@ FAMILY = os.path.join(DATA, "other_family.json")
 KEYTEXT = os.path.join(DATA, "colour_key_text.jsonl")
 CORR = os.path.join(DATA, "table_corrections.jsonl")
 ANPA = os.path.join(DATA, "anpa_case.json")
+HEADS = os.path.join(DATA, "purple_heads.jsonl")
 TABLE = os.path.join(ROOT, "faisal_levels_table.tsv")
 IMAGES = os.path.join(ROOT, "faisal_images")
 OUT_TSV = os.path.join(HERE, "COLOUR_LEVELS.tsv")
@@ -674,6 +677,9 @@ GROUPS = (("G1_FAISAL", {"FAISAL"}), ("G2_FAISAL_UNSIGNED", {"FAISAL", "UNSIGNED
 
 GATE_OFF = "not computed: the derived map does not make purple a bid (amendment ④-②)"
 BELOW, ABOVE = "below_support_entry", "above_resistance_target"
+HEAD_CLASSES = ("RED_BODY_TOP", "RED_BODY_OTHER", "RED_WICK_TOP", "GREEN", "NO_CANDLE", "UNREADABLE")
+HEAD_SEED, HEAD_N, HEAD_MIN = 20261015, 40, 10
+HEAD_PRECEDENCE = ("RED_BODY_TOP", "RED_WICK_TOP", "RED_BODY_OTHER", "GREEN", "NO_CANDLE")   # ④-⑪ clarification 1
 
 
 def purple_gate(maps):
@@ -769,6 +775,86 @@ def resolve_images(s, disk):
             continue
         out.append(tok)
     return [i for i in out if i in disk], out
+
+
+def head_sample(folded_units, n=HEAD_N, seed=HEAD_SEED):
+    """Amendment ④-⑪: G2 units (Faisal + unsigned) holding a purple-family level in the folded reading, sorted by unit id ⟶
+    Random(seed).sample(units, n) ⟶ one level per unit by rng.choice over its purple values sorted ascending."""
+    cands = sorted((u for u in folded_units if u["author"] in ("FAISAL", "UNSIGNED")
+                    and any(x["colour"] == "purple" for x in u["levels"])), key=lambda u: u["unit"])
+    rng = random.Random(seed)
+    picked = rng.sample(cands, min(n, len(cands)))
+    out = []
+    for u in picked:
+        v = rng.choice(sorted(x["value"] for x in u["levels"] if x["colour"] == "purple"))
+        out.append({"unit": u["unit"], "value": v, "symbol": u["symbol"], "author": u["author"]})
+    return out
+
+
+def load_heads(path=HEADS):
+    """Latest eye reading per (unit, value) — append-only, rev rises by one with a why after the first · each reading lists
+    every contact and its class is the highest contact by HEAD_PRECEDENCE (UNREADABLE: no contacts) · the latest record
+    carries `first_class` = the rev-1 class (the first reading, printed for disclosure, never governing)."""
+    last, first, probs = {}, {}, []
+    if not os.path.exists(path):
+        return last, probs
+    with open(path, encoding="utf-8") as f:
+        for n, ln in enumerate(f, 1):
+            if not ln.strip():
+                continue
+            r = json.loads(ln)
+            k = (r.get("unit"), r.get("value"))
+            prev = last.get(k, {}).get("rev", 0)
+            if r.get("rev") != prev + 1:
+                probs.append(f"heads line {n}: {k} rev {r.get('rev')} after {prev}")
+            if r.get("rev", 0) > 1 and not r.get("why"):
+                probs.append(f"heads line {n}: {k} rev without why")
+            cls, con = r.get("class"), r.get("contacts")
+            if cls not in HEAD_CLASSES:
+                probs.append(f"heads line {n}: class {cls}")
+            elif not isinstance(con, list) or any(c not in HEAD_PRECEDENCE for c in con):
+                probs.append(f"heads line {n}: {k} contacts {con!r}")
+            elif cls == "UNREADABLE":
+                if con:
+                    probs.append(f"heads line {n}: {k} UNREADABLE with contacts")
+            elif not con or cls != min(con, key=HEAD_PRECEDENCE.index):
+                probs.append(f"heads line {n}: {k} class {cls} is not the highest contact {con}")
+            if r.get("rev") == 1:
+                first[k] = cls
+            last[k] = r
+    return {k: {**r, "first_class": first.get(k)} for k, r in last.items()}, probs
+
+
+def measure_heads(sample, heads):
+    """Amendment ④-⑪ verdict: readable = every class but UNREADABLE · supported_descriptive when RED_BODY_TOP is half of the
+    readable or more · dropped_descriptive otherwise · fewer than HEAD_MIN readable: no_measure · sensitivity adds RED_WICK_TOP ·
+    `first_reading` = the same tallies on the rev-1 classes (disclosure only — the governing reading is the latest rev)."""
+    rows, not_read = [], []
+    keys = {(x["unit"], x["value"]) for x in sample}
+    for x in sample:
+        h = heads.get((x["unit"], x["value"]))
+        if h is None:
+            not_read.append(x)
+            continue
+        rows.append({**x, "class": h["class"], "first_class": h.get("first_class") or h["class"],
+                     "contacts": h.get("contacts", []), "note": h.get("note", ""), "why": h.get("why", "")})
+
+    def tally(field):
+        cnt = collections.Counter(r[field] for r in rows)
+        readable = sum(v for k, v in cnt.items() if k != "UNREADABLE")
+
+        def verdict(k):
+            return "no_measure" if readable < HEAD_MIN else ("supported_descriptive" if k * 2 >= readable else "dropped_descriptive")
+        top = cnt.get("RED_BODY_TOP", 0)
+        loose = top + cnt.get("RED_WICK_TOP", 0)
+        return ({c: cnt.get(c, 0) for c in HEAD_CLASSES}, readable,
+                verdict(top) if not not_read else "incomplete", verdict(loose) if not not_read else "incomplete")
+    classes, readable, v, sens = tally("class")
+    f_classes, f_readable, f_v, f_sens = tally("first_class")
+    return {"sample": len(sample), "read": len(rows), "not_read": len(not_read), "extra_readings": len(set(heads) - keys),
+            "classes": classes, "readable": readable, "verdict": v, "sensitivity_top_or_wick": sens,
+            "first_reading": {"classes": f_classes, "readable": f_readable, "verdict": f_v, "sensitivity_top_or_wick": f_sens},
+            "revised": sum(r["class"] != r["first_class"] for r in rows), "rows": rows}
 
 
 def purple_family(colour, fam):
@@ -930,6 +1016,11 @@ def build():
     for u in folded:
         u["roles"] = assign_roles(u)
     aall = [{**u, "roles": assign_roles(u, above_all=True)} for u in units]
+    heads, hprobs = load_heads()
+    if hprobs:
+        for p in hprobs[:30]:
+            print("⛔", p)
+        sys.exit(9)
     pnow = [{**u, "roles": assign_roles(u, price_key="price_now")} for u in units]
     with open(KEYTEXT, encoding="utf-8") as f:
         key_text = [json.loads(ln) for ln in f if ln.strip()]
@@ -952,6 +1043,7 @@ def build():
     res["catalog"] = catalog_section(last, set(ids), corr, fmap, gate)
     res["anpa"] = anpa_case(ANPA, {g: res["groups"][g]["derived_map"] for g in ("G1_FAISAL", "G2_FAISAL_UNSIGNED")},
                             {g: fold_maps.get(g, {}) for g in ("G1_FAISAL", "G2_FAISAL_UNSIGNED")})
+    res["purple_heads"] = measure_heads(head_sample(folded), heads)
     res["null_symbol_twins"] = sum(1 for u in units if not u["symbol"] and any(v is not u and not v["symbol"] and
                                    {(x["colour"], x["value"]) for x in v["levels"]} == {(x["colour"], x["value"]) for x in u["levels"]} for v in units))
     return units, folded, res
@@ -1073,10 +1165,25 @@ def render_md(res):
                  f"{_fmt(r.get('price_last'))} | {_fmt(r.get('rel'))} | {r['action']} |")
     rest = {k: v for k, v in cat.items() if k != "bid_entry_review"}
     L += ["", "## الكاتالوج القائم ومرحلة أ", "", "```json", json.dumps(rest, ensure_ascii=False, indent=1, sort_keys=True), "```", ""]
+    ph = res["purple_heads"]
+    L += ["## فرضيّةُ «البنفسجيُّ رؤوسُ الشموع الحمرا الساقطة» — عيّنةٌ بالعين داخل الصورة (التعديل ④-⑪)", "",
+          f"العيّنة {ph['sample']} (بذرة {HEAD_SEED}) · قُرئ {ph['read']} · لم يُقرأ {ph['not_read']} · مقروءٌ {ph['readable']} · "
+          f"**الحكم: {ph['verdict']}** · والحساسيّة (رأسُ الجسم أو الذيل) {ph['sensitivity_top_or_wick']}", "",
+          f"القراءةُ الأولى (rev 1 — للإفصاح لا تحكم): {ph['first_reading']['verdict']} · والحساسيّة {ph['first_reading']['sensitivity_top_or_wick']} · "
+          f"وغيّرت المراجعةُ فئةَ {ph['revised']} من {ph['read']}", "",
+          "| الفئة | العدد | القراءةُ الأولى |", "|---|---|---|"]
+    for c in HEAD_CLASSES:
+        L.append(f"| {c} | {ph['classes'][c]} | {ph['first_reading']['classes'][c]} |")
+    L += ["", "| الوحدة | الرمز | المستوى | الفئة | القراءةُ الأولى | التماسّات | ملاحظة | سببُ المراجعة |", "|---|---|---|---|---|---|---|---|"]
+    for r in ph["rows"]:
+        L.append(f"| {r['unit']} | {r['symbol'] or '—'} | {r['value']:g} | {r['class']} | {r['first_class']} | {' · '.join(r['contacts'])} | "
+                 f"{r['note']} | {r['why'] or '—'} |")
+    L.append("")
     a = res["anpa"]
     L += ["## ANPA — شاهدٌ مستقلّ لا يدخل الخريطة (التعديل ④-⑨)", ""]
     for ps in a["posts"]:
-        L.append(f"- {ps['time_ksa']} (السعوديّة) · " + (f"«{ps['text']}»" if ps.get("text") else "—") + f" · {ps.get('source', '')}")
+        L.append(f"- {ps['time_ksa']} (السعوديّة) · " + (f"«{ps['text']}»" if ps.get("text") else "—") + f" · {ps.get('source', '')}"
+                 + (f" · {ps['indicators']}" if ps.get("indicators") else ""))
     for ch_ in a["charts"]:
         L.append(f"- الشارت {ch_['name']} ({ch_['kind']} · {ch_['frame']}): price_last {ch_['price_last']} ({ch_['price_last_src']}) · وسمُ السعر {ch_['price_now']} · "
                  f"طلب {ch_['bid']} · عرض {ch_['ask']} · القاع {ch_['low']} ({ch_['low_src']})")
@@ -1350,6 +1457,65 @@ def guards():
     g("CG16 ANPA: الموضعُ إلى price_last والوسم · ودورُ الدرجة والطيّ", lambda: ((lambda a: [r["side_last"] for r in a["rows"]] == ["above", "above", "below"] and a["rows"][2]["side_now"] == "above"
       and a["rows"][1]["side_now"] == "above" and a["rows"][0]["derived"]["G1_FAISAL"] == ABOVE and a["rows"][0]["derived_fold"]["G1_FAISAL"] == "undecided"
       and a["rows"][1]["derived_fold"]["G1_FAISAL"] == "no_measure")(anpa_t()), anpa_t()["rows"]))
+    # CG17 purple-heads sample and verdict (amendment ④-⑪)
+    def hs_units():
+        us = []
+        for n_, auth in enumerate(["FAISAL", "UNSIGNED", "THIRD_PARTY", "FAISAL", "UNSIGNED"] * 12):
+            lv = [{"colour": "purple", "value": 2.0 + n_ / 100}, {"colour": "purple", "value": 3.0 + n_ / 100}] if n_ % 7 else [{"colour": "red", "value": 1.0}]
+            us.append({"unit": f"U{n_:03d}", "author": auth, "symbol": None, "levels": lv})
+        return us
+    g("CG17 العيّنةُ ثابتةٌ بالبذرة · من المجموعة الثانية ومن عائلة البنفسجيّ · مستوًى واحدٌ لكلّ وحدة",
+      lambda: ((lambda a, b: a == b and len(a) == 40 and len({x["unit"] for x in a}) == 40
+                and all(x["author"] in ("FAISAL", "UNSIGNED") for x in a)
+                and all(int(x["unit"][1:]) % 7 for x in a)
+                and head_sample(hs_units(), seed=1) != a)(head_sample(hs_units()), head_sample(list(reversed(hs_units())))),
+               head_sample(hs_units())[:3]))
+    smp = [{"unit": f"U{i}", "value": 1.0, "symbol": None, "author": "FAISAL"} for i in range(12)]
+    hd = lambda cls: {(f"U{i}", 1.0): {"class": c, "rev": 1} for i, c in enumerate(cls)}                                   # noqa: E731
+    g("CG17 الحكم: النصفُ فأكثر يُدعم · «غيرُ مقروء» خارج المقام · دون 10 لا قياس · والناقصُ incomplete",
+      lambda: (measure_heads(smp, hd(["RED_BODY_TOP"] * 5 + ["GREEN"] * 5 + ["UNREADABLE"] * 2))["verdict"] == "supported_descriptive"
+               and measure_heads(smp, hd(["RED_BODY_TOP"] * 4 + ["GREEN"] * 6 + ["UNREADABLE"] * 2))["verdict"] == "dropped_descriptive"
+               and measure_heads(smp, hd(["RED_BODY_TOP"] * 4 + ["RED_WICK_TOP"] * 2 + ["GREEN"] * 4 + ["UNREADABLE"] * 2))["sensitivity_top_or_wick"] == "supported_descriptive"
+               and measure_heads(smp, hd(["RED_BODY_TOP"] * 9 + ["UNREADABLE"] * 3))["verdict"] == "no_measure"
+               and measure_heads(smp, hd(["RED_BODY_TOP"] * 11))["verdict"] == "incomplete", ""))
+
+    def lh(lines):
+        import tempfile
+        with tempfile.NamedTemporaryFile("w", suffix=".jsonl", delete=False, encoding="utf-8") as f:
+            f.write("\n".join(json.dumps(x, ensure_ascii=False) for x in lines) + "\n")
+        try:
+            return load_heads(f.name)
+        finally:
+            os.remove(f.name)
+    G_, N_ = ["GREEN"], ["NO_CANDLE"]
+    HS_PIN = [("U019", 3.0 + 19 / 100), ("U018", 2.0 + 18 / 100), ("U041", 2.0 + 41 / 100)]   # the fixture's first three picks at seed 20261015
+    g("CG17 سجلُّ الرؤوس: فئةٌ من الستّ · rev صاعدةٌ بسبب",
+      lambda: (not lh([{"unit": "A", "value": 1.0, "rev": 1, "class": "GREEN", "contacts": G_},
+                       {"unit": "A", "value": 1.0, "rev": 2, "class": "NO_CANDLE", "contacts": N_, "why": "x"}])[1]
+               and lh([{"unit": "A", "value": 1.0, "rev": 1, "class": "PURPLE", "contacts": G_}])[1]
+               and lh([{"unit": "A", "value": 1.0, "rev": 1, "class": "GREEN", "contacts": G_}, {"unit": "A", "value": 1.0, "rev": 2, "class": "GREEN", "contacts": G_}])[1]
+               and lh([{"unit": "A", "value": 1.0, "rev": 2, "class": "GREEN", "contacts": G_, "why": "x"}])[1], ""))
+    one = lambda cls, con: lh([{"unit": "A", "value": 1.0, "rev": 1, "class": cls, "contacts": con}])[1]                      # noqa: E731
+    g("CG18 الفئةُ أعلى التماسّات بالأسبقيّة (جسمٌ ⟵ رأسُ ذيل ⟵ جزءٌ آخر ⟵ خضراء ⟵ لا شمعة) · وغيرُ المقروء بلا تماسّ",
+      lambda: (not one("RED_BODY_TOP", ["GREEN", "RED_WICK_TOP", "RED_BODY_TOP"]) and not one("RED_WICK_TOP", ["RED_BODY_OTHER", "RED_WICK_TOP"])
+               and not one("RED_BODY_OTHER", ["GREEN", "RED_BODY_OTHER"]) and not one("UNREADABLE", [])
+               and one("RED_WICK_TOP", ["RED_WICK_TOP", "RED_BODY_TOP"]) and one("RED_BODY_OTHER", ["RED_WICK_TOP", "RED_BODY_OTHER"])
+               and one("GREEN", ["GREEN", "RED_BODY_OTHER"]) and one("UNREADABLE", ["GREEN"]) and one("GREEN", [])
+               and one("GREEN", ["GREEN", "PURPLE"]) and one("GREEN", "GREEN"), ""))
+
+    def fr():
+        hs = lh([{"unit": "A", "value": 1.0, "rev": 1, "class": "RED_WICK_TOP", "contacts": ["RED_WICK_TOP"]},
+                 {"unit": "A", "value": 1.0, "rev": 2, "class": "RED_BODY_TOP", "contacts": ["RED_BODY_TOP"], "why": "x"},
+                 {"unit": "B", "value": 2.0, "rev": 1, "class": "GREEN", "contacts": ["GREEN"]},
+                 {"unit": "C", "value": 3.0, "rev": 1, "class": "NO_CANDLE", "contacts": ["NO_CANDLE"]}])[0]
+        return hs, measure_heads([{"unit": u, "value": v, "symbol": None, "author": "FAISAL"} for u, v in (("A", 1.0), ("B", 2.0), ("C", 3.0))], hs)
+    g("CG18 القراءةُ الأولى من rev 1 لا من الأخيرة · وعددُ المراجَع · والحكمُ من الأخيرة",
+      lambda: ((lambda hs, m: hs[("A", 1.0)]["first_class"] == "RED_WICK_TOP" and m["revised"] == 1
+               and m["classes"]["RED_BODY_TOP"] == 1 and m["first_reading"]["classes"]["RED_BODY_TOP"] == 0
+               and m["first_reading"]["classes"]["RED_WICK_TOP"] == 1 and m["first_reading"]["readable"] == 3)(*fr()), fr()[1]["first_reading"]))
+    g("CG18 ثوابتُ العيّنة كما في البروتوكول (‏20261015 · 40 · 10) · والعيّنةُ على الملحق مثبَّتةٌ برؤوسها الثلاثة",
+      lambda: ((HEAD_SEED, HEAD_N, HEAD_MIN) == (20261015, 40, 10)
+               and [(x["unit"], x["value"]) for x in head_sample(hs_units())[:3]] == HS_PIN, head_sample(hs_units())[:3]))
     # CG11 pins
 
     def pins():
@@ -1376,6 +1542,7 @@ def main(argv=None):
     ap.add_argument("--check", action="store_true")
     ap.add_argument("--guards", action="store_true")
     ap.add_argument("--validate", action="store_true")
+    ap.add_argument("--heads-sample", action="store_true")
     a = ap.parse_args(argv)
     if a.guards:
         return guards()
@@ -1383,10 +1550,19 @@ def main(argv=None):
         check_pins(need_main=False)
         last, _, probs = load_register()
         probs += validate(last, image_ids())
+        probs += load_heads()[1]
         for p in probs[:30]:
             print("⛔", p)
         print("✅ السجلُّ سليم" if not probs else f"⛔ {len(probs)} مشكلة")
         return 0 if not probs else 9
+    if a.heads_sample:
+        check_pins(need_main=False)
+        last, order, _ = load_register()
+        with open(FAMILY, encoding="utf-8") as f:
+            fm = fold_map(json.load(f))
+        for x in head_sample(recolour(build_units(charts_of(last, order)), fm)):
+            print(json.dumps(x, ensure_ascii=False))
+        return 0
     if a.check:
         check_pins(need_main=False)
         outs = outputs()
