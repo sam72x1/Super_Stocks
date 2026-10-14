@@ -1,39 +1,7 @@
 {
- "run_id": "38378450764",
+ "run_id": "38532194388",
  "result": {
   "done": [
-   "UPC",
-   "VEEE",
-   "VMAR",
-   "WHLR",
-   "WORX",
-   "XCUR",
-   "YMT",
-   "ZCMD",
-   "ZNB",
-   "ADIL",
-   "ADVB",
-   "AMIX",
-   "ATPC",
-   "BETA",
-   "BNAI",
-   "BRTX",
-   "BTOG",
-   "CANF",
-   "CDIO",
-   "CDT",
-   "CETX",
-   "CIIT",
-   "CRE",
-   "CUPR",
-   "DCOY",
-   "DKI",
-   "DRMA",
-   "DSY",
-   "DXST",
-   "EDBL",
-   "EHGO",
-   "ELAB",
    "ELPW",
    "ENPH",
    "ENVB",
@@ -90,29 +58,61 @@
    "STKH",
    "SVRE",
    "SXTC",
-   "TRUG"
+   "TRUG",
+   "ADIL",
+   "ADVB",
+   "AMIX",
+   "ATPC",
+   "BETA",
+   "BNAI",
+   "BRTX",
+   "BTOG",
+   "CANF",
+   "CDIO",
+   "CDT",
+   "CETX",
+   "CIIT",
+   "CRE",
+   "CUPR",
+   "DCOY",
+   "DKI",
+   "DRMA",
+   "DSY",
+   "DXST",
+   "EDBL",
+   "EHGO",
+   "ELAB",
+   "UPC",
+   "VEEE",
+   "VMAR",
+   "WHLR",
+   "WORX",
+   "XCUR",
+   "YMT",
+   "ZCMD",
+   "ZNB"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "AEC",
-    "AIFC",
-    "AIRS",
-    "AQMS",
-    "EH",
-    "ERNA",
-    "ESLA",
-    "GRAN",
-    "HIT",
-    "KTTA",
-    "LICN",
-    "NNNN",
-    "PMCB",
-    "REVB",
-    "BEEM",
-    "RAYA"
+    "BLNE",
+    "CMTL",
+    "CTXR",
+    "DEFT",
+    "EHTH",
+    "EVAX",
+    "GITS",
+    "GMM",
+    "HTZ",
+    "LFS",
+    "NXAT",
+    "SEV",
+    "TURB",
+    "UPXI",
+    "VRXA",
+    "XPON"
    ],
    "skipped": [],
    "calendar_error": "",
@@ -123,22 +123,27 @@
   }
  },
  "audit": {
-  "rows": 1195,
+  "rows": 1435,
   "by_status": {
-   "OK": 880,
-   "UNKNOWN": 190,
-   "FAILED": 6,
-   "NOT_ATTEMPTED": 119
+   "OK": 1118,
+   "UNKNOWN": 192,
+   "NOT_ATTEMPTED": 119,
+   "FAILED": 6
   },
   "by_category": {
-   "1": 492,
-   "2": 388,
-   "4": 315
+   "1": 487,
+   "2": 631,
+   "4": 317
   },
   "tickers": 105,
   "chain_problems": []
  },
  "missing": [
+  [
+   "ADIL",
+   "short_interest",
+   "yahoo_info"
+  ],
   [
    "ADIL",
    "reverse_split",
@@ -166,18 +171,33 @@
   ],
   [
    "ATPC",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "ATPC",
    "reverse_split",
    "yahoo_splits"
   ],
   [
-   "BEEM",
-   "reverse_split",
-   "yahoo_splits"
+   "BETA",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "BNAI",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "BNAI",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "BRTX",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "BRTX",
@@ -211,8 +231,18 @@
   ],
   [
    "CDIO",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "CDIO",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "CDT",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "CDT",
@@ -338,11 +368,6 @@
    "ELAB",
    "reverse_split",
    "yahoo_splits"
-  ],
-  [
-   "ELPW",
-   "short_interest",
-   "yahoo_info"
   ],
   [
    "ELPW",
@@ -586,6 +611,11 @@
   ],
   [
    "MNDR",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "MNDR",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -646,6 +676,11 @@
   ],
   [
    "NUWE",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "NUWE",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -676,6 +711,11 @@
   ],
   [
    "ONCO",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "ONCO",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -688,6 +728,11 @@
    "PAVS",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "PIII",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "PIII",
@@ -725,11 +770,6 @@
    "yahoo_splits"
   ],
   [
-   "RAYA",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "RGC",
    "short_interest",
    "yahoo_info"
@@ -746,6 +786,11 @@
   ],
   [
    "SCNI",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "SCNI",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -758,6 +803,11 @@
    "SGRX",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "SLXN",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "SLXN",
@@ -871,8 +921,18 @@
   ],
   [
    "UPC",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "UPC",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "VEEE",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "VEEE",
@@ -913,6 +973,11 @@
    "WORX",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "XCUR",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "XCUR",
