@@ -1,0 +1,48 @@
+name: T-SCORE today fetch (research · one-off · no Telegram)
+
+# 🎯 T-SCORE stage D (fm_forensics/score): today's daily bars for the near-watch members come from TradingView, which this
+#    session's container cannot reach ⟵ fetched here once. Push-triggered on this temporary branch only when the symbol list
+#    changes · writes fm_forensics/score/data/today_bars.json.gz and pushes it back (a GITHUB_TOKEN push starts no new run) ·
+#    reads nothing secret · sends nothing · the branch never merges into main.
+permissions:
+  contents: write
+
+on:
+  push:
+    branches: [claude/t-score-fetch]
+    paths: [fm_forensics/score/data/today_symbols.txt]
+
+concurrency:
+  group: t-score-today-fetch
+  cancel-in-progress: false
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Fetch today's daily bars
+        run: python3 fm_forensics/score/score_fetch.py
+
+      - name: Commit the data file to the same branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f fm_forensics/score/data/today_bars.json.gz
+          git commit -m "T-SCORE stage D: today's daily bars from TradingView (runner fetch)"
+          for i in 1 2 3 4; do
+            git pull --rebase origin "${GITHUB_REF_NAME}" && git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}" && break
+            sleep $((i * 5))
+          done
