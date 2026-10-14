@@ -9,6 +9,8 @@ Telegram, threshold, root or LOGIC_VERSION change. Nothing here is imported by t
 | `T_LAYERS_addendum_1.md` | addendum 1 (2026-10-14): GEN5 daily bars carry no volume (the first sealed run crashed before any count) ⟶ one volume source per symbol (today_bars, else the rank archive) · unknown ≠ zero · undetermined combo days excluded · under 15 of 20 ⟶ no measure · pinned and merged before any count |
 | `T_LAYERS_addendum_2.md` | addendum 2 (2026-10-14): the not-first search stopped at a day reading another base (INDP 08-21/08-25 on base 1.01) instead of skipping it as the contract says ⟶ fixed · the descriptive source agreement the contract asked for · run 1 published verbatim and kept in `data/run1/` · the verdict is read on run 2 |
 | `layers_test.py` | stage A (frequency over 20 sessions) and stage B (the 107 movers: captured · missed with the failing condition · false alarms · production ready on the same window · sweep depth) ⟶ `data/layers_result.json` · `data/*.csv` · `--guards` LG1–LG30 |
+| `T_LAYERS_result.md` | **the result: B-FAIL «لا يُقبل»** — stage A passes only with VOL+NODE (median 0 · max 3 · silence 4) · stage B captures 0 of 40 movers vs production ready 2 · on «الجاهز» itself the core fired 0 times in 20 sessions · 39 of 40 broke the base deeper than 13 % before the move · no message built |
+| `layers_core_desc.py` | descriptive, non-governing: the core alone in stage B (3 of 40) and its false alarms (122 of 137) ⟶ `data/core_descriptive.json` |
 | `layers_mutate.py` | mutation round over the guards (43/43 fall, no crash) |
 
 The trigger is read on the production cycle `Super_stock.pivot_cycle_state` by name (base = `pc.bottom`); the five core conditions are

@@ -1,0 +1,72 @@
+{
+ "combo": "core",
+ "symbols": 40,
+ "captured": 3,
+ "wilson": [
+  0.025836025573262464,
+  0.19864233651643165
+ ],
+ "captured_rows": [
+  {
+   "day": "2026-08-21",
+   "lead": 8,
+   "depth": 10.84,
+   "VOL": false,
+   "NODE": false,
+   "CANDLE": false,
+   "sym": "VIOT",
+   "O": "2026-09-02"
+  },
+  {
+   "day": "2026-08-21",
+   "lead": 11,
+   "depth": 9.92,
+   "VOL": true,
+   "NODE": false,
+   "CANDLE": false,
+   "sym": "PDSB",
+   "O": "2026-09-08"
+  },
+  {
+   "day": "2026-09-10",
+   "lead": 11,
+   "depth": 7.19,
+   "VOL": false,
+   "NODE": true,
+   "CANDLE": false,
+   "sym": "MSGY",
+   "O": "2026-09-25"
+  }
+ ],
+ "missed": {
+  "not_reclaimed": 9,
+  "shallow": 14,
+  "not_first": 2,
+  "no_retest": 6,
+  "member_unknown": 3,
+  "cancelled": 2,
+  "not_member": 1
+ },
+ "fa": {
+  "fired": 138,
+  "resolved": 137,
+  "false": 122,
+  "reached": [
+   "DAIC 2026-08-19",
+   "DKI 2026-09-11",
+   "DLXY 2026-09-15",
+   "ETS 2026-08-20",
+   "FTFT 2026-08-17",
+   "FTFT 2026-08-25",
+   "GIPR 2026-08-19",
+   "INDP 2026-08-21",
+   "IPDN 2026-09-11",
+   "MSGY 2026-09-10",
+   "NCPL 2026-08-18",
+   "PDSB 2026-08-21",
+   "RDHL 2026-08-28",
+   "RETO 2026-09-15",
+   "VIOT 2026-08-21"
+  ]
+ }
+}
