@@ -4818,3 +4818,4 @@
 {"key": "envelope|2026-10-13|WLDS", "hunter": "envelope", "session": "2026-10-13", "symbol": "WLDS", "kind": "candidate", "ref_close": 1.42, "fwd": 40, "outcome": null, "float": 2101439.0, "src": "tradingview"}
 {"key": "envelope|2026-10-13|YAAS", "hunter": "envelope", "session": "2026-10-13", "symbol": "YAAS", "kind": "candidate", "ref_close": 1.06, "fwd": 40, "outcome": null, "float": 4059508.0, "src": "tradingview"}
 {"key": "split|2026-10-13|WOK", "hunter": "split", "session": "2026-10-13", "symbol": "WOK", "kind": "candidate", "ref_close": 1.39, "fwd": 40, "outcome": null, "price": 1.39, "float": 15400.0, "half": 1.6, "ref": 3.2, "src": "tradingview"}
+{"key": "method|2026-10-13|LEXX", "hunter": "method", "session": "2026-10-13", "symbol": "LEXX", "kind": "candidate", "ref_close": 2.8, "fwd": 40, "outcome": null, "price": 2.8, "src": "tradingview"}
