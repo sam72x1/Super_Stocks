@@ -661,6 +661,26 @@ def key_table(units):
     return {c: dict(sorted(v.items())) for c, v in sorted(t.items())}
 
 
+def posthoc_labelled_purple(units):
+    """POST-HOC — written after the governing numbers were read, NOT in the protocol, carries no verdict: every labelled
+    purple level by the role its label names (§③ words · 'neutral' when none) and its side to price_last; the rows whose label
+    names a bid or a support are printed by name. It explains a contradiction seen in the numbers (purple sits above the
+    price in the map while its labels name bids), it does not test anything."""
+    t = collections.defaultdict(collections.Counter)
+    rows = []
+    for u in units:
+        for x in u["roles"]:
+            if x["colour"] != "purple" or not x["label"]:
+                continue
+            roles = sorted({c for c, _ in label_roles(x["label"])}) or ["neutral"]
+            for c in roles:
+                t[c][x["side"] or "no_price"] += 1
+            if {"bid", "support"} & set(roles):
+                rows.append({"unit": u["unit"], "symbol": u["symbol"], "value": x["value"], "roles": roles,
+                             "side": x["side"], "rel": None if x["rel"] is None else _r(x["rel"]), "label": x["label"]})
+    return {"by_role": {c: dict(sorted(v.items())) for c, v in sorted(t.items())}, "rows": rows}
+
+
 def conflicts(units):
     out = []
     for u in units:
@@ -694,7 +714,8 @@ def measure_all(units, shades=None, gate=False):
          "bids_text_written": [{"unit": u["unit"], "bids_text": u["bids_text"]} for u in units if u.get("bids_text") is not None],
          "m4_depth": measure_depth(units), "m4b_two_supports": measure_depth2(units), "m5_stop": measure_stop(units),
          "m6_blue_vs_black": measure_blue(units), "m6b_purple_vs_blue": measure_purple_vs(units, "blue"),
-         "m6c_purple_vs_black": measure_purple_vs(units, "black"), "key_table": key_table(units), "conflicts": conflicts(units)}
+         "m6c_purple_vs_black": measure_purple_vs(units, "black"), "key_table": key_table(units), "conflicts": conflicts(units),
+         "posthoc_labelled_purple": posthoc_labelled_purple(units)}
     if gate:
         m["m1_bid_vs_support"] = measure_bids(units)
         m["m2_zone_width"] = measure_width(units)
@@ -1153,6 +1174,12 @@ def render_md(res):
         L += ["", f"**التعارضات بأسمائها ({len(m['conflicts'])}):**", ""]
         for x in m["conflicts"]:
             L.append(f"- `{x['unit']}` {_fmt(x['symbol'])} · {x['colour']} {x['value']:g} · {','.join(x['why'])}" + (f" · «{x['label']}»" if x["label"] else ""))
+        ph = m["posthoc_labelled_purple"]
+        L += ["", "**قراءةٌ بعد الرقم — غيرُ مسجَّلةٍ في البروتوكول ولا تحكم:** البنفسجيُّ ذو الملصق بدور ملصقه وموضعه من `price_last`", ""]
+        for c, v in ph["by_role"].items():
+            L.append(f"- {c}: " + " · ".join(f"{k2} {n}" for k2, n in v.items()))
+        for r in ph["rows"]:
+            L.append(f"- `{r['unit']}` {_fmt(r['symbol'])} · {r['value']:g} · {','.join(r['roles'])} · {r['side'] or '—'} ({_fmt(r['rel'])}%) · «{r['label']}»")
         L.append("")
     s_ = res["sensitivity_G2"]
     L += ["## الحساسيّة (المجموعة الثانية FAISAL ∪ UNSIGNED)", "", "```json", json.dumps(s_, ensure_ascii=False, indent=1, sort_keys=True), "```", ""]
@@ -1516,6 +1543,18 @@ def guards():
     g("CG18 ثوابتُ العيّنة كما في البروتوكول (‏20261015 · 40 · 10) · والعيّنةُ على الملحق مثبَّتةٌ برؤوسها الثلاثة",
       lambda: ((HEAD_SEED, HEAD_N, HEAD_MIN) == (20261015, 40, 10)
                and [(x["unit"], x["value"]) for x in head_sample(hs_units())[:3]] == HS_PIN, head_sample(hs_units())[:3]))
+    def phu():
+        lv = lambda c, v, lab, side, rel: {"colour": c, "value": v, "label": lab, "side": side, "rel": rel}          # noqa: E731
+        return posthoc_labelled_purple([
+            {"unit": "A#0", "symbol": "AAA", "roles": [lv("purple", 2.7, "مناطق طلب 2.70", "below", -5.0),
+                                                      lv("purple", 4.0, "", "above", 40.0),
+                                                      lv("purple", 5.0, "ابيض", "above", 75.0),
+                                                      lv("red", 2.5, "مناطق طلب", "below", -12.0)]},
+            {"unit": "B#0", "symbol": "BBB", "roles": [lv("purple", 9.0, "دعم 9", "above", 30.0),
+                                                      lv("purple", 7.0, "هدف 7", None, None)]}])
+    g("CG19 قراءةُ ما بعد الرقم: البنفسجيُّ ذو الملصق وحدَه بدوره وموضعه · والصفوفُ للطلب والدعم وحدَهما بأسمائها",
+      lambda: ((lambda p: p["by_role"] == {"bid": {"below": 1}, "neutral": {"above": 1}, "support": {"above": 1}, "target": {"no_price": 1}}
+               and [(r["unit"], r["value"], r["side"]) for r in p["rows"]] == [("A#0", 2.7, "below"), ("B#0", 9.0, "above")])(phu()), phu()))
     # CG11 pins
 
     def pins():

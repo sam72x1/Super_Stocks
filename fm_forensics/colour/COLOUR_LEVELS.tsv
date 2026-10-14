@@ -1,0 +1,1648 @@
+unit	members	author	symbol	frame	colour	colour_folded	value	label	conf	role	why	price_last	price_last_src	rel_pct	side	price_now	low	low_src
+X_20260905_05#0	X_20260905_05#0 X_20260905_03#1	UNSIGNED	PPBT	W	purple	purple	8.371		H	unmapped		1.92	ext	335.99	above	1.98	1.16	label
+X_20260905_05#0	X_20260905_05#0 X_20260905_03#1	UNSIGNED	PPBT	W	purple	purple	7.315		H	unmapped		1.92	ext	280.99	above	1.98	1.16	label
+X_20260905_05#0	X_20260905_05#0 X_20260905_03#1	UNSIGNED	PPBT	W	purple	purple	6.711		H	unmapped		1.92	ext	249.53	above	1.98	1.16	label
+X_20260905_05#0	X_20260905_05#0 X_20260905_03#1	UNSIGNED	PPBT	W	purple	purple	5.815		H	unmapped		1.92	ext	202.86	above	1.98	1.16	label
+X_20260905_05#0	X_20260905_05#0 X_20260905_03#1	UNSIGNED	PPBT	W	black	black	5.032		H	resistance		1.92	ext	162.08	above	1.98	1.16	label
+X_20260905_05#0	X_20260905_05#0 X_20260905_03#1	UNSIGNED	PPBT	W	black	black	3.994		H	resistance		1.92	ext	108.02	above	1.98	1.16	label
+X_20260905_05#0	X_20260905_05#0 X_20260905_03#1	UNSIGNED	PPBT	W	black	black	3.068		H	resistance		1.92	ext	59.79	above	1.98	1.16	label
+X_20260905_05#0	X_20260905_05#0 X_20260905_03#1	UNSIGNED	PPBT	W	red	red	1.694	الدعم الاسبوعي واليوًمي يتفقان على 1.70 · دعوم الموجات 1.68 نفس الشموع (نصّ المنشور)	H	support		1.92	ext	-11.77	below	1.98	1.16	label
+CH_20260918_01_ELPW#0	CH_20260918_01_ELPW#0 X_20260918_04_ELPW#0	FAISAL	ELPW	D	blue	blue	12.939		H	target_clean		2.397	ext	439.80	above	2.5	2.44	label
+CH_20260918_01_ELPW#0	CH_20260918_01_ELPW#0 X_20260918_04_ELPW#0	FAISAL	ELPW	D	black	black	9.99		H	resistance		2.397	ext	316.77	above	2.5	2.44	label
+CH_20260918_01_ELPW#0	CH_20260918_01_ELPW#0 X_20260918_04_ELPW#0	FAISAL	ELPW	D	blue	blue	7.333		H	target_clean		2.397	ext	205.92	above	2.5	2.44	label
+CH_20260918_01_ELPW#0	CH_20260918_01_ELPW#0 X_20260918_04_ELPW#0	FAISAL	ELPW	D	purple	purple	5.579		H	unmapped		2.397	ext	132.75	above	2.5	2.44	label
+CH_20260918_01_ELPW#0	CH_20260918_01_ELPW#0 X_20260918_04_ELPW#0	FAISAL	ELPW	D	black	black	3.632		H	resistance		2.397	ext	51.52	above	2.5	2.44	label
+CH_20260918_09_DAIC#0	CH_20260918_09_DAIC#0	UNSIGNED	DAIC	4h	purple	purple	4.412		H	unmapped		3.48	ext	26.78	above		1.83	label
+CH_20260918_09_DAIC#0	CH_20260918_09_DAIC#0	UNSIGNED	DAIC	4h	black	black	3.487		H	resistance		3.48	ext	0.20	at		1.83	label
+CH_20260918_09_DAIC#0	CH_20260918_09_DAIC#0	UNSIGNED	DAIC	4h	black	black	2.765		H	resistance		3.48	ext	-20.55	below		1.83	label
+CH_20260918_09_DAIC#0	CH_20260918_09_DAIC#0	UNSIGNED	DAIC	4h	orange	orange	2.497		H	unmapped		3.48	ext	-28.25	below		1.83	label
+CH_20260918_09_DAIC#0	CH_20260918_09_DAIC#0	UNSIGNED	DAIC	4h	black	black	2.302		H	resistance		3.48	ext	-33.85	below		1.83	label
+CH_20260918_09_DAIC#0	CH_20260918_09_DAIC#0	UNSIGNED	DAIC	4h	red	red	1.986		H	support		3.48	ext	-42.93	below		1.83	label
+X_20260918_24_SXTC#0	X_20260918_24_SXTC#0 CH_20260918_25_SXTC#0	FAISAL	SXTC	unknown	purple	purple	5.111		H	unmapped		1.93	regular	164.82	above	1.93	1.78	label
+X_20260918_24_SXTC#0	X_20260918_24_SXTC#0 CH_20260918_25_SXTC#0	FAISAL	SXTC	unknown	blue	blue	4.292		H	target_clean		1.93	regular	122.38	above	1.93	1.78	label
+X_20260918_24_SXTC#0	X_20260918_24_SXTC#0 CH_20260918_25_SXTC#0	FAISAL	SXTC	unknown	purple	purple	3.584		H	unmapped		1.93	regular	85.70	above	1.93	1.78	label
+X_20260918_24_SXTC#0	X_20260918_24_SXTC#0 CH_20260918_25_SXTC#0	FAISAL	SXTC	unknown	black	black	2.913		H	resistance		1.93	regular	50.93	above	1.93	1.78	label
+X_20260918_24_SXTC#0	X_20260918_24_SXTC#0 CH_20260918_25_SXTC#0	FAISAL	SXTC	unknown	red	red	2.064		H	support		1.93	regular	6.94	above	1.93	1.78	label
+TG_1806#0	TG_1806#0 TG_2049#0	UNSIGNED	MTEX	4h	blue	blue	7.99		H	target_clean		5.95	ext	34.29	above	5.95	4.23	label
+TG_1806#0	TG_1806#0 TG_2049#0	UNSIGNED	MTEX	4h	blue	blue	7.23		H	target_clean		5.95	ext	21.51	above	5.95	4.23	label
+TG_1806#0	TG_1806#0 TG_2049#0	UNSIGNED	MTEX	4h	blue	blue	6.94		H	target_clean		5.95	ext	16.64	above	5.95	4.23	label
+TG_1806#0	TG_1806#0 TG_2049#0	UNSIGNED	MTEX	4h	blue	blue	6.51		H	target_clean		5.95	ext	9.41	above	5.95	4.23	label
+TG_2076#0	TG_2076#0 IMG_0149#0	FAISAL	WORX	unknown	red	red	2.336	اقسم قيمة الشمعه ع 2 · 2.33 ع 2 (نصّ المنشور)	M	support		1.42	ext	64.51	above	1.53	1.45	label
+TG_58384#0	TG_58384#0	UNSIGNED	CYCU	4h	red	red	3.251		H	support		3.28	ext	-0.88	at	3.28	2.575	label
+TG_58385#0	TG_58385#0	UNSIGNED	CYCU	D	purple	purple	11.723		H	unmapped		3.28	ext	257.41	above	3.28	2.575	label
+TG_58385#0	TG_58385#0	UNSIGNED	CYCU	D	purple	purple	9.521		H	unmapped		3.28	ext	190.27	above	3.28	2.575	label
+TG_58385#0	TG_58385#0	UNSIGNED	CYCU	D	purple	purple	8.652		H	unmapped		3.28	ext	163.78	above	3.28	2.575	label
+TG_58385#0	TG_58385#0	UNSIGNED	CYCU	D	black	black	7.286		H	resistance		3.28	ext	122.13	above	3.28	2.575	label
+TG_58385#0	TG_58385#0	UNSIGNED	CYCU	D	black	black	6.258		H	resistance		3.28	ext	90.79	above	3.28	2.575	label
+TG_58385#0	TG_58385#0	UNSIGNED	CYCU	D	black	black	4.294		H	resistance		3.28	ext	30.91	above	3.28	2.575	label
+TG_58385#0	TG_58385#0	UNSIGNED	CYCU	D	red	red	3.251		H	support		3.28	ext	-0.88	at	3.28	2.575	label
+TG_58386#0	TG_58386#0	UNSIGNED	DKI	4h	purple	purple	4.192		H	unmapped		1.48	regular	183.24	above	1.48	1.1	label
+TG_58386#0	TG_58386#0	UNSIGNED	DKI	4h	other	purple	3.456		H	unmapped		1.48	regular	133.51	above	1.48	1.1	label
+TG_58386#0	TG_58386#0	UNSIGNED	DKI	4h	purple	purple	2.978		H	unmapped		1.48	regular	101.22	above	1.48	1.1	label
+TG_58386#0	TG_58386#0	UNSIGNED	DKI	4h	blue	blue	2.754		H	target_clean		1.48	regular	86.08	above	1.48	1.1	label
+TG_58386#0	TG_58386#0	UNSIGNED	DKI	4h	blue	blue	2.377		H	target_clean		1.48	regular	60.61	above	1.48	1.1	label
+TG_58386#0	TG_58386#0	UNSIGNED	DKI	4h	black	black	1.897		H	resistance		1.48	regular	28.18	above	1.48	1.1	label
+TG_58386#0	TG_58386#0	UNSIGNED	DKI	4h	black	black	1.529		H	resistance		1.48	regular	3.31	above	1.48	1.1	label
+TG_58386#0	TG_58386#0	UNSIGNED	DKI	4h	red	red	1.333		H	support		1.48	regular	-9.93	below	1.48	1.1	label
+TG_58388#0	TG_58388#0	UNSIGNED	CYCU	D	purple	purple	11.723		H	unmapped		3.7	ext	216.84	above	3.82	2.575	label
+TG_58388#0	TG_58388#0	UNSIGNED	CYCU	D	purple	purple	9.521		H	unmapped		3.7	ext	157.32	above	3.82	2.575	label
+TG_58388#0	TG_58388#0	UNSIGNED	CYCU	D	purple	purple	8.652		H	unmapped		3.7	ext	133.84	above	3.82	2.575	label
+TG_58388#0	TG_58388#0	UNSIGNED	CYCU	D	blue	blue	7.286		H	target_clean		3.7	ext	96.92	above	3.82	2.575	label
+TG_58388#0	TG_58388#0	UNSIGNED	CYCU	D	black	black	6.258		H	resistance		3.7	ext	69.14	above	3.82	2.575	label
+TG_58388#0	TG_58388#0	UNSIGNED	CYCU	D	blue	blue	5.242		H	target_clean		3.7	ext	41.68	above	3.82	2.575	label
+TG_58388#0	TG_58388#0	UNSIGNED	CYCU	D	black	black	4.305		H	resistance		3.7	ext	16.35	above	3.82	2.575	label
+TG_58388#0	TG_58388#0	UNSIGNED	CYCU	D	red	red	3.226		H	support		3.7	ext	-12.81	below	3.82	2.575	label
+TG_58395#0	TG_58395#0 TG_57864#0	THIRD_PARTY	DFNS	D	other	red	5.05		L	unmapped		7.46	ext	-32.31	below	7.46		
+TG_58410#0	TG_58410#0	UNSIGNED	YXT	4h	black	black	2.874		H	resistance		2.11	ext	36.21	above	2.11	1.97	label
+TG_58410#0	TG_58410#0	UNSIGNED	YXT	4h	black	black	2.542		H	resistance		2.11	ext	20.47	above	2.11	1.97	label
+TG_58422#0	TG_58422#0	UNSIGNED	NCT	4h	purple	purple	2.606		H	unmapped		1.55	ext	68.13	above	1.55	1.29	label
+TG_58422#0	TG_58422#0	UNSIGNED	NCT	4h	purple	purple	2.414		H	unmapped		1.55	ext	55.74	above	1.55	1.29	label
+TG_58422#0	TG_58422#0	UNSIGNED	NCT	4h	blue	blue	2.056		H	target_clean		1.55	ext	32.65	above	1.55	1.29	label
+TG_58422#0	TG_58422#0	UNSIGNED	NCT	4h	orange	orange	1.952	اختراق موجات الهابطه	H	unmapped		1.55	ext	25.94	above	1.55	1.29	label
+TG_58422#0	TG_58422#0	UNSIGNED	NCT	4h	black	black	1.806	مقاومه 2	H	resistance		1.55	ext	16.52	above	1.55	1.29	label
+TG_58422#0	TG_58422#0	UNSIGNED	NCT	4h	black	black	1.615	مقاومه 1	H	resistance		1.55	ext	4.19	above	1.55	1.29	label
+TG_58422#0	TG_58422#0	UNSIGNED	NCT	4h	red	red	1.4	دعم	H	support		1.55	ext	-9.68	below	1.55	1.29	label
+TG_58524#0	TG_58524#0	FAISAL	CDT	4h	purple	purple	2.6662		M	unmapped		0.8399	ext	217.44	above	0.8399	0.8041	label
+TG_58524#0	TG_58524#0	FAISAL	CDT	4h	black	black	1.9719		M	resistance		0.8399	ext	134.78	above	0.8399	0.8041	label
+TG_58524#0	TG_58524#0	FAISAL	CDT	4h	black	black	1.2159		M	resistance		0.8399	ext	44.77	above	0.8399	0.8041	label
+TG_58525#0	TG_58525#0	FAISAL	CDT	D	black	black	0.6426		M	resistance		0.8399	ext	-23.49	below	0.836	0.804	label
+TG_58525#0	TG_58525#0	FAISAL	CDT	D	black	black	0.5411		M	resistance		0.8399	ext	-35.58	below	0.836	0.804	label
+TG_58526#0	TG_58526#0	FAISAL	NCT	4h	purple	purple	2.933		M	unmapped		1.47	ext	99.52	above	1.47	1.14	label
+TG_58526#0	TG_58526#0	FAISAL	NCT	4h	blue	blue	2.599		M	target_clean		1.47	ext	76.80	above	1.47	1.14	label
+TG_58526#0	TG_58526#0	FAISAL	NCT	4h	black	black	2.143		M	resistance		1.47	ext	45.78	above	1.47	1.14	label
+TG_58526#0	TG_58526#0	FAISAL	NCT	4h	black	black	1.807		M	resistance		1.47	ext	22.93	above	1.47	1.14	label
+TG_58526#0	TG_58526#0	FAISAL	NCT	4h	red	red	1.246	1.24 دعم لابد يختبره (نصّ المنشور)	M	support		1.47	ext	-15.24	below	1.47	1.14	label
+EDU_20260827_smxt_falling_model#0	EDU_20260827_smxt_falling_model#0	THIRD_PARTY	SMXT	D	purple	purple	1.981	مازال للهبوط بقية ممكن 2 ربما (نصّ المنشور)	M	unmapped		3.0	ext	-33.97	below	2.755	2.65	label
+X_20260905_13#0	EDU_20260905_02#0 X_20260905_13#0 X_20260905_14#0	THIRD_PARTY	DCOY	4h	black	black	6.049		H	resistance		3.175	ext	90.52	above	3.175	2.85	label
+X_20260905_13#0	EDU_20260905_02#0 X_20260905_13#0 X_20260905_14#0	THIRD_PARTY	DCOY	4h	blue	blue	5.388		H	target_clean		3.175	ext	69.70	above	3.175	2.85	label
+X_20260905_13#0	EDU_20260905_02#0 X_20260905_13#0 X_20260905_14#0	THIRD_PARTY	DCOY	4h	blue	blue	4.782		H	target_clean		3.175	ext	50.61	above	3.175	2.85	label
+X_20260905_13#0	EDU_20260905_02#0 X_20260905_13#0 X_20260905_14#0	THIRD_PARTY	DCOY	4h	blue	blue	4.418		H	target_clean		3.175	ext	39.15	above	3.175	2.85	label
+X_20260905_13#0	EDU_20260905_02#0 X_20260905_13#0 X_20260905_14#0	THIRD_PARTY	DCOY	4h	black	black	3.502		H	resistance		3.175	ext	10.30	above	3.175	2.85	label
+X_20260905_13#0	EDU_20260905_02#0 X_20260905_13#0 X_20260905_14#0	THIRD_PARTY	DCOY	4h	red	red	2.851		H	support		3.175	ext	-10.20	below	3.175	2.85	label
+IMG_0267#0	IMG_0267#0 TG_2196#0	FAISAL	ONCO	unknown	purple	purple	3.0482	فجوه سعريه من 1.88 ل 3 (نصّ الرسالة)	H	unmapped		0.8428	ext	261.68	above	0.8212	0.711	label
+IMG_0267#0	IMG_0267#0 TG_2196#0	FAISAL	ONCO	unknown	other	purple	1.8849	فجوه سعريه من 1.88 ل 3 (نصّ الرسالة)	H	unmapped		0.8428	ext	123.65	above	0.8212	0.711	label
+IMG_0267#0	IMG_0267#0 TG_2196#0	FAISAL	ONCO	unknown	black	black	1.4359	1.43 هدف (نصّ الرسالة)	H	resistance		0.8428	ext	70.37	above	0.8212	0.711	label
+IMG_0267#0	IMG_0267#0 TG_2196#0	FAISAL	ONCO	unknown	blue	blue	1.1986	1.19 راس الشمعه الساقطه هدف (نصّ الرسالة)	H	target_clean		0.8428	ext	42.22	above	0.8212	0.711	label
+IMG_0267#0	IMG_0267#0 TG_2196#0	FAISAL	ONCO	unknown	red	red	0.9209	ثبات فوق 92 سنت تحرر السهم (نصّ الرسالة)	H	support		0.8428	ext	9.27	above	0.8212	0.711	label
+IMG_0290#0	IMG_0290#0	UNSIGNED	AZI	unknown	black	black	4.568		H	resistance		1.195	ext	282.26	above	1.13	1.01	label
+IMG_0290#0	IMG_0290#0	UNSIGNED	AZI	unknown	blue	blue	3.617		H	target_clean		1.195	ext	202.68	above	1.13	1.01	label
+IMG_0290#0	IMG_0290#0	UNSIGNED	AZI	unknown	blue	blue	3.106		H	target_clean		1.195	ext	159.92	above	1.13	1.01	label
+IMG_0290#0	IMG_0290#0	UNSIGNED	AZI	unknown	blue	blue	2.68		H	target_clean		1.195	ext	124.27	above	1.13	1.01	label
+IMG_0290#0	IMG_0290#0	UNSIGNED	AZI	unknown	purple	purple	1.976		H	unmapped		1.195	ext	65.36	above	1.13	1.01	label
+IMG_0290#0	IMG_0290#0	UNSIGNED	AZI	unknown	black	black	1.366	تحرر من 1.36 شيله من العرض باي سعر (نصّ الرسالة)	H	resistance		1.195	ext	14.31	above	1.13	1.01	label
+IMG_0291#0	IMG_0291#0	UNSIGNED	DSY	unknown	blue	blue	8.434		H	target_clean		1.874	ext	350.05	above	1.874	1.67	label
+IMG_0291#0	IMG_0291#0	UNSIGNED	DSY	unknown	blue	blue	6.784		H	target_clean		1.874	ext	262.01	above	1.874	1.67	label
+IMG_0291#0	IMG_0291#0	UNSIGNED	DSY	unknown	black	black	5.827		H	resistance		1.874	ext	210.94	above	1.874	1.67	label
+IMG_0291#0	IMG_0291#0	UNSIGNED	DSY	unknown	black	black	4.807		H	resistance		1.874	ext	156.51	above	1.874	1.67	label
+IMG_0291#0	IMG_0291#0	UNSIGNED	DSY	unknown	black	black	4.168		H	resistance		1.874	ext	122.41	above	1.874	1.67	label
+IMG_0291#0	IMG_0291#0	UNSIGNED	DSY	unknown	black	black	3.194	شرط 3.20 تحرر (نصّ الرسالة)	H	resistance		1.874	ext	70.44	above	1.874	1.67	label
+IMG_0291#0	IMG_0291#0	UNSIGNED	DSY	unknown	purple	purple	2.501		H	unmapped		1.874	ext	33.46	above	1.874	1.67	label
+IMG_0291#0	IMG_0291#0	UNSIGNED	DSY	unknown	purple	purple	2.022		H	unmapped		1.874	ext	7.90	above	1.874	1.67	label
+IMG_0291#0	IMG_0291#0	UNSIGNED	DSY	unknown	red	red	1.84		M	support		1.874	ext	-1.81	below	1.874	1.67	label
+IMG_0295#0	IMG_0295#0	UNSIGNED	EZRA	D	orange	orange	6.199		H	unmapped		2.2	ext	181.77	above	2.111	2.03	label
+IMG_0295#0	IMG_0295#0	UNSIGNED	EZRA	D	purple	purple	5.143		H	unmapped		2.2	ext	133.77	above	2.111	2.03	label
+IMG_0295#0	IMG_0295#0	UNSIGNED	EZRA	D	black	black	4.554		H	resistance		2.2	ext	107.00	above	2.111	2.03	label
+IMG_0295#0	IMG_0295#0	UNSIGNED	EZRA	D	black	black	4.012		H	resistance		2.2	ext	82.36	above	2.111	2.03	label
+IMG_0295#0	IMG_0295#0	UNSIGNED	EZRA	D	purple	purple	3.754		H	unmapped		2.2	ext	70.64	above	2.111	2.03	label
+IMG_0295#0	IMG_0295#0	UNSIGNED	EZRA	D	purple	purple	3.431		H	unmapped		2.2	ext	55.95	above	2.111	2.03	label
+IMG_0295#0	IMG_0295#0	UNSIGNED	EZRA	D	black	black	3.03		H	resistance		2.2	ext	37.73	above	2.111	2.03	label
+IMG_0295#0	IMG_0295#0	UNSIGNED	EZRA	D	orange	orange	2.597		M	unmapped		2.2	ext	18.05	above	2.111	2.03	label
+IMG_0295#0	IMG_0295#0	UNSIGNED	EZRA	D	orange	orange	2.359		M	unmapped		2.2	ext	7.23	above	2.111	2.03	label
+IMG_0298#0	IMG_0298#0	UNSIGNED	EDBL	4h	purple	purple	6.276		H	unmapped		3.12	ext	101.15	above	3.12	2.98	label
+IMG_0298#0	IMG_0298#0	UNSIGNED	EDBL	4h	purple	purple	5.245		H	unmapped		3.12	ext	68.11	above	3.12	2.98	label
+IMG_0298#0	IMG_0298#0	UNSIGNED	EDBL	4h	black	black	4.726		H	resistance		3.12	ext	51.47	above	3.12	2.98	label
+IMG_0298#0	IMG_0298#0	UNSIGNED	EDBL	4h	blue	blue	4.216		H	target_clean		3.12	ext	35.13	above	3.12	2.98	label
+IMG_0298#0	IMG_0298#0	UNSIGNED	EDBL	4h	black	black	3.751		H	resistance		3.12	ext	20.22	above	3.12	2.98	label
+IMG_0298#0	IMG_0298#0	UNSIGNED	EDBL	4h	orange	orange	3.257		H	unmapped		3.12	ext	4.39	above	3.12	2.98	label
+IMG_0298#0	IMG_0298#0	UNSIGNED	EDBL	4h	red	red	2.975		H	support		3.12	ext	-4.65	below	3.12	2.98	label
+IMG_0300#0	IMG_0300#0	UNSIGNED	DRCT	D	blue	blue	6.642		H	target_clean		2.685	ext	147.37	above	2.55	2.3	label
+IMG_0300#0	IMG_0300#0	UNSIGNED	DRCT	D	blue	blue	4.969		H	target_clean		2.685	ext	85.07	above	2.55	2.3	label
+IMG_0300#0	IMG_0300#0	UNSIGNED	DRCT	D	purple	purple	4.198		H	unmapped		2.685	ext	56.35	above	2.55	2.3	label
+IMG_0300#0	IMG_0300#0	UNSIGNED	DRCT	D	blue	blue	3.599		H	target_clean		2.685	ext	34.04	above	2.55	2.3	label
+IMG_0300#0	IMG_0300#0	UNSIGNED	DRCT	D	black	black	3.101		H	resistance		2.685	ext	15.49	above	2.55	2.3	label
+IMG_0300#0	IMG_0300#0	UNSIGNED	DRCT	D	red	red	1.992		H	support		2.685	ext	-25.81	below	2.55	2.3	label
+IMG_0301#0	IMG_0301#0 IMG_0294#0 IMG_0314#0	FAISAL	JZ	4h	black	black	2.877		H	resistance		2.4	ext	19.87	above	2.4	1.884	label
+IMG_0393#0	IMG_0393#0 IMG_0391#0 IMG_0392#0	FAISAL	SPRC	unknown	blue	blue	9.31		H	target_clean		4.793	ext	94.24	above	5.0	4.27	axis
+IMG_0393#0	IMG_0393#0 IMG_0391#0 IMG_0392#0	FAISAL	SPRC	unknown	purple	purple	8.69		H	unmapped		4.793	ext	81.31	above	5.0	4.27	axis
+IMG_0393#0	IMG_0393#0 IMG_0391#0 IMG_0392#0	FAISAL	SPRC	unknown	purple	purple	8.04		H	unmapped		4.793	ext	67.74	above	5.0	4.27	axis
+IMG_0393#0	IMG_0393#0 IMG_0391#0 IMG_0392#0	FAISAL	SPRC	unknown	purple	purple	6.95		H	unmapped		4.793	ext	45.00	above	5.0	4.27	axis
+IMG_0393#0	IMG_0393#0 IMG_0391#0 IMG_0392#0	FAISAL	SPRC	unknown	blue	blue	6.58		H	target_clean		4.793	ext	37.28	above	5.0	4.27	axis
+IMG_0393#0	IMG_0393#0 IMG_0391#0 IMG_0392#0	FAISAL	SPRC	unknown	purple	purple	6.14		H	unmapped		4.793	ext	28.10	above	5.0	4.27	axis
+IMG_0393#0	IMG_0393#0 IMG_0391#0 IMG_0392#0	FAISAL	SPRC	unknown	black	black	5.47	5.50 لو تجاوزها تكمن الاجابيه (نصّ المنشور)	H	resistance		4.793	ext	14.12	above	5.0	4.27	axis
+IMG_0393#0	IMG_0393#0 IMG_0391#0 IMG_0392#0	FAISAL	SPRC	unknown	red	red	4.69		H	support		4.793	ext	-2.15	below	5.0	4.27	axis
+IMG_0393#0	IMG_0393#0 IMG_0391#0 IMG_0392#0	FAISAL	SPRC	unknown	red	red	4.23		H	support		4.793	ext	-11.75	below	5.0	4.27	axis
+IMG_0413#0	IMG_0413#0	UNSIGNED		unknown	orange	orange	14.01		H	unmapped		1.98	mid	607.58	above		1.83	label
+IMG_0413#0	IMG_0413#0	UNSIGNED		unknown	blue	blue	9.856		H	target_clean		1.98	mid	397.78	above		1.83	label
+IMG_0413#0	IMG_0413#0	UNSIGNED		unknown	black	black	7.332		H	resistance		1.98	mid	270.30	above		1.83	label
+IMG_0413#0	IMG_0413#0	UNSIGNED		unknown	black	black	5.778		H	resistance		1.98	mid	191.82	above		1.83	label
+IMG_0413#0	IMG_0413#0	UNSIGNED		unknown	orange	orange	4.273		H	unmapped		1.98	mid	115.81	above		1.83	label
+IMG_0413#0	IMG_0413#0	UNSIGNED		unknown	black	black	2.731		H	resistance		1.98	mid	37.93	above		1.83	label
+IMG_0413#0	IMG_0413#0	UNSIGNED		unknown	black	black	1.955	الشرط الان ثبات 1.95 (نصّ الرسالة)	H	resistance		1.98	mid	-1.26	below		1.83	label
+TG_1816#0	TG_1816#0 TG_1817#0	FAISAL	LABT	4h	blue	blue	7.458		L	target_clean		6.15	regular	21.27	above		1.66	label
+TG_1816#0	TG_1816#0 TG_1817#0	FAISAL	LABT	4h	purple	purple	6.689		L	unmapped		6.15	regular	8.76	above		1.66	label
+TG_1816#0	TG_1816#0 TG_1817#0	FAISAL	LABT	4h	purple	purple	5.88		L	unmapped		6.15	regular	-4.39	below		1.66	label
+TG_1816#0	TG_1816#0 TG_1817#0	FAISAL	LABT	4h	black	black	5.168		L	resistance		6.15	regular	-15.97	below		1.66	label
+TG_1816#0	TG_1816#0 TG_1817#0	FAISAL	LABT	4h	blue	blue	4.284		L	target_clean		6.15	regular	-30.34	below		1.66	label
+TG_1816#0	TG_1816#0 TG_1817#0	FAISAL	LABT	4h	blue	blue	3.54		L	target_clean		6.15	regular	-42.44	below		1.66	label
+TG_1816#0	TG_1816#0 TG_1817#0	FAISAL	LABT	4h	black	black	3.134		L	resistance		6.15	regular	-49.04	below		1.66	label
+TG_1816#0	TG_1816#0 TG_1817#0	FAISAL	LABT	4h	black	black	2.746		L	resistance		6.15	regular	-55.35	below		1.66	label
+TG_1816#0	TG_1816#0 TG_1817#0	FAISAL	LABT	4h	purple	purple	1.973	الامان دخول من 2 (نصّ الرسالة)	L	unmapped		6.15	regular	-67.92	below		1.66	label
+TG_1833#0	TG_1833#0	FAISAL	CANF	unknown	purple	purple	4.292		M	unmapped		3.35	regular	28.12	above	3.35		
+TG_1833#0	TG_1833#0	FAISAL	CANF	unknown	blue	blue	4.046		M	target_clean		3.35	regular	20.78	above	3.35		
+TG_1833#0	TG_1833#0	FAISAL	CANF	unknown	blue	blue	3.845		M	target_clean		3.35	regular	14.78	above	3.35		
+TG_1833#0	TG_1833#0	FAISAL	CANF	unknown	black	black	3.698		M	resistance		3.35	regular	10.39	above	3.35		
+TG_1833#0	TG_1833#0	FAISAL	CANF	unknown	black	black	3.447	تحرر السهم 3.50 يتحول للاجابيه (نصّ المنشور)	M	resistance		3.35	regular	2.90	above	3.35		
+TG_1833#0	TG_1833#0	FAISAL	CANF	unknown	red	red	3.191		M	support		3.35	regular	-4.75	below	3.35		
+TG_1833#1	TG_1833#1	FAISAL	CANF	unknown	black	black	10.154		L	resistance		3.35	regular	203.10	above	3.35		
+TG_1833#1	TG_1833#1	FAISAL	CANF	unknown	blue	blue	8.498		L	target_clean		3.35	regular	153.67	above	3.35		
+TG_1833#1	TG_1833#1	FAISAL	CANF	unknown	black	black	7.948		L	resistance		3.35	regular	137.25	above	3.35		
+TG_1833#1	TG_1833#1	FAISAL	CANF	unknown	black	black	6.008		L	resistance		3.35	regular	79.34	above	3.35		
+TG_1833#1	TG_1833#1	FAISAL	CANF	unknown	black	black	4.91		L	resistance		3.35	regular	46.57	above	3.35		
+TG_1833#1	TG_1833#1	FAISAL	CANF	unknown	purple	purple	4.292		L	unmapped		3.35	regular	28.12	above	3.35		
+TG_1833#1	TG_1833#1	FAISAL	CANF	unknown	black	black	3.698		L	resistance		3.35	regular	10.39	above	3.35		
+TG_1849#0	TG_1849#0	FAISAL	TRUG	unknown	blue	blue	3.737		M	target_clean		1.28	ext	191.95	above	1.28	1.15	label
+TG_1849#0	TG_1849#0	FAISAL	TRUG	unknown	blue	blue	3.525		H	target_clean		1.28	ext	175.39	above	1.28	1.15	label
+TG_1849#0	TG_1849#0	FAISAL	TRUG	unknown	black	black	3.12		H	resistance		1.28	ext	143.75	above	1.28	1.15	label
+TG_1849#0	TG_1849#0	FAISAL	TRUG	unknown	black	black	2.577		H	resistance		1.28	ext	101.33	above	1.28	1.15	label
+TG_1849#0	TG_1849#0	FAISAL	TRUG	unknown	blue	blue	2.312		H	target_clean		1.28	ext	80.62	above	1.28	1.15	label
+TG_1849#0	TG_1849#0	FAISAL	TRUG	unknown	blue	blue	2.059		H	target_clean		1.28	ext	60.86	above	1.28	1.15	label
+TG_1849#0	TG_1849#0	FAISAL	TRUG	unknown	purple	purple	1.853		H	unmapped		1.28	ext	44.77	above	1.28	1.15	label
+TG_1849#0	TG_1849#0	FAISAL	TRUG	unknown	black	black	1.622	مهم يتحرر من 1.60 (نصّ على الشارت) · 1.60 مقاومه مهم يكسرها (نصّ المنشور)	H	resistance		1.28	ext	26.72	above	1.28	1.15	label
+TG_1849#0	TG_1849#0	FAISAL	TRUG	unknown	black	black	1.376		H	resistance		1.28	ext	7.50	above	1.28	1.15	label
+TG_1849#0	TG_1849#0	FAISAL	TRUG	unknown	red	red	1.179		H	support		1.28	ext	-7.89	below	1.28	1.15	label
+TG_1857#0	TG_1857#0	FAISAL	PIII	unknown	black	black	11.313		H	resistance		5.13	ext	120.53	above	4.03		
+TG_1857#0	TG_1857#0	FAISAL	PIII	unknown	black	black	10.007		H	resistance		5.13	ext	95.07	above	4.03		
+TG_1857#0	TG_1857#0	FAISAL	PIII	unknown	blue	blue	9.112		H	target_clean		5.13	ext	77.62	above	4.03		
+TG_1857#0	TG_1857#0	FAISAL	PIII	unknown	black	black	8.26		H	resistance		5.13	ext	61.01	above	4.03		
+TG_1857#0	TG_1857#0	FAISAL	PIII	unknown	blue	blue	6.881		H	target_clean		5.13	ext	34.13	above	4.03		
+TG_1857#0	TG_1857#0	FAISAL	PIII	unknown	blue	blue	5.603		H	target_clean		5.13	ext	9.22	above	4.03		
+TG_1857#0	TG_1857#0	FAISAL	PIII	unknown	red	red	4.469	4.43 هذي شمعه لو كسرها يهبط (نصّ المنشور)	H	support		5.13	ext	-12.88	below	4.03		
+TG_1908#0	TG_1908#0 TG_1878#0	FAISAL	SMX	1h	black	black	4.496		H	resistance		2.38	ext	88.91	above	2.38	1.65	label
+TG_1908#0	TG_1908#0 TG_1878#0	FAISAL	SMX	1h	blue	blue	3.892		H	target_clean		2.38	ext	63.53	above	2.38	1.65	label
+TG_1908#0	TG_1908#0 TG_1878#0	FAISAL	SMX	1h	blue	blue	3.423		H	target_clean		2.38	ext	43.82	above	2.38	1.65	label
+TG_1908#0	TG_1908#0 TG_1878#0	FAISAL	SMX	1h	black	black	2.985		H	resistance		2.38	ext	25.42	above	2.38	1.65	label
+TG_1908#0	TG_1908#0 TG_1878#0	FAISAL	SMX	1h	black	black	2.677		H	resistance		2.38	ext	12.48	above	2.38	1.65	label
+TG_1908#0	TG_1908#0 TG_1878#0	FAISAL	SMX	1h	red	red	1.992		H	support		2.38	ext	-16.30	below	2.38	1.65	label
+TG_2020#0	TG_2019#0 TG_2020#0	FAISAL	MBRX	D	blue	blue	7.488		H	target_clean		2.9	ext	158.21	above		1.79	label
+TG_2020#0	TG_2019#0 TG_2020#0	FAISAL	MBRX	D	purple	purple	6.502		H	unmapped		2.9	ext	124.21	above		1.79	label
+TG_2020#0	TG_2019#0 TG_2020#0	FAISAL	MBRX	D	black	black	5.886		H	resistance		2.9	ext	102.97	above		1.79	label
+TG_2020#0	TG_2019#0 TG_2020#0	FAISAL	MBRX	D	black	black	5.186		H	resistance		2.9	ext	78.83	above		1.79	label
+TG_2020#0	TG_2019#0 TG_2020#0	FAISAL	MBRX	D	blue	blue	4.829		H	target_clean		2.9	ext	66.52	above		1.79	label
+TG_2020#0	TG_2019#0 TG_2020#0	FAISAL	MBRX	D	blue	blue	3.82		H	target_clean		2.9	ext	31.72	above		1.79	label
+TG_2020#0	TG_2019#0 TG_2020#0	FAISAL	MBRX	D	black	black	3.155	عدم ثبات فوق 3.15 بيرجع يختبر الدعوم (نصّ المنشور)	H	conflict	label	2.9	ext	8.79	above		1.79	label
+TG_2020#0	TG_2019#0 TG_2020#0	FAISAL	MBRX	D	black	black	2.882		H	resistance		2.9	ext	-0.62	at		1.79	label
+TG_2020#0	TG_2019#0 TG_2020#0	FAISAL	MBRX	D	red	red	2.344	2.34 الدعم الافضل (نصّ المنشور)	H	support		2.9	ext	-19.17	below		1.79	label
+TG_2020#0	TG_2019#0 TG_2020#0	FAISAL	MBRX	D	red	red	1.942		H	support		2.9	ext	-33.03	below		1.79	label
+TG_2019#1	TG_2019#1 TG_2021#0	FAISAL	MBRX	unknown	blue	blue	7.746		L	target_clean		2.475	mid	212.97	above			
+TG_2019#1	TG_2019#1 TG_2021#0	FAISAL	MBRX	unknown	purple	purple	6.586		L	unmapped		2.475	mid	166.10	above			
+TG_2019#1	TG_2019#1 TG_2021#0	FAISAL	MBRX	unknown	blue	blue	4.829		L	target_clean		2.475	mid	95.11	above			
+TG_2019#1	TG_2019#1 TG_2021#0	FAISAL	MBRX	unknown	blue	blue	3.82		L	target_clean		2.475	mid	54.34	above			
+TG_2019#1	TG_2019#1 TG_2021#0	FAISAL	MBRX	unknown	blue	blue	3.316		L	target_clean		2.475	mid	33.98	above			
+TG_2019#1	TG_2019#1 TG_2021#0	FAISAL	MBRX	unknown	black	black	2.882		L	resistance		2.475	mid	16.44	above			
+TG_2019#1	TG_2019#1 TG_2021#0	FAISAL	MBRX	unknown	red	red	2.393		L	support		2.475	mid	-3.31	below			
+TG_2019#1	TG_2019#1 TG_2021#0	FAISAL	MBRX	unknown	red	red	1.942		L	support		2.475	mid	-21.54	below			
+TG_20260918_42_NUWE#0	TG_20260918_42_NUWE#0	THIRD_PARTY	NUWE	4h	orange	orange	1.4134		H	unmapped		0.7755	ext	82.26	above	0.7755	0.6998	label
+TG_20260918_42_NUWE#0	TG_20260918_42_NUWE#0	THIRD_PARTY	NUWE	4h	orange	orange	1.1039		H	unmapped		0.7755	ext	42.35	above	0.7755	0.6998	label
+TG_20260918_42_NUWE#0	TG_20260918_42_NUWE#0	THIRD_PARTY	NUWE	4h	black	black	0.9792		H	resistance		0.7755	ext	26.27	above	0.7755	0.6998	label
+TG_20260918_42_NUWE#0	TG_20260918_42_NUWE#0	THIRD_PARTY	NUWE	4h	black	black	0.8841		H	resistance		0.7755	ext	14.00	above	0.7755	0.6998	label
+TG_20260918_42_NUWE#0	TG_20260918_42_NUWE#0	THIRD_PARTY	NUWE	4h	black	black	0.7921		H	resistance		0.7755	ext	2.14	above	0.7755	0.6998	label
+TG_20260918_42_NUWE#0	TG_20260918_42_NUWE#0	THIRD_PARTY	NUWE	4h	red	red	0.7121		H	support		0.7755	ext	-8.18	below	0.7755	0.6998	label
+TG_20260918_42_NUWE#0	TG_20260918_42_NUWE#0	THIRD_PARTY	NUWE	4h	red	red	0.5422		H	support		0.7755	ext	-30.08	below	0.7755	0.6998	label
+TG_2095#0	TG_2095#0	FAISAL	ELPW	unknown	black	black	2.496		H	resistance		1.31	regular	90.53	above	1.31	1.16	label
+TG_2095#0	TG_2095#0	FAISAL	ELPW	unknown	purple	purple	2.28		H	unmapped		1.31	regular	74.05	above	1.31	1.16	label
+TG_2095#0	TG_2095#0	FAISAL	ELPW	unknown	black	black	2.081		H	resistance		1.31	regular	58.85	above	1.31	1.16	label
+TG_2095#0	TG_2095#0	FAISAL	ELPW	unknown	purple	purple	1.703	1.73 هدف الشمعه الهابطه (نصّ المنشور)	H	unmapped		1.31	regular	30.00	above	1.31	1.16	label
+TG_2095#0	TG_2095#0	FAISAL	ELPW	unknown	red	red	1.16	1.16 وقفه (نصّ المنشور)	H	support		1.31	regular	-11.45	below	1.31	1.16	label
+TG_2102#0	TG_2102#0	THIRD_PARTY		unknown	blue	blue	13.426		H	target_clean						2.0	1.43	label
+TG_2102#0	TG_2102#0	THIRD_PARTY		unknown	black	black	7.821		H	resistance						2.0	1.43	label
+TG_2102#0	TG_2102#0	THIRD_PARTY		unknown	black	black	5.345		H	resistance						2.0	1.43	label
+TG_2102#0	TG_2102#0	THIRD_PARTY		unknown	black	black	3.108		H	resistance						2.0	1.43	label
+TG_2102#0	TG_2102#0	THIRD_PARTY		unknown	other	red	1.325	متوقع التصفيه عند 1.40 > 1.35 (نصّ المنشور)	M	unmapped						2.0	1.43	label
+TG_2176#0	TG_2176#0	UNSIGNED	CNSP	D	blue	blue	8.098		M	target_clean		4.74	regular	70.84	above	4.74	4.6	label
+TG_2176#0	TG_2176#0	UNSIGNED	CNSP	D	black	black	7.582		M	resistance		4.74	regular	59.96	above	4.74	4.6	label
+TG_2176#0	TG_2176#0	UNSIGNED	CNSP	D	blue	blue	6.954		M	target_clean		4.74	regular	46.71	above	4.74	4.6	label
+TG_2176#0	TG_2176#0	UNSIGNED	CNSP	D	black	black	6.006		M	resistance		4.74	regular	26.71	above	4.74	4.6	label
+TG_2176#0	TG_2176#0	UNSIGNED	CNSP	D	blue	blue	5.398		M	target_clean		4.74	regular	13.88	above	4.74	4.6	label
+TG_2176#0	TG_2176#0	UNSIGNED	CNSP	D	purple	purple	5.011		M	unmapped		4.74	regular	5.72	above	4.74	4.6	label
+TG_2176#0	TG_2176#0	UNSIGNED	CNSP	D	black	black	4.849		M	resistance		4.74	regular	2.30	above	4.74	4.6	label
+TG_2176#0	TG_2176#0	UNSIGNED	CNSP	D	red	red	4.605		M	support		4.74	regular	-2.85	below	4.74	4.6	label
+TG_50586#0	TG_50586#0	UNSIGNED	LIMN	D	purple	purple	5.891		H	unmapped		3.64	ext	61.84	above	3.64	3.29	label
+TG_50586#0	TG_50586#0	UNSIGNED	LIMN	D	purple	purple	4.735		H	unmapped		3.64	ext	30.08	above	3.64	3.29	label
+TG_50586#0	TG_50586#0	UNSIGNED	LIMN	D	blue	blue	4.261		H	target_clean		3.64	ext	17.06	above	3.64	3.29	label
+TG_50586#0	TG_50586#0	UNSIGNED	LIMN	D	black	black	3.687		H	resistance		3.64	ext	1.29	above	3.64	3.29	label
+TG_57871#0	TG_57871#0	UNSIGNED	DSY	D	blue	blue	6.34		H	target_clean		3.66	regular	73.22	above	3.66		
+TG_57871#0	TG_57871#0	UNSIGNED	DSY	D	blue	blue	6.212		H	target_clean		3.66	regular	69.73	above	3.66		
+TG_57871#0	TG_57871#0	UNSIGNED	DSY	D	white	white	4.863		M	unmapped		3.66	regular	32.87	above	3.66		
+TG_57871#0	TG_57871#0	UNSIGNED	DSY	D	other	red	3.709		H	unmapped		3.66	regular	1.34	above	3.66		
+TG_57871#0	TG_57871#0	UNSIGNED	DSY	D	other	red	3.458		H	unmapped		3.66	regular	-5.52	below	3.66		
+TG_57875#0	TG_57875#0 TG_57872#0	FAISAL	OMH	unknown	orange	orange	5.991		H	unmapped		2.352	ext	154.72	above	2.352	2.05	label
+TG_57875#0	TG_57875#0 TG_57872#0	FAISAL	OMH	unknown	orange	orange	5.095		H	unmapped		2.352	ext	116.62	above	2.352	2.05	label
+TG_57875#0	TG_57875#0 TG_57872#0	FAISAL	OMH	unknown	blue	blue	4.27		H	target_clean		2.352	ext	81.55	above	2.352	2.05	label
+TG_57875#0	TG_57875#0 TG_57872#0	FAISAL	OMH	unknown	blue	blue	3.751		H	target_clean		2.352	ext	59.48	above	2.352	2.05	label
+TG_57875#0	TG_57875#0 TG_57872#0	FAISAL	OMH	unknown	black	black	3.002		H	resistance		2.352	ext	27.64	above	2.352	2.05	label
+TG_57875#0	TG_57875#0 TG_57872#0	FAISAL	OMH	unknown	black	black	2.634	تحقيق مقاومه 2.64	H	resistance		2.352	ext	11.99	above	2.352	2.05	label
+TG_57875#0	TG_57875#0 TG_57872#0	FAISAL	OMH	unknown	red	red	1.808	انتظار تحقيق سحب سيوله او ثبات قاع	H	support		2.352	ext	-23.13	below	2.352	2.05	label
+TG_58045#0	TG_58045#0	UNSIGNED	VEEE	4h	black	black	8.76		H	resistance		6.89	ext	27.14	above	6.89	5.0	label
+TG_58045#0	TG_58045#0	UNSIGNED	VEEE	4h	purple	purple	8.27		H	unmapped		6.89	ext	20.03	above	6.89	5.0	label
+TG_58045#0	TG_58045#0	UNSIGNED	VEEE	4h	black	black	7.27		H	resistance		6.89	ext	5.52	above	6.89	5.0	label
+TG_58045#0	TG_58045#0	UNSIGNED	VEEE	4h	black	black	6.57		H	resistance		6.89	ext	-4.64	below	6.89	5.0	label
+TG_58045#0	TG_58045#0	UNSIGNED	VEEE	4h	purple	purple	6.34	مقرون 6.18> 6.34 > ادناهما سلبي اعلاهما اجابي (نصّ المنشور)	H	unmapped		6.89	ext	-7.98	below	6.89	5.0	label
+TG_58045#0	TG_58045#0	UNSIGNED	VEEE	4h	red	red	6.18	مقرون 6.18> 6.34 > ادناهما سلبي اعلاهما اجابي (نصّ المنشور)	H	support		6.89	ext	-10.30	below	6.89	5.0	label
+TG_58045#0	TG_58045#0	UNSIGNED	VEEE	4h	red	red	5.34		H	support		6.89	ext	-22.50	below	6.89	5.0	label
+TG_58045#0	TG_58045#0	UNSIGNED	VEEE	4h	purple	purple	3.54		H	unmapped		6.89	ext	-48.62	below	6.89	5.0	label
+TG_58387#0	TG_58387#0	UNSIGNED	MI	unknown	purple	purple	8.025		H	unmapped		2.52	ext	218.45	above	2.27	2.02	label
+TG_58387#0	TG_58387#0	UNSIGNED	MI	unknown	orange	orange	6.438		H	unmapped		2.52	ext	155.48	above	2.27	2.02	label
+TG_58387#0	TG_58387#0	UNSIGNED	MI	unknown	blue	blue	4.015		H	target_clean		2.52	ext	59.33	above	2.27	2.02	label
+TG_58387#0	TG_58387#0	UNSIGNED	MI	unknown	black	black	2.525		H	resistance		2.52	ext	0.20	at	2.27	2.02	label
+TG_58387#0	TG_58387#0	UNSIGNED	MI	unknown	blue	blue	1.893		H	target_clean		2.52	ext	-24.88	below	2.27	2.02	label
+TG_58407#0	TG_58407#0	UNSIGNED	BRTX	D	purple	purple	4.208		H	unmapped		2.2	ext	91.27	above	2.14	2.14	label
+TG_58407#0	TG_58407#0	UNSIGNED	BRTX	D	purple	purple	3.904		H	unmapped		2.2	ext	77.45	above	2.14	2.14	label
+TG_58407#0	TG_58407#0	UNSIGNED	BRTX	D	purple	purple	3.579		H	unmapped		2.2	ext	62.68	above	2.14	2.14	label
+TG_58407#0	TG_58407#0	UNSIGNED	BRTX	D	blue	blue	3.224	شمعة التقسيم S	H	target_clean		2.2	ext	46.55	above	2.14	2.14	label
+TG_58407#0	TG_58407#0	UNSIGNED	BRTX	D	orange	orange	2.922		H	unmapped		2.2	ext	32.82	above	2.14	2.14	label
+TG_58407#0	TG_58407#0	UNSIGNED	BRTX	D	orange	orange	2.705		H	unmapped		2.2	ext	22.95	above	2.14	2.14	label
+TG_58407#0	TG_58407#0	UNSIGNED	BRTX	D	black	black	2.479		H	resistance		2.2	ext	12.68	above	2.14	2.14	label
+TG_58407#0	TG_58407#0	UNSIGNED	BRTX	D	black	black	2.256	ستكون مقاومه عاليه	H	resistance		2.2	ext	2.55	above	2.14	2.14	label
+TG_58407#0	TG_58407#0	UNSIGNED	BRTX	D	red	red	1.588		H	support		2.2	ext	-27.82	below	2.14	2.14	label
+TG_58407#0	TG_58407#0	UNSIGNED	BRTX	D	red	red	1.353		H	support		2.2	ext	-38.50	below	2.14	2.14	label
+TG_58429#0	TG_58429#0 IMG_0628#0 IMG_0627#0	FAISAL	DXST	30m	purple	purple	4.467		M	unmapped		2.78	regular	60.68	above	2.78	2.28	label
+TG_58429#0	TG_58429#0 IMG_0628#0 IMG_0627#0	FAISAL	DXST	30m	blue	blue	3.61		M	target_clean		2.78	regular	29.86	above	2.78	2.28	label
+TG_58429#0	TG_58429#0 IMG_0628#0 IMG_0627#0	FAISAL	DXST	30m	blue	blue	3.302	يعطي املا صاعدا ل 3.30 (نصّ المنشور)	M	target_clean		2.78	regular	18.78	above	2.78	2.28	label
+TG_58429#0	TG_58429#0 IMG_0628#0 IMG_0627#0	FAISAL	DXST	30m	black	black	3.114	تحرر من المقاومه الثانيه 3.11 (نصّ المنشور) · تحرر من المقاومه الثانيه 3.11 > يعطي املا صاعدا (نصّ المنشور)	M	resistance		2.78	regular	12.01	above	2.78	2.28	label
+TG_58429#0	TG_58429#0 IMG_0628#0 IMG_0627#0	FAISAL	DXST	30m	black	black	2.864	العنق · ثبات وتداول فوق خط العنق 2.86 (نصّ المنشور) · العنق · الاهم ثبات وتداول فوق خط العنق 2.86 > اكثر من ربع ساعه (نصّ المنشور) · الاهم ثبات وتداول فوق خط العنق 2.86 اكثر من ربع ساعه (نصّ المنشور)	M	resistance		2.78	regular	3.02	above	2.78	2.28	label
+TG_58429#0	TG_58429#0 IMG_0628#0 IMG_0627#0	FAISAL	DXST	30m	red	red	2.539		M	support		2.78	regular	-8.67	below	2.78	2.28	label
+TG_58429#0	TG_58429#0 IMG_0628#0 IMG_0627#0	FAISAL	DXST	30m	red	red	2.306		M	support		2.78	regular	-17.05	below	2.78	2.28	label
+WA_20260918_46_NUWE#0	WA_20260918_46_NUWE#0	UNSIGNED	NUWE	unknown	red	red	0.608	اخر دعم للسهم 60 سنت (نصّ الرسالة)	L	support		0.7596	mid	-19.96	below			
+WA_20260918_46_NUWE#1	WA_20260918_46_NUWE#1	UNSIGNED	NUWE	D	purple	purple	4.4851		L	unmapped		0.7755	regular	478.35	above	0.7755	0.6998	label
+WA_20260918_46_NUWE#1	WA_20260918_46_NUWE#1	UNSIGNED	NUWE	D	orange	orange	3.7051		L	unmapped		0.7755	regular	377.77	above	0.7755	0.6998	label
+WA_20260918_46_NUWE#1	WA_20260918_46_NUWE#1	UNSIGNED	NUWE	D	purple	purple	2.773		L	unmapped		0.7755	regular	257.58	above	0.7755	0.6998	label
+WA_20260918_46_NUWE#1	WA_20260918_46_NUWE#1	UNSIGNED	NUWE	D	blue	blue	2.3894		L	target_clean		0.7755	regular	208.11	above	0.7755	0.6998	label
+WA_20260918_46_NUWE#1	WA_20260918_46_NUWE#1	UNSIGNED	NUWE	D	blue	blue	1.9908	فوقها ممكن 2 (نصّ الرسالة)	L	target_clean		0.7755	regular	156.71	above	0.7755	0.6998	label
+WA_20260918_46_NUWE#1	WA_20260918_46_NUWE#1	UNSIGNED	NUWE	D	blue	blue	1.7508		L	target_clean		0.7755	regular	125.76	above	0.7755	0.6998	label
+WA_20260918_46_NUWE#1	WA_20260918_46_NUWE#1	UNSIGNED	NUWE	D	blue	blue	1.3341	الاهداف المتوقعه 1.35 (نصّ الرسالة)	L	target_clean		0.7755	regular	72.03	above	0.7755	0.6998	label
+WA_20260918_46_NUWE#1	WA_20260918_46_NUWE#1	UNSIGNED	NUWE	D	black	black	0.9515	تحرر السهم 95 سنت (نصّ الرسالة)	L	resistance		0.7755	regular	22.70	above	0.7755	0.6998	label
+X_20260827_kwm_150_watch3#0	X_20260827_kwm_150_watch3#0	UNSIGNED	KWM	D	blue	blue	4.493		H	target_clean		1.681	ext	167.28	above	1.681	1.5	label
+X_20260827_kwm_150_watch3#0	X_20260827_kwm_150_watch3#0	UNSIGNED	KWM	D	blue	blue	3.806		H	target_clean		1.681	ext	126.41	above	1.681	1.5	label
+X_20260827_kwm_150_watch3#0	X_20260827_kwm_150_watch3#0	UNSIGNED	KWM	D	orange	orange	3.261		H	unmapped		1.681	ext	93.99	above	1.681	1.5	label
+X_20260827_kwm_150_watch3#0	X_20260827_kwm_150_watch3#0	UNSIGNED	KWM	D	purple	purple	2.669		H	unmapped		1.681	ext	58.77	above	1.681	1.5	label
+X_20260827_kwm_150_watch3#0	X_20260827_kwm_150_watch3#0	UNSIGNED	KWM	D	black	black	2.027		H	resistance		1.681	ext	20.58	above	1.681	1.5	label
+X_20260827_kwm_150_watch3#0	X_20260827_kwm_150_watch3#0	UNSIGNED	KWM	D	black	black	1.747		H	resistance		1.681	ext	3.93	above	1.681	1.5	label
+X_20260827_kwm_150_watch3#0	X_20260827_kwm_150_watch3#0	UNSIGNED	KWM	D	red	red	1.545	1.55 اليوم (نصّ المنشور)	H	support		1.681	ext	-8.09	below	1.681	1.5	label
+X_20260827_kwm_150_watch3#1	X_20260827_kwm_150_watch3#1	UNSIGNED	KWM	4h	black	black	2.535		H	resistance		1.681	ext	50.80	above	1.681	1.5	label
+X_20260827_kwm_150_watch3#1	X_20260827_kwm_150_watch3#1	UNSIGNED	KWM	4h	black	black	1.747		H	resistance		1.681	ext	3.93	above	1.681	1.5	label
+X_20260827_kwm_150_watch3#1	X_20260827_kwm_150_watch3#1	UNSIGNED	KWM	4h	red	red	1.545	1.55 اليوم (نصّ المنشور)	H	support		1.681	ext	-8.09	below	1.681	1.5	label
+X_20260827_labt_supports_wait#0	X_20260827_labt_supports_wait#0	FAISAL	LABT	4h	black	black	2.706		M	resistance		2.22	ext	21.89	above	2.22	1.81	label
+X_20260827_labt_supports_wait#0	X_20260827_labt_supports_wait#0	FAISAL	LABT	4h	red	red	2.179		M	support		2.22	ext	-1.85	below	2.22	1.81	label
+X_20260827_labt_supports_wait#1	X_20260827_labt_supports_wait#1	FAISAL	LABT	4h	blue	blue	3.534		M	target_clean		2.22	ext	59.19	above	2.22	1.74	label
+X_20260827_labt_supports_wait#1	X_20260827_labt_supports_wait#1	FAISAL	LABT	4h	blue	blue	3.128		M	target_clean		2.22	ext	40.90	above	2.22	1.74	label
+X_20260827_labt_supports_wait#1	X_20260827_labt_supports_wait#1	FAISAL	LABT	4h	black	black	2.422		M	resistance		2.22	ext	9.10	above	2.22	1.74	label
+X_20260827_labt_supports_wait#1	X_20260827_labt_supports_wait#1	FAISAL	LABT	4h	red	red	1.809	انتظار الدعوم الاساسيه 2 < 1.80 (نصّ المنشور)	M	support		2.22	ext	-18.51	below	2.22	1.74	label
+X_20260827_raya_notready#0	X_20260827_raya_notready#0	FAISAL	RAYA	D	purple	purple	4.908		H	unmapped		2.44	ext	101.15	above	2.35	2.0	label
+X_20260827_raya_notready#0	X_20260827_raya_notready#0	FAISAL	RAYA	D	black	black	4.569		H	resistance		2.44	ext	87.25	above	2.35	2.0	label
+X_20260827_raya_notready#0	X_20260827_raya_notready#0	FAISAL	RAYA	D	blue	blue	3.998		H	target_clean		2.44	ext	63.85	above	2.35	2.0	label
+X_20260827_raya_notready#0	X_20260827_raya_notready#0	FAISAL	RAYA	D	black	black	3.233		H	resistance		2.44	ext	32.50	above	2.35	2.0	label
+X_20260827_raya_notready#0	X_20260827_raya_notready#0	FAISAL	RAYA	D	black	black	2.617		H	resistance		2.44	ext	7.25	above	2.35	2.0	label
+X_20260827_raya_notready#0	X_20260827_raya_notready#0	FAISAL	RAYA	D	red	red	1.999		H	support		2.44	ext	-18.07	below	2.35	2.0	label
+X_20260827_raya_notready#0	X_20260827_raya_notready#0	FAISAL	RAYA	D	red	red	1.454		H	support		2.44	ext	-40.41	below	2.35	2.0	label
+X_20260828_03#0	X_20260828_02#0 X_20260828_03#0 X_20260918_27_CUPR#0	FAISAL	CUPR	D	other	blue	6.609	هدف اكبر اغلاق اعلى شمعه هابطه	M	unmapped		2.952	regular	123.88	above		2.5	label
+X_20260828_03#0	X_20260828_02#0 X_20260828_03#0 X_20260918_27_CUPR#0	FAISAL	CUPR	D	orange	orange	5.782	اغلاق شمعه الهابطه هدف 5	M	unmapped		2.952	regular	95.87	above		2.5	label
+X_20260828_03#0	X_20260828_02#0 X_20260828_03#0 X_20260918_27_CUPR#0	FAISAL	CUPR	D	other	other	5.392	هدف 4	M	unmapped		2.952	regular	82.66	above		2.5	label
+X_20260828_03#0	X_20260828_02#0 X_20260828_03#0 X_20260918_27_CUPR#0	FAISAL	CUPR	D	other	other	4.974	هدف 3	M	unmapped		2.952	regular	68.50	above		2.5	label
+X_20260828_03#0	X_20260828_02#0 X_20260828_03#0 X_20260918_27_CUPR#0	FAISAL	CUPR	D	blue	blue	4.297	هدف 2	M	target_clean		2.952	regular	45.56	above		2.5	label
+X_20260828_03#0	X_20260828_02#0 X_20260828_03#0 X_20260918_27_CUPR#0	FAISAL	CUPR	D	blue	blue	3.963	هدف 1	M	target_clean		2.952	regular	34.25	above		2.5	label
+X_20260828_03#0	X_20260828_02#0 X_20260828_03#0 X_20260918_27_CUPR#0	FAISAL	CUPR	D	black	black	3.489	يحول مضاربين اختراق 3.50 · دخول مضاربين اختراق 3.50	M	conflict	label	2.952	regular	18.19	above		2.5	label
+X_20260828_03#0	X_20260828_02#0 X_20260828_03#0 X_20260918_27_CUPR#0	FAISAL	CUPR	D	purple	purple	2.854	مناطق طلب 2.90 < 2.70 · مناطق طلب 2.90 < 2.70 (نصّ على الشارت)	M	unmapped		2.952	regular	-3.32	below		2.5	label
+X_20260828_03#0	X_20260828_02#0 X_20260828_03#0 X_20260918_27_CUPR#0	FAISAL	CUPR	D	purple	purple	2.502	مناطق طلب 2.90 < 2.70 · هبط للدعوم 2.50 · كسر 2.50 عدم رجوع سريع وثبات لها = سلبي (نصّ المنشور) · مناطق طلب 2.90 < 2.70	M	unmapped		2.952	regular	-15.24	below		2.5	label
+X_20260828_05#0	X_20260828_05#0	THIRD_PARTY	PPCB	D	blue	blue	8.73		L	target_clean							0.95	label
+X_20260828_05#0	X_20260828_05#0	THIRD_PARTY	PPCB	D	black	black	6.79		M	resistance							0.95	label
+X_20260828_05#0	X_20260828_05#0	THIRD_PARTY	PPCB	D	black	black	5.712		M	resistance							0.95	label
+X_20260828_05#0	X_20260828_05#0	THIRD_PARTY	PPCB	D	black	black	4.986		M	resistance							0.95	label
+X_20260828_09#0	X_20260828_09#0 X_20260828_10#0	THIRD_PARTY	HCWB	D	purple	purple	6.462		M	unmapped		3.06	ext	111.18	above		2.05	label
+X_20260828_09#0	X_20260828_09#0 X_20260828_10#0	THIRD_PARTY	HCWB	D	blue	blue	5.819		M	target_clean		3.06	ext	90.16	above		2.05	label
+X_20260828_09#0	X_20260828_09#0 X_20260828_10#0	THIRD_PARTY	HCWB	D	blue	blue	5.19		M	target_clean		3.06	ext	69.61	above		2.05	label
+X_20260828_09#0	X_20260828_09#0 X_20260828_10#0	THIRD_PARTY	HCWB	D	blue	blue	4.186		M	target_clean		3.06	ext	36.80	above		2.05	label
+X_20260828_09#0	X_20260828_09#0 X_20260828_10#0	THIRD_PARTY	HCWB	D	black	black	3.262	اختراق 3.26 بسيوله ممكن يواصل (نصّ المنشور)	M	resistance		3.06	ext	6.60	above		2.05	label
+X_20260828_09#0	X_20260828_09#0 X_20260828_10#0	THIRD_PARTY	HCWB	D	red	red	2.897	الان اختبر 2.89 بالافتر (نصّ المنشور)	M	support		3.06	ext	-5.33	below		2.05	label
+X_20260828_09#0	X_20260828_09#0 X_20260828_10#0	THIRD_PARTY	HCWB	D	purple	purple	2.591	دعومه الان 2.60 (نصّ المنشور)	L	unmapped		3.06	ext	-15.33	below		2.05	label
+X_20260828_09#0	X_20260828_09#0 X_20260828_10#0	THIRD_PARTY	HCWB	D	red	red	2.39		M	support		3.06	ext	-21.90	below		2.05	label
+X_20260828_15#0	X_20260828_15#0	UNSIGNED	PPCB	4h	black	black	4.986		H	resistance		1.93	ext	158.34	above	1.945	0.95	label
+X_20260828_15#0	X_20260828_15#0	UNSIGNED	PPCB	4h	red	red	3.023		H	conflict	red>black	1.93	ext	56.63	above	1.945	0.95	label
+X_20260828_15#0	X_20260828_15#0	UNSIGNED	PPCB	4h	black	black	2.26		H	conflict	black<red	1.93	ext	17.10	above	1.945	0.95	label
+X_20260828_15#0	X_20260828_15#0	UNSIGNED	PPCB	4h	black	black	1.511	اخر دعم يفشل فيه ppcb 1.50 (نصّ المنشور)	H	conflict	label,black<red	1.93	ext	-21.71	below	1.945	0.95	label
+X_20260828_15#0	X_20260828_15#0	UNSIGNED	PPCB	4h	red	red	0.9473		H	support		1.93	ext	-50.92	below	1.945	0.95	label
+X_20260905_02#0	X_20260905_02#0 X_20260905_01#0	FAISAL	PPBT	D	black	black	4.866		H	resistance		1.84	ext	164.46	above	1.98	1.16	label
+X_20260905_02#0	X_20260905_02#0 X_20260905_01#0	FAISAL	PPBT	D	black	black	4.272		H	resistance		1.84	ext	132.17	above	1.98	1.16	label
+X_20260905_02#0	X_20260905_02#0 X_20260905_01#0	FAISAL	PPBT	D	black	black	3.994		H	resistance		1.84	ext	117.07	above	1.98	1.16	label
+X_20260905_02#0	X_20260905_02#0 X_20260905_01#0	FAISAL	PPBT	D	black	black	3.463		H	resistance		1.84	ext	88.21	above	1.98	1.16	label
+X_20260905_02#0	X_20260905_02#0 X_20260905_01#0	FAISAL	PPBT	D	yellow	yellow	3.252		H	unmapped		1.84	ext	76.74	above	1.98	1.16	label
+X_20260905_02#0	X_20260905_02#0 X_20260905_01#0	FAISAL	PPBT	D	yellow	yellow	2.702		H	unmapped		1.84	ext	46.85	above	1.98	1.16	label
+X_20260905_02#0	X_20260905_02#0 X_20260905_01#0	FAISAL	PPBT	D	black	black	2.3	2.30 الان مقاومه لازم يرجع فوقها تكون دعم (نصّ المنشور)	H	resistance		1.84	ext	25.00	above	1.98	1.16	label
+X_20260905_02#0	X_20260905_02#0 X_20260905_01#0	FAISAL	PPBT	D	red	red	1.753		H	support		1.84	ext	-4.73	below	1.98	1.16	label
+X_20260905_03#0	X_20260905_03#0 X_20260905_06#0	UNSIGNED	PPBT	D	black	black	3.955		H	resistance		1.92	ext	105.99	above	1.98		
+X_20260905_03#0	X_20260905_03#0 X_20260905_06#0	UNSIGNED	PPBT	D	black	black	3.097		H	resistance		1.92	ext	61.30	above	1.98		
+X_20260905_03#0	X_20260905_03#0 X_20260905_06#0	UNSIGNED	PPBT	D	black	black	2.503	تحرر من الاتجاه العام السلبيً عبر الموجات او خط الاساس = 2.50 (نصّ المنشور)	H	resistance		1.92	ext	30.36	above	1.98		
+X_20260905_03#0	X_20260905_03#0 X_20260905_06#0	UNSIGNED	PPBT	D	red	red	1.682	الدعم الاسبوعي واليوًمي يتفقان على 1.70 · دعوم الموجات 1.68 نفس الشموع (نصّ المنشور)	H	support		1.92	ext	-12.40	below	1.98		
+X_20260918_04_ELPW#1	X_20260918_04_ELPW#1	FAISAL	ELPW	4h	red	red	2.27		H	support		2.397	ext	-5.30	below	2.397	2.397	label
+X_20260918_04_ELPW#1	X_20260918_04_ELPW#1	FAISAL	ELPW	4h	red	red	2.186		H	support		2.397	ext	-8.80	below	2.397	2.397	label
+CH_20260918_05_CPOP#0	CH_20260918_05_CPOP#0 TG_20260918_06_CPOP#0	UNSIGNED	CPOP	D	purple	purple	7.662		H	unmapped		3.51	regular	118.29	above	3.51	3.28	label
+CH_20260918_05_CPOP#0	CH_20260918_05_CPOP#0 TG_20260918_06_CPOP#0	UNSIGNED	CPOP	D	purple	purple	6.932		H	unmapped		3.51	regular	97.49	above	3.51	3.28	label
+CH_20260918_05_CPOP#0	CH_20260918_05_CPOP#0 TG_20260918_06_CPOP#0	UNSIGNED	CPOP	D	blue	blue	6.315		H	target_clean		3.51	regular	79.91	above	3.51	3.28	label
+CH_20260918_05_CPOP#0	CH_20260918_05_CPOP#0 TG_20260918_06_CPOP#0	UNSIGNED	CPOP	D	orange	orange	5.87	ذيل شمعة التقسيم السابقه 5.87 هدف	H	unmapped		3.51	regular	67.24	above	3.51	3.28	label
+CH_20260918_05_CPOP#0	CH_20260918_05_CPOP#0 TG_20260918_06_CPOP#0	UNSIGNED	CPOP	D	black	black	4.897		H	resistance		3.51	regular	39.52	above	3.51	3.28	label
+CH_20260918_05_CPOP#0	CH_20260918_05_CPOP#0 TG_20260918_06_CPOP#0	UNSIGNED	CPOP	D	black	black	4.493		H	resistance		3.51	regular	28.01	above	3.51	3.28	label
+CH_20260918_05_CPOP#0	CH_20260918_05_CPOP#0 TG_20260918_06_CPOP#0	UNSIGNED	CPOP	D	black	black	4.051		H	resistance		3.51	regular	15.41	above	3.51	3.28	label
+CH_20260918_07_NUWE#0	CH_20260918_07_NUWE#0	UNSIGNED	NUWE	4h	black	black	0.9493		M	resistance		0.8105	ext	17.13	above	0.8105	0.6998	label
+CH_20260918_07_NUWE#0	CH_20260918_07_NUWE#0	UNSIGNED	NUWE	4h	black	black	0.8833		M	resistance		0.8105	ext	8.98	above	0.8105	0.6998	label
+CH_20260918_07_NUWE#0	CH_20260918_07_NUWE#0	UNSIGNED	NUWE	4h	purple	purple	0.8298		M	unmapped		0.8105	ext	2.38	above	0.8105	0.6998	label
+CH_20260918_07_NUWE#0	CH_20260918_07_NUWE#0	UNSIGNED	NUWE	4h	orange	orange	0.7482		M	unmapped		0.8105	ext	-7.69	below	0.8105	0.6998	label
+CH_20260918_07_NUWE#0	CH_20260918_07_NUWE#0	UNSIGNED	NUWE	4h	purple	purple	0.7031		M	unmapped		0.8105	ext	-13.25	below	0.8105	0.6998	label
+CH_20260918_17_NTCL#0	CH_20260918_17_NTCL#0	UNSIGNED	NTCL	W	purple	purple	4.498		H	unmapped		2.127	ext	111.47	above	2.04	1.735	label
+CH_20260918_17_NTCL#0	CH_20260918_17_NTCL#0	UNSIGNED	NTCL	W	blue	blue	3.702		H	target_clean		2.127	ext	74.05	above	2.04	1.735	label
+CH_20260918_17_NTCL#0	CH_20260918_17_NTCL#0	UNSIGNED	NTCL	W	blue	blue	3.24		H	target_clean		2.127	ext	52.33	above	2.04	1.735	label
+CH_20260918_17_NTCL#0	CH_20260918_17_NTCL#0	UNSIGNED	NTCL	W	black	black	2.712		H	resistance		2.127	ext	27.50	above	2.04	1.735	label
+CH_20260918_17_NTCL#0	CH_20260918_17_NTCL#0	UNSIGNED	NTCL	W	black	black	2.355		H	resistance		2.127	ext	10.72	above	2.04	1.735	label
+CH_20260918_60_VEEE#0	CH_20260918_60_VEEE#0	UNSIGNED	VEEE	D	blue	blue	11.38		H	target_clean		6.89	ext	65.17	above		5.0	label
+CH_20260918_60_VEEE#0	CH_20260918_60_VEEE#0	UNSIGNED	VEEE	D	purple	purple	8.27		H	unmapped		6.89	ext	20.03	above		5.0	label
+CH_20260918_60_VEEE#0	CH_20260918_60_VEEE#0	UNSIGNED	VEEE	D	black	black	7.44		H	resistance		6.89	ext	7.98	above		5.0	label
+CH_20260918_60_VEEE#0	CH_20260918_60_VEEE#0	UNSIGNED	VEEE	D	black	black	6.9		H	resistance		6.89	ext	0.15	at		5.0	label
+CH_20260918_60_VEEE#0	CH_20260918_60_VEEE#0	UNSIGNED	VEEE	D	red	red	6.65		H	support		6.89	ext	-3.48	below		5.0	label
+CH_20260918_60_VEEE#0	CH_20260918_60_VEEE#0	UNSIGNED	VEEE	D	red	red	6.17		H	support		6.89	ext	-10.45	below		5.0	label
+IMG_0141#0	IMG_0141#0	UNSIGNED	JEM	4h	purple	purple	6.79		H	unmapped		5.03	ext	34.99	above	5.03	3.4	label
+IMG_0141#0	IMG_0141#0	UNSIGNED	JEM	4h	red	red	3.52		H	support		5.03	ext	-30.02	below	5.03	3.4	label
+IMG_0289#0	IMG_0289#0	UNSIGNED	JZ	D	purple	purple	12.793		H	unmapped		2.4	ext	433.04	above	2.55	1.9	label
+IMG_0289#0	IMG_0289#0	UNSIGNED	JZ	D	purple	purple	10.966		H	unmapped		2.4	ext	356.92	above	2.55	1.9	label
+IMG_0289#0	IMG_0289#0	UNSIGNED	JZ	D	black	black	8.975		H	resistance		2.4	ext	273.96	above	2.55	1.9	label
+IMG_0289#0	IMG_0289#0	UNSIGNED	JZ	D	black	black	6.712		H	resistance		2.4	ext	179.67	above	2.55	1.9	label
+IMG_0289#0	IMG_0289#0	UNSIGNED	JZ	D	black	black	5.12	ثبات فوق 5 مهم جدا	H	resistance		2.4	ext	113.33	above	2.55	1.9	label
+IMG_0289#0	IMG_0289#0	UNSIGNED	JZ	D	blue	blue	3.916		H	target_clean		2.4	ext	63.17	above	2.55	1.9	label
+IMG_0289#0	IMG_0289#0	UNSIGNED	JZ	D	black	black	2.877		H	resistance		2.4	ext	19.87	above	2.55	1.9	label
+IMG_0289#0	IMG_0289#0	UNSIGNED	JZ	D	red	red	1.905		H	support		2.4	ext	-20.62	below	2.55	1.9	label
+IMG_0299#0	IMG_0299#0	UNSIGNED	DRCT	4h	black	black	3.101		H	resistance		2.685	ext	15.49	above	2.685	1.991	label
+IMG_0299#0	IMG_0299#0	UNSIGNED	DRCT	4h	black	black	2.712		H	resistance		2.685	ext	1.01	above	2.685	1.991	label
+IMG_0299#0	IMG_0299#0	UNSIGNED	DRCT	4h	red	red	2.321		H	support		2.685	ext	-13.56	below	2.685	1.991	label
+IMG_0305#0	IMG_0305#0	UNSIGNED		5m	blue	blue	13.54	13.54 رأس شمعة الهبوط جني الربح عند ارتداده لها	H	target_clean		12.04	regular	12.46	above	12.04	8.3	label
+IMG_0305#0	IMG_0305#0	UNSIGNED		5m	black	black	11.46		H	resistance		12.04	regular	-4.82	below	12.04	8.3	label
+IMG_0305#0	IMG_0305#0	UNSIGNED		5m	purple	purple	10.72		H	unmapped		12.04	regular	-10.96	below	12.04	8.3	label
+IMG_0305#0	IMG_0305#0	UNSIGNED		5m	red	red	10.21	ارتداد اول عدم دخول 10.21 · ارتداد 2 تأكيد دخول عدم كسر 10.21	H	support		12.04	regular	-15.20	below	12.04	8.3	label
+IMG_0358#0	IMG_0358#0	UNSIGNED	YYAI	D	red	red	2.64		H	support		7.4	ext	-64.32	below	7.54	7.47	label
+TG_1812#0	TG_1812#0	UNSIGNED		D	black	black	8.307		H	resistance		5.0	regular	66.14	above	5.0	4.23	label
+TG_1812#0	TG_1812#0	UNSIGNED		D	purple	purple	7.406		H	unmapped		5.0	regular	48.12	above	5.0	4.23	label
+TG_1812#0	TG_1812#0	UNSIGNED		D	blue	blue	6.576		H	target_clean		5.0	regular	31.52	above	5.0	4.23	label
+TG_1812#0	TG_1812#0	UNSIGNED		D	black	black	5.954		H	resistance		5.0	regular	19.08	above	5.0	4.23	label
+TG_1812#0	TG_1812#0	UNSIGNED		D	red	red	4.594		H	support		5.0	regular	-8.12	below	5.0	4.23	label
+TG_1830#0	TG_1830#0	UNSIGNED	LABT	4h	blue	blue	3.606		H	target_clean		1.865	ext	93.35	above	1.865	1.66	label
+TG_1830#0	TG_1830#0	UNSIGNED	LABT	4h	black	black	3.088		H	resistance		1.865	ext	65.58	above	1.865	1.66	label
+TG_1830#0	TG_1830#0	UNSIGNED	LABT	4h	black	black	2.818		H	resistance		1.865	ext	51.10	above	1.865	1.66	label
+TG_1830#0	TG_1830#0	UNSIGNED	LABT	4h	black	black	2.442		H	resistance		1.865	ext	30.94	above	1.865	1.66	label
+TG_1830#0	TG_1830#0	UNSIGNED	LABT	4h	other	other	2.093		H	unmapped		1.865	ext	12.23	above	1.865	1.66	label
+TG_1830#0	TG_1830#0	UNSIGNED	LABT	4h	purple	purple	1.972	الشمعه الساقطه من 3 الى 1.97	H	unmapped		1.865	ext	5.74	above	1.865	1.66	label
+TG_1830#0	TG_1830#0	UNSIGNED	LABT	4h	red	red	1.696	سحب السيوله الى قاع 1.66	H	support		1.865	ext	-9.06	below	1.865	1.66	label
+TG_1844#0	TG_1844#0 IMG_9925#0	FAISAL	SPRC	W	red	red	10.056		H	conflict	red>black,red>blue	4.8	regular	109.50	above	4.8	2.98	label
+TG_1844#0	TG_1844#0 IMG_9925#0	FAISAL	SPRC	W	purple	purple	9.07		H	unmapped		4.8	regular	88.96	above	4.8	2.98	label
+TG_1844#0	TG_1844#0 IMG_9925#0	FAISAL	SPRC	W	black	black	8.43		H	conflict	black<red	4.8	regular	75.62	above	4.8	2.98	label
+TG_1844#0	TG_1844#0 IMG_9925#0	FAISAL	SPRC	W	purple	purple	7.3		H	unmapped		4.8	regular	52.08	above	4.8	2.98	label
+TG_1844#0	TG_1844#0 IMG_9925#0	FAISAL	SPRC	W	blue	blue	6.483		M	conflict	blue<red	4.8	regular	35.06	above	4.8	2.98	label
+TG_1844#0	TG_1844#0 IMG_9925#0	FAISAL	SPRC	W	black	black	5.917		H	conflict	black<red	4.8	regular	23.27	above	4.8	2.98	label
+TG_1844#0	TG_1844#0 IMG_9925#0	FAISAL	SPRC	W	red	red	4.53	4.53 شمعة دعم سبوعيه	H	support		4.8	regular	-5.62	below	4.8	2.98	label
+TG_1844#0	TG_1844#0 IMG_9925#0	FAISAL	SPRC	W	red	red	3.973	عدم ثبات 4.53 > اختبار شمعة 3.98 · تمثل شمعه 3.98 مقاومه تحولت لدعم · عدم ثبات 4.53 > اختبار شمعة 3.98 · تمثل شمعه 3.98 مقاومه تحولت لدعم · لو هبط يزور 4 (نصّ المنشور)	H	support		4.8	regular	-17.23	below	4.8	2.98	label
+TG_1848#0	TG_1848#0	UNSIGNED	TRUG	D	other	other	3.737		H	unmapped		1.28	ext	191.95	above		1.15	label
+TG_1848#0	TG_1848#0	UNSIGNED	TRUG	D	blue	blue	3.525		H	target_clean		1.28	ext	175.39	above		1.15	label
+TG_1848#0	TG_1848#0	UNSIGNED	TRUG	D	black	black	3.12		H	resistance		1.28	ext	143.75	above		1.15	label
+TG_1848#0	TG_1848#0	UNSIGNED	TRUG	D	black	black	2.577		H	resistance		1.28	ext	101.33	above		1.15	label
+TG_1848#0	TG_1848#0	UNSIGNED	TRUG	D	blue	blue	2.312		H	target_clean		1.28	ext	80.62	above		1.15	label
+TG_1848#0	TG_1848#0	UNSIGNED	TRUG	D	blue	blue	2.059		H	target_clean		1.28	ext	60.86	above		1.15	label
+TG_1848#0	TG_1848#0	UNSIGNED	TRUG	D	purple	purple	1.853		H	unmapped		1.28	ext	44.77	above		1.15	label
+TG_1848#0	TG_1848#0	UNSIGNED	TRUG	D	black	black	1.622	مهم يتحرر من 1.60	H	resistance		1.28	ext	26.72	above		1.15	label
+TG_1848#0	TG_1848#0	UNSIGNED	TRUG	D	black	black	1.376		H	resistance		1.28	ext	7.50	above		1.15	label
+TG_1848#0	TG_1848#0	UNSIGNED	TRUG	D	red	red	1.179		M	support		1.28	ext	-7.89	below		1.15	label
+TG_1858#0	TG_1858#0	FAISAL	NAMM	4h	black	black	3.239		H	resistance		2.39	ext	35.52	above	2.39	1.411	label
+TG_1858#0	TG_1858#0	FAISAL	NAMM	4h	purple	purple	2.701		H	unmapped		2.39	ext	13.01	above	2.39	1.411	label
+TG_1858#0	TG_1858#0	FAISAL	NAMM	4h	purple	purple	2.206	2.20 دعم فرعي (نصّ المنشور)	H	unmapped		2.39	ext	-7.70	below	2.39	1.411	label
+TG_1858#0	TG_1858#0	FAISAL	NAMM	4h	red	red	2.074		H	support		2.39	ext	-13.22	below	2.39	1.411	label
+TG_1858#0	TG_1858#0	FAISAL	NAMM	4h	red	red	1.852		H	support		2.39	ext	-22.51	below	2.39	1.411	label
+TG_1865#0	TG_1865#0	FAISAL	VEEE	4h	black	black	8.23		H	resistance		5.5	regular	49.64	above	6.01	5.0	label
+TG_1865#0	TG_1865#0	FAISAL	VEEE	4h	purple	purple	5.42		H	unmapped		5.5	regular	-1.45	below	6.01	5.0	label
+TG_1865#0	TG_1865#0	FAISAL	VEEE	4h	red	red	5.16		H	support		5.5	regular	-6.18	below	6.01	5.0	label
+TG_1866#0	TG_1866#0	UNSIGNED	SPPL	D	black	black	1.842		H	resistance		2.12	ext	-13.11	below	2.115	1.5	label
+TG_1866#0	TG_1866#0	UNSIGNED	SPPL	D	black	black	1.77		H	resistance		2.12	ext	-16.51	below	2.115	1.5	label
+TG_1880#0	TG_1880#0	UNSIGNED	CDIO	unknown	black	black	1.603		H	resistance		1.262	ext	27.02	above	1.262	0.824	label
+TG_1880#0	TG_1880#0	UNSIGNED	CDIO	unknown	black	black	1.508		H	resistance		1.262	ext	19.49	above	1.262	0.824	label
+TG_1880#0	TG_1880#0	UNSIGNED	CDIO	unknown	blue	blue	1.096		H	target_clean		1.262	ext	-13.15	below	1.262	0.824	label
+TG_1880#0	TG_1880#0	UNSIGNED	CDIO	unknown	purple	purple	1.05		H	unmapped		1.262	ext	-16.80	below	1.262	0.824	label
+TG_1880#0	TG_1880#0	UNSIGNED	CDIO	unknown	red	red	0.9707		H	support		1.262	ext	-23.08	below	1.262	0.824	label
+TG_1911#0	TG_1911#0	UNSIGNED	PRFX	5m	red	red	2.149	2.14 شمعه الصعود السابقه فنيا > تكون دعم	H	support		2.31	ext	-6.97	below	7.15	1.35	label
+TG_1913#0	TG_1912#0 TG_1913#0	UNSIGNED	PRFX	30m	blue	blue	4.139		H	target_clean		2.31	ext	79.18	above		1.35	label
+TG_1913#0	TG_1912#0 TG_1913#0	UNSIGNED	PRFX	30m	blue	blue	3.797		H	target_clean		2.31	ext	64.37	above		1.35	label
+TG_1913#0	TG_1912#0 TG_1913#0	UNSIGNED	PRFX	30m	black	black	3.096		H	resistance		2.31	ext	34.03	above		1.35	label
+TG_1913#0	TG_1912#0 TG_1913#0	UNSIGNED	PRFX	30m	red	red	2.157		H	support		2.31	ext	-6.62	below		1.35	label
+TG_1913#0	TG_1912#0 TG_1913#0	UNSIGNED	PRFX	30m	red	red	1.811	فريم يومي اخر دعم فنيا مايكسره 1.80	H	support		2.31	ext	-21.60	below		1.35	label
+TG_1924#0	TG_1924#0	UNSIGNED	ADIL	D	black	black	5.248		H	resistance		1.32	ext	297.58	above	1.38	1.31	label
+TG_1924#0	TG_1924#0	UNSIGNED	ADIL	D	other	purple	4.252		H	unmapped		1.32	ext	222.12	above	1.38	1.31	label
+TG_1924#0	TG_1924#0	UNSIGNED	ADIL	D	blue	blue	3.643		H	target_clean		1.32	ext	175.98	above	1.38	1.31	label
+TG_1924#0	TG_1924#0	UNSIGNED	ADIL	D	blue	blue	3.144		H	target_clean		1.32	ext	138.18	above	1.38	1.31	label
+TG_1924#0	TG_1924#0	UNSIGNED	ADIL	D	blue	blue	2.636		H	target_clean		1.32	ext	99.70	above	1.38	1.31	label
+TG_1924#0	TG_1924#0	UNSIGNED	ADIL	D	blue	blue	2.082		H	target_clean		1.32	ext	57.73	above	1.38	1.31	label
+TG_1924#0	TG_1924#0	UNSIGNED	ADIL	D	black	black	1.649		H	resistance		1.32	ext	24.92	above	1.38	1.31	label
+TG_2002#0	TG_2002#0	UNSIGNED		unknown	purple	purple	3.185		H	unmapped		2.07	regular	53.86	above	2.07	2.03	label
+TG_2002#0	TG_2002#0	UNSIGNED		unknown	black	black	2.996		H	resistance		2.07	regular	44.73	above	2.07	2.03	label
+TG_2002#0	TG_2002#0	UNSIGNED		unknown	purple	purple	2.574		H	unmapped		2.07	regular	24.35	above	2.07	2.03	label
+TG_2002#0	TG_2002#0	UNSIGNED		unknown	blue	blue	2.12		H	target_clean		2.07	regular	2.42	above	2.07	2.03	label
+TG_2004#0	TG_2004#0	UNSIGNED	FUSE	5m	black	black	2.114		H	resistance		1.742	ext	21.35	above		1.04	label
+TG_2004#0	TG_2004#0	UNSIGNED	FUSE	5m	blue	blue	1.758		H	target_clean		1.742	ext	0.92	at		1.04	label
+TG_2004#0	TG_2004#0	UNSIGNED	FUSE	5m	blue	blue	1.661		H	target_clean		1.742	ext	-4.65	below		1.04	label
+TG_2004#0	TG_2004#0	UNSIGNED	FUSE	5m	black	black	1.551		H	resistance		1.742	ext	-10.96	below		1.04	label
+TG_2004#0	TG_2004#0	UNSIGNED	FUSE	5m	purple	purple	1.455	ثبات دعم = دخول	H	unmapped		1.742	ext	-16.48	below		1.04	label
+TG_2004#0	TG_2004#0	UNSIGNED	FUSE	5m	red	red	1.329	دعم	H	support		1.742	ext	-23.71	below		1.04	label
+TG_20260918_08_NTCL#0	TG_20260918_08_NTCL#0	UNSIGNED	NTCL	D	blue	blue	10.488		H	target_clean		1.885	mid	456.39	above		1.735	label
+TG_20260918_08_NTCL#0	TG_20260918_08_NTCL#0	UNSIGNED	NTCL	D	blue	blue	8.51		H	target_clean		1.885	mid	351.46	above		1.735	label
+TG_20260918_08_NTCL#0	TG_20260918_08_NTCL#0	UNSIGNED	NTCL	D	purple	purple	7.592		H	unmapped		1.885	mid	302.76	above		1.735	label
+TG_20260918_08_NTCL#0	TG_20260918_08_NTCL#0	UNSIGNED	NTCL	D	blue	blue	6.05		H	target_clean		1.885	mid	220.95	above		1.735	label
+TG_20260918_08_NTCL#0	TG_20260918_08_NTCL#0	UNSIGNED	NTCL	D	blue	blue	4.532		H	target_clean		1.885	mid	140.42	above		1.735	label
+TG_20260918_08_NTCL#0	TG_20260918_08_NTCL#0	UNSIGNED	NTCL	D	black	black	3.306		H	resistance		1.885	mid	75.38	above		1.735	label
+TG_20260918_08_NTCL#0	TG_20260918_08_NTCL#0	UNSIGNED	NTCL	D	red	red	1.832		M	support		1.885	mid	-2.81	below		1.735	label
+TG_20260918_37_NUWE#0	TG_20260918_37_NUWE#0 CH_20260918_39_NUWE#0	UNSIGNED	NUWE	D	orange	orange	1.1039		H	unmapped		0.7809	regular	41.36	above		0.7112	label
+TG_20260918_37_NUWE#0	TG_20260918_37_NUWE#0 CH_20260918_39_NUWE#0	UNSIGNED	NUWE	D	black	black	0.9792		H	resistance		0.7809	regular	25.39	above		0.7112	label
+TG_20260918_37_NUWE#0	TG_20260918_37_NUWE#0 CH_20260918_39_NUWE#0	UNSIGNED	NUWE	D	black	black	0.8841		H	resistance		0.7809	regular	13.22	above		0.7112	label
+TG_20260918_37_NUWE#0	TG_20260918_37_NUWE#0 CH_20260918_39_NUWE#0	UNSIGNED	NUWE	D	black	black	0.7921	الفريم اليومي اختلاف اخر مع توافق 80 سنت (نصّ المنشور)	H	resistance		0.7809	regular	1.43	above		0.7112	label
+TG_20260918_37_NUWE#0	TG_20260918_37_NUWE#0 CH_20260918_39_NUWE#0	UNSIGNED	NUWE	D	purple	purple	0.712		H	unmapped		0.7809	regular	-8.82	below		0.7112	label
+TG_20260918_37_NUWE#0	TG_20260918_37_NUWE#0 CH_20260918_39_NUWE#0	UNSIGNED	NUWE	D	red	red	0.6471		H	support		0.7809	regular	-17.13	below		0.7112	label
+TG_20260918_37_NUWE#0	TG_20260918_37_NUWE#0 CH_20260918_39_NUWE#0	UNSIGNED	NUWE	D	red	red	0.619		H	support		0.7809	regular	-20.73	below		0.7112	label
+TG_20260918_37_NUWE#0	TG_20260918_37_NUWE#0 CH_20260918_39_NUWE#0	UNSIGNED	NUWE	D	red	red	0.5422		H	support		0.7809	regular	-30.57	below		0.7112	label
+TG_20260918_40_NUWE#0	TG_20260918_40_NUWE#0	UNSIGNED	NUWE	4h	blue	blue	2.3894		H	target_clean		0.7755	ext	208.11	above		0.6998	label
+TG_20260918_40_NUWE#0	TG_20260918_40_NUWE#0	UNSIGNED	NUWE	4h	blue	blue	1.9908		H	target_clean		0.7755	ext	156.71	above		0.6998	label
+TG_20260918_40_NUWE#0	TG_20260918_40_NUWE#0	UNSIGNED	NUWE	4h	blue	blue	1.7508		H	target_clean		0.7755	ext	125.76	above		0.6998	label
+TG_20260918_40_NUWE#0	TG_20260918_40_NUWE#0	UNSIGNED	NUWE	4h	purple	purple	1.3977		H	unmapped		0.7755	ext	80.23	above		0.6998	label
+TG_20260918_40_NUWE#0	TG_20260918_40_NUWE#0	UNSIGNED	NUWE	4h	orange	orange	1.1039		H	unmapped		0.7755	ext	42.35	above		0.6998	label
+TG_20260918_40_NUWE#0	TG_20260918_40_NUWE#0	UNSIGNED	NUWE	4h	black	black	0.9792		H	resistance		0.7755	ext	26.27	above		0.6998	label
+TG_20260918_40_NUWE#0	TG_20260918_40_NUWE#0	UNSIGNED	NUWE	4h	black	black	0.8841		H	resistance		0.7755	ext	14.00	above		0.6998	label
+TG_20260918_40_NUWE#0	TG_20260918_40_NUWE#0	UNSIGNED	NUWE	4h	black	black	0.7921	كيف تحسب 0.69+15٪=0.794 (نصّ الرسالة)	H	resistance		0.7755	ext	2.14	above		0.6998	label
+TG_20260918_40_NUWE#0	TG_20260918_40_NUWE#0	UNSIGNED	NUWE	4h	red	red	0.7121		H	support		0.7755	ext	-8.18	below		0.6998	label
+TG_20260918_40_NUWE#0	TG_20260918_40_NUWE#0	UNSIGNED	NUWE	4h	red	red	0.5422		H	support		0.7755	ext	-30.08	below		0.6998	label
+TG_2028#0	TG_2028#0	UNSIGNED	LNAI	4h	purple	purple	4.812		H	unmapped		2.41	ext	99.67	above	2.41	1.653	label
+TG_2028#0	TG_2028#0	UNSIGNED	LNAI	4h	purple	purple	4.351		H	unmapped		2.41	ext	80.54	above	2.41	1.653	label
+TG_2028#0	TG_2028#0	UNSIGNED	LNAI	4h	blue	blue	3.834		H	target_clean		2.41	ext	59.09	above	2.41	1.653	label
+TG_2028#0	TG_2028#0	UNSIGNED	LNAI	4h	blue	blue	3.493		H	target_clean		2.41	ext	44.94	above	2.41	1.653	label
+TG_2028#0	TG_2028#0	UNSIGNED	LNAI	4h	black	black	3.25	3.25 مقاومه ثانيه	H	resistance		2.41	ext	34.85	above	2.41	1.653	label
+TG_2028#0	TG_2028#0	UNSIGNED	LNAI	4h	black	black	2.807	2.80 مقاومه اولى	H	resistance		2.41	ext	16.47	above	2.41	1.653	label
+TG_2028#0	TG_2028#0	UNSIGNED	LNAI	4h	red	red	2.25	2.25 دعم اساسي	H	support		2.41	ext	-6.64	below	2.41	1.653	label
+TG_2032#0	TG_2032#0	UNSIGNED	LNAI	D	blue	blue	3.381	تحرر 3.38	H	target_clean		2.41	ext	40.29	above		2.25	label
+TG_2032#0	TG_2032#0	UNSIGNED	LNAI	D	black	black	3.12	مقاومه ثانيه 3.12	H	resistance		2.41	ext	29.46	above		2.25	label
+TG_2032#0	TG_2032#0	UNSIGNED	LNAI	D	black	black	2.9	مقاومة اولى 2.90	H	resistance		2.41	ext	20.33	above		2.25	label
+TG_2032#0	TG_2032#0	UNSIGNED	LNAI	D	red	red	2.368		H	support		2.41	ext	-1.74	below		2.25	label
+TG_2032#0	TG_2032#0	UNSIGNED	LNAI	D	red	red	2.247		H	support		2.41	ext	-6.76	below		2.25	label
+TG_2040#0	TG_2040#0	UNSIGNED		unknown	purple	purple	8.538	كون قاع بعد الارتفاع عند 4.21 صعد منها الى 8.50 = 100٪ (نصّ الرسالة)	M	unmapped		3.24	regular	163.52	above	3.24	3.15	label
+TG_2040#0	TG_2040#0	UNSIGNED		unknown	black	black	6.028	بعد التقسيم هبط الى 6 وصعد منها ل 24 (نصّ الرسالة)	M	resistance		3.24	regular	86.05	above	3.24	3.15	label
+TG_2040#0	TG_2040#0	UNSIGNED		unknown	red	red	4.219	كون قاع بعد الارتفاع عند 4.21 (نصّ الرسالة)	M	support		3.24	regular	30.22	above	3.24	3.15	label
+TG_2045#0	TG_2045#0	UNSIGNED	TRUG	unknown	purple	purple	6.91		H	unmapped		5.71	ext	21.02	above		3.5	label
+TG_2045#0	TG_2045#0	UNSIGNED	TRUG	unknown	purple	purple	6.516		H	unmapped		5.71	ext	14.12	above		3.5	label
+TG_2045#0	TG_2045#0	UNSIGNED	TRUG	unknown	blue	blue	6.207		H	target_clean		5.71	ext	8.70	above		3.5	label
+TG_2045#0	TG_2045#0	UNSIGNED	TRUG	unknown	purple	purple	5.656	فجوه سعريه	H	unmapped		5.71	ext	-0.95	at		3.5	label
+TG_2045#0	TG_2045#0	UNSIGNED	TRUG	unknown	black	black	5.389		H	resistance		5.71	ext	-5.62	below		3.5	label
+TG_2045#0	TG_2045#0	UNSIGNED	TRUG	unknown	black	black	5.096		H	resistance		5.71	ext	-10.75	below		3.5	label
+TG_2045#0	TG_2045#0	UNSIGNED	TRUG	unknown	black	black	4.887		H	resistance		5.71	ext	-14.41	below		3.5	label
+TG_2045#0	TG_2045#0	UNSIGNED	TRUG	unknown	purple	purple	4.159		H	unmapped		5.71	ext	-27.16	below		3.5	label
+TG_2045#0	TG_2045#0	UNSIGNED	TRUG	unknown	red	red	3.967		H	support		5.71	ext	-30.53	below		3.5	label
+TG_2048#0	TG_2048#0	UNSIGNED	MTVA	D	purple	purple	7.11		H	unmapped		2.51	ext	183.27	above		0.966	label
+TG_2048#0	TG_2048#0	UNSIGNED	MTVA	D	blue	blue	6.095		H	target_clean		2.51	ext	142.83	above		0.966	label
+TG_2048#0	TG_2048#0	UNSIGNED	MTVA	D	blue	blue	5.235		H	target_clean		2.51	ext	108.57	above		0.966	label
+TG_2048#0	TG_2048#0	UNSIGNED	MTVA	D	blue	blue	4.315		H	target_clean		2.51	ext	71.91	above		0.966	label
+TG_2048#0	TG_2048#0	UNSIGNED	MTVA	D	blue	blue	3.826		H	target_clean		2.51	ext	52.43	above		0.966	label
+TG_2048#0	TG_2048#0	UNSIGNED	MTVA	D	blue	blue	3.174		H	target_clean		2.51	ext	26.45	above		0.966	label
+TG_2048#0	TG_2048#0	UNSIGNED	MTVA	D	black	black	2.6		H	resistance		2.51	ext	3.59	above		0.966	label
+TG_2048#0	TG_2048#0	UNSIGNED	MTVA	D	red	red	2.318		H	support		2.51	ext	-7.65	below		0.966	label
+TG_2068#0	TG_2068#0	UNSIGNED	VMAR	D	black	black	2.34		H	resistance		2.24	regular	4.46	above	2.24	2.15	label
+TG_2068#0	TG_2068#0	UNSIGNED	VMAR	D	black	black	2.212		H	resistance		2.24	regular	-1.25	below	2.24	2.15	label
+TG_2068#0	TG_2068#0	UNSIGNED	VMAR	D	red	red	2.15	2.34-8٪=2.15	H	support		2.24	regular	-4.02	below	2.24	2.15	label
+TG_2127#0	TG_2127#0	UNSIGNED	ELAB	D	black	black	9.629		H	resistance		2.02	ext	376.68	above		1.85	label
+TG_2127#0	TG_2127#0	UNSIGNED	ELAB	D	black	black	6.375		H	resistance		2.02	ext	215.59	above		1.85	label
+TG_2127#0	TG_2127#0	UNSIGNED	ELAB	D	blue	blue	5.103		H	target_clean		2.02	ext	152.62	above		1.85	label
+TG_2127#0	TG_2127#0	UNSIGNED	ELAB	D	black	black	3.836		H	resistance		2.02	ext	89.90	above		1.85	label
+TG_2127#0	TG_2127#0	UNSIGNED	ELAB	D	red	red	3.033		H	conflict	red>black	2.02	ext	50.15	above		1.85	label
+TG_2127#0	TG_2127#0	UNSIGNED	ELAB	D	black	black	2.132		H	conflict	black<red	2.02	ext	5.54	above		1.85	label
+TG_50817#0	TG_50817#0	FAISAL	WHLR	30m	other	blue	9.37		M	unmapped		5.86	ext	59.90	above	5.86	1.65	label
+TG_50817#0	TG_50817#0	FAISAL	WHLR	30m	blue	blue	8.11		M	target_clean		5.86	ext	38.40	above	5.86	1.65	label
+TG_50817#0	TG_50817#0	FAISAL	WHLR	30m	blue	blue	7.34		M	target_clean		5.86	ext	25.26	above	5.86	1.65	label
+TG_50817#0	TG_50817#0	FAISAL	WHLR	30m	blue	blue	6.4		M	target_clean		5.86	ext	9.22	above	5.86	1.65	label
+TG_50817#0	TG_50817#0	FAISAL	WHLR	30m	orange	orange	5.59		M	unmapped		5.86	ext	-4.61	below	5.86	1.65	label
+TG_50817#0	TG_50817#0	FAISAL	WHLR	30m	blue	blue	4.96		M	target_clean		5.86	ext	-15.36	below	5.86	1.65	label
+TG_50817#0	TG_50817#0	FAISAL	WHLR	30m	orange	orange	3.11		M	unmapped		5.86	ext	-46.93	below	5.86	1.65	label
+TG_58390#0	TG_58390#0	FAISAL	APVO	4h	blue	blue	2.331	اولا هبوط عنيف صعد من 2.30 ل 2.80 (نصّ المنشور)	H	target_clean		1.73	ext	34.74	above	1.72	1.37	label
+TG_58390#0	TG_58390#0	FAISAL	APVO	4h	black	black	1.602		H	resistance		1.73	ext	-7.40	below	1.72	1.37	label
+TG_58400#0	TG_58400#0	UNSIGNED	NEXR	4h	blue	blue	1.948		H	target_clean		0.99	ext	96.77	above		0.91	label
+TG_58400#0	TG_58400#0	UNSIGNED	NEXR	4h	orange	orange	1.72	الموجه الهابطه	H	unmapped		0.99	ext	73.74	above		0.91	label
+TG_58400#0	TG_58400#0	UNSIGNED	NEXR	4h	black	black	1.54		H	resistance		0.99	ext	55.56	above		0.91	label
+TG_58400#0	TG_58400#0	UNSIGNED	NEXR	4h	black	black	1.401	مقاومه 3	H	resistance		0.99	ext	41.52	above		0.91	label
+TG_58400#0	TG_58400#0	UNSIGNED	NEXR	4h	black	black	1.261	مقاومه 2	H	resistance		0.99	ext	27.37	above		0.91	label
+TG_58400#0	TG_58400#0	UNSIGNED	NEXR	4h	black	black	1.099	مقاومه 1	H	resistance		0.99	ext	11.01	above		0.91	label
+TG_58400#0	TG_58400#0	UNSIGNED	NEXR	4h	red	red	0.9645		H	support		0.99	ext	-2.58	below		0.91	label
+TG_58404#0	TG_58404#0	UNSIGNED	GNPX	D	purple	purple	6.254		H	unmapped		2.643	ext	136.63	above		2.53	label
+TG_58404#0	TG_58404#0	UNSIGNED	GNPX	D	blue	blue	5.467		H	target_clean		2.643	ext	106.85	above		2.53	label
+TG_58404#0	TG_58404#0	UNSIGNED	GNPX	D	orange	orange	4.826		H	unmapped		2.643	ext	82.60	above		2.53	label
+TG_58404#0	TG_58404#0	UNSIGNED	GNPX	D	orange	orange	4.551		H	unmapped		2.643	ext	72.19	above		2.53	label
+TG_58404#0	TG_58404#0	UNSIGNED	GNPX	D	orange	orange	3.998		H	unmapped		2.643	ext	51.27	above		2.53	label
+TG_58404#0	TG_58404#0	UNSIGNED	GNPX	D	black	black	2.987		H	resistance		2.643	ext	13.02	above		2.53	label
+TG_58404#0	TG_58404#0	UNSIGNED	GNPX	D	black	black	2.529		H	resistance		2.643	ext	-4.31	below		2.53	label
+TG_58404#0	TG_58404#0	UNSIGNED	GNPX	D	red	red	1.735		H	support		2.643	ext	-34.35	below		2.53	label
+TG_58409#0	TG_58409#0	FAISAL	NCT	4h	black	black	1.402	دعوم 1.40 صعد منه للمقاومه الاعلى 1.99 · لو كسر 1.40 فشل مباشره (نصّ المنشور)	H	resistance		1.71	ext	-18.01	below	1.71	1.29	label
+TG_58414#0	TG_58414#0	UNSIGNED	NCT	4h	purple	purple	2.606		H	unmapped		1.55	ext	68.13	above	1.55	1.29	label
+TG_58414#0	TG_58414#0	UNSIGNED	NCT	4h	purple	purple	2.414		H	unmapped		1.55	ext	55.74	above	1.55	1.29	label
+TG_58414#0	TG_58414#0	UNSIGNED	NCT	4h	other	blue	2.056		H	unmapped		1.55	ext	32.65	above	1.55	1.29	label
+TG_58414#0	TG_58414#0	UNSIGNED	NCT	4h	orange	orange	1.952	اختراق موجات الهابطه · سهم حافظ ع دعومه 1.40 وصعد 1.99 · 1.96=1.40+40٪ (نصّ المنشور)	H	unmapped		1.55	ext	25.94	above	1.55	1.29	label
+TG_58414#0	TG_58414#0	UNSIGNED	NCT	4h	black	black	1.806	مقاومه 2	H	resistance		1.55	ext	16.52	above	1.55	1.29	label
+TG_58414#0	TG_58414#0	UNSIGNED	NCT	4h	black	black	1.615	مقاومه 1	H	resistance		1.55	ext	4.19	above	1.55	1.29	label
+TG_58414#0	TG_58414#0	UNSIGNED	NCT	4h	red	red	1.4	دعم · سهم حافظ ع دعومه 1.40 (نصّ المنشور)	H	support		1.55	ext	-9.68	below	1.55	1.29	label
+TG_58415#0	TG_58415#0	UNSIGNED	NCT	4h	blue	blue	3.33		H	target_clean		1.495	mid	122.74	above		1.29	label
+TG_58415#0	TG_58415#0	UNSIGNED	NCT	4h	black	black	2.606		H	resistance		1.495	mid	74.31	above		1.29	label
+TG_58415#0	TG_58415#0	UNSIGNED	NCT	4h	purple	purple	1.806		H	unmapped		1.495	mid	20.80	above		1.29	label
+TG_58415#0	TG_58415#0	UNSIGNED	NCT	4h	red	red	1.4	دخول 1.40 > 1.45 (نصّ الرسالة)	H	support		1.495	mid	-6.35	below		1.29	label
+TG_58423#0	TG_58423#0	FAISAL	NCT	4h	purple	purple	4.613	6 تخضع لامور فنية كبير شرط وصول السهم الى شمعة الهبوط العاليه	H	unmapped		1.55	ext	197.61	above	1.55	1.29	label
+TG_58423#0	TG_58423#0	FAISAL	NCT	4h	purple	purple	4.006		H	unmapped		1.55	ext	158.45	above	1.55	1.29	label
+TG_58423#0	TG_58423#0	FAISAL	NCT	4h	red	red	3.345	6 لازم السهم يتحرر من 3 ويثبت عليها	H	conflict	red>black	1.55	ext	115.81	above	1.55	1.29	label
+TG_58423#0	TG_58423#0	FAISAL	NCT	4h	purple	purple	2.608	2.60 مقاومه عاليه للموجات الهابطه	H	unmapped		1.55	ext	68.26	above	1.55	1.29	label
+TG_58423#0	TG_58423#0	FAISAL	NCT	4h	black	black	2.056		H	conflict	black<red	1.55	ext	32.65	above	1.55	1.29	label
+X_20260827_amix_3m_inflow#0	X_20260827_amix_3m_inflow#0 X_20260827_amix_pressure_497#0	FAISAL	AMIX	unknown	black	black	4.88	Amix 4.88 دعومه الاساسيه (نصّ الرسالة) · Amix 4.88 دعومه الاساسيه · دخولنا دفعات من 4.65 > 4.75 > 4.85 (نصّ الرسالة) · الضغط حصل 4.97 (نصّ المنشور)	M	conflict	label	3.21	regular	52.02	above	3.21	2.75	label
+X_20260827_hcwb_leak_read#0	X_20260827_hcwb_leak_read#0	UNSIGNED	HCWB	4h	black	black	2.304	مسار السهم كان جميل من 2.15 ل 2.30 (نصّ المنشور)	H	resistance		2.25	ext	2.40	above	2.25	2.04	label
+X_20260827_hcwb_leak_read#0	X_20260827_hcwb_leak_read#0	UNSIGNED	HCWB	4h	red	red	2.157	مسار السهم كان جميل من 2.15 ل 2.30 (نصّ المنشور)	H	support		2.25	ext	-4.13	below	2.25	2.04	label
+X_20260827_kwm_hammer_support#0	X_20260827_kwm_hammer_support#0	UNSIGNED	KWM	D	black	black	2.535	2.50 شمعة دعم	H	conflict	label	2.76	ext	-8.15	below	2.64	2.02	label
+X_20260827_kwm_hammer_support#0	X_20260827_kwm_hammer_support#0	UNSIGNED	KWM	D	red	red	2.329		H	support		2.76	ext	-15.62	below	2.64	2.02	label
+X_20260827_kwm_hammer_support#0	X_20260827_kwm_hammer_support#0	UNSIGNED	KWM	D	red	red	2.097	شمعة همر ذيلها 2.09 راسها > 2.33	H	support		2.76	ext	-24.02	below	2.64	2.02	label
+X_20260828_08#0	X_20260828_07#0 X_20260828_08#0	THIRD_PARTY	PPCB	4h	black	black	4.986		H	resistance		2.05	ext	143.22	above	2.05	0.95	label
+X_20260828_08#0	X_20260828_07#0 X_20260828_08#0	THIRD_PARTY	PPCB	4h	black	black	1.594	صعد الى 1.60 تقريبا اختبر المقاومه (نصّ المنشور)	H	resistance		2.05	ext	-22.24	below	2.05	0.95	label
+X_20260828_08#0	X_20260828_07#0 X_20260828_08#0	THIRD_PARTY	PPCB	4h	red	red	0.9473	سلوكه قبل الصعود قاع 95 سنت (نصّ المنشور)	H	support		2.05	ext	-53.79	below	2.05	0.95	label
+X_20260918_29_KWM#0	X_20260918_29_KWM#0	FAISAL	KWM	D	blue	blue	4.493		H	target_clean		1.53	regular	193.66	above	1.53	1.2	label
+X_20260918_29_KWM#0	X_20260918_29_KWM#0	FAISAL	KWM	D	blue	blue	3.806		H	target_clean		1.53	regular	148.76	above	1.53	1.2	label
+X_20260918_29_KWM#0	X_20260918_29_KWM#0	FAISAL	KWM	D	purple	purple	3.258		H	unmapped		1.53	regular	112.94	above	1.53	1.2	label
+X_20260918_29_KWM#0	X_20260918_29_KWM#0	FAISAL	KWM	D	blue	blue	2.768		H	target_clean		1.53	regular	80.92	above	1.53	1.2	label
+X_20260918_29_KWM#0	X_20260918_29_KWM#0	FAISAL	KWM	D	purple	purple	2.514		H	unmapped		1.53	regular	64.31	above	1.53	1.2	label
+X_20260918_29_KWM#0	X_20260918_29_KWM#0	FAISAL	KWM	D	black	black	2.037		H	resistance		1.53	regular	33.14	above	1.53	1.2	label
+X_20260918_29_KWM#0	X_20260918_29_KWM#0	FAISAL	KWM	D	black	black	1.822		H	resistance		1.53	regular	19.08	above	1.53	1.2	label
+X_20260918_29_KWM#0	X_20260918_29_KWM#0	FAISAL	KWM	D	red	red	1.294		H	support		1.53	regular	-15.42	below	1.53	1.2	label
+CH_20260918_02_ELPW#0	CH_20260918_02_ELPW#0	UNSIGNED	ELPW	4h	purple	purple	5.579		H	unmapped		2.397	ext	132.75	above	2.397	2.397	label
+CH_20260918_02_ELPW#0	CH_20260918_02_ELPW#0	UNSIGNED	ELPW	4h	black	black	3.632		H	resistance		2.397	ext	51.52	above	2.397	2.397	label
+CH_20260918_02_ELPW#0	CH_20260918_02_ELPW#0	UNSIGNED	ELPW	4h	black	black	2.706		H	resistance		2.397	ext	12.89	above	2.397	2.397	label
+CH_20260918_02_ELPW#0	CH_20260918_02_ELPW#0	UNSIGNED	ELPW	4h	red	red	2.186		H	support		2.397	ext	-8.80	below	2.397	2.397	label
+CH_20260918_14_NUWE#0	CH_20260918_14_NUWE#0 X_20260918_13_NUWE#0	FAISAL	NUWE	4h	blue	blue	1.1835		H	target_clean		0.8201	ext	44.31	above	0.8201	0.6998	label
+CH_20260918_14_NUWE#0	CH_20260918_14_NUWE#0 X_20260918_13_NUWE#0	FAISAL	NUWE	4h	blue	blue	1.129		H	target_clean		0.8201	ext	37.67	above	0.8201	0.6998	label
+CH_20260918_14_NUWE#0	CH_20260918_14_NUWE#0 X_20260918_13_NUWE#0	FAISAL	NUWE	4h	black	black	1.0518		H	resistance		0.8201	ext	28.25	above	0.8201	0.6998	label
+CH_20260918_14_NUWE#0	CH_20260918_14_NUWE#0 X_20260918_13_NUWE#0	FAISAL	NUWE	4h	black	black	0.9493		H	resistance		0.8201	ext	15.75	above	0.8201	0.6998	label
+CH_20260918_14_NUWE#0	CH_20260918_14_NUWE#0 X_20260918_13_NUWE#0	FAISAL	NUWE	4h	black	black	0.8833		H	resistance		0.8201	ext	7.71	above	0.8201	0.6998	label
+CH_20260918_14_NUWE#0	CH_20260918_14_NUWE#0 X_20260918_13_NUWE#0	FAISAL	NUWE	4h	red	red	0.7119		H	support		0.8201	ext	-13.19	below	0.8201	0.6998	label
+CH_20260918_32_SXTC#0	CH_20260918_32_SXTC#0 TG_58418#0 WA_20260918_31_SXTC#0	UNSIGNED	SXTC	unknown	purple	purple	6.309		H	unmapped		1.94	regular	225.21	above	1.94	1.78	label
+CH_20260918_32_SXTC#0	CH_20260918_32_SXTC#0 TG_58418#0 WA_20260918_31_SXTC#0	UNSIGNED	SXTC	unknown	blue	blue	4.141		H	target_clean		1.94	regular	113.45	above	1.94	1.78	label
+CH_20260918_32_SXTC#0	CH_20260918_32_SXTC#0 TG_58418#0 WA_20260918_31_SXTC#0	UNSIGNED	SXTC	unknown	blue	blue	3.098		H	target_clean		1.94	regular	59.69	above	1.94	1.78	label
+CH_20260918_32_SXTC#0	CH_20260918_32_SXTC#0 TG_58418#0 WA_20260918_31_SXTC#0	UNSIGNED	SXTC	unknown	blue	blue	2.048		H	target_clean		1.94	regular	5.57	above	1.94	1.78	label
+CH_20260918_45_NUWE#0	CH_20260918_45_NUWE#0	UNSIGNED	NUWE	unknown	black	black	0.9515		H	resistance		0.7755	ext	22.70	above	0.7755	0.6998	label
+CH_20260918_45_NUWE#0	CH_20260918_45_NUWE#0	UNSIGNED	NUWE	unknown	grey	grey	0.8084		H	unmapped		0.7755	ext	4.24	above	0.7755	0.6998	label
+CH_20260918_45_NUWE#0	CH_20260918_45_NUWE#0	UNSIGNED	NUWE	unknown	red	red	0.7121		H	support		0.7755	ext	-8.18	below	0.7755	0.6998	label
+CH_20260918_45_NUWE#0	CH_20260918_45_NUWE#0	UNSIGNED	NUWE	unknown	red	red	0.608		H	support		0.7755	ext	-21.60	below	0.7755	0.6998	label
+CH_20260918_47_WETO#0	CH_20260918_47_WETO#0	UNSIGNED	WETO	5m	purple	purple	3.758		H	unmapped		2.55	ext	47.37	above	2.55	2.43	label
+CH_20260918_47_WETO#0	CH_20260918_47_WETO#0	UNSIGNED	WETO	5m	purple	purple	3.579		H	unmapped		2.55	ext	40.35	above	2.55	2.43	label
+CH_20260918_47_WETO#0	CH_20260918_47_WETO#0	UNSIGNED	WETO	5m	blue	blue	3.237		H	target_clean		2.55	ext	26.94	above	2.55	2.43	label
+CH_20260918_47_WETO#0	CH_20260918_47_WETO#0	UNSIGNED	WETO	5m	black	black	2.635		H	resistance		2.55	ext	3.33	above	2.55	2.43	label
+CH_20260918_47_WETO#0	CH_20260918_47_WETO#0	UNSIGNED	WETO	5m	black	black	2.426		H	resistance		2.55	ext	-4.86	below	2.55	2.43	label
+CH_20260918_47_WETO#0	CH_20260918_47_WETO#0	UNSIGNED	WETO	5m	red	red	2.011		H	support		2.55	ext	-21.14	below	2.55	2.43	label
+CH_20260918_47_WETO#0	CH_20260918_47_WETO#0	UNSIGNED	WETO	5m	red	red	1.871		H	support		2.55	ext	-26.63	below	2.55	2.43	label
+CH_20260918_57_VEEE#0	CH_20260918_57_VEEE#0	UNSIGNED	VEEE	D	black	black	31.77		H	resistance		6.89	ext	361.10	above		5.0	label
+CH_20260918_57_VEEE#0	CH_20260918_57_VEEE#0	UNSIGNED	VEEE	D	purple	purple	23.01		H	unmapped		6.89	ext	233.96	above		5.0	label
+CH_20260918_57_VEEE#0	CH_20260918_57_VEEE#0	UNSIGNED	VEEE	D	blue	blue	18.48		H	target_clean		6.89	ext	168.21	above		5.0	label
+CH_20260918_57_VEEE#0	CH_20260918_57_VEEE#0	UNSIGNED	VEEE	D	blue	blue	15.34		H	target_clean		6.89	ext	122.64	above		5.0	label
+CH_20260918_57_VEEE#0	CH_20260918_57_VEEE#0	UNSIGNED	VEEE	D	blue	blue	13.06		H	target_clean		6.89	ext	89.55	above		5.0	label
+CH_20260918_57_VEEE#0	CH_20260918_57_VEEE#0	UNSIGNED	VEEE	D	blue	blue	11.38		H	target_clean		6.89	ext	65.17	above		5.0	label
+CH_20260918_57_VEEE#0	CH_20260918_57_VEEE#0	UNSIGNED	VEEE	D	red	red	6.17		H	support		6.89	ext	-10.45	below		5.0	label
+CH_20260918_58_VEEE#0	CH_20260918_58_VEEE#0	UNSIGNED	VEEE	D	red	red	6.17		H	support		6.89	ext	-10.45	below	6.76	5.0	label
+CH_20260918_58_VEEE#0	CH_20260918_58_VEEE#0	UNSIGNED	VEEE	D	red	red	5.76		H	support		6.89	ext	-16.40	below	6.76	5.0	label
+CH_20260918_63_ELPW#0	CH_20260918_63_ELPW#0	UNSIGNED	ELPW	D	blue	blue	6.365		H	target_clean		3.11	ext	104.66	above	3.085	3.01	label
+CH_20260918_63_ELPW#0	CH_20260918_63_ELPW#0	UNSIGNED	ELPW	D	purple	purple	5.608		H	unmapped		3.11	ext	80.32	above	3.085	3.01	label
+CH_20260918_63_ELPW#0	CH_20260918_63_ELPW#0	UNSIGNED	ELPW	D	purple	purple	4.994		H	unmapped		3.11	ext	60.58	above	3.085	3.01	label
+CH_20260918_63_ELPW#0	CH_20260918_63_ELPW#0	UNSIGNED	ELPW	D	black	black	4.391		H	resistance		3.11	ext	41.19	above	3.085	3.01	label
+CH_20260918_63_ELPW#0	CH_20260918_63_ELPW#0	UNSIGNED	ELPW	D	black	black	3.784		H	resistance		3.11	ext	21.67	above	3.085	3.01	label
+CH_20260918_63_ELPW#0	CH_20260918_63_ELPW#0	UNSIGNED	ELPW	D	red	red	1.834		H	support		3.11	ext	-41.03	below	3.085	3.01	label
+CH_20260918_64_ELPW#0	CH_20260918_64_ELPW#0	UNSIGNED	ELPW	W	blue	blue	13.971		H	target_clean		3.11	ext	349.23	above	3.085	3.01	label
+CH_20260918_64_ELPW#0	CH_20260918_64_ELPW#0	UNSIGNED	ELPW	W	black	black	9.99		H	resistance		3.11	ext	221.22	above	3.085	3.01	label
+CH_20260918_64_ELPW#0	CH_20260918_64_ELPW#0	UNSIGNED	ELPW	W	blue	blue	7.333		H	target_clean		3.11	ext	135.79	above	3.085	3.01	label
+CH_20260918_64_ELPW#0	CH_20260918_64_ELPW#0	UNSIGNED	ELPW	W	purple	purple	5.646		H	unmapped		3.11	ext	81.54	above	3.085	3.01	label
+CH_20260918_64_ELPW#0	CH_20260918_64_ELPW#0	UNSIGNED	ELPW	W	black	black	3.815		H	resistance		3.11	ext	22.67	above	3.085	3.01	label
+CH_20260918_65_ELPW#0	CH_20260918_65_ELPW#0	UNSIGNED	ELPW	D	blue	blue	12.432		H	target_clean		3.11	ext	299.74	above	3.085	3.01	label
+CH_20260918_65_ELPW#0	CH_20260918_65_ELPW#0	UNSIGNED	ELPW	D	black	black	9.99		H	resistance		3.11	ext	221.22	above	3.085	3.01	label
+CH_20260918_65_ELPW#0	CH_20260918_65_ELPW#0	UNSIGNED	ELPW	D	blue	blue	7.333		H	target_clean		3.11	ext	135.79	above	3.085	3.01	label
+CH_20260918_65_ELPW#0	CH_20260918_65_ELPW#0	UNSIGNED	ELPW	D	purple	purple	5.646		H	unmapped		3.11	ext	81.54	above	3.085	3.01	label
+CH_20260918_65_ELPW#0	CH_20260918_65_ELPW#0	UNSIGNED	ELPW	D	black	black	3.621		H	resistance		3.11	ext	16.43	above	3.085	3.01	label
+IMG_0178#0	IMG_0178#0	UNSIGNED	KUST	4h	black	black	2.069		H	resistance		2.61	ext	-20.73	below	2.61	1.2	label
+IMG_0178#0	IMG_0178#0	UNSIGNED	KUST	4h	purple	purple	1.952		H	unmapped		2.61	ext	-25.21	below	2.61	1.2	label
+IMG_0178#0	IMG_0178#0	UNSIGNED	KUST	4h	blue	blue	1.672		H	target_clean		2.61	ext	-35.94	below	2.61	1.2	label
+IMG_0178#0	IMG_0178#0	UNSIGNED	KUST	4h	purple	purple	1.361		H	unmapped		2.61	ext	-47.85	below	2.61	1.2	label
+IMG_0178#0	IMG_0178#0	UNSIGNED	KUST	4h	blue	blue	0.3755		H	target_clean		2.61	ext	-85.61	below	2.61	1.2	label
+IMG_0292#0	IMG_0292#0	UNSIGNED	ZCMD	unknown	black	black	5.062	صيني نقيسه مع الاسهم السابقه نقول يغطي فجوته من 5-4 (نصّ الرسالة)	H	resistance		1.07	regular	373.08	above	1.07	0.81	label
+IMG_0292#0	IMG_0292#0	UNSIGNED	ZCMD	unknown	purple	purple	4.439		H	unmapped		1.07	regular	314.86	above	1.07	0.81	label
+IMG_0292#0	IMG_0292#0	UNSIGNED	ZCMD	unknown	blue	blue	3.782		H	target_clean		1.07	regular	253.46	above	1.07	0.81	label
+IMG_0292#0	IMG_0292#0	UNSIGNED	ZCMD	unknown	purple	purple	3.194		H	unmapped		1.07	regular	198.50	above	1.07	0.81	label
+IMG_0292#0	IMG_0292#0	UNSIGNED	ZCMD	unknown	blue	blue	2.724		H	target_clean		1.07	regular	154.58	above	1.07	0.81	label
+IMG_0292#0	IMG_0292#0	UNSIGNED	ZCMD	unknown	blue	blue	2.353		H	target_clean		1.07	regular	119.91	above	1.07	0.81	label
+IMG_0292#0	IMG_0292#0	UNSIGNED	ZCMD	unknown	black	black	1.85		H	resistance		1.07	regular	72.90	above	1.07	0.81	label
+IMG_0292#0	IMG_0292#0	UNSIGNED	ZCMD	unknown	black	black	1.404		H	resistance		1.07	regular	31.21	above	1.07	0.81	label
+IMG_0296#0	IMG_0296#0	UNSIGNED	CCHH	4h	purple	purple	3.503		H	unmapped		1.469	ext	138.46	above		1.3	label
+IMG_0296#0	IMG_0296#0	UNSIGNED	CCHH	4h	purple	purple	2.725		H	unmapped		1.469	ext	85.50	above		1.3	label
+IMG_0296#0	IMG_0296#0	UNSIGNED	CCHH	4h	black	black	2.1		H	resistance		1.469	ext	42.95	above		1.3	label
+IMG_0296#0	IMG_0296#0	UNSIGNED	CCHH	4h	blue	blue	1.692		H	target_clean		1.469	ext	15.18	above		1.3	label
+IMG_0296#0	IMG_0296#0	UNSIGNED	CCHH	4h	blue	blue	1.512		H	target_clean		1.469	ext	2.93	above		1.3	label
+IMG_0296#0	IMG_0296#0	UNSIGNED	CCHH	4h	red	red	1.301		H	support		1.469	ext	-11.44	below		1.3	label
+IMG_0317#0	IMG_0317#0	UNSIGNED	JZ	D	purple	purple	12.793		H	unmapped		2.56	ext	399.73	above		1.9	label
+IMG_0317#0	IMG_0317#0	UNSIGNED	JZ	D	purple	purple	10.966		H	unmapped		2.56	ext	328.36	above		1.9	label
+IMG_0317#0	IMG_0317#0	UNSIGNED	JZ	D	black	black	8.975		H	resistance		2.56	ext	250.59	above		1.9	label
+IMG_0317#0	IMG_0317#0	UNSIGNED	JZ	D	black	black	6.712		H	resistance		2.56	ext	162.19	above		1.9	label
+IMG_0317#0	IMG_0317#0	UNSIGNED	JZ	D	black	black	5.12	ثبات فوق 5 مهم جدا	H	resistance		2.56	ext	100.00	above		1.9	label
+IMG_0317#0	IMG_0317#0	UNSIGNED	JZ	D	blue	blue	3.916		H	target_clean		2.56	ext	52.97	above		1.9	label
+IMG_0317#0	IMG_0317#0	UNSIGNED	JZ	D	black	black	2.877		H	resistance		2.56	ext	12.38	above		1.9	label
+IMG_0317#0	IMG_0317#0	UNSIGNED	JZ	D	red	red	2.293		H	support		2.56	ext	-10.43	below		1.9	label
+IMG_0318#0	IMG_0318#0	UNSIGNED	JZ	4h	blue	blue	3.916		H	target_clean		2.56	ext	52.97	above	2.56	1.9	label
+IMG_0318#0	IMG_0318#0	UNSIGNED	JZ	4h	black	black	2.877		H	resistance		2.56	ext	12.38	above	2.56	1.9	label
+IMG_0318#0	IMG_0318#0	UNSIGNED	JZ	4h	red	red	2.354		H	support		2.56	ext	-8.05	below	2.56	1.9	label
+IMG_0362#0	IMG_0362#0 IMG_0363#0	UNSIGNED	YYAI	5m	black	black	2.5223		H	resistance		0.9449	regular	166.94	above		0.85	label
+IMG_0362#0	IMG_0362#0 IMG_0363#0	UNSIGNED	YYAI	5m	blue	blue	2.3384		H	target_clean		0.9449	regular	147.48	above		0.85	label
+IMG_0362#0	IMG_0362#0 IMG_0363#0	UNSIGNED	YYAI	5m	blue	blue	2.1723		H	target_clean		0.9449	regular	129.90	above		0.85	label
+IMG_0362#0	IMG_0362#0 IMG_0363#0	UNSIGNED	YYAI	5m	blue	blue	1.9532		H	target_clean		0.9449	regular	106.71	above		0.85	label
+IMG_0362#0	IMG_0362#0 IMG_0363#0	UNSIGNED	YYAI	5m	blue	blue	1.6464		H	target_clean		0.9449	regular	74.24	above		0.85	label
+IMG_0362#0	IMG_0362#0 IMG_0363#0	UNSIGNED	YYAI	5m	black	black	1.4541		H	resistance		0.9449	regular	53.89	above		0.85	label
+IMG_0362#0	IMG_0362#0 IMG_0363#0	UNSIGNED	YYAI	5m	blue	blue	1.2519		H	target_clean		0.9449	regular	32.49	above		0.85	label
+IMG_0362#0	IMG_0362#0 IMG_0363#0	UNSIGNED	YYAI	5m	black	black	1.0976		H	resistance		0.9449	regular	16.16	above		0.85	label
+IMG_0362#0	IMG_0362#0 IMG_0363#0	UNSIGNED	YYAI	5m	red	red	0.9015		H	support		0.9449	regular	-4.59	below		0.85	label
+IMG_0394#0	IMG_0394#0 IMG_0395#0 TG_1843#0	FAISAL	SPRC	D	purple	purple	8.289		H	unmapped		4.78	ext	73.41	above	4.9	4.23	label
+IMG_0394#0	IMG_0394#0 IMG_0395#0 TG_1843#0	FAISAL	SPRC	D	purple	purple	7.37		H	unmapped		4.78	ext	54.18	above	4.9	4.23	label
+IMG_0394#0	IMG_0394#0 IMG_0395#0 TG_1843#0	FAISAL	SPRC	D	blue	blue	6.576		H	target_clean		4.78	ext	37.57	above	4.9	4.23	label
+IMG_0394#0	IMG_0394#0 IMG_0395#0 TG_1843#0	FAISAL	SPRC	D	black	black	5.625	اجابية السهم تحرر من مقاومه 5.60 (نصّ المنشور)	H	resistance		4.78	ext	17.68	above	4.9	4.23	label
+IMG_0394#0	IMG_0394#0 IMG_0395#0 TG_1843#0	FAISAL	SPRC	D	red	red	4.235		H	support		4.78	ext	-11.40	below	4.9	4.23	label
+IMG_0414#0	IMG_0414#0	UNSIGNED	NUWE	unknown	orange	orange	14.01		H	unmapped		1.8	ext	678.33	above	2.05	1.95	label
+IMG_0414#0	IMG_0414#0	UNSIGNED	NUWE	unknown	black	black	7.368		H	resistance		1.8	ext	309.33	above	2.05	1.95	label
+IMG_0414#0	IMG_0414#0	UNSIGNED	NUWE	unknown	orange	orange	5.216		H	unmapped		1.8	ext	189.78	above	2.05	1.95	label
+IMG_0414#0	IMG_0414#0	UNSIGNED	NUWE	unknown	blue	blue	3.812	الهدف الاول شمعه التقسيم 3.81 (نصّ الرسالة)	H	target_clean		1.8	ext	111.78	above	2.05	1.95	label
+IMG_0414#0	IMG_0414#0	UNSIGNED	NUWE	unknown	black	black	2.766		H	resistance		1.8	ext	53.67	above	2.05	1.95	label
+IMG_0507#0	IMG_0507#0 IMG_0508#0	FAISAL	SLXN	4h	purple	purple	2.429	كون دعم عن 2.45 · جسم شمعه 2.45 راس شمعه غي 3 (نصّ المنشور)	H	unmapped		1.796	ext	35.24	above	1.796	1.39	label
+IMG_0507#0	IMG_0507#0 IMG_0508#0	FAISAL	SLXN	4h	red	red	1.498		H	support		1.796	ext	-16.59	below	1.796	1.39	label
+IMG_0511#0	IMG_0511#0	UNSIGNED	CANF	unknown	black	black	6.008		H	resistance		3.15	ext	90.73	above	3.15	2.56	label
+IMG_0511#0	IMG_0511#0	UNSIGNED	CANF	unknown	black	black	4.91		H	resistance		3.15	ext	55.87	above	3.15	2.56	label
+IMG_0511#0	IMG_0511#0	UNSIGNED	CANF	unknown	blue	blue	4.135		H	target_clean		3.15	ext	31.27	above	3.15	2.56	label
+IMG_0511#0	IMG_0511#0	UNSIGNED	CANF	unknown	red	red	2.818		H	support		3.15	ext	-10.54	below	3.15	2.56	label
+IMG_0511#0	IMG_0511#0	UNSIGNED	CANF	unknown	purple	purple	2.6		H	unmapped		3.15	ext	-17.46	below	3.15	2.56	label
+IMG_0567#0	IMG_0567#0	UNSIGNED	MNDR	4h	purple	purple	3.912		H	unmapped		1.94	ext	101.65	above		1.4	label
+IMG_0567#0	IMG_0567#0	UNSIGNED	MNDR	4h	blue	blue	3.659		H	target_clean		1.94	ext	88.61	above		1.4	label
+IMG_0567#0	IMG_0567#0	UNSIGNED	MNDR	4h	blue	blue	3.442		H	target_clean		1.94	ext	77.42	above		1.4	label
+IMG_0567#0	IMG_0567#0	UNSIGNED	MNDR	4h	blue	blue	3.295		H	target_clean		1.94	ext	69.85	above		1.4	label
+IMG_0567#0	IMG_0567#0	UNSIGNED	MNDR	4h	black	black	2.953		H	resistance		1.94	ext	52.22	above		1.4	label
+IMG_0567#0	IMG_0567#0	UNSIGNED	MNDR	4h	black	black	2.642		H	resistance		1.94	ext	36.19	above		1.4	label
+IMG_0567#0	IMG_0567#0	UNSIGNED	MNDR	4h	black	black	2.129		H	resistance		1.94	ext	9.74	above		1.4	label
+IMG_0567#0	IMG_0567#0	UNSIGNED	MNDR	4h	black	black	1.898		H	resistance		1.94	ext	-2.16	below		1.4	label
+IMG_0567#0	IMG_0567#0	UNSIGNED	MNDR	4h	red	red	1.598		H	support		1.94	ext	-17.63	below		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	purple	purple	5.385		H	unmapped		1.94	ext	177.58	above		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	purple	purple	4.843		H	unmapped		1.94	ext	149.64	above		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	purple	purple	4.447		H	unmapped		1.94	ext	129.23	above		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	orange	orange	3.912		H	unmapped		1.94	ext	101.65	above		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	blue	blue	3.659		H	target_clean		1.94	ext	88.61	above		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	blue	blue	3.442		H	target_clean		1.94	ext	77.42	above		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	blue	blue	3.295		H	target_clean		1.94	ext	69.85	above		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	black	black	2.953		H	resistance		1.94	ext	52.22	above		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	black	black	2.642		H	resistance		1.94	ext	36.19	above		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	black	black	2.129		H	resistance		1.94	ext	9.74	above		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	black	black	1.898		H	resistance		1.94	ext	-2.16	below		1.4	label
+IMG_0568#0	IMG_0568#0	UNSIGNED	MNDR	D	red	red	1.598		H	support		1.94	ext	-17.63	below		1.4	label
+IMG_0570#0	IMG_0570#0	UNSIGNED	MNDR	4h	purple	purple	1.598		H	unmapped		1.94	ext	-17.63	below	1.94	1.4	label
+IMG_0570#0	IMG_0570#0	UNSIGNED	MNDR	4h	orange	orange	1.55		H	unmapped		1.94	ext	-20.10	below	1.94	1.4	label
+IMG_0570#0	IMG_0570#0	UNSIGNED	MNDR	4h	red	red	1.501		H	support		1.94	ext	-22.63	below	1.94	1.4	label
+IMG_0645#0	IMG_0645#0	UNSIGNED	TDIC	4h	purple	purple	5.776		H	unmapped		2.6	regular	122.15	above	2.6		
+IMG_0645#0	IMG_0645#0	UNSIGNED	TDIC	4h	purple	purple	5.312		H	unmapped		2.6	regular	104.31	above	2.6		
+IMG_0645#0	IMG_0645#0	UNSIGNED	TDIC	4h	purple	purple	4.835		H	unmapped		2.6	regular	85.96	above	2.6		
+IMG_0645#0	IMG_0645#0	UNSIGNED	TDIC	4h	black	black	4.322		H	resistance		2.6	regular	66.23	above	2.6		
+IMG_0645#0	IMG_0645#0	UNSIGNED	TDIC	4h	purple	purple	3.975		H	unmapped		2.6	regular	52.88	above	2.6		
+IMG_0645#0	IMG_0645#0	UNSIGNED	TDIC	4h	black	black	3.587		H	resistance		2.6	regular	37.96	above	2.6		
+IMG_0645#0	IMG_0645#0	UNSIGNED	TDIC	4h	orange	orange	3.278		H	unmapped		2.6	regular	26.08	above	2.6		
+IMG_0645#0	IMG_0645#0	UNSIGNED	TDIC	4h	black	black	3.0		H	resistance		2.6	regular	15.38	above	2.6		
+IMG_0645#0	IMG_0645#0	UNSIGNED	TDIC	4h	red	red	2.686	2.69 > مهم ثباته فوقها (نصّ المنشور)	H	support		2.6	regular	3.31	above	2.6		
+IMG_0648#0	IMG_0648#0	THIRD_PARTY	TDIC	4h	black	black	12.572		M	resistance		2.625	mid	378.93	above			
+IMG_0648#0	IMG_0648#0	THIRD_PARTY	TDIC	4h	blue	blue	11.002		M	target_clean		2.625	mid	319.12	above			
+IMG_0648#0	IMG_0648#0	THIRD_PARTY	TDIC	4h	purple	purple	9.439		M	unmapped		2.625	mid	259.58	above			
+IMG_0648#0	IMG_0648#0	THIRD_PARTY	TDIC	4h	purple	purple	8.217		M	unmapped		2.625	mid	213.03	above			
+IMG_0648#0	IMG_0648#0	THIRD_PARTY	TDIC	4h	purple	purple	6.934		M	unmapped		2.625	mid	164.15	above			
+IMG_0648#0	IMG_0648#0	THIRD_PARTY	TDIC	4h	purple	purple	5.776	5.77 (نصّ المنشور)	M	unmapped		2.625	mid	120.04	above			
+IMG_0648#0	IMG_0648#0	THIRD_PARTY	TDIC	4h	black	black	4.322	4.32 (نصّ المنشور)	M	resistance		2.625	mid	64.65	above			
+IMG_0648#0	IMG_0648#0	THIRD_PARTY	TDIC	4h	black	black	3.0	الموجه الاعلى اختراق 3 يغرد (نصّ المنشور)	M	resistance		2.625	mid	14.29	above			
+IMG_0648#0	IMG_0648#0	THIRD_PARTY	TDIC	4h	red	red	2.686		L	support		2.625	mid	2.32	above			
+IMG_0659#0	IMG_0659#0	THIRD_PARTY	TDIC	D	black	black	3.0		H	resistance		2.64	regular	13.64	above	2.64	2.33	label
+IMG_0659#0	IMG_0659#0	THIRD_PARTY	TDIC	D	red	red	2.412		H	support		2.64	regular	-8.64	below	2.64	2.33	label
+IMG_8126#0	IMG_8126#0	FAISAL	SVRE	W	blue	blue	12.057		H	target_clean		3.76	ext	220.66	above	3.79	2.2	label
+IMG_8126#0	IMG_8126#0	FAISAL	SVRE	W	blue	blue	10.38		H	target_clean		3.76	ext	176.06	above	3.79	2.2	label
+IMG_8126#0	IMG_8126#0	FAISAL	SVRE	W	black	black	9.218		H	resistance		3.76	ext	145.16	above	3.79	2.2	label
+IMG_8126#0	IMG_8126#0	FAISAL	SVRE	W	black	black	7.796		H	resistance		3.76	ext	107.34	above	3.79	2.2	label
+IMG_8126#0	IMG_8126#0	FAISAL	SVRE	W	blue	blue	6.322	قسم 25/2 افتتاح 2.57 - اعلى 6.30 (نصّ المنشور)	H	target_clean		3.76	ext	68.14	above	3.79	2.2	label
+IMG_8126#0	IMG_8126#0	FAISAL	SVRE	W	black	black	4.959		H	resistance		3.76	ext	31.89	above	3.79	2.2	label
+IMG_8126#0	IMG_8126#0	FAISAL	SVRE	W	red	red	3.033		H	support		3.76	ext	-19.34	below	3.79	2.2	label
+TG_1820#0	TG_1820#0	UNSIGNED	LABT	D	purple	purple	7.458		H	unmapped		1.865	ext	299.89	above		1.66	label
+TG_1820#0	TG_1820#0	UNSIGNED	LABT	D	purple	purple	6.689		H	unmapped		1.865	ext	258.66	above		1.66	label
+TG_1820#0	TG_1820#0	UNSIGNED	LABT	D	purple	purple	5.88		H	unmapped		1.865	ext	215.28	above		1.66	label
+TG_1820#0	TG_1820#0	UNSIGNED	LABT	D	black	black	4.714		H	resistance		1.865	ext	152.76	above		1.66	label
+TG_1820#0	TG_1820#0	UNSIGNED	LABT	D	blue	blue	4.047		H	target_clean		1.865	ext	117.00	above		1.66	label
+TG_1820#0	TG_1820#0	UNSIGNED	LABT	D	blue	blue	3.606		H	target_clean		1.865	ext	93.35	above		1.66	label
+TG_1820#0	TG_1820#0	UNSIGNED	LABT	D	black	black	3.088		M	resistance		1.865	ext	65.58	above		1.66	label
+TG_1820#0	TG_1820#0	UNSIGNED	LABT	D	black	black	2.818		H	resistance		1.865	ext	51.10	above		1.66	label
+TG_1820#0	TG_1820#0	UNSIGNED	LABT	D	purple	purple	1.972		H	unmapped		1.865	ext	5.74	above		1.66	label
+TG_1820#0	TG_1820#0	UNSIGNED	LABT	D	red	red	1.654		H	support		1.865	ext	-11.31	below		1.66	label
+TG_1823#0	TG_1823#0	FAISAL	DSY	4h	red	red	2.238		M	support		2.79	ext	-19.78	below		1.69	label
+TG_1827#0	TG_1827#0	FAISAL	DSY	4h	black	black	7.005	حقق 7 فوق 100٪ (نصّ المنشور)	H	resistance		5.23	ext	33.94	above		2.32	label
+TG_1827#0	TG_1827#0	FAISAL	DSY	4h	blue	blue	5.358		H	target_clean		5.23	ext	2.45	above		2.32	label
+TG_1827#0	TG_1827#0	FAISAL	DSY	4h	blue	blue	4.534		H	target_clean		5.23	ext	-13.31	below		2.32	label
+TG_1827#0	TG_1827#0	FAISAL	DSY	4h	black	black	4.031		H	resistance		5.23	ext	-22.93	below		2.32	label
+TG_1827#0	TG_1827#0	FAISAL	DSY	4h	black	black	3.573		H	resistance		5.23	ext	-31.68	below		2.32	label
+TG_1827#0	TG_1827#0	FAISAL	DSY	4h	blue	blue	3.021		H	target_clean		5.23	ext	-42.24	below		2.32	label
+TG_1827#0	TG_1827#0	FAISAL	DSY	4h	red	red	2.514		H	support		5.23	ext	-51.93	below		2.32	label
+TG_1836#0	TG_1836#0 TG_1838#0	FAISAL	PPCB	4h	purple	purple	2.717		H	unmapped		1.65	ext	64.67	above	1.65	1.412	label
+TG_1836#0	TG_1836#0 TG_1838#0	FAISAL	PPCB	4h	black	black	2.462		H	resistance		1.65	ext	49.21	above	1.65	1.412	label
+TG_1836#0	TG_1836#0 TG_1838#0	FAISAL	PPCB	4h	purple	purple	2.209		H	unmapped		1.65	ext	33.88	above	1.65	1.412	label
+TG_1836#0	TG_1836#0 TG_1838#0	FAISAL	PPCB	4h	black	black	1.945	المقاومه1.95 (نصّ المنشور)	H	resistance		1.65	ext	17.88	above	1.65	1.412	label
+TG_1836#0	TG_1836#0 TG_1838#0	FAISAL	PPCB	4h	red	red	1.52	الدعوم 1.53 (نصّ المنشور)	H	support		1.65	ext	-7.88	below	1.65	1.412	label
+TG_1839#0	TG_1839#0	UNSIGNED	SPRC	4h	purple	purple	8.29		H	unmapped		5.5	ext	50.73	above		4.18	label
+TG_1839#0	TG_1839#0	UNSIGNED	SPRC	4h	purple	purple	7.37		H	unmapped		5.5	ext	34.00	above		4.18	label
+TG_1839#0	TG_1839#0	UNSIGNED	SPRC	4h	blue	blue	6.58		H	target_clean		5.5	ext	19.64	above		4.18	label
+TG_1839#0	TG_1839#0	UNSIGNED	SPRC	4h	purple	purple	5.99		H	unmapped		5.5	ext	8.91	above		4.18	label
+TG_1839#0	TG_1839#0	UNSIGNED	SPRC	4h	black	black	5.5		H	resistance		5.5	ext	0.00	at		4.18	label
+TG_1839#0	TG_1839#0	UNSIGNED	SPRC	4h	black	black	5.14		H	resistance		5.5	ext	-6.55	below		4.18	label
+TG_1839#0	TG_1839#0	UNSIGNED	SPRC	4h	red	red	4.23		H	support		5.5	ext	-23.09	below		4.18	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	other	other	3.737		H	unmapped		1.17	ext	219.40	above		1.1	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	blue	blue	3.525		H	target_clean		1.17	ext	201.28	above		1.1	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	black	black	3.12		H	resistance		1.17	ext	166.67	above		1.1	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	black	black	2.577		H	resistance		1.17	ext	120.26	above		1.1	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	blue	blue	2.312		H	target_clean		1.17	ext	97.61	above		1.1	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	blue	blue	2.059		H	target_clean		1.17	ext	75.98	above		1.1	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	black	black	1.83		H	resistance		1.17	ext	56.41	above		1.1	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	black	black	1.622		H	resistance		1.17	ext	38.63	above		1.1	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	purple	purple	1.36		H	unmapped		1.17	ext	16.24	above		1.1	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	black	black	1.29		L	resistance		1.17	ext	10.26	above		1.1	label
+TG_1847#0	TG_1847#0	UNSIGNED	TRUG	D	red	red	1.15		H	support		1.17	ext	-1.71	below		1.1	label
+TG_1851#0	TG_1851#0	UNSIGNED	EZRA	D	orange	orange	6.199		H	unmapped		2.41	ext	157.22	above			
+TG_1851#0	TG_1851#0	UNSIGNED	EZRA	D	purple	purple	5.433		H	unmapped		2.41	ext	125.44	above			
+TG_1851#0	TG_1851#0	UNSIGNED	EZRA	D	black	black	4.554		H	resistance		2.41	ext	88.96	above			
+TG_1851#0	TG_1851#0	UNSIGNED	EZRA	D	black	black	4.012		H	resistance		2.41	ext	66.47	above			
+TG_1851#0	TG_1851#0	UNSIGNED	EZRA	D	purple	purple	3.754		H	unmapped		2.41	ext	55.77	above			
+TG_1851#0	TG_1851#0	UNSIGNED	EZRA	D	purple	purple	3.431		H	unmapped		2.41	ext	42.37	above			
+TG_1851#0	TG_1851#0	UNSIGNED	EZRA	D	black	black	3.03	بيد المضارب 3 مقاومه اما يتحرر منها او ويكمل بعض الاهداف او يهبط (نصّ المنشور)	H	resistance		2.41	ext	25.73	above			
+TG_1851#0	TG_1851#0	UNSIGNED	EZRA	D	red	red	2.207		H	support		2.41	ext	-8.42	below			
+TG_1859#0	TG_1859#0 TG_2275#0	FAISAL	EZRA	D	blue	blue	6.233		H	target_clean		3.71	regular	68.01	above	3.71	3.215	label
+TG_1859#0	TG_1859#0 TG_2275#0	FAISAL	EZRA	D	black	black	5.798		H	resistance		3.71	regular	56.28	above	3.71	3.215	label
+TG_1859#0	TG_1859#0 TG_2275#0	FAISAL	EZRA	D	black	black	5.444		H	resistance		3.71	regular	46.74	above	3.71	3.215	label
+TG_1859#0	TG_1859#0 TG_2275#0	FAISAL	EZRA	D	blue	blue	4.835		H	target_clean		3.71	regular	30.32	above	3.71	3.215	label
+TG_1859#0	TG_1859#0 TG_2275#0	FAISAL	EZRA	D	black	black	4.348	مقاومة السهم 4 و 4.38 (نصّ المنشور)	H	resistance		3.71	regular	17.20	above	3.71	3.215	label
+TG_1859#0	TG_1859#0 TG_2275#0	FAISAL	EZRA	D	black	black	4.008	مقاومة السهم 4 و 4.38 (نصّ المنشور)	H	resistance		3.71	regular	8.03	above	3.71	3.215	label
+TG_1859#0	TG_1859#0 TG_2275#0	FAISAL	EZRA	D	red	red	3.221		H	support		3.71	regular	-13.18	below	3.71	3.215	label
+TG_1861#0	TG_1861#0	UNSIGNED	PIII	4h	purple	purple	14.34		H	unmapped		9.27	ext	54.69	above		3.4	label
+TG_1861#0	TG_1861#0	UNSIGNED	PIII	4h	black	black	11.31		H	resistance		9.27	ext	22.01	above		3.4	label
+TG_1861#0	TG_1861#0	UNSIGNED	PIII	4h	black	black	10.01		H	resistance		9.27	ext	7.98	above		3.4	label
+TG_1861#0	TG_1861#0	UNSIGNED	PIII	4h	blue	blue	9.11		H	target_clean		9.27	ext	-1.73	below		3.4	label
+TG_1861#0	TG_1861#0	UNSIGNED	PIII	4h	black	black	8.26		H	resistance		9.27	ext	-10.90	below		3.4	label
+TG_1861#0	TG_1861#0	UNSIGNED	PIII	4h	blue	blue	6.88		H	target_clean		9.27	ext	-25.78	below		3.4	label
+TG_1861#0	TG_1861#0	UNSIGNED	PIII	4h	red	red	4.7		H	support		9.27	ext	-49.30	below		3.4	label
+TG_1862#0	TG_1862#0	UNSIGNED	PIII	4h	red	red	4.7		H	support		9.27	ext	-49.30	below		2.9	label
+TG_1869#0	TG_1869#0	UNSIGNED	GWAV	W	purple	purple	5.474		H	unmapped		3.38	ext	61.95	above	3.24	3.15	label
+TG_1869#0	TG_1869#0	UNSIGNED	GWAV	W	blue	blue	5.192		H	target_clean		3.38	ext	53.61	above	3.24	3.15	label
+TG_1869#0	TG_1869#0	UNSIGNED	GWAV	W	purple	purple	4.592		H	unmapped		3.38	ext	35.86	above	3.24	3.15	label
+TG_1869#0	TG_1869#0	UNSIGNED	GWAV	W	black	black	4.219		H	resistance		3.38	ext	24.82	above	3.24	3.15	label
+TG_1869#0	TG_1869#0	UNSIGNED	GWAV	W	red	red	2.555		H	support		3.38	ext	-24.41	below	3.24	3.15	label
+TG_1871#0	TG_1871#0	APP	SPPL	D	red	red	1.763		H	support		2.12	ext	-16.84	below	1.945	1.5	label
+TG_1874#0	TG_1874#0	UNSIGNED	HTCR	D	blue	blue	4.798		H	target_clean		3.4	ext	41.12	above	3.215	2.5	label
+TG_1874#0	TG_1874#0	UNSIGNED	HTCR	D	blue	blue	4.571		H	target_clean		3.4	ext	34.44	above	3.215	2.5	label
+TG_1874#0	TG_1874#0	UNSIGNED	HTCR	D	blue	blue	4.272		H	target_clean		3.4	ext	25.65	above	3.215	2.5	label
+TG_1874#0	TG_1874#0	UNSIGNED	HTCR	D	black	black	3.897		H	resistance		3.4	ext	14.62	above	3.215	2.5	label
+TG_1874#0	TG_1874#0	UNSIGNED	HTCR	D	black	black	3.707		H	resistance		3.4	ext	9.03	above	3.215	2.5	label
+TG_1874#0	TG_1874#0	UNSIGNED	HTCR	D	red	red	2.499		H	support		3.4	ext	-26.50	below	3.215	2.5	label
+TG_1881#0	TG_1881#0	UNSIGNED	BNKK	D	blue	blue	2.289		H	target_clean		1.591	ext	43.87	above	1.62	1.25	label
+TG_1881#0	TG_1881#0	UNSIGNED	BNKK	D	blue	blue	2.15		H	target_clean		1.591	ext	35.14	above	1.62	1.25	label
+TG_1881#0	TG_1881#0	UNSIGNED	BNKK	D	blue	blue	2.028		H	target_clean		1.591	ext	27.47	above	1.62	1.25	label
+TG_1881#0	TG_1881#0	UNSIGNED	BNKK	D	blue	blue	1.892		H	target_clean		1.591	ext	18.92	above	1.62	1.25	label
+TG_1881#0	TG_1881#0	UNSIGNED	BNKK	D	blue	blue	1.809		H	target_clean		1.591	ext	13.70	above	1.62	1.25	label
+TG_1881#0	TG_1881#0	UNSIGNED	BNKK	D	black	black	1.663		H	resistance		1.591	ext	4.53	above	1.62	1.25	label
+TG_1881#0	TG_1881#0	UNSIGNED	BNKK	D	red	red	1.316		H	support		1.591	ext	-17.28	below	1.62	1.25	label
+TG_1881#0	TG_1881#0	UNSIGNED	BNKK	D	red	red	1.2		H	support		1.591	ext	-24.58	below	1.62	1.25	label
+TG_1883#0	TG_1883#0	UNSIGNED	INHD	D	black	black	3.696		H	resistance		2.07	ext	78.55	above	1.76	1.48	label
+TG_1883#0	TG_1883#0	UNSIGNED	INHD	D	black	black	3.362		H	resistance		2.07	ext	62.42	above	1.76	1.48	label
+TG_1883#0	TG_1883#0	UNSIGNED	INHD	D	black	black	3.01		H	resistance		2.07	ext	45.41	above	1.76	1.48	label
+TG_1883#0	TG_1883#0	UNSIGNED	INHD	D	black	black	2.135		H	resistance		2.07	ext	3.14	above	1.76	1.48	label
+TG_1896#0	TG_1896#0	UNSIGNED	MWC	4h	blue	blue	10.451		H	target_clean		3.79	ext	175.75	above	3.79	3.38	label
+TG_1896#0	TG_1896#0	UNSIGNED	MWC	4h	blue	blue	4.718		H	target_clean		3.79	ext	24.49	above	3.79	3.38	label
+TG_1900#0	TG_1900#0	UNSIGNED	ASST	W	blue	blue	31.65		H	target_clean		18.21	ext	73.81	above		7.02	label
+TG_1900#0	TG_1900#0	UNSIGNED	ASST	W	black	black	28.2		H	resistance		18.21	ext	54.86	above		7.02	label
+TG_1900#0	TG_1900#0	UNSIGNED	ASST	W	blue	blue	25.91		H	target_clean		18.21	ext	42.28	above		7.02	label
+TG_1900#0	TG_1900#0	UNSIGNED	ASST	W	other	blue	23.25		H	unmapped		18.21	ext	27.68	above		7.02	label
+TG_1900#0	TG_1900#0	UNSIGNED	ASST	W	blue	blue	21.18		H	target_clean		18.21	ext	16.31	above		7.02	label
+TG_1900#0	TG_1900#0	UNSIGNED	ASST	W	red	red	17.9		M	support		18.21	ext	-1.70	below		7.02	label
+TG_1900#0	TG_1900#0	UNSIGNED	ASST	W	red	red	14.83		H	support		18.21	ext	-18.56	below		7.02	label
+TG_1900#0	TG_1900#0	UNSIGNED	ASST	W	red	red	13.87		H	support		18.21	ext	-23.83	below		7.02	label
+TG_1900#0	TG_1900#0	UNSIGNED	ASST	W	red	red	1.36		H	support		18.21	ext	-92.53	below		7.02	label
+TG_1901#0	TG_1901#0	UNSIGNED	ASST	D	blue	blue	31.65		H	target_clean		18.21	ext	73.81	above		7.02	label
+TG_1901#0	TG_1901#0	UNSIGNED	ASST	D	black	black	28.2		H	resistance		18.21	ext	54.86	above		7.02	label
+TG_1901#0	TG_1901#0	UNSIGNED	ASST	D	blue	blue	25.91		H	target_clean		18.21	ext	42.28	above		7.02	label
+TG_1901#0	TG_1901#0	UNSIGNED	ASST	D	other	blue	23.25		H	unmapped		18.21	ext	27.68	above		7.02	label
+TG_1901#0	TG_1901#0	UNSIGNED	ASST	D	blue	blue	21.18		H	target_clean		18.21	ext	16.31	above		7.02	label
+TG_1901#0	TG_1901#0	UNSIGNED	ASST	D	red	red	17.9		M	support		18.21	ext	-1.70	below		7.02	label
+TG_1901#0	TG_1901#0	UNSIGNED	ASST	D	red	red	15.14		H	support		18.21	ext	-16.86	below		7.02	label
+TG_1901#0	TG_1901#0	UNSIGNED	ASST	D	red	red	13.87		H	support		18.21	ext	-23.83	below		7.02	label
+TG_1901#0	TG_1901#0	UNSIGNED	ASST	D	red	red	1.36		H	support		18.21	ext	-92.53	below		7.02	label
+TG_1903#0	TG_1903#0	UNSIGNED	GWAV	unknown	blue	blue	7.483		H	target_clean		3.38	ext	121.39	above		3.15	label
+TG_1903#0	TG_1903#0	UNSIGNED	GWAV	unknown	blue	blue	7.174		H	target_clean		3.38	ext	112.25	above		3.15	label
+TG_1903#0	TG_1903#0	UNSIGNED	GWAV	unknown	blue	blue	6.497		H	target_clean		3.38	ext	92.22	above		3.15	label
+TG_1903#0	TG_1903#0	UNSIGNED	GWAV	unknown	blue	blue	5.892		H	target_clean		3.38	ext	74.32	above		3.15	label
+TG_1903#0	TG_1903#0	UNSIGNED	GWAV	unknown	purple	purple	5.222		H	unmapped		3.38	ext	54.50	above		3.15	label
+TG_1903#0	TG_1903#0	UNSIGNED	GWAV	unknown	purple	purple	4.592		H	unmapped		3.38	ext	35.86	above		3.15	label
+TG_1903#0	TG_1903#0	UNSIGNED	GWAV	unknown	black	black	4.219		H	resistance		3.38	ext	24.82	above		3.15	label
+TG_1903#0	TG_1903#0	UNSIGNED	GWAV	unknown	red	red	3.145		H	support		3.38	ext	-6.95	below		3.15	label
+TG_1909#0	TG_1909#0	UNSIGNED		unknown	black	black	241.84		H	resistance								
+TG_1909#0	TG_1909#0	UNSIGNED		unknown	purple	purple	205.13		H	unmapped								
+TG_1909#0	TG_1909#0	UNSIGNED		unknown	purple	purple	181.85		H	unmapped								
+TG_1909#0	TG_1909#0	UNSIGNED		unknown	purple	purple	158.89		H	unmapped								
+TG_1909#0	TG_1909#0	UNSIGNED		unknown	purple	purple	138.58		H	unmapped								
+TG_1909#0	TG_1909#0	UNSIGNED		unknown	blue	blue	115.86		H	target_clean								
+TG_1909#0	TG_1909#0	UNSIGNED		unknown	blue	blue	95.61		H	target_clean								
+TG_1909#0	TG_1909#0	UNSIGNED		unknown	blue	blue	76.71		H	target_clean								
+TG_1909#0	TG_1909#0	UNSIGNED		unknown	blue	blue	57.81		H	target_clean								
+TG_1909#0	TG_1909#0	UNSIGNED		unknown	blue	blue	43.41		H	target_clean								
+TG_1918#0	TG_1918#0 TG_1951#0	UNSIGNED	CNMD	unknown	blue	blue	60.04		H	target_clean		37.23	ext	61.27	above	37.23	33.21	label
+TG_1918#0	TG_1918#0 TG_1951#0	UNSIGNED	CNMD	unknown	blue	blue	56.38		H	target_clean		37.23	ext	51.44	above	37.23	33.21	label
+TG_1918#0	TG_1918#0 TG_1951#0	UNSIGNED	CNMD	unknown	blue	blue	53.61		H	target_clean		37.23	ext	44.00	above	37.23	33.21	label
+TG_1918#0	TG_1918#0 TG_1951#0	UNSIGNED	CNMD	unknown	blue	blue	49.62		H	target_clean		37.23	ext	33.28	above	37.23	33.21	label
+TG_1918#0	TG_1918#0 TG_1951#0	UNSIGNED	CNMD	unknown	blue	blue	45.24		H	target_clean		37.23	ext	21.51	above	37.23	33.21	label
+TG_1918#0	TG_1918#0 TG_1951#0	UNSIGNED	CNMD	unknown	black	black	43.9		H	resistance		37.23	ext	17.92	above	37.23	33.21	label
+TG_1918#0	TG_1918#0 TG_1951#0	UNSIGNED	CNMD	unknown	black	black	42.09		H	resistance		37.23	ext	13.05	above	37.23	33.21	label
+TG_1918#0	TG_1918#0 TG_1951#0	UNSIGNED	CNMD	unknown	black	black	40.68		H	resistance		37.23	ext	9.27	above	37.23	33.21	label
+TG_1918#0	TG_1918#0 TG_1951#0	UNSIGNED	CNMD	unknown	red	red	35.1		H	support		37.23	ext	-5.72	below	37.23	33.21	label
+TG_1932#0	TG_1932#0	UNSIGNED	CDIO	unknown	blue	blue	5.245		H	target_clean		2.96	ext	77.20	above	2.24	0.97	label
+TG_1932#0	TG_1932#0	UNSIGNED	CDIO	unknown	blue	blue	4.282		H	target_clean		2.96	ext	44.66	above	2.24	0.97	label
+TG_1932#0	TG_1932#0	UNSIGNED	CDIO	unknown	blue	blue	3.706		H	target_clean		2.96	ext	25.20	above	2.24	0.97	label
+TG_1932#0	TG_1932#0	UNSIGNED	CDIO	unknown	blue	blue	2.857		H	target_clean		2.96	ext	-3.48	below	2.24	0.97	label
+TG_1932#0	TG_1932#0	UNSIGNED	CDIO	unknown	purple	purple	2.693		H	unmapped		2.96	ext	-9.02	below	2.24	0.97	label
+TG_1932#0	TG_1932#0	UNSIGNED	CDIO	unknown	red	red	2.062		H	conflict	red>blue	2.96	ext	-30.34	below	2.24	0.97	label
+TG_1932#0	TG_1932#0	UNSIGNED	CDIO	unknown	blue	blue	1.169		H	conflict	blue<red	2.96	ext	-60.51	below	2.24	0.97	label
+TG_1932#0	TG_1932#0	UNSIGNED	CDIO	unknown	purple	purple	1.05		H	unmapped		2.96	ext	-64.53	below	2.24	0.97	label
+TG_1932#0	TG_1932#0	UNSIGNED	CDIO	unknown	red	red	0.9707		M	support		2.96	ext	-67.21	below	2.24	0.97	label
+TG_1933#0	TG_1933#0	FAISAL	CDIO	unknown	blue	blue	2.857		H	target_clean		2.96	ext	-3.48	below	2.96		
+TG_1933#0	TG_1933#0	FAISAL	CDIO	unknown	purple	purple	2.693	2.70 < 2.80 يضغطه لمناطق الطلب (نصّ المنشور)	H	unmapped		2.96	ext	-9.02	below	2.96		
+TG_1933#0	TG_1933#0	FAISAL	CDIO	unknown	red	red	2.537	2.50 دعم لو كسره يفشل السهم (نصّ المنشور)	H	support		2.96	ext	-14.29	below	2.96		
+TG_1933#0	TG_1933#0	FAISAL	CDIO	unknown	red	red	2.421		H	support		2.96	ext	-18.21	below	2.96		
+TG_1941#0	TG_1941#0	UNSIGNED	BIRD	2h	black	black	9.02		H	resistance		10.38	regular	-13.10	below	10.3	2.17	label
+TG_1941#0	TG_1941#0	UNSIGNED	BIRD	2h	black	black	7.61		H	resistance		10.38	regular	-26.69	below	10.3	2.17	label
+TG_1941#0	TG_1941#0	UNSIGNED	BIRD	2h	black	black	6.83		H	resistance		10.38	regular	-34.20	below	10.3	2.17	label
+TG_1941#0	TG_1941#0	UNSIGNED	BIRD	2h	black	black	6.36		H	resistance		10.38	regular	-38.73	below	10.3	2.17	label
+TG_1941#0	TG_1941#0	UNSIGNED	BIRD	2h	blue	blue	5.9		H	target_clean		10.38	regular	-43.16	below	10.3	2.17	label
+TG_1941#0	TG_1941#0	UNSIGNED	BIRD	2h	blue	blue	5.28		H	target_clean		10.38	regular	-49.13	below	10.3	2.17	label
+TG_1941#0	TG_1941#0	UNSIGNED	BIRD	2h	blue	blue	4.66		H	target_clean		10.38	regular	-55.11	below	10.3	2.17	label
+TG_1941#0	TG_1941#0	UNSIGNED	BIRD	2h	purple	purple	4.23		H	unmapped		10.38	regular	-59.25	below	10.3	2.17	label
+TG_1941#0	TG_1941#0	UNSIGNED	BIRD	2h	red	red	3.42		H	support		10.38	regular	-67.05	below	10.3	2.17	label
+TG_1942#0	TG_1942#0	UNSIGNED	BIRD	unknown	blue	blue	5.137		H	target_clean		3.92	ext	31.05	above	2.98	2.4	label
+TG_1942#0	TG_1942#0	UNSIGNED	BIRD	unknown	blue	blue	4.669		H	target_clean		3.92	ext	19.11	above	2.98	2.4	label
+TG_1942#0	TG_1942#0	UNSIGNED	BIRD	unknown	blue	blue	4.455		H	target_clean		3.92	ext	13.65	above	2.98	2.4	label
+TG_1942#0	TG_1942#0	UNSIGNED	BIRD	unknown	purple	purple	3.993		H	unmapped		3.92	ext	1.86	above	2.98	2.4	label
+TG_1942#0	TG_1942#0	UNSIGNED	BIRD	unknown	red	red	3.552		H	support		3.92	ext	-9.39	below	2.98	2.4	label
+TG_1943#0	TG_1943#0	UNSIGNED	ZNB	D	blue	blue	1.648		H	target_clean		1.82	ext	-9.45	below	1.75	1.52	label
+TG_1943#0	TG_1943#0	UNSIGNED	ZNB	D	blue	blue	1.581		H	target_clean		1.82	ext	-13.13	below	1.75	1.52	label
+TG_1943#0	TG_1943#0	UNSIGNED	ZNB	D	red	red	1.517		H	support		1.82	ext	-16.65	below	1.75	1.52	label
+TG_1947#0	TG_1947#0	FAISAL	CLIK	unknown	black	black	3.444		H	resistance		1.94	ext	77.53	above	1.94	1.27	label
+TG_1947#0	TG_1947#0	FAISAL	CLIK	unknown	black	black	2.213	تحرر السهم 2.21 (نصّ المنشور)	H	resistance		1.94	ext	14.07	above	1.94	1.27	label
+TG_1947#0	TG_1947#0	FAISAL	CLIK	unknown	purple	purple	1.847	اليوم حافظ ع 1.84 الشمعه خضرا (نصّ المنشور)	H	unmapped		1.94	ext	-4.79	below	1.94	1.27	label
+TG_1947#0	TG_1947#0	FAISAL	CLIK	unknown	red	red	1.735	1.73 خطوره السهم (نصّ المنشور)	H	support		1.94	ext	-10.57	below	1.94	1.27	label
+TG_1947#0	TG_1947#0	FAISAL	CLIK	unknown	red	red	1.609	اخر دعم يفشل فيه 1.60 (نصّ المنشور)	H	support		1.94	ext	-17.06	below	1.94	1.27	label
+TG_1949#0	TG_1949#0	UNSIGNED	PRFX	4h	blue	blue	2.622		H	target_clean		1.58	ext	65.95	above	1.58	1.41	label
+TG_1949#0	TG_1949#0	UNSIGNED	PRFX	4h	blue	blue	2.392		H	target_clean		1.58	ext	51.39	above	1.58	1.41	label
+TG_1949#0	TG_1949#0	UNSIGNED	PRFX	4h	black	black	2.279		H	resistance		1.58	ext	44.24	above	1.58	1.41	label
+TG_1949#0	TG_1949#0	UNSIGNED	PRFX	4h	purple	purple	1.979		H	unmapped		1.58	ext	25.25	above	1.58	1.41	label
+TG_1949#0	TG_1949#0	UNSIGNED	PRFX	4h	blue	blue	1.786		H	target_clean		1.58	ext	13.04	above	1.58	1.41	label
+TG_1949#0	TG_1949#0	UNSIGNED	PRFX	4h	red	red	1.437		H	support		1.58	ext	-9.05	below	1.58	1.41	label
+TG_1950#0	TG_1950#0	UNSIGNED	RENX	4h	purple	purple	2.056		H	unmapped		1.56	ext	31.79	above		1.38	label
+TG_1950#0	TG_1950#0	UNSIGNED	RENX	4h	blue	blue	1.938		H	target_clean		1.56	ext	24.23	above		1.38	label
+TG_1950#0	TG_1950#0	UNSIGNED	RENX	4h	blue	blue	1.628		H	target_clean		1.56	ext	4.36	above		1.38	label
+TG_1950#0	TG_1950#0	UNSIGNED	RENX	4h	black	black	1.54		H	resistance		1.56	ext	-1.28	below		1.38	label
+TG_1950#0	TG_1950#0	UNSIGNED	RENX	4h	red	red	1.462		H	support		1.56	ext	-6.28	below		1.38	label
+TG_1953#0	TG_1953#0 TG_1954#0	UNSIGNED	EZRA	4h	blue	blue	7.785		H	target_clean		4.187	ext	85.93	above	4.187	2.816	label
+TG_1953#0	TG_1953#0 TG_1954#0	UNSIGNED	EZRA	4h	blue	blue	7.426		H	target_clean		4.187	ext	77.36	above	4.187	2.816	label
+TG_1953#0	TG_1953#0 TG_1954#0	UNSIGNED	EZRA	4h	purple	purple	6.884		H	unmapped		4.187	ext	64.41	above	4.187	2.816	label
+TG_1953#0	TG_1953#0 TG_1954#0	UNSIGNED	EZRA	4h	purple	purple	6.31		H	unmapped		4.187	ext	50.70	above	4.187	2.816	label
+TG_1953#0	TG_1953#0 TG_1954#0	UNSIGNED	EZRA	4h	blue	blue	5.297		H	target_clean		4.187	ext	26.51	above	4.187	2.816	label
+TG_1953#0	TG_1953#0 TG_1954#0	UNSIGNED	EZRA	4h	blue	blue	4.583		H	target_clean		4.187	ext	9.46	above	4.187	2.816	label
+TG_1953#0	TG_1953#0 TG_1954#0	UNSIGNED	EZRA	4h	orange	orange	3.705		M	unmapped		4.187	ext	-11.51	below	4.187	2.816	label
+TG_1953#0	TG_1953#0 TG_1954#0	UNSIGNED	EZRA	4h	red	red	3.544		H	support		4.187	ext	-15.36	below	4.187	2.816	label
+TG_1953#0	TG_1953#0 TG_1954#0	UNSIGNED	EZRA	4h	red	red	3.257		H	support		4.187	ext	-22.21	below	4.187	2.816	label
+TG_1955#0	TG_1955#0	UNSIGNED	PCLA	30m	purple	purple	11.49		H	unmapped		5.74	ext	100.17	above	5.56	1.35	label
+TG_1955#0	TG_1955#0	UNSIGNED	PCLA	30m	black	black	9.06		H	resistance		5.74	ext	57.84	above	5.56	1.35	label
+TG_1955#0	TG_1955#0	UNSIGNED	PCLA	30m	blue	blue	4.1		H	target_clean		5.74	ext	-28.57	below	5.56	1.35	label
+TG_1955#0	TG_1955#0	UNSIGNED	PCLA	30m	black	black	2.61		H	resistance		5.74	ext	-54.53	below	5.56	1.35	label
+TG_1955#0	TG_1955#0	UNSIGNED	PCLA	30m	black	black	1.97		H	resistance		5.74	ext	-65.68	below	5.56	1.35	label
+TG_1955#0	TG_1955#0	UNSIGNED	PCLA	30m	red	red	1.4		H	support		5.74	ext	-75.61	below	5.56	1.35	label
+TG_1956#0	TG_1956#0	FAISAL	FRGT	unknown	purple	purple	7.288		H	unmapped		3.6	ext	102.44	above	3.95	2.514	label
+TG_1956#0	TG_1956#0	FAISAL	FRGT	unknown	blue	blue	6.718		H	target_clean		3.6	ext	86.61	above	3.95	2.514	label
+TG_1956#0	TG_1956#0	FAISAL	FRGT	unknown	blue	blue	6.347		H	target_clean		3.6	ext	76.31	above	3.95	2.514	label
+TG_1956#0	TG_1956#0	FAISAL	FRGT	unknown	black	black	5.608		H	resistance		3.6	ext	55.78	above	3.95	2.514	label
+TG_1956#0	TG_1956#0	FAISAL	FRGT	unknown	blue	blue	5.012		H	target_clean		3.6	ext	39.22	above	3.95	2.514	label
+TG_1956#0	TG_1956#0	FAISAL	FRGT	unknown	black	black	4.341		H	resistance		3.6	ext	20.58	above	3.95	2.514	label
+TG_1956#0	TG_1956#0	FAISAL	FRGT	unknown	purple	purple	3.3	3.30 < 3.05 (نصّ المنشور)	H	unmapped		3.6	ext	-8.33	below	3.95	2.514	label
+TG_1956#0	TG_1956#0	FAISAL	FRGT	unknown	red	red	3.068	3.30 < 3.05 (نصّ المنشور)	M	support		3.6	ext	-14.78	below	3.95	2.514	label
+TG_1956#0	TG_1956#0	FAISAL	FRGT	unknown	red	red	2.872	الدعوم 2.87 اخر دعم يفشل فيه (نصّ المنشور)	H	support		3.6	ext	-20.22	below	3.95	2.514	label
+TG_1961#0	TG_1961#0	UNSIGNED	PIII	4h	purple	purple	14.34		H	unmapped		9.02	ext	58.98	above		3.4	label
+TG_1961#0	TG_1961#0	UNSIGNED	PIII	4h	black	black	11.31		H	resistance		9.02	ext	25.39	above		3.4	label
+TG_1961#0	TG_1961#0	UNSIGNED	PIII	4h	black	black	10.01		H	resistance		9.02	ext	10.98	above		3.4	label
+TG_1961#0	TG_1961#0	UNSIGNED	PIII	4h	blue	blue	9.11		H	target_clean		9.02	ext	1.00	at		3.4	label
+TG_1961#0	TG_1961#0	UNSIGNED	PIII	4h	black	black	7.61		H	resistance		9.02	ext	-15.63	below		3.4	label
+TG_1961#0	TG_1961#0	UNSIGNED	PIII	4h	blue	blue	5.4		H	target_clean		9.02	ext	-40.13	below		3.4	label
+TG_1961#0	TG_1961#0	UNSIGNED	PIII	4h	red	red	4.7		H	support		9.02	ext	-47.89	below		3.4	label
+TG_1965#0	TG_1965#0	UNSIGNED	PIII	5m	other	blue	6.72		H	unmapped		5.59	ext	20.21	above		4.19	label
+TG_1965#0	TG_1965#0	UNSIGNED	PIII	5m	other	blue	6.33		H	unmapped		5.59	ext	13.24	above		4.19	label
+TG_1965#0	TG_1965#0	UNSIGNED	PIII	5m	other	blue	6.08		H	unmapped		5.59	ext	8.77	above		4.19	label
+TG_1965#0	TG_1965#0	UNSIGNED	PIII	5m	black	black	5.8		H	resistance		5.59	ext	3.76	above		4.19	label
+TG_1965#0	TG_1965#0	UNSIGNED	PIII	5m	red	red	5.66		H	support		5.59	ext	1.25	above		4.19	label
+TG_1965#0	TG_1965#0	UNSIGNED	PIII	5m	red	red	5.42		H	support		5.59	ext	-3.04	below		4.19	label
+TG_1968#0	TG_1968#0	UNSIGNED	AUUD	4h	black	black	2.184		H	resistance		1.91	ext	14.35	above		1.105	label
+TG_1968#0	TG_1968#0	UNSIGNED	AUUD	4h	black	black	1.922		H	resistance		1.91	ext	0.63	at		1.105	label
+TG_1968#0	TG_1968#0	UNSIGNED	AUUD	4h	black	black	1.753		H	resistance		1.91	ext	-8.22	below		1.105	label
+TG_1968#0	TG_1968#0	UNSIGNED	AUUD	4h	blue	blue	1.479		H	target_clean		1.91	ext	-22.57	below		1.105	label
+TG_1968#0	TG_1968#0	UNSIGNED	AUUD	4h	red	red	1.305		H	support		1.91	ext	-31.68	below		1.105	label
+TG_1971#0	TG_1971#0	UNSIGNED	SMX	4h	blue	blue	68.18		H	target_clean		14.6	ext	366.99	above		14.0	label
+TG_1971#0	TG_1971#0	UNSIGNED	SMX	4h	blue	blue	58.14		H	target_clean		14.6	ext	298.22	above		14.0	label
+TG_1971#0	TG_1971#0	UNSIGNED	SMX	4h	blue	blue	54.35		H	target_clean		14.6	ext	272.26	above		14.0	label
+TG_1971#0	TG_1971#0	UNSIGNED	SMX	4h	blue	blue	49.51		H	target_clean		14.6	ext	239.11	above		14.0	label
+TG_1971#0	TG_1971#0	UNSIGNED	SMX	4h	blue	blue	44.23		H	target_clean		14.6	ext	202.95	above		14.0	label
+TG_1971#0	TG_1971#0	UNSIGNED	SMX	4h	black	black	37.29		H	resistance		14.6	ext	155.41	above		14.0	label
+TG_1971#0	TG_1971#0	UNSIGNED	SMX	4h	blue	blue	28.9		H	target_clean		14.6	ext	97.95	above		14.0	label
+TG_1971#0	TG_1971#0	UNSIGNED	SMX	4h	black	black	20.6		H	resistance		14.6	ext	41.10	above		14.0	label
+TG_1971#0	TG_1971#0	UNSIGNED	SMX	4h	red	red	14.0		H	support		14.6	ext	-4.11	below		14.0	label
+TG_1972#0	TG_1972#0	UNSIGNED	VEEE	D	red	red	5.99		H	conflict	red>black	6.21	regular	-3.54	below	6.21	5.0	label
+TG_1972#0	TG_1972#0	UNSIGNED	VEEE	D	red	red	5.76		H	conflict	red>black	6.21	regular	-7.25	below	6.21	5.0	label
+TG_1972#0	TG_1972#0	UNSIGNED	VEEE	D	black	black	5.01		H	conflict	black<red	6.21	regular	-19.32	below	6.21	5.0	label
+TG_1973#0	TG_1973#0	APP	ADIL	D	blue	blue	2.082		H	target_clean		1.4	ext	48.71	above	1.42	1.38	label
+TG_1973#0	TG_1973#0	APP	ADIL	D	red	red	1.38		H	support		1.4	ext	-1.43	below	1.42	1.38	label
+TG_1974#0	TG_1974#0	UNSIGNED	LFS	D	blue	blue	3.734		H	target_clean		2.12	ext	76.13	above	2.16	1.901	label
+TG_1974#0	TG_1974#0	UNSIGNED	LFS	D	blue	blue	3.178		H	target_clean		2.12	ext	49.91	above	2.16	1.901	label
+TG_1974#0	TG_1974#0	UNSIGNED	LFS	D	blue	blue	2.795		H	target_clean		2.12	ext	31.84	above	2.16	1.901	label
+TG_1974#0	TG_1974#0	UNSIGNED	LFS	D	blue	blue	2.527		H	target_clean		2.12	ext	19.20	above	2.16	1.901	label
+TG_1974#0	TG_1974#0	UNSIGNED	LFS	D	black	black	2.283		H	resistance		2.12	ext	7.69	above	2.16	1.901	label
+TG_1974#0	TG_1974#0	UNSIGNED	LFS	D	red	red	2.069		H	support		2.12	ext	-2.41	below	2.16	1.901	label
+TG_1974#0	TG_1974#0	UNSIGNED	LFS	D	red	red	1.901		H	support		2.12	ext	-10.33	below	2.16	1.901	label
+TG_1975#0	TG_1975#0	UNSIGNED	VEEE	D	purple	purple	11.38		H	unmapped		7.64	regular	48.95	above		5.0	label
+TG_1975#0	TG_1975#0	UNSIGNED	VEEE	D	black	black	9.68		H	resistance		7.64	regular	26.70	above		5.0	label
+TG_1975#0	TG_1975#0	UNSIGNED	VEEE	D	purple	purple	9.02		H	unmapped		7.64	regular	18.06	above		5.0	label
+TG_1975#0	TG_1975#0	UNSIGNED	VEEE	D	blue	blue	8.52		H	target_clean		7.64	regular	11.52	above		5.0	label
+TG_1975#0	TG_1975#0	UNSIGNED	VEEE	D	black	black	8.05		H	resistance		7.64	regular	5.37	above		5.0	label
+TG_1975#0	TG_1975#0	UNSIGNED	VEEE	D	red	red	7.33		H	support		7.64	regular	-4.06	below		5.0	label
+TG_1976#0	TG_1976#0	UNSIGNED	JDZG	5m	black	black	2.209		H	resistance		2.08	ext	6.20	above	2.08	1.535	label
+TG_1976#0	TG_1976#0	UNSIGNED	JDZG	5m	black	black	1.881		H	resistance		2.08	ext	-9.57	below	2.08	1.535	label
+TG_1976#0	TG_1976#0	UNSIGNED	JDZG	5m	black	black	1.861		M	resistance		2.08	ext	-10.53	below	2.08	1.535	label
+TG_1977#0	TG_1977#0	UNSIGNED		unknown	black	black	3.508		H	resistance		4.74	regular	-25.99	below	4.74	1.425	label
+TG_1977#0	TG_1977#0	UNSIGNED		unknown	black	black	2.438		H	resistance		4.74	regular	-48.57	below	4.74	1.425	label
+TG_1981#0	TG_1981#0 TG_1983#0	FAISAL	TLIH	W	other	other	8.502		H	unmapped		4.14	regular	105.36	above		2.2	label
+TG_1981#0	TG_1981#0 TG_1983#0	FAISAL	TLIH	W	blue	blue	6.724		H	target_clean		4.14	regular	62.42	above		2.2	label
+TG_1981#0	TG_1981#0 TG_1983#0	FAISAL	TLIH	W	blue	blue	5.773		H	target_clean		4.14	regular	39.44	above		2.2	label
+TG_1981#0	TG_1981#0 TG_1983#0	FAISAL	TLIH	W	red	red	3.905		H	support		4.14	regular	-5.68	below		2.2	label
+TG_1982#0	TG_1982#0	UNSIGNED	TLIH	5m	blue	blue	5.239		H	target_clean		4.43	regular	18.26	above		3.68	label
+TG_1982#0	TG_1982#0	UNSIGNED	TLIH	5m	blue	blue	4.587		H	target_clean		4.43	regular	3.54	above		3.68	label
+TG_1982#0	TG_1982#0	UNSIGNED	TLIH	5m	blue	blue	4.402		H	target_clean		4.43	regular	-0.63	at		3.68	label
+TG_1982#0	TG_1982#0	UNSIGNED	TLIH	5m	blue	blue	3.948		H	target_clean		4.43	regular	-10.88	below		3.68	label
+TG_1982#0	TG_1982#0	UNSIGNED	TLIH	5m	red	red	3.795		H	support		4.43	regular	-14.33	below		3.68	label
+TG_1982#0	TG_1982#0	UNSIGNED	TLIH	5m	red	red	3.15		H	support		4.43	regular	-28.89	below		3.68	label
+TG_1984#0	TG_1984#0	UNSIGNED	ELPW	5m	blue	blue	3.121		H	target_clean		2.725	regular	14.53	above	2.725	2.0	label
+TG_1984#0	TG_1984#0	UNSIGNED	ELPW	5m	blue	blue	2.911		H	target_clean		2.725	regular	6.83	above	2.725	2.0	label
+TG_1984#0	TG_1984#0	UNSIGNED	ELPW	5m	red	red	2.504		H	support		2.725	regular	-8.11	below	2.725	2.0	label
+TG_1984#0	TG_1984#0	UNSIGNED	ELPW	5m	red	red	2.404		H	support		2.725	regular	-11.78	below	2.725	2.0	label
+TG_1984#0	TG_1984#0	UNSIGNED	ELPW	5m	red	red	2.241		H	support		2.725	regular	-17.76	below	2.725	2.0	label
+TG_1987#0	TG_1987#0	UNSIGNED	ELAB	4h	black	black	5.221		H	resistance		4.28	ext	21.99	above	4.28	3.95	label
+TG_1987#0	TG_1987#0	UNSIGNED	ELAB	4h	red	red	4.072		H	support		4.28	ext	-4.86	below	4.28	3.95	label
+TG_1988#0	TG_1988#0 TG_2080#0	UNSIGNED	ELAB	D	blue	blue	22.397		H	target_clean		3.61	ext	520.42	above		3.03	label
+TG_1988#0	TG_1988#0 TG_2080#0	UNSIGNED	ELAB	D	blue	blue	16.023		H	target_clean		3.61	ext	343.85	above		3.03	label
+TG_1988#0	TG_1988#0 TG_2080#0	UNSIGNED	ELAB	D	blue	blue	12.76		H	target_clean		3.61	ext	253.46	above		3.03	label
+TG_1988#0	TG_1988#0 TG_2080#0	UNSIGNED	ELAB	D	black	black	9.629		H	resistance		3.61	ext	166.73	above		3.03	label
+TG_1988#0	TG_1988#0 TG_2080#0	UNSIGNED	ELAB	D	black	black	6.375		H	resistance		3.61	ext	76.59	above		3.03	label
+TG_1988#0	TG_1988#0 TG_2080#0	UNSIGNED	ELAB	D	blue	blue	5.103		H	target_clean		3.61	ext	41.36	above		3.03	label
+TG_1988#0	TG_1988#0 TG_2080#0	UNSIGNED	ELAB	D	black	black	3.796		H	resistance		3.61	ext	5.15	above		3.03	label
+TG_1988#0	TG_1988#0 TG_2080#0	UNSIGNED	ELAB	D	black	black	3.292		M	resistance		3.61	ext	-8.81	below		3.03	label
+TG_1992#0	TG_1992#0 TG_1997#0	FAISAL	ELAB	W	orange	orange	57.44		H	unmapped		4.65	ext	1135.27	above		1.62	label
+TG_1992#0	TG_1992#0 TG_1997#0	FAISAL	ELAB	W	blue	blue	40.09		H	target_clean		4.65	ext	762.15	above		1.62	label
+TG_1992#0	TG_1992#0 TG_1997#0	FAISAL	ELAB	W	blue	blue	33.71		H	target_clean		4.65	ext	624.95	above		1.62	label
+TG_1992#0	TG_1992#0 TG_1997#0	FAISAL	ELAB	W	black	black	23.09		H	resistance		4.65	ext	396.56	above		1.62	label
+TG_1992#0	TG_1992#0 TG_1997#0	FAISAL	ELAB	W	black	black	14.46		H	resistance		4.65	ext	210.97	above		1.62	label
+TG_1992#0	TG_1992#0 TG_1997#0	FAISAL	ELAB	W	red	red	4.22		H	support		4.65	ext	-9.25	below		1.62	label
+TG_1993#0	TG_1993#0 TG_1997#1	FAISAL	ELAB	D	red	red	4.22		H	support		4.65	ext	-9.25	below	4.79	1.62	label
+TG_1994#0	TG_1994#0 TG_2092#0	UNSIGNED	CDIO	4h	blue	blue	2.357		H	target_clean		1.24	ext	90.08	above	1.24	0.824	label
+TG_1994#0	TG_1994#0 TG_2092#0	UNSIGNED	CDIO	4h	black	black	1.704		H	resistance		1.24	ext	37.42	above	1.24	0.824	label
+TG_1994#0	TG_1994#0 TG_2092#0	UNSIGNED	CDIO	4h	black	black	1.603		H	resistance		1.24	ext	29.27	above	1.24	0.824	label
+TG_1994#0	TG_1994#0 TG_2092#0	UNSIGNED	CDIO	4h	black	black	1.394		H	resistance		1.24	ext	12.42	above	1.24	0.824	label
+TG_1994#0	TG_1994#0 TG_2092#0	UNSIGNED	CDIO	4h	purple	purple	1.052		H	unmapped		1.24	ext	-15.16	below	1.24	0.824	label
+TG_1994#0	TG_1994#0 TG_2092#0	UNSIGNED	CDIO	4h	red	red	0.9707		H	support		1.24	ext	-21.72	below	1.24	0.824	label
+TG_2000#0	TG_2000#0	UNSIGNED	NXTT	D	black	black	18.65		H	resistance		6.26	ext	197.92	above	5.83	5.8	label
+TG_2000#0	TG_2000#0	UNSIGNED	NXTT	D	blue	blue	14.63		H	target_clean		6.26	ext	133.71	above	5.83	5.8	label
+TG_2000#0	TG_2000#0	UNSIGNED	NXTT	D	blue	blue	12.16		H	target_clean		6.26	ext	94.25	above	5.83	5.8	label
+TG_2000#0	TG_2000#0	UNSIGNED	NXTT	D	black	black	9.33		H	resistance		6.26	ext	49.04	above	5.83	5.8	label
+TG_2003#0	TG_2003#0	UNSIGNED		unknown	black	black	4.039		H	resistance		2.07	regular	95.12	above	2.07	2.03	label
+TG_2003#0	TG_2003#0	UNSIGNED		unknown	purple	purple	3.738		H	unmapped		2.07	regular	80.58	above	2.07	2.03	label
+TG_2003#0	TG_2003#0	UNSIGNED		unknown	black	black	3.458		H	resistance		2.07	regular	67.05	above	2.07	2.03	label
+TG_2003#0	TG_2003#0	UNSIGNED		unknown	purple	purple	3.185		H	unmapped		2.07	regular	53.86	above	2.07	2.03	label
+TG_2003#0	TG_2003#0	UNSIGNED		unknown	black	black	2.996		H	resistance		2.07	regular	44.73	above	2.07	2.03	label
+TG_2003#0	TG_2003#0	UNSIGNED		unknown	purple	purple	2.574		H	unmapped		2.07	regular	24.35	above	2.07	2.03	label
+TG_2003#0	TG_2003#0	UNSIGNED		unknown	blue	blue	2.111		H	target_clean		2.07	regular	1.98	above	2.07	2.03	label
+TG_2005#0	TG_2005#0	UNSIGNED	SBDS	unknown	black	black	4.284		H	resistance		4.2	ext	2.00	above		3.04	label
+TG_2005#0	TG_2005#0	UNSIGNED	SBDS	unknown	blue	blue	3.759		H	target_clean		4.2	ext	-10.50	below		3.04	label
+TG_2005#0	TG_2005#0	UNSIGNED	SBDS	unknown	purple	purple	3.308		H	unmapped		4.2	ext	-21.24	below		3.04	label
+TG_2005#0	TG_2005#0	UNSIGNED	SBDS	unknown	red	red	3.041		H	support		4.2	ext	-27.60	below		3.04	label
+TG_2007#0	TG_2007#0	UNSIGNED	HCAI	4h	black	black	16.36		H	resistance		6.05	ext	170.41	above	6.05	4.27	label
+TG_2007#0	TG_2007#0	UNSIGNED	HCAI	4h	purple	purple	14.32		H	unmapped		6.05	ext	136.69	above	6.05	4.27	label
+TG_2007#0	TG_2007#0	UNSIGNED	HCAI	4h	blue	blue	13.24		H	target_clean		6.05	ext	118.84	above	6.05	4.27	label
+TG_2007#0	TG_2007#0	UNSIGNED	HCAI	4h	blue	blue	11.59		H	target_clean		6.05	ext	91.57	above	6.05	4.27	label
+TG_2007#0	TG_2007#0	UNSIGNED	HCAI	4h	red	red	9.55		H	support		6.05	ext	57.85	above	6.05	4.27	label
+TG_2007#0	TG_2007#0	UNSIGNED	HCAI	4h	purple	purple	7.8		H	unmapped		6.05	ext	28.93	above	6.05	4.27	label
+TG_2007#0	TG_2007#0	UNSIGNED	HCAI	4h	purple	purple	7.2		H	unmapped		6.05	ext	19.01	above	6.05	4.27	label
+TG_2007#0	TG_2007#0	UNSIGNED	HCAI	4h	purple	purple	5.5		H	unmapped		6.05	ext	-9.09	below	6.05	4.27	label
+TG_2007#0	TG_2007#0	UNSIGNED	HCAI	4h	red	red	5.15		M	support		6.05	ext	-14.88	below	6.05	4.27	label
+TG_2008#0	TG_2008#0	UNSIGNED	HCAI	4h	red	red	9.53		H	support		11.36	ext	-16.11	below	11.36	5.49	label
+TG_2008#0	TG_2008#0	UNSIGNED	HCAI	4h	red	red	8.92		H	support		11.36	ext	-21.48	below	11.36	5.49	label
+TG_2008#0	TG_2008#0	UNSIGNED	HCAI	4h	red	red	8.3		H	support		11.36	ext	-26.94	below	11.36	5.49	label
+TG_2009#0	TG_2009#0	UNSIGNED	HCAI	W	blue	blue	40.47		H	target_clean		11.36	ext	256.25	above	6.4	3.96	label
+TG_2009#0	TG_2009#0	UNSIGNED	HCAI	W	blue	blue	37.54		H	target_clean		11.36	ext	230.46	above	6.4	3.96	label
+TG_2009#0	TG_2009#0	UNSIGNED	HCAI	W	blue	blue	28.11		H	target_clean		11.36	ext	147.45	above	6.4	3.96	label
+TG_2009#0	TG_2009#0	UNSIGNED	HCAI	W	blue	blue	25.14		H	target_clean		11.36	ext	121.30	above	6.4	3.96	label
+TG_2009#0	TG_2009#0	UNSIGNED	HCAI	W	blue	blue	21.89		H	target_clean		11.36	ext	92.69	above	6.4	3.96	label
+TG_2009#0	TG_2009#0	UNSIGNED	HCAI	W	blue	blue	17.93		H	target_clean		11.36	ext	57.83	above	6.4	3.96	label
+TG_2011#0	TG_2011#0	UNSIGNED	ACCL	4h	purple	purple	4.952		H	unmapped		1.62	ext	205.68	above	1.62	1.23	label
+TG_2011#0	TG_2011#0	UNSIGNED	ACCL	4h	red	red	2.091		H	support		1.62	ext	29.07	above	1.62	1.23	label
+TG_2012#0	TG_2012#0	UNSIGNED	ACCL	4h	red	red	1.381		H	support		1.62	ext	-14.75	below	1.62	1.28	label
+TG_2012#0	TG_2012#0	UNSIGNED	ACCL	4h	red	red	1.296		H	support		1.62	ext	-20.00	below	1.62	1.28	label
+TG_2013#0	TG_2013#0	UNSIGNED	IXHL	D	black	black	3.786		H	resistance		2.944	ext	28.60	above	2.99	2.85	label
+TG_2013#0	TG_2013#0	UNSIGNED	IXHL	D	black	black	3.402		H	resistance		2.944	ext	15.56	above	2.99	2.85	label
+TG_2013#0	TG_2013#0	UNSIGNED	IXHL	D	black	black	3.139		H	resistance		2.944	ext	6.62	above	2.99	2.85	label
+TG_2013#0	TG_2013#0	UNSIGNED	IXHL	D	red	red	2.839		H	support		2.944	ext	-3.57	below	2.99	2.85	label
+TG_2013#0	TG_2013#0	UNSIGNED	IXHL	D	red	red	2.133		H	support		2.944	ext	-27.55	below	2.99	2.85	label
+TG_2015#0	TG_2015#0	UNSIGNED	IXHL	4h	black	black	3.786		H	resistance		3.225	ext	17.40	above	3.225	2.73	label
+TG_2015#0	TG_2015#0	UNSIGNED	IXHL	4h	black	black	3.402		H	resistance		3.225	ext	5.49	above	3.225	2.73	label
+TG_2015#0	TG_2015#0	UNSIGNED	IXHL	4h	purple	purple	2.921		H	unmapped		3.225	ext	-9.43	below	3.225	2.73	label
+TG_2015#0	TG_2015#0	UNSIGNED	IXHL	4h	black	black	2.85		H	resistance		3.225	ext	-11.63	below	3.225	2.73	label
+TG_2015#0	TG_2015#0	UNSIGNED	IXHL	4h	red	red	2.731		H	support		3.225	ext	-15.32	below	3.225	2.73	label
+TG_2017#0	TG_2017#0	UNSIGNED	ENPH	W	black	black	78.02	مقاومه سابقه 78 · رفض اختراق 78 = هبوط انتظار قاع جديد (نصّ على الشارت)	H	resistance		68.06	ext	14.63	above	68.36	25.78	label
+TG_2017#0	TG_2017#0	UNSIGNED	ENPH	W	red	red	58.7	تكوين دعم 58 (نصّ على الشارت)	H	support		68.06	ext	-13.75	below	68.36	25.78	label
+TG_2017#0	TG_2017#0	UNSIGNED	ENPH	W	red	red	29.7		H	support		68.06	ext	-56.36	below	68.36	25.78	label
+TG_2018#0	TG_2018#0	UNSIGNED	BJDX	W	black	black	4.42		H	resistance		1.955	ext	126.09	above	1.955	1.623	label
+TG_2018#0	TG_2018#0	UNSIGNED	BJDX	W	black	black	4.01		H	resistance		1.955	ext	105.12	above	1.955	1.623	label
+TG_2018#0	TG_2018#0	UNSIGNED	BJDX	W	blue	blue	3.607		H	target_clean		1.955	ext	84.50	above	1.955	1.623	label
+TG_2018#0	TG_2018#0	UNSIGNED	BJDX	W	blue	blue	2.837		H	target_clean		1.955	ext	45.12	above	1.955	1.623	label
+TG_2018#0	TG_2018#0	UNSIGNED	BJDX	W	blue	blue	2.518		H	target_clean		1.955	ext	28.80	above	1.955	1.623	label
+TG_2018#0	TG_2018#0	UNSIGNED	BJDX	W	purple	purple	2.134		H	unmapped		1.955	ext	9.16	above	1.955	1.623	label
+TG_2018#0	TG_2018#0	UNSIGNED	BJDX	W	red	red	1.651		H	support		1.955	ext	-15.55	below	1.955	1.623	label
+TG_2024#0	TG_2024#0	UNSIGNED	EHGO	4h	black	black	2.55		H	resistance		1.61	ext	58.39	above	1.61	1.3	label
+TG_2024#0	TG_2024#0	UNSIGNED	EHGO	4h	black	black	2.363		H	resistance		1.61	ext	46.77	above	1.61	1.3	label
+TG_2024#0	TG_2024#0	UNSIGNED	EHGO	4h	blue	blue	2.188		H	target_clean		1.61	ext	35.90	above	1.61	1.3	label
+TG_2024#0	TG_2024#0	UNSIGNED	EHGO	4h	red	red	1.416		H	support		1.61	ext	-12.05	below	1.61	1.3	label
+TG_2025#0	TG_2025#0 TG_2030#0	FAISAL	GWAV	D	blue	blue	5.903		H	target_clean		3.4	ext	73.62	above	3.4	3.15	label
+TG_2025#0	TG_2025#0 TG_2030#0	FAISAL	GWAV	D	blue	blue	5.201		H	target_clean		3.4	ext	52.97	above	3.4	3.15	label
+TG_2025#0	TG_2025#0 TG_2030#0	FAISAL	GWAV	D	blue	blue	4.947		H	target_clean		3.4	ext	45.50	above	3.4	3.15	label
+TG_2025#0	TG_2025#0 TG_2030#0	FAISAL	GWAV	D	black	black	4.589		H	resistance		3.4	ext	34.97	above	3.4	3.15	label
+TG_2025#0	TG_2025#0 TG_2030#0	FAISAL	GWAV	D	blue	blue	4.368		H	target_clean		3.4	ext	28.47	above	3.4	3.15	label
+TG_2025#0	TG_2025#0 TG_2030#0	FAISAL	GWAV	D	black	black	3.955		H	resistance		3.4	ext	16.32	above	3.4	3.15	label
+TG_2025#0	TG_2025#0 TG_2030#0	FAISAL	GWAV	D	red	red	3.258		H	support		3.4	ext	-4.18	below	3.4	3.15	label
+TG_20260905_05#0	TG_20260905_05#0 TG_20260905_06#0	UNSIGNED	SNAL	D	blue	blue	3.82		H	target_clean		2.523	ext	51.41	above			
+TG_20260905_05#0	TG_20260905_05#0 TG_20260905_06#0	UNSIGNED	SNAL	D	blue	blue	3.376		H	target_clean		2.523	ext	33.81	above			
+TG_20260905_05#0	TG_20260905_05#0 TG_20260905_06#0	UNSIGNED	SNAL	D	other	red	2.432		H	unmapped		2.523	ext	-3.61	below			
+TG_20260905_08#0	TG_20260905_08#0 TG_20260905_09#0	UNSIGNED	STKH	D	blue	blue	7.125		H	target_clean		2.32	ext	207.11	above			
+TG_20260905_08#0	TG_20260905_08#0 TG_20260905_09#0	UNSIGNED	STKH	D	white	white	6.299		H	unmapped		2.32	ext	171.51	above			
+TG_20260905_08#0	TG_20260905_08#0 TG_20260905_09#0	UNSIGNED	STKH	D	white	white	2.597		H	unmapped		2.32	ext	11.94	above			
+TG_20260905_08#0	TG_20260905_08#0 TG_20260905_09#0	UNSIGNED	STKH	D	red	red	2.32		M	support		2.32	ext	0.00	at			
+TG_2033#0	TG_2033#0	UNSIGNED	LNAI	W	purple	purple	7.446		H	unmapped		2.41	ext	208.96	above		1.21	label
+TG_2033#0	TG_2033#0	UNSIGNED	LNAI	W	purple	purple	6.704		H	unmapped		2.41	ext	178.17	above		1.21	label
+TG_2033#0	TG_2033#0	UNSIGNED	LNAI	W	purple	purple	5.998		H	unmapped		2.41	ext	148.88	above		1.21	label
+TG_2033#0	TG_2033#0	UNSIGNED	LNAI	W	purple	purple	5.583		H	unmapped		2.41	ext	131.66	above		1.21	label
+TG_2033#0	TG_2033#0	UNSIGNED	LNAI	W	purple	purple	5.074		H	unmapped		2.41	ext	110.54	above		1.21	label
+TG_2033#0	TG_2033#0	UNSIGNED	LNAI	W	blue	blue	4.665		H	target_clean		2.41	ext	93.57	above		1.21	label
+TG_2033#0	TG_2033#0	UNSIGNED	LNAI	W	blue	blue	4.184		H	target_clean		2.41	ext	73.61	above		1.21	label
+TG_2033#0	TG_2033#0	UNSIGNED	LNAI	W	black	black	3.257	3.25 مقاومه ثانيه	H	resistance		2.41	ext	35.15	above		1.21	label
+TG_2033#0	TG_2033#0	UNSIGNED	LNAI	W	black	black	2.807	2.80 مقاومه اولى	H	resistance		2.41	ext	16.47	above		1.21	label
+TG_2033#0	TG_2033#0	UNSIGNED	LNAI	W	red	red	2.25	2.25 دعم اساسي	H	support		2.41	ext	-6.64	below		1.21	label
+TG_2035#0	TG_2035#0	UNSIGNED	SMX	4h	purple	purple	23.04		H	unmapped		7.85	ext	193.50	above		6.11	label
+TG_2035#0	TG_2035#0	UNSIGNED	SMX	4h	black	black	16.51		H	resistance		7.85	ext	110.32	above		6.11	label
+TG_2035#0	TG_2035#0	UNSIGNED	SMX	4h	blue	blue	14.02		H	target_clean		7.85	ext	78.60	above		6.11	label
+TG_2035#0	TG_2035#0	UNSIGNED	SMX	4h	blue	blue	11.84		H	target_clean		7.85	ext	50.83	above		6.11	label
+TG_2035#0	TG_2035#0	UNSIGNED	SMX	4h	black	black	9.53		H	resistance		7.85	ext	21.40	above		6.11	label
+TG_2035#0	TG_2035#0	UNSIGNED	SMX	4h	other	other	7.04		H	unmapped		7.85	ext	-10.32	below		6.11	label
+TG_2035#0	TG_2035#0	UNSIGNED	SMX	4h	red	red	6.11		H	support		7.85	ext	-22.17	below		6.11	label
+TG_2038#0	TG_2038#0	UNSIGNED	ADIL	D	black	black	5.392		H	resistance		1.555	ext	246.75	above	1.69	1.54	label
+TG_2038#0	TG_2038#0	UNSIGNED	ADIL	D	black	black	4.265		H	resistance		1.555	ext	174.28	above	1.69	1.54	label
+TG_2038#0	TG_2038#0	UNSIGNED	ADIL	D	blue	blue	3.674		H	target_clean		1.555	ext	136.27	above	1.69	1.54	label
+TG_2038#0	TG_2038#0	UNSIGNED	ADIL	D	blue	blue	3.192		H	target_clean		1.555	ext	105.27	above	1.69	1.54	label
+TG_2038#0	TG_2038#0	UNSIGNED	ADIL	D	purple	purple	2.914		H	unmapped		1.555	ext	87.40	above	1.69	1.54	label
+TG_2038#0	TG_2038#0	UNSIGNED	ADIL	D	blue	blue	2.655		H	target_clean		1.555	ext	70.74	above	1.69	1.54	label
+TG_2038#0	TG_2038#0	UNSIGNED	ADIL	D	blue	blue	2.1		H	target_clean		1.555	ext	35.05	above	1.69	1.54	label
+TG_2038#0	TG_2038#0	UNSIGNED	ADIL	D	red	red	1.379		H	support		1.555	ext	-11.32	below	1.69	1.54	label
+TG_2039#0	TG_2039#0	UNSIGNED	VMAR	unknown	black	black	3.347		H	resistance		2.38	regular	40.63	above		2.26	label
+TG_2039#0	TG_2039#0	UNSIGNED	VMAR	unknown	blue	blue	3.05		H	target_clean		2.38	regular	28.15	above		2.26	label
+TG_2039#0	TG_2039#0	UNSIGNED	VMAR	unknown	purple	purple	2.502		H	unmapped		2.38	regular	5.13	above		2.26	label
+TG_2039#0	TG_2039#0	UNSIGNED	VMAR	unknown	red	red	2.392		H	conflict	red>blue	2.38	regular	0.50	at		2.26	label
+TG_2039#0	TG_2039#0	UNSIGNED	VMAR	unknown	blue	blue	2.309		H	conflict	blue<red	2.38	regular	-2.98	below		2.26	label
+TG_2046#0	TG_2046#0 TG_2047#0 TG_2121#0	UNSIGNED	TRUG	unknown	purple	purple	6.91		H	unmapped		4.5	ext	53.56	above	4.47	3.5	label
+TG_2046#0	TG_2046#0 TG_2047#0 TG_2121#0	UNSIGNED	TRUG	unknown	purple	purple	6.516		H	unmapped		4.5	ext	44.80	above	4.47	3.5	label
+TG_2046#0	TG_2046#0 TG_2047#0 TG_2121#0	UNSIGNED	TRUG	unknown	blue	blue	6.207		H	target_clean		4.5	ext	37.93	above	4.47	3.5	label
+TG_2046#0	TG_2046#0 TG_2047#0 TG_2121#0	UNSIGNED	TRUG	unknown	black	black	5.928		H	resistance		4.5	ext	31.73	above	4.47	3.5	label
+TG_2046#0	TG_2046#0 TG_2047#0 TG_2121#0	UNSIGNED	TRUG	unknown	black	black	5.389		H	resistance		4.5	ext	19.76	above	4.47	3.5	label
+TG_2046#0	TG_2046#0 TG_2047#0 TG_2121#0	UNSIGNED	TRUG	unknown	black	black	5.096		H	resistance		4.5	ext	13.24	above	4.47	3.5	label
+TG_2046#0	TG_2046#0 TG_2047#0 TG_2121#0	UNSIGNED	TRUG	unknown	black	black	4.887		H	resistance		4.5	ext	8.60	above	4.47	3.5	label
+TG_2046#0	TG_2046#0 TG_2047#0 TG_2121#0	UNSIGNED	TRUG	unknown	purple	purple	4.159		H	unmapped		4.5	ext	-7.58	below	4.47	3.5	label
+TG_2046#0	TG_2046#0 TG_2047#0 TG_2121#0	UNSIGNED	TRUG	unknown	red	red	3.967		H	support		4.5	ext	-11.84	below	4.47	3.5	label
+TG_2050#0	TG_2050#0	UNSIGNED	ONCO	D	blue	blue	3.588		H	target_clean		1.15	ext	212.00	above		0.911	label
+TG_2050#0	TG_2050#0	UNSIGNED	ONCO	D	black	black	3.042		H	resistance		1.15	ext	164.52	above		0.911	label
+TG_2050#0	TG_2050#0	UNSIGNED	ONCO	D	blue	blue	2.639		H	target_clean		1.15	ext	129.48	above		0.911	label
+TG_2050#0	TG_2050#0	UNSIGNED	ONCO	D	black	black	1.899		H	resistance		1.15	ext	65.13	above		0.911	label
+TG_2050#0	TG_2050#0	UNSIGNED	ONCO	D	black	black	1.303		H	resistance		1.15	ext	13.30	above		0.911	label
+TG_2050#0	TG_2050#0	UNSIGNED	ONCO	D	blue	blue	0.9145		H	target_clean		1.15	ext	-20.48	below		0.911	label
+TG_2051#0	TG_2051#0	UNSIGNED		4h	blue	blue	5.201		H	target_clean								
+TG_2051#0	TG_2051#0	UNSIGNED		4h	blue	blue	4.947		H	target_clean								
+TG_2069#0	TG_2069#0	UNSIGNED	VMAR	D	blue	blue	4.949		H	target_clean		2.24	regular	120.94	above		2.15	label
+TG_2069#0	TG_2069#0	UNSIGNED	VMAR	D	blue	blue	4.217		H	target_clean		2.24	regular	88.26	above		2.15	label
+TG_2069#0	TG_2069#0	UNSIGNED	VMAR	D	purple	purple	3.807		H	unmapped		2.24	regular	69.96	above		2.15	label
+TG_2069#0	TG_2069#0	UNSIGNED	VMAR	D	purple	purple	3.403		H	unmapped		2.24	regular	51.92	above		2.15	label
+TG_2069#0	TG_2069#0	UNSIGNED	VMAR	D	black	black	3.009		H	resistance		2.24	regular	34.33	above		2.15	label
+TG_2069#0	TG_2069#0	UNSIGNED	VMAR	D	red	red	2.15		H	support		2.24	regular	-4.02	below		2.15	label
+TG_2072#0	TG_2072#0 TG_1822#0	FAISAL	EHGO	D	black	black	3.043		H	resistance		1.67	ext	82.22	above	1.67	1.42	label
+TG_2072#0	TG_2072#0 TG_1822#0	FAISAL	EHGO	D	black	black	2.55		H	resistance		1.67	ext	52.69	above	1.67	1.42	label
+TG_2072#0	TG_2072#0 TG_1822#0	FAISAL	EHGO	D	black	black	2.363		H	resistance		1.67	ext	41.50	above	1.67	1.42	label
+TG_2072#0	TG_2072#0 TG_1822#0	FAISAL	EHGO	D	blue	blue	2.098		H	target_clean		1.67	ext	25.63	above	1.67	1.42	label
+TG_2072#0	TG_2072#0 TG_1822#0	FAISAL	EHGO	D	blue	blue	1.89		H	target_clean		1.67	ext	13.17	above	1.67	1.42	label
+TG_2072#0	TG_2072#0 TG_1822#0	FAISAL	EHGO	D	red	red	1.525		H	support		1.67	ext	-8.68	below	1.67	1.42	label
+TG_2078#0	TG_2078#0	UNSIGNED	FRSX	D	black	black	3.003		H	resistance		2.4	ext	25.13	above	2.4	2.05	label
+TG_2078#0	TG_2078#0	UNSIGNED	FRSX	D	black	black	2.81	2.80 فجوه سعريه	H	conflict	label	2.4	ext	17.08	above	2.4	2.05	label
+TG_2078#0	TG_2078#0	UNSIGNED	FRSX	D	purple	purple	2.592		H	unmapped		2.4	ext	8.00	above	2.4	2.05	label
+TG_2078#0	TG_2078#0	UNSIGNED	FRSX	D	black	black	2.315		H	resistance		2.4	ext	-3.54	below	2.4	2.05	label
+TG_2078#0	TG_2078#0	UNSIGNED	FRSX	D	black	black	2.26		H	resistance		2.4	ext	-5.83	below	2.4	2.05	label
+TG_2078#0	TG_2078#0	UNSIGNED	FRSX	D	black	black	2.119		H	resistance		2.4	ext	-11.71	below	2.4	2.05	label
+TG_2081#0	TG_2081#0	UNSIGNED	EDHL	unknown	blue	blue	4.171		H	target_clean		3.139	ext	32.88	above	3.139	3.01	label
+TG_2081#0	TG_2081#0	UNSIGNED	EDHL	unknown	black	black	3.697		H	resistance		3.139	ext	17.78	above	3.139	3.01	label
+TG_2081#0	TG_2081#0	UNSIGNED	EDHL	unknown	blue	blue	3.443		H	target_clean		3.139	ext	9.68	above	3.139	3.01	label
+TG_2081#0	TG_2081#0	UNSIGNED	EDHL	unknown	red	red	3.072		H	support		3.139	ext	-2.13	below	3.139	3.01	label
+TG_2081#0	TG_2081#0	UNSIGNED	EDHL	unknown	red	red	3.031		H	support		3.139	ext	-3.44	below	3.139	3.01	label
+TG_2094#0	TG_2094#0	UNSIGNED	ELPW	unknown	blue	blue	3.679		H	target_clean		2.21	ext	66.47	above	2.19	1.726	label
+TG_2094#0	TG_2094#0	UNSIGNED	ELPW	unknown	black	black	3.396		H	resistance		2.21	ext	53.67	above	2.19	1.726	label
+TG_2094#0	TG_2094#0	UNSIGNED	ELPW	unknown	blue	blue	3.103		H	target_clean		2.21	ext	40.41	above	2.19	1.726	label
+TG_2094#0	TG_2094#0	UNSIGNED	ELPW	unknown	black	black	2.877		H	resistance		2.21	ext	30.18	above	2.19	1.726	label
+TG_2094#0	TG_2094#0	UNSIGNED	ELPW	unknown	black	black	2.336		H	resistance		2.21	ext	5.70	above	2.19	1.726	label
+TG_2094#0	TG_2094#0	UNSIGNED	ELPW	unknown	black	black	2.073		H	resistance		2.21	ext	-6.20	below	2.19	1.726	label
+TG_2094#0	TG_2094#0	UNSIGNED	ELPW	unknown	red	red	1.723		H	support		2.21	ext	-22.04	below	2.19	1.726	label
+TG_2096#0	TG_2096#0	UNSIGNED	ELPW	unknown	blue	blue	3.761		H	target_clean		1.85	ext	103.30	above	1.897	1.726	label
+TG_2096#0	TG_2096#0	UNSIGNED	ELPW	unknown	black	black	3.396		H	resistance		1.85	ext	83.57	above	1.897	1.726	label
+TG_2096#0	TG_2096#0	UNSIGNED	ELPW	unknown	blue	blue	3.103		H	target_clean		1.85	ext	67.73	above	1.897	1.726	label
+TG_2096#0	TG_2096#0	UNSIGNED	ELPW	unknown	black	black	2.877		H	resistance		1.85	ext	55.51	above	1.897	1.726	label
+TG_2096#0	TG_2096#0	UNSIGNED	ELPW	unknown	black	black	2.336		H	resistance		1.85	ext	26.27	above	1.897	1.726	label
+TG_2096#0	TG_2096#0	UNSIGNED	ELPW	unknown	red	red	1.723		H	support		1.85	ext	-6.86	below	1.897	1.726	label
+TG_2100#0	TG_2100#0 TG_2179#1	UNSIGNED	NCT	unknown	purple	purple	5.746		H	unmapped		3.419	regular	68.06	above	3.419	3.01	label
+TG_2100#0	TG_2100#0 TG_2179#1	UNSIGNED	NCT	unknown	blue	blue	5.005		H	target_clean		3.419	regular	46.39	above	3.419	3.01	label
+TG_2100#0	TG_2100#0 TG_2179#1	UNSIGNED	NCT	unknown	blue	blue	4.653		H	target_clean		3.419	regular	36.09	above	3.419	3.01	label
+TG_2100#0	TG_2100#0 TG_2179#1	UNSIGNED	NCT	unknown	black	black	4.113		H	resistance		3.419	regular	20.30	above	3.419	3.01	label
+TG_2100#0	TG_2100#0 TG_2179#1	UNSIGNED	NCT	unknown	black	black	3.85	مقاومات	H	resistance		3.419	regular	12.61	above	3.419	3.01	label
+TG_2100#0	TG_2100#0 TG_2179#1	UNSIGNED	NCT	unknown	red	red	3.264		H	support		3.419	regular	-4.53	below	3.419	3.01	label
+TG_2101#0	TG_2101#0 TG_2180#0	THIRD_PARTY	NCT	unknown	black	black	3.85		H	resistance		3.465	regular	11.11	above	3.465	3.07	label
+TG_2101#0	TG_2101#0 TG_2180#0	THIRD_PARTY	NCT	unknown	black	black	3.68	3.68 المقاومه الحاليه (نصّ الرسالة)	H	resistance		3.465	regular	6.20	above	3.465	3.07	label
+TG_2101#0	TG_2101#0 TG_2180#0	THIRD_PARTY	NCT	unknown	red	red	3.409		H	support		3.465	regular	-1.62	below	3.465	3.07	label
+TG_2101#0	TG_2101#0 TG_2180#0	THIRD_PARTY	NCT	unknown	red	red	3.341	3.34 دعوم (نصّ الرسالة)	H	support		3.465	regular	-3.58	below	3.465	3.07	label
+TG_2104#0	TG_2104#0	UNSIGNED	SMX	D	black	black	240.42		H	resistance		146.02	regular	64.65	above	146.02	3.12	label
+TG_2104#0	TG_2104#0	UNSIGNED	SMX	D	blue	blue	212.69		H	target_clean		146.02	regular	45.66	above	146.02	3.12	label
+TG_2104#0	TG_2104#0	UNSIGNED	SMX	D	blue	blue	187.54		H	target_clean		146.02	regular	28.43	above	146.02	3.12	label
+TG_2104#0	TG_2104#0	UNSIGNED	SMX	D	blue	blue	165.82		H	target_clean		146.02	regular	13.56	above	146.02	3.12	label
+TG_2104#0	TG_2104#0	UNSIGNED	SMX	D	black	black	14.3		H	resistance		146.02	regular	-90.21	below	146.02	3.12	label
+TG_2104#0	TG_2104#0	UNSIGNED	SMX	D	black	black	3.0		M	resistance		146.02	regular	-97.95	below	146.02	3.12	label
+TG_2105#0	TG_2105#0	UNSIGNED	GRI	D	black	black	5.356		H	resistance		2.145	regular	149.70	above		2.1	label
+TG_2105#0	TG_2105#0	UNSIGNED	GRI	D	blue	blue	4.373		H	target_clean		2.145	regular	103.87	above		2.1	label
+TG_2105#0	TG_2105#0	UNSIGNED	GRI	D	black	black	3.703		H	resistance		2.145	regular	72.63	above		2.1	label
+TG_2105#0	TG_2105#0	UNSIGNED	GRI	D	purple	purple	2.97		H	unmapped		2.145	regular	38.46	above		2.1	label
+TG_2105#0	TG_2105#0	UNSIGNED	GRI	D	red	red	2.1		H	support		2.145	regular	-2.10	below		2.1	label
+TG_2109#0	TG_2109#0	THIRD_PARTY	CLIR	D	blue	blue	7.009		H	target_clean		4.83	ext	45.11	above	4.83	3.24	label
+TG_2109#0	TG_2109#0	THIRD_PARTY	CLIR	D	blue	blue	6.489		H	target_clean		4.83	ext	34.35	above	4.83	3.24	label
+TG_2109#0	TG_2109#0	THIRD_PARTY	CLIR	D	blue	blue	6.098		H	target_clean		4.83	ext	26.25	above	4.83	3.24	label
+TG_2109#0	TG_2109#0	THIRD_PARTY	CLIR	D	blue	blue	5.505		H	target_clean		4.83	ext	13.98	above	4.83	3.24	label
+TG_2109#0	TG_2109#0	THIRD_PARTY	CLIR	D	other	other	5.111		H	unmapped		4.83	ext	5.82	above	4.83	3.24	label
+TG_2109#0	TG_2109#0	THIRD_PARTY	CLIR	D	black	black	4.306		H	resistance		4.83	ext	-10.85	below	4.83	3.24	label
+TG_2109#0	TG_2109#0	THIRD_PARTY	CLIR	D	black	black	3.87	منطقه الطلب 4 - 3.87 (نصّ على الشارت)	H	conflict	label	4.83	ext	-19.88	below	4.83	3.24	label
+TG_2109#0	TG_2109#0	THIRD_PARTY	CLIR	D	red	red	3.651	دعوم 3.65 - 3.50 مع متابعه الشورت (نصّ على الشارت)	H	support		4.83	ext	-24.41	below	4.83	3.24	label
+TG_2109#0	TG_2109#0	THIRD_PARTY	CLIR	D	red	red	3.501	دعوم 3.65 - 3.50 مع متابعه الشورت (نصّ على الشارت)	H	support		4.83	ext	-27.52	below	4.83	3.24	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	blue	blue	6.093		H	target_clean		4.0	regular	52.33	above	4.0	3.6	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	black	black	5.659		H	resistance		4.0	regular	41.47	above	4.0	3.6	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	black	black	5.384		H	resistance		4.0	regular	34.60	above	4.0	3.6	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	black	black	5.127		H	resistance		4.0	regular	28.17	above	4.0	3.6	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	black	black	4.722		H	resistance		4.0	regular	18.05	above	4.0	3.6	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	blue	blue	4.563		H	target_clean		4.0	regular	14.07	above	4.0	3.6	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	blue	blue	4.301		H	target_clean		4.0	regular	7.53	above	4.0	3.6	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	purple	purple	3.853	مناطق طلب 3.80 <3.70 (نصّ على الشارت)	H	unmapped		4.0	regular	-3.67	below	4.0	3.6	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	purple	purple	3.702	مناطق طلب 3.80 <3.70 (نصّ على الشارت)	H	unmapped		4.0	regular	-7.45	below	4.0	3.6	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	red	red	3.604		H	support		4.0	regular	-9.90	below	4.0	3.6	label
+TG_2110#0	TG_2110#0	UNSIGNED	PPBT	unknown	red	red	3.421	STOP LOSS	H	support		4.0	regular	-14.48	below	4.0	3.6	label
+TG_2111#0	TG_2111#0	UNSIGNED	CIIT	unknown	blue	blue	2.737		H	target_clean		1.63	regular	67.91	above		1.39	label
+TG_2111#0	TG_2111#0	UNSIGNED	CIIT	unknown	blue	blue	2.381		H	target_clean		1.63	regular	46.07	above		1.39	label
+TG_2111#0	TG_2111#0	UNSIGNED	CIIT	unknown	purple	purple	2.147		H	unmapped		1.63	regular	31.72	above		1.39	label
+TG_2111#0	TG_2111#0	UNSIGNED	CIIT	unknown	black	black	1.951		H	resistance		1.63	regular	19.69	above		1.39	label
+TG_2111#0	TG_2111#0	UNSIGNED	CIIT	unknown	black	black	1.704		H	resistance		1.63	regular	4.54	above		1.39	label
+TG_2111#0	TG_2111#0	UNSIGNED	CIIT	unknown	red	red	1.389		H	support		1.63	regular	-14.79	below		1.39	label
+TG_2112#0	TG_2112#0	FAISAL	FUBO	unknown	purple	purple	16.33		H	unmapped		11.66	regular	40.05	above	11.66	8.31	label
+TG_2112#0	TG_2112#0	FAISAL	FUBO	unknown	purple	purple	15.51		H	unmapped		11.66	regular	33.02	above	11.66	8.31	label
+TG_2112#0	TG_2112#0	FAISAL	FUBO	unknown	blue	blue	14.9		H	target_clean		11.66	regular	27.79	above	11.66	8.31	label
+TG_2112#0	TG_2112#0	FAISAL	FUBO	unknown	blue	blue	14.22		H	target_clean		11.66	regular	21.96	above	11.66	8.31	label
+TG_2112#0	TG_2112#0	FAISAL	FUBO	unknown	blue	blue	13.45		H	target_clean		11.66	regular	15.35	above	11.66	8.31	label
+TG_2112#0	TG_2112#0	FAISAL	FUBO	unknown	black	black	12.1		H	resistance		11.66	regular	3.77	above	11.66	8.31	label
+TG_2112#0	TG_2112#0	FAISAL	FUBO	unknown	red	red	10.66		H	support		11.66	regular	-8.58	below	11.66	8.31	label
+TG_2115#0	TG_2115#0	UNSIGNED	TURB	unknown	black	black	8.185		H	resistance		3.105	regular	163.61	above		0.57	label
+TG_2115#0	TG_2115#0	UNSIGNED	TURB	unknown	blue	blue	6.532		H	target_clean		3.105	regular	110.37	above		0.57	label
+TG_2115#0	TG_2115#0	UNSIGNED	TURB	unknown	blue	blue	4.735		H	target_clean		3.105	regular	52.50	above		0.57	label
+TG_2115#0	TG_2115#0	UNSIGNED	TURB	unknown	other	purple	3.79		H	unmapped		3.105	regular	22.06	above		0.57	label
+TG_2115#0	TG_2115#0	UNSIGNED	TURB	unknown	red	red	2.819		H	support		3.105	regular	-9.21	below		0.57	label
+TG_2116#0	TG_2116#0	UNSIGNED	SVRE	D	blue	blue	5.342		H	target_clean		3.14	regular	70.13	above	3.14	2.2	label
+TG_2116#0	TG_2116#0	UNSIGNED	SVRE	D	blue	blue	5.006		H	target_clean		3.14	regular	59.43	above	3.14	2.2	label
+TG_2116#0	TG_2116#0	UNSIGNED	SVRE	D	blue	blue	4.572		H	target_clean		3.14	regular	45.61	above	3.14	2.2	label
+TG_2116#0	TG_2116#0	UNSIGNED	SVRE	D	blue	blue	4.24		H	target_clean		3.14	regular	35.03	above	3.14	2.2	label
+TG_2116#0	TG_2116#0	UNSIGNED	SVRE	D	black	black	3.366		H	resistance		3.14	regular	7.20	above	3.14	2.2	label
+TG_2116#0	TG_2116#0	UNSIGNED	SVRE	D	red	red	3.001		H	conflict	red>black	3.14	regular	-4.43	below	3.14	2.2	label
+TG_2116#0	TG_2116#0	UNSIGNED	SVRE	D	black	black	2.703		H	conflict	black<red	3.14	regular	-13.92	below	3.14	2.2	label
+TG_2118#0	TG_2118#0	UNSIGNED	ICU	unknown	red	red	3.291		H	support		3.51	regular	-6.24	below	3.51	2.74	label
+TG_2118#0	TG_2118#0	UNSIGNED	ICU	unknown	red	red	3.099		H	support		3.51	regular	-11.71	below	3.51	2.74	label
+TG_2119#0	TG_2119#0	FAISAL	BCG	unknown	black	black	3.26		H	resistance		3.087	ext	5.60	above		2.8	label
+TG_2119#0	TG_2119#0	FAISAL	BCG	unknown	blue	blue	3.102		H	target_clean		3.087	ext	0.49	at		2.8	label
+TG_2119#0	TG_2119#0	FAISAL	BCG	unknown	red	red	2.952	2.95 متابعه ثبات او فشل (نصّ المنشور)	H	support		3.087	ext	-4.37	below		2.8	label
+TG_2119#0	TG_2119#0	FAISAL	BCG	unknown	red	red	2.863	2.86 متابعه ثبات او فشل (نصّ المنشور)	H	support		3.087	ext	-7.26	below		2.8	label
+TG_2120#0	TG_2120#0	UNSIGNED	NEXR	D	other	purple	3.258		H	unmapped		1.67	ext	95.09	above	1.91	1.72	label
+TG_2120#0	TG_2120#0	UNSIGNED	NEXR	D	blue	blue	2.849		H	target_clean		1.67	ext	70.60	above	1.91	1.72	label
+TG_2120#0	TG_2120#0	UNSIGNED	NEXR	D	black	black	2.497		H	resistance		1.67	ext	49.52	above	1.91	1.72	label
+TG_2120#0	TG_2120#0	UNSIGNED	NEXR	D	black	black	2.312		H	resistance		1.67	ext	38.44	above	1.91	1.72	label
+TG_2120#0	TG_2120#0	UNSIGNED	NEXR	D	purple	purple	2.021		H	unmapped		1.67	ext	21.02	above	1.91	1.72	label
+TG_2120#0	TG_2120#0	UNSIGNED	NEXR	D	red	red	1.712		H	support		1.67	ext	2.51	above	1.91	1.72	label
+TG_2124#0	TG_2124#0	UNSIGNED	RAYA	D	blue	blue	4.212		H	target_clean		1.04	ext	305.00	above		0.9	label
+TG_2124#0	TG_2124#0	UNSIGNED	RAYA	D	black	black	3.399		H	resistance		1.04	ext	226.83	above		0.9	label
+TG_2124#0	TG_2124#0	UNSIGNED	RAYA	D	black	black	3.136		H	resistance		1.04	ext	201.54	above		0.9	label
+TG_2124#0	TG_2124#0	UNSIGNED	RAYA	D	black	black	2.863		H	resistance		1.04	ext	175.29	above		0.9	label
+TG_2124#0	TG_2124#0	UNSIGNED	RAYA	D	grey	grey	2.573		H	unmapped		1.04	ext	147.40	above		0.9	label
+TG_2124#0	TG_2124#0	UNSIGNED	RAYA	D	black	black	1.643		H	resistance		1.04	ext	57.98	above		0.9	label
+TG_2124#0	TG_2124#0	UNSIGNED	RAYA	D	red	red	0.909		H	support		1.04	ext	-12.60	below		0.9	label
+TG_2175#0	TG_2175#0	THIRD_PARTY	NCT	30m	purple	purple	5.002		H	unmapped		3.98	regular	25.68	above		3.01	label
+TG_2175#0	TG_2175#0	THIRD_PARTY	NCT	30m	black	black	4.651		H	resistance		3.98	regular	16.86	above		3.01	label
+TG_2175#0	TG_2175#0	THIRD_PARTY	NCT	30m	black	black	4.522		H	resistance		3.98	regular	13.62	above		3.01	label
+TG_2175#0	TG_2175#0	THIRD_PARTY	NCT	30m	black	black	4.094	مقاومة 4.10 (نصّ الرسالة)	H	resistance		3.98	regular	2.86	above		3.01	label
+TG_2175#0	TG_2175#0	THIRD_PARTY	NCT	30m	black	black	3.854		H	resistance		3.98	regular	-3.17	below		3.01	label
+TG_2175#0	TG_2175#0	THIRD_PARTY	NCT	30m	red	red	3.68		H	support		3.98	regular	-7.54	below		3.01	label
+TG_2178#0	TG_2178#0	UNSIGNED	BGMS	D	red	red	1.959		H	support		2.63	ext	-25.51	below	0.97	0.966	label
+TG_2178#0	TG_2178#0	UNSIGNED	BGMS	D	red	red	1.849		H	support		2.63	ext	-29.70	below	0.97	0.966	label
+TG_2179#0	TG_2179#0 TG_1906#0	UNSIGNED	NCT	unknown	purple	purple	6.593		H	unmapped		3.36	regular	96.22	above		2.2	label
+TG_2179#0	TG_2179#0 TG_1906#0	UNSIGNED	NCT	unknown	purple	purple	5.746		H	unmapped		3.36	regular	71.01	above		2.2	label
+TG_2179#0	TG_2179#0 TG_1906#0	UNSIGNED	NCT	unknown	blue	blue	5.12		H	target_clean		3.36	regular	52.38	above		2.2	label
+TG_2179#0	TG_2179#0 TG_1906#0	UNSIGNED	NCT	unknown	blue	blue	4.653		H	target_clean		3.36	regular	38.48	above		2.2	label
+TG_2179#0	TG_2179#0 TG_1906#0	UNSIGNED	NCT	unknown	black	black	4.165		H	resistance		3.36	regular	23.96	above		2.2	label
+TG_2179#0	TG_2179#0 TG_1906#0	UNSIGNED	NCT	unknown	black	black	3.865		H	resistance		3.36	regular	15.03	above		2.2	label
+TG_2179#0	TG_2179#0 TG_1906#0	UNSIGNED	NCT	unknown	black	black	3.415		M	resistance		3.36	regular	1.64	above		2.2	label
+TG_2179#0	TG_2179#0 TG_1906#0	UNSIGNED	NCT	unknown	red	red	3.089		H	support		3.36	regular	-8.07	below		2.2	label
+TG_2183#0	TG_2183#0	UNSIGNED	LABT	4h	blue	blue	7.459		H	target_clean		3.347	ext	122.86	above	3.347	1.66	label
+TG_2183#0	TG_2183#0	UNSIGNED	LABT	4h	purple	purple	6.685		H	unmapped		3.347	ext	99.73	above	3.347	1.66	label
+TG_2183#0	TG_2183#0	UNSIGNED	LABT	4h	purple	purple	5.887		H	unmapped		3.347	ext	75.89	above	3.347	1.66	label
+TG_2183#0	TG_2183#0	UNSIGNED	LABT	4h	black	black	5.164		H	resistance		3.347	ext	54.29	above	3.347	1.66	label
+TG_2183#0	TG_2183#0	UNSIGNED	LABT	4h	blue	blue	4.287		H	target_clean		3.347	ext	28.08	above	3.347	1.66	label
+TG_2183#0	TG_2183#0	UNSIGNED	LABT	4h	blue	blue	3.541		H	target_clean		3.347	ext	5.80	above	3.347	1.66	label
+TG_2183#0	TG_2183#0	UNSIGNED	LABT	4h	black	black	2.993		H	resistance		3.347	ext	-10.58	below	3.347	1.66	label
+TG_2183#0	TG_2183#0	UNSIGNED	LABT	4h	red	red	1.972		H	support		3.347	ext	-41.08	below	3.347	1.66	label
+TG_2202#0	TG_2202#0	UNSIGNED	FTFT	D	purple	purple	2.761		H	unmapped		1.21	ext	128.18	above		1.12	label
+TG_2202#0	TG_2202#0	UNSIGNED	FTFT	D	purple	purple	2.429		H	unmapped		1.21	ext	100.74	above		1.12	label
+TG_2202#0	TG_2202#0	UNSIGNED	FTFT	D	purple	purple	2.247		H	unmapped		1.21	ext	85.70	above		1.12	label
+TG_2202#0	TG_2202#0	UNSIGNED	FTFT	D	purple	purple	2.084		H	unmapped		1.21	ext	72.23	above		1.12	label
+TG_2202#0	TG_2202#0	UNSIGNED	FTFT	D	black	black	1.788		H	resistance		1.21	ext	47.77	above		1.12	label
+TG_2202#0	TG_2202#0	UNSIGNED	FTFT	D	black	black	1.514		H	resistance		1.21	ext	25.12	above		1.12	label
+TG_2202#0	TG_2202#0	UNSIGNED	FTFT	D	other	other	1.316		H	unmapped		1.21	ext	8.76	above		1.12	label
+TG_2523#0	TG_2523#0	UNSIGNED	ARBK	unknown	blue	blue	4.48		H	target_clean		2.93	ext	52.90	above	2.893	2.63	label
+TG_2523#0	TG_2523#0	UNSIGNED	ARBK	unknown	blue	blue	3.922		H	target_clean		2.93	ext	33.86	above	2.893	2.63	label
+TG_2523#0	TG_2523#0	UNSIGNED	ARBK	unknown	black	black	3.666		H	resistance		2.93	ext	25.12	above	2.893	2.63	label
+TG_2523#0	TG_2523#0	UNSIGNED	ARBK	unknown	black	black	3.152		H	resistance		2.93	ext	7.58	above	2.893	2.63	label
+TG_2523#0	TG_2523#0	UNSIGNED	ARBK	unknown	red	red	2.649		H	support		2.93	ext	-9.59	below	2.893	2.63	label
+TG_2523#0	TG_2523#0	UNSIGNED	ARBK	unknown	red	red	2.409		H	support		2.93	ext	-17.78	below	2.893	2.63	label
+TG_2525#0	TG_2525#0	UNSIGNED	JDZG	1m	black	black	2.372		H	resistance		2.07	ext	14.59	above	2.07	2.03	label
+TG_2525#0	TG_2525#0	UNSIGNED	JDZG	1m	black	black	2.292		H	resistance		2.07	ext	10.72	above	2.07	2.03	label
+TG_2525#0	TG_2525#0	UNSIGNED	JDZG	1m	black	black	2.221		H	resistance		2.07	ext	7.29	above	2.07	2.03	label
+TG_2525#0	TG_2525#0	UNSIGNED	JDZG	1m	blue	blue	2.1		H	target_clean		2.07	ext	1.45	above	2.07	2.03	label
+TG_2525#0	TG_2525#0	UNSIGNED	JDZG	1m	purple	purple	2.05		H	unmapped		2.07	ext	-0.97	at	2.07	2.03	label
+TG_2525#0	TG_2525#0	UNSIGNED	JDZG	1m	red	red	2.031		H	support		2.07	ext	-1.88	below	2.07	2.03	label
+TG_2530#0	TG_2530#0	UNSIGNED	ALMU	D	blue	blue	17.65		H	target_clean		13.16	ext	34.12	above	10.76	10.24	label
+TG_2530#0	TG_2530#0	UNSIGNED	ALMU	D	blue	blue	16.81		H	target_clean		13.16	ext	27.74	above	10.76	10.24	label
+TG_2530#0	TG_2530#0	UNSIGNED	ALMU	D	blue	blue	16.2		H	target_clean		13.16	ext	23.10	above	10.76	10.24	label
+TG_2530#0	TG_2530#0	UNSIGNED	ALMU	D	black	black	15.27		H	resistance		13.16	ext	16.03	above	10.76	10.24	label
+TG_2530#0	TG_2530#0	UNSIGNED	ALMU	D	black	black	13.81		H	resistance		13.16	ext	4.94	above	10.76	10.24	label
+TG_2530#0	TG_2530#0	UNSIGNED	ALMU	D	red	red	12.5		H	support		13.16	ext	-5.02	below	10.76	10.24	label
+TG_2533#0	TG_2533#0	UNSIGNED	SNYR	5m	black	black	1.321		H	resistance		1.17	ext	12.91	above	1.17	1.1	label
+TG_2533#0	TG_2533#0	UNSIGNED	SNYR	5m	black	black	1.27		H	resistance		1.17	ext	8.55	above	1.17	1.1	label
+TG_2533#0	TG_2533#0	UNSIGNED	SNYR	5m	blue	blue	1.221		H	target_clean		1.17	ext	4.36	above	1.17	1.1	label
+TG_2533#0	TG_2533#0	UNSIGNED	SNYR	5m	black	black	1.2		H	resistance		1.17	ext	2.56	above	1.17	1.1	label
+TG_2533#0	TG_2533#0	UNSIGNED	SNYR	5m	red	red	1.12		H	support		1.17	ext	-4.27	below	1.17	1.1	label
+TG_2533#0	TG_2533#0	UNSIGNED	SNYR	5m	red	red	1.1		H	support		1.17	ext	-5.98	below	1.17	1.1	label
+TG_2536#0	TG_2536#0	UNSIGNED	ARAI	D	black	black	1.7767		H	resistance		1.65	regular	7.68	above	1.65	0.51	label
+TG_2536#0	TG_2536#0	UNSIGNED	ARAI	D	red	red	1.3133		H	conflict	red>black	1.65	regular	-20.41	below	1.65	0.51	label
+TG_2536#0	TG_2536#0	UNSIGNED	ARAI	D	black	black	1.1534		H	conflict	black<red	1.65	regular	-30.10	below	1.65	0.51	label
+TG_50582#0	TG_50582#0	UNSIGNED	MSGY	4h	black	black	2.303		H	resistance		2.03	ext	13.45	above	2.03	1.73	label
+TG_50582#0	TG_50582#0	UNSIGNED	MSGY	4h	other	other	1.811		H	unmapped		2.03	ext	-10.79	below	2.03	1.73	label
+TG_50582#0	TG_50582#0	UNSIGNED	MSGY	4h	red	red	1.727		H	support		2.03	ext	-14.93	below	2.03	1.73	label
+TG_50583#0	TG_50583#0 X_20260905_12#0	FAISAL	MSGY	4h	purple	purple	4.15		H	unmapped		1.82	ext	128.02	above		1.736	label
+TG_50583#0	TG_50583#0 X_20260905_12#0	FAISAL	MSGY	4h	blue	blue	3.71		H	target_clean		1.82	ext	103.85	above		1.736	label
+TG_50583#0	TG_50583#0 X_20260905_12#0	FAISAL	MSGY	4h	purple	purple	3.099		H	unmapped		1.82	ext	70.27	above		1.736	label
+TG_50583#0	TG_50583#0 X_20260905_12#0	FAISAL	MSGY	4h	blue	blue	2.722		H	target_clean		1.82	ext	49.56	above		1.736	label
+TG_50583#0	TG_50583#0 X_20260905_12#0	FAISAL	MSGY	4h	black	black	2.421		H	resistance		1.82	ext	33.02	above		1.736	label
+TG_50583#0	TG_50583#0 X_20260905_12#0	FAISAL	MSGY	4h	black	black	2.126		H	resistance		1.82	ext	16.81	above		1.736	label
+TG_50583#0	TG_50583#0 X_20260905_12#0	FAISAL	MSGY	4h	blue	blue	1.742		H	target_clean		1.82	ext	-4.29	below		1.736	label
+TG_50590#0	TG_50590#0	UNSIGNED		unknown	orange	orange	6.305		H	unmapped		2.4	regular	162.71	above	2.4	1.78	label
+TG_50590#0	TG_50590#0	UNSIGNED		unknown	other	purple	5.194		H	unmapped		2.4	regular	116.42	above	2.4	1.78	label
+TG_50590#0	TG_50590#0	UNSIGNED		unknown	other	purple	2.913		H	unmapped		2.4	regular	21.37	above	2.4	1.78	label
+TG_50830#0	TG_50830#0	FAISAL	IPDN	4h	purple	purple	12.012		H	unmapped		6.7	ext	79.28	above		2.96	label
+TG_50830#0	TG_50830#0	FAISAL	IPDN	4h	purple	purple	11.419		H	unmapped		6.7	ext	70.43	above		2.96	label
+TG_50830#0	TG_50830#0	FAISAL	IPDN	4h	purple	purple	10.444		H	unmapped		6.7	ext	55.88	above		2.96	label
+TG_50830#0	TG_50830#0	FAISAL	IPDN	4h	blue	blue	9.153		H	target_clean		6.7	ext	36.61	above		2.96	label
+TG_50830#0	TG_50830#0	FAISAL	IPDN	4h	blue	blue	8.459		H	target_clean		6.7	ext	26.25	above		2.96	label
+TG_50830#0	TG_50830#0	FAISAL	IPDN	4h	blue	blue	7.416		H	target_clean		6.7	ext	10.69	above		2.96	label
+TG_50830#0	TG_50830#0	FAISAL	IPDN	4h	blue	blue	6.781		H	target_clean		6.7	ext	1.21	above		2.96	label
+TG_50830#0	TG_50830#0	FAISAL	IPDN	4h	red	red	5.665		H	conflict	red>blue	6.7	ext	-15.45	below		2.96	label
+TG_50830#0	TG_50830#0	FAISAL	IPDN	4h	blue	blue	1.978		H	conflict	blue<red	6.7	ext	-70.48	below		2.96	label
+TG_50830#1	TG_50830#1	FAISAL	IPDN	5m	purple	purple	9.29		H	unmapped		6.7	ext	38.66	above		3.52	label
+TG_50830#1	TG_50830#1	FAISAL	IPDN	5m	black	black	8.26		H	resistance		6.7	ext	23.28	above		3.52	label
+TG_50830#1	TG_50830#1	FAISAL	IPDN	5m	black	black	7.42		H	resistance		6.7	ext	10.75	above		3.52	label
+TG_50830#1	TG_50830#1	FAISAL	IPDN	5m	black	black	6.78		H	resistance		6.7	ext	1.19	above		3.52	label
+TG_50830#1	TG_50830#1	FAISAL	IPDN	5m	red	red	5.67		H	conflict	red>blue	6.7	ext	-15.37	below		3.52	label
+TG_50830#1	TG_50830#1	FAISAL	IPDN	5m	blue	blue	1.98		H	conflict	blue<red	6.7	ext	-70.45	below		3.52	label
+TG_57865#0	TG_57865#0	THIRD_PARTY	WNW	D	other	red	2.484		M	unmapped		2.46	ext	0.98	at			
+TG_57886#0	TG_57886#0 TG_57885#0	FAISAL	MSGY	D	purple	purple	10.638		H	unmapped		5.86	ext	81.54	above		2.885	label
+TG_57886#0	TG_57886#0 TG_57885#0	FAISAL	MSGY	D	blue	blue	5.612	ذهب ابعد مما توقعنا شمعة ساقطه عاليه ذيلها 5.60 = الاهداف المتوقعه (نصّ المنشور)	M	target_clean		5.86	ext	-4.23	below		2.885	label
+TG_57886#1	TG_57886#1 TG_57885#1	FAISAL	MSGY	D	purple	purple	10.638		H	unmapped		5.86	ext	81.54	above	8.07	1.73	label
+TG_57886#1	TG_57886#1 TG_57885#1	FAISAL	MSGY	D	blue	blue	5.863		H	target_clean		5.86	ext	0.05	at	8.07	1.73	label
+TG_57886#1	TG_57886#1 TG_57885#1	FAISAL	MSGY	D	blue	blue	4.188		H	target_clean		5.86	ext	-28.53	below	8.07	1.73	label
+TG_57888#0	TG_57888#0	UNSIGNED	MSGY	D	other	purple	4.157		H	unmapped		4.145	regular	0.29	at		1.73	label
+TG_57888#0	TG_57888#0	UNSIGNED	MSGY	D	blue	blue	3.2		H	target_clean		4.145	regular	-22.80	below		1.73	label
+TG_57888#0	TG_57888#0	UNSIGNED	MSGY	D	other	purple	2.956		H	unmapped		4.145	regular	-28.69	below		1.73	label
+TG_57888#0	TG_57888#0	UNSIGNED	MSGY	D	other	other	2.604		H	unmapped		4.145	regular	-37.18	below		1.73	label
+TG_57888#0	TG_57888#0	UNSIGNED	MSGY	D	black	black	2.14		H	resistance		4.145	regular	-48.37	below		1.73	label
+TG_57888#0	TG_57888#0	UNSIGNED	MSGY	D	red	red	1.733		H	support		4.145	regular	-58.19	below		1.73	label
+TG_57891#0	TG_57891#0 TG_57890#0	FAISAL	GCTK	unknown	black	black	5.12		H	resistance		3.62	ext	41.44	above	3.62	2.008	label
+TG_57891#0	TG_57891#0 TG_57890#0	FAISAL	GCTK	unknown	purple	purple	4.777		H	unmapped		3.62	ext	31.96	above	3.62	2.008	label
+TG_57891#0	TG_57891#0 TG_57890#0	FAISAL	GCTK	unknown	black	black	4.007		H	resistance		3.62	ext	10.69	above	3.62	2.008	label
+TG_57891#0	TG_57891#0 TG_57890#0	FAISAL	GCTK	unknown	red	red	3.12	الدعوم للبري 3.12 كسرها = فشل (نصّ المنشور)	H	support		3.62	ext	-13.81	below	3.62	2.008	label
+TG_57891#1	TG_57891#1 TG_57890#1	FAISAL	GCTK	unknown	blue	blue	8.931		H	target_clean		3.579	ext	149.54	above	2.03	1.998	label
+TG_57891#1	TG_57891#1 TG_57890#1	FAISAL	GCTK	unknown	blue	blue	7.835		H	target_clean		3.579	ext	118.92	above	2.03	1.998	label
+TG_57891#1	TG_57891#1 TG_57890#1	FAISAL	GCTK	unknown	purple	purple	7.15		H	unmapped		3.579	ext	99.78	above	2.03	1.998	label
+TG_57891#1	TG_57891#1 TG_57890#1	FAISAL	GCTK	unknown	purple	purple	6.313		H	unmapped		3.579	ext	76.39	above	2.03	1.998	label
+TG_57891#1	TG_57891#1 TG_57890#1	FAISAL	GCTK	unknown	black	black	5.439		H	resistance		3.579	ext	51.97	above	2.03	1.998	label
+TG_57891#1	TG_57891#1 TG_57890#1	FAISAL	GCTK	unknown	black	black	4.007		H	resistance		3.579	ext	11.96	above	2.03	1.998	label
+TG_57891#1	TG_57891#1 TG_57890#1	FAISAL	GCTK	unknown	red	red	3.109	الدعوم للبري 3.12 كسرها = فشل (نصّ المنشور)	H	support		3.579	ext	-13.13	below	2.03	1.998	label
+TG_57892#0	TG_57892#0	FAISAL	SPHL	4h	purple	purple	5.931		M	unmapped		3.21	ext	84.77	above		2.0	label
+TG_57892#0	TG_57892#0	FAISAL	SPHL	4h	purple	purple	5.003		M	unmapped		3.21	ext	55.86	above		2.0	label
+TG_57892#0	TG_57892#0	FAISAL	SPHL	4h	blue	blue	3.862		M	target_clean		3.21	ext	20.31	above		2.0	label
+TG_57892#0	TG_57892#0	FAISAL	SPHL	4h	black	black	3.215		M	resistance		3.21	ext	0.16	at		2.0	label
+TG_57892#0	TG_57892#0	FAISAL	SPHL	4h	black	black	2.297		M	resistance		3.21	ext	-28.44	below		2.0	label
+TG_57892#0	TG_57892#0	FAISAL	SPHL	4h	red	red	2.024		M	support		3.21	ext	-36.95	below		2.0	label
+TG_58046#0	TG_58046#0	FAISAL	EZRA	D	purple	purple	5.433	5.40 خطوره السهم اما بالهبوط او الصعود (نصّ المنشور)	H	unmapped		3.27	ext	66.15	above	3.26	3.03	label
+TG_58046#0	TG_58046#0	FAISAL	EZRA	D	purple	purple	3.994		H	unmapped		3.27	ext	22.14	above	3.26	3.03	label
+TG_58046#0	TG_58046#0	FAISAL	EZRA	D	purple	purple	3.43		H	unmapped		3.27	ext	4.89	above	3.26	3.03	label
+TG_58047#0	TG_58047#0 TG_58048#0	THIRD_PARTY	DXST	4h	red	red	5.469		H	conflict	red>black,red>blue	2.751	regular	98.80	above	2.751	2.28	label
+TG_58047#0	TG_58047#0 TG_58048#0	THIRD_PARTY	DXST	4h	black	black	4.145	مقاومه عنده ٤.١٤ سابقه (نصّ المنشور)	H	conflict	black<red	2.751	regular	50.67	above	2.751	2.28	label
+TG_58047#0	TG_58047#0 TG_58048#0	THIRD_PARTY	DXST	4h	blue	blue	3.905		H	conflict	blue<red	2.751	regular	41.95	above	2.751	2.28	label
+TG_58047#0	TG_58047#0 TG_58048#0	THIRD_PARTY	DXST	4h	blue	blue	3.352		H	conflict	blue<red	2.751	regular	21.85	above	2.751	2.28	label
+TG_58047#0	TG_58047#0 TG_58048#0	THIRD_PARTY	DXST	4h	black	black	3.195	المقاومة عند ٣.١٩ ما قدر يثبت فوقها من الهبوط (نصّ المنشور)	H	conflict	black<red	2.751	regular	16.14	above	2.751	2.28	label
+TG_58047#0	TG_58047#0 TG_58048#0	THIRD_PARTY	DXST	4h	red	red	2.632		H	support		2.751	regular	-4.33	below	2.751	2.28	label
+TG_58047#0	TG_58047#0 TG_58048#0	THIRD_PARTY	DXST	4h	red	red	2.298		H	support		2.751	regular	-16.47	below	2.751	2.28	label
+TG_58049#0	TG_58049#0	UNSIGNED	ATMV	unknown	black	black	22.2		H	resistance		7.42	ext	199.19	above	8.29		
+TG_58049#0	TG_58049#0	UNSIGNED	ATMV	unknown	black	black	20.49		H	resistance		7.42	ext	176.15	above	8.29		
+TG_58049#0	TG_58049#0	UNSIGNED	ATMV	unknown	black	black	18.48		H	resistance		7.42	ext	149.06	above	8.29		
+TG_58049#0	TG_58049#0	UNSIGNED	ATMV	unknown	blue	blue	16.03		H	target_clean		7.42	ext	116.04	above	8.29		
+TG_58049#0	TG_58049#0	UNSIGNED	ATMV	unknown	blue	blue	14.36		H	target_clean		7.42	ext	93.53	above	8.29		
+TG_58049#0	TG_58049#0	UNSIGNED	ATMV	unknown	grey	grey	13.47	مقاومه 13.47 الزخم يحدد اتجاه السهم (نصّ المنشور)	H	unmapped		7.42	ext	81.54	above	8.29		
+TG_58049#0	TG_58049#0	UNSIGNED	ATMV	unknown	black	black	9.92		H	resistance		7.42	ext	33.69	above	8.29		
+TG_58049#0	TG_58049#0	UNSIGNED	ATMV	unknown	black	black	8.76	ثباته + اقفال يومي على 8.76 مهم (نصّ المنشور)	H	resistance		7.42	ext	18.06	above	8.29		
+TG_58049#0	TG_58049#0	UNSIGNED	ATMV	unknown	red	red	6.71	فنيا. > عنده ترند هابط 6.70 · اذا ارتد وحافظ عليها ذكرني (نصّ المنشور)	H	support		7.42	ext	-9.57	below	8.29		
+TG_58049#0	TG_58049#0	UNSIGNED	ATMV	unknown	red	red	5.4		H	support		7.42	ext	-27.22	below	8.29		
+X_20260827_ciit_targets#0	X_20260827_ciit_targets#0	UNSIGNED	CIIT	unknown	purple	purple	19.736		H	unmapped		3.57	mid	452.83	above		2.603	label
+X_20260827_ciit_targets#0	X_20260827_ciit_targets#0	UNSIGNED	CIIT	unknown	purple	purple	13.342		H	unmapped		3.57	mid	273.73	above		2.603	label
+X_20260827_ciit_targets#0	X_20260827_ciit_targets#0	UNSIGNED	CIIT	unknown	blue	blue	5.397		H	target_clean		3.57	mid	51.18	above		2.603	label
+X_20260827_ciit_targets#0	X_20260827_ciit_targets#0	UNSIGNED	CIIT	unknown	red	red	2.574		H	support		3.57	mid	-27.90	below		2.603	label
+X_20260827_kwm_annotated_levels#0	X_20260827_kwm_annotated_levels#0	FAISAL	KWM	D	blue	blue	7.43	شمعة ساقطه راسها 7.43 ذيلها 6.61 (نصّ على الشارت)	H	conflict	label	2.7	ext	175.19	above	2.64	2.02	label
+X_20260827_kwm_annotated_levels#0	X_20260827_kwm_annotated_levels#0	FAISAL	KWM	D	blue	blue	6.611	شمعة ساقطه راسها 7.43 ذيلها 6.61 (نصّ على الشارت)	H	conflict	label	2.7	ext	144.85	above	2.64	2.02	label
+X_20260827_kwm_annotated_levels#0	X_20260827_kwm_annotated_levels#0	FAISAL	KWM	D	purple	purple	5.999	شمعة عدم ثبات 6 (نصّ على الشارت)	H	unmapped		2.7	ext	122.19	above	2.64	2.02	label
+X_20260827_kwm_annotated_levels#0	X_20260827_kwm_annotated_levels#0	FAISAL	KWM	D	orange	orange	5.422	شموع الهبوط راسها 5.42 ذيلها 4.64 (نصّ على الشارت)	H	unmapped		2.7	ext	100.81	above	2.64	2.02	label
+X_20260827_kwm_annotated_levels#0	X_20260827_kwm_annotated_levels#0	FAISAL	KWM	D	orange	orange	4.644	شموع الهبوط راسها 5.42 ذيلها 4.64 (نصّ على الشارت)	H	unmapped		2.7	ext	72.00	above	2.64	2.02	label
+X_20260827_kwm_annotated_levels#0	X_20260827_kwm_annotated_levels#0	FAISAL	KWM	D	black	black	3.796	مقاومات لاين اسود تحرر الهبوط 3.79 (نصّ على الشارت)	H	resistance		2.7	ext	40.59	above	2.64	2.02	label
+X_20260827_kwm_annotated_levels#0	X_20260827_kwm_annotated_levels#0	FAISAL	KWM	D	black	black	3.357		H	resistance		2.7	ext	24.33	above	2.64	2.02	label
+X_20260827_kwm_annotated_levels#0	X_20260827_kwm_annotated_levels#0	FAISAL	KWM	D	black	black	2.873		H	resistance		2.7	ext	6.41	above	2.64	2.02	label
+X_20260827_kwm_annotated_levels#0	X_20260827_kwm_annotated_levels#0	FAISAL	KWM	D	red	red	2.315	دعوم السهم الاجابيه 2.50 > 2.30 (نصّ على الشارت)	H	support		2.7	ext	-14.26	below	2.64	2.02	label
+X_20260827_rubi_4h_levels#0	X_20260827_rubi_4h_levels#0 X_20260827_rubi_read_short150k#0	FAISAL	RUBI	4h	purple	purple	2.288	عند سعر 2.30 معروض 20 الف سهم (نصّ المنشور)	H	unmapped		1.82	ext	25.71	above	1.82	1.65	label
+X_20260827_rubi_4h_levels#0	X_20260827_rubi_4h_levels#0 X_20260827_rubi_read_short150k#0	FAISAL	RUBI	4h	blue	blue	2.002	Ma20 = 2 (نصّ المنشور)	H	target_clean		1.82	ext	10.00	above	1.82	1.65	label
+X_20260827_rubi_4h_levels#0	X_20260827_rubi_4h_levels#0 X_20260827_rubi_read_short150k#0	FAISAL	RUBI	4h	red	red	1.74	الدعم الحالي 1.74 (نصّ المنشور)	H	support		1.82	ext	-4.40	below	1.82	1.65	label
+X_20260828_06#0	X_20260828_06#0	UNSIGNED	PPCB	D	blue	blue	8.739		H	target_clean		2.05	ext	326.29	above		0.95	label
+X_20260828_06#0	X_20260828_06#0	UNSIGNED	PPCB	D	black	black	6.78		H	resistance		2.05	ext	230.73	above		0.95	label
+X_20260828_06#0	X_20260828_06#0	UNSIGNED	PPCB	D	black	black	5.712		H	resistance		2.05	ext	178.63	above		0.95	label
+X_20260828_06#0	X_20260828_06#0	UNSIGNED	PPCB	D	black	black	4.986		H	resistance		2.05	ext	143.22	above		0.95	label
+X_20260828_06#0	X_20260828_06#0	UNSIGNED	PPCB	D	purple	purple	4.088		H	unmapped		2.05	ext	99.41	above		0.95	label
+X_20260828_06#0	X_20260828_06#0	UNSIGNED	PPCB	D	red	red	1.969		H	support		2.05	ext	-3.95	below		0.95	label
+X_20260905_08#0	X_20260905_08#0	FAISAL	SGRX	4h	blue	blue	7.821		H	target_clean		6.06	ext	29.06	above		1.757	label
+X_20260905_08#0	X_20260905_08#0	FAISAL	SGRX	4h	purple	purple	5.889		H	unmapped		6.06	ext	-2.82	below		1.757	label
+X_20260905_08#0	X_20260905_08#0	FAISAL	SGRX	4h	purple	purple	5.197		H	unmapped		6.06	ext	-14.24	below		1.757	label
+X_20260905_08#0	X_20260905_08#0	FAISAL	SGRX	4h	yellow	yellow	4.382		H	unmapped		6.06	ext	-27.69	below		1.757	label
+X_20260905_08#0	X_20260905_08#0	FAISAL	SGRX	4h	other	other	3.882		H	unmapped		6.06	ext	-35.94	below		1.757	label
+X_20260905_08#0	X_20260905_08#0	FAISAL	SGRX	4h	black	black	3.092		H	resistance		6.06	ext	-48.98	below		1.757	label
+X_20260905_08#0	X_20260905_08#0	FAISAL	SGRX	4h	red	red	1.695		H	support		6.06	ext	-72.03	below		1.757	label
+X_20260905_11#0	X_20260905_11#0	FAISAL	RAYA	D	purple	purple	4.908		H	unmapped		2.26	ext	117.17	above		2.0	label
+X_20260905_11#0	X_20260905_11#0	FAISAL	RAYA	D	black	black	4.569		H	resistance		2.26	ext	102.17	above		2.0	label
+X_20260905_11#0	X_20260905_11#0	FAISAL	RAYA	D	blue	blue	3.998		H	target_clean		2.26	ext	76.90	above		2.0	label
+X_20260905_11#0	X_20260905_11#0	FAISAL	RAYA	D	blue	blue	3.233		H	target_clean		2.26	ext	43.05	above		2.0	label
+X_20260905_11#0	X_20260905_11#0	FAISAL	RAYA	D	black	black	2.634		H	resistance		2.26	ext	16.55	above		2.0	label
+X_20260905_11#0	X_20260905_11#0	FAISAL	RAYA	D	black	black	2.407		H	resistance		2.26	ext	6.50	above		2.0	label
+X_20260905_11#0	X_20260905_11#0	FAISAL	RAYA	D	red	red	2.201		H	support		2.26	ext	-2.61	below		2.0	label
+X_20260905_11#0	X_20260905_11#0	FAISAL	RAYA	D	red	red	2.0		H	support		2.26	ext	-11.50	below		2.0	label
+IMG_0566#0	IMG_0566#0	FAISAL		unknown	purple	purple	4.843		M	unmapped								
+IMG_0566#0	IMG_0566#0	FAISAL		unknown	purple	purple	4.447		M	unmapped								
+IMG_0566#0	IMG_0566#0	FAISAL		unknown	orange	orange	3.912	راس شمعة التقسيم 3.91 (نصّ المنشور)	M	unmapped								
+IMG_0566#0	IMG_0566#0	FAISAL		unknown	blue	blue	3.659		M	target_clean								
+IMG_0566#0	IMG_0566#0	FAISAL		unknown	blue	blue	3.442		M	target_clean								
+IMG_0566#0	IMG_0566#0	FAISAL		unknown	blue	blue	3.295		M	target_clean								
+IMG_0566#1	IMG_0566#1	FAISAL		unknown	blue	blue	3.442		M	target_clean								
+IMG_0566#1	IMG_0566#1	FAISAL		unknown	blue	blue	3.295		M	target_clean								
+IMG_0566#1	IMG_0566#1	FAISAL		unknown	black	black	2.953		M	resistance								
+IMG_0566#1	IMG_0566#1	FAISAL		unknown	black	black	2.642		M	resistance								
+IMG_0602#0	IMG_0602#0	UNSIGNED	CANF	unknown	black	black	6.008		H	resistance		3.181	regular	88.87	above	3.181	2.56	label
+IMG_0602#0	IMG_0602#0	UNSIGNED	CANF	unknown	black	black	4.91		H	resistance		3.181	regular	54.35	above	3.181	2.56	label
+IMG_0602#0	IMG_0602#0	UNSIGNED	CANF	unknown	purple	purple	4.292		H	unmapped		3.181	regular	34.93	above	3.181	2.56	label
+IMG_0602#0	IMG_0602#0	UNSIGNED	CANF	unknown	blue	blue	4.046		H	target_clean		3.181	regular	27.19	above	3.181	2.56	label
+IMG_0602#0	IMG_0602#0	UNSIGNED	CANF	unknown	blue	blue	3.89		H	target_clean		3.181	regular	22.29	above	3.181	2.56	label
+IMG_0602#0	IMG_0602#0	UNSIGNED	CANF	unknown	black	black	3.698	اذا تجاوز 3.67 ممتاز (نصّ المنشور)	H	resistance		3.181	regular	16.25	above	3.181	2.56	label
+IMG_0602#0	IMG_0602#0	UNSIGNED	CANF	unknown	blue	blue	3.447		H	target_clean		3.181	regular	8.36	above	3.181	2.56	label
+IMG_0602#0	IMG_0602#0	UNSIGNED	CANF	unknown	red	red	3.0		H	support		3.181	regular	-5.69	below	3.181	2.56	label
+IMG_0697#0	IMG_0697#0	FAISAL	ZNB	D	purple	purple	15.114		H	unmapped		2.3	ext	557.13	above		1.83	label
+IMG_0697#0	IMG_0697#0	FAISAL	ZNB	D	purple	purple	12.851		H	unmapped		2.3	ext	458.74	above		1.83	label
+IMG_0697#0	IMG_0697#0	FAISAL	ZNB	D	purple	purple	10.405		H	unmapped		2.3	ext	352.39	above		1.83	label
+IMG_0697#0	IMG_0697#0	FAISAL	ZNB	D	other	other	8.231		H	unmapped		2.3	ext	257.87	above		1.83	label
+IMG_0697#0	IMG_0697#0	FAISAL	ZNB	D	blue	blue	5.937		H	target_clean		2.3	ext	158.13	above		1.83	label
+IMG_0697#0	IMG_0697#0	FAISAL	ZNB	D	blue	blue	4.131		H	target_clean		2.3	ext	79.61	above		1.83	label
+IMG_0697#0	IMG_0697#0	FAISAL	ZNB	D	black	black	2.85		M	resistance		2.3	ext	23.91	above		1.83	label
+IMG_0697#0	IMG_0697#0	FAISAL	ZNB	D	red	red	1.963	الاهم قبل الاهداف الدخول الامن والوقف والدعم انتظر 1.96 هل يثبت او يكسرها · مافيه دخول لين يختبر 2 > 1.96 · كسرها = مافيه دخول (نصّ المنشور)	H	support		2.3	ext	-14.65	below		1.83	label
+TG_20260905_07#0	TG_20260905_07#0	UNSIGNED	MSGY	D	white	white	2.606		H	unmapped		1.86	regular	40.11	above			
+TG_20260905_07#0	TG_20260905_07#0	UNSIGNED	MSGY	D	other	red	1.775	١.٨>١.٩ اشوفه تجميع (نصّ الرسالة)	H	unmapped		1.86	regular	-4.57	below			
+TG_2031#0	TG_2031#0	UNSIGNED	LNAI	unknown	purple	purple	5.937		H	unmapped		2.56	mid	131.91	above		1.338	label
+TG_2031#0	TG_2031#0	UNSIGNED	LNAI	unknown	blue	blue	5.256		H	target_clean		2.56	mid	105.31	above		1.338	label
+TG_2031#0	TG_2031#0	UNSIGNED	LNAI	unknown	blue	blue	4.83		H	target_clean		2.56	mid	88.67	above		1.338	label
+TG_2031#0	TG_2031#0	UNSIGNED	LNAI	unknown	orange	orange	4.355		H	unmapped		2.56	mid	70.12	above		1.338	label
+TG_2031#0	TG_2031#0	UNSIGNED	LNAI	unknown	blue	blue	3.754		H	target_clean		2.56	mid	46.64	above		1.338	label
+TG_2031#0	TG_2031#0	UNSIGNED	LNAI	unknown	black	black	3.273	مقاومه 3.27 > 3.57 · تحرر من المقاومات ممتاز (نصّ الرسالة)	H	resistance		2.56	mid	27.85	above		1.338	label
+TG_2031#0	TG_2031#0	UNSIGNED	LNAI	unknown	red	red	2.256		H	support		2.56	mid	-11.88	below		1.338	label
+TG_2108#0	TG_2108#0	FAISAL	CLIR	D	black	black	4.745		H	resistance		4.83	ext	-1.76	below		3.24	label
+TG_2108#0	TG_2108#0	FAISAL	CLIR	D	purple	purple	3.959	انتظر تكوين دعوم ارتداد بين 3.60 ل 4 · الدخول بعد ثبات الدعوم بجلستين او 3 (نصّ المنشور)	H	unmapped		4.83	ext	-18.03	below		3.24	label
+TG_2108#0	TG_2108#0	FAISAL	CLIR	D	purple	purple	3.598	انتظر تكوين دعوم ارتداد بين 3.60 ل 4 · الدخول بعد ثبات الدعوم بجلستين او 3 (نصّ المنشور)	H	unmapped		4.83	ext	-25.51	below		3.24	label
+TG_2108#0	TG_2108#0	FAISAL	CLIR	D	red	red	3.244		H	support		4.83	ext	-32.84	below		3.24	label
+TG_50579#0	TG_50579#0	FAISAL	EDBL	D	orange	orange	3.257		M	unmapped		1.28	regular	154.45	above		1.11	label
+TG_50579#0	TG_50579#0	FAISAL	EDBL	D	red	red	2.161		M	conflict	red>black,red>blue	1.28	regular	68.83	above		1.11	label
+TG_50579#0	TG_50579#0	FAISAL	EDBL	D	black	black	1.703		M	conflict	black<red	1.28	regular	33.05	above		1.11	label
+TG_50579#0	TG_50579#0	FAISAL	EDBL	D	black	black	1.508		M	conflict	black<red	1.28	regular	17.81	above		1.11	label
+TG_50579#0	TG_50579#0	FAISAL	EDBL	D	blue	blue	1.257		M	conflict	blue<red	1.28	regular	-1.80	below		1.11	label
+TG_50828#0	TG_50828#0	FAISAL	CETX	D	blue	blue	8.206		H	target_clean		2.16	ext	279.91	above		2.01	label
+TG_50828#0	TG_50828#0	FAISAL	CETX	D	blue	blue	7.503		H	target_clean		2.16	ext	247.36	above		2.01	label
+TG_50828#0	TG_50828#0	FAISAL	CETX	D	purple	purple	5.503		H	unmapped		2.16	ext	154.77	above		2.01	label
+TG_50828#0	TG_50828#0	FAISAL	CETX	D	blue	blue	4.645		H	target_clean		2.16	ext	115.05	above		2.01	label
+TG_50828#0	TG_50828#0	FAISAL	CETX	D	purple	purple	4.05		H	unmapped		2.16	ext	87.50	above		2.01	label
+TG_50828#0	TG_50828#0	FAISAL	CETX	D	black	black	3.067		H	resistance		2.16	ext	41.99	above		2.01	label
+TG_50828#0	TG_50828#0	FAISAL	CETX	D	black	black	2.418		H	resistance		2.16	ext	11.94	above		2.01	label
+TG_50828#0	TG_50828#0	FAISAL	CETX	D	red	red	2.005		H	support		2.16	ext	-7.18	below		2.01	label
+TG_57867#0	TG_57867#0	FAISAL	NRSN	4h	purple	purple	11.57		H	unmapped		7.07	ext	63.65	above	7.07	5.0	label
+TG_57867#0	TG_57867#0	FAISAL	NRSN	4h	blue	blue	10.33		H	target_clean		7.07	ext	46.11	above	7.07	5.0	label
+TG_57867#0	TG_57867#0	FAISAL	NRSN	4h	blue	blue	9.54		H	target_clean		7.07	ext	34.94	above	7.07	5.0	label
+TG_57867#0	TG_57867#0	FAISAL	NRSN	4h	black	black	8.63		H	resistance		7.07	ext	22.07	above	7.07	5.0	label
+TG_57867#0	TG_57867#0	FAISAL	NRSN	4h	black	black	7.48	حقق المقاويه	H	resistance		7.07	ext	5.80	above	7.07	5.0	label
+TG_57867#0	TG_57867#0	FAISAL	NRSN	4h	red	red	5.59		H	support		7.07	ext	-20.93	below	7.07	5.0	label
+TG_57867#0	TG_57867#0	FAISAL	NRSN	4h	red	red	5.01		H	support		7.07	ext	-29.14	below	7.07	5.0	label
+X_20260827_kwm_offering_notready#1	X_20260827_kwm_offering_notready#0 X_20260827_kwm_offering_notready#1	FAISAL	KWM	D	blue	blue	4.493		H	target_clean		1.63	ext	175.64	above		1.5	label
+X_20260827_kwm_offering_notready#1	X_20260827_kwm_offering_notready#0 X_20260827_kwm_offering_notready#1	FAISAL	KWM	D	blue	blue	3.806		H	target_clean		1.63	ext	133.50	above		1.5	label
+X_20260827_kwm_offering_notready#1	X_20260827_kwm_offering_notready#0 X_20260827_kwm_offering_notready#1	FAISAL	KWM	D	purple	purple	3.258		H	unmapped		1.63	ext	99.88	above		1.5	label
+X_20260827_kwm_offering_notready#1	X_20260827_kwm_offering_notready#0 X_20260827_kwm_offering_notready#1	FAISAL	KWM	D	blue	blue	2.768		H	target_clean		1.63	ext	69.82	above		1.5	label
+X_20260827_kwm_offering_notready#1	X_20260827_kwm_offering_notready#0 X_20260827_kwm_offering_notready#1	FAISAL	KWM	D	purple	purple	2.514		H	unmapped		1.63	ext	54.23	above		1.5	label
+X_20260827_kwm_offering_notready#1	X_20260827_kwm_offering_notready#0 X_20260827_kwm_offering_notready#1	FAISAL	KWM	D	black	black	2.037		H	resistance		1.63	ext	24.97	above		1.5	label
+X_20260827_kwm_offering_notready#1	X_20260827_kwm_offering_notready#0 X_20260827_kwm_offering_notready#1	FAISAL	KWM	D	black	black	1.822		H	resistance		1.63	ext	11.78	above		1.5	label
+X_20260827_kwm_offering_notready#1	X_20260827_kwm_offering_notready#0 X_20260827_kwm_offering_notready#1	FAISAL	KWM	D	red	red	1.5	انتظار تعافي السهم وثبات الدعوم · 1.50 دعم غير مستقر (نصّ المنشور)	H	support		1.63	ext	-7.98	below		1.5	label
+CH_20261001_HS_01_DRMA#0	CH_20261001_HS_01_DRMA#0	UNSIGNED	DRMA	unknown	black	black	1.828	رأس	H	resistance		1.56	regular	17.18	above	1.56		
+CH_20261001_HS_01_DRMA#0	CH_20261001_HS_01_DRMA#0	UNSIGNED	DRMA	unknown	blue	blue	1.688	كتف أيمن	H	target_clean		1.56	regular	8.21	above	1.56		
+CH_20261001_HS_01_DRMA#0	CH_20261001_HS_01_DRMA#0	UNSIGNED	DRMA	unknown	blue	blue	1.648	كتف أيسر	H	target_clean		1.56	regular	5.64	above	1.56		
+CH_20261001_HS_01_DRMA#0	CH_20261001_HS_01_DRMA#0	UNSIGNED	DRMA	unknown	black	black	1.518		M	resistance		1.56	regular	-2.69	below	1.56		
+CH_20261001_HS_01_DRMA#0	CH_20261001_HS_01_DRMA#0	UNSIGNED	DRMA	unknown	red	red	1.473		H	support		1.56	regular	-5.58	below	1.56		
+CH_20261001_HS_02_DCOY#0	CH_20261001_HS_02_DCOY#0	UNSIGNED	DCOY	5m	blue	blue	5.332		H	target_clean		3.58	ext	48.94	above	3.58		
+CH_20261001_HS_02_DCOY#0	CH_20261001_HS_02_DCOY#0	UNSIGNED	DCOY	5m	other	red	4.727		H	unmapped		3.58	ext	32.04	above	3.58		
+TG_50577#0	TG_50577#0	FAISAL	DCOY	unknown	blue	blue	5.388		M	target_clean		4.8	regular	12.25	above			
+TG_50577#0	TG_50577#0	FAISAL	DCOY	unknown	other	red	4.727		M	unmapped		4.8	regular	-1.52	below			
+TG_50577#0	TG_50577#0	FAISAL	DCOY	unknown	red	red	4.194		M	support		4.8	regular	-12.62	below			
+TG_50577#1	TG_50577#1	FAISAL	DCOY	unknown	blue	blue	5.39		M	target_clean								
+X_20260827_pfsa_500pct#0	X_20260827_pfsa_500pct#0	FAISAL	PFSA	W	purple	purple	26.288	ذيل شمعة 26 تثمل الهدف راسها 36 لايجزم فيه (نصّ على الشارت)	H	unmapped		27.98	regular	-6.05	below	27.98	3.22	label
+X_20260827_pfsa_500pct#0	X_20260827_pfsa_500pct#0	FAISAL	PFSA	W	black	black	12.017	شمعة الاختراق · من 12 فوق 100٪ (نصّ المنشور)	H	resistance		27.98	regular	-57.05	below	27.98	3.22	label
+X_20260827_pfsa_500pct#0	X_20260827_pfsa_500pct#0	FAISAL	PFSA	W	red	red	3.457		H	support		27.98	regular	-87.64	below	27.98	3.22	label
+X_20260905_04#0	X_20260905_04#0	FAISAL		D	black	black	3.097		H	resistance		1.98	regular	56.41	above	1.98		
+X_20260905_04#0	X_20260905_04#0	FAISAL		D	black	black	2.503		H	resistance		1.98	regular	26.41	above	1.98		
+X_20260905_04#0	X_20260905_04#0	FAISAL		D	red	red	1.682		H	support		1.98	regular	-15.05	below	1.98		
+IMG_0505#0	IMG_0505#0	UNSIGNED	ADIL	unknown	black	black	4.265		H	resistance		1.6	ext	166.56	above	1.56	1.54	label
+IMG_0505#0	IMG_0505#0	UNSIGNED	ADIL	unknown	blue	blue	3.674		H	target_clean		1.6	ext	129.62	above	1.56	1.54	label
+IMG_0505#0	IMG_0505#0	UNSIGNED	ADIL	unknown	blue	blue	3.192		H	target_clean		1.6	ext	99.50	above	1.56	1.54	label
+IMG_0505#0	IMG_0505#0	UNSIGNED	ADIL	unknown	purple	purple	2.914		H	unmapped		1.6	ext	82.12	above	1.56	1.54	label
+IMG_0505#0	IMG_0505#0	UNSIGNED	ADIL	unknown	blue	blue	2.655		H	target_clean		1.6	ext	65.94	above	1.56	1.54	label
+IMG_0505#0	IMG_0505#0	UNSIGNED	ADIL	unknown	blue	blue	2.1		H	target_clean		1.6	ext	31.25	above	1.56	1.54	label
+IMG_0505#0	IMG_0505#0	UNSIGNED	ADIL	unknown	red	red	1.381	اديل عنده وتد 1.40 اذا كسر 1.54 · ثباته لاحقا فوق 1.40 الهدف يحدد لاحقا (نصّ المنشور)	H	conflict	label	1.6	ext	-13.69	below	1.56	1.54	label
+TG_50588#0	TG_50588#0	FAISAL	NXTT	unknown	purple	purple	8.85	شمعته الساقطه 8.85 (نصّ المنشور)	H	unmapped		5.7	ext	55.26	above	5.36	4.6	label
+TG_50588#0	TG_50588#0	FAISAL	NXTT	unknown	other	purple	7.55		H	unmapped		5.7	ext	32.46	above	5.36	4.6	label
+TG_50588#0	TG_50588#0	FAISAL	NXTT	unknown	blue	blue	6.91		H	target_clean		5.7	ext	21.23	above	5.36	4.6	label
+TG_50588#0	TG_50588#0	FAISAL	NXTT	unknown	black	black	6.13		H	resistance		5.7	ext	7.54	above	5.36	4.6	label
+TG_50588#0	TG_50588#0	FAISAL	NXTT	unknown	red	red	4.74	4.74 دعمه (نصّ المنشور)	H	support		5.7	ext	-16.84	below	5.36	4.6	label
+IMG_0512#0	IMG_0512#0	UNSIGNED		unknown	purple	purple	2.6		H	unmapped							2.56	label
+TG_1963#0	TG_1963#0	FAISAL	ERNA	unknown	purple	purple	5.4	تحميل مشاركات من 5 ل 5.40 (نصّ المنشور)	M	unmapped		5.81	regular	-7.06	below	5.81	3.7	label
+TG_1963#0	TG_1963#0	FAISAL	ERNA	unknown	purple	purple	5.17		M	unmapped		5.81	regular	-11.02	below	5.81	3.7	label
+TG_1963#0	TG_1963#0	FAISAL	ERNA	unknown	red	red	5.0	تحميل مشاركات من 5 ل 5.40 (نصّ المنشور)	M	support		5.81	regular	-13.94	below	5.81	3.7	label
+TG_1963#0	TG_1963#0	FAISAL	ERNA	unknown	red	red	4.59	4.59 وقف ❌ (نصّ المنشور)	M	support		5.81	regular	-21.00	below	5.81	3.7	label
+TG_1963#1	TG_1963#1	FAISAL	ERNA	D	black	black	16.757		M	resistance		3.99	regular	319.97	above	3.99	3.183	label
+TG_1963#1	TG_1963#1	FAISAL	ERNA	D	black	black	10.514		M	resistance		3.99	regular	163.51	above	3.99	3.183	label
+TG_1963#1	TG_1963#1	FAISAL	ERNA	D	blue	blue	8.611		M	target_clean		3.99	regular	115.81	above	3.99	3.183	label
+TG_1963#1	TG_1963#1	FAISAL	ERNA	D	black	black	7.239		M	resistance		3.99	regular	81.43	above	3.99	3.183	label
+TG_1963#1	TG_1963#1	FAISAL	ERNA	D	purple	purple	5.397	تحميل مشاركات من 5 ل 5.40 (نصّ المنشور)	M	unmapped		3.99	regular	35.26	above	3.99	3.183	label
+TG_1985#0	TG_1985#0	FAISAL		unknown	blue	blue	3.145		H	target_clean		2.67	regular	17.79	above	2.67		
+TG_1985#0	TG_1985#0	FAISAL		unknown	blue	blue	2.886	صعد الى 2.87 · 2.87=2.40+20٪ (نصّ المنشور)	H	target_clean		2.67	regular	8.09	above	2.67		
+TG_1985#0	TG_1985#0	FAISAL		unknown	red	red	2.504		H	support		2.67	regular	-6.22	below	2.67		
+TG_2001#0	TG_2001#0	FAISAL		unknown	black	black	4.039		M	resistance		2.07	regular	95.12	above	2.07	2.03	label
+TG_2001#0	TG_2001#0	FAISAL		unknown	purple	purple	3.738		M	unmapped		2.07	regular	80.58	above	2.07	2.03	label
+TG_2001#0	TG_2001#0	FAISAL		unknown	black	black	3.458		M	resistance		2.07	regular	67.05	above	2.07	2.03	label
+TG_2001#0	TG_2001#0	FAISAL		unknown	purple	purple	3.185		M	unmapped		2.07	regular	53.86	above	2.07	2.03	label
+TG_2001#0	TG_2001#0	FAISAL		unknown	black	black	2.996		M	resistance		2.07	regular	44.73	above	2.07	2.03	label
+TG_2001#0	TG_2001#0	FAISAL		unknown	purple	purple	2.574		M	unmapped		2.07	regular	24.35	above	2.07	2.03	label
+TG_2001#0	TG_2001#0	FAISAL		unknown	blue	blue	2.111	2.11 كان الدعم الاساسي للسهم (نصّ المنشور)	M	conflict	label	2.07	regular	1.98	above	2.07	2.03	label
+TG_2001#1	TG_2001#1	FAISAL		unknown	purple	purple	3.185		M	unmapped		2.07	regular	53.86	above	2.07	2.03	label
+TG_2001#1	TG_2001#1	FAISAL		unknown	black	black	2.996		M	resistance		2.07	regular	44.73	above	2.07	2.03	label
+TG_2001#1	TG_2001#1	FAISAL		unknown	purple	purple	2.574		M	unmapped		2.07	regular	24.35	above	2.07	2.03	label
+TG_2001#1	TG_2001#1	FAISAL		unknown	blue	blue	2.12	2.11 كان الدعم الاساسي للسهم (نصّ المنشور)	M	conflict	label	2.07	regular	2.42	above	2.07	2.03	label
+TG_2079#0	TG_2079#0	FAISAL		D	black	black	2.81		H	resistance		2.4	regular	17.08	above	2.4	2.05	label
+TG_2079#0	TG_2079#0	FAISAL		D	purple	purple	2.592		H	unmapped		2.4	regular	8.00	above	2.4	2.05	label
+TG_2079#0	TG_2079#0	FAISAL		D	black	black	2.315		H	resistance		2.4	regular	-3.54	below	2.4	2.05	label
+TG_2079#0	TG_2079#0	FAISAL		D	black	black	2.26		H	resistance		2.4	regular	-5.83	below	2.4	2.05	label
+TG_2079#0	TG_2079#0	FAISAL		D	black	black	2.119		H	resistance		2.4	regular	-11.71	below	2.4	2.05	label
+TG_2090#0	TG_2090#0	FAISAL	CDIO	unknown	blue	blue	4.282		H	target_clean		1.78	regular	140.56	above		1.64	label
+TG_2090#0	TG_2090#0	FAISAL	CDIO	unknown	blue	blue	3.706		H	target_clean		1.78	regular	108.20	above		1.64	label
+TG_2090#0	TG_2090#0	FAISAL	CDIO	unknown	blue	blue	3.265		H	target_clean		1.78	regular	83.43	above		1.64	label
+TG_2090#0	TG_2090#0	FAISAL	CDIO	unknown	blue	blue	2.671		H	target_clean		1.78	regular	50.06	above		1.64	label
+TG_2090#0	TG_2090#0	FAISAL	CDIO	unknown	black	black	2.026		H	resistance		1.78	regular	13.82	above		1.64	label
+TG_2090#0	TG_2090#0	FAISAL	CDIO	unknown	black	black	1.709		M	resistance		1.78	regular	-3.99	below		1.64	label
+TG_2117#0	TG_2117#0	FAISAL	BETA	4h	blue	blue	22.51		H	target_clean		15.4	ext	46.17	above	15.4	13.43	label
+TG_2117#0	TG_2117#0	FAISAL	BETA	4h	blue	blue	20.99		H	target_clean		15.4	ext	36.30	above	15.4	13.43	label
+TG_2117#0	TG_2117#0	FAISAL	BETA	4h	blue	blue	18.97		H	target_clean		15.4	ext	23.18	above	15.4	13.43	label
+TG_2117#0	TG_2117#0	FAISAL	BETA	4h	black	black	17.1		H	resistance		15.4	ext	11.04	above	15.4	13.43	label
+TG_2117#0	TG_2117#0	FAISAL	BETA	4h	black	black	15.95		H	resistance		15.4	ext	3.57	above	15.4	13.43	label
+TG_2117#0	TG_2117#0	FAISAL	BETA	4h	purple	purple	14.03	متابعة دعم 14 (نصّ المنشور)	H	unmapped		15.4	ext	-8.90	below	15.4	13.43	label
+TG_2117#0	TG_2117#0	FAISAL	BETA	4h	purple	purple	13.71		M	unmapped		15.4	ext	-10.97	below	15.4	13.43	label
+TG_2117#0	TG_2117#0	FAISAL	BETA	4h	red	red	13.43		H	support		15.4	ext	-12.79	below	15.4	13.43	label
+TG_2126#0	TG_2126#0	FAISAL	PCLA	unknown	purple	purple	4.092		H	unmapped		2.34	ext	74.87	above	2.311	2.14	label
+TG_2126#0	TG_2126#0	FAISAL	PCLA	unknown	blue	blue	3.697		H	target_clean		2.34	ext	57.99	above	2.311	2.14	label
+TG_2126#0	TG_2126#0	FAISAL	PCLA	unknown	purple	purple	3.331		H	unmapped		2.34	ext	42.35	above	2.311	2.14	label
+TG_2126#0	TG_2126#0	FAISAL	PCLA	unknown	blue	blue	2.815		H	target_clean		2.34	ext	20.30	above	2.311	2.14	label
+TG_2126#0	TG_2126#0	FAISAL	PCLA	unknown	red	red	2.144		H	support		2.34	ext	-8.38	below	2.311	2.14	label
+TG_2207#0	TG_2207#0	UNSIGNED	FTFT	unknown	purple	purple	2.761		H	unmapped		1.21	ext	128.18	above			
+TG_50578#0	TG_50578#0	FAISAL	DCOY	D	black	black	6.049		M	resistance		2.78	ext	117.59	above	2.78	2.588	label
+TG_50578#0	TG_50578#0	FAISAL	DCOY	D	blue	blue	5.388		M	target_clean		2.78	ext	93.81	above	2.78	2.588	label
+TG_50578#0	TG_50578#0	FAISAL	DCOY	D	blue	blue	4.782		M	target_clean		2.78	ext	72.01	above	2.78	2.588	label
+TG_50578#0	TG_50578#0	FAISAL	DCOY	D	blue	blue	4.418		M	target_clean		2.78	ext	58.92	above	2.78	2.588	label
+TG_50578#0	TG_50578#0	FAISAL	DCOY	D	black	black	3.502		M	resistance		2.78	ext	25.97	above	2.78	2.588	label
+TG_50578#0	TG_50578#0	FAISAL	DCOY	D	black	black	1.805		M	resistance		2.78	ext	-35.07	below	2.78	2.588	label
+TG_50580#0	TG_50580#0	FAISAL	DCOY	D	black	black	6.049		M	resistance		5.49	regular	10.18	above		2.18	label
+TG_50580#0	TG_50580#0	FAISAL	DCOY	D	blue	blue	5.388		M	target_clean		5.49	regular	-1.86	below		2.18	label
+TG_50580#0	TG_50580#0	FAISAL	DCOY	D	blue	blue	4.782		M	target_clean		5.49	regular	-12.90	below		2.18	label
+TG_50580#0	TG_50580#0	FAISAL	DCOY	D	blue	blue	4.418		M	target_clean		5.49	regular	-19.53	below		2.18	label
+TG_50580#0	TG_50580#0	FAISAL	DCOY	D	black	black	3.504		M	resistance		5.49	regular	-36.17	below		2.18	label
+TG_50580#0	TG_50580#0	FAISAL	DCOY	D	black	black	1.796		M	resistance		5.49	regular	-67.29	below		2.18	label
+TG_50580#0	TG_50580#0	FAISAL	DCOY	D	other	purple	1.307		M	unmapped		5.49	regular	-76.19	below		2.18	label
+TG_57869#0	TG_57869#0	UNSIGNED	CRE	D	white	white	3.013		H	unmapped		3.0	regular	0.43	at			
+TG_57869#0	TG_57869#0	UNSIGNED	CRE	D	other	red	2.618		H	unmapped		3.0	regular	-12.73	below			
+X_20260827_amix_hcwb_ready#1	X_20260827_amix_hcwb_ready#0 X_20260827_amix_hcwb_ready#1	FAISAL	AMIX	D	black	black	9.24		H	resistance		5.27	ext	75.33	above		2.44	label
+X_20260827_amix_hcwb_ready#1	X_20260827_amix_hcwb_ready#0 X_20260827_amix_hcwb_ready#1	FAISAL	AMIX	D	black	black	4.71	لو بس يضرب 4.70 ويرتد ممتاز نركب · دخولنا دفعات من 4.65 > 4.75 > 4.85 (نصّ الرسالة)	H	conflict	label	5.27	ext	-10.63	below		2.44	label
+X_20260905_07#0	X_20260905_07#0	FAISAL	BTOG	W	blue	blue	7.821		H	target_clean		2.26	regular	246.06	above	2.26	2.08	label
+X_20260905_07#0	X_20260905_07#0	FAISAL	BTOG	W	purple	purple	5.889		H	unmapped		2.26	regular	160.58	above	2.26	2.08	label
+X_20260905_07#0	X_20260905_07#0	FAISAL	BTOG	W	purple	purple	5.197		H	unmapped		2.26	regular	129.96	above	2.26	2.08	label
+X_20260905_07#0	X_20260905_07#0	FAISAL	BTOG	W	other	other	4.382		H	unmapped		2.26	regular	93.89	above	2.26	2.08	label
+X_20260905_07#0	X_20260905_07#0	FAISAL	BTOG	W	other	other	3.882		H	unmapped		2.26	regular	71.77	above	2.26	2.08	label
+X_20260905_07#0	X_20260905_07#0	FAISAL	BTOG	W	black	black	3.092		H	resistance		2.26	regular	36.81	above	2.26	2.08	label
+X_20260905_07#0	X_20260905_07#0	FAISAL	BTOG	W	red	red	1.695	اذا كسر الرقم هذا بيروح لدعومه قبل التقسيم 1.70 (نصّ المنشور)	H	support		2.26	regular	-25.00	below	2.26	2.08	label
+X_20260905_10#0	X_20260905_10#0	UNSIGNED	YMT	4h	blue	blue	5.006		H	target_clean		2.01	ext	149.05	above		1.811	label
+X_20260905_10#0	X_20260905_10#0	UNSIGNED	YMT	4h	blue	blue	4.546		H	target_clean		2.01	ext	126.17	above		1.811	label
+X_20260905_10#0	X_20260905_10#0	UNSIGNED	YMT	4h	orange	orange	3.985		H	unmapped		2.01	ext	98.26	above		1.811	label
+X_20260905_10#0	X_20260905_10#0	UNSIGNED	YMT	4h	purple	purple	3.455		H	unmapped		2.01	ext	71.89	above		1.811	label
+X_20260905_10#0	X_20260905_10#0	UNSIGNED	YMT	4h	black	black	3.095		H	resistance		2.01	ext	53.98	above		1.811	label
+X_20260905_10#0	X_20260905_10#0	UNSIGNED	YMT	4h	black	black	2.506		H	resistance		2.01	ext	24.68	above		1.811	label
+X_20260905_10#0	X_20260905_10#0	UNSIGNED	YMT	4h	black	black	2.184		H	resistance		2.01	ext	8.66	above		1.811	label
+X_20260905_10#0	X_20260905_10#0	UNSIGNED	YMT	4h	purple	purple	2.009		M	unmapped		2.01	ext	-0.05	at		1.811	label
+X_20260905_10#0	X_20260905_10#0	UNSIGNED	YMT	4h	red	red	1.843	كسر 1.81 تصنع تحليل اخر بنفس النهج (نصّ المنشور)	H	support		2.01	ext	-8.31	below		1.811	label
+IMG_0486#0	IMG_0486#0	FAISAL	UPC	unknown	black	black	17.837		H	resistance		6.31	ext	182.68	above			
+IMG_0486#0	IMG_0486#0	FAISAL	UPC	unknown	blue	blue	10.526		H	target_clean		6.31	ext	66.81	above			
+IMG_0486#0	IMG_0486#0	FAISAL	UPC	unknown	blue	blue	8.054	الهدف الاول راس شمعة الفجوه الهابطه 8 (نصّ المنشور)	H	target_clean		6.31	ext	27.64	above			
+TG_2098#0	TG_2098#0	FAISAL	ELPW	unknown	black	black	5.888		M	resistance		3.49	regular	68.71	above	3.49		
+TG_2098#0	TG_2098#0	FAISAL	ELPW	unknown	black	black	4.377	الان حقق 4.37 (نصّ المنشور)	M	resistance		3.49	regular	25.42	above	3.49		
+TG_2098#0	TG_2098#0	FAISAL	ELPW	unknown	blue	blue	3.99		M	target_clean		3.49	regular	14.33	above	3.49		
+TG_57893#0	TG_57893#0	UNSIGNED	DKI	4h	black	black	3.456	اصل المقاومه الشمعه راسها 3.45 ذيلها 2.97 (نصّ على الشارت)	H	resistance		2.6	ext	32.92	above	2.6	2.183	label
+TG_57893#0	TG_57893#0	UNSIGNED	DKI	4h	black	black	2.978	اصل المقاومه الشمعه راسها 3.45 ذيلها 2.97 (نصّ على الشارت)	H	resistance		2.6	ext	14.54	above	2.6	2.183	label
+TG_57893#0	TG_57893#0	UNSIGNED	DKI	4h	black	black	2.754	مقاومه صغيره 2.75 (نصّ على الشارت)	H	resistance		2.6	ext	5.92	above	2.6	2.183	label
+TG_57893#0	TG_57893#0	UNSIGNED	DKI	4h	red	red	2.278		H	support		2.6	ext	-12.38	below	2.6	2.183	label
+TG_58412#0	TG_58412#0	UNSIGNED	SPRC	D	other	blue	16.69		H	unmapped		4.5	ext	270.89	above			
+TG_58412#0	TG_58412#0	UNSIGNED	SPRC	D	other	blue	11.55		H	unmapped		4.5	ext	156.67	above			
+TG_58412#0	TG_58412#0	UNSIGNED	SPRC	D	other	blue	10.002		H	unmapped		4.5	ext	122.27	above			
+TG_58412#0	TG_58412#0	UNSIGNED	SPRC	D	other	blue	8.018		H	unmapped		4.5	ext	78.18	above			
+TG_58412#0	TG_58412#0	UNSIGNED	SPRC	D	other	blue	6.227		H	unmapped		4.5	ext	38.38	above			
+TG_58412#0	TG_58412#0	UNSIGNED	SPRC	D	white	white	5.607		M	unmapped		4.5	ext	24.60	above			
+TG_58412#0	TG_58412#0	UNSIGNED	SPRC	D	red	red	4.391		H	support		4.5	ext	-2.42	below			
+TG_58402#0	TG_58402#0	FAISAL		unknown	purple	purple	4.208		L	unmapped		2.2	ext	91.27	above	2.14	2.14	label
+TG_58402#0	TG_58402#0	FAISAL		unknown	purple	purple	3.904		L	unmapped		2.2	ext	77.45	above	2.14	2.14	label
+TG_58402#0	TG_58402#0	FAISAL		unknown	purple	purple	3.579		L	unmapped		2.2	ext	62.68	above	2.14	2.14	label
+TG_58402#0	TG_58402#0	FAISAL		unknown	blue	blue	3.224	شمعة التقسيم S	L	target_clean		2.2	ext	46.55	above	2.14	2.14	label
+TG_58402#0	TG_58402#0	FAISAL		unknown	orange	orange	2.922		L	unmapped		2.2	ext	32.82	above	2.14	2.14	label
+TG_58402#0	TG_58402#0	FAISAL		unknown	orange	orange	2.705		L	unmapped		2.2	ext	22.95	above	2.14	2.14	label
+TG_58402#0	TG_58402#0	FAISAL		unknown	black	black	2.479		L	resistance		2.2	ext	12.68	above	2.14	2.14	label
+TG_58402#0	TG_58402#0	FAISAL		unknown	black	black	2.256	ستكون مقاومه عاليه	L	resistance		2.2	ext	2.55	above	2.14	2.14	label
+TG_58402#0	TG_58402#0	FAISAL		unknown	red	red	1.588		L	support		2.2	ext	-27.82	below	2.14	2.14	label

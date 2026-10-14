@@ -87835,6 +87835,46 @@ except Exception as _e:                                              # noqa: BLE
 check("🎨 COL1 `T-COLOUR`: حرّاسُ البنّاء تمرّ · والسجلُّ سليمٌ (صورةٌ لكلّ سجلّ · rev بسبب · وسومٌ قانونيّة) · "
       "وبصمتا البروتوكول والسجلّ في البنّاء هما بصمتا الملفّين",
       _col1, _col1_w[:420])
+# COL2 — 🎨 **`T-COLOUR` المخرَجاتُ تُعاد بايتًا والنتيجةُ تقرأ أرقامَها من الـJSON** (2026-10-15 · `T_COLOUR_RESULT.md`)
+#    — (أ) `--check` يعيد الجداولَ والـTSV والـJSON بايتًا (خروج 0) · (ب) رأسُ وثيقة النتيجة (قبل «## ①») يحمل أرقامَ الـJSON نفسَها:
+#    التغطية · حصصُ الأحمر «تحت» والأسود والأزرق والبنفسجيّ «فوق» في المجموعتين · مصيرُ صفوف `bid_entry` · فئتا الرؤوس وحكماهما ·
+#    و«فيصل لا يرسم مناطقَ دخولٍ بلون» حاضرةٌ إن وفقط إن لم يقع لونٌ غيرُ الأحمر «تحت» في المجموعتين · وبوّابةُ البنفسجيّ المغلقة معلنة.
+try:
+    import json as _col2_json
+    _col2_c = _col_run("--check")
+    _col2_rebuilt = _col2_c[0] == 0 and "✅ المخرَجاتُ تُعاد بايتًا" in _col2_c[1] and "Traceback" not in _col2_c[1]
+    with open(_col_os.path.join(_col_dir, "data", "colour_result.json"), encoding="utf-8") as _f:
+        _col2_r = _col2_json.load(_f)
+    with open(_col_os.path.join(_col_dir, "T_COLOUR_RESULT.md"), encoding="utf-8") as _f:
+        _col2_doc = _f.read()
+    _col2_parts = _col2_doc.split("\n## ①")
+    _col2_head = _col2_parts[0] if len(_col2_parts) == 2 else ""
+    _col2_cov = _col2_r["coverage"]
+    _col2_need = [f"{_col2_cov['images_with_numbered_levels']} من {_col2_cov['images']} صورة"]
+    for _g in ("G1_FAISAL", "G2_FAISAL_UNSIGNED"):
+        _dm = _col2_r["groups"][_g]["derived_map"]
+        _col2_need += [f"{_dm['red']['pct_below']:g}%"] + [f"{_dm[_c]['pct_above']:g}%" for _c in ("black", "blue", "purple")]
+    _col2_br = _col2_r["catalog"]["bid_entry_review"]["actions"]
+    _col2_need.append(f"أُعيد تصنيفُ {_col2_br.get('RECLASSIFIED_ABOVE', 0)} · نجا {_col2_br.get('SURVIVES', 0)} · تعذّر {_col2_br.get('UNVERIFIABLE', 0)}")
+    _col2_h = _col2_r["purple_heads"]
+    _col2_top = _col2_h["classes"]["RED_BODY_TOP"]
+    _col2_need += [f"رأسُ الجسم {_col2_top} من {_col2_h['readable']}",
+                   f"{_col2_top + _col2_h['classes']['RED_WICK_TOP']} من {_col2_h['readable']}",
+                   {"dropped_descriptive": "تُسقط وصفيًّا", "supported_descriptive": "تُدعم وصفيًّا"}.get(_col2_h["verdict"], "؟؟"),
+                   {"dropped_descriptive": "تُسقط وصفيًّا", "supported_descriptive": "تُدعم وصفيًّا"}.get(_col2_h["sensitivity_top_or_wick"], "؟؟")]
+    _col2_missing = [_x for _x in _col2_need if _x not in _col2_head]
+    _col2_below = any(_m.get("role") == "below_support_entry" for _g in ("G1_FAISAL", "G2_FAISAL_UNSIGNED")
+                      for _k, _m in _col2_r["groups"][_g]["derived_map"].items() if _k.split(":")[0] != "red")
+    _col2_phrase = ("«فيصل لا يرسم مناطقَ دخولٍ بلون»" in _col2_head) == (not _col2_below)
+    _col2_gate = _col2_r["purple_gate"] or "لم تُحسب ①②③" in _col2_head
+    _col2 = _col2_rebuilt and bool(_col2_head) and not _col2_missing and _col2_phrase and _col2_gate
+    _col2_w = (f"check={_col2_c[0]} · head={bool(_col2_head)} · missing={_col2_missing[:4]} · phrase={_col2_phrase} · gate={_col2_gate} · "
+               f"{_col2_c[1][-160:]}")
+except Exception as _e:                                              # noqa: BLE001
+    _col2, _col2_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎨 COL2 `T-COLOUR`: المخرَجاتُ تُعاد بايتًا · ورأسُ وثيقة النتيجة يحمل أرقامَ الـJSON (التغطية · حصصُ الألوان · مصيرُ الـ41 · الرؤوس) · "
+      "و«لا يرسم مناطقَ دخولٍ بلون» تتبع الخريطة · والبوّابةُ المغلقة معلنة",
+      _col2, _col2_w[:420])
 # ══════════════════════════════════════════════════════════════════════════
 # 📉💾 BWP1-BWP7 — «فعّل حفظ سجل المتاح» (أمرُ المالك 2026-10-14 · متابعةُ `T-BORROW-FALL`): السجلُّ يُدفَع · الأفقُ جلساتٌ (العقد §④)
 #    · الترتيبُ بأوّل رصدٍ وتعادلُه ببصمةٍ لا بالأبجديّة · المجتمعُ من سجلّ البِركة (اليوميّ والتجديد) · لحظةُ UTC لكلّ صفّ ·
