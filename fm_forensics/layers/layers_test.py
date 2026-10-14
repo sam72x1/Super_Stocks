@@ -33,6 +33,9 @@ import gen5_features as G   # noqa: E402
 import gen5_ext as X        # noqa: E402
 
 PREREG = os.path.join(HERE, "T_LAYERS_prereg.md")
+ADDENDUM = os.path.join(HERE, "T_LAYERS_addendum_1.md")
+ADDENDUM_SHA256 = "4a3751bef95c8af86289891b8e78bd7cc60910eb736748eaf68d4cdf8ecb5257"
+TODAY_BARS = os.path.join(ROOT, "fm_forensics", "score", "data", "today_bars.json.gz")
 PREREG_SHA256 = "d847849edae25026de2d9fd7e56cec3eeb3aa966d65178449f7e723d9e88dd4c"
 PROD_SRC_SHA256 = "ef96b9bdd94cd8a2f397969503960787ac9274d76fce8934b1d4884a0eed7dfb"
 OUT = os.path.join(HERE, "data", "layers_result.json")
@@ -51,6 +54,7 @@ NODE_MAX, NODE_MIN, NODE_BIN = 120, 60, 0.01   # engineering: volume profile bef
 WICK_MIN = 0.5                    # engineering: lower wick ≥ 50 % of the range and close ≥ mid-range
 F1_MED_MAX, F2_ROLL_MIN, F3_SILENCE_MAX, F4_DAY_MAX = 2, 1, 4, 4
 FLOOR_SYMS = 20
+MIN_KNOWN_DAYS = 15               # addendum 1 §③: a booster combo with fewer determined days of 20 ⟶ no measure
 PUBLISHED_READY = 2 / 279         # the published reference: 2 of 279 = 0.7 %
 BOOSTERS = ("VOL", "NODE", "CANDLE")
 ORDER = ((), ("VOL",), ("NODE",), ("CANDLE",), ("VOL", "NODE"), ("VOL", "CANDLE"), ("NODE", "CANDLE"), ("VOL", "NODE", "CANDLE"))
@@ -81,24 +85,36 @@ def check_pins(prereg=PREREG, prereg_sha=None):
     if _sha(prereg) != want:
         print(f"⛔ contract changed or not pinned: {_sha(prereg)} ≠ {want}")
         sys.exit(9)
+    if _sha(ADDENDUM) != ADDENDUM_SHA256:
+        print(f"⛔ addendum 1 changed or not pinned: {_sha(ADDENDUM)} ≠ {ADDENDUM_SHA256}")
+        sys.exit(9)
     if prod_src_sha() != PROD_SRC_SHA256:
         print(f"⛔ production functions changed: {prod_src_sha()} ≠ {PROD_SRC_SHA256}")
         sys.exit(9)
 
 
-def _main_contract():
+def _main_blob(path):
     import subprocess
-    rel = os.path.relpath(PREREG, ROOT).replace(os.sep, "/")
+    rel = os.path.relpath(path, ROOT).replace(os.sep, "/")
     p = subprocess.run(["git", "-C", ROOT, "show", f"origin/main:{rel}"], capture_output=True)
     return p.stdout if p.returncode == 0 else None
 
 
-def check_merged(read=None):
-    """«يُدمج في main قبل أيّ عدّ»: origin/main must carry the pinned contract bytes, else exit 9."""
+def _main_contract():
+    return _main_blob(PREREG)
+
+
+def check_merged(read=None, read_add=None):
+    """«يُدمج في main قبل أيّ عدّ»: origin/main must carry the pinned contract AND addendum 1 bytes, else exit 9."""
     blob = (read or _main_contract)()
     got = hashlib.sha256(blob).hexdigest() if blob is not None else None
     if got != PREREG_SHA256:
         print(f"⛔ the pinned contract is not on origin/main ({got}) — merge it first (git fetch --force)")
+        sys.exit(9)
+    blob = (read_add or (lambda: _main_blob(ADDENDUM)))()
+    got = hashlib.sha256(blob).hexdigest() if blob is not None else None
+    if got != ADDENDUM_SHA256:
+        print(f"⛔ addendum 1 is not on origin/main ({got}) — merge it first (git fetch --force)")
         sys.exit(9)
 
 
@@ -222,6 +238,83 @@ def passes(bst, combo):
     return all(bst.get(b) for b in combo)
 
 
+# ── addendum 1: the volume source (one per symbol) and unknown ≠ zero ───────────────────────────────────
+def volume_map(arch, today_path=TODAY_BARS):
+    """{sym: {day: volume}}, {sym: source}: today_bars (TradingView 1D, to 2026-10-13) if the symbol is there, else the rank archive."""
+    import gzip
+    tb = json.load(gzip.open(today_path, "rt", encoding="utf-8"))["daily"] if os.path.exists(today_path) else {}
+    vm, src = {}, {}
+    for sym, rows in tb.items():
+        vm[sym] = {r[0]: float(r[5]) for r in rows if len(r) >= 6 and r[5] is not None}
+        src[sym] = "today_bars"
+    for sym, df in arch.items():
+        if sym in vm:
+            continue
+        vm[sym] = {d.date().isoformat(): float(v) for d, v in zip(df.index, df["Volume"]) if v == v}
+        src[sym] = "rank_archive"
+    return vm, src
+
+
+def with_volume(df, vols):
+    """The GEN5 OHLC frame with Volume read by date from the one source (NaN where that source has no bar)."""
+    out = df.copy()
+    out["Volume"] = [(vols or {}).get(d.date().isoformat(), float("nan")) for d in df.index]
+    return out
+
+
+def b_vol3(L, df, x):
+    """VOL tri-state: None (unknown) if any volume in t−19 … t is missing, else link100.daily_feats by name."""
+    if x < 19:
+        return None
+    vv = df["Volume"].to_numpy(float)[x - 19: x + 1]
+    if any(v != v for v in vv):
+        return None
+    return b_vol(L, hist_rows(df), x)
+
+
+def b_node3(df, x, base, sweep_low):
+    """NODE tri-state: None (unknown) if any volume in its profile window [a, s0) is missing, else b_node."""
+    lo, vo = df["Low"].to_numpy(float), df["Volume"].to_numpy(float)
+    s0 = None
+    for y in range(x, -1, -1):
+        if lo[y] < base:
+            s0 = y
+        elif s0 is not None:
+            break
+    if s0 is not None:
+        a = max(0, s0 - NODE_MAX)
+        if s0 - a >= NODE_MIN and any(v != v for v in vo[a:s0]):
+            return None
+    return b_node(df, x, base, sweep_low)
+
+
+def boosters3(L, df, x, st_):
+    return {"VOL": b_vol3(L, df, x), "NODE": b_node3(df, x, st_["base"], st_["sweep_low"]), "CANDLE": b_candle(df, x)}
+
+
+def combo_counts(trig, mem, known_days, combo):
+    """Addendum 1 §③: per day the Q triggers passing the combo · a day with an unknown pass is undetermined (excluded, listed)."""
+    cnt, det, und = [], [], []
+    for d in known_days:
+        ps = [passes3(e, combo) for e in trig[d] if e["sym"] in mem[d]["Q"]]
+        if any(v is None for v in ps):
+            und.append(d)
+            continue
+        det.append(d)
+        cnt.append(sum(1 for v in ps if v))
+    return cnt, det, und
+
+
+def passes3(bst, combo):
+    """True if every booster of the combo is True · False if one is known False · else None (unknown)."""
+    vals = [bst.get(b) for b in combo]
+    if any(v is False for v in vals):
+        return False
+    if any(v is None for v in vals):
+        return None
+    return True
+
+
 # ── frequency metrics and the selection rule (pure) ──────────────────────────────────────────────────────
 def freq_metrics(counts):
     """counts: per-session trigger counts (unknown days excluded upstream) ⟶ the F1-F4 readings."""
@@ -244,7 +337,8 @@ def freq_metrics(counts):
 
 
 def select(metrics_by_combo):
-    """The pre-registered rule: core passes ⟶ core · core dry (F2/F3) ⟶ stop · core crowded ⟶ first passing combo in ORDER."""
+    """The pre-registered rule: core passes ⟶ core · core dry (F2/F3) ⟶ stop · core crowded ⟶ first passing combo in ORDER ·
+    addendum 1: a no-measure combo on the walk stops it (NO_MEASURE)."""
     core = metrics_by_combo.get(())
     if core is None:
         return None, "NO_DATA"
@@ -254,6 +348,8 @@ def select(metrics_by_combo):
         return None, "DRY"
     for combo in ORDER[1:]:
         m = metrics_by_combo.get(combo)
+        if m and m.get("no_measure"):
+            return None, "NO_MEASURE"
         if m and m["pass"]:
             return combo, "BOOSTED"
     return None, "NONE_PASSES"
@@ -347,13 +443,14 @@ def sessions(lo, hi):
 
 def frame(rows):
     import pandas as pd
-    df = pd.DataFrame([r[:6] for r in rows], columns=["Date", "Open", "High", "Low", "Close", "Volume"])
+    rows = [list(r[:6]) + [float("nan")] * (6 - len(r[:6])) for r in rows]      # addendum 1: GEN5 daily rows carry no volume
+    df = pd.DataFrame(rows, columns=["Date", "Open", "High", "Low", "Close", "Volume"])
     df.index = pd.to_datetime(df["Date"])
     return df[["Open", "High", "Low", "Close", "Volume"]].astype(float)
 
 
 # ── stage A ─────────────────────────────────────────────────────────────────────────────────────────────
-def stage_a(S, T, L, fresh, splits, nwh, wlh):
+def stage_a(S, T, L, fresh, splits, nwh, wlh, vm):
     days = sessions(*WIN_A)
     nxt = {d: n for d, n in zip(days, days[1:] + sessions("2026-10-14", "2026-10-20")[:1])}
     mem = {d: membership(T, S, nwh, wlh, d, nxt[d]) for d in days}
@@ -363,10 +460,9 @@ def stage_a(S, T, L, fresh, splits, nwh, wlh):
     for sym, rows in fresh.items():
         if len(rows) < MIN_BARS + 1:
             continue
-        df = frame(rows)
+        df = with_volume(frame(rows), vm.get(sym))              # addendum 1: OHLC from GEN5 · volume from the one source
         ix = {r[0]: i for i, r in enumerate(rows)}
         cy = Cycle(df, S.pivot_cycle_state)
-        hrows = hist_rows(df)
         for d in days:
             x = ix.get(d)
             if x is None:
@@ -382,7 +478,7 @@ def stage_a(S, T, L, fresh, splits, nwh, wlh):
                 state_cnt[d] += 1
             if s_["status"] == "TRIGGER":
                 trig[d].append({"sym": sym, "base": s_["base"], "sweep_low": s_["sweep_low"], "depth": s_["depth"],
-                                **boosters(L, df, hrows, x, s_)})
+                                **boosters3(L, df, x, s_)})
     known_days = [d for d in days if mem[d]["known"]]
     table = {}
 
@@ -391,9 +487,19 @@ def stage_a(S, T, L, fresh, splits, nwh, wlh):
         table[name] = freq_metrics(cnt)
         table[name]["daily"] = dict(zip(known_days, cnt))
 
+    def rowc(name, combo):
+        cnt, det, und = combo_counts(trig, mem, known_days, combo)
+        m = freq_metrics(cnt) or {"pass": False, "F1": False, "F2": False, "F3": False, "F4": False}
+        m["daily"] = dict(zip(det, cnt))
+        m["undetermined_days"] = und
+        m["no_measure"] = len(det) < MIN_KNOWN_DAYS
+        if m["no_measure"]:
+            m["pass"] = False
+        table[name] = m
+
     row("ALL_COVERED_core", lambda d, e: True)
     for combo in ORDER:
-        row("Q_core" + "".join("+" + b for b in combo), lambda d, e, c=combo: e["sym"] in mem[d]["Q"] and passes(e, c))
+        rowc("Q_core" + "".join("+" + b for b in combo), combo)
     row("Q_NW_core", lambda d, e: e["sym"] in mem[d]["NW"])
     row("Q_WL_core", lambda d, e: e["sym"] in mem[d]["WL"])
     row("Q_READY_core", lambda d, e: e["sym"] in mem[d]["READY"])
@@ -608,7 +714,10 @@ def run():
         splits = G.load_splits()
         nwh = T.nearwatch_history()
         wlh = watchlist_history()
-        a = stage_a(S, T, L, fresh, splits, nwh, wlh)
+        vm, vsrc = volume_map(G.load_bars())
+        a = stage_a(S, T, L, fresh, splits, nwh, wlh, vm)
+        a["volume_source"] = {k: sum(1 for s in fresh if vsrc.get(s) == k) for k in ("today_bars", "rank_archive")}
+        a["volume_source"]["none"] = sum(1 for s in fresh if s not in vsrc)
         combo = tuple(a["selected"]) if a["selected"] is not None else ()
         D, events, acc, evs = stage_b(S, T, F, H, L, nwh, wlh, combo)
         fa = false_alarms(S, T, L, D, nwh, wlh, combo)
@@ -638,7 +747,9 @@ def verdict_block(a, events, acc, evs, fa, combo):
     fals = [r for r in resolved if r["outcome"] == "FALSE"]
     a_pass = a["selected"] is not None
     c1v = c1(k_t, k_r, n)
-    if not a_pass:
+    if not a_pass and a["selection"] == "NO_MEASURE":
+        verdict = "NO-MEASURE"                                    # addendum 1 §③
+    elif not a_pass:
         verdict = "A-FAIL"
     elif c1v is None:
         verdict = "NO-MEASURE"
@@ -696,8 +807,9 @@ def write_csvs(res, evs, fa):
 def report(res):
     print("verdict", res["verdict"], "selection", res["selection"], "combo", res["selected_combo"])
     for n, m in res["stage_a"]["table"].items():
-        print(f"{n:28s} med {m['median']} range {m['min']}-{m['max']} zero {m['zero_days']} silence {m['longest_silence']} "
-              f"roll3 {m['roll3_median']} total {m['total']} pass {m['pass']}")
+        print(f"{n:28s} med {m.get('median')} range {m.get('min')}-{m.get('max')} zero {m.get('zero_days')} "
+              f"silence {m.get('longest_silence')} roll3 {m.get('roll3_median')} total {m.get('total')} pass {m.get('pass')} "
+              f"undetermined {len(m.get('undetermined_days') or [])}{' NO-MEASURE' if m.get('no_measure') else ''}")
     b = res["stage_b"]
     print("stage B", {k: b[k] for k in ("events", "symbols", "captured_symbols", "ready_symbols", "C1", "mde_symbols")})
     print("false alarms", b["false_alarms"], "depth", b["depth"])
@@ -841,14 +953,61 @@ def guards():
         except SystemExit as e:
             return e.code
     pinned = open(PREREG, "rb").read() if os.path.exists(PREREG) else b""
-    chk("LG20 merged gate: absent ⟶ 9 · altered ⟶ 9 · pinned bytes ⟶ passes",
-        code(lambda: check_merged(lambda: None)) == 9 and code(lambda: check_merged(lambda: pinned + b" ")) == 9
-        and (code(lambda: check_merged(lambda: pinned)) == 0) == (hashlib.sha256(pinned).hexdigest() == PREREG_SHA256))
+    add = open(ADDENDUM, "rb").read() if os.path.exists(ADDENDUM) else b""
+    chk("LG20 merged gate: contract absent/altered ⟶ 9 · addendum 1 absent/altered ⟶ 9 · both pinned ⟶ passes",
+        code(lambda: check_merged(lambda: None, lambda: add)) == 9 and code(lambda: check_merged(lambda: pinned + b" ", lambda: add)) == 9
+        and code(lambda: check_merged(lambda: pinned, lambda: None)) == 9
+        and code(lambda: check_merged(lambda: pinned, lambda: add + b" ")) == 9
+        and (code(lambda: check_merged(lambda: pinned, lambda: add)) == 0)
+        == (hashlib.sha256(pinned).hexdigest() == PREREG_SHA256 and hashlib.sha256(add).hexdigest() == ADDENDUM_SHA256))
     chk("LG21 constants (band 7/13 · 60 bars · windows · F 2/1/4/4 · floor 20 · node 120/60/1 % · wick 50 %)",
         (SW_LO, SW_HI, MIN_BARS, WIN_A, FA_WIN, LEAD, FWD, F1_MED_MAX, F2_ROLL_MIN, F3_SILENCE_MAX, F4_DAY_MAX, FLOOR_SYMS,
-         NODE_MAX, NODE_MIN, NODE_BIN, WICK_MIN)
-        == (7.0, 13.0, 60, ("2026-09-16", "2026-10-13"), ("2026-08-17", "2026-09-15"), 20, 20, 2, 1, 4, 4, 20, 120, 60, 0.01, 0.5))
+         NODE_MAX, NODE_MIN, NODE_BIN, WICK_MIN, MIN_KNOWN_DAYS)
+        == (7.0, 13.0, 60, ("2026-09-16", "2026-10-13"), ("2026-08-17", "2026-09-15"), 20, 20, 2, 1, 4, 4, 20, 120, 60, 0.01, 0.5, 15))
     chk("LG22 the stage A window is 20 sessions", len(sessions(*WIN_A)) == 20)
+    # addendum 1: volume source, unknown ≠ zero, tri-state combos
+    f5 = frame([["2026-01-02", 1.0, 1.1, 0.9, 1.05], ["2026-01-05", 1.05, 1.2, 1.0, 1.1]])
+    chk("LG23 GEN5 rows without volume ⟶ a frame with OHLC intact and Volume unknown (NaN), never zero",
+        list(f5["Close"]) == [1.05, 1.1] and all(v != v for v in f5["Volume"]))
+    import gzip
+    import tempfile
+    tmp = tempfile.mkdtemp()
+    tbp = os.path.join(tmp, "tb.json.gz")
+    with gzip.open(tbp, "wt", encoding="utf-8") as fh:
+        json.dump({"daily": {"AAA": [["2026-01-02", 1, 1, 1, 1, 500.0], ["2026-01-05", 1, 1, 1, 1, 600.0]]}}, fh)
+    arch = {"AAA": _syn([(1, 1, 1)] * 2, [7.0, 7.0]), "BBB": _syn([(1, 1, 1)] * 2, [9.0, 8.0])}
+    vm_, src_ = volume_map(arch, tbp)
+    chk("LG24 one volume source per symbol: today_bars first (AAA 500/600, not the archive 7) · else the rank archive (BBB 9/8) · "
+        "an absent symbol has none",
+        vm_["AAA"] == {"2026-01-02": 500.0, "2026-01-05": 600.0} and src_["AAA"] == "today_bars"
+        and vm_["BBB"] == {"2026-01-02": 9.0, "2026-01-05": 8.0} and src_["BBB"] == "rank_archive" and "CCC" not in vm_)
+    full = {d.date().isoformat(): v for d, v in zip(dfv.index, v)}
+    gap = dict(full)
+    gap.pop(dfv.index[len(p1) - 3].date().isoformat())
+    dfw, dfg = with_volume(dfv, full), with_volume(dfv, gap)
+    chk("LG25 VOL tri-state: full volume 3.5× ⟶ True · one missing day in t−19…t ⟶ None (unknown, not False)",
+        b_vol3(L, dfw, len(p1) - 1) is True and b_vol3(L, dfg, len(p1) - 1) is None)
+    dnf = with_volume(dn, {d.date().isoformat(): 1000.0 for d in dn.index})
+    dng = dnf.copy()
+    dng.iloc[30, dng.columns.get_loc("Volume")] = float("nan")       # inside the profile window [23, 143)
+    dno = dnf.copy()
+    dno.iloc[10, dno.columns.get_loc("Volume")] = float("nan")       # outside it (before a = 23)
+    chk("LG26 NODE tri-state: complete profile ⟶ the same answer as b_node · a missing volume inside the profile ⟶ None · "
+        "outside it ⟶ still answered",
+        b_node3(dnf, xn, 1.00, 0.90) is True and b_node3(dnf, xn, 1.00, 0.98) is False and b_node3(dng, xn, 1.00, 0.90) is None
+        and b_node3(dno, xn, 1.00, 0.90) is True)
+    tr = {"d1": [{"sym": "A", "VOL": True, "NODE": True}, {"sym": "Z", "VOL": None}],
+          "d2": [{"sym": "A", "VOL": None, "NODE": False}], "d3": [{"sym": "A", "VOL": None}]}
+    mm = {d: {"Q": {"A"}} for d in tr}
+    cc = combo_counts(tr, mm, ["d1", "d2", "d3"], ("VOL", "NODE"))
+    chk("LG27 combos: all True ⟶ passes · one known False ⟶ fails though another is unknown · otherwise unknown ⟶ "
+        "the day is undetermined (excluded, listed) · non-Q triggers ignored · the core is always determined",
+        passes3({"VOL": True, "NODE": True}, ("VOL", "NODE")) is True and passes3({"VOL": None, "NODE": False}, ("VOL", "NODE")) is False
+        and passes3({"VOL": None}, ("VOL",)) is None and cc == ([1, 0], ["d1", "d2"], ["d3"])
+        and combo_counts(tr, mm, ["d1", "d2", "d3"], ())[2] == [])
+    chk("LG28 a no-measure combo on the selection walk stops it (NO_MEASURE) · a later passing combo is not chosen",
+        select({(): crowd, ("VOL",): {"no_measure": True, "pass": False}, ("NODE",): ok_m}) == (None, "NO_MEASURE")
+        and select({(): crowd, ("VOL",): ok_m, ("NODE",): {"no_measure": True, "pass": False}}) == (("VOL",), "BOOSTED"))
     print(f"\nguards failed: {len(fails)}")
     return fails
 

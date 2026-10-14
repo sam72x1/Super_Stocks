@@ -45,6 +45,22 @@ M = [
     ("m28 merged gate accepts absence",
      "    got = hashlib.sha256(blob).hexdigest() if blob is not None else None\n    if got != PREREG_SHA256:",
      "    got = hashlib.sha256(blob).hexdigest() if blob is not None else PREREG_SHA256\n    if got != PREREG_SHA256:"),
+    # addendum 1: volume source, unknown ≠ zero, tri-state combos
+    ("m29 missing volume read as zero", "    rows = [list(r[:6]) + [float(\"nan\")] * (6 - len(r[:6])) for r in rows]",
+     "    rows = [list(r[:6]) + [0.0] * (6 - len(r[:6])) for r in rows]"),
+    ("m30 the archive overrides today_bars", "        if sym in vm:\n            continue", "        if False:\n            continue"),
+    ("m31 VOL ignores missing volume", "    if any(v != v for v in vv):\n        return None", "    if False:\n        return None"),
+    ("m32 NODE ignores missing volume", "        if s0 - a >= NODE_MIN and any(v != v for v in vo[a:s0]):\n            return None",
+     "        if False:\n            return None"),
+    ("m33 an unknown booster passes", "    if any(v is None for v in vals):\n        return None", "    if False:\n        return None"),
+    ("m34 a known False does not dominate", "    if any(v is False for v in vals):\n        return False", "    if False:\n        return False"),
+    ("m35 an undetermined day counted", "        if any(v is None for v in ps):\n            und.append(d)\n            continue",
+     "        if False:\n            und.append(d)\n            continue"),
+    ("m36 a no-measure combo skipped", "        if m and m.get(\"no_measure\"):\n            return None, \"NO_MEASURE\"",
+     "        if False:\n            return None, \"NO_MEASURE\""),
+    ("m37 determined-days floor 10", "MIN_KNOWN_DAYS = 15 ", "MIN_KNOWN_DAYS = 10 "),
+    ("m38 merged gate ignores the addendum", "    if got != ADDENDUM_SHA256:\n        print(f\"⛔ addendum 1 is not on origin/main",
+     "    if False:\n        print(f\"⛔ addendum 1 is not on origin/main"),
 ]
 orig = open(P, encoding="utf-8").read()
 env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", FAISAL_ONLY="1")
