@@ -1,0 +1,3912 @@
+{
+ "prereg_sha256": "d847849edae25026de2d9fd7e56cec3eeb3aa966d65178449f7e723d9e88dd4c",
+ "verdict": "B-FAIL",
+ "selection": "BOOSTED",
+ "selected_combo": [
+  "VOL",
+  "NODE"
+ ],
+ "stage_b": {
+  "events": 40,
+  "symbols": 40,
+  "captured_symbols": 0,
+  "ready_symbols": 2,
+  "capture_wilson": [
+   0.0,
+   0.08762160245846368
+  ],
+  "ready_wilson": [
+   0.01382066726155863,
+   0.16503877495105868
+  ],
+  "C1": false,
+  "mde_symbols": 12,
+  "without_five": {
+   "symbols": 37,
+   "captured": 0,
+   "ready": 2,
+   "C1": false
+  },
+  "missed_by_condition": {
+   "not_reclaimed": 9,
+   "shallow": 14,
+   "not_first": 2,
+   "no_retest": 6,
+   "booster": 9
+  },
+  "depth": {
+   "n": 40,
+   "no_sweep": 0,
+   "median": 57.67,
+   "q1": 42.05,
+   "q3": 77.19,
+   "under_7": 0,
+   "in_band": 1,
+   "over_13": 39
+  },
+  "accounting": {
+   "rows": 107,
+   "no_fresh_bars": 0,
+   "qa_unverified": 15,
+   "qa_unverifiable": 0,
+   "split_unadjusted": 0,
+   "onset_unknown": 0,
+   "not_2x_from_onset": 14,
+   "dup_merged": 38,
+   "beyond_archive": 0,
+   "short_history": 0
+  },
+  "excluded": {
+   "qa_unverified": [
+    [
+     "AIXI",
+     "2026-09-03"
+    ],
+    [
+     "LRHC",
+     "2026-09-03"
+    ],
+    [
+     "WCT",
+     "2026-09-04"
+    ],
+    [
+     "LRHC",
+     "2026-09-04"
+    ],
+    [
+     "AIXI",
+     "2026-09-04"
+    ],
+    [
+     "TNMG",
+     "2026-09-04"
+    ],
+    [
+     "BRTX",
+     "2026-09-04"
+    ],
+    [
+     "AIXI",
+     "2026-09-08"
+    ],
+    [
+     "BRTX",
+     "2026-09-09"
+    ],
+    [
+     "LRHC",
+     "2026-09-09"
+    ],
+    [
+     "UCAR",
+     "2026-09-10"
+    ],
+    [
+     "ALP",
+     "2026-09-10"
+    ],
+    [
+     "HUBC",
+     "2026-09-15"
+    ],
+    [
+     "NXXT",
+     "2026-09-15"
+    ],
+    [
+     "VWAV",
+     "2026-09-17"
+    ]
+   ],
+   "not_2x_from_onset": [
+    [
+     "BNC",
+     "2026-08-19",
+     "2026-09-08"
+    ],
+    [
+     "BNC",
+     "2026-08-20",
+     "2026-09-08"
+    ],
+    [
+     "BNC",
+     "2026-08-21",
+     "2026-09-08"
+    ],
+    [
+     "GIPR",
+     "2026-08-21",
+     "2026-08-14"
+    ],
+    [
+     "AMBR",
+     "2026-09-02",
+     "2026-09-17"
+    ],
+    [
+     "BNC",
+     "2026-09-02",
+     "2026-09-08"
+    ],
+    [
+     "IPDN",
+     "2026-09-08",
+     "2026-08-13"
+    ],
+    [
+     "IPDN",
+     "2026-09-15",
+     "2026-08-13"
+    ],
+    [
+     "BTTC",
+     "2026-09-17",
+     "2026-08-19"
+    ],
+    [
+     "GRML",
+     "2026-09-21",
+     "2026-08-21"
+    ],
+    [
+     "LHSW",
+     "2026-09-21",
+     "2026-08-27"
+    ],
+    [
+     "BTTC",
+     "2026-09-21",
+     "2026-08-19"
+    ],
+    [
+     "LHSW",
+     "2026-09-22",
+     "2026-08-27"
+    ],
+    [
+     "NIVF",
+     "2026-09-30",
+     "2026-09-25"
+    ]
+   ],
+   "dup_merged": [
+    [
+     "CELU",
+     "2026-08-18"
+    ],
+    [
+     "CELU",
+     "2026-08-19"
+    ],
+    [
+     "CELU",
+     "2026-08-21"
+    ],
+    [
+     "CELU",
+     "2026-08-25"
+    ],
+    [
+     "CELU",
+     "2026-08-26"
+    ],
+    [
+     "BRLS",
+     "2026-08-18"
+    ],
+    [
+     "BRLS",
+     "2026-08-19"
+    ],
+    [
+     "AVAT",
+     "2026-08-18"
+    ],
+    [
+     "AVAT",
+     "2026-08-19"
+    ],
+    [
+     "AVAT",
+     "2026-08-20"
+    ],
+    [
+     "AVAT",
+     "2026-08-21"
+    ],
+    [
+     "AVAT",
+     "2026-08-31"
+    ],
+    [
+     "AVAT",
+     "2026-09-02"
+    ],
+    [
+     "GPRO",
+     "2026-08-27"
+    ],
+    [
+     "GPRO",
+     "2026-08-31"
+    ],
+    [
+     "INDP",
+     "2026-08-20"
+    ],
+    [
+     "INDP",
+     "2026-08-26"
+    ],
+    [
+     "INDP",
+     "2026-09-02"
+    ],
+    [
+     "PSIG",
+     "2026-09-01"
+    ],
+    [
+     "NCPL",
+     "2026-08-21"
+    ],
+    [
+     "NCPL",
+     "2026-08-24"
+    ],
+    [
+     "SVRN",
+     "2026-08-24"
+    ],
+    [
+     "SVRN",
+     "2026-08-26"
+    ],
+    [
+     "SVRN",
+     "2026-08-31"
+    ],
+    [
+     "SVRN",
+     "2026-09-01"
+    ],
+    [
+     "VIOT",
+     "2026-08-26"
+    ],
+    [
+     "VIOT",
+     "2026-08-28"
+    ],
+    [
+     "VIOT",
+     "2026-08-31"
+    ],
+    [
+     "SUNE",
+     "2026-09-04"
+    ],
+    [
+     "DLXY",
+     "2026-09-01"
+    ],
+    [
+     "DLXY",
+     "2026-09-08"
+    ],
+    [
+     "DLXY",
+     "2026-09-16"
+    ],
+    [
+     "BIAF",
+     "2026-09-02"
+    ],
+    [
+     "MEDS",
+     "2026-09-16"
+    ],
+    [
+     "VEEA",
+     "2026-09-15"
+    ],
+    [
+     "IMCC",
+     "2026-09-18"
+    ],
+    [
+     "REFR",
+     "2026-09-18"
+    ],
+    [
+     "WHLR",
+     "2026-09-23"
+    ]
+   ]
+  },
+  "false_alarms": {
+   "fired": 21,
+   "resolved": 21,
+   "false": 18,
+   "rate": 0.8571,
+   "symbols_fired": 19,
+   "symbols_false_only": 17
+  }
+ },
+ "events": [
+  {
+   "sym": "PFSA",
+   "A": "2026-07-27",
+   "E_reg": "2026-08-17",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-07-15",
+    "fail": "not_reclaimed",
+    "lead": 8,
+    "depth": 10.11,
+    "base": 8.01,
+    "sweep_low": 7.2,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 89.72
+  },
+  {
+   "sym": "CELU",
+   "A": "2026-08-25",
+   "E_reg": "2026-08-17",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-07-28",
+    "fail": "shallow",
+    "lead": 20,
+    "depth": 1.04,
+    "base": 0.566,
+    "sweep_low": 0.5601,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 42.28
+  },
+  {
+   "sym": "BRLS",
+   "A": "2026-08-20",
+   "E_reg": "2026-08-17",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-07-29",
+    "fail": "shallow",
+    "lead": 16,
+    "depth": 1.11,
+    "base": 0.72,
+    "sweep_low": 0.712,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 49.28
+  },
+  {
+   "sym": "AVAT",
+   "A": "2026-08-21",
+   "E_reg": "2026-08-17",
+   "identity": false,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-03",
+    "fail": "shallow",
+    "lead": 14,
+    "depth": 1.69,
+    "base": 0.29,
+    "sweep_low": 0.2851,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 96.49
+  },
+  {
+   "sym": "GPRO",
+   "A": "2026-08-31",
+   "E_reg": "2026-08-19",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-03",
+    "fail": "not_first",
+    "lead": 20,
+    "depth": 12.81,
+    "base": 0.75,
+    "sweep_low": 0.6539,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 39.35
+  },
+  {
+   "sym": "INDP",
+   "A": "2026-08-20",
+   "E_reg": "2026-08-19",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-07-23",
+    "fail": "no_retest",
+    "lead": 20,
+    "depth": 0.0,
+    "base": 0.92,
+    "sweep_low": null,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 57.01
+  },
+  {
+   "sym": "PSIG",
+   "A": "2026-08-18",
+   "E_reg": "2026-08-19",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-07-21",
+    "fail": "no_retest",
+    "lead": 20,
+    "depth": 0.0,
+    "base": 1.03,
+    "sweep_low": null,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": true,
+   "depth_free_max": 84.51
+  },
+  {
+   "sym": "BTCT",
+   "A": "2026-08-19",
+   "E_reg": "2026-08-20",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-12",
+    "fail": "not_reclaimed",
+    "lead": 5,
+    "depth": 8.0,
+    "base": 0.5,
+    "sweep_low": 0.46,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 59.6
+  },
+  {
+   "sym": "NCPL",
+   "A": "2026-08-13",
+   "E_reg": "2026-08-20",
+   "identity": false,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-12",
+    "fail": "not_reclaimed",
+    "lead": 1,
+    "depth": 12.57,
+    "base": 0.366,
+    "sweep_low": 0.32,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 12.57
+  },
+  {
+   "sym": "SVRN",
+   "A": "2026-09-02",
+   "E_reg": "2026-08-21",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-14",
+    "fail": "shallow",
+    "lead": 13,
+    "depth": 0.61,
+    "base": 5.936,
+    "sweep_low": 5.9,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 42.44
+  },
+  {
+   "sym": "VIOT",
+   "A": "2026-09-02",
+   "E_reg": "2026-08-25",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-21",
+    "fail": "booster",
+    "lead": 8,
+    "depth": 10.84,
+    "base": 0.7419,
+    "sweep_low": 0.6615,
+    "VOL": false,
+    "NODE": false,
+    "CANDLE": false
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 28.2
+  },
+  {
+   "sym": "TNMG",
+   "A": "2026-06-29",
+   "E_reg": "2026-08-25",
+   "identity": false,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-06-17",
+    "fail": "booster",
+    "lead": 7,
+    "depth": 8.73,
+    "base": 4.4808,
+    "sweep_low": 4.0896,
+    "VOL": false,
+    "NODE": true,
+    "CANDLE": false
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 71.97
+  },
+  {
+   "sym": "SUNE",
+   "A": "2026-09-09",
+   "E_reg": "2026-08-31",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-11",
+    "fail": "no_retest",
+    "lead": 20,
+    "depth": 0.0,
+    "base": 1.09,
+    "sweep_low": null,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 17.98
+  },
+  {
+   "sym": "DLXY",
+   "A": "2026-09-01",
+   "E_reg": "2026-08-31",
+   "identity": false,
+   "seed": true,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-07",
+    "fail": "shallow",
+    "lead": 17,
+    "depth": 0.0,
+    "base": 1.7,
+    "sweep_low": 1.7,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 27.01
+  },
+  {
+   "sym": "BIAF",
+   "A": "2026-08-18",
+   "E_reg": "2026-09-01",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-07-30",
+    "fail": "booster",
+    "lead": 13,
+    "depth": 8.5,
+    "base": 9.1815,
+    "sweep_low": 8.4015,
+    "VOL": false,
+    "NODE": false,
+    "CANDLE": false
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 76.77
+  },
+  {
+   "sym": "ATER",
+   "A": "2026-09-03",
+   "E_reg": "2026-09-01",
+   "identity": false,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-06",
+    "fail": "no_retest",
+    "lead": 20,
+    "depth": 0.0,
+    "base": 0.3541,
+    "sweep_low": null,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 68.38
+  },
+  {
+   "sym": "PDSB",
+   "A": "2026-09-08",
+   "E_reg": "2026-09-02",
+   "identity": false,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-21",
+    "fail": "booster",
+    "lead": 11,
+    "depth": 9.92,
+    "base": 0.2167,
+    "sweep_low": 0.1952,
+    "VOL": true,
+    "NODE": false,
+    "CANDLE": false
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 81.76
+  },
+  {
+   "sym": "ZEO",
+   "A": "2026-09-18",
+   "E_reg": "2026-09-02",
+   "identity": false,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-28",
+    "fail": "shallow",
+    "lead": 14,
+    "depth": 1.44,
+    "base": 0.2841,
+    "sweep_low": 0.28,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 71.78
+  },
+  {
+   "sym": "MGN",
+   "A": "2026-07-29",
+   "E_reg": "2026-09-04",
+   "identity": false,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-07-06",
+    "fail": "booster",
+    "lead": 17,
+    "depth": 7.88,
+    "base": 4.038,
+    "sweep_low": 3.72,
+    "VOL": false,
+    "NODE": true,
+    "CANDLE": false
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 55.42
+  },
+  {
+   "sym": "TNON",
+   "A": "2026-08-10",
+   "E_reg": "2026-09-10",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-07-22",
+    "fail": "shallow",
+    "lead": 13,
+    "depth": 0.0,
+    "base": 6.6535,
+    "sweep_low": 6.727,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 78.45
+  },
+  {
+   "sym": "MEDS",
+   "A": "2026-09-15",
+   "E_reg": "2026-09-10",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-27",
+    "fail": "not_reclaimed",
+    "lead": 12,
+    "depth": 7.58,
+    "base": 1.2551,
+    "sweep_low": 1.16,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 75.81
+  },
+  {
+   "sym": "FTFT",
+   "A": "2026-08-28",
+   "E_reg": "2026-09-14",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-17",
+    "fail": "booster",
+    "lead": 9,
+    "depth": 9.44,
+    "base": 3.3596,
+    "sweep_low": 3.0424,
+    "VOL": false,
+    "NODE": false,
+    "CANDLE": false
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 86.09
+  },
+  {
+   "sym": "VEEA",
+   "A": "2026-09-14",
+   "E_reg": "2026-09-14",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-14",
+    "fail": "shallow",
+    "lead": 20,
+    "depth": 5.04,
+    "base": 2.34,
+    "sweep_low": 2.222,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 82.82
+  },
+  {
+   "sym": "RETO",
+   "A": "2026-08-17",
+   "E_reg": "2026-09-15",
+   "identity": false,
+   "seed": true,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-07-15",
+    "fail": "shallow",
+    "lead": 20,
+    "depth": 6.25,
+    "base": 38.4,
+    "sweep_low": 36.0,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 55.88
+  },
+  {
+   "sym": "QCLS",
+   "A": "2026-09-16",
+   "E_reg": "2026-09-16",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-24",
+    "fail": "not_reclaimed",
+    "lead": 16,
+    "depth": 8.0,
+    "base": 2.5,
+    "sweep_low": 2.3,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 88.1
+  },
+  {
+   "sym": "IMCC",
+   "A": "2026-09-18",
+   "E_reg": "2026-09-16",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-20",
+    "fail": "not_first",
+    "lead": 20,
+    "depth": 11.84,
+    "base": 2.913,
+    "sweep_low": 2.568,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 70.85
+  },
+  {
+   "sym": "REFR",
+   "A": "2026-09-18",
+   "E_reg": "2026-09-16",
+   "identity": false,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-09-15",
+    "fail": "shallow",
+    "lead": 3,
+    "depth": 0.0,
+    "base": 0.35,
+    "sweep_low": 0.3505,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 51.39
+  },
+  {
+   "sym": "AEMD",
+   "A": "2026-08-27",
+   "E_reg": "2026-09-17",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-25",
+    "fail": "not_reclaimed",
+    "lead": 2,
+    "depth": 11.24,
+    "base": 2.625,
+    "sweep_low": 2.33,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 76.63
+  },
+  {
+   "sym": "DTSS",
+   "A": "2026-09-16",
+   "E_reg": "2026-09-17",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-09-10",
+    "fail": "not_reclaimed",
+    "lead": 4,
+    "depth": 12.92,
+    "base": 0.7006,
+    "sweep_low": 0.6101,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 29.27
+  },
+  {
+   "sym": "BFRG",
+   "A": "2026-09-22",
+   "E_reg": "2026-09-17",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-09-09",
+    "fail": "not_reclaimed",
+    "lead": 9,
+    "depth": 9.73,
+    "base": 0.53,
+    "sweep_low": 0.4784,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 29.08
+  },
+  {
+   "sym": "WHLR",
+   "A": "2026-08-28",
+   "E_reg": "2026-09-17",
+   "identity": false,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-17",
+    "fail": "booster",
+    "lead": 9,
+    "depth": 7.45,
+    "base": 13.3344,
+    "sweep_low": 12.3408,
+    "VOL": true,
+    "NODE": false,
+    "CANDLE": true
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 98.27
+  },
+  {
+   "sym": "VEEE",
+   "A": "2026-09-18",
+   "E_reg": "2026-09-21",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-20",
+    "fail": "shallow",
+    "lead": 20,
+    "depth": 0.0,
+    "base": 4.16,
+    "sweep_low": 4.22,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 23.53
+  },
+  {
+   "sym": "JAGX",
+   "A": "2026-09-22",
+   "E_reg": "2026-09-22",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-09-01",
+    "fail": "shallow",
+    "lead": 14,
+    "depth": 0.98,
+    "base": 10.875,
+    "sweep_low": 10.7685,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 86.25
+  },
+  {
+   "sym": "YDES",
+   "A": "2026-09-24",
+   "E_reg": "2026-09-22",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-08-26",
+    "fail": "no_retest",
+    "lead": 20,
+    "depth": 0.0,
+    "base": 1.7,
+    "sweep_low": null,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 41.38
+  },
+  {
+   "sym": "BENF",
+   "A": "2026-09-11",
+   "E_reg": "2026-09-23",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-09-04",
+    "fail": "booster",
+    "lead": 4,
+    "depth": 9.72,
+    "base": 2.16,
+    "sweep_low": 1.95,
+    "VOL": false,
+    "NODE": false,
+    "CANDLE": false
+   },
+   "unknown_days": 0,
+   "ready_in_window": true,
+   "depth_free_max": 50.02
+  },
+  {
+   "sym": "MSGY",
+   "A": "2026-09-25",
+   "E_reg": "2026-09-25",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-09-10",
+    "fail": "booster",
+    "lead": 11,
+    "depth": 7.19,
+    "base": 1.864,
+    "sweep_low": 1.73,
+    "VOL": false,
+    "NODE": true,
+    "CANDLE": false
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 57.6
+  },
+  {
+   "sym": "QTEX",
+   "A": "2026-10-02",
+   "E_reg": "2026-09-30",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-09-03",
+    "fail": "shallow",
+    "lead": 20,
+    "depth": 3.62,
+    "base": 0.82,
+    "sweep_low": 0.7903,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 57.74
+  },
+  {
+   "sym": "SCKT",
+   "A": "2026-10-01",
+   "E_reg": "2026-10-01",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-09-02",
+    "fail": "no_retest",
+    "lead": 20,
+    "depth": 0.0,
+    "base": 0.38,
+    "sweep_low": null,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 54.49
+  },
+  {
+   "sym": "AMOD",
+   "A": "2026-10-01",
+   "E_reg": "2026-10-02",
+   "identity": true,
+   "seed": false,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-09-16",
+    "fail": "not_reclaimed",
+    "lead": 11,
+    "depth": 8.5,
+    "base": 2.0,
+    "sweep_low": 1.83,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 62.14
+  },
+  {
+   "sym": "SXTC",
+   "A": "2026-07-22",
+   "E_reg": "2026-10-07",
+   "identity": false,
+   "seed": true,
+   "captured": null,
+   "best_fail": {
+    "day": "2026-06-29",
+    "fail": "shallow",
+    "lead": 16,
+    "depth": 6.0,
+    "base": 120.0,
+    "sweep_low": 112.8,
+    "VOL": null,
+    "NODE": null,
+    "CANDLE": null
+   },
+   "unknown_days": 0,
+   "ready_in_window": false,
+   "depth_free_max": 29.5
+  }
+ ],
+ "stage_a": {
+  "sessions": [
+   "2026-09-16",
+   "2026-09-17",
+   "2026-09-18",
+   "2026-09-21",
+   "2026-09-22",
+   "2026-09-23",
+   "2026-09-24",
+   "2026-09-25",
+   "2026-09-28",
+   "2026-09-29",
+   "2026-09-30",
+   "2026-10-01",
+   "2026-10-02",
+   "2026-10-05",
+   "2026-10-06",
+   "2026-10-07",
+   "2026-10-08",
+   "2026-10-09",
+   "2026-10-12",
+   "2026-10-13"
+  ],
+  "known_days": [
+   "2026-09-16",
+   "2026-09-17",
+   "2026-09-18",
+   "2026-09-21",
+   "2026-09-22",
+   "2026-09-23",
+   "2026-09-24",
+   "2026-09-25",
+   "2026-09-28",
+   "2026-09-29",
+   "2026-09-30",
+   "2026-10-01",
+   "2026-10-02",
+   "2026-10-05",
+   "2026-10-06",
+   "2026-10-07",
+   "2026-10-08",
+   "2026-10-09",
+   "2026-10-12",
+   "2026-10-13"
+  ],
+  "unknown": {
+   "short_or_split": 110,
+   "member_unknown_days": []
+  },
+  "q_size": {
+   "2026-09-16": 654,
+   "2026-09-17": 650,
+   "2026-09-18": 592,
+   "2026-09-21": 618,
+   "2026-09-22": 562,
+   "2026-09-23": 639,
+   "2026-09-24": 649,
+   "2026-09-25": 666,
+   "2026-09-28": 674,
+   "2026-09-29": 684,
+   "2026-09-30": 611,
+   "2026-10-01": 683,
+   "2026-10-02": 629,
+   "2026-10-05": 687,
+   "2026-10-06": 605,
+   "2026-10-07": 590,
+   "2026-10-08": 705,
+   "2026-10-09": 707,
+   "2026-10-12": 646,
+   "2026-10-13": 659
+  },
+  "nw_size": {
+   "2026-09-16": 634,
+   "2026-09-17": 625,
+   "2026-09-18": 560,
+   "2026-09-21": 592,
+   "2026-09-22": 534,
+   "2026-09-23": 618,
+   "2026-09-24": 629,
+   "2026-09-25": 642,
+   "2026-09-28": 652,
+   "2026-09-29": 663,
+   "2026-09-30": 590,
+   "2026-10-01": 664,
+   "2026-10-02": 604,
+   "2026-10-05": 657,
+   "2026-10-06": 574,
+   "2026-10-07": 562,
+   "2026-10-08": 682,
+   "2026-10-09": 683,
+   "2026-10-12": 618,
+   "2026-10-13": 639
+  },
+  "ready_size": {
+   "2026-09-16": 10,
+   "2026-09-17": 10,
+   "2026-09-18": 10,
+   "2026-09-21": 8,
+   "2026-09-22": 10,
+   "2026-09-23": 8,
+   "2026-09-24": 7,
+   "2026-09-25": 12,
+   "2026-09-28": 11,
+   "2026-09-29": 10,
+   "2026-09-30": 9,
+   "2026-10-01": 9,
+   "2026-10-02": 11,
+   "2026-10-05": 17,
+   "2026-10-06": 10,
+   "2026-10-07": 14,
+   "2026-10-08": 11,
+   "2026-10-09": 7,
+   "2026-10-12": 14,
+   "2026-10-13": 6
+  },
+  "table": {
+   "ALL_COVERED_core": {
+    "sessions": 20,
+    "total": 574,
+    "median": 28.5,
+    "min": 13,
+    "max": 49,
+    "zero_days": 0,
+    "longest_silence": 0,
+    "roll3_median": 86.5,
+    "F1": false,
+    "F2": true,
+    "F3": true,
+    "F4": false,
+    "pass": false,
+    "daily": {
+     "2026-09-16": 30,
+     "2026-09-17": 32,
+     "2026-09-18": 28,
+     "2026-09-21": 31,
+     "2026-09-22": 43,
+     "2026-09-23": 49,
+     "2026-09-24": 29,
+     "2026-09-25": 29,
+     "2026-09-28": 35,
+     "2026-09-29": 23,
+     "2026-09-30": 27,
+     "2026-10-01": 35,
+     "2026-10-02": 26,
+     "2026-10-05": 25,
+     "2026-10-06": 23,
+     "2026-10-07": 13,
+     "2026-10-08": 29,
+     "2026-10-09": 24,
+     "2026-10-12": 19,
+     "2026-10-13": 24
+    },
+    "share_on_Q": 0.2718
+   },
+   "Q_core": {
+    "sessions": 20,
+    "total": 156,
+    "median": 7.5,
+    "min": 1,
+    "max": 14,
+    "zero_days": 0,
+    "longest_silence": 0,
+    "roll3_median": 23.0,
+    "F1": false,
+    "F2": true,
+    "F3": true,
+    "F4": false,
+    "pass": false,
+    "daily": {
+     "2026-09-16": 8,
+     "2026-09-17": 10,
+     "2026-09-18": 6,
+     "2026-09-21": 7,
+     "2026-09-22": 13,
+     "2026-09-23": 14,
+     "2026-09-24": 12,
+     "2026-09-25": 8,
+     "2026-09-28": 7,
+     "2026-09-29": 8,
+     "2026-09-30": 5,
+     "2026-10-01": 12,
+     "2026-10-02": 6,
+     "2026-10-05": 5,
+     "2026-10-06": 5,
+     "2026-10-07": 1,
+     "2026-10-08": 12,
+     "2026-10-09": 6,
+     "2026-10-12": 3,
+     "2026-10-13": 8
+    },
+    "undetermined_days": [],
+    "no_measure": false
+   },
+   "Q_core+VOL": {
+    "sessions": 19,
+    "total": 48,
+    "median": 3,
+    "min": 0,
+    "max": 6,
+    "zero_days": 2,
+    "longest_silence": 2,
+    "roll3_median": 8,
+    "F1": false,
+    "F2": true,
+    "F3": true,
+    "F4": false,
+    "pass": false,
+    "daily": {
+     "2026-09-16": 4,
+     "2026-09-17": 3,
+     "2026-09-18": 1,
+     "2026-09-21": 1,
+     "2026-09-22": 4,
+     "2026-09-23": 6,
+     "2026-09-24": 3,
+     "2026-09-25": 1,
+     "2026-09-28": 3,
+     "2026-09-29": 4,
+     "2026-09-30": 3,
+     "2026-10-01": 4,
+     "2026-10-02": 1,
+     "2026-10-05": 1,
+     "2026-10-06": 0,
+     "2026-10-07": 0,
+     "2026-10-08": 5,
+     "2026-10-09": 2,
+     "2026-10-12": 2
+    },
+    "undetermined_days": [
+     "2026-10-13"
+    ],
+    "no_measure": false
+   },
+   "Q_core+NODE": {
+    "sessions": 19,
+    "total": 76,
+    "median": 4,
+    "min": 0,
+    "max": 7,
+    "zero_days": 1,
+    "longest_silence": 1,
+    "roll3_median": 12,
+    "F1": false,
+    "F2": true,
+    "F3": true,
+    "F4": false,
+    "pass": false,
+    "daily": {
+     "2026-09-16": 3,
+     "2026-09-17": 4,
+     "2026-09-18": 2,
+     "2026-09-21": 5,
+     "2026-09-22": 5,
+     "2026-09-23": 5,
+     "2026-09-24": 7,
+     "2026-09-25": 6,
+     "2026-09-28": 5,
+     "2026-09-29": 6,
+     "2026-09-30": 4,
+     "2026-10-01": 5,
+     "2026-10-02": 5,
+     "2026-10-05": 0,
+     "2026-10-06": 2,
+     "2026-10-07": 1,
+     "2026-10-08": 4,
+     "2026-10-09": 4,
+     "2026-10-12": 3
+    },
+    "undetermined_days": [
+     "2026-10-13"
+    ],
+    "no_measure": false
+   },
+   "Q_core+CANDLE": {
+    "sessions": 20,
+    "total": 33,
+    "median": 1.0,
+    "min": 0,
+    "max": 5,
+    "zero_days": 7,
+    "longest_silence": 3,
+    "roll3_median": 5.0,
+    "F1": true,
+    "F2": true,
+    "F3": true,
+    "F4": false,
+    "pass": false,
+    "daily": {
+     "2026-09-16": 0,
+     "2026-09-17": 0,
+     "2026-09-18": 1,
+     "2026-09-21": 1,
+     "2026-09-22": 3,
+     "2026-09-23": 5,
+     "2026-09-24": 3,
+     "2026-09-25": 4,
+     "2026-09-28": 0,
+     "2026-09-29": 2,
+     "2026-09-30": 1,
+     "2026-10-01": 4,
+     "2026-10-02": 1,
+     "2026-10-05": 0,
+     "2026-10-06": 0,
+     "2026-10-07": 0,
+     "2026-10-08": 3,
+     "2026-10-09": 2,
+     "2026-10-12": 0,
+     "2026-10-13": 3
+    },
+    "undetermined_days": [],
+    "no_measure": false
+   },
+   "Q_core+VOL+NODE": {
+    "sessions": 19,
+    "total": 17,
+    "median": 1,
+    "min": 0,
+    "max": 3,
+    "zero_days": 9,
+    "longest_silence": 4,
+    "roll3_median": 1,
+    "F1": true,
+    "F2": true,
+    "F3": true,
+    "F4": true,
+    "pass": true,
+    "daily": {
+     "2026-09-16": 1,
+     "2026-09-17": 0,
+     "2026-09-18": 0,
+     "2026-09-21": 0,
+     "2026-09-22": 0,
+     "2026-09-23": 1,
+     "2026-09-24": 3,
+     "2026-09-25": 1,
+     "2026-09-28": 1,
+     "2026-09-29": 3,
+     "2026-09-30": 3,
+     "2026-10-01": 0,
+     "2026-10-02": 1,
+     "2026-10-05": 0,
+     "2026-10-06": 0,
+     "2026-10-07": 0,
+     "2026-10-08": 1,
+     "2026-10-09": 0,
+     "2026-10-12": 2
+    },
+    "undetermined_days": [
+     "2026-10-13"
+    ],
+    "no_measure": false
+   },
+   "Q_core+VOL+CANDLE": {
+    "sessions": 19,
+    "total": 14,
+    "median": 0,
+    "min": 0,
+    "max": 3,
+    "zero_days": 10,
+    "longest_silence": 4,
+    "roll3_median": 2,
+    "F1": true,
+    "F2": true,
+    "F3": true,
+    "F4": true,
+    "pass": true,
+    "daily": {
+     "2026-09-16": 0,
+     "2026-09-17": 0,
+     "2026-09-18": 1,
+     "2026-09-21": 1,
+     "2026-09-22": 1,
+     "2026-09-23": 3,
+     "2026-09-24": 1,
+     "2026-09-25": 0,
+     "2026-09-28": 0,
+     "2026-09-29": 2,
+     "2026-09-30": 0,
+     "2026-10-01": 1,
+     "2026-10-02": 0,
+     "2026-10-05": 0,
+     "2026-10-06": 0,
+     "2026-10-07": 0,
+     "2026-10-08": 2,
+     "2026-10-09": 2,
+     "2026-10-12": 0
+    },
+    "undetermined_days": [
+     "2026-10-13"
+    ],
+    "no_measure": false
+   },
+   "Q_core+NODE+CANDLE": {
+    "sessions": 19,
+    "total": 14,
+    "median": 0,
+    "min": 0,
+    "max": 2,
+    "zero_days": 10,
+    "longest_silence": 4,
+    "roll3_median": 3,
+    "F1": true,
+    "F2": true,
+    "F3": true,
+    "F4": true,
+    "pass": true,
+    "daily": {
+     "2026-09-16": 0,
+     "2026-09-17": 0,
+     "2026-09-18": 0,
+     "2026-09-21": 0,
+     "2026-09-22": 2,
+     "2026-09-23": 1,
+     "2026-09-24": 2,
+     "2026-09-25": 2,
+     "2026-09-28": 0,
+     "2026-09-29": 2,
+     "2026-09-30": 1,
+     "2026-10-01": 2,
+     "2026-10-02": 1,
+     "2026-10-05": 0,
+     "2026-10-06": 0,
+     "2026-10-07": 0,
+     "2026-10-08": 1,
+     "2026-10-09": 0,
+     "2026-10-12": 0
+    },
+    "undetermined_days": [
+     "2026-10-13"
+    ],
+    "no_measure": false
+   },
+   "Q_core+VOL+NODE+CANDLE": {
+    "sessions": 19,
+    "total": 3,
+    "median": 0,
+    "min": 0,
+    "max": 2,
+    "zero_days": 17,
+    "longest_silence": 9,
+    "roll3_median": 0,
+    "F1": true,
+    "F2": false,
+    "F3": false,
+    "F4": true,
+    "pass": false,
+    "daily": {
+     "2026-09-16": 0,
+     "2026-09-17": 0,
+     "2026-09-18": 0,
+     "2026-09-21": 0,
+     "2026-09-22": 0,
+     "2026-09-23": 0,
+     "2026-09-24": 1,
+     "2026-09-25": 0,
+     "2026-09-28": 0,
+     "2026-09-29": 2,
+     "2026-09-30": 0,
+     "2026-10-01": 0,
+     "2026-10-02": 0,
+     "2026-10-05": 0,
+     "2026-10-06": 0,
+     "2026-10-07": 0,
+     "2026-10-08": 0,
+     "2026-10-09": 0,
+     "2026-10-12": 0
+    },
+    "undetermined_days": [
+     "2026-10-13"
+    ],
+    "no_measure": false
+   },
+   "Q_NW_core": {
+    "sessions": 20,
+    "total": 147,
+    "median": 7.0,
+    "min": 1,
+    "max": 13,
+    "zero_days": 0,
+    "longest_silence": 0,
+    "roll3_median": 21.0,
+    "F1": false,
+    "F2": true,
+    "F3": true,
+    "F4": false,
+    "pass": false,
+    "daily": {
+     "2026-09-16": 7,
+     "2026-09-17": 10,
+     "2026-09-18": 6,
+     "2026-09-21": 7,
+     "2026-09-22": 12,
+     "2026-09-23": 13,
+     "2026-09-24": 12,
+     "2026-09-25": 7,
+     "2026-09-28": 7,
+     "2026-09-29": 7,
+     "2026-09-30": 5,
+     "2026-10-01": 11,
+     "2026-10-02": 4,
+     "2026-10-05": 5,
+     "2026-10-06": 4,
+     "2026-10-07": 1,
+     "2026-10-08": 12,
+     "2026-10-09": 6,
+     "2026-10-12": 3,
+     "2026-10-13": 8
+    }
+   },
+   "Q_WL_core": {
+    "sessions": 20,
+    "total": 13,
+    "median": 0.5,
+    "min": 0,
+    "max": 2,
+    "zero_days": 10,
+    "longest_silence": 3,
+    "roll3_median": 2.0,
+    "F1": true,
+    "F2": true,
+    "F3": true,
+    "F4": true,
+    "pass": true,
+    "daily": {
+     "2026-09-16": 2,
+     "2026-09-17": 0,
+     "2026-09-18": 0,
+     "2026-09-21": 0,
+     "2026-09-22": 1,
+     "2026-09-23": 1,
+     "2026-09-24": 0,
+     "2026-09-25": 1,
+     "2026-09-28": 0,
+     "2026-09-29": 1,
+     "2026-09-30": 0,
+     "2026-10-01": 2,
+     "2026-10-02": 2,
+     "2026-10-05": 0,
+     "2026-10-06": 1,
+     "2026-10-07": 0,
+     "2026-10-08": 1,
+     "2026-10-09": 1,
+     "2026-10-12": 0,
+     "2026-10-13": 0
+    }
+   },
+   "Q_READY_core": {
+    "sessions": 20,
+    "total": 0,
+    "median": 0.0,
+    "min": 0,
+    "max": 0,
+    "zero_days": 20,
+    "longest_silence": 20,
+    "roll3_median": 0.0,
+    "F1": true,
+    "F2": false,
+    "F3": false,
+    "F4": true,
+    "pass": false,
+    "daily": {
+     "2026-09-16": 0,
+     "2026-09-17": 0,
+     "2026-09-18": 0,
+     "2026-09-21": 0,
+     "2026-09-22": 0,
+     "2026-09-23": 0,
+     "2026-09-24": 0,
+     "2026-09-25": 0,
+     "2026-09-28": 0,
+     "2026-09-29": 0,
+     "2026-09-30": 0,
+     "2026-10-01": 0,
+     "2026-10-02": 0,
+     "2026-10-05": 0,
+     "2026-10-06": 0,
+     "2026-10-07": 0,
+     "2026-10-08": 0,
+     "2026-10-09": 0,
+     "2026-10-12": 0,
+     "2026-10-13": 0
+    }
+   },
+   "PROD_SWEEP_STATE_Q": {
+    "sessions": 20,
+    "total": 2450,
+    "median": 124.0,
+    "min": 85,
+    "max": 149,
+    "zero_days": 0,
+    "longest_silence": 0,
+    "roll3_median": 373.0,
+    "F1": false,
+    "F2": true,
+    "F3": true,
+    "F4": false,
+    "pass": false,
+    "daily": {
+     "2026-09-16": 122,
+     "2026-09-17": 149,
+     "2026-09-18": 127,
+     "2026-09-21": 128,
+     "2026-09-22": 126,
+     "2026-09-23": 140,
+     "2026-09-24": 142,
+     "2026-09-25": 146,
+     "2026-09-28": 126,
+     "2026-09-29": 122,
+     "2026-09-30": 104,
+     "2026-10-01": 128,
+     "2026-10-02": 122,
+     "2026-10-05": 127,
+     "2026-10-06": 120,
+     "2026-10-07": 104,
+     "2026-10-08": 119,
+     "2026-10-09": 116,
+     "2026-10-12": 97,
+     "2026-10-13": 85
+    }
+   },
+   "LIVE_SWEEP_FINGERPRINTS": {
+    "sessions": 20,
+    "total": 24,
+    "median": 1.0,
+    "min": 0,
+    "max": 3,
+    "zero_days": 5,
+    "longest_silence": 3,
+    "roll3_median": 4.0,
+    "F1": true,
+    "F2": true,
+    "F3": true,
+    "F4": true,
+    "pass": true,
+    "daily": {
+     "2026-09-16": 1,
+     "2026-09-17": 0,
+     "2026-09-18": 2,
+     "2026-09-21": 1,
+     "2026-09-22": 1,
+     "2026-09-23": 3,
+     "2026-09-24": 0,
+     "2026-09-25": 1,
+     "2026-09-28": 1,
+     "2026-09-29": 3,
+     "2026-09-30": 0,
+     "2026-10-01": 0,
+     "2026-10-02": 0,
+     "2026-10-05": 1,
+     "2026-10-06": 1,
+     "2026-10-07": 2,
+     "2026-10-08": 2,
+     "2026-10-09": 1,
+     "2026-10-12": 1,
+     "2026-10-13": 3
+    }
+   }
+  },
+  "selected": [
+   "VOL",
+   "NODE"
+  ],
+  "selection": "BOOSTED",
+  "q_trigger_names": {
+   "2026-09-16": [
+    "BYAH",
+    "ENVB",
+    "MREO",
+    "PRFX",
+    "PRHI",
+    "SHFS",
+    "SHPH",
+    "SMX"
+   ],
+   "2026-09-17": [
+    "CISS",
+    "EVAX",
+    "FMFC",
+    "GWAV",
+    "HAO",
+    "INVZ",
+    "SCNI",
+    "VITL",
+    "ZENA",
+    "ZOOZ"
+   ],
+   "2026-09-18": [
+    "AKAN",
+    "MBIO",
+    "NAKA",
+    "NAMM",
+    "OFAL",
+    "SKYE"
+   ],
+   "2026-09-21": [
+    "CHSN",
+    "ELOG",
+    "FUSE",
+    "JBDI",
+    "LAES",
+    "XBP",
+    "YFOR"
+   ],
+   "2026-09-22": [
+    "AIXI",
+    "ANNA",
+    "BTCS",
+    "ENLV",
+    "ENVB",
+    "EVAX",
+    "FCHL",
+    "FGL",
+    "IMNN",
+    "NXH",
+    "NXL",
+    "STEX",
+    "UPXI"
+   ],
+   "2026-09-23": [
+    "ABAT",
+    "BENF",
+    "CELZ",
+    "DGNX",
+    "LGCL",
+    "MASK",
+    "MLEC",
+    "PLYX",
+    "PSIG",
+    "SKYA",
+    "SMTK",
+    "SNOA",
+    "VWAV",
+    "YMT"
+   ],
+   "2026-09-24": [
+    "GCL",
+    "GCTK",
+    "ICU",
+    "LHAI",
+    "NAKA",
+    "RENT",
+    "RGC",
+    "SDST",
+    "SLSN",
+    "VCIG",
+    "YJ",
+    "ZBAO"
+   ],
+   "2026-09-25": [
+    "ENVB",
+    "FUFU",
+    "MDXH",
+    "ORBS",
+    "PPCB",
+    "RANI",
+    "UPXI",
+    "VSME"
+   ],
+   "2026-09-28": [
+    "CLGN",
+    "DCGO",
+    "FCHL",
+    "NAMI",
+    "NMRA",
+    "SKYA",
+    "SLNH"
+   ],
+   "2026-09-29": [
+    "CHSN",
+    "CYN",
+    "KMRK",
+    "MREO",
+    "NSPR",
+    "PLUR",
+    "RKDA",
+    "SURG"
+   ],
+   "2026-09-30": [
+    "DXST",
+    "EDSA",
+    "ENGS",
+    "GRAN",
+    "ONMD"
+   ],
+   "2026-10-01": [
+    "BETR",
+    "BIOX",
+    "FUFU",
+    "INSG",
+    "IZM",
+    "OBAI",
+    "OIO",
+    "OMEX",
+    "RDAC",
+    "SHFS",
+    "SKYA",
+    "SSM"
+   ],
+   "2026-10-02": [
+    "BCTX",
+    "CHSN",
+    "CRE",
+    "GDC",
+    "KMRK",
+    "ORBS"
+   ],
+   "2026-10-05": [
+    "CTNT",
+    "CTSO",
+    "IPW",
+    "NIXX",
+    "XELB"
+   ],
+   "2026-10-06": [
+    "CABR",
+    "IVDA",
+    "KMRK",
+    "OFAL",
+    "SUPX"
+   ],
+   "2026-10-07": [
+    "OMEX"
+   ],
+   "2026-10-08": [
+    "CHSN",
+    "COOT",
+    "CURX",
+    "ENVB",
+    "EYPT",
+    "FLYE",
+    "FRGT",
+    "KPLT",
+    "KUST",
+    "OIO",
+    "PMAX",
+    "SHPH"
+   ],
+   "2026-10-09": [
+    "BRLS",
+    "CGTL",
+    "HUHU",
+    "RDAC",
+    "SDA",
+    "XCH"
+   ],
+   "2026-10-12": [
+    "ATPC",
+    "GELS",
+    "GURE"
+   ],
+   "2026-10-13": [
+    "CLGN",
+    "GEMI",
+    "IBG",
+    "IQST",
+    "LIQT",
+    "NAKA",
+    "QUCY",
+    "SAGT"
+   ]
+  },
+  "volume_source": {
+   "today_bars": 616,
+   "rank_archive": 1819,
+   "none": 12
+  },
+  "q_triggers": {
+   "2026-09-16": [
+    {
+     "sym": "BYAH",
+     "base": 2.21,
+     "sweep_low": 2.04,
+     "depth": 7.69,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "ENVB",
+     "base": 1.26,
+     "sweep_low": 1.1701,
+     "depth": 7.13,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "MREO",
+     "base": 0.2625,
+     "sweep_low": 0.2385,
+     "depth": 9.14,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "PRFX",
+     "base": 0.97,
+     "sweep_low": 0.8519,
+     "depth": 12.18,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "PRHI",
+     "base": 4.55,
+     "sweep_low": 4.0,
+     "depth": 12.09,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "SHFS",
+     "base": 1.8216,
+     "sweep_low": 1.6896,
+     "depth": 7.25,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "SHPH",
+     "base": 2.9,
+     "sweep_low": 2.5764,
+     "depth": 11.16,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "SMX",
+     "base": 13.69,
+     "sweep_low": 12.7255,
+     "depth": 7.05,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    }
+   ],
+   "2026-09-17": [
+    {
+     "sym": "CISS",
+     "base": 1.32,
+     "sweep_low": 1.2,
+     "depth": 9.09,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "EVAX",
+     "base": 3.05,
+     "sweep_low": 2.77,
+     "depth": 9.18,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "FMFC",
+     "base": 8.2,
+     "sweep_low": 7.592,
+     "depth": 7.41,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "GWAV",
+     "base": 2.39,
+     "sweep_low": 2.2225,
+     "depth": 7.01,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "HAO",
+     "base": 2.898,
+     "sweep_low": 2.6101,
+     "depth": 9.93,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "INVZ",
+     "base": 0.3208,
+     "sweep_low": 0.2911,
+     "depth": 9.26,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "SCNI",
+     "base": 1.6,
+     "sweep_low": 1.43,
+     "depth": 10.63,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "VITL",
+     "base": 10.43,
+     "sweep_low": 9.47,
+     "depth": 9.2,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "ZENA",
+     "base": 1.37,
+     "sweep_low": 1.22,
+     "depth": 10.95,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "ZOOZ",
+     "base": 5.191,
+     "sweep_low": 4.6001,
+     "depth": 11.38,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    }
+   ],
+   "2026-09-18": [
+    {
+     "sym": "AKAN",
+     "base": 3.0,
+     "sweep_low": 2.64,
+     "depth": 12.0,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "MBIO",
+     "base": 0.525,
+     "sweep_low": 0.4662,
+     "depth": 11.21,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "NAKA",
+     "base": 3.775,
+     "sweep_low": 3.33,
+     "depth": 11.79,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "NAMM",
+     "base": 1.33,
+     "sweep_low": 1.22,
+     "depth": 8.27,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "OFAL",
+     "base": 0.583,
+     "sweep_low": 0.5213,
+     "depth": 10.58,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "SKYE",
+     "base": 1.64,
+     "sweep_low": 1.5,
+     "depth": 8.54,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    }
+   ],
+   "2026-09-21": [
+    {
+     "sym": "CHSN",
+     "base": 1.02,
+     "sweep_low": 0.915,
+     "depth": 10.29,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "ELOG",
+     "base": 0.4484,
+     "sweep_low": 0.3975,
+     "depth": 11.35,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "FUSE",
+     "base": 0.5741,
+     "sweep_low": 0.5048,
+     "depth": 12.07,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "JBDI",
+     "base": 1.05,
+     "sweep_low": 0.96,
+     "depth": 8.57,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "LAES",
+     "base": 2.35,
+     "sweep_low": 2.15,
+     "depth": 8.51,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "XBP",
+     "base": 2.25,
+     "sweep_low": 2.06,
+     "depth": 8.44,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "YFOR",
+     "base": 1.11,
+     "sweep_low": 1.02,
+     "depth": 8.11,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    }
+   ],
+   "2026-09-22": [
+    {
+     "sym": "AIXI",
+     "base": 1.98,
+     "sweep_low": 1.78,
+     "depth": 10.1,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "ANNA",
+     "base": 2.62,
+     "sweep_low": 2.4,
+     "depth": 8.4,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "BTCS",
+     "base": 1.0445,
+     "sweep_low": 0.9629,
+     "depth": 7.81,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "ENLV",
+     "base": 0.64,
+     "sweep_low": 0.5737,
+     "depth": 10.36,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "ENVB",
+     "base": 1.33,
+     "sweep_low": 1.1701,
+     "depth": 12.02,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "EVAX",
+     "base": 3.02,
+     "sweep_low": 2.77,
+     "depth": 8.28,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "FCHL",
+     "base": 0.95,
+     "sweep_low": 0.8645,
+     "depth": 9.0,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "FGL",
+     "base": 4.17,
+     "sweep_low": 3.81,
+     "depth": 8.63,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "IMNN",
+     "base": 1.47,
+     "sweep_low": 1.33,
+     "depth": 9.52,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "NXH",
+     "base": 3.515,
+     "sweep_low": 3.26,
+     "depth": 7.25,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "NXL",
+     "base": 4.5101,
+     "sweep_low": 4.0,
+     "depth": 11.31,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "STEX",
+     "base": 0.6552,
+     "sweep_low": 0.572,
+     "depth": 12.7,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "UPXI",
+     "base": 0.7701,
+     "sweep_low": 0.7001,
+     "depth": 9.09,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    }
+   ],
+   "2026-09-23": [
+    {
+     "sym": "ABAT",
+     "base": 2.245,
+     "sweep_low": 2.0,
+     "depth": 10.91,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "BENF",
+     "base": 0.5689,
+     "sweep_low": 0.4981,
+     "depth": 12.45,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "CELZ",
+     "base": 0.69,
+     "sweep_low": 0.62,
+     "depth": 10.14,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "DGNX",
+     "base": 1.11,
+     "sweep_low": 1.0,
+     "depth": 9.91,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "LGCL",
+     "base": 2.94,
+     "sweep_low": 2.66,
+     "depth": 9.52,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "MASK",
+     "base": 0.9106,
+     "sweep_low": 0.8031,
+     "depth": 11.81,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "MLEC",
+     "base": 6.0,
+     "sweep_low": 5.39,
+     "depth": 10.17,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "PLYX",
+     "base": 2.0682,
+     "sweep_low": 1.85,
+     "depth": 10.55,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "PSIG",
+     "base": 1.2,
+     "sweep_low": 1.05,
+     "depth": 12.5,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "SKYA",
+     "base": 1.065,
+     "sweep_low": 0.968,
+     "depth": 9.11,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "SMTK",
+     "base": 1.63,
+     "sweep_low": 1.47,
+     "depth": 9.82,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "SNOA",
+     "base": 1.185,
+     "sweep_low": 1.07,
+     "depth": 9.7,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "VWAV",
+     "base": 5.2,
+     "sweep_low": 4.53,
+     "depth": 12.88,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "YMT",
+     "base": 1.81,
+     "sweep_low": 1.64,
+     "depth": 9.39,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    }
+   ],
+   "2026-09-24": [
+    {
+     "sym": "GCL",
+     "base": 0.4146,
+     "sweep_low": 0.3808,
+     "depth": 8.15,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "GCTK",
+     "base": 2.26,
+     "sweep_low": 1.9977,
+     "depth": 11.61,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "ICU",
+     "base": 3.06,
+     "sweep_low": 2.84,
+     "depth": 7.19,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "LHAI",
+     "base": 0.78,
+     "sweep_low": 0.7,
+     "depth": 10.26,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "NAKA",
+     "base": 3.82,
+     "sweep_low": 3.33,
+     "depth": 12.83,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "RENT",
+     "base": 1.75,
+     "sweep_low": 1.6,
+     "depth": 8.57,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "RGC",
+     "base": 5.17,
+     "sweep_low": 4.51,
+     "depth": 12.77,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "SDST",
+     "base": 0.1133,
+     "sweep_low": 0.1045,
+     "depth": 7.77,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "SLSN",
+     "base": 0.6751,
+     "sweep_low": 0.6133,
+     "depth": 9.15,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "VCIG",
+     "base": 1.711,
+     "sweep_low": 1.54,
+     "depth": 9.99,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "YJ",
+     "base": 1.31,
+     "sweep_low": 1.18,
+     "depth": 9.92,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "ZBAO",
+     "base": 4.44,
+     "sweep_low": 4.05,
+     "depth": 8.78,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    }
+   ],
+   "2026-09-25": [
+    {
+     "sym": "ENVB",
+     "base": 1.28,
+     "sweep_low": 1.1701,
+     "depth": 8.59,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "FUFU",
+     "base": 1.33,
+     "sweep_low": 1.18,
+     "depth": 11.28,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "MDXH",
+     "base": 0.45,
+     "sweep_low": 0.4,
+     "depth": 11.11,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "ORBS",
+     "base": 0.6152,
+     "sweep_low": 0.5656,
+     "depth": 8.06,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "PPCB",
+     "base": 0.6253,
+     "sweep_low": 0.56,
+     "depth": 10.44,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "RANI",
+     "base": 0.66,
+     "sweep_low": 0.6126,
+     "depth": 7.18,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "UPXI",
+     "base": 0.76,
+     "sweep_low": 0.7001,
+     "depth": 7.88,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "VSME",
+     "base": 0.92,
+     "sweep_low": 0.806,
+     "depth": 12.39,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    }
+   ],
+   "2026-09-28": [
+    {
+     "sym": "CLGN",
+     "base": 3.01,
+     "sweep_low": 2.637,
+     "depth": 12.39,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "DCGO",
+     "base": 0.345,
+     "sweep_low": 0.3107,
+     "depth": 9.94,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "FCHL",
+     "base": 0.95,
+     "sweep_low": 0.8645,
+     "depth": 9.0,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "NAMI",
+     "base": 1.7001,
+     "sweep_low": 1.5502,
+     "depth": 8.82,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "NMRA",
+     "base": 0.6805,
+     "sweep_low": 0.6327,
+     "depth": 7.02,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "SKYA",
+     "base": 1.09,
+     "sweep_low": 0.968,
+     "depth": 11.19,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "SLNH",
+     "base": 1.15,
+     "sweep_low": 1.03,
+     "depth": 10.43,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    }
+   ],
+   "2026-09-29": [
+    {
+     "sym": "CHSN",
+     "base": 1.02,
+     "sweep_low": 0.915,
+     "depth": 10.29,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "CYN",
+     "base": 0.7062,
+     "sweep_low": 0.643,
+     "depth": 8.95,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "KMRK",
+     "base": 0.95,
+     "sweep_low": 0.88,
+     "depth": 7.37,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "MREO",
+     "base": 0.2655,
+     "sweep_low": 0.2385,
+     "depth": 10.17,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "NSPR",
+     "base": 0.65,
+     "sweep_low": 0.6,
+     "depth": 7.69,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "PLUR",
+     "base": 0.98,
+     "sweep_low": 0.9,
+     "depth": 8.16,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "RKDA",
+     "base": 0.28,
+     "sweep_low": 0.25,
+     "depth": 10.71,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "SURG",
+     "base": 0.1456,
+     "sweep_low": 0.1345,
+     "depth": 7.62,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    }
+   ],
+   "2026-09-30": [
+    {
+     "sym": "DXST",
+     "base": 2.17,
+     "sweep_low": 1.9,
+     "depth": 12.44,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "EDSA",
+     "base": 3.8395,
+     "sweep_low": 3.47,
+     "depth": 9.62,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "ENGS",
+     "base": 2.71,
+     "sweep_low": 2.4,
+     "depth": 11.44,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "GRAN",
+     "base": 0.85,
+     "sweep_low": 0.7763,
+     "depth": 8.67,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "ONMD",
+     "base": 5.602,
+     "sweep_low": 5.2,
+     "depth": 7.18,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    }
+   ],
+   "2026-10-01": [
+    {
+     "sym": "BETR",
+     "base": 11.111,
+     "sweep_low": 9.81,
+     "depth": 11.71,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "BIOX",
+     "base": 0.3333,
+     "sweep_low": 0.3013,
+     "depth": 9.6,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "FUFU",
+     "base": 1.33,
+     "sweep_low": 1.18,
+     "depth": 11.28,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "INSG",
+     "base": 3.93,
+     "sweep_low": 3.58,
+     "depth": 8.91,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "IZM",
+     "base": 1.13,
+     "sweep_low": 1.02,
+     "depth": 9.73,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "OBAI",
+     "base": 0.2081,
+     "sweep_low": 0.186,
+     "depth": 10.62,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "OIO",
+     "base": 1.5501,
+     "sweep_low": 1.36,
+     "depth": 12.26,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "OMEX",
+     "base": 0.6533,
+     "sweep_low": 0.585,
+     "depth": 10.45,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "RDAC",
+     "base": 5.025,
+     "sweep_low": 4.5,
+     "depth": 10.45,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "SHFS",
+     "base": 1.2264,
+     "sweep_low": 1.1,
+     "depth": 10.31,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "SKYA",
+     "base": 1.1,
+     "sweep_low": 0.968,
+     "depth": 12.0,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "SSM",
+     "base": 1.18,
+     "sweep_low": 1.05,
+     "depth": 11.02,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    }
+   ],
+   "2026-10-02": [
+    {
+     "sym": "BCTX",
+     "base": 3.61,
+     "sweep_low": 3.27,
+     "depth": 9.42,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "CHSN",
+     "base": 0.99,
+     "sweep_low": 0.915,
+     "depth": 7.58,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "CRE",
+     "base": 2.6001,
+     "sweep_low": 2.31,
+     "depth": 11.16,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "GDC",
+     "base": 1.39,
+     "sweep_low": 1.24,
+     "depth": 10.79,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "KMRK",
+     "base": 0.9601,
+     "sweep_low": 0.88,
+     "depth": 8.34,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "ORBS",
+     "base": 0.625,
+     "sweep_low": 0.5656,
+     "depth": 9.5,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    }
+   ],
+   "2026-10-05": [
+    {
+     "sym": "CTNT",
+     "base": 2.65,
+     "sweep_low": 2.31,
+     "depth": 12.83,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "CTSO",
+     "base": 3.94,
+     "sweep_low": 3.66,
+     "depth": 7.11,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "IPW",
+     "base": 1.15,
+     "sweep_low": 1.04,
+     "depth": 9.57,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "NIXX",
+     "base": 0.3019,
+     "sweep_low": 0.2749,
+     "depth": 8.94,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "XELB",
+     "base": 0.625,
+     "sweep_low": 0.57,
+     "depth": 8.8,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    }
+   ],
+   "2026-10-06": [
+    {
+     "sym": "CABR",
+     "base": 1.19,
+     "sweep_low": 1.05,
+     "depth": 11.76,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "IVDA",
+     "base": 0.2313,
+     "sweep_low": 0.211,
+     "depth": 8.78,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "KMRK",
+     "base": 0.975,
+     "sweep_low": 0.88,
+     "depth": 9.74,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "OFAL",
+     "base": 0.4519,
+     "sweep_low": 0.4152,
+     "depth": 8.12,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "SUPX",
+     "base": 6.2,
+     "sweep_low": 5.61,
+     "depth": 9.52,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    }
+   ],
+   "2026-10-07": [
+    {
+     "sym": "OMEX",
+     "base": 0.6595,
+     "sweep_low": 0.585,
+     "depth": 11.3,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    }
+   ],
+   "2026-10-08": [
+    {
+     "sym": "CHSN",
+     "base": 1.05,
+     "sweep_low": 0.915,
+     "depth": 12.86,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "COOT",
+     "base": 0.39,
+     "sweep_low": 0.35,
+     "depth": 10.26,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "CURX",
+     "base": 3.98,
+     "sweep_low": 3.576,
+     "depth": 10.15,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "ENVB",
+     "base": 1.27,
+     "sweep_low": 1.1701,
+     "depth": 7.87,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "EYPT",
+     "base": 3.415,
+     "sweep_low": 3.05,
+     "depth": 10.69,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "FLYE",
+     "base": 1.36,
+     "sweep_low": 1.2201,
+     "depth": 10.29,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "FRGT",
+     "base": 0.2313,
+     "sweep_low": 0.2129,
+     "depth": 7.96,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "KPLT",
+     "base": 4.21,
+     "sweep_low": 3.85,
+     "depth": 8.55,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "KUST",
+     "base": 4.093,
+     "sweep_low": 3.76,
+     "depth": 8.14,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "OIO",
+     "base": 1.5501,
+     "sweep_low": 1.36,
+     "depth": 12.26,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "PMAX",
+     "base": 0.75,
+     "sweep_low": 0.6825,
+     "depth": 9.0,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "SHPH",
+     "base": 2.96,
+     "sweep_low": 2.5764,
+     "depth": 12.96,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": false
+    }
+   ],
+   "2026-10-09": [
+    {
+     "sym": "BRLS",
+     "base": 0.7801,
+     "sweep_low": 0.7,
+     "depth": 10.27,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "CGTL",
+     "base": 3.42,
+     "sweep_low": 3.0,
+     "depth": 12.28,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "HUHU",
+     "base": 2.7,
+     "sweep_low": 2.38,
+     "depth": 11.85,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "RDAC",
+     "base": 5.1,
+     "sweep_low": 4.5,
+     "depth": 11.76,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "SDA",
+     "base": 0.4219,
+     "sweep_low": 0.388,
+     "depth": 8.04,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "XCH",
+     "base": 2.8103,
+     "sweep_low": 2.55,
+     "depth": 9.26,
+     "VOL": true,
+     "NODE": false,
+     "CANDLE": true
+    }
+   ],
+   "2026-10-12": [
+    {
+     "sym": "ATPC",
+     "base": 2.02,
+     "sweep_low": 1.8,
+     "depth": 10.89,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "GELS",
+     "base": 0.486,
+     "sweep_low": 0.4364,
+     "depth": 10.21,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "GURE",
+     "base": 2.85,
+     "sweep_low": 2.6227,
+     "depth": 7.98,
+     "VOL": true,
+     "NODE": true,
+     "CANDLE": false
+    }
+   ],
+   "2026-10-13": [
+    {
+     "sym": "CLGN",
+     "base": 3.013,
+     "sweep_low": 2.637,
+     "depth": 12.48,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": true
+    },
+    {
+     "sym": "GEMI",
+     "base": 3.74,
+     "sweep_low": 3.385,
+     "depth": 9.49,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "IBG",
+     "base": 0.7639,
+     "sweep_low": 0.7101,
+     "depth": 7.04,
+     "VOL": null,
+     "NODE": null,
+     "CANDLE": true
+    },
+    {
+     "sym": "IQST",
+     "base": 0.9905,
+     "sweep_low": 0.8912,
+     "depth": 10.03,
+     "VOL": false,
+     "NODE": true,
+     "CANDLE": false
+    },
+    {
+     "sym": "LIQT",
+     "base": 0.405,
+     "sweep_low": 0.3701,
+     "depth": 8.62,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": true
+    },
+    {
+     "sym": "NAKA",
+     "base": 4.545,
+     "sweep_low": 4.185,
+     "depth": 7.92,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "QUCY",
+     "base": 1.03,
+     "sweep_low": 0.9,
+     "depth": 12.62,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    },
+    {
+     "sym": "SAGT",
+     "base": 0.4149,
+     "sweep_low": 0.38,
+     "depth": 8.4,
+     "VOL": false,
+     "NODE": false,
+     "CANDLE": false
+    }
+   ]
+  }
+ },
+ "today_layer2": {
+  "asof": "2026-10-13",
+  "watchlist": [
+   {
+    "sym": "AFJK",
+    "ready": false,
+    "asof": "2026-10-12",
+    "rsi": 52.6,
+    "stage": null,
+    "held": null,
+    "bounce": null,
+    "vs_bottom": null,
+    "missing": [
+     "RSI باقي 25.6 نقطة إلى 27",
+     "لا دورة ارتكاز مقروءة"
+    ]
+   },
+   {
+    "sym": "ARQQ",
+    "ready": true,
+    "asof": "2026-10-13",
+    "rsi": 33.3,
+    "stage": null,
+    "held": null,
+    "bounce": null,
+    "vs_bottom": null,
+    "missing": [
+     "RSI باقي 6.3 نقطة إلى 27",
+     "لا دورة ارتكاز مقروءة"
+    ]
+   },
+   {
+    "sym": "BCTX",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 42.4,
+    "stage": 4,
+    "held": 25,
+    "bounce": 11.8,
+    "vs_bottom": 9.4,
+    "missing": [
+     "RSI باقي 15.4 نقطة إلى 27",
+     "ارتداد الاختبار 12% من 15-20%"
+    ]
+   },
+   {
+    "sym": "BNR",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 49.9,
+    "stage": 4,
+    "held": 41,
+    "bounce": 29.5,
+    "vs_bottom": 68.0,
+    "missing": [
+     "RSI باقي 22.9 نقطة إلى 27",
+     "فوق المنطقة بـ53.0%"
+    ]
+   },
+   {
+    "sym": "BRAI",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 40.2,
+    "stage": 4,
+    "held": 3,
+    "bounce": 22.5,
+    "vs_bottom": 12.3,
+    "missing": [
+     "RSI باقي 13.2 نقطة إلى 27",
+     "الثبات 3 من 5 جلسات"
+    ]
+   },
+   {
+    "sym": "BTCS",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 38.4,
+    "stage": 4,
+    "held": 51,
+    "bounce": 12.3,
+    "vs_bottom": 25.2,
+    "missing": [
+     "RSI باقي 11.4 نقطة إلى 27",
+     "ارتداد الاختبار 12% من 15-20%",
+     "فوق المنطقة بـ10.2%"
+    ]
+   },
+   {
+    "sym": "CAST",
+    "ready": true,
+    "asof": "2026-10-13",
+    "rsi": 40.6,
+    "stage": 2,
+    "held": 0,
+    "bounce": 188.0,
+    "vs_bottom": 36.1,
+    "missing": [
+     "RSI باقي 13.6 نقطة إلى 27",
+     "فوق المنطقة بـ21.1%"
+    ]
+   },
+   {
+    "sym": "CELU",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 52.0,
+    "stage": 2,
+    "held": 0,
+    "bounce": 324.3,
+    "vs_bottom": 139.6,
+    "missing": [
+     "RSI باقي 25.0 نقطة إلى 27",
+     "فوق المنطقة بـ124.6%"
+    ]
+   },
+   {
+    "sym": "CRE",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 46.8,
+    "stage": null,
+    "held": null,
+    "bounce": null,
+    "vs_bottom": null,
+    "missing": [
+     "RSI باقي 19.8 نقطة إلى 27",
+     "لا دورة ارتكاز مقروءة"
+    ]
+   },
+   {
+    "sym": "CURX",
+    "ready": false,
+    "asof": "2026-10-12",
+    "rsi": 52.4,
+    "stage": null,
+    "held": null,
+    "bounce": null,
+    "vs_bottom": null,
+    "missing": [
+     "RSI باقي 25.4 نقطة إلى 27",
+     "لا دورة ارتكاز مقروءة"
+    ]
+   },
+   {
+    "sym": "ENGN",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 31.7,
+    "stage": 3,
+    "held": 0,
+    "bounce": 25.3,
+    "vs_bottom": -2.4,
+    "missing": [
+     "RSI باقي 4.7 نقطة إلى 27",
+     "الثبات 0 من 5 جلسات"
+    ]
+   },
+   {
+    "sym": "FUFU",
+    "ready": true,
+    "asof": "2026-10-13",
+    "rsi": 47.3,
+    "stage": 3,
+    "held": 2,
+    "bounce": 27.0,
+    "vs_bottom": 5.6,
+    "missing": [
+     "RSI باقي 20.3 نقطة إلى 27",
+     "الثبات 2 من 5 جلسات"
+    ]
+   },
+   {
+    "sym": "GNPX",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 30.1,
+    "stage": 3,
+    "held": 0,
+    "bounce": 13.3,
+    "vs_bottom": -7.0,
+    "missing": [
+     "RSI باقي 3.1 نقطة إلى 27",
+     "ارتداد الاختبار 13% من 15-20%",
+     "الثبات 0 من 5 جلسات"
+    ]
+   },
+   {
+    "sym": "GVH",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 39.8,
+    "stage": null,
+    "held": null,
+    "bounce": null,
+    "vs_bottom": null,
+    "missing": [
+     "RSI باقي 12.8 نقطة إلى 27",
+     "لا دورة ارتكاز مقروءة"
+    ]
+   },
+   {
+    "sym": "JZXN",
+    "ready": true,
+    "asof": "2026-10-13",
+    "rsi": 44.6,
+    "stage": null,
+    "held": null,
+    "bounce": null,
+    "vs_bottom": null,
+    "missing": [
+     "RSI باقي 17.6 نقطة إلى 27",
+     "لا دورة ارتكاز مقروءة"
+    ]
+   },
+   {
+    "sym": "KELYB",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 49.3,
+    "stage": null,
+    "held": null,
+    "bounce": null,
+    "vs_bottom": null,
+    "missing": [
+     "RSI باقي 22.3 نقطة إلى 27",
+     "لا دورة ارتكاز مقروءة"
+    ]
+   },
+   {
+    "sym": "KMRK",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 63.8,
+    "stage": 2,
+    "held": 0,
+    "bounce": 63.6,
+    "vs_bottom": 48.9,
+    "missing": [
+     "RSI باقي 36.8 نقطة إلى 27",
+     "فوق المنطقة بـ33.9%"
+    ]
+   },
+   {
+    "sym": "LFS",
+    "ready": true,
+    "asof": "2026-10-13",
+    "rsi": 43.6,
+    "stage": null,
+    "held": null,
+    "bounce": null,
+    "vs_bottom": null,
+    "missing": [
+     "RSI باقي 16.6 نقطة إلى 27",
+     "لا دورة ارتكاز مقروءة"
+    ]
+   },
+   {
+    "sym": "LIMN",
+    "ready": true,
+    "asof": "2026-10-13",
+    "rsi": 38.8,
+    "stage": 3,
+    "held": 0,
+    "bounce": 17.0,
+    "vs_bottom": -0.3,
+    "missing": [
+     "RSI باقي 11.8 نقطة إلى 27",
+     "الثبات 0 من 5 جلسات"
+    ]
+   },
+   {
+    "sym": "PRHI",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 57.2,
+    "stage": 4,
+    "held": 41,
+    "bounce": 13.5,
+    "vs_bottom": 86.0,
+    "missing": [
+     "RSI باقي 30.2 نقطة إلى 27",
+     "ارتداد الاختبار 14% من 15-20%",
+     "فوق المنطقة بـ71.0%"
+    ]
+   },
+   {
+    "sym": "PSIG",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 53.3,
+    "stage": 2,
+    "held": 0,
+    "bounce": 396.7,
+    "vs_bottom": 296.2,
+    "missing": [
+     "RSI باقي 26.3 نقطة إلى 27",
+     "فوق المنطقة بـ281.2%"
+    ]
+   },
+   {
+    "sym": "RDAC",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 46.7,
+    "stage": 2,
+    "held": 0,
+    "bounce": 90.7,
+    "vs_bottom": 20.7,
+    "missing": [
+     "RSI باقي 19.7 نقطة إلى 27",
+     "فوق المنطقة بـ5.7%"
+    ]
+   },
+   {
+    "sym": "SXTP",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 37.5,
+    "stage": 3,
+    "held": 0,
+    "bounce": 16.0,
+    "vs_bottom": -1.7,
+    "missing": [
+     "RSI باقي 10.5 نقطة إلى 27",
+     "الثبات 0 من 5 جلسات"
+    ]
+   },
+   {
+    "sym": "UPC",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 43.1,
+    "stage": 2,
+    "held": 0,
+    "bounce": 173.1,
+    "vs_bottom": 35.4,
+    "missing": [
+     "RSI باقي 16.1 نقطة إلى 27",
+     "فوق المنطقة بـ20.4%"
+    ]
+   },
+   {
+    "sym": "WKHS",
+    "ready": false,
+    "asof": "2026-10-13",
+    "rsi": 53.1,
+    "stage": 2,
+    "held": 0,
+    "bounce": 57.6,
+    "vs_bottom": 17.9,
+    "missing": [
+     "RSI باقي 26.1 نقطة إلى 27",
+     "فوق المنطقة بـ2.9%"
+    ]
+   }
+  ],
+  "near_watch_today": 639
+ }
+}

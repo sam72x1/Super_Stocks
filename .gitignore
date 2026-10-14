@@ -85,3 +85,6 @@ fm_forensics/phase6/raw/
 faisal_engine/out/replay_std*.txt
 # 👁️ (2026-10-10) سجلُّ إعادة القراءة البصريّة T-REREAD — مُخرَجاتٌ حتميّة يعيدها `reread_build.py --check`
 !fm_forensics/reread/*.csv
+# 🧭 (2026-10-14) جداولُ T-LAYERS — التشغيلةُ الأولى منشورةٌ لا تُمحى (`data/run1/`) والثانيةُ الحاكمة (`data/`)
+!fm_forensics/layers/data/*.csv
+!fm_forensics/layers/data/run1/*.csv

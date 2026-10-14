@@ -61,6 +61,14 @@ M = [
     ("m37 determined-days floor 10", "MIN_KNOWN_DAYS = 15 ", "MIN_KNOWN_DAYS = 10 "),
     ("m38 merged gate ignores the addendum", "    if got != ADDENDUM_SHA256:\n        print(f\"⛔ addendum 1 is not on origin/main",
      "    if False:\n        print(f\"⛔ addendum 1 is not on origin/main"),
+    # addendum 2: one trigger per base across a day that reads another base · the gate on addendum 2 · agreement on Q only
+    ("m39 a day with another base ends the search", "            continue                       # addendum 2: a day reading another base",
+     "            break                          # addendum 2: a day reading another base"),
+    ("m40 merged gate ignores addendum 2", "    if got != ADDENDUM2_SHA256:\n        print(f\"⛔ addendum 2 is not on origin/main",
+     "    if False:\n        print(f\"⛔ addendum 2 is not on origin/main"),
+    ("m41 agreement counts non-Q triggers", "    fresh_set = {(e[\"sym\"], d) for d in over for e in trig[d] if e[\"sym\"] in mem[d][\"Q\"]}",
+     "    fresh_set = {(e[\"sym\"], d) for d in over for e in trig[d]}"),
+    ("m42 agreement reads past the archive end", "    over = [d for d in days if d <= end]", "    over = list(days)"),
 ]
 orig = open(P, encoding="utf-8").read()
 env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1", FAISAL_ONLY="1")
