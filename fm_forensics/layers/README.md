@@ -5,15 +5,16 @@ Telegram, threshold, root or LOGIC_VERSION change. Nothing here is imported by t
 
 | file | role |
 |---|---|
-| `T_LAYERS_prereg.md` | the contract — SHA-256 pinned in `layers_test.py`; merged into `main` before any trigger is counted |
-| `layers_test.py` | stage A (frequency over 20 sessions) and stage B (the 107 movers: captured · missed with the failing condition · false alarms · production ready on the same window · sweep depth) ⟶ `data/layers_result.json` · `data/*.csv` · `--guards` LG1–LG22 |
-| `layers_mutate.py` | mutation round over the guards (29/29 fall, no crash) |
+| `T_LAYERS_prereg.md` | the contract — SHA-256 pinned in `layers_test.py`; merged into `main` (#619) before any trigger is counted |
+| `T_LAYERS_addendum_1.md` | addendum 1 (2026-10-14): GEN5 daily bars carry no volume (the first sealed run crashed before any count) ⟶ one volume source per symbol (today_bars, else the rank archive) · unknown ≠ zero · undetermined combo days excluded · under 15 of 20 ⟶ no measure · pinned and merged before any count |
+| `layers_test.py` | stage A (frequency over 20 sessions) and stage B (the 107 movers: captured · missed with the failing condition · false alarms · production ready on the same window · sweep depth) ⟶ `data/layers_result.json` · `data/*.csv` · `--guards` LG1–LG28 |
+| `layers_mutate.py` | mutation round over the guards (39/39 fall, no crash) |
 
 The trigger is read on the production cycle `Super_stock.pivot_cycle_state` by name (base = `pc.bottom`); the five core conditions are
 Faisal's words (`IMG_0297` 7–13 % · `TG_57894` the reclaim · one trigger per base · invalidation under the sweep low). The boosters VOL
 (`link100_probe.daily_feats`, by name) · NODE and CANDLE (engineering) are measured one by one and combined only by the written rule.
 
-Order (repo root; the run refuses with exit 9 unless origin/main carries the pinned contract and the production functions are unchanged):
+Order (repo root; the run refuses with exit 9 unless origin/main carries the pinned contract and addendum 1 and the production functions are unchanged):
 
     git fetch --force origin main
     python3 fm_forensics/layers/layers_test.py --guards
