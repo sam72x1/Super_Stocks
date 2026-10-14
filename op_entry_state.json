@@ -367,7 +367,7 @@
   "updates": 0,
   "vol_x": 3.1,
   "peak_usd": 92636,
-  "last_eval_ms": 1791990600000,
+  "last_eval_ms": 1791990540000,
   "pulse_ms": 1791994800000,
   "anchor_price": 1.14,
   "anchor_open": 1.085,
@@ -675,9 +675,9 @@
    "M5",
    "M30"
   ],
-  "updates": 3,
+  "updates": 1,
   "vol_x": 8.0,
-  "peak_usd": 6293771,
+  "peak_usd": 1036919,
   "last_eval_ms": 1791990120000,
   "pulse_ms": 1791994800000,
   "anchor_price": 1.98,
@@ -906,7 +906,7 @@
   "updates": 0,
   "vol_x": 6.3,
   "peak_usd": 32503,
-  "last_eval_ms": 1791991380000,
+  "last_eval_ms": 1791991320000,
   "pulse_ms": 1791994620000,
   "anchor_price": 5.9,
   "anchor_open": 5.58,
@@ -1057,7 +1057,7 @@
   "updates": 0,
   "vol_x": 10.0,
   "peak_usd": 45845,
-  "last_eval_ms": 1791985980000,
+  "last_eval_ms": 1791985860000,
   "pulse_ms": 1791994800000,
   "anchor_price": 0.265,
   "anchor_open": 0.2469,
@@ -3085,7 +3085,7 @@
   "updates": 0,
   "vol_x": 5.0,
   "peak_usd": 82615,
-  "last_eval_ms": 1791990600000,
+  "last_eval_ms": 1791990540000,
   "pulse_ms": 1791994740000,
   "anchor_price": 1.15,
   "anchor_open": 1.08,
@@ -3477,10 +3477,10 @@
   "date": "2026-10-13"
  },
  "LIQ:UONE": {
-  "date": "2026-10-14",
   "last_eval_ms": 1791994740000,
   "tc_cum": 7773.1006,
-  "tc_seen_ms": 1791994740000
+  "tc_seen_ms": 1791994740000,
+  "date": "2026-10-14"
  },
  "LIQ:EPOW": {
   "last_eval_ms": 1791991260000,
@@ -4226,7 +4226,7 @@
   "updates": 0,
   "vol_x": 4.8,
   "peak_usd": 89982,
-  "last_eval_ms": 1791994740000,
+  "last_eval_ms": 1791990300000,
   "pulse_ms": 1791994800000,
   "anchor_price": 1.01,
   "anchor_open": 0.849,
@@ -4253,9 +4253,7 @@
   },
   "e5": 0.94,
   "exit_ms": 1791990900000,
-  "date": "2026-10-14",
-  "tc_cum": 2480083.720016524,
-  "tc_seen_ms": 1791994740000
+  "date": "2026-10-14"
  },
  "LIQ:PBM": {
   "last_eval_ms": 1791994740000,
@@ -4896,10 +4894,7 @@
   "date": "2026-10-14"
  },
  "LIQ:HERE": {
-  "date": "2026-10-14",
-  "last_eval_ms": 1791921540000,
-  "tc_cum": 5952.697700000001,
-  "tc_seen_ms": 1791921540000
+  "date": "2026-10-14"
  },
  "LIQ:MFI": {
   "last_eval_ms": 1791987780000,
