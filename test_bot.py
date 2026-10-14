@@ -87798,6 +87798,43 @@ except Exception as _e:                                              # noqa: BLE
 check("🧾 FSW1 حصادُ سحوب فيصل `T-FSWEEP`: حرّاسُ الأداة تمرّ · والسجلُّ المسلسلُ بالبصمات سليم · والعقدُ ببصمته المثبَّتة · "
       "والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد",
       _fsw1, _fsw1_w[:420])
+# COL1 — 🎨 **`T-COLOUR` استخراجُ خطوط فيصل الملوَّنة وقياسُ نسبها الداخليّة** (أمرُ المالك 2026-10-14 · `fm_forensics/colour/T_COLOUR_protocol.md`)
+#    — (أ) حرّاسُ البنّاء الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ سليم (`--validate`: صورةٌ لكلّ سجلّ · rev بسبب · وسومٌ قانونيّة
+#    · `entries_text` أرقام) · (ج) بصمتا البروتوكول والسجلّ في البنّاء هما بصمتا الملفّين (تعديلُ أحدهما بلا دبّوسٍ جديد يُسقط القفل).
+try:
+    import os as _col_os
+    import re as _col_re
+    import sys as _col_sys
+    import hashlib as _col_h
+    import subprocess as _col_sp
+    _col_dir = _col_os.path.join("fm_forensics", "colour")
+    _col_tool = _col_os.path.join(_col_dir, "colour_build.py")
+    _col_env = dict(_col_os.environ, PYTHONDONTWRITEBYTECODE="1")
+
+    def _col_run(*a):
+        _r = _col_sp.run([_col_sys.executable, "-B", _col_tool, *a], capture_output=True, text=True, timeout=600, env=_col_env)
+        return _r.returncode, _r.stdout + _r.stderr
+    _col_g = _col_run("--guards")
+    _col_v = _col_run("--validate")
+    _col_src = open(_col_tool, encoding="utf-8").read()
+
+    def _col_sha(rel):
+        with open(_col_os.path.join(_col_dir, rel), "rb") as _f:
+            return _col_h.sha256(_f.read()).hexdigest()
+    _col_pp = _col_re.search(r'^PROTO_SHA256 = "([0-9a-f]{64})"', _col_src, _col_re.M)
+    _col_pr = _col_re.search(r'^REC_SHA256 = "([0-9a-f]{64})"', _col_src, _col_re.M)
+    _col_guards = _col_g[0] == 0 and "❌" not in _col_g[1] and "✅ الحرّاس كلُّهم" in _col_g[1] and "Traceback" not in _col_g[1]
+    _col_valid = _col_v[0] == 0 and "✅ السجلُّ سليم" in _col_v[1] and "Traceback" not in _col_v[1]
+    _col_pins = bool(_col_pp and _col_pr) and _col_pp.group(1) == _col_sha("T_COLOUR_protocol.md") \
+        and _col_pr.group(1) == _col_sha(_col_os.path.join("data", "colour_records.jsonl"))
+    _col1 = _col_guards and _col_valid and _col_pins
+    _col1_w = (f"guards={_col_g[0]} · validate={_col_v[0]} · pins={_col_pins} · "
+               f"{[_l for _l in _col_g[1].splitlines() if _l.startswith('❌')][:3]} {_col_v[1][-200:]}")
+except Exception as _e:                                              # noqa: BLE001
+    _col1, _col1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🎨 COL1 `T-COLOUR`: حرّاسُ البنّاء تمرّ · والسجلُّ سليمٌ (صورةٌ لكلّ سجلّ · rev بسبب · وسومٌ قانونيّة) · "
+      "وبصمتا البروتوكول والسجلّ في البنّاء هما بصمتا الملفّين",
+      _col1, _col1_w[:420])
 # ══════════════════════════════════════════════════════════════════════════
 # 📉💾 BWP1-BWP7 — «فعّل حفظ سجل المتاح» (أمرُ المالك 2026-10-14 · متابعةُ `T-BORROW-FALL`): السجلُّ يُدفَع · الأفقُ جلساتٌ (العقد §④)
 #    · الترتيبُ بأوّل رصدٍ وتعادلُه ببصمةٍ لا بالأبجديّة · المجتمعُ من سجلّ البِركة (اليوميّ والتجديد) · لحظةُ UTC لكلّ صفّ ·
