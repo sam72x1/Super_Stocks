@@ -13,6 +13,10 @@ Weights w = L1 (decisionality) × L2 (evidence class) × L3 (1 + times named in 
     python3 fm_forensics/score/score_test.py --guards   # synthetic guards (no population read)
     python3 fm_forensics/score/score_test.py            # the sealed run (once, after the contract is on main)
     python3 fm_forensics/score/score_test.py --today    # stage D: today's near-watch list ranked (needs data/today_bars.json.gz)
+
+🔒 CLOSED (owner «اقفل T-SCORE» 2026-10-14 · `T_SCORE_result.md §⑨`): the sealed run and `--today` exit 8 before any read unless
+SCORE_REOPEN=1 (an acknowledgement of the three reopen conditions, read as the literal "1"). `--guards` stays runnable: synthetic
+inputs only — it reads no population and writes no result (the mutation round depends on it).
 """
 import csv
 import gzip
@@ -48,6 +52,41 @@ OUT = os.path.join(HERE, "data", "score_result.json")
 UNITS_CSV = os.path.join(HERE, "data", "score_units.csv")
 TODAY_BARS = os.path.join(HERE, "data", "today_bars.json.gz")
 TODAY_CSV = os.path.join(HERE, "data", "today_ranked.csv")
+
+# ── 🔒 executed closure — «اقفل T-SCORE» (owner, 2026-10-14) ─────────────────────────────────────────────
+#   The verdict was C «لا فصل» (`T_SCORE_result.md`) ⟶ the closure is executed, not written: run() and --today exit 8 before
+#   reading the contract, the pins, the bars or near_watch.json — so the sealed results cannot be overwritten either.
+AXIS_CLOSED = True
+REOPEN_ENV = "SCORE_REOPEN"
+CLOSED_RC = 8                   # distinct from 0 (ok) · 1 (guards failed) · 9 (contract / pins)
+
+
+def _closed_now():
+    """Closed right now? Read at call time; the acknowledgement is the literal "1" (a workflow input defaulting to "0" would
+    otherwise lift the closure on every run while looking closed)."""
+    return AXIS_CLOSED and (os.environ.get(REOPEN_ENV) or "").strip() != "1"
+
+
+def closure_notice():
+    """The closure text — a pure function so its content is locked, not its shape."""
+    return [
+        "🔒🔴 محورُ «درجة القرب الموزونة من كلام فيصل» (`T-SCORE`) مُغلَق — بأمر المالك «اقفل T-SCORE» (2026-10-14) · "
+        "`fm_forensics/score/T_SCORE_result.md §⑨`.",
+        "",
+        "⚖️ السبب — بالأرقام: الحكمُ C «لا فصل» (31 حدثًا · 31 رمزًا · 155 سحبةَ ضبط · مرساةُ البداية O · يومُ القرار A−2):",
+        "   • الدرجةُ الحاكمة S: AUC 0.555 [0.465، 0.652] — حدُّها الأدنى دون النصف.",
+        "   • الأوزانُ لم تُضف شيئًا: S − U = 0.000 [−0.039، +0.045] (الموزونُ = غيرُ الموزون).",
+        "   • والمسحُ البسيط BASE2 أقوى: 0.613 [0.523، 0.700] · و S − المسح = −0.058 [−0.171، +0.052].",
+        "   • والذي يفرّق RSI وحدَه — وترتيبُ الأسهم بـRSI محورٌ مُغلَقٌ آخر (`T-RSI-RANK` · `RSIRANK_REOPEN`).",
+        "",
+        "🔓 ولا يُعاد فتحُه إلّا بثلاثةٍ معًا:",
+        "   ① مصدرُ بياناتٍ جديدٌ لم يُقَس (الفلوت والمتاح في وقتهما · التوقيتُ داخل الجلسة · حالاتُ التطبيق) — "
+        "وإعادةُ وزنِ المكوّنات نفسِها على الشموع اليوميّة نفسِها ليست مصدرًا.",
+        "   ② تسجيلٌ مسبقٌ جديد — العقدُ `T_SCORE_prereg.md` مدموجٌ لا يُعدَّل، والأوزانُ لا تُضبَط على البيانات.",
+        "   ③ إذنُ المالك.",
+        "   ⚖️ والمفتاحُ SCORE_REOPEN=1 إقرارٌ بالثلاثة لا التفافٌ عليها — ويُقرأ «1» حرفيًّا.",
+    ]
+
 
 # ── frozen design (the contract quotes each one) ───────────────────────────────────────────────────────
 K_GAP = 2                       # decision day t = A − 2 (A − 1 is never read) — same guard as T-HEAT
@@ -699,10 +738,22 @@ def guards():
     return fails
 
 
-if __name__ == "__main__":
-    if "--guards" in sys.argv:
-        sys.exit(1 if guards() else 0)
-    if "--today" in sys.argv:
+def main(argv=None):
+    """The single entry point. `--guards` runs first (synthetic, no population, no result written); every other mode is
+    gated by the executed closure before any read."""
+    argv = sys.argv[1:] if argv is None else argv
+    if "--guards" in argv:
+        return 1 if guards() else 0
+    if _closed_now():
+        for ln in closure_notice():
+            print(ln)
+        return CLOSED_RC
+    if "--today" in argv:
         today()
-        sys.exit(0)
+        return 0
     run()
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
