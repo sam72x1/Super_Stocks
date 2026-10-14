@@ -965,7 +965,7 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 1,
   "vol_x": 3.1,
   "peak_usd": 186787,
   "last_eval_ms": 1792008900000,
@@ -1868,18 +1868,6 @@
   "date": "2026-10-14"
  },
  "LIQ:SHFS": {
-  "last_eval_ms": 1792018320000,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1791971580000,
-   "anchor_price": 0.248,
-   "anchor_low": 0.2171,
-   "e5": 0.2375,
-   "exit_ms": 1791972180000
-  },
-  "tc_cum": 973766.9838658993,
-  "tc_seen_ms": 1792018200000,
-  "date": "2026-10-14",
   "anchor_ms": 1792018260000,
   "last_ms": 1792018620000,
   "sent": [
@@ -1888,15 +1876,25 @@
   "updates": 0,
   "vol_x": 32.1,
   "peak_usd": 39735,
+  "last_eval_ms": 1792018260000,
   "pulse_ms": 1792018620000,
   "anchor_price": 0.294,
   "anchor_open": 0.277,
   "anchor_low": 0.27,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1791971580000,
+   "anchor_price": 0.248,
+   "anchor_low": 0.2171,
+   "e5": 0.2375,
+   "exit_ms": 1791972180000
+  },
   "pre_done": true,
   "pre_hi": 0.2775,
   "pre_usd": 50493,
   "pre_n": 48,
-  "exit_ms": 1792018380000
+  "exit_ms": 1792018380000,
+  "date": "2026-10-14"
  },
  "LIQ:SIDU": {
   "last_eval_ms": 1792018560000,
@@ -5719,8 +5717,8 @@
  "CDT": "2026-10-14",
  "YYAI": "2026-10-14",
  "MKDW": "2026-10-14",
- "CIGL": "2026-10-14",
  "HDRN": "2026-10-14",
+ "CIGL": "2026-10-14",
  "FFR": "2026-10-14",
  "GMEX": "2026-10-14",
  "FLYE": "2026-10-14",
