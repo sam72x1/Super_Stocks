@@ -35,6 +35,8 @@ import gen5_ext as X        # noqa: E402
 PREREG = os.path.join(HERE, "T_LAYERS_prereg.md")
 ADDENDUM = os.path.join(HERE, "T_LAYERS_addendum_1.md")
 ADDENDUM_SHA256 = "4a3751bef95c8af86289891b8e78bd7cc60910eb736748eaf68d4cdf8ecb5257"
+ADDENDUM2 = os.path.join(HERE, "T_LAYERS_addendum_2.md")
+ADDENDUM2_SHA256 = "d9a748d6c707476a2c248810eebbf7ba5d933009f170651d8ae52f5306450dbf"
 TODAY_BARS = os.path.join(ROOT, "fm_forensics", "score", "data", "today_bars.json.gz")
 PREREG_SHA256 = "d847849edae25026de2d9fd7e56cec3eeb3aa966d65178449f7e723d9e88dd4c"
 PROD_SRC_SHA256 = "ef96b9bdd94cd8a2f397969503960787ac9274d76fce8934b1d4884a0eed7dfb"
@@ -88,6 +90,9 @@ def check_pins(prereg=PREREG, prereg_sha=None):
     if _sha(ADDENDUM) != ADDENDUM_SHA256:
         print(f"⛔ addendum 1 changed or not pinned: {_sha(ADDENDUM)} ≠ {ADDENDUM_SHA256}")
         sys.exit(9)
+    if _sha(ADDENDUM2) != ADDENDUM2_SHA256:
+        print(f"⛔ addendum 2 changed or not pinned: {_sha(ADDENDUM2)} ≠ {ADDENDUM2_SHA256}")
+        sys.exit(9)
     if prod_src_sha() != PROD_SRC_SHA256:
         print(f"⛔ production functions changed: {prod_src_sha()} ≠ {PROD_SRC_SHA256}")
         sys.exit(9)
@@ -104,8 +109,8 @@ def _main_contract():
     return _main_blob(PREREG)
 
 
-def check_merged(read=None, read_add=None):
-    """«يُدمج في main قبل أيّ عدّ»: origin/main must carry the pinned contract AND addendum 1 bytes, else exit 9."""
+def check_merged(read=None, read_add=None, read_add2=None):
+    """«يُدمج في main قبل أيّ عدّ»: origin/main must carry the pinned contract AND addenda 1-2 bytes, else exit 9."""
     blob = (read or _main_contract)()
     got = hashlib.sha256(blob).hexdigest() if blob is not None else None
     if got != PREREG_SHA256:
@@ -115,6 +120,11 @@ def check_merged(read=None, read_add=None):
     got = hashlib.sha256(blob).hexdigest() if blob is not None else None
     if got != ADDENDUM_SHA256:
         print(f"⛔ addendum 1 is not on origin/main ({got}) — merge it first (git fetch --force)")
+        sys.exit(9)
+    blob = (read_add2 or (lambda: _main_blob(ADDENDUM2)))()
+    got = hashlib.sha256(blob).hexdigest() if blob is not None else None
+    if got != ADDENDUM2_SHA256:
+        print(f"⛔ addendum 2 is not on origin/main ({got}) — merge it first (git fetch --force)")
         sys.exit(9)
 
 
@@ -166,7 +176,7 @@ def day_state(cy, x):
             break
         py = cy.pc(y)
         if not py or py["bottom"] != pc["bottom"]:
-            break
+            continue                       # addendum 2: a day reading another base is skipped, not the end of the search
         if cy.c23(y)[0]:
             return {**out, "status": "NOT_FIRST", "reason": "not_first"}
     return {**out, "status": "TRIGGER", "reason": None}
@@ -519,7 +529,33 @@ def stage_a(S, T, L, fresh, splits, nwh, wlh, vm):
             "q_size": {d: len(mem[d]["Q"]) for d in days}, "nw_size": {d: len(mem[d]["NW"]) for d in days},
             "ready_size": {d: len(mem[d]["READY"]) for d in days}, "table": table,
             "selected": list(chosen) if chosen is not None else None, "selection": why, "q_trigger_names": names,
-            "q_triggers": {d: [e for e in trig[d] if e["sym"] in mem[d]["Q"]] for d in known_days}}
+            "q_triggers": {d: [e for e in trig[d] if e["sym"] in mem[d]["Q"]] for d in known_days},
+            "q_triggers_all": trig, "mem": mem}
+
+
+def source_agreement(S, arch, trig, mem, days, end="2026-10-09"):
+    """Addendum 2 §②: on stage A days up to the archive end, Q triggers of the core from GEN5 vs from the rank archive (descriptive)."""
+    over = [d for d in days if d <= end]
+    fresh_set = {(e["sym"], d) for d in over for e in trig[d] if e["sym"] in mem[d]["Q"]}
+    syms = set().union(*[mem[d]["Q"] for d in over]) if over else set()
+    arch_set, cover = set(), 0
+    for s in sorted(syms):
+        df = arch.get(s)
+        if df is None:
+            continue
+        ix = {t.date().isoformat(): i for i, t in enumerate(df.index)}
+        cy = Cycle(df, S.pivot_cycle_state)
+        for d in over:
+            x = ix.get(d)
+            if x is None or s not in mem[d]["Q"]:
+                continue
+            cover += 1
+            if day_state(cy, x)["status"] == "TRIGGER":
+                arch_set.add((s, d))
+    return {"days": len(over), "symbol_days_on_archive": cover, "both": len(fresh_set & arch_set),
+            "gen5_only": len(fresh_set - arch_set), "archive_only": len(arch_set - fresh_set),
+            "gen5_only_names": sorted(f"{s} {d}" for s, d in fresh_set - arch_set),
+            "archive_only_names": sorted(f"{s} {d}" for s, d in arch_set - fresh_set)}
 
 
 def live_sweeps(wlh, days):
@@ -720,12 +756,13 @@ def run():
         a["volume_source"]["none"] = sum(1 for s in fresh if s not in vsrc)
         combo = tuple(a["selected"]) if a["selected"] is not None else ()
         D, events, acc, evs = stage_b(S, T, F, H, L, nwh, wlh, combo)
+        a["source_agreement"] = source_agreement(S, D.arch, a["q_triggers_all"], a["mem"], a["sessions"])
         fa = false_alarms(S, T, L, D, nwh, wlh, combo)
         today = today_layer2(S, T, fresh, wlh, nwh)
     finally:
         os.chdir(cwd)
     res = verdict_block(a, events, acc, evs, fa, combo)
-    res["stage_a"] = {k: v for k, v in a.items() if k != "q_triggers"}
+    res["stage_a"] = {k: v for k, v in a.items() if k not in ("q_triggers", "q_triggers_all", "mem")}
     res["stage_a"]["q_triggers"] = {d: v for d, v in a["q_triggers"].items()}
     res["today_layer2"] = today
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
@@ -813,6 +850,8 @@ def report(res):
     b = res["stage_b"]
     print("stage B", {k: b[k] for k in ("events", "symbols", "captured_symbols", "ready_symbols", "C1", "mde_symbols")})
     print("false alarms", b["false_alarms"], "depth", b["depth"])
+    sa = res["stage_a"].get("source_agreement") or {}
+    print("source agreement", {k: v for k, v in sa.items() if not k.endswith("_names")})
 
 
 # ── synthetic guards ────────────────────────────────────────────────────────────────────────────────────
@@ -954,12 +993,17 @@ def guards():
             return e.code
     pinned = open(PREREG, "rb").read() if os.path.exists(PREREG) else b""
     add = open(ADDENDUM, "rb").read() if os.path.exists(ADDENDUM) else b""
-    chk("LG20 merged gate: contract absent/altered ⟶ 9 · addendum 1 absent/altered ⟶ 9 · both pinned ⟶ passes",
-        code(lambda: check_merged(lambda: None, lambda: add)) == 9 and code(lambda: check_merged(lambda: pinned + b" ", lambda: add)) == 9
-        and code(lambda: check_merged(lambda: pinned, lambda: None)) == 9
-        and code(lambda: check_merged(lambda: pinned, lambda: add + b" ")) == 9
-        and (code(lambda: check_merged(lambda: pinned, lambda: add)) == 0)
-        == (hashlib.sha256(pinned).hexdigest() == PREREG_SHA256 and hashlib.sha256(add).hexdigest() == ADDENDUM_SHA256))
+    add2 = open(ADDENDUM2, "rb").read() if os.path.exists(ADDENDUM2) else b""
+    chk("LG20 merged gate: contract absent/altered ⟶ 9 · addendum 1 or 2 absent/altered ⟶ 9 · all three pinned ⟶ passes",
+        code(lambda: check_merged(lambda: None, lambda: add, lambda: add2)) == 9
+        and code(lambda: check_merged(lambda: pinned + b" ", lambda: add, lambda: add2)) == 9
+        and code(lambda: check_merged(lambda: pinned, lambda: None, lambda: add2)) == 9
+        and code(lambda: check_merged(lambda: pinned, lambda: add + b" ", lambda: add2)) == 9
+        and code(lambda: check_merged(lambda: pinned, lambda: add, lambda: None)) == 9
+        and code(lambda: check_merged(lambda: pinned, lambda: add, lambda: add2 + b" ")) == 9
+        and (code(lambda: check_merged(lambda: pinned, lambda: add, lambda: add2)) == 0)
+        == (hashlib.sha256(pinned).hexdigest() == PREREG_SHA256 and hashlib.sha256(add).hexdigest() == ADDENDUM_SHA256
+            and hashlib.sha256(add2).hexdigest() == ADDENDUM2_SHA256))
     chk("LG21 constants (band 7/13 · 60 bars · windows · F 2/1/4/4 · floor 20 · node 120/60/1 % · wick 50 %)",
         (SW_LO, SW_HI, MIN_BARS, WIN_A, FA_WIN, LEAD, FWD, F1_MED_MAX, F2_ROLL_MIN, F3_SILENCE_MAX, F4_DAY_MAX, FLOOR_SYMS,
          NODE_MAX, NODE_MIN, NODE_BIN, WICK_MIN, MIN_KNOWN_DAYS)
@@ -1008,6 +1052,23 @@ def guards():
     chk("LG28 a no-measure combo on the selection walk stops it (NO_MEASURE) · a later passing combo is not chosen",
         select({(): crowd, ("VOL",): {"no_measure": True, "pass": False}, ("NODE",): ok_m}) == (None, "NO_MEASURE")
         and select({(): crowd, ("VOL",): ok_m, ("NODE",): {"no_measure": True, "pass": False}}) == (("VOL",), "BOOSTED"))
+    # addendum 2: the not-first search skips a day that reads another base (INDP 08-21 / 08-24 / 08-25)
+    base_t = {"stage": 3, "branch": "sweep", "bottom": 1.0, "retest_low": 0.9, "sweep_pct": 10.0}
+    seq = {60: {**base_t, "bottom_ago": 5}, 61: {"stage": 2, "branch": None, "bottom": 0.9, "bottom_ago": 1, "sweep_pct": 0.0},
+           62: {**base_t, "bottom_ago": 7}}
+    fk = _syn([(1.04, 1.06, 1.05)] * 63)
+
+    def fake_pc(d, sweep=None):
+        return seq.get(len(d))
+    cyf = Cycle(fk, fake_pc)
+    chk("LG29 one trigger per base though the cycle reads another base in between ⟶ the second reclaim is NOT_FIRST",
+        day_state(cyf, 59)["status"] == "TRIGGER" and day_state(cyf, 61)["status"] == "NOT_FIRST"
+        and day_state(cyf, 61)["base"] == 1.0 and day_state(cyf, 60)["status"] == "NO")
+    trg = {"2026-10-08": [{"sym": "AAA"}, {"sym": "ZZZ"}], "2026-10-12": [{"sym": "AAA"}]}
+    mq = {"2026-10-08": {"Q": {"AAA"}}, "2026-10-12": {"Q": {"AAA"}}}
+    sa = source_agreement(S, {}, trg, mq, ["2026-10-08", "2026-10-12"])
+    chk("LG30 source agreement is read on days up to the archive end and on Q only · no archive frame ⟶ GEN5-only",
+        sa["days"] == 1 and sa["gen5_only"] == 1 and sa["both"] == 0 and sa["archive_only"] == 0 and sa["symbol_days_on_archive"] == 0)
     print(f"\nguards failed: {len(fails)}")
     return fails
 
