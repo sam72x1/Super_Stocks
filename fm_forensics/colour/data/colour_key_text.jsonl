@@ -1,0 +1,26 @@
+{"author": "FAISAL", "colour": "black", "id": "TG_50588", "phrase": "مقاومه دائما ارسمها بالاسود", "role": "resistance", "same_as": null}
+{"author": "FAISAL", "colour": "red", "id": "TG_50588", "phrase": "والدعم بالاحمر", "role": "support", "same_as": null}
+{"author": "FAISAL", "colour": "red", "id": "TG_1978", "phrase": "الاحمر دعم + وقف -5٪", "role": "support+stop", "same_as": null}
+{"author": "FAISAL", "colour": "black", "id": "TG_1978", "phrase": "الاسود مقاومه + هدف", "role": "resistance+target", "same_as": null}
+{"author": "FAISAL", "colour": "blue", "id": "TG_1978", "phrase": "الازرق هدف بلا مقاومه", "role": "target", "same_as": null}
+{"author": "FAISAL", "colour": "black", "id": "TG_57873", "phrase": "الاسود مقاومات", "role": "resistance", "same_as": null}
+{"author": "FAISAL", "colour": "black", "id": "X_20260827_kwm_annotated_levels", "phrase": "مقاومات لاين اسود", "role": "resistance", "same_as": null}
+{"author": "FAISAL", "colour": "purple", "id": "IMG_0697", "phrase": "هالشموع هالبنفسجيه رقت لهاتك الاهداف البعيده", "role": "far_target", "same_as": null}
+{"author": "FAISAL", "colour": "yellow", "id": "X_20260905_02", "phrase": "المناطق الصفرا لو تجاوزها تعطيه اهداف", "role": "zone_then_target", "same_as": null}
+{"author": "UNSIGNED", "colour": "yellow", "id": "X_20260905_01", "phrase": "المناطق الصفرا لو تجاوزها تعطيه اهداف", "role": "zone_then_target", "same_as": "X_20260905_02"}
+{"author": "UNSIGNED", "colour": "black", "id": "X_20260905_10", "phrase": "دايما ارسم المقاومه باللاين الاسود", "role": "resistance", "same_as": null}
+{"author": "UNSIGNED", "colour": "black", "id": "TG_1831", "phrase": "المقاومات باللاين الاسود", "role": "resistance", "same_as": null}
+{"author": "UNSIGNED", "colour": "black", "id": "CH_20260918_17_NTCL", "phrase": "مقاومات لاين اسود", "role": "resistance", "same_as": null}
+{"author": "UNSIGNED", "colour": "black", "id": "TG_58411", "phrase": "مقاومات بالاسود", "role": "resistance", "same_as": null}
+{"author": "UNSIGNED", "colour": "black", "id": "X_20260918_48_WETO", "phrase": "اللاين الاسود راح يكون مقاومات مستقبل القريب", "role": "resistance", "same_as": null}
+{"author": "UNSIGNED", "colour": "white", "id": "TG_20260905_07", "phrase": "الابيض مقاومة", "role": "resistance", "same_as": null}
+{"author": "UNSIGNED", "colour": "white", "id": "TG_20260905_08", "phrase": "الابيض مقاومات", "role": "resistance", "same_as": null}
+{"author": "UNSIGNED", "colour": "blue", "id": "TG_20260905_06", "phrase": "الازرق فجوة لازم يغطيها", "role": "gap", "same_as": null}
+{"author": "UNSIGNED", "colour": "blue", "id": "IMG_0297", "phrase": "تابع اللاين الازرق 1.30 ل سحب السيوله", "role": "sweep", "same_as": null}
+{"author": "UNSIGNED", "colour": "blue", "id": "TG_2187", "phrase": "تابع اللاين الازرق · سحب السيوله ل 1.30", "role": "sweep", "same_as": "IMG_0297"}
+{"author": "UNSIGNED", "colour": "red", "id": "TG_57869", "phrase": "الخط الاحمر · القاب الشمعة اللي قبل الارتفاع يكون بعدها فراغ · لازم ينزل يغطي الفراغ", "role": "gap", "same_as": null}
+{"author": "FOLLOWER", "colour": "red", "id": "TG_1979", "phrase": "دايم يتكلم عن اللاين الاحمر يعتبر دعم", "role": "support", "same_as": null}
+{"author": "THIRD_PARTY", "colour": "red", "id": "TG_58047", "phrase": "عنده دعمين الي ب الاحمر", "role": "support", "same_as": null}
+{"author": "THIRD_PARTY", "colour": "blue", "id": "TG_58047", "phrase": "و الأهداف ب الازرق", "role": "target", "same_as": null}
+{"author": "THIRD_PARTY", "colour": "red", "id": "TG_58048", "phrase": "عنده دعمين الي ب الاحمر", "role": "support", "same_as": "TG_58047"}
+{"author": "THIRD_PARTY", "colour": "blue", "id": "TG_58048", "phrase": "و الأهداف ب الازرق", "role": "target", "same_as": "TG_58047"}
