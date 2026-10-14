@@ -1,0 +1,19 @@
+verdict B-FAIL selection BOOSTED combo ['VOL', 'NODE']
+ALL_COVERED_core             med 24.5 range 10-44 zero 0 silence 0 roll3 71.5 total 494 pass False undetermined 0
+Q_core                       med 6.0 range 1-13 zero 0 silence 0 roll3 20.0 total 138 pass False undetermined 0
+Q_core+VOL                   med 2 range 0-6 zero 2 silence 2 roll3 7 total 47 pass False undetermined 1
+Q_core+NODE                  med 4 range 0-7 zero 1 silence 1 roll3 11 total 67 pass False undetermined 1
+Q_core+CANDLE                med 1.0 range 0-5 zero 7 silence 3 roll3 5.0 total 30 pass False undetermined 0
+Q_core+VOL+NODE              med 0 range 0-3 zero 10 silence 4 roll3 1 total 16 pass True undetermined 1
+Q_core+VOL+CANDLE            med 0 range 0-3 zero 10 silence 4 roll3 2 total 14 pass True undetermined 1
+Q_core+NODE+CANDLE           med 0 range 0-2 zero 10 silence 4 roll3 2 total 13 pass True undetermined 1
+Q_core+VOL+NODE+CANDLE       med 0 range 0-2 zero 17 silence 9 roll3 0 total 3 pass False undetermined 1
+Q_NW_core                    med 6.0 range 1-12 zero 0 silence 0 roll3 18.5 total 130 pass False undetermined 0
+Q_WL_core                    med 0.5 range 0-2 zero 10 silence 3 roll3 2.0 total 12 pass True undetermined 0
+Q_READY_core                 med 0.0 range 0-0 zero 20 silence 20 roll3 0.0 total 0 pass False undetermined 0
+PROD_SWEEP_STATE_Q           med 124.0 range 85-149 zero 0 silence 0 roll3 373.0 total 2450 pass False undetermined 0
+LIVE_SWEEP_FINGERPRINTS      med 1.0 range 0-3 zero 5 silence 3 roll3 4.0 total 24 pass True undetermined 0
+stage B {'events': 40, 'symbols': 40, 'captured_symbols': 0, 'ready_symbols': 2, 'C1': False, 'mde_symbols': 12}
+false alarms {'fired': 17, 'resolved': 17, 'false': 15, 'rate': 0.8824, 'symbols_fired': 17, 'symbols_false_only': 15} depth {'n': 40, 'no_sweep': 0, 'median': 57.67, 'q1': 42.05, 'q3': 77.19, 'under_7': 0, 'in_band': 1, 'over_13': 39}
+source agreement {'days': 18, 'symbol_days_on_archive': 11453, 'both': 123, 'gen5_only': 5, 'archive_only': 1}
+rc=0
