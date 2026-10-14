@@ -1212,7 +1212,7 @@
    "hit": "t2",
    "hit_date": "2026-08-14",
    "max_gain_pct": 91.2,
-   "last_price": 2.08,
+   "last_price": 2.06,
    "borrow_hist": [
     [
      "2026-09-10",
@@ -1663,7 +1663,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.2,
-   "last_price": 12.16,
+   "last_price": 12.5,
    "exact_hold": {
     "pivot": 11.62,
     "pivot_date": "2026-09-25",
@@ -3331,7 +3331,7 @@
    "hit": "t1",
    "hit_date": "2026-09-25",
    "max_gain_pct": 15.4,
-   "last_price": 4.9999,
+   "last_price": 4.95,
    "faisal_levels": "🧭 إغلاقات الهابطة $5.10 · $5.22 · $5.27 · جسم قبل الهبوط $5.05 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-10-09"
@@ -6852,7 +6852,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 15.42,
+   "last_price": 15.365,
    "borrow_hist": [
     [
      "2026-10-14",
@@ -7705,7 +7705,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.1,
-   "last_price": 4.26,
+   "last_price": 4.205,
    "borrow_hist": [
     [
      "2026-09-18",
@@ -10264,7 +10264,7 @@
    "hit": "t1",
    "hit_date": "2026-09-21",
    "max_gain_pct": 13.3,
-   "last_price": 1.15,
+   "last_price": 1.145,
    "live_alert": {
     "breakout": "2026-09-28",
     "sweep": "2026-10-13"
