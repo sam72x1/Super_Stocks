@@ -3566,7 +3566,7 @@
  },
  "LIQ:HCAI": {
   "anchor_ms": 1791968220000,
-  "last_ms": 1791968220000,
+  "last_ms": 1791968280000,
   "sent": [
    "M1"
   ],
@@ -3574,7 +3574,7 @@
   "vol_x": 4.3,
   "peak_usd": 78784,
   "last_eval_ms": 1791968280000,
-  "pulse_ms": 1791968220000,
+  "pulse_ms": 1791968280000,
   "anchor_price": 0.329,
   "anchor_open": 0.3101,
   "anchor_low": 0.3059,
@@ -3586,11 +3586,11 @@
    "e5": null,
    "exit_ms": 1791968160000
   },
-  "date": "2026-10-14",
   "pre_done": true,
   "pre_hi": 0.42,
   "pre_usd": 717551,
-  "pre_n": 39
+  "pre_n": 39,
+  "date": "2026-10-14"
  },
  "LIQ:FFR": {
   "date": "2026-10-14"
