@@ -1039,25 +1039,15 @@
   "date": "2026-10-13"
  },
  "LIQ:ZTG": {
-  "anchor_ms": 1791976440000,
-  "last_ms": 1791976560000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 26.0,
-  "peak_usd": 331694,
-  "last_eval_ms": 1791976440000,
-  "pulse_ms": 1791976560000,
-  "anchor_price": 0.7,
-  "anchor_open": 0.669,
-  "anchor_low": 0.6323,
-  "trig": "T-C",
-  "pre_done": true,
-  "pre_hi": 0.72,
-  "pre_usd": 432310,
-  "pre_n": 38,
-  "exit_ms": 1791976500000,
+  "last_eval_ms": 1791976560000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1791976440000,
+   "anchor_price": 0.7,
+   "anchor_low": 0.6323,
+   "e5": null,
+   "exit_ms": 1791976500000
+  },
   "date": "2026-10-14"
  },
  "LIQ:CNEY": {
@@ -1900,7 +1890,7 @@
  },
  "LIQ:AEHL": {
   "anchor_ms": 1791964920000,
-  "last_ms": 1791976500000,
+  "last_ms": 1791976560000,
   "sent": [
    "M1",
    "M5",
@@ -1910,7 +1900,7 @@
   "vol_x": 1.2,
   "peak_usd": 1698529,
   "last_eval_ms": 1791964920000,
-  "pulse_ms": 1791976500000,
+  "pulse_ms": 1791976560000,
   "anchor_price": 18.9491,
   "anchor_open": 18.01,
   "anchor_low": 17.4711,
@@ -4183,7 +4173,7 @@
  "XLAB": "2026-10-13",
  "ZEO": "2026-10-13",
  "VCIG": "2026-10-13",
- "HUBC": "2026-10-13",
+ "HUBC": "2026-10-14",
  "PRE:2026-10-13:AH": "2026-10-13T19:51:12.616365+00:00",
  "FNGR": "2026-10-13",
  "INLF": "2026-10-13",
