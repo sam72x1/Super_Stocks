@@ -10,7 +10,7 @@ threshold or root change. Nothing here is imported by the bot, scheduled, or sen
 | `score_test.py` | the sealed run on the T-HEAT anchor-O units ⟶ `data/score_result.json` · `data/score_units.csv` · `--guards` SG1–SG22 · `--today` |
 | `score_mutate.py` | mutation round over the guards (22/22 fall) |
 | `score_fetch.py` | runner-side TradingView fetch of today's daily bars (run once on the temporary branch `claude/t-score-fetch`, never merged) |
-| `T_SCORE_result.md` | the result — written after the single run (table first, then the verdict) |
+| `T_SCORE_result.md` | the result: **C «لا فصل»** (matched AUC 0.555 [0.465, 0.652] on 31 events) · weighted = unweighted · the simple scan BASE2 stronger (0.613) · today's list ranked (ungoverned) · predictions 6/7 |
 
 Order (repo root; the run needs `git fetch --force origin main` first — it refuses with exit 9 unless origin/main carries the pinned contract):
 
