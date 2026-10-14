@@ -215,7 +215,7 @@
  },
  "LIQ:CIGL": {
   "anchor_ms": 1791976080000,
-  "last_ms": 1791976080000,
+  "last_ms": 1791976140000,
   "sent": [
    "M1"
   ],
@@ -223,15 +223,16 @@
   "vol_x": 14.2,
   "peak_usd": 142258,
   "last_eval_ms": 1791976140000,
-  "pulse_ms": 1791976080000,
+  "pulse_ms": 1791976140000,
   "anchor_price": 0.371,
   "anchor_open": 0.3296,
   "anchor_low": 0.3109,
-  "date": "2026-10-14",
   "pre_done": true,
   "pre_hi": 0.33,
   "pre_usd": 26273,
-  "pre_n": 3
+  "pre_n": 3,
+  "exit_ms": 1791976140000,
+  "date": "2026-10-14"
  },
  "LIQ:KDK": {
   "last_eval_ms": 1791976080000,
