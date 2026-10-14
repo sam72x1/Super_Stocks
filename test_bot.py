@@ -87562,6 +87562,90 @@ check("🟢 RNC6: الفحصُ اليدويّ (`analyze_one.main` قبل الت�
       "يحسبان دورةَ الارتكاز **قبل** التفسير (‏AST) — فيوافقان كرتَ البوت في وسم المسح",
       _rnc6_ok, f"ao={_rnc6_ao} tr={_rnc6_tr}"[:160])
 
+# SCC1 — 🔒 **إغلاقُ `T-SCORE` مُنفَّذٌ لا مكتوب** (أمرُ المالك «اقفل T-SCORE» 2026-10-14 · `fm_forensics/score/T_SCORE_result.md §⑨`)
+#    — سلوكيًّا من طرفيه: (أ) مُغلَقًا ⟶ خروجُ 8 **بصفرِ نداءٍ** لـ`run`/`today` ولا سطرَ غيرُ نصّ الإغلاق — للتشغيلة المختومة و`--today`
+#    معًا · و`SCORE_REOPEN=0` يُبقيه مُغلَقًا · (ب) بالإقرار `1` ⟶ يمضي فعلًا (`run` مرّةً · `today` مرّةً) · (ج) و`--guards` يعمل
+#    مُغلَقًا (اصطناعيٌّ بلا مجتمعٍ ولا نتيجة · جولةُ الطفرات تعتمد عليه) ويُرجع 1 حين يفشل حارس · (د) و8 مميَّزٌ عن رموز الأداة
+#    (‏9 للعقد بشاهد ضبط) · (هـ) ونصُّ الفتح ①②③ بأرقام الحكم · ونقطةُ دخولٍ واحدة تُخرج رمزَ `main` · وقسمُ الإغلاق في النتيجة.
+try:
+    import ast as _scc_ast
+    import os as _scc_os
+    import sys as _scc_sys
+    import contextlib as _scc_ctx
+    import io as _scc_io
+    import importlib.util as _scc_iu
+    _scc_path = _scc_os.path.join("fm_forensics", "score", "score_test.py")
+    _scc_sys_path = list(_scc_sys.path)
+    try:
+        _scc_spec = _scc_iu.spec_from_file_location("_scc_score_test", _scc_path)
+        _SCC = _scc_iu.module_from_spec(_scc_spec)
+        _scc_spec.loader.exec_module(_SCC)
+    finally:
+        _scc_sys.path[:] = _scc_sys_path
+    _scc_calls = []
+    _scc_keep = (_SCC.run, _SCC.today, _SCC.guards)
+    _scc_env0 = _scc_os.environ.get("SCORE_REOPEN")
+    _scc_guard_ret = []
+
+    def _scc_main(argv, env):
+        _scc_os.environ.pop("SCORE_REOPEN", None)
+        if env is not None:
+            _scc_os.environ["SCORE_REOPEN"] = env
+        del _scc_calls[:]
+        _buf = _scc_io.StringIO()
+        with _scc_ctx.redirect_stdout(_buf):
+            _rc = _SCC.main(list(argv))
+        return _rc, list(_scc_calls), _buf.getvalue().splitlines()
+    try:
+        _SCC.run = lambda *a, **k: _scc_calls.append("run")
+        _SCC.today = lambda *a, **k: _scc_calls.append("today")
+        _SCC.guards = lambda *a, **k: (_scc_calls.append("guards"), list(_scc_guard_ret))[1]
+        _scc_c_run = _scc_main([], None)
+        _scc_c_today = _scc_main(["--today"], None)
+        _scc_c_zero = _scc_main([], "0")
+        _scc_o_run = _scc_main([], "1")
+        _scc_o_today = _scc_main(["--today"], "1")
+        _scc_g_ok = _scc_main(["--guards"], None)
+        _scc_guard_ret.append("SGx")
+        _scc_g_bad = _scc_main(["--guards"], None)
+    finally:
+        _SCC.run, _SCC.today, _SCC.guards = _scc_keep
+        _scc_os.environ.pop("SCORE_REOPEN", None)
+        if _scc_env0 is not None:
+            _scc_os.environ["SCORE_REOPEN"] = _scc_env0
+    _scc_notice = _SCC.closure_notice()
+    _scc_closed = all(_r == (8, [], _scc_notice) for _r in (_scc_c_run, _scc_c_today, _scc_c_zero))
+    _scc_open = (_scc_o_run[:2] == (0, ["run"]) and _scc_o_today[:2] == (0, ["today"])
+                 and not any("مُغلَق" in _ln for _ln in _scc_o_run[2] + _scc_o_today[2]))
+    _scc_guards = _scc_g_ok[:2] == (0, ["guards"]) and _scc_g_bad[:2] == (1, ["guards"])
+    _scc_src = open(_scc_path, encoding="utf-8").read()
+    _scc_tree = _scc_ast.parse(_scc_src)
+    _scc_exits = {_c.args[0].value for _c in _scc_ast.walk(_scc_tree)
+                  if isinstance(_c, _scc_ast.Call) and getattr(_c.func, "attr", None) == "exit"
+                  and _c.args and isinstance(_c.args[0], _scc_ast.Constant) and isinstance(_c.args[0].value, int)}
+    _scc_distinct = _SCC.CLOSED_RC == 8 and 8 not in _scc_exits and 9 in _scc_exits and _SCC.CLOSED_RC not in (0, 1)
+    _scc_mains = [_n for _n in _scc_ast.walk(_scc_tree) if isinstance(_n, _scc_ast.If)
+                  and isinstance(_n.test, _scc_ast.Compare) and getattr(_n.test.left, "id", None) == "__name__"]
+    _scc_entry = (len(_scc_mains) == 1 and len(_scc_mains[0].body) == 1
+                  and _scc_ast.unparse(_scc_mains[0].body[0]).replace(" ", "") == "sys.exit(main())")
+    _scc_txt = "\n".join(_scc_notice)
+    _scc_text = all(_x in _scc_txt for _x in (
+        "①", "②", "③", "SCORE_REOPEN=1", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد", "C «لا فصل»", "0.555", "0.465",
+        "0.613", "0.000", "−0.058", "T-RSI-RANK", "T_SCORE_result.md §⑨"))
+    _scc_res = open(_scc_os.path.join("fm_forensics", "score", "T_SCORE_result.md"), encoding="utf-8").read()
+    _scc_sec = "## ⑨ 🔒 الإغلاق" in _scc_res and "SCORE_REOPEN=1" in _scc_res.split("## ⑨ 🔒 الإغلاق")[-1]
+    _scc1 = (_SCC.AXIS_CLOSED is True and _SCC.REOPEN_ENV == "SCORE_REOPEN" and _scc_closed and _scc_open
+             and _scc_guards and _scc_distinct and _scc_entry and _scc_text and _scc_sec)
+    _scc1_w = (f"مُغلَق={[_r[:2] for _r in (_scc_c_run, _scc_c_today, _scc_c_zero)]} · مفتوح={_scc_o_run[:2]},{_scc_o_today[:2]} · "
+               f"guards={_scc_g_ok[:2]},{_scc_g_bad[:2]} · مميَّز={_scc_distinct} exits={sorted(_scc_exits)} · "
+               f"دخول={_scc_entry} · النصّ={_scc_text} · القسم={_scc_sec}")
+except Exception as _e:                                              # noqa: BLE001
+    _scc1, _scc1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔒 SCC1 إغلاقُ `T-SCORE` **مُنفَّذ** («اقفل T-SCORE»): التشغيلةُ المختومة و`--today` يخرجان 8 بصفرِ نداءٍ ولا سطرَ غيرُ النصّ · "
+      "و`SCORE_REOPEN=0` يُبقيه مُغلَقًا · والإقرارُ `1` يمضي فعلًا · و`--guards` يعمل مُغلَقًا · و8 مميَّزٌ (9 للعقد) · ونصُّ الفتح ①②③ "
+      "بأرقام الحكم · ودخولٌ واحد · وقسمُ الإغلاق في النتيجة",
+      _scc1, _scc1_w[:400])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
