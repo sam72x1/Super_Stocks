@@ -1,0 +1,7963 @@
+{
+ "prereg_sha256": "b1f21d163c02f9894f945a9910f6255bd5e9091dd3efc909ed093d0d7e670946",
+ "weights": {
+  "S": {
+   "RSI": 1.1852,
+   "HOLD": 1.3333,
+   "CYC": 1.7037,
+   "ZONE": 1.4074,
+   "HOLDZ": 0.6667,
+   "SWEEP": 0.9877,
+   "GAP": 0.3457
+  },
+  "U": {
+   "RSI": 1.0,
+   "HOLD": 1.0,
+   "CYC": 1.0,
+   "ZONE": 1.0,
+   "HOLDZ": 1.0,
+   "SWEEP": 1.0,
+   "GAP": 1.0
+  },
+  "S1": {
+   "RSI": 1.0,
+   "HOLD": 1.0,
+   "CYC": 1.0,
+   "ZONE": 1.0,
+   "HOLDZ": 1.0,
+   "SWEEP": 1.0,
+   "GAP": 0.3333
+  },
+  "S12": {
+   "RSI": 1.0,
+   "HOLD": 0.6667,
+   "CYC": 1.0,
+   "ZONE": 1.0,
+   "HOLDZ": 0.3333,
+   "SWEEP": 0.6667,
+   "GAP": 0.3333
+  }
+ },
+ "accounting": {
+  "events_in": 31,
+  "event_unknown": [],
+  "ctrl_unknown": 0,
+  "few_controls": []
+ },
+ "primary": {
+  "events": 31,
+  "symbols": 31,
+  "control_draws": 155,
+  "design_mde80": 0.1595,
+  "floors_met": true,
+  "auc": {
+   "S": {
+    "point": 0.5548,
+    "ci95": [
+     0.4645,
+     0.6516
+    ],
+    "sd": 0.0479
+   },
+   "S_L": {
+    "point": 0.5968,
+    "ci95": [
+     0.5,
+     0.6968
+    ],
+    "sd": 0.0501
+   },
+   "U": {
+    "point": 0.5548,
+    "ci95": [
+     0.4645,
+     0.6516
+    ],
+    "sd": 0.0479
+   },
+   "S1": {
+    "point": 0.5742,
+    "ci95": [
+     0.4839,
+     0.671
+    ],
+    "sd": 0.0487
+   },
+   "S12": {
+    "point": 0.5613,
+    "ci95": [
+     0.4581,
+     0.6645
+    ],
+    "sd": 0.052
+   },
+   "scan": {
+    "point": 0.6129,
+    "ci95": [
+     0.5226,
+     0.7
+    ],
+    "sd": 0.0454
+   }
+  },
+  "mean_diff": {
+   "S": {
+    "point": 0.0428,
+    "ci95": [
+     -0.0712,
+     0.1502
+    ],
+    "sd": 0.0567
+   },
+   "S_L": {
+    "point": 0.0511,
+    "ci95": [
+     -0.0064,
+     0.1102
+    ],
+    "sd": 0.0299
+   },
+   "U": {
+    "point": 0.0249,
+    "ci95": [
+     -0.0713,
+     0.115
+    ],
+    "sd": 0.0481
+   },
+   "S1": {
+    "point": 0.047,
+    "ci95": [
+     -0.0583,
+     0.1452
+    ],
+    "sd": 0.0525
+   },
+   "S12": {
+    "point": 0.039,
+    "ci95": [
+     -0.0631,
+     0.1381
+    ],
+    "sd": 0.0516
+   },
+   "scan": {
+    "point": 0.2258,
+    "ci95": [
+     0.0452,
+     0.4
+    ],
+    "sd": 0.0909
+   }
+  },
+  "delta_auc": {
+   "S_minus_scan": {
+    "point": -0.0581,
+    "ci95": [
+     -0.171,
+     0.0516
+    ],
+    "sd": 0.0567
+   },
+   "S_minus_U": {
+    "point": -0.0,
+    "ci95": [
+     -0.0387,
+     0.0452
+    ],
+    "sd": 0.0205
+   },
+   "S_minus_S_L": {
+    "point": -0.0419,
+    "ci95": [
+     -0.1065,
+     0.0194
+    ],
+    "sd": 0.0317
+   },
+   "S12_minus_S1": {
+    "point": -0.0129,
+    "ci95": [
+     -0.0516,
+     0.0194
+    ],
+    "sd": 0.0182
+   },
+   "S_minus_S12": {
+    "point": -0.0065,
+    "ci95": [
+     -0.0258,
+     0.0129
+    ],
+    "sd": 0.0111
+   },
+   "S1_minus_U": {
+    "point": 0.0194,
+    "ci95": [
+     0.0,
+     0.0516
+    ],
+    "sd": 0.0139
+   }
+  },
+  "pooled_auc": {
+   "S": 0.5261,
+   "S_L": 0.5581,
+   "U": 0.5184,
+   "S1": 0.5395,
+   "S12": 0.5277,
+   "scan": 0.6129
+  }
+ },
+ "sensitivity_identity": {
+  "events": 25,
+  "symbols": 25,
+  "control_draws": 125,
+  "design_mde80": 0.1777,
+  "floors_met": false,
+  "auc": {
+   "S": {
+    "point": 0.512,
+    "ci95": [
+     0.416,
+     0.616
+    ],
+    "sd": 0.0497
+   },
+   "S_L": {
+    "point": 0.54,
+    "ci95": [
+     0.444,
+     0.644
+    ],
+    "sd": 0.0505
+   },
+   "U": {
+    "point": 0.496,
+    "ci95": [
+     0.408,
+     0.584
+    ],
+    "sd": 0.045
+   },
+   "S1": {
+    "point": 0.52,
+    "ci95": [
+     0.424,
+     0.616
+    ],
+    "sd": 0.0482
+   },
+   "S12": {
+    "point": 0.52,
+    "ci95": [
+     0.416,
+     0.632
+    ],
+    "sd": 0.0554
+   },
+   "scan": {
+    "point": 0.592,
+    "ci95": [
+     0.492,
+     0.688
+    ],
+    "sd": 0.0505
+   }
+  },
+  "mean_diff": {
+   "S": {
+    "point": -0.0035,
+    "ci95": [
+     -0.1327,
+     0.1145
+    ],
+    "sd": 0.0627
+   },
+   "S_L": {
+    "point": 0.0193,
+    "ci95": [
+     -0.0372,
+     0.0778
+    ],
+    "sd": 0.0288
+   },
+   "U": {
+    "point": -0.0254,
+    "ci95": [
+     -0.1287,
+     0.0681
+    ],
+    "sd": 0.0503
+   },
+   "S1": {
+    "point": -0.0014,
+    "ci95": [
+     -0.1168,
+     0.1077
+    ],
+    "sd": 0.0573
+   },
+   "S12": {
+    "point": -0.0006,
+    "ci95": [
+     -0.1144,
+     0.1058
+    ],
+    "sd": 0.0557
+   },
+   "scan": {
+    "point": 0.184,
+    "ci95": [
+     -0.016,
+     0.376
+    ],
+    "sd": 0.1009
+   }
+  },
+  "delta_auc": {
+   "S_minus_scan": {
+    "point": -0.08,
+    "ci95": [
+     -0.208,
+     0.048
+    ],
+    "sd": 0.0651
+   },
+   "S_minus_U": {
+    "point": 0.016,
+    "ci95": [
+     -0.024,
+     0.064
+    ],
+    "sd": 0.0228
+   },
+   "S_minus_S_L": {
+    "point": -0.028,
+    "ci95": [
+     -0.104,
+     0.044
+    ],
+    "sd": 0.0377
+   },
+   "S12_minus_S1": {
+    "point": 0.0,
+    "ci95": [
+     -0.04,
+     0.04
+    ],
+    "sd": 0.0197
+   },
+   "S_minus_S12": {
+    "point": -0.008,
+    "ci95": [
+     -0.032,
+     0.016
+    ],
+    "sd": 0.0137
+   },
+   "S1_minus_U": {
+    "point": 0.024,
+    "ci95": [
+     0.0,
+     0.064
+    ],
+    "sd": 0.0174
+   }
+  },
+  "pooled_auc": {
+   "S": 0.48,
+   "S_L": 0.507,
+   "U": 0.4674,
+   "S1": 0.491,
+   "S12": 0.4904,
+   "scan": 0.592
+  }
+ },
+ "units": [
+  {
+   "sym": "CELU",
+   "A": "2026-08-25",
+   "E_reg": "2026-08-17",
+   "identity": true,
+   "ev": {
+    "t": "2026-08-21",
+    "raw": {
+     "rsi": 61.16264980481609,
+     "drop52": 80.04763329841887,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 4,
+      "branch": "hold",
+      "bottom": 0.566,
+      "bottom_ago": 39,
+      "bounce_pct": 11.3,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": 0.5601,
+      "sweep_pct": 1.04,
+      "held": 37,
+      "hold_need": 3,
+      "vs_bottom_pct": 41.4
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.0,
+     "HOLD": 1.0,
+     "CYC": 0.8766666666666667,
+     "ZONE": 0.0,
+     "HOLDZ": 1.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.3705791402894828,
+    "S_L": 0.4578917912893037,
+    "D": -0.08731265099982088,
+    "U": 0.34333333333333343,
+    "S1": 0.3794756814509551,
+    "S12": 0.28066666666666656,
+    "sym": "CELU"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-21",
+     "raw": {
+      "rsi": 41.65794916643458,
+      "drop52": 80.7609756097561,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "hold",
+       "bottom": 0.7316,
+       "bottom_ago": 5,
+       "bounce_pct": 16.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 0.731,
+       "sweep_pct": 0.08,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 7.8
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.9283173694624102,
+     "S_L": 0.5825130739085417,
+     "D": 0.3458042955538685,
+     "U": 0.66623873412412,
+     "S1": 0.7363730028372003,
+     "S12": 0.7994142277737682,
+     "sym": "MATH"
+    },
+    {
+     "t": "2026-08-21",
+     "raw": {
+      "rsi": 58.15799316788409,
+      "drop52": 82.00545454545455,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.7732,
+       "bottom_ago": 56,
+       "bounce_pct": 13.8,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 0.6888,
+       "sweep_pct": 10.92,
+       "held": 47,
+       "hold_need": 3,
+       "vs_bottom_pct": 28.0
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.96,
+      "ZONE": 0.1333333333333333,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.47068150342302684,
+     "S_L": 0.6305497376480509,
+     "D": -0.15986823422502405,
+     "U": 0.4609523809523811,
+     "S1": 0.5094763656650826,
+     "S12": 0.3786733333333333,
+     "sym": "LITS"
+    },
+    {
+     "t": "2026-08-21",
+     "raw": {
+      "rsi": 53.82910393486068,
+      "drop52": 94.6825293350717,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.67,
+       "bottom_ago": 19,
+       "bounce_pct": 28.4,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.6101,
+       "sweep_pct": 8.94,
+       "held": 1,
+       "hold_need": 3,
+       "vs_bottom_pct": 21.7
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.5533333333333335,
+      "HOLDZ": 0.3333333333333333,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.621160685293068,
+     "S_L": 0.6587014779960768,
+     "D": -0.03754079270300881,
+     "U": 0.5654121081329075,
+     "S1": 0.6249324612651149,
+     "S12": 0.5360336180527372,
+     "sym": "VHUB"
+    },
+    {
+     "t": "2026-08-21",
+     "raw": {
+      "rsi": 41.037625527868165,
+      "drop52": 78.75074183976261,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.4001,
+       "bottom_ago": 48,
+       "bounce_pct": 257.4,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 79.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.8465423465423465,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.36773006866522984,
+     "S_L": 0.36378287426821443,
+     "D": 0.003947194397015408,
+     "U": 0.26631701631701626,
+     "S1": 0.29435193567636364,
+     "S12": 0.3061838228438228,
+     "sym": "FTHM"
+    },
+    {
+     "t": "2026-08-21",
+     "raw": {
+      "rsi": 43.35453705938799,
+      "drop52": 76.65714285714286,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.73,
+       "bottom_ago": 26,
+       "bounce_pct": 28.8,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.6781,
+       "sweep_pct": 7.11,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.7
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7739072007348272,
+     "S_L": 0.7119677051522341,
+     "D": 0.06193949558259315,
+     "U": 0.6402933524717361,
+     "S1": 0.7076963774496949,
+     "S12": 0.7297606934604307,
+     "sym": "ESLA"
+    }
+   ]
+  },
+  {
+   "sym": "BRLS",
+   "A": "2026-08-20",
+   "E_reg": "2026-08-17",
+   "identity": true,
+   "ev": {
+    "t": "2026-08-18",
+    "raw": {
+     "rsi": 47.2088993183175,
+     "drop52": 82.27290836653385,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 4,
+      "branch": "sweep",
+      "bottom": 0.72,
+      "bottom_ago": 24,
+      "bounce_pct": 48.6,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": 0.7,
+      "sweep_pct": 2.78,
+      "held": 13,
+      "hold_need": 3,
+      "vs_bottom_pct": 23.6
+     },
+     "sweep_reclaimed": true
+    },
+    "close": {
+     "RSI": 0.0,
+     "HOLD": 1.0,
+     "CYC": 1.0,
+     "ZONE": 0.4266666666666665,
+     "HOLDZ": 1.0,
+     "SWEEP": 1.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.6751445884722421,
+    "S_L": 0.6935909231905142,
+    "D": -0.01844633471827206,
+    "U": 0.6180952380952381,
+    "S1": 0.6831614903236334,
+    "S12": 0.5986733333333332,
+    "sym": "BRLS"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-18",
+     "raw": {
+      "rsi": 53.764870334383374,
+      "drop52": 75.84466019417476,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.47,
+       "bottom_ago": 34,
+       "bounce_pct": 29.8,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.4219,
+       "sweep_pct": 10.23,
+       "held": 1,
+       "hold_need": 3,
+       "vs_bottom_pct": 5.9
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.3333333333333333,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7702225076564829,
+     "S_L": 0.7410951064043585,
+     "D": 0.02912740125212443,
+     "U": 0.666666666666667,
+     "S1": 0.7368459833999128,
+     "S12": 0.7111200000000001,
+     "sym": "KTTA"
+    },
+    {
+     "t": "2026-08-18",
+     "raw": {
+      "rsi": 46.0649960281597,
+      "drop52": 91.37685134393855,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.7401,
+       "bottom_ago": 37,
+       "bounce_pct": 29.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.7001,
+       "sweep_pct": 5.4,
+       "held": 1,
+       "hold_need": 3,
+       "vs_bottom_pct": 6.2
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.3333333333333333,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.9312546940762993,
+     "S_L": 0.7410951064043585,
+     "D": 0.19015958767194086,
+     "U": 0.82972582972583,
+     "S1": 0.9170702174349563,
+     "S12": 0.8727428282828285,
+     "sym": "UPXI"
+    },
+    {
+     "t": "2026-08-18",
+     "raw": {
+      "rsi": 34.28496732323377,
+      "drop52": 72.18604241837542,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.63,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.3
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.43961789821278674,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.2594092909825738,
+     "S_L": 0.25275372989262945,
+     "D": -0.5121630208752033,
+     "U": -0.2762996481296801,
+     "S1": -0.30538542890874576,
+     "S12": -0.12015950738155201,
+     "sym": "INTZ"
+    },
+    {
+     "t": "2026-08-18",
+     "raw": {
+      "rsi": 37.60656133403542,
+      "drop52": 87.9975,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.5076,
+       "bottom_ago": 25,
+       "bounce_pct": 37.9,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.4755,
+       "sweep_pct": 6.32,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -5.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.18411066661266007,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.6191935800191336,
+     "S_L": 0.6758401984441492,
+     "D": -0.056646618425015616,
+     "U": 0.44022209522266476,
+     "S1": 0.4865638240030715,
+     "S12": 0.5940975999783972,
+     "sym": "BEAT"
+    },
+    {
+     "t": "2026-08-18",
+     "raw": {
+      "rsi": 46.732365372158846,
+      "drop52": 78.86335333408809,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.4631,
+       "bottom_ago": 14,
+       "bounce_pct": 35.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 20.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.7072829131652661,
+      "ZONE": 0.6066666666666667,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.5448566311461083,
+     "S_L": 0.44459422596253206,
+     "D": 0.10026240518357626,
+     "U": 0.40547418967587034,
+     "S1": 0.448158042052499,
+     "S12": 0.5010038655462186,
+     "sym": "BLNK"
+    }
+   ]
+  },
+  {
+   "sym": "AVAT",
+   "A": "2026-08-21",
+   "E_reg": "2026-08-17",
+   "identity": false,
+   "ev": {
+    "t": "2026-08-19",
+    "raw": {
+     "rsi": 29.362587723410087,
+     "drop52": 96.02432179607109,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 4,
+      "branch": "sweep",
+      "bottom": 0.29,
+      "bottom_ago": 16,
+      "bounce_pct": 19.7,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": 0.2851,
+      "sweep_pct": 1.69,
+      "held": 12,
+      "hold_need": 3,
+      "vs_bottom_pct": 46.6
+     },
+     "sweep_reclaimed": true
+    },
+    "close": {
+     "RSI": 0.8182624828146087,
+     "HOLD": 1.0,
+     "CYC": 1.0,
+     "ZONE": 0.0,
+     "HOLDZ": 1.0,
+     "SWEEP": 1.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": 0.5637343612370626,
+    "S_L": 0.7419957134136171,
+    "D": -0.1782613521765546,
+    "U": 0.5461702331851263,
+    "S1": 0.6036650138625809,
+    "S12": 0.49797832645917683,
+    "sym": "AVAT"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-19",
+     "raw": {
+      "rsi": 43.20387472390253,
+      "drop52": 74.79569892473118,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 8.7675,
+       "bottom_ago": 8,
+       "bounce_pct": 68.2,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 33.7
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.7529325513196481,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.45534469076068185,
+     "S_L": 0.3428799543472593,
+     "D": 0.1124647364134225,
+     "U": 0.33479262672811066,
+     "S1": 0.37003590341477177,
+     "S12": 0.37538567741935486,
+     "sym": "EPOW"
+    },
+    {
+     "t": "2026-08-19",
+     "raw": {
+      "rsi": 57.201913209923994,
+      "drop52": 88.92438764643238,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.3551,
+       "bottom_ago": 23,
+       "bounce_pct": 52.1,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 46.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.5547024952015356,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.2697086464641454,
+     "S_L": 0.29861549485233446,
+     "D": -0.028906848388189077,
+     "U": 0.2036069445431783,
+     "S1": 0.22504043891845454,
+     "S12": 0.21838972236044968,
+     "sym": "FLD"
+    },
+    {
+     "t": "2026-08-19",
+     "raw": {
+      "rsi": 35.066900535474616,
+      "drop52": 83.8741454968805,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.5202,
+       "bottom_ago": 1,
+       "bounce_pct": 11.5,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 3.8
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.37946918957887565,
+      "HOLD": 0.2,
+      "CYC": 0.7181159420289855,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.21547697923804054,
+     "S_L": 0.4387146301851536,
+     "D": -0.22323765094711306,
+     "U": 0.14292325305053033,
+     "S1": 0.15796863741709888,
+     "S12": 0.27341855427074235,
+     "sym": "LIQT"
+    },
+    {
+     "t": "2026-08-19",
+     "raw": {
+      "rsi": 58.27611306752621,
+      "drop52": 71.09677419354838,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.483,
+       "bottom_ago": 15,
+       "bounce_pct": 32.9,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 29.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.5455927051671732,
+      "ZONE": 0.00666666666666671,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.16607976382594541,
+     "S_L": 0.2978110487253731,
+     "D": -0.1317312848994277,
+     "U": 0.12323056882327404,
+     "S1": 0.13620292450427396,
+     "S12": 0.10586279635258367,
+     "sym": "HAIN"
+    },
+    {
+     "t": "2026-08-19",
+     "raw": {
+      "rsi": 45.2230114885164,
+      "drop52": 76.069484054965,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.62,
+       "bottom_ago": 36,
+       "bounce_pct": 37.1,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.55,
+       "sweep_pct": 11.29,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 4.2
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.6799245055506771,
+     "S_L": 0.7119677051522341,
+     "D": -0.03204319960155699,
+     "U": 0.4714285714285713,
+     "S1": 0.5210553739756525,
+     "S12": 0.6600200000000002,
+     "sym": "LGO"
+    }
+   ]
+  },
+  {
+   "sym": "GPRO",
+   "A": "2026-08-31",
+   "E_reg": "2026-08-19",
+   "identity": true,
+   "ev": {
+    "t": "2026-08-27",
+    "raw": {
+     "rsi": 41.9240139577761,
+     "drop52": 80.16065573770493,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 3,
+      "branch": "hold",
+      "bottom": 0.5701,
+      "bottom_ago": 11,
+      "bounce_pct": 15.6,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": 0.5751,
+      "sweep_pct": 0.0,
+      "held": 1,
+      "hold_need": 3,
+      "vs_bottom_pct": 6.1
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.0,
+     "HOLD": 1.0,
+     "CYC": 1.0,
+     "ZONE": 1.0,
+     "HOLDZ": 0.3333333333333333,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.5825130739085416,
+    "S_L": 0.611640475160666,
+    "D": -0.02912740125212443,
+    "U": 0.4285714285714286,
+    "S1": 0.4736867036142297,
+    "S12": 0.5333400000000001,
+    "sym": "GPRO"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-27",
+     "raw": {
+      "rsi": 51.09152458687818,
+      "drop52": 88.88172043010752,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.7188,
+       "bottom_ago": 44,
+       "bounce_pct": 66.9,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 0.6552,
+       "sweep_pct": 8.85,
+       "held": 2,
+       "hold_need": 3,
+       "vs_bottom_pct": 15.1
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.9933333333333334,
+      "HOLDZ": 0.6666666666666666,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7981201532607224,
+     "S_L": 0.7689927520085981,
+     "D": 0.02912740125212432,
+     "U": 0.7133333333333334,
+     "S1": 0.7884252022379066,
+     "S12": 0.7320066666666668,
+     "sym": "STEX"
+    },
+    {
+     "t": "2026-08-27",
+     "raw": {
+      "rsi": 35.88055310617078,
+      "drop52": 90.64766839378238,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 3.5,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 3.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.31688053029455543,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.1829100026144762,
+     "S_L": 0.23368766851974615,
+     "D": -0.41659767113422236,
+     "U": -0.12675700066064832,
+     "S1": -0.14010058020692814,
+     "S12": -0.07746980092490752,
+     "sym": "NVX"
+    },
+    {
+     "t": "2026-08-27",
+     "raw": {
+      "rsi": 50.48924065131142,
+      "drop52": 74.09354838709677,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.7802,
+       "bottom_ago": 44,
+       "bounce_pct": 29.5,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.69,
+       "sweep_pct": 11.56,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 2.9
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7119677051522341,
+     "S_L": 0.7119677051522341,
+     "D": 0.0,
+     "U": 0.5714285714285714,
+     "S1": 0.6315822714856394,
+     "S12": 0.66668,
+     "sym": "QSI"
+    },
+    {
+     "t": "2026-08-27",
+     "raw": {
+      "rsi": 37.21608220345893,
+      "drop52": 79.95347615653023,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.5803,
+       "bottom_ago": 49,
+       "bounce_pct": 77.5,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 0.5111,
+       "sweep_pct": 11.92,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -7.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.21414752281085142,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.626395348690119,
+     "S_L": 0.6805061331422495,
+     "D": -0.05411078445213047,
+     "U": 0.46892731689660594,
+     "S1": 0.5182908149426431,
+     "S12": 0.5898382436552484,
+     "sym": "PROP"
+    },
+    {
+     "t": "2026-08-27",
+     "raw": {
+      "rsi": 49.27985137370123,
+      "drop52": 78.25200950979281,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.4631,
+       "bottom_ago": 21,
+       "bounce_pct": 35.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 24.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.658263305322129,
+      "ZONE": 0.3733333333333334,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.3690117974395284,
+     "S_L": 0.39060677701752944,
+     "D": -0.02159497957800105,
+     "U": 0.27409363745498205,
+     "S1": 0.302947193751263,
+     "S12": 0.31707109243697484,
+     "sym": "BLNK"
+    }
+   ]
+  },
+  {
+   "sym": "INDP",
+   "A": "2026-08-20",
+   "E_reg": "2026-08-19",
+   "identity": true,
+   "ev": {
+    "t": "2026-08-18",
+    "raw": {
+     "rsi": 26.63870866455676,
+     "drop52": 89.07701283547257,
+     "gaps_above": 0,
+     "pc": null,
+     "sweep_reclaimed": null
+    },
+    "close": {
+     "RSI": 1.0,
+     "HOLD": null,
+     "CYC": null,
+     "ZONE": null,
+     "HOLDZ": null,
+     "SWEEP": null,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": 1.021832053870005,
+    "S_L": 0.7741851198641323,
+    "D": 0.24764693400587268,
+    "U": 0.5957010892030532,
+    "S1": 1.0531784581669887,
+    "S12": 1.000679025821798,
+    "sym": "INDP"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-18",
+     "raw": {
+      "rsi": 60.824257105983314,
+      "drop52": 86.42836195379452,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.3112,
+       "bottom_ago": 36,
+       "bounce_pct": 20.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.3013,
+       "sweep_pct": 3.18,
+       "held": 13,
+       "hold_need": 3,
+       "vs_bottom_pct": 33.8
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.43411248148682113,
+     "S_L": 0.614886561725887,
+     "D": -0.18077408023906583,
+     "U": 0.4314285714285713,
+     "S1": 0.47684461497165775,
+     "S12": 0.3373400000000001,
+     "sym": "BIOX"
+    },
+    {
+     "t": "2026-08-18",
+     "raw": {
+      "rsi": 39.74598638003107,
+      "drop52": 76.51612903225806,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.7802,
+       "bottom_ago": 37,
+       "bounce_pct": 29.5,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.69,
+       "sweep_pct": 11.56,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -6.7
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.019539509228379232,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.857745249608218,
+     "S_L": 0.6502756630453983,
+     "D": 0.20746958656281966,
+     "U": 0.6728497976677357,
+     "S1": 0.7436800062643725,
+     "S12": 0.8086697167348297,
+     "sym": "QSI"
+    },
+    {
+     "t": "2026-08-18",
+     "raw": {
+      "rsi": 41.678697296190705,
+      "drop52": 98.96458333333334,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.4801,
+       "bottom_ago": 15,
+       "bounce_pct": 11.5,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 0.4261,
+       "sweep_pct": 11.25,
+       "held": 7,
+       "hold_need": 3,
+       "vs_bottom_pct": 3.5
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.8833333333333333,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8171828949150468,
+     "S_L": 0.7732984258883049,
+     "D": 0.043884469026741924,
+     "U": 0.7566666666666666,
+     "S1": 0.8363201911589007,
+     "S12": 0.7482266666666667,
+     "sym": "CWD"
+    },
+    {
+     "t": "2026-08-18",
+     "raw": {
+      "rsi": 26.86954598482673,
+      "drop52": 99.89288499025342,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 1.3527,
+       "bottom_ago": 3,
+       "bounce_pct": 55.2,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 21.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.6,
+      "CYC": 0.8016304347826088,
+      "ZONE": 0.54,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.7378045720642045,
+     "S_L": 0.5388041170346318,
+     "D": 0.19900045502957264,
+     "U": 0.5547515527950312,
+     "S1": 0.6131496801928249,
+     "S12": 0.6966601739130435,
+     "sym": "NIVF"
+    },
+    {
+     "t": "2026-08-18",
+     "raw": {
+      "rsi": 42.036172004222216,
+      "drop52": 99.91274757281553,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.59,
+       "bottom_ago": 17,
+       "bounce_pct": 68.7,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 52.3
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.6193595342066958,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.3039057819101312,
+     "S_L": 0.31305330988478547,
+     "D": -0.00914752797465429,
+     "U": 0.21927582577092725,
+     "S1": 0.24235876721401012,
+     "S12": 0.24032615607929803,
+     "sym": "KALA"
+    }
+   ]
+  },
+  {
+   "sym": "BTCT",
+   "A": "2026-08-19",
+   "E_reg": "2026-08-20",
+   "identity": true,
+   "ev": {
+    "t": "2026-08-17",
+    "raw": {
+     "rsi": 25.224012997826463,
+     "drop52": 85.86217948717949,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 1,
+      "branch": null,
+      "bottom": 0.4305,
+      "bottom_ago": 0,
+      "bounce_pct": 0.0,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 2.5
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 1.0,
+     "HOLD": 0.0,
+     "CYC": 0.0,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": -0.12297338034260852,
+    "S_L": 0.3398036620050592,
+    "D": -0.4627770423476677,
+    "U": -0.07142857142857151,
+    "S1": -0.0789477839357049,
+    "S12": -9.99999999995449e-06,
+    "sym": "BTCT"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-17",
+     "raw": {
+      "rsi": 43.38097184616718,
+      "drop52": 87.05270092226614,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.79,
+       "bottom_ago": 58,
+       "bounce_pct": 83.5,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 0.72,
+       "sweep_pct": 8.86,
+       "held": 48,
+       "hold_need": 3,
+       "vs_bottom_pct": 24.4
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.3733333333333334,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 1.3675057560148718,
+     "S_L": 0.6837528780074359,
+     "D": 0.6837528780074359,
+     "U": 1.2495238095238095,
+     "S1": 1.3810599003152646,
+     "S12": 1.2160133333333334,
+     "sym": "GLXG"
+    },
+    {
+     "t": "2026-08-17",
+     "raw": {
+      "rsi": 38.49784577516573,
+      "drop52": 96.10313355035849,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.9066,
+       "bottom_ago": 11,
+       "bounce_pct": 29.1,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 7.6
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.11555032498725162,
+      "HOLD": 1.0,
+      "CYC": 0.8694158075601375,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.6704545910567858,
+     "S_L": 0.5713034531521681,
+     "D": 0.09915113790461771,
+     "U": 0.4962321718317632,
+     "S1": 0.5484700239720749,
+     "S12": 0.6280650405644684,
+     "sym": "BNKK"
+    },
+    {
+     "t": "2026-08-17",
+     "raw": {
+      "rsi": 40.64002774314822,
+      "drop52": 94.59498607242341,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.97,
+       "bottom_ago": 12,
+       "bounce_pct": 23.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.9405,
+       "sweep_pct": 3.04,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.0
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8838076857543548,
+     "S_L": 0.7119677051522341,
+     "D": 0.1718399806021207,
+     "U": 0.7414021164021163,
+     "S1": 0.819448757332641,
+     "S12": 0.837982962962963,
+     "sym": "PRFX"
+    },
+    {
+     "t": "2026-08-17",
+     "raw": {
+      "rsi": 44.02776661813497,
+      "drop52": 90.79861111111111,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.4746931636471245,
+     "S_L": 0.0,
+     "D": -0.4746931636471245,
+     "U": -0.3479983143699958,
+     "S1": -0.3846317402602072,
+     "S12": -0.4205376401179941,
+     "sym": "CALC"
+    },
+    {
+     "t": "2026-08-17",
+     "raw": {
+      "rsi": 30.3396730732358,
+      "drop52": 98.97080091104436,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 10.875,
+       "bottom_ago": 3,
+       "bounce_pct": 37.9,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 21.2
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.7431020712895537,
+      "HOLD": 0.6,
+      "CYC": 0.7203166226912929,
+      "ZONE": 0.5866666666666667,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.6388934484024802,
+     "S_L": 0.4893485552037697,
+     "D": 0.1495448931987105,
+     "U": 0.4714529601850038,
+     "S1": 0.5210823301114784,
+     "S12": 0.5800421442590054,
+     "sym": "JAGX"
+    }
+   ]
+  },
+  {
+   "sym": "SVRN",
+   "A": "2026-09-02",
+   "E_reg": "2026-08-21",
+   "identity": true,
+   "ev": {
+    "t": "2026-08-31",
+    "raw": {
+     "rsi": 70.65518357384795,
+     "drop52": 80.95037846930194,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 4,
+      "branch": "hold",
+      "bottom": 5.936,
+      "bottom_ago": 21,
+      "bounce_pct": 12.0,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": 5.9,
+      "sweep_pct": 0.61,
+      "held": 13,
+      "hold_need": 3,
+      "vs_bottom_pct": 52.6
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.0,
+     "HOLD": 1.0,
+     "CYC": 0.9,
+     "ZONE": 0.0,
+     "HOLDZ": 1.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.4631020878933641,
+    "S_L": 0.4631020878933641,
+    "D": 0.0,
+    "U": 0.41428571428571426,
+    "S1": 0.45789714682708854,
+    "S12": 0.38,
+    "sym": "SVRN"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-31",
+     "raw": {
+      "rsi": 40.52010094964701,
+      "drop52": 92.01388888888889,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 2.033,
+       "bottom_ago": 31,
+       "bounce_pct": 105.3,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 13.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.9377967711301045,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.5366443059072687,
+     "S_L": 0.5686231908167241,
+     "D": -0.03197888490945533,
+     "U": 0.39161160199348966,
+     "S1": 0.43283615397256203,
+     "S12": 0.4815962427908854,
+     "sym": "NXXT"
+    },
+    {
+     "t": "2026-08-31",
+     "raw": {
+      "rsi": 49.614999427027,
+      "drop52": 97.40066666666667,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.2293,
+       "bottom_ago": 9,
+       "bounce_pct": 83.2,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 70.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.5787259615384616,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.24113421572581623,
+     "S_L": 0.3039798970697507,
+     "D": -0.06284568134393448,
+     "U": 0.16399403257033085,
+     "S1": 0.18125751630150405,
+     "S12": 0.14959964559846312,
+     "sym": "ALPS"
+    },
+    {
+     "t": "2026-08-31",
+     "raw": {
+      "rsi": 46.0639141951541,
+      "drop52": 97.6957627118644,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 7.5,
+       "bottom_ago": 30,
+       "bounce_pct": 54.0,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 6.861,
+       "sweep_pct": 8.52,
+       "held": 4,
+       "hold_need": 3,
+       "vs_bottom_pct": 8.8
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.843972127957707,
+     "S_L": 0.7993499089086071,
+     "D": 0.04462221904909991,
+     "U": 0.8178190714862975,
+     "S1": 0.9039100469587864,
+     "S12": 0.7449467000808164,
+     "sym": "BGM"
+    },
+    {
+     "t": "2026-08-31",
+     "raw": {
+      "rsi": 38.43534427517283,
+      "drop52": 95.88127853881278,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.120358132679013,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.4394935845330601,
+     "S_L": 0.09317947537472482,
+     "D": -0.5326730599077849,
+     "U": -0.34868996444879524,
+     "S1": -0.33788259702366275,
+     "S12": -0.40946562341759785,
+     "sym": "SCAG"
+    },
+    {
+     "t": "2026-08-31",
+     "raw": {
+      "rsi": 30.57544109570921,
+      "drop52": 94.18995633187774,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.2153,
+       "bottom_ago": 1,
+       "bounce_pct": 25.3,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 23.6
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.7249660695608301,
+      "HOLD": 0.2,
+      "CYC": 0.5335968379446641,
+      "ZONE": 0.4266666666666665,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": -0.1267017828301389,
+     "S_L": 0.3454224130852441,
+     "D": -0.47212419591538296,
+     "U": -0.1715507746421412,
+     "S1": -0.18960974886630788,
+     "S12": -0.04462175116566425,
+     "sym": "RIME"
+    }
+   ]
+  },
+  {
+   "sym": "VIOT",
+   "A": "2026-09-02",
+   "E_reg": "2026-08-25",
+   "identity": true,
+   "ev": {
+    "t": "2026-08-31",
+    "raw": {
+     "rsi": 73.1816841124775,
+     "drop52": 74.16032608695653,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 3,
+      "branch": "sweep",
+      "bottom": 0.7419,
+      "bottom_ago": 44,
+      "bounce_pct": 25.3,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": 0.6615,
+      "sweep_pct": 10.84,
+      "held": 2,
+      "hold_need": 3,
+      "vs_bottom_pct": 28.2
+     },
+     "sweep_reclaimed": true
+    },
+    "close": {
+     "RSI": 0.0,
+     "HOLD": 1.0,
+     "CYC": 1.0,
+     "ZONE": 0.12,
+     "HOLDZ": 0.6666666666666666,
+     "SWEEP": 1.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.545103824355894,
+    "S_L": 0.607894762135689,
+    "D": -0.06279093777979505,
+    "U": 0.5603435203246587,
+    "S1": 0.6193303084130881,
+    "S12": 0.4400442617878556,
+    "sym": "VIOT"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-31",
+     "raw": {
+      "rsi": 38.12006664256187,
+      "drop52": 76.11940298507463,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.14461025826447127,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.10242054450091528,
+     "S_L": 0.11195511012806282,
+     "D": -0.009534565627147537,
+     "U": 0.06614732179229293,
+     "S1": 0.09922346327502128,
+     "S12": 0.09922346327502128,
+     "sym": "HIT"
+    },
+    {
+     "t": "2026-08-31",
+     "raw": {
+      "rsi": 47.49898895734604,
+      "drop52": 80.6822508185487,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.38,
+       "bottom_ago": 55,
+       "bounce_pct": 67.9,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 0.371,
+       "sweep_pct": 2.37,
+       "held": 47,
+       "hold_need": 3,
+       "vs_bottom_pct": 100.3
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 1.229773123451774,
+     "S_L": 0.614886561725887,
+     "D": 0.614886561725887,
+     "U": 1.1428571428571428,
+     "S1": 1.2631645429712788,
+     "S12": 1.06668,
+     "sym": "TGHL"
+    },
+    {
+     "t": "2026-08-31",
+     "raw": {
+      "rsi": 36.20773888521758,
+      "drop52": 97.23960000000001,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.7508,
+       "bottom_ago": 22,
+       "bounce_pct": 145.1,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 0.6808,
+       "sweep_pct": 9.32,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -8.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.29171239344480154,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8025970952228211,
+     "S_L": 0.6925550845656814,
+     "D": 0.1100420106571397,
+     "U": 0.6547749695556575,
+     "S1": 0.7237024595218295,
+     "S12": 0.7833649573779203,
+     "sym": "FUSE"
+    },
+    {
+     "t": "2026-08-31",
+     "raw": {
+      "rsi": 42.83155718080765,
+      "drop52": 84.60410557184751,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 3,
+       "branch": "hold",
+       "bottom": 1.03,
+       "bottom_ago": 23,
+       "bounce_pct": 24.3,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 1.03,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 1.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 0.0,
+     "S": 0.5695680476733466,
+     "S_L": 0.6278228501775954,
+     "D": -0.05825480250424886,
+     "U": 0.47619047619047616,
+     "S1": 0.4210495844714972,
+     "S12": 0.5555599999999999,
+     "sym": "CYN"
+    },
+    {
+     "t": "2026-08-31",
+     "raw": {
+      "rsi": 66.2121308921358,
+      "drop52": 60.39778227580746,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.68,
+       "bottom_ago": 56,
+       "bounce_pct": 27.6,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.593,
+       "sweep_pct": 12.79,
+       "held": 3,
+       "hold_need": 3,
+       "vs_bottom_pct": 32.4
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.5091589192388479,
+     "S_L": 0.614886561725887,
+     "D": -0.10572764248703903,
+     "U": 0.5753796593843883,
+     "S1": 0.6359492864210946,
+     "S12": 0.3722015231381438,
+     "sym": "INTZ"
+    }
+   ]
+  },
+  {
+   "sym": "SUNE",
+   "A": "2026-09-09",
+   "E_reg": "2026-08-31",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-04",
+    "raw": {
+     "rsi": 50.45795295882826,
+     "drop52": 75.02645502645503,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 2,
+      "branch": null,
+      "bottom": 1.87,
+      "bottom_ago": 42,
+      "bounce_pct": 140.6,
+      "typical": false,
+      "first_rise": true,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 26.2
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.0,
+     "HOLD": 1.0,
+     "CYC": 0.9068278805120911,
+     "ZONE": 0.2533333333333334,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.46395722941688283,
+    "S_L": 0.4239752537271168,
+    "D": 0.039981975689766025,
+    "U": 0.34046736989370396,
+    "S1": 0.3763080209773621,
+    "S12": 0.40999431785118556,
+    "sym": "SUNE"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-04",
+     "raw": {
+      "rsi": 23.983980306948368,
+      "drop52": 84.15841584158416,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 2.205,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 8.8
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": -0.07766360407355477,
+     "S_L": 0.385113438274113,
+     "D": -0.46277704234766776,
+     "U": 0.0714285714285714,
+     "S1": -0.026321191164164093,
+     "S12": 0.06664999999999988,
+     "sym": "SILO"
+    },
+    {
+     "t": "2026-09-04",
+     "raw": {
+      "rsi": 36.57804600078359,
+      "drop52": 86.54545454545455,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 4.0,
+       "bottom_ago": 48,
+       "bounce_pct": 42.3,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 3.64,
+       "sweep_pct": 9.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -7.5
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.2632272307089548,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7371089943692641,
+     "S_L": 0.6881301904185294,
+     "D": 0.04897880395073473,
+     "U": 0.5275887325835109,
+     "S1": 0.5831274577368157,
+     "S12": 0.7386442256169152,
+     "sym": "UPLD"
+    },
+    {
+     "t": "2026-09-04",
+     "raw": {
+      "rsi": 42.18804904870759,
+      "drop52": 76.16387337057728,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.48594865085748046,
+     "S_L": 0.0,
+     "D": -0.48594865085748046,
+     "U": -0.3550334779581124,
+     "S1": -0.3924074883089048,
+     "S12": -0.4303868691413573,
+     "sym": "CRVO"
+    },
+    {
+     "t": "2026-09-04",
+     "raw": {
+      "rsi": 29.67563948621776,
+      "drop52": 98.7017001545595,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 1.8,
+       "bottom_ago": 42,
+       "bounce_pct": 221.7,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 16.7
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.7941815779832491,
+      "HOLD": 1.0,
+      "CYC": 0.9623364907532702,
+      "ZONE": 0.8866666666666667,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.9350189896788457,
+     "S_L": 0.6765654419162956,
+     "D": 0.2584535477625501,
+     "U": 0.7307976033281702,
+     "S1": 0.8077279180359671,
+     "S12": 0.956456644659438,
+     "sym": "GMM"
+    },
+    {
+     "t": "2026-09-04",
+     "raw": {
+      "rsi": 29.827932299323663,
+      "drop52": 76.57407407407408,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 2.631,
+       "bottom_ago": 53,
+       "bounce_pct": 125.0,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 2.43,
+       "sweep_pct": 7.64,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -3.8
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.7824667462058721,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": 0.7405260874423019,
+     "S_L": 0.8140987964930732,
+     "D": -0.07357270905077129,
+     "U": 0.6125779722962403,
+     "S1": 0.5717944525087525,
+     "S12": 0.7909491612147366,
+     "sym": "SNAL"
+    }
+   ]
+  },
+  {
+   "sym": "BIAF",
+   "A": "2026-08-18",
+   "E_reg": "2026-09-01",
+   "identity": true,
+   "ev": {
+    "t": "2026-08-14",
+    "raw": {
+     "rsi": 20.97648802052889,
+     "drop52": 97.02148148148149,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 2,
+      "branch": null,
+      "bottom": 4.878,
+      "bottom_ago": 1,
+      "bounce_pct": 27.2,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 23.6
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 1.0,
+     "HOLD": 0.2,
+     "CYC": 0.5661764705882353,
+     "ZONE": 0.4266666666666665,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": 0.4510388402185781,
+    "S_L": 0.39542125111181864,
+    "D": 0.05561758910675946,
+    "U": 0.34081232492997193,
+    "S1": 0.3766892890767535,
+    "S12": 0.45047325490196066,
+    "sym": "BIAF"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-14",
+     "raw": {
+      "rsi": 41.721755381546984,
+      "drop52": 83.88181818181818,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.7732,
+       "bottom_ago": 51,
+       "bounce_pct": 13.8,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 0.6888,
+       "sweep_pct": 10.92,
+       "held": 42,
+       "hold_need": 3,
+       "vs_bottom_pct": 14.7
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.96,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.81993210742231,
+     "S_L": 0.7904179718730749,
+     "D": 0.0295141355492351,
+     "U": 0.7314285714285713,
+     "S1": 0.8084253075016183,
+     "S12": 0.7573399999999999,
+     "sym": "LITS"
+    },
+    {
+     "t": "2026-08-14",
+     "raw": {
+      "rsi": 28.44253102834844,
+      "drop52": 77.11616161616162,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 7.86,
+       "bottom_ago": 9,
+       "bounce_pct": 52.7,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 15.3
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.8890360747424276,
+      "HOLD": 1.0,
+      "CYC": 0.8548387096774194,
+      "ZONE": 0.98,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.9283980790095872,
+     "S_L": 0.684512663074845,
+     "D": 0.2438854159347421,
+     "U": 0.7243949138426778,
+     "S1": 0.8006512239904544,
+     "S12": 0.9341608793797489,
+     "sym": "NRSN"
+    },
+    {
+     "t": "2026-08-14",
+     "raw": {
+      "rsi": 23.87961294118972,
+      "drop52": 96.98447488584475,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 11.6,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 13.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": -0.15873154055106253,
+     "S_L": 0.3398036620050592,
+     "D": -0.4985352025561217,
+     "U": -0.1162159532981103,
+     "S1": -0.12844988759205656,
+     "S12": -0.02938233461735429,
+     "sym": "UCAR"
+    },
+    {
+     "t": "2026-08-14",
+     "raw": {
+      "rsi": 42.51002245633859,
+      "drop52": 72.1881390593047,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 7.8,
+       "bottom_ago": 48,
+       "bounce_pct": 56.9,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 7.68,
+       "sweep_pct": 1.54,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 4.6
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8563350607961999,
+     "S_L": 0.7119677051522341,
+     "D": 0.14436735564396586,
+     "U": 0.7238262616118503,
+     "S1": 0.8000227103220995,
+     "S12": 0.8133767662565906,
+     "sym": "GUTS"
+    },
+    {
+     "t": "2026-08-14",
+     "raw": {
+      "rsi": 41.05084627983768,
+      "drop52": 99.6127446300716,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.711,
+       "bottom_ago": 19,
+       "bounce_pct": 40.6,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.6652,
+       "sweep_pct": 6.44,
+       "held": 11,
+       "hold_need": 3,
+       "vs_bottom_pct": 14.1
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.9272444962886265,
+     "S_L": 0.7993499089086071,
+     "D": 0.12789458738001935,
+     "U": 0.8133333333333334,
+     "S1": 0.8989520997478934,
+     "S12": 0.8720066666666666,
+     "sym": "ONCO"
+    }
+   ]
+  },
+  {
+   "sym": "ATER",
+   "A": "2026-09-03",
+   "E_reg": "2026-09-01",
+   "identity": false,
+   "ev": {
+    "t": "2026-09-01",
+    "raw": {
+     "rsi": 40.135152929339284,
+     "drop52": 75.93582887700535,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 2,
+      "branch": null,
+      "bottom": 0.3541,
+      "bottom_ago": 25,
+      "bounce_pct": 55.0,
+      "typical": false,
+      "first_rise": true,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 27.1
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.0,
+     "HOLD": 1.0,
+     "CYC": 0.7536363636363637,
+     "ZONE": 0.19333333333333325,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.1653471477477797,
+    "S_L": 0.37870002831836197,
+    "D": -0.21335288057058227,
+    "U": 0.10170152806200983,
+    "S1": 0.1124075436871882,
+    "S12": 0.07572213928681382,
+    "sym": "ATER"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-01",
+     "raw": {
+      "rsi": 41.29443196543005,
+      "drop52": 92.49329359165425,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.3804,
+       "bottom_ago": 10,
+       "bounce_pct": 44.3,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 32.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.6343115124153499,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.30816420221711294,
+     "S_L": 0.31639206308269413,
+     "D": -0.008227860865581194,
+     "U": 0.22224241065892963,
+     "S1": 0.24563764145271932,
+     "S12": 0.24447937492250144,
+     "sym": "RKDA"
+    },
+    {
+     "t": "2026-09-01",
+     "raw": {
+      "rsi": 41.8007274313721,
+      "drop52": 91.6344410876133,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.0,
+     "S_L": 0.0,
+     "D": 0.0,
+     "U": 0.0,
+     "S1": 0.0,
+     "S12": 0.0,
+     "sym": "JYD"
+    },
+    {
+     "t": "2026-09-01",
+     "raw": {
+      "rsi": 64.66496840355299,
+      "drop52": 84.41016949152542,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.3112,
+       "bottom_ago": 46,
+       "bounce_pct": 20.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.3013,
+       "sweep_pct": 3.18,
+       "held": 23,
+       "hold_need": 3,
+       "vs_bottom_pct": 47.8
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.614886561725887,
+     "S_L": 0.614886561725887,
+     "D": 0.0,
+     "U": 0.5714285714285714,
+     "S1": 0.6315822714856394,
+     "S12": 0.53334,
+     "sym": "BIOX"
+    },
+    {
+     "t": "2026-09-01",
+     "raw": {
+      "rsi": 42.62034130390491,
+      "drop52": 90.40591397849462,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.7188,
+       "bottom_ago": 47,
+       "bounce_pct": 66.9,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 0.6552,
+       "sweep_pct": 8.85,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -0.7
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.5825130739085417,
+     "S_L": 0.6472403895303879,
+     "D": -0.0647273156218462,
+     "U": 0.4285714285714286,
+     "S1": 0.4736867036142296,
+     "S12": 0.5333399999999998,
+     "sym": "STEX"
+    },
+    {
+     "t": "2026-09-01",
+     "raw": {
+      "rsi": 38.60509905643105,
+      "drop52": 90.98687089715536,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.401,
+       "bottom_ago": 29,
+       "bounce_pct": 37.2,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.38,
+       "sweep_pct": 5.24,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 2.7
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.10730007258222685,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.6299571352507649,
+     "S_L": 0.728635732207617,
+     "D": -0.0986785969568521,
+     "U": 0.4335113970906369,
+     "S1": 0.47914669755648054,
+     "S12": 0.6069359559268916,
+     "sym": "HPAI"
+    }
+   ]
+  },
+  {
+   "sym": "PDSB",
+   "A": "2026-09-08",
+   "E_reg": "2026-09-02",
+   "identity": false,
+   "ev": {
+    "t": "2026-09-03",
+    "raw": {
+     "rsi": 24.1690047129793,
+     "drop52": 85.80645161290322,
+     "gaps_above": 1,
+     "pc": {
+      "stage": 3,
+      "branch": "sweep",
+      "bottom": 0.2167,
+      "bottom_ago": 15,
+      "bounce_pct": 12.8,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": 0.1952,
+      "sweep_pct": 9.92,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 1.5
+     },
+     "sweep_reclaimed": true
+    },
+    "close": {
+     "RSI": 1.0,
+     "HOLD": 1.0,
+     "CYC": 0.9266666666666667,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 1.0,
+     "GAP": 1.0
+    },
+    "scan": 1.0,
+    "S": 0.8962425783451513,
+    "S_L": 0.8962425783451513,
+    "D": 0.0,
+    "U": 0.8466666666666667,
+    "S1": 0.8305254238180201,
+    "S12": 0.9186733333333335,
+    "sym": "PDSB"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-03",
+     "raw": {
+      "rsi": 17.27470065952174,
+      "drop52": 85.56809338521401,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.3506,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 5.8
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": 0.21923828629450381,
+     "S_L": 0.385113438274113,
+     "D": -0.16587515197960917,
+     "U": 0.4487394957983193,
+     "S1": 0.28543989240810236,
+     "S12": 0.4282152941176469,
+     "sym": "TCRX"
+    },
+    {
+     "t": "2026-09-03",
+     "raw": {
+      "rsi": 40.11386330340272,
+      "drop52": 79.04761904761905,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.303,
+       "bottom_ago": 17,
+       "bounce_pct": 18.7,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 0.2975,
+       "sweep_pct": 1.82,
+       "held": 1,
+       "hold_need": 3,
+       "vs_bottom_pct": 8.9
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.3333333333333333,
+      "SWEEP": 1.0,
+      "GAP": 1.0
+     },
+     "scan": 0.0,
+     "S": 0.75383987000716,
+     "S_L": 0.7864048826734122,
+     "D": -0.032565012666252224,
+     "U": 0.7319566787434264,
+     "S1": 0.703740033032382,
+     "S12": 0.7136326835741302,
+     "sym": "HRTX"
+    },
+    {
+     "t": "2026-09-03",
+     "raw": {
+      "rsi": 41.72925864723879,
+      "drop52": 91.10000000000001,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "hold",
+       "bottom": 0.2916,
+       "bottom_ago": 24,
+       "bounce_pct": 46.8,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.2904,
+       "sweep_pct": 0.41,
+       "held": 7,
+       "hold_need": 3,
+       "vs_bottom_pct": 19.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.7333333333333334,
+      "HOLDZ": 1.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.711320235395887,
+     "S_L": 0.6207050517495226,
+     "D": 0.09061518364636434,
+     "U": 0.6285714285714286,
+     "S1": 0.6947404986342034,
+     "S12": 0.6355533333333333,
+     "sym": "RMSG"
+    },
+    {
+     "t": "2026-09-03",
+     "raw": {
+      "rsi": 36.538707159036306,
+      "drop52": 98.2829162132753,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 1.8216,
+       "bottom_ago": 2,
+       "bounce_pct": 10.7,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 4.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.26625329545874565,
+      "HOLD": 0.4,
+      "CYC": 0.6697507788161994,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.16916367311764202,
+     "S_L": 0.4452780329038972,
+     "D": -0.2761143597862552,
+     "U": 0.0992365989047389,
+     "S1": 0.10968313396383744,
+     "S12": 0.18559323846663411,
+     "sym": "SHFS"
+    },
+    {
+     "t": "2026-09-03",
+     "raw": {
+      "rsi": 21.963157384592407,
+      "drop52": 91.69364161849711,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 2.85,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.8
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": 0.16118487269772352,
+     "S_L": 0.385113438274113,
+     "D": -0.22392856557638946,
+     "U": 0.39464567903700737,
+     "S1": 0.22565167499708705,
+     "S12": 0.35248395065181026,
+     "sym": "BRTX"
+    }
+   ]
+  },
+  {
+   "sym": "ZEO",
+   "A": "2026-09-18",
+   "E_reg": "2026-09-02",
+   "identity": false,
+   "ev": {
+    "t": "2026-09-16",
+    "raw": {
+     "rsi": 31.79069082555887,
+     "drop52": 87.94174757281553,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 2,
+      "branch": null,
+      "bottom": 0.1865,
+      "bottom_ago": 10,
+      "bounce_pct": 76.9,
+      "typical": false,
+      "first_rise": true,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 33.2
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.6314853211108562,
+     "HOLD": 1.0,
+     "CYC": 0.7841352405721717,
+     "ZONE": 0.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": 0.49012831722411276,
+    "S_L": 0.44794259432787603,
+    "D": 0.04218572289623673,
+    "U": 0.37127206118985184,
+    "S1": 0.41035549055452325,
+    "S12": 0.4531208856657926,
+    "sym": "ZEO"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 39.47714211594434,
+      "drop52": 87.41258741258741,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.3454,
+       "bottom_ago": 41,
+       "bounce_pct": 22.1,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 4.2
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.040219837235050834,
+      "HOLD": 1.0,
+      "CYC": 0.9049773755656109,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.5101743203119685,
+     "S_L": 0.5675424336267629,
+     "D": -0.05736811331479441,
+     "U": 0.35577063222876054,
+     "S1": 0.3932222420541145,
+     "S12": 0.4647488851202646,
+     "sym": "SNGX"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 44.3927119498637,
+      "drop52": 87.60714285714286,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.211,
+       "bottom_ago": 35,
+       "bounce_pct": 180.2,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 31.6
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.9123196448390677,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.04367466931744446,
+     "S_L": 0.3784708414370578,
+     "D": -0.3347961721196133,
+     "U": -0.10124200623645696,
+     "S1": -0.1118996484700232,
+     "S12": -0.008398808731039598,
+     "sym": "IVDA"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 26.067868151404852,
+      "drop52": 87.30630211501986,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.3131,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 13.3
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": -0.2671900621458899,
+     "S_L": 0.3398036620050592,
+     "D": -0.6069937241509491,
+     "U": -0.3815190946861887,
+     "S1": -0.3164122436649648,
+     "S12": -0.1341267325606642,
+     "sym": "UCL"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 16.147799982365157,
+      "drop52": 88.77872340425532,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.2562,
+       "bottom_ago": 1,
+       "bounce_pct": 10.5,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 2.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.2,
+      "CYC": 0.7119047619047618,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.7373915333600488,
+     "S_L": 0.5337211348882843,
+     "D": 0.2036703984717645,
+     "U": 0.5552276823660776,
+     "S1": 0.61367593143583,
+     "S12": 0.7506547553125085,
+     "sym": "PBK"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 27.934396262426432,
+      "drop52": 95.74235807860262,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.1823,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 7.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.928123364428736,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": -0.17498860286291873,
+     "S_L": 0.3286383228070485,
+     "D": -0.5036269256699673,
+     "U": -0.15199892442463536,
+     "S1": -0.16799969541509907,
+     "S12": -0.035031827527822745,
+     "sym": "RIME"
+    }
+   ]
+  },
+  {
+   "sym": "MEDS",
+   "A": "2026-09-15",
+   "E_reg": "2026-09-10",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-11",
+    "raw": {
+     "rsi": 28.30575982079992,
+     "drop52": 98.89218461538462,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 2,
+      "branch": null,
+      "bottom": 0.8225,
+      "bottom_ago": 8,
+      "bounce_pct": 27.7,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 9.4
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.8995569368615446,
+     "HOLD": 1.0,
+     "CYC": 0.8303249097472925,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": 0.7991727229743831,
+    "S_L": 0.6843623511153473,
+    "D": 0.11481037185903586,
+    "U": 0.6194307509424626,
+    "S1": 0.6846375912395177,
+    "S12": 0.7738790513194473,
+    "sym": "MEDS"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-11",
+     "raw": {
+      "rsi": 55.2179354596451,
+      "drop52": 86.78048780487805,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "hold",
+       "bottom": 0.4,
+       "bottom_ago": 52,
+       "bounce_pct": 35.0,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.4,
+       "sweep_pct": 0.0,
+       "held": 30,
+       "hold_need": 3,
+       "vs_bottom_pct": 76.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.4854319304821946,
+     "S_L": 0.4854319304821946,
+     "D": 0.0,
+     "U": 0.42857142857142855,
+     "S1": 0.47368670361422954,
+     "S12": 0.4,
+     "sym": "MDXH"
+    },
+    {
+     "t": "2026-09-11",
+     "raw": {
+      "rsi": 34.40195407405196,
+      "drop52": 77.2395459724039,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.58,
+       "bottom_ago": 31,
+       "bounce_pct": 35.8,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.515,
+       "sweep_pct": 11.21,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -7.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.43061891738061864,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.625685031096769,
+     "S_L": 0.7141328677247479,
+     "D": -0.08844783662797895,
+     "U": 0.48017683353731944,
+     "S1": 0.5307245566704935,
+     "S12": 0.5722575669522473,
+     "sym": "PRSO"
+    },
+    {
+     "t": "2026-09-11",
+     "raw": {
+      "rsi": 34.05263181683435,
+      "drop52": 72.78172588832487,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.4857,
+       "bottom_ago": 30,
+       "bounce_pct": 68.8,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 10.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.45748986024351157,
+      "HOLD": 1.0,
+      "CYC": 0.9244186046511628,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8989828388906524,
+     "S_L": 0.6367024862189596,
+     "D": 0.26228035267169286,
+     "U": 0.6926798271792094,
+     "S1": 0.765597522658719,
+     "S12": 0.9030917580508929,
+     "sym": "NIXX"
+    },
+    {
+     "t": "2026-09-11",
+     "raw": {
+      "rsi": 42.80374366162052,
+      "drop52": 75.45353159851301,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.3151,
+       "bottom_ago": 52,
+       "bounce_pct": 226.9,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 109.6
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.7584839136183341,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.3481544856833486,
+     "S_L": 0.34411956481009154,
+     "D": 0.004034920873257075,
+     "U": 0.25379336397406027,
+     "S1": 0.2805099312867576,
+     "S12": 0.2886507095636844,
+     "sym": "JSPR"
+    },
+    {
+     "t": "2026-09-11",
+     "raw": {
+      "rsi": 26.94128379056724,
+      "drop52": 81.32275132275132,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.765,
+       "bottom_ago": 19,
+       "bounce_pct": 21.6,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.69,
+       "sweep_pct": 9.8,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -7.7
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.8025807043527269,
+     "S_L": 0.8025807043527269,
+     "D": 0.0,
+     "U": 0.6428571428571429,
+     "S1": 0.7105300554213443,
+     "S12": 0.80001,
+     "sym": "DARE"
+    }
+   ]
+  },
+  {
+   "sym": "FTFT",
+   "A": "2026-08-28",
+   "E_reg": "2026-09-14",
+   "identity": true,
+   "ev": {
+    "t": "2026-08-26",
+    "raw": {
+     "rsi": 27.80573687492212,
+     "drop52": 98.90641108247422,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 3,
+      "branch": "sweep",
+      "bottom": 2.6268,
+      "bottom_ago": 4,
+      "bounce_pct": 12.8,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": 2.36,
+      "sweep_pct": 10.16,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 3.4
+     },
+     "sweep_reclaimed": true
+    },
+    "close": {
+     "RSI": 0.9380202403906063,
+     "HOLD": 0.8,
+     "CYC": 0.9266666666666667,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 1.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": 0.7811732530993432,
+    "S_L": 0.806354586538258,
+    "D": -0.02518133343891482,
+    "U": 0.6513794218985013,
+    "S1": 0.7199494660429016,
+    "S12": 0.8052751906579014,
+    "sym": "FTFT"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-26",
+     "raw": {
+      "rsi": 37.94894441470878,
+      "drop52": 82.54559717591685,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "hold",
+       "bottom": 0.4245,
+       "bottom_ago": 21,
+       "bounce_pct": 43.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.43,
+       "sweep_pct": 0.0,
+       "held": 6,
+       "hold_need": 3,
+       "vs_bottom_pct": 4.8
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.15777350656086334,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7745027427386295,
+     "S_L": 0.6944038638447037,
+     "D": 0.08009887889392586,
+     "U": 0.7092944220311928,
+     "S1": 0.7839611188824703,
+     "S12": 0.7041188575103365,
+     "sym": "PBK"
+    },
+    {
+     "t": "2026-08-26",
+     "raw": {
+      "rsi": 54.78078985627809,
+      "drop52": 94.07002062434951,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "hold",
+       "bottom": 0.65,
+       "bottom_ago": 42,
+       "bounce_pct": 35.4,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.6512,
+       "sweep_pct": 0.0,
+       "held": 40,
+       "hold_need": 3,
+       "vs_bottom_pct": 42.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.3009685832994744,
+     "S_L": 0.4854319304821946,
+     "D": -0.18446334718272017,
+     "U": 0.2857142857142857,
+     "S1": 0.3157911357428197,
+     "S12": 0.20000000000000007,
+     "sym": "LHAI"
+    },
+    {
+     "t": "2026-08-26",
+     "raw": {
+      "rsi": 42.34447662024366,
+      "drop52": 78.87415730337078,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.7902,
+       "bottom_ago": 1,
+       "bounce_pct": 25.3,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 19.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 0.2,
+      "CYC": 0.6245059288537549,
+      "ZONE": 0.7333333333333334,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.6193491446115772,
+     "S_L": 0.3096745723057886,
+     "D": 0.3096745723057886,
+     "U": 0.4450969320534538,
+     "S1": 0.4919518299108168,
+     "S12": 0.5964717048748354,
+     "sym": "MRM"
+    },
+    {
+     "t": "2026-08-26",
+     "raw": {
+      "rsi": 54.53628422208298,
+      "drop52": 87.96136363636364,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.2936,
+       "bottom_ago": 55,
+       "bounce_pct": 342.8,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 80.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.8827304550758459,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.37176591259340286,
+     "S_L": 0.37186362193962,
+     "D": -9.770934621716743e-05,
+     "U": 0.26889898316386057,
+     "S1": 0.29720570352691716,
+     "S12": 0.30979857642940484,
+     "sym": "YOUL"
+    },
+    {
+     "t": "2026-08-26",
+     "raw": {
+      "rsi": 52.845974816744445,
+      "drop52": 78.25839793281654,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.66,
+       "bottom_ago": 35,
+       "bounce_pct": 10.1,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 0.6126,
+       "sweep_pct": 7.18,
+       "held": 26,
+       "hold_need": 3,
+       "vs_bottom_pct": 27.5
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.8366666666666667,
+      "ZONE": 0.16666666666666663,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.6399022678917038,
+     "S_L": 0.6091583766945838,
+     "D": 0.030743891197119955,
+     "U": 0.595714285714286,
+     "S1": 0.6584245180237791,
+     "S12": 0.56734,
+     "sym": "RANI"
+    }
+   ]
+  },
+  {
+   "sym": "VEEA",
+   "A": "2026-09-14",
+   "E_reg": "2026-09-14",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-10",
+    "raw": {
+     "rsi": 27.38096393725148,
+     "drop52": 91.10873058382431,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 2,
+      "branch": null,
+      "bottom": 1.34,
+      "bottom_ago": 7,
+      "bounce_pct": 45.5,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 23.9
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.9706950817498862,
+     "HOLD": 1.0,
+     "CYC": 0.7373626373626374,
+     "ZONE": 0.40666666666666673,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": 0.6305211299269138,
+    "S_L": 0.5652063911859389,
+    "D": 0.06531473874097499,
+    "U": 0.39139692026972156,
+    "S1": 0.5378678480236292,
+    "S12": 0.5746396883776103,
+    "sym": "VEEA"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-10",
+     "raw": {
+      "rsi": 61.41180728024409,
+      "drop52": 76.06666666666668,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 2.34,
+       "bottom_ago": 31,
+       "bounce_pct": 63.7,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 53.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.5808477237048666,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.09452160193035597,
+     "S_L": 0.3044536832216183,
+     "D": -0.3989752851519743,
+     "U": -0.18832922179860956,
+     "S1": -0.2081544459587051,
+     "S12": -0.13032091051805336,
+     "sym": "HYPD"
+    },
+    {
+     "t": "2026-09-10",
+     "raw": {
+      "rsi": 29.34858235770068,
+      "drop52": 75.14285714285714,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "hold",
+       "bottom": 1.65,
+       "bottom_ago": 25,
+       "bounce_pct": 57.0,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 1.65,
+       "sweep_pct": 0.0,
+       "held": 3,
+       "hold_need": 3,
+       "vs_bottom_pct": 5.5
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.8193398186384093,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.99361901686593,
+     "S_L": 0.7971717830386834,
+     "D": 0.1964472338272466,
+     "U": 0.9131430959697024,
+     "S1": 1.0092687338019544,
+     "S12": 0.9450603343575832,
+     "sym": "SPPL"
+    },
+    {
+     "t": "2026-09-10",
+     "raw": {
+      "rsi": 37.013059551067826,
+      "drop52": 98.67460317460316,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.22976464991785953,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.35576074607439695,
+     "S_L": 0.17788037303719847,
+     "D": 0.17788037303719847,
+     "U": 0.22976464991785953,
+     "S1": 0.34465559126657097,
+     "S12": 0.34465559126657097,
+     "sym": "CHR"
+    },
+    {
+     "t": "2026-09-10",
+     "raw": {
+      "rsi": 46.36222564038482,
+      "drop52": 72.61987491313413,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 3.47,
+       "bottom_ago": 30,
+       "bounce_pct": 36.3,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 13.5
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.8140495867768595,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.499098930460972,
+     "S_L": 0.5409906393425344,
+     "D": -0.04189170888156246,
+     "U": 0.36942159546479336,
+     "S1": 0.40831022819913054,
+     "S12": 0.45053023365071077,
+     "sym": "CPSH"
+    },
+    {
+     "t": "2026-09-10",
+     "raw": {
+      "rsi": 28.73668397761618,
+      "drop52": 76.48953301127214,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 1.46,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.8664089247987553,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.2982995026466271,
+     "S_L": 0.31905158232584313,
+     "D": -0.02075207967921605,
+     "U": 0.24754540708535866,
+     "S1": 0.2736042583799141,
+     "S12": 0.3465635699195021,
+     "sym": "CMTL"
+    }
+   ]
+  },
+  {
+   "sym": "QCLS",
+   "A": "2026-09-16",
+   "E_reg": "2026-09-16",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-14",
+    "raw": {
+     "rsi": 13.95837831425645,
+     "drop52": 93.73489932885906,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 1,
+      "branch": null,
+      "bottom": 0.5401,
+      "bottom_ago": 0,
+      "bounce_pct": 0.0,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 3.7
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 1.0,
+     "HOLD": 0.0,
+     "CYC": 0.0,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": 0.3398036620050592,
+    "S_L": 0.3398036620050592,
+    "D": 0.0,
+    "U": 0.2857142857142857,
+    "S1": 0.3157911357428197,
+    "S12": 0.4,
+    "sym": "QCLS"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-14",
+     "raw": {
+      "rsi": 32.78521951357624,
+      "drop52": 86.46088435374149,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.58,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 37.3
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.5549831143402895,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": -0.05932738491327383,
+     "S_L": 0.13152102797175658,
+     "D": -0.1908484128850304,
+     "U": 0.20698373631324044,
+     "S1": 0.01823475189753887,
+     "S12": 0.08975723083853665,
+     "sym": "LASE"
+    },
+    {
+     "t": "2026-09-14",
+     "raw": {
+      "rsi": 21.58187063238482,
+      "drop52": 98.37864077669903,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.834,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.3398036620050592,
+     "S_L": 0.3398036620050592,
+     "D": 0.0,
+     "U": 0.2857142857142857,
+     "S1": 0.3157911357428197,
+     "S12": 0.4,
+     "sym": "FRGT"
+    },
+    {
+     "t": "2026-09-14",
+     "raw": {
+      "rsi": 16.222356381892055,
+      "drop52": 93.41498047568335,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 1.75,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 6.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.0810885933330735,
+     "S_L": 0.3398036620050592,
+     "D": -0.2587150686719857,
+     "U": 0.11958364633556468,
+     "S1": 0.13217209422401482,
+     "S12": 0.23407710486979072,
+     "sym": "HCAI"
+    },
+    {
+     "t": "2026-09-14",
+     "raw": {
+      "rsi": 24.78473678267531,
+      "drop52": 97.13037974683544,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "hold",
+       "bottom": 8.0,
+       "bottom_ago": 3,
+       "bounce_pct": 37.5,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 8.08,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 13.3
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.6,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.6478520780633578,
+     "S_L": 0.6679528683958741,
+     "D": -0.020100790332516327,
+     "U": 0.4776190476190477,
+     "S1": 0.5278975152500802,
+     "S12": 0.6486686666666668,
+     "sym": "VWAV"
+    },
+    {
+     "t": "2026-09-14",
+     "raw": {
+      "rsi": 19.45269990860814,
+      "drop52": 81.2225,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.7459,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.7
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.3398036620050592,
+     "S_L": 0.3398036620050592,
+     "D": 0.0,
+     "U": 0.2857142857142857,
+     "S1": 0.3157911357428197,
+     "S12": 0.4,
+     "sym": "GP"
+    }
+   ]
+  },
+  {
+   "sym": "IMCC",
+   "A": "2026-09-18",
+   "E_reg": "2026-09-16",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-16",
+    "raw": {
+     "rsi": 24.641441495335172,
+     "drop52": 97.88586251621271,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 1,
+      "branch": null,
+      "bottom": 1.55,
+      "bottom_ago": 1,
+      "bounce_pct": 9.7,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 5.2
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 1.0,
+     "HOLD": 0.2,
+     "CYC": 0.3233333333333333,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": 0.3529737457891876,
+    "S_L": 0.4469537465431144,
+    "D": -0.09398000075392682,
+    "U": 0.3041591649317864,
+    "S1": 0.33617768849138746,
+    "S12": 0.4124908309045009,
+    "sym": "IMCC"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 28.574848002803563,
+      "drop52": 84.27853553481694,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 1.87,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 17.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.8788578459381875,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 0.8599999999999999,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": 0.3630228916068862,
+     "S_L": 0.3404703093183139,
+     "D": 0.02255258228857232,
+     "U": 0.5480816829196086,
+     "S1": 0.3952397297518292,
+     "S12": 0.567294356087452,
+     "sym": "XBIO"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 45.32666077791588,
+      "drop52": 45.69105691056912,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 5.949,
+       "bottom_ago": 42,
+       "bounce_pct": 10.5,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 5.751,
+       "sweep_pct": 3.33,
+       "held": 33,
+       "hold_need": 3,
+       "vs_bottom_pct": 12.3
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.85,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7323603811421155,
+     "S_L": 0.7658551450253613,
+     "D": -0.03349476388324579,
+     "U": 0.6714285714285714,
+     "S1": 0.7421091689956261,
+     "S12": 0.6733400000000002,
+     "sym": "LGVN"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 31.583080614037783,
+      "drop52": 86.68817204301075,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 2.8001,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 10.5
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.647455337381709,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": 0.232550319130438,
+     "S_L": 0.33034903939405236,
+     "D": -0.09779872026361436,
+     "U": 0.3344780736385341,
+     "S1": 0.26441926254397213,
+     "S12": 0.4015893030939477,
+     "sym": "LEXX"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 17.44419588018323,
+      "drop52": 74.90692751295715,
+      "gaps_above": 2,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 1.25,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 10.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": -0.018055231529418014,
+     "S_L": 0.385113438274113,
+     "D": -0.403168669803531,
+     "U": 0.15142857142857147,
+     "S1": -0.043168648256043385,
+     "S12": 0.21197999999999995,
+     "sym": "CLLS"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 15.875161904538203,
+      "drop52": 99.12100456621005,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 3.5,
+       "bottom_ago": 1,
+       "bounce_pct": 33.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 10.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.2,
+      "CYC": 0.8516320474777448,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.9745037207984152,
+     "S_L": 0.5649220178103771,
+     "D": 0.4095817029880381,
+     "U": 0.7290377278507842,
+     "S1": 0.8057827822707735,
+     "S12": 0.9939888189910979,
+     "sym": "UCAR"
+    }
+   ]
+  },
+  {
+   "sym": "REFR",
+   "A": "2026-09-18",
+   "E_reg": "2026-09-16",
+   "identity": false,
+   "ev": {
+    "t": "2026-09-16",
+    "raw": {
+     "rsi": 37.14268298473846,
+     "drop52": 85.85925925925926,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 3,
+      "branch": "sweep",
+      "bottom": 0.35,
+      "bottom_ago": 34,
+      "bounce_pct": 51.4,
+      "typical": false,
+      "first_rise": true,
+      "retest_low": 0.337,
+      "sweep_pct": 3.71,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 9.1
+     },
+     "sweep_reclaimed": true
+    },
+    "close": {
+     "RSI": 0.21979361655858026,
+     "HOLD": 1.0,
+     "CYC": 1.0,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 1.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.8685317839076705,
+    "S_L": 0.7461105147443844,
+    "D": 0.1224212691632861,
+    "U": 0.7318604795356604,
+    "S1": 0.8089026821324781,
+    "S12": 0.8246246713499243,
+    "sym": "REFR"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 45.60957230220235,
+      "drop52": 88.77637130801688,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.2625,
+       "bottom_ago": 56,
+       "bounce_pct": 34.5,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.2385,
+       "sweep_pct": 9.14,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 1.3
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 1.1859397260737083,
+     "S_L": 0.7119677051522341,
+     "D": 0.47397202092147434,
+     "U": 0.9507695299195521,
+     "S1": 1.0508560638903677,
+     "S12": 1.0644373418873732,
+     "sym": "MREO"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 38.8863758597837,
+      "drop52": 91.87662337662339,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 12.505,
+       "bottom_ago": 15,
+       "bounce_pct": 24.0,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 11.25,
+       "sweep_pct": 10.04,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.0
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.08566339540125402,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7788148982949642,
+     "S_L": 0.7252746839626154,
+     "D": 0.05354021433234879,
+     "U": 0.6525429539142786,
+     "S1": 0.7212354818814758,
+     "S12": 0.71358013547999,
+     "sym": "NFE"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 22.14410382813918,
+      "drop52": 87.12062256809338,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.2902,
+       "bottom_ago": 1,
+       "bounce_pct": 17.2,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 14.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.2,
+      "CYC": 0.5901162790697674,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": 0.325681509011144,
+     "S_L": 0.5518357346489591,
+     "D": -0.22615422563781507,
+     "U": 0.3543189368770764,
+     "S1": 0.2863487531207325,
+     "S12": 0.4093685116279069,
+     "sym": "TCRX"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 21.597077599131254,
+      "drop52": 92.63005780346822,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 2.55,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": 0.385113438274113,
+     "S_L": 0.385113438274113,
+     "D": 0.0,
+     "U": 0.42857142857142855,
+     "S1": 0.36841772851436055,
+     "S12": 0.46665999999999996,
+     "sym": "BRTX"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 43.42035060862307,
+      "drop52": 97.81440677966101,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 7.5,
+       "bottom_ago": 41,
+       "bounce_pct": 54.0,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 6.861,
+       "sweep_pct": 8.52,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 3.2
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.624585501395861,
+     "S_L": 0.7119677051522341,
+     "D": -0.08738220375637307,
+     "U": 0.4285714285714285,
+     "S1": 0.4736867036142296,
+     "S12": 0.6000200000000001,
+     "sym": "BGM"
+    }
+   ]
+  },
+  {
+   "sym": "AEMD",
+   "A": "2026-08-27",
+   "E_reg": "2026-09-17",
+   "identity": true,
+   "ev": {
+    "t": "2026-08-25",
+    "raw": {
+     "rsi": 28.781864808293932,
+     "drop52": 97.71428571428571,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 3,
+      "branch": "sweep",
+      "bottom": 2.625,
+      "bottom_ago": 18,
+      "bounce_pct": 42.9,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": 2.33,
+      "sweep_pct": 11.24,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": -8.6
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.8629334762850822,
+     "HOLD": 1.0,
+     "CYC": 1.0,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.5,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": 0.9580349747196958,
+    "S_L": 0.7812887474072479,
+    "D": 0.17674622731244793,
+    "U": 0.7903649653865914,
+    "S1": 0.8735658752476813,
+    "S12": 0.9731909515412278,
+    "sym": "AEMD"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-25",
+     "raw": {
+      "rsi": 31.39044750400916,
+      "drop52": 99.63679245352239,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 221.9985,
+       "bottom_ago": 57,
+       "bounce_pct": 63.5,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 214.4986,
+       "sweep_pct": 3.38,
+       "held": 22,
+       "hold_need": 3,
+       "vs_bottom_pct": 4.1
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.6622732689223724,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.9918582355641165,
+     "S_L": 0.9022276470014281,
+     "D": 0.08963058856268835,
+     "U": 0.9538210283838219,
+     "S1": 1.0542287904704897,
+     "S12": 0.9353494397373504,
+     "sym": "CTNT"
+    },
+    {
+     "t": "2026-08-25",
+     "raw": {
+      "rsi": 37.960481063247045,
+      "drop52": 88.2360738310634,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 2.0201,
+       "bottom_ago": 39,
+       "bounce_pct": 99.5,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 40.6
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.15688607205791966,
+      "HOLD": 1.0,
+      "CYC": 0.7959798994974874,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.3860372208027192,
+     "S_L": 0.376863091258754,
+     "D": 0.009174129543965182,
+     "U": 0.2857218500099837,
+     "S1": 0.3157994963241731,
+     "S12": 0.33335059001397704,
+     "sym": "SVRE"
+    },
+    {
+     "t": "2026-08-25",
+     "raw": {
+      "rsi": 33.1977318500017,
+      "drop52": 95.12121212121212,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 1.4,
+       "bottom_ago": 19,
+       "bounce_pct": 51.4,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 15.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.5232513961537152,
+      "HOLD": 1.0,
+      "CYC": 0.8540856031128404,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7438824125036176,
+     "S_L": 0.631212655378944,
+     "D": 0.11266975712467364,
+     "U": 0.5690987407951411,
+     "S1": 0.6290071819692716,
+     "S12": 0.7300782371131975,
+     "sym": "MNDR"
+    },
+    {
+     "t": "2026-08-25",
+     "raw": {
+      "rsi": 30.08353446923273,
+      "drop52": 84.73846153846154,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 2.23,
+       "bottom_ago": 3,
+       "bounce_pct": 13.8,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 11.2
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.7628050408282514,
+      "HOLD": 0.6,
+      "CYC": 0.5542028985507247,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.21523179486756072,
+     "S_L": 0.5315611377446707,
+     "D": -0.31632934287711,
+     "U": 0.0477165541082788,
+     "S1": 0.15800860195442368,
+     "S12": 0.22014117575159053,
+     "sym": "RADX"
+    },
+    {
+     "t": "2026-08-25",
+     "raw": {
+      "rsi": 55.78908486126997,
+      "drop52": 94.03314917127071,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.701,
+       "bottom_ago": 19,
+       "bounce_pct": 61.2,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 54.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.5580065359477124,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.2708252661426052,
+     "S_L": 0.29935328195002653,
+     "D": -0.028528015807421314,
+     "U": 0.2043213118580766,
+     "S1": 0.22583000694843697,
+     "S12": 0.21938983660130712,
+     "sym": "AGMH"
+    }
+   ]
+  },
+  {
+   "sym": "DTSS",
+   "A": "2026-09-16",
+   "E_reg": "2026-09-17",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-14",
+    "raw": {
+     "rsi": 40.44828363398957,
+     "drop52": 73.644,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 3,
+      "branch": "sweep",
+      "bottom": 0.6802,
+      "bottom_ago": 58,
+      "bounce_pct": 25.0,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": 0.6101,
+      "sweep_pct": 10.31,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": -3.1
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.0,
+     "HOLD": 1.0,
+     "CYC": 1.0,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.5,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.7180191821169345,
+    "S_L": 0.6472403895303879,
+    "D": 0.07077879258654662,
+    "U": 0.5723618580861495,
+    "S1": 0.6326138042731351,
+    "S12": 0.6679866013206092,
+    "sym": "DTSS"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-14",
+     "raw": {
+      "rsi": 42.90744895206363,
+      "drop52": 82.46690518783541,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.901,
+       "bottom_ago": 58,
+       "bounce_pct": 24.3,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 8.8
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.8189300411522633,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.5553327877445086,
+     "S_L": 0.5420804371221818,
+     "D": 0.01325235062232677,
+     "U": 0.4111826001102037,
+     "S1": 0.454467371002704,
+     "S12": 0.5089956401542851,
+     "sym": "MAMO"
+    },
+    {
+     "t": "2026-09-14",
+     "raw": {
+      "rsi": 28.79640078589952,
+      "drop52": 98.85701962475738,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 1.16,
+       "bottom_ago": 15,
+       "bounce_pct": 21.1,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 1.01,
+       "sweep_pct": 12.93,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -8.6
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.8618153241615752,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.9331207428646942,
+     "S_L": 0.7811150533043631,
+     "D": 0.152005689560331,
+     "U": 0.7632581407530692,
+     "S1": 0.8436055429667761,
+     "S12": 0.9352413970542965,
+     "sym": "VTIX"
+    },
+    {
+     "t": "2026-09-14",
+     "raw": {
+      "rsi": 47.51407323507127,
+      "drop52": 69.90937500000001,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.85,
+       "bottom_ago": 26,
+       "bounce_pct": 13.2,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 0.814,
+       "sweep_pct": 4.24,
+       "held": 9,
+       "hold_need": 3,
+       "vs_bottom_pct": 13.3
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.94,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 1.5719040067106176,
+     "S_L": 0.7859520033553088,
+     "D": 0.7859520033553088,
+     "U": 1.4114285714285713,
+     "S1": 1.560008210569529,
+     "S12": 1.44268,
+     "sym": "AKBA"
+    },
+    {
+     "t": "2026-09-14",
+     "raw": {
+      "rsi": 52.049742035094525,
+      "drop52": 88.81150159744409,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.3551,
+       "bottom_ago": 40,
+       "bounce_pct": 83.0,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 47.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.7114457831325302,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.33872767502898865,
+     "S_L": 0.3336160243158829,
+     "D": 0.005111650713105764,
+     "U": 0.2477624784853701,
+     "S1": 0.2738441806637283,
+     "S12": 0.28020746987951806,
+     "sym": "FLD"
+    },
+    {
+     "t": "2026-09-14",
+     "raw": {
+      "rsi": 24.328959825509727,
+      "drop52": 72.61917808219178,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.99,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.291910419409436,
+     "S_L": 0.3398036620050592,
+     "D": -0.047893242595623164,
+     "U": 0.2804547695243034,
+     "S1": 0.3099779556739969,
+     "S12": 0.4592966773340249,
+     "sym": "NMRA"
+    }
+   ]
+  },
+  {
+   "sym": "BFRG",
+   "A": "2026-09-22",
+   "E_reg": "2026-09-17",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-18",
+    "raw": {
+     "rsi": 38.57494940393442,
+     "drop52": 77.26470588235294,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 3,
+      "branch": "sweep",
+      "bottom": 0.48,
+      "bottom_ago": 11,
+      "bounce_pct": 10.4,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": 0.4255,
+      "sweep_pct": 11.35,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": -3.4
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.10961927662042935,
+     "HOLD": 1.0,
+     "CYC": 0.8466666666666667,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.5,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.5844486587176181,
+    "S_L": 0.6300295905016623,
+    "D": -0.04558093178404421,
+    "U": 0.4518370937697247,
+    "S1": 0.4994015215429669,
+    "S12": 0.5325819312776144,
+    "sym": "BFRG"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-18",
+     "raw": {
+      "rsi": 31.641062907807736,
+      "drop52": 85.42168674698796,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.6701,
+       "bottom_ago": 2,
+       "bounce_pct": 9.5,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 8.3
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.6429951609378665,
+      "HOLD": 0.4,
+      "CYC": 0.31666666666666665,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.07538750476062261,
+     "S_L": 0.42495810644501875,
+     "D": -0.34957060168439613,
+     "U": 0.05712968416889119,
+     "S1": 0.06314366746912958,
+     "S12": 0.12664355783644765,
+     "sym": "FLNA"
+    },
+    {
+     "t": "2026-09-18",
+     "raw": {
+      "rsi": 47.59603803958678,
+      "drop52": 73.6328125,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.59,
+       "bottom_ago": 58,
+       "bounce_pct": 106.8,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 0.5671,
+       "sweep_pct": 3.88,
+       "held": 20,
+       "hold_need": 3,
+       "vs_bottom_pct": 14.4
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8120034863756111,
+     "S_L": 0.7993499089086071,
+     "D": 0.012653577467004018,
+     "U": 0.7223809523809525,
+     "S1": 0.7984252548697623,
+     "S12": 0.7446733333333333,
+     "sym": "SKIN"
+    },
+    {
+     "t": "2026-09-18",
+     "raw": {
+      "rsi": 28.02201249372962,
+      "drop52": 81.18443195245086,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.5701,
+       "bottom_ago": 12,
+       "bounce_pct": 23.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.515,
+       "sweep_pct": 9.66,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -7.8
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.9213836543284908,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.9270250049562644,
+     "S_L": 0.7903684164659328,
+     "D": 0.13665658849033158,
+     "U": 0.7657757282730783,
+     "S1": 0.8463881543447409,
+     "S12": 0.9387660195823097,
+     "sym": "FTHM"
+    },
+    {
+     "t": "2026-09-18",
+     "raw": {
+      "rsi": 22.454683211966312,
+      "drop52": 92.988,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.65,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 7.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.060088920243601796,
+     "S_L": 0.3398036620050592,
+     "D": -0.2797147417614574,
+     "U": 0.09434092477570738,
+     "S1": 0.10427209723681996,
+     "S12": 0.1587412946859903,
+     "sym": "GNTA"
+    },
+    {
+     "t": "2026-09-18",
+     "raw": {
+      "rsi": 33.16481723630528,
+      "drop52": 97.824,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.5741,
+       "bottom_ago": 10,
+       "bounce_pct": 13.2,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 0.5048,
+       "sweep_pct": 12.07,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -5.2
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.5257832895149783,
+      "HOLD": 1.0,
+      "CYC": 0.94,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8226057244231336,
+     "S_L": 0.7155178256986713,
+     "D": 0.10708789872446234,
+     "U": 0.665088970885616,
+     "S1": 0.7351022052009712,
+     "S12": 0.7978045592398623,
+     "sym": "FUSE"
+    }
+   ]
+  },
+  {
+   "sym": "WHLR",
+   "A": "2026-08-28",
+   "E_reg": "2026-09-17",
+   "identity": false,
+   "ev": {
+    "t": "2026-08-26",
+    "raw": {
+     "rsi": 20.360071414439247,
+     "drop52": 99.99144144144144,
+     "gaps_above": 1,
+     "pc": {
+      "stage": 3,
+      "branch": "sweep",
+      "bottom": 13.3344,
+      "bottom_ago": 16,
+      "bounce_pct": 43.1,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": 12.15,
+      "sweep_pct": 8.88,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 7.7
+     },
+     "sweep_reclaimed": true
+    },
+    "close": {
+     "RSI": 1.0,
+     "HOLD": 1.0,
+     "CYC": 1.0,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 1.0,
+     "GAP": 1.0
+    },
+    "scan": 1.0,
+    "S": 0.9126177962436269,
+    "S_L": 0.9126177962436269,
+    "D": 0.0,
+    "U": 0.8571428571428571,
+    "S1": 0.8421044321285902,
+    "S12": 0.9333400000000001,
+    "sym": "WHLR"
+   },
+   "ctrl": [
+    {
+     "t": "2026-08-26",
+     "raw": {
+      "rsi": 44.054296043179264,
+      "drop52": 89.2348225162186,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 6.93,
+       "bottom_ago": 52,
+       "bounce_pct": 32.5,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 9.7
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.8507692307692307,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.56224444755868,
+     "S_L": 0.5491900780452099,
+     "D": 0.013054369513470054,
+     "U": 0.4156043956043957,
+     "S1": 0.4593546443766709,
+     "S12": 0.5151861538461537,
+     "sym": "IMMP"
+    },
+    {
+     "t": "2026-08-26",
+     "raw": {
+      "rsi": 41.64341458557183,
+      "drop52": 91.1967213114754,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.2511,
+       "bottom_ago": 19,
+       "bounce_pct": 46.6,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.2425,
+       "sweep_pct": 3.42,
+       "held": 1,
+       "hold_need": 3,
+       "vs_bottom_pct": 6.9
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.3333333333333333,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7630853581306464,
+     "S_L": 0.7410951064043585,
+     "D": 0.02199025172628788,
+     "U": 0.6601030595916374,
+     "S1": 0.7295914321351368,
+     "S12": 0.7019309500949589,
+     "sym": "MDCX"
+    },
+    {
+     "t": "2026-08-26",
+     "raw": {
+      "rsi": 47.681992632653824,
+      "drop52": 65.38461538461539,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 6.0,
+       "bottom_ago": 4,
+       "bounce_pct": 30.0,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 20.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 0.8,
+      "CYC": 0.6666666666666667,
+      "ZONE": 0.6666666666666667,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.1760440559043388,
+     "S_L": 0.41164222271736334,
+     "D": -0.23559816681302453,
+     "U": 0.10952380952380969,
+     "S1": 0.12105326870141431,
+     "S12": 0.14666733333333337,
+     "sym": "CTSO"
+    },
+    {
+     "t": "2026-08-26",
+     "raw": {
+      "rsi": 37.04259020881298,
+      "drop52": 98.17954298150163,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 2.16,
+       "bottom_ago": 33,
+       "bounce_pct": 23.2,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 1.92,
+       "sweep_pct": 11.11,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -7.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.22749306086053986,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.6648283255967512,
+     "S_L": 0.6825792332243616,
+     "D": -0.017750907627610446,
+     "U": 0.5161745667766178,
+     "S1": 0.5705117343938111,
+     "S12": 0.6226543934872648,
+     "sym": "SHFS"
+    },
+    {
+     "t": "2026-08-26",
+     "raw": {
+      "rsi": 32.83924635397666,
+      "drop52": 76.47619047619048,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.3516,
+       "bottom_ago": 1,
+       "bounce_pct": 14.4,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 12.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.5508272035402567,
+      "HOLD": 0.2,
+      "CYC": 0.5494444444444444,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": 0.1640490213317295,
+     "S_L": 0.47297913438744804,
+     "D": -0.30893011305571855,
+     "U": 0.21789944182607002,
+     "S1": 0.1355685176420649,
+     "S12": 0.2450452185564982,
+     "sym": "DCGO"
+    }
+   ]
+  },
+  {
+   "sym": "VEEE",
+   "A": "2026-09-18",
+   "E_reg": "2026-09-21",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-16",
+    "raw": {
+     "rsi": 39.92521346772635,
+     "drop52": 93.26282804543673,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 4,
+      "branch": "hold",
+      "bottom": 4.16,
+      "bottom_ago": 57,
+      "bounce_pct": 48.8,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": 4.22,
+      "sweep_pct": 0.0,
+      "held": 48,
+      "hold_need": 3,
+      "vs_bottom_pct": 106.7
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.0057528101748960565,
+     "HOLD": 1.0,
+     "CYC": 1.0,
+     "ZONE": 0.0,
+     "HOLDZ": 1.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.48721921716955763,
+    "S_L": 0.4863255738258761,
+    "D": 0.0008936433436815272,
+    "U": 0.43021508862139896,
+    "S1": 0.4755033900730728,
+    "S12": 0.4023011240699583,
+    "sym": "VEEE"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 43.94819588985218,
+      "drop52": 69.86666666666666,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 9.93,
+       "bottom_ago": 1,
+       "bounce_pct": 47.0,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 36.6
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 0.2,
+      "CYC": 0.6106382978723404,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.3426096617390215,
+     "S_L": 0.17130483086951076,
+     "D": 0.17130483086951076,
+     "U": 0.2316109422492401,
+     "S1": 0.2559923887617325,
+     "S12": 0.29759131914893616,
+     "sym": "HQ"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 31.822711471246222,
+      "drop52": 91.27087872185912,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "hold",
+       "bottom": 6.0,
+       "bottom_ago": 34,
+       "bounce_pct": 113.7,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 5.91,
+       "sweep_pct": 1.5,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.2
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.6290221945195213,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.9161670657567287,
+     "S_L": 0.6802255796354426,
+     "D": 0.23594148612128601,
+     "U": 0.7121292210500556,
+     "S1": 0.7870943342886629,
+     "S12": 0.9303209094700777,
+     "sym": "ASTC"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 19.326132347355568,
+      "drop52": 76.1437908496732,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 6.89,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 6.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": -0.007763083738548171,
+     "S_L": 0.385113438274113,
+     "D": -0.39287652201266116,
+     "U": 0.12857142857142856,
+     "S1": 0.03683703598439991,
+     "S12": 0.11998599999999993,
+     "sym": "PSNY"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 57.96933564825296,
+      "drop52": 75.25496511003757,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 9.76,
+       "bottom_ago": 32,
+       "bounce_pct": 55.2,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 41.7
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.6222826086956521,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.07847642403551491,
+     "S_L": 0.3137060278169237,
+     "D": -0.3921824518524386,
+     "U": -0.1783954451345756,
+     "S1": -0.19717495080637726,
+     "S12": -0.11641362318840587,
+     "sym": "KRRO"
+    },
+    {
+     "t": "2026-09-16",
+     "raw": {
+      "rsi": 37.53990434087403,
+      "drop52": 82.87197231833909,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 9.18,
+       "bottom_ago": 34,
+       "bounce_pct": 11.1,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 8.56,
+       "sweep_pct": 6.75,
+       "held": 28,
+       "hold_need": 3,
+       "vs_bottom_pct": 7.8
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.18923812762507453,
+      "HOLD": 1.0,
+      "CYC": 0.87,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 1.0135770813691856,
+     "S_L": 0.7997174238647965,
+     "D": 0.21385965750438907,
+     "U": 0.8926394650357355,
+     "S1": 0.9866067066537426,
+     "S12": 0.9830352510500298,
+     "sym": "METC"
+    }
+   ]
+  },
+  {
+   "sym": "JAGX",
+   "A": "2026-09-22",
+   "E_reg": "2026-09-22",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-18",
+    "raw": {
+     "rsi": 15.437707725499365,
+     "drop52": 99.78843785557176,
+     "gaps_above": 1,
+     "pc": {
+      "stage": 2,
+      "branch": null,
+      "bottom": 2.35,
+      "bottom_ago": 1,
+      "bounce_pct": 34.5,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 15.3
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 1.0,
+     "HOLD": 0.2,
+     "CYC": 0.7782608695652173,
+     "ZONE": 0.98,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 1.0
+    },
+    "scan": 1.0,
+    "S": 0.7952042789305636,
+    "S_L": 0.5901588586023383,
+    "D": 0.20504542032822531,
+    "U": 0.7023602484472049,
+    "S1": 0.6710280168522624,
+    "S12": 0.8233003478260871,
+    "sym": "JAGX"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-18",
+     "raw": {
+      "rsi": 36.68927324413906,
+      "drop52": 99.94806248731994,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "hold",
+       "bottom": 2.4348,
+       "bottom_ago": 11,
+       "bounce_pct": 26.9,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 2.41,
+       "sweep_pct": 1.02,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 5.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.25467128891238006,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.522005068466981,
+     "S_L": 0.6220737921044016,
+     "D": -0.10006872363742059,
+     "U": 0.3520935270176454,
+     "S1": 0.38915805174609075,
+     "S12": 0.47071760449137,
+     "sym": "LRHC"
+    },
+    {
+     "t": "2026-09-18",
+     "raw": {
+      "rsi": 22.426426946839527,
+      "drop52": 81.63869693978283,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 1.75,
+       "bottom_ago": 3,
+       "bounce_pct": 18.3,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 1.72,
+       "sweep_pct": 1.71,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 6.3
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.6,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 1.2550113372740737,
+     "S_L": 0.7974074996395665,
+     "D": 0.4576038376345073,
+     "U": 1.0285714285714285,
+     "S1": 1.1368480886741508,
+     "S12": 1.2266880000000002,
+     "sym": "RENT"
+    },
+    {
+     "t": "2026-09-18",
+     "raw": {
+      "rsi": 20.301223146602297,
+      "drop52": 79.75609756097562,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 2.3001,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 8.3
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": 0.05818961863943972,
+     "S_L": 0.385113438274113,
+     "D": -0.32692381963467326,
+     "U": 0.21047619047619048,
+     "S1": 0.022094853130805947,
+     "S12": 0.2946466666666665,
+     "sym": "LGVN"
+    },
+    {
+     "t": "2026-09-18",
+     "raw": {
+      "rsi": 32.44010891221663,
+      "drop52": 86.06451612903226,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 2.8001,
+       "bottom_ago": 2,
+       "bounce_pct": 42.9,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 15.7
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.5815300836756438,
+      "HOLD": 0.4,
+      "CYC": 0.817016317016317,
+      "ZONE": 0.9533333333333334,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 1.0,
+     "S": 0.819384385227981,
+     "S_L": 0.5638388780432265,
+     "D": 0.2555455071847544,
+     "U": 0.7140410045193907,
+     "S1": 0.6839383941445589,
+     "S12": 0.8129894063271468,
+     "sym": "LEXX"
+    },
+    {
+     "t": "2026-09-18",
+     "raw": {
+      "rsi": 38.851232168924554,
+      "drop52": 80.1148600143575,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 1.87,
+       "bottom_ago": 2,
+       "bounce_pct": 49.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 48.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.08836675623657278,
+      "HOLD": 0.4,
+      "CYC": 0.5160965794768612,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.06622860009773535,
+     "S_L": 0.19887099387214627,
+     "D": -0.13264239377441092,
+     "U": 0.04384245016166638,
+     "S1": 0.04845769995605209,
+     "S12": 0.07471143022633298,
+     "sym": "XBIO"
+    }
+   ]
+  },
+  {
+   "sym": "YDES",
+   "A": "2026-09-24",
+   "E_reg": "2026-09-22",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-22",
+    "raw": {
+     "rsi": 40.0522335201516,
+     "drop52": 87.18181818181819,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 2,
+      "branch": null,
+      "bottom": 1.7,
+      "bottom_ago": 56,
+      "bounce_pct": 194.1,
+      "typical": false,
+      "first_rise": true,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 65.9
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.0,
+     "HOLD": 1.0,
+     "CYC": 0.8302421432251417,
+     "ZONE": 0.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.39839485566846183,
+    "S_L": 0.3601430645258233,
+    "D": 0.03825179114263855,
+    "U": 0.285935085007728,
+    "S1": 0.31603517835158546,
+    "S12": 0.3336491190108192,
+    "sym": "YDES"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-22",
+     "raw": {
+      "rsi": 34.77218059305606,
+      "drop52": 79.97047244094489,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 3.8395,
+       "bottom_ago": 4,
+       "bounce_pct": 10.3,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 6.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.4021399543803028,
+      "HOLD": 0.8,
+      "CYC": 0.5520711974110033,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.26762684961693317,
+     "S_L": 0.5100095643289594,
+     "D": -0.24238271471202621,
+     "U": 0.19021560469686905,
+     "S1": 0.21023940645131023,
+     "S12": 0.25963584657561667,
+     "sym": "EDSA"
+    },
+    {
+     "t": "2026-09-22",
+     "raw": {
+      "rsi": 36.441436775187476,
+      "drop52": 81.72706245181188,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 2.31,
+       "bottom_ago": 10,
+       "bounce_pct": 19.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 2.22,
+       "sweep_pct": 3.9,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 2.6
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.2737356326778864,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8335570923697727,
+     "S_L": 0.7544898845105091,
+     "D": 0.07906720785926358,
+     "U": 0.7070525224981502,
+     "S1": 0.7814832168833074,
+     "S12": 0.7898935314974103,
+     "sym": "PLSM"
+    },
+    {
+     "t": "2026-09-22",
+     "raw": {
+      "rsi": 32.3461117867636,
+      "drop52": 96.40320733104238,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 1.66,
+       "bottom_ago": 58,
+       "bounce_pct": 242.8,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 1.57,
+       "sweep_pct": 5.42,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -5.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.5887606317874153,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.9300842242570139,
+     "S_L": 0.7386986514272442,
+     "D": 0.19138557282976965,
+     "U": 0.7659749828225924,
+     "S1": 0.8466083842164664,
+     "S12": 0.9390449759516292,
+     "sym": "TVRD"
+    },
+    {
+     "t": "2026-09-22",
+     "raw": {
+      "rsi": 51.20167062622151,
+      "drop52": 71.84782608695653,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.7821333298382199,
+     "S_L": 0.0,
+     "D": -0.7821333298382199,
+     "U": -0.7009523809523809,
+     "S1": -0.7747409196890509,
+     "S12": -0.7146733333333334,
+     "sym": "SNOA"
+    },
+    {
+     "t": "2026-09-22",
+     "raw": {
+      "rsi": 40.60616457390211,
+      "drop52": 74.06060606060606,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 2.99,
+       "bottom_ago": 57,
+       "bounce_pct": 451.8,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 43.1
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.9523019034971226,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.390434081732981,
+     "S_L": 0.3873988168588605,
+     "D": 0.00303526487412048,
+     "U": 0.28084210947585725,
+     "S1": 0.31040607050526586,
+     "S12": 0.3265189532662,
+     "sym": "CLRO"
+    }
+   ]
+  },
+  {
+   "sym": "BENF",
+   "A": "2026-09-11",
+   "E_reg": "2026-09-23",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-09",
+    "raw": {
+     "rsi": 31.09401145388904,
+     "drop52": 86.53846153846155,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 1,
+      "branch": null,
+      "bottom": 1.65,
+      "bottom_ago": 0,
+      "bounce_pct": 0.0,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 1.8
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.6850760420085356,
+     "HOLD": 0.0,
+     "CYC": 0.0,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": -0.19916870825908561,
+    "S_L": 0.290883275225568,
+    "D": -0.4900519834846536,
+    "U": -0.14150083089103038,
+    "S1": -0.15639647833470893,
+    "S12": -0.09811116324744251,
+    "sym": "BENF"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-09",
+     "raw": {
+      "rsi": 53.816670254931005,
+      "drop52": 72.46049661399549,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 2.21,
+       "bottom_ago": 41,
+       "bounce_pct": 13.3,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 1.98,
+       "sweep_pct": 10.41,
+       "held": 5,
+       "hold_need": 3,
+       "vs_bottom_pct": 10.4
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.9433333333333334,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8740785351979762,
+     "S_L": 0.7866963314416031,
+     "D": 0.08738220375637307,
+     "U": 0.8490476190476189,
+     "S1": 0.9384259917157459,
+     "S12": 0.7886666666666666,
+     "sym": "SLDP"
+    },
+    {
+     "t": "2026-09-08",
+     "raw": {
+      "rsi": 45.33256318898664,
+      "drop52": 75.38814739873148,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.0,
+     "S_L": 0.0,
+     "D": 0.0,
+     "U": 0.0,
+     "S1": 0.0,
+     "S12": 0.0,
+     "sym": "XTLB"
+    },
+    {
+     "t": "2026-09-09",
+     "raw": {
+      "rsi": 61.440023449911685,
+      "drop52": 99.50444742751759,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.2258148801358678,
+     "S_L": 0.0,
+     "D": -0.2258148801358678,
+     "U": -0.5,
+     "S1": -0.2499812495312383,
+     "S12": -0.2499812495312383,
+     "sym": "DGNX"
+    },
+    {
+     "t": "2026-09-09",
+     "raw": {
+      "rsi": 55.231502910159115,
+      "drop52": 85.20926966292134,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.7993499089086071,
+     "S_L": 0.0,
+     "D": -0.7993499089086071,
+     "U": -0.7142857142857143,
+     "S1": -0.7894778393570492,
+     "S12": -0.73334,
+     "sym": "KRKR"
+    },
+    {
+     "t": "2026-09-09",
+     "raw": {
+      "rsi": 46.580309232839674,
+      "drop52": 71.80555555555557,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 1.935,
+       "bottom_ago": 37,
+       "bounce_pct": 12.1,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 1.685,
+       "sweep_pct": 12.92,
+       "held": 14,
+       "hold_need": 3,
+       "vs_bottom_pct": 4.9
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.9033333333333333,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 1.1277313708010794,
+     "S_L": 0.777764394406071,
+     "D": 0.34996697639500834,
+     "U": 1.082459132906894,
+     "S1": 1.1964084964154955,
+     "S12": 1.0487827860696517,
+     "sym": "AISP"
+    }
+   ]
+  },
+  {
+   "sym": "MSGY",
+   "A": "2026-09-25",
+   "E_reg": "2026-09-25",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-23",
+    "raw": {
+     "rsi": 44.69768954580448,
+     "drop52": 98.85698198198199,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 3,
+      "branch": "sweep",
+      "bottom": 1.864,
+      "bottom_ago": 36,
+      "bounce_pct": 24.5,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": 1.73,
+      "sweep_pct": 7.19,
+      "held": 2,
+      "hold_need": 3,
+      "vs_bottom_pct": 8.9
+     },
+     "sweep_reclaimed": true
+    },
+    "close": {
+     "RSI": 0.0,
+     "HOLD": 1.0,
+     "CYC": 1.0,
+     "ZONE": 1.0,
+     "HOLDZ": 0.6666666666666666,
+     "SWEEP": 1.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.7410951064043587,
+    "S_L": 0.7702225076564829,
+    "D": -0.029127401252124208,
+    "U": 0.619047619047619,
+    "S1": 0.6842141274427758,
+    "S12": 0.6889,
+    "sym": "MSGY"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-23",
+     "raw": {
+      "rsi": 43.2937310950198,
+      "drop52": 82.2844827586207,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 3.67,
+       "bottom_ago": 39,
+       "bounce_pct": 34.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 12.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.8270893371757926,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.45038497833479796,
+     "S_L": 0.5439023950805927,
+     "D": -0.09351741674579472,
+     "U": 0.32228017423228383,
+     "S1": 0.3562062778687235,
+     "S12": 0.38453224392519747,
+     "sym": "TLRY"
+    },
+    {
+     "t": "2026-09-23",
+     "raw": {
+      "rsi": 31.45209545955055,
+      "drop52": 73.37461300309597,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 2.52,
+       "bottom_ago": 3,
+       "bounce_pct": 11.5,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 2.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.6575311184961117,
+      "HOLD": 0.6,
+      "CYC": 0.7789855072463768,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.7909992503865796,
+     "S_L": 0.5654014561958194,
+     "D": 0.2255977941907602,
+     "U": 0.5818618930692825,
+     "S1": 0.6431138982023553,
+     "S12": 0.7346146502969954,
+     "sym": "OPEN"
+    },
+    {
+     "t": "2026-09-23",
+     "raw": {
+      "rsi": 54.300571098433245,
+      "drop52": 99.53894792307017,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 1.11,
+       "bottom_ago": 58,
+       "bounce_pct": 19.8,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 1.0,
+       "sweep_pct": 9.91,
+       "held": 26,
+       "hold_need": 3,
+       "vs_bottom_pct": 32.4
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 1.229773123451774,
+     "S_L": 0.614886561725887,
+     "D": 0.614886561725887,
+     "U": 1.1428571428571428,
+     "S1": 1.2631645429712788,
+     "S12": 1.06668,
+     "sym": "DGNX"
+    },
+    {
+     "t": "2026-09-23",
+     "raw": {
+      "rsi": 63.86184537586772,
+      "drop52": 74.95908346972178,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.96,
+       "bottom_ago": 39,
+       "bounce_pct": 80.2,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 59.4
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.6296758104738155,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.004748283251615915,
+     "S_L": 0.31535691813626215,
+     "D": -0.32010520138787807,
+     "U": -0.079140244626529,
+     "S1": -0.08747125706751646,
+     "S12": -0.04411634247714047,
+     "sym": "STKE"
+    },
+    {
+     "t": "2026-09-23",
+     "raw": {
+      "rsi": 44.78385592248085,
+      "drop52": 79.89556135770235,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 2.245,
+       "bottom_ago": 46,
+       "bounce_pct": 12.7,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 2.0,
+       "sweep_pct": 10.91,
+       "held": 2,
+       "hold_need": 3,
+       "vs_bottom_pct": 2.9
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.9233333333333333,
+      "ZONE": 1.0,
+      "HOLDZ": 0.6666666666666666,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8819122824772321,
+     "S_L": 0.7531029616717129,
+     "D": 0.1288093208055192,
+     "U": 0.8401921918652542,
+     "S1": 0.9286383627898218,
+     "S12": 0.7985024019446891,
+     "sym": "ABAT"
+    }
+   ]
+  },
+  {
+   "sym": "QTEX",
+   "A": "2026-10-02",
+   "E_reg": "2026-09-30",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-30",
+    "raw": {
+     "rsi": 33.48862422553805,
+     "drop52": 82.28571428571428,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 2,
+      "branch": null,
+      "bottom": 0.57,
+      "bottom_ago": 2,
+      "bounce_pct": 26.8,
+      "typical": true,
+      "first_rise": false,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 19.6
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.5008750595739964,
+     "HOLD": 0.4,
+     "CYC": 0.6343283582089552,
+     "ZONE": 0.6933333333333332,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.1770839090021502,
+    "S_L": 0.41724572104028085,
+    "D": -0.24016181203813064,
+    "U": 0.1273746757289531,
+    "S1": 0.1407832772966181,
+    "S12": 0.22498654602053447,
+    "sym": "QTEX"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-30",
+     "raw": {
+      "rsi": 34.38830342863888,
+      "drop52": 84.75395033860045,
+      "gaps_above": 0,
+      "pc": null,
+      "sweep_reclaimed": null
+     },
+     "close": {
+      "RSI": 0.4316689670277786,
+      "HOLD": null,
+      "CYC": null,
+      "ZONE": null,
+      "HOLDZ": null,
+      "SWEEP": null,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.13096652694855326,
+     "S_L": 0.33419169098002693,
+     "D": -0.4651582179285802,
+     "U": -0.2826167472579356,
+     "S1": -0.1419582008244179,
+     "S12": -0.08582036146736871,
+     "sym": "OMEX"
+    },
+    {
+     "t": "2026-09-30",
+     "raw": {
+      "rsi": 44.049225614882275,
+      "drop52": 81.97802197802197,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.6133,
+       "bottom_ago": 55,
+       "bounce_pct": 85.9,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 33.7
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.8038416763678696,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.7084957636677561,
+     "S_L": 0.35424788183387806,
+     "D": 0.35424788183387806,
+     "U": 0.5153833361051056,
+     "S1": 0.5696372116804412,
+     "S12": 0.5882166705471479,
+     "sym": "SLSN"
+    },
+    {
+     "t": "2026-09-30",
+     "raw": {
+      "rsi": 36.479002804968815,
+      "drop52": 72.2125,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.3527,
+       "bottom_ago": 12,
+       "bounce_pct": 28.5,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.3401,
+       "sweep_pct": 3.57,
+       "held": 10,
+       "hold_need": 3,
+       "vs_bottom_pct": 26.1
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.27084593807932195,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 0.2599999999999999,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.4871240736800342,
+     "S_L": 0.7049203252829878,
+     "D": -0.21779625160295357,
+     "U": 0.46214645849885405,
+     "S1": 0.5107961425310624,
+     "S12": 0.38034504189839524,
+     "sym": "DYAI"
+    },
+    {
+     "t": "2026-09-30",
+     "raw": {
+      "rsi": 27.35615412049458,
+      "drop52": 74.33542319749216,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.8606,
+       "bottom_ago": 19,
+       "bounce_pct": 37.1,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.8025,
+       "sweep_pct": 6.75,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -4.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.9726035291927246,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.9749135756684929,
+     "S_L": 0.7983249279525038,
+     "D": 0.17658864771598914,
+     "U": 0.8036421078070625,
+     "S1": 0.8882406888430103,
+     "S12": 0.9917789509298874,
+     "sym": "XTIA"
+    },
+    {
+     "t": "2026-09-30",
+     "raw": {
+      "rsi": 39.04929108729313,
+      "drop52": 82.96,
+      "gaps_above": 1,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 0.58,
+       "bottom_ago": 12,
+       "bounce_pct": 58.6,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 46.9
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.07313145482360557,
+      "HOLD": 1.0,
+      "CYC": 0.5998293515358362,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 1.0
+     },
+     "scan": 0.0,
+     "S": 0.3440487165930258,
+     "S_L": 0.3653622903218398,
+     "D": -0.021313573728813984,
+     "U": 0.3626240076686142,
+     "S1": 0.2955280902026273,
+     "S12": 0.30767361073606003,
+     "sym": "LASE"
+    }
+   ]
+  },
+  {
+   "sym": "SCKT",
+   "A": "2026-10-01",
+   "E_reg": "2026-10-01",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-29",
+    "raw": {
+     "rsi": 39.18545922187002,
+     "drop52": 83.87096774193549,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 2,
+      "branch": null,
+      "bottom": 0.38,
+      "bottom_ago": 39,
+      "bounce_pct": 634.2,
+      "typical": false,
+      "first_rise": true,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 18.4
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 0.06265698293307545,
+     "HOLD": 1.0,
+     "CYC": 0.9854935351624093,
+     "ZONE": 0.7733333333333334,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 0.0,
+    "S": 0.7035763514380085,
+    "S_L": 0.5471952665716622,
+    "D": 0.15638108486634633,
+    "U": 0.5250529614705395,
+    "S1": 0.5803247485976941,
+    "S12": 0.6684141460587554,
+    "sym": "SCKT"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-29",
+     "raw": {
+      "rsi": 50.36180358477353,
+      "drop52": 89.48,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "hold",
+       "bottom": 0.35,
+       "bottom_ago": 44,
+       "bounce_pct": 11.4,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 0.35,
+       "sweep_pct": 0.0,
+       "held": 41,
+       "hold_need": 3,
+       "vs_bottom_pct": 35.3
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.88,
+      "ZONE": 0.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.19594719757439127,
+     "S_L": 0.458636119375598,
+     "D": -0.26268892180120673,
+     "U": 0.16428571428571437,
+     "S1": 0.18157990305212135,
+     "S12": 0.09665999999999997,
+     "sym": "COOT"
+    },
+    {
+     "t": "2026-09-29",
+     "raw": {
+      "rsi": 48.29903992815978,
+      "drop52": 94.37050359712231,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 0.83,
+       "bottom_ago": 42,
+       "bounce_pct": 103.6,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": 0.8002,
+       "sweep_pct": 3.59,
+       "held": 8,
+       "hold_need": 3,
+       "vs_bottom_pct": 13.1
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.8669864695422711,
+     "S_L": 0.7993499089086071,
+     "D": 0.06763656063366397,
+     "U": 0.7666666666666667,
+     "S1": 0.8473728809098995,
+     "S12": 0.8066733333333334,
+     "sym": "BJDX"
+    },
+    {
+     "t": "2026-09-29",
+     "raw": {
+      "rsi": 18.575182515468853,
+      "drop52": 86.02150537634408,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.6251,
+       "bottom_ago": 1,
+       "bounce_pct": 8.9,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 4.0
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 1.0,
+      "HOLD": 0.2,
+      "CYC": 0.2966666666666667,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.31426124485465345,
+     "S_L": 0.44099912185275963,
+     "D": -0.12673787699810618,
+     "U": 0.27558498896247235,
+     "S1": 0.30459553830346053,
+     "S12": 0.3724869845474613,
+     "sym": "SNES"
+    },
+    {
+     "t": "2026-09-29",
+     "raw": {
+      "rsi": 45.28913729447866,
+      "drop52": 88.11320754716981,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 0.97,
+       "bottom_ago": 42,
+       "bounce_pct": 23.7,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 0.8519,
+       "sweep_pct": 12.18,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -2.6
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.6472403895303879,
+     "S_L": 0.6472403895303879,
+     "D": 0.0,
+     "U": 0.5,
+     "S1": 0.5526344875499345,
+     "S12": 0.6000099999999999,
+     "sym": "PRFX"
+    },
+    {
+     "t": "2026-09-29",
+     "raw": {
+      "rsi": 34.359226294880756,
+      "drop52": 82.74910394265234,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 1,
+       "branch": null,
+       "bottom": 0.4752,
+       "bottom_ago": 0,
+       "bounce_pct": 0.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 1.3
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.43390566962455723,
+      "HOLD": 0.0,
+      "CYC": 0.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": -0.12679809763773953,
+     "S_L": 0.2518663905053967,
+     "D": -0.37866448814313625,
+     "U": -0.08182060237532673,
+     "S1": -0.09043377332943117,
+     "S12": -0.014558843325457427,
+     "sym": "RDHL"
+    }
+   ]
+  },
+  {
+   "sym": "AMOD",
+   "A": "2026-10-01",
+   "E_reg": "2026-10-02",
+   "identity": true,
+   "ev": {
+    "t": "2026-09-29",
+    "raw": {
+     "rsi": 26.918505762683324,
+     "drop52": 96.96153846153847,
+     "gaps_above": 0,
+     "pc": {
+      "stage": 1,
+      "branch": null,
+      "bottom": 1.4601,
+      "bottom_ago": 0,
+      "bounce_pct": 0.0,
+      "typical": false,
+      "first_rise": false,
+      "retest_low": null,
+      "sweep_pct": 0.0,
+      "held": 0,
+      "hold_need": 3,
+      "vs_bottom_pct": 8.2
+     },
+     "sweep_reclaimed": false
+    },
+    "close": {
+     "RSI": 1.0,
+     "HOLD": 0.0,
+     "CYC": 0.0,
+     "ZONE": 1.0,
+     "HOLDZ": 0.0,
+     "SWEEP": 0.0,
+     "GAP": 0.0
+    },
+    "scan": 1.0,
+    "S": -0.11898310741729934,
+    "S_L": 0.3398036620050592,
+    "D": -0.4587867694223585,
+    "U": -0.16998904118996627,
+    "S1": -0.08261463823437454,
+    "S12": -0.004654657665952633,
+    "sym": "AMOD"
+   },
+   "ctrl": [
+    {
+     "t": "2026-09-29",
+     "raw": {
+      "rsi": 63.46206633866586,
+      "drop52": 94.2962962962963,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 4,
+       "branch": "sweep",
+       "bottom": 1.05,
+       "bottom_ago": 44,
+       "bounce_pct": 12.4,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 1.01,
+       "sweep_pct": 3.81,
+       "held": 42,
+       "hold_need": 3,
+       "vs_bottom_pct": 46.7
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.9133333333333333,
+      "ZONE": 0.0,
+      "HOLDZ": 1.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.41107068429951366,
+     "S_L": 0.5955340314822338,
+     "D": -0.18446334718272017,
+     "U": 0.4161904761904761,
+     "S1": 0.46000242106537403,
+     "S12": 0.31600666666666655,
+     "sym": "EJH"
+    },
+    {
+     "t": "2026-09-29",
+     "raw": {
+      "rsi": 55.27332276134347,
+      "drop52": 92.98747763864043,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 2,
+       "branch": null,
+       "bottom": 2.5764,
+       "bottom_ago": 43,
+       "bounce_pct": 86.3,
+       "typical": false,
+       "first_rise": true,
+       "retest_low": null,
+       "sweep_pct": 0.0,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 52.2
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.0,
+      "HOLD": 1.0,
+      "CYC": 0.697566628041715,
+      "ZONE": 0.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 0.6610336616628883,
+     "S_L": 0.3305168308314442,
+     "D": 0.3305168308314442,
+     "U": 0.48501903658334716,
+     "S1": 0.5360764934684019,
+     "S12": 0.5457066512166859,
+     "sym": "SHPH"
+    },
+    {
+     "t": "2026-09-29",
+     "raw": {
+      "rsi": 31.005621522530546,
+      "drop52": 90.58558558558558,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 2.2908,
+       "bottom_ago": 36,
+       "bounce_pct": 25.4,
+       "typical": true,
+       "first_rise": false,
+       "retest_low": 2.0,
+       "sweep_pct": 12.69,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": -8.8
+      },
+      "sweep_reclaimed": false
+     },
+     "close": {
+      "RSI": 0.6918752674976503,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 0.5,
+      "GAP": 0.0
+     },
+     "scan": 1.0,
+     "S": 0.7100831138939188,
+     "S_L": 0.754716511401263,
+     "D": -0.044633397507344186,
+     "U": 0.4833929335707573,
+     "S1": 0.5342792122582698,
+     "S12": 0.74343010699906,
+     "sym": "FEMY"
+    },
+    {
+     "t": "2026-09-29",
+     "raw": {
+      "rsi": 35.879255681210694,
+      "drop52": 78.60832362301953,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 1.23,
+       "bottom_ago": 10,
+       "bounce_pct": 10.6,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 1.12,
+       "sweep_pct": 8.94,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 0.0
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.316980332214562,
+      "HOLD": 1.0,
+      "CYC": 0.8533333333333333,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 1.0008947568909932,
+     "S_L": 0.7284570939539824,
+     "D": 0.27243766293701077,
+     "U": 0.8438721883595963,
+     "S1": 0.9327057487434944,
+     "S12": 0.9814410637034348,
+     "sym": "POLA"
+    },
+    {
+     "t": "2026-09-29",
+     "raw": {
+      "rsi": 39.620346819888624,
+      "drop52": 75.32016925246826,
+      "gaps_above": 0,
+      "pc": {
+       "stage": 3,
+       "branch": "sweep",
+       "bottom": 1.6,
+       "bottom_ago": 29,
+       "bounce_pct": 15.0,
+       "typical": false,
+       "first_rise": false,
+       "retest_low": 1.4,
+       "sweep_pct": 12.5,
+       "held": 0,
+       "hold_need": 3,
+       "vs_bottom_pct": 9.4
+      },
+      "sweep_reclaimed": true
+     },
+     "close": {
+      "RSI": 0.02920409077779814,
+      "HOLD": 1.0,
+      "CYC": 1.0,
+      "ZONE": 1.0,
+      "HOLDZ": 0.0,
+      "SWEEP": 1.0,
+      "GAP": 0.0
+     },
+     "scan": 0.0,
+     "S": 1.1246968837935558,
+     "S_L": 0.7165042778077574,
+     "D": 0.4081926059857985,
+     "U": 0.922897597365085,
+     "S1": 1.020050081561839,
+     "S12": 1.0920766363111194,
+     "sym": "GITS"
+    }
+   ]
+  }
+ ],
+ "verdict": "C",
+ "weights_answer": {
+  "weighted_vs_unweighted": -0.0387,
+  "layer2_over_layer1": -0.0516,
+  "layer3_over_layers12": -0.0258,
+  "layer1_over_unweighted": 0.0,
+  "direction_over_level": -0.1065
+ },
+ "component_profile": {
+  "RSI": {
+   "events": 0.5066,
+   "n_e": 31,
+   "controls": 0.3072,
+   "n_c": 155
+  },
+  "HOLD": {
+   "events": 0.76,
+   "n_e": 30,
+   "controls": 0.7611,
+   "n_c": 144
+  },
+  "CYC": {
+   "events": 0.7536,
+   "n_e": 30,
+   "controls": 0.733,
+   "n_c": 144
+  },
+  "ZONE": {
+   "events": 0.6424,
+   "n_e": 30,
+   "controls": 0.728,
+   "n_c": 144
+  },
+  "HOLDZ": {
+   "events": 0.2222,
+   "n_e": 30,
+   "controls": 0.2153,
+   "n_c": 144
+  },
+  "SWEEP": {
+   "events": 0.3167,
+   "n_e": 30,
+   "controls": 0.3507,
+   "n_c": 144
+  },
+  "GAP": {
+   "events": 0.0968,
+   "n_e": 31,
+   "controls": 0.1097,
+   "n_c": 155
+  }
+ }
+}
