@@ -1,0 +1,826 @@
+{
+ "categories": {
+  "BREAKOUT": {
+   "component": null,
+   "regex": "تحرر|تجاوز|خط العنق|اختراق|فوق المقاومه"
+  },
+  "GAP": {
+   "component": "GAP",
+   "regex": "فجوه|فراغ"
+  },
+  "GROUPS": {
+   "component": null,
+   "regex": "قروب"
+  },
+  "HOLD": {
+   "component": "HOLD+HOLDZ",
+   "regex": "ثبات|يثبت|ثبت|يحافظ|حافظ|المحافظه|ماكسر|لاكسر|عدم كسر|لا يكسر|مايكسر"
+  },
+  "NEWS": {
+   "component": null,
+   "regex": "خبر|اخبار|اعلان"
+  },
+  "OFFERING": {
+   "component": null,
+   "regex": "طرح|تخفيف"
+  },
+  "OPERATOR": {
+   "component": null,
+   "regex": "مضارب|ضغط"
+  },
+  "RSI": {
+   "component": "RSI",
+   "regex": "rsi"
+  },
+  "SHORT": {
+   "component": null,
+   "regex": "شورت|اقتراض"
+  },
+  "SWEEP": {
+   "component": "SWEEP",
+   "regex": "سحب السيوله|سحب سيوله|مسح سيوله|مسح السيوله"
+  },
+  "TEST": {
+   "component": "CYC",
+   "regex": "يختبر|اختبار|اختبر"
+  },
+  "VOLUME": {
+   "component": null,
+   "regex": "فوليوم|تدوير|سيوله سالب"
+  },
+  "ZONE": {
+   "component": "ZONE",
+   "regex": "انتظار الهبوط|ينزل|تنتظر \\d|انتظر \\d|لاختبار الدعوم|مناطق الطلب|انتظار الدعوم|انتظار تحقيق الدعم|تكوين دعوم"
+  }
+ },
+ "sets": {
+  "faisal": {
+   "authors": [
+    "F"
+   ],
+   "counts": {
+    "BREAKOUT": 12,
+    "GAP": 1,
+    "GROUPS": 8,
+    "HOLD": 27,
+    "NEWS": 9,
+    "OFFERING": 5,
+    "OPERATOR": 24,
+    "RSI": 5,
+    "SHORT": 14,
+    "SWEEP": 13,
+    "TEST": 19,
+    "VOLUME": 3,
+    "ZONE": 11
+   },
+   "dropped_duplicates": [
+    "TG_1889",
+    "TG_2019",
+    "TG_2170",
+    "TG_2171",
+    "TG_57879",
+    "TG_58429",
+    "X_20260827_raya_notready_2",
+    "X_20260905_02"
+   ],
+   "kept": 59,
+   "labels": {
+    "IMG_0319": [
+     "BREAKOUT",
+     "HOLD",
+     "OPERATOR"
+    ],
+    "IMG_0320": [
+     "HOLD",
+     "OPERATOR",
+     "ZONE"
+    ],
+    "IMG_0361": [
+     "HOLD",
+     "NEWS",
+     "OPERATOR",
+     "SHORT",
+     "VOLUME"
+    ],
+    "IMG_0393": [
+     "BREAKOUT",
+     "SHORT"
+    ],
+    "IMG_0488": [
+     "GROUPS",
+     "HOLD",
+     "OPERATOR",
+     "TEST"
+    ],
+    "IMG_0508": [
+     "HOLD",
+     "OPERATOR",
+     "TEST",
+     "ZONE"
+    ],
+    "IMG_0509": [
+     "BREAKOUT",
+     "HOLD",
+     "ZONE"
+    ],
+    "IMG_0510": [
+     "OPERATOR",
+     "TEST",
+     "ZONE"
+    ],
+    "IMG_0512": [
+     "GAP",
+     "HOLD",
+     "OPERATOR"
+    ],
+    "IMG_0513": [
+     "HOLD"
+    ],
+    "IMG_0566": [
+     "BREAKOUT",
+     "HOLD",
+     "SHORT",
+     "TEST",
+     "ZONE"
+    ],
+    "IMG_0569": [
+     "GROUPS",
+     "TEST",
+     "ZONE"
+    ],
+    "IMG_0602": [
+     "BREAKOUT"
+    ],
+    "IMG_0627": [
+     "BREAKOUT",
+     "HOLD",
+     "OPERATOR",
+     "VOLUME"
+    ],
+    "IMG_0688": [
+     "HOLD",
+     "TEST"
+    ],
+    "IMG_0691": [
+     "GROUPS"
+    ],
+    "IMG_0697": [
+     "HOLD",
+     "TEST"
+    ],
+    "IMG_0698": [],
+    "IMG_8127": [
+     "HOLD",
+     "OFFERING"
+    ],
+    "IMG_8133": [
+     "HOLD",
+     "NEWS",
+     "TEST"
+    ],
+    "TG_1815": [
+     "TEST"
+    ],
+    "TG_1822": [
+     "GROUPS",
+     "NEWS",
+     "OPERATOR",
+     "RSI",
+     "SHORT",
+     "SWEEP"
+    ],
+    "TG_1833": [
+     "BREAKOUT",
+     "SHORT"
+    ],
+    "TG_1876": [
+     "NEWS",
+     "SHORT"
+    ],
+    "TG_1895": [
+     "OFFERING"
+    ],
+    "TG_1933": [
+     "OPERATOR",
+     "ZONE"
+    ],
+    "TG_1958": [
+     "GROUPS",
+     "OPERATOR",
+     "SWEEP"
+    ],
+    "TG_1981": [
+     "HOLD"
+    ],
+    "TG_2001": [
+     "SWEEP"
+    ],
+    "TG_2034": [
+     "BREAKOUT",
+     "HOLD",
+     "OPERATOR",
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_2071": [
+     "OPERATOR",
+     "SWEEP"
+    ],
+    "TG_2089": [
+     "OPERATOR"
+    ],
+    "TG_2093": [
+     "HOLD",
+     "RSI",
+     "TEST"
+    ],
+    "TG_2095": [],
+    "TG_2108": [
+     "HOLD",
+     "ZONE"
+    ],
+    "TG_2196": [
+     "BREAKOUT",
+     "HOLD"
+    ],
+    "TG_2200": [
+     "HOLD",
+     "OPERATOR",
+     "SHORT",
+     "SWEEP"
+    ],
+    "TG_2218": [
+     "OPERATOR"
+    ],
+    "TG_50575": [
+     "OPERATOR"
+    ],
+    "TG_50576": [],
+    "TG_50579": [],
+    "TG_50585": [
+     "TEST"
+    ],
+    "TG_50828": [
+     "NEWS",
+     "OFFERING",
+     "RSI",
+     "SHORT",
+     "SWEEP"
+    ],
+    "TG_57867": [
+     "NEWS",
+     "OPERATOR",
+     "SWEEP",
+     "ZONE"
+    ],
+    "TG_57870": [
+     "OPERATOR",
+     "SWEEP",
+     "VOLUME"
+    ],
+    "TG_57872": [
+     "HOLD",
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_57873": [
+     "BREAKOUT",
+     "TEST"
+    ],
+    "TG_57884": [
+     "HOLD",
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_58526": [
+     "GROUPS",
+     "OPERATOR",
+     "TEST"
+    ],
+    "X_20260827_kwm_offering_notready": [
+     "HOLD",
+     "OFFERING",
+     "SHORT"
+    ],
+    "X_20260827_labt_supports_wait": [
+     "SHORT",
+     "ZONE"
+    ],
+    "X_20260827_raya_notready": [
+     "ZONE"
+    ],
+    "X_20260827_rubi_read_short150k": [
+     "HOLD",
+     "RSI",
+     "SHORT"
+    ],
+    "X_20260905_01": [
+     "BREAKOUT",
+     "GROUPS",
+     "HOLD",
+     "OPERATOR"
+    ],
+    "X_20260905_04": [
+     "RSI"
+    ],
+    "X_20260905_07": [
+     "NEWS",
+     "OPERATOR",
+     "SHORT",
+     "TEST"
+    ],
+    "X_20260918_12_doublebottom": [
+     "BREAKOUT",
+     "NEWS",
+     "OPERATOR",
+     "SWEEP"
+    ],
+    "X_20260918_13_NUWE": [
+     "GROUPS",
+     "HOLD",
+     "OPERATOR",
+     "SHORT",
+     "SWEEP",
+     "TEST"
+    ],
+    "X_20260918_85_YMT": [
+     "HOLD",
+     "NEWS",
+     "OFFERING",
+     "SHORT",
+     "TEST"
+    ]
+   },
+   "none_named": [
+    "IMG_0698",
+    "TG_2095",
+    "TG_50576",
+    "TG_50579"
+   ],
+   "wait_records": 67
+  },
+  "faisal_plus_unattributed": {
+   "authors": [
+    "F",
+    "U"
+   ],
+   "counts": {
+    "BREAKOUT": 24,
+    "GAP": 5,
+    "GROUPS": 9,
+    "HOLD": 43,
+    "NEWS": 9,
+    "OFFERING": 5,
+    "OPERATOR": 31,
+    "RSI": 8,
+    "SHORT": 20,
+    "SWEEP": 20,
+    "TEST": 31,
+    "VOLUME": 3,
+    "ZONE": 12
+   },
+   "dropped_duplicates": [
+    "TG_1873",
+    "TG_1889",
+    "TG_2019",
+    "TG_2170",
+    "TG_2171",
+    "TG_2186",
+    "TG_2201",
+    "TG_57879",
+    "TG_57881",
+    "TG_57883",
+    "TG_58429",
+    "X_20260827_raya_notready_2",
+    "X_20260905_02",
+    "X_20260918_13_NUWE"
+   ],
+   "kept": 99,
+   "labels": {
+    "IMG_0267": [
+     "BREAKOUT",
+     "GAP",
+     "HOLD",
+     "SHORT"
+    ],
+    "IMG_0301": [
+     "OPERATOR"
+    ],
+    "IMG_0319": [
+     "BREAKOUT",
+     "HOLD",
+     "OPERATOR"
+    ],
+    "IMG_0320": [
+     "HOLD",
+     "OPERATOR",
+     "ZONE"
+    ],
+    "IMG_0361": [
+     "HOLD",
+     "NEWS",
+     "OPERATOR",
+     "SHORT",
+     "VOLUME"
+    ],
+    "IMG_0393": [
+     "BREAKOUT",
+     "SHORT"
+    ],
+    "IMG_0413": [
+     "HOLD"
+    ],
+    "IMG_0488": [
+     "GROUPS",
+     "HOLD",
+     "OPERATOR",
+     "TEST"
+    ],
+    "IMG_0508": [
+     "HOLD",
+     "OPERATOR",
+     "TEST",
+     "ZONE"
+    ],
+    "IMG_0509": [
+     "BREAKOUT",
+     "HOLD",
+     "ZONE"
+    ],
+    "IMG_0510": [
+     "OPERATOR",
+     "TEST",
+     "ZONE"
+    ],
+    "IMG_0512": [
+     "GAP",
+     "HOLD",
+     "OPERATOR"
+    ],
+    "IMG_0513": [
+     "HOLD"
+    ],
+    "IMG_0566": [
+     "BREAKOUT",
+     "HOLD",
+     "SHORT",
+     "TEST",
+     "ZONE"
+    ],
+    "IMG_0569": [
+     "GROUPS",
+     "TEST",
+     "ZONE"
+    ],
+    "IMG_0602": [
+     "BREAKOUT"
+    ],
+    "IMG_0627": [
+     "BREAKOUT",
+     "HOLD",
+     "OPERATOR",
+     "VOLUME"
+    ],
+    "IMG_0645": [
+     "HOLD"
+    ],
+    "IMG_0688": [
+     "HOLD",
+     "TEST"
+    ],
+    "IMG_0689": [
+     "OPERATOR",
+     "TEST"
+    ],
+    "IMG_0691": [
+     "GROUPS"
+    ],
+    "IMG_0697": [
+     "HOLD",
+     "TEST"
+    ],
+    "IMG_0698": [],
+    "IMG_8127": [
+     "HOLD",
+     "OFFERING"
+    ],
+    "IMG_8133": [
+     "HOLD",
+     "NEWS",
+     "TEST"
+    ],
+    "IMG_8242": [
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_1815": [
+     "TEST"
+    ],
+    "TG_1816": [],
+    "TG_1822": [
+     "GROUPS",
+     "NEWS",
+     "OPERATOR",
+     "RSI",
+     "SHORT",
+     "SWEEP"
+    ],
+    "TG_1831": [
+     "BREAKOUT",
+     "OPERATOR",
+     "SHORT"
+    ],
+    "TG_1833": [
+     "BREAKOUT",
+     "SHORT"
+    ],
+    "TG_1848": [
+     "BREAKOUT"
+    ],
+    "TG_1876": [
+     "NEWS",
+     "SHORT"
+    ],
+    "TG_1895": [
+     "OFFERING"
+    ],
+    "TG_1933": [
+     "OPERATOR",
+     "ZONE"
+    ],
+    "TG_1958": [
+     "GROUPS",
+     "OPERATOR",
+     "SWEEP"
+    ],
+    "TG_1981": [
+     "HOLD"
+    ],
+    "TG_2001": [
+     "SWEEP"
+    ],
+    "TG_2017": [
+     "BREAKOUT",
+     "SWEEP"
+    ],
+    "TG_20260905_04": [
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_20260905_07": [
+     "TEST"
+    ],
+    "TG_20260905_09": [
+     "HOLD",
+     "TEST"
+    ],
+    "TG_20260918_38_NUWE": [
+     "HOLD",
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_2031": [
+     "BREAKOUT",
+     "SHORT"
+    ],
+    "TG_2034": [
+     "BREAKOUT",
+     "HOLD",
+     "OPERATOR",
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_2036": [
+     "HOLD",
+     "RSI",
+     "SHORT"
+    ],
+    "TG_2037": [
+     "GROUPS",
+     "RSI",
+     "SHORT",
+     "TEST"
+    ],
+    "TG_2071": [
+     "OPERATOR",
+     "SWEEP"
+    ],
+    "TG_2089": [
+     "OPERATOR"
+    ],
+    "TG_2093": [
+     "HOLD",
+     "RSI",
+     "TEST"
+    ],
+    "TG_2095": [],
+    "TG_2106": [
+     "HOLD"
+    ],
+    "TG_2108": [
+     "HOLD",
+     "ZONE"
+    ],
+    "TG_2176": [
+     "BREAKOUT",
+     "HOLD",
+     "TEST"
+    ],
+    "TG_2196": [
+     "BREAKOUT",
+     "HOLD"
+    ],
+    "TG_2200": [
+     "HOLD",
+     "OPERATOR",
+     "SHORT",
+     "SWEEP"
+    ],
+    "TG_2207": [
+     "BREAKOUT",
+     "HOLD",
+     "OPERATOR",
+     "SHORT"
+    ],
+    "TG_2218": [
+     "OPERATOR"
+    ],
+    "TG_50575": [
+     "OPERATOR"
+    ],
+    "TG_50576": [],
+    "TG_50579": [],
+    "TG_50585": [
+     "TEST"
+    ],
+    "TG_50586": [
+     "TEST"
+    ],
+    "TG_50587": [
+     "TEST"
+    ],
+    "TG_50828": [
+     "NEWS",
+     "OFFERING",
+     "RSI",
+     "SHORT",
+     "SWEEP"
+    ],
+    "TG_57867": [
+     "NEWS",
+     "OPERATOR",
+     "SWEEP",
+     "ZONE"
+    ],
+    "TG_57869": [
+     "GAP",
+     "ZONE"
+    ],
+    "TG_57870": [
+     "OPERATOR",
+     "SWEEP",
+     "VOLUME"
+    ],
+    "TG_57871": [],
+    "TG_57872": [
+     "HOLD",
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_57873": [
+     "BREAKOUT",
+     "TEST"
+    ],
+    "TG_57875": [
+     "HOLD",
+     "SWEEP"
+    ],
+    "TG_57884": [
+     "HOLD",
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_57894": [
+     "HOLD",
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_58045": [],
+    "TG_58049": [
+     "HOLD"
+    ],
+    "TG_58387": [
+     "GAP",
+     "OPERATOR",
+     "SWEEP"
+    ],
+    "TG_58400": [
+     "OPERATOR"
+    ],
+    "TG_58407": [
+     "GAP"
+    ],
+    "TG_58427": [
+     "GROUPS",
+     "HOLD",
+     "OPERATOR",
+     "SHORT",
+     "SWEEP",
+     "TEST"
+    ],
+    "TG_58526": [
+     "GROUPS",
+     "OPERATOR",
+     "TEST"
+    ],
+    "WA_20260918_46_NUWE": [
+     "BREAKOUT"
+    ],
+    "X_20260827_kwm_offering_notready": [
+     "HOLD",
+     "OFFERING",
+     "SHORT"
+    ],
+    "X_20260827_labt_supports_wait": [
+     "SHORT",
+     "ZONE"
+    ],
+    "X_20260827_raya_notready": [
+     "ZONE"
+    ],
+    "X_20260827_rubi_read_short150k": [
+     "HOLD",
+     "RSI",
+     "SHORT"
+    ],
+    "X_20260827_target10_entry_below": [
+     "HOLD"
+    ],
+    "X_20260828_02": [
+     "BREAKOUT",
+     "HOLD"
+    ],
+    "X_20260828_05": [
+     "HOLD"
+    ],
+    "X_20260828_12": [
+     "BREAKOUT"
+    ],
+    "X_20260828_13": [
+     "HOLD"
+    ],
+    "X_20260828_14": [
+     "BREAKOUT"
+    ],
+    "X_20260828_15": [
+     "TEST"
+    ],
+    "X_20260905_01": [
+     "BREAKOUT",
+     "GROUPS",
+     "HOLD",
+     "OPERATOR"
+    ],
+    "X_20260905_04": [
+     "RSI"
+    ],
+    "X_20260905_07": [
+     "NEWS",
+     "OPERATOR",
+     "SHORT",
+     "TEST"
+    ],
+    "X_20260918_12_doublebottom": [
+     "BREAKOUT",
+     "NEWS",
+     "OPERATOR",
+     "SWEEP"
+    ],
+    "X_20260918_61_VEEE": [
+     "BREAKOUT",
+     "OPERATOR",
+     "RSI"
+    ],
+    "X_20260918_85_YMT": [
+     "HOLD",
+     "NEWS",
+     "OFFERING",
+     "SHORT",
+     "TEST"
+    ]
+   },
+   "none_named": [
+    "IMG_0698",
+    "TG_1816",
+    "TG_2095",
+    "TG_50576",
+    "TG_50579",
+    "TG_57871",
+    "TG_58045"
+   ],
+   "wait_records": 113
+  }
+ },
+ "source": "fm_forensics/reread/data/reread_records.jsonl",
+ "unique_ids": 772
+}
