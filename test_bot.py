@@ -88068,6 +88068,42 @@ try:
 except Exception as _e:                                              # noqa: BLE001
     _bwp7, _bwp7_w = False, f"⛔ {type(_e).__name__}: {_e}"
 check("📉💾 BWP7 المُقيِّمُ ينسب صفَّ المتابعة ذا اللحظة لجلسته (والقديمُ يومٌ مُلتبس) · ووحدةُ الأفق في الكود «SESSIONS»", _bwp7, _bwp7_w)
+# AAG1 — ⚓ `T-ANCHOR-AGE` (برومبتُ المالك 2026-10-15 · بحثٌ فقط · `fm_forensics/anchor_age/`): حرّاسُ الأداة AG1-AG14 تعبر ·
+#    و`--check` يعيد المخرَجين بايتًا **ويتحقّق أن رأسَ وثيقة النتيجة يحمل الحكمَ ومعاييرَه الثلاثة من الـJSON** (‏`doc_check`) ·
+#    والـworkflow المؤقّت الذي جلب الشموع على فرعه **غائبٌ عن الشجرة** (لا يُدمَج) · والأداةُ لا تستورد ما يكتب حالةَ إنتاجٍ أو يرسل (‏AST).
+try:
+    import subprocess as _aag_sp
+    import sys as _aag_sys
+    _aag_dir = _os_hc.path.join(_os_hc.path.dirname(_os_hc.path.abspath(__file__)), "fm_forensics", "anchor_age")
+    _aag_tool = _os_hc.path.join(_aag_dir, "anchor_age.py")
+    _aag_env = dict(_os_hc.environ, PYTHONDONTWRITEBYTECODE="1")
+
+    def _aag_run(*a):
+        _r = _aag_sp.run([_aag_sys.executable, "-B", _aag_tool, *a], capture_output=True, text=True, timeout=900, env=_aag_env)
+        return _r.returncode, _r.stdout + _r.stderr
+    _aag_g = _aag_run("--guards")
+    _aag_c = _aag_run("--check")
+    _aag_gok = _aag_g[0] == 0 and "✅ الحرّاس كلُّهم (14/14)" in _aag_g[1] and "Traceback" not in _aag_g[1]
+    _aag_cok = (_aag_c[0] == 0 and "✅ المخرَجاتُ تُعاد بايتًا" in _aag_c[1] and "✅ وثيقةُ النتيجة تحمل أرقامَ الـJSON" in _aag_c[1]
+                and "Traceback" not in _aag_c[1])
+    _aag_wf = not _os_hc.path.exists(_os_hc.path.join(_os_hc.path.dirname(_os_hc.path.abspath(__file__)), ".github", "workflows",
+                                                     "anchor_age_fetch.yml"))
+    _aag_names = set()
+    for _aag_f in ("anchor_age.py", "anchor_extract.py", "anchor_mutate.py"):
+        with open(_os_hc.path.join(_aag_dir, _aag_f), encoding="utf-8") as _f:
+            for _n in _ast0.walk(_ast0.parse(_f.read())):
+                if isinstance(_n, _ast0.Attribute):
+                    _aag_names.add(_n.attr)
+                elif isinstance(_n, (_ast0.Import, _ast0.ImportFrom)):
+                    _aag_names |= {a.name for a in _n.names} | {getattr(_n, "module", None) or ""}
+    _aag_bad = _aag_names & {"send_telegram", "save_watchlist", "git_save", "telegram_collect", "requests"}
+    _aag1 = _aag_gok and _aag_cok and _aag_wf and not _aag_bad
+    _aag1_w = f"guards={_aag_gok} · check={_aag_cok} · wf_absent={_aag_wf} · bad={sorted(_aag_bad)} · {(_aag_g[1] + _aag_c[1])[-200:]}"
+except Exception as _e:                                              # noqa: BLE001
+    _aag1, _aag1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚓ AAG1 `T-ANCHOR-AGE`: الحرّاسُ 14/14 · والمخرَجاتُ تُعاد بايتًا ورأسُ وثيقة النتيجة يحمل الحكمَ ومعاييرَه من الـJSON · "
+      "والـworkflow المؤقّت غائب · ولا نداءَ يكتب حالةً أو يرسل",
+      _aag1, _aag1_w[:420])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
