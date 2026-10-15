@@ -10,6 +10,8 @@ Reads the public git history of origin/main and writes data/snapshots.json.gz:
 
   python3 fm_forensics/anchor_age/anchor_extract.py            write data/snapshots.json.gz
   python3 fm_forensics/anchor_age/anchor_extract.py --symbols  write data/fetch_symbols.json (what the runner fetches)
+
+Exit 8 (axis closed «اقفل عمر المرساة» 2026-10-15) before reading anything unless ANCHOR_AGE_REOPEN=1 literally.
 """
 import datetime as dt
 import gzip
@@ -122,5 +124,16 @@ def symbols():
     print(f"💾 {os.path.relpath(SYMS, ROOT)} · {len(out)} رمزًا")
 
 
+def main(argv=None):
+    argv = sys.argv[1:] if argv is None else argv
+    sys.path.insert(0, HERE)
+    import anchor_age as AA                                     # 🔒 the axis closure (exit 8 before reading git history)
+    rc = AA.closed_exit("anchor_extract.py")
+    if rc is not None:
+        return rc
+    symbols() if "--symbols" in argv else extract()
+    return 0
+
+
 if __name__ == "__main__":
-    symbols() if "--symbols" in sys.argv[1:] else extract()
+    sys.exit(main())
