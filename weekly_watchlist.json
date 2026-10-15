@@ -2449,7 +2449,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 8.8445,
+   "last_price": 8.95,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -6351,7 +6351,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 15.65,
+   "last_price": 15.79,
    "live_alert": {
     "breakout": "2026-09-16"
    },
@@ -19169,7 +19169,7 @@
    "sector": "Industrials",
    "country": "United Kingdom",
    "float": 8670445,
-   "last_price": 3.57,
+   "last_price": 3.565,
    "status": "watching",
    "triggered_date": null
   },
