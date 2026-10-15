@@ -811,7 +811,8 @@
     "ext": true,
     "daily_low": 3.44,
     "asof": "2026-10-14"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "RENT",
@@ -1213,7 +1214,8 @@
     "ext": true,
     "daily_low": 1.51,
     "asof": "2026-10-14"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "AFJK",
@@ -2064,7 +2066,8 @@
     "ext": false,
     "daily_low": 1.54,
     "asof": "2026-10-14"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "PTLE",
@@ -2461,7 +2464,8 @@
     "ext": false,
     "daily_low": 6.5,
     "asof": "2026-10-14"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "WKHS",
@@ -3703,7 +3707,8 @@
     "ext": true,
     "daily_low": 2.575,
     "asof": "2026-10-14"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "RDAC",
@@ -5422,7 +5427,8 @@
    "max_gain_pct": 24.4,
    "last_price": 3.69,
    "live_alert": {
-    "breakout": "2026-09-17"
+    "breakout": "2026-09-17",
+    "premarket": "2026-10-15"
    },
    "faisal_levels": "🧭 إغلاقات الهابطة $3.71 · $3.72 · $3.73 · جسم قبل الهبوط $4.03 · اختبار المقاومة $3.86 إلى $4.20",
    "borrow_hist": [
@@ -9467,7 +9473,8 @@
     "ext": false,
     "daily_low": 3.3,
     "asof": "2026-10-14"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "PSIG",
