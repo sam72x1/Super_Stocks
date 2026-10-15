@@ -1,39 +1,7 @@
 {
- "run_id": "38532194388",
+ "run_id": "38700672210",
  "result": {
   "done": [
-   "ELPW",
-   "ENPH",
-   "ENVB",
-   "EZRA",
-   "FGF",
-   "FIEE",
-   "FRSX",
-   "FUBO",
-   "FULC",
-   "GCTK",
-   "GRI",
-   "GWAV",
-   "HAO",
-   "HCAI",
-   "HCWB",
-   "HUBC",
-   "HWH",
-   "IMCC",
-   "IPDN",
-   "JAGX",
-   "JEM",
-   "KWM",
-   "LABT",
-   "LIMN",
-   "LNAI",
-   "MI",
-   "MNDR",
-   "MSGY",
-   "MTEX",
-   "NAMM",
-   "NCT",
-   "NRSN",
    "NUWE",
    "NXTT",
    "OMH",
@@ -90,29 +58,61 @@
    "XCUR",
    "YMT",
    "ZCMD",
-   "ZNB"
+   "ZNB",
+   "ELPW",
+   "ENPH",
+   "ENVB",
+   "EZRA",
+   "FGF",
+   "FIEE",
+   "FRSX",
+   "FUBO",
+   "FULC",
+   "GCTK",
+   "GRI",
+   "GWAV",
+   "HAO",
+   "HCAI",
+   "HCWB",
+   "HUBC",
+   "HWH",
+   "IMCC",
+   "IPDN",
+   "JAGX",
+   "JEM",
+   "KWM",
+   "LABT",
+   "LIMN",
+   "LNAI",
+   "MI",
+   "MNDR",
+   "MSGY",
+   "MTEX",
+   "NAMM",
+   "NCT",
+   "NRSN"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "BLNE",
-    "CMTL",
-    "CTXR",
-    "DEFT",
-    "EHTH",
-    "EVAX",
-    "GITS",
-    "GMM",
-    "HTZ",
-    "LFS",
-    "NXAT",
-    "SEV",
-    "TURB",
-    "UPXI",
-    "VRXA",
-    "XPON"
+    "BIAF",
+    "CLRB",
+    "CVRX",
+    "ELBM",
+    "GTBP",
+    "LAES",
+    "MGRX",
+    "MLEC",
+    "NAKA",
+    "SOWG",
+    "TRNR",
+    "ZOOZ",
+    "NAMI",
+    "DFSC",
+    "REVB",
+    "EHTH"
    ],
    "skipped": [],
    "calendar_error": "",
@@ -123,17 +123,17 @@
   }
  },
  "audit": {
-  "rows": 1435,
+  "rows": 1264,
   "by_status": {
-   "OK": 1118,
-   "UNKNOWN": 192,
+   "OK": 959,
+   "UNKNOWN": 180,
    "NOT_ATTEMPTED": 119,
    "FAILED": 6
   },
   "by_category": {
-   "1": 487,
-   "2": 631,
-   "4": 317
+   "1": 490,
+   "2": 469,
+   "4": 305
   },
   "tickers": 105,
   "chain_problems": []
@@ -305,6 +305,11 @@
    "yahoo_splits"
   ],
   [
+   "DFSC",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "DKI",
    "short_interest",
    "yahoo_info"
@@ -360,6 +365,11 @@
    "yahoo_splits"
   ],
   [
+   "EHTH",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
    "ELAB",
    "short_interest",
    "yahoo_info"
@@ -368,6 +378,11 @@
    "ELAB",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "ELPW",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "ELPW",
@@ -640,6 +655,11 @@
    "yahoo_splits"
   ],
   [
+   "NAMI",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "NAMM",
    "short_interest",
    "yahoo_info"
@@ -766,6 +786,16 @@
   ],
   [
    "PRFX",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "REVB",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "REVB",
    "reverse_split",
    "yahoo_splits"
   ],
