@@ -88126,7 +88126,9 @@ try:
         _aac_json = _f.read()
     with open(_AAC.OUT_MD, encoding="utf-8") as _f:
         _aac_md = _f.read()
-    _AAC.outputs = lambda *a, **k: (_aac_calls.append("outputs"), {_AAC.OUT_JSON: _aac_json, _AAC.OUT_MD: _aac_md})[1]
+    # 🧹 the open path writes what `outputs` returns ⟵ an empty dict (nothing rewritten · LEAK1) · `--check` only compares ⟵ the files
+    _aac_out = {"v": {}}
+    _AAC.outputs = lambda *a, **k: (_aac_calls.append("outputs"), dict(_aac_out["v"]))[1]
     _AAX._git = lambda *a, **k: (_aac_calls.append("git"), "")[1]
     _AAX.extract = lambda *a, **k: _aac_calls.append("extract")
     _AAX.symbols = lambda *a, **k: _aac_calls.append("symbols")
@@ -88165,7 +88167,9 @@ try:
     _aac_fetch_ok = _aac_fetch[0] == 8 and _aac_fetch[1] == _aac_notice and not _aac_top_ss and _aac_gate_ln < _aac_ss_ln
     _aac_o = _aac_run("1", lambda: _AAC.main([]))
     _aac_open = _aac_o[0] == 0 and _aac_o[2] == ["outputs"] and "🔒" not in _aac_o[1]
+    _aac_out["v"] = {_AAC.OUT_JSON: _aac_json, _AAC.OUT_MD: _aac_md}
     _aac_c = _aac_run(None, lambda: _AAC.main(["--check"]))
+    _aac_out["v"] = {}
     _aac_chk = _aac_c[0] == 0 and _aac_c[2] == ["outputs"] and "✅ المخرَجاتُ تُعاد بايتًا" in _aac_c[1]
     _aac_words = all(_w in _aac_notice for _w in ("①", "②", "③", "ANCHOR_AGE_REOPEN=1", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد",
                                                   "31.0%", "«لا» في الخمسة", "`tested_level`", "حرفيًّا"))
