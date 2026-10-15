@@ -87,7 +87,21 @@
   "first": "2026-10-09",
   "last": "2026-10-14",
   "no_pool_days": 0,
-  "k": 16
+  "k": 16,
+  "pool_date_last": "2026-10-08",
+  "pool_obs_last": "2026-10-14",
+  "pool_lag_entries_last": 4,
+  "pool_newer_entries": [
+   "2026-10-09",
+   "2026-10-10",
+   "2026-10-13",
+   "2026-10-14"
+  ]
+ },
+ "cases_after_cutoff": 0,
+ "inputs": {
+  "last_photo": "2026-10-08",
+  "sessions_since_last_photo": 5
  },
  "ledger_rows": 38304,
  "floor_reached": false,
