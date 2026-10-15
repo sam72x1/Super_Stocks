@@ -87875,6 +87875,59 @@ except Exception as _e:                                              # noqa: BLE
 check("🎨 COL2 `T-COLOUR`: المخرَجاتُ تُعاد بايتًا · ورأسُ وثيقة النتيجة يحمل أرقامَ الـJSON (التغطية · حصصُ الألوان · مصيرُ الـ41 · الرؤوس) · "
       "و«لا يرسم مناطقَ دخولٍ بلون» تتبع الخريطة · والبوّابةُ المغلقة معلنة",
       _col2, _col2_w[:420])
+# COC1 — 🔒 **إغلاقُ `T-COLOUR` مُنفَّذٌ لا مكتوب** (أمرُ المالك «اقفل الالوان» 2026-10-15 · `fm_forensics/colour/T_COLOUR_RESULT.md §⑮`)
+#    — سلوكيًّا من طرفيه في العمليّة نفسِها: (أ) مُغلَقًا (غائبٌ و«0») ⟵ البناءُ و`--heads-sample` يرجعان 8 **بصفرِ نداءٍ** لـ`check_pins`
+#    و`outputs` و`load_register` ولا سطرَ غيرُ نصّ الإغلاق · (ب) بـ«1» ⟵ البناءُ يمضي (‏`outputs` مرّةً واحدة · مجذَّعةٌ لا تكتب) ويرجع 0 ·
+#    (ج) و`--validate` مُغلَقًا يرجع 0 (التحقّقُ مفتوح) · (د) والنصُّ يحمل شروطَ الفتح الثلاثة والمفتاح · ووثيقةُ النتيجة §⑮ تحمله.
+try:
+    import contextlib as _coc_ctx
+    import importlib.util as _coc_iu
+    import io as _coc_io
+    _coc_spec = _coc_iu.spec_from_file_location("_coc_colour_build", _col_tool)
+    _COC = _coc_iu.module_from_spec(_coc_spec)
+    _coc_spec.loader.exec_module(_COC)
+    _coc_calls = []
+    _COC.check_pins = lambda *a, **k: _coc_calls.append("pins")
+    _COC.outputs = lambda *a, **k: (_coc_calls.append("outputs"), {})[1]
+    _COC.load_register = lambda *a, **k: (_coc_calls.append("register"), ({}, [], []))[1]
+    _coc_env0 = _col_os.environ.get("COLOUR_REOPEN")
+
+    def _coc_main(env, argv):
+        _coc_calls.clear()
+        if env is None:
+            _col_os.environ.pop("COLOUR_REOPEN", None)
+        else:
+            _col_os.environ["COLOUR_REOPEN"] = env
+        _buf = _coc_io.StringIO()
+        try:
+            with _coc_ctx.redirect_stdout(_buf):
+                _rc = _COC.main(argv)
+        finally:
+            if _coc_env0 is None:
+                _col_os.environ.pop("COLOUR_REOPEN", None)
+            else:
+                _col_os.environ["COLOUR_REOPEN"] = _coc_env0
+        return _rc, _buf.getvalue(), list(_coc_calls)
+    _coc_notice = "\n".join(_COC.closure_notice()) + "\n"
+    _coc_closed = all(_coc_main(e, a)[0] == 8 and _coc_main(e, a)[2] == [] and _coc_main(e, a)[1] == _coc_notice
+                      for e in (None, "0") for a in ([], ["--heads-sample"]))
+    _coc_o = _coc_main("1", [])
+    _coc_open = _coc_o[0] == 0 and _coc_o[2] == ["pins", "outputs"] and "🔒" not in _coc_o[1]
+    _coc_v = _col_run("--validate")
+    _coc_val = _coc_v[0] == 0 and "✅ السجلُّ سليم" in _coc_v[1]
+    _coc_words = all(_w in _coc_notice for _w in ("①", "②", "③", "COLOUR_REOPEN=1", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد",
+                                                  "«فيصل لا يرسم مناطقَ دخولٍ بلون»", "92.77%", "حرفيًّا"))
+    with open(_col_os.path.join(_col_dir, "T_COLOUR_RESULT.md"), encoding="utf-8") as _f:
+        _coc_res = _f.read()
+    _coc_sec = "## ⑮ 🔒 الإغلاق" in _coc_res and "COLOUR_REOPEN=1" in _coc_res.split("## ⑮ 🔒 الإغلاق")[-1]
+    _coc1 = (_COC.AXIS_CLOSED is True and _COC.REOPEN_ENV == "COLOUR_REOPEN" and _COC.CLOSED_RC == 8
+             and _coc_closed and _coc_open and _coc_val and _coc_words and _coc_sec)
+    _coc1_w = f"closed={_coc_closed} · open={_coc_open} {_coc_o[0]} {_coc_o[2]} · validate={_coc_val} · words={_coc_words} · sec={_coc_sec}"
+except Exception as _e:                                              # noqa: BLE001
+    _coc1, _coc1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔒 COC1 إغلاقُ `T-COLOUR` مُنفَّذ: البناءُ و`--heads-sample` يرجعان 8 بصفرِ نداءٍ ولا سطرَ غيرُ النصّ (غائبٌ و«0») · "
+      "و«1» يمضي · والتحقّقُ مفتوح · والنصُّ والوثيقةُ يحملان شروطَ الفتح الثلاثة",
+      _coc1, _coc1_w[:420])
 # ══════════════════════════════════════════════════════════════════════════
 # 📉💾 BWP1-BWP7 — «فعّل حفظ سجل المتاح» (أمرُ المالك 2026-10-14 · متابعةُ `T-BORROW-FALL`): السجلُّ يُدفَع · الأفقُ جلساتٌ (العقد §④)
 #    · الترتيبُ بأوّل رصدٍ وتعادلُه ببصمةٍ لا بالأبجديّة · المجتمعُ من سجلّ البِركة (اليوميّ والتجديد) · لحظةُ UTC لكلّ صفّ ·
