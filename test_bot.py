@@ -88083,7 +88083,7 @@ try:
         return _r.returncode, _r.stdout + _r.stderr
     _aag_g = _aag_run("--guards")
     _aag_c = _aag_run("--check")
-    _aag_gok = _aag_g[0] == 0 and "✅ الحرّاس كلُّهم (14/14)" in _aag_g[1] and "Traceback" not in _aag_g[1]
+    _aag_gok = _aag_g[0] == 0 and "✅ الحرّاس كلُّهم (15/15)" in _aag_g[1] and "Traceback" not in _aag_g[1]
     _aag_cok = (_aag_c[0] == 0 and "✅ المخرَجاتُ تُعاد بايتًا" in _aag_c[1] and "✅ وثيقةُ النتيجة تحمل أرقامَ الـJSON" in _aag_c[1]
                 and "Traceback" not in _aag_c[1])
     _aag_wf = not _os_hc.path.exists(_os_hc.path.join(_os_hc.path.dirname(_os_hc.path.abspath(__file__)), ".github", "workflows",
@@ -88101,9 +88101,91 @@ try:
     _aag1_w = f"guards={_aag_gok} · check={_aag_cok} · wf_absent={_aag_wf} · bad={sorted(_aag_bad)} · {(_aag_g[1] + _aag_c[1])[-200:]}"
 except Exception as _e:                                              # noqa: BLE001
     _aag1, _aag1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("⚓ AAG1 `T-ANCHOR-AGE`: الحرّاسُ 14/14 · والمخرَجاتُ تُعاد بايتًا ورأسُ وثيقة النتيجة يحمل الحكمَ ومعاييرَه من الـJSON · "
+check("⚓ AAG1 `T-ANCHOR-AGE`: الحرّاسُ 15/15 · والمخرَجاتُ تُعاد بايتًا ورأسُ وثيقة النتيجة يحمل الحكمَ ومعاييرَه من الـJSON · "
       "والـworkflow المؤقّت غائب · ولا نداءَ يكتب حالةً أو يرسل",
       _aag1, _aag1_w[:420])
+# AAC1 — 🔒 **إغلاقُ `T-ANCHOR-AGE` مُنفَّذٌ لا مكتوب** (أمرُ المالك «اقفل عمر المرساة» 2026-10-15 · `ANCHOR_AGE_RESULT.md §⑫`)
+#    — سلوكيًّا من طرفيه في العمليّة نفسِها: (أ) مُغلَقًا (غائبٌ و«0») ⟵ البناءُ يرجع 8 **بصفرِ نداءٍ** لـ`outputs` ولا سطرَ غيرُ نصّ الإغلاق ·
+#    و`anchor_extract` (البناءُ و`--symbols`) يرجع 8 بصفرِ نداءٍ لـgit · و`anchor_fetch` يرجع 8 والإغلاقُ قبل `import Super_stock` (‏AST) ·
+#    (ب) بـ«1» ⟵ البناءُ يمضي (‏`outputs` مرّةً) · (ج) و`--check` مُغلَقًا يمضي ويرجع 0 · (د) والنصُّ يحمل السببَ وشروطَ الفتح والمفتاح.
+try:
+    import contextlib as _aac_ctx
+    import importlib.util as _aac_iu
+    import io as _aac_io
+
+    def _aac_load(_name, _file):
+        _sp = _aac_iu.spec_from_file_location(_name, _os_hc.path.join(_aag_dir, _file))
+        _m = _aac_iu.module_from_spec(_sp)
+        _sp.loader.exec_module(_m)
+        return _m
+    _AAC = _aac_load("_aac_anchor_age", "anchor_age.py")
+    _AAX = _aac_load("_aac_anchor_extract", "anchor_extract.py")
+    _AAF = _aac_load("_aac_anchor_fetch", "anchor_fetch.py")
+    _aac_calls = []
+    with open(_AAC.OUT_JSON, encoding="utf-8") as _f:
+        _aac_json = _f.read()
+    with open(_AAC.OUT_MD, encoding="utf-8") as _f:
+        _aac_md = _f.read()
+    # 🧹 the open path writes what `outputs` returns ⟵ an empty dict (nothing rewritten · LEAK1) · `--check` only compares ⟵ the files
+    _aac_out = {"v": {}}
+    _AAC.outputs = lambda *a, **k: (_aac_calls.append("outputs"), dict(_aac_out["v"]))[1]
+    _AAX._git = lambda *a, **k: (_aac_calls.append("git"), "")[1]
+    _AAX.extract = lambda *a, **k: _aac_calls.append("extract")
+    _AAX.symbols = lambda *a, **k: _aac_calls.append("symbols")
+    _aac_env0 = _os_hc.environ.get("ANCHOR_AGE_REOPEN")
+
+    def _aac_run(env, fn):
+        _aac_calls.clear()
+        if env is None:
+            _os_hc.environ.pop("ANCHOR_AGE_REOPEN", None)
+        else:
+            _os_hc.environ["ANCHOR_AGE_REOPEN"] = env
+        _buf = _aac_io.StringIO()
+        try:
+            with _aac_ctx.redirect_stdout(_buf):
+                _rc = fn()
+        finally:
+            if _aac_env0 is None:
+                _os_hc.environ.pop("ANCHOR_AGE_REOPEN", None)
+            else:
+                _os_hc.environ["ANCHOR_AGE_REOPEN"] = _aac_env0
+        return _rc, _buf.getvalue(), list(_aac_calls)
+    _aac_notice = "\n".join(_AAC.closure_notice()) + "\n"
+    _aac_closed = all(r[0] == 8 and r[2] == [] and r[1] == _aac_notice
+                      for e in (None, "0")
+                      for r in (_aac_run(e, lambda: _AAC.main([])), _aac_run(e, lambda: _AAX.main([])),
+                                _aac_run(e, lambda: _AAX.main(["--symbols"]))))
+    _aac_fetch = _aac_run(None, lambda: _AAF.main())
+    with open(_os_hc.path.join(_aag_dir, "anchor_fetch.py"), encoding="utf-8") as _f:
+        _aac_ft = _ast0.parse(_f.read())
+    _aac_top_ss = any(isinstance(_n, _ast0.Import) and any(a.name == "Super_stock" for a in _n.names) for _n in _aac_ft.body)
+    _aac_fm = next(_n for _n in _aac_ft.body if isinstance(_n, _ast0.FunctionDef) and _n.name == "main")
+    _aac_gate_ln = min(_n.lineno for _n in _ast0.walk(_aac_fm) if isinstance(_n, _ast0.Call)
+                       and getattr(_n.func, "attr", None) == "closed_exit")
+    _aac_ss_ln = min(_n.lineno for _n in _ast0.walk(_aac_fm) if isinstance(_n, _ast0.Import)
+                     and any(a.name == "Super_stock" for a in _n.names))
+    _aac_fetch_ok = _aac_fetch[0] == 8 and _aac_fetch[1] == _aac_notice and not _aac_top_ss and _aac_gate_ln < _aac_ss_ln
+    _aac_o = _aac_run("1", lambda: _AAC.main([]))
+    _aac_open = _aac_o[0] == 0 and _aac_o[2] == ["outputs"] and "🔒" not in _aac_o[1]
+    _aac_out["v"] = {_AAC.OUT_JSON: _aac_json, _AAC.OUT_MD: _aac_md}
+    _aac_c = _aac_run(None, lambda: _AAC.main(["--check"]))
+    _aac_out["v"] = {}
+    _aac_chk = _aac_c[0] == 0 and _aac_c[2] == ["outputs"] and "✅ المخرَجاتُ تُعاد بايتًا" in _aac_c[1]
+    _aac_words = all(_w in _aac_notice for _w in ("①", "②", "③", "ANCHOR_AGE_REOPEN=1", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد",
+                                                  "31.0%", "«لا» في الخمسة", "`tested_level`", "حرفيًّا"))
+    with open(_os_hc.path.join(_aag_dir, "ANCHOR_AGE_RESULT.md"), encoding="utf-8") as _f:
+        _aac_res = _f.read()
+    _aac_tail = _aac_res.split("## ⑫ 🔒 الإغلاق")[-1] if "## ⑫ 🔒 الإغلاق" in _aac_res else ""
+    _aac_sec = "ANCHOR_AGE_REOPEN=1" in _aac_tail and "tested_level" in _aac_tail
+    _aac1 = (_AAC.AXIS_CLOSED is True and _AAC.REOPEN_ENV == "ANCHOR_AGE_REOPEN" and _AAC.CLOSED_RC == 8
+             and _aac_closed and _aac_fetch_ok and _aac_open and _aac_chk and _aac_words and _aac_sec)
+    _aac1_w = (f"closed={_aac_closed} · fetch={_aac_fetch_ok} {_aac_fetch[0]} · open={_aac_open} {_aac_o[0]} {_aac_o[2]} · "
+               f"check={_aac_chk} {_aac_c[0]} · words={_aac_words} · sec={_aac_sec}")
+except Exception as _e:                                              # noqa: BLE001
+    _aac1, _aac1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔒 AAC1 إغلاقُ `T-ANCHOR-AGE` مُنفَّذ: البناءُ و`anchor_extract` و`anchor_fetch` ترجع 8 بصفرِ نداءٍ ولا سطرَ غيرُ النصّ "
+      "(غائبٌ و«0») · و«1» يمضي · و`--check` مفتوح · والنصُّ والوثيقةُ يحملان السببَ وشروطَ الفتح",
+      _aac1, _aac1_w[:420])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

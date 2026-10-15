@@ -10,7 +10,9 @@ verdict) — through gen5_features.S() (the GEN5 import with the live FAISAL_ONL
                                                            ANCHOR_AGE_RESULT.md carries the JSON's numbers (doc_check)
   python3 fm_forensics/anchor_age/anchor_age.py --guards   synthetic guards (no data read)
 
-Exit codes: 0 done · 1 guards failed or outputs differ.
+Exit codes: 0 done · 1 guards failed or outputs differ · 8 axis closed («اقفل عمر المرساة» 2026-10-15): the build (and
+anchor_extract / anchor_fetch) refuse before reading anything unless ANCHOR_AGE_REOPEN=1 literally; --check and --guards stay
+open (they re-derive the frozen numbers, they measure nothing new).
 """
 import bisect
 import collections
@@ -40,6 +42,44 @@ STEP, N_TR, FAR_MULT, RECLAIM = 0.03, 3, 1.05, 0.995      # production: ENTRY_ST
 K_OK, K_SPLIT = 0.03, math.log(1.5)
 TOUCH_TOL, TOUCH_LOOK = 0.005, 60
 MIN_BARS = 30
+AXIS_CLOSED = True
+REOPEN_ENV = "ANCHOR_AGE_REOPEN"
+CLOSED_RC = 8                     # distinct from 0 (ok) · 1 (guards failed / outputs differ)
+
+
+def _closed_now():
+    """Closed right now? Read at call time; the acknowledgement is the literal "1" (a workflow input defaulting to "0" would
+    otherwise lift the closure on every run while looking closed)."""
+    return AXIS_CLOSED and (os.environ.get(REOPEN_ENV) or "").strip() != "1"
+
+
+def closure_notice():
+    """The closure text — a pure function so its content is locked, not its shape."""
+    return [
+        "🔒🔴 محورُ «عمر المرساة» (`T-ANCHOR-AGE`) مُغلَق — بأمر المالك «اقفل عمر المرساة» (2026-10-15) · "
+        "`fm_forensics/anchor_age/ANCHOR_AGE_RESULT.md §⑫`.",
+        "",
+        "⚖️ السبب — الفرضيّةُ سقطت بمعيارٍ مكتوبٍ قبل الرقم (`ANCHOR_AGE_DEFS.md §④` · #628):",
+        "   • `bars_after` فوق 8 يومَ بناء النطاق 31.0% — دون النصف (القاعُ حديثٌ عند 69.0%).",
+        "   • و«لا» في الخمسة كلِّهم (SXTC · DKI · RETO · DLXY · HUBC) — لم يدخل أحدٌ القائمةَ فلا مِرساةَ أسكتته.",
+        "   • 🔴 والدفعاتُ والوقفُ من `tested_level` منذ 2026-08-14 (`Super_stock.py:4530`-`:4545` · `:4567`) لا من `pivot`.",
+        "",
+        "🔓 ولا يُعاد فتحُه إلّا بثلاثةٍ معًا:",
+        "   ① مصدرٌ جديدٌ لم يُقَس — وإعادةُ لقطات git نفسِها أو تبديلُ فئات `bars_after` ليست مصدرًا.",
+        "   ② تسجيلٌ مسبقٌ جديد — `ANCHOR_AGE_DEFS.md` المدموجُ قبل الرقم لا يُعدَّل.",
+        "   ③ إذنُ المالك.",
+        f"   والمفتاحُ إقرارٌ لا التفاف: {REOPEN_ENV}=1 حرفيًّا — وأيُّ قيمةٍ غيرُها تُبقيه مُغلَقًا.",
+        "",
+        "   و`--check` و`--guards` مفتوحان: يعيدان اشتقاقَ الأرقام المجمَّدة ولا يقيسان شيئًا جديدًا.",
+    ]
+
+
+def closed_exit(name="anchor_age.py"):
+    """Print the notice and return CLOSED_RC when closed, else None (the caller proceeds)."""
+    if not _closed_now():
+        return None
+    print("\n".join(closure_notice()))
+    return CLOSED_RC
 
 
 # ── pure helpers ────────────────────────────────────────────────────────────────────────────────────
@@ -629,6 +669,24 @@ def guards():
         p14, w14 = False, f"⛔ {type(e).__name__}"
     g("AG14 بلا نظرٍ للمستقبل: شمعةٌ بعد s لا تغيّر شيئًا · `m5` أدنى خمس شموع حتى s · و`pivot`/`bars_after` من pivot_stability · ودون 30 شمعة None",
       p14, w14)
+    _env0 = os.environ.get(REOPEN_ENV)
+
+    def _closed_with(v):
+        if v is None:
+            os.environ.pop(REOPEN_ENV, None)
+        else:
+            os.environ[REOPEN_ENV] = v
+        try:
+            return _closed_now()
+        finally:
+            if _env0 is None:
+                os.environ.pop(REOPEN_ENV, None)
+            else:
+                os.environ[REOPEN_ENV] = _env0
+    g("AG15 الإغلاق: مُغلَقٌ بلا مفتاحٍ و«0» و«true» و«11» · ومفتوحٌ بـ«1» حرفيًّا وحدَه · والرمزُ 8",
+      AXIS_CLOSED is True and REOPEN_ENV == "ANCHOR_AGE_REOPEN" and CLOSED_RC == 8
+      and all(_closed_with(v) for v in (None, "", "0", "true", "yes", "11")) and not _closed_with("1") and not _closed_with(" 1 "),
+      [_closed_with(v) for v in (None, "0", "1")])
     g("AG12 ثوابتُ الصيغ = الإنتاجُ بالاسم (ENTRY_STEP_PCT · ENTRY_TRANCHES · ×1.05 «بعيد» · ×0.995 «تحت الدعم» في build_interpretation)",
       p12, w12)
     print(("✅ الحرّاس كلُّهم" if all(ok) else "❌ سقط حارس") + f" ({sum(ok)}/{len(ok)})")
@@ -664,6 +722,10 @@ def main(argv=None):
     argv = sys.argv[1:] if argv is None else argv
     if "--guards" in argv:
         return guards()
+    if "--check" not in argv:                  # 🔒 the build measures and rewrites ⟵ refused while the axis is closed
+        rc = closed_exit()
+        if rc is not None:
+            return rc
     outs = outputs()
     if "--check" in argv:
         bad = [os.path.relpath(p, ROOT) for p, s in outs.items() if not os.path.exists(p) or open(p, encoding="utf-8").read() != s]

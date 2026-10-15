@@ -40,6 +40,10 @@ M = [
     ("m20 m5 over six bars", '"m5": float(lows[-5:].min())', '"m5": float(lows[-6:].min())', "AG14"),
     ("m21 bars after s read", "    x = df[df.index <= s]", "    x = df", "AG14"),
     ("m22 thirty-bar floor dropped", "    if len(x) < MIN_BARS:\n        return None", "    if len(x) < 2:\n        return None", "AG14"),
+    ("m23 axis open", "AXIS_CLOSED = True", "AXIS_CLOSED = False", "AG15"),
+    ("m24 any value reopens", 'return AXIS_CLOSED and (os.environ.get(REOPEN_ENV) or "").strip() != "1"',
+     'return AXIS_CLOSED and not (os.environ.get(REOPEN_ENV) or "").strip()', "AG15"),
+    ("m25 closed exit code 0", "CLOSED_RC = 8 ", "CLOSED_RC = 0 ", "AG15"),
 ]
 
 
