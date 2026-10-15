@@ -87,6 +87,11 @@ M = [
     ("m68 floor lowered", "HEAD_SEED, HEAD_N, HEAD_MIN = 20261015, 40, 10", "HEAD_SEED, HEAD_N, HEAD_MIN = 20261015, 40, 5"),
     ("m69 revised counts the unchanged", 'sum(r["class"] != r["first_class"] for r in rows)', 'sum(r["class"] == r["first_class"] for r in rows)'),
     ("m70 sample from G1 only", 'if u["author"] in ("FAISAL", "UNSIGNED")', 'if u["author"] in ("FAISAL",)'),
+    ("m71 post-hoc counts unlabelled purple", '            if x["colour"] != "purple" or not x["label"]:\n                continue\n            roles = sorted(',
+     '            if x["colour"] != "purple":\n                continue\n            roles = sorted('),
+    ("m72 post-hoc rows for every role", '            if {"bid", "support"} & set(roles):\n                rows.append',
+     '            if True:\n                rows.append'),
+    ("m73 post-hoc missing price read as below", '                t[c][x["side"] or "no_price"] += 1', '                t[c][x["side"] or "below"] += 1'),
 ]
 orig = open(P, encoding="utf-8").read()
 env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
