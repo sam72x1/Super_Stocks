@@ -92,6 +92,10 @@ M = [
     ("m72 post-hoc rows for every role", '            if {"bid", "support"} & set(roles):\n                rows.append',
      '            if True:\n                rows.append'),
     ("m73 post-hoc missing price read as below", '                t[c][x["side"] or "no_price"] += 1', '                t[c][x["side"] or "below"] += 1'),
+    ("m74 axis not closed", "AXIS_CLOSED = True\n", "AXIS_CLOSED = False\n"),
+    ("m75 any value reopens", 'return AXIS_CLOSED and (os.environ.get(REOPEN_ENV) or "").strip() != "1"',
+     'return AXIS_CLOSED and not (os.environ.get(REOPEN_ENV) or "").strip()'),
+    ("m76 closed exits 0", "CLOSED_RC = 8 ", "CLOSED_RC = 0 "),
 ]
 orig = open(P, encoding="utf-8").read()
 env = dict(os.environ, PYTHONDONTWRITEBYTECODE="1")
