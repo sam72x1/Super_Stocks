@@ -390,7 +390,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 7.4,
-   "last_price": 1.1,
+   "last_price": 1.12,
    "borrow_hist": [
     [
      "2026-10-13",
@@ -1197,7 +1197,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.71,
+   "last_price": 1.69,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -2860,9 +2860,9 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 7.7,
-   "last_price": 2.93,
+   "last_price": 2.9,
    "live_alert": {
-    "buyzone": "2026-10-14",
+    "buyzone": "2026-10-15",
     "breakout": "2026-10-13"
    },
    "price_state": "VALID",
@@ -3268,7 +3268,7 @@
    "hit": "t2",
    "hit_date": "2026-10-14",
    "max_gain_pct": 30.2,
-   "last_price": 1.52,
+   "last_price": 1.5,
    "live_alert": {
     "breakout": "2026-10-14"
    },
@@ -3690,7 +3690,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.62,
+   "last_price": 2.55,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -3708,7 +3708,9 @@
     "daily_low": 2.575,
     "asof": "2026-10-14"
    },
-   "live_alert": {}
+   "live_alert": {
+    "break": "2026-10-15"
+   }
   },
   {
    "symbol": "RDAC",
@@ -4498,7 +4500,7 @@
    "hit": "t2",
    "hit_date": "2026-08-14",
    "max_gain_pct": 91.2,
-   "last_price": 2.065,
+   "last_price": 2.01,
    "borrow_hist": [
     [
      "2026-09-11",
@@ -4561,7 +4563,8 @@
     "premarket": "2026-08-14",
     "breakout": "2026-10-06",
     "buyzone": "2026-10-14",
-    "sweep": "2026-09-29"
+    "sweep": "2026-09-29",
+    "break": "2026-10-15"
    },
    "spikes": [
     576.8,
@@ -5425,7 +5428,7 @@
    "hit": "t2",
    "hit_date": "2026-09-17",
    "max_gain_pct": 24.4,
-   "last_price": 3.69,
+   "last_price": 3.72,
    "live_alert": {
     "breakout": "2026-09-17",
     "premarket": "2026-10-15"
@@ -6784,7 +6787,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 1.31,
+   "last_price": 1.28,
    "live_alert": {
     "breakout": "2026-09-01",
     "dump": "2026-08-28"
@@ -7673,7 +7676,7 @@
    "hit": "t2",
    "hit_date": "2026-10-08",
    "max_gain_pct": 42.3,
-   "last_price": 2.675,
+   "last_price": 2.74,
    "exact_hold": {
     "pivot": 2.53,
     "pivot_date": "2026-09-28",
@@ -8549,7 +8552,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.1,
-   "last_price": 4.15,
+   "last_price": 4.03,
    "borrow_hist": [
     [
      "2026-09-22",
@@ -9031,11 +9034,11 @@
    "hit": "t2",
    "hit_date": "2026-10-05",
    "max_gain_pct": 41.9,
-   "last_price": 0.8802,
+   "last_price": 0.8857,
    "live_alert": {
     "breakout": "2026-10-05",
     "dump": "2026-10-06",
-    "buyzone": "2026-10-14"
+    "buyzone": "2026-10-15"
    },
    "borrow_hist": [
     [
@@ -9456,7 +9459,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.33,
+   "last_price": 3.35,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -9474,7 +9477,10 @@
     "daily_low": 3.3,
     "asof": "2026-10-14"
    },
-   "live_alert": {}
+   "live_alert": {
+    "sweep": "2026-10-15",
+    "buyzone": "2026-10-15"
+   }
   },
   {
    "symbol": "PSIG",
@@ -10255,7 +10261,7 @@
    "hit": "t2",
    "hit_date": "2026-09-15",
    "max_gain_pct": 52.5,
-   "last_price": 0.9894,
+   "last_price": 0.9811,
    "live_alert": {
     "breakout": "2026-10-05",
     "premarket": "2026-09-15"
@@ -10661,7 +10667,7 @@
    "hit": "t1",
    "hit_date": "2026-08-13",
    "max_gain_pct": 26.9,
-   "last_price": 1.22,
+   "last_price": 1.2,
    "borrow_hist": [
     [
      "2026-09-16",
@@ -10725,7 +10731,7 @@
     "breakout": "2026-10-06",
     "premarket": "2026-08-17",
     "sweep": "2026-09-02",
-    "break": "2026-10-14"
+    "break": "2026-10-15"
    },
    "spikes": [
     61.5
@@ -11115,7 +11121,7 @@
    "hit": "t1",
    "hit_date": "2026-09-21",
    "max_gain_pct": 13.3,
-   "last_price": 1.14,
+   "last_price": 1.115,
    "live_alert": {
     "breakout": "2026-09-28",
     "sweep": "2026-10-13"
@@ -19159,7 +19165,7 @@
    "sector": "Industrials",
    "country": "United Kingdom",
    "float": 8670445,
-   "last_price": 3.54,
+   "last_price": 3.49,
    "status": "watching",
    "triggered_date": null
   },
