@@ -9,7 +9,11 @@ T_COLOUR_TABLES.md under the rules of T_COLOUR_protocol.md (pinned by its sha256
   python3 fm_forensics/colour/colour_build.py --validate pins (local) and register checks only — no measure is computed
   python3 fm_forensics/colour/colour_build.py --heads-sample  the seeded purple sample of amendment ④-⑪ (no measure)
 
-Exit codes: 0 done · 1 guards failed or outputs differ · 9 protocol/records pin or register invalid.
+Exit codes: 0 done · 1 guards failed or outputs differ · 8 axis closed · 9 protocol/records pin or register invalid.
+
+🔒 Executed closure (owner «اقفل الالوان» 2026-10-15 · T_COLOUR_RESULT.md §⑮): the build and --heads-sample exit 8 before
+any read unless COLOUR_REOPEN=1 (the literal "1"). --check, --guards and --validate stay open: they write nothing and can only
+confirm the published, pinned result.
 """
 import argparse
 import collections
@@ -28,6 +32,35 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 PROTO = os.path.join(HERE, "T_COLOUR_protocol.md")
 PROTO_SHA256 = "f0d9d8af80f9e63d1e653df1cbdd7bab727fd41531f17f3190d52a30c8acda2e"
 DATA = os.path.join(HERE, "data")
+
+AXIS_CLOSED = True
+REOPEN_ENV = "COLOUR_REOPEN"
+CLOSED_RC = 8                     # distinct from 0 (ok) · 1 (guards failed / outputs differ) · 9 (pins / register)
+
+
+def _closed_now():
+    """Closed right now? Read at call time; the acknowledgement is the literal "1" (a workflow input defaulting to "0" would
+    otherwise lift the closure on every run while looking closed)."""
+    return AXIS_CLOSED and (os.environ.get(REOPEN_ENV) or "").strip() != "1"
+
+
+def closure_notice():
+    """The closure text — a pure function so its content is locked, not its shape."""
+    return [
+        "🔒🔴 محورُ «خطوط فيصل الملوّنة» (`T-COLOUR`) مُغلَق — بأمر المالك «اقفل الالوان» (2026-10-15) · "
+        "`fm_forensics/colour/T_COLOUR_RESULT.md §⑮`.",
+        "",
+        "⚖️ السبب — السؤالُ أُجيب (‏342 من 772 صورة · 1,647 مستوًى · #626):",
+        "   • المفتاحُ يصمد حاسمًا في المجموعتين: الأحمرُ تحت السعر 92.77% · الأسودُ والأزرقُ والبنفسجيُّ فوقه.",
+        "   • البنفسجيُّ ليس طلبًا ⟵ ①②③ لم تُحسب · ولا لونَ غيرُ الأحمر أغلبُه تحت ⟵ «فيصل لا يرسم مناطقَ دخولٍ بلون».",
+        "   • وما بقي مفتوحًا (ضبطُ الرؤوس · قراءةُ «طلب» البنفسجيّ بعد الرقم) لا يغيّر قرارًا إنتاجيًّا — والبروتوكولُ يمنع البوّابة.",
+        "",
+        "🔓 ولا يُعاد فتحُه إلّا بثلاثةٍ معًا:",
+        "   ① مصدرٌ جديدٌ لم يُقَس — وإعادةُ قراءة الصور نفسِها أو تبديلُ التماسّ ليست مصدرًا (والصورُ الجديدة استلامٌ أماميّ).",
+        "   ② تسجيلٌ مسبقٌ جديد — البروتوكولُ `T_COLOUR_protocol.md` بتعديله ④ مدموجٌ لا يُعدَّل.",
+        "   ③ إذنُ المالك.",
+        "   ⚖️ والمفتاحُ COLOUR_REOPEN=1 إقرارٌ بالثلاثة لا التفافٌ عليها — ويُقرأ «1» حرفيًّا.",
+    ]
 REC = os.path.join(DATA, "colour_records.jsonl")
 REC_SHA256 = "cd46e377b3bddd1d64a0d8ac0363467a081caeee9f9235f35254dcbf1a20d4a4"
 FAMILY = os.path.join(DATA, "other_family.json")
@@ -1555,6 +1588,23 @@ def guards():
     g("CG19 قراءةُ ما بعد الرقم: البنفسجيُّ ذو الملصق وحدَه بدوره وموضعه · والصفوفُ للطلب والدعم وحدَهما بأسمائها",
       lambda: ((lambda p: p["by_role"] == {"bid": {"below": 1}, "neutral": {"above": 1}, "support": {"above": 1}, "target": {"no_price": 1}}
                and [(r["unit"], r["value"], r["side"]) for r in p["rows"]] == [("A#0", 2.7, "below"), ("B#0", 9.0, "above")])(phu()), phu()))
+    def closed_with(v):
+        old = os.environ.get(REOPEN_ENV)
+        try:
+            if v is None:
+                os.environ.pop(REOPEN_ENV, None)
+            else:
+                os.environ[REOPEN_ENV] = v
+            return _closed_now()
+        finally:
+            if old is None:
+                os.environ.pop(REOPEN_ENV, None)
+            else:
+                os.environ[REOPEN_ENV] = old
+    g("CG20 الإغلاقُ يُقرأ وقتَ النداء: غائبٌ · «0» · «true» · «yes» ⟵ مُغلَق · و«1» وحدَه (بمسافاته) ⟵ مفتوح · والرمزُ 8",
+      lambda: (AXIS_CLOSED is True and REOPEN_ENV == "COLOUR_REOPEN" and CLOSED_RC == 8
+               and all(closed_with(v) for v in (None, "", "0", "true", "yes", "11"))
+               and not closed_with("1") and not closed_with(" 1 "), [closed_with(v) for v in (None, "0", "1")]))
     # CG11 pins
 
     def pins():
@@ -1595,6 +1645,10 @@ def main(argv=None):
         print("✅ السجلُّ سليم" if not probs else f"⛔ {len(probs)} مشكلة")
         return 0 if not probs else 9
     if a.heads_sample:
+        if _closed_now():
+            for ln in closure_notice():
+                print(ln)
+            return CLOSED_RC
         check_pins(need_main=False)
         last, order, _ = load_register()
         with open(FAMILY, encoding="utf-8") as f:
@@ -1608,6 +1662,10 @@ def main(argv=None):
         bad = [os.path.relpath(p, ROOT) for p, s in outs.items() if not os.path.exists(p) or open(p, encoding="utf-8").read() != s]
         print("✅ المخرَجاتُ تُعاد بايتًا" if not bad else f"❌ تختلف: {bad}")
         return 0 if not bad else 1
+    if _closed_now():
+        for ln in closure_notice():
+            print(ln)
+        return CLOSED_RC
     check_pins()
     for p, s in outputs().items():
         with open(p, "w", encoding="utf-8") as f:
