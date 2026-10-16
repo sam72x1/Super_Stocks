@@ -4198,9 +4198,9 @@
    "M5",
    "M30"
   ],
-  "updates": 3,
+  "updates": 2,
   "vol_x": 3.6,
-  "peak_usd": 431692,
+  "peak_usd": 301901,
   "last_eval_ms": 1792178340000,
   "pulse_ms": 1792182120000,
   "anchor_price": 0.1284,
@@ -4972,8 +4972,8 @@
    "j1_top": false
   },
   "e5": 0.1209,
-  "date": "2026-10-16",
-  "exit_ms": 1792182120000
+  "exit_ms": 1792182120000,
+  "date": "2026-10-16"
  },
  "LIQ:TENX": {
   "last_eval_ms": 1792182120000,
@@ -5112,19 +5112,20 @@
   "date": "2026-10-16"
  },
  "LIQ:ACTU": {
-  "anchor_ms": 1792180500000,
+  "anchor_ms": 1792180440000,
   "last_ms": 1792181460000,
   "sent": [
-   "M1"
+   "M1",
+   "M5"
   ],
   "updates": 0,
-  "vol_x": 0.2,
-  "peak_usd": 2065,
-  "last_eval_ms": 1792180620000,
+  "vol_x": 0.4,
+  "peak_usd": 3172,
+  "last_eval_ms": 1792180560000,
   "pulse_ms": 1792181460000,
-  "anchor_price": 0.6098,
-  "anchor_open": 0.6057,
-  "anchor_low": 0.6057,
+  "anchor_price": 0.6043,
+  "anchor_open": 0.5908,
+  "anchor_low": 0.5908,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1792178820000,
@@ -5136,9 +5137,18 @@
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 0.6399,
-  "pre_usd": 323605,
-  "pre_n": 39,
-  "exit_ms": 1792180560000,
+  "pre_usd": 320434,
+  "pre_n": 38,
+  "k2": {
+   "c3": "صادقت (إغلاقٌ فوق المرساة)",
+   "c4": "خضراء 3-4",
+   "v2": "المرساة دون 30% (سيولة تتوالى)",
+   "v3": "سيولةٌ نازحة (نبضٌ صافٍ سالب)",
+   "j1": false,
+   "j1_top": false
+  },
+  "e5": 0.6198,
+  "exit_ms": 1792181040000,
   "date": "2026-10-16"
  },
  "LIQ:BGL": {
