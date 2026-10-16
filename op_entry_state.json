@@ -1245,7 +1245,7 @@
  },
  "LIQ:TGL": {
   "anchor_ms": 1792138800000,
-  "last_ms": 1792138800000,
+  "last_ms": 1792138860000,
   "sent": [
    "M1"
   ],
@@ -1253,15 +1253,15 @@
   "vol_x": 55.4,
   "peak_usd": 60162,
   "last_eval_ms": 1792138860000,
-  "pulse_ms": 1792138800000,
+  "pulse_ms": 1792138860000,
   "anchor_price": 0.3007,
   "anchor_open": 0.2793,
   "anchor_low": 0.2793,
-  "date": "2026-10-16",
   "pre_done": true,
   "pre_hi": 0.2812,
   "pre_usd": 17182,
-  "pre_n": 18
+  "pre_n": 18,
+  "date": "2026-10-16"
  },
  "LIQ:TRAW": {
   "last_eval_ms": 1792106220000,
