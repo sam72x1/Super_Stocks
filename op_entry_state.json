@@ -821,11 +821,11 @@
    "exit_ms": 1792156020000
   },
   "trig": "T-C",
-  "date": "2026-10-16",
   "pre_done": true,
   "pre_hi": 0.9149,
   "pre_usd": 6669202,
-  "pre_n": 17
+  "pre_n": 17,
+  "date": "2026-10-16"
  },
  "LIQ:XXII": {
   "anchor_ms": 1792139100000,
