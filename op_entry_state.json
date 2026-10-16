@@ -598,19 +598,21 @@
   "date": "2026-10-16"
  },
  "LIQ:HODO": {
-  "anchor_ms": 1792154700000,
-  "last_ms": 1792171500000,
+  "anchor_ms": 1792154640000,
+  "last_ms": 1792171620000,
   "sent": [
-   "M1"
+   "M1",
+   "M5",
+   "M30"
   ],
   "updates": 0,
-  "vol_x": 0.8,
-  "peak_usd": 37396,
-  "last_eval_ms": 1792154700000,
-  "pulse_ms": 1792171500000,
-  "anchor_price": 0.0871,
-  "anchor_open": 0.0867,
-  "anchor_low": 0.0867,
+  "vol_x": 1.8,
+  "peak_usd": 80418,
+  "last_eval_ms": 1792154640000,
+  "pulse_ms": 1792171620000,
+  "anchor_price": 0.0867,
+  "anchor_open": 0.0865,
+  "anchor_low": 0.0857,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1792137720000,
@@ -622,9 +624,19 @@
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 0.1187,
-  "pre_usd": 3597375,
+  "pre_usd": 3551999,
   "pre_n": 64,
-  "exit_ms": 1792154820000,
+  "k2": {
+   "c3": "صادقت (إغلاقٌ فوق المرساة)",
+   "c4": "خضراء 2",
+   "v2": "المرساة دون 30% (سيولة تتوالى)",
+   "v3": "نبضٌ متعادل",
+   "j1": false,
+   "j1_top": false
+  },
+  "e5": 0.0873,
+  "exit_ms": 1792157880000,
+  "tgt_ms": 1792160700000,
   "date": "2026-10-16"
  },
  "LIQ:AIFF": {
@@ -932,7 +944,7 @@
   "updates": 0,
   "vol_x": 1.4,
   "peak_usd": 569800,
-  "last_eval_ms": 1792156680000,
+  "last_eval_ms": 1792156620000,
   "pulse_ms": 1792171620000,
   "anchor_price": 0.828,
   "anchor_open": 0.809,
@@ -1467,15 +1479,15 @@
  },
  "LIQ:XELB": {
   "anchor_ms": 1792171560000,
-  "last_ms": 1792171560000,
+  "last_ms": 1792171620000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 0.8,
-  "peak_usd": 73159,
+  "peak_usd": 103688,
   "last_eval_ms": 1792171620000,
-  "pulse_ms": 1792171560000,
+  "pulse_ms": 1792171620000,
   "anchor_price": 0.4208,
   "anchor_open": 0.4071,
   "anchor_low": 0.4052,
@@ -1488,11 +1500,11 @@
    "exit_ms": 1792171440000
   },
   "trig": "T-C",
-  "date": "2026-10-16",
   "pre_done": true,
   "pre_hi": 0.5072,
   "pre_usd": 2440017,
-  "pre_n": 26
+  "pre_n": 26,
+  "date": "2026-10-16"
  },
  "LIQ:AMIX": {
   "last_eval_ms": 1792170900000,
@@ -1962,7 +1974,7 @@
   "updates": 1,
   "vol_x": 3.1,
   "peak_usd": 510302,
-  "last_eval_ms": 1792159740000,
+  "last_eval_ms": 1792159620000,
   "pulse_ms": 1792171500000,
   "anchor_price": 0.5797,
   "anchor_open": 0.541,
