@@ -179,9 +179,9 @@
    "M1",
    "M5"
   ],
-  "updates": 1,
+  "updates": 0,
   "vol_x": 13.6,
-  "peak_usd": 1170429,
+  "peak_usd": 364002,
   "last_eval_ms": 1792165560000,
   "pulse_ms": 1792180140000,
   "anchor_price": 4.23,
@@ -3964,7 +3964,7 @@
   "updates": 0,
   "vol_x": 4.0,
   "peak_usd": 13979,
-  "last_eval_ms": 1792176480000,
+  "last_eval_ms": 1792176420000,
   "pulse_ms": 1792180140000,
   "anchor_price": 6.75,
   "anchor_open": 6.36,
@@ -4117,10 +4117,10 @@
    "M5",
    "M30"
   ],
-  "updates": 5,
+  "updates": 2,
   "vol_x": 3.6,
-  "peak_usd": 431692,
-  "last_eval_ms": 1792178400000,
+  "peak_usd": 301901,
+  "last_eval_ms": 1792178340000,
   "pulse_ms": 1792180200000,
   "anchor_price": 0.1284,
   "anchor_open": 0.1163,
@@ -6045,5 +6045,6 @@
  "SLGB": "2026-10-16",
  "KG": "2026-10-16",
  "SHFS": "2026-10-16",
- "HYFM": "2026-10-16"
+ "HYFM": "2026-10-16",
+ "PRE:2026-10-16:AH": "2026-10-16T19:51:48.315159+00:00"
 }
