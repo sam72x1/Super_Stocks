@@ -1,24 +1,24 @@
 {
  "LIQ:CDT": {
   "anchor_ms": 1792147740000,
-  "last_ms": 1792147740000,
+  "last_ms": 1792147800000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 80.6,
-  "peak_usd": 173929,
+  "peak_usd": 182676,
   "last_eval_ms": 1792147800000,
-  "pulse_ms": 1792147740000,
+  "pulse_ms": 1792147800000,
   "anchor_price": 0.256,
   "anchor_open": 0.2439,
   "anchor_low": 0.2439,
   "trig": "T-C",
-  "date": "2026-10-16",
   "pre_done": true,
   "pre_hi": 0.244,
   "pre_usd": 106965,
-  "pre_n": 56
+  "pre_n": 56,
+  "date": "2026-10-16"
  },
  "LIQ:FNGR": {
   "last_eval_ms": 1792147080000,
