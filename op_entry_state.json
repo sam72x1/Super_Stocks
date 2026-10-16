@@ -885,7 +885,7 @@
   "updates": 0,
   "vol_x": 12.2,
   "peak_usd": 161149,
-  "last_eval_ms": 1792172220000,
+  "last_eval_ms": 1792172160000,
   "pulse_ms": 1792178400000,
   "anchor_price": 0.3584,
   "anchor_open": 0.3486,
@@ -3582,7 +3582,7 @@
   "date": "2026-10-16"
  },
  "LIQ:GRNQ": {
-  "last_eval_ms": 1792177800000,
+  "last_eval_ms": 1792177680000,
   "tc_cum": 1338353.84,
   "tc_seen_ms": 1792177680000,
   "date": "2026-10-16"
@@ -4129,15 +4129,15 @@
  },
  "LIQ:NWGL": {
   "anchor_ms": 1792178280000,
-  "last_ms": 1792178340000,
+  "last_ms": 1792178400000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 3.7,
-  "peak_usd": 88793,
+  "peak_usd": 174450,
   "last_eval_ms": 1792178400000,
-  "pulse_ms": 1792178340000,
+  "pulse_ms": 1792178400000,
   "anchor_price": 0.1284,
   "anchor_open": 0.1163,
   "anchor_low": 0.1159,
