@@ -368,7 +368,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.09
+   "last_price": 1.09,
+   "live_alert": {}
   },
   {
    "symbol": "BRAI",
@@ -713,7 +714,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.3573
+   "last_price": 4.3573,
+   "live_alert": {}
   },
   {
    "symbol": "FCHL",
@@ -1063,7 +1065,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.8439
+   "last_price": 0.8439,
+   "live_alert": {}
   },
   {
    "symbol": "BCTX",
@@ -1402,7 +1405,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.4
+   "last_price": 3.4,
+   "live_alert": {}
   },
   {
    "symbol": "NCRA",
@@ -1796,7 +1800,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.64
+   "last_price": 1.64,
+   "live_alert": {}
   },
   {
    "symbol": "BNAI",
@@ -2176,7 +2181,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.81
+   "last_price": 5.81,
+   "live_alert": {}
   },
   {
    "symbol": "UONEK",
@@ -10529,8 +10535,8 @@
    "country": "United States",
    "float": 102908492,
    "last_price": 0.4699,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-17"
   }
  ],
  "history": [
