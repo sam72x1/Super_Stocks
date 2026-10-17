@@ -1,39 +1,7 @@
 {
- "run_id": "38867690297",
+ "run_id": "39012703322",
  "result": {
   "done": [
-   "BTOG",
-   "CANF",
-   "CDIO",
-   "CDT",
-   "CETX",
-   "CIIT",
-   "CRE",
-   "CUPR",
-   "DCOY",
-   "DKI",
-   "DRMA",
-   "DSY",
-   "DXST",
-   "EDBL",
-   "EHGO",
-   "ELAB",
-   "UPC",
-   "VEEE",
-   "VMAR",
-   "WHLR",
-   "WORX",
-   "XCUR",
-   "YMT",
-   "ZCMD",
-   "ZNB",
-   "ELPW",
-   "ENPH",
-   "ENVB",
-   "EZRA",
-   "FGF",
-   "FIEE",
-   "FRSX",
    "FUBO",
    "FULC",
    "GCTK",
@@ -90,29 +58,61 @@
    "STKH",
    "SVRE",
    "SXTC",
-   "TRUG"
+   "TRUG",
+   "BTOG",
+   "CANF",
+   "CDIO",
+   "CDT",
+   "CETX",
+   "CIIT",
+   "CRE",
+   "CUPR",
+   "DCOY",
+   "DKI",
+   "DRMA",
+   "DSY",
+   "DXST",
+   "EDBL",
+   "EHGO",
+   "ELAB",
+   "ELPW",
+   "ENPH",
+   "ENVB",
+   "EZRA",
+   "FGF",
+   "FIEE",
+   "FRSX",
+   "UPC",
+   "VEEE",
+   "VMAR",
+   "WHLR",
+   "WORX",
+   "XCUR",
+   "YMT",
+   "ZCMD",
+   "ZNB"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "AZIO",
-    "BIRD",
-    "BTCS",
-    "EPSM",
-    "FFAI",
-    "GURE",
-    "IPST",
-    "LHAI",
-    "MCRB",
-    "SHPH",
-    "WBUY",
-    "YXT",
-    "JBDI",
-    "LGCL",
-    "FBLG",
-    "EHTH"
+    "BAER",
+    "CALC",
+    "MODD",
+    "NCNA",
+    "POM",
+    "RDAC",
+    "TNYA",
+    "TYGO",
+    "VBIO",
+    "XCH",
+    "ZDAI",
+    "GUTS",
+    "CCHH",
+    "BEEM",
+    "VRXA",
+    "XPON"
    ],
    "skipped": [],
    "calendar_error": "",
@@ -123,17 +123,17 @@
   }
  },
  "audit": {
-  "rows": 1278,
+  "rows": 1264,
   "by_status": {
-   "OK": 971,
-   "UNKNOWN": 184,
-   "NOT_ATTEMPTED": 119,
-   "FAILED": 4
+   "OK": 950,
+   "UNKNOWN": 187,
+   "FAILED": 8,
+   "NOT_ATTEMPTED": 119
   },
   "by_category": {
-   "1": 491,
-   "2": 480,
-   "4": 307
+   "1": 489,
+   "2": 461,
+   "4": 314
   },
   "tickers": 105,
   "chain_problems": []
@@ -176,6 +176,16 @@
   ],
   [
    "ATPC",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "BEEM",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "BEEM",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -226,6 +236,16 @@
   ],
   [
    "CANF",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "CCHH",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "CCHH",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -360,11 +380,6 @@
    "yahoo_splits"
   ],
   [
-   "EHTH",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
    "ELAB",
    "short_interest",
    "yahoo_info"
@@ -406,16 +421,6 @@
   ],
   [
    "EZRA",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "FBLG",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "FBLG",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -473,6 +478,16 @@
    "GRI",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "GUTS",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "GUTS",
+   "reverse_split",
+   "nasdaq_calendar"
   ],
   [
    "GWAV",
@@ -575,11 +590,6 @@
    "nasdaq_calendar"
   ],
   [
-   "JBDI",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "JEM",
    "short_interest",
    "yahoo_info"
@@ -598,16 +608,6 @@
    "LABT",
    "reverse_split",
    "yahoo_splits"
-  ],
-  [
-   "LGCL",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "LGCL",
-   "reverse_split",
-   "nasdaq_calendar"
   ],
   [
    "LIMN",
@@ -975,6 +975,11 @@
    "yahoo_splits"
   ],
   [
+   "VRXA",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
    "WHLR",
    "short_interest",
    "yahoo_info"
@@ -1006,6 +1011,16 @@
   ],
   [
    "XCUR",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "XPON",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "XPON",
    "reverse_split",
    "yahoo_splits"
   ],
