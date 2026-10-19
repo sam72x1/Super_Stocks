@@ -1122,7 +1122,7 @@
  },
  "LIQ:ZTG": {
   "anchor_ms": 1792427100000,
-  "last_ms": 1792427100000,
+  "last_ms": 1792427160000,
   "sent": [
    "M1"
   ],
@@ -1130,7 +1130,7 @@
   "vol_x": 8.6,
   "peak_usd": 35132,
   "last_eval_ms": 1792427160000,
-  "pulse_ms": 1792427100000,
+  "pulse_ms": 1792427160000,
   "anchor_price": 0.8163,
   "anchor_open": 0.7701,
   "anchor_low": 0.7701,
@@ -1142,11 +1142,11 @@
    "e5": null,
    "exit_ms": 1792419960000
   },
-  "date": "2026-10-19",
   "pre_done": true,
   "pre_hi": 0.8383,
   "pre_usd": 247339,
-  "pre_n": 62
+  "pre_n": 62,
+  "date": "2026-10-19"
  },
  "LIQ:CNEY": {
   "last_eval_ms": 1792426800000,
