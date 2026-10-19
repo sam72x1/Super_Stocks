@@ -626,18 +626,6 @@
   "date": "2026-10-19"
  },
  "LIQ:ADGM": {
-  "last_eval_ms": 1792439940000,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1792435980000,
-   "anchor_price": 0.1209,
-   "anchor_low": 0.1129,
-   "e5": 0.1175,
-   "exit_ms": 1792437960000
-  },
-  "tc_cum": 267710.5675143768,
-  "tc_seen_ms": 1792439880000,
-  "date": "2026-10-19",
   "anchor_ms": 1792439940000,
   "last_ms": 1792439940000,
   "sent": [
@@ -646,11 +634,21 @@
   "updates": 0,
   "vol_x": 5.2,
   "peak_usd": 11866,
+  "last_eval_ms": 1792439940000,
   "pulse_ms": 1792439940000,
   "anchor_price": 0.12,
   "anchor_open": 0.116,
   "anchor_low": 0.116,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1792435980000,
+   "anchor_price": 0.1209,
+   "anchor_low": 0.1129,
+   "e5": 0.1175,
+   "exit_ms": 1792437960000
+  },
   "trig": "T-C",
+  "date": "2026-10-19",
   "pre_done": true,
   "pre_hi": 0.1235,
   "pre_usd": 135818,
@@ -5367,5 +5365,5 @@
   "date": "2026-10-19"
  },
  "BRAI": "2026-10-19",
- "PRE:2026-10-19:AH": "2026-10-19T19:52:40.815646+00:00"
+ "SDA": "2026-10-19"
 }
