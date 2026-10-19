@@ -2521,7 +2521,7 @@
   "date": "2026-10-16"
  },
  "LIQ:WETH": {
-  "last_eval_ms": 1792445520000,
+  "last_eval_ms": 1792441740000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1792417500000,
