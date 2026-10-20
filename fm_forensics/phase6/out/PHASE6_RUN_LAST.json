@@ -1,39 +1,7 @@
 {
- "run_id": "39012703322",
+ "run_id": "39389768523",
  "result": {
   "done": [
-   "FUBO",
-   "FULC",
-   "GCTK",
-   "GRI",
-   "GWAV",
-   "HAO",
-   "HCAI",
-   "HCWB",
-   "HUBC",
-   "HWH",
-   "IMCC",
-   "IPDN",
-   "JAGX",
-   "JEM",
-   "KWM",
-   "LABT",
-   "LIMN",
-   "LNAI",
-   "MI",
-   "MNDR",
-   "MSGY",
-   "MTEX",
-   "NAMM",
-   "NCT",
-   "NRSN",
-   "ADIL",
-   "ADVB",
-   "AMIX",
-   "ATPC",
-   "BETA",
-   "BNAI",
-   "BRTX",
    "NUWE",
    "NXTT",
    "OMH",
@@ -90,29 +58,61 @@
    "XCUR",
    "YMT",
    "ZCMD",
-   "ZNB"
+   "ZNB",
+   "ADIL",
+   "ADVB",
+   "AMIX",
+   "ATPC",
+   "BETA",
+   "BNAI",
+   "BRTX",
+   "FUBO",
+   "FULC",
+   "GCTK",
+   "GRI",
+   "GWAV",
+   "HAO",
+   "HCAI",
+   "HCWB",
+   "HUBC",
+   "HWH",
+   "IMCC",
+   "IPDN",
+   "JAGX",
+   "JEM",
+   "KWM",
+   "LABT",
+   "LIMN",
+   "LNAI",
+   "MI",
+   "MNDR",
+   "MSGY",
+   "MTEX",
+   "NAMM",
+   "NCT",
+   "NRSN"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "BAER",
-    "CALC",
-    "MODD",
-    "NCNA",
-    "POM",
-    "RDAC",
-    "TNYA",
-    "TYGO",
-    "VBIO",
-    "XCH",
-    "ZDAI",
-    "GUTS",
-    "CCHH",
-    "BEEM",
-    "VRXA",
-    "XPON"
+    "BMGL",
+    "CCTG",
+    "DUO",
+    "FOFO",
+    "GRNQ",
+    "JYD",
+    "PLSM",
+    "WVE",
+    "WXM",
+    "XRTX",
+    "PCSA",
+    "ZYBT",
+    "RAYA",
+    "BIRD",
+    "WBUY",
+    "GUTS"
    ],
    "skipped": [],
    "calendar_error": "",
@@ -123,17 +123,17 @@
   }
  },
  "audit": {
-  "rows": 1264,
+  "rows": 1051,
   "by_status": {
-   "OK": 950,
-   "UNKNOWN": 187,
-   "FAILED": 8,
-   "NOT_ATTEMPTED": 119
+   "OK": 735,
+   "UNKNOWN": 191,
+   "NOT_ATTEMPTED": 119,
+   "FAILED": 6
   },
   "by_category": {
-   "1": 489,
-   "2": 461,
-   "4": 314
+   "1": 492,
+   "2": 243,
+   "4": 316
   },
   "tickers": 105,
   "chain_problems": []
@@ -180,19 +180,19 @@
    "yahoo_splits"
   ],
   [
-   "BEEM",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "BEEM",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "BETA",
    "short_interest",
    "yahoo_info"
+  ],
+  [
+   "BIRD",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "BIRD",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "BNAI",
@@ -236,16 +236,6 @@
   ],
   [
    "CANF",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "CCHH",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "CCHH",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -478,6 +468,11 @@
    "GRI",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "GUTS",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "GUTS",
@@ -755,6 +750,11 @@
    "yahoo_splits"
   ],
   [
+   "PCSA",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "PIII",
    "short_interest",
    "yahoo_info"
@@ -791,6 +791,16 @@
   ],
   [
    "PRFX",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "RAYA",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "RAYA",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -975,9 +985,14 @@
    "yahoo_splits"
   ],
   [
-   "VRXA",
+   "WBUY",
    "short_interest",
    "yahoo_info"
+  ],
+  [
+   "WBUY",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "WHLR",
@@ -1015,16 +1030,6 @@
    "yahoo_splits"
   ],
   [
-   "XPON",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "XPON",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "YMT",
    "short_interest",
    "yahoo_info"
@@ -1058,6 +1063,11 @@
    "ZNB",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "ZYBT",
+   "short_interest",
+   "yahoo_info"
   ]
  ]
 }
