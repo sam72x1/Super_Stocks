@@ -1685,9 +1685,9 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 1.9,
-   "last_price": 1.08,
+   "last_price": 1.075,
    "live_alert": {
-    "buyzone": "2026-10-19"
+    "buyzone": "2026-10-20"
    },
    "price_state": "VALID",
    "price_bar": "2026-10-19",
@@ -2510,7 +2510,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 8.8,
-   "last_price": 1.84,
+   "last_price": 1.85,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -2906,7 +2906,7 @@
    "hit": "t2",
    "hit_date": "2026-10-14",
    "max_gain_pct": 30.2,
-   "last_price": 1.32,
+   "last_price": 1.29,
    "live_alert": {
     "breakout": "2026-10-14"
    },
@@ -3317,7 +3317,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 9.5,
-   "last_price": 4.47,
+   "last_price": 4.51,
    "live_alert": {
     "buyzone": "2026-10-20"
    },
@@ -4590,7 +4590,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.72,
+   "last_price": 2.95,
    "borrow_hist": [
     [
      "2026-10-20",
@@ -4608,7 +4608,9 @@
     "daily_low": 2.7115,
     "asof": "2026-10-19"
    },
-   "live_alert": {}
+   "live_alert": {
+    "breakout": "2026-10-20"
+   }
   },
   {
    "symbol": "NEGG",
@@ -4969,7 +4971,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 10.65,
+   "last_price": 10.585,
    "borrow_hist": [
     [
      "2026-10-20",
@@ -6659,7 +6661,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 365.6,
-   "last_price": 4.55,
+   "last_price": 4.555,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -11829,7 +11831,7 @@
    "sector": "Healthcare",
    "country": "Hong Kong",
    "float": 55618392,
-   "last_price": 9.61,
+   "last_price": 9.2,
    "status": "watching",
    "triggered_date": null
   },
@@ -11897,7 +11899,7 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 625415,
-   "last_price": 2.52,
+   "last_price": 2.5,
    "status": "watching",
    "triggered_date": null
   },
