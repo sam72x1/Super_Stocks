@@ -60,20 +60,20 @@
   "date": "2026-10-20"
  },
  "LIQ:WORX": {
-  "anchor_ms": 1792510260000,
-  "last_ms": 1792529520000,
+  "anchor_ms": 1792510200000,
+  "last_ms": 1792529580000,
   "sent": [
    "M1",
    "M5",
    "M30"
   ],
   "updates": 1,
-  "vol_x": 0.8,
+  "vol_x": 1.9,
   "peak_usd": 1993912,
-  "last_eval_ms": 1792510320000,
-  "pulse_ms": 1792529520000,
-  "anchor_price": 3.3339,
-  "anchor_open": 3.31,
+  "last_eval_ms": 1792510260000,
+  "pulse_ms": 1792529580000,
+  "anchor_price": 3.3101,
+  "anchor_open": 3.4011,
   "anchor_low": 3.26,
   "rearm_n": 1,
   "rearm_prev": {
@@ -85,13 +85,13 @@
   },
   "trig": "T-C",
   "pre_done": true,
-  "pre_hi": 4.1299,
-  "pre_usd": 28993275,
+  "pre_hi": 4.14,
+  "pre_usd": 29533159,
   "pre_n": 63,
   "k2": {
-   "c3": "نقضت",
+   "c3": "صادقت (إغلاقٌ فوق المرساة)",
    "c4": "خضراء 2",
-   "v2": "المرساة دون 30% (سيولة تتوالى)",
+   "v2": "المرساة 30-60% من الخمس",
    "v3": "سيولةٌ نازحة (نبضٌ صافٍ سالب)",
    "j1": false,
    "j1_top": false
@@ -941,7 +941,7 @@
   "updates": 0,
   "vol_x": 5.4,
   "peak_usd": 12369,
-  "last_eval_ms": 1792526220000,
+  "last_eval_ms": 1792526160000,
   "pulse_ms": 1792529520000,
   "anchor_price": 0.5945,
   "anchor_open": 0.56,
@@ -2616,7 +2616,7 @@
   "date": "2026-10-20"
  },
  "LIQ:SNOA": {
-  "last_eval_ms": 1792526340000,
+  "last_eval_ms": 1792524420000,
   "tc_cum": 8925.535,
   "tc_seen_ms": 1792524420000,
   "date": "2026-10-20"
@@ -2673,7 +2673,7 @@
  },
  "LIQ:SPHL": {
   "anchor_ms": 1792526400000,
-  "last_ms": 1792529520000,
+  "last_ms": 1792529580000,
   "sent": [
    "M1",
    "M5",
@@ -2682,8 +2682,8 @@
   "updates": 1,
   "vol_x": 18.0,
   "peak_usd": 475320,
-  "last_eval_ms": 1792526460000,
-  "pulse_ms": 1792529520000,
+  "last_eval_ms": 1792526400000,
+  "pulse_ms": 1792529580000,
   "anchor_price": 2.78,
   "anchor_open": 2.43,
   "anchor_low": 2.43,
@@ -2799,7 +2799,7 @@
   "date": "2026-10-20"
  },
  "LIQ:IMMP": {
-  "last_eval_ms": 1792526340000,
+  "last_eval_ms": 1792522500000,
   "tc_cum": 41760.503841279504,
   "tc_seen_ms": 1792522500000,
   "date": "2026-10-20"
@@ -2911,43 +2911,33 @@
   "date": "2026-10-20"
  },
  "LIQ:CCG": {
-  "anchor_ms": 1792509180000,
+  "anchor_ms": 1792505340000,
   "last_ms": 1792526340000,
   "sent": [
-   "M1",
-   "M5"
+   "M1"
   ],
   "updates": 0,
-  "vol_x": 1.5,
-  "peak_usd": 3853,
-  "last_eval_ms": 1792509240000,
+  "vol_x": 0.2,
+  "peak_usd": 2326,
+  "last_eval_ms": 1792505340000,
   "pulse_ms": 1792526340000,
-  "anchor_price": 5.65,
-  "anchor_open": 5.65,
-  "anchor_low": 5.65,
+  "anchor_price": 5.7599,
+  "anchor_open": 5.2744,
+  "anchor_low": 5.2744,
   "rearm_n": 1,
   "rearm_prev": {
-   "anchor_ms": 1792505340000,
-   "anchor_price": 5.7599,
-   "anchor_low": 5.2744,
+   "anchor_ms": 1792504500000,
+   "anchor_price": 5.76,
+   "anchor_low": 5.58,
    "e5": null,
-   "exit_ms": 1792505520000
+   "exit_ms": 1792504560000
   },
   "trig": "T-C",
   "pre_done": true,
-  "pre_hi": 5.7599,
-  "pre_usd": 27329,
-  "pre_n": 11,
-  "k2": {
-   "c3": "حيّدت",
-   "c4": "خضراء 2",
-   "v2": "المرساة دون 30% (سيولة تتوالى)",
-   "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)",
-   "j1": false,
-   "j1_top": false
-  },
-  "e5": 5.65,
-  "exit_ms": 1792509480000,
+  "pre_hi": 6.06,
+  "pre_usd": 168988,
+  "pre_n": 17,
+  "exit_ms": 1792505520000,
   "date": "2026-10-20"
  },
  "LIQ:AFJK": {
@@ -3990,7 +3980,7 @@
   "updates": 0,
   "vol_x": 2.3,
   "peak_usd": 110558,
-  "last_eval_ms": 1792510320000,
+  "last_eval_ms": 1792510260000,
   "pulse_ms": 1792529580000,
   "anchor_price": 0.1899,
   "anchor_open": 0.1877,
@@ -4265,7 +4255,7 @@
  },
  "LIQ:SAIQ": {
   "anchor_ms": 1792484160000,
-  "last_ms": 1792529520000,
+  "last_ms": 1792529580000,
   "sent": [
    "M1"
   ],
@@ -4273,7 +4263,7 @@
   "vol_x": 0.5,
   "peak_usd": 295585,
   "last_eval_ms": 1792484160000,
-  "pulse_ms": 1792529520000,
+  "pulse_ms": 1792529580000,
   "anchor_price": 5.65,
   "anchor_open": 5.65,
   "anchor_low": 5.55,
@@ -4856,7 +4846,7 @@
   "updates": 0,
   "vol_x": 10.1,
   "peak_usd": 15817,
-  "last_eval_ms": 1792516200000,
+  "last_eval_ms": 1792516140000,
   "pulse_ms": 1792529580000,
   "anchor_price": 0.0751,
   "anchor_open": 0.0698,
