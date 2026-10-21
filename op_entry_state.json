@@ -158,7 +158,7 @@
   "date": "2026-10-21"
  },
  "LIQ:MBIO": {
-  "last_eval_ms": 1792597140000,
+  "last_eval_ms": 1792593420000,
   "tc_cum": 2691.032,
   "tc_seen_ms": 1792593420000,
   "date": "2026-10-21"
@@ -791,7 +791,7 @@
   "updates": 0,
   "vol_x": 38.2,
   "peak_usd": 50293,
-  "last_eval_ms": 1792597440000,
+  "last_eval_ms": 1792597380000,
   "pulse_ms": 1792604280000,
   "anchor_price": 1.07,
   "anchor_open": 0.9735,
@@ -1363,9 +1363,9 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 1,
   "vol_x": 0.7,
-  "peak_usd": 415705,
+  "peak_usd": 145533,
   "last_eval_ms": 1792593600000,
   "pulse_ms": 1792604880000,
   "anchor_price": 0.1198,
@@ -1462,7 +1462,7 @@
   "updates": 0,
   "vol_x": 7.5,
   "peak_usd": 64819,
-  "last_eval_ms": 1792592580000,
+  "last_eval_ms": 1792592520000,
   "pulse_ms": 1792604880000,
   "anchor_price": 0.499,
   "anchor_open": 0.47,
