@@ -176,8 +176,36 @@
    "dollar_vol": 78555.0,
    "move_pct": -33.7,
    "stopped_at": "2026-09-30"
+  },
+  {
+   "symbol": "BDAI",
+   "added": "2026-10-20",
+   "ref_price": 2.0,
+   "half": 2.43,
+   "ref": 4.86,
+   "event_kind": "split",
+   "split_date": "2026-07-06",
+   "float": 726315,
+   "avail": 45000,
+   "borrow_fee": 98.0,
+   "stop": 1.9,
+   "hold_above": 2.43,
+   "targets": [
+    {
+     "price": 2.79,
+     "src": "مقاومة"
+    },
+    {
+     "price": 3.1,
+     "src": "رأس شمعة حمراء"
+    }
+   ],
+   "status": "active",
+   "last_price": 2.0
   }
  ],
- "added_last": [],
+ "added_last": [
+  "BDAI"
+ ],
  "pruned": []
 }
