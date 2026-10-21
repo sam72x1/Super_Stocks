@@ -88187,6 +88187,142 @@ check("🔒 AAC1 إغلاقُ `T-ANCHOR-AGE` مُنفَّذ: البناءُ و`a
       "(غائبٌ و«0») · و«1» يمضي · و`--check` مفتوح · والنصُّ والوثيقةُ يحملان السببَ وشروطَ الفتح",
       _aac1, _aac1_w[:420])
 
+# ══════════════════════════════════════════════════════════════════════════
+# 🧪🔧 H6S1 · H6A1 · H6P1 — «اشحن F2 · واشحن سطر الإنذار · واشحن F1» (أمرُ المالك 2026-10-15 · `fm_forensics/perf/H6_PREREG_AMENDMENT_1.md`)
+#    كلُّ قفلٍ يسقط على الكود السابق (main `813da7e`) وينجح على الإصلاح · ولا يكتب في المستودع (مجلّدٌ مؤقّت).
+# ══════════════════════════════════════════════════════════════════════════
+import importlib.util as _h6f_iu
+import tempfile as _h6f_tf
+
+
+def _h6f_load(_name, _rel):
+    _sp = _h6f_iu.spec_from_file_location(_name, _os_hc.path.join(_os_hc.path.dirname(_os_hc.path.abspath(__file__)), _rel))
+    _m = _h6f_iu.module_from_spec(_sp)
+    _sp.loader.exec_module(_m)
+    return _m
+
+
+# H6S1 — F2: `is_session` يعرف عطلةَ نهاية الأسبوع والعطلات ⟵ E5 «5 جلسات» وE4 «30 جلسة» جلساتٌ فعلًا (ونافذةُ ANPA تنتهي 2026-10-21)
+try:
+    _H6F = _h6f_load("_h6f_h6_test", _os_hc.path.join("fm_forensics", "perf", "h6_test.py"))
+    _h6s1 = (not _H6F.is_session("2026-10-10") and not _H6F.is_session("2026-10-11") and not _H6F.is_session("2026-11-26")
+             and _H6F.is_session("2026-10-12") and _H6F.add_sessions("2026-10-09", 5) == "2026-10-16"
+             and _H6F.add_sessions("2026-11-25", 1) == "2026-11-27" and _H6F.add_sessions("2026-10-14", 5) == "2026-10-21"
+             and _H6F.sessions_between("2026-10-09", "2026-10-16") == 5 and _H6F.sessions_between("2026-08-28", "2026-10-09") == 29
+             and _H6F.sessions_between("2026-10-09", "2027-04-09") == 124)
+    _h6s1_w = (f"sat={_H6F.is_session('2026-10-10')} · +5(10-09)={_H6F.add_sessions('2026-10-09', 5)} · ANPA={_H6F.add_sessions('2026-10-14', 5)} · "
+               f"window={_H6F.sessions_between('2026-10-09', '2027-04-09')}")
+except Exception as _e:                                              # noqa: BLE001
+    _h6s1, _h6s1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔧 H6S1 F2: السبتُ والأحدُ والعطلةُ ليست جلسات · +5 جلساتٍ من 10-09 = 10-16 · ونافذةُ E5 لـANPA (10-14) = 10-21 · والنافذةُ 124 جلسة",
+      _h6s1, _h6s1_w)
+
+# H6A1 — سطرُ الإنذار اليوميّ: تاريخُ البِركة يُطبَع دائمًا (‏`no_pool_days` وحدَه قال «سليم») · ⚠️ عند تأخّر البِركة مدخلًا أو غياب الصور 5 جلسات ·
+#    و`status` يطبعه مع `::warning::` · والـworkflow يشغّله بعد الجمع ويدفع `H6_STATUS.json` · ولا تلغرام.
+try:
+    _a1_rl = [{"date": d, "walls": {"M_لا_مستوى_مختبر": ["A"]}} for d in ("2026-10-08", "2026-10-09", "2026-10-10", "2026-10-13")]
+    _a1_old = _H6F.pool_lag({"2026-10-10": {"obs_date": "2026-10-10", "pool_date": "2026-10-08"}}, _a1_rl)
+    _a1_new = _H6F.pool_lag({"2026-10-13": {"obs_date": "2026-10-13", "pool_date": "2026-10-13"}}, _a1_rl)
+    _a1_unk = _H6F.pool_lag({"2026-10-13": {"obs_date": "2026-10-13", "pool_date": "2026-10-13"}}, None)
+    _a1_st = lambda lag, ns: {"today": "2026-10-15", "eligible": 0, "floor": 15, "cases_after_cutoff": 0,
+                              "inputs": {"last_photo": "2026-10-08", "sessions_since_last_photo": ns},
+                              "panel": {"pool_date_last": "2026-10-08", "pool_obs_last": "2026-10-14", "pool_lag_entries_last": lag}}
+    _a1_bad = _H6F.alarm_line(_a1_st(4, 5))
+    _a1_ok = _H6F.alarm_line(_a1_st(0, 2))
+    _a1_lines = (_a1_old["lag_entries"] == 2 and _a1_old["newer"] == ["2026-10-09", "2026-10-10"] and _a1_new["lag_entries"] == 0
+                 and _a1_unk["lag_entries"] is None
+                 and "بِركةُ الضوابط 2026-10-08 (متأخّرة 4 مداخل) ⚠️" in _a1_bad[0] and "(منذ 5 جلسة) ⚠️" in _a1_bad[0] and len(_a1_bad[1]) == 2
+                 and "بِركةُ الضوابط 2026-10-08 (طازجة)" in _a1_ok[0] and "⚠️" not in _a1_ok[0] and _a1_ok[1] == []
+                 and "مؤهَّل 0/15" in _a1_ok[0])
+    # status prints the line and the warnings (stubbed build_status · output to a temp folder)
+    _a1_tmp = _h6f_tf.mkdtemp(prefix=f"_h6a1_{_SUITE_PID}_")
+    _a1_keep = (_H6F.build_status, _H6F.OUT)
+    _H6F.build_status = lambda today=None, **k: (dict(_a1_st(4, 5), candidates=0, by_status={}, coverage_failures=0,
+                                                      lag_sessions={"median": None}, families={}, floor_reached=False,
+                                                      window_closed=False, any_testable=False,
+                                                      panel=dict(_a1_st(4, 5)["panel"], days=4)), [], {})
+    _H6F.OUT = _a1_tmp
+    _a1_buf = _io_tb.StringIO() if "_io_tb" in globals() else __import__("io").StringIO()
+    try:
+        with __import__("contextlib").redirect_stdout(_a1_buf):
+            _a1_rc = _H6F.main(["status"])
+    finally:
+        _H6F.build_status, _H6F.OUT = _a1_keep
+    _a1_out = _a1_buf.getvalue()
+    _a1_main = (_a1_rc == 0 and _a1_bad[0] in _a1_out and _a1_out.count("::warning::H6:") == 2
+                and _os_hc.path.exists(_os_hc.path.join(_a1_tmp, "H6_STATUS.json")))
+    import yaml as _a1_yaml
+    _a1_wfp = _os_hc.path.join(_os_hc.path.dirname(_os_hc.path.abspath(__file__)), ".github", "workflows", "fm_phase6_collect.yml")
+    with open(_a1_wfp, encoding="utf-8") as _f:
+        _a1_wft = _f.read()
+    _a1_steps = _a1_yaml.safe_load(_a1_wft)["jobs"]["collect"]["steps"]
+    _a1_names = [s_.get("name") for s_ in _a1_steps]
+    _a1_si = next((i for i, s_ in enumerate(_a1_steps) if "h6_test.py status" in str(s_.get("run", ""))), None)
+    _a1_vi = next((i for i, s_ in enumerate(_a1_steps) if "collector.py verify" in str(s_.get("run", ""))), None)
+    _a1_ci = next((i for i, s_ in enumerate(_a1_steps) if "git commit" in str(s_.get("run", ""))), None)
+    _a1_wf = (_a1_si is not None and _a1_vi is not None and _a1_ci is not None and _a1_vi < _a1_si < _a1_ci
+              and _a1_steps[_a1_si].get("continue-on-error") is True
+              and "fm_forensics/perf/out/H6_STATUS.json" in str(_a1_steps[_a1_ci].get("run", ""))
+              and "secrets.TELEGRAM" not in _a1_wft and "send_telegram" not in _a1_wft)
+    _h6a1 = _a1_lines and _a1_main and _a1_wf
+    _h6a1_w = f"lines={_a1_lines} · main={_a1_main} rc={_a1_rc} · wf={_a1_wf} steps={_a1_names}"
+except Exception as _e:                                              # noqa: BLE001
+    _h6a1, _h6a1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔧 H6A1 سطرُ الإنذار: تاريخُ البِركة يُطبَع دائمًا وتأخّرُها بالمداخل · ⚠️ وتحذيرٌ عند التأخّر أو غياب الصور 5 جلسات · و`status` يطبعه · "
+      "والـworkflow يشغّله بعد التحقّق وقبل الالتزام (لا يُسقط الجمع) ويدفع `H6_STATUS.json` · بلا تلغرام",
+      _h6a1, _h6a1_w[:420])
+
+# H6P1 — F1: جدارُ المرساة يُحفَظ كاملًا (لا `sampled`) والجدرانُ الأخرى بت-بت مع العيّنة الموحّدة (مرجعٌ مستقلّ) · و`control_pool` يختار مدخلَ
+#    اليوم · و`full_walls=()` = السلوكُ السابق بت-بت · و`record_rejected_symbols` يكتبه كاملًا (ملفٌّ مؤقّت).
+try:
+    import hashlib as _p1_hl
+    import random as _p1_rnd
+    _P6C = _h6f_load("_h6f_collector", _os_hc.path.join("fm_forensics", "phase6", "collector.py"))
+    _p1_W = "M_لا_مستوى_مختبر"
+
+    def _p1_oracle(reasons, day, cap, full):
+        b = {}
+        for s_, c_ in reasons.items():
+            b.setdefault(c_, []).append(s_)
+        walls, sampled, cut = {}, [], 0
+        for k_, v_ in b.items():
+            if len(v_) <= cap or k_ in full:
+                walls[k_] = sorted(v_)
+            else:
+                walls[k_] = sorted(sorted(v_, key=lambda x: _p1_hl.sha256(f"{day}:{x}".encode("utf-8")).hexdigest())[:cap])
+                sampled.append(k_)
+                cut += len(v_) - cap
+        return walls, sorted(sampled), cut
+    _p1_r = _p1_rnd.Random(20261015)
+    _p1_good = True
+    for _w in range(300):
+        _na, _nb = _p1_r.randint(0, 900), _p1_r.randint(0, 900)
+        _rs = {f"A{i:04d}": _p1_W for i in range(_na)}
+        _rs.update({f"B{i:04d}": "M5_سيولة" for i in range(_nb)})
+        _day = f"2026-10-{(_w % 28) + 1:02d}"
+        _snap = S.build_reject_snapshot(_rs, _day)
+        _ow, _os_, _oc = _p1_oracle(_rs, _day, S.REJECT_LOG_MAX_SYMS, {_p1_W})
+        _off = S.build_reject_snapshot(_rs, _day, full_walls=())
+        _fw, _fs, _fc = _p1_oracle(_rs, _day, S.REJECT_LOG_MAX_SYMS, set())
+        _pk = _P6C.control_pool([{"date": "2026-10-01", "walls": {_p1_W: ["X"]}, "walls_n": {_p1_W: 1}, "sampled": []}, _snap], _day)
+        _p1_good = (_p1_good and _snap["walls"] == _ow and _snap["sampled"] == _os_ and _snap["cut"] == _oc
+                    and _off["walls"] == _fw and _off["sampled"] == _fs and _off["cut"] == _fc
+                    and (_pk[0] == _day if _na else True))
+    _p1_tmp = _os_hc.path.join(_h6f_tf.mkdtemp(prefix=f"_h6p1_{_SUITE_PID}_"), "reject_log.json")
+    _p1_rs = {f"Z{i:04d}": _p1_W for i in range(450)}
+    _p1_n = S.record_rejected_symbols(_p1_rs, path=_p1_tmp, today="2026-10-15")
+    with open(_p1_tmp, encoding="utf-8") as _f:
+        _p1_file = _json.load(_f)
+    _p1_rec = (_p1_n == 1 and len(_p1_file[-1]["walls"][_p1_W]) == 450 and _p1_W not in _p1_file[-1]["sampled"]
+               and _P6C.control_pool(_p1_file, "2026-10-15")[0] == "2026-10-15")
+    _h6p1 = S.REJECT_LOG_FULL_WALLS == (_p1_W,) and S.REJECT_LOG_MAX_SYMS == 400 and _p1_good and _p1_rec
+    _h6p1_w = f"walls={S.REJECT_LOG_FULL_WALLS} · cap={S.REJECT_LOG_MAX_SYMS} · worlds={_p1_good} · record={_p1_rec}"
+except Exception as _e:                                              # noqa: BLE001
+    _h6p1, _h6p1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔧 H6P1 F1: جدارُ المرساة كاملٌ في `reject_log.json` (300 عالَم ‏+ الكتابةُ الحيّة) والجدرانُ الأخرى بسقف 400 وعيّنتها بت-بت (مرجعٌ مستقلّ) · "
+      "و`control_pool` يختار مدخلَ اليوم · و`full_walls=()` = السلوكُ السابق بت-بت",
+      _h6p1, _h6p1_w[:420])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
