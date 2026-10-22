@@ -6786,7 +6786,8 @@
     "ext": false,
     "daily_low": 3.01,
     "asof": "2026-10-21"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "PRHI",
@@ -8515,7 +8516,8 @@
     "ext": true,
     "daily_low": 3.2,
     "asof": "2026-10-21"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "BTCS",
@@ -9322,7 +9324,7 @@
    "max_gain_pct": 262.2,
    "last_price": 4.8,
    "live_alert": {
-    "premarket": "2026-08-20",
+    "premarket": "2026-10-22",
     "breakout": "2026-08-21",
     "dump": "2026-08-20",
     "sweep": "2026-08-24",
