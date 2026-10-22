@@ -212,19 +212,16 @@
   "date": "2026-10-22"
  },
  "LIQ:SKYQ": {
-  "last_eval_ms": 1792675620000,
-  "tc_cum": 5469986.142699999,
-  "tc_seen_ms": 1792675500000,
-  "date": "2026-10-22",
   "anchor_ms": 1792675560000,
-  "last_ms": 1792675560000,
+  "last_ms": 1792675620000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 5.7,
   "peak_usd": 758228,
-  "pulse_ms": 1792675560000,
+  "last_eval_ms": 1792675620000,
+  "pulse_ms": 1792675620000,
   "anchor_price": 2.6,
   "anchor_open": 2.5378,
   "anchor_low": 2.5363,
@@ -232,7 +229,8 @@
   "pre_done": true,
   "pre_hi": 2.59,
   "pre_usd": 5304217,
-  "pre_n": 42
+  "pre_n": 42,
+  "date": "2026-10-22"
  },
  "LIQ:DLXY": {
   "date": "2026-10-22"
@@ -328,7 +326,7 @@
   "updates": 0,
   "vol_x": 5.2,
   "peak_usd": 14308,
-  "last_eval_ms": 1792670700000,
+  "last_eval_ms": 1792670640000,
   "pulse_ms": 1792675620000,
   "anchor_price": 0.0479,
   "anchor_open": 0.0452,
@@ -717,10 +715,10 @@
   "date": "2026-10-22"
  },
  "LIQ:RCON": {
-  "date": "2026-10-22",
   "last_eval_ms": 1792675620000,
   "tc_cum": 1396.45,
-  "tc_seen_ms": 1792675620000
+  "tc_seen_ms": 1792675620000,
+  "date": "2026-10-22"
  },
  "LIQ:SBFM": {
   "last_eval_ms": 1792675620000,
@@ -1949,10 +1947,10 @@
   "date": "2026-10-22"
  },
  "LIQ:ASTI": {
-  "date": "2026-10-22",
   "last_eval_ms": 1792675620000,
   "tc_cum": 2393.62,
-  "tc_seen_ms": 1792675620000
+  "tc_seen_ms": 1792675620000,
+  "date": "2026-10-22"
  },
  "LIQ:YDKG": {
   "date": "2026-10-22"
@@ -2863,10 +2861,10 @@
   "date": "2026-10-22"
  },
  "LIQ:SUGP": {
-  "date": "2026-10-22",
   "last_eval_ms": 1792675620000,
   "tc_cum": 8682.77,
-  "tc_seen_ms": 1792675620000
+  "tc_seen_ms": 1792675620000,
+  "date": "2026-10-22"
  },
  "LIQ:HUHU": {
   "last_eval_ms": 1792613700000,
@@ -4027,10 +4025,10 @@
   "date": "2026-10-22"
  },
  "LIQ:RGC": {
-  "date": "2026-10-22",
   "last_eval_ms": 1792675560000,
   "tc_cum": 39762.979999999996,
-  "tc_seen_ms": 1792675560000
+  "tc_seen_ms": 1792675560000,
+  "date": "2026-10-22"
  },
  "LIQ:SHAZ": {
   "last_eval_ms": 1792627140000,
@@ -4769,9 +4767,9 @@
    "M5",
    "M30"
   ],
-  "updates": 4,
+  "updates": 2,
   "vol_x": 38.6,
-  "peak_usd": 2137628,
+  "peak_usd": 613768,
   "last_eval_ms": 1792671240000,
   "pulse_ms": 1792675620000,
   "anchor_price": 0.54,
