@@ -311,7 +311,7 @@
   "updates": 0,
   "vol_x": 5.2,
   "peak_usd": 14308,
-  "last_eval_ms": 1792670700000,
+  "last_eval_ms": 1792670640000,
   "pulse_ms": 1792674840000,
   "anchor_price": 0.0479,
   "anchor_open": 0.0452,
@@ -533,7 +533,19 @@
   "date": "2026-10-22"
  },
  "LIQ:XXII": {
+  "anchor_ms": 1792674780000,
+  "last_ms": 1792674840000,
+  "sent": [
+   "M1"
+  ],
+  "updates": 0,
+  "vol_x": 2.0,
+  "peak_usd": 62427,
   "last_eval_ms": 1792674840000,
+  "pulse_ms": 1792674840000,
+  "anchor_price": 0.334,
+  "anchor_open": 0.3109,
+  "anchor_low": 0.3109,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1792666620000,
@@ -542,26 +554,12 @@
    "e5": 0.3755,
    "exit_ms": 1792672320000
   },
-  "tc_cum": 6495191.216962,
-  "tc_seen_ms": 1792674720000,
-  "date": "2026-10-22",
-  "anchor_ms": 1792674780000,
-  "last_ms": 1792674780000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 2.0,
-  "peak_usd": 62427,
-  "pulse_ms": 1792674780000,
-  "anchor_price": 0.334,
-  "anchor_open": 0.3109,
-  "anchor_low": 0.3109,
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 0.3535,
   "pre_usd": 1904573,
-  "pre_n": 63
+  "pre_n": 63,
+  "date": "2026-10-22"
  },
  "LIQ:KIDZ": {
   "last_eval_ms": 1792661580000,
@@ -707,9 +705,9 @@
    "e5": 0.1903,
    "exit_ms": 1792674720000
   },
-  "date": "2026-10-22",
   "tc_cum": 70789.29929399998,
-  "tc_seen_ms": 1792674840000
+  "tc_seen_ms": 1792674840000,
+  "date": "2026-10-22"
  },
  "LIQ:OBAI": {
   "last_eval_ms": 1792612740000,
@@ -2431,9 +2429,6 @@
   "date": "2026-10-21"
  },
  "LIQ:NEGG": {
-  "last_eval_ms": 1792612740000,
-  "tc_cum": 186509.91035172748,
-  "tc_seen_ms": 1792612740000,
   "date": "2026-10-22"
  },
  "LIQ:NIKI": {
@@ -2919,9 +2914,6 @@
   "date": "2026-10-22"
  },
  "LIQ:CLRB": {
-  "last_eval_ms": 1792612740000,
-  "tc_cum": 164318.47505178503,
-  "tc_seen_ms": 1792612740000,
   "date": "2026-10-22"
  },
  "LIQ:PPBT": {
@@ -3424,10 +3416,10 @@
   "date": "2026-10-21"
  },
  "LIQ:AXNX": {
-  "date": "2026-10-22",
   "last_eval_ms": 1792674780000,
   "tc_cum": 3411.17,
-  "tc_seen_ms": 1792674780000
+  "tc_seen_ms": 1792674780000,
+  "date": "2026-10-22"
  },
  "LIQ:MYSE": {
   "date": "2026-10-22"
@@ -4737,9 +4729,9 @@
    "M5",
    "M30"
   ],
-  "updates": 4,
+  "updates": 2,
   "vol_x": 38.6,
-  "peak_usd": 2137628,
+  "peak_usd": 613768,
   "last_eval_ms": 1792671240000,
   "pulse_ms": 1792674840000,
   "anchor_price": 0.54,
