@@ -5378,3 +5378,4 @@
 {"key": "envelope|2026-10-21|XPON", "hunter": "envelope", "session": "2026-10-21", "symbol": "XPON", "kind": "candidate", "ref_close": 4.1, "fwd": 40, "outcome": null, "float": 687511.0, "src": "tradingview"}
 {"key": "envelope|2026-10-21|YAAS", "hunter": "envelope", "session": "2026-10-21", "symbol": "YAAS", "kind": "candidate", "ref_close": 1.0176, "fwd": 40, "outcome": null, "float": 4059508.0, "src": "tradingview"}
 {"key": "envelope|2026-10-21|ZOOZ", "hunter": "envelope", "session": "2026-10-21", "symbol": "ZOOZ", "kind": "candidate", "ref_close": 6.1, "fwd": 40, "outcome": null, "float": 5137763.0, "src": "tradingview"}
+{"key": "split|2026-10-21|BDAI", "hunter": "split", "session": "2026-10-21", "symbol": "BDAI", "kind": "candidate", "ref_close": 2.05, "fwd": 40, "outcome": null, "price": 2.05, "float": 726315.0, "half": 2.43, "ref": 4.86, "src": "tradingview"}
