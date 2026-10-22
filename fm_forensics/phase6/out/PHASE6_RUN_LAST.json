@@ -1,39 +1,7 @@
 {
- "run_id": "39565927680",
+ "run_id": "39744163084",
  "result": {
   "done": [
-   "CUPR",
-   "DCOY",
-   "DKI",
-   "DRMA",
-   "DSY",
-   "DXST",
-   "EDBL",
-   "EHGO",
-   "ELAB",
-   "ELPW",
-   "ENPH",
-   "ENVB",
-   "EZRA",
-   "FGF",
-   "FIEE",
-   "FRSX",
-   "UPC",
-   "VEEE",
-   "VMAR",
-   "WHLR",
-   "WORX",
-   "XCUR",
-   "YMT",
-   "ZCMD",
-   "ZNB",
-   "ADIL",
-   "ADVB",
-   "AMIX",
-   "ATPC",
-   "BETA",
-   "BNAI",
-   "BRTX",
    "FUBO",
    "FULC",
    "GCTK",
@@ -90,29 +58,61 @@
    "STKH",
    "SVRE",
    "SXTC",
-   "TRUG"
+   "TRUG",
+   "ADIL",
+   "ADVB",
+   "AMIX",
+   "ATPC",
+   "BETA",
+   "BNAI",
+   "BRTX",
+   "CUPR",
+   "DCOY",
+   "DKI",
+   "DRMA",
+   "DSY",
+   "DXST",
+   "EDBL",
+   "EHGO",
+   "ELAB",
+   "ELPW",
+   "ENPH",
+   "ENVB",
+   "EZRA",
+   "FGF",
+   "FIEE",
+   "FRSX",
+   "UPC",
+   "VEEE",
+   "VMAR",
+   "WHLR",
+   "WORX",
+   "XCUR",
+   "YMT",
+   "ZCMD",
+   "ZNB"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "AHMA",
-    "AIRO",
-    "CHSN",
-    "CYN",
-    "ENVX",
-    "FRMM",
-    "NIPG",
-    "OLMA",
-    "PN",
-    "SUPX",
-    "TC",
-    "BLNE",
-    "HTZ",
-    "AZIO",
-    "LGCL",
-    "WXM"
+    "BETR",
+    "CLLS",
+    "CURX",
+    "DBGI",
+    "FLNA",
+    "FMST",
+    "HTCR",
+    "LYEL",
+    "NNE",
+    "NXXT",
+    "ONEG",
+    "SPRB",
+    "CVRX",
+    "FFAI",
+    "NCNA",
+    "FOFO"
    ],
    "skipped": [],
    "calendar_error": "",
@@ -123,17 +123,17 @@
   }
  },
  "audit": {
-  "rows": 1136,
+  "rows": 1307,
   "by_status": {
-   "OK": 821,
-   "UNKNOWN": 192,
-   "NOT_ATTEMPTED": 119,
-   "FAILED": 4
+   "OK": 999,
+   "UNKNOWN": 181,
+   "FAILED": 8,
+   "NOT_ATTEMPTED": 119
   },
   "by_category": {
-   "1": 490,
-   "2": 331,
-   "4": 315
+   "1": 489,
+   "2": 510,
+   "4": 308
   },
   "tickers": 105,
   "chain_problems": []
@@ -180,31 +180,11 @@
    "yahoo_splits"
   ],
   [
-   "AZIO",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "AZIO",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "BETA",
    "short_interest",
    "yahoo_info"
   ],
   [
-   "BLNE",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "BLNE",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "BNAI",
    "short_interest",
    "yahoo_info"
@@ -313,6 +293,11 @@
    "CUPR",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "CVRX",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "DCOY",
@@ -375,6 +360,16 @@
    "yahoo_info"
   ],
   [
+   "EHGO",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "EHGO",
+   "reverse_split",
+   "nasdaq_calendar"
+  ],
+  [
    "ELAB",
    "short_interest",
    "yahoo_info"
@@ -420,6 +415,16 @@
    "yahoo_splits"
   ],
   [
+   "FFAI",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "FFAI",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "FIEE",
    "short_interest",
    "yahoo_info"
@@ -428,6 +433,11 @@
    "FIEE",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "FOFO",
+   "short_interest",
+   "yahoo_info"
   ],
   [
    "FRSX",
@@ -515,11 +525,6 @@
    "yahoo_splits"
   ],
   [
-   "HTZ",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
    "HUBC",
    "short_interest",
    "yahoo_info"
@@ -600,16 +605,6 @@
    "yahoo_splits"
   ],
   [
-   "LGCL",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "LGCL",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "LIMN",
    "short_interest",
    "yahoo_info"
@@ -673,6 +668,16 @@
    "NAMM",
    "short_interest",
    "yahoo_info"
+  ],
+  [
+   "NCNA",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "NCNA",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "NCT",
@@ -930,16 +935,6 @@
    "yahoo_splits"
   ],
   [
-   "TC",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "TC",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "TRUG",
    "short_interest",
    "yahoo_info"
@@ -1006,16 +1001,6 @@
   ],
   [
    "WORX",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "WXM",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "WXM",
    "reverse_split",
    "yahoo_splits"
   ],
