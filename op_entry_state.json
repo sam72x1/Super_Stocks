@@ -1202,11 +1202,11 @@
   "anchor_price": 2.53,
   "anchor_open": 2.38,
   "anchor_low": 2.27,
-  "date": "2026-10-22",
   "pre_done": true,
   "pre_hi": 2.4255,
   "pre_usd": 39989,
-  "pre_n": 5
+  "pre_n": 5,
+  "date": "2026-10-22"
  },
  "LIQ:HDRN": {
   "last_eval_ms": 1792612440000,
@@ -1723,6 +1723,7 @@
    "j1_top": false
   },
   "e5": 0.3283,
+  "tgt_ms": 1792656180000,
   "date": "2026-10-22"
  },
  "LIQ:PSNY": {
