@@ -2545,7 +2545,7 @@
    "hit": "t1",
    "hit_date": "2026-10-20",
    "max_gain_pct": 38.6,
-   "last_price": 2.3,
+   "last_price": 2.27,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -5183,7 +5183,7 @@
    "hit": "t1",
    "hit_date": "2026-10-15",
    "max_gain_pct": 30.6,
-   "last_price": 9.3196,
+   "last_price": 9.38,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -7229,7 +7229,7 @@
    "hit": "t1",
    "hit_date": "2026-09-21",
    "max_gain_pct": 13.3,
-   "last_price": 1.09,
+   "last_price": 1.095,
    "live_alert": {
     "breakout": "2026-09-28",
     "sweep": "2026-10-15"
