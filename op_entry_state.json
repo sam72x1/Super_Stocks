@@ -3224,11 +3224,11 @@
    "exit_ms": 1792742820000
   },
   "trig": "T-C",
-  "date": "2026-10-23",
   "pre_done": true,
   "pre_hi": 31.7779,
   "pre_usd": 235166,
-  "pre_n": 5
+  "pre_n": 5,
+  "date": "2026-10-23"
  },
  "LIQ:ODYS": {
   "last_eval_ms": 1792677660000,
@@ -4097,7 +4097,7 @@
  },
  "LIQ:LUCD": {
   "anchor_ms": 1792742880000,
-  "last_ms": 1792742880000,
+  "last_ms": 1792742940000,
   "sent": [
    "M1"
   ],
@@ -4105,7 +4105,7 @@
   "vol_x": 0.3,
   "peak_usd": 56349,
   "last_eval_ms": 1792742940000,
-  "pulse_ms": 1792742880000,
+  "pulse_ms": 1792742940000,
   "anchor_price": 0.4125,
   "anchor_open": 0.4151,
   "anchor_low": 0.4077,
@@ -4118,11 +4118,11 @@
    "exit_ms": 1792742700000
   },
   "trig": "T-C",
-  "date": "2026-10-23",
   "pre_done": true,
   "pre_hi": 0.48,
   "pre_usd": 1332286,
-  "pre_n": 8
+  "pre_n": 8,
+  "date": "2026-10-23"
  },
  "LIQ:FUSE": {
   "last_eval_ms": 1792529280000,
