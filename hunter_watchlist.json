@@ -24,10 +24,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 0.8504,
-   "last_bar": "2026-10-21",
-   "dollar_vol": 163869.0,
-   "move_pct": -15.8,
+   "last_price": 0.8869,
+   "last_bar": "2026-10-22",
+   "dollar_vol": 52402.0,
+   "move_pct": -12.2,
    "stopped_at": "2026-10-15"
   },
   {
@@ -54,10 +54,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 0.2786,
-   "last_bar": "2026-10-21",
-   "dollar_vol": 5056703.0,
-   "move_pct": -85.8,
+   "last_price": 0.2316,
+   "last_bar": "2026-10-22",
+   "dollar_vol": 5066128.0,
+   "move_pct": -88.2,
    "stopped_at": "2026-10-20"
   },
   {
@@ -84,10 +84,10 @@
     }
    ],
    "status": "active",
-   "last_price": 1.04,
-   "last_bar": "2026-10-21",
-   "dollar_vol": 224828.0,
-   "move_pct": -32.5
+   "last_price": 0.9821,
+   "last_bar": "2026-10-22",
+   "dollar_vol": 208437.0,
+   "move_pct": -36.2
   },
   {
    "symbol": "AEMD",
@@ -113,10 +113,10 @@
     }
    ],
    "status": "active",
-   "last_price": 5.07,
-   "last_bar": "2026-10-21",
-   "dollar_vol": 433297.0,
-   "move_pct": 162.7
+   "last_price": 5.19,
+   "last_bar": "2026-10-22",
+   "dollar_vol": 436580.0,
+   "move_pct": 168.9
   },
   {
    "symbol": "YHC",
@@ -142,10 +142,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 1.79,
-   "last_bar": "2026-10-21",
-   "dollar_vol": 557383.0,
-   "move_pct": 20.1,
+   "last_price": 2.5,
+   "last_bar": "2026-10-22",
+   "dollar_vol": 668906.0,
+   "move_pct": 67.8,
    "stopped_at": "2026-09-16"
   },
   {
@@ -172,10 +172,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 1.18,
-   "last_bar": "2026-10-21",
-   "dollar_vol": 79147.0,
-   "move_pct": -34.8,
+   "last_price": 1.13,
+   "last_bar": "2026-10-22",
+   "dollar_vol": 77628.0,
+   "move_pct": -37.6,
    "stopped_at": "2026-09-30"
   },
   {
@@ -202,10 +202,10 @@
     }
    ],
    "status": "active",
-   "last_price": 2.05,
-   "last_bar": "2026-10-21",
-   "dollar_vol": 2669443.0,
-   "move_pct": 2.5
+   "last_price": 2.08,
+   "last_bar": "2026-10-22",
+   "dollar_vol": 2658539.0,
+   "move_pct": 4.0
   }
  ],
  "added_last": [],
