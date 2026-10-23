@@ -1758,7 +1758,7 @@
   "date": "2026-10-23"
  },
  "LIQ:FGL": {
-  "last_eval_ms": 1792791420000,
+  "last_eval_ms": 1792790880000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1792758960000,
@@ -2584,10 +2584,6 @@
   "date": "2026-10-22"
  },
  "LIQ:SPRC": {
-  "last_eval_ms": 1792791480000,
-  "tc_cum": 248372.87359840007,
-  "tc_seen_ms": 1792791360000,
-  "date": "2026-10-23",
   "anchor_ms": 1792791420000,
   "last_ms": 1792791480000,
   "sent": [
@@ -2596,6 +2592,7 @@
   "updates": 0,
   "vol_x": 9.1,
   "peak_usd": 25284,
+  "last_eval_ms": 1792791480000,
   "pulse_ms": 1792791480000,
   "anchor_price": 1.45,
   "anchor_open": 1.26,
@@ -2604,7 +2601,8 @@
   "pre_done": true,
   "pre_hi": 1.24,
   "pre_usd": 11589,
-  "pre_n": 5
+  "pre_n": 5,
+  "date": "2026-10-23"
  },
  "LIQ:TDTH": {
   "anchor_ms": 1792526940000,
