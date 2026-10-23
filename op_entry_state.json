@@ -294,9 +294,9 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 1,
   "vol_x": 49.0,
-  "peak_usd": 2572847,
+  "peak_usd": 944072,
   "last_eval_ms": 1792755060000,
   "pulse_ms": 1792757460000,
   "anchor_price": 2.305,
@@ -2575,7 +2575,7 @@
  },
  "LIQ:AIXI": {
   "anchor_ms": 1792757400000,
-  "last_ms": 1792757400000,
+  "last_ms": 1792757460000,
   "sent": [
    "M1"
   ],
@@ -2583,15 +2583,15 @@
   "vol_x": 111.1,
   "peak_usd": 240102,
   "last_eval_ms": 1792757460000,
-  "pulse_ms": 1792757400000,
+  "pulse_ms": 1792757460000,
   "anchor_price": 3.0601,
   "anchor_open": 2.71,
   "anchor_low": 2.71,
-  "date": "2026-10-23",
   "pre_done": true,
   "pre_hi": 2.72,
   "pre_usd": 57504,
-  "pre_n": 31
+  "pre_n": 31,
+  "date": "2026-10-23"
  },
  "LIQ:RNAZ": {
   "last_eval_ms": 1792698360000,
