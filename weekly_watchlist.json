@@ -396,7 +396,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 4.02
+   "last_price": 4.02,
+   "live_alert": {}
   },
   {
    "symbol": "DSY",
@@ -743,7 +744,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.35
+   "last_price": 3.35,
+   "live_alert": {}
   },
   {
    "symbol": "HTCR",
@@ -1112,7 +1114,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.49
+   "last_price": 1.49,
+   "live_alert": {}
   },
   {
    "symbol": "CCHH",
@@ -1479,7 +1482,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.87
+   "last_price": 0.87,
+   "live_alert": {}
   },
   {
    "symbol": "CGTL",
@@ -1845,7 +1849,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.64
+   "last_price": 2.64,
+   "live_alert": {}
   },
   {
    "symbol": "TRNR",
@@ -2222,7 +2227,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.73
+   "last_price": 1.73,
+   "live_alert": {}
   },
   {
    "symbol": "AKAN",
@@ -2573,7 +2579,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.01
+   "last_price": 1.01,
+   "live_alert": {}
   },
   {
    "symbol": "LFS",
@@ -5156,7 +5163,8 @@
     "asof": "2026-10-22"
    },
    "live_alert": {
-    "breakout": "2026-10-21"
+    "breakout": "2026-10-21",
+    "premarket": "2026-10-26"
    },
    "price_state": "VALID",
    "price_bar": "2026-10-23"
@@ -9174,8 +9182,8 @@
    "country": "Hong Kong",
    "float": 677077,
    "last_price": 3.17,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-26"
   },
   {
    "symbol": "LPCN",
@@ -9208,8 +9216,8 @@
    "country": "United States",
    "float": 6514938,
    "last_price": 1.44,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-26"
   },
   {
    "symbol": "TC",
@@ -9242,8 +9250,8 @@
    "country": "China",
    "float": 21800213,
    "last_price": 1.22,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-26"
   }
  ],
  "history": [
