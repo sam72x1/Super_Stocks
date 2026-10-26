@@ -4562,7 +4562,7 @@
  },
  "LIQ:BDAI": {
   "anchor_ms": 1793048460000,
-  "last_ms": 1793048460000,
+  "last_ms": 1793048520000,
   "sent": [
    "M1"
   ],
@@ -4570,16 +4570,16 @@
   "vol_x": 1.2,
   "peak_usd": 20923,
   "last_eval_ms": 1793048520000,
-  "pulse_ms": 1793048460000,
+  "pulse_ms": 1793048520000,
   "anchor_price": 2.49,
   "anchor_open": 2.36,
   "anchor_low": 2.35,
   "trig": "T-C",
-  "date": "2026-10-26",
   "pre_done": true,
   "pre_hi": 2.3799,
   "pre_usd": 16784,
-  "pre_n": 1
+  "pre_n": 1,
+  "date": "2026-10-26"
  },
  "LIQ:CMMB": {
   "last_eval_ms": 1792793820000,
