@@ -2769,7 +2769,7 @@
  },
  "LIQ:RENT": {
   "anchor_ms": 1793001900000,
-  "last_ms": 1793001900000,
+  "last_ms": 1793001960000,
   "sent": [
    "M1"
   ],
@@ -2777,7 +2777,7 @@
   "vol_x": 1.5,
   "peak_usd": 525055,
   "last_eval_ms": 1793001960000,
-  "pulse_ms": 1793001900000,
+  "pulse_ms": 1793001960000,
   "anchor_price": 2.7697,
   "anchor_open": 2.9,
   "anchor_low": 2.76,
@@ -2790,11 +2790,11 @@
    "exit_ms": 1793001840000
   },
   "trig": "T-C",
-  "date": "2026-10-26",
   "pre_done": true,
   "pre_hi": 3.37,
   "pre_usd": 1970003,
-  "pre_n": 5
+  "pre_n": 5,
+  "date": "2026-10-26"
  },
  "LIQ:VIOT": {
   "last_eval_ms": 1792785540000,
