@@ -1902,7 +1902,7 @@
  },
  "LIQ:BRAI": {
   "anchor_ms": 1793021880000,
-  "last_ms": 1793021880000,
+  "last_ms": 1793021940000,
   "sent": [
    "M1"
   ],
@@ -1910,7 +1910,7 @@
   "vol_x": 1.5,
   "peak_usd": 46963,
   "last_eval_ms": 1793021940000,
-  "pulse_ms": 1793021880000,
+  "pulse_ms": 1793021940000,
   "anchor_price": 4.4,
   "anchor_open": 4.27,
   "anchor_low": 4.2502,
@@ -1923,11 +1923,11 @@
    "exit_ms": 1793021820000
   },
   "trig": "T-C",
-  "date": "2026-10-26",
   "pre_done": true,
   "pre_hi": 4.7156,
   "pre_usd": 843322,
-  "pre_n": 27
+  "pre_n": 27,
+  "date": "2026-10-26"
  },
  "LIQ:JFIN": {
   "last_eval_ms": 1793021760000,
@@ -2406,6 +2406,9 @@
   "date": "2026-10-26"
  },
  "LIQ:HUHU": {
+  "last_eval_ms": 1793021700000,
+  "tc_cum": 1682.2970310599999,
+  "tc_seen_ms": 1793021700000,
   "date": "2026-10-26"
  },
  "LIQ:INTZ": {
