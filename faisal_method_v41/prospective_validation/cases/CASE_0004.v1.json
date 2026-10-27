@@ -1,0 +1,109 @@
+{
+ "capture_utc": "2026-10-27T14:16:48Z",
+ "case_id": "CASE_0004",
+ "date_precision": "day",
+ "date_source": "image_visible",
+ "decision_date": "2026-10-23",
+ "image": "faisal_images/TG_75997.jpg",
+ "image_sha256": "79f601b7939b0daa30782ea0ce4e7de923ff222040348a7add608dbd6bc543cb",
+ "layer": "1",
+ "near_duplicates": [],
+ "notes": "B36_20261027 · رسالة 75997",
+ "protocol": {
+  "blind_input": {
+   "decision_date": "2026-10-23",
+   "symbol": "CYCU",
+   "timeframe": "1D"
+  },
+  "input_hash": "3c8493207ae5df7b09667a4cf1ff7d8b740ab62a784a4dc684dff15b78b82846",
+  "intake": {
+   "batch": "B36_20261027",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 47,
+      "id": "X_20260918_28_CUPR",
+      "phash_dist": 4
+     },
+     {
+      "dhash256_dist": 54,
+      "id": "X_20260905_08",
+      "phash_dist": 4
+     },
+     {
+      "dhash256_dist": 48,
+      "id": "X_20260827_raya_notready_2",
+      "phash_dist": 6
+     },
+     {
+      "dhash256_dist": 49,
+      "id": "IMG_0143",
+      "phash_dist": 6
+     },
+     {
+      "dhash256_dist": 52,
+      "id": "TG_58046",
+      "phash_dist": 6
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class": "NEW_PROSPECTIVE"
+  },
+  "provenance": {
+   "basis": "UNKNOWN",
+   "decision_date_from_post": null,
+   "fields": {
+    "CAPTURE_TIMESTAMP": "2026-10-27T14:16:48Z",
+    "CASE_ID": "—",
+    "DATE_VISIBLE": "لا طابعَ مطلق · شارتُ المنشور «2.16 +8.00% +0.16» (إغلاقٌ 2.16 بعد 2.00) ⟵ إغلاقُ CYCU يومَ 2026-10-23 في بيانات البوت (`near_watch.json`: 10-23 = 2.00 · 10-24 = 2.16) · وساعةُ جهاز فيصل في الشارت 2:01 ⟵ 2:01 الرياض 10-24 = 23:01Z 10-23 = 19:01 نيويورك 10-23",
+    "FORWARD_TYPE": "none",
+    "IMAGE_HASH": "79f601b7939b0daa30782ea0ce4e7de923ff222040348a7add608dbd6bc543cb",
+    "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+    "PERCEPTUAL_HASH": {
+     "dhash256": "852cc332023200a603ba0b620b620b5a0b5a0b1a0b5a0b600b32cf1291629326",
+     "phash64": "1966669966999762"
+    },
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "PUBLIC_CHANNEL_METADATA": "N/A",
+    "SOURCE": "telegram_bot · run 40519535590",
+    "SOURCE_MESSAGE_ID": 75997,
+    "TICKER": "CYCU",
+    "TIMEFRAME": "D"
+   },
+   "meta_v": 2,
+   "missing_critical": [
+    "ORIGINAL_POST_TIMESTAMP"
+   ]
+  },
+  "v4_freeze": {
+   "DATA_PIPELINE_VERSION": "e7d44195e6ad26340ce38cdd2143948a37cc2b2eb4c8fe911e387009101118c9",
+   "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+   "V4_CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+   "V4_FREEZE_ID": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+   "V4_RULE_REGISTRY_HASH": "5a2a86262511ac2143920c2d8cc1e910740f1325ed47f5c199ed07b3910e3531",
+   "V4_TOOL_VERSION": {
+    "engine": "FAISAL-V4 1.0 (2026-10-02)",
+    "freeze": "V4.1-FREEZE 1.0 (2026-10-07)",
+    "rules": "V4-RULES 1.0 (2026-10-02)",
+    "runner": "V41-RUNNER 1.0 (2026-10-07)"
+   },
+   "epoch": 1
+  }
+ },
+ "symbol": "CYCU",
+ "timeframe_f": "D",
+ "unit_id": "TG_75997"
+}

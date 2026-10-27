@@ -82930,7 +82930,8 @@ _PHB_OWNER_KEYS = ("V4_FROZEN", "V4_COMMIT", "EPOCH_INTEGRITY", "COLLECTOR_STATU
                    "CONTAMINATION_TEST", "FREEZE_TEST", "LEDGER_INTEGRITY", "VALIDATION_STATE", "V5_CANDIDATES", "TESTS", "CI",
                    "MOST_IMPORTANT_FINDING", "BIGGEST_REMAINING_LIMITATION", "NEXT_ALLOWED_ACTION")   # B · بنصّ المالك وترتيبه
 _PHB_LEDGER_PINS = ((0, "0" * 64),    # (عددُ القيود · بصمةُ آخرها) لكلّ نسخةٍ مدموجة — يُضاف ولا يُعدَّل (الإلحاقُ عبر الـPRs في CI الضحل)
-                    (2, "8bd83ad67c38bec2d3e1f7bb5c743805c781719535ffee7d9f4ec0faf08a4607"))   # B4_20261008 · TG_58525 CAPTURED/EXCLUDED
+                    (2, "8bd83ad67c38bec2d3e1f7bb5c743805c781719535ffee7d9f4ec0faf08a4607"),   # B4_20261008 · TG_58525 CAPTURED/EXCLUDED
+                    (70, "f750111ccd194df6a54494f5cdeee608e3f625ae513809b6f2ade487d3f3fb4e"))   # B36_20261027 · 34 بندًا بعد الحدّ (CAPTURED ثمّ مصيرُه) · خُتم قبل V4 (2026-10-27)
 _PHB_HSHA = "f" * 64
 try:
     _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))
@@ -83556,6 +83557,33 @@ except Exception as _e:                                                    # noq
     _p6c13, _p6c13w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔎🧭⑥ P6C13 حصّةُ ChartExchange تدور بين التشغيلات: مَن لم يُحاوَل أوّلًا ثمّ الأقدمُ نجاحًا — فلا يبقى 41 من 89 خارج الحصّة كلَّ يوم (تشغيلةُ 37884481989)",
       _p6c13, _p6c13w)
+
+# P6C14 — `faisal_timestamp` في سجلّ المرحلة ب يومٌ مستنتَج «YYYY-MM-DD (New-York day)» حين لا يظهر طابعُ المنشور ⟵ DATE بنيويورك لا TIMESTAMP
+#   (عطلٌ مُثبَت 2026-10-27: ختمُ B36 أخرج 14 ذكرًا موسومةً TIMESTAMP بطابعٍ لا يُحلَّل ⟵ أسقط P6C2 · ملحقُ H6 الثاني) · والطابعُ الكامل بت-بت
+try:
+    _r14 = _p6os.path.join(_p6_dir, "root14")
+    _p6os.makedirs(_p6os.path.join(_r14, "faisal_validation"))
+    with open(_p6os.path.join(_r14, "faisal_validation", "PROSPECTIVE_LEDGER.jsonl"), "w", encoding="utf-8") as _f14:
+        for _i14, (_t14, _ts14) in enumerate([("AAA", "2026-10-14T21:10:00Z"), ("BBB", "2026-10-22 (New-York day)"),
+                                               ("CCC", None), ("DDD", "junk-value"), ("EEE", "2026-10-22T10:00:00"),
+                                               ("FFF", "2026-13-45 (New-York day)")]):
+            _f14.write(_p6json.dumps({"case_id": f"C{_i14}", "seq": _i14, "ticker": _t14, "faisal_timestamp": _ts14}) + "\n")
+    _m14 = {m["canonical_ticker"]: m for m in P6.build_mentions(_r14)}
+    _w14 = {k: (v["post_date"], v["post_timestamp"], v["post_tz"], v["ts_precision"]) for k, v in _m14.items()}
+    _U14 = P6.UNKNOWN
+    _p6c14 = (_w14.get("AAA") == ("2026-10-14", "2026-10-14T21:10:00Z", "UTC", "TIMESTAMP")
+              and _w14.get("BBB") == ("2026-10-22", _U14, "America/New_York", "DATE")
+              and _w14.get("CCC") == (_U14, _U14, _U14, _U14)
+              and _w14.get("DDD") == (_U14, _U14, _U14, _U14)
+              and _w14.get("EEE") == (_U14, _U14, _U14, _U14)
+              and _w14.get("FFF") == (_U14, _U14, _U14, _U14)
+              and all(m["post_timestamp"] == _U14 or P6.parse_ts(m["post_timestamp"]) is not None for m in _m14.values())
+              and ('f"{day}' + P6.NY_DAY_SUFFIX + '"') in open(_p6os.path.join(P6.ROOT, "faisal_validation", "phase_b.py"), encoding="utf-8").read())
+    _p6c14w = str(_w14)[:300]
+except Exception as _e:                                                    # noqa: BLE001
+    _p6c14, _p6c14w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔎🧭⑥ P6C14 يومُ القرار المستنتَج في سجلّ المرحلة ب «(New-York day)» ذكرٌ بدقّة DATE لا TIMESTAMP · والطابعُ الساذج وغيرُ التاريخيّ UNKNOWN كلُّه · والطابعُ الكامل بت-بت (ملحقُ H6 الثاني)",
+      _p6c14, _p6c14w)
 
 # P6T1 trace: deterministic and cwd-independent (subprocess from a temp cwd; output to a temp dir) ⟵ identical to the committed summary
 try:
