@@ -127,7 +127,7 @@
  },
  "LIQ:MRLN": {
   "anchor_ms": 1793118480000,
-  "last_ms": 1793118480000,
+  "last_ms": 1793118540000,
   "sent": [
    "M1"
   ],
@@ -135,7 +135,7 @@
   "vol_x": 8.6,
   "peak_usd": 82311,
   "last_eval_ms": 1793118540000,
-  "pulse_ms": 1793118480000,
+  "pulse_ms": 1793118540000,
   "anchor_price": 1.035,
   "anchor_open": 1.025,
   "anchor_low": 1.02,
@@ -148,11 +148,11 @@
    "exit_ms": 1793117280000
   },
   "trig": "T-C",
-  "date": "2026-10-27",
   "pre_done": true,
   "pre_hi": 1.05,
   "pre_usd": 583705,
-  "pre_n": 62
+  "pre_n": 62,
+  "date": "2026-10-27"
  },
  "LIQ:XRTX": {
   "last_eval_ms": 1793058840000,
@@ -537,36 +537,16 @@
   "date": "2026-10-27"
  },
  "LIQ:SBFM": {
-  "anchor_ms": 1793118120000,
-  "last_ms": 1793118540000,
-  "sent": [
-   "M1",
-   "M5"
-  ],
-  "updates": 0,
-  "vol_x": 17.7,
-  "peak_usd": 116529,
-  "last_eval_ms": 1793118120000,
-  "pulse_ms": 1793118540000,
-  "anchor_price": 3.28,
-  "anchor_open": 3.16,
-  "anchor_low": 3.12,
-  "trig": "T-C",
-  "pre_done": true,
-  "pre_hi": 3.159,
-  "pre_usd": 212884,
-  "pre_n": 35,
-  "k2": {
-   "c3": "نقضت",
-   "c4": "خضراء 2",
-   "v2": "المرساة 30-60% من الخمس",
-   "v3": "سيولةٌ نازحة (نبضٌ صافٍ سالب)",
-   "j1": false,
-   "j1_top": false
+  "last_eval_ms": 1793118540000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1793118120000,
+   "anchor_price": 3.28,
+   "anchor_low": 3.12,
+   "e5": 3.17,
+   "exit_ms": 1793118540000
   },
-  "e5": 3.17,
-  "date": "2026-10-27",
-  "exit_ms": 1793118540000
+  "date": "2026-10-27"
  },
  "LIQ:OBAI": {
   "last_eval_ms": 1793118540000,
@@ -4259,6 +4239,17 @@
   "date": "2026-10-27"
  },
  "LIQ:REKR": {
+  "last_eval_ms": 1793117820000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1793114880000,
+   "anchor_price": 0.2877,
+   "anchor_low": 0.2726,
+   "e5": 0.2863,
+   "exit_ms": 1793115960000
+  },
+  "tc_cum": 453791.8789370298,
+  "tc_seen_ms": 1793117700000,
   "anchor_ms": 1793117760000,
   "last_ms": 1793118540000,
   "sent": [
@@ -4268,19 +4259,10 @@
   "updates": 0,
   "vol_x": 1.6,
   "peak_usd": 6665,
-  "last_eval_ms": 1793117880000,
   "pulse_ms": 1793118540000,
   "anchor_price": 0.2828,
   "anchor_open": 0.2796,
   "anchor_low": 0.2796,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1793114880000,
-   "anchor_price": 0.2877,
-   "anchor_low": 0.2726,
-   "e5": 0.2863,
-   "exit_ms": 1793115960000
-  },
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 0.2899,
@@ -4295,9 +4277,7 @@
    "j1_top": false
   },
   "e5": 0.2828,
-  "date": "2026-10-27",
-  "tc_cum": 453791.8789370298,
-  "tc_seen_ms": 1793117700000
+  "date": "2026-10-27"
  },
  "LIQ:PBK": {
   "last_eval_ms": 1793118480000,
