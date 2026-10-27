@@ -124,6 +124,16 @@ def image_ids(folder=IMAGES):
     return sorted(os.path.splitext(f)[0] for f in os.listdir(folder) if f != "README.md")
 
 
+def split_images(last, ids):
+    """(population, after): the protocol's population is the folder as the register read it (§ «الصور»: 772) and the
+    register is pinned (REC_SHA256) after it was validated equal to the folder ⇒ an image outside the register arrived
+    after it — forward intake, counted, not a defect (the corpus audit's rule, `corpus_audit.py --check`). A register id
+    with no image on disk stays a defect (`validate` reports it as «extra»). Fix 2026-10-27: 36 collector images
+    (`5432e669c`) turned main red although the closed register is unchanged."""
+    reg = set(last)
+    return [i for i in ids if i in reg], [i for i in ids if i not in reg]
+
+
 def load_register(path=REC):
     """Return (latest record per id, register order, problems). Append-only: rev must rise by one with a why."""
     last, order, probs = {}, [], []
@@ -1052,8 +1062,8 @@ def coverage(last, charts, units, ids):
 
 
 def build():
-    ids = image_ids()
     last, order, probs = load_register()
+    ids, _after = split_images(last, image_ids())
     probs += validate(last, ids)
     if probs:
         for p in probs[:30]:
@@ -1419,6 +1429,11 @@ def guards():
     bad2 = {"Z": {"id": "Z", "rev": 1, "charts": [{"author": "FAISAL", "entries_text": "1.8", "levels": [["red", 1.0, "", "H"]]}]}}
     g("CG9 `entries_text` نصٌّ يُرفض (قائمةُ أرقام)", lambda: (any("entries_text" in p for p in validate(bad2, ["Z"])), validate(bad2, ["Z"])))
     g("CG9 صورةٌ بلا سجلّ تُرفض", lambda: (any("register ids" in p for p in validate({}, ["Z"])), ""))
+    _reg = {"A": {}, "C": {}}
+    g("CG9 صورةٌ بعد السجلّ المثبَّت تُعَدّ ولا تُرفض · وسجلٌّ بلا صورة يُرفض",
+      lambda: (split_images(_reg, ["A", "B", "C"]) == (["A", "C"], ["B"])
+               and not any("register ids" in p for p in validate(_reg, split_images(_reg, ["A", "B", "C"])[0]))
+               and any("register ids" in p for p in validate(_reg, split_images(_reg, ["A", "B"])[0])), ""))
     # CG10 fold
     q = {"unit": "Q#0", "members": ["Q#0"], "levels": [{"colour": "other", "value": 2.0, "label": "", "conf": "H"},
                                                         {"colour": "other", "value": 3.0, "label": "", "conf": "H"}]}
@@ -1638,10 +1653,12 @@ def main(argv=None):
     if a.validate:
         check_pins(need_main=False)
         last, _, probs = load_register()
-        probs += validate(last, image_ids())
+        ids, after = split_images(last, image_ids())
+        probs += validate(last, ids)
         probs += load_heads()[1]
         for p in probs[:30]:
             print("⛔", p)
+        print(f"🖼️ صورٌ بعد السجلّ (استلامٌ أماميّ لا عيب · خارج مجتمع البروتوكول {len(ids)}): {len(after)}")
         print("✅ السجلُّ سليم" if not probs else f"⛔ {len(probs)} مشكلة")
         return 0 if not probs else 9
     if a.heads_sample:

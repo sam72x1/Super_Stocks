@@ -88032,6 +88032,45 @@ except Exception as _e:                                              # noqa: BLE
 check("🔒 COC1 إغلاقُ `T-COLOUR` مُنفَّذ: البناءُ و`--heads-sample` يرجعان 8 بصفرِ نداءٍ ولا سطرَ غيرُ النصّ (غائبٌ و«0») · "
       "و«1» يمضي · والتحقّقُ مفتوح · والنصُّ والوثيقةُ يحملان شروطَ الفتح الثلاثة",
       _coc1, _coc1_w[:420])
+# COL3 — 🖼️ **صورةٌ بعد السجلّ المثبَّت استلامٌ أماميٌّ لا عيب** (عطلٌ مُثبَت 2026-10-27: الجامعُ `5432e669c` أضاف 36 صورة
+#    فاحمرّ main بـCOL1/COL2/COC1 والسجلُّ المُغلَق لم يتغيّر · مجتمعُ البروتوكول «الصور: 772» = ما قرأه السجلّ) — سلوكيّ على مجلّدٍ مؤقّت:
+#    المجلّدُ الحاليّ ‏+ صورتان جديدتان ⟵ «سليم» والمجتمعُ كما هو والزائدُ يُعَدّ · وحذفُ صورةٍ لها سجلّ ⟵ يُرفض · والبنّاءُ يبني على المجتمع وحدَه (‏AST).
+try:
+    import ast as _c3_ast
+    import importlib.util as _c3_iu
+    import os as _c3_os
+    import tempfile as _c3_tf
+    _c3_spec = _c3_iu.spec_from_file_location("_c3_cb", _c3_os.path.join("fm_forensics", "colour", "colour_build.py"))
+    _c3_m = _c3_iu.module_from_spec(_c3_spec)
+    _c3_spec.loader.exec_module(_c3_m)
+    _c3_last, _c3_order, _c3_p0 = _c3_m.load_register()
+    _c3_real = _c3_m.image_ids()
+    with _c3_tf.TemporaryDirectory() as _c3_d:
+        for _c3_i in list(_c3_last) + ["ZZ_NEW_1", "ZZ_NEW_2"]:
+            open(_c3_os.path.join(_c3_d, _c3_i + ".jpg"), "w").close()
+        open(_c3_os.path.join(_c3_d, "README.md"), "w").close()
+        _c3_pop, _c3_aft = _c3_m.split_images(_c3_last, _c3_m.image_ids(_c3_d))
+        _c3_ok_new = (sorted(_c3_pop) == sorted(_c3_last) and _c3_aft == ["ZZ_NEW_1", "ZZ_NEW_2"]
+                      and not any("register ids" in _x for _x in _c3_m.validate(_c3_last, _c3_pop)))
+        _c3_gone = sorted(_c3_last)[0]
+        _c3_os.remove(_c3_os.path.join(_c3_d, _c3_gone + ".jpg"))
+        _c3_pop2, _ = _c3_m.split_images(_c3_last, _c3_m.image_ids(_c3_d))
+        _c3_ok_del = any("register ids" in _x and "extra" in _x and _c3_gone in _x for _x in _c3_m.validate(_c3_last, _c3_pop2))
+    _c3_t = _c3_ast.parse(open(_c3_os.path.join("fm_forensics", "colour", "colour_build.py"), encoding="utf-8").read())
+    _c3_calls = {}
+    for _c3_fn in _c3_ast.walk(_c3_t):
+        if isinstance(_c3_fn, _c3_ast.FunctionDef) and _c3_fn.name in ("build", "main"):
+            _c3_calls[_c3_fn.name] = sorted({getattr(_c.func, "id", None) for _c in _c3_ast.walk(_c3_fn)
+                                             if isinstance(_c, _c3_ast.Call) and getattr(_c.func, "id", None) in ("split_images", "validate")})
+    _c3_ok_ast = all(_c3_calls.get(_k) == ["split_images", "validate"] for _k in ("build", "main"))
+    _col3 = _c3_ok_new and _c3_ok_del and _c3_ok_ast and not _c3_p0
+    _col3_w = (f"سجلّ={len(_c3_last)} · المجلّدُ الحيّ={len(_c3_real)} · جديد={_c3_ok_new} {_c3_aft} · حذف={_c3_ok_del} ({_c3_gone}) · "
+               f"AST={_c3_calls}")
+except Exception as _e:                                              # noqa: BLE001
+    _col3, _col3_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🖼️ COL3 `T-COLOUR`: صورةٌ بعد السجلّ المثبَّت **تُعَدّ ولا تُرفض** (استلامٌ أماميّ · المجتمعُ ما قرأه السجلّ) · "
+      "وحذفُ صورةٍ لها سجلّ يُرفض · والبنّاءُ والتحقّقُ يقسمان المجلّدَ قبل التحقّق (‏AST)",
+      _col3, _col3_w[:420])
 # ══════════════════════════════════════════════════════════════════════════
 # 📉💾 BWP1-BWP7 — «فعّل حفظ سجل المتاح» (أمرُ المالك 2026-10-14 · متابعةُ `T-BORROW-FALL`): السجلُّ يُدفَع · الأفقُ جلساتٌ (العقد §④)
 #    · الترتيبُ بأوّل رصدٍ وتعادلُه ببصمةٍ لا بالأبجديّة · المجتمعُ من سجلّ البِركة (اليوميّ والتجديد) · لحظةُ UTC لكلّ صفّ ·
