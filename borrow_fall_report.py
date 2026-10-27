@@ -241,7 +241,9 @@ def load_inputs(asof=None, pool=F_POOL, ctb=F_CTB, p6=F_P6, watch=F_WATCH):
                  "sha256": _digest([r.get("sha") for r in recs_ok])},
         "ctb_log": {"path": PF._rel(ctb), "rows": len(ctb_rows), "unreadable": len(ctb_bad), "sha256": _digest(ctb_rows)},
         "phase6": {"path": PF._rel(p6), "rows": len(p6_rows), "unreadable": len(p6_bad), "sha256": _digest(p6_rows)},
-        "borrow_watch": {"path": PF._rel(watch), "present": os.path.exists(watch), "rows": len(w_rows),
+        # `present` is as-of like `rows` (BFR22): the file existing *today* made `--check` depend on the run's filesystem — it failed
+        # once borrow_watch.jsonl started being saved after the stored as-of (2026-10-27).
+        "borrow_watch": {"path": PF._rel(watch), "present": os.path.exists(watch) and bool(w_rows), "rows": len(w_rows),
                          "unreadable": len(w_bad), "sha256": _digest(w_rows)},
     }
     return asof, recs_ok, ctb_rows, p6_rows, w_rows, inputs
