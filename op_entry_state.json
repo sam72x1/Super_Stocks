@@ -1372,18 +1372,6 @@
   "date": "2026-10-27"
  },
  "LIQ:IPST": {
-  "last_eval_ms": 1793110020000,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1793109300000,
-   "anchor_price": 3.0731,
-   "anchor_low": 2.6,
-   "e5": null,
-   "exit_ms": 1793109360000
-  },
-  "tc_cum": 1565492.2636229377,
-  "tc_seen_ms": 1793109960000,
-  "date": "2026-10-27",
   "anchor_ms": 1793110020000,
   "last_ms": 1793110020000,
   "sent": [
@@ -1392,15 +1380,25 @@
   "updates": 0,
   "vol_x": 3.1,
   "peak_usd": 255687,
+  "last_eval_ms": 1793110020000,
   "pulse_ms": 1793110020000,
   "anchor_price": 2.66,
   "anchor_open": 2.5315,
   "anchor_low": 2.53,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1793109300000,
+   "anchor_price": 3.0731,
+   "anchor_low": 2.6,
+   "e5": null,
+   "exit_ms": 1793109360000
+  },
   "trig": "T-C",
   "pre_done": true,
   "pre_hi": 3.19,
   "pre_usd": 1565492,
-  "pre_n": 20
+  "pre_n": 20,
+  "date": "2026-10-27"
  },
  "LIQ:YXT": {
   "date": "2026-10-27"
@@ -4496,5 +4494,6 @@
  "CIGL": "2026-10-27",
  "LIQ:ALPS": {
   "date": "2026-10-27"
- }
+ },
+ "WVE": "2026-10-27"
 }
