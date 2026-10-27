@@ -2061,7 +2061,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 7.12,
+   "last_price": 7.125,
    "exact_hold": {
     "pivot": 6.49,
     "pivot_date": "2026-10-20",
@@ -4647,7 +4647,7 @@
    "hit": "t1",
    "hit_date": "2026-10-15",
    "max_gain_pct": 36.1,
-   "last_price": 9.23,
+   "last_price": 9.24,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -5820,7 +5820,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.17,
+   "last_price": 1.16,
    "exact_hold": {
     "pivot": 1.2,
     "pivot_date": "2026-10-20",
@@ -6614,7 +6614,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 7.26,
+   "last_price": 7.3,
    "borrow_hist": [
     [
      "2026-10-01",
@@ -7097,7 +7097,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.09,
+   "last_price": 1.07,
    "exact_hold": {
     "pivot": 0.82,
     "pivot_date": "2026-10-22",
@@ -7835,7 +7835,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.62,
+   "last_price": 3.59,
    "exact_hold": {
     "pivot": 3.3176,
     "pivot_date": "2026-10-23",
@@ -8199,7 +8199,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.5069,
+   "last_price": 0.505,
    "exact_hold": {
     "pivot": 0.4806,
     "pivot_date": "2026-10-26",
@@ -8580,7 +8580,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.8,
+   "last_price": 1.79,
    "exact_hold": {
     "pivot": 1.69,
     "pivot_date": "2026-10-22",
@@ -8593,7 +8593,8 @@
     "asof": "2026-10-26"
    },
    "live_alert": {
-    "breakout": "2026-10-27"
+    "breakout": "2026-10-27",
+    "buyzone": "2026-10-27"
    }
   },
   {
@@ -8958,7 +8959,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.26,
+   "last_price": 1.27,
    "exact_hold": {
     "pivot": 1.15,
     "pivot_date": "2026-10-22",
@@ -10118,7 +10119,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.77,
+   "last_price": 1.7799,
    "exact_hold": {
     "pivot": 1.731,
     "pivot_date": "2026-10-26",
@@ -10922,7 +10923,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 11.75,
+   "last_price": 12.12,
    "live_alert": {
     "breakout": "2026-09-16",
     "dump": "2026-10-16"
@@ -11795,7 +11796,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 0.8153,
+   "last_price": 0.8101,
    "live_alert": {
     "breakout": "2026-09-01",
     "dump": "2026-10-26"
