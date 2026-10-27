@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "a2 · a2b · a3 · a3b · vol · l2 · tape · all (comma-separated)"
+        description: "a2 · a2raw · a2b · a3 · a3b · vol · l2 · tape · all (comma-separated)"
         required: false
         default: "all"
 
