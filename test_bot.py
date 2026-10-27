@@ -88242,9 +88242,11 @@ try:
                                                       window_closed=False, any_testable=False,
                                                       panel=dict(_a1_st(4, 5)["panel"], days=4)), [], {})
     _H6F.OUT = _a1_tmp
-    _a1_buf = _io_tb.StringIO() if "_io_tb" in globals() else __import__("io").StringIO()
+    import contextlib as _a1_ctx
+    import io as _a1_io
+    _a1_buf = _a1_io.StringIO()
     try:
-        with __import__("contextlib").redirect_stdout(_a1_buf):
+        with _a1_ctx.redirect_stdout(_a1_buf):
             _a1_rc = _H6F.main(["status"])
     finally:
         _H6F.build_status, _H6F.OUT = _a1_keep

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 """H6 collection audit (2026-10-15) — reproducible proof of the two instrument defects and of the proposed fixes.
 
-Read-only: nothing is written, nothing is fetched, no production module is changed. The **pre-fix code is read from git
-(`813da7e`, main before H6_PREREG_AMENDMENT_1.md)** so the proof stays true after the fixes shipped; each fix is applied **in memory**
-to a copy of that source, its lock is run against it, and again against a mutation of the fix (it must fail). Exit 0 only if every
-expectation below holds.
+Read-only: nothing in the repository is written, nothing is fetched, no production module is changed. The **pre-fix code and the
+data the audit read are taken from git (`813da7e`, main before H6_PREREG_AMENDMENT_1.md)** so the proof stays true after the fixes
+shipped and after the data moved on (the data files are extracted to a temporary directory, removed at exit); each fix is applied
+**in memory** to a copy of that source, its lock is run against it, and again against a mutation of the fix (it must fail). Exit 0
+only if every expectation below holds. The only live reads are the shipped functions (`Super_stock.build_reject_snapshot`,
+`h6_test.is_session`) and `collector.control_pool`.
 
   python3 fm_forensics/perf/h6_audit_proof.py
 
@@ -16,11 +18,16 @@ D2 sessions counted on weekends: `h6_test.is_session` = `market_calendar.is_trad
    check weekends ⟶ E5 «5 sessions» and E4 «30 sessions» are counted in calendar days.
 """
 import ast
+import atexit
+import io
 import json
 import os
 import random
+import shutil
 import subprocess
 import sys
+import tarfile
+import tempfile
 import textwrap
 import types
 
@@ -58,6 +65,36 @@ def _pre_fn_src(rel, name):
     return ast.get_source_segment(src, node)
 
 
+PANEL_REL = "fm_forensics/phase6/data/PHASE6_CONTROL_PANEL.jsonl"
+LEDGER_REL = "fm_forensics/phase6/data/PHASE6_LEDGER.jsonl"
+PRE_DATA = ("reject_log.json", PANEL_REL, LEDGER_REL, "faisal_method_v41/final_protocol/PROTOCOL_STATUS.json",
+            "faisal_method_v41/final_protocol/intake", "fm_forensics/phase3/FAISAL_TIMELINE.csv",
+            "fm_forensics/phase5/PHASE5_COHORT_MANIFEST.csv")   # every file the audit read (h6_test.build_status + D1)
+_PRE_ROOT = []
+
+
+def _pre_root():
+    """The data files as they were at PRE, extracted once to a temporary directory (our own repository at a pinned commit)."""
+    if not _PRE_ROOT:
+        d = tempfile.mkdtemp(prefix="h6_pre_")
+        atexit.register(shutil.rmtree, d, True)
+        tar = subprocess.run(["git", "-C", ROOT, "archive", "--format=tar", PRE, "--", *PRE_DATA], capture_output=True, check=True).stdout
+        with tarfile.open(fileobj=io.BytesIO(tar)) as t:
+            try:
+                t.extractall(d, filter="data")
+            except TypeError:                       # Python without extraction filters
+                t.extractall(d)
+        _PRE_ROOT.append(d)
+    return _PRE_ROOT[0]
+
+
+def _pre_status(H, today):
+    """`build_status` on the PRE data (cases · annotations · priors · ledger · panel) — not on today's files."""
+    r = _pre_root()
+    return H.build_status(today=today, root=r, ledger_rows=H.load_ledger(os.path.join(r, LEDGER_REL)),
+                          panel=H.load_panel(os.path.join(r, PANEL_REL)))
+
+
 def _compile(fn_src, globs, name):
     ns = {}
     exec(compile(textwrap.dedent(fn_src), f"<{name}>", "exec"), dict(globs), ns)
@@ -66,10 +103,9 @@ def _compile(fn_src, globs, name):
 
 # ── D1 ─────────────────────────────────────────────────────────────────────────────────────────────
 def d1():
-    import inspect
     import Super_stock as S
     import collector as C
-    rl = json.load(open(os.path.join(ROOT, "reject_log.json"), encoding="utf-8"))
+    rl = json.load(open(os.path.join(_pre_root(), "reject_log.json"), encoding="utf-8"))
     ents = [e for e in rl if isinstance(e, dict) and "walls" in e]
     newest = max(e["date"] for e in ents)
     pool_date, pool = C.control_pool(rl, newest)
@@ -80,14 +116,13 @@ def d1():
     print(f"   anchor wall after the pool: {tail}")
     ok("D1-a the anchor wall is sampled in every entry after the pool, and the panel pool lags the newest entry",
        bool(lag) and all(s for *_, s in tail) and all(n > S.REJECT_LOG_MAX_SYMS for _, _, n, _ in tail), tail)
-    panel = [json.loads(x) for x in open(os.path.join(ROOT, "fm_forensics", "phase6", "data", "PHASE6_CONTROL_PANEL.jsonl"),
-                                         encoding="utf-8") if x.strip()]
+    panel = [json.loads(x) for x in open(os.path.join(_pre_root(), PANEL_REL), encoding="utf-8") if x.strip()]
     pds = [(p["obs_date"], p["pool_date"], p["status"]) for p in panel]
     print(f"   panel lines: {pds}")
     ok("D1-b every panel line since 2026-10-09 is OK and drawn from the 2026-10-08 pool",
        pds and all(pd == "2026-10-08" and st == "OK" for _, pd, st in pds), pds)
     H = _pre_h6()
-    st = H.build_status(today=newest)[0]
+    st = _pre_status(H, newest)[0]
     ok("D1-c and `h6_test status` reports the panel healthy (no_pool_days 0 · no pool date or lag field)",
        st["panel"]["no_pool_days"] == 0 and not any("pool" in k and k != "no_pool_days" for k in st["panel"]), st["panel"])
 
@@ -133,7 +168,6 @@ def d1():
 
 # ── D2 ─────────────────────────────────────────────────────────────────────────────────────────────
 def d2():
-    import inspect
     H = _pre_h6()
     print(f"   is_session 2026-10-10 (Sat) = {H.is_session('2026-10-10')} · add_sessions(2026-10-09, 5) = {H.add_sessions('2026-10-09', 5)} "
           f"· sessions_between(2026-10-09, 2026-10-16) = {H.sessions_between('2026-10-09', '2026-10-16')}")
@@ -168,9 +202,9 @@ def d2():
     ok(f"F2 lock H6S1 fails on the pre-fix tool ({PRE} · the defect)", not lock_h6s1(H.is_session))
     import h6_test as H_now
     ok("F2 the shipped tool equals the fix (H6S1 passes on h6_test.is_session)", with_is(H_now.is_session, lambda: lock_h6s1(H_now.is_session)))
-    cur = json.dumps(H.build_status(today="2026-10-15")[0], sort_keys=True)
-    fx = with_is(fixed_is, lambda: json.dumps(H.build_status(today="2026-10-15")[0], sort_keys=True))
-    ok("F2 the fix leaves today's status bit-identical (no unit exists yet ⟹ nothing counted changes)", cur == fx)
+    cur = json.dumps(_pre_status(H, "2026-10-15")[0], sort_keys=True)
+    fx = with_is(fixed_is, lambda: json.dumps(_pre_status(H, "2026-10-15")[0], sort_keys=True))
+    ok("F2 the fix leaves the 2026-10-15 status bit-identical (on the PRE data: no unit existed ⟹ nothing counted changes)", cur == fx)
 
 
 if __name__ == "__main__":
