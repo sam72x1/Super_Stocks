@@ -5794,3 +5794,4 @@
 {"key": "envelope|2026-10-26|WXM", "hunter": "envelope", "session": "2026-10-26", "symbol": "WXM", "kind": "candidate", "ref_close": 2.89, "fwd": 40, "outcome": null, "float": 524633.0, "src": "tradingview"}
 {"key": "envelope|2026-10-26|XAIR", "hunter": "envelope", "session": "2026-10-26", "symbol": "XAIR", "kind": "candidate", "ref_close": 2.14, "fwd": 40, "outcome": null, "float": 761671.0, "src": "tradingview"}
 {"key": "envelope|2026-10-26|YHGJ", "hunter": "envelope", "session": "2026-10-26", "symbol": "YHGJ", "kind": "candidate", "ref_close": 2.66, "fwd": 40, "outcome": null, "float": 669480.0, "src": "tradingview"}
+{"key": "split|2026-10-26|BDAI", "hunter": "split", "session": "2026-10-26", "symbol": "BDAI", "kind": "candidate", "ref_close": 2.09, "fwd": 40, "outcome": null, "price": 2.09, "float": 726315.0, "half": 2.43, "ref": 4.86, "src": "tradingview"}
