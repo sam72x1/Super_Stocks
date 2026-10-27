@@ -1,6 +1,6 @@
 {
  "contract_sha256": "a6f68f745cba189223b1f8258e733dc5e1e538382dfe6533307092d8e942c7ed",
- "today": "2026-10-15",
+ "today": "2026-10-27",
  "cutoff": "2026-10-09",
  "window_end": "2027-04-09",
  "floor": 15,
@@ -83,27 +83,36 @@
  },
  "any_testable": false,
  "panel": {
-  "days": 4,
+  "days": 13,
   "first": "2026-10-09",
-  "last": "2026-10-14",
+  "last": "2026-10-27",
   "no_pool_days": 0,
   "k": 16,
   "pool_date_last": "2026-10-08",
-  "pool_obs_last": "2026-10-14",
-  "pool_lag_entries_last": 4,
+  "pool_obs_last": "2026-10-27",
+  "pool_lag_entries_last": 13,
   "pool_newer_entries": [
    "2026-10-09",
    "2026-10-10",
    "2026-10-13",
-   "2026-10-14"
+   "2026-10-14",
+   "2026-10-15",
+   "2026-10-16",
+   "2026-10-17",
+   "2026-10-20",
+   "2026-10-21",
+   "2026-10-22",
+   "2026-10-23",
+   "2026-10-24",
+   "2026-10-27"
   ]
  },
  "cases_after_cutoff": 0,
  "inputs": {
   "last_photo": "2026-10-08",
-  "sessions_since_last_photo": 5
+  "sessions_since_last_photo": 13
  },
- "ledger_rows": 38304,
+ "ledger_rows": 48979,
  "floor_reached": false,
  "window_closed": false
 }

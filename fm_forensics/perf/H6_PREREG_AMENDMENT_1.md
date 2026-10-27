@@ -2,7 +2,7 @@
 
 > The contract `H6_PREREG.md` is **unchanged** (SHA-256 `a6f68f745cba189223b1f8258e733dc5e1e538382dfe6533307092d8e942c7ed`, still pinned in
 > `h6_test.py`). This file records, as §10 requires, what was fixed after merge and why. The evidence is `H6_COLLECTION_AUDIT.md` (the audit) and
-> `h6_audit_proof.py` (the pre-fix reproduction, 13/13).
+> `h6_audit_proof.py` (the pre-fix reproduction on the audit's code and data from git `813da7e`, 15/15).
 
 ## 1. The owner's explicit permission (verbatim)
 > «اشحن F2 · واشحن سطر الإنذار · واشحن F1 بإذني الصريح (العقد §10) لأن البِركة متجمّدة على 10-08 وكلُّ ضابطٍ قادمٍ بائتٌ بدونه»
@@ -40,15 +40,20 @@ three touches it).
   (no unit exists yet), proven by `h6_audit_proof.py`.
 
 ## 6. Disclosures
-- The panel lines of 2026-10-09 · 10-10 · 10-13 · 10-14 stay as written (append-only): drawn from the 2026-10-08 pool (1–4 entries stale). No unit
-  existed on those days.
-- The entries already written `sampled` (2026-09-30 · 10-01 · 10-03 · 10-09 → 10-14) cannot be recovered in full; F1 acts from the next daily run.
+- The panel lines of 2026-10-09 → 2026-10-27 (13 lines: 10-09 · 10-10 · 10-13 · 10-14 · 10-15 · 10-16 · 10-17 · 10-20 · 10-21 · 10-22 ·
+  10-23 · 10-24 · 10-27) stay as written (append-only): all drawn from the 2026-10-08 pool (1–13 entries stale). No unit existed on those
+  days (no photo reached the bot after 2026-10-08 · `cases_after_cutoff` 0).
+- The entries already written `sampled` (2026-09-30 · 10-01 · 10-03 · 10-09 → 10-27) cannot be recovered in full; F1 acts from the next daily run.
+- Without F1 the panel would lose its pool entirely: `reject_log.json` keeps the last 20 entries and 2026-10-08 is the newest full one; at five
+  entries a week (the Tuesday–Friday runs and the Saturday renewal) it leaves the window with the seventh entry after 2026-10-27 (the
+  2026-11-05 run) — from then `control_pool` returns no pool and every panel line would be `NO_POOL` (no controls at all).
 - **F1 counts as working only when the pool moves:** the first panel after the first daily screener run that follows the merge must show a
   `pool_date` after 2026-10-08 and the anchor wall stored in full (not `sampled`). Until then it is shipped, not proven. The result is recorded
   in `H6_COLLECTION_AUDIT.md` §⑧.
-- Size: `reject_log.json` keeps 20 entries (`REJECT_LOG_DAYS`), 178,152 bytes on 2026-10-14; ≈ 7.84 bytes per stored symbol ⟵ at 432 symbols
-  +251 bytes per entry, ≈ +5 KB on the file; it does not grow month on month (rolling window). Bound: the wall cannot exceed the identity-eligible
-  universe (≈ 3,400 symbols ⟵ +23.5 KB per entry, +470 KB on the file at worst). No separate ceiling is proposed.
+- Size: `reject_log.json` keeps 20 entries (`REJECT_LOG_DAYS`), 185,067 bytes on 2026-10-27; 7.844 bytes per stored symbol ⟵ the largest wall
+  seen (450 symbols, 2026-10-15) adds 392 bytes to its entry, and the 20 entries now in the file would have added 2,910 bytes (+1.6 %) had they
+  been stored in full; it does not grow month on month (rolling window). Bound: the wall cannot exceed the identity-eligible universe (≈ 3,400
+  symbols ⟵ +23.5 KB per entry, +470 KB on the file at worst). No separate ceiling is proposed.
 
 ## 7. Locks (`test_bot.py`, before `LEAK0`) — each fails on the previous code (main `813da7e`) and passes on the fix
 - `H6S1` (F2): Saturday, Sunday and a holiday are not sessions · `add_sessions(2026-10-09, 5) = 2026-10-16` · E5 for ANPA (T = 2026-10-14)
@@ -60,3 +65,11 @@ three touches it).
   `control_pool` picks the day's entry · `full_walls=()` equals the oracle without the exemption · `record_rejected_symbols` writes the wall
   in full (temporary file).
 - Mutations: 12 of 12 fell, each on its own lock; the pre-fix code fails all three.
+
+## 8. Shipping record (2026-10-27)
+- The owner's permission is dated 2026-10-15 and PR #630 was opened that day. Its lint job failed (`F821`: an undefined name in the `H6A1`
+  lock — my error; both test jobs passed) and the session stopped before the correction was pushed. The correction, and
+  `h6_audit_proof.py` reading the audit's data from `813da7e` so its expectations survive the pool moving (15/15), were pushed on 2026-10-27.
+- Meanwhile (2026-10-15 → 10-27): nine more panel lines were drawn from the 2026-10-08 pool (§6) and the E5 window for ANPA
+  (T = 2026-10-14) opened and closed on 2026-10-21 with **zero** photos reaching the bot — ANPA came in the conversation, not to the bot — so
+  the delay changed no unit's eligibility: no unit could exist.
