@@ -6944,6 +6944,15 @@
    "DECISION_DATE": "2026-10-23",
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
+   "LOOKAHEAD": {
+    "LA1_FUTURE_CANDLES": true,
+    "LA2_BLIND_INPUT": true,
+    "LA3_ORDER": true,
+    "LA4_NO_IMAGE_TO_V4": true,
+    "LA5_CORPORATE_ACTION": "PASS_SCALE_INVARIANT",
+    "LA6_REPLAY": true,
+    "verdict": "PASS"
+   },
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -6972,14 +6981,178 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_V4",
-   "SYMBOL": "CYCU"
+   "STATUS": "PENDING_FAISAL",
+   "SYMBOL": "CYCU",
+   "V4": {
+    "15_PERCENT_ZONE": {
+     "in_zone": true,
+     "zone": [
+      2.0,
+      2.3
+     ],
+     "zone_pct": 15.0
+    },
+    "5_SESSION_HOLD": {
+     "met": false,
+     "required": 5,
+     "value": 0
+    },
+    "BOTTOM_CYCLE": {
+     "bottom": 2.0,
+     "bottom_date": "2026-10-22",
+     "cycle_high": 14.72,
+     "cycle_high_date": "2026-07-30"
+    },
+    "CASE_ID": "CASE_0004",
+    "CASE_SHA256": "982d4e999d9d577e3a901983d4e20d02d799eeeb55215697ab0bd0d359b08776",
+    "CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+    "DATA_AVAILABLE": {
+     "bars": 820,
+     "context": {
+      "groups": "UNAVAILABLE: لا مصدرَ نقطيٌّ لدخول القروبات",
+      "offering_pending": "UNAVAILABLE: لا تعريفَ آليٌّ مُتحقَّقٌ لـ«طرحٍ معلَّق» وقتَ النقطة (V41_prereg §⑥)",
+      "operator_press": "UNAVAILABLE: لا مصدرَ لبصمة المضارب بعد انتهاء Polygon 2026-09-29 (CR-01)",
+      "short_available": "UNAVAILABLE: لا صفَّ حصادٍ خلال 3 جلساتٍ قبل القرار والتشغيلُ بعد جلسةٍ منه"
+     },
+     "firewall": "VALID",
+     "last_bar": "2026-10-22",
+     "warns": []
+    },
+    "DECISION_GRAPH": [
+     "tech_state=BROKEN_NEW_BASE",
+     "STATE_DECISION=WAIT",
+     "validity.blocks=[]",
+     "validity.missing=4",
+     "final=WAIT"
+    ],
+    "DECISION_REASON": [
+     "لماذا WAIT؟ كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد (R4-INV-01)",
+     "المستوى الحاسم 2 (السعر 2)"
+    ],
+    "ENTRY_MECHANISM": {
+     "type1_bids": [
+      2.1,
+      2.3
+     ],
+     "type1_rule": "R4-ENT-01 (SUPPORTING)",
+     "type2_liberation": 3.5808,
+     "type2_rule": "R4-ENT-02 (INFORMATIONAL · C-BREAKOUT)"
+    },
+    "FINAL_DECISION": "WAIT",
+    "FINAL_STATE": "WAIT",
+    "GRAPH_CONSISTENT": true,
+    "HOLD_SWEEP_RETURN": {
+     "depth_pct": 22.33,
+     "hold_zone": 3,
+     "sweep_max_pct": 13.0
+    },
+    "INPUT_HASH": "3c8493207ae5df7b09667a4cf1ff7d8b740ab62a784a4dc684dff15b78b82846",
+    "INVALIDATION": [
+     {
+      "name": "القاع (الأساسيّ)",
+      "price": 2.0,
+      "rule": "R4-STOP-01"
+     },
+     {
+      "name": "‏−5% تحت القاع",
+      "price": 1.9,
+      "rule": "R4-STOP-01 (TG_1978)"
+     },
+     {
+      "name": "‏−7% تحت القاع",
+      "price": 1.86,
+      "rule": "R4-STOP-01 (الإنتاج 5-7)"
+     }
+    ],
+    "PATTERN": [
+     "W (V3.1)"
+    ],
+    "RUN_COMMIT": "e6b35e40104cde5bc1d7dc6c33a818b6eddd2f9d",
+    "SNAPSHOT_SHA256": "b88e7edad81575665907265a16199f815960c1f7503498870d1c05e4701dcf0a",
+    "STRUCTURE": {
+     "bottom": 2.0,
+     "bottom_body_low": 2.0,
+     "bottom_date": "2026-10-22",
+     "depth_pct": 22.33,
+     "hold_sessions": 0,
+     "prior_base": 2.575,
+     "rise_pct": 0.0
+    },
+    "TARGET": [
+     {
+      "family": "faisal_ladder",
+      "name": "T1",
+      "price": 3.5808,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T2",
+      "price": 4.3152,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T3",
+      "price": 4.95,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_gain100",
+      "name": "+100%",
+      "price": 4.4,
+      "rule": "R-100-01 · F100-1",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     }
+    ],
+    "TECH_STATE": "BROKEN_NEW_BASE",
+    "TEST_RISE": {
+     "met": false,
+     "required": 15.0,
+     "value": 0.0
+    },
+    "TIMEFRAME": "1D",
+    "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+    "V4_RESULT_SHA256": "e12b9bec1425ed54c030d06eb399337d442f19d8568ccb132352761e93b7663e",
+    "V4_VERSION": "FAISAL-V4 1.0 (2026-10-02) · V4-RULES 1.0 (2026-10-02)",
+    "VALIDITY": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "context_input": {
+      "groups": null,
+      "offering_pending": null,
+      "operator_press": null,
+      "short_available": null
+     },
+     "missing": []
+    }
+   }
   },
   {
    "CASE_ID": "CASE_0005",
    "DECISION_DATE": "2026-10-24",
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
+   "LOOKAHEAD": {
+    "LA1_FUTURE_CANDLES": true,
+    "LA2_BLIND_INPUT": true,
+    "LA3_ORDER": true,
+    "LA4_NO_IMAGE_TO_V4": true,
+    "LA5_CORPORATE_ACTION": "PASS_SCALE_INVARIANT",
+    "LA6_REPLAY": true,
+    "verdict": "PASS"
+   },
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -7008,14 +7181,181 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_V4",
-   "SYMBOL": "ICMB"
+   "STATUS": "PENDING_FAISAL",
+   "SYMBOL": "ICMB",
+   "V4": {
+    "15_PERCENT_ZONE": {
+     "in_zone": true,
+     "zone": [
+      0.6156,
+      0.70794
+     ],
+     "zone_pct": 15.0
+    },
+    "5_SESSION_HOLD": {
+     "met": false,
+     "required": 5,
+     "value": 3
+    },
+    "BOTTOM_CYCLE": {
+     "bottom": 0.6156,
+     "bottom_date": "2026-10-20",
+     "cycle_high": 1.9,
+     "cycle_high_date": "2026-05-04"
+    },
+    "CASE_ID": "CASE_0005",
+    "CASE_SHA256": "88aca6b61a886a588e0a35a345188e397fb829f9a9926854788342b40d51a97c",
+    "CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+    "DATA_AVAILABLE": {
+     "bars": 998,
+     "context": {
+      "groups": "UNAVAILABLE: لا مصدرَ نقطيٌّ لدخول القروبات",
+      "offering_pending": "UNAVAILABLE: لا تعريفَ آليٌّ مُتحقَّقٌ لـ«طرحٍ معلَّق» وقتَ النقطة (V41_prereg §⑥)",
+      "operator_press": "UNAVAILABLE: لا مصدرَ لبصمة المضارب بعد انتهاء Polygon 2026-09-29 (CR-01)",
+      "short_available": "UNAVAILABLE: لا صفَّ حصادٍ خلال 3 جلساتٍ قبل القرار والتشغيلُ بعد جلسةٍ منه"
+     },
+     "firewall": "VALID",
+     "last_bar": "2026-10-23",
+     "warns": []
+    },
+    "DECISION_GRAPH": [
+     "tech_state=PRESS_RECLAIM",
+     "STATE_DECISION=TECH_READY",
+     "validity.blocks=[]",
+     "validity.missing=4",
+     "final=UNKNOWN"
+    ],
+    "DECISION_REASON": [
+     "لماذا UNKNOWN؟ سحبُ سيولةٍ ثمّ عودةٌ فوق القاع السابق (ضغطٌ مكتمل) — والناقص: القروبات (R4-VAL-GRP-01) · الطرح/التخفيف (R4-VAL-OFF-01) · المتاح للشورت (R4-VAL-SHORT-01) · بصمة المضارب/الضغط (R4-OP-01)",
+     {
+      "rule": "R4-SWEEP-01",
+      "why": "سحبُ سيولةٍ ثمّ عودةٌ فوق القاع السابق (ضغطٌ مكتمل)"
+     }
+    ],
+    "ENTRY_MECHANISM": {
+     "type1_bids": [
+      0.64638,
+      0.70794
+     ],
+     "type1_rule": "R4-ENT-01 (SUPPORTING)",
+     "type2_liberation": 0.8,
+     "type2_rule": "R4-ENT-02 (INFORMATIONAL · C-BREAKOUT)"
+    },
+    "FINAL_DECISION": "UNKNOWN",
+    "FINAL_STATE": "UNKNOWN",
+    "GRAPH_CONSISTENT": true,
+    "HOLD_SWEEP_RETURN": {
+     "depth_pct": 5.29,
+     "hold_zone": 3,
+     "sweep_max_pct": 13.0
+    },
+    "INPUT_HASH": "749174da325815139360477294513c7e5e63c3a573df781b68875ca6eeff92ed",
+    "INVALIDATION": [
+     {
+      "name": "القاع (الأساسيّ)",
+      "price": 0.6156,
+      "rule": "R4-STOP-01"
+     },
+     {
+      "name": "‏−5% تحت القاع",
+      "price": 0.58482,
+      "rule": "R4-STOP-01 (TG_1978)"
+     },
+     {
+      "name": "‏−7% تحت القاع",
+      "price": 0.572508,
+      "rule": "R4-STOP-01 (الإنتاج 5-7)"
+     }
+    ],
+    "PATTERN": [
+     "W (V3.1)"
+    ],
+    "RUN_COMMIT": "e6b35e40104cde5bc1d7dc6c33a818b6eddd2f9d",
+    "SNAPSHOT_SHA256": "25c61f43ba06e8feb336d2e9b7769e0cf492681291ffa4d850bec65323867c02",
+    "STRUCTURE": {
+     "bottom": 0.6156,
+     "bottom_body_low": 0.62,
+     "bottom_date": "2026-10-20",
+     "depth_pct": 5.29,
+     "hold_sessions": 3,
+     "prior_base": 0.65,
+     "rise_pct": 13.71
+    },
+    "TARGET": [
+     {
+      "family": "faisal_ladder",
+      "name": "T1",
+      "price": 0.8,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T2",
+      "price": 0.87,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T3",
+      "price": 0.89,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_gain100",
+      "name": "+100%",
+      "price": 1.3543,
+      "rule": "R-100-01 · F100-1",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     }
+    ],
+    "TECH_STATE": "PRESS_RECLAIM",
+    "TEST_RISE": {
+     "met": false,
+     "required": 15.0,
+     "value": 13.71
+    },
+    "TIMEFRAME": "1D",
+    "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+    "V4_RESULT_SHA256": "fafdc0a99f0c67ec945271973143b62cd9256fba8b810ce116f34280f7044e79",
+    "V4_VERSION": "FAISAL-V4 1.0 (2026-10-02) · V4-RULES 1.0 (2026-10-02)",
+    "VALIDITY": {
+     "blocking": [],
+     "context_input": {
+      "groups": null,
+      "offering_pending": null,
+      "operator_press": null,
+      "short_available": null
+     },
+     "missing": [
+      "القروبات (R4-VAL-GRP-01)",
+      "الطرح/التخفيف (R4-VAL-OFF-01)",
+      "المتاح للشورت (R4-VAL-SHORT-01)",
+      "بصمة المضارب/الضغط (R4-OP-01)"
+     ]
+    }
+   }
   },
   {
    "CASE_ID": "CASE_0006",
    "DECISION_DATE": "2026-10-22",
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
+   "LOOKAHEAD": {
+    "LA1_FUTURE_CANDLES": true,
+    "LA2_BLIND_INPUT": true,
+    "LA3_ORDER": true,
+    "LA4_NO_IMAGE_TO_V4": true,
+    "LA5_CORPORATE_ACTION": "PASS_SCALE_INVARIANT",
+    "LA6_REPLAY": true,
+    "verdict": "PASS"
+   },
    "PROVENANCE": {
     "basis": "VISIBLE_POST_TIMESTAMP",
     "decision_date_from_post": "2026-10-22",
@@ -7042,14 +7382,177 @@
    },
    "PROVENANCE_CONFIDENCE": "MEDIUM",
    "SAMPLE": "PRIMARY",
-   "STATUS": "PENDING_V4",
-   "SYMBOL": "BKYI"
+   "STATUS": "PENDING_FAISAL",
+   "SYMBOL": "BKYI",
+   "V4": {
+    "15_PERCENT_ZONE": {
+     "in_zone": false,
+     "zone": [
+      1.55,
+      1.7825
+     ],
+     "zone_pct": 15.0
+    },
+    "5_SESSION_HOLD": {
+     "met": true,
+     "required": 5,
+     "value": 7
+    },
+    "BOTTOM_CYCLE": {
+     "bottom": 1.55,
+     "bottom_date": "2026-10-12",
+     "cycle_high": 6.1,
+     "cycle_high_date": "2026-07-07"
+    },
+    "CASE_ID": "CASE_0006",
+    "CASE_SHA256": "c1bb3febb35507db9e62aed90bc09b4d3bb6d3f2ad45564fccb12e1600278009",
+    "CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+    "DATA_AVAILABLE": {
+     "bars": 996,
+     "context": {
+      "groups": "UNAVAILABLE: لا مصدرَ نقطيٌّ لدخول القروبات",
+      "offering_pending": "UNAVAILABLE: لا تعريفَ آليٌّ مُتحقَّقٌ لـ«طرحٍ معلَّق» وقتَ النقطة (V41_prereg §⑥)",
+      "operator_press": "UNAVAILABLE: لا مصدرَ لبصمة المضارب بعد انتهاء Polygon 2026-09-29 (CR-01)",
+      "short_available": "UNAVAILABLE: لا صفَّ حصادٍ خلال 3 جلساتٍ قبل القرار والتشغيلُ بعد جلسةٍ منه"
+     },
+     "firewall": "VALID",
+     "last_bar": "2026-10-21",
+     "warns": []
+    },
+    "DECISION_GRAPH": [
+     "tech_state=RETEST_PENDING",
+     "STATE_DECISION=WAIT",
+     "validity.blocks=[]",
+     "validity.missing=4",
+     "final=WAIT"
+    ],
+    "DECISION_REASON": [
+     "لماذا WAIT؟ صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم (R4-LOC-01)",
+     "المستوى الحاسم 1.62 (السعر 2.1)"
+    ],
+    "ENTRY_MECHANISM": {
+     "type1_bids": [
+      1.6275,
+      1.7825
+     ],
+     "type1_rule": "R4-ENT-01 (SUPPORTING)",
+     "type2_liberation": 2.8843,
+     "type2_rule": "R4-ENT-02 (INFORMATIONAL · C-BREAKOUT)"
+    },
+    "FINAL_DECISION": "WAIT",
+    "FINAL_STATE": "WAIT",
+    "GRAPH_CONSISTENT": true,
+    "HOLD_SWEEP_RETURN": {
+     "depth_pct": null,
+     "hold_zone": 3,
+     "sweep_max_pct": 13.0
+    },
+    "INPUT_HASH": "42def2b8d1af549566a0afa0ac8cd2612c42c69af5e697ee1e11b513051fcc1f",
+    "INVALIDATION": [
+     {
+      "name": "القاع (الأساسيّ)",
+      "price": 1.55,
+      "rule": "R4-STOP-01"
+     },
+     {
+      "name": "‏−5% تحت القاع",
+      "price": 1.4725,
+      "rule": "R4-STOP-01 (TG_1978)"
+     },
+     {
+      "name": "‏−7% تحت القاع",
+      "price": 1.4415,
+      "rule": "R4-STOP-01 (الإنتاج 5-7)"
+     }
+    ],
+    "PATTERN": [
+     "W (V3.1)"
+    ],
+    "RUN_COMMIT": "e6b35e40104cde5bc1d7dc6c33a818b6eddd2f9d",
+    "SNAPSHOT_SHA256": "82ba468c88ed83d6112381ffde498e1c097805470f0995c4f390d262a0634ef2",
+    "STRUCTURE": {
+     "bottom": 1.55,
+     "bottom_body_low": 1.62,
+     "bottom_date": "2026-10-12",
+     "hold_sessions": 7,
+     "prior_base": 1.63,
+     "rise_pct": 177.419
+    },
+    "TARGET": [
+     {
+      "family": "faisal_ladder",
+      "name": "T1",
+      "price": 2.8843,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T2",
+      "price": 3.3,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T3",
+      "price": 4.3,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_gain100",
+      "name": "+100%",
+      "price": 3.41,
+      "rule": "R-100-01 · F100-1",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     }
+    ],
+    "TECH_STATE": "RETEST_PENDING",
+    "TEST_RISE": {
+     "met": true,
+     "required": 15.0,
+     "value": 177.419
+    },
+    "TIMEFRAME": "1D",
+    "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+    "V4_RESULT_SHA256": "6f37249512d47a04ae41d39d53a2e2647c27121762b88530dceb1eec4da01ed0",
+    "V4_VERSION": "FAISAL-V4 1.0 (2026-10-02) · V4-RULES 1.0 (2026-10-02)",
+    "VALIDITY": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      }
+     ],
+     "context_input": {
+      "groups": null,
+      "offering_pending": null,
+      "operator_press": null,
+      "short_available": null
+     },
+     "missing": []
+    }
+   }
   },
   {
    "CASE_ID": "CASE_0007",
    "DECISION_DATE": "2026-10-14",
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
+   "LOOKAHEAD": {
+    "LA1_FUTURE_CANDLES": true,
+    "LA2_BLIND_INPUT": true,
+    "LA3_ORDER": true,
+    "LA4_NO_IMAGE_TO_V4": true,
+    "LA5_CORPORATE_ACTION": "PASS_SCALE_INVARIANT",
+    "LA6_REPLAY": true,
+    "verdict": "PASS"
+   },
    "PROVENANCE": {
     "basis": "VISIBLE_POST_TIMESTAMP",
     "decision_date_from_post": "2026-10-14",
@@ -7076,14 +7579,178 @@
    },
    "PROVENANCE_CONFIDENCE": "MEDIUM",
    "SAMPLE": "PRIMARY",
-   "STATUS": "PENDING_V4",
-   "SYMBOL": "ANPA"
+   "STATUS": "PENDING_FAISAL",
+   "SYMBOL": "ANPA",
+   "V4": {
+    "15_PERCENT_ZONE": {
+     "in_zone": false,
+     "zone": [
+      1.6,
+      1.84
+     ],
+     "zone_pct": 15.0
+    },
+    "5_SESSION_HOLD": {
+     "met": false,
+     "required": 5,
+     "value": 0
+    },
+    "BOTTOM_CYCLE": {
+     "bottom": 1.6,
+     "bottom_date": "2026-10-13",
+     "cycle_high": 11.37,
+     "cycle_high_date": "2026-05-08"
+    },
+    "CASE_ID": "CASE_0007",
+    "CASE_SHA256": "4e35f0bdb07d7e3b6f79ae0d025ff94934d68e4cee40c964c2b578ec4296c6fe",
+    "CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+    "DATA_AVAILABLE": {
+     "bars": 317,
+     "context": {
+      "groups": "UNAVAILABLE: لا مصدرَ نقطيٌّ لدخول القروبات",
+      "offering_pending": "UNAVAILABLE: لا تعريفَ آليٌّ مُتحقَّقٌ لـ«طرحٍ معلَّق» وقتَ النقطة (V41_prereg §⑥)",
+      "operator_press": "UNAVAILABLE: لا مصدرَ لبصمة المضارب بعد انتهاء Polygon 2026-09-29 (CR-01)",
+      "short_available": "UNAVAILABLE: لا صفَّ حصادٍ خلال 3 جلساتٍ قبل القرار والتشغيلُ بعد جلسةٍ منه"
+     },
+     "firewall": "VALID",
+     "last_bar": "2026-10-13",
+     "warns": []
+    },
+    "DECISION_GRAPH": [
+     "tech_state=BROKEN_NEW_BASE",
+     "STATE_DECISION=WAIT",
+     "validity.blocks=[]",
+     "validity.missing=4",
+     "final=WAIT"
+    ],
+    "DECISION_REASON": [
+     "لماذا WAIT؟ كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد (R4-INV-01)",
+     "المستوى الحاسم 1.6 (السعر 1.86)"
+    ],
+    "ENTRY_MECHANISM": {
+     "type1_bids": [
+      1.68,
+      1.84
+     ],
+     "type1_rule": "R4-ENT-01 (SUPPORTING)",
+     "type2_liberation": 2.17,
+     "type2_rule": "R4-ENT-02 (INFORMATIONAL · C-BREAKOUT)"
+    },
+    "FINAL_DECISION": "WAIT",
+    "FINAL_STATE": "WAIT",
+    "GRAPH_CONSISTENT": true,
+    "HOLD_SWEEP_RETURN": {
+     "depth_pct": 13.51,
+     "hold_zone": 3,
+     "sweep_max_pct": 13.0
+    },
+    "INPUT_HASH": "ec527177326937ced2f4be6b887a843dcbde404e11009e974c996c49e25d5605",
+    "INVALIDATION": [
+     {
+      "name": "القاع (الأساسيّ)",
+      "price": 1.6,
+      "rule": "R4-STOP-01"
+     },
+     {
+      "name": "‏−5% تحت القاع",
+      "price": 1.52,
+      "rule": "R4-STOP-01 (TG_1978)"
+     },
+     {
+      "name": "‏−7% تحت القاع",
+      "price": 1.488,
+      "rule": "R4-STOP-01 (الإنتاج 5-7)"
+     }
+    ],
+    "PATTERN": [
+     "W (V3.1)"
+    ],
+    "RUN_COMMIT": "e6b35e40104cde5bc1d7dc6c33a818b6eddd2f9d",
+    "SNAPSHOT_SHA256": "188aacf18a715b22e2e8b17d58f633011aae33100035d6cdad438a3647151563",
+    "STRUCTURE": {
+     "bottom": 1.6,
+     "bottom_body_low": 1.76,
+     "bottom_date": "2026-10-13",
+     "depth_pct": 13.51,
+     "hold_sessions": 0,
+     "prior_base": 1.85,
+     "rise_pct": 0.0
+    },
+    "TARGET": [
+     {
+      "family": "faisal_ladder",
+      "name": "T1",
+      "price": 2.17,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T2",
+      "price": 4.3811,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T3",
+      "price": 4.5,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_gain100",
+      "name": "+100%",
+      "price": 3.52,
+      "rule": "R-100-01 · F100-1",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     }
+    ],
+    "TECH_STATE": "BROKEN_NEW_BASE",
+    "TEST_RISE": {
+     "met": false,
+     "required": 15.0,
+     "value": 0.0
+    },
+    "TIMEFRAME": "1D",
+    "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+    "V4_RESULT_SHA256": "a7c0ff9b11ef1c0af197efd10e29e69084ba13385bcd0b5fe1fae5535c8400e9",
+    "V4_VERSION": "FAISAL-V4 1.0 (2026-10-02) · V4-RULES 1.0 (2026-10-02)",
+    "VALIDITY": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "context_input": {
+      "groups": null,
+      "offering_pending": null,
+      "operator_press": null,
+      "short_available": null
+     },
+     "missing": []
+    }
+   }
   },
   {
    "CASE_ID": "CASE_0008",
    "DECISION_DATE": "2026-10-10",
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
+   "LOOKAHEAD": {
+    "LA1_FUTURE_CANDLES": true,
+    "LA2_BLIND_INPUT": true,
+    "LA3_ORDER": true,
+    "LA4_NO_IMAGE_TO_V4": true,
+    "LA5_CORPORATE_ACTION": "PASS_SCALE_INVARIANT",
+    "LA6_REPLAY": true,
+    "verdict": "PASS"
+   },
    "PROVENANCE": {
     "basis": "VISIBLE_POST_TIMESTAMP",
     "decision_date_from_post": "2026-10-10",
@@ -7112,8 +7779,163 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_V4",
-   "SYMBOL": "NCT"
+   "STATUS": "PENDING_FAISAL",
+   "SYMBOL": "NCT",
+   "V4": {
+    "15_PERCENT_ZONE": {
+     "in_zone": false,
+     "zone": [
+      1.25,
+      1.4375
+     ],
+     "zone_pct": 15.0
+    },
+    "5_SESSION_HOLD": {
+     "met": false,
+     "required": 5,
+     "value": 2
+    },
+    "BOTTOM_CYCLE": {
+     "bottom": 1.25,
+     "bottom_date": "2026-10-07",
+     "cycle_high": 154.0,
+     "cycle_high_date": "2026-09-02"
+    },
+    "CASE_ID": "CASE_0008",
+    "CASE_SHA256": "244b393517dc6565ee5f9d52aef0cd8011895da2381fcee0cd859b9a041a8c97",
+    "CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+    "DATA_AVAILABLE": {
+     "bars": 988,
+     "context": {
+      "groups": "UNAVAILABLE: لا مصدرَ نقطيٌّ لدخول القروبات",
+      "offering_pending": "UNAVAILABLE: لا تعريفَ آليٌّ مُتحقَّقٌ لـ«طرحٍ معلَّق» وقتَ النقطة (V41_prereg §⑥)",
+      "operator_press": "UNAVAILABLE: لا مصدرَ لبصمة المضارب بعد انتهاء Polygon 2026-09-29 (CR-01)",
+      "short_available": "UNAVAILABLE: لا صفَّ حصادٍ خلال 3 جلساتٍ قبل القرار والتشغيلُ بعد جلسةٍ منه"
+     },
+     "firewall": "VALID",
+     "last_bar": "2026-10-09",
+     "warns": []
+    },
+    "DECISION_GRAPH": [
+     "tech_state=BROKEN_NEW_BASE",
+     "STATE_DECISION=WAIT",
+     "validity.blocks=[]",
+     "validity.missing=4",
+     "final=WAIT"
+    ],
+    "DECISION_REASON": [
+     "لماذا WAIT؟ كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد (R4-INV-01)",
+     "المستوى الحاسم 1.25 (السعر 1.49)"
+    ],
+    "ENTRY_MECHANISM": {
+     "type1_bids": [
+      1.3125,
+      1.4375
+     ],
+     "type1_rule": "R4-ENT-01 (SUPPORTING)",
+     "type2_liberation": 14.47,
+     "type2_rule": "R4-ENT-02 (INFORMATIONAL · C-BREAKOUT)"
+    },
+    "FINAL_DECISION": "WAIT",
+    "FINAL_STATE": "WAIT",
+    "GRAPH_CONSISTENT": true,
+    "HOLD_SWEEP_RETURN": {
+     "depth_pct": 80.77,
+     "hold_zone": 3,
+     "sweep_max_pct": 13.0
+    },
+    "INPUT_HASH": "844adf69dfaf6680474eb2d2f6dbf0b372a8adc2e282fdfc5cdcaa672e95007f",
+    "INVALIDATION": [
+     {
+      "name": "القاع (الأساسيّ)",
+      "price": 1.25,
+      "rule": "R4-STOP-01"
+     },
+     {
+      "name": "‏−5% تحت القاع",
+      "price": 1.1875,
+      "rule": "R4-STOP-01 (TG_1978)"
+     },
+     {
+      "name": "‏−7% تحت القاع",
+      "price": 1.1625,
+      "rule": "R4-STOP-01 (الإنتاج 5-7)"
+     }
+    ],
+    "PATTERN": [
+     "W (V3.1)"
+    ],
+    "RUN_COMMIT": "e6b35e40104cde5bc1d7dc6c33a818b6eddd2f9d",
+    "SNAPSHOT_SHA256": "512e20b0df9041c019310a9d28730d79131a2252931207787c09f07dcb76c752",
+    "STRUCTURE": {
+     "bottom": 1.25,
+     "bottom_body_low": 1.37,
+     "bottom_date": "2026-10-07",
+     "depth_pct": 80.77,
+     "hold_sessions": 2,
+     "prior_base": 6.5,
+     "rise_pct": 79.2
+    },
+    "TARGET": [
+     {
+      "family": "faisal_ladder",
+      "name": "T1",
+      "price": 14.47,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T2",
+      "price": 59.75,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T3",
+      "price": 70.5,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_gain100",
+      "name": "+100%",
+      "price": 2.75,
+      "rule": "R-100-01 · F100-1",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     }
+    ],
+    "TECH_STATE": "BROKEN_NEW_BASE",
+    "TEST_RISE": {
+     "met": true,
+     "required": 15.0,
+     "value": 79.2
+    },
+    "TIMEFRAME": "1D",
+    "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+    "V4_RESULT_SHA256": "1878564df1199f241ed9a5d3bd8a66637bd9f26d2a73cd38e6dc4c789ffe607a",
+    "V4_VERSION": "FAISAL-V4 1.0 (2026-10-02) · V4-RULES 1.0 (2026-10-02)",
+    "VALIDITY": {
+     "blocking": [
+      {
+       "rule": "R4-INV-01",
+       "why": "كُسر القاعُ السابق بأبعد من مدى السحب — تحليلٌ جديدٌ من القاع الجديد"
+      }
+     ],
+     "context_input": {
+      "groups": null,
+      "offering_pending": null,
+      "operator_press": null,
+      "short_available": null
+     },
+     "missing": []
+    }
+   }
   }
  ],
  "contract": "faisal_method_v41/FINAL_PROTOCOL_prereg.md",

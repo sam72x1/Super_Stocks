@@ -1027,6 +1027,66 @@
    "sha256": "244b393517dc6565ee5f9d52aef0cd8011895da2381fcee0cd859b9a041a8c97",
    "utc": "2026-10-27T21:00:31Z",
    "version": 1
+  },
+  {
+   "case_id": "CASE_0004",
+   "case_version": 1,
+   "entry_hash": "c39bf32f245f25bf7c963bc7637650de392b42c9b4c4db545e654876826cfcc3",
+   "kind": "v4",
+   "path": "decisions/CASE_0004.v1.r11.v4.json",
+   "prev": "b9b8c49c6b89c0a8955711db393a81fd6461bc6317800ab057ff35ebc4de140e",
+   "run": 1,
+   "seq": 102,
+   "sha256": "39f66046c2f093922b37a85422c994a88c4e77e36b89a2c38935ad1fe806d0d2",
+   "utc": "2026-10-27T21:51:53Z"
+  },
+  {
+   "case_id": "CASE_0005",
+   "case_version": 1,
+   "entry_hash": "1bd9a4d5577efc9944f4af1e326e111170933e21fad8969821a7fef837c4f7e1",
+   "kind": "v4",
+   "path": "decisions/CASE_0005.v1.r11.v4.json",
+   "prev": "c39bf32f245f25bf7c963bc7637650de392b42c9b4c4db545e654876826cfcc3",
+   "run": 1,
+   "seq": 103,
+   "sha256": "cb23f90bbf94c99167266c7d9e98c95964fa5c8b2d7431ad0f5692af4a92a62d",
+   "utc": "2026-10-27T21:51:54Z"
+  },
+  {
+   "case_id": "CASE_0006",
+   "case_version": 1,
+   "entry_hash": "5c9ccf55a20a314b1b1d13483a26193c6c447d5fd79efefb1d57cceae74eda63",
+   "kind": "v4",
+   "path": "decisions/CASE_0006.v1.r11.v4.json",
+   "prev": "1bd9a4d5577efc9944f4af1e326e111170933e21fad8969821a7fef837c4f7e1",
+   "run": 1,
+   "seq": 104,
+   "sha256": "6669e0b094189d65b8030826c782679c27a9b1e26dc0e5b5781f776e56967d20",
+   "utc": "2026-10-27T21:51:55Z"
+  },
+  {
+   "case_id": "CASE_0007",
+   "case_version": 1,
+   "entry_hash": "6683bc6aff8d8abf1417e03ad64ccc938f532c6a5cf08495895fb7a2b72bff66",
+   "kind": "v4",
+   "path": "decisions/CASE_0007.v1.r11.v4.json",
+   "prev": "5c9ccf55a20a314b1b1d13483a26193c6c447d5fd79efefb1d57cceae74eda63",
+   "run": 1,
+   "seq": 105,
+   "sha256": "54a63cd46aeca6380d521f5aade747083149e3c27204d7d939901f7335d9abd9",
+   "utc": "2026-10-27T21:51:56Z"
+  },
+  {
+   "case_id": "CASE_0008",
+   "case_version": 1,
+   "entry_hash": "1dec121d378ce7617da3c37f7ab08d4336ca9797e80a03d6222812e9775cf2e5",
+   "kind": "v4",
+   "path": "decisions/CASE_0008.v1.r11.v4.json",
+   "prev": "6683bc6aff8d8abf1417e03ad64ccc938f532c6a5cf08495895fb7a2b72bff66",
+   "run": 1,
+   "seq": 106,
+   "sha256": "2f0b4a82f96e16f0a4bcae59d302204a3cd4cf78ad0fb2cb4054f7af0b562890",
+   "utc": "2026-10-27T21:51:57Z"
   }
  ],
  "schema": 1,
