@@ -337,7 +337,7 @@
    "hit": "t2",
    "hit_date": "2026-08-14",
    "max_gain_pct": 91.2,
-   "last_price": 2.11,
+   "last_price": 2.08,
    "borrow_hist": [
     [
      "2026-10-01",
@@ -399,7 +399,7 @@
    "live_alert": {
     "premarket": "2026-08-14",
     "breakout": "2026-10-06",
-    "buyzone": "2026-10-26",
+    "buyzone": "2026-10-27",
     "sweep": "2026-09-29",
     "break": "2026-10-15"
    },
@@ -787,7 +787,7 @@
    "max_gain_pct": 6.2,
    "last_price": 1.05,
    "live_alert": {
-    "buyzone": "2026-10-26"
+    "buyzone": "2026-10-27"
    },
    "price_state": "VALID",
    "price_bar": "2026-10-26",
@@ -1169,7 +1169,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 12.9,
-   "last_price": 26.5,
+   "last_price": 28.5,
    "live_alert": {
     "breakout": "2026-08-31"
    },
@@ -1666,9 +1666,9 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 4.7,
-   "last_price": 4.01,
+   "last_price": 4.13,
    "live_alert": {
-    "buyzone": "2026-10-26"
+    "buyzone": "2026-10-27"
    },
    "price_state": "VALID",
    "price_bar": "2026-10-26",
@@ -2060,7 +2060,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 6.86,
+   "last_price": 6.805,
    "exact_hold": {
     "pivot": 6.49,
     "pivot_date": "2026-10-20",
@@ -2072,7 +2072,9 @@
     "daily_low": 6.49,
     "asof": "2026-10-26"
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-10-27"
+   }
   },
   {
    "symbol": "KMRK",
@@ -2451,7 +2453,7 @@
    "hit": "t2",
    "hit_date": "2026-10-14",
    "max_gain_pct": 30.2,
-   "last_price": 1.43,
+   "last_price": 1.49,
    "live_alert": {
     "breakout": "2026-10-14"
    },
@@ -2889,9 +2891,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.3,
-   "last_price": 0.8644,
+   "last_price": 0.9489,
    "live_alert": {
-    "buyzone": "2026-10-26"
+    "buyzone": "2026-10-26",
+    "breakout": "2026-10-27"
    },
    "price_state": "VALID",
    "price_bar": "2026-10-26",
@@ -3326,7 +3329,7 @@
    "hit": "t2",
    "hit_date": "2026-10-26",
    "max_gain_pct": 81.3,
-   "last_price": 2.82,
+   "last_price": 2.79,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -3760,7 +3763,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 5.8,
-   "last_price": 3.6,
+   "last_price": 3.795,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -4170,7 +4173,7 @@
    "hit": "t1",
    "hit_date": "2026-09-25",
    "max_gain_pct": 21.5,
-   "last_price": 4.6001,
+   "last_price": 4.75,
    "faisal_levels": "🧭 إغلاقات الهابطة $4.62 · $4.63 · $4.64 · جسم قبل الهبوط $5.31 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-10-19"
@@ -4642,7 +4645,7 @@
    "hit": "t1",
    "hit_date": "2026-10-15",
    "max_gain_pct": 36.1,
-   "last_price": 8.99,
+   "last_price": 8.97,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -5043,7 +5046,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 6.7,
-   "last_price": 8.02,
+   "last_price": 8.13,
    "borrow_hist": [
     [
      "2026-10-23",
@@ -5441,7 +5444,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.59,
+   "last_price": 2.62,
    "exact_hold": {
     "pivot": 2.52,
     "pivot_date": "2026-10-16",
@@ -5453,7 +5456,9 @@
     "daily_low": 2.52,
     "asof": "2026-10-26"
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-10-27"
+   }
   },
   {
    "symbol": "MTVA",
@@ -5813,7 +5818,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.215,
+   "last_price": 1.16,
    "exact_hold": {
     "pivot": 1.2,
     "pivot_date": "2026-10-20",
@@ -5825,7 +5830,9 @@
     "daily_low": 1.2,
     "asof": "2026-10-26"
    },
-   "live_alert": {}
+   "live_alert": {
+    "break": "2026-10-27"
+   }
   },
   {
    "symbol": "JZXN",
@@ -6211,7 +6218,7 @@
    "max_gain_pct": 4.2,
    "last_price": 1.05,
    "live_alert": {
-    "buyzone": "2026-10-26"
+    "buyzone": "2026-10-27"
    },
    "price_state": "VALID",
    "price_bar": "2026-10-26",
@@ -6605,7 +6612,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 6.97,
+   "last_price": 6.695,
    "borrow_hist": [
     [
      "2026-10-01",
@@ -7088,7 +7095,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.8585,
+   "last_price": 0.96,
    "exact_hold": {
     "pivot": 0.82,
     "pivot_date": "2026-10-22",
@@ -7100,7 +7107,9 @@
     "daily_low": 0.82,
     "asof": "2026-10-26"
    },
-   "live_alert": {}
+   "live_alert": {
+    "breakout": "2026-10-27"
+   }
   },
   {
    "symbol": "EPSM",
@@ -7465,7 +7474,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.9001,
+   "last_price": 0.9,
    "exact_hold": {
     "pivot": 0.89,
     "pivot_date": "2026-10-22",
@@ -7477,7 +7486,9 @@
     "daily_low": 0.89,
     "asof": "2026-10-26"
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-10-27"
+   }
   },
   {
    "symbol": "BCTX",
@@ -7821,7 +7832,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.5,
+   "last_price": 3.4522,
    "exact_hold": {
     "pivot": 3.3176,
     "pivot_date": "2026-10-23",
@@ -7833,7 +7844,9 @@
     "daily_low": 3.3176,
     "asof": "2026-10-26"
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-10-27"
+   }
   },
   {
    "symbol": "PRZO",
@@ -8183,7 +8196,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.484,
+   "last_price": 0.4936,
    "exact_hold": {
     "pivot": 0.4806,
     "pivot_date": "2026-10-26",
@@ -8195,7 +8208,9 @@
     "daily_low": 0.4823,
     "asof": "2026-10-26"
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-10-27"
+   }
   },
   {
    "symbol": "PLSM",
@@ -8937,7 +8952,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.17,
+   "last_price": 1.21,
    "exact_hold": {
     "pivot": 1.15,
     "pivot_date": "2026-10-22",
@@ -8949,7 +8964,9 @@
     "daily_low": 1.15,
     "asof": "2026-10-26"
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-10-27"
+   }
   },
   {
    "symbol": "FRSX",
@@ -9313,7 +9330,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.7601,
+   "last_price": 0.78,
    "exact_hold": {
     "pivot": 0.5858,
     "pivot_date": "2026-10-13",
@@ -9692,7 +9709,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 10.61,
+   "last_price": 10.62,
    "exact_hold": {
     "pivot": 10.6,
     "pivot_date": "2026-10-21",
@@ -9704,7 +9721,9 @@
     "daily_low": 10.6,
     "asof": "2026-10-26"
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-10-27"
+   }
   },
   {
    "symbol": "CXAI",
@@ -10090,7 +10109,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.76,
+   "last_price": 1.7986,
    "exact_hold": {
     "pivot": 1.731,
     "pivot_date": "2026-10-26",
@@ -10102,7 +10121,10 @@
     "daily_low": 1.731,
     "asof": "2026-10-26"
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-10-27",
+    "breakout": "2026-10-27"
+   }
   },
   {
    "symbol": "PSIG",
@@ -10415,7 +10437,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 365.6,
-   "last_price": 4.4,
+   "last_price": 4.39,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -10891,7 +10913,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 11.15,
+   "last_price": 12.1,
    "live_alert": {
     "breakout": "2026-09-16",
     "dump": "2026-10-16"
@@ -11327,7 +11349,7 @@
    "hit": "t1",
    "hit_date": "2026-09-21",
    "max_gain_pct": 13.3,
-   "last_price": 1.06,
+   "last_price": 1.08,
    "live_alert": {
     "breakout": "2026-09-28",
     "sweep": "2026-10-15"
@@ -11764,7 +11786,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 0.75,
+   "last_price": 0.7844,
    "live_alert": {
     "breakout": "2026-09-01",
     "dump": "2026-10-26"
@@ -13811,7 +13833,7 @@
    "sector": "Technology",
    "country": "Hong Kong",
    "float": 14864979,
-   "last_price": 9.74,
+   "last_price": 9.7,
    "status": "watching",
    "triggered_date": null
   },
@@ -13947,9 +13969,9 @@
    "sector": "Basic Materials",
    "country": "Israel",
    "float": 735038,
-   "last_price": 0.5623,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 0.5405,
+   "status": "triggered",
+   "triggered_date": "2026-10-27"
   },
   {
    "symbol": "CRBU",
@@ -13981,9 +14003,9 @@
    "sector": "Healthcare",
    "country": "United States",
    "float": 102908492,
-   "last_price": 0.4922,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 0.4662,
+   "status": "triggered",
+   "triggered_date": "2026-10-27"
   },
   {
    "symbol": "BRNX",
