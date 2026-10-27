@@ -1,39 +1,7 @@
 {
- "run_id": "40074740135",
+ "run_id": "40473041300",
  "result": {
   "done": [
-   "CUPR",
-   "DCOY",
-   "DKI",
-   "DRMA",
-   "DSY",
-   "DXST",
-   "EDBL",
-   "EHGO",
-   "ELAB",
-   "ELPW",
-   "ENPH",
-   "ENVB",
-   "EZRA",
-   "FGF",
-   "FIEE",
-   "FRSX",
-   "UPC",
-   "VEEE",
-   "VMAR",
-   "WHLR",
-   "WORX",
-   "XCUR",
-   "YMT",
-   "ZCMD",
-   "ZNB",
-   "BTOG",
-   "CANF",
-   "CDIO",
-   "CDT",
-   "CETX",
-   "CIIT",
-   "CRE",
    "FUBO",
    "FULC",
    "GCTK",
@@ -90,29 +58,61 @@
    "STKH",
    "SVRE",
    "SXTC",
-   "TRUG"
+   "TRUG",
+   "BTOG",
+   "CANF",
+   "CDIO",
+   "CDT",
+   "CETX",
+   "CIIT",
+   "CRE",
+   "CUPR",
+   "DCOY",
+   "DKI",
+   "DRMA",
+   "DSY",
+   "DXST",
+   "EDBL",
+   "EHGO",
+   "ELAB",
+   "ELPW",
+   "ENPH",
+   "ENVB",
+   "EZRA",
+   "FGF",
+   "FIEE",
+   "FRSX",
+   "UPC",
+   "VEEE",
+   "VMAR",
+   "WHLR",
+   "WORX",
+   "XCUR",
+   "YMT",
+   "ZCMD",
+   "ZNB"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "ABTS",
-    "CDTG",
-    "CHGA",
-    "CODX",
-    "EVGO",
-    "SKYE",
-    "TVRD",
-    "AIMD",
-    "AEC",
-    "SOWG",
-    "BTCS",
-    "YXT",
-    "XCH",
-    "ZYBT",
-    "CLLS",
-    "SPRB"
+    "ASBP",
+    "BBLG",
+    "BGDE",
+    "BTQ",
+    "FGL",
+    "IDN",
+    "INTJ",
+    "MBIO",
+    "NTHI",
+    "WYHG",
+    "LHAI",
+    "BIRD",
+    "GRNQ",
+    "PLSM",
+    "AHMA",
+    "LYEL"
    ],
    "skipped": [],
    "calendar_error": "",
@@ -123,17 +123,17 @@
   }
  },
  "audit": {
-  "rows": 1063,
+  "rows": 1146,
   "by_status": {
-   "OK": 758,
-   "UNKNOWN": 182,
-   "NOT_ATTEMPTED": 119,
-   "FAILED": 4
+   "OK": 834,
+   "UNKNOWN": 185,
+   "FAILED": 8,
+   "NOT_ATTEMPTED": 119
   },
   "by_category": {
-   "1": 491,
-   "2": 267,
-   "4": 305
+   "1": 484,
+   "2": 350,
+   "4": 312
   },
   "tickers": 105,
   "chain_problems": []
@@ -160,24 +160,9 @@
    "yahoo_splits"
   ],
   [
-   "AEC",
+   "AHMA",
    "short_interest",
    "yahoo_info"
-  ],
-  [
-   "AEC",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "AIMD",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "AIMD",
-   "reverse_split",
-   "yahoo_splits"
   ],
   [
    "AMIX",
@@ -205,6 +190,16 @@
    "yahoo_info"
   ],
   [
+   "BIRD",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "BIRD",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "BNAI",
    "short_interest",
    "yahoo_info"
@@ -221,16 +216,6 @@
   ],
   [
    "BRTX",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "BTCS",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "BTCS",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -298,11 +283,6 @@
    "CIIT",
    "reverse_split",
    "yahoo_splits"
-  ],
-  [
-   "CLLS",
-   "short_interest",
-   "yahoo_info"
   ],
   [
    "CRE",
@@ -492,7 +472,7 @@
   [
    "GCTK",
    "reverse_split",
-   "yahoo_splits"
+   "nasdaq_calendar"
   ],
   [
    "GRI",
@@ -501,6 +481,16 @@
   ],
   [
    "GRI",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "GRNQ",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "GRNQ",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -630,6 +620,11 @@
    "yahoo_splits"
   ],
   [
+   "LHAI",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
    "LIMN",
    "short_interest",
    "yahoo_info"
@@ -646,6 +641,16 @@
   ],
   [
    "LNAI",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "LYEL",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "LYEL",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -730,11 +735,6 @@
    "yahoo_info"
   ],
   [
-   "NUWE",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "NXTT",
    "short_interest",
    "yahoo_info"
@@ -785,6 +785,11 @@
    "yahoo_splits"
   ],
   [
+   "PLSM",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
    "PPBT",
    "short_interest",
    "yahoo_info"
@@ -802,7 +807,7 @@
   [
    "PPCB",
    "reverse_split",
-   "yahoo_splits"
+   "nasdaq_calendar"
   ],
   [
    "PRFX",
@@ -890,16 +895,6 @@
    "yahoo_splits"
   ],
   [
-   "SOWG",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "SOWG",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "SPHL",
    "short_interest",
    "yahoo_info"
@@ -916,16 +911,6 @@
   ],
   [
    "SPPL",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "SPRB",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "SPRB",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -967,7 +952,7 @@
   [
    "SXTC",
    "reverse_split",
-   "yahoo_splits"
+   "nasdaq_calendar"
   ],
   [
    "TRUG",
@@ -1040,16 +1025,6 @@
    "yahoo_splits"
   ],
   [
-   "XCH",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "XCH",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "XCUR",
    "short_interest",
    "yahoo_info"
@@ -1066,16 +1041,6 @@
   ],
   [
    "YMT",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "YXT",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "YXT",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -1103,11 +1068,6 @@
    "ZNB",
    "reverse_split",
    "yahoo_splits"
-  ],
-  [
-   "ZYBT",
-   "short_interest",
-   "yahoo_info"
   ]
  ]
 }
