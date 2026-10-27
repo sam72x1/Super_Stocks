@@ -8287,6 +8287,12 @@ def _daily_rows_of(df):
     return out
 
 
+# 🔄 (‏2026-10-27 · أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى Polygon حيث كان»): شموعُ الساعة للثبات الدقيق كانت Polygon حتى
+#    2026-09-30 ثمّ رُبطت بـ`BARS_SOURCE` (انقطاعُ Polygon · `EHT1`-`EHT3`) ⇒ «polygon» هنا يُرجعها وحدَها مع بقاء الشموع اليوميّة
+#    على TradingView · وغيابُه = السلوكُ الحاليّ بت-بت (`EHS1`).
+EXACT_HOLD_SOURCE_ENV = "EXACT_HOLD_SOURCE"
+
+
 def refresh_exact_hold(stocks, hist, fetch=None, need=None) -> dict:
     """🧱 يحسب `exact_hold` لكلّ سهم **ويُسنده بلا شرط** (التعذّرُ ⟵ None فلا يُعرَض رقمُ الأمس) ⟵ عدّادات.
     `fetch(sym, d0, d1)` ⟵ [(ms, high, low)] أو None (محقونٌ للاختبار · وإلّا `polygon_hour_bars`) · **بلا مفتاح Polygon ولا
@@ -8295,7 +8301,8 @@ def refresh_exact_hold(stocks, hist, fetch=None, need=None) -> dict:
     و`src`=«tradingview» في العدّادات · وبدونها المسارُ السابق بت-بت."""
     n = {"ok": 0, "nohour": 0, "fail": 0, "nodata": 0, "nokey": 0}
     stocks = list(stocks or [])
-    if fetch is None and bars_source() == "tradingview":
+    if (fetch is None and bars_source() == "tradingview"
+            and (os.environ.get(EXACT_HOLD_SOURCE_ENV) or "").strip().lower() != "polygon"):
         fetch = tv_hour_fetcher([s.get("symbol") for s in stocks])
         n["src"] = "tradingview"
     if fetch is None and not _poly_key():
@@ -15743,6 +15750,11 @@ LIQ_BAR_CLOSE_GUARD_MS = 5_000
 #    تغطيةٌ **‏100%** · كلفةٌ **‏0.52 ثانية** · **وصفرُ حكمٍ ينقلب إلى الكتم**.
 #    🔒 والرفعُ **يُرخي بنيويًّا لا يشدّ** (عيّنةٌ أوسعُ تكشف طبعاتٍ أكثر).
 LIQ_OPERATOR_TRADES = 20_000   # engineering — مقيسٌ لا مخترَع (‏`m0_result.md`)
+# 🕵️🩺 **ما كتمته بوّابةُ المضارب في آخر مسح** (‏2026-10-27 · أمرُ المالك «الأعطالُ أوّلًا» أ2-أ · عطلٌ مُثبَت بالقراءة: الكتمُ
+#    كان يمسح حالةَ السهم ويمضي **بلا سطرِ سجلٍّ ولا أثرٍ في الحالة** ⇒ «كم كتمت؟» غيرُ قابلٍ للعدّ من أيّ ملفٍّ محفوظ).
+#    يُعاد ملؤه **في كلّ نداءٍ** لـ`scan_liq_stages` (قاموسٌ واحدٌ يُفرَّغ مكانَه لا يُعاد ربطُه) ويقرؤه العاملُ الحيّ فيطبعه
+#    سطرَ سجلّ — **سجلٌّ فقط**: لا تلغرام ولا حالة ولا تغييرَ في الكتم نفسِه (بت-بت). `OGM1`/`OGM2`.
+LIQ_OPGATE_LAST = {"muted": [], "px_only": [], "unverified": []}
 # 🚨 **إشعارُ ما قبل الإغلاق `M0` — بلاغُ المالك 2026-08-17** («التنبية وصلني بعد ما
 #    ارتفع السهم فوق 20٪ وهذا شي مستحيل يصير خلال دقيقة وحده»). **وسندُه مقيس:**
 #    مِرساةُ `XOS` كانت **‏+24.29% في دقيقةٍ واحدة** بقفزةِ حجمٍ **‏132×** — وهي
@@ -16703,6 +16715,8 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
     #    🔒 **وفاشلٌ-آمنٌ مفتوح:** قِيس ولا مضارب ⇒ **يُكتَم** · تعذّر القياس (`None`)
     #    ⇒ **يمرّ بفائدة الشك** ويُوسَم «لم يُتحقّق» — فلا نفوّت دخولًا بعطلٍ شبكيّ.
     #    (نفسُ قاعدة `scan_ignition` و`scan_operator_entry` — مقياسٌ واحدٌ لا ثالث.)
+    for _k in ("muted", "px_only", "unverified"):          # 🕵️🩺 يُفرَّغ في كلّ نداء (`LIQ_OPGATE_LAST`)
+        LIQ_OPGATE_LAST[_k] = []
     if out and fetch_operator is not None:
         kept = []
         for row, ev in out:
@@ -16715,6 +16729,8 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
                     of = fetch_operator(row["symbol"])
             except Exception:                                    # noqa: BLE001
                 of = None
+            if of is None:
+                LIQ_OPGATE_LAST["unverified"].append(row["symbol"])
             if of is not None and not of.get("has_operator"):
                 # 💓 **نبضُ `Px` لا يُكتَم بغياب المضارب** (أمرُ المالك
                 #    2026-08-19 «عشان اعرف استمر ولا لا»): هروبُ المضارب
@@ -16726,7 +16742,9 @@ def scan_liq_stages(universe, today_iso: str, fetch_bars=None, seen: dict = None
                 ev = [e for e in ev if e.get("stage") == "Px"]
                 if not ev:
                     seen.pop(LIQ_STATE_PREFIX + row["symbol"], None)   # يُعاد الفحص
+                    LIQ_OPGATE_LAST["muted"].append(row["symbol"])
                     continue
+                LIQ_OPGATE_LAST["px_only"].append(row["symbol"])
             # 📊 إغلاقُ الأمس **للناجين وحدهم** (نداءٌ واحدٌ لكلّ سهمٍ باليوم —
             #    كاشُ `polygon_prev_close`) ⇒ سطرُ «من إغلاق الأمس» في الكرت.
             #    فاشلٌ-آمنٌ داخليًّا (`None` ⇒ غيابُ السطر لا انهيارُ المسح).

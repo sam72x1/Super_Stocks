@@ -30,9 +30,9 @@ on:
         required: false
         default: ""
       source:
-        description: "مصدرُ الشموع (⑭): tradingview بعد انتهاء Polygon 2026-09-29 · polygon = المسارُ السابق بت-بت"
+        description: "مصدرُ الشموع: polygon (الافتراضيّ منذ 2026-10-27 — الاشتراكُ عاد · المسارُ السابق بت-بت) · tradingview = ⑭"
         required: false
-        default: "tradingview"
+        default: "polygon"
 
 jobs:
   watch_period:
