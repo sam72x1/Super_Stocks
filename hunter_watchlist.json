@@ -23,11 +23,12 @@
      "src": "رأس شمعة حمراء"
     }
    ],
-   "status": "active",
-   "last_price": 1.05,
-   "last_bar": "2026-10-13",
-   "dollar_vol": 150574.0,
-   "move_pct": 4.0
+   "status": "stopped",
+   "last_price": 1.01,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 49514.0,
+   "move_pct": 0.0,
+   "stopped_at": "2026-10-15"
   },
   {
    "symbol": "IPW",
@@ -52,11 +53,12 @@
      "src": "رأس شمعة حمراء"
     }
    ],
-   "status": "active",
-   "last_price": 0.5353,
-   "last_bar": "2026-10-13",
-   "dollar_vol": 4019093.0,
-   "move_pct": -72.7
+   "status": "stopped",
+   "last_price": 2.89,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 5122205.0,
+   "move_pct": 47.4,
+   "stopped_at": "2026-10-20"
   },
   {
    "symbol": "RCON",
@@ -82,10 +84,10 @@
     }
    ],
    "status": "active",
-   "last_price": 1.02,
-   "last_bar": "2026-10-13",
-   "dollar_vol": 333620.0,
-   "move_pct": -33.8
+   "last_price": 0.92,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 187450.0,
+   "move_pct": -40.3
   },
   {
    "symbol": "AEMD",
@@ -111,10 +113,10 @@
     }
    ],
    "status": "active",
-   "last_price": 5.58,
-   "last_bar": "2026-10-13",
-   "dollar_vol": 33112852.0,
-   "move_pct": 189.1
+   "last_price": 5.15,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 373963.0,
+   "move_pct": 166.8
   },
   {
    "symbol": "YHC",
@@ -140,10 +142,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 1.9,
-   "last_bar": "2026-10-13",
-   "dollar_vol": 213662.0,
-   "move_pct": 27.5,
+   "last_price": 2.44,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 792478.0,
+   "move_pct": 63.8,
    "stopped_at": "2026-09-16"
   },
   {
@@ -170,11 +172,40 @@
     }
    ],
    "status": "stopped",
-   "last_price": 1.39,
-   "last_bar": "2026-10-13",
-   "dollar_vol": 80945.0,
-   "move_pct": -23.2,
+   "last_price": 1.13,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 67247.0,
+   "move_pct": -37.6,
    "stopped_at": "2026-09-30"
+  },
+  {
+   "symbol": "BDAI",
+   "added": "2026-10-20",
+   "ref_price": 2.0,
+   "half": 2.43,
+   "ref": 4.86,
+   "event_kind": "split",
+   "split_date": "2026-07-06",
+   "float": 726315,
+   "avail": 45000,
+   "borrow_fee": 98.0,
+   "stop": 1.9,
+   "hold_above": 2.43,
+   "targets": [
+    {
+     "price": 2.79,
+     "src": "مقاومة"
+    },
+    {
+     "price": 3.1,
+     "src": "رأس شمعة حمراء"
+    }
+   ],
+   "status": "active",
+   "last_price": 2.09,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 2782859.0,
+   "move_pct": 4.5
   }
  ],
  "added_last": [],
