@@ -504,7 +504,7 @@
   "updates": 0,
   "vol_x": 32.4,
   "peak_usd": 113064,
-  "last_eval_ms": 1793125920000,
+  "last_eval_ms": 1793125800000,
   "pulse_ms": 1793126520000,
   "anchor_price": 1.19,
   "anchor_open": 1.13,
@@ -1085,7 +1085,7 @@
   "updates": 0,
   "vol_x": 4.0,
   "peak_usd": 136466,
-  "last_eval_ms": 1793120100000,
+  "last_eval_ms": 1793120040000,
   "pulse_ms": 1793126520000,
   "anchor_price": 0.6243,
   "anchor_open": 0.6188,
@@ -4295,7 +4295,7 @@
   "date": "2026-10-27"
  },
  "FAC": "2026-10-26",
- "ADGM": "2026-10-26",
+ "ADGM": "2026-10-27",
  "FLYE": "2026-10-26",
  "LNAI": "2026-10-27",
  "LIQ:TVGN": {
