@@ -12048,6 +12048,33 @@ if _TYA is not None:
 check("🚦💵🧊 TYA10 `§⑭` يوما الانتقال (09-29 · 10-12) **خارج المراسي وخارج كون `C-CNT`** · والاستبعادُ قبل أوّل "
       "`split_arms` في `main` ويُطبَع سطرُه · والتاريخان **حرفًا كما في العقد**", _tya10_ok, _tya10_why)
 
+# ⏰ `TSC1` (2026-10-27 · أمرُ المالك «جدول السويّة على main»): `tests.yml` تعمل **يوميًّا على main** فلا يبقى أحمرٌ صامت
+#    (دفعاتُ البوت بـ`GITHUB_TOKEN` لا تُطلقها ⇒ main أحمرُ 12 يومًا 10-15 ⟶ 10-27 · #631). بالـYAML لا بالنصّ: كرونٌ **يوميّ**
+#    (يومُ الشهر والشهرُ واليومُ `*`) ‏+ يدويٌّ للتحقّق ‏+ الدفعُ وPR باقيان · ومجموعةُ التزامن تحمل اسمَ الحدث (فلا تُلغي المجدولةُ
+#    تشغيلةَ دمجٍ ولا تُلغيها) · وصلاحيةُ قراءةٍ وحدَها · وبلا سرٍّ ولا تلغرام · والخطوةُ نفسُها `python3 test_bot.py` بلا `|| true`.
+_tsc1_ok, _tsc1_why = False, "?"
+try:
+    import yaml as _tsc_yaml
+    _tsc_raw = open(".github/workflows/tests.yml", encoding="utf-8").read()
+    _tsc_y = _tsc_yaml.safe_load(_tsc_raw) or {}
+    _tsc_on = _tsc_y.get(True) or _tsc_y.get("on") or {}
+    _tsc_cr = [str(_c.get("cron")) for _c in (_tsc_on.get("schedule") or []) if isinstance(_c, dict)]
+    _tsc_daily = bool(_tsc_cr) and all(len(_c.split()) == 5 and _c.split()[2:] == ["*", "*", "*"] for _c in _tsc_cr)
+    _tsc_grp = str((_tsc_y.get("concurrency") or {}).get("group") or "")
+    _tsc_perm = _tsc_y.get("permissions") or {}
+    _tsc_steps = [_st for _j in (_tsc_y.get("jobs") or {}).values() for _st in ((_j or {}).get("steps") or [])]
+    _tsc_suite = any(str((_st or {}).get("run") or "").strip() == "python3 test_bot.py" for _st in _tsc_steps)
+    _tsc1_ok = (_tsc_daily and all(_k in _tsc_on for _k in ("push", "pull_request", "workflow_dispatch"))
+                and "github.event_name" in _tsc_grp and "github.ref" in _tsc_grp
+                and _tsc_perm == {"contents": "read"} and "secrets." not in _tsc_raw and "TELEGRAM" not in _tsc_raw
+                and _tsc_suite)
+    _tsc1_why = (f"cron={_tsc_cr} · on={sorted(map(str, _tsc_on))} · group={_tsc_grp} · perm={_tsc_perm} · "
+                 f"suite={_tsc_suite}")
+except Exception as _e:                                          # noqa: BLE001
+    _tsc1_ok, _tsc1_why = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⏰ TSC1 السويّةُ **مجدولةٌ يوميًّا على main** (كرونٌ يوميّ ‏+ يدويّ ‏+ الدفعُ وPR) · ومجموعةُ التزامن باسم الحدث · "
+      "وصلاحيةُ قراءةٍ بلا سرٍّ ولا تلغرام · والخطوةُ `python3 test_bot.py` نفسُها", _tsc1_ok, _tsc1_why)
+
 # ══════════════════════════════════════════════════════════════════════════
 # 📉🚦 `T-RSI-RANK` — أقفالُ **الأداة** (‏`RKA0`-`RKA8`، 2026-09-11، أمرُ المالك
 #    «ابن الاداة»). العقدُ مقفولٌ أعلاه بـ`RKK0`-`RKK2`؛ وهذي تحرس **ما تفعله

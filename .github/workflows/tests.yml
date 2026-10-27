@@ -5,11 +5,20 @@ name: Tests
 permissions:
   contents: read
 concurrency:
-  group: tests-${{ github.ref }}
+  # ⏰ اسمُ الحدث جزءٌ من المجموعة (2026-10-27): المجدولةُ لا تُلغي تشغيلةَ دمجٍ على main ولا تُلغيها ·
+  #    والدفعُ وPR كما كانا (مرجعاهما مختلفان أصلًا: refs/heads/… مقابل refs/pull/…/merge).
+  group: tests-${{ github.event_name }}-${{ github.ref }}
   cancel-in-progress: true
 on:
   push:
   pull_request:
+  # ⏰ **يوميًّا على main** (أمرُ المالك 2026-10-27 «جدول السويّة على main»): دفعاتُ البوت بـ`GITHUB_TOKEN`
+  #    لا تُطلق هذا الـworkflow ⇒ بقي main أحمرَ صامتًا 12 يومًا (2026-10-15 ⟶ 10-27 · #631) بأقفالٍ
+  #    تسقط بالساعة والبيانات لا بالكود ⇒ السويّةُ نفسُها على آخر main كلَّ يوم · واليدويُّ للتحقّق.
+  #    **بلا تلغرام وبلا سرّ** (الفشلُ أحمرُ في Actions · `TSC1`).
+  schedule:
+    - cron: "37 3 * * *"
+  workflow_dispatch:
 jobs:
   tests:
     runs-on: ubuntu-latest
