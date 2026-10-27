@@ -1041,10 +1041,10 @@
    "M5",
    "M30"
   ],
-  "updates": 2,
+  "updates": 1,
   "vol_x": 14.8,
-  "peak_usd": 360108,
-  "last_eval_ms": 1793119980000,
+  "peak_usd": 107861,
+  "last_eval_ms": 1793119920000,
   "pulse_ms": 1793125920000,
   "anchor_price": 0.0998,
   "anchor_open": 0.0949,
