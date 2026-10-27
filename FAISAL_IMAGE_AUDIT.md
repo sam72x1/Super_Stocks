@@ -1,9 +1,9 @@
 # 📸 سجلّ تغطية صور منهجية فيصل — 2026-10-27
 
-- **المجموع المُدرَج:** 956  ·  **بملف مرفوع:** 808
-- **📗 موثّقة:** 899  ·  **📕 لم تُقرأ بعد:** 57  ·  **مكرّرة:** 0
+- **المجموع المُدرَج:** 931  ·  **بملف مرفوع:** 808
+- **📗 موثّقة:** 856  ·  **📕 لم تُقرأ بعد:** 75  ·  **مكرّرة:** 0
 
-**الدفعة التالية المقترحة (8):** TG_58383 · TG_58385 · TG_58389 · TG_58391 · TG_58392 · TG_58393 · TG_58394 · TG_58395
+**الدفعة التالية المقترحة (8):** TG_58383 · TG_58384 · TG_58385 · TG_58387 · TG_58388 · TG_58389 · TG_58390 · TG_58391
 
 | المعرّف | الملف | 📗 موثّقة | الحالة | ملاحظة |
 |---|---|---|---|---|
@@ -781,13 +781,13 @@
 | TG_58052 | TG_58052.jpg | ✅ | confirmed | — |
 | TG_58382 | TG_58382.jpg | ✅ | confirmed | — |
 | TG_58383 | TG_58383.jpg | ❌ | unread | — |
-| TG_58384 | TG_58384.jpg | ✅ | confirmed | — |
+| TG_58384 | TG_58384.jpg | ❌ | confirmed | — |
 | TG_58385 | TG_58385.jpg | ❌ | unread | — |
 | TG_58386 | TG_58386.jpg | ✅ | confirmed | — |
-| TG_58387 | TG_58387.jpg | ✅ | confirmed | — |
-| TG_58388 | TG_58388.jpg | ✅ | confirmed | — |
+| TG_58387 | TG_58387.jpg | ❌ | confirmed | — |
+| TG_58388 | TG_58388.jpg | ❌ | confirmed | — |
 | TG_58389 | TG_58389.jpg | ❌ | unread | — |
-| TG_58390 | TG_58390.jpg | ✅ | confirmed | — |
+| TG_58390 | TG_58390.jpg | ❌ | confirmed | — |
 | TG_58391 | TG_58391.jpg | ❌ | unread | — |
 | TG_58392 | TG_58392.jpg | ❌ | unread | — |
 | TG_58393 | TG_58393.jpg | ❌ | unread | — |
@@ -797,29 +797,29 @@
 | TG_58397 | TG_58397.jpg | ❌ | unread | — |
 | TG_58398 | TG_58398.jpg | ❌ | unread | — |
 | TG_58399 | TG_58399.jpg | ❌ | unread | — |
-| TG_58400 | TG_58400.jpg | ✅ | confirmed | — |
-| TG_58401 | TG_58401.jpg | ✅ | confirmed | — |
+| TG_58400 | TG_58400.jpg | ❌ | confirmed | — |
+| TG_58401 | TG_58401.jpg | ❌ | confirmed | — |
 | TG_58402 | TG_58402.jpg | ✅ | confirmed | — |
-| TG_58403 | TG_58403.jpg | ✅ | confirmed | — |
-| TG_58404 | TG_58404.jpg | ✅ | confirmed | — |
-| TG_58405 | TG_58405.jpg | ✅ | confirmed | — |
-| TG_58406 | TG_58406.jpg | ✅ | confirmed | — |
-| TG_58407 | TG_58407.jpg | ✅ | confirmed | — |
+| TG_58403 | TG_58403.jpg | ❌ | confirmed | — |
+| TG_58404 | TG_58404.jpg | ❌ | confirmed | — |
+| TG_58405 | TG_58405.jpg | ❌ | confirmed | — |
+| TG_58406 | TG_58406.jpg | ❌ | confirmed | — |
+| TG_58407 | TG_58407.jpg | ❌ | confirmed | — |
 | TG_58408 | TG_58408.jpg | ✅ | confirmed | — |
 | TG_58409 | TG_58409.jpg | ❌ | unread | — |
-| TG_58410 | TG_58410.jpg | ✅ | confirmed | — |
+| TG_58410 | TG_58410.jpg | ❌ | confirmed | — |
 | TG_58411 | TG_58411.jpg | ❌ | unread | — |
 | TG_58412 | TG_58412.jpg | ❌ | unread | — |
 | TG_58413 | TG_58413.jpg | ❌ | unread | — |
-| TG_58414 | TG_58414.jpg | ✅ | confirmed | — |
-| TG_58415 | TG_58415.jpg | ✅ | confirmed | — |
-| TG_58416 | TG_58416.jpg | ✅ | confirmed | — |
+| TG_58414 | TG_58414.jpg | ❌ | confirmed | — |
+| TG_58415 | TG_58415.jpg | ❌ | confirmed | — |
+| TG_58416 | TG_58416.jpg | ❌ | confirmed | — |
 | TG_58417 | TG_58417.jpg | ✅ | confirmed | — |
-| TG_58418 | TG_58418.jpg | ✅ | confirmed | — |
+| TG_58418 | TG_58418.jpg | ❌ | confirmed | — |
 | TG_58419 | TG_58419.jpg | ✅ | confirmed | — |
 | TG_58420 | TG_58420.jpg | ❌ | unread | — |
-| TG_58421 | TG_58421.jpg | ✅ | confirmed | — |
-| TG_58422 | TG_58422.jpg | ✅ | confirmed | — |
+| TG_58421 | TG_58421.jpg | ❌ | confirmed | — |
+| TG_58422 | TG_58422.jpg | ❌ | confirmed | — |
 | TG_58423 | TG_58423.jpg | ❌ | unread | — |
 | TG_58426 | TG_58426.jpg | ❌ | unread | — |
 | TG_58427 | TG_58427.jpg | ❌ | unread | — |
@@ -864,32 +864,7 @@
 | TG_76029 | TG_76029.jpg | ❌ | unread | — |
 | TG_76030 | TG_76030.jpg | ❌ | unread | — |
 | TG_76031 | TG_76031.jpg | ❌ | unread | — |
-| TG_76032 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76033 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76034 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76035 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76036 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76037 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76038 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | TG_76039 | TG_76039.jpg | ❌ | unread | — |
-| TG_76040 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76041 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76042 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76043 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76044 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76045 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76046 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76047 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76048 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76049 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76050 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76051 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76052 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76053 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76054 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76055 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76056 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
-| TG_76057 | — | ✅ | confirmed | موثّقة من المحادثة بلا ملف مرفوع |
 | WA_20260918_31_SXTC | WA_20260918_31_SXTC.jpg | ✅ | confirmed | — |
 | WA_20260918_46_NUWE | WA_20260918_46_NUWE.jpg | ✅ | confirmed | — |
 | X_20260827_amix_3m_inflow | X_20260827_amix_3m_inflow.png | ✅ | confirmed | — |
