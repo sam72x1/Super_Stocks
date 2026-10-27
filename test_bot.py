@@ -4150,7 +4150,7 @@ _shutil.rmtree(_e2r_root, ignore_errors=True)
 # ⏳ تغطية الافتتاح: الكرون مقدَّم لتعويض تأخّر GitHub المرصود، وسقف الانتظار يغطّي
 # الفصلين. اختبار حسابي على الأرقام الفعلية (لا نصّي) — أي عودة لقيمة تكسر التغطية تُسقطه.
 _ig_yml = open(".github/workflows/ignition.yml", encoding="utf-8").read()
-# 🧊 IGZ1 (2026-09-30 · «خلّ اللحظي متوقف»): الجوباتُ مُجمَّدةٌ للكرون ⇒ `if` = `${{ always() && <شرط اليدويّ> }}`.
+# 🧊 IGZ1 (2026-09-30 · «خلّ اللحظي متوقف») جمّد الجوباتِ للكرون ⇒ `if` = `${{ always() && <شرط اليدويّ> }}` · وفُكَّ 2026-10-27 بأمر 10-12 (`IGZ2`).
 #    `_ig_thaw` يَنزع **شرطَ التجميد بحرفه وحدَه** فتبقى الأقفالُ التي تحرس `always()` (IGW3 · Codex5) تسأل سؤالَها
 #    نفسَه عن التشغيل اليدويّ — وأيُّ صيغةٍ أخرى تمرّ كما هي فتُسقطها.
 _IG_FREEZE = "github.event_name == 'workflow_dispatch'"
@@ -4370,10 +4370,10 @@ check("⏰ IGW5 مسارُ المسح بت-بت: `main` لا ينادي النو
       str(sorted(x for x in _igw_main_calls if x and x.startswith("_pre"))))
 check("⏰ IGW6 الـCLI فاشلٌ-آمن: يطابق الدالّةَ النقيّة (297 لإقلاع 08:23) · وعطلُ النافذة ⟵ 0 لا استثناء",
       _igw_cli == 297 and _igw_cli_fail == 0, f"cli={_igw_cli} · عطل={_igw_cli_fail}")
-# 🧊 IGZ1 — **رادارُ الانطلاق مُجمَّدٌ للكرون (2026-09-30 · قرارُ المالك «خلّ اللحظي متوقف»):** Polygon انتهى ولن يُجدَّد ⇒
-#    الرادارُ بلا بيانات والمدقّقُ الصارم يحمرّ كلَّ جلسة (`36600831492`). **كلُّ جوبٍ** (مقروءٌ من الـworkflow لا بيد) يعمل
-#    **يدويًّا وحدَه**: الجذرُ بشرط التجميد حرفًا · والبقيّةُ `always()` مقرونةً به ⇒ اليدويُّ بت-بت والكرونُ يُتخطّى ·
-#    والكروناتُ الأربعة باقيةٌ (IGF4 · «لا كرونَ عتيق») · والتعليلُ المؤرَّخ حاضر · والمُطبِّعُ صارمٌ (لا ينزع غيرَ شرطه).
+# 🔥 IGZ2 — **رادارُ الانطلاق فُكَّ تجميدُه (2026-10-27 · أمرُ المالك 2026-10-12 «رجعت اشترك … ابيك ترجع تشغل الاداة حقت المتتابعة اللحظية» · تأخّر دفعُه 15 يومًا):**
+#    مفتاحُ Polygon عاد يعمل (`polygon_health` ‏`38237825537` ✅ للمنافذ الثلاثة) ⇒ نُسخ `IGZ1` (التجميدُ 2026-09-30 «خلّ اللحظي
+#    متوقف» · نصُّه في الأرشيف) وعادت الشروطُ حرفًا كما قبله: **الجذرُ بلا `if`** والبقيّةُ `always()` **بلا شرط اليدويّ** ⇒ الكروناتُ
+#    الأربعة تُطلق الرادارَ (IGF4) واليدويُّ باقٍ · والسطرُ المؤرَّخ حاضر · والمُطبِّعُ `_ig_thaw` صارمٌ كما كان (تقرؤه IGW3/Codex5).
 try:
     _igz_y = _igw_yaml.safe_load(_ig_yml) or {}
     _igz_jobs = _igz_y.get("jobs") or {}
@@ -4386,18 +4386,19 @@ try:
                     and _ig_thaw("${{ always() && github.event_name == 'schedule' }}") != "always()"
                     and _ig_thaw("${{ always() && inputs.dry != '1' }}") != "always()")
     _igz_ok = (len(_igz_jobs) >= 5 and _igz_roots == ["pre_open_wait_1"]
-               and all(_igz_if[k] == _IG_FREEZE for k in _igz_roots)
-               and all(_igz_if[k] == "${{ always() && " + _IG_FREEZE + " }}" for k in _igz_rest)
-               and all(_ig_thaw(_igz_if[k]) == "always()" for k in _igz_rest)
+               and all("if" not in (_igz_jobs[k] or {}) for k in _igz_roots)
+               and all(_igz_if[k] == "always()" for k in _igz_rest)
+               and not any("event_name" in v or "workflow_dispatch" in v for v in _igz_if.values())
                and "workflow_dispatch" in _igz_on
                and sorted(c.get("cron") for c in (_igz_on.get("schedule") or []) if isinstance(c, dict))
                == ["11 11 * * 1-5", "11 2 * * 1-5", "11 5 * * 1-5", "11 8 * * 1-5"]
-               and "مُجمَّدٌ 2026-09-30" in _ig_yml and "خلّ اللحظي متوقف" in _ig_yml and _igz_thaw_ok)
+               and "فُكَّ التجميدُ 2026-10-27 بأمر المالك 2026-10-12" in _ig_yml and "38237825537" in _ig_yml
+               and "40454048931" in _ig_yml and _igz_thaw_ok)
     _igz_w = f"if={_igz_if} · on={sorted(map(str, _igz_on))} · مُطبِّع={_igz_thaw_ok}"
 except Exception as _e:                                               # noqa: BLE001
     _igz_ok, _igz_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🧊 IGZ1 رادارُ الانطلاق مُجمَّدٌ للكرون بقرار المالك «خلّ اللحظي متوقف»: كلُّ جوبٍ يدويٌّ وحدَه (الجذرُ بالشرط حرفًا · "
-      "والبقيّةُ `always()` مقرونةً به) · والكروناتُ الأربعة والتعليلُ المؤرَّخ باقيان · والمُطبِّعُ لا ينزع غيرَ شرطه",
+check("🔥 IGZ2 رادارُ الانطلاق فُكَّ تجميدُه بأمر المالك بعد عودة اشتراك Polygon: الجذرُ بلا `if` والبقيّةُ `always()` بلا شرط "
+      "اليدويّ (الكروناتُ الأربعة تُطلقه) · والسطرُ المؤرَّخ حاضر · والمُطبِّعُ لا ينزع غيرَ شرطه",
       _igz_ok, _igz_w)
 # 🔓 T-LIBERATION (liberation_prereg.md): ذراع الدخول بعد كسر التحرر
 # اختبارات سلوكية على أرقام فيصل الحقيقية (DSY 1.85→3.20 · JZ 2.56→4).
@@ -12002,6 +12003,50 @@ if _TYA is not None:
     _tya9_why = f"إسنادات={sorted(_ty_hits) or 'صفر'} · شاهدُ الضبط={sorted(_ty_ctl)}"
 check("🚦💵🔒 TYA9 العتباتُ **تُقرأ من الإنتاج ولا تُضبَط** في الذاكرة (AST) — "
       "ومعه شاهدُ ضبطٍ يُثبت أن الفحصَ يمسك الإسنادَ لو وقع", _tya9_ok, _tya9_why)
+
+# 🧊 `TYA10` (2026-10-27 · ملحقُ العقد `§⑭` قبل أيّ رقم): **يوما انتقال المصدر يُستبعَدان** — رفض Polygon 09-29
+#    وعاد 10-12 ⇒ بوّابةُ المضارب فيهما «تعذّر ⇒ يمرّ» فـ`alive_eod` ليس المقياسَ نفسَه. القفلُ **سلوكيٌّ** على
+#    `exclude_sessions` (المُبقى · المستبعَد · لا يُعدَّل المُدخَل) و`_pool_keys` (كونُ `C-CNT`) · **وبالـAST** على `main`
+#    (الاستبعادُ قبل أوّل `split_arms` ويُطبَع سطرُه) · **والتاريخان يُقرآن من `§⑭` نفسِه** فيسقط إن اختلفا (الصنفُ ③-مكرر).
+_tya10_ok, _tya10_why = False, _tya_imp
+if _TYA is not None:
+    try:
+        import re as _tya_re
+        _t10_in = {("AAA", "2026-09-26", 1): {"trig": None}, ("BBB", "2026-09-29", 2): {"trig": "T-C"},
+                   ("CCC", "2026-10-12", 3): {"trig": None}, ("DDD", "2026-10-13", 4): {"trig": "T-C"}}
+        _t10_copy = dict(_t10_in)
+        _t10_k, _t10_d = _TYA.exclude_sessions(_t10_in)
+        _t10_beh = ({k[1] for k in _t10_k} == {"2026-09-26", "2026-10-13"}
+                    and {k[1] for k in _t10_d} == {"2026-09-29", "2026-10-12"}
+                    and _t10_in == _t10_copy and _TYA.exclude_sessions({}) == ({}, {}))
+        _t10_snap = [(0, {"LIQ:AAA": {"date": "2026-09-26", "last_eval_ms": 1},
+                          "LIQ:BBB": {"date": "2026-09-29", "last_eval_ms": 2},
+                          "LIQ:CCC": {"date": "2026-10-12", "last_eval_ms": 3},
+                          "LIQ:DDD": {"date": "2026-10-13", "last_eval_ms": 4}})]
+        _t10_pool = _TYA._pool_keys(_t10_snap, "2026-09-09T15:26:30Z")
+        _t10_pool_ok = {k[1] for k in _t10_pool} == {"2026-09-26", "2026-10-13"}
+        _t10_main = next(n for n in _tya_ast.walk(_tya_ast.parse(_tya_io.open("tc_yield_arms.py", encoding="utf-8").read()))
+                         if isinstance(n, _tya_ast.FunctionDef) and n.name == "main")
+        _t10_calls = [(c.lineno, getattr(c.func, "id", None)) for c in _tya_ast.walk(_t10_main)
+                      if isinstance(c, _tya_ast.Call) and getattr(c.func, "id", None) in ("exclude_sessions", "split_arms")]
+        _t10_ex = [ln for ln, nm in _t10_calls if nm == "exclude_sessions"]
+        _t10_sp = [ln for ln, nm in _t10_calls if nm == "split_arms"]
+        _t10_ast = bool(_t10_ex) and bool(_t10_sp) and min(_t10_ex) < min(_t10_sp)
+        _t10_msrc = _tya_insp.getsource(_TYA.main)
+        _t10_print = "🧊 §⑭ مستبعَدٌ وصفًا" in _t10_msrc
+        _t10_doc = _tya_io.open("tc_yield_prereg.md", encoding="utf-8").read()
+        _t10_sec = _t10_doc[_t10_doc.find("## ⑭"):] if "## ⑭" in _t10_doc else ""
+        _t10_line = next((ln for ln in _t10_sec.splitlines() if "يوما الانتقال كاملَين" in ln), "")
+        _t10_dates = tuple(_tya_re.findall(r"20\d\d-\d\d-\d\d", _t10_line))
+        _t10_docok = (_t10_dates == tuple(_TYA.EXCLUDED_SESSIONS) and len(_t10_dates) == 2
+                      and "لا تُرخى" in _t10_sec)
+        _tya10_ok = _t10_beh and _t10_pool_ok and _t10_ast and _t10_print and _t10_docok
+        _tya10_why = (f"سلوك={_t10_beh} · كون={sorted(k[1] for k in _t10_pool)} · AST={_t10_ex}/{_t10_sp} · "
+                      f"سطر={_t10_print} · العقد={_t10_dates} مقابل {tuple(_TYA.EXCLUDED_SESSIONS)}")
+    except Exception as _e:                                      # noqa: BLE001
+        _tya10_ok, _tya10_why = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🚦💵🧊 TYA10 `§⑭` يوما الانتقال (09-29 · 10-12) **خارج المراسي وخارج كون `C-CNT`** · والاستبعادُ قبل أوّل "
+      "`split_arms` في `main` ويُطبَع سطرُه · والتاريخان **حرفًا كما في العقد**", _tya10_ok, _tya10_why)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 📉🚦 `T-RSI-RANK` — أقفالُ **الأداة** (‏`RKA0`-`RKA8`، 2026-09-11، أمرُ المالك

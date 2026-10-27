@@ -35,6 +35,10 @@ BOOT, BOOT_SEED = 5000, 20260912   # §⑤: ‏5,000 إعادة · بذرةٌ م
 FLOOR_RESOLVED = 120               # `V-Y1`
 FLOOR_TC = 40                      # `V-Y1` — منها من `A-TC`
 GOV = ("TY1", "TY2", "TY3")        # المعاييرُ الحاكمة (‏`TY4` كلفةٌ تُطبَع)
+# 🧊 `§⑭` (ملحقٌ مؤرَّخ 2026-10-27 · قبل أيّ رقم): يوما انتقال المصدر — رفض 09-29 ‏≈15:15 UTC وعاد 10-12 ⇒
+#    بوّابةُ المضارب فيهما «تعذّر القياس ⇒ يمرّ» جزءًا من الجلسة فـ`alive_eod` ليس المقياسَ نفسَه ⇒ يُستبعَدان
+#    من المراسي ومن كون `C-CNT` ويُطبَعان وصفًا. **تشديدٌ لا إرخاء** — والتاريخان حرفًا كما في `§⑭` (`TYA10`).
+EXCLUDED_SESSIONS = ("2026-09-29", "2026-10-12")
 OUT_ROWS = "tc_yield_rows.jsonl"
 
 # رموزُ الخروج — **متمايزةٌ عمدًا** فلا يُقرأ أحدُها مكانَ آخر
@@ -105,6 +109,16 @@ def split_arms(anchors: dict) -> dict:
     # 🔴 المفاتيحُ **صفّيّة** `(رمز·يوم·لحظة)` فـ`dict(a0, **atc)` يرمي
     #    `keywords must be strings` — أمسكه `TYA2` قبل أيّ تشغيلٍ حيّ.
     return {"A0": a0, "A-TC": atc, "A1": {**a0, **atc}}
+
+
+def exclude_sessions(anchors: dict) -> tuple:
+    """**نقيّة** — `§⑭`: تفصل مراسيَ يومَي الانتقال (`EXCLUDED_SESSIONS`) عن المجتمع الحاكم.
+
+    المفتاحُ `(رمز · يوم · لحظة)` ⇒ `(المُبقى، المستبعَد)` قاموسين جديدين — ولا يُعدَّل المُدخَل."""
+    kept, dropped = {}, {}
+    for k, v in (anchors or {}).items():
+        (dropped if str(k[1] or "")[:10] in EXCLUDED_SESSIONS else kept)[k] = v
+    return kept, dropped
 
 
 def delivered(row: dict) -> bool:
@@ -235,7 +249,8 @@ def _pool_keys(snapshots, since_iso: str) -> dict:
             if not k.startswith(LTR.PREFIX) or not isinstance(v, dict):
                 continue
             day = str(v.get("date") or "")
-            if not day or day < since_iso[:10]:
+            # 🧊 `§⑭`: يوما الانتقال خارج الكون أيضًا (‏`V-Y3`: الكونُ نفسُه لكلّ ذراع)
+            if not day or day < since_iso[:10] or day[:10] in EXCLUDED_SESSIONS:
                 continue
             ms = int(v.get("tc_seen_ms") or v.get("last_eval_ms") or 0)
             key = (k[len(LTR.PREFIX):], day, ms)
@@ -281,10 +296,17 @@ def main() -> int:                                               # noqa: PLR0911
     res = LTR.collect(snaps)
     anchors = {k: v for k, v in res["anchors"].items()
                if str(k[1] or "") >= SHIP_ISO[:10]}
+    anchors, excl = exclude_sessions(anchors)          # 🧊 `§⑭` قبل أيّ ذراعٍ أو عدّ
     arms = split_arms(anchors)
     log(f"🚦💵 **`T-TC-YIELD`** · مرجع `{ref}` · {res['revs']} مراجعة"
         + (f" · {bad} تالفة" if bad else "")
         + f" · المدى {res['span'][0]} ⟶ {res['span'][1]}")
+    _ex = split_arms(excl)
+    log("🧊 §⑭ مستبعَدٌ وصفًا (يوما الانتقال " + " · ".join(EXCLUDED_SESSIONS) + "): "
+        + " · ".join(f"{n} مِراسٍ {len(_ex[n])} · مُسلَّمة "
+                     f"{sum(1 for v in _ex[n].values() if delivered(v))}"
+                     for n in ("A0", "A-TC", "A1"))
+        + " — **لا يدخل معيارًا**")
 
     # ── الشقُّ (أ) — التسليمُ والكلفة · **وصفيٌّ بنصّ العقد §⑩-5** ──────────────
     days = sorted({k[1] for k in anchors})
