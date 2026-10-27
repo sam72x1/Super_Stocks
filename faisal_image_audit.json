@@ -3097,7 +3097,7 @@
  },
  "TG_58384": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58385": {
   "note": "",
@@ -3109,11 +3109,11 @@
  },
  "TG_58387": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58388": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58389": {
   "note": "",
@@ -3121,7 +3121,7 @@
  },
  "TG_58390": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58391": {
   "note": "",
@@ -3161,11 +3161,11 @@
  },
  "TG_58400": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58401": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58402": {
   "note": "",
@@ -3173,23 +3173,23 @@
  },
  "TG_58403": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58404": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58405": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58406": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58407": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58408": {
   "note": "",
@@ -3201,7 +3201,7 @@
  },
  "TG_58410": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58411": {
   "note": "",
@@ -3217,15 +3217,15 @@
  },
  "TG_58414": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58415": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58416": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58417": {
   "note": "",
@@ -3233,7 +3233,7 @@
  },
  "TG_58418": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58419": {
   "note": "",
@@ -3245,11 +3245,11 @@
  },
  "TG_58421": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58422": {
   "note": "",
-  "status": "unread"
+  "status": "confirmed"
  },
  "TG_58423": {
   "note": "",
@@ -3293,6 +3293,250 @@
  },
  "TG_58527": {
   "note": "",
+  "status": "confirmed"
+ },
+ "TG_75997": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_75998": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_75999": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76000": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76001": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76002": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76003": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76004": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76005": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76006": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76007": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76008": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76009": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76010": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76011": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76012": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76013": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76014": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76015": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76016": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76017": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76018": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76019": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76020": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76021": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76022": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76023": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76024": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76025": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76026": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76027": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76028": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76029": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76030": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76031": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76032": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76033": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76034": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76035": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76036": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76037": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76038": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76039": {
+  "note": "",
+  "status": "unread"
+ },
+ "TG_76040": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76041": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76042": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76043": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76044": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76045": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76046": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76047": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76048": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76049": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76050": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76051": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76052": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76053": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76054": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76055": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76056": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
+  "status": "confirmed"
+ },
+ "TG_76057": {
+  "note": "موثّقة من المحادثة بلا ملف مرفوع",
   "status": "confirmed"
  },
  "WA_20260918_31_SXTC": {
