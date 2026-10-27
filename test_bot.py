@@ -75387,7 +75387,12 @@ check("🛡️ DQ10 «تحت المتابعة»: بلا `dq_fn` المخرَجُ
 # DQ11 — الانفجارُ القديم لا يُسجَّل جديدًا كلَّ يوم: «تجمّع» انطلاقُه قبل آخر رصدٍ للرمز يُتخطّى · والركضُ الجديدُ بعده يُسجَّل ·
 #         والمفتاحُ مطفأ ⟵ يُسجَّل كما كان (عطلٌ مُثبَت: 289 صفًّا زائدًا من 600 في المِجَسّ · DLXY أربعُ مرّات)
 _dq11_real = S.scan_explosions
+# 🕰️ (2026-10-27 · عطلٌ مُثبَت: السويّةُ حمراءُ على main من 2026-10-18) الفكستشرُ بتواريخَ ثابتةٍ في سبتمبر و`accumulate_explosions`
+#    يقصّ بساعة التشغيل (`EXPLOSION_KEEP_DAYS` = 30) ⟵ رصدُ 09-17 خرج من النافذة فسقط القفلُ وهو سليم · القفلُ يحرس الدِّدوب لا الاحتفاظ
+#    ⟵ الاحتفاظُ يُثبَّت واسعًا داخل القفل وحدَه ويُستعاد في `finally`
+_dq11_keep = S.CONFIG["EXPLOSION_KEEP_DAYS"]
 try:
+    S.CONFIG["EXPLOSION_KEEP_DAYS"] = 100000
     def _dq11_wl():
         return {"explosions": [{"symbol": "DLXY", "date": "2026-09-17", "expl_date": "2026-09-16", "gain": 452.0, "kind": "قفزة"}]}
     _dq11_found = [{"symbol": "DLXY", "date": _dq_dt.date.today().isoformat(), "expl_date": "2026-09-08", "gain": 470.0,
@@ -75407,6 +75412,7 @@ except Exception as _e:                                                  # noqa:
     _dq11_a = _dq11_b = [f"⛔ {type(_e).__name__}"]
 finally:
     S.scan_explosions = _dq11_real
+    S.CONFIG["EXPLOSION_KEEP_DAYS"] = _dq11_keep
     _dq_set("0")
 check("🛡️ DQ11 الانفجارُ المرصودُ سلفًا لا يُعاد تسجيلُه بتاريخ رصدٍ جديد (DLXY «تجمّع» 09-08 بعد رصد 09-17 ⟵ يُتخطّى) · والركضُ الجديدُ "
       "حقًّا يُسجَّل (NEWR 09-29) · **والمفتاحُ مطفأ ⟵ السلوكُ السابق** (يُسجَّل الاثنان)",
@@ -75625,8 +75631,12 @@ check("🛡️ DQ18 بِركةُ رادار الضغط تضمّ **المتحرّ
 #         `update_tracking`: تنبيهٌ مخزَّنٌ بمقياس ما قبل تقسيم 1:5 وشموعٌ مسوّاة ⟵ مع البوّابة **لا «هدفٌ محقّق» زائف** · وبدونها
 #         يُسجَّل hit_t3 (العطلُ نفسُه) · والجالبُ يُرجع **كائنَ ياهو ذاتَه** حين لا يضيف ناسداك جديدًا · وصيّادُ المقسّم لا يناديه
 _dq19_sv = (S.yf, S._fetch_splits, dict(S._DQ_NASDAQ))
+# 🕰️ (2026-10-27 · عطلٌ مُثبَت: حمراءُ على main من 2026-10-20) التنبيهُ بتاريخ 09-20 الثابت و`update_tracking` يُنهيه بساعة التشغيل
+#    (`TRACK_EXPIRE_DAYS` = 30) ⟵ «expired» بدل «open» والقفلُ سليم · القفلُ يحرس الهدفَ الزائف بعد التقسيم لا الانتهاء ⟵ يُثبَّت واسعًا هنا
+_dq19_exp = S.TRACK_EXPIRE_DAYS
 _dq19_res = {}
 try:
+    S.TRACK_EXPIRE_DAYS = 100000
     class _Dq19YF:
         pass
     _dq19_df = pd.DataFrame({"Open": [2.5] * 8, "High": [2.6] * 8, "Low": [2.35] * 8, "Close": [2.5] * 8,
@@ -75686,6 +75696,7 @@ except Exception as _e:                                                  # noqa:
     _dq19_set, _dq19_hunt, _dq19_guard = [], False, False
 finally:
     S.yf, S._fetch_splits = _dq19_sv[0], _dq19_sv[1]
+    S.TRACK_EXPIRE_DAYS = _dq19_exp
     S._DQ_NASDAQ.clear()
     S._DQ_NASDAQ.update(_dq19_sv[2])
     _dq_set("0")
@@ -86952,6 +86963,27 @@ check("⏱️ BFR21 الوصولُ بعد تقدّم الحالة: 10-14 (حصّ
       and _b21.get("UNK", {}).get("state") == "NO_FOLLOWUP_UNKNOWN_ONLY"
       and _a21.get("POL", {}).get("state") == "NO_FOLLOWUP_NONE" and _b21.get("POL", {}).get("state") == "A_FELL_BELOW",
       str([(_a21.get("ARR", {}).get("state")), _b21.get("ARR", {}).get("state"), _b21.get("UNK", {}).get("state")]))
+
+# BFR22 — كما في التاريخ حتى وجودُ الملفّ: سطرُ متابعةٍ مؤرَّخٌ يومَ القطع أو بعده لا يغيّر البناء ولا `present` · وسطرٌ قبله يجعله True
+#         (عطلٌ مُثبَت 2026-10-27: `os.path.exists` جعل `--check` يتبع نظامَ ملفّات التشغيل ⟵ BFR10 سقط حين صار `borrow_watch.jsonl` يُحفَظ)
+try:
+    _f22 = _bft_files([_bft_seed_rec(["AAA"])], p6=[("AAA", "2026-10-12T15:00:00Z", 30000)])
+    _d22a = _BFR.build(asof="2026-10-20", facts=_BFT_FACTS, **_f22)
+    with open(_f22["watch"], "w", encoding="utf-8") as _fh:
+        _fh.write(json.dumps({"kind": "track", "symbol": "AAA", "date": "2026-10-20", "available": 5000}) + "\n")
+        _fh.write(json.dumps({"kind": "track", "symbol": "AAA", "date": "2026-10-23", "available": 4000}) + "\n")
+    _d22b = _BFR.build(asof="2026-10-20", facts=_BFT_FACTS, **_f22)
+    with open(_f22["watch"], "a", encoding="utf-8") as _fh:
+        _fh.write(json.dumps({"kind": "track", "symbol": "AAA", "date": "2026-10-14", "available": 5000}) + "\n")
+    _d22c = _BFR.build(asof="2026-10-20", facts=_BFT_FACTS, **_f22)
+    _bw22 = [_d["inputs"]["borrow_watch"] for _d in (_d22a, _d22b, _d22c)]
+    _ok22 = (_d22a == _d22b and [_b["present"] for _b in _bw22] == [False, False, True]
+             and [_b["rows"] for _b in _bw22] == [0, 0, 1] and _d22c["tracking"]["present_in_repo"] is True)
+    _w22 = str([(_b["present"], _b["rows"]) for _b in _bw22]) + f" · same={_d22a == _d22b}"
+except Exception as _e:                                            # noqa: BLE001
+    _ok22, _w22 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📉 BFR22 كما في التاريخ حتى وجودُ الملفّ: سطرا متابعةٍ يومَ القطع وبعده ⟵ البناءُ بت-بت و`present` False · وسطرٌ قبله ⟵ True (rows 1)",
+      _ok22, _w22)
 
 # ══════════════════════════════════════════════════════════════════════════
 # 📏 BBS1-BBS9 — `T-BORROW-EQ` ظلُّ حدّ بوّابة المتاح (`borrow_boundary_shadow.py` · 2026-10-10 · مهمّةُ المالك §3 · العقد
