@@ -24,10 +24,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 0.8869,
-   "last_bar": "2026-10-22",
-   "dollar_vol": 52402.0,
-   "move_pct": -12.2,
+   "last_price": 1.01,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 49514.0,
+   "move_pct": 0.0,
    "stopped_at": "2026-10-15"
   },
   {
@@ -54,10 +54,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 0.2316,
-   "last_bar": "2026-10-22",
-   "dollar_vol": 5066128.0,
-   "move_pct": -88.2,
+   "last_price": 2.89,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 5122205.0,
+   "move_pct": 47.4,
    "stopped_at": "2026-10-20"
   },
   {
@@ -84,10 +84,10 @@
     }
    ],
    "status": "active",
-   "last_price": 0.9821,
-   "last_bar": "2026-10-22",
-   "dollar_vol": 208437.0,
-   "move_pct": -36.2
+   "last_price": 0.92,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 187450.0,
+   "move_pct": -40.3
   },
   {
    "symbol": "AEMD",
@@ -113,10 +113,10 @@
     }
    ],
    "status": "active",
-   "last_price": 5.19,
-   "last_bar": "2026-10-22",
-   "dollar_vol": 436580.0,
-   "move_pct": 168.9
+   "last_price": 5.15,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 373963.0,
+   "move_pct": 166.8
   },
   {
    "symbol": "YHC",
@@ -142,10 +142,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 2.5,
-   "last_bar": "2026-10-22",
-   "dollar_vol": 668906.0,
-   "move_pct": 67.8,
+   "last_price": 2.44,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 792478.0,
+   "move_pct": 63.8,
    "stopped_at": "2026-09-16"
   },
   {
@@ -173,8 +173,8 @@
    ],
    "status": "stopped",
    "last_price": 1.13,
-   "last_bar": "2026-10-22",
-   "dollar_vol": 77628.0,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 67247.0,
    "move_pct": -37.6,
    "stopped_at": "2026-09-30"
   },
@@ -202,10 +202,10 @@
     }
    ],
    "status": "active",
-   "last_price": 2.08,
-   "last_bar": "2026-10-22",
-   "dollar_vol": 2658539.0,
-   "move_pct": 4.0
+   "last_price": 2.09,
+   "last_bar": "2026-10-26",
+   "dollar_vol": 2782859.0,
+   "move_pct": 4.5
   }
  ],
  "added_last": [],
