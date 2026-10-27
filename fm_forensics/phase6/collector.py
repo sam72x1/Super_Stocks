@@ -74,6 +74,18 @@ def parse_ts(s):
     return t.astimezone(dt.timezone.utc)
 
 
+NY_DAY_SUFFIX = " (New-York day)"      # the form `faisal_validation/phase_b.py` writes for an inferred decision day
+
+
+def _iso_day(s):
+    """Leading ISO calendar day of a string ("2026-10-22T…" · "2026-10-22 (New-York day)") ⟶ "2026-10-22" · None otherwise."""
+    d = str(s or "")[:10]
+    try:
+        return dt.date.fromisoformat(d).isoformat() if len(d) == 10 else None
+    except ValueError:
+        return None
+
+
 def _num(v):
     try:
         f = float(v)
@@ -256,8 +268,13 @@ def build_mentions(root=ROOT) -> list:
             if line.strip():
                 r = json.loads(line)
                 ts = r.get("faisal_timestamp")
-                put(f"{r.get('case_id') or 'PB'}#seq{r.get('seq')}", r.get("ticker"), (ts or "")[:10], ts, "UTC" if ts else UNKNOWN,
-                    "TIMESTAMP" if ts else UNKNOWN, "F", 1, "prospective_ledger")
+                # `phase_b.py write` stores an inferred decision day as "YYYY-MM-DD (New-York day)" — a date, not a timestamp
+                # (H6 amendment 2): only a tz-aware ISO value is a TIMESTAMP; that exact day form is a New-York DATE; anything else UNKNOWN
+                full = ts if parse_ts(ts) is not None else None
+                day = _iso_day(ts) if full or (str(ts or "").endswith(NY_DAY_SUFFIX) and len(str(ts)) == 10 + len(NY_DAY_SUFFIX)) else None
+                put(f"{r.get('case_id') or 'PB'}#seq{r.get('seq')}", r.get("ticker"), day, full,
+                    "UTC" if full else ("America/New_York" if day else UNKNOWN),
+                    "TIMESTAMP" if full else ("DATE" if day else UNKNOWN), "F", 1, "prospective_ledger")
     out = sorted(rows.values(), key=lambda r: (r["canonical_ticker"], r["post_date"], r["evidence_id"]))
     return out
 
