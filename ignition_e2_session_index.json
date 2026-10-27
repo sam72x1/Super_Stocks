@@ -804,5 +804,20 @@
     "session_complete": true,
     "termination": "normal",
     "verdict_rule": "2026-09-26b"
+  },
+  "2026-10-27": {
+    "deferred_reasons": [],
+    "incomplete_reasons": [
+      "segment_incomplete(open:start_coverage_late(60.6د))"
+    ],
+    "n_delivered": 4,
+    "n_emitted": 4,
+    "n_executable": 1,
+    "n_executable_emitted": 1,
+    "n_raw_candidates": 4,
+    "n_symbols": 22,
+    "session_complete": false,
+    "termination": "normal",
+    "verdict_rule": "2026-09-26b"
   }
 }
