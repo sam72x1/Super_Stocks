@@ -2071,7 +2071,8 @@
     "ext": false,
     "daily_low": 6.49,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "KMRK",
@@ -3803,7 +3804,8 @@
    },
    "live_alert": {
     "afterdump": "2026-10-21",
-    "buyzone": "2026-10-26"
+    "buyzone": "2026-10-26",
+    "premarket": "2026-10-27"
    },
    "price_state": "VALID",
    "price_bar": "2026-10-26"
@@ -5450,7 +5452,8 @@
     "ext": false,
     "daily_low": 2.52,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "MTVA",
@@ -5821,7 +5824,8 @@
     "ext": false,
     "daily_low": 1.2,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "JZXN",
@@ -7095,7 +7099,8 @@
     "ext": false,
     "daily_low": 0.82,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "EPSM",
@@ -7471,7 +7476,8 @@
     "ext": false,
     "daily_low": 0.89,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "BCTX",
@@ -7826,7 +7832,8 @@
     "ext": false,
     "daily_low": 3.3176,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "PRZO",
@@ -8187,7 +8194,8 @@
     "ext": true,
     "daily_low": 0.4823,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "PLSM",
@@ -8564,7 +8572,8 @@
     "ext": false,
     "daily_low": 1.69,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "AIRS",
@@ -8939,7 +8948,8 @@
     "ext": false,
     "daily_low": 1.15,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "FRSX",
@@ -9314,7 +9324,8 @@
     "ext": true,
     "daily_low": 0.73,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "ASPC",
@@ -9692,7 +9703,8 @@
     "ext": false,
     "daily_low": 10.6,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "CXAI",
@@ -10089,7 +10101,8 @@
     "ext": false,
     "daily_low": 1.731,
     "asof": "2026-10-26"
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "PSIG",
