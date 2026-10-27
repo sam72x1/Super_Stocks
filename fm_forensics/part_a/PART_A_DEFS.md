@@ -31,6 +31,14 @@ a definition that turns out wrong is reported as wrong and is not edited to fit 
     data; the replay is the only way to see what it deferred. Deferral ≥ 5 min ⟶ lateness from the gate/coverage path;
     replay missed ≈ live missed ⟶ lateness is in the definition itself.
 
+- **Amendment 2026-10-28 (after the first number — a measurement fault, not a criterion change).** Run `40597208620` read
+  Polygon minute and daily bars with `adjusted=true`, but `anchor_price` is the raw price the live worker saw on its day. A
+  reverse split after the alert day therefore puts the bars on a different scale: 41 of 566 rows (13 symbols — BDRX DKI FRGT
+  GP HCAI IPW LHSW NIVF NUWE NWGL SBFM SXTC TWG) compare a raw alert price with split-multiplied bars (e.g. TWG 10-14 alert
+  0.0761 vs bar 15 minutes earlier 9.04). The first run's numbers stay published as they came out (median 8.1%). The governing
+  A2 number is re-measured by mode `a2raw`: the same definition with `adjusted=false` minute and daily bars, so the bars are on
+  the alert's own scale. Everything else in D1 (population, columns, the 10% line, the cause split, the replay) is unchanged.
+
 ## D2 — A2-b · RSI band × outcome (alerts vs same-day monitored universe)
 - Alerts: union of `tier_fwd_ledger.jsonl` (2026-08-24 … 2026-09-29) and the D1 anchors (sent), one row per (symbol, day).
 - `RSI14` = Wilder RSI on daily adjusted closes **up to day d−1** (`Super_stock.rsi` formula re-implemented identically).

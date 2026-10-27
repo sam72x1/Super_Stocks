@@ -49,8 +49,8 @@ def daily(sym, d0, d1, adjusted=True):
     return out
 
 
-def minutes(sym, day):
-    js = get(f"/v2/aggs/ticker/{sym}/range/1/minute/{day}/{day}", {"adjusted": "true", "sort": "asc", "limit": "50000"})
+def minutes(sym, day, adjusted=True):
+    js = get(f"/v2/aggs/ticker/{sym}/range/1/minute/{day}/{day}", {"adjusted": "true" if adjusted else "false", "sort": "asc", "limit": "50000"})
     return [{"t": b["t"], "o": b["o"], "h": b["h"], "l": b["l"], "c": b["c"], "v": b.get("v", 0)} for b in (js or {}).get("results") or []]
 
 
@@ -114,20 +114,22 @@ def replay_first(bars, prev_close):
     return None
 
 
-def mode_a2():
+def mode_a2(raw=False):
+    """raw=True (D1 amendment 2026-10-28): unadjusted minute and daily bars — the live `anchor_price` is the raw price of
+    its day, so adjusted bars put a later reverse split on a different scale (41 of 566 rows in run 40597208620)."""
     A = json.load(open(os.path.join(HERE, "in", "anchors.json")))["anchors"]
     A = [a for a in A if a.get("sent") and a.get("day", "") >= "2026-10-14"]   # D1: from 2026-10-14
     rows, cache = [], {}
     for a in sorted(A, key=lambda x: (x["day"], x["anchor_ms"])):
         k = (a["sym"], a["day"])
         if k not in cache:
-            cache[k] = minutes(a["sym"], a["day"])
+            cache[k] = minutes(a["sym"], a["day"], adjusted=not raw)
         bars = cache[k]
         ta = int(a["anchor_ms"])
         before = [b for b in bars if b["t"] < ta]
         p15 = [b for b in bars if b["t"] <= ta - 15 * 60000]
         if ("D",) + k not in cache:
-            cache[("D",) + k] = daily(a["sym"], (dt.date.fromisoformat(a["day"]) - dt.timedelta(days=10)).isoformat(), a["day"])
+            cache[("D",) + k] = daily(a["sym"], (dt.date.fromisoformat(a["day"]) - dt.timedelta(days=10)).isoformat(), a["day"], adjusted=not raw)
         dly = cache[("D",) + k]
         prev = [b for b in dly if b["d"] < a["day"]]
         px = a.get("anchor_price")
@@ -174,8 +176,9 @@ def mode_a2():
                       "deferral_le_minus5": sum(1 for r in firsts if (r.get("deferral_min") or 0) <= -5),
                       "median_replay_missed_15": median([r.get("replay_missed_15") for r in firsts]),
                       "median_live_missed_15_firsts": median([r.get("missed_15") for r in firsts])}
-    save("a2", {"rows": rows, "summary": summ})
-    log("PAOUT a2 " + json.dumps(summ, ensure_ascii=False))
+    name = "a2raw" if raw else "a2"
+    save(name, {"rows": rows, "summary": summ})
+    log(f"PAOUT {name} " + json.dumps(summ, ensure_ascii=False))
 
 
 # ------------------------------------------------------------------ A2-b (D2)
@@ -455,7 +458,7 @@ def main():
     src = open(os.path.join(ROOT, "Super_stock.py"), encoding="utf-8").read()
     assert float(re.search(r'"EXPLOSION_PCT":\s*([0-9.]+)', src).group(1)) == EXPLOSION_PCT
     modes = [m.strip() for m in (os.environ.get("PART_A_MODE") or "all").split(",")]
-    table = {"a2": mode_a2, "a2b": mode_a2b, "a3": mode_a3, "a3b": mode_a3b, "vol": mode_vol, "l2": mode_l2, "tape": mode_tape}
+    table = {"a2": mode_a2, "a2raw": lambda: mode_a2(raw=True), "a2b": mode_a2b, "a3": mode_a3, "a3b": mode_a3b, "vol": mode_vol, "l2": mode_l2, "tape": mode_tape}
     for m in (list(table) if "all" in modes else modes):
         t = time.time()
         try:
