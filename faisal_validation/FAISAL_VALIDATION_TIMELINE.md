@@ -5,7 +5,7 @@
 - **2026-10-08T01:29:04Z** — Phase A evidence cutoff · seal `PHA-ea12cb86a3f39a5b` CLOSED · the prospective clock starts after this instant.
 - **Contract** — `faisal_validation/PHASE_B_prereg.md` merged before any Phase B number (pinned by PHB0).
 - **Collector** — PASS · SCHEDULED_ACTIVE (99 runs: schedule 72 · workflow_dispatch 27 · schedule `17 */4 * * *` fired 72 time(s) · last run 40453100275 success · 0 update(s) · observed 2026-10-27T13:20:00Z)
-- **Ledger** — 70 event(s), append-only and hash-chained (`faisal_validation/PROSPECTIVE_LEDGER.jsonl`).
+- **Ledger** — 85 event(s), append-only and hash-chained (`faisal_validation/PROSPECTIVE_LEDGER.jsonl`).
 - `2026-10-08T08:58:18Z` · #1 CAPTURED · `PB:TG_58525`
 - `2026-10-08T09:08:01Z` · #2 EXCLUDED · `PB:TG_58525`
 - `2026-10-27T14:16:48Z` · #3 CAPTURED · `PB:TG_75997`
@@ -76,3 +76,18 @@
 - `2026-10-27T21:00:31Z` · #68 EXCLUDED · `PB:TG_76031`
 - `2026-10-27T14:17:27Z` · #69 CAPTURED · `PB:TG_76039`
 - `2026-10-27T21:00:31Z` · #70 EXCLUDED · `PB:TG_76039`
+- `2026-10-27T21:51:53Z` · #71 V4_SEALED · `PB:TG_75997`
+- `2026-10-27T21:56:57Z` · #72 REVEALED · `PB:TG_75997`
+- `2026-10-27T21:56:57Z` · #73 EXCLUDED · `PB:TG_75997`
+- `2026-10-27T21:51:54Z` · #74 V4_SEALED · `PB:TG_75998`
+- `2026-10-27T21:56:57Z` · #75 REVEALED · `PB:TG_75998`
+- `2026-10-27T21:56:57Z` · #76 EXCLUDED · `PB:TG_75998`
+- `2026-10-27T21:51:55Z` · #77 V4_SEALED · `PB:TG_76004`
+- `2026-10-27T21:56:57Z` · #78 REVEALED · `PB:TG_76004`
+- `2026-10-27T21:56:57Z` · #79 CLASSIFIED · `PB:TG_76004`
+- `2026-10-27T21:51:56Z` · #80 V4_SEALED · `PB:TG_76013`
+- `2026-10-27T21:56:57Z` · #81 REVEALED · `PB:TG_76013`
+- `2026-10-27T21:56:57Z` · #82 CLASSIFIED · `PB:TG_76013`
+- `2026-10-27T21:51:57Z` · #83 V4_SEALED · `PB:TG_76020`
+- `2026-10-27T21:56:58Z` · #84 REVEALED · `PB:TG_76020`
+- `2026-10-27T21:56:58Z` · #85 EXCLUDED · `PB:TG_76020`

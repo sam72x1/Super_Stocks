@@ -1087,6 +1087,61 @@
    "seq": 106,
    "sha256": "2f0b4a82f96e16f0a4bcae59d302204a3cd4cf78ad0fb2cb4054f7af0b562890",
    "utc": "2026-10-27T21:51:57Z"
+  },
+  {
+   "case_id": "CASE_0004",
+   "entry_hash": "0f1710327cda4319b2c2feda0f3c1e87ccf4fc11e38c39342cbb6740eb0634dd",
+   "kind": "faisal",
+   "path": "faisal/CASE_0004.v1.json",
+   "prev": "1dec121d378ce7617da3c37f7ab08d4336ca9797e80a03d6222812e9775cf2e5",
+   "seq": 107,
+   "sha256": "c633bfab67f5c38cf8a9eb03ab54105dd2ef5ab1cf50374aa5502c0a408c0632",
+   "utc": "2026-10-27T21:56:57Z",
+   "version": 1
+  },
+  {
+   "case_id": "CASE_0005",
+   "entry_hash": "a95b1df668930f6ecfd0fbded7b411d764aec966db7b055214a91f18566d20a4",
+   "kind": "faisal",
+   "path": "faisal/CASE_0005.v1.json",
+   "prev": "0f1710327cda4319b2c2feda0f3c1e87ccf4fc11e38c39342cbb6740eb0634dd",
+   "seq": 108,
+   "sha256": "cd773514e28aefbcd54f821e61f1a3b90d175d3de6bf1ebf45d977e09d2cb279",
+   "utc": "2026-10-27T21:56:57Z",
+   "version": 1
+  },
+  {
+   "case_id": "CASE_0006",
+   "entry_hash": "01f670767077889196b117ef07acb58c42511939bf8ef93345de3df3124a0206",
+   "kind": "faisal",
+   "path": "faisal/CASE_0006.v1.json",
+   "prev": "a95b1df668930f6ecfd0fbded7b411d764aec966db7b055214a91f18566d20a4",
+   "seq": 109,
+   "sha256": "1d5167d68cb3a51f01bc30285620348eefaa2debe34e6f768c1f7194dfd50d6a",
+   "utc": "2026-10-27T21:56:57Z",
+   "version": 1
+  },
+  {
+   "case_id": "CASE_0007",
+   "entry_hash": "ff26ef50f64ad8698d1ff8ad76dbd192cc27b666f772c9165ea57de0a2760eb8",
+   "kind": "faisal",
+   "path": "faisal/CASE_0007.v1.json",
+   "prev": "01f670767077889196b117ef07acb58c42511939bf8ef93345de3df3124a0206",
+   "seq": 110,
+   "sha256": "65f160e37e0254e91830abcb32aefb6a43c6b92d40728e586cb691ba01c143eb",
+   "utc": "2026-10-27T21:56:57Z",
+   "version": 1
+  },
+  {
+   "case_id": "CASE_0008",
+   "entry_hash": "b884356d00aa5d0db19e5090e2f9d888653e92d643c3b815f1fa3f62289afb5b",
+   "kind": "faisal",
+   "path": "faisal/CASE_0008.v1.json",
+   "prev": "ff26ef50f64ad8698d1ff8ad76dbd192cc27b666f772c9165ea57de0a2760eb8",
+   "seq": 111,
+   "sha256": "cad29aa745722c5d1c98b3e54af945453f4ea590812a9cc91434ba7a7216200d",
+   "utc": "2026-10-27T21:56:58Z",
+   "version": 1
   }
  ],
  "schema": 1,

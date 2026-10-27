@@ -9,9 +9,9 @@ V4_FROZEN = YES (protocol epoch 1 · I1-I12 PASS)
 V4_COMMIT = 7c8826c25e745668d33facabb2efbc488e997fb7
 EPOCH_INTEGRITY = PASS
 COLLECTOR_STATUS = PASS · SCHEDULED_ACTIVE (99 runs: schedule 72 · workflow_dispatch 27 · schedule `17 */4 * * *` fired 72 time(s) · last run 40453100275 success · 0 update(s) · observed 2026-10-27T13:20:00Z)
-PRIMARY_CASES = 0 of 43 minimum (HISTORICAL 53 outside Phase B by definition)
-VALID_CASES = 0 (PRIMARY 0 minus 0 external-context-blocked)
-EXCLUDED_CASES = 30 (E1 18, E3 3, E4 5, E6 2, E8 2)
+PRIMARY_CASES = 2 of 43 minimum (HISTORICAL 53 outside Phase B by definition)
+VALID_CASES = 0 (PRIMARY 2 minus 2 external-context-blocked)
+EXCLUDED_CASES = 33 (E1 18, E3 3, E4 5, E6 2, E7 3, E8 2)
 UNKNOWN_CASES = 0
 FAISAL_READY = 0
 FAISAL_WAIT = 0
@@ -27,7 +27,7 @@ FALSE_READY = UNDEFINED (0/0)
 FALSE_WAIT = UNDEFINED (0/0)
 FALSE_REJECT = UNDEFINED (0/0)
 FALSE_UNKNOWN = UNDEFINED (0/0)
-EXTERNAL_CONTEXT_BLOCKED = 0
+EXTERNAL_CONTEXT_BLOCKED = 2
 DATA_BLOCKED = 2
 METHODOLOGY_MISMATCH = 0
 IMPLEMENTATION_ERROR = 0
@@ -36,17 +36,17 @@ PATTERN_DIVERSITY = NONE (0 valid cases)
 TIMEFRAME_DIVERSITY = NONE (0 valid cases)
 REGIME_DIVERSITY = NONE (0 valid cases)
 LOOKAHEAD_TEST = PASS (protocol LA1-LA6) · E9 exclusions 0
-PROVENANCE_TEST = PASS (protocol I8-I10) · E7 exclusions 0
-CONTAMINATION_TEST = PASS · E2 0 · E3 3 · E4 5 · E5 0 excluded · vacuous: 0 PRIMARY
+PROVENANCE_TEST = PASS (protocol I8-I10) · E7 exclusions 3
+CONTAMINATION_TEST = PASS · E2 0 · E3 3 · E4 5 · E5 0 excluded
 FREEZE_TEST = PASS
-LEDGER_INTEGRITY = PASS · 70 record(s) · head f750111ccd194df6
+LEDGER_INTEGRITY = PASS · 85 record(s) · head c7bcbe87f4a10298
 VALIDATION_STATE = INSUFFICIENT_SAMPLE
 V5_CANDIDATES = 0
 TESTS = test_bot.py — PHB0-PHB9 (the number is read from the CI log, never written by this tool)
 CI = tests.yml on the PR and on main (read from the log)
-MOST_IMPORTANT_FINDING = 35 Phase B item(s) after the cutoff (pending 5 · excluded 30 · unknown 0) and 0 PRIMARY — no accuracy claim is possible
-BIGGEST_REMAINING_LIMITATION = V4's forward output is {WAIT, UNKNOWN} by construction (FVO1: no source for groups · offering · operator), so READY and REJECT recall cannot exceed 0 and VALIDATED is unreachable in epoch 1
-NEXT_ALLOWED_ACTION = Forward Faisal's new posts (original timestamp kept) to the bot; then intake-scan ⟶ seal ⟶ run frozen V4 ⟶ reveal ⟶ phase_b.py write — no rule, threshold or baseline change
+MOST_IMPORTANT_FINDING = 0 valid prospective case(s) of 43; state INSUFFICIENT_SAMPLE
+BIGGEST_REMAINING_LIMITATION = Sample below the pre-registered floor (43 · READY 5 · REJECT 5 · no setup above half); V4's forward output is {WAIT, UNKNOWN} by construction (FVO1: no source for groups · offering · operator), so READY and REJECT recall cannot exceed 0 and VALIDATED is unreachable in epoch 1
+NEXT_ALLOWED_ACTION = Continue collecting under the same frozen rules; nothing changes at a checkpoint
 ```
 
 ## Items
@@ -54,9 +54,9 @@ NEXT_ALLOWED_ACTION = Forward Faisal's new posts (original timestamp kept) to th
 | status | count |
 |---|---|
 | HISTORICAL (outside Phase B) | 53 |
-| PRIMARY | 0 |
-| PENDING | 5 |
-| EXCLUDED | 30 |
+| PRIMARY | 2 |
+| PENDING | 0 |
+| EXCLUDED | 33 |
 | UNKNOWN | 0 |
 
 **HISTORICAL** = captured or dated on/before the cutoff (a day-only date counts when its New-York day — 2026-10-07 for this cutoff — is after it). Phase A sealed that period; these are not exclusions and never enter a denominator.
@@ -69,7 +69,7 @@ NEXT_ALLOWED_ACTION = Forward Faisal's new posts (original timestamp kept) to th
 | WAIT | 0 | 0 | 0 | UNDEFINED | UNDEFINED |
 | REJECT | 0 | 0 | 0 | UNDEFINED | UNDEFINED |
 
-**Sensitivity (external-context-blocked cases included):** n 0 · exact UNDEFINED (0/0) · ALWAYS_WAIT UNDEFINED (0/0) · V4_VS_BASELINE UNKNOWN. VALIDATED / PARTIALLY_VALIDATED need their criteria in both analyses (the lower state is reported).
+**Sensitivity (external-context-blocked cases included):** n 2 · exact 1/2 (50.0%) LOW_POWER · ALWAYS_WAIT 1/2 (50.0%) LOW_POWER · V4_VS_BASELINE NO. VALIDATED / PARTIALLY_VALIDATED need their criteria in both analyses (the lower state is reported).
 
 ## Dimensions (B7 — never collapsed)
 
