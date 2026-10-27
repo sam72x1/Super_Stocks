@@ -6941,7 +6941,56 @@
   },
   {
    "CASE_ID": "CASE_0004",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-23",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "short_borrow"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Technology",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "CYCU",
+    "timeframe": "D",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "STRONG_INFERENCE",
+    "evidence_quote": "1.80 فنيا مفترض يثبت عليه",
+    "external_codes": [
+     "«شورته 3000 اقتراض 141٪» (الشورت المتاح ورسومُ الاقتراض)"
+    ],
+    "false_ready_cause": null,
+    "label": "WAIT",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BELOW",
+    "px_f": 2.16,
+    "quote_verbatim": true,
+    "timeframe_f": "D",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -6953,6 +7002,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -6981,7 +7031,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "CYCU",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -7141,7 +7191,58 @@
   },
   {
    "CASE_ID": "CASE_0005",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-24",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "float",
+     "short_borrow"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "<1",
+    "sector": "Financial Services",
+    "setup": "PRESS_RECLAIM",
+    "ticker": "ICMB",
+    "timeframe": "W",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "wait Breakout 0.90",
+    "external_codes": [
+     "«350K shorts» (الشورت المتاح)",
+     "«Free float 10M» (الفلوت)"
+    ],
+    "false_ready_cause": null,
+    "label": "WAIT",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "ABOVE",
+    "px_f": 0.7,
+    "quote_verbatim": true,
+    "timeframe_f": "W",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -7153,6 +7254,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "FALSE_UNKNOWN",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -7181,7 +7283,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "ICMB",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -7344,7 +7446,57 @@
   },
   {
    "CASE_ID": "CASE_0006",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-22",
+   "DIVERSITY": {
+    "decision": "READY",
+    "external_context": [
+     "other"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Industrials",
+    "setup": "RETEST_PENDING",
+    "ticker": "BKYI",
+    "timeframe": "4H",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "READY",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "دخول الان 2.70> 2.60 وقفنا 2.40",
+    "external_codes": [
+     "«اول الافتر اما يصعد مباشره او يختبر الدعم» (جلسةٌ ممتدّة)",
+     "«سهم امتد تداوله يومين متتاليه» (توقيتُ الجلسات)"
+    ],
+    "false_ready_cause": null,
+    "label": "READY",
+    "label4": "READY",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "NONE",
+    "px_f": 2.7,
+    "quote_verbatim": true,
+    "timeframe_f": "4H",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -7356,6 +7508,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "FALSE_WAIT",
    "PROVENANCE": {
     "basis": "VISIBLE_POST_TIMESTAMP",
     "decision_date_from_post": "2026-10-22",
@@ -7382,7 +7535,7 @@
    },
    "PROVENANCE_CONFIDENCE": "MEDIUM",
    "SAMPLE": "PRIMARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "BKYI",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -7541,7 +7694,56 @@
   },
   {
    "CASE_ID": "CASE_0007",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-14",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "other"
+    ],
+    "market_regime": "ABOVE_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Industrials",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "ANPA",
+    "timeframe": "D",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "يحتاج مراقبه",
+    "external_codes": [
+     "«هبوط قاع سنوي تاريخي» (سياقٌ زمنيّ)"
+    ],
+    "false_ready_cause": null,
+    "label": "WATCH",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BOTH",
+    "px_f": 1.74,
+    "quote_verbatim": true,
+    "timeframe_f": "D",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -7553,6 +7755,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "VISIBLE_POST_TIMESTAMP",
     "decision_date_from_post": "2026-10-14",
@@ -7579,7 +7782,7 @@
    },
    "PROVENANCE_CONFIDENCE": "MEDIUM",
    "SAMPLE": "PRIMARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "ANPA",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -7739,7 +7942,56 @@
   },
   {
    "CASE_ID": "CASE_0008",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-10",
+   "DIVERSITY": {
+    "decision": "READY",
+    "external_context": [
+     "country"
+    ],
+    "market_regime": "ABOVE_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Industrials",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "NCT",
+    "timeframe": "4H",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "READY",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "دخلنا الان 1.50",
+    "external_codes": [
+     "«اذا موجات الاسهم الصينيه مثل sxtc» (الدولة)"
+    ],
+    "false_ready_cause": null,
+    "label": "READY",
+    "label4": "READY",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "NONE",
+    "px_f": 1.5,
+    "quote_verbatim": true,
+    "timeframe_f": "4H",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -7751,6 +8003,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "FALSE_WAIT",
    "PROVENANCE": {
     "basis": "VISIBLE_POST_TIMESTAMP",
     "decision_date_from_post": "2026-10-10",
@@ -7779,7 +8032,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "NCT",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -7941,8 +8194,44 @@
  "contract": "faisal_method_v41/FINAL_PROTOCOL_prereg.md",
  "diversity": {
   "LOW_DIVERSITY": false,
-  "dims": {},
-  "longest_same_setup_run": 0
+  "dims": {
+   "decision": {
+    "READY": 1,
+    "WAIT": 1
+   },
+   "external_context": {
+    "other": 2
+   },
+   "market_regime": {
+    "ABOVE_SMA50": 1,
+    "BELOW_SMA50": 1
+   },
+   "pattern": {
+    "UNSPECIFIED": 2
+   },
+   "price_range": {
+    "1-5": 2
+   },
+   "sector": {
+    "Industrials": 2
+   },
+   "setup": {
+    "BROKEN_NEW_BASE": 1,
+    "RETEST_PENDING": 1
+   },
+   "ticker": {
+    "ANPA": 1,
+    "BKYI": 1
+   },
+   "timeframe": {
+    "4H": 1,
+    "D": 1
+   },
+   "v4_patterns": {
+    "W (V3.1)": 2
+   }
+  },
+  "longest_same_setup_run": 1
  },
  "epoch": {
   "DATA_PIPELINE_PINS": {
@@ -8028,27 +8317,30 @@
   "ok": true
  },
  "metrics": {
-  "ALWAYS_WAIT_MATCH": 0,
+  "ALWAYS_WAIT_MATCH": 1,
   "FAISAL_UNKNOWN": 0,
-  "FALSE_READY_FPR": "UNDEFINED",
-  "FALSE_READY_RATE": "UNDEFINED",
+  "FALSE_READY_FPR": 0.0,
+  "FALSE_READY_RATE": 0.0,
   "FALSE_READY_RATE_WILSON": null,
-  "MATCHES": 0,
-  "MISMATCHES": 0,
+  "MATCHES": 1,
+  "MISMATCHES": 1,
   "P1_TECH_READY": {
-   "faisal_ready": 0,
-   "faisal_wait_reject": 0,
+   "faisal_ready": 1,
+   "faisal_wait_reject": 1,
    "met": false,
-   "newcombe95": null,
+   "newcombe95": [
+    -0.7935,
+    0.7935
+   ],
    "tech_ready_given_ready": 0,
    "tech_ready_given_wait_reject": 0
   },
   "READY_CLASS_BASIS": "STRUCTURAL (FVO1): V4 الأماميّ ∈ {WAIT · UNKNOWN}",
   "READY_CLASS_VALIDATED": "NO",
   "UNRESOLVED": 0,
-  "V4_BEATS_BASELINE": "UNKNOWN",
+  "V4_BEATS_BASELINE": "NO",
   "V4_UNKNOWN": 0,
-  "always_wait_rate": "UNDEFINED",
+  "always_wait_rate": 0.5,
   "baseline_discordant": {
    "b_v4_only": 0,
    "c_baseline_only": 0
@@ -8058,27 +8350,27 @@
    "FALSE_READY": 0,
    "FALSE_REJECT": 0,
    "FALSE_UNKNOWN": 0,
-   "FALSE_WAIT": 0,
-   "MATCH": 0,
+   "FALSE_WAIT": 1,
+   "MATCH": 1,
    "MISMATCH_REJECT_WAIT": 0,
    "MISMATCH_WAIT_REJECT": 0,
    "UNRESOLVED": 0
   },
   "coverage": {
-   "READY": 0,
+   "READY": 1,
    "REJECT": 0,
-   "WAIT": 0
+   "WAIT": 1
   },
-  "exact_rate": "UNDEFINED",
+  "exact_rate": 0.5,
   "exact_wilson": null,
-  "n_comparable": 0,
-  "n_valid": 0,
+  "n_comparable": 2,
+  "n_valid": 2,
   "per_class": {
    "READY": {
-    "faisal": 0,
+    "faisal": 1,
     "precision": "UNDEFINED",
     "precision_wilson": null,
-    "recall": "UNDEFINED",
+    "recall": 0.0,
     "recall_wilson": null,
     "tp": 0,
     "v4": 0
@@ -8093,18 +8385,18 @@
     "v4": 0
    },
    "WAIT": {
-    "faisal": 0,
-    "precision": "UNDEFINED",
+    "faisal": 1,
+    "precision": 0.5,
     "precision_wilson": null,
-    "recall": "UNDEFINED",
+    "recall": 1.0,
     "recall_wilson": null,
-    "tp": 0,
-    "v4": 0
+    "tp": 1,
+    "v4": 2
    }
   }
  },
  "output": {
-  "ALWAYS_WAIT_MATCH": 0,
+  "ALWAYS_WAIT_MATCH": 1,
   "CORPUS_AUDIT": "COMPLETE",
   "CURRENT_STATUS": "VERY_PRELIMINARY",
   "EXCLUDED_CASES": 86,
@@ -8112,19 +8404,19 @@
   "FALSE_READY": 0,
   "FALSE_REJECT": 0,
   "FALSE_UNKNOWN": 0,
-  "FALSE_WAIT": 0,
+  "FALSE_WAIT": 1,
   "FINAL_VALIDATION_STATE": "INSUFFICIENT_SAMPLE",
   "LOOKAHEAD": "PASS",
-  "MATCHES": 0,
+  "MATCHES": 1,
   "METHODOLOGY_CHANGED": "NO",
-  "MISMATCHES": 0,
+  "MISMATCHES": 1,
   "PROVENANCE": "PASS",
   "READY_CLASS_VALIDATED": "NO",
-  "V4_BEATS_BASELINE": "UNKNOWN",
+  "V4_BEATS_BASELINE": "NO",
   "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
   "V4_FROZEN": "YES",
   "V4_UNKNOWN": 0,
-  "VALID_PROSPECTIVE_CASES": 0
+  "VALID_PROSPECTIVE_CASES": 2
  },
  "output_order": [
   "V4_FROZEN",
@@ -8172,10 +8464,7 @@
    "PRE_EXISTING": 7,
    "UNKNOWN": 23
   },
-  "PENDING_PRIMARY": [
-   "CASE_0006",
-   "CASE_0007"
-  ],
+  "PENDING_PRIMARY": [],
   "SECONDARY_TRACKED": [
    {
     "CASE_ID": "CASE_0001",
@@ -8207,7 +8496,7 @@
    },
    {
     "CASE_ID": "CASE_0004",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "MATCH",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "CYCU",
     "missing_critical": [
@@ -8216,7 +8505,7 @@
    },
    {
     "CASE_ID": "CASE_0005",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "FALSE_UNKNOWN",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "ICMB",
     "missing_critical": [
@@ -8225,7 +8514,7 @@
    },
    {
     "CASE_ID": "CASE_0008",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "FALSE_WAIT",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "NCT",
     "missing_critical": [
@@ -8235,11 +8524,45 @@
   ],
   "STRUCTURAL": "V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY ولا REJECT · وكلُّ تطابقٍ لـV4 تطابقٌ لـALWAYS_WAIT",
   "secondary_metrics": {
-   "MATCHES": 3,
-   "MISMATCHES": 0,
-   "n_valid": 3
+   "MATCHES": 4,
+   "MISMATCHES": 2,
+   "n_valid": 6
   }
  },
  "tool_version": "V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)",
- "v4_2_candidates": []
+ "v4_2_candidates": [
+  {
+   "CASE_ID": "CASE_0005",
+   "CONTRADICTING_CASES": "PENDING_ANALYSIS",
+   "EVIDENCE": "PENDING_ANALYSIS",
+   "GENERALIZATION_STATUS": "PENDING_ANALYSIS",
+   "MATCH_CLASS": "FALSE_UNKNOWN",
+   "OBSERVATION": "PENDING_ANALYSIS",
+   "POSSIBLE_MISSING_RULE": "PENDING_ANALYSIS",
+   "SAMPLE": "SECONDARY",
+   "WHY_V4_FAILED": "PENDING_ANALYSIS"
+  },
+  {
+   "CASE_ID": "CASE_0006",
+   "CONTRADICTING_CASES": "PENDING_ANALYSIS",
+   "EVIDENCE": "PENDING_ANALYSIS",
+   "GENERALIZATION_STATUS": "PENDING_ANALYSIS",
+   "MATCH_CLASS": "FALSE_WAIT",
+   "OBSERVATION": "PENDING_ANALYSIS",
+   "POSSIBLE_MISSING_RULE": "PENDING_ANALYSIS",
+   "SAMPLE": "PRIMARY",
+   "WHY_V4_FAILED": "PENDING_ANALYSIS"
+  },
+  {
+   "CASE_ID": "CASE_0008",
+   "CONTRADICTING_CASES": "PENDING_ANALYSIS",
+   "EVIDENCE": "PENDING_ANALYSIS",
+   "GENERALIZATION_STATUS": "PENDING_ANALYSIS",
+   "MATCH_CLASS": "FALSE_WAIT",
+   "OBSERVATION": "PENDING_ANALYSIS",
+   "POSSIBLE_MISSING_RULE": "PENDING_ANALYSIS",
+   "SAMPLE": "SECONDARY",
+   "WHY_V4_FAILED": "PENDING_ANALYSIS"
+  }
+ ]
 }

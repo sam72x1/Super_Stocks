@@ -1,0 +1,46 @@
+{
+ "after_v4_seq": 103,
+ "case_id": "CASE_0005",
+ "evidence_class": "DIRECT",
+ "evidence_note": "«wait Breakout 0.90» حرفًا والسعرُ ‏0.70 (‏0.8181 بعد الإغلاق) دونه ⟵ انتظارُ اختراق 0.90 ⟵ WAIT مباشرة",
+ "evidence_quote": "wait Breakout 0.90",
+ "external_codes": [
+  "«350K shorts» (الشورت المتاح)",
+  "«Free float 10M» (الفلوت)"
+ ],
+ "label": "WAIT",
+ "label4": "WAIT",
+ "levels_f": [
+  {
+   "kind": "breakout",
+   "price": 0.9,
+   "q": "wait Breakout 0.90",
+   "src": "TG_75998"
+  },
+  {
+   "kind": "low",
+   "price": 0.6156,
+   "q": "قاعٌ موسوم 0.6156 على الشارت",
+   "src": "TG_75998"
+  },
+  {
+   "kind": "resistance",
+   "price": 0.9048,
+   "q": "خطٌّ أسود على الشارت",
+   "src": "TG_75998"
+  },
+  {
+   "kind": "resistance",
+   "price": 1.1792,
+   "q": "خطٌّ أسود على الشارت",
+   "src": "TG_75998"
+  }
+ ],
+ "notes": "B36_20261027 · كُتب بعد قيد V4 لحالته (run 40590207292 · UNKNOWN · UNVERIFIED_VALIDITY · as-of 2026-10-23) · الاقتباسُ من صورة الحالة TG_75998 حرفًا · التاريخُ مستنتَجٌ LOW ⟵ ثانويّ",
+ "plan_f": "ABOVE",
+ "protocol_reveal": "V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)",
+ "px_f": 0.7,
+ "quote": "wait Breakout 0.90 / 350K shorts / Free float 10M / $ICMB",
+ "timeframe_f": "W",
+ "v4_decision_sha256": "cb23f90bbf94c99167266c7d9e98c95964fa5c8b2d7431ad0f5692af4a92a62d"
+}

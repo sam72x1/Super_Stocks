@@ -6701,46 +6701,48 @@
  },
  "prospective": {
   "candidates": 86,
-  "complete": 3,
+  "complete": 8,
   "coverage": {
-   "disagreements": 0,
+   "disagreements": 3,
    "golden": 0,
    "pattern": {
-    "UNSPECIFIED": 3
+    "UNSPECIFIED": 8
    },
    "targets_stated": 0,
    "timeframe": {
-    "4H": 2,
-    "D": 1
+    "4H": 3,
+    "D": 3,
+    "UNKNOWN": 1,
+    "W": 1
    }
   },
   "invalid": 0,
   "matrix": {
    "agreement": {
-    "READY": "N=0",
+    "READY": "0/2",
     "REJECT": "N=0",
     "UNKNOWN": "N=0",
-    "WAIT": "3/3"
+    "WAIT": "5/6"
    },
    "always_wait": {
-    "agree": 3,
-    "n": 3,
-    "rate": 1.0
+    "agree": 6,
+    "n": 8,
+    "rate": 0.75
    },
-   "exact": 3,
-   "exact_rate": 1.0,
+   "exact": 5,
+   "exact_rate": 0.625,
    "exact_wilson": null,
    "false": {
     "READY": 0,
     "REJECT": 0,
-    "UNKNOWN": 0,
-    "WAIT": 0
+    "UNKNOWN": 1,
+    "WAIT": 2
    },
    "false_rate": {
     "READY": 0.0,
     "REJECT": 0.0,
-    "UNKNOWN": 0.0,
-    "WAIT": 0.0
+    "UNKNOWN": 0.125,
+    "WAIT": 0.25
    },
    "insufficient": true,
    "matrix": {
@@ -6748,7 +6750,7 @@
      "READY": 0,
      "REJECT": 0,
      "UNKNOWN": 0,
-     "WAIT": 0
+     "WAIT": 2
     },
     "REJECT": {
      "READY": 0,
@@ -6765,13 +6767,13 @@
     "WAIT": {
      "READY": 0,
      "REJECT": 0,
-     "UNKNOWN": 0,
-     "WAIT": 3
+     "UNKNOWN": 1,
+     "WAIT": 5
     }
    },
-   "n": 3,
+   "n": 8,
    "ready_precision": "UNDEFINED (V4 READY = 0)",
-   "ready_recall": "UNDEFINED (Faisal READY = 0)",
+   "ready_recall": "0/2",
    "v4_not_run": 0
   },
   "pending_images": [],

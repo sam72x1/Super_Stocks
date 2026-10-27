@@ -1,6 +1,6 @@
 {
  "amendment": "faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md",
- "blocked_external": 0,
+ "blocked_external": 2,
  "checkpoints_reached": [],
  "collector": {
   "last_run": {
@@ -25,9 +25,9 @@
  "collector_status": "PASS · SCHEDULED_ACTIVE (99 runs: schedule 72 · workflow_dispatch 27 · schedule `17 */4 * * *` fired 72 time(s) · last run 40453100275 success · 0 update(s) · observed 2026-10-27T13:20:00Z)",
  "contract": "faisal_validation/PHASE_B_prereg.md",
  "counts": {
-  "EXCLUDED": 30,
-  "PENDING": 5,
-  "PRIMARY": 0,
+  "EXCLUDED": 33,
+  "PENDING": 0,
+  "PRIMARY": 2,
   "UNKNOWN": 0
  },
  "cutoff": "2026-10-08T01:29:04Z",
@@ -37,6 +37,7 @@
   "E3": 3,
   "E4": 5,
   "E6": 2,
+  "E7": 3,
   "E8": 2
  },
  "gate": {
@@ -319,10 +320,10 @@
  },
  "ledger": {
   "due_now": 0,
-  "file_sha256": "c69678390fae326d252d32c50442a594c9bfcada6deb3e1513a4531ce661ca9d",
-  "head_sha256": "f750111ccd194df6a54494f5cdeee608e3f625ae513809b6f2ade487d3f3fb4e",
+  "file_sha256": "b82b795cd9c6ff1ee0258f31339481b62aad128a24d7f14c3d303640c67af6ca",
+  "head_sha256": "c7bcbe87f4a10298168b0af20b0c6c86d4028af3ae625da5d3dee6c9d66d6d1b",
   "problems": [],
-  "records": 70
+  "records": 85
  },
  "main": 0,
  "metrics_main": {
@@ -349,26 +350,26 @@
   }
  },
  "metrics_sensitivity": {
-  "always_wait": 0,
-  "exact": 0,
+  "always_wait": 1,
+  "exact": 1,
   "faisal": {
-   "READY": 0,
+   "READY": 1,
    "REJECT": 0,
-   "WAIT": 0
+   "WAIT": 1
   },
   "false": {
    "READY": 0,
    "REJECT": 0,
    "UNKNOWN": 0,
-   "WAIT": 0
+   "WAIT": 1
   },
-  "n": 0,
+  "n": 2,
   "prior": 0,
   "v4": {
    "READY": 0,
    "REJECT": 0,
    "UNKNOWN": 0,
-   "WAIT": 0
+   "WAIT": 2
   }
  },
  "predictions": {
@@ -376,7 +377,7 @@
   "P2": "HELD",
   "P3": "HELD (FVO1: V4's forward output ∈ {WAIT, UNKNOWN})"
  },
- "primary": 0,
+ "primary": 2,
  "protocol": {
   "LOOKAHEAD": "PASS",
   "PROVENANCE": "PASS",
@@ -441,15 +442,15 @@
   }
  },
  "protocol_metrics_sensitivity": {
-  "V4_BEATS_BASELINE": "UNKNOWN",
+  "V4_BEATS_BASELINE": "NO",
   "baseline_discordant": {
    "b_v4_only": 0,
    "c_baseline_only": 0
   },
   "coverage": {
-   "READY": 0,
+   "READY": 1,
    "REJECT": 0,
-   "WAIT": 0
+   "WAIT": 1
   }
  },
  "rows": [
@@ -485,23 +486,28 @@
    "case_id": "PB:TG_75997",
    "categories": [],
    "cause": null,
-   "code": "",
-   "components": {},
+   "code": "E7",
+   "components": {
+    "ENTRY": "FAISAL_NOT_STATED",
+    "INVALIDATION": "FAISAL_NOT_STATED",
+    "STOP": "FAISAL_NOT_STATED",
+    "TARGET": "FAISAL_NOT_STATED"
+   },
    "external_context": "NOT_EVALUATED",
-   "faisal_decision": null,
+   "faisal_decision": "WAIT",
    "faisal_timestamp": "2026-10-23",
    "historical_prior": "WAIT",
    "image_hash": "79f601b7939b0daa30782ea0ce4e7de923ff222040348a7add608dbd6bc543cb",
-   "match_class": null,
-   "pattern": null,
+   "match_class": "MATCH",
+   "pattern": "UNSPECIFIED",
    "protocol_case": "CASE_0004",
-   "reason": "protocol PENDING_V4 (Faisal not revealed)",
-   "regime": null,
-   "setup": null,
-   "status": "PENDING",
+   "reason": "E7 provenance adequate: provenance LOW",
+   "regime": "BELOW_SMA50",
+   "setup": "BROKEN_NEW_BASE",
+   "status": "EXCLUDED",
    "ticker": "CYCU",
    "timeframe": "D",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
@@ -510,23 +516,28 @@
    "case_id": "PB:TG_75998",
    "categories": [],
    "cause": null,
-   "code": "",
-   "components": {},
+   "code": "E7",
+   "components": {
+    "ENTRY": "FAISAL_NOT_STATED",
+    "INVALIDATION": "FAISAL_NOT_STATED",
+    "STOP": "FAISAL_NOT_STATED",
+    "TARGET": "FAISAL_NOT_STATED"
+   },
    "external_context": "NOT_EVALUATED",
-   "faisal_decision": null,
+   "faisal_decision": "WAIT",
    "faisal_timestamp": "2026-10-24",
    "historical_prior": "WAIT",
    "image_hash": "17e6eb521e1b1d9b2abbcec94d78c1116f381177e3845598b47e0081defabf78",
-   "match_class": null,
-   "pattern": null,
+   "match_class": "FALSE_UNKNOWN",
+   "pattern": "UNSPECIFIED",
    "protocol_case": "CASE_0005",
-   "reason": "protocol PENDING_V4 (Faisal not revealed)",
-   "regime": null,
-   "setup": null,
-   "status": "PENDING",
+   "reason": "E7 provenance adequate: provenance LOW",
+   "regime": "BELOW_SMA50",
+   "setup": "PRESS_RECLAIM",
+   "status": "EXCLUDED",
    "ticker": "ICMB",
    "timeframe": "W",
-   "v4_decision": null
+   "v4_decision": "UNKNOWN"
   },
   {
    "always_wait": "WAIT",
@@ -655,28 +666,35 @@
   },
   {
    "always_wait": "WAIT",
-   "blocked": false,
+   "blocked": true,
    "capture_timestamp": "2026-10-27T14:16:54Z",
    "case_id": "PB:TG_76004",
-   "categories": [],
+   "categories": [
+    "other"
+   ],
    "cause": null,
    "code": "",
-   "components": {},
-   "external_context": "NOT_EVALUATED",
-   "faisal_decision": null,
+   "components": {
+    "ENTRY": "FAISAL_NOT_STATED",
+    "INVALIDATION": "FAISAL_NOT_STATED",
+    "STOP": "FAISAL_NOT_STATED",
+    "TARGET": "FAISAL_NOT_STATED"
+   },
+   "external_context": "EXTERNAL_REQUIRED · VALIDATION_BLOCKED_EXTERNAL_CONTEXT",
+   "faisal_decision": "READY",
    "faisal_timestamp": "2026-10-23T02:08:00Z",
    "historical_prior": "WAIT",
    "image_hash": "cdb16ecc43f6b41c29b2482ed9aab9693b50f80e524e7fcf12858c4ac47ca3d4",
-   "match_class": null,
-   "pattern": null,
+   "match_class": "FALSE_WAIT",
+   "pattern": "UNSPECIFIED",
    "protocol_case": "CASE_0006",
-   "reason": "protocol PENDING_V4 (Faisal not revealed)",
-   "regime": null,
-   "setup": null,
-   "status": "PENDING",
+   "reason": "",
+   "regime": "BELOW_SMA50",
+   "setup": "RETEST_PENDING",
+   "status": "PRIMARY",
    "ticker": "BKYI",
    "timeframe": "4H",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
@@ -880,28 +898,35 @@
   },
   {
    "always_wait": "WAIT",
-   "blocked": false,
+   "blocked": true,
    "capture_timestamp": "2026-10-27T14:17:03Z",
    "case_id": "PB:TG_76013",
-   "categories": [],
+   "categories": [
+    "other"
+   ],
    "cause": null,
    "code": "",
-   "components": {},
-   "external_context": "NOT_EVALUATED",
-   "faisal_decision": null,
+   "components": {
+    "ENTRY": "FAISAL_NOT_STATED",
+    "INVALIDATION": "FAISAL_NOT_STATED",
+    "STOP": "FAISAL_NOT_STATED",
+    "TARGET": "FAISAL_NOT_STATED"
+   },
+   "external_context": "EXTERNAL_REQUIRED · VALIDATION_BLOCKED_EXTERNAL_CONTEXT",
+   "faisal_decision": "WAIT",
    "faisal_timestamp": "2026-10-14T20:29:00Z",
    "historical_prior": "READY",
    "image_hash": "7a22bc0b866bfaea58597591962420506d194f894b3ee8b4e74bc631f82e6ca8",
-   "match_class": null,
-   "pattern": null,
+   "match_class": "MATCH",
+   "pattern": "UNSPECIFIED",
    "protocol_case": "CASE_0007",
-   "reason": "protocol PENDING_V4 (Faisal not revealed)",
-   "regime": null,
-   "setup": null,
-   "status": "PENDING",
+   "reason": "",
+   "regime": "ABOVE_SMA50",
+   "setup": "BROKEN_NEW_BASE",
+   "status": "PRIMARY",
    "ticker": "ANPA",
    "timeframe": "D",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
@@ -1010,23 +1035,28 @@
    "case_id": "PB:TG_76020",
    "categories": [],
    "cause": null,
-   "code": "",
-   "components": {},
+   "code": "E7",
+   "components": {
+    "ENTRY": "FAISAL_NOT_STATED",
+    "INVALIDATION": "FAISAL_NOT_STATED",
+    "STOP": "FAISAL_NOT_STATED",
+    "TARGET": "FAISAL_NOT_STATED"
+   },
    "external_context": "NOT_EVALUATED",
-   "faisal_decision": null,
+   "faisal_decision": "READY",
    "faisal_timestamp": "2026-10-11T01:04:00Z",
    "historical_prior": "WAIT",
    "image_hash": "c4b7d3c140ccd10f1e60f81a6edbf91ce4346934d5336d5cfbc28cda5512c5f7",
-   "match_class": null,
-   "pattern": null,
+   "match_class": "FALSE_WAIT",
+   "pattern": "UNSPECIFIED",
    "protocol_case": "CASE_0008",
-   "reason": "protocol PENDING_V4 (Faisal not revealed)",
-   "regime": null,
-   "setup": null,
-   "status": "PENDING",
+   "reason": "E7 provenance adequate: provenance LOW",
+   "regime": "ABOVE_SMA50",
+   "setup": "BROKEN_NEW_BASE",
+   "status": "EXCLUDED",
    "ticker": "NCT",
-   "timeframe": "UNKNOWN",
-   "v4_decision": null
+   "timeframe": "4H",
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
