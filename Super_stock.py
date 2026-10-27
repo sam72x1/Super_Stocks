@@ -13512,6 +13512,10 @@ FILL_POOL_FILE = "fill_pool_log.jsonl"
 FILL_POOL_MAX_ROWS = 400                # سقفُ صفوف التشغيلة (البِركةُ المقيسة 92-109) — وما فوقه يُعَدّ في `rows_cut`
 FILL_POOL_SCHEMA = 1
 REJECT_LOG_DAYS = 20                    # نافذة القياس المسجَّلة (20 يوم تداول)
+# 🔧 F1 (2026-10-15 · `fm_forensics/perf/H6_PREREG_AMENDMENT_1.md` · بإذن المالك الصريح من §10 لعقد H6): جدارُ المرساة يُحفَظ **كاملًا**
+#    بلا سقف — بِركةُ ضوابط H6 (`collector.control_pool`) ترفض الجدارَ المُعيَّن فتجمّدت على 2026-10-08 حين تجاوز 400 · والجدرانُ
+#    الأخرى بسقفها وعيّنتها بت-بت · و`()` = الدالّةُ السابقة بت-بت (المفتاح) · سجلٌّ بحثيّ لا قرار.
+REJECT_LOG_FULL_WALLS = ("M_لا_مستوى_مختبر",)
 REJECT_LOG_MAX_SYMS = 400               # سقفٌ لكل جدارٍ في اليوم — لا انفجار حجم
 
 # ────────────────────────────────────────────────────────────────────────────
@@ -14204,7 +14208,7 @@ def harvest_borrow_watch(ejected, results, today_iso: str, fetch=None,
 
 
 def build_reject_snapshot(reasons: dict, today: str,
-                          cap: int = REJECT_LOG_MAX_SYMS) -> dict:
+                          cap: int = REJECT_LOG_MAX_SYMS, full_walls=None) -> dict:
     """🗂️ **م-ب: لقطةُ يومٍ من المرفوضين — الرمزُ وجدارُه الأول.**
 
     السبب مقيس: `record_reject_stats` يحفظ **أعدادًا بلا رمزٍ واحد** ⇒ لا يمكن
@@ -14238,8 +14242,9 @@ def build_reject_snapshot(reasons: dict, today: str,
         buckets.setdefault(_reject_key_base(code), []).append(str(sym))
     walls, cut, sampled = {}, 0, []
     cap = int(cap)
+    full = set(REJECT_LOG_FULL_WALLS if full_walls is None else full_walls)   # 🔧 F1 · وقتَ النداء
     for key, syms in buckets.items():
-        if len(syms) <= cap:
+        if len(syms) <= cap or key in full:
             walls[key] = sorted(syms)
             continue
         # عيّنةٌ حتميّةٌ موحّدة (لا أبجدية): الترتيب ببصمة «تاريخ:رمز» ثم أوّل cap.

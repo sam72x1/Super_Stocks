@@ -42,7 +42,9 @@ FINAL_PROSPECTUS = ("424B1", "424B4", "424B5")
 # ---------------------------------------------------------------- calendar
 def is_session(d: str) -> bool:
     try:
-        return bool(MC.is_trading_day(d))
+        # 🔧 F2 (H6_PREREG_AMENDMENT_1.md · 2026-10-15): `is_trading_day` does not check weekends (its docstring) ⟵ the weekday rule
+        #    here, the same idiom as faisal_method_v41/runner.py:70 — E4 «30 sessions» and E5 «5 sessions» are sessions again.
+        return dt.date.fromisoformat(d).weekday() < 5 and bool(MC.is_trading_day(d))
     except Exception:                                                # noqa: BLE001 (beyond table ⟶ weekday rule)
         return dt.date.fromisoformat(d).weekday() < 5
 
@@ -143,6 +145,73 @@ def load_panel(path=None) -> dict:
             e = json.loads(x)
             out.setdefault(e["obs_date"], e)
     return out
+
+
+CONTROL_WALL = "M_لا_مستوى_مختبر"
+PHOTO_WARN_SESSIONS = 5            # the daily alarm (amendment 1 · reporting only): no photo for this many sessions ⟵ ::warning::
+
+
+def pool_lag(panel: dict, reject_log) -> dict:
+    """The pool actually used by the newest panel line and how many `reject_log.json` entries (with the control wall) are newer
+    than it up to that panel day — 0 = fresh. Unknown (None) when there is no panel or no readable log. Reporting only."""
+    days = sorted(panel)
+    if not days:
+        return dict(obs_date=None, pool_date=None, lag_entries=None, newer=[])
+    e = panel[days[-1]]
+    obs, pool = e.get("obs_date") or days[-1], e.get("pool_date")
+    if reject_log is None or pool is None:
+        return dict(obs_date=obs, pool_date=pool, lag_entries=None, newer=[])
+    newer = sorted({str(r.get("date")) for r in reject_log if isinstance(r, dict) and CONTROL_WALL in (r.get("walls") or {})
+                    and pool < str(r.get("date", "")) <= obs})
+    return dict(obs_date=obs, pool_date=pool, lag_entries=len(newer), newer=newer)
+
+
+def last_photo(root=None) -> str:
+    """UTC date of the newest photo the Telegram collector saved (`telegram_collect_meta.jsonl` · status saved), or None."""
+    p = os.path.join(root or ROOT, "telegram_collect_meta.jsonl")
+    best = None
+    if os.path.exists(p):
+        for x in open(p, encoding="utf-8"):
+            if not x.strip():
+                continue
+            try:
+                r = json.loads(x)
+            except ValueError:
+                continue
+            if r.get("status") == "saved" and r.get("kind") == "photo":
+                t = str(r.get("date") or r.get("collected_utc") or "")[:10]
+                if t and (best is None or t > best):
+                    best = t
+    return best
+
+
+def load_reject_log(root=None):
+    try:
+        d = json.load(open(os.path.join(root or ROOT, "reject_log.json"), encoding="utf-8"))
+        return d if isinstance(d, list) else None
+    except Exception:                                                # noqa: BLE001
+        return None
+
+
+def alarm_line(st: dict):
+    """(line, warnings) — the daily one-line H6 report (amendment 1): eligible/floor · cases after the cutoff · newest photo and the
+    sessions since · the control pool date (ALWAYS printed — `no_pool_days` alone said «healthy» while the pool was frozen) and its
+    lag in reject_log entries. ⚠️ and a warning when the pool lags ≥ 1 entry or no photo came for PHOTO_WARN_SESSIONS sessions."""
+    inp, pl = st.get("inputs") or {}, (st.get("panel") or {})
+    warns = []
+    ph, ns = inp.get("last_photo"), inp.get("sessions_since_last_photo")
+    ph_bad = ph is None or (ns is not None and ns >= PHOTO_WARN_SESSIONS)
+    ph_txt = f"{ph} (منذ {ns} جلسة)" if ph else "لا صورة"
+    if ph_bad:
+        warns.append(f"H6: no photo reached the bot for {ns if ph else 'all'} sessions (last {ph})")
+    pd_, lag = pl.get("pool_date_last"), pl.get("pool_lag_entries_last")
+    pool_bad = pd_ is None or lag is None or lag >= 1
+    lag_txt = "غيرُ معروف" if lag is None else (f"متأخّرة {lag} مداخل" if lag else "طازجة")
+    if pool_bad:
+        warns.append(f"H6: control pool {pd_} lags {lag} reject_log entries (panel {pl.get('pool_obs_last')})")
+    line = (f"H6 · {st.get('today')} · مؤهَّل {st.get('eligible')}/{st.get('floor')} · حالاتٌ بعد الحدّ {st.get('cases_after_cutoff')} · "
+            f"آخرُ صورةٍ للبوت {ph_txt}{' ⚠️' if ph_bad else ''} · بِركةُ الضوابط {pd_} ({lag_txt}){' ⚠️' if pool_bad else ''}")
+    return line, warns
 
 
 def index_ledger(rows) -> dict:
@@ -304,6 +373,8 @@ def build_status(today=None, root=None, ledger_rows=None, panel=None):
     denom = len(units) + len(cov_fail)
     lags = sorted(u["lag"] for u in units)
     pdays = sorted(panel)
+    _pl = pool_lag(panel, load_reject_log(root))                     # amendment 1 · reporting only
+    _ph = last_photo(root)
     st = dict(contract_sha256=PREREG_SHA256, today=today, cutoff=CUTOFF_DATE, window_end=WINDOW_END, floor=FLOOR,
               candidates=len(items), by_status=by, eligible=len(units), units=[{k: u[k] for k in ("case_id", "ticker", "T", "C", "lag", "sample", "controls", "panel_day")} for u in units],
               items=[{k: e[k] for k in ("case_id", "ticker", "T", "status", "code", "sample")} for e in items],
@@ -311,7 +382,11 @@ def build_status(today=None, root=None, ledger_rows=None, panel=None):
               lag_sessions=dict(n=len(lags), median=(lags[len(lags) // 2] if lags else None), max=(lags[-1] if lags else None)),
               families=cov, any_testable=any(v["testable"] for v in cov.values()),
               panel=dict(days=len(pdays), first=(pdays[0] if pdays else None), last=(pdays[-1] if pdays else None),
-                         no_pool_days=sum(1 for d in pdays if panel[d].get("status") != "OK"), k=(panel[pdays[-1]].get("k") if pdays else None)),
+                         no_pool_days=sum(1 for d in pdays if panel[d].get("status") != "OK"), k=(panel[pdays[-1]].get("k") if pdays else None),
+                         pool_date_last=_pl["pool_date"], pool_obs_last=_pl["obs_date"], pool_lag_entries_last=_pl["lag_entries"],
+                         pool_newer_entries=_pl["newer"]),
+              cases_after_cutoff=sum(1 for e in items if len(str(e.get("T") or "")) == 10 and str(e["T"]) >= CUTOFF_DATE),
+              inputs=dict(last_photo=_ph, sessions_since_last_photo=(sessions_between(_ph, today) if _ph else None)),
               ledger_rows=len(rows), floor_reached=bool(len(units) >= FLOOR and any(v["testable"] for v in cov.values())),
               window_closed=bool(today > WINDOW_END))
     return st, units, ix
@@ -425,6 +500,10 @@ def main(argv=None):
     print(f"H6 STATUS today={st['today']} candidates={st['candidates']} eligible={st['eligible']}/{FLOOR} by_status={json.dumps(st['by_status'])} "
           f"coverage_failures={st['coverage_failures']} lag_median={st['lag_sessions']['median']} panel_days={st['panel']['days']} "
           f"testable={[f for f, v in st['families'].items() if v['testable']]} floor_reached={st['floor_reached']} window_closed={st['window_closed']}")
+    line, warns = alarm_line(st)                                     # amendment 1: the daily alarm (repository + Actions log · no Telegram)
+    print(line)
+    for w in warns:
+        print(f"::warning::{w}")
     if mode == "status":
         return 0
     if mode != "analyze":
