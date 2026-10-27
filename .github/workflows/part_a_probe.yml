@@ -1,0 +1,53 @@
+name: Part A probe (temporary · read-only research · removed after reading)
+
+# 🔬 Owner order «الأعطالُ أوّلًا» Part A: diagnostics only — no Telegram, no production state, no thresholds.
+#    Definitions: fm_forensics/part_a/PART_A_DEFS.md (written before any number). Results go to a per-run side branch
+#    `claude/part-a-data-<run_id>` (never main) and a PAOUT summary in this log. The file is deleted once read.
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "a2 · a2b · a3 · a3b · vol · l2 · tape · all (comma-separated)"
+        required: false
+        default: "all"
+
+concurrency:
+  group: part-a-probe
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Probe (read-only)
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PART_A_MODE: ${{ github.event.inputs.mode }}
+        run: python fm_forensics/part_a/part_a_probe.py
+
+      - name: Push results to a per-run side branch (never main)
+        if: always()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          B="claude/part-a-data-${{ github.run_id }}"
+          git checkout -b "$B"
+          git add -f fm_forensics/part_a/out || true
+          git commit -m "Part A probe results (run ${{ github.run_id }})" || exit 0
+          git push origin "$B"
