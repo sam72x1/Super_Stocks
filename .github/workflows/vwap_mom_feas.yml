@@ -1,6 +1,7 @@
 name: "📈🔎 جدوى زخم الفيواب T-VWAP-MOM (عدٌّ بلا عائد · يدويّ)"
 
 # 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا عائدَ يُحسب (العقد `vwap_mom_prereg.md` §⑧ · قفلُ VWM2).
+# v3 (الملحق 2): المحفّزُ شرطٌ للمجتمع — أخبارُ Polygon ‏+ إيداعاتُ SEC (8-K/6-K) · والمدّةُ أطولُ من v2 (جلبُ الأخبار و`submissions`).
 permissions:
   contents: read
 
@@ -37,5 +38,6 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
           VWM_MONTH: ${{ github.event.inputs.month }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}     # الملحق 2 §②: SEC مصدرٌ لازم (User-Agent بوسيلة تواصل)
           PYTHONUNBUFFERED: "1"
         run: python vwap_mom_feas.py
