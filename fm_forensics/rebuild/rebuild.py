@@ -1397,6 +1397,38 @@ def addendum2_ok():
         return False
 
 
+ADDENDUM4 = os.path.join(HERE, "T_REBUILD_ADDENDUM_4.md")
+ADDENDUM4_SHA = "8d2aa631dd47c04b1252b8c33d0aad5c7ca98b4c9f0425f033ffb9df26a3afae"   # الملحق 4: مرجعُ مطابقة B3 تشغيلةُ bases مُعادة (الشرطُ بحرفه)
+BASES_REF_B3 = os.path.join(HERE, "data", "bases_ref_b3.json")
+
+
+def addendum4_ok():
+    """مرجعُ B3 الجديد لا يُقرأ إلّا والملحقُ 4 بالبصمة التي دُفعت."""
+    import hashlib
+    try:
+        with open(ADDENDUM4, "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest() == ADDENDUM4_SHA
+    except OSError:
+        return False
+
+
+def b3_reference():
+    """الملحق 4 §①: مرجعُ مطابقة B3 = `bases_ref_b3.json` (تشغيلةُ bases مُعادة) إن وُجد · وإلّا المرجعُ الأوّل `bases_2026-10-28.json`."""
+    return BASES_REF_B3 if os.path.exists(BASES_REF_B3) else BASES_DATA
+
+
+def bases_diff(ref, first):
+    """الملحق 4 §③ (وصفٌ لا حكم): فرقُ إحصاءات `bases` المُعادة عن المرجع الأوّل ⟵ {نافذة: {أساس: {entries/labelled/exploded: (أوّل، معاد)}}} للمختلف وحدَه."""
+    out = {}
+    for w, by in (ref.get("stats") or {}).items():
+        for base, sr in by.items():
+            st0 = ((first.get("stats") or {}).get(w) or {}).get(base) or {}
+            d = {k: (st0.get(k), sr.get(k)) for k in ("entries", "labelled", "exploded") if st0.get(k) != sr.get(k)}
+            if d:
+                out.setdefault(w, {})[base] = d
+    return out
+
+
 def b3_cfgs(live):
     """(«الكلّ متساهل»، السقفُ مرفوعًا، {بند صلب: «الكلّ متساهل» ‏+ مفتاحُه وحدَه}) — الملحق 2 §③."""
     perm = dict(live)
@@ -1599,8 +1631,10 @@ def mode_b3_assemble(shards=None, prep=None, bases=None):
     import glob
     from collections import Counter
     prep = prep or _jload(os.path.join(OUT, "prep.json.gz"))
+    ref_file = None
     if bases is None:
-        with open(BASES_DATA, encoding="utf-8") as fh:
+        ref_file = b3_reference()
+        with open(ref_file, encoding="utf-8") as fh:
             bases = json.load(fh)
     if shards is None:
         shards = [_jload(p) for p in sorted(glob.glob(os.path.join(OUT, "**", "b3_shard_*.json.gz"), recursive=True))]
@@ -1612,7 +1646,11 @@ def mode_b3_assemble(shards=None, prep=None, bases=None):
     res = {"mode": "b3_assemble", "base": bases["base"], "shards": len(shards), "entries": len(rows),
            "entries_expected": expect, "match": len(rows) == expect and bases["base"] == "BASE2", "train_sessions": n_sess,
            "addendum2_sha": ADDENDUM2_SHA, "prod_state": dict(B3_PROD), "not_measured": dict(B3_NOT_MEASURED),
-           "prod_off": [list(x) for x in PROD_OFF]}
+           "prod_off": [list(x) for x in PROD_OFF],
+           "reference": {"file": os.path.basename(ref_file) if ref_file else None, "run": bases.get("run"), "main_sha": bases.get("main_sha")}}
+    if ref_file == BASES_REF_B3:                               # الملحق 4 §③: فرقُ المرجع المُعاد عن الأوّل وصفًا
+        with open(BASES_DATA, encoding="utf-8") as fh:
+            res["bases_diff_vs_first"] = bases_diff(bases, json.load(fh))
     if not res["match"] or not shards or len(shards) != shards[0]["nshards"]:
         res["verdict"] = "⛔ لا حكم — الأساسُ ليس BASE2 أو عددُ الإدخالات أو الشرائح لا يطابق"
         return res
@@ -1813,6 +1851,9 @@ def main():
             return 9
         if not _g.glob(TEST_RESULT_GLOB):
             log("⛔ لا نتيجةَ TEST في data/ ⟵ الجردُ المقصوص بعد TEST وحدَه (الملحق 1 §① · الملحق 2 §①)")
+            return 9
+        if os.path.exists(BASES_REF_B3) and not addendum4_ok():
+            log("⛔ مرجعُ B3 المُعاد حاضرٌ والملحق 4 غائبٌ أو غيرُ بصمته ⟵ لا جرد (الملحق 4 §①)")
             return 9
     if mode == "shadow":
         import glob as _g
