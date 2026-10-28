@@ -227,7 +227,7 @@ def index_ledger(rows) -> dict:
 
 
 # ---------------------------------------------------------------- eligibility (§3)
-def eligibility(case, anns, priors, ledger_ix, panel, units_so_far, mention_tickers=()):
+def eligibility(case, anns, priors, ledger_ix, panel, units_so_far, mention_tickers=(), today=None):
     sym = str(case.get("SYMBOL") or "").upper()
     T = str(case.get("DECISION_DATE") or "")
     out = dict(case_id=case.get("CASE_ID"), ticker=sym, T=T, sample=case.get("SAMPLE"), status="ELIGIBLE", code="", C=None, lag=None, controls=[])
@@ -268,6 +268,10 @@ def eligibility(case, anns, priors, ledger_ix, panel, units_so_far, mention_tick
     days = ledger_ix.get(sym, {}).get("days", [])
     cand = [d for d in days if T <= d <= add_sessions(T, LAG_MAX_SESSIONS)]
     if not cand:
+        _w = add_sessions(T, LAG_MAX_SESSIONS)
+        if today is not None and str(today) <= _w:                     # amendment 3: the E5 window has not closed yet — counts toward nothing
+            out.update(status="PENDING_COLLECTION", code=f"E5:window_open_until_{_w}")
+            return out
         out.update(status="NOT_COVERED", code="E5:no_collection_within_5_sessions")
         return out
     C = cand[0]
@@ -353,7 +357,7 @@ def build_status(today=None, root=None, ledger_rows=None, panel=None):
     today = today or dt.datetime.now(dt.timezone.utc).date().isoformat()
     units, items = [], []
     for c in sorted(cases, key=lambda c: (str(c.get("DECISION_DATE")), str(c.get("CASE_ID")))):
-        e = eligibility(c, anns, priors, ix, panel, units)
+        e = eligibility(c, anns, priors, ix, panel, units, today=today)
         items.append(e)
         if e["status"] == "ELIGIBLE":
             units.append(e)

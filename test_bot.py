@@ -88509,6 +88509,38 @@ check("🧪🔧 H6P1 F1: جدارُ المرساة كاملٌ في `reject_log.j
       "و`control_pool` يختار مدخلَ اليوم · و`full_walls=()` = السلوكُ السابق بت-بت",
       _h6p1, _h6p1_w[:420])
 
+# H6W1 — amendment 3: E5 «لا جمعَ خلال 5 جلسات» لا يُقال قبل أن تنتهي الجلسات الخمس — PENDING_COLLECTION لا يُحتسب في شيء
+#   (لا وحدةً ولا فشلَ تغطية) ‏+ حدُّ النافذة شاملٌ ‏+ النداءُ بلا `today` = السلوكُ السابق بت-بت ‏+ `build_status` يمرّر يومَه
+try:
+    _w1_case = dict(CASE_ID="W_1", SYMBOL="WIN", DECISION_DATE="2026-10-22", SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE",
+                    FAISAL=dict(label="WATCH"))
+    _w1_anns = [dict(symbol="WIN", decision_date="2026-10-22", decision_date_max=None, faisal_author=True)]
+    _w1 = {td: H6.eligibility(_w1_case, _w1_anns, {}, {}, {}, [], today=td) for td in ("2026-10-28", "2026-10-29", "2026-10-30")}
+    _w1_none = H6.eligibility(_w1_case, _w1_anns, {}, {}, {}, [])
+    _w1_ok = (_w1["2026-10-28"]["status"] == "PENDING_COLLECTION" and _w1["2026-10-28"]["code"] == "E5:window_open_until_2026-10-29"
+              and _w1["2026-10-29"]["status"] == "PENDING_COLLECTION" and _w1["2026-10-30"]["status"] == "NOT_COVERED"
+              and _w1_none["status"] == "NOT_COVERED" and _w1_none["code"] == "E5:no_collection_within_5_sessions")
+    _w1x = [dict(case=dict(CASE_ID="H_WIN", SYMBOL="WNX", DECISION_DATE="2026-10-28", SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE",
+                           FAISAL=dict(label="WATCH")),
+                 img=dict(id="TG_W", symbol="WNX", decision_date="2026-10-28", decision_date_max=None, faisal_author=True))]
+    _w1_root, _w1_rows, _w1_panel = _h6_world(3, extra_cases=_w1x)
+    with _h6ctx.redirect_stdout(_h6io.StringIO()):
+        _w1_a, _, _ = H6.build_status("2026-11-01", root=_w1_root, ledger_rows=_w1_rows, panel=_w1_panel)
+        _w1_b, _, _ = H6.build_status("2026-11-05", root=_w1_root, ledger_rows=_w1_rows, panel=_w1_panel)
+    _w1_ca = {e["case_id"]: e["status"] for e in _w1_a["items"]}
+    _w1_cb = {e["case_id"]: e["status"] for e in _w1_b["items"]}
+    _h6w1 = (_w1_ok and _w1_ca.get("H_WIN") == "PENDING_COLLECTION" and _w1_cb.get("H_WIN") == "NOT_COVERED"
+             and _w1_a["eligible"] == _w1_b["eligible"] == 3
+             and _w1_a["coverage_failures"] == 0 and _w1_b["coverage_failures"] == 1
+             and _w1_a["by_status"].get("PENDING_COLLECTION") == 1)
+    _h6w1_w = (f"direct={ {k: v['status'] for k, v in _w1.items()} } none={_w1_none['status']} · 11-01={_w1_ca.get('H_WIN')} "
+               f"cov={_w1_a['coverage_failures']} · 11-05={_w1_cb.get('H_WIN')} cov={_w1_b['coverage_failures']} · eligible={_w1_a['eligible']}/{_w1_b['eligible']}")
+except Exception as _e:                                                    # noqa: BLE001
+    _h6w1, _h6w1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔧 H6W1 (تعديل 3) نافذةُ E5 المفتوحة «تنتظر الجمع» لا «غيرُ مغطًّى»: حتى آخرِ يومٍ من الجلسات الخمس (شاملًا) · لا وحدةً ولا فشلَ تغطية · "
+      "وبعدها «غيرُ مغطًّى» كما كان · والنداءُ بلا `today` بت-بت · و`build_status` يمرّر يومَه",
+      _h6w1, _h6w1_w[:420])
+
 # ══════════════════════════════════════════════════════════════════════════
 # 🕵️🩺 OGM1-OGM2 · 🔄 PSR1 · 🧱 EHS1 — إصلاحاتُ الجزء أ (‏2026-10-27 · أمرُ المالك «الأعطالُ أوّلًا» أ4):
 #    OGM: بوّابةُ المضارب في `scan_liq_stages` كانت تكتم وتمسح الحالة **بلا أثر** ⟵ `LIQ_OPGATE_LAST` يُعاد ملؤه كلَّ نداء
