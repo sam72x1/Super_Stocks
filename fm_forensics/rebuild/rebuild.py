@@ -13,7 +13,7 @@
 
 الدوالُّ النقيّة (مقفولةٌ سلوكيًّا في `RBD1`/`RBD3`): `asof_scale` · `new_entries` · `exploded` · `rsi14_before` · `gaps` · `band` ·
 `base2_fire` · `owner_fire` · `jump_at` · `row_guards` · `rule_entries` · `boot_diff` · `choose_base` · و`post_scan` على الدوالّ الإنتاجيّة بالاسم ·
-وفي `RBD8`: `b3_cfgs` · `b3_flags` · `b3_trade` · `boot_paired` · وفي `RBD6`: `jumps` · `p1_days` · `p1p_days` · `p2_days` · `p3_days` · `pair_flags` · `base2_dist` · `gate_stats` · `mh_rr` · `fit_logistic` · `find_theta` · `freeze_sha`.
+وفي `RBD10` (الملحق 3): `base2_margin` · وفي `RBD8`: `b3_cfgs` · `b3_flags` · `b3_trade` · `boot_paired` · وفي `RBD6`: `jumps` · `p1_days` · `p1p_days` · `p2_days` · `p3_days` · `pair_flags` · `base2_dist` · `gate_stats` · `mh_rr` · `fit_logistic` · `find_theta` · `freeze_sha`.
 """
 import csv
 import datetime as dt
@@ -677,6 +677,9 @@ def mode_bases_assemble(shards=None, prep=None):
 # ── §⑨ الأزواج (B5) ثمّ §⑧ الدرجة والتجميد — الملحق 1 §②-§③ · TRAIN وحدَه ─────────────────────────────────
 ADDENDUM = os.path.join(HERE, "T_REBUILD_ADDENDUM_1.md")
 ADDENDUM_SHA = "1f2902c0c0832c9c094e6b53e7c8a3346ff2a913d88d92be164ff4b99964d3e3"           # بصمةُ الملحق 1 كما دُمج قبل الأداة (الأوضاعُ الجديدة ترفض 9 بغيرها)
+ADDENDUM3 = os.path.join(HERE, "T_REBUILD_ADDENDUM_3.md")
+ADDENDUM3_SHA = "0dc63cdb730cb16f4dfb5e9de5f58293a87424d232cbf714a6b032b53cd333d6"          # الملحق 3: الهامشُ بدل المسافة المشبَّعة (الدرجةُ والتجميدُ وTEST ترفض 9 بغيرها)
+SCORE_MARGINS = ("m_rsi", "m_drop")                                        # الملحق 3 §②: مدخلا الدرجة من شرطَي BASE2
 BASES_DATA = os.path.join(HERE, "data", "bases_2026-10-28.json")
 FREEZE = os.path.join(HERE, "data", "freeze_rebuild.json")
 PAIRS = ("P1", "P1p", "P2", "P3")             # P1 · P1′ (أوّلُ قفزةٍ وحدَها) · P2 · P3 — m = 4
@@ -697,6 +700,16 @@ def addendum_ok():
     try:
         with open(ADDENDUM, "rb") as fh:
             return hashlib.sha256(fh.read()).hexdigest() == ADDENDUM_SHA
+    except OSError:
+        return False
+
+
+def addendum3_ok():
+    """الدرجةُ والتجميدُ لا يعملان إلّا والملحقُ 3 بالبصمة التي دُمجت (الإصلاحُ قبل أيّ رقمٍ من TEST)."""
+    import hashlib
+    try:
+        with open(ADDENDUM3, "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest() == ADDENDUM3_SHA
     except OSError:
         return False
 
@@ -785,6 +798,18 @@ def base2_dist(rsi, c, h, i):
     return d_r, d_d
 
 
+def base2_margin(rsi, c, h, i):
+    """الملحق 3 §②: هامشا شرطَي BASE2 عند D = الصفّ i بوحدة s **بلا سقف** — m_rsi = (33 − RSI(D−1))/8.25 · m_drop = (الهبوط − 70)/17.5
+    (موجبٌ = يعبر · وعلى جهة السقوط m = d − 1 ⟵ «d فوق الصفر» = «m فوق −1») · (None، None) حيث `base2_dist` تعيد صفرين لغياب البيانات."""
+    if i < 15 or rsi[i - 1] != rsi[i - 1]:
+        return None, None
+    hi = max(h[max(0, i - B2_HI): i])
+    if not hi > 0:
+        return None, None
+    dp = (1.0 - c[i - 1] / hi) * 100.0
+    return (B2_RSI - rsi[i - 1]) / (DIST_S * B2_RSI), (dp - B2_DROP) / (DIST_S * B2_DROP)
+
+
 def pairs_symbol(sym, rows, splits_sym, member_days, sess, S, G5, pct, proxy_fn, prev_of):
     """صفوفُ البِركة لرمز (من الإحماء حتى نهاية TRAIN) بحرّاس `shard_symbol` نفسِها:
     [sym، D، y، إدخالُ الأساس الجديد، d_rsi، d_drop، I_P1، I_P1′، I_P2، I_P3، خانةُ السعر، خانةُ الفلوت (للإدخالات وحدَها)]."""
@@ -824,8 +849,9 @@ def pairs_symbol(sym, rows, splits_sym, member_days, sess, S, G5, pct, proxy_fn,
         ent = int(d in ents and TRAIN[0] <= d <= TRAIN[1])
         f = asof_factor(splits_sym, d)
         fb = float_bin(proxy_fn(sym, prev_of[d])) if ent else None
+        mr, md = base2_margin(rsi, c, h, i)
         out.append([sym, d, exploded(rows, d, pct) if d >= TRAIN[0] else None, ent, round(dr, 6), round(dd, 6)] + ind
-                   + [price_bin(c[i - 1] * f), fb])
+                   + [price_bin(c[i - 1] * f), fb, round(mr, 6), round(md, 6)])
     return out
 
 
@@ -1047,8 +1073,8 @@ def mode_pairs_assemble(shards=None, prep=None, bases=None, seed=SEED, b=BOOT_B)
     res["p1_vs_p3"] = best13
     res["rsi20_words"] = ("RSI ≤ 20 أضاف فوق «أوّل قفزة»" if ps["cols"]["P1"]["verdict"] == "تضيف"
                           and ps["cols"]["P1p"]["verdict"] != "تضيف" else "RSI ≤ 20 لم يضف شيئًا")
-    fcols = ["d_rsi", "d_drop"] + [f"I_{g}" for g in surv]
-    idx = {"d_rsi": 4, "d_drop": 5, "I_P1": 6, "I_P1p": 7, "I_P2": 8, "I_P3": 9}
+    fcols = list(SCORE_MARGINS) + [f"I_{g}" for g in surv]                # الملحق 3 §②: الهامشان بدل المسافتين المشبَّعتين
+    idx = {"m_rsi": 12, "m_drop": 13, "I_P1": 6, "I_P1p": 7, "I_P2": 8, "I_P3": 9}
     lab = [r for r in rows if r[2] is not None and TRAIN[0] <= r[1]]
     X = np.array([[float(r[idx[f]]) for f in fcols] for r in lab], dtype=float)
     yv = np.array([int(bool(r[2])) for r in lab], dtype=float)
@@ -1064,7 +1090,8 @@ def mode_pairs_assemble(shards=None, prep=None, bases=None, seed=SEED, b=BOOT_B)
         return float(1.0 / (1.0 + np.exp(-(x @ w + b0))))
     srows = [(r[0], r[1], _score(r)) for r in rows]
     th = find_theta(srows, sess, n_sess)
-    fz = {"contract": "T_REBUILD_prereg.md", "addendum_sha": ADDENDUM_SHA, "base": "BASE2", "pairs_in": surv,
+    fz = {"contract": "T_REBUILD_prereg.md", "addendum_sha": ADDENDUM_SHA, "addendum3_sha": ADDENDUM3_SHA, "base": "BASE2",
+          "pairs_in": surv,
           "features": fcols, "dropped_zero_sd": dropped, "mu": [float(x) for x in mu], "sd": [float(x) for x in sd],
           "w": [float(x) for x in w], "b": b0, "lambda": L2_LAMBDA, "iters": it, "n_fit": int(len(lab)),
           "theta": th.get("theta") if th else None, "theta_search": th, "dist_s": DIST_S}
@@ -1096,15 +1123,16 @@ def freeze_load(path=FREEZE):
             fz = json.load(fh)
     except (OSError, ValueError):
         return None
-    if fz.get("sha") != freeze_sha(fz) or fz.get("addendum_sha") != ADDENDUM_SHA or fz.get("theta") is None:
+    if (fz.get("sha") != freeze_sha(fz) or fz.get("addendum_sha") != ADDENDUM_SHA or fz.get("addendum3_sha") != ADDENDUM3_SHA
+            or fz.get("theta") is None):
         return None
     return fz
 
 
-def frozen_score(fz, d_rsi, d_drop, flags):
-    """الدرجةُ المجمَّدة لصفٍّ من البِركة (المسافتان ‏+ أعلامُ الأزواج الداخلة بأسمائها)."""
+def frozen_score(fz, m_rsi, m_drop, flags):
+    """الدرجةُ المجمَّدة لصفٍّ من البِركة (الهامشان بالملحق 3 ‏+ أعلامُ الأزواج الداخلة بأسمائها)."""
     import math
-    val = {"d_rsi": d_rsi, "d_drop": d_drop, "I_P1": flags[0], "I_P1p": flags[1], "I_P2": flags[2], "I_P3": flags[3]}
+    val = {"m_rsi": m_rsi, "m_drop": m_drop, "I_P1": flags[0], "I_P1p": flags[1], "I_P2": flags[2], "I_P3": flags[3]}
     s = fz["b"] + sum(w * (float(val[f]) - m) / sd for f, w, m, sd in zip(fz["features"], fz["w"], fz["mu"], fz["sd"]))
     return 1.0 / (1.0 + math.exp(-s))
 
@@ -1153,7 +1181,8 @@ def test_symbol(sym, rows, splits_sym, member_days, sess, prev_of, finra, proxy_
             continue
         b2 = base2_fire(rsi, c, h, i)
         dr, dd = base2_dist(rsi, c, h, i)
-        sc = frozen_score(fz, dr, dd, pair_flags(trig, i)) if dr > 0 and dd > 0 else None
+        mr, md = base2_margin(rsi, c, h, i)
+        sc = frozen_score(fz, mr, md, pair_flags(trig, i)) if dr > 0 and dd > 0 else None
         new = sc is not None and sc >= fz["theta"]
         lo = bisect.bisect_left(dates, (dt.date.fromisoformat(d) - dt.timedelta(HISTORY_DAYS)).isoformat())
         sub = full.iloc[lo:i]
@@ -1640,8 +1669,8 @@ def main():
         if not _g.glob(TEST_RESULT_GLOB):
             log("⛔ لا نتيجةَ TEST في data/ ⟵ الجردُ المقصوص بعد TEST وحدَه (الملحق 1 §① · الملحق 2 §①)")
             return 9
-    if mode.startswith("pairs_") and not addendum_ok():
-        log("⛔ الملحق 1 غائبٌ أو غيرُ بصمته المدموجة ⟵ لا جرد (التعريفاتُ قبل الرقم)")
+    if mode.startswith("pairs_") and not (addendum_ok() and addendum3_ok()):
+        log("⛔ الملحق 1 أو الملحق 3 غائبٌ أو غيرُ بصمته المدموجة ⟵ لا أزواجَ ولا درجة (التعريفاتُ قبل الرقم)")
         return 9
     if mode.startswith("pairs_"):
         with open(BASES_DATA, encoding="utf-8") as fh:
