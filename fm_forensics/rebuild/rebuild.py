@@ -8,11 +8,12 @@
     REBUILD_MODE=ready117  جدولُ §⑤ — RSI14 للـ117 READY والـ277 MISSED_READY (وصفيّ · لا يختار شيئًا)
     REBUILD_MODE=bases_prep / bases_shard (SHARD · NSHARDS) / bases_assemble   §⑥ الأساسُ على TRAIN والاختيارُ على VAL — ولا TEST
     REBUILD_MODE=test_prep / test_shard / test_assemble   §⑩-§⑪ TEST مرّةً واحدة بالدرجة المجمَّدة (`data/freeze_rebuild.json`)
+    REBUILD_MODE=b3_shard (SHARD · NSHARDS) / b3_assemble   §⑦ الجردُ المقصوص بالملحق 2 (`T_REBUILD_ADDENDUM_2.md`) على TRAIN · بعد TEST وحدَه
     REBUILD_MODE=pairs_shard (SHARD · NSHARDS) / pairs_assemble   §⑨ الأزواجُ ثمّ §⑧ الدرجةُ والتجميد بالملحق 1 (`T_REBUILD_ADDENDUM_1.md`) على TRAIN وحدَه
 
 الدوالُّ النقيّة (مقفولةٌ سلوكيًّا في `RBD1`/`RBD3`): `asof_scale` · `new_entries` · `exploded` · `rsi14_before` · `gaps` · `band` ·
 `base2_fire` · `owner_fire` · `jump_at` · `row_guards` · `rule_entries` · `boot_diff` · `choose_base` · و`post_scan` على الدوالّ الإنتاجيّة بالاسم ·
-وفي `RBD6`: `jumps` · `p1_days` · `p1p_days` · `p2_days` · `p3_days` · `pair_flags` · `base2_dist` · `gate_stats` · `mh_rr` · `fit_logistic` · `find_theta` · `freeze_sha`.
+وفي `RBD8`: `b3_cfgs` · `b3_flags` · `b3_trade` · `boot_paired` · وفي `RBD6`: `jumps` · `p1_days` · `p1p_days` · `p2_days` · `p3_days` · `pair_flags` · `base2_dist` · `gate_stats` · `mh_rr` · `fit_logistic` · `find_theta` · `freeze_sha`.
 """
 import csv
 import datetime as dt
@@ -1335,13 +1336,291 @@ def mode_test_prep(key):
                            all_from="2024-11-01", out="test_prep.json.gz", tag="test_prep")
 
 
+# ── §⑦ الجردُ المقصوص (B3) — الملحق 2 · TRAIN وحدَه · وصفيّ · بعد TEST ───────────────────────────────────────
+ADDENDUM2 = os.path.join(HERE, "T_REBUILD_ADDENDUM_2.md")
+ADDENDUM2_SHA = "08208fbaea2061b8d4a4c5e2c6361dca2fe2236771f59bbff42855871d80d565"   # كما دُفع قبل أيّ رقمٍ من الأزواج (يرفض 9 بغيرها)
+B3_ITEMS = ("RSI_OVERSOLD", "RSI_OS_HARD", "RSI_MAX_NOW", "RSI_NOW_HARD", "MA_GATE_MAX_ABOVE_PCT", "STABILITY_MIN",
+            "STABILITY_MAX", "ANCHOR_TWO_TOUCH")                               # الملحق 2 §③ (m = 8)
+B3_SOFT_PREFIX = {"RSI_OVERSOLD": "قاع RSI ", "RSI_MAX_NOW": "RSI الآن "}       # بادئةُ سطر النقص في `analyze_ticker`
+B3_MA_MARK = "من متوسطه المتحرك"                                              # سطرا نقص `M12` وحدَهما
+B3_HARD = {"RSI_OS_HARD": ("RSI_OS_HARD", None), "RSI_NOW_HARD": ("RSI_NOW_HARD", None),
+           "STABILITY_MIN": ("BT_STABILITY_GATE", "faisal"), "ANCHOR_TWO_TOUCH": ("ANCHOR_MODE", "tested_strict")}  # None = القيمةُ الحيّة
+B3_MA_OPEN = 1e9                                                              # السقفُ مرفوعًا (البند 5)
+B3_PERMISSIVE = {"MIN_PRICE": 0, "MAX_DROP_PCT": 100, "MIN_DROP_FLOOR": -1e9, "PRIOR_SPIKE_FLOOR": -1e9,
+                 "BASE_RANGE_MAX_PCT": 1e9, "RECENT_RISE_BLOCK_PCT": 1e9, "MIN_DOLLAR_VOL": 0, "GAP_REQUIRED": False,
+                 "RSI_OS_HARD": 1e9, "RSI_NOW_HARD": 1e9, "WATCH_MAX_FAILS": 10 ** 6, "BT_STABILITY_GATE": "",
+                 "NEAR_PCT": -1e9, "SCORE_MIN": -1e9, "ANCHOR_MODE": "", "BT_ANCHOR": "", "MIN_RR_T1": -1e9}
+B3_PROD = {"RSI_OVERSOLD": "ليّنة (نقصٌ يُعَدّ في WATCH_MAX_FAILS)", "RSI_OS_HARD": "حيّةٌ رفضًا (M10_RSI_ما_تشبّع)",
+           "RSI_MAX_NOW": "ليّنة", "RSI_NOW_HARD": "حيّةٌ رفضًا (M10_RSI_فات_القطار)", "MA_GATE_MAX_ABOVE_PCT": "ليّنة (ضمن M12)",
+           "STABILITY_MIN": "مطفأة", "STABILITY_MAX": "مطفأة (ST5)",
+           "ANCHOR_TWO_TOUCH": "حيّةٌ رفضًا (M_لا_مستوى_مختبر) · مجمَّدةٌ بعقد H6"}
+B3_NOT_MEASURED = {"PIVOT_SWEEP_PCT": "لم يُقَس — محورٌ مُغلَق (T-LAYERS · LAYERS_REOPEN)"}
+B3_TRANCHES = 3                                                               # ENTRY_TRANCHES الحيّ (يُتحقَّق منه وقتَ التشغيل)
+
+
+def addendum2_ok():
+    """الجردُ المقصوص لا يعمل إلّا والملحقُ 2 بالبصمة التي دُفعت (التعريفاتُ قبل الرقم)."""
+    import hashlib
+    try:
+        with open(ADDENDUM2, "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest() == ADDENDUM2_SHA
+    except OSError:
+        return False
+
+
+def b3_cfgs(live):
+    """(«الكلّ متساهل»، السقفُ مرفوعًا، {بند صلب: «الكلّ متساهل» ‏+ مفتاحُه وحدَه}) — الملحق 2 §③."""
+    perm = dict(live)
+    perm.update(B3_PERMISSIVE)
+    ma_open = dict(perm, MA_GATE_MAX_ABOVE_PCT=B3_MA_OPEN)
+    hard = {}
+    for g, (k, v) in B3_HARD.items():
+        hard[g] = dict(perm, **{k: live.get(k) if v is None else v})
+    return perm, ma_open, hard
+
+
+def b3_flags(r_perm, r_ma_open, hard_ok, live):
+    """أعلامُ العبور الثمانية بترتيب `B3_ITEMS` من مُخرَج الإنتاج وحدَه (لا نسخةَ ثانيةٌ للمنطق):
+    اللّيّنتان ⟵ غيابُ بادئتهما · السقفُ ⟵ يسقط ⟺ سطرُ M12 حاضرٌ بالسقف الحيّ غائبٌ بالمرفوع · الصلبةُ ⟵ النداءُ غيرُ None ·
+    STABILITY_MAX ⟵ bars_after ≤ الحيّ (وNone يعبر كذراع الكود)."""
+    sf = [str(x) for x in (r_perm.get("soft_fails") or [])]
+    sf_open = [str(x) for x in (r_ma_open.get("soft_fails") or [])] if r_ma_open else []
+    ma_live = any(B3_MA_MARK in x for x in sf)
+    ma_open = any(B3_MA_MARK in x for x in sf_open)
+    ba = r_perm.get("bars_after")
+    out = []
+    for g in B3_ITEMS:
+        if g in B3_SOFT_PREFIX:
+            out.append(int(not any(x.startswith(B3_SOFT_PREFIX[g]) for x in sf)))
+        elif g == "MA_GATE_MAX_ABOVE_PCT":
+            out.append(int(not (ma_live and not ma_open)))
+        elif g == "STABILITY_MAX":
+            out.append(int(ba is None or int(ba) <= int(live["STABILITY_MAX"])))
+        else:
+            out.append(int(bool(hard_ok[g])))
+    return out
+
+
+def b3_eval(S, sym, sub, live, perm, ma_open, hard):
+    """صفُّ جردٍ مقصوص: (مؤهَّل، رمزُ رفض «الكلّ متساهل»، الأعلامُ الثمانية، نتيجةُ نداء المرساة)."""
+    def _at(cfg):
+        with_config(S, cfg)
+        S._REJECT_REASONS.pop(sym, None)
+        try:
+            r = S.analyze_ticker(sym, sub)
+        except Exception as e:                                  # noqa: BLE001
+            return None, "exception:" + type(e).__name__
+        return r, (None if r else S._REJECT_REASONS.get(sym, "?"))
+    rp, code = _at(perm)
+    if rp is None:
+        with_config(S, live)
+        return 0, code, None, None
+    rmo, _ = _at(ma_open)
+    hr = {g: _at(cfg)[0] for g, cfg in hard.items()}
+    with_config(S, live)
+    return 1, None, b3_flags(rp, rmo, {g: r is not None for g, r in hr.items()}, live), hr["ANCHOR_TWO_TOUCH"]
+
+
+def b3_trade(rows, i, lv, tranches_adj, pct, win=WIN):
+    """الوقفُ بتعريف §⑪ (S0 = L · S5 = 0.95L · `stop_outcome` بالاسم) والدفعاتُ (الملحق 2 §③) لصفّ D = i:
+    (S0، S5، [[تعبئة، التقاطٌ بين المنفجرين أو None، فوق السعر] لكلّ دفعة]) — None بلا مستوى أو بلا 20 جلسة."""
+    if lv is None or i < 1 or i + win > len(rows):
+        return None, None, None
+    s0 = stop_outcome(rows, i, lv, pct, win)
+    s5 = stop_outcome(rows, i, lv * STOP_S5, pct, win)
+    ref = float(rows[i - 1][4])
+    tgt = ref * (1 + pct / 100.0)
+    tau = next((k for k in range(i, i + win) if float(rows[k][2]) >= tgt), None)
+    tr = []
+    for t in (tranches_adj or []):
+        fill = int(any(float(rows[k][3]) <= t for k in range(i, i + win)))
+        caught = None if tau is None else int(any(float(rows[k][3]) <= t for k in range(i, tau + 1)))
+        tr.append([fill, caught, int(ref <= t)])
+    return s0, s5, tr
+
+
+def mode_b3_shard(key, shard, nshards, fetch_bars=None, fetch_proxy=None, prep=None):
+    """رموزُ الشريحة ⟵ إدخالاتُ الأساس الجديدة على TRAIN وحدَه ⟵ صفُّ جردٍ مقصوص لكلّ إدخال (الملحق 2)."""
+    import bisect
+    import pandas as pd
+    prep = prep or _jload(os.path.join(OUT, "prep.json.gz"))
+    sys.path.insert(0, ROOT)
+    os.environ["FAISAL_ONLY"] = "0"
+    import Super_stock as S
+    import pit_history as PH
+    live, _ = configs(S)
+    if int(live["ENTRY_TRANCHES"]) != B3_TRANCHES:
+        raise ValueError("ENTRY_TRANCHES الحيّ تغيّر عن الملحق 2 ⟵ ملحقٌ جديد")
+    perm, ma_open, hard = b3_cfgs(live)
+    G5 = _gen5_ext()
+    pct = float(live["EXPLOSION_PCT"])
+    member = {}
+    for d in prep["sessions"]:
+        for s in prep["snapshots"].get(d[:7], []):
+            member.setdefault(s, []).append(d)
+    calls = {"proxy": 0, "proxy_none": 0}
+
+    def _proxy(sym, day):
+        calls["proxy"] += 1
+        if fetch_proxy is not None:
+            v = fetch_proxy(sym, day)
+        else:
+            code, body = _get(PROXY_URL.format(t=sym, d=day, k=key))
+            try:
+                v = json.loads(body or b"{}").get("results", {}).get("share_class_shares_outstanding")
+            except Exception:                                   # noqa: BLE001
+                v = None
+        calls["proxy_none"] += v is None
+        return v
+
+    out, diag = [], {}
+    syms = prep["union"][shard::nshards]
+    t0 = time.time()
+    for n, sym in enumerate(syms):
+        if fetch_bars is not None:
+            rows = fetch_bars(sym)
+            why = "ok" if rows else "empty"
+        else:
+            df, why = PH.polygon_daily(sym, BARS_FROM, BARS_TO, key)
+            rows = _rows(df) if df is not None else []
+        diag[why.split("(")[0]] = diag.get(why.split("(")[0], 0) + 1
+        if not rows:
+            continue
+        dates = [x[0] for x in rows]
+        c = [float(x[4]) for x in rows]
+        h = [float(x[2]) for x in rows]
+        rsi = [float(z) for z in S.rsi(pd.Series(c, dtype=float), 14).values]
+        unadj = G5.split_unadjusted(rows, prep["splits"].get(sym), "0000-00-00", "9999-99-99")
+        gp = gaps(rows)
+        fire = []
+        for d in member.get(sym, []):
+            if d > TRAIN[1]:
+                break
+            i = bisect.bisect_left(dates, d)
+            if i < 1 or (dt.date.fromisoformat(d) - dt.date.fromisoformat(dates[i - 1])).days > STALE_DAYS:
+                continue
+            sp, gq = row_guards(dates, i, d, unadj, gp)
+            if sp or gq:
+                continue
+            if base2_fire(rsi, c, h, i):
+                fire.append(d)
+        ents = [d for d in new_entries(fire, prep["sessions"]) if TRAIN[0] <= d <= TRAIN[1]]
+        if not ents:
+            continue
+        full = pd.DataFrame({"Open": [x[1] for x in rows], "High": h, "Low": [float(x[3]) for x in rows], "Close": c,
+                             "Volume": [float(x[5]) for x in rows]}, index=pd.to_datetime(dates))
+        for d in ents:
+            if d > TRAIN[1]:
+                raise ValueError("الجردُ المقصوص لا يلمس VAL ولا TEST")
+            i = bisect.bisect_left(dates, d)
+            lo = bisect.bisect_left(dates, (dt.date.fromisoformat(d) - dt.timedelta(HISTORY_DAYS)).isoformat())
+            sub = full.iloc[lo:i]
+            f = asof_factor(prep["splits"].get(sym), d)
+            if f != 1.0:
+                sub = sub.copy()
+                sub[["Open", "High", "Low", "Close"]] *= f
+                sub["Volume"] /= f
+            elig, code, flags, ra = b3_eval(S, sym, sub, live, perm, ma_open, hard)
+            proxy = _proxy(sym, prep["prev_of"][d])
+            s0 = s5 = tr = None
+            if elig:
+                tl = S.tested_level(full.iloc[:i])
+                lv = float(tl["level"]) if tl else None
+                tadj = [float(t) / f for t in ra["tranches"]] if ra is not None else None
+                s0, s5, tr = b3_trade(rows, i, lv, tadj, pct)
+            out.append([sym, d, exploded(rows, d, pct), elig, code, price_bin(c[i - 1] * f), float_bin(proxy), flags,
+                        s0, s5, tr])
+        if n % 25 == 0:
+            log(f"b3 shard {shard}: {n + 1}/{len(syms)} · {round(time.time() - t0)}s · entries {len(out)}")
+    res = {"shard": shard, "nshards": nshards, "symbols": len(syms), "bars_diag": diag, "calls": calls,
+           "items": list(B3_ITEMS), "rows": out}
+    if fetch_bars is None:
+        _jdump(res, os.path.join(OUT, f"b3_shard_{shard:02d}.json.gz"))
+    return res
+
+
+def boot_paired(items, seed=SEED, b=BOOT_B):
+    """فاصلُ 95% لفرق متوسّطين مزدوجين (b − a) ببوتستراب عنقوديٍّ بالرمز · items = [(sym، a، b)]."""
+    per = {}
+    for sym, a, bb in items:
+        p = per.setdefault(sym, [0, 0, 0])
+        p[0] += 1
+        p[1] += int(bool(a))
+        p[2] += int(bool(bb))
+    syms = sorted(per)
+    if not syms:
+        return None
+    rng = random.Random(seed)
+    vals = []
+    for _ in range(b):
+        n = sa = sb = 0
+        for _k in range(len(syms)):
+            p = per[syms[rng.randrange(len(syms))]]
+            n += p[0]
+            sa += p[1]
+            sb += p[2]
+        if n:
+            vals.append((sb - sa) / n)
+    vals.sort()
+    return [round(vals[int(0.025 * len(vals))], 4), round(vals[min(len(vals) - 1, int(0.975 * len(vals)))], 4)]
+
+
+def mode_b3_assemble(shards=None, prep=None, bases=None):
+    """الملحق 2: حكمُ البنود الثمانية بقاعدة §⑦ (m = 8) · والوقفُ والدفعاتُ وصفًا · ومطابقةُ عدد الإدخالات مع `bases`."""
+    import glob
+    from collections import Counter
+    prep = prep or _jload(os.path.join(OUT, "prep.json.gz"))
+    if bases is None:
+        with open(BASES_DATA, encoding="utf-8") as fh:
+            bases = json.load(fh)
+    if shards is None:
+        shards = [_jload(p) for p in sorted(glob.glob(os.path.join(OUT, "**", "b3_shard_*.json.gz"), recursive=True))]
+    rows = [r for sh in shards for r in sh["rows"]]
+    if any(r[1] > TRAIN[1] for r in rows):
+        raise ValueError("الجردُ المقصوص لا يقرأ وسمَ VAL ولا TEST")
+    n_sess = sum(1 for d in prep["sessions"] if TRAIN[0] <= d <= TRAIN[1])
+    expect = bases["stats"]["TRAIN"][bases["base"]]["entries"]
+    res = {"mode": "b3_assemble", "base": bases["base"], "shards": len(shards), "entries": len(rows),
+           "entries_expected": expect, "match": len(rows) == expect and bases["base"] == "BASE2", "train_sessions": n_sess,
+           "addendum2_sha": ADDENDUM2_SHA, "prod_state": dict(B3_PROD), "not_measured": dict(B3_NOT_MEASURED),
+           "prod_off": [list(x) for x in PROD_OFF]}
+    if not res["match"] or not shards or len(shards) != shards[0]["nshards"]:
+        res["verdict"] = "⛔ لا حكم — الأساسُ ليس BASE2 أو عددُ الإدخالات أو الشرائح لا يطابق"
+        return res
+    elig = [r for r in rows if r[3]]
+    res["eligible"] = len(elig)
+    res["excluded_by_code"] = dict(Counter(r[4] for r in rows if not r[3]).most_common())
+    units = [[r[0], r[1], r[2], (r[1][:7], r[5], r[6]), r[7]] for r in elig]
+    res["items"] = gate_stats(units, B3_ITEMS, n_sess)
+    st = [r for r in elig if r[8] is not None]
+    res["stop"] = {"n": len(st), "S0_hit50_first": sum(1 for r in st if r[8]), "S5_hit50_first": sum(1 for r in st if r[9]),
+                   "S0_share": round(sum(1 for r in st if r[8]) / len(st), 4) if st else None,
+                   "S5_share": round(sum(1 for r in st if r[9]) / len(st), 4) if st else None,
+                   "S5_minus_S0_ci95": boot_paired([(r[0], r[8], r[9]) for r in st])}
+    trs = [r for r in elig if r[10]]
+    tranches = []
+    for k in range(B3_TRANCHES):
+        fills = {(r[0], r[1]): r[10][k][0] for r in trs}
+        cau = {(r[0], r[1]): r[10][k][1] for r in trs if r[2] and r[10][k][1] is not None}
+        abv = {(r[0], r[1]): r[10][k][2] for r in trs}
+        tranches.append({"k": k, "n": len(fills), "fill": sum(fills.values()),
+                         "fill_share": round(sum(fills.values()) / len(fills), 4) if fills else None,
+                         "fill_ci95": boot_share(fills), "exploded_n": len(cau), "caught": sum(cau.values()),
+                         "caught_share": round(sum(cau.values()) / len(cau), 4) if cau else None,
+                         "caught_ci95": boot_share(cau), "above_price": sum(abv.values())})
+    res["tranches"] = tranches
+    res["t0_equals_s0"] = "T₀ = S0 بالبناء (PIVOT_STOP_AT_LOW) ⟵ لا تُقاس نتيجةُ صفقةٍ من T₀ على شموعٍ يوميّة"
+    return res
+
+
 def main():
     mode = os.environ.get("REBUILD_MODE", "").strip()
     key = os.environ.get("POLYGON_API_KEY", "")
     if not os.path.exists(CONTRACT):
         log("⛔ العقد غائب")
         return 9
-    built = ("d0", "ready117", "bases_prep", "bases_shard", "bases_assemble", "pairs_shard", "pairs_assemble", "test_prep", "test_shard", "test_assemble")
+    built = ("d0", "ready117", "bases_prep", "bases_shard", "bases_assemble", "pairs_shard", "pairs_assemble", "test_prep", "test_shard", "test_assemble",
+             "b3_shard", "b3_assemble")
     if mode not in built:
         log(f"⛔ وضعٌ غيرُ مبنيّ: {mode!r} (المبنيّ: {' · '.join(built)})")
         return 3
@@ -1353,6 +1632,14 @@ def main():
         if not addendum_ok() or freeze_load() is None:
             log("⛔ لا ملحقَ ببصمته أو لا تجميدَ ببصمته على main ⟵ لا TEST (الملحق 1 §③)")
             return 9
+    if mode.startswith("b3_"):
+        import glob as _g
+        if not addendum2_ok():
+            log("⛔ الملحق 2 غائبٌ أو غيرُ بصمته المدفوعة ⟵ لا جرد (التعريفاتُ قبل الرقم)")
+            return 9
+        if not _g.glob(TEST_RESULT_GLOB):
+            log("⛔ لا نتيجةَ TEST في data/ ⟵ الجردُ المقصوص بعد TEST وحدَه (الملحق 1 §① · الملحق 2 §①)")
+            return 9
     if mode.startswith("pairs_") and not addendum_ok():
         log("⛔ الملحق 1 غائبٌ أو غيرُ بصمته المدموجة ⟵ لا جرد (التعريفاتُ قبل الرقم)")
         return 9
@@ -1362,7 +1649,7 @@ def main():
         if _base != "BASE2":
             log(f"⛔ الأساسُ {_base} ⟵ ملحقٌ ثانٍ قبل الدرجة (الملحق 1 §③)")
             return 3
-    if not key and mode not in ("bases_assemble", "pairs_assemble", "test_assemble"):
+    if not key and mode not in ("bases_assemble", "pairs_assemble", "test_assemble", "b3_assemble"):
         log("⛔ لا مفتاح Polygon")
         return 2
     t0 = time.time()
@@ -1386,6 +1673,12 @@ def main():
     elif mode == "test_assemble":
         res = mode_test_assemble()
         _jdump(res, os.path.join(OUT, "test_result.json.gz"))
+    elif mode == "b3_shard":
+        res = mode_b3_shard(key, int(os.environ.get("SHARD", "0")), int(os.environ.get("NSHARDS", str(NSHARDS))))
+        res = {k: v for k, v in res.items() if k != "rows"} | {"entries": len(res["rows"])}
+    elif mode == "b3_assemble":
+        res = mode_b3_assemble()
+        _jdump(res, os.path.join(OUT, "b3_result.json.gz"))
     elif mode == "pairs_shard":
         res = mode_pairs_shard(key, int(os.environ.get("SHARD", "0")), int(os.environ.get("NSHARDS", str(NSHARDS))))
         res = {k: v for k, v in res.items() if k != "rows"} | {"entries": len(res["rows"])}

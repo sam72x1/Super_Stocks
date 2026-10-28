@@ -2,6 +2,7 @@ name: "🧭 T-REBUILD الجزء ب (قراءةٌ وقياس · يدويّ)"
 
 # 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا شحن (العقد `fm_forensics/rebuild/T_REBUILD_prereg.md` · RBD1 · RBD3).
 # `bases` = §⑥ على TRAIN والاختيارُ على VAL: prep ⟵ 20 شريحةً متوازية ⟵ assemble (ولا TEST).
+# `b3` = §⑦ الجردُ المقصوص بالملحق 2: 20 شريحةً ⟵ assemble (prep من `prep_run` · يرفض 9 بلا الملحق 2 ببصمته أو بلا نتيجة TEST في data/).
 # `test` = §⑩-§⑪ مرّةً واحدة: test_prep ⟵ 20 شريحة ⟵ assemble (يرفض 9 بلا تجميدٍ ببصمته · و7 إن وُجدت نتيجةٌ في data/).
 # `pairs` = §⑨ الأزواجُ ثمّ §⑧ الدرجةُ والتجميد بالملحق 1 على TRAIN وحدَه: prep تشغيلة `bases` نفسِها (`prep_run`) ⟵ 20 شريحة ⟵ assemble (ويرفض 9 بلا الملحق ببصمته).
 permissions:
@@ -11,9 +12,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "الوضع (المبنيّ: d0 · ready117 · bases · pairs · test)"
+        description: "الوضع (المبنيّ: d0 · ready117 · bases · pairs · test · b3)"
         type: choice
-        options: [d0, ready117, bases, pairs, test]
+        options: [d0, ready117, bases, pairs, test, b3]
         default: d0
       prep_run:
         description: "للأزواج: تشغيلةُ bases التي يُعاد منها prep (عضويّةٌ وتقسيماتٌ وFINRA بحرفها)"
@@ -22,7 +23,7 @@ on:
 
 jobs:
   rebuild:
-    if: github.event.inputs.mode != 'bases' && github.event.inputs.mode != 'pairs' && github.event.inputs.mode != 'test'
+    if: github.event.inputs.mode != 'bases' && github.event.inputs.mode != 'pairs' && github.event.inputs.mode != 'test' && github.event.inputs.mode != 'b3'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -366,4 +367,101 @@ jobs:
         with:
           name: rb-test-result
           path: fm_forensics/rebuild/out/test_result.json.gz
+          retention-days: 90
+
+  b3_shard:
+    if: github.event.inputs.mode == 'b3'
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    permissions:
+      contents: read
+      actions: read
+    strategy:
+      fail-fast: false
+      max-parallel: 8               # لا يستنفد رنرات البوت الحيّة
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep (bases run)
+        uses: actions/download-artifact@v4
+        with:
+          name: rb-prep
+          path: fm_forensics/rebuild/out
+          run-id: ${{ github.event.inputs.prep_run }}
+          github-token: ${{ github.token }}
+
+      - name: 🧭 شريحةُ الجرد المقصوص
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          REBUILD_MODE: b3_shard
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "20"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rebuild/rebuild.py
+
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: rb-b3-shard-${{ matrix.shard }}
+          path: fm_forensics/rebuild/out/b3_shard_*.json.gz
+          retention-days: 30
+
+  b3_assemble:
+    needs: b3_shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep (bases run)
+        uses: actions/download-artifact@v4
+        with:
+          name: rb-prep
+          path: fm_forensics/rebuild/out
+          run-id: ${{ github.event.inputs.prep_run }}
+          github-token: ${{ github.token }}
+
+      - name: Download shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: rb-b3-shard-*
+          path: fm_forensics/rebuild/out
+          merge-multiple: true
+
+      - name: 🧭 الجردُ المقصوص (الملحق 2)
+        env:
+          REBUILD_MODE: b3_assemble
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rebuild/rebuild.py
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: rb-b3-result
+          path: fm_forensics/rebuild/out/b3_result.json.gz
           retention-days: 90

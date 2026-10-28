@@ -88477,6 +88477,181 @@ check("🧭 RBD7 (‏2026-10-28) TEST بعد التجميد: الوقفُ أوّ
       "ونصفا 2025 · الإدخالاتُ في TEST وحدَها · «من كلّ 10» · ولا TEST بلا تجميد · والمسارُ موصولٌ · والمطفأُ يُطبع", _v_r7, _v_r7w)
 
 
+# 🧭 RBD8 (‏2026-10-28 · `T-REBUILD` الملحق 2 · الجردُ المقصوص B3): الملحقُ ببصمته المثبَّتة وقائمتُه الثمانية (و`PIVOT_SWEEP_PCT` لا يُقاس) ·
+#    بادئاتُ سطور النقص فريدةٌ في `analyze_ticker` (AST) · الأعلامُ من مُخرَج الإنتاج (اللّيّنتان · السقفُ وحدَه · `STABILITY_MAX` بـNone يعبر) ·
+#    كلُّ بندٍ صلبٍ بمفتاحه وحدَه فوق «الكلّ متساهل» · والوقفُ بتعريف §⑪ والدفعاتُ (التعبئة · الالتقاط حتى τ شاملًا · فوق السعر) ·
+#    والتجميعُ يطابق العددَ ولا يقرأ VAL · وm = 8 · ولا جردَ بلا نتيجة TEST · وworkflow موصول.
+try:
+    import importlib.util as _r8_iu
+    import ast as _r8_ast
+    import hashlib as _r8_h
+    import os as _r8_os
+    import textwrap as _r8_tw
+    import types as _r8_types
+    import yaml as _r8_yaml
+    _r8_spec = _r8_iu.spec_from_file_location("t_rebuild_tool8", "fm_forensics/rebuild/rebuild.py")
+    _R8 = _r8_iu.module_from_spec(_r8_spec)
+    _r8_spec.loader.exec_module(_R8)
+    _r8_c = {}
+
+    def _try8(f, *a, **k):
+        """نداءٌ لا يُسقط القفلَ كلَّه: (القيمة) أو ("⛔"، اسمُ الاستثناء)."""
+        try:
+            return f(*a, **k)
+        except Exception as _x:                                  # noqa: BLE001
+            return ("⛔", type(_x).__name__)
+    # ① الملحقُ ببصمته المثبَّتة · والقائمة
+    _r8_a2 = open("fm_forensics/rebuild/T_REBUILD_ADDENDUM_2.md", "rb").read()
+    _r8_c["sha"] = _r8_h.sha256(_r8_a2).hexdigest() == _R8.ADDENDUM2_SHA and _R8.addendum2_ok()
+    _r8_t = _r8_a2.decode("utf-8")
+    _r8_c["list"] = (len(_R8.B3_ITEMS) == 8 and len(set(_R8.B3_ITEMS)) == 8 and "**بونفيروني m = 8**" in _r8_t
+                     and all(f"`{k}`" in _r8_t for k in _R8.B3_ITEMS if k != "ANCHOR_TWO_TOUCH")
+                     and "PIVOT_SWEEP_PCT" in _R8.B3_NOT_MEASURED and "PIVOT_SWEEP_PCT" not in _R8.B3_ITEMS
+                     and set(_R8.B3_PROD) == set(_R8.B3_ITEMS) and _R8.B3_PROD["STABILITY_MIN"].startswith("مطفأة")
+                     and _R8.B3_PROD["STABILITY_MAX"].startswith("مطفأة"))
+    # ② البادئاتُ فريدةٌ بين كلّ `soft_fails.append` في analyze_ticker (AST · نصُّ القطع الثابتة)
+    _r8_txt = []
+    for _n in _r8_ast.walk(_r8_ast.parse(_r8_tw.dedent(_insp0.getsource(S.analyze_ticker)))):
+        if (isinstance(_n, _r8_ast.Call) and getattr(_n.func, "attr", None) == "append"
+                and getattr(_n.func.value, "id", None) == "soft_fails" and _n.args):
+            _a = _n.args[0]
+            _parts = _a.values if isinstance(_a, _r8_ast.JoinedStr) else [_a]
+            _r8_txt.append("".join(p.value for p in _parts if isinstance(p, _r8_ast.Constant) and isinstance(p.value, str)))
+    _r8_c["prefix"] = (len(_r8_txt) >= 8 and all(sum(1 for t in _r8_txt if t.startswith(p)) == 1 for p in _R8.B3_SOFT_PREFIX.values())
+                       and sum(1 for t in _r8_txt if _R8.B3_MA_MARK in t) == 2)
+    # ③ الأعلامُ من مُخرَج الإنتاج
+    _lv8 = {"STABILITY_MAX": 8}
+    _hk = {g: True for g in _R8.B3_HARD}
+    _f0 = _R8.b3_flags({"soft_fails": ["قاع RSI 40 (المثالي 33 أو أقل)"], "bars_after": 9},
+                       {"soft_fails": ["قاع RSI 40"]}, dict(_hk, RSI_NOW_HARD=False), _lv8)
+    _f1 = _R8.b3_flags({"soft_fails": ["RSI الآن 50 أعلى من 36", "السعر أعلى بـ120% من متوسطه المتحرك (يفتح برجوعه قرب متوسطه)"],
+                        "bars_after": 8}, {"soft_fails": ["RSI الآن 50"]}, _hk, _lv8)
+    _f2 = _R8.b3_flags({"soft_fails": ["السعر أقل بـ30% من متوسطه المتحرك (يفتح بصعود ~30%)"], "bars_after": None},
+                       {"soft_fails": ["السعر أقل بـ30% من متوسطه المتحرك"]}, dict(_hk, ANCHOR_TWO_TOUCH=False), _lv8)
+    _r8_c["flags"] = (_f0 == [0, 1, 1, 0, 1, 1, 0, 1] and _f1 == [1, 1, 0, 1, 0, 1, 1, 1] and _f2 == [1, 1, 1, 1, 1, 1, 1, 0])
+    # ④ كلُّ بندٍ صلبٍ بمفتاحه وحدَه · والسقفُ مرفوعًا وحدَه
+    _live8 = {"RSI_OS_HARD": 69.0, "RSI_NOW_HARD": 71.1, "MA_GATE_MAX_ABOVE_PCT": 95.5, "STABILITY_MAX": 8, "ANCHOR_MODE": "tested_strict",
+              "BT_STABILITY_GATE": "", "RSI_OVERSOLD": 33.0, "X_OTHER": 7}
+    _pm, _mo, _hd = _R8.b3_cfgs(_live8)
+    _diff = {g: {k for k in set(c) | set(_pm) if c.get(k) != _pm.get(k)} for g, c in _hd.items()}
+    _r8_c["cfgs"] = (_pm["RSI_OS_HARD"] == 1e9 and _pm["WATCH_MAX_FAILS"] == 10 ** 6 and _pm["RSI_OVERSOLD"] == 33.0
+                     and _pm["X_OTHER"] == 7 and {k for k in _mo if _mo[k] != _pm.get(k)} == {"MA_GATE_MAX_ABOVE_PCT"}
+                     and _mo["MA_GATE_MAX_ABOVE_PCT"] == _R8.B3_MA_OPEN
+                     and _diff == {"RSI_OS_HARD": {"RSI_OS_HARD"}, "RSI_NOW_HARD": {"RSI_NOW_HARD"},
+                                   "STABILITY_MIN": {"BT_STABILITY_GATE"}, "ANCHOR_TWO_TOUCH": {"ANCHOR_MODE"}}
+                     and _hd["RSI_OS_HARD"]["RSI_OS_HARD"] == 69.0 and _hd["STABILITY_MIN"]["BT_STABILITY_GATE"] == "faisal"
+                     and _hd["ANCHOR_TWO_TOUCH"]["ANCHOR_MODE"] == "tested_strict")
+    # ⑤ b3_eval موصولٌ بالإعدادات (analyze_ticker مزيّفٌ يقرأ CONFIG) ويعيد الحيّ
+    _fakeS = _r8_types.SimpleNamespace(CONFIG={}, _REJECT_REASONS={})
+
+    def _fake_at(sym, sub):
+        c = _fakeS.CONFIG
+        if c.get("RSI_NOW_HARD", 1e9) < 1e8 or c.get("BT_STABILITY_GATE") == "faisal":
+            _fakeS._REJECT_REASONS[sym] = "R"
+            return None
+        sf = ["السعر أعلى بـ120% من متوسطه المتحرك"] if c.get("MA_GATE_MAX_ABOVE_PCT", 0) < 1e8 else []
+        return {"soft_fails": sf, "bars_after": 3, "tranches": [1.0, 1.03, 1.06] if c.get("ANCHOR_MODE") else None}
+    _fakeS.analyze_ticker = _fake_at
+    _e = _R8.b3_eval(_fakeS, "Z", None, _live8, _pm, _mo, _hd)
+    _cfg_after = dict(_fakeS.CONFIG)
+    _fake_none = _r8_types.SimpleNamespace(CONFIG={}, _REJECT_REASONS={}, analyze_ticker=lambda s, d: None)
+    _e0 = _R8.b3_eval(_fake_none, "Z", None, _live8, _pm, _mo, _hd)
+    _r8_c["eval"] = (_e[0] == 1 and _e[2] == [1, 1, 1, 0, 0, 0, 1, 1] and _e[3]["tranches"] == [1.0, 1.03, 1.06]
+                     and _cfg_after == _live8 and _e0[0] == 0 and _e0[2] is None and _fake_none.CONFIG == _live8)
+    # ⑥ الوقفُ (§⑪) والدفعات
+    def _bars8(path):
+        return [("d%03d" % k, x, hi, lo, x, 1000.0) for k, (x, hi, lo) in enumerate(path)]
+    _pre = [(1.0, 1.0, 1.0)] * 5
+    _pa = _pre + [(1.0, 1.0, 0.95), (1.0, 1.6, 0.99)] + [(1.0, 1.0, 0.85)] * 20      # T2 يُعبّأ يومَ D · τ = D+1 · ثمّ T0/T1
+    _pb = _pre + [(1.0, 1.0, 0.99), (1.0, 1.6, 0.92)] + [(1.0, 1.0, 1.0)] * 20       # T1 يُعبّأ يومَ τ نفسِه (شاملًا)
+    _pc = _pre + [(1.0, 1.0, 0.88), (1.0, 1.6, 0.99)] + [(1.0, 1.0, 1.0)] * 20       # يلمس S0=0.9 قبل الهدف · وS5=0.855 لا
+    _t8 = [0.9, 0.927, 0.954]
+    _a8 = _R8.b3_trade(_bars8(_pa), 5, 0.9, _t8, 50.0)
+    _b8 = _R8.b3_trade(_bars8(_pb), 5, 0.9, _t8, 50.0)
+    _c8 = _R8.b3_trade(_bars8(_pc), 5, 0.9, _t8, 50.0)
+    _pd = [(1.0, 1.0, 1.0)] * 4 + [(0.927, 0.927, 0.927)] + [(1.0, 1.0, 1.0)] * 21    # إغلاقُ D−1 = T1 ⟵ «فوق السعر» شاملًا
+    _d8 = _R8.b3_trade(_bars8(_pd), 5, 0.9, _t8, 50.0)
+    _r8_c["trade"] = (_a8 == (True, True, [[1, 0, 0], [1, 0, 0], [1, 1, 0]]) and _b8 == (True, True, [[0, 0, 0], [1, 1, 0], [1, 1, 0]])
+                      and _c8[0] is False and _c8[1] is True and _c8[2][0] == [1, 1, 0]
+                      and [x[2] for x in _d8[2]] == [0, 1, 1]
+                      and _R8.b3_trade(_bars8(_pa), 5, None, _t8, 50.0) == (None, None, None)
+                      and _R8.b3_trade(_bars8(_pa)[:24], 5, 0.9, _t8, 50.0) == (None, None, None))
+    # ⑦ الفرقُ المزدوج حتميٌّ ويحوي التقدير
+    _it = [(f"S{k % 30}", k % 3 == 0, k % 2 == 0) for k in range(120)]
+    _bp = _R8.boot_paired(_it)
+    _est = (sum(1 for x in _it if x[2]) - sum(1 for x in _it if x[1])) / len(_it)
+    _r8_c["paired"] = _bp is not None and _bp[0] <= _est <= _bp[1] and _bp == _R8.boot_paired(_it) and _bp[0] < _bp[1]
+    # ⑧ التجميع: المطابقة · m = 8 · لا VAL · والمطفأُ وغيرُ المقيس يُطبعان
+    _ss8 = [f"2023-{m:02d}-{d:02d}" for m in range(1, 13) for d in (3, 10, 17, 24)]
+    _rows8 = []
+    for k in range(80):
+        _fl = [int((k + j) % (j + 2) != 0) for j in range(8)]
+        _rows8.append([f"S{k % 20}", _ss8[k % 48], bool(k % 5 == 0), 1, None, k % 3, k % 2, _fl,
+                       bool(k % 4 == 0), bool(k % 3 == 0), [[k % 2, (k % 2) if k % 5 == 0 else None, 0]] * 3])
+    _rows8.append(["S0", "2023-02-03", None, 0, "M1_x", 0, 0, None, None, None, None])
+    _sh8 = [{"nshards": 1, "rows": _rows8}]
+    _bs8 = {"base": "BASE2", "stats": {"TRAIN": {"BASE2": {"entries": len(_rows8)}}}}
+    _pp8 = {"sessions": _ss8}
+    _ok8 = _try8(_R8.mode_b3_assemble, shards=_sh8, prep=_pp8, bases=_bs8)
+    _bad8 = _try8(_R8.mode_b3_assemble, shards=_sh8, prep=_pp8, bases={"base": "BASE2", "stats": {"TRAIN": {"BASE2": {"entries": 5}}}})
+    _val8 = _try8(_R8.mode_b3_assemble, shards=[{"nshards": 1, "rows": _rows8 + [["S1", "2024-05-01", True, 1, None, 0, 0, [1] * 8,
+                                                                                   None, None, None]]}], prep=_pp8, bases=_bs8)
+    _val8 = _val8 == ("⛔", "ValueError")
+    _r8_c["assemble"] = (isinstance(_ok8, dict) and isinstance(_bad8, dict) and _ok8.get("match") is True and _ok8["items"]["m"] == 8 and set(_ok8["items"]["cols"]) == set(_R8.B3_ITEMS)
+                         and _ok8["excluded_by_code"] == {"M1_x": 1} and _ok8["eligible"] == 80 and _ok8["stop"]["n"] == 80
+                         and len(_ok8["tranches"]) == 3 and "PIVOT_SWEEP_PCT" in _ok8["not_measured"]
+                         and any("M8_GAP_REQUIRED" in x[0] for x in _ok8["prod_off"])
+                         and "items" not in _bad8 and _bad8["verdict"].startswith("⛔") and _val8)
+    # ⑨ لا جردَ بلا نتيجة TEST (9) · وبها يتجاوز الحارس · وبلا الملحق 2 ببصمته (9)
+    _env0 = {k: _r8_os.environ.get(k) for k in ("REBUILD_MODE", "POLYGON_API_KEY")}
+    _g0, _s0 = _R8.TEST_RESULT_GLOB, _R8.ADDENDUM2_SHA
+    _out0 = _R8.OUT
+    try:
+        _r8_os.environ["REBUILD_MODE"] = "b3_assemble"
+        _r8_os.environ.pop("POLYGON_API_KEY", None)
+        _R8.TEST_RESULT_GLOB = "fm_forensics/rebuild/__no_such_test_result__*.json"
+        _R8.OUT = "fm_forensics/rebuild/__no_such_out_dir__"
+        _rc_no_test = _try8(_R8.main)
+        _R8.TEST_RESULT_GLOB = "fm_forensics/rebuild/T_REBUILD_ADDENDUM_2.md"
+        _past = _try8(_R8.main) == ("⛔", "FileNotFoundError")
+        _R8.ADDENDUM2_SHA = "0" * 64
+        _rc_no_add = _try8(_R8.main)
+    finally:
+        _R8.TEST_RESULT_GLOB, _R8.ADDENDUM2_SHA, _R8.OUT = _g0, _s0, _out0
+        for _k, _v in _env0.items():
+            if _v is None:
+                _r8_os.environ.pop(_k, None)
+            else:
+                _r8_os.environ[_k] = _v
+    _r8_c["order"] = _rc_no_test == 9 and _past and _rc_no_add == 9
+    # ⑩ الوصلُ بالأسماء (AST)
+    def _calls8(f):
+        return {getattr(n.func, "id", None) or getattr(n.func, "attr", None)
+                for n in _r8_ast.walk(_r8_ast.parse(_r8_tw.dedent(_insp0.getsource(f)))) if isinstance(n, _r8_ast.Call)}
+    _cmp8 = any(isinstance(n, _r8_ast.Compare) and any(getattr(x, "id", None) == "B3_TRANCHES" for x in _r8_ast.walk(n))
+                for n in _r8_ast.walk(_r8_ast.parse(_r8_tw.dedent(_insp0.getsource(_R8.mode_b3_shard)))))
+    _r8_c["wired"] = ({"b3_eval", "b3_trade", "tested_level", "asof_factor", "base2_fire", "new_entries", "row_guards", "exploded",
+                       "b3_cfgs", "configs"} <= _calls8(_R8.mode_b3_shard) and {"analyze_ticker", "b3_flags"} <= _calls8(_R8.b3_eval)
+                      and {"gate_stats", "boot_paired", "boot_share"} <= _calls8(_R8.mode_b3_assemble)
+                      and {"stop_outcome"} <= _calls8(_R8.b3_trade) and _cmp8)
+    # ⑪ workflow: الخيارُ والجوبان والإقصاءُ من وظيفة d0
+    _wf8 = _r8_yaml.safe_load(open(".github/workflows/rebuild.yml", encoding="utf-8"))
+    _jb8 = _wf8.get("jobs", {})
+    _opt8 = (_wf8.get(True) or _wf8.get("on") or {}).get("workflow_dispatch", {}).get("inputs", {}).get("mode", {}).get("options", [])
+    _env_of = lambda j: [s.get("env", {}).get("REBUILD_MODE") for s in _jb8.get(j, {}).get("steps", [])]  # noqa: E731
+    _r8_c["workflow"] = ("b3" in _opt8 and "b3_shard" in _env_of("b3_shard") and "b3_assemble" in _env_of("b3_assemble")
+                         and _jb8["b3_assemble"].get("needs") == "b3_shard" and "mode == 'b3'" in _jb8["b3_shard"].get("if", "")
+                         and "mode != 'b3'" in _jb8.get("rebuild", {}).get("if", ""))
+except Exception as _e:                                              # noqa: BLE001
+    _r8_c = {"⛔": False}
+    _v_r8w = f"⛔ رمى: {type(_e).__name__}: {_e}"
+_v_r8 = bool(_r8_c) and all(_r8_c.values())
+if "⛔" not in _r8_c:
+    _v_r8w = f"{ {k: v for k, v in _r8_c.items() if not v} or 'كلّها'}"
+check("🧭 RBD8 (‏2026-10-28) الجردُ المقصوص بالملحق 2: الملحقُ ببصمته وقائمتُه الثمانية (PIVOT_SWEEP لا يُقاس) · بادئاتُ النقص فريدة · الأعلامُ من مُخرَج "
+      "الإنتاج · كلُّ صلبٍ بمفتاحه وحدَه · الوقفُ بتعريف §⑪ والدفعات · التجميعُ يطابق ولا يقرأ VAL وm = 8 · لا جردَ بلا TEST · والوصلُ والـworkflow",
+      _v_r8, _v_r8w)
+
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
