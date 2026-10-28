@@ -82,24 +82,24 @@
   },
   "errors": [],
   "inputs": {
-   "provenance_sha256": "3596542c1870a1c77fd0663be1094c0e965eae0b33de20fca585ea4b001d86ec",
+   "provenance_sha256": "cdf25c4e4fb0603d9d98e0190518439f396544a2207630feb4231b72701bf0bd",
    "snapshot_sha256": "8447b31e642a8593e84bacf081843b94e5ce4254172cdd476bd603d89989180c",
    "rank_bars_sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c",
    "rank_rows_sha256": "8a506495a17dcd1849283e6607d1018e4339f9cf253f587a83297225da59d890"
   },
   "archive_xref": {
    "head_chars": 400,
-   "pairs": 94,
+   "pairs": 102,
    "by_class": {
     "CITED": 76,
     "CITED_ELSEWHERE": 5,
-    "NOT_GATE_EVIDENCE": 13
+    "NOT_GATE_EVIDENCE": 21
    },
    "by_why": {
     "IMPLEMENTATION": 3,
     "MEMORY": 1,
     "OTHER_SYSTEM": 3,
-    "INCIDENTAL": 6
+    "INCIDENTAL": 14
    },
    "rows": [
     {
@@ -296,6 +296,17 @@
     },
     {
      "gate": "M10_RSI_NOW",
+     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
+    },
+    {
+     "gate": "M10_RSI_NOW",
      "anchor": "حكم T-FAISAL-ONLY — فشلت",
      "terms": [
       "T-FAISAL-ONLY"
@@ -348,6 +359,17 @@
     },
     {
      "gate": "M13_SHORT",
+     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
+    },
+    {
+     "gate": "M13_SHORT",
      "anchor": "دفتر مصادر القواعد `FAISAL_SOURCE_LEDGER.md`",
      "terms": [
       "SHORT_GATE_MAX"
@@ -397,6 +419,17 @@
      ],
      "why": null,
      "note": ""
+    },
+    {
+     "gate": "M14_FLOAT",
+     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
     },
     {
      "gate": "M1_PRICE",
@@ -773,6 +806,17 @@
     },
     {
      "gate": "NEAR_READINESS",
+     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
+    },
+    {
+     "gate": "NEAR_READINESS",
      "anchor": "حكم T-FAISAL-ONLY — فشلت",
      "terms": [
       "T-FAISAL-ONLY"
@@ -955,6 +999,17 @@
     },
     {
      "gate": "RR_SOFT_COUNT",
+     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
+    },
+    {
+     "gate": "RR_SOFT_COUNT",
      "anchor": "حكم T-FAISAL-ONLY — فشلت",
      "terms": [
       "T-FAISAL-ONLY"
@@ -991,6 +1046,17 @@
      ],
      "why": null,
      "note": ""
+    },
+    {
+     "gate": "SCORE_MIN",
+     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
     },
     {
      "gate": "SCORE_MIN",
@@ -1054,6 +1120,17 @@
      ],
      "why": null,
      "note": ""
+    },
+    {
+     "gate": "SOFT_COUNT",
+     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
     },
     {
      "gate": "SOFT_COUNT",
@@ -1267,6 +1344,17 @@
      ],
      "why": null,
      "note": ""
+    },
+    {
+     "gate": "TIER",
+     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
     },
     {
      "gate": "TIER",
@@ -6462,10 +6550,10 @@
      "threshold:SHORT_GATE_MAX": []
     }
    },
-   "line": 12624,
+   "line": 12631,
    "function_lines": [
-    12566,
-    12638
+    12573,
+    12645
    ],
    "config": {
     "SHORT_GATE_MAX": 40000,
@@ -6594,10 +6682,10 @@
      ]
     }
    },
-   "line": 12694,
+   "line": 12701,
    "function_lines": [
-    12641,
-    12707
+    12648,
+    12714
    ],
    "config": {
     "FLOAT_GATE_MAX": 50000000,
@@ -6709,10 +6797,10 @@
      "hardness": []
     }
    },
-   "line": 13257,
+   "line": 13264,
    "function_lines": [
-    13245,
-    13259
+    13252,
+    13266
    ],
    "config": {
     "WATCH_MAX_FAILS": 8
@@ -6795,10 +6883,10 @@
      ]
     }
    },
-   "line": 13279,
+   "line": 13286,
    "function_lines": [
-    13279,
-    13300
+    13286,
+    13307
    ],
    "config": {},
    "production_counts": null,
@@ -7044,10 +7132,10 @@
      "threshold:DATA_HEALTH_MIN_PCT": []
     }
    },
-   "line": 22543,
+   "line": 22566,
    "function_lines": [
-    22468,
-    22924
+    22491,
+    22947
    ],
    "config": {
     "DATA_HEALTH_MIN_PCT": 85
@@ -7140,10 +7228,10 @@
      "hardness": []
     }
    },
-   "line": 22547,
+   "line": 22570,
    "function_lines": [
-    22468,
-    22924
+    22491,
+    22947
    ],
    "config": {
     "EXCLUDE_STOPPED_FROM_RENEWAL": true
@@ -7238,10 +7326,10 @@
      ]
     }
    },
-   "line": 22576,
+   "line": 22599,
    "function_lines": [
-    22468,
-    22924
+    22491,
+    22947
    ],
    "config": {
     "WATCHLIST_SIZE": 15
@@ -7334,10 +7422,10 @@
      "threshold:PICK_FILL_ROUNDS": []
     }
    },
-   "line": 12919,
+   "line": 12926,
    "function_lines": [
-    12885,
-    12958
+    12892,
+    12965
    ],
    "config": {
     "PICK_FILL_ROUNDS": 4
@@ -7436,10 +7524,10 @@
      ]
     }
    },
-   "line": 12783,
+   "line": 12790,
    "function_lines": [
-    12742,
-    12786
+    12749,
+    12793
    ],
    "config": {
     "FLOAT_GATE_MAX": 50000000
@@ -7511,10 +7599,10 @@
      ]
     }
    },
-   "line": 12832,
+   "line": 12839,
    "function_lines": [
-    12832,
-    12882
+    12839,
+    12889
    ],
    "config": {},
    "production_counts": null,
@@ -7645,10 +7733,10 @@
      ]
     }
    },
-   "line": 12822,
+   "line": 12829,
    "function_lines": [
-    12789,
-    12829
+    12796,
+    12836
    ],
    "config": {
     "BORROW_AVAIL_MAX": 20000,
@@ -7756,10 +7844,10 @@
      "threshold:far_above": []
     }
    },
-   "line": 15313,
+   "line": 15325,
    "function_lines": [
-    15313,
-    15398
+    15325,
+    15410
    ],
    "config": {},
    "production_counts": null,
