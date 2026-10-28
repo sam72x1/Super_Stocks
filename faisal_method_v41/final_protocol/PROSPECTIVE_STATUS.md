@@ -3,12 +3,12 @@
 > مولَّدٌ من `faisal_method_v41/final_protocol.py` (V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)) بعد كلّ دفعة · **لا يُحرَّر باليد** · V4 مجمَّد (`7c8826c25e74`) · والحلقة: COLLECT ⟵ BLIND V4 ⟵ SEAL ⟵ REVEAL FAISAL ⟵ COMPARE ⟵ RECORD ⟵ REPEAT.
 
 ```
-TOTAL_RECEIVED = 88
+TOTAL_RECEIVED = 110
 NEW_PROSPECTIVE = 8
 DUPLICATES = 5
 DERIVATIVES = 15
-CONTAMINATED = 9
-INSUFFICIENT_CONTEXT = 21
+CONTAMINATED = 13
+INSUFFICIENT_CONTEXT = 28
 VALID_CASES = 2
 MATCHES = 1
 MISMATCHES = 1
@@ -28,7 +28,7 @@ ALWAYS_WAIT_MATCH = 1
 V4_BEATS_BASELINE = NO
 CURRENT_SAMPLE_STATUS = VERY_PRELIMINARY (N=2 · الهدفُ الأدنى 43 — ليس برهانًا بذاته)
 — — —
-PRE_EXISTING = 7 · UNKNOWN = 23 (TOTAL_RECEIVED = مجموعُ الأصناف السبعة)
+PRE_EXISTING = 7 · UNKNOWN = 34 (TOTAL_RECEIVED = مجموعُ الأصناف السبعة)
 OVERALL_AGREEMENT = 0.5 (1/2) · ALWAYS_WAIT = 0.5
 UNKNOWN_RATE = 0.0 (V4_UNKNOWN / VALID_CASES)
 DIVERSITY = pattern {"UNSPECIFIED": 2} · timeframe {"4H": 1, "D": 1} · market_regime {"ABOVE_SMA50": 1, "BELOW_SMA50": 1} · decision {"READY": 1, "WAIT": 1} · LOW_DIVERSITY NO
