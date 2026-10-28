@@ -88715,6 +88715,58 @@ except Exception as _e:                                              # noqa: BLE
 check("🧱🔄 EHS1 (‏2026-10-27) الثبات الدقيق على Polygon بمفتاح `EXACT_HOLD_SOURCE=polygon` مع بقاء BARS_SOURCE=tradingview · "
       "وبلاه TradingView بت-بت · وdaily_screener.yml يضبطه", _v_ehs1, _v_ehs1w)
 
+# 🧪 V4PB1 (‏2026-10-28 · أمرُ المالك «أضف إعادة بناء المرحلة ب لـ V4»): وضعُ run في `faisal_v41.yml` يُعيد بناءَ المرحلة ب بعد
+#    write البروتوكول والوثائق (عطلٌ مُثبَت: تشغيلُ `40674079524` بحالاتٍ جديدة بلا إعادتها جعل PHB1 أحمرَ على main عند `960ad80`)
+#    · وفشلُها لا يحجب قيدَ V4: يُدفَع القيدُ ثمّ تحمرّ التشغيلة · وملفّاتُ المرحلة ب تُضاف بعد نجاح write ثمّ check وحدَه.
+#    **سلوكيّ:** يُشغَّل نصُّ الخطوة نفسُه بـ`bash -e` على جذوعٍ لـpython وgit تُسجَّل ولا تُنفَّذ — خمسُ حالات.
+try:
+    import os as _pb_os, subprocess as _pb_sp, tempfile as _pb_tf, yaml as _pb_yaml
+    _pb_wf = _pb_yaml.safe_load(open(_pb_os.path.join(".github", "workflows", "faisal_v41.yml"), encoding="utf-8"))
+    _pb_steps = ((_pb_wf.get("jobs") or {}).get("v41") or {}).get("steps") or []
+    _pb_push = [st for st in _pb_steps if "git push" in str(st.get("run", ""))]
+    _pb_script = str(_pb_push[0].get("run", "")) if len(_pb_push) == 1 else ""
+
+    def _pb_case(fail, diff_changes=True):
+        with _pb_tf.TemporaryDirectory() as _d:
+            _log = _pb_os.path.join(_d, "log")
+            for _n, _body in (("python", 'echo "py $*" >> "$PB_LOG"\n'
+                                         'case "$*" in *"phase_b.py $PB_FAIL"*) exit 1;; esac\nexit 0\n'),
+                              ("git", 'echo "git $*" >> "$PB_LOG"\n'
+                                      'if [ "$1 $2 $3" = "diff --cached --quiet" ]; then exit "$PB_DIFF"; fi\nexit 0\n'),
+                              ("sleep", "exit 0\n")):
+                _p = _pb_os.path.join(_d, _n)
+                with open(_p, "w", encoding="utf-8") as _f:
+                    _f.write("#!/bin/sh\n" + _body)
+                _pb_os.chmod(_p, 0o755)
+            _env = dict(_pb_os.environ, PATH=_d + _pb_os.pathsep + _pb_os.environ.get("PATH", ""), PB_LOG=_log,
+                        PB_FAIL=fail or "none", PB_DIFF="1" if diff_changes else "0", GITHUB_RUN_ID="1", GITHUB_REF_NAME="main")
+            _r = _pb_sp.run(["bash", "-e", "-c", _pb_script], env=_env, capture_output=True, text=True, timeout=60, cwd=_d)
+            _lines = open(_log, encoding="utf-8").read().splitlines() if _pb_os.path.exists(_log) else []
+            return _r.returncode, _lines
+
+    def _pb_idx(lines, frag):
+        return next((i for i, l in enumerate(lines) if frag in l), -1)
+
+    _pb_res = {}
+    _rc, _ln = _pb_case(None)
+    _o = [_pb_idx(_ln, f) for f in ("final_protocol.py write", "docs_v41.py", "phase_b.py write", "phase_b.py check",
+                                     "git add faisal_validation/", "git commit", "git push")]
+    _pb_res["ok"] = _rc == 0 and -1 not in _o and _o == sorted(_o)
+    for _which in ("write", "check"):
+        _rc, _ln = _pb_case(_which)
+        _pb_res["fail_" + _which] = (_rc == 1 and _pb_idx(_ln, "git add faisal_validation/") == -1
+                                     and _pb_idx(_ln, "git push") != -1 and _pb_idx(_ln, "git add faisal_method_v41/") != -1
+                                     and (_which == "check" or _pb_idx(_ln, "phase_b.py check") == -1))
+    _rc, _ln = _pb_case("write", diff_changes=False)
+    _pb_res["nodiff_fail"] = _rc == 1 and _pb_idx(_ln, "git commit") == -1
+    _rc, _ln = _pb_case(None, diff_changes=False)
+    _pb_res["nodiff_ok"] = _rc == 0 and _pb_idx(_ln, "git commit") == -1
+    _v_pb1, _v_pb1w = all(_pb_res.values()), str(_pb_res)
+except Exception as _e:                                              # noqa: BLE001
+    _v_pb1, _v_pb1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪 V4PB1 (‏2026-10-28) وضعُ run في faisal_v41.yml يُعيد بناءَ المرحلة ب بعد البروتوكول والوثائق · وفشلُها يُحمّر التشغيلةَ "
+      "بعد دفع قيد V4 ولا يُضيف ملفّاتها", _v_pb1, _v_pb1w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
