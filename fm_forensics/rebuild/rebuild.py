@@ -7,9 +7,11 @@
     REBUILD_MODE=d0        جدوى البيانات §③ — أعدادٌ فقط (اللقطات · الرموز · التغطية · الحرّاس على عيّنة الشموع · FINRA · وكيلُ الفلوت)
     REBUILD_MODE=ready117  جدولُ §⑤ — RSI14 للـ117 READY والـ277 MISSED_READY (وصفيّ · لا يختار شيئًا)
     REBUILD_MODE=bases_prep / bases_shard (SHARD · NSHARDS) / bases_assemble   §⑥ الأساسُ على TRAIN والاختيارُ على VAL — ولا TEST
+    REBUILD_MODE=pairs_shard (SHARD · NSHARDS) / pairs_assemble   §⑨ الأزواجُ ثمّ §⑧ الدرجةُ والتجميد بالملحق 1 (`T_REBUILD_ADDENDUM_1.md`) على TRAIN وحدَه
 
 الدوالُّ النقيّة (مقفولةٌ سلوكيًّا في `RBD1`/`RBD3`): `asof_scale` · `new_entries` · `exploded` · `rsi14_before` · `gaps` · `band` ·
-`base2_fire` · `owner_fire` · `jump_at` · `row_guards` · `rule_entries` · `boot_diff` · `choose_base` · و`post_scan` على الدوالّ الإنتاجيّة بالاسم.
+`base2_fire` · `owner_fire` · `jump_at` · `row_guards` · `rule_entries` · `boot_diff` · `choose_base` · و`post_scan` على الدوالّ الإنتاجيّة بالاسم ·
+وفي `RBD6`: `jumps` · `p1_days` · `p1p_days` · `p2_days` · `p3_days` · `pair_flags` · `base2_dist` · `gate_stats` · `mh_rr` · `fit_logistic` · `find_theta` · `freeze_sha`.
 """
 import csv
 import datetime as dt
@@ -667,17 +669,425 @@ def mode_bases_assemble(shards=None, prep=None):
             "stats": stats, "val_diff_ci_vs_base2": cis, "base": base, "owner_words": words}
 
 
+# ── §⑨ الأزواج (B5) ثمّ §⑧ الدرجة والتجميد — الملحق 1 §②-§③ · TRAIN وحدَه ─────────────────────────────────
+ADDENDUM = os.path.join(HERE, "T_REBUILD_ADDENDUM_1.md")
+ADDENDUM_SHA = "1f2902c0c0832c9c094e6b53e7c8a3346ff2a913d88d92be164ff4b99964d3e3"           # بصمةُ الملحق 1 كما دُمج قبل الأداة (الأوضاعُ الجديدة ترفض 9 بغيرها)
+BASES_DATA = os.path.join(HERE, "data", "bases_2026-10-28.json")
+FREEZE = os.path.join(HERE, "data", "freeze_rebuild.json")
+PAIRS = ("P1", "P1p", "P2", "P3")             # P1 · P1′ (أوّلُ قفزةٍ وحدَها) · P2 · P3 — m = 4
+PAIR_WIN = 5                                  # I_P = زنادٌ في [D−5، D−1]
+P2_STEP, P2_ABOVE, P2_RSI, P2_RSI_WIN = 1.02, 3, 27.0, 10
+P3_VOLX, P3_LB, P3_DROP, P3_FALL, P3_WIN = 3.0, 20, 70.0, 0.80, 10
+DIST_S = 0.25                                 # §⑧ s = 25% من مقدار العتبة (ثابتٌ مسبق)
+L2_LAMBDA, IRLS_TOL, IRLS_MAX = 1.0, 1e-10, 100
+THETA_RATE = 0.6                              # §⑧ ≈0.6 إدخالٍ جديد/جلسة
+ADD_BURDEN = 0.15                             # §⑦ «تضيف» تشترط عبءَ الأساس ∧ P على TRAIN ≥ 0.15/جلسة
+PRICE_BINS = (1.0, 3.0, 10.0, 20.0)           # §⑦ أقلّ من 1 · 1-3 · 3-10 · 10-20 · 20 فأكثر
+FLOAT_BINS = (10e6, 50e6)                     # §⑦ أقلّ من 10م · 10-50م · 50م فأكثر · ومجهول = 3
+
+
+def addendum_ok():
+    """الأوضاعُ الجديدة لا تعمل إلّا والملحقُ 1 بالبصمة التي دُمجت (التعريفاتُ قبل الرقم)."""
+    import hashlib
+    try:
+        with open(ADDENDUM, "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest() == ADDENDUM_SHA
+    except OSError:
+        return False
+
+
+def price_bin(p):
+    if p is None or p != p:
+        return None
+    return sum(1 for b in PRICE_BINS if p >= b)
+
+
+def float_bin(f):
+    try:
+        f = float(f)
+    except (TypeError, ValueError):
+        return 3
+    if f != f:
+        return 3
+    return sum(1 for b in FLOAT_BINS if f >= b)
+
+
+def jumps(c, v):
+    """`jump_at` لكلّ يوم (مرّةً واحدة)."""
+    return [jump_at(c, v, k) for k in range(len(c))]
+
+
+def p1_days(rsi, J):
+    """P1 يومَ t = زنادُ OWNER نفسُه (`owner_fire` عند D = t+1): RSI14(t−1) ≤ 20 ∧ قفزةٌ يومَ t ∧ لا قفزةَ في [t−20، t−1]."""
+    return {t for t in range(len(J)) if t - OW_LB >= 1 and t - 1 >= 14 and rsi[t - 1] <= OW_RSI and J[t]
+            and not any(J[t - OW_LB: t])}
+
+
+def p1p_days(J):
+    """P1′ = «أوّلُ قفزة» وحدَها (بلا شرط RSI)."""
+    return {t for t in range(len(J)) if t - OW_LB >= 1 and J[t] and not any(J[t - OW_LB: t])}
+
+
+def p2_days(rsi, c, low, S):
+    """P2 يومَ t: L = `S.tested_level` على شموعٍ حتى t−1 · الإغلاقاتُ t−3..t−1 فوق L · إغلاق(t−1) أقلُّ من L×1.02 ≤ إغلاق(t) ·
+    أدنى RSI14 في [t−10، t−1] ≤ 27 (الملحق 1 §②)."""
+    import pandas as pd
+    out = set()
+    for t in range(max(P2_ABOVE, P2_RSI_WIN, 3), len(c)):
+        rw = [x for x in rsi[t - P2_RSI_WIN: t] if x == x]
+        if not rw or min(rw) > P2_RSI or not c[t] > c[t - 1]:
+            continue
+        tl = S.tested_level(pd.DataFrame({"Low": low[max(0, t - 30): t]}))
+        if not tl:
+            continue
+        lv = float(tl["level"])
+        if all(x > lv for x in c[t - P2_ABOVE: t]) and c[t - 1] < lv * P2_STEP <= c[t]:
+            out.add(t)
+    return out
+
+
+def p3_days(c, h, v):
+    """P3: سبايكٌ يومَ k (حجم ≥ 3× وسيط [k−20، k−1] ∧ هبوطُ إغلاق(k) عن أعلى High في 252 قبله ≥ 70%) ⟵ الزنادُ أوّلُ t في (k، k+10]
+    بإغلاق ≤ 0.80 × إغلاق(k)."""
+    out = set()
+    for k in range(P3_LB, len(c)):
+        hi = max(h[max(0, k - B2_HI): k])
+        if not (hi > 0 and (1.0 - c[k] / hi) * 100.0 >= P3_DROP and v[k] >= P3_VOLX * st.median(v[k - P3_LB: k])):
+            continue
+        for t in range(k + 1, min(len(c), k + P3_WIN + 1)):
+            if c[t] <= P3_FALL * c[k]:
+                out.add(t)
+                break
+    return out
+
+
+def pair_flags(trig, i):
+    """I_P لـ D = الصفّ i: زنادٌ في [D−5، D−1] = الشموعُ i−5..i−1 (لا D نفسُه ولا ما قبل i−5)."""
+    return [int(any(t in tp for t in range(i - PAIR_WIN, i))) for tp in trig]
+
+
+def base2_dist(rsi, c, h, i):
+    """§⑧ مسافتا شرطَي BASE2 عند D = الصفّ i: (d_rsi، d_drop) — 1 إن عبر · وإلّا max(0، 1 − |x − العتبة| / s) و s = 25% من العتبة."""
+    if i < 15 or rsi[i - 1] != rsi[i - 1]:
+        return 0.0, 0.0
+    r = rsi[i - 1]
+    hi = max(h[max(0, i - B2_HI): i])
+    if not hi > 0:
+        return 0.0, 0.0
+    dp = (1.0 - c[i - 1] / hi) * 100.0
+    d_r = 1.0 if r < B2_RSI else max(0.0, 1.0 - abs(r - B2_RSI) / (DIST_S * B2_RSI))
+    d_d = 1.0 if dp >= B2_DROP else max(0.0, 1.0 - abs(dp - B2_DROP) / (DIST_S * B2_DROP))
+    return d_r, d_d
+
+
+def pairs_symbol(sym, rows, splits_sym, member_days, sess, S, G5, pct, proxy_fn, prev_of):
+    """صفوفُ البِركة لرمز (من الإحماء حتى نهاية TRAIN) بحرّاس `shard_symbol` نفسِها:
+    [sym، D، y، إدخالُ الأساس الجديد، d_rsi، d_drop، I_P1، I_P1′، I_P2، I_P3، خانةُ السعر، خانةُ الفلوت (للإدخالات وحدَها)]."""
+    import bisect
+    import pandas as pd
+    if not rows:
+        return []
+    dates = [x[0] for x in rows]
+    c = [float(x[4]) for x in rows]
+    h = [float(x[2]) for x in rows]
+    low = [float(x[3]) for x in rows]
+    v = [float(x[5]) for x in rows]
+    rsi = [float(z) for z in S.rsi(pd.Series(c, dtype=float), 14).values]
+    unadj = G5.split_unadjusted(rows, splits_sym, "0000-00-00", "9999-99-99")
+    gp = gaps(rows)
+    J = jumps(c, v)
+    trig = (p1_days(rsi, J), p1p_days(J), p2_days(rsi, c, low, S), p3_days(c, h, v))
+    keep, fire = [], []
+    for d in member_days:
+        if d > TRAIN[1]:
+            break
+        i = bisect.bisect_left(dates, d)
+        if i < 1 or (dt.date.fromisoformat(d) - dt.date.fromisoformat(dates[i - 1])).days > STALE_DAYS:
+            continue
+        sp, gq = row_guards(dates, i, d, unadj, gp)
+        if sp or gq:
+            continue
+        if base2_fire(rsi, c, h, i):
+            fire.append(d)
+        dr, dd = base2_dist(rsi, c, h, i)
+        if dr > 0 and dd > 0:
+            keep.append((d, i, dr, dd))
+    ents = set(new_entries(fire, sess))
+    out = []
+    for d, i, dr, dd in keep:
+        ind = pair_flags(trig, i)
+        ent = int(d in ents and TRAIN[0] <= d <= TRAIN[1])
+        f = asof_factor(splits_sym, d)
+        fb = float_bin(proxy_fn(sym, prev_of[d])) if ent else None
+        out.append([sym, d, exploded(rows, d, pct) if d >= TRAIN[0] else None, ent, round(dr, 6), round(dd, 6)] + ind
+                   + [price_bin(c[i - 1] * f), fb])
+    return out
+
+
+def mh_rr(y, p, strat, w):
+    """خطرٌ نسبيٌّ Mantel-Haenszel لـ y بين p=1 وp=0 في الطبقات (أوزانُ الصفوف w) — None إن لم تُسهم طبقة."""
+    import numpy as np
+    k = int(strat.max()) + 1 if len(strat) else 0
+    n1 = np.bincount(strat, weights=w * p, minlength=k)
+    a = np.bincount(strat, weights=w * p * y, minlength=k)
+    n0 = np.bincount(strat, weights=w * (1 - p), minlength=k)
+    c = np.bincount(strat, weights=w * (1 - p) * y, minlength=k)
+    nn = n1 + n0
+    ok = (n1 > 0) & (n0 > 0)
+    if not ok.any():
+        return None
+    num = float((a[ok] * n0[ok] / nn[ok]).sum())
+    den = float((c[ok] * n1[ok] / nn[ok]).sum())
+    return num / den if den > 0 else None
+
+
+def gate_stats(rows, names, n_sess, seed=SEED, b=BOOT_B):
+    """قاعدةُ §⑦ لكلّ عمود: rows = [sym، D، y، شهر/خانة سعر/خانة فلوت ⟵ (month، pbin، fbin)، [أعلام]] على وحدةٍ واحدة ·
+    فرقُ الحصّة والخطرُ النسبيّ MH بفاصلي بونفيروني (m = len(names) · SE بوتستراب عنقوديٍّ بالرمز) والحكم."""
+    import math
+    import numpy as np
+    from statistics import NormalDist
+    m = len(names)
+    z = NormalDist().inv_cdf(1 - 0.025 / m)
+    if any(r[1] > TRAIN[1] for r in rows):
+        raise ValueError("الأزواجُ لا تقرأ وسمَ VAL ولا TEST")
+    lab = [r for r in rows if r[2] is not None]
+    syms = sorted({r[0] for r in lab})
+    si = {s: j for j, s in enumerate(syms)}
+    sym_idx = np.array([si[r[0]] for r in lab], dtype=int)
+    y = np.array([int(bool(r[2])) for r in lab], dtype=float)
+    P = np.array([r[4] for r in lab], dtype=float).reshape(len(lab), m)
+    keys = sorted({tuple(r[3]) for r in lab})
+    ki = {kk: j for j, kk in enumerate(keys)}
+    strat = np.array([ki[tuple(r[3])] for r in lab], dtype=int)
+
+    def _stat(w):
+        lw, ew = w.sum(), (w * y).sum()
+        lg, eg = w @ P, (w * y) @ P
+        with np.errstate(divide="ignore", invalid="ignore"):
+            diff = np.where(lg > 0, eg / np.where(lg > 0, lg, 1) - ew / lw, np.nan)
+        rr = [mh_rr(y, P[:, j], strat, w) for j in range(m)]
+        return diff, np.array([math.log(x) if x and x > 0 else np.nan for x in rr])
+
+    d0, l0 = _stat(np.ones(len(lab)))
+    rng = np.random.default_rng(seed)
+    bd, bl = [], []
+    for _ in range(b):
+        cnt = np.bincount(rng.integers(0, len(syms), len(syms)), minlength=len(syms)).astype(float)
+        d, lr = _stat(cnt[sym_idx])
+        bd.append(d)
+        bl.append(lr)
+    bd, bl = np.array(bd), np.array(bl)
+    out = {}
+    for j, g in enumerate(names):
+        npass = int(sum(1 for r in rows if r[4][j]))
+        nl = int(P[:, j].sum())
+        sd = float(np.nanstd(bd[:, j], ddof=1)) if np.isfinite(bd[:, j]).sum() > 1 else None
+        sl = float(np.nanstd(bl[:, j], ddof=1)) if np.isfinite(bl[:, j]).sum() > 1 else None
+        diff = None if not np.isfinite(d0[j]) else float(d0[j])
+        dci = None if diff is None or sd is None else [round(diff - z * sd, 4), round(diff + z * sd, 4)]
+        rr = None if not np.isfinite(l0[j]) else math.exp(l0[j])
+        rci = None if rr is None or sl is None else [round(math.exp(l0[j] - z * sl), 3), round(math.exp(l0[j] + z * sl), 3)]
+        burden = round(npass / max(1, n_sess), 3)
+        if nl == len(lab) or nl == 0:
+            verdict = "لا تفرّق — لا مقارنة"
+        elif dci and dci[0] > 0 and rci and rci[0] > 1 and burden >= ADD_BURDEN:
+            verdict = "تضيف"
+        elif dci and dci[1] < 0:
+            verdict = "تنقص"
+        else:
+            verdict = "لا تفرّق"
+        out[g] = {"pass": npass, "pass_labelled": nl, "exploded_pass": int((y * P[:, j]).sum()),
+                  "share_pass": round(float((y * P[:, j]).sum() / nl), 4) if nl else None,
+                  "diff": None if diff is None else round(diff, 4), "diff_ci": dci,
+                  "mh_rr": None if rr is None else round(rr, 3), "mh_ci": rci, "burden": burden, "verdict": verdict,
+                  "boot_nan": int((~np.isfinite(bl[:, j])).sum())}
+    return {"m": m, "z": round(z, 4), "units": len(rows), "labelled": len(lab), "exploded": int(y.sum()),
+            "base_share": round(float(y.mean()), 4) if len(y) else None, "symbols": len(syms), "strata": len(keys), "cols": out}
+
+
+def fit_logistic(X, y, lam=L2_LAMBDA, tol=IRLS_TOL, it_max=IRLS_MAX):
+    """L2 لوجستيّ بنيوتن (IRLS): −Σ loglik + (λ/2)‖w‖² والإزاحةُ بلا عقوبة ⟵ (w، b، الدورات)."""
+    import numpy as np
+    n, k = X.shape
+    A = np.hstack([X, np.ones((n, 1))])
+    beta = np.zeros(k + 1)
+    pen = np.full(k + 1, lam)
+    pen[-1] = 0.0
+    for it in range(1, it_max + 1):
+        p = 1.0 / (1.0 + np.exp(-(A @ beta)))
+        g = A.T @ (p - y) + pen * beta
+        H = (A * (p * (1 - p))[:, None]).T @ A + np.diag(pen)
+        step = np.linalg.solve(H, g)
+        beta = beta - step
+        if float(np.max(np.abs(step))) < tol:
+            break
+    return beta[:-1], float(beta[-1]), it
+
+
+def entries_rate(score_rows, theta, sess, n_sess):
+    """عددُ «الإدخالات الجديدة» على TRAIN ÷ جلساته عند θ (`new_entries` نفسُها · الإحماءُ يفتح النافذةَ ولا يُعَدّ)."""
+    by = {}
+    for sym, d, s in score_rows:
+        if s >= theta:
+            by.setdefault(sym, []).append(d)
+    n = sum(1 for fs in by.values() for d in new_entries(sorted(fs), sess) if TRAIN[0] <= d <= TRAIN[1])
+    return n / max(1, n_sess), n
+
+
+def find_theta(score_rows, sess, n_sess, rate=THETA_RATE):
+    """θ بالتنصيف على القيم الفريدة المرتّبة: أصغرُ قيمةٍ عبؤها ≤ rate (العبءُ شبهُ رتيب) — ويُطبع العبءُ عندها وعند سابقتها."""
+    u = sorted({s for _, _, s in score_rows})
+    if not u:
+        return None
+    lo, hi = 0, len(u) - 1
+    if entries_rate(score_rows, u[hi], sess, n_sess)[0] > rate:
+        return {"theta": None, "why": "حتى أعلى درجةٍ عبؤها فوق الهدف"}
+    while lo < hi:
+        mid = (lo + hi) // 2
+        if entries_rate(score_rows, u[mid], sess, n_sess)[0] <= rate:
+            hi = mid
+        else:
+            lo = mid + 1
+    r_at, n_at = entries_rate(score_rows, u[lo], sess, n_sess)
+    r_prev = entries_rate(score_rows, u[lo - 1], sess, n_sess)[0] if lo > 0 else None
+    return {"theta": u[lo], "rate": round(r_at, 4), "entries": n_at, "rate_prev": None if r_prev is None else round(r_prev, 4),
+            "unique": len(u)}
+
+
+def freeze_sha(fz):
+    import hashlib
+    body = {k: v for k, v in fz.items() if k != "sha"}
+    return hashlib.sha256(json.dumps(body, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+
+def mode_pairs_shard(key, shard, nshards, fetch_bars=None, fetch_proxy=None, prep=None):
+    """رموزُ الشريحة ⟵ صفوفُ بِركة TRAIN بمؤشّرات الأزواج ومسافتي الأساس (لا شيءَ بعد TRAIN)."""
+    prep = prep or _jload(os.path.join(OUT, "prep.json.gz"))
+    sys.path.insert(0, ROOT)
+    os.environ["FAISAL_ONLY"] = "0"
+    import Super_stock as S
+    import pit_history as PH
+    live, _ = configs(S)
+    G5 = _gen5_ext()
+    pct = float(live["EXPLOSION_PCT"])
+    member = {}
+    for d in prep["sessions"]:
+        for s in prep["snapshots"].get(d[:7], []):
+            member.setdefault(s, []).append(d)
+    calls = {"proxy": 0, "proxy_none": 0}
+
+    def _proxy(sym, day):
+        calls["proxy"] += 1
+        if fetch_proxy is not None:
+            v = fetch_proxy(sym, day)
+        else:
+            code, body = _get(PROXY_URL.format(t=sym, d=day, k=key))
+            try:
+                v = json.loads(body or b"{}").get("results", {}).get("share_class_shares_outstanding")
+            except Exception:                                   # noqa: BLE001
+                v = None
+        calls["proxy_none"] += v is None
+        return v
+
+    out, diag = [], {}
+    syms = prep["union"][shard::nshards]
+    t0 = time.time()
+    for n, sym in enumerate(syms):
+        if fetch_bars is not None:
+            rows = fetch_bars(sym)
+            why = "ok" if rows else "empty"
+        else:
+            df, why = PH.polygon_daily(sym, BARS_FROM, BARS_TO, key)
+            rows = _rows(df) if df is not None else []
+        diag[why.split("(")[0]] = diag.get(why.split("(")[0], 0) + 1
+        out += pairs_symbol(sym, rows, prep["splits"].get(sym), member.get(sym, []), prep["sessions"], S, G5, pct, _proxy,
+                            prep["prev_of"])
+        if n % 25 == 0:
+            log(f"pairs shard {shard}: {n + 1}/{len(syms)} · {round(time.time() - t0)}s · rows {len(out)}")
+    res = {"shard": shard, "nshards": nshards, "symbols": len(syms), "bars_diag": diag, "calls": calls, "rows": out}
+    if fetch_bars is None:
+        _jdump(res, os.path.join(OUT, f"pairs_shard_{shard:02d}.json.gz"))
+    return res
+
+
+def mode_pairs_assemble(shards=None, prep=None, bases=None, seed=SEED, b=BOOT_B):
+    """§⑨ حكمُ الأزواج على إدخالات الأساس ⟵ §⑧ الدرجةُ وθ ⟵ ملفُّ التجميد (يُدمج قبل TEST)."""
+    import glob
+    import numpy as np
+    prep = prep or _jload(os.path.join(OUT, "prep.json.gz"))
+    if bases is None:
+        with open(BASES_DATA, encoding="utf-8") as fh:
+            bases = json.load(fh)
+    if shards is None:
+        shards = [_jload(p) for p in sorted(glob.glob(os.path.join(OUT, "**", "pairs_shard_*.json.gz"), recursive=True))]
+    rows = [r for sh in shards for r in sh["rows"]]
+    if any(r[1] > TRAIN[1] for r in rows):
+        raise ValueError("الأزواجُ والدرجةُ لا تلمس VAL ولا TEST")
+    sess = prep["sessions"]
+    n_sess = sum(1 for d in sess if TRAIN[0] <= d <= TRAIN[1])
+    ents = [r for r in rows if r[3]]
+    expect = bases["stats"]["TRAIN"][bases["base"]]["entries"]
+    res = {"mode": "pairs_assemble", "base": bases["base"], "shards": len(shards), "pool_rows": len(rows),
+           "entries": len(ents), "entries_expected": expect, "match": len(ents) == expect and bases["base"] == "BASE2",
+           "train_sessions": n_sess}
+    if not res["match"] or not shards or len(shards) != shards[0]["nshards"]:
+        res["verdict"] = "⛔ لا حكم — الأساسُ ليس BASE2 أو عددُ الإدخالات أو الشرائح لا يطابق"
+        return res
+    units = [[r[0], r[1], r[2], (r[1][:7], r[10], r[11]), r[6:10]] for r in ents]
+    ps = gate_stats(units, PAIRS, n_sess, seed=seed, b=b)
+    res["pairs"] = ps
+    surv = [g for g in PAIRS if ps["cols"][g]["verdict"] == "تضيف"]
+    best13 = max(("P1", "P3"), key=lambda g: (ps["cols"][g]["diff"] if ps["cols"][g]["diff"] is not None else -9))
+    res["p1_vs_p3"] = best13
+    res["rsi20_words"] = ("RSI ≤ 20 أضاف فوق «أوّل قفزة»" if ps["cols"]["P1"]["verdict"] == "تضيف"
+                          and ps["cols"]["P1p"]["verdict"] != "تضيف" else "RSI ≤ 20 لم يضف شيئًا")
+    fcols = ["d_rsi", "d_drop"] + [f"I_{g}" for g in surv]
+    idx = {"d_rsi": 4, "d_drop": 5, "I_P1": 6, "I_P1p": 7, "I_P2": 8, "I_P3": 9}
+    lab = [r for r in rows if r[2] is not None and TRAIN[0] <= r[1]]
+    X = np.array([[float(r[idx[f]]) for f in fcols] for r in lab], dtype=float)
+    yv = np.array([int(bool(r[2])) for r in lab], dtype=float)
+    mu, sd = X.mean(axis=0), X.std(axis=0)
+    keep = [j for j in range(len(fcols)) if sd[j] > 0]
+    dropped = [fcols[j] for j in range(len(fcols)) if sd[j] <= 0]
+    fcols = [fcols[j] for j in keep]
+    mu, sd = mu[keep], sd[keep]
+    w, b0, it = fit_logistic((X[:, keep] - mu) / sd, yv)
+
+    def _score(r):
+        x = (np.array([float(r[idx[f]]) for f in fcols]) - mu) / sd
+        return float(1.0 / (1.0 + np.exp(-(x @ w + b0))))
+    srows = [(r[0], r[1], _score(r)) for r in rows]
+    th = find_theta(srows, sess, n_sess)
+    fz = {"contract": "T_REBUILD_prereg.md", "addendum_sha": ADDENDUM_SHA, "base": "BASE2", "pairs_in": surv,
+          "features": fcols, "dropped_zero_sd": dropped, "mu": [float(x) for x in mu], "sd": [float(x) for x in sd],
+          "w": [float(x) for x in w], "b": b0, "lambda": L2_LAMBDA, "iters": it, "n_fit": int(len(lab)),
+          "theta": th.get("theta") if th else None, "theta_search": th, "dist_s": DIST_S}
+    fz["sha"] = freeze_sha(fz)
+    res["freeze"] = fz
+    return res
+
+
 def main():
     mode = os.environ.get("REBUILD_MODE", "").strip()
     key = os.environ.get("POLYGON_API_KEY", "")
     if not os.path.exists(CONTRACT):
         log("⛔ العقد غائب")
         return 9
-    built = ("d0", "ready117", "bases_prep", "bases_shard", "bases_assemble")
+    built = ("d0", "ready117", "bases_prep", "bases_shard", "bases_assemble", "pairs_shard", "pairs_assemble")
     if mode not in built:
         log(f"⛔ وضعٌ غيرُ مبنيّ: {mode!r} (المبنيّ: {' · '.join(built)})")
         return 3
-    if not key and mode != "bases_assemble":
+    if mode.startswith("pairs_") and not addendum_ok():
+        log("⛔ الملحق 1 غائبٌ أو غيرُ بصمته المدموجة ⟵ لا جرد (التعريفاتُ قبل الرقم)")
+        return 9
+    if mode.startswith("pairs_"):
+        with open(BASES_DATA, encoding="utf-8") as fh:
+            _base = json.load(fh)["base"]
+        if _base != "BASE2":
+            log(f"⛔ الأساسُ {_base} ⟵ ملحقٌ ثانٍ قبل الدرجة (الملحق 1 §③)")
+            return 3
+    if not key and mode not in ("bases_assemble", "pairs_assemble"):
         log("⛔ لا مفتاح Polygon")
         return 2
     t0 = time.time()
@@ -690,9 +1100,15 @@ def main():
     elif mode == "bases_shard":
         res = mode_bases_shard(key, int(os.environ.get("SHARD", "0")), int(os.environ.get("NSHARDS", str(NSHARDS))))
         res = {k: v for k, v in res.items() if k != "rows"}
-    else:
+    elif mode == "bases_assemble":
         res = mode_bases_assemble()
         _jdump(res, os.path.join(OUT, "bases_result.json.gz"))
+    elif mode == "pairs_shard":
+        res = mode_pairs_shard(key, int(os.environ.get("SHARD", "0")), int(os.environ.get("NSHARDS", str(NSHARDS))))
+        res = {k: v for k, v in res.items() if k != "rows"} | {"entries": len(res["rows"])}
+    else:
+        res = mode_pairs_assemble()
+        _jdump(res, os.path.join(OUT, "pairs_result.json.gz"))
     res["seconds"] = round(time.time() - t0, 1)
     print("REBUILD_JSON " + json.dumps(res, ensure_ascii=False))
     return 0

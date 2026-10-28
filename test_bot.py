@@ -88211,6 +88211,186 @@ except Exception as _e:                                              # noqa: BLE
 check("🧭 RBD2 (‏2026-10-28) نتيجةُ D0 وجدولُ B3-صفر تطابق الـJSON المخزَّن: شرائحُ READY وMISSED والوسيطان والمجهولُ بالاسم وأعدادُ D0 "
       "وحكمُها ورقما التشغيلتين · ولا أساسَ اختير", _v_r2, _v_r2w)
 
+# 🧭 RBD4 (‏2026-10-28 · `T-REBUILD` §⑥ النتيجة): `T_REBUILD_bases_result.md` **يطابق الـJSON المخزَّن** — كلُّ صفٍّ في جدول TRAIN/VAL يُعاد
+#    توليدُه من الـJSON · والحصّةُ = منفجر ÷ موسوم والعبءُ = إدخالات ÷ جلسات · والاختيارُ يُعاد بـ`choose_base` نفسِها فيعطي BASE2 · وفواصلُ VAL بحرفها ·
+#    والتنبّؤاتُ الثلاثة بنتائجها (RB-P2 ساقطٌ منشور) · ورقمُ التشغيلة · وجدولُ المطفأ في الإنتاج · ولا TEST.
+try:
+    import importlib.util as _r4_iu
+    import json as _r4_json
+    _r4_spec = _r4_iu.spec_from_file_location("t_rebuild_tool4", "fm_forensics/rebuild/rebuild.py")
+    _R4 = _r4_iu.module_from_spec(_r4_spec)
+    _r4_spec.loader.exec_module(_R4)
+    _r4_dir = "fm_forensics/rebuild/"
+    _r4_doc = open(_r4_dir + "T_REBUILD_bases_result.md", encoding="utf-8").read()
+    _r4_j = _r4_json.load(open(_r4_dir + "data/bases_2026-10-28.json", encoding="utf-8"))
+    _r4_st, _r4_ss = _r4_j["stats"], _r4_j["sessions"]
+
+    def _r4_pct(x):
+        return "—" if x is None else f"{100 * x:.1f}%"
+    _r4_rows, _r4_arith = [], []
+    for _r in _R4.RULES:
+        for _p in ("TRAIN", "VAL"):
+            _s = _r4_st[_p][_r]
+            _r4_rows.append(f"| {_r} | {_p} | {_s['entries']:,} | {_s['burden']} | {_s['labelled']:,} | {_s['exploded']:,} | "
+                            f"{_r4_pct(_s['share'])} | {_s['unknown']:,} |" in _r4_doc)
+            _r4_arith.append(round(_s["exploded"] / _s["labelled"], 4) == _s["share"]
+                             and round(_s["entries"] / _r4_ss[_p], 3) == _s["burden"]
+                             and _s["entries"] == _s["labelled"] + _s["unknown"])
+    _r4_cis = _r4_j["val_diff_ci_vs_base2"]
+    _r4_ci_ok = all(f"| {_r} | [{100 * _r4_cis[_r][0]:+.2f}، {100 * _r4_cis[_r][1]:+.2f}] نقطة |" in _r4_doc for _r in _R4.RULES[1:])
+    _r4_c = {
+        "table": all(_r4_rows) and len(_r4_rows) == 8,
+        "arith": all(_r4_arith),
+        "choice": _R4.choose_base(_r4_st, _r4_cis) == _r4_j["base"] == "BASE2" and "**الأساس = BASE2**" in _r4_doc,
+        "cis": _r4_ci_ok and "| يتفوّق |" in _r4_doc and _r4_doc.count("| لا |") >= 3,
+        "predictions": ("| **RB-P1:** BASE2 يبقى الأساس | ✅ |" in _r4_doc
+                        and f"| **RB-P2:** عبءُ OWNER على VAL أقلُّ من 0.3/جلسة | ❌ **سقط** ({_r4_st['VAL']['OWNER']['burden']}) |" in _r4_doc
+                        and (_r4_st["VAL"]["OWNER"]["burden"] >= 0.3)
+                        and "**RB-P3:** CURRENT أدنى حصّةً من BASE2 على VAL | ✅" in _r4_doc
+                        and _r4_st["VAL"]["CURRENT"]["share"] < _r4_st["VAL"]["BASE2"]["share"]),
+        "run": f"**`{_r4_j['run']}`**" in _r4_doc and _r4_j["run"] == 40741993539,
+        "prod_off": all(k in _r4_doc.split("## ⑥")[1] for k in ("M8_GAP_REQUIRED", "STABILITY_MAX", "NEAR_READINESS", "PIVOT_SWEEP_PCT",
+                                                                 "M13_SHORT", "**مطفأة**")) if "## ⑥" in _r4_doc else False,
+        "no_test": "**ولا TEST**" in _r4_doc.split("## ⓪")[0] and "TEST" not in _r4_st,
+    }
+    _v_r4, _v_r4w = all(_r4_c.values()), f"{ {k: v for k, v in _r4_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r4, _v_r4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD4 (‏2026-10-28) نتيجةُ الأساس §⑥ تطابق الـJSON المخزَّن: الجدولُ والحسابُ والاختيارُ بـchoose_base (BASE2) والفواصلُ والتنبّؤاتُ "
+      "(RB-P2 ساقطٌ منشور) ورقمُ التشغيلة والمطفأُ في الإنتاج · ولا TEST", _v_r4, _v_r4w)
+
+
+# 🧭 RBD6 (‏2026-10-28 · `T-REBUILD` الملحق 1 §②-§③ · الأزواجُ ثمّ الدرجة): P1 = زنادُ `owner_fire` نفسُه يومًا بيوم · P1′ بلا شرط RSI ·
+#    P2 بحدوده (المستوى الحيّ · ثلاثُ إغلاقاتٍ فوقه · أوّلُ عبورٍ لـ×1.02 · قاعُ RSI ≤ 27) · P3 أوّلُ بلوغٍ خلال 10 جلسات · نافذةُ [D−5، D−1] ·
+#    المسافتان بـ s = 25% · بونفيروني m = 4 والأحكام · نيوتن L2 بلا عقوبةٍ على الإزاحة · θ أصغرُ قيمةٍ عبؤها ≤ 0.6 · التجميدُ ببصمته ·
+#    ولا صفَّ بعد TRAIN · والملحقُ ببصمته.
+try:
+    import importlib.util as _r6_iu
+    import ast as _r6_ast
+    import random as _r6_rnd
+    _r6_spec = _r6_iu.spec_from_file_location("t_rebuild_tool6", "fm_forensics/rebuild/rebuild.py")
+    _R6 = _r6_iu.module_from_spec(_r6_spec)
+    _r6_spec.loader.exec_module(_R6)
+    _r6_c = {}
+    # ① P1 = owner_fire يومًا بيوم · وP1′ ⊇ P1 بلا شرط RSI
+    _rg = _r6_rnd.Random(7)
+    _n = 400
+    _c = [1.0]
+    for _k in range(1, _n):
+        _c.append(_c[-1] * (1.25 if _rg.random() < 0.04 else (1 + _rg.gauss(0, 0.03))))
+    _v = [_rg.uniform(100, 200) * (4 if _rg.random() < 0.03 else 1) for _ in range(_n)]
+    _rs = [_rg.uniform(5, 40) for _ in range(_n)]
+    _J = _R6.jumps(_c, _v)
+    _p1, _p1p = _R6.p1_days(_rs, _J), _R6.p1p_days(_J)
+    _ow = {t for t in range(_n) if _R6.owner_fire(_rs, _c, _v, t + 1)}
+    _r6_c["p1"] = _p1 == _ow and len(_p1) >= 3 and _p1 < _p1p and any(_rs[t - 1] > 20 for t in _p1p - _p1)
+    # ② P2: مستوًى مُختبَر 1.00 (لمستان) · ثلاثُ إغلاقاتٍ فوقه · العبورُ الأوّلُ لـ1.02 · وقاعُ RSI
+    _lo = [1.0 if k in (5, 15) else 1.05 for k in range(30)] + [1.006, 1.006, 1.006, 1.006]
+    _cl = [1.01] * 30 + [1.010, 1.012, 1.015, 1.025]
+    _r2 = [50.0] * 34
+    _r2[25] = 26.9
+    _t2 = _R6.p2_days(_r2, _cl, _lo, S)
+    _r2b = list(_r2)
+    _r2b[25] = 27.1
+    _cl3 = list(_cl)
+    _cl3[32] = 1.021                                                  # t−1 بلغ ×1.02 سلفًا ⟵ ليس أوّلَ عبور
+    _lo4 = [1.05] * 34                                                # لمسةٌ واحدةٌ ممتدّة ⟵ لا مستوى
+    _r6_c["p2"] = (_t2 == {33} and _R6.p2_days(_r2b, _cl, _lo, S) == set() and 33 not in _R6.p2_days(_r2, _cl3, _lo, S)
+                   and _R6.p2_days(_r2, _cl, _lo4, S) == set())
+    # ③ P3: سبايكٌ عند قاعٍ عميق ⟵ أوّلُ بلوغٍ ≤ 0.80 خلال 10 جلسات وحدَه
+    _h3 = [10.0] * 260 + [2.0] * 40
+    _c3 = [9.0] * 260 + [2.0] * 40
+    _v3 = [100.0] * 300
+    _v3[270] = 300.0
+    _c3b = list(_c3)
+    _c3b[274] = 1.6
+    _c3b[276] = 1.5
+    _s3 = _R6.p3_days(_c3b, _h3, _v3)
+    _c3c = list(_c3)
+    _c3c[281] = 1.5                                                   # بعد 11 جلسة
+    _v3d = list(_v3)
+    _v3d[270] = 299.0
+    _h3e = [2.5] * 300                                                # لا قاعَ عميق (هبوط 20%)
+    _r6_c["p3"] = (_s3 == {274} and _R6.p3_days(_c3c, _h3, _v3) == set() and _R6.p3_days(_c3b, _h3, _v3d) == set()
+                   and _R6.p3_days(_c3b, _h3e, _v3) == set())
+    # ④ نافذةُ [D−5، D−1] · وموصولةٌ في pairs_symbol
+    _pf = (_R6.pair_flags([{94}, {95}, {99}, {100}], 100))
+    _ast6 = _r6_ast.parse(inspect.getsource(_R6.pairs_symbol))
+    _r6_c["window"] = (_pf == [0, 1, 1, 0] and any(getattr(n.func, "id", None) == "pair_flags" for n in _r6_ast.walk(_ast6)
+                                                   if isinstance(n, _r6_ast.Call)))
+    # ⑤ المسافتان (s = 25%) — RSI على D−1 والهبوطُ عن قمّة 252 قبل D
+    _hh = [10.0] * 300
+    _cc = [3.0] * 300
+    _rr = [50.0] * 300
+    _dv = []
+    for _x in (32.99, 37.125, 41.25):
+        _rr[199] = _x
+        _dv.append(round(_R6.base2_dist(_rr, _cc, _hh, 200)[0], 6))
+    _rr[199] = 20.0
+    for _cx in (3.0, 3.875, 4.75):                                    # هبوط 70 · 61.25 · 52.5
+        _cc[199] = _cx
+        _dv.append(round(_R6.base2_dist(_rr, _cc, _hh, 200)[1], 6))
+    _r6_c["dist"] = _dv == [1.0, 0.5, 0.0, 1.0, 0.5, 0.0]
+    # ⑥ الأحكامُ وبونفيروني m = 4
+    _rw = []
+    for _s in range(300):
+        for _t in range(8):
+            _y = int(_rg.random() < 0.15)
+            _f = [_y if _rg.random() < 0.9 else 1 - _y, 1 - _y if _rg.random() < 0.9 else _y, int(_rg.random() < 0.5), 1]
+            _rw.append([f"S{_s}", f"2023-{1 + _t:02d}-0{1 + _t}", _y, ("2023-01", _rg.randrange(5), _rg.randrange(4)), _f])
+    _gs = _R6.gate_stats(_rw, _R6.PAIRS, 310, b=200)
+    _r6_c["stats"] = ([_gs["cols"][g]["verdict"] for g in _R6.PAIRS] == ["تضيف", "تنقص", "لا تفرّق", "لا تفرّق — لا مقارنة"]
+                      and abs(_gs["z"] - 2.4977) < 1e-3 and _gs == _R6.gate_stats(_rw, _R6.PAIRS, 310, b=200))
+    # ⑦ نيوتن L2: التدرّجُ صفرٌ عند الحلّ · والإزاحةُ بلا عقوبة · وλ يغيّر الحلّ
+    import numpy as _r6_np
+    _X = _r6_np.array([[_rg.gauss(0, 1), _rg.gauss(0, 1)] for _ in range(500)])
+    _yy = _r6_np.array([float(_rg.random() < 1 / (1 + _r6_np.exp(-(1.5 * a - 0.5 * b - 1.0)))) for a, b in _X])
+    _w, _b, _it = _R6.fit_logistic(_X, _yy)
+    _p = 1 / (1 + _r6_np.exp(-(_X @ _w + _b)))
+    _g = _r6_np.append(_X.T @ (_p - _yy) + 1.0 * _w, (_p - _yy).sum())
+    _w0, _b0, _ = _R6.fit_logistic(_X, _yy, lam=0.0)
+    _r6_c["fit"] = float(_r6_np.max(_r6_np.abs(_g))) < 1e-6 and _it < 100 and abs(_w0[0]) > abs(_w[0]) > 0.5
+    # ⑧ θ أصغرُ قيمةٍ عبؤها ≤ 0.6 (وسابقتُها فوقه)
+    _ss = [f"2023-01-{d:02d}" for d in range(2, 31)] + [f"2023-02-{d:02d}" for d in range(1, 29)]
+    _tr = _R6.TRAIN
+    _R6.TRAIN = ("2023-01-02", "2023-02-28")
+    try:
+        _sr = [(f"Q{k}", _ss[(3 * k) % len(_ss)], k / 40.0) for k in range(40)]
+        _th = _R6.find_theta(_sr, _ss, 10)
+        _ok_th = (_th["theta"] is not None and _th["rate"] <= 0.6 < (_th["rate_prev"] or 9)
+                  and _R6.entries_rate(_sr, _th["theta"], _ss, 10)[0] == _th["rate"])
+    finally:
+        _R6.TRAIN = _tr
+    _r6_c["theta"] = _ok_th
+    # ⑨ التجميدُ ببصمته · ولا صفَّ بعد TRAIN · والمطابقةُ شرطٌ · والملحقُ ببصمته
+    _fz = {"w": [1.0], "theta": 0.5}
+    _fz["sha"] = _R6.freeze_sha(_fz)
+    _fz2 = dict(_fz, theta=0.51)
+    _r6_c["freeze_sha"] = _fz["sha"] == _R6.freeze_sha(_fz) != _R6.freeze_sha(_fz2)
+    try:                                                              # صفُّ VAL ليس إدخالًا ⟵ حارسُ التجميع وحدَه يلتقطه (لا حارسُ gate_stats)
+        _R6.mode_pairs_assemble(shards=[{"nshards": 1, "rows": [["A", "2023-05-01", 1, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+                                                                ["A", "2024-04-01", 0, 0, 0.5, 0.5, 0, 0, 0, 0, 0, None]]}],
+                                prep={"sessions": ["2023-05-01"]}, bases={"base": "BASE2", "stats": {"TRAIN": {"BASE2": {"entries": 1}}}})
+        _r6_c["no_val"] = False
+    except ValueError as _ev:
+        _r6_c["no_val"] = "لا تلمس VAL" in str(_ev)
+    except Exception:                                                 # noqa: BLE001
+        _r6_c["no_val"] = False
+    _am6 = _R6.mode_pairs_assemble(shards=[{"nshards": 1, "rows": [["A", "2023-05-01", 1, 1, 1, 1, 0, 0, 0, 0, 0, 0]]}],
+                                   prep={"sessions": ["2023-05-01"]}, bases={"base": "BASE2", "stats": {"TRAIN": {"BASE2": {"entries": 2}}}})
+    _r6_c["match"] = _am6["match"] is False and _am6["verdict"].startswith("⛔")
+    _r6_c["addendum"] = _R6.addendum_ok()
+except Exception as _e:                                              # noqa: BLE001
+    _r6_c = {"⛔": False}
+    _v_r6w = f"⛔ رمى: {type(_e).__name__}: {_e}"
+_v_r6 = bool(_r6_c) and all(_r6_c.values())
+if "⛔" not in _r6_c:
+    _v_r6w = f"{ {k: v for k, v in _r6_c.items() if not v} or 'كلّها'}"
+check("🧭 RBD6 (‏2026-10-28) الأزواجُ والدرجة بالملحق 1: P1 = owner_fire يومًا بيوم وP1′ بلا RSI · P2 وP3 بحدودهما · نافذةُ [D−5، D−1] · "
+      "المسافتان · بونفيروني m = 4 والأحكام · نيوتن L2 · θ · التجميدُ ببصمته · ولا صفَّ بعد TRAIN · والمطابقة · والملحقُ ببصمته",
+      _v_r6, _v_r6w)
+
+
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).

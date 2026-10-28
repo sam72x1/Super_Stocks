@@ -1,0 +1,125 @@
+{
+ "mode": "bases_assemble",
+ "shards": 20,
+ "symbols_with_fires": 2005,
+ "counts": {
+  "rows": 1818070,
+  "no_history": 126,
+  "stale": 16767,
+  "excl_split": 0,
+  "excl_gap": 20085,
+  "unlabeled": 22573,
+  "pass_cur": 44872,
+  "pass_org": 412,
+  "fire": [
+   85775,
+   245,
+   33783,
+   136
+  ]
+ },
+ "sessions": {
+  "TRAIN": 311,
+  "VAL": 191
+ },
+ "stats": {
+  "TRAIN": {
+   "BASE2": {
+    "entries": 3267,
+    "burden": 10.505,
+    "labelled": 3190,
+    "exploded": 538,
+    "share": 0.1687,
+    "unknown": 77
+   },
+   "OWNER": {
+    "entries": 161,
+    "burden": 0.518,
+    "labelled": 160,
+    "exploded": 29,
+    "share": 0.1812,
+    "unknown": 1
+   },
+   "CURRENT": {
+    "entries": 1690,
+    "burden": 5.434,
+    "labelled": 1668,
+    "exploded": 304,
+    "share": 0.1823,
+    "unknown": 22
+   },
+   "ORIGINAL": {
+    "entries": 38,
+    "burden": 0.122,
+    "labelled": 38,
+    "exploded": 2,
+    "share": 0.0526,
+    "unknown": 0
+   }
+  },
+  "VAL": {
+   "BASE2": {
+    "entries": 1925,
+    "burden": 10.079,
+    "labelled": 1887,
+    "exploded": 428,
+    "share": 0.2268,
+    "unknown": 38
+   },
+   "OWNER": {
+    "entries": 68,
+    "burden": 0.356,
+    "labelled": 68,
+    "exploded": 13,
+    "share": 0.1912,
+    "unknown": 0
+   },
+   "CURRENT": {
+    "entries": 1107,
+    "burden": 5.796,
+    "labelled": 1096,
+    "exploded": 229,
+    "share": 0.2089,
+    "unknown": 11
+   },
+   "ORIGINAL": {
+    "entries": 27,
+    "burden": 0.141,
+    "labelled": 27,
+    "exploded": 3,
+    "share": 0.1111,
+    "unknown": 0
+   }
+  }
+ },
+ "val_diff_ci_vs_base2": {
+  "OWNER": [
+   -0.1235,
+   0.0668
+  ],
+  "CURRENT": [
+   -0.0458,
+   0.0123
+  ],
+  "ORIGINAL": [
+   -0.2268,
+   0.019
+  ]
+ },
+ "base": "BASE2",
+ "owner_words": "OWNER لم يفز: حصّتُه على VAL 0.1912 مقابل BASE2 0.2268 وفاصلُ الفرق [-0.1235, 0.0668] وعبؤه 0.356/جلسة",
+ "seconds": 3.9,
+ "run": 40741993539,
+ "main_sha": "7a808a27d",
+ "prep": {
+  "union": 5062,
+  "split_symbols": 1222,
+  "sessions": 524,
+  "finra_files": 523,
+  "finra_missing": [
+   "2022-12-26"
+  ],
+  "snapshots": 37,
+  "run_job": "bases_prep 123005747872"
+ }
+}
