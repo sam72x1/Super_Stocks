@@ -88158,6 +88158,52 @@ except Exception as _e:                                              # noqa: BLE
 check("🧭 RBD1 (‏2026-10-28) أداةُ `T-REBUILD` النقيّة سلوكيًّا: التسويةُ بتاريخ القرار · الإدخالُ الجديد · المنفجرُ وناقصُه None · "
       "RSI قبل D حصرًا · والوضعُ غيرُ المبنيّ 3 · ولا تلغرام ولا حالة", _v_r1, _v_r1w)
 
+# 🧭 RBD2 (‏2026-10-28 · `T-REBUILD` §③ D0 · §⑤ B3-صفر): `T_REBUILD_d0_result.md` **يطابق الـJSON المخزَّن** — جدولُ READY بشرائحه يُعاد حسابُه
+#    من الصفوف (n · منفجر · لم ينفجر · مجهول) · وجدولُ MISSED · والوسيطان · وأسماءُ الوسم المجهول · وأعدادُ D0 وحكمُه OK · ورقما التشغيلتين ·
+#    و«لا أساسَ اختير» — ولا رقمَ يُكتب في الوثيقة باليد.
+try:
+    import json as _r2_json
+    import statistics as _r2_st
+    _r2_dir = "fm_forensics/rebuild/"
+    _r2_doc = open(_r2_dir + "T_REBUILD_d0_result.md", encoding="utf-8").read()
+    _r2_d0 = _r2_json.load(open(_r2_dir + "data/d0_2026-10-28.json", encoding="utf-8"))
+    _r2_rd = _r2_json.load(open(_r2_dir + "data/ready117_2026-10-28.json", encoding="utf-8"))
+    _r2_rr, _r2_mm = _r2_rd.get("ready_rows") or [], _r2_rd.get("missed_rows") or []
+    _r2_lbl = {"≤27": "27 فأقلّ", "27-33": "27-33", ">33": "فوق 33", None: "RSI مجهول"}
+    _r2_rows_ok = []
+    for _b, _name in _r2_lbl.items():
+        _sub = [x for x in _r2_rr if x.get("band") == _b]
+        _e = sum(1 for x in _sub if x.get("exploded") is True)
+        _n = sum(1 for x in _sub if x.get("exploded") is False)
+        _u = sum(1 for x in _sub if x.get("exploded") is None)
+        _r2_rows_ok.append(f"| {_name} | {len(_sub)} | {_e} | {_n} | {_u} |" in _r2_doc)
+    _r2_tot = (f"| **الكلّ** | **{len(_r2_rr)}** | **{sum(1 for x in _r2_rr if x.get('exploded') is True)}** | "
+               f"**{sum(1 for x in _r2_rr if x.get('exploded') is False)}** | **{sum(1 for x in _r2_rr if x.get('exploded') is None)}** |")
+    _r2_mk = [x for x in _r2_mm if x.get("band")]
+    _r2_m_ok = all(f"| {_r2_lbl[_b]} | {sum(1 for x in _r2_mm if x.get('band') == _b)} |" in _r2_doc for _b in ("≤27", "27-33", ">33"))
+    _r2_unk = sorted({x["symbol"] for x in _r2_rr if x.get("exploded") is None and x.get("first_ready", "") < "2026-09-30"})
+    _r2_med = (f"{_r2_st.median([x['rsi14'] for x in _r2_rr if x.get('rsi14') is not None]):.1f}",
+               f"{_r2_st.median([x['rsi14'] for x in _r2_mm if x.get('rsi14') is not None]):.1f}")
+    _r2_b = _r2_d0.get("bars_sample") or {}
+    _r2_c = {
+        "ready_bands": all(_r2_rows_ok) and len(_r2_rows_ok) == 4,
+        "ready_total": _r2_tot in _r2_doc and len(_r2_rr) == 117,
+        "missed_bands": _r2_m_ok and len(_r2_mm) == 277 and f"من المعلوم ({len(_r2_mk)})" in _r2_doc,
+        "medians": f"**{_r2_med[0]}**" in _r2_doc and f"**{_r2_med[1]}**" in _r2_doc,
+        "unknown_named": _r2_unk == ["BTOG", "PSTV"] and all(f"**{s}**" in _r2_doc for s in _r2_unk),
+        "d0_numbers": (_r2_d0.get("verdict_d0") == "OK" and f"**{_r2_b.get('ok_60plus')} من {_r2_b.get('n')}**" in _r2_doc
+                       and f"**{_r2_d0.get('union_cs_adrc'):,}**" in _r2_doc and f"**{_r2_d0['splits']['reverse']:,}**" in _r2_doc
+                       and f"**{_r2_d0['float_proxy']['with_value']} من {_r2_d0['float_proxy']['n']}**" in _r2_doc
+                       and len(_r2_d0.get("snapshots") or {}) == 36),
+        "runs": "**`40732577097`**" in _r2_doc and "**`40732582460`**" in _r2_doc,
+        "no_choice": "لا أساسَ اختير" in _r2_doc.split("## ⓪")[0],
+    }
+    _v_r2, _v_r2w = all(_r2_c.values()), f"{ {k: v for k, v in _r2_c.items() if not v} or 'كلّها'} · med={_r2_med} · unk={_r2_unk}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r2, _v_r2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD2 (‏2026-10-28) نتيجةُ D0 وجدولُ B3-صفر تطابق الـJSON المخزَّن: شرائحُ READY وMISSED والوسيطان والمجهولُ بالاسم وأعدادُ D0 "
+      "وحكمُها ورقما التشغيلتين · ولا أساسَ اختير", _v_r2, _v_r2w)
+
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
