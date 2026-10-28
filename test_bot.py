@@ -90038,9 +90038,10 @@ try:
                                {"A": 10, "B": 10, "C": 4}, 1e6, 1.0, [(570, 960)], top_n=2)
     _vf_px = _VF.gainer_entries({600: [("D", 0.9, 5e6)], 601: [("D", 1.2, 1)]}, {"D": 0.5}, 1e6, 1.0, [(570, 960)])
     import market_calendar as _vf_mc
-    _vf_main = next(n for n in _vf_ast.walk(_vf_ast.parse(_vf_src)) if isinstance(n, _vf_ast.FunctionDef) and n.name == "main")
-    _vf_is = sum(1 for n in _vf_ast.walk(_vf_main) if isinstance(n, _vf_ast.Call) and getattr(n.func, "id", None) == "is_session")
-    _vf_raw = sum(1 for n in _vf_ast.walk(_vf_main) if isinstance(n, _vf_ast.Compare)
+    _vf_fns = [n for n in _vf_ast.walk(_vf_ast.parse(_vf_src)) if isinstance(n, _vf_ast.FunctionDef)
+               and n.name in ("main", "_prev_session")]                  # v3: الجلسةُ السابقة في `_prev_session` ينادي بها `main`
+    _vf_is = sum(1 for f in _vf_fns for n in _vf_ast.walk(f) if isinstance(n, _vf_ast.Call) and getattr(n.func, "id", None) == "is_session")
+    _vf_raw = sum(1 for f in _vf_fns for n in _vf_ast.walk(f) if isinstance(n, _vf_ast.Compare)
                   and "get('open_ny_min')" in _vf_ast.unparse(n))         # «فحصُ العطلة وحدَه» بلا يوم الأسبوع
     import yaml as _vf_yaml
     _vf_wf = _vf_yaml.safe_load(open(".github/workflows/vwap_mom_feas.yml", encoding="utf-8"))
@@ -90187,6 +90188,158 @@ except Exception as _e:                                              # noqa: BLE
     _v_v5, _v_v5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📈 VWM5 (‏2026-10-28) جدوى v2 منشورةٌ كما صدرت: الجدولُ = الـJSON · الوسيطُ من `per_day` · `D_MIN` لا شيء · P1 ❌ · B مصلَّحة · C ‏2 من 60",
       _v_v5, _v_v5w)
+
+# 📈 VWM6 (‏2026-10-28 · الملحق 2 `vwap_mom_prereg_addendum_2.md` · أمرُ المالك · قبل أيّ رقمٍ من v3): بصمةُ الملحق مثبّتة · وأمرُ المالك بنصّه فيه ·
+#    وثوابتُ الأداة **مستخرَجةٌ من نصّ الملحق** لا منسوخةٌ من الذاكرة (حدُّ الرموز · النماذج · 1.01 · 5% · 600 صفحة) · وشرطُ التوقّف والتنبّؤاتُ P8-P11 ·
+#    وصفوفُ الدفتر للملحق 2 بوسومها.
+try:
+    import hashlib as _v6_hl, re as _v6_re
+    import vwap_mom_feas as _V6
+    _v6_pin = "a6adc1ea948e2d33de9b4e880d47aa60e4d28cf3b18d0d64c31109f179a46b61"
+    _v6_raw = open("vwap_mom_prereg_addendum_2.md", "rb").read()
+    _v6_doc = _v6_raw.decode("utf-8")
+    _v6_order = ("«سجّل الملحق 2 للفيواب — الخبر (محفّز حقيقي: عقد · اندماج · أبحاث · استعادة امتثال · إعادة شراء · إلخ) شرط واجب لا ذراع: "
+                 "الحدث بلا خبر في نافذته لا يُحتسب ولا يُعدّ. اجمع المصدرين Polygon news + SEC 8-K. مع إبقاء الذراع D (إعادة اختبار الفيواب بعد اندفاع) "
+                 "داخل v3. إن لم تقع درجة في 10-40 للمرة الثالثة يتوقف المحور وتُكتب النتيجة كما هي.»")
+
+    def _v6_num(pat):
+        m = _v6_re.search(pat, _v6_doc)
+        return m.group(1) if m else None
+    _v6_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _v6_parts = _v6_led.split("### الملحق 2 (2026-10-28) — الخبرُ شرطٌ واجب")
+    _v6_sec = _v6_parts[1].split("\n## ")[0].split("\n### ")[0] if len(_v6_parts) == 2 else ""
+    _v6_rows = [r for r in _v6_sec.splitlines() if r.startswith("| ") and not r.startswith("| القاعدة") and not r.startswith("|---")]
+    _v6_tag = [_v6_re.findall(r"`([a-z_]+)`", r.split(" | ")[4]) if len(r.split(" | ")) > 5 else [] for r in _v6_rows]
+    _v6_s4 = _v6_doc.split("## ④")[1].split("## ⑤")[0] if "## ④" in _v6_doc and "## ⑤" in _v6_doc else ""
+    _v6_c = {
+        "pin": _v6_hl.sha256(_v6_raw).hexdigest() == _v6_pin,
+        "owner_order": _v6_order in _v6_doc,
+        "max_tickers": _v6_num(r"و`tickers` فيه (\d+) رموزٍ أو أقلّ") == str(_V6.NEWS_MAX_TICKERS) == "3",
+        "forms": "نموذجُه **`8-K` أو `6-K`**" in _v6_doc and _V6.SEC_FORMS == ("8-K", "6-K"),
+        "retest_tol": _v6_num(r"قاعُها ≤ ([\d.]+) × VWAP") == "1.01" and _V6.RETEST_TOL == 1.01,
+        "unknown_max": _v6_num(r"المجهولُ فوق \*\*(\d+)%\*\*") == "5" and _V6.UNKNOWN_MAX == 0.05,
+        "page_cap": _v6_num(r"سقفَ (\d+) صفحة") == str(_V6.NEWS_PAGE_CAP) == "600",
+        "rule_same": "بين 10 و40 شاملًا" in _v6_doc and _V6.D_RULE == (10, 40)
+                     and _V6.D_LADDER == (250_000, 500_000, 1_000_000, 2_000_000, 5_000_000),
+        "stop_clause": "تخرج **8**" in _v6_s4 and "`VWM_REOPEN=1`" in _v6_s4 and "المرّة الثالثة" in _v6_s4 and "لا ملحقَ رابعٌ" in _v6_s4,
+        "predictions": all(f"- **{p}:**" in _v6_doc for p in ("P8", "P9", "P10", "P11")),
+        "ledger": len(_v6_rows) == 5 and sum(1 for t in _v6_tag if t == ["nayef_verbatim"]) == 2
+                  and sum(1 for t in _v6_tag if t == ["engineering"]) == 3,
+    }
+    _v_v6, _v_v6w = all(_v6_c.values()), f"{ {k: v for k, v in _v6_c.items() if not v} or 'كلّها'} · صفوف={len(_v6_rows)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_v6, _v_v6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈 VWM6 (‏2026-10-28) ملحقُ `T-VWAP-MOM` رقم 2 مثبّتٌ قبل أرقام v3: أمرُ المالك بنصّه · المحفّزُ شرطٌ (خبرٌ خاصّ ≤3 رموز ∨ 8-K/6-K) · "
+      "ثوابتُ الأداة = نصُّ الملحق · شرطُ التوقّف (خروج 8) · P8-P11 · وصفوفُ الدفتر", _v_v6, _v_v6w)
+
+# 📈 VWM7 (‏2026-10-28 · الملحق 2 · أداةُ الجدوى v3): سلوكيًّا على بياناتٍ اصطناعيّة —
+#    الأخبار (بلا تكرار id · الخاصُّ ≤3 رموز · التالفُ يُتخطّى) · لحظةُ القبول بتفسير «B» بدالّتَي `edgar2_probe` · نماذجُ SEC بالمطابقة التامّة · العمق ·
+#    فهرسُ EDGAR · حدودُ النافذة شاملة · المجهول (لا خبر ∧ SEC مجهول ⟵ None) · D: الاختبارُ ثمّ الثباتُ **كلُّه بعده** (لا ثلاثيّةَ تشمل الاختبار ولا
+#    شمعة 15 تبدأ قبله) · `day_candidates` بالسعر والدرجة وD لـA ذاتِ L · `tally_v3`: حدثٌ أبكرُ بلا محفّزٍ لا يحجب لاحقًا · وD بعد **أوّل** HL ∧ C ·
+#    `count_day`: بلا CIK ⟵ الأخبارُ وحدَها · CIK مجهول ⟵ U · بنودُ 8-K · والحارسُ والحكم · و`main` يخرج 2 بلا SEC_CONTACT قبل أيّ شبكة ·
+#    وقاعدتُه على A ∧ C (`med["A"][d]["H"]`) ولا تُطبَّق إلّا بعد الحارس · والـworkflow يمرّر السرّ.
+try:
+    import ast as _v7_ast, datetime as _v7_dt, os as _v7_os
+    from zoneinfo import ZoneInfo as _v7_ZI
+    import vwap_mom_feas as _V7
+    from edgar2_probe import parse_acc as _v7_pa, to_ny as _v7_tn
+    _v7_NY = _v7_ZI("America/New_York")
+    _v7_ts = lambda d, h, m: _v7_dt.datetime(*map(int, d.split("-")), h, m, tzinfo=_v7_NY).timestamp()     # noqa: E731
+    _v7_st, _v7_an = _V7.news_index([{"id": "a", "published_utc": "2026-09-14T12:30:00Z", "tickers": ["ABCD"]},
+                                     {"id": "a", "published_utc": "2026-09-14T12:30:00Z", "tickers": ["ABCD"]},
+                                     {"id": "b", "published_utc": "2026-09-14T13:00:00Z", "tickers": ["ABCD", "X1", "X2", "X3"]},
+                                     {"id": "c", "published_utc": "bad", "tickers": ["ABCD"]},
+                                     {"id": "d", "published_utc": "2026-09-14T14:00:00Z", "tickers": ["EFGH", "Y1", "Y2"]}])
+    _v7_acc = _V7.make_acc_ts(_v7_pa, _v7_tn)
+    _v7_rec = {"form": ["8-K", "8-K/A", "6-K", "10-Q"], "acceptanceDateTime": ["2026-09-14T16:05:23.000Z"] * 4,
+               "items": ["1.01,9.01", "", "", ""], "filingDate": ["2026-09-14"] * 4}
+
+    def _v7_mk(seq, start=570, vol=1000):
+        return [(start + i * 5 + m, p, p, p, p, vol) for i, p in enumerate(seq) for m in range(5)]
+
+    def _v7_rt(seq, need=False):
+        bb = _v7_mk(seq)
+        vw = _V7.vwap_series(bb)
+        return _V7.retest_signal(_V7.bucketize(bb, vw, 570, 5, 960), _V7.bucketize(bb, vw, 570, 15, 960), 605, need_liq=need)
+    _v7_cd = _V7.day_candidates(_v7_mk([10, 9, 9, 11, 11, 11, 11, 10.2, 11, 11, 11]), 570, 960, 1.0, 1)
+    _v7_ev1 = (605, "5x3", 11.0, 3.6e5, True, 625, None)
+    _v7_ev2 = (700, "5x3", 11.0, 5.0e5, True, None, 760)
+    _v7_fl = lambda c: (lambda e: {"news": bool(c(e)), "news_any": bool(c(e)), "sec": False, "sec8k": False, "C": c(e)})   # noqa: E731
+    _v7_t_late = _V7.tally_v3([_v7_ev1, _v7_ev2], 1, _v7_fl(lambda e: None if e < 650 else True))
+    _v7_t_unk = _V7.tally_v3([_v7_ev1, _v7_ev2], 1, _v7_fl(lambda e: None))
+    _v7_t_all = _V7.tally_v3([_v7_ev1, _v7_ev2], 1, _v7_fl(lambda e: True))
+    _v7_t_rung = _V7.tally_v3([_v7_ev1, _v7_ev2], 4e5, _v7_fl(lambda e: e < 650))
+    _v7_day, _v7_w0 = "2026-09-14", _v7_ts("2026-09-11", 16, 0)
+    _v7_ns = {"AAA": [_v7_ts(_v7_day, 9, 0)]}
+    _v7_sec = {"tmap": {"AAA": 123, "CCC": 789, "DDD": 456}, "filers": {123, 789},
+               "all": {123: [_v7_ts(_v7_day, 8, 0)]}, "8k": {123: [_v7_ts(_v7_day, 8, 0)]},
+               "rows": {123: [(_v7_ts(_v7_day, 8, 0), "8-K", "1.01,9.01")]}, "unknown": {789}}
+    _v7_cday = {s: {"A": [_v7_ev1], "B": []} for s in ("AAA", "BBB", "CCC", "DDD")}
+    _v7_cnt, _v7_src, _v7_items, _v7_nc, _v7_du, _v7_nu = _V7.count_day(_v7_cday, _v7_day, _v7_w0, _v7_sec, _v7_ns, _v7_ns, d_ladder=(1,))
+    _v7_env = {k: _v7_os.environ.get(k) for k in ("POLYGON_API_KEY", "SEC_CONTACT")}
+    _v7_net, _v7_orig = [], {n: getattr(_V7, n) for n in ("_download", "fetch_news", "_sec_get")}   # جذوعٌ تُسجَّل ولا تُنفَّذ — لا شبكةَ ولا انتظار
+    try:
+        _V7._download = lambda *a, **k: (_v7_net.append("dl"), (False, None))[1]
+        _V7.fetch_news = lambda *a, **k: (_v7_net.append("news"), ([], {"pages": 0, "complete": False, "items": 0, "why": "stub"}))[1]
+        _V7._sec_get = lambda *a, **k: (_v7_net.append("sec"), None)[1]
+        _v7_os.environ["POLYGON_API_KEY"], _v7_os.environ["SEC_CONTACT"] = "x", ""
+        _v7_rc = _V7.main()
+    finally:
+        for _n, _f in _v7_orig.items():
+            setattr(_V7, _n, _f)
+        for _k, _v in _v7_env.items():
+            if _v is None:
+                _v7_os.environ.pop(_k, None)
+            else:
+                _v7_os.environ[_k] = _v
+    _v7_src_txt = open("vwap_mom_feas.py", encoding="utf-8").read()
+    _v7_main = next(n for n in _v7_ast.walk(_v7_ast.parse(_v7_src_txt)) if isinstance(n, _v7_ast.FunctionDef) and n.name == "main")
+    _v7_called = {getattr(c.func, "id", None) for c in _v7_ast.walk(_v7_main) if isinstance(c, _v7_ast.Call)}
+    _v7_pick = [_v7_ast.unparse(n) for n in _v7_ast.walk(_v7_main) if isinstance(n, _v7_ast.Assign)
+                and any(getattr(t, "id", None) == "pick" for t in n.targets)]
+    _v7_wf = open(".github/workflows/vwap_mom_feas.yml", encoding="utf-8").read()
+    _v7_c = {
+        "news_index": set(_v7_st) == {"ABCD", "EFGH", "Y1", "Y2"} and _v7_st["ABCD"] == [_v7_ts("2026-09-14", 8, 30)] and _v7_an["ABCD"] == [_v7_ts("2026-09-14", 8, 30), _v7_ts("2026-09-14", 9, 0)]
+                      and "X1" not in _v7_st and _v7_st.get("EFGH") == [_v7_ts("2026-09-14", 10, 0)],      # 3 رموز = خاصّ (الحدّ شامل)
+        "acc_B": _v7_acc("2026-09-14T16:05:23.000Z") == _v7_ts("2026-09-14", 12, 5) + 23,
+        "sec_forms": [r[1] for r in _V7.sec_index(_v7_rec, _V7.SEC_FORMS, _v7_acc)] == ["6-K", "8-K"],
+        "depth": (_V7.sec_depth_ok(_v7_rec, False, "2026-08-31") and not _V7.sec_depth_ok(_v7_rec, True, "2026-08-31")
+                  and _V7.sec_depth_ok({"filingDate": ["2026-08-20"]}, True, "2026-08-31")),
+        "master_idx": _V7.parse_master_idx("CIK|Company Name|Form Type|Date Filed|File Name\n---\n123|A B|8-K|20260914|x\n"
+                                           "456|C|8-K/A|20260914|y\n789|D|6-K|20260914|z\n", _V7.SEC_FORMS) == {123, 789},
+        "any_in_inclusive": _V7.any_in([1, 5, 9], 5, 5) and _V7.any_in([1, 5, 9], 9, 20) and not _V7.any_in([1, 5, 9], 6, 8),
+        "unknown": (_V7.catalyst_flags("ZZZ", 0, 1e12, {}, {}, (), (), False)["C"] is None
+                    and _V7.catalyst_flags("ZZZ", 0, 1e12, {}, {}, (), (), True)["C"] is False
+                    and _V7.catalyst_flags("ABCD", 0, 1e12, _v7_st, _v7_an, (), (), False)["C"] is True),
+        "retest": _v7_rt([10, 9, 9, 11, 11, 11, 11, 10.2, 11, 11, 11]) == (625, "5x3", 10),
+        "retest_tol_1pct": _v7_rt([10, 9, 9, 11, 11, 11, 11, 10.36, 11, 11, 11]) == (625, "5x3", 10),     # قاعٌ فوق VWAP بأقلّ من 1%
+        "retest_none_far": _v7_rt([10, 9, 9, 11, 11, 11, 11, 12, 12, 12, 12]) is None,
+        "retest_after_test_only": _v7_rt([10, 9, 9, 11, 11, 11, 11, 10.36, 11, 11, 8, 8, 8]) is None,
+        "candidates": (_v7_cd["A"] and _v7_cd["A"][0][:2] == (605, "5x3") and _v7_cd["A"][0][4] is True and _v7_cd["A"][0][5] == 625
+                       and _v7_cd["B"] == [] and _V7.day_candidates(_v7_mk([10, 9, 9, 11, 11, 11, 11]), 570, 960, 20.0, 1)["A"] == []
+                       and _V7.day_candidates(_v7_mk([10, 9, 9, 11, 11, 11, 11]), 570, 960, 1.0, 10 ** 9)["A"] == []),
+        "late_C_counts": _v7_t_late["H"] and _v7_t_late["HL"] and not _v7_t_late["U"] and _v7_t_late["DHL"] and not _v7_t_late["DH"],
+        "unknown_tally": not _v7_t_unk["H"] and _v7_t_unk["U"] and _v7_t_unk["H0"],
+        "D_first_HLC": _v7_t_all["DH"] and not _v7_t_all["DHL"],
+        "rung_filters": not _v7_t_rung["H"] and _v7_t_rung["H0"],
+        "count_day": (_v7_cnt[("A", 1, "H")] == 1 and _v7_cnt[("A", 1, "U")] == 1 and _v7_cnt[("A", 1, "H0")] == 4
+                      and _v7_src == {"news": 0, "sec": 0, "both": 1} and _v7_items == {"1.01": 1, "9.01": 1}
+                      and (_v7_nc, _v7_du, _v7_nu) == (1, 3, 1)),
+        "gates": (_V7.coverage_gates({"complete": True}, [], 5, 100, []) == (True, [])
+                  and _V7.coverage_gates({"complete": True}, [], 6, 100, [])[0] is False
+                  and _V7.coverage_gates({"complete": False}, ["x"], 0, 0, ["d"])[1] == ["news_incomplete", "edgar_index_missing", "minute_day_missing"]),
+        "verdict": (_V7.verdict_v3(False, 250000), _V7.verdict_v3(True, None), _V7.verdict_v3(True, 1)) == ("no_measure", "stop", "pick"),
+        "main_no_contact": _v7_rc == 2 and not _v7_net,
+        "main_wired": {"day_events", "day_candidates", "fetch_news", "news_index", "parse_master_idx", "sec_index", "sec_depth_ok",
+                       "make_acc_ts", "count_day", "coverage_gates", "pick_rule", "verdict_v3"} <= _v7_called,
+        "rule_on_AC_after_gate": len(_v7_pick) == 1 and "med['A'][d]['H']" in _v7_pick[0] and _v7_pick[0].rstrip().endswith("if ok else None"),
+        "wf_secret": "SEC_CONTACT: ${{ secrets.SEC_CONTACT }}" in _v7_wf,
+    }
+    _v_v7, _v_v7w = all(_v7_c.values()), f"{ {k: v for k, v in _v7_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_v7, _v_v7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈 VWM7 (‏2026-10-28) جدوى v3 سلوكيًّا: الأخبارُ والإيداعاتُ ونافذتُها · المجهول · D بعد الاختبار وحدَه · الحدثُ الأبكرُ بلا محفّزٍ لا يحجب · "
+      "count_day · الحارسُ والحكم · main يخرج 2 بلا SEC_CONTACT · والقاعدةُ على A ∧ C بعد الحارس", _v_v7, _v_v7w)
 
 # H6L1 — amendment 5 (m1-m5 · m7): الوصولُ المتأخّر لا يُسقط الأهليّة — ختمُ الجامع الآليّ ‏+ جمعٌ بعد الوصول ‏+ ضوابطُ من نافذة القرار ·
 #   وA/C (اللقطة) على الوحدات في وقتها وحدَها · وB/D للجميع · وبلا ختمٍ أو قبل T أو بلا جمعٍ أو بلا لوحة كلٌّ برمزه · والمسارُ في وقته بت-بت
