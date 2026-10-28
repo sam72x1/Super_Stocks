@@ -1579,5 +1579,458 @@
    "tgt_ms": null,
    "rearm_n": null
   }
- ]
+ ],
+ "entries": [
+  {
+   "sym": "AXG",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793059523000,
+   "sent_et": "10-26 20:05",
+   "ny_day": "2026-10-26",
+   "session": "post",
+   "source": "pullback_monitor",
+   "commit": "6b23fd1e9"
+  },
+  {
+   "sym": "NSPR",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793059523000,
+   "sent_et": "10-26 20:05",
+   "ny_day": "2026-10-26",
+   "session": "post",
+   "source": "pullback_monitor",
+   "commit": "6b23fd1e9"
+  },
+  {
+   "sym": "SVRE",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793059523000,
+   "sent_et": "10-26 20:05",
+   "ny_day": "2026-10-26",
+   "session": "post",
+   "source": "pullback_monitor",
+   "commit": "6b23fd1e9"
+  },
+  {
+   "sym": "NNOX",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793059523000,
+   "sent_et": "10-26 20:05",
+   "ny_day": "2026-10-26",
+   "session": "post",
+   "source": "pullback_monitor",
+   "commit": "6b23fd1e9"
+  },
+  {
+   "sym": "SHFS",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793089714000,
+   "sent_et": "10-27 04:28",
+   "ny_day": "2026-10-27",
+   "session": "pre",
+   "source": "entry_worker",
+   "commit": "bf993f8d8"
+  },
+  {
+   "sym": "BDAI",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793106739000,
+   "sent_et": "10-27 09:12",
+   "ny_day": "2026-10-27",
+   "session": "pre",
+   "source": "entry_worker",
+   "commit": "387157884"
+  },
+  {
+   "sym": "BTCS",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793108581000,
+   "sent_et": "10-27 09:43",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "f7ef0e216"
+  },
+  {
+   "sym": "DBGI",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793108790000,
+   "sent_et": "10-27 09:46",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "4ad6671e3"
+  },
+  {
+   "sym": "ZBAO",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793108911000,
+   "sent_et": "10-27 09:48",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "fa6f353e5"
+  },
+  {
+   "sym": "CIGL",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793109671000,
+   "sent_et": "10-27 10:01",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "c025ad74d"
+  },
+  {
+   "sym": "WVE",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793110148000,
+   "sent_et": "10-27 10:09",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "371794717"
+  },
+  {
+   "sym": "NXTS",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793110695000,
+   "sent_et": "10-27 10:18",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "4a19d54e5"
+  },
+  {
+   "sym": "HUDI",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793111050000,
+   "sent_et": "10-27 10:24",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "ca2f41dbc"
+  },
+  {
+   "sym": "MKDW",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793112054000,
+   "sent_et": "10-27 10:40",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "eed9cbdd7"
+  },
+  {
+   "sym": "IPDN",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793114465000,
+   "sent_et": "10-27 11:21",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "4fa9faaa7"
+  },
+  {
+   "sym": "KAZR",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793117755000,
+   "sent_et": "10-27 12:15",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "801e065e7"
+  },
+  {
+   "sym": "NIKI",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793118610000,
+   "sent_et": "10-27 12:30",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "45774e439"
+  },
+  {
+   "sym": "WCT",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793119190000,
+   "sent_et": "10-27 12:39",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "47a09b7e0"
+  },
+  {
+   "sym": "LNAI",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793119886000,
+   "sent_et": "10-27 12:51",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "9397564e5"
+  },
+  {
+   "sym": "JBDI",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793123713000,
+   "sent_et": "10-27 13:55",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "ef2c18b6c"
+  },
+  {
+   "sym": "UONEK",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793123906000,
+   "sent_et": "10-27 13:58",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "e6f529948"
+  },
+  {
+   "sym": "YMAT",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793125858000,
+   "sent_et": "10-27 14:30",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "f20560d78"
+  },
+  {
+   "sym": "ADGM",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793126673000,
+   "sent_et": "10-27 14:44",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "c7d5b7992"
+  },
+  {
+   "sym": "YHC",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793127042000,
+   "sent_et": "10-27 14:50",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "d8fd7fd0a"
+  },
+  {
+   "sym": "FGL",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793127185000,
+   "sent_et": "10-27 14:53",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "e76aff044"
+  },
+  {
+   "sym": "CYAB",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793130674000,
+   "sent_et": "10-27 15:51",
+   "ny_day": "2026-10-27",
+   "session": "reg",
+   "source": "entry_worker",
+   "commit": "8b93a1f12"
+  },
+  {
+   "sym": "GDTC",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793131228000,
+   "sent_et": "10-27 16:00",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "0c28e3eba"
+  },
+  {
+   "sym": "NXL",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793133493000,
+   "sent_et": "10-27 16:38",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "563f96286"
+  },
+  {
+   "sym": "TRUG",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793133653000,
+   "sent_et": "10-27 16:40",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "a49a36b1a"
+  },
+  {
+   "sym": "CDT",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793134283000,
+   "sent_et": "10-27 16:51",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "45d33078f"
+  },
+  {
+   "sym": "SXTC",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793134593000,
+   "sent_et": "10-27 16:56",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "e32d04b53"
+  },
+  {
+   "sym": "SRTM",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793135810000,
+   "sent_et": "10-27 17:16",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "1d4a95d96"
+  },
+  {
+   "sym": "KPTI",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793136032000,
+   "sent_et": "10-27 17:20",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "bfa4a66dd"
+  },
+  {
+   "sym": "MRLN",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793141572000,
+   "sent_et": "10-27 18:52",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "aadc33db0"
+  },
+  {
+   "sym": "FMST",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793142359000,
+   "sent_et": "10-27 19:05",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "ffa423dce"
+  },
+  {
+   "sym": "RCT",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793144534000,
+   "sent_et": "10-27 19:42",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "e4bbb524a"
+  },
+  {
+   "sym": "XXII",
+   "dedup_date": "2026-10-27",
+   "ref_ms": 1793144687000,
+   "sent_et": "10-27 19:44",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "entry_worker",
+   "commit": "571452221"
+  },
+  {
+   "sym": "LABT",
+   "dedup_date": "2026-10-28",
+   "ref_ms": 1793153887000,
+   "sent_et": "10-27 22:18",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "pullback_monitor",
+   "commit": "dffe13934"
+  },
+  {
+   "sym": "FMST",
+   "dedup_date": "2026-10-28",
+   "ref_ms": 1793153887000,
+   "sent_et": "10-27 22:18",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "pullback_monitor",
+   "commit": "dffe13934"
+  },
+  {
+   "sym": "GCTK",
+   "dedup_date": "2026-10-28",
+   "ref_ms": 1793153887000,
+   "sent_et": "10-27 22:18",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "pullback_monitor",
+   "commit": "dffe13934"
+  },
+  {
+   "sym": "BIOA",
+   "dedup_date": "2026-10-28",
+   "ref_ms": 1793153887000,
+   "sent_et": "10-27 22:18",
+   "ny_day": "2026-10-27",
+   "session": "post",
+   "source": "pullback_monitor",
+   "commit": "dffe13934"
+  },
+  {
+   "sym": "SNTI",
+   "dedup_date": "2026-10-28",
+   "ref_ms": 1793178382000,
+   "sent_et": "10-28 05:06",
+   "ny_day": "2026-10-28",
+   "session": "pre",
+   "source": "entry_worker",
+   "commit": "9ed535ec5"
+  },
+  {
+   "sym": "SRTM",
+   "dedup_date": "2026-10-28",
+   "ref_ms": 1793179882000,
+   "sent_et": "10-28 05:31",
+   "ny_day": "2026-10-28",
+   "session": "pre",
+   "source": "entry_worker",
+   "commit": "fc85fc080"
+  },
+  {
+   "sym": "MEGL",
+   "dedup_date": "2026-10-28",
+   "ref_ms": 1793185532000,
+   "sent_et": "10-28 07:05",
+   "ny_day": "2026-10-28",
+   "session": "pre",
+   "source": "entry_worker",
+   "commit": "dd082a75c"
+  },
+  {
+   "sym": "BENF",
+   "dedup_date": "2026-10-28",
+   "ref_ms": 1793187383000,
+   "sent_et": "10-28 07:36",
+   "ny_day": "2026-10-28",
+   "session": "pre",
+   "source": "entry_worker",
+   "commit": "8c11e5241"
+  }
+ ],
+ "entries_source": "plain-symbol dedup keys in op_entry_state.json (value = alert date), first commit (author time) carrying each (symbol, date) since 2026-10-26T20:00Z; source = entry worker or pullback monitor (commit also touches weekly_watchlist.json)"
 }
