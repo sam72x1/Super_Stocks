@@ -49,4 +49,8 @@ jobs:
           PRESESSION_SLOT: ${{ github.event.inputs.slot }}
           PRESESSION_DAY: ${{ github.event.inputs.day }}
           PRESESSION_SEND: ${{ github.event.inputs.send }}
+          # 🔄 قائمةُ البري وحصادُها **رجعا إلى Polygon** (‏2026-10-27 · أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى Polygon حيث كان»):
+          #    كانا على TradingView افتراضًا منذ 2026-09-30 لأن Polygon انتهى 09-29 (‏`T-TVPRE` «لا قياس» وحجمُ دقائقه جزئيّ) ·
+          #    والاشتراكُ عاد (`polygon_health` 40583402044 ✅) ⇒ «polygon» حرفيًّا = المسارُ السابق بت-بت · وحذفُ السطر = TradingView (`PSR1`).
+          PRESESSION_SOURCE: polygon
         run: python presession_now.py

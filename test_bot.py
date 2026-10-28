@@ -70537,7 +70537,9 @@ except Exception as _e:                                              # noqa: BLE
 check("📺 TCD36 `TV.fetch_many(gate=…)`: `skip()` يمنع النداءَ ويُرجع None · `record(ok)` بالنتيجة النهائيّة (العابرُ ⟵ True) · "
       "وبلا gate كلُّ الرموز تُنادى والمحجوبُ None بعد إعادةٍ واحدة", _v36, _v36w)
 
-# TCD37 — الـworkflow: مُدخَلُ `source` افتراضُه «tv» يُمرَّر `TC_SOURCE` إلى المسح وحدَه · ومفتاحُ Polygon باقٍ في المسح (للرجوع) ·
+# TCD37 — الـworkflow: مُدخَلُ `source` يُمرَّر `TC_SOURCE` إلى المسح وحدَه · ومفتاحُ Polygon في المسح ·
+#    🔄 **تحديثٌ إقراريّ 2026-10-27** (أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى Polygon حيث كان»): الافتراضُ «polygon» والكرونُ بلا
+#    مُدخَلات يمرّر «polygon» صراحةً (`|| 'polygon'`) — كان «tv» منذ 2026-09-29 (انقطاعُ Polygon) ·
 #    والمِقبسُ `websocket-client` مثبَّتٌ في المتطلّبات (قفلُ 007) · ولا مِجَسَّ مؤقّتًا باقيًا (`tv_probe`)
 try:
     _y37 = __import__("yaml").safe_load(open(".github/workflows/three_cond_daily.yml", encoding="utf-8").read())
@@ -70546,14 +70548,15 @@ try:
     _env37 = {j: [st.get("env") or {} for st in (_y37["jobs"][j].get("steps") or []) if st.get("run")] for j in _y37["jobs"]}
     _scan37 = next((e for e in _env37["scan"] if "TC_STAGE" in e), {})
     _req37 = open("requirements.txt", encoding="utf-8").read()
-    _v37 = (str(_in37.get("default")) == "tv" and "inputs.source" in str(_scan37.get("TC_SOURCE"))
+    _v37 = (str(_in37.get("default")) == "polygon" and "inputs.source" in str(_scan37.get("TC_SOURCE"))
+            and "|| 'polygon'" in str(_scan37.get("TC_SOURCE"))
             and "POLYGON_API_KEY" in str(_scan37) and not any("TC_SOURCE" in e for j in ("borrow", "send") for e in _env37[j])
             and __import__("re").search(r"(?m)^websocket-client==\S+", _req37) is not None
             and not _tv_os.path.exists("tv_probe.py") and not _tv_os.path.exists(".github/workflows/tv_probe.yml"))
     _v37w = f"مُدخَل={_in37} · مسح={sorted(_scan37)} · مِجَسٌّ باقٍ={_tv_os.path.exists('tv_probe.py')}"
 except Exception as _e:                                              # noqa: BLE001
     _v37, _v37w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("📺 TCD37 `three_cond_daily.yml`: مُدخَلُ `source` افتراضُه «tv» إلى المسح وحدَه · ومفتاحُ Polygon باقٍ للرجوع · "
+check("📺 TCD37 `three_cond_daily.yml` (‏2026-10-27): مُدخَلُ `source` افتراضُه «polygon» والكرونُ يمرّر «polygon» صراحةً إلى المسح وحدَه · ومفتاحُ Polygon في المسح · "
       "و`websocket-client` مثبَّت · ولا مِجَسَّ `tv_probe` باقيًا", _v37, _v37w)
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -71868,7 +71871,8 @@ except Exception as _e:                                              # noqa: BLE
 check("📺 WPT6 ⑭-د `outcome(reach=True)` لا يقرأ نافذةً مقصوصة (الممتدُّ None والنظاميُّ ‏+50% كما هو) · و`reach=False` كما كان "
       "(‏+80%)", _v6t, _v6tw)
 
-# WPT7 — المفتاح: بلا البيئة Polygon (أقفالُ WPP كلُّها عليه بت-بت) · والـworkflow يمرّر مُدخَلَ `source` بافتراض tradingview ·
+# WPT7 — المفتاح: بلا البيئة Polygon (أقفالُ WPP كلُّها عليه بت-بت) · والـworkflow يمرّر مُدخَلَ `source` بافتراض polygon ·
+#    (🔄 تحديثٌ إقراريّ 2026-10-27 · أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى Polygon حيث كان»: كان «tradingview» منذ 2026-10-01)
 #    والمسارُ ⑭ لا ينادي جوالبَ Polygon (`WW.fetch_bars` · `WW.fetch_minutes` · `splits_of`) ولا يحتاج المفتاح
 try:
     _src7 = open("watch_period_probe.py", encoding="utf-8").read()
@@ -71879,13 +71883,13 @@ try:
     _env7 = (_st7[0].get("env") or {}) if len(_st7) == 1 else {}
     _v7t = (_wpp_os.environ.get("PERIOD_SOURCE") is None and _WPP.SOURCE == "polygon"
             and '(os.environ.get("PERIOD_SOURCE") or "polygon")' in _src7
-            and (_in7.get("source") or {}).get("default") == "tradingview"
+            and (_in7.get("source") or {}).get("default") == "polygon"
             and _env7.get("PERIOD_SOURCE") == "${{ github.event.inputs.source }}"
             and _wpt_ok[0] == 0 and "Traceback" not in _wpt_ok[1])
     _v7tw = f"SOURCE={_WPP.SOURCE} · default={(_in7.get('source') or {}).get('default')}"
 except Exception as _e:                                              # noqa: BLE001
     _v7t, _v7tw = False, f"⛔ رمى: {type(_e).__name__}"
-check("📺 WPT7 ⑭ المفتاح: بلا `PERIOD_SOURCE` المسارُ Polygon بت-بت · والـworkflow يمرّر `source` بافتراض tradingview · والمسارُ ⑭ "
+check("📺 WPT7 ⑭ المفتاح: بلا `PERIOD_SOURCE` المسارُ Polygon بت-بت · والـworkflow يمرّر `source` بافتراض polygon (‏2026-10-27) · والمسارُ ⑭ "
       "لا ينادي جوالبَ Polygon (محقونةٌ None فتنهار لو نوديت)", _v7t, _v7tw)
 
 # WPT8 — ⑭-أ/د الجوالبُ الحقيقيّة بالاسم (AST): `tv_daily` ⟵ `TC.fetch_tv` · `tv_ext` ⟵ `TV.fetch_many` بفاصل `TV_EXT_INTERVAL`
@@ -74207,10 +74211,11 @@ except Exception as _e:                                              # noqa: BLE
 check("🌙📺 AHT9 المفتاحُ المطفأ (`AH_GUARD_TV` غائب) ⟵ المسارُ السابق بت-بت ولو `BARS_SOURCE=tradingview`: صفرُ مِقبسٍ وماسح · "
       "`extended_last_price` بلا `fetch_bars`", _w9, _w9w)
 
-# AHT10 — **المفتاحُ مُشعَلٌ في الإنتاج بعد عبور مِجَسّ v2 الحاكم** (تحديثٌ إقراريّ 2026-10-02 · جلسة 10-01 · `36944893317`:
-#    AH1-AH6 ✅ · AH2 ‏30/33 = 90.9%): **الخطوةُ التي تضبط `BARS_SOURCE: tradingview`** في `split_hunter.yml` و`daily_screener.yml`
-#    تضبط `AH_GUARD_TV`=«1» حرفًا · ولا ضبطَ له على مستوى الجوب أو الـworkflow (موضعٌ واحدٌ مقروء) — وإطفاؤه تغييرٌ مُقرٌّ يُحدّث هذا القفل.
-#    (كان قبل الحكم: «لا خطوةَ تضبطه».)
+# AHT10 — 🔄 **تحديثٌ إقراريّ 2026-10-27: المفتاحُ مُطفأٌ ⟵ حارسُ الافتر رجع إلى Polygon** (أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى
+#    Polygon حيث كان» · كان `AH_GUARD_TV`=«1» منذ 2026-10-02 بعد عبور مِجَسّ v2 لأن Polygon انتهى 09-29 · والاشتراكُ عاد ⟵
+#    `polygon_health` 40583402044 ✅ المنافذُ الثلاثة): **لا ضبطَ لـ`AH_GUARD_TV` في أيّ موضع** (workflow · جوب · خطوة) في
+#    `split_hunter.yml` و`daily_screener.yml` · **وخطوةُ `BARS_SOURCE: tradingview` باقيةٌ في كلٍّ منهما** (الشموعُ لم تُمَسّ) —
+#    وإعادةُ إشعاله سطرٌ واحد وتغييرٌ مُقرٌّ يُحدّث هذا القفل. (قبل 10-27: «مُشعَلٌ في خطوة BARS_SOURCE وحدَها» · وقبل 10-02: «لا خطوةَ تضبطه».)
 try:
     import yaml as _aht_yaml
     _aht_env10 = {}
@@ -74230,12 +74235,19 @@ try:
                      if ((_st or {}).get("env") or {}).get("BARS_SOURCE") == "tradingview"
                      and str(((_st or {}).get("env") or {}).get("AH_GUARD_TV")) == "1"]
         _aht_env10[_wf] = (_hits, _ok_steps)
+    _aht_bars10 = {}
+    for _wf in ("split_hunter.yml", "daily_screener.yml"):
+        _y = _aht_yaml.safe_load(open(f".github/workflows/{_wf}", encoding="utf-8"))
+        _aht_bars10[_wf] = sum(1 for _jb in ((_y or {}).get("jobs") or {}).values()
+                               for _st in (_jb or {}).get("steps") or []
+                               if ((_st or {}).get("env") or {}).get("BARS_SOURCE") == "tradingview")
     _w10 = (len(_aht_env10) == 2
-            and all(len(_h) == 1 and _h == _o for _h, _o in _aht_env10.values()))
-    _w10w = f"{_aht_env10}"
+            and all(_h == [] and _o == [] for _h, _o in _aht_env10.values())
+            and all(n == 1 for n in _aht_bars10.values()))
+    _w10w = f"{_aht_env10} · خطوةُ BARS_SOURCE={_aht_bars10}"
 except Exception as _e:                                              # noqa: BLE001
     _w10, _w10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🌙📺 AHT10 المفتاحُ مُشعَلٌ بعد عبور مِجَسّ v2: `AH_GUARD_TV`=«1» في خطوة `BARS_SOURCE: tradingview` وحدَها في split_hunter.yml وdaily_screener.yml", _w10, _w10w)
+check("🌙 AHT10 (‏2026-10-27) حارسُ الافتر رجع إلى Polygon: لا `AH_GUARD_TV` في أيّ موضعٍ من split_hunter.yml وdaily_screener.yml · وخطوةُ `BARS_SOURCE: tradingview` باقيةٌ في كلٍّ منهما", _w10, _w10w)
 
 # ═══ 🕳️ T-GAPBELOW — أقفال GBA0-GBA13 (العقد gapbelow_prereg.md · 2026-10-01) ═══
 # «سجّل الفجوة تحت السعر»: هل تُغطّى الفجوةُ الصاعدةُ تحت السعر («لازم» `D1`/`D2`) وهل
@@ -88496,6 +88508,128 @@ except Exception as _e:                                              # noqa: BLE
 check("🧪🔧 H6P1 F1: جدارُ المرساة كاملٌ في `reject_log.json` (300 عالَم ‏+ الكتابةُ الحيّة) والجدرانُ الأخرى بسقف 400 وعيّنتها بت-بت (مرجعٌ مستقلّ) · "
       "و`control_pool` يختار مدخلَ اليوم · و`full_walls=()` = السلوكُ السابق بت-بت",
       _h6p1, _h6p1_w[:420])
+
+# ══════════════════════════════════════════════════════════════════════════
+# 🕵️🩺 OGM1-OGM2 · 🔄 PSR1 · 🧱 EHS1 — إصلاحاتُ الجزء أ (‏2026-10-27 · أمرُ المالك «الأعطالُ أوّلًا» أ4):
+#    OGM: بوّابةُ المضارب في `scan_liq_stages` كانت تكتم وتمسح الحالة **بلا أثر** ⟵ `LIQ_OPGATE_LAST` يُعاد ملؤه كلَّ نداء
+#    والعاملُ يطبعه سطرَ سجلّ (لا تلغرام · الكتمُ نفسُه بت-بت) · PSR/EHS: مفاتيحُ مصدرٍ رجعت إلى Polygon حيث كانت قبل 09-29.
+# ══════════════════════════════════════════════════════════════════════════
+# OGM1 — سلوكيّ: كونٌ من أربعة · OA قِيس بلا مضارب ⟵ يُكتَم ويُسجَّل · OB بمضارب ⟵ يمرّ · OC تعذّر القياس ⟵ يمرّ ويُسجَّل
+#    «لم يُتحقّق» · OD بلا حدث ⟵ لا شيء · والقيمةُ البائتة تُفرَّغ · والنداءُ التالي بلا أحداثٍ يُفرّغ القاموس.
+try:
+    _ogm_uni = [{"symbol": _s, "src": "تحت المتابعة"} for _s in ("OA", "OB", "OC", "OD")]
+    _ogm_of = {"OA": {"has_operator": False}, "OB": {"has_operator": True}, "OC": None}
+
+    def _ogm_fo(sym, limit=None):
+        return _ogm_of.get(sym, {"has_operator": True})
+    S.LIQ_OPGATE_LAST["muted"] = ["STALE"]
+    _ogm_rows = S.scan_liq_stages(_ogm_uni, "2026-08-17", seen={}, workers=2, clock=lambda: _LS_NOW21,
+                                  fetch_bars=lambda s, minutes=65: _ls_flat if s == "OD" else _ls_bars(1),
+                                  fetch_operator=_ogm_fo, fetch_prev_close=lambda s, d: None)[0]
+    _ogm_kept = [r[0]["symbol"] for r in _ogm_rows]
+    _ogm_l1 = {k: list(v) for k, v in S.LIQ_OPGATE_LAST.items()}
+    S.scan_liq_stages(_ogm_uni[3:], "2026-08-17", seen={}, workers=1, clock=lambda: _LS_NOW21,
+                      fetch_bars=lambda s, minutes=65: _ls_flat, fetch_operator=_ogm_fo,
+                      fetch_prev_close=lambda s, d: None)
+    _ogm_l2 = {k: list(v) for k, v in S.LIQ_OPGATE_LAST.items()}
+    _v_ogm1 = (_ogm_kept == ["OB", "OC"]
+               and _ogm_l1 == {"muted": ["OA"], "px_only": [], "unverified": ["OC"]}
+               and _ogm_l2 == {"muted": [], "px_only": [], "unverified": []})
+    _v_ogm1w = f"مرّ={_ogm_kept} · بعد الأوّل={_ogm_l1} · بعد الثاني={_ogm_l2}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_ogm1, _v_ogm1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️🩺 OGM1 بوّابةُ المضارب تُسجّل ما كتمته: قِيس بلا مضارب ⟵ `muted` · تعذّر ⟵ `unverified` · والقاموسُ يُفرَّغ كلَّ نداء "
+      "(البائتُ لا يبقى) · والمارّون بت-بت", _v_ogm1, _v_ogm1w)
+
+# OGM2 — AST على العامل الحيّ: `_liq_sweep` يقرأ `LIQ_OPGATE_LAST` بعد `scan_liq_stages` ويطبع «بوّابةُ المضارب: كُتم» ·
+#    وسطرُ «انتهى» يحمل «بوّابةُ المضارب كتمت» · وصفرُ `send_telegram` يمرّ بمتغيّرات العدّاد (سجلٌّ فقط).
+try:
+    import ast as _ogm_ast
+    _ogm_src = open("operator_entry_live.py", encoding="utf-8").read()
+    _ogm_t = _ogm_ast.parse(_ogm_src)
+    _ogm_sw = next(n for n in _ogm_ast.walk(_ogm_t) if isinstance(n, _ogm_ast.FunctionDef) and n.name == "_liq_sweep")
+    _ogm_swsrc = _ogm_ast.get_source_segment(_ogm_src, _ogm_sw)
+    _ogm_i_scan = _ogm_swsrc.find("bot.scan_liq_stages(")
+    _ogm_i_read = _ogm_swsrc.find('"LIQ_OPGATE_LAST"')
+    _ogm_logs = [_ogm_ast.get_source_segment(_ogm_src, c) for c in _ogm_ast.walk(_ogm_sw)
+                 if isinstance(c, _ogm_ast.Call) and getattr(c.func, "id", None) == "_log"]
+    _ogm_main = next(n for n in _ogm_ast.walk(_ogm_t) if isinstance(n, _ogm_ast.FunctionDef) and n.name == "main")
+    _ogm_end = [_ogm_ast.get_source_segment(_ogm_src, c) for c in _ogm_ast.walk(_ogm_main)
+                if isinstance(c, _ogm_ast.Call) and getattr(c.func, "id", None) == "_log"
+                and "انتهى [" in (_ogm_ast.get_source_segment(_ogm_src, c) or "")]
+    _ogm_tg = [_ogm_ast.get_source_segment(_ogm_src, c) for c in _ogm_ast.walk(_ogm_t)
+               if isinstance(c, _ogm_ast.Call) and getattr(c.func, "attr", None) == "send_telegram"]
+    _v_ogm2 = (0 <= _ogm_i_scan < _ogm_i_read
+               and any("بوّابةُ المضارب: كُتم" in (x or "") and "_ogm" in (x or "") for x in _ogm_logs)
+               and len(_ogm_end) == 1 and "بوّابةُ المضارب كتمت" in _ogm_end[0] and "og_n" in _ogm_end[0]
+               and not any(("og_n" in (x or "") or "_ogm" in (x or "") or "og_syms" in (x or "")) for x in _ogm_tg))
+    _v_ogm2w = f"مسح@{_ogm_i_scan} · قراءة@{_ogm_i_read} · سجلّ={sum('كُتم' in (x or '') for x in _ogm_logs)} · انتهى={len(_ogm_end)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_ogm2, _v_ogm2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕵️🩺 OGM2 العاملُ الحيّ يطبع ما كتمته بوّابةُ المضارب بعد كلّ مسح وفي سطر «انتهى» · سجلٌّ فقط لا تلغرام",
+      _v_ogm2, _v_ogm2w)
+
+# PSR1 — قائمةُ البري وحصادُها ومُشغِّلُها اليدويّ على Polygon: `PRESESSION_SOURCE: polygon` في خطوة التشغيل نفسِها من
+#    operator_entry.yml وpresession_digest.yml وpresession_now.yml · و«polygon» حرفيًّا يُرجع جالبَي Polygon (المسارُ السابق).
+try:
+    import yaml as _psr_yaml
+    _psr = {}
+    for _wf, _run in (("operator_entry.yml", "operator_entry_live.py"), ("presession_digest.yml", "presession_digest.py"),
+                      ("presession_now.yml", "presession_now.py")):
+        _y = _psr_yaml.safe_load(open(f".github/workflows/{_wf}", encoding="utf-8"))
+        _psr[_wf] = [((_st or {}).get("env") or {}).get("PRESESSION_SOURCE")
+                     for _jb in ((_y or {}).get("jobs") or {}).values() for _st in (_jb or {}).get("steps") or []
+                     if _run in str((_st or {}).get("run") or "")]
+    import presession_radar as _psr_pr
+    _psr_f = _psr_pr.fetchers("polygon")
+    _v_psr1 = (all(v == ["polygon"] for v in _psr.values()) and len(_psr) == 3
+               and _psr_f == (_psr_pr.polygon_grouped, _psr_pr.polygon_minutes))
+    _v_psr1w = f"{_psr}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_psr1, _v_psr1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔄 PSR1 (‏2026-10-27) قائمةُ البري وحصادُها على Polygon: `PRESESSION_SOURCE: polygon` في خطوات التشغيل الثلاث · "
+      "و«polygon» يُرجع جالبَي Polygon", _v_psr1, _v_psr1w)
+
+# EHS1 — الثبات الدقيق: `BARS_SOURCE=tradingview` ‏+ `EXACT_HOLD_SOURCE=polygon` ⟵ صفرُ `tv_hour_fetcher` و`polygon_hour_bars`
+#    يُنادى (والعدّاداتُ بلا `src`) · وبلا المفتاح ⟵ TradingView بت-بت (`EHT2`) · وdaily_screener.yml يضبطه في خطوة BARS_SOURCE.
+import os as _ehs_os                                                 # noqa: E402
+try:
+    _ehs_env0 = {k: _ehs_os.environ.get(k) for k in ("BARS_SOURCE", "EXACT_HOLD_SOURCE")}
+    _ehs_pk0, _ehs_ph0, _ehs_tf0 = S._poly_key, S.polygon_hour_bars, S.tv_hour_fetcher
+    _ehs_tv, _ehs_pg = [], []
+    try:
+        S._poly_key = lambda: "K"
+        S.polygon_hour_bars = lambda *a, **k: (_ehs_pg.append(a[0]), _exh_hr)[1]
+
+        def _ehs_fake(syms, **k):
+            _ehs_tv.append(list(syms))
+            return lambda sym, d0, d1: _exh_hr
+        S.tv_hour_fetcher = _ehs_fake
+        _ehs_os.environ["BARS_SOURCE"] = "tradingview"
+        _ehs_os.environ["EXACT_HOLD_SOURCE"] = "polygon"
+        _ehs_n1 = S.refresh_exact_hold([{"symbol": "AAA"}], _exh_hist)
+        _ehs_tv1, _ehs_pg1 = list(_ehs_tv), list(_ehs_pg)
+        _ehs_os.environ.pop("EXACT_HOLD_SOURCE", None)
+        _ehs_n2 = S.refresh_exact_hold([{"symbol": "AAA"}], _exh_hist)
+    finally:
+        S._poly_key, S.polygon_hour_bars, S.tv_hour_fetcher = _ehs_pk0, _ehs_ph0, _ehs_tf0
+        for _k, _v in _ehs_env0.items():
+            if _v is None:
+                _ehs_os.environ.pop(_k, None)
+            else:
+                _ehs_os.environ[_k] = _v
+    import yaml as _ehs_yaml
+    _ehs_y = _ehs_yaml.safe_load(open(".github/workflows/daily_screener.yml", encoding="utf-8"))
+    _ehs_wf = [((_st or {}).get("env") or {}).get("EXACT_HOLD_SOURCE")
+               for _jb in ((_ehs_y or {}).get("jobs") or {}).values() for _st in (_jb or {}).get("steps") or []
+               if ((_st or {}).get("env") or {}).get("BARS_SOURCE") == "tradingview"]
+    _v_ehs1 = (_ehs_tv1 == [] and _ehs_pg1 == ["AAA"] and "src" not in _ehs_n1 and _ehs_n1.get("ok") == 1
+               and _ehs_tv == [["AAA"]] and _ehs_n2.get("src") == "tradingview" and _ehs_wf == ["polygon"])
+    _v_ehs1w = f"tv={_ehs_tv1}→{_ehs_tv} · polygon={_ehs_pg1} · n1={_ehs_n1} · n2={_ehs_n2} · wf={_ehs_wf}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_ehs1, _v_ehs1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧱🔄 EHS1 (‏2026-10-27) الثبات الدقيق على Polygon بمفتاح `EXACT_HOLD_SOURCE=polygon` مع بقاء BARS_SOURCE=tradingview · "
+      "وبلاه TradingView بت-بت · وdaily_screener.yml يضبطه", _v_ehs1, _v_ehs1w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

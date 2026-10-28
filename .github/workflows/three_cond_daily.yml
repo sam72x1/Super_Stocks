@@ -12,6 +12,8 @@ name: "🔎📬 شروطك الثلاثة — رسالةٌ يوميّة (three_c
 # 📺 وأمرُه الرابع 2026-09-29 ليلًا (بعد انتهاء اشتراك Polygon): «المهم الاشعارات حقت الأدوات تكون مستمرة … البيانات تاخذها من
 #    ترندق فيو مب ياهو» ⇒ المصدرُ الافتراضيّ TradingView (`tv_data.py`: الماسح للفلوت وRSI المرجع · والمِقبس للشموع) بلا مفتاح ·
 #    ومُدخَلُ `source=polygon` = المسارُ السابق بت-بت (يلزمه `POLYGON_API_KEY` · باقٍ في scan للرجوع).
+# 🔄 تحديثٌ مؤرَّخ 2026-10-27 (أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى Polygon حيث كان» · `polygon_health` 40583402044 ✅):
+#    الكرونُ ومُدخَلُه الافتراضيّ صارا «polygon» = مسارُ ما قبل 09-29 · و«tv» يدويًّا = مسارُ TradingView كما هو.
 # ⏰ الكرون 01:43 UTC الثلاثاء-السبت = جلساتُ الاثنين-الجمعة — أمرُ المالك «قدّم كرون شروطك الثلاثة» (2026-09-30):
 #    كان 02:23 وتأخّرُ GitHub عنده 380-381 دقيقة (09-29/30) ⇒ الرسالةُ تصل ≈11:48 السعودية فيشغّلها المالكُ يدويًّا وتصله مرّتين.
 #    والتوقيتُ محسوبٌ بقفل TCD40 لا منصوص: ① بلا تأخّرٍ يبدأ بعد نهاية الأفتر شتاءً (01:00 UTC) + تأخّر بيانات TradingView
@@ -38,9 +40,9 @@ on:
         required: false
         default: ""
       source:
-        description: "مصدرُ البيانات: tv (TradingView · الافتراضيّ) أو polygon (المسارُ السابق · يلزمه اشتراك Polygon)"
+        description: "مصدرُ البيانات: polygon (الافتراضيّ منذ 2026-10-27 — الاشتراكُ عاد) أو tv (TradingView · مسارُ فترة الانقطاع)"
         required: false
-        default: "tv"
+        default: "polygon"
   schedule:
     - cron: "43 1 * * 2-6"
 
@@ -69,7 +71,9 @@ jobs:
         env:
           PYTHONUNBUFFERED: "1"
           TC_STAGE: scan
-          TC_SOURCE: ${{ github.event.inputs.source }}
+          # 🔄 (‏2026-10-27 · أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى Polygon حيث كان»): الكرونُ بلا مُدخَلات ⟵ «polygon» صراحةً
+          #    (كان فارغًا ⟵ افتراضُ الكود «tv» منذ 2026-09-29) · والمُدخَلُ اليدويّ «tv» = مسارُ TradingView كما هو (`TCD37`).
+          TC_SOURCE: ${{ github.event.inputs.source || 'polygon' }}
           TC_FORCE: ${{ github.event.inputs.force }}
           TC_TRACE: ${{ github.event.inputs.trace }}
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
