@@ -88315,7 +88315,7 @@ try:
                    and _R6.p3_days(_c3b, _h3e, _v3) == set())
     # ④ نافذةُ [D−5، D−1] · وموصولةٌ في pairs_symbol
     _pf = (_R6.pair_flags([{94}, {95}, {99}, {100}], 100))
-    _ast6 = _r6_ast.parse(inspect.getsource(_R6.pairs_symbol))
+    _ast6 = _r6_ast.parse(_insp0.getsource(_R6.pairs_symbol))
     _r6_c["window"] = (_pf == [0, 1, 1, 0] and any(getattr(n.func, "id", None) == "pair_flags" for n in _r6_ast.walk(_ast6)
                                                    if isinstance(n, _r6_ast.Call)))
     # ⑤ المسافتان (s = 25%) — RSI على D−1 والهبوطُ عن قمّة 252 قبل D
@@ -88461,7 +88461,7 @@ try:
     except ValueError:
         _r7_c["no_freeze"] = True
     _calls = {getattr(n.func, "id", None) or getattr(n.func, "attr", None)
-              for n in _r7_ast.walk(_r7_ast.parse(inspect.getsource(_R7.test_symbol))) if isinstance(n, _r7_ast.Call)}
+              for n in _r7_ast.walk(_r7_ast.parse(_insp0.getsource(_R7.test_symbol))) if isinstance(n, _r7_ast.Call)}
     _r7_c["wired"] = {"analyze_ticker", "post_scan", "frozen_score", "pair_flags", "base2_dist", "stop_outcome", "base2_fire",
                       "tested_level", "asof_factor"} <= _calls
     _off = dict(_R7.PROD_OFF)
