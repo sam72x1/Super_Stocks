@@ -87958,6 +87958,141 @@ except Exception as _e:                                              # noqa: BLE
 check("🧭 RBD0 (‏2026-10-28) عقدُ `T-REBUILD` مدموجٌ قبل أيّ رقم بت-بت: التقسيمُ الزمنيّ · التسويةُ بتاريخ القرار · BASE2 البار · "
       "المرساةُ تُقاس ولا تُشحَن · التنبّؤاتُ الستّ · ولا شحن · و`test` بلا تجميدٍ يخرج 9", _v_rb, _v_rbw)
 
+# 🧭 RBD3 (‏2026-10-28 · `T-REBUILD` §⑥ `bases`): الأساسُ **سلوكيًّا** — BASE2 (RSI **أقلّ من** 33 ∧ هبوطٌ ≥ 70% عن قمّة 252 · قبل D حصرًا) ·
+#    OWNER (RSI حتى J−1 ≤ 20 ∧ قفزةٌ يومَ J ∧ لا قفزةَ في [J−20، J−1]) · الحارسان بنافذتيهما · ومسارُ `scan_market` بعد `analyze_ticker` بالدوالّ
+#    الإنتاجيّة بالاسم (`apply_short_gate` نقصٌ لين · `apply_float_gate` صلبٌ والمجهولُ يمرّ · `classify_tier`) بلا شبكة · والأرقامُ الحيّة = استيرادٌ
+#    بـ`FAISAL_ONLY=1` · وقاعدةُ الاختيار §⑥ بشروطها الثلاثة · ولا TEST.
+try:
+    import importlib.util as _r3_iu
+    import os as _r3_os
+    import subprocess as _r3_sp
+    import sys as _r3_sys
+    import json as _r3_json
+    _r3_spec = _r3_iu.spec_from_file_location("t_rebuild_tool3", "fm_forensics/rebuild/rebuild.py")
+    _R3 = _r3_iu.module_from_spec(_r3_spec)
+    _r3_spec.loader.exec_module(_R3)
+    _r3_c = {}
+    # BASE2 · حدّا العقد بحرفهما ولا نظرَ للأمام
+    _n = 300
+    _h = [10.0] * _n
+    _cc = [3.0] * _n
+    _rs = [50.0] * _n
+    _rs[199] = 32.99
+    _b_yes = _R3.base2_fire(_rs, _cc, _h, 200)                       # 3/10 ⟵ هبوط 70% · RSI 32.99
+    _rs[199] = 33.0
+    _b_rsi = _R3.base2_fire(_rs, _cc, _h, 200)
+    _rs[199] = 32.99
+    _cc2 = list(_cc)
+    _cc2[199] = 3.001
+    _b_drop = _R3.base2_fire(_rs, _cc2, _h, 200)                      # هبوطٌ 69.99%
+    _cc3 = list(_cc)
+    _cc3[200] = 99.0
+    _h3 = list(_h)
+    _h3[200] = 500.0
+    _b_fut = _R3.base2_fire(_rs, _cc3, _h3, 200)                      # صفُّ D نفسُه لا يُقرأ
+    _b_fut2 = _R3.base2_fire(_rs, _cc2, _h3, 200)                     # قمّةُ D (500) لا تدخل القمّة
+    _r3_c["base2"] = (_b_yes, _b_rsi, _b_drop, _b_fut, _b_fut2) == (True, False, False, True, False)
+    # OWNER · القفزة · وأوّلُ قفزة
+    _c = [1.0] * 100
+    _v = [100.0] * 100
+    _c[60] = 1.2                                                      # قفزةُ إغلاقٍ ≥ 1.20 يومَ J=60 ⟵ D = 61
+    _rs = [50.0] * 100
+    _rs[59] = 20.0
+    _o_yes = _R3.owner_fire(_rs, _c, _v, 61)
+    _rs[59] = 20.01
+    _o_rsi = _R3.owner_fire(_rs, _c, _v, 61)
+    _rs[59] = 20.0
+    _v2 = list(_v)
+    _v2[45] = 300.0                                                   # قفزةُ حجمٍ (3×) في [J−20، J−1] ⟵ ليست الأولى
+    _o_prior = _R3.owner_fire(_rs, _c, _v2, 61)
+    _v3 = list(_v)
+    _v3[39] = 300.0                                                   # J−21 خارج النافذة
+    _o_far = _R3.owner_fire(_rs, _c, _v3, 61)
+    _jv = (_R3.jump_at([1.0] * 30 + [1.0], [100.0] * 30 + [299.0], 30), _R3.jump_at([1.0] * 30 + [1.0], [100.0] * 30 + [300.0], 30))
+    _r3_c["owner"] = (_o_yes, _o_rsi, _o_prior, _o_far, _jv) == (True, False, False, True, (False, True))
+    # الحارسان
+    _ds = [f"2024-{m:02d}-{d:02d}" for m in range(1, 13) for d in (1, 8, 15, 22)]
+    _i = _ds.index("2024-06-01")
+    _g = (_R3.row_guards(_ds, _i, "2024-06-01", ["2024-06-15"], [])[0],
+          _R3.row_guards(_ds, _i, "2024-06-01", ["2022-03-01"], [])[0],                      # D−800 يوم = 2022-03-24
+          _R3.row_guards(_ds, _i, "2024-06-01", [], [("2024-04-20", "2024-05-10")])[1],
+          _R3.row_guards(_ds, _i, "2024-06-01", [], [("2024-01-01", "2024-03-20")])[1],
+          _R3.row_guards(_ds, _i, "2024-06-01", [], [("2024-03-01", "2024-04-20")])[1],     # فجوةٌ تعبر بدايةَ النافذة ⟵ تُحتسب
+          _R3.row_guards(_ds, _i, "2024-06-01", ["2023-01-01"], [])[0])                   # داخل 800 يوم وخارج 60
+    _r3_c["guards"] = _g == (True, False, True, False, True, True)
+    # مسارُ الشريحة: analyze_ticker يرى شموعًا قبل D وحدَها **بمقياس D−1** (تقسيمٌ 1:10 بعد D)
+    import datetime as _r3_dt
+    _days = [(_r3_dt.date(2023, 1, 2) + _r3_dt.timedelta(k)).isoformat() for k in range(400)]
+    _rows = [(d, 2.0, 2.0, 2.0, 2.0, 1000.0) for d in _days]
+    _D = _days[300]
+    _cap = []
+    _keep_at, _cfg0 = S.analyze_ticker, dict(S.CONFIG)
+    try:
+        S.analyze_ticker = lambda sym, df: _cap.append((float(df["Close"].iloc[-1]), float(df["Volume"].iloc[-1]),
+                                                        df.index[-1].date().isoformat())) or None
+        _R3.shard_symbol("ZZZQ", _rows, [[_days[320], 0.1]], [_D], {_D: _days[299]}, {}, lambda s, d: None, S,
+                         (dict(S.CONFIG), dict(S.CONFIG)), 50.0, _R3._gen5_ext())
+    finally:
+        S.analyze_ticker = _keep_at
+        S.CONFIG.clear()
+        S.CONFIG.update(_cfg0)
+    _r3_c["shard_asof"] = (len(_cap) == 2 and all(abs(x[0] - 0.2) < 1e-9 and abs(x[1] - 10000.0) < 1e-6 and x[2] == _days[299]
+                                                   for x in _cap))
+    # مسارُ scan_market بعد analyze_ticker — بلا شبكة · والوحدةُ تُستعاد كما كانت
+    _keep = {k: getattr(S, k) for k in ("fintel_short", "finra_daily_short", "yf", "log", "time")}
+    try:
+        _R3.install_stubs(S)
+        _mx = int(S.CONFIG.get("WATCH_MAX_FAILS", 3))
+        _r = {"symbol": "ZZZQ", "soft_fails": ["x"] * _mx}
+        _lim, _flim = S.CONFIG["SHORT_GATE_MAX"], S.CONFIG["FLOAT_GATE_MAX"]
+        _ps = (_R3.post_scan(S, _r, _lim, None), _R3.post_scan(S, _r, _lim - 1, None),
+               _R3.post_scan(S, {"symbol": "ZZZQ", "soft_fails": []}, None, _flim),
+               _R3.post_scan(S, {"symbol": "ZZZQ", "soft_fails": []}, None, _flim - 1),
+               _R3.post_scan(S, {"symbol": "ZZZQ", "soft_fails": []}, None, None))
+        _r3_c["post_scan"] = _ps == (False, True, False, True, True) and _r["soft_fails"] == ["x"] * _mx
+    finally:
+        for _k, _vv in _keep.items():
+            setattr(S, _k, _vv)
+    _src3 = open("fm_forensics/rebuild/rebuild.py", encoding="utf-8").read()
+    _r3_c["post_scan_by_name"] = all(f"S.{n}(" in _src3 for n in ("apply_short_gate", "apply_float_gate", "classify_tier", "analyze_ticker"))
+    # الأرقامُ الحيّة = استيرادٌ بـ FAISAL_ONLY=1 · ولا تمسّ S.CONFIG
+    _before = dict(S.CONFIG)
+    _cur, _org = _R3.configs(S)
+    _p3 = _r3_sp.run([_r3_sys.executable, "-B", "-c",
+                      "import os,json;os.environ['FAISAL_ONLY']='1';import Super_stock as S;"
+                      "print('CFG '+json.dumps({k:v for k,v in S.CONFIG.items() if isinstance(v,(int,float,str,bool))}))"],
+                     capture_output=True, text=True, timeout=600, env={**_r3_os.environ, "FAISAL_ONLY": "1"})
+    _live = _r3_json.loads([ln for ln in _p3.stdout.splitlines() if ln.startswith("CFG ")][-1][4:])
+    _r3_c["live_config"] = (all(_cur.get(k) == v for k, v in _live.items()) and dict(S.CONFIG) == _before
+                            and _cur["FAISAL_ONLY"] == 1 and _cur != _org)
+    # قاعدةُ الاختيار §⑥ · ولا TEST
+    def _st(tr, va, bu):
+        return {"TRAIN": {"BASE2": {"share": 0.10}, "OWNER": {"share": tr}, "CURRENT": {"share": 0.0}, "ORIGINAL": {"share": 0.0}},
+                "VAL": {"BASE2": {"share": 0.10, "burden": 1.0}, "OWNER": {"share": va, "burden": bu},
+                        "CURRENT": {"share": 0.0, "burden": 1.0}, "ORIGINAL": {"share": 0.0, "burden": 1.0}}}
+    _cb = (_R3.choose_base(_st(0.2, 0.3, 0.4), {"OWNER": [0.01, 0.3]}), _R3.choose_base(_st(0.2, 0.3, 0.29), {"OWNER": [0.01, 0.3]}),
+           _R3.choose_base(_st(0.2, 0.3, 0.4), {"OWNER": [0.0, 0.3]}), _R3.choose_base(_st(0.1, 0.3, 0.4), {"OWNER": [0.01, 0.3]}))
+    _r3_c["choose"] = _cb == ("OWNER", "BASE2", "BASE2", "BASE2")
+    _sess = [f"2024-01-{d:02d}" for d in range(1, 31)]
+    _re = _R3.rule_entries({"A": [["2024-01-02", 1, 0, 0, 0, True], ["2024-01-05", 1, 0, 0, 0, False]]}, _sess, ("2024-01-04", "2024-01-30"), 0)
+    _r3_c["entries_warmup"] = _re == {}                               # انطلاقُ الإحماء يفتح النافذةَ ولا يُعَدّ
+    try:
+        _R3.mode_bases_shard("x", 0, 1, prep={"sessions": ["2024-12-31", "2025-01-02"]})
+        _r3_c["no_test"] = False
+    except ValueError:
+        _r3_c["no_test"] = True
+    try:
+        _R3.mode_bases_assemble(shards=[{"rows": {"A": [["2025-01-02", 1, 0, 0, 0, True]]}, "counts": {}}],
+                                prep={"sessions": ["2024-12-31"]})
+        _r3_c["no_test"] = False
+    except ValueError:
+        pass
+    _v_r3, _v_r3w = all(_r3_c.values()), f"{ {k: v for k, v in _r3_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r3, _v_r3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD3 (‏2026-10-28) `bases` سلوكيًّا: BASE2 وOWNER بحدّيهما وبلا نظرٍ للأمام · الحارسان · مسارُ الإنتاج بعد analyze_ticker بالاسم وبلا شبكة · "
+      "الأرقامُ الحيّة = FAISAL_ONLY=1 · قاعدةُ الاختيار · ولا TEST", _v_r3, _v_r3w)
+
 # 🧭 RBD1 (‏2026-10-28 · `T-REBUILD` §③ · §⑥ · §⑮): دوالُّ `fm_forensics/rebuild/rebuild.py` النقيّة **سلوكيًّا** — حارسُ الفجوة (أكثرُ من 15 يومًا حصرًا) وحارسُ GEN5 بالاسم · التسويةُ بتاريخ القرار
 #    (تقسيمٌ بعد D يُعاد · وقبله لا · والحجمُ معكوس · ولا صفَّ من D فصاعدًا) · الإدخالُ الجديد (20 جلسة) · المنفجرُ (أعلى High في 20 جلسة مقابل
 #    إغلاق D−1 · وناقصُ الجلسات None) · RSI قبل D حصرًا (تغييرُ D نفسِه لا يغيّره) · والوضعُ غيرُ المبنيّ يخرج 3 · وبلا عقدٍ 9 · ولا تلغرام ولا كتابةَ حالة.
