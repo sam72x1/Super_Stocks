@@ -72,10 +72,17 @@ jobs:
           python faisal_method_v41/analysis.py
           python faisal_method_v41/final_protocol.py write
           python faisal_method_v41/docs_v41.py
+          # 🧪 والمرحلةُ ب تُعاد معه (أمرُ المالك 2026-10-28 · V4PB1): تشغيلٌ بحالاتٍ جديدة بلا إعادتها جعل PHB1 أحمرَ على main (`960ad80`)
+          #    · وفشلُها لا يحجب قيدَ V4 — يُدفَع القيدُ ثمّ تحمرّ التشغيلة · وملفّاتُها تُضاف بعد نجاح write ثمّ check وحدَه.
+          pb=0
+          { python faisal_validation/phase_b.py write && python faisal_validation/phase_b.py check; } || pb=1
           git add faisal_method_v41/prospective_validation/ faisal_method_v41/results/analysis_v41.json faisal_method_v41/docs/ \
                   faisal_method_v41/final_protocol/
+          if [ "$pb" = 0 ]; then git add faisal_validation/; fi
           if git diff --cached --quiet; then
-            echo "لا قيدَ جديد — لا commit"; exit 0
+            echo "لا قيدَ جديد — لا commit"
+            if [ "$pb" != 0 ]; then echo "::error::⛔ إعادةُ بناء المرحلة ب فشلت (phase_b write/check)"; exit 1; fi
+            exit 0
           fi
           git commit -q -m "🧊 V4.1: قراراتُ V4 المجمَّد للحالات المختومة (run ${GITHUB_RUN_ID})"
           ok=0
@@ -87,6 +94,10 @@ jobs:
           done
           if [ "$ok" != 1 ]; then
             echo "::error::⛔ فشل دفع السجلّ بعد 5 محاولات"
+            exit 1
+          fi
+          if [ "$pb" != 0 ]; then
+            echo "::error::⛔ دُفع قيدُ V4 لكنّ إعادةَ بناء المرحلة ب فشلت (phase_b write/check) — PHB1 سيحمرّ على main"
             exit 1
           fi
 
