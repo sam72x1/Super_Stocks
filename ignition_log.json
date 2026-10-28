@@ -1729,5 +1729,23 @@
   "usd_eff": 5872,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "PTLE",
+  "date": "2026-10-28",
+  "sustain_min": 3,
+  "operator_ok": false,
+  "fired_ts_ms": 1793217475742,
+  "trigger_bar_ms": 1793217060000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-10-28T20:01:05Z",
+  "break_level": 9.33,
+  "price": 9.43,
+  "vol_x": 5.5,
+  "usd": 14588,
+  "candle_class": "group",
+  "usd_eff": 14588,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
