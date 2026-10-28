@@ -88063,8 +88063,15 @@ try:
                       "print('CFG '+json.dumps({k:v for k,v in S.CONFIG.items() if isinstance(v,(int,float,str,bool))}))"],
                      capture_output=True, text=True, timeout=600, env={**_r3_os.environ, "FAISAL_ONLY": "1"})
     _live = _r3_json.loads([ln for ln in _p3.stdout.splitlines() if ln.startswith("CFG ")][-1][4:])
-    _r3_c["live_config"] = (all(_cur.get(k) == v for k, v in _live.items()) and dict(S.CONFIG) == _before
-                            and _cur["FAISAL_ONLY"] == 1 and _cur != _org)
+    # جانبُ الشريحة كما تجري على الرنر: استيرادٌ نظيفٌ بـ FAISAL_ONLY=0 ثمّ `configs` (بمعزلٍ عمّا غيّرته أقفالٌ سابقة في `S.CONFIG`)
+    _p3b = _r3_sp.run([_r3_sys.executable, "-B", "-c",
+                       "import os,json,importlib.util as iu;os.environ['FAISAL_ONLY']='0';import Super_stock as S;"
+                       "sp=iu.spec_from_file_location('rbx','fm_forensics/rebuild/rebuild.py');R=iu.module_from_spec(sp);sp.loader.exec_module(R);"
+                       "cur,org=R.configs(S);"
+                       "print('CFG '+json.dumps({k:v for k,v in cur.items() if isinstance(v,(int,float,str,bool))}))"],
+                      capture_output=True, text=True, timeout=600, env={**_r3_os.environ, "FAISAL_ONLY": "0"})
+    _shard_cur = _r3_json.loads([ln for ln in _p3b.stdout.splitlines() if ln.startswith("CFG ")][-1][4:])
+    _r3_c["live_config"] = (_shard_cur == _live and dict(S.CONFIG) == _before and _cur["FAISAL_ONLY"] == 1 and _cur != _org)
     # قاعدةُ الاختيار §⑥ · ولا TEST
     def _st(tr, va, bu):
         return {"TRAIN": {"BASE2": {"share": 0.10}, "OWNER": {"share": tr}, "CURRENT": {"share": 0.0}, "ORIGINAL": {"share": 0.0}},
