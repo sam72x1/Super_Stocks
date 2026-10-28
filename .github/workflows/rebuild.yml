@@ -4,6 +4,7 @@ name: "🧭 T-REBUILD الجزء ب (قراءةٌ وقياس · يدويّ)"
 # `bases` = §⑥ على TRAIN والاختيارُ على VAL: prep ⟵ 20 شريحةً متوازية ⟵ assemble (ولا TEST).
 # `b3` = §⑦ الجردُ المقصوص بالملحق 2: 20 شريحةً ⟵ assemble (prep من `prep_run` · يرفض 9 بلا الملحق 2 ببصمته أو بلا نتيجة TEST في data/).
 # `test` = §⑩-§⑪ مرّةً واحدة: test_prep ⟵ 20 شريحة ⟵ assemble (يرفض 9 بلا تجميدٍ ببصمته · و7 إن وُجدت نتيجةٌ في data/).
+# `y26` = عقدُ 2026 `T_REBUILD_2026_prereg.md` مرّةً واحدة: y26_prep ⟵ 20 شريحة ⟵ assemble (يرفض 9 بلا العقد ببصمته أو بلا تجميدٍ أو بلا نتيجة TEST · و7 إن وُجدت نتيجتُه).
 # `shadow` = §⑫ B8 القائمةُ الظلّيّة لجلسةٍ قادمة بالدرجة المجمَّدة (ملفٌّ وتسجيل · بلا تلغرام · يرفض 9 بلا تجميدٍ أو بلا نتيجة TEST في data/).
 # `pairs` = §⑨ الأزواجُ ثمّ §⑧ الدرجةُ والتجميد بالملحق 1 على TRAIN وحدَه: prep تشغيلة `bases` نفسِها (`prep_run`) ⟵ 20 شريحة ⟵ assemble (ويرفض 9 بلا الملحق ببصمته).
 permissions:
@@ -13,9 +14,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "الوضع (المبنيّ: d0 · ready117 · bases · pairs · test · b3 · shadow)"
+        description: "الوضع (المبنيّ: d0 · ready117 · bases · pairs · test · b3 · shadow · y26)"
         type: choice
-        options: [d0, ready117, bases, pairs, test, b3, shadow]
+        options: [d0, ready117, bases, pairs, test, b3, shadow, y26]
         default: d0
       prep_run:
         description: "للأزواج: تشغيلةُ bases التي يُعاد منها prep (عضويّةٌ وتقسيماتٌ وFINRA بحرفها)"
@@ -28,7 +29,7 @@ on:
 
 jobs:
   rebuild:
-    if: github.event.inputs.mode != 'bases' && github.event.inputs.mode != 'pairs' && github.event.inputs.mode != 'test' && github.event.inputs.mode != 'b3'
+    if: github.event.inputs.mode != 'bases' && github.event.inputs.mode != 'pairs' && github.event.inputs.mode != 'test' && github.event.inputs.mode != 'b3' && github.event.inputs.mode != 'y26'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -373,6 +374,118 @@ jobs:
         with:
           name: rb-test-result
           path: fm_forensics/rebuild/out/test_result.json.gz
+          retention-days: 90
+
+  y26_prep:
+    if: github.event.inputs.mode == 'y26'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧭 عضويّةُ 2026 · التقسيمات · FINRA
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          REBUILD_MODE: y26_prep
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rebuild/rebuild.py
+
+      - name: Upload prep
+        uses: actions/upload-artifact@v4
+        with:
+          name: rb-y26-prep
+          path: fm_forensics/rebuild/out/y26_prep.json.gz
+          retention-days: 30
+
+  y26_shard:
+    needs: y26_prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 8               # لا يستنفد رنرات البوت الحيّة
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep
+        uses: actions/download-artifact@v4
+        with:
+          name: rb-y26-prep
+          path: fm_forensics/rebuild/out
+
+      - name: 🧭 شريحةُ 2026
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          REBUILD_MODE: y26_shard
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "20"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rebuild/rebuild.py
+
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: rb-y26-shard-${{ matrix.shard }}
+          path: fm_forensics/rebuild/out/y26_shard_*.json.gz
+          retention-days: 30
+
+  y26_assemble:
+    needs: y26_shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep and shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: rb-y26-*
+          path: fm_forensics/rebuild/out
+          merge-multiple: true
+
+      - name: 🧭 حكمُ 2026 · وقفُ القاع · الهبوطُ قبل +50%
+        env:
+          REBUILD_MODE: y26_assemble
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rebuild/rebuild.py
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: rb-y26-result
+          path: fm_forensics/rebuild/out/y26_result.json.gz
           retention-days: 90
 
   b3_shard:

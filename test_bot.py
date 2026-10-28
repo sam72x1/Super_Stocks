@@ -89107,6 +89107,215 @@ except Exception as _e:                                              # noqa: BLE
     _v_r14, _v_r14w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧭 RBD14 (‏2026-10-28) ملفّاتُ القائمة الظلّيّة أماميّةٌ ومجمَّدة: بُنيت قبل افتتاح جلستها · بصمةُ التجميد وθ · الدرجاتُ ≥ θ ومرتّبة · "
       "الجلسةُ = الاسم · حكمُ TEST · رقمُ التشغيلة وmain", _v_r14, _v_r14w)
+# 🧭 RBD16 (‏2026-10-29 · عقدُ 2026 `T-REBUILD-26` · `T_REBUILD_2026_prereg.md`): العقدُ ببصمته وثوابتُ الأداة **مستخرَجةٌ من نصّه** (النافذة · النصفان ·
+#    SP5 · حدودُ MAE) · وآخرُ D تكتمل بعده 20 جلسة حتى 2026-10-27 بالتقويم · و`mae_before` سلوكيًّا (متشائمٌ يضمّ يومَ τ · متفائلٌ قبله · صفرٌ إن τ = D) ·
+#    و`y26_symbol` = صفُّ `test_symbol` بحرفه ‏+ SP0 (`pivot_stability` بالاسم) ونتيجتا الوقف بـ`stop_outcome` وMAE · و`test_symbol` بلا `period_end` = TEST ·
+#    و`mode_y26_assemble` يحكم بنافذة 2026 ونصفيها ويعدّ وقفَ القاع والهبوطَ للقوائم الثلاث · و`main` يرفض 7 بنتيجةٍ و9 بلا بصمة العقد · والـworkflow.
+try:
+    import hashlib as _r16_hl
+    import importlib.util as _r16_iu
+    import os as _r16_os
+    import random as _r16_rnd
+    import re as _r16_re
+    import tempfile as _r16_tf
+    import market_calendar as _r16_mc
+    import yaml as _r16_yaml
+    import numpy as _r16_np
+    _r16_spec = _r16_iu.spec_from_file_location("t_rebuild_tool16", "fm_forensics/rebuild/rebuild.py")
+    _R16 = _r16_iu.module_from_spec(_r16_spec)
+    _r16_spec.loader.exec_module(_R16)
+    _r16_doc = open(_R16.Y26_CONTRACT, encoding="utf-8").read()
+    _r16_c = {}
+    # ① العقدُ وثوابتُه من نصّه
+    _m = _r16_re.search(r"من \*\*(\d{4}-\d\d-\d\d)\*\* إلى \*\*(\d{4}-\d\d-\d\d)\*\*", _r16_doc)
+    _h = _r16_re.findall(r"H[12] = (\d{4}-\d\d-\d\d) … (\d{4}-\d\d-\d\d)", _r16_doc)
+    _r16_c["pin"] = _r16_hl.sha256(open(_R16.Y26_CONTRACT, "rb").read()).hexdigest() == _R16.Y26_SHA and _R16.y26_ok()
+    _r16_c["window"] = bool(_m) and (_m.group(1), _m.group(2)) == _R16.Y26 and tuple(_h) == _R16.Y26_HALVES
+    _r16_c["consts"] = ("**SP5 = 0.95 × SP0**" in _r16_doc and _R16.STOP_S5 == 0.95 and "−10% · −20% · −30% · −50%" in _r16_doc
+                        and _R16.Y26_MAE_CUTS == (10, 20, 30, 50) and all(f"- **RB26-P{k}:**" in _r16_doc for k in (1, 2, 3)))
+    _ss26 = _R16.sessions_between(_R16.Y26[1], "2026-10-27", _r16_mc)
+    _nx26 = _R16.sessions_between(_R16.Y26[1], "2026-11-30", _r16_mc)[1]
+    _r16_c["last_D"] = len(_ss26) == 20 and len(_R16.sessions_between(_nx26, "2026-10-27", _r16_mc)) == 19
+    # ② mae_before
+    _base = [("d0", 10, 10, 10, 10.0, 1)]
+
+    def _path(hl):
+        return _base + [(f"d{k + 1}", 0, hh, ll, (hh + ll) / 2, 1) for k, (hh, ll) in enumerate(hl)] + [("z", 0, 10, 10, 10, 1)] * 25
+    _r16_c["mae"] = (_R16.mae_before(_path([(11, 9), (12, 8.5), (15.5, 8)]), 1, 50) == [-0.2, -0.15, 1]
+                     and _R16.mae_before(_path([(16, 9.5)]), 1, 50) == [-0.05, 0.0, 1]
+                     and _R16.mae_before(_path([(14, 7)] + [(12, 9)] * 19), 1, 50) == [-0.3, -0.3, 0]
+                     and _R16.mae_before(_base + [("d1", 0, 20, 9, 9, 1)] * 5, 1, 50) is None)
+    # ③ y26_symbol = test_symbol بحرفه ‏+ الأعمدة السبعة · و test_symbol بلا period_end = TEST
+    _fz16 = _R16.freeze_load()
+    _ss16 = _R16.sessions_between("2024-01-02", "2025-06-30", _r16_mc)
+    _G16 = _R16._gen5_ext()
+
+    def _walk16(seed):
+        rng = _r16_rnd.Random(seed)
+        cc, out = 10.0, []
+        for k, s_ in enumerate(_ss16):
+            r = rng.gauss(-0.004 if k < len(_ss16) - 170 else rng.choice([-0.012, -0.02, 0.002]), 0.05)
+            if rng.random() < 0.02:
+                r += rng.choice([0.4, -0.3])
+            cc = max(0.05, cc * (1 + r))
+            out.append((s_, cc, cc * (1 + abs(rng.gauss(0, 0.03))), cc * (1 - abs(rng.gauss(0, 0.03))), cc, 1e5 * (1 + 5 * (rng.random() < 0.05))))
+        return out
+    _live16, _ = _R16.configs(S)
+    _cfg16 = dict(S.CONFIG)
+    _keep16 = {k: getattr(S, k) for k in ("fintel_short", "finra_daily_short", "yf", "log", "time")}
+    _R16.install_stubs(S)
+    _prev16 = {d: _ss16[_ss16.index(d) - 1] for d in _ss16[1:]}
+    _eq16, _n16, _def16 = [], 0, []
+    try:
+        for _sd, _win in ((2, ("2025-02-20", "2025-03-20")), (58, ("2025-03-05", "2025-04-30")), (103, ("2025-01-02", "2025-01-31"))):
+            _rw = _walk16(_sd)
+            _wd = [d for d in _ss16 if _win[0] <= d <= _win[1]]
+            _mem = _ss16[_ss16.index(_wd[0]) - 21: _ss16.index(_wd[-1]) + 1]
+            _args = (f"S{_sd}", _rw, None, _mem, _ss16, _prev16, {}, lambda a, b: None, S, _live16, float(_live16["EXPLOSION_PCT"]), _G16, _fz16)
+            _t9 = _R16.test_symbol(*_args, period_end=_R16.Y26[1])
+            _y = _R16.y26_symbol(*_args)
+            _def16.append(_R16.test_symbol(*_args) == _R16.test_symbol(*_args, period_end=_R16.TEST[1]))
+            _dd = [x[0] for x in _rw]
+            _lo = _r16_np.array([x[3] for x in _rw], dtype=float)
+            _cl = _r16_np.array([x[4] for x in _rw], dtype=float)
+            _ok = len(_y) == len(_t9) and len(_y) > 0
+            for _a, _b in zip(_t9, _y):
+                _i = _dd.index(_b[1])
+                _p = float(S.pivot_stability(_lo[:_i], _cl[:_i])["pivot"])
+                _ok = _ok and (_b[:9] == list(_a) and len(_b) == 16 and abs(_b[9] - _p) < 1e-12
+                               and _b[10] == _R16.stop_outcome(_rw, _i, _p, 50.0) and _b[11] == _R16.stop_outcome(_rw, _i, _p * 0.95, 50.0)
+                               and _b[13:16] == (_R16.mae_before(_rw, _i, 50.0) or [None, None, None]))
+            _n16 += len(_y)
+            _eq16.append(_ok)
+        # ③-ب نافذةٌ في 2026 (‏`period_end` حقًّا): y26 يرى 2026 وTEST بافتراضه لا يراها · و`mode_test_shard(run=Y26_RUN)` = `y26_symbol`
+        _ssY = _R16.sessions_between("2024-01-02", "2026-06-30", _r16_mc)
+        _rngY = _r16_rnd.Random(11)
+        _ccY, _rwY = 10.0, []
+        for _k, _s in enumerate(_ssY):
+            _r = _rngY.gauss(-0.004 if _k < len(_ssY) - 170 else _rngY.choice([-0.012, -0.02, 0.002]), 0.05)
+            if _rngY.random() < 0.02:
+                _r += _rngY.choice([0.4, -0.3])
+            _ccY = max(0.05, _ccY * (1 + _r))
+            _rwY.append((_s, _ccY, _ccY * (1 + abs(_rngY.gauss(0, 0.03))), _ccY * (1 - abs(_rngY.gauss(0, 0.03))), _ccY,
+                         1e5 * (1 + 5 * (_rngY.random() < 0.05))))
+        _prevY = {d: _ssY[_ssY.index(d) - 1] for d in _ssY[1:]}
+        _wY = [d for d in _ssY if "2026-02-02" <= d <= "2026-04-30"]
+        _memY = _ssY[_ssY.index(_wY[0]) - 21: _ssY.index(_wY[-1]) + 1]
+        _aY = ("S11", _rwY, None, _memY, _ssY, _prevY, {}, lambda a, b: None, S, _live16, 50.0, _G16, _fz16)
+        _yY = _R16.y26_symbol(*_aY)
+        _tY = _R16.test_symbol(*_aY)
+        _mY = sorted({d[:7] for d in _ssY if d >= "2025-12-01"})
+        _prepY = {"union": ["S11"], "snapshots": {m: ["S11"] for m in _mY}, "sessions": [d for d in _ssY if d >= "2025-12-01"],
+                  "prev_of": _prevY, "finra": {}, "splits": {}}
+        _shY = _R16.mode_test_shard("k", 0, 1, fetch_bars=lambda s_: _rwY, fetch_proxy=lambda s_, d_: None, prep=_prepY, fz=_fz16, run=_R16.Y26_RUN)
+        _memS = [d for d in _prepY["sessions"]]
+        _y2 = _R16.y26_symbol("S11", _rwY, None, _memS, _prepY["sessions"], _prevY, {}, lambda a, b: None, S, _live16, 50.0, _G16, _fz16)
+        _shT = _R16.mode_test_shard("k", 0, 1, fetch_bars=lambda s_: _rwY, fetch_proxy=lambda s_, d_: None, prep=_prepY, fz=_fz16)
+        _r16_c["y26_2026"] = (sum(1 for r in _yY if r[1] >= _R16.Y26[0]) >= 30 and not any(r[1] >= _R16.Y26[0] for r in _tY)
+                              and [r[:9] for r in _yY] == [list(r) for r in _R16.test_symbol(*_aY, period_end=_R16.Y26[1])])
+        # ③-د مسارٌ مصنوع يفرّق SP5 عن غيره: القاعُ 9.9 · يومُ D يلمس 9.3 (بين 0.90 و0.95 من القاع) ثمّ ‏+50% في D+1
+        _sdD = _R16.sessions_between("2026-01-02", "2026-04-30", _r16_mc)
+        _rwD = [(d, 10.0, 10.05, 9.9, 10.0, 1e5) for d in _sdD[:40]] + [(_sdD[40], 10.0, 10.5, 9.3, 10.0, 1e5), (_sdD[41], 10.0, 16.0, 10.0, 15.5, 1e5)]
+        _rwD += [(d, 15.0, 15.2, 14.8, 15.0, 1e5) for d in _sdD[42:70]]
+        _orig_ts = _R16.test_symbol
+        try:
+            _R16.test_symbol = lambda *a, **k: [["Q", _sdD[40], True, 1, 0, 0, None, None, None]]
+            _yD = _R16.y26_symbol("Q", _rwD, None, [], _sdD, {}, {}, lambda a, b: None, S, _live16, 50.0, _G16, _fz16)
+        finally:
+            _R16.test_symbol = _orig_ts
+        _r16_c["sp_crafted"] = (len(_yD) == 1 and abs(_yD[0][9] - 9.9) < 1e-12 and _yD[0][10] is False and _yD[0][11] is False
+                                and abs(_yD[0][12] - round(10.0 / 9.9 - 1, 6)) < 1e-12 and _yD[0][13:16] == [-0.07, -0.07, 1])
+        _r16_c["shard_run"] = (_shY["rows"] == _y2 and len(_y2) > 0 and all(len(r) == 16 for r in _shY["rows"])
+                               and all(len(r) == 9 for r in _shT["rows"]) and not any(r[1] > _R16.TEST[1] for r in _shT["rows"]))
+    finally:
+        S.CONFIG.clear()
+        S.CONFIG.update(_cfg16)
+        for _k, _vv in _keep16.items():
+            setattr(S, _k, _vv)
+    _r16_c["y26_symbol"] = bool(_eq16) and all(_eq16) and _n16 >= 3 and float(_live16["EXPLOSION_PCT"]) == 50.0
+    _r16_c["test_default"] = bool(_def16) and all(_def16)
+    # ③-ج prep 2026 بمعاملاته · ومدى الشموع يغطّي 800 يومٍ قبل الإحماء حتى 2026-10-27 · والشريحةُ تجلب بمدى الـrun
+    import ast as _r16_ast
+    import datetime as _r16_dt
+    _pk = []
+    _orig_bp = _R16.mode_bases_prep
+    try:
+        _R16.mode_bases_prep = lambda *a, **k: (_pk.append((a, k)), {})[1]
+        _R16.mode_y26_prep("k")
+    finally:
+        _R16.mode_bases_prep = _orig_bp
+    _pd = [c for c in _r16_ast.walk(_r16_ast.parse(_insp0.getsource(_R16.mode_test_shard))) if isinstance(c, _r16_ast.Call)
+           and getattr(c.func, "attr", None) == "polygon_daily"]
+    _r16_c["prep_bars"] = (len(_pk) == 1 and _pk[0][1] == {"months": [(2025, 12)] + [(2026, m) for m in range(1, 10)], "sess_from": _R16.Y26_WARM,
+                                                          "sess_to": _R16.Y26[1], "all_from": "2025-11-01", "out": "y26_prep.json.gz",
+                                                          "tag": "y26_prep", "splits_range": _R16.Y26_BARS}
+                           and _R16.Y26_BARS[1] == "2026-10-27"
+                           and (_r16_dt.date.fromisoformat(_R16.Y26_WARM) - _r16_dt.timedelta(_R16.HISTORY_DAYS)).isoformat() >= _R16.Y26_BARS[0]
+                           and len(_pd) == 1 and [_r16_ast.unparse(x) for x in _pd[0].args[1:3]] == ["run['bars'][0]", "run['bars'][1]"])
+    # ④ التجميع: نافذةُ 2026 ونصفاها · وقفُ القاع والهبوط للقوائم الثلاث
+    _ys = _R16.sessions_between("2025-12-01", _R16.Y26[1], _r16_mc)
+
+    def _row(sym, d, y, b2, cur, new, sp0o, sp5o, pess, ex, sp0=1.0):
+        return [sym, d, y, b2, cur, new, 0.5 if new else None, None, None, sp0, sp0o, sp5o, 0.25, pess, pess / 2, ex]
+    _rows16 = [_row("A", "2026-02-02", 1, 1, 0, 1, True, True, -0.12, 1), _row("B", "2026-06-01", 0, 1, 1, 1, False, False, -0.4, 0),
+               _row("C", "2025-12-15", 1, 1, 1, 1, True, True, -0.5, 1), _row("D", "2026-03-02", 1, 1, 1, 0, False, True, -0.35, 1),
+               _row("E", "2026-07-01", 1, 1, 0, 1, None, None, -0.2, 0, sp0=None)]          # بلا قاع · ووسمٌ يخالف علمَ MAE
+    _fzA = {"sha": "x", "theta": 0.3}
+    _as = _R16.mode_y26_assemble(shards=[{"nshards": 1, "freeze_sha": "x", "bars_diag": {"ok": 4}, "rows": _rows16}],
+                                 prep={"sessions": _ys}, fz=_fzA)
+    _r16_c["assemble"] = (_as["stats"]["NEW"]["entries"] == 3 and _as["stats"]["BASE2"]["entries"] == 4 and _as["stats"]["CURRENT"]["entries"] == 2
+                          and _as["sessions"] == len([d for d in _ys if d >= _R16.Y26[0]]) and _as["branch"] == 4
+                          and _as["halves_diff"] == [0.0, 0.0] and _as["pivot_stops"]["NEW"]["SP0"]["hit50_first"] == 1
+                          and _as["pivot_stops"]["BASE2"]["SP5"]["hit50_first"] == 2 and _as["mae"]["NEW"]["exploded_n"] == 1
+                          and _as["mae"]["NEW"]["pess_le"]["10"]["hit"] == 1 and _as["mae"]["NEW"]["pess_le"]["20"]["hit"] == 0
+                          and _as["mae"]["BASE2"]["pess_le"]["30"]["hit"] == 1 and _as["mae"]["NEW"]["label_mismatch"] == 1 and _as["mae"]["CURRENT"]["label_mismatch"] == 0
+                          and _as["pivot_stops"]["NEW"]["no_pivot"] == 1 and _as["pivot_stops"]["CURRENT"]["no_pivot"] == 0
+                          and _as["contract_sha"] == _R16.Y26_SHA and _as["production_off"] == [list(x) for x in _R16.PROD_OFF])
+    # ⑤ main: 7 بنتيجةٍ موجودة · 9 بلا بصمة العقد · ولا شيءَ يُجلب أو يُكتب
+    _td16 = _r16_tf.mkdtemp(prefix="rbd16_")
+    _orig16 = (_R16.Y26_RESULT_GLOB, _R16.Y26_SHA, _R16.mode_y26_prep, _R16.mode_y26_assemble, _R16._jdump)
+    _env16 = {k: _r16_os.environ.get(k) for k in ("REBUILD_MODE", "POLYGON_API_KEY")}
+    _calls16, _rc16 = [], []
+    try:
+        _R16.mode_y26_prep = lambda *a, **k: (_calls16.append("prep"), {})[1]
+        _R16.mode_y26_assemble = lambda *a, **k: (_calls16.append("asm"), {})[1]
+        _R16._jdump = lambda *a, **k: _calls16.append("dump")
+        _r16_os.environ["POLYGON_API_KEY"] = "x"
+        _R16.Y26_RESULT_GLOB = _r16_os.path.join(_td16, "y26_result_*.json")
+        with open(_r16_os.path.join(_td16, "y26_result_2026-10-29.json"), "w") as _fh:
+            _fh.write("{}")
+        for _md in ("y26_prep", "y26_assemble"):
+            _r16_os.environ["REBUILD_MODE"] = _md
+            _rc16.append(_R16.main())
+        _r16_os.remove(_r16_os.path.join(_td16, "y26_result_2026-10-29.json"))
+        _R16.Y26_SHA = "0" * 64
+        _r16_os.environ["REBUILD_MODE"] = "y26_prep"
+        _rc16.append(_R16.main())
+    finally:
+        _R16.Y26_RESULT_GLOB, _R16.Y26_SHA, _R16.mode_y26_prep, _R16.mode_y26_assemble, _R16._jdump = _orig16
+        for _k, _v in _env16.items():
+            if _v is None:
+                _r16_os.environ.pop(_k, None)
+            else:
+                _r16_os.environ[_k] = _v
+        for _f in _r16_os.listdir(_td16):
+            _r16_os.remove(_r16_os.path.join(_td16, _f))
+        _r16_os.rmdir(_td16)
+    _r16_c["main_guards"] = _rc16 == [7, 7, 9] and not _calls16
+    # ⑥ الـworkflow
+    _wf16 = _r16_yaml.safe_load(open(".github/workflows/rebuild.yml", encoding="utf-8"))
+    _jb = _wf16.get("jobs") or {}
+    _modes16 = {j: [st.get("env", {}).get("REBUILD_MODE") for st in (_jb.get(j) or {}).get("steps", []) if st.get("env")]
+                for j in ("y26_prep", "y26_shard", "y26_assemble")}
+    _r16_c["workflow"] = ("y26" in (_wf16.get("on") or _wf16.get(True))["workflow_dispatch"]["inputs"]["mode"]["options"]
+                          and _modes16 == {"y26_prep": ["y26_prep"], "y26_shard": ["y26_shard"], "y26_assemble": ["y26_assemble"]}
+                          and (_wf16.get("permissions") or {}) == {"contents": "read"}
+                          and "'y26'" in _jb["rebuild"]["if"] and _jb["y26_prep"]["if"] == "github.event.inputs.mode == 'y26'")
+    _v_r16, _v_r16w = all(_r16_c.values()), f"{ {k: v for k, v in _r16_c.items() if not v} or 'كلّها'} · صفوف={_n16}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r16, _v_r16w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD16 (‏2026-10-29) عقدُ 2026: البصمة · الثوابتُ من نصّه · آخرُ D بالتقويم · mae_before · y26_symbol = صفُّ TEST ‏+ وقفُ القاع وMAE · "
+      "التجميعُ بنافذة 2026 ونصفيها · رفضُ 7 و9 · والـworkflow", _v_r16, _v_r16w)
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
