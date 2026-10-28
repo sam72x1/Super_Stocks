@@ -5999,6 +5999,14 @@
      "why": "IMPLEMENTATION",
      "note": "persistence and scheduling of the T-BORROW-FALL follow-up harvester (git_save · session horizon · pool seeds · UTC instants); the gate BORROW_AVAIL_MAX is neither measured nor changed"
     }
+   },
+   {
+    "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+    "default": {
+     "class": "NOT_GATE_EVIDENCE",
+     "why": "INCIDENTAL",
+     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
+    }
    }
   ]
  }

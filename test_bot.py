@@ -89068,6 +89068,34 @@ except Exception as _e:                                              # noqa: BLE
 check("📈 VWM4 (‏2026-10-28) ملحقُ `T-VWAP-MOM` رقم 1 مثبّتٌ قبل أيّ عائد: الكسرُ الصاعد (تحت ⟵ فوق ⟵ 3 إغلاقات أو 15 دقيقة) · والمجتمعُ أحداثُ "
       "الكسر على الكون كلّه بالسعر والدرجة · وE محذوفة · ودفترُ الإنفوغراف بوسومه", _v_v4, _v_v4w)
 
+# 📈 VWM5 (‏2026-10-28 · جدوى v2 `40722466274`): النتيجةُ منشورةٌ كما صدرت — جدولُ الوسيط في `vwap_mom_feas_v2_result.md` يطابق الـJSON رقمًا رقمًا ·
+#    والوسيطُ في الـJSON يُعاد من `per_day` · و`D_MIN` لا شيء · وP1 ❌ منشور · وB بلا يومٍ H ∧ L فيه يفوق H · وC ‏2 من 60.
+try:
+    import json as _v5_j
+    import statistics as _v5_st
+    _v5_r = _v5_j.load(open("vwap_mom_feas_v2_2026-09.json", encoding="utf-8"))
+    _v5_doc = open("vwap_mom_feas_v2_result.md", encoding="utf-8").read()
+    _v5_pd = _v5_r["per_day"]
+    _v5_med_ok = all(_v5_st.median(v[f"{a}@{d}"][k] for v in _v5_pd.values()) == _v5_r["median_by_dmin"][a][str(d)][k]
+                     for a in "AB" for d in _v5_r["d_ladder"] for k in ("H", "HL"))
+    _v5_rows = {d: f"| {lab} | {_v5_r['median_by_dmin']['A'][str(d)]['H']:,} | {_v5_r['median_by_dmin']['A'][str(d)]['HL']:,} | "
+                   f"{_v5_r['median_by_dmin']['B'][str(d)]['H']:,} | {_v5_r['median_by_dmin']['B'][str(d)]['HL']:,} |"
+                for d, lab in zip(_v5_r["d_ladder"], ("250k", "500k", "1M", "2M", "5M"))}
+    _v5_c = {
+        "medians_from_per_day": _v5_med_ok and len(_v5_pd) == 21,
+        "doc_table": all(r.replace(".0", "") in _v5_doc.replace(".0 |", " |") for r in _v5_rows.values()),
+        "no_pick": _v5_r["D_MIN_pick_by_rule"] is None and "**`D_MIN` = لا شيء**" in _v5_doc,
+        "p1_wrong": "**P1 (v1):**" in _v5_doc and "❌ **سقط كما نُشر**" in _v5_doc,
+        "b_fixed": not any(v[f"B@{d}"]["HL"] > v[f"B@{d}"]["H"] for v in _v5_pd.values() for d in _v5_r["d_ladder"]),
+        "c_cov": _v5_r["C_coverage"]["with_news"] == 2 and _v5_r["C_coverage"]["sample"] == 60 and "خبرٌ في النافذة **2 من 60**" in _v5_doc,
+        "run": _v5_r.get("run") == 40722466274 and "40722466274" in _v5_doc,
+    }
+    _v_v5, _v_v5w = all(_v5_c.values()), f"{ {k: v for k, v in _v5_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_v5, _v_v5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈 VWM5 (‏2026-10-28) جدوى v2 منشورةٌ كما صدرت: الجدولُ = الـJSON · الوسيطُ من `per_day` · `D_MIN` لا شيء · P1 ❌ · B مصلَّحة · C ‏2 من 60",
+      _v_v5, _v_v5w)
+
 # H6L1 — amendment 5 (m1-m5 · m7): الوصولُ المتأخّر لا يُسقط الأهليّة — ختمُ الجامع الآليّ ‏+ جمعٌ بعد الوصول ‏+ ضوابطُ من نافذة القرار ·
 #   وA/C (اللقطة) على الوحدات في وقتها وحدَها · وB/D للجميع · وبلا ختمٍ أو قبل T أو بلا جمعٍ أو بلا لوحة كلٌّ برمزه · والمسارُ في وقته بت-بت
 try:
