@@ -88897,6 +88897,79 @@ except Exception as _e:                                              # noqa: BLE
 check("📈 VWM2 (‏2026-10-28) جدوى `T-VWAP-MOM` عدٌّ بلا عائد: VWAP · الثبات · السيولة · أعلى 20 · RSI · الدفتر · قاعدةُ الاختيار "
       "سلوكيًّا · والسبتُ ليس جلسة · ولا اسمَ عائدٍ في الملفّ · والـworkflow يدويٌّ قارئ", _v_vf2, _v_vf2w)
 
+# H6L1 — amendment 5 (m1-m5 · m7): الوصولُ المتأخّر لا يُسقط الأهليّة — ختمُ الجامع الآليّ ‏+ جمعٌ بعد الوصول ‏+ ضوابطُ من نافذة القرار ·
+#   وA/C (اللقطة) على الوحدات في وقتها وحدَها · وB/D للجميع · وبلا ختمٍ أو قبل T أو بلا جمعٍ أو بلا لوحة كلٌّ برمزه · والمسارُ في وقته بت-بت
+try:
+    def _l1_late(cid, sym, T, stamp, rows_day=None, rows_true=True):
+        rows = []
+        if rows_day:
+            for f, src, val in (("public_float", "yahoo_info", 1_000_000 if rows_true else 50_000_000), ("borrow_available", "chartexchange", 100),
+                                ("identity", "sec_submissions", "{}")):
+                rows.append(_h6_row(sym, f, src, val, rows_day))
+            rows.append(_h6_row(sym, "reverse_split", "yahoo_splits", "{}", rows_day, "2026-09-20", 2))
+        return dict(case=dict(CASE_ID=cid, SYMBOL=sym, DECISION_DATE=T, SAMPLE="PRIMARY", INTAKE_CLASS="NEW_PROSPECTIVE", FAISAL=dict(label="WATCH")),
+                    img=dict(id=f"TG_{sym}", symbol=sym, decision_date=T, decision_date_max=None, faisal_author=True), rows=rows, stamp=stamp)
+    _l1_x = [_l1_late("L_OK", "LOK", "2026-10-13", "2026-10-27T13:00:00Z", "2026-10-28"),
+             _l1_late("L_NOSTAMP", "LNS", "2026-10-13", None, "2026-10-28"),
+             _l1_late("L_EARLY", "LER", "2026-10-13", "2026-10-10T09:00:00Z", "2026-10-28"),
+             _l1_late("L_WAIT", "LWT", "2026-10-13", "2026-10-29T09:00:00Z", None),
+             _l1_late("L_NOPANEL", "LNP", "2026-10-21", "2026-10-29T09:00:00Z", "2026-10-30"),
+             _l1_late("L_PRE", "LPR", "2026-10-13", "2026-10-27T09:00:00Z", "2026-10-26")]          # جُمع قبل الوصول وحدَه ⟵ ينتظر
+    _l1_root, _l1_rows, _l1_panel = _h6_world(3, extra_cases=_l1_x)
+    with open(_h6os.path.join(_l1_root, "telegram_collect_meta.jsonl"), "w", encoding="utf-8") as _f:
+        for _c in _l1_x:
+            if _c["stamp"]:
+                _f.write(_h6json.dumps(dict(kind="photo", status="saved", saved_name=f"TG_{_c['case']['SYMBOL']}.jpg", date=_c["stamp"],
+                                            collected_utc=_c["stamp"])) + "\n")
+    with _h6ctx.redirect_stdout(_h6io.StringIO()):
+        _l1_st, _l1_units, _l1_ix = H6.build_status("2026-10-30", root=_l1_root, ledger_rows=_l1_rows, panel=_l1_panel, now="2026-10-30T12:00:00Z")
+    _l1_it = {e["case_id"]: e for e in _l1_st["items"]}
+    _l1_u = {u["case_id"]: u for u in _l1_units}
+    _l1_ok = _l1_u.get("L_OK", {})
+    # m7: old behaviour = the same call without stamps (on-time cases bit-identical)
+    _l1_case = next(c["case"] for c in _l1_x if c["case"]["CASE_ID"] == "L_OK")
+    _l1_anns = H6.load_annotations(_l1_root)
+    _l1_noarr = H6.eligibility(_l1_case, _l1_anns, {}, _l1_ix, _l1_panel, [], today="2026-10-30")
+    _l1_on = [e for e in _l1_st["items"] if not str(e["case_id"]).startswith("L_")]
+    _l1_c = {
+        "late_ok": _l1_it["L_OK"]["status"] == "ELIGIBLE_LATE" and _l1_ok.get("late") is True and _l1_ok.get("C") == "2026-10-28"
+                   and _l1_ok.get("panel_day") == "2026-10-13" and _l1_ok.get("controls") == ["K000", "K001", "K002", "K003"],
+        "no_stamp": (_l1_it["L_NOSTAMP"]["status"], _l1_it["L_NOSTAMP"]["code"]) == ("NOT_COVERED", "E5:no_collection_within_5_sessions"),
+        "before_T": (_l1_it["L_EARLY"]["status"], _l1_it["L_EARLY"]["code"]) == ("INELIGIBLE", "E1:date_ambiguous"),
+        "awaiting": _l1_it["L_WAIT"]["status"] == "PENDING_COLLECTION" and _l1_it["L_WAIT"]["code"].startswith("E5L:arrived_2026-10-29")
+                    and _l1_it["L_PRE"]["status"] == "PENDING_COLLECTION",
+        "no_panel": (_l1_it["L_NOPANEL"]["status"], _l1_it["L_NOPANEL"]["code"]) == ("NO_CONTROLS", "E6:no_panel_day_in_decision_window"),
+        "units": _l1_st["eligible"] == 4 and _l1_st["late_units"] == 1,
+        "families": _l1_st["families"]["A_float"]["units"] == 3 and _l1_st["families"]["C_borrow"]["units"] == 3
+                    and _l1_st["families"]["B_offering"]["units"] == 4 and _l1_st["families"]["D_split"]["units"] == 4
+                    and len(H6.effect_rows(_l1_units, _l1_ix, "A_float")) == 3 and len(H6.effect_rows(_l1_units, _l1_ix, "D_split")) == 4,
+        "old_path": (_l1_noarr["status"], _l1_noarr["code"]) == ("NOT_COVERED", "E5:no_collection_within_5_sessions"),
+        "on_time_same": all(e["status"] == "ELIGIBLE" for e in _l1_on) and len(_l1_on) == 3,
+    }
+    _h6l1, _h6l1_w = all(_l1_c.values()), f"{_l1_c} · L_OK={ {k: _l1_ok.get(k) for k in ('C', 'panel_day', 'controls')} }"
+except Exception as _e:                                                    # noqa: BLE001
+    _h6l1, _h6l1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔧 H6L1 (تعديل 5) الوصولُ المتأخّر: ختمُ الجامع الآليّ ‏+ جمعٌ بعد الوصول ⟵ `ELIGIBLE_LATE` بضوابط لوحة نافذة القرار · "
+      "وA/C في وقتها وحدَها وB/D للجميع · وبلا ختمٍ/قبل T/بلا جمعٍ/بلا لوحةٍ كلٌّ برمزه · والمسارُ في وقته وبلا أختامٍ بت-بت",
+      _h6l1, _h6l1_w[:500])
+
+# H6L2 — amendment 5 m6 (تشديد): «في وقتها وحدَها» بإشارةٍ معاكسة (5 فأكثر) يُسقط SUPPORTED · وتحليلُ كلّ عائلةٍ يحمل سطرَه دائمًا
+try:
+    import ast as _l2_ast
+    _l2_f = H6.late_selection_conflict
+    _l2_fn = {n.name: n for n in _l2_ast.walk(_l2_ast.parse(open(H6.__file__, encoding="utf-8").read())) if isinstance(n, _l2_ast.FunctionDef)}
+    _l2_an = _l2_ast.unparse(_l2_fn["analyze"])
+    _h6l2 = (_l2_f(dict(n_units=5, effect=-0.01)) is True and _l2_f(dict(n_units=4, effect=-0.5)) is False
+             and _l2_f(dict(n_units=9, effect=0.2)) is False and _l2_f(dict(n_units=9, effect=0.0)) is False and _l2_f(None) is False
+             and H6.LATE_SIGN_MIN == 5
+             and "late_selection_conflict(s_on)" in _l2_an and "'UNSUPPORTED (late-selection conflict)'" in _l2_an
+             and "ontime=s_on" in _l2_an and "if v == 'SUPPORTED'" in _l2_an)
+    _h6l2_w = f"min={H6.LATE_SIGN_MIN} · f(5,−)={_l2_f(dict(n_units=5, effect=-0.01))} f(4,−)={_l2_f(dict(n_units=4, effect=-0.5))}"
+except Exception as _e:                                                    # noqa: BLE001
+    _h6l2, _h6l2_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔧 H6L2 (تعديل 5 · م6) حارسُ الانتقاء: SUPPORTED لا يبقى إن عاكسته الوحداتُ في وقتها وحدَها (5 فأكثر) · والسطرُ يُحفظ لكلّ عائلة",
+      _h6l2, _h6l2_w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
