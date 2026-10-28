@@ -1230,8 +1230,8 @@
    "j1_top": false
   },
   "e5": 0.4153,
-  "date": "2026-10-28",
-  "exit_ms": 1793204700000
+  "exit_ms": 1793204700000,
+  "date": "2026-10-28"
  },
  "LIQ:CMPX": {
   "last_eval_ms": 1793204700000,
@@ -2016,10 +2016,6 @@
   "date": "2026-10-28"
  },
  "LIQ:SPHL": {
-  "last_eval_ms": 1793204700000,
-  "tc_cum": 95380.644,
-  "tc_seen_ms": 1793204580000,
-  "date": "2026-10-28",
   "anchor_ms": 1793204700000,
   "last_ms": 1793204700000,
   "sent": [
@@ -2028,10 +2024,12 @@
   "updates": 0,
   "vol_x": 8.9,
   "peak_usd": 46567,
+  "last_eval_ms": 1793204700000,
   "pulse_ms": 1793204700000,
   "anchor_price": 2.799,
   "anchor_open": 2.53,
   "anchor_low": 2.53,
+  "date": "2026-10-28",
   "pre_done": true,
   "pre_hi": 2.53,
   "pre_usd": 59321,
@@ -2713,7 +2711,7 @@
   "updates": 0,
   "vol_x": 0.7,
   "peak_usd": 4352,
-  "last_eval_ms": 1793204580000,
+  "last_eval_ms": 1793204160000,
   "pulse_ms": 1793204700000,
   "anchor_price": 0.2248,
   "anchor_open": 0.2249,
@@ -5170,5 +5168,6 @@
  "ENLV": "2026-10-28",
  "LIQ:MFI": {
   "date": "2026-10-28"
- }
+ },
+ "WIMI": "2026-10-28"
 }
