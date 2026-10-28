@@ -537,9 +537,13 @@ def build(gate=None, protocol=None, ledger_rows=None, steps=None, collector=None
     threads = threads_of(items)
     hist_case_imgs = {image_sha(it) for it in items if it.get("case") and historical_reason(it, threads)} - {None}
     have = collections.defaultdict(list)
+    closed_code = {}                                  # the exclusion code an item was closed with (amendment 1: kept, not relabelled)
     for r in rows:
         if r.get("event") != "CHECKPOINT":
             have[r.get("case_id")].append(r.get("event"))
+        if r.get("event") == "EXCLUDED":
+            _m = re.match(r"(E\d+)\b", str(r.get("notes") or ""))
+            closed_code[r.get("case_id")] = _m.group(1) if _m else ""
     used, counts, new, out_rows, historical = set(), collections.Counter(), [], [], []
     for it in items:
         h = historical_reason(it, threads)
@@ -553,7 +557,7 @@ def build(gate=None, protocol=None, ledger_rows=None, steps=None, collector=None
         _closed = have.get(it["pb_id"], [])
         _cb = (it.get("cand") or {}).get("corrected_by")
         if _cb and _closed and _closed[-1] == "EXCLUDED" and el["status"] != "EXCLUDED":
-            el = {"status": "EXCLUDED", "code": "", "stage": "INTAKE",
+            el = {"status": "EXCLUDED", "code": closed_code.get(it["pb_id"], ""), "stage": "INTAKE",
                   "reason": f"excluded at capture; the protocol's {_cb} re-classified it later — stays excluded in Phase B (amendment 1)"}
         img = image_sha(it)
         if img:

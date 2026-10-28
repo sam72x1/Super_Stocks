@@ -28,3 +28,11 @@ Effect on 2026-10-28: the seven stay excluded in Phase B (they never had a PRIMA
 
 Lock `PHB12` (synthetic): an item closed EXCLUDED then corrected stays excluded with no new event and no problem; the same item without
 `corrected_by` still reports the regression.
+
+## 4. Dated addition (2026-10-28, after the V4 run `40674079524`)
+- The row keeps **the exclusion code it was closed with at capture** (read from that ledger record's notes; here `E6` for all seven) instead of an
+  empty code — "no relabelling" applies to the code too. Before this, the status breakdown printed a blank label («( 7, …»).
+- `phase_b.py write` after the V4 run fills `v4_decision = WAIT` on the seven rows (display only); the ledger still holds 129 records and `check`
+  exits 0. The V4 run workflow does not run `phase_b.py write`, so after any V4 run the loop's next step (`write` ⟶ `check`) is done by hand and
+  merged — until then lock `PHB1` reads the Phase B outputs as stale (it did on `960ad80`).
+- Lock `PHB12` now also requires the kept code (two mutations: empty code · a fixed wrong code — both caught).
