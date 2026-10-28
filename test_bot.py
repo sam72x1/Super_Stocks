@@ -82944,7 +82944,8 @@ _PHB_OWNER_KEYS = ("V4_FROZEN", "V4_COMMIT", "EPOCH_INTEGRITY", "COLLECTOR_STATU
 _PHB_LEDGER_PINS = ((0, "0" * 64),    # (عددُ القيود · بصمةُ آخرها) لكلّ نسخةٍ مدموجة — يُضاف ولا يُعدَّل (الإلحاقُ عبر الـPRs في CI الضحل)
                     (2, "8bd83ad67c38bec2d3e1f7bb5c743805c781719535ffee7d9f4ec0faf08a4607"),   # B4_20261008 · TG_58525 CAPTURED/EXCLUDED
                     (70, "f750111ccd194df6a54494f5cdeee608e3f625ae513809b6f2ade487d3f3fb4e"),   # B36_20261027 · 34 بندًا بعد الحدّ (CAPTURED ثمّ مصيرُه) · خُتم قبل V4 (2026-10-27)
-                    (85, "c7bcbe87f4a10298168b0af20b0c6c86d4028af3ae625da5d3dee6c9d66d6d1b"))   # B36_20261027 · V4 (run 40590207292) ثمّ كلمةُ فيصل للحالات الخمس (2026-10-27)
+                    (85, "c7bcbe87f4a10298168b0af20b0c6c86d4028af3ae625da5d3dee6c9d66d6d1b"),   # B36_20261027 · V4 (run 40590207292) ثمّ كلمةُ فيصل للحالات الخمس (2026-10-27)
+                    (129, "0b8b944217d8123350fad7fc37e4cef718ce6dfbc347474c216a00d018d80d91"))   # B22_20261028 · 22 صورة (قناةٌ تعليميّة ولقطات) · حالات 0 · خُتمت قبل V4 (2026-10-28)
 _PHB_HSHA = "f" * 64
 try:
     _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))
