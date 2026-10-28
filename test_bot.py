@@ -87963,11 +87963,11 @@ check("🧭 RBD0 (‏2026-10-28) عقدُ `T-REBUILD` مدموجٌ قبل أيّ
 #    إغلاق D−1 · وناقصُ الجلسات None) · RSI قبل D حصرًا (تغييرُ D نفسِه لا يغيّره) · والوضعُ غيرُ المبنيّ يخرج 3 · وبلا عقدٍ 9 · ولا تلغرام ولا كتابةَ حالة.
 try:
     import ast as _r1_ast
-    import importlib as _r1_il
-    import sys as _r1_sys
-    _r1_sys.path.insert(0, "fm_forensics/rebuild")
-    import rebuild as _R1
-    _r1_il.reload(_R1)
+    import importlib.util as _r1_iu
+    import os as _r1_os
+    _r1_spec = _r1_iu.spec_from_file_location("t_rebuild_tool", "fm_forensics/rebuild/rebuild.py")
+    _R1 = _r1_iu.module_from_spec(_r1_spec)
+    _r1_spec.loader.exec_module(_R1)
     _r1_rows = [(f"2026-01-{i:02d}", 1.0, 1.0 + (i == 25) * 1.0, 1.0, 1.0, 100.0) for i in range(1, 31)]
     _a = _R1.asof_scale(_r1_rows, [("2026-01-10", 0.1)], "2026-01-10")
     _b = _R1.asof_scale(_r1_rows, [("2026-01-05", 0.1)], "2026-01-10")
@@ -87990,13 +87990,15 @@ try:
     _src = open("fm_forensics/rebuild/rebuild.py", encoding="utf-8").read()
     _names = {n.id for n in _r1_ast.walk(_r1_ast.parse(_src)) if isinstance(n, _r1_ast.Name)} | \
              {n.attr for n in _r1_ast.walk(_r1_ast.parse(_src)) if isinstance(n, _r1_ast.Attribute)}
-    _old_mode = os.environ.get("REBUILD_MODE")
-    os.environ["REBUILD_MODE"] = "test"
-    _rc_mode = _R1.main()
-    if _old_mode is None:
-        os.environ.pop("REBUILD_MODE", None)
-    else:
-        os.environ["REBUILD_MODE"] = _old_mode
+    _old_mode = _r1_os.environ.get("REBUILD_MODE")
+    _r1_os.environ["REBUILD_MODE"] = "test"
+    try:
+        _rc_mode = _R1.main()
+    finally:
+        if _old_mode is None:
+            _r1_os.environ.pop("REBUILD_MODE", None)
+        else:
+            _r1_os.environ["REBUILD_MODE"] = _old_mode
     _r1_c = {
         "asof_after": len(_a) == 9 and abs(_a[0][4] - 0.1) < 1e-12 and abs(_a[0][5] - 1000.0) < 1e-9,
         "asof_before": len(_b) == 9 and abs(_b[0][4] - 1.0) < 1e-12,
