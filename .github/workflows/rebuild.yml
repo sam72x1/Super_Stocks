@@ -1,0 +1,39 @@
+name: "🧭 T-REBUILD الجزء ب (قراءةٌ وقياس · يدويّ)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا شحن (العقد `fm_forensics/rebuild/T_REBUILD_prereg.md` · RBD1).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "الوضع (المبنيّ: d0 · ready117)"
+        type: choice
+        options: [d0, ready117]
+        default: d0
+
+jobs:
+  rebuild:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧭 القياس
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          REBUILD_MODE: ${{ github.event.inputs.mode }}
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rebuild/rebuild.py

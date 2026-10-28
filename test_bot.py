@@ -87958,6 +87958,61 @@ except Exception as _e:                                              # noqa: BLE
 check("🧭 RBD0 (‏2026-10-28) عقدُ `T-REBUILD` مدموجٌ قبل أيّ رقم بت-بت: التقسيمُ الزمنيّ · التسويةُ بتاريخ القرار · BASE2 البار · "
       "المرساةُ تُقاس ولا تُشحَن · التنبّؤاتُ الستّ · ولا شحن · و`test` بلا تجميدٍ يخرج 9", _v_rb, _v_rbw)
 
+# 🧭 RBD1 (‏2026-10-28 · `T-REBUILD` §③ · §⑥ · §⑮): دوالُّ `fm_forensics/rebuild/rebuild.py` النقيّة **سلوكيًّا** — التسويةُ بتاريخ القرار
+#    (تقسيمٌ بعد D يُعاد · وقبله لا · والحجمُ معكوس · ولا صفَّ من D فصاعدًا) · الإدخالُ الجديد (20 جلسة) · المنفجرُ (أعلى High في 20 جلسة مقابل
+#    إغلاق D−1 · وناقصُ الجلسات None) · RSI قبل D حصرًا (تغييرُ D نفسِه لا يغيّره) · والوضعُ غيرُ المبنيّ يخرج 3 · وبلا عقدٍ 9 · ولا تلغرام ولا كتابةَ حالة.
+try:
+    import ast as _r1_ast
+    import importlib as _r1_il
+    import sys as _r1_sys
+    _r1_sys.path.insert(0, "fm_forensics/rebuild")
+    import rebuild as _R1
+    _r1_il.reload(_R1)
+    _r1_rows = [(f"2026-01-{i:02d}", 1.0, 1.0 + (i == 25) * 1.0, 1.0, 1.0, 100.0) for i in range(1, 31)]
+    _a = _R1.asof_scale(_r1_rows, [("2026-01-10", 0.1)], "2026-01-10")
+    _b = _R1.asof_scale(_r1_rows, [("2026-01-05", 0.1)], "2026-01-10")
+    _sess = [f"2026-01-{i:02d}" for i in range(1, 31)]
+    _ne = (_R1.new_entries(["2026-01-02", "2026-01-22"], _sess, win=20),                      # 20 apart ⟵ fired within D−20 ⟵ dropped
+           _R1.new_entries(["2026-01-02", "2026-01-03", "2026-01-22", "2026-01-23"], _sess, win=20))  # the window slides with every firing
+    import datetime as _r1_dt
+    _ex_days = [(_r1_dt.date(2026, 3, 2) + _r1_dt.timedelta(k)).isoformat() for k in range(50)]
+    _ex_c = [0.9 if k == 5 else (1.2 if k == 6 else 1.0) for k in range(50)]
+    _ex_rows = [(_ex_days[k], 1.0, 1.5 if k == 25 else max(1.0, _ex_c[k]), 1.0, _ex_c[k], 1.0) for k in range(50)]
+    _ex_up = _R1.exploded(_ex_rows, _ex_days[6], 50.0)          # ref = close(D−1) 0.9 ⟵ 1.35 · High 1.5 on k=25 in k 6..25 ⟵ True
+    _ex_eq = _R1.exploded(_ex_rows, _ex_days[10], 50.0)         # ref 1.0 ⟵ exactly 1.5 counts (≥) ⟵ True
+    _ex_no = _R1.exploded(_ex_rows, _ex_days[26], 50.0)         # window k 26..45 has no 1.5 ⟵ False
+    _ex_na = _R1.exploded(_ex_rows, _ex_days[40], 50.0)         # fewer than 20 sessions after ⟵ None
+    import pandas as _r1_pd
+    _closes = [(f"2026-02-{i:02d}", 1, 1, 1, 1.0 + 0.05 * ((i * 7) % 5), 1) for i in range(1, 28)]
+    _rs1 = _R1.rsi14_before(_closes, "2026-02-20", S.rsi)
+    _closes2 = [x if x[0] != "2026-02-20" else (x[0], 1, 1, 1, 99.0, 1) for x in _closes]
+    _rs2 = _R1.rsi14_before(_closes2, "2026-02-20", S.rsi)
+    _src = open("fm_forensics/rebuild/rebuild.py", encoding="utf-8").read()
+    _names = {n.id for n in _r1_ast.walk(_r1_ast.parse(_src)) if isinstance(n, _r1_ast.Name)} | \
+             {n.attr for n in _r1_ast.walk(_r1_ast.parse(_src)) if isinstance(n, _r1_ast.Attribute)}
+    _old_mode = os.environ.get("REBUILD_MODE")
+    os.environ["REBUILD_MODE"] = "test"
+    _rc_mode = _R1.main()
+    if _old_mode is None:
+        os.environ.pop("REBUILD_MODE", None)
+    else:
+        os.environ["REBUILD_MODE"] = _old_mode
+    _r1_c = {
+        "asof_after": len(_a) == 9 and abs(_a[0][4] - 0.1) < 1e-12 and abs(_a[0][5] - 1000.0) < 1e-9,
+        "asof_before": len(_b) == 9 and abs(_b[0][4] - 1.0) < 1e-12,
+        "asof_no_future": all(x[0] < "2026-01-10" for x in _a),
+        "new_entries": _ne == (["2026-01-02"], ["2026-01-02"]),
+        "exploded": (_ex_up, _ex_eq, _ex_no, _ex_na) == (True, True, False, None),
+        "rsi_before_only": _rs1 is not None and _rs1 == _rs2,
+        "mode_gate": _rc_mode == 3,
+        "no_telegram_no_state": not ({"send_telegram", "git_save", "save_watchlist"} & _names),
+    }
+    _v_r1, _v_r1w = all(_r1_c.values()), f"{ {k: v for k, v in _r1_c.items() if not v} or 'كلّها'} · ne={_ne} · ex={(_ex_up, _ex_eq, _ex_no, _ex_na)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r1, _v_r1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD1 (‏2026-10-28) أداةُ `T-REBUILD` النقيّة سلوكيًّا: التسويةُ بتاريخ القرار · الإدخالُ الجديد · المنفجرُ وناقصُه None · "
+      "RSI قبل D حصرًا · والوضعُ غيرُ المبنيّ 3 · ولا تلغرام ولا حالة", _v_r1, _v_r1w)
+
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
