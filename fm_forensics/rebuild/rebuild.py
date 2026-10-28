@@ -4,10 +4,10 @@
 قراءةٌ وقياسٌ فقط: لا يُستورَد في الإنتاج · لا يكتب حالةً · لا تلغرام · لا `LOGIC_VERSION` · ولا يُشحَن منه شيء (§⓪ · §⑫).
 
 الأوضاع المبنيّة الآن (المراحل التالية تُضاف بعد قراءة أرقام هذه):
-    REBUILD_MODE=d0        جدوى البيانات §③ — أعدادٌ فقط (اللقطات · الرموز · التغطية · الحرّاس · FINRA · وكيلُ الفلوت)
+    REBUILD_MODE=d0        جدوى البيانات §③ — أعدادٌ فقط (اللقطات · الرموز · التغطية · الحرّاس على عيّنة الشموع · FINRA · وكيلُ الفلوت)
     REBUILD_MODE=ready117  جدولُ §⑤ — RSI14 للـ117 READY والـ277 MISSED_READY (وصفيّ · لا يختار شيئًا)
 
-الدوالُّ النقيّة (مقفولةٌ سلوكيًّا في `RBD1`): `asof_scale` · `new_entries` · `exploded` · `rsi14_before` · `band`.
+الدوالُّ النقيّة (مقفولةٌ سلوكيًّا في `RBD1`): `asof_scale` · `new_entries` · `exploded` · `rsi14_before` · `gaps` · `band`.
 """
 import csv
 import datetime as dt
@@ -97,6 +97,24 @@ def band(r):
     return None if r is None else ("≤27" if r <= 27 else "27-33" if r <= 33 else ">33")
 
 
+def gaps(rows, max_days=RECYCLE_GAP_DAYS):
+    """§③ حارسُ إعادة تدوير الرمز: [(يومٌ، اليومُ التالي)] لكلّ شمعتين متتاليتين بينهما أكثرُ من `max_days` يومًا تقويميًّا."""
+    out = []
+    for a, b in zip(rows, rows[1:]):
+        if (dt.date.fromisoformat(b[0]) - dt.date.fromisoformat(a[0])).days > max_days:
+            out.append((a[0], b[0]))
+    return out
+
+
+def _gen5_ext():
+    """حارسُ GEN5 بالاسم (`gen5_ext.split_unadjusted`) · يُحمَّل من مساره (لا نسخة)."""
+    import importlib.util as iu
+    spec = iu.spec_from_file_location("gen5_ext", os.path.join(ROOT, "fm_forensics", "gen5", "gen5_ext.py"))
+    m = iu.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
 # ── الشبكة ───────────────────────────────────────────────────────────────────────────────────────────
 def _get(url, tries=3, timeout=20):
     for k in range(tries):
@@ -152,23 +170,41 @@ def mode_d0(key):
     res["snapshots"] = snaps
     res["union_cs_adrc"] = len(union)
     res["types_over_snapshots"] = types
+    sp_by = {}
+    try:
+        sp = PS.fetch_all_splits(BARS_FROM, BARS_TO, key)
+        res["splits"] = {"rows": len(sp), "reverse": sum(1 for r in sp if float(r.get("split_from") or 0) > float(r.get("split_to") or 0))}
+        for r in sp:
+            try:
+                sp_by.setdefault(r["ticker"], []).append((r["execution_date"], float(r["split_to"]) / float(r["split_from"])))
+            except (KeyError, TypeError, ValueError, ZeroDivisionError):
+                continue
+    except Exception as e:                                      # noqa: BLE001
+        res["splits"] = {"error": f"{type(e).__name__}: {str(e)[:80]}"}
+    log(f"d0 splits: {res['splits']}")
+    G5 = _gen5_ext()
     sample = random.Random(SEED).sample(sorted(union), min(200, len(union)))
     ok, lens, diag = 0, [], {}
+    gap_syms, gap_n, su_syms, su_n = 0, 0, 0, 0
     for s in sample:
         df, why = PH.polygon_daily(s, BARS_FROM, BARS_TO, key)
         diag[why.split("(")[0]] = diag.get(why.split("(")[0], 0) + 1
         if df is not None and len(df) >= 60:
             ok += 1
             lens.append(len(df))
+            rows = _rows(df)
+            g = gaps(rows)
+            gap_syms += bool(g)
+            gap_n += len(g)
+            u = G5.split_unadjusted(rows, sp_by.get(s), BARS_FROM, BARS_TO)
+            su_syms += bool(u)
+            su_n += len(u)
     res["bars_sample"] = {"n": len(sample), "ok_60plus": ok, "share": round(ok / max(1, len(sample)), 4),
                           "median_len": st.median(lens) if lens else None, "diag": diag}
+    res["guards_sample"] = {"recycle_gap_days": RECYCLE_GAP_DAYS, "symbols_with_gap": gap_syms, "gaps": gap_n,
+                            "symbols_split_unadjusted": su_syms, "split_unadjusted_days": su_n, "of_symbols_with_bars": ok}
     log(f"d0 bars sample: {ok}/{len(sample)} with ≥60 bars · diag {diag}")
-    try:
-        sp = PS.fetch_all_splits(BARS_FROM, BARS_TO, key)
-        res["splits"] = {"rows": len(sp), "reverse": sum(1 for r in sp if float(r.get("split_from") or 0) > float(r.get("split_to") or 0))}
-    except Exception as e:                                      # noqa: BLE001
-        res["splits"] = {"error": f"{type(e).__name__}: {str(e)[:80]}"}
-    log(f"d0 splits: {res['splits']}")
+    log(f"d0 guards on the sample: {res['guards_sample']}")
     finra = {}
     for d in ("2023-01-03", "2023-06-15", "2023-11-01"):
         code, body = _get(f"https://cdn.finra.org/equity/regsho/daily/CNMSshvol{d.replace('-', '')}.txt")

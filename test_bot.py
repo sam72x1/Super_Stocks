@@ -87958,7 +87958,7 @@ except Exception as _e:                                              # noqa: BLE
 check("🧭 RBD0 (‏2026-10-28) عقدُ `T-REBUILD` مدموجٌ قبل أيّ رقم بت-بت: التقسيمُ الزمنيّ · التسويةُ بتاريخ القرار · BASE2 البار · "
       "المرساةُ تُقاس ولا تُشحَن · التنبّؤاتُ الستّ · ولا شحن · و`test` بلا تجميدٍ يخرج 9", _v_rb, _v_rbw)
 
-# 🧭 RBD1 (‏2026-10-28 · `T-REBUILD` §③ · §⑥ · §⑮): دوالُّ `fm_forensics/rebuild/rebuild.py` النقيّة **سلوكيًّا** — التسويةُ بتاريخ القرار
+# 🧭 RBD1 (‏2026-10-28 · `T-REBUILD` §③ · §⑥ · §⑮): دوالُّ `fm_forensics/rebuild/rebuild.py` النقيّة **سلوكيًّا** — حارسُ الفجوة (أكثرُ من 15 يومًا حصرًا) وحارسُ GEN5 بالاسم · التسويةُ بتاريخ القرار
 #    (تقسيمٌ بعد D يُعاد · وقبله لا · والحجمُ معكوس · ولا صفَّ من D فصاعدًا) · الإدخالُ الجديد (20 جلسة) · المنفجرُ (أعلى High في 20 جلسة مقابل
 #    إغلاق D−1 · وناقصُ الجلسات None) · RSI قبل D حصرًا (تغييرُ D نفسِه لا يغيّره) · والوضعُ غيرُ المبنيّ يخرج 3 · وبلا عقدٍ 9 · ولا تلغرام ولا كتابةَ حالة.
 try:
@@ -87987,6 +87987,12 @@ try:
     _rs1 = _R1.rsi14_before(_closes, "2026-02-20", S.rsi)
     _closes2 = [x if x[0] != "2026-02-20" else (x[0], 1, 1, 1, 99.0, 1) for x in _closes]
     _rs2 = _R1.rsi14_before(_closes2, "2026-02-20", S.rsi)
+    _gp_rows = [("2026-01-01", 1, 1, 1, 1, 1), ("2026-01-16", 1, 1, 1, 1, 1), ("2026-02-02", 1, 1, 1, 1, 1)]   # 15 days, then 17
+    _gp = _R1.gaps(_gp_rows)
+    _g5 = _R1._gen5_ext()
+    _g5_ok = (_g5.split_unadjusted.__module__ == "gen5_ext"
+              and _g5.split_unadjusted([("2026-01-01", 1, 1, 1, 1.0, 1), ("2026-01-02", 1, 1, 1, 10.0, 1)],
+                                       [("2026-01-02", 0.1)], "2025-12-01", "2026-02-01") == ["2026-01-02"])
     _src = open("fm_forensics/rebuild/rebuild.py", encoding="utf-8").read()
     _names = {n.id for n in _r1_ast.walk(_r1_ast.parse(_src)) if isinstance(n, _r1_ast.Name)} | \
              {n.attr for n in _r1_ast.walk(_r1_ast.parse(_src)) if isinstance(n, _r1_ast.Attribute)}
@@ -88006,6 +88012,8 @@ try:
         "new_entries": _ne == (["2026-01-02"], ["2026-01-02"]),
         "exploded": (_ex_up, _ex_eq, _ex_no, _ex_na) == (True, True, False, None),
         "rsi_before_only": _rs1 is not None and _rs1 == _rs2,
+        "gaps_strict": _gp == [("2026-01-16", "2026-02-02")],
+        "gen5_guard_by_name": _g5_ok and "def split_unadjusted" not in _src and "G5.split_unadjusted(" in _src,
         "mode_gate": _rc_mode == 3,
         "no_telegram_no_state": not ({"send_telegram", "git_save", "save_watchlist"} & _names),
     }
