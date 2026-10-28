@@ -1,0 +1,99 @@
+{
+ "mode": "test_assemble",
+ "freeze_sha": "08d26658b8769edcab3fb46db1d5b086f35e85750a3db62d8d1c03c3e9b51cc2",
+ "sessions": 250,
+ "coverage": 0.9995,
+ "bars_diag": {
+  "ok": 3955,
+  "empty": 2
+ },
+ "stats": {
+  "NEW": {
+   "entries": 194,
+   "burden": 0.776,
+   "labelled": 182,
+   "exploded": 75,
+   "share": 0.4121,
+   "unknown": 12
+  },
+  "BASE2": {
+   "entries": 2682,
+   "burden": 10.728,
+   "labelled": 2635,
+   "exploded": 588,
+   "share": 0.2231,
+   "unknown": 47
+  },
+  "CURRENT": {
+   "entries": 1812,
+   "burden": 7.248,
+   "labelled": 1794,
+   "exploded": 356,
+   "share": 0.1984,
+   "unknown": 18
+  }
+ },
+ "diff_ci_new_vs_base2": [
+  0.1137,
+  0.2581
+ ],
+ "halves_diff": [
+  0.1789,
+  0.1995
+ ],
+ "branch": 1,
+ "verdict": "تُقبل",
+ "of10": 4.12,
+ "of10_ci": [
+  3.44,
+  4.82
+ ],
+ "stops": {
+  "S0": {
+   "n": 4,
+   "hit50_first": 0
+  },
+  "S5": {
+   "n": 4,
+   "hit50_first": 0
+  },
+  "unknown_level": 190
+ },
+ "production_off": [
+  [
+   "M8_GAP_REQUIRED",
+   "مطفأة (GAP_REQUIRED=False)"
+  ],
+  [
+   "STABILITY_BT (STABILITY_MIN رفضًا)",
+   "مطفأة (BT_STABILITY_GATE فارغ: يُحسب ويُعرض ولا يرفض)"
+  ],
+  [
+   "STABILITY_MAX",
+   "مطفأة (لا تُنفَّذ في أيّ ذراع)"
+  ],
+  [
+   "NEAR_READINESS",
+   "مطفأة (NEAR_PCT=0)"
+  ],
+  [
+   "PIVOT_SWEEP_PCT",
+   "عرضٌ فقط لا بوّابة"
+  ],
+  [
+   "RSI_OVERSOLD · RSI_MAX_NOW · MA_GATE_MAX_ABOVE_PCT",
+   "ليّنة (نقصٌ يُعَدّ في WATCH_MAX_FAILS · لا رفضَ وحدَها)"
+  ],
+  [
+   "M13_SHORT",
+   "ليّنة (نقصٌ لا رفض)"
+  ],
+  [
+   "BORROW_AVAIL_MAX",
+   "حيّةٌ في الإنتاج · لم تُقَس هنا (لا تاريخ)"
+  ]
+ ],
+ "seconds": 0.9,
+ "run": 40769876230,
+ "main_sha": "3a47a0b935038fa84f68fde815be9da09bde31de"
+}

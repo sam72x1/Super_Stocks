@@ -1642,6 +1642,151 @@ def mode_b3_assemble(shards=None, prep=None, bases=None):
     return res
 
 
+# ── §⑫ القائمةُ الظلّيّة (B8) — بعد الحكم · ملفٌّ وتسجيل · بلا تلغرام ولا شحن ───────────────────────────────────
+SHADOW_HIST_DAYS = HISTORY_DAYS + 100         # حارسُ التقسيم (800 يوم) ‏+ أعلى 252 جلسة ‏+ إحماءُ RSI
+SHADOW_DIR = os.path.join(HERE, "data", "shadow")
+
+
+def shadow_symbol(sym, rows, splits_sym, d, sess, S, G5, fz):
+    """صفُّ رمزٍ في القائمة الظلّيّة لجلسة D بشموعٍ **قبل D وحدَها**: (حالة، الصفّ أو None) — الحالة ∈ ok · stale · none.
+    الجديدة = «الدرجةُ المجمَّدة ≥ θ» إدخالًا جديدًا (§⑥ `new_entries`) على انطلاقات [D−20، D] بدوالّ `test_symbol` بأسمائها (لا نسخة):
+    `base2_dist`/`base2_margin`/`pair_flags`/`frozen_score`/`row_guards`. والصفّ = [sym، الدرجة، m_rsi، m_drop، [P1، P1′، P2، P3]،
+    إغلاق D−1، المستوى المختبَر (S0) أو None، BASE2 جديدٌ (0/1)]."""
+    import bisect
+    import pandas as pd
+    rows = [x for x in (rows or []) if x[0] < d]
+    if not rows:
+        return "none", None
+    dates = [x[0] for x in rows]
+    if (dt.date.fromisoformat(d) - dt.date.fromisoformat(dates[-1])).days > STALE_DAYS:
+        return "stale", None
+    c = [float(x[4]) for x in rows]
+    h = [float(x[2]) for x in rows]
+    low = [float(x[3]) for x in rows]
+    v = [float(x[5]) for x in rows]
+    rsi = [float(z) for z in S.rsi(pd.Series(c, dtype=float), 14).values]
+    unadj = G5.split_unadjusted(rows, splits_sym, "0000-00-00", "9999-99-99")
+    gp = gaps(rows)
+    win_s = [s for s in sess if s <= d][-(WIN + 1):]
+    trig, fire_new, fire_b2, at_d = None, [], [], None
+    for s in win_s:
+        i = bisect.bisect_left(dates, s)
+        if i < 1 or (dt.date.fromisoformat(s) - dt.date.fromisoformat(dates[i - 1])).days > STALE_DAYS:
+            continue
+        sp, gq = row_guards(dates, i, s, unadj, gp)
+        if sp or gq:
+            continue
+        if base2_fire(rsi, c, h, i):
+            fire_b2.append(s)
+        dr, dd = base2_dist(rsi, c, h, i)
+        if not (dr > 0 and dd > 0):
+            continue
+        if trig is None:                                         # الزناداتُ مرّةً للرمز ولا تُحسب لمن لا يقترب من الأساس
+            J = jumps(c, v)
+            trig = (p1_days(rsi, J), p1p_days(J), p2_days(rsi, c, low, S), p3_days(c, h, v))
+        mr, md = base2_margin(rsi, c, h, i)
+        fl = pair_flags(trig, i)
+        sc = frozen_score(fz, mr, md, fl)
+        if sc >= fz["theta"]:
+            fire_new.append(s)
+            if s == d:
+                at_d = (sc, mr, md, fl, i)
+    if at_d is None or d not in new_entries(fire_new, sess):
+        return "ok", None
+    sc, mr, md, fl, i = at_d
+    full = pd.DataFrame({"Open": [x[1] for x in rows], "High": h, "Low": low, "Close": c, "Volume": v},
+                        index=pd.to_datetime(dates))
+    tl = S.tested_level(full.iloc[:i])
+    return "ok", [sym, round(sc, 6), round(mr, 6), round(md, 6), list(fl), c[i - 1], None if not tl else float(tl["level"]),
+                  int(d in new_entries(fire_b2, sess))]
+
+
+def shadow_open_utc(d, MC):
+    """افتتاحُ جلسة D بتوقيت نيويورك (لحظةً واعيةً بالمنطقة) أو None إن لم تكن جلسة."""
+    from zoneinfo import ZoneInfo
+    om = MC.session_info(d).get("open_ny_min") if dt.date.fromisoformat(d).weekday() < 5 else None
+    if om is None:
+        return None
+    return dt.datetime.combine(dt.date.fromisoformat(d), dt.time(om // 60, om % 60), tzinfo=ZoneInfo("America/New_York"))
+
+
+def shadow_next_session(now, MC):
+    """جلسةُ القائمة: أوّلُ جلسةٍ لم يُفتتح سوقُها بعد لحظةَ البناء (`now` لحظةٌ واعيةٌ بالمنطقة) — تاريخُ UTC لا يحكم
+    (تشغيلةُ 01:00 UTC يومَ D ما زالت قبل افتتاحه) · والقائمةُ لا ترى شمعةَ يومها بالبناء."""
+    from zoneinfo import ZoneInfo
+    d = now.astimezone(ZoneInfo("America/New_York")).date()
+    while True:
+        op = shadow_open_utc(d.isoformat(), MC)
+        if op is not None and now < op:
+            return d.isoformat()
+        d += dt.timedelta(1)
+
+
+def mode_shadow(key, d=None, now=None, fetch_bars=None, fetch_universe=None, splits=None, fz=None, test_result=None):
+    """§⑫ B8: القائمةُ الجديدة لجلسة D بالدرجة المجمَّدة — كونُ ناسداك (CS/ADRC) يومَ البناء · شموعُ Polygon المسوّاة قبل D ·
+    تقسيماتُ Polygon لحارس التقسيم. ملفٌّ وتسجيلٌ فقط: لا تلغرام · لا حالةَ إنتاج · لا شحن · ويحمل حكمَ TEST كما صدر."""
+    import glob
+    fz = fz or freeze_load()
+    if fz is None:
+        raise ValueError("لا تجميدَ ببصمته ⟵ لا قائمةَ ظلّيّة")
+    if test_result is None:
+        got = sorted(glob.glob(TEST_RESULT_GLOB))
+        if not got:
+            raise ValueError("لا نتيجةَ TEST في data/ ⟵ القائمةُ الظلّيّة بعد الحكم وحدَه (§⑫)")
+        with open(got[-1], encoding="utf-8") as fh:
+            test_result = json.load(fh)
+    sys.path.insert(0, ROOT)
+    os.environ["FAISAL_ONLY"] = "0"
+    import Super_stock as S
+    import market_calendar as MC
+    import pit_universe as PU
+    import pit_snapshot as PS
+    import pit_history as PH
+    G5 = _gen5_ext()
+    now = now or dt.datetime.now(dt.timezone.utc)
+    d = d or shadow_next_session(now, MC)
+    op = shadow_open_utc(d, MC)
+    if op is None or not now < op:
+        raise ValueError(f"الجلسة {d} ليست جلسةً لم تُفتتح بعد لحظةَ البناء {now.isoformat(timespec='seconds')} ⟵ ليست أماميّة")
+    bars_to = (dt.date.fromisoformat(d) - dt.timedelta(1)).isoformat()   # آخرُ يومٍ تُطلب شموعُه وكونُه (والصفوفُ قبل D وحدَها بالبناء)
+    lo = (dt.date.fromisoformat(d) - dt.timedelta(SHADOW_HIST_DAYS)).isoformat()
+    sess = sessions_between((dt.date.fromisoformat(d) - dt.timedelta(60)).isoformat(), d, MC)
+    if fetch_universe is not None:
+        uni = fetch_universe()
+    else:
+        uni = sorted(r["ticker"] for r in PU.fetch_universe(bars_to, key) if r.get("type") in ("CS", "ADRC"))
+    if splits is None:
+        splits = {}
+        for r in PS.fetch_all_splits(lo, d, key):
+            try:
+                splits.setdefault(r["ticker"], []).append([r["execution_date"], float(r["split_to"]) / float(r["split_from"])])
+            except (KeyError, TypeError, ValueError, ZeroDivisionError):
+                continue
+    diag, status, out = {}, {}, []
+    t0 = time.time()
+    for n, sym in enumerate(uni):
+        if fetch_bars is not None:
+            rows = fetch_bars(sym)
+            why = "ok" if rows else "empty"
+        else:
+            df, why = PH.polygon_daily(sym, lo, bars_to, key)
+            rows = _rows(df) if df is not None else []
+        diag[why.split("(")[0]] = diag.get(why.split("(")[0], 0) + 1
+        st_, row = shadow_symbol(sym, rows, splits.get(sym), d, sess, S, G5, fz)
+        status[st_] = status.get(st_, 0) + 1
+        if row:
+            out.append(row)
+        if n % 250 == 0:
+            log(f"shadow {d}: {n + 1}/{len(uni)} · {round(time.time() - t0)}s · list {len(out)}")
+    out.sort(key=lambda r: -r[1])
+    return {"mode": "shadow", "session": d, "built_at": now.isoformat(timespec="seconds"), "session_open": op.isoformat(),
+            "bars_to": bars_to, "freeze_sha": fz["sha"], "theta": fz["theta"],
+            "test_branch": test_result.get("branch"), "test_verdict": test_result.get("verdict"), "test_run": test_result.get("run"),
+            "universe": len(uni), "bars_diag": diag, "status": status, "coverage": round(diag.get("ok", 0) / max(1, len(uni)), 4),
+            "list": out, "base2_new": sum(r[7] for r in out),
+            "note": "قائمةٌ ظلّيّة للتسجيل وحدَه (§⑫) · لا تلغرام · لا شحن · وقرارُ أيّ استعمالٍ للمالك"}
+
+
 def main():
     mode = os.environ.get("REBUILD_MODE", "").strip()
     key = os.environ.get("POLYGON_API_KEY", "")
@@ -1649,7 +1794,7 @@ def main():
         log("⛔ العقد غائب")
         return 9
     built = ("d0", "ready117", "bases_prep", "bases_shard", "bases_assemble", "pairs_shard", "pairs_assemble", "test_prep", "test_shard", "test_assemble",
-             "b3_shard", "b3_assemble")
+             "b3_shard", "b3_assemble", "shadow")
     if mode not in built:
         log(f"⛔ وضعٌ غيرُ مبنيّ: {mode!r} (المبنيّ: {' · '.join(built)})")
         return 3
@@ -1668,6 +1813,11 @@ def main():
             return 9
         if not _g.glob(TEST_RESULT_GLOB):
             log("⛔ لا نتيجةَ TEST في data/ ⟵ الجردُ المقصوص بعد TEST وحدَه (الملحق 1 §① · الملحق 2 §①)")
+            return 9
+    if mode == "shadow":
+        import glob as _g
+        if freeze_load() is None or not _g.glob(TEST_RESULT_GLOB):
+            log("⛔ لا تجميدَ ببصمته أو لا نتيجةَ TEST في data/ ⟵ القائمةُ الظلّيّة بعد الحكم وحدَه (§⑫)")
             return 9
     if mode.startswith("pairs_") and not (addendum_ok() and addendum3_ok()):
         log("⛔ الملحق 1 أو الملحق 3 غائبٌ أو غيرُ بصمته المدموجة ⟵ لا أزواجَ ولا درجة (التعريفاتُ قبل الرقم)")
@@ -1708,6 +1858,8 @@ def main():
     elif mode == "b3_assemble":
         res = mode_b3_assemble()
         _jdump(res, os.path.join(OUT, "b3_result.json.gz"))
+    elif mode == "shadow":
+        res = mode_shadow(key, d=os.environ.get("SHADOW_SESSION", "").strip() or None)
     elif mode == "pairs_shard":
         res = mode_pairs_shard(key, int(os.environ.get("SHARD", "0")), int(os.environ.get("NSHARDS", str(NSHARDS))))
         res = {k: v for k, v in res.items() if k != "rows"} | {"entries": len(res["rows"])}

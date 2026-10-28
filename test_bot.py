@@ -88818,6 +88818,226 @@ except Exception as _e:                                              # noqa: BLE
 check("🧭 RBD9 (‏2026-10-28) نتيجةُ الأزواج §⑨ والتجميد §⑧ تطابق الـJSON: الصفوفُ الأربعة · m = 4 · الناجون = pairs_in · المدخلات · ملفُّ التجميد يمرّ "
       "بـfreeze_load ويطابق حرفًا · θ وعبؤه · المطابقةُ مع bases · ورقمُ التشغيلة · والمطفأُ يُطبع · ولا TEST", _v_r9, _v_r9w)
 
+# 🧭 RBD11 (‏2026-10-28 · `T-REBUILD` §⑩-§⑪ · TEST مرّةً واحدة): `T_REBUILD_test_result.md` **يطابق الـJSON المخزَّن** — صفوفُ القوائم الثلاث ·
+#    والحكمُ يُعاد بـ`test_verdict` نفسِها من أرقام الـJSON · و«من كلّ 10» = 10 × الحصّة · وبصمةُ التجميد = ملفُّ التجميد · والتنبّؤاتُ بنتائجها ·
+#    واقتباساتُ فيصل التسعة بأرقام صورها · والمطفأُ يُطبع · ووجودُ النتيجة يرفض إعادةَ TEST (خروج 7).
+try:
+    import importlib.util as _r11_iu
+    import json as _r11_json
+    import os as _r11_os
+    _r11_spec = _r11_iu.spec_from_file_location("t_rebuild_tool11", "fm_forensics/rebuild/rebuild.py")
+    _R11 = _r11_iu.module_from_spec(_r11_spec)
+    _r11_spec.loader.exec_module(_R11)
+    _r11_dir = "fm_forensics/rebuild/"
+    _r11_doc = open(_r11_dir + "T_REBUILD_test_result.md", encoding="utf-8").read()
+    _r11_j = _r11_json.load(open(_r11_dir + "data/test_result_2026-10-28.json", encoding="utf-8"))
+    _r11_st = _r11_j["stats"]
+
+    def _r11_pct(x):
+        return "—" if x is None else f"{100 * x:.1f}%"
+
+    def _r11_row(name, s):
+        return f"| {name} | {s['entries']:,} | {s['burden']} | {s['labelled']:,} | {s['exploded']:,} | {_r11_pct(s['share'])} | {s['unknown']:,} |"
+    _r11_code, _r11_words = _R11.test_verdict(_r11_st["NEW"], _r11_st["BASE2"], _r11_st["CURRENT"], _r11_j["diff_ci_new_vs_base2"],
+                                              _r11_j["halves_diff"], _r11_j["coverage"])
+    _r11_fz = _R11.freeze_load()
+    _r11_env = _r11_os.environ.get("REBUILD_MODE")
+    try:
+        _r11_os.environ["REBUILD_MODE"] = "test_assemble"
+        _r11_rc = _R11.main()
+    except Exception as _x:                                          # noqa: BLE001
+        _r11_rc = ("⛔", type(_x).__name__)
+    finally:
+        if _r11_env is None:
+            _r11_os.environ.pop("REBUILD_MODE", None)
+        else:
+            _r11_os.environ["REBUILD_MODE"] = _r11_env
+    _r11_sn = _r11_st["NEW"]["share"]
+    _r11_c = {
+        "rows": (_r11_row("**الجديدة** (الدرجةُ المجمَّدة ≥ θ)", _r11_st["NEW"]) in _r11_doc and _r11_row("BASE2", _r11_st["BASE2"]) in _r11_doc
+                 and _r11_row("CURRENT (القبولُ ببوّابات الإنتاج)", _r11_st["CURRENT"]) in _r11_doc),
+        "arith": all(s["entries"] == s["labelled"] + s["unknown"] and (s["share"] is None or round(s["exploded"] / s["labelled"], 4) == s["share"])
+                     and s["burden"] == round(s["entries"] / max(1, _r11_j["sessions"]), 3) for s in _r11_st.values()),
+        "verdict": (_r11_code, _r11_words) == (_r11_j["branch"], _r11_j["verdict"])
+                   and f"## ⓪ الحكم: الفرع {_r11_code} — «{_r11_words}»" in _r11_doc,
+        "of10": _r11_sn is not None and _r11_j["of10"] == round(10 * _r11_sn, 2) and f"**{_r11_j['of10']} من 10**" in _r11_doc,
+        "freeze": _r11_fz is not None and _r11_j["freeze_sha"] == _r11_fz["sha"] and f"`{_r11_fz['sha']}`" in _r11_doc,
+        "predictions": (f"| **RB-P5:** الحكم على TEST الفرعُ 3 «لا يُقبل» | {'✅' if _r11_code == 3 else '❌ **سقط**'} (الفرع {_r11_code}) |" in _r11_doc
+                        and f"| **RB-P6:** رقمُ B7 بين 1 و3 من 10 | {'✅' if 1 <= _r11_j['of10'] <= 3 else '❌ **سقط**'} ({_r11_j['of10']}) |"
+                        in _r11_doc),
+        "quotes": all(f"- `{i}` (" in _r11_doc.split("## ⑤")[1].split("## ⑥")[0] for i in
+                      ("TG_2098", "IMG_0498", "TG_2066", "TG_1810", "TG_76039", "X_20260918_66", "TG_20260905_03", "TG_2085", "TG_2017"))
+                  if "## ⑤" in _r11_doc and "## ⑥" in _r11_doc else False,
+        "prod_off": ("## ⑦" in _r11_doc and all(k in _r11_doc.split("## ⑦")[1] for k in ("M8_GAP_REQUIRED", "STABILITY_MAX", "NEAR_READINESS",
+                                                                                     "PIVOT_SWEEP_PCT", "M13_SHORT", "**مطفأة**"))),
+        "run": f"**`{_r11_j['run']}`**" in _r11_doc,
+        "limit_anchor": (f"{_r11_j['stops']['unknown_level']} من {_r11_st['NEW']['entries']} إدخالًا بلا مستوًى مختبَر"
+                         in _r11_doc.split("## ①")[0] and f"ذراعا الوقف على {_r11_j['stops']['S0']['n']} وحدَها" in _r11_doc.split("## ①")[0]),
+        "once": _r11_rc == 7,                                         # النتيجةُ موجودة ⟵ لا إعادة
+    }
+    _v_r11, _v_r11w = all(_r11_c.values()), f"{ {k: v for k, v in _r11_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r11, _v_r11w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD11 (‏2026-10-28) نتيجةُ TEST تطابق الـJSON: الصفوفُ والحساب · الحكمُ يُعاد بـtest_verdict · «من كلّ 10» · بصمةُ التجميد · التنبّؤات · "
+      "اقتباساتُ فيصل التسعة · المطفأ · ورقمُ التشغيلة · حدُّ المرساة (190 بلا مستوى) · ووجودُ النتيجة يرفض إعادةَ TEST", _v_r11, _v_r11w)
+# 🧭 RBD12 (‏2026-10-28 · `T-REBUILD` §⑫ B8 · القائمةُ الظلّيّة): وضعُ `shadow` **= قائمةُ TEST الجديدة نفسُها** على الشموع نفسِها (‏`test_symbol` ⟵
+#    `list_entries` على الجديدة · مساراتٌ عشوائيّةٌ ببذورٍ ثابتة) · بلا نظرٍ للأمام (شمعةُ D وما بعدها لا تغيّر شيئًا) · الإدخالُ الجديدُ لا القديم ·
+#    حارسُ التقسيم غيرِ المسوّى · الجلسةُ بعد يوم البناء · ويرفض 9 بلا تجميدٍ أو بلا نتيجة TEST · والـworkflow يمرّر الجلسة · ولا تلغرامَ ولا حالة.
+try:
+    import importlib.util as _r12_iu
+    import ast as _r12_ast
+    import os as _r12_os
+    import random as _r12_rnd
+    import datetime as _r12_dt
+    import market_calendar as _r12_mc
+    _r12_spec = _r12_iu.spec_from_file_location("t_rebuild_tool12", "fm_forensics/rebuild/rebuild.py")
+    _R12 = _r12_iu.module_from_spec(_r12_spec)
+    _r12_spec.loader.exec_module(_R12)
+    _r12_c = {}
+
+    def _try12(f, *a, **k):
+        try:
+            return f(*a, **k)
+        except Exception as _x:                                  # noqa: BLE001
+            return ("⛔", type(_x).__name__)
+    _fz12 = _R12.freeze_load()
+    _ss12 = _R12.sessions_between("2024-01-02", "2025-06-30", _r12_mc)
+    _G12 = _R12._gen5_ext()
+    _R12_SEEDS = ((2, ("2025-02-20", "2025-03-20")), (58, ("2025-03-05", "2025-04-30")), (103, ("2025-01-02", "2025-01-31")))
+
+    def _walk12(seed):
+        rng = _r12_rnd.Random(seed)
+        c, out = 10.0, []
+        for k, s in enumerate(_ss12):
+            r = rng.gauss(-0.004 if k < len(_ss12) - 170 else rng.choice([-0.012, -0.02, 0.002]), 0.05)
+            if rng.random() < 0.02:
+                r += rng.choice([0.4, -0.3])
+            c = max(0.05, c * (1 + r))
+            v = 1e5 * (1 + 5 * (rng.random() < 0.05))
+            out.append((s, c, c * (1 + abs(rng.gauss(0, 0.03))), c * (1 - abs(rng.gauss(0, 0.03))), c, v))
+        return out
+    # ① التطابقُ مع TEST: كلُّ جلسةٍ في النافذة ⟵ قائمةُ `shadow_symbol` = إدخالاتُ الجديدة من `test_symbol` بدرجتها
+    _live12, _ = _R12.configs(S)
+    _cfg12 = dict(S.CONFIG)
+    _keep12 = {k: getattr(S, k) for k in ("fintel_short", "finra_daily_short", "yf", "log", "time")}
+    _R12.install_stubs(S)
+    _prev12 = {d: _ss12[_ss12.index(d) - 1] for d in _ss12[1:]}
+    _eq12, _n12 = [], 0
+    try:
+        for _sd, _win in _R12_SEEDS:
+            _rows = _walk12(_sd)
+            _wd = [d for d in _ss12 if _win[0] <= d <= _win[1]]
+            _mem = _ss12[_ss12.index(_wd[0]) - 21: _ss12.index(_wd[-1]) + 1]
+            _tr = _R12.test_symbol(f"S{_sd}", _rows, None, _mem, _ss12, _prev12, {}, lambda a, b: None, S, _live12,
+                                   float(_live12["EXPLOSION_PCT"]), _G12, _fz12)
+            _t = {k[1]: v[6] for k, v in _R12.list_entries(_tr, _ss12, 5, (_wd[0], _wd[-1])).items()}
+            _s = {}
+            for _d in _wd:
+                _st, _row = _R12.shadow_symbol(f"S{_sd}", _rows, None, _d, _ss12, S, _G12, _fz12)
+                if _row:
+                    _s[_d] = _row[1]
+            _n12 += len(_t)
+            _eq12.append(set(_t) == set(_s) and all(abs(_t[d] - _s[d]) < 1e-6 for d in _t))
+    finally:
+        S.CONFIG.clear()
+        S.CONFIG.update(_cfg12)
+        for _k, _vv in _keep12.items():
+            setattr(S, _k, _vv)
+    _r12_c["equiv_test"] = bool(_eq12) and all(_eq12) and _n12 >= 3
+    # ② بلا نظرٍ للأمام: شموعُ D وما بعدها (قيمٌ متطرّفة) لا تغيّر الصفّ · والصفُّ لا يحمل شيئًا بعد D
+    _sd0, _w0 = _R12_SEEDS[0]
+    _r0 = _walk12(_sd0)
+    _d0 = next(d for d in _ss12 if _w0[0] <= d <= _w0[1]
+               and (_R12.shadow_symbol("X", _r0, None, d, _ss12, S, _G12, _fz12)[1] or None))
+    _base0 = _R12.shadow_symbol("X", _r0, None, _d0, _ss12, S, _G12, _fz12)
+    _i0 = _ss12.index(_d0)
+    _cut = [x for x in _r0 if x[0] < _d0]
+    _fut = _cut + [(x[0], 99.0, 999.0, 0.001, 50.0, 9e9) for x in _r0 if x[0] >= _d0]
+    _fsd = _ss12[_i0 + 3]                                                       # تقسيمٌ عكسيٌّ غيرُ مسوّى بعد D بثلاث جلسات: لا يُرى
+    _fsp = [x if x[0] < _fsd else (x[0], x[1] * 10, x[2] * 10, x[3] * 10, x[4] * 10, x[5]) for x in _r0]
+    _r12_c["no_lookahead"] = (_base0[1] is not None and _R12.shadow_symbol("X", _fut, None, _d0, _ss12, S, _G12, _fz12) == _base0
+                              and _R12.shadow_symbol("X", _cut, None, _d0, _ss12, S, _G12, _fz12) == _base0
+                              and _G12.split_unadjusted(_fsp, [[_fsd, 0.1]], "0000-00-00", "9999-99-99") == [_fsd]
+                              and _R12.shadow_symbol("X", _fsp, [[_fsd, 0.1]], _d0, _ss12, S, _G12, _fz12) == _base0)
+    # ③ الجديدُ لا القديم: الجلسةُ التالية لإدخالٍ بعينه لا تُعيده ما دامت الدرجةُ فوق θ (نافذةُ 20 جلسة)
+    _nxt = [_R12.shadow_symbol("X", _r0, None, d, _ss12, S, _G12, _fz12)[1] for d in _ss12[_i0 + 1: _i0 + 21]]
+    _fzf = {"features": ["m_drop"], "w": [1.0], "mu": [0.0], "sd": [1.0], "b": 0.0, "theta": 0.5, "sha": "f"}   # تنطلق ⟺ هبوطٌ 70% فأكثر
+    _j1 = len(_ss12) - 60
+    _j2 = _j1 + 15                                                              # انطلاقٌ ثانٍ بعد 15 جلسة (داخل نافذة الـ20)
+    _dip = [(s_, 10.0 if k < _j1 else 2.5 if k in (_j1, _j2) else 5.0 - 0.07 * (k - _j1) if k < _j2 else 4.0) for k, s_ in enumerate(_ss12)]
+    _dip = [(s_, c_, c_ * 1.01, c_ * 0.99, c_, 1e5) for s_, c_ in _dip]
+    _nod = [(x[0], 5.0, 5.05, 4.95, 5.0, 1e5) if k == _j1 else x for k, x in enumerate(_dip)]
+    _r12_c["new_only"] = (all(r is None for r in _nxt)
+                          and _R12.shadow_symbol("Y", _dip, None, _ss12[_j1 + 1], _ss12, S, _G12, _fzf)[1] is not None
+                          and _R12.shadow_symbol("Y", _dip, None, _ss12[_j2 + 1], _ss12, S, _G12, _fzf) == ("ok", None)
+                          and _R12.shadow_symbol("Y", _nod, None, _ss12[_j2 + 1], _ss12, S, _G12, _fzf)[1] is not None)
+    # ④ الحالات: بلا شموع ⟵ none · آخرُ شمعةٍ قبل D بأكثرَ من 7 أيّام ⟵ stale · وتقسيمٌ غيرُ مسوّى في النافذة ⟵ يُستبعد
+    _old = [x for x in _r0 if x[0] < "2024-06-01"]
+    _usd = _ss12[_i0 - 250]                                                     # تقسيمٌ عكسيٌّ 1:10 غيرُ مسوّى قبل D بـ250 جلسة (داخل 800 يوم)
+    _uj = [x if x[0] < _usd else (x[0], x[1] * 10, x[2] * 10, x[3] * 10, x[4] * 10, x[5]) for x in _cut]
+    _r12_c["states"] = (_R12.shadow_symbol("X", [], None, _d0, _ss12, S, _G12, _fz12) == ("none", None)
+                        and _R12.shadow_symbol("X", _old, None, _d0, _ss12, S, _G12, _fz12) == ("stale", None)
+                        and _R12.shadow_symbol("X", _uj, None, _d0, _ss12, S, _G12, _fz12)[1] is not None      # بلا سجلّ تقسيمٍ: يُدرَج
+                        and _R12.shadow_symbol("X", _uj, [[_usd, 0.1]], _d0, _ss12, S, _G12, _fz12) == ("ok", None))
+    # ⑤ الجلسةُ أماميّة: أوّلُ جلسةٍ لم يُفتتح سوقُها لحظةَ البناء (بتوقيت نيويورك لا تاريخ UTC · عطلةُ نهاية الأسبوع وعيدُ الشكر) ·
+    #    وجلسةٌ افتُتحت أو ليست جلسةً ⟵ رفضٌ قبل أيّ جلب
+    _utc12 = _r12_dt.timezone.utc
+    _nows = [_r12_dt.datetime(2026, 10, 28, 22, 0, tzinfo=_utc12), _r12_dt.datetime(2026, 10, 29, 1, 0, tzinfo=_utc12),
+             _r12_dt.datetime(2026, 10, 29, 12, 0, tzinfo=_utc12), _r12_dt.datetime(2026, 10, 29, 14, 0, tzinfo=_utc12),
+             _r12_dt.datetime(2026, 10, 30, 22, 0, tzinfo=_utc12), _r12_dt.datetime(2026, 11, 25, 22, 0, tzinfo=_utc12)]
+    _inj12 = {"fetch_bars": lambda s_: [], "fetch_universe": lambda: [], "splits": {}, "fz": _fz12, "test_result": {"branch": 3}}
+    _r12_c["forward"] = ([_R12.shadow_next_session(x, _r12_mc) for x in _nows]
+                         == ["2026-10-29", "2026-10-29", "2026-10-29", "2026-10-30", "2026-11-02", "2026-11-27"]
+                         and _try12(_R12.mode_shadow, "", d="2026-10-29", now=_nows[3], **_inj12) == ("⛔", "ValueError")
+                         and _try12(_R12.mode_shadow, "", d="2026-10-31", now=_nows[0], **_inj12) == ("⛔", "ValueError")
+                         and isinstance(_try12(_R12.mode_shadow, "", d="2026-10-29", now=_nows[2], **_inj12), dict))
+    # ⑥ المُخرَج: يحمل حكمَ TEST وبصمةَ التجميد · ومرتّبٌ بالدرجة · والتغطيةُ = ok ÷ الكون
+    _m12 = _try12(_R12.mode_shadow, "", d=_d0, now=_r12_dt.datetime.fromisoformat(_d0 + "T12:00:00+00:00"), fetch_bars=lambda s: _r0 if s == "AAA" else [],
+                  fetch_universe=lambda: ["AAA", "ZZZ"], splits={}, fz=_fz12, test_result={"branch": 3, "verdict": "لا يُقبل", "run": 7})
+    _r12_c["record"] = (isinstance(_m12, dict) and _m12.get("list") == [["AAA"] + _base0[1][1:]] and _m12.get("test_branch") == 3 and _m12.get("test_run") == 7
+                        and _m12.get("freeze_sha") == _fz12["sha"] and _m12.get("coverage") == 0.5 and _m12.get("status") == {"ok": 1, "none": 1}
+                        and "لا تلغرام" in _m12.get("note", "") and _m12.get("bars_to") == _ss12[_i0 - 1]
+                        and _m12.get("session_open", "").startswith(_d0 + "T09:30:00-05:00"))
+    # ⑦ موصولةٌ بالدوالّ نفسِها (AST) · ويرفض 9 بلا نتيجة TEST أو بلا تجميد
+    _cl12 = {getattr(n.func, "id", None) or getattr(n.func, "attr", None)
+             for n in _r12_ast.walk(_r12_ast.parse(_insp0.getsource(_R12.shadow_symbol))) if isinstance(n, _r12_ast.Call)}
+    _r12_c["wired"] = {"base2_dist", "base2_margin", "pair_flags", "frozen_score", "row_guards", "new_entries", "base2_fire",
+                       "p1_days", "p1p_days", "p2_days", "p3_days", "jumps", "tested_level", "split_unadjusted", "gaps"} <= _cl12
+    _env12 = _r12_os.environ.get("REBUILD_MODE")
+    _g12, _f12 = _R12.TEST_RESULT_GLOB, _R12.freeze_load
+    _rc12 = []
+    try:
+        _r12_os.environ["REBUILD_MODE"] = "shadow"
+        _R12.TEST_RESULT_GLOB = "/nonexistent/test_result_*.json"
+        _rc12.append(_try12(_R12.main))
+        _R12.TEST_RESULT_GLOB = _g12
+        _R12.freeze_load = lambda *a, **k: None
+        _rc12.append(_try12(_R12.main))
+    finally:
+        _R12.TEST_RESULT_GLOB, _R12.freeze_load = _g12, _f12
+        if _env12 is None:
+            _r12_os.environ.pop("REBUILD_MODE", None)
+        else:
+            _r12_os.environ["REBUILD_MODE"] = _env12
+    _r12_c["refuse"] = _rc12 == [9, 9]
+    # ⑧ الـworkflow: الخيارُ والجلسةُ تُمرَّر · والوظيفةُ الواحدة لا تستثنيه
+    import yaml as _r12_yaml
+    _wf12 = _r12_yaml.safe_load(open(".github/workflows/rebuild.yml", encoding="utf-8"))
+    _job12 = _wf12["jobs"]["rebuild"]
+    _envs12 = [st.get("env", {}) for st in _job12["steps"] if st.get("env")]
+    _r12_c["workflow"] = ("shadow" in _wf12[True]["workflow_dispatch"]["inputs"]["mode"]["options"]
+                          and "session" in _wf12[True]["workflow_dispatch"]["inputs"]
+                          and any(e.get("SHADOW_SESSION") == "${{ github.event.inputs.session }}" for e in _envs12)
+                          and "'shadow'" not in _job12["if"] and "TELEGRAM" not in open(".github/workflows/rebuild.yml", encoding="utf-8").read())
+except Exception as _e:                                              # noqa: BLE001
+    _r12_c = {"⛔": False}
+    _v_r12w = f"⛔ رمى: {type(_e).__name__}: {_e}"
+_v_r12 = bool(_r12_c) and all(_r12_c.values())
+if "⛔" not in _r12_c:
+    _v_r12w = f"{ {k: v for k, v in _r12_c.items() if not v} or 'كلّها'}"
+check("🧭 RBD12 (‏2026-10-28) القائمةُ الظلّيّة §⑫: = قائمةُ TEST الجديدة على الشموع نفسِها · بلا نظرٍ للأمام · الجديدُ لا القديم · الحالاتُ والحارس · "
+      "الجلسةُ أماميّة · المُخرَجُ يحمل الحكم · موصولةٌ بالدوالّ نفسِها · ترفض 9 · والـworkflow", _v_r12, _v_r12w)
+
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).

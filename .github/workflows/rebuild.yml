@@ -4,6 +4,7 @@ name: "🧭 T-REBUILD الجزء ب (قراءةٌ وقياس · يدويّ)"
 # `bases` = §⑥ على TRAIN والاختيارُ على VAL: prep ⟵ 20 شريحةً متوازية ⟵ assemble (ولا TEST).
 # `b3` = §⑦ الجردُ المقصوص بالملحق 2: 20 شريحةً ⟵ assemble (prep من `prep_run` · يرفض 9 بلا الملحق 2 ببصمته أو بلا نتيجة TEST في data/).
 # `test` = §⑩-§⑪ مرّةً واحدة: test_prep ⟵ 20 شريحة ⟵ assemble (يرفض 9 بلا تجميدٍ ببصمته · و7 إن وُجدت نتيجةٌ في data/).
+# `shadow` = §⑫ B8 القائمةُ الظلّيّة لجلسةٍ قادمة بالدرجة المجمَّدة (ملفٌّ وتسجيل · بلا تلغرام · يرفض 9 بلا تجميدٍ أو بلا نتيجة TEST في data/).
 # `pairs` = §⑨ الأزواجُ ثمّ §⑧ الدرجةُ والتجميد بالملحق 1 على TRAIN وحدَه: prep تشغيلة `bases` نفسِها (`prep_run`) ⟵ 20 شريحة ⟵ assemble (ويرفض 9 بلا الملحق ببصمته).
 permissions:
   contents: read
@@ -12,14 +13,18 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "الوضع (المبنيّ: d0 · ready117 · bases · pairs · test · b3)"
+        description: "الوضع (المبنيّ: d0 · ready117 · bases · pairs · test · b3 · shadow)"
         type: choice
-        options: [d0, ready117, bases, pairs, test, b3]
+        options: [d0, ready117, bases, pairs, test, b3, shadow]
         default: d0
       prep_run:
         description: "للأزواج: تشغيلةُ bases التي يُعاد منها prep (عضويّةٌ وتقسيماتٌ وFINRA بحرفها)"
         type: string
         default: "40741993539"
+      session:
+        description: "للقائمة الظلّيّة: الجلسة (فارغ = أوّلُ جلسةٍ بعد يوم البناء)"
+        type: string
+        default: ""
 
 jobs:
   rebuild:
@@ -43,6 +48,7 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           REBUILD_MODE: ${{ github.event.inputs.mode }}
+          SHADOW_SESSION: ${{ github.event.inputs.session }}
           FAISAL_ONLY: "1"
           PYTHONUNBUFFERED: "1"
         run: python fm_forensics/rebuild/rebuild.py
