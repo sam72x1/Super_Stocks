@@ -7,6 +7,7 @@
     REBUILD_MODE=d0        جدوى البيانات §③ — أعدادٌ فقط (اللقطات · الرموز · التغطية · الحرّاس على عيّنة الشموع · FINRA · وكيلُ الفلوت)
     REBUILD_MODE=ready117  جدولُ §⑤ — RSI14 للـ117 READY والـ277 MISSED_READY (وصفيّ · لا يختار شيئًا)
     REBUILD_MODE=bases_prep / bases_shard (SHARD · NSHARDS) / bases_assemble   §⑥ الأساسُ على TRAIN والاختيارُ على VAL — ولا TEST
+    REBUILD_MODE=test_prep / test_shard / test_assemble   §⑩-§⑪ TEST مرّةً واحدة بالدرجة المجمَّدة (`data/freeze_rebuild.json`)
     REBUILD_MODE=pairs_shard (SHARD · NSHARDS) / pairs_assemble   §⑨ الأزواجُ ثمّ §⑧ الدرجةُ والتجميد بالملحق 1 (`T_REBUILD_ADDENDUM_1.md`) على TRAIN وحدَه
 
 الدوالُّ النقيّة (مقفولةٌ سلوكيًّا في `RBD1`/`RBD3`): `asof_scale` · `new_entries` · `exploded` · `rsi14_before` · `gaps` · `band` ·
@@ -538,13 +539,16 @@ def _jload(path):
         return json.load(fh)
 
 
-def mode_bases_prep(key):
-    """العضويّةُ الشهريّة (36 لقطةً ‏+ لقطةُ الإحماء) · التقسيماتُ بالرمز · وملفُّ FINRA لجلسة D−1 لكلّ D (للاتّحاد وحدَه)."""
+def mode_bases_prep(key, months=None, sess_from=SESS_FROM, sess_to=None, all_from="2022-11-01", out="prep.json.gz",
+                    tag="bases_prep"):
+    """العضويّةُ الشهريّة (36 لقطةً ‏+ لقطةُ الإحماء) · التقسيماتُ بالرمز · وملفُّ FINRA لجلسة D−1 لكلّ D (للاتّحاد وحدَه) —
+    والوسائطُ لـTEST وحدَه (`mode_test_prep`) · وافتراضُها سلوكُ bases بت-بت."""
     sys.path.insert(0, ROOT)
     import market_calendar as MC
     import pit_universe as PU
     import pit_snapshot as PS
-    months = [(2022, 12)] + [(y, m) for y in (2023, 2024, 2025) for m in range(1, 13)]
+    months = months or [(2022, 12)] + [(y, m) for y in (2023, 2024, 2025) for m in range(1, 13)]
+    sess_to = sess_to or VAL[1]
     snaps, union = {}, set()
     for d in _first_sessions(months, MC):
         rows = PU.fetch_universe(d, key)
@@ -559,8 +563,8 @@ def mode_bases_prep(key):
                 sp_by.setdefault(r["ticker"], []).append([r["execution_date"], float(r["split_to"]) / float(r["split_from"])])
         except (KeyError, TypeError, ValueError, ZeroDivisionError):
             continue
-    sess = sessions_between(SESS_FROM, VAL[1], MC)
-    allsess = sessions_between("2022-11-01", VAL[1], MC)
+    sess = sessions_between(sess_from, sess_to, MC)
+    allsess = sessions_between(all_from, sess_to, MC)
     prev_of = {d: allsess[allsess.index(d) - 1] for d in sess}
     finra, miss = {}, []
     for p in sorted(set(prev_of.values())):
@@ -581,8 +585,8 @@ def mode_bases_prep(key):
     log(f"prep: union {len(union)} · splits for {len(sp_by)} symbols · sessions {len(sess)} · FINRA {len(finra)} files · missing {len(miss)}")
     prep = {"snapshots": snaps, "union": sorted(union), "splits": sp_by, "sessions": sess, "prev_of": prev_of, "finra": finra,
             "finra_missing": miss}
-    _jdump(prep, os.path.join(OUT, "prep.json.gz"))
-    return {"mode": "bases_prep", "union": len(union), "snapshots": {k: len(v) for k, v in snaps.items()}, "split_symbols": len(sp_by),
+    _jdump(prep, os.path.join(OUT, out))
+    return {"mode": tag, "union": len(union), "snapshots": {k: len(v) for k, v in snaps.items()}, "split_symbols": len(sp_by),
             "sessions": len(sess), "finra_files": len(finra), "finra_missing": miss}
 
 
@@ -1068,16 +1072,287 @@ def mode_pairs_assemble(shards=None, prep=None, bases=None, seed=SEED, b=BOOT_B)
     return res
 
 
+# ── §⑩ القبول (B6) و§⑪ الرقم (B7) — TEST مرّةً واحدة بعد التجميد (الملحق 1 §④) ───────────────────────────────
+TEST_WARM = "2024-12-01"                      # إحماءُ «الإدخال الجديد» على TEST (لقطةُ 2024-12 · لا تُعَدّ)
+TEST_HALVES = (("2025-01-02", "2025-06-30"), ("2025-07-01", "2025-12-31"))
+TEST_MIN_ENTRIES, TEST_MIN_EXPLODED = 100, 15      # §⑩ «لا قياس»
+STOP_S5 = 0.95                                # §⑪ S5 = tested_level × 0.95
+TEST_RESULT_GLOB = os.path.join(HERE, "data", "test_result_*.json")
+PROD_OFF = (("M8_GAP_REQUIRED", "مطفأة (GAP_REQUIRED=False)"),
+            ("STABILITY_BT (STABILITY_MIN رفضًا)", "مطفأة (BT_STABILITY_GATE فارغ: يُحسب ويُعرض ولا يرفض)"),
+            ("STABILITY_MAX", "مطفأة (لا تُنفَّذ في أيّ ذراع)"),
+            ("NEAR_READINESS", "مطفأة (NEAR_PCT=0)"),
+            ("PIVOT_SWEEP_PCT", "عرضٌ فقط لا بوّابة"),
+            ("RSI_OVERSOLD · RSI_MAX_NOW · MA_GATE_MAX_ABOVE_PCT", "ليّنة (نقصٌ يُعَدّ في WATCH_MAX_FAILS · لا رفضَ وحدَها)"),
+            ("M13_SHORT", "ليّنة (نقصٌ لا رفض)"),
+            ("BORROW_AVAIL_MAX", "حيّةٌ في الإنتاج · لم تُقَس هنا (لا تاريخ)"))
+
+
+def freeze_load(path=FREEZE):
+    """ملفُّ التجميد ببصمته وبصمةِ الملحق ⟵ dict أو None."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            fz = json.load(fh)
+    except (OSError, ValueError):
+        return None
+    if fz.get("sha") != freeze_sha(fz) or fz.get("addendum_sha") != ADDENDUM_SHA or fz.get("theta") is None:
+        return None
+    return fz
+
+
+def frozen_score(fz, d_rsi, d_drop, flags):
+    """الدرجةُ المجمَّدة لصفٍّ من البِركة (المسافتان ‏+ أعلامُ الأزواج الداخلة بأسمائها)."""
+    import math
+    val = {"d_rsi": d_rsi, "d_drop": d_drop, "I_P1": flags[0], "I_P1p": flags[1], "I_P2": flags[2], "I_P3": flags[3]}
+    s = fz["b"] + sum(w * (float(val[f]) - m) / sd for f, w, m, sd in zip(fz["features"], fz["w"], fz["mu"], fz["sd"]))
+    return 1.0 / (1.0 + math.exp(-s))
+
+
+def stop_outcome(rows, i, stop, pct, win=WIN):
+    """§⑪ لصفّ D = i: «بلغ ‏+50% قبل أن يلمس الوقف» على [D، D+19] (يومُ اللمستين ⟵ الوقفُ أوّلًا) — True/False · None بلا وقفٍ أو بلا 20 جلسة."""
+    if stop is None or i < 1 or i + win > len(rows):
+        return None
+    tgt = float(rows[i - 1][4]) * (1 + pct / 100.0)
+    for k in range(i, i + win):
+        lo, hi = float(rows[k][3]), float(rows[k][2])
+        if lo <= stop:
+            return False
+        if hi >= tgt:
+            return True
+    return False
+
+
+def test_symbol(sym, rows, splits_sym, member_days, sess, prev_of, finra, proxy_fn, S, cfg_live, pct, G5, fz):
+    """صفوفُ TEST لرمز (من الإحماء): [sym، D، y، BASE2، CURRENT، الجديدة، الدرجة، S0، S5] حيث تنطلق قائمةٌ واحدةٌ على الأقلّ."""
+    import bisect
+    import pandas as pd
+    if not rows:
+        return []
+    dates = [x[0] for x in rows]
+    c = [float(x[4]) for x in rows]
+    h = [float(x[2]) for x in rows]
+    low = [float(x[3]) for x in rows]
+    v = [float(x[5]) for x in rows]
+    rsi = [float(z) for z in S.rsi(pd.Series(c, dtype=float), 14).values]
+    unadj = G5.split_unadjusted(rows, splits_sym, "0000-00-00", "9999-99-99")
+    gp = gaps(rows)
+    J = jumps(c, v)
+    trig = (p1_days(rsi, J), p1p_days(J), p2_days(rsi, c, low, S), p3_days(c, h, v))
+    full = pd.DataFrame({"Open": [x[1] for x in rows], "High": h, "Low": low, "Close": c, "Volume": v},
+                        index=pd.to_datetime(dates))
+    out = []
+    for d in member_days:
+        if d > TEST[1]:
+            break
+        i = bisect.bisect_left(dates, d)
+        if i < 1 or (dt.date.fromisoformat(d) - dt.date.fromisoformat(dates[i - 1])).days > STALE_DAYS:
+            continue
+        sp, gq = row_guards(dates, i, d, unadj, gp)
+        if sp or gq:
+            continue
+        b2 = base2_fire(rsi, c, h, i)
+        dr, dd = base2_dist(rsi, c, h, i)
+        sc = frozen_score(fz, dr, dd, pair_flags(trig, i)) if dr > 0 and dd > 0 else None
+        new = sc is not None and sc >= fz["theta"]
+        lo = bisect.bisect_left(dates, (dt.date.fromisoformat(d) - dt.timedelta(HISTORY_DAYS)).isoformat())
+        sub = full.iloc[lo:i]
+        f = asof_factor(splits_sym, d)
+        if f != 1.0:
+            sub = sub.copy()
+            sub[["Open", "High", "Low", "Close"]] *= f
+            sub["Volume"] /= f
+        with_config(S, cfg_live)
+        try:
+            r = S.analyze_ticker(sym, sub)
+        except Exception:                                       # noqa: BLE001
+            r = None
+        cur = bool(r) and post_scan(S, r, (finra.get(prev_of[d]) or {}).get(sym), proxy_fn(sym, prev_of[d]))
+        if not (b2 or cur or new):
+            continue
+        tl = S.tested_level(full.iloc[:i]) if new else None
+        lv = float(tl["level"]) if tl else None
+        out.append([sym, d, exploded(rows, d, pct), int(b2), int(cur), int(new), None if sc is None else round(sc, 6),
+                    stop_outcome(rows, i, lv, pct) if new else None,
+                    stop_outcome(rows, i, None if lv is None else lv * STOP_S5, pct) if new else None])
+    return out
+
+
+def boot_share(ent, seed=SEED, b=BOOT_B):
+    """فاصلُ 95% لحصّة قائمةٍ واحدة ببوتستراب عنقوديٍّ بالرمز (§⑪ «من كلّ 10»)."""
+    per = {}
+    for (sym, _), y in ent.items():
+        if y is None:
+            continue
+        p = per.setdefault(sym, [0, 0])
+        p[0] += 1
+        p[1] += int(bool(y))
+    syms = sorted(per)
+    if not syms:
+        return None
+    rng = random.Random(seed)
+    vals = []
+    for _ in range(b):
+        n_l = n_e = 0
+        for _k in range(len(syms)):
+            p = per[syms[rng.randrange(len(syms))]]
+            n_l += p[0]
+            n_e += p[1]
+        if n_l:
+            vals.append(n_e / n_l)
+    vals.sort()
+    return [round(vals[int(0.025 * len(vals))], 4), round(vals[min(len(vals) - 1, int(0.975 * len(vals)))], 4)]
+
+
+def test_verdict(st_new, st_b2, st_cur, ci, halves, coverage):
+    """§⑩ بنصّه: 4 «لا قياس» ⟵ 1 «تُقبل» ⟵ 2 «التعقيدُ لم يضف شيئًا» ⟵ 3 «لا يُقبل»."""
+    if (st_new["entries"] < TEST_MIN_ENTRIES or st_new["exploded"] < TEST_MIN_EXPLODED or coverage is None
+            or coverage < COVERAGE_FLOOR):
+        return 4, "لا قياس"
+    sn, sc = st_new["share"], st_cur["share"]                    # BASE2 يدخل الحكمَ بفاصل الفرق وبنصفَي 2025
+    if ci and ci[0] > 0 and sc is not None and sn >= sc and all(x is not None and x > 0 for x in halves):
+        return 1, "تُقبل"
+    if sc is not None and sn > sc:
+        return 2, "التعقيدُ لم يضف شيئًا"
+    return 3, "لا يُقبل"
+
+
+def mode_test_shard(key, shard, nshards, fetch_bars=None, fetch_proxy=None, prep=None, fz=None):
+    """رموزُ الشريحة على TEST بالدرجة المجمَّدة (لا شيءَ قبل الإحماء ولا بعد 2025)."""
+    fz = fz or freeze_load()
+    if fz is None:
+        raise ValueError("لا تجميدَ ببصمته ⟵ لا TEST")
+    prep = prep or _jload(os.path.join(OUT, "test_prep.json.gz"))
+    sys.path.insert(0, ROOT)
+    os.environ["FAISAL_ONLY"] = "0"
+    import Super_stock as S
+    import pit_history as PH
+    live, _ = configs(S)
+    install_stubs(S)
+    G5 = _gen5_ext()
+    pct = float(live["EXPLOSION_PCT"])
+    member = {}
+    for d in prep["sessions"]:
+        for s in prep["snapshots"].get(d[:7], []):
+            member.setdefault(s, []).append(d)
+    cache = {}
+
+    def _proxy(sym, day):
+        if (sym, day) not in cache:
+            if fetch_proxy is not None:
+                cache[(sym, day)] = fetch_proxy(sym, day)
+            else:
+                code, body = _get(PROXY_URL.format(t=sym, d=day, k=key))
+                try:
+                    cache[(sym, day)] = json.loads(body or b"{}").get("results", {}).get("share_class_shares_outstanding")
+                except Exception:                               # noqa: BLE001
+                    cache[(sym, day)] = None
+        return cache[(sym, day)]
+
+    out, diag = [], {}
+    syms = prep["union"][shard::nshards]
+    t0 = time.time()
+    for n, sym in enumerate(syms):
+        if fetch_bars is not None:
+            rows = fetch_bars(sym)
+            why = "ok" if rows else "empty"
+        else:
+            df, why = PH.polygon_daily(sym, BARS_FROM, BARS_TO, key)
+            rows = _rows(df) if df is not None else []
+        diag[why.split("(")[0]] = diag.get(why.split("(")[0], 0) + 1
+        out += test_symbol(sym, rows, prep["splits"].get(sym), member.get(sym, []), prep["sessions"], prep["prev_of"],
+                           prep["finra"], _proxy, S, live, pct, G5, fz)
+        if n % 25 == 0:
+            log(f"test shard {shard}: {n + 1}/{len(syms)} · {round(time.time() - t0)}s · rows {len(out)}")
+    with_config(S, live)
+    res = {"shard": shard, "nshards": nshards, "symbols": len(syms), "bars_diag": diag, "proxy_calls": len(cache),
+           "freeze_sha": fz["sha"], "rows": out}
+    if fetch_bars is None:
+        _jdump(res, os.path.join(OUT, f"test_shard_{shard:02d}.json.gz"))
+    return res
+
+
+def list_entries(rows, sess, k, period):
+    """إدخالاتُ القائمة k (3 BASE2 · 4 CURRENT · 5 الجديدة) الجديدة في الفترة: {(sym، D): الصفّ}."""
+    by, out = {}, {}
+    for r in rows:
+        if r[k]:
+            by.setdefault(r[0], []).append(r)
+    for sym, rs in by.items():
+        days = {r[1]: r for r in rs}
+        for d in new_entries(sorted(days), sess):
+            if period[0] <= d <= period[1]:
+                out[(sym, d)] = days[d]
+    return out
+
+
+def mode_test_assemble(shards=None, prep=None, fz=None):
+    """§⑩ الحكم · §⑪ «من كلّ 10» وذراعا الوقف · وجدولُ المطفأ في الإنتاج — مرّةً واحدة."""
+    import glob
+    fz = fz or freeze_load()
+    if fz is None:
+        raise ValueError("لا تجميدَ ببصمته ⟵ لا TEST")
+    prep = prep or _jload(os.path.join(OUT, "test_prep.json.gz"))
+    if shards is None:
+        shards = [_jload(p) for p in sorted(glob.glob(os.path.join(OUT, "**", "test_shard_*.json.gz"), recursive=True))]
+    if not shards or len(shards) != shards[0]["nshards"] or any(sh["freeze_sha"] != fz["sha"] for sh in shards):
+        return {"mode": "test_assemble", "verdict": "⛔ لا حكم — الشرائحُ ناقصةٌ أو بتجميدٍ آخر"}
+    rows = [r for sh in shards for r in sh["rows"]]
+    sess = prep["sessions"]
+    n_sess = sum(1 for d in sess if TEST[0] <= d <= TEST[1])
+    ents = {n: list_entries(rows, sess, k, TEST) for n, k in (("NEW", 5), ("BASE2", 3), ("CURRENT", 4))}
+    lab = {n: {kk: r[2] for kk, r in e.items()} for n, e in ents.items()}
+    st_ = {n: share_stats(lab[n], n_sess) for n in ents}
+    ci = boot_diff(lab["NEW"], lab["BASE2"])
+    halves = []
+    for a, b in TEST_HALVES:
+        hn = {kk: y for kk, y in lab["NEW"].items() if a <= kk[1] <= b}
+        hb = {kk: y for kk, y in lab["BASE2"].items() if a <= kk[1] <= b}
+        sn, sb = share_stats(hn, 1)["share"], share_stats(hb, 1)["share"]
+        halves.append(None if sn is None or sb is None else round(sn - sb, 4))
+    diag = {}
+    for sh in shards:
+        for kk, vv in sh["bars_diag"].items():
+            diag[kk] = diag.get(kk, 0) + vv
+    cov = diag.get("ok", 0) / max(1, sum(diag.values()))
+    code, words = test_verdict(st_["NEW"], st_["BASE2"], st_["CURRENT"], ci, halves, cov)
+    newl = [r for r in ents["NEW"].values()]
+    s0 = [r[7] for r in newl if r[7] is not None]
+    s5 = [r[8] for r in newl if r[8] is not None]
+    ci10 = boot_share(lab["NEW"])
+    sn = st_["NEW"]["share"]
+    return {"mode": "test_assemble", "freeze_sha": fz["sha"], "sessions": n_sess, "coverage": round(cov, 4), "bars_diag": diag,
+            "stats": st_, "diff_ci_new_vs_base2": ci, "halves_diff": halves, "branch": code, "verdict": words,
+            "of10": None if sn is None else round(10 * sn, 2), "of10_ci": None if not ci10 else [round(10 * x, 2) for x in ci10],
+            "stops": {"S0": {"n": len(s0), "hit50_first": sum(1 for x in s0 if x)},
+                      "S5": {"n": len(s5), "hit50_first": sum(1 for x in s5 if x)},
+                      "unknown_level": sum(1 for r in newl if r[7] is None)},
+            "production_off": [list(x) for x in PROD_OFF]}
+
+
+def mode_test_prep(key):
+    """§⑩ عضويّةُ 2025 (‏+ لقطةُ الإحماء 2024-12) · التقسيمات · FINRA لجلسة D−1 — بـ`mode_bases_prep` نفسِها."""
+    return mode_bases_prep(key, months=[(2024, 12)] + [(2025, m) for m in range(1, 13)], sess_from=TEST_WARM, sess_to=TEST[1],
+                           all_from="2024-11-01", out="test_prep.json.gz", tag="test_prep")
+
+
 def main():
     mode = os.environ.get("REBUILD_MODE", "").strip()
     key = os.environ.get("POLYGON_API_KEY", "")
     if not os.path.exists(CONTRACT):
         log("⛔ العقد غائب")
         return 9
-    built = ("d0", "ready117", "bases_prep", "bases_shard", "bases_assemble", "pairs_shard", "pairs_assemble")
+    built = ("d0", "ready117", "bases_prep", "bases_shard", "bases_assemble", "pairs_shard", "pairs_assemble", "test_prep", "test_shard", "test_assemble")
     if mode not in built:
         log(f"⛔ وضعٌ غيرُ مبنيّ: {mode!r} (المبنيّ: {' · '.join(built)})")
         return 3
+    if mode.startswith("test_"):
+        import glob as _g
+        if _g.glob(TEST_RESULT_GLOB):
+            log("⛔ TEST قِيس مرّةً ونتيجتُه في data/ ⟵ لا إعادة (§⑩ «مرّةً واحدة»)")
+            return 7
+        if not addendum_ok() or freeze_load() is None:
+            log("⛔ لا ملحقَ ببصمته أو لا تجميدَ ببصمته على main ⟵ لا TEST (الملحق 1 §③)")
+            return 9
     if mode.startswith("pairs_") and not addendum_ok():
         log("⛔ الملحق 1 غائبٌ أو غيرُ بصمته المدموجة ⟵ لا جرد (التعريفاتُ قبل الرقم)")
         return 9
@@ -1087,7 +1362,7 @@ def main():
         if _base != "BASE2":
             log(f"⛔ الأساسُ {_base} ⟵ ملحقٌ ثانٍ قبل الدرجة (الملحق 1 §③)")
             return 3
-    if not key and mode not in ("bases_assemble", "pairs_assemble"):
+    if not key and mode not in ("bases_assemble", "pairs_assemble", "test_assemble"):
         log("⛔ لا مفتاح Polygon")
         return 2
     t0 = time.time()
@@ -1103,6 +1378,14 @@ def main():
     elif mode == "bases_assemble":
         res = mode_bases_assemble()
         _jdump(res, os.path.join(OUT, "bases_result.json.gz"))
+    elif mode == "test_prep":
+        res = mode_test_prep(key)
+    elif mode == "test_shard":
+        res = mode_test_shard(key, int(os.environ.get("SHARD", "0")), int(os.environ.get("NSHARDS", str(NSHARDS))))
+        res = {k: v for k, v in res.items() if k != "rows"} | {"rows_n": len(res["rows"])}
+    elif mode == "test_assemble":
+        res = mode_test_assemble()
+        _jdump(res, os.path.join(OUT, "test_result.json.gz"))
     elif mode == "pairs_shard":
         res = mode_pairs_shard(key, int(os.environ.get("SHARD", "0")), int(os.environ.get("NSHARDS", str(NSHARDS))))
         res = {k: v for k, v in res.items() if k != "rows"} | {"entries": len(res["rows"])}

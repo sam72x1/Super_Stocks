@@ -88391,6 +88391,92 @@ check("🧭 RBD6 (‏2026-10-28) الأزواجُ والدرجة بالملحق 
       _v_r6, _v_r6w)
 
 
+# 🧭 RBD7 (‏2026-10-28 · `T-REBUILD` §⑩-§⑪ · TEST مرّةً واحدة بعد التجميد): الوقفُ أوّلًا يومَ اللمستين وبلا مستوى مجهول · الدرجةُ المجمَّدة =
+#    اللوجستيّ بأسماء مدخلاته · التجميدُ يُرفض ببصمةٍ أو ملحقٍ آخر أو بلا θ · فروعُ §⑩ بترتيبها (4 ⟵ 1 ⟵ 2 ⟵ 3) ونصفا 2025 ·
+#    الإدخالاتُ في TEST وحدَها · «من كلّ 10» بفاصلٍ عنقوديّ · ولا TEST بلا تجميد · والمطفأُ في الإنتاج يُطبع.
+try:
+    import importlib.util as _r7_iu
+    import ast as _r7_ast
+    import math as _r7_math
+    _r7_spec = _r7_iu.spec_from_file_location("t_rebuild_tool7", "fm_forensics/rebuild/rebuild.py")
+    _R7 = _r7_iu.module_from_spec(_r7_spec)
+    _r7_spec.loader.exec_module(_R7)
+    _r7_c = {}
+    # ① الوقف: ‏+50% من إغلاق D−1 قبل لمس الوقف · يومُ اللمستين ⟵ الوقفُ أوّلًا · بلا مستوى ⟵ None · بلا 20 جلسة ⟵ None
+    def _bars(path):
+        return [("d%03d" % k, x, x * hi, x * lo, x, 1000.0) for k, (x, hi, lo) in enumerate(path)]
+    _base = [(1.0, 1.0, 1.0)] * 10
+    _up = _base + [(1.0, 1.6, 0.99)] + [(1.0, 1.0, 1.0)] * 25            # يبلغ 1.6 يومَ D ولا يلمس 0.95
+    _both = _base + [(1.0, 1.6, 0.90)] + [(1.0, 1.0, 1.0)] * 25          # يلمسهما في اليوم نفسِه
+    _none = _base + [(1.0, 1.1, 0.99)] * 25
+    _r7_c["stop"] = (_R7.stop_outcome(_bars(_up), 10, 0.95, 50.0) is True and _R7.stop_outcome(_bars(_both), 10, 0.95, 50.0) is False
+                     and _R7.stop_outcome(_bars(_none), 10, 0.95, 50.0) is False and _R7.stop_outcome(_bars(_up), 10, None, 50.0) is None
+                     and _R7.stop_outcome(_bars(_up)[:29], 10, 0.95, 50.0) is None)       # تنقص شمعةٌ واحدة عن D+19
+    # ② الدرجةُ المجمَّدة بأسماء مدخلاتها · ورفضُ التجميد المعطوب
+    _fz = {"addendum_sha": _R7.ADDENDUM_SHA, "features": ["d_rsi", "I_P2"], "w": [1.5, -0.5], "mu": [0.5, 0.1], "sd": [0.2, 0.3],
+           "b": -1.0, "theta": 0.3}
+    _fz["sha"] = _R7.freeze_sha(_fz)
+    _sc = _R7.frozen_score(_fz, 0.9, 0.2, [0, 0, 1, 0])
+    _man = 1 / (1 + _r7_math.exp(-(-1.0 + 1.5 * (0.9 - 0.5) / 0.2 - 0.5 * (1 - 0.1) / 0.3)))
+    import json as _r7_json
+    import tempfile as _r7_tmp
+    _ok_load = []
+    with _r7_tmp.TemporaryDirectory() as _td:
+        for _mut, _resha, _want in (({}, False, True), ({"theta": 0.31}, False, False), ({"addendum_sha": "x"}, True, False),
+                                    ({"theta": None}, True, False)):
+            _f = dict(_fz, **_mut)
+            if _resha:                                                # البصمةُ سليمة ⟵ الرفضُ من الحارس المسمّى وحدَه
+                _f["sha"] = _R7.freeze_sha(_f)
+            _p7 = _td + "/fz.json"
+            with open(_p7, "w", encoding="utf-8") as _fh:
+                _r7_json.dump(_f, _fh)
+            _ok_load.append((_R7.freeze_load(_p7) is not None) == _want)
+        _ok_load.append(_R7.freeze_load(_td + "/absent.json") is None)
+    _r7_c["score_freeze"] = abs(_sc - _man) < 1e-12 and all(_ok_load)
+    # ③ فروعُ §⑩ بترتيبها
+    def _st(e, x, s):
+        return {"entries": e, "exploded": x, "share": s}
+    _v = (_R7.test_verdict(_st(99, 30, 0.3), _st(500, 50, 0.1), _st(50, 5, 0.1), [0.05, 0.3], [0.1, 0.1], 0.95)[0],
+          _R7.test_verdict(_st(150, 14, 0.3), _st(500, 50, 0.1), _st(50, 5, 0.1), [0.05, 0.3], [0.1, 0.1], 0.95)[0],
+          _R7.test_verdict(_st(150, 30, 0.3), _st(500, 50, 0.1), _st(50, 5, 0.1), [0.05, 0.3], [0.1, 0.1], 0.84)[0],
+          _R7.test_verdict(_st(150, 30, 0.3), _st(500, 50, 0.1), _st(50, 5, 0.1), [0.05, 0.3], [0.1, 0.1], 0.95)[0],
+          _R7.test_verdict(_st(150, 30, 0.3), _st(500, 50, 0.1), _st(50, 5, 0.1), [0.05, 0.3], [0.1, -0.01], 0.95)[0],
+          _R7.test_verdict(_st(150, 30, 0.3), _st(500, 50, 0.1), _st(50, 5, 0.1), [0.0, 0.3], [0.1, 0.1], 0.95)[0],
+          _R7.test_verdict(_st(150, 30, 0.2), _st(500, 50, 0.1), _st(50, 5, 0.25), [0.05, 0.3], [0.1, 0.1], 0.95)[0])
+    _r7_c["branches"] = _v == (4, 4, 4, 1, 2, 2, 3)
+    # ④ الإدخالاتُ في TEST وحدَها · بالإحماء
+    _ss = ["2024-12-30", "2024-12-31", "2025-01-02", "2025-01-03", "2025-01-06"]
+    _rw7 = [["A", "2024-12-31", 1, 0, 0, 1, 0.5, None, None], ["A", "2025-01-02", 1, 0, 0, 1, 0.5, None, None],
+            ["B", "2025-01-03", 0, 1, 0, 1, 0.5, True, False]]
+    _le = _R7.list_entries(_rw7, _ss, 5, _R7.TEST)
+    _r7_c["entries"] = set(_le) == {("B", "2025-01-03")} and set(_R7.list_entries(_rw7, _ss, 3, _R7.TEST)) == {("B", "2025-01-03")}
+    # ⑤ «من كلّ 10» بفاصلٍ عنقوديّ حتميّ يحوي التقدير
+    _ent = {(f"S{k % 40}", f"2025-0{1 + k % 9}-01"): int(k % 4 == 0) for k in range(160)}
+    _bs = _R7.boot_share(_ent)
+    _r7_c["of10"] = _bs is not None and _bs[0] < 0.25 < _bs[1] and _bs == _R7.boot_share(_ent)
+    # ⑥ لا TEST بلا تجميد · ومسارُ الصفّ موصولٌ بالدوالّ بالاسم · والمطفأُ يُطبع
+    try:
+        _R7.mode_test_shard("x", 0, 1, prep={"sessions": []}, fz=None) if _R7.freeze_load() is None else None
+        _r7_c["no_freeze"] = _R7.freeze_load() is not None
+    except ValueError:
+        _r7_c["no_freeze"] = True
+    _calls = {getattr(n.func, "id", None) or getattr(n.func, "attr", None)
+              for n in _r7_ast.walk(_r7_ast.parse(inspect.getsource(_R7.test_symbol))) if isinstance(n, _r7_ast.Call)}
+    _r7_c["wired"] = {"analyze_ticker", "post_scan", "frozen_score", "pair_flags", "base2_dist", "stop_outcome", "base2_fire",
+                      "tested_level", "asof_factor"} <= _calls
+    _off = dict(_R7.PROD_OFF)
+    _r7_c["prod_off"] = all(any(k in n for n in _off) for k in ("M8_GAP_REQUIRED", "STABILITY_MAX", "NEAR_READINESS", "PIVOT_SWEEP_PCT",
+                                                                "M13_SHORT", "BORROW_AVAIL_MAX"))
+except Exception as _e:                                              # noqa: BLE001
+    _r7_c = {"⛔": False}
+    _v_r7w = f"⛔ رمى: {type(_e).__name__}: {_e}"
+_v_r7 = bool(_r7_c) and all(_r7_c.values())
+if "⛔" not in _r7_c:
+    _v_r7w = f"{ {k: v for k, v in _r7_c.items() if not v} or 'كلّها'}"
+check("🧭 RBD7 (‏2026-10-28) TEST بعد التجميد: الوقفُ أوّلًا يومَ اللمستين · الدرجةُ المجمَّدة بأسمائها ورفضُ التجميد المعطوب · فروعُ §⑩ بترتيبها "
+      "ونصفا 2025 · الإدخالاتُ في TEST وحدَها · «من كلّ 10» · ولا TEST بلا تجميد · والمسارُ موصولٌ · والمطفأُ يُطبع", _v_r7, _v_r7w)
+
+
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
