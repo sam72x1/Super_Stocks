@@ -87930,6 +87930,34 @@ check("🔒 LYC1 إغلاقُ `T-LAYERS` **مُنفَّذ** («اقفل T-LAYERS
       "و`LAYERS_REOPEN=0` يُبقيه مُغلَقًا · والإقرارُ `1` يمضي فعلًا · و`--guards` يعمل مُغلَقًا · و8 مميَّزٌ (9 للعقد) · ونصُّ الفتح ①②③ "
       "بالسبب البنيويّ · ودخولٌ واحد لكلّ أداة · وقسمُ الإغلاق في النتيجة",
       _lyc1, _lyc1_w[:420])
+# 🧭 RBD0 (‏2026-10-28 · `T-REBUILD` الجزء ب · العقدُ قبل أيّ رقم): `fm_forensics/rebuild/T_REBUILD_prereg.md` **مدموجٌ بت-بت**
+#    (البصمةُ هنا) · ويحمل التقسيمَ الزمنيّ الثلاثيّ · والتسويةَ بتاريخ القرار · والأساسَ BASE2 حتى يُهزم على VAL · والمرساةَ
+#    «تُقاس ولا تُشحَن» · والتنبّؤاتِ الستّ · و«لا يُشحَن منه شيء» · ولا أداةَ `test` تعمل بلا تجميد (تُبنى بعد الدمج).
+try:
+    import hashlib as _rb_h
+    _rb_p = "fm_forensics/rebuild/T_REBUILD_prereg.md"
+    _rb_b = open(_rb_p, "rb").read()
+    _rb_t = _rb_b.decode("utf-8")
+    _rb_sha = _rb_h.sha256(_rb_b).hexdigest()
+    _rb_c = {
+        "pin": _rb_sha == "1dc412fc59cc2fbb7b19ffc262a64dbaf76ab7e54bdf1764a6db64728ddd670e",
+        "split": all(x in _rb_t for x in ("2023-01-03 … 2024-03-28", "2024-04-01 … 2024-12-31", "2025-01-02 … 2025-12-31")),
+        "asof": "asof_scale" in _rb_t and "split_unadjusted" in _rb_t,
+        "base2_bar": "**BASE2 هو الأساس** ما لم يتفوّق عليه" in _rb_t,
+        "anchor_not_shipped": "تُقاس هنا ولا تُشحَن" in _rb_t,
+        "no_ship": "ولا يُشحَن منه شيءٌ مهما كانت النتيجة" in _rb_t,
+        "preds": all(f"RB-P{i}" in _rb_t for i in range(1, 7)),
+        "explosion_by_name": "`EXPLOSION_PCT` بالاسم = 50" in _rb_t,
+        "test_needs_freeze": "`test` يخرج 9" in _rb_t,
+        "inactive_gates_on": "الخاملةُ في الإنتاج تُجرد مُشعلةً" in _rb_t and "`NEAR_PCT=50`" in _rb_t,
+        "production_window": "من **2020-10-01 إلى 2026-01-31**" in _rb_t and "يرى آخرَ `HISTORY_DAYS` يومًا قبل D وحدَها" in _rb_t,
+    }
+    _v_rb, _v_rbw = all(_rb_c.values()), f"{ {k: v for k, v in _rb_c.items() if not v} or 'كلّها'} · sha={_rb_sha[:12]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_rb, _v_rbw = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD0 (‏2026-10-28) عقدُ `T-REBUILD` مدموجٌ قبل أيّ رقم بت-بت: التقسيمُ الزمنيّ · التسويةُ بتاريخ القرار · BASE2 البار · "
+      "المرساةُ تُقاس ولا تُشحَن · التنبّؤاتُ الستّ · ولا شحن · و`test` بلا تجميدٍ يخرج 9", _v_rb, _v_rbw)
+
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
