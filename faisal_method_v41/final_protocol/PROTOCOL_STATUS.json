@@ -2394,6 +2394,8 @@
     "run_id": "40662350224",
     "sha256": "8f26800d90c41b0674071d78296d2d79c0ccbbc175bf7b50dbd9ec69b044c837"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_77197.jpg",
    "fingerprint": {
@@ -2428,8 +2430,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "NOT_FAISAL",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "INSUFFICIENT_CONTEXT",
+    "reason": "NOT_FAISAL",
+    "version": 1
+   },
    "symbol": "NIVF"
   },
   {
@@ -2576,7 +2583,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:14Z",
     "date": "2026-10-28T07:53:00Z",
@@ -2588,6 +2595,8 @@
     "run_id": "40662350224",
     "sha256": "4f4d67a7ec3fac7c2f2b4f90658ede025aecfca9c02bb20434422873f9b930d0"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_77199.jpg",
    "fingerprint": {
@@ -2623,12 +2632,18 @@
      "TIMEFRAME"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "FRSX"
   },
   {
    "batch": "B22_20261028",
+   "case_id": "CASE_0009",
    "checks": {
     "C1": [],
     "C2": [],
@@ -2671,7 +2686,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "NEW_PROSPECTIVE",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:15Z",
     "date": "2026-10-28T07:53:00Z",
@@ -2683,6 +2698,8 @@
     "run_id": "40662350224",
     "sha256": "bb1f731a5073ed1a180353452b35f28e932c626ebaa961cd773074e918b76f01"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": "2026-10-27",
    "file": "faisal_images/TG_77200.jpg",
    "fingerprint": {
@@ -2717,8 +2734,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "—",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "BRTX"
   },
   {
@@ -2765,7 +2787,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:16Z",
     "date": "2026-10-28T07:53:00Z",
@@ -2777,6 +2799,8 @@
     "run_id": "40662350224",
     "sha256": "78d462d761a56eeb9c024b5e05abd420c773a880b28da2646e36cfce7ea31e27"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_77201.jpg",
    "fingerprint": {
@@ -2811,8 +2835,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "NIVF"
   },
   {
@@ -2917,6 +2946,7 @@
   },
   {
    "batch": "B22_20261028",
+   "case_id": "CASE_0010",
    "checks": {
     "C1": [],
     "C2": [],
@@ -2959,7 +2989,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "NEW_PROSPECTIVE",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:18Z",
     "date": "2026-10-28T07:53:00Z",
@@ -2971,6 +3001,8 @@
     "run_id": "40662350224",
     "sha256": "c72640ec938ce9883d838da505ba62ac3016ac4e9f0c996974366ad15c3d6570"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": "2026-10-27",
    "file": "faisal_images/TG_77203.jpg",
    "fingerprint": {
@@ -3005,12 +3037,18 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "—",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "FBGL"
   },
   {
    "batch": "B22_20261028",
+   "case_id": "CASE_0011",
    "checks": {
     "C1": [],
     "C2": [],
@@ -3053,7 +3091,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "NEW_PROSPECTIVE",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:19Z",
     "date": "2026-10-28T07:53:00Z",
@@ -3065,6 +3103,8 @@
     "run_id": "40662350224",
     "sha256": "e308f4a2ac6ba18394182fc94f31c1284fddf1bc23d4473f7c764e9faba42cef"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": "2026-10-27",
    "file": "faisal_images/TG_77204.jpg",
    "fingerprint": {
@@ -3099,12 +3139,18 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "—",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "GNPX"
   },
   {
    "batch": "B22_20261028",
+   "case_id": "CASE_0012",
    "checks": {
     "C1": [],
     "C2": [],
@@ -3147,7 +3193,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "NEW_PROSPECTIVE",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:20Z",
     "date": "2026-10-28T07:53:00Z",
@@ -3159,6 +3205,8 @@
     "run_id": "40662350224",
     "sha256": "3134bca78193973fef26d302b6582d9f4e724fe3441339d4f09fb9a8dc6ec5fe"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": "2026-10-27",
    "file": "faisal_images/TG_77205.jpg",
    "fingerprint": {
@@ -3193,8 +3241,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "—",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "BTOC"
   },
   {
@@ -3241,7 +3294,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:21Z",
     "date": "2026-10-28T07:53:00Z",
@@ -3253,6 +3306,8 @@
     "run_id": "40662350224",
     "sha256": "3fce23584100c125c6f7f4badd7354fee8addc61f5ca291200234d01dfd4dc99"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_77206.jpg",
    "fingerprint": {
@@ -3288,12 +3343,18 @@
      "TIMEFRAME"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "BRTX"
   },
   {
    "batch": "B22_20261028",
+   "case_id": "CASE_0013",
    "checks": {
     "C1": [],
     "C2": [],
@@ -3336,7 +3397,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "NEW_PROSPECTIVE",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:23Z",
     "date": "2026-10-28T07:53:09Z",
@@ -3348,6 +3409,8 @@
     "run_id": "40662350224",
     "sha256": "2be588af28cb1405449b371fd5b14683d043a6945e2fb0bfe004f36b8f04e2b9"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": "2026-10-27",
    "file": "faisal_images/TG_77207.jpg",
    "fingerprint": {
@@ -3382,12 +3445,18 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "—",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "CYCU"
   },
   {
    "batch": "B22_20261028",
+   "case_id": "CASE_0014",
    "checks": {
     "C1": [],
     "C2": [],
@@ -3430,7 +3499,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "INSUFFICIENT_CONTEXT",
+   "class7": "NEW_PROSPECTIVE",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:24Z",
     "date": "2026-10-28T07:53:09Z",
@@ -3442,6 +3511,8 @@
     "run_id": "40662350224",
     "sha256": "f9fd6f10a752dbcfd0f9ba2ce676586e228e35019f7cce847855d9c7b990e6ac"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت · و`post_order` أُضيف لأن التصحيح يجعل TG_77208 وTG_77216 قرارًا واحدًا (NIVF ‏2026-10-27 · التعديل 1 §②)",
    "decision_date": "2026-10-27",
    "file": "faisal_images/TG_77208.jpg",
    "fingerprint": {
@@ -3477,8 +3548,13 @@
      "TIMEFRAME"
     ]
    },
-   "reason": "NOT_FAISAL",
+   "reason": "—",
    "saved": true,
+   "supersedes": {
+    "class7": "INSUFFICIENT_CONTEXT",
+    "reason": "NOT_FAISAL",
+    "version": 1
+   },
    "symbol": "NIVF"
   },
   {
@@ -3537,6 +3613,8 @@
     "run_id": "40662350224",
     "sha256": "0ae3ea10e92c849b1c3869958d0ccd81fb8339fdb917dbab2958850bca7a402f"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_77209.jpg",
    "fingerprint": {
@@ -3572,8 +3650,13 @@
      "TICKER"
     ]
    },
-   "reason": "NOT_FAISAL",
+   "reason": "NO_TICKER",
    "saved": true,
+   "supersedes": {
+    "class7": "INSUFFICIENT_CONTEXT",
+    "reason": "NOT_FAISAL",
+    "version": 1
+   },
    "symbol": null
   },
   {
@@ -3620,7 +3703,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:26Z",
     "date": "2026-10-28T07:53:09Z",
@@ -3632,6 +3715,8 @@
     "run_id": "40662350224",
     "sha256": "6291de1724357a82d6c58751c3eafa88d423e9591e764c07e077cdca171bd1df"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_77210.jpg",
    "fingerprint": {
@@ -3666,8 +3751,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "NIVF"
   },
   {
@@ -3726,6 +3816,8 @@
     "run_id": "40662350224",
     "sha256": "4aab837d42f0a7ea7639d68a3dcb062c9e740f7099be7a7440c3727134988baf"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_77211.jpg",
    "fingerprint": {
@@ -3762,8 +3854,13 @@
      "TIMEFRAME"
     ]
    },
-   "reason": "NOT_FAISAL",
+   "reason": "NO_TICKER",
    "saved": true,
+   "supersedes": {
+    "class7": "INSUFFICIENT_CONTEXT",
+    "reason": "NOT_FAISAL",
+    "version": 1
+   },
    "symbol": null
   },
   {
@@ -3935,6 +4032,8 @@
     "run_id": "40662350224",
     "sha256": "c8e6bd2e18dbd565b266bb81c50aea3a57e378e0e56a8131ef13adff951b553a"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_77213.jpg",
    "fingerprint": {
@@ -3970,12 +4069,18 @@
      "TIMEFRAME"
     ]
    },
-   "reason": "NOT_FAISAL",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "INSUFFICIENT_CONTEXT",
+    "reason": "NOT_FAISAL",
+    "version": 1
+   },
    "symbol": "NUWE"
   },
   {
    "batch": "B22_20261028",
+   "case_id": "CASE_0015",
    "checks": {
     "C1": [],
     "C2": [],
@@ -4018,7 +4123,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "INSUFFICIENT_CONTEXT",
+   "class7": "NEW_PROSPECTIVE",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:30Z",
     "date": "2026-10-28T07:53:09Z",
@@ -4030,6 +4135,8 @@
     "run_id": "40662350224",
     "sha256": "19fbcd058ce38d3c116187b767e157fd1a1c45b8033e8e350cee0d683635bf39"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": "2026-10-27",
    "file": "faisal_images/TG_77214.jpg",
    "fingerprint": {
@@ -4064,8 +4171,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "NOT_FAISAL",
+   "reason": "—",
    "saved": true,
+   "supersedes": {
+    "class7": "INSUFFICIENT_CONTEXT",
+    "reason": "NOT_FAISAL",
+    "version": 1
+   },
    "symbol": "BRAI"
   },
   {
@@ -4112,7 +4224,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:31Z",
     "date": "2026-10-28T07:53:09Z",
@@ -4124,6 +4236,8 @@
     "run_id": "40662350224",
     "sha256": "0d2039acccd5c171537bd0c95976ef979f9c67e10b6ee9eacc420cc4493614e5"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_77215.jpg",
    "fingerprint": {
@@ -4158,8 +4272,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "NIVF"
   },
   {
@@ -4206,7 +4325,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "DUPLICATE",
    "collector_row": {
     "collected_utc": "2026-10-28T09:12:32Z",
     "date": "2026-10-28T07:53:09Z",
@@ -4218,6 +4337,8 @@
     "run_id": "40662350224",
     "sha256": "2e4ac0a491a726e2f85a2ad730209fac29557bfd09346019b6545e72f9f6f815"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت · و`post_order` أُضيف لأن التصحيح يجعل TG_77208 وTG_77216 قرارًا واحدًا (NIVF ‏2026-10-27 · التعديل 1 §②)",
    "decision_date": "2026-10-27",
    "file": "faisal_images/TG_77216.jpg",
    "fingerprint": {
@@ -4253,8 +4374,13 @@
      "TIMEFRAME"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "SAME_DECISION:CASE_0014",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "NIVF"
   },
   {
@@ -4413,6 +4539,8 @@
     "run_id": "40662350224",
     "sha256": "4609d72fdb099091ddcda27e7d521b5a72099145ca2b3830bd97043d1174d31c"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_77218.jpg",
    "fingerprint": {
@@ -4447,8 +4575,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "NOT_FAISAL",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "INSUFFICIENT_CONTEXT",
+    "reason": "NOT_FAISAL",
+    "version": 1
+   },
    "symbol": "NIVF"
   },
   {
@@ -10302,6 +10435,259 @@
      "missing": []
     }
    }
+  },
+  {
+   "CASE_ID": "CASE_0009",
+   "DECISION_DATE": "2026-10-27",
+   "INTAKE_CLASS": "NEW_PROSPECTIVE",
+   "LEGACY": false,
+   "PROVENANCE": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-28T09:12:15Z",
+     "CASE_ID": "CASE_0009",
+     "DATE_VISIBLE": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:14 AM",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "bb1f731a5073ed1a180353452b35f28e932c626ebaa961cd773074e918b76f01",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "b622a032a136b626b0229822ba29b825a8208825832a92228412cc24b426a655",
+      "phash64": "4ccc33fcc437c8c4"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 40662350224",
+     "SOURCE_MESSAGE_ID": 77200,
+     "TICKER": "BRTX",
+     "TIMEFRAME": "D"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "PROVENANCE_CONFIDENCE": "LOW",
+   "SAMPLE": "SECONDARY",
+   "STATUS": "PENDING_V4",
+   "SYMBOL": "BRTX"
+  },
+  {
+   "CASE_ID": "CASE_0010",
+   "DECISION_DATE": "2026-10-27",
+   "INTAKE_CLASS": "NEW_PROSPECTIVE",
+   "LEGACY": false,
+   "PROVENANCE": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-28T09:12:18Z",
+     "CASE_ID": "CASE_0010",
+     "DATE_VISIBLE": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:22 AM",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "c72640ec938ce9883d838da505ba62ac3016ac4e9f0c996974366ad15c3d6570",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "9706b20ab08db28ab809b0099808b809ec89be0ba58ae18b900493868c849286",
+      "phash64": "49c936c98e36d82e"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 40662350224",
+     "SOURCE_MESSAGE_ID": 77203,
+     "TICKER": "FBGL",
+     "TIMEFRAME": "D"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "PROVENANCE_CONFIDENCE": "LOW",
+   "SAMPLE": "SECONDARY",
+   "STATUS": "PENDING_V4",
+   "SYMBOL": "FBGL"
+  },
+  {
+   "CASE_ID": "CASE_0011",
+   "DECISION_DATE": "2026-10-27",
+   "INTAKE_CLASS": "NEW_PROSPECTIVE",
+   "LEGACY": false,
+   "PROVENANCE": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-28T09:12:19Z",
+     "CASE_ID": "CASE_0011",
+     "DATE_VISIBLE": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:20 AM",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "e308f4a2ac6ba18394182fc94f31c1284fddf1bc23d4473f7c764e9faba42cef",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "ad35a136b12fb522b1239d23ad209921bc29892b83229034e926e924d132a55a",
+      "phash64": "4ccc33f8c837d8c4"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 40662350224",
+     "SOURCE_MESSAGE_ID": 77204,
+     "TICKER": "GNPX",
+     "TIMEFRAME": "D"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "PROVENANCE_CONFIDENCE": "LOW",
+   "SAMPLE": "SECONDARY",
+   "STATUS": "PENDING_V4",
+   "SYMBOL": "GNPX"
+  },
+  {
+   "CASE_ID": "CASE_0012",
+   "DECISION_DATE": "2026-10-27",
+   "INTAKE_CLASS": "NEW_PROSPECTIVE",
+   "LEGACY": false,
+   "PROVENANCE": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-28T09:12:20Z",
+     "CASE_ID": "CASE_0012",
+     "DATE_VISIBLE": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:18 AM",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "3134bca78193973fef26d302b6582d9f4e724fe3441339d4f09fb9a8dc6ec5fe",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "aa49ae52a252a254b2429a45ae52ae438a43ba509a61924d842ab242ea539a94",
+      "phash64": "44c43be41f3bcc07"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 40662350224",
+     "SOURCE_MESSAGE_ID": 77205,
+     "TICKER": "BTOC",
+     "TIMEFRAME": "D"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "PROVENANCE_CONFIDENCE": "LOW",
+   "SAMPLE": "SECONDARY",
+   "STATUS": "PENDING_V4",
+   "SYMBOL": "BTOC"
+  },
+  {
+   "CASE_ID": "CASE_0013",
+   "DECISION_DATE": "2026-10-27",
+   "INTAKE_CLASS": "NEW_PROSPECTIVE",
+   "LEGACY": false,
+   "PROVENANCE": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-28T09:12:23Z",
+     "CASE_ID": "CASE_0013",
+     "DATE_VISIBLE": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة ≈3:31 AM",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "2be588af28cb1405449b371fd5b14683d043a6945e2fb0bfe004f36b8f04e2b9",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "94c9b248b8cab149b04aba49ac4aba49a449a4c8a4c9f44ad4caa44ad8ccb182",
+      "phash64": "49cb36f2c226f04e"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 40662350224",
+     "SOURCE_MESSAGE_ID": 77207,
+     "TICKER": "CYCU",
+     "TIMEFRAME": "D"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "PROVENANCE_CONFIDENCE": "LOW",
+   "SAMPLE": "SECONDARY",
+   "STATUS": "PENDING_V4",
+   "SYMBOL": "CYCU"
+  },
+  {
+   "CASE_ID": "CASE_0014",
+   "DECISION_DATE": "2026-10-27",
+   "INTAKE_CLASS": "NEW_PROSPECTIVE",
+   "LEGACY": false,
+   "PROVENANCE": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-28T09:12:24Z",
+     "CASE_ID": "CASE_0014",
+     "DATE_VISIBLE": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:24 AM",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "f9fd6f10a752dbcfd0f9ba2ce676586e228e35019f7cce847855d9c7b990e6ac",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "c19cce06b1868d518ad0b6a0d350c5719450e064ac268864ea44b42689269b0e",
+      "phash64": "403d39c03dcce3d6"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 40662350224",
+     "SOURCE_MESSAGE_ID": 77208,
+     "TICKER": "NIVF",
+     "TIMEFRAME": "UNKNOWN"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP",
+     "TIMEFRAME"
+    ]
+   },
+   "PROVENANCE_CONFIDENCE": "LOW",
+   "SAMPLE": "SECONDARY",
+   "STATUS": "PENDING_V4",
+   "SYMBOL": "NIVF"
+  },
+  {
+   "CASE_ID": "CASE_0015",
+   "DECISION_DATE": "2026-10-27",
+   "INTAKE_CLASS": "NEW_PROSPECTIVE",
+   "LEGACY": false,
+   "PROVENANCE": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-10-28T09:12:30Z",
+     "CASE_ID": "CASE_0015",
+     "DATE_VISIBLE": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:52 AM",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "19fbcd058ce38d3c116187b767e157fd1a1c45b8033e8e350cee0d683635bf39",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "c298ce06b086ba24b0a6a526ad24ae25a4a5a0e5cee2bea49284e146a54a9f4a",
+      "phash64": "5ac8252535d83fd2"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 40662350224",
+     "SOURCE_MESSAGE_ID": 77214,
+     "TICKER": "BRAI",
+     "TIMEFRAME": "5M"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "PROVENANCE_CONFIDENCE": "LOW",
+   "SAMPLE": "SECONDARY",
+   "STATUS": "PENDING_V4",
+   "SYMBOL": "BRAI"
   }
  ],
  "contract": "faisal_method_v41/FINAL_PROTOCOL_prereg.md",
@@ -10563,19 +10949,19 @@
    "simulated": "PASS_SIMULATED"
   },
   "EXCLUDED_BREAKDOWN": {
-   "intake_not_new": 102,
+   "intake_not_new": 95,
    "invalid_data_quality": 0,
    "invalidated_lookahead": 0,
-   "secondary_provenance": 6
+   "secondary_provenance": 13
   },
   "INTAKE_BY_CLASS": {
    "CONTAMINATED": 13,
    "DERIVATIVE": 15,
-   "DUPLICATE": 5,
-   "INSUFFICIENT_CONTEXT": 28,
-   "NEW_PROSPECTIVE": 8,
+   "DUPLICATE": 6,
+   "INSUFFICIENT_CONTEXT": 31,
+   "NEW_PROSPECTIVE": 15,
    "PRE_EXISTING": 7,
-   "UNKNOWN": 34
+   "UNKNOWN": 23
   },
   "PENDING_PRIMARY": [],
   "SECONDARY_TRACKED": [
@@ -10632,6 +11018,70 @@
     "SYMBOL": "NCT",
     "missing_critical": [
      "TIMEFRAME"
+    ]
+   },
+   {
+    "CASE_ID": "CASE_0009",
+    "MATCH_CLASS": null,
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "SYMBOL": "BRTX",
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   {
+    "CASE_ID": "CASE_0010",
+    "MATCH_CLASS": null,
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "SYMBOL": "FBGL",
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   {
+    "CASE_ID": "CASE_0011",
+    "MATCH_CLASS": null,
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "SYMBOL": "GNPX",
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   {
+    "CASE_ID": "CASE_0012",
+    "MATCH_CLASS": null,
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "SYMBOL": "BTOC",
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   {
+    "CASE_ID": "CASE_0013",
+    "MATCH_CLASS": null,
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "SYMBOL": "CYCU",
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   {
+    "CASE_ID": "CASE_0014",
+    "MATCH_CLASS": null,
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "SYMBOL": "NIVF",
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP",
+     "TIMEFRAME"
+    ]
+   },
+   {
+    "CASE_ID": "CASE_0015",
+    "MATCH_CLASS": null,
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "SYMBOL": "BRAI",
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
     ]
    }
   ],

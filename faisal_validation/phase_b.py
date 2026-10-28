@@ -547,6 +547,14 @@ def build(gate=None, protocol=None, ledger_rows=None, steps=None, collector=None
             historical.append({"id": it["pb_id"], "why": h, "protocol_case": (it.get("case") or {}).get("CASE_ID")})
             continue
         el = eligibility(it, hist, used, hist_case_imgs)
+        # 🧵 PHASE_B_AMENDMENT_1 (§⑬ «an excluded case stays excluded»): an item the ledger already closed EXCLUDED at capture, which
+        #    the frozen protocol re-classified later through its own append-only correction (`corrected_by`), stays EXCLUDED here —
+        #    no new event, no rescue, no relabelling. Any other regression still blocks (§⑫).
+        _closed = have.get(it["pb_id"], [])
+        _cb = (it.get("cand") or {}).get("corrected_by")
+        if _cb and _closed and _closed[-1] == "EXCLUDED" and el["status"] != "EXCLUDED":
+            el = {"status": "EXCLUDED", "code": "", "stage": "INTAKE",
+                  "reason": f"excluded at capture; the protocol's {_cb} re-classified it later — stays excluded in Phase B (amendment 1)"}
         img = image_sha(it)
         if img:
             used.add(img)

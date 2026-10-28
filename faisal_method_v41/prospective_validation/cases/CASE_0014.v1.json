@@ -1,0 +1,120 @@
+{
+ "capture_utc": "2026-10-28T09:12:24Z",
+ "case_id": "CASE_0014",
+ "date_precision": "day",
+ "date_source": "image_visible",
+ "decision_date": "2026-10-27",
+ "image": "faisal_images/TG_77208.jpg",
+ "image_sha256": "f9fd6f10a752dbcfd0f9ba2ce676586e228e35019f7cce847855d9c7b990e6ac",
+ "layer": "1",
+ "near_duplicates": [],
+ "notes": "B22_20261028 · رسالة 77208 · CORRECTION_01 (التعديل 1 §⑥) يحلّ محلّ INSUFFICIENT_CONTEXT NOT_FAISAL",
+ "protocol": {
+  "blind_input": {
+   "decision_date": "2026-10-27",
+   "symbol": "NIVF",
+   "timeframe": "1D"
+  },
+  "input_hash": "aec69540b33b71d0b872237e44028eb7757d0e265c4336d784e1f65d00de014e",
+  "intake": {
+   "batch": "B22_20261028",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 88,
+      "id": "TG_2119",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 96,
+      "id": "TG_50578",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 97,
+      "id": "IMG_0647",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 94,
+      "id": "TG_2089",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 104,
+      "id": "IMG_0486",
+      "phash_dist": 16
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class": "NEW_PROSPECTIVE",
+   "correction": {
+    "contract": "faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md",
+    "id": "CORRECTION_01",
+    "reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت · و`post_order` أُضيف لأن التصحيح يجعل TG_77208 وTG_77216 قرارًا واحدًا (NIVF ‏2026-10-27 · التعديل 1 §②)",
+    "supersedes": {
+     "class7": "INSUFFICIENT_CONTEXT",
+     "reason": "NOT_FAISAL",
+     "version": 1
+    }
+   }
+  },
+  "provenance": {
+   "basis": "UNKNOWN",
+   "decision_date_from_post": null,
+   "fields": {
+    "CAPTURE_TIMESTAMP": "2026-10-28T09:12:24Z",
+    "CASE_ID": "—",
+    "DATE_VISIBLE": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:24 AM",
+    "FORWARD_TYPE": "none",
+    "IMAGE_HASH": "f9fd6f10a752dbcfd0f9ba2ce676586e228e35019f7cce847855d9c7b990e6ac",
+    "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+    "PERCEPTUAL_HASH": {
+     "dhash256": "c19cce06b1868d518ad0b6a0d350c5719450e064ac268864ea44b42689269b0e",
+     "phash64": "403d39c03dcce3d6"
+    },
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "PUBLIC_CHANNEL_METADATA": "N/A",
+    "SOURCE": "telegram_bot · run 40662350224",
+    "SOURCE_MESSAGE_ID": 77208,
+    "TICKER": "NIVF",
+    "TIMEFRAME": "UNKNOWN"
+   },
+   "meta_v": 2,
+   "missing_critical": [
+    "ORIGINAL_POST_TIMESTAMP",
+    "TIMEFRAME"
+   ]
+  },
+  "v4_freeze": {
+   "DATA_PIPELINE_VERSION": "e7d44195e6ad26340ce38cdd2143948a37cc2b2eb4c8fe911e387009101118c9",
+   "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+   "V4_CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+   "V4_FREEZE_ID": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+   "V4_RULE_REGISTRY_HASH": "5a2a86262511ac2143920c2d8cc1e910740f1325ed47f5c199ed07b3910e3531",
+   "V4_TOOL_VERSION": {
+    "engine": "FAISAL-V4 1.0 (2026-10-02)",
+    "freeze": "V4.1-FREEZE 1.0 (2026-10-07)",
+    "rules": "V4-RULES 1.0 (2026-10-02)",
+    "runner": "V41-RUNNER 1.0 (2026-10-07)"
+   },
+   "epoch": 1
+  }
+ },
+ "symbol": "NIVF",
+ "timeframe_f": null,
+ "unit_id": "TG_77208"
+}

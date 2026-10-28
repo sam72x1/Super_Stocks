@@ -14,6 +14,7 @@ import hashlib
 import json
 import os
 import random
+import re
 import sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -101,6 +102,15 @@ def load_annotations(root=None) -> list:
             if isinstance(a, dict):
                 out.append(dict(batch=b, image_id=str(k), symbol=str(a.get("symbol") or "").upper(), decision_date=a.get("decision_date"),
                                 decision_date_max=a.get("decision_date_max"), faisal_author=bool(a.get("faisal_author"))))
+        # amendment 4: the batch's append-only corrections (`CORRECTION_NN.json`, the protocol's own §⑥ mechanism) replace the reading of
+        # the images they name, in file order — as `final_protocol.batch_candidates` does for the candidates (annotations.json is never edited)
+        pos = {o["image_id"]: i for i, o in enumerate(out) if o["batch"] == b}
+        for fn in sorted(f for f in os.listdir(os.path.join(base, b)) if re.fullmatch(r"CORRECTION_\d{2}\.json", f)):
+            for k, a in ((json.load(open(os.path.join(base, b, fn), encoding="utf-8")).get("images") or {}).items()):
+                if isinstance(a, dict) and str(k) in pos:
+                    out[pos[str(k)]] = dict(batch=b, image_id=str(k), symbol=str(a.get("symbol") or "").upper(),
+                                            decision_date=a.get("decision_date"), decision_date_max=a.get("decision_date_max"),
+                                            faisal_author=bool(a.get("faisal_author")), corrected_by=fn[:-5])
     return out
 
 

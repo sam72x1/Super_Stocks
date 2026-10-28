@@ -1,0 +1,744 @@
+{
+ "correction_id": "CORRECTION_01",
+ "batch_id": "B22_20261028",
+ "stage": "INPUT",
+ "contract": "faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md §⑥ (التصحيحُ الإلحاقيّ)",
+ "owner_order": "المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)»",
+ "blind": "قراءةُ الكاتب المصحّحة وحدَها ‏+ ترتيبُ منشورَي NIVF من خطّ السلسلة — بلا قرار فيصل ولا هدفٍ ولا دخولٍ ولا وقف · إفصاح: نصوصُ المنشورات كانت ظاهرةً عند الاستلام (قبل الختم) وعند قراءة الترتيب",
+ "protocol_amendment": 1,
+ "not_corrected": {
+  "images": [
+   "TG_77198",
+   "TG_77202",
+   "TG_77212",
+   "TG_77217"
+  ],
+  "why": "الصنفُ لا يتغيّر بتغيّر الكاتب (CONTAMINATED بفحص C5 — التعرّضُ للمثال سابقٌ على الكاتب) ⟵ والأداةُ ترفض تصحيحًا بلا أثر · وتصريحُ المالك بكاتبها مسجَّلٌ هنا"
+ },
+ "images": {
+  "TG_77197": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "NIVF",
+   "timeframe": "1H",
+   "layer": "1",
+   "has_decision_statement": false,
+   "content": "منشورُ قناة: شارتُ NIVF ساعة ‏+ تعليقٌ عن أداءٍ سابق",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 2:16 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "رأسُ «قناة تعليمية» ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: رأسُ قناة تلغرام «قناة تعليمية» (5,747 مشتركًا · الرسالةُ المثبّتة «منهج فيصل.pdf») ظاهرٌ في الصورة · لا اسمَ لفيصل ولا @kisar_ · والقناةُ طرفٌ ثالث بتصحيح V4 ‏C15 (`faisal_method_v4/data/corrections_v4.json`) ⟵ faisal_author=false",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77197",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "CHANNEL",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77199": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "FRSX",
+   "timeframe": null,
+   "layer": "1",
+   "has_decision_statement": false,
+   "content": "لقطةُ دفتر عروض ARCA لـForesight Autonomous بلا نصّ",
+   "date_evidence": "لا طابعَ تاريخ · ساعةُ الجهاز 11:58",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77199",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77200": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "BRTX",
+   "timeframe": "D",
+   "layer": "1",
+   "has_decision_statement": true,
+   "content": "لقطةُ تطبيق BRTX (27/10 18:54 EDT) ‏+ تعليقٌ بلا اسمِ كاتب",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:14 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": "2026-10-27",
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77200",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77201": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "NIVF",
+   "timeframe": "4H",
+   "layer": "1",
+   "has_decision_statement": false,
+   "content": "شارتُ NIVF أربع ساعات بلا نصّ",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 2:58 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77201",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77203": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "FBGL",
+   "timeframe": "D",
+   "layer": "1",
+   "has_decision_statement": true,
+   "content": "لقطةُ تطبيق FBGL (27/10 20:21 EDT · تداولٌ ليليّ) ‏+ تعليق",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:22 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": "2026-10-27",
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77203",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77204": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "GNPX",
+   "timeframe": "D",
+   "layer": "1",
+   "has_decision_statement": true,
+   "content": "لقطةُ تطبيق GNPX (27/10 20:19 EDT · تداولٌ ليليّ) ‏+ تعليق",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:20 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": "2026-10-27",
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77204",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77205": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "BTOC",
+   "timeframe": "D",
+   "layer": "1",
+   "has_decision_statement": true,
+   "content": "لقطةُ تطبيق BTOC (27/10 20:16 EDT · تداولٌ ليليّ) ‏+ تعليق",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:18 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": "2026-10-27",
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77205",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77206": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "BRTX",
+   "timeframe": null,
+   "layer": "1",
+   "has_decision_statement": false,
+   "content": "لقطةُ قائمة تنبيهات منصّة لـBRTX ‏+ تعليقٌ تشغيليّ",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:34 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77206",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77207": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "CYCU",
+   "timeframe": "D",
+   "layer": "1",
+   "has_decision_statement": true,
+   "content": "لقطةُ تطبيق CYCU (27/10 20:30 EDT · تداولٌ ليليّ) ‏+ تعليق",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة ≈3:31 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": "2026-10-27",
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77207",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77208": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "NIVF",
+   "timeframe": null,
+   "layer": "1",
+   "has_decision_statement": true,
+   "content": "منشوراتُ قناة: نصٌّ عامّ ‏+ إعادةُ نشرِ شارت NIVF مع تعليق",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:24 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": "2026-10-27",
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "رأسُ «قناة تعليمية» ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: رأسُ قناة تلغرام «قناة تعليمية» (5,747 مشتركًا · الرسالةُ المثبّتة «منهج فيصل.pdf») ظاهرٌ في الصورة · لا اسمَ لفيصل ولا @kisar_ · والقناةُ طرفٌ ثالث بتصحيح V4 ‏C15 (`faisal_method_v4/data/corrections_v4.json`) ⟵ faisal_author=false",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "post_order": 1,
+   "post_order_evidence": "خطُّ السلسلة: في TG_77208 إعادةُ نشرِ NIVF تلي مباشرةً منشورَ «3:24 AM» (الرياض = 20:24 EDT ‏10-27) ويليها منشورُ Cycurion · وفي TG_77218 ذيلُ نصّ TG_77216 («ويصعد في الماركت») يسبق مباشرةً منشورَ «4:20 AM» ⟵ التالي لـ3:24 يسبق السابقَ لـ4:20 ⟵ TG_77208 أقدم",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت · و`post_order` أُضيف لأن التصحيح يجعل TG_77208 وTG_77216 قرارًا واحدًا (NIVF ‏2026-10-27 · التعديل 1 §②)",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77208",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "CHANNEL",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77209": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": null,
+   "timeframe": "5M",
+   "layer": "1",
+   "has_decision_statement": true,
+   "content": "منشورُ قناة: شارتُ سهمٍ لا يظهر رمزُه في الصورة (VWAP) ‏+ نصٌّ تعليميّ بمثال",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة ≈3:48 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "رأسُ «قناة تعليمية» ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: رأسُ قناة تلغرام «قناة تعليمية» (5,747 مشتركًا · الرسالةُ المثبّتة «منهج فيصل.pdf») ظاهرٌ في الصورة · لا اسمَ لفيصل ولا @kisar_ · والقناةُ طرفٌ ثالث بتصحيح V4 ‏C15 (`faisal_method_v4/data/corrections_v4.json`) ⟵ faisal_author=false",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77209",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "CHANNEL",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77210": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "NIVF",
+   "timeframe": "4H",
+   "layer": "1",
+   "has_decision_statement": false,
+   "content": "لقطةُ تطبيق NIVF (27/10 20:40 EDT) ‏+ نصٌّ تعريفيّ",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:42 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77210",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77211": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": null,
+   "timeframe": null,
+   "layer": "1",
+   "has_decision_statement": false,
+   "content": "منشوراتُ قناة نصّيّة (تعليميّة/عامّة) بلا رمز",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسائل 3:34-3:39 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "رأسُ «قناة تعليمية» ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: رأسُ قناة تلغرام «قناة تعليمية» (5,747 مشتركًا · الرسالةُ المثبّتة «منهج فيصل.pdf») ظاهرٌ في الصورة · لا اسمَ لفيصل ولا @kisar_ · والقناةُ طرفٌ ثالث بتصحيح V4 ‏C15 (`faisal_method_v4/data/corrections_v4.json`) ⟵ faisal_author=false",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77211",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "CHANNEL",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77213": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "NUWE",
+   "timeframe": null,
+   "layer": "1",
+   "has_decision_statement": false,
+   "content": "منشورُ قناة نصّيّ تعليميّ يذكر nuwe مثالًا",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:57 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "رأسُ «قناة تعليمية» ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: رأسُ قناة تلغرام «قناة تعليمية» (5,747 مشتركًا · الرسالةُ المثبّتة «منهج فيصل.pdf») ظاهرٌ في الصورة · لا اسمَ لفيصل ولا @kisar_ · والقناةُ طرفٌ ثالث بتصحيح V4 ‏C15 (`faisal_method_v4/data/corrections_v4.json`) ⟵ faisal_author=false",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77213",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "CHANNEL",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77214": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "BRAI",
+   "timeframe": "5M",
+   "layer": "1",
+   "has_decision_statement": true,
+   "content": "منشورُ قناة: لقطةُ تطبيق BRAI (27/10 20:50 EDT) ‏+ نصّ",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 3:52 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": "2026-10-27",
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "رأسُ «قناة تعليمية» ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: رأسُ قناة تلغرام «قناة تعليمية» (5,747 مشتركًا · الرسالةُ المثبّتة «منهج فيصل.pdf») ظاهرٌ في الصورة · لا اسمَ لفيصل ولا @kisar_ · والقناةُ طرفٌ ثالث بتصحيح V4 ‏C15 (`faisal_method_v4/data/corrections_v4.json`) ⟵ faisal_author=false",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77214",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "CHANNEL",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77215": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "NIVF",
+   "timeframe": "30M",
+   "layer": "1",
+   "has_decision_statement": false,
+   "content": "شارتُ NIVF ثلاثين دقيقة بتعليقاتٍ مكتوبة على الشارت بلا نصِّ رسالة",
+   "date_evidence": "لا طابعَ تاريخ · ساعةُ الجهاز مقصوصة",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77215",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77216": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "NIVF",
+   "timeframe": null,
+   "layer": "1",
+   "has_decision_statement": true,
+   "content": "نصٌّ وحده عن nivf بلا رأسٍ ولا اسم",
+   "date_evidence": "لا طابع",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": "2026-10-27",
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "بلا رأسٍ ولا اسمٍ ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: لا اسمَ ولا حسابَ ولا رأسَ قناةٍ ظاهرٌ في الصورة نفسِها (الألبومُ نفسُه فيه منشوراتُ «قناة تعليمية»)",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "post_order": 2,
+   "post_order_evidence": "خطُّ السلسلة: في TG_77208 إعادةُ نشرِ NIVF تلي مباشرةً منشورَ «3:24 AM» (الرياض = 20:24 EDT ‏10-27) ويليها منشورُ Cycurion · وفي TG_77218 ذيلُ نصّ TG_77216 («ويصعد في الماركت») يسبق مباشرةً منشورَ «4:20 AM» ⟵ التالي لـ3:24 يسبق السابقَ لـ4:20 ⟵ TG_77208 أقدم",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت · و`post_order` أُضيف لأن التصحيح يجعل TG_77208 وTG_77216 قرارًا واحدًا (NIVF ‏2026-10-27 · التعديل 1 §②)",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77216",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   }
+  },
+  "TG_77218": {
+   "author": "F",
+   "faisal_author": true,
+   "symbol": "NIVF",
+   "timeframe": "4H",
+   "layer": "1",
+   "has_decision_statement": false,
+   "content": "منشورُ قناة: شارتُ NIVF أربع ساعات ‏+ نصٌّ تعليميّ عامّ",
+   "date_evidence": "وقتُ الرسالة بلا تاريخ (جهازُ المالك · الرياض) ⟵ أرسل المالكُ الألبومَ 2026-10-28T07:53Z · ولقطاتُ التطبيق المضمَّنة مؤرَّخةٌ «27/10 … EDT» ⟵ يومُ نيويورك 2026-10-27 · رسالة 4:20 AM",
+   "date_evidence_level": "INFERRED",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "post_timestamp_visible": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_tz": null,
+   "provenance_evidence": "رأسُ «قناة تعليمية» ظاهر · الكاتبُ فيصل بتصريح المالك (2026-10-28) أنّ «قناة تعليمية» قناةُ فيصل نفسِه بعد إغلاق حسابه في X وأنّ الصورَ الـ22 كلَّها له · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في الصورة (لا اسمَ ولا @kisar_) · والسابق: رأسُ قناة تلغرام «قناة تعليمية» (5,747 مشتركًا · الرسالةُ المثبّتة «منهج فيصل.pdf») ظاهرٌ في الصورة · لا اسمَ لفيصل ولا @kisar_ · والقناةُ طرفٌ ثالث بتصحيح V4 ‏C15 (`faisal_method_v4/data/corrections_v4.json`) ⟵ faisal_author=false",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE",
+   "derivative_of": [],
+   "same_case_of": [],
+   "seen_example_of": [],
+   "ocr_jaccard": "NOT_RUN",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-10-28: ««قناة تعليمية» هي قناة فيصل نفسه بعد إغلاق حسابه في X — الكاتب فيصل، وليست طرفًا ثالثًا. تصحيح C15 لا ينطبق على هذه القناة.» و«صحّح وسم المصدر للـ22 صورة إلى فيصل بتصحيح إلحاقي (correct)» ⟵ author «CHANNEL» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "correction_of": {
+    "file": "annotations.json",
+    "image": "TG_77218",
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "was": {
+     "author": "CHANNEL",
+     "faisal_author": false
+    }
+   }
+  }
+ }
+}
