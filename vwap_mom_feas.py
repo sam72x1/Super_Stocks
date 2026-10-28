@@ -1,19 +1,20 @@
-"""📈🔎 جدوى `T-VWAP-MOM` — «زخم الفيواب» (العقد `vwap_mom_prereg.md` §⑧ ‏+ **الملحق 1** `vwap_mom_prereg_addendum_1.md` · كلاهما قبل أيّ عائد).
+"""📈🔎 جدوى `T-VWAP-MOM` — «زخم الفيواب» (العقد `vwap_mom_prereg.md` §⑧ ‏+ الملحق 1 ‏+ **الملحق 2** `vwap_mom_prereg_addendum_2.md` · كلُّها قبل أيّ عائد).
 
 **عدٌّ لا عائد:** لا يحسب هذا الملفُّ R ولا عائدًا ولا قمّةً لاحقة — مقفولٌ في السويّة (`VWM2`).
 **v2 (الملحق 1):** H = **كسرٌ صاعدٌ للفيواب** (إغلاقُ 5 دقائق تحته ثمّ أوّلُ إغلاقٍ فوقه ثمّ 3 إغلاقاتٍ متتالية فوقه أو شمعة 15 دقيقة) ·
 والمجتمع = **أحداثُ الكسر على الكون كلّه** بسعرٍ ≥ `PX_MIN` وحجمٍ دولاريٍّ تراكميّ حتى لحظة الحدث ≥ درجةِ `D_MIN` · والذراع E محذوفةٌ بأمر المالك.
-الأسئلة: ① لكلّ يومٍ وكلّ درجة: أحداثُ A (النظاميّة) وB (الممتدّة) · H وH ∧ L ⟵ الوسيطُ/يوم مطبوعًا **قبل** أيّ اختيار ⟵ قاعدةُ §③.
-② تغطيةُ المحفّز C في Polygon news على عيّنةٍ مُعلَنة من أحداث A عند أدنى درجة.
-بلا تلغرام · بلا حالة · بلا كتابةٍ في المستودع. والمُخرَجُ سطرُ `VWMFEAS_JSON`. ونتيجةُ v1 (أعلى 20 رابحًا) في `vwap_mom_feas_result.md` ودوالُّها باقيةٌ للإعادة.
+**v3 (الملحق 2):** المحفّز C **شرطٌ للمجتمع** — خبرٌ خاصٌّ بالشركة في Polygon news (‏3 رموزٍ أو أقلّ) **أو** إيداعُ `8-K`/`6-K` مقبولٌ في النافذة
+(من 16:00 للجلسة السابقة حتى نهاية الحدث) · والحدثُ بلا محفّزٍ لا يُعَدّ · والمجهولُ يُعَدّ مستقلًّا وله حارس · والذراع D (إعادةُ اختبار الفيواب) تُعَدّ وصفًا ·
+وقاعدةُ `D_MIN` على وسيط A ∧ C · ولا درجةَ في 10-40 للمرّة الثالثة ⟵ يتوقّف المحور (الملحق 2 §④).
+بلا تلغرام · بلا حالة · بلا كتابةٍ في المستودع. والمُخرَجُ سطرُ `VWMFEAS_JSON`. ونتيجتا v1 وv2 منشورتان ودوالُّهما باقيةٌ للإعادة.
 """
 import csv
 import datetime as dt
 import gzip
+import bisect
 import heapq
 import json
 import os
-import random
 import statistics as st
 import sys
 import tempfile
@@ -28,6 +29,14 @@ D_RULE = (10, 40)                                  # وسيطُ المرشّحي
 EXT_START = 4 * 60                                 # 04:00 نيويورك
 EXT_END = 20 * 60                                  # 20:00 نيويورك
 C_SAMPLE = 60
+# ── الملحق 2 (مكتوبٌ قبل أرقام v3) ──
+NEWS_MAX_TICKERS = 3                               # §② خبرٌ خاصٌّ بالشركة: `tickers` فيه 3 رموزٍ أو أقلّ — engineering
+SEC_FORMS = ("8-K", "6-K")                         # §② مطابقةٌ تامّة · بلا `/A` — engineering
+RETEST_TOL = 1.01                                  # العقد §④ D حرفيًّا: قاعُ شمعة الاختبار ≤ 1.01 × VWAP
+UNKNOWN_MAX = 0.05                                 # §③-③ المجهولُ فوق 5% ⟵ «لا قياس»
+NEWS_PAGE_CAP = 600                                # §③-① سقفُ صفحات جلب الأخبار (بلوغُه ⟵ «لا قياس»)
+SEC_SLEEP = 0.12                                   # كبحُ نداءات SEC (حدُّها المعلَن 10/ث)
+V2_FILE = "vwap_mom_feas_v2_2026-09.json"          # §⑤ فحصُ الإعادة
 
 
 def log(m=""):
@@ -221,6 +230,242 @@ def day_events(bars, op, cl, d_ladder, px_min):
     return out
 
 
+# ── v3: المحفّزُ شرطٌ للمجتمع ‏+ الذراع D (الملحق 2) ─────────────────────────────
+def _iso_ts(s):
+    """«2026-09-14T12:30:00Z» (أو بكسورٍ أو بإزاحة) ⟵ ثانيةُ UTC · أو None."""
+    try:
+        return dt.datetime.fromisoformat(str(s).replace("Z", "+00:00")).timestamp()
+    except (TypeError, ValueError):
+        return None
+
+
+def news_index(items, max_tickers=NEWS_MAX_TICKERS):
+    """أخبارُ Polygon [{id, published_utc, tickers}] ⟵ ({رمز: [ثانية]} للخاصّ بالشركة (رموزُه ≤ max_tickers) · {رمز: [ثانية]} لكلّ خبر) مرتّبة · بلا تكرار id."""
+    seen, strict, anyn = set(), {}, {}
+    for it in items:
+        iid = it.get("id")
+        if iid is not None:
+            if iid in seen:
+                continue
+            seen.add(iid)
+        ts = _iso_ts(it.get("published_utc"))
+        tks = [str(t).strip().upper() for t in (it.get("tickers") or []) if str(t).strip()]
+        if ts is None or not tks:
+            continue
+        for t in set(tks):
+            anyn.setdefault(t, []).append(ts)
+            if len(set(tks)) <= max_tickers:
+                strict.setdefault(t, []).append(ts)
+    for d in (strict, anyn):
+        for v in d.values():
+            v.sort()
+    return strict, anyn
+
+
+def make_acc_ts(parse_acc, to_ny):
+    """`acceptanceDateTime` ⟵ ثانيةُ UTC بتفسير «B» المحسوم في `T-PRE-EDGAR-2` (‏`edgar2_probe.parse_acc`/`to_ny` بالاسم · بُنيتا لقراءة لحظة القبول نفسِها)."""
+    def f(s):
+        p = parse_acc(s)
+        return None if p is None else to_ny(p, "B").timestamp()
+    return f
+
+
+def sec_index(recent, forms, acc_ts):
+    """`filings.recent` (مصفوفاتٌ متوازية) ⟵ [(ثانيةُ القبول، النموذج، البنود)] مرتّبة للنماذج المطلوبة بالمطابقة التامّة."""
+    fm = recent.get("form") or []
+    ac = recent.get("acceptanceDateTime") or []
+    it = recent.get("items") or [""] * len(fm)
+    out = []
+    for i, f in enumerate(fm):
+        if f in forms and i < len(ac):
+            ts = acc_ts(ac[i])
+            if ts is not None:
+                out.append((ts, f, it[i] if i < len(it) else ""))
+    out.sort()
+    return out
+
+
+def sec_depth_ok(recent, has_older, since_date):
+    """عمقُ `submissions`: كاملٌ إن لم تكن صفحاتٌ أقدم · أو أقدمُ تاريخ إيداعٍ في `recent` ≤ since_date (نصّ YYYY-MM-DD)."""
+    if not has_older:
+        return True
+    fd = [d for d in (recent.get("filingDate") or []) if d]
+    return bool(fd) and min(fd) <= since_date
+
+
+def parse_master_idx(text, forms):
+    """فهرسُ EDGAR اليوميّ (`master.YYYYMMDD.idx` · CIK|Company|Form|Date|File) ⟵ {CIK} لمن أودع نموذجًا مطلوبًا."""
+    out = set()
+    for ln in (text or "").splitlines():
+        p = ln.split("|")
+        if len(p) == 5 and p[0].strip().isdigit() and p[2].strip() in forms:
+            out.add(int(p[0]))
+    return out
+
+
+def any_in(ts_list, a, b):
+    """هل في قائمة الثواني المرتّبة عنصرٌ بين a وb شاملًا."""
+    i = bisect.bisect_left(ts_list, a)
+    return i < len(ts_list) and ts_list[i] <= b
+
+
+def catalyst_flags(sym, a, b, nstrict, nany, sec_ts, sec8k_ts, sec_known):
+    """محفّزُ حدثٍ نافذتُه [a، b] (ثوانٍ):
+    news = خبرٌ خاصٌّ بالشركة · news_any = أيُّ خبر · sec/sec8k: True/False · أو None إن CIK معلومٌ وتعذّر `submissions` أو قصّر عمقُه (`sec_known` False) ·
+    و**C** = news أو sec · ومجهولٌ (None) إن لا خبرَ خاصًّا وsec مجهول (الملحق 2 §③)."""
+    news = any_in(nstrict.get(sym, ()), a, b)
+    news_any = any_in(nany.get(sym, ()), a, b)
+    if sec_known:
+        sec, s8 = any_in(sec_ts, a, b), any_in(sec8k_ts, a, b)
+    else:
+        sec = s8 = None
+    c = True if (news or sec) else (None if sec is None else False)
+    return {"news": news, "news_any": news_any, "sec": sec, "sec8k": s8, "C": c}
+
+
+def retest_signal(b5, b15, after_e, tol=RETEST_TOL, need_liq=False):
+    """الذراع D (الملحق 2 §②): شمعةُ الاختبار = أوّلُ شمعة 5 دقائق تبدأ عند `after_e` أو بعده قاعُها ≤ tol × VWAP عند نهايتها ·
+    ثمّ الثباتُ بتعريف العقد الأصليّ §② **كلُّه بعدها**: (أ) ثلاثُ إغلاقاتٍ متتالية فوق VWAP أوّلُها بعد شمعة الاختبار · (ب) شمعةُ 15 تبدأ عند نهاية
+    شمعة الاختبار أو بعدها تُغلق فوقه · والأبكرُ [∧ L: أوّلُ اكتمالٍ يحقّقها] ⟵ (نهاية، النوع، فهرس) أو None."""
+    t = next((i for i, b in enumerate(b5) if b["s"] >= after_e and b["vwap"] is not None and b["l"] <= tol * b["vwap"]), None)
+    if t is None:
+        return None
+    te = b5[t]["e"]
+    above = lambda b: b["vwap"] is not None and b["c"] > b["vwap"]          # noqa: E731
+    cands = []
+    for i in range(t + 3, len(b5)):
+        if all(above(b5[k]) for k in (i - 2, i - 1, i)) and (not need_liq or liq_ok(b5, i)):
+            cands.append((b5[i]["e"], "5x3", i))
+            break
+    for j in range(len(b15)):
+        if b15[j]["s"] >= te and above(b15[j]) and (not need_liq or liq15_ok(b15, j)):
+            cands.append((b15[j]["e"], "15x1", j))
+            break
+    return min(cands) if cands else None
+
+
+def day_candidates(bars, op, cl, px_min, d0):
+    """لرمزٍ في يوم: أحداثُ الكسر لكلّ ذراع بسعر إكمالٍ ≥ px_min وتراكمٍ ≥ d0 (أدنى درجة) ⟵ {"A": [ev], "B": [ev]} مرتّبة
+    ev = (نهاية، النوع، سعرُ الإكمال، التراكم، L، نهايةُ D، نهايةُ D ∧ L) — D لـA ذاتِ L وحدَها (وإلّا None) وسعرُ إكماله ≥ px_min."""
+    out = {}
+    for arm, lo, hi, skip in (("A", op, cl, None), ("B", EXT_START, EXT_END, (op, cl))):
+        bb = [b for b in bars if lo <= b[0] < hi]
+        vw = vwap_series(bb)
+        b5, b15 = bucketize(bb, vw, lo, 5, hi), bucketize(bb, vw, lo, 15, hi)
+        evs = []
+        for ev in break_events(b5, b15, skip=skip):
+            px = b5[ev[2]]["c"] if ev[1] == "5x3" else b15[ev[2]]["c"]
+            cum = cum_dollar_at(bars, ev[0])
+            if px < px_min or cum < d0:
+                continue
+            liq = event_liq(b5, b15, ev)
+            dh = dhl = None
+            if arm == "A" and liq:
+                for need in (False, True):
+                    rt = retest_signal(b5, b15, ev[0], need_liq=need)
+                    if rt is not None and (b5[rt[2]]["c"] if rt[1] == "5x3" else b15[rt[2]]["c"]) >= px_min:
+                        if need:
+                            dhl = rt[0]
+                        else:
+                            dh = rt[0]
+            evs.append((ev[0], ev[1], px, cum, liq, dh, dhl))
+        out[arm] = evs
+    return out
+
+
+def tally_v3(evs, d, flag_at):
+    """عدُّ رمزٍ/يومٍ/ذراعٍ عند درجة d (الملحق 2): الأحداثُ المؤهَّلة بالدرجة ثمّ المحفّزُ لكلٍّ منها (`flag_at(نهاية)`) ⟵
+    H: حدثٌ بمحفّز · HL: حدثٌ بمحفّز ∧ L · U: لا حدثَ بمحفّز ومجهولٌ واحدٌ على الأقلّ · H0/HL0: بلا C (فحصُ الإعادة) ·
+    DH/DHL: D بعد **أوّل** حدث HL ∧ C · H_any: C بأيّ خبر (بلا حدّ الرموز) · H_8k: C بـ8-K وحدَه (بلا 6-K) · src: مصدرُ أوّل حدثٍ بمحفّز."""
+    elig = [e for e in evs if e[3] >= d]
+    fl = [(e, flag_at(e[0])) for e in elig]
+    h = next(((e, f) for e, f in fl if f["C"]), None)
+    hl = next(((e, f) for e, f in fl if f["C"] and e[4]), None)
+    src = None
+    if h is not None:
+        f = h[1]
+        src = "both" if (f["news"] and f["sec"]) else ("news" if f["news"] else "sec")
+    return {"H": h is not None, "HL": hl is not None,
+            "U": h is None and any(f["C"] is None for _e, f in fl),
+            "H0": bool(elig), "HL0": any(e[4] for e in elig),
+            "DH": hl is not None and hl[0][5] is not None, "DHL": hl is not None and hl[0][6] is not None,
+            "H_any": any(f["news_any"] or f["sec"] for _e, f in fl),
+            "H_8k": any(f["news"] or f["sec8k"] for _e, f in fl),
+            "src": src}
+
+
+def coverage_gates(news_meta, idx_missing, unknown, denom, days_missing):
+    """حارسُ التغطية (الملحق 2 §③) ⟵ (يصلح؟، [أسباب]) — أيُّ سببٍ ⟵ «لا قياس» لا تُطبَّق معه القاعدة ولا يُعَدّ المرّةَ الثالثة."""
+    why = []
+    if not news_meta.get("complete"):
+        why.append("news_incomplete")
+    if idx_missing:
+        why.append("edgar_index_missing")
+    if denom and unknown / denom > UNKNOWN_MAX:
+        why.append("unknown_over_5pct")
+    if days_missing:
+        why.append("minute_day_missing")
+    return (not why), why
+
+
+def verdict_v3(gates_ok, pick):
+    """الملحق 2 §③-§④: «لا قياس» إن سقط الحارس · وإلّا «اختارت» بدرجة · أو «توقّف» (المرّة الثالثة بلا درجة ⟵ يتوقّف المحور)."""
+    if not gates_ok:
+        return "no_measure"
+    return "pick" if pick is not None else "stop"
+
+
+KEYS_A = ("H", "HL", "U", "H0", "HL0", "DH", "DHL", "H_any", "H_8k")
+KEYS_B = ("H", "HL", "U", "H0", "HL0")
+
+
+def ny_ts(day, mod):
+    """دقيقةٌ من يومٍ بتوقيت نيويورك ⟵ ثانيةُ UTC."""
+    return dt.datetime.combine(dt.date.fromisoformat(day), dt.time(mod // 60, mod % 60), tzinfo=NY).timestamp()
+
+
+def count_day(cands_day, day, win_start, sec, nstrict, nany, d_ladder=D_LADDER):
+    """عدُّ يومٍ بالمحفّز (الملحق 2): `cands_day` {رمز: day_candidates} · `win_start` = 16:00 نيويورك للجلسة السابقة (ثانية) ·
+    `sec` {tmap: رمز ⟵ CIK, filers: {CIK}, all/8k: {CIK: [ثانية]}, rows: {CIK: [(ثانية، نموذج، بنود)]}, unknown: {CIK}} ⟵
+    (عدّاتٌ {(ذراع، درجة، مفتاح): n} · مصدرُ أوّل حدثٍ بمحفّز عند A وأدنى درجة · بنودُ 8-K له · بلا CIK · مقامُ المجهول · المجهول).
+    بلا CIK ⟵ الأخبارُ وحدَها (SEC معلومٌ صفرًا) · CIK لم يُودِع في المدى ⟵ SEC صفرٌ معلوم · CIK في `unknown` ⟵ SEC مجهول."""
+    cnt, src, items = {}, {"news": 0, "sec": 0, "both": 0}, {}
+    nocik = den_u = num_u = 0
+    d0 = d_ladder[0]
+    for sym, cd in cands_day.items():
+        cik = sec["tmap"].get(sym)
+        if cik is None or cik not in sec["filers"]:
+            s_all, s_8k, known = (), (), True
+        else:
+            s_all, s_8k, known = sec["all"].get(cik, ()), sec["8k"].get(cik, ()), cik not in sec["unknown"]
+
+        def flag_at(e, sym=sym, s_all=s_all, s_8k=s_8k, known=known):
+            return catalyst_flags(sym, win_start, ny_ts(day, e), nstrict, nany, s_all, s_8k, known)
+        for arm, ks in (("A", KEYS_A), ("B", KEYS_B)):
+            for d in d_ladder:
+                t = tally_v3(cd[arm], d, flag_at)
+                for k in ks:
+                    cnt[(arm, d, k)] = cnt.get((arm, d, k), 0) + int(bool(t[k]))
+                if arm != "A" or d != d0:
+                    continue
+                if t["src"]:
+                    src[t["src"]] += 1
+                if t["src"] in ("sec", "both"):
+                    e0 = next(e for e in cd["A"] if e[3] >= d0 and flag_at(e[0])["C"])
+                    b = ny_ts(day, e0[0])
+                    r0 = next((r for r in sec["rows"].get(cik, ()) if r[1] == "8-K" and win_start <= r[0] <= b), None)
+                    for it in (str(r0[2]).split(",") if r0 else []):
+                        if it.strip():
+                            items[it.strip()] = items.get(it.strip(), 0) + 1
+                if t["H0"]:
+                    if cik is None:
+                        nocik += 1
+                    else:
+                        den_u += 1
+                        num_u += int(t["U"])
+    return cnt, src, items, nocik, den_u, num_u
+
+
 # ── الشبكة (رنر فقط) ──────────────────────────────────────────────────────────
 def _ny_mod(ns):
     d = dt.datetime.fromtimestamp(int(ns) / 1e9, tz=NY)
@@ -309,76 +554,219 @@ def _paged(url_json, key, cap=40):
     return out, calls + 1
 
 
+def _get_url(url, key, tries=3):
+    import requests
+    for i in range(tries):
+        try:
+            r = requests.get(url, headers={"Authorization": f"Bearer {key}"}, timeout=60)
+            if r.status_code == 200:
+                return r.json()
+            if r.status_code in (429, 500, 502, 503, 504):
+                time.sleep(2 * (2 ** i))
+                continue
+            return None
+        except Exception:                                     # noqa: BLE001
+            time.sleep(2 * (2 ** i))
+    return None
+
+
+def fetch_news(key, a_iso, b_iso, cap=NEWS_PAGE_CAP):
+    """جلبٌ واحدٌ لأخبار Polygon في المدى مرتّبةً بالنشر (بلا رمز) ⟵ (عناصرُ مختصرة، {pages, complete, items, why})."""
+    from urllib.parse import urlencode
+    url = "https://api.polygon.io/v2/reference/news?" + urlencode(
+        {"published_utc.gte": a_iso, "published_utc.lte": b_iso, "order": "asc", "sort": "published_utc", "limit": 1000})
+    out, pages = [], 0
+    while url:
+        if pages >= cap:
+            return out, {"pages": pages, "complete": False, "items": len(out), "why": "cap"}
+        j = _get_url(url, key)
+        if j is None:
+            return out, {"pages": pages, "complete": False, "items": len(out), "why": "page_failed"}
+        pages += 1
+        for it in j.get("results") or []:
+            out.append({"id": it.get("id"), "published_utc": it.get("published_utc"), "tickers": it.get("tickers") or []})
+        url = j.get("next_url")
+    return out, {"pages": pages, "complete": True, "items": len(out), "why": None}
+
+
+def _sec_get(url, ua, as_json, tries=3):
+    import requests
+    for i in range(tries):
+        try:
+            r = requests.get(url, headers={"User-Agent": ua, "Accept-Encoding": "gzip, deflate"}, timeout=60)
+            time.sleep(SEC_SLEEP)
+            if r.status_code == 200:
+                return r.json() if as_json else r.text
+            if r.status_code in (429, 500, 502, 503, 504):
+                time.sleep(2 * (2 ** i))
+                continue
+            return None
+        except Exception:                                     # noqa: BLE001
+            time.sleep(2 * (2 ** i))
+    return None
+
+
+def _prev_session(day, MC):
+    pdx = dt.date.fromisoformat(day) - dt.timedelta(1)
+    while not is_session(pdx.isoformat(), MC.session_info):
+        pdx -= dt.timedelta(1)
+    return pdx.isoformat()
+
+
 def main():
+    """v3 (الملحق 2): ① ملفّاتُ الدقيقة ⟵ أحداثُ v2 بلا C (فحصُ الإعادة) وأحداثُ v3 المرشّحة · ② أخبارُ Polygon للشهر · ③ فهارسُ EDGAR ثمّ `submissions`
+    · ④ العدُّ بالمحفّز لكلّ يومٍ ودرجة ⟵ الوسيطُ مطبوعًا قبل القاعدة ⟵ حارسُ التغطية ⟵ القاعدةُ ⟵ الحكم (اختارت · توقّف · لا قياس)."""
     import flatfiles_probe as FP
     import market_calendar as MC
     from prelink_px import PX_MIN
     key = os.environ.get("POLYGON_API_KEY", "")
+    ua = (os.environ.get("SEC_CONTACT") or "").strip()
     month = os.environ.get("VWM_MONTH", "2026-09")
     if not key:
         log("⛔ لا مفتاح Polygon")
         return 2
+    if not ua:
+        log("⛔ SEC_CONTACT غيرُ مضبوط — عطبُ إعداد (الملحق 2 §②: SEC مصدرٌ لازم)")
+        return 2
     t0 = time.time()
-    res = {"version": "v2-addendum-1", "month": month, "px_min": PX_MIN, "d_ladder": D_LADDER, "d_rule": D_RULE}
+    res = {"version": "v3-addendum-2", "month": month, "px_min": PX_MIN, "d_ladder": D_LADDER, "d_rule": D_RULE,
+           "news_max_tickers": NEWS_MAX_TICKERS, "sec_forms": SEC_FORMS, "retest_tol": RETEST_TOL, "unknown_max": UNKNOWN_MAX}
     y, mo = int(month[:4]), int(month[5:7])
     days = [d.isoformat() for d in (dt.date(y, mo, 1) + dt.timedelta(k) for k in range(31))
             if d.month == mo and is_session(d.isoformat(), MC.session_info)]
-    log(f"📅 {month}: {len(days)} جلسة · PX_MIN={PX_MIN} · السلّم {D_LADDER} · القاعدة {D_RULE}")
-    tmp = tempfile.mkdtemp(prefix="vwm2_")
-    per_day, c_pool = {}, []
+    p0 = _prev_session(days[0], MC)
+    win_a = {d: dt.datetime.combine(dt.date.fromisoformat(_prev_session(d, MC)), dt.time(16, 0), tzinfo=NY).timestamp() for d in days}
+    log(f"📅 {month}: {len(days)} جلسة · الجلسةُ السابقة {p0} · PX_MIN={PX_MIN} · السلّم {D_LADDER} · القاعدة {D_RULE} · "
+        f"خبرٌ خاصّ ≤{NEWS_MAX_TICKERS} رموز · SEC {SEC_FORMS}")
+    # ① ملفّاتُ الدقيقة
+    tmp = tempfile.mkdtemp(prefix="vwm3_")
+    cands, v2c, days_missing, nsyms = {}, {}, [], {}
+    self_mismatch = 0
     for day in days:
         info = MC.session_info(day)
         op, cl = info["open_ny_min"], info["close_ny_min"]
         path = os.path.join(tmp, "d.csv.gz")
         okx, _ = _download(FP, _key(MIN_PREFIX, day), path)
         if not okx:
-            per_day[day] = {"error": "download"}
+            days_missing.append(day)
             continue
         mins = _read_minutes(path)
         os.remove(path)
-        row = {"symbols": len(mins)}
-        cnt = {(arm, d, k): 0 for arm in "AB" for d in D_LADDER for k in ("H", "HL")}
+        cnt2 = {(arm, d, k): 0 for arm in "AB" for d in D_LADDER for k in ("H", "HL")}
+        dc = {}
         for sym, bars in mins.items():
             ev = day_events(bars, op, cl, D_LADDER, PX_MIN)
+            cd = day_candidates(bars, op, cl, PX_MIN, D_LADDER[0])
             for (arm, d), v in ev.items():
-                cnt[(arm, d, "H")] += v["H"] is not None
-                cnt[(arm, d, "HL")] += v["HL"] is not None
-            a0 = ev[("A", D_LADDER[0])]["H"]
-            if a0 is not None:
-                c_pool.append((day, sym, a0[0]))
-        for arm in "AB":
-            for d in D_LADDER:
-                row[f"{arm}@{d}"] = {"H": cnt[(arm, d, "H")], "HL": cnt[(arm, d, "HL")]}
-        per_day[day] = row
-        log(f"① {day}: " + " · ".join(f"{d // 1000}k A={row[f'A@{d}']['H']}/{row[f'A@{d}']['HL']} B={row[f'B@{d}']['H']}/{row[f'B@{d}']['HL']}"
-                                      for d in D_LADDER) + f" · رموز {len(mins)}")
+                cnt2[(arm, d, "H")] += v["H"] is not None
+                cnt2[(arm, d, "HL")] += v["HL"] is not None
+                e = [x for x in cd[arm] if x[3] >= d]
+                if bool(e) != (v["H"] is not None) or any(x[4] for x in e) != (v["HL"] is not None):
+                    self_mismatch += 1
+            if cd["A"] or cd["B"]:
+                dc[sym] = cd
+        cands[day], nsyms[day] = dc, len(mins)
+        v2c[day] = {f"{arm}@{d}": {"H": cnt2[(arm, d, "H")], "HL": cnt2[(arm, d, "HL")]} for arm in "AB" for d in D_LADDER}
+        log(f"① {day}: رموز {len(mins)} · بأحداث {len(dc)} · بلا C: A@250k H={v2c[day]['A@250000']['H']} · فحصٌ داخليّ {self_mismatch}")
         del mins
-    ok_days = [x for x in per_day if "error" not in per_day[x]]
-    med = {arm: {d: {k: st.median([per_day[x][f"{arm}@{d}"][k] for x in ok_days] or [0]) for k in ("H", "HL")} for d in D_LADDER}
-           for arm in "AB"}
-    res["median_by_dmin"] = med
-    log("① الوسيطُ/يوم قبل أيّ اختيار: " + " · ".join(f"{d // 1000}k A H={med['A'][d]['H']} HL={med['A'][d]['HL']} "
-                                                       f"B H={med['B'][d]['H']} HL={med['B'][d]['HL']}" for d in D_LADDER))
-    d_pick = pick_rule({d: med["A"][d]["H"] for d in D_LADDER}, D_LADDER, *D_RULE)
-    res["D_MIN_pick_by_rule"] = d_pick
-    log(f"① قاعدةُ §③ (وسيطُ أحداث A/يوم بين {D_RULE[0]} و{D_RULE[1]}) ⟵ D_MIN = {d_pick}")
-    res["per_day"] = per_day
-    # ② تغطيةُ C (عيّنةٌ مُعلَنة من أحداث A عند أدنى درجة)
-    rnd = random.Random(20261028)
-    samp = rnd.sample(c_pool, min(C_SAMPLE, len(c_pool)))
-    hits = calls = 0
-    for day, s, m0 in samp:
-        pdx = dt.date.fromisoformat(day) - dt.timedelta(1)
-        while not is_session(pdx.isoformat(), MC.session_info):
-            pdx -= dt.timedelta(1)
-        a = dt.datetime.combine(pdx, dt.time(16, 0), tzinfo=NY).astimezone(dt.timezone.utc)
-        b = dt.datetime.combine(dt.date.fromisoformat(day), dt.time(m0 // 60, m0 % 60), tzinfo=NY).astimezone(dt.timezone.utc)
-        j = _poly("/v2/reference/news", key, {"ticker": s, "published_utc.gte": a.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                                              "published_utc.lte": b.strftime("%Y-%m-%dT%H:%M:%SZ"), "limit": 10})
-        calls += 1
-        hits += bool(j and j.get("results"))
-    res["C_coverage"] = {"rung": D_LADDER[0], "pool": len(c_pool), "sample": len(samp), "with_news": hits, "calls": calls}
-    log(f"② C: خبرٌ في النافذة {hits} من {len(samp)} (من {len(c_pool)} حدثَ A عند {D_LADDER[0] // 1000}k)")
+    ok_days = [d for d in days if d not in days_missing]
+    # ⑤ فحصُ الإعادة مقابل v2 المنشورة
+    v2chk = {"compared": 0, "mismatch": 0, "examples": []}
+    try:
+        old = json.load(open(V2_FILE, encoding="utf-8"))
+        if old.get("month") == month:
+            for d in ok_days:
+                for k, v in v2c[d].items():
+                    o = (old.get("per_day") or {}).get(d, {}).get(k)
+                    v2chk["compared"] += 1
+                    if o is None or o.get("H") != v["H"] or o.get("HL") != v["HL"]:
+                        v2chk["mismatch"] += 1
+                        if len(v2chk["examples"]) < 10:
+                            v2chk["examples"].append([d, k, o, v])
+    except (OSError, ValueError) as e:
+        v2chk["error"] = type(e).__name__
+    log(f"⑤ فحصُ الإعادة مقابل v2: {v2chk['mismatch']} فرقًا من {v2chk['compared']} · الفحصُ الداخليّ {self_mismatch}")
+    # ② الأخبار
+    a_iso = dt.datetime.combine(dt.date.fromisoformat(p0), dt.time(16, 0), tzinfo=NY).astimezone(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    b_iso = dt.datetime.combine(dt.date.fromisoformat(days[-1]), dt.time(20, 0), tzinfo=NY).astimezone(dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    items, nmeta = fetch_news(key, a_iso, b_iso)
+    nstrict, nany = news_index(items)
+    nmeta.update({"from": a_iso, "to": b_iso, "tickers_strict": len(nstrict), "tickers_any": len(nany)})
+    del items
+    log(f"② الأخبار {a_iso} ⟵ {b_iso}: {nmeta['items']} خبرًا في {nmeta['pages']} صفحة · مكتمل={nmeta['complete']} · "
+        f"رموزٌ بخبرٍ خاصّ {len(nstrict)} · بأيّ خبر {len(nany)}")
+    # ③ SEC
+    cmap = _sec_get("https://www.sec.gov/files/company_tickers.json", ua, True) or {}
+    tmap = {str(v.get("ticker", "")).upper(): int(v["cik_str"]) for v in cmap.values() if isinstance(v, dict) and v.get("cik_str")}
+    filers, idx_missing = set(), ([] if tmap else ["company_tickers"])      # خريطةٌ تعذّرت ⟵ مصدرُ SEC ناقص (§③-②) لا «بلا CIK» للكلّ
+    for d in [p0] + days:
+        dd = dt.date.fromisoformat(d)
+        url = (f"https://www.sec.gov/Archives/edgar/daily-index/{dd.year}/QTR{(dd.month - 1) // 3 + 1}/"
+               f"master.{dd.strftime('%Y%m%d')}.idx")
+        text = _sec_get(url, ua, False)
+        if text is None:
+            idx_missing.append(d)
+            continue
+        filers |= parse_master_idx(text, SEC_FORMS)
+    syms_all = set()
+    for v in cands.values():
+        syms_all |= set(v)
+    need = sorted({tmap[s] for s in syms_all if s in tmap and tmap[s] in filers})
+    from edgar2_probe import parse_acc, to_ny        # بالاسم — بُنيتا لقراءة لحظة القبول في `T-PRE-EDGAR-2` (المِجَسُّ باقٍ والدراسةُ مُغلَقة لا تُشغَّل)
+    acc_ts = make_acc_ts(parse_acc, to_ny)
+    sec_all, sec_8k, sec_rows, sec_unknown = {}, {}, {}, set()
+    for cik in need:
+        j = _sec_get(f"https://data.sec.gov/submissions/CIK{cik:010d}.json", ua, True)
+        if j is None:
+            sec_unknown.add(cik)
+            continue
+        rec = (j.get("filings") or {}).get("recent") or {}
+        if not sec_depth_ok(rec, bool((j.get("filings") or {}).get("files")), p0):
+            sec_unknown.add(cik)
+            continue
+        rows = sec_index(rec, SEC_FORMS, acc_ts)
+        sec_rows[cik] = rows
+        sec_all[cik] = [r[0] for r in rows]
+        sec_8k[cik] = [r[0] for r in rows if r[1] == "8-K"]
+    smeta = {"tickers_mapped": len(tmap), "filers": len(filers), "index_days": 1 + len(days), "index_missing": idx_missing,
+             "event_symbols": len(syms_all), "with_cik": sum(1 for s in syms_all if s in tmap), "need": len(need),
+             "unknown_ciks": len(sec_unknown)}
+    log(f"③ SEC: خريطة {len(tmap)} · مودِعو {SEC_FORMS} في المدى {len(filers)} · رموزُ الأحداث {len(syms_all)} (بـCIK {smeta['with_cik']}) · "
+        f"submissions {len(need)} · مجهول {len(sec_unknown)} · فهارسُ ناقصة {idx_missing}")
+    # ④ العدّ
+    per_day, src_tot, items_tally = {}, {"news": 0, "sec": 0, "both": 0}, {}
+    nocik = den_u = num_u = 0
+    sec = {"tmap": tmap, "filers": filers, "all": sec_all, "8k": sec_8k, "rows": sec_rows, "unknown": sec_unknown}
+    for day in ok_days:
+        cnt, src_d, items_d, nc, du, nu = count_day(cands[day], day, win_a[day], sec, nstrict, nany)
+        nocik, den_u, num_u = nocik + nc, den_u + du, num_u + nu
+        for k, v in src_d.items():
+            src_tot[k] += v
+        for k, v in items_d.items():
+            items_tally[k] = items_tally.get(k, 0) + v
+        per_day[day] = {"symbols": nsyms[day], "with_events": len(cands[day])}
+        for arm, ks in (("A", KEYS_A), ("B", KEYS_B)):
+            for d in D_LADDER:
+                per_day[day][f"{arm}@{d}"] = {k: cnt.get((arm, d, k), 0) for k in ks}
+        log(f"④ {day}: " + " · ".join(f"{d // 1000}k A∧C={per_day[day][f'A@{d}']['H']}/{per_day[day][f'A@{d}']['HL']} "
+                                      f"D={per_day[day][f'A@{d}']['DH']} B∧C={per_day[day][f'B@{d}']['H']}" for d in D_LADDER))
+    med = {arm: {d: {k: st.median([per_day[x][f"{arm}@{d}"][k] for x in ok_days] or [0]) for k in ks} for d in D_LADDER}
+           for arm, ks in (("A", KEYS_A), ("B", KEYS_B))}
+    tot = {arm: {d: {k: sum(per_day[x][f"{arm}@{d}"][k] for x in ok_days) for k in ks} for d in D_LADDER}
+           for arm, ks in (("A", KEYS_A), ("B", KEYS_B))}
+    res.update({"median_by_dmin": med, "month_totals": tot, "per_day": per_day, "news": nmeta, "sec": smeta,
+                "v2_check": v2chk, "self_mismatch": self_mismatch, "days_missing": days_missing,
+                "nocik_A_lowest": nocik, "unknown_A_lowest": {"unknown": num_u, "denom_with_cik": den_u},
+                "src_A_lowest_month": src_tot, "items_8k_A_lowest": dict(sorted(items_tally.items(), key=lambda x: -x[1])[:15])})
+    log("① الوسيطُ/يوم قبل أيّ اختيار: " + " · ".join(
+        f"{d // 1000}k A∧C H={med['A'][d]['H']} HL={med['A'][d]['HL']} D={med['A'][d]['DH']}/{med['A'][d]['DHL']} "
+        f"(بلا C {med['A'][d]['H0']}) B∧C H={med['B'][d]['H']} HL={med['B'][d]['HL']}" for d in D_LADDER))
+    ok, why = coverage_gates(nmeta, idx_missing, num_u, den_u, days_missing)
+    pick = pick_rule({d: med["A"][d]["H"] for d in D_LADDER}, D_LADDER, *D_RULE) if ok else None
+    verdict = verdict_v3(ok, pick)
+    res.update({"gates_ok": ok, "gates_why": why, "rule_applied": ok, "D_MIN_pick_by_rule": pick, "verdict": verdict})
+    log(f"⑥ الحارس: {'يصلح' if ok else 'لا قياس ' + str(why)} · المجهول {num_u} من {den_u} · بلا CIK {nocik} · "
+        f"قاعدةُ §③ على A ∧ C ⟵ D_MIN = {pick} · الحكم: {verdict}")
     res["seconds"] = round(time.time() - t0, 1)
     print("VWMFEAS_JSON " + json.dumps(res, ensure_ascii=False))
     return 0
