@@ -38,6 +38,8 @@ ANCHORS = ("DKI", "SXTC", "HUBC")
 FAMILIES = ("A_float", "B_offering", "C_borrow", "D_split")
 DIRECTION = {"A_float": +1, "B_offering": -1, "C_borrow": +1, "D_split": +1}
 FINAL_PROSPECTUS = ("424B1", "424B4", "424B5")
+SNAPSHOT_FAMILIES = ("A_float", "C_borrow")                         # amendment 5 m4: snapshot of the collection day — on-time units only
+LATE_SIGN_MIN = 5                                                   # amendment 5 m6: on-time units with a value needed for the sign check
 
 
 # ---------------------------------------------------------------- calendar
@@ -195,6 +197,28 @@ def last_photo(root=None) -> str:
     return best
 
 
+def arrival_stamps(root=None) -> dict:
+    """amendment 5 m2(a): image id (saved name without extension) ⟶ earliest machine stamp of its arrival — the Telegram message `date`,
+    else `collected_utc` — from `telegram_collect_meta.jsonl` (status saved, kind photo). No stamp anyone types."""
+    p = os.path.join(root or ROOT, "telegram_collect_meta.jsonl")
+    out = {}
+    if os.path.exists(p):
+        for x in open(p, encoding="utf-8"):
+            if not x.strip():
+                continue
+            try:
+                r = json.loads(x)
+            except ValueError:
+                continue
+            if r.get("status") != "saved" or r.get("kind") != "photo" or not r.get("saved_name"):
+                continue
+            t = str(r.get("date") or r.get("collected_utc") or "")
+            k = os.path.splitext(str(r["saved_name"]))[0]
+            if len(t) >= 10 and (k not in out or t < out[k]):
+                out[k] = t
+    return out
+
+
 def load_reject_log(root=None):
     try:
         d = json.load(open(os.path.join(root or ROOT, "reject_log.json"), encoding="utf-8"))
@@ -237,7 +261,7 @@ def index_ledger(rows) -> dict:
 
 
 # ---------------------------------------------------------------- eligibility (§3)
-def eligibility(case, anns, priors, ledger_ix, panel, units_so_far, mention_tickers=(), today=None):
+def eligibility(case, anns, priors, ledger_ix, panel, units_so_far, mention_tickers=(), today=None, arrivals=None, now=None):
     sym = str(case.get("SYMBOL") or "").upper()
     T = str(case.get("DECISION_DATE") or "")
     out = dict(case_id=case.get("CASE_ID"), ticker=sym, T=T, sample=case.get("SAMPLE"), status="ELIGIBLE", code="", C=None, lag=None, controls=[])
@@ -282,6 +306,8 @@ def eligibility(case, anns, priors, ledger_ix, panel, units_so_far, mention_tick
         if today is not None and str(today) <= _w:                     # amendment 3: the E5 window has not closed yet — counts toward nothing
             out.update(status="PENDING_COLLECTION", code=f"E5:window_open_until_{_w}")
             return out
+        if arrivals is not None:                                     # amendment 5: the late-arrival path (m2-m3) — only when the caller passes stamps
+            return _late_path(out, sym, T, a, ledger_ix, panel, units_so_far, mention_tickers, today, arrivals, now)
         out.update(status="NOT_COVERED", code="E5:no_collection_within_5_sessions")
         return out
     C = cand[0]
@@ -306,6 +332,45 @@ def eligibility(case, anns, priors, ledger_ix, panel, units_so_far, mention_tick
         out.update(status="FRAME_CHANGED", code="E7:reverse_split_between_T_and_C")
         return out
     out["frame"] = sorted(fr)
+    return out
+
+
+def _late_path(out, sym, T, anns_sel, ledger_ix, panel, units_so_far, mention_tickers, today, arrivals, now):
+    """amendment 5 m2-m3: an image that reached the bot after T + 5 sessions keeps its eligibility when (a) a machine arrival stamp exists,
+    (b) it is not before T and precedes the run, (c) the security was collected on or after the arrival day. Controls come from the first OK panel
+    in [T, T + 5 sessions] (the decision's window, not the arrival day). E7 is not applied (it guards the snapshot family the late path does not use)."""
+    stamps = sorted(arrivals[x["image_id"]] for x in anns_sel if x.get("image_id") in arrivals)
+    if not stamps:
+        out.update(status="NOT_COVERED", code="E5:no_collection_within_5_sessions")
+        return out
+    A = stamps[0]
+    run = now or dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
+    if A[:10] < T:
+        out.update(status="INELIGIBLE", code="E1:date_ambiguous")
+        return out
+    if A >= run:
+        out.update(status="NOT_COVERED", code="E5:arrival_after_run")
+        return out
+    upto = str(today or run[:10])
+    late_days = [d for d in ledger_ix.get(sym, {}).get("days", []) if A[:10] <= d <= upto]
+    if not late_days:
+        out.update(status="PENDING_COLLECTION", code=f"E5L:arrived_{A[:10]}_awaiting_collection")
+        return out
+    C = late_days[0]
+    out.update(C=C, lag=sessions_between(T, C), late=True, arrival=A)
+    w = add_sessions(T, LAG_MAX_SESSIONS)
+    pick = next((panel[d] for d in sorted(panel) if T <= d <= w and panel[d].get("status") == "OK" and panel[d].get("tickers")), None)
+    if not pick:
+        out.update(status="NO_CONTROLS", code="E6:no_panel_day_in_decision_window")
+        return out
+    excl = set(mention_tickers) | {u["ticker"] for u in units_so_far} | {sym} | set(ANCHORS)
+    ctl = [t for t in pick["tickers"] if t not in excl and pick["obs_date"] in ledger_ix.get(t, {}).get("days", [])][:CONTROLS_MAX]
+    if len(ctl) < CONTROLS_MIN:
+        out.update(status="NO_CONTROLS", code=f"E6:controls_{len(ctl)}")
+        return out
+    out.update(controls=ctl, panel_day=pick["obs_date"], status="ELIGIBLE_LATE", code="E5L:late_arrival",
+               frame_changed_late=any(r["field"] == "reverse_split" and r["status"] == "OK" and T < str(r.get("source_asof"))[:10] <= C
+                                      for r in ledger_ix[sym]["rows"]))
     return out
 
 
@@ -356,7 +421,7 @@ def short_interest(rows, T):
 
 
 # ---------------------------------------------------------------- status / coverage (§7)
-def build_status(today=None, root=None, ledger_rows=None, panel=None):
+def build_status(today=None, root=None, ledger_rows=None, panel=None, now=None):
     root = root or ROOT
     cases = load_cases(root)
     anns = load_annotations(root)
@@ -365,19 +430,21 @@ def build_status(today=None, root=None, ledger_rows=None, panel=None):
     ix = index_ledger(rows)
     panel = load_panel() if panel is None else panel
     today = today or dt.datetime.now(dt.timezone.utc).date().isoformat()
+    arrivals = arrival_stamps(root)                                 # amendment 5 m2(a)
     units, items = [], []
     for c in sorted(cases, key=lambda c: (str(c.get("DECISION_DATE")), str(c.get("CASE_ID")))):
-        e = eligibility(c, anns, priors, ix, panel, units, today=today)
+        e = eligibility(c, anns, priors, ix, panel, units, today=today, arrivals=arrivals, now=now)
         items.append(e)
-        if e["status"] == "ELIGIBLE":
+        if e["status"] in ("ELIGIBLE", "ELIGIBLE_LATE"):             # amendment 5 m5: the floor counts both
             units.append(e)
     by = {}
     for e in items:
         by[e["status"]] = by.get(e["status"], 0) + 1
     cov = {}
     for fam in FAMILIES:
-        pu = [feature(ix[u["ticker"]]["rows"], fam, u["T"], u["C"]) for u in units]
-        pc = [feature(ix[t]["rows"], fam, u["T"], u["panel_day"]) for u in units for t in u["controls"]]
+        fu = family_units(units, fam)                                # amendment 5 m4: A and C on on-time units only
+        pu = [feature(ix[u["ticker"]]["rows"], fam, u["T"], u["C"]) for u in fu]
+        pc = [feature(ix[t]["rows"], fam, u["T"], u["panel_day"]) for u in fu for t in u["controls"]]
         cu = sum(v is not None for v in pu) / len(pu) if pu else 0.0
         cc = sum(v is not None for v in pc) / len(pc) if pc else 0.0
         cov[fam] = dict(units_with_value=sum(v is not None for v in pu), units=len(pu), controls_with_value=sum(v is not None for v in pc),
@@ -390,7 +457,8 @@ def build_status(today=None, root=None, ledger_rows=None, panel=None):
     _pl = pool_lag(panel, load_reject_log(root))                     # amendment 1 · reporting only
     _ph = last_photo(root)
     st = dict(contract_sha256=PREREG_SHA256, today=today, cutoff=CUTOFF_DATE, window_end=WINDOW_END, floor=FLOOR,
-              candidates=len(items), by_status=by, eligible=len(units), units=[{k: u[k] for k in ("case_id", "ticker", "T", "C", "lag", "sample", "controls", "panel_day")} for u in units],
+              candidates=len(items), by_status=by, eligible=len(units), units=[dict({k: u[k] for k in ("case_id", "ticker", "T", "C", "lag", "sample", "controls", "panel_day")}, late=bool(u.get("late"))) for u in units],
+              late_units=sum(1 for u in units if u.get("late")),
               items=[{k: e[k] for k in ("case_id", "ticker", "T", "status", "code", "sample")} for e in items],
               coverage_failures=len(cov_fail), coverage_failure_share=(round(len(cov_fail) / denom, 4) if denom else 0.0),
               lag_sessions=dict(n=len(lags), median=(lags[len(lags) // 2] if lags else None), max=(lags[-1] if lags else None)),
@@ -407,9 +475,14 @@ def build_status(today=None, root=None, ledger_rows=None, panel=None):
 
 
 # ---------------------------------------------------------------- analysis (§6 · §8) — runs once
+def family_units(units, fam):
+    """amendment 5 m4: a late unit (and its controls) does not apply to the snapshot families A and C."""
+    return [u for u in units if not (u.get("late") and fam in SNAPSHOT_FAMILIES)]
+
+
 def effect_rows(units, ix, fam):
     out = []
-    for u in units:
+    for u in family_units(units, fam):
         pu = feature(ix[u["ticker"]]["rows"], fam, u["T"], u["C"])
         pc = [feature(ix[t]["rows"], fam, u["T"], u["panel_day"]) for t in u["controls"]]
         out.append((u["ticker"], pu, [v for v in pc if v is not None]))
@@ -468,6 +541,11 @@ def overall(fams: dict, testable_any: bool, insufficient: bool) -> str:
     return "UNSUPPORTED"
 
 
+def late_selection_conflict(s_on) -> bool:
+    """amendment 5 m6 (a tightening): the on-time units alone (at least LATE_SIGN_MIN with a value) point the other way."""
+    return bool(s_on) and s_on["n_units"] >= LATE_SIGN_MIN and s_on["effect"] < 0
+
+
 def analyze(st, units, ix):
     insufficient = (not st["floor_reached"]) and st["window_closed"]
     fams = {}
@@ -477,7 +555,11 @@ def analyze(st, units, ix):
             continue
         rows = effect_rows(units, ix, fam)
         s, ci = summarise(rows, DIRECTION[fam]), bootstrap(rows, DIRECTION[fam])
-        fams[fam] = dict(summary=s, ci=ci, verdict=verdict_family(s, ci), direction=DIRECTION[fam], coverage=st["families"][fam])
+        v = verdict_family(s, ci)
+        s_on = summarise(effect_rows([u for u in units if not u.get("late")], ix, fam), DIRECTION[fam])   # amendment 5 m6: printed always
+        if v == "SUPPORTED" and late_selection_conflict(s_on):
+            v = "UNSUPPORTED (late-selection conflict)"
+        fams[fam] = dict(summary=s, ci=ci, verdict=v, direction=DIRECTION[fam], coverage=st["families"][fam], ontime=s_on)
     si = dict(pos=[short_interest(ix[u["ticker"]]["rows"], u["T"]) for u in units],
               ctl=[short_interest(ix[t]["rows"], u["T"]) for u in units for t in u["controls"]])
     return dict(contract_sha256=PREREG_SHA256, analyzed_at=dt.datetime.now(dt.timezone.utc).replace(microsecond=0).isoformat(),
@@ -495,6 +577,10 @@ def verdict_md(res) -> str:
         s, ci = v.get("summary"), v.get("ci")
         L.append(f"| {fam} | {s['n_units'] if s else '—'} | {s['n_controls'] if s else '—'} | {s['p_pos'] if s else '—'} | {s['p_ctl'] if s else '—'} | "
                  f"{s['effect'] if s else '—'} ({v.get('direction', '—')}) | {('[' + str(ci['lo']) + ', ' + str(ci['hi']) + ']') if ci else '—'} | {v['verdict']} |")
+    L += ["", "On-time units only (amendment 5 m6 · printed for every family):"]
+    for fam, v in res["families"].items():
+        o = v.get("ontime")
+        L.append(f"- {fam}: " + (f"n units {o['n_units']} · effect {o['effect']}" if o else "—"))
     L += ["", "Short interest (descriptive, no test): " + json.dumps(res["short_interest_descriptive"]), "",
           "No production change follows from this file (contract §0, §11). No further phase follows automatically (§9).", ""]
     return "\n".join(L)
