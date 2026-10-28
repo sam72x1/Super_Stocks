@@ -1,0 +1,284 @@
+{
+"conditions": [
+{
+"description": null,
+"id": 2,
+"name": "Average Price Trade",
+"sip_mapping": {
+"CTA": "B",
+"FINRA_TDDS": "W",
+"UTP": "W"
+},
+"type": "sale_condition"
+},
+{
+"description": null,
+"id": 8,
+"name": "Closing Prints",
+"sip_mapping": {
+"UTP": "6"
+},
+"type": "sale_condition"
+},
+{
+"description": null,
+"id": 10,
+"name": "Derivatively Priced",
+"sip_mapping": {
+"CTA": "4",
+"UTP": "4"
+},
+"type": "sale_condition"
+},
+{
+"description": null,
+"id": 19,
+"name": "Market Center Closing Trade",
+"sip_mapping": {
+"CTA": "6"
+},
+"type": "sale_condition"
+},
+{
+"description": null,
+"id": 37,
+"name": "Odd Lot Trade",
+"sip_mapping": {
+"CTA": "I",
+"FINRA_TDDS": "I",
+"UTP": "I"
+},
+"type": "sale_condition"
+},
+{
+"description": null,
+"id": 52,
+"name": "Contingent Trade",
+"sip_mapping": {
+"CTA": "V",
+"UTP": "V"
+},
+"type": "sale_condition"
+},
+{
+"description": null,
+"id": 53,
+"name": "Qualified Contingent Trade",
+"sip_mapping": {
+"CTA": "7",
+"UTP": "7"
+},
+"type": "sale_condition"
+}
+],
+"off_exchange": {
+"AIRS": {
+"off_exchange_pct": 55.9,
+"trades": 2866,
+"volume": 696144
+},
+"AKAN": {
+"off_exchange_pct": 57.6,
+"trades": 1094,
+"volume": 144604
+},
+"ASPC": {
+"off_exchange_pct": 61.7,
+"trades": 88,
+"volume": 3394
+},
+"BCTX": {
+"off_exchange_pct": 54.6,
+"trades": 520,
+"volume": 51233
+},
+"BNR": {
+"off_exchange_pct": 19.2,
+"trades": 1179,
+"volume": 20163
+},
+"BTCS": {
+"off_exchange_pct": 71.0,
+"trades": 1758,
+"volume": 594890
+},
+"BYND": {
+"off_exchange_pct": 49.4,
+"trades": 7417,
+"volume": 826000
+},
+"CCHH": {
+"off_exchange_pct": 41.3,
+"trades": 126,
+"volume": 13755
+},
+"CELU": {
+"off_exchange_pct": 58.4,
+"trades": 820,
+"volume": 230780
+},
+"CURX": {
+"off_exchange_pct": 45.8,
+"trades": 189,
+"volume": 2343
+},
+"CXAI": {
+"off_exchange_pct": 61.0,
+"trades": 219,
+"volume": 20527
+},
+"EDSA": {
+"off_exchange_pct": 21.6,
+"trades": 251,
+"volume": 27172
+},
+"EPSM": {
+"off_exchange_pct": 65.0,
+"trades": 128,
+"volume": 28871
+},
+"FRSX": {
+"off_exchange_pct": 67.2,
+"trades": 123,
+"volume": 21990
+},
+"JZXN": {
+"off_exchange_pct": 68.4,
+"trades": 236,
+"volume": 24480
+},
+"KELYB": {
+"off_exchange_pct": 52.1,
+"trades": 111,
+"volume": 6192
+},
+"KMRK": {
+"off_exchange_pct": 59.0,
+"trades": 506,
+"volume": 104347
+},
+"LFS": {
+"off_exchange_pct": 33.4,
+"trades": 122,
+"volume": 11118
+},
+"MRLN": {
+"off_exchange_pct": 61.7,
+"trades": 8449,
+"volume": 3463087
+},
+"MTVA": {
+"off_exchange_pct": 58.9,
+"trades": 583,
+"volume": 71133
+},
+"PLSM": {
+"off_exchange_pct": 17.1,
+"trades": 130,
+"volume": 8383
+},
+"PRHI": {
+"off_exchange_pct": 2.4,
+"trades": 1078,
+"volume": 35938
+},
+"PRZO": {
+"off_exchange_pct": 72.2,
+"trades": 634,
+"volume": 194023
+},
+"PSIG": {
+"off_exchange_pct": 16.7,
+"trades": 4814,
+"volume": 1532149
+},
+"PTLE": {
+"off_exchange_pct": 26.7,
+"trades": 514,
+"volume": 41590
+},
+"QNRX": {
+"off_exchange_pct": 27.7,
+"trades": 137,
+"volume": 1915
+},
+"RENT": {
+"off_exchange_pct": 58.7,
+"trades": 19810,
+"volume": 2679943
+},
+"UONEK": {
+"off_exchange_pct": 64.0,
+"trades": 671,
+"volume": 26181
+},
+"VRM": {
+"off_exchange_pct": 39.4,
+"trades": 1103,
+"volume": 8118
+}
+},
+"quotes_fields": [
+"ask_exchange",
+"ask_price",
+"ask_size",
+"bid_exchange",
+"bid_price",
+"bid_size",
+"indicators",
+"participant_timestamp",
+"sequence_number",
+"sip_timestamp",
+"tape"
+],
+"quotes_sample": [
+{
+"ask_exchange": 11,
+"ask_price": 1.08,
+"ask_size": 100,
+"bid_exchange": 11,
+"bid_price": 1.01,
+"bid_size": 200,
+"indicators": [
+602
+],
+"participant_timestamp": 1793131208692446380,
+"sequence_number": 73482404,
+"sip_timestamp": 1793131208692787651,
+"tape": 3
+},
+{
+"ask_exchange": 11,
+"ask_price": 1.08,
+"ask_size": 100,
+"bid_exchange": 11,
+"bid_price": 1,
+"bid_size": 200,
+"indicators": [
+604
+],
+"participant_timestamp": 1793131206907563800,
+"sequence_number": 73480876,
+"sip_timestamp": 1793131206907577029,
+"tape": 3
+}
+],
+"snapshot_keys": [
+"day",
+"lastQuote",
+"lastTrade",
+"min",
+"prevDay",
+"ticker",
+"todaysChange",
+"todaysChangePerc",
+"updated"
+],
+"snapshot_lastQuote": {
+"P": 1.08,
+"S": 100,
+"p": 1.01,
+"s": 200,
+"t": 1793131208692787651
+}
+}
