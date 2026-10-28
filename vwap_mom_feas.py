@@ -91,17 +91,20 @@ def liq15_ok(b15, j):
     return j >= 1 and b15[j]["dv"] > b15[j - 1]["dv"] and b15[j]["c"] >= b15[j]["o"]
 
 
-def first_signal(b5, b15, after_mod, need_liq=True):
-    """أوّلُ اكتمالٍ لـH (‏3×5د فوق VWAP أو 15د فوقه) ‏[∧ L] **نهايتُه ≥ after_mod** ⟵ (نهايةُ الاكتمال، النوع) أو None."""
+def first_signal(b5, b15, after_mod, need_liq=True, skip=None):
+    """أوّلُ اكتمالٍ لـH (‏3×5د فوق VWAP أو 15د فوقه) ‏[∧ L] **نهايتُه ≥ after_mod** ⟵ (نهايةُ الاكتمال، النوع) أو None.
+
+    `skip=(a, b)`: اكتمالٌ نهايتُه في (a، b] لا يُعدّ ويُكمَل البحثُ بعده — للذراع B (الممتدّة): النظاميّةُ تُتخطّى ولا تُسقط الإشارةَ اللاحقة."""
+    out_ok = (lambda e: True) if skip is None else (lambda e: not (skip[0] < e <= skip[1]))
     cands = []
     for i in range(2, len(b5)):
         if all(b5[k]["vwap"] is not None and b5[k]["c"] > b5[k]["vwap"] for k in (i - 2, i - 1, i)):
-            if b5[i]["e"] >= after_mod and (not need_liq or liq_ok(b5, i)):
+            if b5[i]["e"] >= after_mod and out_ok(b5[i]["e"]) and (not need_liq or liq_ok(b5, i)):
                 cands.append((b5[i]["e"], "5x3"))
                 break
     for j in range(len(b15)):
         if b15[j]["vwap"] is not None and b15[j]["c"] > b15[j]["vwap"]:
-            if b15[j]["e"] >= after_mod and (not need_liq or liq15_ok(b15, j)):
+            if b15[j]["e"] >= after_mod and out_ok(b15[j]["e"]) and (not need_liq or liq15_ok(b15, j)):
                 cands.append((b15[j]["e"], "15x1"))
                 break
     return min(cands) if cands else None
@@ -177,8 +180,9 @@ def count_signals(mins, ent_reg, ent_ext, op, cl):
         vw = vwap_series(bars)
         b5, b15 = bucketize(bars, vw, EXT_START, 5, EXT_END), bucketize(bars, vw, EXT_START, 15, EXT_END)
         for need, attr in ((False, "h"), (True, "hl")):
-            sig = first_signal(b5, b15, m0, need_liq=need)
-            ok = sig is not None and not (op < sig[0] <= cl)
+            # تصحيح 2026-10-28 (تشغيلة 40709709437): كان يأخذ أوّلَ H ثمّ يُسقطه إن وقع في النظاميّة ⟵ H∧L فاق H في 32 من 105 يومًا-درجة
+            sig = first_signal(b5, b15, m0, need_liq=need, skip=(op, cl))
+            ok = sig is not None
             if attr == "h":
                 hB += ok
             else:

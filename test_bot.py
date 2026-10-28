@@ -88897,6 +88897,47 @@ except Exception as _e:                                              # noqa: BLE
 check("📈 VWM2 (‏2026-10-28) جدوى `T-VWAP-MOM` عدٌّ بلا عائد: VWAP · الثبات · السيولة · أعلى 20 · RSI · الدفتر · قاعدةُ الاختيار "
       "سلوكيًّا · والسبتُ ليس جلسة · ولا اسمَ عائدٍ في الملفّ · والـworkflow يدويٌّ قارئ", _v_vf2, _v_vf2w)
 
+# 📈 VWM3 (‏2026-10-28 · عطلٌ مُثبَت في تشغيلة الجدوى `40709709437`): الذراع B كانت تأخذ أوّلَ H في اليوم ثمّ تُسقطه إن وقع في النظاميّة ⟵
+#    H ∧ L فاق H وحدَها في 32 من 105 يومًا-درجة (مستحيلٌ منطقيًّا). الآن `first_signal(skip=(op, cl))` يتخطّى النظاميّة ويُكمل البحث.
+#    **سلوكيّ:** شموعٌ اصطناعيّة فوق VWAP في النظاميّة ثمّ في الأفتر ⟵ بلا skip الإشارةُ نظاميّة وبه أفتريّة · و`count_signals` يعدّها لـB · وفي النظاميّة وحدَها صفر ·
+#    وH ∧ L لا يفوق H على عشرين عالَمًا عشوائيًّا.
+try:
+    import random as _v3_rnd
+    import vwap_mom_feas as _V3
+    _v3_bars = [(m, p, p, p, p, 1000) for m in range(240, 1200)
+                for p in [10.0 if m < 570 else 11.0 if m < 600 else 9.0 if m < 960 else 12.0]]
+    _v3_vw = _V3.vwap_series(_v3_bars)
+    _v3_b5, _v3_b15 = _V3.bucketize(_v3_bars, _v3_vw, 240, 5, 1200), _V3.bucketize(_v3_bars, _v3_vw, 240, 15, 1200)
+    _v3_plain = _V3.first_signal(_v3_b5, _v3_b15, 240, need_liq=False)
+    _v3_skip = _V3.first_signal(_v3_b5, _v3_b15, 240, need_liq=False, skip=(570, 960))
+    _v3_cnt = _V3.count_signals({"X": _v3_bars}, {}, {"X": 240}, 570, 960)
+    _v3_reg = [(m, p, p, p, p, 1000) for m in range(240, 1200)                       # فوق VWAP في النظاميّة وحدَها ⟵ B صفر
+               for p in [10.0 if m < 570 else 11.0 if m < 600 else 9.0]]
+    _v3_cnt_reg = _V3.count_signals({"Z": _v3_reg}, {}, {"Z": 240}, 570, 960)
+    _v3_e = lambda e: [{"s": e - 15, "e": e, "o": 2.0, "h": 2.0, "l": 2.0, "c": 2.0, "dv": 1.0, "vwap": 1.0}]
+    _v3_edges = (_V3.first_signal([], _v3_e(570), 0, need_liq=False, skip=(570, 960)) == (570, "15x1")      # نهايةُ البري تُعدّ
+                 and _V3.first_signal([], _v3_e(960), 0, need_liq=False, skip=(570, 960)) is None)        # نهايةُ النظاميّة تُتخطّى
+    _v3_mono = True
+    for _seed in range(20):
+        _r = _v3_rnd.Random(_seed)
+        _p, _bars = 5.0, []
+        for _m in range(240, 1200):
+            _p *= 1 + _r.gauss(0.0005, 0.01)
+            _bars.append((_m, _p, _p * 1.003, _p * 0.997, _p, _r.randint(100, 20000)))
+        _h_a, _hl_a, _h_b, _hl_b = _V3.count_signals({"Y": _bars}, {"Y": 600}, {"Y": 300}, 570, 960)
+        _v3_mono = _v3_mono and _hl_a <= _h_a and _hl_b <= _h_b
+    _v3_c = {"plain_regular": bool(_v3_plain) and 570 < _v3_plain[0] <= 960,
+             "skip_after": bool(_v3_skip) and _v3_skip[0] > 960,
+             "count_B": _v3_cnt[2] == 1,
+             "regular_only_B0": _v3_cnt_reg[2] == 0 and _v3_cnt_reg[3] == 0,
+             "edges": _v3_edges,
+             "monotone": _v3_mono}
+    _v_v3, _v_v3w = all(_v3_c.values()), f"{_v3_c} · plain={_v3_plain} · skip={_v3_skip} · count={_v3_cnt} · reg={_v3_cnt_reg}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_v3, _v_v3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈 VWM3 (‏2026-10-28) الذراع B تتخطّى النظاميّة وتُكمل البحث (`skip`) لا تُسقط الإشارةَ اللاحقة · وH ∧ L لا يفوق H "
+      "(عطلُ تشغيلة 40709709437: 32 من 105)", _v_v3, _v_v3w)
+
 # H6L1 — amendment 5 (m1-m5 · m7): الوصولُ المتأخّر لا يُسقط الأهليّة — ختمُ الجامع الآليّ ‏+ جمعٌ بعد الوصول ‏+ ضوابطُ من نافذة القرار ·
 #   وA/C (اللقطة) على الوحدات في وقتها وحدَها · وB/D للجميع · وبلا ختمٍ أو قبل T أو بلا جمعٍ أو بلا لوحة كلٌّ برمزه · والمسارُ في وقته بت-بت
 try:
