@@ -33,11 +33,10 @@
  "cutoff": "2026-10-08T01:29:04Z",
  "cutoff_ny_day": "2026-10-07",
  "excluded_by_code": {
-  "": 7,
   "E1": 28,
   "E3": 4,
   "E4": 9,
-  "E6": 2,
+  "E6": 9,
   "E7": 3,
   "E8": 2
  },
@@ -1441,7 +1440,7 @@
    "case_id": "PB:TG_77200",
    "categories": [],
    "cause": null,
-   "code": "",
+   "code": "E6",
    "components": {},
    "external_context": "NOT_EVALUATED",
    "faisal_decision": null,
@@ -1457,7 +1456,7 @@
    "status": "EXCLUDED",
    "ticker": "BRTX",
    "timeframe": "D",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
@@ -1516,7 +1515,7 @@
    "case_id": "PB:TG_77203",
    "categories": [],
    "cause": null,
-   "code": "",
+   "code": "E6",
    "components": {},
    "external_context": "NOT_EVALUATED",
    "faisal_decision": null,
@@ -1532,7 +1531,7 @@
    "status": "EXCLUDED",
    "ticker": "FBGL",
    "timeframe": "D",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
@@ -1541,7 +1540,7 @@
    "case_id": "PB:TG_77204",
    "categories": [],
    "cause": null,
-   "code": "",
+   "code": "E6",
    "components": {},
    "external_context": "NOT_EVALUATED",
    "faisal_decision": null,
@@ -1557,7 +1556,7 @@
    "status": "EXCLUDED",
    "ticker": "GNPX",
    "timeframe": "D",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
@@ -1566,7 +1565,7 @@
    "case_id": "PB:TG_77205",
    "categories": [],
    "cause": null,
-   "code": "",
+   "code": "E6",
    "components": {},
    "external_context": "NOT_EVALUATED",
    "faisal_decision": null,
@@ -1582,7 +1581,7 @@
    "status": "EXCLUDED",
    "ticker": "BTOC",
    "timeframe": "D",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
@@ -1616,7 +1615,7 @@
    "case_id": "PB:TG_77207",
    "categories": [],
    "cause": null,
-   "code": "",
+   "code": "E6",
    "components": {},
    "external_context": "NOT_EVALUATED",
    "faisal_decision": null,
@@ -1632,7 +1631,7 @@
    "status": "EXCLUDED",
    "ticker": "CYCU",
    "timeframe": "D",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
@@ -1641,7 +1640,7 @@
    "case_id": "PB:TG_77208",
    "categories": [],
    "cause": null,
-   "code": "",
+   "code": "E6",
    "components": {},
    "external_context": "NOT_EVALUATED",
    "faisal_decision": null,
@@ -1657,7 +1656,7 @@
    "status": "EXCLUDED",
    "ticker": "NIVF",
    "timeframe": "UNKNOWN",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
@@ -1791,7 +1790,7 @@
    "case_id": "PB:TG_77214",
    "categories": [],
    "cause": null,
-   "code": "",
+   "code": "E6",
    "components": {},
    "external_context": "NOT_EVALUATED",
    "faisal_decision": null,
@@ -1807,7 +1806,7 @@
    "status": "EXCLUDED",
    "ticker": "BRAI",
    "timeframe": "5M",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",

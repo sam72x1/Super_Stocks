@@ -83294,17 +83294,19 @@ try:
     _p12_st1, _p12_rows1, _p12_new1 = _phb_build([(_p12_corr, _p12_case)], rows=_p12_rows0)
     _p12_st2, _p12_rows2, _p12_new2 = _phb_build([(_p12_cand, _p12_case)], rows=_p12_rows0)
     _p12_row = next((r for r in _p12_st1["rows"] if r["case_id"] == "PB:TG_90001"), {})
+    _p12_code0 = next((r["code"] for r in _p12_st0["rows"] if r["case_id"] == "PB:TG_90001"), None)
     _phb12 = ([r["event"] for r in _p12_new0] == ["CAPTURED", "EXCLUDED"]
+              and bool(_p12_code0) and _p12_row.get("code") == _p12_code0
               and not _p12_st1["ledger"]["problems"] and not _p12_new1 and _p12_row.get("status") == "EXCLUDED"
               and "CORRECTION_01" in str(_p12_row.get("reason")) and _p12_row.get("protocol_case") == "CASE_0001"
               and any("PB:TG_90001" in p and "regression" in p for p in _p12_st2["ledger"]["problems"])
               and _p12_st2["state"] == "VALIDATION_BLOCKED" and _p12_st1["state"] != "VALIDATION_BLOCKED")
     _phb12w = (f"first={[r['event'] for r in _p12_new0]} corrected: problems={_p12_st1['ledger']['problems']} new={len(_p12_new1)} "
-               f"row={_p12_row.get('status')} · control: {_p12_st2['ledger']['problems'][:1]} {_p12_st2['state']}")
+               f"row={_p12_row.get('status')} code={_p12_code0}→{_p12_row.get('code')} · control: {_p12_st2['ledger']['problems'][:1]} {_p12_st2['state']}")
 except Exception as _e:                                                    # noqa: BLE001
     _phb12, _phb12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧵 PHB12 (تعديلُ المرحلة ب 1) المُغلَقُ EXCLUDED يبقى مستبعدًا إن صحّحه البروتوكول لاحقًا — بلا قيدٍ ولا مشكلة · "
-      "وبلا `corrected_by` يبقى التراجعُ VALIDATION_BLOCKED", _phb12, _phb12w[:400])
+      "ويحمل رمزَ استبعاده عند الاستلام (لا وسمَ جديد) · وبلا `corrected_by` يبقى التراجعُ VALIDATION_BLOCKED", _phb12, _phb12w[:400])
 
 
 # ═════ 🔎🧭⑥ PHASE 6 — المُلتقِطُ الأماميّ وتتبّعُ خطّ الأنابيب (2026-10-09 · بحثٌ فقط · بلا شبكة) ═════
