@@ -1,0 +1,75 @@
+{
+ "mode": "b3_assemble",
+ "base": "BASE2",
+ "shards": 20,
+ "entries": 3266,
+ "entries_expected": 3267,
+ "match": false,
+ "train_sessions": 311,
+ "addendum2_sha": "08208fbaea2061b8d4a4c5e2c6361dca2fe2236771f59bbff42855871d80d565",
+ "prod_state": {
+  "RSI_OVERSOLD": "ليّنة (نقصٌ يُعَدّ في WATCH_MAX_FAILS)",
+  "RSI_OS_HARD": "حيّةٌ رفضًا (M10_RSI_ما_تشبّع)",
+  "RSI_MAX_NOW": "ليّنة",
+  "RSI_NOW_HARD": "حيّةٌ رفضًا (M10_RSI_فات_القطار)",
+  "MA_GATE_MAX_ABOVE_PCT": "ليّنة (ضمن M12)",
+  "STABILITY_MIN": "مطفأة",
+  "STABILITY_MAX": "مطفأة (ST5)",
+  "ANCHOR_TWO_TOUCH": "حيّةٌ رفضًا (M_لا_مستوى_مختبر) · مجمَّدةٌ بعقد H6"
+ },
+ "not_measured": {
+  "PIVOT_SWEEP_PCT": "لم يُقَس — محورٌ مُغلَق (T-LAYERS · LAYERS_REOPEN)"
+ },
+ "prod_off": [
+  [
+   "M8_GAP_REQUIRED",
+   "مطفأة (GAP_REQUIRED=False)"
+  ],
+  [
+   "STABILITY_BT (STABILITY_MIN رفضًا)",
+   "مطفأة (BT_STABILITY_GATE فارغ: يُحسب ويُعرض ولا يرفض)"
+  ],
+  [
+   "STABILITY_MAX",
+   "مطفأة (لا تُنفَّذ في أيّ ذراع)"
+  ],
+  [
+   "NEAR_READINESS",
+   "مطفأة (NEAR_PCT=0)"
+  ],
+  [
+   "PIVOT_SWEEP_PCT",
+   "عرضٌ فقط لا بوّابة"
+  ],
+  [
+   "RSI_OVERSOLD · RSI_MAX_NOW · MA_GATE_MAX_ABOVE_PCT",
+   "ليّنة (نقصٌ يُعَدّ في WATCH_MAX_FAILS · لا رفضَ وحدَها)"
+  ],
+  [
+   "M13_SHORT",
+   "ليّنة (نقصٌ لا رفض)"
+  ],
+  [
+   "BORROW_AVAIL_MAX",
+   "حيّةٌ في الإنتاج · لم تُقَس هنا (لا تاريخ)"
+  ]
+ ],
+ "verdict": "⛔ لا حكم — الأساسُ ليس BASE2 أو عددُ الإدخالات أو الشرائح لا يطابق",
+ "seconds": 0.6,
+ "runs": [
+  {
+   "run": 40778239685,
+   "main_sha": "37fa0da572e4282440728efcde11d2d84480a183",
+   "created_at": "2026-10-28T22:13:07Z"
+  },
+  {
+   "run": 40780238587,
+   "main_sha": "f3f55f513f72ac2f91e710912472c1f54710aad8",
+   "created_at": "2026-10-28T22:28:31Z"
+  }
+ ],
+ "pairs_run_matched": {
+  "run": 40764757766,
+  "entries": 3267
+ }
+}
