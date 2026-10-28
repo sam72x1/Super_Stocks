@@ -18606,7 +18606,8 @@ check("🔬 H6/SRC🔒 خارج الجذور: لا تُستورَدان في أ�
 # على ملفٍ محذوفٍ أو جدولٍ مفرَّغ = «قفلٌ لم يسقط مرّة واحدة» (دستور §5).
 # ══════════════════════════════════════════════════════════
 _LEDGER_TAGS = ("faisal_verbatim", "faisal_inferred", "faisal_adopted",
-                "engineering", "third_party", "unsourced")
+                "engineering", "third_party", "unsourced",
+                "nayef_verbatim")   # 🔄 2026-10-28 · أمرُ المالك (برومبت T-VWAP-MOM): الوسمُ السابع وحدَه
 _LEDGER_MIN_ROWS = 90          # §② وحدها 94 صفًّا — الأرضية تكشف الملف المفرَّغ
 
 
@@ -88766,6 +88767,41 @@ except Exception as _e:                                              # noqa: BLE
     _v_pb1, _v_pb1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧪 V4PB1 (‏2026-10-28) وضعُ run في faisal_v41.yml يُعيد بناءَ المرحلة ب بعد البروتوكول والوثائق · وفشلُها يُحمّر التشغيلةَ "
       "بعد دفع قيد V4 ولا يُضيف ملفّاتها", _v_pb1, _v_pb1w)
+
+# 📈 VWM1 (‏2026-10-28 · برومبت المالك «T-VWAP-MOM»): العقدُ `vwap_mom_prereg.md` **مدموجٌ قبل أيّ رقم ولا يُعدَّل** (بصمةٌ مثبَّتة)
+#    · وقسمُ الدفتر §`T-VWAP-MOM` يحمل صفوفَه بوسومها: لفظُ نايف · وتقاطعُ فيصل `faisal_verbatim` بصوره الخمس · وذراعُ E
+#    `faisal_inferred` بـ«تعذّر التحقّق» (المنشورُ بأرقام المالك غائبٌ عن `faisal_images/`) · والمعرَّفُ رقمًا `engineering`.
+try:
+    import hashlib as _vw_h
+    _vw_pin = "ade3cc153da19de78e7ac987d2bd07cc73f1743178ba733274101b5ecc4970cd"
+    _vw_doc = open("vwap_mom_prereg.md", "rb").read()
+    _vw_sha = _vw_h.sha256(_vw_doc).hexdigest()
+    _vw_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _vw_i = _vw_led.find("## §`T-VWAP-MOM` 2026-10-28")
+    _vw_j = _vw_led.find("\n## ", _vw_i + 1) if _vw_i >= 0 else -1
+    _vw_sec = _vw_led[_vw_i:(_vw_j if _vw_j > 0 else len(_vw_led))] if _vw_i >= 0 else ""
+    _vw_rows = []
+    for _ln in _vw_sec.splitlines():
+        _cs = [c.strip() for c in _ln.strip().strip("|").split("|")]
+        if _ln.strip().startswith("|") and len(_cs) == 6 and _cs[4] != "الوسم" and not set("".join(_cs)) <= set("-: "):
+            _vw_rows.append(_cs)
+    _vw_tag = {r[0]: r[4].strip("`") for r in _vw_rows}
+    _vw_fz = next((r for r in _vw_rows if "تقاطعُ فيصل" in r[0]), None)
+    _vw_e = next((r for r in _vw_rows if "سيولة داخلة" in r[0]), None)
+    _vw_checks = {
+        "pin": _vw_sha == _vw_pin,
+        "rows": len(_vw_rows) >= 14,
+        "nayef": sum(1 for t in _vw_tag.values() if t == "nayef_verbatim") >= 9,
+        "faisal_x": bool(_vw_fz) and _vw_fz[4] == "`faisal_verbatim`"
+                    and all(f"TG_772{k}" in _vw_fz[2] for k in ("09", "10", "11", "13", "14")),
+        "e_arm": bool(_vw_e) and _vw_e[4] == "`faisal_inferred`" and "تعذّر التحقّق" in _vw_e[3],
+        "eng": sum(1 for t in _vw_tag.values() if t == "engineering") >= 3,
+    }
+    _v_vw1, _v_vw1w = all(_vw_checks.values()), f"{_vw_checks} · sha={_vw_sha[:12]} · صفوف={len(_vw_rows)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_vw1, _v_vw1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈 VWM1 (‏2026-10-28) عقدُ `T-VWAP-MOM` مدموجٌ ببصمته قبل أيّ رقم · وقسمُ الدفتر بوسومه (نايف · تقاطعُ فيصل بصوره الخمس · "
+      "ذراعُ E «تعذّر التحقّق» · والهندسيّ)", _v_vw1, _v_vw1w)
 
 # 🗓️ NYD1 (‏2026-10-28 · أمرُ المالك «صلّح تاريخ نيويورك في المراقب»): دِدوبُ «هنا الدخول» في المراقب بيومِ نيويورك لا يومِ الرنر (UTC)
 #    — عطلٌ مُثبَت (`dffe13934`): ثمانيةُ تنبيهاتٍ بعد 20:00 نيويورك خُتمت بتاريخ الغد ⟵ FMST مرّتين في مساءٍ واحد وختمُ الغد يكتم تنبيهَه.
