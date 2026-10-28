@@ -88767,6 +88767,37 @@ except Exception as _e:                                              # noqa: BLE
 check("🧪 V4PB1 (‏2026-10-28) وضعُ run في faisal_v41.yml يُعيد بناءَ المرحلة ب بعد البروتوكول والوثائق · وفشلُها يُحمّر التشغيلةَ "
       "بعد دفع قيد V4 ولا يُضيف ملفّاتها", _v_pb1, _v_pb1w)
 
+# 🗓️ NYD1 (‏2026-10-28 · أمرُ المالك «صلّح تاريخ نيويورك في المراقب»): دِدوبُ «هنا الدخول» في المراقب بيومِ نيويورك لا يومِ الرنر (UTC)
+#    — عطلٌ مُثبَت (`dffe13934`): ثمانيةُ تنبيهاتٍ بعد 20:00 نيويورك خُتمت بتاريخ الغد ⟵ FMST مرّتين في مساءٍ واحد وختمُ الغد يكتم تنبيهَه.
+#    **سلوكيّ** على حدود الصيف والشتاء ‏+ **AST** أنّ `_op_today` من `_ny_today` ويصل كونَ المتابعة والمسح.
+try:
+    import ast as _nyd_ast, datetime as _nyd_dt, inspect as _nyd_insp
+    import pullback_live as _nyd_pl
+    _U = _nyd_dt.timezone.utc
+    _nyd_cases = {
+        "2026-10-28T02:18:00": "2026-10-27",   # 22:18 EDT — حادثةُ LABT/FMST/GCTK/BIOA
+        "2026-10-27T00:05:00": "2026-10-26",   # 20:05 EDT — حادثةُ AXG/NSPR/SVRE/NNOX
+        "2026-10-27T15:00:00": "2026-10-27",   # جلسةٌ نظاميّة: اليومان متطابقان
+        "2026-12-01T04:30:00": "2026-11-30",   # 23:30 EST شتاءً (فرقُ 5 ساعات)
+        "2026-12-01T05:30:00": "2026-12-01",   # 00:30 EST
+    }
+    _nyd_got = {k: _nyd_pl._ny_today(_nyd_dt.datetime.fromisoformat(k).replace(tzinfo=_U)) for k in _nyd_cases}
+    _nyd_t = _nyd_ast.parse(_nyd_insp.getsource(_nyd_pl.main))
+    _nyd_assign = [n for n in _nyd_ast.walk(_nyd_t) if isinstance(n, _nyd_ast.Assign)
+                   and any(getattr(t, "id", None) == "_op_today" for t in n.targets)]
+    _nyd_src_ok = (len(_nyd_assign) == 1 and isinstance(_nyd_assign[0].value, _nyd_ast.Call)
+                   and getattr(_nyd_assign[0].value.func, "id", None) == "_ny_today")
+    _nyd_uses = {getattr(c.func, "attr", None) for c in _nyd_ast.walk(_nyd_t) if isinstance(c, _nyd_ast.Call)
+                 and (any(getattr(a, "id", None) == "_op_today" for a in c.args)
+                      or any(getattr(k.value, "id", None) == "_op_today" for k in c.keywords))}
+    _v_nyd1 = (_nyd_got == _nyd_cases and _nyd_src_ok
+               and {"live_watch_universe", "scan_operator_entry"} <= _nyd_uses)
+    _v_nyd1w = f"got={_nyd_got} · assign_ok={_nyd_src_ok} · uses={sorted(x for x in _nyd_uses if x)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_nyd1, _v_nyd1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🗓️ NYD1 (‏2026-10-28) دِدوبُ «هنا الدخول» في المراقب بيومِ نيويورك (صيفًا وشتاءً) لا يومِ الرنر · "
+      "و`_op_today` من `_ny_today` ويصل الكونَ والمسح (AST)", _v_nyd1, _v_nyd1w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

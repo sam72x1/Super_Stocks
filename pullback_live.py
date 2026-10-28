@@ -16,6 +16,16 @@ except ImportError:
     import super_stock as bot
 
 
+def _ny_today(now=None):
+    """🗓️ يومُ نيويورك بصيغة ISO — لِدِدوب «هنا الدخول» (أمرُ المالك 2026-10-28 «صلّح تاريخ نيويورك في المراقب»).
+    عطلٌ مُثبَت: `bot.dt.date.today()` يومُ **الرنر** (UTC) ⟵ تنبيهاتُ ما بعد 20:00 نيويورك (00:00 UTC صيفًا · 19:00 شتاءً)
+    خُتمت بتاريخ الغد (`dffe13934`: ثمانيةٌ في ليلتين) ⟵ FMST نُبِّه مرّتين في مساء نيويورك نفسِه، وختمُ الغد يكتم تنبيهَ الغد.
+    والعاملُ الحيّ يأخذ يومَه من نيويورك أصلًا (`operator_entry_live._ny_minutes`) — فالمساران الآن على يومٍ واحد."""
+    from zoneinfo import ZoneInfo
+    n = now or bot.dt.datetime.now(bot.dt.timezone.utc)
+    return n.astimezone(ZoneInfo("America/New_York")).date().isoformat()
+
+
 def _stamp_snapshot(wl):
     """لقطة أختام الدِدوب (`live_alert` + حالة الارتداد) قبل الرصد — للاسترجاع لو
     أخفق الإرسال. نقيّة (نسخ سطحي كافٍ: القيم قواميس تواريخ بسيطة)."""
@@ -102,7 +112,7 @@ def main():
     #     Polygon = صفرُ عمل (‏`polygon_minute_bars` ترجع None فلا مطابق).
     _op_seen, _op_rows = None, []
     try:
-        _op_today = bot.dt.date.today().isoformat()
+        _op_today = _ny_today()
         _uni, _cut = bot.live_watch_universe(
             wl, near=bot.load_near_watch(), press=_load_press_state(),
             hunter=bot.load_hunter_watch(), today_iso=_op_today)
