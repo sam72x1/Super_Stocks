@@ -1,0 +1,69 @@
+{
+"DKI": [
+{
+"above_ema30_pct": -6.2,
+"above_ema50_pct": -13.4,
+"close": 205.0,
+"day": "2026-08-16",
+"gain5_pct": 11.7,
+"last_bar": "2026-08-14",
+"rsi14": 45.47
+},
+{
+"above_ema30_pct": -22.2,
+"above_ema50_pct": -28.3,
+"close": 156.5,
+"day": "2026-09-02",
+"gain5_pct": -18.7,
+"last_bar": "2026-09-01",
+"rsi14": 29.56
+}
+],
+"SXTC": [
+{
+"above_ema30_pct": -93.8,
+"above_ema50_pct": -97.2,
+"close": 375.0,
+"day": "2026-08-18",
+"gain5_pct": 4.5,
+"last_bar": "2026-08-17",
+"rsi14": 22.91
+},
+{
+"above_ema30_pct": -91.5,
+"above_ema50_pct": -96.3,
+"close": 454.0,
+"day": "2026-08-20",
+"gain5_pct": 37.6,
+"last_bar": "2026-08-19",
+"rsi14": 23.89
+},
+{
+"above_ema30_pct": -98.8,
+"above_ema50_pct": -99.8,
+"close": 6.85,
+"day": "2026-10-15",
+"gain5_pct": -97.6,
+"last_bar": "2026-10-14",
+"rsi14": 27.64
+},
+{
+"above_ema30_pct": -98.7,
+"above_ema50_pct": -99.8,
+"close": 4.8,
+"day": "2026-10-23",
+"gain5_pct": -30.2,
+"last_bar": "2026-10-22",
+"rsi14": 27.85
+},
+{
+"above_ema30_pct": -98.9,
+"above_ema50_pct": -99.8,
+"close": 3.54,
+"day": "2026-10-27",
+"gain5_pct": -68.2,
+"last_bar": "2026-10-26",
+"rsi14": 27.79
+}
+]
+}
