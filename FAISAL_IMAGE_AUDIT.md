@@ -1,7 +1,7 @@
 # 📸 سجلّ تغطية صور منهجية فيصل — 2026-10-28
 
 - **المجموع المُدرَج:** 953  ·  **بملف مرفوع:** 830
-- **📗 موثّقة:** 858  ·  **📕 لم تُقرأ بعد:** 95  ·  **مكرّرة:** 0
+- **📗 موثّقة:** 872  ·  **📕 لم تُقرأ بعد:** 81  ·  **مكرّرة:** 0
 
 **الدفعة التالية المقترحة (8):** TG_58383 · TG_58384 · TG_58385 · TG_58387 · TG_58388 · TG_58389 · TG_58390 · TG_58391
 
@@ -847,14 +847,14 @@
 | TG_76012 | TG_76012.jpg | ❌ | unread | — |
 | TG_76013 | TG_76013.jpg | ❌ | unread | — |
 | TG_76014 | TG_76014.jpg | ❌ | unread | — |
-| TG_76015 | TG_76015.jpg | ❌ | unread | — |
+| TG_76015 | TG_76015.jpg | ✅ | confirmed | — |
 | TG_76016 | TG_76016.jpg | ❌ | unread | — |
 | TG_76017 | TG_76017.jpg | ❌ | unread | — |
 | TG_76018 | TG_76018.jpg | ❌ | unread | — |
 | TG_76019 | TG_76019.jpg | ❌ | unread | — |
 | TG_76020 | TG_76020.jpg | ❌ | unread | — |
-| TG_76021 | TG_76021.jpg | ❌ | unread | — |
-| TG_76022 | TG_76022.jpg | ❌ | unread | — |
+| TG_76021 | TG_76021.jpg | ✅ | confirmed | — |
+| TG_76022 | TG_76022.jpg | ✅ | confirmed | — |
 | TG_76023 | TG_76023.jpg | ❌ | unread | — |
 | TG_76024 | TG_76024.jpg | ❌ | unread | — |
 | TG_76025 | TG_76025.jpg | ❌ | unread | — |
@@ -865,28 +865,28 @@
 | TG_76030 | TG_76030.jpg | ❌ | unread | — |
 | TG_76031 | TG_76031.jpg | ❌ | unread | — |
 | TG_76039 | TG_76039.jpg | ❌ | unread | — |
-| TG_77197 | TG_77197.jpg | ❌ | unread | — |
-| TG_77198 | TG_77198.jpg | ❌ | unread | — |
-| TG_77199 | TG_77199.jpg | ❌ | unread | — |
+| TG_77197 | TG_77197.jpg | ✅ | confirmed | — |
+| TG_77198 | TG_77198.jpg | ✅ | confirmed | — |
+| TG_77199 | TG_77199.jpg | ✅ | confirmed | — |
 | TG_77200 | TG_77200.jpg | ❌ | unread | — |
 | TG_77201 | TG_77201.jpg | ❌ | unread | — |
-| TG_77202 | TG_77202.jpg | ❌ | unread | — |
+| TG_77202 | TG_77202.jpg | ✅ | confirmed | — |
 | TG_77203 | TG_77203.jpg | ❌ | unread | — |
 | TG_77204 | TG_77204.jpg | ❌ | unread | — |
 | TG_77205 | TG_77205.jpg | ❌ | unread | — |
 | TG_77206 | TG_77206.jpg | ❌ | unread | — |
-| TG_77207 | TG_77207.jpg | ❌ | unread | — |
+| TG_77207 | TG_77207.jpg | ✅ | confirmed | — |
 | TG_77208 | TG_77208.jpg | ❌ | unread | — |
-| TG_77209 | TG_77209.jpg | ❌ | unread | — |
-| TG_77210 | TG_77210.jpg | ❌ | unread | — |
-| TG_77211 | TG_77211.jpg | ❌ | unread | — |
+| TG_77209 | TG_77209.jpg | ✅ | confirmed | — |
+| TG_77210 | TG_77210.jpg | ✅ | confirmed | — |
+| TG_77211 | TG_77211.jpg | ✅ | confirmed | — |
 | TG_77212 | TG_77212.jpg | ❌ | unread | — |
-| TG_77213 | TG_77213.jpg | ❌ | unread | — |
-| TG_77214 | TG_77214.jpg | ❌ | unread | — |
+| TG_77213 | TG_77213.jpg | ✅ | confirmed | — |
+| TG_77214 | TG_77214.jpg | ✅ | confirmed | — |
 | TG_77215 | TG_77215.jpg | ❌ | unread | — |
 | TG_77216 | TG_77216.jpg | ❌ | unread | — |
 | TG_77217 | TG_77217.jpg | ❌ | unread | — |
-| TG_77218 | TG_77218.jpg | ❌ | unread | — |
+| TG_77218 | TG_77218.jpg | ✅ | confirmed | — |
 | WA_20260918_31_SXTC | WA_20260918_31_SXTC.jpg | ✅ | confirmed | — |
 | WA_20260918_46_NUWE | WA_20260918_46_NUWE.jpg | ✅ | confirmed | — |
 | X_20260827_amix_3m_inflow | X_20260827_amix_3m_inflow.png | ✅ | confirmed | — |
