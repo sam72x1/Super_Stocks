@@ -4,12 +4,13 @@
  "cutoff": "2026-10-09",
  "window_end": "2027-04-09",
  "floor": 15,
- "candidates": 8,
+ "candidates": 15,
  "by_status": {
   "HISTORICAL": 3,
   "REPEAT": 1,
   "NOT_COVERED": 1,
-  "ELIGIBLE": 3
+  "ELIGIBLE": 3,
+  "PENDING_REVEAL": 7
  },
  "eligible": 3,
  "units": [
@@ -123,6 +124,62 @@
    "status": "ELIGIBLE",
    "code": "",
    "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0009",
+   "ticker": "BRTX",
+   "T": "2026-10-27",
+   "status": "PENDING_REVEAL",
+   "code": "E2:not_revealed",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0010",
+   "ticker": "FBGL",
+   "T": "2026-10-27",
+   "status": "PENDING_REVEAL",
+   "code": "E2:not_revealed",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0011",
+   "ticker": "GNPX",
+   "T": "2026-10-27",
+   "status": "PENDING_REVEAL",
+   "code": "E2:not_revealed",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0012",
+   "ticker": "BTOC",
+   "T": "2026-10-27",
+   "status": "PENDING_REVEAL",
+   "code": "E2:not_revealed",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0013",
+   "ticker": "CYCU",
+   "T": "2026-10-27",
+   "status": "PENDING_REVEAL",
+   "code": "E2:not_revealed",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0014",
+   "ticker": "NIVF",
+   "T": "2026-10-27",
+   "status": "PENDING_REVEAL",
+   "code": "E2:not_revealed",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0015",
+   "ticker": "BRAI",
+   "T": "2026-10-27",
+   "status": "PENDING_REVEAL",
+   "code": "E2:not_revealed",
+   "sample": "SECONDARY"
   }
  ],
  "coverage_failures": 1,
@@ -182,10 +239,10 @@
   "pool_lag_entries_last": 0,
   "pool_newer_entries": []
  },
- "cases_after_cutoff": 5,
+ "cases_after_cutoff": 12,
  "inputs": {
-  "last_photo": "2026-10-27",
-  "sessions_since_last_photo": 1
+  "last_photo": "2026-10-28",
+  "sessions_since_last_photo": 0
  },
  "ledger_rows": 51133,
  "floor_reached": false,

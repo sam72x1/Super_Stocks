@@ -83284,6 +83284,28 @@ except Exception as _e:                                                    # noq
 check("🧵 PHB11 E1 على مستوى السلسلة: الحاملُ تاريخيٌّ إن كان عضوٌ في سلسلة قراره تاريخيًّا (الردُّ لا يحمل قرارًا سابقًا للحدّ) · "
       "والمكرَّرُ بمساره · وشاهدا ضبط", _phb11, _phb11w)
 
+# PHB12 🧵 تعديلُ المرحلة ب 1 (§⑬ «an excluded case stays excluded»): بندٌ أُغلق EXCLUDED عند الاستلام ثمّ صحّحه البروتوكول (`corrected_by`)
+#   يبقى مستبعدًا بلا قيدٍ جديد ولا مشكلة · والبندُ نفسُه بلا `corrected_by` يبقى تراجعًا يُبلَّغ (§⑫) — شاهدُ الضبط داخله
+try:
+    _p12_ex, _ = _phb_item(1, cls="UNKNOWN", reason="AUTHOR_NOT_ESTABLISHED", case=False)
+    _p12_st0, _p12_rows0, _p12_new0 = _phb_build([(_p12_ex, None)])
+    _p12_cand, _p12_case = _phb_item(1, faisal=False)
+    _p12_corr = dict(_p12_cand, corrected_by="CORRECTION_01")
+    _p12_st1, _p12_rows1, _p12_new1 = _phb_build([(_p12_corr, _p12_case)], rows=_p12_rows0)
+    _p12_st2, _p12_rows2, _p12_new2 = _phb_build([(_p12_cand, _p12_case)], rows=_p12_rows0)
+    _p12_row = next((r for r in _p12_st1["rows"] if r["case_id"] == "PB:TG_90001"), {})
+    _phb12 = ([r["event"] for r in _p12_new0] == ["CAPTURED", "EXCLUDED"]
+              and not _p12_st1["ledger"]["problems"] and not _p12_new1 and _p12_row.get("status") == "EXCLUDED"
+              and "CORRECTION_01" in str(_p12_row.get("reason")) and _p12_row.get("protocol_case") == "CASE_0001"
+              and any("PB:TG_90001" in p and "regression" in p for p in _p12_st2["ledger"]["problems"])
+              and _p12_st2["state"] == "VALIDATION_BLOCKED" and _p12_st1["state"] != "VALIDATION_BLOCKED")
+    _phb12w = (f"first={[r['event'] for r in _p12_new0]} corrected: problems={_p12_st1['ledger']['problems']} new={len(_p12_new1)} "
+               f"row={_p12_row.get('status')} · control: {_p12_st2['ledger']['problems'][:1]} {_p12_st2['state']}")
+except Exception as _e:                                                    # noqa: BLE001
+    _phb12, _phb12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧵 PHB12 (تعديلُ المرحلة ب 1) المُغلَقُ EXCLUDED يبقى مستبعدًا إن صحّحه البروتوكول لاحقًا — بلا قيدٍ ولا مشكلة · "
+      "وبلا `corrected_by` يبقى التراجعُ VALIDATION_BLOCKED", _phb12, _phb12w[:400])
+
 
 # ═════ 🔎🧭⑥ PHASE 6 — المُلتقِطُ الأماميّ وتتبّعُ خطّ الأنابيب (2026-10-09 · بحثٌ فقط · بلا شبكة) ═════
 print("\n=== 🔎🧭⑥ PHASE 6: collector + trace ===")
@@ -88541,6 +88563,33 @@ except Exception as _e:                                                    # noq
 check("🧪🔧 H6W1 (تعديل 3) نافذةُ E5 المفتوحة «تنتظر الجمع» لا «غيرُ مغطًّى»: حتى آخرِ يومٍ من الجلسات الخمس (شاملًا) · لا وحدةً ولا فشلَ تغطية · "
       "وبعدها «غيرُ مغطًّى» كما كان · والنداءُ بلا `today` بت-بت · و`build_status` يمرّر يومَه",
       _h6w1, _h6w1_w[:420])
+
+# H6X1 — amendment 4: قراءةُ الاستلام تطبّق تصحيحاتِ البروتوكول الإلحاقيّة (`CORRECTION_NN.json`) كما يطبّقها `batch_candidates` —
+#   الصورةُ المصحَّحة تأخذ قراءتها الجديدة بـ`corrected_by` · وغيرُ المصحَّحة كما هي · وتصحيحٌ لصورةٍ خارج الدفعة لا يضيف شيئًا · ودفعةٌ بلا تصحيح بت-بت
+try:
+    import tempfile as _x1_tf
+    _x1_root = _x1_tf.mkdtemp(prefix="h6x1_")
+    _x1_b = _h6os.path.join(_x1_root, "faisal_method_v41", "final_protocol", "intake")
+    _h6os.makedirs(_h6os.path.join(_x1_b, "BA"))
+    _h6os.makedirs(_h6os.path.join(_x1_b, "BB"))
+    _x1_img = lambda sym, fa: dict(symbol=sym, decision_date="2026-10-27", decision_date_max=None, faisal_author=fa)  # noqa: E731
+    json.dump({"images": {"TG_1": _x1_img("AAA", False), "TG_2": _x1_img("BBB", False)}},
+              open(_h6os.path.join(_x1_b, "BA", "annotations.json"), "w", encoding="utf-8"))
+    json.dump({"images": {"TG_1": _x1_img("AAA", True), "TG_9": _x1_img("ZZZ", True)}},
+              open(_h6os.path.join(_x1_b, "BA", "CORRECTION_01.json"), "w", encoding="utf-8"))
+    json.dump({"images": {"TG_5": _x1_img("CCC", False)}}, open(_h6os.path.join(_x1_b, "BB", "annotations.json"), "w", encoding="utf-8"))
+    _x1 = {(r["batch"], r["image_id"]): r for r in H6.load_annotations(_x1_root)}
+    _h6x1 = (_x1[("BA", "TG_1")]["faisal_author"] is True and _x1[("BA", "TG_1")].get("corrected_by") == "CORRECTION_01"
+             and _x1[("BA", "TG_2")]["faisal_author"] is False and "corrected_by" not in _x1[("BA", "TG_2")]
+             and ("BA", "TG_9") not in _x1 and len(_x1) == 3
+             and _x1[("BB", "TG_5")] == dict(batch="BB", image_id="TG_5", symbol="CCC", decision_date="2026-10-27",
+                                              decision_date_max=None, faisal_author=False))
+    _h6x1_w = f"{ {k[1]: (v['faisal_author'], v.get('corrected_by')) for k, v in _x1.items()} }"
+except Exception as _e:                                                    # noqa: BLE001
+    _h6x1, _h6x1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧪🔧 H6X1 (تعديل 4) قراءةُ الاستلام تطبّق `CORRECTION_NN.json` كما البروتوكول: المصحَّحةُ بقراءتها الجديدة و`corrected_by` · "
+      "وغيرُ المصحَّحة بت-بت · ولا صورةَ تُضاف من التصحيح · والدفعةُ بلا تصحيح كما كانت",
+      _h6x1, _h6x1_w[:300])
 
 # ══════════════════════════════════════════════════════════════════════════
 # 🕵️🩺 OGM1-OGM2 · 🔄 PSR1 · 🧱 EHS1 — إصلاحاتُ الجزء أ (‏2026-10-27 · أمرُ المالك «الأعطالُ أوّلًا» أ4):

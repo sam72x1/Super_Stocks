@@ -1362,6 +1362,263 @@
    "seq": 133,
    "sha256": "1e9bb380c3cd6e6988cc67ad0274a2857e9d0bbf2ecb790d6e5a5f11726ba586",
    "utc": "2026-10-28T09:29:12Z"
+  },
+  {
+   "case_id": "TG_77197",
+   "entry_hash": "1c1998ab13b8959b25f39f20846b98570202119aaad120064bd812e45a1cec67",
+   "kind": "candidate",
+   "path": "candidates/TG_77197.v2.json",
+   "prev": "a03f2ce911094445cb0f34fceed689175627279058fd14ca9922973f122f8625",
+   "seq": 134,
+   "sha256": "54d554b73e47e743a349c7e00b9fcf0848a14270df00e42fa4af38b5c7d8d5cf",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77199",
+   "entry_hash": "dd7b8ccb55cc7ecb8293666b9444fb901cb345b0709691f97997cce458f24a13",
+   "kind": "candidate",
+   "path": "candidates/TG_77199.v2.json",
+   "prev": "1c1998ab13b8959b25f39f20846b98570202119aaad120064bd812e45a1cec67",
+   "seq": 135,
+   "sha256": "c3fcac7b19cea3b04404432e15b61bffa0d8c106191c974c2aa7be5f053f8147",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77200",
+   "entry_hash": "e2662802ad5dbcd04be28393cd76cfce01429795bced049077be69e1c3f5ceff",
+   "kind": "candidate",
+   "path": "candidates/TG_77200.v2.json",
+   "prev": "dd7b8ccb55cc7ecb8293666b9444fb901cb345b0709691f97997cce458f24a13",
+   "seq": 136,
+   "sha256": "b4e536c0ebb47ac199bfabf093cf0a39217bf8c9e6f44c6a349d5bd892a4cfcb",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77201",
+   "entry_hash": "83e01a896f20e02fc0984bc1d5c2e5d3d9f8ba1c5fb30d314992b19ed355c8c4",
+   "kind": "candidate",
+   "path": "candidates/TG_77201.v2.json",
+   "prev": "e2662802ad5dbcd04be28393cd76cfce01429795bced049077be69e1c3f5ceff",
+   "seq": 137,
+   "sha256": "4f913e5d0be7b8b0706dfcfc9c3390c5a4165f0d73dfce3e6ae3e8867227b745",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77203",
+   "entry_hash": "0d38cb33a81ebe0ad7ed5b85a6f30105103bdab474758f2d0b6c973c05d392a6",
+   "kind": "candidate",
+   "path": "candidates/TG_77203.v2.json",
+   "prev": "83e01a896f20e02fc0984bc1d5c2e5d3d9f8ba1c5fb30d314992b19ed355c8c4",
+   "seq": 138,
+   "sha256": "8339365569e79c30ccffd6a26001872e18df7dee2d1125d5de0b1a7e1206a3a5",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77204",
+   "entry_hash": "c76d174b0f55513ccdd28d4eb310f263b5970c9412325c277164b3e5c4f9a5e2",
+   "kind": "candidate",
+   "path": "candidates/TG_77204.v2.json",
+   "prev": "0d38cb33a81ebe0ad7ed5b85a6f30105103bdab474758f2d0b6c973c05d392a6",
+   "seq": 139,
+   "sha256": "aabbf35420513df56e50c9441ec0b2a13202a7db584d43dfffc7e7434106b668",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77205",
+   "entry_hash": "46644547764c5a4c8503af757b8840a854d3c65c8a07b6474df29d072e81a363",
+   "kind": "candidate",
+   "path": "candidates/TG_77205.v2.json",
+   "prev": "c76d174b0f55513ccdd28d4eb310f263b5970c9412325c277164b3e5c4f9a5e2",
+   "seq": 140,
+   "sha256": "588803ddb0f6105efbfdf483d03bea4072cb591d50b17fa7c72fbf8f6b79ccec",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77206",
+   "entry_hash": "97600d2d9d4d4e203c3798779a83083138ef8f1e847fe2d69c1af7f04b63a81c",
+   "kind": "candidate",
+   "path": "candidates/TG_77206.v2.json",
+   "prev": "46644547764c5a4c8503af757b8840a854d3c65c8a07b6474df29d072e81a363",
+   "seq": 141,
+   "sha256": "3f13a2741025aada20735892e2160782f0cd01e8781c69cdaa5d600a1c49c3ff",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77207",
+   "entry_hash": "9a80d724753fe6958182c248f44cf3cdd4b3d333fa1f8bb460c8dfac2c816bcb",
+   "kind": "candidate",
+   "path": "candidates/TG_77207.v2.json",
+   "prev": "97600d2d9d4d4e203c3798779a83083138ef8f1e847fe2d69c1af7f04b63a81c",
+   "seq": 142,
+   "sha256": "626828572eb49b6e6fa4aeb12423d1f6a111bbe0acdd469d78f2180145f54da6",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77208",
+   "entry_hash": "7ab8fa4f6117f6b22d1db40ac67763ecc5bd4b5a963e7b82f9d350a66b7c6d5d",
+   "kind": "candidate",
+   "path": "candidates/TG_77208.v2.json",
+   "prev": "9a80d724753fe6958182c248f44cf3cdd4b3d333fa1f8bb460c8dfac2c816bcb",
+   "seq": 143,
+   "sha256": "0c51dc9d837e3f7459eeffc70f791367a54485648ee8ab8309915b7c296b5dbf",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77209",
+   "entry_hash": "7e535ddab410c8f4ed2cdd32052fa9615173ee063bb2972567e398ed7af3be2b",
+   "kind": "candidate",
+   "path": "candidates/TG_77209.v2.json",
+   "prev": "7ab8fa4f6117f6b22d1db40ac67763ecc5bd4b5a963e7b82f9d350a66b7c6d5d",
+   "seq": 144,
+   "sha256": "ffcbd400ae70845e0bd0b76f94aec1a22d6992a9a1be678782774a67f2572513",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77210",
+   "entry_hash": "874f7f843414afe66a88a19fdfc9c2e4f9386de09fd06a11b247427b0bc157fc",
+   "kind": "candidate",
+   "path": "candidates/TG_77210.v2.json",
+   "prev": "7e535ddab410c8f4ed2cdd32052fa9615173ee063bb2972567e398ed7af3be2b",
+   "seq": 145,
+   "sha256": "51b0bbc30f1a80ae6c41f235694ba6e26fcc8f15615f1cc88760763acd90e417",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77211",
+   "entry_hash": "448beef43633294bdc50ec9d1bd4494c2c581068e9a59c9c16691b1ef4088f13",
+   "kind": "candidate",
+   "path": "candidates/TG_77211.v2.json",
+   "prev": "874f7f843414afe66a88a19fdfc9c2e4f9386de09fd06a11b247427b0bc157fc",
+   "seq": 146,
+   "sha256": "9518055980473c2e5a3c1fb76804e1a912cee13e223f7e6b79d14339dc612bdc",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77213",
+   "entry_hash": "3c7e1cdf69c0d27d5a6bd9d193b6b3303874264add400cffbace1be49fb4c06c",
+   "kind": "candidate",
+   "path": "candidates/TG_77213.v2.json",
+   "prev": "448beef43633294bdc50ec9d1bd4494c2c581068e9a59c9c16691b1ef4088f13",
+   "seq": 147,
+   "sha256": "4b2223527ae70e89944b5cf4a41127697fc38567d59b71bbfd6c45aa1898b5c5",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77214",
+   "entry_hash": "75f41005c0d4913e02f5094e3c2a9ba37be332354c828e12cac00066e2305e5a",
+   "kind": "candidate",
+   "path": "candidates/TG_77214.v2.json",
+   "prev": "3c7e1cdf69c0d27d5a6bd9d193b6b3303874264add400cffbace1be49fb4c06c",
+   "seq": 148,
+   "sha256": "36c262e0fac96d26fbeac7661e28b2b5697b4ba11502f5aaa4b36aeb72d8f387",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77215",
+   "entry_hash": "0702b4b84620f03c698ced35a61c22ba8969c9c0cd1c42835fff456c95cf050a",
+   "kind": "candidate",
+   "path": "candidates/TG_77215.v2.json",
+   "prev": "75f41005c0d4913e02f5094e3c2a9ba37be332354c828e12cac00066e2305e5a",
+   "seq": 149,
+   "sha256": "411b0c4c364fe6b30d565aea40cf8e9e1520dca8fd10fc5840f813f88fe43050",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77216",
+   "entry_hash": "ce2990c4cd544ce3da61c5ccad63ae4de360882ee355a9db4c867226cdeca29d",
+   "kind": "candidate",
+   "path": "candidates/TG_77216.v2.json",
+   "prev": "0702b4b84620f03c698ced35a61c22ba8969c9c0cd1c42835fff456c95cf050a",
+   "seq": 150,
+   "sha256": "116f1377e2ca46f79b85179028725283422d49e948a525210de4f5a86a9436b5",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "TG_77218",
+   "entry_hash": "7ddbdd45d58eb139c3cb97a61bf83cd165b5ce0e9b8eb5addeff75a2fa6ea4b4",
+   "kind": "candidate",
+   "path": "candidates/TG_77218.v2.json",
+   "prev": "ce2990c4cd544ce3da61c5ccad63ae4de360882ee355a9db4c867226cdeca29d",
+   "seq": 151,
+   "sha256": "96d2ddb11ee0d3327eb674c521c564055c976724014d13bf59cbe87b69855333",
+   "utc": "2026-10-28T10:00:06Z"
+  },
+  {
+   "case_id": "CASE_0009",
+   "entry_hash": "f6528da4890d1e50f6d79d118eaee2fafd1dd38d2ee9d5f0b8ea4b3a970f9b0d",
+   "kind": "case",
+   "path": "cases/CASE_0009.v1.json",
+   "prev": "7ddbdd45d58eb139c3cb97a61bf83cd165b5ce0e9b8eb5addeff75a2fa6ea4b4",
+   "seq": 152,
+   "sha256": "19fc47602b93c4b788efa59a07e4e554e5ced98ed5261ffd6dc207636e754c33",
+   "utc": "2026-10-28T10:00:06Z",
+   "version": 1
+  },
+  {
+   "case_id": "CASE_0010",
+   "entry_hash": "0e2fcca08969f73d288fc54108164ca2a6c04de39b7846059c31eb5bfa83b326",
+   "kind": "case",
+   "path": "cases/CASE_0010.v1.json",
+   "prev": "f6528da4890d1e50f6d79d118eaee2fafd1dd38d2ee9d5f0b8ea4b3a970f9b0d",
+   "seq": 153,
+   "sha256": "9eecc23738c852ad2d31a03bedbe8290b894ebd8935bc950afc7632120a7d581",
+   "utc": "2026-10-28T10:00:06Z",
+   "version": 1
+  },
+  {
+   "case_id": "CASE_0011",
+   "entry_hash": "ad9a04588870171895d001c70638d66e2a514eafb99294b46159a96f8b51f511",
+   "kind": "case",
+   "path": "cases/CASE_0011.v1.json",
+   "prev": "0e2fcca08969f73d288fc54108164ca2a6c04de39b7846059c31eb5bfa83b326",
+   "seq": 154,
+   "sha256": "b62495264ecce5ce95959be25e84a8cdb64fc4bda2230edafb83b0990c77868a",
+   "utc": "2026-10-28T10:00:06Z",
+   "version": 1
+  },
+  {
+   "case_id": "CASE_0012",
+   "entry_hash": "330e7e509cc1e85d9633c7ca628f924c64364844ea2c1addadc2647bdadd868c",
+   "kind": "case",
+   "path": "cases/CASE_0012.v1.json",
+   "prev": "ad9a04588870171895d001c70638d66e2a514eafb99294b46159a96f8b51f511",
+   "seq": 155,
+   "sha256": "58a3561f35efeae99a9209d8dc72d496bb87b8851f07bc5d67371c13bd5290a8",
+   "utc": "2026-10-28T10:00:06Z",
+   "version": 1
+  },
+  {
+   "case_id": "CASE_0013",
+   "entry_hash": "a6e294b8c34051b47c0b9c5a5b935a743cb5a209fee0c95b8f8f29b1fc477760",
+   "kind": "case",
+   "path": "cases/CASE_0013.v1.json",
+   "prev": "330e7e509cc1e85d9633c7ca628f924c64364844ea2c1addadc2647bdadd868c",
+   "seq": 156,
+   "sha256": "ba182ea12a4abce05b3c3d3c2525b4f5abdfa7f8f1ad53acc94744d42127c2cf",
+   "utc": "2026-10-28T10:00:06Z",
+   "version": 1
+  },
+  {
+   "case_id": "CASE_0014",
+   "entry_hash": "b20e1103044c5bb8e4ee4d692c4f5cccf38b2db3131ce83595b9d3a9f3d15d02",
+   "kind": "case",
+   "path": "cases/CASE_0014.v1.json",
+   "prev": "a6e294b8c34051b47c0b9c5a5b935a743cb5a209fee0c95b8f8f29b1fc477760",
+   "seq": 157,
+   "sha256": "2f8bc183338c8b379d659f5ff79725510bf1e63cf4f04b0141437e24d29eabe4",
+   "utc": "2026-10-28T10:00:06Z",
+   "version": 1
+  },
+  {
+   "case_id": "CASE_0015",
+   "entry_hash": "fb1ee3cfbc1aab599993b81584c48a916c7a80233cfb28a4d15a0885599a2363",
+   "kind": "case",
+   "path": "cases/CASE_0015.v1.json",
+   "prev": "b20e1103044c5bb8e4ee4d692c4f5cccf38b2db3131ce83595b9d3a9f3d15d02",
+   "seq": 158,
+   "sha256": "d719823622e74b1046ddb39130050f07104395046fda075302e73ba27537cb2b",
+   "utc": "2026-10-28T10:00:06Z",
+   "version": 1
   }
  ],
  "schema": 1,
