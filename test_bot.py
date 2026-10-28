@@ -89038,6 +89038,75 @@ if "⛔" not in _r12_c:
 check("🧭 RBD12 (‏2026-10-28) القائمةُ الظلّيّة §⑫: = قائمةُ TEST الجديدة على الشموع نفسِها · بلا نظرٍ للأمام · الجديدُ لا القديم · الحالاتُ والحارس · "
       "الجلسةُ أماميّة · المُخرَجُ يحمل الحكم · موصولةٌ بالدوالّ نفسِها · ترفض 9 · والـworkflow", _v_r12, _v_r12w)
 
+# 🧭 RBD13 (‏2026-10-28 · `T-REBUILD` §⑦ B3 · الملحق 2): الجردُ المقصوص **«لا حكم»** منشورٌ كما صدر — عددُ الإدخالات لا يطابق `bases` فالتجميعُ
+#    وقف قبل البنود (لا `items` في الـJSON ولا جدولَ بنودٍ في الوثيقة) · والعددان والتشغيلتان وmain كلٌّ من الـJSON · و`bases` المخزَّنُ هو المرجع ·
+#    وRB-P4 «لا حكم» · والكنسةُ لم تُقَس · والمطفأُ يُطبع · وحالةُ البنود في الإنتاج = `B3_PROD` بالاسم.
+try:
+    import importlib.util as _r13_iu
+    import json as _r13_json
+    _r13_spec = _r13_iu.spec_from_file_location("t_rebuild_tool13", "fm_forensics/rebuild/rebuild.py")
+    _R13 = _r13_iu.module_from_spec(_r13_spec)
+    _r13_spec.loader.exec_module(_R13)
+    _r13_dir = "fm_forensics/rebuild/"
+    _r13_doc = open(_r13_dir + "T_REBUILD_b3_result.md", encoding="utf-8").read()
+    _r13_j = _r13_json.load(open(_r13_dir + "data/b3_2026-10-28.json", encoding="utf-8"))
+    _r13_bs = _r13_json.load(open(_r13_dir + "data/bases_2026-10-28.json", encoding="utf-8"))
+    _r13_pr = _r13_json.load(open(_r13_dir + "data/pairs_2026-10-28.json", encoding="utf-8"))
+    _hd13 = _r13_doc.split("## ①")[0]
+    _r13_c = {
+        "no_verdict": (_r13_j["match"] is False and _r13_j["verdict"].startswith("⛔ لا حكم") and "items" not in _r13_j
+                       and "## ⓪ الحكم: «⛔ لا حكم»" in _hd13 and "البنودُ الثمانية" not in _hd13 and "| البند | يعبر" not in _r13_doc),
+        "counts": (_r13_j["entries_expected"] == _r13_bs["stats"]["TRAIN"][_r13_bs["base"]]["entries"] and _r13_j["entries"] != _r13_j["entries_expected"]
+                   and f"{_r13_j['entries']:,} مقابل {_r13_j['entries_expected']:,}" in _hd13),
+        "runs": (len(_r13_j["runs"]) == 2 and all(f"**`{x['run']}`** (`{x['main_sha'][:9]}`" in _r13_doc and len(x["main_sha"]) == 40
+                                                  for x in _r13_j["runs"])),
+        "pairs_ref": (_r13_j["pairs_run_matched"] == {"run": _r13_pr["run"], "entries": _r13_pr["entries"]}
+                      and _r13_pr["entries"] == _r13_pr["entries_expected"] and f"**`{_r13_pr['run']}`**" in _hd13),
+        "addendum2": _r13_j["addendum2_sha"] == _R13.ADDENDUM2_SHA and _R13.addendum2_ok(),
+        "rb_p4": "| **RB-P4:** مرساةُ اللمستين «تنقص» على TRAIN | ⏳ **لا حكم**" in _r13_doc,
+        "sweep": _R13.B3_NOT_MEASURED["PIVOT_SWEEP_PCT"] in _r13_doc and _r13_j["not_measured"] == dict(_R13.B3_NOT_MEASURED),
+        "prod_state": _r13_j["prod_state"] == dict(_R13.B3_PROD) and all(f"| `{k}` |" in _r13_doc.split("## ③")[1].split("## ④")[0] for k in _R13.B3_ITEMS),
+        "prod_off": ("## ④" in _r13_doc and all(f"| `{k}` |" in _r13_doc.split("## ④")[1] for k, _v in _R13.PROD_OFF)
+                     and "**مطفأة**" in _r13_doc.split("## ④")[1]),
+    }
+    _v_r13, _v_r13w = all(_r13_c.values()), f"{ {k: v for k, v in _r13_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r13, _v_r13w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD13 (‏2026-10-28) B3 «لا حكم» منشورٌ كما صدر: العددان (3,266 مقابل bases) · لا بنودَ ولا رقمَ بند · التشغيلتان وmain · مرجعُ الأزواج · "
+      "RB-P4 لا حكم · الكنسةُ لم تُقَس · حالةُ البنود والمطفأ", _v_r13, _v_r13w)
+# 🧭 RBD14 (‏2026-10-28 · `T-REBUILD` §⑫ B8): ملفّاتُ القائمة الظلّيّة في `data/shadow/` **أماميّةٌ ومجمَّدة** — كلُّ ملفٍّ بُني قبل افتتاح جلسته
+#    (`built_at` قبل `session_open` · والشموعُ حتى D−1) · ببصمة التجميد نفسِها وθ نفسِها · وكلُّ درجةٍ ≥ θ ومرتّبةٌ تنازليًّا · وجلستُه = اسمُه ·
+#    ويحمل حكمَ TEST المخزَّن · ورقمَ تشغيلةٍ وmain · ولا ملفَّ بلا جلسةٍ أو بجلسةٍ مكرَّرة.
+try:
+    import glob as _r14_glob
+    import json as _r14_json
+    import datetime as _r14_dt
+    import importlib.util as _r14_iu
+    _r14_spec = _r14_iu.spec_from_file_location("t_rebuild_tool14", "fm_forensics/rebuild/rebuild.py")
+    _R14 = _r14_iu.module_from_spec(_r14_spec)
+    _r14_spec.loader.exec_module(_R14)
+    _fz14 = _R14.freeze_load()
+    _t14 = _r14_json.load(open(sorted(_r14_glob.glob(_R14.TEST_RESULT_GLOB))[-1], encoding="utf-8"))
+    _files14 = sorted(_r14_glob.glob("fm_forensics/rebuild/data/shadow/shadow_*.json"))
+    _bad14, _seen14 = [], set()
+    for _f in _files14:
+        _r = _r14_json.load(open(_f, encoding="utf-8"))
+        _ok = (_f.endswith(f"shadow_{_r.get('session')}.json") and _r.get("session") not in _seen14
+               and _r14_dt.datetime.fromisoformat(_r["built_at"]) < _r14_dt.datetime.fromisoformat(_r["session_open"])
+               and _r["session_open"].startswith(_r["session"] + "T") and _r["bars_to"] < _r["session"]
+               and _r["freeze_sha"] == _fz14["sha"] and _r["theta"] == _fz14["theta"]
+               and _r["test_branch"] == _t14["branch"] and _r["test_run"] == _t14["run"]
+               and all(x[1] >= _fz14["theta"] for x in _r["list"]) and [x[1] for x in _r["list"]] == sorted((x[1] for x in _r["list"]), reverse=True)
+               and _r["base2_new"] == sum(x[7] for x in _r["list"]) and isinstance(_r.get("run"), int) and len(_r.get("main_sha", "")) == 40
+               and "لا تلغرام" in _r.get("note", ""))
+        _seen14.add(_r.get("session"))
+        if not _ok:
+            _bad14.append(_f.rsplit("/", 1)[-1])
+    _v_r14, _v_r14w = bool(_files14) and not _bad14, f"ملفّات={len(_files14)} · مخالف={_bad14}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r14, _v_r14w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD14 (‏2026-10-28) ملفّاتُ القائمة الظلّيّة أماميّةٌ ومجمَّدة: بُنيت قبل افتتاح جلستها · بصمةُ التجميد وθ · الدرجاتُ ≥ θ ومرتّبة · "
+      "الجلسةُ = الاسم · حكمُ TEST · رقمُ التشغيلة وmain", _v_r14, _v_r14w)
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
