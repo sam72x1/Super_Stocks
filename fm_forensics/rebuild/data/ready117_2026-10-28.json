@@ -1,0 +1,2921 @@
+{
+ "mode": "ready117",
+ "explosion_pct": 50.0,
+ "symbols": 229,
+ "with_bars": 229,
+ "diag": {
+  "ok": 229
+ },
+ "ready_table": {
+  "27-33": {
+   "n": 24,
+   "exploded": 5,
+   "not": 17,
+   "unknown_label": 2
+  },
+  ">33": {
+   "n": 81,
+   "exploded": 6,
+   "not": 58,
+   "unknown_label": 17
+  },
+  "≤27": {
+   "n": 11,
+   "exploded": 3,
+   "not": 8,
+   "unknown_label": 0
+  },
+  "UNKNOWN": {
+   "n": 1,
+   "exploded": 0,
+   "not": 1,
+   "unknown_label": 0
+  }
+ },
+ "missed_table": {
+  ">33": 202,
+  "≤27": 46,
+  "UNKNOWN": 6,
+  "27-33": 23
+ },
+ "ready_rows": [
+  {
+   "symbol": "IDN",
+   "first_ready": "2026-06-21",
+   "rsi14": 31.83,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "NBP",
+   "first_ready": "2026-06-22",
+   "rsi14": 32.79,
+   "band": "27-33",
+   "exploded": true,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "TAOX",
+   "first_ready": "2026-06-22",
+   "rsi14": 36.38,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "NEGG",
+   "first_ready": "2026-06-26",
+   "rsi14": 32.51,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "KSCP",
+   "first_ready": "2026-07-08",
+   "rsi14": 30.85,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "NAGE",
+   "first_ready": "2026-07-08",
+   "rsi14": 47.02,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "PTN",
+   "first_ready": "2026-07-09",
+   "rsi14": 36.14,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "LI",
+   "first_ready": "2026-07-11",
+   "rsi14": 34.18,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "CDLX",
+   "first_ready": "2026-07-13",
+   "rsi14": 34.35,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "PSTV",
+   "first_ready": "2026-07-16",
+   "rsi14": 41.32,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "USGO",
+   "first_ready": "2026-07-16",
+   "rsi14": 40.0,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "CMTL",
+   "first_ready": "2026-07-20",
+   "rsi14": 26.09,
+   "band": "≤27",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "PONY",
+   "first_ready": "2026-07-20",
+   "rsi14": 38.17,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "TYGO",
+   "first_ready": "2026-07-24",
+   "rsi14": 30.32,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "HTZ",
+   "first_ready": "2026-07-28",
+   "rsi14": 33.48,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "QNTM",
+   "first_ready": "2026-07-29",
+   "rsi14": 36.64,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "QTI",
+   "first_ready": "2026-08-07",
+   "rsi14": 25.48,
+   "band": "≤27",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "AKAN",
+   "first_ready": "2026-08-07",
+   "rsi14": 28.36,
+   "band": "27-33",
+   "exploded": true,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "TIL",
+   "first_ready": "2026-08-08",
+   "rsi14": 50.9,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "FUFU",
+   "first_ready": "2026-08-08",
+   "rsi14": 42.38,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "VHUB",
+   "first_ready": "2026-08-08",
+   "rsi14": 35.19,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "CVKD",
+   "first_ready": "2026-08-08",
+   "rsi14": 33.43,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "LGHL",
+   "first_ready": "2026-08-08",
+   "rsi14": 24.68,
+   "band": "≤27",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "LPCN",
+   "first_ready": "2026-08-08",
+   "rsi14": 42.45,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "ENGN",
+   "first_ready": "2026-08-08",
+   "rsi14": 44.45,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "EMPD",
+   "first_ready": "2026-08-08",
+   "rsi14": 32.24,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "DFSC",
+   "first_ready": "2026-08-08",
+   "rsi14": 29.23,
+   "band": "27-33",
+   "exploded": true,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "TURB",
+   "first_ready": "2026-08-11",
+   "rsi14": 46.09,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "ARBK",
+   "first_ready": "2026-08-11",
+   "rsi14": 40.63,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "AIXI",
+   "first_ready": "2026-08-11",
+   "rsi14": 26.66,
+   "band": "≤27",
+   "exploded": true,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "PLSM",
+   "first_ready": "2026-08-11",
+   "rsi14": 40.19,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "FEMY",
+   "first_ready": "2026-08-12",
+   "rsi14": 30.98,
+   "band": "27-33",
+   "exploded": true,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "CLIK",
+   "first_ready": "2026-08-13",
+   "rsi14": 44.24,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "SSM",
+   "first_ready": "2026-08-13",
+   "rsi14": 20.19,
+   "band": "≤27",
+   "exploded": true,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "TWG",
+   "first_ready": "2026-08-13",
+   "rsi14": 25.13,
+   "band": "≤27",
+   "exploded": false,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "SNAL",
+   "first_ready": "2026-08-13",
+   "rsi14": 34.05,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "SKYA",
+   "first_ready": "2026-08-13",
+   "rsi14": 40.75,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "PSIG",
+   "first_ready": "2026-08-14",
+   "rsi14": 21.05,
+   "band": "≤27",
+   "exploded": true,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "SPHL",
+   "first_ready": "2026-08-18",
+   "rsi14": 47.83,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "ZCMD",
+   "first_ready": "2026-08-18",
+   "rsi14": 27.14,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "LNKS",
+   "first_ready": "2026-08-19",
+   "rsi14": 35.86,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "SMX",
+   "first_ready": "2026-08-19",
+   "rsi14": 40.56,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "MTVA",
+   "first_ready": "2026-08-20",
+   "rsi14": 44.65,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "BRAI",
+   "first_ready": "2026-08-21",
+   "rsi14": 46.78,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "BKYI",
+   "first_ready": "2026-08-25",
+   "rsi14": 30.86,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "FUSE",
+   "first_ready": "2026-08-25",
+   "rsi14": 40.89,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "XXII",
+   "first_ready": "2026-08-25",
+   "rsi14": 32.62,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "UONE",
+   "first_ready": "2026-08-25",
+   "rsi14": 38.06,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "BENF",
+   "first_ready": "2026-08-26",
+   "rsi14": 34.01,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "ELAB",
+   "first_ready": "2026-08-28",
+   "rsi14": 29.98,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "BTOG",
+   "first_ready": "2026-08-28",
+   "rsi14": 38.31,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "NTCL",
+   "first_ready": "2026-08-29",
+   "rsi14": 36.85,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "PBK",
+   "first_ready": "2026-08-29",
+   "rsi14": 31.86,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "SXTP",
+   "first_ready": "2026-08-29",
+   "rsi14": 32.52,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "APVO",
+   "first_ready": "2026-08-29",
+   "rsi14": 23.08,
+   "band": "≤27",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "LIMN",
+   "first_ready": "2026-08-29",
+   "rsi14": 37.35,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "BNR",
+   "first_ready": "2026-09-01",
+   "rsi14": 48.03,
+   "band": ">33",
+   "exploded": true,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "NIVF",
+   "first_ready": "2026-09-02",
+   "rsi14": 29.61,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "BYAH",
+   "first_ready": "2026-09-02",
+   "rsi14": 39.36,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "WNW",
+   "first_ready": "2026-09-02",
+   "rsi14": 43.69,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "SLGB",
+   "first_ready": "2026-09-09",
+   "rsi14": 38.95,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "CIIT",
+   "first_ready": "2026-09-09",
+   "rsi14": 32.99,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "INHD",
+   "first_ready": "2026-09-12",
+   "rsi14": 42.68,
+   "band": ">33",
+   "exploded": true,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "FEED",
+   "first_ready": "2026-09-12",
+   "rsi14": 34.64,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "NCEL",
+   "first_ready": "2026-09-14",
+   "rsi14": 47.04,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "BJDX",
+   "first_ready": "2026-09-15",
+   "rsi14": 39.3,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "TRNR",
+   "first_ready": "2026-09-15",
+   "rsi14": 42.54,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "TDIC",
+   "first_ready": "2026-09-15",
+   "rsi14": 41.92,
+   "band": ">33",
+   "exploded": true,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "CRIS",
+   "first_ready": "2026-09-15",
+   "rsi14": 18.99,
+   "band": "≤27",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "HCTI",
+   "first_ready": "2026-09-15",
+   "rsi14": 32.17,
+   "band": "27-33",
+   "exploded": true,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "SPRC",
+   "first_ready": "2026-09-15",
+   "rsi14": 35.09,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "HCWB",
+   "first_ready": "2026-09-15",
+   "rsi14": 35.69,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "NEUP",
+   "first_ready": "2026-09-16",
+   "rsi14": 47.63,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "GNPX",
+   "first_ready": "2026-09-16",
+   "rsi14": 28.11,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "LNAI",
+   "first_ready": "2026-09-16",
+   "rsi14": 43.43,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "SEV",
+   "first_ready": "2026-09-17",
+   "rsi14": 40.61,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "JUNS",
+   "first_ready": "2026-09-18",
+   "rsi14": 30.87,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "CRVO",
+   "first_ready": "2026-09-18",
+   "rsi14": 45.94,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "MSAI",
+   "first_ready": "2026-09-18",
+   "rsi14": 41.66,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "WLDS",
+   "first_ready": "2026-09-18",
+   "rsi14": 33.64,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "NNNN",
+   "first_ready": "2026-09-18",
+   "rsi14": 25.06,
+   "band": "≤27",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "DSY",
+   "first_ready": "2026-09-18",
+   "rsi14": 41.26,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "NPT",
+   "first_ready": "2026-09-19",
+   "rsi14": 42.63,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "SKYQ",
+   "first_ready": "2026-09-22",
+   "rsi14": 42.98,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "GCTK",
+   "first_ready": "2026-09-22",
+   "rsi14": 32.17,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "QTEX",
+   "first_ready": "2026-09-22",
+   "rsi14": 45.82,
+   "band": ">33",
+   "exploded": true,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "KITT",
+   "first_ready": "2026-09-23",
+   "rsi14": 35.06,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "UZX",
+   "first_ready": "2026-09-23",
+   "rsi14": 23.88,
+   "band": "≤27",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "PHIO",
+   "first_ready": "2026-09-24",
+   "rsi14": 44.06,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "BIYA",
+   "first_ready": "2026-09-24",
+   "rsi14": 37.45,
+   "band": ">33",
+   "exploded": true,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "WYHG",
+   "first_ready": "2026-09-24",
+   "rsi14": 45.3,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "REVB",
+   "first_ready": "2026-09-24",
+   "rsi14": 41.22,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "DXST",
+   "first_ready": "2026-09-25",
+   "rsi14": 36.17,
+   "band": ">33",
+   "exploded": true,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "UFG",
+   "first_ready": "2026-09-26",
+   "rsi14": 41.82,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "ADVB",
+   "first_ready": "2026-09-26",
+   "rsi14": 36.28,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "WKHS",
+   "first_ready": "2026-09-26",
+   "rsi14": 41.98,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "PTLE",
+   "first_ready": "2026-09-28",
+   "rsi14": 45.86,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "NCRA",
+   "first_ready": "2026-09-29",
+   "rsi14": 42.96,
+   "band": ">33",
+   "exploded": false,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "CCHH",
+   "first_ready": "2026-09-29",
+   "rsi14": 31.09,
+   "band": "27-33",
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "HUCK",
+   "first_ready": "2026-09-30",
+   "rsi14": null,
+   "band": null,
+   "exploded": false,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "QNRX",
+   "first_ready": "2026-10-01",
+   "rsi14": 29.74,
+   "band": "27-33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "NUWE",
+   "first_ready": "2026-10-02",
+   "rsi14": 36.6,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "MVIS",
+   "first_ready": "2026-10-03",
+   "rsi14": 32.08,
+   "band": "27-33",
+   "exploded": null,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "AMIX",
+   "first_ready": "2026-10-03",
+   "rsi14": 39.24,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "NTHI",
+   "first_ready": "2026-10-03",
+   "rsi14": 38.44,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "MOBX",
+   "first_ready": "2026-10-05",
+   "rsi14": 37.22,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "CHR",
+   "first_ready": "2026-10-06",
+   "rsi14": 40.8,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "AFJK",
+   "first_ready": "2026-10-06",
+   "rsi14": 48.48,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "CRE",
+   "first_ready": "2026-10-06",
+   "rsi14": 45.11,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "WXM",
+   "first_ready": "2026-10-06",
+   "rsi14": 41.64,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "ZDAI",
+   "first_ready": "2026-10-06",
+   "rsi14": 39.67,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "NIKI",
+   "first_ready": "2026-10-07",
+   "rsi14": 42.84,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "METCB",
+   "first_ready": "2026-10-07",
+   "rsi14": 35.05,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "NERV",
+   "first_ready": "2026-10-07",
+   "rsi14": 39.18,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "UNRESOLVED/ACTIVE"
+  },
+  {
+   "symbol": "TRAW",
+   "first_ready": "2026-10-07",
+   "rsi14": 44.38,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  },
+  {
+   "symbol": "TVGN",
+   "first_ready": "2026-10-07",
+   "rsi14": 39.63,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "TRUE_READY(t1+)"
+  },
+  {
+   "symbol": "PLCE",
+   "first_ready": "2026-10-07",
+   "rsi14": 33.73,
+   "band": ">33",
+   "exploded": null,
+   "outcome": "FALSE_READY(stop)"
+  }
+ ],
+ "missed_rows": [
+  {
+   "symbol": "NFE",
+   "expl_date": "2026-07-17",
+   "rsi14": 34.64,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "INO",
+   "expl_date": "2026-08-10",
+   "rsi14": 24.63,
+   "band": "≤27",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SCKT",
+   "expl_date": "2026-08-10",
+   "rsi14": 22.75,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "MRNA",
+   "expl_date": "2026-08-10",
+   "rsi14": 50.1,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "CELU",
+   "expl_date": "2026-08-11",
+   "rsi14": 44.91,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "XHLD",
+   "expl_date": "2026-08-11",
+   "rsi14": 65.5,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "BRNX",
+   "expl_date": "2026-08-11",
+   "rsi14": null,
+   "band": null,
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "LEXX",
+   "expl_date": "2026-08-11",
+   "rsi14": 34.65,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "FBLG",
+   "expl_date": "2026-08-11",
+   "rsi14": 62.34,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-08-11",
+   "rsi14": 50.78,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "ARCT",
+   "expl_date": "2026-08-11",
+   "rsi14": 59.61,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "QMCO",
+   "expl_date": "2026-08-11",
+   "rsi14": 54.84,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "CAN",
+   "expl_date": "2026-08-11",
+   "rsi14": 37.97,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "SWVL",
+   "expl_date": "2026-08-11",
+   "rsi14": 48.32,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "BANL",
+   "expl_date": "2026-08-11",
+   "rsi14": 36.2,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "MRNA",
+   "expl_date": "2026-08-11",
+   "rsi14": 51.15,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TJGC",
+   "expl_date": "2026-08-11",
+   "rsi14": 31.51,
+   "band": "27-33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "AVAT",
+   "expl_date": "2026-08-11",
+   "rsi14": 16.35,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "DFDV",
+   "expl_date": "2026-08-12",
+   "rsi14": 49.1,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "MF",
+   "expl_date": "2026-08-12",
+   "rsi14": 73.11,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "IPST",
+   "expl_date": "2026-08-12",
+   "rsi14": 36.02,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "XHLD",
+   "expl_date": "2026-08-12",
+   "rsi14": 68.75,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "CAPR",
+   "expl_date": "2026-08-12",
+   "rsi14": 14.5,
+   "band": "≤27",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "LEXX",
+   "expl_date": "2026-08-12",
+   "rsi14": 37.94,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-08-12",
+   "rsi14": 54.22,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "BANL",
+   "expl_date": "2026-08-12",
+   "rsi14": 42.12,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "MRNA",
+   "expl_date": "2026-08-12",
+   "rsi14": 52.44,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "AVAT",
+   "expl_date": "2026-08-12",
+   "rsi14": 16.39,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "ARCT",
+   "expl_date": "2026-08-12",
+   "rsi14": 64.74,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "CAN",
+   "expl_date": "2026-08-12",
+   "rsi14": 38.28,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "FCUV",
+   "expl_date": "2026-08-13",
+   "rsi14": 50.62,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "CELU",
+   "expl_date": "2026-08-13",
+   "rsi14": 45.55,
+   "band": ">33",
+   "blocking_layer": "L8/L10 (was a candidate; not selected or not ready)"
+  },
+  {
+   "symbol": "IPST",
+   "expl_date": "2026-08-13",
+   "rsi14": 36.02,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "CAPR",
+   "expl_date": "2026-08-13",
+   "rsi14": 16.32,
+   "band": "≤27",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "LEXX",
+   "expl_date": "2026-08-13",
+   "rsi14": 41.44,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "DFDV",
+   "expl_date": "2026-08-13",
+   "rsi14": 49.85,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "RNXT",
+   "expl_date": "2026-08-13",
+   "rsi14": 64.17,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TJGC",
+   "expl_date": "2026-08-13",
+   "rsi14": 34.67,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "HOWL",
+   "expl_date": "2026-08-13",
+   "rsi14": 47.61,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-08-13",
+   "rsi14": 60.31,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "AVAT",
+   "expl_date": "2026-08-13",
+   "rsi14": 16.81,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "BANL",
+   "expl_date": "2026-08-13",
+   "rsi14": 65.67,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "FGI",
+   "expl_date": "2026-08-13",
+   "rsi14": 54.32,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "ARCT",
+   "expl_date": "2026-08-13",
+   "rsi14": 65.54,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "CAN",
+   "expl_date": "2026-08-13",
+   "rsi14": 40.02,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "XHLD",
+   "expl_date": "2026-08-13",
+   "rsi14": 77.56,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "ZSTK",
+   "expl_date": "2026-08-14",
+   "rsi14": 40.2,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "MF",
+   "expl_date": "2026-08-14",
+   "rsi14": 69.78,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "PFSA",
+   "expl_date": "2026-08-17",
+   "rsi14": 25.48,
+   "band": "≤27",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "ASST",
+   "expl_date": "2026-08-17",
+   "rsi14": 48.89,
+   "band": ">33",
+   "blocking_layer": "L8/L10 (was a candidate; not selected or not ready)"
+  },
+  {
+   "symbol": "FCUV",
+   "expl_date": "2026-08-17",
+   "rsi14": 51.37,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "CELU",
+   "expl_date": "2026-08-17",
+   "rsi14": 46.45,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "HOWL",
+   "expl_date": "2026-08-17",
+   "rsi14": 51.92,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "BRLS",
+   "expl_date": "2026-08-17",
+   "rsi14": 44.63,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "TJGC",
+   "expl_date": "2026-08-17",
+   "rsi14": 41.0,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "AVAT",
+   "expl_date": "2026-08-17",
+   "rsi14": 21.8,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "XHLD",
+   "expl_date": "2026-08-17",
+   "rsi14": 79.52,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "HSCS",
+   "expl_date": "2026-08-17",
+   "rsi14": 42.89,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TNON",
+   "expl_date": "2026-08-18",
+   "rsi14": 32.59,
+   "band": "27-33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "FBLG",
+   "expl_date": "2026-08-18",
+   "rsi14": 58.5,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "CYPH",
+   "expl_date": "2026-08-18",
+   "rsi14": 53.48,
+   "band": ">33",
+   "blocking_layer": "L8/L10 (was a candidate; not selected or not ready)"
+  },
+  {
+   "symbol": "FCUV",
+   "expl_date": "2026-08-18",
+   "rsi14": 54.88,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "CELU",
+   "expl_date": "2026-08-18",
+   "rsi14": 46.49,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "HOWL",
+   "expl_date": "2026-08-18",
+   "rsi14": 52.07,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "BRLS",
+   "expl_date": "2026-08-18",
+   "rsi14": 45.83,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SWVL",
+   "expl_date": "2026-08-18",
+   "rsi14": 48.5,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "RFAI",
+   "expl_date": "2026-08-18",
+   "rsi14": 6.41,
+   "band": "≤27",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-08-18",
+   "rsi14": 57.37,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "NTRB",
+   "expl_date": "2026-08-18",
+   "rsi14": 58.44,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "ARCT",
+   "expl_date": "2026-08-18",
+   "rsi14": 69.48,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TJGC",
+   "expl_date": "2026-08-18",
+   "rsi14": 41.0,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "AVAT",
+   "expl_date": "2026-08-18",
+   "rsi14": 22.59,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "BRNX",
+   "expl_date": "2026-08-19",
+   "rsi14": null,
+   "band": null,
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "GPRO",
+   "expl_date": "2026-08-19",
+   "rsi14": 37.6,
+   "band": ">33",
+   "blocking_layer": "L8/L10 (was a candidate; not selected or not ready)"
+  },
+  {
+   "symbol": "INDP",
+   "expl_date": "2026-08-19",
+   "rsi14": 26.64,
+   "band": "≤27",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "ASST",
+   "expl_date": "2026-08-19",
+   "rsi14": 52.53,
+   "band": ">33",
+   "blocking_layer": "L8/L10 (was a candidate; not selected or not ready)"
+  },
+  {
+   "symbol": "BNC",
+   "expl_date": "2026-08-19",
+   "rsi14": 46.26,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "CYPH",
+   "expl_date": "2026-08-19",
+   "rsi14": 63.26,
+   "band": ">33",
+   "blocking_layer": "L8/L10 (was a candidate; not selected or not ready)"
+  },
+  {
+   "symbol": "CELU",
+   "expl_date": "2026-08-19",
+   "rsi14": 53.25,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "MGN",
+   "expl_date": "2026-08-19",
+   "rsi14": 45.74,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "FCUV",
+   "expl_date": "2026-08-19",
+   "rsi14": 59.6,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "HOWL",
+   "expl_date": "2026-08-19",
+   "rsi14": 52.81,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "BRLS",
+   "expl_date": "2026-08-19",
+   "rsi14": 47.21,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "MRNA",
+   "expl_date": "2026-08-19",
+   "rsi14": 55.04,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "RNXT",
+   "expl_date": "2026-08-19",
+   "rsi14": 57.23,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "CAN",
+   "expl_date": "2026-08-19",
+   "rsi14": 44.06,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "TNMG",
+   "expl_date": "2026-08-19",
+   "rsi14": 41.72,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "RFAI",
+   "expl_date": "2026-08-19",
+   "rsi14": 32.0,
+   "band": "27-33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-08-19",
+   "rsi14": 57.6,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "AVAT",
+   "expl_date": "2026-08-19",
+   "rsi14": 22.59,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "ARCT",
+   "expl_date": "2026-08-19",
+   "rsi14": 70.13,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "NTRB",
+   "expl_date": "2026-08-19",
+   "rsi14": 66.61,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "INDP",
+   "expl_date": "2026-08-20",
+   "rsi14": 26.83,
+   "band": "≤27",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-08-20",
+   "rsi14": 69.71,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "BTCT",
+   "expl_date": "2026-08-20",
+   "rsi14": 64.47,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "HOWL",
+   "expl_date": "2026-08-20",
+   "rsi14": 52.83,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "FCUV",
+   "expl_date": "2026-08-20",
+   "rsi14": 60.83,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "BRNX",
+   "expl_date": "2026-08-20",
+   "rsi14": null,
+   "band": null,
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "BNC",
+   "expl_date": "2026-08-20",
+   "rsi14": 52.17,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SWVL",
+   "expl_date": "2026-08-20",
+   "rsi14": 51.59,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TJGC",
+   "expl_date": "2026-08-20",
+   "rsi14": 49.29,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "RFAI",
+   "expl_date": "2026-08-20",
+   "rsi14": 54.53,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "NCPL",
+   "expl_date": "2026-08-20",
+   "rsi14": 22.98,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "CYPH",
+   "expl_date": "2026-08-20",
+   "rsi14": 77.01,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "AVAT",
+   "expl_date": "2026-08-20",
+   "rsi14": 28.14,
+   "band": "27-33",
+   "blocking_layer": "L2 M3 prior spike"
+  },
+  {
+   "symbol": "NTRB",
+   "expl_date": "2026-08-20",
+   "rsi14": 69.54,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TNMG",
+   "expl_date": "2026-08-20",
+   "rsi14": 42.64,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "CELU",
+   "expl_date": "2026-08-21",
+   "rsi14": 56.94,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SVRN",
+   "expl_date": "2026-08-21",
+   "rsi14": 60.44,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "BNC",
+   "expl_date": "2026-08-21",
+   "rsi14": 54.25,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "CTSO",
+   "expl_date": "2026-08-21",
+   "rsi14": 35.65,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "SFWL",
+   "expl_date": "2026-08-21",
+   "rsi14": 45.81,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "GIPR",
+   "expl_date": "2026-08-21",
+   "rsi14": 20.08,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "MNOV",
+   "expl_date": "2026-08-21",
+   "rsi14": 56.37,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "SWVL",
+   "expl_date": "2026-08-21",
+   "rsi14": 54.25,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "RFAI",
+   "expl_date": "2026-08-21",
+   "rsi14": 68.82,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "CYPH",
+   "expl_date": "2026-08-21",
+   "rsi14": 80.57,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TJGC",
+   "expl_date": "2026-08-21",
+   "rsi14": 53.93,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "AVAT",
+   "expl_date": "2026-08-21",
+   "rsi14": 30.21,
+   "band": "27-33",
+   "blocking_layer": "L2 M3 prior spike"
+  },
+  {
+   "symbol": "NTRB",
+   "expl_date": "2026-08-21",
+   "rsi14": 75.64,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "NCPL",
+   "expl_date": "2026-08-21",
+   "rsi14": 24.07,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "FCUV",
+   "expl_date": "2026-08-24",
+   "rsi14": 62.5,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "SVRN",
+   "expl_date": "2026-08-24",
+   "rsi14": 62.6,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-08-24",
+   "rsi14": 74.35,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "SWVL",
+   "expl_date": "2026-08-24",
+   "rsi14": 54.25,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "NCPL",
+   "expl_date": "2026-08-24",
+   "rsi14": 25.5,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "CYPH",
+   "expl_date": "2026-08-24",
+   "rsi14": 85.27,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "MNOV",
+   "expl_date": "2026-08-24",
+   "rsi14": 59.68,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "MTC",
+   "expl_date": "2026-08-24",
+   "rsi14": 53.23,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TELA",
+   "expl_date": "2026-08-24",
+   "rsi14": 40.13,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "VIOT",
+   "expl_date": "2026-08-25",
+   "rsi14": 38.04,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "CELU",
+   "expl_date": "2026-08-25",
+   "rsi14": 56.59,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "FCUV",
+   "expl_date": "2026-08-25",
+   "rsi14": 63.33,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "RNXT",
+   "expl_date": "2026-08-25",
+   "rsi14": 58.69,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "RDIB",
+   "expl_date": "2026-08-25",
+   "rsi14": 47.29,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TNMG",
+   "expl_date": "2026-08-25",
+   "rsi14": 44.54,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "SWVL",
+   "expl_date": "2026-08-25",
+   "rsi14": 55.38,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-08-25",
+   "rsi14": 76.25,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "INDP",
+   "expl_date": "2026-08-26",
+   "rsi14": 37.5,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SVRN",
+   "expl_date": "2026-08-26",
+   "rsi14": 64.47,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "CELU",
+   "expl_date": "2026-08-26",
+   "rsi14": 59.91,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "VIOT",
+   "expl_date": "2026-08-26",
+   "rsi14": 52.51,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SWVL",
+   "expl_date": "2026-08-26",
+   "rsi14": 85.02,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-08-26",
+   "rsi14": 79.06,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "GPRO",
+   "expl_date": "2026-08-27",
+   "rsi14": 40.55,
+   "band": ">33",
+   "blocking_layer": "L8/L10 (was a candidate; not selected or not ready)"
+  },
+  {
+   "symbol": "FCUV",
+   "expl_date": "2026-08-27",
+   "rsi14": 63.66,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "FNGR",
+   "expl_date": "2026-08-27",
+   "rsi14": 29.99,
+   "band": "27-33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "CYPH",
+   "expl_date": "2026-08-27",
+   "rsi14": 84.57,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "VIOT",
+   "expl_date": "2026-08-28",
+   "rsi14": 60.66,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "MNOV",
+   "expl_date": "2026-08-28",
+   "rsi14": 54.21,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TELA",
+   "expl_date": "2026-08-28",
+   "rsi14": 41.85,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "SWVL",
+   "expl_date": "2026-08-28",
+   "rsi14": 78.86,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TJGC",
+   "expl_date": "2026-08-28",
+   "rsi14": 79.51,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "FNGR",
+   "expl_date": "2026-08-28",
+   "rsi14": 32.84,
+   "band": "27-33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-08-28",
+   "rsi14": 82.2,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "SUNE",
+   "expl_date": "2026-08-31",
+   "rsi14": 42.41,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SVRN",
+   "expl_date": "2026-08-31",
+   "rsi14": 67.8,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "GPRO",
+   "expl_date": "2026-08-31",
+   "rsi14": 41.27,
+   "band": ">33",
+   "blocking_layer": "L8/L10 (was a candidate; not selected or not ready)"
+  },
+  {
+   "symbol": "VIOT",
+   "expl_date": "2026-08-31",
+   "rsi14": 66.8,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "CTSO",
+   "expl_date": "2026-08-31",
+   "rsi14": 42.86,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "DLXY",
+   "expl_date": "2026-08-31",
+   "rsi14": 36.89,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "AVAT",
+   "expl_date": "2026-08-31",
+   "rsi14": 54.27,
+   "band": ">33",
+   "blocking_layer": "L2 M3 prior spike"
+  },
+  {
+   "symbol": "TELA",
+   "expl_date": "2026-08-31",
+   "rsi14": 48.16,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "BIAF",
+   "expl_date": "2026-09-01",
+   "rsi14": 22.88,
+   "band": "≤27",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "PSIG",
+   "expl_date": "2026-09-01",
+   "rsi14": 44.55,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "FCUV",
+   "expl_date": "2026-09-01",
+   "rsi14": 62.19,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SVRN",
+   "expl_date": "2026-09-01",
+   "rsi14": 70.66,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "DLXY",
+   "expl_date": "2026-09-01",
+   "rsi14": 44.95,
+   "band": ">33",
+   "blocking_layer": "L2 M5 liquidity"
+  },
+  {
+   "symbol": "SWVL",
+   "expl_date": "2026-09-01",
+   "rsi14": 79.49,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "NWGL",
+   "expl_date": "2026-09-01",
+   "rsi14": 80.95,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "ATER",
+   "expl_date": "2026-09-01",
+   "rsi14": 31.67,
+   "band": "27-33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "AMBR",
+   "expl_date": "2026-09-02",
+   "rsi14": 30.96,
+   "band": "27-33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "BNC",
+   "expl_date": "2026-09-02",
+   "rsi14": 50.69,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "INDP",
+   "expl_date": "2026-09-02",
+   "rsi14": 39.17,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "AEHL",
+   "expl_date": "2026-09-02",
+   "rsi14": 41.5,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "BIAF",
+   "expl_date": "2026-09-02",
+   "rsi14": 45.15,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SFWL",
+   "expl_date": "2026-09-02",
+   "rsi14": 46.64,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "PDSB",
+   "expl_date": "2026-09-02",
+   "rsi14": 19.98,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "ETS",
+   "expl_date": "2026-09-02",
+   "rsi14": 38.35,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "AVAT",
+   "expl_date": "2026-09-02",
+   "rsi14": 59.48,
+   "band": ">33",
+   "blocking_layer": "L2 M3 prior spike"
+  },
+  {
+   "symbol": "ZEO",
+   "expl_date": "2026-09-02",
+   "rsi14": 21.57,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "YQ",
+   "expl_date": "2026-09-02",
+   "rsi14": 44.55,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "SWVL",
+   "expl_date": "2026-09-02",
+   "rsi14": 86.18,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "AIXI",
+   "expl_date": "2026-09-03",
+   "rsi14": 35.45,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "EEIQ",
+   "expl_date": "2026-09-03",
+   "rsi14": 54.5,
+   "band": ">33",
+   "blocking_layer": "L8/L10 (was a candidate; not selected or not ready)"
+  },
+  {
+   "symbol": "LRHC",
+   "expl_date": "2026-09-03",
+   "rsi14": 24.81,
+   "band": "≤27",
+   "blocking_layer": "L2 M2 ceiling (split)"
+  },
+  {
+   "symbol": "CYPH",
+   "expl_date": "2026-09-03",
+   "rsi14": 69.61,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "MNOV",
+   "expl_date": "2026-09-03",
+   "rsi14": 54.78,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "XRPN",
+   "expl_date": "2026-09-03",
+   "rsi14": 59.75,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "WCT",
+   "expl_date": "2026-09-04",
+   "rsi14": 64.07,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "LRHC",
+   "expl_date": "2026-09-04",
+   "rsi14": 30.78,
+   "band": "27-33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "AIXI",
+   "expl_date": "2026-09-04",
+   "rsi14": 35.87,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SUNE",
+   "expl_date": "2026-09-04",
+   "rsi14": 46.08,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "MGN",
+   "expl_date": "2026-09-04",
+   "rsi14": 52.39,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "CTSO",
+   "expl_date": "2026-09-04",
+   "rsi14": 47.29,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "SFWL",
+   "expl_date": "2026-09-04",
+   "rsi14": 52.44,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "GTBP",
+   "expl_date": "2026-09-04",
+   "rsi14": 32.78,
+   "band": "27-33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "TNMG",
+   "expl_date": "2026-09-04",
+   "rsi14": 48.77,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "BRTX",
+   "expl_date": "2026-09-04",
+   "rsi14": 21.95,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "TJGC",
+   "expl_date": "2026-09-04",
+   "rsi14": 82.19,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "AIXI",
+   "expl_date": "2026-09-08",
+   "rsi14": 35.63,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "SVRN",
+   "expl_date": "2026-09-08",
+   "rsi14": 58.26,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "DLXY",
+   "expl_date": "2026-09-08",
+   "rsi14": 48.95,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "IPDN",
+   "expl_date": "2026-09-08",
+   "rsi14": 21.04,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "VRME",
+   "expl_date": "2026-09-08",
+   "rsi14": 35.43,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "OPNW",
+   "expl_date": "2026-09-08",
+   "rsi14": null,
+   "band": null,
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "TNMG",
+   "expl_date": "2026-09-09",
+   "rsi14": 47.07,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "WCT",
+   "expl_date": "2026-09-09",
+   "rsi14": 66.68,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "GTBP",
+   "expl_date": "2026-09-09",
+   "rsi14": 25.28,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "BRTX",
+   "expl_date": "2026-09-09",
+   "rsi14": 22.93,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "CTSO",
+   "expl_date": "2026-09-09",
+   "rsi14": 45.72,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "SFWL",
+   "expl_date": "2026-09-09",
+   "rsi14": 41.92,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "LRHC",
+   "expl_date": "2026-09-09",
+   "rsi14": 36.27,
+   "band": ">33",
+   "blocking_layer": "L2 M2 ceiling (split)"
+  },
+  {
+   "symbol": "MGN",
+   "expl_date": "2026-09-09",
+   "rsi14": 44.77,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "NFE",
+   "expl_date": "2026-09-09",
+   "rsi14": 31.29,
+   "band": "27-33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "FFR",
+   "expl_date": "2026-09-09",
+   "rsi14": null,
+   "band": null,
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "UCAR",
+   "expl_date": "2026-09-10",
+   "rsi14": 23.13,
+   "band": "≤27",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "TNON",
+   "expl_date": "2026-09-10",
+   "rsi14": 32.2,
+   "band": "27-33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "MEDS",
+   "expl_date": "2026-09-10",
+   "rsi14": 15.76,
+   "band": "≤27",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "PSIG",
+   "expl_date": "2026-09-10",
+   "rsi14": 47.65,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "ALP",
+   "expl_date": "2026-09-10",
+   "rsi14": 30.47,
+   "band": "27-33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "NRSN",
+   "expl_date": "2026-09-11",
+   "rsi14": 35.89,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "FTFT",
+   "expl_date": "2026-09-14",
+   "rsi14": 48.97,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "VEEA",
+   "expl_date": "2026-09-14",
+   "rsi14": 25.86,
+   "band": "≤27",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "VEEA",
+   "expl_date": "2026-09-15",
+   "rsi14": 48.39,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "NCPL",
+   "expl_date": "2026-09-15",
+   "rsi14": 45.39,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "NFE",
+   "expl_date": "2026-09-15",
+   "rsi14": 44.08,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "IPDN",
+   "expl_date": "2026-09-15",
+   "rsi14": 28.13,
+   "band": "27-33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "NRSN",
+   "expl_date": "2026-09-15",
+   "rsi14": 37.98,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "HUBC",
+   "expl_date": "2026-09-15",
+   "rsi14": 23.96,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "CPOP",
+   "expl_date": "2026-09-15",
+   "rsi14": 35.75,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "RETO",
+   "expl_date": "2026-09-15",
+   "rsi14": 22.0,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "NXXT",
+   "expl_date": "2026-09-15",
+   "rsi14": 26.14,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "IZM",
+   "expl_date": "2026-09-15",
+   "rsi14": 39.59,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "DLXY",
+   "expl_date": "2026-09-16",
+   "rsi14": 50.94,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "MEDS",
+   "expl_date": "2026-09-16",
+   "rsi14": 49.04,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "QCLS",
+   "expl_date": "2026-09-16",
+   "rsi14": 13.27,
+   "band": "≤27",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "IMCC",
+   "expl_date": "2026-09-16",
+   "rsi14": 24.64,
+   "band": "≤27",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "USDE",
+   "expl_date": "2026-09-16",
+   "rsi14": 50.49,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "SNYR",
+   "expl_date": "2026-09-16",
+   "rsi14": 36.61,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "REFR",
+   "expl_date": "2026-09-16",
+   "rsi14": 29.27,
+   "band": "27-33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "GIPR",
+   "expl_date": "2026-09-16",
+   "rsi14": 38.29,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "AEMD",
+   "expl_date": "2026-09-17",
+   "rsi14": 24.07,
+   "band": "≤27",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "DAIC",
+   "expl_date": "2026-09-17",
+   "rsi14": 45.3,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "DTSS",
+   "expl_date": "2026-09-17",
+   "rsi14": 31.73,
+   "band": "27-33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "BFRG",
+   "expl_date": "2026-09-17",
+   "rsi14": 27.78,
+   "band": "27-33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "VWAV",
+   "expl_date": "2026-09-17",
+   "rsi14": 25.95,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "WHLR",
+   "expl_date": "2026-09-17",
+   "rsi14": 18.04,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "QNME",
+   "expl_date": "2026-09-17",
+   "rsi14": 12.63,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "BTTC",
+   "expl_date": "2026-09-17",
+   "rsi14": 22.74,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "AIFA",
+   "expl_date": "2026-09-17",
+   "rsi14": 50.72,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "IMCC",
+   "expl_date": "2026-09-18",
+   "rsi14": 28.31,
+   "band": "27-33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "GIPR",
+   "expl_date": "2026-09-18",
+   "rsi14": 44.95,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "QNME",
+   "expl_date": "2026-09-18",
+   "rsi14": 13.46,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "REFR",
+   "expl_date": "2026-09-18",
+   "rsi14": 38.77,
+   "band": ">33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "GRML",
+   "expl_date": "2026-09-21",
+   "rsi14": 28.27,
+   "band": "27-33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "VEEE",
+   "expl_date": "2026-09-21",
+   "rsi14": 40.13,
+   "band": ">33",
+   "blocking_layer": "L8/L10 (was a candidate; not selected or not ready)"
+  },
+  {
+   "symbol": "LHSW",
+   "expl_date": "2026-09-21",
+   "rsi14": 33.58,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "GLND",
+   "expl_date": "2026-09-21",
+   "rsi14": 33.98,
+   "band": ">33",
+   "blocking_layer": "L2 M3 prior spike"
+  },
+  {
+   "symbol": "BTTC",
+   "expl_date": "2026-09-21",
+   "rsi14": 28.29,
+   "band": "27-33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "ZKIN",
+   "expl_date": "2026-09-21",
+   "rsi14": 41.54,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "JAGX",
+   "expl_date": "2026-09-22",
+   "rsi14": 15.37,
+   "band": "≤27",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "LHSW",
+   "expl_date": "2026-09-22",
+   "rsi14": 33.62,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "YDES",
+   "expl_date": "2026-09-22",
+   "rsi14": 36.81,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "BENF",
+   "expl_date": "2026-09-23",
+   "rsi14": 23.11,
+   "band": "≤27",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "WHLR",
+   "expl_date": "2026-09-23",
+   "rsi14": 17.02,
+   "band": "≤27",
+   "blocking_layer": "L2 M2 ceiling (split)"
+  },
+  {
+   "symbol": "SRZN",
+   "expl_date": "2026-09-24",
+   "rsi14": 27.09,
+   "band": "27-33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "MSGY",
+   "expl_date": "2026-09-25",
+   "rsi14": 42.41,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "KOD",
+   "expl_date": "2026-09-28",
+   "rsi14": 37.85,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  },
+  {
+   "symbol": "NIVF",
+   "expl_date": "2026-09-30",
+   "rsi14": 15.32,
+   "band": "≤27",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "SCKT",
+   "expl_date": "2026-10-01",
+   "rsi14": 38.92,
+   "band": ">33",
+   "blocking_layer": "L5 anchor (tested_level 2 touches)"
+  },
+  {
+   "symbol": "WORX",
+   "expl_date": "2026-10-01",
+   "rsi14": 51.31,
+   "band": ">33",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "AMOD",
+   "expl_date": "2026-10-02",
+   "rsi14": 21.35,
+   "band": "≤27",
+   "blocking_layer": "L2 M4 base range"
+  },
+  {
+   "symbol": "SAIQ",
+   "expl_date": "2026-10-05",
+   "rsi14": null,
+   "band": null,
+   "blocking_layer": "L2 M3 prior spike"
+  },
+  {
+   "symbol": "OLB",
+   "expl_date": "2026-10-06",
+   "rsi14": 32.4,
+   "band": "27-33",
+   "blocking_layer": "L2 M1 price"
+  },
+  {
+   "symbol": "SXTC",
+   "expl_date": "2026-10-07",
+   "rsi14": 24.47,
+   "band": "≤27",
+   "blocking_layer": "L2 M2 ceiling (split)"
+  },
+  {
+   "symbol": "PFAI",
+   "expl_date": "2026-10-07",
+   "rsi14": 39.55,
+   "band": ">33",
+   "blocking_layer": "L2 M2 (drop < 71.7%: not a pivot by envelope)"
+  }
+ ],
+ "seconds": 33.0
+}
