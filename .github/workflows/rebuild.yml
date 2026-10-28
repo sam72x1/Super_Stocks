@@ -1,6 +1,7 @@
 name: "🧭 T-REBUILD الجزء ب (قراءةٌ وقياس · يدويّ)"
 
-# 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا شحن (العقد `fm_forensics/rebuild/T_REBUILD_prereg.md` · RBD1).
+# 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا شحن (العقد `fm_forensics/rebuild/T_REBUILD_prereg.md` · RBD1 · RBD3).
+# `bases` = §⑥ على TRAIN والاختيارُ على VAL: prep ⟵ 20 شريحةً متوازية ⟵ assemble (ولا TEST).
 permissions:
   contents: read
 
@@ -8,13 +9,14 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "الوضع (المبنيّ: d0 · ready117)"
+        description: "الوضع (المبنيّ: d0 · ready117 · bases)"
         type: choice
-        options: [d0, ready117]
+        options: [d0, ready117, bases]
         default: d0
 
 jobs:
   rebuild:
+    if: github.event.inputs.mode != 'bases'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -37,3 +39,116 @@ jobs:
           FAISAL_ONLY: "1"
           PYTHONUNBUFFERED: "1"
         run: python fm_forensics/rebuild/rebuild.py
+
+  bases_prep:
+    if: github.event.inputs.mode == 'bases'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧭 العضويّة · التقسيمات · FINRA
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          REBUILD_MODE: bases_prep
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rebuild/rebuild.py
+
+      - name: Upload prep
+        uses: actions/upload-artifact@v4
+        with:
+          name: rb-prep
+          path: fm_forensics/rebuild/out/prep.json.gz
+          retention-days: 30
+
+  bases_shard:
+    needs: bases_prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 8               # لا يستنفد رنرات البوت الحيّة (المراقب · الرادار · الفرز)
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep
+        uses: actions/download-artifact@v4
+        with:
+          name: rb-prep
+          path: fm_forensics/rebuild/out
+
+      - name: 🧭 الشريحة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          REBUILD_MODE: bases_shard
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "20"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rebuild/rebuild.py
+
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: rb-shard-${{ matrix.shard }}
+          path: fm_forensics/rebuild/out/shard_*.json.gz
+          retention-days: 30
+
+  bases_assemble:
+    needs: bases_shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep and shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: rb-*
+          path: fm_forensics/rebuild/out
+          merge-multiple: true
+
+      - name: 🧭 الاختيار على VAL
+        env:
+          REBUILD_MODE: bases_assemble
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rebuild/rebuild.py
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: rb-result
+          path: fm_forensics/rebuild/out/bases_result.json.gz
+          retention-days: 90
