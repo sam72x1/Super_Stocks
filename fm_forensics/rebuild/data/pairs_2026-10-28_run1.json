@@ -1,0 +1,144 @@
+{
+ "mode": "pairs_assemble",
+ "base": "BASE2",
+ "shards": 20,
+ "pool_rows": 180359,
+ "entries": 3267,
+ "entries_expected": 3267,
+ "match": true,
+ "train_sessions": 311,
+ "pairs": {
+  "m": 4,
+  "z": 2.4977,
+  "units": 3267,
+  "labelled": 3190,
+  "exploded": 538,
+  "base_share": 0.1687,
+  "symbols": 1491,
+  "strata": 225,
+  "cols": {
+   "P1": {
+    "pass": 6,
+    "pass_labelled": 6,
+    "exploded_pass": 1,
+    "share_pass": 0.1667,
+    "diff": -0.002,
+    "diff_ci": [
+     -0.4146,
+     0.4106
+    ],
+    "mh_rr": 0.992,
+    "mh_ci": [
+     0.306,
+     3.222
+    ],
+    "burden": 0.019,
+    "verdict": "لا تفرّق",
+    "boot_nan": 749
+   },
+   "P1p": {
+    "pass": 586,
+    "pass_labelled": 568,
+    "exploded_pass": 85,
+    "share_pass": 0.1496,
+    "diff": -0.019,
+    "diff_ci": [
+     -0.0534,
+     0.0154
+    ],
+    "mh_rr": 0.915,
+    "mh_ci": [
+     0.692,
+     1.211
+    ],
+    "burden": 1.884,
+    "verdict": "لا تفرّق",
+    "boot_nan": 0
+   },
+   "P2": {
+    "pass": 11,
+    "pass_labelled": 10,
+    "exploded_pass": 2,
+    "share_pass": 0.2,
+    "diff": 0.0313,
+    "diff_ci": [
+     -0.3021,
+     0.3648
+    ],
+    "mh_rr": 1.525,
+    "mh_ci": [
+     0.337,
+     6.907
+    ],
+    "burden": 0.035,
+    "verdict": "لا تفرّق",
+    "boot_nan": 286
+   },
+   "P3": {
+    "pass": 431,
+    "pass_labelled": 405,
+    "exploded_pass": 103,
+    "share_pass": 0.2543,
+    "diff": 0.0857,
+    "diff_ci": [
+     0.0384,
+     0.1329
+    ],
+    "mh_rr": 1.438,
+    "mh_ci": [
+     1.103,
+     1.875
+    ],
+    "burden": 1.386,
+    "verdict": "تضيف",
+    "boot_nan": 0
+   }
+  }
+ },
+ "p1_vs_p3": "P3",
+ "rsi20_words": "RSI ≤ 20 لم يضف شيئًا",
+ "freeze": {
+  "contract": "T_REBUILD_prereg.md",
+  "addendum_sha": "1f2902c0c0832c9c094e6b53e7c8a3346ff2a913d88d92be164ff4b99964d3e3",
+  "base": "BASE2",
+  "pairs_in": [
+   "P3"
+  ],
+  "features": [
+   "d_rsi",
+   "d_drop",
+   "I_P3"
+  ],
+  "dropped_zero_sd": [],
+  "mu": [
+   0.6957809279521728,
+   0.8442815952330397,
+   0.11231589861463318
+  ],
+  "sd": [
+   0.34197944965787097,
+   0.2804474734678407,
+   0.31575471102264235
+  ],
+  "w": [
+   0.06796870873523628,
+   0.49751696357422753,
+   0.16003479287244707
+  ],
+  "b": -1.7242838268486078,
+  "lambda": 1.0,
+  "iters": 7,
+  "n_fit": 160102,
+  "theta": null,
+  "theta_search": {
+   "theta": null,
+   "why": "حتى أعلى درجةٍ عبؤها فوق الهدف"
+  },
+  "dist_s": 0.25,
+  "sha": "aaf1c5ac73fee349643a7e32c60aef6fa759723bdc4e913552149136aaf73a34"
+ },
+ "seconds": 2.5,
+ "run": 40758595999,
+ "main_sha": "8357066a0c2a895f9fe9102b309a9dc3760d0e70",
+ "note": "المحاولةُ الأولى للتجميد — θ لم توجد (الملحق 3 §⓪) · منشورةٌ كما صدرت ولا تُحذف"
+}

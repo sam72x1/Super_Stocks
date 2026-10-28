@@ -88413,8 +88413,8 @@ try:
                      and _R7.stop_outcome(_bars(_none), 10, 0.95, 50.0) is False and _R7.stop_outcome(_bars(_up), 10, None, 50.0) is None
                      and _R7.stop_outcome(_bars(_up)[:29], 10, 0.95, 50.0) is None)       # تنقص شمعةٌ واحدة عن D+19
     # ② الدرجةُ المجمَّدة بأسماء مدخلاتها · ورفضُ التجميد المعطوب
-    _fz = {"addendum_sha": _R7.ADDENDUM_SHA, "features": ["d_rsi", "I_P2"], "w": [1.5, -0.5], "mu": [0.5, 0.1], "sd": [0.2, 0.3],
-           "b": -1.0, "theta": 0.3}
+    _fz = {"addendum_sha": _R7.ADDENDUM_SHA, "addendum3_sha": _R7.ADDENDUM3_SHA, "features": ["m_rsi", "I_P2"], "w": [1.5, -0.5],
+           "mu": [0.5, 0.1], "sd": [0.2, 0.3], "b": -1.0, "theta": 0.3}
     _fz["sha"] = _R7.freeze_sha(_fz)
     _sc = _R7.frozen_score(_fz, 0.9, 0.2, [0, 0, 1, 0])
     _man = 1 / (1 + _r7_math.exp(-(-1.0 + 1.5 * (0.9 - 0.5) / 0.2 - 0.5 * (1 - 0.1) / 0.3)))
@@ -88423,7 +88423,7 @@ try:
     _ok_load = []
     with _r7_tmp.TemporaryDirectory() as _td:
         for _mut, _resha, _want in (({}, False, True), ({"theta": 0.31}, False, False), ({"addendum_sha": "x"}, True, False),
-                                    ({"theta": None}, True, False)):
+                                    ({"addendum3_sha": "x"}, True, False), ({"theta": None}, True, False)):
             _f = dict(_fz, **_mut)
             if _resha:                                                # البصمةُ سليمة ⟵ الرفضُ من الحارس المسمّى وحدَه
                 _f["sha"] = _R7.freeze_sha(_f)
@@ -88462,7 +88462,7 @@ try:
         _r7_c["no_freeze"] = True
     _calls = {getattr(n.func, "id", None) or getattr(n.func, "attr", None)
               for n in _r7_ast.walk(_r7_ast.parse(_insp0.getsource(_R7.test_symbol))) if isinstance(n, _r7_ast.Call)}
-    _r7_c["wired"] = {"analyze_ticker", "post_scan", "frozen_score", "pair_flags", "base2_dist", "stop_outcome", "base2_fire",
+    _r7_c["wired"] = {"analyze_ticker", "post_scan", "frozen_score", "pair_flags", "base2_dist", "base2_margin", "stop_outcome", "base2_fire",
                       "tested_level", "asof_factor"} <= _calls
     _off = dict(_R7.PROD_OFF)
     _r7_c["prod_off"] = all(any(k in n for n in _off) for k in ("M8_GAP_REQUIRED", "STABILITY_MAX", "NEAR_READINESS", "PIVOT_SWEEP_PCT",
@@ -88651,6 +88651,117 @@ if "⛔" not in _r8_c:
 check("🧭 RBD8 (‏2026-10-28) الجردُ المقصوص بالملحق 2: الملحقُ ببصمته وقائمتُه الثمانية (PIVOT_SWEEP لا يُقاس) · بادئاتُ النقص فريدة · الأعلامُ من مُخرَج "
       "الإنتاج · كلُّ صلبٍ بمفتاحه وحدَه · الوقفُ بتعريف §⑪ والدفعات · التجميعُ يطابق ولا يقرأ VAL وm = 8 · لا جردَ بلا TEST · والوصلُ والـworkflow",
       _v_r8, _v_r8w)
+
+# 🧭 RBD10 (‏2026-10-28 · `T-REBUILD` الملحق 3 · الهامشُ بدل المسافة المشبَّعة): الملحقُ ببصمته · الهامشان بوحدة s بلا سقف وامتدادٌ للمسافة (m = d − 1
+#    على جهة السقوط) · يُسجَّلان في صفوف البِركة (العمودان 12 و13) ويُحسبان في TEST بالدالّة نفسِها · الدرجةُ عليهما لا على المسافتين ⟵ θ تُبلَغ حيث
+#    كانت المسافةُ المشبَّعة تعجز (بِركةٌ اصطناعيّة) · والتجميدُ يحمل بصمةَ الملحق 3 · والأزواجُ ترفض 9 بغيرها.
+try:
+    import importlib.util as _r10_iu
+    import ast as _r10_ast
+    import hashlib as _r10_h
+    import os as _r10_os
+    _r10_spec = _r10_iu.spec_from_file_location("t_rebuild_tool10", "fm_forensics/rebuild/rebuild.py")
+    _R10 = _r10_iu.module_from_spec(_r10_spec)
+    _r10_spec.loader.exec_module(_R10)
+    _r10_c = {}
+
+    def _try10(f, *a, **k):
+        try:
+            return f(*a, **k)
+        except Exception as _x:                                  # noqa: BLE001
+            return ("⛔", type(_x).__name__)
+    # ① الملحقُ ببصمته المثبَّتة
+    _r10_c["sha"] = (_r10_h.sha256(open("fm_forensics/rebuild/T_REBUILD_ADDENDUM_3.md", "rb").read()).hexdigest() == _R10.ADDENDUM3_SHA
+                     and _R10.addendum3_ok() and _R10.SCORE_MARGINS == ("m_rsi", "m_drop"))
+    # ② الهامشان: بلا سقف · وامتدادُ المسافة على جهة السقوط · ونفسُ حرّاس الغياب
+    _h10 = [10.0] * 300
+    _c10 = [3.0] * 300
+    _r10s = [50.0] * 300
+    _mv = []
+    for _x in (32.99, 37.125, 41.25, 5.0):
+        _r10s[199] = _x
+        _mv.append(round(_R10.base2_margin(_r10s, _c10, _h10, 200)[0], 6))
+    _r10s[199] = 20.0
+    for _cx in (3.0, 3.875, 4.75, 1.25):                             # هبوط 70 · 61.25 · 52.5 · 87.5
+        _c10[199] = _cx
+        _mv.append(round(_R10.base2_margin(_r10s, _c10, _h10, 200)[1], 6))
+    _ext = []
+    for _x in (34.0, 37.125, 40.0):
+        _r10s[199] = _x
+        _ext.append(abs(_R10.base2_margin(_r10s, _c10, _h10, 200)[0] - (_R10.base2_dist(_r10s, _c10, _h10, 200)[0] - 1.0)) < 1e-12)
+    _r10s[199] = float("nan")
+    _r10_c["margin"] = (_mv == [0.001212, -0.5, -1.0, 3.393939, 0.0, -0.5, -1.0, 1.0] and all(_ext)
+                        and _R10.base2_margin(_r10s, _c10, _h10, 200) == (None, None) and _R10.base2_margin(_r10s, _c10, _h10, 10) == (None, None))
+    # ③ موصولان: صفوفُ البِركة والدرجةُ المجمَّدة في TEST بالدالّة نفسِها
+    def _calls10(f):
+        return {getattr(n.func, "id", None) or getattr(n.func, "attr", None)
+                for n in _r10_ast.walk(_r10_ast.parse(_insp0.getsource(f))) if isinstance(n, _r10_ast.Call)}
+    _t10 = _r10_ast.parse(_insp0.getsource(_R10.test_symbol))
+    _mnames = [tuple(e.id for e in a.targets[0].elts) for a in _r10_ast.walk(_t10)
+               if isinstance(a, _r10_ast.Assign) and isinstance(a.value, _r10_ast.Call)
+               and getattr(a.value.func, "id", None) == "base2_margin" and isinstance(a.targets[0], _r10_ast.Tuple)]
+    _fargs = [tuple(getattr(x, "id", None) for x in c.args[1:3]) for c in _r10_ast.walk(_t10)
+              if isinstance(c, _r10_ast.Call) and getattr(c.func, "id", None) == "frozen_score"]
+    _r10_c["wired"] = ("base2_margin" in _calls10(_R10.pairs_symbol) and len(_mnames) == 1 and len(_fargs) == 1
+                       and _fargs[0] == _mnames[0])                  # مدخلا الدرجة في TEST هما الهامشان بالاسم
+    # ④ الدرجةُ على الهامشين: بِركةٌ مسافتاها مشبَّعتان (1) والهامشُ يتفاوت ⟵ θ تُبلَغ · وتجميدٌ يحمل بصمةَ الملحق 3
+    _ss10 = [f"2023-{2 + k // 20:02d}-{1 + k % 20:02d}" for k in range(60)]
+    _rows10, _ents10 = [], 0
+    for _s in range(30):
+        _md = _s / 10.0                                               # هامشُ الهبوط ثابتٌ للرمز
+        for _k, _d in enumerate(_ss10):
+            _ent = int(_k % 20 == 0)
+            _ents10 += _ent
+            _y = int((_s >= 18) == ((_k // 7) % 2 == 0)) if _s % 3 else int(_s >= 18)
+            _rows10.append([f"Z{_s}", _d, _y, _ent, 1.0, 1.0, 0, 0, 0, 0, _s % 5, _s % 4, 0.5, round(_md, 6)])
+    _bs10 = {"base": "BASE2", "stats": {"TRAIN": {"BASE2": {"entries": _ents10}}}}
+    _a10 = _try10(_R10.mode_pairs_assemble, shards=[{"nshards": 1, "rows": _rows10}], prep={"sessions": _ss10}, bases=_bs10, b=50)
+    _fz10 = _a10.get("freeze", {}) if isinstance(_a10, dict) else {}
+    _r10_c["theta"] = (_fz10.get("dropped_zero_sd") == ["m_rsi"] and _fz10.get("features") == ["m_drop"]   # m_rsi ثابتٌ ⟵ يُحذف ويُعلَن
+                       and _fz10.get("theta") is not None and _fz10["theta_search"]["rate"] <= _R10.THETA_RATE
+                       and _fz10.get("addendum3_sha") == _R10.ADDENDUM3_SHA and _fz10.get("sha") == _R10.freeze_sha(_fz10))
+    # ⑤ التجميدُ بلا بصمة الملحق 3 مرفوض · والأزواجُ ترفض 9 بلا الملحق 3 ببصمته
+    import tempfile as _r10_tmp
+    import json as _r10_json
+    _ok10 = []
+    with _r10_tmp.TemporaryDirectory() as _td:
+        for _mut, _want in (({}, True), ({"addendum3_sha": "x"}, False)):
+            _f = dict(_fz10, **_mut)
+            _f["sha"] = _R10.freeze_sha(_f)
+            with open(_td + "/fz.json", "w", encoding="utf-8") as _fh:
+                _r10_json.dump(_f, _fh)
+            _ok10.append((_R10.freeze_load(_td + "/fz.json") is not None) == _want)
+    _env10 = _r10_os.environ.get("REBUILD_MODE")
+    _s10 = _R10.ADDENDUM3_SHA
+    try:
+        _r10_os.environ["REBUILD_MODE"] = "pairs_assemble"
+        _R10.ADDENDUM3_SHA = "0" * 64
+        _rc10 = _try10(_R10.main)
+    finally:
+        _R10.ADDENDUM3_SHA = _s10
+        if _env10 is None:
+            _r10_os.environ.pop("REBUILD_MODE", None)
+        else:
+            _r10_os.environ["REBUILD_MODE"] = _env10
+    _r10_c["refuse"] = all(_ok10) and _rc10 == 9
+    # ⑥ المحاولةُ الأولى منشورةٌ كما صدرت: بصمتُها تُعاد من محتواها · θ فارغة · وأرقامُ §⓪ في الملحق منها
+    _j10 = _r10_json.load(open("fm_forensics/rebuild/data/pairs_2026-10-28_run1.json", encoding="utf-8"))
+    _p3 = _j10["pairs"]["cols"]["P3"]
+    _a3t = open("fm_forensics/rebuild/T_REBUILD_ADDENDUM_3.md", encoding="utf-8").read().split("## ①")[0]
+    _r10_c["run1"] = (_j10["run"] == 40758595999 and _j10["freeze"]["theta"] is None and _R10.freeze_sha(_j10["freeze"]) == _j10["freeze"]["sha"]
+                      and f"`{_j10['freeze']['sha'][:8]}…`" in _a3t and f"`{_j10['run']}`" in _a3t and _p3["verdict"] == "تضيف"
+                      and f"‏+{100 * _p3['diff']:.2f} نقطة [+{100 * _p3['diff_ci'][0]:.2f}، ‏+{100 * _p3['diff_ci'][1]:.2f}]" in _a3t
+                      and f"MH ‏{_p3['mh_rr']:.3f} [{_p3['mh_ci'][0]:.3f}، {_p3['mh_ci'][1]:.3f}]" in _a3t
+                      and f"عبء {_p3['burden']:.3f}" in _a3t and f"{_j10['freeze']['n_fit']:,} صفًّا" in _a3t
+                      and _j10["freeze"]["theta_search"]["why"] in _a3t)
+except Exception as _e:                                              # noqa: BLE001
+    _r10_c = {"⛔": False}
+    _v_r10w = f"⛔ رمى: {type(_e).__name__}: {_e}"
+_v_r10 = bool(_r10_c) and all(_r10_c.values())
+if "⛔" not in _r10_c:
+    _v_r10w = f"{ {k: v for k, v in _r10_c.items() if not v} or 'كلّها'}"
+check("🧭 RBD10 (‏2026-10-28) الملحق 3: الهامشان بلا سقف وامتدادٌ للمسافة · موصولان في البِركة وTEST · الدرجةُ عليهما تبلغ θ حيث تعجز المسافةُ المشبَّعة "
+      "· والتجميدُ يحمل بصمةَ الملحق 3 · والأزواجُ ترفض 9 بغيرها", _v_r10, _v_r10w)
 
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
