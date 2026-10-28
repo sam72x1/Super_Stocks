@@ -952,18 +952,6 @@
   "date": "2026-10-28"
  },
  "LIQ:EMAT": {
-  "last_eval_ms": 1793220420000,
-  "rearm_n": 1,
-  "rearm_prev": {
-   "anchor_ms": 1793218500000,
-   "anchor_price": 1.7347,
-   "anchor_low": 1.7347,
-   "e5": null,
-   "exit_ms": 1793218560000
-  },
-  "tc_cum": 330419.880570665,
-  "tc_seen_ms": 1793219880000,
-  "date": "2026-10-28",
   "anchor_ms": 1793220420000,
   "last_ms": 1793220420000,
   "sent": [
@@ -972,11 +960,21 @@
   "updates": 0,
   "vol_x": 0.1,
   "peak_usd": 1056,
+  "last_eval_ms": 1793220420000,
   "pulse_ms": 1793220420000,
   "anchor_price": 1.72,
   "anchor_open": 1.72,
   "anchor_low": 1.72,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1793218500000,
+   "anchor_price": 1.7347,
+   "anchor_low": 1.7347,
+   "e5": null,
+   "exit_ms": 1793218560000
+  },
   "trig": "T-C",
+  "date": "2026-10-28",
   "pre_done": true,
   "pre_hi": 1.7347,
   "pre_usd": 211644,
@@ -5399,5 +5397,6 @@
  "INLF": "2026-10-28",
  "ATXG": "2026-10-28",
  "PRE:2026-10-28:AH": "2026-10-28T19:52:12.115171+00:00",
- "DWTX": "2026-10-28"
+ "DWTX": "2026-10-28",
+ "HAO": "2026-10-28"
 }
