@@ -88834,6 +88834,69 @@ except Exception as _e:                                              # noqa: BLE
 check("🗓️ NYD1 (‏2026-10-28) دِدوبُ «هنا الدخول» في المراقب بيومِ نيويورك (صيفًا وشتاءً) لا يومِ الرنر · "
       "و`_op_today` من `_ny_today` ويصل الكونَ والمسح (AST)", _v_nyd1, _v_nyd1w)
 
+
+# 📈 VWM2 (‏2026-10-28 · العقد `vwap_mom_prereg.md` §⑧): أداةُ الجدوى **عدٌّ بلا عائد** — دوالُّها النقيّة سلوكيًّا على بياناتٍ اصطناعيّة
+#    (VWAP بالسعر النموذجيّ · H = ‏3×5د أو 15د فوق VWAP · L يُقصي «شمعتين ثمّ هبوط» · أعلى 20 رابحًا بحدّ الحجم الدولاريّ · RSI وايلدر · الجلسةُ يومُ عملٍ لا سبت (`session_info` يُرجع السبتَ regular) ·
+#    اختلالُ الدفتر عند الحدّ · قاعدةُ الاختيار بالتكرار) ‏+ **لا اسمَ عائدٍ ولا خروجٍ في الملفّ** (AST) ‏+ الـworkflow يدويٌّ بلا كتابة.
+try:
+    import ast as _vf_ast
+    import vwap_mom_feas as _VF
+    _vf_src = open("vwap_mom_feas.py", encoding="utf-8").read()
+    _vf_names = {n.id for n in _vf_ast.walk(_vf_ast.parse(_vf_src)) if isinstance(n, _vf_ast.Name)} | \
+                {n.attr for n in _vf_ast.walk(_vf_ast.parse(_vf_src)) if isinstance(n, _vf_ast.Attribute)} | \
+                {a.arg for n in _vf_ast.walk(_vf_ast.parse(_vf_src)) if isinstance(n, _vf_ast.FunctionDef) for a in n.args.args}
+    _vf_forbid = {n for n in _vf_names if any(k in n.lower() for k in ("pnl", "ret_", "_ret", "exit_", "_exit", "peak", "outcome", "profit", "r_net"))}
+    _vf_vw = _VF.vwap_series([(570, 1, 12, 6, 6, 100), (571, 1, 10, 10, 10, 300)])          # (12+6+6)/3=8 والإغلاقُ 6 · ثمّ 10
+    _vf_bars = []
+    for _k in range(60):
+        _p = 10 - 0.02 * _k if _k < 20 else 9.6 + 0.03 * (_k - 20)
+        _vf_bars.append((570 + _k, _p, _p + 0.01, _p - 0.01, _p, 1000 * (1 + 3 * (_k >= 25))))
+    _w = _VF.vwap_series(_vf_bars)
+    _b5, _b15 = _VF.bucketize(_vf_bars, _w, 570, 5, 630), _VF.bucketize(_vf_bars, _w, 570, 15, 630)
+    _vf_only5 = _VF.first_signal(_b5, [], 570, need_liq=False)                                  # 3×5د: 595·600·605 ⟵ 610
+    _vf_l_bad = [{"dv": 1, "c": 1}] * 3 + [{"dv": 5, "c": 10}, {"dv": 5, "c": 11}, {"dv": 5, "c": 9.5}]
+    _vf_l_good = [{"dv": 1, "c": 1}] * 3 + [{"dv": 5, "c": 10}, {"dv": 5, "c": 11}, {"dv": 5, "c": 11.5}]
+    _vf_l_flat = [{"dv": 5, "c": 1}] * 3 + [{"dv": 5, "c": 10}, {"dv": 5, "c": 11}, {"dv": 5, "c": 11.5}]
+    _vf_g = _VF.gainer_entries({600: [("A", 11, 2e6), ("B", 20, 3e6), ("C", 5, 1e5)], 601: [("C", 9, 5e6)]},
+                               {"A": 10, "B": 10, "C": 4}, 1e6, 1.0, [(570, 960)], top_n=2)
+    _vf_px = _VF.gainer_entries({600: [("D", 0.9, 5e6)], 601: [("D", 1.2, 1)]}, {"D": 0.5}, 1e6, 1.0, [(570, 960)])
+    import market_calendar as _vf_mc
+    _vf_main = next(n for n in _vf_ast.walk(_vf_ast.parse(_vf_src)) if isinstance(n, _vf_ast.FunctionDef) and n.name == "main")
+    _vf_is = sum(1 for n in _vf_ast.walk(_vf_main) if isinstance(n, _vf_ast.Call) and getattr(n.func, "id", None) == "is_session")
+    _vf_raw = sum(1 for n in _vf_ast.walk(_vf_main) if isinstance(n, _vf_ast.Compare)
+                  and "get('open_ny_min')" in _vf_ast.unparse(n))         # «فحصُ العطلة وحدَه» بلا يوم الأسبوع
+    import yaml as _vf_yaml
+    _vf_wf = _vf_yaml.safe_load(open(".github/workflows/vwap_mom_feas.yml", encoding="utf-8"))
+    _vf_on = _vf_wf.get("on") or _vf_wf.get(True) or {}
+    _vf_run = " ".join(str(s.get("run", "")) for j in (_vf_wf.get("jobs") or {}).values() for s in j.get("steps") or [])
+    _vf_c = {
+        "no_outcome_names": not _vf_forbid,
+        "vwap_typical": [round(x, 6) for x in _vf_vw] == [8.0, round((8 * 100 + 10 * 300) / 400, 6)],
+        "hold_5x3": _vf_only5 == (610, "5x3"),
+        "hold_15": _VF.first_signal(_b5, _b15, 570, need_liq=False) == (600, "15x1"),
+        "liq": (not _VF.liq_ok(_vf_l_bad, 5)) and _VF.liq_ok(_vf_l_good, 5) and not _VF.liq_ok(_vf_l_flat, 5),
+        "gainers": _vf_g == {"A": 600, "B": 600, "C": 601},
+        "px_dynamic": _vf_px == {"D": 601},
+        "sessions": (not _VF.is_session("2026-09-05", _vf_mc.session_info)) and (not _VF.is_session("2026-09-06", _vf_mc.session_info))
+                    and (not _VF.is_session("2026-09-07", _vf_mc.session_info)) and _VF.is_session("2026-09-08", _vf_mc.session_info)
+                    and _vf_is >= 5 and _vf_raw == 0,
+        "rsi": _VF.rsi14([10 - 0.1 * i for i in range(20)]) == 0.0 and _VF.rsi14(list(range(1, 20))) == 100.0
+               and _VF.rsi14([1.0] * 14) is None
+               and round(_VF.rsi14(list(range(1, 16)) + [8]), 6) == 65.0,            # وايلدر: (13/14)÷(7/14) ⟵ 65 (المتوسّطُ البسيط يعطي 12.5)
+        "book": _VF.book_signal([(1, 100, 50), (2, 60, 6), (3, 10, 0)], 10) == 2 and _VF.book_signal([(1, 59, 6)], 10) is None,
+        "pick": _VF.pick_rule({5: 50, 10: 20, 20: 8}, (5, 10, 20), 5, 30) == 10 and _VF.pick_rule({5: 50}, (5,), 5, 30) is None,
+        "ladders": _VF.D_LADDER == (250_000, 500_000, 1_000_000, 2_000_000, 5_000_000) and _VF.E_LADDER == (5, 10, 20, 50)
+                   and _VF.TOP_N == 20 and _VF.D_RULE == (10, 40) and _VF.E_RULE == (5, 30),
+        "wf_manual_readonly": list(_vf_on.keys()) == ["workflow_dispatch"]
+                              and (_vf_wf.get("permissions") or {}) == {"contents": "read"}
+                              and "git push" not in _vf_run and "vwap_mom_feas.py" in _vf_run,
+    }
+    _v_vf2, _v_vf2w = all(_vf_c.values()), f"{_vf_c} · ممنوع={sorted(_vf_forbid)[:5]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_vf2, _v_vf2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈 VWM2 (‏2026-10-28) جدوى `T-VWAP-MOM` عدٌّ بلا عائد: VWAP · الثبات · السيولة · أعلى 20 · RSI · الدفتر · قاعدةُ الاختيار "
+      "سلوكيًّا · والسبتُ ليس جلسة · ولا اسمَ عائدٍ في الملفّ · والـworkflow يدويٌّ قارئ", _v_vf2, _v_vf2w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

@@ -1,0 +1,41 @@
+name: "📈🔎 جدوى زخم الفيواب T-VWAP-MOM (عدٌّ بلا عائد · يدويّ)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا عائدَ يُحسب (العقد `vwap_mom_prereg.md` §⑧ · قفلُ VWM2).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      month:
+        description: "الشهرُ YYYY-MM (العقد: 2026-09)"
+        default: "2026-09"
+
+jobs:
+  vwm-feas:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Show aws CLI version (إثباتُ توفّره لا افتراضُه)
+        run: aws --version
+
+      - name: 📈 الجدوى
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          VWM_MONTH: ${{ github.event.inputs.month }}
+          PYTHONUNBUFFERED: "1"
+        run: python vwap_mom_feas.py
