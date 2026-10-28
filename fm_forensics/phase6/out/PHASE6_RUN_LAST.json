@@ -1,39 +1,15 @@
 {
- "run_id": "40473041300",
+ "run_id": "40652395902",
  "result": {
   "done": [
-   "FUBO",
-   "FULC",
-   "GCTK",
-   "GRI",
-   "GWAV",
-   "HAO",
-   "HCAI",
-   "HCWB",
-   "HUBC",
-   "HWH",
-   "IMCC",
-   "IPDN",
-   "JAGX",
-   "JEM",
-   "KWM",
-   "LABT",
-   "LIMN",
-   "LNAI",
-   "MI",
-   "MNDR",
-   "MSGY",
-   "MTEX",
-   "NAMM",
-   "NCT",
-   "NRSN",
-   "ADIL",
-   "ADVB",
-   "AMIX",
-   "ATPC",
-   "BETA",
-   "BNAI",
-   "BRTX",
+   "AEHL",
+   "ANPA",
+   "BKYI",
+   "CYCU",
+   "FBGL",
+   "GMEX",
+   "ICMB",
+   "NTCL",
    "NUWE",
    "NXTT",
    "OMH",
@@ -56,6 +32,7 @@
    "SPPL",
    "SPRC",
    "STKH",
+   "SUGP",
    "SVRE",
    "SXTC",
    "TRUG",
@@ -90,52 +67,84 @@
    "XCUR",
    "YMT",
    "ZCMD",
-   "ZNB"
+   "ZNB",
+   "ADIL",
+   "ADVB",
+   "AMIX",
+   "ATPC",
+   "BETA",
+   "BNAI",
+   "BRTX",
+   "FUBO",
+   "FULC",
+   "GCTK",
+   "GRI",
+   "GWAV",
+   "HAO",
+   "HCAI",
+   "HCWB",
+   "HUBC",
+   "HWH",
+   "IMCC",
+   "IPDN",
+   "JAGX",
+   "JEM",
+   "KWM",
+   "LABT",
+   "LIMN",
+   "LNAI",
+   "MI",
+   "MNDR",
+   "MSGY",
+   "MTEX",
+   "NAMM",
+   "NCT",
+   "NRSN"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "ASBP",
-    "BBLG",
-    "BGDE",
-    "BTQ",
-    "FGL",
-    "IDN",
-    "INTJ",
-    "MBIO",
-    "NTHI",
-    "WYHG",
-    "LHAI",
-    "BIRD",
-    "GRNQ",
-    "PLSM",
-    "AHMA",
-    "LYEL"
+    "ACON",
+    "ALMS",
+    "BLDP",
+    "BNKK",
+    "CPOP",
+    "GOW",
+    "IBG",
+    "IVF",
+    "METC",
+    "MTEN",
+    "OIO",
+    "TGHL",
+    "UONE",
+    "XNDU",
+    "ZSQR",
+    "DUO"
    ],
    "skipped": [],
    "calendar_error": "",
    "ce_used": 16,
-   "pool_date": "2026-10-08",
-   "pool_n": 395,
+   "pool_date": "2026-10-28",
+   "pool_n": 433,
    "status": "OK"
   }
  },
  "audit": {
-  "rows": 1146,
+  "rows": 2154,
   "by_status": {
-   "OK": 834,
-   "UNKNOWN": 185,
-   "FAILED": 8,
-   "NOT_ATTEMPTED": 119
+   "OK": 1802,
+   "UNKNOWN": 211,
+   "NOT_ATTEMPTED": 137,
+   "FAILED": 4
   },
   "by_category": {
-   "1": 484,
-   "2": 350,
-   "4": 312
+   "1": 520,
+   "2": 1282,
+   "4": 352
   },
-  "tickers": 105,
+  "tickers": 114,
   "chain_problems": []
  },
  "missing": [
@@ -158,11 +167,6 @@
    "ADVB",
    "reverse_split",
    "yahoo_splits"
-  ],
-  [
-   "AHMA",
-   "short_interest",
-   "yahoo_info"
   ],
   [
    "AMIX",
@@ -190,16 +194,6 @@
    "yahoo_info"
   ],
   [
-   "BIRD",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "BIRD",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "BNAI",
    "short_interest",
    "yahoo_info"
@@ -346,6 +340,16 @@
   ],
   [
    "DSY",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "DUO",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "DUO",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -472,6 +476,11 @@
   [
    "GCTK",
    "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "GCTK",
+   "reverse_split",
    "nasdaq_calendar"
   ],
   [
@@ -481,16 +490,6 @@
   ],
   [
    "GRI",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "GRNQ",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "GRNQ",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -620,11 +619,6 @@
    "yahoo_splits"
   ],
   [
-   "LHAI",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
    "LIMN",
    "short_interest",
    "yahoo_info"
@@ -641,16 +635,6 @@
   ],
   [
    "LNAI",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "LYEL",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "LYEL",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -735,6 +719,16 @@
    "yahoo_info"
   ],
   [
+   "NUWE",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "NUWE",
+   "reverse_split",
+   "nasdaq_calendar"
+  ],
+  [
    "NXTT",
    "short_interest",
    "yahoo_info"
@@ -783,11 +777,6 @@
    "PIII",
    "reverse_split",
    "yahoo_splits"
-  ],
-  [
-   "PLSM",
-   "short_interest",
-   "yahoo_info"
   ],
   [
    "PPBT",
@@ -803,6 +792,11 @@
    "PPCB",
    "short_interest",
    "yahoo_info"
+  ],
+  [
+   "PPCB",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "PPCB",
@@ -935,6 +929,21 @@
    "yahoo_splits"
   ],
   [
+   "SUGP",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "SUGP",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "SUGP",
+   "reverse_split",
+   "nasdaq_calendar"
+  ],
+  [
    "SVRE",
    "short_interest",
    "yahoo_info"
@@ -948,6 +957,11 @@
    "SXTC",
    "short_interest",
    "yahoo_info"
+  ],
+  [
+   "SXTC",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "SXTC",

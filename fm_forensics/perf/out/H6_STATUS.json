@@ -1,15 +1,64 @@
 {
  "contract_sha256": "a6f68f745cba189223b1f8258e733dc5e1e538382dfe6533307092d8e942c7ed",
- "today": "2026-10-27",
+ "today": "2026-10-28",
  "cutoff": "2026-10-09",
  "window_end": "2027-04-09",
  "floor": 15,
- "candidates": 3,
+ "candidates": 8,
  "by_status": {
-  "HISTORICAL": 3
+  "HISTORICAL": 3,
+  "REPEAT": 1,
+  "NOT_COVERED": 1,
+  "ELIGIBLE": 3
  },
- "eligible": 0,
- "units": [],
+ "eligible": 3,
+ "units": [
+  {
+   "case_id": "CASE_0006",
+   "ticker": "BKYI",
+   "T": "2026-10-22",
+   "C": "2026-10-28",
+   "lag": 4,
+   "sample": "PRIMARY",
+   "controls": [
+    "CPOP",
+    "XNDU",
+    "OIO",
+    "ACON"
+   ],
+   "panel_day": "2026-10-28"
+  },
+  {
+   "case_id": "CASE_0004",
+   "ticker": "CYCU",
+   "T": "2026-10-23",
+   "C": "2026-10-28",
+   "lag": 3,
+   "sample": "SECONDARY",
+   "controls": [
+    "CPOP",
+    "XNDU",
+    "OIO",
+    "ACON"
+   ],
+   "panel_day": "2026-10-28"
+  },
+  {
+   "case_id": "CASE_0005",
+   "ticker": "ICMB",
+   "T": "2026-10-24",
+   "C": "2026-10-28",
+   "lag": 3,
+   "sample": "SECONDARY",
+   "controls": [
+    "CPOP",
+    "XNDU",
+    "OIO",
+    "ACON"
+   ],
+   "panel_day": "2026-10-28"
+  }
+ ],
  "items": [
   {
    "case_id": "CASE_0001",
@@ -34,85 +83,111 @@
    "status": "HISTORICAL",
    "code": "before_cutoff",
    "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0008",
+   "ticker": "NCT",
+   "T": "2026-10-10",
+   "status": "REPEAT",
+   "code": "E4:repeat_of_2026-10-07",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0007",
+   "ticker": "ANPA",
+   "T": "2026-10-14",
+   "status": "NOT_COVERED",
+   "code": "E5:no_collection_within_5_sessions",
+   "sample": "PRIMARY"
+  },
+  {
+   "case_id": "CASE_0006",
+   "ticker": "BKYI",
+   "T": "2026-10-22",
+   "status": "ELIGIBLE",
+   "code": "",
+   "sample": "PRIMARY"
+  },
+  {
+   "case_id": "CASE_0004",
+   "ticker": "CYCU",
+   "T": "2026-10-23",
+   "status": "ELIGIBLE",
+   "code": "",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0005",
+   "ticker": "ICMB",
+   "T": "2026-10-24",
+   "status": "ELIGIBLE",
+   "code": "",
+   "sample": "SECONDARY"
   }
  ],
- "coverage_failures": 0,
- "coverage_failure_share": 0.0,
+ "coverage_failures": 1,
+ "coverage_failure_share": 0.25,
  "lag_sessions": {
-  "n": 0,
-  "median": null,
-  "max": null
+  "n": 3,
+  "median": 3,
+  "max": 4
  },
  "families": {
   "A_float": {
-   "units_with_value": 0,
-   "units": 0,
-   "controls_with_value": 0,
-   "controls": 0,
-   "coverage_units": 0.0,
-   "coverage_controls": 0.0,
+   "units_with_value": 3,
+   "units": 3,
+   "controls_with_value": 12,
+   "controls": 12,
+   "coverage_units": 1.0,
+   "coverage_controls": 1.0,
    "testable": false
   },
   "B_offering": {
-   "units_with_value": 0,
-   "units": 0,
-   "controls_with_value": 0,
-   "controls": 0,
-   "coverage_units": 0.0,
-   "coverage_controls": 0.0,
+   "units_with_value": 3,
+   "units": 3,
+   "controls_with_value": 12,
+   "controls": 12,
+   "coverage_units": 1.0,
+   "coverage_controls": 1.0,
    "testable": false
   },
   "C_borrow": {
-   "units_with_value": 0,
-   "units": 0,
-   "controls_with_value": 0,
-   "controls": 0,
-   "coverage_units": 0.0,
-   "coverage_controls": 0.0,
+   "units_with_value": 3,
+   "units": 3,
+   "controls_with_value": 12,
+   "controls": 12,
+   "coverage_units": 1.0,
+   "coverage_controls": 1.0,
    "testable": false
   },
   "D_split": {
-   "units_with_value": 0,
-   "units": 0,
-   "controls_with_value": 0,
-   "controls": 0,
-   "coverage_units": 0.0,
-   "coverage_controls": 0.0,
+   "units_with_value": 2,
+   "units": 3,
+   "controls_with_value": 9,
+   "controls": 12,
+   "coverage_units": 0.6667,
+   "coverage_controls": 0.75,
    "testable": false
   }
  },
  "any_testable": false,
  "panel": {
-  "days": 13,
+  "days": 14,
   "first": "2026-10-09",
-  "last": "2026-10-27",
+  "last": "2026-10-28",
   "no_pool_days": 0,
   "k": 16,
-  "pool_date_last": "2026-10-08",
-  "pool_obs_last": "2026-10-27",
-  "pool_lag_entries_last": 13,
-  "pool_newer_entries": [
-   "2026-10-09",
-   "2026-10-10",
-   "2026-10-13",
-   "2026-10-14",
-   "2026-10-15",
-   "2026-10-16",
-   "2026-10-17",
-   "2026-10-20",
-   "2026-10-21",
-   "2026-10-22",
-   "2026-10-23",
-   "2026-10-24",
-   "2026-10-27"
-  ]
+  "pool_date_last": "2026-10-28",
+  "pool_obs_last": "2026-10-28",
+  "pool_lag_entries_last": 0,
+  "pool_newer_entries": []
  },
- "cases_after_cutoff": 0,
+ "cases_after_cutoff": 5,
  "inputs": {
-  "last_photo": "2026-10-08",
-  "sessions_since_last_photo": 13
+  "last_photo": "2026-10-27",
+  "sessions_since_last_photo": 1
  },
- "ledger_rows": 48979,
+ "ledger_rows": 51133,
  "floor_reached": false,
  "window_closed": false
 }
