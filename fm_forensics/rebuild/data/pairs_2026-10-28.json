@@ -1,0 +1,147 @@
+{
+ "mode": "pairs_assemble",
+ "base": "BASE2",
+ "shards": 20,
+ "pool_rows": 180359,
+ "entries": 3267,
+ "entries_expected": 3267,
+ "match": true,
+ "train_sessions": 311,
+ "pairs": {
+  "m": 4,
+  "z": 2.4977,
+  "units": 3267,
+  "labelled": 3190,
+  "exploded": 538,
+  "base_share": 0.1687,
+  "symbols": 1491,
+  "strata": 225,
+  "cols": {
+   "P1": {
+    "pass": 6,
+    "pass_labelled": 6,
+    "exploded_pass": 1,
+    "share_pass": 0.1667,
+    "diff": -0.002,
+    "diff_ci": [
+     -0.4146,
+     0.4106
+    ],
+    "mh_rr": 0.992,
+    "mh_ci": [
+     0.306,
+     3.222
+    ],
+    "burden": 0.019,
+    "verdict": "لا تفرّق",
+    "boot_nan": 749
+   },
+   "P1p": {
+    "pass": 586,
+    "pass_labelled": 568,
+    "exploded_pass": 85,
+    "share_pass": 0.1496,
+    "diff": -0.019,
+    "diff_ci": [
+     -0.0534,
+     0.0154
+    ],
+    "mh_rr": 0.915,
+    "mh_ci": [
+     0.692,
+     1.211
+    ],
+    "burden": 1.884,
+    "verdict": "لا تفرّق",
+    "boot_nan": 0
+   },
+   "P2": {
+    "pass": 11,
+    "pass_labelled": 10,
+    "exploded_pass": 2,
+    "share_pass": 0.2,
+    "diff": 0.0313,
+    "diff_ci": [
+     -0.3021,
+     0.3648
+    ],
+    "mh_rr": 1.525,
+    "mh_ci": [
+     0.337,
+     6.907
+    ],
+    "burden": 0.035,
+    "verdict": "لا تفرّق",
+    "boot_nan": 286
+   },
+   "P3": {
+    "pass": 431,
+    "pass_labelled": 405,
+    "exploded_pass": 103,
+    "share_pass": 0.2543,
+    "diff": 0.0857,
+    "diff_ci": [
+     0.0384,
+     0.1329
+    ],
+    "mh_rr": 1.438,
+    "mh_ci": [
+     1.103,
+     1.875
+    ],
+    "burden": 1.386,
+    "verdict": "تضيف",
+    "boot_nan": 0
+   }
+  }
+ },
+ "p1_vs_p3": "P3",
+ "rsi20_words": "RSI ≤ 20 لم يضف شيئًا",
+ "freeze": {
+  "contract": "T_REBUILD_prereg.md",
+  "addendum_sha": "1f2902c0c0832c9c094e6b53e7c8a3346ff2a913d88d92be164ff4b99964d3e3",
+  "addendum3_sha": "0dc63cdb730cb16f4dfb5e9de5f58293a87424d232cbf714a6b032b53cd333d6",
+  "base": "BASE2",
+  "pairs_in": [
+   "P3"
+  ],
+  "features": [
+   "m_rsi",
+   "m_drop",
+   "I_P3"
+  ],
+  "dropped_zero_sd": [],
+  "mu": [
+   0.03618671050330463,
+   0.4727510273325858,
+   0.11231589861463318
+  ],
+  "sd": [
+   0.8195463153320213,
+   0.7929035899762368,
+   0.31575471102264235
+  ],
+  "w": [
+   0.07704851519995602,
+   0.5652743494389516,
+   0.0738771779342696
+  ],
+  "b": -1.7494533067169076,
+  "lambda": 1.0,
+  "iters": 7,
+  "n_fit": 160102,
+  "theta": 0.35451721317730683,
+  "theta_search": {
+   "theta": 0.35451721317730683,
+   "rate": 0.5981,
+   "entries": 186,
+   "rate_prev": 0.6013,
+   "unique": 173193
+  },
+  "dist_s": 0.25,
+  "sha": "08d26658b8769edcab3fb46db1d5b086f35e85750a3db62d8d1c03c3e9b51cc2"
+ },
+ "seconds": 2.9,
+ "run": 40764757766,
+ "main_sha": "3b9119bd7d48d20c526ed28c7d99bceeff686d54"
+}

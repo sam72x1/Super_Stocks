@@ -88763,6 +88763,61 @@ if "⛔" not in _r10_c:
 check("🧭 RBD10 (‏2026-10-28) الملحق 3: الهامشان بلا سقف وامتدادٌ للمسافة · موصولان في البِركة وTEST · الدرجةُ عليهما تبلغ θ حيث تعجز المسافةُ المشبَّعة "
       "· والتجميدُ يحمل بصمةَ الملحق 3 · والأزواجُ ترفض 9 بغيرها", _v_r10, _v_r10w)
 
+# 🧭 RBD9 (‏2026-10-28 · `T-REBUILD` §⑨ ثمّ §⑧ · نتيجةُ الأزواج والتجميد): `T_REBUILD_pairs_result.md` **يطابق الـJSON المخزَّن** — صفوفُ الأزواج
+#    الأربعة تُعاد من الـJSON · والناجون = ما حكمُه «تضيف» = `pairs_in` في التجميد · ومدخلاتُ الدرجة = المسافتان ‏+ الناجون ناقصًا ما حُذف لانحرافه صفرًا ·
+#    وحكمُ الأزواج في الإعادة = المحاولةِ الأولى بت-بت (الملحق 3 §③) · وملفُّ التجميد يمرّ بـ`freeze_load` (البصمة · بصمةُ الملحق · θ) ويطابق تجميدَ الـJSON حرفًا · والمطابقةُ مع `bases` · ورقمُ التشغيلة · والمطفأُ يُطبع · ولا TEST.
+try:
+    import importlib.util as _r9_iu
+    import json as _r9_json
+    _r9_spec = _r9_iu.spec_from_file_location("t_rebuild_tool9", "fm_forensics/rebuild/rebuild.py")
+    _R9 = _r9_iu.module_from_spec(_r9_spec)
+    _r9_spec.loader.exec_module(_R9)
+    _r9_dir = "fm_forensics/rebuild/"
+    _r9_doc = open(_r9_dir + "T_REBUILD_pairs_result.md", encoding="utf-8").read()
+    _r9_j = _r9_json.load(open(_r9_dir + "data/pairs_2026-10-28.json", encoding="utf-8"))
+    _r9_b = _r9_json.load(open(_r9_dir + "data/bases_2026-10-28.json", encoding="utf-8"))
+    _r9_ps = _r9_j["pairs"]
+    _r9_names = {"P1": "P1 (زنادُ OWNER)", "P1p": "P1′ (أوّلُ قفزة وحدَها)", "P2": "P2 (الاستعادةُ فوق المستوى المختبَر)",
+                 "P3": "P3 (هبوطُ 20% بعد السبايك)"}
+
+    def _r9_pct(x):
+        return "—" if x is None else f"{100 * x:.1f}%"
+
+    def _r9_row(g):
+        c = _r9_ps["cols"][g]
+        dci = "—" if not c["diff_ci"] else f"[{100 * c['diff_ci'][0]:+.2f}، {100 * c['diff_ci'][1]:+.2f}] نقطة"
+        rci = "—" if not c["mh_ci"] else f"[{c['mh_ci'][0]:.3f}، {c['mh_ci'][1]:.3f}]"
+        diff = "—" if c["diff"] is None else f"{100 * c['diff']:+.2f}"
+        rr = "—" if c["mh_rr"] is None else f"{c['mh_rr']:.3f}"
+        return (f"| {_r9_names[g]} | {c['pass_labelled']:,} | {c['exploded_pass']:,} | {_r9_pct(c['share_pass'])} | {diff} {dci} | "
+                f"{rr} {rci} | {c['burden']} | **{c['verdict']}** |")
+    _r9_fz = _r9_j["freeze"]
+    _r9_surv = [g for g in _R9.PAIRS if _r9_ps["cols"][g]["verdict"] == "تضيف"]
+    _r9_feat = [f for f in list(_R9.SCORE_MARGINS) + [f"I_{g}" for g in _r9_surv] if f not in _r9_fz["dropped_zero_sd"]]
+    _r9_run1 = _r9_json.load(open(_r9_dir + "data/pairs_2026-10-28_run1.json", encoding="utf-8"))
+    _r9_ffile = _R9.freeze_load()
+    _r9_c = {
+        "rows": all(_r9_row(g) in _r9_doc for g in _R9.PAIRS),
+        "m4": _r9_ps["m"] == 4 and f"z = {_r9_ps['z']}" in _r9_doc,
+        "survivors": _r9_fz["pairs_in"] == _r9_surv and _r9_fz["features"] == _r9_feat,
+        "same_pairs": _r9_j["pairs"] == _r9_run1["pairs"] and _r9_j["pool_rows"] == _r9_run1["pool_rows"],   # الملحق 3 §③ بت-بت
+        "addendum3": _r9_fz["addendum3_sha"] == _R9.ADDENDUM3_SHA,
+        "freeze_file": _r9_ffile is not None and _r9_ffile == _r9_fz and _r9_fz["sha"] == _R9.freeze_sha(_r9_fz)
+                       and _r9_fz["addendum_sha"] == _R9.ADDENDUM_SHA and f"`{_r9_fz['sha']}`" in _r9_doc,
+        "theta": _r9_fz["theta"] is not None and _r9_fz["theta_search"]["rate"] <= _R9.THETA_RATE
+                 and f"{_r9_fz['theta']:.6f}" in _r9_doc,
+        "match": _r9_j["match"] is True and _r9_j["entries"] == _r9_b["stats"]["TRAIN"]["BASE2"]["entries"] == _r9_j["entries_expected"],
+        "run": f"**`{_r9_j['run']}`**" in _r9_doc,
+        "prod_off": ("## ⑥" in _r9_doc and all(k in _r9_doc.split("## ⑥")[1] for k in ("M8_GAP_REQUIRED", "STABILITY_MAX", "NEAR_READINESS",
+                                                                                     "PIVOT_SWEEP_PCT", "M13_SHORT", "**مطفأة**"))),
+        "no_test": "**ولا TEST**" in _r9_doc.split("## ⓪")[0] and "TEST" not in _r9_j,
+    }
+    _v_r9, _v_r9w = all(_r9_c.values()), f"{ {k: v for k, v in _r9_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r9, _v_r9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD9 (‏2026-10-28) نتيجةُ الأزواج §⑨ والتجميد §⑧ تطابق الـJSON: الصفوفُ الأربعة · m = 4 · الناجون = pairs_in · المدخلات · ملفُّ التجميد يمرّ "
+      "بـfreeze_load ويطابق حرفًا · θ وعبؤه · المطابقةُ مع bases · ورقمُ التشغيلة · والمطفأُ يُطبع · ولا TEST", _v_r9, _v_r9w)
+
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
