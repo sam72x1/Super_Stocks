@@ -1,13 +1,11 @@
-"""📈🔎 جدوى `T-VWAP-MOM` — «زخم الفيواب» (العقد `vwap_mom_prereg.md` §⑧ · مدموجٌ قبل أيّ رقم).
+"""📈🔎 جدوى `T-VWAP-MOM` — «زخم الفيواب» (العقد `vwap_mom_prereg.md` §⑧ ‏+ **الملحق 1** `vwap_mom_prereg_addendum_1.md` · كلاهما قبل أيّ عائد).
 
 **عدٌّ لا عائد:** لا يحسب هذا الملفُّ R ولا عائدًا ولا قمّةً لاحقة — مقفولٌ في السويّة (`VWM2`).
-الأسئلة بترتيب العقد:
-  ① ملفّاتُ الدقيقة المجمَّعة (S3) مقروءةٌ الآن؟ كم يومًا متاحًا 2023-2025؟ وهل تحمل رموزًا غائبةً عن قائمة النشطة اليوم؟
-  ② لكلّ يومٍ من الشهر: كم رمزًا دخل U (أعلى 20 رابحًا لحظيًّا) عند كلّ `D_MIN` في السلّم ⟵ تثبيتُ `D_MIN` بقاعدة §③.
-  ③ كم رمزًا/يومًا يعبر H ثمّ H ∧ L (النظاميّة A · والممتدّة B) عند `D_MIN` المختار.
-  ④ تغطيةُ المحفّز C في Polygon news (عيّنةٌ مُعلَنة).
-  ⑤ كلفةُ E: مجتمعُ RSI دون 30 · ونداءاتُ `/v3/quotes` ليومٍ · والإشاراتُ/يوم عند كلّ `E_RATIO` ⟵ تثبيتُه بقاعدة §④.
-بلا تلغرام · بلا حالة · بلا كتابةٍ في المستودع. والمُخرَجُ سطرُ `VWMFEAS_JSON`.
+**v2 (الملحق 1):** H = **كسرٌ صاعدٌ للفيواب** (إغلاقُ 5 دقائق تحته ثمّ أوّلُ إغلاقٍ فوقه ثمّ 3 إغلاقاتٍ متتالية فوقه أو شمعة 15 دقيقة) ·
+والمجتمع = **أحداثُ الكسر على الكون كلّه** بسعرٍ ≥ `PX_MIN` وحجمٍ دولاريٍّ تراكميّ حتى لحظة الحدث ≥ درجةِ `D_MIN` · والذراع E محذوفةٌ بأمر المالك.
+الأسئلة: ① لكلّ يومٍ وكلّ درجة: أحداثُ A (النظاميّة) وB (الممتدّة) · H وH ∧ L ⟵ الوسيطُ/يوم مطبوعًا **قبل** أيّ اختيار ⟵ قاعدةُ §③.
+② تغطيةُ المحفّز C في Polygon news على عيّنةٍ مُعلَنة من أحداث A عند أدنى درجة.
+بلا تلغرام · بلا حالة · بلا كتابةٍ في المستودع. والمُخرَجُ سطرُ `VWMFEAS_JSON`. ونتيجةُ v1 (أعلى 20 رابحًا) في `vwap_mom_feas_result.md` ودوالُّها باقيةٌ للإعادة.
 """
 import csv
 import datetime as dt
@@ -24,19 +22,12 @@ from zoneinfo import ZoneInfo
 
 NY = ZoneInfo("America/New_York")
 MIN_PREFIX = "us_stocks_sip/minute_aggs_v1"
-DAY_PREFIX = "us_stocks_sip/day_aggs_v1"
 TOP_N = 20                                         # «Polygon snapshot gainers» — أعلى 20 (العقد §③)
 D_LADDER = (250_000, 500_000, 1_000_000, 2_000_000, 5_000_000)   # §③ — مكتوبٌ قبل الرقم
 D_RULE = (10, 40)                                  # وسيطُ المرشّحين الجدد/يوم بينهما
-E_LADDER = (5, 10, 20, 50)                         # §④
-E_RULE = (5, 30)
-RSI_MAX = 30.0
 EXT_START = 4 * 60                                 # 04:00 نيويورك
 EXT_END = 20 * 60                                  # 20:00 نيويورك
-PRE_END_E = 9 * 60 + 25                            # نافذةُ E: 04:00–09:25
 C_SAMPLE = 60
-E_DAYS_SAMPLE = 3
-E_SYMS_SAMPLE = 25
 
 
 def log(m=""):
@@ -130,28 +121,6 @@ def gainer_entries(minutes, prev_close, d_min, px_min, windows, top_n=TOP_N):
     return first
 
 
-def rsi14(closes):
-    """RSI14 بطريقة وايلدر على قائمة إغلاقات ⟵ آخرُ قيمة أو None (أقلّ من 15 إغلاقًا)."""
-    if len(closes) < 15:
-        return None
-    gains = [max(closes[i] - closes[i - 1], 0.0) for i in range(1, len(closes))]
-    losses = [max(closes[i - 1] - closes[i], 0.0) for i in range(1, len(closes))]
-    ag, al = sum(gains[:14]) / 14.0, sum(losses[:14]) / 14.0
-    for g, lo in zip(gains[14:], losses[14:]):
-        ag, al = (ag * 13 + g) / 14.0, (al * 13 + lo) / 14.0
-    if al == 0:
-        return 100.0
-    return 100.0 - 100.0 / (1.0 + ag / al)
-
-
-def book_signal(quotes, ratio):
-    """أوّلُ اقتباسٍ (ns, bid_size, ask_size) بنسبة طلب÷عرض ≥ ratio (والعرضُ موجب) ⟵ طابعُه أو None."""
-    for t, bs, as_ in quotes:
-        if as_ and as_ > 0 and bs is not None and bs / as_ >= ratio:
-            return t
-    return None
-
-
 def is_session(d, session_info):
     """جلسةٌ = يومُ عملٍ (الاثنين-الجمعة) ليس عطلة · `market_calendar.session_info` لا يفحص نهايةَ الأسبوع (يُرجع السبتَ «regular»)."""
     return dt.date.fromisoformat(d).weekday() < 5 and session_info(d).get("open_ny_min") is not None
@@ -188,6 +157,68 @@ def count_signals(mins, ent_reg, ent_ext, op, cl):
             else:
                 hlB += ok
     return hA, hlA, hB, hlB
+
+
+# ── v2: الكسرُ الصاعد للفيواب (الملحق 1) ─────────────────────────────────────
+def break_events(b5, b15, skip=None):
+    """أحداثُ الكسر الصاعد بترتيبها (الملحق 1 §②): شمعةُ 5 دقائق أُغلقت **تحت** VWAP ثمّ أوّلُ إغلاقٍ **فوقه** (شمعةُ الكسر k) ثمّ
+    (أ) إغلاقاتُ k+1 وk+2 وk+3 كلُّها فوقه ⟵ الحدثُ عند نهاية k+3 · **أو** (ب) أوّلُ شمعة 15 دقيقة تبدأ بعد نهاية k تُغلق فوقه وكلُّ
+    شموع الـ5 بين نهاية k وبدايتها فوقه ⟵ الحدثُ عند نهايتها · والأبكرُ منهما. ثمّ يلزم إغلاقٌ تحته من جديد لكسرٍ آخر.
+    `skip=(a, b)`: حدثٌ نهايتُه في (a، b] لا يُعدّ (الذراع B). ⟵ [(نهاية، النوع، فهرسُ الشمعة، k)]."""
+    out_ok = (lambda e: True) if skip is None else (lambda e: not (skip[0] < e <= skip[1]))
+    above = lambda b: b["vwap"] is not None and b["c"] > b["vwap"]          # noqa: E731
+    below_ = lambda b: b["vwap"] is not None and b["c"] < b["vwap"]         # noqa: E731
+    out, below, n = [], False, len(b5)
+    for k in range(n):
+        if below_(b5[k]):
+            below = True
+            continue
+        if not (below and above(b5[k])):
+            continue
+        below = False
+        cands = []
+        if k + 3 < n and all(above(b5[j]) for j in (k + 1, k + 2, k + 3)):
+            cands.append((b5[k + 3]["e"], "5x3", k + 3))
+        j15 = next((j for j in range(len(b15)) if b15[j]["s"] >= b5[k]["e"]), None)
+        if j15 is not None and above(b15[j15]) and all(above(b) for b in b5[k + 1:] if b5[k]["e"] <= b["s"] < b15[j15]["s"]):
+            cands.append((b15[j15]["e"], "15x1", j15))
+        if cands:
+            e, kind, idx = min(cands)
+            if out_ok(e):
+                out.append((e, kind, idx, k))
+    return out
+
+
+def event_liq(b5, b15, ev):
+    """L للحدث (العقد §② كما هو): لـ(أ) `liq_ok` على شمعة الإكمال · لـ(ب) `liq15_ok` على شمعة الـ15."""
+    e, kind, idx, _k = ev
+    return liq_ok(b5, idx) if kind == "5x3" else liq15_ok(b15, idx)
+
+
+def cum_dollar_at(bars, end_mod):
+    """الحجمُ الدولاريُّ التراكميّ من 04:00 لدقائقَ قبل `end_mod` (Σ إغلاق × حجم)."""
+    return sum(c * v for m, _o, _h, _l, c, v in bars if EXT_START <= m < end_mod)
+
+
+def day_events(bars, op, cl, d_ladder, px_min):
+    """لرمزٍ في يوم: لكلّ درجةٍ ولكلّ ذراع — أوّلُ حدثٍ مؤهَّل (سعرُ إغلاق الإكمال ≥ px_min وتراكمُ الدولار حتى نهايته ≥ الدرجة)
+    ⟵ {("A"|"B", d): {"H": (نهاية، النوع) أو None, "HL": … أو None}}. A: النظاميّة وVWAP من الافتتاح · B: 04:00-20:00 وVWAP من 04:00 خارج النظاميّة."""
+    out = {}
+    for arm, lo, hi, skip in (("A", op, cl, None), ("B", EXT_START, EXT_END, (op, cl))):
+        bb = [b for b in bars if lo <= b[0] < hi]
+        vw = vwap_series(bb)
+        b5, b15 = bucketize(bb, vw, lo, 5, hi), bucketize(bb, vw, lo, 15, hi)
+        evs = break_events(b5, b15, skip=skip)
+        info = []
+        for ev in evs:
+            px = b5[ev[2]]["c"] if ev[1] == "5x3" else b15[ev[2]]["c"]
+            info.append((ev, px, cum_dollar_at(bars, ev[0]), event_liq(b5, b15, ev)))
+        for d in d_ladder:
+            ok = [(ev, liq) for ev, px, cum, liq in info if px >= px_min and cum >= d]
+            h = ok[0][0] if ok else None
+            hl = next((ev for ev, liq in ok if liq), None)
+            out[(arm, d)] = {"H": (h[0], h[1]) if h else None, "HL": (hl[0], hl[1]) if hl else None}
+    return out
 
 
 # ── الشبكة (رنر فقط) ──────────────────────────────────────────────────────────
@@ -241,20 +272,6 @@ def _read_minutes(path):
     return out
 
 
-def _read_day_closes(path):
-    out = {}
-    with gzip.open(path, "rt") as fh:
-        rd = csv.reader(fh)
-        hd = [h.strip().lower() for h in next(rd)]
-        it, ic = hd.index("ticker"), hd.index("close")
-        for r in rd:
-            try:
-                out[r[it].strip().upper()] = float(r[ic])
-            except (ValueError, IndexError):
-                continue
-    return out
-
-
 def _poly(path, key, params=None, tries=3):
     import requests
     p = dict(params or {})
@@ -302,61 +319,13 @@ def main():
         log("⛔ لا مفتاح Polygon")
         return 2
     t0 = time.time()
-    res = {"month": month, "px_min": PX_MIN, "d_ladder": D_LADDER, "e_ladder": E_LADDER}
+    res = {"version": "v2-addendum-1", "month": month, "px_min": PX_MIN, "d_ladder": D_LADDER, "d_rule": D_RULE}
     y, mo = int(month[:4]), int(month[5:7])
     days = [d.isoformat() for d in (dt.date(y, mo, 1) + dt.timedelta(k) for k in range(31))
             if d.month == mo and is_session(d.isoformat(), MC.session_info)]
-    # الجلسةُ السابقة لأوّل يوم (لإغلاقٍ سابق)
-    p = dt.date.fromisoformat(days[0]) - dt.timedelta(1)
-    while not is_session(p.isoformat(), MC.session_info):
-        p -= dt.timedelta(1)
-    prev_day = p.isoformat()
-    log(f"📅 {month}: {len(days)} جلسة · السابقة {prev_day} · PX_MIN={PX_MIN}")
-
-    # ① التوفّر 2023-2025 (head-object على كلّ جلسة) ‏+ الرموزُ المشطوبة
-    from concurrent.futures import ThreadPoolExecutor
-    avail = {}
-    for yy in (2023, 2024, 2025):
-        sess = []
-        d = dt.date(yy, 1, 1)
-        while d.year == yy:
-            if is_session(d.isoformat(), MC.session_info):
-                sess.append(d.isoformat())
-            d += dt.timedelta(1)
-        with ThreadPoolExecutor(8) as ex:
-            got = list(ex.map(lambda x: _head(FP, _key(MIN_PREFIX, x)), sess))
-        miss = [x for x, g in zip(sess, got) if g is None]
-        avail[yy] = {"sessions": len(sess), "files": len(sess) - len(miss), "missing": miss[:20]}
-        log(f"① {yy}: ملفّاتُ الدقيقة {len(sess) - len(miss)} من {len(sess)} جلسة" + (f" · الغائب {miss[:6]}" if miss else ""))
-    res["availability"] = avail
-    tmp = tempfile.mkdtemp(prefix="vwm_")
-    sample_day = "2023-03-01"
-    act, act_calls = _paged(_poly("/v3/reference/tickers", key, {"market": "stocks", "active": "true", "limit": 1000}) or {}, key)
-    active = {str(r.get("ticker", "")).upper() for r in act}
-    okd, _ = _download(FP, _key(MIN_PREFIX, sample_day), os.path.join(tmp, "s.csv.gz"))
-    if okd and active:
-        syms = set(_read_minutes(os.path.join(tmp, "s.csv.gz")))
-        gone = sorted(syms - active)
-        res["delisted_check"] = {"day": sample_day, "tickers_in_file": len(syms), "active_now": len(active),
-                                 "not_active_now": len(gone), "examples": gone[:15], "active_calls": act_calls}
-        log(f"① {sample_day}: رموزُ الملفّ {len(syms)} · غيرُ نشطةٍ اليوم {len(gone)} (أمثلة: {gone[:8]})")
-        os.remove(os.path.join(tmp, "s.csv.gz"))
-    else:
-        res["delisted_check"] = {"day": sample_day, "error": "download or active list failed", "active_now": len(active)}
-
-    # ② ③ اليومُ بيومه
-    okp, _ = _download(FP, _key(MIN_PREFIX, prev_day), os.path.join(tmp, "p.csv.gz"))
-    if not okp:
-        log("⛔ تعذّر ملفُّ الجلسة السابقة — لا ②")
-        print("VWMFEAS_JSON " + json.dumps(res, ensure_ascii=False))
-        return 3
-    pm = _read_minutes(os.path.join(tmp, "p.csv.gz"))
-    pinfo = MC.session_info(prev_day)
-    prev_close = {s: next((b[4] for b in reversed(v) if pinfo["open_ny_min"] <= b[0] < pinfo["close_ny_min"]), None)
-                  for s, v in pm.items()}
-    prev_close = {s: c for s, c in prev_close.items() if c}
-    per_day = {}
-    c_pool = {}
+    log(f"📅 {month}: {len(days)} جلسة · PX_MIN={PX_MIN} · السلّم {D_LADDER} · القاعدة {D_RULE}")
+    tmp = tempfile.mkdtemp(prefix="vwm2_")
+    per_day, c_pool = {}, []
     for day in days:
         info = MC.session_info(day)
         op, cl = info["open_ny_min"], info["close_ny_min"]
@@ -367,54 +336,36 @@ def main():
             continue
         mins = _read_minutes(path)
         os.remove(path)
-        sp = _poly("/v3/reference/splits", key, {"execution_date": day, "limit": 1000}) or {}
-        pc = dict(prev_close)
-        nsplit = 0
-        for r in sp.get("results") or []:
-            s = str(r.get("ticker", "")).upper()
-            f, t = r.get("split_from"), r.get("split_to")
-            if s in pc and f and t:
-                pc[s] = pc[s] * float(f) / float(t)
-                nsplit += 1
-        bymin = {}
-        for s, v in mins.items():
-            for m, o, h, l, c, vol in v:
-                if EXT_START <= m < EXT_END:
-                    bymin.setdefault(m, []).append((s, c, c * vol))
-        reg_w, ext_w = [(op, cl)], [(EXT_START, op), (cl, EXT_END)]
-        row = {"splits_adjusted": nsplit, "symbols": len(mins)}
-        for d_min in D_LADDER:
-            ent_reg = gainer_entries(bymin, pc, d_min, PX_MIN, reg_w)
-            ent_ext = gainer_entries(bymin, pc, d_min, PX_MIN, ext_w)
-            row[f"U_reg@{d_min}"] = len(ent_reg)
-            hA, hlA, hB, hlB = count_signals(mins, ent_reg, ent_ext, op, cl)
-            row[f"A@{d_min}"] = {"U": len(ent_reg), "H": hA, "HL": hlA}
-            row[f"B@{d_min}"] = {"U": len(ent_ext), "H": hB, "HL": hlB}
-            c_pool.setdefault(d_min, []).extend((day, s_, m_) for s_, m_ in ent_reg.items())
+        row = {"symbols": len(mins)}
+        cnt = {(arm, d, k): 0 for arm in "AB" for d in D_LADDER for k in ("H", "HL")}
+        for sym, bars in mins.items():
+            ev = day_events(bars, op, cl, D_LADDER, PX_MIN)
+            for (arm, d), v in ev.items():
+                cnt[(arm, d, "H")] += v["H"] is not None
+                cnt[(arm, d, "HL")] += v["HL"] is not None
+            a0 = ev[("A", D_LADDER[0])]["H"]
+            if a0 is not None:
+                c_pool.append((day, sym, a0[0]))
+        for arm in "AB":
+            for d in D_LADDER:
+                row[f"{arm}@{d}"] = {"H": cnt[(arm, d, "H")], "HL": cnt[(arm, d, "HL")]}
         per_day[day] = row
-        log(f"② {day}: " + " · ".join(f"{d // 1000}k U={row[f'U_reg@{d}']} H∧L={row[f'A@{d}']['HL']}" for d in D_LADDER)
-            + f" · تقسيمات {nsplit}")
-        # الإغلاقُ السابق لليوم التالي = آخرُ دقيقةٍ نظاميّة اليوم
-        prev_close = {s: next((b[4] for b in reversed(v) if op <= b[0] < cl), None) for s, v in mins.items()}
-        prev_close = {s: c for s, c in prev_close.items() if c}
-        del mins, bymin
-    meds = {d: st.median([per_day[x][f"U_reg@{d}"] for x in per_day if f"U_reg@{d}" in per_day[x]] or [0]) for d in D_LADDER}
-    d_pick = pick_rule(meds, D_LADDER, *D_RULE)
-    res["U_median_by_dmin"] = meds
-    res["D_MIN_pick"] = d_pick
-    log(f"② وسيطُ المرشّحين الجدد/يوم: {meds} ⟵ D_MIN = {d_pick}")
-    # ③ H و H∧L عند D_MIN المختار (A نظاميّة · B ممتدّة) — من العدّ اليوميّ أعلاه
-    if d_pick is not None:
-        for arm in ("A", "B"):
-            vals = [per_day[x][f"{arm}@{d_pick}"] for x in per_day if f"{arm}@{d_pick}" in per_day[x]]
-            res[f"{arm}_daily_median"] = {k: st.median([v[k] for v in vals]) for k in ("U", "H", "HL")} if vals else None
-            res[f"{arm}_month_total"] = {k: sum(v[k] for v in vals) for k in ("U", "H", "HL")} if vals else None
-            log(f"③ {arm} عند D_MIN={d_pick}: وسيطٌ/يوم {res[f'{arm}_daily_median']} · مجموعُ الشهر {res[f'{arm}_month_total']}")
+        log(f"① {day}: " + " · ".join(f"{d // 1000}k A={row[f'A@{d}']['H']}/{row[f'A@{d}']['HL']} B={row[f'B@{d}']['H']}/{row[f'B@{d}']['HL']}"
+                                      for d in D_LADDER) + f" · رموز {len(mins)}")
+        del mins
+    ok_days = [x for x in per_day if "error" not in per_day[x]]
+    med = {arm: {d: {k: st.median([per_day[x][f"{arm}@{d}"][k] for x in ok_days] or [0]) for k in ("H", "HL")} for d in D_LADDER}
+           for arm in "AB"}
+    res["median_by_dmin"] = med
+    log("① الوسيطُ/يوم قبل أيّ اختيار: " + " · ".join(f"{d // 1000}k A H={med['A'][d]['H']} HL={med['A'][d]['HL']} "
+                                                       f"B H={med['B'][d]['H']} HL={med['B'][d]['HL']}" for d in D_LADDER))
+    d_pick = pick_rule({d: med["A"][d]["H"] for d in D_LADDER}, D_LADDER, *D_RULE)
+    res["D_MIN_pick_by_rule"] = d_pick
+    log(f"① قاعدةُ §③ (وسيطُ أحداث A/يوم بين {D_RULE[0]} و{D_RULE[1]}) ⟵ D_MIN = {d_pick}")
     res["per_day"] = per_day
-    # ④ تغطيةُ C (عيّنةٌ مُعلَنة)
+    # ② تغطيةُ C (عيّنةٌ مُعلَنة من أحداث A عند أدنى درجة)
     rnd = random.Random(20261028)
-    pool_c = c_pool.get(d_pick, []) if d_pick is not None else []
-    samp = rnd.sample(pool_c, min(C_SAMPLE, len(pool_c)))
+    samp = rnd.sample(c_pool, min(C_SAMPLE, len(c_pool)))
     hits = calls = 0
     for day, s, m0 in samp:
         pdx = dt.date.fromisoformat(day) - dt.timedelta(1)
@@ -426,64 +377,8 @@ def main():
                                               "published_utc.lte": b.strftime("%Y-%m-%dT%H:%M:%SZ"), "limit": 10})
         calls += 1
         hits += bool(j and j.get("results"))
-    res["C_coverage"] = {"sample": len(samp), "with_news": hits, "calls": calls}
-    log(f"④ C: خبرٌ في النافذة {hits} من {len(samp)}")
-    # ⑤ E: مجتمعُ RSI دون 30 ونداءاتُ الاقتباس
-    closes_by_day = []
-    dd = dt.date.fromisoformat(days[0]) - dt.timedelta(1)
-    hist_days = []
-    while len(hist_days) < 30:
-        if is_session(dd.isoformat(), MC.session_info):
-            hist_days.append(dd.isoformat())
-        dd -= dt.timedelta(1)
-    hist_days = sorted(hist_days) + days
-    for d in hist_days:
-        pth = os.path.join(tmp, "day.csv.gz")
-        okk, _ = _download(FP, _key(DAY_PREFIX, d), pth)
-        closes_by_day.append((d, _read_day_closes(pth) if okk else {}))
-        if okk:
-            os.remove(pth)
-    e_pop = {}
-    for i, (d, _cl) in enumerate(closes_by_day):
-        if d not in days:
-            continue
-        prevs = closes_by_day[max(0, i - 30):i]
-        syms = set(prevs[-1][1]) if prevs else set()
-        pop = []
-        for s in syms:
-            seq = [c[s] for _d, c in prevs if s in c]
-            r = rsi14(seq)
-            if r is not None and r < RSI_MAX and seq[-1] >= PX_MIN:
-                pop.append(s)
-        e_pop[d] = pop
-    res["E_population"] = {d: len(v) for d, v in e_pop.items()}
-    log(f"⑤ E: مجتمعُ RSI دون 30/يوم وسيط {st.median([len(v) for v in e_pop.values()] or [0])}")
-    e_days = [days[0], days[len(days) // 2], days[-1]][:E_DAYS_SAMPLE]
-    e_sig = {r: [] for r in E_LADDER}
-    q_calls = 0
-    q_t = time.time()
-    for d in e_days:
-        pop = sorted(e_pop.get(d, []))
-        smp = rnd.sample(pop, min(E_SYMS_SAMPLE, len(pop)))
-        a = dt.datetime.combine(dt.date.fromisoformat(d), dt.time(4, 0), tzinfo=NY)
-        b = dt.datetime.combine(dt.date.fromisoformat(d), dt.time(PRE_END_E // 60, PRE_END_E % 60), tzinfo=NY)
-        cnt = {r: 0 for r in E_LADDER}
-        for s in smp:
-            j = _poly(f"/v3/quotes/{s}", key, {"timestamp.gte": int(a.timestamp() * 1e9),
-                                               "timestamp.lt": int(b.timestamp() * 1e9), "limit": 50000, "order": "asc"})
-            rows, nc = _paged(j or {}, key, cap=10)
-            q_calls += nc
-            qs = [(r.get("sip_timestamp"), r.get("bid_size"), r.get("ask_size")) for r in rows]
-            for r in E_LADDER:
-                cnt[r] += book_signal(qs, r) is not None
-        for r in E_LADDER:
-            e_sig[r].append(cnt[r] * (len(e_pop.get(d, [])) / max(1, len(smp))))
-        log(f"⑤ {d}: عيّنة {len(smp)} من {len(e_pop.get(d, []))} · إشارات " + " · ".join(f"{r}:{cnt[r]}" for r in E_LADDER))
-    e_meds = {r: st.median(v) if v else None for r, v in e_sig.items()}
-    res["E"] = {"days": e_days, "sample_per_day": E_SYMS_SAMPLE, "quote_calls": q_calls,
-                "quote_seconds": round(time.time() - q_t, 1), "signals_per_day_extrapolated": e_meds,
-                "E_RATIO_pick": pick_rule(e_meds, E_LADDER, *E_RULE)}
-    log(f"⑤ E: نداءاتُ الاقتباس {q_calls} · الإشاراتُ/يوم (مُستقرأة) {e_meds} ⟵ E_RATIO = {res['E']['E_RATIO_pick']}")
+    res["C_coverage"] = {"rung": D_LADDER[0], "pool": len(c_pool), "sample": len(samp), "with_news": hits, "calls": calls}
+    log(f"② C: خبرٌ في النافذة {hits} من {len(samp)} (من {len(c_pool)} حدثَ A عند {D_LADDER[0] // 1000}k)")
     res["seconds"] = round(time.time() - t0, 1)
     print("VWMFEAS_JSON " + json.dumps(res, ensure_ascii=False))
     return 0

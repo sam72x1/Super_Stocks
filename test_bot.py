@@ -88879,14 +88879,11 @@ try:
         "px_dynamic": _vf_px == {"D": 601},
         "sessions": (not _VF.is_session("2026-09-05", _vf_mc.session_info)) and (not _VF.is_session("2026-09-06", _vf_mc.session_info))
                     and (not _VF.is_session("2026-09-07", _vf_mc.session_info)) and _VF.is_session("2026-09-08", _vf_mc.session_info)
-                    and _vf_is >= 5 and _vf_raw == 0,
-        "rsi": _VF.rsi14([10 - 0.1 * i for i in range(20)]) == 0.0 and _VF.rsi14(list(range(1, 20))) == 100.0
-               and _VF.rsi14([1.0] * 14) is None
-               and round(_VF.rsi14(list(range(1, 16)) + [8]), 6) == 65.0,            # وايلدر: (13/14)÷(7/14) ⟵ 65 (المتوسّطُ البسيط يعطي 12.5)
-        "book": _VF.book_signal([(1, 100, 50), (2, 60, 6), (3, 10, 0)], 10) == 2 and _VF.book_signal([(1, 59, 6)], 10) is None,
+                    and _vf_is >= 2 and _vf_raw == 0,                         # v2: أيّامُ الشهر ‏+ الجلسةُ السابقة لـC
+        "no_E": not any(hasattr(_VF, n) for n in ("rsi14", "book_signal", "E_LADDER", "E_RULE")) and "/v3/quotes" not in _vf_src,   # الملحق 1: E محذوفة
         "pick": _VF.pick_rule({5: 50, 10: 20, 20: 8}, (5, 10, 20), 5, 30) == 10 and _VF.pick_rule({5: 50}, (5,), 5, 30) is None,
-        "ladders": _VF.D_LADDER == (250_000, 500_000, 1_000_000, 2_000_000, 5_000_000) and _VF.E_LADDER == (5, 10, 20, 50)
-                   and _VF.TOP_N == 20 and _VF.D_RULE == (10, 40) and _VF.E_RULE == (5, 30),
+        "ladders": _VF.D_LADDER == (250_000, 500_000, 1_000_000, 2_000_000, 5_000_000)
+                   and _VF.TOP_N == 20 and _VF.D_RULE == (10, 40),
         "wf_manual_readonly": list(_vf_on.keys()) == ["workflow_dispatch"]
                               and (_vf_wf.get("permissions") or {}) == {"contents": "read"}
                               and "git push" not in _vf_run and "vwap_mom_feas.py" in _vf_run,
@@ -88894,7 +88891,7 @@ try:
     _v_vf2, _v_vf2w = all(_vf_c.values()), f"{_vf_c} · ممنوع={sorted(_vf_forbid)[:5]}"
 except Exception as _e:                                              # noqa: BLE001
     _v_vf2, _v_vf2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("📈 VWM2 (‏2026-10-28) جدوى `T-VWAP-MOM` عدٌّ بلا عائد: VWAP · الثبات · السيولة · أعلى 20 · RSI · الدفتر · قاعدةُ الاختيار "
+check("📈 VWM2 (‏2026-10-28) جدوى `T-VWAP-MOM` عدٌّ بلا عائد: VWAP · الثبات · السيولة · أعلى 20 · قاعدةُ الاختيار · وE محذوفة (الملحق 1) "
       "سلوكيًّا · والسبتُ ليس جلسة · ولا اسمَ عائدٍ في الملفّ · والـworkflow يدويٌّ قارئ", _v_vf2, _v_vf2w)
 
 # 📈 VWM3 (‏2026-10-28 · عطلٌ مُثبَت في تشغيلة الجدوى `40709709437`): الذراع B كانت تأخذ أوّلَ H في اليوم ثمّ تُسقطه إن وقع في النظاميّة ⟵
@@ -88937,6 +88934,54 @@ except Exception as _e:                                              # noqa: BLE
     _v_v3, _v_v3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📈 VWM3 (‏2026-10-28) الذراع B تتخطّى النظاميّة وتُكمل البحث (`skip`) لا تُسقط الإشارةَ اللاحقة · وH ∧ L لا يفوق H "
       "(عطلُ تشغيلة 40709709437: 32 من 105)", _v_v3, _v_v3w)
+
+# 📈 VWM4 (‏2026-10-28 · الملحق 1 `vwap_mom_prereg_addendum_1.md` · أمرُ المالك · قبل أيّ عائد): بصمةُ الملحق مثبّتة · وصفوفُ إنفوغراف @Naifo9x في
+#    الدفتر بوسومها · والذراع E محذوفةٌ وصفُّها تاريخ · و`break_events` سلوكيًّا: لا حدثَ بلا إغلاقٍ تحت VWAP · الكسرُ ثمّ 3 إغلاقاتٍ فوقه (أو شمعة
+#    15 دقيقة) · والإعادةُ تلزمها إغلاقةٌ تحت من جديد · وB تتخطّى النظاميّة · و`day_events` يحجب بالسعر وبدرجة الحجم · و`main` على الكون كلّه لا أعلى 20.
+try:
+    import ast as _v4_ast, hashlib as _v4_hl, re as _v4_re
+    import vwap_mom_feas as _V4
+    _v4_pin = "29e66d782e9b52496d5e8adf2986c286fcd5521fe4289607bddc9a4074d84565"
+    _v4_sha = _v4_hl.sha256(open("vwap_mom_prereg_addendum_1.md", "rb").read()).hexdigest()
+    _v4_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _v4_parts = _v4_led.split("### الملحق 1 (2026-10-28) — إنفوغراف @Naifo9x")
+    _v4_sec = _v4_parts[1].split("\n## ")[0] if len(_v4_parts) == 2 else ""
+    _v4_rows = [r for r in _v4_sec.splitlines() if r.startswith("| ") and not r.startswith("| القاعدة") and not r.startswith("|---")]
+    _v4_tag = [_v4_re.findall(r"`([a-z_]+)`", r.split(" | ")[4]) if len(r.split(" | ")) > 5 else [] for r in _v4_rows]
+
+    def _v4_mk(seq, start=570, vol=1000):
+        return [(start + i * 5 + m, p, p, p, p, vol) for i, p in enumerate(seq) for m in range(5)]
+
+    def _v4_ev(seq, skip=None, start=570, end=960):
+        bb = _v4_mk(seq, start)
+        vw = _V4.vwap_series(bb)
+        return _V4.break_events(_V4.bucketize(bb, vw, start, 5, end), _V4.bucketize(bb, vw, start, 15, end), skip=skip)
+    _v4_c = {
+        "pin": _v4_sha == _v4_pin,
+        "ledger": sum(1 for t in _v4_tag if t == ["nayef_verbatim"]) >= 8 and sum(1 for t in _v4_tag if t == ["engineering"]) >= 2
+                  and "حُذفت بأمر المالك 2026-10-28" in _v4_led,
+        "above_from_open_none": _v4_ev([10, 11, 12, 13, 14, 15, 16, 17]) == [],
+        "break_then_3": [e[:2] for e in _v4_ev([10, 9, 9, 11, 11, 11, 11])] == [(605, "5x3")],
+        "15m_alt": [e[:2] for e in _v4_ev([10, 9, 11, 8.5, 12, 12])] == [(600, "15x1")],
+        "rearm_needs_below": len(_v4_ev([10, 9, 11, 11, 11, 11, 12, 12, 12, 12, 12])) == 1
+                             and len(_v4_ev([10, 9, 11, 11, 11, 11, 7, 12, 12, 12, 12])) == 2,
+        "two_after_break_not_enough": _v4_ev([10, 9, 9, 11, 11, 11, 8]) == [],
+        "B_skips_regular": _v4_ev([10, 9, 11, 11, 11, 11], skip=(560, 960)) == [] and len(_v4_ev([10, 9, 11, 11, 11, 11])) == 1,
+    }
+    _v4_bars = _v4_mk([10, 9, 9, 11, 11, 11, 11])
+    _v4_d = _V4.day_events(_v4_bars, 570, 960, (1, 10 ** 9), 1.0)
+    _v4_px = _V4.day_events(_v4_bars, 570, 960, (1,), 20.0)
+    _v4_c["dmin_px_gate"] = (_v4_d[("A", 1)]["H"] == (605, "5x3") and _v4_d[("A", 10 ** 9)]["H"] is None
+                             and _v4_px[("A", 1)]["H"] is None and _v4_d[("B", 1)]["H"] is None)
+    _v4_main = next(n for n in _v4_ast.walk(_v4_ast.parse(open("vwap_mom_feas.py", encoding="utf-8").read()))
+                    if isinstance(n, _v4_ast.FunctionDef) and n.name == "main")
+    _v4_called = {getattr(c.func, "id", None) for c in _v4_ast.walk(_v4_main) if isinstance(c, _v4_ast.Call)}
+    _v4_c["main_universe"] = "day_events" in _v4_called and "gainer_entries" not in _v4_called and "count_signals" not in _v4_called
+    _v_v4, _v_v4w = all(_v4_c.values()), f"{_v4_c} · sha={_v4_sha[:12]} · صفوف={len(_v4_rows)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_v4, _v_v4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈 VWM4 (‏2026-10-28) ملحقُ `T-VWAP-MOM` رقم 1 مثبّتٌ قبل أيّ عائد: الكسرُ الصاعد (تحت ⟵ فوق ⟵ 3 إغلاقات أو 15 دقيقة) · والمجتمعُ أحداثُ "
+      "الكسر على الكون كلّه بالسعر والدرجة · وE محذوفة · ودفترُ الإنفوغراف بوسومه", _v_v4, _v_v4w)
 
 # H6L1 — amendment 5 (m1-m5 · m7): الوصولُ المتأخّر لا يُسقط الأهليّة — ختمُ الجامع الآليّ ‏+ جمعٌ بعد الوصول ‏+ ضوابطُ من نافذة القرار ·
 #   وA/C (اللقطة) على الوحدات في وقتها وحدَها · وB/D للجميع · وبلا ختمٍ أو قبل T أو بلا جمعٍ أو بلا لوحة كلٌّ برمزه · والمسارُ في وقته بت-بت
