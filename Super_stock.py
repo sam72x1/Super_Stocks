@@ -18684,7 +18684,7 @@ def ah_guard_rows(rows, session_date, fetch=None):
     #    (‏`AH2` ساقط · وقرارُ الكتم 53 من 53) ⇒ يلزم اتّفاقُها مع `postmarket_close` الماسح ضمن `TV_AH_AGREE_PCT` وإلّا «لم يُتحقّق» ·
     #    والسعرُ أدنى القناتين ⟵ لا كتمَ إلّا إن صعدت الاثنتان (فاشلٌ-آمنٌ مفتوح) · وتعذّرُ الماسح ⟵ كلُّ صفٍّ «لم يُتحقّق».
     rep = {"src": "injected" if fetch is not None else "polygon", "asked": 0, "got": 0, "no_ah": 0, "fail": 0,
-           "no_scan": 0, "disagree": 0}
+           "no_scan": 0, "disagree": 0, "muted": 0}
     tv_ch, tv_pm = None, None
     if (fetch is None and rows and bars_source() == "tradingview"
             and (os.environ.get(AH_GUARD_TV_ENV) or "").strip() == "1"):
@@ -18757,6 +18757,7 @@ def ah_guard_rows(rows, session_date, fetch=None):
             if broke:
                 log(f"⛔ {sym}: شرط «لم يصعد» مكسور بالافتر (+{broke[2]:.0f}% عن "
                     f"{broke[0]} ${broke[1]:.2f} ← ${ext:.2f}) — تنبيه بائت أُلغي")
+                rep["muted"] += 1
                 continue
             kept.append(r)
     finally:
@@ -18767,7 +18768,11 @@ def ah_guard_rows(rows, session_date, fetch=None):
                 pass
     AH_GUARD_LAST.clear()
     AH_GUARD_LAST.update(rep)
-    if rows and rep["src"] not in ("injected", "polygon"):        # سطرُ السجلّ لمسار TradingView وحدَه (والبقيّةُ بت-بت)
+    if rows and rep["src"] == "polygon":
+        # 🔧 AHL1 (‏2026-10-29 · أمرُ المالك «أضف سطر حارس الافتر»): مسارُ Polygon كان صامتًا في السجلّ بالتصميم ⟵ «قُرئ N من M»
+        #    غيرُ مقروءٍ بعد رجوع الحارس إليه (2026-10-27) · سطرٌ واحد بالعدّادات نفسِها · والقرارُ والكتمُ والوسمُ بت-بت · والمحقونُ بلا سطر.
+        log(f"🌙 حارسُ الافتر (polygon): قُرئ سعرُ {rep['got']} من {rep['asked']} · لم يُتحقّق {len(unverified)} · كُتم {rep['muted']}")
+    elif rows and rep["src"] not in ("injected", "polygon"):        # سطرُ السجلّ لمسار TradingView (والمحقونُ بت-بت)
         log(f"🌙📺 حارسُ الافتر ({rep['src']}): قُرئ سعرُ {rep['got']} من {rep['asked']}"
             + (f" · بلا صفقةٍ بعد الإغلاق {rep['no_ah']} · تعذّر {rep['fail']} · بلا قيمةٍ في الماسح {rep['no_scan']}"
                f" · اختلفت القناتان فوق {TV_AH_AGREE_PCT:g}% {rep['disagree']}"

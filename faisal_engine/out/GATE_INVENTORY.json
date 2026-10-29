@@ -82,7 +82,7 @@
   },
   "errors": [],
   "inputs": {
-   "provenance_sha256": "cdf25c4e4fb0603d9d98e0190518439f396544a2207630feb4231b72701bf0bd",
+   "provenance_sha256": "9b62c5e5d0f74c099acd428697a4cbb045e7ae54d8adbe46811d1846edc11f66",
    "snapshot_sha256": "8447b31e642a8593e84bacf081843b94e5ce4254172cdd476bd603d89989180c",
    "rank_bars_sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c",
    "rank_rows_sha256": "8a506495a17dcd1849283e6607d1018e4339f9cf253f587a83297225da59d890"
@@ -272,6 +272,17 @@
     },
     {
      "gate": "M10_RSI_NOW",
+     "anchor": "`T-REBUILD`: العقدُ مدموجٌ قبل أيّ رقم · وفحصُ عدم التكرار أخرج سابقةً قريبة",
+     "terms": [
+      "T-CORE5"
+     ],
+     "class": "NOT_GATE_EVIDENCE",
+     "refs": [],
+     "why": "INCIDENTAL",
+     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
+    },
+    {
+     "gate": "M10_RSI_NOW",
      "anchor": "`T-RSI40` «سجّل RSI 40»",
      "terms": [
       "T-RSI40"
@@ -293,17 +304,6 @@
      "refs": [],
      "why": "INCIDENTAL",
      "note": "cross-reference to the closed RSI-40 axis while closing the support-definition axis"
-    },
-    {
-     "gate": "M10_RSI_NOW",
-     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
-     "terms": [
-      "T-CORE5"
-     ],
-     "class": "NOT_GATE_EVIDENCE",
-     "refs": [],
-     "why": "INCIDENTAL",
-     "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
     },
     {
      "gate": "M10_RSI_NOW",
@@ -359,7 +359,7 @@
     },
     {
      "gate": "M13_SHORT",
-     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "anchor": "`T-REBUILD`: العقدُ مدموجٌ قبل أيّ رقم · وفحصُ عدم التكرار أخرج سابقةً قريبة",
      "terms": [
       "T-CORE5"
      ],
@@ -422,7 +422,7 @@
     },
     {
      "gate": "M14_FLOAT",
-     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "anchor": "`T-REBUILD`: العقدُ مدموجٌ قبل أيّ رقم · وفحصُ عدم التكرار أخرج سابقةً قريبة",
      "terms": [
       "T-CORE5"
      ],
@@ -806,7 +806,7 @@
     },
     {
      "gate": "NEAR_READINESS",
-     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "anchor": "`T-REBUILD`: العقدُ مدموجٌ قبل أيّ رقم · وفحصُ عدم التكرار أخرج سابقةً قريبة",
      "terms": [
       "T-CORE5"
      ],
@@ -999,7 +999,7 @@
     },
     {
      "gate": "RR_SOFT_COUNT",
-     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "anchor": "`T-REBUILD`: العقدُ مدموجٌ قبل أيّ رقم · وفحصُ عدم التكرار أخرج سابقةً قريبة",
      "terms": [
       "T-CORE5"
      ],
@@ -1049,7 +1049,7 @@
     },
     {
      "gate": "SCORE_MIN",
-     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "anchor": "`T-REBUILD`: العقدُ مدموجٌ قبل أيّ رقم · وفحصُ عدم التكرار أخرج سابقةً قريبة",
      "terms": [
       "T-CORE5"
      ],
@@ -1123,7 +1123,7 @@
     },
     {
      "gate": "SOFT_COUNT",
-     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "anchor": "`T-REBUILD`: العقدُ مدموجٌ قبل أيّ رقم · وفحصُ عدم التكرار أخرج سابقةً قريبة",
      "terms": [
       "T-CORE5"
      ],
@@ -1347,7 +1347,7 @@
     },
     {
      "gate": "TIER",
-     "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+     "anchor": "`T-REBUILD`: العقدُ مدموجٌ قبل أيّ رقم · وفحصُ عدم التكرار أخرج سابقةً قريبة",
      "terms": [
       "T-CORE5"
      ],
@@ -7132,10 +7132,10 @@
      "threshold:DATA_HEALTH_MIN_PCT": []
     }
    },
-   "line": 22566,
+   "line": 22571,
    "function_lines": [
-    22491,
-    22947
+    22496,
+    22952
    ],
    "config": {
     "DATA_HEALTH_MIN_PCT": 85
@@ -7228,10 +7228,10 @@
      "hardness": []
     }
    },
-   "line": 22570,
+   "line": 22575,
    "function_lines": [
-    22491,
-    22947
+    22496,
+    22952
    ],
    "config": {
     "EXCLUDE_STOPPED_FROM_RENEWAL": true
@@ -7326,10 +7326,10 @@
      ]
     }
    },
-   "line": 22599,
+   "line": 22604,
    "function_lines": [
-    22491,
-    22947
+    22496,
+    22952
    ],
    "config": {
     "WATCHLIST_SIZE": 15

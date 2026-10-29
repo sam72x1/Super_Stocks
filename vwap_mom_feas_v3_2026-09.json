@@ -5,6 +5,11 @@
   40790473567,
   40800488513
  ],
+ "owner_decision": {
+  "date": "2026-10-29",
+  "text": "اعتمد تشغيلة الفيواب الثالثة",
+  "accepted": true
+ },
  "version": "v3-addendum-2",
  "month": "2026-09",
  "px_min": 1.0,
