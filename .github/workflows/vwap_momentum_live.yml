@@ -71,16 +71,20 @@ jobs:
         env:
           VWL_PUSH_MODE: ${{ github.event.inputs.mode }}
           VWL_PUSH_REF: ${{ github.ref_name }}
+          VWL_PUSH_OUT: ${{ (github.event.inputs.mode == 'replay' || github.event.inputs.mode == 'trace') && github.ref_name != 'main' && format('vwap_live_research/{0}_{1}{2}.json', github.event.inputs.mode, github.event.inputs.mode == 'trace' && format('{0}_{1}', github.event.inputs.sym, github.event.inputs.date) || github.event.inputs.end || 'last', github.event.inputs.ldef != '' && format('_{0}', github.event.inputs.ldef) || '') || '' }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add vwap_live_research/*.json 2>/dev/null || true
-          if git diff --cached --quiet; then echo "لا ملفَّ نتيجة."; exit 0; fi
-          git commit -q -m "🟠 زخم الفيواب: نتيجةُ ${VWL_PUSH_MODE} (قبول ⑤)"
+          [ -f "$VWL_PUSH_OUT" ] || { echo "لا ملفَّ نتيجة."; exit 0; }
+          cp "$VWL_PUSH_OUT" "$RUNNER_TEMP/vwl_out.json"
           ok=0
           for i in 1 2 3 4 5; do
+            git fetch -q origin "${VWL_PUSH_REF}" && git reset -q --hard "origin/${VWL_PUSH_REF}"
+            mkdir -p vwap_live_research && cp "$RUNNER_TEMP/vwl_out.json" "$VWL_PUSH_OUT"
+            git add "$VWL_PUSH_OUT"
+            if git diff --cached --quiet; then echo "النتيجةُ مطابقةٌ لما على الفرع."; ok=1; break; fi
+            git commit -q -m "🟠 زخم الفيواب: نتيجةُ ${VWL_PUSH_MODE} (قبول ⑤)"
             if git push origin "HEAD:${VWL_PUSH_REF}"; then ok=1; break; fi
-            git fetch origin "${VWL_PUSH_REF}" && git rebase "origin/${VWL_PUSH_REF}" || git rebase --abort || true
             sleep $((2**i))
           done
           [ "$ok" = 1 ] || { echo "::error::⛔ فشل دفع النتيجة"; exit 1; }
