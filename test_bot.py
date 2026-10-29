@@ -91500,7 +91500,7 @@ try:
     _vl1_c = {
         "consts": (_VL.D_MIN_LIVE, _VL.PX_MIN, _VL.PX_MAX, _VL.CHG_MIN, _VL.RVOL_MIN, _VL.D_MAX_PER_DAY, _VL.FRESH_MAX_S, _VL.EMA_N)
                   == (250_000, 1.00, 20.0, 0.20, 3.0, 3, 600, 9) and _VL.TYPES_OK == ("CS", "ADRC", "OS") and _VL.SPAC_SIC == "6770",
-        "by_name": {"V3.break_events", "V3.event_liq", "V3.retest_signal", "V3.cum_dollar_at", "V3.vwap_series", "V3.bucketize",
+        "by_name": {"V3.break_events", "V3.liq_ok", "V3.liq15_ok", "V3.retest_signal", "V3.cum_dollar_at", "V3.vwap_series", "V3.bucketize",
                     "V4.pct_change", "V4.ge", "V4.rvol", "V4.curve_at", "V4.cum_curve", "V4.vol_factor", "V4.price_factor",
                     "V4.catalyst4", "V4.wire_index", "V4.wire_of", "V3.sec_index", "V3.make_acc_ts"} <= _vl_calls,
         "no_root_import": "Super_stock" not in _vl_top_imports and "edgar2_probe" not in _vl_top_imports,
@@ -91571,7 +91571,7 @@ try:
     _vl5w = str(_vl_eval(_dec, full=True)["events"][0]["why"])
 except Exception as _e:                                                    # noqa: BLE001
     _vl5, _vl5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🟠 VWL5 ③ «السيولة تزيد لا تنقص» (L كما في v2): حجمُ شموع الثبات الأقلّ من الثلاث قبلها ⟵ لا تنبيه", _vl5, _vl5w)
+check("🟠 VWL5 ③ «السيولة تزيد لا تنقص» (L بتعريف الإنتاج T · ‏2026-10-29): حجمُ شموع الثبات أقلّ كثيرًا من الثلاث قبلها ⟵ لا تنبيه", _vl5, _vl5w)
 
 # VWL6 — ④ الخبر عبر `Day.catalyst` الحيّ: GlobeNewswire ينجح · Zacks وحدَه لا · 8-K ينجح · 6-K وحدَه لا · قبل 16:00 أمس لا · بعد الحدث لا
 try:
@@ -91820,10 +91820,15 @@ try:
     _ov14 = {f.name for f in _vl14ast.walk(_t14) if isinstance(f, _vl14ast.FunctionDef)
              for c in _vl14ast.walk(f) if isinstance(c, _vl14ast.Call) and any(k.arg == "prev_override" for k in c.keywords)}
     _wf_al = (_j14.get("whatif_last_close") or {}).get("alerts") or []
+    _D14 = _VL.Day(_VLHalted(_b14, news=[_vl_news("GlobeNewswire Inc.")]), _VL_DAY, _VLMC, replay=True)
+    _ov14b = (_VL.scan_symbol(_D14, "TST", _b14, 960, _VL3.ny_ts(_VL_DAY, 960), prev_override=2.0)["alerts"] == []
+              and bool(_VL.scan_symbol(_D14, "TST", _b14, 960, _VL3.ny_ts(_VL_DAY, 960))["alerts"]))
     _vl14_c = {
         "rc": _rc14 == 0,
-        "rule_unchanged": _j14.get("prev_adj") is None and _j14.get("alerts") == []
-                          and all("① التغيّر" in e["why"] for e in _j14.get("events") or [{"why": []}]) and bool(_j14.get("events")),
+        "fallback_rule": abs((_j14.get("prev_adj") or 0) - 1.0) < 1e-9 and _j14.get("prev_src") == f"last_close {_VL_PRI[-6]}"
+                         and bool(_j14.get("alerts")) and _j14["alerts"][0]["arm"] == "A"
+                         and [(a["arm"], a["n"]) for a in _j14["alerts"]]
+                         == [(a["arm"], a["n"]) for a in (_j14.get("whatif_last_close") or {}).get("alerts") or []],
         "diag": (_j14.get("prev_diag") or {}).get("prev_session") == _VL_PREV and (_j14.get("prev_diag") or {}).get("splits")
                 == [[_VL_DAY, 10.0, 1.0]],
         "last_close": (_j14.get("last_close") or {}).get("d") == _VL_PRI[-6] and abs((_j14.get("last_close") or {}).get("adj", 0) - 1.0) < 1e-9,
@@ -91832,6 +91837,7 @@ try:
                         and all("d_hold" in t for t in _j14.get("touches") or []),
         "touch_L_vs_noL": _td14.get("with_L") is None and (_td14.get("without_L") or {}).get("end_ny") == "10:30",
         "override_only_trace": _ov14 == {"mode_trace"},
+        "override_effect": _ov14b,
         "no_out_no_file": _nofile,
         "wf_branch_only": "github.ref_name != 'main'" in str(_push14.get("if", "")) and 'HEAD:${VWL_PUSH_REF}' in str(_push14.get("run", ""))
                           and str((_push14.get("env") or {}).get("VWL_PUSH_REF", "")) == "${{ github.ref_name }}"
@@ -91841,7 +91847,7 @@ try:
 except Exception as _e:                                                    # noqa: BLE001
     _vl14, _vl14w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠 VWL14 (‏2026-10-29 · قبول ⑤ · AZTR موقوفٌ ثمّ عائدٌ بتقسيم) trace يشخّص غيابَ إغلاق الأمس (آخرُ إغلاقٍ مسوًّى · «ماذا لو» · ثباتُ D "
-      "بعد كلّ لمسة) والقاعدةُ الحيّة كما هي · والتجاوزُ في trace وحدَه · والنتيجةُ تُدفَع إلى فرعها لا main", _vl14, _vl14w)
+      "بعد كلّ لمسة) · والقاعدةُ الحيّة صارت آخرَ إغلاق (VWL17) فتطابق «ماذا لو» · والتجاوزُ في trace وحدَه · والنتيجةُ إلى فرعها لا main", _vl14, _vl14w)
 
 
 # VWL15 (‏2026-10-29 · قبول ⑤): `vwap_live_acceptance.md` مولَّدٌ من ملفَّي التشغيل المحفوظين بايتًا · ومكوّناتُ ③ L في الوثيقة تطابق
@@ -91875,6 +91881,203 @@ except Exception as _e:                                                    # noq
     _vl15, _vl15w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠 VWL15 (‏2026-10-29 · قبول ⑤) وثيقةُ القبول مولَّدةٌ بايتًا من ملفَّي التشغيل · ومكوّناتُ ③ L فيها تطابق `liq_ok` · وسلسلةُ «ماذا لو» "
       "لـAZTR (10:30 · 11:00 · 12:35) · ولا كرونَ قبل موافقة المالك", _vl15, _vl15w)
+
+
+# VWL16 (‏2026-10-29 · أمرُ المالك «أعد تعريف L»): ③ L بتعريفين يُقارَنان والإنتاجُ على T — strict يطابق `V3.liq_ok`/`liq15_ok`/`retest_signal`
+#        بت-بت (لا انحرافَ صامت عن v2) · T = متوسّطُ دولار الثلاث ≥ 0.95 × ما قبلها (المتاحُ حين يقلّ · ولا شيءَ ⟵ لا) · M = ≥ وسيطِ الجلسة ·
+#        ورفضُ نمط القروبات كما هو في الاثنين (إغلاقُ الثالثة ≥ الأولى · 15د إغلاقٌ ≥ افتتاح) · وAZTR من شموعه المحفوظة: T يُجيز 09:55 و11:05 ·
+#        M يُجيز 09:55 ويُسقط 11:05 — **معايَرٌ على مثال المصدر** (حدُّ صدق)
+try:
+    import random as _vl16r
+
+    def _vl16_b(dvs, cs=None):
+        cs = cs or [1.0 + 0.01 * k for k in range(len(dvs))]
+        return [{"s": 570 + 5 * k, "e": 575 + 5 * k, "o": cs[k], "h": cs[k], "l": cs[k], "c": cs[k], "dv": float(v), "vwap": 0.5}
+                for k, v in enumerate(dvs)]
+    _par = []
+    _rng = _vl16r.Random(16)
+    for _sd in range(40):
+        _sc = _vl_scenario(k=1.0 + _rng.random(), vmul=0.3 + _rng.random() * 3, retests=_rng.randint(0, 3), step=1.0 + _rng.random() * 0.06)
+        _sc = [(m, o, h, l, c, v * (0.4 + 1.2 * _rng.random())) for (m, o, h, l, c, v) in _sc]
+        _p5, _p15, _ = _VL.complete_buckets(_sc, 570, 960, 960)
+        for _ev in _VL3.break_events(_p5, _p15):
+            _par.append(_VL.event_L(_p5, _p15, _ev, "strict") == _VL3.event_liq(_p5, _p15, _ev))
+        for _x in _p5:
+            _par.append(_VL.retest_hold(_p5, _p15, _x["s"], "strict") == _VL3.retest_signal(_p5, _p15, _x["s"], need_liq=True))
+    for _sd in range(30):                                            # مشيٌ عشوائيّ حول الفيواب: عبورٌ وإغلاقان فوقه ثمّ هبوط … (تعادلٌ أقسى)
+        _px, _bars = 2.0, []
+        for _mm in range(570, 960):
+            _o = _px
+            _px = max(0.5, _px * (1.0 + _rng.gauss(0.0, 0.006)) + (2.0 - _px) * 0.01)
+            _bars.append((_mm, _o, max(_o, _px) * 1.002, min(_o, _px) * 0.998, _px, 1000.0 * (0.2 + _rng.random() * 3)))
+        _p5, _p15, _ = _VL.complete_buckets(_bars, 570, 960, 960)
+        for _ev in _VL3.break_events(_p5, _p15):
+            _par.append(_VL.event_L(_p5, _p15, _ev, "strict") == _VL3.event_liq(_p5, _p15, _ev))
+        for _x in _p5:
+            _par.append(_VL.retest_hold(_p5, _p15, _x["s"], "strict") == _VL3.retest_signal(_p5, _p15, _x["s"], need_liq=True))
+    _seen_ldef = []
+    _o5, _o15 = _VL.liq5, _VL.liq15
+    try:
+        _VL.liq5 = lambda b5, i, ldef: _seen_ldef.append(ldef) or _o5(b5, i, ldef)          # noqa: E731
+        _VL.liq15 = lambda b15, j, ldef: _seen_ldef.append(ldef) or _o15(b15, j, ldef)     # noqa: E731
+        _d_m = _vl_eval(_vl_scenario(retests=2))
+        _VL.evaluate(_vl_scenario(retests=2), 570, 960, 960, 1.0, lambda: _vl_priors(), lambda e: {"C": True, "wire": True}, "ok", False,
+                     ldef="M")
+    finally:
+        _VL.liq5, _VL.liq15 = _o5, _o15
+    _m_vs_mean = _vl16_b([1, 1, 1, 1, 100, 5, 5, 5])                 # الوسيط 3 والمتوسّط 14.9 ⟵ M ينجح (بالوسيط لا بالمتوسّط)
+    _t_edge = _vl16_b([100, 100, 100, 95, 95, 95])                  # متوسّطُ الثلاث 95 = 0.95 × 100 ⟵ ينجح
+    _t_below = _vl16_b([100, 100, 100, 94.9, 95, 95])
+    _t_avail = _vl16_b([10, 20, 30, 30, 30])                         # i=4: قبلها شمعتان فقط ⟵ يُقارَن بالمتاح
+    _t_none = _vl16_b([5, 5, 5])                                     # i=2: لا شيءَ قبلها ⟵ لا
+    _grp = _vl16_b([10, 10, 10, 50, 60, 70], cs=[1.0, 1.0, 1.0, 1.2, 1.3, 1.1])   # صعودٌ صعود ثمّ إغلاقٌ دون الأولى ⟵ لا
+    _m_ok = _vl16_b([1, 1, 1, 1, 9, 9, 9])                           # الوسيطُ 1 ⟵ ينجح
+    _m_no = _vl16_b([9, 9, 9, 9, 1, 1, 2])
+    _q = lambda dvs, cs: [{"s": 570 + 15 * k, "e": 585 + 15 * k, "o": cs[k][0], "c": cs[k][1], "dv": float(v), "vwap": 0.5}   # noqa: E731
+                          for k, v in enumerate(dvs)]
+    _q1 = _q([100, 95], [(1.0, 1.1), (1.1, 1.2)])
+    _q2 = _q([100, 94], [(1.0, 1.1), (1.1, 1.2)])
+    _q3 = _q([100, 200], [(1.0, 1.1), (1.2, 1.1)])                  # إغلاقٌ دون الافتتاح ⟵ لا
+    _tr16 = _VL.json.load(open("vwap_live_research/trace_AZTR_2026-10-26.json", encoding="utf-8"))
+    _c16 = [{"s": int(c["s"][:2]) * 60 + int(c["s"][3:]), "o": c["o"], "h": c["h"], "l": c["l"], "c": c["c"], "dv": c["dv"],
+             "vwap": c["vwap"]} for c in _tr16["candles"]]
+    for _x in _c16:
+        _x["e"] = _x["s"] + 5
+    _a15 = [{"s": g[0]["s"], "e": g[-1]["e"], "o": g[0]["o"], "c": g[-1]["c"], "h": max(y["h"] for y in g), "l": min(y["l"] for y in g),
+             "dv": sum(y["dv"] for y in g), "vwap": g[-1]["vwap"]} for g in (_c16[k:k + 3] for k in range(0, len(_c16) - 2, 3))]
+    _az = {d: [(_VL._hm(ev[0]), _VL.event_L(_c16, _a15, ev, d)) for ev in _VL3.break_events(_c16, _a15)] for d in ("strict", "T", "M")}
+    _old_env = _VL.os.environ.get("VWL_LDEF")
+    try:
+        _VL.os.environ["VWL_LDEF"] = "M"
+        _env_m = _VL.resolve_ldef()
+        _VL.os.environ["VWL_LDEF"] = "zzz"
+        _env_bad = _VL.resolve_ldef()
+    finally:
+        if _old_env is None:
+            _VL.os.environ.pop("VWL_LDEF", None)
+        else:
+            _VL.os.environ["VWL_LDEF"] = _old_env
+    _vl16_c = {
+        "parity_strict": len(_par) > 200 and all(_par),
+        "T_edge": _VL.liq5(_t_edge, 5, "T") and not _VL.liq5(_t_below, 5, "T"),
+        "T_available": _VL.liq5(_t_avail, 4, "T") and not _VL.liq5(_t_avail, 4, "strict") and not _VL.liq5(_t_none, 2, "T"),
+        "group_reject": not _VL.liq5(_grp, 5, "T") and not _VL.liq5(_grp, 5, "M"),
+        "M_median": _VL.liq5(_m_ok, 6, "M") and not _VL.liq5(_m_no, 6, "M") and _VL.liq5(_m_vs_mean, 7, "M"),
+        "d_chain_uses_ldef": bool(_d_m["alerts"]) and "M" in _seen_ldef and "strict" not in _seen_ldef and "T" in _seen_ldef,
+        "T15": _VL.liq15(_q1, 1, "T") and not _VL.liq15(_q2, 1, "T") and not _VL.liq15(_q1, 0, "T") and not _VL.liq15(_q3, 1, "T"),
+        "M15": _VL.liq15(_q1, 0, "M") and not _VL.liq15(_q3, 1, "M"),
+        "aztr": _az == {"strict": [("09:55", False), ("11:05", False)], "T": [("09:55", True), ("11:05", True)],
+                        "M": [("09:55", True), ("11:05", False)]},
+        "prod_T": _VL.L_DEF_DEFAULT == "T" and _VL.resolve_ldef("") == "T" and _env_m == "M" and _env_bad == "T" and _VL.L_TOL == 0.95,
+    }
+    _vl16, _vl16w = all(_vl16_c.values()), f"{ {k: v for k, v in _vl16_c.items() if not v} or 'كلّها'} · parity={len(_par)} · {_az}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vl16, _vl16w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL16 (‏2026-10-29 · أمرُ المالك «أعد تعريف L») ③ L: strict يطابق v2 بت-بت · T تسامحُ 5% مع المتاح · M وسيطُ الجلسة · رفضُ نمط القروبات "
+      "في الاثنين · AZTR: T يُجيز 09:55 و11:05 وM يُسقط 11:05 · والإنتاجُ T", _vl16, _vl16w)
+
+
+# VWL17 (‏2026-10-29 · «اعتمد آخر إغلاق للموقوف»): الغائبُ عن مجمَّعة الأمس ⟵ آخرُ إغلاقٍ قبل اليوم في 90 يومًا مسوًّى بتقسيمٍ نُفِّذ **بعده**
+#        حتى اليوم (لا قبله) · المصدرُ يُطبع («grouped» / «last_close يوم») · ولا إغلاقَ ⟵ مجهولٌ كما كان · وتعذّرُ الشبكة لا يُخبَّأ ·
+#        والمرشِّحُ يسأل عن إغلاق الموقوف للسعر والنوع المقبولَين وحدَهما (لا نداءَ لكلّ رمزٍ في اللقطة)
+try:
+    class _VLLast(_VLFakeNet):
+        def __init__(self, *a, rows=None, splits=None, fail_aggs=0, **k):
+            _VLFakeNet.__init__(self, *a, **k)
+            self.rows, self.sp, self.fail_aggs, self.aggs_calls = rows or [], splits or [], fail_aggs, 0
+
+        def poly(self, path, params=None):
+            if "/grouped/" in path:
+                self.calls += 1
+                return {"results": [{"T": "ZZZ", "c": 3.0}]}
+            if "/range/1/day/" in path:
+                self.calls += 1
+                self.aggs_calls += 1
+                if self.fail_aggs:
+                    self.fail_aggs -= 1
+                    return None
+                return {"results": [{"t": int(_VL3.ny_ts(d, 0) * 1000), "c": c} for d, c in self.rows]}
+            return _VLFakeNet.poly(self, path, params)
+
+        def paged(self, path, params, cap=100):
+            if path == "/v3/reference/splits" and "ticker" in (params or {}):
+                self.calls += 1
+                return list(self.sp), True
+            return _VLFakeNet.paged(self, path, params, cap)
+    _b17 = _vl_scenario()
+    _d6, _d2 = _VL_PRI[-6], _VL_PRI[-2]
+    _n_a = _VLLast(_b17, news=[_vl_news("GlobeNewswire Inc.")], rows=[(_d6, 0.1), (_VL_DAY, 9.9)], splits=[{"ticker": "TST", "execution_date": _VL_DAY, "split_from": 10, "split_to": 1},
+                                                                     {"ticker": "TST", "execution_date": _VL_PRI[-10], "split_from": 5, "split_to": 1}])
+    _D_a = _VL.Day(_n_a, _VL_DAY, _VLMC, replay=True)
+    _r_a = _D_a.prev_ref("TST")
+    _n_b = _VLLast(_b17, rows=[], splits=[])
+    _D_b = _VL.Day(_n_b, _VL_DAY, _VLMC, replay=True)
+    _n_c = _VLLast(_b17, rows=[(_d2, 1.0)], fail_aggs=1)
+    _D_c = _VL.Day(_n_c, _VL_DAY, _VLMC, replay=True)
+    _r_c1, _r_c2 = _D_c.prev_ref("TST"), _D_c.prev_ref("TST")
+    _n_g = _VLFakeNet(_b17)
+    _D_g = _VL.Day(_n_g, _VL_DAY, _VLMC, replay=True)
+    _asked = []
+    _pf = _VL.prefilter({"IN": (2.0, 1.5), "HI": (25.0, 21.0), "LO": (0.9, 0.5), "ETF": (2.0, 1.5)},
+                        lambda s: _asked.append(s) or 1.0, {"IN": "CS", "ETF": "ETF"})
+    _al17 = _VL.scan_symbol(_D_a, "TST", _b17, 960, _VL3.ny_ts(_VL_DAY, 960))["alerts"]
+    _msg17 = _VL.build_message(dict(_al17[0], sym="TST")) if _al17 else ""
+    _vl17_c = {
+        "last_close": _r_a[1] == f"last_close {_d6}" and abs(_r_a[0] - 1.0) < 1e-9,          # التقسيمُ قبل آخر إغلاقٍ لا يُطبَّق
+        "grouped": _D_g.prev_ref("TST") == (1.0, "grouped"),
+        "none_cached": _D_b.prev_ref("TST") == (None, None) and _D_b.prev_ref("TST") == (None, None) and _n_b.aggs_calls == 1,
+        "retry_not_cached": _r_c1 == (None, None) and _r_c2 == (1.0, f"last_close {_d2}") and _n_c.aggs_calls == 2,
+        "prefilter_asks_only_needed": _pf == {"IN"} and _asked == ["IN"],
+        "alert_src": bool(_al17) and _al17[0]["prev_src"] == f"last_close {_d6}" and f"📎 التغيّرُ عن آخر إغلاق {_d6} (لم يتداول بعده)" in _msg17,
+        "no_line_grouped": "📎" not in _VL.build_message(dict(_al17[0], sym="TST", prev_src="grouped")) if _al17 else False,
+    }
+    _vl17, _vl17w = all(_vl17_c.values()), f"{ {k: v for k, v in _vl17_c.items() if not v} or 'كلّها'} · {_r_a} · {_r_c1}/{_r_c2} · {_asked}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vl17, _vl17w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL17 (‏2026-10-29 · «اعتمد آخر إغلاق للموقوف») إغلاقُ الأمس الغائب = آخرُ إغلاقٍ في 90 يومًا مسوًّى بتقسيمٍ بعده · مصدرُه يُطبع "
+      "في الرسالة · ولا إغلاقَ ⟵ مجهول · والتعذّرُ يُعاد · والمرشِّحُ يسأل عن اللازم وحدَه", _vl17, _vl17w)
+
+
+# VWL18 (‏2026-10-29 · أمرُ المالك): ⑤ «لا صناديق» بكود SIC من `submissions` نفسِه (6722 · 6726 · 6798 · و6770 SPAC كما هو) لا بقاعدةٍ جديدة ·
+#        ووسما عرضٍ بلا رفض: «📌 استحواذ نقدي» (8-K بند 1.01 في النافذة ∧ سعرٌ ثابت: مدى آخر 6 شموع حتى 1%) · «⏱️ قرب الإغلاق» (إكمالٌ 15:45 فما بعد)
+try:
+    _b18 = _vl_scenario()
+    _nw18 = [_vl_news("GlobeNewswire Inc.")]
+
+    def _vl18_scan(sic, sec_rows=(), bars=None, upto=960):
+        _n = _VLFakeNet(bars or _b18, news=list(_nw18), sec_rows=list(sec_rows), sic=sic)
+        _D = _VL.Day(_n, _VL_DAY, _VLMC, replay=True)
+        return _VL.scan_symbol(_D, "TST", bars or _b18, upto, _VL3.ny_ts(_VL_DAY, upto), full_info=True)
+    _f = _vl18_scan("6726")
+    _ok = _vl18_scan("2834")
+    _acc = "2026-10-26T12:05:00Z"                                   # 08:05 نيويورك يومَ الحدث (صيغةُ `acceptanceDateTime` كـVWL6)
+    _r101 = _vl18_scan("2834", sec_rows=[(_acc, "8-K", "1.01,7.01,9.01")])
+    _r1011 = _vl18_scan("2834", sec_rows=[(_acc, "8-K", "1.011,7.01")])
+    _flat = [{"s": 600 + 5 * k, "e": 605 + 5 * k, "h": 15.66, "l": 15.60, "c": 15.65} for k in range(6)]
+    _wide = [{"s": 600 + 5 * k, "e": 605 + 5 * k, "h": 15.90, "l": 15.60, "c": 15.65} for k in range(6)]
+    _tags = lambda e, b5, acq: _VL.alert_tags({"e": e}, b5, {"acq_101": acq})                      # noqa: E731
+    _row = _VL.ledger_row(_VL_DAY, "TST", dict(_ok["alerts"][0], tags=["⏱️ قرب الإغلاق"]), _VL3.ny_ts(_VL_DAY, 960), True, None, "t",
+                          "x", "n") if _ok["alerts"] else {}
+    _vl18_c = {
+        "labels": (_VL.excl_label("6770"), _VL.excl_label("6726"), _VL.excl_label("6798"), _VL.excl_label("6722"), _VL.excl_label("2834"),
+                   _VL.excl_label("")) == ("SPAC", "صندوق (SIC 6726)", "صندوق (SIC 6798)", "صندوق (SIC 6722)", None, None),
+        "fund_blocked": not _f["alerts"] and any("⑤ صندوق (SIC 6726)" in e["why"] for e in _f["events"]),
+        "ok_passes": bool(_ok["alerts"]) and _ok["alerts"][0]["sic"] == "2834" and _ok["alerts"][0]["ldef"] == "T",
+        "acq_item": [a.get("news_detail", {}).get("acq_101") for a in _r101["alerts"]][:1] == [True]
+                    and [a.get("news_detail", {}).get("acq_101") for a in _r1011["alerts"]][:1] == [False],
+        "acq_tag": _tags(630, _flat, True) == ["📌 استحواذ نقدي"] and _tags(630, _wide, True) == [] and _tags(630, _flat, False) == []
+                   and _tags(630, _flat[:5], True) == [],
+        "near_close": _tags(945, [], False) == ["⏱️ قرب الإغلاق"] and _tags(940, [], False) == [],
+        "no_reject": bool(_r101["alerts"]),                                           # الوسمُ لا يرفض
+        "msg_line": "🏷️ ⏱️ قرب الإغلاق" in _VL.build_message(dict(_ok["alerts"][0], sym="TST", tags=["⏱️ قرب الإغلاق"]))
+                    and "🏷️" not in _VL.build_message(dict(_ok["alerts"][0], sym="TST", tags=[])) if _ok["alerts"] else False,
+        "ledger_fields": _row.get("tags") == ["⏱️ قرب الإغلاق"] and "prev_src" in _row and _row.get("sic") == "2834" and _row.get("ldef") == "T",
+    }
+    _vl18, _vl18w = all(_vl18_c.values()), str({k: v for k, v in _vl18_c.items() if not v} or "كلّها")
+except Exception as _e:                                                    # noqa: BLE001
+    _vl18, _vl18w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL18 (‏2026-10-29) ⑤ الصناديقُ بكود SIC (6722 · 6726 · 6798) · ووسما «📌 استحواذ نقدي» و«⏱️ قرب الإغلاق» عرضٌ بلا رفض "
+      "في الرسالة والسجلّ", _vl18, _vl18w)
 
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

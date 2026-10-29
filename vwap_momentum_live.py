@@ -45,6 +45,15 @@ LEDGER = "vwap_live_ledger.jsonl"    # سجلُّ الحصاد الإلحاقي�
 SEG_SPLIT_MIN = 195                  # حدُّ المقطعين (سقفُ جوب GitHub 6 ساعات · كرادار الانطلاق)
 PRE_OPEN_LEAD_MIN = 10               # جوبُ النوم يستيقظ قبل الجرس بعشر دقائق
 PRE_OPEN_CAP_MIN = 340               # تحت سقف الجوب 360
+# ③ L — أمرُ المالك 2026-10-29: تعريفُ 3×3 الصارم هندسيٌّ من عندنا لا من نايف وأسقط مثالَه (AZTR 11:05 بـ2%) ⟵ تعريفان يُقارَنان
+#    والإنتاجُ على `L_DEF` · **معايَرٌ على مثال المصدر نفسِه** (حدُّ صدق · لا قياسَ خارج العيّنة) · ورفضُ نمط القروبات كما هو (إغلاقُ الثالثة ≥ الأولى)
+L_DEFS = ("strict", "T", "M")        # strict = `V3.liq_ok`/`liq15_ok` كما كانت · T = تسامح 5% مع المتاح · M = وسيطُ الجلسة حتى اللحظة
+L_TOL = 0.95                         # «تسامح 5% في مقارنة 3×3» — مثالُ المالك 2026-10-29 (engineering · معايَرٌ على AZTR)
+L_DEF_DEFAULT = "T"                  # الإنتاج — يُختار بأثره على الإعادة وAZTR (`vwap_live_acceptance.md` §③)
+LAST_CLOSE_LOOKBACK_D = 90           # «اعتمد آخر إغلاق للموقوف» (أمرُ المالك 2026-10-29): آخرُ إغلاقٍ في 90 يومًا قبل اليوم — engineering
+FUND_SIC = ("6722", "6726", "6798")  # ⑤ «لا صناديق» بكود SIC (أمرُ المالك 2026-10-29): صناديقُ مفتوحة · مغلقة/وحدات · REIT
+FLAT_N, FLAT_PCT = 6, 0.01           # وسمُ «📌 استحواذ نقدي»: مدى آخر 6 شموع 5د حتى 1% من السعر مع 8-K بند 1.01 — engineering (عرضٌ لا رفض)
+NEAR_CLOSE_MOD = 15 * 60 + 45        # وسمُ «⏱️ قرب الإغلاق»: إكمالُ الشمعة 15:45 نيويورك فما بعد — أمرُ المالك 2026-10-29 (عرضٌ لا رفض)
 WIRE_LIMIT_NOTE = ("مصادرُ الخبر المرئيّة: GlobeNewswire و8-K وحدهما — PRNewswire وBusiness Wire وAccesswire "
                    "غائبةٌ عن أخبار Polygon (قِيست صفرًا) فسهمٌ خبرُه عليها لن يُلتقط")
 
@@ -85,6 +94,97 @@ def complete_buckets(bars, op, cl, upto):
     return b5, b15, bb
 
 
+def _mean(xs):
+    return sum(xs) / len(xs)
+
+
+def _median(xs):
+    s_ = sorted(xs)
+    n = len(s_)
+    return s_[n // 2] if n % 2 else (s_[n // 2 - 1] + s_[n // 2]) / 2.0
+
+
+def resolve_ldef(v=None):
+    """تعريفُ ③ L: المُمرَّر أو `VWL_LDEF` (لوضعي replay/trace) وإلّا `L_DEF_DEFAULT` — وغيرُ المعروف ⟵ الافتراضيّ."""
+    v = (v if v is not None else os.environ.get("VWL_LDEF", "")).strip()
+    return v if v in L_DEFS else L_DEF_DEFAULT
+
+
+def liq5(b5, i, ldef):
+    """③ L لإكمال 5x3 عند الشمعة i. strict = `V3.liq_ok` بالاسم · T = متوسّطُ دولار الشموع الثلاث ≥ 0.95 × متوسّطِ ما قبلها
+    (حتى ثلاث · **المتاحُ** حين يقلّ عن ثلاث · ولا شيءَ قبلها ⟵ لا) · M = متوسّطُ الثلاث ≥ وسيطِ دولار شموع الجلسة حتى i —
+    وفي T وM معًا إغلاقُ الثالثة ≥ إغلاقِ الأولى (رفضُ نمط القروبات كما هو)."""
+    if ldef == "strict":
+        return V3.liq_ok(b5, i)
+    if i < 2:
+        return False
+    hold = [b5[k]["dv"] for k in (i - 2, i - 1, i)]
+    keep = b5[i]["c"] >= b5[i - 2]["c"]
+    if ldef == "T":
+        prior = [b5[k]["dv"] for k in range(max(0, i - 5), i - 2)]
+        return bool(prior) and keep and _mean(hold) >= L_TOL * _mean(prior)
+    if ldef == "M":
+        return keep and _mean(hold) >= _median([b["dv"] for b in b5[:i + 1]])
+    raise ValueError(ldef)
+
+
+def liq15(b15, j, ldef):
+    """③ L لإكمال 15x1 عند السلّة j. strict = `V3.liq15_ok` · T = دولارُها ≥ 0.95 × السابقة (ولا سابقةَ ⟵ لا) ·
+    M = دولارُها ≥ وسيطِ سلال الجلسة حتى j — وإغلاقُها ≥ افتتاحِها في الثلاثة."""
+    if ldef == "strict":
+        return V3.liq15_ok(b15, j)
+    keep = b15[j]["c"] >= b15[j]["o"]
+    if ldef == "T":
+        return j >= 1 and keep and b15[j]["dv"] >= L_TOL * b15[j - 1]["dv"]
+    if ldef == "M":
+        return keep and b15[j]["dv"] >= _median([b["dv"] for b in b15[:j + 1]])
+    raise ValueError(ldef)
+
+
+def event_L(b5, b15, ev, ldef):
+    """③ L للحدث = `V3.event_liq` بالتعريف المختار (strict يطابقه بت-بت · `VWL16`)."""
+    _e, kind, idx, _k = ev
+    return liq5(b5, idx, ldef) if kind == "5x3" else liq15(b15, idx, ldef)
+
+
+def retest_hold(b5, b15, after_e, ldef, tol=V3.RETEST_TOL):
+    """الذراع D = `V3.retest_signal(…, need_liq=True)` حرفيًّا بـL المختار (strict يطابقه بت-بت · `VWL16`): أوّلُ لمسةٍ تبدأ عند
+    `after_e` أو بعده (قاعٌ حتى tol × VWAP) ثمّ أبكرُ ثباتٍ بعدها (ثلاثُ إغلاقاتٍ فوقه أو شمعةُ 15 فوقه) يحقّق L."""
+    t = next((i for i, b in enumerate(b5) if b["s"] >= after_e and b["vwap"] is not None and b["l"] <= tol * b["vwap"]), None)
+    if t is None:
+        return None
+    te = b5[t]["e"]
+
+    def above(b):
+        return b["vwap"] is not None and b["c"] > b["vwap"]
+    cands = []
+    for i in range(t + 3, len(b5)):
+        if all(above(b5[k]) for k in (i - 2, i - 1, i)) and liq5(b5, i, ldef):
+            cands.append((b5[i]["e"], "5x3", i))
+            break
+    for j in range(len(b15)):
+        if b15[j]["s"] >= te and above(b15[j]) and liq15(b15, j, ldef):
+            cands.append((b15[j]["e"], "15x1", j))
+            break
+    return min(cands) if cands else None
+
+
+def is_flat(b5, e, n=FLAT_N, pct=FLAT_PCT):
+    """سعرٌ ثابت: مدى (أعلى − أدنى) آخر n شموع 5د المكتملة حتى e لا يتجاوز pct من إغلاق آخرها — وصفٌ للعرض."""
+    w = [b for b in b5 if b["e"] <= e][-n:]
+    return len(w) == n and (max(b["h"] for b in w) - min(b["l"] for b in w)) <= pct * w[-1]["c"]
+
+
+def alert_tags(a, b5, detail):
+    """وسومُ عرضٍ بلا رفض (أمرُ المالك 2026-10-29): «📌 استحواذ نقدي» = 8-K بند 1.01 في النافذة ∧ سعرٌ ثابت · «⏱️ قرب الإغلاق» = إكمالٌ 15:45 فما بعد."""
+    tags = []
+    if (detail or {}).get("acq_101") and is_flat(b5, a["e"]):
+        tags.append("📌 استحواذ نقدي")
+    if a["e"] >= NEAR_CLOSE_MOD:
+        tags.append("⏱️ قرب الإغلاق")
+    return tags
+
+
 def ema_last(values, n=EMA_N):
     """EMA بطول n (‏α = 2/(n+1) · بذرتُه أوّلُ قيمة) ⟵ آخرُ قيمةٍ أو None."""
     a, e = 2.0 / (n + 1.0), None
@@ -118,7 +218,7 @@ def shares_before(bars, e):
 CHECK_ORDER = ("⑤ السعر", "الحجم الدولاري", "① التغيّر", "③ L", "② RVOL", "⑤ النوع", "⑤ SPAC", "④ الخبر")
 
 
-def check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d_min, full_info):
+def check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d_min, full_info, ldef="strict"):
     """يفحص حدثَ كسرٍ بترتيب `CHECK_ORDER` ويملأ `info` (liq · rvol · cat) ⟵ قائمةُ ما سقط — تقف عند أوّل سقوطٍ ما لم يُطلب `full_info`."""
     why = []
 
@@ -132,7 +232,7 @@ def check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d
         return why
     if not V4.ge(info["chg"], CHG_MIN) and fail("① التغيّر"):
         return why
-    info["liq"] = V3.event_liq(b5, b15, ev)
+    info["liq"] = event_L(b5, b15, ev, ldef)
     if not info["liq"] and fail("③ L"):
         return why
     info["rvol"] = priors_rvol(shares_before(bars, e), priors_fn(), e)
@@ -140,7 +240,7 @@ def check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d
         return why
     if type_status != "ok" and fail("⑤ النوع" + (" (مجهول)" if type_status == "unknown" else "")):
         return why
-    if spac and fail("⑤ SPAC"):
+    if spac and fail("⑤ " + ("SPAC" if spac is True else str(spac))):   # True ⟵ SPAC · نصٌّ ⟵ وسمُ SIC (صندوق)
         return why
     info["cat"] = cat_of(e)
     if info["cat"].get("C") is not True:
@@ -148,7 +248,7 @@ def check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d
     return why
 
 
-def evaluate(bars, op, cl, upto, prev_adj, priors_fn, cat_of, type_status, spac, d_min=D_MIN_LIVE, full_info=False):
+def evaluate(bars, op, cl, upto, prev_adj, priors_fn, cat_of, type_status, spac, d_min=D_MIN_LIVE, full_info=False, ldef=None):
     """رمزٌ في يوم حتى `upto` ⟵ {"events": [كلُّ كسرٍ A بشروطه]، "alerts": [A الأوّلُ الكامل ثمّ D#1..3]}.
 
     A كامل = الملحق 3 **في الحدث نفسِه**: الكسرُ (`break_events`) ∧ ⑤ السعرُ في [PX_MIN، PX_MAX) ∧ الحجمُ الدولاريّ التراكميّ من 04:00 ≥ d_min ∧
@@ -157,6 +257,7 @@ def evaluate(bars, op, cl, upto, prev_adj, priors_fn, cat_of, type_status, spac,
     D = بعد أوّل A كامل: لمسةٌ (قاعُ 5د حتى 1.01 × VWAP) ثمّ الثباتُ مع L (`retest_signal` بالاسم) وفي لحظة إكماله ① و⑤ قائمان
     (الملحق 3 §③-⑥) ثمّ تُبحث اللمسةُ التالية بعد إكماله — حتى `D_MAX_PER_DAY` تنبيهًا.
     `priors_fn()` ⟵ أيّامُ ② (يُنادى عند الحاجة وحدَها) · `cat_of(نهاية)` ⟵ `V4.catalyst4` · `type_status` ∈ {ok · excluded · unknown}."""
+    ldef = resolve_ldef(ldef)
     b5, b15, _bb = complete_buckets(bars, op, cl, upto)
     events, alerts, first_full = [], [], None
     for ev in V3.break_events(b5, b15):
@@ -165,7 +266,7 @@ def evaluate(bars, op, cl, upto, prev_adj, priors_fn, cat_of, type_status, spac,
         px, vwap = bk["c"], bk["vwap"]
         info = {"e": e, "kind": kind, "px": px, "vwap": vwap, "cum_dollar": V3.cum_dollar_at(bars, e),
                 "chg": V4.pct_change(px, prev_adj), "liq": None, "rvol": None, "cat": None}
-        info["why"] = check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d_min, full_info)
+        info["why"] = check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d_min, full_info, ldef)
         info["full"] = not info["why"]
         events.append(info)
         if info["full"] and first_full is None:
@@ -175,7 +276,7 @@ def evaluate(bars, op, cl, upto, prev_adj, priors_fn, cat_of, type_status, spac,
                            ema9=ema_last([b["c"] for b in b5 if b["e"] <= first_full["e"]])))
         after, n_d = first_full["e"], 0
         while n_d < D_MAX_PER_DAY:
-            rt = V3.retest_signal(b5, b15, after, need_liq=True)
+            rt = retest_hold(b5, b15, after, ldef)
             if rt is None:
                 break
             re_, rkind, ridx = rt
@@ -241,6 +342,13 @@ def build_message(row):
         f"{head} · <b>${_esc(sym)}</b> · ${row['px']:.2f} · ‏{_pct(row.get('chg'))} يومه",
         f"RVOL {rv_s} · فيواب ${row['vwap']:.2f} (فوقه {row.get('above', 0)} شموع 5د) · EMA9 {ema_s}",
         f"📰 {_esc(row.get('news') or 'خبرٌ مؤكَّد في النافذة')}",
+    ]
+    if row.get("tags"):
+        lines.append("🏷️ " + " · ".join(row["tags"]))
+    ps = str(row.get("prev_src") or "")
+    if ps.startswith("last_close "):
+        lines.append(f"📎 التغيّرُ عن آخر إغلاق {ps.split(' ', 1)[1]} (لم يتداول بعده)")
+    lines += [
         f"🕐 أُغلقت شمعةُ الحدث {_hm(row['e'])} نيويورك",
         "⛔ وقف مقترح: إغلاق شمعة 5د تحت الفيواب",
         "🎯 الجني (نايف): كل 7-10% ربح بيع جزء وارفع وقفك · وأوّل ما يرتفع عن دخولك ارفع وقفك لدخولك",
@@ -259,7 +367,8 @@ def ledger_row(day, sym, a, detected_ts, sent, reason, mode, sha, news):
             "rvol": None if a["rvol"] is None else (None if a["rvol"] == float("inf") else round(a["rvol"], 2)),
             "rvol_inf": a["rvol"] == float("inf"), "cum_dollar": round(a["cum_dollar"]), "candle": a["kind"],
             "above": a.get("above"), "ema9": None if a.get("ema9") is None else round(a["ema9"], 4),
-            "news": news, "mode": mode, "sha": sha}
+            "news": news, "mode": mode, "sha": sha, "tags": list(a.get("tags") or []), "prev_src": a.get("prev_src"),
+            "sic": a.get("sic"), "ldef": a.get("ldef")}
 
 
 def harvest(bars, op, cl, alert_mod, alert_px):
@@ -282,13 +391,13 @@ def prefilter(day_hl, prev_adj_of, types):
     وأدنى اليوم دون PX_MAX · وأعلاه PX_MIN فأكثر · والنوعُ ليس مستبعَدًا (المجهولُ يبقى ليُسأل عنه) ⟵ مجموعةُ الرموز."""
     out = set()
     for sym, (h, low) in day_hl.items():
-        pa = prev_adj_of(sym)
-        if not pa or h is None or low is None:
-            continue
+        if h is None or low is None or not (low < PX_MAX and h >= PX_MIN):
+            continue                                                    # السعرُ والنوعُ أوّلًا: إغلاقُ الموقوف يُجلب لما يلزم وحدَه
         t = types.get(sym)
         if t is not None and t not in TYPES_OK:
             continue
-        if V4.ge(h / pa - 1.0, CHG_MIN) and low < PX_MAX and h >= PX_MIN:
+        pa = prev_adj_of(sym)
+        if pa and V4.ge(h / pa - 1.0, CHG_MIN):
             out.add(sym)
     return out
 
@@ -438,10 +547,57 @@ class Day:
         from edgar2_probe import parse_acc, to_ny
         self.acc_ts = V3.make_acc_ts(parse_acc, to_ny)
         self._prior_cache, self._cat_cache, self._detail = {}, {}, {}
+        self._prev_cache, self.sic_of = {}, {}
+
+    def prev_ref(self, sym):
+        """(إغلاقُ الأمس المسوّى، مصدرُه) — من مجمَّعة الجلسة السابقة («grouped») · **وإن غاب** (سهمٌ لم يتداول أمس: موقوفٌ ثمّ عائد)
+        فآخرُ إغلاقٍ قبل اليوم في `LAST_CLOSE_LOOKBACK_D` يومًا مسوًّى بكلّ تقسيمٍ نُفِّذ بعده حتى اليوم («last_close يوم») — أمرُ المالك
+        2026-10-29 «اعتمد آخر إغلاق للموقوف» · ولا إغلاقَ في النافذة (اكتتابٌ · تغييرُ رمز) ⟵ (None، None) = ① مجهول كما كان ·
+        وتعذّرُ الشبكة لا يُخبَّأ (يُعاد في الحلقة التالية)."""
+        if sym in self._prev_cache:
+            return self._prev_cache[sym]
+        pv = self.prev_close.get(sym)
+        if pv:
+            out = (pv * V4.price_factor(self.splits.get(sym, ()), self.day), "grouped")
+        else:
+            out = self._last_close(sym)
+            if out is None:
+                return (None, None)
+        self._prev_cache[sym] = out
+        return out
+
+    def _last_close(self, sym):
+        lo = (dt.date.fromisoformat(self.day) - dt.timedelta(LAST_CLOSE_LOOKBACK_D)).isoformat()
+        j = self.net.poly(f"/v2/aggs/ticker/{sym}/range/1/day/{lo}/{self.prev}", {"adjusted": "false", "sort": "asc", "limit": 200})
+        if j is None:
+            return None
+        rows = []
+        for r in j.get("results") or ():
+            try:
+                d0 = dt.datetime.fromtimestamp(int(r["t"]) / 1000.0, tz=NY).date().isoformat()
+                if d0 < self.day and r.get("c"):
+                    rows.append((d0, float(r["c"])))
+            except (KeyError, TypeError, ValueError):
+                continue
+        if not rows:
+            return (None, None)
+        d0, c0 = rows[-1]
+        sp, ok = self.net.paged("/v3/reference/splits", {"ticker": sym, "execution_date.gt": d0, "execution_date.lte": self.day,
+                                                         "limit": 100})
+        if not ok:
+            return None
+        f = 1.0
+        for r in sp:
+            try:
+                ex = str(r["execution_date"])
+                if str(r.get("ticker") or sym).upper() == sym and d0 < ex <= self.day:
+                    f *= float(r["split_from"]) / float(r["split_to"])
+            except (KeyError, TypeError, ValueError, ZeroDivisionError):
+                return None
+        return (c0 * f, f"last_close {d0}")
 
     def prev_adj(self, sym):
-        pv = self.prev_close.get(sym)
-        return pv * V4.price_factor(self.splits.get(sym, ()), self.day) if pv else None
+        return self.prev_ref(sym)[0]
 
     def type_status(self, sym):
         if sym not in self.types and sym not in self._detail:
@@ -485,6 +641,7 @@ class Day:
         b_iso = dt.datetime.fromtimestamp(upto_ts, tz=dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         items = self.net.news(sym, a_iso, b_iso)
         sic, rows, known = self.sec_of(sym)
+        self.sic_of[sym] = sic
         wix = V4.wire_index(items or [])[0]
         s8k = [r[0] for r in rows if r[1] == "8-K"]
         s6k = [r[0] for r in rows if r[1] == "6-K"]
@@ -503,18 +660,27 @@ class Day:
                 if w and ts is not None and self.win_a <= ts <= b and sym in {str(t).upper() for t in it.get("tickers") or []}:
                     wi = {"title": it.get("title"), "wire": w[0], "published_utc": it.get("published_utc"),
                           "time_ny": dt.datetime.fromtimestamp(ts, tz=NY).strftime("%m-%d %H:%M")}
-            si = None
+            si, acq = None, False
             for ts, f, its in rows:
                 if f == "8-K" and self.win_a <= ts <= b:
                     si = {"items": its, "time_ny": dt.datetime.fromtimestamp(ts, tz=NY).strftime("%m-%d %H:%M")}
-            return {"wire_item": wi, "sec_item": si}
-        out = (cat_of, detail, sic == SPAC_SIC)
+                    acq = acq or "1.01" in [x.strip() for x in str(its or "").split(",")]
+            return {"wire_item": wi, "sec_item": si, "acq_101": acq}
+        out = (cat_of, detail, excl_label(sic))
         if self.replay:
             self._cat_cache[sym] = out
         return out
 
 
-def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False, prev_override=None):
+def excl_label(sic):
+    """⑤ بكود SIC من `submissions` نفسِه: 6770 ⟵ «SPAC» (الملحق 3) · `FUND_SIC` ⟵ «صندوق (SIC …)» (أمرُ المالك 2026-10-29) · وإلّا None."""
+    sic = str(sic or "")
+    if sic == SPAC_SIC:
+        return "SPAC"
+    return f"صندوق (SIC {sic})" if sic in FUND_SIC else None
+
+
+def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False, prev_override=None, ldef=None):
     """فحصُ رمزٍ حتى `upto` ⟵ نتيجةُ `evaluate` وكلُّ تنبيهٍ فيها بخبره (`news` نصًّا و`news_detail`). أيّامُ ② والخبرُ وSEC
     **تُجلب عند الحاجة وحدَها** (حين تكتمل الشروطُ الأرخص قبلها) · وSPAC يُعرف من `submissions` نفسِه فيُعاد التقييمُ به."""
     b5, _b15, _ = complete_buckets(bars_today, D.op, D.cl, upto)
@@ -531,13 +697,16 @@ def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False, prev_ove
             state["fn"], state["detail"], state["spac"] = D.catalyst(sym, detected_ts)
         return state["fn"](e)
     ts = D.type_status(sym)
-    pa = D.prev_adj(sym) if prev_override is None else prev_override   # التجاوزُ لوضع trace التشخيصيّ وحدَه (`VWL14`)
-    res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, cat_of, ts, False, full_info=full_info)
+    ldef = resolve_ldef(ldef)
+    pa, psrc = D.prev_ref(sym) if prev_override is None else (prev_override, "override")   # التجاوزُ لوضع trace وحدَه (`VWL14`)
+    res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, cat_of, ts, False, full_info=full_info, ldef=ldef)
     if state.get("spac"):
-        res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, state["fn"], ts, True, full_info=full_info)
+        res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, state["fn"], ts, state["spac"], full_info=full_info, ldef=ldef)
     for a in res["alerts"]:
         a["news_detail"] = state["detail"](a["e"])
         a["news"] = news_brief(a["news_detail"])
+        a["tags"] = alert_tags(a, b5, a["news_detail"])
+        a["prev_src"], a["sic"], a["ldef"] = psrc, D.sic_of.get(sym), ldef
     return res
 
 
@@ -596,7 +765,7 @@ def mode_replay(net, MC, end_day, ndays):
             days.append(d.isoformat())
         d -= dt.timedelta(1)
     days.reverse()
-    out = {"mode": "replay", "days": days, "d_min": D_MIN_LIVE, "px": [PX_MIN, PX_MAX], "chg_min": CHG_MIN, "rvol_min": RVOL_MIN,
+    out = {"mode": "replay", "ldef": resolve_ldef(), "days": days, "d_min": D_MIN_LIVE, "px": [PX_MIN, PX_MAX], "chg_min": CHG_MIN, "rvol_min": RVOL_MIN,
            "fresh_max_s": FRESH_MAX_S, "d_max": D_MAX_PER_DAY, "per_day": {}, "alerts": [], "near": []}
     bad = False
     for day in days:
@@ -667,9 +836,9 @@ def mode_trace(net, MC, day, sym):
     D = Day(net, day, MC, replay=True)
     by = net.minutes(sym, day, day)
     bars = (by or {}).get(day) or []
-    out = {"mode": "trace", "date": day, "sym": sym, "ref_ok": D.ok, "ref_why": D.why, "bars": len(bars),
-           "prev_adj": D.prev_adj(sym), "type": D.type_status(sym), "candles": [], "touches": [], "events": [], "alerts": [], "ext": {}}
-    if out["prev_adj"] is None:                                         # تشخيصٌ لا مصدرٌ بديل: لماذا غاب إغلاقُ الأمس عن المجمَّعة؟
+    out = {"mode": "trace", "ldef": resolve_ldef(), "date": day, "sym": sym, "ref_ok": D.ok, "ref_why": D.why, "bars": len(bars),
+           "prev_adj": D.prev_adj(sym), "prev_src": D.prev_ref(sym)[1], "type": D.type_status(sym), "candles": [], "touches": [], "events": [], "alerts": [], "ext": {}}
+    if not D.prev_close.get(sym):                                      # تشخيص: لماذا غاب إغلاقُ الأمس عن المجمَّعة؟
         lo = (dt.date.fromisoformat(D.prev) - dt.timedelta(10)).isoformat()
         j = net.poly(f"/v2/aggs/ticker/{sym}/range/1/day/{lo}/{day}", {"adjusted": "false", "sort": "asc", "limit": 50})
         dref = net.poly(f"/v3/reference/tickers/{sym}", {"date": D.prev})
@@ -722,7 +891,7 @@ def mode_trace(net, MC, day, sym):
         sm = int(tch["s"][:2]) * 60 + int(tch["s"][3:])
         rev = {}
         for tag, nl in (("with_L", True), ("without_L", False)):
-            rt = V3.retest_signal(b5f, b15f, sm, need_liq=nl)
+            rt = retest_hold(b5f, b15f, sm, resolve_ldef()) if nl else V3.retest_signal(b5f, b15f, sm, need_liq=False)
             if rt is None:
                 rev[tag] = None
                 continue
@@ -744,6 +913,8 @@ def mode_trace(net, MC, day, sym):
                                               and not (D.op <= b["s"] < D.cl)],
                   "breaks_outside_regular": [_hm(ev[0]) for ev in V3.break_events(e5, V3.bucketize(ext, vw, V3.EXT_START, 15, V3.EXT_END),
                                                                                   skip=(D.op, D.cl))]}
+    out["sic"] = D.sic_of.get(sym)
+    out["excl"] = excl_label(out["sic"]) if out["sic"] is not None else None
     emit_json(out)
     log(f"🔎 {sym} {day}: شموع {len(bars)} دقيقة · لمساتُ الفيواب في النظاميّة {len(out['touches'])} · أحداثُ كسر {len(out['events'])} · "
         f"تنبيهاتٌ كانت ستُرسَل {len(out['alerts'])} · الممتدّة: لمسات {len(out['ext']['touches_outside_regular'])} وكسور "

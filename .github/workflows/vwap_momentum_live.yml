@@ -30,10 +30,13 @@ on:
       send:
         description: "live: 1 = يُرسل إلى تلغرام ويكتب السجلّ (بعد موافقة المالك وحدَها) · غيرُه = تجربةٌ صامتة"
         default: "0"
+      ldef:
+        description: "replay/trace: تعريفُ ③ L (strict · T · M) — فارغٌ = الإنتاج"
+        default: ""
 
 # 🔀 مجموعةٌ لكلّ وضع: الحيُّ (المجدولُ واليدويّ) متسلسلٌ لا يتوازى فيكرّر التنبيه · والأوضاعُ اليدويّة لا تنتظر خلفه ساعاتِ الجلسة
 concurrency:
-  group: super-stocks-vwap-live-${{ github.event.inputs.mode || 'live' }}
+  group: super-stocks-vwap-live-${{ github.event.inputs.mode || 'live' }}-${{ github.event.inputs.ldef }}
   cancel-in-progress: false
 
 jobs:
@@ -58,7 +61,8 @@ jobs:
           VWL_END: ${{ github.event.inputs.end }}
           VWL_DATE: ${{ github.event.inputs.date }}
           VWL_SYM: ${{ github.event.inputs.sym }}
-          VWL_OUT: ${{ (github.event.inputs.mode == 'replay' || github.event.inputs.mode == 'trace') && github.ref_name != 'main' && format('vwap_live_research/{0}_{1}.json', github.event.inputs.mode, github.event.inputs.mode == 'trace' && format('{0}_{1}', github.event.inputs.sym, github.event.inputs.date) || github.event.inputs.end || 'last') || '' }}
+          VWL_LDEF: ${{ github.event.inputs.ldef }}
+          VWL_OUT: ${{ (github.event.inputs.mode == 'replay' || github.event.inputs.mode == 'trace') && github.ref_name != 'main' && format('vwap_live_research/{0}_{1}{2}.json', github.event.inputs.mode, github.event.inputs.mode == 'trace' && format('{0}_{1}', github.event.inputs.sym, github.event.inputs.date) || github.event.inputs.end || 'last', github.event.inputs.ldef != '' && format('_{0}', github.event.inputs.ldef) || '') || '' }}
           PYTHONUNBUFFERED: "1"
         run: python vwap_momentum_live.py --mode "$VWL_MODE" --days "$VWL_DAYS" --end "$VWL_END" --date "$VWL_DATE" --sym "$VWL_SYM"
       # 🗂️ نتيجةُ replay/trace تُدفَع إلى **فرع التشغيل نفسِه** حين لا يكون main (قبولٌ يُراجَع في PR) — main لا يُكتب من هنا
