@@ -40,10 +40,34 @@ EXT_OPEN_NY = 4 * 60           # بدءُ الجلسة الممتدّة (‏04:0
 CHAIN_MIN_LEFT = 6             # 🔗 دقائقُ قبل نهاية الميزانية يُطلَق فيها الخلَف (تداخلٌ لا فجوة)
 CHAIN_LAST_NY = 19 * 60 + 30   # 🔗 لا خلَفَ بعد 19:30 نيويورك (الجلسةُ الممتدّة تنتهي 20:00)
 CHAIN_WORKFLOW = "operator_entry.yml"
+# 📦 «ادفع المكتوم دفعة كل 10 دقائق» (أمرُ المالك 2026-10-29 · تقرير الجزء أ §أ1-ب): يومَ 10-27 ‏1,474 commit مقابل ‏≈102 ختمٍ مُسلَّم
+#    ⟵ ‏≈93% دفعٌ لدوراتٍ مكتومة. المكتومُ يُختَم محلّيًّا كلَّ دورة ويُدفَع **دفعةً** كلَّ هذه الثواني · والمُسلَّمُ يُدفَع فورًا كما كان
+#    (الدِّدوبُ ينجو من موت الرنر) · وما بقي معلَّقًا يُدفَع عند نهاية المقطع · `OE_MUTED_PUSH_S=0` ⟵ كلُّ دورةٍ كما كان بت-بت.
+MUTED_PUSH_EVERY_S = 600
+_PUSH = {"last": 0.0, "pending": False}
 
 
 def _log(msg):
     bot.log(msg)
+
+
+def _push_state(files, muted=False, now=None, every=None):
+    """دفعُ ملفّات الحالة: المُسلَّمُ (`muted=False`) فورًا دائمًا · والمكتومُ دفعةً واحدةً كلَّ `every` ثانية منذ آخر دفعٍ ناجح —
+    وما يُؤجَّل يبقى «معلَّقًا» حتى دفعٍ تالٍ (أيُّ دفعٍ يحمله لأن الحالةَ ملفٌّ واحدٌ كامل) أو حتى نهاية المقطع.
+    ترجّع True إن دُفع. عطلُ الدفع يرمي (كما كان) ويُبقي المعلَّقَ معلَّقًا ليُعاد."""
+    now = time.time() if now is None else now
+    if every is None:
+        try:
+            every = float(os.environ.get("OE_MUTED_PUSH_S", MUTED_PUSH_EVERY_S))
+        except Exception:                                        # noqa: BLE001
+            every = MUTED_PUSH_EVERY_S
+    if muted and every > 0 and (now - _PUSH["last"]) < every:
+        _PUSH["pending"] = True
+        return False
+    _PUSH["pending"] = True
+    bot.git_save(files)
+    _PUSH["last"], _PUSH["pending"] = now, False
+    return True
 
 
 def _ny_minutes(now=None):
@@ -676,10 +700,10 @@ def main():
             if not lrows and _lmarks:   # كُتم الكلّ ⇒ الوسمُ يُطبَع مع ذلك
                 _log("🔁 مِرساةٌ مُعادة (مكتومةُ الأحداث): "
                      + " · ".join(_lmarks))
-            if not lrows:            # كُتم الكلّ ⇒ **يُختَم ولا يُرسَل**
+            if not lrows:            # كُتم الكلّ ⇒ **يُختَم ولا يُرسَل** · ويُدفَع دفعةً كلَّ 10 دقائق (أمرُ المالك 2026-10-29)
                 bot.save_op_entry_state(seen)
                 try:
-                    bot.git_save([bot.OP_ENTRY_STATE_FILE])
+                    _push_state([bot.OP_ENTRY_STATE_FILE], muted=True)
                 except Exception as e:                           # noqa: BLE001
                     _log(f"⚠️ دفعُ ددوب السيولة (مكتوم): {e}")
         if lrows:
@@ -718,7 +742,7 @@ def main():
                     _files = [bot.OP_ENTRY_STATE_FILE]
                     if _tfwd:
                         _files.append(bot.TIER_FWD_LEDGER_FILE)
-                    bot.git_save(_files)
+                    _push_state(_files)                  # المُسلَّمُ فورًا (ويحمل المعلَّقَ المكتوم معه)
                 except Exception as e:                           # noqa: BLE001
                     _log(f"⚠️ دفعُ ددوب السيولة: {e}")
             else:
@@ -785,7 +809,7 @@ def main():
                 #    فورًا كي ينجو الدِدوب من موت الرنر وتقرأه المقاطعُ التالية.
                 bot.save_op_entry_state(seen)
                 try:
-                    bot.git_save([bot.OP_ENTRY_STATE_FILE])
+                    _push_state([bot.OP_ENTRY_STATE_FILE])       # المُسلَّمُ فورًا
                 except Exception as e:                           # noqa: BLE001
                     _log(f"⚠️ دفعُ الدِدوب: {e}")
             else:
@@ -806,6 +830,13 @@ def main():
         #    🔒 **رتيبٌ لا يُؤخّر أبدًا** — يساوي القديمَ حين يطول العمل، وأسرعُ
         #    منه حين يقصُر؛ ويستحيل عليه بنيويًّا أن يجعل دورةً أطولَ ممّا كانت.
         time.sleep(max(0.0, interval - (time.time() - _cyc)))
+    # 📦 المعلَّقُ المكتوم يُدفَع عند نهاية المقطع (وإلّا ضاع ختمُ آخر دقائقه مع الرنر)
+    if _PUSH["pending"]:
+        try:
+            _push_state([bot.OP_ENTRY_STATE_FILE])
+            _log("📦 دُفع ختمُ المكتوم المعلَّق عند نهاية المقطع.")
+        except Exception as e:                                   # noqa: BLE001
+            _log(f"⚠️ دفعُ المكتوم المعلَّق: {e}")
     _rs = _restarts()
     _log(f"✅ انتهى [{role}]: {loops} دورة · {fired} دخولًا · {liq_hit} رفعةَ "
          f"سيولة · تغطيةُ السيولة {liq_cov} قراءةً · {errs} خطأ."
