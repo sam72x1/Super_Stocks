@@ -2096,7 +2096,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.96,
+   "last_price": 3.84,
    "borrow_hist": [
     [
      "2026-10-29",
@@ -15683,7 +15683,7 @@
    "sector": "Technology",
    "country": "Hong Kong",
    "float": 14864979,
-   "last_price": 10.99,
+   "last_price": 11.15,
    "status": "watching",
    "triggered_date": null
   },
