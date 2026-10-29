@@ -12877,7 +12877,7 @@ def borrow_gate_recheck(picks):
         try:
             av = r.get("shares_available")
             # 🔒📅 (2026-10-29 · «طبّق المتاح المعلوم خلال 7 أيام»): المجهولُ اليومَ يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS`
-            #    (`borrow_known` تملؤه `borrow_second_chance`) · `0` ⟵ فائدةُ الشك كما كانت بت-بت
+            #    (`borrow_known` تملؤه الفرصةُ الثانية للمتاح قبل البوّابة) · `0` ⟵ فائدةُ الشك كما كانت بت-بت
             if av is None and _kd > 0:
                 av = (r.get("borrow_known") or {}).get("shares_available")
             over = av is not None and float(av) > limit
