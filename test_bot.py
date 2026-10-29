@@ -91115,6 +91115,50 @@ except Exception as _e:                                              # noqa: BLE
     _v_v11, _v_v11w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📈🔓 VWM11 (‏2026-10-29) أداةُ v4 سلوكيًّا: الحارسُ ثمّ البصمةُ ثمّ المفتاحان بصفرِ شبكة (8 · 9 · 2 · 2) · الأحداثُ بدوالّ v2/v3 · ① و② على حدّهما · "
       "الأسلاكُ و8-K وحدَه · الأنواعُ والـSPAC والسعر · المجهول · والقاعدةُ على FULL بعد الحارس", _v_v11, _v_v11w)
+# 📈🔒 VWM12 (‏2026-10-29 · جدوى v4 `40842025281` · الملحق 3 §④): النتيجةُ منشورةٌ كما صدرت — `vwap_mom_feas_v4_result.md` = `vwap_mom_feas_v4_doc.render(JSON)` بايتًا ·
+#    والحكمُ يُعاد من الـJSON بدوالّ الأداة نفسِها (`coverage_gates4` ⟵ `pick_rule` ⟵ `verdict4`) = «إغلاقٌ نهائيّ» · والوسيطُ والمجاميعُ من `per_day` · و21 جلسةً بلا ناقص ·
+#    وفحصُ الإعادة 0 من 105 · وبصمةُ الملحق = المثبَّتة · والتنبّؤاتُ منشورةٌ بنتائجها (P12 · P14 · P16 ❌) · والمتانةُ (① وحده دون 10) · ونصُّ الإغلاق «نهائيّ» برقم التشغيلة.
+try:
+    import json as _v12_j
+    import statistics as _v12_st
+    import vwap_mom_feas as _V12_3
+    import vwap_mom_feas_v4 as _V12
+    import vwap_mom_feas_v4_doc as _V12D
+    _v12_r = _v12_j.load(open("vwap_mom_feas_v4_2026-09.json", encoding="utf-8"))
+    _v12_doc = open("vwap_mom_feas_v4_result.md", encoding="utf-8").read()
+    _v12_pd = _v12_r["per_day"]
+    _v12_lad = [int(x) for x in _v12_r["d_ladder"]]
+    _v12_med = all(_v12_st.median(v[f"A@{d}"][k] for v in _v12_pd.values()) == _v12_r["median_by_dmin"][str(d)][k] for d in _v12_lad for k in _V12.KEYS4)
+    _v12_tot = all(sum(v[f"A@{d}"][k] for v in _v12_pd.values()) == _v12_r["month_totals"][str(d)][k] for d in _v12_lad for k in _V12.KEYS4)
+    _v12_g, _v12_ref = _v12_r["gate_counts"], _v12_r["reference"]
+    _v12_ok, _v12_why = _V12.coverage_gates4(_v12_r["news"], _v12_r["sec"]["index_missing"], _v12_g["sec_unknown"], _v12_g["sec_denom"], _v12_r["days_missing"],
+                                             _v12_ref["prev_missing"], _v12_ref["splits_complete"] and _v12_ref["types_complete"], _v12_g["type_unknown"], _v12_g["type_denom"])
+    _v12_pick = _V12_3.pick_rule({d: _v12_r["median_by_dmin"][str(d)]["FULL"] for d in _v12_lad}, _v12_lad, *_v12_r["d_rule"]) if _v12_ok else None
+    import copy as _v12_cp
+    _v12_r2 = _v12_cp.deepcopy(_v12_r)
+    for _d in _v12_lad:
+        _v12_r2["median_by_dmin"][str(_d)]["C1"] = 12                 # شاهدُ ضبط: ① وحده فوق 10 ⟵ لا «كلاهما دون 10»
+    _v12_doc2 = _V12D.render(_v12_r2)
+    _v12_pl = {ln.split("**")[1].rstrip(":"): ln.rstrip().endswith("✅ صدق") for ln in _v12_doc.splitlines() if ln.startswith("- **P1")}
+    _v12_c = {
+        "doc_is_render": _V12D.render(_v12_r) == _v12_doc,
+        "verdict_recomputed": _v12_ok is True and _v12_why == [] and _v12_pick is None and _V12.verdict4(_v12_ok, _v12_pick) == _v12_r["verdict"] == "final_close",
+        "medians_totals": _v12_med and _v12_tot and len(_v12_pd) == 21 and _v12_r["days_missing"] == [],
+        "rule_constants": tuple(_v12_r["d_rule"]) == _V12_3.D_RULE and tuple(_v12_lad) == _V12_3.D_LADDER and _v12_r["add3_sha"] == _V12.ADD3_SHA
+                          and (_v12_r["chg_min"], _v12_r["rvol_min"], _v12_r["px_max"]) == (_V12.CHG_MIN, _V12.RVOL_MIN, _V12.PX_MAX),
+        "run": _v12_r.get("run") == 40842025281 and "`40842025281`" in _v12_doc and str(_v12_r.get("main_sha", "")).startswith("200baafbb")
+               and (_v12_r.get("owner_reopen") or {}).get("input_reopen") == "1",
+        "replay": _v12_r["replay_v3_H0"]["compared"] == 105 and _v12_r["replay_v3_H0"]["mismatch"] == 0,
+        "predictions": _v12_pl == {"P12": False, "P13": True, "P14": False, "P15": True, "P16": False, "P17": True},
+        "robust": max(_v12_r["median_by_dmin"][str(d)]["C1"] for d in _v12_lad) < _v12_r["d_rule"][0] and "**كلاهما دون 10**" in _v12_doc
+                  and "PRNewswire · Business Wire · Accesswire" in _v12_doc and "كلاهما دون 10" not in _v12_doc2 and "قد يتغيّر" in _v12_doc2,
+        "closure_final": any("40842025281" in ln and "إغلاقٌ نهائيّ" in ln for ln in _V12_3.closure_notice()),
+    }
+    _v_v12, _v_v12w = all(_v12_c.values()), f"{ {k: v for k, v in _v12_c.items() if not v} or 'كلّها'} · تنبّؤات={_v12_pl}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_v12, _v_v12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈🔒 VWM12 (‏2026-10-29) جدوى v4 منشورةٌ كما صدرت: المستندُ = المولِّد بايتًا · «إغلاقٌ نهائيّ» يُعاد من الـJSON بدوالّ الأداة · الوسيطُ والمجاميعُ من `per_day` · "
+      "الإعادة 0/105 · التنبّؤاتُ بنتائجها · ① وحده دون 10 · ونصُّ الإغلاق «نهائيّ»", _v_v12, _v_v12w)
 # 🔧 S3E1 (‏2026-10-29 · عطلٌ مُثبَت: جدوى v3 `40790473567` «لا قياس» — 21 من 21 يومًا تعذّر تنزيلُها): صورةُ الرنر 20261025.179.1 (aws-cli 2.38.5)
 #    أفشلت `aws s3 cp` على البكت حيث نجح على 20261012.163.1 (2.37.13 · v2 `40722466274`) · والمِجَسُّ `40796690636` نجح على الصورة الجديدة بإعداداته.
 #    ⟵ (أ) كلُّ خطوةٍ تمرّر `AWS_ACCESS_KEY_ID` من `POLYGON_S3_KEY` تضبط معه المنطقةَ والـchecksum كالمِجَسّ (`flatfiles_probe.yml`) ·
