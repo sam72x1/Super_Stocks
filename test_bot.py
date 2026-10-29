@@ -91850,37 +91850,41 @@ check("🟠 VWL14 (‏2026-10-29 · قبول ⑤ · AZTR موقوفٌ ثمّ ع�
       "بعد كلّ لمسة) · والقاعدةُ الحيّة صارت آخرَ إغلاق (VWL17) فتطابق «ماذا لو» · والتجاوزُ في trace وحدَه · والنتيجةُ إلى فرعها لا main", _vl14, _vl14w)
 
 
-# VWL15 (‏2026-10-29 · قبول ⑤): `vwap_live_acceptance.md` مولَّدٌ من ملفَّي التشغيل المحفوظين بايتًا · ومكوّناتُ ③ L في الوثيقة تطابق
-#        `vwap_mom_feas.liq_ok` على شموع trace نفسِها وحكمَ الأداة في الحدث (L) · وسلسلةُ «ماذا لو» من جدول ثبات D الذي حسبه
-#        `retest_signal` على الرنر (وصفٌ لا قاعدة · والشموعُ الدقيقة لا تُحفظ فلا تُعاد `evaluate` هنا — حدُّ صدق)
+# VWL15 (‏2026-10-29 · قبول ⑤ — الجولة الثانية): `vwap_live_acceptance.md` مولَّدٌ بايتًا من ملفّات التشغيل المحفوظة · ومكوّناتُ ③ L فيها
+#        (متوسّطُ الثلاث · ما قبلها المتاح · وسيطُ الجلسة) تطابق `liq5` بالتعريفين على شموع AZTR وحكمَ الأداة في الحدث · وشرطُ التفعيل
+#        (AZTR يُلتقَط: A ثمّ D) مقروءٌ من trace الإنتاج T · والملفّاتُ تحمل تعريفَها · ولا كرونَ قبل التفعيل
 try:
     import vwap_live_acceptance as _VA
     _doc15 = open(_VA.DOC, encoding="utf-8").read()
-    _tr15 = _VL.json.load(open(_VA.TRACE, encoding="utf-8"))
-    _cd15 = _tr15.get("candles") or []
+    _tT15, _tM15 = _VA.load("trace_T"), _VA.load("trace_M")
+    _cd15 = _tT15.get("candles") or []
+    _c15 = [{"s": int(c["s"][:2]) * 60 + int(c["s"][3:]), "e": int(c["s"][:2]) * 60 + int(c["s"][3:]) + 5, "c": c["c"], "dv": c["dv"],
+             "vwap": c["vwap"]} for c in _cd15]
+    _evm15 = {e["end_ny"]: e for e in _tM15.get("events") or []}
     _lq15 = []
-    for _e15 in _tr15.get("events") or []:
+    for _e15 in _tT15.get("events") or []:
         if _e15["kind"] != "5x3":
             continue
-        _p15 = _VA.liq_parts(_cd15, _e15["end_ny"])
-        _real = _VL3.liq_ok(_cd15, _p15["i"])
-        _mine = False if _p15["now"] is None else (_p15["now"] > _p15["before"] and _p15["c3"] >= _p15["c1"])
-        _lq15.append((_e15["end_ny"], _real, _mine, _real == bool(_e15["L"])))
-    _ch15 = _VA.hypo_d_chain(_tr15.get("touches") or [], (_tr15.get("events") or [{}])[0].get("end_ny", "09:30"))
+        _p15 = _VA.l_parts(_cd15, _e15["end_ny"])
+        _desc_T = _p15["prior"] is not None and _p15["hold"] >= 0.95 * _p15["prior"] and _p15["c3"] >= _p15["c1"]
+        _desc_M = _p15["hold"] >= _p15["median"] and _p15["c3"] >= _p15["c1"]
+        _lq15.append((_e15["end_ny"], _desc_T == _VL.liq5(_c15, _p15["i"], "T") == bool(_e15["L"]),
+                      _desc_M == _VL.liq5(_c15, _p15["i"], "M") == bool((_evm15.get(_e15["end_ny"]) or {}).get("L"))))
+    _aT15 = _tT15.get("alerts") or []
     _vl15_c = {
         "doc_regen": _VA.build() == _doc15,
-        "liq_matches_real": bool(_lq15) and all(r[1] == r[2] and r[3] for r in _lq15),
-        "first_l_impossible": _lq15 and _lq15[0][0] == "09:55" and _VA.liq_parts(_cd15, "09:55")["now"] is None,
-        "chain3": [d["end_ny"] for d in _ch15] == ["10:30", "11:00", "12:35"] and len(_ch15) == 3,
-        "trace_rule_zero": _tr15.get("alerts") == [] and _tr15.get("prev_adj") is None,
+        "l_parts_match": bool(_lq15) and all(a and b for _x, a, b in _lq15),
+        "activation": bool(_aT15) and _aT15[0]["arm"] == "A" and any(a["arm"] == "D" for a in _aT15) and "✅ مستوفى" in _doc15,
+        "ldef_tags": (_tT15.get("ldef"), _tM15.get("ldef"), _VA.load("replay_T").get("ldef"), _VA.load("replay_M").get("ldef")) == ("T", "M", "T", "M"),
+        "tol_same": _VA.L_TOL == _VL.L_TOL,
         "no_cron_yet": "schedule" not in (lambda w: w.get("on", w.get(True)) or {})(
             _vl14y.safe_load(open(".github/workflows/vwap_momentum_live.yml", encoding="utf-8"))),
     }
-    _vl15, _vl15w = all(_vl15_c.values()), str({k: v for k, v in _vl15_c.items() if not v} or "كلّها")
+    _vl15, _vl15w = all(_vl15_c.values()), f"{ {k: v for k, v in _vl15_c.items() if not v} or 'كلّها'} · {_lq15}"
 except Exception as _e:                                                    # noqa: BLE001
     _vl15, _vl15w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🟠 VWL15 (‏2026-10-29 · قبول ⑤) وثيقةُ القبول مولَّدةٌ بايتًا من ملفَّي التشغيل · ومكوّناتُ ③ L فيها تطابق `liq_ok` · وسلسلةُ «ماذا لو» "
-      "لـAZTR (10:30 · 11:00 · 12:35) · ولا كرونَ قبل موافقة المالك", _vl15, _vl15w)
+check("🟠 VWL15 (‏2026-10-29 · قبول ⑤ — الجولة الثانية) وثيقةُ القبول مولَّدةٌ بايتًا · ومكوّناتُ ③ L فيها تطابق `liq5` بالتعريفين وحكمَ الأداة · "
+      "وشرطُ التفعيل (AZTR: A ثمّ D) من trace الإنتاج · ولا كرونَ قبل التفعيل", _vl15, _vl15w)
 
 
 # VWL16 (‏2026-10-29 · أمرُ المالك «أعد تعريف L»): ③ L بتعريفين يُقارَنان والإنتاجُ على T — strict يطابق `V3.liq_ok`/`liq15_ok`/`retest_signal`
