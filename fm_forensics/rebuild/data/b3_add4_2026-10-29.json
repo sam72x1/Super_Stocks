@@ -1,0 +1,333 @@
+{
+ "mode": "b3_assemble",
+ "base": "BASE2",
+ "shards": 20,
+ "entries": 3266,
+ "entries_expected": 3266,
+ "match": true,
+ "train_sessions": 311,
+ "addendum2_sha": "08208fbaea2061b8d4a4c5e2c6361dca2fe2236771f59bbff42855871d80d565",
+ "prod_state": {
+  "RSI_OVERSOLD": "ليّنة (نقصٌ يُعَدّ في WATCH_MAX_FAILS)",
+  "RSI_OS_HARD": "حيّةٌ رفضًا (M10_RSI_ما_تشبّع)",
+  "RSI_MAX_NOW": "ليّنة",
+  "RSI_NOW_HARD": "حيّةٌ رفضًا (M10_RSI_فات_القطار)",
+  "MA_GATE_MAX_ABOVE_PCT": "ليّنة (ضمن M12)",
+  "STABILITY_MIN": "مطفأة",
+  "STABILITY_MAX": "مطفأة (ST5)",
+  "ANCHOR_TWO_TOUCH": "حيّةٌ رفضًا (M_لا_مستوى_مختبر) · مجمَّدةٌ بعقد H6"
+ },
+ "not_measured": {
+  "PIVOT_SWEEP_PCT": "لم يُقَس — محورٌ مُغلَق (T-LAYERS · LAYERS_REOPEN)"
+ },
+ "prod_off": [
+  [
+   "M8_GAP_REQUIRED",
+   "مطفأة (GAP_REQUIRED=False)"
+  ],
+  [
+   "STABILITY_BT (STABILITY_MIN رفضًا)",
+   "مطفأة (BT_STABILITY_GATE فارغ: يُحسب ويُعرض ولا يرفض)"
+  ],
+  [
+   "STABILITY_MAX",
+   "مطفأة (لا تُنفَّذ في أيّ ذراع)"
+  ],
+  [
+   "NEAR_READINESS",
+   "مطفأة (NEAR_PCT=0)"
+  ],
+  [
+   "PIVOT_SWEEP_PCT",
+   "عرضٌ فقط لا بوّابة"
+  ],
+  [
+   "RSI_OVERSOLD · RSI_MAX_NOW · MA_GATE_MAX_ABOVE_PCT",
+   "ليّنة (نقصٌ يُعَدّ في WATCH_MAX_FAILS · لا رفضَ وحدَها)"
+  ],
+  [
+   "M13_SHORT",
+   "ليّنة (نقصٌ لا رفض)"
+  ],
+  [
+   "BORROW_AVAIL_MAX",
+   "حيّةٌ في الإنتاج · لم تُقَس هنا (لا تاريخ)"
+  ]
+ ],
+ "reference": {
+  "file": "bases_ref_b3.json",
+  "run": 40792940849,
+  "main_sha": "f7bf940cffb29ecabb5da36bbc7b4000d883cf02"
+ },
+ "bases_diff_vs_first": {
+  "TRAIN": {
+   "BASE2": {
+    "entries": [
+     3267,
+     3266
+    ],
+    "labelled": [
+     3190,
+     3189
+    ],
+    "exploded": [
+     538,
+     537
+    ]
+   }
+  },
+  "VAL": {
+   "BASE2": {
+    "entries": [
+     1925,
+     1924
+    ],
+    "labelled": [
+     1887,
+     1886
+    ],
+    "exploded": [
+     428,
+     427
+    ]
+   },
+   "OWNER": {
+    "entries": [
+     68,
+     67
+    ],
+    "labelled": [
+     68,
+     67
+    ]
+   }
+  }
+ },
+ "eligible": 3266,
+ "excluded_by_code": {},
+ "items": {
+  "m": 8,
+  "z": 2.7344,
+  "units": 3266,
+  "labelled": 3189,
+  "exploded": 537,
+  "base_share": 0.1684,
+  "symbols": 1490,
+  "strata": 225,
+  "cols": {
+   "RSI_OVERSOLD": {
+    "pass": 3265,
+    "pass_labelled": 3188,
+    "exploded_pass": 536,
+    "share_pass": 0.1681,
+    "diff": -0.0003,
+    "diff_ci": [
+     -0.001,
+     0.0005
+    ],
+    "mh_rr": 0.211,
+    "mh_ci": [
+     0.053,
+     0.834
+    ],
+    "burden": 10.498,
+    "verdict": "لا تفرّق",
+    "boot_nan": 764
+   },
+   "RSI_OS_HARD": {
+    "pass": 3266,
+    "pass_labelled": 3189,
+    "exploded_pass": 537,
+    "share_pass": 0.1684,
+    "diff": 0.0,
+    "diff_ci": [
+     0.0,
+     0.0
+    ],
+    "mh_rr": null,
+    "mh_ci": null,
+    "burden": 10.502,
+    "verdict": "لا تفرّق — لا مقارنة",
+    "boot_nan": 2000
+   },
+   "RSI_MAX_NOW": {
+    "pass": 3266,
+    "pass_labelled": 3189,
+    "exploded_pass": 537,
+    "share_pass": 0.1684,
+    "diff": 0.0,
+    "diff_ci": [
+     0.0,
+     0.0
+    ],
+    "mh_rr": null,
+    "mh_ci": null,
+    "burden": 10.502,
+    "verdict": "لا تفرّق — لا مقارنة",
+    "boot_nan": 2000
+   },
+   "RSI_NOW_HARD": {
+    "pass": 3266,
+    "pass_labelled": 3189,
+    "exploded_pass": 537,
+    "share_pass": 0.1684,
+    "diff": 0.0,
+    "diff_ci": [
+     0.0,
+     0.0
+    ],
+    "mh_rr": null,
+    "mh_ci": null,
+    "burden": 10.502,
+    "verdict": "لا تفرّق — لا مقارنة",
+    "boot_nan": 2000
+   },
+   "MA_GATE_MAX_ABOVE_PCT": {
+    "pass": 3266,
+    "pass_labelled": 3189,
+    "exploded_pass": 537,
+    "share_pass": 0.1684,
+    "diff": 0.0,
+    "diff_ci": [
+     0.0,
+     0.0
+    ],
+    "mh_rr": null,
+    "mh_ci": null,
+    "burden": 10.502,
+    "verdict": "لا تفرّق — لا مقارنة",
+    "boot_nan": 2000
+   },
+   "STABILITY_MIN": {
+    "pass": 207,
+    "pass_labelled": 203,
+    "exploded_pass": 32,
+    "share_pass": 0.1576,
+    "diff": -0.0108,
+    "diff_ci": [
+     -0.0778,
+     0.0563
+    ],
+    "mh_rr": 0.832,
+    "mh_ci": [
+     0.511,
+     1.355
+    ],
+    "burden": 0.666,
+    "verdict": "لا تفرّق",
+    "boot_nan": 0
+   },
+   "STABILITY_MAX": {
+    "pass": 3168,
+    "pass_labelled": 3092,
+    "exploded_pass": 518,
+    "share_pass": 0.1675,
+    "diff": -0.0009,
+    "diff_ci": [
+     -0.0042,
+     0.0025
+    ],
+    "mh_rr": 0.952,
+    "mh_ci": [
+     0.504,
+     1.796
+    ],
+    "burden": 10.186,
+    "verdict": "لا تفرّق",
+    "boot_nan": 0
+   },
+   "ANCHOR_TWO_TOUCH": {
+    "pass": 175,
+    "pass_labelled": 174,
+    "exploded_pass": 23,
+    "share_pass": 0.1322,
+    "diff": -0.0362,
+    "diff_ci": [
+     -0.1051,
+     0.0327
+    ],
+    "mh_rr": 0.831,
+    "mh_ci": [
+     0.462,
+     1.493
+    ],
+    "burden": 0.563,
+    "verdict": "لا تفرّق",
+    "boot_nan": 0
+   }
+  }
+ },
+ "stop": {
+  "n": 174,
+  "S0_hit50_first": 7,
+  "S5_hit50_first": 10,
+  "S0_share": 0.0402,
+  "S5_share": 0.0575,
+  "S5_minus_S0_ci95": [
+   0.0,
+   0.0395
+  ]
+ },
+ "tranches": [
+  {
+   "k": 0,
+   "n": 174,
+   "fill": 166,
+   "fill_share": 0.954,
+   "fill_ci95": [
+    0.92,
+    0.9829
+   ],
+   "exploded_n": 23,
+   "caught": 16,
+   "caught_share": 0.6957,
+   "caught_ci95": [
+    0.5217,
+    0.8696
+   ],
+   "above_price": 18
+  },
+  {
+   "k": 1,
+   "n": 174,
+   "fill": 172,
+   "fill_share": 0.9885,
+   "fill_ci95": [
+    0.9711,
+    1.0
+   ],
+   "exploded_n": 23,
+   "caught": 18,
+   "caught_share": 0.7826,
+   "caught_ci95": [
+    0.6087,
+    0.9565
+   ],
+   "above_price": 135
+  },
+  {
+   "k": 2,
+   "n": 174,
+   "fill": 173,
+   "fill_share": 0.9943,
+   "fill_ci95": [
+    0.9825,
+    1.0
+   ],
+   "exploded_n": 23,
+   "caught": 20,
+   "caught_share": 0.8696,
+   "caught_ci95": [
+    0.7391,
+    1.0
+   ],
+   "above_price": 154
+  }
+ ],
+ "t0_equals_s0": "T₀ = S0 بالبناء (PIVOT_STOP_AT_LOW) ⟵ لا تُقاس نتيجةُ صفقةٍ من T₀ على شموعٍ يوميّة",
+ "seconds": 1.2,
+ "run": 40801435160,
+ "main_sha": "7e305c7abdd038343a6871942327aebee758623d",
+ "created_at": "2026-10-29T01:36:30Z",
+ "prep_run": 40792940849
+}
