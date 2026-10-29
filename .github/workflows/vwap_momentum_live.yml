@@ -2,14 +2,23 @@ name: "🟠 زخم الفيواب — تنبيهٌ حيّ (قيد الإثبات
 
 # 🟠 أداةُ تنبيهٍ حيّة بقواعد نايف — الملحق 3 تعريفًا نهائيًّا (`vwap_mom_prereg_addendum_3.md` §③) · أمرُ المالك 2026-10-29.
 #    خارج الجذور تمامًا: `vwap_momentum_live.py` يستورد من `Super_stock.py` الإرسالَ والحفظ وحدَهما ولا يمسّه.
-# 🔒 **بلا كرون حتى موافقة المالك على قبول ⑤** (إعادةُ التشغيل الصامتة على آخر 5 جلسات ‏+ اختبارُ AZTR 2026-10-26) —
-#    التفعيلُ = إضافةُ `schedule` هنا (والجوباتُ الحيّةُ تقرأ `github.event_name == 'schedule'` فتُرسل) · `VWL9` يحرس غيابَه حتى ذلك.
+# 🔥 **الكرونُ مُفعَّلٌ 2026-10-29 بأمر المالك** («شرط التفعيل: AZTR يُلتقَط (A ثم لمسات D). بعدها فعّل الكرون بعد التجربة الحية») —
+#    قبولُ ⑤ الجولة الثانية (`vwap_live_acceptance.md`) ‏+ تجربتان حيّتان صامتتان يوم 10-29 · والجوباتُ الحيّةُ تقرأ `github.event_name == 'schedule'`
+#    فتُرسل · `VWL9`/`VWL15`/`VWL19` تحرس الكروناتِ الأربعة وتغطيتَها · **والرجوعُ حذفُ كتلة `schedule` (الحيُّ اليدويُّ بت-بت).**
 # الأوضاعُ اليدويّة: replay · trace · probe · harvest (جوبٌ واحد **بلا أسرار تلغرام**) · live (الإرسالُ بمُدخَل send=1 وحدَه).
 # 🕐 الجلسةُ 6.5 ساعات وسقفُ الجوب 6 ⟵ مقطعان (الافتتاح +195 د · ثمّ حتى الإغلاق والحصاد) وجوبا نومٍ قبل الجرس — نمطُ رادار الانطلاق.
 permissions:
   contents: write
 
 on:
+  schedule:
+    # ⏰ تأخّرُ GitHub مقيسٌ 300-420 دقيقة على كرونات المستودع (10-26…10-29) ووصل 609 (أغسطس) ⟵ أربعةُ كروناتٍ متباعدة 3 ساعات
+    #    (نمطُ رادار الانطلاق) · وجوبا النوم ينامان حتى الجرس (`pre_open_target`: بعد 20:00 نيويورك فجلسةُ الغد ⟵ كرونُ 02:23 يخدم يومَه)
+    #    · ومجموعةُ التزامن واحدةٌ للحيّ ⟵ الأوّلُ يخدم الجلسةَ والباقي ينتظره ثمّ يخرج بلا عمل (والحصادُ مرّةً لكلّ تنبيه) · `VWL19`
+    - cron: "23 2 * * 1-5"
+    - cron: "23 5 * * 1-5"
+    - cron: "23 8 * * 1-5"
+    - cron: "23 11 * * 1-5"
   workflow_dispatch:
     inputs:
       mode:
@@ -119,9 +128,10 @@ jobs:
       - name: Wait for the bell outside the scan budget
         continue-on-error: true
         run: |
-          M=$(python vwap_momentum_live.py --pre-open-sleep 2>/dev/null | sed -n 's/^PRE_OPEN_SLEEP_MIN=\([0-9][0-9]*\)$/\1/p' | tail -1)
+          O=$(python vwap_momentum_live.py --pre-open-sleep 2>/dev/null)
+          M=$(printf '%s\n' "$O" | sed -n 's/^PRE_OPEN_SLEEP_MIN=\([0-9][0-9]*\)$/\1/p' | tail -1)
           [ -n "$M" ] || M=0
-          echo "⏰ انتظارُ الجرس: ${M} دقيقة"
+          echo "⏰ انتظارُ الجرس: ${M} دقيقة · $(printf '%s\n' "$O" | grep '^PRE_OPEN_DAY=' | tail -1)"
           sleep $((M * 60))
 
   pre_open_wait_2:
@@ -140,9 +150,10 @@ jobs:
       - name: Wait for the bell outside the scan budget
         continue-on-error: true
         run: |
-          M=$(python vwap_momentum_live.py --pre-open-sleep 2>/dev/null | sed -n 's/^PRE_OPEN_SLEEP_MIN=\([0-9][0-9]*\)$/\1/p' | tail -1)
+          O=$(python vwap_momentum_live.py --pre-open-sleep 2>/dev/null)
+          M=$(printf '%s\n' "$O" | sed -n 's/^PRE_OPEN_SLEEP_MIN=\([0-9][0-9]*\)$/\1/p' | tail -1)
           [ -n "$M" ] || M=0
-          echo "⏰ انتظارُ الجرس: ${M} دقيقة"
+          echo "⏰ انتظارُ الجرس: ${M} دقيقة · $(printf '%s\n' "$O" | grep '^PRE_OPEN_DAY=' | tail -1)"
           sleep $((M * 60))
 
   open_segment:

@@ -45,6 +45,7 @@ LEDGER = "vwap_live_ledger.jsonl"    # سجلُّ الحصاد الإلحاقي�
 SEG_SPLIT_MIN = 195                  # حدُّ المقطعين (سقفُ جوب GitHub 6 ساعات · كرادار الانطلاق)
 PRE_OPEN_LEAD_MIN = 10               # جوبُ النوم يستيقظ قبل الجرس بعشر دقائق
 PRE_OPEN_CAP_MIN = 340               # تحت سقف الجوب 360
+PRE_OPEN_NEXT_FROM_NY_MIN = 20 * 60   # بعد نهاية الأفتر (20:00 نيويورك) فالجلسةُ المقصودة الغد — كرونُ 02:xx UTC يخدم جلسةَ يومه (engineering)
 # ③ L — أمرُ المالك 2026-10-29: تعريفُ 3×3 الصارم هندسيٌّ من عندنا لا من نايف وأسقط مثالَه (AZTR 11:05 بـ2%) ⟵ تعريفان يُقارَنان
 #    والإنتاجُ على `L_DEF` · **معايَرٌ على مثال المصدر نفسِه** (حدُّ صدق · لا قياسَ خارج العيّنة) · ورفضُ نمط القروبات كما هو (إغلاقُ الثالثة ≥ الأولى)
 L_DEFS = ("strict", "T", "M")        # strict = `V3.liq_ok`/`liq15_ok` كما كانت · T = تسامح 5% مع المتاح · M = وسيطُ الجلسة حتى اللحظة
@@ -431,6 +432,22 @@ def snapshot_hl(tickers):
         if sym and vals:
             out[sym] = (max(v[0] for v in vals), min(v[1] for v in vals))
     return out, diag
+
+
+def pre_open_target(now_utc, MC, lead=PRE_OPEN_LEAD_MIN, cap=PRE_OPEN_CAP_MIN):
+    """(الجلسةُ المقصودة، دقائقُ النوم) لجوب الانتظار — جلسةُ يوم نيويورك كما كانت، **إلّا بعد 20:00 نيويورك** (نهايةُ الأفتر) فجلسةُ الغد:
+    كرونُ 02:xx UTC (‏22:xx نيويورك من أمس) ينام لجلسة يومه بدل أن يخرج بلا عمل — وبه لا يبدأ مقطعُ الافتتاح قبل الجرس بساعاتٍ
+    فيستنفد ميزانيّتَه نائمًا حين يعبر الجوبان منتصفَ ليل نيويورك · والاحتياطُ المعلَّق بعد الإغلاق (‏16:xx) بلا عملٍ كما كان ·
+    والغدُ غيرُ جلسة ⟵ صفر (لا قفزَ فوق العطلة) · فاشلٌ-آمن ⟵ (None، 0)."""
+    try:
+        ny = now_utc.astimezone(NY)
+        day = (ny.date() + dt.timedelta(1 if ny.hour * 60 + ny.minute >= PRE_OPEN_NEXT_FROM_NY_MIN else 0)).isoformat()
+        if not V3.is_session(day, MC.session_info):
+            return day, 0
+        op = dt.datetime.fromtimestamp(V3.ny_ts(day, MC.session_info(day)["open_ny_min"]), tz=dt.timezone.utc)
+        return day, pre_open_sleep_min(op, now_utc, lead, cap)
+    except Exception:                                                    # noqa: BLE001
+        return None, 0
 
 
 def pre_open_sleep_min(open_utc, now_utc, lead=PRE_OPEN_LEAD_MIN, cap=PRE_OPEN_CAP_MIN):
@@ -1063,15 +1080,8 @@ def main(argv=None):
     a = p.parse_args(argv)
     import market_calendar as MC
     if a.pre_open_sleep:
-        try:
-            now = dt.datetime.now(tz=dt.timezone.utc)
-            day = _today_ny()
-            m = 0
-            if V3.is_session(day, MC.session_info):
-                op = dt.datetime.fromtimestamp(V3.ny_ts(day, MC.session_info(day)["open_ny_min"]), tz=dt.timezone.utc)
-                m = pre_open_sleep_min(op, now)
-        except Exception:                                                # noqa: BLE001
-            m = 0
+        day, m = pre_open_target(dt.datetime.now(tz=dt.timezone.utc), MC)
+        print(f"PRE_OPEN_DAY={day}")
         print(f"PRE_OPEN_SLEEP_MIN={m}")
         return 0
     key = os.environ.get("POLYGON_API_KEY", "").strip()
