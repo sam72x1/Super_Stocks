@@ -28768,7 +28768,10 @@ S.apply_faisal_only(_px_live, log_fn=lambda *_a: None)
 #    `BASE_RANGE_MAX_PCT` وحدها). فالصياغةُ الجديدة **أشدُّ لا أرخى**: الظرفُ يحكم كلَّ
 #    مفتاحٍ **إلّا** مفاتيحَ قرار المالك، **وهي تُفحَص مطابقةً حرفيًّا لقيمها المُعلَنة**
 #    ⇒ أيُّ انزياحٍ غيرِ مأذون (في الظرف أو في الطبقة) يُسقطه كما كان.
-_px_own = dict(S.OWNER_GATE_OVERRIDES)
+# ✅ وحُدِّث 2026-10-29 — **بإقرارٍ مؤرَّخ**: أمرُ المالك «أرجع حد الانفجار إلى 35» أدخل استثناءً **ثانيًا** (‏`RECENT_RISE_BLOCK_PCT`
+#    = 35 · `OWNER_CHASE_OVERRIDE` خلف `CHASE35_ON`) **وهذا القفلُ أمسكه** (سقط على 35 ≠ 214.73) ⇒ الاستثناءُ يُقرأ من الطبقة
+#    النافذة `owner_gate_overrides` لا من `OWNER_GATE_OVERRIDES` وحدَها — **والفحصُ الحرفيُّ للقيم كما هو**.
+_px_own = dict(S.owner_gate_overrides(_px_live))
 check("🔒 PROX8 بوّاباتُ فيصل **العشرون** كما أخرجتها المعايرة — إلّا استثناءَ المالك "
       "المُعلَن (‏`T-BASE-2`)، وهو يُفحَص حرفيًّا",
       all(abs(float(_px_live.get(k, -1)) - float(v)) < 1e-9
@@ -29068,7 +29071,9 @@ check("🥇 OGB2 يعلو حافّةَ الظرف المدفوعة (‏قرار�
 check("🥇 OGB3 ويُعلَن **باسمه وبوسمِه** لا مدفونًا في القائمة (لا سطرَ عرضٍ يكذب)",
       any("بقرار المالك" in m and "BASE_RANGE_MAX_PCT=120.0" in m
           and "engineering" in m for m in _ogb_log)
-      and any("منها **1** بقرار المالك" in m for m in _ogb_log),
+      # ✅ حُدِّث 2026-10-29 بإقرارٍ مؤرَّخ: «أرجع حد الانفجار إلى 35» جعل الطبقةَ النافذة مفتاحين ⇒ «منها **2**» (والمطفأُ
+      #    «منها **1**» بت-بت يحرسه `C35R2`) · وسطرُ `T-BASE-2` نفسُه (‏`BASE_RANGE_MAX_PCT=120.0` · `engineering`) كما هو.
+      and any("منها **2** بقرار المالك" in m for m in _ogb_log),
       str(_ogb_log[-1])[:100] if _ogb_log else "بلا رسالة")
 # 🔒 OGB4 وبـ`FAISAL_ONLY=0` **لا يُمَسّ** — يحرس قفلَي `B3`/`C3` (الأربعون بحكمٍ مقيس)
 _ogb_off = {"FAISAL_ONLY": 0, "BASE_RANGE_MAX_PCT": 40.0}
@@ -29089,9 +29094,13 @@ check("🥇 OGB7 والقرارُ مدوَّنٌ في دفتر المصادر ب
       "120" in open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
       and "T-BASE-2" in open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read())
 # 🔒 OGB8 والطبقةُ **مفتاحٌ واحد** — أيُّ توسيعٍ لاحق قرارُ مالكٍ بتجربةٍ مسجَّلة
-check("🔒 OGB8 طبقةُ قرارِ المالك مفتاحٌ واحدٌ حصرًا (‏M4) لا سلّةُ استثناءات",
-      set(S.OWNER_GATE_OVERRIDES) == {"BASE_RANGE_MAX_PCT"},
-      str(S.OWNER_GATE_OVERRIDES))
+# ✅ حُدِّث 2026-10-29 بإقرارٍ مؤرَّخ: التوسيعُ الذي يحرسه هذا القفل **وقع بقرار المالك وبتجربةٍ مسجَّلة** («أرجع حد الانفجار إلى 35»
+#    بعد `T-CHASE`) — فالطبقةُ النافذة **مفتاحان حصرًا** (‏`T-BASE-2` ‏+ `T-CHASE`) وطبقةُ `T-BASE-2` وحدَها مفتاحٌ واحدٌ كما كانت ·
+#    وأيُّ ثالثٍ يُسقطه كما كان يُسقط الثاني.
+check("🔒 OGB8 طبقةُ قرارِ المالك النافذة مفتاحان حصرًا (‏M4 القاعدة · M4 الملاحقة) لا سلّةُ استثناءات",
+      set(S.OWNER_GATE_OVERRIDES) == {"BASE_RANGE_MAX_PCT"}
+      and set(S.owner_gate_overrides({"CHASE35_ON": 1})) == {"BASE_RANGE_MAX_PCT", "RECENT_RISE_BLOCK_PCT"},
+      str(S.owner_gate_overrides({"CHASE35_ON": 1})))
 
 # ── ⏳ تقريرُ «المسارات التي تحتاج وقتًا» (أمرُ المالك 2026-08-06) ────────────────
 try:                     # حرسٌ: انكسارُ الكتلة يجب أن يكون **فشلًا نظيفًا** لا انهيارًا
@@ -86736,11 +86745,15 @@ try:
     _a = _gx_gate(_inv, "M4_RISE")["audit"]
     _t = next(t for t in _a["thresholds"] if t["key"] == "RECENT_RISE_BLOCK_PCT")
     _s5 = _md.split("## 5.")[-1] if "## 5." in _md else ""
-    _ok = ("E_TCHASE" in (_t.get("refs") or []) and "T-CHASE" in _s5 and "rejects nothing" in _s5 and "never adopted" in _s5)
-    _w = f"refs={_t.get('refs')}"
+    # ✅ حُدِّث 2026-10-29 بإقرارٍ مؤرَّخ: «أرجع حد الانفجار إلى 35» اعتمد 35 ⇒ §5 يقول «35 حيّ» بأمر المالك والمفتاحِ الذي يرجعه ·
+    #    وأنّ الحافّةَ «لا ترفض شيئًا» في لقطةٍ تسبق الأمر — و«never adopted» صار كذبًا فخرج من الشرط.
+    _ok = ("E_TCHASE" in (_t.get("refs") or []) and (_t.get("refs") or [None])[0] == "O_CHASE35_1029"
+           and _t.get("number_origin") == "OWNER" and "T-CHASE" in _s5 and "rejects nothing" in _s5
+           and "The value 35 is live" in _s5 and "CHASE35_ON=0" in _s5 and "never adopted" not in _s5)
+    _w = f"refs={_t.get('refs')} · origin={_t.get('number_origin')}"
 except Exception as _e:                                              # noqa: BLE001
     _ok, _w = False, f"⛔ {type(_e).__name__}: {_e}"
-check("📚 GPX5 `M4_RISE`: `T-CHASE` موصولٌ بالعتبة · و§5 يقول إن البوّابةَ عند 214.73 لا ترفض شيئًا وإن 35 عبر حرّاسه ولم يُعتمَد (قرارُ المالك)", _ok, _w)
+check("📚 GPX5 `M4_RISE`: `T-CHASE` موصولٌ بالعتبة · و§5 يقول إن الحافّة 214.73 لا ترفض شيئًا وإن 35 حيٌّ بأمر المالك 2026-10-29 (`CHASE35_ON=0` يرجعها)", _ok, _w)
 
 # GPX6 — كلُّ تجربةٍ بنطاقٍ من المفردات · وجدولُ §4d يذكر كلَّ تجربةٍ وتدقيقٍ سابقٍ موصولٍ بكلّ بوّابة (عددُ الصفوف = عددُ الإيصالات)
 try:
@@ -92403,6 +92416,156 @@ except Exception as _e:                                          # noqa: BLE001
     _c35_ok, _c35_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🚧 C35A1 قياسُ «حدّ الانفجار 35» على العشرة: صيغةُ `gain5` كالكود («فوق» تمامًا · الشمعةُ ref_bar ثمّ ما قبل الإضافة) · المطابقةُ "
       "تفسّر التقسيمَ بعد الشمعة · `--check` يعيد المُخرَجَين بايتًا · والسطران قبل الأرقام", _c35_ok, _c35_w)
+
+# ══ 🚧 C35R — «أرجع حد الانفجار إلى 35» (أمرُ المالك 2026-10-29) ═══════════════════════════════════════════════════════════
+# `RECENT_RISE_BLOCK_PCT` النافذُ 35 بقرار المالك فوق حافّة الظرف 214.73 — طبقةُ `OWNER_CHASE_OVERRIDE` تُطبَّق آخرًا في
+# `apply_faisal_only` خلف `CHASE35_ON` (‏0 ⟵ 214.73 بت-بت). والسويّةُ تعمل بـ`FAISAL_ONLY=0` ⇒ كلُّ قفلٍ هنا **يُجبر الفرع**
+# بقاموسٍ مُصطنع (درسُ HCG7b) · والمفتاحُ يُقرأ من القاموس ثمّ من `CONFIG`.
+_c35r_edge, _c35r_on, _c35r_off, _c35r_on_log, _c35r_off_log = None, {}, {}, [], []
+try:
+    import envelope_scan as _c35r_ev
+    _c35r_edges = _c35r_ev.load_edges()
+    _c35r_edge = S.faisal_only_overrides(_c35r_edges).get("RECENT_RISE_BLOCK_PCT")
+    _c35r_on = {"FAISAL_ONLY": 1, "CHASE35_ON": 1}
+    S.apply_faisal_only(_c35r_on, log_fn=_c35r_on_log.append)
+    _c35r_ok1 = (_c35r_on.get("RECENT_RISE_BLOCK_PCT") == 35.0 and _c35r_on.get("BASE_RANGE_MAX_PCT") == 120.0
+                 and abs(float(_c35r_edge) - 214.7286870417835) < 1e-9
+                 and any("منها **2** بقرار المالك" in m for m in _c35r_on_log)
+                 and any(m.lstrip().startswith("↳ 🚧") and "RECENT_RISE_BLOCK_PCT=35.0" in m and "T-CHASE" in m
+                         and "CHASE35_ON=0" in m and repr(float(_c35r_edge)) in m for m in _c35r_on_log))
+    _c35r_w1 = f"نافذ={_c35r_on.get('RECENT_RISE_BLOCK_PCT')} · حافّة={_c35r_edge} · أسطر={len(_c35r_on_log)}"
+except Exception as _e:                                          # noqa: BLE001
+    _c35r_ok1, _c35r_w1 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🚧 C35R1 مُفعَّلًا: `RECENT_RISE_BLOCK_PCT` النافذُ **35** فوق حافّة الظرف 214.73 · و120 كما هي · ويُعلَن «منها 2» "
+      "وسطرُ 🚧 بالحافّة والسند والمفتاح", _c35r_ok1, _c35r_w1)
+
+# C35R2 · مُطفأً = **السلوكُ السابق بت-بت**: الإحلالُ = الظرف ‏+ الوسيط ‏+ `OWNER_GATE_OVERRIDES` حرفيًّا (تركيبُ ما قبل الأمر) ·
+#         والرأسُ نفسُه بعد استبدال العدّ والقيمة · ولا سطرَ 🚧 · وثلاثةُ أسطرٍ كما كانت.
+try:
+    _c35r_off = {"FAISAL_ONLY": 1, "CHASE35_ON": 0}
+    _c35r_ret = S.apply_faisal_only(_c35r_off, log_fn=_c35r_off_log.append)
+    _c35r_old = S.faisal_only_overrides(_c35r_edges)
+    _c35r_old.update(S.faisal_soft_overrides(((_c35r_edges or {}).get("_meta") or {}).get("soft_median") or {}))
+    _c35r_old.update({"BASE_RANGE_MAX_PCT": 120.0})
+    _c35r_hdr = (_c35r_on_log[0].replace("منها **2**", "منها **1**")
+                 .replace("RECENT_RISE_BLOCK_PCT=35.0", f"RECENT_RISE_BLOCK_PCT={_c35r_edge}")) if _c35r_on_log else "—"
+    _c35r_ok2 = (_c35r_ret == _c35r_old and _c35r_off == dict(_c35r_old, FAISAL_ONLY=1, CHASE35_ON=0)
+                 and _c35r_off.get("RECENT_RISE_BLOCK_PCT") == _c35r_edge and len(_c35r_off_log) == 3
+                 and not any("🚧" in m for m in _c35r_off_log) and _c35r_off_log[0] == _c35r_hdr
+                 and _c35r_off_log[1:] == _c35r_on_log[1:3])
+    _c35r_w2 = f"نافذ={_c35r_off.get('RECENT_RISE_BLOCK_PCT')} · أسطر={len(_c35r_off_log)} · رأسٌ مطابق={_c35r_off_log[:1] == [_c35r_hdr]}"
+except Exception as _e:                                          # noqa: BLE001
+    _c35r_ok2, _c35r_w2 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🚧 C35R2 `CHASE35_ON=0` ⟵ 214.73 **بت-بت**: الإحلالُ تركيبُ ما قبل الأمر حرفيًّا · والرأسُ كما كان · ولا سطرَ 🚧",
+      _c35r_ok2, _c35r_w2)
+
+# C35R3 · الطبقةُ: `T-BASE-2` كما هي مفتاحٌ واحد · و35 في `OWNER_CHASE_OVERRIDE` · والمفتاحُ يُقرأ من القاموس ثمّ من `CONFIG` ·
+#         والافتراضُ في الكود 1 (لا يُنسى مُطفأً) · ونسخةٌ لا مرجع (تعديلُ الناتج لا يمسّ الطبقة).
+try:
+    _c35r_cp = S.owner_gate_overrides({"CHASE35_ON": 1})
+    _c35r_cp["RECENT_RISE_BLOCK_PCT"] = 999.0
+    _c35r_cfg0 = S.CONFIG.get("CHASE35_ON")
+    try:                                     # القاموسُ بلا المفتاح يتبع `CONFIG` فعلًا (لا افتراضًا ثابتًا داخل الدالّة)
+        S.CONFIG["CHASE35_ON"] = 0
+        _c35r_fb0 = S.owner_gate_overrides({})
+        S.CONFIG["CHASE35_ON"] = 1
+        _c35r_fb1 = S.owner_gate_overrides({})
+    finally:
+        S.CONFIG["CHASE35_ON"] = _c35r_cfg0
+    _c35r_src = open("Super_stock.py", encoding="utf-8").read()
+    _c35r_ok3 = (S.OWNER_GATE_OVERRIDES == {"BASE_RANGE_MAX_PCT": 120.0}
+                 and S.OWNER_CHASE_OVERRIDE == {"RECENT_RISE_BLOCK_PCT": 35.0}
+                 and S.owner_gate_overrides({"CHASE35_ON": 1}) == {"BASE_RANGE_MAX_PCT": 120.0, "RECENT_RISE_BLOCK_PCT": 35.0}
+                 and S.owner_gate_overrides({"CHASE35_ON": 0}) == {"BASE_RANGE_MAX_PCT": 120.0}
+                 and _c35r_fb0 == {"BASE_RANGE_MAX_PCT": 120.0}
+                 and _c35r_fb1 == {"BASE_RANGE_MAX_PCT": 120.0, "RECENT_RISE_BLOCK_PCT": 35.0}
+                 and S.CONFIG.get("CHASE35_ON") == 1
+                 and S.OWNER_CHASE_OVERRIDE == {"RECENT_RISE_BLOCK_PCT": 35.0}
+                 and '"CHASE35_ON": int(os.environ.get("CHASE35_ON", "1"))' in _c35r_src
+                 and "chase35" not in S.LOGIC_VERSION.lower())
+    _c35r_w3 = f"طبقة={S.owner_gate_overrides({'CHASE35_ON': 1})} · CONFIG={S.CONFIG.get('CHASE35_ON')}"
+except Exception as _e:                                          # noqa: BLE001
+    _c35r_ok3, _c35r_w3 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🚧 C35R3 `owner_gate_overrides`: `T-BASE-2` مفتاحٌ واحد كما هو ‏+ 35 خلف `CHASE35_ON` (القاموس ثمّ `CONFIG` · الافتراضُ 1) · "
+      "ونسخةٌ لا مرجع · وبلا `LOGIC_VERSION`", _c35r_ok3, _c35r_w3)
+
+# C35R4 · **من نقطة النداء الحيّة**: استيرادُ الوحدة نفسِها كما يستوردها الفرزُ اليوميّ (`FAISAL_ONLY=1`) ⟵ 35 · وبيئةُ
+#         `CHASE35_ON=0` ⟵ 214.7286870417835 (المفتاحُ يرجعها بلا تعديلِ كود).
+try:
+    import subprocess as _c35r_sp
+    import os as _c35r_os
+    import sys as _c35r_sys
+
+    def _c35r_live(v):
+        _env = dict(_c35r_os.environ, FAISAL_ONLY="1", PYTHONDONTWRITEBYTECODE="1")
+        _env.pop("CHASE35_ON", None)
+        if v is not None:
+            _env["CHASE35_ON"] = v
+        _p = _c35r_sp.run([_c35r_sys.executable, "-B", "-c",
+                           "import Super_stock as S; print('C35R=' + repr(S.CONFIG['RECENT_RISE_BLOCK_PCT']))"],
+                          capture_output=True, text=True, timeout=300, env=_env)
+        return next((ln[5:] for ln in _p.stdout.splitlines() if ln.startswith("C35R=")), "⛔ " + _p.stderr[-160:])
+
+    _c35r_lv_on, _c35r_lv_off = _c35r_live(None), _c35r_live("0")
+    _c35r_ok4 = _c35r_lv_on == "35.0" and _c35r_lv_off == "214.7286870417835"
+    _c35r_w4 = f"افتراض={_c35r_lv_on} · مُطفأ={_c35r_lv_off}"
+except Exception as _e:                                          # noqa: BLE001
+    _c35r_ok4, _c35r_w4 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🚧 C35R4 من نقطة النداء الحيّة: استيرادُ الإنتاج (`FAISAL_ONLY=1`) ⟵ 35 · وبيئةُ `CHASE35_ON=0` ⟵ 214.7286870417835",
+      _c35r_ok4, _c35r_w4)
+
+# C35R5 · **السلوك:** سهمٌ صعد ‏+36.4% في خمس جلساتٍ وقاعدتُه لم تتّسع (فِكستشرُ «④ M4_انفجر_فعلاً») يُرفض بـ`M4_انفجر_فعلاً`
+#         عند الحدّ النافذ (35) **ولا** يُرفض بها عند الحافّة (214.73) — الفارقُ بين المفتاحين على `analyze_ticker` نفسِه.
+_c35r_df = synth_pivot(seed=2)
+for _k, _v in enumerate([3.30, 3.5, 3.8, 4.1, 4.3, 4.5]):
+    _c35r_df.iloc[-6 + _k, _c35r_df.columns.get_loc("Close")] = _v
+    _c35r_df.iloc[-6 + _k, _c35r_df.columns.get_loc("Open")] = _v * 0.997
+    _c35r_df.iloc[-6 + _k, _c35r_df.columns.get_loc("High")] = _v * 1.004
+    _c35r_df.iloc[-6 + _k, _c35r_df.columns.get_loc("Low")] = _v * 0.995
+_c35r_b4 = S.CONFIG["RECENT_RISE_BLOCK_PCT"]
+_c35r_why = {}
+try:
+    for _tag, _val in (("on", _c35r_on.get("RECENT_RISE_BLOCK_PCT")), ("off", _c35r_off.get("RECENT_RISE_BLOCK_PCT"))):
+        S.CONFIG["RECENT_RISE_BLOCK_PCT"] = _val
+        S._REJECT_REASONS.pop("GT", None)
+        _c35r_r = S.analyze_ticker("GT", _c35r_df)
+        _c35r_why[_tag] = (_c35r_r is None, str(S._REJECT_REASONS.get("GT", "")))
+except Exception as _e:                                          # noqa: BLE001
+    _c35r_why["err"] = f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    S.CONFIG["RECENT_RISE_BLOCK_PCT"] = _c35r_b4
+_c35r_g5 = (4.5 / 3.30 - 1) * 100
+check("🚧 C35R5 السلوك: صعودُ ‏+36.4% في خمس جلسات يُرفض «انفجر فعلاً» عند 35 ولا يُرفض بها عند 214.73 (على `analyze_ticker`)",
+      35.0 < _c35r_g5 < 214.7 and _c35r_why.get("on", (False, ""))[0] is True
+      and _c35r_why.get("on", (False, ""))[1].startswith("M4_انفجر_فعلاً")
+      and not _c35r_why.get("off", (True, "M4_انفجر_فعلاً"))[1].startswith("M4_انفجر_فعلاً"),
+      str(_c35r_why)[:160])
+
+# C35R6 · السجلّات: الدفترُ يقول 35 بقرار المالك والمفتاحَ · والذاكرةُ تحمل السطرَ المؤرَّخ **بالكلفة الصادقة** (ليست صفرًا حرفيًّا في
+#         `T-CHASE` · صفرٌ من 262) · والأرشيفُ نصَّ الأمر بحرفه · وجردُ البوّابات رقمَ `M4_RISE` OWNER وسندَه أوّلًا.
+try:
+    import json as _c35r_json
+    _c35r_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _c35r_row = next((ln for ln in _c35r_led.split("\n") if ln.startswith("| **M4** منع الملاحقة")), "")
+    _c35r_cl = open("CLAUDE.md", encoding="utf-8").read()
+    _c35r_line = next((ln for ln in _c35r_cl.split("\n") if "أمرُ المالك «أرجع حد الانفجار إلى 35»" in ln), "")
+    _c35r_i = _c35r_cl.find(_c35r_line) if _c35r_line else -1
+    _c35r_blk = _c35r_cl[_c35r_i:_c35r_i + 900] if _c35r_i >= 0 else ""
+    _c35r_dec = open("DECISIONS_ARCHIVE.md", encoding="utf-8").read()
+    _c35r_gp = _c35r_json.load(open("faisal_engine/data/gate_provenance.json", encoding="utf-8"))
+    _c35r_g = next(g for g in _c35r_gp["gates"] if g["id"] == "M4_RISE")
+    _c35r_t = next(t for t in _c35r_g["audit"]["thresholds"] if t["key"] == "RECENT_RISE_BLOCK_PCT")
+    _c35r_ok6 = ("OWNER_CHASE_OVERRIDE" in _c35r_row and "CHASE35_ON=0" in _c35r_row and "2026-10-29" in _c35r_row
+                 and all(x in _c35r_blk for x in ("CHASE35_ON=0", "53 ⟵ 50", "ليست صفرًا حرفيًّا", "صفرٌ من 262", "214.73"))
+                 and "«أرجع حد الانفجار إلى 35 — خلف مفتاح يرجعه بت-بت، وسطر مؤرَّخ: الكلفة صفر في T-CHASE وفي إضافات "
+                     "08-01..10-29، و214.73 كان يعطّل البوّابة عمليًا.»" in _c35r_dec
+                 and _c35r_t.get("number_origin") == "OWNER" and (_c35r_t.get("refs") or [None])[0] == "O_CHASE35_1029"
+                 and _c35r_g.get("status") == "OWNER_DECIDED")
+    _c35r_w6 = f"صف={bool(_c35r_row)} · سطر={bool(_c35r_line)} · أصل={_c35r_t.get('number_origin')}"
+except Exception as _e:                                          # noqa: BLE001
+    _c35r_ok6, _c35r_w6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🚧 C35R6 السجلّات: الدفتر (35 بقرار المالك · المفتاح) · السطرُ المؤرَّخ بالكلفة الصادقة · نصُّ الأمر في الأرشيف · "
+      "و`M4_RISE` رقمُه OWNER بسند `O_CHASE35_1029`", _c35r_ok6, _c35r_w6)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

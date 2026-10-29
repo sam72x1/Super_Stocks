@@ -34,8 +34,8 @@
   "by_fidelity": {
    "SOURCE_OBSERVED_RULE": 0,
    "SUPPORTED_RECONSTRUCTION": 1,
-   "CONCEPT_ONLY": 11,
-   "SAMPLE_NUMERICAL_RELATIONSHIP": 9,
+   "CONCEPT_ONLY": 12,
+   "SAMPLE_NUMERICAL_RELATIONSHIP": 8,
    "NO_DEFENSIBLE_MAPPING": 28,
    "UNKNOWN": 0
   },
@@ -82,16 +82,16 @@
   },
   "errors": [],
   "inputs": {
-   "provenance_sha256": "9ba0c672fecea7b7aae9b4500388b1306603ceb2fbb8cc11779672731d60445f",
+   "provenance_sha256": "5fcbc52cf789565ea316dfaf16a19cd7efeabe6da0b2b4f751c033720e59f927",
    "snapshot_sha256": "8447b31e642a8593e84bacf081843b94e5ce4254172cdd476bd603d89989180c",
    "rank_bars_sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c",
    "rank_rows_sha256": "8a506495a17dcd1849283e6607d1018e4339f9cf253f587a83297225da59d890"
   },
   "archive_xref": {
    "head_chars": 400,
-   "pairs": 103,
+   "pairs": 104,
    "by_class": {
-    "CITED": 77,
+    "CITED": 78,
     "CITED_ELSEWHERE": 5,
     "NOT_GATE_EVIDENCE": 21
    },
@@ -761,6 +761,20 @@
      "class": "CITED",
      "refs": [
       "E_CHASE35"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M4_RISE",
+     "anchor": "🚧✅ «أرجع حد الانفجار إلى 35»",
+     "terms": [
+      "RECENT_RISE_BLOCK_PCT",
+      "T-CHASE"
+     ],
+     "class": "CITED",
+     "refs": [
+      "O_CHASE35_1029"
      ],
      "why": null,
      "note": ""
@@ -1847,6 +1861,16 @@
     "contains": "«اعتمد 120»"
    }
   },
+  "O_CHASE35_1029": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-10-29 «أرجع حد الانفجار إلى 35»",
+   "summary": "chase-cap number 35 over the catalogue edge 214.73 (P100) after T-CHASE and chase35, behind CHASE35_ON (0 restores the edge bit-for-bit)",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "«أرجع حد الانفجار إلى 35»"
+   }
+  },
   "O_SHUTDOOR_0811": {
    "kind": "OWNER_ORDER",
    "stance": "supports",
@@ -2689,7 +2713,7 @@
    "stance": "null",
    "scope": "THIS_GATE",
    "ref": "T-CHASE (chase_result.md)",
-   "summary": "restoring the chase cap from 214.73 (P100) to 35 (the owner's D11 number) met its three guards (delivered exploders 53 → 50, R −0.016, signals −0.5%) — adoptable without harm, no measured gain; no adoption recorded",
+   "summary": "restoring the chase cap from 214.73 (P100) to 35 (the owner's D11 number) met its three guards (delivered exploders 53 → 50, R −0.016, signals −0.5%) — adoptable without harm, no measured gain; adopted by owner order 2026-10-29 (O_CHASE35_1029)",
    "verify": {
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "**① T-CHASE**"
@@ -3014,10 +3038,10 @@
      ]
     }
    },
-   "line": 1740,
+   "line": 1771,
    "function_lines": [
-    1737,
-    1777
+    1768,
+    1808
    ],
    "config": {},
    "production_counts": null,
@@ -3117,10 +3141,10 @@
      "threshold:MIN_BARS": []
     }
    },
-   "line": 1821,
+   "line": 1852,
    "function_lines": [
-    1806,
-    1824
+    1837,
+    1855
    ],
    "config": {
     "MIN_BARS": 120
@@ -3195,10 +3219,10 @@
      ]
     }
    },
-   "line": 2151,
+   "line": 2182,
    "function_lines": [
-    2151,
-    2189
+    2182,
+    2220
    ],
    "config": {},
    "production_counts": null,
@@ -3310,10 +3334,10 @@
      "hardness": []
     }
    },
-   "line": 4054,
+   "line": 4085,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "MIN_PRICE": 0.4
@@ -3393,10 +3417,10 @@
      ]
     }
    },
-   "line": 4076,
+   "line": 4107,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {},
    "production_counts": {
@@ -3519,10 +3543,10 @@
      ]
     }
    },
-   "line": 4079,
+   "line": 4110,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "MAX_DROP_PCT": 99.95
@@ -3645,10 +3669,10 @@
      "hardness": []
     }
    },
-   "line": 4081,
+   "line": 4112,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "MIN_DROP_FLOOR": 71.7203
@@ -3800,10 +3824,10 @@
      "hardness": []
     }
    },
-   "line": 4093,
+   "line": 4124,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "PRIOR_SPIKE_FLOOR": 78.2738,
@@ -3889,10 +3913,10 @@
      ]
     }
    },
-   "line": 4103,
+   "line": 4134,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {},
    "production_counts": {
@@ -4023,10 +4047,10 @@
      "hardness": []
     }
    },
-   "line": 4125,
+   "line": 4156,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "BASE_RANGE_MAX_PCT": 120,
@@ -4140,10 +4164,10 @@
      ]
     }
    },
-   "line": 4136,
+   "line": 4167,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {},
    "production_counts": {
@@ -4165,6 +4189,16 @@
     "RECENT_RISE_BLOCK_PCT"
    ],
    "evidence": [
+    {
+     "source_unit": "owner «أرجع حد الانفجار إلى 35» 2026-10-29 (T-CHASE · chase35)",
+     "verbatim": "",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-10-29",
+     "meaning": "the live 35 is an owner number over the catalogue edge P100 (214.73), which rejected nothing in the frozen reject snapshot",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "T-CHASE (3 years): delivered exploders 53 → 50, R −0.016, signals −0.5%, three guards met; chase35: 0 of 262 list adds 2026-08-01..10-29 above 35"
+    },
     {
      "source_unit": "envelope_p100.json (catalog envelope)",
      "verbatim": "",
@@ -4206,9 +4240,9 @@
    "kind": "hard",
    "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
    "confidence": "INFERRED",
-   "status": "OPEN",
-   "status_ref": "D11 (owner: keep 35/5d in legacy mode)",
-   "next_action": "none (first wall on 0 of 22)",
+   "status": "OWNER_DECIDED",
+   "status_ref": "owner 2026-10-29 «أرجع حد الانفجار إلى 35» · OWNER_CHASE_OVERRIDE (CHASE35_ON=0 restores the catalogue edge)",
+   "next_action": "none in production; CHASE35_ON=0 restores the catalogue edge 214.73 bit-for-bit",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
    "audit": {
     "origin": "INFERRED_FROM_FAISAL_SOURCE",
@@ -4224,7 +4258,7 @@
      "R_IDENTITY_STRICT"
     ],
     "impl_role": "HARD_REJECTION",
-    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "fidelity": "CONCEPT_ONLY",
     "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
     "context": "pivot",
     "thresholds": [
@@ -4236,8 +4270,9 @@
       "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
       "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
       "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
-      "number_origin": "CATALOG_PERCENTILE",
+      "number_origin": "OWNER",
       "refs": [
+       "O_CHASE35_1029",
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
        "O_P100_0808",
@@ -4247,10 +4282,10 @@
        "E_TFAISALONLY",
        "E_PIT20"
       ],
-      "value": 214.7287
+      "value": 35
      }
     ],
-    "note": "his example blocks after +114%; the live edge 214.7% barely binds",
+    "note": "his example blocks after +114%; the owner set 35 on 2026-10-29 over the catalogue edge 214.7% (which barely bound); CHASE35_ON=0 restores the edge",
     "derived_justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
     "contradicted": true,
     "support": {
@@ -4263,13 +4298,13 @@
      "hardness": []
     }
    },
-   "line": 4147,
+   "line": 4178,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
-    "RECENT_RISE_BLOCK_PCT": 214.7287
+    "RECENT_RISE_BLOCK_PCT": 35
    },
    "production_counts": {
     "days": 20,
@@ -4384,10 +4419,10 @@
      "hardness": []
     }
    },
-   "line": 4152,
+   "line": 4183,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "MIN_DOLLAR_VOL": 14314.7701
@@ -4468,10 +4503,10 @@
      "hardness": []
     }
    },
-   "line": 4174,
+   "line": 4205,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "GAP_REQUIRED": false
@@ -4600,10 +4635,10 @@
      "hardness": []
     }
    },
-   "line": 4202,
+   "line": 4233,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "RSI_OS_HARD": 69,
@@ -4726,10 +4761,10 @@
      "hardness": []
     }
    },
-   "line": 4209,
+   "line": 4240,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "RSI_NOW_HARD": 71.1186
@@ -4850,10 +4885,10 @@
      "hardness": []
     }
    },
-   "line": 4252,
+   "line": 4283,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "WATCH_MAX_FAILS": 8
@@ -4956,10 +4991,10 @@
      ]
     }
    },
-   "line": 4346,
+   "line": 4377,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "BT_STABILITY_GATE": "",
@@ -5082,10 +5117,10 @@
      ]
     }
    },
-   "line": 4363,
+   "line": 4394,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "NEAR_PCT": 0
@@ -5203,10 +5238,10 @@
      "hardness": []
     }
    },
-   "line": 4507,
+   "line": 4538,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "SCORE_MIN": 5
@@ -5373,10 +5408,10 @@
      ]
     }
    },
-   "line": 4549,
+   "line": 4580,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "ANCHOR_MODE": "tested_strict"
@@ -5540,10 +5575,10 @@
      "hardness": []
     }
    },
-   "line": 4766,
+   "line": 4797,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "MIN_RR_T1": 0.5,
@@ -5622,10 +5657,10 @@
      ]
     }
    },
-   "line": 4799,
+   "line": 4830,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {},
    "production_counts": null,
@@ -5695,10 +5730,10 @@
      ]
     }
    },
-   "line": 4842,
+   "line": 4873,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {},
    "production_counts": null,
@@ -5790,10 +5825,10 @@
      ]
     }
    },
-   "line": 4087,
+   "line": 4118,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "MIN_DROP_PCT": 96.9178
@@ -5888,10 +5923,10 @@
      ]
     }
    },
-   "line": 4096,
+   "line": 4127,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "PRIOR_SPIKE_PCT": 164.0212
@@ -5986,10 +6021,10 @@
      ]
     }
    },
-   "line": 4158,
+   "line": 4189,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "TF_MIN_REVERSALS": 0
@@ -6061,10 +6096,10 @@
      ]
     }
    },
-   "line": 4163,
+   "line": 4194,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {},
    "production_counts": null,
@@ -6170,10 +6205,10 @@
      ]
     }
    },
-   "line": 4188,
+   "line": 4219,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "GAP_ABOVE_REQUIRED": true,
@@ -6299,10 +6334,10 @@
      ]
     }
    },
-   "line": 4206,
+   "line": 4237,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "RSI_OVERSOLD": 33,
@@ -6377,10 +6412,10 @@
      ]
     }
    },
-   "line": 4221,
+   "line": 4252,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "MACD_GATE_REQUIRED": true
@@ -6478,10 +6513,10 @@
      ]
     }
    },
-   "line": 4248,
+   "line": 4279,
    "function_lines": [
-    4037,
-    4845
+    4068,
+    4876
    ],
    "config": {
     "MA_GATE_REQUIRED": true,
@@ -6575,10 +6610,10 @@
      "threshold:SHORT_GATE_MAX": []
     }
    },
-   "line": 12680,
+   "line": 12711,
    "function_lines": [
-    12622,
-    12694
+    12653,
+    12725
    ],
    "config": {
     "SHORT_GATE_MAX": 40000,
@@ -6707,10 +6742,10 @@
      ]
     }
    },
-   "line": 12750,
+   "line": 12781,
    "function_lines": [
-    12697,
-    12763
+    12728,
+    12794
    ],
    "config": {
     "FLOAT_GATE_MAX": 50000000,
@@ -6822,10 +6857,10 @@
      "hardness": []
     }
    },
-   "line": 13344,
+   "line": 13375,
    "function_lines": [
-    13332,
-    13346
+    13363,
+    13377
    ],
    "config": {
     "WATCH_MAX_FAILS": 8
@@ -6908,10 +6943,10 @@
      ]
     }
    },
-   "line": 13366,
+   "line": 13397,
    "function_lines": [
-    13366,
-    13387
+    13397,
+    13418
    ],
    "config": {},
    "production_counts": null,
@@ -7062,10 +7097,10 @@
      ]
     }
    },
-   "line": 2437,
+   "line": 2468,
    "function_lines": [
-    2437,
-    2464
+    2468,
+    2495
    ],
    "config": {
     "DQ_GATE": null,
@@ -7157,10 +7192,10 @@
      "threshold:DATA_HEALTH_MIN_PCT": []
     }
    },
-   "line": 22651,
+   "line": 22682,
    "function_lines": [
-    22576,
-    23044
+    22607,
+    23075
    ],
    "config": {
     "DATA_HEALTH_MIN_PCT": 85
@@ -7253,10 +7288,10 @@
      "hardness": []
     }
    },
-   "line": 22655,
+   "line": 22686,
    "function_lines": [
-    22576,
-    23044
+    22607,
+    23075
    ],
    "config": {
     "EXCLUDE_STOPPED_FROM_RENEWAL": true
@@ -7351,10 +7386,10 @@
      ]
     }
    },
-   "line": 22684,
+   "line": 22715,
    "function_lines": [
-    22576,
-    23044
+    22607,
+    23075
    ],
    "config": {
     "WATCHLIST_SIZE": 15
@@ -7447,10 +7482,10 @@
      "threshold:PICK_FILL_ROUNDS": []
     }
    },
-   "line": 12994,
+   "line": 13025,
    "function_lines": [
-    12960,
-    13041
+    12991,
+    13072
    ],
    "config": {
     "PICK_FILL_ROUNDS": 4
@@ -7549,10 +7584,10 @@
      ]
     }
    },
-   "line": 12839,
+   "line": 12870,
    "function_lines": [
-    12798,
-    12842
+    12829,
+    12873
    ],
    "config": {
     "FLOAT_GATE_MAX": 50000000
@@ -7624,10 +7659,10 @@
      ]
     }
    },
-   "line": 12893,
+   "line": 12924,
    "function_lines": [
-    12893,
-    12957
+    12924,
+    12988
    ],
    "config": {},
    "production_counts": null,
@@ -7758,10 +7793,10 @@
      ]
     }
    },
-   "line": 12883,
+   "line": 12914,
    "function_lines": [
-    12845,
-    12890
+    12876,
+    12921
    ],
    "config": {
     "BORROW_AVAIL_MAX": 20000,
@@ -7869,10 +7904,10 @@
      "threshold:far_above": []
     }
    },
-   "line": 15405,
+   "line": 15436,
    "function_lines": [
-    15405,
-    15490
+    15436,
+    15521
    ],
    "config": {},
    "production_counts": null,
