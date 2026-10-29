@@ -6001,7 +6001,7 @@
     }
    },
    {
-    "anchor": "«الجزءُ ب — إعادةُ بناء القبول من البيانات» `T-REBUILD`",
+    "anchor": "`T-REBUILD`: العقدُ مدموجٌ قبل أيّ رقم · وفحصُ عدم التكرار أخرج سابقةً قريبة",
     "default": {
      "class": "NOT_GATE_EVIDENCE",
      "why": "INCIDENTAL",

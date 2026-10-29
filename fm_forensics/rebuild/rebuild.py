@@ -1973,6 +1973,85 @@ def mode_shadow(key, d=None, now=None, fetch_bars=None, fetch_universe=None, spl
             "note": "قائمةٌ ظلّيّة للتسجيل وحدَه (§⑫) · لا تلغرام · لا شحن · وقرارُ أيّ استعمالٍ للمالك"}
 
 
+# ── تقريرُ أسبوع الظلّ (أمرُ المالك 2026-10-29 «في تقرير الظل اذكر لكل سهم: أعمق هبوط من سعر الإدراج قبل أي صعود») — وصفٌ لا حكم ──
+SHADOW_REF_TOL = 0.02          # engineering: إغلاقُ D−1 المُعاد يخالف المسجَّل في صفّ القائمة فوقه ⟵ «تعديلُ مقياس» (تقسيمٌ بعد الإدراج) ويُحسب بالمُعاد
+SHADOW_FILE_RE = r"shadow_\d{4}-\d{2}-\d{2}\.json"     # قوائمُ الجلسات وحدَها (لا ملفُّ التقرير)
+
+
+def shadow_drawdown(rows, d, ref_stored=None):
+    """أعمقُ هبوطٍ من سعر الإدراج قبل أيّ صعود — شموعٌ يوميّة مرتّبة `(date, o, h, l, c, v)` ⟵ قاموس.
+
+    سعرُ الإدراج = إغلاقُ آخر جلسةٍ قبل D (يُعاد من الشموع نفسِها بمقياسها · والمسجَّلُ في صفّ القائمة مرجعُ مطابقة) ·
+    «أوّلُ صعود» = أوّلُ جلسةٍ من D فصاعدًا **يُغلق** فيها فوق سعر الإدراج · والأعمقُ = أدنى Low على [D، أوّل صعود] شاملًا يومَه
+    (ترتيبُ ما داخل اليوم مجهول ⟵ متشائم) ÷ سعر الإدراج − 1 · ولا يُطبع موجبًا (لم ينزل تحته ⟵ 0) ·
+    وبلا صعودٍ حتى آخر شمعة ⟵ «لم يصعد بعد» والأعمقُ حتى آخر شمعة · وبلا شمعةٍ قبل D ⟵ «no_ref» · وبلا شمعةٍ من D ⟵ «no_bars»."""
+    pre = [x for x in rows if x[0] < d]
+    post = [x for x in rows if x[0] >= d]
+    if not pre:
+        return {"status": "no_ref"}
+    ref = float(pre[-1][4])
+    out = {"ref": ref, "ref_date": pre[-1][0], "ref_stored": ref_stored,
+           "ref_rescaled": bool(ref_stored) and abs(ref / float(ref_stored) - 1.0) > SHADOW_REF_TOL}
+    if not post:
+        return out | {"status": "no_bars"}
+    lo, lo_d, rise = None, None, None
+    for x in post:
+        if lo is None or float(x[3]) < lo:
+            lo, lo_d = float(x[3]), x[0]
+        if float(x[4]) > ref:
+            rise = x[0]
+            break
+    dd = min(0.0, lo / ref - 1.0)
+    return out | {"status": "rose" if rise else "not_yet", "first_rise": rise, "deepest_pct": round(100.0 * dd, 2),
+                  "deepest_date": lo_d if dd < 0 else None, "sessions_seen": post.index(x) + 1, "last_bar": post[-1][0]}
+
+
+def shadow_report_to(now):
+    """آخرُ جلسةٍ مكتملة لحظةَ التقرير بتوقيت نيويورك: يومُ اليوم بعد 16:30 وإلّا اليومُ السابق (شمعةُ اليوم الجزئيّة لا تُقرأ)."""
+    from zoneinfo import ZoneInfo
+    ny = now.astimezone(ZoneInfo("America/New_York"))
+    day = ny.date() if (ny.hour, ny.minute) >= (16, 30) else ny.date() - dt.timedelta(1)
+    return day.isoformat()
+
+
+def mode_shadow_report(key, now=None, fetch_bars=None, files=None):
+    """تقريرُ أسبوع الظلّ: لكلّ سهمٍ في كلّ قائمةٍ ظلّيّةٍ محفوظة (`data/shadow/shadow_YYYY-MM-DD.json`) أعمقُ هبوطٍ من سعر الإدراج
+    قبل أيّ صعود (`shadow_drawdown`) بشموع Polygon المسوّاة حتى آخر جلسةٍ مكتملة · وصفٌ لا حكم · بلا تلغرام ولا شحن · `fetch_bars(sym, lo, to)` محقون."""
+    import glob
+    import re
+    if files is None:
+        files = sorted(f for f in glob.glob(os.path.join(SHADOW_DIR, "shadow_*.json")) if re.fullmatch(SHADOW_FILE_RE, os.path.basename(f)))
+    now = now or dt.datetime.now(dt.timezone.utc)
+    to = shadow_report_to(now)
+    if fetch_bars is None:
+        sys.path.insert(0, ROOT)
+        import pit_history as PH
+
+        def fetch_bars(sym, lo, hi):
+            df, _why = PH.polygon_daily(sym, lo, hi, key)
+            return _rows(df) if df is not None else []
+    entries = []
+    for f in files:
+        with open(f, encoding="utf-8") as fh:
+            r = json.load(fh)
+        d = r["session"]
+        lo = (dt.date.fromisoformat(d) - dt.timedelta(15)).isoformat()
+        for row in r.get("list") or []:
+            sym = row[0]
+            try:
+                bars = fetch_bars(sym, lo, to) if d <= to else []
+            except Exception as e:                                   # noqa: BLE001
+                bars, err = [], f"{type(e).__name__}"
+            else:
+                err = None
+            dd = shadow_drawdown(bars, d, row[5])
+            entries.append({"session": d, "symbol": sym, "score": row[1], "error": err} | dd)
+    return {"mode": "shadow_report", "as_of": to, "built_at": now.isoformat(timespec="seconds"),
+            "files": [os.path.basename(f) for f in files], "entries": entries,
+            "definition": "سعرُ الإدراج = إغلاقُ D−1 · أوّلُ صعود = أوّلُ إغلاقٍ فوقه من D · الأعمقُ = أدنى Low على [D، أوّل صعود] شاملًا ÷ سعر الإدراج − 1",
+            "note": "تقريرُ أسبوع الظلّ (أمرُ المالك 2026-10-29) · وصفٌ لا حكم · لا تلغرام · لا شحن"}
+
+
 def main():
     mode = os.environ.get("REBUILD_MODE", "").strip()
     key = os.environ.get("POLYGON_API_KEY", "")
@@ -1980,7 +2059,7 @@ def main():
         log("⛔ العقد غائب")
         return 9
     built = ("d0", "ready117", "bases_prep", "bases_shard", "bases_assemble", "pairs_shard", "pairs_assemble", "test_prep", "test_shard", "test_assemble",
-             "b3_shard", "b3_assemble", "shadow", "y26_prep", "y26_shard", "y26_assemble")
+             "b3_shard", "b3_assemble", "shadow", "shadow_report", "y26_prep", "y26_shard", "y26_assemble")
     if mode not in built:
         log(f"⛔ وضعٌ غيرُ مبنيّ: {mode!r} (المبنيّ: {' · '.join(built)})")
         return 3
@@ -2057,6 +2136,8 @@ def main():
         _jdump(res, os.path.join(OUT, "b3_result.json.gz"))
     elif mode == "shadow":
         res = mode_shadow(key, d=os.environ.get("SHADOW_SESSION", "").strip() or None)
+    elif mode == "shadow_report":
+        res = mode_shadow_report(key)
     elif mode == "y26_prep":
         res = mode_y26_prep(key)
     elif mode == "y26_shard":

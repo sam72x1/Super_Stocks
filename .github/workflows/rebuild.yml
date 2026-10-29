@@ -6,6 +6,7 @@ name: "🧭 T-REBUILD الجزء ب (قراءةٌ وقياس · يدويّ)"
 # `test` = §⑩-§⑪ مرّةً واحدة: test_prep ⟵ 20 شريحة ⟵ assemble (يرفض 9 بلا تجميدٍ ببصمته · و7 إن وُجدت نتيجةٌ في data/).
 # `y26` = عقدُ 2026 `T_REBUILD_2026_prereg.md` مرّةً واحدة: y26_prep ⟵ 20 شريحة ⟵ assemble (يرفض 9 بلا العقد ببصمته أو بلا تجميدٍ أو بلا نتيجة TEST · و7 إن وُجدت نتيجتُه).
 # `shadow` = §⑫ B8 القائمةُ الظلّيّة لجلسةٍ قادمة بالدرجة المجمَّدة (ملفٌّ وتسجيل · بلا تلغرام · يرفض 9 بلا تجميدٍ أو بلا نتيجة TEST في data/).
+# `shadow_report` = تقريرُ أسبوع الظلّ (أمرُ المالك 2026-10-29): لكلّ سهمٍ في القوائم المحفوظة أعمقُ هبوطٍ من سعر الإدراج قبل أيّ صعود (وصفٌ · بلا تلغرام).
 # `pairs` = §⑨ الأزواجُ ثمّ §⑧ الدرجةُ والتجميد بالملحق 1 على TRAIN وحدَه: prep تشغيلة `bases` نفسِها (`prep_run`) ⟵ 20 شريحة ⟵ assemble (ويرفض 9 بلا الملحق ببصمته).
 permissions:
   contents: read
@@ -14,9 +15,9 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "الوضع (المبنيّ: d0 · ready117 · bases · pairs · test · b3 · shadow · y26)"
+        description: "الوضع (المبنيّ: d0 · ready117 · bases · pairs · test · b3 · shadow · shadow_report · y26)"
         type: choice
-        options: [d0, ready117, bases, pairs, test, b3, shadow, y26]
+        options: [d0, ready117, bases, pairs, test, b3, shadow, shadow_report, y26]
         default: d0
       prep_run:
         description: "للأزواج: تشغيلةُ bases التي يُعاد منها prep (عضويّةٌ وتقسيماتٌ وFINRA بحرفها)"

@@ -74260,6 +74260,48 @@ except Exception as _e:                                              # noqa: BLE
     _w10, _w10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🌙 AHT10 (‏2026-10-27) حارسُ الافتر رجع إلى Polygon: لا `AH_GUARD_TV` في أيّ موضعٍ من split_hunter.yml وdaily_screener.yml · وخطوةُ `BARS_SOURCE: tradingview` باقيةٌ في كلٍّ منهما", _w10, _w10w)
 
+# 🌙 AHL1 (‏2026-10-29 · أمرُ المالك «أضف سطر حارس الافتر»): مسارُ Polygon كان صامتًا في السجلّ بالتصميم ⟵ «قُرئ N من M» غيرُ مقروء ·
+#    سلوكيًّا: بلا جالبٍ وبلا `BARS_SOURCE` ⟵ سطرٌ واحدٌ بالعدّادات (قُرئ 2 من 3 · لم يُتحقّق 1 · كُتم 1) · والقرارُ (المُبقى/«لم يُتحقّق») كما هو ·
+#    والجالبُ المحقون بلا سطر (الاختبارات بت-بت) · والصفوفُ الفارغة بلا سطر · و`muted` في التقرير.
+try:
+    _ahl_keep = (S.extended_last_price, S.log, _os.environ.get("BARS_SOURCE"), _os.environ.get("AH_GUARD_TV"))
+    _ahl_logs = []
+    _ahl_px = {"UP": 3.0, "FLAT": 2.1, "NONE": None}
+    _ahl_rows = [{"symbol": _x, "price": 2.0, "ref": 4.0} for _x in ("UP", "FLAT", "NONE")]
+    try:
+        _os.environ.pop("BARS_SOURCE", None)
+        _os.environ.pop("AH_GUARD_TV", None)
+        S.extended_last_price = lambda _s, _d, **_k: _ahl_px.get(_s)
+        S.log = _ahl_logs.append
+        _ahl_k, _ahl_u = S.ah_guard_rows([dict(_r) for _r in _ahl_rows], "2026-09-29")
+        _ahl_rep = dict(S.AH_GUARD_LAST)
+        _ahl_poly = [_l for _l in _ahl_logs if "حارسُ الافتر" in str(_l)]
+        del _ahl_logs[:]
+        _ahl_k2, _ahl_u2 = S.ah_guard_rows([dict(_r) for _r in _ahl_rows], "2026-09-29", fetch=lambda _s, _d: _ahl_px.get(_s))
+        _ahl_inj = [_l for _l in _ahl_logs if "حارسُ الافتر" in str(_l)]
+        del _ahl_logs[:]
+        S.ah_guard_rows([], "2026-09-29")
+        _ahl_empty = [_l for _l in _ahl_logs if "حارسُ الافتر" in str(_l)]
+    finally:
+        S.extended_last_price, S.log = _ahl_keep[0], _ahl_keep[1]
+        for _k, _v in (("BARS_SOURCE", _ahl_keep[2]), ("AH_GUARD_TV", _ahl_keep[3])):
+            _os.environ.pop(_k, None)
+            if _v is not None:
+                _os.environ[_k] = _v
+    _ahl_c = {
+        "one_line": _ahl_poly == ["🌙 حارسُ الافتر (polygon): قُرئ سعرُ 2 من 3 · لم يُتحقّق 1 · كُتم 1"],
+        "decision_same": [_r["symbol"] for _r in _ahl_k] == ["FLAT", "NONE"] and _ahl_u == ["NONE"]
+                         and [_r["symbol"] for _r in _ahl_k2] == ["FLAT", "NONE"] and _ahl_u2 == ["NONE"],
+        "rep": _ahl_rep.get("src") == "polygon" and _ahl_rep.get("muted") == 1 and _ahl_rep.get("got") == 2 and _ahl_rep.get("asked") == 3,
+        "injected_silent": _ahl_inj == [],
+        "empty_silent": _ahl_empty == [],
+    }
+    _w_ahl, _w_ahlw = all(_ahl_c.values()), f"{ {k: v for k, v in _ahl_c.items() if not v} or 'كلّها'} · سطر={_ahl_poly} · محقون={_ahl_inj}"
+except Exception as _e:                                              # noqa: BLE001
+    _w_ahl, _w_ahlw = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌙 AHL1 (‏2026-10-29) حارسُ الافتر على Polygon يطبع سطرًا واحدًا بعدّاداته (قُرئ · لم يُتحقّق · كُتم) · والقرارُ كما هو · والمحقونُ والفارغُ بلا سطر",
+      _w_ahl, _w_ahlw)
+
 # ═══ 🕳️ T-GAPBELOW — أقفال GBA0-GBA13 (العقد gapbelow_prereg.md · 2026-10-01) ═══
 # «سجّل الفجوة تحت السعر»: هل تُغطّى الفجوةُ الصاعدةُ تحت السعر («لازم» `D1`/`D2`) وهل
 # قاعُها دخولٌ أفضل («كويس» `E1`-`E4`)؟ — الأداةُ تُقفَل **قبل أيّ تشغيل** (العقد §⑥).
@@ -89502,6 +89544,70 @@ except Exception as _e:                                              # noqa: BLE
     _v_r18, _v_r18w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧭 RBD18 (‏2026-10-29) نتيجةُ عقد 2026 منشورةٌ كما صدرت مرّةً واحدة: العقدُ والتجميدُ وθ · الحكمُ يُعاد بـtest_verdict · الحصصُ متّسقة · "
       "الوثيقةُ مولَّدةٌ بايتًا · التنبّؤاتُ منشورة · والإعادةُ ترفض 7", _v_r18, _v_r18w)
+# 🧭 RBD19 (‏2026-10-29 · أمرُ المالك «في تقرير الظل اذكر لكل سهم: أعمق هبوط من سعر الإدراج قبل أي صعود»): `shadow_drawdown` سلوكيًّا —
+#    سعرُ الإدراج = إغلاقُ D−1 من الشموع نفسِها · أوّلُ صعود = أوّلُ **إغلاقٍ** فوقه من D · الأعمقُ أدنى Low على [D، أوّل صعود] **شاملًا يومَه** ·
+#    ولا يُطبع موجبًا · «لم يصعد بعد» حتى آخر شمعة · وتعديلُ المقياس يُوسم · و`mode_shadow_report` بجالبٍ محقون: ملفّاتُ الجلسات وحدَها (لا التقرير) ·
+#    و`as_of` آخرُ جلسةٍ مكتملة بنيويورك · والوضعُ مبنيٌّ في `main` والـworkflow.
+try:
+    import importlib.util as _r19_iu
+    import json as _r19_json
+    import os as _r19_os
+    import tempfile as _r19_tf
+    import datetime as _r19_dt
+    _r19_spec = _r19_iu.spec_from_file_location("t_rebuild_tool19", "fm_forensics/rebuild/rebuild.py")
+    _R19 = _r19_iu.module_from_spec(_r19_spec)
+    _r19_spec.loader.exec_module(_R19)
+
+    def _r19_b(d, lo, c, hi=None):
+        return (d, c, hi if hi is not None else max(c, lo), lo, c, 1000.0)
+    _r19_pre = [_r19_b("2026-10-27", 0.95, 1.02), _r19_b("2026-10-28", 0.97, 1.00)]
+    _r19_a = _R19.shadow_drawdown(_r19_pre + [_r19_b("2026-10-29", 0.80, 0.90), _r19_b("2026-10-30", 0.70, 0.95, hi=1.30),
+                                              _r19_b("2026-11-02", 0.90, 1.10), _r19_b("2026-11-03", 0.10, 0.20)], "2026-10-29", 1.0)
+    _r19_b1 = _R19.shadow_drawdown(_r19_pre + [_r19_b("2026-10-29", 0.95, 1.20)], "2026-10-29", 1.0)
+    _r19_c = _R19.shadow_drawdown(_r19_pre + [_r19_b("2026-10-29", 0.90, 0.95), _r19_b("2026-10-30", 0.60, 0.80)], "2026-10-29", 1.0)
+    _r19_d = _R19.shadow_drawdown(_r19_pre + [_r19_b("2026-10-29", 1.05, 1.10)], "2026-10-29", 1.0)
+    _r19_e = _R19.shadow_drawdown(_r19_pre + [_r19_b("2026-10-29", 0.90, 1.10)], "2026-10-29", 10.0)
+    _r19_e2 = _R19.shadow_drawdown(_r19_pre + [_r19_b("2026-10-29", 0.90, 1.10)], "2026-10-29", 1.01)
+    _r19_f = (_R19.shadow_drawdown(_r19_pre, "2026-10-29", 1.0).get("status"),
+              _R19.shadow_drawdown([_r19_b("2026-10-29", 0.9, 1.1)], "2026-10-29", 1.0).get("status"))
+    _r19_utc = _r19_dt.timezone.utc
+    _r19_to = (_R19.shadow_report_to(_r19_dt.datetime(2026, 11, 5, 2, 13, tzinfo=_r19_utc)),
+               _R19.shadow_report_to(_r19_dt.datetime(2026, 11, 4, 18, 0, tzinfo=_r19_utc)))
+    _r19_calls = []
+    with _r19_tf.TemporaryDirectory() as _r19_td:
+        _r19_f1 = _r19_os.path.join(_r19_td, "shadow_2026-10-29.json")
+        _r19_f2 = _r19_os.path.join(_r19_td, "shadow_report_2026-11-04.json")
+        _r19_json.dump({"session": "2026-10-29", "list": [["AAA", 0.5, 0, 0, [0, 0, 0, 1], 1.0, None, 0]]}, open(_r19_f1, "w"))
+        _r19_json.dump({"session": "2026-10-30", "list": [["ZZZ", 0.5, 0, 0, [0, 0, 0, 1], 1.0, None, 0]]}, open(_r19_f2, "w"))
+        import glob as _r19_glob
+        import re as _r19_re
+        _r19_files = sorted(f for f in _r19_glob.glob(_r19_os.path.join(_r19_td, "shadow_*.json"))
+                            if _r19_re.fullmatch(_R19.SHADOW_FILE_RE, _r19_os.path.basename(f)))
+        _r19_rep = _R19.mode_shadow_report("", now=_r19_dt.datetime(2026, 11, 5, 2, 13, tzinfo=_r19_utc), files=_r19_files,
+                                           fetch_bars=lambda s, lo, hi: (_r19_calls.append((s, lo, hi)), _r19_pre + [_r19_b("2026-10-29", 0.80, 0.90),
+                                                                                                                  _r19_b("2026-10-30", 0.75, 1.05)])[1])
+    _r19_src = open("fm_forensics/rebuild/rebuild.py", encoding="utf-8").read()
+    _r19_wf = open(".github/workflows/rebuild.yml", encoding="utf-8").read()
+    _r19_c_ = {
+        "rose_after_dip": _r19_a.get("status") == "rose" and _r19_a.get("first_rise") == "2026-11-02" and _r19_a.get("deepest_pct") == -30.0
+                          and _r19_a.get("deepest_date") == "2026-10-30" and _r19_a.get("ref") == 1.0 and _r19_a.get("sessions_seen") == 3,
+        "rise_day_inclusive": _r19_b1.get("status") == "rose" and _r19_b1.get("deepest_pct") == -5.0 and _r19_b1.get("first_rise") == "2026-10-29",
+        "not_yet": _r19_c.get("status") == "not_yet" and _r19_c.get("deepest_pct") == -40.0 and _r19_c.get("first_rise") is None,
+        "never_below": _r19_d.get("deepest_pct") == 0.0 and _r19_d.get("deepest_date") is None,
+        "rescaled": _r19_e.get("ref_rescaled") is True and _r19_e2.get("ref_rescaled") is False and _r19_e.get("ref") == 1.0,
+        "no_ref_no_bars": _r19_f == ("no_bars", "no_ref"),
+        "as_of_ny": _r19_to == ("2026-11-04", "2026-11-03"),
+        "report": [(_x["symbol"], _x["deepest_pct"], _x["first_rise"]) for _x in _r19_rep["entries"]] == [("AAA", -25.0, "2026-10-30")]
+                  and _r19_rep["files"] == ["shadow_2026-10-29.json"] and _r19_calls == [("AAA", "2026-10-14", "2026-11-04")]
+                  and _r19_rep["as_of"] == "2026-11-04",
+        "wired": '"shadow_report"' in _r19_src.split("built = (")[1].split(")")[0] and 'elif mode == "shadow_report":' in _r19_src
+                 and "shadow_report" in _r19_wf.split("options:")[1].split("\n")[0],
+    }
+    _v_r19, _v_r19w = all(_r19_c_.values()), f"{ {k: v for k, v in _r19_c_.items() if not v} or 'كلّها'} · a={_r19_a} · rep={_r19_rep.get('entries')}"[:400]
+except Exception as _e:                                              # noqa: BLE001
+    _v_r19, _v_r19w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD19 (‏2026-10-29) تقريرُ الظلّ: أعمقُ هبوطٍ من سعر الإدراج (إغلاق D−1) قبل أوّل إغلاقٍ فوقه · يومُ الصعود داخل · «لم يصعد بعد» · "
+      "تعديلُ المقياس · ملفّاتُ الجلسات وحدَها · as_of بنيويورك · والوضعُ موصول", _v_r19, _v_r19w)
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
@@ -90766,6 +90872,9 @@ try:
         "disclosure": _v8_r.get("runs_no_measure") == [40790473567, 40800488513] and "إفصاح — هذه التشغيلةُ الثالثة" in _v8_doc
                       and "`40790473567`" in _v8_doc and "`40800488513`" in _v8_doc and "قرارُ المالك" in _v8_doc,
         "p9_wrong": "**P9:**" in _v8_doc and _v8_doc.split("**P9:**")[1].split("\n")[0].count("❌ **سقط**") == 1,
+        # ✅ (‏2026-10-29) قرارُ المالك «اعتمد تشغيلة الفيواب الثالثة» محفوظٌ في الـJSON ومطبوعٌ في المستند
+        "owner_accepted": (_v8_r.get("owner_decision") or {}) == {"date": "2026-10-29", "text": "اعتمد تشغيلة الفيواب الثالثة", "accepted": True}
+                          and "✅ **قرارُ المالك (2026-10-29): «اعتمد تشغيلة الفيواب الثالثة»**" in _v8_doc,
         "replay_v2": _v8_r["v2_check"]["compared"] == 210 and _v8_r["v2_check"]["mismatch"] == 0 and _v8_r["self_mismatch"] == 0,
     }
     _v_v8, _v_v8w = all(_v8_c.values()), f"{ {k: v for k, v in _v8_c.items() if not v} or 'كلّها'}"
