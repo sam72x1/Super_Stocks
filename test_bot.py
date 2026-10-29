@@ -92020,6 +92020,9 @@ try:
     _asked = []
     _pf = _VL.prefilter({"IN": (2.0, 1.5), "HI": (25.0, 21.0), "LO": (0.9, 0.5), "ETF": (2.0, 1.5)},
                         lambda s: _asked.append(s) or 1.0, {"IN": "CS", "ETF": "ETF"})
+    _n_u = _VLLast(_b17, rows=[(_d2, 1.0)])
+    _D_u = _VL.Day(_n_u, _VL_DAY, _VLMC, replay=True)
+    _pf_unknown = _D_u.prev_adj_pf("UNK") is None and _n_u.aggs_calls == 0 and _D_u.prev_adj_pf("TST") == 1.0 and _n_u.aggs_calls == 1
     _al17 = _VL.scan_symbol(_D_a, "TST", _b17, 960, _VL3.ny_ts(_VL_DAY, 960))["alerts"]
     _msg17 = _VL.build_message(dict(_al17[0], sym="TST")) if _al17 else ""
     _vl17_c = {
@@ -92028,6 +92031,7 @@ try:
         "none_cached": _D_b.prev_ref("TST") == (None, None) and _D_b.prev_ref("TST") == (None, None) and _n_b.aggs_calls == 1,
         "retry_not_cached": _r_c1 == (None, None) and _r_c2 == (1.0, f"last_close {_d2}") and _n_c.aggs_calls == 2,
         "prefilter_asks_only_needed": _pf == {"IN"} and _asked == ["IN"],
+        "pf_known_type_only": _pf_unknown,
         "alert_src": bool(_al17) and _al17[0]["prev_src"] == f"last_close {_d6}" and f"📎 التغيّرُ عن آخر إغلاق {_d6} (لم يتداول بعده)" in _msg17,
         "no_line_grouped": "📎" not in _VL.build_message(dict(_al17[0], sym="TST", prev_src="grouped")) if _al17 else False,
     }

@@ -599,6 +599,13 @@ class Day:
     def prev_adj(self, sym):
         return self.prev_ref(sym)[0]
 
+    def prev_adj_pf(self, sym):
+        """للمرشِّح: إغلاقُ المجمَّعة لكلّ رمز · وآخرُ إغلاقِ الموقوف **لنوعٍ مقبولٍ معروف وحدَه** — المجهولُ النوعِ الغائبُ عن المجمَّعة كان
+        خارجَ المرشِّح قبل الأمر ويبقى (مقيس: replay ‏`40876317066`/T نداءاتٌ 2,784 مقابل 761 من أجل رموزٍ مجهولة النوع لم يُنتج منها تنبيه)."""
+        if sym in self.prev_close or self.types.get(sym) in TYPES_OK:
+            return self.prev_adj(sym)
+        return None
+
     def type_status(self, sym):
         if sym not in self.types and sym not in self._detail:
             j = self.net.poly(f"/v3/reference/tickers/{sym}", {"date": self.day})
@@ -777,9 +784,10 @@ def mode_replay(net, MC, end_day, ndays):
             out["per_day"][day] = {"ok": False, "why": D.why + ([] if hl else ["شمعةُ اليوم المجمَّعة"])}
             log(f"⛔ {day}: مرجعٌ ناقص {out['per_day'][day]['why']}")
             continue
-        cands = sorted(prefilter(hl, D.prev_adj, D.types))
-        no_prev = sorted(s for s, (h, low) in hl.items() if D.prev_adj(s) is None and h is not None and low is not None
+        cands = sorted(prefilter(hl, D.prev_adj_pf, D.types))
+        no_prev = sorted(s for s, (h, low) in hl.items() if s not in D.prev_close and h is not None and low is not None
                          and low < PX_MAX and h >= PX_MIN and D.types.get(s) in TYPES_OK)   # وصفٌ: عاديٌّ بلا إغلاق أمسٍ في المجمَّعة
+        lc_used = sorted(s for s in no_prev if str(D.prev_ref(s)[1] or "").startswith("last_close "))   # مُخبَّأٌ من المرشِّح
         bounds = _boundary_mods(D.op, D.cl, D.op, D.cl)
         miss_bars = n_ev = n_full = n_sym_ev = mismatch = 0
         first_fail = {}
@@ -818,7 +826,8 @@ def mode_replay(net, MC, end_day, ndays):
         na = sum(1 for r in out["alerts"] if r["date"] == day)
         out["per_day"][day] = {"ok": True, "candidates": len(cands), "bars_failed": miss_bars, "symbols_with_breaks": n_sym_ev,
                                "a_events": n_ev, "a_full": n_full, "alerts": na, "first_fail": first_fail, "loop_vs_full_mismatch": mismatch,
-                               "no_prev_close": len(no_prev), "no_prev_close_syms": no_prev[:40]}
+                               "no_prev_close": len(no_prev), "last_close_used": len(lc_used), "last_close_syms": lc_used[:40],
+                               "no_prev_close_syms": no_prev[:40]}
         log(f"📅 {day}: مرشّحون {len(cands)} · شموعٌ تعذّرت {miss_bars} · رموزٌ بكسر {n_sym_ev} · أحداثُ كسر {n_ev} · كاملة {n_full} · "
             f"تنبيهات {na} · أوّلُ شرطٍ سقط {first_fail} · خلافُ الحلقة {mismatch}")
         bad = bad or miss_bars > 0 or mismatch > 0
@@ -1000,7 +1009,7 @@ def mode_live(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, s
             errors["snapshot"] += 1
             log(f"⚠️ {_hm(B)} اللقطة تعذّرت ({errors['snapshot']})")
         else:
-            cands |= prefilter(snap, D.prev_adj, D.types)
+            cands |= prefilter(snap, D.prev_adj_pf, D.types)
         for sym in sorted(cands):
             by = net.minutes(sym, day, day)
             if by is None:
