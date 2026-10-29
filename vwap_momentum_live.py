@@ -1,0 +1,839 @@
+"""🟠 «زخم الفيواب» — أداةُ تنبيهٍ حيّة على تلغرام · ⚠️ قيد الإثبات الأماميّ (أمرُ المالك 2026-10-29).
+
+**التعريفُ = الملحق 3** (`vwap_mom_prereg_addendum_3.md` §③ — «الملحق 3 كتعريف نهائي») **بدوالّ الجدوى نفسِها بالاسم** فلا يُعاد
+كتابةُ شرطٍ بيدٍ ثانية: الكسرُ الصاعد `V3.break_events` · L `V3.event_liq` · إعادةُ الاختبار `V3.retest_signal` · VWAP والسلال
+`V3.vwap_series`/`V3.bucketize` · التراكمُ الدولاريّ `V3.cum_dollar_at` · ① `V4.pct_change`/`V4.ge` · ② `V4.rvol`/`V4.cum_curve`/`V4.curve_at`/
+`V4.vol_factor` · تسويةُ إغلاق الأمس `V4.price_factor` · ④ `V4.wire_index`/`V4.catalyst4` · وقبولُ SEC `V3.make_acc_ts`/`V3.sec_index`.
+(بُنيت كلُّها لعدّ أحداث يومٍ كامل في الجدوى · وهنا تُغذّى **بالشموع المكتملة حتى لحظة الفحص** وحدَها — والدوالُّ سببيّةٌ بالبناء:
+حدثٌ نهايتُه قبل لحظة الفحص لا يتغيّر بشموعٍ بعدها · مقفولٌ في `VWL3`.)
+
+**وقراراتُ المالك 2026-10-29 فوقه:** الحجمُ الدولاريّ التراكميّ حتى الحدث **250 ألفًا** (أدنى درجةٍ مسجّلة) · أرضيّةُ السعر **1.00** ·
+RVOL **من 04:00** · الحدثُ المكتشَف بعد إغلاق شمعته بأكثر من **10 دقائق لا يُرسَل ويُسجَّل** · وإعادةُ الاختبار **حتى 3 في اليوم لكلّ لمسةٍ
+جديدة** (مثالُ AZTR) · والجلسةُ النظاميّة وحدَها (نايف: «ماهي بري ماركت او افتر»).
+
+**عرضٌ لا إدارة:** EMA9 (على إغلاقات 5 دقائق من بداية الجلسة · العقد §②) · الوقفُ المقترح · سلّمُ الجني — نصوصٌ في الرسالة لا قرار.
+**خارج الجذور تمامًا:** لا يمسّ `Super_stock.py` ولا القائمةَ ولا «تحت المتابعة» — يستورد منه `send_telegram`/`git_save` في الوضع الحيّ وحدَه.
+
+الأوضاع (`--mode`): `live` (الإرسالُ لا يقع إلّا بـ`VWL_SEND=1`) · `replay` (آخرُ N جلساتٍ مكتملة صامتةً · بلا تلغرام) ·
+`trace` (سهمٌ ويوم: كلُّ لمسةٍ وحدثٍ بشروطه) · `harvest` (حصادُ ما بعد الإغلاق لسجلّ التنبيهات) · `probe` (فحصُ المنافذ الحيّة) ·
+و`--pre-open-sleep` لجوبَي الانتظار. **والفشلُ يُعلَن بخروجٍ غير صفريّ لا يُكتَم.**
+"""
+import argparse
+import datetime as dt
+import json
+import os
+import sys
+import time
+
+import vwap_mom_feas as V3
+import vwap_mom_feas_v4 as V4
+
+# ── الثوابت (كلُّ رقمٍ بوسمه في `FAISAL_SOURCE_LEDGER.md` §«زخم الفيواب الحيّة») ─────────────────────────
+NY = V3.NY
+D_MIN_LIVE = V3.D_LADDER[0]          # 250,000 — قرارُ المالك 2026-10-29 (أدنى درجةٍ مسجّلة)
+PX_MIN = 1.00                        # قرارُ المالك 2026-10-29 («تبقى 1.00») = `prelink_px.PX_MIN` = الملحق 3 ⑤
+PX_MAX = V4.PX_MAX                   # 20.0 — الملحق 3 ⑤ (بأمر المالك)
+CHG_MIN = V4.CHG_MIN                 # 0.20 — الملحق 3 ① (engineering بأمر المالك)
+RVOL_MIN = V4.RVOL_MIN               # 3.0 — الملحق 3 ② (engineering بأمر المالك)
+TYPES_OK = V4.TYPES_OK               # CS · ADRC · OS — الملحق 3 ⑤
+SPAC_SIC = V4.SPAC_SIC               # 6770 — الملحق 3 ⑤
+D_MAX_PER_DAY = 3                    # إعادةُ الاختبار حتى 3 في اليوم — أمرُ المالك 2026-10-29 (مثالُ AZTR «3 مرات»)
+FRESH_MAX_S = 600                    # أكثرُ من 10 دقائق بعد إغلاق الشمعة ⟵ لا يُرسَل ويُسجَّل — قرارُ المالك 2026-10-29
+LOOP_OFFSET_S = 25                   # الفحصُ بعد حدّ الشمعة بثوانٍ (المزوّدُ ينشر الدقيقة خلال ‏≈2ث — مقيس) — engineering
+EMA_N = 9                            # EMA9 على إغلاقات 5 دقائق من بداية الجلسة — العقد §② (`nayef_verbatim` الطول)
+LEDGER = "vwap_live_ledger.jsonl"    # سجلُّ الحصاد الإلحاقيّ (يُدفَع) — أمرُ المالك ④
+SEG_SPLIT_MIN = 195                  # حدُّ المقطعين (سقفُ جوب GitHub 6 ساعات · كرادار الانطلاق)
+PRE_OPEN_LEAD_MIN = 10               # جوبُ النوم يستيقظ قبل الجرس بعشر دقائق
+PRE_OPEN_CAP_MIN = 340               # تحت سقف الجوب 360
+WIRE_LIMIT_NOTE = ("مصادرُ الخبر المرئيّة: GlobeNewswire و8-K وحدهما — PRNewswire وBusiness Wire وAccesswire "
+                   "غائبةٌ عن أخبار Polygon (قِيست صفرًا) فسهمٌ خبرُه عليها لن يُلتقط")
+
+
+def log(m=""):
+    print(m, flush=True)
+
+
+# ── دوالُّ نقيّة (بلا شبكة · مقفولةٌ في السويّة) ────────────────────────────────────────────────────────
+def ny_parts(ts_ms):
+    """طابعُ Polygon (ميلّي ثانية UTC لبداية الدقيقة) ⟵ (يومُ نيويورك، دقيقةُ اليوم)."""
+    d = dt.datetime.fromtimestamp(int(ts_ms) / 1000.0, tz=NY)
+    return d.date().isoformat(), d.hour * 60 + d.minute
+
+
+def bars_by_day(results):
+    """نتائجُ `/v2/aggs` ⟵ {يوم: [(دقيقة، o، h، l، c، v)] مرتّبة} — صيغةُ `V3` نفسُها."""
+    out = {}
+    for r in results or ():
+        try:
+            day, m = ny_parts(r["t"])
+            out.setdefault(day, []).append((m, float(r["o"]), float(r["h"]), float(r["l"]), float(r["c"]), float(r.get("v") or 0.0)))
+        except (KeyError, TypeError, ValueError):
+            continue
+    for v in out.values():
+        v.sort(key=lambda b: b[0])
+    return out
+
+
+def complete_buckets(bars, op, cl, upto):
+    """سلالُ الجلسة النظاميّة **المكتملة** حتى `upto` (دقيقةُ حدٍّ): الدقائقُ قبل upto وحدَها ثمّ السلالُ التي نهايتُها ≤ upto
+    ⟵ (b5، b15، دقائقُ النظاميّة) — VWAP من الافتتاح (الملحق 1 · الذراع A)."""
+    end = min(cl, upto)
+    bb = [b for b in bars if op <= b[0] < end]
+    vw = V3.vwap_series(bb)
+    b5 = [x for x in V3.bucketize(bb, vw, op, 5, cl) if x["e"] <= upto]
+    b15 = [x for x in V3.bucketize(bb, vw, op, 15, cl) if x["e"] <= upto]
+    return b5, b15, bb
+
+
+def ema_last(values, n=EMA_N):
+    """EMA بطول n (‏α = 2/(n+1) · بذرتُه أوّلُ قيمة) ⟵ آخرُ قيمةٍ أو None."""
+    a, e = 2.0 / (n + 1.0), None
+    for x in values:
+        e = x if e is None else a * x + (1.0 - a) * e
+    return e
+
+
+def above_run(b5, end_e):
+    """عددُ إغلاقات 5 دقائق المتتالية فوق VWAP المنتهية عند نهاية الحدث `end_e`."""
+    n = 0
+    for b in reversed([x for x in b5 if x["e"] <= end_e]):
+        if b["vwap"] is not None and b["c"] > b["vwap"]:
+            n += 1
+        else:
+            break
+    return n
+
+
+def priors_rvol(cur_shares, priors, e):
+    """② عند نهاية الحدث `e`: `priors` = [(يومٌ سابق، منحنى أو None، عاملُ تسوية الحجم)] لعشرين جلسة ⟵ `V4.rvol` بالاسم."""
+    pri = [(cv is not None, V4.curve_at(cv, e) * vf) for _d, cv, vf in priors]
+    return V4.rvol(cur_shares, pri)
+
+
+def shares_before(bars, e):
+    """حجمُ الأسهم من 04:00 حتى ما قبل `e` (نافذةُ `cum_dollar_at` نفسِها · الملحق 3 ②)."""
+    return sum(v for m, _o, _h, _l, _c, v in bars if V3.EXT_START <= m < e)
+
+
+CHECK_ORDER = ("⑤ السعر", "الحجم الدولاري", "① التغيّر", "③ L", "② RVOL", "⑤ النوع", "⑤ SPAC", "④ الخبر")
+
+
+def check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d_min, full_info):
+    """يفحص حدثَ كسرٍ بترتيب `CHECK_ORDER` ويملأ `info` (liq · rvol · cat) ⟵ قائمةُ ما سقط — تقف عند أوّل سقوطٍ ما لم يُطلب `full_info`."""
+    why = []
+
+    def fail(tag):
+        why.append(tag)
+        return not full_info
+    e = info["e"]
+    if not (PX_MIN <= info["px"] < PX_MAX) and fail("⑤ السعر"):
+        return why
+    if info["cum_dollar"] < d_min and fail("الحجم الدولاري"):
+        return why
+    if not V4.ge(info["chg"], CHG_MIN) and fail("① التغيّر"):
+        return why
+    info["liq"] = V3.event_liq(b5, b15, ev)
+    if not info["liq"] and fail("③ L"):
+        return why
+    info["rvol"] = priors_rvol(shares_before(bars, e), priors_fn(), e)
+    if not V4.ge(info["rvol"], RVOL_MIN) and fail("② RVOL" + (" (مجهول)" if info["rvol"] is None else "")):
+        return why
+    if type_status != "ok" and fail("⑤ النوع" + (" (مجهول)" if type_status == "unknown" else "")):
+        return why
+    if spac and fail("⑤ SPAC"):
+        return why
+    info["cat"] = cat_of(e)
+    if info["cat"].get("C") is not True:
+        fail("④ الخبر" + (" (مجهول)" if info["cat"].get("C") is None else ""))
+    return why
+
+
+def evaluate(bars, op, cl, upto, prev_adj, priors_fn, cat_of, type_status, spac, d_min=D_MIN_LIVE, full_info=False):
+    """رمزٌ في يوم حتى `upto` ⟵ {"events": [كلُّ كسرٍ A بشروطه]، "alerts": [A الأوّلُ الكامل ثمّ D#1..3]}.
+
+    A كامل = الملحق 3 **في الحدث نفسِه**: الكسرُ (`break_events`) ∧ ⑤ السعرُ في [PX_MIN، PX_MAX) ∧ الحجمُ الدولاريّ التراكميّ من 04:00 ≥ d_min ∧
+    ① ‏+20% فأكثر ∧ ③ L ∧ ② RVOL ≥ 3 ∧ النوعُ مقبولٌ وليس SPAC ∧ ④ خبرُ سلكٍ أو 8-K في النافذة — وحدثٌ أبكرُ ناقصٌ لا يحجب لاحقًا كاملًا.
+    الفحصُ بترتيب `CHECK_ORDER` ويقف عند أوّل سقوط (الأغلى آخرًا: ② ثمّ ④) ما لم يُطلب `full_info` (وضعُ التتبّع).
+    D = بعد أوّل A كامل: لمسةٌ (قاعُ 5د حتى 1.01 × VWAP) ثمّ الثباتُ مع L (`retest_signal` بالاسم) وفي لحظة إكماله ① و⑤ قائمان
+    (الملحق 3 §③-⑥) ثمّ تُبحث اللمسةُ التالية بعد إكماله — حتى `D_MAX_PER_DAY` تنبيهًا.
+    `priors_fn()` ⟵ أيّامُ ② (يُنادى عند الحاجة وحدَها) · `cat_of(نهاية)` ⟵ `V4.catalyst4` · `type_status` ∈ {ok · excluded · unknown}."""
+    b5, b15, _bb = complete_buckets(bars, op, cl, upto)
+    events, alerts, first_full = [], [], None
+    for ev in V3.break_events(b5, b15):
+        e, kind, idx, _k = ev
+        bk = b5[idx] if kind == "5x3" else b15[idx]
+        px, vwap = bk["c"], bk["vwap"]
+        info = {"e": e, "kind": kind, "px": px, "vwap": vwap, "cum_dollar": V3.cum_dollar_at(bars, e),
+                "chg": V4.pct_change(px, prev_adj), "liq": None, "rvol": None, "cat": None}
+        info["why"] = check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d_min, full_info)
+        info["full"] = not info["why"]
+        events.append(info)
+        if info["full"] and first_full is None:
+            first_full = info
+    if first_full is not None:
+        alerts.append(dict(first_full, arm="A", n=1, above=above_run(b5, first_full["e"]),
+                           ema9=ema_last([b["c"] for b in b5 if b["e"] <= first_full["e"]])))
+        after, n_d = first_full["e"], 0
+        while n_d < D_MAX_PER_DAY:
+            rt = V3.retest_signal(b5, b15, after, need_liq=True)
+            if rt is None:
+                break
+            re_, rkind, ridx = rt
+            rb = b5[ridx] if rkind == "5x3" else b15[ridx]
+            rchg = V4.pct_change(rb["c"], prev_adj)
+            if PX_MIN <= rb["c"] < PX_MAX and V4.ge(rchg, CHG_MIN):
+                n_d += 1
+                alerts.append({"e": re_, "kind": rkind, "px": rb["c"], "vwap": rb["vwap"], "cum_dollar": V3.cum_dollar_at(bars, re_),
+                               "chg": rchg, "liq": True, "rvol": priors_rvol(shares_before(bars, re_), priors_fn(), re_),
+                               "cat": first_full["cat"], "why": [], "full": True, "arm": "D", "n": n_d,
+                               "above": above_run(b5, re_), "ema9": ema_last([b["c"] for b in b5 if b["e"] <= re_])})
+            after = re_
+    return {"events": events, "alerts": alerts}
+
+
+def is_fresh(event_ts, detected_ts, fresh_max=FRESH_MAX_S):
+    """يُرسَل إن اكتُشف خلال `fresh_max` ثانيةً من إغلاق شمعته (قرارُ المالك: أكثرُ من 10 دقائق ⟵ لا يُرسَل ويُسجَّل)."""
+    return (detected_ts - event_ts) <= fresh_max
+
+
+def alert_key(day, sym, arm, n):
+    return f"{day}|{sym}|{arm}|{n}"
+
+
+def used_keys(rows, day):
+    """مفاتيحُ التنبيهات المسجَّلة لليوم (المُرسَلةُ والمتأخّرة معًا) — الدِّدوب: A مرّة · D حتى 3."""
+    return {r.get("key") for r in rows if r.get("kind") == "alert" and r.get("date") == day and r.get("key")}
+
+
+def _hm(mod):
+    return f"{mod // 60:02d}:{mod % 60:02d}"
+
+
+def _pct(x):
+    return "؟" if x is None else f"{x * 100:+.0f}%"
+
+
+def news_brief(cat_detail):
+    """أحدثُ خبرِ سلكٍ في النافذة ⟵ «العنوان — المصدر — الوقت» · أو 8-K · أو None."""
+    w = (cat_detail or {}).get("wire_item")
+    if w:
+        return f"{w.get('title') or 'بيان صحفي'} — {w.get('wire')} — {w.get('time_ny')} نيويورك"
+    s = (cat_detail or {}).get("sec_item")
+    if s:
+        items = f" (بنود {s['items']})" if s.get("items") else ""
+        return f"إيداع 8-K{items} — SEC — {s.get('time_ny')} نيويورك"
+    return None
+
+
+def _esc(s):
+    return (str(s).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace('"', "&quot;"))
+
+
+def build_message(row):
+    """كرتُ التنبيه (شكلُ «هنا الدخول» · أسطرٌ قصيرة · بلا علامات مقارنة) — `send_telegram` يُلحق ختمَ الإصدار 🧾."""
+    sym, arm = row["sym"], row["arm"]
+    head = "🟠 <b>زخم الفيواب</b>" + (f" · إعادة اختبار #{row['n']}" if arm == "D" else " · كسر وثبات")
+    rv = row.get("rvol")
+    rv_s = "؟" if rv is None else ("∞" if rv == float("inf") else f"{rv:.1f}×")
+    ema = row.get("ema9")
+    ema_s = "؟" if ema is None else ("فوقه" if row["px"] > ema else "تحته")
+    lines = [
+        f"{head} · <b>${_esc(sym)}</b> · ${row['px']:.2f} · ‏{_pct(row.get('chg'))} يومه",
+        f"RVOL {rv_s} · فيواب ${row['vwap']:.2f} (فوقه {row.get('above', 0)} شموع 5د) · EMA9 {ema_s}",
+        f"📰 {_esc(row.get('news') or 'خبرٌ مؤكَّد في النافذة')}",
+        f"🕐 أُغلقت شمعةُ الحدث {_hm(row['e'])} نيويورك",
+        "⛔ وقف مقترح: إغلاق شمعة 5د تحت الفيواب",
+        "🎯 الجني (نايف): كل 7-10% ربح بيع جزء وارفع وقفك · وأوّل ما يرتفع عن دخولك ارفع وقفك لدخولك",
+        f"⚠️ قيد الإثبات الأمامي — الأداة تنبّه ولا تدير صفقة · {WIRE_LIMIT_NOTE}",
+    ]
+    return "\n".join(("‏" + ln) for ln in lines)
+
+
+def ledger_row(day, sym, a, detected_ts, sent, reason, mode, sha, news):
+    """صفُّ تنبيهٍ إلحاقيّ (مفتاحُه للاتّحاد في `git_save`)."""
+    ets = V3.ny_ts(day, a["e"])
+    return {"v": 1, "kind": "alert", "key": alert_key(day, sym, a["arm"], a["n"]), "date": day, "sym": sym, "arm": a["arm"],
+            "n": a["n"], "event_end_ny": _hm(a["e"]), "event_end_mod": a["e"], "event_ts": ets,
+            "detected_ts": round(detected_ts, 1), "latency_s": round(detected_ts - ets, 1), "sent": sent, "reason": reason,
+            "px": round(a["px"], 4), "vwap": round(a["vwap"], 4), "chg": None if a["chg"] is None else round(a["chg"], 4),
+            "rvol": None if a["rvol"] is None else (None if a["rvol"] == float("inf") else round(a["rvol"], 2)),
+            "rvol_inf": a["rvol"] == float("inf"), "cum_dollar": round(a["cum_dollar"]), "candle": a["kind"],
+            "above": a.get("above"), "ema9": None if a.get("ema9") is None else round(a["ema9"], 4),
+            "news": news, "mode": mode, "sha": sha}
+
+
+def harvest(bars, op, cl, alert_mod, alert_px):
+    """حصادُ ما بعد الإغلاق (عدٌّ لا حكم · أمرُ المالك ④): أعلى سعرٍ بعد التنبيه ووقتُه · أوّلُ إغلاق 5د تحت الفيواب ووقتُه وسعرُه ·
+    العائدُ حتى ذلك الخروج (إغلاقُ تلك الشمعة) · والعائدُ حتى إغلاق الجلسة. VWAP من الافتتاح كالتنبيه."""
+    b5, _b15, bb = complete_buckets(bars, op, cl, cl)
+    after = [b for b in bb if b[0] >= alert_mod]
+    hi = max(after, key=lambda b: b[2]) if after else None
+    ex = next((b for b in b5 if b["s"] >= alert_mod and b["vwap"] is not None and b["c"] < b["vwap"]), None)
+    close_px = bb[-1][4] if bb else None
+    r = lambda p: None if (p is None or not alert_px) else round(p / alert_px - 1.0, 4)   # noqa: E731
+    return {"max_high": None if hi is None else hi[2], "max_high_ny": None if hi is None else _hm(hi[0]),
+            "max_gain": None if hi is None else r(hi[2]),
+            "exit_ny": None if ex is None else _hm(ex["e"]), "exit_px": None if ex is None else ex["c"],
+            "ret_exit": None if ex is None else r(ex["c"]), "close_px": close_px, "ret_close": r(close_px)}
+
+
+def prefilter(day_hl, prev_adj_of, types):
+    """مرشِّحٌ **أعمّ** من الشروط (لا يُسقط حدثًا ممكنًا): أعلى اليوم حتى الآن ≥ 1.2 × إغلاق الأمس المسوّى (شرطٌ لازمٌ لـ① على أيّ إغلاق 5د) ·
+    وأدنى اليوم دون PX_MAX · وأعلاه PX_MIN فأكثر · والنوعُ ليس مستبعَدًا (المجهولُ يبقى ليُسأل عنه) ⟵ مجموعةُ الرموز."""
+    out = set()
+    for sym, (h, low) in day_hl.items():
+        pa = prev_adj_of(sym)
+        if not pa or h is None or low is None:
+            continue
+        t = types.get(sym)
+        if t is not None and t not in TYPES_OK:
+            continue
+        if V4.ge(h / pa - 1.0, CHG_MIN) and low < PX_MAX and h >= PX_MIN:
+            out.add(sym)
+    return out
+
+
+def pre_open_sleep_min(open_utc, now_utc, lead=PRE_OPEN_LEAD_MIN, cap=PRE_OPEN_CAP_MIN):
+    """دقائقُ نومِ جوب الانتظار: الجرسُ ناقصَ lead ناقصَ الآن مقصوصًا إلى [0، cap] — وصفرٌ عند أيّ عطل (فاشلٌ-آمن)."""
+    try:
+        gap = (open_utc - dt.timedelta(minutes=lead) - now_utc).total_seconds() / 60.0
+        return 0 if gap <= 0 else int(min(cap, int(gap)))
+    except Exception:                                                    # noqa: BLE001
+        return 0
+
+
+# ── الشبكة (رنر فقط · كلُّ نداءٍ فاشلٌ-آمن ⟵ None) ──────────────────────────────────────────────────────────
+class Net:
+    """منافذُ Polygon وSEC — تُحقَن بديلًا في السويّة. `calls`/`fails` تُطبع في كلّ خاتمة."""
+
+    def __init__(self, key, ua):
+        self.key, self.ua, self.calls, self.fails = key, ua, 0, 0
+
+    def _count(self, j):
+        self.calls += 1
+        self.fails += int(j is None)
+        return j
+
+    def poly(self, path, params=None):
+        return self._count(V3._poly(path, self.key, params))
+
+    def poly_url(self, url):
+        return self._count(V3._get_url(url, self.key))
+
+    def paged(self, path, params, cap=100):
+        rows, ok = V4._paged_all(self.key, path, params, cap=cap)
+        self.calls += 1
+        self.fails += int(not ok)
+        return rows, ok
+
+    def sec(self, url):
+        return self._count(V3._sec_get(url, self.ua, True))
+
+    def minutes(self, sym, d_from, d_to):
+        from urllib.parse import quote
+        j = self.poly(f"/v2/aggs/ticker/{quote(sym)}/range/1/minute/{d_from}/{d_to}",
+                      {"adjusted": "false", "sort": "asc", "limit": 50000})
+        if j is None:
+            return None
+        res = list(j.get("results") or [])
+        nxt, pages = j.get("next_url"), 0
+        while nxt and pages < 10:
+            k = self.poly_url(nxt)
+            if k is None:
+                return None
+            res.extend(k.get("results") or [])
+            nxt, pages = k.get("next_url"), pages + 1
+        return bars_by_day(res)
+
+    def news(self, sym, a_iso, b_iso):
+        rows, ok = self.paged("/v2/reference/news", {"ticker": sym, "published_utc.gte": a_iso, "published_utc.lte": b_iso,
+                                                     "order": "asc", "sort": "published_utc", "limit": 1000}, cap=10)
+        if not ok:
+            return None
+        out = []
+        for it in rows:
+            pub = it.get("publisher") or {}
+            out.append({"id": it.get("id"), "published_utc": it.get("published_utc"), "tickers": it.get("tickers") or [],
+                        "publisher": {"name": pub.get("name") if isinstance(pub, dict) else pub},
+                        "author": it.get("author"), "article_url": it.get("article_url"), "title": it.get("title")})
+        return out
+
+    def snapshot(self):
+        j = self.poly("/v2/snapshot/locale/us/markets/stocks/tickers")
+        if j is None:
+            return None
+        out = {}
+        for t in j.get("tickers") or ():
+            d = t.get("day") or {}
+            if t.get("ticker") and d.get("h"):
+                out[str(t["ticker"]).upper()] = (float(d["h"]), float(d.get("l") or d["h"]))
+        return out
+
+
+class Day:
+    """مرجعُ يومٍ واحد (يُجلب مرّةً) وذاكرتُه المؤقّتة لكلّ رمز — مشتركٌ بين `live` و`replay` و`trace`."""
+
+    def __init__(self, net, day, MC, replay=False):
+        self.net, self.day, self.replay = net, day, replay
+        info = MC.session_info(day)
+        self.op, self.cl = info["open_ny_min"], info["close_ny_min"]
+        self.prev = V3._prev_session(day, MC)
+        self.priors = V4._prev_sessions(day, V4.RVOL_WIN, MC)
+        self.win_a = V3.ny_ts(self.prev, 16 * 60)                     # «مساء الأمس» = بعد 16:00 نيويورك للجلسة السابقة
+        self.ok, self.why = True, []
+        g = net.poly(f"/v2/aggs/grouped/locale/us/market/stocks/{self.prev}", {"adjusted": "false"})
+        self.prev_close = {str(r.get("T") or "").upper(): r.get("c") for r in ((g or {}).get("results") or []) if r.get("T")}
+        if not self.prev_close:
+            self.ok = False
+            self.why.append("إغلاقُ الجلسة السابقة")
+        rows, oks = net.paged("/v3/reference/splits", {"execution_date.gte": self.priors[0], "execution_date.lte": day, "limit": 1000})
+        self.splits = {}
+        for r in rows:
+            try:
+                self.splits.setdefault(str(r.get("ticker") or "").upper(), []).append(
+                    (str(r["execution_date"]), float(r["split_from"]), float(r["split_to"])))
+            except (KeyError, TypeError, ValueError):
+                continue
+        if not oks:
+            self.ok = False
+            self.why.append("التقسيمات")
+        trows, okt = net.paged("/v3/reference/tickers", {"market": "stocks", "date": day, "active": "true", "limit": 1000})
+        self.types = {str(r.get("ticker") or "").upper(): str(r.get("type") or "") for r in trows if r.get("ticker")}
+        if not okt:
+            self.ok = False
+            self.why.append("مرجعُ الأنواع")
+        cmap = net.sec("https://www.sec.gov/files/company_tickers.json") or {}
+        self.cik = {str(v.get("ticker", "")).upper(): int(v["cik_str"]) for v in cmap.values()
+                    if isinstance(v, dict) and v.get("cik_str")}
+        if not self.cik:
+            self.ok = False
+            self.why.append("خريطةُ CIK")
+        from edgar2_probe import parse_acc, to_ny
+        self.acc_ts = V3.make_acc_ts(parse_acc, to_ny)
+        self._prior_cache, self._cat_cache, self._detail = {}, {}, {}
+
+    def prev_adj(self, sym):
+        pv = self.prev_close.get(sym)
+        return pv * V4.price_factor(self.splits.get(sym, ()), self.day) if pv else None
+
+    def type_status(self, sym):
+        if sym not in self.types and sym not in self._detail:
+            j = self.net.poly(f"/v3/reference/tickers/{sym}", {"date": self.day})
+            self._detail[sym] = ((j or {}).get("results") or {}).get("type")
+        t = self.types.get(sym) or self._detail.get(sym)
+        return "unknown" if not t else ("ok" if t in TYPES_OK else "excluded")
+
+    def priors_of(self, sym):
+        """[(يوم، منحنى أو None، عاملُ الحجم)] لعشرين جلسة — نداءٌ واحدٌ للرمز في اليوم · None إن تعذّر (② مجهول ⟵ لا تنبيه)."""
+        if sym not in self._prior_cache:
+            by = self.net.minutes(sym, self.priors[0], self.priors[-1])
+            if by is None:
+                self._prior_cache[sym] = None
+            else:
+                sp = self.splits.get(sym, ())
+                self._prior_cache[sym] = [(d, V4.cum_curve(by[d]) if by.get(d) else None, V4.vol_factor(sp, d, self.day))
+                                          for d in self.priors]
+        return self._prior_cache[sym]
+
+    def sec_of(self, sym):
+        """(SIC، صفوفُ 8-K/6-K [(ثانية، نموذج، بنود)]، معلوم؟) — بلا CIK ⟵ ("", []، True) كالملحق 2 §③ (الأخبارُ وحدَها)."""
+        cik = self.cik.get(sym)
+        if cik is None:
+            return "", [], True
+        j = self.net.sec(f"https://data.sec.gov/submissions/CIK{cik:010d}.json")
+        if j is None:
+            return "", [], False
+        rec = (j.get("filings") or {}).get("recent") or {}
+        known = V3.sec_depth_ok(rec, bool((j.get("filings") or {}).get("files")), self.prev)
+        return str(j.get("sic") or ""), V3.sec_index(rec, V4.SEC_FETCH, self.acc_ts), known
+
+    def catalyst(self, sym, upto_ts):
+        """⟵ (cat_of، تفصيلٌ للرسالة، SPAC؟) — أخبارُ الرمز حتى لحظة الفحص و`submissions` (تُجلب عند الحاجة · مرّةً لكلّ فحص).
+        **وفي الإعادة** مرّةً للرمز في اليوم حتى 20:00 — والنافذةُ في `catalyst4` تقصّها عند نهاية كلّ حدثٍ (لا نظرَ للأمام)."""
+        if self.replay:
+            if sym in self._cat_cache:
+                return self._cat_cache[sym]
+            upto_ts = V3.ny_ts(self.day, V3.EXT_END)
+        a_iso = dt.datetime.fromtimestamp(self.win_a, tz=dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        b_iso = dt.datetime.fromtimestamp(upto_ts, tz=dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+        items = self.net.news(sym, a_iso, b_iso)
+        sic, rows, known = self.sec_of(sym)
+        wix = V4.wire_index(items or [])[0]
+        s8k = [r[0] for r in rows if r[1] == "8-K"]
+        s6k = [r[0] for r in rows if r[1] == "6-K"]
+        if items is None and not s8k:
+            known = False                                              # الأخبارُ تعذّرت ولا 8-K ⟵ ④ مجهول لا «لا»
+
+        def cat_of(e_mod):
+            return V4.catalyst4(sym, self.win_a, V3.ny_ts(self.day, e_mod), wix, s8k, s6k, known)
+
+        def detail(e_mod):
+            b = V3.ny_ts(self.day, e_mod)
+            wi = None
+            for it in sorted(items or [], key=lambda x: str(x.get("published_utc") or "")):
+                ts = V3._iso_ts(it.get("published_utc"))
+                w = V4.wire_of(it)
+                if w and ts is not None and self.win_a <= ts <= b and sym in {str(t).upper() for t in it.get("tickers") or []}:
+                    wi = {"title": it.get("title"), "wire": w[0], "published_utc": it.get("published_utc"),
+                          "time_ny": dt.datetime.fromtimestamp(ts, tz=NY).strftime("%m-%d %H:%M")}
+            si = None
+            for ts, f, its in rows:
+                if f == "8-K" and self.win_a <= ts <= b:
+                    si = {"items": its, "time_ny": dt.datetime.fromtimestamp(ts, tz=NY).strftime("%m-%d %H:%M")}
+            return {"wire_item": wi, "sec_item": si}
+        out = (cat_of, detail, sic == SPAC_SIC)
+        if self.replay:
+            self._cat_cache[sym] = out
+        return out
+
+
+def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False):
+    """فحصُ رمزٍ حتى `upto` ⟵ نتيجةُ `evaluate` وكلُّ تنبيهٍ فيها بخبره (`news` نصًّا و`news_detail`). أيّامُ ② والخبرُ وSEC
+    **تُجلب عند الحاجة وحدَها** (حين تكتمل الشروطُ الأرخص قبلها) · وSPAC يُعرف من `submissions` نفسِه فيُعاد التقييمُ به."""
+    b5, _b15, _ = complete_buckets(bars_today, D.op, D.cl, upto)
+    if len(b5) < 4:
+        return {"events": [], "alerts": []}
+    state = {}
+
+    def priors_fn():
+        p = D.priors_of(sym)
+        return p if p is not None else [(d, None, 1.0) for d in D.priors]   # ② مجهول ⟵ لا يكتمل A
+
+    def cat_of(e):
+        if "fn" not in state:
+            state["fn"], state["detail"], state["spac"] = D.catalyst(sym, detected_ts)
+        return state["fn"](e)
+    ts = D.type_status(sym)
+    res = evaluate(bars_today, D.op, D.cl, upto, D.prev_adj(sym), priors_fn, cat_of, ts, False, full_info=full_info)
+    if state.get("spac"):
+        res = evaluate(bars_today, D.op, D.cl, upto, D.prev_adj(sym), priors_fn, state["fn"], ts, True, full_info=full_info)
+    for a in res["alerts"]:
+        a["news_detail"] = state["detail"](a["e"])
+        a["news"] = news_brief(a["news_detail"])
+    return res
+
+
+def read_ledger(path=LEDGER):
+    rows = []
+    try:
+        with open(path, encoding="utf-8") as f:
+            for ln in f:
+                ln = ln.strip()
+                if ln:
+                    try:
+                        rows.append(json.loads(ln))
+                    except ValueError:
+                        continue
+    except FileNotFoundError:
+        pass
+    return rows
+
+
+def append_ledger(row, path):
+    with open(path, "a", encoding="utf-8") as f:
+        f.write(json.dumps(row, ensure_ascii=False, sort_keys=True) + "\n")
+
+
+def _sha():
+    return (os.environ.get("GITHUB_SHA") or "").strip()[:7] or "local"
+
+
+def _today_ny(now=None):
+    return (now or dt.datetime.now(tz=NY)).astimezone(NY).date().isoformat()
+
+
+def _boundary_mods(op, cl, start_mod, end_mod):
+    """حدودُ الشموع (كلَّ 5 دقائق من الافتتاح) في (start_mod، end_mod] — لحظاتُ الفحص."""
+    return [m for m in range(op + 5, min(cl, end_mod) + 1, 5) if m > start_mod]
+
+
+# ── الأوضاع ──────────────────────────────────────────────────────────────────────────────────────────────
+def mode_replay(net, MC, end_day, ndays):
+    """إعادةُ تشغيلٍ صامتة: لكلّ جلسةٍ مكتملة — المرشِّحُ الأعمّ من شمعة اليوم (المجمَّعة · لا نظرَ للأمام في الشروط) ثمّ محاكاةُ
+    الحلقة الحيّة عند كلّ حدّ 5 دقائق (`scan_symbol` حتى الحدّ وحده) ⟵ كلُّ تنبيهٍ كان سيُرسَل بطابعه. بلا تلغرام · بلا سجلّ."""
+    days, d = [], dt.date.fromisoformat(end_day)
+    while len(days) < ndays:
+        if V3.is_session(d.isoformat(), MC.session_info):
+            days.append(d.isoformat())
+        d -= dt.timedelta(1)
+    days.reverse()
+    out = {"mode": "replay", "days": days, "d_min": D_MIN_LIVE, "px": [PX_MIN, PX_MAX], "chg_min": CHG_MIN, "rvol_min": RVOL_MIN,
+           "fresh_max_s": FRESH_MAX_S, "d_max": D_MAX_PER_DAY, "per_day": {}, "alerts": [], "near": []}
+    bad = False
+    for day in days:
+        D = Day(net, day, MC, replay=True)
+        g = net.poly(f"/v2/aggs/grouped/locale/us/market/stocks/{day}", {"adjusted": "false"})
+        hl = {str(r.get("T") or "").upper(): (r.get("h"), r.get("l")) for r in ((g or {}).get("results") or []) if r.get("T")}
+        if not D.ok or not hl:
+            bad = True
+            out["per_day"][day] = {"ok": False, "why": D.why + ([] if hl else ["شمعةُ اليوم المجمَّعة"])}
+            log(f"⛔ {day}: مرجعٌ ناقص {out['per_day'][day]['why']}")
+            continue
+        cands = sorted(prefilter(hl, D.prev_adj, D.types))
+        bounds = _boundary_mods(D.op, D.cl, D.op, D.cl)
+        miss_bars = n_ev = n_full = n_sym_ev = mismatch = 0
+        first_fail = {}
+        for sym in cands:
+            by = net.minutes(sym, day, day)
+            bars = (by or {}).get(day)
+            if by is None:
+                miss_bars += 1
+                continue
+            if not bars:
+                continue
+            got = {}
+            for B in bounds:
+                det = V3.ny_ts(day, B) + LOOP_OFFSET_S
+                for a in scan_symbol(D, sym, bars, B, det)["alerts"]:
+                    k = (a["arm"], a["n"])
+                    if k not in got:
+                        got[k] = ledger_row(day, sym, a, det, is_fresh(V3.ny_ts(day, a["e"]), det), None, "replay", _sha(),
+                                            a.get("news"))
+                        got[k]["news_detail"] = a.get("news_detail")
+            fin = scan_symbol(D, sym, bars, D.cl, V3.ny_ts(day, D.cl) + LOOP_OFFSET_S, full_info=True)
+            if {(a["arm"], a["n"]) for a in fin["alerts"]} != set(got):
+                mismatch += 1                                           # الحلقةُ والتقييمُ الكامل يجب أن يتّفقا بالبناء
+            out["alerts"].extend(got[k] for k in sorted(got, key=lambda x: (x[0] != "A", x[1])))
+            n_ev += len(fin["events"])
+            n_sym_ev += int(bool(fin["events"]))
+            n_full += sum(1 for e in fin["events"] if e["full"])
+            for e in fin["events"]:
+                if e["why"]:
+                    first_fail[e["why"][0]] = first_fail.get(e["why"][0], 0) + 1
+                if len(e["why"]) == 1:
+                    out["near"].append({"date": day, "sym": sym, "event_end_ny": _hm(e["e"]), "missing": e["why"][0],
+                                        "px": round(e["px"], 4), "chg": None if e["chg"] is None else round(e["chg"], 4),
+                                        "rvol": None if e["rvol"] in (None, float("inf")) else round(e["rvol"], 2),
+                                        "cum_dollar": round(e["cum_dollar"])})
+        na = sum(1 for r in out["alerts"] if r["date"] == day)
+        out["per_day"][day] = {"ok": True, "candidates": len(cands), "bars_failed": miss_bars, "symbols_with_breaks": n_sym_ev,
+                               "a_events": n_ev, "a_full": n_full, "alerts": na, "first_fail": first_fail, "loop_vs_full_mismatch": mismatch}
+        log(f"📅 {day}: مرشّحون {len(cands)} · شموعٌ تعذّرت {miss_bars} · رموزٌ بكسر {n_sym_ev} · أحداثُ كسر {n_ev} · كاملة {n_full} · "
+            f"تنبيهات {na} · أوّلُ شرطٍ سقط {first_fail} · خلافُ الحلقة {mismatch}")
+        bad = bad or miss_bars > 0 or mismatch > 0
+    out["calls"], out["fails"] = net.calls, net.fails
+    log("VWLIVE_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
+    for r in out["alerts"]:
+        log(f"🟠 {r['date']} {r['event_end_ny']} ${r['sym']} · {r['arm']}{'#' + str(r['n']) if r['arm'] == 'D' else ''} · "
+            f"${r['px']} · {_pct(r['chg'])} · RVOL {r['rvol']} · 📰 {r['news']}")
+    return 4 if bad else 0
+
+
+def mode_trace(net, MC, day, sym):
+    """سهمٌ ويوم: شموعُ 5 دقائق النظاميّة بـVWAP · كلُّ لمسةٍ (قاعٌ حتى 1.01 × VWAP) · كلُّ كسرٍ A بشروطه وسببِ سقوطه ·
+    والتنبيهاتُ التي كانت ستُرسَل (محاكاةُ الحلقة) · ثمّ وصفُ الممتدّة (VWAP من 04:00) — خارج نطاق الأداة بتعريف نايف."""
+    D = Day(net, day, MC, replay=True)
+    by = net.minutes(sym, day, day)
+    bars = (by or {}).get(day) or []
+    out = {"mode": "trace", "date": day, "sym": sym, "ref_ok": D.ok, "ref_why": D.why, "bars": len(bars),
+           "prev_adj": D.prev_adj(sym), "type": D.type_status(sym), "candles": [], "touches": [], "events": [], "alerts": [], "ext": {}}
+    if not bars:
+        log("VWLIVE_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
+        return 4
+    b5, _b15, _bb = complete_buckets(bars, D.op, D.cl, D.cl)
+    for b in b5:
+        out["candles"].append({"s": _hm(b["s"]), "o": b["o"], "h": b["h"], "l": b["l"], "c": b["c"],
+                               "vwap": None if b["vwap"] is None else round(b["vwap"], 4), "dv": round(b["dv"])})
+        if b["vwap"] is not None and b["l"] <= V3.RETEST_TOL * b["vwap"]:
+            out["touches"].append({"s": _hm(b["s"]), "low": b["l"], "vwap": round(b["vwap"], 4), "close_above": b["c"] > b["vwap"]})
+    seen = set()
+    for B in _boundary_mods(D.op, D.cl, D.op, D.cl):
+        det = V3.ny_ts(day, B) + LOOP_OFFSET_S
+        res = scan_symbol(D, sym, bars, B, det)
+        for a in res["alerts"]:
+            if (a["arm"], a["n"]) not in seen:
+                seen.add((a["arm"], a["n"]))
+                out["alerts"].append(ledger_row(day, sym, a, det, True, None, "trace", _sha(), a.get("news")))
+    last = scan_symbol(D, sym, bars, D.cl, V3.ny_ts(day, D.cl) + LOOP_OFFSET_S, full_info=True)
+    for e in last["events"]:
+        out["events"].append({"end_ny": _hm(e["e"]), "kind": e["kind"], "px": e["px"], "vwap": round(e["vwap"], 4),
+                              "chg": None if e["chg"] is None else round(e["chg"], 4), "L": e["liq"],
+                              "rvol": None if e["rvol"] in (None, float("inf")) else round(e["rvol"], 2),
+                              "cum_dollar": round(e["cum_dollar"]), "why": e["why"], "full": e["full"],
+                              "C": None if e["cat"] is None else e["cat"].get("C")})
+    ext = [b for b in bars if V3.EXT_START <= b[0] < V3.EXT_END]
+    vw = V3.vwap_series(ext)
+    e5 = V3.bucketize(ext, vw, V3.EXT_START, 5, V3.EXT_END)
+    out["ext"] = {"touches_outside_regular": [_hm(b["s"]) for b in e5 if b["vwap"] is not None and b["l"] <= V3.RETEST_TOL * b["vwap"]
+                                              and not (D.op <= b["s"] < D.cl)],
+                  "breaks_outside_regular": [_hm(ev[0]) for ev in V3.break_events(e5, V3.bucketize(ext, vw, V3.EXT_START, 15, V3.EXT_END),
+                                                                                  skip=(D.op, D.cl))]}
+    log("VWLIVE_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
+    log(f"🔎 {sym} {day}: شموع {len(bars)} دقيقة · لمساتُ الفيواب في النظاميّة {len(out['touches'])} · أحداثُ كسر {len(out['events'])} · "
+        f"تنبيهاتٌ كانت ستُرسَل {len(out['alerts'])} · الممتدّة: لمسات {len(out['ext']['touches_outside_regular'])} وكسور "
+        f"{len(out['ext']['breaks_outside_regular'])}")
+    return 0
+
+
+def mode_probe(net):
+    """فحصُ المنافذ الحيّة قبل أيّ تفعيل: لقطةُ السوق (عددُ الرموز) · دقائقُ رمزٍ · أخبارُه · `submissions`."""
+    snap = net.snapshot()
+    log(f"🩺 اللقطة: {'تعذّرت' if snap is None else f'{len(snap)} رمزًا بشمعة يوم'}")
+    by = net.minutes("AAPL", _today_ny(), _today_ny())
+    log(f"🩺 الدقائق (AAPL اليوم): {'تعذّرت' if by is None else sum(len(v) for v in by.values())}")
+    now = dt.datetime.now(tz=dt.timezone.utc)
+    items = net.news("AAPL", (now - dt.timedelta(days=2)).strftime("%Y-%m-%dT%H:%M:%SZ"), now.strftime("%Y-%m-%dT%H:%M:%SZ"))
+    log(f"🩺 الأخبار (AAPL يومان): {'تعذّرت' if items is None else len(items)}")
+    j = net.sec("https://data.sec.gov/submissions/CIK0000320193.json")
+    log(f"🩺 SEC submissions: {'تعذّر' if j is None else 'يعمل'} · نداءات {net.calls} · فشل {net.fails}")
+    return 0 if (snap and by is not None and items is not None and j is not None) else 3
+
+
+def mode_harvest(net, MC, path=LEDGER, now_fn=None):
+    """حصادُ التنبيهات المُرسَلة بعد إغلاق جلستها — إلحاقيّ (صفُّ `harvest` بمفتاحه) · مرّةً لكلّ تنبيه · عدٌّ بلا حكم."""
+    rows = read_ledger(path)
+    done = {r.get("of") for r in rows if r.get("kind") == "harvest"}
+    todo = [r for r in rows if r.get("kind") == "alert" and r.get("sent") and r.get("key") not in done]
+    now_ny = dt.datetime.fromtimestamp((now_fn or time.time)(), tz=NY)
+    added = 0
+    for r in todo:
+        info = MC.session_info(r["date"])
+        cl = info.get("close_ny_min")
+        if cl is None or (r["date"] == now_ny.date().isoformat() and now_ny.hour * 60 + now_ny.minute < cl + 5):
+            continue                                                    # الجلسةُ لم تُغلق بعد
+        by = net.minutes(r["sym"], r["date"], r["date"])
+        bars = (by or {}).get(r["date"])
+        if not bars:
+            log(f"⚠️ حصاد {r['key']}: شموعٌ تعذّرت — يُعاد في التشغيلة التالية")
+            continue
+        h = harvest(bars, info["open_ny_min"], cl, r["event_end_mod"], r["px"])
+        append_ledger({"v": 1, "kind": "harvest", "key": "H|" + r["key"], "of": r["key"], "date": r["date"], "sym": r["sym"],
+                       "harvested_ts": round(now_ny.timestamp(), 1), **h}, path)
+        added += 1
+    log(f"🌾 الحصاد: {added} صفًّا جديدًا من {len(todo)} مستحقّ")
+    return added
+
+
+def mode_live(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, saver=None, path=LEDGER):
+    """الحلقةُ الحيّة: عند كلّ حدّ 5 دقائق (+ ثوانٍ) — لقطةُ السوق ⟵ المرشِّحُ الأعمّ ⟵ دقائقُ اليوم لكلّ مرشّح ⟵ `scan_symbol` ⟵
+    تنبيهٌ جديدٌ طازج يُرسَل (إن `send`) ويُسجَّل · والمتأخّرُ أكثرَ من 10 دقائق يُسجَّل بلا إرسال · والدِّدوبُ من السجلّ.
+    المقطع: open [الافتتاح، +195 د] · close [+195 د، الإغلاق] ثمّ الحصاد · single [الافتتاح، الإغلاق] ثمّ الحصاد."""
+    now_fn = now_fn or (lambda: time.time())
+    sleep_fn = sleep_fn or time.sleep
+    day = _today_ny(dt.datetime.fromtimestamp(now_fn(), tz=NY))
+    if not V3.is_session(day, MC.session_info):
+        log(f"📴 {day} ليس جلسةَ تداول — لا عمل")
+        return 0
+    D = Day(net, day, MC)
+    if not D.ok:
+        log(f"⛔ مرجعُ اليوم ناقص: {D.why} — لا مسح (يُعلَن ولا يُكتَم)")
+        return 2
+    split = D.op + SEG_SPLIT_MIN
+    lo, hi = {"open": (D.op, split), "close": (split, D.cl)}.get(segment, (D.op, D.cl))
+    mr = int(os.environ.get("VWL_MAX_RUNTIME_MIN", "340") or 340)
+    t_dead = now_fn() + mr * 60
+    rows = read_ledger(path)
+    used = used_keys(rows, day)
+    cands, todays = set(), {}
+    errors = {"snapshot": 0, "send": 0}
+    sent_n = late_n = 0
+    log(f"🟠 زخم الفيواب {day} · المقطع {segment} {_hm(lo)}-{_hm(hi)} نيويورك · الإرسال {'مفعَّل' if send else 'مطفأ (تجربة)'} · "
+        f"مسجَّلٌ اليوم {len(used)}")
+    for B in _boundary_mods(D.op, D.cl, lo, hi):
+        t_check = V3.ny_ts(day, B) + LOOP_OFFSET_S
+        if now_fn() > t_dead:
+            log("⏱️ بلغ سقفَ التشغيل — يُكمل المقطعُ التالي")
+            break
+        if t_check < now_fn() - 300:
+            continue                                                    # حدٌّ مضى (إقلاعٌ متأخّر) ⟵ الفحصُ الأوّل يلتقط ما فات بطابعه
+        if t_check > now_fn():
+            sleep_fn(t_check - now_fn())
+        snap = net.snapshot()
+        if snap is None:
+            errors["snapshot"] += 1
+            log(f"⚠️ {_hm(B)} اللقطة تعذّرت ({errors['snapshot']})")
+        else:
+            cands |= prefilter(snap, D.prev_adj, D.types)
+        for sym in sorted(cands):
+            by = net.minutes(sym, day, day)
+            if by is None:
+                continue
+            todays[sym] = by.get(day) or []
+            det = now_fn()                                              # لحظةُ الاكتشاف لكلّ رمزٍ بعد جلب شموعه (لا يُقلَّل التأخّر)
+            res = scan_symbol(D, sym, todays[sym], B, det)
+            for a in res["alerts"]:
+                k = alert_key(day, sym, a["arm"], a["n"])
+                if k in used:
+                    continue
+                ets = V3.ny_ts(day, a["e"])
+                fresh = is_fresh(ets, det)
+                ok = False
+                if fresh and send:
+                    ok = bool((sender or _bot().send_telegram)(build_message(dict(a, sym=sym))))
+                    errors["send"] += int(not ok)
+                reason = None if (fresh and ok) else ("late" if not fresh else ("send_failed" if send else "dry"))
+                row = ledger_row(day, sym, a, det, bool(fresh and ok), reason, "live", _sha(), a.get("news"))
+                log(f"{'🟠 أُرسل' if row['sent'] else '📝 سُجّل (' + str(reason) + ')'} ${sym} {a['arm']}#{a['n']} عند {_hm(a['e'])} · "
+                    f"تأخّر {row['latency_s']}ث")
+                used.add(k)
+                if send:
+                    append_ledger(row, path)
+                    (saver or _bot().git_save)([path])
+                sent_n += int(row["sent"])
+                late_n += int(reason == "late")
+    if segment in ("close", "single") and send:
+        sleep_fn(max(0.0, V3.ny_ts(day, D.cl) + 300 - now_fn()))
+        if mode_harvest(net, MC, path, now_fn=now_fn):
+            (saver or _bot().git_save)([path])
+    log(f"🏁 انتهى المقطع {segment}: مرشّحون {len(cands)} · أُرسل {sent_n} · متأخّر {late_n} · نداءات {net.calls} · فشل {net.fails} · "
+        f"أعطال {errors}")
+    return 3 if (errors["send"] or errors["snapshot"] > 3) else 0
+
+
+def _bot():
+    import Super_stock as bot
+    return bot
+
+
+def main(argv=None):
+    p = argparse.ArgumentParser()
+    p.add_argument("--mode", default="live", choices=("live", "replay", "trace", "harvest", "probe"))
+    p.add_argument("--days", type=int, default=5)
+    p.add_argument("--end", default="")
+    p.add_argument("--date", default="2026-10-26")
+    p.add_argument("--sym", default="AZTR")
+    p.add_argument("--segment", default=os.environ.get("VWL_SEGMENT", "single"), choices=("open", "close", "single"))
+    p.add_argument("--pre-open-sleep", action="store_true")
+    a = p.parse_args(argv)
+    import market_calendar as MC
+    if a.pre_open_sleep:
+        try:
+            now = dt.datetime.now(tz=dt.timezone.utc)
+            day = _today_ny()
+            m = 0
+            if V3.is_session(day, MC.session_info):
+                op = dt.datetime.fromtimestamp(V3.ny_ts(day, MC.session_info(day)["open_ny_min"]), tz=dt.timezone.utc)
+                m = pre_open_sleep_min(op, now)
+        except Exception:                                                # noqa: BLE001
+            m = 0
+        print(f"PRE_OPEN_SLEEP_MIN={m}")
+        return 0
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    ua = (os.environ.get("SEC_CONTACT") or "").strip()
+    if not key:
+        log("⛔ لا مفتاح Polygon — لا عمل (يُعلَن ولا يُكتَم)")
+        return 2
+    if not ua:
+        log("⛔ SEC_CONTACT غيرُ مضبوط — ④ (8-K) مصدرٌ لازم")
+        return 2
+    net = Net(key, ua)
+    if a.mode == "probe":
+        return mode_probe(net)
+    if a.mode == "replay":
+        end = a.end
+        if not end:
+            d = dt.date.fromisoformat(_today_ny()) - dt.timedelta(1)
+            while not V3.is_session(d.isoformat(), MC.session_info):
+                d -= dt.timedelta(1)
+            end = d.isoformat()
+        return mode_replay(net, MC, end, a.days)
+    if a.mode == "trace":
+        return mode_trace(net, MC, a.date, a.sym.upper())
+    if a.mode == "harvest":
+        mode_harvest(net, MC)
+        return 0
+    return mode_live(net, MC, os.environ.get("VWL_SEND") == "1", a.segment)
+
+
+if __name__ == "__main__":
+    sys.exit(main())
