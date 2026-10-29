@@ -947,6 +947,16 @@
    ],
    "evidence": [
     {
+     "source_unit": "owner «أرجع حد الانفجار إلى 35» 2026-10-29 (T-CHASE · chase35)",
+     "verbatim": "",
+     "author_confidence": "owner",
+     "timestamp_confidence": "2026-10-29",
+     "meaning": "the live 35 is an owner number over the catalogue edge P100 (214.73), which rejected nothing in the frozen reject snapshot",
+     "independence": "single unit",
+     "informed_methodology": false,
+     "reasoning": "T-CHASE (3 years): delivered exploders 53 → 50, R −0.016, signals −0.5%, three guards met; chase35: 0 of 262 list adds 2026-08-01..10-29 above 35"
+    },
+    {
      "source_unit": "envelope_p100.json (catalog envelope)",
      "verbatim": "",
      "author_confidence": "derived",
@@ -987,9 +997,9 @@
    "kind": "hard",
    "provenance": "INFERRED_FROM_FAISAL_EVIDENCE",
    "confidence": "INFERRED",
-   "status": "OPEN",
-   "status_ref": "D11 (owner: keep 35/5d in legacy mode)",
-   "next_action": "none (first wall on 0 of 22)",
+   "status": "OWNER_DECIDED",
+   "status_ref": "owner 2026-10-29 «أرجع حد الانفجار إلى 35» · OWNER_CHASE_OVERRIDE (CHASE35_ON=0 restores the catalogue edge)",
+   "next_action": "none in production; CHASE35_ON=0 restores the catalogue edge 214.73 bit-for-bit",
    "repro": "python3 faisal_engine/gate_inventory.py --check",
    "audit": {
     "origin": "INFERRED_FROM_FAISAL_SOURCE",
@@ -1005,7 +1015,7 @@
      "R_IDENTITY_STRICT"
     ],
     "impl_role": "HARD_REJECTION",
-    "fidelity": "SAMPLE_NUMERICAL_RELATIONSHIP",
+    "fidelity": "CONCEPT_ONLY",
     "justification": "PARTIAL_OR_CONCEPT_ONLY_SUPPORT",
     "context": "pivot",
     "thresholds": [
@@ -1017,8 +1027,9 @@
       "data_at_decision": "daily bars dated up to the last completed session at scan time (TradingView, Yahoo per-symbol fallback), split-adjusted",
       "pipeline_point": "analyze_ticker inside scan_market — per symbol, before ranking",
       "hard_why": "kept strict as the identity block since v2.7; no Faisal or owner statement makes it hard rather than soft",
-      "number_origin": "CATALOG_PERCENTILE",
+      "number_origin": "OWNER",
       "refs": [
+       "O_CHASE35_1029",
        "S_ENV_P100",
        "O_FAISAL_ONLY_0806",
        "O_P100_0808",
@@ -1030,7 +1041,7 @@
       ]
      }
     ],
-    "note": "his example blocks after +114%; the live edge 214.7% barely binds"
+    "note": "his example blocks after +114%; the owner set 35 on 2026-10-29 over the catalogue edge 214.7% (which barely bound); CHASE35_ON=0 restores the edge"
    }
   },
   {
@@ -4366,6 +4377,16 @@
     "contains": "«اعتمد 120»"
    }
   },
+  "O_CHASE35_1029": {
+   "kind": "OWNER_ORDER",
+   "stance": "supports",
+   "ref": "owner 2026-10-29 «أرجع حد الانفجار إلى 35»",
+   "summary": "chase-cap number 35 over the catalogue edge 214.73 (P100) after T-CHASE and chase35, behind CHASE35_ON (0 restores the edge bit-for-bit)",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "«أرجع حد الانفجار إلى 35»"
+   }
+  },
   "O_SHUTDOOR_0811": {
    "kind": "OWNER_ORDER",
    "stance": "supports",
@@ -5208,7 +5229,7 @@
    "stance": "null",
    "scope": "THIS_GATE",
    "ref": "T-CHASE (chase_result.md)",
-   "summary": "restoring the chase cap from 214.73 (P100) to 35 (the owner's D11 number) met its three guards (delivered exploders 53 → 50, R −0.016, signals −0.5%) — adoptable without harm, no measured gain; no adoption recorded",
+   "summary": "restoring the chase cap from 214.73 (P100) to 35 (the owner's D11 number) met its three guards (delivered exploders 53 → 50, R −0.016, signals −0.5%) — adoptable without harm, no measured gain; adopted by owner order 2026-10-29 (O_CHASE35_1029)",
    "verify": {
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "**① T-CHASE**"
@@ -6018,6 +6039,15 @@
      "class": "NOT_GATE_EVIDENCE",
      "why": "INCIDENTAL",
      "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
+    }
+   },
+   {
+    "anchor": "🚧✅ «أرجع حد الانفجار إلى 35»",
+    "default": {
+     "class": "CITED",
+     "refs": [
+      "O_CHASE35_1029"
+     ]
     }
    },
    {

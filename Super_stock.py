@@ -650,7 +650,11 @@ CONFIG = {
     #    معطَّلةً عمليًّا** — ومعها سطرُ «انفجر خلال أسبوع» في المتابعة (‏:10680).
     #    السببُ بنيويّ: `P100` = **أقصى** نافذةٍ في الكاتالوج، ووسيطُه **‏−8.26%**
     #    ⇒ نافذةٌ واحدة من 500 تضبط البوّابة. **تغييرُه قرارُ مالك** (يمسّ العضوية).
+    #    🚧 **ونُفِّذ 2026-10-29** («أرجع حد الانفجار إلى 35»): النافذُ 35 بطبقة `OWNER_CHASE_OVERRIDE` · `CHASE35_ON=0` ⟵ 214.73.
     "FAISAL_ONLY": int(os.environ.get("FAISAL_ONLY", "1")),
+    # 🚧 «أرجع حد الانفجار إلى 35» (أمرُ المالك 2026-10-29): `RECENT_RISE_BLOCK_PCT` = 35 بقرار المالك فوق حافّة الظرف
+    #    (214.73) — طبقةُ `OWNER_CHASE_OVERRIDE` في `owner_gate_overrides` · و`CHASE35_ON=0` ⟵ 214.73 بت-بت.
+    "CHASE35_ON": int(os.environ.get("CHASE35_ON", "1")),
     # 🔬 T-CLIFF-2: مفتاحُ ترتيب مُرشَّح رادار/صيّاد التقسيم قبل القصّ بالسقف.
     #    `"cliff"` = عمقُ كليف اليوم الواحد (**الافتراض = السلوك الحاليّ حرفيًّا**)
     #    · `"cum"` = الهبوطُ التراكميّ على النافذة (ذراعُ البحث).
@@ -1030,6 +1034,26 @@ def faisal_soft_overrides(soft: dict) -> dict:
 # `B3`/`C3` يحرسان الأربعين بحكمٍ مقيس).
 OWNER_GATE_OVERRIDES = {"BASE_RANGE_MAX_PCT": 120.0}
 
+# 🚧 **قرارُ المالك 2026-10-29 «أرجع حد الانفجار إلى 35»** — سقفُ منع الملاحقة (D11 · بوّابة M4 `M4_انفجر_فعلاً`) يعلو حافّةَ الظرف
+#    ‏214.73 (‏P100 = أقصى صعود خمس جلساتٍ في نافذةٍ واحدةٍ من ‏≈500 لأسهم الكاتالوج · وسيطُها ‏−8.26%) **التي عطّلت البوّابةَ عمليًّا**
+#    (‏0 رفضٍ في كلّ يومٍ من لقطة الرفض المجمَّدة · `GATE_PROVENANCE_REPORT.md §5`). سندُه `T-CHASE` (‏2026-08-10 · ثلاثُ سنوات ·
+#    `chase_result.md`): الحرّاسُ الثلاثة استوفيت ⟵ «يُوصى بالاعتماد بلا ضرر» — **والكلفةُ المقيسة ليست صفرًا حرفيًّا**: المنفجرون
+#    المُسلَّمون ‏53 ⟵ 50 (‏−5.7%) و`R` أسوأ ‏0.016 والإشاراتُ ‏−0.5% · وفي إضافات القائمة 08-01…10-29 **صفرٌ من 262** (‏`CHASE35_RESULT.md` ·
+#    أعلى `gain5` ‏+25.6%). **الرقمُ 35 = رقمُ D11 القديم** (وسمُه في الدفتر `faisal_inferred`: «لا تلاحق» من فيصل والرقمُ تعذّر التحقّق)
+#    ⇒ رقمُ قرارٍ لا رقمَ كاتالوج، مُعلَنٌ باسمه في رأس كلّ تشغيلة. **منفصلٌ عن `OWNER_GATE_OVERRIDES` عمدًا** ليرجع وحدَه:
+#    `CHASE35_ON=0` (‏`CONFIG` أو بيئةُ التشغيل) ⟵ 214.73 بت-بت ورسائلُ الرأس كما كانت. ولا يُطبَّق عند `FAISAL_ONLY=0` (هناك 35 أصلًا).
+OWNER_CHASE_OVERRIDE = {"RECENT_RISE_BLOCK_PCT": 35.0}
+
+
+def owner_gate_overrides(cfg: dict = None) -> dict:
+    """🥇 طبقةُ قرار المالك **النافذة** فوق الظرف: `OWNER_GATE_OVERRIDES` (‏`T-BASE-2`) ‏+ `OWNER_CHASE_OVERRIDE` ما دام
+    `CHASE35_ON` مُفعَّلًا (يُقرأ من `cfg` ثمّ من `CONFIG` — فقاموسُ اختبارٍ بلا المفتاح يتبع إعدادَ التشغيل). نسخةٌ لا مرجع."""
+    cfg = CONFIG if cfg is None else cfg
+    ov = dict(OWNER_GATE_OVERRIDES)
+    if int(cfg.get("CHASE35_ON", CONFIG.get("CHASE35_ON", 1)) or 0):
+        ov.update(OWNER_CHASE_OVERRIDE)
+    return ov
+
 
 def apply_faisal_only(cfg: dict = None, log_fn=None) -> dict:
     """🥇 يُحِلّ أرقامَ فيصل في `CONFIG`. يرجّع ما طُبِّق (‏`{}` = لم يُطبَّق شيء).
@@ -1065,9 +1089,11 @@ def apply_faisal_only(cfg: dict = None, log_fn=None) -> dict:
     # 🥇 و**قرارُ المالك يعلو الظرفَ — ويُطبَّق آخرًا حصرًا** (‏§`OWNER_GATE_OVERRIDES`)
     #    فلا يدهسه إصدارُ حوافَّ جديد. **والترويسةُ تُصرّح بعددِه** وإلّا صار رقمُ قرارٍ
     #    مدفونًا في قائمةٍ عنوانُها «معايير فيصل وحدها» = سطرُ عرضٍ يكذب.
-    ov.update(OWNER_GATE_OVERRIDES)
+    _own_ov = owner_gate_overrides(cfg)
+    _edge_chase = ov.get("RECENT_RISE_BLOCK_PCT")          # حافّةُ الظرف قبل قرار المالك (تُطبَع معه)
+    ov.update(_own_ov)
     cfg.update(ov)
-    _own = len(OWNER_GATE_OVERRIDES)
+    _own = len(_own_ov)
     (log_fn or print)(
         "🥇 **معايير فيصل وحدها** مُفعَّلة (أمر المالك) · بصمةُ الحوافّ "
         f"{fp[:12]} · طُبِّق {len(ov)} رقمًا"
@@ -1084,6 +1110,11 @@ def apply_faisal_only(cfg: dict = None, log_fn=None) -> dict:
             "سندُه `T-BASE-2`): "
             + " · ".join(f"{k}={v}"
                          for k, v in sorted(OWNER_GATE_OVERRIDES.items())))
+    if set(OWNER_CHASE_OVERRIDE) <= set(_own_ov):
+        (log_fn or print)(
+            "   ↳ 🚧 **بقرار المالك 2026-10-29** «أرجع حد الانفجار إلى 35» (سندُه `T-CHASE` · حافّةُ الظرف "
+            f"{_edge_chase} كانت تعطّل البوّابة · `CHASE35_ON=0` يرجعها بت-بت): "
+            + " · ".join(f"{k}={v}" for k, v in sorted(OWNER_CHASE_OVERRIDE.items())))
     return ov
 
 

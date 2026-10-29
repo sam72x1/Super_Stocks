@@ -908,11 +908,14 @@ def report(inv, fx):
           f"{sw.get('stance', '?')} · {sw.get('scope', '?')}): it measured automatic re-entry at the reclaim after a stop and failed "
           "0 of 3 criteria; it did not measure the screener re-picking a stopped name at renewal, so a test of the exclusion itself "
           "would be new, not a repeat — but its closest relative is negative.",
-          f"- `M4_RISE` at its catalogue edge (`RECENT_RISE_BLOCK_PCT` {m4t.get('value', '?')}) {m4rej}. It was measured: "
-          f"{ch.get('ref', '')} — {ch.get('summary', '')}. "
-          + ("The value 35 is live." if abs(m4v - 35.0) < 1e-6 else
-             "35 was never adopted (the live value is the catalogue edge). Adopting it changes live candidate generation ⇒ owner "
-             "decision; testing 35 again would be a repeat."),
+          (f"- `M4_RISE` (`RECENT_RISE_BLOCK_PCT` 35 — owner order 2026-10-29 «أرجع حد الانفجار إلى 35» over the catalogue edge "
+           f"P100; `CHASE35_ON=0` restores the edge bit-for-bit): at the edge the gate {m4rej}, a snapshot that predates the order. "
+           f"It was measured: {ch.get('ref', '')} — {ch.get('summary', '')}. The value 35 is live; testing it again would be a repeat."
+           if abs(m4v - 35.0) < 1e-6 else
+           f"- `M4_RISE` at its catalogue edge (`RECENT_RISE_BLOCK_PCT` {m4t.get('value', '?')}) {m4rej}. It was measured: "
+           f"{ch.get('ref', '')} — {ch.get('summary', '')}. "
+           "35 was never adopted (the live value is the catalogue edge). Adopting it changes live candidate generation ⇒ owner "
+           "decision; testing 35 again would be a repeat."),
           "- Guards with a supported concept and an unsupported number (`COVERAGE_GUARD` 85% · `FILL_ROUNDS` 4 · `D_DEPTH` 120 · the "
           "`DQ_GATE` mapping and 5% tolerance): the concept stays; the number is a disclosed engineering default, not evidence.",
           "- The dominant first wall on Faisal's episodes is `ANCHOR_TWO_TOUCH` (owner policy, FROZEN by the H6 control-pool "
