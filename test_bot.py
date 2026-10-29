@@ -63710,6 +63710,9 @@ _ERK_WF = {"kasih": "kasih.yml", "kasih2": "kasih2.yml", "exit_stop": "exit_stop
            "tc_arms": "tc_arms.yml", "event_exec": "event_exec.yml"}
 
 
+_ERK_S3_CFG = frozenset({"AWS_DEFAULT_REGION", "AWS_REQUEST_CHECKSUM_CALCULATION", "AWS_RESPONSE_CHECKSUM_VALIDATION"})
+
+
 def _erk_run_env(fam):
     """مفاتيحُ `env` غيرُ السرّيّة في خطوة `python <script>` من workflow الأسرة — والسكربت."""
     import yaml as _y
@@ -63718,7 +63721,9 @@ def _erk_run_env(fam):
         for _st in (_job.get("steps") or []):
             _run = str(_st.get("run") or "")
             if _run.strip().startswith("python ") and _st.get("env"):
-                _keys = {k for k, v in _st["env"].items() if "secrets." not in str(v)}
+                # 🔧 S3E1 (‏2026-10-29): ثوابتُ بيئة S3 الثلاثة ليست مُدخَلاتِ تجربة (يضبطها `early_rest_run.yml` بنفسه ويحرسها `S3E1`)
+                #    ⟵ تُستثنى **بأسمائها وحدَها** · وأيُّ مُدخَلٍ آخرَ غيرِ سرّيّ ما زال يُطابَق بالقائمة البيضاء.
+                _keys = {k for k, v in _st["env"].items() if "secrets." not in str(v) and k not in _ERK_S3_CFG}
                 return _keys, _run.strip().split()[1]
     return set(), ""
 
@@ -90612,6 +90617,57 @@ except Exception as _e:                                              # noqa: BLE
     _v_v7, _v_v7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📈 VWM7 (‏2026-10-28) جدوى v3 سلوكيًّا: الأخبارُ والإيداعاتُ ونافذتُها · المجهول · D بعد الاختبار وحدَه · الحدثُ الأبكرُ بلا محفّزٍ لا يحجب · "
       "count_day · الحارسُ والحكم · main يخرج 2 بلا SEC_CONTACT · والقاعدةُ على A ∧ C بعد الحارس", _v_v7, _v_v7w)
+# 🔧 S3E1 (‏2026-10-29 · عطلٌ مُثبَت: جدوى v3 `40790473567` «لا قياس» — 21 من 21 يومًا تعذّر تنزيلُها): صورةُ الرنر 20261025.179.1 (aws-cli 2.38.5)
+#    أفشلت `aws s3 cp` على البكت حيث نجح على 20261012.163.1 (2.37.13 · v2 `40722466274`) · والمِجَسُّ `40796690636` نجح على الصورة الجديدة بإعداداته.
+#    ⟵ (أ) كلُّ خطوةٍ تمرّر `AWS_ACCESS_KEY_ID` من `POLYGON_S3_KEY` تضبط معه المنطقةَ والـchecksum كالمِجَسّ (`flatfiles_probe.yml`) ·
+#    (ب) شاهدُ ضبط: عددُ الخطوات المفحوصة يساوي عددَ ملفّات المفتاح (لا مرورَ فارغ) · (ج) `_download` في أداة الفيواب يطبع **ذيلَ** رسالة aws (رمزُ الخطأ) لا رأسَها.
+try:
+    import glob as _s3_glob
+    import yaml as _s3_yaml
+    _s3_need = {"AWS_DEFAULT_REGION": "us-east-1", "AWS_REQUEST_CHECKSUM_CALCULATION": "when_required",
+                "AWS_RESPONSE_CHECKSUM_VALIDATION": "when_required"}
+    _s3_files, _s3_steps, _s3_bad = set(), 0, []
+    for _f in sorted(_s3_glob.glob(".github/workflows/*.yml")):
+        _wf = _s3_yaml.safe_load(open(_f, encoding="utf-8")) or {}
+        for _jn, _j in (_wf.get("jobs") or {}).items():
+            for _st in (_j.get("steps") or []):
+                _env = _st.get("env") or {}
+                if "secrets.POLYGON_S3_KEY" not in str(_env.get("AWS_ACCESS_KEY_ID", "")):
+                    continue
+                _s3_files.add(_f)
+                _s3_steps += 1
+                _miss = [k for k, v in _s3_need.items() if str(_env.get(k, "")) != v]
+                if _miss:
+                    _s3_bad.append((_f, _jn, _miss))
+    import vwap_mom_feas as _S3V
+    _s3_logged = []
+
+    class _S3FP:
+        BUCKET = "flatfiles"
+        ENDPOINTS = ("https://a",)
+
+        @staticmethod
+        def aws(*a, **k):
+            return 1, "", "download failed: s3://flatfiles/" + "x" * 300 + " to /tmp/d.csv.gz An error occurred (S3E1-TAIL) when calling GetObject"
+    _s3_keep = (_S3V.log, _S3V.time.sleep)
+    try:
+        _S3V.log = _s3_logged.append
+        _S3V.time.sleep = lambda *_a: None
+        _s3_ok, _s3_ep = _S3V._download(_S3FP, "k", "/tmp/none", tries=1)
+    finally:
+        _S3V.log, _S3V.time.sleep = _s3_keep
+    _s3_c = {
+        "steps_have_env": not _s3_bad,
+        "witness": len(_s3_files) >= 20 and _s3_steps >= len(_s3_files)
+                   and ".github/workflows/vwap_mom_feas.yml" in _s3_files and ".github/workflows/tc_arms.yml" in _s3_files,
+        "probe_same": ".github/workflows/flatfiles_probe.yml" in _s3_files,
+        "tail_logged": _s3_ok is False and len(_s3_logged) == 1 and "S3E1-TAIL" in _s3_logged[0],
+    }
+    _v_s3, _v_s3w = all(_s3_c.values()), f"{ {k: v for k, v in _s3_c.items() if not v} or 'كلّها'} · ملفّات={len(_s3_files)} · خطوات={_s3_steps} · ناقص={_s3_bad[:3]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_s3, _v_s3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔧 S3E1 (‏2026-10-29) خطواتُ S3 كلُّها تضبط المنطقةَ والـchecksum كالمِجَسّ (صورةُ الرنر 20261025 أفشلت `s3 cp` بلاها) · "
+      "وأداةُ الفيواب تطبع ذيلَ رسالة aws لا رأسَها", _v_s3, _v_s3w)
 
 # H6L1 — amendment 5 (m1-m5 · m7): الوصولُ المتأخّر لا يُسقط الأهليّة — ختمُ الجامع الآليّ ‏+ جمعٌ بعد الوصول ‏+ ضوابطُ من نافذة القرار ·
 #   وA/C (اللقطة) على الوحدات في وقتها وحدَها · وB/D للجميع · وبلا ختمٍ أو قبل T أو بلا جمعٍ أو بلا لوحة كلٌّ برمزه · والمسارُ في وقته بت-بت
