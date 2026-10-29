@@ -1,6 +1,6 @@
 {
  "contract_sha256": "a6f68f745cba189223b1f8258e733dc5e1e538382dfe6533307092d8e942c7ed",
- "today": "2026-10-28",
+ "today": "2026-10-29",
  "cutoff": "2026-10-09",
  "window_end": "2027-04-09",
  "floor": 15,
@@ -8,12 +8,28 @@
  "by_status": {
   "HISTORICAL": 3,
   "REPEAT": 1,
-  "NOT_COVERED": 1,
+  "ELIGIBLE_LATE": 1,
   "ELIGIBLE": 3,
   "PENDING_REVEAL": 7
  },
- "eligible": 3,
+ "eligible": 4,
  "units": [
+  {
+   "case_id": "CASE_0007",
+   "ticker": "ANPA",
+   "T": "2026-10-14",
+   "C": "2026-10-28",
+   "lag": 10,
+   "sample": "PRIMARY",
+   "controls": [
+    "CMTL",
+    "GMM",
+    "CTXR",
+    "VRXA"
+   ],
+   "panel_day": "2026-10-14",
+   "late": true
+  },
   {
    "case_id": "CASE_0006",
    "ticker": "BKYI",
@@ -27,7 +43,8 @@
     "OIO",
     "ACON"
    ],
-   "panel_day": "2026-10-28"
+   "panel_day": "2026-10-28",
+   "late": false
   },
   {
    "case_id": "CASE_0004",
@@ -42,7 +59,8 @@
     "OIO",
     "ACON"
    ],
-   "panel_day": "2026-10-28"
+   "panel_day": "2026-10-28",
+   "late": false
   },
   {
    "case_id": "CASE_0005",
@@ -57,9 +75,11 @@
     "OIO",
     "ACON"
    ],
-   "panel_day": "2026-10-28"
+   "panel_day": "2026-10-28",
+   "late": false
   }
  ],
+ "late_units": 1,
  "items": [
   {
    "case_id": "CASE_0001",
@@ -97,8 +117,8 @@
    "case_id": "CASE_0007",
    "ticker": "ANPA",
    "T": "2026-10-14",
-   "status": "NOT_COVERED",
-   "code": "E5:no_collection_within_5_sessions",
+   "status": "ELIGIBLE_LATE",
+   "code": "E5L:late_arrival",
    "sample": "PRIMARY"
   },
   {
@@ -182,12 +202,12 @@
    "sample": "SECONDARY"
   }
  ],
- "coverage_failures": 1,
- "coverage_failure_share": 0.25,
+ "coverage_failures": 0,
+ "coverage_failure_share": 0.0,
  "lag_sessions": {
-  "n": 3,
-  "median": 3,
-  "max": 4
+  "n": 4,
+  "median": 4,
+  "max": 10
  },
  "families": {
   "A_float": {
@@ -200,10 +220,10 @@
    "testable": false
   },
   "B_offering": {
-   "units_with_value": 3,
-   "units": 3,
-   "controls_with_value": 12,
-   "controls": 12,
+   "units_with_value": 4,
+   "units": 4,
+   "controls_with_value": 16,
+   "controls": 16,
    "coverage_units": 1.0,
    "coverage_controls": 1.0,
    "testable": false
@@ -219,32 +239,32 @@
   },
   "D_split": {
    "units_with_value": 2,
-   "units": 3,
-   "controls_with_value": 9,
-   "controls": 12,
-   "coverage_units": 0.6667,
+   "units": 4,
+   "controls_with_value": 12,
+   "controls": 16,
+   "coverage_units": 0.5,
    "coverage_controls": 0.75,
    "testable": false
   }
  },
  "any_testable": false,
  "panel": {
-  "days": 14,
+  "days": 15,
   "first": "2026-10-09",
-  "last": "2026-10-28",
+  "last": "2026-10-29",
   "no_pool_days": 0,
   "k": 16,
-  "pool_date_last": "2026-10-28",
-  "pool_obs_last": "2026-10-28",
+  "pool_date_last": "2026-10-29",
+  "pool_obs_last": "2026-10-29",
   "pool_lag_entries_last": 0,
   "pool_newer_entries": []
  },
  "cases_after_cutoff": 12,
  "inputs": {
   "last_photo": "2026-10-28",
-  "sessions_since_last_photo": 0
+  "sessions_since_last_photo": 1
  },
- "ledger_rows": 51133,
+ "ledger_rows": 53002,
  "floor_reached": false,
  "window_closed": false
 }
