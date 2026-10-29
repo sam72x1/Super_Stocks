@@ -541,7 +541,7 @@ def _jload(path):
 
 
 def mode_bases_prep(key, months=None, sess_from=SESS_FROM, sess_to=None, all_from="2022-11-01", out="prep.json.gz",
-                    tag="bases_prep"):
+                    tag="bases_prep", splits_range=None):
     """العضويّةُ الشهريّة (36 لقطةً ‏+ لقطةُ الإحماء) · التقسيماتُ بالرمز · وملفُّ FINRA لجلسة D−1 لكلّ D (للاتّحاد وحدَه) —
     والوسائطُ لـTEST وحدَه (`mode_test_prep`) · وافتراضُها سلوكُ bases بت-بت."""
     sys.path.insert(0, ROOT)
@@ -558,7 +558,7 @@ def mode_bases_prep(key, months=None, sess_from=SESS_FROM, sess_to=None, all_fro
         union |= set(keep)
         log(f"prep snapshot {d}: CS/ADRC {len(keep)}")
     sp_by = {}
-    for r in PS.fetch_all_splits(BARS_FROM, BARS_TO, key):
+    for r in PS.fetch_all_splits(*(splits_range or (BARS_FROM, BARS_TO)), key):
         try:
             if r["ticker"] in union:
                 sp_by.setdefault(r["ticker"], []).append([r["execution_date"], float(r["split_to"]) / float(r["split_from"])])
@@ -1151,8 +1151,9 @@ def stop_outcome(rows, i, stop, pct, win=WIN):
     return False
 
 
-def test_symbol(sym, rows, splits_sym, member_days, sess, prev_of, finra, proxy_fn, S, cfg_live, pct, G5, fz):
-    """صفوفُ TEST لرمز (من الإحماء): [sym، D، y، BASE2، CURRENT، الجديدة، الدرجة، S0، S5] حيث تنطلق قائمةٌ واحدةٌ على الأقلّ."""
+def test_symbol(sym, rows, splits_sym, member_days, sess, prev_of, finra, proxy_fn, S, cfg_live, pct, G5, fz, period_end=None):
+    """صفوفُ TEST لرمز (من الإحماء): [sym، D، y، BASE2، CURRENT، الجديدة، الدرجة، S0، S5] حيث تنطلق قائمةٌ واحدةٌ على الأقلّ ·
+    و`period_end` آخرُ يومِ قرار (افتراضُه TEST · وعقدُ 2026 يمرّر نهايةَ نافذته)."""
     import bisect
     import pandas as pd
     if not rows:
@@ -1171,7 +1172,7 @@ def test_symbol(sym, rows, splits_sym, member_days, sess, prev_of, finra, proxy_
                         index=pd.to_datetime(dates))
     out = []
     for d in member_days:
-        if d > TEST[1]:
+        if d > (period_end or TEST[1]):
             break
         i = bisect.bisect_left(dates, d)
         if i < 1 or (dt.date.fromisoformat(d) - dt.date.fromisoformat(dates[i - 1])).days > STALE_DAYS:
@@ -1246,12 +1247,14 @@ def test_verdict(st_new, st_b2, st_cur, ci, halves, coverage):
     return 3, "لا يُقبل"
 
 
-def mode_test_shard(key, shard, nshards, fetch_bars=None, fetch_proxy=None, prep=None, fz=None):
-    """رموزُ الشريحة على TEST بالدرجة المجمَّدة (لا شيءَ قبل الإحماء ولا بعد 2025)."""
+def mode_test_shard(key, shard, nshards, fetch_bars=None, fetch_proxy=None, prep=None, fz=None, run=None):
+    """رموزُ الشريحة على TEST بالدرجة المجمَّدة (لا شيءَ قبل الإحماء ولا بعد 2025) · و`run` = `Y26_RUN` لعقد 2026 (ملفُّ prep ·
+    مدى الشموع · دالّةُ الرمز · اسمُ الشريحة) — افتراضُه TEST بحرفه."""
+    run = run or {"prep": "test_prep.json.gz", "bars": (BARS_FROM, BARS_TO), "fn": test_symbol, "out": "test_shard"}
     fz = fz or freeze_load()
     if fz is None:
         raise ValueError("لا تجميدَ ببصمته ⟵ لا TEST")
-    prep = prep or _jload(os.path.join(OUT, "test_prep.json.gz"))
+    prep = prep or _jload(os.path.join(OUT, run["prep"]))
     sys.path.insert(0, ROOT)
     os.environ["FAISAL_ONLY"] = "0"
     import Super_stock as S
@@ -1286,18 +1289,18 @@ def mode_test_shard(key, shard, nshards, fetch_bars=None, fetch_proxy=None, prep
             rows = fetch_bars(sym)
             why = "ok" if rows else "empty"
         else:
-            df, why = PH.polygon_daily(sym, BARS_FROM, BARS_TO, key)
+            df, why = PH.polygon_daily(sym, run["bars"][0], run["bars"][1], key)
             rows = _rows(df) if df is not None else []
         diag[why.split("(")[0]] = diag.get(why.split("(")[0], 0) + 1
-        out += test_symbol(sym, rows, prep["splits"].get(sym), member.get(sym, []), prep["sessions"], prep["prev_of"],
-                           prep["finra"], _proxy, S, live, pct, G5, fz)
+        out += run["fn"](sym, rows, prep["splits"].get(sym), member.get(sym, []), prep["sessions"], prep["prev_of"],
+                         prep["finra"], _proxy, S, live, pct, G5, fz)
         if n % 25 == 0:
             log(f"test shard {shard}: {n + 1}/{len(syms)} · {round(time.time() - t0)}s · rows {len(out)}")
     with_config(S, live)
     res = {"shard": shard, "nshards": nshards, "symbols": len(syms), "bars_diag": diag, "proxy_calls": len(cache),
            "freeze_sha": fz["sha"], "rows": out}
     if fetch_bars is None:
-        _jdump(res, os.path.join(OUT, f"test_shard_{shard:02d}.json.gz"))
+        _jdump(res, os.path.join(OUT, f"{run['out']}_{shard:02d}.json.gz"))
     return res
 
 
@@ -1363,6 +1366,151 @@ def mode_test_prep(key):
     """§⑩ عضويّةُ 2025 (‏+ لقطةُ الإحماء 2024-12) · التقسيمات · FINRA لجلسة D−1 — بـ`mode_bases_prep` نفسِها."""
     return mode_bases_prep(key, months=[(2024, 12)] + [(2025, m) for m in range(1, 13)], sess_from=TEST_WARM, sess_to=TEST[1],
                            all_from="2024-11-01", out="test_prep.json.gz", tag="test_prep")
+
+
+# ── عقدُ 2026 `T-REBUILD-26` (`T_REBUILD_2026_prereg.md`) — القائمةُ المجمَّدة على 2026 · ووقفُ القاع · والهبوطُ قبل ‏+50% ─────────────────
+Y26_CONTRACT = os.path.join(HERE, "T_REBUILD_2026_prereg.md")
+Y26_SHA = "6cec2bbc1a278aa69d264c5c97bb251e996df5cdd9aa7b93a2b42f19372cbce4"   # كما دُمج قبل أيّ رقمٍ من 2026 (الأوضاعُ ترفض 9 بغيرها)
+Y26 = ("2026-01-02", "2026-09-30")                                            # §② أيّامُ القرار (آخرُ D تكتمل بعده 20 جلسة حتى 2026-10-27)
+Y26_HALVES = (("2026-01-02", "2026-05-15"), ("2026-05-18", "2026-09-30"))   # §② النصفان
+Y26_WARM = "2025-12-01"                                                       # إحماءُ «الإدخال الجديد» (لقطةُ 2025-12 · لا تُعَدّ)
+Y26_BARS = ("2023-09-01", "2026-10-27")                                       # 800 يومٍ قبل الإحماء · وحتى إغلاق آخر وسم
+Y26_RESULT_GLOB = os.path.join(HERE, "data", "y26_result_*.json")
+Y26_MAE_CUTS = (10, 20, 30, 50)                                               # §⑥ حصّةُ MAE ≤ −10/−20/−30/−50%
+
+
+def y26_ok():
+    """عقدُ 2026 ببصمته المدموجة (التعريفاتُ قبل الرقم)."""
+    import hashlib
+    try:
+        with open(Y26_CONTRACT, "rb") as fh:
+            return hashlib.sha256(fh.read()).hexdigest() == Y26_SHA
+    except OSError:
+        return False
+
+
+def mae_before(rows, i, pct, win=WIN):
+    """§⑥ لصفّ D = i: (MAE متشائم، MAE متفائل، منفجر 0/1) — المنفجرُ: أدنى Low في [D، τ] وفي [D، τ−1] (صفرٌ إن τ = D) ÷ إغلاق D−1 − 1 ·
+    وغيرُ المنفجر: أدنى Low في [D، D+19] (القيمتان واحدة) · None بلا 20 جلسةٍ أو بلا D−1."""
+    if i < 1 or i + win > len(rows):
+        return None
+    base = float(rows[i - 1][4])
+    if not base or base <= 0:
+        return None
+    tgt = base * (1 + pct / 100.0)
+    lows = []
+    for k in range(i, i + win):
+        if float(rows[k][2]) >= tgt:
+            pess = min(lows + [float(rows[k][3])]) / base - 1
+            opt = (min(lows) / base - 1) if lows else 0.0
+            return [round(pess, 6), round(opt, 6), 1]
+        lows.append(float(rows[k][3]))
+    m = round(min(lows) / base - 1, 6)
+    return [m, m, 0]
+
+
+def y26_symbol(sym, rows, splits_sym, member_days, sess, prev_of, finra, proxy_fn, S, cfg_live, pct, G5, fz):
+    """§③-§⑥: صفوفُ `test_symbol` على 2026 (‏`period_end`) ‏+ [SP0 (`pivot` الإنتاج حتى D−1)، بلغ قبل SP0، بلغ قبل SP5، مسافةُ الوقف،
+    MAE متشائم، MAE متفائل، منفجر] — الأعمدةُ 9-15 · والتسعةُ الأولى صفُّ TEST بحرفه."""
+    import bisect
+    import numpy as np
+    base = test_symbol(sym, rows, splits_sym, member_days, sess, prev_of, finra, proxy_fn, S, cfg_live, pct, G5, fz, period_end=Y26[1])
+    if not base:
+        return []
+    dates = [x[0] for x in rows]
+    low = np.array([float(x[3]) for x in rows])
+    cl = np.array([float(x[4]) for x in rows])
+    out = []
+    for r in base:
+        i = bisect.bisect_left(dates, r[1])
+        with_config(S, cfg_live)
+        ps = S.pivot_stability(low[:i], cl[:i]) if i >= 1 else None
+        sp0 = float(ps["pivot"]) if ps else None
+        mae = mae_before(rows, i, pct)
+        dist = None if not sp0 else round(float(rows[i - 1][4]) / sp0 - 1, 6)
+        out.append(list(r) + [sp0, stop_outcome(rows, i, sp0, pct), stop_outcome(rows, i, None if sp0 is None else sp0 * STOP_S5, pct), dist]
+                   + (mae or [None, None, None]))
+    return out
+
+
+Y26_RUN = {"prep": "y26_prep.json.gz", "bars": Y26_BARS, "fn": y26_symbol, "out": "y26_shard"}
+
+
+def quantiles5(vals):
+    """الربيعاتُ (10 · 25 · 50 · 75 · 90) بالرتبة الأقرب · None بلا قيم."""
+    v = sorted(x for x in vals if x is not None)
+    if not v:
+        return None
+    return [round(v[min(len(v) - 1, int(q * len(v)))], 4) for q in (0.10, 0.25, 0.50, 0.75, 0.90)]
+
+
+def mode_y26_prep(key):
+    """§② عضويّةُ 2026 (‏+ لقطةُ الإحماء 2025-12) · التقسيماتُ حتى 2026-10-27 · FINRA لجلسة D−1 — بـ`mode_bases_prep` نفسِها."""
+    return mode_bases_prep(key, months=[(2025, 12)] + [(2026, m) for m in range(1, 10)], sess_from=Y26_WARM, sess_to=Y26[1],
+                           all_from="2025-11-01", out="y26_prep.json.gz", tag="y26_prep", splits_range=Y26_BARS)
+
+
+def mode_y26_assemble(shards=None, prep=None, fz=None):
+    """§④ الحكمُ بـ`test_verdict` على 2026 ونصفيها · §⑤ وقفُ القاع (SP0 · SP5) للقوائم الثلاث · §⑥ الهبوطُ قبل ‏+50% · والمطفأ — مرّةً واحدة."""
+    import glob
+    fz = fz or freeze_load()
+    if fz is None:
+        raise ValueError("لا تجميدَ ببصمته ⟵ لا عقدَ 2026")
+    prep = prep or _jload(os.path.join(OUT, "y26_prep.json.gz"))
+    if shards is None:
+        shards = [_jload(p) for p in sorted(glob.glob(os.path.join(OUT, "**", "y26_shard_*.json.gz"), recursive=True))]
+    if not shards or len(shards) != shards[0]["nshards"] or any(sh["freeze_sha"] != fz["sha"] for sh in shards):
+        return {"mode": "y26_assemble", "verdict": "⛔ لا حكم — الشرائحُ ناقصةٌ أو بتجميدٍ آخر"}
+    rows = [r for sh in shards for r in sh["rows"]]
+    sess = prep["sessions"]
+    n_sess = sum(1 for d in sess if Y26[0] <= d <= Y26[1])
+    ents = {n: list_entries(rows, sess, k, Y26) for n, k in (("NEW", 5), ("BASE2", 3), ("CURRENT", 4))}
+    lab = {n: {kk: r[2] for kk, r in e.items()} for n, e in ents.items()}
+    st_ = {n: share_stats(lab[n], n_sess) for n in ents}
+    ci = boot_diff(lab["NEW"], lab["BASE2"])
+    halves = []
+    for a, b in Y26_HALVES:
+        hn = {kk: y for kk, y in lab["NEW"].items() if a <= kk[1] <= b}
+        hb = {kk: y for kk, y in lab["BASE2"].items() if a <= kk[1] <= b}
+        sn, sb = share_stats(hn, 1)["share"], share_stats(hb, 1)["share"]
+        halves.append(None if sn is None or sb is None else round(sn - sb, 4))
+    diag = {}
+    for sh in shards:
+        for kk, vv in sh["bars_diag"].items():
+            diag[kk] = diag.get(kk, 0) + vv
+    cov = diag.get("ok", 0) / max(1, sum(diag.values()))
+    code, words = test_verdict(st_["NEW"], st_["BASE2"], st_["CURRENT"], ci, halves, cov)
+    stops, mae = {}, {}
+    for n, e in ents.items():
+        sp = {}
+        for col, nm in ((10, "SP0"), (11, "SP5")):
+            o = {kk: r[col] for kk, r in e.items() if r[col] is not None}
+            hit = sum(1 for x in o.values() if x)
+            sp[nm] = {"n": len(o), "hit50_first": hit, "share": round(hit / len(o), 4) if o else None, "ci95": boot_share(o)}
+        sp["no_pivot"] = sum(1 for r in e.values() if r[9] is None)
+        sp["dist_q"] = quantiles5(r[12] for r in e.values())
+        stops[n] = sp
+        ex = {kk: r for kk, r in e.items() if r[15] == 1}
+        nx = [r for r in e.values() if r[15] == 0]
+        mae[n] = {"exploded_n": len(ex), "pess_q": quantiles5(r[13] for r in ex.values()), "opt_q": quantiles5(r[14] for r in ex.values()),
+                  "non_exploded_n": len(nx), "non_exploded_q": quantiles5(r[13] for r in nx),
+                  "pess_le": {str(t): {"n": len(ex), "hit": sum(1 for r in ex.values() if r[13] <= -t / 100.0),
+                                       "share": round(sum(1 for r in ex.values() if r[13] <= -t / 100.0) / len(ex), 4) if ex else None,
+                                       "ci95": boot_share({kk: r[13] <= -t / 100.0 for kk, r in ex.items()})} for t in Y26_MAE_CUTS},
+                  "label_mismatch": sum(1 for r in e.values() if r[2] is not None and r[15] is not None and bool(r[2]) != bool(r[15]))}
+    newl = list(ents["NEW"].values())
+    s0 = [r[7] for r in newl if r[7] is not None]
+    s5 = [r[8] for r in newl if r[8] is not None]
+    ci10 = boot_share(lab["NEW"])
+    sn = st_["NEW"]["share"]
+    return {"mode": "y26_assemble", "contract_sha": Y26_SHA, "freeze_sha": fz["sha"], "theta": fz["theta"], "sessions": n_sess,
+            "coverage": round(cov, 4), "bars_diag": diag, "stats": st_, "diff_ci_new_vs_base2": ci, "halves_diff": halves,
+            "branch": code, "verdict": words, "of10": None if sn is None else round(10 * sn, 2),
+            "of10_ci": None if not ci10 else [round(10 * x, 2) for x in ci10], "pivot_stops": stops, "mae": mae,
+            "tested_level_stops": {"S0": {"n": len(s0), "hit50_first": sum(1 for x in s0 if x)},
+                                   "S5": {"n": len(s5), "hit50_first": sum(1 for x in s5 if x)},
+                                   "unknown_level": sum(1 for r in newl if r[7] is None)},
+            "production_off": [list(x) for x in PROD_OFF]}
 
 
 # ── §⑦ الجردُ المقصوص (B3) — الملحق 2 · TRAIN وحدَه · وصفيّ · بعد TEST ───────────────────────────────────────
@@ -1832,7 +1980,7 @@ def main():
         log("⛔ العقد غائب")
         return 9
     built = ("d0", "ready117", "bases_prep", "bases_shard", "bases_assemble", "pairs_shard", "pairs_assemble", "test_prep", "test_shard", "test_assemble",
-             "b3_shard", "b3_assemble", "shadow")
+             "b3_shard", "b3_assemble", "shadow", "y26_prep", "y26_shard", "y26_assemble")
     if mode not in built:
         log(f"⛔ وضعٌ غيرُ مبنيّ: {mode!r} (المبنيّ: {' · '.join(built)})")
         return 3
@@ -1855,6 +2003,14 @@ def main():
         if os.path.exists(BASES_REF_B3) and not addendum4_ok():
             log("⛔ مرجعُ B3 المُعاد حاضرٌ والملحق 4 غائبٌ أو غيرُ بصمته ⟵ لا جرد (الملحق 4 §①)")
             return 9
+    if mode.startswith("y26_"):
+        import glob as _g
+        if _g.glob(Y26_RESULT_GLOB):
+            log("⛔ عقدُ 2026 قِيس مرّةً ونتيجتُه في data/ ⟵ لا إعادة (§⑧ «مرّةً واحدة»)")
+            return 7
+        if not y26_ok() or freeze_load() is None or not _g.glob(TEST_RESULT_GLOB):
+            log("⛔ عقدُ 2026 غائبٌ أو غيرُ بصمته · أو لا تجميدَ ببصمته · أو لا نتيجةَ TEST ⟵ لا قياس (§⑧)")
+            return 9
     if mode == "shadow":
         import glob as _g
         if freeze_load() is None or not _g.glob(TEST_RESULT_GLOB):
@@ -1869,7 +2025,7 @@ def main():
         if _base != "BASE2":
             log(f"⛔ الأساسُ {_base} ⟵ ملحقٌ ثانٍ قبل الدرجة (الملحق 1 §③)")
             return 3
-    if not key and mode not in ("bases_assemble", "pairs_assemble", "test_assemble", "b3_assemble"):
+    if not key and mode not in ("bases_assemble", "pairs_assemble", "test_assemble", "b3_assemble", "y26_assemble"):
         log("⛔ لا مفتاح Polygon")
         return 2
     t0 = time.time()
@@ -1901,6 +2057,14 @@ def main():
         _jdump(res, os.path.join(OUT, "b3_result.json.gz"))
     elif mode == "shadow":
         res = mode_shadow(key, d=os.environ.get("SHADOW_SESSION", "").strip() or None)
+    elif mode == "y26_prep":
+        res = mode_y26_prep(key)
+    elif mode == "y26_shard":
+        res = mode_test_shard(key, int(os.environ.get("SHARD", "0")), int(os.environ.get("NSHARDS", str(NSHARDS))), run=Y26_RUN)
+        res = {k: v for k, v in res.items() if k != "rows"} | {"rows_n": len(res["rows"])}
+    elif mode == "y26_assemble":
+        res = mode_y26_assemble()
+        _jdump(res, os.path.join(OUT, "y26_result.json.gz"))
     elif mode == "pairs_shard":
         res = mode_pairs_shard(key, int(os.environ.get("SHARD", "0")), int(os.environ.get("NSHARDS", str(NSHARDS))))
         res = {k: v for k, v in res.items() if k != "rows"} | {"entries": len(res["rows"])}
