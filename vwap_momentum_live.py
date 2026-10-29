@@ -293,6 +293,37 @@ def prefilter(day_hl, prev_adj_of, types):
     return out
 
 
+def snapshot_hl(tickers):
+    """لقطةُ السوق ⟵ ({رمز: (أعلى، أدنى)}، عدّاداتُ الحقول). الأعلى = أكبرُ الموجب من شمعة اليوم · شمعة الدقيقة الأخيرة · آخر صفقة ·
+    والأدنى أصغرُه — لأنّ شمعةَ اليوم **فارغةٌ قبل الافتتاح** (مقيس: probe ‏`40858591617` 06:34 نيويورك ⟵ صفرُ رمزٍ بشمعة يوم) ·
+    والمرشِّحُ يتراكم عبر الحلقات فرمزٌ بلغ ‏+20% في أيّ فحصٍ يبقى (`mode_live`)."""
+    out, diag = {}, {"tickers": 0, "day": 0, "min": 0, "last": 0}
+    for t in tickers or ():
+        diag["tickers"] += 1
+        sym = str(t.get("ticker") or "").upper()
+        vals = []
+        for key, hk, lk in (("day", "h", "l"), ("min", "h", "l")):
+            b = t.get(key) or {}
+            try:
+                h, lo = float(b.get(hk) or 0), float(b.get(lk) or 0)
+            except (TypeError, ValueError):
+                h = lo = 0.0
+            if h > 0:
+                diag[key] += 1
+                vals.append((h, lo if lo > 0 else h))
+        lt = t.get("lastTrade") or {}
+        try:
+            p = float(lt.get("p") or 0)
+        except (TypeError, ValueError):
+            p = 0.0
+        if p > 0:
+            diag["last"] += 1
+            vals.append((p, p))
+        if sym and vals:
+            out[sym] = (max(v[0] for v in vals), min(v[1] for v in vals))
+    return out, diag
+
+
 def pre_open_sleep_min(open_utc, now_utc, lead=PRE_OPEN_LEAD_MIN, cap=PRE_OPEN_CAP_MIN):
     """دقائقُ نومِ جوب الانتظار: الجرسُ ناقصَ lead ناقصَ الآن مقصوصًا إلى [0، cap] — وصفرٌ عند أيّ عطل (فاشلٌ-آمن)."""
     try:
@@ -362,11 +393,7 @@ class Net:
         j = self.poly("/v2/snapshot/locale/us/markets/stocks/tickers")
         if j is None:
             return None
-        out = {}
-        for t in j.get("tickers") or ():
-            d = t.get("day") or {}
-            if t.get("ticker") and d.get("h"):
-                out[str(t["ticker"]).upper()] = (float(d["h"]), float(d.get("l") or d["h"]))
+        out, self.snap_diag = snapshot_hl(j.get("tickers") or ())
         return out
 
 
@@ -570,6 +597,8 @@ def mode_replay(net, MC, end_day, ndays):
             log(f"⛔ {day}: مرجعٌ ناقص {out['per_day'][day]['why']}")
             continue
         cands = sorted(prefilter(hl, D.prev_adj, D.types))
+        no_prev = sorted(s for s, (h, low) in hl.items() if D.prev_adj(s) is None and h is not None and low is not None
+                         and low < PX_MAX and h >= PX_MIN and D.types.get(s) in TYPES_OK)   # وصفٌ: عاديٌّ بلا إغلاق أمسٍ في المجمَّعة
         bounds = _boundary_mods(D.op, D.cl, D.op, D.cl)
         miss_bars = n_ev = n_full = n_sym_ev = mismatch = 0
         first_fail = {}
@@ -607,7 +636,8 @@ def mode_replay(net, MC, end_day, ndays):
                                         "cum_dollar": round(e["cum_dollar"])})
         na = sum(1 for r in out["alerts"] if r["date"] == day)
         out["per_day"][day] = {"ok": True, "candidates": len(cands), "bars_failed": miss_bars, "symbols_with_breaks": n_sym_ev,
-                               "a_events": n_ev, "a_full": n_full, "alerts": na, "first_fail": first_fail, "loop_vs_full_mismatch": mismatch}
+                               "a_events": n_ev, "a_full": n_full, "alerts": na, "first_fail": first_fail, "loop_vs_full_mismatch": mismatch,
+                               "no_prev_close": len(no_prev), "no_prev_close_syms": no_prev[:40]}
         log(f"📅 {day}: مرشّحون {len(cands)} · شموعٌ تعذّرت {miss_bars} · رموزٌ بكسر {n_sym_ev} · أحداثُ كسر {n_ev} · كاملة {n_full} · "
             f"تنبيهات {na} · أوّلُ شرطٍ سقط {first_fail} · خلافُ الحلقة {mismatch}")
         bad = bad or miss_bars > 0 or mismatch > 0
@@ -627,6 +657,16 @@ def mode_trace(net, MC, day, sym):
     bars = (by or {}).get(day) or []
     out = {"mode": "trace", "date": day, "sym": sym, "ref_ok": D.ok, "ref_why": D.why, "bars": len(bars),
            "prev_adj": D.prev_adj(sym), "type": D.type_status(sym), "candles": [], "touches": [], "events": [], "alerts": [], "ext": {}}
+    if out["prev_adj"] is None:                                         # تشخيصٌ لا مصدرٌ بديل: لماذا غاب إغلاقُ الأمس عن المجمَّعة؟
+        lo = (dt.date.fromisoformat(D.prev) - dt.timedelta(10)).isoformat()
+        j = net.poly(f"/v2/aggs/ticker/{sym}/range/1/day/{lo}/{day}", {"adjusted": "false", "sort": "asc", "limit": 50})
+        dref = net.poly(f"/v3/reference/tickers/{sym}", {"date": D.prev})
+        out["prev_diag"] = {"prev_session": D.prev, "grouped_symbols": len(D.prev_close),
+                            "daily": [{"d": dt.datetime.fromtimestamp(r["t"] / 1000, tz=NY).date().isoformat(), "c": r.get("c"),
+                                       "v": r.get("v")} for r in ((j or {}).get("results") or []) if r.get("t")],
+                            "ref_prev": {k: ((dref or {}).get("results") or {}).get(k) for k in ("ticker", "type", "active", "list_date",
+                                                                                               "primary_exchange", "delisted_utc")},
+                            "splits": D.splits.get(sym, [])}
     if not bars:
         log("VWLIVE_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
         return 4
@@ -668,7 +708,7 @@ def mode_trace(net, MC, day, sym):
 def mode_probe(net):
     """فحصُ المنافذ الحيّة قبل أيّ تفعيل: لقطةُ السوق (عددُ الرموز) · دقائقُ رمزٍ · أخبارُه · `submissions`."""
     snap = net.snapshot()
-    log(f"🩺 اللقطة: {'تعذّرت' if snap is None else f'{len(snap)} رمزًا بشمعة يوم'}")
+    log(f"🩺 اللقطة: {'تعذّرت' if snap is None else f'{len(snap)} رمزًا بسعر'} · الحقول {getattr(net, 'snap_diag', None)}")
     by = net.minutes("AAPL", _today_ny(), _today_ny())
     log(f"🩺 الدقائق (AAPL اليوم): {'تعذّرت' if by is None else sum(len(v) for v in by.values())}")
     now = dt.datetime.now(tz=dt.timezone.utc)
