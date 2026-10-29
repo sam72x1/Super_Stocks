@@ -89107,6 +89107,69 @@ except Exception as _e:                                              # noqa: BLE
     _v_r14, _v_r14w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧭 RBD14 (‏2026-10-28) ملفّاتُ القائمة الظلّيّة أماميّةٌ ومجمَّدة: بُنيت قبل افتتاح جلستها · بصمةُ التجميد وθ · الدرجاتُ ≥ θ ومرتّبة · "
       "الجلسةُ = الاسم · حكمُ TEST · رقمُ التشغيلة وmain", _v_r14, _v_r14w)
+# 🧭 RBD15 (‏2026-10-28 · `T-REBUILD` الملحق 4): مرجعُ مطابقة B3 تشغيلةُ `bases` مُعادة — بصمةُ الملحق مثبّتة · و`b3_reference` يختار الملفَّ المُعاد
+#    إن حضر وإلّا الأوّل · و`mode_b3_assemble` يقرأ المرجعَ المختار ويطبعه (وفرقَ إحصاءاته عن الأوّل وصفًا) · والشرطُ بحرفه (عددٌ مختلف ⟵ «لا حكم») ·
+#    و`main` يرفض 9 إن حضر المرجعُ المُعاد والملحقُ غيرُ بصمته · والمرجعُ الأوّل لا يتغيّر (الأزواجُ وTEST عليه).
+try:
+    import hashlib as _r15_hl
+    import importlib.util as _r15_iu
+    import json as _r15_json
+    import os as _r15_os
+    import tempfile as _r15_tf
+    _r15_spec = _r15_iu.spec_from_file_location("t_rebuild_tool15", "fm_forensics/rebuild/rebuild.py")
+    _R15 = _r15_iu.module_from_spec(_r15_spec)
+    _r15_spec.loader.exec_module(_R15)
+    _r15_doc = open("fm_forensics/rebuild/T_REBUILD_ADDENDUM_4.md", encoding="utf-8").read()
+    _r15_first = _r15_json.load(open(_R15.BASES_DATA, encoding="utf-8"))
+    _r15_tmpd = _r15_tf.mkdtemp(prefix="rbd15_")
+    _r15_ref = _r15_os.path.join(_r15_tmpd, "bases_ref_b3.json")
+    _r15_orig = (_R15.BASES_REF_B3, _R15.ADDENDUM4_SHA)
+    _r15_env = _r15_os.environ.get("REBUILD_MODE")
+    try:
+        _R15.BASES_REF_B3 = _r15_ref
+        _r15_pick0 = _R15.b3_reference()
+        _r15_a0 = _R15.mode_b3_assemble(shards=[{"nshards": 1, "rows": []}], prep={"sessions": []})
+        _r15_fake = dict(_r15_first, run=123, main_sha="f" * 40,
+                         stats={"TRAIN": {"BASE2": dict(_r15_first["stats"]["TRAIN"]["BASE2"], entries=1)}})        # فرقُ وحدةٍ واحدة عن صفر صفّ ⟵ «لا حكم»
+        with open(_r15_ref, "w", encoding="utf-8") as _fh:
+            _r15_json.dump(_r15_fake, _fh)
+        _r15_pick1 = _R15.b3_reference()
+        _r15_a1 = _R15.mode_b3_assemble(shards=[{"nshards": 1, "rows": []}], prep={"sessions": []})
+        _R15.ADDENDUM4_SHA = "0" * 64
+        _r15_os.environ["REBUILD_MODE"] = "b3_assemble"
+        _r15_calls = []
+        _R15.mode_b3_assemble = lambda *a, **k: (_r15_calls.append("b3"), {})[1]      # جذعٌ: لا تجميعَ ولا كتابة إن مرّ الرفض خطأً
+        _R15._jdump = lambda *a, **k: _r15_calls.append("dump")
+        _r15_rc = _R15.main()
+    finally:
+        _R15.BASES_REF_B3, _R15.ADDENDUM4_SHA = _r15_orig
+        if _r15_env is None:
+            _r15_os.environ.pop("REBUILD_MODE", None)
+        else:
+            _r15_os.environ["REBUILD_MODE"] = _r15_env
+        try:
+            _r15_os.remove(_r15_ref)
+        except OSError:
+            pass
+        _r15_os.rmdir(_r15_tmpd)
+    _r15_c = {
+        "pin": _r15_hl.sha256(open(_R15.ADDENDUM4, "rb").read()).hexdigest() == _R15.ADDENDUM4_SHA and _R15.addendum4_ok(),
+        "doc": ("**تمامًا** والأساسُ BASE2" in _r15_doc and "**لا فرقَ مقبول.**" in _r15_doc and "ولا ملحقَ خامسٌ" in _r15_doc
+                and "`data/bases_ref_b3.json`" in _r15_doc),
+        "pick": _r15_pick0 == _R15.BASES_DATA and _r15_pick1 == _r15_ref,
+        "first_ref": (_r15_a0["entries_expected"] == _r15_first["stats"]["TRAIN"]["BASE2"]["entries"]
+                      and _r15_a0["reference"]["file"] == _r15_os.path.basename(_R15.BASES_DATA) and "bases_diff_vs_first" not in _r15_a0),
+        "new_ref": (_r15_a1["entries_expected"] == 1 and _r15_a1["reference"] == {"file": "bases_ref_b3.json", "run": 123, "main_sha": "f" * 40}
+                    and _r15_a1["bases_diff_vs_first"] == {"TRAIN": {"BASE2": {"entries": (_r15_first["stats"]["TRAIN"]["BASE2"]["entries"], 1)}}}),
+        "exact_match": _r15_a1["match"] is False and _r15_a1["verdict"].startswith("⛔ لا حكم"),
+        "refuse_9": _r15_rc == 9 and not _r15_calls,
+        "first_file_kept": _R15.BASES_DATA.endswith("bases_2026-10-28.json"),
+    }
+    _v_r15, _v_r15w = all(_r15_c.values()), f"{ {k: v for k, v in _r15_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r15, _v_r15w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD15 (‏2026-10-28) الملحق 4: مرجعُ B3 تشغيلةُ bases مُعادة إن حضرت (وإلّا الأوّل) · يُقرأ ويُطبع مع فرقه وصفًا · الشرطُ بحرفه · "
+      "ورفضُ 9 بلا بصمة الملحق", _v_r15, _v_r15w)
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
