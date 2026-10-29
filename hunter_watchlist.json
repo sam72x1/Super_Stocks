@@ -206,8 +206,36 @@
    "last_bar": "2026-10-27",
    "dollar_vol": 2807999.0,
    "move_pct": 6.5
+  },
+  {
+   "symbol": "CTNT",
+   "added": "2026-10-28",
+   "ref_price": 2.17,
+   "half": 1.77,
+   "ref": 3.55,
+   "event_kind": "split",
+   "split_date": "2026-09-28",
+   "float": 19377,
+   "avail": 150000,
+   "borrow_fee": 87.36,
+   "stop": 2.06,
+   "hold_above": 2.2,
+   "targets": [
+    {
+     "price": 2.32,
+     "src": "رأس شمعة حمراء"
+    },
+    {
+     "price": 2.47,
+     "src": "رأس شمعة حمراء"
+    }
+   ],
+   "status": "active",
+   "last_price": 2.17
   }
  ],
- "added_last": [],
+ "added_last": [
+  "CTNT"
+ ],
  "pruned": []
 }

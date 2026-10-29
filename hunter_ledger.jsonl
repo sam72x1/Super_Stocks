@@ -5947,3 +5947,5 @@
 {"key": "envelope|2026-10-28|WETO", "hunter": "envelope", "session": "2026-10-28", "symbol": "WETO", "kind": "candidate", "ref_close": 0.8388, "fwd": 40, "outcome": null, "float": 186729.0, "src": "tradingview"}
 {"key": "envelope|2026-10-28|WNW", "hunter": "envelope", "session": "2026-10-28", "symbol": "WNW", "kind": "candidate", "ref_close": 2.05, "fwd": 40, "outcome": null, "float": 155631.0, "src": "tradingview"}
 {"key": "envelope|2026-10-28|XAIR", "hunter": "envelope", "session": "2026-10-28", "symbol": "XAIR", "kind": "candidate", "ref_close": 2.36, "fwd": 40, "outcome": null, "float": 761671.0, "src": "tradingview"}
+{"key": "split|2026-10-28|CTNT", "hunter": "split", "session": "2026-10-28", "symbol": "CTNT", "kind": "candidate", "ref_close": 2.17, "fwd": 40, "outcome": null, "price": 2.17, "float": 19377.0, "half": 1.77, "ref": 3.55, "src": "tradingview"}
+{"key": "split|2026-10-28|BDAI", "hunter": "split", "session": "2026-10-28", "symbol": "BDAI", "kind": "candidate", "ref_close": 2.51, "fwd": 40, "outcome": null, "price": 2.51, "float": 795330.0, "half": 2.43, "ref": 4.86, "src": "tradingview"}
