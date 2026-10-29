@@ -1,6 +1,9 @@
 name: Daily Pivot Screener
 permissions:
   contents: write
+  # ⏳ «الانتظارُ الأخضر» (أمرُ المالك 2026-10-29): قراءةُ الـPRs المفتوحة وآخر تشغيلةٍ مجدولة لكلّ workflow (`green_wait.py`) — قراءةٌ فقط
+  actions: read
+  pull-requests: read
 concurrency:
   # مجموعة مشتركة مع pullback_monitor: كلاهما يكتب weekly_watchlist.json،
   # فلا يعملان متزامنَين (يمنع تضارب git_save وفقدان حالة «triggered»).
@@ -132,6 +135,8 @@ jobs:
           # 🌙 حارسُ الافتر **رجع إلى Polygon** (‏2026-10-27 · أمرُ المالك «ومفاتيحُ المصدر تُرجَع إلى Polygon حيث كان»):
           #    كان `AH_GUARD_TV: "1"` منذ 2026-10-02 لأن Polygon انتهى 09-29 · والاشتراكُ عاد (`polygon_health` 40583402044 ✅)
           #    ⇒ حُذف السطر = المسارُ السابق بت-بت (`AHT9`) · وإعادتُه سطرٌ واحد (`AHT10`).
+          # ⏳ «الانتظارُ الأخضر» (2026-10-29): رمزُ الجوب لقراءة الـPRs والتشغيلات (`green_wait.py` · `actions`/`pull-requests: read` أعلاه)
+          GITHUB_TOKEN: ${{ github.token }}
           SCREENER_MODE: FULL
           FORCE_RENEW: ${{ github.event.inputs.force_renew }}
           # 🔄 إشارة التجديد الأسبوعي: تُرفع فقط في جوب كرون الجمعة 22:07 UTC

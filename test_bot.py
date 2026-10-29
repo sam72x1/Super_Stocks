@@ -26680,7 +26680,9 @@ check("🔒 OEL3 الختمُ **بعد** نجاح الإرسال (في القن�
       _oel_es >= 0 and _ix(_oel_main[_oel_es:], "save_op_entry_state") >= 0
       and _oel_ls >= 0 and _ix(_oel_main[_oel_ls:], "save_op_entry_state") >= 0
       and "seen.pop(_s, None)" in _oel_main
-      and "bot.git_save([bot.OP_ENTRY_STATE_FILE])" in _oel_main,
+      # 📅 (‏2026-10-29 · «ادفع المكتوم دفعة كل 10 دقائق»): الدفعُ صار عبر `_push_state` — والمُسلَّمُ فيه فوريٌّ بلا شرطٍ زمنيّ
+      #    (يُثبته سلوكيًّا `OEB2`) ⟵ النصُّ المطلوب نداؤه **بلا `muted=True`** بعد الإرسال
+      and "_push_state([bot.OP_ENTRY_STATE_FILE])       # المُسلَّمُ فورًا" in _oel_main,
       f"دخول={_oel_es} سيولة={_oel_ls}")
 # 🔒 OEL4 — **إشعارٌ لا اختيار**: لا يكتب قائمةً ولا يمسّ فرزًا
 check("🔒 OEL4 لا يكتب قائمةَ الفرز ولا يمسّ جذرًا (يقرأ ويرسل فقط)",
@@ -92086,6 +92088,257 @@ except Exception as _e:                                                    # noq
     _vl18, _vl18w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠 VWL18 (‏2026-10-29) ⑤ الصناديقُ بكود SIC (6722 · 6726 · 6798) · ووسما «📌 استحواذ نقدي» و«⏱️ قرب الإغلاق» عرضٌ بلا رفض "
       "في الرسالة والسجلّ", _vl18, _vl18w)
+
+
+# BKD1-BKD6 (‏2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام» · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه مجهولًا
+#        بعد الحصاد والموقع يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS` من `ctb_log.jsonl` ∪ `borrow_watch.jsonl` — للبوّابة وحدَها
+#        (`borrow_known` لا `shares_available`) · و`0` ⟵ فائدةُ الشك بت-بت · وشاهدُ 10-27 من ملفّات البوت نفسِها: BCTX · PLSM · FRSX · ASPC
+try:
+    import tempfile as _bkd_tf
+    import os as _bkd_os
+    _bkd_dir = _bkd_tf.mkdtemp(prefix="bkd_")
+    _bkd_ctb = _bkd_os.path.join(_bkd_dir, "ctb.jsonl")
+    _bkd_w = _bkd_os.path.join(_bkd_dir, "w.jsonl")
+    with open(_bkd_ctb, "w", encoding="utf-8") as _fh:
+        for _r in ({"date": "2026-10-20", "symbol": "EDGE", "shares_available": 30000},       # اليوم − 7 ⟵ داخل
+                   {"date": "2026-10-19", "symbol": "OLD", "shares_available": 90000},        # اليوم − 8 ⟵ خارج
+                   {"date": "2026-10-28", "symbol": "FUT", "shares_available": 90000},        # بعد اليوم ⟵ لا يُقرأ
+                   {"date": "2026-10-25", "symbol": "NUL", "shares_available": None},         # مجهول ⟵ ليس معلومًا
+                   {"date": "2026-10-25", "symbol": "BAD", "shares_available": "x"},          # تالف
+                   {"date": "2026-10-23", "symbol": "TIE", "shares_available": 1000},         # تعادلٌ ⟵ ctb أوّلًا
+                   {"date": "2026-10-21", "symbol": "NEWER", "shares_available": 5000}):
+            _fh.write(S.json.dumps(_r) + "\n")
+        _fh.write("not json\n")
+    with open(_bkd_w, "w", encoding="utf-8") as _fh:
+        for _r in ({"date": "2026-10-23", "symbol": "TIE", "available": 99000},
+                   {"date": "2026-10-24", "symbol": "NEWER", "available": 70000},               # الأحدثُ يغلب
+                   {"date": "2026-10-26", "symbol": "trk", "available": 45000}):
+            _fh.write(S.json.dumps(_r) + "\n")
+    _bkd_p = {"ctb": _bkd_ctb, "watch": _bkd_w}
+    _bkd_k = S._known_borrow("2026-10-27", days=7, paths=_bkd_p)
+    _bkd_1 = {
+        "window": set(_bkd_k) == {"EDGE", "TIE", "NEWER", "TRK"},
+        "edge_in": _bkd_k.get("EDGE", {}).get("shares_available") == 30000,
+        "latest": _bkd_k.get("NEWER") == {"shares_available": 70000, "date": "2026-10-24", "src": "borrow_watch"},
+        "tie_ctb": _bkd_k.get("TIE", {}).get("src") == "ctb_log",
+        "off": S._known_borrow("2026-10-27", days=0, paths=_bkd_p) == {},
+        "bad_day": S._known_borrow("garbage", days=7, paths=_bkd_p) == {},
+    }
+    _bkd_sv = S.CONFIG.get("BORROW_KNOWN_DAYS")
+    try:
+        S.CONFIG["BORROW_KNOWN_DAYS"] = 7
+        _bkd_pk = [{"symbol": "PLSM", "shares_available": None}, {"symbol": "ZZZ", "shares_available": None}]
+        _bkd_c = S.borrow_second_chance(_bkd_pk, today_iso="2026-10-27", harvested={}, fetch_ce=lambda s: {},
+                                        pause=lambda *_: None,
+                                        known={"PLSM": {"shares_available": 60000, "date": "2026-10-23", "src": "borrow_watch"}})
+        _bkd_2on = (_bkd_c == {"مجهول": 2, "حصاد": 0, "موقع": 0, "تعذّر": 1, "سابق": 1}
+                    and _bkd_pk[0]["shares_available"] is None and _bkd_pk[0]["borrow_known"]["shares_available"] == 60000
+                    and "borrow_known" not in _bkd_pk[1])
+        _bkd_g = S.borrow_gate_recheck([{"symbol": "A", "shares_available": None, "borrow_known": {"shares_available": 30000}},
+                                        {"symbol": "B", "shares_available": None, "borrow_known": {"shares_available": 15000}},
+                                        {"symbol": "C", "shares_available": 10000, "borrow_known": {"shares_available": 900000}},
+                                        {"symbol": "D", "shares_available": None}])
+        _bkd_3on = [r["symbol"] for r in _bkd_g[0]] == ["B", "C", "D"] and _bkd_g[1] == [("A", 30000)]
+        _bkd_calls = []
+        _bkd_orig = S._known_borrow
+        S._known_borrow = lambda *a, **k: _bkd_calls.append(1) or {}
+        try:
+            S.borrow_second_chance([{"symbol": "Q", "shares_available": None}], harvested={}, fetch_ce=lambda s: {},
+                                   pause=lambda *_: None)
+            _bkd_6 = _bkd_calls == []                                  # بحقن الحصاد (السويّة) لا تُقرأ الملفّات
+        finally:
+            S._known_borrow = _bkd_orig
+        _bkd_sc_pool = [_fil_r("UNK", None), _fil_r("C", 1_000), _fil_r("D", 2_000)]
+
+        def _bkd_sc(got):
+            for _r in got:
+                if _r.get("symbol") == "UNK" and _r.get("shares_available") is None:
+                    _r["borrow_known"] = {"shares_available": 75_000, "date": "2026-10-23", "src": "borrow_watch"}
+            return {"مجهول": 1, "حصاد": 0, "موقع": 0, "تعذّر": 0, "سابق": 1}
+        _bkd_tr = []
+        _bkd_fp = S.fill_picks([dict(x) for x in _bkd_sc_pool], 2, set(), enrich_fn=lambda _x: None,
+                               second_chance=_bkd_sc, trace=_bkd_tr)
+        _bkd_4on = ([r["symbol"] for r in _bkd_fp[0]] == ["C", "D"] and _bkd_fp[2] == [("UNK", 75_000)]
+                    and _bkd_tr and _bkd_tr[0].get("av_known") == {"UNK": 75_000}
+                    and (_bkd_tr[0].get("sc") or {}).get("known_prior") == 1)
+        S.CONFIG["BORROW_KNOWN_DAYS"] = 0
+        _bkd_pk0 = [{"symbol": "PLSM", "shares_available": None}]
+        _bkd_c0 = S.borrow_second_chance(_bkd_pk0, today_iso="2026-10-27", harvested={}, fetch_ce=lambda s: {},
+                                         pause=lambda *_: None, known={"PLSM": {"shares_available": 60000}})
+        _bkd_2off = _bkd_c0 == {"مجهول": 1, "حصاد": 0, "موقع": 0, "تعذّر": 1} and "borrow_known" not in _bkd_pk0[0]
+        _bkd_g0 = S.borrow_gate_recheck([{"symbol": "A", "shares_available": None, "borrow_known": {"shares_available": 30000}}])
+        _bkd_3off = [r["symbol"] for r in _bkd_g0[0]] == ["A"] and _bkd_g0[1] == []
+        _bkd_fp0 = S.fill_picks([dict(x) for x in _bkd_sc_pool], 2, set(), enrich_fn=lambda _x: None, second_chance=_bkd_sc)
+        _bkd_4off = [r["symbol"] for r in _bkd_fp0[0]] == ["UNK", "C"] and _bkd_fp0[2] == []
+    finally:
+        S.CONFIG["BORROW_KNOWN_DAYS"] = _bkd_sv
+    _bkd_ten = "MTVA MRLN EPSM BCTX PRZO PLSM AIRS FRSX ASPC CXAI".split()
+    _bkd_real = S._known_borrow("2026-10-27")                       # بالقيمة الحيّة في `CONFIG` (أمرُ المالك: 7) لا بقيمةٍ ممرَّرة
+    _bkd_5 = (int(S.CONFIG.get("BORROW_KNOWN_DAYS", 0)) == 7
+              and sorted(s for s in _bkd_ten if s in _bkd_real and _bkd_real[s]["shares_available"] > 20000)
+              == ["ASPC", "BCTX", "FRSX", "PLSM"]
+              and sorted(s for s in _bkd_ten if s in S._known_borrow("2026-10-27", days=4)) == ["ASPC", "FRSX", "PLSM"])
+except Exception as _e:                                                    # noqa: BLE001
+    _bkd_1, _bkd_2on, _bkd_2off, _bkd_3on, _bkd_3off, _bkd_4on, _bkd_4off, _bkd_5, _bkd_6 = ({"⛔": f"{type(_e).__name__}: {_e}"},) + (False,) * 8
+check("🔒📅 BKD1 `_known_borrow`: النافذةُ [اليوم − 7، اليوم] شاملةٌ طرفَيها · لا مستقبلَ ولا مجهولَ ولا تالف · الأحدثُ يغلب والتعادلُ لـctb · و0 ⟵ لا شيء",
+      isinstance(_bkd_1, dict) and _bkd_1 and all(v is True for v in _bkd_1.values()), str(_bkd_1))
+check("🔒📅 BKD2 الفرصةُ الثانية: المجهولُ بعد الحصاد والموقع يأخذ `borrow_known` (لا `shares_available`) ويُعَدّ «سابق» · و`BORROW_KNOWN_DAYS`=0 ⟵ العدّاداتُ القديمة بت-بت",
+      _bkd_2on and _bkd_2off, f"on={_bkd_2on} off={_bkd_2off}")
+check("🔒📅 BKD3 البوّابة: المجهولُ بمعلومٍ سابق فوق 20 ألف يُخرَج (الحدُّ كما هو) · ومتاحُ اليوم يغلب السابق · والمجهولُ بلا سابق يمرّ · و0 ⟵ فائدةُ الشك بت-بت",
+      _bkd_3on and _bkd_3off, f"on={_bkd_3on} off={_bkd_3off}")
+check("🔒📅 BKD4 `fill_picks`: المُخرَجُ بالسابق تُعبَّأ خانتُه ويُسجَّل `av_known` و`known_prior` في الأثر · و0 ⟵ السلوكُ السابق",
+      _bkd_4on and _bkd_4off, f"on={_bkd_4on} off={_bkd_4off}")
+check("🔒📅 BKD5 شاهدُ 10-27 من ملفّات البوت: 7 أيام تُخرج BCTX · PLSM · FRSX · ASPC من العشرة · و4 أيام PLSM · FRSX · ASPC (أرقامُ تقرير الجزء أ)",
+      _bkd_5)
+check("🔒📅 BKD6 الملفّاتُ تُقرأ في مسار الإنتاج وحدَه — بحقن الحصاد (السويّة) لا نداءَ لـ`_known_borrow`", _bkd_6)
+try:
+    _bkd_shutil = __import__("shutil")
+    _bkd_shutil.rmtree(_bkd_dir, ignore_errors=True)
+except Exception:                                                          # noqa: BLE001
+    pass
+
+
+# GWT1-GWT6 (‏2026-10-29 · أمرُ المالك «أضف سطر الانتظار الأخضر» · تقرير الجزء أ §أ1-د ③): سطرٌ في التقرير اليوميّ القائم حين PR مفتوحٌ
+#        أكثرَ من 48 ساعة أو workflow مجدولٌ بلا تشغيلةٍ مجدولةٍ منذ ثالثِ آخرِ فتحةٍ قبل «الآن − 8 ساعات» — بلا قناةٍ جديدة · وبلا شبكةٍ في السويّة
+try:
+    import green_wait as _GW
+    import datetime as _gw_dt
+    import ast as _gw_ast
+    _GU = _gw_dt.timezone.utc
+    _gnow = _gw_dt.datetime(2026, 10, 29, 7, 45, tzinfo=_GU)                # خميس
+    _gs = _GW.last_slots(["50 1 * * 2-5"], _gnow)
+    _gw_bad = 0
+    for _bad in ("61 1 * * *", "5 * * *", "*/0 * * * *", "5-1 * * * *"):
+        try:
+            _GW.parse_cron(_bad)
+        except ValueError:
+            _gw_bad += 1
+    _gw_1 = {
+        "daily": [t.strftime("%m-%d %H:%M") for t in _gs] == ["10-29 01:50", "10-28 01:50", "10-27 01:50"],
+        "list_range": [t.strftime("%H:%M") for t in _GW.last_slots(["13,43 8-23 * * 1-5"], _gw_dt.datetime(2026, 10, 29, 9, 0, tzinfo=_GU))]
+                      == ["08:43", "08:13", "23:43"],
+        "step": [t.strftime("%H:%M") for t in _GW.last_slots(["17 */4 * * *"], _gw_dt.datetime(2026, 10, 29, 9, 0, tzinfo=_GU), 2)]
+                == ["08:17", "04:17"],
+        "sun7": _GW.last_slots(["0 12 * * 7"], _gw_dt.datetime(2026, 10, 29, 9, 0, tzinfo=_GU), 1)[0].strftime("%m-%d") == "10-25",
+        "dom_or_dow": _GW.last_slots(["0 12 1 * 1"], _gw_dt.datetime(2026, 10, 29, 9, 0, tzinfo=_GU), 1)[0].strftime("%m-%d") == "10-26",
+        "invalid": _gw_bad == 4,
+    }
+    _gcr = {"a.yml": ["50 1 * * 2-5"], "b.yml": ["50 1 * * 2-5"], "c.yml": ["50 1 * * 2-5"], "d.yml": ["50 1 * * 2-5"]}
+    _gst = _GW.stale_workflows(_gcr, {"a.yml": "2026-10-27T05:00:00Z", "b.yml": "2026-10-22T07:00:00Z", "c.yml": None}, _gnow)
+    _gst2 = _GW.stale_workflows({"a.yml": ["50 1 * * 2-5"]}, {"a.yml": "2026-10-26T07:00:00Z"}, _gnow, grace_h=0)
+    _gw_2 = {
+        # المهلة 8 ساعات ⟵ الفتحاتُ قبل 23:45 (10-28): الأربعاء · الثلاثاء · الجمعة 10-23 (الكرونُ الثلاثاء-الجمعة) ⟵ الثالثةُ 10-23 01:50:
+        #    a بعدها ⟵ لا · b قبلها ⟵ نعم · c بلا تشغيلة ⟵ نعم · d لم يُقرأ ⟵ لا حكم
+        "verdicts": [(w, t.strftime("%m-%d %H:%M")) for w, t, _l in _gst] == [("b.yml", "10-23 01:50"), ("c.yml", "10-23 01:50")],
+        "grace": [(w, t.strftime("%m-%d")) for w, t, _l in _gst2] == [("a.yml", "10-27")],
+    }
+    _gpr = [{"number": 1, "title": "old", "created_at": "2026-10-27T06:44:00Z", "state": "open"},       # 49 ساعة ⟵ نعم
+            {"number": 2, "title": "young", "created_at": "2026-10-27T08:46:00Z", "state": "open"},     # تحت 48 ⟵ لا
+            {"number": 3, "title": "closed", "created_at": "2026-10-01T00:00:00Z", "state": "closed"},
+            {"number": 4, "title": "older", "created_at": "2026-10-15T00:00:00Z", "state": "open"}]
+    _gsp = _GW.stale_prs(_gpr, _gnow)
+    _gw_3 = [n for n, _t, _a in _gsp] == [4, 1]
+    _gl = _GW.green_wait_line(_gsp, _gst)
+    _gw_4 = (_GW.green_wait_line([], []) == "" and "PR #4" in _gl and "PR #1" in _gl and "b.yml" in _gl and "c.yml" in _gl
+             and "ولا واحدة مسجّلة" in _gl and not any(ch in _gl.replace("<b>", "").replace("</b>", "") for ch in "≥≤<>"))
+    _gcalls = []
+
+    def _gget(url, params=None):
+        _gcalls.append(url)
+        if url.endswith("/pulls"):
+            return _gpr[:2]
+        if "/b.yml/" in url:
+            raise RuntimeError("boom")
+        return {"workflow_runs": [{"created_at": "2026-10-29T01:00:00Z"}]}
+    _gp, _glast = _GW.fetch_github("o/r", "t", ["a.yml", "b.yml"], get=_gget)
+    _gt = _GW.green_wait_report(now=_gnow, root=".", env={"SUPER_STOCKS_TESTING": "1", "GITHUB_TOKEN": "x", "GITHUB_REPOSITORY": "o/r"})
+    _gw_6 = (len(_gp) == 2 and _glast == {"a.yml": "2026-10-29T01:00:00Z"} and len(_gcalls) == 3
+             and _gt == ("", "السويّة — لا شبكة")
+             and _GW.green_wait_report(now=_gnow, env={})[1] == "لا رمز GitHub في البيئة")
+    _gw_src = _insp0.getsource(S.run_daily_watchlist)
+    _gw_us = _gw_ast.unparse(_gw_ast.parse(_gw_src))
+    import yaml as _gw_yaml
+    _gw_wf = _gw_yaml.safe_load(open(".github/workflows/daily_screener.yml", encoding="utf-8"))
+    _gw_step = next(s_ for j in _gw_wf["jobs"].values() for s_ in j.get("steps", []) if s_.get("name") == "Run screener")
+    _gw_5 = (0 <= _gw_us.find("build_daily_message(") < _gw_us.find("_gw.green_wait_report()") < _gw_us.find("send_telegram(")
+             and "CONFIG.get('GREEN_WAIT_LINE', True)" in _gw_us and "msg += '\\n\\n' + _gwl" in _gw_us
+             and _gw_wf["permissions"] == {"contents": "write", "actions": "read", "pull-requests": "read"}
+             and _gw_step["env"].get("GITHUB_TOKEN") == "${{ github.token }}" and S.CONFIG.get("GREEN_WAIT_LINE") is True)
+    _gw_w = f"1={_gw_1} 2={_gw_2} 3={_gw_3} 4={_gw_4} 5={_gw_5} 6={_gw_6}"
+except Exception as _e:                                                    # noqa: BLE001
+    _gw_1, _gw_2, _gw_3, _gw_4, _gw_5, _gw_6 = {"⛔": False}, {"⛔": False}, False, False, False, False
+    _gw_w = f"⛔ {type(_e).__name__}: {_e}"
+check("⏳ GWT1 فتحاتُ الكرون بالدقيقة (UTC): يوميٌّ · قوائمُ ومدًى · خطوة · الأحدُ 7 · ودلالةُ cron حين يُقيَّد اليومان معًا · والصيغةُ الفاسدة ترمي",
+      isinstance(_gw_1, dict) and all(v is True for v in _gw_1.values()), _gw_w)
+check("⏳ GWT2 «بلا تشغيلةٍ منذ ثالثِ آخرِ فتحة» بعد مهلة 8 ساعات: قبلها ⟵ منتظر · بعدها ⟵ لا · بلا تشغيلة ⟵ منتظر · لم يُقرأ ⟵ لا حكم",
+      isinstance(_gw_2, dict) and all(v is True for v in _gw_2.values()), _gw_w)
+check("⏳ GWT3 PR مفتوحٌ أكثرَ من 48 ساعة وحدَه (‏49 نعم · ما دونها لا · المغلقُ لا) — الأقدمُ أوّلًا", _gw_3, _gw_w)
+check("⏳ GWT4 السطرُ فارغٌ بلا انتظار · ويسمّي الـPR والـworkflow · وبلا علامات مقارنة", _gw_4, _gw_w)
+check("⏳ GWT5 الوصلُ: بعد بناء التقرير وقبل إرساله داخل `GREEN_WAIT_LINE` · سطرٌ يُلحَق بالرسالة القائمة · والـworkflow يمنح قراءة actions/PRs ويمرّر الرمز",
+      _gw_5, _gw_w)
+check("⏳ GWT6 الجلبُ: workflow تعذّر وحدَه بلا حكم · وتحت السويّة صفرُ نداء · وبلا رمزٍ سببٌ صريح لا سطر", _gw_6, _gw_w)
+
+# OEB1-OEB4 (‏2026-10-29 · أمرُ المالك «ادفع المكتوم دفعة كل 10 دقائق» · تقرير الجزء أ §أ1-ب: 1,474 commit يومَ 10-27 مقابل ‏≈102 ختمٍ
+#        مُسلَّم): الدورةُ المكتومة تُختَم محلّيًّا وتُدفَع دفعةً كلَّ `MUTED_PUSH_EVERY_S` · والمُسلَّمُ فورًا ويحمل المعلَّق · والمعلَّقُ يُدفَع عند
+#        نهاية المقطع · و`OE_MUTED_PUSH_S=0` ⟵ كلُّ دورةٍ كما كان بت-بت — بجذعٍ لـ`git_save` يُسجِّل ولا يدفع
+try:
+    import operator_entry_live as _oeb_L
+    import ast as _oeb_ast
+    _oeb_calls = []
+    _oeb_orig = _oeb_L.bot.git_save
+    _oeb_env = _os_hc.environ.pop("OE_MUTED_PUSH_S", None)
+    try:
+        _oeb_L.bot.git_save = lambda files, *a, **k: _oeb_calls.append(list(files))
+        _oeb_L._PUSH.update(last=0.0, pending=False)
+        _r = [_oeb_L._push_state(["S"], muted=True, now=1000.0),          # أوّلُ مكتوم ⟵ يُدفَع
+              _oeb_L._push_state(["S"], muted=True, now=1100.0),          # بعد 100ث ⟵ يُؤجَّل
+              _oeb_L._push_state(["S"], muted=True, now=1599.0)]          # قبل 600ث بثانية ⟵ يُؤجَّل
+        _oeb_1 = _r == [True, False, False] and len(_oeb_calls) == 1 and _oeb_L._PUSH["pending"] is True
+        _r2 = _oeb_L._push_state(["S"], muted=True, now=1600.0)           # 600ث بالضبط ⟵ يُدفَع
+        _oeb_1 = _oeb_1 and _r2 is True and len(_oeb_calls) == 2 and _oeb_L._PUSH["pending"] is False
+        _oeb_L._PUSH.update(last=1600.0, pending=True)
+        _r3 = _oeb_L._push_state(["S", "T"], now=1601.0)                  # مُسلَّمٌ بعد ثانية ⟵ فورًا ويحمل المعلَّق
+        _oeb_2 = _r3 is True and _oeb_calls[-1] == ["S", "T"] and _oeb_L._PUSH == {"last": 1601.0, "pending": False}
+        _oeb_calls.clear()
+        _os_hc.environ["OE_MUTED_PUSH_S"] = "0"
+        _oeb_L._PUSH.update(last=5000.0, pending=False)
+        _oeb_3 = [_oeb_L._push_state(["S"], muted=True, now=5001.0 + i) for i in range(3)] == [True] * 3 and len(_oeb_calls) == 3
+        _os_hc.environ.pop("OE_MUTED_PUSH_S", None)
+
+        def _oeb_boom(files, *a, **k):
+            raise RuntimeError("push failed")
+        _oeb_L.bot.git_save = _oeb_boom
+        _oeb_L._PUSH.update(last=0.0, pending=False)
+        try:
+            _oeb_L._push_state(["S"], muted=True, now=9000.0)
+            _oeb_4a = False
+        except RuntimeError:
+            _oeb_4a = _oeb_L._PUSH["pending"] is True and _oeb_L._PUSH["last"] == 0.0   # العطلُ يُبقي المعلَّقَ معلَّقًا
+    finally:
+        _oeb_L.bot.git_save = _oeb_orig
+        _oeb_L._PUSH.update(last=0.0, pending=False)
+        if _oeb_env is None:
+            _os_hc.environ.pop("OE_MUTED_PUSH_S", None)
+        else:
+            _os_hc.environ["OE_MUTED_PUSH_S"] = _oeb_env
+    _oeb_src = open("operator_entry_live.py", encoding="utf-8").read()
+    _oeb_main = next(n for n in _oeb_ast.walk(_oeb_ast.parse(_oeb_src)) if isinstance(n, _oeb_ast.FunctionDef) and n.name == "main")
+    _oeb_pc = [n for n in _oeb_ast.walk(_oeb_main) if isinstance(n, _oeb_ast.Call) and getattr(n.func, "id", None) == "_push_state"]
+    _oeb_muted = [n for n in _oeb_pc if any(k.arg == "muted" and getattr(k.value, "value", None) is True for k in n.keywords)]
+    _oeb_gs = [n for n in _oeb_ast.walk(_oeb_main) if isinstance(n, _oeb_ast.Call)
+               and _oeb_ast.unparse(n.func) == "bot.git_save" and "OP_ENTRY_STATE_FILE" in _oeb_ast.unparse(n)]
+    _oeb_ms = _oeb_ast.unparse(_oeb_main)
+    _oeb_4 = (_oeb_4a and len(_oeb_muted) == 1 and len(_oeb_pc) == 4 and not _oeb_gs
+              and 0 <= _oeb_ms.find("if _PUSH['pending']") < _oeb_ms.find("_restarts()"))
+    _oeb_w = f"pc={len(_oeb_pc)} muted={len(_oeb_muted)} gs={len(_oeb_gs)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _oeb_1 = _oeb_2 = _oeb_3 = _oeb_4 = False
+    _oeb_w = f"⛔ {type(_e).__name__}: {_e}"
+check("📦 OEB1 المكتومُ يُدفَع دفعةً: أوّلُه فورًا ثمّ لا شيء قبل 600ث (‏100ث · 599ث ⟵ معلَّق) · وعند 600ث بالضبط يُدفَع ويُصفَّر المعلَّق", _oeb_1, _oeb_w)
+check("📦 OEB2 المُسلَّمُ يُدفَع **فورًا** بلا شرطٍ زمنيّ (بعد ثانيةٍ من دفعٍ) ويحمل المعلَّقَ معه", _oeb_2, _oeb_w)
+check("📦 OEB3 `OE_MUTED_PUSH_S=0` ⟵ كلُّ دورةٍ مكتومةٍ تُدفَع كما كانت (الرجوعُ بت-بت بلا كود)", _oeb_3, _oeb_w)
+check("📦 OEB4 الوصلُ في `main` (AST): فرعُ «كُتم الكلّ» وحدَه `muted=True` · ولا `git_save` مباشرٌ للحالة · والمعلَّقُ يُدفَع قبل خاتمة المقطع · "
+      "والعطلُ يُبقي المعلَّقَ ليُعاد", _oeb_4, _oeb_w)
 
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في

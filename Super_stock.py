@@ -182,6 +182,12 @@ CONFIG = {
     "BORROW_GATE_REQUIRED": True,  # بوّابةُ المتاح: أطفئها لتعطيلها بلا كود
     # 🥇 نصُّ فيصل حرفيًّا «تحت 20 ألف» (`IMG_0151`) — أمرُ المالك 2026-08-11 «طبّق 20».
     "BORROW_AVAIL_MAX": 20_000,    # فوقه = «حرب وتصريف/ذخيرة هبوط» بإطار فيصل
+    # 🔒📅 «طبّق المتاح المعلوم خلال 7 أيام» (أمرُ المالك 2026-10-29 · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه
+    #    مجهولًا بعد الحصاد والموقع يُحكم بآخر متاحٍ معلومٍ خلال هذه الأيّام التقويميّة (`ctb_log.jsonl` ∪ `borrow_watch.jsonl`) بدل فائدة الشك ·
+    #    للبوّابة وحدَها (لا يُعرض رقمًا لليوم) · `0` ⟵ السلوكُ السابق بت-بت · (10-27: PLSM · FRSX · ASPC · BCTX كانت ستُخرَج)
+    "BORROW_KNOWN_DAYS": 7,
+    # ⏳ «أضف سطر الانتظار الأخضر» (أمرُ المالك 2026-10-29): سطرٌ في التقرير اليوميّ القائم (`green_wait.py`) · False ⟵ بت-بت
+    "GREEN_WAIT_LINE": True,
     # 🎯 «صلّح الترتيب»: جولاتُ تعبئةِ الخانات بعد إخراج M14/المتاح (سقفُ كلفةٍ مُعلَن).
     "PICK_FILL_ROUNDS": 4,
     # 🗂️ سجلُّ بِركة التعبئة (2026-10-09 · رصدٌ لا قرار): `False` ⟵ لا لقطةَ ولا أثرَ ولا كتابة (القرارُ نفسُه بت-بت · PFC13).
@@ -5099,6 +5105,49 @@ def _harvested_borrow(today_iso: str, path: str = None) -> dict:
                     "shares_available": r.get("shares_available")}
     except Exception:                                          # noqa: BLE001
         return {}
+    return out
+
+
+def _known_borrow(today_iso: str, days: int = None, paths: dict = None) -> dict:
+    """🔒📅 آخرُ متاحٍ **معلوم** لكلّ رمز خلال `days` يومًا تقويميًّا حتى اليوم (`BORROW_KNOWN_DAYS` · أمرُ المالك 2026-10-29) ⇒
+    {رمز: {"shares_available", "date", "src"}} من `ctb_log.jsonl` (`shares_available`) ∪ `borrow_watch.jsonl` (`available`).
+
+    **لماذا (عطلٌ مُثبَت · فرزُ 10-27 `40463692317`):** تعذّر ChartExchange بعد ‏≈24 صفحة فدخل 10 من 12 مُضافًا بمتاحٍ مجهولٍ بفائدة الشك —
+    وقيمُ ستّةٍ منهم فوق 20 ألفًا **في ملفّات البوت نفسِها** (‏PLSM 60,000 · FRSX 100,000 · ASPC 100,000 في `borrow_watch` 10-23 ·
+    BCTX 30,000 في `ctb_log` 10-20 …) و`_harvested_borrow` لا يقرأ إلّا صفوفَ اليوم. الأحدثُ تاريخًا يغلب (وفي التعادل `ctb_log` أوّلًا) ·
+    والمجهولُ (`None`) والتالفُ لا يُعَدّ معلومًا · والمستقبلُ (بعد اليوم) لا يُقرأ · قراءةٌ فقط · فاشلٌ-آمن ⟵ {} (فيعود السلوكُ السابق)."""
+    days = int(CONFIG.get("BORROW_KNOWN_DAYS", 0) if days is None else days)
+    if days <= 0:
+        return {}
+    try:
+        t = dt.date.fromisoformat(str(today_iso)[:10])
+    except Exception:                                          # noqa: BLE001
+        return {}
+    lo, hi = (t - dt.timedelta(days=days)).isoformat(), t.isoformat()
+    paths = paths or {}
+    out = {}
+    for path, key, src in ((paths.get("ctb", "ctb_log.jsonl"), "shares_available", "ctb_log"),
+                           (paths.get("watch", "borrow_watch.jsonl"), "available", "borrow_watch")):
+        try:
+            with open(path, encoding="utf-8") as fh:
+                for line in fh:
+                    try:
+                        r = json.loads(line)
+                        d = str(r.get("date") or "")[:10]
+                        v = r.get(key)
+                        if not (lo <= d <= hi) or v is None:
+                            continue
+                        v = float(v)
+                    except Exception:                          # noqa: BLE001
+                        continue
+                    sym = str(r.get("symbol") or "").upper()
+                    if not sym:
+                        continue
+                    cur = out.get(sym)
+                    if cur is None or d > cur["date"]:
+                        out[sym] = {"shares_available": int(v) if v == int(v) else v, "date": d, "src": src}
+        except Exception:                                      # noqa: BLE001
+            continue
     return out
 
 
@@ -12823,21 +12872,26 @@ def borrow_gate_recheck(picks):
         return list(picks or []), []
     limit = float(CONFIG["BORROW_AVAIL_MAX"])
     kept, ejected = [], []
+    _kd = int(CONFIG.get("BORROW_KNOWN_DAYS", 0) or 0)
     for r in (picks or []):
         try:
             av = r.get("shares_available")
+            # 🔒📅 (2026-10-29 · «طبّق المتاح المعلوم خلال 7 أيام»): المجهولُ اليومَ يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS`
+            #    (`borrow_known` تملؤه `borrow_second_chance`) · `0` ⟵ فائدةُ الشك كما كانت بت-بت
+            if av is None and _kd > 0:
+                av = (r.get("borrow_known") or {}).get("shares_available")
             over = av is not None and float(av) > limit
         except (TypeError, ValueError):
             over = False                 # تالفٌ ⇒ يمرّ (سلوكُ ما قبل البوّابة حرفيًّا)
         if over:
-            ejected.append((r.get("symbol"), r.get("shares_available")))
+            ejected.append((r.get("symbol"), av))
             continue
         kept.append(r)
     return kept, ejected
 
 
 def borrow_second_chance(picks, today_iso=None, harvested=None, fetch_ce=None,
-                         pause=None) -> dict:
+                         pause=None, known=None) -> dict:
     """🔒⏱️ **فرصةٌ ثانية لمتاح البوّابة — للمجهول وحده** (2026-09-26 · أمرُ المالك «طبّق
     بوابة المتاح على الـ12»).
 
@@ -12854,15 +12908,24 @@ def borrow_second_chance(picks, today_iso=None, harvested=None, fetch_ce=None,
     🔒 **وما له متاحٌ لا يُمَسّ بت-بت** · والبوّابةُ وحدُّها (`borrow_gate_recheck` · 20,000) كما هما ·
     والمتعذّرُ بعد الفرصتين **يبقى مجهولًا فيمرّ بفائدة الشك** (قاعدتُها لا تتغيّر هنا) — لكنه **يُعَدّ
     ويُعلَن** في السجلّ بدل أن يمرّ صامتًا. يرجّع {"مجهول", "حصاد", "موقع", "تعذّر"}.
-    `harvested`/`fetch_ce`/`pause` تُحقَن للاختبار (بلا شبكة)."""
+    `harvested`/`fetch_ce`/`pause` تُحقَن للاختبار (بلا شبكة).
+
+    🔒📅 **ثالثًا (2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام»):** ما بقي مجهولًا بعد الحصاد والموقع ⟵ آخرُ متاحٍ معلومٍ خلال
+    `BORROW_KNOWN_DAYS` (`_known_borrow`) يُكتب في `borrow_known` **لا في `shares_available`** — فالبوّابةُ تحكم به والكرتُ لا يعرضه رقمًا
+    لليوم — ويُعَدّ «سابق» (المفتاحُ يظهر حين يُستعمل) لا «تعذّر». `known` يُحقَن · وبلا حقنٍ يُقرأ من الملفّات **في مسار الإنتاج وحدَه**
+    (حين `harvested is None` كقراءة الحصاد) · و`BORROW_KNOWN_DAYS` = 0 ⟵ السلوكُ السابق بت-بت."""
     cnt = {"مجهول": 0, "حصاد": 0, "موقع": 0, "تعذّر": 0}
     todo = [r for r in (picks or [])
             if isinstance(r, dict) and r.get("shares_available") is None]
     if not todo:
         return cnt
     cnt["مجهول"] = len(todo)
-    hb = (_harvested_borrow(today_iso or dt.date.today().isoformat())
+    _today = today_iso or dt.date.today().isoformat()
+    hb = (_harvested_borrow(_today)
           if harvested is None else harvested) or {}
+    kn = {}
+    if int(CONFIG.get("BORROW_KNOWN_DAYS", 0) or 0) > 0:
+        kn = (_known_borrow(_today) if (known is None and harvested is None) else (known or {})) or {}
     ce = fetch_ce or ce_borrow_info
     nap = pause or time.sleep
     fails = 0
@@ -12880,6 +12943,11 @@ def borrow_second_chance(picks, today_iso=None, harvested=None, fetch_ce=None,
             else:
                 fails += 1
         if src is None:
+            _k = kn.get(str(r.get("symbol") or "").upper())
+            if _k and _k.get("shares_available") is not None:
+                r["borrow_known"] = dict(_k)
+                cnt["سابق"] = cnt.get("سابق", 0) + 1
+                continue
             cnt["تعذّر"] += 1
             continue
         r["shares_available"] = _d.get("shares_available")
@@ -12948,15 +13016,23 @@ def fill_picks(results, space, exclude, enrich_fn=None, rounds=None,
                 _c = _sc(got) or {}
                 if _c.get("مجهول"):
                     log(f"🔒 فرصةٌ ثانيةٌ لمتاح البوّابة (جولة {used}): مجهولٌ {_c.get('مجهول')} ⟵ "
-                        f"حصاد {_c.get('حصاد', 0)} · موقع {_c.get('موقع', 0)} · تعذّر {_c.get('تعذّر', 0)}"
+                        f"حصاد {_c.get('حصاد', 0)} · موقع {_c.get('موقع', 0)}"
+                        + (f" · معلومٌ خلال {CONFIG.get('BORROW_KNOWN_DAYS')} أيام {_c.get('سابق')}" if _c.get("سابق") else "")
+                        + f" · تعذّر {_c.get('تعذّر', 0)}"
                         + (" — والمتعذّرُ يمرّ بفائدة الشك (قاعدةُ البوّابة)"
                            if _c.get("تعذّر") else ""))
             except Exception as e:                               # noqa: BLE001
                 log(f"⚠️ الفرصة الثانية للمتاح (جولة {used}): {e}")
         if _tn is not None:
             _fill_trace_note(trace, used, got, _tn, "av_gate", fl=_fl, sc=_c)
+        _kn_pre = {r.get("symbol"): r.get("borrow_known") for r in got
+                   if isinstance(r, dict) and r.get("shares_available") is None and r.get("borrow_known")}
         got, _bw = borrow_gate_recheck(got)
         bw_out += _bw
+        _kn_out = [(s_, _kn_pre[s_]) for s_, _v in _bw if s_ in _kn_pre]
+        if _kn_out:
+            log("🔒📅 منها بمتاحٍ معلومٍ سابق (لا بفائدة الشك): "
+                + "، ".join(f"{s_}({int(float(k_['shares_available'])):,} · {k_['date']} {k_['src']})" for s_, k_ in _kn_out))
         if _tn is not None:
             _fill_trace_note(trace, used, got, _tn, "bw", bw=_bw)
         picks += got
@@ -13012,7 +13088,7 @@ FILL_POOL_COLS = ("sym", "rank", "pool_pos", "rk", "dq", "excl", "round", "outco
                   "av_src", "added")
 
 
-_FP_SC_KEYS = {"مجهول": "unknown", "حصاد": "harvest", "موقع": "site", "تعذّر": "failed"}
+_FP_SC_KEYS = {"مجهول": "unknown", "حصاد": "harvest", "موقع": "site", "تعذّر": "failed", "سابق": "known_prior"}
 
 
 def _fp_av(v):
@@ -13045,6 +13121,10 @@ def _fill_trace_note(trace, rnd, got, entry=None, stage=None, fl=None, bw=None, 
             entry["sc"] = ({_FP_SC_KEYS.get(k, str(k)): v for k, v in sc.items()}
                            if isinstance(sc, dict) else None)
             entry["av_gate"] = {str(x.get("symbol")): _fp_av(x.get("shares_available")) for x in (got or [])}
+            _akn = {str(x.get("symbol")): _fp_av((x.get("borrow_known") or {}).get("shares_available"))
+                    for x in (got or []) if x.get("shares_available") is None and x.get("borrow_known")}
+            if _akn:                     # 📅 المتاحُ المعلومُ السابق الذي حكمت به البوّابة (يظهر حين يُستعمل وحدَه)
+                entry["av_known"] = _akn
         elif stage == "bw":
             entry["bw"] = [str(s) for s, _ in (bw or [])]
             entry["kept"] = [str(x.get("symbol")) for x in (got or [])]
@@ -22874,6 +22954,18 @@ def run_daily_watchlist(wl: dict) -> None:
             msg += "\n\n" + _hl
     except Exception as _e:                                      # noqa: BLE001
         log(f"⚠️ رصد سقوط صيّاد المقسّم: {_e}")
+    # ⏳ «الانتظارُ الأخضر» (أمرُ المالك 2026-10-29 «أضف سطر الانتظار الأخضر» · تقرير الجزء أ §أ1-د ③): PR مفتوحٌ أكثرَ من 48 ساعة
+    #    أو workflow مجدولٌ بلا تشغيلةٍ منذ ثلاث فتحات — **سطرٌ في التقرير القائم لا قناةٌ جديدة** · قراءةُ GitHub بـ`GITHUB_TOKEN` الجوب ·
+    #    `GREEN_WAIT_LINE` = False ⟵ بت-بت · و`try` مطلق: الرصدُ لا يُسقط المتابعة.
+    if CONFIG.get("GREEN_WAIT_LINE", True):
+        try:
+            import green_wait as _gw
+            _gwl, _gwr = _gw.green_wait_report()
+            log(_gwl or ("⏳ الانتظارُ الأخضر: لا شيء" + (f" — {_gwr}" if _gwr else "")))
+            if _gwl:
+                msg += "\n\n" + _gwl
+        except Exception as _e:                                  # noqa: BLE001
+            log(f"⚠️ الانتظارُ الأخضر: {_e}")
     # 👀 قسمُ «تحت المتابعة» (قرارُ المالك 2026-08-16 «جدارين») — **قسمٌ داخل
     #    التقرير لا قناةٌ رابعة** (عقدُ المالك قائم). وهو **الاستثناءُ الثالث**
     #    المُعلَن لقاعدة «الجاهز فقط»: المالك طلبه صراحةً («لمّا على الأقل يكون
