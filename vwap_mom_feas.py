@@ -482,8 +482,13 @@ def _download(FP, key, dest, tries=4):
             rc, _, err = FP.aws("cp", f"s3://{FP.BUCKET}/{key}", dest, endpoint=ep, timeout=1800)
             if rc == 0:
                 return True, ep
+            # 🔧 S3G1 (‏2026-10-29): `s3 cp` ردّ 403 على كلّ يومٍ في `40800488513` و`get-object` نجح في المِجَسّ ⟵ يُجرَّب بعده
+            rc2, _, err2 = FP.get_object(key, dest, endpoint=ep, timeout=1800)
+            if rc2 == 0:
+                log(f"   ↩️ `s3 cp` تعذّر ونجح `get-object`: {key}")
+                return True, ep
         # 🔧 S3E1 (‏2026-10-29): ذيلُ رسالة aws لا رأسُها — المسارُ كان يبتلع الـ140 محرفًا فضاع رمزُ الخطأ (تشغيلة 40790473567)
-        log(f"   ⛔ تعذّر التنزيل ({i + 1}/{tries}): {key} · {(err or '').strip()[-240:]}")
+        log(f"   ⛔ تعذّر التنزيل ({i + 1}/{tries}): {key} · cp: {(err or '').strip()[-240:]} · get-object: {(err2 or '').strip()[-160:]}")
         time.sleep(10 * (2 ** i))
     return False, None
 

@@ -83,6 +83,17 @@ def aws_api(*args: str, timeout=300, endpoint=None) -> tuple[int, str, str]:
                 timeout=timeout)
 
 
+def get_object(key: str, dest: str, endpoint=None, timeout=1800) -> tuple[int, str, str]:
+    """⬇️ تنزيلُ الكائن كاملًا بـ`s3api get-object` (طلبٌ واحد) — **بديلُ `s3 cp` حين يُرفض**.
+
+    🔧 S3G1 (‏2026-10-29 · عطلٌ مُثبَت): على صورة الرنر 20261025.179.1 (aws-cli 2.38.5) ردّ `aws s3 cp`
+    ‏403 على GetObject في الأيام الـ21 كلِّها (جدوى الفيواب v3 `40800488513` · وبإعدادات `S3E1`) بينما نجح
+    `get-object --range` على اليوم نفسِه (2026-09-25) بالمفتاحين والصورة والمنفذ نفسِها (هذا المِجَسّ
+    `40796690636`: ‏64MB في 1.4ث) ⇒ المسارُ الذي ثبت يُجرَّب بعد `s3 cp` لا بدلَه (`s3 cp` بت-بت حين ينجح)."""
+    return aws_api("get-object", "--bucket", BUCKET, "--key", key, dest,
+                   timeout=timeout, endpoint=endpoint)
+
+
 def creds_shape() -> dict:
     """🔐 **شكلُ** المفتاحين لا قيمتُهما — أطوالٌ وأحكامٌ منطقيّة فقط.
 

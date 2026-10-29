@@ -36691,6 +36691,9 @@ check("🗓️ CAL8 ورمزُ الحالة **تشخيصٌ لا يُنقص ال�
 _ahd_calls = {"n": 0}
 _ahd_sleeps = []
 _ahd_orig = AH.FP.aws
+# 🔧 S3G1 (‏2026-10-29): `download` صار يجرّب `FP.get_object` بعد `s3 cp` ⟵ يُجذَّع هنا فاشلًا فلا يُنادى `aws` حقيقيٌّ داخل السويّة
+#    (والعدُّ والنومُ كما كانا: المحاولاتُ تُعَدّ على `s3 cp` وحدَه).
+_ahd_go_orig = AH.FP.get_object
 
 
 def _ahd_flaky(*a, **k):
@@ -36704,6 +36707,7 @@ def _ahd_dead(*a, **k):
 
 
 try:
+    AH.FP.get_object = lambda *a, **k: (1, "", "403 Forbidden")
     AH.FP.aws = _ahd_flaky
     _ahd_ok = AH.download("k", f"/tmp/_ahd_{_SUITE_PID}", "ep", sleep=_ahd_sleeps.append)
     _ahd_n1 = _ahd_calls["n"]
@@ -36713,6 +36717,7 @@ try:
     _ahd_n2 = _ahd_calls["n"]
 finally:
     AH.FP.aws = _ahd_orig
+    AH.FP.get_object = _ahd_go_orig
 # 🔴 **شُدِّد بإقرارٍ مؤرَّخ 2026-08-20** بعد أن سقط `V4` ثانيةً بـ**‏46.5%
 #   أيامٍ مفقودة**: ثلاثُ محاولاتٍ بنومِ 5/10ث **لا تكفي** نوبةَ 403/503
 #   ممتدّة (وقعت 22:27⟶23:11 في تشغيلة `32416907986`) ⇒ **خمسُ محاولاتٍ بنومِ
@@ -90762,6 +90767,10 @@ try:
         @staticmethod
         def aws(*a, **k):
             return 1, "", "download failed: s3://flatfiles/" + "x" * 300 + " to /tmp/d.csv.gz An error occurred (S3E1-TAIL) when calling GetObject"
+
+        @staticmethod
+        def get_object(*a, **k):                      # 🔧 S3G1: البديلُ يُجرَّب بعد `s3 cp` ⟵ فاشلٌ هنا
+            return 1, "", "An error occurred (403) when calling the GetObject operation: Forbidden"
     _s3_keep = (_S3V.log, _S3V.time.sleep)
     try:
         _S3V.log = _s3_logged.append
@@ -90781,6 +90790,79 @@ except Exception as _e:                                              # noqa: BLE
     _v_s3, _v_s3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔧 S3E1 (‏2026-10-29) خطواتُ S3 كلُّها تضبط المنطقةَ والـchecksum كالمِجَسّ (صورةُ الرنر 20261025 أفشلت `s3 cp` بلاها) · "
       "وأداةُ الفيواب تطبع ذيلَ رسالة aws لا رأسَها", _v_s3, _v_s3w)
+# 🔧 S3G1 (‏2026-10-29 · عطلٌ مُثبَت): بإعدادات `S3E1` بقي `aws s3 cp` يردّ 403 على GetObject في الأيام الـ21 كلِّها (جدوى v3 `40800488513`)
+#    بينما نجح `s3api get-object --range` على اليوم نفسِه بالمفتاحين والصورة نفسِها (المِجَسّ `40796690636`) ⟵ `FP.get_object` يُجرَّب **بعد**
+#    `s3 cp` في `ah_scan.download` و`vwap_mom_feas._download`. سلوكيًّا: (أ) الأمرُ المبنيّ `s3api get-object` بالبكت والمفتاح والوجهة والمنفذ بلا `--range`
+#    (ب) `ah_scan`: cp يفشل وget-object ينجح ⟵ True بلا نومٍ وبالمنفذ نفسِه · وcp ينجح ⟵ get-object لا يُنادى (المسارُ القديم بت-بت)
+#    (ج) الفيواب: كذلك ‏+ سطرُ «↩️» · (د) فشلُهما معًا ⟵ سطرُ ⛔ واحدٌ يحمل الذيلين.
+try:
+    import flatfiles_probe as _g_FP
+    import vwap_mom_feas as _g_V
+    _g_cmd = []
+    _g_run_keep = _g_FP._run
+    try:
+        _g_FP._run = lambda args, timeout=900: (_g_cmd.append(list(args)) or (0, "", ""))
+        _g_rc = _g_FP.get_object("us_stocks_sip/minute_aggs_v1/2026/09/2026-09-25.csv.gz", "/tmp/_g_d.csv.gz", endpoint="https://E")
+    finally:
+        _g_FP._run = _g_run_keep
+    _g_a = (len(_g_cmd) == 1 and _g_cmd[0][:3] == ["aws", "s3api", "get-object"]
+            and _g_cmd[0][3:9] == ["--bucket", _g_FP.BUCKET, "--key", "us_stocks_sip/minute_aggs_v1/2026/09/2026-09-25.csv.gz", "/tmp/_g_d.csv.gz", "--endpoint-url"]
+            and _g_cmd[0][9:] == ["https://E"] and "--range" not in _g_cmd[0] and _g_rc[0] == 0)
+
+    def _g_mk(cp_rc, go_rc):
+        calls = {"cp": [], "go": []}
+
+        def _cp(*a, **k):
+            calls["cp"].append((a, k.get("endpoint")))
+            return cp_rc, "", "An error occurred (403) when calling the GetObject operation: Forbidden CP-TAIL"
+
+        def _go(key, dest, endpoint=None, timeout=None):
+            calls["go"].append((key, dest, endpoint))
+            return go_rc, "", "An error occurred (403) when calling the GetObject operation: Forbidden GO-TAIL"
+        return calls, _cp, _go
+    _g_keep_ah = (AH.FP.aws, AH.FP.get_object, AH.log)
+    _g_ah = {}
+    try:
+        AH.log = lambda *_a, **_k: None
+        for _lab, (_c, _o) in {"fallback": (1, 0), "cp_ok": (0, 0), "both_dead": (1, 1)}.items():
+            _calls, AH.FP.aws, AH.FP.get_object = _g_mk(_c, _o)
+            _sl = []
+            _ok = AH.download("k1", "/tmp/_g_ah", "https://EP", tries=2, sleep=_sl.append)
+            _g_ah[_lab] = (_ok, len(_calls["cp"]), list(_calls["go"]), list(_sl))
+    finally:
+        AH.FP.aws, AH.FP.get_object, AH.log = _g_keep_ah
+    _g_b = (_g_ah["fallback"] == (True, 1, [("k1", "/tmp/_g_ah", "https://EP")], [])
+            and _g_ah["cp_ok"] == (True, 1, [], [])
+            and _g_ah["both_dead"][0] is False and _g_ah["both_dead"][1] == 2 and len(_g_ah["both_dead"][2]) == 2
+            and _g_ah["both_dead"][3] == [15])
+
+    class _g_VFP:
+        BUCKET = "flatfiles"
+        ENDPOINTS = ("https://EP",)
+    _g_keep_v = (_g_V.log, _g_V.time.sleep)
+    _g_v = {}
+    try:
+        _g_V.time.sleep = lambda *_a: None
+        for _lab, (_c, _o) in {"fallback": (1, 0), "cp_ok": (0, 0), "both_dead": (1, 1)}.items():
+            _lines = []
+            _g_V.log = _lines.append
+            _calls, _g_VFP.aws, _g_VFP.get_object = _g_mk(_c, _o)
+            _g_VFP.aws, _g_VFP.get_object = staticmethod(_g_VFP.aws), staticmethod(_g_VFP.get_object)
+            _res = _g_V._download(_g_VFP, "k2", "/tmp/_g_v", tries=1)
+            _g_v[_lab] = (_res, len(_calls["cp"]), list(_calls["go"]), list(_lines))
+    finally:
+        _g_V.log, _g_V.time.sleep = _g_keep_v
+    _g_c = (_g_v["fallback"][:3] == ((True, "https://EP"), 1, [("k2", "/tmp/_g_v", "https://EP")])
+            and len(_g_v["fallback"][3]) == 1 and "↩️" in _g_v["fallback"][3][0]
+            and _g_v["cp_ok"] == ((True, "https://EP"), 1, [], []))
+    _g_d = (_g_v["both_dead"][0] == (False, None) and len(_g_v["both_dead"][3]) == 1
+            and "CP-TAIL" in _g_v["both_dead"][3][0] and "GO-TAIL" in _g_v["both_dead"][3][0])
+    _g_chk = {"cmd": _g_a, "ah_scan": _g_b, "vwap": _g_c, "both_tails": _g_d}
+    _v_g, _v_gw = all(_g_chk.values()), f"{ {k: v for k, v in _g_chk.items() if not v} or 'كلّها'} · ah={_g_ah} · v={ {k: v[:3] for k, v in _g_v.items()} }"[:400]
+except Exception as _e:                                              # noqa: BLE001
+    _v_g, _v_gw = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔧 S3G1 (‏2026-10-29) `s3 cp` ردّ 403 والمِجَسُّ نزّل بـ`get-object` ⟵ البديلُ يُجرَّب بعد cp في `ah_scan` وأداة الفيواب · "
+      "cp الناجحُ بت-بت · والفشلُ يطبع الذيلين", _v_g, _v_gw)
 
 # H6L1 — amendment 5 (m1-m5 · m7): الوصولُ المتأخّر لا يُسقط الأهليّة — ختمُ الجامع الآليّ ‏+ جمعٌ بعد الوصول ‏+ ضوابطُ من نافذة القرار ·
 #   وA/C (اللقطة) على الوحدات في وقتها وحدَها · وB/D للجميع · وبلا ختمٍ أو قبل T أو بلا جمعٍ أو بلا لوحة كلٌّ برمزه · والمسارُ في وقته بت-بت
