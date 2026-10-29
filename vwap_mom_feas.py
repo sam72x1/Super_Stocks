@@ -482,7 +482,8 @@ def _download(FP, key, dest, tries=4):
             rc, _, err = FP.aws("cp", f"s3://{FP.BUCKET}/{key}", dest, endpoint=ep, timeout=1800)
             if rc == 0:
                 return True, ep
-        log(f"   ⛔ تعذّر التنزيل ({i + 1}/{tries}): {key} · {(err or '')[:140]}")
+        # 🔧 S3E1 (‏2026-10-29): ذيلُ رسالة aws لا رأسُها — المسارُ كان يبتلع الـ140 محرفًا فضاع رمزُ الخطأ (تشغيلة 40790473567)
+        log(f"   ⛔ تعذّر التنزيل ({i + 1}/{tries}): {key} · {(err or '').strip()[-240:]}")
         time.sleep(10 * (2 ** i))
     return False, None
 

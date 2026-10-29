@@ -34,6 +34,9 @@ jobs:
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1                     # 🔧 S3E1: صورةُ الرنر 20261025 (aws-cli 2.38.5) أفشلت `s3 cp` بلاها
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
           RC_YEAR: ${{ inputs.year }}
         run: python reclaim_arms.py
 
