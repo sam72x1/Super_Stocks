@@ -11,6 +11,10 @@ on:
       month:
         description: "الشهرُ YYYY-MM (العقد: 2026-09)"
         default: "2026-09"
+      reopen:
+        description: "🔒 المحورُ مُغلَق (الملحق 2 §④ · جدوى v3 «توقّف» 2026-10-29) — 1 = إقرارٌ بشروط الفتح الثلاثة · غيرُه = خروج 8"
+        required: false
+        default: "0"
 
 jobs:
   vwm-feas:
@@ -41,6 +45,7 @@ jobs:
           AWS_REQUEST_CHECKSUM_CALCULATION: when_required
           AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
           VWM_MONTH: ${{ github.event.inputs.month }}
+          VWM_REOPEN: ${{ github.event.inputs.reopen }}          # 🔒 الإغلاقُ المُنفَّذ (`VWM9`) — `1` حرفيًّا وحدَه يرفعه
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}     # الملحق 2 §②: SEC مصدرٌ لازم (User-Agent بوسيلة تواصل)
           PYTHONUNBUFFERED: "1"
         run: python vwap_mom_feas.py

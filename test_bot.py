@@ -90671,13 +90671,15 @@ try:
                "rows": {123: [(_v7_ts(_v7_day, 8, 0), "8-K", "1.01,9.01")]}, "unknown": {789}}
     _v7_cday = {s: {"A": [_v7_ev1], "B": []} for s in ("AAA", "BBB", "CCC", "DDD")}
     _v7_cnt, _v7_src, _v7_items, _v7_nc, _v7_du, _v7_nu = _V7.count_day(_v7_cday, _v7_day, _v7_w0, _v7_sec, _v7_ns, _v7_ns, d_ladder=(1,))
-    _v7_env = {k: _v7_os.environ.get(k) for k in ("POLYGON_API_KEY", "SEC_CONTACT")}
+    # 🔒 VWM9 (‏2026-10-29): المحورُ مُغلَقٌ مُنفَّذًا ⟵ `main()` يخرج 8 قبل أيّ شيء · وهذا القفلُ يفحص ما بعد الحارس ⟵ يُقرّ بـ`VWM_REOPEN=1` ويُستعاد
+    _v7_env = {k: _v7_os.environ.get(k) for k in ("POLYGON_API_KEY", "SEC_CONTACT", "VWM_REOPEN")}
     _v7_net, _v7_orig = [], {n: getattr(_V7, n) for n in ("_download", "fetch_news", "_sec_get")}   # جذوعٌ تُسجَّل ولا تُنفَّذ — لا شبكةَ ولا انتظار
     try:
         _V7._download = lambda *a, **k: (_v7_net.append("dl"), (False, None))[1]
         _V7.fetch_news = lambda *a, **k: (_v7_net.append("news"), ([], {"pages": 0, "complete": False, "items": 0, "why": "stub"}))[1]
         _V7._sec_get = lambda *a, **k: (_v7_net.append("sec"), None)[1]
         _v7_os.environ["POLYGON_API_KEY"], _v7_os.environ["SEC_CONTACT"] = "x", ""
+        _v7_os.environ["VWM_REOPEN"] = "1"
         _v7_rc = _V7.main()
     finally:
         for _n, _f in _v7_orig.items():
@@ -90735,6 +90737,104 @@ except Exception as _e:                                              # noqa: BLE
     _v_v7, _v_v7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📈 VWM7 (‏2026-10-28) جدوى v3 سلوكيًّا: الأخبارُ والإيداعاتُ ونافذتُها · المجهول · D بعد الاختبار وحدَه · الحدثُ الأبكرُ بلا محفّزٍ لا يحجب · "
       "count_day · الحارسُ والحكم · main يخرج 2 بلا SEC_CONTACT · والقاعدةُ على A ∧ C بعد الحارس", _v_v7, _v_v7w)
+# 📈 VWM8 (‏2026-10-29 · جدوى v3 `40810856734` · الملحق 2 §④): النتيجةُ منشورةٌ كما صدرت — `vwap_mom_feas_v3_result.md` = `vwap_mom_feas_v3_doc.render(JSON)` بايتًا ·
+#    والحكمُ يُعاد من الـJSON بدوالّ الأداة نفسِها (`coverage_gates` ⟵ `pick_rule` ⟵ `verdict_v3`) · والوسيطُ والمجاميعُ من `per_day` · و21 جلسةً بلا يومٍ ناقص ·
+#    وإفصاحُ «التشغيلة الثالثة» حاضرٌ بالتشغيلتين «لا قياس» · وP9 ❌ منشور.
+try:
+    import json as _v8_j
+    import statistics as _v8_st
+    import vwap_mom_feas as _V8
+    import vwap_mom_feas_v3_doc as _V8D
+    _v8_r = _v8_j.load(open("vwap_mom_feas_v3_2026-09.json", encoding="utf-8"))
+    _v8_doc = open("vwap_mom_feas_v3_result.md", encoding="utf-8").read()
+    _v8_pd = _v8_r["per_day"]
+    _v8_lad = [int(x) for x in _v8_r["d_ladder"]]
+    _v8_ks = {"A": _V8.KEYS_A, "B": _V8.KEYS_B}
+    _v8_med = all(_v8_st.median(v[f"{a}@{d}"][k] for v in _v8_pd.values()) == _v8_r["median_by_dmin"][a][str(d)][k]
+                  for a in "AB" for d in _v8_lad for k in _v8_ks[a])
+    _v8_tot = all(sum(v[f"{a}@{d}"][k] for v in _v8_pd.values()) == _v8_r["month_totals"][a][str(d)][k]
+                  for a in "AB" for d in _v8_lad for k in _v8_ks[a])
+    _v8_ok, _v8_why = _V8.coverage_gates(_v8_r["news"], _v8_r["sec"]["index_missing"], _v8_r["unknown_A_lowest"]["unknown"],
+                                         _v8_r["unknown_A_lowest"]["denom_with_cik"], _v8_r["days_missing"])
+    _v8_pick = _V8.pick_rule({d: _v8_r["median_by_dmin"]["A"][str(d)]["H"] for d in _v8_lad}, _v8_lad, *_v8_r["d_rule"]) if _v8_ok else None
+    _v8_c = {
+        "doc_is_render": _V8D.render(_v8_r) == _v8_doc,
+        "verdict_recomputed": _v8_ok is True and _v8_why == [] and _v8_pick is None and _V8.verdict_v3(_v8_ok, _v8_pick) == _v8_r["verdict"] == "stop",
+        "medians_totals": _v8_med and _v8_tot and len(_v8_pd) == 21 and _v8_r["days_missing"] == [],
+        "rule_constants": tuple(_v8_r["d_rule"]) == _V8.D_RULE and tuple(_v8_lad) == _V8.D_LADDER,
+        "run": _v8_r.get("run") == 40810856734 and "`40810856734`" in _v8_doc and _v8_r.get("main_sha", "").startswith("9cfe4e17a"),
+        "disclosure": _v8_r.get("runs_no_measure") == [40790473567, 40800488513] and "إفصاح — هذه التشغيلةُ الثالثة" in _v8_doc
+                      and "`40790473567`" in _v8_doc and "`40800488513`" in _v8_doc and "قرارُ المالك" in _v8_doc,
+        "p9_wrong": "**P9:**" in _v8_doc and _v8_doc.split("**P9:**")[1].split("\n")[0].count("❌ **سقط**") == 1,
+        "replay_v2": _v8_r["v2_check"]["compared"] == 210 and _v8_r["v2_check"]["mismatch"] == 0 and _v8_r["self_mismatch"] == 0,
+    }
+    _v_v8, _v_v8w = all(_v8_c.values()), f"{ {k: v for k, v in _v8_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_v8, _v_v8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈 VWM8 (‏2026-10-29) جدوى v3 منشورةٌ كما صدرت: المستندُ = المولِّد بايتًا · «توقّف» يُعاد من الـJSON بدوالّ الأداة · الوسيطُ والمجاميعُ من `per_day` · "
+      "إفصاحُ التشغيلة الثالثة · P9 ❌", _v_v8, _v_v8w)
+# 📈🔒 VWM9 (‏2026-10-29 · الملحق 2 §④ · أمرُ المالك «إن لم تقع درجة في 10-40 للمرة الثالثة يتوقف المحور»): الإغلاقُ مُنفَّذٌ لا مكتوب — سلوكيًّا من طرفيه
+#    (مرآةُ `WVA14`): (أ) بلا المفتاح ⟵ 8 بصفرِ نداءِ شبكة وسجلُّه نصُّ الإغلاق وحدَه · (ب) افتراضُ الـworkflow (من الـyml) يُبقيه مُغلَقًا والمُدخَلُ موصولٌ بخطوة التشغيل ·
+#    (ج) `1` حرفيًّا يرفعه فيبلغ فحصَ المفتاح (خروج 2 بلا شبكة) · (د) الحارسُ أوّلُ جملةٍ في `main` بعد الوثيقة (AST) · و8 مميَّزٌ عن مرجوعات `main` · (هـ) النصُّ بأرقام الحكم.
+try:
+    import ast as _v9_ast
+    import os as _v9_os
+    import yaml as _v9_y
+    import vwap_mom_feas as _V9
+    _v9_src = open("vwap_mom_feas.py", encoding="utf-8").read()
+    _v9_main = next(n for n in _v9_ast.walk(_v9_ast.parse(_v9_src)) if isinstance(n, _v9_ast.FunctionDef) and n.name == "main")
+    _v9_body = [b for b in _v9_main.body if not (isinstance(b, _v9_ast.Expr) and isinstance(getattr(b, "value", None), _v9_ast.Constant))]
+    _v9_b0 = _v9_body[0] if _v9_body else None
+    _v9_first = (isinstance(_v9_b0, _v9_ast.If) and isinstance(_v9_b0.test, _v9_ast.Call) and getattr(_v9_b0.test.func, "id", None) == "_closed_now"
+                 and any(isinstance(x, _v9_ast.Return) and getattr(x.value, "id", None) == "CLOSED_RC" for x in _v9_b0.body))
+    _v9_rets = {n.value.value for n in _v9_ast.walk(_v9_main) if isinstance(n, _v9_ast.Return) and isinstance(getattr(n, "value", None), _v9_ast.Constant)}
+    _v9_wf = _v9_y.safe_load(open(".github/workflows/vwap_mom_feas.yml", encoding="utf-8"))
+    _v9_on = _v9_wf.get(True) or _v9_wf.get("on") or {}
+    _v9_def = str((((_v9_on.get("workflow_dispatch") or {}).get("inputs") or {}).get("reopen") or {}).get("default"))
+    _v9_wired = any(str((_st.get("env") or {}).get("VWM_REOPEN", "")).replace(" ", "") == "${{github.event.inputs.reopen}}"
+                    and "vwap_mom_feas.py" in str(_st.get("run")) for _j in (_v9_wf.get("jobs") or {}).values() for _st in (_j.get("steps") or []))
+    _v9_net, _v9_log = [], []
+    _v9_keep = {n: getattr(_V9, n) for n in ("_download", "fetch_news", "_sec_get", "log")}
+    _v9_env0 = {k: _v9_os.environ.get(k) for k in ("VWM_REOPEN", "POLYGON_API_KEY", "SEC_CONTACT")}
+    try:
+        _V9._download = lambda *a, **k: (_v9_net.append("dl"), (False, None))[1]
+        _V9.fetch_news = lambda *a, **k: (_v9_net.append("news"), ([], {}))[1]
+        _V9._sec_get = lambda *a, **k: (_v9_net.append("sec"), None)[1]
+        _V9.log = _v9_log.append
+        for _k in ("VWM_REOPEN", "POLYGON_API_KEY", "SEC_CONTACT"):
+            _v9_os.environ.pop(_k, None)
+        _v9_rc_closed = _V9.main()
+        _v9_log_closed = list(_v9_log)
+        _v9_os.environ["VWM_REOPEN"] = _v9_def
+        del _v9_log[:]
+        _v9_rc_default = _V9.main()
+        _v9_os.environ["VWM_REOPEN"] = " 1 "                          # الإقرار (يُقصّ ويُقرأ «1»)
+        del _v9_log[:]
+        _v9_rc_open = _V9.main()
+        _v9_log_open = list(_v9_log)
+    finally:
+        for _n, _f in _v9_keep.items():
+            setattr(_V9, _n, _f)
+        for _k, _v in _v9_env0.items():
+            _v9_os.environ.pop(_k, None)
+            if _v is not None:
+                _v9_os.environ[_k] = _v
+    _v9_txt = "\n".join(_V9.closure_notice())
+    _v9_c = {
+        "closed": _V9.AXIS_CLOSED is True and _V9.REOPEN_ENV == "VWM_REOPEN" and _v9_rc_closed == _V9.CLOSED_RC == 8 and _v9_log_closed == _V9.closure_notice(),
+        "default_closed": _v9_def == "0" and _v9_rc_default == 8 and _v9_wired,
+        "reopen_lifts": _v9_rc_open == 2 and any("لا مفتاح" in str(x) for x in _v9_log_open) and not any("🔒" in str(x) for x in _v9_log_open),
+        "no_network": not _v9_net,
+        "guard_first": _v9_first and 8 not in _v9_rets and {0, 2} <= _v9_rets,
+        "notice": all(x in _v9_txt for x in ("①", "②", "③", "`VWM_REOPEN=1`", "إذنُ المالك", "تسجيلٌ مسبقٌ جديد", "لا ملحقَ رابعٌ", "40810856734",
+                                              "282 · 268 · 255 · 241 · 216", "للمرّة الثالثة")),
+        "one_entry": _v9_src.count("if __name__ ==") == 1,
+    }
+    _v_v9, _v_v9w = all(_v9_c.values()), f"{ {k: v for k, v in _v9_c.items() if not v} or 'كلّها'} · rc=({_v9_rc_closed},{_v9_rc_default},{_v9_rc_open})"
+except Exception as _e:                                              # noqa: BLE001
+    _v_v9, _v_v9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈🔒 VWM9 (‏2026-10-29) محورُ `T-VWAP-MOM` مُغلَقٌ مُنفَّذًا: 8 بلا `VWM_REOPEN=1` وبصفرِ شبكة · افتراضُ الـworkflow مُغلَق وموصول · `1` يرفعه · "
+      "الحارسُ أوّلُ جملة · والنصُّ بشروط الفتح الثلاثة وأرقام الحكم", _v_v9, _v_v9w)
 # 🔧 S3E1 (‏2026-10-29 · عطلٌ مُثبَت: جدوى v3 `40790473567` «لا قياس» — 21 من 21 يومًا تعذّر تنزيلُها): صورةُ الرنر 20261025.179.1 (aws-cli 2.38.5)
 #    أفشلت `aws s3 cp` على البكت حيث نجح على 20261012.163.1 (2.37.13 · v2 `40722466274`) · والمِجَسُّ `40796690636` نجح على الصورة الجديدة بإعداداته.
 #    ⟵ (أ) كلُّ خطوةٍ تمرّر `AWS_ACCESS_KEY_ID` من `POLYGON_S3_KEY` تضبط معه المنطقةَ والـchecksum كالمِجَسّ (`flatfiles_probe.yml`) ·
