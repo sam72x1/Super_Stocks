@@ -82,16 +82,16 @@
   },
   "errors": [],
   "inputs": {
-   "provenance_sha256": "9b62c5e5d0f74c099acd428697a4cbb045e7ae54d8adbe46811d1846edc11f66",
+   "provenance_sha256": "9ba0c672fecea7b7aae9b4500388b1306603ceb2fbb8cc11779672731d60445f",
    "snapshot_sha256": "8447b31e642a8593e84bacf081843b94e5ce4254172cdd476bd603d89989180c",
    "rank_bars_sha256": "bcb8447588500c648a8bd93b511ca2b557d04ea5f7a92e6d6486a7681ab7f86c",
    "rank_rows_sha256": "8a506495a17dcd1849283e6607d1018e4339f9cf253f587a83297225da59d890"
   },
   "archive_xref": {
    "head_chars": 400,
-   "pairs": 102,
+   "pairs": 103,
    "by_class": {
-    "CITED": 76,
+    "CITED": 77,
     "CITED_ELSEWHERE": 5,
     "NOT_GATE_EVIDENCE": 21
    },
@@ -748,6 +748,19 @@
      "class": "CITED",
      "refs": [
       "E_TFAISALONLY"
+     ],
+     "why": null,
+     "note": ""
+    },
+    {
+     "gate": "M4_RISE",
+     "anchor": "قس حد الانفجار 35 على العشرة أولًا» — 0 من 10",
+     "terms": [
+      "RECENT_RISE_BLOCK_PCT"
+     ],
+     "class": "CITED",
+     "refs": [
+      "E_CHASE35"
      ],
      "why": null,
      "note": ""
@@ -2900,6 +2913,17 @@
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "«قِس الجدران» — سُحبت قبل تسجيلها"
    }
+  },
+  "E_CHASE35": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "chase35 (fm_forensics/chase35/CHASE35_RESULT.md)",
+   "summary": "at 35 the cap would have rejected 0 of the ten list adds logged as post-explosion and 0 of 262 measured adds since 2026-08-01 (highest 5-session rise +25.6%, gain5 on the stored ref_bar); the logged 'explosion' dates were run starts or reverse-split days — the ten were not chases",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "قس حد الانفجار 35 على العشرة أولًا» — 0 من 10"
+   }
   }
  },
  "gates": [
@@ -2990,10 +3014,10 @@
      ]
     }
    },
-   "line": 1734,
+   "line": 1740,
    "function_lines": [
-    1731,
-    1771
+    1737,
+    1777
    ],
    "config": {},
    "production_counts": null,
@@ -3093,10 +3117,10 @@
      "threshold:MIN_BARS": []
     }
    },
-   "line": 1815,
+   "line": 1821,
    "function_lines": [
-    1800,
-    1818
+    1806,
+    1824
    ],
    "config": {
     "MIN_BARS": 120
@@ -3171,10 +3195,10 @@
      ]
     }
    },
-   "line": 2145,
+   "line": 2151,
    "function_lines": [
-    2145,
-    2183
+    2151,
+    2189
    ],
    "config": {},
    "production_counts": null,
@@ -3286,10 +3310,10 @@
      "hardness": []
     }
    },
-   "line": 4048,
+   "line": 4054,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "MIN_PRICE": 0.4
@@ -3369,10 +3393,10 @@
      ]
     }
    },
-   "line": 4070,
+   "line": 4076,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {},
    "production_counts": {
@@ -3495,10 +3519,10 @@
      ]
     }
    },
-   "line": 4073,
+   "line": 4079,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "MAX_DROP_PCT": 99.95
@@ -3621,10 +3645,10 @@
      "hardness": []
     }
    },
-   "line": 4075,
+   "line": 4081,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "MIN_DROP_FLOOR": 71.7203
@@ -3776,10 +3800,10 @@
      "hardness": []
     }
    },
-   "line": 4087,
+   "line": 4093,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "PRIOR_SPIKE_FLOOR": 78.2738,
@@ -3865,10 +3889,10 @@
      ]
     }
    },
-   "line": 4097,
+   "line": 4103,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {},
    "production_counts": {
@@ -3999,10 +4023,10 @@
      "hardness": []
     }
    },
-   "line": 4119,
+   "line": 4125,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "BASE_RANGE_MAX_PCT": 120,
@@ -4116,10 +4140,10 @@
      ]
     }
    },
-   "line": 4130,
+   "line": 4136,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {},
    "production_counts": {
@@ -4218,6 +4242,7 @@
        "O_FAISAL_ONLY_0806",
        "O_P100_0808",
        "E_TCHASE",
+       "E_CHASE35",
        "E_TMINFLOOR",
        "E_TFAISALONLY",
        "E_PIT20"
@@ -4238,10 +4263,10 @@
      "hardness": []
     }
    },
-   "line": 4141,
+   "line": 4147,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "RECENT_RISE_BLOCK_PCT": 214.7287
@@ -4359,10 +4384,10 @@
      "hardness": []
     }
    },
-   "line": 4146,
+   "line": 4152,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "MIN_DOLLAR_VOL": 14314.7701
@@ -4443,10 +4468,10 @@
      "hardness": []
     }
    },
-   "line": 4168,
+   "line": 4174,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "GAP_REQUIRED": false
@@ -4575,10 +4600,10 @@
      "hardness": []
     }
    },
-   "line": 4196,
+   "line": 4202,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "RSI_OS_HARD": 69,
@@ -4701,10 +4726,10 @@
      "hardness": []
     }
    },
-   "line": 4203,
+   "line": 4209,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "RSI_NOW_HARD": 71.1186
@@ -4825,10 +4850,10 @@
      "hardness": []
     }
    },
-   "line": 4246,
+   "line": 4252,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "WATCH_MAX_FAILS": 8
@@ -4931,10 +4956,10 @@
      ]
     }
    },
-   "line": 4340,
+   "line": 4346,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "BT_STABILITY_GATE": "",
@@ -5057,10 +5082,10 @@
      ]
     }
    },
-   "line": 4357,
+   "line": 4363,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "NEAR_PCT": 0
@@ -5178,10 +5203,10 @@
      "hardness": []
     }
    },
-   "line": 4501,
+   "line": 4507,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "SCORE_MIN": 5
@@ -5348,10 +5373,10 @@
      ]
     }
    },
-   "line": 4543,
+   "line": 4549,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "ANCHOR_MODE": "tested_strict"
@@ -5515,10 +5540,10 @@
      "hardness": []
     }
    },
-   "line": 4760,
+   "line": 4766,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "MIN_RR_T1": 0.5,
@@ -5597,10 +5622,10 @@
      ]
     }
    },
-   "line": 4793,
+   "line": 4799,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {},
    "production_counts": null,
@@ -5670,10 +5695,10 @@
      ]
     }
    },
-   "line": 4836,
+   "line": 4842,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {},
    "production_counts": null,
@@ -5765,10 +5790,10 @@
      ]
     }
    },
-   "line": 4081,
+   "line": 4087,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "MIN_DROP_PCT": 96.9178
@@ -5863,10 +5888,10 @@
      ]
     }
    },
-   "line": 4090,
+   "line": 4096,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "PRIOR_SPIKE_PCT": 164.0212
@@ -5961,10 +5986,10 @@
      ]
     }
    },
-   "line": 4152,
+   "line": 4158,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "TF_MIN_REVERSALS": 0
@@ -6036,10 +6061,10 @@
      ]
     }
    },
-   "line": 4157,
+   "line": 4163,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {},
    "production_counts": null,
@@ -6145,10 +6170,10 @@
      ]
     }
    },
-   "line": 4182,
+   "line": 4188,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "GAP_ABOVE_REQUIRED": true,
@@ -6274,10 +6299,10 @@
      ]
     }
    },
-   "line": 4200,
+   "line": 4206,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "RSI_OVERSOLD": 33,
@@ -6352,10 +6377,10 @@
      ]
     }
    },
-   "line": 4215,
+   "line": 4221,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "MACD_GATE_REQUIRED": true
@@ -6453,10 +6478,10 @@
      ]
     }
    },
-   "line": 4242,
+   "line": 4248,
    "function_lines": [
-    4031,
-    4839
+    4037,
+    4845
    ],
    "config": {
     "MA_GATE_REQUIRED": true,
@@ -6550,10 +6575,10 @@
      "threshold:SHORT_GATE_MAX": []
     }
    },
-   "line": 12631,
+   "line": 12680,
    "function_lines": [
-    12573,
-    12645
+    12622,
+    12694
    ],
    "config": {
     "SHORT_GATE_MAX": 40000,
@@ -6682,10 +6707,10 @@
      ]
     }
    },
-   "line": 12701,
+   "line": 12750,
    "function_lines": [
-    12648,
-    12714
+    12697,
+    12763
    ],
    "config": {
     "FLOAT_GATE_MAX": 50000000,
@@ -6797,10 +6822,10 @@
      "hardness": []
     }
    },
-   "line": 13264,
+   "line": 13344,
    "function_lines": [
-    13252,
-    13266
+    13332,
+    13346
    ],
    "config": {
     "WATCH_MAX_FAILS": 8
@@ -6883,10 +6908,10 @@
      ]
     }
    },
-   "line": 13286,
+   "line": 13366,
    "function_lines": [
-    13286,
-    13307
+    13366,
+    13387
    ],
    "config": {},
    "production_counts": null,
@@ -7037,10 +7062,10 @@
      ]
     }
    },
-   "line": 2431,
+   "line": 2437,
    "function_lines": [
-    2431,
-    2458
+    2437,
+    2464
    ],
    "config": {
     "DQ_GATE": null,
@@ -7132,10 +7157,10 @@
      "threshold:DATA_HEALTH_MIN_PCT": []
     }
    },
-   "line": 22571,
+   "line": 22651,
    "function_lines": [
-    22496,
-    22952
+    22576,
+    23044
    ],
    "config": {
     "DATA_HEALTH_MIN_PCT": 85
@@ -7228,10 +7253,10 @@
      "hardness": []
     }
    },
-   "line": 22575,
+   "line": 22655,
    "function_lines": [
-    22496,
-    22952
+    22576,
+    23044
    ],
    "config": {
     "EXCLUDE_STOPPED_FROM_RENEWAL": true
@@ -7326,10 +7351,10 @@
      ]
     }
    },
-   "line": 22604,
+   "line": 22684,
    "function_lines": [
-    22496,
-    22952
+    22576,
+    23044
    ],
    "config": {
     "WATCHLIST_SIZE": 15
@@ -7422,10 +7447,10 @@
      "threshold:PICK_FILL_ROUNDS": []
     }
    },
-   "line": 12926,
+   "line": 12994,
    "function_lines": [
-    12892,
-    12965
+    12960,
+    13041
    ],
    "config": {
     "PICK_FILL_ROUNDS": 4
@@ -7524,10 +7549,10 @@
      ]
     }
    },
-   "line": 12790,
+   "line": 12839,
    "function_lines": [
-    12749,
-    12793
+    12798,
+    12842
    ],
    "config": {
     "FLOAT_GATE_MAX": 50000000
@@ -7599,10 +7624,10 @@
      ]
     }
    },
-   "line": 12839,
+   "line": 12893,
    "function_lines": [
-    12839,
-    12889
+    12893,
+    12957
    ],
    "config": {},
    "production_counts": null,
@@ -7733,10 +7758,10 @@
      ]
     }
    },
-   "line": 12829,
+   "line": 12883,
    "function_lines": [
-    12796,
-    12836
+    12845,
+    12890
    ],
    "config": {
     "BORROW_AVAIL_MAX": 20000,
@@ -7844,10 +7869,10 @@
      "threshold:far_above": []
     }
    },
-   "line": 15325,
+   "line": 15405,
    "function_lines": [
-    15325,
-    15410
+    15405,
+    15490
    ],
    "config": {},
    "production_counts": null,

@@ -1023,6 +1023,7 @@
        "O_FAISAL_ONLY_0806",
        "O_P100_0808",
        "E_TCHASE",
+       "E_CHASE35",
        "E_TMINFLOOR",
        "E_TFAISALONLY",
        "E_PIT20"
@@ -5431,6 +5432,17 @@
     "file": "DECISIONS_ARCHIVE.md",
     "contains": "«قِس الجدران» — سُحبت قبل تسجيلها"
    }
+  },
+  "E_CHASE35": {
+   "kind": "EXPERIMENT",
+   "stance": "null",
+   "scope": "THIS_GATE",
+   "ref": "chase35 (fm_forensics/chase35/CHASE35_RESULT.md)",
+   "summary": "at 35 the cap would have rejected 0 of the ten list adds logged as post-explosion and 0 of 262 measured adds since 2026-08-01 (highest 5-session rise +25.6%, gain5 on the stored ref_bar); the logged 'explosion' dates were run starts or reverse-split days — the ten were not chases",
+   "verify": {
+    "file": "DECISIONS_ARCHIVE.md",
+    "contains": "قس حد الانفجار 35 على العشرة أولًا» — 0 من 10"
+   }
   }
  },
  "legacy_label": "`provenance` is the single label of PR #598 (superseded 2026-10-09): it conflated origin and justification and read «no Faisal source» as an engineering guard. Kept as history; the four `audit` dimensions replace it.",
@@ -6006,6 +6018,15 @@
      "class": "NOT_GATE_EVIDENCE",
      "why": "INCIDENTAL",
      "note": "the Part B contract record (T_REBUILD_prereg.md, #655) names T-CORE5 in its non-duplication check as prior work it builds on; it registers a future measurement and carries no gate evidence yet"
+    }
+   },
+   {
+    "anchor": "قس حد الانفجار 35 على العشرة أولًا» — 0 من 10",
+    "default": {
+     "class": "CITED",
+     "refs": [
+      "E_CHASE35"
+     ]
     }
    }
   ]

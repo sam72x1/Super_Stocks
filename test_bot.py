@@ -92348,6 +92348,62 @@ check("📦 OEB4 الوصلُ في `main` (AST): فرعُ «كُتم الكلّ�
       "والعطلُ يُبقي المعلَّقَ ليُعاد", _oeb_4, _oeb_w)
 
 
+# 🚧 C35A1 — قياسُ «حدّ الانفجار 35» على العشرة (2026-10-29 · أمرُ المالك «قس حد الانفجار 35 على العشرة أولًا» · التعريفاتُ
+#    `fm_forensics/chase35/CHASE35_DEFS.md` مدموجةٌ قبل الرقم #684): الأداةُ تعيد مُخرَجَيها بايتًا (`--check`) · وصيغةُ `gain5`
+#    هي صيغةُ `analyze_ticker` حرفيًّا (إغلاقٌ ÷ ما قبله بخمس − 1 · «فوق» تمامًا) · والشمعةُ `ref_bar` · والمطابقةُ تفسّر التقسيمَ
+#    بعد الشمعة وحدَه · وأوّلُ النتيجة السطران اللذان طلبهما المالك قبل الأرقام (المفتاحُ والملفُّ والقيمةُ النافذة · العشرةُ بأسمائهم
+#    · لماذا كان 35 ثمّ تغيّر) · قراءةٌ فقط: الإنتاجُ لا يستوردها ولا شبكة.
+try:
+    import importlib.util as _c35_iu
+    import subprocess as _c35_sp
+    import ast as _c35_ast
+    import inspect as _c35_insp
+    import os as _c35_os
+    import sys as _c35_sys
+    _c35_spec = _c35_iu.spec_from_file_location("_c35", "fm_forensics/chase35/chase35.py")
+    _C35 = _c35_iu.module_from_spec(_c35_spec)
+    _c35_spec.loader.exec_module(_C35)
+    _c35_b = lambda cl: [[f"2026-08-{i + 1:02d}", c, c, c, c, 1.0] for i, c in enumerate(cl)]     # noqa: E731
+    _c35_st = [("s", {"A": _c35_b([10, 9, 9, 9, 9, 9, 13.6]), "B": _c35_b([10, 10, 10, 10, 10, 10, 13.4]),
+                      "C": _c35_b([5, 5, 5, 5, 5, 4, 5, 9, 20])}, {"C": [["2026-08-20", 0.5]]})]
+    _c35_rA = _C35.measure({"sym": "A", "added": "2026-08-08", "ref_bar": "2026-08-07", "entry_ref": 13.6}, _c35_st)
+    _c35_rB = _C35.measure({"sym": "B", "added": "2026-08-08", "ref_bar": "2026-08-07", "entry_ref": 13.4}, _c35_st)
+    _c35_rC = _C35.measure({"sym": "C", "added": "2026-08-09", "ref_bar": None, "entry_ref": 4.5}, _c35_st)
+    _c35_rD = _C35.measure({"sym": "D", "added": "2026-08-09", "ref_bar": "2026-08-07", "entry_ref": 1.0}, _c35_st)
+    _c35_rF = _C35.match_state(2.0, 4.0, "2026-08-20", [["2026-08-20", 0.5]])           # تقسيمٌ يومَ الشمعة نفسِها لا يُفسّرها
+    _c35_E = [[f"2026-08-{i + 1:02d}", 1.0, 1.0, 1.0, 1.0 + (0.5 if i > 11 else 0.0), 1.0] for i in range(25)]
+    _c35_cx = _C35.context({"sym": "E", "bar": "2026-08-11", "expl_date": "2026-08-12", "kind": "قفزة"},
+                           [("s", {"E": _c35_E}, None)], {"E": [["2026-08-13", 0.25]]})
+    _c35_cx2 = _C35.context({"sym": "E", "bar": "2026-08-11", "expl_date": "2026-08-05", "kind": "تجمّع"},
+                            [("s", {"E": _c35_E}, None)], {"E": [["2026-08-06", 0.25]]})
+    _c35_gt = any(isinstance(n, _c35_ast.Compare) and isinstance(n.ops[0], _c35_ast.Gt)
+                  and getattr(n.comparators[0], "id", None) == "T35"
+                  for n in _c35_ast.walk(_c35_ast.parse(_c35_insp.getsource(_C35.measure))))
+    _c35_beh = (_c35_rF[0] == "غير مطابق" and _c35_gt
+                and _c35_cx == {"order": "بعد الشمعة", "below_peak10": 0.0, "after10": 50.0, "split_day": True}
+                and _c35_cx2["order"] == "قبل الشمعة" and _c35_cx2["split_day"] is False
+                and abs(_c35_rA["gain5"] - 51.1111) < 1e-3 and _c35_rA["rej35"] is True and _c35_rA["match"] == "مطابق"
+                and abs(_c35_rB["gain5"] - 34.0) < 1e-9 and _c35_rB["rej35"] is False
+                and _c35_rC["bar"] == "2026-08-08" and _c35_rC["bar_tag"] == "قبل يوم الإضافة"
+                and abs(_c35_rC["gain5"] - 80.0) < 1e-9 and _c35_rC["match"] == "مطابق بعد التقسيم"
+                and _c35_rD["gain5"] is None and _c35_rD["match"] == "غير مقيس"
+                and _C35.T35 == 35.0 and abs(_C35.T_LIVE - 214.7286870417835) < 1e-9)
+    _c35_p = _c35_sp.run([_c35_sys.executable, "fm_forensics/chase35/chase35.py", "--check"], capture_output=True, text=True, timeout=300)
+    _c35_md = open("fm_forensics/chase35/CHASE35_RESULT.md", encoding="utf-8").read()
+    _c35_head = "\n".join(_c35_md.split("\n")[:4])
+    _c35_ten = "LUNR AEMD INBS SUGP SUPX PRHI SSM CELU SMXT SXTP".split()
+    _c35_ok = (_c35_beh and _c35_p.returncode == 0
+               and "`RECENT_RISE_BLOCK_PCT`" in _c35_head and "`Super_stock.py`" in _c35_head and "214.73" in _c35_head
+               and all(s in _c35_head for s in _c35_ten) and "لماذا كان 35 ثمّ تغيّر" in _c35_head
+               and _c35_md.find("## ①") > _c35_md.find("لماذا كان 35")
+               and _c35_os.path.exists("fm_forensics/chase35/CHASE35_DEFS.md")
+               and "chase35" not in open("Super_stock.py", encoding="utf-8").read())
+    _c35_w = f"سلوك={_c35_beh} · check rc={_c35_p.returncode} {(_c35_p.stdout + _c35_p.stderr)[-120:]!r}"
+except Exception as _e:                                          # noqa: BLE001
+    _c35_ok, _c35_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🚧 C35A1 قياسُ «حدّ الانفجار 35» على العشرة: صيغةُ `gain5` كالكود («فوق» تمامًا · الشمعةُ ref_bar ثمّ ما قبل الإضافة) · المطابقةُ "
+      "تفسّر التقسيمَ بعد الشمعة · `--check` يعيد المُخرَجَين بايتًا · والسطران قبل الأرقام", _c35_ok, _c35_w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
