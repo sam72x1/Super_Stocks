@@ -89384,6 +89384,51 @@ except Exception as _e:                                              # noqa: BLE
     _v_r16, _v_r16w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧭 RBD16 (‏2026-10-29) عقدُ 2026: البصمة · الثوابتُ من نصّه · آخرُ D بالتقويم · mae_before · y26_symbol = صفُّ TEST ‏+ وقفُ القاع وMAE · "
       "التجميعُ بنافذة 2026 ونصفيها · رفضُ 7 و9 · والـworkflow", _v_r16, _v_r16w)
+# 🧭 RBD17 (‏2026-10-29 · `T-REBUILD` B3 بالملحق 4): الإعادةُ منشورةٌ كما صدرت — العددُ تطابق مرجعَ `bases_ref_b3.json` (BASE2 · 3,266) والتشغيلةُ
+#    وmain وتحضيرُ المرجع من الـJSON · والوثيقةُ = `b3_add4_doc.py` على الـJSON **بايتًا** (لا رقمَ باليد) · وكلُّ حصّةٍ تُعاد من عدّاداتها ·
+#    وRB-P4 «سقط» منشور · والأولى «لا حكم» باقيةٌ وفوقها إحالةٌ إلى الإعادة (ملحقةٌ لا ماحية).
+try:
+    import importlib.util as _r17_iu
+    import json as _r17_json
+    import subprocess as _r17_sp
+    import sys as _r17_sys
+    import tempfile as _r17_tf
+    import os as _r17_os
+    _r17_spec = _r17_iu.spec_from_file_location("t_rebuild_tool17", "fm_forensics/rebuild/rebuild.py")
+    _R17 = _r17_iu.module_from_spec(_r17_spec)
+    _r17_spec.loader.exec_module(_R17)
+    _r17_dir = "fm_forensics/rebuild/"
+    _r17_jp = _r17_dir + "data/b3_add4_2026-10-29.json"
+    _r17_j = _r17_json.load(open(_r17_jp, encoding="utf-8"))
+    _r17_ref = _r17_json.load(open(_r17_dir + "data/bases_ref_b3.json", encoding="utf-8"))
+    _r17_doc = open(_r17_dir + "T_REBUILD_b3_result_add4.md", encoding="utf-8").read()
+    _r17_old = open(_r17_dir + "T_REBUILD_b3_result.md", encoding="utf-8").read()
+    with _r17_tf.TemporaryDirectory() as _r17_td:
+        _r17_out = _r17_os.path.join(_r17_td, "doc.md")
+        _r17_p = _r17_sp.run([_r17_sys.executable, _r17_dir + "b3_add4_doc.py", _r17_jp, _r17_out], capture_output=True, text=True, timeout=60)
+        _r17_gen = open(_r17_out, encoding="utf-8").read() if _r17_p.returncode == 0 else None
+    _r17_cols = _r17_j["items"]["cols"]
+    _r17_a = _r17_cols["ANCHOR_TWO_TOUCH"]
+    _r17_c = {
+        "match": (_r17_j["match"] is True and _r17_j["base"] == "BASE2" and _r17_j["entries"] == _r17_j["entries_expected"]
+                  == _r17_ref["stats"]["TRAIN"]["BASE2"]["entries"] and _r17_j["shards"] == 20),
+        "reference": (_r17_j["reference"] == {"file": "bases_ref_b3.json", "run": _r17_ref["run"], "main_sha": _r17_ref["main_sha"]}
+                      and _r17_j["prep_run"] == _r17_ref["run"] and _R17.addendum4_ok()),
+        "run": (_r17_j["run"] == 40801435160 and len(_r17_j["main_sha"]) == 40 and f"**`{_r17_j['run']}`** على main `{_r17_j['main_sha'][:9]}`" in _r17_doc),
+        "addendum2": _r17_j["addendum2_sha"] == _R17.ADDENDUM2_SHA,
+        "items": (set(_r17_cols) == set(_R17.B3_ITEMS) and _r17_j["items"]["m"] == 8
+                  and all(_v["share_pass"] == round(_v["exploded_pass"] / _v["pass_labelled"], 4) for _v in _r17_cols.values())
+                  and _r17_j["items"]["base_share"] == round(_r17_j["items"]["exploded"] / _r17_j["items"]["labelled"], 4)),
+        "doc_is_generated": _r17_gen is not None and _r17_gen == _r17_doc,
+        "rb_p4": (_r17_a["verdict"] != "تنقص" and "| **RB-P4:** مرساةُ اللمستين «تنقص» على TRAIN | ❌ **سقط**" in _r17_doc),
+        "prod": _r17_j["prod_state"] == dict(_R17.B3_PROD) and [list(x) for x in _R17.PROD_OFF] == _r17_j["prod_off"],
+        "old_kept": ("## ⓪ الحكم: «⛔ لا حكم»" in _r17_old and "`T_REBUILD_b3_result_add4.md`" in _r17_old.split("## ⓪")[0]),
+    }
+    _v_r17, _v_r17w = all(_r17_c.values()), f"{ {k: v for k, v in _r17_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r17, _v_r17w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD17 (‏2026-10-29) B3 بالملحق 4 منشورٌ كما صدر: العددُ تطابق المرجع المُعاد · التشغيلةُ وmain والتحضير · الوثيقةُ مولَّدةٌ من الـJSON بايتًا · "
+      "الحصصُ من عدّاداتها · RB-P4 سقط · والأولى باقيةٌ بإحالة", _v_r17, _v_r17w)
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
