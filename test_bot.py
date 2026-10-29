@@ -33283,14 +33283,18 @@ check("📈 CR6 **كرونا ما بعد الافتر بالفصلين + يدو�
               for _s in _cr_steps),
       f"on={sorted(_cr_on)} · كرون={_cr_crons}")
 
-# 🧊 CR8 — **تجميدُ الحصّاد بعد انتهاء Polygon (2026-09-30):** الجوبُ يدويٌّ وحدَه (الكرونُ يُتخطّى فلا يحمرّ كلَّ ليلة بتغطيةٍ
-#    ناقصة) · والكرونان والتعليلُ المؤرَّخ باقيان (‏CR6) · والرجوعُ حذفُ السطر وحدَه.
-check("📈🧊 CR8 حصّادُ T-CUMRISE-FWD مُجمَّدٌ بعد انتهاء Polygon: الجوبُ يدويٌّ وحدَه (الكرونُ يُتخطّى لا يحمرّ) · والكرونان "
-      "والتعليلُ المؤرَّخ باقيان",
-      str(_cr_job.get("if") or "").strip() == "github.event_name == 'workflow_dispatch'"
+# 🧊 CR8 (2026-09-30) جمّد الحصّادَ بعد انتهاء Polygon (الجوبُ يدويٌّ وحدَه) ⟵ وفُكَّ 2026-10-29 بأمر المالك (`CRU1`).
+# 🔥 CRU1 — **حصّادُ T-CUMRISE-FWD فُكَّ تجميدُه (2026-10-29 · أمرُ المالك «فك تجميد pmfwd وcumrise»):** المفتاحُ عاد 2026-10-12
+#    (`polygon_health` ‏38237825537) ⇒ الجوبُ **بلا `if`** فيعمل الكرونان كما قبل التجميد (‏CR6 يحرس الكرونين والسجلَّ المشروطَ
+#    بالمجدول) · والسطرُ المؤرَّخ حاضرٌ بالتجميد والفكّ معًا · ولا جوبَ آخرَ يُضاف (حصّادٌ واحد).
+_cru_txt = open(".github/workflows/cumrise.yml", encoding="utf-8").read()
+check("📈🔥 CRU1 حصّادُ T-CUMRISE-FWD فُكَّ تجميدُه بأمر المالك: الجوبُ الوحيد بلا `if` (الكرونان يُطلقانه) · والسطرُ المؤرَّخ "
+      "بالتجميد والفكّ حاضر",
+      len(_cr_yml.get("jobs") or {}) == 1
+      and "if" not in _cr_job
       and _cr_crons == ["41 0 * * 2-6", "41 1 * * 2-6"]
-      and "مُجمَّدٌ 2026-09-30" in open(".github/workflows/cumrise.yml", encoding="utf-8").read(),
-      f"if={_cr_job.get('if')!r} · كرون={_cr_crons}")
+      and "مُجمَّدٌ 2026-09-30" in _cru_txt and "وفُكَّ 2026-10-29 بأمر المالك" in _cru_txt,
+      f"if={_cr_job.get('if')!r} · كرون={_cr_crons} · جوبات={len(_cr_yml.get('jobs') or {})}")
 
 # 🔒 CR7 — **عزلٌ تامّ**: الإنتاجُ لا يستورد المِجَسّ (أداةُ بحثٍ خارج الفرز).
 check("🔒 CR7 **`Super_stock` لا يستورد `cumrise_probe`** (عزلٌ تامّ)",
@@ -55602,23 +55606,26 @@ check("🌅📡🔒 PWA11 `pmfwd.yml`: كرونٌ واحدٌ بعد إغلاق �
       "تلغرام · صلاحيةُ كتابةٍ للسجلّ · ودفعٌ بـfetch+rebase يُعلن سقوطَه",
       _pwa_ok11, _pwa_w11)
 
-# 🧊 `PWA17` — **تجميدُ الحصّاد بعد انتهاء Polygon (2026-09-30):** الجوبُ لا يعمل إلّا يدويًّا (الكرونُ يُتخطّى فلا يحمرّ كلَّ ليلة
-#    بتغطية 0%) · والكرونُ نفسُه باقٍ (‏`PWA11` وحارسُ «لا كرونَ عتيق») · والرجوعُ حذفُ السطر وحدَه.
-#    (‏سُمّي أوّلًا `PWA14` وهو اسمُ جدول الحقيقة `fired_of` أدناه ⇒ أُعيدت تسميتُه قبل الدمج — اسمٌ مكرّر يُفسد إسنادَ الطفرة.)
+# 🧊 `PWA17` (2026-09-30) جمّد الحصّادَ بعد انتهاء Polygon (الجوبُ يدويٌّ وحدَه) ⟵ وفُكَّ 2026-10-29 بأمر المالك (`PWU1`).
+#    (‏وسُمّي أوّلًا `PWA14` وهو اسمُ جدول الحقيقة `fired_of` أدناه ⇒ أُعيدت تسميتُه قبل الدمج — اسمٌ مكرّر يُفسد إسنادَ الطفرة.)
+# 🔥 `PWU1` — **حصّادُ T-PMFWD فُكَّ تجميدُه (2026-10-29 · أمرُ المالك «فك تجميد pmfwd وcumrise»):** المفتاحُ عاد 2026-10-12 ⇒
+#    الجوبُ **بلا `if`** فيعمل الكرونُ كما قبل التجميد · واليدويُّ باقٍ · والسطرُ المؤرَّخ بالتجميد والفكّ حاضر.
 try:
     import yaml as _pwa_yaml                                     # noqa: E402
-    _pwa_y17 = _pwa_yaml.safe_load(open(".github/workflows/pmfwd.yml", encoding="utf-8"))
-    _pwa_if17 = (((_pwa_y17 or {}).get("jobs") or {}).get("pmfwd") or {}).get("if")
-    _pwa_on17 = (_pwa_y17 or {}).get(True) or (_pwa_y17 or {}).get("on") or {}
-    _pwa_ok17 = (str(_pwa_if17 or "").strip() == "github.event_name == 'workflow_dispatch'"
-                 and "workflow_dispatch" in _pwa_on17
-                 and [c.get("cron") for c in (_pwa_on17.get("schedule") or []) if isinstance(c, dict)] == ["29 22 * * 1-5"]
-                 and "مُجمَّدٌ 2026-09-30" in open(".github/workflows/pmfwd.yml", encoding="utf-8").read())
-    _pwa_w17 = f"if={_pwa_if17!r} · on={sorted(map(str, _pwa_on17))}"
+    _pwu_txt = open(".github/workflows/pmfwd.yml", encoding="utf-8").read()
+    _pwu_y = _pwa_yaml.safe_load(_pwu_txt)
+    _pwu_jobs = (_pwu_y or {}).get("jobs") or {}
+    _pwu_on = (_pwu_y or {}).get(True) or (_pwu_y or {}).get("on") or {}
+    _pwu_ok = (list(_pwu_jobs) == ["pmfwd"]
+               and "if" not in (_pwu_jobs.get("pmfwd") or {})
+               and "workflow_dispatch" in _pwu_on
+               and [c.get("cron") for c in (_pwu_on.get("schedule") or []) if isinstance(c, dict)] == ["29 22 * * 1-5"]
+               and "مُجمَّدٌ 2026-09-30" in _pwu_txt and "وفُكَّ 2026-10-29 بأمر المالك" in _pwu_txt)
+    _pwu_w = f"if={(_pwu_jobs.get('pmfwd') or {}).get('if')!r} · on={sorted(map(str, _pwu_on))} · جوبات={list(_pwu_jobs)}"
 except Exception as _e:                                          # noqa: BLE001
-    _pwa_ok17, _pwa_w17 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("🌅📡🧊 PWA17 حصّادُ T-PMFWD مُجمَّدٌ بعد انتهاء Polygon: الجوبُ يدويٌّ وحدَه (الكرونُ يُتخطّى لا يحمرّ) · والكرونُ "
-      "والتعليلُ المؤرَّخ باقيان", _pwa_ok17, _pwa_w17)
+    _pwu_ok, _pwu_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🌅📡🔥 PWU1 حصّادُ T-PMFWD فُكَّ تجميدُه بأمر المالك: الجوبُ بلا `if` (الكرونُ يُطلقه) واليدويُّ باقٍ · والسطرُ المؤرَّخ "
+      "بالتجميد والفكّ حاضر", _pwu_ok, _pwu_w)
 
 # 🔴 `PWA12` — عتباتُ الأداة **تطابق العقد** ولا رقمَ مكتوبٌ بيدٍ يخالفه.
 try:
