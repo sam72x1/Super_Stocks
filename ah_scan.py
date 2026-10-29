@@ -454,8 +454,14 @@ def download(key: str, dest: str, endpoint: str, tries: int = 5,
             if i:
                 log(f"   ↩️ نجح التنزيل بعد {i + 1} محاولات: {key}")
             return True
+        # 🔧 S3G1 (‏2026-10-29 · عطلٌ مُثبَت): صورةُ الرنر 20261025 (aws-cli 2.38.5) ردّت `s3 cp` بـ403 على GetObject
+        #    و`s3api get-object` نجح بالمفتاحين نفسَيهما (المِجَسّ `40796690636`) ⟵ يُجرَّب بعده · و`s3 cp` بت-بت حين ينجح.
+        rc2, _, err2 = FP.get_object(key, dest, endpoint=endpoint, timeout=3600)
+        if rc2 == 0:
+            log(f"   ↩️ `s3 cp` تعذّر ونجح `get-object`: {key}")
+            return True
         log(f"   ⛔ تعذّر التنزيل (rc={rc} · محاولة {i + 1}/{tries}): "
-            f"{(err or '')[:160]}")
+            f"{(err or '')[:160]} · get-object rc={rc2}: {(err2 or '').strip()[-160:]}")
         if i + 1 < max(1, int(tries)):
             _sl(15 * (2 ** i))
     return False
