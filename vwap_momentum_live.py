@@ -293,6 +293,37 @@ def prefilter(day_hl, prev_adj_of, types):
     return out
 
 
+def snapshot_hl(tickers):
+    """لقطةُ السوق ⟵ ({رمز: (أعلى، أدنى)}، عدّاداتُ الحقول). الأعلى = أكبرُ الموجب من شمعة اليوم · شمعة الدقيقة الأخيرة · آخر صفقة ·
+    والأدنى أصغرُه — لأنّ شمعةَ اليوم **فارغةٌ قبل الافتتاح** (مقيس: probe ‏`40858591617` 06:34 نيويورك ⟵ صفرُ رمزٍ بشمعة يوم) ·
+    والمرشِّحُ يتراكم عبر الحلقات فرمزٌ بلغ ‏+20% في أيّ فحصٍ يبقى (`mode_live`)."""
+    out, diag = {}, {"tickers": 0, "day": 0, "min": 0, "last": 0}
+    for t in tickers or ():
+        diag["tickers"] += 1
+        sym = str(t.get("ticker") or "").upper()
+        vals = []
+        for key, hk, lk in (("day", "h", "l"), ("min", "h", "l")):
+            b = t.get(key) or {}
+            try:
+                h, lo = float(b.get(hk) or 0), float(b.get(lk) or 0)
+            except (TypeError, ValueError):
+                h = lo = 0.0
+            if h > 0:
+                diag[key] += 1
+                vals.append((h, lo if lo > 0 else h))
+        lt = t.get("lastTrade") or {}
+        try:
+            p = float(lt.get("p") or 0)
+        except (TypeError, ValueError):
+            p = 0.0
+        if p > 0:
+            diag["last"] += 1
+            vals.append((p, p))
+        if sym and vals:
+            out[sym] = (max(v[0] for v in vals), min(v[1] for v in vals))
+    return out, diag
+
+
 def pre_open_sleep_min(open_utc, now_utc, lead=PRE_OPEN_LEAD_MIN, cap=PRE_OPEN_CAP_MIN):
     """دقائقُ نومِ جوب الانتظار: الجرسُ ناقصَ lead ناقصَ الآن مقصوصًا إلى [0، cap] — وصفرٌ عند أيّ عطل (فاشلٌ-آمن)."""
     try:
@@ -362,11 +393,7 @@ class Net:
         j = self.poly("/v2/snapshot/locale/us/markets/stocks/tickers")
         if j is None:
             return None
-        out = {}
-        for t in j.get("tickers") or ():
-            d = t.get("day") or {}
-            if t.get("ticker") and d.get("h"):
-                out[str(t["ticker"]).upper()] = (float(d["h"]), float(d.get("l") or d["h"]))
+        out, self.snap_diag = snapshot_hl(j.get("tickers") or ())
         return out
 
 
@@ -487,7 +514,7 @@ class Day:
         return out
 
 
-def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False):
+def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False, prev_override=None):
     """فحصُ رمزٍ حتى `upto` ⟵ نتيجةُ `evaluate` وكلُّ تنبيهٍ فيها بخبره (`news` نصًّا و`news_detail`). أيّامُ ② والخبرُ وSEC
     **تُجلب عند الحاجة وحدَها** (حين تكتمل الشروطُ الأرخص قبلها) · وSPAC يُعرف من `submissions` نفسِه فيُعاد التقييمُ به."""
     b5, _b15, _ = complete_buckets(bars_today, D.op, D.cl, upto)
@@ -504,9 +531,10 @@ def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False):
             state["fn"], state["detail"], state["spac"] = D.catalyst(sym, detected_ts)
         return state["fn"](e)
     ts = D.type_status(sym)
-    res = evaluate(bars_today, D.op, D.cl, upto, D.prev_adj(sym), priors_fn, cat_of, ts, False, full_info=full_info)
+    pa = D.prev_adj(sym) if prev_override is None else prev_override   # التجاوزُ لوضع trace التشخيصيّ وحدَه (`VWL14`)
+    res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, cat_of, ts, False, full_info=full_info)
     if state.get("spac"):
-        res = evaluate(bars_today, D.op, D.cl, upto, D.prev_adj(sym), priors_fn, state["fn"], ts, True, full_info=full_info)
+        res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, state["fn"], ts, True, full_info=full_info)
     for a in res["alerts"]:
         a["news_detail"] = state["detail"](a["e"])
         a["news"] = news_brief(a["news_detail"])
@@ -542,6 +570,17 @@ def _today_ny(now=None):
     return (now or dt.datetime.now(tz=NY)).astimezone(NY).date().isoformat()
 
 
+def emit_json(out):
+    """مُخرَجُ الأوضاع اليدويّة: سطرُ `VWLIVE_JSON` في السجلّ · وملفٌّ إن ضُبط `VWL_OUT` (يدفعه الـworkflow إلى فرعه — لا main)."""
+    txt = json.dumps(out, ensure_ascii=False, sort_keys=True)
+    log("VWLIVE_JSON " + txt)
+    path = os.environ.get("VWL_OUT", "").strip()
+    if path:
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(json.dumps(out, ensure_ascii=False, sort_keys=True, indent=1) + "\n")
+
+
 def _boundary_mods(op, cl, start_mod, end_mod):
     """حدودُ الشموع (كلَّ 5 دقائق من الافتتاح) في (start_mod، end_mod] — لحظاتُ الفحص."""
     return [m for m in range(op + 5, min(cl, end_mod) + 1, 5) if m > start_mod]
@@ -570,6 +609,8 @@ def mode_replay(net, MC, end_day, ndays):
             log(f"⛔ {day}: مرجعٌ ناقص {out['per_day'][day]['why']}")
             continue
         cands = sorted(prefilter(hl, D.prev_adj, D.types))
+        no_prev = sorted(s for s, (h, low) in hl.items() if D.prev_adj(s) is None and h is not None and low is not None
+                         and low < PX_MAX and h >= PX_MIN and D.types.get(s) in TYPES_OK)   # وصفٌ: عاديٌّ بلا إغلاق أمسٍ في المجمَّعة
         bounds = _boundary_mods(D.op, D.cl, D.op, D.cl)
         miss_bars = n_ev = n_full = n_sym_ev = mismatch = 0
         first_fail = {}
@@ -607,12 +648,13 @@ def mode_replay(net, MC, end_day, ndays):
                                         "cum_dollar": round(e["cum_dollar"])})
         na = sum(1 for r in out["alerts"] if r["date"] == day)
         out["per_day"][day] = {"ok": True, "candidates": len(cands), "bars_failed": miss_bars, "symbols_with_breaks": n_sym_ev,
-                               "a_events": n_ev, "a_full": n_full, "alerts": na, "first_fail": first_fail, "loop_vs_full_mismatch": mismatch}
+                               "a_events": n_ev, "a_full": n_full, "alerts": na, "first_fail": first_fail, "loop_vs_full_mismatch": mismatch,
+                               "no_prev_close": len(no_prev), "no_prev_close_syms": no_prev[:40]}
         log(f"📅 {day}: مرشّحون {len(cands)} · شموعٌ تعذّرت {miss_bars} · رموزٌ بكسر {n_sym_ev} · أحداثُ كسر {n_ev} · كاملة {n_full} · "
             f"تنبيهات {na} · أوّلُ شرطٍ سقط {first_fail} · خلافُ الحلقة {mismatch}")
         bad = bad or miss_bars > 0 or mismatch > 0
     out["calls"], out["fails"] = net.calls, net.fails
-    log("VWLIVE_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
+    emit_json(out)
     for r in out["alerts"]:
         log(f"🟠 {r['date']} {r['event_end_ny']} ${r['sym']} · {r['arm']}{'#' + str(r['n']) if r['arm'] == 'D' else ''} · "
             f"${r['px']} · {_pct(r['chg'])} · RVOL {r['rvol']} · 📰 {r['news']}")
@@ -627,8 +669,26 @@ def mode_trace(net, MC, day, sym):
     bars = (by or {}).get(day) or []
     out = {"mode": "trace", "date": day, "sym": sym, "ref_ok": D.ok, "ref_why": D.why, "bars": len(bars),
            "prev_adj": D.prev_adj(sym), "type": D.type_status(sym), "candles": [], "touches": [], "events": [], "alerts": [], "ext": {}}
+    if out["prev_adj"] is None:                                         # تشخيصٌ لا مصدرٌ بديل: لماذا غاب إغلاقُ الأمس عن المجمَّعة؟
+        lo = (dt.date.fromisoformat(D.prev) - dt.timedelta(10)).isoformat()
+        j = net.poly(f"/v2/aggs/ticker/{sym}/range/1/day/{lo}/{day}", {"adjusted": "false", "sort": "asc", "limit": 50})
+        dref = net.poly(f"/v3/reference/tickers/{sym}", {"date": D.prev})
+        out["prev_diag"] = {"prev_session": D.prev, "grouped_symbols": len(D.prev_close),
+                            "daily": [{"d": dt.datetime.fromtimestamp(r["t"] / 1000, tz=NY).date().isoformat(), "c": r.get("c"),
+                                       "v": r.get("v")} for r in ((j or {}).get("results") or []) if r.get("t")],
+                            "ref_prev": {k: ((dref or {}).get("results") or {}).get(k) for k in ("ticker", "type", "active", "list_date",
+                                                                                               "primary_exchange", "delisted_utc")},
+                            "splits": D.splits.get(sym, [])}
+        prior = [r for r in out["prev_diag"]["daily"] if r["d"] < day and r.get("c")]
+        if prior:
+            lc = prior[-1]
+            f = 1.0
+            for ex, sf, stt in D.splits.get(sym, ()):
+                if lc["d"] < ex <= day and sf and stt:
+                    f *= sf / stt
+            out["last_close"] = {"d": lc["d"], "c": lc["c"], "split_factor": f, "adj": lc["c"] * f}
     if not bars:
-        log("VWLIVE_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
+        emit_json(out)
         return 4
     b5, _b15, _bb = complete_buckets(bars, D.op, D.cl, D.cl)
     for b in b5:
@@ -644,6 +704,32 @@ def mode_trace(net, MC, day, sym):
             if (a["arm"], a["n"]) not in seen:
                 seen.add((a["arm"], a["n"]))
                 out["alerts"].append(ledger_row(day, sym, a, det, True, None, "trace", _sha(), a.get("news")))
+    lc = (out.get("last_close") or {}).get("adj")
+    if lc:                                                              # ماذا لو كان «إغلاقُ الأمس» آخرَ إغلاقٍ قبل اليوم؟ — وصفٌ لا قاعدة
+        wf = {"prev_used": lc, "alerts": [], "events": []}
+        seen_w = set()
+        for B in _boundary_mods(D.op, D.cl, D.op, D.cl):
+            det = V3.ny_ts(day, B) + LOOP_OFFSET_S
+            for a in scan_symbol(D, sym, bars, B, det, prev_override=lc)["alerts"]:
+                if (a["arm"], a["n"]) not in seen_w:
+                    seen_w.add((a["arm"], a["n"]))
+                    wf["alerts"].append({"arm": a["arm"], "n": a["n"], "end_ny": _hm(a["e"]), "px": a["px"], "chg": round(a["chg"], 4)})
+        for e in scan_symbol(D, sym, bars, D.cl, V3.ny_ts(day, D.cl) + LOOP_OFFSET_S, full_info=True, prev_override=lc)["events"]:
+            wf["events"].append({"end_ny": _hm(e["e"]), "kind": e["kind"], "chg": round(e["chg"], 4), "why": e["why"]})
+        out["whatif_last_close"] = wf
+    b5f, b15f, _ = complete_buckets(bars, D.op, D.cl, D.cl)
+    for tch in out["touches"]:                                          # كلُّ لمسة: الثباتُ الذي يليها بتعريف D (بـL وبدونه) — وصف
+        sm = int(tch["s"][:2]) * 60 + int(tch["s"][3:])
+        rev = {}
+        for tag, nl in (("with_L", True), ("without_L", False)):
+            rt = V3.retest_signal(b5f, b15f, sm, need_liq=nl)
+            if rt is None:
+                rev[tag] = None
+                continue
+            rb = b5f[rt[2]] if rt[1] == "5x3" else b15f[rt[2]]
+            rev[tag] = {"end_ny": _hm(rt[0]), "kind": rt[1], "px": rb["c"],
+                        "chg_last_close": None if not lc else round(rb["c"] / lc - 1.0, 4)}
+        tch["d_hold"] = rev
     last = scan_symbol(D, sym, bars, D.cl, V3.ny_ts(day, D.cl) + LOOP_OFFSET_S, full_info=True)
     for e in last["events"]:
         out["events"].append({"end_ny": _hm(e["e"]), "kind": e["kind"], "px": e["px"], "vwap": round(e["vwap"], 4),
@@ -658,7 +744,7 @@ def mode_trace(net, MC, day, sym):
                                               and not (D.op <= b["s"] < D.cl)],
                   "breaks_outside_regular": [_hm(ev[0]) for ev in V3.break_events(e5, V3.bucketize(ext, vw, V3.EXT_START, 15, V3.EXT_END),
                                                                                   skip=(D.op, D.cl))]}
-    log("VWLIVE_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
+    emit_json(out)
     log(f"🔎 {sym} {day}: شموع {len(bars)} دقيقة · لمساتُ الفيواب في النظاميّة {len(out['touches'])} · أحداثُ كسر {len(out['events'])} · "
         f"تنبيهاتٌ كانت ستُرسَل {len(out['alerts'])} · الممتدّة: لمسات {len(out['ext']['touches_outside_regular'])} وكسور "
         f"{len(out['ext']['breaks_outside_regular'])}")
@@ -668,7 +754,7 @@ def mode_trace(net, MC, day, sym):
 def mode_probe(net):
     """فحصُ المنافذ الحيّة قبل أيّ تفعيل: لقطةُ السوق (عددُ الرموز) · دقائقُ رمزٍ · أخبارُه · `submissions`."""
     snap = net.snapshot()
-    log(f"🩺 اللقطة: {'تعذّرت' if snap is None else f'{len(snap)} رمزًا بشمعة يوم'}")
+    log(f"🩺 اللقطة: {'تعذّرت' if snap is None else f'{len(snap)} رمزًا بسعر'} · الحقول {getattr(net, 'snap_diag', None)}")
     by = net.minutes("AAPL", _today_ny(), _today_ny())
     log(f"🩺 الدقائق (AAPL اليوم): {'تعذّرت' if by is None else sum(len(v) for v in by.values())}")
     now = dt.datetime.now(tz=dt.timezone.utc)

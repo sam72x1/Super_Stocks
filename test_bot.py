@@ -91737,6 +91737,146 @@ except Exception as _e:                                                    # noq
     _vl12, _vl12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠 VWL12 المرشِّحُ الحيّ أعمُّ من الشروط: أعلى اليوم ‏+20% بالضبط يبقى · والمجهولُ النوعِ يبقى · وETF وما فوق 20 كلَّ اليوم يُقصيان", _vl12, _vl12w)
 
+# VWL13 (‏2026-10-29 · عطلٌ مُثبَت: probe ‏`40858591617` 06:34 نيويورك — «اللقطة: 0 رمزًا بشمعة يوم»): لقطةُ السوق تُقرأ من شمعة اليوم
+#        **وشمعة الدقيقة وآخر صفقة** (الأعلى أكبرُها والأدنى أصغرُها) — فشمعةُ اليوم الفارغة قبل الافتتاح لا تُفرغ المرشِّح
+try:
+    _sh, _sd = _VL.snapshot_hl([
+        {"ticker": "pre", "day": {"h": 0, "l": 0}, "min": {"h": 1.30, "l": 1.20}, "lastTrade": {"p": 1.25}},
+        {"ticker": "reg", "day": {"h": 2.0, "l": 1.5}, "min": {"h": 1.9, "l": 1.8}, "lastTrade": {"p": 1.85}},
+        {"ticker": "last", "lastTrade": {"p": 3.0}},
+        {"ticker": "none", "day": {}, "min": {}},
+        {"ticker": "", "day": {"h": 5, "l": 4}},
+    ])
+    _vl13 = (_sh == {"PRE": (1.30, 1.20), "REG": (2.0, 1.5), "LAST": (3.0, 3.0)}
+             and _sd == {"tickers": 5, "day": 2, "min": 2, "last": 3}
+             and "snapshot_hl(" in open(_VL.__file__, encoding="utf-8").read().split("def snapshot(self):")[1].split("def ")[0])
+    _vl13w = f"{_sh} · {_sd}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vl13, _vl13w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL13 (‏2026-10-29 · probe `40858591617`) لقطةُ السوق: الأعلى والأدنى من شمعة اليوم وشمعة الدقيقة وآخر صفقة معًا — "
+      "شمعةُ اليوم الفارغة قبل الافتتاح لا تُفرغ المرشِّح", _vl13, _vl13w)
+
+# VWL14 (‏2026-10-29 · قبول ⑤ · trace `40859990640`): AZTR أُوقف تداولُه 10-14…10-23 ثمّ عاد 10-26 بتقسيمٍ عكسيّ 10:1 ⟵ لا إغلاقَ أمسٍ في
+#        المجمَّعة ⟵ ① «مجهول». وضعُ trace **يشخّص ولا يغيّر القاعدة**: `prev_diag` · آخرُ إغلاقٍ قبل اليوم مسوًّى بالتقسيم · «ماذا لو»
+#        به (`prev_override`) · وثباتُ D بعد كلّ لمسة — والتنبيهُ الحقيقيّ (`alerts`) على إغلاق الأمس الحرفيّ كما هو · والتجاوزُ في trace وحدَه
+#        (AST) · و`VWL_OUT` يكتب الملفَّ وغيابُه لا يكتب · والـworkflow يدفع النتيجةَ إلى فرعه لا إلى main
+try:
+    import tempfile as _vl14t
+    import contextlib as _vl14cl
+    import io as _vl14io
+    import ast as _vl14ast
+    import yaml as _vl14y
+    _b14 = _vl_scenario()
+
+    class _VLHalted(_VLFakeNet):
+        def poly(self, path, params=None):
+            if "/grouped/" in path:
+                self.calls += 1
+                return {"results": [{"T": "ZZZ", "c": 3.0}]}             # الرمزُ غائبٌ عن مجمَّعة الأمس (موقوف)
+            if "/range/1/day/" in path:
+                self.calls += 1
+                return {"results": [{"t": int(_VL3.ny_ts(_VL_PRI[-6], 0) * 1000), "c": 0.1, "v": 1000.0}]}
+            return _VLFakeNet.poly(self, path, params)
+
+        def paged(self, path, params, cap=100):
+            if path == "/v3/reference/splits":
+                self.calls += 1
+                return [{"ticker": "TST", "execution_date": _VL_DAY, "split_from": 10, "split_to": 1}], True
+            return _VLFakeNet.paged(self, path, params, cap)
+
+    _d14 = _vl14t.mkdtemp()
+    _o14 = _VL.os.path.join(_d14, "t.json")
+    _old14 = _VL.os.environ.get("VWL_OUT")
+    try:
+        _VL.os.environ["VWL_OUT"] = _o14
+        with _vl14cl.redirect_stdout(_vl14io.StringIO()):
+            _rc14 = _VL.mode_trace(_VLHalted(_b14, news=[_vl_news("GlobeNewswire Inc.")]), _VLMC, _VL_DAY, "TST")
+        _j14 = _VL.json.load(open(_o14, encoding="utf-8"))
+        _bd14 = [(m, o, h, l, c, (v * 0.5 ** ((m - 615) // 5 + 1) if m >= 615 else v)) for (m, o, h, l, c, v) in _b14]  # ثباتٌ بحجمٍ يتناقص
+        with _vl14cl.redirect_stdout(_vl14io.StringIO()):
+            _VL.mode_trace(_VLHalted(_bd14, news=[_vl_news("GlobeNewswire Inc.")]), _VLMC, _VL_DAY, "TST")
+        _jd14 = _VL.json.load(open(_o14, encoding="utf-8"))
+        _td14 = next((t for t in _jd14.get("touches") or [] if t["s"] == "10:10"), {}).get("d_hold") or {}
+        _VL.os.environ.pop("VWL_OUT", None)
+        _d14b = _vl14t.mkdtemp()
+        _cwd14 = _VL.os.getcwd()
+        try:
+            _VL.os.chdir(_d14b)
+            with _vl14cl.redirect_stdout(_vl14io.StringIO()):
+                _VL.emit_json({"x": 1})
+            _nofile = _VL.os.listdir(_d14b) == []
+        finally:
+            _VL.os.chdir(_cwd14)
+    finally:
+        if _old14 is None:
+            _VL.os.environ.pop("VWL_OUT", None)
+        else:
+            _VL.os.environ["VWL_OUT"] = _old14
+    _wf14 = _vl14y.safe_load(open(".github/workflows/vwap_momentum_live.yml", encoding="utf-8"))
+    _st14 = _wf14["jobs"]["offline"]["steps"]
+    _push14 = next((s for s in _st14 if str(s.get("name", "")).startswith("Push replay/trace")), {})
+    _run14 = next((s for s in _st14 if "VWL_OUT" in (s.get("env") or {})), {})
+    _t14 = _vl14ast.parse(open(_VL.__file__, encoding="utf-8").read())
+    _ov14 = {f.name for f in _vl14ast.walk(_t14) if isinstance(f, _vl14ast.FunctionDef)
+             for c in _vl14ast.walk(f) if isinstance(c, _vl14ast.Call) and any(k.arg == "prev_override" for k in c.keywords)}
+    _wf_al = (_j14.get("whatif_last_close") or {}).get("alerts") or []
+    _vl14_c = {
+        "rc": _rc14 == 0,
+        "rule_unchanged": _j14.get("prev_adj") is None and _j14.get("alerts") == []
+                          and all("① التغيّر" in e["why"] for e in _j14.get("events") or [{"why": []}]) and bool(_j14.get("events")),
+        "diag": (_j14.get("prev_diag") or {}).get("prev_session") == _VL_PREV and (_j14.get("prev_diag") or {}).get("splits")
+                == [[_VL_DAY, 10.0, 1.0]],
+        "last_close": (_j14.get("last_close") or {}).get("d") == _VL_PRI[-6] and abs((_j14.get("last_close") or {}).get("adj", 0) - 1.0) < 1e-9,
+        "whatif": bool(_wf_al) and _wf_al[0]["arm"] == "A" and abs(_j14["whatif_last_close"]["prev_used"] - 1.0) < 1e-9,
+        "touch_review": any((t.get("d_hold") or {}).get("with_L") for t in _j14.get("touches") or [])
+                        and all("d_hold" in t for t in _j14.get("touches") or []),
+        "touch_L_vs_noL": _td14.get("with_L") is None and (_td14.get("without_L") or {}).get("end_ny") == "10:30",
+        "override_only_trace": _ov14 == {"mode_trace"},
+        "no_out_no_file": _nofile,
+        "wf_branch_only": "github.ref_name != 'main'" in str(_push14.get("if", "")) and 'HEAD:${VWL_PUSH_REF}' in str(_push14.get("run", ""))
+                          and str((_push14.get("env") or {}).get("VWL_PUSH_REF", "")) == "${{ github.ref_name }}"
+                          and "HEAD:main" not in str(_push14.get("run", "")) and "github.ref_name != 'main'" in str((_run14.get("env") or {}).get("VWL_OUT", "")),
+    }
+    _vl14, _vl14w = all(_vl14_c.values()), str({k: v for k, v in _vl14_c.items() if not v} or "كلّها")
+except Exception as _e:                                                    # noqa: BLE001
+    _vl14, _vl14w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL14 (‏2026-10-29 · قبول ⑤ · AZTR موقوفٌ ثمّ عائدٌ بتقسيم) trace يشخّص غيابَ إغلاق الأمس (آخرُ إغلاقٍ مسوًّى · «ماذا لو» · ثباتُ D "
+      "بعد كلّ لمسة) والقاعدةُ الحيّة كما هي · والتجاوزُ في trace وحدَه · والنتيجةُ تُدفَع إلى فرعها لا main", _vl14, _vl14w)
+
+
+# VWL15 (‏2026-10-29 · قبول ⑤): `vwap_live_acceptance.md` مولَّدٌ من ملفَّي التشغيل المحفوظين بايتًا · ومكوّناتُ ③ L في الوثيقة تطابق
+#        `vwap_mom_feas.liq_ok` على شموع trace نفسِها وحكمَ الأداة في الحدث (L) · وسلسلةُ «ماذا لو» من جدول ثبات D الذي حسبه
+#        `retest_signal` على الرنر (وصفٌ لا قاعدة · والشموعُ الدقيقة لا تُحفظ فلا تُعاد `evaluate` هنا — حدُّ صدق)
+try:
+    import vwap_live_acceptance as _VA
+    _doc15 = open(_VA.DOC, encoding="utf-8").read()
+    _tr15 = _VL.json.load(open(_VA.TRACE, encoding="utf-8"))
+    _cd15 = _tr15.get("candles") or []
+    _lq15 = []
+    for _e15 in _tr15.get("events") or []:
+        if _e15["kind"] != "5x3":
+            continue
+        _p15 = _VA.liq_parts(_cd15, _e15["end_ny"])
+        _real = _VL3.liq_ok(_cd15, _p15["i"])
+        _mine = False if _p15["now"] is None else (_p15["now"] > _p15["before"] and _p15["c3"] >= _p15["c1"])
+        _lq15.append((_e15["end_ny"], _real, _mine, _real == bool(_e15["L"])))
+    _ch15 = _VA.hypo_d_chain(_tr15.get("touches") or [], (_tr15.get("events") or [{}])[0].get("end_ny", "09:30"))
+    _vl15_c = {
+        "doc_regen": _VA.build() == _doc15,
+        "liq_matches_real": bool(_lq15) and all(r[1] == r[2] and r[3] for r in _lq15),
+        "first_l_impossible": _lq15 and _lq15[0][0] == "09:55" and _VA.liq_parts(_cd15, "09:55")["now"] is None,
+        "chain3": [d["end_ny"] for d in _ch15] == ["10:30", "11:00", "12:35"] and len(_ch15) == 3,
+        "trace_rule_zero": _tr15.get("alerts") == [] and _tr15.get("prev_adj") is None,
+        "no_cron_yet": "schedule" not in (lambda w: w.get("on", w.get(True)) or {})(
+            _vl14y.safe_load(open(".github/workflows/vwap_momentum_live.yml", encoding="utf-8"))),
+    }
+    _vl15, _vl15w = all(_vl15_c.values()), str({k: v for k, v in _vl15_c.items() if not v} or "كلّها")
+except Exception as _e:                                                    # noqa: BLE001
+    _vl15, _vl15w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL15 (‏2026-10-29 · قبول ⑤) وثيقةُ القبول مولَّدةٌ بايتًا من ملفَّي التشغيل · ومكوّناتُ ③ L فيها تطابق `liq_ok` · وسلسلةُ «ماذا لو» "
+      "لـAZTR (10:30 · 11:00 · 12:35) · ولا كرونَ قبل موافقة المالك", _vl15, _vl15w)
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

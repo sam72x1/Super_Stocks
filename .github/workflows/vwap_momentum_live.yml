@@ -58,8 +58,28 @@ jobs:
           VWL_END: ${{ github.event.inputs.end }}
           VWL_DATE: ${{ github.event.inputs.date }}
           VWL_SYM: ${{ github.event.inputs.sym }}
+          VWL_OUT: ${{ (github.event.inputs.mode == 'replay' || github.event.inputs.mode == 'trace') && github.ref_name != 'main' && format('vwap_live_research/{0}_{1}.json', github.event.inputs.mode, github.event.inputs.mode == 'trace' && format('{0}_{1}', github.event.inputs.sym, github.event.inputs.date) || github.event.inputs.end || 'last') || '' }}
           PYTHONUNBUFFERED: "1"
         run: python vwap_momentum_live.py --mode "$VWL_MODE" --days "$VWL_DAYS" --end "$VWL_END" --date "$VWL_DATE" --sym "$VWL_SYM"
+      # 🗂️ نتيجةُ replay/trace تُدفَع إلى **فرع التشغيل نفسِه** حين لا يكون main (قبولٌ يُراجَع في PR) — main لا يُكتب من هنا
+      - name: Push replay/trace result to its own branch
+        if: (github.event.inputs.mode == 'replay' || github.event.inputs.mode == 'trace') && github.ref_name != 'main'
+        env:
+          VWL_PUSH_MODE: ${{ github.event.inputs.mode }}
+          VWL_PUSH_REF: ${{ github.ref_name }}
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add vwap_live_research/*.json 2>/dev/null || true
+          if git diff --cached --quiet; then echo "لا ملفَّ نتيجة."; exit 0; fi
+          git commit -q -m "🟠 زخم الفيواب: نتيجةُ ${VWL_PUSH_MODE} (قبول ⑤)"
+          ok=0
+          for i in 1 2 3 4 5; do
+            if git push origin "HEAD:${VWL_PUSH_REF}"; then ok=1; break; fi
+            git fetch origin "${VWL_PUSH_REF}" && git rebase "origin/${VWL_PUSH_REF}" || git rebase --abort || true
+            sleep $((2**i))
+          done
+          [ "$ok" = 1 ] || { echo "::error::⛔ فشل دفع النتيجة"; exit 1; }
       - name: Push harvest rows
         if: github.event.inputs.mode == 'harvest'
         run: |
