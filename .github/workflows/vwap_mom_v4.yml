@@ -1,0 +1,52 @@
+name: "📈🔎 جدوى زخم الفيواب v4 — التقاطعُ الكامل (الملحق 3 · عدٌّ بلا عائد · يدويّ)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا عائدَ يُحسب (العقد `vwap_mom_prereg.md` §⑧ · الملحق 3 `vwap_mom_prereg_addendum_3.md`).
+# المحورُ مُغلَقٌ مُنفَّذًا بعد v3 (`VWM9`) — يُفتح لهذه التشغيلة بقرار المالك (2026-10-29) بمُدخَل reopen=1 · وبصمةُ الملحق 3 تُفحص قبل أيّ شبكة (خروج 9).
+# ملفّاتُ الدقيقة لـ20 جلسةً قبل الشهر ثمّ الشهر (② السيولةُ النسبيّة) ⟵ المدّةُ أطولُ من v3.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      month:
+        description: "الشهرُ YYYY-MM (الملحق 3: 2026-09)"
+        default: "2026-09"
+      reopen:
+        description: "🔒 المحورُ مُغلَق (`VWM9`) — 1 = قرارُ المالك بفتحه بالملحق 3 · غيرُه = خروج 8"
+        required: false
+        default: "0"
+
+jobs:
+  vwm-feas-v4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 200
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Show aws CLI version (إثباتُ توفّره لا افتراضُه)
+        run: aws --version
+
+      - name: 📈 الجدوى v4
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1                     # 🔧 S3E1
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          VWM_MONTH: ${{ github.event.inputs.month }}
+          VWM_REOPEN: ${{ github.event.inputs.reopen }}          # 🔒 `1` حرفيًّا وحدَه يرفع الإغلاق (قرارُ المالك)
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}     # ④: 8-K مصدرٌ لازم (User-Agent بوسيلة تواصل)
+          PYTHONUNBUFFERED: "1"
+        run: python vwap_mom_feas_v4.py

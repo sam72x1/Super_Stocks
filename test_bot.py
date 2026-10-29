@@ -90944,6 +90944,177 @@ except Exception as _e:                                              # noqa: BLE
     _v_v9, _v_v9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("📈🔒 VWM9 (‏2026-10-29) محورُ `T-VWAP-MOM` مُغلَقٌ مُنفَّذًا: 8 بلا `VWM_REOPEN=1` وبصفرِ شبكة · افتراضُ الـworkflow مُغلَق وموصول · `1` يرفعه · "
       "الحارسُ أوّلُ جملة · والنصُّ بشروط الفتح الثلاثة وأرقام الحكم", _v_v9, _v_v9w)
+# 📈🔓 VWM10 (‏2026-10-29 · الملحق 3 `vwap_mom_prereg_addendum_3.md` · فتحٌ بقرار المالك · قبل أيّ رقمٍ من v4): بصمةُ الملحق مثبّتةٌ هنا **وفي الأداة** ·
+#    وأمرُ المالك بنصّه · وثوابتُ v4 **مستخرَجةٌ من نصّ الملحق** لا منسوخةٌ من الذاكرة (‏+20% · 3 · 5 · 20 · 10 · $20 · الأنواع · 6770 · الأسلاك · 8-K وحدَه · 5%) ·
+#    والقاعدةُ والإغلاقُ النهائيّ والتنبّؤاتُ P12-P17 وجدولُ التحقّق من السبب · وصفوفُ الدفتر للملحق 3 بوسومها.
+try:
+    import hashlib as _v10_hl, re as _v10_re
+    import vwap_mom_feas_v4 as _V10
+    _v10_pin = "c45043e7d3361950efcc2e3ca922815a86ebbaf747ec2b9faa8be7bec89d5c77"
+    _v10_raw = open("vwap_mom_prereg_addendum_3.md", "rb").read()
+    _v10_doc = _v10_raw.decode("utf-8")
+    _v10_order = ("«افتح الفيواب بملحق مؤرَّخ رقم 3 (VWM_REOPEN=1 بقراري) — السبب: التقاطع الكامل لشروط نايف لم يُقَس في v1-v3، وكل تشغيلة أسقطت شرطًا.")
+    _v10_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _v10_parts = _v10_led.split("### الملحق 3 (2026-10-29) — فتحٌ بقرار المالك")
+    _v10_sec = _v10_parts[1].split("\n## ")[0].split("\n### ")[0] if len(_v10_parts) == 2 else ""
+    _v10_rows = [r for r in _v10_sec.splitlines() if r.startswith("| ") and not r.startswith("| القاعدة") and not r.startswith("|---")]
+    _v10_tag = [_v10_re.findall(r"`([a-z_]+)`", r.split(" | ")[4]) if len(r.split(" | ")) > 5 else [] for r in _v10_rows]
+    _v10_s3 = _v10_doc.split("## ③")[1].split("## ④")[0] if "## ③" in _v10_doc and "## ④" in _v10_doc else ""
+    _v10_s4 = _v10_doc.split("## ④")[1].split("## ⑤")[0] if "## ④" in _v10_doc and "## ⑤" in _v10_doc else ""
+    _v10_types = _v10_re.search(r"\*\*∈ \{([A-Z ·]+)\}\*\*", _v10_s3)
+    _v10_c = {
+        "pin": _v10_hl.sha256(_v10_raw).hexdigest() == _v10_pin == _V10.ADD3_SHA,
+        "owner_order": _v10_order in _v10_doc and "إن لم تقع درجة في 10-40 فالإغلاق نهائي ولا ملحق بعده.»" in _v10_doc,
+        "reason_table": all(f"`{r}`" in _v10_doc for r in ("40709709437", "40722466274", "40810856734")) and "سببُ المالك صحيح" in _v10_doc,
+        "chg": "**≥ 0.20**" in _v10_s3 and "**‏+20%**" in _v10_s3 and _V10.CHG_MIN == 0.20,
+        "rvol": "**≥ 3 حاكمٌ** و**≥ 5 مِجَسٌّ" in _v10_s3 and (_V10.RVOL_MIN, _V10.RVOL_PROBE) == (3.0, 5.0)
+                and "آخر 20 جلسةً" in _v10_s3 and _V10.RVOL_WIN == 20 and "**أقلّ من 10**" in _v10_s3 and _V10.RVOL_MIN_PRESENT == 10,
+        "px_types": "و< 20.00**" in _v10_s3 and _V10.PX_MAX == 20.0 and _v10_types is not None
+                    and tuple(x.strip() for x in _v10_types.group(1).split("·")) == _V10.TYPES_OK
+                    and "**6770**" in _v10_s3 and _V10.SPAC_SIC == "6770",
+        "wires": all(f"`{k}`" in _v10_s3 for k, _l in _V10.WIRES) and {l for _k, l in _V10.WIRES} == {"GlobeNewswire", "PRNewswire", "Business Wire", "Accesswire"},
+        "sec_8k_only": "إيداعُ **`8-K`** (مطابقةٌ تامّة · بلا `/A` · بلا `6-K`)" in _v10_s3 and _V10.SEC_FORMS4 == ("8-K",),
+        "gates": "النوعُ المجهولُ فوق **5%**" in _v10_s4 and _V10.TYPE_UNKNOWN_MAX == 0.05 and "مجهولُ SEC فوق **5%**" in _v10_s4,
+        "rule_close": "بين **10 و40** شاملًا" in _v10_s4 and "**لا ملحقَ بعد هذا**" in _v10_s4,
+        "predictions": all(f"- **{p}:**" in _v10_doc for p in ("P12", "P13", "P14", "P15", "P16", "P17")),
+        "ledger": len(_v10_rows) == 5 and all(t == ["engineering"] for t in _v10_tag),
+    }
+    _v_v10, _v_v10w = all(_v10_c.values()), f"{ {k: v for k, v in _v10_c.items() if not v} or 'كلّها'} · صفوف={len(_v10_rows)}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_v10, _v_v10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈🔓 VWM10 (‏2026-10-29) الملحق 3 مثبّتٌ قبل أرقام v4 (هنا وفي الأداة): أمرُ المالك بنصّه · ثوابتُ v4 = نصُّ الملحق (‏+20% · 3/5 · 20/10 · $20 · الأنواع · 6770 · "
+      "الأسلاك · 8-K وحدَه · 5%) · القاعدةُ والإغلاقُ النهائيّ · P12-P17 · وصفوفُ الدفتر", _v_v10, _v_v10w)
+# 📈🔓 VWM11 (‏2026-10-29 · الملحق 3 · أداةُ v4): سلوكيًّا على بياناتٍ اصطناعيّة —
+#    (أ) الحارسُ قبل كلّ شيء: بلا `VWM_REOPEN=1` ⟵ 8 · وبصمةٌ مخالفة ⟵ 9 · وبلا مفتاح ⟵ 2 · وبلا SEC_CONTACT ⟵ 2 — **وصفرُ شبكة** في الأربعة ·
+#    (ب) الأحداثُ بدوالّ v2/v3 بالاسم (`break_events` · `event_liq` · `retest_signal`) وD يسقط إن نزل تغيّرُ إكماله تحت ‏+20% ·
+#    (ج) ① و② على حدّهما (`ge`: ‏6/5 تنجح · و3 بالضبط تنجح) · والغائبُ صفرٌ في المتوسّط · وأقلُّ من 10 ظهورًا ⟵ مجهول · وعاملا التقسيم باتّجاههما ·
+#    (د) الأسلاكُ من الناشر والكاتب والمضيف · وغيرُها لا · و6-K لا يُحتسب · (هـ) `tally4`: النوعُ والـSPAC والسعرُ يُقصون · وU1/U2/U4 · وD لأوّل FULL ·
+#    (و) الحارسُ والحكم · والقاعدةُ على `FULL` بعد الحارس (AST) · والـworkflow يدويٌّ قارئ موصول · ولا اسمَ عائدٍ في الملفّ.
+try:
+    import ast as _v11_ast, math as _v11_m, os as _v11_os
+    import vwap_mom_feas as _V11_3
+    import vwap_mom_feas_v4 as _V11
+    _v11_mk = lambda seq, start=570, vol=1000: [(start + i * 5 + m, p, p, p, p, vol) for i, p in enumerate(seq) for m in range(5)]   # noqa: E731
+    _v11_seq = [10, 9, 9, 11, 11, 11, 11, 10.2, 11, 11, 11]
+    _v11_ev = _V11.v4_events(_v11_mk(_v11_seq), 570, 960, 1.0, 1, 9.0)
+    _v11_evD = _V11.v4_events(_v11_mk([10, 9, 9, 11, 11, 11, 11, 10.2, 10.5, 10.5, 10.5]), 570, 960, 1.0, 1, 9.0)
+    _v11_evD2 = _V11.v4_events(_v11_mk([10, 9, 9, 11, 11, 11, 11, 10.2, 10.5, 10.5, 10.5]), 570, 960, 1.0, 1, 8.5)
+    _v11_cur = _V11.cum_curve(_v11_mk([10] * 20))
+    _v11_cat = lambda c, w=None, k8=False, k6=False: (lambda e: {"wire": c if w is None else w, "sec8k": k8, "sec6k": k6, "C": c})   # noqa: E731
+    _v11_T = lambda **kw: _V11.tally4(kw.get("evs", _v11_ev), kw.get("d", 1), kw.get("prev", 9.0), kw.get("rv", lambda e: 4.0),    # noqa: E731
+                                      kw.get("cat", _v11_cat(True)), kw.get("ts", "ok"), kw.get("spac", False))
+    _v11_full, _v11_spac, _v11_excl, _v11_unk = _v11_T(), _v11_T(spac=True), _v11_T(ts="excluded"), _v11_T(ts="unknown")
+    _v11_u2, _v11_u4, _v11_u1 = _v11_T(rv=lambda e: None), _v11_T(cat=_v11_cat(None, w=False)), _v11_T(prev=None)
+    _v11_rv6 = _v11_T(rv=lambda e: 6.0)
+    _v11_bd = _v11_T(evs=[(605, "5x3", 6.0, 3.6e5, 35000, True, None, None)], prev=5.0, rv=lambda e: 3.0)    # ‏+20% و3 بالضبط ⟵ FULL
+    _v11_dd = _v11_T(evs=[(605, "5x3", 11, 3.6e5, 35000, True, 625, None)])                                  # D بلا D ∧ L
+    _v11_px20 = _v11_T(evs=[(605, "5x3", 20.0, 3.6e5, 35000, True, None, None)], prev=10.0)
+    _v11_k6 = _V11.catalyst4("ZZ", 0, 100, {}, [], [50], True)
+    _v11_k8 = _V11.catalyst4("ZZ", 0, 100, {}, [50], [], True)
+    _v11_ku = _V11.catalyst4("ZZ", 0, 100, {}, (), (), False)
+    _v11_kw = _V11.catalyst4("ZZ", 0, 100, {"ZZ": [100]}, (), (), False)
+    _v11_ix, _v11_bw, _v11_bf, _v11_pubs = _V11.wire_index([
+        {"id": 1, "published_utc": "2026-09-14T12:30:00Z", "tickers": ["AAA", "B1", "B2", "B3", "B4"], "publisher": {"name": "GlobeNewswire Inc."}},
+        {"id": 1, "published_utc": "2026-09-14T12:30:00Z", "tickers": ["AAA"], "publisher": {"name": "GlobeNewswire Inc."}},
+        {"id": 2, "published_utc": "2026-09-14T13:00:00Z", "tickers": ["CCC"], "publisher": {"name": "Benzinga"}, "author": "Benzinga Insights"},
+        {"id": 3, "published_utc": "2026-09-14T14:00:00Z", "tickers": ["DDD"], "publisher": {"name": "Benzinga"}, "author": "PRNewswire"}])
+    # (أ) الحارسُ قبل كلّ شيء — جذوعٌ تُسجَّل ولا تُنفَّذ
+    _v11_net, _v11_log = [], []
+    _v11_keep3 = {n: getattr(_V11_3, n) for n in ("_download", "_sec_get", "_poly", "_get_url")}
+    _v11_keep4 = {n: getattr(_V11, n) for n in ("log", "fetch_news4", "_paged_all", "ADD3_SHA")}
+    _v11_env0 = {k: _v11_os.environ.get(k) for k in ("VWM_REOPEN", "POLYGON_API_KEY", "SEC_CONTACT")}
+    _v11_rc = {}
+    try:
+        for _n in _v11_keep3:
+            setattr(_V11_3, _n, lambda *a, _n=_n, **k: (_v11_net.append(_n), None)[1])
+        _V11.fetch_news4 = lambda *a, **k: (_v11_net.append("news"), ([], {}))[1]
+        _V11._paged_all = lambda *a, **k: (_v11_net.append("paged"), ([], False))[1]
+        _V11.log = _v11_log.append
+        for _k in ("VWM_REOPEN", "POLYGON_API_KEY", "SEC_CONTACT"):
+            _v11_os.environ.pop(_k, None)
+        _v11_rc["closed"] = _V11.main()
+        _v11_rc["closed_log"] = list(_v11_log)
+        _v11_os.environ["VWM_REOPEN"] = "1"
+        _V11.ADD3_SHA = "0" * 64
+        _v11_rc["sha"] = _V11.main()
+        _V11.ADD3_SHA = _v11_keep4["ADD3_SHA"]
+        _v11_rc["nokey"] = _V11.main()
+        _v11_os.environ["POLYGON_API_KEY"] = "x"
+        _v11_rc["nocontact"] = _V11.main()
+    finally:
+        for _n, _f in _v11_keep3.items():
+            setattr(_V11_3, _n, _f)
+        for _n, _f in _v11_keep4.items():
+            setattr(_V11, _n, _f)
+        for _k, _v in _v11_env0.items():
+            _v11_os.environ.pop(_k, None)
+            if _v is not None:
+                _v11_os.environ[_k] = _v
+    _v11_src = open("vwap_mom_feas_v4.py", encoding="utf-8").read()
+    _v11_tree = _v11_ast.parse(_v11_src)
+    _v11_main = next(n for n in _v11_ast.walk(_v11_tree) if isinstance(n, _v11_ast.FunctionDef) and n.name == "main")
+    _v11_called = {getattr(c.func, "id", None) or getattr(c.func, "attr", None) for c in _v11_ast.walk(_v11_main) if isinstance(c, _v11_ast.Call)}
+    _v11_pick = [_v11_ast.unparse(n) for n in _v11_ast.walk(_v11_main) if isinstance(n, _v11_ast.Assign) and any(getattr(t, "id", None) == "pick" for t in n.targets)]
+    _v11_ev_called = {getattr(c.func, "attr", None) for f in _v11_ast.walk(_v11_tree) if isinstance(f, _v11_ast.FunctionDef) and f.name == "v4_events"
+                      for c in _v11_ast.walk(f) if isinstance(c, _v11_ast.Call)}
+    _v11_names = {n.id for n in _v11_ast.walk(_v11_tree) if isinstance(n, _v11_ast.Name)} | {n.attr for n in _v11_ast.walk(_v11_tree) if isinstance(n, _v11_ast.Attribute)}
+    _v11_forbid = {n for n in _v11_names if any(k in n.lower() for k in ("pnl", "ret_", "_ret", "exit_", "_exit", "peak", "outcome", "profit", "r_net"))}
+    import yaml as _v11_y
+    _v11_wf = _v11_y.safe_load(open(".github/workflows/vwap_mom_v4.yml", encoding="utf-8"))
+    _v11_on = _v11_wf.get(True) or _v11_wf.get("on") or {}
+    _v11_steps = [s for j in (_v11_wf.get("jobs") or {}).values() for s in (j.get("steps") or [])]
+    _v11_c = {
+        "guard_closed": _v11_rc.get("closed") == 8 and _v11_rc.get("closed_log") == _V11_3.closure_notice(),
+        "guard_sha": _v11_rc.get("sha") == 9, "guard_nokey": _v11_rc.get("nokey") == 2, "guard_nocontact": _v11_rc.get("nocontact") == 2,
+        "no_network": not _v11_net,
+        "events": [e[:6] for e in _v11_ev] == [(605, "5x3", 11, 360000, 35000, True), (630, "15x1", 11, 576000.0, 55000, False)]
+                  and _v11_ev[0][6:] == (625, 625) and _v11_ev[1][6:] == (None, None),
+        "D_needs_chg": _v11_evD[0][6:] == (None, None) and _v11_evD2[0][6] is not None,
+        "events_by_name": {"vwap_series", "bucketize", "break_events", "cum_dollar_at", "event_liq", "retest_signal"} <= _v11_ev_called,
+        "ge_boundary": _V11.ge(_V11.pct_change(6, 5), 0.20) and not _V11.ge(_V11.pct_change(5.99, 5), 0.20) and not _V11.ge(None, 0)
+                       and _V11.ge(_v11_m.inf, 3.0) and _V11.pct_change(6, None) is None and _V11.pct_change(6, 0) is None,
+        "curve": (_V11.curve_at(_v11_cur, 605), _V11.curve_at(_v11_cur, 570), _V11.curve_at(_v11_cur, 571), _V11.curve_at(None, 600)) == (35000.0, 0.0, 1000.0, 0.0),
+        "rvol": (_V11.rvol(35000, [(True, 5000.0)] * 20) == 7.0 and _V11.rvol(1, [(True, 0.0)] * 20) == _v11_m.inf
+                 and _V11.rvol(1500, [(True, 1000.0)] * 10 + [(False, 0.0)] * 10) == 3.0
+                 and _V11.rvol(1, [(True, 1.0)] * 9 + [(False, 0.0)] * 11) is None),
+        "split_factors": (_V11.price_factor([("2026-09-14", 10.0, 1.0)], "2026-09-14"), _V11.price_factor([("2026-09-13", 10.0, 1.0)], "2026-09-14"),
+                          _V11.price_factor([("2026-09-14", 1.0, 2.0)], "2026-09-14"), _V11.vol_factor([("2026-09-14", 10.0, 1.0)], "2026-09-11", "2026-09-14"),
+                          _V11.vol_factor([("2026-09-11", 10.0, 1.0)], "2026-09-11", "2026-09-14")) == (10.0, 1.0, 0.5, 0.1, 1.0),
+        "wires": (_V11.wire_of({"publisher": {"name": "GlobeNewswire Inc."}}) == ("GlobeNewswire", "publisher")
+                  and _V11.wire_of({"publisher": {"name": "Benzinga"}, "author": "PR Newswire"}) == ("PRNewswire", "author")
+                  and _V11.wire_of({"publisher": {"name": "X"}, "article_url": "https://www.accessnewswire.com/n/1"}) == ("Accesswire", "host")
+                  and _V11.wire_of({"publisher": {"name": "Business Wire"}}) == ("Business Wire", "publisher")
+                  and _V11.wire_of({"publisher": {"name": "The Motley Fool"}, "author": "Zacks"}) is None),
+        "wire_index": set(_v11_ix) == {"AAA", "B1", "B2", "B3", "B4", "DDD"} and _v11_bw == {"GlobeNewswire": 1, "PRNewswire": 1}
+                      and _v11_pubs == {"GlobeNewswire Inc.": 1, "Benzinga": 2},
+        "catalyst": (_v11_k6["C"] is False and _v11_k6["sec6k"] is True and _v11_k8["C"] is True and _v11_ku["C"] is None and _v11_kw["C"] is True),
+        "tally_full": _v11_full["FULL"] and _v11_full["C123"] and not _v11_full["FULL5"] and _v11_full["DH"] and _v11_full["DHL"]
+                      and _v11_full["src"] == "wire" and _v11_full["cov"] == "wire" and _v11_full["H0"] and _v11_rv6["FULL5"]
+                      and _v11_bd["FULL"] and _v11_dd["DH"] and not _v11_dd["DHL"],
+        "tally_excl": (not _v11_spac["BASE"]) and _v11_spac["H0"] and not _v11_excl["BASE"] and not _v11_unk["BASE"]
+                      and _v11_unk["type_unknown_c1"] and not _v11_px20["BASE"] and _v11_px20["H0"],
+        "tally_unknowns": (_v11_u2["U2"] and _v11_u2["FULL_rv_unknown_as_pass"] and not _v11_u2["FULL"] and _v11_u4["U4"] and not _v11_u4["FULL"]
+                           and _v11_u1["U1"] and not _v11_u1["C1"] and _v11_u1["BASE"]),
+        "gates": (_V11.coverage_gates4({"complete": True}, [], 5, 100, [], [], True, 5, 100) == (True, [])
+                  and _V11.coverage_gates4({"complete": False}, ["x"], 6, 100, ["d"], ["p"], False, 6, 100)[1]
+                  == ["news_incomplete", "edgar_index_missing", "sec_unknown_over_5pct", "minute_day_missing", "prev_close_missing",
+                      "reference_incomplete", "type_unknown_over_5pct"]),
+        "verdict": (_V11.verdict4(False, 1), _V11.verdict4(True, None), _V11.verdict4(True, 250000)) == ("no_measure", "final_close", "pick"),
+        "main_wired": {"v4_events", "rvol", "curve_at", "cum_curve", "vol_factor", "price_factor", "fetch_news4", "wire_index", "catalyst4", "tally4",
+                       "coverage_gates4", "verdict4", "addendum_ok", "_closed_now", "pick_rule"} <= _v11_called,
+        "rule_on_full_after_gate": len(_v11_pick) == 1 and "med[d]['FULL']" in _v11_pick[0] and _v11_pick[0].rstrip().endswith("if ok else None"),
+        "no_outcome_names": not _v11_forbid,
+        "wf": (list(_v11_on.keys()) == ["workflow_dispatch"] and (_v11_wf.get("permissions") or {}) == {"contents": "read"}
+               and str((((_v11_on.get("workflow_dispatch") or {}).get("inputs") or {}).get("reopen") or {}).get("default")) == "0"
+               and any("vwap_mom_feas_v4.py" in str(s.get("run")) and str((s.get("env") or {}).get("VWM_REOPEN", "")).replace(" ", "") == "${{github.event.inputs.reopen}}"
+                       for s in _v11_steps)
+               and not any("git push" in str(s.get("run")) for s in _v11_steps)),
+    }
+    _v_v11, _v_v11w = all(_v11_c.values()), f"{ {k: v for k, v in _v11_c.items() if not v} or 'كلّها'} · rc={ {k: v for k, v in _v11_rc.items() if k != 'closed_log'} } · شبكة={_v11_net[:3]}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_v11, _v_v11w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("📈🔓 VWM11 (‏2026-10-29) أداةُ v4 سلوكيًّا: الحارسُ ثمّ البصمةُ ثمّ المفتاحان بصفرِ شبكة (8 · 9 · 2 · 2) · الأحداثُ بدوالّ v2/v3 · ① و② على حدّهما · "
+      "الأسلاكُ و8-K وحدَه · الأنواعُ والـSPAC والسعر · المجهول · والقاعدةُ على FULL بعد الحارس", _v_v11, _v_v11w)
 # 🔧 S3E1 (‏2026-10-29 · عطلٌ مُثبَت: جدوى v3 `40790473567` «لا قياس» — 21 من 21 يومًا تعذّر تنزيلُها): صورةُ الرنر 20261025.179.1 (aws-cli 2.38.5)
 #    أفشلت `aws s3 cp` على البكت حيث نجح على 20261012.163.1 (2.37.13 · v2 `40722466274`) · والمِجَسُّ `40796690636` نجح على الصورة الجديدة بإعداداته.
 #    ⟵ (أ) كلُّ خطوةٍ تمرّر `AWS_ACCESS_KEY_ID` من `POLYGON_S3_KEY` تضبط معه المنطقةَ والـchecksum كالمِجَسّ (`flatfiles_probe.yml`) ·
