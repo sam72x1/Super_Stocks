@@ -91669,7 +91669,7 @@ except Exception as _e:                                                    # noq
 check("🟠 VWL8 A مرّةً لكلّ رمزٍ/يوم · وD بعد أوّل A كامل لكلّ لمسةٍ جديدة حتى 3 (أربعُ لمساتٍ ⟵ ثلاثُ تنبيهات) · وبلا A لا D", _vl8, _vl8w)
 
 # VWL9 — الحلقةُ الحيّة: الطازجُ يُرسَل والمتأخّرُ أكثرَ من 10 د يُسجَّل بلا إرسال · بلا `send` لا إرسالَ ولا سجلّ · والمقطعُ الثاني لا يكرّر ·
-#        والـworkflow بلا كرون (حتى موافقة المالك) وجوبُ الأوضاع اليدويّة بلا أسرار تلغرام
+#        والـworkflow بكروناته الأربعة (مُفعَّلٌ 2026-10-29 بأمر المالك · تغطيتُها `VWL19`) وجوبُ الأوضاع اليدويّة بلا أسرار تلغرام
 try:
     import yaml as _vl_yaml
     _b = _vl_scenario()
@@ -91690,7 +91690,8 @@ try:
         "late_logged": _sentL == [] and [(r["sent"], r["reason"]) for r in _rowsL if r["kind"] == "alert"] == [(False, "late"), (False, "late")],
         "dry": _sentD == [] and _rowsD == [] and _savD == [],
         "saved": _sav and all(_p in f for f in _sav),
-        "no_cron": "schedule" not in _on and "workflow_dispatch" in _on,
+        "cron_four": [c.get("cron") for c in (_on.get("schedule") or [])] == ["23 2 * * 1-5", "23 5 * * 1-5", "23 8 * * 1-5", "23 11 * * 1-5"]
+                     and "workflow_dispatch" in _on,
         "offline_no_tg": "TELEGRAM" not in _off_env and "POLYGON_API_KEY" in _off_env,
         "live_gated": all("schedule" in str(_wf["jobs"][j].get("if")) and "live" in str(_wf["jobs"][j].get("if"))
                           for j in ("pre_open_wait_1", "pre_open_wait_2", "open_segment", "close_segment")),
@@ -91699,7 +91700,7 @@ try:
 except Exception as _e:                                                    # noqa: BLE001
     _vl9, _vl9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠 VWL9 الحلقةُ الحيّة: الطازجُ يُرسَل · والمتأخّرُ أكثرَ من 10 د يُسجَّل «late» بلا إرسال · وبلا send لا إرسالَ ولا سجلّ · "
-      "والمقطعُ الثاني لا يكرّر ويحصد · والـworkflow بلا كرون حتى موافقة المالك والأوضاعُ اليدويّة بلا أسرار تلغرام", _vl9, _vl9w)
+      "والمقطعُ الثاني لا يكرّر ويحصد · والـworkflow بكروناته الأربعة (مُفعَّلٌ بأمر المالك) والأوضاعُ اليدويّة بلا أسرار تلغرام", _vl9, _vl9w)
 
 # VWL10 — الرسالة: الحقولُ المطلوبة وحدُّ الصدق في كلّ رسالة · وبلا علامات مقارنة · وD موسومةٌ «إعادة اختبار #n»
 try:
@@ -91899,14 +91900,15 @@ try:
         "activation": bool(_aT15) and _aT15[0]["arm"] == "A" and any(a["arm"] == "D" for a in _aT15) and "✅ مستوفى" in _doc15,
         "ldef_tags": (_tT15.get("ldef"), _tM15.get("ldef"), _VA.load("replay_T").get("ldef"), _VA.load("replay_M").get("ldef")) == ("T", "M", "T", "M"),
         "tol_same": _VA.L_TOL == _VL.L_TOL,
-        "no_cron_yet": "schedule" not in (lambda w: w.get("on", w.get(True)) or {})(
-            _vl14y.safe_load(open(".github/workflows/vwap_momentum_live.yml", encoding="utf-8"))),
+        "cron_only_if_activated": not (lambda w: w.get("on", w.get(True)) or {})(
+            _vl14y.safe_load(open(".github/workflows/vwap_momentum_live.yml", encoding="utf-8"))).get("schedule")
+            or (bool(_aT15) and _aT15[0]["arm"] == "A" and any(a["arm"] == "D" for a in _aT15) and "✅ مستوفى" in _doc15),
     }
     _vl15, _vl15w = all(_vl15_c.values()), f"{ {k: v for k, v in _vl15_c.items() if not v} or 'كلّها'} · {_lq15}"
 except Exception as _e:                                                    # noqa: BLE001
     _vl15, _vl15w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠 VWL15 (‏2026-10-29 · قبول ⑤ — الجولة الثانية) وثيقةُ القبول مولَّدةٌ بايتًا · ومكوّناتُ ③ L فيها تطابق `liq5` بالتعريفين وحكمَ الأداة · "
-      "وشرطُ التفعيل (AZTR: A ثمّ D) من trace الإنتاج · ولا كرونَ قبل التفعيل", _vl15, _vl15w)
+      "وشرطُ التفعيل (AZTR: A ثمّ D) من trace الإنتاج · ولا كرونَ إلّا بعد استيفائه", _vl15, _vl15w)
 
 
 # VWL16 (‏2026-10-29 · أمرُ المالك «أعد تعريف L»): ③ L بتعريفين يُقارَنان والإنتاجُ على T — strict يطابق `V3.liq_ok`/`liq15_ok`/`retest_signal`
@@ -92108,6 +92110,90 @@ except Exception as _e:                                                    # noq
     _vl18, _vl18w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠 VWL18 (‏2026-10-29) ⑤ الصناديقُ بكود SIC (6722 · 6726 · 6798) · ووسما «📌 استحواذ نقدي» و«⏱️ قرب الإغلاق» عرضٌ بلا رفض "
       "في الرسالة والسجلّ", _vl18, _vl18w)
+
+# VWL19 (‏2026-10-29 · أمرُ المالك «بعدها فعّل الكرون بعد التجربة الحية»): الكروناتُ الأربعة (‏02:23 · 05:23 · 08:23 · 11:23 UTC) وجوبا النوم
+#        يغطّيان **كلَّ تأخّرٍ من 0 إلى 640 دقيقة** (مقيسٌ 300-420 على كرونات المستودع 10-26…10-29 · و609 أغسطس) بمقطع افتتاحٍ يبدأ قبل الجرس
+#        وميزانيّتُه تبلغ حدَّ المقطعين — في الفصلين · محاكاةٌ على الكود الحقيقيّ (`pre_open_target` · سقفُ 340 · ميزانيّةُ الـYAML) لا نصّ ·
+#        وقاعدةُ «بعد 20:00 نيويورك فجلسةُ الغد» شرطٌ لازم: بدونها يعبر الجوبان منتصفَ ليل نيويورك (تأخّرٌ ‏≈91-96 د صيفًا) فيبدأ المقطعُ قبل الجرس
+#        بساعاتٍ ويستنفد ميزانيّتَه نائمًا · وقبل 20:00 السلوكُ بت-بت كما كان · والاحتياطُ بعد الإغلاق بلا عمل · وmain يطبع ما تُرجعه
+try:
+    import io as _vl19io
+    import contextlib as _vl19cl
+    import random as _vl19r
+    import datetime as _dt
+    import yaml as _vl19y
+    _U19 = _dt.timezone.utc
+    _wf19 = _vl19y.safe_load(open(".github/workflows/vwap_momentum_live.yml", encoding="utf-8"))
+    _on19 = _wf19.get("on", _wf19.get(True)) or {}
+    _crons19 = [c["cron"] for c in (_on19.get("schedule") or [])]
+    _cm19 = sorted(int(c.split()[1]) * 60 + int(c.split()[0]) for c in _crons19)
+    _mr19 = int(_wf19["jobs"]["open_segment"]["steps"][-1]["env"]["VWL_MAX_RUNTIME_MIN"])
+    _SET19 = 2                                                              # إعدادُ الجوب (checkout · pip) — مقيسٌ ‏≈1 د يوم 10-29 · احتياطٌ ‏×2
+
+    def _vl19_old(now):
+        _d = _VL._today_ny(now)
+        if not _VL3.is_session(_d, _VLMC.session_info):
+            return _d, 0
+        _op = _dt.datetime.fromtimestamp(_VL3.ny_ts(_d, _VLMC.session_info(_d)["open_ny_min"]), tz=_U19)
+        return _d, _VL.pre_open_sleep_min(_op, now)
+
+    def _vl19_cov(day, delay, target=None):
+        """أوّلُ تشغيلةٍ تمسك الجلسةَ (مقطعُها يبدأ يومَ الجلسة قبل إغلاقها) هي التي تخدمها — والسابقةُ بلا عملٍ تنتهي في دقائق."""
+        target = target or _VL.pre_open_target
+        _info = _VLMC.session_info(day)
+        _op = _VL3.ny_ts(day, _info["open_ny_min"])
+        _cl = _VL3.ny_ts(day, _info["close_ny_min"])
+        for _t in _cm19:
+            _s = _dt.datetime.fromisoformat(day).replace(tzinfo=_U19) + _dt.timedelta(minutes=_t + delay)
+            for _w in range(2):
+                _s = _s + _dt.timedelta(minutes=target(_s, _VLMC)[1] + _SET19)
+            _ts = _s.timestamp()
+            if _VL._today_ny(_s) == day and _ts < _cl:
+                return _ts <= _op and _ts + _mr19 * 60 >= _op + _VL.SEG_SPLIT_MIN * 60
+        return False
+    _days19 = ("2026-10-29", "2026-11-05")                                  # صيفيٌّ (EDT) وشتويٌّ (EST)
+    _r19 = _vl19r.Random(19)
+    _same19 = []
+    for _k in range(400):
+        _n = _dt.datetime(2026, 10, 1, tzinfo=_U19) + _dt.timedelta(minutes=_r19.randrange(0, 90 * 24 * 60))
+        _ny = _n.astimezone(_VL.NY)
+        if _ny.hour * 60 + _ny.minute < 20 * 60:
+            _same19.append(_VL.pre_open_target(_n, _VLMC) == _vl19_old(_n))
+    _h = lambda s: _dt.datetime.fromisoformat(s).replace(tzinfo=_U19)                                  # noqa: E731
+    io_cap = _vl19io.StringIO()
+    _orig19 = _VL.pre_open_target
+    try:
+        _VL.pre_open_target = lambda now, MC, *a, **k: ("2099-01-02", 7)
+        with _vl19cl.redirect_stdout(io_cap):
+            _VL.main(["--pre-open-sleep"])
+    finally:
+        _VL.pre_open_target = _orig19
+    _orig_next19 = _VL.PRE_OPEN_NEXT_FROM_NY_MIN
+    try:
+        _VL.PRE_OPEN_NEXT_FROM_NY_MIN = 24 * 60                             # القاعدةُ مُطفأة ⟵ يجب أن تسقط التغطية
+        _norule19 = all(_vl19_cov(_d, _D) for _d in _days19 for _D in range(0, 641))
+    finally:
+        _VL.PRE_OPEN_NEXT_FROM_NY_MIN = _orig_next19
+    _vl19_c = {
+        "crons": _crons19 == ["23 2 * * 1-5", "23 5 * * 1-5", "23 8 * * 1-5", "23 11 * * 1-5"] and "workflow_dispatch" in _on19,
+        "same_before_20": len(_same19) > 250 and all(_same19),
+        "next_after_20": (_VL.pre_open_target(_h("2026-10-29T02:23"), _VLMC), _VL.pre_open_target(_h("2026-11-05T02:23"), _VLMC),
+                          _VL.pre_open_target(_h("2026-11-02T02:23"), _VLMC), _VL.pre_open_target(_h("2026-11-26T02:23"), _VLMC))
+                         == (("2026-10-29", 340), ("2026-11-05", 340), ("2026-11-02", 340), ("2026-11-26", 0)),
+        "post_close_noop": _VL.pre_open_target(_h("2026-10-29T20:15"), _VLMC) == ("2026-10-29", 0),
+        "edge_20": (_VL.pre_open_target(_h("2026-10-29T00:00"), _VLMC)[0], _VL.pre_open_target(_h("2026-10-28T23:59"), _VLMC)[0])
+                   == ("2026-10-29", "2026-10-28"),                        # 20:00 نيويورك بالضبط ⟵ الغد · و19:59 ⟵ اليوم
+        "main_prints": "PRE_OPEN_SLEEP_MIN=7" in io_cap.getvalue() and "PRE_OPEN_DAY=2099-01-02" in io_cap.getvalue(),
+        "coverage_0_640": all(_vl19_cov(_d, _D) for _d in _days19 for _D in range(0, 641)),
+        "not_trivial": not all(_vl19_cov("2026-10-29", _D) for _D in range(0, 800)),
+        "rule_needed": not _norule19,
+    }
+    _vl19, _vl19w = all(_vl19_c.values()), str({k: v for k, v in _vl19_c.items() if not v} or "كلّها")
+except Exception as _e:                                                    # noqa: BLE001
+    _vl19, _vl19w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL19 (‏2026-10-29 · التفعيل) الكروناتُ الأربعة وجوبا النوم يغطّيان كلَّ تأخّرٍ 0-640 د في الفصلين بمقطعٍ يبدأ قبل الجرس · "
+      "و«بعد 20:00 نيويورك فجلسةُ الغد» لازمةٌ (بدونها تسقط) وقبلها بت-بت · والاحتياطُ بعد الإغلاق بلا عمل", _vl19, _vl19w)
+
 
 
 # BKD1-BKD6 (‏2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام» · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه مجهولًا
