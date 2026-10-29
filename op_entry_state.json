@@ -4149,10 +4149,6 @@
   "date": "2026-10-28"
  },
  "LIQ:NFE": {
-  "last_eval_ms": 1793305800000,
-  "tc_cum": 1271026.9588584213,
-  "tc_seen_ms": 1793303940000,
-  "date": "2026-10-29",
   "anchor_ms": 1793305800000,
   "last_ms": 1793305860000,
   "sent": [
@@ -4161,6 +4157,7 @@
   "updates": 0,
   "vol_x": 4.9,
   "peak_usd": 51498,
+  "last_eval_ms": 1793305800000,
   "pulse_ms": 1793305860000,
   "anchor_price": 4.07,
   "anchor_open": 3.84,
@@ -4168,7 +4165,8 @@
   "pre_done": true,
   "pre_hi": 3.87,
   "pre_usd": 274052,
-  "pre_n": 28
+  "pre_n": 28,
+  "date": "2026-10-29"
  },
  "LIQ:XCUR": {
   "last_eval_ms": 1793305860000,
