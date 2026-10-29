@@ -89429,6 +89429,74 @@ except Exception as _e:                                              # noqa: BLE
     _v_r17, _v_r17w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧭 RBD17 (‏2026-10-29) B3 بالملحق 4 منشورٌ كما صدر: العددُ تطابق المرجع المُعاد · التشغيلةُ وmain والتحضير · الوثيقةُ مولَّدةٌ من الـJSON بايتًا · "
       "الحصصُ من عدّاداتها · RB-P4 سقط · والأولى باقيةٌ بإحالة", _v_r17, _v_r17w)
+# 🧭 RBD18 (‏2026-10-29 · عقدُ 2026 `T-REBUILD-26` · النتيجة): منشورةٌ كما صدرت مرّةً واحدة — بصمةُ العقد والتجميد وθ من الأداة · والحكمُ يُعاد بـ`test_verdict`
+#    بالاسم من الإحصاءات نفسِها · والحصصُ والعدّاداتُ متّسقة · والوثيقةُ = `y26_doc.py` على الـJSON **بايتًا** · والتنبّؤاتُ الثلاثة منشورة ·
+#    و`main` يرفض 7 الآن على glob الحقيقيّ (لا إعادة) ولا يجلب شيئًا.
+try:
+    import importlib.util as _r18_iu
+    import json as _r18_json
+    import os as _r18_os
+    import subprocess as _r18_sp
+    import sys as _r18_sys
+    import tempfile as _r18_tf
+    import glob as _r18_glob
+    _r18_spec = _r18_iu.spec_from_file_location("t_rebuild_tool18", "fm_forensics/rebuild/rebuild.py")
+    _R18 = _r18_iu.module_from_spec(_r18_spec)
+    _r18_spec.loader.exec_module(_R18)
+    _r18_dir = "fm_forensics/rebuild/"
+    _r18_jp = _r18_dir + "data/y26_result_2026-10-29.json"
+    _r18_j = _r18_json.load(open(_r18_jp, encoding="utf-8"))
+    _r18_doc = open(_r18_dir + "T_REBUILD_2026_result.md", encoding="utf-8").read()
+    _r18_fz = _R18.freeze_load()
+    with _r18_tf.TemporaryDirectory() as _r18_td:
+        _r18_out = _r18_os.path.join(_r18_td, "doc.md")
+        _r18_p = _r18_sp.run([_r18_sys.executable, _r18_dir + "y26_doc.py", _r18_jp, _r18_out], capture_output=True, text=True, timeout=60)
+        _r18_gen = open(_r18_out, encoding="utf-8").read() if _r18_p.returncode == 0 else None
+    _r18_st = _r18_j["stats"]
+    _r18_v = _R18.test_verdict(_r18_st["NEW"], _r18_st["BASE2"], _r18_st["CURRENT"], _r18_j["diff_ci_new_vs_base2"],
+                               _r18_j["halves_diff"], _r18_j["coverage"])
+    _r18_cons = all(s["share"] == round(s["exploded"] / s["labelled"], 4) and s["unknown"] == s["entries"] - s["labelled"]
+                    and s["burden"] == round(s["entries"] / _r18_j["sessions"], 3) for s in _r18_st.values())
+    _r18_cons = _r18_cons and all(
+        _r18_j["pivot_stops"][k][nm]["share"] == round(_r18_j["pivot_stops"][k][nm]["hit50_first"] / _r18_j["pivot_stops"][k][nm]["n"], 4)
+        and _r18_j["pivot_stops"][k][nm]["n"] == _r18_st[k]["labelled"] for k in _r18_st for nm in ("SP0", "SP5"))
+    _r18_cons = _r18_cons and all(_r18_j["mae"][k]["exploded_n"] == _r18_st[k]["exploded"] for k in _r18_st)
+    _r18_env = {k: _r18_os.environ.get(k) for k in ("REBUILD_MODE", "POLYGON_API_KEY")}
+    _r18_keep = (_R18.mode_y26_prep, _R18.mode_y26_assemble, _R18._jdump)
+    _r18_calls, _r18_rc = [], []
+    try:
+        _R18.mode_y26_prep = lambda *a, **k: (_r18_calls.append("prep"), {})[1]
+        _R18.mode_y26_assemble = lambda *a, **k: (_r18_calls.append("asm"), {})[1]
+        _R18._jdump = lambda *a, **k: _r18_calls.append("dump")
+        _r18_os.environ["POLYGON_API_KEY"] = "x"
+        for _md in ("y26_prep", "y26_assemble"):
+            _r18_os.environ["REBUILD_MODE"] = _md
+            _r18_rc.append(_R18.main())
+    finally:
+        _R18.mode_y26_prep, _R18.mode_y26_assemble, _R18._jdump = _r18_keep
+        for _k, _vv in _r18_env.items():
+            if _vv is None:
+                _r18_os.environ.pop(_k, None)
+            else:
+                _r18_os.environ[_k] = _vv
+    _r18_c = {
+        "contract": _r18_j["contract_sha"] == _R18.Y26_SHA and _R18.y26_ok(),
+        "freeze": _r18_fz is not None and _r18_j["freeze_sha"] == _r18_fz["sha"] and _r18_j["theta"] == _r18_fz["theta"],
+        "verdict": _r18_v == (_r18_j["branch"], _r18_j["verdict"]),
+        "of10": _r18_j["of10"] == round(10 * _r18_st["NEW"]["share"], 2),
+        "consistent": _r18_cons,
+        "run": (_r18_j["run"] == 40802912111 and len(_r18_j["main_sha"]) == 40
+                and f"**`{_r18_j['run']}`** على main `{_r18_j['main_sha'][:9]}`" in _r18_doc),
+        "doc_is_generated": _r18_gen is not None and _r18_gen == _r18_doc,
+        "predictions": all(f"| **{p}:**" in _r18_doc for p in ("RB26-P1", "RB26-P2", "RB26-P3")),
+        "once": (_r18_glob.glob(_R18.Y26_RESULT_GLOB) == [_R18.Y26_RESULT_GLOB.replace("*", "2026-10-29")]
+                 and _r18_rc == [7, 7] and not _r18_calls),
+    }
+    _v_r18, _v_r18w = all(_r18_c.values()), f"{ {k: v for k, v in _r18_c.items() if not v} or 'كلّها'}"
+except Exception as _e:                                              # noqa: BLE001
+    _v_r18, _v_r18w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧭 RBD18 (‏2026-10-29) نتيجةُ عقد 2026 منشورةٌ كما صدرت مرّةً واحدة: العقدُ والتجميدُ وθ · الحكمُ يُعاد بـtest_verdict · الحصصُ متّسقة · "
+      "الوثيقةُ مولَّدةٌ بايتًا · التنبّؤاتُ منشورة · والإعادةُ ترفض 7", _v_r18, _v_r18w)
 # FSW1 — 🧾 **حصادُ سحوب فيصل `T-FSWEEP`** (أمرُ المالك «سجّل حصاد سحوب فيصل» 2026-10-14 · `fm_forensics/fsweep/FSWEEP_prereg.md`)
 #    — (أ) حرّاسُ الأداة الاصطناعيّة تمرّ (خروج 0 · صفرُ ❌) · (ب) السجلُّ الحقيقيّ سليمٌ (`verify` خروج 0) والحالةُ عدٌّ يعمل ·
 #    (ج) العقدُ ببصمته المثبَّتة في الأداة · والحدُّ والمهلةُ في الأداة هما المكتوبان في العقد (يُستخرجان منه لا من الذاكرة).
