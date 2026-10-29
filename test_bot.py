@@ -91833,7 +91833,8 @@ try:
         "touch_L_vs_noL": _td14.get("with_L") is None and (_td14.get("without_L") or {}).get("end_ny") == "10:30",
         "override_only_trace": _ov14 == {"mode_trace"},
         "no_out_no_file": _nofile,
-        "wf_branch_only": "github.ref_name != 'main'" in str(_push14.get("if", "")) and "HEAD:${{ github.ref_name }}" in str(_push14.get("run", ""))
+        "wf_branch_only": "github.ref_name != 'main'" in str(_push14.get("if", "")) and 'HEAD:${VWL_PUSH_REF}' in str(_push14.get("run", ""))
+                          and str((_push14.get("env") or {}).get("VWL_PUSH_REF", "")) == "${{ github.ref_name }}"
                           and "HEAD:main" not in str(_push14.get("run", "")) and "github.ref_name != 'main'" in str((_run14.get("env") or {}).get("VWL_OUT", "")),
     }
     _vl14, _vl14w = all(_vl14_c.values()), str({k: v for k, v in _vl14_c.items() if not v} or "كلّها")
