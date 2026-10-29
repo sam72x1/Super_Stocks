@@ -832,5 +832,21 @@
     "session_complete": true,
     "termination": "normal",
     "verdict_rule": "2026-09-26b"
+  },
+  "2026-10-29": {
+    "deferred_reasons": [],
+    "incomplete_reasons": [],
+    "n_delivered": 4,
+    "n_emitted": 4,
+    "n_executable": 0,
+    "n_executable_emitted": 0,
+    "n_raw_candidates": 4,
+    "n_symbols": 15,
+    "session_complete": true,
+    "tail_verified": [
+      "BCTX"
+    ],
+    "termination": "normal",
+    "verdict_rule": "2026-09-26b"
   }
 }
