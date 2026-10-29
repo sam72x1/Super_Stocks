@@ -514,7 +514,7 @@ class Day:
         return out
 
 
-def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False):
+def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False, prev_override=None):
     """فحصُ رمزٍ حتى `upto` ⟵ نتيجةُ `evaluate` وكلُّ تنبيهٍ فيها بخبره (`news` نصًّا و`news_detail`). أيّامُ ② والخبرُ وSEC
     **تُجلب عند الحاجة وحدَها** (حين تكتمل الشروطُ الأرخص قبلها) · وSPAC يُعرف من `submissions` نفسِه فيُعاد التقييمُ به."""
     b5, _b15, _ = complete_buckets(bars_today, D.op, D.cl, upto)
@@ -531,9 +531,10 @@ def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False):
             state["fn"], state["detail"], state["spac"] = D.catalyst(sym, detected_ts)
         return state["fn"](e)
     ts = D.type_status(sym)
-    res = evaluate(bars_today, D.op, D.cl, upto, D.prev_adj(sym), priors_fn, cat_of, ts, False, full_info=full_info)
+    pa = D.prev_adj(sym) if prev_override is None else prev_override   # التجاوزُ لوضع trace التشخيصيّ وحدَه (`VWL14`)
+    res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, cat_of, ts, False, full_info=full_info)
     if state.get("spac"):
-        res = evaluate(bars_today, D.op, D.cl, upto, D.prev_adj(sym), priors_fn, state["fn"], ts, True, full_info=full_info)
+        res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, state["fn"], ts, True, full_info=full_info)
     for a in res["alerts"]:
         a["news_detail"] = state["detail"](a["e"])
         a["news"] = news_brief(a["news_detail"])
@@ -567,6 +568,17 @@ def _sha():
 
 def _today_ny(now=None):
     return (now or dt.datetime.now(tz=NY)).astimezone(NY).date().isoformat()
+
+
+def emit_json(out):
+    """مُخرَجُ الأوضاع اليدويّة: سطرُ `VWLIVE_JSON` في السجلّ · وملفٌّ إن ضُبط `VWL_OUT` (يدفعه الـworkflow إلى فرعه — لا main)."""
+    txt = json.dumps(out, ensure_ascii=False, sort_keys=True)
+    log("VWLIVE_JSON " + txt)
+    path = os.environ.get("VWL_OUT", "").strip()
+    if path:
+        os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
+        with open(path, "w", encoding="utf-8") as f:
+            f.write(json.dumps(out, ensure_ascii=False, sort_keys=True, indent=1) + "\n")
 
 
 def _boundary_mods(op, cl, start_mod, end_mod):
@@ -642,7 +654,7 @@ def mode_replay(net, MC, end_day, ndays):
             f"تنبيهات {na} · أوّلُ شرطٍ سقط {first_fail} · خلافُ الحلقة {mismatch}")
         bad = bad or miss_bars > 0 or mismatch > 0
     out["calls"], out["fails"] = net.calls, net.fails
-    log("VWLIVE_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
+    emit_json(out)
     for r in out["alerts"]:
         log(f"🟠 {r['date']} {r['event_end_ny']} ${r['sym']} · {r['arm']}{'#' + str(r['n']) if r['arm'] == 'D' else ''} · "
             f"${r['px']} · {_pct(r['chg'])} · RVOL {r['rvol']} · 📰 {r['news']}")
@@ -667,8 +679,16 @@ def mode_trace(net, MC, day, sym):
                             "ref_prev": {k: ((dref or {}).get("results") or {}).get(k) for k in ("ticker", "type", "active", "list_date",
                                                                                                "primary_exchange", "delisted_utc")},
                             "splits": D.splits.get(sym, [])}
+        prior = [r for r in out["prev_diag"]["daily"] if r["d"] < day and r.get("c")]
+        if prior:
+            lc = prior[-1]
+            f = 1.0
+            for ex, sf, stt in D.splits.get(sym, ()):
+                if lc["d"] < ex <= day and sf and stt:
+                    f *= sf / stt
+            out["last_close"] = {"d": lc["d"], "c": lc["c"], "split_factor": f, "adj": lc["c"] * f}
     if not bars:
-        log("VWLIVE_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
+        emit_json(out)
         return 4
     b5, _b15, _bb = complete_buckets(bars, D.op, D.cl, D.cl)
     for b in b5:
@@ -684,6 +704,32 @@ def mode_trace(net, MC, day, sym):
             if (a["arm"], a["n"]) not in seen:
                 seen.add((a["arm"], a["n"]))
                 out["alerts"].append(ledger_row(day, sym, a, det, True, None, "trace", _sha(), a.get("news")))
+    lc = (out.get("last_close") or {}).get("adj")
+    if lc:                                                              # ماذا لو كان «إغلاقُ الأمس» آخرَ إغلاقٍ قبل اليوم؟ — وصفٌ لا قاعدة
+        wf = {"prev_used": lc, "alerts": [], "events": []}
+        seen_w = set()
+        for B in _boundary_mods(D.op, D.cl, D.op, D.cl):
+            det = V3.ny_ts(day, B) + LOOP_OFFSET_S
+            for a in scan_symbol(D, sym, bars, B, det, prev_override=lc)["alerts"]:
+                if (a["arm"], a["n"]) not in seen_w:
+                    seen_w.add((a["arm"], a["n"]))
+                    wf["alerts"].append({"arm": a["arm"], "n": a["n"], "end_ny": _hm(a["e"]), "px": a["px"], "chg": round(a["chg"], 4)})
+        for e in scan_symbol(D, sym, bars, D.cl, V3.ny_ts(day, D.cl) + LOOP_OFFSET_S, full_info=True, prev_override=lc)["events"]:
+            wf["events"].append({"end_ny": _hm(e["e"]), "kind": e["kind"], "chg": round(e["chg"], 4), "why": e["why"]})
+        out["whatif_last_close"] = wf
+    b5f, b15f, _ = complete_buckets(bars, D.op, D.cl, D.cl)
+    for tch in out["touches"]:                                          # كلُّ لمسة: الثباتُ الذي يليها بتعريف D (بـL وبدونه) — وصف
+        sm = int(tch["s"][:2]) * 60 + int(tch["s"][3:])
+        rev = {}
+        for tag, nl in (("with_L", True), ("without_L", False)):
+            rt = V3.retest_signal(b5f, b15f, sm, need_liq=nl)
+            if rt is None:
+                rev[tag] = None
+                continue
+            rb = b5f[rt[2]] if rt[1] == "5x3" else b15f[rt[2]]
+            rev[tag] = {"end_ny": _hm(rt[0]), "kind": rt[1], "px": rb["c"],
+                        "chg_last_close": None if not lc else round(rb["c"] / lc - 1.0, 4)}
+        tch["d_hold"] = rev
     last = scan_symbol(D, sym, bars, D.cl, V3.ny_ts(day, D.cl) + LOOP_OFFSET_S, full_info=True)
     for e in last["events"]:
         out["events"].append({"end_ny": _hm(e["e"]), "kind": e["kind"], "px": e["px"], "vwap": round(e["vwap"], 4),
@@ -698,7 +744,7 @@ def mode_trace(net, MC, day, sym):
                                               and not (D.op <= b["s"] < D.cl)],
                   "breaks_outside_regular": [_hm(ev[0]) for ev in V3.break_events(e5, V3.bucketize(ext, vw, V3.EXT_START, 15, V3.EXT_END),
                                                                                   skip=(D.op, D.cl))]}
-    log("VWLIVE_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
+    emit_json(out)
     log(f"🔎 {sym} {day}: شموع {len(bars)} دقيقة · لمساتُ الفيواب في النظاميّة {len(out['touches'])} · أحداثُ كسر {len(out['events'])} · "
         f"تنبيهاتٌ كانت ستُرسَل {len(out['alerts'])} · الممتدّة: لمسات {len(out['ext']['touches_outside_regular'])} وكسور "
         f"{len(out['ext']['breaks_outside_regular'])}")
