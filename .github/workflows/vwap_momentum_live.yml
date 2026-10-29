@@ -1,0 +1,174 @@
+name: "🟠 زخم الفيواب — تنبيهٌ حيّ (قيد الإثبات الأماميّ)"
+
+# 🟠 أداةُ تنبيهٍ حيّة بقواعد نايف — الملحق 3 تعريفًا نهائيًّا (`vwap_mom_prereg_addendum_3.md` §③) · أمرُ المالك 2026-10-29.
+#    خارج الجذور تمامًا: `vwap_momentum_live.py` يستورد من `Super_stock.py` الإرسالَ والحفظ وحدَهما ولا يمسّه.
+# 🔒 **بلا كرون حتى موافقة المالك على قبول ⑤** (إعادةُ التشغيل الصامتة على آخر 5 جلسات ‏+ اختبارُ AZTR 2026-10-26) —
+#    التفعيلُ = إضافةُ `schedule` هنا (والجوباتُ الحيّةُ تقرأ `github.event_name == 'schedule'` فتُرسل) · `VWL9` يحرس غيابَه حتى ذلك.
+# الأوضاعُ اليدويّة: replay · trace · probe · harvest (جوبٌ واحد **بلا أسرار تلغرام**) · live (الإرسالُ بمُدخَل send=1 وحدَه).
+# 🕐 الجلسةُ 6.5 ساعات وسقفُ الجوب 6 ⟵ مقطعان (الافتتاح +195 د · ثمّ حتى الإغلاق والحصاد) وجوبا نومٍ قبل الجرس — نمطُ رادار الانطلاق.
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "replay · trace · probe · harvest · live"
+        default: "replay"
+      days:
+        description: "replay: عددُ الجلسات المكتملة"
+        default: "5"
+      end:
+        description: "replay: آخرُ جلسة YYYY-MM-DD (فارغٌ = آخرُ جلسةٍ مكتملة)"
+        default: ""
+      date:
+        description: "trace: اليوم"
+        default: "2026-10-26"
+      sym:
+        description: "trace: الرمز"
+        default: "AZTR"
+      send:
+        description: "live: 1 = يُرسل إلى تلغرام ويكتب السجلّ (بعد موافقة المالك وحدَها) · غيرُه = تجربةٌ صامتة"
+        default: "0"
+
+# 🔀 مجموعةٌ لكلّ وضع: الحيُّ (المجدولُ واليدويّ) متسلسلٌ لا يتوازى فيكرّر التنبيه · والأوضاعُ اليدويّة لا تنتظر خلفه ساعاتِ الجلسة
+concurrency:
+  group: super-stocks-vwap-live-${{ github.event.inputs.mode || 'live' }}
+  cancel-in-progress: false
+
+jobs:
+  offline:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.mode != 'live'
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🟠 الوضع
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          VWL_MODE: ${{ github.event.inputs.mode }}
+          VWL_DAYS: ${{ github.event.inputs.days }}
+          VWL_END: ${{ github.event.inputs.end }}
+          VWL_DATE: ${{ github.event.inputs.date }}
+          VWL_SYM: ${{ github.event.inputs.sym }}
+          PYTHONUNBUFFERED: "1"
+        run: python vwap_momentum_live.py --mode "$VWL_MODE" --days "$VWL_DAYS" --end "$VWL_END" --date "$VWL_DATE" --sym "$VWL_SYM"
+      - name: Push harvest rows
+        if: github.event.inputs.mode == 'harvest'
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add vwap_live_ledger.jsonl 2>/dev/null || true
+          if git diff --cached --quiet; then echo "لا صفوفَ حصادٍ جديدة."; exit 0; fi
+          git commit -q -m "🟠 زخم الفيواب: صفوفُ الحصاد"
+          ok=0
+          for i in 1 2 3 4 5; do
+            if git push origin HEAD:main; then ok=1; break; fi
+            git fetch origin main && git rebase origin/main || git rebase --abort || true
+            sleep $((2**i))
+          done
+          [ "$ok" = 1 ] || { echo "::error::⛔ فشل دفع صفوف الحصاد"; exit 1; }
+
+  pre_open_wait_1:
+    if: github.event_name == 'schedule' || github.event.inputs.mode == 'live'
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Wait for the bell outside the scan budget
+        continue-on-error: true
+        run: |
+          M=$(python vwap_momentum_live.py --pre-open-sleep 2>/dev/null | sed -n 's/^PRE_OPEN_SLEEP_MIN=\([0-9][0-9]*\)$/\1/p' | tail -1)
+          [ -n "$M" ] || M=0
+          echo "⏰ انتظارُ الجرس: ${M} دقيقة"
+          sleep $((M * 60))
+
+  pre_open_wait_2:
+    needs: pre_open_wait_1
+    if: always() && (github.event_name == 'schedule' || github.event.inputs.mode == 'live')
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Wait for the bell outside the scan budget
+        continue-on-error: true
+        run: |
+          M=$(python vwap_momentum_live.py --pre-open-sleep 2>/dev/null | sed -n 's/^PRE_OPEN_SLEEP_MIN=\([0-9][0-9]*\)$/\1/p' | tail -1)
+          [ -n "$M" ] || M=0
+          echo "⏰ انتظارُ الجرس: ${M} دقيقة"
+          sleep $((M * 60))
+
+  open_segment:
+    needs: pre_open_wait_2
+    if: always() && (github.event_name == 'schedule' || github.event.inputs.mode == 'live')
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Latest ledger from main (dedup)
+        continue-on-error: true
+        run: git fetch -q origin main && git checkout -q FETCH_HEAD -- vwap_live_ledger.jsonl 2>/dev/null || true
+      - name: 🟠 مقطعُ الافتتاح
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          VWL_SEND: ${{ github.event_name == 'schedule' && '1' || github.event.inputs.send }}
+          VWL_SEGMENT: "open"
+          VWL_MAX_RUNTIME_MIN: "340"
+          PYTHONUNBUFFERED: "1"
+        run: python vwap_momentum_live.py --mode live
+
+  close_segment:
+    needs: open_segment
+    if: always() && (github.event_name == 'schedule' || github.event.inputs.mode == 'live')
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Latest ledger from main (dedup)
+        continue-on-error: true
+        run: git fetch -q origin main && git checkout -q FETCH_HEAD -- vwap_live_ledger.jsonl 2>/dev/null || true
+      - name: 🟠 مقطعُ الإغلاق ثمّ الحصاد
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          VWL_SEND: ${{ github.event_name == 'schedule' && '1' || github.event.inputs.send }}
+          VWL_SEGMENT: "close"
+          VWL_MAX_RUNTIME_MIN: "340"
+          PYTHONUNBUFFERED: "1"
+        run: python vwap_momentum_live.py --mode live

@@ -91361,6 +91361,382 @@ except Exception as _e:                                                    # noq
 check("🧪🔧 H6L2 (تعديل 5 · م6) حارسُ الانتقاء: SUPPORTED لا يبقى إن عاكسته الوحداتُ في وقتها وحدَها (5 فأكثر) · والسطرُ يُحفظ لكلّ عائلة",
       _h6l2, _h6l2_w)
 
+# 🟠 VWL1-VWL12 (‏2026-10-29 · أمرُ المالك «ابنِ أداة زخم الفيواب حيّة — تنبيه فقط · قيد الإثبات الأمامي»): `vwap_momentum_live.py`
+#    بالملحق 3 تعريفًا نهائيًّا وقراراتِ المالك (D_MIN 250 ألف · السعرُ من 1.00 · RVOL من 04:00 · المتأخّرُ أكثرَ من 10 د لا يُرسَل ويُسجَّل ·
+#    D حتى 3) — كلُّ شرطٍ بقفلٍ سلوكيّ على شموعٍ اصطناعيّة · وشبكةٌ مزيّفة بلا إنترنت · ولا تلغرام في السويّة (المُرسِلُ محقون).
+import vwap_momentum_live as _VL
+import vwap_mom_feas as _VL3
+import vwap_mom_feas_v4 as _VL4
+import market_calendar as _VLMC
+
+
+def _vl_scenario(k=1.0, vmul=1.0, retests=1, step=1.04):
+    """شموعُ دقيقةٍ اصطناعيّة (صيغةُ V3): بري ثمّ 12 شمعة 5د من 09:30 — تحت VWAP ثمّ كسرٌ وثلاثُ إغلاقاتٍ فوقه بحجمٍ متزايد (A عند 10:10)
+    ثمّ `retests` دورةَ لمسةٍ للفيواب وثلاثِ إغلاقاتٍ فوقه بحجمٍ متزايد (D) — k يضرب الأسعار وvmul الأحجام."""
+    p = [(1.30, 1.32, 1.28, 1.30), (1.30, 1.31, 1.20, 1.21), (1.21, 1.22, 1.18, 1.19), (1.19, 1.20, 1.17, 1.18),
+         (1.18, 1.40, 1.18, 1.38), (1.38, 1.45, 1.37, 1.44), (1.44, 1.50, 1.43, 1.49), (1.49, 1.55, 1.48, 1.54)]
+    v = [100000, 90000, 80000, 70000, 300000, 320000, 340000, 360000]
+    bars = [(240, 1.20 * k, 1.20 * k, 1.20 * k, 1.20 * k, 2000.0 * vmul)]
+
+    def add(i, o, h, l, c, vol):
+        s = 570 + 5 * i
+        bars.append((s, o * k, max(o, c) * k, l * k, o * k, vol / 5 * vmul))
+        for j in (1, 2, 3):
+            bars.append((s + j, o * k, o * k, o * k, o * k, vol / 5 * vmul))
+        bars.append((s + 4, c * k, h * k, min(o, c) * k, c * k, vol / 5 * vmul))
+    for i, ((o, h, l, c), vol) in enumerate(zip(p, v)):
+        add(i, o, h, l, c, vol)
+    i, last, vol = len(p), p[-1][3], v[-1]
+    for _r in range(retests):
+        reg = [b for b in bars if b[0] >= 570]
+        vw = _VL3.vwap_series(reg)[-1] / k
+        add(i, last, last, vw * 1.005, vw * 1.03, vol * 0.5)          # اللمسة: قاعٌ حتى 1.01 × VWAP · إغلاقٌ فوقه
+        i += 1
+        c = vw * 1.03
+        for _s in range(3):
+            vol = vol * 1.25
+            nc = c * step
+            add(i, c, nc * 1.002, c * 0.999, nc, vol)
+            c, i = nc, i + 1
+        last = c
+    return bars
+
+
+_VL_DAY, _VL_PREV = "2026-10-26", "2026-10-23"
+_VL_PRI = _VL4._prev_sessions(_VL_DAY, 20, _VLMC)
+
+
+def _vl_priors(vol=5000.0, present=20):
+    return [(d, (_VL4.cum_curve([(600, 1.0, 1.0, 1.0, 1.0, vol)]) if i < present else None), 1.0) for i, d in enumerate(_VL_PRI)]
+
+
+def _vl_eval(bars, prev=1.0, pri=None, cat=None, ts="ok", spac=False, upto=960, d_min=_VL.D_MIN_LIVE, full=False):
+    pri = _vl_priors() if pri is None else pri
+    cat = cat or (lambda e: {"C": True, "wire": True})
+    return _VL.evaluate(bars, 570, 960, upto, prev, lambda: pri, cat, ts, spac, d_min=d_min, full_info=full)
+
+
+class _VLFakeNet:
+    """Polygon وSEC مزيّفان — بلا إنترنت · `paged`/`poly`/`sec`/`minutes`/`news`/`snapshot` كواجهة `Net`."""
+
+    def __init__(self, bars, news=None, sec_rows=None, sic="2834", typ="CS", snap=(1.75, 1.15), prior_vol=5000.0):
+        self.bars, self.news_items, self.sec_rows, self.sic, self.typ, self.snap = bars, news or [], sec_rows or [], sic, typ, snap
+        self.prior_vol, self.calls, self.fails = prior_vol, 0, 0
+
+    def poly(self, path, params=None):
+        self.calls += 1
+        if "/grouped/" in path:
+            return {"results": [{"T": "TST", "c": 1.0, "h": max(b[2] for b in self.bars), "l": min(b[3] for b in self.bars)}]}
+        if path.startswith("/v3/reference/tickers/"):
+            return {"results": {"type": self.typ}}
+        if path.startswith("/v2/snapshot/"):
+            return {"tickers": [{"ticker": "TST", "day": {"h": self.snap[0], "l": self.snap[1]}}]}
+        return None
+
+    def poly_url(self, url):
+        return None
+
+    def paged(self, path, params, cap=100):
+        self.calls += 1
+        if path == "/v3/reference/splits":
+            return [], True
+        if path == "/v3/reference/tickers":
+            return [{"ticker": "TST", "type": self.typ}], True
+        return [], False
+
+    def sec(self, url):
+        self.calls += 1
+        if url.endswith("company_tickers.json"):
+            return {"0": {"ticker": "TST", "cik_str": 1234}}
+        rec = {"form": [r[1] for r in self.sec_rows], "acceptanceDateTime": [r[0] for r in self.sec_rows],
+               "items": [r[2] for r in self.sec_rows], "filingDate": [_VL_PREV]}
+        return {"sic": self.sic, "filings": {"recent": rec, "files": []}}
+
+    def minutes(self, sym, d_from, d_to):
+        self.calls += 1
+        if sym != "TST":
+            return {}
+        if d_from == d_to == _VL_DAY:
+            return {_VL_DAY: list(self.bars)}
+        return {d: [(600, 1.0, 1.0, 1.0, 1.0, self.prior_vol)] for d in _VL_PRI}
+
+    def news(self, sym, a_iso, b_iso):
+        return [it for it in self.news_items if a_iso <= it["published_utc"] <= b_iso]
+
+    def snapshot(self):
+        return {"TST": self.snap}
+
+
+def _vl_iso(mod, day=_VL_DAY):
+    return _VL.dt.datetime.fromtimestamp(_VL3.ny_ts(day, mod), tz=_VL.dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _vl_news(pub, mod=7 * 60, day=_VL_DAY, host="https://www.globenewswire.com/x"):
+    return {"id": f"{pub}{mod}", "published_utc": _vl_iso(mod, day), "tickers": ["TST"], "publisher": {"name": pub},
+            "title": "Company signs contract", "article_url": host}
+
+
+def _vl_live(net, start_mod, send=True, segment="single", path=None, sender_ok=True):
+    import tempfile as _t
+    path = path or _t.mktemp(suffix=".jsonl", dir=_t.gettempdir())
+    clock, sent, saved = {"t": _VL3.ny_ts(_VL_DAY, start_mod)}, [], []
+    import contextlib as _cl
+    import io as _io
+    with _cl.redirect_stdout(_io.StringIO()):                          # سجلُّ الحلقة لا يُغرق مُخرَجَ السويّة
+        rc = _VL.mode_live(net, _VLMC, send, segment, now_fn=lambda: clock["t"],
+                           sleep_fn=lambda s: clock.__setitem__("t", clock["t"] + max(0.0, s)),
+                           sender=lambda m: sent.append(m) or sender_ok, saver=lambda f: saved.append(list(f)), path=path)
+    return rc, sent, saved, _VL.read_ledger(path), path
+
+
+# VWL1 — الثوابتُ بقرارات المالك والملحق 3 · والتعريفُ بدوالّ الجدوى بالاسم (AST) لا بنسخةٍ ثانية
+try:
+    import ast as _vl_ast
+    _vl_src = open(_VL.__file__, encoding="utf-8").read()
+    _vl_tree = _vl_ast.parse(_vl_src)
+    _vl_calls = {_vl_ast.unparse(n.func) for n in _vl_ast.walk(_vl_tree) if isinstance(n, _vl_ast.Call)}
+    _vl_top_imports = {a.name for n in _vl_tree.body if isinstance(n, (_vl_ast.Import, _vl_ast.ImportFrom))
+                       for a in getattr(n, "names", [])} | {n.module for n in _vl_tree.body if isinstance(n, _vl_ast.ImportFrom)}
+    _vl1_c = {
+        "consts": (_VL.D_MIN_LIVE, _VL.PX_MIN, _VL.PX_MAX, _VL.CHG_MIN, _VL.RVOL_MIN, _VL.D_MAX_PER_DAY, _VL.FRESH_MAX_S, _VL.EMA_N)
+                  == (250_000, 1.00, 20.0, 0.20, 3.0, 3, 600, 9) and _VL.TYPES_OK == ("CS", "ADRC", "OS") and _VL.SPAC_SIC == "6770",
+        "by_name": {"V3.break_events", "V3.event_liq", "V3.retest_signal", "V3.cum_dollar_at", "V3.vwap_series", "V3.bucketize",
+                    "V4.pct_change", "V4.ge", "V4.rvol", "V4.curve_at", "V4.cum_curve", "V4.vol_factor", "V4.price_factor",
+                    "V4.catalyst4", "V4.wire_index", "V4.wire_of", "V3.sec_index", "V3.make_acc_ts"} <= _vl_calls,
+        "no_root_import": "Super_stock" not in _vl_top_imports and "edgar2_probe" not in _vl_top_imports,
+        "regular_only": "V3.EXT_END" not in _vl_ast.unparse(next(n for n in _vl_ast.walk(_vl_tree)
+                                                                if isinstance(n, _vl_ast.FunctionDef) and n.name == "complete_buckets")),
+    }
+    _vl1, _vl1w = all(_vl1_c.values()), str({k: v for k, v in _vl1_c.items() if not v} or "كلّها")
+except Exception as _e:                                                    # noqa: BLE001
+    _vl1, _vl1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL1 (‏2026-10-29) زخم الفيواب الحيّة: الثوابتُ بقرارات المالك (250 ألف · 1.00 · 20 · ‏+20% · RVOL 3 · D حتى 3 · 10 د · EMA9) · "
+      "والتعريفُ بدوالّ الجدوى بالاسم · ولا استيرادَ للجذور في رأس الوحدة · والنظاميّةُ وحدَها", _vl1, _vl1w)
+
+# VWL2 — شمعةٌ غيرُ مكتملة لا تُطلق (حدثُ 10:10 لا يُرى عند 10:08) · ولا نظرَ للأمام: النتيجةُ عند كلّ حدٍّ = نتيجةُ الشموع المقصوصة قبله
+try:
+    _b = _vl_scenario()
+    _c = {
+        "none_before": _vl_eval(_b, upto=600)["alerts"] == [],
+        "partial_no": _vl_eval(_b, upto=608)["alerts"] == [],
+        "at_close": [(a["arm"], a["e"]) for a in _vl_eval(_b, upto=610)["alerts"]] == [("A", 610)],
+        "causal": all([(a["arm"], a["n"], a["e"], round(a["px"], 6)) for a in _vl_eval(_b, upto=B)["alerts"]]
+                      == [(a["arm"], a["n"], a["e"], round(a["px"], 6)) for a in _vl_eval([x for x in _b if x[0] < B], upto=B)["alerts"]]
+                      for B in range(575, 700, 5)),
+        "ext_ignored": _vl_eval([x for x in _b if x[0] < 570] + [x for x in _b if x[0] >= 570], upto=960)["alerts"][0]["e"] == 610,
+        "no_future": all(ev["e"] <= B for B in list(range(575, 700, 5)) + [603, 608] for ev in _vl_eval(_b, upto=B, full=True)["events"])
+                     and _vl_eval(_b, upto=608, full=True)["events"] == [],
+    }
+    _vl2, _vl2w = all(_c.values()), str({k: v for k, v in _c.items() if not v} or "كلّها")
+except Exception as _e:                                                    # noqa: BLE001
+    _vl2, _vl2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL2 الشمعةُ المكتملة وحدَها تُطلق (لا شيءَ عند 10:08 لحدث 10:10) · ولا نظرَ للأمام عند أيّ حدّ · والنظاميّةُ وحدَها", _vl2, _vl2w)
+
+# VWL3 — ① ‏+20% على حدّه (‏1.54 ÷ 1.2833… = 20% بالضبط ينجح · وأقلُّ بشعرةٍ يسقط) — والحدثُ عند إغلاق شمعة الإكمال
+try:
+    _b = _vl_scenario()
+    _ok = _vl_eval(_b, prev=1.54 / 1.20)["alerts"]
+    _no = _vl_eval(_b, prev=1.54 / 1.1999)["alerts"]
+    _w = _vl_eval(_b, prev=1.54 / 1.1999, full=True)["events"][0]["why"]
+    _vl3 = bool(_ok) and _ok[0]["arm"] == "A" and not _no and "① التغيّر" in _w and _vl_eval(_b, prev=None)["alerts"] == []
+    _vl3w = f"ok={len(_ok)} no={len(_no)} why={_w}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vl3, _vl3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL3 ① ‏+20% فأكثر عن إغلاق الأمس المسوّى لحظةَ الحدث (على حدّه ينجح · ودونه بشعرةٍ يسقط · وبلا إغلاقٍ سابق لا تنبيه)", _vl3, _vl3w)
+
+# VWL4 — ② RVOL ≥ 3 من 04:00 (‏1,662,000 ÷ 554,000 = 3 بالضبط) · وأقلُّ من 10 جلساتٍ حاضرة ⟵ مجهول ⟵ لا تنبيه
+try:
+    _b = _vl_scenario()
+    _cur = _VL.shares_before(_b, 610)
+    _vl4_c = {
+        "exact": bool(_vl_eval(_b, pri=_vl_priors(vol=_cur / 3.0))["alerts"]),
+        "below": not _vl_eval(_b, pri=_vl_priors(vol=_cur / 2.999))["alerts"],
+        "unknown": not _vl_eval(_b, pri=_vl_priors(present=9))["alerts"]
+                   and "② RVOL (مجهول)" in _vl_eval(_b, pri=_vl_priors(present=9), full=True)["events"][0]["why"],
+        "from_0400": _cur == sum(x[5] for x in _b if 240 <= x[0] < 610) and any(x[0] < 570 for x in _b),
+    }
+    _vl4, _vl4w = all(_vl4_c.values()), f"{ {k: v for k, v in _vl4_c.items() if not v} or 'كلّها'} · cur={_cur}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vl4, _vl4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL4 ② الحجمُ من 04:00 ÷ متوسّطِه حتى الدقيقة نفسِها في 20 جلسة ≥ 3 (على حدّه ينجح · ودونه يسقط · وأقلُّ من 10 حاضرة مجهولٌ لا تنبيه)",
+      _vl4, _vl4w)
+
+# VWL5 — ③ L: حجمُ الثبات يتناقص ⟵ لا تنبيه (والسببُ «③ L»)
+try:
+    _b = _vl_scenario()
+    _dec = []
+    for _x in _b:
+        _dec.append(_x if not (595 <= _x[0] < 610) else (_x[0], _x[1], _x[2], _x[3], _x[4], _x[5] / 50.0))
+    _vl5 = bool(_vl_eval(_b)["alerts"]) and not _vl_eval(_dec)["alerts"] and "③ L" in _vl_eval(_dec, full=True)["events"][0]["why"]
+    _vl5w = str(_vl_eval(_dec, full=True)["events"][0]["why"])
+except Exception as _e:                                                    # noqa: BLE001
+    _vl5, _vl5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL5 ③ «السيولة تزيد لا تنقص» (L كما في v2): حجمُ شموع الثبات الأقلّ من الثلاث قبلها ⟵ لا تنبيه", _vl5, _vl5w)
+
+# VWL6 — ④ الخبر عبر `Day.catalyst` الحيّ: GlobeNewswire ينجح · Zacks وحدَه لا · 8-K ينجح · 6-K وحدَه لا · قبل 16:00 أمس لا · بعد الحدث لا
+try:
+    _b = _vl_scenario()
+    _pa = "2026-10-26T12:05:00Z"
+
+    def _vl6(news=(), sec_rows=()):
+        _n = _VLFakeNet(_b, news=list(news), sec_rows=list(sec_rows))
+        _D = _VL.Day(_n, _VL_DAY, _VLMC, replay=True)
+        return [(a["arm"], a["e"]) for a in _VL.scan_symbol(_D, "TST", _b, 960, _VL3.ny_ts(_VL_DAY, 960))["alerts"]], _D
+    _a_g, _D6 = _vl6([_vl_news("GlobeNewswire Inc.")])
+
+    class _VLSecDown(_VLFakeNet):
+        def sec(self, url):
+            return _VLFakeNet.sec(self, url) if url.endswith("company_tickers.json") else None
+    _nd = _VLSecDown(_b)
+    _Dd = _VL.Day(_nd, _VL_DAY, _VLMC, replay=True)
+    _ud = _VL.scan_symbol(_Dd, "TST", _b, 960, _VL3.ny_ts(_VL_DAY, 960), full_info=True)
+    _vl6_c = {
+        "wire": bool(_a_g) and _a_g[0] == ("A", 610),
+        "zacks_only": _vl6([_vl_news("Zacks Investment Research", host="https://zacks.com/x")])[0] == [],
+        "8k": bool(_vl6(sec_rows=[(_pa, "8-K", "8.01")])[0]),
+        "6k_only": _vl6(sec_rows=[(_pa, "6-K", "")])[0] == [],
+        "before_window": _vl6([_vl_news("GlobeNewswire Inc.", mod=15 * 60, day=_VL_PREV)])[0] == [],
+        "evening_ok": bool(_vl6([_vl_news("GlobeNewswire Inc.", mod=17 * 60, day=_VL_PREV)])[0]),
+        "after_event": [x for x in _vl6([_vl_news("GlobeNewswire Inc.", mod=612)])[0] if x[1] == 610] == [],
+        "win_a": _D6.win_a == _VL3.ny_ts(_VL_PREV, 16 * 60),
+        "unknown_no": _ud["alerts"] == [] and "④ الخبر (مجهول)" in _ud["events"][0]["why"],
+    }
+    _vl6, _vl6w = all(_vl6_c.values()), str({k: v for k, v in _vl6_c.items() if not v} or "كلّها")
+except Exception as _e:                                                    # noqa: BLE001
+    _vl6, _vl6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL6 ④ خبرٌ حقيقيّ شرطٌ واجب: بيانُ GlobeNewswire أو 8-K في [16:00 أمس، لحظة الحدث] · وZacks/التجميع و6-K وحدهما وما قبل النافذة وما بعد الحدث لا",
+      _vl6, _vl6w)
+
+# VWL7 — ⑤ السعرُ في [1.00، 20) · النوعُ المقبول · لا SPAC · والحجمُ الدولاريّ التراكميّ على حدّه (‏≥ d_min)
+try:
+    _b = _vl_scenario()
+    _e0 = 610
+    _cd = _VL3.cum_dollar_at(_b, _e0)
+    _k_hi, _k_lo = 19.99 / 1.54, 0.99 / 1.54
+    _vl7_c = {
+        "px_1999": bool(_vl_eval(_vl_scenario(k=_k_hi), prev=_k_hi)["alerts"]),
+        "px_20": not _vl_eval(_vl_scenario(k=20.0 / 1.54), prev=20.0 / 1.54)["alerts"],
+        "px_099": not _vl_eval(_vl_scenario(k=_k_lo, vmul=10), prev=_k_lo)["alerts"],
+        "px_100": bool(_vl_eval(_vl_scenario(k=1.0 / 1.54, vmul=10), prev=1.0 / 1.54)["alerts"]),
+        "type_excl": not _vl_eval(_b, ts="excluded")["alerts"],
+        "type_unknown": not _vl_eval(_b, ts="unknown")["alerts"],
+        "spac": not _vl_eval(_b, spac=True)["alerts"],
+        "dmin_edge": bool(_vl_eval(_b, d_min=_cd)["alerts"]) and not _vl_eval(_b, d_min=_cd + 1)["alerts"],
+    }
+    _vl7, _vl7w = all(_vl7_c.values()), f"{ {k: v for k, v in _vl7_c.items() if not v} or 'كلّها'} · cum$={_cd:.0f}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vl7, _vl7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL7 ⑤ السعرُ من 1.00 إلى ما دون 20 · CS/ADRC/OS وحدها · لا SPAC (SIC 6770) · والحجمُ الدولاريّ من 04:00 حتى الحدث على حدّ 250 ألف", _vl7, _vl7w)
+
+# VWL8 — الذراعان: A مرّةً واحدة (أوّلُ كامل) · D بعده فقط ولكلّ لمسةٍ جديدة حتى 3 · وفي إكمال D ① قائم
+try:
+    _b4 = _vl_scenario(retests=4)
+    _bl = _vl_scenario(retests=1, step=1.01)                           # D يُكمل دون سعر A ⟵ ① عنده دون 20% إن كان A على حدّه
+    _al = _vl_eval(_b4)["alerts"]
+    _arms = [(a["arm"], a["n"]) for a in _al]
+    _vl8_c = {
+        "a_once_d3": _arms == [("A", 1), ("D", 1), ("D", 2), ("D", 3)],
+        "d_after_a": all(a["e"] > _al[0]["e"] for a in _al[1:]) and len({a["e"] for a in _al}) == len(_al),
+        "d_needs_chg": [a["arm"] for a in _vl_eval(_bl)["alerts"]] == ["A", "D"]
+                       and [a["arm"] for a in _vl_eval(_bl, prev=1.54 / 1.20)["alerts"]] == ["A"],
+        "no_a_no_d": _vl_eval(_b4, cat=lambda e: {"C": False})["alerts"] == [],
+    }
+    _vl8, _vl8w = all(_vl8_c.values()), f"{ {k: v for k, v in _vl8_c.items() if not v} or 'كلّها'} · {_arms}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vl8, _vl8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL8 A مرّةً لكلّ رمزٍ/يوم · وD بعد أوّل A كامل لكلّ لمسةٍ جديدة حتى 3 (أربعُ لمساتٍ ⟵ ثلاثُ تنبيهات) · وبلا A لا D", _vl8, _vl8w)
+
+# VWL9 — الحلقةُ الحيّة: الطازجُ يُرسَل والمتأخّرُ أكثرَ من 10 د يُسجَّل بلا إرسال · بلا `send` لا إرسالَ ولا سجلّ · والمقطعُ الثاني لا يكرّر ·
+#        والـworkflow بلا كرون (حتى موافقة المالك) وجوبُ الأوضاع اليدويّة بلا أسرار تلغرام
+try:
+    import yaml as _vl_yaml
+    _b = _vl_scenario()
+    _nw = [_vl_news("GlobeNewswire Inc.")]
+    _rc, _sent, _sav, _rows, _p = _vl_live(_VLFakeNet(_b, news=_nw), 565, segment="open")
+    _rc2, _sent2, _sav2, _rows2, _p2 = _vl_live(_VLFakeNet(_b, news=_nw), 765, segment="close", path=_p)
+    _rcL, _sentL, _savL, _rowsL, _pL = _vl_live(_VLFakeNet(_b, news=_nw), 11 * 60, segment="single")
+    _rcD, _sentD, _savD, _rowsD, _pD = _vl_live(_VLFakeNet(_b, news=_nw), 565, send=False, segment="open")
+    _wf = _vl_yaml.safe_load(open(".github/workflows/vwap_momentum_live.yml", encoding="utf-8"))
+    _on = _wf.get("on", _wf.get(True)) or {}
+    _off_env = " ".join(str(s.get("env") or "") for s in _wf["jobs"]["offline"]["steps"])
+    _vl9_c = {
+        "fresh_sent": _rc == 0 and len(_sent) == 2 and [r["sent"] for r in _rows if r["kind"] == "alert"] == [True, True]
+                      and all(r["latency_s"] <= 600 for r in _rows if r["kind"] == "alert"),
+        "edge": _VL.is_fresh(1000.0, 1600.0) and not _VL.is_fresh(1000.0, 1600.5),
+        "no_resend": _sent2 == [] and sum(1 for r in _rows2 if r["kind"] == "alert") == 2
+                     and sum(1 for r in _rows2 if r["kind"] == "harvest") == 2,
+        "late_logged": _sentL == [] and [(r["sent"], r["reason"]) for r in _rowsL if r["kind"] == "alert"] == [(False, "late"), (False, "late")],
+        "dry": _sentD == [] and _rowsD == [] and _savD == [],
+        "saved": _sav and all(_p in f for f in _sav),
+        "no_cron": "schedule" not in _on and "workflow_dispatch" in _on,
+        "offline_no_tg": "TELEGRAM" not in _off_env and "POLYGON_API_KEY" in _off_env,
+        "live_gated": all("schedule" in str(_wf["jobs"][j].get("if")) and "live" in str(_wf["jobs"][j].get("if"))
+                          for j in ("pre_open_wait_1", "pre_open_wait_2", "open_segment", "close_segment")),
+    }
+    _vl9, _vl9w = all(_vl9_c.values()), str({k: v for k, v in _vl9_c.items() if not v} or "كلّها")
+except Exception as _e:                                                    # noqa: BLE001
+    _vl9, _vl9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL9 الحلقةُ الحيّة: الطازجُ يُرسَل · والمتأخّرُ أكثرَ من 10 د يُسجَّل «late» بلا إرسال · وبلا send لا إرسالَ ولا سجلّ · "
+      "والمقطعُ الثاني لا يكرّر ويحصد · والـworkflow بلا كرون حتى موافقة المالك والأوضاعُ اليدويّة بلا أسرار تلغرام", _vl9, _vl9w)
+
+# VWL10 — الرسالة: الحقولُ المطلوبة وحدُّ الصدق في كلّ رسالة · وبلا علامات مقارنة · وD موسومةٌ «إعادة اختبار #n»
+try:
+    import re as _vl_re
+    _al = _vl_eval(_vl_scenario(retests=1))["alerts"]
+    _mA = _VL.build_message(dict(_al[0], sym="TST", news="Company signs contract — GlobeNewswire — 10-26 07:00 نيويورك"))
+    _mD = _VL.build_message(dict(_al[1], sym="TST", news="x"))
+    _vis = _vl_re.sub(r"<[^>]+>", "", _mA + _mD)
+    _vl10_c = {
+        "fields": all(t in _mA for t in ("زخم الفيواب", "$TST", f"${_al[0]['px']:.2f}", "يومه", "RVOL", "فيواب $", "فوقه 4 شموع 5د",
+                                         "EMA9", "📰 Company signs contract", "وقف مقترح: إغلاق شمعة 5د تحت الفيواب",
+                                         "كل 7-10% ربح بيع جزء وارفع وقفك", "قيد الإثبات الأمامي", _VL.WIRE_LIMIT_NOTE)),
+        "d_tag": "إعادة اختبار #1" in _mD and "إعادة اختبار" not in _mA,
+        "no_cmp": not any(ch in _vis for ch in "≥≤<>"),
+    }
+    _vl10, _vl10w = all(_vl10_c.values()), str({k: v for k, v in _vl10_c.items() if not v} or "كلّها")
+except Exception as _e:                                                    # noqa: BLE001
+    _vl10, _vl10w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL10 الرسالةُ بشكل المالك (السعر · ‏+% · RVOL · الفيواب وعددُ الشموع فوقه · EMA9 · الخبر · الوقف · الجني) وحدُّ صدق الأسلاك في كلّ رسالة · "
+      "وبلا علامات مقارنة · وD «إعادة اختبار #n»", _vl10, _vl10w)
+
+# VWL11 — الحصاد: أعلى سعرٍ بعد التنبيه · أوّلُ إغلاق 5د تحت الفيواب · العائدان · إلحاقيٌّ لا يمسّ صفوفًا سابقة ولا يحصد مرّتين
+try:
+    import tempfile as _vl_t
+    _b = _vl_scenario(retests=0)
+    _hb = _b + [(660 + j, 1.50, 1.50, 1.20, 1.20, 100000.0) for j in range(5)]
+    _h = _VL.harvest(_hb, 570, 960, 610, 1.54)
+    _pH = _vl_t.mktemp(suffix=".jsonl")
+    _VL.append_ledger({"kind": "alert", "key": "2026-10-26|TST|A|1", "date": _VL_DAY, "sym": "TST", "sent": True, "event_end_mod": 610,
+                       "px": 1.54}, _pH)
+    _before = open(_pH, encoding="utf-8").read()
+    import contextlib as _cl2
+    import io as _io2
+    with _cl2.redirect_stdout(_io2.StringIO()):
+        _n1 = _VL.mode_harvest(_VLFakeNet(_hb), _VLMC, _pH, now_fn=lambda: _VL3.ny_ts("2026-10-27", 600))
+        _n2 = _VL.mode_harvest(_VLFakeNet(_hb), _VLMC, _pH, now_fn=lambda: _VL3.ny_ts("2026-10-27", 600))
+    _after = open(_pH, encoding="utf-8").read()
+    _vl11_c = {
+        "fields": _h["exit_ny"] == "11:05" and _h["exit_px"] == 1.20 and _h["ret_exit"] == round(1.20 / 1.54 - 1, 4)
+                  and _h["max_high"] == 1.50 and _h["max_high_ny"] == "11:00" and _h["max_gain"] == round(1.50 / 1.54 - 1, 4)
+                  and _h["close_px"] == 1.20 and _h["ret_close"] == round(1.20 / 1.54 - 1, 4),
+        "append_only": _after.startswith(_before) and _n1 == 1 and _n2 == 0,
+    }
+    _vl11, _vl11w = all(_vl11_c.values()), f"{ {k: v for k, v in _vl11_c.items() if not v} or 'كلّها'} · {_h}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vl11, _vl11w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL11 الحصادُ بعد الإغلاق: أعلى سعرٍ بعد التنبيه · أوّلُ إغلاق 5د تحت الفيواب · العائدُ حتى الخروج وحتى الإغلاق · إلحاقيٌّ ومرّةً لكلّ تنبيه",
+      _vl11, _vl11w[:400])
+
+# VWL12 — المرشِّحُ الأعمّ لا يُسقط حدثًا ممكنًا (أعلى اليوم ‏+20% بالضبط يبقى · النوعُ المجهول يبقى ليُسأل عنه · المستبعَدُ والسعرُ 20 كلُّه يُقصيان)
+try:
+    _pf = _VL.prefilter({"A": (1.20, 1.0), "B": (1.1999, 1.0), "C": (1.3, 1.0), "D": (25.0, 20.0), "E": (1.3, 1.0)},
+                        lambda s: 1.0, {"A": "CS", "B": "CS", "C": "ETF", "D": "CS"})
+    _vl12 = _pf == {"A", "E"}
+    _vl12w = str(sorted(_pf))
+except Exception as _e:                                                    # noqa: BLE001
+    _vl12, _vl12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠 VWL12 المرشِّحُ الحيّ أعمُّ من الشروط: أعلى اليوم ‏+20% بالضبط يبقى · والمجهولُ النوعِ يبقى · وETF وما فوق 20 كلَّ اليوم يُقصيان", _vl12, _vl12w)
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
