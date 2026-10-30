@@ -92662,6 +92662,34 @@ except Exception as _e:                                          # noqa: BLE001
 check("🧮 SGA10: سلّمُ الملحق — R0 = أرقامُ الإنتاج من `CONFIG` · R1 يشمل مثالَ فيصل 1.84/1.81 وR0 لا · R5 ارتدادُ 20 · "
       "والوحداتُ الـ16 (الـ13 ‏+ BRTX ‏+ الشاهدان) من البيانات بالبرنامج · و`method_sequence` بالاسم بمعاملاتها", _sga10_ok, _sga10_x)
 
+# 🧮🔬 SGA11 (‏2026-10-30 · نتيجةُ الملحق 1): الحلقاتُ والوحداتُ من بياناتها ببصمة الملحق نفسِها · بوّابةُ الهويّة عبرت ·
+#        والحكمُ المنشور «لا فرق قابل للكشف» · والجزءُ المولَّد من `SPLIT_GATES_ADDENDUM_1_RESULT.md` يُعاد بايتًا (يشمله SGA7).
+try:
+    _sga11_d = _sga_os.path.join("fm_forensics", "split_gates", "data")
+    _sga11_ep = _sga_j.load(open(_sga_os.path.join(_sga11_d, "episodes_result.json"), encoding="utf-8"))
+    _sga11_dg = _sga_j.load(open(_sga_os.path.join(_sga11_d, "units_diag.json"), encoding="utf-8"))
+    _sga11_doc = open(_sga_os.path.join("fm_forensics", "split_gates", "SPLIT_GATES_ADDENDUM_1_RESULT.md"), encoding="utf-8").read()
+    _sga11_ue = _sga_j.load(open(_sga_os.path.join(_sga11_d, "units_eval.json"), encoding="utf-8"))
+    _sga11_meta = _sga_j.load(open(_sga_os.path.join(_sga11_d, "runs.json"), encoding="utf-8"))
+    _sga11_spec = _sga_iu.spec_from_file_location("split_gates_doc_t", _sga_os.path.join("fm_forensics", "split_gates", "split_gates_doc.py"))
+    _sga11_doc_m = _sga_iu.module_from_spec(_sga11_spec)
+    _sga11_spec.loader.exec_module(_sga11_doc_m)
+    _sga11_gen = _sga11_doc_m.render_addendum(_sga11_ep, _sga11_dg, _sga11_meta)
+    _sga11_ok = (_sga11_doc.startswith(_sga11_gen) and len(_sga11_gen) > 2000
+                 and _sga11_ep["addendum_sha"] == SGT.ADDENDUM_SHA == _sga11_dg["addendum_sha"]
+                 and _sga11_ep["contract_sha"] == SGT.CONTRACT_SHA and _sga11_ep["pop_run"] == SGT.POP_RUN
+                 and _sga11_ep["identity"]["ok"] is True
+                 and [_sga11_ep["identity"]["rej"], _sga11_ep["identity"]["pass"]] == [list(SGT.PUB_G2["rej"]), list(SGT.PUB_G2["pass"])]
+                 and _sga11_ep["never"]["n"] + _sga11_ep["complete"]["n"] == _sga11_ep["episodes"]
+                 and _sga11_ep["verdict"] == "لا فرق قابل للكشف" and "«لا فرق قابل للكشف»" in _sga11_doc
+                 and [u["unit"] for u in _sga11_dg["units"]] == SGT.diag_units(_sga11_ue)
+                 and "## ⑤ «اعرض الـ13 بالعين»" in _sga11_doc)
+    _sga11_x = f"{_sga11_ep.get('verdict')} · {_sga11_ep.get('episodes')}"
+except Exception as _e:                                          # noqa: BLE001
+    _sga11_ok, _sga11_x = False, f"{type(_e).__name__}: {_e}"
+check("🧮 SGA11: نتيجةُ الملحق 1 ببصمته وبوّابةُ هويّتها عابرة (314/86 · 25/7) · جزؤها المولَّد يُعاد من بياناتها بايتًا · "
+      "الحلقاتُ = لم يكتمل ‏+ اكتمل · الحكمُ «لا فرق قابل للكشف» · والوحداتُ بترتيب البيانات · وقسمُ العين حاضر", _sga11_ok, _sga11_x[:80])
+
 # BKD1-BKD6 (‏2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام» · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه مجهولًا
 #        بعد الحصاد والموقع يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS` من `ctb_log.jsonl` ∪ `borrow_watch.jsonl` — للبوّابة وحدَها
 #        (`borrow_known` لا `shares_available`) · و`0` ⟵ فائدةُ الشك بت-بت · وشاهدُ 10-27 من ملفّات البوت نفسِها: BCTX · PLSM · FRSX · ASPC
