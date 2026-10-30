@@ -92581,6 +92581,24 @@ except Exception as _e:                                          # noqa: BLE001
 check("🧮 SGA6: الشروطُ بالدوالّ الإنتاجيّة بالاسم (AST) — `_split_setup_probe` · `method_sequence` · السلّمُ والوقفُ والقروب · "
       "والمنظورُ والإدخالُ والنتيجةُ من `rebuild` بالاسم — ولا نسخةَ لأيٍّ منها", _sga_ok6, str(_sga_calls)[:80])
 
+# 🧮🔬 SGA7 (‏2026-10-30 · نتيجةُ `T-SPLITGATES`): الجزءُ المولَّد من `SPLIT_GATES_RESULT.md` يُعاد من ملفّي البيانات بايتًا (`split_gates_doc.py --check`)
+#        وبصمةُ العقد في البيانات = `CONTRACT_SHA` · والحكمان المنشوران كما في البيانات (G1 «لا فرق قابل للكشف» · G2 «لا قياس»).
+try:
+    import subprocess as _sga7_sp
+    import sys as _sga7_sys
+    _sga7_r = _sga7_sp.run([_sga7_sys.executable, "-B", _sga_os.path.join("fm_forensics", "split_gates", "split_gates_doc.py"), "--check"],
+                           capture_output=True, text=True, timeout=120)
+    _sga7_pop = _sga_j.load(open(_sga_os.path.join("fm_forensics", "split_gates", "data", "pop_result.json"), encoding="utf-8"))
+    _sga7_un = _sga_j.load(open(_sga_os.path.join("fm_forensics", "split_gates", "data", "units_eval.json"), encoding="utf-8"))
+    _sga7_doc = open(_sga_os.path.join("fm_forensics", "split_gates", "SPLIT_GATES_RESULT.md"), encoding="utf-8").read()
+    _sga7_ok = (_sga7_r.returncode == 0 and _sga7_pop["contract_sha"] == SGT.CONTRACT_SHA
+                and _sga7_un["contract_sha"] == SGT.CONTRACT_SHA
+                and _sga7_pop["G1"]["verdict"] == "لا فرق قابل للكشف" and _sga7_pop["G2"]["verdict"] == "لا قياس"
+                and "«لا فرق قابل للكشف»" in _sga7_doc and "«لا قياس»" in _sga7_doc)
+    _sga7_x = (_sga7_r.stdout + _sga7_r.stderr)[-80:]
+except Exception as _e:                                          # noqa: BLE001
+    _sga7_ok, _sga7_x = False, f"{type(_e).__name__}: {_e}"
+check("🧮 SGA7: نتيجةُ `T-SPLITGATES` تُعاد من بياناتها بايتًا وببصمة العقد نفسِها — G1 «لا فرق قابل للكشف» · G2 «لا قياس»", _sga7_ok, _sga7_x)
 # BKD1-BKD6 (‏2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام» · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه مجهولًا
 #        بعد الحصاد والموقع يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS` من `ctb_log.jsonl` ∪ `borrow_watch.jsonl` — للبوّابة وحدَها
 #        (`borrow_known` لا `shares_available`) · و`0` ⟵ فائدةُ الشك بت-بت · وشاهدُ 10-27 من ملفّات البوت نفسِها: BCTX · PLSM · FRSX · ASPC
