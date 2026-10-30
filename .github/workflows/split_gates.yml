@@ -1,0 +1,159 @@
+name: "🧮🔬 T-SPLITGATES بوّابتا فلترة التقسيم (قياسٌ · يدويّ)"
+
+# 🔒 قراءةٌ وقياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا تغيير بوّابة (العقد `fm_forensics/split_gates/SPLIT_GATES_prereg.md`).
+# الأداةُ تخرج 9 إن لم يطابق العقدُ وقائمةُ الوحدات بصمتَيهما (`CONTRACT_SHA` · `UNITS_SHA`).
+# `units_eval` = ② على الوحدات الـ173 · `pop` = ③④ على ثلاث سنوات: prep ⟵ 8 شرائح ⟵ assemble (ومعه ② لبوّابة إعادة الإنتاج).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "الوضع: units_eval (②) · pop (③④)"
+        type: choice
+        options: [units_eval, pop]
+        default: units_eval
+
+jobs:
+  units_eval:
+    if: github.event.inputs.mode == 'units_eval'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧮 ② الوحدات
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SG_MODE: units_eval
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/split_gates/split_gates.py
+
+  pop_prep:
+    if: github.event.inputs.mode == 'pop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧮 اللقطات والتقسيمات العكسيّة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SG_MODE: pop_prep
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/split_gates/split_gates.py
+
+      - name: Upload prep
+        uses: actions/upload-artifact@v4
+        with:
+          name: sg-prep
+          path: fm_forensics/split_gates/out/prep.json.gz
+          retention-days: 30
+
+  pop_shard:
+    needs: pop_prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 8               # لا يستنفد رنرات البوت الحيّة
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep
+        uses: actions/download-artifact@v4
+        with:
+          name: sg-prep
+          path: fm_forensics/split_gates/out
+
+      - name: 🧮 الشريحة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SG_MODE: pop_shard
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "8"
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/split_gates/split_gates.py
+
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: sg-shard-${{ matrix.shard }}
+          path: fm_forensics/split_gates/out/shard_*.json.gz
+          retention-days: 30
+
+  pop_assemble:
+    needs: pop_shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sg-shard-*
+          merge-multiple: true
+          path: fm_forensics/split_gates/out
+
+      - name: 🧮 ② لبوّابة إعادة الإنتاج
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SG_MODE: units_eval
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/split_gates/split_gates.py
+
+      - name: 🧮 ③④ الحصص والحكم
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SG_MODE: pop_assemble
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/split_gates/split_gates.py
