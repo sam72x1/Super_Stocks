@@ -92668,6 +92668,55 @@ except Exception as _e:                                                    # noq
     _vA8, _vA8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠④ VNF8 من الحلقة الحيّة: صعودٌ ‏+4% بلا كسرٍ بخبرٍ ⟵ رسالةٌ «ثبات فوق الفيواب» بلا RVOL وصفُّ A موسومٌ A4 · والملحق 3 صامت", _vA8, _vA8w)
 
+# VNF9 — مقارنةُ الإعادة (طلبُ المالك 2026-10-30 «اطبع جدولين لجلسة 10-30»): `mode_replay` بالملحق 4 يُخرج معه صفوفَ الملحق 3 على الشموع
+#    نفسِها وسببَ الغياب · صعودٌ بلا كسر ⟵ A4 وحدَه و«لا كسر» · وكسرٌ كاملٌ بالقديم ⟵ الاثنان · وبالملحق 3 لا مقارنةَ (مُخرَجُه كما كان)
+def _va4_replay(net, defv=None):
+    import tempfile as _tf
+    _d = _tf.mkdtemp()
+    _keep = (_va3_os.environ.get("VWL_DEF"), _va3_os.environ.get("VWL_OUT"))
+    try:
+        if defv is None:
+            _va3_os.environ.pop("VWL_DEF", None)
+        else:
+            _va3_os.environ["VWL_DEF"] = defv
+        _va3_os.environ["VWL_OUT"] = _va3_os.path.join(_d, "r.json")
+        _rc = _VL.mode_replay(net, _VLMC, _VL_DAY, 1)
+        return _rc, json.load(open(_va3_os.environ["VWL_OUT"], encoding="utf-8")), _VL.def_now()
+    finally:
+        for _k, _v in zip(("VWL_DEF", "VWL_OUT"), _keep):
+            if _v is None:
+                _va3_os.environ.pop(_k, None)
+            else:
+                _va3_os.environ[_k] = _v
+
+
+try:
+    _rc9, _o9, _d9 = _va4_replay(_VLFakeNet(_va4_up(n=12), news=[_vl_news("GlobeNewswire Inc.")]))
+    _rc9b, _o9b, _ = _va4_replay(_VLFakeNet(_vl_scenario(), news=[_vl_news("GlobeNewswire Inc.")]))
+    _rc9c, _o9c, _ = _va4_replay(_VLFakeNet(_vl_scenario(), news=[_vl_news("GlobeNewswire Inc.")]), "A3")
+    _rc9d, _o9d, _ = _va4_replay(_VLFakeNet(_vl_scenario(k=0.7), news=[_vl_news("GlobeNewswire Inc.")]))   # كسرٌ بتغيّرٍ ‏+8% دون ‏+20%
+    _c9d = (_o9d.get("cmp") or [{}])[0]
+    _c9 = (_o9.get("cmp") or [{}])[0]
+    _c9b = (_o9b.get("cmp") or [{}])[0]
+    _t9 = _VL.cmp_tables(_o9b)
+    _vA9 = (_o9["def"] == "A4" and [r["arm"] for r in _o9["alerts"]][:1] == ["A"] and _o9["alerts_a3"] == []
+            and _c9.get("a3") == [] and _c9.get("a3_breaks") == [] and _VL.cmp_why(_c9).startswith("لا كسر")
+            and [r["arm"] for r in _o9b["alerts_a3"]][:1] == ["A"] and _c9b.get("a3", [])[:1] == [["A", 1, _o9b["alerts_a3"][0]["event_end_ny"]]]
+            and _VL.cmp_why(_c9b).startswith("أُرسل بالقديم")
+            and [(r["sym"], r["arm"], r["n"], r["event_end_ny"]) for r in _o9b["alerts_a3"]]
+            == [(r["sym"], r["arm"], r["n"], r["event_end_ny"]) for r in _o9c["alerts"]]
+            and "alerts_a3" not in _o9c and "cmp" not in _o9c and _d9 == "A4"
+            and any(l.startswith("📋 الملحق 3") for l in _t9) and any("بالقديم: أُرسل بالقديم" in l for l in _t9)
+            and [r["arm"] for r in _o9d["alerts"]][:1] == ["A"] and _o9d["alerts_a3"] == [] and _c9d.get("a3") == []
+            and _c9d.get("a3_breaks") and "① التغيّر" in _c9d["a3_breaks"][0]["why"] and "سقط" in _VL.cmp_why(_c9d)
+            and "① التغيّر" in _VL.cmp_why(_c9d))
+    _vA9w = (f"rc={_rc9}/{_rc9b}/{_rc9c} A4={[r['arm'] for r in _o9['alerts']]} A3على4={_o9['alerts_a3']} cmp={_c9} · "
+             f"سيناريو2 A3على4={[(r['arm'], r['event_end_ny']) for r in _o9b['alerts_a3']]} A3وحده={[(r['arm'], r['event_end_ny']) for r in _o9c['alerts']]} · "
+             f"سيناريو3 A4={[r['arm'] for r in _o9d['alerts']]} سبب={_VL.cmp_why(_c9d) if _c9d else None}")
+except Exception as _e:                                                    # noqa: BLE001
+    _vA9, _vA9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠④ VNF9 مقارنةُ الإعادة: الملحق 4 يُخرج معه صفوفَ الملحق 3 على الشموع نفسِها (تطابق إعادةَ الملحق 3 وحدَه) وسببَ الغياب («لا كسر» · كسرٌ سقط على ①) · والملحق 3 بلا مقارنة", _vA9, _vA9w)
+
 # VNF7 — المفتاح: الغيابُ أو أيُّ قيمةٍ غيرُ «A3» ⟵ A4 · و«a3» ⟵ A3 · ووثيقةُ الملحق تحمل نصَّ المالك وبنودَه الخمسة
 try:
     _dv = []

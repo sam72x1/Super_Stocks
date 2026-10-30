@@ -23,6 +23,7 @@ RVOL **من 04:00** · الحدثُ المكتشَف بعد إغلاق شمعت�
 و`--pre-open-sleep` لجوبَي الانتظار. **والفشلُ يُعلَن بخروجٍ غير صفريّ لا يُكتَم.**
 """
 import argparse
+import contextlib
 import datetime as dt
 import json
 import os
@@ -80,6 +81,20 @@ CHECK_ORDER_A4 = ("⑤ السعر", "الحجم الدولاري", "③ L", "⑤
 def def_now():
     """تعريفُ الأداة وقتَ النداء: «A3» ⟵ الملحق 3 كما كان بت-بت · وغيرُه ⟵ «A4» (الإنتاج)."""
     return "A3" if (os.environ.get(DEF_ENV) or "").strip().upper() == "A3" else DEF_DEFAULT
+
+
+@contextlib.contextmanager
+def as_def(v):
+    """تعريفٌ مؤقّت داخل الكتلة ثمّ يُعاد ما كان (مقارنةُ الإعادة وحدَها: الملحق 3 على شموع الملحق 4 نفسِها)."""
+    old = os.environ.get(DEF_ENV)
+    os.environ[DEF_ENV] = v
+    try:
+        yield
+    finally:
+        if old is None:
+            os.environ.pop(DEF_ENV, None)
+        else:
+            os.environ[DEF_ENV] = old
 
 
 def hold_events(b5, b15):
@@ -1026,6 +1041,9 @@ def mode_replay(net, MC, end_day, ndays):
     days.reverse()
     out = {"mode": "replay", "def": def_now(), "ldef": resolve_ldef(), "days": days, "d_min": D_MIN_LIVE, "px": [PX_MIN, PX_MAX], "chg_min": CHG_MIN, "rvol_min": RVOL_MIN,
            "fresh_max_s": FRESH_MAX_S, "d_max": D_MAX_PER_DAY, "per_day": {}, "alerts": [], "near": []}
+    cmp3 = def_now() == "A4"                                            # 🟠④ مقارنةٌ بالملحق 3 على الشموع نفسِها (الإعادةُ وحدَها)
+    if cmp3:
+        out["alerts_a3"], out["cmp"] = [], []
     bad = False
     for day in days:
         D = Day(net, day, MC, replay=True)
@@ -1064,6 +1082,26 @@ def mode_replay(net, MC, end_day, ndays):
             if {(a["arm"], a["n"]) for a in fin["alerts"]} != set(got):
                 mismatch += 1                                           # الحلقةُ والتقييمُ الكامل يجب أن يتّفقا بالبناء
             out["alerts"].extend(got[k] for k in sorted(got, key=lambda x: (x[0] != "A", x[1])))
+            if cmp3:
+                with as_def("A3"):
+                    got3 = {}
+                    for B in bounds:
+                        det = V3.ny_ts(day, B) + LOOP_OFFSET_S
+                        for a in scan_symbol(D, sym, bars, B, det)["alerts"]:
+                            k = (a["arm"], a["n"])
+                            if k not in got3:
+                                got3[k] = ledger_row(day, sym, a, det, is_fresh(V3.ny_ts(day, a["e"]), det), None, "replay", _sha(),
+                                                     a.get("news"))
+                    out["alerts_a3"].extend(got3[k] for k in sorted(got3, key=lambda x: (x[0] != "A", x[1])))
+                    if got or got3:
+                        f3 = scan_symbol(D, sym, bars, D.cl, V3.ny_ts(day, D.cl) + LOOP_OFFSET_S, full_info=True)
+                        out["cmp"].append({"date": day, "sym": sym,
+                                           "a4": [(got[k]["arm"], got[k]["n"], got[k]["event_end_ny"]) for k in sorted(got)],
+                                           "a3": [(got3[k]["arm"], got3[k]["n"], got3[k]["event_end_ny"]) for k in sorted(got3)],
+                                           "a3_breaks": [{"e": _hm(e["e"]), "kind": e["kind"], "px": round(e["px"], 4),
+                                                          "chg": None if e["chg"] is None else round(e["chg"], 4),
+                                                          "rvol": None if e["rvol"] in (None, float("inf")) else round(e["rvol"], 2),
+                                                          "why": e["why"]} for e in f3["events"]]})
             n_ev += len(fin["events"])
             n_sym_ev += int(bool(fin["events"]))
             n_full += sum(1 for e in fin["events"] if e["full"])
@@ -1089,7 +1127,40 @@ def mode_replay(net, MC, end_day, ndays):
     for r in out["alerts"]:
         log(f"🟠 {r['date']} {r['event_end_ny']} ${r['sym']} · {r['arm']}{'#' + str(r['n']) if r['arm'] == 'D' else ''} · "
             f"${r['px']} · {_pct(r['chg'])} · RVOL {r['rvol']} · 📰 {r['news']}")
+    if cmp3:
+        for line in cmp_tables(out):
+            log(line)
     return 4 if bad else 0
+
+
+def cmp_why(c):
+    """سببُ غياب الرمز عن الملحق 3 (من مقارنة الإعادة): لا كسر · أو كسوراتٌ وما سقط في كلٍّ منها بترتيب `CHECK_ORDER`."""
+    if c["a3"]:
+        return "أُرسل بالقديم أيضًا " + " · ".join(f"{a}{'#' + str(n) if a == 'D' else ''} {t}" for a, n, t in c["a3"])
+    if not c["a3_breaks"]:
+        return "لا كسر: لم يُغلق تحت الفيواب ثمّ فوقه في الجلسة"
+    return f"{len(c['a3_breaks'])} كسر سقط: " + " | ".join(
+        f"{b['e']} {' + '.join(b['why']) or 'كامل'} (تغيّر {_pct(b['chg'])} · RVOL {b['rvol']})" for b in c["a3_breaks"])
+
+
+def cmp_tables(out):
+    """جدولا الإعادة: ما كان سيُرسَل بالملحق 3 · وما سيُرسَل بالملحق 4 ومعه حالُه بالقديم — الرمز · الوقت · السعر · الخبر."""
+    why = {(c["date"], c["sym"]): c for c in out.get("cmp", [])}
+    a3 = out.get("alerts_a3", [])
+    lines = [f"📋 الملحق 3 (القديم): {len(a3)} تنبيهًا على {len({(r['date'], r['sym']) for r in a3})} رمزًا"]
+    for r in a3:
+        lines.append(f"  A3 · {r['date']} {r['event_end_ny']} · ${r['sym']} · {r['arm']}{'#' + str(r['n']) if r['arm'] == 'D' else ''} · "
+                     f"${r['px']} · {_pct(r['chg'])} · RVOL {r['rvol']} · 📰 {r['news']}{'' if r['sent'] else ' · ⏳ متأخّر لا يُرسَل'}")
+    a4 = out.get("alerts", [])
+    lines.append(f"📋 الملحق 4 (الجديد): {len(a4)} تنبيهًا على {len({(r['date'], r['sym']) for r in a4})} رمزًا")
+    for r in a4:
+        c = why.get((r["date"], r["sym"]))
+        lines.append(f"  A4 · {r['date']} {r['event_end_ny']} · ${r['sym']} · {r['arm']}{'#' + str(r['n']) if r['arm'] == 'D' else ''} · "
+                     f"${r['px']} · {_pct(r['chg'])} · 📰 {r['news']}{'' if r['sent'] else ' · ⏳ متأخّر لا يُرسَل'}"
+                     + ("" if r["arm"] != "A" or c is None else f" · بالقديم: {cmp_why(c)}"))
+    only3 = sorted({(r["date"], r["sym"]) for r in a3} - {(r["date"], r["sym"]) for r in a4})
+    lines.append(f"📋 رموزُ الملحق 3 الغائبةُ عن الملحق 4: {len(only3)}" + (f" {only3}" if only3 else ""))
+    return lines
 
 
 def mode_trace(net, MC, day, sym):
