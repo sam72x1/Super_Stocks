@@ -15,6 +15,8 @@
     pop_prep      ③④ التقسيماتُ العكسيّة 2022-08 … 2025-12 على أسهم ناسداك (لقطاتٌ شهريّة PIT) ⟵ out/prep.json.gz
     pop_shard     ③④ شريحةُ رموز (SHARD · NSHARDS) ⟵ out/shard_NN.json.gz
     pop_assemble  ③④ الحصصُ والفواصل والضبطُ والحكم ⟵ RESULT_JSON
+    episodes      الملحق 1 · G2 على مستوى الحلقة من شرائح التشغيلة المنشورة نفسِها (بلا شبكة) ⟵ RESULT_JSON
+    units_diag    الملحق 1 · الوحداتُ التي ترفضها G2 وحدَها: شموعُها وسلّمُ `method_sequence` وما بعدها ⟵ RESULT_JSON
     guards        حرّاسٌ اصطناعيّة بلا شبكة (SG1…)
 """
 import datetime as dt
@@ -65,6 +67,16 @@ WITNESS_G2 = [("MDCX", "2026-10-30", "41014435536"), ("BDAI", "2026-10-28", "406
               ("ELAB", "2026-10-28", "40643179983"), ("UCAR", "2026-10-28", "40643179983")]
 INTAKE_BATCHES = ("B4_20261008", "B36_20261027", "B22_20261028")
 H6_CASES = {("BKYI", "2026-10-22"), ("CYCU", "2026-10-23"), ("ICMB", "2026-10-24"), ("ANPA", "2026-10-14")}
+
+# ── الملحق 1 (`SPLIT_GATES_ADDENDUM_1.md` · 2026-10-30 · «سجّل ملحق G2 على مستوى الحلقة. اعرض الـ13 بالعين.») ──
+ADDENDUM = os.path.join(HERE, "SPLIT_GATES_ADDENDUM_1.md")
+ADDENDUM_SHA = "bf11051f8858f23981ba68c465c36001bd01ce719beddfd5a6e7a3151ef44853"   # بصمةُ الملحق (SGA8) — الوضعان episodes/units_diag يخرجان 9 بلا مطابقتها
+POP_RUN = "41042865267"                    # §① تشغيلةُ ③④ المنشورة — شرائحُها المادّةُ المجمَّدة
+PUB_G2 = {"rej": (314, 86), "pass": (25, 7), "symbols": 953}   # §① بوّابةُ الهويّة = الأرقامُ المنشورة
+EP_WIN = 20                                # §② نافذةُ اكتمال الحلقة بالجلسات
+# §⑤ سلّمُ الإرخاء الوصفيّ: (الاسم، الارتداد %، التسامح، النافذة) — R0 = الإنتاج بأرقام `CONFIG`
+DIAG_RUNGS = (("R0", 10.0, 0.015, 30), ("R1", 10.0, 0.02, 30), ("R2", 10.0, 0.03, 30),
+              ("R3", 10.0, 0.015, 60), ("R4", 10.0, 0.03, 60), ("R5", 20.0, 0.02, 30))
 
 
 def log(*a):
@@ -634,6 +646,238 @@ def mode_pop_assemble(shards=None, units_result=None):
     return out
 
 
+# ── الملحق 1: G2 على مستوى الحلقة (بلا شبكة · من الشرائح المنشورة) ─────────────────────────────────────────
+def addendum_sha():
+    with open(ADDENDUM, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest()
+
+
+def g2_episodes(res, win=EP_WIN, x_to=X_TO):
+    """§② الحلقة: E0 من `rebuild.new_entries` على أيّام `in2` · «اكتمل» = أوّلُ يومٍ C في [E0، E0+win−1] بجلسات الرمز له صفٌّ فيه
+    `in2` و`rej2` كاذب · النتيجةُ `exp` يومَ C للمكتمل ويومَ E0 لغيره · النافذةُ التي تتجاوز `x_to` تُسقط وتُعَدّ."""
+    RB = _rb()
+    eps = []
+    drop = {"no_exp_e0": 0, "truncated_xto": 0, "no_exp_c": 0}
+    for s, blob in sorted(res.items()):
+        rr = {r["X"]: r for r in blob["rows"]}
+        dates = blob["dates"]
+        ix = {d: i for i, d in enumerate(dates)}
+        ents = RB.new_entries([x for x, r in rr.items() if r["in2"]], dates, win=WIN)
+        for k, e0 in enumerate(ents):
+            r0 = rr[e0]
+            if r0["exp"] is None:
+                drop["no_exp_e0"] += 1
+                continue
+            i0 = ix[e0]
+            if i0 + win - 1 >= len(dates) or dates[i0 + win - 1] > x_to:
+                drop["truncated_xto"] += 1
+                continue
+            window = dates[i0:i0 + win]
+            c = next((d for d in window if d in rr and rr[d]["in2"] and not rr[d]["rej2"]), None)
+            nxt = ents[k + 1] if k + 1 < len(ents) else None
+            any_c = next((d for d in sorted(rr) if d >= e0 and (nxt is None or d < nxt)
+                          and rr[d]["in2"] and not rr[d]["rej2"]), None)
+            ep = {"sym": s, "E0": e0, "C": c, "complete": c is not None, "exp_e0": bool(r0["exp"]),
+                  "ret20_e0": r0["ret20"], "delay": None if c is None else ix[c] - i0,
+                  "ff_c": None if c is None else rr[c]["ff"], "any_c": any_c,
+                  "beyond_rows": sum(1 for d in window if d not in rr)}
+            if c is not None:
+                if rr[c]["exp"] is None:
+                    drop["no_exp_c"] += 1
+                    continue
+                ep["exp_c"] = bool(rr[c]["exp"])
+                ep["ret20_c"] = rr[c]["ret20"]
+            eps.append(ep)
+    return eps, drop
+
+
+def episode_items(eps):
+    """§③ (رفض، نتيجة، رمز، زخمُ يوم بدء القياس): «لم يكتمل» = المرفوض (النتيجةُ والزخمُ يومَ E0) · «اكتمل» = العابر (يومَ C)."""
+    return [(not e["complete"], e["exp_c"] if e["complete"] else e["exp_e0"], e["sym"],
+             e["ret20_c"] if e["complete"] else e["ret20_e0"]) for e in eps]
+
+
+def _grp(eps, key):
+    n = len(eps)
+    k = sum(1 for e in eps if e[key])
+    return {"n": n, "tickers": len({e["sym"] for e in eps}), "exp": k,
+            "share": round(k / n, 4) if n else None, "wilson": wilson(k, n)}
+
+
+def episode_stats(eps):
+    """§③ الحصص والفواصل والضبطُ والسنوات (قواعدُ العقد نفسُها) ‏+ §④ الوصفيّات V1-V6."""
+    raw4 = episode_items(eps)
+    cuts = mom_cuts([x[3] for x in raw4])
+    items = [(r, e, t, mom_bin(m, cuts)) for r, e, t, m in raw4]
+    comp = [e for e in eps if e["complete"]]
+    nev = [e for e in eps if not e["complete"]]
+    raw, st = delta_raw(items), delta_strat(items)
+    raw_ci, st_ci = cluster_boot(items, delta_raw), cluster_boot(items, delta_strat)
+    years = {}
+    for y in ("2023", "2024", "2025"):
+        yi = [it for it, e in zip(items, eps) if e["E0"][:4] == y]
+        dy = delta_raw(yi)
+        years[y] = {"n_never": sum(1 for it in yi if it[0]), "n_complete": sum(1 for it in yi if not it[0]),
+                    "delta": None if dy is None else round(dy, 4)}
+    floors = (len(comp) >= MIN_GROUP and len(nev) >= MIN_GROUP and len({e["sym"] for e in comp}) >= MIN_TICKERS
+              and len({e["sym"] for e in nev}) >= MIN_TICKERS)
+    se = None if raw_ci[0] is None else (raw_ci[1] - raw_ci[0]) / (2 * 1.96)
+    dl = sorted(e["delay"] for e in comp)
+    q = (lambda f: dl[min(len(dl) - 1, int(f * len(dl)))]) if dl else (lambda f: None)
+    n_all = len(eps)
+    return {
+        "episodes": n_all, "tickers": len({e["sym"] for e in eps}),
+        "never": _grp([dict(e, _x=e["exp_e0"]) for e in nev], "_x"),
+        "complete": _grp([dict(e, _x=e["exp_c"]) for e in comp], "_x"),
+        "delta_raw": None if raw is None else round(raw, 4), "delta_raw_ci": raw_ci,
+        "delta_strat": None if st is None else round(st, 4), "delta_strat_ci": st_ci,
+        "mom_cuts": [round(c, 4) for c in cuts], "years": years, "floors_ok": floors,
+        "mde80": None if se is None else round(2.8 * se, 4),
+        "V1": {"complete_e0": _grp([dict(e, _x=e["exp_e0"]) for e in comp], "_x"),
+               "never_e0": _grp([dict(e, _x=e["exp_e0"]) for e in nev], "_x")},
+        "V2": {"complete_e0_share": _grp([dict(e, _x=e["exp_e0"]) for e in comp], "_x")["share"],
+               "complete_c_share": _grp([dict(e, _x=e["exp_c"]) for e in comp], "_x")["share"],
+               "exp_e0_not_c": sum(1 for e in comp if e["exp_e0"] and not e["exp_c"]),
+               "exp_c_not_e0": sum(1 for e in comp if e["exp_c"] and not e["exp_e0"])},
+        "V3": {"median": q(0.5), "q1": q(0.25), "q3": q(0.75),
+               "bins": {"0": sum(1 for d in dl if d == 0), "1-5": sum(1 for d in dl if 1 <= d <= 5),
+                        "6-10": sum(1 for d in dl if 6 <= d <= 10), "11-19": sum(1 for d in dl if 11 <= d <= 19)}},
+        "V4": {"complete_entry_ok": sum(1 for e in comp if e["ff_c"] is None), "complete": len(comp)},
+        "V5": {"complete_any_in_episode": sum(1 for e in eps if e["any_c"]), "episodes": n_all},
+        "V6": {"noG2_exp_per100": round(100 * sum(e["exp_e0"] for e in eps) / n_all, 2) if n_all else None,
+               "noG2_share": round(sum(e["exp_e0"] for e in eps) / n_all, 4) if n_all else None,
+               "G2_exp_per100": round(100 * sum(e["exp_c"] for e in comp) / n_all, 2) if n_all else None,
+               "G2_share": round(sum(e["exp_c"] for e in comp) / len(comp), 4) if comp else None,
+               "G2_entries": len(comp)},
+        "beyond_rows_episodes": sum(1 for e in eps if e["beyond_rows"]),
+    }
+
+
+def _load_shards(path=OUT):
+    shards = []
+    for f in sorted(os.listdir(path)) if os.path.isdir(path) else []:
+        if f.startswith("shard_") and f.endswith(".json.gz"):
+            with gzip.open(os.path.join(path, f), "rt", encoding="utf-8") as fh:
+                shards.append(json.load(fh))
+    return shards
+
+
+def mode_episodes(shards=None, units_result=None):
+    """الملحق 1 §①-§④: الهويّةُ أوّلًا (الشرائحُ تُعيد المنشور) ثمّ الحلقاتُ والحكم."""
+    shards = _load_shards() if shards is None else shards
+    res, diag, nsym = {}, {}, 0
+    for sh in shards:
+        res.update(sh["res"])
+        nsym += sh["symbols"]
+        for k, v in sh["bars_diag"].items():
+            diag[k] = diag.get(k, 0) + v
+    if units_result is None:
+        units_result = json.load(open(os.path.join(HERE, "data", "units_eval.json"), encoding="utf-8"))
+    wit_ok = bool(((units_result or {}).get("summary") or {}).get("witness_g2", {}).get("ok"))
+    out = {"mode": "episodes", "contract_sha": contract_sha(), "addendum_sha": addendum_sha(), "pop_run": POP_RUN,
+           "shards": len(shards), "symbols": nsym, "bars_diag": diag, "witness_g2_ok": wit_ok}
+    g2 = gate_stats(res, "G2") if res else None
+    ident = bool(g2 and (g2["rej"]["n"], g2["rej"]["exp"]) == PUB_G2["rej"]
+                 and (g2["pass"]["n"], g2["pass"]["exp"]) == PUB_G2["pass"]
+                 and nsym == PUB_G2["symbols"] and diag.get("ok", 0) == PUB_G2["symbols"])
+    out["identity"] = {"ok": ident, "rej": None if not g2 else [g2["rej"]["n"], g2["rej"]["exp"]],
+                       "pass": None if not g2 else [g2["pass"]["n"], g2["pass"]["exp"]]}
+    if not ident:
+        out["verdict"] = "لا قياس"
+        return out
+    eps, drop = g2_episodes(res)
+    st = episode_stats(eps)
+    st["dropped"] = drop
+    st["verdict"] = verdict(st["delta_raw"], st["delta_raw_ci"], st["delta_strat"], st["delta_strat_ci"],
+                            [v["delta"] for v in st["years"].values()], st["floors_ok"], wit_ok)
+    out.update(st)
+    return out
+
+
+# ── الملحق 1 §⑤: الوحدات التي ترفضها G2 وحدَها (شموع · سلّم · ما بعدها) ──────────────────────────────────────
+def diag_units(units_eval):
+    """§⑤ الوحداتُ من `data/units_eval.json` بالبرنامج: G2 وحدَها في الأساسيّ أو الحسّاسيّة · أو شاهدُ G2."""
+    return [r["unit"] for r in units_eval["units"]
+            if (r.get("prim") or {}).get("sole_G2") or (r.get("sens") or {}).get("sole_G2") or r.get("logged_g2")]
+
+
+def low_facts(df, win):
+    """§⑤ وصفُ آخر `win` شمعة: أدنى Low (أوّلُ ظهوره) ويومُه · الجلساتُ بعده · أعلى ارتدادٍ بعده % · وأدنى Low بعد تلك القمّة نسبةً إلى القاع %."""
+    w = df.tail(int(win))
+    lo, hi = [float(x) for x in w["Low"].values], [float(x) for x in w["High"].values]
+    n = len(lo)
+    if not n:
+        return None
+    j = min(range(n), key=lambda k: lo[k])
+    low = lo[j]
+    f = {"low": round(low, 4), "low_date": w.index[j].date().isoformat(), "bars_after": n - 1 - j,
+         "bounce_pct": None, "retest_gap_pct": None}
+    if j < n - 1 and low > 0:
+        pk = max(range(j + 1, n), key=lambda k: hi[k])
+        f["bounce_pct"] = round((hi[pk] / low - 1.0) * 100.0, 2)
+        if pk < n - 1:
+            f["retest_gap_pct"] = round((min(lo[pk + 1:]) / low - 1.0) * 100.0, 2)
+    return f
+
+
+def rung_states(S, df):
+    """§⑤ السلّم: `method_sequence` بالاسم بمعاملاتها لكلّ درجة ⟵ اكتمل؟"""
+    out = {}
+    for name, b, t, w in DIAG_RUNGS:
+        seq = S.method_sequence(df, win=w, bounce_min=b, tol=t)
+        out[name] = bool(seq and seq.get("ok"))
+    return out
+
+
+def mode_units_diag(key, units_eval=None, fetch_bars=None, splits_by=None):
+    S = _S()
+    RB = _rb()
+    units_eval = units_eval or json.load(open(os.path.join(HERE, "data", "units_eval.json"), encoding="utf-8"))
+    want = diag_units(units_eval)
+    meta = {u["unit"]: u for u in json.load(open(UNITS, encoding="utf-8"))["units"]}
+    syms = sorted({meta[u]["sym"] for u in want})
+    if splits_by is None:
+        splits_by = _splits_all(UNIT_BARS_FROM, dt.date.today().isoformat(), key)
+    bars = {}
+    for s in syms:
+        rows, _why = (fetch_bars(s) if fetch_bars else _bars(s, UNIT_BARS_FROM, dt.date.today().isoformat(), key))
+        bars[s] = rows
+    out = []
+    for u in want:
+        m = meta[u]
+        rows, sp = bars.get(m["sym"]) or [], splits_by.get(m["sym"], [])
+        rec = {"unit": u, "sym": m["sym"], "D": m["D"], "sources": m["sources"], "images": m["images"]}
+        for tag, day in (("prim", m["D"]), ("sens", (dt.date.fromisoformat(m["D"]) + dt.timedelta(1)).isoformat())):
+            v, _spv = asof_view(rows, sp, day)
+            if len(v) < 40:
+                rec[tag] = {"nodata": True, "bars": len(v)}
+                continue
+            df = rows_df(v[-400:])
+            rec[tag] = {"asof": v[-1][0], "facts": low_facts(df, int(S.CONFIG["FAISAL_BOTTOM_LOOKBACK"])),
+                        "rungs": rung_states(S, df)}
+        # ما بعد الوحدة: الجلساتُ العشرون من D
+        fut = [x[0] for x in rows if x[0] >= m["D"]][:WIN]
+        fwd = {"sessions": len(fut), "first_R0": None, "first_all": None, "exploded": None, "max_rise_pct": None}
+        for k, d in enumerate(fut):
+            v, spv = asof_view(rows, sp, (dt.date.fromisoformat(d) + dt.timedelta(1)).isoformat())
+            if len(v) < 40:
+                continue
+            ev = eval_conditions(S, rows_df(v[-400:]), spv, dt.date.fromisoformat(d))
+            if fwd["first_R0"] is None and ev["seq_ok"]:
+                fwd["first_R0"] = [k, d]
+            if fwd["first_all"] is None and first_fail(ev) is None:
+                fwd["first_all"] = [k, d]
+        if fut:
+            fwd["exploded"] = RB.exploded(rows, m["D"], float(S.CONFIG["EXPLOSION_PCT"]), WIN)
+            i = next((k for k, x in enumerate(rows) if x[0] >= m["D"]), None)
+            if i and rows[i - 1][4] > 0:
+                fwd["max_rise_pct"] = round((max(x[2] for x in rows[i:i + WIN]) / rows[i - 1][4] - 1.0) * 100.0, 1)
+        rec["forward"] = fwd
+        out.append(rec)
+    return {"mode": "units_diag", "contract_sha": contract_sha(), "addendum_sha": addendum_sha(),
+            "n_units": len(want), "units": out}
+
+
 # ── الحرّاس الاصطناعيّة (بلا شبكة) ──────────────────────────────────────────────────────────────────────
 def guards():
     S = _S()
@@ -699,6 +943,44 @@ def guards():
     # SG8 asof_view لا ينظر للأمام
     v, spv = asof_view(r1, sp1, r1[100][0])
     chk("SG8 asof_view قبل D حصرًا", v[-1][0] == r1[99][0] and all(d < r1[100][0] for d, _ in spv))
+    # SG9 الحلقة (الملحق 1 §②): E0 بالإدخال الجديد · C أوّلُ يومٍ مكتمل داخل 20 جلسة · النتيجةُ من C للمكتمل ومن E0 لغيره · والمقصوصُ يُسقط
+    _ds = [f"2023-{m:02d}-{d:02d}" for m in range(1, 13) for d in range(1, 29)]
+    def _r(x, in2, rej2, exp, ret=0.0):
+        return {"X": x, "in2": in2, "rej2": rej2, "exp": exp, "ret20": ret, "ff": None}
+    _res = {"AAA": {"dates": _ds, "rows": [_r(_ds[10], True, True, True), _r(_ds[12], True, True, True),
+                                          _r(_ds[15], True, False, False), _r(_ds[60], True, True, True)]},
+            "BBB": {"dates": _ds, "rows": [_r(_ds[100], True, True, False), _r(_ds[110], True, True, False),
+                                          _r(_ds[119], True, True, False), _r(_ds[120], True, False, True)]},
+            "CCC": {"dates": _ds, "rows": [_r(_ds[200], True, True, False), _r(_ds[219], True, False, True)]}}
+    _eps, _drop = g2_episodes(_res, x_to=_ds[300])
+    _ix = {(e["sym"], e["E0"]): e for e in _eps}
+    _a, _a2, _b, _c = (_ix.get(("AAA", _ds[10])), _ix.get(("AAA", _ds[60])), _ix.get(("BBB", _ds[100])),
+                       _ix.get(("CCC", _ds[200])))
+    chk("SG9 g2_episodes: C أوّلُ مكتملٍ في 20 جلسة (الجلسةُ 19 داخلها والعشرون خارجها) · والمقصوصُ يُسقط",
+        _a and _a["complete"] and _a["C"] == _ds[15] and _a["delay"] == 5 and _a["exp_c"] is False and _a["exp_e0"] is True
+        and _a2 and not _a2["complete"] and _b and not _b["complete"] and _b["any_c"] == _ds[120]
+        and _c and _c["complete"] and _c["delay"] == 19
+        and len(_eps) == 4 and g2_episodes(_res, x_to=_ds[65])[1]["truncated_xto"] == 3)
+    # SG10 الاتّجاه: «لم يكتمل» = المرفوض ونتيجتُه من E0 · «اكتمل» = العابر ونتيجتُه من C
+    _it = episode_items(_eps)
+    chk("SG10 episode_items: المرفوضُ «لم يكتمل» بنتيجة E0 والعابرُ «اكتمل» بنتيجة C",
+        sorted(_it) == sorted([(False, False, "AAA", 0.0), (True, True, "AAA", 0.0), (True, False, "BBB", 0.0),
+                               (False, True, "CCC", 0.0)])
+        and abs(delta_raw(_it) - 0.0) < 1e-9)
+    # SG11 low_facts: القاعُ ويومُه والجلساتُ بعده والارتدادُ وأدنى Low بعد القمّة
+    _lr = [("2025-03-%02d" % (i + 1), 2.0, h, l, 2.0, 1e5) for i, (h, l) in
+           enumerate([(2.1, 1.95), (2.0, 1.81), (2.05, 1.9), (2.2, 2.0), (2.1, 1.9), (1.95, 1.84), (1.95, 1.86)])]
+    _lf = low_facts(rows_df(_lr), 30)
+    chk("SG11 low_facts", _lf and _lf["low"] == 1.81 and _lf["low_date"] == "2025-03-02" and _lf["bars_after"] == 5
+        and abs(_lf["bounce_pct"] - 21.55) < 0.01 and abs(_lf["retest_gap_pct"] - 1.66) < 0.01)
+    # SG12 السلّم بـ`method_sequence` بالاسم: مثالُ فيصل (1.81 ⟵ 2.20 ⟵ 1.84) يسقط على R0 ويكتمل على R1 وR5
+    _ym = [("2025-04-%02d" % (i + 1), c, c * 1.005, lw, c, 1e5) for i, (c, lw) in
+           enumerate([(2.3, 2.25), (2.1, 2.05), (2.0, 1.95), (1.85, 1.81), (1.95, 1.86), (2.1, 1.95), (2.18, 2.05),
+                      (2.0, 1.95), (1.9, 1.86), (1.86, 1.84), (1.88, 1.85)])]
+    _ym = [(d, o, (2.2 if i == 6 else h), lw, c, v) for i, (d, o, h, lw, c, v) in enumerate(_ym)]
+    _rs = rung_states(S, rows_df(_ym))
+    chk("SG12 rung_states: مثالُ YMT يسقط على R0 ويكتمل على R1 وR5",
+        _rs["R0"] is False and _rs["R1"] is True and _rs["R5"] is True and _rs["R2"] is True)
     bad = [n for n, c in ok if not c]
     log(f"guards: {len(ok) - len(bad)}/{len(ok)}")
     return 0 if not bad else 1
@@ -719,9 +1001,23 @@ def main():
     if not _contract_ok():
         log("⛔ العقدُ أو قائمةُ الوحدات لا يطابقان بصمتَيهما — لا رقمَ قبل العقد")
         return 9
+    if mode in ("episodes", "units_diag") and not (os.path.exists(ADDENDUM) and addendum_sha() == ADDENDUM_SHA):
+        log("⛔ الملحقُ 1 لا يطابق بصمتَه — لا رقمَ قبل الملحق")
+        return 9
+    if mode == "episodes":
+        res = mode_episodes()
+        log("RESULT_JSON " + json.dumps(res, ensure_ascii=False, separators=(",", ":")))
+        return 0
     if not key:
         log("⛔ لا مفتاح Polygon")
         return 2
+    if mode == "units_diag":
+        res = mode_units_diag(key)
+        for r in res["units"]:
+            p = r.get("prim") or {}
+            log(f"DIAG {r['unit']} · asof {p.get('asof')} · facts {p.get('facts')} · rungs {p.get('rungs')} · fwd {r['forward']}")
+        log("RESULT_JSON " + json.dumps(res, ensure_ascii=False, separators=(",", ":")))
+        return 0
     if mode == "units_eval":
         res = mode_units_eval(key)
         for r in res["units"]:

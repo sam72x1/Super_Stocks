@@ -92549,8 +92549,8 @@ try:
     _sga_rc4 = SGT.guards()
 except Exception as _e:                                          # noqa: BLE001
     _sga_rc4 = f"{type(_e).__name__}: {_e}"
-check("🧮 SGA4: حرّاسُ الأداة الثمانية (SG1-SG8) تعبر — أوّلُ سقوطٍ بترتيب الإنتاج · «وحدَها» · المجتمع · ضبطُ الزخم · الحكمُ بالأضعف · "
-      "G1 من `_split_setup_probe` بالاسم · لا نظرَ للأمام", _sga_rc4 == 0, str(_sga_rc4)[:80])
+check("🧮 SGA4: حرّاسُ الأداة (SG1-SG12) تعبر — أوّلُ سقوطٍ بترتيب الإنتاج · «وحدَها» · المجتمع · ضبطُ الزخم · الحكمُ بالأضعف · "
+      "G1 من `_split_setup_probe` بالاسم · لا نظرَ للأمام · والحلقةُ والسلّمُ (الملحق 1)", _sga_rc4 == 0, str(_sga_rc4)[:80])
 try:
     _sga_src = open(_sga_p, encoding="utf-8").read()
     _sga_t = _sga_ast.parse(_sga_src)
@@ -92599,6 +92599,69 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     _sga7_ok, _sga7_x = False, f"{type(_e).__name__}: {_e}"
 check("🧮 SGA7: نتيجةُ `T-SPLITGATES` تُعاد من بياناتها بايتًا وببصمة العقد نفسِها — G1 «لا فرق قابل للكشف» · G2 «لا قياس»", _sga7_ok, _sga7_x)
+# 🧮🔬 SGA8-SGA10 (‏2026-10-30 · أمرُ المالك «سجّل ملحق G2 على مستوى الحلقة. اعرض الـ13 بالعين.»): الملحق 1 `SPLIT_GATES_ADDENDUM_1.md`
+#        مثبّتُ البصمة قبل أيّ رقم · مادّتُه شرائحُ التشغيلة المنشورة نفسُها وبوّابةُ هويّتها = الأرقامُ المنشورة · والسلّمُ R0 = الإنتاج.
+try:
+    _sga8_p = _sga_os.path.join("fm_forensics", "split_gates", "SPLIT_GATES_ADDENDUM_1.md")
+    _sga8_b = open(_sga8_p, "rb").read()
+    _sga8_t = _sga8_b.decode("utf-8")
+    _sga8_y = __import__("yaml").safe_load(open(_sga_os.path.join(".github", "workflows", "split_gates.yml"), encoding="utf-8"))
+    _sga8_dl = [st for st in _sga8_y["jobs"]["episodes"]["steps"] if "download-artifact" in str(st.get("uses", ""))]
+    _sga8_pop = _sga_j.load(open(_sga_os.path.join("fm_forensics", "split_gates", "data", "pop_result.json"), encoding="utf-8"))
+    _sga8_ok = (_sga_h.sha256(_sga8_b).hexdigest() == SGT.ADDENDUM_SHA
+                and "سجّل ملحق G2 على مستوى الحلقة. اعرض الـ13 بالعين." in _sga8_t and "## ⑥ التنبّؤات" in _sga8_t
+                and SGT.POP_RUN in _sga8_t and len(_sga8_dl) == 1 and str(_sga8_dl[0]["with"]["run-id"]) == SGT.POP_RUN
+                and SGT.PUB_G2["rej"] == (_sga8_pop["G2"]["rej"]["n"], _sga8_pop["G2"]["rej"]["exp"])
+                and SGT.PUB_G2["pass"] == (_sga8_pop["G2"]["pass"]["n"], _sga8_pop["G2"]["pass"]["exp"])
+                and SGT.PUB_G2["symbols"] == _sga8_pop["symbols"] == _sga8_pop["bars_diag"].get("ok"))
+    _sga8_x = ""
+except Exception as _e:                                          # noqa: BLE001
+    _sga8_ok, _sga8_x = False, f"{type(_e).__name__}: {_e}"
+check("🧮 SGA8: الملحق 1 مثبّتُ البصمة (`ADDENDUM_SHA`) وفيه نصُّ المالك والتنبّؤات · وشرائحُه من التشغيلة المنشورة نفسِها (run-id = `POP_RUN`) · "
+      "وبوّابةُ الهويّة = أرقامُ G2 المنشورة (314/86 · 25/7 · 953)", _sga8_ok, _sga8_x[:80])
+_sga9_env = {k: _sga_os.environ.get(k) for k in ("SG_MODE", "POLYGON_API_KEY")}
+_sga9_sha0 = getattr(SGT, "ADDENDUM_SHA", None)
+try:
+    _sga_os.environ["SG_MODE"] = "episodes"
+    _sga_os.environ.pop("POLYGON_API_KEY", None)
+    SGT.ADDENDUM_SHA = "0" * 64
+    _sga9_rc = SGT.main()
+    SGT.ADDENDUM_SHA = _sga9_sha0
+    _sga9_empty = SGT.mode_episodes(shards=[])
+    _sga9_ok = (_sga9_rc == 9 and _sga9_empty.get("verdict") == "لا قياس" and _sga9_empty["identity"]["ok"] is False)
+    _sga9_x = f"rc={_sga9_rc} · {_sga9_empty.get('verdict')}"
+except Exception as _e:                                          # noqa: BLE001
+    _sga9_ok, _sga9_x = False, f"{type(_e).__name__}: {_e}"
+finally:
+    if SGT is not None:
+        SGT.ADDENDUM_SHA = _sga9_sha0
+    for _k, _v in _sga9_env.items():
+        if _v is None:
+            _sga_os.environ.pop(_k, None)
+        else:
+            _sga_os.environ[_k] = _v
+check("🧮 SGA9: لا رقمَ قبل الملحق — بصمتُه لا تطابق ⟵ `episodes` يخرج 9 · وبلا شرائح ⟵ «لا قياس» (فاشلٌ-مغلق)", _sga9_ok, _sga9_x)
+try:
+    _sga10_r = {n: (b, t, w) for n, b, t, w in SGT.DIAG_RUNGS}
+    _sga10_ue = _sga_j.load(open(_sga_os.path.join("fm_forensics", "split_gates", "data", "units_eval.json"), encoding="utf-8"))
+    _sga10_du = SGT.diag_units(_sga10_ue)
+    _sga10_rs = next(n for n in _sga_t.body if isinstance(n, _sga_ast.FunctionDef) and n.name == "rung_states")
+    _sga10_kw = [{k.arg for k in c.keywords} for c in _sga_ast.walk(_sga10_rs) if isinstance(c, _sga_ast.Call)
+                 and isinstance(c.func, _sga_ast.Attribute) and c.func.attr == "method_sequence"
+                 and getattr(c.func.value, "id", None) == "S"]
+    _sga10_ok = (_sga10_r["R0"] == (float(S.CONFIG["METHOD_BOUNCE_MIN_PCT"]), float(S.CONFIG["METHOD_HOLD_TOL"]),
+                                    int(S.CONFIG["FAISAL_BOTTOM_LOOKBACK"]))
+                 and 1.84 > 1.81 * (1 + _sga10_r["R0"][1]) and 1.84 <= 1.81 * (1 + _sga10_r["R1"][1])
+                 and _sga10_r["R5"][0] == 20.0
+                 and len(_sga10_du) == 16 and sum(1 for r in _sga10_ue["units"] if (r.get("prim") or {}).get("sole_G2")) == 13
+                 and {"ADIL_2026-05-11", "YMT_2026-09-04", "MDCX_2026-10-30", "BRTX_2026-10-27"} <= set(_sga10_du)
+                 and _sga10_kw and all({"win", "bounce_min", "tol"} <= k for k in _sga10_kw))
+    _sga10_x = f"R0={_sga10_r.get('R0')} · units={len(_sga10_du)}"
+except Exception as _e:                                          # noqa: BLE001
+    _sga10_ok, _sga10_x = False, f"{type(_e).__name__}: {_e}"
+check("🧮 SGA10: سلّمُ الملحق — R0 = أرقامُ الإنتاج من `CONFIG` · R1 يشمل مثالَ فيصل 1.84/1.81 وR0 لا · R5 ارتدادُ 20 · "
+      "والوحداتُ الـ16 (الـ13 ‏+ BRTX ‏+ الشاهدان) من البيانات بالبرنامج · و`method_sequence` بالاسم بمعاملاتها", _sga10_ok, _sga10_x)
+
 # BKD1-BKD6 (‏2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام» · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه مجهولًا
 #        بعد الحصاد والموقع يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS` من `ctb_log.jsonl` ∪ `borrow_watch.jsonl` — للبوّابة وحدَها
 #        (`borrow_known` لا `shares_available`) · و`0` ⟵ فائدةُ الشك بت-بت · وشاهدُ 10-27 من ملفّات البوت نفسِها: BCTX · PLSM · FRSX · ASPC

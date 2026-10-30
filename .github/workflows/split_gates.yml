@@ -3,16 +3,19 @@ name: "🧮🔬 T-SPLITGATES بوّابتا فلترة التقسيم (قياس�
 # 🔒 قراءةٌ وقياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا تغيير بوّابة (العقد `fm_forensics/split_gates/SPLIT_GATES_prereg.md`).
 # الأداةُ تخرج 9 إن لم يطابق العقدُ وقائمةُ الوحدات بصمتَيهما (`CONTRACT_SHA` · `UNITS_SHA`).
 # `units_eval` = ② على الوحدات الـ173 · `pop` = ③④ على ثلاث سنوات: prep ⟵ 8 شرائح ⟵ assemble (ومعه ② لبوّابة إعادة الإنتاج).
+# الملحق 1 (`SPLIT_GATES_ADDENDUM_1.md`): `episodes` = G2 على مستوى الحلقة من شرائح التشغيلة المنشورة `41042865267` نفسِها (بلا جلب) ·
+#   `units_diag` = الوحداتُ التي ترفضها G2 وحدَها: شموعُها وسلّمُ `method_sequence` وما بعدها · والأداةُ تخرج 9 إن تغيّرت بصمةُ الملحق.
 permissions:
   contents: read
+  actions: read           # 📥 شرائحُ التشغيلة المنشورة (run-id) للملحق 1 — نمط acc_report.yml
 
 on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "الوضع: units_eval (②) · pop (③④)"
+        description: "الوضع: units_eval (②) · pop (③④) · episodes (الملحق 1 §②-④) · units_diag (الملحق 1 §⑤)"
         type: choice
-        options: [units_eval, pop]
+        options: [units_eval, pop, episodes, units_diag]
         default: units_eval
 
 jobs:
@@ -154,6 +157,64 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           SG_MODE: pop_assemble
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/split_gates/split_gates.py
+
+  episodes:
+    if: github.event.inputs.mode == 'episodes'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download frozen shards (run 41042865267)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: sg-shard-*
+          merge-multiple: true
+          path: fm_forensics/split_gates/out
+          run-id: 41042865267
+          github-token: ${{ github.token }}
+
+      - name: 🧮 الملحق 1 — G2 على مستوى الحلقة
+        env:
+          SG_MODE: episodes
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/split_gates/split_gates.py
+
+  units_diag:
+    if: github.event.inputs.mode == 'units_diag'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧮 الملحق 1 §⑤ — الوحداتُ التي ترفضها G2 وحدَها
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SG_MODE: units_diag
           FAISAL_ONLY: "1"
           PYTHONUNBUFFERED: "1"
         run: python fm_forensics/split_gates/split_gates.py
