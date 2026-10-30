@@ -151,10 +151,23 @@ def rows_df(rows):
                          "Close": [x[4] for x in rows], "Volume": [x[5] for x in rows]}, index=idx)
 
 
+_RB = []
+
+
+def _rb():
+    """`fm_forensics/rebuild/rebuild.py` يُحمَّل مرّةً واحدة (لا إضافةَ لمسار البحث في كلّ نداء)."""
+    if not _RB:
+        p = os.path.join(ROOT, "fm_forensics", "rebuild")
+        if p not in sys.path:
+            sys.path.insert(0, p)
+        import rebuild as RB
+        _RB.append(RB)
+    return _RB[0]
+
+
 def asof_view(rows, splits, day):
     """صفوفٌ قبل `day` على مقياس الجلسة السابقة له (`rebuild.asof_scale` بالاسم) ‏+ التقسيماتُ المنفّذة قبله."""
-    sys.path.insert(0, os.path.join(ROOT, "fm_forensics", "rebuild"))
-    import rebuild as RB
+    RB = _rb()
     v = RB.asof_scale(rows, splits, day)
     return v, [(d, r) for d, r in (splits or []) if d < day]
 
@@ -345,7 +358,8 @@ def verdict(raw, raw_ci, st, st_ci, years, floors_ok, repro_ok):
 
 # ── الشبكة ───────────────────────────────────────────────────────────────────────────────────────────
 def _bars(sym, a, b, key):
-    sys.path.insert(0, ROOT)
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
     import pit_history as PH
     df, why = PH.polygon_daily(sym, a, b, key)
     if df is None:
@@ -355,7 +369,8 @@ def _bars(sym, a, b, key):
 
 
 def _splits_all(a, b, key):
-    sys.path.insert(0, ROOT)
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
     import pit_snapshot as PS
     by = {}
     for r in PS.fetch_all_splits(a, b, key):
@@ -369,7 +384,8 @@ def _splits_all(a, b, key):
 
 
 def _S():
-    sys.path.insert(0, ROOT)
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
     os.environ.setdefault("FAISAL_ONLY", "1")
     import Super_stock as S
     return S
@@ -454,11 +470,11 @@ def units_summary(out):
 
 
 def mode_pop_prep(key):
-    sys.path.insert(0, ROOT)
+    if ROOT not in sys.path:
+        sys.path.insert(0, ROOT)
     import market_calendar as MC
     import pit_universe as PU
-    sys.path.insert(0, os.path.join(ROOT, "fm_forensics", "rebuild"))
-    import rebuild as RB
+    RB = _rb()
     months = [(2022, m) for m in range(8, 13)] + [(y, m) for y in (2023, 2024, 2025) for m in range(1, 13)]
     snaps, union = {}, set()
     for d in RB._first_sessions(months, MC):
@@ -486,8 +502,7 @@ def mode_pop_prep(key):
 
 def symbol_rows(S, sym, rows, splits, lookback_days=None):
     """③④ لكلّ جلسة X في [X_FROM، X_TO] تقع بعد تقسيمٍ عكسيٍّ بأقلَّ من نافذة الحدث: الشروطُ على منظور X والنتيجة."""
-    sys.path.insert(0, os.path.join(ROOT, "fm_forensics", "rebuild"))
-    import rebuild as RB
+    RB = _rb()
     lb = int(lookback_days or S.CONFIG["SPLIT_LOOKBACK_DAYS"])
     revs = [dt.date.fromisoformat(d) for d, r in splits if r < 1.0]
     out = []
@@ -542,8 +557,7 @@ def mode_pop_shard(key, shard, nshards, fetch_bars=None, prep=None):
 
 def gate_stats(res, gate):
     """§⑤ الإدخالاتُ الجديدة لكلّ رمز ثمّ الحصص والفواصل والضبط والسنوات."""
-    sys.path.insert(0, os.path.join(ROOT, "fm_forensics", "rebuild"))
-    import rebuild as RB
+    RB = _rb()
     key_in, key_rej = ("in1", "rej1") if gate == "G1" else ("in2", "rej2")
     ents = []
     for s, blob in sorted(res.items()):
