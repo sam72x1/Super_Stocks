@@ -92492,6 +92492,95 @@ except Exception as _e:                                                     # no
 check("⚡ VLT8 الوصل: مقطعا الافتتاح والإغلاق يُشغّلان ظلَّ AM ولا يُطفئان المسارَ السريع · والدفترُ يحمل ثوابتَه وقفلَ المالك (10ث)",
       _vlt8_ok, _vlt8_w)
 
+# 🧮🔬 SGA1-SGA6 (‏2026-10-30 · أمرُ المالك «قياس مسجَّل قبل الرقم — بوّابتا فلترة التقسيم»): `fm_forensics/split_gates/split_gates.py`
+#        قياسٌ فقط بالعقد `SPLIT_GATES_prereg.md` المثبّتة بصمتُه وقائمةِ الوحدات المجمَّدة · لا تغييرَ على بوّابة · لا تلغرام · لا كرون.
+try:
+    import importlib.util as _sga_iu
+    import hashlib as _sga_h
+    import json as _sga_j
+    import ast as _sga_ast
+    import os as _sga_os
+    _sga_p = _sga_os.path.join("fm_forensics", "split_gates", "split_gates.py")
+    _sga_spec = _sga_iu.spec_from_file_location("split_gates_t", _sga_p)
+    SGT = _sga_iu.module_from_spec(_sga_spec)
+    _sga_spec.loader.exec_module(SGT)
+    _sga_err = None
+except Exception as _e:                                          # noqa: BLE001
+    SGT, _sga_err = None, f"{type(_e).__name__}: {_e}"
+try:
+    _sga_c = open(_sga_os.path.join("fm_forensics", "split_gates", "SPLIT_GATES_prereg.md"), "rb").read()
+    _sga_ct = _sga_c.decode("utf-8")
+    _sga_ok1 = (SGT is not None and _sga_h.sha256(_sga_c).hexdigest() == SGT.CONTRACT_SHA
+                and "لا تغيير على أي بوّابة" in _sga_ct and "## ⑨ التنبّؤات" in _sga_ct
+                and "## ⑧ قاعدةُ الحكم" in _sga_ct and "IMG_0153" in _sga_ct)
+except Exception as _e:                                          # noqa: BLE001
+    _sga_ok1, _sga_err = False, f"{type(_e).__name__}: {_e}"
+check("🧮 SGA1: عقدُ `T-SPLITGATES` مثبّتُ البصمة في الأداة (`CONTRACT_SHA`) وفيه نصُّ المالك والتنبّؤاتُ وقاعدةُ الحكم وسندُ IMG_0153",
+      _sga_ok1, str(_sga_err)[:80])
+try:
+    _sga_u = _sga_j.load(open(SGT.UNITS, encoding="utf-8"))
+    _sga_b = SGT.build_units()
+    _sga_ok2 = (SGT.units_sha(_sga_u) == SGT.UNITS_SHA and SGT.units_sha(_sga_b) == SGT.UNITS_SHA
+                and _sga_b["n"] == 173 and len(_sga_b["h6"]) == 4
+                and sum(1 for u in _sga_b["units"] if "batch1028" in u["sources"]) == 10)
+except Exception as _e:                                          # noqa: BLE001
+    _sga_ok2, _sga_err = False, f"{type(_e).__name__}: {_e}"
+check("🧮 SGA2: قائمةُ الوحدات مجمَّدة — الملفُّ والبنّاءُ يعطيان `UNITS_SHA` نفسَها (173 وحدة · حالاتُ H6 الأربع · دفعةُ 10-28 العشر)",
+      _sga_ok2, str(_sga_err)[:80])
+_sga_env = {k: _sga_os.environ.get(k) for k in ("SG_MODE", "POLYGON_API_KEY")}
+_sga_sha0 = getattr(SGT, "CONTRACT_SHA", None)
+try:
+    _sga_os.environ["SG_MODE"], _sga_os.environ["POLYGON_API_KEY"] = "units_eval", "x"
+    SGT.CONTRACT_SHA = "0" * 64
+    _sga_rc_bad = SGT.main()
+    _sga_ok3 = (_sga_rc_bad == 9)
+except Exception as _e:                                          # noqa: BLE001
+    _sga_ok3, _sga_rc_bad = False, f"{type(_e).__name__}: {_e}"
+finally:
+    if SGT is not None:
+        SGT.CONTRACT_SHA = _sga_sha0
+    for _k, _v in _sga_env.items():
+        if _v is None:
+            _sga_os.environ.pop(_k, None)
+        else:
+            _sga_os.environ[_k] = _v
+check("🧮 SGA3: لا رقمَ قبل العقد — بصمةٌ لا تطابق ⟵ الأداةُ تخرج 9 قبل أيّ شبكة", _sga_ok3, f"rc={_sga_rc_bad}")
+try:
+    _sga_rc4 = SGT.guards()
+except Exception as _e:                                          # noqa: BLE001
+    _sga_rc4 = f"{type(_e).__name__}: {_e}"
+check("🧮 SGA4: حرّاسُ الأداة الثمانية (SG1-SG8) تعبر — أوّلُ سقوطٍ بترتيب الإنتاج · «وحدَها» · المجتمع · ضبطُ الزخم · الحكمُ بالأضعف · "
+      "G1 من `_split_setup_probe` بالاسم · لا نظرَ للأمام", _sga_rc4 == 0, str(_sga_rc4)[:80])
+try:
+    _sga_src = open(_sga_p, encoding="utf-8").read()
+    _sga_t = _sga_ast.parse(_sga_src)
+    _sga_names = {n.id for n in _sga_ast.walk(_sga_t) if isinstance(n, _sga_ast.Name)} | {
+        n.attr for n in _sga_ast.walk(_sga_t) if isinstance(n, _sga_ast.Attribute)}
+    _sga_wf = open(_sga_os.path.join(".github", "workflows", "split_gates.yml"), encoding="utf-8").read()
+    _sga_wfl = [ln.split("#")[0] for ln in _sga_wf.splitlines()]
+    _sga_ok5 = (not ({"send_telegram", "git_save", "save_watchlist"} & _sga_names)
+                and not any(ln.strip().startswith("schedule:") for ln in _sga_wfl)
+                and "TELEGRAM" not in _sga_wf and any(ln.strip() == "contents: read" for ln in _sga_wfl))
+except Exception as _e:                                          # noqa: BLE001
+    _sga_ok5, _sga_err = False, f"{type(_e).__name__}: {_e}"
+check("🧮 SGA5: قياسٌ فقط — لا تلغرامَ ولا حفظَ حالةٍ في الأداة · والـworkflow يدويٌّ بلا كرون وبلا أسرار تلغرام وصلاحيّتُه قراءة",
+      _sga_ok5, str(_sga_err)[:80])
+try:
+    _sga_ev = next(n for n in _sga_t.body if isinstance(n, _sga_ast.FunctionDef) and n.name == "eval_conditions")
+    _sga_calls = {c.func.attr for c in _sga_ast.walk(_sga_ev) if isinstance(c, _sga_ast.Call)
+                  and isinstance(c.func, _sga_ast.Attribute) and getattr(c.func.value, "id", None) == "S"}
+    _sga_defs = {n.name for n in _sga_ast.walk(_sga_t) if isinstance(n, _sga_ast.FunctionDef)}
+    _sga_rb = {c.func.attr for c in _sga_ast.walk(_sga_t) if isinstance(c, _sga_ast.Call)
+               and isinstance(c.func, _sga_ast.Attribute) and getattr(c.func.value, "id", None) == "RB"}
+    _sga_ok6 = ({"_split_setup_probe", "method_sequence", "descending_ladder", "split_filter_stop", "group_pump_scar"} <= _sga_calls
+                and not ({"_split_setup_probe", "method_sequence", "_post_split_high", "group_pump_scar", "exploded",
+                          "asof_scale", "new_entries"} & _sga_defs)
+                and {"asof_scale", "new_entries", "exploded"} <= _sga_rb)
+except Exception as _e:                                          # noqa: BLE001
+    _sga_ok6, _sga_calls = False, f"{type(_e).__name__}: {_e}"
+check("🧮 SGA6: الشروطُ بالدوالّ الإنتاجيّة بالاسم (AST) — `_split_setup_probe` · `method_sequence` · السلّمُ والوقفُ والقروب · "
+      "والمنظورُ والإدخالُ والنتيجةُ من `rebuild` بالاسم — ولا نسخةَ لأيٍّ منها", _sga_ok6, str(_sga_calls)[:80])
+
 # BKD1-BKD6 (‏2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام» · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه مجهولًا
 #        بعد الحصاد والموقع يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS` من `ctb_log.jsonl` ∪ `borrow_watch.jsonl` — للبوّابة وحدَها
 #        (`borrow_known` لا `shares_available`) · و`0` ⟵ فائدةُ الشك بت-بت · وشاهدُ 10-27 من ملفّات البوت نفسِها: BCTX · PLSM · FRSX · ASPC
