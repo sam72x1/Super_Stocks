@@ -1,0 +1,150 @@
+name: "🕯️🔬 T-WICK عمى الذيل (قياسٌ · يدويّ)"
+
+# 🔒 قراءةٌ وقياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا بوّابة ولا عرض (العقد `fm_forensics/wick/T_WICK_prereg.md`).
+# الأداةُ تخرج 9 إن لم يطابق العقدُ وقائمةُ الوحدات بصمتَيهما (`CONTRACT_SHA` · `UNITS_SHA`).
+# `units_eval` = ① الذيلُ على الـ117 جاهزًا والإضافات الـ273 · `pop` = ②③ على ثلاث سنوات: prep ⟵ 8 شرائح ⟵ assemble.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "الوضع: units_eval (①) · pop (②③)"
+        type: choice
+        options: [units_eval, pop]
+        default: units_eval
+
+jobs:
+  units_eval:
+    if: github.event.inputs.mode == 'units_eval'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🕯️ ① الوحدات
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          WK_MODE: units_eval
+          FAISAL_ONLY: "0"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/wick/wick.py
+
+  pop_prep:
+    if: github.event.inputs.mode == 'pop'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🕯️ اللقطات والتقسيمات والجلسات
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          WK_MODE: pop_prep
+          FAISAL_ONLY: "0"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/wick/wick.py
+
+      - name: Upload prep
+        uses: actions/upload-artifact@v4
+        with:
+          name: wk-prep
+          path: fm_forensics/wick/out/prep.json.gz
+          retention-days: 30
+
+  pop_shard:
+    needs: pop_prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      max-parallel: 8               # لا يستنفد رنرات البوت الحيّة
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep
+        uses: actions/download-artifact@v4
+        with:
+          name: wk-prep
+          path: fm_forensics/wick/out
+
+      - name: 🕯️ الشريحة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          WK_MODE: pop_shard
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "8"
+          FAISAL_ONLY: "0"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/wick/wick.py
+
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: wk-shard-${{ matrix.shard }}
+          path: fm_forensics/wick/out/shard_*.json.gz
+          retention-days: 30
+
+  pop_assemble:
+    needs: pop_shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wk-shard-*
+          merge-multiple: true
+          path: fm_forensics/wick/out
+
+      - name: 🕯️ ②③ الهويّة والحصص والتقاطع والحكم
+        env:
+          WK_MODE: pop_assemble
+          FAISAL_ONLY: "0"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/wick/wick.py
