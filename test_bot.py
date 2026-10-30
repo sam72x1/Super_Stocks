@@ -91390,6 +91390,9 @@ import vwap_momentum_live as _VL
 import vwap_mom_feas as _VL3
 import vwap_mom_feas_v4 as _VL4
 import market_calendar as _VLMC
+import os as _va3_os
+_va3_env0 = _va3_os.environ.get("VWL_DEF")
+_va3_os.environ["VWL_DEF"] = "A3"     # 🟠④ أقفالُ الملحق 3 (VWL/VLT) تحرس مسارَ الرجوع بت-بت · وVA4 أدناه للملحق 4
 
 
 def _vl_scenario(k=1.0, vmul=1.0, retests=1, step=1.04):
@@ -92491,6 +92494,252 @@ except Exception as _e:                                                     # no
     _vlt8_ok, _vlt8_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("⚡ VLT8 الوصل: مقطعا الافتتاح والإغلاق يُشغّلان ظلَّ AM ولا يُطفئان المسارَ السريع · والدفترُ يحمل ثوابتَه وقفلَ المالك (10ث)",
       _vlt8_ok, _vlt8_w)
+
+# 🟠④ VNF1…VNF8 (‏2026-10-30 · أمرُ المالك «ملحق 4 — تطبيق نايف بالحرف، بلا أي شرط من عندنا»): الثباتُ بلا كسرٍ سابق · بلا ① ولا ② ·
+#    والباقي كما هو · `VWL_DEF=A3` ⟵ الملحق 3 بت-بت (أقفالُ VWL/VLT أعلاه تعمل تحته) — الأقفالُ هنا على الافتراض (A4)
+if _va3_env0 is None:
+    _va3_os.environ.pop("VWL_DEF", None)
+else:
+    _va3_os.environ["VWL_DEF"] = _va3_env0
+
+
+def _va4_up(k=1.0, vmul=1.0, n=6, vols=None):
+    """صعودٌ هادئ فوق الفيواب من الافتتاح (‏+1% لكلّ شمعة 5د · بلا شمعةٍ تحته) بحجمٍ متزايد — بري 04:00 ثمّ n شمعة من 09:30."""
+    vols = vols or [300000 + 20000 * i for i in range(n)]
+    bars = [(240, 1.00 * k, 1.00 * k, 1.00 * k, 1.00 * k, 2000.0 * vmul)]
+    o = 1.00
+    for i in range(n):
+        c = round(o * 1.01, 6)
+        s = 570 + 5 * i
+        bars.append((s, o * k, o * k, o * k * 0.999, o * k, vols[i] / 5 * vmul))
+        for j in (1, 2, 3):
+            bars.append((s + j, o * k, o * k, o * k, o * k, vols[i] / 5 * vmul))
+        bars.append((s + 4, c * k, c * k, o * k, c * k, vols[i] / 5 * vmul))
+        o = c
+    return bars
+
+
+_va4_keep = _va3_os.environ.get("VWL_DEF")
+try:
+    _va3_os.environ.pop("VWL_DEF", None)
+    # VNF1 — `hold_events` نقيّة: ثلاثُ إغلاقاتٍ متتالية فوق VWAP أو إغلاقُ 15د فوقه بلا كسرٍ سابق · و`break_events` على الشموع نفسِها لا شيء
+    _va4_b5, _va4_b15, _ = _VL.complete_buckets(_va4_up(), 570, 960, 600)
+    _va4_h = _VL.hold_events(_va4_b5, _va4_b15)
+    _mk = lambda cs: [{"e": 575 + 5 * i, "c": c, "vwap": 1.0} for i, c in enumerate(cs)]          # noqa: E731
+    _va4_g = _VL.hold_events(_mk([1.1, 1.1, 0.9, 1.1, 1.1, 1.1, 1.2]), [])
+    _vA1 = (_VL.def_now() == "A4" and _va4_h[0] == (585, "15x1", 0, None) and (585, "5x3", 2, None) in _va4_h
+            and [x[0] for x in _va4_h] == sorted(x[0] for x in _va4_h) and _VL3.break_events(_va4_b5, _va4_b15) == []
+            and [x[2] for x in _va4_g] == [5, 6] and _VL.hold_events([], []) == [])
+    _vA1w = f"def={_VL.def_now()} · أحداث={_va4_h[:4]} · نافذة={_va4_g} · كسر={_VL3.break_events(_va4_b5, _va4_b15)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vA1, _vA1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠④ VNF1 الثباتُ بنصّ نايف (`hold_events`): 3 إغلاقات 5د متتالية فوق الفيواب أو إغلاقُ 15د فوقه **بلا إغلاقٍ سابقٍ تحته** · "
+      "والكسرُ (`break_events`) على الشموع نفسِها لا شيء · والافتراضُ A4", _vA1, _vA1w)
+
+# VNF2 — من نقطة النداء (`evaluate`): صعودٌ ‏+4% بلا كسر ⟵ A4 تنبيه A والملحق 3 لا شيء · و② لا يُحسب (صفرُ نداءٍ لأيّام RVOL) ·
+#    و③ L و④ الخبر و250 ألفًا و⑤ السعر باقيةٌ بأسبابها
+try:
+    _va3_os.environ.pop("VWL_DEF", None)
+    _va4_pc = []
+    _pf = lambda: (_va4_pc.append(1), _vl_priors())[1]                    # noqa: E731
+    _ev = lambda b, cat=None, full=False: _VL.evaluate(b, 570, 960, 600, 1.0, _pf, cat or (lambda e: {"C": True}), "ok", False,   # noqa: E731
+                                                       full_info=full)
+    _r4 = _ev(_va4_up())
+    _va3_os.environ["VWL_DEF"] = "A3"
+    _r3 = _ev(_va4_up())
+    _va3_os.environ.pop("VWL_DEF", None)
+    _dec = _va4_up(vols=[400000, 380000, 200000, 150000, 120000, 100000])
+    _why = lambda r: sorted({w for e in r["events"] for w in e["why"]})    # noqa: E731
+    _vA2_c = {
+        "a4_fires": [(a["arm"], a["e"]) for a in _r4["alerts"]] == [("A", 590)] and abs(_r4["alerts"][0]["chg"] - 0.0406) < 1e-3,
+        "a3_silent": _r3["alerts"] == [],
+        "no_rvol": not _va4_pc and _r4["alerts"][0]["rvol"] is None,
+        "L": _ev(_dec)["alerts"] == [] and "③ L" in _why(_ev(_dec, full=True)),
+        "news": _ev(_va4_up(), cat=lambda e: {"C": False})["alerts"] == [] and "④ الخبر" in _why(_ev(_va4_up(), cat=lambda e: {"C": False}, full=True)),
+        "dmin": _ev(_va4_up(vmul=0.05))["alerts"] == [] and "الحجم الدولاري" in _why(_ev(_va4_up(vmul=0.05), full=True)),
+        "px": _ev(_va4_up(k=25))["alerts"] == [] and "⑤ السعر" in _why(_ev(_va4_up(k=25), full=True)),
+        "no_chg_rvol_tags": not any(w.startswith(("① ", "② ")) for w in _why(_ev(_va4_up(), cat=lambda e: {"C": False}, full=True))),
+    }
+    _vA2, _vA2w = all(_vA2_c.values()), f"{ {k: v for k, v in _vA2_c.items() if not v} or 'كلّها'} · A4={[(a['arm'], a['e']) for a in _r4['alerts']]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vA2, _vA2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠④ VNF2 `evaluate`: صعودٌ ‏+4% بلا كسرٍ ولا RVOL ⟵ تنبيه A عند 09:50 والملحق 3 صامت · ② لا يُحسب · و③ L و④ الخبر و250 ألفًا "
+      "و⑤ السعر باقيةٌ تُسقط بأسبابها · ولا سببَ «①/②» في الملحق 4", _vA2, _vA2w)
+
+# VNF3 — الذراعان: A مرّة · وD حتى 3 بلا ① (ما أسقطه ① في الملحق 3 يمرّ) · وبلا A لا D
+try:
+    _va3_os.environ.pop("VWL_DEF", None)
+    _bl = _vl_scenario(retests=1, step=1.01)
+    _b4 = _vl_scenario(retests=4)
+    _d4 = [a["arm"] for a in _vl_eval(_bl, prev=1.54 / 1.20)["alerts"]]
+    _va3_os.environ["VWL_DEF"] = "A3"
+    _d3 = [a["arm"] for a in _vl_eval(_bl, prev=1.54 / 1.20)["alerts"]]
+    _va3_os.environ.pop("VWL_DEF", None)
+    _arms4 = [(a["arm"], a["n"]) for a in _vl_eval(_b4)["alerts"]]
+    _vA3 = (_d4 == ["A", "D"] and _d3 == ["A"] and _arms4 == [("A", 1), ("D", 1), ("D", 2), ("D", 3)]
+            and _vl_eval(_b4, cat=lambda e: {"C": False})["alerts"] == [])
+    _vA3w = f"D بلا ①: A4={_d4} A3={_d3} · أربعُ لمسات={_arms4}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vA3, _vA3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠④ VNF3 A مرّةً لكلّ رمزٍ/يوم · وD حتى 3 **بلا ①** (D أسقطه ① في الملحق 3 يُطلق في الملحق 4) · وبلا A لا D", _vA3, _vA3w)
+
+# VNF4 — المرشِّح: بلا ① · الشرطُ اللازمُ الباقي من اللقطة = حجمُ اليوم × أعلاه ≥ 250 ألفًا (على حدّه يبقى · ودونه يُقصى · والمجهولُ يبقى) ·
+#    والسعرُ والنوعُ كما هما · واللقطةُ تحمل حجمَ اليوم (الأكبرُ من شمعة اليوم والتراكميّ في شمعة الدقيقة)
+try:
+    _va3_os.environ.pop("VWL_DEF", None)
+    _hl = {"UP4": (1.04, 0.99, 250000 / 1.04), "LOWV": (1.04, 0.99, 250000 / 1.04 - 1), "NOV": (1.04, 0.99, None), "TWO": (1.04, 0.99),
+           "PX": (25.0, 21.0, 9e9), "ETF": (5.0, 4.0, 9e9)}
+    _ty = {"UP4": "CS", "LOWV": "CS", "NOV": "CS", "TWO": "CS", "PX": "CS", "ETF": "ETF"}
+    _pf4 = _VL.prefilter(_hl, lambda s: 1.0, _ty)
+    _va3_os.environ["VWL_DEF"] = "A3"
+    _pf3 = _VL.prefilter(_hl, lambda s: 1.0, _ty)
+    _va3_os.environ.pop("VWL_DEF", None)
+    _sn, _ = _VL.snapshot_hl([{"ticker": "aa", "day": {"h": 2.0, "l": 1.5, "v": 1000}, "min": {"h": 2.1, "l": 1.9, "av": 1500}},
+                              {"ticker": "bb", "lastTrade": {"p": 3.0}}])
+    _vA4 = (_pf4 == {"UP4", "NOV", "TWO"} and _pf3 == set() and _sn["AA"] == (2.1, 1.5, 1500.0) and _sn["BB"] == (3.0, 3.0, None))
+    _vA4w = f"A4={sorted(_pf4)} A3={sorted(_pf3)} لقطة={_sn}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vA4, _vA4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠④ VNF4 المرشِّحُ بلا ①: يبقى كلُّ عاديٍّ في [1.00، 20) حجمُه×أعلاه 250 ألفًا فأكثر (على حدّه يبقى · ودونه يُقصى · والمجهولُ يبقى) · "
+      "والملحق 3 يُقصي ما دون ‏+20% · واللقطةُ تحمل حجمَ اليوم", _vA4, _vA4w)
+
+# VNF5 — الرسالة والسجلّ: «ثبات فوق الفيواب» بلا RVOL ووسمُ الصفّ A4 · والملحق 3 كما هو («كسر وثبات» وRVOL وبلا وسم)
+try:
+    _row = {"sym": "TST", "arm": "A", "n": 1, "px": 1.04, "chg": 0.04, "rvol": None, "vwap": 1.02, "above": 3, "ema9": 1.03, "e": 590,
+            "news": "x", "tags": [], "prev_src": "grouped", "kind": "5x3", "cum_dollar": 900000.0}
+    _m4 = _VL.build_message(dict(_row, **{"def": "A4"}))
+    _m3 = _VL.build_message(dict(_row, rvol=4.2))
+    _l4 = _VL.ledger_row("2026-10-30", "TST", dict(_row, **{"def": "A4"}), 1.0, True, None, "live", "x", "x")
+    _l3 = _VL.ledger_row("2026-10-30", "TST", dict(_row, rvol=4.2), 1.0, True, None, "live", "x", "x")
+    _vA5 = ("ثبات فوق الفيواب" in _m4 and "RVOL" not in _m4 and "كسر وثبات" not in _m4 and "⛔ وقف مقترح: إغلاق شمعة 5د تحت الفيواب" in _m4
+            and "كسر وثبات" in _m3 and "RVOL 4.2×" in _m3 and _l4.get("def") == "A4" and "def" not in _l3
+            and not any(ch in _m4 for ch in "≥≤<>" if ch not in "<b></b>"))
+    _vA5w = f"A4: {_m4.splitlines()[0][:70]} · سجل={_l4.get('def')}/{_l3.get('def')}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vA5, _vA5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠④ VNF5 الرسالةُ «ثبات فوق الفيواب» بلا RVOL والوقفُ إغلاقُ 5د تحت الفيواب · والصفُّ موسومٌ A4 · والملحق 3 كما هو (كسر وثبات · RVOL · بلا وسم)",
+      _vA5, _vA5w)
+
+# VNF6 — التحضيرُ بين الشمعتين في الملحق 4: المرجعُ والنوعُ وحدَهما (لا أيّامَ RVOL ولا خبرَ مُحضَّر ⟵ يُجلب عند الكشف) · والملحق 3 كما كان
+try:
+    class _VA4D:
+        def __init__(self):
+            self.calls, self.pre_cat = [], {}
+
+        def prev_ref(self, s):
+            self.calls.append("prev")
+
+        def type_status(self, s):
+            self.calls.append("type")
+
+        def priors_of(self, s):
+            self.calls.append("priors")
+
+        def cat_fetch(self, s, t, sec_ttl=None):
+            self.calls.append("cat")
+            return {}
+    _va3_os.environ.pop("VWL_DEF", None)
+    _d4 = _VA4D()
+    _VL._prep_one(_d4, "TST", lambda: 0.0)
+    _va3_os.environ["VWL_DEF"] = "A3"
+    _d3 = _VA4D()
+    _VL._prep_one(_d3, "TST", lambda: 0.0)
+    _va3_os.environ.pop("VWL_DEF", None)
+    _vA6 = _d4.calls == ["prev", "type"] and not _d4.pre_cat and _d3.calls == ["prev", "type", "priors", "cat"] and "TST" in _d3.pre_cat
+    _vA6w = f"A4={_d4.calls} A3={_d3.calls}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vA6, _vA6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠④ VNF6 التحضيرُ في الملحق 4: المرجعُ والنوعُ وحدَهما (لا أيّامَ RVOL ولا خبرَ مُحضَّر — يُجلب عند الكشف) · والملحق 3 كما كان", _vA6, _vA6w)
+
+# VNF8 — من نقطة النداء الحيّة (`mode_live` على شبكةٍ مزيّفة وساعةٍ محقونة): صعودٌ ‏+4% بلا كسرٍ بخبر GlobeNewswire ⟵ رسالةٌ واحدةٌ «ثبات
+#    فوق الفيواب» بلا RVOL وصفُّ سجلٍّ A موسومٌ A4 · والملحق 3 على الشموع نفسِها صامتٌ بلا سجلّ
+try:
+    _va3_os.environ.pop("VWL_DEF", None)
+    _rc8, _sent8, _sv8, _led8, _ = _vl_live(_VLFakeNet(_va4_up(n=12), news=[_vl_news("GlobeNewswire Inc.")]), 565)
+    _va3_os.environ["VWL_DEF"] = "A3"
+    _rc8b, _sent8b, _sv8b, _led8b, _ = _vl_live(_VLFakeNet(_va4_up(n=12), news=[_vl_news("GlobeNewswire Inc.")]), 565)
+    _va3_os.environ.pop("VWL_DEF", None)
+    _al8 = [r for r in _led8 if r.get("kind") == "alert"]
+    _vA8 = (_rc8 == 0 and len(_sent8) == 1 and "ثبات فوق الفيواب" in _sent8[0] and "RVOL" not in _sent8[0] and "$TST" in _sent8[0]
+            and [(r["arm"], r.get("def"), r["sent"]) for r in _al8] == [("A", "A4", True)]
+            and _sent8b == [] and not [r for r in _led8b if r.get("kind") == "alert"])
+    _vA8w = f"rc={_rc8} رسائل={len(_sent8)} سجل={[(r['arm'], r.get('def'), r['sent']) for r in _al8]} · A3 رسائل={len(_sent8b)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vA8, _vA8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠④ VNF8 من الحلقة الحيّة: صعودٌ ‏+4% بلا كسرٍ بخبرٍ ⟵ رسالةٌ «ثبات فوق الفيواب» بلا RVOL وصفُّ A موسومٌ A4 · والملحق 3 صامت", _vA8, _vA8w)
+
+# VNF9 — مقارنةُ الإعادة (طلبُ المالك 2026-10-30 «اطبع جدولين لجلسة 10-30»): `mode_replay` بالملحق 4 يُخرج معه صفوفَ الملحق 3 على الشموع
+#    نفسِها وسببَ الغياب · صعودٌ بلا كسر ⟵ A4 وحدَه و«لا كسر» · وكسرٌ كاملٌ بالقديم ⟵ الاثنان · وبالملحق 3 لا مقارنةَ (مُخرَجُه كما كان)
+def _va4_replay(net, defv=None):
+    import tempfile as _tf
+    _d = _tf.mkdtemp()
+    _keep = (_va3_os.environ.get("VWL_DEF"), _va3_os.environ.get("VWL_OUT"))
+    try:
+        if defv is None:
+            _va3_os.environ.pop("VWL_DEF", None)
+        else:
+            _va3_os.environ["VWL_DEF"] = defv
+        _va3_os.environ["VWL_OUT"] = _va3_os.path.join(_d, "r.json")
+        _rc = _VL.mode_replay(net, _VLMC, _VL_DAY, 1)
+        return _rc, json.load(open(_va3_os.environ["VWL_OUT"], encoding="utf-8")), _VL.def_now()
+    finally:
+        for _k, _v in zip(("VWL_DEF", "VWL_OUT"), _keep):
+            if _v is None:
+                _va3_os.environ.pop(_k, None)
+            else:
+                _va3_os.environ[_k] = _v
+
+
+try:
+    _rc9, _o9, _d9 = _va4_replay(_VLFakeNet(_va4_up(n=12), news=[_vl_news("GlobeNewswire Inc.")]))
+    _rc9b, _o9b, _ = _va4_replay(_VLFakeNet(_vl_scenario(), news=[_vl_news("GlobeNewswire Inc.")]))
+    _rc9c, _o9c, _ = _va4_replay(_VLFakeNet(_vl_scenario(), news=[_vl_news("GlobeNewswire Inc.")]), "A3")
+    _rc9d, _o9d, _ = _va4_replay(_VLFakeNet(_vl_scenario(k=0.7), news=[_vl_news("GlobeNewswire Inc.")]))   # كسرٌ بتغيّرٍ ‏+8% دون ‏+20%
+    _c9d = (_o9d.get("cmp") or [{}])[0]
+    _c9 = (_o9.get("cmp") or [{}])[0]
+    _c9b = (_o9b.get("cmp") or [{}])[0]
+    _t9 = _VL.cmp_tables(_o9b)
+    _vA9 = (_o9["def"] == "A4" and [r["arm"] for r in _o9["alerts"]][:1] == ["A"] and _o9["alerts_a3"] == []
+            and _c9.get("a3") == [] and _c9.get("a3_breaks") == [] and _VL.cmp_why(_c9).startswith("لا كسر")
+            and [r["arm"] for r in _o9b["alerts_a3"]][:1] == ["A"] and _c9b.get("a3", [])[:1] == [["A", 1, _o9b["alerts_a3"][0]["event_end_ny"]]]
+            and _VL.cmp_why(_c9b).startswith("أُرسل بالقديم")
+            and [(r["sym"], r["arm"], r["n"], r["event_end_ny"]) for r in _o9b["alerts_a3"]]
+            == [(r["sym"], r["arm"], r["n"], r["event_end_ny"]) for r in _o9c["alerts"]]
+            and "alerts_a3" not in _o9c and "cmp" not in _o9c and _d9 == "A4"
+            and any(l.startswith("📋 الملحق 3") for l in _t9) and any("بالقديم: أُرسل بالقديم" in l for l in _t9)
+            and [r["arm"] for r in _o9d["alerts"]][:1] == ["A"] and _o9d["alerts_a3"] == [] and _c9d.get("a3") == []
+            and _c9d.get("a3_breaks") and "① التغيّر" in _c9d["a3_breaks"][0]["why"] and "سقط" in _VL.cmp_why(_c9d)
+            and "① التغيّر" in _VL.cmp_why(_c9d))
+    _vA9w = (f"rc={_rc9}/{_rc9b}/{_rc9c} A4={[r['arm'] for r in _o9['alerts']]} A3على4={_o9['alerts_a3']} cmp={_c9} · "
+             f"سيناريو2 A3على4={[(r['arm'], r['event_end_ny']) for r in _o9b['alerts_a3']]} A3وحده={[(r['arm'], r['event_end_ny']) for r in _o9c['alerts']]} · "
+             f"سيناريو3 A4={[r['arm'] for r in _o9d['alerts']]} سبب={_VL.cmp_why(_c9d) if _c9d else None}")
+except Exception as _e:                                                    # noqa: BLE001
+    _vA9, _vA9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠④ VNF9 مقارنةُ الإعادة: الملحق 4 يُخرج معه صفوفَ الملحق 3 على الشموع نفسِها (تطابق إعادةَ الملحق 3 وحدَه) وسببَ الغياب («لا كسر» · كسرٌ سقط على ①) · والملحق 3 بلا مقارنة", _vA9, _vA9w)
+
+# VNF7 — المفتاح: الغيابُ أو أيُّ قيمةٍ غيرُ «A3» ⟵ A4 · و«a3» ⟵ A3 · ووثيقةُ الملحق تحمل نصَّ المالك وبنودَه الخمسة
+try:
+    _dv = []
+    for _v in (None, "", "A4", "x", "a3", "A3"):
+        if _v is None:
+            _va3_os.environ.pop("VWL_DEF", None)
+        else:
+            _va3_os.environ["VWL_DEF"] = _v
+        _dv.append(_VL.def_now())
+    _va3_os.environ.pop("VWL_DEF", None)
+    _ad = open("vwap_live_addendum_4.md", encoding="utf-8").read()
+    _vA7 = (_dv == ["A4", "A4", "A4", "A4", "A3", "A3"] and "ملحق 4 — تطبيق نايف بالحرف، بلا أي شرط من عندنا" in _ad
+            and all(x in _ad for x in ("① احذف شرط الكسر", "② احذف شرط +20%", "③ يبقى كما كتب نايف", "④ السعر 1-20", "⑤ تنبيه واحد لكل رمز"))
+            and "VWL_DEF=A3" in _ad)
+    _vA7w = f"def={_dv}"
+except Exception as _e:                                                    # noqa: BLE001
+    _vA7, _vA7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    if _va4_keep is None:
+        _va3_os.environ.pop("VWL_DEF", None)
+    else:
+        _va3_os.environ["VWL_DEF"] = _va4_keep
+check("🟠④ VNF7 المفتاحُ `VWL_DEF`: الغيابُ ⟵ A4 و«A3» ⟵ الملحق 3 بت-بت · ووثيقةُ الملحق تحمل نصَّ المالك وبنودَه الخمسة", _vA7, _vA7w)
 
 # 🧮🔬 SGA1-SGA6 (‏2026-10-30 · أمرُ المالك «قياس مسجَّل قبل الرقم — بوّابتا فلترة التقسيم»): `fm_forensics/split_gates/split_gates.py`
 #        قياسٌ فقط بالعقد `SPLIT_GATES_prereg.md` المثبّتة بصمتُه وقائمةِ الوحدات المجمَّدة · لا تغييرَ على بوّابة · لا تلغرام · لا كرون.
