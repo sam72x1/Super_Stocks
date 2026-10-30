@@ -92980,13 +92980,14 @@ except Exception as _e:                                          # noqa: BLE001
     _wka_ok2, _wka_err = False, f"{type(_e).__name__}: {_e}"
 check("🕯️ TWK2: الوحداتُ مجمَّدة (`UNITS_SHA`) — 117 جاهزًا · 273 إضافة تُعيد الـ263 المنشورة بلا فرق · والعشرُ الجديدة بأسمائها · وCETX يومَ 10-30 على شمعة 10-29",
       _wka_ok2, str(_wka_err)[:80])
-_wka_env = {k: _wka_os.environ.get(k) for k in ("WK_MODE", "POLYGON_API_KEY")}
+_wka_env = {k: _wka_os.environ.get(k) for k in ("WK_MODE", "POLYGON_API_KEY", "WICK_REOPEN")}
 _wka_sha0 = getattr(WKT, "CONTRACT_SHA", None)
 _wka_bars0 = getattr(WKT, "_bars", None)
 _wka_net = []
 try:
     WKT._bars = lambda *a, **k: (_wka_net.append(a), ([], "stub"))[1]      # جذعٌ يُسجَّل ولا يُنفَّذ — لا شبكةَ لو سقط الحارس
     _wka_os.environ["WK_MODE"], _wka_os.environ["POLYGON_API_KEY"] = "units_eval", "x"
+    _wka_os.environ["WICK_REOPEN"] = "1"                               # بوّابةُ العقد تحت الإغلاق (TWK8 يقفل الإغلاقَ نفسَه)
     WKT.CONTRACT_SHA = "0" * 64
     _wka_rc_bad = WKT.main()
     _wka_os.environ["WK_MODE"] = "pop_assemble"
@@ -93067,6 +93068,351 @@ except Exception as _e:                                          # noqa: BLE001
     _twk7_ok, _twk7_x = False, f"{type(_e).__name__}: {_e}"
 check("🕯️ TWK7: نتيجةُ `T-WICK` تُعاد من بياناتها بايتًا وببصمتَي العقد والوحدات — 50% «لا فرق قابل للكشف» · 30% «الذيلُ يرفع» · «مستقلّ» عن P3 · "
       "والجاهزون 0 والإضافات 3 بذيلٍ 50% فأكثر", _twk7_ok, _twk7_x)
+
+# 🔒 TWK8 (‏2026-10-30 · أمرُ المالك «اقفل الذيل»): إغلاقُ `T-WICK` **مُنفَّذ** — أوضاعُ القياس والبناء الخمسة تخرج 8 قبل العقد والشموع ·
+#        و`WICK_REOPEN` يُقرأ «1» حرفيًّا («0» لا يفتح) · و`guards` مفتوح · ونصُّ الإغلاق يحمل الحكمَ وشروطَ الفتح.
+_twk8_env = {k: _wka_os.environ.get(k) for k in ("WK_MODE", "POLYGON_API_KEY", "WICK_REOPEN")}
+_twk8_bars0 = getattr(WKT, "_bars", None)
+_twk8_net, _twk8_rc = [], {}
+#    والإغلاقُ لا يكتب شيئًا: ملفّاتُ `data/` تُصوَّر قبل الأوضاع وتُستعاد بعدها ويُسقط القفلَ أيُّ تغيّرٍ فيها (طفرةُ فتح الإغلاق كتبت `units.json`)
+_twk8_dd = _wka_os.path.join("fm_forensics", "wick", "data")
+_twk8_snap = {f: open(_wka_os.path.join(_twk8_dd, f), "rb").read() for f in sorted(_wka_os.listdir(_twk8_dd))}
+_twk8_written = []
+try:
+    import contextlib as _twk8_cl
+    import io as _twk8_io
+    WKT._bars = lambda *a, **k: (_twk8_net.append(a), ([], "stub"))[1]
+    _wka_os.environ["POLYGON_API_KEY"] = "x"
+    for _twk8_open in ("", "0"):
+        if _twk8_open:
+            _wka_os.environ["WICK_REOPEN"] = _twk8_open
+        else:
+            _wka_os.environ.pop("WICK_REOPEN", None)
+        for _twk8_m in ("units", "units_eval", "pop_prep", "pop_shard", "pop_assemble"):
+            _wka_os.environ["WK_MODE"] = _twk8_m
+            _twk8_buf = _twk8_io.StringIO()
+            with _twk8_cl.redirect_stdout(_twk8_buf):
+                _twk8_rc[(_twk8_open, _twk8_m)] = WKT.main()
+            _twk8_out = _twk8_buf.getvalue()
+    _wka_os.environ["WK_MODE"] = "guards"
+    with _twk8_cl.redirect_stdout(_twk8_io.StringIO()):
+        _twk8_rcg = WKT.main()
+    _twk8_txt = "\n".join(WKT.closure_notice())
+    _twk8_written = [f for f in sorted(set(_wka_os.listdir(_twk8_dd)) | set(_twk8_snap))
+                     if not _wka_os.path.exists(_wka_os.path.join(_twk8_dd, f))
+                     or open(_wka_os.path.join(_twk8_dd, f), "rb").read() != _twk8_snap.get(f)]
+    _twk8_ok = (all(v == 8 for v in _twk8_rc.values()) and len(_twk8_rc) == 10 and not _twk8_net and _twk8_rcg == 0
+                and not _twk8_written
+                and _twk8_out.startswith("🔒🔴 محورُ «عمى الذيل» (`T-WICK`) مُغلَق") and "اقفل الذيل" in _twk8_txt
+                and "+4.6 [−0.3، +9.1]" in _twk8_txt and "WICK_REOPEN=1" in _twk8_txt and "③ إذنُ المالك" in _twk8_txt)
+    _twk8_x = f"rc={sorted(set(_twk8_rc.values()))} guards={_twk8_rcg} net={len(_twk8_net)} كُتب={_twk8_written}"
+except Exception as _e:                                          # noqa: BLE001
+    _twk8_ok, _twk8_x = False, f"{type(_e).__name__}: {_e}"
+finally:
+    if WKT is not None:
+        WKT._bars = _twk8_bars0
+    for _f in sorted(set(_wka_os.listdir(_twk8_dd)) - set(_twk8_snap)):
+        _wka_os.remove(_wka_os.path.join(_twk8_dd, _f))
+    for _f, _b in _twk8_snap.items():
+        if not _wka_os.path.exists(_wka_os.path.join(_twk8_dd, _f)) or open(_wka_os.path.join(_twk8_dd, _f), "rb").read() != _b:
+            open(_wka_os.path.join(_twk8_dd, _f), "wb").write(_b)
+    for _k, _v in _twk8_env.items():
+        if _v is None:
+            _wka_os.environ.pop(_k, None)
+        else:
+            _wka_os.environ[_k] = _v
+check("🔒 TWK8 إغلاقُ `T-WICK` **مُنفَّذ** («اقفل الذيل»): الأوضاعُ الخمسة تخرج 8 بصفرِ نداءٍ و«0» لا يفتح · و`guards` يخرج 0 · "
+      "ونصُّ الإغلاق بحكمه وشروط فتحه الثلاثة · ولا يُكتب شيءٌ في `data/`", _twk8_ok, _twk8_x)
+
+# 🕯️ WKL1-WKL5 (‏2026-10-30 · أمرُ المالك «اعرض الذيل معلومةً لا إشارة» بعد `T-WICK`): سطرُ «🕯️ ذيلٌ علويّ» في كرت التجديد
+#    واليوميّ — **عرضٌ فقط** · التعريفُ تعريفُ `wick_max` في الأداة · الحدُّ الدرجةُ الحاكمة 50% · `WICK_LINE=0` ⟵ بت-بت
+import ast as _wkl_ast
+import inspect as _wkl_insp
+import random as _wkl_rnd
+import textwrap as _wkl_tw
+# WKL1 — التعريفُ توأمُ `T-WICK`: 300 عالمٍ عشوائيّ ⟵ `wick_state` = `wick_max` على الشموع الخمس الأخيرة (الأخيرةُ داخلة) نسبةً وفهرسًا ·
+#    وإغلاقٌ صفرٌ أو NaN يُتخطّى · والفارغُ None
+try:
+    _wkl_r = _wkl_rnd.Random(20261030)
+    _wkl_bad = []
+    for _wi in range(300):
+        _n = _wkl_r.randint(1, 12)
+        _rows = []
+        for _j in range(_n):
+            _c = _wkl_r.choice([0.0, float("nan")]) if _wkl_r.random() < 0.08 else round(_wkl_r.uniform(0.05, 9.0), 4)
+            _h = (_c if _c == _c else 1.0) * (1 + _wkl_r.choice([0.0, 0.3, 0.5, 0.5000001, 0.4999999, _wkl_r.uniform(0, 1.6)]))
+            _rows.append((f"2026-10-{_j + 1:02d}", 1.0, _h, 0.5, _c, 1.0))
+        _hs, _cs = [r[2] for r in _rows], [r[4] for r in _rows]
+        _bw, _bi = WKT.wick_max(_hs, _cs, max(0, _n - 5), _n)
+        _ws = S.wick_state(_rows)
+        _ok = ((_bw is None and _ws is None) or
+               (_ws is not None and _bw is not None and _ws["pct"] == _bw and _ws["date"] == _rows[_bi][0]
+                and _ws["high"] == _hs[_bi] and _ws["close"] == _cs[_bi]))
+        if not _ok:
+            _wkl_bad.append((_wi, _bw, _ws))
+    _wkl_last = S.wick_state([("2026-10-28", 1, 1.1, 1, 1.0, 1), ("2026-10-29", 1, 3.10, 1, 1.78, 1)])
+    _wkl_old = S.wick_state([("2026-10-2%d" % i, 1, 9.0 if i == 1 else 1.0, 1, 1.0, 1) for i in range(1, 8)])
+    _vWL1 = (not _wkl_bad and _wkl_last["date"] == "2026-10-29" and abs(_wkl_last["pct"] - (3.10 / 1.78 - 1)) < 1e-12
+             and _wkl_old["pct"] == 0.0 and S.wick_state([]) is None and S.wick_state(None) is None
+             and S.WICK_WIN == 5 and S.WICK_LINE_MIN == 0.50)
+    _vWL1w = f"مختلف={_wkl_bad[:2]} · الأخيرة={_wkl_last} · القديمةُ خارج الخمس={_wkl_old}"
+except Exception as _e:                                              # noqa: BLE001
+    _vWL1, _vWL1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕯️ WKL1 `wick_state` توأمُ `T-WICK` (`wick_max`): 300 عالمٍ عشوائيّ نسبةً ويومًا وقمّةً وإغلاقًا · الشموعُ الخمس الأخيرة "
+      "والأخيرةُ داخلة · والأقدمُ خارجها · الفارغُ None · الحدُّ 50%", _vWL1, _vWL1w)
+
+# WKL2 — السطرُ معلومةٌ لا إشارة: يظهر عند 50% بالضبط ويغيب دونها · يحمل النسبةَ واليومَ والقمّةَ والإغلاق · بلا علامات مقارنة ·
+#    والتالفُ ⟵ «»
+try:
+    _wkl_l50 = S.wick_line({"pct": 0.5, "date": "2026-10-01", "high": 1.5, "close": 1.0})
+    _wkl_l49 = S.wick_line({"pct": 0.4999999, "date": "2026-10-01", "high": 1.5, "close": 1.0})
+    _wkl_c = S.wick_line({"pct": 3.10 / 1.78 - 1, "date": "2026-10-29", "high": 3.10, "close": 1.78})
+    _vWL2 = (_wkl_l50.startswith("🕯️ ذيلٌ علويّ 50% فوق الإغلاق يومَ 2026-10-01") and _wkl_l49 == ""
+             and _wkl_c == "🕯️ ذيلٌ علويّ 74% فوق الإغلاق يومَ 2026-10-29 (أعلى $3.10 · إغلاق $1.78) — معلومةٌ لا إشارة"
+             and not any(ch in _wkl_c + _wkl_l50 for ch in "≥≤<>")
+             and S.wick_line(None) == "" and S.wick_line({}) == "" and S.wick_line({"pct": "x"}) == "")
+    _vWL2w = f"50%={_wkl_l50!r} · دونها={_wkl_l49!r} · CETX={_wkl_c!r}"
+except Exception as _e:                                              # noqa: BLE001
+    _vWL2, _vWL2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕯️ WKL2 `wick_line` معلومةٌ لا إشارة: يظهر عند 50% بالضبط ويغيب دونها · CETX ⟵ «74% … ($3.10 · $1.78)» · بلا علامات "
+      "مقارنة · والتالفُ «»", _vWL2, _vWL2w)
+
+# WKL3 — `refresh_wick`: كلُّ سهمٍ يُسنَد بلا شرط (ذيلُ الأمس لا يبقى) · عدّاداتٌ ok/shown/nodata · صفرُ نداء · و`WICK_LINE=0` ⟵ لا يمسّ شيئًا
+try:
+    import pandas as _wkl_pd
+    _wkl_rows = [("2026-10-23", 1, 1.2, 0.9, 1.1, 1), ("2026-10-26", 1, 1.3, 1, 1.2, 1), ("2026-10-27", 1, 1.25, 1, 1.2, 1),
+                 ("2026-10-28", 1, 1.3, 1, 1.25, 1), ("2026-10-29", 1.7, 3.10, 1.6, 1.78, 9), ("2026-10-30", 1.7, 1.9, 1.5, 1.6, 5)]
+    _wkl_df = _wkl_pd.DataFrame({"Open": [r[1] for r in _wkl_rows], "High": [r[2] for r in _wkl_rows],
+                                 "Low": [r[3] for r in _wkl_rows], "Close": [r[4] for r in _wkl_rows],
+                                 "Volume": [r[5] for r in _wkl_rows]}, index=_wkl_pd.to_datetime([r[0] for r in _wkl_rows]))
+    _wkl_lo = _wkl_df.copy()
+    _wkl_lo["High"] = _wkl_lo["Close"] * 1.1
+    import os as _wkl_os
+    _wkl_env = _wkl_os.environ.get("WICK_LINE")
+    try:
+        _wkl_os.environ.pop("WICK_LINE", None)
+        _wkl_st = [{"symbol": "CETX"}, {"symbol": "LOW", "wick5": {"stale": 1}}, {"symbol": "GONE", "wick5": {"stale": 1}}]
+        _wkl_n = S.refresh_wick(_wkl_st, {"CETX": _wkl_df, "LOW": _wkl_lo})
+        _wkl_by = {s["symbol"]: s.get("wick5") for s in _wkl_st}
+        _wkl_os.environ["WICK_LINE"] = "0"
+        _wkl_st0 = [{"symbol": "CETX"}, {"symbol": "OLD", "wick5": {"stale": 1}}]
+        _wkl_n0 = S.refresh_wick(_wkl_st0, {"CETX": _wkl_df})
+    finally:
+        if _wkl_env is None:
+            _wkl_os.environ.pop("WICK_LINE", None)
+        else:
+            _wkl_os.environ["WICK_LINE"] = _wkl_env
+    _vWL3 = (_wkl_n == {"ok": 2, "shown": 1, "nodata": 1} and _wkl_by["CETX"]["date"] == "2026-10-29"
+             and abs(_wkl_by["LOW"]["pct"] - 0.1) < 1e-9 and _wkl_by["GONE"] is None
+             and _wkl_n0 == {"off": True} and _wkl_st0 == [{"symbol": "CETX"}, {"symbol": "OLD", "wick5": {"stale": 1}}])
+    _vWL3w = f"عدّادات={_wkl_n} · GONE={_wkl_by.get('GONE')} · مطفأ={_wkl_n0} {_wkl_st0}"
+except Exception as _e:                                              # noqa: BLE001
+    _vWL3, _vWL3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕯️ WKL3 `refresh_wick`: كلُّ سهمٍ يُسنَد بلا شرط (ذيلُ الأمس يُمحى لمن لا شموعَ له) · ok/shown/nodata · و`WICK_LINE=0` "
+      "⟵ {off} ولا يمسّ القائمة", _vWL3, _vWL3w)
+
+# WKL4 — موصولٌ حيًّا: كرتُ الجاهز اليوميّ (ready_only=True كما يناديه الإنتاج) وكرتُ التجديد يعرضان السطرَ مع الحقل ويُسقطانه بدونه ·
+#    و`refresh_wick` قبل بناء الرسالة في المسارين (AST) · والمفتاحُ «0» ⟵ الرسالتان بت-بت كما بلا الحقل
+try:
+    _wkl_rb = {"price": 1.85, "last_price": 1.85, "pivot": 1.80, "tranches": [1.80, 1.85, 1.90], "stop": [1.67, 1.71],
+               "t1": 2.0, "t2": 2.2, "t3": 2.5, "key_levels": {"sup_major": 1.80}, "warnings": []}
+    _wkl_card = dict(_wkl_rb, symbol="WKLC", score=60, readiness=60, rr=2.0, entry=(1.80, 1.90), tier="B", soft_fails=[],
+                     flags=[])
+    _wkl_card["interp"] = S.build_interpretation(_wkl_card)
+    _wkl_wl = S.make_watch_entry(dict(_wkl_card), "2026-10-30")
+    _wkl_w = {"pct": 3.10 / 1.78 - 1, "date": "2026-10-29", "high": 3.10, "close": 1.78}
+    _wkl_rich = S.build_daily_message({"stocks": [dict(_wkl_wl, wick5=_wkl_w)]}, [], [], [], ready_only=True)
+    _wkl_bare = S.build_daily_message({"stocks": [dict(_wkl_wl)]}, [], [], [], ready_only=True)
+    _wkl_m1 = S.build_message([dict(_wkl_card, wick5=_wkl_w)], [])
+    _wkl_m0 = S.build_message([dict(_wkl_card)], [])
+    _wkl_sw = [dict(_wkl_wl)]
+    _wkl_env4 = _wkl_os.environ.get("WICK_LINE")
+    try:
+        _wkl_os.environ["WICK_LINE"] = "0"
+        S.refresh_wick(_wkl_sw, {"WKLC": _wkl_df})
+        _wkl_off = S.build_daily_message({"stocks": _wkl_sw}, [], [], [], ready_only=True)
+    finally:
+        if _wkl_env4 is None:
+            _wkl_os.environ.pop("WICK_LINE", None)
+        else:
+            _wkl_os.environ["WICK_LINE"] = _wkl_env4
+
+    def _wkl_calls(fn):
+        t = _wkl_ast.parse(_wkl_tw.dedent(_wkl_insp.getsource(fn)))
+        return [(getattr(c.func, "id", None) or getattr(c.func, "attr", None), c.lineno)
+                for c in _wkl_ast.walk(t) if isinstance(c, _wkl_ast.Call)]
+
+    def _wkl_first(calls, name):
+        ls = [ln for n, ln in calls if n == name]
+        return min(ls) if ls else None
+    _wkl_cd, _wkl_cr = _wkl_calls(S.run_daily_watchlist), _wkl_calls(S.run_weekly_renewal)
+    _wkl_o1 = (_wkl_first(_wkl_cd, "refresh_wick"), _wkl_first(_wkl_cd, "build_daily_message"))
+    _wkl_o2 = (_wkl_first(_wkl_cr, "refresh_wick"), _wkl_first(_wkl_cr, "build_message"))
+    _vWL4 = ("WKLC" in _wkl_rich and "🕯️ ذيلٌ علويّ 74%" in _wkl_rich and "معلومةٌ لا إشارة" in _wkl_rich
+             and "ذيلٌ علويّ" not in _wkl_bare and "WKLC" in _wkl_bare
+             and "🕯️ ذيلٌ علويّ 74%" in _wkl_m1 and "ذيلٌ علويّ" not in _wkl_m0
+             and _wkl_off == _wkl_bare and "wick5" not in _wkl_sw[0]
+             and None not in _wkl_o1 and _wkl_o1[0] < _wkl_o1[1] and None not in _wkl_o2 and _wkl_o2[0] < _wkl_o2[1])
+    _vWL4w = (f"يوميّ={'ذيلٌ علويّ 74%' in _wkl_rich}/{'ذيلٌ علويّ' in _wkl_bare} · تجديد={'ذيلٌ علويّ 74%' in _wkl_m1}/"
+              f"{'ذيلٌ علويّ' in _wkl_m0} · مطفأ=بت-بت {_wkl_off == _wkl_bare} · ترتيب={_wkl_o1}/{_wkl_o2}")
+except Exception as _e:                                              # noqa: BLE001
+    _vWL4, _vWL4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕯️ WKL4 موصولٌ حيًّا: كرتُ الجاهز اليوميّ (ready_only=True) وكرتُ التجديد يعرضان السطرَ مع الحقل ويُسقطانه بدونه · "
+      "و`refresh_wick` قبل بناء الرسالة في المسارين (AST) · و`WICK_LINE=0` ⟵ الرسالةُ بت-بت", _vWL4, _vWL4w)
+
+# WKL5 — عرضٌ لا إشارة: الجذورُ الاثنا عشر لا تذكر الحقلَ ولا دوالَّه ولا ثوابتَه (AST: أسماءٌ وسماتٌ ونصوص)
+try:
+    _wkl_roots = ["rank_key", "select_top", "classify_tier", "analyze_ticker", "apply_short_gate", "apply_float_gate",
+                  "scan_market", "backtest_symbol", "scan_ignition", "scan_split_hunter", "entry_status",
+                  "build_interpretation"]
+    _wkl_ban = {"wick5", "wick_state", "refresh_wick", "wick_line", "wick_line_on", "WICK_WIN", "WICK_LINE_MIN",
+                "WICK_LINE_ENV", "WICK_LINE"}
+    _wkl_hits = []
+    for _rn in _wkl_roots:
+        _t5 = _wkl_ast.parse(_wkl_tw.dedent(_wkl_insp.getsource(getattr(S, _rn))))
+        for _nd5 in _wkl_ast.walk(_t5):
+            _v5 = (getattr(_nd5, "id", None) if isinstance(_nd5, _wkl_ast.Name)
+                   else getattr(_nd5, "attr", None) if isinstance(_nd5, _wkl_ast.Attribute)
+                   else _nd5.value if isinstance(_nd5, _wkl_ast.Constant) and isinstance(_nd5.value, str) else None)
+            if _v5 in _wkl_ban:
+                _wkl_hits.append((_rn, _v5))
+    _vWL5, _vWL5w = not _wkl_hits, f"إصاباتُ الجذور={_wkl_hits}"
+except Exception as _e:                                              # noqa: BLE001
+    _vWL5, _vWL5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🕯️ WKL5 عرضٌ لا إشارة: الجذورُ الاثنا عشر (`rank_key` · `select_top` · `entry_status` · `build_interpretation` …) لا تذكر "
+      "`wick5` ولا دوالَّه ولا ثوابتَه (AST)", _vWL5, _vWL5w)
+
+# 🔗🚦 OES1-OES2 (‏2026-10-30 · عطلٌ مُثبَت من سؤال المالك عن فشل `git_save` 14:27 UTC): «عاملٌ واحد» — العاملُ الذي يبدأه كرونٌ متأخّر
+#    يُخلي الجلسةَ لعاملٍ أقدمَ حيّ (كانا يُرسلان «هنا الدخول» نفسَه وتتصادم دفعاتُهما) · والأقدمُ لا يُخلي · والتعذّرُ ⟵ يعمل
+import operator_entry_live as _oes_L
+import contextlib as _oes_cl
+import io as _oes_io
+import os as _oes_os
+import random as _oes_rnd
+_oes_now = _oes_L.bot.dt.datetime(2026, 10, 30, 14, 0, tzinfo=_oes_L.bot.dt.timezone.utc)
+_oes_runs = [{"id": 1, "status": "in_progress", "run_started_at": "2026-10-30T13:00:00Z"},
+             {"id": 2, "status": "in_progress", "run_started_at": "2026-10-30T08:20:00Z"},
+             {"id": 3, "status": "queued", "run_started_at": "2026-10-30T12:00:00Z"},
+             {"id": 5, "status": "in_progress", "run_started_at": "2026-10-30T13:30:00Z"},
+             {"id": 6, "status": "in_progress", "run_started_at": "2026-10-30T13:30:00Z"},
+             {"id": 7, "status": "in_progress", "run_started_at": "2026-10-30T13:50:00Z"},
+             {"id": "x", "status": "in_progress"}]
+try:
+    _oes_t = (_oes_L.older_alive(_oes_runs, 7, _oes_now) == [1, 5, 6]
+              and _oes_L.older_alive(_oes_runs, 1, _oes_now) == []
+              and _oes_L.older_alive(_oes_runs, 6, _oes_now) == [1, 5] and _oes_L.older_alive(_oes_runs, 5, _oes_now) == [1]
+              and _oes_L.older_alive([_oes_runs[1], _oes_runs[5]], 7, _oes_now) == []
+              and _oes_L.older_alive(_oes_runs, 9, _oes_now) == [] and _oes_L.older_alive(_oes_runs, None, _oes_now) == []
+              and _oes_L.older_alive([], 7, _oes_now) == [] and _oes_L.older_alive(None, 7, _oes_now) == [])
+    #    خاصّيّة: في 300 عالمٍ عشوائيّ لا ينسحب الأحياءُ كلُّهم أبدًا (الأقدمُ يبقى)
+    _oes_r, _oes_bad = _oes_rnd.Random(20261030), []
+    for _w in range(300):
+        _rs = [{"id": i, "status": "in_progress",
+                "run_started_at": (_oes_now - _oes_L.bot.dt.timedelta(minutes=_oes_r.choice([1, 5, 30, 30, 200, 323, 324, 400]))
+                                   ).strftime("%Y-%m-%dT%H:%M:%SZ")} for i in range(1, _oes_r.randint(2, 6))]
+        _young = set(_oes_L.alive_runs(_rs, None, _oes_now))
+        _stay = [r["id"] for r in _rs if r["id"] in _young and not _oes_L.older_alive(_rs, r["id"], _oes_now)]
+        if _young and len(_stay) != 1:
+            _oes_bad.append((_w, sorted(_young), _stay))
+    _vOS1 = _oes_t and not _oes_bad
+    _vOS1w = f"7⟵{_oes_L.older_alive(_oes_runs, 7, _oes_now)} · 1⟵{_oes_L.older_alive(_oes_runs, 1, _oes_now)} · عوالمُ معيبة={_oes_bad[:2]}"
+except Exception as _e:                                              # noqa: BLE001
+    _vOS1, _vOS1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔗🚦 OES1 `older_alive` نقيّة: الأقدمُ الأحياء وحدَهم (المُنتهي بعد 324 دقيقة والمطابورُ والتالفُ خارجًا · التعادلُ للمعرّف الأصغر) · "
+      "وغيابي ⟵ [] · وفي 300 عالمٍ يبقى عاملٌ واحدٌ بالضبط (لا ينسحب الكلّ ولا يبقى اثنان)", _vOS1, _vOS1w)
+
+# OES2 — من نقطة النداء: `main()` ينتظر احتياطًا قبل تحميل الكون ما دام أقدمُ حيًّا (سطرُه مرّةً واحدة) ثمّ يبدأ حين يغيب الأقدم ·
+#    ويخرج 0 إن انقضت ميزانيّتُه منتظرًا · ويمضي فورًا حين لا أقدم أو تعذّر الـAPI أو `OE_SINGLE=0` (وحينها صفرُ نداء) — والتحميلُ
+#    مجذَّعٌ يرمي فلا يدخل الحلقة · والنومُ مجذَّعٌ يرمي بعد خمس فلا تُعلِّق طفرةٌ السويّة
+_oes_keep = {k: getattr(_oes_L, k) for k in ("_gh_api", "_no_session", "_ny_minutes", "_load_universe", "_sleep", "_log")}
+_oes_envk = ("GITHUB_RUN_ID", "OE_SINGLE", "POLYGON_API_KEY", "OE_SOURCE", "OE_BUDGET_MIN")
+_oes_env = {k: _oes_os.environ.get(k) for k in _oes_envk}
+_oes_api, _oes_load, _oes_slp, _oes_logs = [], [], [], []
+
+
+class _OesStop(Exception):
+    pass
+
+
+def _oes_run(api_seq, run_id, single=None, budget=None):
+    _oes_api.clear()
+    _oes_load.clear()
+    _oes_slp.clear()
+    _oes_logs.clear()
+
+    def _api(method, path, body=None, timeout=25):
+        _oes_api.append(path)
+        ret = api_seq[min(len(_oes_api), len(api_seq)) - 1]
+        if isinstance(ret, Exception):
+            raise ret
+        return ret
+
+    def _slp(sec):
+        _oes_slp.append(sec)
+        if len(_oes_slp) > 5:
+            raise _OesStop()
+    _oes_L._gh_api, _oes_L._sleep = _api, _slp
+    _oes_L._log = lambda m: _oes_logs.append(str(m))      # السجلُّ من `_log` نفسِه (`bot.log` قد يُحوَّل في السويّة)
+    _oes_os.environ["GITHUB_RUN_ID"] = str(run_id)
+    for _k, _v in (("OE_SINGLE", single), ("OE_BUDGET_MIN", budget)):
+        if _v is None:
+            _oes_os.environ.pop(_k, None)
+        else:
+            _oes_os.environ[_k] = _v
+    with _oes_cl.redirect_stdout(_oes_io.StringIO()):
+        try:
+            rc = _oes_L.main()
+        except _OesStop:
+            rc = "stop"
+    return rc, len(_oes_api), len(_oes_load), "\n".join(_oes_logs), list(_oes_slp)
+
+
+try:
+    _oes_L._no_session = lambda d: False
+    _oes_L._ny_minutes = lambda now=None: (10 * 60, "2026-10-30")
+    _oes_L._load_universe = lambda: (_oes_load.append(1), (_ for _ in ()).throw(_OesStop()))[1]
+    _oes_os.environ["POLYGON_API_KEY"] = "x"
+    _oes_os.environ.pop("OE_SOURCE", None)
+    #    `main()` يقرأ الساعةَ الحقيقيّة ⟵ الأعمارُ نسبيّةٌ إلى «الآن» لا أوقاتٌ ثابتة (وإلّا صار المُنتهي حيًّا أو العكس بحسب ساعة التشغيل)
+    _oes_t0 = _oes_L.bot.dt.datetime.now(_oes_L.bot.dt.timezone.utc)
+    _oes_ago = lambda m: (_oes_t0 - _oes_L.bot.dt.timedelta(minutes=m)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    _oes_live = [{"id": 1, "status": "in_progress", "run_started_at": _oes_ago(60)},
+                 {"id": 2, "status": "in_progress", "run_started_at": _oes_ago(400)},
+                 {"id": 3, "status": "queued", "run_started_at": _oes_ago(90)},
+                 {"id": 5, "status": "in_progress", "run_started_at": _oes_ago(30)},
+                 {"id": 6, "status": "in_progress", "run_started_at": _oes_ago(30)},
+                 {"id": 7, "status": "in_progress", "run_started_at": _oes_ago(10)},
+                 {"id": "x", "status": "in_progress"}]
+    _oes_res = {"workflow_runs": _oes_live}
+    _oes_gone = {"workflow_runs": [r for r in _oes_live if r["id"] not in (1, 5, 6)]}
+    _o1 = _oes_run([_oes_res], 7, budget="1")                    # أقدمُ حيٌّ دائمًا والميزانيّةُ دقيقة ⟵ يخرج 0 منتظرًا
+    _o1b = _oes_run([_oes_res, _oes_res, _oes_gone], 7)          # أقدمُ ثمّ يغيب بعد دقيقتين ⟵ يبدأ العمل
+    _o2 = _oes_run([_oes_res], 1)                                # أنا الأقدم ⟵ يمضي فورًا
+    _o3 = _oes_run([RuntimeError("HTTP 502")], 7)                # تعذّر ⟵ يمضي
+    _o4 = _oes_run([None], 7)                                    # بلا مفتاح ⟵ يمضي
+    _o5 = _oes_run([_oes_res], 7, single="0")                    # المفتاحُ مطفأ ⟵ صفرُ نداءٍ ويمضي
+    _oes_line = "🔗🚦 عاملٌ أقدمُ حيّ (1, 5, 6) يغطّي الجلسة — أنتظر احتياطًا"
+    _vOS2 = (_o1[0] == 0 and _o1[2] == 0 and _oes_line in _o1[3] and "انقضت ميزانيّتي منتظرًا" in _o1[3] and _o1[4] == []
+             and _o1b[0] == "stop" and _o1b[1] == 3 and _o1b[2] == 1 and _o1b[4] == [60, 60]
+             and _o1b[3].count("عاملٌ أقدمُ حيّ") == 1 and "لا عاملَ أقدمَ حيّ الآن — أبدأ العمل" in _o1b[3]
+             and _o2[0] == "stop" and _o2[1] == 1 and _o2[2] == 1 and "عاملٌ أقدمُ حيّ" not in _o2[3] and _o2[4] == []
+             and _o3[0] == "stop" and _o3[2] == 1 and "فحصُ العامل الأقدم" in _o3[3]
+             and _o4[0] == "stop" and _o4[2] == 1
+             and _o5[0] == "stop" and _o5[1] == 0 and _o5[2] == 1 and _o5[4] == [])
+    _vOS2w = (f"ميزانيّةٌ منتهية={_o1[0]}/{_o1[2]}/{_o1[4]} · يغيب الأقدم={_o1b[:3]}{_o1b[4]} · أنا الأقدم={_o2[:3]} · "
+              f"تعذّر={_o3[:3]} · بلا مفتاح={_o4[:3]} · مطفأ={_o5[:3]}")
+except Exception as _e:                                              # noqa: BLE001
+    _vOS2, _vOS2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    for _k, _v in _oes_keep.items():
+        setattr(_oes_L, _k, _v)
+    for _k, _v in _oes_env.items():
+        if _v is None:
+            _oes_os.environ.pop(_k, None)
+        else:
+            _oes_os.environ[_k] = _v
+check("🔗🚦 OES2 `main()` من نقطة النداء: أقدمُ حيّ ⟵ ينتظر احتياطًا قبل تحميل الكون بسطرٍ واحد ثمّ يبدأ حين يغيب · ويخرج 0 إن انقضت "
+      "ميزانيّتُه منتظرًا · أنا الأقدم/تعذّر الـAPI/بلا مفتاح ⟵ يمضي فورًا · و`OE_SINGLE=0` ⟵ صفرُ نداءٍ ويمضي كما كان", _vOS2, _vOS2w)
 
 # BKD1-BKD6 (‏2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام» · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه مجهولًا
 #        بعد الحصاد والموقع يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS` من `ctb_log.jsonl` ∪ `borrow_watch.jsonl` — للبوّابة وحدَها
