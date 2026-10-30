@@ -166,3 +166,4 @@
 {"kind": "sender_attestation", "meta_v": 1, "attested_utc": "2026-10-28T09:31:04Z", "batch": "B22_20261028", "attests_message_ids": [77197, 77198, 77199, 77200, 77201, 77202, 77203, 77204, 77205, 77206, 77207, 77208, 77209, 77210, 77211, 77212, 77213, 77214, 77215, 77216, 77217, 77218], "sender": "OWNER", "basis": "owner statement 2026-10-28: «الصور كلها أرسلتها أنا (المالك)»", "why": "from_admin=false/from_recipient=true because the owner's sending account is a configured recipient, not the first TELEGRAM_CHAT_ID id", "rows_unchanged": true}
 {"collected_utc": "2026-10-29T05:47:20Z", "kind": "heartbeat", "meta_v": 2, "run_id": "40825364793", "status": "heartbeat"}
 {"collected_utc": "2026-10-29T21:07:29Z", "kind": "heartbeat", "meta_v": 2, "run_id": "40954988492", "status": "heartbeat"}
+{"collected_utc": "2026-10-30T15:02:40Z", "kind": "heartbeat", "meta_v": 2, "run_id": "41076971182", "status": "heartbeat"}
