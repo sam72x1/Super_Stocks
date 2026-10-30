@@ -23,6 +23,7 @@ import datetime as dt
 import json
 import os
 import sys
+import threading
 import time
 
 import vwap_mom_feas as V3
@@ -40,6 +41,15 @@ SPAC_SIC = V4.SPAC_SIC               # 6770 — الملحق 3 ⑤
 D_MAX_PER_DAY = 3                    # إعادةُ الاختبار حتى 3 في اليوم — أمرُ المالك 2026-10-29 (مثالُ AZTR «3 مرات»)
 FRESH_MAX_S = 600                    # أكثرُ من 10 دقائق بعد إغلاق الشمعة ⟵ لا يُرسَل ويُسجَّل — قرارُ المالك 2026-10-29
 LOOP_OFFSET_S = 25                   # الفحصُ بعد حدّ الشمعة بثوانٍ (المزوّدُ ينشر الدقيقة خلال ‏≈2ث — مقيس) — engineering
+# ⚡ المسارُ السريع (أمرُ المالك 2026-10-30 «الهدف 5 ثوانٍ فأقلّ من إغلاق شمعة 5د إلى الإرسال، بلا تغيير في أيّ قاعدة») — توقيتٌ لا قاعدة:
+#    `VWL_FAST=0` ⟵ الحلقةُ القديمة بت-بت (`_mode_live_legacy`). قِيس أمس (10-29 · التجربةُ الصامتة): 26.4-36.0ث = انتظارُ 25ث ثابت ‏+
+#    جلبُ الشموع متسلسلًا 1.4-11.0ث (اللقطة ثمّ المرشّحون أبجديًّا) ‏+ الخبرُ والتقييم 0.2-1.0ث ‏+ الإرسالُ (لم يُقَس: الإرسالُ كان مطفأ).
+POLL_STEPS_S = (1, 2, 3, 4, 5, 7, 10, 14, 19, LOOP_OFFSET_S)   # جلبُ دقائق المرشّح بعد الحدّ: حتى تظهر دقيقتُه الأخيرة أو مهلةُ القديم — engineering
+PREP_LEAD_S = 75                     # التحضيرُ بين الشمعتين يبدأ قبل الحدّ بـ75ث: اللقطة · المرجع · ② · ④ — engineering
+FETCH_WORKERS = 24                   # جلبٌ متوازٍ للمرشّحين (Polygon بلا حدّ معدّل على الخطّة · وSEC مُسلسَلٌ بقفلٍ تحت 10/ث) — engineering
+LAT_WARN_S = 10                      # تنبيهٌ تأخّرُه الكلّيُّ فوق 10 ثوانٍ يُعلَن في السجلّ — أمرُ المالك 2026-10-30
+WS_URL = "wss://socket.polygon.io/stocks"      # ③ قناةُ AM (تجميعُ الدقيقة) — ظلٌّ صامتٌ يقيس وصولَ الشمعة لا يقرّر
+WS_PROBE_S = 120                     # مدّةُ استماع وضع `wsprobe` — engineering
 EMA_N = 9                            # EMA9 على إغلاقات 5 دقائق من بداية الجلسة — العقد §② (`nayef_verbatim` الطول)
 LEDGER = "vwap_live_ledger.jsonl"    # سجلُّ الحصاد الإلحاقيّ (يُدفَع) — أمرُ المالك ④
 SEG_SPLIT_MIN = 195                  # حدُّ المقطعين (سقفُ جوب GitHub 6 ساعات · كرادار الانطلاق)
@@ -465,10 +475,12 @@ class Net:
 
     def __init__(self, key, ua):
         self.key, self.ua, self.calls, self.fails = key, ua, 0, 0
+        self._lk, self._sec_lk = threading.Lock(), threading.Lock()   # ⚡ العدّاداتُ آمنةٌ للتوازي · وSEC مُسلسَلٌ (حدُّه 10/ث)
 
     def _count(self, j):
-        self.calls += 1
-        self.fails += int(j is None)
+        with self._lk:
+            self.calls += 1
+            self.fails += int(j is None)
         return j
 
     def poly(self, path, params=None):
@@ -479,12 +491,14 @@ class Net:
 
     def paged(self, path, params, cap=100):
         rows, ok = V4._paged_all(self.key, path, params, cap=cap)
-        self.calls += 1
-        self.fails += int(not ok)
+        with self._lk:
+            self.calls += 1
+            self.fails += int(not ok)
         return rows, ok
 
     def sec(self, url):
-        return self._count(V3._sec_get(url, self.ua, True))
+        with self._sec_lk:
+            return self._count(V3._sec_get(url, self.ua, True))
 
     def minutes(self, sym, d_from, d_to):
         from urllib.parse import quote
@@ -521,6 +535,117 @@ class Net:
             return None
         out, self.snap_diag = snapshot_hl(j.get("tickers") or ())
         return out
+
+
+def ws_lag_stats(lags):
+    """[ثوانٍ] ⟵ {n · وسيط · p90 · أقصى} (نقيّة · لوضع `wsprobe` وسطر الظلّ)."""
+    xs = sorted(x for x in lags if x is not None)
+    if not xs:
+        return {"n": 0, "p50": None, "p90": None, "max": None}
+    return {"n": len(xs), "p50": round(_median(xs), 2), "p90": round(xs[min(len(xs) - 1, int(0.9 * len(xs)))], 2),
+            "max": round(xs[-1], 2)}
+
+
+class WSShadow:
+    """③ ظلُّ قناة AM (تجميعُ الدقيقة عبر WebSocket) — **يقيس ولا يقرّر**: يسجّل لحظةَ وصول شمعة كلّ دقيقة لكلّ رمز فيُقارَن بها
+    جاهزيّةُ REST عند كلّ تنبيهٍ وكلّ حدّ (أمرُ المالك 2026-10-30 «قِس تأخرها مقابل REST في جلسة صامتة قبل أي تبديل»).
+    خيطٌ مستقلّ · كلُّ عطلٍ يُسجَّل ويُطفئ الظلَّ وحدَه · لا يمسّ الحلقة. `conn` محقونٌ للسويّة (كائنٌ له recv/send/close)."""
+
+    KEEP_S = 20 * 60
+
+    def __init__(self, key, url=WS_URL, conn_fn=None, clock=time.time):
+        self.key, self.url, self.conn_fn, self.clock = key, url, conn_fn, clock
+        self.seen, self.lk, self.status, self.events, self.stop = {}, threading.Lock(), "لم يبدأ", 0, False
+
+    def _connect(self):
+        if self.conn_fn is not None:
+            return self.conn_fn(self.url)
+        import websocket
+        return websocket.create_connection(self.url, timeout=15)
+
+    def handle(self, raw, now):
+        """رسالةٌ خام ⟵ يحدّث الحالةَ وسجلَّ الوصول (نقيّةٌ إلّا من حالة الكائن · مقفولة في السويّة)."""
+        try:
+            msgs = json.loads(raw)
+        except ValueError:
+            return
+        for m in msgs if isinstance(msgs, list) else [msgs]:
+            ev = m.get("ev") if isinstance(m, dict) else None
+            if ev == "status":
+                st = str(m.get("status") or "")
+                if st in ("auth_success", "auth_failed", "max_connections", "error") or st.startswith("auth"):
+                    self.status = f"{st}: {m.get('message') or ''}".strip()
+            elif ev == "AM":
+                try:
+                    k = (str(m["sym"]).upper(), int(m["s"]))
+                except (KeyError, TypeError, ValueError):
+                    continue
+                with self.lk:
+                    self.seen.setdefault(k, (now, int(m.get("e") or 0)))
+                    self.events += 1
+
+    def arrival(self, sym, minute_start_ms):
+        """لحظةُ وصول شمعة الدقيقة (ثانيةٌ عالميّة) أو None."""
+        with self.lk:
+            v = self.seen.get((str(sym).upper(), int(minute_start_ms)))
+        return None if v is None else v[0]
+
+    def prune(self, now):
+        cut = (now - self.KEEP_S) * 1000.0
+        with self.lk:
+            for k in [k for k in self.seen if k[1] < cut]:
+                del self.seen[k]
+
+    def run(self, until):
+        """الخيط: اتّصال ⟵ مصادقة ⟵ اشتراك AM.* ⟵ استماعٌ حتى `until` — وأيُّ عطلٍ يُنهي الظلَّ وحدَه."""
+        try:
+            ws = self._connect()
+            self.handle(ws.recv(), self.clock())
+            ws.send(json.dumps({"action": "auth", "params": self.key}))
+            self.handle(ws.recv(), self.clock())
+            if not self.status.startswith("auth_success"):
+                log(f"📡 ظلُّ AM: المصادقةُ لم تنجح ({self.status}) — يتوقّف الظلُّ ولا تتأثّر الحلقة")
+                ws.close()
+                return
+            ws.send(json.dumps({"action": "subscribe", "params": "AM.*"}))
+            last_prune = self.clock()
+            while not self.stop and self.clock() < until:
+                try:
+                    raw = ws.recv()
+                except Exception as e:                                  # noqa: BLE001
+                    if type(e).__name__ in ("WebSocketTimeoutException", "TimeoutError", "timeout"):
+                        continue                                       # لا تداولَ في المهلة ⟵ استماعٌ مستمرّ
+                    raise
+                now = self.clock()
+                if raw:
+                    self.handle(raw, now)
+                if now - last_prune > 60:
+                    self.prune(now)
+                    last_prune = now
+            ws.close()
+        except Exception as e:                                          # noqa: BLE001
+            self.status = f"عطل: {type(e).__name__}"
+            log(f"📡 ظلُّ AM توقّف ({type(e).__name__}) — الحلقةُ مستمرّة على REST")
+
+    def start(self, until):
+        t = threading.Thread(target=self.run, args=(until,), daemon=True)
+        t.start()
+        return t
+
+
+def mode_wsprobe(key, listen_s=WS_PROBE_S, conn_fn=None, clock=time.time):
+    """③ هل يشمل الاشتراكُ قناةَ AM؟ — مصادقةٌ واشتراكٌ في AM.* واستماعٌ `listen_s` ثانية ⟵ الحالةُ وعددُ الشموع وتأخّرُ وصولها عن نهاية
+    دقيقتها (وسيط · p90 · أقصى). قراءةٌ فقط · بلا تلغرام. ⟵ 0 إن نجحت المصادقة · 4 إن رُفضت أو تعذّر الاتّصال."""
+    sh = WSShadow(key, conn_fn=conn_fn, clock=clock)
+    sh.run(clock() + listen_s)
+    with sh.lk:
+        lags = [now - e / 1000.0 for (now, e) in sh.seen.values() if e]
+    st = ws_lag_stats(lags)
+    ok = sh.status.startswith("auth_success")
+    log(f"📡 wsprobe: الحالة «{sh.status}» · شموعُ AM {sh.events} · رموز {len({k[0] for k in sh.seen})} · تأخّرُ الوصول عن نهاية "
+        f"الدقيقة: وسيط {st['p50']}ث · p90 {st['p90']}ث · أقصى {st['max']}ث")
+    emit_json({"mode": "wsprobe", "status": sh.status, "events": sh.events, "lag": st, "auth_ok": ok})
+    return 0 if ok else 4
 
 
 class Day:
@@ -1070,7 +1195,7 @@ def _bot():
 
 def main(argv=None):
     p = argparse.ArgumentParser()
-    p.add_argument("--mode", default="live", choices=("live", "replay", "trace", "harvest", "probe"))
+    p.add_argument("--mode", default="live", choices=("live", "replay", "trace", "harvest", "probe", "wsprobe"))
     p.add_argument("--days", type=int, default=5)
     p.add_argument("--end", default="")
     p.add_argument("--date", default="2026-10-26")
@@ -1089,6 +1214,8 @@ def main(argv=None):
     if not key:
         log("⛔ لا مفتاح Polygon — لا عمل (يُعلَن ولا يُكتَم)")
         return 2
+    if a.mode == "wsprobe":
+        return mode_wsprobe(key)
     if not ua:
         log("⛔ SEC_CONTACT غيرُ مضبوط — ④ (8-K) مصدرٌ لازم")
         return 2
