@@ -1,5 +1,9 @@
 """🟠 «زخم الفيواب» — أداةُ تنبيهٍ حيّة على تلغرام · ⚠️ قيد الإثبات الأماميّ (أمرُ المالك 2026-10-29).
 
+🟠④ **ومنذ 2026-10-30 «ملحق 4 — تطبيق نايف بالحرف» (`vwap_live_addendum_4.md` · `VWL_DEF`):** الثباتُ = 3 إغلاقات 5د متتالية فوق فيواب
+الجلسة أو إغلاقُ 15د واحد فوقه بلا إغلاقٍ سابقٍ تحته (`hold_events`) · وحُذف ① ‏+20% و② RVOL ≥ 3 · والباقي أدناه كما هو ·
+و`VWL_DEF=A3` ⟵ الملحق 3 بت-بت.
+
 **التعريفُ = الملحق 3** (`vwap_mom_prereg_addendum_3.md` §③ — «الملحق 3 كتعريف نهائي») **بدوالّ الجدوى نفسِها بالاسم** فلا يُعاد
 كتابةُ شرطٍ بيدٍ ثانية: الكسرُ الصاعد `V3.break_events` · L `V3.event_liq` · إعادةُ الاختبار `V3.retest_signal` · VWAP والسلال
 `V3.vwap_series`/`V3.bucketize` · التراكمُ الدولاريّ `V3.cum_dollar_at` · ① `V4.pct_change`/`V4.ge` · ② `V4.rvol`/`V4.cum_curve`/`V4.curve_at`/
@@ -65,6 +69,26 @@ L_TOL = 0.95                         # «تسامح 5% في مقارنة 3×3» 
 L_DEF_DEFAULT = "T"                  # الإنتاج — يُختار بأثره على الإعادة وAZTR (`vwap_live_acceptance.md` §③)
 LAST_CLOSE_LOOKBACK_D = 90           # «اعتمد آخر إغلاق للموقوف» (أمرُ المالك 2026-10-29): آخرُ إغلاقٍ في 90 يومًا قبل اليوم — engineering
 FUND_SIC = ("6722", "6726", "6798")  # ⑤ «لا صناديق» بكود SIC (أمرُ المالك 2026-10-29): صناديقُ مفتوحة · مغلقة/وحدات · REIT
+# 🟠④ «ملحق 4 — تطبيق نايف بالحرف، بلا أي شرط من عندنا» (أمرُ المالك 2026-10-30 · `vwap_live_addendum_4.md`): الثباتُ = 3 إغلاقات 5د
+#    متتالية فوق فيواب الجلسة أو إغلاقُ 15د واحد فوقه **بلا إغلاقٍ سابقٍ تحته** · وحُذف ① ‏+20% و② RVOL ≥ 3 · والباقي كما هو
+#    (النظاميّة · 250 ألفًا · ③ L · ④ الخبر · الوقف · ⑤ السعر والنوع والصناديق · A مرّة وD حتى 3) · `VWL_DEF=A3` ⟵ الملحق 3 بت-بت.
+DEF_ENV = "VWL_DEF"
+DEF_DEFAULT = "A4"
+CHECK_ORDER_A4 = ("⑤ السعر", "الحجم الدولاري", "③ L", "⑤ النوع", "⑤ SPAC", "④ الخبر")
+
+
+def def_now():
+    """تعريفُ الأداة وقتَ النداء: «A3» ⟵ الملحق 3 كما كان بت-بت · وغيرُه ⟵ «A4» (الإنتاج)."""
+    return "A3" if (os.environ.get(DEF_ENV) or "").strip().upper() == "A3" else DEF_DEFAULT
+
+
+def hold_events(b5, b15):
+    """🟠④ أحداثُ الثبات بنصّ نايف: كلُّ شمعة 5د i ثالثةُ ثلاث إغلاقاتٍ متتالية فوق VWAP (i−2 · i−1 · i) ⟵ حدثٌ عند نهايتها · وكلُّ
+    شمعة 15د أُغلقت فوقه ⟵ حدثٌ عند نهايتها · **بلا إغلاقٍ سابقٍ تحته** ⟵ [(نهاية، النوع، الفهرس، None)] مرتّبةً (شكلُ `V3.break_events`)."""
+    above = lambda b: b["vwap"] is not None and b["c"] > b["vwap"]          # noqa: E731
+    out = [(b5[i]["e"], "5x3", i, None) for i in range(2, len(b5)) if above(b5[i - 2]) and above(b5[i - 1]) and above(b5[i])]
+    out += [(b15[j]["e"], "15x1", j, None) for j in range(len(b15)) if above(b15[j])]
+    return sorted(out, key=lambda x: (x[0], x[1], x[2]))
 FLAT_N, FLAT_PCT = 6, 0.01           # وسمُ «📌 استحواذ نقدي»: مدى آخر 6 شموع 5د حتى 1% من السعر مع 8-K بند 1.01 — engineering (عرضٌ لا رفض)
 NEAR_CLOSE_MOD = 15 * 60 + 45        # وسمُ «⏱️ قرب الإغلاق»: إكمالُ الشمعة 15:45 نيويورك فما بعد — أمرُ المالك 2026-10-29 (عرضٌ لا رفض)
 WIRE_LIMIT_NOTE = ("مصادرُ الخبر المرئيّة: GlobeNewswire و8-K وحدهما — PRNewswire وBusiness Wire وAccesswire "
@@ -243,14 +267,16 @@ def check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d
         return why
     if info["cum_dollar"] < d_min and fail("الحجم الدولاري"):
         return why
-    if not V4.ge(info["chg"], CHG_MIN) and fail("① التغيّر"):
+    a3 = def_now() == "A3"                                              # 🟠④ ① و② محذوفان في الملحق 4
+    if a3 and not V4.ge(info["chg"], CHG_MIN) and fail("① التغيّر"):
         return why
     info["liq"] = event_L(b5, b15, ev, ldef)
     if not info["liq"] and fail("③ L"):
         return why
-    info["rvol"] = priors_rvol(shares_before(bars, e), priors_fn(), e)
-    if not V4.ge(info["rvol"], RVOL_MIN) and fail("② RVOL" + (" (مجهول)" if info["rvol"] is None else "")):
-        return why
+    if a3:
+        info["rvol"] = priors_rvol(shares_before(bars, e), priors_fn(), e)
+        if not V4.ge(info["rvol"], RVOL_MIN) and fail("② RVOL" + (" (مجهول)" if info["rvol"] is None else "")):
+            return why
     if type_status != "ok" and fail("⑤ النوع" + (" (مجهول)" if type_status == "unknown" else "")):
         return why
     if spac and fail("⑤ " + ("SPAC" if spac is True else str(spac))):   # True ⟵ SPAC · نصٌّ ⟵ وسمُ SIC (صندوق)
@@ -271,9 +297,10 @@ def evaluate(bars, op, cl, upto, prev_adj, priors_fn, cat_of, type_status, spac,
     (الملحق 3 §③-⑥) ثمّ تُبحث اللمسةُ التالية بعد إكماله — حتى `D_MAX_PER_DAY` تنبيهًا.
     `priors_fn()` ⟵ أيّامُ ② (يُنادى عند الحاجة وحدَها) · `cat_of(نهاية)` ⟵ `V4.catalyst4` · `type_status` ∈ {ok · excluded · unknown}."""
     ldef = resolve_ldef(ldef)
+    a3 = def_now() == "A3"
     b5, b15, _bb = complete_buckets(bars, op, cl, upto)
     events, alerts, first_full = [], [], None
-    for ev in V3.break_events(b5, b15):
+    for ev in (V3.break_events(b5, b15) if a3 else hold_events(b5, b15)):    # 🟠④ الثباتُ بلا كسرٍ سابق
         e, kind, idx, _k = ev
         bk = b5[idx] if kind == "5x3" else b15[idx]
         px, vwap = bk["c"], bk["vwap"]
@@ -295,10 +322,10 @@ def evaluate(bars, op, cl, upto, prev_adj, priors_fn, cat_of, type_status, spac,
             re_, rkind, ridx = rt
             rb = b5[ridx] if rkind == "5x3" else b15[ridx]
             rchg = V4.pct_change(rb["c"], prev_adj)
-            if PX_MIN <= rb["c"] < PX_MAX and V4.ge(rchg, CHG_MIN):
+            if PX_MIN <= rb["c"] < PX_MAX and (not a3 or V4.ge(rchg, CHG_MIN)):     # 🟠④ D بلا ① في الملحق 4
                 n_d += 1
                 alerts.append({"e": re_, "kind": rkind, "px": rb["c"], "vwap": rb["vwap"], "cum_dollar": V3.cum_dollar_at(bars, re_),
-                               "chg": rchg, "liq": True, "rvol": priors_rvol(shares_before(bars, re_), priors_fn(), re_),
+                               "chg": rchg, "liq": True, "rvol": priors_rvol(shares_before(bars, re_), priors_fn(), re_) if a3 else None,
                                "cat": first_full["cat"], "why": [], "full": True, "arm": "D", "n": n_d,
                                "above": above_run(b5, re_), "ema9": ema_last([b["c"] for b in b5 if b["e"] <= re_])})
             after = re_
@@ -346,14 +373,15 @@ def _esc(s):
 def build_message(row):
     """كرتُ التنبيه (شكلُ «هنا الدخول» · أسطرٌ قصيرة · بلا علامات مقارنة) — `send_telegram` يُلحق ختمَ الإصدار 🧾."""
     sym, arm = row["sym"], row["arm"]
-    head = "🟠 <b>زخم الفيواب</b>" + (f" · إعادة اختبار #{row['n']}" if arm == "D" else " · كسر وثبات")
+    a4 = row.get("def") == "A4"                                         # 🟠④ لا كسرَ ولا RVOL في الملحق 4
+    head = "🟠 <b>زخم الفيواب</b>" + (f" · إعادة اختبار #{row['n']}" if arm == "D" else (" · ثبات فوق الفيواب" if a4 else " · كسر وثبات"))
     rv = row.get("rvol")
     rv_s = "؟" if rv is None else ("∞" if rv == float("inf") else f"{rv:.1f}×")
     ema = row.get("ema9")
     ema_s = "؟" if ema is None else ("فوقه" if row["px"] > ema else "تحته")
     lines = [
         f"{head} · <b>${_esc(sym)}</b> · ${row['px']:.2f} · ‏{_pct(row.get('chg'))} يومه",
-        f"RVOL {rv_s} · فيواب ${row['vwap']:.2f} (فوقه {row.get('above', 0)} شموع 5د) · EMA9 {ema_s}",
+        ("" if a4 else f"RVOL {rv_s} · ") + f"فيواب ${row['vwap']:.2f} (فوقه {row.get('above', 0)} شموع 5د) · EMA9 {ema_s}",
         f"📰 {_esc(row.get('news') or 'خبرٌ مؤكَّد في النافذة')}",
     ]
     if row.get("tags"):
@@ -382,6 +410,8 @@ def ledger_row(day, sym, a, detected_ts, sent, reason, mode, sha, news, timing=N
             "above": a.get("above"), "ema9": None if a.get("ema9") is None else round(a["ema9"], 4),
             "news": news, "mode": mode, "sha": sha, "tags": list(a.get("tags") or []), "prev_src": a.get("prev_src"),
             "sic": a.get("sic"), "ldef": a.get("ldef")}
+    if a.get("def"):
+        row["def"] = a["def"]                                           # 🟠④ تعريفُ الصفّ (A4) — عدُّ الملحق 4 منفصلٌ عن صفوف الملحق 3
     if timing:
         row["lat"] = dict(timing)
     return row
@@ -405,12 +435,20 @@ def harvest(bars, op, cl, alert_mod, alert_px):
 def prefilter(day_hl, prev_adj_of, types):
     """مرشِّحٌ **أعمّ** من الشروط (لا يُسقط حدثًا ممكنًا): أعلى اليوم حتى الآن ≥ 1.2 × إغلاق الأمس المسوّى (شرطٌ لازمٌ لـ① على أيّ إغلاق 5د) ·
     وأدنى اليوم دون PX_MAX · وأعلاه PX_MIN فأكثر · والنوعُ ليس مستبعَدًا (المجهولُ يبقى ليُسأل عنه) ⟵ مجموعةُ الرموز."""
-    out = set()
-    for sym, (h, low) in day_hl.items():
+    out, a3 = set(), def_now() == "A3"
+    for sym, hlv in day_hl.items():
+        h, low = hlv[0], hlv[1]
         if h is None or low is None or not (low < PX_MAX and h >= PX_MIN):
             continue                                                    # السعرُ والنوعُ أوّلًا: إغلاقُ الموقوف يُجلب لما يلزم وحدَه
         t = types.get(sym)
         if t is not None and t not in TYPES_OK:
+            continue
+        if not a3:
+            # 🟠④ بلا ①: الشرطُ اللازمُ الوحيدُ الباقي من اللقطة = الحجمُ الدولاريّ — حجمُ اليوم × أعلاه حدٌّ أعلى لِما تراكم حتى أيّ حدث ⟵
+            #    دونه 250 ألفًا لا حدثَ ممكنًا · والحجمُ المجهولُ يبقى (لا يُسقط حدثًا ممكنًا)
+            v = hlv[2] if len(hlv) > 2 else None
+            if v is None or v * h >= D_MIN_LIVE:
+                out.add(sym)
             continue
         pa = prev_adj_of(sym)
         if pa and V4.ge(h / pa - 1.0, CHG_MIN):
@@ -423,6 +461,7 @@ def snapshot_hl(tickers):
     والأدنى أصغرُه — لأنّ شمعةَ اليوم **فارغةٌ قبل الافتتاح** (مقيس: probe ‏`40858591617` 06:34 نيويورك ⟵ صفرُ رمزٍ بشمعة يوم) ·
     والمرشِّحُ يتراكم عبر الحلقات فرمزٌ بلغ ‏+20% في أيّ فحصٍ يبقى (`mode_live`)."""
     out, diag = {}, {"tickers": 0, "day": 0, "min": 0, "last": 0}
+    a3 = def_now() == "A3"                                              # 🟠④ الملحق 3 ⟵ (أعلى، أدنى) كما كان بت-بت
     for t in tickers or ():
         diag["tickers"] += 1
         sym = str(t.get("ticker") or "").upper()
@@ -444,8 +483,18 @@ def snapshot_hl(tickers):
         if p > 0:
             diag["last"] += 1
             vals.append((p, p))
-        if sym and vals:
+        if sym and vals and a3:
             out[sym] = (max(v[0] for v in vals), min(v[1] for v in vals))
+        elif sym and vals:
+            vols = []
+            for key, vk in (("day", "v"), ("min", "av")):               # 🟠④ حجمُ اليوم: شمعةُ اليوم أو التراكميُّ في شمعة الدقيقة — الأكبر
+                try:
+                    vv = float((t.get(key) or {}).get(vk) or 0)
+                except (TypeError, ValueError):
+                    vv = 0.0
+                if vv > 0:
+                    vols.append(vv)
+            out[sym] = (max(v[0] for v in vals), min(v[1] for v in vals), max(vols) if vols else None)
     return out, diag
 
 
@@ -915,6 +964,8 @@ def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False, prev_ove
         a["tags"] = alert_tags(a, b5, a["news_detail"])
         a["prev_src"], a["sic"], a["ldef"] = psrc, D.sic_of.get(sym), ldef
         a["cat_src"] = state.get("src")
+        if def_now() == "A4":
+            a["def"] = "A4"
     return res
 
 
@@ -973,20 +1024,20 @@ def mode_replay(net, MC, end_day, ndays):
             days.append(d.isoformat())
         d -= dt.timedelta(1)
     days.reverse()
-    out = {"mode": "replay", "ldef": resolve_ldef(), "days": days, "d_min": D_MIN_LIVE, "px": [PX_MIN, PX_MAX], "chg_min": CHG_MIN, "rvol_min": RVOL_MIN,
+    out = {"mode": "replay", "def": def_now(), "ldef": resolve_ldef(), "days": days, "d_min": D_MIN_LIVE, "px": [PX_MIN, PX_MAX], "chg_min": CHG_MIN, "rvol_min": RVOL_MIN,
            "fresh_max_s": FRESH_MAX_S, "d_max": D_MAX_PER_DAY, "per_day": {}, "alerts": [], "near": []}
     bad = False
     for day in days:
         D = Day(net, day, MC, replay=True)
         g = net.poly(f"/v2/aggs/grouped/locale/us/market/stocks/{day}", {"adjusted": "false"})
-        hl = {str(r.get("T") or "").upper(): (r.get("h"), r.get("l")) for r in ((g or {}).get("results") or []) if r.get("T")}
+        hl = {str(r.get("T") or "").upper(): (r.get("h"), r.get("l"), r.get("v")) for r in ((g or {}).get("results") or []) if r.get("T")}
         if not D.ok or not hl:
             bad = True
             out["per_day"][day] = {"ok": False, "why": D.why + ([] if hl else ["شمعةُ اليوم المجمَّعة"])}
             log(f"⛔ {day}: مرجعٌ ناقص {out['per_day'][day]['why']}")
             continue
         cands = sorted(prefilter(hl, D.prev_adj_pf, D.types))
-        no_prev = sorted(s for s, (h, low) in hl.items() if s not in D.prev_close and h is not None and low is not None
+        no_prev = sorted(s for s, (h, low, *_v) in hl.items() if s not in D.prev_close and h is not None and low is not None
                          and low < PX_MAX and h >= PX_MIN and D.types.get(s) in TYPES_OK)   # وصفٌ: عاديٌّ بلا إغلاق أمسٍ في المجمَّعة
         lc_used = sorted(s for s in no_prev if str(D.prev_ref(s)[1] or "").startswith("last_close "))   # مُخبَّأٌ من المرشِّح
         bounds = _boundary_mods(D.op, D.cl, D.op, D.cl)
@@ -1029,7 +1080,8 @@ def mode_replay(net, MC, end_day, ndays):
                                "a_events": n_ev, "a_full": n_full, "alerts": na, "first_fail": first_fail, "loop_vs_full_mismatch": mismatch,
                                "no_prev_close": len(no_prev), "last_close_used": len(lc_used), "last_close_syms": lc_used[:40],
                                "no_prev_close_syms": no_prev[:40]}
-        log(f"📅 {day}: مرشّحون {len(cands)} · شموعٌ تعذّرت {miss_bars} · رموزٌ بكسر {n_sym_ev} · أحداثُ كسر {n_ev} · كاملة {n_full} · "
+        _w = "كسر" if def_now() == "A3" else "ثبات"
+        log(f"📅 {day} [{def_now()}]: مرشّحون {len(cands)} · شموعٌ تعذّرت {miss_bars} · رموزٌ بـ{_w} {n_sym_ev} · أحداثُ {_w} {n_ev} · كاملة {n_full} · "
             f"تنبيهات {na} · أوّلُ شرطٍ سقط {first_fail} · خلافُ الحلقة {mismatch}")
         bad = bad or miss_bars > 0 or mismatch > 0
     out["calls"], out["fails"] = net.calls, net.fails
@@ -1335,6 +1387,8 @@ def _prep_one(D, sym, now_fn):
     try:
         D.prev_ref(sym)
         D.type_status(sym)
+        if def_now() == "A4":
+            return                                                       # 🟠④ بلا ②: لا أيّامَ RVOL · وكونٌ أوسع ⟵ الخبرُ يُجلب عند الكشف (القرارُ نفسُه · `VLT4`)
         D.priors_of(sym)
         D.pre_cat[sym] = D.cat_fetch(sym, now_fn(), sec_ttl=PREP_SEC_TTL_S)
     except Exception as e:                                               # noqa: BLE001
