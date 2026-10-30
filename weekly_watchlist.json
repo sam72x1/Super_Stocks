@@ -404,7 +404,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 5.0,
-   "last_price": 4.49,
+   "last_price": 4.54,
    "live_alert": {
     "buyzone": "2026-10-30"
    },
@@ -818,7 +818,7 @@
    "hit": "t1",
    "hit_date": "2026-10-29",
    "max_gain_pct": 12.7,
-   "last_price": 6.92,
+   "last_price": 6.91,
    "exact_hold": {
     "pivot": 6.49,
     "pivot_date": "2026-10-20",
@@ -831,7 +831,7 @@
     "asof": "2026-10-29"
    },
    "live_alert": {
-    "buyzone": "2026-10-28",
+    "buyzone": "2026-10-30",
     "breakout": "2026-10-29"
    },
    "price_state": "VALID",
@@ -1227,7 +1227,7 @@
    "hit": "t1",
    "hit_date": "2026-10-28",
    "max_gain_pct": 19.5,
-   "last_price": 0.8999,
+   "last_price": 0.8892,
    "live_alert": {
     "buyzone": "2026-10-26",
     "breakout": "2026-10-27"
@@ -2450,7 +2450,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.7,
+   "last_price": 3.67,
    "borrow_hist": [
     [
      "2026-10-29",
@@ -3744,7 +3744,7 @@
    "hit": "t1",
    "hit_date": "2026-09-21",
    "max_gain_pct": 13.3,
-   "last_price": 1.035,
+   "last_price": 1.04,
    "live_alert": {
     "breakout": "2026-09-28",
     "sweep": "2026-10-15",
@@ -4215,7 +4215,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.25,
+   "last_price": 1.24,
    "borrow_hist": [
     [
      "2026-10-30",
@@ -5040,7 +5040,7 @@
    "hit": "t2",
    "hit_date": "2026-10-14",
    "max_gain_pct": 39.3,
-   "last_price": 1.445,
+   "last_price": 1.48,
    "live_alert": {
     "breakout": "2026-10-30"
    },
@@ -5536,7 +5536,7 @@
    "hit": "t2",
    "hit_date": "2026-10-26",
    "max_gain_pct": 81.3,
-   "last_price": 2.412,
+   "last_price": 2.415,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -5979,7 +5979,7 @@
    "hit": "t2",
    "hit_date": "2026-10-29",
    "max_gain_pct": 37.4,
-   "last_price": 9.55,
+   "last_price": 9.45,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -6404,7 +6404,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 9.0,
-   "last_price": 7.34,
+   "last_price": 7.4599,
    "borrow_hist": [
     [
      "2026-10-23",
@@ -6790,7 +6790,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 0.812,
+   "last_price": 0.8001,
    "live_alert": {
     "breakout": "2026-10-28",
     "dump": "2026-10-26"
@@ -7257,7 +7257,7 @@
    "hit": "t1",
    "hit_date": "2026-09-25",
    "max_gain_pct": 22.6,
-   "last_price": 5.355,
+   "last_price": 5.16,
    "faisal_levels": "🧭 إغلاقات الهابطة $5.10 · $5.22 · $5.27 · جسم قبل الهبوط $5.20 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-10-30"
@@ -7716,7 +7716,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 7.14,
+   "last_price": 7.04,
    "borrow_hist": [
     [
      "2026-10-08",
@@ -8197,7 +8197,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 3.4,
-   "last_price": 2.03,
+   "last_price": 2.01,
    "borrow_hist": [
     [
      "2026-10-29",
@@ -8625,7 +8625,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.94,
+   "last_price": 1.92,
    "borrow_hist": [
     [
      "2026-10-30",
@@ -9826,7 +9826,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.763,
+   "last_price": 0.718,
    "borrow_hist": [
     [
      "2026-10-30",
@@ -10225,7 +10225,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.75,
+   "last_price": 2.82,
    "borrow_hist": [
     [
      "2026-10-30",
@@ -10622,7 +10622,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 5.66,
+   "last_price": 5.9,
    "borrow_hist": [
     [
      "2026-10-30",
@@ -11014,7 +11014,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 10.94,
+   "last_price": 10.9,
    "live_alert": {
     "breakout": "2026-09-16",
     "dump": "2026-10-16",
@@ -18177,7 +18177,7 @@
    "sector": "Technology",
    "country": "Hong Kong",
    "float": 14864979,
-   "last_price": 10.69,
+   "last_price": 10.66,
    "status": "watching",
    "triggered_date": null
   },
@@ -18517,7 +18517,7 @@
    "sector": "Consumer Defensive",
    "country": "United States",
    "float": 1277897,
-   "last_price": 2.505,
+   "last_price": 2.5,
    "status": "watching",
    "triggered_date": null
   },
