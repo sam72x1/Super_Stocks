@@ -154,6 +154,53 @@ def alive_runs(runs, my_id, now) -> list:
     return out
 
 
+# 🔗🚦 «عاملٌ واحد» (‏2026-10-30 · عطلٌ مُثبَت من سؤال المالك عن فشل `git_save` 14:27 UTC): الخلَفُ يُبقي عاملًا حيًّا طوالَ الجلسة،
+#    والكروناتُ التسعة (المتأخّرةُ بساعاتٍ تحت حمل GitHub) يبدأ كلٌّ منها عاملًا كاملًا **بلا فحصٍ للأحياء** ⇒ من 10-26 إلى 10-30 عاملان
+#    فأكثر 440-486 دقيقةً يوميًّا وثلاثةٌ فأكثر 120-212 · والدِّدوبُ يُضَمّ من origin كلَّ `REFRESH_EVERY` دورة فقط ⇒ العاملان يُرسلان
+#    «هنا الدخول» نفسَه (ختمُ الآخر يسبق إرسالَ هذا: CDT · FGL · MKDW · SDST … يومَ 10-30) وتتصادم دفعاتُهما (`cannot lock ref`).
+#    ⟵ العاملُ **ينتظر احتياطًا** عند البدء ما دام **عاملٌ أقدمُ حيًّا** (تعريفُ `alive_runs` نفسُه: مَن بدأ قبل 324 دقيقةً فأكثر في دقائقه
+#    الستّ الأخيرة فلا يُعوَّل عليه ⟵ الخلَفُ لا ينتظر سلفَه · والمنتظرُ يبدأ حين يدخل الأقدمُ دقائقَه الأخيرة = تداخلٌ لا فجوة) ·
+#    والأقدمُ لا ينتظر أحدًا ⟵ يستحيل أن يتوقّف الاثنان · وتعذّرُ الـAPI أو غيابي من القائمة ⟵ يعمل (الفجوةُ أغلى من التكرار) ·
+#    وانقضاءُ ميزانيّته منتظرًا ⟵ يخرج · `OE_SINGLE=0` ⟵ كما كان بت-بت (صفرُ نداء).
+SINGLE_ENV = "OE_SINGLE"
+STANDBY_POLL_S = 60            # 🔗🚦 فحصُ العامل الأقدم كلَّ دقيقةٍ أثناء الانتظار
+_sleep = time.sleep            # يُجذَّع في السويّة
+
+
+def older_alive(runs, my_id, now) -> list:
+    """🔗🚦 **نقيّة**: الأحياءُ غيري (بتعريف `alive_runs`) الذين بدأوا **قبلي** — والتعادلُ في اللحظة للمعرّف الأصغر.
+    غيابي من القائمة أو تالفُ بدئي ⟵ `[]` (لا انسحابَ على جهل)."""
+    alive = set(alive_runs(runs, my_id, now))
+    starts = {}
+    for r in runs or []:
+        try:
+            starts[int(r.get("id"))] = str(r.get("run_started_at") or r.get("created_at") or "")[:19]
+        except Exception:                                        # noqa: BLE001
+            continue
+    try:
+        me = int(my_id)
+    except Exception:                                            # noqa: BLE001
+        return []
+    if len(starts.get(me, "")) != 19:
+        return []
+    mine = (starts[me], me)
+    return sorted(rid for rid in alive if len(starts.get(rid, "")) == 19 and (starts[rid], rid) < mine)
+
+
+def _older_alive_now(api=None, now=None):
+    """🔗🚦 الأقدمُ الأحياء من GitHub API ⟵ قائمة · و`None` بلا مفتاحٍ أو عند التعذّر (المُنادي يمضي)."""
+    api = api or _gh_api
+    now = now or bot.dt.datetime.now(bot.dt.timezone.utc)
+    try:
+        res = api("GET", f"/actions/workflows/{CHAIN_WORKFLOW}/runs?status=in_progress&per_page=50")
+    except Exception as e:                                       # noqa: BLE001
+        _log(f"⚠️ فحصُ العامل الأقدم: {e} — يمضي (الفجوةُ أغلى من التكرار).")
+        return None
+    if res is None:
+        return None
+    return older_alive(res.get("workflow_runs") or [], os.environ.get("GITHUB_RUN_ID"), now)
+
+
 def chain_decision(ny_min, session_ok, others, already):
     """🔗 **نقيّة** — هل يُطلَق خلَفٌ الآن؟ ⟶ `(نعم/لا, رمزٌ, نصّ)`.
 
@@ -586,6 +633,20 @@ def main():
         return 0
     _log(f"🎯 «هنا الدخول» [{role}]: يبدأ عند {mins // 60:02d}:{mins % 60:02d} "
          f"نيويورك · كلَّ {interval}ث · لمدّة {budget} دقيقة.")
+    if (os.environ.get(SINGLE_ENV) or "").strip() != "0":
+        _older, _said = _older_alive_now(), False
+        while _older:
+            if not _said:
+                _log("🔗🚦 عاملٌ أقدمُ حيّ (" + ", ".join(str(x) for x in _older) + ") يغطّي الجلسة — أنتظر احتياطًا ولا أرسل "
+                     "حتى يدخل دقائقَه الأخيرة (كي لا يتكرّر «هنا الدخول» ولا تتصادم الدفعات · `OE_SINGLE=0` ⟵ كما كان).")
+                _said = True
+            if (time.time() - t0) >= budget * 60 - STANDBY_POLL_S:
+                _log("🔗🚦 انقضت ميزانيّتي منتظرًا — العاملُ الأقدم غطّى الجلسة.")
+                return 0
+            _sleep(STANDBY_POLL_S)
+            _older = _older_alive_now()
+        if _said:
+            _log("🔗🚦 لا عاملَ أقدمَ حيّ الآن — أبدأ العمل.")
     uni, cut, seen, uni_all = _load_universe()
     if cut:
         _log(f"ℹ️ كون المتابعة: قُصّ {cut} فوق السقف {bot.LIVE_WATCH_CAP} "
