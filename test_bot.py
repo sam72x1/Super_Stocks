@@ -92690,6 +92690,113 @@ except Exception as _e:                                          # noqa: BLE001
 check("🧮 SGA11: نتيجةُ الملحق 1 ببصمته وبوّابةُ هويّتها عابرة (314/86 · 25/7) · جزؤها المولَّد يُعاد من بياناتها بايتًا · "
       "الحلقاتُ = لم يكتمل ‏+ اكتمل · الحكمُ «لا فرق قابل للكشف» · والوحداتُ بترتيب البيانات · وقسمُ العين حاضر", _sga11_ok, _sga11_x[:80])
 
+# 🕯️🔬 TWK1-TWK6 (‏2026-10-30 · أمرُ المالك «قياس مسجَّل قبل الرقم — T-WICK «عمى الذيل»»): `fm_forensics/wick/wick.py`
+#        قياسٌ فقط بالعقد `T_WICK_prereg.md` المثبّتة بصمتُه وقائمةِ الوحدات المجمَّدة · لا بوّابةَ ولا عرض · لا تلغرام · لا كرون · والفيوابُ الحيّ لا يُمَسّ.
+try:
+    import importlib.util as _wka_iu
+    import hashlib as _wka_h
+    import json as _wka_j
+    import ast as _wka_ast
+    import os as _wka_os
+    _wka_p = _wka_os.path.join("fm_forensics", "wick", "wick.py")
+    _wka_spec = _wka_iu.spec_from_file_location("wick_t", _wka_p)
+    WKT = _wka_iu.module_from_spec(_wka_spec)
+    _wka_spec.loader.exec_module(WKT)
+    _wka_err = None
+except Exception as _e:                                          # noqa: BLE001
+    WKT, _wka_err = None, f"{type(_e).__name__}: {_e}"
+try:
+    _wka_c = open(_wka_os.path.join("fm_forensics", "wick", "T_WICK_prereg.md"), "rb").read()
+    _wka_ct = _wka_c.decode("utf-8")
+    _wka_ok1 = (WKT is not None and _wka_h.sha256(_wka_c).hexdigest() == WKT.CONTRACT_SHA
+                and "قياس مسجَّل قبل الرقم — T-WICK «عمى الذيل»" in _wka_ct and "الفيواب الحي لا يُمس" in _wka_ct
+                and "## ⑥ التنبّؤات" in _wka_ct and "## ⑤ التقاطعُ مع الزوج P3" in _wka_ct
+                and "TRAIN 3,267 · VAL 1,925" in _wka_ct and "TEST 2,682" in _wka_ct)
+except Exception as _e:                                          # noqa: BLE001
+    _wka_ok1, _wka_err = False, f"{type(_e).__name__}: {_e}"
+check("🕯️ TWK1: عقدُ `T-WICK` مثبّتُ البصمة في الأداة (`CONTRACT_SHA`) وفيه نصُّ المالك والتنبّؤاتُ والتقاطعُ وبوّابةُ الهويّة (3,267 · 1,925 · 2,682)",
+      _wka_ok1, str(_wka_err)[:80])
+try:
+    _wka_u = _wka_j.load(open(WKT.UNITS, encoding="utf-8"))
+    _wka_10 = sorted(a["sym"] for a in _wka_u["adds"] if a["D"] >= "2026-10-29")
+    _wka_cetx = [a for a in _wka_u["adds"] if a["sym"] == "CETX"]
+    _wka_id = _wka_u["identity_vs_part_a"]
+    _wka_ok2 = (WKT.units_sha(_wka_u) == WKT.UNITS_SHA and _wka_u["n_ready"] == len(_wka_u["ready"]) == 117
+                and _wka_u["n_adds"] == len(_wka_u["adds"]) == 273
+                and _wka_id["frozen"] == _wka_id["extracted_same_span"] == 263
+                and not (_wka_id["missing"] or _wka_id["extra"] or _wka_id["ref_bar_diff"])
+                and _wka_10 == ["AIRE", "BNAI", "CETX", "CIIT", "FBGL", "INHD", "LIMN", "MEDS", "TVGN", "WNW"]
+                and len(_wka_cetx) == 1 and _wka_cetx[0]["ref_bar"] == "2026-10-29" and _wka_cetx[0]["D"] == "2026-10-30")
+except Exception as _e:                                          # noqa: BLE001
+    _wka_ok2, _wka_err = False, f"{type(_e).__name__}: {_e}"
+check("🕯️ TWK2: الوحداتُ مجمَّدة (`UNITS_SHA`) — 117 جاهزًا · 273 إضافة تُعيد الـ263 المنشورة بلا فرق · والعشرُ الجديدة بأسمائها · وCETX يومَ 10-30 على شمعة 10-29",
+      _wka_ok2, str(_wka_err)[:80])
+_wka_env = {k: _wka_os.environ.get(k) for k in ("WK_MODE", "POLYGON_API_KEY")}
+_wka_sha0 = getattr(WKT, "CONTRACT_SHA", None)
+_wka_bars0 = getattr(WKT, "_bars", None)
+_wka_net = []
+try:
+    WKT._bars = lambda *a, **k: (_wka_net.append(a), ([], "stub"))[1]      # جذعٌ يُسجَّل ولا يُنفَّذ — لا شبكةَ لو سقط الحارس
+    _wka_os.environ["WK_MODE"], _wka_os.environ["POLYGON_API_KEY"] = "units_eval", "x"
+    WKT.CONTRACT_SHA = "0" * 64
+    _wka_rc_bad = WKT.main()
+    _wka_os.environ["WK_MODE"] = "pop_assemble"
+    _wka_rc_bad2 = WKT.main()
+    _wka_ok3 = (_wka_rc_bad == 9 and _wka_rc_bad2 == 9 and not _wka_net)
+except Exception as _e:                                          # noqa: BLE001
+    _wka_ok3, _wka_rc_bad = False, f"{type(_e).__name__}: {_e}"
+finally:
+    if WKT is not None:
+        WKT.CONTRACT_SHA = _wka_sha0
+        WKT._bars = _wka_bars0
+    for _k, _v in _wka_env.items():
+        if _v is None:
+            _wka_os.environ.pop(_k, None)
+        else:
+            _wka_os.environ[_k] = _v
+check("🕯️ TWK3: لا رقمَ قبل العقد — بصمةٌ لا تطابق ⟵ الأداةُ تخرج 9 قبل أيّ شبكة (الوحداتُ والتجميع · وصفرُ نداءِ شموع)", _wka_ok3, f"rc={_wka_rc_bad} net={len(_wka_net)}")
+try:
+    _wka_rc4 = WKT.guards()
+except Exception as _e:                                          # noqa: BLE001
+    _wka_rc4 = f"{type(_e).__name__}: {_e}"
+check("🕯️ TWK4: حرّاسُ الأداة (WG1-WG9) تعبر — الذيلُ High÷Close−1 على الجلسات الخمس قبل القرار حصرًا · نافذةُ الوحدة · إدخالُ BASE2 "
+      "بدوالّ الجزء ب · الحكمُ بالأضعف · التصنيف · التقاطع · وبوّابةُ الهويّة", _wka_rc4 == 0, str(_wka_rc4)[:80])
+try:
+    _wka_src = open(_wka_p, encoding="utf-8").read()
+    _wka_t = _wka_ast.parse(_wka_src)
+    _wka_names = {n.id for n in _wka_ast.walk(_wka_t) if isinstance(n, _wka_ast.Name)} | {
+        n.attr for n in _wka_ast.walk(_wka_t) if isinstance(n, _wka_ast.Attribute)} | {
+        n.name for n in _wka_ast.walk(_wka_t) if isinstance(n, _wka_ast.FunctionDef)}
+    _wka_imp = {a.name for n in _wka_ast.walk(_wka_t) if isinstance(n, (_wka_ast.Import, _wka_ast.ImportFrom)) for a in n.names} | {
+        n.module for n in _wka_ast.walk(_wka_t) if isinstance(n, _wka_ast.ImportFrom) and n.module}
+    _wka_wf = open(_wka_os.path.join(".github", "workflows", "wick.yml"), encoding="utf-8").read()
+    _wka_wfl = [ln.split("#")[0] for ln in _wka_wf.splitlines()]
+    _wka_ok5 = (not ({"send_telegram", "git_save", "save_watchlist"} & _wka_names)
+                and not any("vwap" in x for x in _wka_imp)
+                and not any(ln.strip().startswith("schedule:") for ln in _wka_wfl)
+                and "TELEGRAM" not in _wka_wf and any(ln.strip() == "contents: read" for ln in _wka_wfl)
+                and not any(ln.strip().startswith(("contents: write", "actions: write")) for ln in _wka_wfl))
+except Exception as _e:                                          # noqa: BLE001
+    _wka_ok5, _wka_err = False, f"{type(_e).__name__}: {_e}"
+check("🕯️ TWK5: قياسٌ فقط — لا تلغرامَ ولا حفظَ حالةٍ ولا استيرادَ للفيواب في الأداة · والـworkflow يدويٌّ بلا كرون وبلا أسرار تلغرام وصلاحيّتُه قراءة",
+      _wka_ok5, str(_wka_err)[:80])
+try:
+    _wka_defs = {n.name for n in _wka_ast.walk(_wka_t) if isinstance(n, _wka_ast.FunctionDef)}
+
+    def _wka_calls(obj):
+        return {c.func.attr for c in _wka_ast.walk(_wka_t) if isinstance(c, _wka_ast.Call)
+                and isinstance(c.func, _wka_ast.Attribute) and getattr(c.func.value, "id", None) == obj}
+    _wka_rb, _wka_sg = _wka_calls("RB"), _wka_calls("SG")
+    _wka_rbn = {"base2_fire", "new_entries", "exploded", "row_guards", "gaps", "p3_days", "pair_flags", "sessions_between",
+                "_first_sessions", "_gen5_ext", "_rows"}
+    _wka_sgn = {"wilson", "mom_cuts", "mom_bin", "delta_raw", "delta_strat", "cluster_boot", "verdict"}
+    _wka_ok6 = (_wka_rbn <= _wka_rb and _wka_sgn <= _wka_sg and not ((_wka_rbn | _wka_sgn) & _wka_defs))
+    _wka_x = f"RB-{sorted(_wka_rbn - _wka_rb)} SG-{sorted(_wka_sgn - _wka_sg)} defs∩{sorted((_wka_rbn | _wka_sgn) & _wka_defs)}"
+except Exception as _e:                                          # noqa: BLE001
+    _wka_ok6, _wka_x = False, f"{type(_e).__name__}: {_e}"
+check("🕯️ TWK6: المجتمعُ والنتيجةُ والزوجُ من `rebuild` بالاسم (base2_fire · new_entries · exploded · row_guards · p3_days · pair_flags …) "
+      "والإحصاءُ من `split_gates` بالاسم — ولا نسخةَ لأيٍّ منها (AST)", _wka_ok6, _wka_x[:80])
+
 # BKD1-BKD6 (‏2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام» · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه مجهولًا
 #        بعد الحصاد والموقع يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS` من `ctb_log.jsonl` ∪ `borrow_watch.jsonl` — للبوّابة وحدَها
 #        (`borrow_known` لا `shares_available`) · و`0` ⟵ فائدةُ الشك بت-بت · وشاهدُ 10-27 من ملفّات البوت نفسِها: BCTX · PLSM · FRSX · ASPC
