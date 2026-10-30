@@ -93075,10 +93075,10 @@ check("🔗🚦 OES1 `older_alive` نقيّة: الأقدمُ الأحياء و�
 # OES2 — من نقطة النداء: `main()` ينتظر احتياطًا قبل تحميل الكون ما دام أقدمُ حيًّا (سطرُه مرّةً واحدة) ثمّ يبدأ حين يغيب الأقدم ·
 #    ويخرج 0 إن انقضت ميزانيّتُه منتظرًا · ويمضي فورًا حين لا أقدم أو تعذّر الـAPI أو `OE_SINGLE=0` (وحينها صفرُ نداء) — والتحميلُ
 #    مجذَّعٌ يرمي فلا يدخل الحلقة · والنومُ مجذَّعٌ يرمي بعد خمس فلا تُعلِّق طفرةٌ السويّة
-_oes_keep = {k: getattr(_oes_L, k) for k in ("_gh_api", "_no_session", "_ny_minutes", "_load_universe", "_sleep")}
+_oes_keep = {k: getattr(_oes_L, k) for k in ("_gh_api", "_no_session", "_ny_minutes", "_load_universe", "_sleep", "_log")}
 _oes_envk = ("GITHUB_RUN_ID", "OE_SINGLE", "POLYGON_API_KEY", "OE_SOURCE", "OE_BUDGET_MIN")
 _oes_env = {k: _oes_os.environ.get(k) for k in _oes_envk}
-_oes_api, _oes_load, _oes_slp = [], [], []
+_oes_api, _oes_load, _oes_slp, _oes_logs = [], [], [], []
 
 
 class _OesStop(Exception):
@@ -93089,6 +93089,7 @@ def _oes_run(api_seq, run_id, single=None, budget=None):
     _oes_api.clear()
     _oes_load.clear()
     _oes_slp.clear()
+    _oes_logs.clear()
 
     def _api(method, path, body=None, timeout=25):
         _oes_api.append(path)
@@ -93102,19 +93103,19 @@ def _oes_run(api_seq, run_id, single=None, budget=None):
         if len(_oes_slp) > 5:
             raise _OesStop()
     _oes_L._gh_api, _oes_L._sleep = _api, _slp
+    _oes_L._log = lambda m: _oes_logs.append(str(m))      # السجلُّ من `_log` نفسِه (`bot.log` قد يُحوَّل في السويّة)
     _oes_os.environ["GITHUB_RUN_ID"] = str(run_id)
     for _k, _v in (("OE_SINGLE", single), ("OE_BUDGET_MIN", budget)):
         if _v is None:
             _oes_os.environ.pop(_k, None)
         else:
             _oes_os.environ[_k] = _v
-    _b = _oes_io.StringIO()
-    with _oes_cl.redirect_stdout(_b):
+    with _oes_cl.redirect_stdout(_oes_io.StringIO()):
         try:
             rc = _oes_L.main()
         except _OesStop:
             rc = "stop"
-    return rc, len(_oes_api), len(_oes_load), _b.getvalue(), list(_oes_slp)
+    return rc, len(_oes_api), len(_oes_load), "\n".join(_oes_logs), list(_oes_slp)
 
 
 try:
@@ -93123,8 +93124,18 @@ try:
     _oes_L._load_universe = lambda: (_oes_load.append(1), (_ for _ in ()).throw(_OesStop()))[1]
     _oes_os.environ["POLYGON_API_KEY"] = "x"
     _oes_os.environ.pop("OE_SOURCE", None)
-    _oes_res = {"workflow_runs": _oes_runs}
-    _oes_gone = {"workflow_runs": [r for r in _oes_runs if r["id"] not in (1, 5, 6)]}
+    #    `main()` يقرأ الساعةَ الحقيقيّة ⟵ الأعمارُ نسبيّةٌ إلى «الآن» لا أوقاتٌ ثابتة (وإلّا صار المُنتهي حيًّا أو العكس بحسب ساعة التشغيل)
+    _oes_t0 = _oes_L.bot.dt.datetime.now(_oes_L.bot.dt.timezone.utc)
+    _oes_ago = lambda m: (_oes_t0 - _oes_L.bot.dt.timedelta(minutes=m)).strftime("%Y-%m-%dT%H:%M:%SZ")
+    _oes_live = [{"id": 1, "status": "in_progress", "run_started_at": _oes_ago(60)},
+                 {"id": 2, "status": "in_progress", "run_started_at": _oes_ago(400)},
+                 {"id": 3, "status": "queued", "run_started_at": _oes_ago(90)},
+                 {"id": 5, "status": "in_progress", "run_started_at": _oes_ago(30)},
+                 {"id": 6, "status": "in_progress", "run_started_at": _oes_ago(30)},
+                 {"id": 7, "status": "in_progress", "run_started_at": _oes_ago(10)},
+                 {"id": "x", "status": "in_progress"}]
+    _oes_res = {"workflow_runs": _oes_live}
+    _oes_gone = {"workflow_runs": [r for r in _oes_live if r["id"] not in (1, 5, 6)]}
     _o1 = _oes_run([_oes_res], 7, budget="1")                    # أقدمُ حيٌّ دائمًا والميزانيّةُ دقيقة ⟵ يخرج 0 منتظرًا
     _o1b = _oes_run([_oes_res, _oes_res, _oes_gone], 7)          # أقدمُ ثمّ يغيب بعد دقيقتين ⟵ يبدأ العمل
     _o2 = _oes_run([_oes_res], 1)                                # أنا الأقدم ⟵ يمضي فورًا
