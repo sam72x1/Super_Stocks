@@ -1176,11 +1176,13 @@ def fast_on():
     return (os.environ.get("VWL_FAST", "1") or "1").strip() != "0"
 
 
-def mode_live(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, saver=None, path=LEDGER, fast=None, ws=None):
-    """الحلقةُ الحيّة — السريعةُ (`_mode_live_fast`) ما لم يُطفئها `VWL_FAST=0` فالقديمةُ (`_mode_live_legacy`) بت-بت."""
+def mode_live(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, saver=None, path=LEDGER, fast=None, ws=None,
+              inline=None):
+    """الحلقةُ الحيّة — السريعةُ (`_mode_live_fast`) ما لم يُطفئها `VWL_FAST=0` فالقديمةُ (`_mode_live_legacy`) بت-بت.
+    `inline`: المنفّذُ المتزامن (الافتراضُ: حين تُحقن الساعة) — و`False` مع ساعةٍ محقونة = خيوطٌ حقيقيّة (فحصُ الدخان المحلّيّ)."""
     if not (fast_on() if fast is None else fast):
         return _mode_live_legacy(net, MC, send, segment, now_fn, sleep_fn, sender, saver, path)
-    return _mode_live_fast(net, MC, send, segment, now_fn, sleep_fn, sender, saver, path, ws)
+    return _mode_live_fast(net, MC, send, segment, now_fn, sleep_fn, sender, saver, path, ws, inline)
 
 
 def _mode_live_legacy(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, saver=None, path=LEDGER):
@@ -1348,11 +1350,11 @@ def _scan_job(D, net, day, sym, B, t_b, now_fn, sleep_fn):
             "complete": complete}
 
 
-def _mode_live_fast(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, saver=None, path=LEDGER, ws=None):
+def _mode_live_fast(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, saver=None, path=LEDGER, ws=None, inline=None):
     """⚡ الحلقةُ السريعة: بين الشمعتين (قبل الحدّ بـ`PREP_LEAD_S`) لقطةٌ ⟵ المرشّحون ⟵ تحضيرُ المرجع و② و④ ⟵ وعند الحدّ +1ث جلبُ دقائق
     المرشّحين **بالتوازي** حتى تظهر دقيقتُهم الأخيرة ⟵ `scan_symbol` بالخامّ المُحضَّر ⟵ **الإرسالُ لحظةَ اكتمال شرطه** (خيطٌ لكلّ رسالة) ·
     والسجلُّ يُحفظ مرّةً بعد الحدّ. الدِّدوبُ والطزاجةُ والحصادُ كالقديم. والساعةُ المحقونة (السويّة) ⟵ منفّذٌ متزامن حتميّ."""
-    inline = now_fn is not None
+    inline = (now_fn is not None) if inline is None else inline
     now_fn = now_fn or (lambda: time.time())
     sleep_fn = sleep_fn or time.sleep
     day = _today_ny(dt.datetime.fromtimestamp(now_fn(), tz=NY))
@@ -1436,9 +1438,10 @@ def _mode_live_fast(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=N
                         continue
                     if out.get("res") is None:
                         continue
-                    scanned.append(sym)
-                    if out.get("complete"):
-                        readies.append(out["det"] - t_b)
+                    if out["t_first"] - t_b <= LOOP_OFFSET_S:                # حدٌّ بُدئ في وقته وحدَه يُقاس (لا إقلاعٌ متأخّر)
+                        scanned.append(sym)
+                        if out.get("complete"):
+                            readies.append(out["det"] - t_b)
                     for a in out["res"]["alerts"]:
                         k = alert_key(day, sym, a["arm"], a["n"])
                         if k in used:
