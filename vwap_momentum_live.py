@@ -47,6 +47,8 @@ LOOP_OFFSET_S = 25                   # الفحصُ بعد حدّ الشمعة �
 POLL_STEPS_S = (1, 2, 3, 4, 5, 7, 10, 14, 19, LOOP_OFFSET_S)   # جلبُ دقائق المرشّح بعد الحدّ: حتى تظهر دقيقتُه الأخيرة أو مهلةُ القديم — engineering
 PREP_LEAD_S = 75                     # التحضيرُ بين الشمعتين يبدأ قبل الحدّ بـ75ث: اللقطة · المرجع · ② · ④ — engineering
 FETCH_WORKERS = 24                   # جلبٌ متوازٍ للمرشّحين (Polygon بلا حدّ معدّل على الخطّة · وSEC مُسلسَلٌ بقفلٍ تحت 10/ث) — engineering
+PREP_WORKERS = 8                     # مجمّعُ التحضير منفصلٌ عن مجمّع الحدّ: تحضيرٌ متأخّرٌ لا يحجز خيوطَ الحدّ — engineering
+PREP_SEC_TTL_S = 1800                # SEC في التحضير يُعاد كلَّ 30 د (الخبرُ كلَّ حدّ) — engineering
 LAT_WARN_S = 10                      # تنبيهٌ تأخّرُه الكلّيُّ فوق 10 ثوانٍ يُعلَن في السجلّ — أمرُ المالك 2026-10-30
 WS_URL = "wss://socket.polygon.io/stocks"      # ③ قناةُ AM (تجميعُ الدقيقة) — ظلٌّ صامتٌ يقيس وصولَ الشمعة لا يقرّر
 WS_PROBE_S = 120                     # مدّةُ استماع وضع `wsprobe` — engineering
@@ -654,13 +656,13 @@ class WSShadow:
         return t
 
 
-def mode_wsprobe(key, listen_s=WS_PROBE_S, conn_fn=None, clock=time.time):
+def mode_wsprobe(key, listen_s=WS_PROBE_S, conn_fn=None, clock=time.time, grace_s=45):
     """③ هل يشمل الاشتراكُ قناةَ AM؟ — مصادقةٌ واشتراكٌ في AM.* واستماعٌ `listen_s` ثانية ⟵ الحالةُ وعددُ الشموع وتأخّرُ وصولها عن نهاية
     دقيقتها (وسيط · p90 · أقصى). قراءةٌ فقط · بلا تلغرام. ⟵ 0 إن نجحت المصادقة · 4 إن رُفضت أو تعذّر الاتّصال."""
     sh = WSShadow(key, conn_fn=conn_fn, clock=clock, verbose=True)
     th = threading.Thread(target=sh.run, args=(clock() + listen_s,), daemon=True)
     th.start()
-    th.join(listen_s + 45)                                               # حارسٌ صلب: لا يعلق الوضعُ مهما فعل الاتّصال (مقيس: علق 15 د)
+    th.join(listen_s + grace_s)                                          # حارسٌ صلب: لا يعلق الوضعُ مهما فعل الاتّصال (مقيس: علق 15 د)
     if th.is_alive():
         sh.stop = True
         sh.status = f"علق عند «{sh.stage}» — {sh.status}"
@@ -717,6 +719,7 @@ class Day:
         self._prior_cache, self._cat_cache, self._detail = {}, {}, {}
         self._prev_cache, self.sic_of = {}, {}
         self.pre_cat = {}                                               # ⚡ خامُّ ④ المُحضَّرُ بين الشمعتين (المسارُ السريع)
+        self._sec_cache = {}                                            # ⚡ SEC التحضير وحدَه (`PREP_SEC_TTL_S`) — الكشفُ يجلب طازجًا
 
     def prev_ref(self, sym):
         """(إغلاقُ الأمس المسوّى، مصدرُه) — من مجمَّعة الجلسة السابقة («grouped») · **وإن غاب** (سهمٌ لم يتداول أمس: موقوفٌ ثمّ عائد)
@@ -818,12 +821,19 @@ class Day:
             self._cat_cache[sym] = out
         return out
 
-    def cat_fetch(self, sym, upto_ts):
-        """④ الخامّ حتى `upto_ts`: أخبارُ Polygon ثمّ `submissions` — يُجلب عند الكشف (القديم) أو بين الشمعتين (التحضير ⚡)."""
+    def cat_fetch(self, sym, upto_ts, sec_ttl=None):
+        """④ الخامّ حتى `upto_ts`: أخبارُ Polygon ثمّ `submissions` — يُجلب عند الكشف (القديم · SEC طازجٌ دائمًا) أو بين الشمعتين
+        (التحضير ⚡ · `sec_ttl` يُعيد استعمالَ SEC الأحدث من مدّته: آمنٌ لأنّ المُحضَّر لا يُقبل إلّا مُثبِتًا والإثباتُ لا يزول)."""
         a_iso = dt.datetime.fromtimestamp(self.win_a, tz=dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         b_iso = dt.datetime.fromtimestamp(upto_ts, tz=dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         items = self.net.news(sym, a_iso, b_iso)
-        sic, rows, known = self.sec_of(sym)
+        hit = self._sec_cache.get(sym) if sec_ttl is not None else None
+        if hit is not None and upto_ts - hit[0] <= sec_ttl:
+            sic, rows, known = hit[1]
+        else:
+            sic, rows, known = self.sec_of(sym)
+            if known:
+                self._sec_cache[sym] = (upto_ts, (sic, rows, known))
         return {"upto": upto_ts, "items": items, "sic": sic, "rows": rows, "known": known}
 
     def cat_build(self, sym, raw):
@@ -1324,7 +1334,7 @@ def _prep_one(D, sym, now_fn):
         D.prev_ref(sym)
         D.type_status(sym)
         D.priors_of(sym)
-        D.pre_cat[sym] = D.cat_fetch(sym, now_fn())
+        D.pre_cat[sym] = D.cat_fetch(sym, now_fn(), sec_ttl=PREP_SEC_TTL_S)
     except Exception as e:                                               # noqa: BLE001
         log(f"⚠️ تحضير ${sym} تعذّر ({type(e).__name__}) — يُجلب عند الكشف")
 
@@ -1371,6 +1381,7 @@ def _mode_live_fast(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=N
         f"{' · ظلُّ AM' if ws is not None else ''}) — `VWL_FAST=0` ⟵ القديم")
     from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
     pool = _Inline() if inline else ThreadPoolExecutor(max_workers=FETCH_WORKERS)
+    ppool = pool if inline else ThreadPoolExecutor(max_workers=PREP_WORKERS)
     try:
         for B in _boundary_mods(D.op, D.cl, lo, hi):
             t_b = V3.ny_ts(day, B)
@@ -1389,7 +1400,7 @@ def _mode_live_fast(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=N
                     log(f"⚠️ {_hm(B)} لقطةُ التحضير تعذّرت ({errors['snapshot']})")
                 else:
                     cands |= prefilter(snap, D.prev_adj_pf, D.types)
-                pf = [pool.submit(_prep_one, D, s, now_fn) for s in sorted(cands)]
+                pf = [ppool.submit(_prep_one, D, s, now_fn) for s in sorted(cands)]
                 if not inline:
                     wait(pf, timeout=max(0.0, t_b - now_fn()))         # ما لم يكتمل قبل الحدّ يُكمَل في خيطه ولا يؤخّر الحدّ
             w = t_b + POLL_STEPS_S[0] - now_fn()                        # ── الحدّ +1ث
@@ -1488,6 +1499,7 @@ def _mode_live_fast(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=N
                 + (f" · AM وسيط {wss['p50']}ث على {wss['n']} ({ws.status})" if ws is not None else ""))
     finally:
         pool.shutdown(wait=False)
+        ppool.shutdown(wait=False)
         if ws is not None:
             ws.stop = True
     if segment in ("close", "single") and send:

@@ -11638,7 +11638,7 @@ def _recipient_hint(body: str) -> str:
     return ""
 
 
-def send_telegram(text: str) -> bool:
+def send_telegram(text: str, on_admin=None) -> bool:
     if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
         log("ℹ️ لا يوجد توكن تيليجرام — الطباعة على الشاشة فقط:")
         print("\n" + text.replace("<b>", "").replace("</b>", "")
@@ -11669,6 +11669,11 @@ def send_telegram(text: str) -> bool:
                     "chat_id": cid, "text": ch,
                     "parse_mode": "HTML",
                     "disable_web_page_preview": True}, timeout=30)
+                # ⏱️ `on_admin` (‏2026-10-30 · زخم الفيواب «الهدف 5 ثوانٍ»): لحظةُ قبول تيلغرام لرسالة المشرف — قياسٌ لا سلوك ·
+                #    والغيابُ (كلُّ نداءٍ قائم) بت-بت
+                if on_admin is not None and resp.status_code == 200 and cid == admin:
+                    on_admin()
+                    on_admin = None
                 if resp.status_code != 200:
                     # 🔴 **الفحصُ على الخامّ والعرضُ على المُهرَّب** — لا العكس:
                     #    `_redact_secrets` تستبدل التوكن في **كلّ** موضع، فلو فُحِص
