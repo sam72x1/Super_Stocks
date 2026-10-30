@@ -8441,6 +8441,69 @@ def exact_hold_line(eh) -> str:
         return ""
 
 
+# 🕯️ الذيلُ العلويّ — «اعرض الذيل معلومةً لا إشارة» (أمرُ المالك 2026-10-30 بعد `T-WICK`) · عرضٌ فقط: لا يقرؤه الفرزُ ولا `entry_status` ·
+#    والتعريفُ تعريفُ `T_WICK_prereg.md` §① نفسُه (أكبرُ High÷Close−1 في الجلسات الخمس حتى آخر شمعة) · والحدُّ درجتُه الحاكمة 50% ·
+#    وحكمُ المحور «لا فرق قابل للكشف» ⟵ السطرُ يصف ولا يَعِد. `WICK_LINE=0` ⟵ لا حسابَ ولا سطر = الرسائلُ بت-بت.
+WICK_WIN = 5                    # «آخر 5 جلسات» (نصُّ الأمر · `T_WICK_prereg.md` §①)
+WICK_LINE_MIN = 0.50            # الدرجةُ الحاكمة في `T-WICK` (نصُّ الأمر «ذيل ≥50%»)
+WICK_LINE_ENV = "WICK_LINE"
+
+
+def wick_line_on() -> bool:
+    """المفتاحُ وقتَ النداء: «0» يطفئ الحسابَ والسطر (والرسائلُ كما قبله بت-بت) · وغيابُه = مُفعَّل."""
+    return (os.environ.get(WICK_LINE_ENV) or "").strip() != "0"
+
+
+def wick_state(rows, win=WICK_WIN):
+    """🕯️ أكبرُ ذيلٍ علويّ High÷Close−1 في آخر `win` شموعٍ من `rows` [(يوم، o، h، l، c، v)] (الأخيرةُ داخلةٌ) ⟵
+    {pct، date، high، close} أو None. نقيّة · وإغلاقٌ غيرُ موجبٍ يُتخطّى · والتعادلُ للأبكر."""
+    best = None
+    for d, _o, h, _l, c, _v in list(rows or [])[-int(win):]:
+        try:
+            h, c = float(h), float(c)
+        except (TypeError, ValueError):
+            continue
+        if not (c > 0 and h == h and c == c):
+            continue
+        w = h / c - 1.0
+        if best is None or w > best["pct"]:
+            best = {"pct": w, "date": str(d)[:10], "high": h, "close": c}   # خامٌّ كما قاسه `T-WICK` (`wick_max`) · التقريبُ للعرض وحدَه
+    return best
+
+
+def refresh_wick(stocks, hist) -> dict:
+    """🕯️ يحسب `wick5` لكلّ سهمٍ من شموع البوت اليوميّة نفسِها (`hist`) **ويُسنده بلا شرط** (التعذّرُ ⟵ None فلا يُعرَض ذيلُ الأمس)
+    ⟵ عدّادات. صفرُ نداءٍ شبكيّ · والمفتاحُ مطفأ ⟵ لا يمسّ شيئًا (`off`)."""
+    n = {"ok": 0, "shown": 0, "nodata": 0}
+    if not wick_line_on():
+        return {"off": True}
+    for s in list(stocks or []):
+        s["wick5"] = None
+        try:
+            df = (hist or {}).get(s.get("symbol"))
+            ws = wick_state(_daily_rows_of(df)) if df is not None else None
+        except Exception:                                        # noqa: BLE001
+            ws = None
+        if ws is None:
+            n["nodata"] += 1
+            continue
+        s["wick5"] = ws
+        n["ok"] += 1
+        n["shown"] += ws["pct"] >= WICK_LINE_MIN
+    return n
+
+
+def wick_line(w) -> str:
+    """🕯️ سطرُ الذيل في الكرت (معلومةٌ لا إشارة) — حين يبلغ الذيلُ الحاكمَ 50% فأكثر · وإلّا «» · بلا علامات مقارنة."""
+    try:
+        if not w or float(w["pct"]) < WICK_LINE_MIN:
+            return ""
+        return (f"🕯️ ذيلٌ علويّ {round(float(w['pct']) * 100)}% فوق الإغلاق يومَ {w['date']} "
+                f"(أعلى {_px_txt(w['high'])} · إغلاق {_px_txt(w['close'])}) — معلومةٌ لا إشارة")
+    except Exception:                                            # noqa: BLE001
+        return ""
+
+
 def pump_repeat_watch_only(r) -> str:
     """🚫 **قاعدة «رُفِع أكثر من مرة بدون مضارب ⇒ متابعة فقط»** (فيصل — EZRA IMG_0295: «معروف عند
     الجميع و**تم رفعه أكثر من مرة بدون مضارب** … **متابعه فقط**» · EDBL IMG_0298: «**تم التلاعب
@@ -11495,6 +11558,9 @@ def build_message(results: list, splits: list,
         _eh = exact_hold_line(r.get("exact_hold"))     # 🧱 الثبات الدقيق (أمرُ المالك «اعرض الثبات في جاهز البوت»)
         if _eh:
             lines.append(_eh)
+        _wk = wick_line(r.get("wick5"))                # 🕯️ الذيلُ العلويّ (أمرُ المالك «اعرض الذيل معلومةً لا إشارة»)
+        if _wk:
+            lines.append(_wk)
         lines.append(news_links_compact(r["symbol"]))
     lines += ["", FOOTER]
     return _rtl_join(lines)
@@ -21230,6 +21296,9 @@ def build_daily_message(wl: dict, splits: list,
         _eh = exact_hold_line(s.get("exact_hold"))      # 🧱 الثبات الدقيق (أمرُ المالك «اعرض الثبات في جاهز البوت»)
         if _eh:
             lines.append("   " + _eh)
+        _wk = wick_line(s.get("wick5"))                 # 🕯️ الذيلُ العلويّ (أمرُ المالك «اعرض الذيل معلومةً لا إشارة»)
+        if _wk:
+            lines.append("   " + _wk)
     # بدلاء اليوم: قائمة الإضافات — تُخفى بوضع الجاهز-فقط (الجديد يظهر كرته لو جاهز؛
     # وإلا فهو «تحت المتابعة» يتكفّل بها البوت — طلب المستخدم «ما يوصلني إلا الجاهز»).
     if replaced and not ready_only:
@@ -22474,6 +22543,12 @@ def run_weekly_renewal(wl: dict) -> None:
             + " · تعذّر " + str(_ehc["fail"]))
     except Exception as e:                                     # noqa: BLE001
         log(f"⚠️ الثبات الدقيق (التجديد): {e}")
+    try:                                   # 🕯️ الذيلُ العلويّ في كروت التجديد (معلومةٌ لا إشارة · `WICK_LINE=0` ⟵ لا شيء)
+        _wkc = refresh_wick(picks, hist)
+        if not _wkc.get("off"):
+            log(f"🕯️ الذيل (التجديد): قِيس {_wkc['ok']} · يُعرَض {_wkc['shown']} · بلا شموع {_wkc['nodata']}")
+    except Exception as e:                                     # noqa: BLE001
+        log(f"⚠️ الذيل (التجديد): {e}")
     msg = build_message(picks, splits, title=title, subnote=subnote)
     msg += "\n" + build_pullback_section(pull_entries)
     send_telegram(msg)
@@ -22885,6 +22960,12 @@ def run_daily_watchlist(wl: dict) -> None:
             + (" · بلا مفتاح Polygon " + str(_ehc["nokey"]) if _ehc["nokey"] else ""))
     except Exception as e:                                     # noqa: BLE001
         log(f"⚠️ الثبات الدقيق: {e}")
+    try:                                   # 🕯️ الذيلُ العلويّ يوميًّا (معلومةٌ لا إشارة · `WICK_LINE=0` ⟵ لا شيء)
+        _wkc = refresh_wick(wl["stocks"], hist)
+        if not _wkc.get("off"):
+            log(f"🕯️ الذيل: قِيس {_wkc['ok']} · يُعرَض {_wkc['shown']} · بلا شموع {_wkc['nodata']}")
+    except Exception as e:                                     # noqa: BLE001
+        log(f"⚠️ الذيل: {e}")
     # 6) دمج قائمة الارتداد الجديدة (تُضاف فقط) + التنبيه عند وصول الدعم.
     #    نمرّر القائمة الأساسية الحالية (تشمل ما أُضيف توًّا) كاستبعاد، ثم
     #    نشيل أي سهم تخرّج للأساسية من المراقبة (لا ازدواج بين القائمتين).
