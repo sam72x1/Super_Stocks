@@ -92797,6 +92797,28 @@ except Exception as _e:                                          # noqa: BLE001
 check("🕯️ TWK6: المجتمعُ والنتيجةُ والزوجُ من `rebuild` بالاسم (base2_fire · new_entries · exploded · row_guards · p3_days · pair_flags …) "
       "والإحصاءُ من `split_gates` بالاسم — ولا نسخةَ لأيٍّ منها (AST)", _wka_ok6, _wka_x[:80])
 
+# 🕯️🔬 TWK7 (‏2026-10-30 · نتيجةُ `T-WICK`): الجزءُ المولَّد من `T_WICK_RESULT.md` يُعاد من ملفّي البيانات بايتًا (`wick_doc.py --check`)
+#        وبصمةُ العقد في البيانات = `CONTRACT_SHA` · والأحكامُ المنشورة كما في البيانات (50% «لا فرق قابل للكشف» · 30% «الذيلُ يرفع» · التقاطعُ «مستقلّ»).
+try:
+    import subprocess as _twk7_sp
+    import sys as _twk7_sys
+    _twk7_r = _twk7_sp.run([_twk7_sys.executable, "-B", _wka_os.path.join("fm_forensics", "wick", "wick_doc.py"), "--check"],
+                           capture_output=True, text=True, timeout=120)
+    _twk7_pop = _wka_j.load(open(_wka_os.path.join("fm_forensics", "wick", "data", "pop_result.json"), encoding="utf-8"))
+    _twk7_un = _wka_j.load(open(_wka_os.path.join("fm_forensics", "wick", "data", "units_eval.json"), encoding="utf-8"))
+    _twk7_doc = open(_wka_os.path.join("fm_forensics", "wick", "T_WICK_RESULT.md"), encoding="utf-8").read()
+    _twk7_ok = (_twk7_r.returncode == 0 and _twk7_pop["contract_sha"] == WKT.CONTRACT_SHA == _twk7_un["contract_sha"]
+                and _twk7_un["units_sha"] == WKT.UNITS_SHA and _twk7_pop["identity_ok"] is True
+                and _twk7_pop["rungs"]["r50"]["verdict"] == _twk7_pop["verdict"] == "لا فرق قابل للكشف"
+                and _twk7_pop["rungs"]["r30"]["verdict"] == "الذيلُ يرفع" and _twk7_pop["intersection_class"] == "مستقلّ"
+                and _twk7_un["summary"]["ready"]["r50"] == 0 and _twk7_un["summary"]["add"]["r50"] == 3
+                and "**الحكم (§④ بالأضعف): «لا فرق قابل للكشف»**" in _twk7_doc and "«مستقلّ»" in _twk7_doc)
+    _twk7_x = (_twk7_r.stdout + _twk7_r.stderr)[-80:]
+except Exception as _e:                                          # noqa: BLE001
+    _twk7_ok, _twk7_x = False, f"{type(_e).__name__}: {_e}"
+check("🕯️ TWK7: نتيجةُ `T-WICK` تُعاد من بياناتها بايتًا وببصمتَي العقد والوحدات — 50% «لا فرق قابل للكشف» · 30% «الذيلُ يرفع» · «مستقلّ» عن P3 · "
+      "والجاهزون 0 والإضافات 3 بذيلٍ 50% فأكثر", _twk7_ok, _twk7_x)
+
 # BKD1-BKD6 (‏2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام» · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه مجهولًا
 #        بعد الحصاد والموقع يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS` من `ctb_log.jsonl` ∪ `borrow_watch.jsonl` — للبوّابة وحدَها
 #        (`borrow_known` لا `shares_available`) · و`0` ⟵ فائدةُ الشك بت-بت · وشاهدُ 10-27 من ملفّات البوت نفسِها: BCTX · PLSM · FRSX · ASPC
