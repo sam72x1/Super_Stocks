@@ -23,6 +23,7 @@ import datetime as dt
 import json
 import os
 import sys
+import threading
 import time
 
 import vwap_mom_feas as V3
@@ -40,6 +41,17 @@ SPAC_SIC = V4.SPAC_SIC               # 6770 — الملحق 3 ⑤
 D_MAX_PER_DAY = 3                    # إعادةُ الاختبار حتى 3 في اليوم — أمرُ المالك 2026-10-29 (مثالُ AZTR «3 مرات»)
 FRESH_MAX_S = 600                    # أكثرُ من 10 دقائق بعد إغلاق الشمعة ⟵ لا يُرسَل ويُسجَّل — قرارُ المالك 2026-10-29
 LOOP_OFFSET_S = 25                   # الفحصُ بعد حدّ الشمعة بثوانٍ (المزوّدُ ينشر الدقيقة خلال ‏≈2ث — مقيس) — engineering
+# ⚡ المسارُ السريع (أمرُ المالك 2026-10-30 «الهدف 5 ثوانٍ فأقلّ من إغلاق شمعة 5د إلى الإرسال، بلا تغيير في أيّ قاعدة») — توقيتٌ لا قاعدة:
+#    `VWL_FAST=0` ⟵ الحلقةُ القديمة بت-بت (`_mode_live_legacy`). قِيس أمس (10-29 · التجربةُ الصامتة): 26.4-36.0ث = انتظارُ 25ث ثابت ‏+
+#    جلبُ الشموع متسلسلًا 1.4-11.0ث (اللقطة ثمّ المرشّحون أبجديًّا) ‏+ الخبرُ والتقييم 0.2-1.0ث ‏+ الإرسالُ (لم يُقَس: الإرسالُ كان مطفأ).
+POLL_STEPS_S = (1, 2, 3, 4, 5, 7, 10, 14, 19, LOOP_OFFSET_S)   # جلبُ دقائق المرشّح بعد الحدّ: حتى تظهر دقيقتُه الأخيرة أو مهلةُ القديم — engineering
+PREP_LEAD_S = 75                     # التحضيرُ بين الشمعتين يبدأ قبل الحدّ بـ75ث: اللقطة · المرجع · ② · ④ — engineering
+FETCH_WORKERS = 24                   # جلبٌ متوازٍ للمرشّحين (Polygon بلا حدّ معدّل على الخطّة · وSEC مُسلسَلٌ بقفلٍ تحت 10/ث) — engineering
+PREP_WORKERS = 8                     # مجمّعُ التحضير منفصلٌ عن مجمّع الحدّ: تحضيرٌ متأخّرٌ لا يحجز خيوطَ الحدّ — engineering
+PREP_SEC_TTL_S = 1800                # SEC في التحضير يُعاد كلَّ 30 د (الخبرُ كلَّ حدّ) — engineering
+LAT_WARN_S = 10                      # تنبيهٌ تأخّرُه الكلّيُّ فوق 10 ثوانٍ يُعلَن في السجلّ — أمرُ المالك 2026-10-30
+WS_URL = "wss://socket.polygon.io/stocks"      # ③ قناةُ AM (تجميعُ الدقيقة) — ظلٌّ صامتٌ يقيس وصولَ الشمعة لا يقرّر
+WS_PROBE_S = 120                     # مدّةُ استماع وضع `wsprobe` — engineering
 EMA_N = 9                            # EMA9 على إغلاقات 5 دقائق من بداية الجلسة — العقد §② (`nayef_verbatim` الطول)
 LEDGER = "vwap_live_ledger.jsonl"    # سجلُّ الحصاد الإلحاقيّ (يُدفَع) — أمرُ المالك ④
 SEG_SPLIT_MIN = 195                  # حدُّ المقطعين (سقفُ جوب GitHub 6 ساعات · كرادار الانطلاق)
@@ -358,10 +370,10 @@ def build_message(row):
     return "\n".join(("‏" + ln) for ln in lines)
 
 
-def ledger_row(day, sym, a, detected_ts, sent, reason, mode, sha, news):
-    """صفُّ تنبيهٍ إلحاقيّ (مفتاحُه للاتّحاد في `git_save`)."""
+def ledger_row(day, sym, a, detected_ts, sent, reason, mode, sha, news, timing=None):
+    """صفُّ تنبيهٍ إلحاقيّ (مفتاحُه للاتّحاد في `git_save`) · و`timing` (⚡ المسارُ السريع) يُضيف مراحلَ التأخّر بالثواني من إغلاق الشمعة."""
     ets = V3.ny_ts(day, a["e"])
-    return {"v": 1, "kind": "alert", "key": alert_key(day, sym, a["arm"], a["n"]), "date": day, "sym": sym, "arm": a["arm"],
+    row = {"v": 1, "kind": "alert", "key": alert_key(day, sym, a["arm"], a["n"]), "date": day, "sym": sym, "arm": a["arm"],
             "n": a["n"], "event_end_ny": _hm(a["e"]), "event_end_mod": a["e"], "event_ts": ets,
             "detected_ts": round(detected_ts, 1), "latency_s": round(detected_ts - ets, 1), "sent": sent, "reason": reason,
             "px": round(a["px"], 4), "vwap": round(a["vwap"], 4), "chg": None if a["chg"] is None else round(a["chg"], 4),
@@ -370,6 +382,9 @@ def ledger_row(day, sym, a, detected_ts, sent, reason, mode, sha, news):
             "above": a.get("above"), "ema9": None if a.get("ema9") is None else round(a["ema9"], 4),
             "news": news, "mode": mode, "sha": sha, "tags": list(a.get("tags") or []), "prev_src": a.get("prev_src"),
             "sic": a.get("sic"), "ldef": a.get("ldef")}
+    if timing:
+        row["lat"] = dict(timing)
+    return row
 
 
 def harvest(bars, op, cl, alert_mod, alert_px):
@@ -465,10 +480,12 @@ class Net:
 
     def __init__(self, key, ua):
         self.key, self.ua, self.calls, self.fails = key, ua, 0, 0
+        self._lk, self._sec_lk = threading.Lock(), threading.Lock()   # ⚡ العدّاداتُ آمنةٌ للتوازي · وSEC مُسلسَلٌ (حدُّه 10/ث)
 
     def _count(self, j):
-        self.calls += 1
-        self.fails += int(j is None)
+        with self._lk:
+            self.calls += 1
+            self.fails += int(j is None)
         return j
 
     def poly(self, path, params=None):
@@ -479,12 +496,14 @@ class Net:
 
     def paged(self, path, params, cap=100):
         rows, ok = V4._paged_all(self.key, path, params, cap=cap)
-        self.calls += 1
-        self.fails += int(not ok)
+        with self._lk:
+            self.calls += 1
+            self.fails += int(not ok)
         return rows, ok
 
     def sec(self, url):
-        return self._count(V3._sec_get(url, self.ua, True))
+        with self._sec_lk:
+            return self._count(V3._sec_get(url, self.ua, True))
 
     def minutes(self, sym, d_from, d_to):
         from urllib.parse import quote
@@ -521,6 +540,140 @@ class Net:
             return None
         out, self.snap_diag = snapshot_hl(j.get("tickers") or ())
         return out
+
+
+def ws_lag_stats(lags):
+    """[ثوانٍ] ⟵ {n · وسيط · p90 · أقصى} (نقيّة · لوضع `wsprobe` وسطر الظلّ)."""
+    xs = sorted(x for x in lags if x is not None)
+    if not xs:
+        return {"n": 0, "p50": None, "p90": None, "max": None}
+    return {"n": len(xs), "p50": round(_median(xs), 2), "p90": round(xs[min(len(xs) - 1, int(0.9 * len(xs)))], 2),
+            "max": round(xs[-1], 2)}
+
+
+class WSShadow:
+    """③ ظلُّ قناة AM (تجميعُ الدقيقة عبر WebSocket) — **يقيس ولا يقرّر**: يسجّل لحظةَ وصول شمعة كلّ دقيقة لكلّ رمز فيُقارَن بها
+    جاهزيّةُ REST عند كلّ تنبيهٍ وكلّ حدّ (أمرُ المالك 2026-10-30 «قِس تأخرها مقابل REST في جلسة صامتة قبل أي تبديل»).
+    خيطٌ مستقلّ · كلُّ عطلٍ يُسجَّل ويُطفئ الظلَّ وحدَه · لا يمسّ الحلقة. `conn` محقونٌ للسويّة (كائنٌ له recv/send/close)."""
+
+    KEEP_S = 20 * 60
+
+    def __init__(self, key, url=WS_URL, conn_fn=None, clock=time.time, verbose=False):
+        self.key, self.url, self.conn_fn, self.clock, self.verbose = key, url, conn_fn, clock, verbose
+        self.seen, self.lk, self.status, self.events, self.stop = {}, threading.Lock(), "لم يبدأ", 0, False
+        self.stage = "init"
+
+    def _v(self, m):
+        self.stage = m
+        if self.verbose:
+            log(f"📡 {m}")
+
+    def _connect(self):
+        if self.conn_fn is not None:
+            return self.conn_fn(self.url)
+        import websocket
+        return websocket.create_connection(self.url, timeout=10, enable_multithread=True)
+
+    def handle(self, raw, now):
+        """رسالةٌ خام ⟵ يحدّث الحالةَ وسجلَّ الوصول (نقيّةٌ إلّا من حالة الكائن · مقفولة في السويّة)."""
+        try:
+            msgs = json.loads(raw)
+        except ValueError:
+            return
+        for m in msgs if isinstance(msgs, list) else [msgs]:
+            ev = m.get("ev") if isinstance(m, dict) else None
+            if ev == "status":
+                st = str(m.get("status") or "")
+                if st in ("auth_success", "auth_failed", "max_connections", "error") or st.startswith("auth"):
+                    self.status = f"{st}: {m.get('message') or ''}".strip()
+            elif ev == "AM":
+                try:
+                    k = (str(m["sym"]).upper(), int(m["s"]))
+                except (KeyError, TypeError, ValueError):
+                    continue
+                with self.lk:
+                    self.seen.setdefault(k, (now, int(m.get("e") or 0)))
+                    self.events += 1
+
+    def arrival(self, sym, minute_start_ms):
+        """لحظةُ وصول شمعة الدقيقة (ثانيةٌ عالميّة) أو None."""
+        with self.lk:
+            v = self.seen.get((str(sym).upper(), int(minute_start_ms)))
+        return None if v is None else v[0]
+
+    def prune(self, now):
+        cut = (now - self.KEEP_S) * 1000.0
+        with self.lk:
+            for k in [k for k in self.seen if k[1] < cut]:
+                del self.seen[k]
+
+    def run(self, until):
+        """الخيط: اتّصال ⟵ مصادقة ⟵ اشتراك AM.* ⟵ استماعٌ حتى `until` — وأيُّ عطلٍ يُنهي الظلَّ وحدَه."""
+        try:
+            self._v("اتصال")
+            ws = self._connect()
+            self._v("متّصل ⟵ انتظارُ رسالة الترحيب")
+            self.handle(ws.recv(), self.clock())
+            self._v("مصادقة")
+            ws.send(json.dumps({"action": "auth", "params": self.key}))
+            raw = ws.recv()
+            self.handle(raw, self.clock())
+            if self.status == "لم يبدأ":                                # الردُّ الأوّل قد يكون «connected» ثمّ المصادقة
+                self.handle(ws.recv(), self.clock())
+            self._v(f"ردُّ المصادقة: {self.status}")
+            if not self.status.startswith("auth_success"):
+                log(f"📡 ظلُّ AM: المصادقةُ لم تنجح ({self.status}) — يتوقّف الظلُّ ولا تتأثّر الحلقة")
+                ws.close()
+                return
+            ws.send(json.dumps({"action": "subscribe", "params": "AM.*"}))
+            self._v("اشتراك AM.* ⟵ استماع")
+            last_prune = last_v = self.clock()
+            while not self.stop and self.clock() < until:
+                try:
+                    raw = ws.recv()
+                except Exception as e:                                  # noqa: BLE001
+                    if type(e).__name__ in ("WebSocketTimeoutException", "TimeoutError", "timeout"):
+                        continue                                       # لا تداولَ في المهلة ⟵ استماعٌ مستمرّ
+                    raise
+                now = self.clock()
+                if raw:
+                    self.handle(raw, now)
+                if now - last_prune > 60:
+                    self.prune(now)
+                    last_prune = now
+                if self.verbose and now - last_v > 30:
+                    self._v(f"شموعُ AM حتى الآن {self.events}")
+                    last_v = now
+            self._v("إغلاق")
+            ws.close()
+        except Exception as e:                                          # noqa: BLE001
+            self.status = f"عطل: {type(e).__name__}"
+            log(f"📡 ظلُّ AM توقّف ({type(e).__name__}) — الحلقةُ مستمرّة على REST")
+
+    def start(self, until):
+        t = threading.Thread(target=self.run, args=(until,), daemon=True)
+        t.start()
+        return t
+
+
+def mode_wsprobe(key, listen_s=WS_PROBE_S, conn_fn=None, clock=time.time, grace_s=45):
+    """③ هل يشمل الاشتراكُ قناةَ AM؟ — مصادقةٌ واشتراكٌ في AM.* واستماعٌ `listen_s` ثانية ⟵ الحالةُ وعددُ الشموع وتأخّرُ وصولها عن نهاية
+    دقيقتها (وسيط · p90 · أقصى). قراءةٌ فقط · بلا تلغرام. ⟵ 0 إن نجحت المصادقة · 4 إن رُفضت أو تعذّر الاتّصال."""
+    sh = WSShadow(key, conn_fn=conn_fn, clock=clock, verbose=True)
+    th = threading.Thread(target=sh.run, args=(clock() + listen_s,), daemon=True)
+    th.start()
+    th.join(listen_s + grace_s)                                          # حارسٌ صلب: لا يعلق الوضعُ مهما فعل الاتّصال (مقيس: علق 15 د)
+    if th.is_alive():
+        sh.stop = True
+        sh.status = f"علق عند «{sh.stage}» — {sh.status}"
+    with sh.lk:
+        lags = [now - e / 1000.0 for (now, e) in sh.seen.values() if e]
+    st = ws_lag_stats(lags)
+    ok = sh.status.startswith("auth_success")
+    log(f"📡 wsprobe: الحالة «{sh.status}» · شموعُ AM {sh.events} · رموز {len({k[0] for k in sh.seen})} · تأخّرُ الوصول عن نهاية "
+        f"الدقيقة: وسيط {st['p50']}ث · p90 {st['p90']}ث · أقصى {st['max']}ث")
+    emit_json({"mode": "wsprobe", "status": sh.status, "events": sh.events, "lag": st, "auth_ok": ok})
+    return 0 if ok else 4
 
 
 class Day:
@@ -565,6 +718,8 @@ class Day:
         self.acc_ts = V3.make_acc_ts(parse_acc, to_ny)
         self._prior_cache, self._cat_cache, self._detail = {}, {}, {}
         self._prev_cache, self.sic_of = {}, {}
+        self.pre_cat = {}                                               # ⚡ خامُّ ④ المُحضَّرُ بين الشمعتين (المسارُ السريع)
+        self._sec_cache = {}                                            # ⚡ SEC التحضير وحدَه (`PREP_SEC_TTL_S`) — الكشفُ يجلب طازجًا
 
     def prev_ref(self, sym):
         """(إغلاقُ الأمس المسوّى، مصدرُه) — من مجمَّعة الجلسة السابقة («grouped») · **وإن غاب** (سهمٌ لم يتداول أمس: موقوفٌ ثمّ عائد)
@@ -661,10 +816,29 @@ class Day:
             if sym in self._cat_cache:
                 return self._cat_cache[sym]
             upto_ts = V3.ny_ts(self.day, V3.EXT_END)
+        out = self.cat_build(sym, self.cat_fetch(sym, upto_ts))
+        if self.replay:
+            self._cat_cache[sym] = out
+        return out
+
+    def cat_fetch(self, sym, upto_ts, sec_ttl=None):
+        """④ الخامّ حتى `upto_ts`: أخبارُ Polygon ثمّ `submissions` — يُجلب عند الكشف (القديم · SEC طازجٌ دائمًا) أو بين الشمعتين
+        (التحضير ⚡ · `sec_ttl` يُعيد استعمالَ SEC الأحدث من مدّته: آمنٌ لأنّ المُحضَّر لا يُقبل إلّا مُثبِتًا والإثباتُ لا يزول)."""
         a_iso = dt.datetime.fromtimestamp(self.win_a, tz=dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         b_iso = dt.datetime.fromtimestamp(upto_ts, tz=dt.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         items = self.net.news(sym, a_iso, b_iso)
-        sic, rows, known = self.sec_of(sym)
+        hit = self._sec_cache.get(sym) if sec_ttl is not None else None
+        if hit is not None and upto_ts - hit[0] <= sec_ttl:
+            sic, rows, known = hit[1]
+        else:
+            sic, rows, known = self.sec_of(sym)
+            if known:
+                self._sec_cache[sym] = (upto_ts, (sic, rows, known))
+        return {"upto": upto_ts, "items": items, "sic": sic, "rows": rows, "known": known}
+
+    def cat_build(self, sym, raw):
+        """الخامُّ ⟵ (cat_of، تفصيلٌ للرسالة، وسمُ ⑤) — البناءُ نفسُه لِما جُلب عند الكشف ولِما حُضِّر قبله."""
+        items, sic, rows, known = raw["items"], raw["sic"], raw["rows"], raw["known"]
         self.sic_of[sym] = sic
         wix = V4.wire_index(items or [])[0]
         s8k = [r[0] for r in rows if r[1] == "8-K"]
@@ -690,10 +864,7 @@ class Day:
                     si = {"items": its, "time_ny": dt.datetime.fromtimestamp(ts, tz=NY).strftime("%m-%d %H:%M")}
                     acq = acq or "1.01" in [x.strip() for x in str(its or "").split(",")]
             return {"wire_item": wi, "sec_item": si, "acq_101": acq}
-        out = (cat_of, detail, excl_label(sic))
-        if self.replay:
-            self._cat_cache[sym] = out
-        return out
+        return (cat_of, detail, excl_label(sic))
 
 
 def excl_label(sic):
@@ -704,9 +875,11 @@ def excl_label(sic):
     return f"صندوق (SIC {sic})" if sic in FUND_SIC else None
 
 
-def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False, prev_override=None, ldef=None):
+def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False, prev_override=None, ldef=None, pre_cat=None):
     """فحصُ رمزٍ حتى `upto` ⟵ نتيجةُ `evaluate` وكلُّ تنبيهٍ فيها بخبره (`news` نصًّا و`news_detail`). أيّامُ ② والخبرُ وSEC
-    **تُجلب عند الحاجة وحدَها** (حين تكتمل الشروطُ الأرخص قبلها) · وSPAC يُعرف من `submissions` نفسِه فيُعاد التقييمُ به."""
+    **تُجلب عند الحاجة وحدَها** (حين تكتمل الشروطُ الأرخص قبلها) · وSPAC يُعرف من `submissions` نفسِه فيُعاد التقييمُ به.
+    ⚡ `pre_cat` = خامُّ ④ المُحضَّرُ بين الشمعتين (`Day.cat_fetch`): يُقبل حين يُثبت الخبرَ (C صحيح — والإثباتُ لا يزول بأخبارٍ أحدث:
+    `catalyst4` «أيُّ سلكٍ أو 8-K في النافذة») · وإلّا يُجلب ④ عند الكشف كالقديم تمامًا ⟵ القرارُ نفسُه بلا تغيير قاعدة."""
     b5, _b15, _ = complete_buckets(bars_today, D.op, D.cl, upto)
     if len(b5) < 4:
         return {"events": [], "alerts": []}
@@ -718,19 +891,30 @@ def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False, prev_ove
 
     def cat_of(e):
         if "fn" not in state:
+            if pre_cat is not None:
+                state["fn"], state["detail"], state["spac"] = D.cat_build(sym, pre_cat)
+                state["src"] = "pre"
+            else:
+                state["fn"], state["detail"], state["spac"] = D.catalyst(sym, detected_ts)
+                state["src"] = "fresh"
+        r = state["fn"](e)
+        if r.get("C") is not True and state["src"] == "pre":           # المُحضَّرُ لم يُثبت ⟵ جلبٌ عند الكشف (لا «لا» من خامٍّ أقدم)
             state["fn"], state["detail"], state["spac"] = D.catalyst(sym, detected_ts)
-        return state["fn"](e)
+            state["src"] = "fresh"
+            r = state["fn"](e)
+        return r
     ts = D.type_status(sym)
     ldef = resolve_ldef(ldef)
     pa, psrc = D.prev_ref(sym) if prev_override is None else (prev_override, "override")   # التجاوزُ لوضع trace وحدَه (`VWL14`)
     res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, cat_of, ts, False, full_info=full_info, ldef=ldef)
     if state.get("spac"):
-        res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, state["fn"], ts, state["spac"], full_info=full_info, ldef=ldef)
+        res = evaluate(bars_today, D.op, D.cl, upto, pa, priors_fn, cat_of, ts, state["spac"], full_info=full_info, ldef=ldef)
     for a in res["alerts"]:
         a["news_detail"] = state["detail"](a["e"])
         a["news"] = news_brief(a["news_detail"])
         a["tags"] = alert_tags(a, b5, a["news_detail"])
         a["prev_src"], a["sic"], a["ldef"] = psrc, D.sic_of.get(sym), ldef
+        a["cat_src"] = state.get("src")
     return res
 
 
@@ -987,7 +1171,21 @@ def mode_harvest(net, MC, path=LEDGER, now_fn=None):
     return added
 
 
-def mode_live(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, saver=None, path=LEDGER):
+def fast_on():
+    """⚡ المسارُ السريع مُفعَّلٌ ما لم يُضبط `VWL_FAST=0` (الرجوعُ إلى الحلقة القديمة بت-بت)."""
+    return (os.environ.get("VWL_FAST", "1") or "1").strip() != "0"
+
+
+def mode_live(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, saver=None, path=LEDGER, fast=None, ws=None,
+              inline=None):
+    """الحلقةُ الحيّة — السريعةُ (`_mode_live_fast`) ما لم يُطفئها `VWL_FAST=0` فالقديمةُ (`_mode_live_legacy`) بت-بت.
+    `inline`: المنفّذُ المتزامن (الافتراضُ: حين تُحقن الساعة) — و`False` مع ساعةٍ محقونة = خيوطٌ حقيقيّة (فحصُ الدخان المحلّيّ)."""
+    if not (fast_on() if fast is None else fast):
+        return _mode_live_legacy(net, MC, send, segment, now_fn, sleep_fn, sender, saver, path)
+    return _mode_live_fast(net, MC, send, segment, now_fn, sleep_fn, sender, saver, path, ws, inline)
+
+
+def _mode_live_legacy(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, saver=None, path=LEDGER):
     """الحلقةُ الحيّة: عند كلّ حدّ 5 دقائق (+ ثوانٍ) — لقطةُ السوق ⟵ المرشِّحُ الأعمّ ⟵ دقائقُ اليوم لكلّ مرشّح ⟵ `scan_symbol` ⟵
     تنبيهٌ جديدٌ طازج يُرسَل (إن `send`) ويُسجَّل · والمتأخّرُ أكثرَ من 10 دقائق يُسجَّل بلا إرسال · والدِّدوبُ من السجلّ.
     المقطع: open [الافتتاح، +195 د] · close [+195 د، الإغلاق] ثمّ الحصاد · single [الافتتاح، الإغلاق] ثمّ الحصاد."""
@@ -1063,6 +1261,261 @@ def mode_live(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, s
     return 3 if (errors["send"] or errors["snapshot"] > 3) else 0
 
 
+# ── ⚡ المسارُ السريع (أمرُ المالك 2026-10-30) — توقيتٌ لا قاعدة: الشروطُ كلُّها بـ`scan_symbol`/`evaluate` نفسيهما ──────────────
+class _Inline:
+    """منفّذٌ متزامن بواجهة `submit` — للسويّة والساعةِ المحقونة (حتميّة) · والإنتاجُ على `ThreadPoolExecutor`."""
+
+    def submit(self, fn, *a, **k):
+        from concurrent.futures import Future
+        f = Future()
+        try:
+            f.set_result(fn(*a, **k))
+        except BaseException as e:                                       # noqa: BLE001
+            f.set_exception(e)
+        return f
+
+    def shutdown(self, wait=True):
+        return None
+
+
+def bar_ready(bars, B):
+    """دقيقةُ الشمعة الأخيرة (B−1) منشورة؟ — أو دقيقةٌ بعدها (فالأخيرةُ بلا تداولٍ ونهائيّة). REST يُرجع الدقائقَ المغلقة وحدَها (مقيس)."""
+    return any(b[0] >= B - 1 for b in bars or ())
+
+
+def fetch_ready(net, sym, day, B, t_b, now_fn, sleep_fn, steps=POLL_STEPS_S):
+    """دقائقُ اليوم عند B+1ث ثمّ إعادةٌ حتى تظهر دقيقةُ الشمعة الأخيرة أو تبلغ المهلةُ `LOOP_OFFSET_S` (لحظةُ القديم: بعدها يُقيَّم بما
+    وُجد كما كان) ⟵ (الدقائق أو None، لحظةُ الجاهزيّة، عددُ الجلبات، اكتملت؟، لحظةُ أوّل جلب)."""
+    bars, polls, t_first = None, 0, None
+    for st in steps:
+        w = t_b + st - now_fn()
+        if w > 0:
+            sleep_fn(w)
+        if t_first is None:
+            t_first = now_fn()
+        by = net.minutes(sym, day, day)
+        polls += 1
+        if by is None:
+            continue
+        bars = by.get(day) or []
+        if bar_ready(bars, B):
+            return bars, now_fn(), polls, True, t_first
+    return bars, now_fn(), polls, False, t_first
+
+
+def lat_parts(ets, t_first, det, t_eval, t_sent):
+    """مراحلُ التأخّر بالثواني من إغلاق الشمعة (نقيّة): انتظارُ الحدّ · جلبُ الشموع (حتى تظهر الدقيقةُ الأخيرة) · الخبرُ والتقييم ·
+    الإرسالُ (لحظةُ ردّ تيلغرام للمشرف) · والكلّيّ = حتى الإرسال إن أُرسل وإلّا حتى القرار."""
+    r = lambda x: None if x is None else round(x, 2)                       # noqa: E731
+    end = t_sent if t_sent is not None else t_eval
+    return {"wait_s": r(t_first - ets), "bars_s": r(det - t_first), "news_s": r(t_eval - det),
+            "send_s": None if t_sent is None else r(t_sent - t_eval), "total_s": r(end - ets)}
+
+
+def lat_line(lat):
+    """«تأخّر X ث (انتظار · شموع · خبر · إرسال)» بلا علامات مقارنة."""
+    snd = "—" if lat.get("send_s") is None else f"{lat['send_s']}"
+    ws = "" if lat.get("ws_s") is None else f" · WS الشمعة بعد {lat['ws_s']}ث"
+    return (f"تأخّر {lat['total_s']}ث (انتظار {lat['wait_s']} · شموع {lat['bars_s']} · خبر {lat['news_s']} · إرسال {snd}"
+            f" · جلبات {lat.get('polls')}){ws}")
+
+
+def _send_measured(sender, msg, now_fn):
+    """⟵ (أُرسل؟، لحظةُ الإرسال): المُرسِلُ الإنتاجيّ يُبلغ لحظةَ قبول تيلغرام لرسالة المشرف (`on_admin`) · والمحقونُ لحظةَ عودته."""
+    box = {}
+    if sender is None:
+        ok = bool(_bot().send_telegram(msg, on_admin=lambda: box.setdefault("t", now_fn())))
+    else:
+        ok = bool(sender(msg))
+    return ok, box.get("t", now_fn())
+
+
+def _prep_one(D, sym, now_fn):
+    """التحضيرُ بين الشمعتين لرمزٍ واحد: المرجعُ والنوعُ وأيّامُ ② (مخبّأةٌ لليوم) وخامُّ ④ حتى الآن — فاشلٌ-آمن (يُجلب عند الكشف إن تعذّر)."""
+    try:
+        D.prev_ref(sym)
+        D.type_status(sym)
+        D.priors_of(sym)
+        D.pre_cat[sym] = D.cat_fetch(sym, now_fn(), sec_ttl=PREP_SEC_TTL_S)
+    except Exception as e:                                               # noqa: BLE001
+        log(f"⚠️ تحضير ${sym} تعذّر ({type(e).__name__}) — يُجلب عند الكشف")
+
+
+def _scan_job(D, net, day, sym, B, t_b, now_fn, sleep_fn):
+    bars, t_ready, polls, complete, t_first = fetch_ready(net, sym, day, B, t_b, now_fn, sleep_fn)
+    if bars is None:
+        return {"sym": sym, "res": None, "polls": polls}
+    res = scan_symbol(D, sym, bars, B, t_ready, pre_cat=D.pre_cat.get(sym))
+    return {"sym": sym, "res": res, "det": t_ready, "t_eval": now_fn(), "t_first": t_first, "polls": polls,
+            "complete": complete}
+
+
+def _mode_live_fast(net, MC, send, segment, now_fn=None, sleep_fn=None, sender=None, saver=None, path=LEDGER, ws=None, inline=None):
+    """⚡ الحلقةُ السريعة: بين الشمعتين (قبل الحدّ بـ`PREP_LEAD_S`) لقطةٌ ⟵ المرشّحون ⟵ تحضيرُ المرجع و② و④ ⟵ وعند الحدّ +1ث جلبُ دقائق
+    المرشّحين **بالتوازي** حتى تظهر دقيقتُهم الأخيرة ⟵ `scan_symbol` بالخامّ المُحضَّر ⟵ **الإرسالُ لحظةَ اكتمال شرطه** (خيطٌ لكلّ رسالة) ·
+    والسجلُّ يُحفظ مرّةً بعد الحدّ. الدِّدوبُ والطزاجةُ والحصادُ كالقديم. والساعةُ المحقونة (السويّة) ⟵ منفّذٌ متزامن حتميّ."""
+    inline = (now_fn is not None) if inline is None else inline
+    now_fn = now_fn or (lambda: time.time())
+    sleep_fn = sleep_fn or time.sleep
+    day = _today_ny(dt.datetime.fromtimestamp(now_fn(), tz=NY))
+    if not V3.is_session(day, MC.session_info):
+        log(f"📴 {day} ليس جلسةَ تداول — لا عمل")
+        return 0
+    D = Day(net, day, MC)
+    if not D.ok:
+        log(f"⛔ مرجعُ اليوم ناقص: {D.why} — لا مسح (يُعلَن ولا يُكتَم)")
+        return 2
+    split = D.op + SEG_SPLIT_MIN
+    lo, hi = {"open": (D.op, split), "close": (split, D.cl)}.get(segment, (D.op, D.cl))
+    mr = int(os.environ.get("VWL_MAX_RUNTIME_MIN", "340") or 340)
+    t_dead = now_fn() + mr * 60
+    rows = read_ledger(path)
+    used = used_keys(rows, day)
+    cands = set()
+    errors = {"snapshot": 0, "send": 0}
+    sent_n = late_n = slow_n = 0
+    totals, rest_all, ws_all = [], [], []
+    if ws is None and (os.environ.get("VWL_WS", "0") or "0").strip() == "1" and getattr(net, "key", None):
+        ws = WSShadow(net.key)
+        ws.start(V3.ny_ts(day, hi) + 120)
+    log(f"🟠 زخم الفيواب {day} · المقطع {segment} {_hm(lo)}-{_hm(hi)} نيويورك · الإرسال {'مفعَّل' if send else 'مطفأ (تجربة)'} · "
+        f"مسجَّلٌ اليوم {len(used)} · ⚡ المسارُ السريع (الحدّ +{POLL_STEPS_S[0]}ث · تحضيرٌ قبله {PREP_LEAD_S}ث · {FETCH_WORKERS} خيطًا"
+        f"{' · ظلُّ AM' if ws is not None else ''}) — `VWL_FAST=0` ⟵ القديم")
+    from concurrent.futures import FIRST_COMPLETED, ThreadPoolExecutor, wait
+    pool = _Inline() if inline else ThreadPoolExecutor(max_workers=FETCH_WORKERS)
+    ppool = pool if inline else ThreadPoolExecutor(max_workers=PREP_WORKERS)
+    try:
+        for B in _boundary_mods(D.op, D.cl, lo, hi):
+            t_b = V3.ny_ts(day, B)
+            if now_fn() > t_dead:
+                log("⏱️ بلغ سقفَ التشغيل — يُكمل المقطعُ التالي")
+                break
+            if t_b + LOOP_OFFSET_S < now_fn() - 300:
+                continue                                                # حدٌّ مضى (إقلاعٌ متأخّر) — القاعدةُ نفسُها في القديم
+            t_prep = t_b - PREP_LEAD_S
+            if t_prep > now_fn():
+                sleep_fn(t_prep - now_fn())
+            if now_fn() < t_b:                                          # ── التحضير بين الشمعتين
+                snap = net.snapshot()
+                if snap is None:
+                    errors["snapshot"] += 1
+                    log(f"⚠️ {_hm(B)} لقطةُ التحضير تعذّرت ({errors['snapshot']})")
+                else:
+                    cands |= prefilter(snap, D.prev_adj_pf, D.types)
+                pf = [ppool.submit(_prep_one, D, s, now_fn) for s in sorted(cands)]
+                if not inline:
+                    wait(pf, timeout=max(0.0, t_b - now_fn()))         # ما لم يكتمل قبل الحدّ يُكمَل في خيطه ولا يؤخّر الحدّ
+            w = t_b + POLL_STEPS_S[0] - now_fn()                        # ── الحدّ +1ث
+            if w > 0:
+                sleep_fn(w)
+            snap_f = pool.submit(net.snapshot)
+            pending = {pool.submit(_scan_job, D, net, day, s, B, t_b, now_fn, sleep_fn): s for s in sorted(cands)}
+            snap_done, sends, readies, scanned = False, [], [], []
+            while pending or not snap_done:
+                waitset = list(pending) + ([] if snap_done else [snap_f])
+                if not inline:
+                    wait(waitset, return_when=FIRST_COMPLETED)
+                if not snap_done and snap_f.done():
+                    snap_done = True
+                    try:
+                        snap = snap_f.result()
+                    except Exception:                                   # noqa: BLE001
+                        snap = None
+                    if snap is None:
+                        errors["snapshot"] += 1
+                        log(f"⚠️ {_hm(B)} اللقطة تعذّرت ({errors['snapshot']})")
+                    else:
+                        new = prefilter(snap, D.prev_adj_pf, D.types) - cands
+                        cands |= new
+                        for s in sorted(new):
+                            pending[pool.submit(_scan_job, D, net, day, s, B, t_b, now_fn, sleep_fn)] = s
+                for f in [f for f in list(pending) if f.done()]:
+                    sym = pending.pop(f)
+                    try:
+                        out = f.result()
+                    except Exception as e:                              # noqa: BLE001
+                        log(f"⚠️ {_hm(B)} ${sym}: {type(e).__name__} — يُعاد في الحدّ التالي")
+                        continue
+                    if out.get("res") is None:
+                        continue
+                    if out["t_first"] - t_b <= LOOP_OFFSET_S:                # حدٌّ بُدئ في وقته وحدَه يُقاس (لا إقلاعٌ متأخّر)
+                        scanned.append(sym)
+                        if out.get("complete"):
+                            readies.append(out["det"] - t_b)
+                    for a in out["res"]["alerts"]:
+                        k = alert_key(day, sym, a["arm"], a["n"])
+                        if k in used:
+                            continue
+                        used.add(k)
+                        ets = V3.ny_ts(day, a["e"])
+                        fresh = is_fresh(ets, out["det"])
+                        item = {"sym": sym, "a": a, "out": out, "ets": ets, "fresh": fresh, "res": None}
+                        if fresh and send:                              # الإرسالُ لحظةَ اكتمال الشرط — لا بعد الدورة
+                            msg = build_message(dict(a, sym=sym))
+                            if inline:
+                                item["res"] = _send_measured(sender, msg, now_fn)
+                            else:
+                                th = threading.Thread(target=lambda it=item, m=msg: it.__setitem__("res", _send_measured(sender, m, now_fn)),
+                                                      daemon=True)
+                                th.start()
+                                item["th"] = th
+                        sends.append(item)
+            wrote = False
+            for it in sends:
+                if it.get("th") is not None:
+                    it["th"].join(60)
+                ok, t_sent = it["res"] if it["res"] is not None else (False, None)
+                if it["fresh"] and send:
+                    errors["send"] += int(not ok)
+                fresh, a, out, sym = it["fresh"], it["a"], it["out"], it["sym"]
+                reason = None if (fresh and ok) else ("late" if not fresh else ("send_failed" if send else "dry"))
+                lat = lat_parts(it["ets"], out["t_first"], out["det"], out["t_eval"], t_sent if (fresh and send) else None)
+                lat.update({"polls": out["polls"], "bar_complete": out["complete"], "cat_src": a.get("cat_src")})
+                if ws is not None:
+                    wa = ws.arrival(sym, (it["ets"] - 60) * 1000)
+                    lat["ws_s"] = None if wa is None else round(wa - it["ets"], 2)
+                row = ledger_row(day, sym, a, out["det"], bool(fresh and ok), reason, "live", _sha(), a.get("news"), timing=lat)
+                log(f"{'🟠 أُرسل' if row['sent'] else '📝 سُجّل (' + str(reason) + ')'} ${sym} {a['arm']}#{a['n']} عند {_hm(a['e'])} · "
+                    + lat_line(lat))
+                if lat["total_s"] is not None and lat["total_s"] > LAT_WARN_S:
+                    slow_n += 1
+                    log(f"⚠️ تأخّرٌ فوق {LAT_WARN_S}ث: ${sym} {a['arm']}#{a['n']} عند {_hm(a['e'])} — {lat['total_s']}ث "
+                        f"(انتظار {lat['wait_s']} · شموع {lat['bars_s']} · خبر {lat['news_s']} · إرسال {lat['send_s']})")
+                totals.append(lat["total_s"])
+                if send:
+                    append_ledger(row, path)
+                    wrote = True
+                sent_n += int(row["sent"])
+                late_n += int(reason == "late")
+            if wrote:
+                (saver or _bot().git_save)([path])
+            rest_all.extend(readies)
+            wsb = []
+            if ws is not None:                                          # ③ وصولُ شمعة الدقيقة الأخيرة عبر AM لكلّ مرشّحٍ فُحص (ظلٌّ لا قرار)
+                for sym in scanned:
+                    wa = ws.arrival(sym, (t_b - 60) * 1000)
+                    if wa is not None:
+                        wsb.append(wa - t_b)
+                ws_all.extend(wsb)
+            rs, wss = ws_lag_stats(readies), ws_lag_stats(wsb)
+            log(f"⏱️ {_hm(B)} · مرشّحون {len(cands)} · REST جاهزٌ لـ{rs['n']}: وسيط {rs['p50']}ث · أقصى {rs['max']}ث"
+                + (f" · AM وسيط {wss['p50']}ث على {wss['n']} ({ws.status})" if ws is not None else ""))
+    finally:
+        pool.shutdown(wait=False)
+        ppool.shutdown(wait=False)
+        if ws is not None:
+            ws.stop = True
+    if segment in ("close", "single") and send:
+        sleep_fn(max(0.0, V3.ny_ts(day, D.cl) + 300 - now_fn()))
+        if mode_harvest(net, MC, path, now_fn=now_fn):
+            (saver or _bot().git_save)([path])
+    ts_, rs_, ws_ = ws_lag_stats(totals), ws_lag_stats(rest_all), ws_lag_stats(ws_all)
+    log(f"🏁 انتهى المقطع {segment}: مرشّحون {len(cands)} · أُرسل {sent_n} · متأخّر {late_n} · فوق {LAT_WARN_S}ث {slow_n} · "
+        f"نداءات {net.calls} · فشل {net.fails} · أعطال {errors} · التأخّرُ الكلّيّ للتنبيهات: وسيط {ts_['p50']}ث · أقصى {ts_['max']}ث · "
+        f"REST للدقيقة الأخيرة: وسيط {rs_['p50']}ث على {rs_['n']}" + (f" · AM: وسيط {ws_['p50']}ث على {ws_['n']}" if ws is not None else ""))
+    return 3 if (errors["send"] or errors["snapshot"] > 3) else 0
+
+
 def _bot():
     import Super_stock as bot
     return bot
@@ -1070,7 +1523,7 @@ def _bot():
 
 def main(argv=None):
     p = argparse.ArgumentParser()
-    p.add_argument("--mode", default="live", choices=("live", "replay", "trace", "harvest", "probe"))
+    p.add_argument("--mode", default="live", choices=("live", "replay", "trace", "harvest", "probe", "wsprobe"))
     p.add_argument("--days", type=int, default=5)
     p.add_argument("--end", default="")
     p.add_argument("--date", default="2026-10-26")
@@ -1089,6 +1542,8 @@ def main(argv=None):
     if not key:
         log("⛔ لا مفتاح Polygon — لا عمل (يُعلَن ولا يُكتَم)")
         return 2
+    if a.mode == "wsprobe":
+        return mode_wsprobe(key)
     if not ua:
         log("⛔ SEC_CONTACT غيرُ مضبوط — ④ (8-K) مصدرٌ لازم")
         return 2

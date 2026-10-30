@@ -92196,6 +92196,302 @@ check("🟠 VWL19 (‏2026-10-29 · التفعيل) الكروناتُ الأر�
 
 
 
+# ⚡ VLT1-VLT9 (‏2026-10-30 · أمرُ المالك «زخم الفيواب — التأخر: الهدف ≤5 ثوانٍ من إغلاق شمعة 5د إلى الإرسال، بلا تغيير في أي قاعدة»):
+#    المسارُ السريع (`_mode_live_fast`) — يبدأ عند الحدّ +1ث · جلبٌ متوازٍ · ④ مُحضَّرٌ بين الشمعتين · الإرسالُ لحظةَ اكتمال الشرط ·
+#    والقرارُ هو قرارُ الحلقة القديمة بت-بت (`VWL_FAST=0` يُرجعها) · وكلُّ تنبيهٍ تأخّرُه فوق 10ث يُعلَن في السجلّ (قفلُ المالك)
+import os as _vlt_os
+import inspect as _vlt_insp
+
+
+def _vlt_live(net, start_mod, fast, send=True, segment="open", path=None):
+    _old = _vlt_os.environ.get("VWL_FAST")
+    _vlt_os.environ["VWL_FAST"] = "1" if fast else "0"
+    try:
+        import contextlib as _cl
+        import io as _io
+        import tempfile as _t
+        path = path or _t.mktemp(suffix=".jsonl", dir=_t.gettempdir())
+        clock, sent, saved = {"t": _VL3.ny_ts(_VL_DAY, start_mod)}, [], []
+        _buf = _io.StringIO()
+        with _cl.redirect_stdout(_buf):                                   # سجلُّ الحلقة يُلتقط ليُفحص (لا `_vl_live` الذي يبتلعه)
+            rc = _VL.mode_live(net, _VLMC, send, segment, now_fn=lambda: clock["t"],
+                               sleep_fn=lambda s: clock.__setitem__("t", clock["t"] + max(0.0, s)),
+                               sender=lambda m: sent.append(m) or True, saver=lambda f: saved.append(list(f)), path=path)
+        return rc, sent, saved, _VL.read_ledger(path), path, _buf.getvalue()
+    finally:
+        if _old is None:
+            _vlt_os.environ.pop("VWL_FAST", None)
+        else:
+            _vlt_os.environ["VWL_FAST"] = _old
+
+
+def _vlt_core(rows):
+    keep = ("key", "sym", "arm", "n", "event_end_mod", "px", "vwap", "chg", "rvol", "rvol_inf", "cum_dollar", "candle", "above",
+            "ema9", "news", "sent", "reason", "tags", "prev_src", "sic", "ldef")
+    return sorted([tuple((k, json.dumps(r.get(k), sort_keys=True)) for k in keep) for r in rows if r.get("kind") == "alert"])
+
+
+class _VLTLateNet(_VLFakeNet):
+    """دقيقةُ الشمعة الأخيرة تُنشر بعد `lag` جلبةً عند كلّ حدّ (المزوّدُ ينشر خلال ‏≈2ث — مقيس) · و`never` ⟵ لا تُنشر أبدًا (رمزٌ بلا تداول)."""
+
+    def __init__(self, *a, lag=2, never=False, clock=None, **k):
+        _VLFakeNet.__init__(self, *a, **k)
+        self.lag, self.never, self.clock, self.polls = lag, never, clock, {}
+
+    def minutes(self, sym, d_from, d_to):
+        out = _VLFakeNet.minutes(self, sym, d_from, d_to)
+        if sym != "TST" or not (d_from == d_to == _VL_DAY) or self.clock is None:
+            return out
+        now_mod = int((self.clock() - _VL3.ny_ts(_VL_DAY, 0)) // 60)        # دقيقةُ نيويورك الآن
+        B = now_mod                                                         # الحدُّ الذي نحن بعده بثوانٍ
+        n = self.polls.get(B, 0)
+        self.polls[B] = n + 1
+        bars = [b for b in out[_VL_DAY] if b[0] < B]
+        if self.never or n < self.lag:
+            bars = [b for b in bars if b[0] < B - 1]                        # الدقيقةُ الأخيرة لم تُنشر بعد
+        return {_VL_DAY: bars}
+
+
+try:
+    import json
+    _b = _vl_scenario(retests=2)
+    _nw = [_vl_news("GlobeNewswire Inc.")]
+    _rL = _vlt_live(_VLFakeNet(_b, news=_nw), 565, fast=False)
+    _rF = _vlt_live(_VLFakeNet(_b, news=_nw), 565, fast=True)
+    _rLd = _vlt_live(_VLFakeNet(_b, news=_nw), 565, fast=False, send=False)
+    _rFd = _vlt_live(_VLFakeNet(_b, news=_nw), 565, fast=True, send=False)
+    _rowsF = [r for r in _rF[3] if r["kind"] == "alert"]
+    _vlt1 = {
+        "consts": _VL.POLL_STEPS_S[0] == 1 and _VL.POLL_STEPS_S[-1] == _VL.LOOP_OFFSET_S == 25
+                  and list(_VL.POLL_STEPS_S) == sorted(set(_VL.POLL_STEPS_S)) and _VL.LAT_WARN_S == 10 and _VL.PREP_LEAD_S > 0,
+        "default_fast": _VL.fast_on() if _vlt_os.environ.get("VWL_FAST") is None else True,
+        "same_decisions": len(_rowsF) == 3 and _vlt_core(_rL[3]) == _vlt_core(_rF[3]) and len(_rL[1]) == len(_rF[1]) == 3
+                          and [m.split("\n")[0] for m in _rL[1]] == [m.split("\n")[0] for m in _rF[1]],
+        "legacy_untouched": all("lat" not in r for r in _rL[3]) and all("lat" in r for r in _rowsF),
+        "dry_same": _rLd[3] == [] and _rFd[3] == [] and _rLd[1] == [] and _rFd[1] == [] and _rLd[2] == [] and _rFd[2] == [],
+        "save_once_per_boundary": 0 < len(_rF[2]) <= len(_rL[2]),
+    }
+    _vlt1_ok, _vlt1_w = all(_vlt1.values()), str({k: v for k, v in _vlt1.items() if not v} or "كلّها")
+except Exception as _e:                                                     # noqa: BLE001
+    _vlt1_ok, _vlt1_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚡ VLT1 (‏2026-10-30) المسارُ السريع = الحلقةُ القديمة **قرارًا**: التنبيهاتُ نفسُها بحقولها (المفتاح · السعر · الفيواب · ① · ② · الخبر · "
+      "أُرسل/السبب) والرسائلُ نفسُها · `VWL_FAST=0` ⟵ القديمُ بلا حقل `lat` · والتجربةُ الصامتة لا ترسل ولا تكتب في المسارين · "
+      "وثوابتُه: الحدّ +1ث حتى مهلة القديم 25ث · وتنبيهُ الإعلان 10ث", _vlt1_ok, _vlt1_w)
+
+# VLT2 — مراحلُ التأخّر في السجلّ: انتظار · شموع · خبر · إرسال · والكلّيّ = حتى الإرسال · وعلى الشبكة المزيّفة (الدقيقةُ منشورةٌ فورًا)
+#        الكلّيُّ 5 ثوانٍ فأقلّ (الهدف) لكلّ تنبيه · والإرسالُ قبل حفظ السجلّ (لحظةَ اكتمال الشرط)
+try:
+    _lat = [r["lat"] for r in _rowsF]
+    _vlt2 = {
+        "fields": all(set(("wait_s", "bars_s", "news_s", "send_s", "total_s", "polls", "bar_complete", "cat_src")) <= set(x) for x in _lat),
+        "sum": all(abs((x["wait_s"] + x["bars_s"] + x["news_s"] + x["send_s"]) - x["total_s"]) < 0.02 for x in _lat),
+        "target": all(x["total_s"] is not None and x["total_s"] <= 5 for x in _lat) and all(x["wait_s"] == 1.0 for x in _lat),
+        "parts_pure": _VL.lat_parts(100.0, 101.0, 103.5, 104.0, 104.5) == {"wait_s": 1.0, "bars_s": 2.5, "news_s": 0.5, "send_s": 0.5,
+                                                                            "total_s": 4.5}
+                      and _VL.lat_parts(100.0, 101.0, 102.0, 103.0, None)["total_s"] == 3.0,
+        "log_line": all(f"${r['sym']} {r['arm']}#{r['n']}" in _rF[5] for r in _rowsF) and "(انتظار 1.0 · شموع" in _rF[5],
+        "no_cmp": not any(c in _VL.lat_line(_lat[0]) for c in "<>≤≥"),
+    }
+    _vlt2_ok, _vlt2_w = all(_vlt2.values()), str({k: v for k, v in _vlt2.items() if not v} or _lat[:1])
+except Exception as _e:                                                     # noqa: BLE001
+    _vlt2_ok, _vlt2_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚡ VLT2 مراحلُ التأخّر لكلّ تنبيه في السجلّ (انتظارُ الحدّ · جلبُ الشموع · الخبر · الإرسال) ومجموعُها = الكلّيّ · والكلّيُّ 5 ثوانٍ فأقلّ "
+      "حين تُنشر الدقيقةُ فورًا (الانتظارُ ثانيةٌ واحدة لا 25) · وسطرُ السجلّ يطبعها بلا علامات مقارنة", _vlt2_ok, _vlt2_w)
+
+# VLT3 — انتظارُ الدقيقة الأخيرة: تُعاد الجلبةُ حتى تُنشر (‏+1 · +2 · +3ث) فالقرارُ على الشمعة كاملة · ورمزٌ لا تُنشر دقيقتُه يُقيَّم
+#        عند مهلة القديم (25ث) بما وُجد — كما كان · والقرارُ في الحالتين مطابقٌ للقديم
+try:
+    _ck = {"t": 0.0}
+    _clk = lambda: _ck["t"]                                                 # noqa: E731
+    _nL = _VLTLateNet(_b, news=_nw, lag=2, clock=_clk)
+    _ck["t"] = _VL3.ny_ts(_VL_DAY, 610) + 0.0
+    _br, _tr, _np, _cp, _tf = _VL.fetch_ready(_nL, "TST", _VL_DAY, 610, _VL3.ny_ts(_VL_DAY, 610), _clk,
+                                              lambda s: _ck.__setitem__("t", _ck["t"] + max(0.0, s)))
+    _nN = _VLTLateNet(_b, news=_nw, never=True, clock=_clk)
+    _ck["t"] = _VL3.ny_ts(_VL_DAY, 615) + 0.0
+    _brN, _trN, _npN, _cpN, _tfN = _VL.fetch_ready(_nN, "TST", _VL_DAY, 615, _VL3.ny_ts(_VL_DAY, 615), _clk,
+                                                   lambda s: _ck.__setitem__("t", _ck["t"] + max(0.0, s)))
+    _vlt3 = {
+        "lagged": _cp and _np == 3 and abs(_tr - (_VL3.ny_ts(_VL_DAY, 610) + 3)) < 1e-6 and max(b[0] for b in _br) == 609
+                  and abs(_tf - (_VL3.ny_ts(_VL_DAY, 610) + 1)) < 1e-6,
+        "never": (not _cpN) and _npN == len(_VL.POLL_STEPS_S) and abs(_trN - (_VL3.ny_ts(_VL_DAY, 615) + 25)) < 1e-6
+                 and max(b[0] for b in _brN) == 613,
+        "ready_pure": _VL.bar_ready([(609, 1, 1, 1, 1, 1)], 610) and _VL.bar_ready([(611, 1, 1, 1, 1, 1)], 610)
+                      and not _VL.bar_ready([(608, 1, 1, 1, 1, 1)], 610) and not _VL.bar_ready([], 610),
+    }
+    _vlt3_ok, _vlt3_w = all(_vlt3.values()), str({k: v for k, v in _vlt3.items() if not v} or "كلّها")
+except Exception as _e:                                                     # noqa: BLE001
+    _vlt3_ok, _vlt3_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚡ VLT3 لا يُقيَّم على شمعةٍ ناقصة: الجلبُ يُعاد حتى تُنشر الدقيقةُ الأخيرة (‏+1 · +2 · +3ث ⟵ جاهزةٌ عند +3) · ورمزٌ لا تُنشر "
+      "دقيقتُه يُقيَّم عند مهلة القديم 25ث بما وُجد (كما كان) — `bar_ready` = الدقيقةُ B−1 أو بعدها", _vlt3_ok, _vlt3_w)
+
+# VLT4 — ④ المُحضَّر: يُقبل حين يُثبت الخبر (لا جلبَ أخبارٍ عند الكشف) · ويُجلب عند الكشف حين لا يُثبت (خبرٌ نُشر بعد التحضير وقبل
+#        نهاية الحدث) فيُطلق كالقديم · ولا خبرَ في الحالين ⟵ لا تنبيه
+try:
+    class _VLTNewsCount(_VLFakeNet):
+        def __init__(self, *a, **k):
+            _VLFakeNet.__init__(self, *a, **k)
+            self.news_calls = 0
+
+        def news(self, sym, a_iso, b_iso):
+            self.news_calls += 1
+            return _VLFakeNet.news(self, sym, a_iso, b_iso)
+    _bb = _vl_scenario()
+    _D4 = _VL.Day(_VLTNewsCount(_bb, news=[_vl_news("GlobeNewswire Inc.")]), _VL_DAY, _VLMC)
+    _pre = _D4.cat_fetch("TST", _VL3.ny_ts(_VL_DAY, 600))
+    _n0 = _D4.net.news_calls
+    _res_pre = _VL.scan_symbol(_D4, "TST", _bb, 615, _VL3.ny_ts(_VL_DAY, 615) + 2, pre_cat=_pre)
+    _n_after = _D4.net.news_calls
+    _late_item = _vl_news("GlobeNewswire Inc.", mod=608)                     # نُشر 10:08 — بعد التحضير (10:00) وقبل نهاية A (10:10)
+    _D5 = _VL.Day(_VLTNewsCount(_bb, news=[_late_item]), _VL_DAY, _VLMC)
+    _pre5 = _D5.cat_fetch("TST", _VL3.ny_ts(_VL_DAY, 600))
+    _res5 = _VL.scan_symbol(_D5, "TST", _bb, 615, _VL3.ny_ts(_VL_DAY, 615) + 2, pre_cat=_pre5)
+    _res5L = _VL.scan_symbol(_VL.Day(_VLTNewsCount(_bb, news=[_late_item]), _VL_DAY, _VLMC), "TST", _bb, 615, _VL3.ny_ts(_VL_DAY, 615) + 2)
+    _D6 = _VL.Day(_VLTNewsCount(_bb, news=[]), _VL_DAY, _VLMC)
+    _res6 = _VL.scan_symbol(_D6, "TST", _bb, 615, _VL3.ny_ts(_VL_DAY, 615) + 2, pre_cat=_D6.cat_fetch("TST", _VL3.ny_ts(_VL_DAY, 600)))
+    _vlt4 = {
+        "pre_used": [a["arm"] for a in _res_pre["alerts"]] == ["A"] and _res_pre["alerts"][0]["cat_src"] == "pre" and _n_after == _n0,
+        "fresh_when_unproven": [a["arm"] for a in _res5["alerts"]] == [a["arm"] for a in _res5L["alerts"]] == ["A"]
+                               and _res5["alerts"][0]["cat_src"] == "fresh" and _res5["alerts"][0]["news"] == _res5L["alerts"][0]["news"],
+        "none": _res6["alerts"] == [],
+    }
+    _vlt4_ok, _vlt4_w = all(_vlt4.values()), str({k: v for k, v in _vlt4.items() if not v} or "كلّها")
+except Exception as _e:                                                     # noqa: BLE001
+    _vlt4_ok, _vlt4_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚡ VLT4 ④ المُحضَّرُ بين الشمعتين يُقبل حين يُثبت الخبر (لا جلبَ عند الكشف) · وحين لا يُثبت (خبرٌ بعد التحضير وقبل نهاية الحدث) "
+      "يُجلب عند الكشف فيُطلق كالقديم بالخبر نفسِه · ولا خبر ⟵ لا تنبيه", _vlt4_ok, _vlt4_w)
+
+# VLT5 — قفلُ المالك: أيُّ تنبيهٍ تأخّرُه الكلّيُّ فوق 10 ثوانٍ يُعلَن في السجلّ (سطرُ «⚠️ تأخّرٌ فوق 10ث» بمراحله) · وما دونه لا يُعلَن
+try:
+    _ck2 = {"t": 0.0}
+    _nS = _VLTLateNet(_b, news=_nw, never=True, clock=lambda: _ck2["t"])
+    _old5 = _vlt_os.environ.get("VWL_FAST")
+    _vlt_os.environ["VWL_FAST"] = "1"
+    import contextlib as _cl5
+    import io as _io5
+    import tempfile as _t5
+    _p5 = _t5.mktemp(suffix=".jsonl", dir=_t5.gettempdir())
+    _ck2["t"] = _VL3.ny_ts(_VL_DAY, 565)
+    _buf5 = _io5.StringIO()
+    try:
+        with _cl5.redirect_stdout(_buf5):
+            _VL.mode_live(_nS, _VLMC, True, "open", now_fn=lambda: _ck2["t"],
+                          sleep_fn=lambda s: _ck2.__setitem__("t", _ck2["t"] + max(0.0, s)),
+                          sender=lambda m: True, saver=lambda f: None, path=_p5)
+    finally:
+        if _old5 is None:
+            _vlt_os.environ.pop("VWL_FAST", None)
+        else:
+            _vlt_os.environ["VWL_FAST"] = _old5
+    _rows5 = [r for r in _VL.read_ledger(_p5) if r["kind"] == "alert"]
+    _log5 = _buf5.getvalue()
+    _warn5 = [ln for ln in _log5.splitlines() if ln.startswith("⚠️ تأخّرٌ فوق 10ث")]
+    _vlt5 = {
+        "slow_announced": _rows5 and all(r["lat"]["total_s"] > 10 for r in _rows5) and len(_warn5) == len(_rows5)
+                          and all(f"${r['sym']} {r['arm']}#{r['n']}" in "\n".join(_warn5) for r in _rows5),
+        "fast_silent": "⚡ المسارُ السريع" in _rF[5] and "⚠️ تأخّرٌ فوق" not in _rF[5],
+        "summary": f"فوق {_VL.LAT_WARN_S}ث {len(_rows5)}" in _log5,
+        "branch_ast": any(isinstance(n, _vl_ast.Compare) and "LAT_WARN_S" in _vl_ast.unparse(n)
+                          for n in _vl_ast.walk(_vl_ast.parse(_vlt_insp.getsource(_VL._mode_live_fast)))),
+    }
+    _vlt5_ok, _vlt5_w = all(_vlt5.values()), str({k: v for k, v in _vlt5.items() if not v} or _warn5[:1])
+except Exception as _e:                                                     # noqa: BLE001
+    _vlt5_ok, _vlt5_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚡ VLT5 (قفلُ المالك) أيُّ تنبيهٍ تأخّرُه الكلّيُّ فوق 10 ثوانٍ يُعلَن في السجلّ بسطرٍ «⚠️ تأخّرٌ فوق 10ث» باسمه ومراحله (دقيقةٌ أخيرة لا "
+      "تُنشر ⟵ 25ث فأكثر ⟵ يُعلَن) · والسريعُ لا يُعلَن · وعدّادُه في خاتمة المقطع", _vlt5_ok, _vlt5_w)
+
+# VLT6 — `send_telegram(on_admin=)`: يُنادى مرّةً واحدةً عند قبول تيلغرام لرسالة المشرف (أوّلُ المستلمين) · والغيابُ بت-بت (نداءاتٌ قائمة)
+try:
+    _tok6, _cht6, _post6, _sl6 = S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT, S.requests.post, S.time.sleep
+    _seen6, _cb6 = [], []
+
+    class _R6:
+        status_code, text = 200, "ok"
+    S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT = "1:x", "111,222"
+    S.requests.post = lambda url, json=None, timeout=None, **k: (_seen6.append(json["chat_id"]), _R6())[1]
+    S.time.sleep = lambda s: None
+    try:
+        _ok6 = S.send_telegram("مرحبا", on_admin=lambda: _cb6.append(list(_seen6)))
+        _ok6b = S.send_telegram("مرحبا")
+    finally:
+        S.TELEGRAM_TOKEN, S.TELEGRAM_CHAT, S.requests.post, S.time.sleep = _tok6, _cht6, _post6, _sl6
+    _vlt6 = {"once_admin": _ok6 and _cb6 == [["111"]], "default": _ok6b and _seen6 == ["111", "222", "111", "222"],
+             "sig": list(_vlt_insp.signature(S.send_telegram).parameters) == ["text", "on_admin"]
+                    and _vlt_insp.signature(S.send_telegram).parameters["on_admin"].default is None}
+    _vlt6_ok, _vlt6_w = all(_vlt6.values()), str({k: v for k, v in _vlt6.items() if not v} or "كلّها")
+except Exception as _e:                                                     # noqa: BLE001
+    _vlt6_ok, _vlt6_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚡ VLT6 `send_telegram(on_admin=)` يُبلغ لحظةَ قبول رسالة المشرف مرّةً واحدة (لا عند الصديق) · وبلا الوسيط السلوكُ نفسُه للنداءات القائمة",
+      _vlt6_ok, _vlt6_w)
+
+# VLT7 — ③ ظلُّ AM: يقرأ الحالةَ والشموعَ ولحظةَ الوصول ويقلّم القديم · ومصادقةٌ مرفوضة ⟵ يتوقّف الظلُّ وحدَه · والفحصُ العالقُ ينتهي بالحارس (4)
+try:
+    import json as _j7
+    _w7 = _VL.WSShadow("k")
+    _w7.handle(_j7.dumps([{"ev": "status", "status": "auth_success", "message": "authenticated"}]), 0.0)
+    _w7.handle(_j7.dumps([{"ev": "AM", "sym": "tst", "s": 60000, "e": 120000}, {"ev": "AM", "sym": "X", "s": 0, "e": 60000}]), 121.5)
+    _w7.handle("ليس json", 122.0)
+    _arr7 = _w7.arrival("TST", 60000)
+    _w7.prune(60000 / 1000.0 + _VL.WSShadow.KEEP_S + 1)
+
+    class _C7:
+        def __init__(self, msgs):
+            self.m = list(msgs)
+
+        def recv(self):
+            if not self.m:
+                raise type("WebSocketTimeoutException", (Exception,), {})()
+            return self.m.pop(0)
+
+        def send(self, x):
+            return None
+
+        def close(self):
+            return None
+
+    class _H7:
+        def recv(self):
+            import time as _tt
+            _tt.sleep(3)
+            return ""
+
+        def send(self, x):
+            return None
+
+        def close(self):
+            return None
+    import contextlib as _cl7
+    import io as _io7
+    with _cl7.redirect_stdout(_io7.StringIO()):
+        _rc7 = _VL.mode_wsprobe("k", listen_s=0.3, conn_fn=lambda u: _C7([_j7.dumps([{"ev": "status", "status": "connected"}]),
+                                                                          _j7.dumps([{"ev": "status", "status": "auth_failed",
+                                                                                      "message": "no plan"}])]), grace_s=0.5)
+        _rc7h = _VL.mode_wsprobe("k", listen_s=0.1, conn_fn=lambda u: _H7(), grace_s=0.3)
+    _vlt7 = {"status": _w7.status.startswith("auth_success"), "arrival": _arr7 == 121.5 and _w7.events == 2,
+             "pruned": _w7.arrival("X", 0) is None, "auth_fail": _rc7 == 4, "hang": _rc7h == 4,
+             "stats": _VL.ws_lag_stats([3.0, 1.0, 2.0]) == {"n": 3, "p50": 2.0, "p90": 3.0, "max": 3.0}
+                      and _VL.ws_lag_stats([None])["n"] == 0}
+    _vlt7_ok, _vlt7_w = all(_vlt7.values()), str({k: v for k, v in _vlt7.items() if not v} or "كلّها")
+except Exception as _e:                                                     # noqa: BLE001
+    _vlt7_ok, _vlt7_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚡ VLT7 ③ ظلُّ قناة AM يقيس ولا يقرّر: الحالةُ ولحظةُ وصول كلّ شمعة والتقليم · ومصادقةٌ مرفوضة ⟵ 4 · والفحصُ العالقُ ينتهي بالحارس "
+      "(علق الفحصُ الأوّل 15 د بلا سطر)", _vlt7_ok, _vlt7_w)
+
+# VLT8 — الوصل: المقطعان الحيّان يُشغّلان ظلَّ AM (`VWL_WS=1`) ولا يُطفئان المسارَ السريع · والدفترُ يحمل ثوابتَه وقفلَ المالك
+try:
+    _wf8 = _vl_yaml.safe_load(open(".github/workflows/vwap_momentum_live.yml", encoding="utf-8"))
+    _env8 = {j: {k: str(v) for st in _wf8["jobs"][j]["steps"] for k, v in (st.get("env") or {}).items()} for j in ("open_segment", "close_segment")}
+    _led8 = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _vlt8 = {"ws_on": all(e.get("VWL_WS") == "1" for e in _env8.values()),
+             "fast_not_off": all(e.get("VWL_FAST", "1") != "0" for e in _env8.values()),
+             "ledger": all(x in _led8 for x in ("`POLL_STEPS_S`", "`LAT_WARN_S`", "`PREP_LEAD_S`", "`VWL_WS=1`", "`VWL_FAST=0`")),
+             "offline_no_ws": "VWL_WS" not in str(_wf8["jobs"]["offline"])}
+    _vlt8_ok, _vlt8_w = all(_vlt8.values()), str({k: v for k, v in _vlt8.items() if not v} or "كلّها")
+except Exception as _e:                                                     # noqa: BLE001
+    _vlt8_ok, _vlt8_w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚡ VLT8 الوصل: مقطعا الافتتاح والإغلاق يُشغّلان ظلَّ AM ولا يُطفئان المسارَ السريع · والدفترُ يحمل ثوابتَه وقفلَ المالك (10ث)",
+      _vlt8_ok, _vlt8_w)
+
 # BKD1-BKD6 (‏2026-10-29 · أمرُ المالك «طبّق المتاح المعلوم خلال 7 أيام» · عطلٌ مُثبَت في تقرير الجزء أ §أ1-د ①): المختارُ الذي بقي متاحُه مجهولًا
 #        بعد الحصاد والموقع يُحكم بآخر متاحٍ معلومٍ خلال `BORROW_KNOWN_DAYS` من `ctb_log.jsonl` ∪ `borrow_watch.jsonl` — للبوّابة وحدَها
 #        (`borrow_known` لا `shares_available`) · و`0` ⟵ فائدةُ الشك بت-بت · وشاهدُ 10-27 من ملفّات البوت نفسِها: BCTX · PLSM · FRSX · ASPC

@@ -181,6 +181,7 @@ jobs:
           VWL_SEND: ${{ github.event_name == 'schedule' && '1' || github.event.inputs.send }}
           VWL_SEGMENT: "open"
           VWL_MAX_RUNTIME_MIN: "340"
+          VWL_WS: "1"                 # ③ ظلُّ قناة AM يقيس وصولَ الشمعة مقابل REST ولا يقرّر (wsprobe ‏41023851400: مصادقةٌ ناجحة · وصولٌ ‏≈1.03ث)
           PYTHONUNBUFFERED: "1"
         run: python vwap_momentum_live.py --mode live
 
@@ -209,5 +210,6 @@ jobs:
           VWL_SEND: ${{ github.event_name == 'schedule' && '1' || github.event.inputs.send }}
           VWL_SEGMENT: "close"
           VWL_MAX_RUNTIME_MIN: "340"
+          VWL_WS: "1"                 # ③ ظلُّ قناة AM يقيس وصولَ الشمعة مقابل REST ولا يقرّر (wsprobe ‏41023851400: مصادقةٌ ناجحة · وصولٌ ‏≈1.03ث)
           PYTHONUNBUFFERED: "1"
         run: python vwap_momentum_live.py --mode live
