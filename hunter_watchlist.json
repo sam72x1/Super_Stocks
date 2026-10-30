@@ -24,10 +24,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 1.46,
-   "last_bar": "2026-10-28",
-   "dollar_vol": 5498873.0,
-   "move_pct": 44.6,
+   "last_price": 1.17,
+   "last_bar": "2026-10-29",
+   "dollar_vol": 5566953.0,
+   "move_pct": 15.8,
    "stopped_at": "2026-10-15"
   },
   {
@@ -54,10 +54,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 2.3,
-   "last_bar": "2026-10-28",
-   "dollar_vol": 5196632.0,
-   "move_pct": 17.3,
+   "last_price": 2.225,
+   "last_bar": "2026-10-29",
+   "dollar_vol": 5078959.0,
+   "move_pct": 13.5,
    "stopped_at": "2026-10-20"
   },
   {
@@ -84,10 +84,10 @@
     }
    ],
    "status": "active",
-   "last_price": 0.9702,
-   "last_bar": "2026-10-28",
-   "dollar_vol": 155641.0,
-   "move_pct": -37.0
+   "last_price": 1.04,
+   "last_bar": "2026-10-29",
+   "dollar_vol": 152399.0,
+   "move_pct": -32.5
   },
   {
    "symbol": "AEMD",
@@ -113,10 +113,10 @@
     }
    ],
    "status": "active",
-   "last_price": 5.55,
-   "last_bar": "2026-10-28",
-   "dollar_vol": 343341.0,
-   "move_pct": 187.6
+   "last_price": 5.52,
+   "last_bar": "2026-10-29",
+   "dollar_vol": 325579.0,
+   "move_pct": 186.0
   },
   {
    "symbol": "YHC",
@@ -142,10 +142,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 2.46,
-   "last_bar": "2026-10-28",
-   "dollar_vol": 808347.0,
-   "move_pct": 65.1,
+   "last_price": 2.45,
+   "last_bar": "2026-10-29",
+   "dollar_vol": 811906.0,
+   "move_pct": 64.4,
    "stopped_at": "2026-09-16"
   },
   {
@@ -172,10 +172,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 1.15,
-   "last_bar": "2026-10-28",
-   "dollar_vol": 63925.0,
-   "move_pct": -36.5,
+   "last_price": 1.1,
+   "last_bar": "2026-10-29",
+   "dollar_vol": 61668.0,
+   "move_pct": -39.2,
    "stopped_at": "2026-09-30"
   },
   {
@@ -202,10 +202,10 @@
     }
    ],
    "status": "active",
-   "last_price": 2.51,
-   "last_bar": "2026-10-28",
-   "dollar_vol": 2818803.0,
-   "move_pct": 25.5
+   "last_price": 2.52,
+   "last_bar": "2026-10-29",
+   "dollar_vol": 2825128.0,
+   "move_pct": 26.0
   },
   {
    "symbol": "CTNT",
@@ -231,10 +231,10 @@
     }
    ],
    "status": "active",
-   "last_price": 2.17,
-   "last_bar": "2026-10-28",
-   "dollar_vol": 1316301.0,
-   "move_pct": 0.0
+   "last_price": 2.23,
+   "last_bar": "2026-10-29",
+   "dollar_vol": 1284793.0,
+   "move_pct": 2.8
   }
  ],
  "added_last": [],
