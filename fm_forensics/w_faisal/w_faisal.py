@@ -10,7 +10,7 @@
     measure_prep    §⑤ (بأمر «ابن W» · الملحق 1) الأحداثُ ‏+ C1 ‏+ C2 ⟵ مواصفاتُ الصفقات وطلباتُ الاقتباس — بلا عائدٍ يُطبع
     measure_quotes  §⑤ NBBO `/v3/quotes` لشريحة طلبات (SHARD)
     measure_final   §⑤-§⑦ الكلفة ⟵ G50/G100 ⟵ الفروق ⟵ البوتستراب ⟵ الحكمُ بالأضعف · والسلّمُ وصفٌ بجانبه
-    --guards        حرّاسٌ اصطناعيّة بلا شبكة (WF1-WF31)
+    --guards        حرّاسٌ اصطناعيّة بلا شبكة (WF1-WF32)
 والبصمةُ `CONTRACT_SHA` تُفحص قبل أيّ شبكة ⟵ عدمُ المطابقة خروج 9 · وأوضاعُ القياس تشترط معها `ADDENDUM_SHA`.
 """
 import bisect
@@ -1091,8 +1091,10 @@ def _session():
 
 def fetch_quote(sym, lt_s, gte_s, key, tries=4):
     """الملحق ③-7: آخرُ اقتباسٍ قبل `lt_s` وليس قبل `gte_s` ⟵ (حالة · bid · ask)."""
-    url = "https://api.polygon.io/v3/quotes"
-    params = {"ticker": sym, "timestamp.lt": int(lt_s) * 1_000_000_000, "timestamp.gte": int(gte_s) * 1_000_000_000,
+    from urllib.parse import quote as _q
+    # 🩹 (2026-10-31 · عطلٌ مُثبَت: التشغيلة 41233678707 ⟵ 781,220 طلبًا كلُّها 404) الرمزُ في المسار `/v3/quotes/{sym}` لا معاملًا — كما `nbbo_probe.py`
+    url = "https://api.polygon.io/v3/quotes/" + _q(str(sym), safe="")
+    params = {"timestamp.lt": int(lt_s) * 1_000_000_000, "timestamp.gte": int(gte_s) * 1_000_000_000,
               "order": "desc", "sort": "timestamp", "limit": 1}
     for i in range(tries):
         try:
@@ -1600,7 +1602,31 @@ def guards():
         import shutil as _sh
         _sh.rmtree(tmp31, ignore_errors=True)
     g("WF31 السلسلة مصغّرةً: عددُ أحداثٍ لا يطابق ⟵ خروج 5 بلا ملفّ صفقات · ومطابقٌ ⟵ تحضيرٌ 0 ثمّ حكمٌ 0 ببصمة الملحق", ok31, det31)
-    log(f"🧾 الحرّاس: {31 - len(fails)} من 31" + (f" · ساقط: {fails}" if fails else ""))
+    # WF32 الاقتباس: الرمزُ في المسار (لا معاملًا) · النانوثانية · الأحدثُ أوّلًا · وقراءةُ bid/ask
+    seen32 = []
+
+    class _R:
+        status_code = 200
+
+        def json(self):
+            return {"results": [{"bid_price": 1.0, "ask_price": 1.02, "sip_timestamp": 1}]}
+
+    class _S:
+        def get(self, url, params=None, headers=None, timeout=None):
+            seen32.append((url, dict(params or {})))
+            return _R()
+    _sv32 = globals()["_session"]
+    try:
+        globals()["_session"] = lambda: _S()
+        q32 = fetch_quote("AB.C", 1700000060, 1700000000, "k")
+    finally:
+        globals()["_session"] = _sv32
+    u32, p32 = seen32[0] if seen32 else ("", {})
+    g("WF32 الاقتباس: `/v3/quotes/{الرمز}` في المسار بلا معامل ticker · timestamp بالنانوثانية · desc وlimit 1 ⟵ (ok · 1.0 · 1.02)",
+      u32 == "https://api.polygon.io/v3/quotes/AB.C" and "ticker" not in p32 and p32.get("timestamp.lt") == 1700000060 * 10 ** 9
+      and p32.get("timestamp.gte") == 1700000000 * 10 ** 9 and p32.get("order") == "desc" and p32.get("limit") == 1
+      and q32 == ("ok", 1.0, 1.02), f"{u32} {p32} {q32}")
+    log(f"🧾 الحرّاس: {32 - len(fails)} من 32" + (f" · ساقط: {fails}" if fails else ""))
     return 0 if not fails else 1
 
 
