@@ -193,6 +193,11 @@ def render_hand_check(sym: str, r: dict, df=None) -> str:
     _sdc = bot.split_day_card_line(r.get("split_card"), r.get("price"))
     if _sdc:
         L.append(_sdc)
+    # ⚠️ الذيل (دفعة عرض · أمرُ المالك 2026-10-31): «⚠️ ذيل: أعلى 5 جلسات …» حين يتجاوز 30% — `WICK_WARN=0` ⟵ لا سطرَ هنا كما كان
+    if bot.wick_warn_on():
+        _wk = bot.wick_line(r.get("wick5"))
+        if _wk:
+            L.append(_wk)
     # بصمة طريقة الارتفاع (سياق)
     bh = r.get("behav") or {}
     if bh.get("score") is not None:
@@ -360,6 +365,12 @@ def hand_check(sym: str):
         r["split_ma20"] = bot.ema(df["Close"], 20)
     except Exception:                                            # noqa: BLE001
         r["split_count"], r["split_ma20"] = 0, None
+    # ⚠️ الذيل من الإطار نفسِه (`wick_state` على شموع الفحص) — صفرُ جلبٍ إضافيّ · فاشلٌ-آمن ⇒ None فلا سطر · و`WICK_WARN=0` ⟵ لا حساب
+    try:
+        r["wick5"] = (bot.wick_state(bot._daily_rows_of(df))
+                      if bot.wick_warn_on() and bot.wick_line_on() else None)
+    except Exception:                                            # noqa: BLE001
+        r["wick5"] = None
     # ✂️ بطاقةُ التقسيم (تطبيق فيصل) من `sp` والإطار نفسَيهما — صفرُ جلبٍ إضافيّ · فاشلةٌ-آمنة ⇒ None فلا سطر.
     try:
         r["split_card"] = bot.split_day_card(df, sp, dt.date.today())
