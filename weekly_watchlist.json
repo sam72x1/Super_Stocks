@@ -371,7 +371,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.665
+   "last_price": 1.665,
+   "live_alert": {}
   },
   {
    "symbol": "CIIT",
@@ -735,7 +736,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.7
+   "last_price": 1.7,
+   "live_alert": {}
   },
   {
    "symbol": "FBGL",
@@ -1098,7 +1100,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.21
+   "last_price": 2.21,
+   "live_alert": {}
   },
   {
    "symbol": "CCHH",
@@ -1465,7 +1468,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.8892
+   "last_price": 0.8892,
+   "live_alert": {}
   },
   {
    "symbol": "BYND",
@@ -8237,8 +8241,8 @@
    "country": "Malaysia",
    "float": 1498032,
    "last_price": 0.5901,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-31"
   },
   {
    "symbol": "FMFC",
@@ -8271,8 +8275,8 @@
    "country": "Cambodia",
    "float": 208080,
    "last_price": 3.38,
-   "status": "watching",
-   "triggered_date": null
+   "status": "triggered",
+   "triggered_date": "2026-10-31"
   }
  ],
  "history": [
