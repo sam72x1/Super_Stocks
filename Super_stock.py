@@ -9894,7 +9894,8 @@ def split_filter_stop(df, seq):
 
 # 🔸 G2 «ثبات الدعم الثاني» في فلتر المقسّم: من رفضٍ صلب إلى نقصٍ لين يُعرض سطرًا (أمرُ المالك 2026-10-31 · بعد `T-SPLITGATES`):
 #    G2 وحدَها ترفض 13 من وحدات فيصل · ولا فرقَ مقيس على مستوى الحلقة (`SPLIT_GATES_ADDENDUM_1_RESULT.md` 32.2% مقابل 25.4% «لا فرق
-#    قابل للكشف») · والتسامحُ 1.5% (`METHOD_HOLD_TOL`) والنافذةُ 30 (`FAISAL_BOTTOM_LOOKBACK`) هندسيّان ⟵ مَن لم يكتمل تسلسلُه يمضي إلى
+#    قابل للكشف») · والتسامحُ 1.5% (`METHOD_HOLD_TOL`) والنافذةُ 30 (`FAISAL_BOTTOM_LOOKBACK`) هندسيّان ⟵ مَن لم يكتمل تسلسلُه **وارتدّ من
+#    قاع النافذة رقمَ فيصل `METHOD_BOUNCE_MIN_PCT` (10%) فأكثر** (أمرُ المالك الثاني في اليوم نفسِه · `g2_soft_ok`) يمضي إلى
 #    الشروط التالية كما هي (الطلبات · القروبات · الأخبار · الشورت) بقاعِ النافذة (`g2_soft_facts` توأمُ `split_gates.low_facts`) ويُعرَض بسطر
 #    «🔸» · والمكتملُ يتقدّم في الترتيب فلا تُزيحه الليونة عن السقف · `SPLIT_G2_HARD=1` ⟵ الرفضُ الصلب بت-بت.
 SPLIT_G2_HARD_ENV = "SPLIT_G2_HARD"
@@ -9929,6 +9930,17 @@ def g2_soft_facts(df, win):
         if pk < n - 1:
             f["retest_gap_pct"] = round((min(lo[pk + 1:]) / low - 1.0) * 100.0, 2)
     return f
+
+
+def g2_soft_ok(f) -> bool:
+    """🔸 هل يُرسَل اللين؟ (أمرُ المالك 2026-10-31 الثاني: «ارتدّ ≥10% ولم تكتمل العودة = لين يُرسل · لم يرتدّ = لا يُرسل»):
+    الارتدادُ من قاع النافذة **10% فأكثر** — رقمُ فيصل نفسُه `METHOD_BOUNCE_MIN_PCT` (`IMG_0486`) يُقرأ **بالاسم وقتَ النداء** ·
+    والليونةُ على الهندسيّ وحدَه (التسامحُ 1.5% · النافذةُ 30 · «لا إغلاق تحت القاع») · والغائبُ أو التالفُ ⟵ لا (فاشلٌ-آمن)."""
+    try:
+        return (float((f or {}).get("low") or 0) > 0 and (f or {}).get("bounce_pct") is not None
+                and float(f["bounce_pct"]) >= float(CONFIG["METHOD_BOUNCE_MIN_PCT"]))
+    except (TypeError, ValueError, KeyError):
+        return False
 
 
 def g2_soft_line(f) -> str:
@@ -10003,9 +10015,11 @@ def scan_split_filter(history, today=None, fetch_splits=None, fetch_pump=None,
                     continue
                 # 🔸 نقصٌ لين: يمضي بقاع النافذة إلى الشروط التالية كما هي
                 g2f = g2_soft_facts(df, int(CONFIG["FAISAL_BOTTOM_LOOKBACK"]))
-                if not (g2f and float(g2f.get("low") or 0) > 0):
-                    _sf_near(sym, price, "لم يكتمل ثبات الدعم الثاني "
-                             "(ارتداد 10% ثم رجوعٌ يثبت)", probe)
+                if not g2_soft_ok(g2f):     # 🔸 لم يرتدّ رقمَ فيصل ⟵ لا يُرسَل (الليونةُ على الهندسيّ وحدَه)
+                    _b = (g2f or {}).get("bounce_pct")
+                    _sf_near(sym, price, f"لم يكتمل ثبات الدعم الثاني — لم يرتدّ "
+                             f"{float(CONFIG['METHOD_BOUNCE_MIN_PCT']):.0f}% من القاع بعد"
+                             + (f" (ارتداد {float(_b):.0f}%)" if _b is not None else ""), probe)
                     continue
                 seq = {"ok": False, "bottom": float(g2f["low"]), "bounce_pct": g2f.get("bounce_pct"), "touches": None}
             else:
