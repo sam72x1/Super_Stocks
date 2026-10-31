@@ -9892,6 +9892,54 @@ def split_filter_stop(df, seq):
         return None, None
 
 
+# 🔸 G2 «ثبات الدعم الثاني» في فلتر المقسّم: من رفضٍ صلب إلى نقصٍ لين يُعرض سطرًا (أمرُ المالك 2026-10-31 · بعد `T-SPLITGATES`):
+#    G2 وحدَها ترفض 13 من وحدات فيصل · ولا فرقَ مقيس على مستوى الحلقة (`SPLIT_GATES_ADDENDUM_1_RESULT.md` 32.2% مقابل 25.4% «لا فرق
+#    قابل للكشف») · والتسامحُ 1.5% (`METHOD_HOLD_TOL`) والنافذةُ 30 (`FAISAL_BOTTOM_LOOKBACK`) هندسيّان ⟵ مَن لم يكتمل تسلسلُه يمضي إلى
+#    الشروط التالية كما هي (الطلبات · القروبات · الأخبار · الشورت) بقاعِ النافذة (`g2_soft_facts` توأمُ `split_gates.low_facts`) ويُعرَض بسطر
+#    «🔸» · والمكتملُ يتقدّم في الترتيب فلا تُزيحه الليونة عن السقف · `SPLIT_G2_HARD=1` ⟵ الرفضُ الصلب بت-بت.
+SPLIT_G2_HARD_ENV = "SPLIT_G2_HARD"
+
+
+def split_g2_hard() -> bool:
+    """🔸 المفتاحُ وقتَ النداء: «1» حرفيًّا ⟵ G2 صلبةٌ كما كانت · وغيرُه (والغياب) ⟵ نقصٌ لين."""
+    return (os.environ.get(SPLIT_G2_HARD_ENV) or "").strip() == "1"
+
+
+def g2_soft_facts(df, win):
+    """🔸 وصفُ آخر `win` شمعة لسطر النقص اللين — **توأمُ `fm_forensics/split_gates/split_gates.low_facts` حرفيًّا**: أدنى Low (أوّلُ ظهوره)
+    ويومُه · الجلساتُ بعده · أعلى ارتدادٍ بعده % · وأدنى Low بعد تلك القمّة نسبةً إلى القاع % (`retest_gap_pct`). نقيّة · None عند التعذّر."""
+    try:
+        w = df.tail(int(win))
+        lo, hi = [float(x) for x in w["Low"].values], [float(x) for x in w["High"].values]
+    except Exception:                                            # noqa: BLE001
+        return None
+    n = len(lo)
+    if not n or not all(x == x for x in lo + hi):
+        return None
+    j = min(range(n), key=lambda k: lo[k])
+    low = lo[j]
+    try:
+        _ld = w.index[j].date().isoformat()
+    except Exception:                                            # noqa: BLE001
+        _ld = str(w.index[j])[:10]
+    f = {"low": round(low, 4), "low_date": _ld, "bars_after": n - 1 - j, "bounce_pct": None, "retest_gap_pct": None}
+    if j < n - 1 and low > 0:
+        pk = max(range(j + 1, n), key=lambda k: hi[k])
+        f["bounce_pct"] = round((hi[pk] / low - 1.0) * 100.0, 2)
+        if pk < n - 1:
+            f["retest_gap_pct"] = round((min(lo[pk + 1:]) / low - 1.0) * 100.0, 2)
+    return f
+
+
+def g2_soft_line(f) -> str:
+    """🔸 «🔸 ثبات الدعم الثاني: لم يكتمل (ارتداد X% · أقرب عودة Y% من القاع)» — بنصّ المالك · والمجهولُ بكلمته لا برقمٍ مخترَع."""
+    f = f or {}
+    b, g = f.get("bounce_pct"), f.get("retest_gap_pct")
+    _b = f"ارتداد {float(b):.0f}%" if b is not None else "لم يرتدّ بعد"
+    _g = f"أقرب عودة {float(g):.1f}% من القاع" if g is not None else "لم يرجع بعد"
+    return f"🔸 ثبات الدعم الثاني: لم يكتمل ({_b} · {_g})"
+
+
 def scan_split_filter(history, today=None, fetch_splits=None, fetch_pump=None,
                       fetch_borrow=None, fetch_news=None):
     """🧮 **صيّاد «فلترة أسهم التقسيم»** — النوعان ① و② بنصّ فيصل.
@@ -9947,11 +9995,21 @@ def scan_split_filter(history, today=None, fetch_splits=None, fetch_pump=None,
             stage["didnt_rise"] += 1
             # ③ **ثبات الدعم الثاني** — نافذةٌ مشتقّةٌ من الحدث لا ثابتٌ مُبتكَر
             seq = method_sequence(df, win=int(CONFIG["FAISAL_BOTTOM_LOOKBACK"]))
+            g2f = None
             if not (seq and seq.get("ok")):
-                _sf_near(sym, price, "لم يكتمل ثبات الدعم الثاني "
-                         "(ارتداد 10% ثم رجوعٌ يثبت)", probe)
-                continue
-            stage["seq"] += 1
+                if split_g2_hard():
+                    _sf_near(sym, price, "لم يكتمل ثبات الدعم الثاني "
+                             "(ارتداد 10% ثم رجوعٌ يثبت)", probe)
+                    continue
+                # 🔸 نقصٌ لين: يمضي بقاع النافذة إلى الشروط التالية كما هي
+                g2f = g2_soft_facts(df, int(CONFIG["FAISAL_BOTTOM_LOOKBACK"]))
+                if not (g2f and float(g2f.get("low") or 0) > 0):
+                    _sf_near(sym, price, "لم يكتمل ثبات الدعم الثاني "
+                             "(ارتداد 10% ثم رجوعٌ يثبت)", probe)
+                    continue
+                seq = {"ok": False, "bottom": float(g2f["low"]), "bounce_pct": g2f.get("bounce_pct"), "touches": None}
+            else:
+                stage["seq"] += 1
             bot = float(seq["bottom"])
             step = float(CONFIG["FAISAL_LADDER_STEP"])
             # 📥 «تطلبه طلبًا 2.05 · 2.10 · 2.15» — سلّمٌ **صاعد** من فوق القاع
@@ -9961,6 +10019,8 @@ def scan_split_filter(history, today=None, fetch_splits=None, fetch_pump=None,
             stop, stop_kind = split_filter_stop(df, seq)
             if stop is None:
                 continue
+            if g2f is not None and stop_kind == "قاع التسلسل":
+                stop_kind = "قاع النافذة"   # 🔸 لا تسلسلَ مكتملًا ⟵ الاسمُ الصادق
             if price > max(entries):        # 🎯 قابليةُ التنفيذ الآن
                 _sf_near(sym, price, f"تجاوز منطقة الطلبات (${max(entries):.2f})",
                          probe)
@@ -10004,12 +10064,14 @@ def scan_split_filter(history, today=None, fetch_splits=None, fetch_pump=None,
                 "stop": stop, "stop_kind": stop_kind,
                 "avail": av, "borrow_fee": (bor or {}).get("fee_pct"),
                 "df": df})
+            if g2f is not None:             # 🔸 نقصٌ لين (لا حقلَ في الصلب ⟵ الصفُّ بت-بت)
+                rows[-1].update(g2_soft=True, g2_facts=g2f, g2_line=g2_soft_line(g2f))
         except Exception:                                        # noqa: BLE001
             continue
     _SPLIT_FILTER_NEAR.sort(key=lambda n: n.get("price") or 0)
     _SPLIT_FILTER_STAGE.clear()
     _SPLIT_FILTER_STAGE.update(stage, matched=len(rows))
-    rows.sort(key=lambda r: r["symbol"])
+    rows.sort(key=lambda r: (bool(r.get("g2_soft")), r["symbol"]))   # 🔸 المكتملُ أوّلًا (والصلبُ بلا لين ⟵ بالرمز بت-بت)
     log(f"🧮 فلترة التقسيم: فوق أرضية السعر {stage['price']} · setup تقسيم "
         f"{stage['split_setup']} · لم يصعد {stage['didnt_rise']} · ثبات الدعم "
         f"الثاني {stage['seq']} · داخل الطلبات {stage['entry_zone']} · "
@@ -10029,7 +10091,9 @@ def build_split_filter_alert(rows: list, today=None) -> str:
     if not rows:
         return ""
     d = today or dt.date.today()
-    lines = [f"🧮 <b>فلترة أسهم التقسيم</b> (فيصل · {len(rows)} مطابق) — {d}",
+    _soft_n = sum(1 for r in rows if r.get("g2_soft"))
+    _cnt = (f"{len(rows) - _soft_n} مطابق كامل · {_soft_n} بنقصٍ لين 🔸" if _soft_n else f"{len(rows)} مطابق")
+    lines = [f"🧮 <b>فلترة أسهم التقسيم</b> (فيصل · {_cnt}) — {d}",
              "<i>مقسّم ⟶ هبوط 50% ⟶ ما صعد أكثر من 20% ⟶ ثبات الدعم الثاني</i>",
              ""]
     for r in rows:
@@ -10041,9 +10105,12 @@ def build_split_filter_alert(rows: list, today=None) -> str:
                      f"${float(r.get('half') or 0):.2f}"
                      + (f" · صعد {float(r['rose_pct']):.0f}% فقط"
                         if r.get("rose_pct") is not None else ""))
-        lines.append(f"  🪜 ثبات الدعم الثاني: قاع ${r['bottom']:.2f} ⟶ صعد "
-                     f"{float(r.get('bounce_pct') or 0):.0f}% ⟶ رجع واختبره "
-                     f"{int(r.get('touches') or 0)} مرّات")
+        if r.get("g2_soft"):
+            lines.append(f"  {r.get('g2_line') or g2_soft_line(r.get('g2_facts'))} · قاعُ النافذة ${r['bottom']:.2f}")
+        else:
+            lines.append(f"  🪜 ثبات الدعم الثاني: قاع ${r['bottom']:.2f} ⟶ صعد "
+                         f"{float(r.get('bounce_pct') or 0):.0f}% ⟶ رجع واختبره "
+                         f"{int(r.get('touches') or 0)} مرّات")
         lines.append("  📥 الطلبات: "
                      + " · ".join(f"<b>${x:.2f}</b>" for x in r["entries"])
                      + " — «تطلبه طلبًا · لا تشتري من العرض»")
