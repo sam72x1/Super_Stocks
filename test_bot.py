@@ -92499,7 +92499,8 @@ check("⚡ VLT8 الوصل: مقطعا الافتتاح والإغلاق يُش�
       _vlt8_ok, _vlt8_w)
 
 # 🟠④ VNF1…VNF8 (‏2026-10-30 · أمرُ المالك «ملحق 4 — تطبيق نايف بالحرف، بلا أي شرط من عندنا»): الثباتُ بلا كسرٍ سابق · بلا ① ولا ② ·
-#    والباقي كما هو · `VWL_DEF=A3` ⟵ الملحق 3 بت-بت (أقفالُ VWL/VLT أعلاه تعمل تحته) — الأقفالُ هنا على الافتراض (A4)
+#    والباقي كما هو · `VWL_DEF=A3` ⟵ الملحق 3 بت-بت (أقفالُ VWL/VLT أعلاه تعمل تحته) — الأقفالُ هنا على `VWL_DEF=A4` (🟠⑤ الافتراضُ A5
+#    منذ 2026-10-31 ⟵ VNF تحرس مسارَ الرجوع إلى الملحق 4 بت-بت · وV5A أدناه للملحق 5)
 if _va3_env0 is None:
     _va3_os.environ.pop("VWL_DEF", None)
 else:
@@ -92524,7 +92525,7 @@ def _va4_up(k=1.0, vmul=1.0, n=6, vols=None):
 
 _va4_keep = _va3_os.environ.get("VWL_DEF")
 try:
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     # VNF1 — `hold_events` نقيّة: ثلاثُ إغلاقاتٍ متتالية فوق VWAP أو إغلاقُ 15د فوقه بلا كسرٍ سابق · و`break_events` على الشموع نفسِها لا شيء
     _va4_b5, _va4_b15, _ = _VL.complete_buckets(_va4_up(), 570, 960, 600)
     _va4_h = _VL.hold_events(_va4_b5, _va4_b15)
@@ -92537,12 +92538,12 @@ try:
 except Exception as _e:                                                    # noqa: BLE001
     _vA1, _vA1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠④ VNF1 الثباتُ بنصّ نايف (`hold_events`): 3 إغلاقات 5د متتالية فوق الفيواب أو إغلاقُ 15د فوقه **بلا إغلاقٍ سابقٍ تحته** · "
-      "والكسرُ (`break_events`) على الشموع نفسِها لا شيء · والافتراضُ A4", _vA1, _vA1w)
+      "والكسرُ (`break_events`) على الشموع نفسِها لا شيء · على `VWL_DEF=A4`", _vA1, _vA1w)
 
 # VNF2 — من نقطة النداء (`evaluate`): صعودٌ ‏+4% بلا كسر ⟵ A4 تنبيه A والملحق 3 لا شيء · و② لا يُحسب (صفرُ نداءٍ لأيّام RVOL) ·
 #    و③ L و④ الخبر و250 ألفًا و⑤ السعر باقيةٌ بأسبابها
 try:
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     _va4_pc = []
     _pf = lambda: (_va4_pc.append(1), _vl_priors())[1]                    # noqa: E731
     _ev = lambda b, cat=None, full=False: _VL.evaluate(b, 570, 960, 600, 1.0, _pf, cat or (lambda e: {"C": True}), "ok", False,   # noqa: E731
@@ -92550,7 +92551,7 @@ try:
     _r4 = _ev(_va4_up())
     _va3_os.environ["VWL_DEF"] = "A3"
     _r3 = _ev(_va4_up())
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     _dec = _va4_up(vols=[400000, 380000, 200000, 150000, 120000, 100000])
     _why = lambda r: sorted({w for e in r["events"] for w in e["why"]})    # noqa: E731
     _vA2_c = {
@@ -92571,13 +92572,13 @@ check("🟠④ VNF2 `evaluate`: صعودٌ ‏+4% بلا كسرٍ ولا RVOL �
 
 # VNF3 — الذراعان: A مرّة · وD حتى 3 بلا ① (ما أسقطه ① في الملحق 3 يمرّ) · وبلا A لا D
 try:
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     _bl = _vl_scenario(retests=1, step=1.01)
     _b4 = _vl_scenario(retests=4)
     _d4 = [a["arm"] for a in _vl_eval(_bl, prev=1.54 / 1.20)["alerts"]]
     _va3_os.environ["VWL_DEF"] = "A3"
     _d3 = [a["arm"] for a in _vl_eval(_bl, prev=1.54 / 1.20)["alerts"]]
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     _arms4 = [(a["arm"], a["n"]) for a in _vl_eval(_b4)["alerts"]]
     _vA3 = (_d4 == ["A", "D"] and _d3 == ["A"] and _arms4 == [("A", 1), ("D", 1), ("D", 2), ("D", 3)]
             and _vl_eval(_b4, cat=lambda e: {"C": False})["alerts"] == [])
@@ -92589,14 +92590,14 @@ check("🟠④ VNF3 A مرّةً لكلّ رمزٍ/يوم · وD حتى 3 **بل
 # VNF4 — المرشِّح: بلا ① · الشرطُ اللازمُ الباقي من اللقطة = حجمُ اليوم × أعلاه ≥ 250 ألفًا (على حدّه يبقى · ودونه يُقصى · والمجهولُ يبقى) ·
 #    والسعرُ والنوعُ كما هما · واللقطةُ تحمل حجمَ اليوم (الأكبرُ من شمعة اليوم والتراكميّ في شمعة الدقيقة)
 try:
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     _hl = {"UP4": (1.04, 0.99, 250000 / 1.04), "LOWV": (1.04, 0.99, 250000 / 1.04 - 1), "NOV": (1.04, 0.99, None), "TWO": (1.04, 0.99),
            "PX": (25.0, 21.0, 9e9), "ETF": (5.0, 4.0, 9e9)}
     _ty = {"UP4": "CS", "LOWV": "CS", "NOV": "CS", "TWO": "CS", "PX": "CS", "ETF": "ETF"}
     _pf4 = _VL.prefilter(_hl, lambda s: 1.0, _ty)
     _va3_os.environ["VWL_DEF"] = "A3"
     _pf3 = _VL.prefilter(_hl, lambda s: 1.0, _ty)
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     _sn, _ = _VL.snapshot_hl([{"ticker": "aa", "day": {"h": 2.0, "l": 1.5, "v": 1000}, "min": {"h": 2.1, "l": 1.9, "av": 1500}},
                               {"ticker": "bb", "lastTrade": {"p": 3.0}}])
     _vA4 = (_pf4 == {"UP4", "NOV", "TWO"} and _pf3 == set() and _sn["AA"] == (2.1, 1.5, 1500.0) and _sn["BB"] == (3.0, 3.0, None))
@@ -92641,13 +92642,13 @@ try:
         def cat_fetch(self, s, t, sec_ttl=None):
             self.calls.append("cat")
             return {}
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     _d4 = _VA4D()
     _VL._prep_one(_d4, "TST", lambda: 0.0)
     _va3_os.environ["VWL_DEF"] = "A3"
     _d3 = _VA4D()
     _VL._prep_one(_d3, "TST", lambda: 0.0)
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     _vA6 = _d4.calls == ["prev", "type"] and not _d4.pre_cat and _d3.calls == ["prev", "type", "priors", "cat"] and "TST" in _d3.pre_cat
     _vA6w = f"A4={_d4.calls} A3={_d3.calls}"
 except Exception as _e:                                                    # noqa: BLE001
@@ -92657,11 +92658,11 @@ check("🟠④ VNF6 التحضيرُ في الملحق 4: المرجعُ وال�
 # VNF8 — من نقطة النداء الحيّة (`mode_live` على شبكةٍ مزيّفة وساعةٍ محقونة): صعودٌ ‏+4% بلا كسرٍ بخبر GlobeNewswire ⟵ رسالةٌ واحدةٌ «ثبات
 #    فوق الفيواب» بلا RVOL وصفُّ سجلٍّ A موسومٌ A4 · والملحق 3 على الشموع نفسِها صامتٌ بلا سجلّ
 try:
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     _rc8, _sent8, _sv8, _led8, _ = _vl_live(_VLFakeNet(_va4_up(n=12), news=[_vl_news("GlobeNewswire Inc.")]), 565)
     _va3_os.environ["VWL_DEF"] = "A3"
     _rc8b, _sent8b, _sv8b, _led8b, _ = _vl_live(_VLFakeNet(_va4_up(n=12), news=[_vl_news("GlobeNewswire Inc.")]), 565)
-    _va3_os.environ.pop("VWL_DEF", None)
+    _va3_os.environ["VWL_DEF"] = "A4"
     _al8 = [r for r in _led8 if r.get("kind") == "alert"]
     _vA8 = (_rc8 == 0 and len(_sent8) == 1 and "ثبات فوق الفيواب" in _sent8[0] and "RVOL" not in _sent8[0] and "$TST" in _sent8[0]
             and [(r["arm"], r.get("def"), r["sent"]) for r in _al8] == [("A", "A4", True)]
@@ -92673,13 +92674,13 @@ check("🟠④ VNF8 من الحلقة الحيّة: صعودٌ ‏+4% بلا ك�
 
 # VNF9 — مقارنةُ الإعادة (طلبُ المالك 2026-10-30 «اطبع جدولين لجلسة 10-30»): `mode_replay` بالملحق 4 يُخرج معه صفوفَ الملحق 3 على الشموع
 #    نفسِها وسببَ الغياب · صعودٌ بلا كسر ⟵ A4 وحدَه و«لا كسر» · وكسرٌ كاملٌ بالقديم ⟵ الاثنان · وبالملحق 3 لا مقارنةَ (مُخرَجُه كما كان)
-def _va4_replay(net, defv=None):
+def _va4_replay(net, defv="A4"):
     import tempfile as _tf
     _d = _tf.mkdtemp()
     _keep = (_va3_os.environ.get("VWL_DEF"), _va3_os.environ.get("VWL_OUT"))
     try:
         if defv is None:
-            _va3_os.environ.pop("VWL_DEF", None)
+            _va3_os.environ.pop("VWL_DEF", None)                       # الغيابُ ⟵ افتراضُ الأداة (A5 منذ 2026-10-31)
         else:
             _va3_os.environ["VWL_DEF"] = defv
         _va3_os.environ["VWL_OUT"] = _va3_os.path.join(_d, "r.json")
@@ -92720,10 +92721,11 @@ except Exception as _e:                                                    # noq
     _vA9, _vA9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠④ VNF9 مقارنةُ الإعادة: الملحق 4 يُخرج معه صفوفَ الملحق 3 على الشموع نفسِها (تطابق إعادةَ الملحق 3 وحدَه) وسببَ الغياب («لا كسر» · كسرٌ سقط على ①) · والملحق 3 بلا مقارنة", _vA9, _vA9w)
 
-# VNF7 — المفتاح: الغيابُ أو أيُّ قيمةٍ غيرُ «A3» ⟵ A4 · و«a3» ⟵ A3 · ووثيقةُ الملحق تحمل نصَّ المالك وبنودَه الخمسة
+# VNF7 — المفتاح: «A4»/«a4» ⟵ الملحق 4 · «A3»/«a3» ⟵ الملحق 3 · والغيابُ وغيرُهما ⟵ A5 (🟠⑤ الملحق 5 نقل الافتراض 2026-10-31) ·
+#    ووثيقةُ الملحق 4 تحمل نصَّ المالك وبنودَه الخمسة
 try:
     _dv = []
-    for _v in (None, "", "A4", "x", "a3", "A3"):
+    for _v in (None, "", "A4", "x", "a3", "A3", "a4"):
         if _v is None:
             _va3_os.environ.pop("VWL_DEF", None)
         else:
@@ -92731,7 +92733,7 @@ try:
         _dv.append(_VL.def_now())
     _va3_os.environ.pop("VWL_DEF", None)
     _ad = open("vwap_live_addendum_4.md", encoding="utf-8").read()
-    _vA7 = (_dv == ["A4", "A4", "A4", "A4", "A3", "A3"] and "ملحق 4 — تطبيق نايف بالحرف، بلا أي شرط من عندنا" in _ad
+    _vA7 = (_dv == ["A5", "A5", "A4", "A5", "A3", "A3", "A4"] and "ملحق 4 — تطبيق نايف بالحرف، بلا أي شرط من عندنا" in _ad
             and all(x in _ad for x in ("① احذف شرط الكسر", "② احذف شرط +20%", "③ يبقى كما كتب نايف", "④ السعر 1-20", "⑤ تنبيه واحد لكل رمز"))
             and "VWL_DEF=A3" in _ad)
     _vA7w = f"def={_dv}"
@@ -92742,7 +92744,227 @@ finally:
         _va3_os.environ.pop("VWL_DEF", None)
     else:
         _va3_os.environ["VWL_DEF"] = _va4_keep
-check("🟠④ VNF7 المفتاحُ `VWL_DEF`: الغيابُ ⟵ A4 و«A3» ⟵ الملحق 3 بت-بت · ووثيقةُ الملحق تحمل نصَّ المالك وبنودَه الخمسة", _vA7, _vA7w)
+check("🟠④ VNF7 المفتاحُ `VWL_DEF`: «A4» ⟵ الملحق 4 و«A3» ⟵ الملحق 3 بت-بت والغيابُ ⟵ A5 · ووثيقةُ الملحق 4 تحمل نصَّ المالك وبنودَه الخمسة", _vA7, _vA7w)
+
+# 🟠⑤ V5A1…V5A9 (‏2026-10-31 · أمرُ المالك «ملحق 5 — ترجمة كلمتين من نص نايف كانتا بلا رقم»): ① «سبب صعود» = ‏+20% فأكثر عن إغلاق الأمس
+#    لحظةَ الحدث في A وكلّ D · ② «خبر حقيقي» = خبرُ سلكٍ لا يطابق عنوانُه `NEWS_EXCL` · والباقي كالملحق 4 · `VWL_DEF=A4` ⟵ الملحق 4 بت-بت
+_v5_keep = _va3_os.environ.get("VWL_DEF")
+
+
+def _v5_set(v):
+    if v is None:
+        _va3_os.environ.pop("VWL_DEF", None)
+    else:
+        _va3_os.environ["VWL_DEF"] = v
+
+
+def _v5_item(title, mod, pub="GlobeNewswire Inc."):
+    it = _vl_news(pub, mod=mod)
+    it["title"], it["id"] = title, f"v5{mod}"
+    return it
+
+
+try:
+    # V5A1 — المفتاحُ والوثيقةُ والأنماط: الغيابُ ⟵ A5 · «A4» ⟵ الملحق 4 · «A3» ⟵ الملحق 3 · والعقدُ يحمل نصَّ المالك · والأنماطُ نصُّه بحرفه
+    _v5dv = []
+    for _v in (None, "", "x", "A5", "a4", "A4", "A3"):
+        _v5_set(_v)
+        _v5dv.append(_VL.def_now())
+    _v5_set(None)
+    _v5ad = open("vwap_live_addendum_5.md", encoding="utf-8").read()
+    _v5a1_c = {
+        "switch": _v5dv == ["A5", "A5", "A5", "A5", "A4", "A4", "A3"] and _VL.DEF_DEFAULT == "A5",
+        "chg_on": [(_v5_set(v), _VL.chg_on())[1] for v in ("A3", "A4", None)] == [True, False, True],
+        "patterns": _VL.NEWS_EXCL == (("law", r"\brosen\b"), ("law", r"\bbronstein\b"), ("law", r"\bfaruqi\b"), ("law", r"\bkirby\b"),
+                                      ("law", "deadline"), ("law", "lost money"), ("law", "shareholder alert"), ("law", "class action"),
+                                      ("date", "to report"), ("date", "announces date")),
+        "order": _VL.CHECK_ORDER_A5 == ("⑤ السعر", "الحجم الدولاري", "① التغيّر", "③ L", "⑤ النوع", "⑤ SPAC", "④ الخبر"),
+        "doc": all(x in _v5ad for x in ("ملحق 5 — ترجمة كلمتين من نص نايف كانتا بلا رقم", "① «سبب صعود»", "② «خبر حقيقي»",
+                                        "VWL_DEF=A4", "## التنبّؤات", "Rosen · Bronstein · Faruqi · Kirby")),
+    }
+    _v5_set(None)
+    _v5a1, _v5a1w = all(_v5a1_c.values()), f"{ {k: v for k, v in _v5a1_c.items() if not v} or 'كلّها'} · def={_v5dv}"
+except Exception as _e:                                                    # noqa: BLE001
+    _v5a1, _v5a1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑤ V5A1 المفتاحُ: الغيابُ ⟵ A5 · «A4» ⟵ الملحق 4 · «A3» ⟵ الملحق 3 · و① قائمٌ في A3 وA5 لا A4 · والأنماطُ نصُّ المالك بحرفه · والعقدُ يحمله",
+      _v5a1, _v5a1w)
+
+# V5A2 — `news_excluded` نقيّة: كلُّ نمطٍ يطابق بلا حالة أحرف · والأسماءُ كلماتٌ كاملة (Rosenblatt لا يطابق) · والخبرُ الحقيقيّ لا يطابق
+try:
+    _v5pos = {"ROSEN, A LEADING LAW FIRM, Encourages Investors": r"\brosen\b", "Bronstein, Gewirtz & Grossman Notifies": r"\bbronstein\b",
+              "Faruqi & Faruqi Reminds Investors": r"\bfaruqi\b", "Kirby McInerney LLP Announces Investigation": r"\bkirby\b",
+              "DEADLINE ALERT for XYZ investors": "deadline", "Lost Money on XYZ? Contact": "lost money",
+              "SHAREHOLDER ALERT: XYZ": "shareholder alert", "Class Action Filed Against XYZ": "class action",
+              "XYZ to Report Third Quarter 2026 Results on November 5": "to report",
+              "XYZ Announces Date of Third Quarter Earnings Call": "announces date"}
+    _v5neg = ("Company signs contract", "XYZ Reports Third Quarter 2026 Results", "XYZ Regains Compliance with Nasdaq Listing Rule",
+              "Rosenblatt Raises XYZ Target", "XYZ Announces $10 Million Share Repurchase", None, "")
+    _v5a2_c = {"pos": {t: _VL.news_excluded(t) for t in _v5pos} == _v5pos,
+               "neg": [_VL.news_excluded(t) for t in _v5neg] == [None] * len(_v5neg)}
+    _v5a2 = all(_v5a2_c.values())
+    _v5a2w = f"{ {k: v for k, v in _v5a2_c.items() if not v} or 'كلّها'} · {[(t[:12], _VL.news_excluded(t)) for t in _v5pos][:3]}"
+except Exception as _e:                                                    # noqa: BLE001
+    _v5a2, _v5a2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑤ V5A2 `news_excluded`: الأنماطُ العشرة تطابق بلا حالة أحرف والأسماءُ كلماتٌ كاملة · والعقدُ والنتائجُ والامتثالُ وإعادةُ الشراء لا تطابق",
+      _v5a2, _v5a2w)
+
+# V5A3 — ① من نقطة النداء (`evaluate`): ‏+4% ⟵ لا تنبيه بسبب «① التغيّر» (والملحق 4 يُطلق) · ‏+30% ⟵ A · وعلى حدّ 20% بالضبط يمرّ ودونه
+#    بشعرةٍ يسقط · والمرجعُ المجهول يُسقط ① · وD يلزمه ① لحظةَ إكماله (ما أسقطه ① في الملحق 3 يسقط في 5 ويمرّ في 4)
+try:
+    _v5_set(None)
+    _ev5 = lambda b, prev=1.0, full=False: _VL.evaluate(b, 570, 960, 600, prev, lambda: [], lambda e: {"C": True}, "ok", False,   # noqa: E731
+                                                        full_info=full)
+    _wh5 = lambda r: sorted({w for e in r["events"] for w in e["why"]})    # noqa: E731
+    _lo5, _hi5 = _ev5(_va4_up()), _ev5(_va4_up(k=1.25))
+    _v5_set("A4")
+    _lo4 = _ev5(_va4_up())
+    _v5_set(None)
+    _pA = _lo4["alerts"][0]["px"]
+    _eA = _lo4["alerts"][0]["e"]
+    _at = lambda r: next((e for e in r["events"] if e["e"] == _eA and e["kind"] == _lo4["alerts"][0]["kind"]), {"why": ["?"]})   # noqa: E731
+    _eq = _at(_ev5(_va4_up(), prev=_pA / 1.20, full=True))
+    _bel = _at(_ev5(_va4_up(), prev=_pA / 1.1999, full=True))
+    _bl5 = _vl_scenario(retests=1, step=1.01)
+    _b45 = _vl_scenario(retests=4)
+    _d5 = [a["arm"] for a in _vl_eval(_bl5, prev=1.54 / 1.20)["alerts"]]
+    _a45 = [(a["arm"], a["n"]) for a in _vl_eval(_b45)["alerts"]]
+    _v5_set("A4")
+    _d54 = [a["arm"] for a in _vl_eval(_bl5, prev=1.54 / 1.20)["alerts"]]
+    _v5_set(None)
+    _v5a3_c = {
+        "low_silent": _lo5["alerts"] == [] and "① التغيّر" in _wh5(_ev5(_va4_up(), full=True)) and bool(_lo4["alerts"]),
+        "high_fires": [(a["arm"], a["e"]) for a in _hi5["alerts"]][:1] == [("A", 590)] and _hi5["alerts"][0]["chg"] >= 0.20,
+        "edge": "① التغيّر" not in _eq["why"] and "① التغيّر" in _bel["why"],
+        "no_prev": _ev5(_va4_up(), prev=None)["alerts"] == [] and "① التغيّر" in _wh5(_ev5(_va4_up(), prev=None, full=True)),
+        "D_needs_chg": _d5 == ["A"] and _d54 == ["A", "D"] and _a45 == [("A", 1), ("D", 1), ("D", 2), ("D", 3)],
+        "no_rvol": _hi5["alerts"][0]["rvol"] is None,
+    }
+    _v5a3, _v5a3w = all(_v5a3_c.values()), f"{ {k: v for k, v in _v5a3_c.items() if not v} or 'كلّها'} · D5={_d5} D4={_d54}"
+except Exception as _e:                                                    # noqa: BLE001
+    _v5a3, _v5a3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑤ V5A3 ① في `evaluate`: ‏+4% صامتٌ بسبب «① التغيّر» والملحق 4 يُطلق · ‏+30% يُطلق A · 20% بالضبط يمرّ ودونه يسقط · المرجعُ المجهول يُسقط · "
+      "وD يلزمه ① (ما أسقطه ① يسقط في 5 ويمرّ في 4) · وبلا RVOL", _v5a3, _v5a3w)
+
+# V5A4 — ② من نقطة النداء (`Day.cat_build`): عنوانُ الاستبعاد لا يُثبت ④ ولا يُعرض (والحقيقيُّ الأبكر يُعرض بدله) · وموعدُ النتائج كذلك ·
+#    و8-K يُثبت ④ كما كان · والملحق 4 على الخامّ نفسِه يقبل الإعلان ويعرضه
+try:
+    _Dv5 = object.__new__(_VL.Day)
+    _Dv5.sic_of, _Dv5.day, _Dv5.win_a = {}, _VL_DAY, _VL3.ny_ts(_VL_PREV, 16 * 60)
+    _law, _date, _good = (_v5_item("ROSEN, A TOP RANKED LAW FIRM, Encourages XYZ Investors", 8 * 60),
+                          _v5_item("XYZ to Report Third Quarter Results", 8 * 60 + 5), _v5_item("Company signs contract", 7 * 60))
+    _raw = lambda items, rows=(): {"items": items, "sic": "2834", "rows": list(rows), "known": True}   # noqa: E731
+    _k8 = [(_VL3.ny_ts(_VL_DAY, 7 * 60), "8-K", "1.01")]
+
+    def _cb(items, rows=()):
+        fn, det, _sp = _Dv5.cat_build("TST", _raw(items, rows))
+        return fn(600).get("C"), ((det(600) or {}).get("wire_item") or {}).get("title")
+    _v5_set(None)
+    _r5 = {"law": _cb([_law]), "date": _cb([_date]), "mix": _cb([_good, _law]), "k8": _cb([_law], _k8)}
+    _v5_set("A4")
+    _r4 = {"law": _cb([_law]), "mix": _cb([_good, _law])}
+    _v5_set(None)
+    _v5a4 = (_r5["law"] == (False, None) and _r5["date"] == (False, None) and _r5["mix"] == (True, "Company signs contract")
+             and _r5["k8"][0] is True and _r4["law"] == (True, _law["title"]) and _r4["mix"] == (True, _law["title"]))
+    _v5a4w = f"A5={_r5} · A4={_r4}"
+except Exception as _e:                                                    # noqa: BLE001
+    _v5a4, _v5a4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑤ V5A4 ② في `Day.cat_build`: إعلانُ المحاماة وموعدُ النتائج لا يُثبتان ④ ولا يُعرضان (والخبرُ الحقيقيُّ يُعرض بدلهما) · و8-K يُثبت كما كان · "
+      "والملحق 4 على الخامّ نفسِه يقبلهما", _v5a4, _v5a4w)
+
+# V5A5 — المرشِّح: شرطُ الملحق 4 (الحجم) ∧ شرطُ الملحق 3 (أعلاه 1.2 × إغلاق الأمس) · على حدّ 20% يبقى · والمرجعُ المجهولُ يُقصى · والملحق 4 كما هو
+try:
+    _hl5 = {"UP25": (1.25, 0.99, 9e9), "UP4": (1.04, 0.99, 9e9), "LOWV": (1.25, 0.99, 250000 / 1.25 - 1), "NOV": (1.25, 0.99, None),
+            "TWO": (1.25, 0.99), "NOPREV": (1.25, 0.99, 9e9), "EQ20": (1.2, 0.99, 9e9)}
+    _ty5 = {k: "CS" for k in _hl5}
+    _pa5 = lambda s: None if s == "NOPREV" else 1.0                        # noqa: E731
+    _v5_set(None)
+    _pf5 = _VL.prefilter(_hl5, _pa5, _ty5)
+    _v5_set("A4")
+    _pf54 = _VL.prefilter(_hl5, _pa5, _ty5)
+    _v5_set(None)
+    _v5a5 = (_pf5 == {"UP25", "NOV", "TWO", "EQ20"} and _pf54 == {"UP25", "UP4", "NOV", "TWO", "NOPREV", "EQ20"})
+    _v5a5w = f"A5={sorted(_pf5)} A4={sorted(_pf54)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _v5a5, _v5a5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑤ V5A5 المرشِّحُ في الملحق 5: الحجمُ (الملحق 4) و‏+20% على أعلى اليوم (الملحق 3) معًا · على الحدّ يبقى · والمرجعُ المجهولُ يُقصى · والملحق 4 كما هو",
+      _v5a5, _v5a5w)
+
+# V5A6 — الرسالةُ والسجلّ: رسالةُ A5 هي رسالةُ A4 حرفًا بحرف (لا إطالة) · والصفُّ موسومٌ A5 · والتحضيرُ كالملحق 4 (المرجعُ والنوعُ وحدَهما)
+try:
+    _row5 = {"sym": "TST", "arm": "A", "n": 1, "px": 1.30, "chg": 0.30, "rvol": None, "vwap": 1.27, "above": 3, "ema9": 1.29, "e": 590,
+             "news": "x", "tags": [], "prev_src": "grouped", "kind": "5x3", "cum_dollar": 900000.0}
+    _m5, _m54 = _VL.build_message(dict(_row5, **{"def": "A5"})), _VL.build_message(dict(_row5, **{"def": "A4"}))
+    _l5 = _VL.ledger_row("2026-11-02", "TST", dict(_row5, **{"def": "A5"}), 1.0, True, None, "live", "x", "x")
+    _v5_set(None)
+    _dp5 = _VA4D()
+    _VL._prep_one(_dp5, "TST", lambda: 0.0)
+    _v5a6 = _m5 == _m54 and "ثبات فوق الفيواب" in _m5 and _l5.get("def") == "A5" and _dp5.calls == ["prev", "type"] and not _dp5.pre_cat
+    _v5a6w = f"سطر={_m5.splitlines()[0][:60]} · سجل={_l5.get('def')} · تحضير={_dp5.calls}"
+except Exception as _e:                                                    # noqa: BLE001
+    _v5a6, _v5a6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑤ V5A6 رسالةُ الملحق 5 = رسالةُ الملحق 4 حرفًا بحرف (لا إطالة) · والصفُّ موسومٌ A5 · والتحضيرُ المرجعُ والنوعُ وحدَهما", _v5a6, _v5a6w)
+
+# V5A7 — من الحلقة الحيّة (`mode_live`): ‏+30% بخبرٍ حقيقيّ ⟵ رسالةٌ وصفُّ A موسومٌ A5 · ‏+4% ⟵ صمت · وإعلانُ محاماةٍ وحدَه ⟵ صمتٌ بلا صفّ ·
+#    والملحق 4 على إعلان المحاماة نفسِه يُرسل
+try:
+    _v5_set(None)
+    _rcA, _sA, _, _lA, _ = _vl_live(_VLFakeNet(_va4_up(n=12, k=1.25), news=[_v5_item("Company signs contract", 7 * 60)]), 565)
+    _rcB, _sB, _, _lB, _ = _vl_live(_VLFakeNet(_va4_up(n=12), news=[_v5_item("Company signs contract", 7 * 60)]), 565)
+    _lawn = [_v5_item("Kirby McInerney LLP Reminds XYZ Investors of DEADLINE", 7 * 60)]
+    _rcC, _sC, _, _lC, _ = _vl_live(_VLFakeNet(_va4_up(n=12, k=1.25), news=_lawn), 565)
+    _v5_set("A4")
+    _rcD, _sD, _, _lD, _ = _vl_live(_VLFakeNet(_va4_up(n=12, k=1.25), news=_lawn), 565)
+    _v5_set(None)
+    _alr = lambda led: [(r["arm"], r.get("def"), r["sent"]) for r in led if r.get("kind") == "alert"]   # noqa: E731
+    _v5a7_c = {"fires": _rcA == 0 and len(_sA) == 1 and "ثبات فوق الفيواب" in _sA[0] and _alr(_lA) == [("A", "A5", True)],
+               "low_silent": _sB == [] and _alr(_lB) == [],
+               "law_silent": _sC == [] and _alr(_lC) == [],
+               "a4_law_sends": len(_sD) == 1 and _alr(_lD) == [("A", "A4", True)]}
+    _v5a7 = all(_v5a7_c.values())
+    _v5a7w = f"{ {k: v for k, v in _v5a7_c.items() if not v} or 'كلّها'} · A={_alr(_lA)} law5={_alr(_lC)} law4={_alr(_lD)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _v5a7, _v5a7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑤ V5A7 من الحلقة الحيّة: ‏+30% بخبرٍ حقيقيّ ⟵ رسالةٌ وصفُّ A5 · ‏+4% صامت · إعلانُ المحاماة وحدَه صامتٌ بلا صفّ · والملحق 4 يُرسله", _v5a7, _v5a7w)
+
+# V5A8 — مقارنةُ الإعادة: الملحق 5 يُخرج صفوفَ الملحق 4 على الشموع نفسِها **مطابقةً لإعادة الملحق 4 وحدَه** (ذاكرةُ الخبر مفصولةٌ بالتعريف —
+#    إعلانُ المحاماة يُرسَل في 4 ولا يرثه 4 مصفّى) · وسببُ الغياب (① بتغيّره · ④ بالنمط والعنوان) · والملحق 4 بلا مقارنة 5
+try:
+    _rp = lambda net, d: _va4_replay(net, d)                               # noqa: E731
+    _rcL, _oL, _dL = _rp(_VLFakeNet(_va4_up(n=12, k=1.25), news=_lawn), None)
+    _, _oL4, _ = _rp(_VLFakeNet(_va4_up(n=12, k=1.25), news=_lawn), "A4")
+    _, _oS, _ = _rp(_VLFakeNet(_va4_up(n=12), news=[_v5_item("Company signs contract", 7 * 60)]), None)
+    _, _oG, _ = _rp(_VLFakeNet(_va4_up(n=12, k=1.25), news=[_v5_item("Company signs contract", 7 * 60)]), None)
+    _key = lambda rows: [(r["sym"], r["arm"], r["n"], r["event_end_ny"]) for r in rows]   # noqa: E731
+    _cL, _cS, _cG = ((o.get("cmp5") or [{}])[0] for o in (_oL, _oS, _oG))
+    _tL = _VL.cmp5_tables(_oL)
+    _v5a8_c = {
+        "law": _dL == "A5" and _oL["def"] == "A5" and _oL["alerts"] == [] and _key(_oL["alerts_a4"]) == _key(_oL4["alerts"])
+               and bool(_oL4["alerts"]) and "مستبعَد" in _VL.cmp5_why(_cL) and r"\bkirby\b" in _VL.cmp5_why(_cL),
+        "chg": _oS["alerts"] == [] and bool(_oS["alerts_a4"]) and "① التغيّر" in _VL.cmp5_why(_cS),
+        "both": bool(_oG["alerts"]) and _VL.cmp5_why(_cG).startswith("أُرسل بالملحق 5"),
+        "a4_plain": "alerts_a4" not in _oL4 and "cmp5" not in _oL4 and _oL4["def"] == "A4",
+        "tables": any(x.startswith("📋 الملحق 5") for x in _tL) and any("الغائبةُ عن الملحق 5: 1" in x for x in _tL),
+    }
+    _v5a8 = all(_v5a8_c.values())
+    _v5a8w = (f"{ {k: v for k, v in _v5a8_c.items() if not v} or 'كلّها'} · A4في5={_key(_oL['alerts_a4'])} A4وحده={_key(_oL4['alerts'])} · "
+              f"سبب={_VL.cmp5_why(_cL) if _cL else None}")
+except Exception as _e:                                                    # noqa: BLE001
+    _v5a8, _v5a8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑤ V5A8 مقارنةُ الإعادة: صفوفُ الملحق 4 داخل إعادة 5 تطابق إعادةَ 4 وحدَه (ذاكرةُ الخبر مفصولةٌ بالتعريف) · وسببُ الغياب ① بتغيّره و④ بالنمط · "
+      "والملحق 4 بلا مقارنة 5", _v5a8, _v5a8w)
+
+# V5A9 — الدفتر: صفّا الملحق 5 (① «سبب صعود» و② أنماطُ الاستبعاد) بوسمهما في قسم الأداة الحيّة
+try:
+    _lg5 = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _sec5 = _lg5.split("### الأداةُ الحيّة «زخم الفيواب» (2026-10-29)")[1].split("\n## ")[0]
+    _v5a9 = all(x in _sec5 for x in ("| 🟠⑤ ① «سبب صعود» (الملحق 5)", "| 🟠⑤ ② «خبر حقيقي» — أنماطُ الاستبعاد (الملحق 5)",
+                                     "«class action»", "`engineering` (بأمر المالك"))
+    _v5a9w = "صفّان" if _v5a9 else "ناقص"
+except Exception as _e:                                                    # noqa: BLE001
+    _v5a9, _v5a9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    _v5_set(_v5_keep)
+check("🟠⑤ V5A9 الدفترُ يحمل صفَّي الملحق 5 (① «سبب صعود» · ② أنماطُ الاستبعاد) بوسمهما في قسم الأداة الحيّة", _v5a9, _v5a9w)
 
 # 🧮🔬 SGA1-SGA6 (‏2026-10-30 · أمرُ المالك «قياس مسجَّل قبل الرقم — بوّابتا فلترة التقسيم»): `fm_forensics/split_gates/split_gates.py`
 #        قياسٌ فقط بالعقد `SPLIT_GATES_prereg.md` المثبّتة بصمتُه وقائمةِ الوحدات المجمَّدة · لا تغييرَ على بوّابة · لا تلغرام · لا كرون.

@@ -4,6 +4,10 @@
 الجلسة أو إغلاقُ 15د واحد فوقه بلا إغلاقٍ سابقٍ تحته (`hold_events`) · وحُذف ① ‏+20% و② RVOL ≥ 3 · والباقي أدناه كما هو ·
 و`VWL_DEF=A3` ⟵ الملحق 3 بت-بت.
 
+🟠⑤ **ومنذ 2026-10-31 «ملحق 5 — ترجمة كلمتين من نص نايف» (`vwap_live_addendum_5.md` · الافتراض):** ① «سبب صعود» = إغلاقُ شمعة الحدث
+‏+20% فأكثر عن إغلاق الأمس في A وكلّ D (`V4.ge`/`V4.pct_change` بالاسم · شرطُ الملحق 3 ① نفسُه) · ② «خبر حقيقي» = خبرُ سلكٍ لا يطابق
+عنوانُه نمطًا من `NEWS_EXCL` (مكاتبُ المحاماة والدعاوى الجماعية · موعدُ النتائج) · والباقي كالملحق 4 · و`VWL_DEF=A4` ⟵ الملحق 4 بت-بت.
+
 **التعريفُ = الملحق 3** (`vwap_mom_prereg_addendum_3.md` §③ — «الملحق 3 كتعريف نهائي») **بدوالّ الجدوى نفسِها بالاسم** فلا يُعاد
 كتابةُ شرطٍ بيدٍ ثانية: الكسرُ الصاعد `V3.break_events` · L `V3.event_liq` · إعادةُ الاختبار `V3.retest_signal` · VWAP والسلال
 `V3.vwap_series`/`V3.bucketize` · التراكمُ الدولاريّ `V3.cum_dollar_at` · ① `V4.pct_change`/`V4.ge` · ② `V4.rvol`/`V4.cum_curve`/`V4.curve_at`/
@@ -27,6 +31,7 @@ import contextlib
 import datetime as dt
 import json
 import os
+import re
 import sys
 import threading
 import time
@@ -74,13 +79,33 @@ FUND_SIC = ("6722", "6726", "6798")  # ⑤ «لا صناديق» بكود SIC (�
 #    متتالية فوق فيواب الجلسة أو إغلاقُ 15د واحد فوقه **بلا إغلاقٍ سابقٍ تحته** · وحُذف ① ‏+20% و② RVOL ≥ 3 · والباقي كما هو
 #    (النظاميّة · 250 ألفًا · ③ L · ④ الخبر · الوقف · ⑤ السعر والنوع والصناديق · A مرّة وD حتى 3) · `VWL_DEF=A3` ⟵ الملحق 3 بت-بت.
 DEF_ENV = "VWL_DEF"
-DEF_DEFAULT = "A4"
+DEF_DEFAULT = "A5"                   # 🟠⑤ الملحق 5 (أمرُ المالك 2026-10-31 «ادمج قبل الاثنين») · «A4» و«A3» رجوعٌ بت-بت
 CHECK_ORDER_A4 = ("⑤ السعر", "الحجم الدولاري", "③ L", "⑤ النوع", "⑤ SPAC", "④ الخبر")
+CHECK_ORDER_A5 = ("⑤ السعر", "الحجم الدولاري", "① التغيّر", "③ L", "⑤ النوع", "⑤ SPAC", "④ الخبر")
+# 🟠⑤ ② «خبر حقيقي»: خبرُ السلك الذي يطابق عنوانُه نمطًا هنا لا يُعَدّ خبرًا (بلا تمييز حالة الأحرف) — نصُّ المالك 2026-10-31 بحرفه
+#    («class action» ترجمةُ لفظه «الدعاوى الجماعية») · ولا نمطَ غيرُها (العقد §«أنماطُ الاستبعاد»)
+NEWS_EXCL = (("law", r"\brosen\b"), ("law", r"\bbronstein\b"), ("law", r"\bfaruqi\b"), ("law", r"\bkirby\b"),
+             ("law", r"deadline"), ("law", r"lost money"), ("law", r"shareholder alert"), ("law", r"class action"),
+             ("date", r"to report"), ("date", r"announces date"))
 
 
 def def_now():
-    """تعريفُ الأداة وقتَ النداء: «A3» ⟵ الملحق 3 كما كان بت-بت · وغيرُه ⟵ «A4» (الإنتاج)."""
-    return "A3" if (os.environ.get(DEF_ENV) or "").strip().upper() == "A3" else DEF_DEFAULT
+    """تعريفُ الأداة وقتَ النداء: «A3» ⟵ الملحق 3 بت-بت · «A4» ⟵ الملحق 4 بت-بت · وغيرُهما ⟵ «A5» (الإنتاج)."""
+    v = (os.environ.get(DEF_ENV) or "").strip().upper()
+    return v if v in ("A3", "A4") else DEF_DEFAULT
+
+
+def chg_on():
+    """① «+20%» قائمٌ في الملحق 3 وفي الملحق 5 («سبب صعود») · ومحذوفٌ في الملحق 4."""
+    return def_now() in ("A3", "A5")
+
+
+def news_excluded(title):
+    """🟠⑤ عنوانُ خبر السلك ⟵ النمطُ المطابق من `NEWS_EXCL` (أوّلُها) أو None — بلا عنوان ⟵ None (لا دليلَ على الاستبعاد)."""
+    t = str(title or "").lower()
+    if not t:
+        return None
+    return next((pat for _cls, pat in NEWS_EXCL if re.search(pat, t)), None)
 
 
 @contextlib.contextmanager
@@ -283,7 +308,7 @@ def check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d
     if info["cum_dollar"] < d_min and fail("الحجم الدولاري"):
         return why
     a3 = def_now() == "A3"                                              # 🟠④ ① و② محذوفان في الملحق 4
-    if a3 and not V4.ge(info["chg"], CHG_MIN) and fail("① التغيّر"):
+    if chg_on() and not V4.ge(info["chg"], CHG_MIN) and fail("① التغيّر"):   # 🟠⑤ ① عاد في الملحق 5 («سبب صعود»)
         return why
     info["liq"] = event_L(b5, b15, ev, ldef)
     if not info["liq"] and fail("③ L"):
@@ -337,7 +362,7 @@ def evaluate(bars, op, cl, upto, prev_adj, priors_fn, cat_of, type_status, spac,
             re_, rkind, ridx = rt
             rb = b5[ridx] if rkind == "5x3" else b15[ridx]
             rchg = V4.pct_change(rb["c"], prev_adj)
-            if PX_MIN <= rb["c"] < PX_MAX and (not a3 or V4.ge(rchg, CHG_MIN)):     # 🟠④ D بلا ① في الملحق 4
+            if PX_MIN <= rb["c"] < PX_MAX and (not chg_on() or V4.ge(rchg, CHG_MIN)):   # 🟠④ D بلا ① في الملحق 4 · 🟠⑤ و① في الملحق 5
                 n_d += 1
                 alerts.append({"e": re_, "kind": rkind, "px": rb["c"], "vwap": rb["vwap"], "cum_dollar": V3.cum_dollar_at(bars, re_),
                                "chg": rchg, "liq": True, "rvol": priors_rvol(shares_before(bars, re_), priors_fn(), re_) if a3 else None,
@@ -388,7 +413,7 @@ def _esc(s):
 def build_message(row):
     """كرتُ التنبيه (شكلُ «هنا الدخول» · أسطرٌ قصيرة · بلا علامات مقارنة) — `send_telegram` يُلحق ختمَ الإصدار 🧾."""
     sym, arm = row["sym"], row["arm"]
-    a4 = row.get("def") == "A4"                                         # 🟠④ لا كسرَ ولا RVOL في الملحق 4
+    a4 = row.get("def") in ("A4", "A5")                                 # 🟠④ لا كسرَ ولا RVOL في الملحق 4 · 🟠⑤ والرسالةُ نفسُها في الملحق 5
     head = "🟠 <b>زخم الفيواب</b>" + (f" · إعادة اختبار #{row['n']}" if arm == "D" else (" · ثبات فوق الفيواب" if a4 else " · كسر وثبات"))
     rv = row.get("rvol")
     rv_s = "؟" if rv is None else ("∞" if rv == float("inf") else f"{rv:.1f}×")
@@ -450,7 +475,7 @@ def harvest(bars, op, cl, alert_mod, alert_px):
 def prefilter(day_hl, prev_adj_of, types):
     """مرشِّحٌ **أعمّ** من الشروط (لا يُسقط حدثًا ممكنًا): أعلى اليوم حتى الآن ≥ 1.2 × إغلاق الأمس المسوّى (شرطٌ لازمٌ لـ① على أيّ إغلاق 5د) ·
     وأدنى اليوم دون PX_MAX · وأعلاه PX_MIN فأكثر · والنوعُ ليس مستبعَدًا (المجهولُ يبقى ليُسأل عنه) ⟵ مجموعةُ الرموز."""
-    out, a3 = set(), def_now() == "A3"
+    out, a3, a4 = set(), def_now() == "A3", def_now() == "A4"
     for sym, hlv in day_hl.items():
         h, low = hlv[0], hlv[1]
         if h is None or low is None or not (low < PX_MAX and h >= PX_MIN):
@@ -462,9 +487,12 @@ def prefilter(day_hl, prev_adj_of, types):
             # 🟠④ بلا ①: الشرطُ اللازمُ الوحيدُ الباقي من اللقطة = الحجمُ الدولاريّ — حجمُ اليوم × أعلاه حدٌّ أعلى لِما تراكم حتى أيّ حدث ⟵
             #    دونه 250 ألفًا لا حدثَ ممكنًا · والحجمُ المجهولُ يبقى (لا يُسقط حدثًا ممكنًا)
             v = hlv[2] if len(hlv) > 2 else None
-            if v is None or v * h >= D_MIN_LIVE:
-                out.add(sym)
-            continue
+            if a4:
+                if v is None or v * h >= D_MIN_LIVE:
+                    out.add(sym)
+                continue
+            if not (v is None or v * h >= D_MIN_LIVE):
+                continue                                                # 🟠⑤ شرطُ الملحق 4 (الحجم) ثمّ شرطُ الملحق 3 (①) أدناه — كلاهما لازم
         pa = prev_adj_of(sym)
         if pa and V4.ge(h / pa - 1.0, CHG_MIN):
             out.add(sym)
@@ -780,7 +808,7 @@ class Day:
             self.why.append("خريطةُ CIK")
         from edgar2_probe import parse_acc, to_ny
         self.acc_ts = V3.make_acc_ts(parse_acc, to_ny)
-        self._prior_cache, self._cat_cache, self._detail = {}, {}, {}
+        self._prior_cache, self._cat_cache, self._detail, self._raw_cache = {}, {}, {}, {}
         self._prev_cache, self.sic_of = {}, {}
         self.pre_cat = {}                                               # ⚡ خامُّ ④ المُحضَّرُ بين الشمعتين (المسارُ السريع)
         self._sec_cache = {}                                            # ⚡ SEC التحضير وحدَه (`PREP_SEC_TTL_S`) — الكشفُ يجلب طازجًا
@@ -876,14 +904,16 @@ class Day:
     def catalyst(self, sym, upto_ts):
         """⟵ (cat_of، تفصيلٌ للرسالة، SPAC؟) — أخبارُ الرمز حتى لحظة الفحص و`submissions` (تُجلب عند الحاجة · مرّةً لكلّ فحص).
         **وفي الإعادة** مرّةً للرمز في اليوم حتى 20:00 — والنافذةُ في `catalyst4` تقصّها عند نهاية كلّ حدثٍ (لا نظرَ للأمام)."""
-        if self.replay:
-            if sym in self._cat_cache:
-                return self._cat_cache[sym]
+        if self.replay:                                                 # 🟠⑤ البناءُ لكلّ تعريف (الملحق 5 يصفّي الأخبار) والخامُّ مرّةً للرمز
+            if (sym, def_now()) in self._cat_cache:
+                return self._cat_cache[(sym, def_now())]
             upto_ts = V3.ny_ts(self.day, V3.EXT_END)
-        out = self.cat_build(sym, self.cat_fetch(sym, upto_ts))
-        if self.replay:
-            self._cat_cache[sym] = out
-        return out
+            if sym not in self._raw_cache:
+                self._raw_cache[sym] = self.cat_fetch(sym, upto_ts)
+            out = self.cat_build(sym, self._raw_cache[sym])
+            self._cat_cache[(sym, def_now())] = out
+            return out
+        return self.cat_build(sym, self.cat_fetch(sym, upto_ts))
 
     def cat_fetch(self, sym, upto_ts, sec_ttl=None):
         """④ الخامّ حتى `upto_ts`: أخبارُ Polygon ثمّ `submissions` — يُجلب عند الكشف (القديم · SEC طازجٌ دائمًا) أو بين الشمعتين
@@ -903,6 +933,8 @@ class Day:
     def cat_build(self, sym, raw):
         """الخامُّ ⟵ (cat_of، تفصيلٌ للرسالة، وسمُ ⑤) — البناءُ نفسُه لِما جُلب عند الكشف ولِما حُضِّر قبله."""
         items, sic, rows, known = raw["items"], raw["sic"], raw["rows"], raw["known"]
+        if def_now() == "A5" and items is not None:                    # 🟠⑤ ② «خبر حقيقي»: عنوانُ الاستبعاد لا يُعَدّ خبرًا (ولا يُعرض)
+            items = [it for it in items if not news_excluded(it.get("title"))]
         self.sic_of[sym] = sic
         wix = V4.wire_index(items or [])[0]
         s8k = [r[0] for r in rows if r[1] == "8-K"]
@@ -979,8 +1011,8 @@ def scan_symbol(D, sym, bars_today, upto, detected_ts, full_info=False, prev_ove
         a["tags"] = alert_tags(a, b5, a["news_detail"])
         a["prev_src"], a["sic"], a["ldef"] = psrc, D.sic_of.get(sym), ldef
         a["cat_src"] = state.get("src")
-        if def_now() == "A4":
-            a["def"] = "A4"
+        if def_now() in ("A4", "A5"):
+            a["def"] = def_now()
     return res
 
 
@@ -1044,6 +1076,9 @@ def mode_replay(net, MC, end_day, ndays):
     cmp3 = def_now() == "A4"                                            # 🟠④ مقارنةٌ بالملحق 3 على الشموع نفسِها (الإعادةُ وحدَها)
     if cmp3:
         out["alerts_a3"], out["cmp"] = [], []
+    cmp5 = def_now() == "A5"                                            # 🟠⑤ مقارنةٌ بالملحق 4 على الشموع نفسِها (الإعادةُ وحدَها)
+    if cmp5:
+        out["alerts_a4"], out["cmp5"] = [], []
     bad = False
     for day in days:
         D = Day(net, day, MC, replay=True)
@@ -1102,6 +1137,12 @@ def mode_replay(net, MC, end_day, ndays):
                                                           "chg": None if e["chg"] is None else round(e["chg"], 4),
                                                           "rvol": None if e["rvol"] in (None, float("inf")) else round(e["rvol"], 2),
                                                           "why": e["why"]} for e in f3["events"]]})
+            if cmp5:
+                with as_def("A4"):
+                    got4 = _replay_got(D, day, sym, bars, bounds)
+                out["alerts_a4"].extend(got4[k] for k in sorted(got4, key=lambda x: (x[0] != "A", x[1])))
+                if got or got4:
+                    out["cmp5"].append(cmp5_entry(day, sym, got, got4, fin["events"]))
             n_ev += len(fin["events"])
             n_sym_ev += int(bool(fin["events"]))
             n_full += sum(1 for e in fin["events"] if e["full"])
@@ -1113,11 +1154,31 @@ def mode_replay(net, MC, end_day, ndays):
                                         "px": round(e["px"], 4), "chg": None if e["chg"] is None else round(e["chg"], 4),
                                         "rvol": None if e["rvol"] in (None, float("inf")) else round(e["rvol"], 2),
                                         "cum_dollar": round(e["cum_dollar"])})
+        if cmp5:                                                        # 🟠⑤ مرشّحو الملحق 4 الذين أقصاهم مرشِّحُ 5 (‏+20% على أعلى اليوم) — للمقارنة وحدَها
+            with as_def("A4"):
+                cands4 = sorted(set(prefilter(hl, D.prev_adj_pf, D.types)) - set(cands))
+            miss4 = 0
+            for sym in cands4:
+                by = net.minutes(sym, day, day)
+                bars = (by or {}).get(day)
+                if by is None:
+                    miss4 += 1
+                    continue
+                if not bars:
+                    continue
+                with as_def("A4"):
+                    got4 = _replay_got(D, day, sym, bars, bounds)
+                out["alerts_a4"].extend(got4[k] for k in sorted(got4, key=lambda x: (x[0] != "A", x[1])))
+                if got4:
+                    out["cmp5"].append(cmp5_entry(day, sym, {}, got4, [], pre5=False))
+            log(f"🟠⑤ {day}: مرشّحو الملحق 4 خارج مرشِّح 5 {len(cands4)} · شموعٌ تعذّرت {miss4}")
         na = sum(1 for r in out["alerts"] if r["date"] == day)
         out["per_day"][day] = {"ok": True, "candidates": len(cands), "bars_failed": miss_bars, "symbols_with_breaks": n_sym_ev,
                                "a_events": n_ev, "a_full": n_full, "alerts": na, "first_fail": first_fail, "loop_vs_full_mismatch": mismatch,
                                "no_prev_close": len(no_prev), "last_close_used": len(lc_used), "last_close_syms": lc_used[:40],
                                "no_prev_close_syms": no_prev[:40]}
+        if cmp5:
+            out["per_day"][day].update({"a4_only_candidates": len(cands4), "a4_only_bars_failed": miss4})
         _w = "كسر" if def_now() == "A3" else "ثبات"
         log(f"📅 {day} [{def_now()}]: مرشّحون {len(cands)} · شموعٌ تعذّرت {miss_bars} · رموزٌ بـ{_w} {n_sym_ev} · أحداثُ {_w} {n_ev} · كاملة {n_full} · "
             f"تنبيهات {na} · أوّلُ شرطٍ سقط {first_fail} · خلافُ الحلقة {mismatch}")
@@ -1130,7 +1191,77 @@ def mode_replay(net, MC, end_day, ndays):
     if cmp3:
         for line in cmp_tables(out):
             log(line)
+    if cmp5:
+        for line in cmp5_tables(out):
+            log(line)
     return 4 if bad else 0
+
+
+def _replay_got(D, day, sym, bars, bounds):
+    """تنبيهاتُ رمزٍ في يومٍ بمحاكاة الحلقة عند كلّ حدّ (بالتعريف الحاليّ) ⟵ {(الذراع، n): صفُّ سجلٍّ بخبره} — لمقارنة الإعادة."""
+    got = {}
+    for B in bounds:
+        det = V3.ny_ts(day, B) + LOOP_OFFSET_S
+        for a in scan_symbol(D, sym, bars, B, det)["alerts"]:
+            k = (a["arm"], a["n"])
+            if k not in got:
+                got[k] = ledger_row(day, sym, a, det, is_fresh(V3.ny_ts(day, a["e"]), det), None, "replay", _sha(), a.get("news"))
+                got[k]["news_detail"] = a.get("news_detail")
+    return got
+
+
+def cmp5_entry(day, sym, got5, got4, events5, pre5=True):
+    """🟠⑤ صفُّ مقارنة الإعادة لرمز: تنبيهاتُ الملحقين · وأوّلُ حدثٍ أرسله الملحق 4 بشروط الملحق 5 (ما سقط فيه) · وعنوانُ خبر سلكه ونمطُ
+    الاستبعاد المطابق إن وُجد · و`pre5=False` = أقصاه مرشِّحُ 5 (أعلى اليوم دون ‏+20% أو بلا مرجع ⟵ ① في كلّ حدث) — قراءةٌ لا قرار."""
+    arms = lambda g: [(g[k]["arm"], g[k]["n"], g[k]["event_end_ny"]) for k in sorted(g)]          # noqa: E731
+    a4 = got4.get(("A", 1))
+    first = None
+    if a4 is not None:
+        ev = next((e for e in events5 if e["e"] == a4["event_end_mod"] and e["kind"] == a4["candle"]), None)
+        wi = (a4.get("news_detail") or {}).get("wire_item") or {}
+        why5 = list(ev["why"]) if ev is not None else (["① التغيّر (المرشِّح)"] if not pre5 else None)
+        first = {"e": a4["event_end_ny"], "px": a4["px"], "chg": a4["chg"], "why5": why5, "pre5": pre5,
+                 "title": wi.get("title"), "excl": news_excluded(wi.get("title")),
+                 "sec": bool((a4.get("news_detail") or {}).get("sec_item"))}
+    return {"date": day, "sym": sym, "a5": arms(got5), "a4": arms(got4), "a4_first": first}
+
+
+def cmp5_why(c):
+    """سببُ غياب الرمز عن الملحق 5 أو حالُه فيه: أُرسل بالملحق 5 أيضًا (وأوقاتُه) · أو ما سقط في أوّل حدثٍ أرسله الملحق 4."""
+    if c["a5"]:
+        return "أُرسل بالملحق 5 أيضًا " + " · ".join(f"{a}{'#' + str(n) if a == 'D' else ''} {t}" for a, n, t in c["a5"])
+    f = c.get("a4_first")
+    if not f:
+        return "لم يُرسله الملحق 4"
+    why = f.get("why5") or []
+    parts = []
+    for w in why:
+        if w.startswith("① "):
+            parts.append(f"① التغيّر {_pct(f.get('chg'))}")
+        elif w.startswith("④ "):
+            parts.append("④ الخبر" + (f" (مستبعَد «{f['excl']}»: {str(f.get('title') or '')[:60]})" if f.get("excl") else ""))
+        else:
+            parts.append(w)
+    return f"سقط عند {f['e']}: " + (" + ".join(parts) if parts else "حدثٌ كاملٌ بالملحق 5 وغاب عن الحلقة")
+
+
+def cmp5_tables(out):
+    """جدولُ الإعادة بالملحق 5: ما سيُرسَل ومعه حالُه بالملحق 4 · ثمّ رموزُ الملحق 4 الغائبة وسببُ كلٍّ منها — الرمز · الوقت · السعر · الخبر."""
+    by = {(c["date"], c["sym"]): c for c in out.get("cmp5", [])}
+    a5, a4 = out.get("alerts", []), out.get("alerts_a4", [])
+    lines = [f"📋 الملحق 5 (الجديد): {len(a5)} تنبيهًا على {len({(r['date'], r['sym']) for r in a5})} رمزًا · "
+             f"الملحق 4 على الشموع نفسِها: {len(a4)} على {len({(r['date'], r['sym']) for r in a4})}"]
+    for r in a5:
+        c = by.get((r["date"], r["sym"]))
+        lines.append(f"  A5 · {r['date']} {r['event_end_ny']} · ${r['sym']} · {r['arm']}{'#' + str(r['n']) if r['arm'] == 'D' else ''} · "
+                     f"${r['px']} · فيواب {r['vwap']} · {_pct(r['chg'])} · 📰 {r['news']}{'' if r['sent'] else ' · ⏳ متأخّر لا يُرسَل'}"
+                     + ("" if r["arm"] != "A" or c is None else
+                        " · بالملحق 4: " + " · ".join(f"{a}{'#' + str(n) if a == 'D' else ''} {t}" for a, n, t in c["a4"])))
+    only4 = sorted({(r["date"], r["sym"]) for r in a4} - {(r["date"], r["sym"]) for r in a5})
+    lines.append(f"📋 رموزُ الملحق 4 الغائبةُ عن الملحق 5: {len(only4)}")
+    for k in only4:
+        lines.append(f"  − {k[0]} ${k[1]} · {cmp5_why(by[k]) if k in by else '—'}")
+    return lines
 
 
 def cmp_why(c):
@@ -1458,8 +1589,8 @@ def _prep_one(D, sym, now_fn):
     try:
         D.prev_ref(sym)
         D.type_status(sym)
-        if def_now() == "A4":
-            return                                                       # 🟠④ بلا ②: لا أيّامَ RVOL · وكونٌ أوسع ⟵ الخبرُ يُجلب عند الكشف (القرارُ نفسُه · `VLT4`)
+        if def_now() in ("A4", "A5"):
+            return                                                       # 🟠⑤ كالملحق 4 · 🟠④ بلا ②: لا أيّامَ RVOL · وكونٌ أوسع ⟵ الخبرُ يُجلب عند الكشف (القرارُ نفسُه · `VLT4`)
         D.priors_of(sym)
         D.pre_cat[sym] = D.cat_fetch(sym, now_fn(), sec_ttl=PREP_SEC_TTL_S)
     except Exception as e:                                               # noqa: BLE001
