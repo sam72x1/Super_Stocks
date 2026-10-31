@@ -94783,6 +94783,31 @@ except Exception as _e:                                          # noqa: BLE001
     _wfa_ok6, _wfa_err = False, f"{type(_e).__name__}: {_e}"
 check("📝 WFA6: الوحداتُ الخمس في الأداة = جدولُ §⑧ في العقد (الرموزُ · المصادرُ · القاعُ الأوّل المرسوم · النوافذ)", _wfa_ok6, str(_wfa_err)[:80])
 
+# 📝 WFA7 (‏2026-10-31 · النتيجة): المُخرَجان المحفوظان (`results/accept.json` · `results/feas.json`) من سطرَي `WFOUT` بالعقد نفسِه ·
+#        وهويّةُ القُمع فيهما · والأرقامُ في `T_W_FAISAL_RESULT.md` = المُخرَجَين (لا رقمَ مكتوبٌ باليد يبتعد عن مصدره).
+try:
+    import json as _wfa_js
+    _wfa_rd = _wfa_os.path.join("fm_forensics", "w_faisal")
+    _wfa_fe = _wfa_js.load(open(_wfa_os.path.join(_wfa_rd, "results", "feas.json"), encoding="utf-8"))
+    _wfa_ac = _wfa_js.load(open(_wfa_os.path.join(_wfa_rd, "results", "accept.json"), encoding="utf-8"))
+    _wfa_rt = open(_wfa_os.path.join(_wfa_rd, "T_W_FAISAL_RESULT.md"), encoding="utf-8").read()
+    _wfa_id = all(
+        f["L2"] == f["no_l1"] + f["tol"] + f["span"] + f["neck"] + f["decline"] + f["W"]
+        and f["W"] == f["a"] + f["M"] + f["expired"] + f["dedup_a"] and f["trend_binding"] == 0
+        for f in [v["funnel"] for v in _wfa_fe["frames"].values()]
+        + [fv["funnel"] for u in _wfa_ac["units"] for fv in u.get("frames", {}).values()])
+    _wfa_cells = [(c["n"], c["per_session"]) for v in _wfa_fe["frames"].values() for c in v["cells"].values()]
+    _wfa_ok7 = (WFT is not None and _wfa_fe["contract_sha"] == WFT.CONTRACT_SHA == _wfa_ac["contract_sha"]
+                and _wfa_id and len(_wfa_cells) == 4
+                and all(f"**{n:,}**" in _wfa_rt and f"**{ps:.1f}**" in _wfa_rt for n, ps in _wfa_cells)
+                and _wfa_ac["caught"] == sum(bool(u["caught"]) for u in _wfa_ac["units"]) == 4
+                and f"شرطُ البناء 4 من 5) | **{_wfa_ac['caught']} من 5 بالقاعدة" in _wfa_rt and f"{_wfa_fe['sessions']} جلسةَ قياس" in _wfa_rt
+                and not any(ch in _wfa_rt for ch in "≥≤"))
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_ok7, _wfa_err = False, f"{type(_e).__name__}: {_e}"
+check("📝 WFA7: نتيجةُ `T-W-FAISAL` — المُخرَجان بالعقد نفسِه · هويّةُ القُمع · وأرقامُ الملفّ = المُخرَجَين (4 خلايا · القبول 4 من 5)",
+      _wfa_ok7, str(_wfa_err)[:80])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
