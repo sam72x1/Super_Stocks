@@ -67258,7 +67258,10 @@ try:
             and isinstance(n.left, _ast0.Call) and getattr(n.left.func, "attr", None) == "get"
             and n.left.args and getattr(n.left.args[0], "value", None) == "SHADOW_READY"
             and isinstance(n.ops[0], _ast0.Eq) and getattr(n.comparators[0], "value", None) == "1"]
-    _shr7 = (set(_wfs.get(True) or _wfs.get("on") or {}) == {"workflow_dispatch"}
+    _on7 = _wfs.get(True) or _wfs.get("on") or {}
+    # 🗓️ أمرُ المالك 2026-10-31 «فك تجميد الظلّيّة — وجدولها ليليًا»: كرونٌ واحدٌ بعينه (22:17 UTC الاثنين-الجمعة · التوقيتُ
+    #    المقيسُ 2026-09-25) ‏+ اليدويّ — لا كرونَ آخر ولا يومَ عطلة
+    _shr7 = (set(_on7) == {"workflow_dispatch", "schedule"} and _on7.get("schedule") == [{"cron": "17 22 * * 1-5"}]
              and _wfs["permissions"] == {"contents": "write"}
              # 🗓️ إقرارٌ بأمر المالك 2026-09-25 «شغّل كرون الظلّيّة بعد التشغيلة الثانية»: المجدولُ مُجهَّزٌ خاملًا —
              #    يكتب (`'1'`) واليدويُّ `inputs.write` بت-بت · وسطرُ الجدولة **غائبٌ** حتى التحقّق من الثانية (V-S7)
@@ -67272,12 +67275,12 @@ try:
              and not any("TELEGRAM" in k for k in _envs) and _job["steps"][0]["with"]["fetch-depth"] == 0
              and '"SHADOW_SINCE"' in _shr_src and len(_cmp) == 1
              and (_wfs["on" if "on" in _wfs else True]["workflow_dispatch"]["inputs"]["write"]["default"] == "0"))
-    _shr7_w = f"on={list(_wfs.get(True) or _wfs.get('on') or {})} env={sorted(_envs)} commit={len(_commit)} cmp={len(_cmp)}"
+    _shr7_w = f"on={_on7} env={sorted(_envs)} commit={len(_commit)} cmp={len(_cmp)}"
 except Exception as _e:                                            # noqa: BLE001
     _shr7, _shr7_w = False, f"⛔ رمى: {type(_e).__name__}"
-check("🌅🗂️ SHR7 `V-S7` الـworkflow يدويٌّ بلا كرون ولا تلغرام · الكتابةُ `write=1` وحدَه (افتراضُه 0) ⟶ `SHADOW_READY == \"1\"` "
-      "حرفيًّا في الأداة (بالـAST) · والدفعُ خطوةٌ محميّةٌ للسجلّ وحدَه بلا `git_save` · وتاريخُ git كامل · "
-      "والمجدولُ مُجهَّزٌ خاملًا بأمر المالك 2026-09-25 (يكتب · يدفع · تشغيلةٌ واحدةٌ في كلّ مرّة) وسطرُ الجدولة غائب", _shr7, _shr7_w)
+check("🌅🗂️ SHR7 `V-S7` الـworkflow بلا تلغرام · ومجدولٌ ليليًّا بأمر المالك 2026-10-31 (كرونٌ واحد `17 22 * * 1-5` ‏+ اليدويّ) · "
+      "الكتابةُ للمجدول أو `write=1` (افتراضُه 0) ⟶ `SHADOW_READY == \"1\"` حرفيًّا في الأداة (بالـAST) · والدفعُ خطوةٌ محميّةٌ "
+      "للسجلّ وحدَه بلا `git_save` · وتاريخُ git كامل · وتشغيلةٌ واحدةٌ في كلّ مرّة", _shr7, _shr7_w)
 try:
     _old_k = _cfd_os.environ.pop("POLYGON_API_KEY", None)
     _hit = []
