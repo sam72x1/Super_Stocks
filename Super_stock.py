@@ -8447,6 +8447,21 @@ def exact_hold_line(eh) -> str:
 WICK_WIN = 5                    # «آخر 5 جلسات» (نصُّ الأمر · `T_WICK_prereg.md` §①)
 WICK_LINE_MIN = 0.50            # الدرجةُ الحاكمة في `T-WICK` (نصُّ الأمر «ذيل ≥50%»)
 WICK_LINE_ENV = "WICK_LINE"
+# ⚠️ «دفعة عرض» (أمرُ المالك 2026-10-31): «⚠️ ذيل: أعلى 5 جلسات $X (+N% فوق الإغلاق) يوم D … إذا تجاوز 30%» — في الكرت واليوميّ
+#    وفحص اليد · التعريفُ `wick_state` نفسُه (لا قياسَ جديد) · `WICK_WARN=0` ⟵ سطرُ 🕯️ عند 50% كما كان بت-بت (وبلا سطرٍ في فحص اليد).
+WICK_WARN_MIN = 0.30            # «إذا تجاوز 30%» — أمرُ المالك 2026-10-31 (أكبرُ من 30% حصرًا)
+WICK_WARN_ENV = "WICK_WARN"
+
+
+def wick_warn_on() -> bool:
+    """⚠️ صيغةُ المالك 2026-10-31 وحدُّها 30% · «0» ⟵ سطرُ 🕯️ وحدُّه 50% كما كانا بت-بت · وغيابُه = مُفعَّل."""
+    return (os.environ.get(WICK_WARN_ENV) or "").strip() != "0"
+
+
+def _wick_shown(pct) -> bool:
+    """هل يُعرَض الذيل؟ — أكبرُ من 30% بصيغة المالك · أو 50% فأكثر بالصيغة السابقة (`WICK_WARN=0`)."""
+    p = float(pct)
+    return p > WICK_WARN_MIN if wick_warn_on() else p >= WICK_LINE_MIN
 
 
 def wick_line_on() -> bool:
@@ -8489,15 +8504,19 @@ def refresh_wick(stocks, hist) -> dict:
             continue
         s["wick5"] = ws
         n["ok"] += 1
-        n["shown"] += ws["pct"] >= WICK_LINE_MIN
+        n["shown"] += _wick_shown(ws["pct"])
     return n
 
 
 def wick_line(w) -> str:
-    """🕯️ سطرُ الذيل في الكرت (معلومةٌ لا إشارة) — حين يبلغ الذيلُ الحاكمَ 50% فأكثر · وإلّا «» · بلا علامات مقارنة."""
+    """🕯️ سطرُ الذيل في الكرت (معلومةٌ لا إشارة) — حين يبلغ الذيلُ الحاكمَ 50% فأكثر · وإلّا «» · بلا علامات مقارنة.
+    ⚠️ وبصيغة المالك 2026-10-31 (`wick_warn_on`): «⚠️ ذيل: أعلى 5 جلسات $X (+N% فوق الإغلاق) يوم D» حين يتجاوز 30%."""
     try:
-        if not w or float(w["pct"]) < WICK_LINE_MIN:
+        if not w or not _wick_shown(w["pct"]):
             return ""
+        if wick_warn_on():
+            return (f"⚠️ ذيل: أعلى {WICK_WIN} جلسات {_px_txt(w['high'])} "
+                    f"(+{round(float(w['pct']) * 100)}% فوق الإغلاق) يوم {w['date']}")
         return (f"🕯️ ذيلٌ علويّ {round(float(w['pct']) * 100)}% فوق الإغلاق يومَ {w['date']} "
                 f"(أعلى {_px_txt(w['high'])} · إغلاق {_px_txt(w['close'])}) — معلومةٌ لا إشارة")
     except Exception:                                            # noqa: BLE001
@@ -12263,6 +12282,52 @@ HUNTER_WATCH_MAX = 40          # صمّام أمان (يُقلَّم الأقد�
 HUNTER_WATCH_H4_CAP = 12       # سقف نداءات 4س بالمسار اليومي (يُعلَن لا يُقَصّ صامتًا)
 
 
+# 🏁 «انفجر — متابعة سلّم فقط» (دفعة عرض · أمرُ المالك 2026-10-31): كلُّ سهمٍ تجاوز ‏+100% من سعر ترشيحه ينتقل إلى قسمٍ أسفل رسالة
+#    قائمة الأسبوع ومتابعة الصيّاد · **يبقى في السجلّ والشطبُ بالستوب كما هو** · والقسمُ الأعلى للجاهزين وحدَهم · وتحت ‏+100% لا يتغيّر شيء.
+#    عرضٌ لا منطق: الحالةُ والوقفُ والأهدافُ والسعةُ بت-بت · `EXPLODED_SECTION=0` ⟵ الرسالتان والملفّ كما كانا بت-بت.
+EXPLODED_PCT = 100.0            # «تجاوز +100% من سعر ترشيحه» — أمرُ المالك 2026-10-31 (أكبرُ من 100% حصرًا · أقصى ما بلغه منذ الترشيح)
+EXPLODED_ENV = "EXPLODED_SECTION"
+
+
+def exploded_on() -> bool:
+    """🏁 المفتاحُ وقتَ النداء: «0» ⟵ لا قسمَ ولا حقلَ جديد (الرسالتان وملفُّ الصيّاد كما كانت بت-بت) · وغيابُه = مُفعَّل."""
+    return (os.environ.get(EXPLODED_ENV) or "").strip() != "0"
+
+
+def is_exploded(s: dict, key: str = "max_gain_pct") -> bool:
+    """🏁 هل بلغ أقصى ما صعده منذ ترشيحه أكثرَ من ‏+100%؟ — قائمةُ الأسبوع `max_gain_pct` (أعلى High بعد شمعة الترشيح مقابل `entry_ref`
+    مسوًّى بالتقسيم في `update_watchlist_status`) · ومتابعةُ الصيّاد `max_move_pct` · والغائبُ أو التالف ⟵ لا (فاشلٌ-آمن)."""
+    try:
+        return float(s.get(key)) > EXPLODED_PCT
+    except (TypeError, ValueError):
+        return False
+
+
+def _ladder_mark(ok: bool) -> str:
+    return "✅" if ok else "⏳"
+
+
+def build_exploded_section(stocks: list) -> str:
+    """🏁 قسمُ «انفجر — متابعة سلّم فقط» لقائمة الأسبوع — لكلّ سهم: السعرُ وسعرُ الترشيح وأقصى صعود · ثمّ سلّمُ الأهداف (✅ بلغه
+    بحقل `hit` المخزَّن · ⏳ لم يبلغه) والوقف. عرضٌ فقط · قائمةٌ فارغة ⟵ «»."""
+    lst = sorted(list(stocks or []), key=lambda x: -float(x.get("max_gain_pct") or 0))
+    if not lst:
+        return ""
+    rank = {"t1": 1, "t2": 2, "t3": 3}
+    L = [f"🏁 <b>انفجر — متابعة سلّم فقط</b> ({len(lst)})",
+         "<i>تجاوز ‏+100% من سعر ترشيحه · يبقى في السجلّ والشطبُ بالستوب كما هو</i>"]
+    for s in lst:
+        try:
+            h = rank.get(str(s.get("hit") or ""), 0)
+            L.append(f"🏁 <b>${esc(str(s.get('symbol') or ''))}</b> {_px_txt(s.get('last_price'))} · ترشيح {_px_txt(s.get('entry_ref'))}"
+                     f" ({s.get('added')}) · أقصى ‏+{float(s.get('max_gain_pct') or 0):.0f}%")
+            steps = [f"هدف{j} {_px_txt(s.get(f't{j}'))} {_ladder_mark(h >= j)}" for j in (1, 2, 3) if s.get(f"t{j}") is not None]
+            L.append("   🪜 " + " · ".join(steps + [f"⛔ وقف {_px_txt(s.get('stop'))}"]))
+        except Exception:                                        # noqa: BLE001
+            continue
+    return _rtl_join(L)
+
+
 def hunter_watch_entry(r: dict, today=None) -> dict:
     """🪝 سجلّ متابعةٍ لمطابقٍ من الصيّاد — **دالّة نقيّة** (بلا شبكة/قرص).
 
@@ -12352,6 +12417,17 @@ def hunter_watch_update(s: dict, df, r: dict = None) -> dict:
                 out["move_pct"] = round((px / ref - 1.0) * 100.0, 1)
         except (TypeError, ValueError):
             pass
+        if exploded_on():                    # 🏁 أقصى صعودٍ منذ الترشيح (أعلى High بعد يوم الإدراج) — عرضٌ لقسم «انفجر» وحدَه
+            try:
+                ref = float(out.get("ref_price"))
+                _add = str(out.get("added") or "")
+                _hs = [float(h) for d, h in zip(df.index, df["High"]) if str(d)[:10] > _add and float(h) == float(h)]
+                if ref > 0 and _hs:
+                    _mh = max(_hs + ([float(out["max_high"])] if out.get("max_high") is not None else []))
+                    out["max_high"] = round(_mh, 4)
+                    out["max_move_pct"] = round((_mh / ref - 1.0) * 100.0, 1)
+            except (TypeError, ValueError, KeyError):
+                pass
         stop = out.get("stop")
         if stop is not None and out.get("status") == "active":
             try:
@@ -12421,7 +12497,11 @@ def build_hunter_watch_section(wl: dict, hands: dict = None) -> str:
     act = [s for s in lst if s.get("status") == "active"]
     new_stop = [s for s in lst if s.get("status") == "stopped"
                 and s.get("stopped_at") and s.get("stopped_at") == s.get("last_bar")]
-    if not act and not new_stop:
+    expl = []
+    if exploded_on():                        # 🏁 ما تجاوز ‏+100% من ترشيحه ينتقل لقسم «انفجر» أسفلُ (الأعلى للباقين وحدَهم)
+        expl = [s for s in act if is_exploded(s, "max_move_pct")]
+        act = [s for s in act if not is_exploded(s, "max_move_pct")]
+    if not act and not new_stop and not expl:
         return ""
     hands = hands or {}
     L = [f"🪝 <b>متابعة أسهم الصيّاد (المقسّم)</b> — {len(act)}",
@@ -12462,6 +12542,28 @@ def build_hunter_watch_section(wl: dict, hands: dict = None) -> str:
         except (TypeError, ValueError, KeyError):
             pass
         L.append(f"🛑 <b>{esc(str(s.get('symbol') or ''))}</b> شُطب — كُسر القاع{_p}")
+    if expl:
+        L += ["", f"🏁 <b>انفجر — متابعة سلّم فقط</b> ({len(expl)})",
+              "<i>تجاوز ‏+100% من سعر ترشيحه · يبقى في السجلّ والشطبُ بكسر القاع كما هو</i>"]
+        for s in sorted(expl, key=lambda x: -float(x.get("max_move_pct") or 0)):
+            try:
+                head = f"🏁 <b>{esc(str(s.get('symbol') or ''))}</b> {_px_txt(s.get('last_price'))}"
+                if s.get("move_pct") is not None:
+                    head += f" ({float(s['move_pct']):+.0f}% عن ترشيحه"
+                    head += f" · أقصى ‏+{float(s['max_move_pct']):.0f}%)"
+                L.append(head)
+                _mh = float(s.get("max_high") or 0)
+                steps = []
+                for t in (s.get("targets") or []):
+                    try:
+                        tp = float(t.get("price"))
+                    except (TypeError, ValueError, AttributeError):
+                        continue
+                    steps.append(f"{_px_txt(tp)} {_ladder_mark(_mh >= tp)}")
+                steps.append(f"⛔ وقف {_px_txt(s.get('stop'))} (القاع نفسه)")
+                L.append("  🪜 " + " · ".join(steps))
+            except Exception:                                    # noqa: BLE001
+                continue
     return _rtl_join(L)
 
 
@@ -21086,6 +21188,12 @@ def build_daily_message(wl: dict, splits: list,
                 if s.get("cont_status") in ("continues", "exited")]
     _screen = [s for s in wl["stocks"]
                if s.get("cont_status") not in ("continues", "exited")]
+    # 🏁 «انفجر — متابعة سلّم فقط» (أمرُ المالك 2026-10-31): ما تجاوز ‏+100% من ترشيحه يخرج من القسمين ويُعرَض أسفلُ · عرضٌ فقط
+    _expl = [s for s in wl["stocks"] if is_exploded(s)] if exploded_on() else []
+    _xid = {id(s) for s in _expl}
+    if _expl:
+        _carried = [s for s in _carried if id(s) not in _xid]
+        _screen = [s for s in _screen if id(s) not in _xid]
     n = len(_screen)
     # 🟢👀 فصل «جاهز للدخول الآن» عن «متابعة» (خطة ENTRY_READY_SPLIT_PLAN — عرض فقط،
     # من موقع السعر عبر entry_status؛ الترتيب المخزّن لا يُلمس، فقط partition للعرض).
@@ -21095,9 +21203,11 @@ def build_daily_message(wl: dict, splits: list,
     _pw = f" · 🔄 {len(_carried)} متابعة لمركزك" if _carried else ""
     # 🪑 فصلُ القائمتين (2026-08-13): عدّادٌ صريحٌ للمرتفعين فوق نطاقهم — لا يحجزون
     #    خانات، فيُعلَن عددُهم بدل أن يُقرأ نقصُ الخانات لغزًا. عرضٌ فقط.
-    _risen_n = sum(1 for s in wl["stocks"] if _position_risen(s))
+    _risen_n = sum(1 for s in wl["stocks"] if _position_risen(s) and id(s) not in _xid)   # 🏁 المنفجرُ يُعَدّ مرّةً في قسمه
     if _risen_n:
         _pw += f" · 📈 {_risen_n} فوق نطاق الدخول (لا تحجز خانات)"
+    if _expl:
+        _pw += f" · 🏁 {len(_expl)} انفجر (متابعة سلّم)"
     if ready_only:
         lines = [f"📋 <b>قائمة الأسبوع</b> — {today}",
                  f"🟢 {len(_ready)} جاهز للدخول · 👀 {len(_watch)} تحت متابعة البوت"
@@ -21317,6 +21427,9 @@ def build_daily_message(wl: dict, splits: list,
     _pws = build_position_watch_section(_carried)
     if _pws:
         lines += ["", _pws]
+    _exs = build_exploded_section(_expl)       # 🏁 أسفلُ الرسالة (أمرُ المالك 2026-10-31)
+    if _exs:
+        lines += ["", _exs]
     lines += ["", FOOTER]
     return _rtl_join(lines)
 

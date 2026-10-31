@@ -1628,6 +1628,18 @@ def scan_universe(hist: dict, state: dict, p=None, lookback: int = SCAN_LOOKBACK
     return out
 
 
+# 🔇 «أسكت تلغرام للنسخة الحالية» (دفعة عرض · أمرُ المالك 2026-10-31): الحكمُ المسجَّل «لا ميزة على الضبط» (`hs_result.md`) وذيلُ
+#    الرسالة نفسُه يقول وسيط ‏+5D ‏−1.6% ⟵ المسحُ اليوميّ لا يرسل شيئًا (لا نموذجَ ولا شارتَ ولا سطرَ الباقين ولا إنذارَ التغطية) ويطبع في
+#    السجلّ ما كان سيُرسَل · والمسحُ وحصادُ `T-HS-SF` وختمُ الحالة ودفعُها كما هي (والحصادُ يسجّل `msg` كما وقع: لا رسالة ⟵ False) ·
+#    وإنذارُ التغطية يبقى خروجًا 3 (أحمرُ في Actions) · والأداةُ اليدويّة (رمز · سؤال) خارجه · `HS_TELEGRAM=1` ⟵ الإرسالُ كما كان بت-بت.
+HS_TELEGRAM_ENV = "HS_TELEGRAM"
+
+
+def hs_telegram_on() -> bool:
+    """🔇 المفتاحُ وقتَ النداء: «1» حرفيًّا ⟵ المسحُ يرسل كما كان · وغيرُه (والغياب) ⟵ صامت."""
+    return (os.environ.get(HS_TELEGRAM_ENV) or "").strip() == "1"
+
+
 def run_scan(fetch=None) -> int:
     """المسحُ اليوميّ بعد الإغلاق (§40 من أمر المالك · العقد §⑪): أحدثُ الشموع ⟵ حارسُ التغطية ⟵ بوّابةُ السلامة ⟵ الكشف ⟵ دورةُ الحياة ⟵
     الجودة ⟵ تلغرام — رسالةٌ لكلّ نموذجٍ جديد **مرّةً واحدة** (معرّفُه في `hs_state.json` **بعد** الإرسال) حتى `SCAN_MAX_MSGS` بالجودة
@@ -1638,9 +1650,15 @@ def run_scan(fetch=None) -> int:
     hist = hist or {}
     cov = len(hist) / float(len(pop) or 1)
     log(f"🔎 {TOOL_NAME} · مسح · المجتمع {len(pop)} · شموعٌ {len(hist)} ({cov:.1%})")
+    tg = hs_telegram_on()
+    if not tg:
+        log(f"   🔇 تلغرام صامتٌ بأمر المالك ({HS_TELEGRAM_ENV}=1 يُعيده) — المسحُ والحصادُ ملفًّا")
     if cov < SCAN_MIN_COVERAGE:
-        S.send_telegram(f"🔎 <b>{TOOL_NAME}</b>\n⚠️ تعذّر المسح اليوم: شموعٌ لـ{len(hist)} من {len(pop)} سهمًا فقط "
-                        f"({cov:.0%}) — لا يُقرأ الصمتُ «لا نموذج».\n\n" + S.FOOTER)
+        if tg:
+            S.send_telegram(f"🔎 <b>{TOOL_NAME}</b>\n⚠️ تعذّر المسح اليوم: شموعٌ لـ{len(hist)} من {len(pop)} سهمًا فقط "
+                            f"({cov:.0%}) — لا يُقرأ الصمتُ «لا نموذج».\n\n" + S.FOOTER)
+        else:
+            log(f"   🔇 كان سيُرسَل إنذارُ التغطية: {len(hist)} من {len(pop)} ({cov:.0%})")
         return 3
     kept = S.dq_filter([{"symbol": s} for s in sorted(hist)], hist, scope="hs_scan")
     ok = {it["symbol"]: hist[it["symbol"]] for it in kept}
@@ -1652,6 +1670,9 @@ def run_scan(fetch=None) -> int:
     sent = state.setdefault("sent", {})
     for sym, lc in found[:SCAN_MAX_MSGS]:
         msg = build_alert(sym, lc, tf="1d", hist=hist_stats)
+        if not tg:
+            log(f"   🔇 كان سيُرسَل: ${sym} · {lc['state']} · جودة {lc['sig']['quality']}/100 · اختراق {lc['sig']['b_date']}")
+            continue
         if not S.send_telegram(msg + "\n\n" + S.FOOTER):
             continue
         sent[lc["sig"]["pid"]] = lc["sig"]["b_date"]
@@ -1665,7 +1686,9 @@ def run_scan(fetch=None) -> int:
         except Exception as e:                                             # noqa: BLE001
             log(f"⚠️ الشارت تعذّر: {type(e).__name__}")
     rest = found[SCAN_MAX_MSGS:]
-    if rest:
+    if rest and not tg:
+        log("   🔇 كان سيُرسَل سطرُ الباقين: " + " · ".join(f"${sym}" for sym, _ in rest))
+    elif rest:
         line = (f"🔎 <b>{TOOL_NAME}</b>\nنماذجُ أخرى اليوم ({len(rest)}) خارج حدّ {SCAN_MAX_MSGS} رسائل (أدنى جودة): "
                 + " · ".join(f"${S.esc(sym)} ({lc['sig']['quality']}/100)" for sym, lc in rest))
         if S.send_telegram(line + "\n\n" + S.FOOTER):

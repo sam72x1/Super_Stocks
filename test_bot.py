@@ -76223,6 +76223,11 @@ def _hs_composite(seed=0, n_walk=(400, 300)):
     return big
 
 
+# 🔇 (دفعة عرض 2026-10-31 · `HS_TELEGRAM`): المسحُ صار صامتًا افتراضيًّا ⟵ أقفالُ HS/HSF التي تقرأ رسائلَه تُثبَّت على «1» فتحرس مسارَ
+#    الرجوع بت-بت (وأقفالُ `DBH*` على الصامت) — يُستعاد قبل HSF9.
+import os as _db_pin_os                     # اسمٌ خاصّ: `_os` يُعاد ربطُه لاحقًا في السويّة (‏84202 · `_FE.offering_state`)
+_db_hs_prev = _db_pin_os.environ.get("HS_TELEGRAM")
+_db_pin_os.environ["HS_TELEGRAM"] = "1"
 # ── HS0 الهويّة: الاسمُ حرفيًّا · و«12 شمعة» ليست رقمًا في الكشف (AST) · والمعاملاتُ في الدفتر ──────────────────────────
 try:
     _hs0_src = open(HS.__file__, encoding="utf-8").read()
@@ -77582,6 +77587,10 @@ except Exception as _e:                                                  # noqa:
 check("🧪 HSF8 تواريخُ التقسيم: أزواجُ (يوم, نسبة) تُقرأ (كانت «مجهولًا») وسلسلةُ ياهو كما هي · وNone والاستثناءُ مجهول · والحسمُ يقرأ ياهو ∪ "
       "تقويمَ ناسداك (`_fetch_splits_dq`)", _hsf8_ok, str(_hsf8)[:400])
 
+if _db_hs_prev is None:
+    _db_pin_os.environ.pop("HS_TELEGRAM", None)
+else:
+    _db_pin_os.environ["HS_TELEGRAM"] = _db_hs_prev
 # ── HSF9 الوصلُ والحدود (§⑦ W1 · §⑪ · AST): `run_scan` تنادي `scan_universe(collect=…)` و`forward_run` **بعد آخر إرسال** داخل `try` · و`git_save`
 #    يحفظ `_fwd_path()` · ولا `send_telegram` في أيّ دالّةٍ من التجربة (لا رسالةَ جديدة) · والحدودُ تُقرأ بالاسم (لا 20_000 ولا 10_000 حرفًا).
 try:
@@ -93349,6 +93358,11 @@ finally:
 check("🔒 TWK8 إغلاقُ `T-WICK` **مُنفَّذ** («اقفل الذيل»): الأوضاعُ الخمسة تخرج 8 بصفرِ نداءٍ و«0» لا يفتح · و`guards` يخرج 0 · "
       "ونصُّ الإغلاق بحكمه وشروط فتحه الثلاثة · ولا يُكتب شيءٌ في `data/`", _twk8_ok, _twk8_x)
 
+# ⚠️ (دفعة عرض 2026-10-31 · `WICK_WARN`): السطرُ صار «⚠️ ذيل» عند تجاوز 30% ⟵ أقفالُ WKL تُثبَّت على `WICK_WARN=0` فتحرس مسارَ الرجوع بت-بت
+#    (وأقفالُ `DBW*` على الجديد) — يُستعاد بعد WKL5.
+import os as _db_pin_os2                    # اسمٌ خاصّ (لا `_os`: مُعادُ الربط في السويّة)
+_db_wk_prev = _db_pin_os2.environ.get("WICK_WARN")
+_db_pin_os2.environ["WICK_WARN"] = "0"
 # 🕯️ WKL1-WKL5 (‏2026-10-30 · أمرُ المالك «اعرض الذيل معلومةً لا إشارة» بعد `T-WICK`): سطرُ «🕯️ ذيلٌ علويّ» في كرت التجديد
 #    واليوميّ — **عرضٌ فقط** · التعريفُ تعريفُ `wick_max` في الأداة · الحدُّ الدرجةُ الحاكمة 50% · `WICK_LINE=0` ⟵ بت-بت
 import ast as _wkl_ast
@@ -93506,6 +93520,10 @@ except Exception as _e:                                              # noqa: BLE
     _vWL5, _vWL5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🕯️ WKL5 عرضٌ لا إشارة: الجذورُ الاثنا عشر (`rank_key` · `select_top` · `entry_status` · `build_interpretation` …) لا تذكر "
       "`wick5` ولا دوالَّه ولا ثوابتَه (AST)", _vWL5, _vWL5w)
+if _db_wk_prev is None:
+    _db_pin_os2.environ.pop("WICK_WARN", None)
+else:
+    _db_pin_os2.environ["WICK_WARN"] = _db_wk_prev
 
 # 🔗🚦 OES1-OES2 (‏2026-10-30 · عطلٌ مُثبَت من سؤال المالك عن فشل `git_save` 14:27 UTC): «عاملٌ واحد» — العاملُ الذي يبدأه كرونٌ متأخّر
 #    يُخلي الجلسةَ لعاملٍ أقدمَ حيّ (كانا يُرسلان «هنا الدخول» نفسَه وتتصادم دفعاتُهما) · والأقدمُ لا يُخلي · والتعذّرُ ⟵ يعمل
@@ -94095,6 +94113,311 @@ except Exception as _e:                                          # noqa: BLE001
     _c35r_ok6, _c35r_w6 = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🚧 C35R6 السجلّات: الدفتر (35 بقرار المالك · المفتاح) · السطرُ المؤرَّخ بالكلفة الصادقة · نصُّ الأمر في الأرشيف · "
       "و`M4_RISE` رقمُه OWNER بسند `O_CHASE35_1029`", _c35r_ok6, _c35r_w6)
+
+# ⚠️🏁🔇 DBW1-DBW3 · DBX1-DBX4 · DBH1-DBH2 (‏2026-10-31 · أمرُ المالك «دفعة عرض — PR واحد، لا منطق ولا بوّابات … مفتاح لكل واحد يرجعه
+#    بت-بت»): ① سطرُ الذيل «⚠️ ذيل: …» حين يتجاوز 30% (`WICK_WARN`) ② قسمُ «🏁 انفجر — متابعة سلّم فقط» لما تجاوز ‏+100% من ترشيحه في قائمة
+#    الأسبوع ومتابعة الصيّاد (`EXPLODED_SECTION`) ③ تلغرامُ المسح اليوميّ للرأس والكتفين صامت (`HS_TELEGRAM=1` يُعيده) — والمسحُ والحصادُ ملفًّا.
+import ast as _db_ast
+import contextlib as _db_ctx
+import inspect as _db_insp
+import io as _db_io
+import json as _db_json
+import os as _db_os
+import shutil as _db_sh
+import tempfile as _db_tf
+import textwrap as _db_tw
+import pandas as _db_pd
+import hand_check as _db_hc
+import head_shoulders as _db_HS
+
+
+@_db_ctx.contextmanager
+def _db_env(**kv):
+    _prev = {k: _db_os.environ.get(k) for k in kv}
+    try:
+        for k, v in kv.items():
+            if v is None:
+                _db_os.environ.pop(k, None)
+            else:
+                _db_os.environ[k] = v
+        yield
+    finally:
+        for k, v in _prev.items():
+            if v is None:
+                _db_os.environ.pop(k, None)
+            else:
+                _db_os.environ[k] = v
+
+
+# DBW1 — السطرُ بنصّ المالك: يظهر عند تجاوز 30% (لا عند 30% بالضبط ولا دونها) · CETX ⟵ «⚠️ ذيل: أعلى 5 جلسات $3.10 (+74% فوق الإغلاق) يوم …»
+#    · بلا علامات مقارنة · و`WICK_WARN=0` ⟵ سطرُ 🕯️ القديم عند 50% وحدَه (31% لا يظهر)
+try:
+    def _dbw_w(p):
+        return {"pct": p, "date": "2026-10-29", "high": 1.0 + p, "close": 1.0}
+    with _db_env(WICK_WARN=None):
+        _dbw_on = S.wick_warn_on()
+        _dbw_31, _dbw_30, _dbw_29 = S.wick_line(_dbw_w(0.31)), S.wick_line(_dbw_w(0.30)), S.wick_line(_dbw_w(0.29))
+        _dbw_c = S.wick_line({"pct": 3.10 / 1.78 - 1, "date": "2026-10-29", "high": 3.10, "close": 1.78})
+        _dbw_bad = (S.wick_line(None), S.wick_line({}), S.wick_line({"pct": "x"}))
+    with _db_env(WICK_WARN="0"):
+        _dbw_offon = S.wick_warn_on()
+        _dbw_o31, _dbw_o50 = S.wick_line(_dbw_w(0.31)), S.wick_line(_dbw_w(0.50))
+    _vDBW1 = (_dbw_on and not _dbw_offon and S.WICK_WARN_MIN == 0.30
+              and _dbw_c == "⚠️ ذيل: أعلى 5 جلسات $3.10 (+74% فوق الإغلاق) يوم 2026-10-29"
+              and _dbw_31.startswith("⚠️ ذيل: أعلى 5 جلسات") and "(+31% فوق الإغلاق)" in _dbw_31
+              and _dbw_30 == "" and _dbw_29 == "" and _dbw_bad == ("", "", "")
+              and not any(ch in _dbw_c for ch in "≥≤<>")
+              and _dbw_o31 == "" and _dbw_o50.startswith("🕯️ ذيلٌ علويّ 50%"))
+    _vDBW1w = f"c={_dbw_c!r} · 31={_dbw_31[:30]!r} · 30={_dbw_30!r} · off31={_dbw_o31!r} · off50={_dbw_o50[:20]!r}"
+except Exception as _e:                                              # noqa: BLE001
+    _vDBW1, _vDBW1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚠️ DBW1 سطرُ الذيل بنصّ المالك: «⚠️ ذيل: أعلى 5 جلسات $X (+N% فوق الإغلاق) يوم D» عند تجاوز 30% (لا عند 30% بالضبط) · "
+      "وبلا علامات · و`WICK_WARN=0` ⟵ سطرُ 🕯️ عند 50% وحدَه", _vDBW1, _vDBW1w)
+
+# DBW2 — `refresh_wick` يعدّ «ظاهرًا» بالحدّ النافذ: ذيلُ 35% ظاهرٌ بالجديد وغيرُ ظاهرٍ بـ`WICK_WARN=0`
+try:
+    _dbw_idx = _db_pd.date_range("2026-10-19", periods=10, freq="B")
+    _dbw_df = _db_pd.DataFrame({"Open": [1.0] * 10, "High": [1.0] * 9 + [1.35], "Low": [0.95] * 10,
+                                "Close": [1.0] * 10, "Volume": [1e5] * 10}, index=_dbw_idx)
+    with _db_env(WICK_WARN=None, WICK_LINE=None):
+        _dbw_n1 = S.refresh_wick([{"symbol": "DBW"}], {"DBW": _dbw_df})
+    with _db_env(WICK_WARN="0", WICK_LINE=None):
+        _dbw_n0 = S.refresh_wick([{"symbol": "DBW"}], {"DBW": _dbw_df})
+    _vDBW2 = _dbw_n1 == {"ok": 1, "shown": 1, "nodata": 0} and _dbw_n0 == {"ok": 1, "shown": 0, "nodata": 0}
+    _vDBW2w = f"on={_dbw_n1} · off={_dbw_n0}"
+except Exception as _e:                                              # noqa: BLE001
+    _vDBW2, _vDBW2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚠️ DBW2 `refresh_wick` يعدّ الظاهرَ بالحدّ النافذ (35% ظاهرٌ بالجديد · غيرُ ظاهرٍ بـ`WICK_WARN=0`)", _vDBW2, _vDBW2w)
+
+# DBW3 — موصولٌ في الثلاثة: كرتُ الجاهز اليوميّ (ready_only=True) · كرتُ التجديد · فحصُ اليد — بذيلٍ 35% · و`WICK_WARN=0` ⟵ لا سطرَ فيها ·
+#    وفحصُ اليد يحسب `wick5` من إطاره (`wick_state` بشرط المفتاحين · AST) قبل العرض
+try:
+    _dbw_rb = {"price": 1.85, "last_price": 1.85, "pivot": 1.80, "tranches": [1.80, 1.85, 1.90], "stop": [1.67, 1.71],
+               "t1": 2.0, "t2": 2.2, "t3": 2.5, "key_levels": {"sup_major": 1.80}, "warnings": []}
+    _dbw_card = dict(_dbw_rb, symbol="DBWC", score=60, readiness=60, rr=2.0, entry=(1.80, 1.90), tier="B", soft_fails=[], flags=[])
+    _dbw_card["interp"] = S.build_interpretation(_dbw_card)
+    _dbw_wl = S.make_watch_entry(dict(_dbw_card), "2026-10-30")
+    _dbw_35 = {"pct": 0.35, "date": "2026-10-29", "high": 2.43, "close": 1.80}
+    _dbw_ln = "⚠️ ذيل: أعلى 5 جلسات $2.43 (+35% فوق الإغلاق) يوم 2026-10-29"
+    _dbw_out = {}
+    for _k, _v in (("on", None), ("off", "0")):
+        with _db_env(WICK_WARN=_v):
+            _dbw_out[_k] = (S.build_daily_message({"stocks": [dict(_dbw_wl, wick5=_dbw_35)]}, [], [], [], ready_only=True),
+                            S.build_message([dict(_dbw_card, wick5=_dbw_35)], []),
+                            _db_hc.render_hand_check("DBWC", {"symbol": "DBWC", "price": 1.85, "wick5": _dbw_35}))
+    _dbw_hct = _db_ast.parse(_db_tw.dedent(_db_insp.getsource(_db_hc.hand_check)))
+    _dbw_names = {getattr(c.func, "attr", None) for c in _db_ast.walk(_dbw_hct) if isinstance(c, _db_ast.Call)}
+    _vDBW3 = (all(_dbw_ln in m for m in _dbw_out["on"]) and "DBWC" in _dbw_out["on"][0]
+              and not any("⚠️ ذيل" in m or "ذيلٌ علويّ" in m for m in _dbw_out["off"])
+              and {"wick_state", "wick_warn_on", "wick_line_on", "_daily_rows_of"} <= _dbw_names)
+    _vDBW3w = (f"on={[(_dbw_ln in m) for m in _dbw_out['on']]} · off={[('ذيل' in m) for m in _dbw_out['off']]} · "
+               f"hc={sorted(_dbw_names & {'wick_state', 'wick_warn_on', 'wick_line_on', '_daily_rows_of'})}")
+except Exception as _e:                                              # noqa: BLE001
+    _vDBW3, _vDBW3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⚠️ DBW3 موصولٌ في الكرت اليوميّ (ready_only) وكرت التجديد وفحص اليد بذيلٍ 35% · و`WICK_WARN=0` ⟵ لا سطرَ فيها · "
+      "وفحصُ اليد يحسب `wick5` من إطاره (AST)", _vDBW3, _vDBW3w)
+
+# DBX1 — «تجاوز ‏+100%» حصرًا: 100.1 نعم · 100 لا · والغائبُ والتالفُ لا · والمفتاحُ يقرأ الحقلَ المسمّى وحدَه
+try:
+    _vDBX1 = (S.EXPLODED_PCT == 100.0 and S.is_exploded({"max_gain_pct": 100.1}) and not S.is_exploded({"max_gain_pct": 100.0})
+              and not S.is_exploded({"max_gain_pct": None}) and not S.is_exploded({}) and not S.is_exploded({"max_gain_pct": "x"})
+              and S.is_exploded({"max_move_pct": 150.0}, "max_move_pct") and not S.is_exploded({"max_gain_pct": 150.0}, "max_move_pct")
+              and S.is_exploded({"max_gain_pct": 150.0}) and not S.is_exploded({"max_move_pct": 150.0}))
+    _vDBX1w = ""
+except Exception as _e:                                              # noqa: BLE001
+    _vDBX1, _vDBX1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏁 DBX1 `is_exploded`: أكبرُ من 100% حصرًا · الغائبُ والتالفُ لا · ويقرأ الحقلَ المسمّى وحدَه", _vDBX1, _vDBX1w)
+
+# DBX2 — قائمةُ الأسبوع: المنفجرُ يخرج من الجاهز ومن «متابعة لمركزك» إلى قسمٍ أسفلَ الرسالة (قبل التذييل) بالسلّم (✅ بـ`hit` · ⏳) والوقف ·
+#    والترويسةُ تعدّه «🏁 N انفجر» ولا تعدّه جاهزًا · وتحت ‏+100% لا يتغيّر شيء · و`EXPLODED_SECTION=0` ⟵ الرسالةُ بت-بت كما لو لم يبلغها
+try:
+    _dbx_a = dict(_dbw_wl, symbol="DBXA", max_gain_pct=20.0)
+    _dbx_b = dict(_dbw_wl, symbol="DBXB", max_gain_pct=150.0, hit="t2", hit_date="2026-10-30")
+    _dbx_c = dict(_dbw_wl, symbol="DBXC", max_gain_pct=120.0, cont_status="continues")
+    with _db_env(EXPLODED_SECTION=None):
+        _dbx_m = S.build_daily_message({"stocks": [dict(_dbx_a), dict(_dbx_b), dict(_dbx_c)]}, [], [], [], ready_only=True)
+        _dbx_low = S.build_daily_message({"stocks": [dict(_dbx_a, max_gain_pct=99.0)]}, [], [], [], ready_only=True)
+        _dbx_ref = S.build_daily_message({"stocks": [dict(_dbx_a, max_gain_pct=50.0), dict(_dbx_c, max_gain_pct=50.0)]},
+                                         [], [], [], ready_only=True)
+        _dbx_r1 = S.build_daily_message({"stocks": [dict(_dbx_b, last_price=3.0)]}, [], [], [], ready_only=True)
+    with _db_env(EXPLODED_SECTION="0"):
+        _dbx_low0 = S.build_daily_message({"stocks": [dict(_dbx_a, max_gain_pct=99.0)]}, [], [], [], ready_only=True)
+        _dbx_off = S.build_daily_message({"stocks": [dict(_dbx_a, max_gain_pct=150.0), dict(_dbx_c)]}, [], [], [], ready_only=True)
+        _dbx_r0 = S.build_daily_message({"stocks": [dict(_dbx_b, last_price=3.0)]}, [], [], [], ready_only=True)
+    _dbx_i = _dbx_m.find("🏁 <b>انفجر — متابعة سلّم فقط</b> (2)")
+    _dbx_sec = _dbx_m[_dbx_i:] if _dbx_i >= 0 else ""
+    _vDBX2 = (_dbx_i > 0 and "🟢 1 جاهز للدخول" in _dbx_m and "🏁 2 انفجر (متابعة سلّم)" in _dbx_m
+              and "متابعة لمركزك" not in _dbx_m
+              and _dbx_m.count("DBXB") == 1 and _dbx_m.count("DBXC") == 1 and "DBXA" in _dbx_m[:_dbx_i]
+              and "هدف1 $2.00 ✅ · هدف2 $2.20 ✅ · هدف3 $2.50 ⏳" in _dbx_sec and "⛔ وقف $" in _dbx_sec
+              and "+150%" in _dbx_sec and _dbx_sec.find("DBXB") < _dbx_sec.find("DBXC")
+              and _dbx_sec.rfind(S.FOOTER.strip().split("\n")[-1].strip()) > 0
+              and _dbx_low == _dbx_low0 and "🏁" not in _dbx_low
+              and _dbx_off == _dbx_ref
+              and "📈 1 فوق نطاق الدخول" in _dbx_r0 and "📈" not in _dbx_r1 and "🏁 1 انفجر" in _dbx_r1)
+    _vDBX2w = (f"قسم={_dbx_i} · B={_dbx_m.count('DBXB')} · C={_dbx_m.count('DBXC')} · سلّم={'هدف2 $2.20 ✅' in _dbx_sec} · "
+               f"تحت100={_dbx_low == _dbx_low0} · مطفأ=بت-بت {_dbx_off == _dbx_ref}")
+except Exception as _e:                                              # noqa: BLE001
+    _vDBX2, _vDBX2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏁 DBX2 قائمةُ الأسبوع: المنفجرُ يخرج من الجاهز و«متابعة لمركزك» إلى قسمٍ أسفلَ الرسالة بالسلّم والوقف · والترويسةُ تعدّه منفصلًا · "
+      "وتحت ‏+100% لا يتغيّر شيء · و`EXPLODED_SECTION=0` ⟵ بت-بت", _vDBX2, _vDBX2w)
+
+# DBX3 — الصيّاد: `hunter_watch_update` يحسب أقصى High **بعد يوم الإدراج** (يومُه خارج) ويحتفظ بالأعلى · وقسمُ المتابعة ينقل ما تجاوز ‏+100%
+#    إلى «🏁» بالأهداف (✅ ما بلغته القمّة) والوقف (القاع نفسه) · والعدُّ في الترويسة للباقين · والمنفجرُ وحدَه يُعرَض · و`EXPLODED_SECTION=0`
+#    ⟵ لا حقلَ جديد والقسمُ بت-بت
+try:
+    _dbx_ix = _db_pd.date_range("2026-10-26", periods=5, freq="B")
+    _dbx_hdf = _db_pd.DataFrame({"Open": [1.0] * 5, "High": [5.0, 1.3, 2.6, 1.6, 1.5], "Low": [0.9] * 5,
+                                 "Close": [1.0, 1.2, 1.5, 1.4, 1.3], "Volume": [1e5] * 5}, index=_dbx_ix)
+    _dbx_hdf2 = _db_pd.DataFrame({"Open": [1.0] * 5, "High": [1.1] * 5, "Low": [0.9] * 5,
+                                  "Close": [1.0] * 5, "Volume": [1e5] * 5}, index=_dbx_ix)
+    _dbx_s = {"symbol": "DBXH", "added": "2026-10-26", "ref_price": 1.0, "status": "active", "stop": 0.8,
+              "targets": [{"price": 2.0, "label": "x"}, {"price": 3.0, "label": "y"}], "last_price": 1.0}
+    _dbx_n = {"symbol": "DBXN", "added": "2026-10-26", "ref_price": 1.0, "status": "active", "stop": 0.8,
+              "targets": [{"price": 2.0}], "last_price": 1.0}
+    with _db_env(EXPLODED_SECTION=None):
+        _dbx_u1 = S.hunter_watch_update(_dbx_s, _dbx_hdf)
+        _dbx_u2 = S.hunter_watch_update(_dbx_u1, _dbx_hdf2)
+        _dbx_un = S.hunter_watch_update(_dbx_n, _dbx_hdf2)
+        _dbx_sec2 = S.build_hunter_watch_section({"stocks": [_dbx_u1, _dbx_un]})
+        _dbx_only = S.build_hunter_watch_section({"stocks": [_dbx_u1]})
+        _dbx_ref2 = S.build_hunter_watch_section({"stocks": [{k: v for k, v in _dbx_u1.items()
+                                                              if k not in ("max_high", "max_move_pct")}, _dbx_un]})
+    with _db_env(EXPLODED_SECTION="0"):
+        _dbx_u0 = S.hunter_watch_update(_dbx_s, _dbx_hdf)
+        _dbx_off2 = S.build_hunter_watch_section({"stocks": [_dbx_u1, _dbx_un]})
+    _dbx_j = _dbx_sec2.find("🏁 <b>انفجر — متابعة سلّم فقط</b> (1)")
+    _vDBX3 = (_dbx_u1.get("max_high") == 2.6 and _dbx_u1.get("max_move_pct") == 160.0 and _dbx_u1.get("move_pct") == 30.0
+              and _dbx_u2.get("max_high") == 2.6 and _dbx_u2.get("max_move_pct") == 160.0
+              and _dbx_un.get("max_move_pct") == 10.0
+              and _dbx_j > 0 and "متابعة أسهم الصيّاد (المقسّم)</b> — 1" in _dbx_sec2
+              and _dbx_sec2.count("DBXH") == 1 and _dbx_sec2.find("DBXN") < _dbx_j
+              and "$2.00 ✅ · $3.00 ⏳ · ⛔ وقف $0.8000 (القاع نفسه)" in _dbx_sec2[_dbx_j:]
+              and "أقصى ‏+160%" in _dbx_sec2[_dbx_j:]
+              and "DBXH" in _dbx_only and "🏁" in _dbx_only
+              and "max_high" not in _dbx_u0 and "max_move_pct" not in _dbx_u0
+              and _dbx_off2 == _dbx_ref2)
+    _vDBX3w = (f"قمّة={_dbx_u1.get('max_high')}/{_dbx_u2.get('max_high')} · أقصى={_dbx_u1.get('max_move_pct')} · قسم={_dbx_j} · "
+               f"مطفأ: حقل={'max_high' in _dbx_u0} قسم=بت-بت {_dbx_off2 == _dbx_ref2}")
+except Exception as _e:                                              # noqa: BLE001
+    _vDBX3, _vDBX3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏁 DBX3 الصيّاد: أقصى High بعد يوم الإدراج ويُحتفظ بالأعلى · وما تجاوز ‏+100% ينتقل إلى «🏁» بالأهداف والوقف والعدُّ للباقين · "
+      "و`EXPLODED_SECTION=0` ⟵ لا حقلَ والقسمُ بت-بت", _vDBX3, _vDBX3w)
+
+# DBX4 — عرضٌ لا منطق: الدوالُّ الجديدة لا تذكرها الجذورُ الاثنا عشر ولا `update_watchlist_status` (الشطبُ بالستوب كما هو) ·
+#    وموصولةٌ من نقطة النداء: `build_daily_message` ⟵ `build_exploded_section` · `build_hunter_watch_section`/`hunter_watch_update` ⟵ المفتاح ·
+#    و`run_daily_watchlist` ينادي `hunter_watch_update` قبل `build_hunter_watch_section` (AST)
+try:
+    _dbx_ban = {"is_exploded", "exploded_on", "build_exploded_section", "EXPLODED_PCT", "EXPLODED_ENV", "max_move_pct", "max_high"}
+
+    def _dbx_ids(fn):
+        t = _db_ast.parse(_db_tw.dedent(_db_insp.getsource(fn)))
+        out = set()
+        for n in _db_ast.walk(t):
+            if isinstance(n, _db_ast.Name):
+                out.add(n.id)
+            elif isinstance(n, _db_ast.Attribute):
+                out.add(n.attr)
+            elif isinstance(n, _db_ast.Constant) and isinstance(n.value, str):
+                out.add(n.value)
+        return out
+    _dbx_roots = ("rank_key", "select_top", "classify_tier", "analyze_ticker", "apply_short_gate", "apply_float_gate", "scan_market",
+                  "backtest_symbol", "scan_ignition", "scan_split_hunter", "entry_status", "build_interpretation",
+                  "update_watchlist_status")
+    _dbx_hit = {r: sorted(_dbx_ids(getattr(S, r)) & _dbx_ban) for r in _dbx_roots}
+    _dbx_hit = {k: v for k, v in _dbx_hit.items() if v}
+
+    def _dbx_lines(fn, name):
+        t = _db_ast.parse(_db_tw.dedent(_db_insp.getsource(fn)))
+        return [c.lineno for c in _db_ast.walk(t) if isinstance(c, _db_ast.Call)
+                and (getattr(c.func, "id", None) == name or getattr(c.func, "attr", None) == name)]
+    _dbx_rd = (_dbx_lines(S.run_daily_watchlist, "hunter_watch_update"), _dbx_lines(S.run_daily_watchlist, "build_hunter_watch_section"))
+    _vDBX4 = (not _dbx_hit
+              and _dbx_lines(S.build_daily_message, "build_exploded_section") and _dbx_lines(S.build_daily_message, "is_exploded")
+              and _dbx_lines(S.build_daily_message, "exploded_on")
+              and _dbx_lines(S.build_hunter_watch_section, "is_exploded") and _dbx_lines(S.build_hunter_watch_section, "exploded_on")
+              and _dbx_lines(S.hunter_watch_update, "exploded_on")
+              and _dbx_rd[0] and _dbx_rd[1] and min(_dbx_rd[0]) < min(_dbx_rd[1]))
+    _vDBX4w = f"جذور={_dbx_hit} · يوميّ={_dbx_rd}"
+except Exception as _e:                                              # noqa: BLE001
+    _vDBX4, _vDBX4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🏁 DBX4 عرضٌ لا منطق: الجذورُ الاثنا عشر و`update_watchlist_status` لا تذكر الجديد · وموصولٌ من نقطة النداء في الرسالتين (AST)",
+      _vDBX4, _vDBX4w)
+
+# DBH1 — المسحُ اليوميّ صامتٌ افتراضيًّا (وبـ«0» و«true»): لا رسالةَ ولا شارتَ ولا سطرَ الباقين · والسجلُّ يطبع ما كان سيُرسَل (5 ‏+ الباقون) ·
+#    ولا معرّفَ يُختم «أُرسل» · والحصادُ يُنادى والحالةُ تُدفَع · وإنذارُ التغطية ⟵ خروجٌ 3 بلا رسالة · و«1» حرفيًّا ⟵ الرسائلُ الستّ كما كانت
+_dbh_dir = _db_tf.mkdtemp(prefix=f"dbh1_{_SUITE_PID}_")
+_dbh_sv = (_db_HS._fetch_live, _db_HS.scan_population, _db_HS.STATE_FILE, _db_HS.CHART_DIR, _db_HS.RES_DIR, _db_HS.forward_run,
+           S.send_telegram, S.send_telegram_document, S.git_save, S.dq_filter)
+_dbh = {}
+try:
+    _dbh_fr = {}
+    for _i, _sy in enumerate(("DA", "DB", "DC", "DD", "DE", "DF", "DG")):
+        _df = _db_HS.synth_bars(_db_HS.SYN_IHS, seed=_i)
+        _dbh_fr[_sy] = _df.iloc[:_db_HS.detect(_df)[0]["b_i"] + 1]
+    _dbh_sent, _dbh_docs, _dbh_saved, _dbh_fw = [], [], [], []
+    _dbh_orig_fw = _db_HS.forward_run
+    _db_HS.scan_population = lambda root=".": sorted(_dbh_fr)
+    _db_HS.CHART_DIR = _dbh_dir
+    S.send_telegram = lambda t: (_dbh_sent.append(t), True)[1]
+    S.send_telegram_document = lambda p, caption="": (_dbh_docs.append(p), True)[1]
+    S.git_save = lambda files, **k: _dbh_saved.append(list(files))
+    S.dq_filter = lambda items, hist, scope, **k: list(items)
+    _db_HS.forward_run = lambda *a, **k: (_dbh_fw.append(len(a)), _dbh_orig_fw(*a, **k))[1]
+
+    def _dbh_run(tag, env, cov=False):
+        _dbh_sent.clear()
+        _dbh_docs.clear()
+        _dbh_saved.clear()
+        _dbh_fw.clear()
+        _db_HS.STATE_FILE = _db_os.path.join(_dbh_dir, f"st_{tag}.json")
+        _db_HS.RES_DIR = _db_os.path.join(_dbh_dir, f"res_{tag}")
+        _db_HS._fetch_live = ((lambda syms, days=_db_HS.SCAN_DAYS: ({"DA": _dbh_fr["DA"]}, {})) if cov else
+                              (lambda syms, days=_db_HS.SCAN_DAYS: ({s: _dbh_fr[s] for s in syms if s in _dbh_fr}, {})))
+        _o = _db_io.StringIO()
+        with _db_env(HS_TELEGRAM=env), _db_ctx.redirect_stdout(_o):
+            _rc = _db_HS.run_scan()
+        _st = (_db_json.load(open(_db_HS.STATE_FILE, encoding="utf-8")) if _db_os.path.exists(_db_HS.STATE_FILE) else None)
+        return _rc, len(_dbh_sent), len(_dbh_docs), list(_dbh_saved), len(_dbh_fw), _st, _o.getvalue()
+    for _tag, _env in (("u", None), ("z", "0"), ("t", "true")):
+        _rc, _ns, _nd, _sv, _nf, _st, _lg = _dbh_run(_tag, _env)
+        _dbh[_tag] = (_rc == 0 and _ns == 0 and _nd == 0 and _nf == 1 and _sv == [[_db_HS.STATE_FILE, _db_HS._fwd_path()]]
+                      and (_st or {}).get("sent") == {} and bool((_st or {}).get("last_scan"))
+                      and _lg.count("🔇 كان سيُرسَل: $") == 5 and _lg.count("🔇 كان سيُرسَل سطرُ الباقين: $") == 1
+                      and "📤" not in _lg and "HS_TELEGRAM=1 يُعيده" in _lg)
+    _rc, _ns, _nd, _sv, _nf, _st, _lg = _dbh_run("c", None, cov=True)
+    _dbh["cov"] = _rc == 3 and _ns == 0 and "🔇 كان سيُرسَل إنذارُ التغطية" in _lg
+    _rc, _ns, _nd, _sv, _nf, _st, _lg = _dbh_run("one", "1")
+    _dbh["one"] = _rc == 0 and _ns == 6 and _nd == 5 and len((_st or {}).get("sent") or {}) == 7 and "🔇" not in _lg
+    _vDBH1 = all(_dbh.get(k) for k in ("u", "z", "t", "cov", "one"))
+except Exception as _e:                                              # noqa: BLE001
+    _vDBH1, _dbh = False, {"err": f"⛔ {type(_e).__name__}: {_e}"}
+finally:
+    (_db_HS._fetch_live, _db_HS.scan_population, _db_HS.STATE_FILE, _db_HS.CHART_DIR, _db_HS.RES_DIR, _db_HS.forward_run,
+     S.send_telegram, S.send_telegram_document, S.git_save, S.dq_filter) = _dbh_sv
+    _db_sh.rmtree(_dbh_dir, ignore_errors=True)
+check("🔇 DBH1 المسحُ اليوميّ للرأس والكتفين صامتٌ افتراضيًّا (وبـ«0» و«true»): لا رسالة ولا شارت · السجلُّ يسمّي ما كان سيُرسَل · لا ختمَ "
+      "«أُرسل» · الحصادُ والحالةُ كما هما · والتغطيةُ خروجٌ 3 بلا رسالة · و«1» ⟵ الرسائلُ كما كانت", _vDBH1, str(_dbh)[:300])
+
+# DBH2 — الإسكاتُ للمسح وحدَه: `hs_telegram_on` لا تُقرأ إلّا في `run_scan` (الأداةُ اليدويّة رمزًا وسؤالًا كما هي) · والـworkflow بلا `HS_TELEGRAM`
+#    (فالإنتاجُ صامت) · وحصادُ `T-HS-SF` يُنادى بعد آخر إرسالٍ ممكن (HSF9) وخارج شرط المفتاح
+try:
+    _dbh_src = open(_db_HS.__file__, encoding="utf-8").read()
+    _dbh_t = _db_ast.parse(_dbh_src)
+    _dbh_users = sorted({f.name for f in _db_ast.walk(_dbh_t) if isinstance(f, _db_ast.FunctionDef)
+                         and any(isinstance(c, _db_ast.Call) and getattr(c.func, "id", None) == "hs_telegram_on"
+                                 for c in _db_ast.walk(f))})
+    _dbh_rs = next(f for f in _db_ast.walk(_dbh_t) if isinstance(f, _db_ast.FunctionDef) and f.name == "run_scan")
+    _dbh_fw_in_if = any(isinstance(n, _db_ast.If) and "tg" in _db_ast.dump(n.test)
+                        and any(isinstance(c, _db_ast.Call) and getattr(c.func, "id", None) == "forward_run" for c in _db_ast.walk(n))
+                        for n in _db_ast.walk(_dbh_rs))
+    _dbh_wf = open(".github/workflows/head_shoulders.yml", encoding="utf-8").read()
+    _vDBH2 = _dbh_users == ["run_scan"] and not _dbh_fw_in_if and "HS_TELEGRAM" not in _dbh_wf
+    _vDBH2w = f"قرّاء={_dbh_users} · حصادٌ مشروط={_dbh_fw_in_if} · yml={'HS_TELEGRAM' in _dbh_wf}"
+except Exception as _e:                                              # noqa: BLE001
+    _vDBH2, _vDBH2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔇 DBH2 الإسكاتُ للمسح وحدَه (`hs_telegram_on` في `run_scan` فقط) · والـworkflow بلا `HS_TELEGRAM` · والحصادُ خارج شرط المفتاح",
+      _vDBH2, _vDBH2w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
