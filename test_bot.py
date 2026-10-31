@@ -94687,6 +94687,102 @@ except Exception as _e:                                              # noqa: BLE
 check("🔸 SG2S7 لا يُرسَل اللينُ إلّا بارتدادٍ 10% فأكثر من القاع (رقمُ فيصل `METHOD_BOUNCE_MIN_PCT` بالاسم · الحدُّ داخل) · والمجهولُ لا · "
       "والمسحُ يناديها", _vSG2S7, _vSG2S7w)
 
+# 📝 WFA1-WFA6 (‏2026-10-31 · أمرُ المالك «T-W-FAISAL — نموذج W بتعريف فيصل · قياس قبل أي بناء»): `fm_forensics/w_faisal/w_faisal.py`
+#        العقد `T_W_FAISAL_prereg.md` مثبّتُ البصمة · قبولٌ وجدوى عدٍّ فقط · لا عائد · لا تلغرام · لا كرون · ولا مسَّ بـ`head_shoulders.py`.
+try:
+    import importlib.util as _wfa_iu
+    import hashlib as _wfa_h
+    import ast as _wfa_ast
+    import os as _wfa_os
+    _wfa_p = _wfa_os.path.join("fm_forensics", "w_faisal", "w_faisal.py")
+    _wfa_spec = _wfa_iu.spec_from_file_location("w_faisal_t", _wfa_p)
+    WFT = _wfa_iu.module_from_spec(_wfa_spec)
+    _wfa_spec.loader.exec_module(WFT)
+    _wfa_err = None
+except Exception as _e:                                          # noqa: BLE001
+    WFT, _wfa_err = None, f"{type(_e).__name__}: {_e}"
+try:
+    _wfa_c = open(_wfa_os.path.join("fm_forensics", "w_faisal", "T_W_FAISAL_prereg.md"), "rb").read()
+    _wfa_ct = _wfa_c.decode("utf-8")
+    _wfa_ok1 = (WFT is not None and _wfa_h.sha256(_wfa_c).hexdigest() == WFT.CONTRACT_SHA
+                and "لا يلزمها `HSFX_REOPEN`" in _wfa_ct and "## ⑩ التنبّؤات" in _wfa_ct and "## ⑦ قاعدةُ الحكم" in _wfa_ct
+                and "4 من 5" in _wfa_ct and "TG_58048" in _wfa_ct and "X_20260918_12_doublebottom" in _wfa_ct
+                and "لا عائدَ ولا نسبةَ بلوغٍ في هذا الإخراج" in _wfa_ct and not any(ch in _wfa_ct for ch in "≥≤"))
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_ok1, _wfa_err = False, f"{type(_e).__name__}: {_e}"
+check("📝 WFA1: عقدُ `T-W-FAISAL` مثبّتُ البصمة في الأداة (`CONTRACT_SHA`) وفيه نصُّ المالك والتنبّؤاتُ وقاعدةُ الحكم وشرطُ «4 من 5» ومصادرُه",
+      _wfa_ok1, str(_wfa_err)[:80])
+try:
+    _wfa_rc2 = WFT.guards()
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_rc2 = f"{type(_e).__name__}: {_e}"
+check("📝 WFA2: حرّاسُ الأداة (WF1-WF17) تعبر — التجميعُ · W النموذجيّ · التسامح 3% حدًّا · العنق 10% · الهبوطُ السابق · R-W-SPAN · M · "
+      "السحب · لا نظرَ للأمام · هويّةُ الترند · المجتمع [D−20 · D−1] · التقسيم · تسويةُ «حتى المرساة» · «مُلتقَطة» · L2 مؤكَّد · العنقُ بينهما · المطرقة", _wfa_rc2 == 0, str(_wfa_rc2)[:80])
+_wfa_env = {k: _wfa_os.environ.get(k) for k in ("W_MODE", "POLYGON_API_KEY")}
+_wfa_sha0 = getattr(WFT, "CONTRACT_SHA", None)
+try:
+    _wfa_os.environ["W_MODE"], _wfa_os.environ["POLYGON_API_KEY"] = "accept", "x"
+    WFT.CONTRACT_SHA = "0" * 64
+    _wfa_net = []
+    _wfa_poly0 = WFT._poly
+    WFT._poly = lambda *a, **k: _wfa_net.append(a) or None
+    _wfa_rc3 = WFT.main()
+    _wfa_ok3 = (_wfa_rc3 == 9 and not _wfa_net)
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_ok3, _wfa_rc3 = False, f"{type(_e).__name__}: {_e}"
+finally:
+    if WFT is not None:
+        WFT.CONTRACT_SHA = _wfa_sha0
+        WFT._poly = _wfa_poly0
+    for _k, _v in _wfa_env.items():
+        if _v is None:
+            _wfa_os.environ.pop(_k, None)
+        else:
+            _wfa_os.environ[_k] = _v
+check("📝 WFA3: لا رقمَ قبل العقد — بصمةٌ لا تطابق ⟵ الأداةُ تخرج 9 بلا أيّ نداء شبكة", _wfa_ok3, f"rc={_wfa_rc3}")
+try:
+    _wfa_src = open(_wfa_p, encoding="utf-8").read()
+    _wfa_t = _wfa_ast.parse(_wfa_src)
+    _wfa_names = {n.id for n in _wfa_ast.walk(_wfa_t) if isinstance(n, _wfa_ast.Name)} | {
+        n.attr for n in _wfa_ast.walk(_wfa_t) if isinstance(n, _wfa_ast.Attribute)}
+    _wfa_defs = {n.name for n in _wfa_ast.walk(_wfa_t) if isinstance(n, _wfa_ast.FunctionDef)}
+    _wfa_wf = open(_wfa_os.path.join(".github", "workflows", "w_faisal.yml"), encoding="utf-8").read()
+    _wfa_wfl = [ln.split("#")[0] for ln in _wfa_wf.splitlines()]
+    _wfa_ok4 = (not ({"send_telegram", "git_save", "save_watchlist", "head_shoulders"} & _wfa_names)
+                and not any(w in d.lower() for d in _wfa_defs for w in ("outcome", "measure", "bracket", "g50", "hit"))
+                and not any(ln.strip().startswith("schedule:") for ln in _wfa_wfl)
+                and "TELEGRAM" not in _wfa_wf and any(ln.strip() == "contents: read" for ln in _wfa_wfl))
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_ok4, _wfa_err = False, f"{type(_e).__name__}: {_e}"
+check("📝 WFA4: قبولٌ وجدوى فقط — لا تلغرامَ ولا حفظَ حالةٍ ولا `head_shoulders` ولا دالّةَ نتيجةٍ في الأداة · والـworkflow يدويٌّ بلا كرون "
+      "وبلا أسرار تلغرام وصلاحيّتُه قراءة", _wfa_ok4, str(_wfa_err)[:80])
+try:
+    _wfa_calls = {(getattr(c.func.value, "id", None), c.func.attr) for c in _wfa_ast.walk(_wfa_t)
+                  if isinstance(c, _wfa_ast.Call) and isinstance(c.func, _wfa_ast.Attribute)}
+    _wfa_ft = WFT.FT
+    _wfa_ok5 = ({("CID", "aggregate"), ("FT", "confirmed_swings"), ("FT", "P"), ("RB", "sessions_between")} <= _wfa_calls
+                and not ({"aggregate", "confirmed_swings", "sessions_between", "heads_since_low"} & _wfa_defs)
+                and WFT.TOL == 0.03 and abs(WFT.NECK_MIN - _wfa_ft.P("NECK_RISE_MIN_PCT") / 100) < 1e-12 and WFT.NECK_MIN == 0.10
+                and WFT.K == _wfa_ft.P("SWING_K_30M") == 2 and WFT.STARTS["4h"] == [240, 330, 570, 810, 1050]
+                and WFT.STARTS["30m"][0] == 240 and WFT.STARTS["30m"][-1] == 1170 and WFT.END == 1200
+                and (WFT.SPAN_SESS, WFT.POP_WIN, WFT.NEED_BACK, WFT.NEED_FWD) == (20, 20, 40, 59))
+    _wfa_x5 = sorted(_wfa_calls, key=str)[:6]
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_ok5, _wfa_x5 = False, f"{type(_e).__name__}: {_e}"
+check("📝 WFA5: الدوالُّ بالاسم (AST) — `chart_id_tv.aggregate` · `faisal_tool.confirmed_swings`/`P` · `rebuild.sessions_between` بلا نسخة · "
+      "والثوابتُ كما في العقد (3% · العنق 10% من `NECK_RISE_MIN_PCT` · k=2 · حدودُ 4س · 20 جلسة · [−40 · +59])", _wfa_ok5, str(_wfa_x5)[:80])
+try:
+    _wfa_u = WFT.UNITS
+    _wfa_sec = _wfa_ct.split("## ⑧")[1].split("## ⑨")[0]
+    _wfa_ok6 = ([u["id"] for u in _wfa_u] == ["U1", "U2", "U3", "U4", "U5"]
+                and [u["sym"] for u in _wfa_u] == ["NUWE", "VEEE", "EZRA", "DXST", "SXTC"]
+                and all(f"**{u['l1']:g}**" in _wfa_sec or f"**{u['l1']:.2f}**" in _wfa_sec or f"**{u['l1']:.3f}**" in _wfa_sec or f"**{u['l1']:.4f}**" in _wfa_sec for u in _wfa_u)
+                and all(u["src"] in _wfa_sec for u in _wfa_u)
+                and _wfa_u[0]["win"] == ("2026-08-31", "2026-10-16") and _wfa_u[3]["anchor"] == "2026-06-16")
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_ok6, _wfa_err = False, f"{type(_e).__name__}: {_e}"
+check("📝 WFA6: الوحداتُ الخمس في الأداة = جدولُ §⑧ في العقد (الرموزُ · المصادرُ · القاعُ الأوّل المرسوم · النوافذ)", _wfa_ok6, str(_wfa_err)[:80])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

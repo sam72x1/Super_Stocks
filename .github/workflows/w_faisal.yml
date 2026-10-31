@@ -1,0 +1,183 @@
+name: "📝 T-W-FAISAL نموذج W بتعريف فيصل (قبولٌ وجدوى عدّ · يدويّ)"
+
+# 🔒 قياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا عائد (العقد `fm_forensics/w_faisal/T_W_FAISAL_prereg.md` §⑤/§⑨/§⑬).
+# الأداةُ تخرج 9 إن لم تطابق بصمةُ العقد `CONTRACT_SHA` (WFA3).
+# `accept` = §⑧ القبولُ على الوحدات الخمس (Polygon REST) · `feas` = §⑨ جدوى العدّ: prep (شرائحُ الجزء ب) ⟵ 12 شريحةَ أيّام ⟵ assemble.
+permissions:
+  contents: read
+  actions: read           # 📥 شرائحُ الجزء ب (BASE2) من تشغيلتَيه بـrun-id — نمط split_gates.yml
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "الوضع: accept (§⑧) · feas (§⑨)"
+        type: choice
+        options: [accept, feas]
+        default: accept
+
+jobs:
+  accept:
+    if: github.event.inputs.mode == 'accept'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📝 §⑧ القبول
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          W_MODE: accept
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/w_faisal/w_faisal.py
+
+  feas_prep:
+    if: github.event.inputs.mode == 'feas'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download BASE2 shards — TRAIN/VAL (run 40741993539)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: rb-shard-*
+          path: fm_forensics/w_faisal/out/rb/bases
+          run-id: 40741993539
+          github-token: ${{ github.token }}
+
+      - name: Download BASE2 shards — TEST (run 40769876230)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: rb-test-shard-*
+          path: fm_forensics/w_faisal/out/rb/test
+          run-id: 40769876230
+          github-token: ${{ github.token }}
+
+      - name: 📝 ⓪ المجتمع والتقسيمات
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          W_MODE: feas_prep
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/w_faisal/w_faisal.py
+
+      - name: Upload prep
+        uses: actions/upload-artifact@v4
+        with:
+          name: wf-prep
+          path: fm_forensics/w_faisal/out/prep.json.gz
+          retention-days: 90
+
+  feas_shard:
+    needs: feas_prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Show aws CLI version (إثباتُ توفّره لا افتراضُه)
+        run: aws --version
+
+      - name: Download prep
+        uses: actions/download-artifact@v4
+        with:
+          name: wf-prep
+          path: fm_forensics/w_faisal/out
+
+      - name: 📝 الشريحة — ملفّاتُ الدقيقة ⟵ شموعُ 30د
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1                     # 🔧 S3E1
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          W_MODE: feas_shard
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "12"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/w_faisal/w_faisal.py
+
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: wf-bars-${{ matrix.shard }}
+          path: fm_forensics/w_faisal/out/bars_*.json.gz
+          retention-days: 90
+
+  feas_assemble:
+    needs: feas_shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep
+        uses: actions/download-artifact@v4
+        with:
+          name: wf-prep
+          path: fm_forensics/w_faisal/out
+
+      - name: Download shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wf-bars-*
+          merge-multiple: true
+          path: fm_forensics/w_faisal/out
+
+      - name: 📝 §⑨ جدوى العدّ (بلا عائد)
+        env:
+          W_MODE: feas_assemble
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/w_faisal/w_faisal.py
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: wf-feas
+          path: fm_forensics/w_faisal/out/feas.json
+          retention-days: 90

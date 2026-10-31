@@ -88,3 +88,6 @@ faisal_engine/out/replay_std*.txt
 # 🧭 (2026-10-14) جداولُ T-LAYERS — التشغيلةُ الأولى منشورةٌ لا تُمحى (`data/run1/`) والثانيةُ الحاكمة (`data/`)
 !fm_forensics/layers/data/*.csv
 !fm_forensics/layers/data/run1/*.csv
+
+# 📝 (2026-10-31) T-W-FAISAL — مخرَجاتُ التشغيل (artifacts على Actions · لا تُدفَع)
+fm_forensics/w_faisal/out/
