@@ -22,6 +22,8 @@
 #    اسمَ الملفّ. والوحدةُ stdlib-only (‏`json`/`os`) ⇒ صفر أثرٍ جانبيّ وقت الاستيراد.
 import hunter_ledger as LEDGER
 
+G2_SOFT_HUNTER = "split_filter_g2soft"     # 🔸 اسمُ صفوف G2 اللين في السجلّ (أمرُ المالك 2026-10-31)
+
 
 MIN_COVERAGE_PCT = 60.0
 STAMP_FILE = "split_filter_stamp.json"
@@ -146,15 +148,26 @@ def run(now_utc=None) -> int:
     #    تُنادى **بعد اكتمال الاختيار وقبل أيّ إثراء** ⇒ لا تُدخل مرشّحًا ولا تُخرجه،
     #    ولا ترمي أبدًا، ومُتَمَاثِلة فالكرونان لا يُنتجان صفَّين.
     #    🔒 `ref_close` **يُجمَّد لحظةَ الرصد** (‏H3) — إغلاقُ جلسة المسح نفسها.
+    # 🔸 G2 اللين (أمرُ المالك 2026-10-31): صفوفُه في السجلّ باسمٍ مستقلّ `split_filter_g2soft` فلا يختلط حصادُ المكتمل بغيره ·
+    #    والصلبُ (`SPLIT_G2_HARD=1`) بلا صفوفٍ لينة ⟵ السجلُّ والسطرُ بت-بت.
+    full = [r for r in rows if not r.get("g2_soft")]
+    soft = [r for r in rows if r.get("g2_soft")]
     try:
-        LEDGER.record("split_filter", sess, rows, log=S.log,
+        LEDGER.record("split_filter", sess, full, log=S.log,
                       ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]),
                       src_of=lambda _s: LEDGER.frame_src(hist.get(_s)))   # 📺 مصدرُ المرجع (ملحق §⑦)
+        if soft:
+            LEDGER.record(G2_SOFT_HUNTER, sess, soft, log=S.log,
+                          ref_of=lambda _s: float(hist[_s]["Close"].iloc[-1]),
+                          src_of=lambda _s: LEDGER.frame_src(hist.get(_s)))
     except Exception:                                            # noqa: BLE001
         pass
-    syms = " · ".join(str(r.get("symbol") or "?") for r in rows) or "—"
+    syms = " · ".join(str(r.get("symbol") or "?") for r in full) or "—"
     S.log(f"🧮 فلترة التقسيم: فحص {len(hist)} من {len(uni)} رمزًا ({cov:.0f}%) "
-          f"→ {len(rows)} مطابق كامل: {syms}")
+          f"→ {len(full)} مطابق كامل: {syms}")
+    if not S.split_g2_hard():
+        S.log(f"🔸 G2 لين: أضافت الليونةُ {len(soft)} سهمًا لرسالة فلتر المقسّم"
+              + (": " + " · ".join(f"{r.get('symbol')} ({r.get('g2_line', '')[2:]})" for r in soft) if soft else " (لا أحد)"))
     for _n in (getattr(S, "_SPLIT_FILTER_NEAR", []) or []):
         S.log(f"   🔭 {_n.get('symbol')} ${float(_n.get('price') or 0):.2f} — "
               f"{_n.get('why')}")

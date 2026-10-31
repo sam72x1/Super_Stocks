@@ -19698,6 +19698,11 @@ check("🔒 FR5 `split_hunter.run` يُسنِد `_rsi` **من حساب `rsi`** �
 # 🧮 النظام الرابع — «فلترة أسهم التقسيم» (‏`FAISAL_SPLIT_FILTER_METHOD.md`)
 #    المرساة: مثالُ فيصل نفسه — قاعٌ 2 ⟹ طلبات **2.05 · 2.10 · 2.15** ووقفٌ **2**.
 # ==========================================================
+# 🔸 (2026-10-31 · `SPLIT_G2_HARD`): G2 صارت نقصًا لينًا افتراضيًّا ⟵ أقفالُ SF أدناه تُثبَّت على الصلب «1» فتحرس مسارَ الرجوع بت-بت
+#    (وأقفالُ `SG2S*` على اللين) — يُستعاد بعد FK.
+import os as _sg2_pin_os                    # اسمٌ خاصّ (لا `_os`: مُعادُ الربط في السويّة)
+_sg2_prev = _sg2_pin_os.environ.get("SPLIT_G2_HARD")
+_sg2_pin_os.environ["SPLIT_G2_HARD"] = "1"
 import split_filter_hunter as SF          # noqa: E402
 _SFrun = _insp0.getsource(SF.run)
 _sf_n = 42
@@ -19867,6 +19872,10 @@ check("🧾 FK🔒 الجديدة كلُّها خارج الجذور (لا تم�
           for _f in (S.rank_key, S.select_top, S.classify_tier, S.entry_status,
                      S.analyze_ticker, S.apply_float_gate, S.apply_short_gate,
                      S.scan_market, S.backtest_symbol)))
+if _sg2_prev is None:
+    _sg2_pin_os.environ.pop("SPLIT_G2_HARD", None)
+else:
+    _sg2_pin_os.environ["SPLIT_G2_HARD"] = _sg2_prev
 
 # 🕓 الفريمان معًا — قرار المالك 2026-08-01: «نمشي بالتسلسل حسب اللي أعرفه من أبو
 #    بدر — لأن **الأهداف وغالبًا الشموع وحده**». اليوميّ أوّلًا، ثم 4س لمن سقط.
@@ -94418,6 +94427,230 @@ except Exception as _e:                                              # noqa: BLE
     _vDBH2, _vDBH2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔇 DBH2 الإسكاتُ للمسح وحدَه (`hs_telegram_on` في `run_scan` فقط) · والـworkflow بلا `HS_TELEGRAM` · والحصادُ خارج شرط المفتاح",
       _vDBH2, _vDBH2w)
+
+# 🔸 SG2S1-SG2S6 (‏2026-10-31 · أمرُ المالك «G2 في فلتر المقسّم: من رفض صلب إلى نقص لين يُعرض سطرًا … خلف مفتاح SPLIT_G2_HARD=1 يرجعها
+#    صلبة بت-بت»): مَن لم يكتمل «ثبات الدعم الثاني» يمضي إلى الشروط التالية بقاع النافذة ويُعرض بسطر «🔸» · والمكتملُ أوّلًا · والسجلُّ مفصول.
+import importlib.util as _sg2_iu
+import random as _sg2_rnd
+import io as _sg2_io
+import contextlib as _sg2_cl
+import os as _sg2_os
+import ast as _sg2_ast
+import inspect as _sg2_insp
+import textwrap as _sg2_tw
+import split_filter_hunter as _sg2_SF
+
+
+@_sg2_cl.contextmanager
+def _sg2_env(v):
+    _p = _sg2_os.environ.get("SPLIT_G2_HARD")
+    try:
+        if v is None:
+            _sg2_os.environ.pop("SPLIT_G2_HARD", None)
+        else:
+            _sg2_os.environ["SPLIT_G2_HARD"] = v
+        yield
+    finally:
+        if _p is None:
+            _sg2_os.environ.pop("SPLIT_G2_HARD", None)
+        else:
+            _sg2_os.environ["SPLIT_G2_HARD"] = _p
+
+
+# SG2S1 — `g2_soft_facts` توأمُ `split_gates.low_facts` على 300 عالمٍ عشوائيّ (قيمةً بقيمة) · والسطرُ بنصّ المالك · والمجهولُ بكلمته · بلا علامات
+try:
+    _sg2_spec = _sg2_iu.spec_from_file_location("split_gates_sg2", _sg2_os.path.join("fm_forensics", "split_gates", "split_gates.py"))
+    _sg2_GT = _sg2_iu.module_from_spec(_sg2_spec)
+    _sg2_spec.loader.exec_module(_sg2_GT)
+    _sg2_r = _sg2_rnd.Random(31)
+    _sg2_bad = []
+    for _w in range(300):
+        _n = _sg2_r.randint(6, 45)
+        _lo = [round(_sg2_r.uniform(0.5, 5.0), 3) for _ in range(_n)]
+        _hi = [round(x * _sg2_r.uniform(1.0, 1.4), 3) for x in _lo]
+        _df = S.pd.DataFrame({"Open": _lo, "High": _hi, "Low": _lo, "Close": _lo, "Volume": [1e5] * _n},
+                             index=S.pd.date_range("2026-01-05", periods=_n, freq="B"))
+        _win = _sg2_r.choice([5, 10, 30, 60])
+        if S.g2_soft_facts(_df, _win) != _sg2_GT.low_facts(_df, _win):
+            _sg2_bad.append(_w)
+    # تعادلُ القاع: أوّلُ ظهورٍ يحكم (الجلساتُ بعده والارتدادُ منه) — شاهدٌ حتميّ لا تبلغه العوالمُ العشوائيّة
+    _sg2_tie = S.pd.DataFrame({"Open": [2, 1, 3, 1, 4, 2], "High": [2.2, 1.5, 3.3, 1.1, 4.4, 2.1], "Low": [2, 1, 3, 1, 4, 2],
+                               "Close": [2, 1, 3, 1, 4, 2], "Volume": [1e5] * 6},
+                              index=S.pd.date_range("2026-01-05", periods=6, freq="B"))
+    _sg2_tf = S.g2_soft_facts(_sg2_tie, 6)
+    if _sg2_tf != _sg2_GT.low_facts(_sg2_tie, 6) or (_sg2_tf or {}).get("bars_after") != 4:
+        _sg2_bad.append("tie")
+    _sg2_l1 = S.g2_soft_line({"bounce_pct": 8.2, "retest_gap_pct": 3.44})
+    _sg2_l2 = S.g2_soft_line({"bounce_pct": None, "retest_gap_pct": None})
+    _sg2_l3 = S.g2_soft_line({"bounce_pct": 14.0, "retest_gap_pct": None})
+    _vSG2S1 = (not _sg2_bad and _sg2_l1 == "🔸 ثبات الدعم الثاني: لم يكتمل (ارتداد 8% · أقرب عودة 3.4% من القاع)"
+               and _sg2_l2 == "🔸 ثبات الدعم الثاني: لم يكتمل (لم يرتدّ بعد · لم يرجع بعد)"
+               and _sg2_l3 == "🔸 ثبات الدعم الثاني: لم يكتمل (ارتداد 14% · لم يرجع بعد)"
+               and not any(c in _sg2_l1 + _sg2_l2 for c in "≥≤<>") and S.g2_soft_facts(None, 30) is None)
+    _vSG2S1w = f"خلاف={_sg2_bad[:5]} · {_sg2_l1!r} · {_sg2_l2!r}"
+except Exception as _e:                                              # noqa: BLE001
+    _vSG2S1, _vSG2S1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔸 SG2S1 `g2_soft_facts` توأمُ `split_gates.low_facts` (300 عالم) · والسطرُ بنصّ المالك «🔸 ثبات الدعم الثاني: لم يكتمل (ارتداد X% · "
+      "أقرب عودة Y% من القاع)» · والمجهولُ بكلمته", _vSG2S1, _vSG2S1w)
+
+# SG2S2 — المسح: بلا تسلسلٍ مكتمل ⟵ اللينُ يمضي بقاع النافذة إلى الشروط التالية (يُضاف بسطره · والقروبُ والشورتُ يرفضانه كما يرفضان المكتمل)
+#    والصلبُ «1» ⟵ يُرفض بسببٍ مُسمّى كما كان · والمكتملُ صفُّه واحدٌ في الوضعين (بلا حقلٍ لين)
+try:
+    def _sg2_scan(hist, **kw):
+        kw.setdefault("fetch_splits", lambda s: S.pd.Series([0.1], index=[hist[s].index[0]]))
+        kw.setdefault("fetch_pump", lambda d: False)
+        kw.setdefault("fetch_borrow", lambda s: {"shares_available": 7000})
+        kw.setdefault("fetch_news", lambda s: [])
+        _d = max(df.index[-1] for df in hist.values()).date()
+        return S.scan_split_filter(hist, today=_d, **kw)
+
+    def _sg2_strip(rows):
+        return [{k: v for k, v in r.items() if k != "df"} for r in rows]
+    with _sg2_env(None):
+        _sg2_soft = _sg2_scan({"T1": _sf_noseq})
+        _sg2_soft_near = [n["why"] for n in S._SPLIT_FILTER_NEAR]
+        _sg2_stage = dict(S._SPLIT_FILTER_STAGE)
+        _sg2_pump = _sg2_scan({"T1": _sf_noseq}, fetch_pump=lambda d: True)
+        _sg2_short = _sg2_scan({"T1": _sf_noseq}, fetch_borrow=lambda s: {"shares_available": 25_000})
+        _sg2_full_s = _sg2_strip(_sg2_scan({"T1": _sf_df}))
+    with _sg2_env("1"):
+        _sg2_hard = _sg2_scan({"T1": _sf_noseq})
+        _sg2_hard_near = [n["why"] for n in S._SPLIT_FILTER_NEAR]
+        _sg2_full_h = _sg2_strip(_sg2_scan({"T1": _sf_df}))
+    _sg2_f = S.g2_soft_facts(_sf_noseq, int(S.CONFIG["FAISAL_BOTTOM_LOOKBACK"]))
+    _r0 = _sg2_soft[0] if _sg2_soft else {}
+    _vSG2S2 = (len(_sg2_soft) == 1 and _r0.get("g2_soft") is True and _r0.get("g2_facts") == _sg2_f
+               and abs(_r0["bottom"] - _sg2_f["low"]) < 1e-9
+               and _r0["entries"] == S.descending_ladder(_sg2_f["low"] + S.CONFIG["FAISAL_LADDER_STEP"],
+                                                         step=-S.CONFIG["FAISAL_LADDER_STEP"])
+               and _r0.get("g2_line", "").startswith("🔸 ثبات الدعم الثاني: لم يكتمل (")
+               and _r0.get("stop_kind") == "قاع النافذة" and _sg2_full_s[0].get("stop_kind") == "قاع التسلسل"
+               and not any("ثبات الدعم الثاني" in w for w in _sg2_soft_near)
+               and _sg2_pump == [] and _sg2_short == []
+               and _sg2_stage.get("seq") == 0 and _sg2_stage.get("matched") == 1
+               and _sg2_hard == [] and any("ثبات الدعم الثاني" in w for w in _sg2_hard_near)
+               and _sg2_full_s == _sg2_full_h and len(_sg2_full_s) == 1 and "g2_soft" not in _sg2_full_s[0])
+    _vSG2S2w = (f"لين={len(_sg2_soft)} · قروب={len(_sg2_pump)} · شورت={len(_sg2_short)} · صلب={len(_sg2_hard)} · "
+                f"مكتمل بت-بت={_sg2_full_s == _sg2_full_h}")
+except Exception as _e:                                              # noqa: BLE001
+    _vSG2S2, _vSG2S2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔸 SG2S2 المسح: اللينُ يمضي بقاع النافذة إلى الشروط التالية (يُضاف بسطره · والقروبُ والشورتُ يرفضانه) · والصلبُ «1» يرفض بسببٍ "
+      "مُسمّى كما كان · والمكتملُ صفُّه واحدٌ في الوضعين", _vSG2S2, _vSG2S2w)
+
+# SG2S3 — المكتملُ أوّلًا فلا تُزيحه الليونةُ عن السقف (`METHOD_MAX`) · والصلبُ بلا لين ⟵ الترتيبُ بالرمز كما كان
+try:
+    _sg2_mx = S.CONFIG["METHOD_MAX"]
+    try:
+        with _sg2_env(None):
+            _sg2_two = _sg2_scan({"AAA": _sf_noseq, "ZZZ": _sf_df})
+            S.CONFIG["METHOD_MAX"] = 1
+            _sg2_one = _sg2_scan({"AAA": _sf_noseq, "ZZZ": _sf_df})
+    finally:
+        S.CONFIG["METHOD_MAX"] = _sg2_mx
+    _vSG2S3 = ([r["symbol"] for r in _sg2_two] == ["ZZZ", "AAA"] and [r["symbol"] for r in _sg2_one] == ["ZZZ"]
+               and "rows.sort(key=lambda r: (bool(r.get(\"g2_soft\")), r[\"symbol\"]))" in _sg2_insp.getsource(S.scan_split_filter))
+    _vSG2S3w = f"اثنان={[r['symbol'] for r in _sg2_two]} · سقف1={[r['symbol'] for r in _sg2_one]}"
+except Exception as _e:                                              # noqa: BLE001
+    _vSG2S3, _vSG2S3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔸 SG2S3 المكتملُ أوّلًا ثمّ اللين (ZZZ قبل AAA) · وبسقف 1 يبقى المكتمل وحدَه", _vSG2S3, _vSG2S3w)
+
+# SG2S4 — الكرت: صفُّ اللين بسطر «🔸» بدل «🪜» · والترويسةُ «N مطابق كامل · K بنقصٍ لين 🔸» · وبلا لين الكرتُ بت-بت
+try:
+    with _sg2_env(None):
+        _sg2_card = S.build_split_filter_alert(_sg2_two)
+    with _sg2_env("1"):
+        _sg2_card_h = S.build_split_filter_alert(_sg2_full_h_rows := _sg2_scan({"ZZZ": _sf_df}))
+    with _sg2_env(None):
+        _sg2_card_s = S.build_split_filter_alert(_sg2_scan({"ZZZ": _sf_df}))
+    _sg2_i = _sg2_card.find("AAA")
+    _vSG2S4 = ("1 مطابق كامل · 1 بنقصٍ لين 🔸" in _sg2_card and _sg2_i > 0
+               and "🔸 ثبات الدعم الثاني: لم يكتمل (" in _sg2_card[_sg2_i:]
+               and "🪜 ثبات الدعم الثاني" not in _sg2_card[_sg2_i:] and "🪜 ثبات الدعم الثاني" in _sg2_card[:_sg2_i]
+               and "(فيصل · 1 مطابق)" in _sg2_card_h and _sg2_card_h == _sg2_card_s
+               and not any(c in _sg2_card for c in "≥≤"))
+    _vSG2S4w = f"ترويسة={'1 مطابق كامل · 1 بنقصٍ لين' in _sg2_card} · صلب=لين بلا لين {_sg2_card_h == _sg2_card_s}"
+except Exception as _e:                                              # noqa: BLE001
+    _vSG2S4, _vSG2S4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔸 SG2S4 الكرت: سطرُ «🔸» لصفّ اللين بدل «🪜» · والترويسةُ تفصل المكتمل عن اللين · وبلا لين الكرتُ بت-بت", _vSG2S4, _vSG2S4w)
+
+# SG2S5 — المُشغِّل طرفًا لطرف (بجذوعٍ محقونة): السجلُّ يطبع «🔸 G2 لين: أضافت الليونةُ N سهمًا لرسالة فلتر المقسّم: …» بالأسماء · وصفوفُ اللين في
+#    سجلّ الحصاد باسم `split_filter_g2soft` والمكتملُ باسمه · و«مطابق كامل» يعدّ المكتملَ وحدَه · والصلبُ ⟵ لا سطرَ ولا تسجيلَ لين
+try:
+    def _sg2_run(rows, env):
+        _sv = {k: getattr(S, k) for k in ("yf", "get_universe", "download_history", "scan_split_filter", "send_telegram", "git_save")}
+        _rec, _sent = [], []
+        _orec = _sg2_SF.LEDGER.record
+        _ost = _sg2_SF.STAMP_FILE
+        _sg2_SF.STAMP_FILE = f"/tmp/_sg2_stamp_{_SUITE_PID}.json"
+        try:
+            S.yf = object()
+            S.get_universe = lambda: ["AAA", "ZZZ"]
+            S.download_history = lambda u, **k: {"AAA": _sf_noseq, "ZZZ": _sf_df}
+            S.scan_split_filter = lambda hist, today=None: rows
+            S.send_telegram = lambda m: (_sent.append(m), True)[1]
+            S.git_save = lambda *a, **k: None
+            _sg2_SF.LEDGER.record = lambda hunter, sess, rr, **k: (_rec.append((hunter, [r["symbol"] for r in rr])), len(rr))[1]
+            _o = _sg2_io.StringIO()
+            with _sg2_env(env), _sg2_cl.redirect_stdout(_o):
+                _rc = _sg2_SF.run()
+            return _rc, _rec, _sent, _o.getvalue()
+        finally:
+            for k, v in _sv.items():
+                setattr(S, k, v)
+            _sg2_SF.LEDGER.record = _orec
+            _sg2_SF.STAMP_FILE = _ost
+            try:
+                _sg2_os.remove(f"/tmp/_sg2_stamp_{_SUITE_PID}.json")
+            except OSError:
+                pass
+    _sg2_fs = _sg2_os.environ.get("SPLIT_FILTER_FORCE")
+    _sg2_os.environ["SPLIT_FILTER_FORCE"] = "1"
+    try:
+        _rcS, _recS, _sentS, _logS = _sg2_run(_sg2_two, None)
+        _rcH, _recH, _sentH, _logH = _sg2_run(_sg2_full_h_rows, "1")
+    finally:
+        if _sg2_fs is None:
+            _sg2_os.environ.pop("SPLIT_FILTER_FORCE", None)
+        else:
+            _sg2_os.environ["SPLIT_FILTER_FORCE"] = _sg2_fs
+    _vSG2S5 = (_rcS == 0 and _recS == [("split_filter", ["ZZZ"]), ("split_filter_g2soft", ["AAA"])]
+               and "→ 1 مطابق كامل: ZZZ" in _logS and "🔸 G2 لين: أضافت الليونةُ 1 سهمًا لرسالة فلتر المقسّم: AAA (" in _logS
+               and len(_sentS) == 1 and "AAA" in _sentS[0]
+               and _rcH == 0 and _recH == [("split_filter", ["ZZZ"])] and "🔸" not in _logH and _sg2_SF.G2_SOFT_HUNTER == "split_filter_g2soft")
+    _vSG2S5w = f"لين: rc={_rcS} سجلّ={_recS} · صلب: rc={_rcH} سجلّ={_recH} · سطر={'🔸 G2 لين' in _logS}/{'🔸' in _logH}"
+except Exception as _e:                                              # noqa: BLE001
+    _vSG2S5, _vSG2S5w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔸 SG2S5 المُشغِّل: سطرُ «🔸 G2 لين: أضافت الليونةُ N سهمًا … بالأسماء» · وصفوفُ اللين في السجلّ باسمٍ مستقلّ · و«مطابق كامل» للمكتمل وحدَه · "
+      "والصلبُ بلا سطرٍ ولا تسجيلِ لين", _vSG2S5, _vSG2S5w)
+
+# SG2S6 — لا تمسّ الجذورُ الاثنا عشر الجديدَ (AST) · و`method_sequence` و`split_filter_stop` وأداةُ القياس `split_gates` كما هي (اللينُ في المسح وحدَه)
+#    · والذاكرةُ تحمل السطرَ المؤرَّخ بسببه (13 · لا فرق على الحلقة · 1.5% و30 هندسيّان · المفتاح) · والدفترُ صفَّه
+try:
+    _sg2_ban = {"split_g2_hard", "g2_soft_facts", "g2_soft_line", "g2_soft", "SPLIT_G2_HARD_ENV"}
+
+    def _sg2_ids(fn):
+        t = _sg2_ast.parse(_sg2_tw.dedent(_sg2_insp.getsource(fn)))
+        return ({n.id for n in _sg2_ast.walk(t) if isinstance(n, _sg2_ast.Name)}
+                | {n.attr for n in _sg2_ast.walk(t) if isinstance(n, _sg2_ast.Attribute)}
+                | {n.value for n in _sg2_ast.walk(t) if isinstance(n, _sg2_ast.Constant) and isinstance(n.value, str)})
+    _sg2_roots = ("rank_key", "select_top", "classify_tier", "analyze_ticker", "apply_short_gate", "apply_float_gate", "scan_market",
+                  "backtest_symbol", "scan_ignition", "scan_split_hunter", "entry_status", "build_interpretation",
+                  "method_sequence", "split_filter_stop", "scan_method_hunter")
+    _sg2_hit = {r: sorted(_sg2_ids(getattr(S, r)) & _sg2_ban) for r in _sg2_roots}
+    _sg2_hit = {k: v for k, v in _sg2_hit.items() if v}
+    _sg2_gts = open(_sg2_os.path.join("fm_forensics", "split_gates", "split_gates.py"), encoding="utf-8").read()
+    _sg2_cl_md = open("CLAUDE.md", encoding="utf-8").read()
+    _sg2_ln = next((ln for ln in _sg2_cl_md.split("\n") if "SPLIT_G2_HARD=1" in ln), "")
+    _sg2_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _sg2_row = next((ln for ln in _sg2_led.split("\n") if ln.startswith("| 🔸 G2 في فلتر المقسّم")), "")
+    _vSG2S6 = (not _sg2_hit and not any(k in _sg2_gts for k in ("g2_soft", "SPLIT_G2_HARD"))
+               and all(x in _sg2_ln for x in ("2026-10-31", "13", "1.5%", "30", "SPLIT_G2_HARD=1", "هندسيّ"))
+               and "`engineering`" in _sg2_row and "SPLIT_G2_HARD=1" in _sg2_row)
+    _vSG2S6w = f"جذور={_sg2_hit} · سطر={bool(_sg2_ln)} · صف={bool(_sg2_row)}"
+except Exception as _e:                                              # noqa: BLE001
+    _vSG2S6, _vSG2S6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔸 SG2S6 اللينُ في المسح وحدَه: الجذورُ و`method_sequence` و`split_filter_stop` وصيّادُ النهج وأداةُ `split_gates` لا تذكره · "
+      "والذاكرةُ والدفترُ يحملان السببَ والمفتاح", _vSG2S6, _vSG2S6w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
