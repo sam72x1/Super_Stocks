@@ -330,6 +330,7 @@ def check_event(info, b5, b15, ev, bars, priors_fn, cat_of, type_status, spac, d
 def evaluate(bars, op, cl, upto, prev_adj, priors_fn, cat_of, type_status, spac, d_min=D_MIN_LIVE, full_info=False, ldef=None):
     """رمزٌ في يوم حتى `upto` ⟵ {"events": [كلُّ كسرٍ A بشروطه]، "alerts": [A الأوّلُ الكامل ثمّ D#1..3]}.
 
+    🟠⑤ (الافتراضُ منذ 2026-10-31) الثباتُ (`hold_events`) بترتيب `CHECK_ORDER_A5` · و① في A وD · ولا ② · والملحق 3 أدناه بـ`VWL_DEF=A3`.
     A كامل = الملحق 3 **في الحدث نفسِه**: الكسرُ (`break_events`) ∧ ⑤ السعرُ في [PX_MIN، PX_MAX) ∧ الحجمُ الدولاريّ التراكميّ من 04:00 ≥ d_min ∧
     ① ‏+20% فأكثر ∧ ③ L ∧ ② RVOL ≥ 3 ∧ النوعُ مقبولٌ وليس SPAC ∧ ④ خبرُ سلكٍ أو 8-K في النافذة — وحدثٌ أبكرُ ناقصٌ لا يحجب لاحقًا كاملًا.
     الفحصُ بترتيب `CHECK_ORDER` ويقف عند أوّل سقوط (الأغلى آخرًا: ② ثمّ ④) ما لم يُطلب `full_info` (وضعُ التتبّع).
