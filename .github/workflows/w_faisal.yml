@@ -3,6 +3,7 @@ name: "📝 T-W-FAISAL نموذج W بتعريف فيصل (قبولٌ وجدوى
 # 🔒 قياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا عائد (العقد `fm_forensics/w_faisal/T_W_FAISAL_prereg.md` §⑤/§⑨/§⑬).
 # الأداةُ تخرج 9 إن لم تطابق بصمةُ العقد `CONTRACT_SHA` (WFA3).
 # `accept` = §⑧ القبولُ على الوحدات الخمس (Polygon REST) · `feas` = §⑨ جدوى العدّ: prep (شرائحُ الجزء ب) ⟵ 12 شريحةَ أيّام ⟵ assemble.
+# `measure` = §⑤-§⑦ بأمر «ابن W» (2026-10-31 · الملحق 1 · خروج 9 بلا بصمته): شموعُ الجدوى من تشغيلتها ⟵ prep ⟵ 12 شريحةَ اقتباس ⟵ final.
 permissions:
   contents: read
   actions: read           # 📥 شرائحُ الجزء ب (BASE2) من تشغيلتَيه بـrun-id — نمط split_gates.yml
@@ -11,10 +12,13 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "الوضع: accept (§⑧) · feas (§⑨)"
+        description: "الوضع: accept (§⑧) · feas (§⑨) · measure (§⑤-§⑦ · الملحق 1)"
         type: choice
-        options: [accept, feas]
+        options: [accept, feas, measure]
         default: accept
+      feas_run:
+        description: "تشغيلةُ الجدوى التي تُقرأ شموعُها (wf-prep · wf-bars-*)"
+        default: "41218417621"
 
 jobs:
   accept:
@@ -180,4 +184,143 @@ jobs:
         with:
           name: wf-feas
           path: fm_forensics/w_faisal/out/feas.json
+          retention-days: 90
+
+  measure_prep:
+    if: github.event.inputs.mode == 'measure'
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep (feas run)
+        uses: actions/download-artifact@v4
+        with:
+          name: wf-prep
+          path: fm_forensics/w_faisal/out
+          run-id: ${{ github.event.inputs.feas_run }}
+          github-token: ${{ github.token }}
+
+      - name: Download bars (feas run)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wf-bars-*
+          merge-multiple: true
+          path: fm_forensics/w_faisal/out
+          run-id: ${{ github.event.inputs.feas_run }}
+          github-token: ${{ github.token }}
+
+      - name: 📝 §⑤ الأحداث والضوابط (بلا عائد)
+        env:
+          W_MODE: measure_prep
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/w_faisal/w_faisal.py
+
+      - name: Upload trades
+        uses: actions/upload-artifact@v4
+        with:
+          name: wf-trades
+          path: fm_forensics/w_faisal/out/trades.json.gz
+          retention-days: 90
+
+      - name: Upload quote requests
+        uses: actions/upload-artifact@v4
+        with:
+          name: wf-qreq
+          path: fm_forensics/w_faisal/out/qreq_*.json.gz
+          retention-days: 90
+
+  measure_quotes:
+    needs: measure_prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download quote requests
+        uses: actions/download-artifact@v4
+        with:
+          name: wf-qreq
+          path: fm_forensics/w_faisal/out
+
+      - name: 📝 §⑤ NBBO
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          W_MODE: measure_quotes
+          SHARD: ${{ matrix.shard }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/w_faisal/w_faisal.py
+
+      - name: Upload quotes
+        uses: actions/upload-artifact@v4
+        with:
+          name: wf-quotes-${{ matrix.shard }}
+          path: fm_forensics/w_faisal/out/quotes_*.json.gz
+          retention-days: 90
+
+  measure_final:
+    needs: measure_quotes
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download trades
+        uses: actions/download-artifact@v4
+        with:
+          name: wf-trades
+          path: fm_forensics/w_faisal/out
+
+      - name: Download quotes
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wf-quotes-*
+          merge-multiple: true
+          path: fm_forensics/w_faisal/out
+
+      - name: 📝 §⑤-§⑦ القياسُ والحكم
+        env:
+          W_MODE: measure_final
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/w_faisal/w_faisal.py
+
+      - name: Upload result
+        uses: actions/upload-artifact@v4
+        with:
+          name: wf-measure
+          path: fm_forensics/w_faisal/out/measure.json
           retention-days: 90

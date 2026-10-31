@@ -94687,7 +94687,7 @@ except Exception as _e:                                              # noqa: BLE
 check("🔸 SG2S7 لا يُرسَل اللينُ إلّا بارتدادٍ 10% فأكثر من القاع (رقمُ فيصل `METHOD_BOUNCE_MIN_PCT` بالاسم · الحدُّ داخل) · والمجهولُ لا · "
       "والمسحُ يناديها", _vSG2S7, _vSG2S7w)
 
-# 📝 WFA1-WFA6 (‏2026-10-31 · أمرُ المالك «T-W-FAISAL — نموذج W بتعريف فيصل · قياس قبل أي بناء»): `fm_forensics/w_faisal/w_faisal.py`
+# 📝 WFA1-WFA8 (‏2026-10-31 · أمرُ المالك «T-W-FAISAL — نموذج W بتعريف فيصل · قياس قبل أي بناء»): `fm_forensics/w_faisal/w_faisal.py`
 #        العقد `T_W_FAISAL_prereg.md` مثبّتُ البصمة · قبولٌ وجدوى عدٍّ فقط · لا عائد · لا تلغرام · لا كرون · ولا مسَّ بـ`head_shoulders.py`.
 try:
     import importlib.util as _wfa_iu
@@ -94716,8 +94716,10 @@ try:
     _wfa_rc2 = WFT.guards()
 except Exception as _e:                                          # noqa: BLE001
     _wfa_rc2 = f"{type(_e).__name__}: {_e}"
-check("📝 WFA2: حرّاسُ الأداة (WF1-WF17) تعبر — التجميعُ · W النموذجيّ · التسامح 3% حدًّا · العنق 10% · الهبوطُ السابق · R-W-SPAN · M · "
-      "السحب · لا نظرَ للأمام · هويّةُ الترند · المجتمع [D−20 · D−1] · التقسيم · تسويةُ «حتى المرساة» · «مُلتقَطة» · L2 مؤكَّد · العنقُ بينهما · المطرقة", _wfa_rc2 == 0, str(_wfa_rc2)[:80])
+check("📝 WFA2: حرّاسُ الأداة (WF1-WF31) تعبر — التجميعُ · W النموذجيّ · التسامح 3% حدًّا · العنق 10% · الهبوطُ السابق · R-W-SPAN · M · "
+      "السحب · لا نظرَ للأمام · هويّةُ الترند · المجتمع [D−20 · D−1] · التقسيم · تسويةُ «حتى المرساة» · «مُلتقَطة» · L2 مؤكَّد · العنقُ بينهما · المطرقة · "
+      "و«ابن W»: q · الهدفُ بعد الكلفة والوقفُ أوّلًا وS2 · تسويةُ التقسيم في الأفق · C2 · C1 بنافذةٍ = الكامل · الحكمُ بالأضعف · البوتستراب · نصفُ السبريد · يومُ نيويورك · السلّم",
+      _wfa_rc2 == 0, str(_wfa_rc2)[:80])
 _wfa_env = {k: _wfa_os.environ.get(k) for k in ("W_MODE", "POLYGON_API_KEY")}
 _wfa_sha0 = getattr(WFT, "CONTRACT_SHA", None)
 try:
@@ -94748,13 +94750,13 @@ try:
     _wfa_defs = {n.name for n in _wfa_ast.walk(_wfa_t) if isinstance(n, _wfa_ast.FunctionDef)}
     _wfa_wf = open(_wfa_os.path.join(".github", "workflows", "w_faisal.yml"), encoding="utf-8").read()
     _wfa_wfl = [ln.split("#")[0] for ln in _wfa_wf.splitlines()]
+    # 🔄 (2026-10-31 · أمرُ المالك «ابن W»): حظرُ دوالّ النتيجة رُفع — والبديلُ بوّابةُ بصمة الملحق 1 مقفولةً سلوكيًّا في WFA8
     _wfa_ok4 = (not ({"send_telegram", "git_save", "save_watchlist", "head_shoulders"} & _wfa_names)
-                and not any(w in d.lower() for d in _wfa_defs for w in ("outcome", "measure", "bracket", "g50", "hit"))
                 and not any(ln.strip().startswith("schedule:") for ln in _wfa_wfl)
                 and "TELEGRAM" not in _wfa_wf and any(ln.strip() == "contents: read" for ln in _wfa_wfl))
 except Exception as _e:                                          # noqa: BLE001
     _wfa_ok4, _wfa_err = False, f"{type(_e).__name__}: {_e}"
-check("📝 WFA4: قبولٌ وجدوى فقط — لا تلغرامَ ولا حفظَ حالةٍ ولا `head_shoulders` ولا دالّةَ نتيجةٍ في الأداة · والـworkflow يدويٌّ بلا كرون "
+check("📝 WFA4: قياسٌ فقط — لا تلغرامَ ولا حفظَ حالةٍ ولا `head_shoulders` في الأداة · والـworkflow يدويٌّ بلا كرون "
       "وبلا أسرار تلغرام وصلاحيّتُه قراءة", _wfa_ok4, str(_wfa_err)[:80])
 try:
     _wfa_calls = {(getattr(c.func.value, "id", None), c.func.attr) for c in _wfa_ast.walk(_wfa_t)
@@ -94807,6 +94809,56 @@ except Exception as _e:                                          # noqa: BLE001
     _wfa_ok7, _wfa_err = False, f"{type(_e).__name__}: {_e}"
 check("📝 WFA7: نتيجةُ `T-W-FAISAL` — المُخرَجان بالعقد نفسِه · هويّةُ القُمع · وأرقامُ الملفّ = المُخرَجَين (4 خلايا · القبول 4 من 5)",
       _wfa_ok7, str(_wfa_err)[:80])
+
+# 📝 WFA8 (‏2026-10-31 · أمرُ المالك «ابن W — مع ملحق 1 يُدمج قبل أي عائد»): بصمةُ الملحق 1 · نصُّ المالك فيه · بوّابتُه قبل أيّ شبكةٍ
+#        لأوضاع القياس الثلاثة (سلوكيًّا) · وثوابتُه = ثوابتُ الأداة · وأعدادُ المطابقة = `results/feas.json` · والدوالُّ بالاسم.
+_wfa_env8 = {k: _wfa_os.environ.get(k) for k in ("W_MODE", "POLYGON_API_KEY", "SHARD")}
+_wfa_sha8 = getattr(WFT, "ADDENDUM_SHA", None)
+try:
+    _wfa_ad = open(_wfa_os.path.join("fm_forensics", "w_faisal", "T_W_FAISAL_ADDENDUM_1.md"), "rb").read()
+    _wfa_adt = _wfa_ad.decode("utf-8")
+    _wfa_fe8 = _wfa_js.load(open(_wfa_os.path.join("fm_forensics", "w_faisal", "results", "feas.json"), encoding="utf-8"))
+    _wfa_ok8a = (_wfa_h.sha256(_wfa_ad).hexdigest() == WFT.ADDENDUM_SHA
+                 and "ابن W — مع ملحق 1 يُدمج قبل أي عائد" in _wfa_adt and "الحاكم يبقى كما في العقد، والسلّم وصف يُطبع بجانبه" in _wfa_adt
+                 and "والقياس قبل 11-27" in _wfa_adt and "**62.22%**" in _wfa_adt and "**31.82%**" in _wfa_adt and "| 15.75% |" in _wfa_adt
+                 and "**والترتيب: F4 ثمّ F3 ثمّ F2 ثمّ F1.**" in _wfa_adt and not any(ch in _wfa_adt for ch in "≥≤"))
+    _wfa_ok8b = (WFT.FEAS_N == {f"{fr}|{a}": _wfa_fe8["frames"][fr]["cells"][a]["n"] for fr in ("30m", "4h") for a in ("a", "b")}
+                 and WFT.LEVELS == (1.5, 2.0) and WFT.S2_PCT == 0.05 and WFT.CAND_CAP == 20 and WFT.Q_BAND == 0.02 and WFT.N_CTRL == 5
+                 and WFT.BOOT == 2000 and WFT.FLOOR == 60 and WFT.RUNGS == ((50.0, "50%"), (25.0, "25%"), (10.0, "10%")) and WFT.SEED == 20261031
+                 and ("FT", "find_w") in _wfa_calls and ("FT", "heads_since_low") in _wfa_calls and "find_w" not in _wfa_defs)
+    import yaml as _wfa_yaml
+    _wfa_jobs = _wfa_yaml.safe_load(_wfa_wf)["jobs"]
+    _wfa_ok8c = (all(j in _wfa_jobs for j in ("measure_prep", "measure_quotes", "measure_final"))
+                 and "W_MODE: measure_prep" in _wfa_wf and "W_MODE: measure_quotes" in _wfa_wf and "W_MODE: measure_final" in _wfa_wf)
+    _wfa_net8, _wfa_rc8 = [], {}
+    _wfa_sv = (WFT._poly, WFT.fetch_quote, WFT._jload)
+    WFT._poly = lambda *a, **k: _wfa_net8.append(("poly", a)) or None
+    WFT.fetch_quote = lambda *a, **k: _wfa_net8.append(("quote", a)) or ("failed", None, None)
+    WFT._jload = lambda *a, **k: _wfa_net8.append(("load", a)) or {}
+    WFT.ADDENDUM_SHA = "0" * 64
+    _wfa_os.environ["POLYGON_API_KEY"], _wfa_os.environ["SHARD"] = "x", "0"
+    for _md in ("measure_prep", "measure_quotes", "measure_final"):
+        _wfa_os.environ["W_MODE"] = _md
+        _wfa_rc8[_md] = WFT.main()
+    _wfa_ok8d = (set(_wfa_rc8.values()) == {9} and not _wfa_net8)
+    _wfa_ok8 = _wfa_ok8a and _wfa_ok8b and _wfa_ok8c and _wfa_ok8d
+    _wfa_d8 = f"a={_wfa_ok8a} b={_wfa_ok8b} c={_wfa_ok8c} d={_wfa_ok8d} rc={_wfa_rc8} net={len(_wfa_net8)}"
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_ok8, _wfa_d8 = False, f"{type(_e).__name__}: {_e}"
+finally:
+    if WFT is not None:
+        WFT.ADDENDUM_SHA = _wfa_sha8
+        try:
+            WFT._poly, WFT.fetch_quote, WFT._jload = _wfa_sv
+        except NameError:
+            pass
+    for _k, _v in _wfa_env8.items():
+        if _v is None:
+            _wfa_os.environ.pop(_k, None)
+        else:
+            _wfa_os.environ[_k] = _v
+check("📝 WFA8: «ابن W» خلف الملحق 1 — بصمتُه ونصُّ المالك فيه ومِجَسُّ الخمسة · بصمةٌ لا تطابق ⟵ أوضاعُ القياس الثلاثة تخرج 9 بلا شبكةٍ ولا قراءة · "
+      "والثوابتُ والأعدادُ (= `results/feas.json`) و`find_w`/`heads_since_low` بالاسم · والوظائفُ الثلاث في الـworkflow", _wfa_ok8, _wfa_d8[:120])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
