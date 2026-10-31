@@ -94506,18 +94506,25 @@ try:
 
     def _sg2_strip(rows):
         return [{k: v for k, v in r.items() if k != "df"} for r in rows]
+    # 🔸 شاهدُ «ارتدّ ولم تكتمل العودة»: ذيلُ `_sf_df` نفسُه (قاع 2.00 ⟶ قمّة 2.45 = ‏+22.5%) وأقربُ عودةٍ 2.05 (‏+2.5% فوق تسامح 1.5%)
+    _sg2_bnc = _sf_df.copy()
+    for _c, _v in (("Low", [2.10, 2.06, 2.05]), ("Close", [2.15, 2.09, 2.08]), ("High", [2.20, 2.12, 2.10]),
+                   ("Open", [2.15, 2.09, 2.08])):
+        _sg2_bnc.iloc[-3:, _sg2_bnc.columns.get_loc(_c)] = _v
     with _sg2_env(None):
-        _sg2_soft = _sg2_scan({"T1": _sf_noseq})
+        _sg2_soft = _sg2_scan({"T1": _sg2_bnc})
         _sg2_soft_near = [n["why"] for n in S._SPLIT_FILTER_NEAR]
         _sg2_stage = dict(S._SPLIT_FILTER_STAGE)
-        _sg2_pump = _sg2_scan({"T1": _sf_noseq}, fetch_pump=lambda d: True)
-        _sg2_short = _sg2_scan({"T1": _sf_noseq}, fetch_borrow=lambda s: {"shares_available": 25_000})
+        _sg2_pump = _sg2_scan({"T1": _sg2_bnc}, fetch_pump=lambda d: True)
+        _sg2_short = _sg2_scan({"T1": _sg2_bnc}, fetch_borrow=lambda s: {"shares_available": 25_000})
+        _sg2_nob = _sg2_scan({"T1": _sf_noseq})               # 🔸 لم يرتدّ ⟵ لا يُرسَل · بسببٍ مُسمّى
+        _sg2_nob_near = [n["why"] for n in S._SPLIT_FILTER_NEAR]
         _sg2_full_s = _sg2_strip(_sg2_scan({"T1": _sf_df}))
     with _sg2_env("1"):
         _sg2_hard = _sg2_scan({"T1": _sf_noseq})
         _sg2_hard_near = [n["why"] for n in S._SPLIT_FILTER_NEAR]
         _sg2_full_h = _sg2_strip(_sg2_scan({"T1": _sf_df}))
-    _sg2_f = S.g2_soft_facts(_sf_noseq, int(S.CONFIG["FAISAL_BOTTOM_LOOKBACK"]))
+    _sg2_f = S.g2_soft_facts(_sg2_bnc, int(S.CONFIG["FAISAL_BOTTOM_LOOKBACK"]))
     _r0 = _sg2_soft[0] if _sg2_soft else {}
     _vSG2S2 = (len(_sg2_soft) == 1 and _r0.get("g2_soft") is True and _r0.get("g2_facts") == _sg2_f
                and abs(_r0["bottom"] - _sg2_f["low"]) < 1e-9
@@ -94528,6 +94535,9 @@ try:
                and not any("ثبات الدعم الثاني" in w for w in _sg2_soft_near)
                and _sg2_pump == [] and _sg2_short == []
                and _sg2_stage.get("seq") == 0 and _sg2_stage.get("matched") == 1
+               and S.method_sequence(_sg2_bnc, win=int(S.CONFIG["FAISAL_BOTTOM_LOOKBACK"])) is None
+               and _r0.get("g2_line") == "🔸 ثبات الدعم الثاني: لم يكتمل (ارتداد 22% · أقرب عودة 2.5% من القاع)"
+               and _sg2_nob == [] and any("لم يرتدّ 10% من القاع بعد" in w for w in _sg2_nob_near)
                and _sg2_hard == [] and any("ثبات الدعم الثاني" in w for w in _sg2_hard_near)
                and _sg2_full_s == _sg2_full_h and len(_sg2_full_s) == 1 and "g2_soft" not in _sg2_full_s[0])
     _vSG2S2w = (f"لين={len(_sg2_soft)} · قروب={len(_sg2_pump)} · شورت={len(_sg2_short)} · صلب={len(_sg2_hard)} · "
@@ -94542,9 +94552,9 @@ try:
     _sg2_mx = S.CONFIG["METHOD_MAX"]
     try:
         with _sg2_env(None):
-            _sg2_two = _sg2_scan({"AAA": _sf_noseq, "ZZZ": _sf_df})
+            _sg2_two = _sg2_scan({"AAA": _sg2_bnc, "ZZZ": _sf_df})
             S.CONFIG["METHOD_MAX"] = 1
-            _sg2_one = _sg2_scan({"AAA": _sf_noseq, "ZZZ": _sf_df})
+            _sg2_one = _sg2_scan({"AAA": _sg2_bnc, "ZZZ": _sf_df})
     finally:
         S.CONFIG["METHOD_MAX"] = _sg2_mx
     _vSG2S3 = ([r["symbol"] for r in _sg2_two] == ["ZZZ", "AAA"] and [r["symbol"] for r in _sg2_one] == ["ZZZ"]
@@ -94585,7 +94595,7 @@ try:
         try:
             S.yf = object()
             S.get_universe = lambda: ["AAA", "ZZZ"]
-            S.download_history = lambda u, **k: {"AAA": _sf_noseq, "ZZZ": _sf_df}
+            S.download_history = lambda u, **k: {"AAA": _sg2_bnc, "ZZZ": _sf_df}
             S.scan_split_filter = lambda hist, today=None: rows
             S.send_telegram = lambda m: (_sent.append(m), True)[1]
             S.git_save = lambda *a, **k: None
@@ -94651,6 +94661,31 @@ except Exception as _e:                                              # noqa: BLE
     _vSG2S6, _vSG2S6w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🔸 SG2S6 اللينُ في المسح وحدَه: الجذورُ و`method_sequence` و`split_filter_stop` وصيّادُ النهج وأداةُ `split_gates` لا تذكره · "
       "والذاكرةُ والدفترُ يحملان السببَ والمفتاح", _vSG2S6, _vSG2S6w)
+
+# 🔸 SG2S7 (‏2026-10-31 · أمرُ المالك الثاني «استبعد اللي لم يرتدّ بعد — رقم الارتداد 10% هو رقم فيصل نفسه (METHOD_BOUNCE_MIN_PCT)»):
+#    `g2_soft_ok` = ارتدادٌ 10% فأكثر من قاع النافذة (حدُّه داخل) · يُقرأ بالاسم وقتَ النداء · والغائبُ/التالفُ/القاعُ الصفريّ ⟵ لا ·
+#    و`scan_split_filter` تناديها في مسار اللين (AST) فلا يُرسَل مَن لم يرتدّ
+try:
+    _sg7_b = S.CONFIG["METHOD_BOUNCE_MIN_PCT"]
+    _sg7 = {"10": S.g2_soft_ok({"low": 2.0, "bounce_pct": 10.0}), "9.99": S.g2_soft_ok({"low": 2.0, "bounce_pct": 9.99}),
+            "none": S.g2_soft_ok({"low": 2.0, "bounce_pct": None}), "nolow": S.g2_soft_ok({"low": 0, "bounce_pct": 30.0}),
+            "nil": S.g2_soft_ok(None), "bad": S.g2_soft_ok({"low": 2.0, "bounce_pct": "x"})}
+    try:
+        S.CONFIG["METHOD_BOUNCE_MIN_PCT"] = 20.0
+        _sg7["15@20"] = S.g2_soft_ok({"low": 2.0, "bounce_pct": 15.0})
+        _sg7["22@20"] = S.g2_soft_ok({"low": 2.0, "bounce_pct": 22.0})
+    finally:
+        S.CONFIG["METHOD_BOUNCE_MIN_PCT"] = _sg7_b
+    _sg7_t = _sg2_ast.parse(_sg2_tw.dedent(_sg2_insp.getsource(S.scan_split_filter)))
+    _sg7_calls = {getattr(c.func, "id", None) for c in _sg2_ast.walk(_sg7_t) if isinstance(c, _sg2_ast.Call)}
+    _vSG2S7 = (_sg7 == {"10": True, "9.99": False, "none": False, "nolow": False, "nil": False, "bad": False,
+                        "15@20": False, "22@20": True}
+               and "g2_soft_ok" in _sg7_calls and _sg7_b == 10.0)
+    _vSG2S7w = f"{_sg7} · نداء={'g2_soft_ok' in _sg7_calls} · الحدّ={_sg7_b}"
+except Exception as _e:                                              # noqa: BLE001
+    _vSG2S7, _vSG2S7w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🔸 SG2S7 لا يُرسَل اللينُ إلّا بارتدادٍ 10% فأكثر من القاع (رقمُ فيصل `METHOD_BOUNCE_MIN_PCT` بالاسم · الحدُّ داخل) · والمجهولُ لا · "
+      "والمسحُ يناديها", _vSG2S7, _vSG2S7w)
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
