@@ -4958,7 +4958,7 @@
  "SNTI": "2026-11-02",
  "LIQ:EHTH": {
   "anchor_ms": 1793650920000,
-  "last_ms": 1793650920000,
+  "last_ms": 1793650980000,
   "sent": [
    "M1"
   ],
@@ -4966,15 +4966,15 @@
   "vol_x": 282.8,
   "peak_usd": 173855,
   "last_eval_ms": 1793650980000,
-  "pulse_ms": 1793650920000,
+  "pulse_ms": 1793650980000,
   "anchor_price": 0.55,
   "anchor_open": 0.456,
   "anchor_low": 0.4559,
-  "date": "2026-11-02",
   "pre_done": true,
   "pre_hi": 0.4694,
   "pre_usd": 21021,
-  "pre_n": 41
+  "pre_n": 41,
+  "date": "2026-11-02"
  },
  "LIQ:NMTC": {
   "last_eval_ms": 1793650860000,
