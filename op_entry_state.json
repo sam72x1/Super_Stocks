@@ -3186,19 +3186,16 @@
   "date": "2026-11-02"
  },
  "LIQ:MERC": {
-  "last_eval_ms": 1793663520000,
-  "tc_cum": 79349.73636020614,
-  "tc_seen_ms": 1793653140000,
-  "date": "2026-11-02",
   "anchor_ms": 1793663460000,
-  "last_ms": 1793663460000,
+  "last_ms": 1793663520000,
   "sent": [
    "M1"
   ],
   "updates": 0,
   "vol_x": 1.1,
   "peak_usd": 57845,
-  "pulse_ms": 1793663460000,
+  "last_eval_ms": 1793663520000,
+  "pulse_ms": 1793663520000,
   "anchor_price": 0.1484,
   "anchor_open": 0.15,
   "anchor_low": 0.1415,
@@ -3206,7 +3203,8 @@
   "pre_done": true,
   "pre_hi": 0.156,
   "pre_usd": 55103,
-  "pre_n": 1
+  "pre_n": 1,
+  "date": "2026-11-02"
  },
  "LIQ:ATGL": {
   "last_eval_ms": 1793632020000,
