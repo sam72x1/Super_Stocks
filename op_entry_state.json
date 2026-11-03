@@ -1693,25 +1693,15 @@
   "date": "2026-11-03"
  },
  "LIQ:DBGI": {
-  "anchor_ms": 1793737440000,
-  "last_ms": 1793737740000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 4.1,
-  "peak_usd": 4246,
-  "last_eval_ms": 1793737500000,
-  "pulse_ms": 1793737740000,
-  "anchor_price": 0.688,
-  "anchor_open": 0.6855,
-  "anchor_low": 0.673,
-  "trig": "T-C",
-  "pre_done": true,
-  "pre_hi": 0.6772,
-  "pre_usd": 29075,
-  "pre_n": 30,
-  "exit_ms": 1793737740000,
+  "last_eval_ms": 1793737740000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1793737440000,
+   "anchor_price": 0.688,
+   "anchor_low": 0.673,
+   "e5": null,
+   "exit_ms": 1793737740000
+  },
   "date": "2026-11-03"
  },
  "LIQ:NWGL": {
@@ -4468,7 +4458,7 @@
   "tc_seen_ms": 1793737260000,
   "date": "2026-11-03"
  },
- "SRTM": "2026-11-02",
+ "SRTM": "2026-11-03",
  "BAER": "2026-11-02",
  "LIQ:KELYB": {
   "last_eval_ms": 1793641380000,
