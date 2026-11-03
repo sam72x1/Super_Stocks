@@ -94860,6 +94860,35 @@ finally:
 check("📝 WFA8: «ابن W» خلف الملحق 1 — بصمتُه ونصُّ المالك فيه ومِجَسُّ الخمسة · بصمةٌ لا تطابق ⟵ أوضاعُ القياس الثلاثة تخرج 9 بلا شبكةٍ ولا قراءة · "
       "والثوابتُ والأعدادُ (= `results/feas.json`) و`find_w`/`heads_since_low` بالاسم · والوظائفُ الثلاث في الـworkflow", _wfa_ok8, _wfa_d8[:120])
 
+# 📝 WFA9 (‏2026-11-03 · نتيجةُ «ابن W»): `results/measure.json` من سطر `WFOUT` لتشغيلة `41237401061` بالعقد والملحق نفسَيهما ·
+#        والحكمُ يُعاد حسابُه بـ`WFT.verdict` (دالّةُ الأداة نفسُها) من الخلايا المحفوظة = المحفوظ = F3 · وهويّةُ العدّ (الأحداث ‏+ بلا دخول = الجدوى ·
+#        مجموعُ درجات السلّم = الأحداث) · وأرقامُ `T_W_FAISAL_MEASURE_RESULT.md` = المُخرَج (G50 · الفرقُ أمام C1 وC2 · طرفا فاصل C2) · وسطرُ الحكم.
+_wfa_d9 = ""
+try:
+    _wfa_ms = _wfa_js.load(open(_wfa_os.path.join(_wfa_rd, "results", "measure.json"), encoding="utf-8"))
+    _wfa_mr = open(_wfa_os.path.join(_wfa_rd, "T_W_FAISAL_MEASURE_RESULT.md"), encoding="utf-8").read()
+    _wfa_mc = _wfa_ms["cells"]
+    _wfa_f2 = lambda x: f"{x*100:+.3f}" if abs(x * 100) < 0.005 else f"{x*100:+.2f}"
+    _wfa_idn = all(
+        v["n"] + _wfa_ms["cnt"].get(f"{c}|no_entry", 0) == _wfa_fe["frames"][c.split("|")[0]]["cells"][c.split("|")[1]]["n"]
+        and sum(g["n"] for g in v["ladder"].values()) == v["n"] for c, v in _wfa_mc.items())
+    _wfa_rv = WFT.verdict(_wfa_mc) if WFT is not None else None
+    _wfa_rows = all(
+        f"**{v['n']:,}**" in _wfa_mr and f"**{v['g50']*100:.2f}%**" in _wfa_mr
+        and f"**{v['c1_pt']*100:+.2f}** [{_wfa_f2(v['c1'][0])} · {_wfa_f2(v['c1'][1])}]" in _wfa_mr
+        and f"**{v['c2_pt']*100:+.2f}** [{_wfa_f2(v['c2'][0])} · {_wfa_f2(v['c2'][1])}]" in _wfa_mr
+        for v in _wfa_mc.values())
+    _wfa_ok9 = (WFT is not None and _wfa_ms["contract_sha"] == WFT.CONTRACT_SHA and _wfa_ms["addendum_sha"] == WFT.ADDENDUM_SHA
+                and len(_wfa_mc) == 4 and _wfa_ms["bonferroni_m"] == 2 * sum(1 for v in _wfa_mc.values() if v["n"] >= WFT.FLOOR)
+                and _wfa_rv == _wfa_ms["verdict"] == "F3" and _wfa_idn and _wfa_rows
+                and "**F3 «يضرّ»** — والخليّةُ التي أوقعته **30د · (a) التأكيد أمام C2" in _wfa_mr
+                and "`41237401061`" in _wfa_mr and not any(ch in _wfa_mr for ch in "≥≤"))
+    _wfa_d9 = f"حكم={_wfa_rv}/{_wfa_ms.get('verdict')} هويّة={_wfa_idn} صفوف={_wfa_rows}"
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_ok9, _wfa_d9 = False, f"⛔ {type(_e).__name__}: {_e}"
+check("📝 WFA9: نتيجةُ قياس `T-W-FAISAL` — المُخرَجُ بالعقد والملحق · الحكمُ مُعادٌ بـ`verdict` = F3 · هويّةُ العدّ والسلّم · وأرقامُ الملفّ = المُخرَج",
+      _wfa_ok9, _wfa_d9[:120])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
