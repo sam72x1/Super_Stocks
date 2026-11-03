@@ -1,39 +1,7 @@
 {
- "run_id": "41186313878",
+ "run_id": "41616069827",
  "result": {
   "done": [
-   "MNDR",
-   "MSGY",
-   "MTEX",
-   "NAMM",
-   "NCT",
-   "NRSN",
-   "AEHL",
-   "ANPA",
-   "BKYI",
-   "CYCU",
-   "FBGL",
-   "GMEX",
-   "ICMB",
-   "NTCL",
-   "NUWE",
-   "NXTT",
-   "OMH",
-   "ONCO",
-   "PAVS",
-   "PIII",
-   "PPBT",
-   "PPCB",
-   "PRFX",
-   "QMMM",
-   "RGC",
-   "SBDS",
-   "SCNI",
-   "SGRX",
-   "SLXN",
-   "SMX",
-   "SNAL",
-   "SNGX",
    "SPHL",
    "SPPL",
    "SPRC",
@@ -103,50 +71,82 @@
    "XCUR",
    "YMT",
    "ZCMD",
-   "ZNB"
+   "ZNB",
+   "AEHL",
+   "ANPA",
+   "BKYI",
+   "CYCU",
+   "FBGL",
+   "GMEX",
+   "ICMB",
+   "MNDR",
+   "MSGY",
+   "MTEX",
+   "NAMM",
+   "NCT",
+   "NRSN",
+   "NTCL",
+   "NUWE",
+   "NXTT",
+   "OMH",
+   "ONCO",
+   "PAVS",
+   "PIII",
+   "PPBT",
+   "PPCB",
+   "PRFX",
+   "QMMM",
+   "RGC",
+   "SBDS",
+   "SCNI",
+   "SGRX",
+   "SLXN",
+   "SMX",
+   "SNAL",
+   "SNGX"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "AMPG",
-    "ARRY",
-    "BLNK",
-    "CABR",
-    "CRVO",
-    "FGC",
-    "FLNC",
-    "GRML",
-    "KMRK",
-    "NPT",
-    "RENX",
-    "SXTP",
-    "ZENA",
-    "UPXI",
-    "NAKA",
+    "ANNA",
+    "CNSY",
+    "DGXX",
+    "GOAI",
+    "HYMC",
+    "KXIN",
+    "PAVM",
+    "SIDU",
+    "SNOA",
+    "TRIB",
+    "AZIO",
+    "SUPX",
+    "FMST",
+    "NCRA",
+    "METC",
     "IMNN"
    ],
    "skipped": [],
    "calendar_error": "",
    "ce_used": 16,
-   "pool_date": "2026-10-31",
-   "pool_n": 415,
+   "pool_date": "2026-11-03",
+   "pool_n": 448,
    "status": "OK"
   }
  },
  "audit": {
-  "rows": 1376,
+  "rows": 1284,
   "by_status": {
-   "OK": 1010,
-   "UNKNOWN": 217,
+   "OK": 915,
+   "UNKNOWN": 220,
    "NOT_ATTEMPTED": 145,
    "FAILED": 4
   },
   "by_category": {
-   "1": 530,
-   "2": 480,
-   "4": 366
+   "1": 527,
+   "2": 388,
+   "4": 369
   },
   "tickers": 118,
   "chain_problems": []
@@ -204,6 +204,11 @@
   ],
   [
    "ATPC",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "AZIO",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -654,6 +659,11 @@
   ],
   [
    "IMNN",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "IMNN",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -676,11 +686,6 @@
    "JAGX",
    "reverse_split",
    "yahoo_splits"
-  ],
-  [
-   "JAGX",
-   "reverse_split",
-   "nasdaq_calendar"
   ],
   [
    "JEM",
@@ -759,11 +764,6 @@
   ],
   [
    "MTEX",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "NAKA",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -773,6 +773,11 @@
    "yahoo_info"
   ],
   [
+   "NCRA",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "NCT",
    "short_interest",
    "yahoo_info"
@@ -781,11 +786,6 @@
    "NCT",
    "reverse_split",
    "yahoo_splits"
-  ],
-  [
-   "NCT",
-   "reverse_split",
-   "nasdaq_calendar"
   ],
   [
    "NIVF",
@@ -1103,11 +1103,6 @@
    "yahoo_splits"
   ],
   [
-   "UPXI",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "VEEE",
    "short_interest",
    "yahoo_info"
@@ -1131,6 +1126,11 @@
    "WHLR",
    "short_interest",
    "yahoo_info"
+  ],
+  [
+   "WHLR",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "WHLR",
