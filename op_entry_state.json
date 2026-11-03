@@ -183,7 +183,7 @@
  },
  "LIQ:WSHP": {
   "anchor_ms": 1793717280000,
-  "last_ms": 1793717280000,
+  "last_ms": 1793717340000,
   "sent": [
    "M1"
   ],
@@ -191,15 +191,15 @@
   "vol_x": 4.4,
   "peak_usd": 23141,
   "last_eval_ms": 1793717340000,
-  "pulse_ms": 1793717280000,
+  "pulse_ms": 1793717340000,
   "anchor_price": 2.7499,
   "anchor_open": 2.56,
   "anchor_low": 2.53,
-  "date": "2026-11-03",
   "pre_done": true,
   "pre_hi": 2.56,
   "pre_usd": 43136,
-  "pre_n": 9
+  "pre_n": 9,
+  "date": "2026-11-03"
  },
  "LIQ:BIYA": {
   "last_eval_ms": 1793717340000,
@@ -4430,5 +4430,6 @@
  "SEGG": "2026-11-03",
  "LIQ:AKTX": {
   "date": "2026-11-03"
- }
+ },
+ "OFAL": "2026-11-03"
 }
