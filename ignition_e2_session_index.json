@@ -877,5 +877,18 @@
     ],
     "termination": "normal",
     "verdict_rule": "2026-09-26b"
+  },
+  "2026-11-03": {
+    "deferred_reasons": [],
+    "incomplete_reasons": [],
+    "n_delivered": 2,
+    "n_emitted": 2,
+    "n_executable": 0,
+    "n_executable_emitted": 0,
+    "n_raw_candidates": 2,
+    "n_symbols": 11,
+    "session_complete": true,
+    "termination": "normal",
+    "verdict_rule": "2026-09-26b"
   }
 }

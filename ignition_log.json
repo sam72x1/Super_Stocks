@@ -1855,5 +1855,41 @@
   "usd_eff": 194296,
   "candle_class_eff": "operator",
   "frames_usd": null
+ },
+ {
+  "symbol": "AKAN",
+  "date": "2026-11-03",
+  "sustain_min": 6,
+  "operator_ok": false,
+  "fired_ts_ms": 1793718830965,
+  "trigger_bar_ms": 1793718600000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-11-03T21:00:50Z",
+  "break_level": 1.09,
+  "price": 1.1,
+  "vol_x": 5.2,
+  "usd": 17882,
+  "candle_class": "group",
+  "usd_eff": 17882,
+  "candle_class_eff": "group",
+  "frames_usd": null
+ },
+ {
+  "symbol": "GTBP",
+  "date": "2026-11-03",
+  "sustain_min": 1,
+  "operator_ok": false,
+  "fired_ts_ms": 1793739469511,
+  "trigger_bar_ms": 1793739240000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-11-03T21:00:50Z",
+  "break_level": 5.19,
+  "price": 5.27,
+  "vol_x": 7.6,
+  "usd": 11647,
+  "candle_class": "group",
+  "usd_eff": 11647,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
