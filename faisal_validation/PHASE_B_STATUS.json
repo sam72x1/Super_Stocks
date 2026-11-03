@@ -320,10 +320,10 @@
  },
  "ledger": {
   "due_now": 0,
-  "file_sha256": "040d45c3b08d09fa0b48e14600966fc19a3dd10c0fbb6c33ee1fe40f50515bea",
-  "head_sha256": "f0164a75d25ad10bd7225a537e6a38d40f58c5fc87085773ef99c7f2e035132b",
+  "file_sha256": "8b4ed104cdb8371e839deab4e6157620edb6c742977ce1a04c291600a4cd6e77",
+  "head_sha256": "c98388f09059e10283f6e95df0b32b819deef0aa44b3889316e24a56f1fec8b5",
   "problems": [],
-  "records": 159
+  "records": 160
  },
  "main": 0,
  "metrics_main": {
@@ -2000,13 +2000,13 @@
    "match_class": null,
    "pattern": null,
    "protocol_case": "CASE_0016",
-   "reason": "protocol PENDING_V4 (Faisal not revealed)",
+   "reason": "protocol PENDING_FAISAL (Faisal not revealed)",
    "regime": null,
    "setup": null,
    "status": "PENDING",
    "ticker": "BNAI",
    "timeframe": "4H",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
