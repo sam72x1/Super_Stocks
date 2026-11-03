@@ -24,11 +24,13 @@
     }
    ],
    "status": "stopped",
-   "last_price": 1.17,
-   "last_bar": "2026-10-29",
-   "dollar_vol": 5566953.0,
-   "move_pct": 15.8,
-   "stopped_at": "2026-10-15"
+   "last_price": 0.9905,
+   "last_bar": "2026-11-02",
+   "dollar_vol": 5600585.0,
+   "move_pct": -1.9,
+   "stopped_at": "2026-10-15",
+   "max_high": 1.7,
+   "max_move_pct": 68.3
   },
   {
    "symbol": "IPW",
@@ -54,11 +56,13 @@
     }
    ],
    "status": "stopped",
-   "last_price": 2.225,
-   "last_bar": "2026-10-29",
-   "dollar_vol": 5078959.0,
-   "move_pct": 13.5,
-   "stopped_at": "2026-10-20"
+   "last_price": 1.67,
+   "last_bar": "2026-11-02",
+   "dollar_vol": 5014431.0,
+   "move_pct": -14.8,
+   "stopped_at": "2026-10-20",
+   "max_high": 50.16,
+   "max_move_pct": 2459.2
   },
   {
    "symbol": "RCON",
@@ -84,10 +88,12 @@
     }
    ],
    "status": "active",
-   "last_price": 1.04,
-   "last_bar": "2026-10-29",
-   "dollar_vol": 152399.0,
-   "move_pct": -32.5
+   "last_price": 0.895,
+   "last_bar": "2026-11-02",
+   "dollar_vol": 143238.0,
+   "move_pct": -41.9,
+   "max_high": 1.59,
+   "max_move_pct": 3.2
   },
   {
    "symbol": "AEMD",
@@ -113,10 +119,12 @@
     }
    ],
    "status": "active",
-   "last_price": 5.52,
-   "last_bar": "2026-10-29",
-   "dollar_vol": 325579.0,
-   "move_pct": 186.0
+   "last_price": 5.29,
+   "last_bar": "2026-11-02",
+   "dollar_vol": 318240.0,
+   "move_pct": 174.1,
+   "max_high": 9.5,
+   "max_move_pct": 392.2
   },
   {
    "symbol": "YHC",
@@ -142,11 +150,13 @@
     }
    ],
    "status": "stopped",
-   "last_price": 2.45,
-   "last_bar": "2026-10-29",
-   "dollar_vol": 811906.0,
-   "move_pct": 64.4,
-   "stopped_at": "2026-09-16"
+   "last_price": 2.39,
+   "last_bar": "2026-11-02",
+   "dollar_vol": 817095.0,
+   "move_pct": 60.4,
+   "stopped_at": "2026-09-16",
+   "max_high": 3.0,
+   "max_move_pct": 101.3
   },
   {
    "symbol": "WOK",
@@ -172,11 +182,13 @@
     }
    ],
    "status": "stopped",
-   "last_price": 1.1,
-   "last_bar": "2026-10-29",
-   "dollar_vol": 61668.0,
-   "move_pct": -39.2,
-   "stopped_at": "2026-09-30"
+   "last_price": 1.0,
+   "last_bar": "2026-11-02",
+   "dollar_vol": 50098.0,
+   "move_pct": -44.8,
+   "stopped_at": "2026-09-30",
+   "max_high": 1.8338,
+   "max_move_pct": 1.3
   },
   {
    "symbol": "BDAI",
@@ -202,10 +214,12 @@
     }
    ],
    "status": "active",
-   "last_price": 2.52,
-   "last_bar": "2026-10-29",
-   "dollar_vol": 2825128.0,
-   "move_pct": 26.0
+   "last_price": 2.125,
+   "last_bar": "2026-11-02",
+   "dollar_vol": 2834176.0,
+   "move_pct": 6.2,
+   "max_high": 2.77,
+   "max_move_pct": 38.5
   },
   {
    "symbol": "CTNT",
@@ -230,11 +244,14 @@
      "src": "رأس شمعة حمراء"
     }
    ],
-   "status": "active",
-   "last_price": 2.23,
-   "last_bar": "2026-10-29",
-   "dollar_vol": 1284793.0,
-   "move_pct": 2.8
+   "status": "stopped",
+   "last_price": 2.04,
+   "last_bar": "2026-11-02",
+   "dollar_vol": 337014.0,
+   "move_pct": -6.0,
+   "max_high": 2.31,
+   "max_move_pct": 6.5,
+   "stopped_at": "2026-11-02"
   }
  ],
  "added_last": [],
