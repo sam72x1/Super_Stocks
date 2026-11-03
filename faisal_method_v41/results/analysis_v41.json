@@ -6700,7 +6700,7 @@
   }
  },
  "prospective": {
-  "candidates": 108,
+  "candidates": 123,
   "complete": 8,
   "coverage": {
    "disagreements": 3,
@@ -6777,7 +6777,7 @@
    "v4_not_run": 0
   },
   "pending_images": [],
-  "sealed_cases": 15,
+  "sealed_cases": 16,
   "status": "INSUFFICIENT"
  },
  "provenance_summary": {

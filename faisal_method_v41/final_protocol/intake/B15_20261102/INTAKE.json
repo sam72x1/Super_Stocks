@@ -1,0 +1,1425 @@
+{
+ "batch_id": "B15_20261102",
+ "candidates": [
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 83,
+      "id": "EDU_20260827_school_two_models_ma_ladder",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 98,
+      "id": "TG_50597",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 86,
+      "id": "IMG_0647",
+      "phash_dist": 22
+     },
+     {
+      "dhash256_dist": 109,
+      "id": "TG_50598",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 94,
+      "id": "EDU_20260827_wnw_daily_after_explosion",
+      "phash_dist": 22
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "INSUFFICIENT_CONTEXT",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:38Z",
+    "date": "2026-11-02T09:27:24Z",
+    "dhash256": "c310ce86b02c8a628bd29d82dd22e4e3dba3ca93a5b28bb2a3a3d2a49f0e9d06",
+    "forward_type": "none",
+    "message_id": 80995,
+    "meta_v": 2,
+    "phash64": "50e02de02dd31af7",
+    "run_id": "41499731441",
+    "sha256": "c1e28a655c8bf9b0973835b013ebf8384fcc4401fe25a059d4fcd74a4faef1f0"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_80995.jpg",
+   "fingerprint": {
+    "dhash256": "c310ce86b02c8a628bd29d82dd22e4e3dba3ca93a5b28bb2a3a3d2a49f0e9d06",
+    "phash64": "50e02de02dd31af7",
+    "sha256": "c1e28a655c8bf9b0973835b013ebf8384fcc4401fe25a059d4fcd74a4faef1f0"
+   },
+   "image_id": "TG_80995",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:38Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true) · طابعا المنشورين 9:42 PM و10:38 PM بلا تاريخ",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "c1e28a655c8bf9b0973835b013ebf8384fcc4401fe25a059d4fcd74a4faef1f0",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "c310ce86b02c8a628bd29d82dd22e4e3dba3ca93a5b28bb2a3a3d2a49f0e9d06",
+      "phash64": "50e02de02dd31af7"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 80995,
+     "TICKER": "UNKNOWN",
+     "TIMEFRAME": "UNKNOWN"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP",
+     "TICKER",
+     "TIMEFRAME"
+    ]
+   },
+   "reason": "NO_TICKER",
+   "saved": true,
+   "symbol": null
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 99,
+      "id": "TG_20260918_30_targets7",
+      "phash_dist": 20
+     },
+     {
+      "dhash256_dist": 84,
+      "id": "IMG_0303",
+      "phash_dist": 24
+     },
+     {
+      "dhash256_dist": 84,
+      "id": "TG_2182",
+      "phash_dist": 24
+     },
+     {
+      "dhash256_dist": 74,
+      "id": "TG_20260918_37_NUWE",
+      "phash_dist": 28
+     },
+     {
+      "dhash256_dist": 99,
+      "id": "IMG_0645",
+      "phash_dist": 26
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:39Z",
+    "date": "2026-11-02T09:27:24Z",
+    "dhash256": "d2a4a966d446e524ea258da5ad249a45b843e9629486d6e492e6d524aaa6bbe6",
+    "forward_type": "none",
+    "message_id": 80996,
+    "meta_v": 2,
+    "phash64": "5ac6e1c08fde9960",
+    "run_id": "41499731441",
+    "sha256": "6760d2dcb2af4ddc29de6d0cb37c8c6ae1a09d79f712b15397839a30b1439a85"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_80996.jpg",
+   "fingerprint": {
+    "dhash256": "d2a4a966d446e524ea258da5ad249a45b843e9629486d6e492e6d524aaa6bbe6",
+    "phash64": "5ac6e1c08fde9960",
+    "sha256": "6760d2dcb2af4ddc29de6d0cb37c8c6ae1a09d79f712b15397839a30b1439a85"
+   },
+   "image_id": "TG_80996",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:39Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "6760d2dcb2af4ddc29de6d0cb37c8c6ae1a09d79f712b15397839a30b1439a85",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "d2a4a966d446e524ea258da5ad249a45b843e9629486d6e492e6d524aaa6bbe6",
+      "phash64": "5ac6e1c08fde9960"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 80996,
+     "TICKER": "UNKNOWN",
+     "TIMEFRAME": "UNKNOWN"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP",
+     "TICKER",
+     "TIMEFRAME"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": null
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 67,
+      "id": "TG_1961",
+      "phash_dist": 8
+     },
+     {
+      "dhash256_dist": 60,
+      "id": "TG_2530",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 53,
+      "id": "TG_1949",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 55,
+      "id": "TG_1916",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 65,
+      "id": "CH_20260918_60_VEEE",
+      "phash_dist": 18
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:40Z",
+    "date": "2026-11-02T09:27:24Z",
+    "dhash256": "223b33310000b014c000da003d3ca7f0720140006567496d5890cb3c66996499",
+    "forward_type": "none",
+    "message_id": 80997,
+    "meta_v": 2,
+    "phash64": "35752a2a75757520",
+    "run_id": "41499731441",
+    "sha256": "cf123d24adc2c42a6fc7d9e2e590a806a326a8371d0884edca6c6239b2b59051"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_80997.jpg",
+   "fingerprint": {
+    "dhash256": "223b33310000b014c000da003d3ca7f0720140006567496d5890cb3c66996499",
+    "phash64": "35752a2a75757520",
+    "sha256": "cf123d24adc2c42a6fc7d9e2e590a806a326a8371d0884edca6c6239b2b59051"
+   },
+   "image_id": "TG_80997",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:40Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "cf123d24adc2c42a6fc7d9e2e590a806a326a8371d0884edca6c6239b2b59051",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "223b33310000b014c000da003d3ca7f0720140006567496d5890cb3c66996499",
+      "phash64": "35752a2a75757520"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 80997,
+     "TICKER": "ELPW",
+     "TIMEFRAME": "1H"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": "ELPW"
+  },
+  {
+   "batch": "B15_20261102",
+   "case_id": "CASE_0016",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 73,
+      "id": "TG_20260918_37_NUWE",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 76,
+      "id": "IMG_0659",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 96,
+      "id": "EDU_20260905_01",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 89,
+      "id": "IMG_0746",
+      "phash_dist": 20
+     },
+     {
+      "dhash256_dist": 94,
+      "id": "EDU_20260827_wnw_entry_decision_4h",
+      "phash_dist": 22
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "NEW_PROSPECTIVE",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:41Z",
+    "date": "2026-11-02T09:27:24Z",
+    "dhash256": "c2a4ce86bc5eaa25a0a4b826ae24ae25a4a5a4e5b602c5649f65bfa69246950e",
+    "forward_type": "none",
+    "message_id": 80998,
+    "meta_v": 2,
+    "phash64": "5ad0252dd0db74d2",
+    "run_id": "41499731441",
+    "sha256": "b29442dbfa4fdf19e4f190e9fef768916839f5c6bcaafa05b82ae5bda0e30a67"
+   },
+   "decision_date": "2026-10-31",
+   "file": "faisal_images/TG_80998.jpg",
+   "fingerprint": {
+    "dhash256": "c2a4ce86bc5eaa25a0a4b826ae24ae25a4a5a4e5b602c5649f65bfa69246950e",
+    "phash64": "5ad0252dd0db74d2",
+    "sha256": "b29442dbfa4fdf19e4f190e9fef768916839f5c6bcaafa05b82ae5bda0e30a67"
+   },
+   "image_id": "TG_80998",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:41Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "لقطةُ التطبيق المضمَّنة ترويستها «30/10-16:00:00 EDT» وسعرُ ما بعد الإغلاق «19:30 EDT» ⟵ البياناتُ إغلاقُ نيويورك 2026-10-30 · وساعةُ الجهاز في اللقطة 11:20 (الرياض) ⟵ بعد 19:30 EDT يومَ 10-30 = 10-31 أو 11-01 بنيويورك (عطلةُ أسبوع) قبل جلسة 11-02 · وطابعُ المنشور غيرُ ظاهر · أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "b29442dbfa4fdf19e4f190e9fef768916839f5c6bcaafa05b82ae5bda0e30a67",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "c2a4ce86bc5eaa25a0a4b826ae24ae25a4a5a4e5b602c5649f65bfa69246950e",
+      "phash64": "5ad0252dd0db74d2"
+     },
+     "PROVENANCE_CONFIDENCE": "LOW",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 80998,
+     "TICKER": "BNAI",
+     "TIMEFRAME": "4H"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "—",
+   "saved": true,
+   "symbol": "BNAI"
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 106,
+      "id": "IMG_0291",
+      "phash_dist": 20
+     },
+     {
+      "dhash256_dist": 92,
+      "id": "TG_2031",
+      "phash_dist": 24
+     },
+     {
+      "dhash256_dist": 108,
+      "id": "TG_2193",
+      "phash_dist": 20
+     },
+     {
+      "dhash256_dist": 105,
+      "id": "TG_58042",
+      "phash_dist": 22
+     },
+     {
+      "dhash256_dist": 109,
+      "id": "IMG_0297",
+      "phash_dist": 22
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:43Z",
+    "date": "2026-11-02T09:27:24Z",
+    "dhash256": "a243910a81ca80c6874b82049b849948e6caca86cd0a8a49b2cda549a756b656",
+    "forward_type": "none",
+    "message_id": 80999,
+    "meta_v": 2,
+    "phash64": "491f3467362f2c64",
+    "run_id": "41499731441",
+    "sha256": "062f33563d7f8eb9c3d1a74d7a579b756b9d0574854173ff4c53b8be90a28fb6"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_80999.jpg",
+   "fingerprint": {
+    "dhash256": "a243910a81ca80c6874b82049b849948e6caca86cd0a8a49b2cda549a756b656",
+    "phash64": "491f3467362f2c64",
+    "sha256": "062f33563d7f8eb9c3d1a74d7a579b756b9d0574854173ff4c53b8be90a28fb6"
+   },
+   "image_id": "TG_80999",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:43Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "062f33563d7f8eb9c3d1a74d7a579b756b9d0574854173ff4c53b8be90a28fb6",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "a243910a81ca80c6874b82049b849948e6caca86cd0a8a49b2cda549a756b656",
+      "phash64": "491f3467362f2c64"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 80999,
+     "TICKER": "UNKNOWN",
+     "TIMEFRAME": "UNKNOWN"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP",
+     "TICKER",
+     "TIMEFRAME"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": null
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 109,
+      "id": "TG_50822",
+      "phash_dist": 22
+     },
+     {
+      "dhash256_dist": 114,
+      "id": "IMG_0361",
+      "phash_dist": 22
+     },
+     {
+      "dhash256_dist": 117,
+      "id": "TG_2010",
+      "phash_dist": 22
+     },
+     {
+      "dhash256_dist": 117,
+      "id": "TG_2085",
+      "phash_dist": 22
+     },
+     {
+      "dhash256_dist": 103,
+      "id": "TG_58052",
+      "phash_dist": 26
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:44Z",
+    "date": "2026-11-02T09:27:24Z",
+    "dhash256": "33300e2e019e27788cc3b4d71c27664e271d29bc14ab9c6316741f4b17826332",
+    "forward_type": "none",
+    "message_id": 81000,
+    "meta_v": 2,
+    "phash64": "3f693264191e465d",
+    "run_id": "41499731441",
+    "sha256": "99c92bd1cfbfe350051116fc83294d9a14ffbee9526be3f9bca241d0b1583054"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_81000.jpg",
+   "fingerprint": {
+    "dhash256": "33300e2e019e27788cc3b4d71c27664e271d29bc14ab9c6316741f4b17826332",
+    "phash64": "3f693264191e465d",
+    "sha256": "99c92bd1cfbfe350051116fc83294d9a14ffbee9526be3f9bca241d0b1583054"
+   },
+   "image_id": "TG_81000",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:44Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "99c92bd1cfbfe350051116fc83294d9a14ffbee9526be3f9bca241d0b1583054",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "33300e2e019e27788cc3b4d71c27664e271d29bc14ab9c6316741f4b17826332",
+      "phash64": "3f693264191e465d"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 81000,
+     "TICKER": "UNKNOWN",
+     "TIMEFRAME": "UNKNOWN"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP",
+     "TICKER",
+     "TIMEFRAME"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": null
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 71,
+      "id": "TG_20260918_42_NUWE",
+      "phash_dist": 14
+     },
+     {
+      "dhash256_dist": 84,
+      "id": "IMG_0294",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 84,
+      "id": "TG_2190",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 54,
+      "id": "EDU_20260827_wnw_entry_decision_4h",
+      "phash_dist": 20
+     },
+     {
+      "dhash256_dist": 73,
+      "id": "EDU_20260827_dki_group_candle",
+      "phash_dist": 16
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "INSUFFICIENT_CONTEXT",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:45Z",
+    "date": "2026-11-02T09:27:24Z",
+    "dhash256": "c258ce06b1769c09a00abe0a8e4ab94bbc49bc4b86cad746d649df4e9b168f46",
+    "forward_type": "none",
+    "message_id": 81001,
+    "meta_v": 2,
+    "phash64": "49c83637d96626c9",
+    "run_id": "41499731441",
+    "sha256": "f20393024beeeb2a81cc41b0a6457214a4171a599e958ad963605d6aec274cdc"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_81001.jpg",
+   "fingerprint": {
+    "dhash256": "c258ce06b1769c09a00abe0a8e4ab94bbc49bc4b86cad746d649df4e9b168f46",
+    "phash64": "49c83637d96626c9",
+    "sha256": "f20393024beeeb2a81cc41b0a6457214a4171a599e958ad963605d6aec274cdc"
+   },
+   "image_id": "TG_81001",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:45Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "طابعُ المنشور «5:46 AM» وساعةُ اللقطة 5:45 **بلا يوم** · ولا ترويسةَ تاريخٍ في اللقطة · وتعذّر مطابقةُ إغلاق ELPW (لا تاريخَ له في بيانات البوت المحلّيّة · وTradingView غيرُ متاحٍ من بيئة الجلسة) ⟵ **اليومُ غيرُ مُثبَت** (فاشلٌ-مغلق) · أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "f20393024beeeb2a81cc41b0a6457214a4171a599e958ad963605d6aec274cdc",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "c258ce06b1769c09a00abe0a8e4ab94bbc49bc4b86cad746d649df4e9b168f46",
+      "phash64": "49c83637d96626c9"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 81001,
+     "TICKER": "ELPW",
+     "TIMEFRAME": "4H"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "DATE_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": "ELPW"
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 78,
+      "id": "IMG_0295",
+      "phash_dist": 14
+     },
+     {
+      "dhash256_dist": 78,
+      "id": "TG_2191",
+      "phash_dist": 14
+     },
+     {
+      "dhash256_dist": 88,
+      "id": "IMG_0298",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 89,
+      "id": "TG_2188",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 88,
+      "id": "TG_50603",
+      "phash_dist": 14
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:46Z",
+    "date": "2026-11-02T09:27:24Z",
+    "dhash256": "f092a49698a6b882a083b885bc90bca5a0aaa482a492e466a4a4893a902a905e",
+    "forward_type": "none",
+    "message_id": 81002,
+    "meta_v": 2,
+    "phash64": "62e21d18e6ce19e3",
+    "run_id": "41499731441",
+    "sha256": "a1b9538d44c3d659a06d04fc8df1812f3c52f9f8efa4861b7898918788408355"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_81002.jpg",
+   "fingerprint": {
+    "dhash256": "f092a49698a6b882a083b885bc90bca5a0aaa482a492e466a4a4893a902a905e",
+    "phash64": "62e21d18e6ce19e3",
+    "sha256": "a1b9538d44c3d659a06d04fc8df1812f3c52f9f8efa4861b7898918788408355"
+   },
+   "image_id": "TG_81002",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:46Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "a1b9538d44c3d659a06d04fc8df1812f3c52f9f8efa4861b7898918788408355",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "f092a49698a6b882a083b885bc90bca5a0aaa482a492e466a4a4893a902a905e",
+      "phash64": "62e21d18e6ce19e3"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 81002,
+     "TICKER": "IXIC",
+     "TIMEFRAME": "1W"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": "IXIC"
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 53,
+      "id": "TG_2186",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 76,
+      "id": "IMG_0645",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 61,
+      "id": "IMG_0301",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 46,
+      "id": "IMG_0294",
+      "phash_dist": 24
+     },
+     {
+      "dhash256_dist": 46,
+      "id": "TG_2190",
+      "phash_dist": 24
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:48Z",
+    "date": "2026-11-02T09:27:24Z",
+    "dhash256": "9ccae84ab00aba4baa49a248b249ba49ba4ba34aa808f14edd4cad48924a9352",
+    "forward_type": "none",
+    "message_id": 81003,
+    "meta_v": 2,
+    "phash64": "48c834cbdb37d02e",
+    "run_id": "41499731441",
+    "sha256": "a31746bdf642cb76140b10b4de081fa7afe9e94e3108c8608b2921880c0e6d5d"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_81003.jpg",
+   "fingerprint": {
+    "dhash256": "9ccae84ab00aba4baa49a248b249ba49ba4ba34aa808f14edd4cad48924a9352",
+    "phash64": "48c834cbdb37d02e",
+    "sha256": "a31746bdf642cb76140b10b4de081fa7afe9e94e3108c8608b2921880c0e6d5d"
+   },
+   "image_id": "TG_81003",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:48Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "a31746bdf642cb76140b10b4de081fa7afe9e94e3108c8608b2921880c0e6d5d",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "9ccae84ab00aba4baa49a248b249ba49ba4ba34aa808f14edd4cad48924a9352",
+      "phash64": "48c834cbdb37d02e"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 81003,
+     "TICKER": "JEM",
+     "TIMEFRAME": "4H"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": "JEM"
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 73,
+      "id": "IMG_0289",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 83,
+      "id": "TG_2186",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 84,
+      "id": "IMG_0645",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 91,
+      "id": "TG_20260918_37_NUWE",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 94,
+      "id": "TG_2185",
+      "phash_dist": 16
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:49Z",
+    "date": "2026-11-02T09:27:24Z",
+    "dhash256": "9c82e804f246b446ae46a945b105ba44bb05ba05ac43930290448a469440b452",
+    "forward_type": "none",
+    "message_id": 81004,
+    "meta_v": 2,
+    "phash64": "4ac825c9db3dc0d9",
+    "run_id": "41499731441",
+    "sha256": "7cff8fc4ab631a965e8afb97eb197db437f416578581f66774af1b2f3066d1e5"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_81004.jpg",
+   "fingerprint": {
+    "dhash256": "9c82e804f246b446ae46a945b105ba44bb05ba05ac43930290448a469440b452",
+    "phash64": "4ac825c9db3dc0d9",
+    "sha256": "7cff8fc4ab631a965e8afb97eb197db437f416578581f66774af1b2f3066d1e5"
+   },
+   "image_id": "TG_81004",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:49Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "7cff8fc4ab631a965e8afb97eb197db437f416578581f66774af1b2f3066d1e5",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "9c82e804f246b446ae46a945b105ba44bb05ba05ac43930290448a469440b452",
+      "phash64": "4ac825c9db3dc0d9"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 81004,
+     "TICKER": "ELPW",
+     "TIMEFRAME": "30m"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": "ELPW"
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 83,
+      "id": "IMG_0289",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 85,
+      "id": "TG_50599",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 87,
+      "id": "TG_2180",
+      "phash_dist": 22
+     },
+     {
+      "dhash256_dist": 90,
+      "id": "TG_2274",
+      "phash_dist": 24
+     },
+     {
+      "dhash256_dist": 83,
+      "id": "TG_2117",
+      "phash_dist": 26
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:50Z",
+    "date": "2026-11-02T09:27:29Z",
+    "dhash256": "8c84b804b065e065b9a4ac05a625b126a9a4a924b324bc24ba25e524bb229b26",
+    "forward_type": "none",
+    "message_id": 81005,
+    "meta_v": 2,
+    "phash64": "52d22dda2d0dc92d",
+    "run_id": "41499731441",
+    "sha256": "58ea8482d834e36ee1fe4af84a841b34e090469310f41b928da3f1053b861a5e"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_81005.jpg",
+   "fingerprint": {
+    "dhash256": "8c84b804b065e065b9a4ac05a625b126a9a4a924b324bc24ba25e524bb229b26",
+    "phash64": "52d22dda2d0dc92d",
+    "sha256": "58ea8482d834e36ee1fe4af84a841b34e090469310f41b928da3f1053b861a5e"
+   },
+   "image_id": "TG_81005",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:50Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "58ea8482d834e36ee1fe4af84a841b34e090469310f41b928da3f1053b861a5e",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "8c84b804b065e065b9a4ac05a625b126a9a4a924b324bc24ba25e524bb229b26",
+      "phash64": "52d22dda2d0dc92d"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 81005,
+     "TICKER": "ELPW",
+     "TIMEFRAME": "1D"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": "ELPW"
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 92,
+      "id": "TG_2190",
+      "phash_dist": 8
+     },
+     {
+      "dhash256_dist": 94,
+      "id": "IMG_0294",
+      "phash_dist": 8
+     },
+     {
+      "dhash256_dist": 84,
+      "id": "TG_20260918_40_NUWE",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 84,
+      "id": "EDU_20260827_sle_night_4am",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 82,
+      "id": "IMG_0648",
+      "phash_dist": 18
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:51Z",
+    "date": "2026-11-02T09:27:29Z",
+    "dhash256": "9812e214f296ac829692a213b894fe11b609b69b8d928c9484069a14b51a92a6",
+    "forward_type": "none",
+    "message_id": 81006,
+    "meta_v": 2,
+    "phash64": "49c93627c93536c9",
+    "run_id": "41499731441",
+    "sha256": "4f3d02f0b0759ee0d5fd04f397f0f94cb044eb7b9c126324549daca7b8c3dbfd"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_81006.jpg",
+   "fingerprint": {
+    "dhash256": "9812e214f296ac829692a213b894fe11b609b69b8d928c9484069a14b51a92a6",
+    "phash64": "49c93627c93536c9",
+    "sha256": "4f3d02f0b0759ee0d5fd04f397f0f94cb044eb7b9c126324549daca7b8c3dbfd"
+   },
+   "image_id": "TG_81006",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:51Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "4f3d02f0b0759ee0d5fd04f397f0f94cb044eb7b9c126324549daca7b8c3dbfd",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "9812e214f296ac829692a213b894fe11b609b69b8d928c9484069a14b51a92a6",
+      "phash64": "49c93627c93536c9"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 81006,
+     "TICKER": "ELPW",
+     "TIMEFRAME": "30m"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": "ELPW"
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 93,
+      "id": "IMG_0746",
+      "phash_dist": 14
+     },
+     {
+      "dhash256_dist": 90,
+      "id": "TG_58042",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 93,
+      "id": "TG_50599",
+      "phash_dist": 16
+     },
+     {
+      "dhash256_dist": 93,
+      "id": "TG_2180",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 89,
+      "id": "TG_2182",
+      "phash_dist": 20
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "INSUFFICIENT_CONTEXT",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:53Z",
+    "date": "2026-11-02T09:27:29Z",
+    "dhash256": "c204c206b406a805a2a69f4699669105ed05ad03a502c144d564dd06b5469746",
+    "forward_type": "none",
+    "message_id": 81007,
+    "meta_v": 2,
+    "phash64": "5ac8e1252d353c5d",
+    "run_id": "41499731441",
+    "sha256": "676b84276011015f2a51f83eb3afdb043d3eebcf473cf05929249fe480e8f139"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_81007.jpg",
+   "fingerprint": {
+    "dhash256": "c204c206b406a805a2a69f4699669105ed05ad03a502c144d564dd06b5469746",
+    "phash64": "5ac8e1252d353c5d",
+    "sha256": "676b84276011015f2a51f83eb3afdb043d3eebcf473cf05929249fe480e8f139"
+   },
+   "image_id": "TG_81007",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:53Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "لا طابعَ يومٍ ظاهر · «امس صعد» نسبيّ · أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "676b84276011015f2a51f83eb3afdb043d3eebcf473cf05929249fe480e8f139",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "c204c206b406a805a2a69f4699669105ed05ad03a502c144d564dd06b5469746",
+      "phash64": "5ac8e1252d353c5d"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 81007,
+     "TICKER": "ELPW",
+     "TIMEFRAME": "1D"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "NO_DECISION",
+   "saved": true,
+   "symbol": "ELPW"
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 54,
+      "id": "CH_20260918_63_ELPW",
+      "phash_dist": 6
+     },
+     {
+      "dhash256_dist": 55,
+      "id": "TG_2069",
+      "phash_dist": 6
+     },
+     {
+      "dhash256_dist": 49,
+      "id": "CH_20260918_25_SXTC",
+      "phash_dist": 8
+     },
+     {
+      "dhash256_dist": 58,
+      "id": "CH_20260918_65_ELPW",
+      "phash_dist": 6
+     },
+     {
+      "dhash256_dist": 50,
+      "id": "TG_2050",
+      "phash_dist": 10
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:54Z",
+    "date": "2026-11-02T09:27:29Z",
+    "dhash256": "2e073a0100026452a512ca526d1285925ad301024d4b596d2d901b3a66d964d9",
+    "forward_type": "none",
+    "message_id": 81008,
+    "meta_v": 2,
+    "phash64": "5252a9ab5e56a8a9",
+    "run_id": "41499731441",
+    "sha256": "4cfd722881f96b9a367dba184dd58826833d6ffb214cadbb506509a7f85a5a27"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_81008.jpg",
+   "fingerprint": {
+    "dhash256": "2e073a0100026452a512ca526d1285925ad301024d4b596d2d901b3a66d964d9",
+    "phash64": "5252a9ab5e56a8a9",
+    "sha256": "4cfd722881f96b9a367dba184dd58826833d6ffb214cadbb506509a7f85a5a27"
+   },
+   "image_id": "TG_81008",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:54Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "4cfd722881f96b9a367dba184dd58826833d6ffb214cadbb506509a7f85a5a27",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "2e073a0100026452a512ca526d1285925ad301024d4b596d2d901b3a66d964d9",
+      "phash64": "5252a9ab5e56a8a9"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 81008,
+     "TICKER": "ELPW",
+     "TIMEFRAME": "1D"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": "ELPW"
+  },
+  {
+   "batch": "B15_20261102",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 57,
+      "id": "TG_2186",
+      "phash_dist": 14
+     },
+     {
+      "dhash256_dist": 61,
+      "id": "IMG_0301",
+      "phash_dist": 14
+     },
+     {
+      "dhash256_dist": 74,
+      "id": "TG_20260918_40_NUWE",
+      "phash_dist": 20
+     },
+     {
+      "dhash256_dist": 107,
+      "id": "IMG_0300",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 118,
+      "id": "IMG_0299",
+      "phash_dist": 10
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class7": "UNKNOWN",
+   "collector_row": {
+    "collected_utc": "2026-11-02T18:21:55Z",
+    "date": "2026-11-02T09:27:29Z",
+    "dhash256": "9c8b904ab04ba249b009b609a60da00ab84bbb4aae48a84aa6499e4a89ca8c96",
+    "forward_type": "none",
+    "message_id": 81009,
+    "meta_v": 2,
+    "phash64": "49c936d93626c437",
+    "run_id": "41499731441",
+    "sha256": "68f68acec74115db712fd280ef0f330506c748e58654836dc34774facde57343"
+   },
+   "decision_date": null,
+   "file": "faisal_images/TG_81009.jpg",
+   "fingerprint": {
+    "dhash256": "9c8b904ab04ba249b009b609a60da00ab84bbb4aae48a84aa6499e4a89ca8c96",
+    "phash64": "49c936d93626c437",
+    "sha256": "68f68acec74115db712fd280ef0f330506c748e58654836dc34774facde57343"
+   },
+   "image_id": "TG_81009",
+   "provenance": {
+    "basis": "UNKNOWN",
+    "decision_date_from_post": null,
+    "fields": {
+     "CAPTURE_TIMESTAMP": "2026-11-02T18:21:55Z",
+     "CASE_ID": "—",
+     "DATE_VISIBLE": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+     "FORWARD_TYPE": "none",
+     "IMAGE_HASH": "68f68acec74115db712fd280ef0f330506c748e58654836dc34774facde57343",
+     "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+     "PERCEPTUAL_HASH": {
+      "dhash256": "9c8b904ab04ba249b009b609a60da00ab84bbb4aae48a84aa6499e4a89ca8c96",
+      "phash64": "49c936d93626c437"
+     },
+     "PROVENANCE_CONFIDENCE": "UNKNOWN",
+     "PUBLIC_CHANNEL_METADATA": "N/A",
+     "SOURCE": "telegram_bot · run 41499731441",
+     "SOURCE_MESSAGE_ID": 81009,
+     "TICKER": "FBGL",
+     "TIMEFRAME": "1D"
+    },
+    "meta_v": 2,
+    "missing_critical": [
+     "ORIGINAL_POST_TIMESTAMP"
+    ]
+   },
+   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "saved": true,
+   "symbol": "FBGL"
+  }
+ ],
+ "tool_version": "V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)"
+}
