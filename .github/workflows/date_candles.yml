@@ -1,4 +1,4 @@
-name: "🕯️📅 تأريخُ الصور ببصمة الشموع — الملحق 2 (date_candles)"
+name: "🕯️📅 تأريخُ الصور ببصمة الشموع — الملحقان 2 و3 (date_candles)"
 
 # 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · لا أسرار · **والصورُ لا تُدفَع** (المستودعُ عامّ):
 #    البطاقاتُ أرقامٌ في fm_forensics/date_candles/data/cards.jsonl ⟵ شموعُ TradingView لرمز كلِّ بطاقة ⟵ سطرُ «DCR» لكلّ بطاقة في السجلّ.
@@ -21,6 +21,18 @@ on:
         description: "معرّفاتُ بطاقاتٍ بعينها بفاصلة (فارغ = الدفعة)"
         required: false
         default: ""
+      mode:
+        description: "match (الملحق 2 · ③) أو calib (الملحق 3 §⑤ على data/calib_set.json)"
+        required: false
+        default: "match"
+      tol_mult:
+        description: "مضاعفُ تسامح الشكل (1 = الملحق 2 بت-بت · ③ بـ m* من ②)"
+        required: false
+        default: "1"
+      cards:
+        description: "ملفُّ البطاقات (cards.jsonl = v1 · cards_v2.jsonl = الملحق 3)"
+        required: false
+        default: "cards.jsonl"
 
 concurrency:
   group: date-candles
@@ -55,4 +67,7 @@ jobs:
           DC_BATCH: ${{ matrix.batch }}
           DC_SIZE: ${{ inputs.size }}
           DC_IDS: ${{ inputs.ids }}
+          DC_MODE: ${{ inputs.mode }}
+          DC_TOL_MULT: ${{ inputs.tol_mult }}
+          DC_CARDS: fm_forensics/date_candles/data/${{ inputs.cards }}
         run: python fm_forensics/date_candles/match.py

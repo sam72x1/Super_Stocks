@@ -95577,6 +95577,139 @@ check("🕯️📅 DC2R نتيجةُ الملحق 2: الجدولُ والملف
       "وصفوفُ candles الجانبيّة ≡ «واثق» المطابَقة بوحدة · والمجتمع 357 و«واثق» 5",
       _dc2r_v == (True, True, True, True, 357, 5), f"{_dc2r_v} · {_hits}")
 
+# 🕯️🤖 DC3A (‏2026-11-04 · الملحق 3 §④ · أمرُ المالك «تشخيص قبل أي تسامح جديد»): القارئ v2 على صورةٍ اصطناعيّة — ذيولٌ باهتة
+#    (تشبّعٌ دون قناع الشموع) وحرفٌ أحمرُ فوق شمعةٍ في عمودها وخطٌّ أزرقُ زائدٌ بلا رقم ⟵ v2 يقرأ الشموعَ الخمسَ والعشرين بأسعارها
+#    (الذيلُ يُتتبَّع · والحرفُ يُسقط · والمعايرةُ بلا شرط تساوي العدد) و v1 لا (يفوته الذيلُ أو يسقط بالعدد) · والأرقامُ بمسافة وكلماتُ
+#    الألوان الإضافيّة · ووسما القمّة/القاع مع خطٍّ واحد يكفيان v2 · والافتراضُ v1 بت-بت.
+try:
+    import importlib as _dc3_il
+    import numpy as _dc3_np
+    import os as _dc3_os
+    import sys as _dc3_sys
+    _dc3_sys.path.insert(0, _dc3_os.path.join(_dc3_os.path.dirname(_dc3_os.path.abspath(__file__)), "fm_forensics", "date_candles"))
+    _dc3_ac = _dc3_il.import_module("auto_card")
+    _dc3_y = lambda p: int(round(700 - (p - 1.0) * 200))           # noqa: E731
+
+    def _dc3_img(light_wick=True, glyph=False, extra_line=False):
+        img = _dc3_np.full((800, 600, 3), 255, dtype=_dc3_np.uint8)
+        rng = _dc3_np.random.default_rng(7)
+        truth, c = [], 2.2
+        for i in range(25):
+            o = c
+            c = float(min(3.2, max(1.3, o + rng.normal(0, 0.12))))
+            h = max(o, c) + float(abs(rng.normal(0, 0.05))) + 0.04
+            lo = min(o, c) - float(abs(rng.normal(0, 0.05))) - 0.04
+            truth.append((o, h, lo, c))
+            x = 40 + i * 16
+            col = (38, 166, 154) if c >= o else (239, 83, 80)
+            wk = ((205, 235, 232) if c >= o else (245, 215, 214)) if light_wick else col
+            img[_dc3_y(h):_dc3_y(lo) + 1, x + 3] = wk
+            img[_dc3_y(max(o, c)):_dc3_y(min(o, c)) + 1, x:x + 7] = col
+        if glyph:
+            x = 40 + 12 * 16
+            img[_dc3_y(truth[12][1]) - 40:_dc3_y(truth[12][1]) - 34, x + 1:x + 6] = (239, 83, 80)
+        for p, col in ((3.5, (156, 39, 176)), (2.1, (20, 20, 20)), (1.7, (41, 98, 255)), (1.5, (41, 98, 255))):
+            img[_dc3_y(p), :] = col
+        if extra_line:
+            img[_dc3_y(3.35), :] = (41, 98, 255)
+        return img, truth
+
+    def _dc3_err(card, truth):
+        if not card.get("ok"):
+            return None
+        e = []
+        for (o, h, lo, c), b in zip(truth, card["bars"]):
+            e.append(9.9 if b is None else max(abs(b["o"] - o), abs(b["h"] - h), abs(b["l"] - lo), abs(b["c"] - c)))
+        return max(e) if len(e) == 25 else 9.9
+    _seen = "SYN على اليوميّ: بنفسجيّ 3.5 · أسودُ 2.1 · أزرقُ 1.7 1.5"
+    _img, _tr = _dc3_img(glyph=True, extra_line=True)
+    _v2 = _dc3_ac.build_card(_img, _seen, 2)
+    _v1 = _dc3_ac.build_card(_img, _seen)
+    _img2, _tr2 = _dc3_img()
+    _v1b = _dc3_ac.build_card(_img2, "SYN: بنفسجيّ 3.5 · أسودُ 2.1 · أزرقُ 1.7 و1.5")
+    _hi = max(t[1] for t in _tr2)
+    _lo = min(t[2] for t in _tr2)
+    _seen_hl = f"SYN: بنفسجيّ 3.5 · قمّة {_hi:.3f} · قاع {_lo:.3f}"
+    _hl2 = _dc3_ac.build_card(_img2, _seen_hl, 2)
+    _hl1 = _dc3_ac.build_card(_img2, _seen_hl)
+    _pl = _dc3_ac.parse_lines("ELPW · أسود 6.401 · ورديّ 5.605 · أسود 3.444 3.008 · كحليّ 23.25 · أحمر 1.5 45%", 2)
+    _same_v1 = _dc3_ac.build_card(_img2, _seen) == _dc3_ac.build_card(_img2, _seen, 1)
+    _dc3_v = (_v2.get("ok"), (_dc3_err(_v2, _tr) or 9.9) <= 0.03, _v1.get("ok") is not True or (_dc3_err(_v1, _tr) or 9.9) > 0.03,
+              (_dc3_err(_v1b, _tr2) or 9.9) > 0.03, _hl2.get("ok"), (_dc3_err(_hl2, _tr2) or 9.9) <= 0.03, _hl1.get("ok"),
+              _pl == {"black": [6.401, 3.444, 3.008], "purple": [5.605], "blue": [23.25], "red": [1.5]}, _same_v1,
+              _dc3_ac.parse_lines("أسود 3.444 3.008") == {"black": [3.444]})
+except Exception as _e:                                           # noqa: BLE001
+    _dc3_v, _v2, _tr = (f"⛔ {type(_e).__name__}: {_e}",), {}, []
+check("🕯️🤖 DC3A القارئ v2: الذيلُ الباهت يُتتبَّع · الحرفُ فوق الشمعة يُسقط · الخطُّ الزائد لا يُسقط المعايرة · القمّة/القاع مع خطٍّ واحد · "
+      "والأرقامُ بمسافة وكلماتُ الألوان — و v1 الافتراضيّ بت-بت لا يفعل شيئًا من ذلك",
+      _dc3_v == (True, True, True, True, True, True, False, True, True, True),
+      f"{_dc3_v} · خطأ v2={_dc3_err(_v2, _tr) if _tr else None}")
+
+# 🕯️📅 DC3M (‏2026-11-04 · الملحق 3 §⑤-§⑥): مضاعفُ تسامح الشكل والمعايرة — `mult=1` = الملحق 2 بت-بت · وبطاقةٌ ضجيجُها فوق تسامحها
+#    «لا تطابق» عند 1 و«واثق» عند مضاعفٍ أكبر · و`calib` يبحث بلا الحقيقة ثمّ يصنّف: `r_true` للنافذة الصحيحة دون `r_false` لأقرب كاذبة.
+try:
+    import datetime as _dc3_dt
+    _dc3_m = _dc3_il.import_module("match")
+    _rng3 = _dc3_np.random.default_rng(11)
+    _t03 = int(_dc3_dt.datetime(2025, 1, 2, tzinfo=_dc3_dt.timezone.utc).timestamp())
+    _px3, _h3 = 5.0, []
+    for _i in range(300):
+        _o = _px3
+        _px3 = float(max(0.5, _o * _dc3_np.exp(_rng3.normal(0, 0.06))))
+        _h3.append([_t03 + _i * 86400, _o, max(_o, _px3) * 1.02, min(_o, _px3) * 0.98, _px3, 1000.0])
+    _day3 = lambda ts: _dc3_dt.datetime.fromtimestamp(ts, _dc3_dt.timezone.utc).strftime("%Y-%m-%d")   # noqa: E731
+    _st3 = lambda ts, tf: _day3(ts)                                                                    # noqa: E731
+    _ev3 = [(_day3(_h3[260][0]), 0.1)]
+    _nz = _dc3_np.random.default_rng(5)
+    _bars3 = []
+    for _r in _h3[200:225]:
+        _f = float(_dc3_np.exp(_nz.normal(0, 0.012)))
+        _bars3.append({"o": _r[1] / 10 * _f, "h": _r[2] / 10 * _f, "l": _r[3] / 10 * _f, "c": _r[4] / 10 * _f})
+    _c3 = {"id": "SYN", "symbol": "SYN", "frame": "1D", "bars": _bars3,
+           "tol": [{k: b[k] * 0.003 for k in "ohlc"} for b in _bars3]}
+    _j1 = _dc3_m.judge(_c3, {"1D": _h3}, _ev3, _day3, _st3)
+    _j1b = _dc3_m.judge(_c3, {"1D": _h3}, _ev3, _day3, _st3, mult=1.0)
+    _j4 = _dc3_m.judge(_c3, {"1D": _h3}, _ev3, _day3, _st3, mult=4.0)
+    _cal = _dc3_m.calib(_c3, {"1D": _h3}, _ev3, _day3, _st3, _day3(_h3[224][0]))
+    _calw = _dc3_m.calib(_c3, {"1D": _h3}, _ev3, _day3, _st3, _day3(_h3[150][0]))
+    _dc3_mv = (_j1 == _j1b, _j1["label"], _j4["label"], (_j4.get("top1") or {}).get("end") == _day3(_h3[224][0]),
+               _j4.get("mult"), _cal["lv_true"] is not None and 1.0 < _cal["lv_true"][0] <= 4.0,
+               _cal["lv_false"] is None or _cal["lv_false"][0] > _cal["lv_true"][0],
+               _calw["lv_true"] is None and _calw["lv_false"] is not None and abs(_calw["lv_false"][0] - _cal["lv_true"][0]) < 1e-9)
+except Exception as _e:                                           # noqa: BLE001
+    _dc3_mv = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🕯️📅 DC3M مضاعفُ التسامح: 1 = الملحق 2 بت-بت · الضجيجُ فوق التسامح «لا تطابق» عند 1 و«واثق» بآخر شمعته عند 4 · "
+      "و`calib` يصنّف بعد البحث: الصحيحةُ `r_true` بين 1 و4 دون الكاذبة · وحقيقةٌ خاطئة تقلبها كاذبة",
+      _dc3_mv == (True, "لا تطابق", "واثق", True, 4.0, True, True, True), str(_dc3_mv)[:220])
+
+# 🕯️📅 DC3P (‏2026-11-04 · الملحق 3 §⑤-§⑥): المجتمعُ 3 والمنحنى والاختيار نقيّةً — نسخةُ B46 لعضوٍ «نسخة» والعضوُ باقٍ · صورةُ B46 برمزٍ
+#    وفريم عضوٌ جديد · وبرمزين مستبعَدة · ومجموعةُ المعايرة أوّلُ 20 بـsha256 من المعروف ذي البطاقة · وأصغرُ m يصيب 17 بلا كاذبة ·
+#    و N دون 10 «لا معايرة» · ولا m ⟵ 1.
+try:
+    _dc3_v3 = _dc3_il.import_module("v3")
+    _p2 = {"members": [{"file": "TG_1", "symbol": "AAA", "frame": "1D", "cluster": "TG_1", "members": ["TG_1", "TG_0"],
+                        "known": {"truth": "2026-01-05", "src": "eye:DAY"}}], "disk": 3}
+    _rc = {"TG_9": {"tk": ["AAA"], "seen": "x", "new": "D", "dup_of": "TG_0"}, "TG_8": {"tk": ["BBB"], "seen": "BBB على اليوميّ"},
+           "TG_7": {"tk": ["CCC", "DDD"], "seen": "يوميّ"}}
+    _p3 = _dc3_v3.pop3(_p2, _rc, {}, {"TG_9": (1, 1), "TG_8": (1, 1), "TG_7": (1, 1)}, ["TG_9", "TG_8", "TG_7", "TG_6"])
+    _ex3 = {e["file"]: e["why"] for e in _p3["b46_excluded"]}
+    _ks = [{"file": f"TG_{i}", "symbol": "S", "frame": "1D", "cluster": f"TG_{i}", "known": {"truth": "2026-01-02"}} for i in range(30)]
+    _cs = _dc3_v3.calib_set({"members": _ks}, {f"TG_{i}": {"ok": i % 3 != 0} for i in range(30)})
+    _want = sorted([f"TG_{i}" for i in range(30) if i % 3 != 0], key=_dc3_v3._h)[:20]
+    _rows = ([{"lv_true": [0.8], "lv_false": None}] * 12 + [{"lv_true": [1.4], "lv_false": [3.5]}] * 5
+             + [{"lv_true": [6.0], "lv_false": [2.2]}] * 3)
+    _cv = _dc3_v3.curve(_rows)
+    _sel = _dc3_v3.select_m(_cv, 20)
+    _sel_none = _dc3_v3.select_m(_dc3_v3.curve(_rows[:12] + [{"lv_true": [9.0], "lv_false": [0.9]}] * 8), 20)
+    _dc3_pv = (_p3["b46_members"], "نسخة" in _ex3.get("TG_9", ""), "أكثرُ من رمز" in _ex3.get("TG_7", ""),
+               "ليست على القرص" in _ex3.get("TG_6", ""), [x["file"] for x in _cs["set"]] == _want, _cs["n_with_card"],
+               _sel[0], _dc3_v3.select_m(_cv, 8)[0], _sel_none[0], dict((m, (h, f)) for m, h, f in _cv)[1.5])
+except Exception as _e:                                           # noqa: BLE001
+    _dc3_pv = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🕯️📅 DC3P المجتمعُ 3 والمعايرة: نسخةُ B46 للعضو «نسخة» · الجديدُ برمزٍ وفريم عضو · وبرمزين أو بلا قرصٍ مستبعَد · المجموعةُ أوّلُ 20 "
+      "بـsha256 · وأصغرُ m يصيب 17 بلا كاذبة (1.5) · N دون 10 «لا معايرة» · ولا m ⟵ 1",
+      _dc3_pv == (["TG_8"], True, True, True, True, 20, 1.5, None, 1.0, (17, 0)), str(_dc3_pv)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
