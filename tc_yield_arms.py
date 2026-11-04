@@ -241,22 +241,33 @@ def _pool_keys(snapshots, since_iso: str) -> dict:
 
     المفتاحُ `(رمز · يوم · أوّلُ تقييمٍ ms)` ⇒ الأسبقيّةُ الزمنيّة مقروءةٌ منه
     مباشرة. ويُقصَر على ما بعد الشحن فالكونُ **نفسُه** لكلّ ذراع (‏`V-Y3`)."""
-    pool = {}
+    pool, seen = {}, set()
     for _ts, st in (snapshots or []):
-        if not isinstance(st, dict):
-            continue
-        for k, v in st.items():
-            if not k.startswith(LTR.PREFIX) or not isinstance(v, dict):
-                continue
-            day = str(v.get("date") or "")
-            # 🧊 `§⑭`: يوما الانتقال خارج الكون أيضًا (‏`V-Y3`: الكونُ نفسُه لكلّ ذراع)
-            if not day or day < since_iso[:10] or day[:10] in EXCLUDED_SESSIONS:
-                continue
-            ms = int(v.get("tc_seen_ms") or v.get("last_eval_ms") or 0)
-            key = (k[len(LTR.PREFIX):], day, ms)
-            if key[:2] not in {p[:2] for p in pool}:
-                pool[key] = {"symbol": key[0], "date": day, "first_ms": ms}
+        _pool_add(pool, st, since_iso, seen)
     return pool
+
+
+def _pool_add(pool: dict, st, since_iso: str, seen: set = None) -> None:
+    """لقطةٌ واحدة تُضاف إلى `pool` (‏`_pool_keys` لقطةً لقطة — المشيُ المتدفّق في `main`).
+
+    `seen` = `{مفتاح[:2] لكلّ ما في pool}` يُحمَل بين النداءات (2026-11-04): كان يُعاد بناؤه لكلّ مدخلٍ
+    (تربيعيٌّ في حجم الكون ⇒ التشغيلةُ الحاكمة لا تنتهي على 58 ألف لقطة) · والنتيجةُ بت-بت (أوّلُ ظهورٍ يفوز)."""
+    if not isinstance(st, dict):
+        return
+    if seen is None:
+        seen = {p[:2] for p in pool}
+    for k, v in st.items():
+        if not k.startswith(LTR.PREFIX) or not isinstance(v, dict):
+            continue
+        day = str(v.get("date") or "")
+        # 🧊 `§⑭`: يوما الانتقال خارج الكون أيضًا (‏`V-Y3`: الكونُ نفسُه لكلّ ذراع)
+        if not day or day < since_iso[:10] or day[:10] in EXCLUDED_SESSIONS:
+            continue
+        ms = int(v.get("tc_seen_ms") or v.get("last_eval_ms") or 0)
+        key = (k[len(LTR.PREFIX):], day, ms)
+        if key[:2] not in seen:
+            seen.add(key[:2])
+            pool[key] = {"symbol": key[0], "date": day, "first_ms": ms}
 
 
 def _measure_key(sym, day, a_row, key, cache):
@@ -289,11 +300,23 @@ def main() -> int:                                               # noqa: PLR0911
         return RC_INPUT
 
     ref = os.environ.get("TCYIELD_REF", "origin/main")
-    snaps, bad = LTR.git_snapshots(ref=ref)
-    if not snaps:
+    # 🔁 **مشيٌ واحدٌ متدفّق** (عطلٌ مُثبَت 2026-11-04): اللقطاتُ كلُّها في الذاكرة معًا
+    #    (‏58,031 مراجعة) قتلت الرنرَ مرّتين بلا مُخرَج (`41818301261` · `41821188330`) ⇒
+    #    تُقرأ لقطةً لقطة ويُبنى كونُ الضبط `C-CNT` في المشي نفسِه · والأرقامُ بت-بت.
+    #    وكونُ الضبط لا يُبنى في وضع الجدوى (كما كان قبل الإصلاح: `pool` بعد `if dry: return`).
+    _bad, pool, _seen = [0], {}, set()
+
+    def _observe(_it):
+        for _ts, _st in _it:
+            if not dry:
+                _pool_add(pool, _st, SHIP_ISO, _seen)
+            yield _ts, _st
+
+    res = LTR.collect(_observe(LTR.iter_snapshots(ref=ref, bad=_bad)))
+    bad = _bad[0]
+    if not res["revs"]:
         log(f"⛔ صفرُ لقطةٍ من `{ref}` · خروج 5")
         return RC_NOMAT
-    res = LTR.collect(snaps)
     anchors = {k: v for k, v in res["anchors"].items()
                if str(k[1] or "") >= SHIP_ISO[:10]}
     anchors, excl = exclude_sessions(anchors)          # 🧊 `§⑭` قبل أيّ ذراعٍ أو عدّ
@@ -339,7 +362,7 @@ def main() -> int:                                               # noqa: PLR0911
         return 0
 
     # ── الشقُّ (ب) — الحصيلة ─────────────────────────────────────────────────
-    pool = _pool_keys(snaps, SHIP_ISO)
+    # `pool` بُني في المشي المتدفّق أعلاه (`_pool_add` · بت-بت مع `_pool_keys`)
     cache, rows, fails, nobase = {}, [], 0, 0
     per_arm = defaultdict(list)          # اسمُ الذراع ⟶ [(رمز، أصاب)]
     universe = set()

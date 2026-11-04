@@ -87,11 +87,29 @@ def collect(snapshots) -> dict:
     `(الرمز · اليوم · لحظةُ المِرساة)` ⇒ لقطةٌ تتكرّر لا تُضاعف العدّ، **وأوّلُ
     ظهورٍ يفوز** فيُحفَظ أقدمُ ما رأيناه من عمق المراحل ثم يُحدَّث بأعمقها.
     ترجّع `{"anchors": {...}, "revs": n, "span": (أوّل، آخر)}`. نقيّة."""
+    def _keys_of(_st):
+        out = set()
+        if isinstance(_st, dict):
+            for k, v in _st.items():
+                if k.startswith(PREFIX) and isinstance(v, dict) and v.get("anchor_ms"):
+                    out.add((k[len(PREFIX):], str(v.get("date") or ""),
+                             int(v["anchor_ms"])))
+        return out
+
+    # 🔁 **مشيٌ واحدٌ متدفّق** (عطلٌ مُثبَت 2026-11-04 · `T-TC-YIELD`): كانت اللقطاتُ كلُّها
+    #    تُحفظ قائمةً معًا (‏58,031 مراجعة × ‏≈90 ألف محرف) فقُتل الرنرُ مرّتين بلا مُخرَج ⇒
+    #    تُقرأ الآن لقطةً لقطة · ومفاتيحُ آخر لقطةٍ لكلّ يوم تُحدَّث في المشي نفسِه · والنتيجةُ بت-بت.
     anchors, first, last = {}, None, None
+    last_keys, eod_keys, revs = set(), {}, 0
     for ts, st in (snapshots or []):
+        revs += 1
         if first is None:
             first = ts
         last = ts
+        _ks = _keys_of(st)
+        last_keys = _ks
+        for _day in {_k[1] for _k in _ks}:
+            eod_keys[_day] = _ks
         if not isinstance(st, dict):
             continue
         for k, v in st.items():
@@ -120,29 +138,38 @@ def collect(snapshots) -> dict:
     #    نجت من بوّابة المضارب** ⇒ تُقرأ «كُتمت» وهي سُلِّمت. فأُضيف المقياسُ
     #    الصادق **`alive_eod`**: الحضورُ في **آخر لقطةٍ تحمل يومَ المِرساة نفسَه**
     #    — والقديمُ يبقى مطبوعًا بوسمه فلا يُحذف رقمٌ نُشر.
-    def _keys_of(_st):
-        out = set()
-        if isinstance(_st, dict):
-            for k, v in _st.items():
-                if k.startswith(PREFIX) and isinstance(v, dict) and v.get("anchor_ms"):
-                    out.add((k[len(PREFIX):], str(v.get("date") or ""),
-                             int(v["anchor_ms"])))
-        return out
 
-    snaps = list(snapshots or [])
-    last_keys = _keys_of(snaps[-1][1]) if snaps else set()
-    # آخرُ لقطةٍ يظهر فيها يومٌ بعينه — تُحسب مرّةً واحدةً لكلّ يوم
-    eod_keys, last_idx = {}, {}
-    for i, (_ts, _st) in enumerate(snaps):
-        for (_sym, _day, _ms) in _keys_of(_st):
-            last_idx[_day] = i
-    for _day, i in last_idx.items():
-        eod_keys[_day] = _keys_of(snaps[i][1])
+    # آخرُ لقطةٍ يظهر فيها يومٌ بعينه = `eod_keys[يوم]` (حُدِّث في المشي أعلاه)
     for key, row in anchors.items():
         row["alive"] = key in last_keys
         row["alive_eod"] = key in eod_keys.get(key[1], set())
-    return {"anchors": anchors, "revs": len(snapshots or []),
+    return {"anchors": anchors, "revs": revs,
             "span": (first, last)}
+
+
+def iter_snapshots(path: str = STATE, limit: int = 0, ref: str = "HEAD", bad: list = None):
+    """مثلُ `git_snapshots` **لقطةً لقطة** (مولِّد) — فلا تُحفظ المراجعاتُ كلُّها في الذاكرة معًا.
+
+    `bad` قائمةٌ يُضاف إلى عنصرها الأوّل عددُ المراجعات التالفة (تُتخطّى وتُعدّ). الأقدمُ أوّلًا."""
+    try:
+        out = subprocess.run(["git", "log", "--format=%H %cI", str(ref), "--", path],
+                             capture_output=True, text=True, timeout=120).stdout
+    except Exception:                                            # noqa: BLE001
+        return
+    revs = [ln.split(" ", 1) for ln in out.splitlines() if " " in ln]
+    revs.reverse()
+    if limit:
+        revs = revs[-int(limit):]
+    for sha, ts in revs:
+        try:
+            blob = subprocess.run(["git", "show", f"{sha}:{path}"],
+                                  capture_output=True, text=True, timeout=60).stdout
+            st = json.loads(blob)
+        except Exception:                                        # noqa: BLE001
+            if bad is not None:
+                bad[0] += 1
+            continue
+        yield (ts, st)
 
 
 def git_snapshots(path: str = STATE, limit: int = 0, ref: str = "HEAD"):
@@ -230,11 +257,12 @@ def main() -> int:
         return 3
     lim = int(os.environ.get("TRIG_READ_LIMIT") or 0)
     ref = (os.environ.get("TRIG_READ_REF") or "origin/main").strip()
-    snaps, bad = git_snapshots(limit=lim, ref=ref)
-    if not snaps:
+    bad = [0]
+    res = collect(iter_snapshots(limit=lim, ref=ref, bad=bad))   # 🔁 متدفّق (عطلُ 2026-11-04)
+    if not res["revs"]:
         log("⛔ لا مراجعاتِ حالةٍ تُقرأ (تاريخُ git لا يحمل الملفّ)")
         return 2
-    for ln in report(collect(snaps), bad, ref):
+    for ln in report(res, bad[0], ref):
         log(ln)
     return 0
 
