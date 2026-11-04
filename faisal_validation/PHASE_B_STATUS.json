@@ -325,10 +325,10 @@
  },
  "ledger": {
   "due_now": 0,
-  "file_sha256": "de555581e7124600b523574ac9298ef74c87a1c7940ebef9ec61377ac81762e3",
-  "head_sha256": "1c0ae69b17a9079fb075cf47fc7bebc939e79ca9a1e5d3d0371b033a8cf0d90c",
+  "file_sha256": "ea92061703518977c12c4f77444f13060ee7fff877f92a3ced786a7af39ad01c",
+  "head_sha256": "030de6b3ed18ee90ba248166360c4e388153d9bf3e03bf09aa0936bf60259d01",
   "problems": [],
-  "records": 252
+  "records": 253
  },
  "main": 0,
  "metrics_main": {
@@ -2545,13 +2545,13 @@
    "match_class": null,
    "pattern": null,
    "protocol_case": "CASE_0017",
-   "reason": "protocol PENDING_V4 (Faisal not revealed)",
+   "reason": "protocol PENDING_FAISAL (Faisal not revealed)",
    "regime": null,
    "setup": null,
    "status": "PENDING",
    "ticker": "SUGP",
    "timeframe": "4H",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
