@@ -23750,7 +23750,9 @@ _cr_lines = [ln.strip() for ln in _cr.splitlines()
              if ln.strip().startswith("- cron:")]
 _cr_exprs = _re10.findall(r'- cron: "([^"]+)"', _cr)
 _CR_BASE = {"13,43 8-23 * * 1-5", "28,58 8-23 * * 1-5"}
-_cr_extra = [c for c in _cr_exprs if c not in _CR_BASE]
+# ❄️ فتحاتُ الأفتر الشتويّ (أمرُ المالك 2026-11-04) صنفٌ ثالث ليست سُلَّمًا: تُفتح في أفتر نيويورك ⟵ يحرسها `AHW1` سلوكيًّا
+_CR_AH_WINTER = {"13,43 0 * * 2-6", "28,58 0 * * 2-6"}
+_cr_extra = [c for c in _cr_exprs if c not in _CR_BASE and c not in _CR_AH_WINTER]
 _cr_gate = _cr.split("Delay-ladder window gate")[-1].split("- name:")[0]
 
 
@@ -23790,6 +23792,108 @@ check("⏰ CR1 الفتحتان المقيستان باقيتان · وكلُّ 
       and all(_cr_always_gated(c) for c in _cr_extra)
       and "run=0" in _cr_gate and "hour < 8 || hour > 23 || dow > 5" in _cr_gate,
       f"أساس={sorted(_CR_BASE & set(_cr_exprs))} · زائدة={_cr_extra}")
+
+# ❄️ AHW1…AHW4 (‏2026-11-04 · أمرُ المالك «مدّ مراقبة الأفتر شتاءً حتى 01:00 — استعادة لنفس التغطية الصيفية لا إطالة»):
+#    شتاءً الأفترُ 21:00-01:00 UTC وساعتُه الأخيرة في يوم UTC التالي ⟵ (أ) فتحاتُ 00:xx (الثلاثاء-السبت) تُفتح في أفتر نيويورك وحدَه
+#    (ب) `_ah_session_day` و`_session_clock` بيوم نيويورك داخل الأفتر وبالقاعدة القديمة خارجه ⟵ مطابقان على كلّ دقيقةٍ إلّا الساعةَ المستعادة.
+import ast as _ahw_ast                                              # noqa: E402
+import subprocess as _ahw_sp                                         # noqa: E402
+import tempfile as _ahw_tf                                           # noqa: E402
+import yaml as _ahw_yaml                                             # noqa: E402
+import datetime as _ahw_dt                                           # noqa: E402
+import pullback_live as _ahw_PL                                      # noqa: E402
+
+
+def _ahw_gate(schedule, fake_utc):
+    """يشغّل خطوةَ البوّابة من الـYAML نفسِه بساعةٍ مزيّفة ⟵ «run=0/1» (أو رسالةُ العطل)."""
+    body = _ahw_yaml.safe_load(open(".github/workflows/pullback_monitor.yml", encoding="utf-8"))["jobs"]["monitor"]["steps"][0]["run"]
+    stub = ('date() { if [[ "$1" == "-u" ]]; then shift; command date -u -d "$FAKE_UTC" "$@"; '
+            'else command date -d "$FAKE_UTC" "$@"; fi; }\nexport -f date\n')
+    with _ahw_tf.NamedTemporaryFile("w", suffix=".out", delete=False) as fo:
+        out = fo.name
+    env = dict(_os_hc.environ, SCHEDULE=schedule, FAKE_UTC=fake_utc, GITHUB_OUTPUT=out)
+    r = _ahw_sp.run(["bash", "--noprofile", "--norc", "-eo", "pipefail", "-c", stub + body], env=env,
+                    capture_output=True, text=True, timeout=30)
+    try:
+        return open(out, encoding="utf-8").read().strip() or f"⛔ rc={r.returncode} {r.stderr[:80]}"
+    finally:
+        _os_hc.remove(out)
+
+
+try:
+    _ahw_y = _ahw_yaml.safe_load(open(".github/workflows/pullback_monitor.yml", encoding="utf-8"))
+    _ahw_crons = {c["cron"] for c in _ahw_y[True]["schedule"]}
+    _ahw_cases = {("13,43 0 * * 2-6", "2026-11-04T00:13:00Z"): "run=1",    # شتاء · الأربعاء UTC = أفترُ الثلاثاء نيويورك
+                  ("28,58 0 * * 2-6", "2026-11-07T00:58:00Z"): "run=1",    # شتاء · السبت UTC = أفترُ الجمعة
+                  ("13,43 0 * * 2-6", "2026-11-03T00:43:00Z"): "run=1",    # شتاء · أفترُ الاثنين
+                  ("13,43 0 * * 2-6", "2026-07-15T00:13:00Z"): "run=0",    # صيف · 20:13 نيويورك ⟵ لا تشغيلَ زائد
+                  ("28,58 0 * * 2-6", "2026-07-18T00:28:00Z"): "run=0",
+                  ("13,43 0 * * 2-6", "2026-11-08T00:13:00Z"): "run=0",    # الأحد UTC = السبت نيويورك
+                  ("13,43 0 * * 2-6", "2026-11-04T01:05:00Z"): "run=0",    # متأخّرةٌ بعد 20:00 نيويورك
+                  ("13,43 0 * * 2-6", "2026-11-04T09:13:00Z"): "run=0",    # متأخّرةٌ إلى البريماركت
+                  ("13,43 8-23 * * 1-5", "2026-11-04T09:13:00Z"): "run=1",  # الأساسُ بلا بوّابة كما كان
+                  ("13 0,2,4,6 * * 1-5", "2026-11-04T00:13:00Z"): "run=0"}  # السُلَّمُ كما كان
+    _ahw_got = {k: _ahw_gate(*k) for k in _ahw_cases}
+    _ahw1 = _CR_AH_WINTER <= _ahw_crons and _ahw_got == _ahw_cases
+    _ahw1w = f"فتحات={sorted(_CR_AH_WINTER & _ahw_crons)} · خلاف={ {k[0][:8] + '@' + k[1][5:16]: v for k, v in _ahw_got.items() if v != _ahw_cases[k]} }"
+except Exception as _e:                                                    # noqa: BLE001
+    _ahw1, _ahw1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("❄️ AHW1 فتحاتُ 00:xx الشتويّة تعمل في أفتر نيويورك وحدَه (الاثنين-الجمعة نيويورك) وتُغلَق صيفًا ومتأخّرةً · والأساسُ والسُلَّمُ كما كانا",
+      _ahw1, _ahw1w[:300])
+
+
+def _ahw_old_ah(n):
+    m = n.hour * 60 + n.minute
+    return n.date().isoformat() if m >= S.market_session_now(n)["close"] else None
+
+
+def _ahw_old_clock(n):
+    m = n.hour * 60 + n.minute
+    return n.date().isoformat(), m < S.market_session_now(n)["open"]
+
+
+try:
+    _ahw_U = _ahw_dt.timezone.utc
+    _ahw_diff = {}
+    for _d in (_ahw_dt.date(2026, 7, 15), _ahw_dt.date(2026, 3, 9), _ahw_dt.date(2026, 11, 4), _ahw_dt.date(2026, 11, 7)):
+        _ahw_diff[_d.isoformat()] = [
+            (_n.strftime("%H:%M"), S._ah_session_day(_n), _ahw_PL._session_clock(_n))
+            for _n in (_ahw_dt.datetime(_d.year, _d.month, _d.day, tzinfo=_ahw_U) + _ahw_dt.timedelta(minutes=_k) for _k in range(1440))
+            if (S._ah_session_day(_n), _ahw_PL._session_clock(_n)) != (_ahw_old_ah(_n), _ahw_old_clock(_n))]
+    _w4 = _ahw_diff["2026-11-04"]
+    _ahw2 = (_ahw_diff["2026-07-15"] == [] and _ahw_diff["2026-03-09"] == []
+             and [x[0] for x in _w4] == [f"00:{m:02d}" for m in range(60)]
+             and all(x[1] == "2026-11-03" for x in _w4)
+             and [x[0] for x in _ahw_diff["2026-11-07"]] == [f"00:{m:02d}" for m in range(60)])
+    _ahw3 = all(x[2] == ("2026-11-03", False) for x in _w4) and all(x[2] == ("2026-11-06", False) for x in _ahw_diff["2026-11-07"])
+    _ahw23w = {k: (len(v), v[:1]) for k, v in _ahw_diff.items()}
+except Exception as _e:                                                    # noqa: BLE001
+    _ahw2 = _ahw3 = False
+    _ahw23w = f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("❄️ AHW2 `_ah_session_day` = القاعدةُ القديمة على كلّ دقيقةٍ صيفًا (يومان) وشتاءً إلّا 00:00-00:59 UTC ⟵ يومُ أفتر نيويورك السابق",
+      _ahw2, str(_ahw23w)[:300])
+check("❄️ AHW3 `_session_clock` كذلك · وفي الساعة المستعادة (يومُ نيويورك · ليس قبل الافتتاح) لا «بريماركتُ يومٍ جديد»",
+      _ahw3, str(_ahw23w)[:300])
+
+# AHW4 — من نقطة النداء (AST): `polygon_after_hours` يأخذ يومَه وعتبتَه من `_ah_session_day` · و`main` في المراقب يمرّر يومَ
+#    `_session_clock` وقبلَ-الافتتاح منه إلى `monitor_live_events` (لا `date.today()` ولا `utcnow`)
+try:
+    _ahw_t = _ahw_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+    _ahw_f = next(n for n in _ahw_ast.walk(_ahw_t) if isinstance(n, _ahw_ast.FunctionDef) and n.name == "polygon_after_hours")
+    _ahw_calls = {getattr(c.func, "id", getattr(c.func, "attr", None)) for c in _ahw_ast.walk(_ahw_f) if isinstance(c, _ahw_ast.Call)}
+    _ahw_pt = _ahw_ast.parse(open("pullback_live.py", encoding="utf-8").read())
+    _ahw_m = next(n for n in _ahw_ast.walk(_ahw_pt) if isinstance(n, _ahw_ast.FunctionDef) and n.name == "main")
+    _ahw_mle = [c for c in _ahw_ast.walk(_ahw_m) if isinstance(c, _ahw_ast.Call) and getattr(c.func, "attr", None) == "monitor_live_events"]
+    _ahw_msrc = _ahw_ast.get_source_segment(open("pullback_live.py", encoding="utf-8").read(), _ahw_m) or ""
+    _ahw4 = ("_ah_session_day" in _ahw_calls and "utcnow" not in _ahw_calls and "today" not in _ahw_calls
+             and len(_ahw_mle) == 1 and getattr(_ahw_mle[0].args[2], "id", None) == "_day"
+             and any(k.arg == "premarket_only" and getattr(k.value, "id", None) == "_pm_only" for k in _ahw_mle[0].keywords)
+             and "_day, _pm_only = _session_clock()" in _ahw_msrc and "utcnow" not in _ahw_msrc)
+    _ahw4w = f"calls={sorted(x for x in _ahw_calls if x)[:8]} · mle={len(_ahw_mle)}"
+except Exception as _e:                                                    # noqa: BLE001
+    _ahw4, _ahw4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("❄️ AHW4 الموصولُ من نقطة النداء: `polygon_after_hours` ⟵ `_ah_session_day` · والمراقبُ ⟵ `_session_clock` لليوم وقبلَ-الافتتاح",
+      _ahw4, _ahw4w)
 
 # ── 🚪 فتحُ الباب: المحمولُ «exited» لا يحجز خانة (أمرُ المالك 2026-08-06) ────
 import ast as _od_ast
@@ -95021,6 +95125,64 @@ except Exception as _e:                                          # noqa: BLE001
     _wfa_ok9, _wfa_d9 = False, f"⛔ {type(_e).__name__}: {_e}"
 check("📝 WFA9: نتيجةُ قياس `T-W-FAISAL` — المُخرَجُ بالعقد والملحق · الحكمُ مُعادٌ بـ`verdict` = F3 · هويّةُ العدّ والسلّم · وأرقامُ الملفّ = المُخرَج",
       _wfa_ok9, _wfa_d9[:120])
+
+# 🔒 WFA10 (‏2026-11-04 · أمرُ المالك «اقفل W»): إغلاقُ `T-W-FAISAL` **مُنفَّذ** — بعد بوّابتَي العقد والملحق كلُّ وضعٍ يخرج 8
+#        بصفرِ نداءٍ وصفرِ دالّةِ وضع · و`W_REOPEN` يُقرأ «1» حرفيًّا («0» لا يفتح) · والحرّاسُ مفتوحة · ونصُّ الإغلاق بحكمه وشروط فتحه
+_wfa_env10 = {k: _wfa_os.environ.get(k) for k in ("W_MODE", "POLYGON_API_KEY", "SHARD", "NSHARDS", "W_REOPEN")}
+_wfa_res10 = _wfa_os.path.join("fm_forensics", "w_faisal", "results")
+_wfa_snap10 = {f: open(_wfa_os.path.join(_wfa_res10, f), "rb").read() for f in sorted(_wfa_os.listdir(_wfa_res10))
+               if _wfa_os.path.isfile(_wfa_os.path.join(_wfa_res10, f))}
+_wfa_hit10, _wfa_rc10 = [], {}
+_wfa_names10 = ("mode_accept", "mode_feas_prep", "mode_feas_shard", "mode_feas_assemble", "mode_measure_prep",
+                "mode_measure_quotes", "mode_measure_final", "_poly", "fetch_quote", "_jload")
+_wfa_sv10 = {n: getattr(WFT, n, None) for n in _wfa_names10}
+try:
+    import contextlib as _wfa_cl10
+    import io as _wfa_io10
+    for _n in _wfa_names10:
+        setattr(WFT, _n, (lambda _nm: (lambda *a, **k: _wfa_hit10.append(_nm) or 0))(_n))
+    _wfa_os.environ.update({"POLYGON_API_KEY": "x", "SHARD": "0", "NSHARDS": "1"})
+    for _op in ("", "0"):
+        if _op:
+            _wfa_os.environ["W_REOPEN"] = _op
+        else:
+            _wfa_os.environ.pop("W_REOPEN", None)
+        for _md in ("accept", "feas_prep", "feas_shard", "feas_assemble", "measure_prep", "measure_quotes", "measure_final"):
+            _wfa_os.environ["W_MODE"] = _md
+            _b10 = _wfa_io10.StringIO()
+            with _wfa_cl10.redirect_stdout(_b10):
+                _wfa_rc10[(_op, _md)] = WFT.main()
+            _wfa_out10 = _b10.getvalue()
+    _wfa_os.environ["W_REOPEN"] = "1"                                  # شاهدُ الضبط: الإقرارُ يفتح ⟵ دالّةُ الوضع تُنادى
+    _wfa_os.environ["W_MODE"] = "feas_assemble"
+    with _wfa_cl10.redirect_stdout(_wfa_io10.StringIO()):
+        _wfa_ctl10 = WFT.main()
+    _wfa_txt10 = "\n".join(WFT.closure_notice())
+    _wfa_wr10 = [f for f in sorted(set(_wfa_os.listdir(_wfa_res10)) | set(_wfa_snap10))
+                 if _wfa_os.path.isfile(_wfa_os.path.join(_wfa_res10, f)) and open(_wfa_os.path.join(_wfa_res10, f), "rb").read() != _wfa_snap10.get(f)]
+    _wfa_ok10 = (len(_wfa_rc10) == 14 and set(_wfa_rc10.values()) == {8} and _wfa_hit10 == ["mode_feas_assemble"] and _wfa_ctl10 == 0
+                 and not _wfa_wr10 and WFT.CLOSED_RC == 8 and WFT.REOPEN_ENV == "W_REOPEN"
+                 and "🔒🔴 محورُ «نموذج W بتعريف فيصل» (`T-W-FAISAL`) مُغلَق" in _wfa_out10 and "اقفل W" in _wfa_txt10
+                 and "−0.85 نقطة [−1.66 · −0.002]" in _wfa_txt10 and "W_REOPEN=1" in _wfa_txt10 and "③ إذنُ المالك" in _wfa_txt10)
+    _wfa_d10 = f"rc={sorted(set(_wfa_rc10.values()))} n={len(_wfa_rc10)} نداءات={_wfa_hit10} ضبط={_wfa_ctl10} كُتب={_wfa_wr10}"
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_ok10, _wfa_d10 = False, f"{type(_e).__name__}: {_e}"
+finally:
+    if WFT is not None:
+        for _n, _f in _wfa_sv10.items():
+            setattr(WFT, _n, _f)
+    for _k, _v in _wfa_env10.items():
+        if _v is None:
+            _wfa_os.environ.pop(_k, None)
+        else:
+            _wfa_os.environ[_k] = _v
+try:
+    _wfa_g10 = WFT.guards()
+except Exception as _e:                                          # noqa: BLE001
+    _wfa_g10 = f"{type(_e).__name__}: {_e}"
+check("🔒 WFA10 إغلاقُ `T-W-FAISAL` **مُنفَّذ** («اقفل W»): الأوضاعُ السبعة تخرج 8 بصفرِ نداءٍ و«0» لا يفتح و«1» وحدَه يفتح · "
+      "والحرّاسُ تعبر · ونصُّ الإغلاق بحكمه وشروط فتحه الثلاثة · ولا يُكتب شيءٌ في `results/`", _wfa_ok10 and _wfa_g10 == 0,
+      f"{_wfa_d10} · guards={_wfa_g10}"[:300])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

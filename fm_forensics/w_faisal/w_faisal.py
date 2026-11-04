@@ -1630,6 +1630,39 @@ def guards():
     return 0 if not fails else 1
 
 
+# ── 🔒 إغلاقٌ مُنفَّذ — «اقفل W» (أمرُ المالك 2026-11-04) ─────────────────────────────────────────────────────
+#   الحكم (`T_W_FAISAL_MEASURE_RESULT.md` · `results/measure.json`): F3 «يضرّ» بالأضعف (حدّيّ) ⟵ الإغلاقُ مُنفَّذٌ لا مكتوب: بعد بوّابتَي
+#   العقد والملحق (خروج 9) يخرج كلُّ وضعٍ 8 قبل أيّ نداءٍ أو قراءةِ بيانات · و`--guards` مفتوح.
+AXIS_CLOSED = True
+REOPEN_ENV = "W_REOPEN"
+CLOSED_RC = 8                      # غيرُ 0 (نجاح) · 1 (حرّاس) · 2 (مفتاح/وضع) · 9 (العقد/الملحق)
+
+
+def _closed_now():
+    """مُغلَقٌ الآن؟ يُقرأ وقتَ النداء · والإقرارُ «1» حرفيًّا («0» لا يفتح)."""
+    return AXIS_CLOSED and (os.environ.get(REOPEN_ENV) or "").strip() != "1"
+
+
+def closure_notice():
+    """نصُّ الإغلاق — دالّةٌ نقيّة فيُقفَل محتواها لا شكلُها."""
+    return [
+        "🔒🔴 محورُ «نموذج W بتعريف فيصل» (`T-W-FAISAL`) مُغلَق — بأمر المالك «اقفل W» (2026-11-04) · "
+        "`fm_forensics/w_faisal/T_W_FAISAL_MEASURE_RESULT.md`.",
+        "",
+        "⚖️ السبب — بالأرقام (تشغيلة 41237401061 · بونفيروني على 8):",
+        "   • الحكمُ بالأضعف F3 «يضرّ» (حدّيّ): خليّةُ 30د · (a) التأكيد أمام C2 الزخم المطابق −0.85 نقطة [−1.66 · −0.002].",
+        "   • وأمام `find_w` الحاليّ +9.01 (30د) و+6.77 (4س) ⟵ الزخمُ يفسّر التفوّق لا شكلُ W.",
+        "   • وسلّمُ «ارتفاع العنق» 10/25/50 وصفٌ لا يُشحن.",
+        "",
+        "🔓 ولا يُعاد فتحُه إلّا بثلاثةٍ معًا:",
+        "   ① مصدرُ بياناتٍ جديدٌ لم يُقَس (وحداتٌ أماميّة بعد 2026-11-04 · أو فريمٌ لم يُقَس) — وإعادةُ المجتمع نفسِه بضبطٍ أو "
+        "مرساةٍ أخرى ليست مصدرًا.",
+        "   ② تسجيلٌ مسبقٌ جديد — العقدُ `T_W_FAISAL_prereg.md` والملحق 1 مدموجان لا يُعدَّلان.",
+        "   ③ إذنُ المالك.",
+        "   ⚖️ والمفتاحُ W_REOPEN=1 إقرارٌ بالثلاثة لا التفافٌ عليها — ويُقرأ «1» حرفيًّا.",
+    ]
+
+
 def main():
     if "--guards" in sys.argv:
         return guards()
@@ -1639,12 +1672,16 @@ def main():
     mode = (os.environ.get("W_MODE") or "").strip()
     key = (os.environ.get("POLYGON_API_KEY") or "").strip()
     log(f"📝 T-W-FAISAL · {mode} · العقد {CONTRACT_SHA[:12]} · التسامح {TOL} · العنق {NECK_MIN} · k {K}")
+    if mode.startswith("measure") and not addendum_ok():
+        log(f"⛔ بصمةُ الملحق 1 لا تطابق `ADDENDUM_SHA` ⟵ لا عائدَ قبل الملحق (خروج {SHA_RC})")
+        return SHA_RC
+    if _closed_now():
+        for ln in closure_notice():
+            log(ln)
+        return CLOSED_RC
     if mode == "feas_assemble":
         return mode_feas_assemble()
     if mode.startswith("measure"):
-        if not addendum_ok():
-            log(f"⛔ بصمةُ الملحق 1 لا تطابق `ADDENDUM_SHA` ⟵ لا عائدَ قبل الملحق (خروج {SHA_RC})")
-            return SHA_RC
         if mode == "measure_prep":
             return mode_measure_prep()
         if mode == "measure_final":

@@ -26,6 +26,22 @@ def _ny_today(now=None):
     return n.astimezone(ZoneInfo("America/New_York")).date().isoformat()
 
 
+def _session_clock(now=None):
+    """❄️ (يومُ أحداث الجلسة · قبل الافتتاح؟) بتوقيت نيويورك. كان (`bot.dt.date.today()` · دقائقُ UTC مقابل
+    `market_session_now()["open"]`) ⟵ الآن مطابقٌ على كلّ دقيقةٍ صيفًا وشتاءً إلّا 00:00-00:59 UTC شتاءً (`AHW3`) · وكانت تشغيلةُ
+    00:xx UTC (19:xx نيويورك · آخرُ الأفتر) تُقرأ «بريماركت يومٍ جديد» فتتخطّى أحداثَ الجلسة والأفتر (عطلٌ مُثبَت)."""
+    now_utc = now or bot.dt.datetime.now(bot.dt.timezone.utc)
+    try:
+        from zoneinfo import ZoneInfo
+        ny = now_utc.astimezone(ZoneInfo("America/New_York"))
+        if 16 * 60 <= ny.hour * 60 + ny.minute < 20 * 60:             # الأفترُ نفسُه ⟵ يومُ نيويورك وليس قبل الافتتاح
+            return ny.date().isoformat(), False
+    except Exception:
+        pass
+    m = now_utc.hour * 60 + now_utc.minute                             # خارج الأفتر: القاعدةُ القديمة بت-بت
+    return now_utc.date().isoformat(), m < bot.market_session_now(now_utc)["open"]
+
+
 def _stamp_snapshot(wl):
     """لقطة أختام الدِدوب (`live_alert` + حالة الارتداد) قبل الرصد — للاسترجاع لو
     أخفق الإرسال. نقيّة (نسخ سطحي كافٍ: القيم قواميس تواريخ بسيطة)."""
@@ -88,11 +104,11 @@ def main():
             # ⑤ (إصلاح تدقيق 2026-07-12): الافتتاح مشتق من توقيت نيويورك — كان
             # مثبّتًا 13:30 UTC (صيفي) فتشغيلات 13:30-14:30 شتاءً تقرأ شمعة أمس
             # كأنها حيّة وتحرق الدِدوب فيُكتَم التنبيه الحقيقي.
-            _now = bot.dt.datetime.utcnow()
-            _pm_only = ((_now.hour * 60 + _now.minute)
-                        < bot.market_session_now()["open"])
+            # ❄️ (أمرُ المالك 2026-11-04 «مدّ مراقبة الأفتر شتاءً حتى 01:00»): اليومُ وما قبل الافتتاح من نيويورك
+            #    (`_session_clock`) — صيفًا بت-بت على 08:00-23:59 UTC · وشتاءً 00:xx UTC أفترُ يوم نيويورك لا بريماركتُ الغد.
+            _day, _pm_only = _session_clock()
             events = bot.monitor_live_events(
-                wl, hist, bot.dt.date.today().isoformat(),
+                wl, hist, _day,
                 premarket_only=_pm_only)
             if events:
                 # سطر المضارب المختصر داخل وصف الحدث يكفي (طلب المستخدم 2026-07-09)

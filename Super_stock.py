@@ -18595,8 +18595,8 @@ def market_session_now(now=None):
 
 def polygon_premarket(sym: str, prev_close=None):
     """🌙 ملخّص بريماركت اليوم من دقائق Polygon (شموع اليوم قبل افتتاح السوق).
-    **فاشل-آمن مطلق** → None عند: غياب المفتاح · خارج نافذة البريماركت (قبل 08:00 أو
-    بعد 13:30 UTC — فحص زمني **قبل** الشبكة، فصفر نداء مهدور بالفرز الباكر 07:00) ·
+    **فاشل-آمن مطلق** → None عند: غياب المفتاح · خارج نافذة البريماركت (من `market_session_now` بتوقيت نيويورك:
+    04:00 حتى الافتتاح — فحص زمني **قبل** الشبكة، فصفر نداء مهدور خارجها) ·
     401/403/429/شبكة. يرجّع dict `_premarket_summary` أو None. عرض/تنبيه فقط."""
     key = os.environ.get("POLYGON_API_KEY", "").strip()
     if not key:
@@ -18624,6 +18624,24 @@ def polygon_premarket(sym: str, prev_close=None):
         return None
 
 
+def _ah_session_day(now=None):
+    """❄️ يومُ الأفتر الجاري بتوقيت نيويورك (ISO) أو None قبل إغلاق الجلسة النظاميّة (16:00 نيويورك).
+    كان الفحصُ دقائقَ UTC مقابل `market_session_now()["close"]` واليومُ `dt.date.today()` (UTC) ⟵ صيفًا مطابقٌ تمامًا
+    (الأفتر 20:00-24:00 UTC في يوم UTC نفسِه) · وشتاءً يقع آخرُ الأفتر 00:00-01:00 UTC **في يوم UTC التالي** فيُرجع None
+    (عطلٌ مُثبَت: الساعةُ الأخيرة بلا تغطية · أمرُ المالك 2026-11-04). الآن داخل الأفتر نفسِه (16:00-19:59 نيويورك) يومُ نيويورك وخارجه القاعدةُ القديمة ⟵
+    مطابقٌ على كلّ دقيقةٍ من اليوم صيفًا وشتاءً **إلّا 00:00-00:59 UTC شتاءً** = الساعةُ المستعادة (`AHW2`) · وتعذّرُ المنطقة ⟵ القديمة."""
+    now_utc = now or dt.datetime.now(dt.timezone.utc)
+    try:
+        from zoneinfo import ZoneInfo
+        ny = now_utc.astimezone(ZoneInfo("America/New_York"))
+        if 16 * 60 <= ny.hour * 60 + ny.minute < 20 * 60:             # الأفترُ نفسُه (16:00-19:59 نيويورك) ⟵ يومُ نيويورك
+            return ny.date().isoformat()
+    except Exception:
+        pass
+    m = now_utc.hour * 60 + now_utc.minute                             # خارج الأفتر: القاعدةُ القديمة بت-بت
+    return now_utc.date().isoformat() if m >= market_session_now(now_utc)["close"] else None
+
+
 def polygon_after_hours(sym: str, regular_close=None):
     """🌆 ملخّص ما بعد الإغلاق (ضغط/تصريف المضارب — نمط LABT الحيّ). دقائق اليوم من
     Polygon، آخر سعر (أفتر) مقابل إغلاق الجلسة النظامية `regular_close`. **فحص زمني
@@ -18634,12 +18652,12 @@ def polygon_after_hours(sym: str, regular_close=None):
     if not key:
         return None
     try:
-        now = dt.datetime.utcnow()
-        # ⑤ عتبة الأفتر = إغلاق الجلسة النظامية بتوقيت نيويورك (20:00 صيفًا/21:00 شتاءً UTC)
-        if now.hour * 60 + now.minute < market_session_now()["close"]:
+        # ⑤ عتبة الأفتر = إغلاق الجلسة النظامية بتوقيت نيويورك · ❄️ ويومُها يومُ نيويورك (`_ah_session_day`):
+        #    شتاءً يمتدّ الأفتر حتى 01:00 UTC من اليوم التالي (أمرُ المالك 2026-11-04 «استعادة لنفس التغطية الصيفية»)
+        today = _ah_session_day()
+        if today is None:
             return None
         h = {"Authorization": f"Bearer {key}"}
-        today = dt.date.today().isoformat()
         url = (f"https://api.polygon.io/v2/aggs/ticker/{sym.upper()}"
                f"/range/1/minute/{today}/{today}?adjusted=true&sort=asc&limit=1000")
         r = requests.get(url, headers=h, timeout=10)
