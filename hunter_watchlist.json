@@ -24,13 +24,13 @@
     }
    ],
    "status": "stopped",
-   "last_price": 0.9905,
-   "last_bar": "2026-11-02",
-   "dollar_vol": 5600585.0,
-   "move_pct": -1.9,
+   "last_price": 3.38,
+   "last_bar": "2026-11-03",
+   "dollar_vol": 20958774.0,
+   "move_pct": 234.7,
    "stopped_at": "2026-10-15",
-   "max_high": 1.7,
-   "max_move_pct": 68.3
+   "max_high": 4.15,
+   "max_move_pct": 310.9
   },
   {
    "symbol": "IPW",
@@ -56,10 +56,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 1.67,
-   "last_bar": "2026-11-02",
-   "dollar_vol": 5014431.0,
-   "move_pct": -14.8,
+   "last_price": 1.64,
+   "last_bar": "2026-11-03",
+   "dollar_vol": 5156294.0,
+   "move_pct": -16.3,
    "stopped_at": "2026-10-20",
    "max_high": 50.16,
    "max_move_pct": 2459.2
@@ -88,10 +88,10 @@
     }
    ],
    "status": "active",
-   "last_price": 0.895,
-   "last_bar": "2026-11-02",
-   "dollar_vol": 143238.0,
-   "move_pct": -41.9,
+   "last_price": 0.88,
+   "last_bar": "2026-11-03",
+   "dollar_vol": 141282.0,
+   "move_pct": -42.9,
    "max_high": 1.59,
    "max_move_pct": 3.2
   },
@@ -119,10 +119,10 @@
     }
    ],
    "status": "active",
-   "last_price": 5.29,
-   "last_bar": "2026-11-02",
-   "dollar_vol": 318240.0,
-   "move_pct": 174.1,
+   "last_price": 5.8,
+   "last_bar": "2026-11-03",
+   "dollar_vol": 315545.0,
+   "move_pct": 200.5,
    "max_high": 9.5,
    "max_move_pct": 392.2
   },
@@ -150,10 +150,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 2.39,
-   "last_bar": "2026-11-02",
-   "dollar_vol": 817095.0,
-   "move_pct": 60.4,
+   "last_price": 2.35,
+   "last_bar": "2026-11-03",
+   "dollar_vol": 828981.0,
+   "move_pct": 57.7,
    "stopped_at": "2026-09-16",
    "max_high": 3.0,
    "max_move_pct": 101.3
@@ -182,10 +182,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 1.0,
-   "last_bar": "2026-11-02",
-   "dollar_vol": 50098.0,
-   "move_pct": -44.8,
+   "last_price": 1.06,
+   "last_bar": "2026-11-03",
+   "dollar_vol": 47318.0,
+   "move_pct": -41.4,
    "stopped_at": "2026-09-30",
    "max_high": 1.8338,
    "max_move_pct": 1.3
@@ -214,10 +214,10 @@
     }
    ],
    "status": "active",
-   "last_price": 2.125,
-   "last_bar": "2026-11-02",
-   "dollar_vol": 2834176.0,
-   "move_pct": 6.2,
+   "last_price": 2.11,
+   "last_bar": "2026-11-03",
+   "dollar_vol": 2836329.0,
+   "move_pct": 5.5,
    "max_high": 2.77,
    "max_move_pct": 38.5
   },
@@ -245,10 +245,10 @@
     }
    ],
    "status": "stopped",
-   "last_price": 2.04,
-   "last_bar": "2026-11-02",
-   "dollar_vol": 337014.0,
-   "move_pct": -6.0,
+   "last_price": 2.06,
+   "last_bar": "2026-11-03",
+   "dollar_vol": 304242.0,
+   "move_pct": -5.1,
    "max_high": 2.31,
    "max_move_pct": 6.5,
    "stopped_at": "2026-11-02"
