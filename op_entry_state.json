@@ -64,11 +64,11 @@
   "anchor_price": 1.22,
   "anchor_open": 1.16,
   "anchor_low": 1.16,
-  "date": "2026-11-04",
   "pre_done": true,
   "pre_hi": 1.2,
   "pre_usd": 284843,
-  "pre_n": 34
+  "pre_n": 34,
+  "date": "2026-11-04"
  },
  "LIQ:STAK": {
   "last_eval_ms": 1793802660000,
@@ -2482,11 +2482,11 @@
   "anchor_price": 0.3438,
   "anchor_open": 0.3262,
   "anchor_low": 0.3239,
-  "date": "2026-11-04",
   "pre_done": true,
   "pre_hi": 1.2,
   "pre_usd": 5048804,
-  "pre_n": 64
+  "pre_n": 64,
+  "date": "2026-11-04"
  },
  "LIQ:CMCT": {
   "last_eval_ms": 1793739540000,
@@ -3827,7 +3827,7 @@
  "NIPG": "2026-11-02",
  "INLF": "2026-11-03",
  "ONEG": "2026-11-03",
- "LOT": "2026-11-03",
+ "LOT": "2026-11-04",
  "KPTI": "2026-11-04",
  "PRE:2026-11-03:PM": "2026-11-03T08:50:37.573586+00:00",
  "LIQ:SKYQ": {
