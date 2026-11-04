@@ -24,6 +24,10 @@ import collector as C                    # noqa: E402
 
 OUT = os.environ.get("P6_OUT") or os.path.join(HERE, "out")   # tests redirect output to a temp dir
 ANCHORS = ("DKI", "SXTC", "HUBC")
+# 🧊 frozen input window (2026-11-04 · proven fault): the trace was committed 2026-10-09 (`799a0cd05`) and P6T1-P6T3 pin its six rows, but
+#    `collector.build_mentions` reads every live intake batch — a Faisal DKI post dated 2026-10-24 sealed in B46_20261104 added a seventh
+#    row. The trace documents Phase 6 as of its commit, so mentions dated after that day are outside its input (the live collector is not).
+TRACE_MENTION_CUTOFF = "2026-10-09"
 FAISAL_STATE_OVERRIDE = {"HUBC": "UNKNOWN"}      # mission: HUBC's Faisal state stays UNKNOWN
 
 # gate → (function:line, predicate text, live parameter names, context input keys)
@@ -180,7 +184,8 @@ def trace_one(sym, day, mention, states, logo, ident, alerts):
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    mentions = [m for m in C.build_mentions() if m["canonical_ticker"] in ANCHORS and m["is_faisal"] and m["post_date"] != C.UNKNOWN]
+    mentions = [m for m in C.build_mentions() if m["canonical_ticker"] in ANCHORS and m["is_faisal"] and m["post_date"] != C.UNKNOWN
+                and m["post_date"] <= TRACE_MENTION_CUTOFF]
     tl = {}
     p = os.path.join(ROOT, "fm_forensics", "phase3", "FAISAL_TIMELINE.csv")
     for r in csv.DictReader(open(p, encoding="utf-8")):

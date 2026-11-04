@@ -1,0 +1,107 @@
+{
+ "capture_utc": "2026-11-04T12:08:39Z",
+ "case_id": "CASE_0017",
+ "date_precision": "day",
+ "date_source": "image_visible",
+ "decision_date": "2026-10-08",
+ "image": "faisal_images/TG_82813.jpg",
+ "image_sha256": "10c593bab156b2df2fd17a19d9f1c13a6f0ed3859fda019e5e28883196dd550d",
+ "layer": "1",
+ "near_duplicates": [],
+ "notes": "B46_20261104 · رسالة 82813",
+ "protocol": {
+  "blind_input": {
+   "decision_date": "2026-10-08",
+   "symbol": "SUGP",
+   "timeframe": "1D"
+  },
+  "input_hash": "a6f4990d00f266a91de1623c394ece807ecc12b317ffbba94ce5a55f0c90abac",
+  "intake": {
+   "batch": "B46_20261104",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 76,
+      "id": "X_20260827_operator_candle_ride",
+      "phash_dist": 12
+     },
+     {
+      "dhash256_dist": 67,
+      "id": "TG_50817",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 85,
+      "id": "TG_57891",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 87,
+      "id": "TG_1833",
+      "phash_dist": 18
+     },
+     {
+      "dhash256_dist": 66,
+      "id": "IMG_9925",
+      "phash_dist": 24
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class": "NEW_PROSPECTIVE"
+  },
+  "provenance": {
+   "basis": "VISIBLE_POST_TIMESTAMP",
+   "decision_date_from_post": "2026-10-08",
+   "fields": {
+    "CAPTURE_TIMESTAMP": "2026-11-04T12:08:39Z",
+    "CASE_ID": "—",
+    "DATE_VISIBLE": "طابعٌ مطلقٌ ظاهر تحت المنشور: «2:19 ص · 2026/10/9» ⟵ بتوقيت الرياض (§⑤) = 2026-10-08T23:19:00Z = 19:19 نيويورك يومَ 2026-10-08 · أرسل المالكُ الألبومات 2026-11-04T06:16:40Z…06:44:30Z (صفوفُ الجامع · from_recipient=true · تشغيلةُ الجامع 41826516677)",
+    "FORWARD_TYPE": "none",
+    "IMAGE_HASH": "10c593bab156b2df2fd17a19d9f1c13a6f0ed3859fda019e5e28883196dd550d",
+    "ORIGINAL_POST_TIMESTAMP": "2026-10-08T23:19:00Z",
+    "PERCEPTUAL_HASH": {
+     "dhash256": "c31c8336c0363c70019ab62e820cb08eb08ed32c1113043a03d6efca91269126",
+     "phash64": "01c43e3ec1d1765e"
+    },
+    "PROVENANCE_CONFIDENCE": "MEDIUM",
+    "PUBLIC_CHANNEL_METADATA": "N/A",
+    "SOURCE": "telegram_bot · run 41826516677",
+    "SOURCE_MESSAGE_ID": 82813,
+    "TICKER": "SUGP",
+    "TIMEFRAME": "4H"
+   },
+   "meta_v": 2,
+   "missing_critical": []
+  },
+  "v4_freeze": {
+   "DATA_PIPELINE_VERSION": "e7d44195e6ad26340ce38cdd2143948a37cc2b2eb4c8fe911e387009101118c9",
+   "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+   "V4_CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+   "V4_FREEZE_ID": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+   "V4_RULE_REGISTRY_HASH": "5a2a86262511ac2143920c2d8cc1e910740f1325ed47f5c199ed07b3910e3531",
+   "V4_TOOL_VERSION": {
+    "engine": "FAISAL-V4 1.0 (2026-10-02)",
+    "freeze": "V4.1-FREEZE 1.0 (2026-10-07)",
+    "rules": "V4-RULES 1.0 (2026-10-02)",
+    "runner": "V41-RUNNER 1.0 (2026-10-07)"
+   },
+   "epoch": 1
+  }
+ },
+ "symbol": "SUGP",
+ "timeframe_f": "4H",
+ "unit_id": "TG_82813"
+}

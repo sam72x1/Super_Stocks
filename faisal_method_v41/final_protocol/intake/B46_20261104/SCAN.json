@@ -1,0 +1,3087 @@
+{
+ "batch_id": "B46_20261104",
+ "items": [
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:07:40Z",
+    "date": "2026-11-04T06:16:40Z",
+    "dhash256": "e5a4a5a6b024b8a4b2259e2586258b25810780a69e44df06ac04ad81b486950a",
+    "file": {
+     "file_size": 98799,
+     "file_unique_id": "AQADYQ9rG9lQWVN-",
+     "height": 1280,
+     "width": 957
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350184001735932",
+    "message_id": 82741,
+    "meta_v": 2,
+    "phash64": "5ad23330f03835f3",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82741.jpg",
+    "sha256": "994c9575e3b148b6b87a85d18a2aaa92eb9fda0c9ef9c565afb1e2e71253cd89",
+    "status": "saved",
+    "update_id": 136263766
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82741.jpg",
+   "fingerprint": {
+    "dhash256": "e5a4a5a6b024b8a4b2259e2586258b25810780a69e44df06ac04ad81b486950a",
+    "height": 1280,
+    "phash64": "5ad23330f03835f3",
+    "sha256": "994c9575e3b148b6b87a85d18a2aaa92eb9fda0c9ef9c565afb1e2e71253cd89",
+    "width": 957
+   },
+   "image_id": "TG_82741",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 85,
+     "id": "IMG_0659",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 86,
+     "id": "TG_20260918_37_NUWE",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 88,
+     "id": "TG_50599",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 90,
+     "id": "IMG_0289",
+     "phash_dist": 24
+    },
+    {
+     "dhash256_dist": 92,
+     "id": "IMG_0746",
+     "phash_dist": 24
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:07:53Z",
+    "date": "2026-11-04T06:16:47Z",
+    "dhash256": "c29c9e0600001a2001be455a9ce72e4f639c98ab1663130063b4000081068006",
+    "file": {
+     "file_size": 51983,
+     "file_unique_id": "AQADYg9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350184060617484",
+    "message_id": 82757,
+    "meta_v": 2,
+    "phash64": "3d6d40964d99b664",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82757.jpg",
+    "sha256": "6ca6159e29d6e474da0dbb1e676ffa94fcd4f492d1baab878674416d68d98e06",
+    "status": "saved",
+    "update_id": 136263782
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82757.jpg",
+   "fingerprint": {
+    "dhash256": "c29c9e0600001a2001be455a9ce72e4f639c98ab1663130063b4000081068006",
+    "height": 1280,
+    "phash64": "3d6d40964d99b664",
+    "sha256": "6ca6159e29d6e474da0dbb1e676ffa94fcd4f492d1baab878674416d68d98e06",
+    "width": 590
+   },
+   "image_id": "TG_82757",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 103,
+     "id": "IMG_0496",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 97,
+     "id": "TG_1823",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 95,
+     "id": "TG_58046",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 103,
+     "id": "TG_2080",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 111,
+     "id": "TG_1908",
+     "phash_dist": 18
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:07:54Z",
+    "date": "2026-11-04T06:16:47Z",
+    "dhash256": "3232b2308002e012a552ca526d128592cad28102cd4b596d8d909b3a66d964d9",
+    "file": {
+     "file_size": 49199,
+     "file_unique_id": "AQADYw9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350184060617484",
+    "message_id": 82758,
+    "meta_v": 2,
+    "phash64": "56742d2d77752121",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82758.jpg",
+    "sha256": "781743b98f308dd05280fb9cd2c7c9712a145c4469fdd191436ab8aa47c90706",
+    "status": "saved",
+    "update_id": 136263783
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82758.jpg",
+   "fingerprint": {
+    "dhash256": "3232b2308002e012a552ca526d128592cad28102cd4b596d8d909b3a66d964d9",
+    "height": 1280,
+    "phash64": "56742d2d77752121",
+    "sha256": "781743b98f308dd05280fb9cd2c7c9712a145c4469fdd191436ab8aa47c90706",
+    "width": 590
+   },
+   "image_id": "TG_82758",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 66,
+     "id": "TG_2018",
+     "phash_dist": 6
+    },
+    {
+     "dhash256_dist": 62,
+     "id": "TG_2069",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 64,
+     "id": "CH_20260918_64_ELPW",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 57,
+     "id": "TG_2050",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 65,
+     "id": "CH_20260918_65_ELPW",
+     "phash_dist": 18
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:12Z",
+    "date": "2026-11-04T06:17:55Z",
+    "dhash256": "c11c831362b270bc03ca0b5a0b400b620b4e0b460b4a0b520b32eb3291669326",
+    "file": {
+     "file_size": 48754,
+     "file_unique_id": "AQADaw9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350184602059732",
+    "message_id": 82780,
+    "meta_v": 2,
+    "phash64": "1966669d6299b562",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82780.jpg",
+    "sha256": "2d0853631a4f208ff23ec3abcae8d1e69cbf423c20fdd462d0fc78bc15070a95",
+    "status": "saved",
+    "update_id": 136263805
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82780.jpg",
+   "fingerprint": {
+    "dhash256": "c11c831362b270bc03ca0b5a0b400b620b4e0b460b4a0b520b32eb3291669326",
+    "height": 1280,
+    "phash64": "1966669d6299b562",
+    "sha256": "2d0853631a4f208ff23ec3abcae8d1e69cbf423c20fdd462d0fc78bc15070a95",
+    "width": 590
+   },
+   "image_id": "TG_82780",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 44,
+     "id": "IMG_0143",
+     "phash_dist": 6
+    },
+    {
+     "dhash256_dist": 47,
+     "id": "X_20260905_08",
+     "phash_dist": 6
+    },
+    {
+     "dhash256_dist": 44,
+     "id": "TG_50580",
+     "phash_dist": 8
+    },
+    {
+     "dhash256_dist": 46,
+     "id": "X_20260827_ciit_targets",
+     "phash_dist": 8
+    },
+    {
+     "dhash256_dist": 49,
+     "id": "X_20260827_raya_notready_2",
+     "phash_dist": 8
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:20Z",
+    "date": "2026-11-04T06:18:25Z",
+    "dhash256": "88489804908e908e900f9d80a982900c994b9243b5878188c920b2492d838c81",
+    "file": {
+     "file_size": 126928,
+     "file_unique_id": "AQADdQ9rG9lQWVN-",
+     "height": 1280,
+     "width": 977
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350184844084396",
+    "message_id": 82790,
+    "meta_v": 2,
+    "phash64": "48413ee35eb51c4b",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82790.jpg",
+    "sha256": "8e03b82b9d017a6c76deea67ab781efde1c5ead0595889cb48878f0f73dec44a",
+    "status": "saved",
+    "update_id": 136263815
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82790.jpg",
+   "fingerprint": {
+    "dhash256": "88489804908e908e900f9d80a982900c994b9243b5878188c920b2492d838c81",
+    "height": 1280,
+    "phash64": "48413ee35eb51c4b",
+    "sha256": "8e03b82b9d017a6c76deea67ab781efde1c5ead0595889cb48878f0f73dec44a",
+    "width": 977
+   },
+   "image_id": "TG_82790",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 93,
+     "id": "IMG_0413",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 89,
+     "id": "IMG_0414",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 108,
+     "id": "X_20260828_11",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 93,
+     "id": "TG_1837",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 99,
+     "id": "IMG_0645",
+     "phash_dist": 22
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:22Z",
+    "date": "2026-11-04T06:18:45Z",
+    "dhash256": "c3188336c0360074c34c8c0a9682960a9c0a8d4aff4abe0a8c82131393229126",
+    "file": {
+     "file_size": 76659,
+     "file_unique_id": "AQADeQ9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350185001003812",
+    "message_id": 82792,
+    "meta_v": 2,
+    "phash64": "403c3f85fcc8c137",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82792.jpg",
+    "sha256": "d91bb335d0799a419546c31ee7d595fe6951b57851b965b569bb2afa3b5d34fd",
+    "status": "saved",
+    "update_id": 136263817
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82792.jpg",
+   "fingerprint": {
+    "dhash256": "c3188336c0360074c34c8c0a9682960a9c0a8d4aff4abe0a8c82131393229126",
+    "height": 1280,
+    "phash64": "403c3f85fcc8c137",
+    "sha256": "d91bb335d0799a419546c31ee7d595fe6951b57851b965b569bb2afa3b5d34fd",
+    "width": 590
+   },
+   "image_id": "TG_82792",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 72,
+     "id": "X_20260918_29_KWM",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 73,
+     "id": "TG_57867",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 62,
+     "id": "TG_50585",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 87,
+     "id": "TG_1829",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 89,
+     "id": "TG_58050",
+     "phash_dist": 16
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:25Z",
+    "date": "2026-11-04T06:18:45Z",
+    "dhash256": "c01893bed3dec83600361db41333000000000000000000000000ec9b93269126",
+    "file": {
+     "file_size": 29366,
+     "file_unique_id": "AQADfg9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350185001003812",
+    "message_id": 82796,
+    "meta_v": 2,
+    "phash64": "2fa8a075555555d4",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82796.jpg",
+    "sha256": "328374b7452c90dbdfbf39d0c28b1012473d3518258fe35e1d7a6fccb8c44256",
+    "status": "saved",
+    "update_id": 136263821
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82796.jpg",
+   "fingerprint": {
+    "dhash256": "c01893bed3dec83600361db41333000000000000000000000000ec9b93269126",
+    "height": 1280,
+    "phash64": "2fa8a075555555d4",
+    "sha256": "328374b7452c90dbdfbf39d0c28b1012473d3518258fe35e1d7a6fccb8c44256",
+    "width": 590
+   },
+   "image_id": "TG_82796",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 44,
+     "id": "TG_1863",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 41,
+     "id": "TG_1864",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 91,
+     "id": "TG_1825",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 88,
+     "id": "TG_57889",
+     "phash_dist": 12
+    },
+    {
+     "dhash256_dist": 61,
+     "id": "TG_57879",
+     "phash_dist": 22
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "TG_76018"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:29Z",
+    "date": "2026-11-04T06:19:08Z",
+    "dhash256": "d31c8336423600600b1e0b1e0b420b620b320b2e0b540b5a0b32ef1291229326",
+    "file": {
+     "file_size": 47157,
+     "file_unique_id": "AQADgw9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350185185491908",
+    "message_id": 82801,
+    "meta_v": 2,
+    "phash64": "1966669c66999965",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82801.jpg",
+    "sha256": "98bed17e580314dc8f5e2574f252e09589f39052d76278b196209562f84ad2f9",
+    "status": "saved",
+    "update_id": 136263826
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82801.jpg",
+   "fingerprint": {
+    "dhash256": "d31c8336423600600b1e0b1e0b420b620b320b2e0b540b5a0b32ef1291229326",
+    "height": 1280,
+    "phash64": "1966669c66999965",
+    "sha256": "98bed17e580314dc8f5e2574f252e09589f39052d76278b196209562f84ad2f9",
+    "width": 590
+   },
+   "image_id": "TG_82801",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 41,
+     "id": "X_20260827_amix_pressure_497",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 43,
+     "id": "X_20260918_28_CUPR",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 44,
+     "id": "X_20260827_raya_notready_2",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 44,
+     "id": "X_20260905_08",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 46,
+     "id": "TG_1827",
+     "phash_dist": 4
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:39Z",
+    "date": "2026-11-04T06:19:15Z",
+    "dhash256": "c31c8336c0363c70019ab62e820cb08eb08ed32c1113043a03d6efca91269126",
+    "file": {
+     "file_size": 55517,
+     "file_unique_id": "AQADhw9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350185240608276",
+    "message_id": 82813,
+    "meta_v": 2,
+    "phash64": "01c43e3ec1d1765e",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82813.jpg",
+    "sha256": "10c593bab156b2df2fd17a19d9f1c13a6f0ed3859fda019e5e28883196dd550d",
+    "status": "saved",
+    "update_id": 136263838
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82813.jpg",
+   "fingerprint": {
+    "dhash256": "c31c8336c0363c70019ab62e820cb08eb08ed32c1113043a03d6efca91269126",
+    "height": 1280,
+    "phash64": "01c43e3ec1d1765e",
+    "sha256": "10c593bab156b2df2fd17a19d9f1c13a6f0ed3859fda019e5e28883196dd550d",
+    "width": 590
+   },
+   "image_id": "TG_82813",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 76,
+     "id": "X_20260827_operator_candle_ride",
+     "phash_dist": 12
+    },
+    {
+     "dhash256_dist": 67,
+     "id": "TG_50817",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 85,
+     "id": "TG_57891",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 87,
+     "id": "TG_1833",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 66,
+     "id": "IMG_9925",
+     "phash_dist": 24
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:39Z",
+    "date": "2026-11-04T06:19:15Z",
+    "dhash256": "c4382d722c626d52920acdda43e04f880168d26ac836a8c0175791139b229926",
+    "file": {
+     "file_size": 54534,
+     "file_unique_id": "AQADjA9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350185240608276",
+    "message_id": 82814,
+    "meta_v": 2,
+    "phash64": "1e9e9ed661616161",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82814.jpg",
+    "sha256": "ec086b044f0254e30d1a03866449d98e2b1e2ba072d618b57bfba36a812e863c",
+    "status": "saved",
+    "update_id": 136263839
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82814.jpg",
+   "fingerprint": {
+    "dhash256": "c4382d722c626d52920acdda43e04f880168d26ac836a8c0175791139b229926",
+    "height": 1280,
+    "phash64": "1e9e9ed661616161",
+    "sha256": "ec086b044f0254e30d1a03866449d98e2b1e2ba072d618b57bfba36a812e863c",
+    "width": 590
+   },
+   "image_id": "TG_82814",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 98,
+     "id": "TG_2171",
+     "phash_dist": 8
+    },
+    {
+     "dhash256_dist": 101,
+     "id": "IMG_0320",
+     "phash_dist": 8
+    },
+    {
+     "dhash256_dist": 101,
+     "id": "IMG_0500",
+     "phash_dist": 12
+    },
+    {
+     "dhash256_dist": 106,
+     "id": "TG_1812",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 103,
+     "id": "IMG_0618",
+     "phash_dist": 22
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:40Z",
+    "date": "2026-11-04T06:19:15Z",
+    "dhash256": "c3188336c27600008bda0b100b520b4a0b4a0b580b080b480b32ef1291229326",
+    "file": {
+     "file_size": 42563,
+     "file_unique_id": "AQADkQ9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350185240608276",
+    "message_id": 82815,
+    "meta_v": 2,
+    "phash64": "1966669866999d47",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82815.jpg",
+    "sha256": "6b6f3981a9b44409c2df30342baa2cc97e2e085aa681ca61bfca044bd852854e",
+    "status": "saved",
+    "update_id": 136263840
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82815.jpg",
+   "fingerprint": {
+    "dhash256": "c3188336c27600008bda0b100b520b4a0b4a0b580b080b480b32ef1291229326",
+    "height": 1280,
+    "phash64": "1966669866999d47",
+    "sha256": "6b6f3981a9b44409c2df30342baa2cc97e2e085aa681ca61bfca044bd852854e",
+    "width": 590
+   },
+   "image_id": "TG_82815",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 29,
+     "id": "X_20260827_raya_notready_2",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 32,
+     "id": "X_20260905_12",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 32,
+     "id": "X_20260918_28_CUPR",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 37,
+     "id": "TG_1827",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 37,
+     "id": "X_20260905_08",
+     "phash_dist": 4
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:43Z",
+    "date": "2026-11-04T06:19:15Z",
+    "dhash256": "9b348b1601b60db80f920b420b420b400b440b640b620b4e0b00cb5a91269326",
+    "file": {
+     "file_size": 49771,
+     "file_unique_id": "AQADlQ9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350185240608276",
+    "message_id": 82818,
+    "meta_v": 2,
+    "phash64": "196662996699ba56",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82818.jpg",
+    "sha256": "08f9a07f38f81fe90e14d573342ce22d7e442b4a6f4ec03ca7f7987989e75feb",
+    "status": "saved",
+    "update_id": 136263843
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82818.jpg",
+   "fingerprint": {
+    "dhash256": "9b348b1601b60db80f920b420b420b400b440b640b620b4e0b00cb5a91269326",
+    "height": 1280,
+    "phash64": "196662996699ba56",
+    "sha256": "08f9a07f38f81fe90e14d573342ce22d7e442b4a6f4ec03ca7f7987989e75feb",
+    "width": 590
+   },
+   "image_id": "TG_82818",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 39,
+     "id": "TG_1827",
+     "phash_dist": 6
+    },
+    {
+     "dhash256_dist": 45,
+     "id": "X_20260905_08",
+     "phash_dist": 6
+    },
+    {
+     "dhash256_dist": 39,
+     "id": "X_20260905_11",
+     "phash_dist": 8
+    },
+    {
+     "dhash256_dist": 47,
+     "id": "TG_58045",
+     "phash_dist": 6
+    },
+    {
+     "dhash256_dist": 41,
+     "id": "TG_1908",
+     "phash_dist": 8
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:43Z",
+    "date": "2026-11-04T06:19:15Z",
+    "dhash256": "a008a004c48aa48ea48f968da392ab0ca408c34b9241a40bb648ca618ec9b54b",
+    "file": {
+     "file_size": 138915,
+     "file_unique_id": "AQADlw9rG9lQWVN-",
+     "height": 1280,
+     "width": 1065
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350185240608276",
+    "message_id": 82819,
+    "meta_v": 2,
+    "phash64": "4849a79253b45b2f",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82819.jpg",
+    "sha256": "f4396603c09d5b097d40f3eae49bb091ce3d59d6fe5fc43a6393268538711c82",
+    "status": "saved",
+    "update_id": 136263844
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82819.jpg",
+   "fingerprint": {
+    "dhash256": "a008a004c48aa48ea48f968da392ab0ca408c34b9241a40bb648ca618ec9b54b",
+    "height": 1280,
+    "phash64": "4849a79253b45b2f",
+    "sha256": "f4396603c09d5b097d40f3eae49bb091ce3d59d6fe5fc43a6393268538711c82",
+    "width": 1065
+   },
+   "image_id": "TG_82819",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 101,
+     "id": "IMG_0413",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 103,
+     "id": "IMG_0414",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 89,
+     "id": "IMG_0645",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 98,
+     "id": "TG_20260918_06_CPOP",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 94,
+     "id": "TG_2031",
+     "phash_dist": 22
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:08:50Z",
+    "date": "2026-11-04T06:19:50Z",
+    "dhash256": "000040107ab162b3e54380a4a027d803425d631e3289940b1898cc1324135b03",
+    "file": {
+     "file_size": 58624,
+     "file_unique_id": "AQADmQ9rG9lQWVN9",
+     "height": 792,
+     "width": 800
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350185521917692",
+    "message_id": 82828,
+    "meta_v": 2,
+    "phash64": "6aa2de2d21dec360",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82828.jpg",
+    "sha256": "9820e9dc3f11f2e8e3ac91d5a40b291d6919efc52fac27e8d135851dd4dcdf77",
+    "status": "saved",
+    "update_id": 136263853
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82828.jpg",
+   "fingerprint": {
+    "dhash256": "000040107ab162b3e54380a4a027d803425d631e3289940b1898cc1324135b03",
+    "height": 792,
+    "phash64": "6aa2de2d21dec360",
+    "sha256": "9820e9dc3f11f2e8e3ac91d5a40b291d6919efc52fac27e8d135851dd4dcdf77",
+    "width": 800
+   },
+   "image_id": "TG_82828",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 104,
+     "id": "TG_2207",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 99,
+     "id": "CH_20260918_32_SXTC",
+     "phash_dist": 24
+    },
+    {
+     "dhash256_dist": 115,
+     "id": "TG_50826",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 103,
+     "id": "TG_2127",
+     "phash_dist": 24
+    },
+    {
+     "dhash256_dist": 105,
+     "id": "TG_50579",
+     "phash_dist": 24
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:26Z",
+    "date": "2026-11-04T06:28:38Z",
+    "dhash256": "a0008040800020ec00ece80088c0c000d800c800a800c000c000d800ea208a30",
+    "file": {
+     "file_size": 49923,
+     "file_unique_id": "AQADxA9rG9lQWVN-",
+     "height": 1280,
+     "width": 1120
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350189745052372",
+    "message_id": 82870,
+    "meta_v": 2,
+    "phash64": "703d9c694868c6b7",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82870.jpg",
+    "sha256": "5283f750bb384f4a24d6b9d881a64c8c4fb06ad2a6756c3042928d8fb3bfeb1f",
+    "status": "saved",
+    "update_id": 136263895
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82870.jpg",
+   "fingerprint": {
+    "dhash256": "a0008040800020ec00ece80088c0c000d800c800a800c000c000d800ea208a30",
+    "height": 1280,
+    "phash64": "703d9c694868c6b7",
+    "sha256": "5283f750bb384f4a24d6b9d881a64c8c4fb06ad2a6756c3042928d8fb3bfeb1f",
+    "width": 1120
+   },
+   "image_id": "TG_82870",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 60,
+     "id": "TG_57865",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 61,
+     "id": "TG_57868",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 63,
+     "id": "TG_57864",
+     "phash_dist": 24
+    },
+    {
+     "dhash256_dist": 63,
+     "id": "TG_57869",
+     "phash_dist": 24
+    },
+    {
+     "dhash256_dist": 66,
+     "id": "TG_20260905_06",
+     "phash_dist": 26
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:27Z",
+    "date": "2026-11-04T06:28:42Z",
+    "dhash256": "2cb61d9a00380ee887e8004c96a9925983498121a539a569b4b19099c109a989",
+    "file": {
+     "file_size": 75340,
+     "file_unique_id": "AQADyA9rG9lQWVN-",
+     "height": 1280,
+     "width": 949
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350189779253220",
+    "message_id": 82871,
+    "meta_v": 2,
+    "phash64": "542b2bd4d52e2b8a",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82871.jpg",
+    "sha256": "a0fd1f01cbe387a1af82b949a726900a42b5ff926cb8201662891ae70b4e01f0",
+    "status": "saved",
+    "update_id": 136263896
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82871.jpg",
+   "fingerprint": {
+    "dhash256": "2cb61d9a00380ee887e8004c96a9925983498121a539a569b4b19099c109a989",
+    "height": 1280,
+    "phash64": "542b2bd4d52e2b8a",
+    "sha256": "a0fd1f01cbe387a1af82b949a726900a42b5ff926cb8201662891ae70b4e01f0",
+    "width": 949
+   },
+   "image_id": "TG_82871",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 94,
+     "id": "IMG_0696",
+     "phash_dist": 12
+    },
+    {
+     "dhash256_dist": 102,
+     "id": "TG_1942",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 102,
+     "id": "TG_2012",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 95,
+     "id": "TG_2079",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 103,
+     "id": "TG_2536",
+     "phash_dist": 16
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:28Z",
+    "date": "2026-11-04T06:28:42Z",
+    "dhash256": "c032c03600160028003cc5b6b238b270b23284b68536943cb03ab0ba8024a0b6",
+    "file": {
+     "file_size": 74524,
+     "file_unique_id": "AQADzQ9rG9lQWVN-",
+     "height": 1097,
+     "width": 1280
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350189779253220",
+    "message_id": 82872,
+    "meta_v": 2,
+    "phash64": "043b2bf4a5857a33",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82872.jpg",
+    "sha256": "af6010f243a9c791da42b8c56e9e42615e6ee472e186edc202e674b9cfb7086e",
+    "status": "saved",
+    "update_id": 136263897
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82872.jpg",
+   "fingerprint": {
+    "dhash256": "c032c03600160028003cc5b6b238b270b23284b68536943cb03ab0ba8024a0b6",
+    "height": 1097,
+    "phash64": "043b2bf4a5857a33",
+    "sha256": "af6010f243a9c791da42b8c56e9e42615e6ee472e186edc202e674b9cfb7086e",
+    "width": 1280
+   },
+   "image_id": "TG_82872",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 91,
+     "id": "X_20260827_kwm_150_watch3",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 93,
+     "id": "TG_2089",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 81,
+     "id": "TG_50578",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 91,
+     "id": "IMG_0628",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 100,
+     "id": "TG_58048",
+     "phash_dist": 16
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20261001_HS_02_DCOY"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:28Z",
+    "date": "2026-11-04T06:28:42Z",
+    "dhash256": "3e07330104a02205033004e8ca74da24148882094b614d659a87992666d96499",
+    "file": {
+     "file_size": 49514,
+     "file_unique_id": "AQAD0A9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350189779253220",
+    "message_id": 82873,
+    "meta_v": 2,
+    "phash64": "55d58aaa8e5e5451",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82873.jpg",
+    "sha256": "ed6435c6b7f8789bf950c9987923753df087d0e2d107e9856038cc2753d37102",
+    "status": "saved",
+    "update_id": 136263898
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82873.jpg",
+   "fingerprint": {
+    "dhash256": "3e07330104a02205033004e8ca74da24148882094b614d659a87992666d96499",
+    "height": 1280,
+    "phash64": "55d58aaa8e5e5451",
+    "sha256": "ed6435c6b7f8789bf950c9987923753df087d0e2d107e9856038cc2753d37102",
+    "width": 590
+   },
+   "image_id": "TG_82873",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 6,
+     "id": "CH_20261001_HS_02_DCOY",
+     "phash_dist": 2
+    },
+    {
+     "dhash256_dist": 72,
+     "id": "TG_1806",
+     "phash_dist": 6
+    },
+    {
+     "dhash256_dist": 80,
+     "id": "TG_1901",
+     "phash_dist": 6
+    },
+    {
+     "dhash256_dist": 73,
+     "id": "TG_2049",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 85,
+     "id": "TG_1900",
+     "phash_dist": 8
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "X_20261001_HS_03_LS"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:29Z",
+    "date": "2026-11-04T06:28:42Z",
+    "dhash256": "2cfe00e613a83769b2a904982c48198859b142190010086803595a481ae00699",
+    "file": {
+     "file_size": 84822,
+     "file_unique_id": "AQAD0g9rG9lQWVN-",
+     "height": 1019,
+     "width": 1280
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350189779253220",
+    "message_id": 82874,
+    "meta_v": 2,
+    "phash64": "17a8ab2ba8aa2ce5",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82874.jpg",
+    "sha256": "7baca8440f20d5f5324b2b6383c2bab66fbb772af952355c14efe097febaf2bb",
+    "status": "saved",
+    "update_id": 136263899
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82874.jpg",
+   "fingerprint": {
+    "dhash256": "2cfe00e613a83769b2a904982c48198859b142190010086803595a481ae00699",
+    "height": 1019,
+    "phash64": "17a8ab2ba8aa2ce5",
+    "sha256": "7baca8440f20d5f5324b2b6383c2bab66fbb772af952355c14efe097febaf2bb",
+    "width": 1280
+   },
+   "image_id": "TG_82874",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 5,
+     "id": "X_20261001_HS_03_LS",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 90,
+     "id": "TG_2199",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 82,
+     "id": "TG_2073",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 96,
+     "id": "IMG_0179",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 97,
+     "id": "TG_1809",
+     "phash_dist": 18
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20261001_HS_01_DRMA"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:30Z",
+    "date": "2026-11-04T06:28:42Z",
+    "dhash256": "297b297b9001009000608160a0608074409c64d8999c476ca600512448684472",
+    "file": {
+     "file_size": 66762,
+     "file_unique_id": "AQAD2g9rG9lQWVN-",
+     "height": 1280,
+     "width": 866
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350189779253220",
+    "message_id": 82875,
+    "meta_v": 2,
+    "phash64": "75262a35652e7465",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82875.jpg",
+    "sha256": "c4fa43fc84aabcb1ccd2de3b78b4bb887982f3ef3d4aacea9d991c956e5983d1",
+    "status": "saved",
+    "update_id": 136263900
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82875.jpg",
+   "fingerprint": {
+    "dhash256": "297b297b9001009000608160a0608074409c64d8999c476ca600512448684472",
+    "height": 1280,
+    "phash64": "75262a35652e7465",
+    "sha256": "c4fa43fc84aabcb1ccd2de3b78b4bb887982f3ef3d4aacea9d991c956e5983d1",
+    "width": 866
+   },
+   "image_id": "TG_82875",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 2,
+     "id": "CH_20261001_HS_01_DRMA",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 89,
+     "id": "TG_1906",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 109,
+     "id": "TG_1918",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 95,
+     "id": "TG_2045",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 93,
+     "id": "TG_2115",
+     "phash_dist": 22
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "TG_2197"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:31Z",
+    "date": "2026-11-04T06:28:42Z",
+    "dhash256": "6c9679aa01680a7000f103303aa8b72888e8bb69d238d0f8d56845a084a99628",
+    "file": {
+     "file_size": 89702,
+     "file_unique_id": "AQAD1A9rG9lQWVN-",
+     "height": 1280,
+     "width": 811
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350189779253220",
+    "message_id": 82876,
+    "meta_v": 2,
+    "phash64": "1487be83ed89ec21",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82876.jpg",
+    "sha256": "d244dba2735e71523c551fc3c9c4fd1c29f95261d9c045e2fb3cd41940c4ac6c",
+    "status": "saved",
+    "update_id": 136263901
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82876.jpg",
+   "fingerprint": {
+    "dhash256": "6c9679aa01680a7000f103303aa8b72888e8bb69d238d0f8d56845a084a99628",
+    "height": 1280,
+    "phash64": "1487be83ed89ec21",
+    "sha256": "d244dba2735e71523c551fc3c9c4fd1c29f95261d9c045e2fb3cd41940c4ac6c",
+    "width": 811
+   },
+   "image_id": "TG_82876",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 13,
+     "id": "TG_2197",
+     "phash_dist": 6
+    },
+    {
+     "dhash256_dist": 93,
+     "id": "TG_2034",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 98,
+     "id": "IMG_0531",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 81,
+     "id": "IMG_0177",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 87,
+     "id": "TG_2203",
+     "phash_dist": 16
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:32Z",
+    "date": "2026-11-04T06:28:42Z",
+    "dhash256": "d208006a32eab486033ade16d802d30ad002d008d808dd08d2b0c8fa93229326",
+    "file": {
+     "file_size": 54616,
+     "file_unique_id": "AQAD1g9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350189779253220",
+    "message_id": 82877,
+    "meta_v": 2,
+    "phash64": "002f7fd0a9807f2b",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82877.jpg",
+    "sha256": "84612bd83ed5690553ee3706855b324bbc1330d3472de8cb5044a4da6305ea97",
+    "status": "saved",
+    "update_id": 136263902
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82877.jpg",
+   "fingerprint": {
+    "dhash256": "d208006a32eab486033ade16d802d30ad002d008d808dd08d2b0c8fa93229326",
+    "height": 1280,
+    "phash64": "002f7fd0a9807f2b",
+    "sha256": "84612bd83ed5690553ee3706855b324bbc1330d3472de8cb5044a4da6305ea97",
+    "width": 590
+   },
+   "image_id": "TG_82877",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 58,
+     "id": "IMG_0505",
+     "phash_dist": 12
+    },
+    {
+     "dhash256_dist": 80,
+     "id": "TG_58048",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 88,
+     "id": "TG_50588",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 78,
+     "id": "X_20260918_24_SXTC",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 87,
+     "id": "IMG_0391",
+     "phash_dist": 16
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:43Z",
+    "date": "2026-11-04T06:29:47Z",
+    "dhash256": "d15cb99a90a48048f49037364a6ad266f5a6a6968f5ad123d2094e95b06ab08a",
+    "file": {
+     "file_size": 74848,
+     "file_unique_id": "AQAD2A9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350190302280060",
+    "message_id": 82891,
+    "meta_v": 2,
+    "phash64": "059575e8a5dc3591",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82891.jpg",
+    "sha256": "e46973e274a5a2261b69fe362764535e1e4b77354fe6bb20721a3d6ac05b6b44",
+    "status": "saved",
+    "update_id": 136263916
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82891.jpg",
+   "fingerprint": {
+    "dhash256": "d15cb99a90a48048f49037364a6ad266f5a6a6968f5ad123d2094e95b06ab08a",
+    "height": 1280,
+    "phash64": "059575e8a5dc3591",
+    "sha256": "e46973e274a5a2261b69fe362764535e1e4b77354fe6bb20721a3d6ac05b6b44",
+    "width": 590
+   },
+   "image_id": "TG_82891",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 111,
+     "id": "TG_50581",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 109,
+     "id": "IMG_0498",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 117,
+     "id": "TG_50832",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 110,
+     "id": "TG_2099",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 103,
+     "id": "TG_1989",
+     "phash_dist": 22
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:48Z",
+    "date": "2026-11-04T06:29:47Z",
+    "dhash256": "d0b9adcc00f8372cb4c237d8c600d4c000cca01a496c4b0d40cb6a22aa249116",
+    "file": {
+     "file_size": 59063,
+     "file_unique_id": "AQAD3g9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350190302280060",
+    "message_id": 82898,
+    "meta_v": 2,
+    "phash64": "1505e87878fac987",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82898.jpg",
+    "sha256": "5e1560f85e298c7dadceee1e045ff25e62fc3deb081bb10f1825c2fd5e190d39",
+    "status": "saved",
+    "update_id": 136263923
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82898.jpg",
+   "fingerprint": {
+    "dhash256": "d0b9adcc00f8372cb4c237d8c600d4c000cca01a496c4b0d40cb6a22aa249116",
+    "height": 1280,
+    "phash64": "1505e87878fac987",
+    "sha256": "5e1560f85e298c7dadceee1e045ff25e62fc3deb081bb10f1825c2fd5e190d39",
+    "width": 590
+   },
+   "image_id": "TG_82898",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 56,
+     "id": "TG_20260918_67_BRNX",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 106,
+     "id": "TG_50827",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 103,
+     "id": "TG_50606",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 103,
+     "id": "TG_57866",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 119,
+     "id": "TG_1840",
+     "phash_dist": 18
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:09:55Z",
+    "date": "2026-11-04T06:30:13Z",
+    "dhash256": "c318833a417605110e92035ea20ac000acb2adb2e9728c2a8eb06cf993229126",
+    "file": {
+     "file_size": 60128,
+     "file_unique_id": "AQAD4g9rG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350190506596492",
+    "message_id": 82907,
+    "meta_v": 2,
+    "phash64": "103f2bc0e1f54a76",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82907.jpg",
+    "sha256": "303383f9f86d90c0d065cb486503d4b1fcdefdd0b098dcc1024c906592dbea56",
+    "status": "saved",
+    "update_id": 136263932
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82907.jpg",
+   "fingerprint": {
+    "dhash256": "c318833a417605110e92035ea20ac000acb2adb2e9728c2a8eb06cf993229126",
+    "height": 1280,
+    "phash64": "103f2bc0e1f54a76",
+    "sha256": "303383f9f86d90c0d065cb486503d4b1fcdefdd0b098dcc1024c906592dbea56",
+    "width": 590
+   },
+   "image_id": "TG_82907",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 65,
+     "id": "IMG_0617",
+     "phash_dist": 14
+    },
+    {
+     "dhash256_dist": 75,
+     "id": "X_20260918_29_KWM",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 78,
+     "id": "TG_50830",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 84,
+     "id": "TG_2089",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 69,
+     "id": "TG_50589",
+     "phash_dist": 20
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:14Z",
+    "date": "2026-11-04T06:34:20Z",
+    "dhash256": "b0028000b402b1128412d426d40ae052d512b830a53291d2a282a40291129912",
+    "file": {
+     "file_size": 75779,
+     "file_unique_id": "AQAD5g9rG9lQWVN-",
+     "height": 1280,
+     "width": 1088
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350192484426420",
+    "message_id": 82925,
+    "meta_v": 2,
+    "phash64": "50ad25764ea172ad",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82925.jpg",
+    "sha256": "eab38e3cbbecdab9a4370c7e2200f45075299e3977987157eee03b92e651899a",
+    "status": "saved",
+    "update_id": 136263950
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82925.jpg",
+   "fingerprint": {
+    "dhash256": "b0028000b402b1128412d426d40ae052d512b830a53291d2a282a40291129912",
+    "height": 1280,
+    "phash64": "50ad25764ea172ad",
+    "sha256": "eab38e3cbbecdab9a4370c7e2200f45075299e3977987157eee03b92e651899a",
+    "width": 1088
+   },
+   "image_id": "TG_82925",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 45,
+     "id": "TG_50590",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 87,
+     "id": "EDU_20260827_school_two_models_ma_ladder",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 99,
+     "id": "IMG_0391",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 108,
+     "id": "TG_2046",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 86,
+     "id": "TG_1942",
+     "phash_dist": 24
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:15Z",
+    "date": "2026-11-04T06:34:20Z",
+    "dhash256": "9a00c6c0c440d8008d008c008000a40044008400c400c2008400c400e000b900",
+    "file": {
+     "file_size": 54918,
+     "file_unique_id": "AQAD9A9rG9lQWVN-",
+     "height": 1280,
+     "width": 993
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350192484426420",
+    "message_id": 82926,
+    "meta_v": 2,
+    "phash64": "40c6c036c93eec3f",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82926.jpg",
+    "sha256": "f453fe75a2ea95f4f05e5c0e8a6df6df63cd1bca52db34e27fb7e01edd9b369a",
+    "status": "saved",
+    "update_id": 136263951
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82926.jpg",
+   "fingerprint": {
+    "dhash256": "9a00c6c0c440d8008d008c008000a40044008400c400c2008400c400e000b900",
+    "height": 1280,
+    "phash64": "40c6c036c93eec3f",
+    "sha256": "f453fe75a2ea95f4f05e5c0e8a6df6df63cd1bca52db34e27fb7e01edd9b369a",
+    "width": 993
+   },
+   "image_id": "TG_82926",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 38,
+     "id": "TG_57868",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 41,
+     "id": "TG_57865",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 37,
+     "id": "TG_20260905_06",
+     "phash_dist": 26
+    },
+    {
+     "dhash256_dist": 52,
+     "id": "TG_20260905_08",
+     "phash_dist": 28
+    },
+    {
+     "dhash256_dist": 56,
+     "id": "TG_20260905_09",
+     "phash_dist": 28
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "TG_50592"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:20Z",
+    "date": "2026-11-04T06:35:05Z",
+    "dhash256": "65d866f8d737c63229a43004840ec1063924348324d334d23b034035620e2222",
+    "file": {
+     "file_size": 52971,
+     "file_unique_id": "AQAD_A9rG9lQWVN-",
+     "height": 1165,
+     "width": 687
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350192846256868",
+    "message_id": 82932,
+    "meta_v": 2,
+    "phash64": "46352432e1e5f3e2",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82932.jpg",
+    "sha256": "2ee2648c7109f13a64bb447a93c810ff61bf2b9bc0f930d756be54079202e803",
+    "status": "saved",
+    "update_id": 136263957
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82932.jpg",
+   "fingerprint": {
+    "dhash256": "65d866f8d737c63229a43004840ec1063924348324d334d23b034035620e2222",
+    "height": 1165,
+    "phash64": "46352432e1e5f3e2",
+    "sha256": "2ee2648c7109f13a64bb447a93c810ff61bf2b9bc0f930d756be54079202e803",
+    "width": 687
+   },
+   "image_id": "TG_82932",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 8,
+     "id": "TG_50592",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 56,
+     "id": "TG_57923",
+     "phash_dist": 8
+    },
+    {
+     "dhash256_dist": 57,
+     "id": "APP_20260918_18_NTCL",
+     "phash_dist": 8
+    },
+    {
+     "dhash256_dist": 75,
+     "id": "TG_57924",
+     "phash_dist": 8
+    },
+    {
+     "dhash256_dist": 76,
+     "id": "APP_20260918_52_ELPW",
+     "phash_dist": 8
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:31Z",
+    "date": "2026-11-04T06:39:42Z",
+    "dhash256": "3f0ac6d0ebd40d267c96b0b6f9c6398407b69c849c84940404b3dc48ccc8fc4c",
+    "file": {
+     "file_size": 52560,
+     "file_unique_id": "AQADBBBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350195059426932",
+    "message_id": 82944,
+    "meta_v": 2,
+    "phash64": "45339c7c11e2e64e",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82944.jpg",
+    "sha256": "d257512b67c4b6adcba4a4247793347f0f01c37b44990a0a6224c9fc957e48f0",
+    "status": "saved",
+    "update_id": 136263969
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82944.jpg",
+   "fingerprint": {
+    "dhash256": "3f0ac6d0ebd40d267c96b0b6f9c6398407b69c849c84940404b3dc48ccc8fc4c",
+    "height": 1280,
+    "phash64": "45339c7c11e2e64e",
+    "sha256": "d257512b67c4b6adcba4a4247793347f0f01c37b44990a0a6224c9fc957e48f0",
+    "width": 590
+   },
+   "image_id": "TG_82944",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 116,
+     "id": "TG_2014",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 111,
+     "id": "X_20260828_07",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 121,
+     "id": "TG_57916",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 115,
+     "id": "EDU_20260918_10_pattern",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 116,
+     "id": "TG_50830",
+     "phash_dist": 22
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:34Z",
+    "date": "2026-11-04T06:39:42Z",
+    "dhash256": "d3088332c036006e8dea0db473f220ea027a000eded8b6c08040a06c93229326",
+    "file": {
+     "file_size": 49276,
+     "file_unique_id": "AQADDhBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350195059426932",
+    "message_id": 82948,
+    "meta_v": 2,
+    "phash64": "356ac9b16ad4334c",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82948.jpg",
+    "sha256": "465e74acd3d118148398d68a8a2e2893f6a83494cca01d3f04a84b1b932a513e",
+    "status": "saved",
+    "update_id": 136263973
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82948.jpg",
+   "fingerprint": {
+    "dhash256": "d3088332c036006e8dea0db473f220ea027a000eded8b6c08040a06c93229326",
+    "height": 1280,
+    "phash64": "356ac9b16ad4334c",
+    "sha256": "465e74acd3d118148398d68a8a2e2893f6a83494cca01d3f04a84b1b932a513e",
+    "width": 590
+   },
+   "image_id": "TG_82948",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 69,
+     "id": "X_20260918_66_ELPW",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 77,
+     "id": "TG_1849",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 72,
+     "id": "TG_1840",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 91,
+     "id": "TG_1985",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 84,
+     "id": "IMG_0566",
+     "phash_dist": 18
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20260918_02_ELPW"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:45Z",
+    "date": "2026-11-04T06:44:10Z",
+    "dhash256": "2e0736010003b043c153d0436e0323d04091c0026c6d5c6d0ec3cae366d96499",
+    "file": {
+     "file_size": 51970,
+     "file_unique_id": "AQADKxBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197204580148",
+    "message_id": 82961,
+    "meta_v": 2,
+    "phash64": "56c8ab2f541aabc8",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82961.jpg",
+    "sha256": "0eedd4fb2ab4c4684da8ff723b8ca1df5f6f878099e3851d29bb73eead2d9480",
+    "status": "saved",
+    "update_id": 136263986
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82961.jpg",
+   "fingerprint": {
+    "dhash256": "2e0736010003b043c153d0436e0323d04091c0026c6d5c6d0ec3cae366d96499",
+    "height": 1280,
+    "phash64": "56c8ab2f541aabc8",
+    "sha256": "0eedd4fb2ab4c4684da8ff723b8ca1df5f6f878099e3851d29bb73eead2d9480",
+    "width": 590
+   },
+   "image_id": "TG_82961",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 12,
+     "id": "CH_20260918_02_ELPW",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 69,
+     "id": "IMG_0149",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 66,
+     "id": "TG_2035",
+     "phash_dist": 12
+    },
+    {
+     "dhash256_dist": 59,
+     "id": "CH_20260918_63_ELPW",
+     "phash_dist": 14
+    },
+    {
+     "dhash256_dist": 59,
+     "id": "CH_20260918_65_ELPW",
+     "phash_dist": 14
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "X_20260918_04_ELPW"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:46Z",
+    "date": "2026-11-04T06:44:10Z",
+    "dhash256": "d31c8332c87601aa8170c16a010013b2d31a334ca944693a0100e99a93229326",
+    "file": {
+     "file_size": 55556,
+     "file_unique_id": "AQADMBBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197204580148",
+    "message_id": 82962,
+    "meta_v": 2,
+    "phash64": "752a2ad579d54650",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82962.jpg",
+    "sha256": "b4d27b1270ede5d2f4b963f5204fc4d3960a055588e788e77d1922576a23e167",
+    "status": "saved",
+    "update_id": 136263987
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82962.jpg",
+   "fingerprint": {
+    "dhash256": "d31c8332c87601aa8170c16a010013b2d31a334ca944693a0100e99a93229326",
+    "height": 1280,
+    "phash64": "752a2ad579d54650",
+    "sha256": "b4d27b1270ede5d2f4b963f5204fc4d3960a055588e788e77d1922576a23e167",
+    "width": 590
+   },
+   "image_id": "TG_82962",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 5,
+     "id": "X_20260918_04_ELPW",
+     "phash_dist": 2
+    },
+    {
+     "dhash256_dist": 82,
+     "id": "TG_50830",
+     "phash_dist": 14
+    },
+    {
+     "dhash256_dist": 83,
+     "id": "TG_57885",
+     "phash_dist": 14
+    },
+    {
+     "dhash256_dist": 78,
+     "id": "IMG_0628",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 87,
+     "id": "TG_50585",
+     "phash_dist": 14
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20260918_01_ELPW"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:47Z",
+    "date": "2026-11-04T06:44:10Z",
+    "dhash256": "3e0736010000a253d452681234129dd2645318000c6b496d39c2ab6324d96499",
+    "file": {
+     "file_size": 47480,
+     "file_unique_id": "AQADNxBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197204580148",
+    "message_id": 82963,
+    "meta_v": 2,
+    "phash64": "5656a9af5e5f0a00",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82963.jpg",
+    "sha256": "b8f609dcacb36bf3f51b375409170fa3b2a618466a52cea06b5e0fb8e5db2e4b",
+    "status": "saved",
+    "update_id": 136263988
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82963.jpg",
+   "fingerprint": {
+    "dhash256": "3e0736010000a253d452681234129dd2645318000c6b496d39c2ab6324d96499",
+    "height": 1280,
+    "phash64": "5656a9af5e5f0a00",
+    "sha256": "b8f609dcacb36bf3f51b375409170fa3b2a618466a52cea06b5e0fb8e5db2e4b",
+    "width": 590
+   },
+   "image_id": "TG_82963",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 15,
+     "id": "CH_20260918_01_ELPW",
+     "phash_dist": 2
+    },
+    {
+     "dhash256_dist": 47,
+     "id": "CH_20260918_25_SXTC",
+     "phash_dist": 8
+    },
+    {
+     "dhash256_dist": 45,
+     "id": "TG_2069",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 48,
+     "id": "CH_20260918_63_ELPW",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 70,
+     "id": "X_20260905_14",
+     "phash_dist": 6
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20260918_03_ELPW"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:47Z",
+    "date": "2026-11-04T06:44:10Z",
+    "dhash256": "2e0736010000a903b18313a3018310f30651d0b040b0654d3683b9e564996499",
+    "file": {
+     "file_size": 42020,
+     "file_unique_id": "AQADORBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197204580148",
+    "message_id": 82964,
+    "meta_v": 2,
+    "phash64": "128bab56d6ab1856",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82964.jpg",
+    "sha256": "2ac90061724bd8b2475cff60f5d1ba6e49c00672bdd49a6fadd32799365eaa78",
+    "status": "saved",
+    "update_id": 136263989
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82964.jpg",
+   "fingerprint": {
+    "dhash256": "2e0736010000a903b18313a3018310f30651d0b040b0654d3683b9e564996499",
+    "height": 1280,
+    "phash64": "128bab56d6ab1856",
+    "sha256": "2ac90061724bd8b2475cff60f5d1ba6e49c00672bdd49a6fadd32799365eaa78",
+    "width": 590
+   },
+   "image_id": "TG_82964",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 7,
+     "id": "CH_20260918_03_ELPW",
+     "phash_dist": 2
+    },
+    {
+     "dhash256_dist": 92,
+     "id": "TG_1996",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 94,
+     "id": "TG_1938",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 100,
+     "id": "TG_2536",
+     "phash_dist": 14
+    },
+    {
+     "dhash256_dist": 77,
+     "id": "TG_1943",
+     "phash_dist": 20
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20260918_05_CPOP"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:48Z",
+    "date": "2026-11-04T06:44:10Z",
+    "dhash256": "3c0238010000e0018809ee490dc998e8655908014c654d6516c1096164d96499",
+    "file": {
+     "file_size": 21067,
+     "file_unique_id": "AQADOhBrG9lQWVN9",
+     "height": 760,
+     "width": 351
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197204580148",
+    "message_id": 82965,
+    "meta_v": 2,
+    "phash64": "5456abab57560aa8",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82965.jpg",
+    "sha256": "8b6a60e1655b9d668a59cf1289f8b9f44873bb1bbd1b98443ec58dea8b11139b",
+    "status": "saved",
+    "update_id": 136263990
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82965.jpg",
+   "fingerprint": {
+    "dhash256": "3c0238010000e0018809ee490dc998e8655908014c654d6516c1096164d96499",
+    "height": 760,
+    "phash64": "5456abab57560aa8",
+    "sha256": "8b6a60e1655b9d668a59cf1289f8b9f44873bb1bbd1b98443ec58dea8b11139b",
+    "width": 351
+   },
+   "image_id": "TG_82965",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 10,
+     "id": "CH_20260918_05_CPOP",
+     "phash_dist": 2
+    },
+    {
+     "dhash256_dist": 50,
+     "id": "IMG_0568",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 49,
+     "id": "TG_1847",
+     "phash_dist": 6
+    },
+    {
+     "dhash256_dist": 44,
+     "id": "TG_1924",
+     "phash_dist": 8
+    },
+    {
+     "dhash256_dist": 46,
+     "id": "TG_1962",
+     "phash_dist": 8
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "TG_20260918_06_CPOP"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:49Z",
+    "date": "2026-11-04T06:44:10Z",
+    "dhash256": "93908194b28ee00ed10dd10fe90c9706b3348980804b9801da4792489e00a349",
+    "file": {
+     "file_size": 66652,
+     "file_unique_id": "AQADPBBrG9lQWVN9",
+     "height": 759,
+     "width": 698
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197204580148",
+    "message_id": 82966,
+    "meta_v": 2,
+    "phash64": "4849b374252ddba5",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82966.jpg",
+    "sha256": "31199e493b2746d0d3a626d48a69f6af1619fe10c1637fb6d889dfdde70953df",
+    "status": "saved",
+    "update_id": 136263991
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82966.jpg",
+   "fingerprint": {
+    "dhash256": "93908194b28ee00ed10dd10fe90c9706b3348980804b9801da4792489e00a349",
+    "height": 759,
+    "phash64": "4849b374252ddba5",
+    "sha256": "31199e493b2746d0d3a626d48a69f6af1619fe10c1637fb6d889dfdde70953df",
+    "width": 698
+   },
+   "image_id": "TG_82966",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 2,
+     "id": "TG_20260918_06_CPOP",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 94,
+     "id": "TG_2180",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 102,
+     "id": "IMG_0291",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 104,
+     "id": "TG_2193",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 103,
+     "id": "IMG_0414",
+     "phash_dist": 18
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20260918_07_NUWE"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:50Z",
+    "date": "2026-11-04T06:44:10Z",
+    "dhash256": "3d0233000000a2098829c6b967191ce91a29e6b3c5354b6549510cf16cd96689",
+    "file": {
+     "file_size": 13074,
+     "file_unique_id": "AQADIxBrG9lQWVN9",
+     "height": 508,
+     "width": 235
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197204580148",
+    "message_id": 82967,
+    "meta_v": 2,
+    "phash64": "5455ababaf374042",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82967.jpg",
+    "sha256": "3c66155df337610ff21b81fdc2cde99a8a5ba5ff162fedefb9371c31cf61c569",
+    "status": "saved",
+    "update_id": 136263992
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82967.jpg",
+   "fingerprint": {
+    "dhash256": "3d0233000000a2098829c6b967191ce91a29e6b3c5354b6549510cf16cd96689",
+    "height": 508,
+    "phash64": "5455ababaf374042",
+    "sha256": "3c66155df337610ff21b81fdc2cde99a8a5ba5ff162fedefb9371c31cf61c569",
+    "width": 235
+   },
+   "image_id": "TG_82967",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 17,
+     "id": "CH_20260918_07_NUWE",
+     "phash_dist": 2
+    },
+    {
+     "dhash256_dist": 65,
+     "id": "CH_20260918_14_NUWE",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 61,
+     "id": "TG_1900",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 68,
+     "id": "TG_2183",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 70,
+     "id": "IMG_0304",
+     "phash_dist": 10
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "EDU_20260918_10_pattern",
+    "TG_58051"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:51Z",
+    "date": "2026-11-04T06:44:10Z",
+    "dhash256": "04046020964c964c6020090c2b5423542a16aa8e8eaa96aa142b542304490001",
+    "file": {
+     "file_size": 16977,
+     "file_unique_id": "AQADPhBrG9lQWVN-",
+     "height": 509,
+     "width": 1096
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197204580148",
+    "message_id": 82968,
+    "meta_v": 2,
+    "phash64": "3d29963ec3c2c296",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82968.jpg",
+    "sha256": "b8d410f93aa5fd799ed0f0464567a887d68dae10828202cbe8deafcd9bbb1efd",
+    "status": "saved",
+    "update_id": 136263993
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82968.jpg",
+   "fingerprint": {
+    "dhash256": "04046020964c964c6020090c2b5423542a16aa8e8eaa96aa142b542304490001",
+    "height": 509,
+    "phash64": "3d29963ec3c2c296",
+    "sha256": "b8d410f93aa5fd799ed0f0464567a887d68dae10828202cbe8deafcd9bbb1efd",
+    "width": 1096
+   },
+   "image_id": "TG_82968",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 2,
+     "id": "EDU_20260918_10_pattern",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 2,
+     "id": "TG_58051",
+     "phash_dist": 2
+    },
+    {
+     "dhash256_dist": 97,
+     "id": "TG_50824",
+     "phash_dist": 24
+    },
+    {
+     "dhash256_dist": 107,
+     "id": "X_20260918_26_GRI",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 108,
+     "id": "TG_1998",
+     "phash_dist": 22
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "TG_20260918_08_NTCL"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:52Z",
+    "date": "2026-11-04T06:44:10Z",
+    "dhash256": "a848a00ac10ea10dbd128900ee4a9243fe4f7da892a19e4b202d242da0a9b291",
+    "file": {
+     "file_size": 109328,
+     "file_unique_id": "AQADQBBrG9lQWVN-",
+     "height": 1280,
+     "width": 793
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197204580148",
+    "message_id": 82969,
+    "meta_v": 2,
+    "phash64": "49c8253fd23fd025",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82969.jpg",
+    "sha256": "347e957e2a356c7b3a279f78832afea9ea31d89a2e06b4b4696e9aff6078dbf7",
+    "status": "saved",
+    "update_id": 136263994
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82969.jpg",
+   "fingerprint": {
+    "dhash256": "a848a00ac10ea10dbd128900ee4a9243fe4f7da892a19e4b202d242da0a9b291",
+    "height": 1280,
+    "phash64": "49c8253fd23fd025",
+    "sha256": "347e957e2a356c7b3a279f78832afea9ea31d89a2e06b4b4696e9aff6078dbf7",
+    "width": 793
+   },
+   "image_id": "TG_82969",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 3,
+     "id": "TG_20260918_08_NTCL",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 96,
+     "id": "TG_2186",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 95,
+     "id": "X_20260827_target10_entry_below",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 113,
+     "id": "IMG_0645",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 98,
+     "id": "IMG_0301",
+     "phash_dist": 20
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20260918_09_DAIC"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:52Z",
+    "date": "2026-11-04T06:44:10Z",
+    "dhash256": "3e0733010000a401a0196c191fd99018441920006d55496dac71195464d96499",
+    "file": {
+     "file_size": 44694,
+     "file_unique_id": "AQADQRBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197204580148",
+    "message_id": 82970,
+    "meta_v": 2,
+    "phash64": "5555aaaa55558aaa",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82970.jpg",
+    "sha256": "8aa917c61169151dcdd8848e8abe5d5b988daea66cf9a1b4fe02a62709e36b06",
+    "status": "saved",
+    "update_id": 136263995
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82970.jpg",
+   "fingerprint": {
+    "dhash256": "3e0733010000a401a0196c191fd99018441920006d55496dac71195464d96499",
+    "height": 1280,
+    "phash64": "5555aaaa55558aaa",
+    "sha256": "8aa917c61169151dcdd8848e8abe5d5b988daea66cf9a1b4fe02a62709e36b06",
+    "width": 590
+   },
+   "image_id": "TG_82970",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 7,
+     "id": "CH_20260918_09_DAIC",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 49,
+     "id": "TG_50594",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 57,
+     "id": "X_20260905_13",
+     "phash_dist": 2
+    },
+    {
+     "dhash256_dist": 52,
+     "id": "TG_1968",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 52,
+     "id": "TG_50583",
+     "phash_dist": 4
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "X_20260918_15_NTCL"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:53Z",
+    "date": "2026-11-04T06:44:30Z",
+    "dhash256": "d218924e334ec03ada669260808c8000682ccc2c822ced30852c825c93229126",
+    "file": {
+     "file_size": 56231,
+     "file_unique_id": "AQADMhBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197360349332",
+    "message_id": 82972,
+    "meta_v": 2,
+    "phash64": "252a2ba57d5256a5",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82972.jpg",
+    "sha256": "27f0fd8fff3c778fa0bb6d6417c123b0bdc6ef91f528b67ee5a9553e326fedb3",
+    "status": "saved",
+    "update_id": 136263997
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82972.jpg",
+   "fingerprint": {
+    "dhash256": "d218924e334ec03ada669260808c8000682ccc2c822ced30852c825c93229126",
+    "height": 1280,
+    "phash64": "252a2ba57d5256a5",
+    "sha256": "27f0fd8fff3c778fa0bb6d6417c123b0bdc6ef91f528b67ee5a9553e326fedb3",
+    "width": 590
+   },
+   "image_id": "TG_82972",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 5,
+     "id": "X_20260918_15_NTCL",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 78,
+     "id": "TG_57890",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 82,
+     "id": "TG_1863",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 80,
+     "id": "X_20260827_rubi_daily_ma_rsi",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 88,
+     "id": "TG_50831",
+     "phash_dist": 20
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20260918_16_NTCL"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:54Z",
+    "date": "2026-11-04T06:44:30Z",
+    "dhash256": "92629262818c8018a00c8008c80c6a2c9c2c840c8c2cb32cca508d20a520800c",
+    "file": {
+     "file_size": 73594,
+     "file_unique_id": "AQADOxBrG9lQWVN-",
+     "height": 1280,
+     "width": 1033
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197360349332",
+    "message_id": 82973,
+    "meta_v": 2,
+    "phash64": "6572d286a552f21e",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82973.jpg",
+    "sha256": "191378be7787f7c69bb7e38593787288ccc187e51be7de658d069b24926b3a17",
+    "status": "saved",
+    "update_id": 136263998
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82973.jpg",
+   "fingerprint": {
+    "dhash256": "92629262818c8018a00c8008c80c6a2c9c2c840c8c2cb32cca508d20a520800c",
+    "height": 1280,
+    "phash64": "6572d286a552f21e",
+    "sha256": "191378be7787f7c69bb7e38593787288ccc187e51be7de658d069b24926b3a17",
+    "width": 1033
+   },
+   "image_id": "TG_82973",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 2,
+     "id": "CH_20260918_16_NTCL",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 62,
+     "id": "X_20260827_rubi_daily_ma_rsi",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 84,
+     "id": "APP_20260918_59_VEEE",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 80,
+     "id": "TG_2022",
+     "phash_dist": 22
+    },
+    {
+     "dhash256_dist": 76,
+     "id": "TG_1891",
+     "phash_dist": 24
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20260918_17_NTCL"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:10:55Z",
+    "date": "2026-11-04T06:44:30Z",
+    "dhash256": "29763a6394085001402935293ac9827935b973c16a6d4d0d36301934669966d9",
+    "file": {
+     "file_size": 39678,
+     "file_unique_id": "AQADQhBrG9lQWVN-",
+     "height": 1105,
+     "width": 510
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197360349332",
+    "message_id": 82974,
+    "meta_v": 2,
+    "phash64": "3766e02337666233",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82974.jpg",
+    "sha256": "633a65abeb5c977bab92bc9d07d31e64f1e4db0d372be15be6afe2f6af0b03b3",
+    "status": "saved",
+    "update_id": 136263999
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82974.jpg",
+   "fingerprint": {
+    "dhash256": "29763a6394085001402935293ac9827935b973c16a6d4d0d36301934669966d9",
+    "height": 1105,
+    "phash64": "3766e02337666233",
+    "sha256": "633a65abeb5c977bab92bc9d07d31e64f1e4db0d372be15be6afe2f6af0b03b3",
+    "width": 510
+   },
+   "image_id": "TG_82974",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 10,
+     "id": "CH_20260918_17_NTCL",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 73,
+     "id": "X_20260905_14",
+     "phash_dist": 24
+    },
+    {
+     "dhash256_dist": 90,
+     "id": "IMG_0363",
+     "phash_dist": 20
+    },
+    {
+     "dhash256_dist": 68,
+     "id": "CH_20260918_60_VEEE",
+     "phash_dist": 26
+    },
+    {
+     "dhash256_dist": 68,
+     "id": "TG_2202",
+     "phash_dist": 26
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "X_20260918_24_SXTC"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:11:01Z",
+    "date": "2026-11-04T06:44:30Z",
+    "dhash256": "d3188332407601f600fc14f20000a1128002c012a452b8128002a49a93229326",
+    "file": {
+     "file_size": 50966,
+     "file_unique_id": "AQADSRBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197360349332",
+    "message_id": 82978,
+    "meta_v": 2,
+    "phash64": "502f2fd0687c7f80",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82978.jpg",
+    "sha256": "39fce7aace6e29c9f2b5c076ef4af07ea35f32513d4ca79316f295de8b9b58d8",
+    "status": "saved",
+    "update_id": 136264003
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82978.jpg",
+   "fingerprint": {
+    "dhash256": "d3188332407601f600fc14f20000a1128002c012a452b8128002a49a93229326",
+    "height": 1280,
+    "phash64": "502f2fd0687c7f80",
+    "sha256": "39fce7aace6e29c9f2b5c076ef4af07ea35f32513d4ca79316f295de8b9b58d8",
+    "width": 590
+   },
+   "image_id": "TG_82978",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 10,
+     "id": "X_20260918_24_SXTC",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 63,
+     "id": "IMG_0486",
+     "phash_dist": 14
+    },
+    {
+     "dhash256_dist": 52,
+     "id": "IMG_0617",
+     "phash_dist": 18
+    },
+    {
+     "dhash256_dist": 67,
+     "id": "IMG_0628",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 69,
+     "id": "IMG_0391",
+     "phash_dist": 16
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "CH_20260918_25_SXTC"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:11:02Z",
+    "date": "2026-11-04T06:44:30Z",
+    "dhash256": "3e073b01000022538052c0122012b81256528000cc4b4d6dfc02992664d96499",
+    "file": {
+     "file_size": 43412,
+     "file_unique_id": "AQADShBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197360349332",
+    "message_id": 82979,
+    "meta_v": 2,
+    "phash64": "5252abab5f5f2880",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82979.jpg",
+    "sha256": "a929dde9efdfd42beaf35dc2c14797a1a462fa25a08e50a72e44b36a5e8d010e",
+    "status": "saved",
+    "update_id": 136264004
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82979.jpg",
+   "fingerprint": {
+    "dhash256": "3e073b01000022538052c0122012b81256528000cc4b4d6dfc02992664d96499",
+    "height": 1280,
+    "phash64": "5252abab5f5f2880",
+    "sha256": "a929dde9efdfd42beaf35dc2c14797a1a462fa25a08e50a72e44b36a5e8d010e",
+    "width": 590
+   },
+   "image_id": "TG_82979",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 16,
+     "id": "CH_20260918_25_SXTC",
+     "phash_dist": 4
+    },
+    {
+     "dhash256_dist": 42,
+     "id": "CH_20260918_01_ELPW",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 46,
+     "id": "CH_20260918_64_ELPW",
+     "phash_dist": 10
+    },
+    {
+     "dhash256_dist": 39,
+     "id": "CH_20260918_65_ELPW",
+     "phash_dist": 12
+    },
+    {
+     "dhash256_dist": 47,
+     "id": "CH_20260918_63_ELPW",
+     "phash_dist": 12
+    }
+   ]
+  },
+  {
+   "C1": [],
+   "C2": [
+    "WA_20260918_31_SXTC"
+   ],
+   "collector_row": {
+    "collected_utc": "2026-11-04T12:11:03Z",
+    "date": "2026-11-04T06:44:30Z",
+    "dhash256": "3c02dc82c902b10cff0ffe0d8404b94aa04b882d2364a260c41aa398e321ecc0",
+    "file": {
+     "file_size": 104988,
+     "file_unique_id": "AQADTBBrG9lQWVN-",
+     "height": 1280,
+     "width": 590
+    },
+    "forward_type": "none",
+    "from_admin": false,
+    "from_recipient": true,
+    "kind": "photo",
+    "media_group_id": "14350197360349332",
+    "message_id": 82980,
+    "meta_v": 2,
+    "phash64": "40cab4b6b3299f29",
+    "redacted": true,
+    "run_id": "41826516677",
+    "saved_name": "TG_82980.jpg",
+    "sha256": "7568665aa1842e9d452b9ee6884ade3d524eae3f67c67c9916a25073fc8e78c3",
+    "status": "saved",
+    "update_id": 136264005
+   },
+   "eye_review_required": true,
+   "file": "faisal_images/TG_82980.jpg",
+   "fingerprint": {
+    "dhash256": "3c02dc82c902b10cff0ffe0d8404b94aa04b882d2364a260c41aa398e321ecc0",
+    "height": 1280,
+    "phash64": "40cab4b6b3299f29",
+    "sha256": "7568665aa1842e9d452b9ee6884ade3d524eae3f67c67c9916a25073fc8e78c3",
+    "width": 590
+   },
+   "image_id": "TG_82980",
+   "nearest_corpus": [
+    {
+     "dhash256_dist": 3,
+     "id": "WA_20260918_31_SXTC",
+     "phash_dist": 0
+    },
+    {
+     "dhash256_dist": 74,
+     "id": "WA_20260918_46_NUWE",
+     "phash_dist": 14
+    },
+    {
+     "dhash256_dist": 83,
+     "id": "IMG_0291",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 85,
+     "id": "TG_2193",
+     "phash_dist": 16
+    },
+    {
+     "dhash256_dist": 89,
+     "id": "TG_2031",
+     "phash_dist": 18
+    }
+   ]
+  }
+ ],
+ "tool_version": "V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)"
+}
