@@ -852,7 +852,7 @@
  },
  "LIQ:WYHG": {
   "anchor_ms": 1793812740000,
-  "last_ms": 1793812740000,
+  "last_ms": 1793812860000,
   "sent": [
    "M1"
   ],
@@ -860,7 +860,7 @@
   "vol_x": 0.2,
   "peak_usd": 1625,
   "last_eval_ms": 1793812860000,
-  "pulse_ms": 1793812740000,
+  "pulse_ms": 1793812860000,
   "anchor_price": 3.85,
   "anchor_open": 3.85,
   "anchor_low": 3.85,
@@ -873,11 +873,12 @@
    "exit_ms": 1793812080000
   },
   "trig": "T-C",
-  "date": "2026-11-04",
   "pre_done": true,
   "pre_hi": 3.9,
   "pre_usd": 422117,
-  "pre_n": 50
+  "pre_n": 50,
+  "exit_ms": 1793812860000,
+  "date": "2026-11-04"
  },
  "LIQ:ZENA": {
   "last_eval_ms": 1793812680000,
