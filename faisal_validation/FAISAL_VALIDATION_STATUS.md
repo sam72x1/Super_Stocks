@@ -9,9 +9,9 @@ V4_FROZEN = YES (protocol epoch 1 · I1-I12 PASS)
 V4_COMMIT = 7c8826c25e745668d33facabb2efbc488e997fb7
 EPOCH_INTEGRITY = PASS
 COLLECTOR_STATUS = PASS · SCHEDULED_ACTIVE (99 runs: schedule 72 · workflow_dispatch 27 · schedule `17 */4 * * *` fired 72 time(s) · last run 40453100275 success · 0 update(s) · observed 2026-10-27T13:20:00Z)
-PRIMARY_CASES = 2 of 43 minimum (HISTORICAL 53 outside Phase B by definition)
+PRIMARY_CASES = 2 of 43 minimum (HISTORICAL 54 outside Phase B by definition)
 VALID_CASES = 0 (PRIMARY 2 minus 2 external-context-blocked)
-EXCLUDED_CASES = 70 (E1 42, E3 4, E4 9, E6 9, E7 4, E8 2)
+EXCLUDED_CASES = 114 (E1 82, E3 4, E4 12, E6 9, E7 4, E8 3)
 UNKNOWN_CASES = 0
 FAISAL_READY = 0
 FAISAL_WAIT = 0
@@ -28,7 +28,7 @@ FALSE_WAIT = UNDEFINED (0/0)
 FALSE_REJECT = UNDEFINED (0/0)
 FALSE_UNKNOWN = UNDEFINED (0/0)
 EXTERNAL_CONTEXT_BLOCKED = 2
-DATA_BLOCKED = 2
+DATA_BLOCKED = 3
 METHODOLOGY_MISMATCH = 0
 IMPLEMENTATION_ERROR = 0
 UNRESOLVED = 0
@@ -37,9 +37,9 @@ TIMEFRAME_DIVERSITY = NONE (0 valid cases)
 REGIME_DIVERSITY = NONE (0 valid cases)
 LOOKAHEAD_TEST = PASS (protocol LA1-LA6) · E9 exclusions 0
 PROVENANCE_TEST = PASS (protocol I8-I10) · E7 exclusions 4
-CONTAMINATION_TEST = PASS · E2 0 · E3 4 · E4 9 · E5 0 excluded
+CONTAMINATION_TEST = PASS · E2 0 · E3 4 · E4 12 · E5 0 excluded
 FREEZE_TEST = PASS
-LEDGER_INTEGRITY = PASS · 162 record(s) · head f41bb7d511fa6e77
+LEDGER_INTEGRITY = PASS · 252 record(s) · head 1c0ae69b17a9079f
 VALIDATION_STATE = INSUFFICIENT_SAMPLE
 V5_CANDIDATES = 0
 TESTS = test_bot.py — PHB0-PHB9 (the number is read from the CI log, never written by this tool)
@@ -53,10 +53,10 @@ NEXT_ALLOWED_ACTION = Continue collecting under the same frozen rules; nothing c
 
 | status | count |
 |---|---|
-| HISTORICAL (outside Phase B) | 53 |
+| HISTORICAL (outside Phase B) | 54 |
 | PRIMARY | 2 |
-| PENDING | 0 |
-| EXCLUDED | 70 |
+| PENDING | 1 |
+| EXCLUDED | 114 |
 | UNKNOWN | 0 |
 
 **HISTORICAL** = captured or dated on/before the cutoff (a day-only date counts when its New-York day — 2026-10-07 for this cutoff — is after it). Phase A sealed that period; these are not exclusions and never enter a denominator.
