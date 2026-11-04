@@ -81,12 +81,20 @@ def _disk() -> set:
     return {os.path.splitext(f)[0] for f in os.listdir(IMAGES)}
 
 
+MAP_FOUND = ("واثق", "مرجّح", "مجموعة")   # الملحق 1 §③: «ضعيف» و«غير موجود» لا يُتيحان صورة
+
+
+def mapping_rows(rows) -> dict:
+    """صفوفُ الخريطة ⟵ {صورة الكاتالوج: اسم الملفّ بلا امتداد} — ما ثقتُه من الثلاث وحدَها (وصفٌّ بلا عمود ثقة = الصيغةُ الأولى)."""
+    return {r["catalog_image"]: os.path.splitext(r["disk_file"])[0] for r in rows
+            if r.get("catalog_image") and r.get("disk_file") and (r.get("confidence") or MAP_FOUND[0]) in MAP_FOUND}
+
+
 def _mapping() -> dict:
     if not os.path.exists(MAP):
         return {}
     with open(MAP, encoding="utf-8") as fh:
-        return {r["catalog_image"]: os.path.splitext(r["disk_file"])[0]
-                for r in csv.DictReader(fh, delimiter="\t") if r.get("catalog_image") and r.get("disk_file")}
+        return mapping_rows(csv.DictReader(fh, delimiter="\t"))
 
 
 def main() -> int:
