@@ -1,39 +1,8 @@
 {
- "run_id": "41616069827",
+ "run_id": "41810193349",
  "result": {
   "done": [
-   "SPHL",
-   "SPPL",
-   "SPRC",
-   "STKH",
-   "SUGP",
-   "SVRE",
-   "BRAI",
-   "BTOC",
-   "BTOG",
-   "CANF",
-   "CDIO",
-   "CDT",
-   "CETX",
-   "CIIT",
-   "CRE",
-   "CUPR",
-   "DCOY",
-   "DKI",
-   "DRMA",
-   "DSY",
-   "DXST",
-   "EDBL",
-   "EHGO",
-   "ELAB",
-   "ELPW",
-   "ENPH",
-   "ENVB",
-   "EZRA",
-   "FGF",
-   "FIEE",
-   "FRSX",
-   "GNPX",
+   "IXIC",
    "NIVF",
    "SXTC",
    "TRUG",
@@ -103,52 +72,84 @@
    "SLXN",
    "SMX",
    "SNAL",
-   "SNGX"
+   "SNGX",
+   "BRAI",
+   "BTOC",
+   "BTOG",
+   "CANF",
+   "CDIO",
+   "CDT",
+   "CETX",
+   "CIIT",
+   "CRE",
+   "CUPR",
+   "DCOY",
+   "DKI",
+   "DRMA",
+   "DSY",
+   "DXST",
+   "EDBL",
+   "EHGO",
+   "ELAB",
+   "ELPW",
+   "ENPH",
+   "ENVB",
+   "EZRA",
+   "FGF",
+   "FIEE",
+   "FRSX",
+   "GNPX",
+   "SPHL",
+   "SPPL",
+   "SPRC",
+   "STKH",
+   "SUGP",
+   "SVRE"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "ANNA",
-    "CNSY",
-    "DGXX",
-    "GOAI",
-    "HYMC",
-    "KXIN",
-    "PAVM",
-    "SIDU",
-    "SNOA",
-    "TRIB",
-    "AZIO",
-    "SUPX",
-    "FMST",
+    "DETX",
+    "EDSA",
+    "FCUV",
+    "GAUZ",
+    "INTS",
+    "MOVE",
+    "MTVA",
+    "SBFM",
+    "SWMR",
+    "SYPR",
+    "VRAX",
+    "TGHL",
+    "FLUX",
     "NCRA",
-    "METC",
-    "IMNN"
+    "SUPX",
+    "TRIB"
    ],
    "skipped": [],
    "calendar_error": "",
    "ce_used": 16,
-   "pool_date": "2026-11-03",
+   "pool_date": "2026-11-04",
    "pool_n": 448,
    "status": "OK"
   }
  },
  "audit": {
-  "rows": 1284,
+  "rows": 1321,
   "by_status": {
-   "OK": 915,
-   "UNKNOWN": 220,
-   "NOT_ATTEMPTED": 145,
-   "FAILED": 4
+   "OK": 936,
+   "UNKNOWN": 228,
+   "FAILED": 9,
+   "NOT_ATTEMPTED": 148
   },
   "by_category": {
-   "1": 527,
-   "2": 388,
-   "4": 369
+   "1": 525,
+   "2": 411,
+   "4": 385
   },
-  "tickers": 118,
+  "tickers": 119,
   "chain_problems": []
  },
  "missing": [
@@ -204,11 +205,6 @@
   ],
   [
    "ATPC",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "AZIO",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -513,6 +509,11 @@
    "yahoo_splits"
   ],
   [
+   "FLUX",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
    "FRSX",
    "short_interest",
    "yahoo_info"
@@ -658,16 +659,6 @@
    "yahoo_splits"
   ],
   [
-   "IMNN",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "IMNN",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "IPDN",
    "short_interest",
    "yahoo_info"
@@ -769,6 +760,11 @@
   ],
   [
    "NAMM",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "NCRA",
    "short_interest",
    "yahoo_info"
   ],
@@ -1053,6 +1049,11 @@
    "nasdaq_calendar"
   ],
   [
+   "SUPX",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
    "SVRE",
    "short_interest",
    "yahoo_info"
@@ -1076,6 +1077,16 @@
    "SXTC",
    "reverse_split",
    "nasdaq_calendar"
+  ],
+  [
+   "TRIB",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "TRIB",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "TRUG",
