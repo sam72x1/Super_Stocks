@@ -1,0 +1,58 @@
+name: "🕯️📅 تأريخُ الصور ببصمة الشموع — الملحق 2 (date_candles)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · لا أسرار · **والصورُ لا تُدفَع** (المستودعُ عامّ):
+#    البطاقاتُ أرقامٌ في fm_forensics/date_candles/data/cards.jsonl ⟵ شموعُ TradingView لرمز كلِّ بطاقة ⟵ سطرُ «DCR» لكلّ بطاقة في السجلّ.
+#    أمرُ المالك 2026-11-04 «T-DATE-CANDLES على المدوّنة كلها — ملحق 2 قبل أي رقم» · العقد T_DATE_CANDLES_ADDENDUM_2.md §④.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      batches:
+        description: "أرقامُ الدفعات JSON (كلُّ دفعةٍ 40 بطاقة بالترتيب) — مثال [0,1,2]"
+        required: true
+        default: "[0]"
+      size:
+        description: "بطاقاتُ الدفعة"
+        required: false
+        default: "40"
+      ids:
+        description: "معرّفاتُ بطاقاتٍ بعينها بفاصلة (فارغ = الدفعة)"
+        required: false
+        default: ""
+
+concurrency:
+  group: date-candles
+  cancel-in-progress: false
+
+jobs:
+  match:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        batch: ${{ fromJSON(inputs.batches) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🕯️ المطابقة على TradingView
+        env:
+          PYTHONUNBUFFERED: "1"
+          FAISAL_ONLY: "1"
+          DC_BATCH: ${{ matrix.batch }}
+          DC_SIZE: ${{ inputs.size }}
+          DC_IDS: ${{ inputs.ids }}
+        run: python fm_forensics/date_candles/match.py

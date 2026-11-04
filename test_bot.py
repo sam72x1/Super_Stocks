@@ -95314,6 +95314,123 @@ except Exception as _e:                                          # noqa: BLE001
 check("🕯️📅 DPC1 مجتمعُ ① بالملحق: (A) بالبصمة وسطرا الوحدة اختبارٌ واحد · (C) تاريخٌ تقويميّ ورمزٌ واحد · داخل اليوم بـET · النسخةُ والمكرَّرُ مستبعَدان · لا (B) · الحدّ 33",
       _dpc_ok, _dpc_dd[:300])
 
+# 🕯️🤖 DC2A (‏2026-11-04 · الملحق 2 §③ · أمرُ المالك «T-DATE-CANDLES على المدوّنة كلها»): البطاقةُ الآليّة على صورةٍ اصطناعيّة —
+#    خطوطٌ بألوانها وأرقامُها في نصّ سجلّ العين ⟵ معايرةٌ بخطأٍ دون بكسلين · ولونٌ عدُّه مصادفة (أخضرُ بلا خطّ) لا يُفسدها ·
+#    والشموعُ الخمسُ والعشرون حاضرةٌ بأسعارها ضمن التسامح · وأرقامٌ أقلّ من ثلاثة أو لونٌ بعددٍ غيرِ مطابق ⟵ «لا بطاقة» بسببها ·
+#    وأرقامٌ لا تتّسق في أيّ مجموعةِ ألوان ⟵ «لم تُتحقَّق» · والنسبةُ المئويّة بعد اللون ليست خطًّا.
+try:
+    import importlib as _dc2_il
+    import numpy as _dc2_np
+    import os as _dc2_os
+    import sys as _dc2_sys
+    _dc2_sys.path.insert(0, _dc2_os.path.join(_dc2_os.path.dirname(_dc2_os.path.abspath(__file__)), "fm_forensics", "date_candles"))
+    _dc2_ac = _dc2_il.import_module("auto_card")
+    _dc2_img = _dc2_np.full((800, 600, 3), 255, dtype=_dc2_np.uint8)
+    _dc2_y = lambda p: int(round(700 - (p - 1.0) * 200))           # noqa: E731
+    _dc2_rng = _dc2_np.random.default_rng(7)
+    _dc2_truth, _dc2_c = [], 2.2
+    for _i in range(25):
+        _o = _dc2_c
+        _dc2_c = float(min(3.2, max(1.3, _o + _dc2_rng.normal(0, 0.12))))
+        _h = max(_o, _dc2_c) + float(abs(_dc2_rng.normal(0, 0.05))) + 0.02
+        _l = min(_o, _dc2_c) - float(abs(_dc2_rng.normal(0, 0.05))) - 0.02
+        _dc2_truth.append((_o, _h, _l, _dc2_c))
+        _x = 40 + _i * 16
+        _col = (38, 166, 154) if _dc2_c >= _o else (239, 83, 80)
+        _dc2_img[_dc2_y(_h):_dc2_y(_l) + 1, _x + 3] = _col
+        _dc2_img[_dc2_y(max(_o, _dc2_c)):_dc2_y(min(_o, _dc2_c)) + 1, _x:_x + 7] = _col
+    for _p, _col in ((3.5, (156, 39, 176)), (2.1, (20, 20, 20)), (1.7, (41, 98, 255)), (1.5, (41, 98, 255))):
+        _dc2_img[_dc2_y(_p), :] = _col
+    _dc2_seen = "SYN على اليوميّ: بنفسجيّ 3.5 · أسودُ 2.1 · أزرقُ 1.7 و1.5 · سهمٌ أخضر عند 9.99"
+    _dc2_card = _dc2_ac.build_card(_dc2_img, _dc2_seen)
+    _dc2_err = []
+    if _dc2_card.get("ok"):
+        for (_o, _h, _l, _c), _b in zip(_dc2_truth, _dc2_card["bars"]):
+            if _b is None:
+                _dc2_err.append("مفقود")
+                continue
+            _dc2_err.append(max(abs(_b["o"] - _o), abs(_b["h"] - _h), abs(_b["l"] - _l), abs(_b["c"] - _c)))
+    _dc2_ok = (_dc2_card.get("ok") and _dc2_card["n_present"] == 25 and _dc2_card["cal_err_px"] <= 2.0
+               and len(_dc2_card["pairs"]) == 4 and all(isinstance(e, float) and e <= 0.02 for e in _dc2_err))
+    _dc2_few = _dc2_ac.build_card(_dc2_img, "SYN: بنفسجيّ 3.5 · أسودُ 2.1")
+    _dc2_bad = _dc2_ac.build_card(_dc2_img, "SYN: بنفسجيّ 3.5 و3.0 · أسودُ 2.1 · أزرقُ 1.7")
+    _dc2_inc = _dc2_ac.build_card(_dc2_img, "SYN: بنفسجيّ 3.9 · أسودُ 2.1 · أزرقُ 1.7 و1.2")
+    _dc2_pl = _dc2_ac.parse_lines("خطوطٌ زرقاء 7.99/7.23 · أحمرُ 1.301 · طلب 1,303@1.120 · أخضر +4.39% · أصفر 12.5%")
+    _dc2_v = (bool(_dc2_ok), _dc2_few.get("ok"), "ثلاثة" in _dc2_few.get("why", ""), _dc2_bad.get("ok"),
+              _dc2_pl == {"blue": [7.99, 7.23], "red": [1.301]}, _dc2_inc.get("ok"),
+              "لم تُتحقَّق" in _dc2_inc.get("why", ""))
+except Exception as _e:                                           # noqa: BLE001
+    _dc2_v, _dc2_card, _dc2_err = (f"⛔ {type(_e).__name__}: {_e}",), {}, []
+check("🕯️🤖 DC2A البطاقةُ الآليّة: معايرةٌ من خطوط الألوان بأرقام سجلّ العين (دون بكسلين · والأخضرُ المصادف مستبعَد) · 25 شمعةً بأسعارها · "
+      "وأقلُّ من ثلاثة أزواجٍ أو عددٌ غيرُ مطابق ⟵ «لا بطاقة» · ونصُّ الطلب والنسبة ليس خطًّا",
+      _dc2_v == (True, False, True, False, True, False, True),
+      f"{_dc2_v} · خطأ={_dc2_card.get('cal_err_px')} · أقصى={max([e for e in _dc2_err if isinstance(e, float)], default=None)}")
+
+# 🕯️📅 DC2M (‏2026-11-04 · الملحق 2 §④): المطابقةُ نقيّةً على تاريخٍ اصطناعيّ — بطاقةٌ = نافذةٌ من التاريخ المسوّى مقسومةٌ على معامل
+#    التقسيم المسجَّل بعدها ⟵ «واثق» وآخرُ شمعتها الحقيقة · وبلا تقسيماتٍ ⟵ «مرجّح» (قيدٌ واحد) · ومستوًى غيرُ المسجَّل ⟵ «لا تطابق» ·
+#    والنمطُ المكرَّر في تاريخٍ آخر بالمعامل نفسِه ⟵ «غير محسوم» · والمفقودُ مقنَّعٌ لا يُفسد الإصابة.
+try:
+    import datetime as _dc2_dt
+    _dc2_m = _dc2_il.import_module("match")
+    _rng = _dc2_np.random.default_rng(11)
+    _t0 = int(_dc2_dt.datetime(2025, 1, 2, tzinfo=_dc2_dt.timezone.utc).timestamp())
+    _px, _hist = 5.0, []
+    for _i in range(300):
+        _o = _px
+        _px = float(max(0.5, _o * _dc2_np.exp(_rng.normal(0, 0.06))))
+        _hist.append([_t0 + _i * 86400, _o, max(_o, _px) * 1.02, min(_o, _px) * 0.98, _px, 1000.0])
+    _day = lambda ts: _dc2_dt.datetime.fromtimestamp(ts, _dc2_dt.timezone.utc).strftime("%Y-%m-%d")   # noqa: E731
+    _stamp = lambda ts, tf: _day(ts)                                                                  # noqa: E731
+    _split_day = _day(_hist[260][0])
+    _ev = [(_split_day, 0.1)]                                       # عكسيٌّ 1:10 بعد النافذة ⟵ k المسجَّل 10
+
+    def _dc2_card_of(a, b, div, drop=()):
+        bars = [None if (j in drop) else {"o": r[1] / div, "h": r[2] / div, "l": r[3] / div, "c": r[4] / div}
+                for j, r in enumerate(_hist[a:b])]
+        tol = [None if x is None else {k: x[k] * 0.003 for k in "ohlc"} for x in bars]
+        return {"id": "SYN", "symbol": "SYN", "frame": "1D", "bars": bars, "tol": tol}
+    _c1 = _dc2_card_of(200, 225, 10.0, drop=(3, 11))
+    _r1 = _dc2_m.judge(_c1, {"1D": _hist}, _ev, _day, _stamp)
+    _r2 = _dc2_m.judge(_c1, {"1D": _hist}, None, _day, _stamp)
+    _r3 = _dc2_m.judge(_dc2_card_of(200, 225, 5.0), {"1D": _hist}, _ev, _day, _stamp)
+    _dup = [list(r) for r in _hist]
+    for _j in range(25):
+        _dup[100 + _j][1:5] = _hist[200 + _j][1:5]
+    _r4 = _dc2_m.judge(_c1, {"1D": _dup}, _ev, _day, _stamp)
+    _dc2_mv = (_r1["label"], (_r1.get("top1") or {}).get("end") == _day(_hist[224][0]),
+               round((_r1.get("top1") or {}).get("k_exp") or 0, 3), _r2["label"], _r3["label"], _r4["label"],
+               _dc2_m.split_factor("2025-01-01", [("2025-06-01", 0.1), ("2025-09-01", 0.2)]))
+except Exception as _e:                                           # noqa: BLE001
+    _dc2_mv = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🕯️📅 DC2M المطابقةُ: نافذةٌ ÷ معاملِ التقسيم المسجَّل ⟵ «واثق» بآخر شمعتها (والمفقودُ مقنَّع) · بلا تقسيماتٍ «مرجّح» · مستوًى آخر «لا تطابق» · "
+      "النمطُ المكرَّر «غير محسوم» · والمعاملُ حاصلُ 1÷النسبة لما بعد اليوم",
+      _dc2_mv == ("واثق", True, 10.0, "مرجّح", "لا تطابق", "غير محسوم", 50.0), str(_dc2_mv)[:200])
+
+# 🕯️📅 DC2P (‏2026-11-04 · الملحق 2 §③): المجتمعُ نقيًّا — رمزٌ واحدٌ وفريمٌ واحدٌ مدعوم (الجردُ أوّلًا ثمّ مفرداتُ النصّ) · رمزُ الجرد
+#    المخالف مستبعَد · الدقائقُ القصيرة مستبعَدة · والعنقودُ المكرَّر صورةٌ واحدة **الأعلى دقّة** · والمعروفُ تاريخُه يُوسَم.
+try:
+    _dc2_cp = _dc2_il.import_module("corpus")
+    _recs = {"TG_1": {"tk": ["AAA"], "seen": "x"}, "TG_2": {"tk": ["AAA"], "seen": "x"},
+             "TG_3": {"tk": ["BBB"], "seen": "BBB على 30 دقيقة"}, "TG_4": {"tk": [], "seen": "منشور"},
+             "TG_5": {"tk": ["CCC"], "seen": "CCC على 5 دقائق"}, "TG_6": {"tk": ["DDD"], "seen": "x"},
+             "TG_7": {"tk": ["EEE", "FFF"], "seen": "يوميّ"}}
+    _inv = {"TG_1": {"TIMEFRAME": ["D"], "TICKER": ["AAA"]},
+            "TG_2": {"TIMEFRAME": ["D"], "TICKER": ["AAA"], "DUPLICATE_STATUS": {"relation": "RESIZE", "of": "TG_1"}},
+            "TG_6": {"TIMEFRAME": ["4H"], "TICKER": ["ZZZ"]}}
+    _disk = {"TG_1": (590, 1280), "TG_2": (1181, 2560), "TG_3": (590, 1280), "TG_4": (590, 1280),
+             "TG_5": (590, 1280), "TG_6": (590, 1280), "TG_7": (590, 1280), "TG_8": (10, 10)}
+    _pop = _dc2_cp.population(_recs, _inv, _disk, {"TG_1": {"truth": "2026-01-02", "src": "eye:DAY"}})
+    _mem = {m["file"]: (m["symbol"], m["frame"], bool(m.get("known"))) for m in _pop["members"]}
+    _why = {e["file"]: e["why"] for e in _pop["excluded"]}
+    _dc2_pv = (_mem, sorted(_why), "متعارض" in _why.get("TG_6", ""), "غيرُ مدعوم" in _why.get("TG_5", ""),
+               "نسخة" in _why.get("TG_1", ""), _pop["disk"])
+except Exception as _e:                                           # noqa: BLE001
+    _dc2_pv = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🕯️📅 DC2P المجتمع: رمزٌ واحد وفريمٌ واحدٌ مدعوم (الجردُ ثمّ النصّ) · المخالفُ والدقائقُ القصيرة وبلا سجلّ مستبعَدة بسببها · "
+      "والعنقودُ يحفظ الأعلى دقّةً ويحمل تاريخَه المعروف",
+      _dc2_pv == ({"TG_2": ("AAA", "1D", True), "TG_3": ("BBB", "30m", False)},
+                  ["TG_1", "TG_4", "TG_5", "TG_6", "TG_7", "TG_8"], True, True, True, 8), str(_dc2_pv)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
