@@ -95239,6 +95239,81 @@ except Exception as _e:                                          # noqa: BLE001
 check("🕯️📅 DCA1 `T-DATE-CANDLES` بوّابةُ F0: الحدُّ 50 مشمول و49 «لا قياس» · `header` ليس «بالرقم» · الخريطةُ تُتيح المُعادَ باسم TG_ · "
       "③ يلزمه ① ووحدةٌ غيرُ مؤرَّخة · وتوسيعُ الصور · ومكتبةٌ قياسيّة فقط", _dca_ok, _dca_d[:300])
 
+# 🗺️ DCM1 (‏2026-11-04 · الملحق 1 · أمرُ المالك «طابق الـ58 … ثم dhash الجامع للتأكيد»): خريطةُ صور الكاتالوج ⟵ القرص —
+#        `build_map.build()` يطابق `data/image_map.tsv` بايتًا · وكلُّ صفٍّ «موجود» ملفُّه على القرص وله سجلُّ عين · ولا عنقودَ نسخٍ
+#        (EXACT · NEAR · RESIZE) لصورتين · والعدُّ من الملفّ بالثقات الثلاث = عدُّ البناء · و`f0` يتجاهل «ضعيف» و«غير موجود»
+try:
+    import importlib.util as _dcm_iu
+    import os as _dcm_os
+    import csv as _dcm_csv
+    _dcm_d = _dcm_os.path.join("fm_forensics", "date_candles")
+    _dcm_sp = _dcm_iu.spec_from_file_location("_dcm_bm", _dcm_os.path.join(_dcm_d, "build_map.py"))
+    DCB = _dcm_iu.module_from_spec(_dcm_sp)
+    _dcm_sp.loader.exec_module(DCB)
+    _dcm_txt, _dcm_s = DCB.build()
+    _dcm_disk = open(_dcm_os.path.join(_dcm_d, "data", "image_map.tsv"), encoding="utf-8").read()
+    _dcm_rows = list(_dcm_csv.DictReader(_dcm_disk.splitlines(), delimiter="\t"))
+    _dcm_found = [r for r in _dcm_rows if r["confidence"] in ("واثق", "مرجّح", "مجموعة")]
+    _dcm_files = {_dcm_os.path.splitext(f)[0] for f in _dcm_os.listdir("faisal_images")}
+    _dcm_cl = [r["dup_of"] if r["dup_of"] and r["dup_of"] != _dcm_os.path.splitext(r["disk_file"])[0] else _dcm_os.path.splitext(r["disk_file"])[0]
+               for r in _dcm_found]
+    _dcm_m = DCB.f0.mapping_rows([{"catalog_image": "IMG_1", "disk_file": "TG_1.jpg", "confidence": "ضعيف"},
+                                  {"catalog_image": "IMG_2", "disk_file": "TG_2.jpg", "confidence": "مجموعة"},
+                                  {"catalog_image": "IMG_3", "disk_file": "TG_3.jpg"}])
+    _dcm_ok = (_dcm_txt == _dcm_disk and len(_dcm_rows) == _dcm_s["distinct"]
+               and all(_dcm_os.path.splitext(r["disk_file"])[0] in _dcm_files for r in _dcm_found)
+               and _dcm_s["found_distinct"] == len(_dcm_found) and _dcm_s["weak"] == sum(r["confidence"] == "ضعيف" for r in _dcm_rows)
+               and _dcm_m == {"IMG_2": "TG_2", "IMG_3": "TG_3"} and DCB.FOUND == ("واثق", "مرجّح", "مجموعة")
+               and DCB.FOUND == DCB.f0.MAP_FOUND)
+    _dcm_dd = f"مطابق={_dcm_txt == _dcm_disk} صفوف={len(_dcm_rows)}/{_dcm_s['distinct']} موجود={len(_dcm_found)}/{_dcm_s['found_distinct']} f0={_dcm_m}"
+except Exception as _e:                                          # noqa: BLE001
+    _dcm_ok, _dcm_dd = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🗺️ DCM1 خريطةُ الكاتالوج ⟵ القرص: البناءُ = الملفّ · «الموجود» على القرص بلا عنقودِ نسخٍ مشترك · والعدُّ بالثقات الثلاث · و`f0` يتجاهل الضعيف",
+      _dcm_ok, _dcm_dd[:300])
+
+# 🕯️📅 DPC1 (‏2026-11-04 · الملحق 1 §④): مجتمعُ ① نقيًّا على فِكستشرٍ اصطناعيّ — (A) بصورةٍ تحمل كسورَ البصمة وسطرا الوحدة اختبارٌ واحد ·
+#        (C) تاريخٌ تقويميّ ورمزٌ واحد وفريمٌ مدعوم · داخل اليوم يلزمه «ET» ووقت · النسخةُ والمكرَّرُ في (A) يُستبعدان · ولا (B) · والحدّ 33
+try:
+    _dpc_sp = _dcm_iu.spec_from_file_location("_dpc_pop", _dcm_os.path.join(_dcm_d, "population.py"))
+    DPP = _dcm_iu.module_from_spec(_dpc_sp)
+    _dpc_sp.loader.exec_module(DPP)
+    _dpc_units = {("AAA", "1"): {"src": {"price"}, "images": ["IMG_1"]},
+                  ("BBB", "2"): {"src": {"indicator"}, "images": ["IMG_2"]}, ("BBB", "3"): {"src": {"indicator"}, "images": ["IMG_2"]},
+                  ("DDD", "4"): {"src": {"price"}, "images": ["IMG_4"]}, ("HHH", "5"): {"src": {"header"}, "images": ["IMG_5"]}}
+    _dpc_der = {("AAA", "1"): {"date": "2026-03-27", "fingerprint": "spot 3.105 (+32.13%)", "method": "price"},
+                ("BBB", "2"): {"date": "2026-04-01", "fingerprint": "MACD(10,20,3):-0.608 Signal:-0.579", "method": "indicator"},
+                ("BBB", "3"): {"date": "2026-04-01", "fingerprint": "MACD(10,20,3):-0.608 Signal:-0.579", "method": "indicator"},
+                ("DDD", "4"): {"date": "2026-05-01", "fingerprint": "spot 9.99 (+1.11%)", "method": "price"}}
+    _dpc_map = {"IMG_1": "TG_1", "IMG_2": "TG_2", "IMG_4": "TG_4", "IMG_5": "TG_5"}
+    _dpc_rec = {"TG_1": {"seen": "AAA يوميّ 3.105 ‏+32.13%", "dprec": "TIME", "date": "06:56", "tk": ["AAA"]},
+                "TG_2": {"seen": "BBB MACD ‏−0.608/−0.579", "dprec": "TIME", "date": "12:21", "tk": ["BBB"]},
+                "TG_4": {"seen": "DDD 9.99 فقط", "dprec": "TIME", "date": "", "tk": ["DDD"]},
+                "TG_5": {"seen": "HHH", "dprec": "TIME", "date": "", "tk": ["HHH"]},
+                "TG_10": {"seen": "CCC يوميّ", "dprec": "DAY", "date": "2026-05-22", "tk": ["CCC"]},
+                "TG_11": {"seen": "CCC نسخة", "dprec": "DAY", "date": "2026-05-22", "tk": ["CCC"]},
+                "TG_12": {"seen": "EEE 4 ساعات", "dprec": "EXACT", "date": "2026-06-26 16:02", "tk": ["EEE"]},
+                "TG_13": {"seen": "FFF 4 ساعات 15:30 ET", "dprec": "EXACT", "date": "2026-06-26 15:30", "tk": ["FFF"]},
+                "TG_14": {"seen": "GGG HHH", "dprec": "DAY", "date": "2026-06-01", "tk": ["GGG", "HHH"]},
+                "TG_15": {"seen": "JJJ 5د", "dprec": "DAY", "date": "2026-06-02", "tk": ["JJJ"]},
+                "TG_16": {"seen": "AAA يوميّ", "dprec": "DAY", "date": "2026-03-27", "tk": ["AAA"]},
+                "TG_17": {"seen": "KKK يوميّ", "dprec": "TIME", "date": "02:22", "tk": ["KKK"]}}
+    _D = {"TIMEFRAME": ["D"]}
+    _dpc_inv = {"TG_1": _D, "TG_2": _D, "TG_4": _D, "TG_5": _D, "TG_10": {"TIMEFRAME": ["D"], "TICKER": ["CCC"]},
+                "TG_11": {"TIMEFRAME": ["D"], "DUPLICATE_STATUS": {"relation": "NEAR", "of": "TG_10"}},
+                "TG_12": {"TIMEFRAME": ["4H"]}, "TG_13": {"TIMEFRAME": ["4H"]}, "TG_14": _D, "TG_15": {"TIMEFRAME": ["5m"]},
+                "TG_16": _D, "TG_17": _D}
+    _dpc_P = DPP.population(_dpc_units, _dpc_der, _dpc_map, _dpc_rec, _dpc_inv, set(_dpc_rec))
+    _dpc_A = sorted((r["symbol"], r["truth"]) for r in _dpc_P["A"])
+    _dpc_C = sorted((r["symbol"], r["truth"], r["frame"]) for r in _dpc_P["C"])
+    _dpc_ok = (_dpc_A == [("AAA", "2026-03-27"), ("BBB", "2026-04-01")]
+               and _dpc_C == [("CCC", "2026-05-22", "1D"), ("FFF", "2026-06-26", "4H")]
+               and DPP.FLOOR == 33 and DPP.DATE_PRECS == ("EXACT", "DAY") and "5m" not in DPP.TF_MAP)
+    _dpc_dd = f"A={_dpc_A} C={_dpc_C}"
+except Exception as _e:                                          # noqa: BLE001
+    _dpc_ok, _dpc_dd = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🕯️📅 DPC1 مجتمعُ ① بالملحق: (A) بالبصمة وسطرا الوحدة اختبارٌ واحد · (C) تاريخٌ تقويميّ ورمزٌ واحد · داخل اليوم بـET · النسخةُ والمكرَّرُ مستبعَدان · لا (B) · الحدّ 33",
+      _dpc_ok, _dpc_dd[:300])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
