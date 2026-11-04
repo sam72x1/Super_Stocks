@@ -95730,6 +95730,84 @@ check("🕯️📅 DC3R نتيجةُ الملحق 3: جدولُ ③ يُعاد �
       "والملفُّ الجانبيّ بلا كتابةٍ جديدة (TRUG|40 وحدَه)",
       _dc3r_v == (True, 360, 3, 20, [("ARAI", "79"), ("GRI", "73"), ("TRUG", "40")], [("TRUG", "40")]), str(_dc3r_v)[:240])
 
+# 🕯️📅④ DH4A (‏2026-11-04 · الملحق 4 §③-§⑤ · أمرُ المالك «التاريخ من رأس الشارت + شرط الوصول»): القارئُ نقيًّا — رأسُ تطبيق فيصل DD/MM
+#    بالساعة (H1) · والساعةُ ثمّ MM/DD (H2) · وبسنة (H3) · والمؤشّرُ المتقاطع (X1) · والمحور آخرُ عنوانه (A1) · وتوقيتٌ غيرُ نيويورك يُعلَم ·
+#    والساعةُ وحدَها لا تُقبل · والسنةُ أكبرُ سنةٍ لا تتجاوز الوصول · وما بعد الوصول مرفوض · والشموعُ تُرجّح السنة أو تُسقط · والأعلى رتبةً يغلب ·
+#    و«واثق» للكامل و«مرجّح» للمحور والمؤشّر.
+try:
+    import datetime as _dh4_dt
+    import importlib as _dh4_il
+    import os as _dh4_os
+    import sys as _dh4_sys
+    _dh4_sys.path.insert(0, _dh4_os.path.join(_dh4_os.path.dirname(_dh4_os.path.abspath(__file__)), "fm_forensics", "date_candles"))
+    _dh4 = _dh4_il.import_module("header")
+    _P = lambda t: [(s["code"], s["y"], s["m"], s["d"], s["hh"]) for s in _dh4.parse_text(t)[0]]   # noqa: E731
+    _NY = _dh4.NY
+    _arr = _dh4_dt.datetime(2026, 9, 26, 10, 0, tzinfo=_NY)
+    _h1 = _dh4.parse_text("SXTC بختم 24/09-13:00:03 EDT وبري")[0]
+    _a1 = _dh4.parse_text("المحورُ 07/23-11/10 · x")[0]
+    _dh4_v = (_P("مغلقٌ 25/09-16:00 EDT") == [("H1", None, 9, 25, 16)],
+              _P("اق 2.300 19:58 07/31 ET") == [("H2", None, 7, 31, 19)],
+              _P("As of 2026-10-03 12:47:27 PM EDT: x") == [("H3", 2026, 10, 3, 12)],
+              _P("بمؤشّرٍ على 09/21/2026 (O 2.720 C 2.6)") == [("X1", 2026, 9, 21, None)],
+              _P("المحورُ 07/23-09/10 · x") == [("A1", None, 9, 10, None)],
+              _dh4.parse_text("02:41 10/03 EEST") == ([], True), _P("(09:29 EDT)") == [],
+              _dh4.judge(_h1, _arr)["date"] == "2026-09-24" and _dh4.judge(_h1, _arr)["conf"] == "واثق",
+              _dh4.judge(_h1, _dh4_dt.datetime(2026, 9, 24, 12, 0, tzinfo=_NY))["date"] == "2025-09-24",
+              _dh4.judge(_h1, _arr, "2026-08-01") == {"conf": "لا", "why": "يخالف الشموع"},
+              _dh4.judge(_h1, _arr, "2026-09-23")["date"] == "2026-09-24",
+              _dh4.judge(_a1, _arr)["date"] == "2025-11-10" and _dh4.judge(_a1, _arr)["conf"] == "مرجّح",
+              _dh4.judge(_h1 + _a1, _arr)["code"] == "H1",
+              _dh4.judge(_dh4.parse_text("As of 2026-10-03 12:47:27 PM EDT")[0], _arr) == {"conf": "لا", "why": "بعد الوصول"},
+              _dh4.judge([], _arr)["why"] == "بلا طابع", _dh4.judge(_h1, None)["why"] == "بلا تاريخ وصول")
+except Exception as _e:                                           # noqa: BLE001
+    _dh4_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🕯️📅④ DH4A قارئُ الطابع: H1/H2/H3/X1/A1 بصيغها · وغيرُ نيويورك يُعلَم والساعةُ وحدَها لا · السنةُ بالوصول (وبعد الوصول مرفوض) "
+      "والشموعُ تُسقط المخالف · والأعلى رتبةً يغلب · «واثق» للكامل و«مرجّح» للمحور",
+      _dh4_v == (True,) * 16, str(_dh4_v)[:240])
+
+# 🕯️📅④ DH4P (‏2026-11-04 · الملحق 4 §④): القراءةُ الآليّة نقيّةً — سطرُ الرأس يُقرأ كالنصّ · والمحورُ السطرُ ذو العنوانين MM/DD فأكثر
+#    (الأيمنُ فيه) · وسطرُ المؤشّر المتقاطع (تاريخٌ بسنةٍ يليه O/C بسعر) · والوصولُ أبكرُ commit أضاف الملفَّ أو نقله إلى المجلّد.
+try:
+    _o = {"lines": [["SVRE 1.15 +5.50% 27/10-21:31:31 EDT", 0, 50, 300, 70, 90.0], ["05/27 07/27 09/18 11/10", 0, 900, 500, 920, 88.0],
+                    ["09/21/2026 O 2.720 H 2.8 C 2.6", 0, 400, 300, 420, 80.0]]}
+    _oc, _ot = _dh4.parse_ocr(_o)
+    _codes = sorted((s["code"], s["m"], s["d"]) for s in _oc)
+    _src = open(_dh4.__file__, encoding="utf-8").read()
+    _dh4_pv = (_codes == [("A1", 11, 10), ("H1", 10, 27), ("X1", 9, 21)], _ot,
+               '"--no-renames", "--diff-filter=A"' in _src)
+except Exception as _e:                                           # noqa: BLE001
+    _dh4_pv = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🕯️📅④ DH4P القراءةُ الآليّة: الرأسُ والمحورُ (الأيمن) والمؤشّرُ المتقاطع من الأسطر · والوصولُ يعدّ النقلَ إلى المجلّد إضافة",
+      _dh4_pv == (True, False, True), str(_dh4_pv)[:200])
+
+# 🕯️📅④ DH4R (‏2026-11-04 · نتيجةُ الملحق 4 §①-§③): جدولُ الطابع يُعاد بايتًا على المجتمع المجمَّد (`arrival.tsv` ‏891 · سجلُّ العين أوّلُ
+#    `FROZEN_REC_LINES` سطرًا) · وأرقامُ ملفّ النتيجة (واثق/مرجّح/لا · واتّفاقُ الـ20 بالشموع) مستخرجةٌ منه برمجيًّا ومطابقةٌ للجدول ·
+#    وشرطُ الوصول يرفض من الشموع ELPW وحدَه.
+try:
+    import csv as _dh4r_csv
+    import re as _dh4r_re
+    import collections as _dh4r_co
+    _dh4r_recs, _dh4r_files, _dh4r_ocr, _dh4r_cd, _dh4r_arr = _dh4.load()
+    _dh4r_rows = _dh4.build_rows(_dh4r_recs, _dh4r_files, _dh4r_ocr, _dh4r_cd, _dh4r_arr)
+    _dh4r_same = open(_dh4.TABLE, encoding="utf-8").read() == _dh4._tsv(_dh4r_rows, _dh4.COLS)
+    _dh4r_t = list(_dh4r_csv.DictReader(open(_dh4.TABLE, encoding="utf-8"), delimiter="\t"))
+    _dh4r_c = _dh4r_co.Counter(r["conf"] for r in _dh4r_t)
+    _dh4r_doc = open(_dh4_os.path.join(_dh4_os.path.dirname(_dh4.__file__), "T_DATE_CANDLES_ADDENDUM_4_RESULT.md"), encoding="utf-8").read()
+    _dh4r_dn = {k: int(v) for k, v in _dh4r_re.findall(r"\| \*\*(واثق|مرجّح|لا)\*\*[^|]*\| \*\*(\d+)\*\*", _dh4r_doc.split("## ②")[0])}
+    _dh4r_cand = [r for r in _dh4r_t if r["candle_last"]]
+    _dh4r_ag = sum(1 for r in _dh4r_cand if r["pure_date"] and _dh4_dt.date.fromisoformat(r["candle_last"][:10])
+                   <= _dh4_dt.date.fromisoformat(r["pure_date"]) <= _dh4_dt.date.fromisoformat(r["candle_last"][:10]) + _dh4_dt.timedelta(days=7))
+    _dh4r_ds = sum(1 for r in _dh4r_cand if r["pure_date"]) - _dh4r_ag
+    _dh4r_m = _dh4r_re.search(r"اتّفاق (\d+) · اختلاف (\d+) · بلا طابع (\d+)", _dh4r_doc.split("## ③")[1].split("## ④")[0])
+    _dh4r_v = (_dh4r_same, len(_dh4r_t), _dh4r_dn == {"واثق": _dh4r_c["واثق"], "مرجّح": _dh4r_c["مرجّح"], "لا": _dh4r_c["لا"]},
+               bool(_dh4r_m) and tuple(int(x) for x in _dh4r_m.groups()) == (_dh4r_ag, _dh4r_ds, len(_dh4r_cand) - _dh4r_ag - _dh4r_ds),
+               sorted(r["file"] for r in _dh4r_cand if r["candle_arrival_ok"] == "0"))
+except Exception as _e:                                           # noqa: BLE001
+    _dh4r_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🕯️📅④ DH4R نتيجةُ الملحق 4: جدولُ الطابع يُعاد بايتًا على 891 مجمَّدة · وأرقامُ ملفّ النتيجة من الجدول · والوصولُ يرفض ELPW_01 وحدَه",
+      _dh4r_v == (True, 891, True, True, ["CH_20260918_01_ELPW"]), str(_dh4r_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
