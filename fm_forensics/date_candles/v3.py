@@ -150,8 +150,99 @@ def curve_lines(rows: list) -> list:
     return L
 
 
+# ── ③ الجدولُ والعدّ (§⑥) ─────────────────────────────────────────────────────────────────────────────────────
+MATCH3 = os.path.join(DATA, "match_results_v3.jsonl")
+TABLE3 = os.path.join(DATA, "candles_table_v3.tsv")
+DERIVED3 = os.path.join(DATA, "candles_derived_v3.tsv")
+
+
+def table3():
+    """§⑥: صفٌّ لكلّ عضوٍ في المجتمع 3 بأعمدة الملحق 2 ‏+ `m` و«عند m = 1» ⟵ (الصفوف، صفوفُ candles المؤهَّلة، التعارض)
+    — بتعريفات `results` بالاسم (`recorded` · `side_hit` · `fingerprint`)."""
+    import csv as _csv                                             # noqa: PLC0415
+    import corpus as CP                                            # noqa: PLC0415
+    import f0                                                      # noqa: PLC0415
+    import results as RS                                           # noqa: PLC0415
+    p3 = json.load(open(POP3, encoding="utf-8"))
+    cards = {}
+    for ln in open(CARDS2, encoding="utf-8"):
+        if ln.strip():
+            c = json.loads(ln)
+            cards[c["id"]] = c
+    res = {}
+    for ln in open(MATCH3, encoding="utf-8"):
+        if ln.strip():
+            r = json.loads(ln)
+            res[r["id"]] = r
+    recs, _inv, _disk = CP.load()
+    rows_t = list(_csv.DictReader(open(os.path.join(ROOT, "faisal_levels_table.tsv"), encoding="utf-8"), delimiter="\t"))
+    unit_dates = {(r["symbol"], r["line"]): (("", "") if r["date_source"] == "candles" else (r["date"], r["date_source"]))
+                  for r in rows_t}
+    mp = list(_csv.DictReader(open(os.path.join(HERE, "data", "image_map.tsv"), encoding="utf-8"), delimiter="\t"))
+    mapping_units = collections.defaultdict(list)
+    for m in mp:
+        if m["confidence"] in f0.MAP_FOUND and m["disk_file"]:
+            for u in [x for x in (m.get("units") or "").split(",") if "|" in x]:
+                sym, line = u.split("|", 1)
+                mapping_units[os.path.splitext(m["disk_file"])[0]].append((sym, line))
+    out = []
+    for mbr in p3["members"]:
+        fid = mbr["file"]
+        c = cards.get(fid) or {}
+        r = res.get(fid) or {}
+        t1 = r.get("top1") or {}
+        rd, rs = RS.recorded(fid, recs, mapping_units, unit_dates)
+        kt = (mbr.get("known") or {}).get("truth", "")
+        lab = r.get("label", "") if c.get("ok") else ""
+        hit = RS.side_hit(mbr["frame"], t1.get("end", ""), kt) if (kt and lab in ("واثق", "مرجّح")) else None
+        out.append({"file": fid, "symbol": mbr["symbol"], "frame": mbr["frame"], "b46": "1" if mbr.get("b46") else "",
+                    "card": "ok" if c.get("ok") else "no", "label": lab or ("—" if not c.get("ok") else "لم يُطابَق"),
+                    "last_bar": t1.get("end", ""), "k": t1.get("k", ""), "k_split": t1.get("k_exp", ""),
+                    "variant": t1.get("variant", ""), "rms": t1.get("rms", ""), "passers": r.get("passers", ""),
+                    "m": r.get("mult", 1.0) if c.get("ok") else "", "label_m1": (r.get("at_m1") or {}).get("label", lab),
+                    "recorded_date": rd, "recorded_src": rs, "known_truth": kt,
+                    "side_hit": "" if hit is None else ("1" if hit else "0"),
+                    "why": c.get("why", "") if not c.get("ok") else r.get("why", "")})
+    der, conflict = [], []
+    by_unit = collections.defaultdict(list)
+    for row in out:
+        if row["label"] != "واثق":
+            continue
+        for u in mapping_units.get(row["file"], []):
+            d = unit_dates.get(u)
+            if d is not None and not d[0]:
+                by_unit[u].append(row)
+    for u, rows in sorted(by_unit.items()):
+        days = sorted({x["last_bar"][:10] for x in rows})
+        if len(days) > 1 and RS.sessions_apart(days[0], days[-1]) > 1:
+            conflict.append((u, days))
+            continue
+        x = sorted(rows, key=lambda x: x["last_bar"])[-1]
+        der.append({"symbol": u[0], "line": u[1], "date": x["last_bar"][:10], "method": "candles",
+                    "fingerprint": RS.fingerprint(x), "max_diff": x["rms"], "witness": "واثق (تجريبيّ)",
+                    "run_id": (res.get(x["file"]) or {}).get("run", "")})
+    return p3, out, der, conflict
+
+
+TCOLS = ["file", "symbol", "frame", "b46", "card", "label", "label_m1", "m", "last_bar", "k", "k_split", "variant", "rms",
+         "passers", "recorded_date", "recorded_src", "known_truth", "side_hit", "why"]
+
 def main(argv) -> int:
     mode = argv[1] if len(argv) > 1 else "build"
+    if mode in ("table", "table-check"):
+        import results as RS                                       # noqa: PLC0415
+        p3, out, der, conflict = table3()
+        t, d = RS._tsv(out, TCOLS), RS._tsv(der, RS.DCOLS)
+        if mode == "table-check":
+            same = open(TABLE3, encoding="utf-8").read() == t and open(DERIVED3, encoding="utf-8").read() == d
+            print("✅ جدولُ ③ مطابقٌ بايتًا" if same else "❌ جدولُ ③ يختلف")
+            return 0 if same else 1
+        open(TABLE3, "w", encoding="utf-8").write(t)
+        open(DERIVED3, "w", encoding="utf-8").write(d)
+        print("\n".join(RS.summary(p3, out, der, conflict)))
+        lab1 = collections.Counter(r["label_m1"] for r in out if r["card"] == "ok")
+        print("   عند m = 1 على البطاقات نفسِها: " + " · ".join(f"{k} {v}" for k, v in lab1.most_common()))
+        return 0
     if mode == "curve":
         rows = {}
         for ln in open(CALIB_RES, encoding="utf-8"):

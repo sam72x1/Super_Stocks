@@ -1,0 +1,125 @@
+{
+ "n_known": 43,
+ "n_with_card": 17,
+ "set": [
+  {
+   "file": "TG_2047",
+   "frame": "1D",
+   "src": "price",
+   "symbol": "TRUG",
+   "truth": "2026-03-27"
+  },
+  {
+   "file": "TG_2109",
+   "frame": "1D",
+   "src": "eye:EXACT",
+   "symbol": "CLIR",
+   "truth": "2026-04-03"
+  },
+  {
+   "file": "TG_1912",
+   "frame": "1D",
+   "src": "indicator",
+   "symbol": "PRFX",
+   "truth": "2026-05-29"
+  },
+  {
+   "file": "TG_2115",
+   "frame": "1D",
+   "src": "price",
+   "symbol": "TURB",
+   "truth": "2026-04-02"
+  },
+  {
+   "file": "TG_2120",
+   "frame": "1D",
+   "src": "indicator",
+   "symbol": "NEXR",
+   "truth": "2026-04-01"
+  },
+  {
+   "file": "IMG_0267",
+   "frame": "4H",
+   "src": "eye:EXACT",
+   "symbol": "ONCO",
+   "truth": "2026-07-26"
+  },
+  {
+   "file": "TG_76013",
+   "frame": "1D",
+   "src": "eye:EXACT",
+   "symbol": "ANPA",
+   "truth": "2026-10-14"
+  },
+  {
+   "file": "TG_1858",
+   "frame": "4H",
+   "src": "eye:DAY",
+   "symbol": "NAMM",
+   "truth": "2026-06-02"
+  },
+  {
+   "file": "X_20260905_12",
+   "frame": "4H",
+   "src": "eye:EXACT",
+   "symbol": "MSGY",
+   "truth": "2026-09-02"
+  },
+  {
+   "file": "TG_2105",
+   "frame": "1D",
+   "src": "price",
+   "symbol": "GRI",
+   "truth": "2026-04-13"
+  },
+  {
+   "file": "TG_1871",
+   "frame": "1D",
+   "src": "eye:DAY",
+   "symbol": "SPPL",
+   "truth": "2026-03-10"
+  },
+  {
+   "file": "TG_2112",
+   "frame": "1D",
+   "src": "eye:EXACT",
+   "symbol": "FUBO",
+   "truth": "2026-04-06"
+  },
+  {
+   "file": "TG_2530",
+   "frame": "1D",
+   "src": "indicator",
+   "symbol": "ALMU",
+   "truth": "2026-04-10"
+  },
+  {
+   "file": "TG_2117",
+   "frame": "4H",
+   "src": "eye:EXACT",
+   "symbol": "BETA",
+   "truth": "2026-04-05"
+  },
+  {
+   "file": "TG_58423",
+   "frame": "4H",
+   "src": "eye:EXACT",
+   "symbol": "NCT",
+   "truth": "2026-10-02"
+  },
+  {
+   "file": "TG_1972",
+   "frame": "1D",
+   "src": "price",
+   "symbol": "VEEE",
+   "truth": "2026-05-14"
+  },
+  {
+   "file": "TG_50579",
+   "frame": "1D",
+   "src": "eye:EXACT",
+   "symbol": "EDBL",
+   "truth": "2026-09-22"
+  }
+ ]
+}
