@@ -11857,7 +11857,56 @@
   },
   {
    "CASE_ID": "CASE_0009",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-27",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "other"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Healthcare",
+    "setup": "RETEST_PENDING",
+    "ticker": "BRTX",
+    "timeframe": "D",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "مراقبه للثبات",
+    "external_codes": [
+     "«من ضمن القائمة كذلك» (قائمةُ فيصل)"
+    ],
+    "false_ready_cause": null,
+    "label": "WATCH",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BELOW",
+    "px_f": 1.36,
+    "quote_verbatim": true,
+    "timeframe_f": "D",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -11869,6 +11918,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -11897,7 +11947,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "BRTX",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -12061,7 +12111,56 @@
   },
   {
    "CASE_ID": "CASE_0010",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-27",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "other"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Industrials",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "FBGL",
+    "timeframe": "D",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "STRONG_INFERENCE",
+    "evidence_quote": "1.90 ثبات اجابي",
+    "external_codes": [
+     "«هذا المضارب دائما يخالف التحليل» (سلوكُ المضارب)"
+    ],
+    "false_ready_cause": null,
+    "label": "WAIT",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BELOW",
+    "px_f": 2.15,
+    "quote_verbatim": true,
+    "timeframe_f": "D",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -12073,6 +12172,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -12101,7 +12201,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "FBGL",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -12261,7 +12361,56 @@
   },
   {
    "CASE_ID": "CASE_0011",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-27",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "short_borrow"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Healthcare",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "GNPX",
+    "timeframe": "D",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "STRONG_INFERENCE",
+    "evidence_quote": "اختبار ثبات = اجابي",
+    "external_codes": [
+     "«الشورت 65 الف» (المتاحُ للشورت — فوق حدّ 20 ألفًا)"
+    ],
+    "false_ready_cause": null,
+    "label": "WAIT",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BELOW",
+    "px_f": 1.95,
+    "quote_verbatim": true,
+    "timeframe_f": "D",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -12273,6 +12422,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -12301,7 +12451,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "GNPX",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -12466,7 +12616,54 @@
   },
   {
    "CASE_ID": "CASE_0012",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-27",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "none"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Industrials",
+    "setup": "SWEEP_ACTIVE",
+    "ticker": "BTOC",
+    "timeframe": "D",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "مراقبه هبوط",
+    "external_codes": [],
+    "false_ready_cause": null,
+    "label": "WATCH",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BELOW",
+    "px_f": 2.22,
+    "quote_verbatim": true,
+    "timeframe_f": "D",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -12478,6 +12675,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -12506,7 +12704,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "BTOC",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -12671,7 +12869,56 @@
   },
   {
    "CASE_ID": "CASE_0013",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-27",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "other"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Technology",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "CYCU",
+    "timeframe": "D",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "STRONG_INFERENCE",
+    "evidence_quote": "2 قاع الان اعادة الاختبار",
+    "external_codes": [
+     "«مضارب سي يخالف الدعوم ويصعد بغفله» (سلوكُ المضارب)"
+    ],
+    "false_ready_cause": null,
+    "label": "WAIT",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BELOW",
+    "px_f": 2.29,
+    "quote_verbatim": true,
+    "timeframe_f": "D",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -12683,6 +12930,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -12711,7 +12959,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "CYCU",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -12876,7 +13124,56 @@
   },
   {
    "CASE_ID": "CASE_0014",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-27",
+   "DIVERSITY": {
+    "decision": "READY",
+    "external_context": [
+     "other"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Healthcare",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "NIVF",
+    "timeframe": "30M",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "READY",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "دخولنا كان بالقاع 1.15",
+    "external_codes": [
+     "«اذا البري اول مايفتح هناك نموذجين» (سلوكُ الجلسات)"
+    ],
+    "false_ready_cause": null,
+    "label": "READY",
+    "label4": "READY",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "NONE",
+    "px_f": null,
+    "quote_verbatim": true,
+    "timeframe_f": "30M",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -12888,6 +13185,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "FALSE_WAIT",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -12917,7 +13215,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "NIVF",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -13082,7 +13380,56 @@
   },
   {
    "CASE_ID": "CASE_0015",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-27",
+   "DIVERSITY": {
+    "decision": "READY",
+    "external_context": [
+     "other"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Technology",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "BRAI",
+    "timeframe": "5M",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "READY",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "اذا دخول",
+    "external_codes": [
+     "«اختبر فيواب وكسره» (فيواب الجلسة)"
+    ],
+    "false_ready_cause": null,
+    "label": "READY",
+    "label4": "READY",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "NONE",
+    "px_f": 3.31,
+    "quote_verbatim": true,
+    "timeframe_f": "5M",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -13094,6 +13441,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "FALSE_WAIT",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -13122,7 +13470,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "BRAI",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -13287,7 +13635,60 @@
   },
   {
    "CASE_ID": "CASE_0016",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-10-31",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "short_borrow",
+     "offering",
+     "news"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Technology",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "BNAI",
+    "timeframe": "D",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "تحتاج مراقبه وعدم دخول",
+    "external_codes": [
+     "«مع اعلان طرح ب 8 دولار» (طرح)",
+     "«تحتاج متابعة شورت مابحثت» (الشورت غيرُ مفحوص)",
+     "«لإعادة اختبارات نموذج W» (نموذج W)"
+    ],
+    "false_ready_cause": null,
+    "label": "WATCH",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BELOW",
+    "px_f": 4.19,
+    "quote_verbatim": true,
+    "timeframe_f": "D",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -13299,6 +13700,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -13327,7 +13729,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "BNAI",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -13818,7 +14220,7 @@
    },
    {
     "CASE_ID": "CASE_0009",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "MATCH",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "BRTX",
     "missing_critical": [
@@ -13827,7 +14229,7 @@
    },
    {
     "CASE_ID": "CASE_0010",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "MATCH",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "FBGL",
     "missing_critical": [
@@ -13836,7 +14238,7 @@
    },
    {
     "CASE_ID": "CASE_0011",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "MATCH",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "GNPX",
     "missing_critical": [
@@ -13845,7 +14247,7 @@
    },
    {
     "CASE_ID": "CASE_0012",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "MATCH",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "BTOC",
     "missing_critical": [
@@ -13854,7 +14256,7 @@
    },
    {
     "CASE_ID": "CASE_0013",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "MATCH",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "CYCU",
     "missing_critical": [
@@ -13863,7 +14265,7 @@
    },
    {
     "CASE_ID": "CASE_0014",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "FALSE_WAIT",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "NIVF",
     "missing_critical": [
@@ -13873,7 +14275,7 @@
    },
    {
     "CASE_ID": "CASE_0015",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "FALSE_WAIT",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "BRAI",
     "missing_critical": [
@@ -13882,7 +14284,7 @@
    },
    {
     "CASE_ID": "CASE_0016",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "MATCH",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "BNAI",
     "missing_critical": [
@@ -13892,9 +14294,9 @@
   ],
   "STRUCTURAL": "V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY ولا REJECT · وكلُّ تطابقٍ لـV4 تطابقٌ لـALWAYS_WAIT",
   "secondary_metrics": {
-   "MATCHES": 4,
-   "MISMATCHES": 2,
-   "n_valid": 6
+   "MATCHES": 10,
+   "MISMATCHES": 4,
+   "n_valid": 14
   }
  },
  "tool_version": "V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)",
@@ -13923,6 +14325,28 @@
   },
   {
    "CASE_ID": "CASE_0008",
+   "CONTRADICTING_CASES": "PENDING_ANALYSIS",
+   "EVIDENCE": "PENDING_ANALYSIS",
+   "GENERALIZATION_STATUS": "PENDING_ANALYSIS",
+   "MATCH_CLASS": "FALSE_WAIT",
+   "OBSERVATION": "PENDING_ANALYSIS",
+   "POSSIBLE_MISSING_RULE": "PENDING_ANALYSIS",
+   "SAMPLE": "SECONDARY",
+   "WHY_V4_FAILED": "PENDING_ANALYSIS"
+  },
+  {
+   "CASE_ID": "CASE_0014",
+   "CONTRADICTING_CASES": "PENDING_ANALYSIS",
+   "EVIDENCE": "PENDING_ANALYSIS",
+   "GENERALIZATION_STATUS": "PENDING_ANALYSIS",
+   "MATCH_CLASS": "FALSE_WAIT",
+   "OBSERVATION": "PENDING_ANALYSIS",
+   "POSSIBLE_MISSING_RULE": "PENDING_ANALYSIS",
+   "SAMPLE": "SECONDARY",
+   "WHY_V4_FAILED": "PENDING_ANALYSIS"
+  },
+  {
+   "CASE_ID": "CASE_0015",
    "CONTRADICTING_CASES": "PENDING_ANALYSIS",
    "EVIDENCE": "PENDING_ANALYSIS",
    "GENERALIZATION_STATUS": "PENDING_ANALYSIS",

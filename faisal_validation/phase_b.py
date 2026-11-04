@@ -554,9 +554,11 @@ def build(gate=None, protocol=None, ledger_rows=None, steps=None, collector=None
         # 🧵 PHASE_B_AMENDMENT_1 (§⑬ «an excluded case stays excluded»): an item the ledger already closed EXCLUDED at capture, which
         #    the frozen protocol re-classified later through its own append-only correction (`corrected_by`), stays EXCLUDED here —
         #    no new event, no rescue, no relabelling. Any other regression still blocks (§⑫).
+        #    (2026-11-04 · amendment 1 §5): this holds whatever the protocol says now — including a later POST-stage exclusion (e.g. E7
+        #    after the reveal); only an INTAKE-stage exclusion already yields the closed path and is left as it is.
         _closed = have.get(it["pb_id"], [])
         _cb = (it.get("cand") or {}).get("corrected_by")
-        if _cb and _closed and _closed[-1] == "EXCLUDED" and el["status"] != "EXCLUDED":
+        if _cb and _closed and _closed[-1] == "EXCLUDED" and not (el["status"] == "EXCLUDED" and el["stage"] == "INTAKE"):
             el = {"status": "EXCLUDED", "code": closed_code.get(it["pb_id"], ""), "stage": "INTAKE",
                   "reason": f"excluded at capture; the protocol's {_cb} re-classified it later — stays excluded in Phase B (amendment 1)"}
         img = image_sha(it)

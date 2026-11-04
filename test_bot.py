@@ -83038,7 +83038,8 @@ _PHB_LEDGER_PINS = ((0, "0" * 64),    # (عددُ القيود · بصمةُ آ�
                     (70, "f750111ccd194df6a54494f5cdeee608e3f625ae513809b6f2ade487d3f3fb4e"),   # B36_20261027 · 34 بندًا بعد الحدّ (CAPTURED ثمّ مصيرُه) · خُتم قبل V4 (2026-10-27)
                     (85, "c7bcbe87f4a10298168b0af20b0c6c86d4028af3ae625da5d3dee6c9d66d6d1b"),   # B36_20261027 · V4 (run 40590207292) ثمّ كلمةُ فيصل للحالات الخمس (2026-10-27)
                     (129, "0b8b944217d8123350fad7fc37e4cef718ce6dfbc347474c216a00d018d80d91"),   # B22_20261028 · 22 صورة (قناةٌ تعليميّة ولقطات) · حالات 0 · خُتمت قبل V4 (2026-10-28)
-                    (159, "f0164a75d25ad10bd7225a537e6a38d40f58c5fc87085773ef99c7f2e035132b"))   # B15_20261102 · 15 صورة (قناةٌ تعليميّة وقصاصات) · حالة 1 (CASE_0016 BNAI) · خُتمت قبل V4 (2026-11-03)
+                    (159, "f0164a75d25ad10bd7225a537e6a38d40f58c5fc87085773ef99c7f2e035132b"),   # B15_20261102 · 15 صورة (قناةٌ تعليميّة وقصاصات) · حالة 1 (CASE_0016 BNAI) · خُتمت قبل V4 (2026-11-03)
+                    (162, "f41bb7d511fa6e771bb7bc3ac542f04ca41b295af4023c786f24374d812d1a32"))   # كشفُ CASE_0009…0016 (2026-11-04) · B22 السبعة تبقى مستبعدةً بالتعديل 1 §5 · وBNAI ‏REVEALED ثمّ EXCLUDED E7
 _PHB_HSHA = "f" * 64
 try:
     _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))
@@ -83400,6 +83401,30 @@ except Exception as _e:                                                    # noq
     _phb12, _phb12w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🧵 PHB12 (تعديلُ المرحلة ب 1) المُغلَقُ EXCLUDED يبقى مستبعدًا إن صحّحه البروتوكول لاحقًا — بلا قيدٍ ولا مشكلة · "
       "ويحمل رمزَ استبعاده عند الاستلام (لا وسمَ جديد) · وبلا `corrected_by` يبقى التراجعُ VALIDATION_BLOCKED", _phb12, _phb12w[:400])
+
+# PHB13 🧵 التعديل 1 §5 (2026-11-04): المُغلَقُ EXCLUDED عند الاستلام ثمّ صحّحه البروتوكول **وكُشف لاحقًا فاستُبعد في مرحلة POST**
+#   (E7 · مصدريّةٌ LOW بعد REVEALED) يبقى مستبعدًا بمساره المُغلَق — بلا قيدٍ ولا مشكلة · وبلا `corrected_by` يبقى التراجعُ يُبلَّغ
+try:
+    _p13_ex, _ = _phb_item(2, cls="UNKNOWN", reason="AUTHOR_NOT_ESTABLISHED", case=False)
+    _p13_st0, _p13_rows0, _p13_new0 = _phb_build([(_p13_ex, None)])
+    _p13_cand, _p13_case = _phb_item(2, conf="LOW", lab="WAIT")
+    _p13_corr = dict(_p13_cand, corrected_by="CORRECTION_01")
+    _p13_st1, _p13_rows1, _p13_new1 = _phb_build([(_p13_corr, _p13_case)], rows=_p13_rows0)
+    _p13_st2, _p13_rows2, _p13_new2 = _phb_build([(_p13_cand, _p13_case)], rows=_p13_rows0)
+    _p13_row = next((r for r in _p13_st1["rows"] if r["case_id"] == "PB:TG_90002"), {})
+    _p13_ctl = next((r for r in _p13_st2["rows"] if r["case_id"] == "PB:TG_90002"), {})
+    _p13_code0 = next((r["code"] for r in _p13_st0["rows"] if r["case_id"] == "PB:TG_90002"), None)
+    _phb13 = ([r["event"] for r in _p13_new0] == ["CAPTURED", "EXCLUDED"] and _p13_ctl.get("code") == "E7"
+              and not _p13_st1["ledger"]["problems"] and not _p13_new1 and _p13_row.get("status") == "EXCLUDED"
+              and bool(_p13_code0) and _p13_row.get("code") == _p13_code0 and "CORRECTION_01" in str(_p13_row.get("reason"))
+              and any("PB:TG_90002" in p and "regression" in p for p in _p13_st2["ledger"]["problems"])
+              and _p13_st2["state"] == "VALIDATION_BLOCKED" and _p13_st1["state"] != "VALIDATION_BLOCKED")
+    _phb13w = (f"first={[r['event'] for r in _p13_new0]} ctl_code={_p13_ctl.get('code')} corrected: problems={_p13_st1['ledger']['problems'][:1]} "
+               f"new={len(_p13_new1)} row={_p13_row.get('status')} code={_p13_code0}→{_p13_row.get('code')} · control: {_p13_st2['state']}")
+except Exception as _e:                                                    # noqa: BLE001
+    _phb13, _phb13w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🧵 PHB13 (التعديل 1 §5) المُغلَقُ عند الاستلام ثمّ المصحَّحُ والمكشوفُ والمستبعَدُ في POST (E7) يبقى بمساره المُغلَق — "
+      "بلا قيدٍ ولا مشكلة وبرمزه عند الاستلام · وبلا `corrected_by` يبقى التراجعُ VALIDATION_BLOCKED", _phb13, _phb13w[:400])
 
 
 # ═════ 🔎🧭⑥ PHASE 6 — المُلتقِطُ الأماميّ وتتبّعُ خطّ الأنابيب (2026-10-09 · بحثٌ فقط · بلا شبكة) ═════

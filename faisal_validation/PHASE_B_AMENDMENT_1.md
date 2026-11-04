@@ -36,3 +36,15 @@ Lock `PHB12` (synthetic): an item closed EXCLUDED then corrected stays excluded 
   exits 0. The V4 run workflow does not run `phase_b.py write`, so after any V4 run the loop's next step (`write` ⟶ `check`) is done by hand and
   merged — until then lock `PHB1` reads the Phase B outputs as stale (it did on `960ad80`).
 - Lock `PHB12` now also requires the kept code (two mutations: empty code · a fixed wrong code — both caught).
+
+## 5. Dated addition (2026-11-04, after the reveal of CASE_0009 … CASE_0016)
+- The rule in §3 is unconditional («stays `EXCLUDED` … whatever»), but the tool applied it only when the protocol's current status was not
+  `EXCLUDED`. Before the reveal the seven B22 items were not excluded by the protocol (no Faisal word yet), so the rule fired. After the reveal the
+  protocol excludes them at the **POST** stage (`E7` · provenance LOW), the rule stopped firing, and the tool computed a new due path
+  `CAPTURED ⟶ SEALED_INPUT ⟶ V4_SEALED ⟶ REVEALED ⟶ EXCLUDED` against the ledger's closed `CAPTURED ⟶ EXCLUDED` ⟶ «regression» on all seven ⟶
+  `check` exit 1.
+- Fix (tool, not contract): the rule now fires whenever the protocol's status is anything other than an **INTAKE-stage** exclusion (which already
+  yields the closed path). The seven stay excluded with their capture code (`E6`); no new event. `B15`'s `TG_80998` (never closed at capture) follows
+  the normal path: `REVEALED ⟶ EXCLUDED E7` (seq 161-162).
+- Lock `PHB13` (synthetic): closed at capture · corrected · revealed · `E7` at POST ⟶ no new event, no problem, the capture code kept; the same item
+  without `corrected_by` still reports the regression. The contract `PHASE_B_prereg.md` is unchanged.
