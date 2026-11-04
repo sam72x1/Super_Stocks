@@ -2557,6 +2557,17 @@
    "seq": 249,
    "sha256": "93455fe55458304588b9b41aa2d4398a67b7f387e6477e6b9feb567c7c3f9bf7",
    "utc": "2026-11-04T13:23:52Z"
+  },
+  {
+   "case_id": "CASE_0017",
+   "entry_hash": "fbab4879d4ba06442c3cf29ddd88347fb2028c714f4dcf44713ee7606c3a5ba7",
+   "kind": "faisal",
+   "path": "faisal/CASE_0017.v1.json",
+   "prev": "e680e382f587a63310a951262c54cbb6199a06ac5d099d4dfb386e2dc07139d3",
+   "seq": 250,
+   "sha256": "c75fb23cc8863aa26eaa5b2c357b5d65715557520cca26ea82d522c61d3b3ca2",
+   "utc": "2026-11-04T13:25:41Z",
+   "version": 1
   }
  ],
  "schema": 1,

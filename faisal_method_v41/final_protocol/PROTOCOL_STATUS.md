@@ -8,9 +8,9 @@
 V4_FROZEN = YES
 V4_COMMIT = 7c8826c25e745668d33facabb2efbc488e997fb7
 CORPUS_AUDIT = COMPLETE
-VALID_PROSPECTIVE_CASES = 2
+VALID_PROSPECTIVE_CASES = 3
 EXCLUDED_CASES = 168
-MATCHES = 1
+MATCHES = 2
 MISMATCHES = 1
 FALSE_READY = 0
 FALSE_WAIT = 1
@@ -18,7 +18,7 @@ FALSE_REJECT = 0
 FALSE_UNKNOWN = 0
 V4_UNKNOWN = 0
 FAISAL_UNKNOWN = 0
-ALWAYS_WAIT_MATCH = 1
+ALWAYS_WAIT_MATCH = 2
 V4_BEATS_BASELINE = NO
 READY_CLASS_VALIDATED = NO
 METHODOLOGY_CHANGED = NO
@@ -28,7 +28,7 @@ CURRENT_STATUS = VERY_PRELIMINARY
 FINAL_VALIDATION_STATE = INSUFFICIENT_SAMPLE
 — — —
 SECONDARY_TRACKED = CASE_0001 BRTX MATCH (provenance LOW) · CASE_0002 CDT MATCH (provenance LOW) · CASE_0003 NCT MATCH (provenance LOW) · CASE_0004 CYCU MATCH (provenance LOW) · CASE_0005 ICMB FALSE_UNKNOWN (provenance LOW) · CASE_0008 NCT FALSE_WAIT (provenance LOW) · CASE_0009 BRTX MATCH (provenance LOW) · CASE_0010 FBGL MATCH (provenance LOW) · CASE_0011 GNPX MATCH (provenance LOW) · CASE_0012 BTOC MATCH (provenance LOW) · CASE_0013 CYCU MATCH (provenance LOW) · CASE_0014 NIVF FALSE_WAIT (provenance LOW) · CASE_0015 BRAI FALSE_WAIT (provenance LOW) · CASE_0016 BNAI MATCH (provenance LOW)
-PENDING_PRIMARY = CASE_0017
+PENDING_PRIMARY = 0
 EXCLUDED_BREAKDOWN = intake_not_new 154 · secondary_provenance 14 · invalid_data_quality 0 · invalidated_lookahead 0
 INTAKE_BY_CLASS = NEW_PROSPECTIVE 17 · DUPLICATE 6 · DERIVATIVE 37 · CONTAMINATED 16 · PRE_EXISTING 9 · UNKNOWN 33 · INSUFFICIENT_CONTEXT 53
 COLLECTOR = PASS_SIMULATED · PASS
@@ -64,12 +64,12 @@ STRUCTURAL = V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY و�
 
 ## ④ المقاييس على PRIMARY (PHASE 13-15)
 
-- **N الصالحة:** 2 · القابلة للمقارنة 2 · **الشريط:** VERY_PRELIMINARY
+- **N الصالحة:** 3 · القابلة للمقارنة 3 · **الشريط:** VERY_PRELIMINARY
 - **READY (أوّلًا):** V4 0 · فيصل 1 · الدقّة — · الاستدعاء 0.0% · FALSE_READY 0 (المعدّل 0.0% · من غير READY 0.0%)
-- **WAIT:** الدقّة 50.0% · الاستدعاء 100.0% · **REJECT:** الدقّة — · الاستدعاء —
-- **التطابقُ التامّ:** 50.0% مقابل **ALWAYS_WAIT** 50.0% · المتنافرة b 0 / c 0 ⟵ V4_BEATS_BASELINE **NO**
-- **READY_CLASS_VALIDATED:** NO (STRUCTURAL (FVO1): V4 الأماميّ ∈ {WAIT · UNKNOWN}) · P1 (TECH_READY مقابل READY فيصل): {'faisal_ready': 1, 'tech_ready_given_ready': 0, 'faisal_wait_reject': 1, 'tech_ready_given_wait_reject': 0, 'newcombe95': [-0.7935, 0.7935], 'met': False}
-- **التنوّع:** أطولُ سلسلةٍ بالإعداد نفسِه 1 · LOW_DIVERSITY لا
+- **WAIT:** الدقّة 66.7% · الاستدعاء 100.0% · **REJECT:** الدقّة — · الاستدعاء —
+- **التطابقُ التامّ:** 66.7% مقابل **ALWAYS_WAIT** 66.7% · المتنافرة b 0 / c 0 ⟵ V4_BEATS_BASELINE **NO**
+- **READY_CLASS_VALIDATED:** NO (STRUCTURAL (FVO1): V4 الأماميّ ∈ {WAIT · UNKNOWN}) · P1 (TECH_READY مقابل READY فيصل): {'faisal_ready': 1, 'tech_ready_given_ready': 0, 'faisal_wait_reject': 2, 'tech_ready_given_wait_reject': 0, 'newcombe95': [-0.6576, 0.7935], 'met': False}
+- **التنوّع:** أطولُ سلسلةٍ بالإعداد نفسِه 2 · LOW_DIVERSITY لا
 
 ## ⑤ الحالات
 
@@ -91,7 +91,7 @@ STRUCTURAL = V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY و�
 | `CASE_0014` | NIVF | 2026-10-27 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | READY (DIRECT) | FALSE_WAIT | PASS | COMPLETE |
 | `CASE_0015` | BRAI | 2026-10-27 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | READY (DIRECT) | FALSE_WAIT | PASS | COMPLETE |
 | `CASE_0016` | BNAI | 2026-10-31 | SECONDARY (LOW) | WAIT (BROKEN_NEW_BASE) | WAIT (DIRECT) | MATCH | PASS | COMPLETE |
-| `CASE_0017` | SUGP | 2026-10-08 | PRIMARY (MEDIUM) | WAIT (BROKEN_NEW_BASE) | — (—) | — | PASS | PENDING_FAISAL |
+| `CASE_0017` | SUGP | 2026-10-08 | PRIMARY (MEDIUM) | WAIT (BROKEN_NEW_BASE) | WAIT (DIRECT) | MATCH | PASS | COMPLETE |
 
 ## ⑥ الاستلامُ بالأصناف السبعة (PHASE 3)
 

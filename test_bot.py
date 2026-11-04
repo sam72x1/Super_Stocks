@@ -83264,7 +83264,8 @@ _PHB_LEDGER_PINS = ((0, "0" * 64),    # (عددُ القيود · بصمةُ آ�
                     (129, "0b8b944217d8123350fad7fc37e4cef718ce6dfbc347474c216a00d018d80d91"),   # B22_20261028 · 22 صورة (قناةٌ تعليميّة ولقطات) · حالات 0 · خُتمت قبل V4 (2026-10-28)
                     (159, "f0164a75d25ad10bd7225a537e6a38d40f58c5fc87085773ef99c7f2e035132b"),   # B15_20261102 · 15 صورة (قناةٌ تعليميّة وقصاصات) · حالة 1 (CASE_0016 BNAI) · خُتمت قبل V4 (2026-11-03)
                     (162, "f41bb7d511fa6e771bb7bc3ac542f04ca41b295af4023c786f24374d812d1a32"),   # كشفُ CASE_0009…0016 (2026-11-04) · B22 السبعة تبقى مستبعدةً بالتعديل 1 §5 · وBNAI ‏REVEALED ثمّ EXCLUDED E7
-                    (252, "1c0ae69b17a9079fb075cf47fc7bebc939e79ca9a1e5d3d0371b033a8cf0d90c"))   # B46_20261104 · 46 صورة (منشورات X ونسخُ 09-18) · حالة 1 (CASE_0017 SUGP) · خُتمت قبل V4 (2026-11-04)
+                    (252, "1c0ae69b17a9079fb075cf47fc7bebc939e79ca9a1e5d3d0371b033a8cf0d90c"),   # B46_20261104 · 46 صورة (منشورات X ونسخُ 09-18) · حالة 1 (CASE_0017 SUGP) · خُتمت قبل V4 (2026-11-04)
+                    (255, "7dff72a76c9d7be44915370fc6ef0e2fd285d554f9b6e294af4f90cfa5c21589"))   # V4 لـCASE_0017 (run 41837639006 · WAIT) ثمّ كلمةُ فيصل WATCH ⟵ PRIMARY MATCH (2026-11-04)
 _PHB_HSHA = "f" * 64
 try:
     _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))

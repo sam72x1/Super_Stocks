@@ -1,6 +1,6 @@
 {
  "amendment": "faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md",
- "blocked_external": 2,
+ "blocked_external": 3,
  "checkpoints_reached": [],
  "collector": {
   "last_run": {
@@ -26,8 +26,8 @@
  "contract": "faisal_validation/PHASE_B_prereg.md",
  "counts": {
   "EXCLUDED": 114,
-  "PENDING": 1,
-  "PRIMARY": 2,
+  "PENDING": 0,
+  "PRIMARY": 3,
   "UNKNOWN": 0
  },
  "cutoff": "2026-10-08T01:29:04Z",
@@ -325,10 +325,10 @@
  },
  "ledger": {
   "due_now": 0,
-  "file_sha256": "ea92061703518977c12c4f77444f13060ee7fff877f92a3ced786a7af39ad01c",
-  "head_sha256": "030de6b3ed18ee90ba248166360c4e388153d9bf3e03bf09aa0936bf60259d01",
+  "file_sha256": "d536c9e43a5249cde0c74779db461ea21f46c5b9fcbb9b51ce08b6e67d9d0fe7",
+  "head_sha256": "7dff72a76c9d7be44915370fc6ef0e2fd285d554f9b6e294af4f90cfa5c21589",
   "problems": [],
-  "records": 253
+  "records": 255
  },
  "main": 0,
  "metrics_main": {
@@ -355,12 +355,12 @@
   }
  },
  "metrics_sensitivity": {
-  "always_wait": 1,
-  "exact": 1,
+  "always_wait": 2,
+  "exact": 2,
   "faisal": {
    "READY": 1,
    "REJECT": 0,
-   "WAIT": 1
+   "WAIT": 2
   },
   "false": {
    "READY": 0,
@@ -368,13 +368,13 @@
    "UNKNOWN": 0,
    "WAIT": 1
   },
-  "n": 2,
-  "prior": 0,
+  "n": 3,
+  "prior": 1,
   "v4": {
    "READY": 0,
    "REJECT": 0,
    "UNKNOWN": 0,
-   "WAIT": 2
+   "WAIT": 3
   }
  },
  "predictions": {
@@ -382,7 +382,7 @@
   "P2": "HELD",
   "P3": "HELD (FVO1: V4's forward output ∈ {WAIT, UNKNOWN})"
  },
- "primary": 2,
+ "primary": 3,
  "protocol": {
   "LOOKAHEAD": "PASS",
   "PROVENANCE": "PASS",
@@ -455,7 +455,7 @@
   "coverage": {
    "READY": 1,
    "REJECT": 0,
-   "WAIT": 1
+   "WAIT": 2
   }
  },
  "rows": [
@@ -2530,25 +2530,32 @@
   },
   {
    "always_wait": "WAIT",
-   "blocked": false,
+   "blocked": true,
    "capture_timestamp": "2026-11-04T12:08:39Z",
    "case_id": "PB:TG_82813",
-   "categories": [],
+   "categories": [
+    "split"
+   ],
    "cause": null,
    "code": "",
-   "components": {},
-   "external_context": "NOT_EVALUATED",
-   "faisal_decision": null,
+   "components": {
+    "ENTRY": "FAISAL_NOT_STATED",
+    "INVALIDATION": "FAISAL_NOT_STATED",
+    "STOP": "FAISAL_NOT_STATED",
+    "TARGET": "FAISAL_NOT_STATED"
+   },
+   "external_context": "EXTERNAL_REQUIRED · VALIDATION_BLOCKED_EXTERNAL_CONTEXT",
+   "faisal_decision": "WAIT",
    "faisal_timestamp": "2026-10-08T23:19:00Z",
    "historical_prior": "WAIT",
    "image_hash": "10c593bab156b2df2fd17a19d9f1c13a6f0ed3859fda019e5e28883196dd550d",
-   "match_class": null,
-   "pattern": null,
+   "match_class": "MATCH",
+   "pattern": "UNSPECIFIED",
    "protocol_case": "CASE_0017",
-   "reason": "protocol PENDING_FAISAL (Faisal not revealed)",
-   "regime": null,
-   "setup": null,
-   "status": "PENDING",
+   "reason": "",
+   "regime": "ABOVE_SMA50",
+   "setup": "BROKEN_NEW_BASE",
+   "status": "PRIMARY",
    "ticker": "SUGP",
    "timeframe": "4H",
    "v4_decision": "WAIT"
