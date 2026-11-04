@@ -1,0 +1,55 @@
+name: "🕯️📅④ تاريخُ الصور من رأس الشارت — القراءةُ الآليّة (date_header)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · لا أسرار · **والصورُ وقصاصاتُها لا تُدفَع** (المستودعُ عامّ):
+#    tesseract على كلّ صورةٍ في faisal_images/ (دفعات) ⟵ سطرُ «DHO» لكلّ صورة في السجلّ (يُحصد إلى data/header_ocr.jsonl).
+#    أمرُ المالك 2026-11-04 «سجّل ملحق 4 — التاريخ من رأس الشارت + شرط الوصول» · العقد T_DATE_CANDLES_ADDENDUM_4.md §④.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      batches:
+        description: "أرقامُ الدفعات JSON — مثال [0,1,2,3]"
+        required: true
+        default: "[0]"
+      size:
+        description: "صورُ الدفعة"
+        required: false
+        default: "230"
+
+concurrency:
+  group: date-header
+  cancel-in-progress: false
+
+jobs:
+  ocr:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        batch: ${{ fromJSON(inputs.batches) }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          sudo apt-get update -qq && sudo apt-get install -y -qq tesseract-ocr
+          tesseract --version | head -1
+
+      - name: 🔤 القراءةُ الآليّة
+        env:
+          PYTHONUNBUFFERED: "1"
+          DH_BATCH: ${{ matrix.batch }}
+          DH_SIZE: ${{ inputs.size }}
+        run: python fm_forensics/date_candles/header_ocr.py
