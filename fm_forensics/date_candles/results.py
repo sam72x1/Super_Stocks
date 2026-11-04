@@ -70,7 +70,9 @@ def build():
         res[r["id"]] = r                                           # الأخيرُ يغلب (إعادةُ دفعةٍ بعد سقوط)
     recs, _inv, _disk = CP.load()
     rows_t = list(csv.DictReader(open(os.path.join(ROOT, "faisal_levels_table.tsv"), encoding="utf-8"), delimiter="\t"))
-    unit_dates = {(r["symbol"], r["line"]): (r["date"], r["date_source"]) for r in rows_t}
+    # تاريخٌ بوسم candles ناتجُ هذا الحصاد نفسِه لا «مسجَّلٌ أصلًا» ⟵ يُقرأ فارغًا (فالبناءُ يُعاد بايتًا قبل الدمج وبعده)
+    unit_dates = {(r["symbol"], r["line"]): (("", "") if r["date_source"] == "candles" else (r["date"], r["date_source"]))
+                  for r in rows_t}
     mp = list(csv.DictReader(open(os.path.join(HERE, "data", "image_map.tsv"), encoding="utf-8"), delimiter="\t"))
     mapping_units = collections.defaultdict(list)
     for m in mp:
@@ -111,9 +113,34 @@ def build():
             continue
         x = sorted(rows, key=lambda x: x["last_bar"])[-1]
         der.append({"symbol": u[0], "line": u[1], "date": x["last_bar"][:10], "method": "candles",
-                    "fingerprint": f"card:{x['file']} last:{x['last_bar']} k:{x['k']} split:{x['k_split']} {x['variant']}",
-                    "max_diff": x["rms"], "witness": "واثق (تجريبيّ)", "run_id": ""})
+                    "fingerprint": fingerprint(x), "max_diff": x["rms"], "witness": "واثق (تجريبيّ)",
+                    "run_id": (res.get(x["file"]) or {}).get("run", "")})
     return pop, out, der, conflict
+
+
+def fingerprint(row: dict) -> str:
+    """بصمةُ التاريخ المُشتقّ بالشموع — **قراءةٌ تُعرَب لا رقمُ صورة** (`LVD5`): آخرُ شمعة · معاملُ المطابقة · المعاملُ المسجَّل ·
+    الخطأ · المتغيّر. والصورةُ تُعرف من الجدول (`candles_table.tsv`) لا من البصمة."""
+    return (f"last:{row['last_bar']} k:{row['k']} split:{row['k_split']} rms:{row['rms']} "
+            f"variant:{row['variant']}")
+
+
+FP_RE = __import__("re").compile(r"^last:(\d{4}-\d{2}-\d{2}(?: \d{2}:\d{2})?) k:([\d.]+) split:([\d.]+) "
+                                  r"rms:([\d.]+) variant:(\S+)$")
+
+
+def parse_fingerprint(fp: str):
+    """البصمة ⟵ {last, k, split, rms, variant} أو None — والذهابُ والإيابُ يعيدها كما هي (`LVD5`)."""
+    m = FP_RE.match(fp or "")
+    if not m:
+        return None
+    return {"last_bar": m.group(1), "k": m.group(2), "k_split": m.group(3), "rms": m.group(4), "variant": m.group(5)}
+
+
+def recheck() -> dict:
+    """`LVD1`: إعادةُ اشتقاق بصمات `candles` **بلا شبكة** من البطاقات المجمَّدة ونتائج المطابقة المحصودة ⟵ {(رمز، سطر): بصمة}."""
+    _pop, _out, der, _c = build()
+    return {(d["symbol"], int(d["line"])): d["fingerprint"] for d in der}
 
 
 def _tsv(rows, cols) -> str:

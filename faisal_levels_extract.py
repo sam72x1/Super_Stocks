@@ -19,7 +19,9 @@ import sys
 CAT = "FAISAL_IMAGES_CATALOG.md"
 OUT = "faisal_levels_table.tsv"
 DERIVED = "faisal_derived_dates.tsv"      # ملفٌّ جانبيٌّ: تواريخُ **مُشتقّة** بمرساةٍ مقيسة
-DERIVED_METHODS = {"indicator", "price"}  # مجموعةٌ مُغلَقة — ولا عضوَ يُضاف بلا أداةٍ تُعيد اشتقاقَه
+DERIVED_METHODS = {"indicator", "price", "candles"}  # مجموعةٌ مُغلَقة — ولا عضوَ يُضاف بلا أداةٍ تُعيد اشتقاقَه
+# 🕯️ `candles` (‏2026-11-04 · `T_DATE_CANDLES_ADDENDUM_2.md §⑤` · أمرُ المالك «واثق فقط يدخل faisal_levels_table»):
+#    آخرُ شمعةٍ في نافذةٍ «واثق» · أداتُها `fm_forensics/date_candles/results.recheck` (بلا شبكة) · ووسمُها «تجريبيّ»
 #   `indicator` ⟵ faisal_indicator_anchor (نطاق recheck) · `price` ⟵ faisal_price_anchor (نطاق recheck)
 
 COLOUR = {"🔴": "red", "⚫": "black", "🟣": "purple", "🔵": "blue",

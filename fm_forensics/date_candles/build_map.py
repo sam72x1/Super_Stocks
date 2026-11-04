@@ -108,7 +108,8 @@ def targets(rows):
     U = f0.units(rows)
     refs, distinct, units = 0, {}, {}
     for k, u in U.items():
-        grp = "numeric" if u["src"] & set(f0.NUMERIC_SOURCES) else ("undated" if u["src"] == {""} else None)
+        src = {"" if x == "candles" else x for x in u["src"]}     # الملحق 2: وسمُ candles لاحقٌ للخريطة ⟵ تُقرأ بحالها قبله (مجمَّدة)
+        grp = "numeric" if src & set(f0.NUMERIC_SOURCES) else ("undated" if src == {""} else None)
         if not grp:
             continue
         for i in u["images"]:

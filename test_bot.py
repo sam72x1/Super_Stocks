@@ -49119,7 +49119,7 @@ check("🧾📐🔒 LVT1 كلُّ مستوًى في الجدول **موجودٌ 
 #   **فقط** إن كان مسنودًا بصفٍّ في الملفّ الجانبيّ **بنفس التاريخ** ⇒ توسيعُ
 #   المجموعة **تشديدٌ في المضمون**: الثلاثةُ الأخرى تُصدَّق بلا سند، وهذا لا.
 #   وبصمتُه تُعاد من الكاتالوج بلا شبكة في `LVD1`.
-_LVT_SRC = {"", "filename", "header", "exif", "indicator", "price"}
+_LVT_SRC = {"", "filename", "header", "exif", "indicator", "price", "candles"}   # 🕯️ candles: الملحق 2 لـT-DATE-CANDLES (مشروطٌ بالسند كالمُشتقَّين)
 _lvt2_bad = sorted({r.get("date_source", "?") for r in _lvt_rows} - _LVT_SRC)
 _lvt2_pair = [r for r in _lvt_rows if bool(r.get("date")) != bool(r.get("date_source"))]
 try:
@@ -49127,7 +49127,7 @@ try:
         open("faisal_derived_dates.tsv", encoding="utf-8"), delimiter="\t")}
 except Exception:                                                 # noqa: BLE001
     _lvt2_sc = {}
-_LVT_DERIVED = {"indicator", "price"}
+_LVT_DERIVED = {"indicator", "price", "candles"}
 _lvt2_unbacked = [f"{r['symbol']}:{r['line']}" for r in _lvt_rows
                   if r.get("date_source") in _LVT_DERIVED
                   and _lvt2_sc.get((r.get("symbol"), r.get("line"))) != r.get("date")]
@@ -57646,6 +57646,11 @@ try:
         _live[(_t["symbol"], _t["line"])] = " | ".join(f["raw"] for f in _t["fps"])
     for _t in _lvd_pa.targets("recheck"):
         _live[(_t["symbol"], _t["line"])] = _lvd_pa.anchor_fingerprint(_t["anchor"])
+    import importlib as _lvd_il
+    import sys as _lvd_sys
+    _lvd_sys.path.insert(0, "fm_forensics/date_candles")
+    _lvd_dc = _lvd_il.import_module("results")                   # 🕯️ candles ⟵ البطاقاتُ المجمَّدة ونتائجُ المطابقة (بلا شبكة)
+    _live.update(_lvd_dc.recheck())
     _rec = {(r["symbol"], int(r["line"])): r["fingerprint"] for r in _lvd_sc}
     _same = _live == _rec and all(bool(x) for x in _live.values())
     _meth = {(r["symbol"], int(r["line"])): r["method"] for r in _lvd_sc}
@@ -57673,7 +57678,8 @@ check("🧾📅 LVD1 بصمةُ كلِّ تاريخٍ مُشتقٍّ **تُعا�
 #    الاستخراج بينما تواريخُها المعتمَدة في **جدول `ⓑ` من العقد المدموج**.
 #    (‏وهذا الفصلُ اكتشفه القفلُ نفسُه: سقط أوّلَ تشغيلٍ لأنّي افترضتُ وثيقةً واحدة.)
 _LVD_DOC = {"indicator": ("faisal_dating_sources.md",),
-            "price": ("support_def_prereg.md", "OPUS_FAISAL_MAX_PACKAGE_2026-09-18.md")}
+            "price": ("support_def_prereg.md", "OPUS_FAISAL_MAX_PACKAGE_2026-09-18.md"),
+            "candles": ("fm_forensics/date_candles/T_DATE_CANDLES_ADDENDUM_2_RESULT.md",)}
 try:
     _bad2 = []
     _seen2 = {}
@@ -57761,6 +57767,10 @@ try:
             _a = _lvd_pa.parse_anchors(_fp)
             _got, _want = len(_a), 1
             _ok = _got == 1 and _lvd_pa.anchor_fingerprint(_a[0]) == _fp
+        elif _m == "candles":
+            _a = _lvd_dc.parse_fingerprint(_fp)
+            _got, _want = (1 if _a else 0), 1
+            _ok = bool(_a) and _lvd_dc.fingerprint(_a) == _fp and _a["last_bar"][:10] == _r["date"]
         else:
             _got, _want, _ok = 0, 1, False      # طريقةٌ بلا مُعرِبٍ = دليلٌ بلا حارس
         _detail.append(f"{_r['symbol']}:{_m[:3]}:{_got}/{_want}")
@@ -95430,6 +95440,30 @@ check("🕯️📅 DC2P المجتمع: رمزٌ واحد وفريمٌ واحد�
       "والعنقودُ يحفظ الأعلى دقّةً ويحمل تاريخَه المعروف",
       _dc2_pv == ({"TG_2": ("AAA", "1D", True), "TG_3": ("BBB", "30m", False)},
                   ["TG_1", "TG_4", "TG_5", "TG_6", "TG_7", "TG_8"], True, True, True, 8), str(_dc2_pv)[:240])
+
+# 🕯️📅 DC2R (‏2026-11-04 · نتيجةُ الملحق 2): الجدولُ يُعاد بايتًا من البطاقات المجمَّدة ونتائج المطابقة المحصودة (`results.py --check`) ·
+#    وكلُّ «واثق» داخلَ الجدول بوحدةٍ مطابَقة يحمل بصمةً **تُعرَب وتعود كما هي** بلا رقم صورة · وصفوفُ candles الجانبيّة ≡ ما يبنيه
+#    `results.build` («واثق» بوحدةٍ فارغةِ التاريخ وحدَه).
+try:
+    import csv as _dc2r_csv
+    import io as _dc2r_io
+    _dc2r = _dc2_il.import_module("results")
+    _p2, _o2, _d2, _c2 = _dc2r.build()
+    _same = (open(_dc2r.TABLE, encoding="utf-8").read() == _dc2r._tsv(_o2, _dc2r.COLS)
+             and open(_dc2r.DERIVED, encoding="utf-8").read() == _dc2r._tsv(_d2, _dc2r.DCOLS))
+    _lab = {r["file"]: r["label"] for r in _o2}
+    _side = list(_dc2r_csv.DictReader(open("faisal_derived_dates.tsv", encoding="utf-8"), delimiter="\t"))
+    _cand = [r for r in _side if r["method"] == "candles"]
+    _rt = all(_dc2r.parse_fingerprint(r["fingerprint"]) and _dc2r.fingerprint(_dc2r.parse_fingerprint(r["fingerprint"]))
+              == r["fingerprint"] and not _LVD_IMG.search(r["fingerprint"]) for r in _cand)
+    _eq = {(r["symbol"], r["line"]) for r in _cand} == {(r["symbol"], r["line"]) for r in _d2}
+    _hits = sorted(f for f, la in _lab.items() if la == "واثق")
+    _dc2r_v = (_same, _rt, _eq, len(_cand) >= 1, len(_p2["members"]), len(_hits))
+except Exception as _e:                                           # noqa: BLE001
+    _dc2r_v, _hits = (f"⛔ {type(_e).__name__}: {_e}",), []
+check("🕯️📅 DC2R نتيجةُ الملحق 2: الجدولُ والملفُّ الجانبيُّ يُعادان بايتًا · بصمةُ candles تُعرَب وتعود بلا رقم صورة · "
+      "وصفوفُ candles الجانبيّة ≡ «واثق» المطابَقة بوحدة · والمجتمع 357 و«واثق» 5",
+      _dc2r_v == (True, True, True, True, 357, 5), f"{_dc2r_v} · {_hits}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
