@@ -2478,7 +2478,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:39Z",
     "date": "2026-11-02T09:27:24Z",
@@ -2490,6 +2490,8 @@
     "run_id": "41499731441",
     "sha256": "6760d2dcb2af4ddc29de6d0cb37c8c6ae1a09d79f712b15397839a30b1439a85"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_80996.jpg",
    "fingerprint": {
@@ -2526,8 +2528,13 @@
      "TIMEFRAME"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_TICKER",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": null
   },
   {
@@ -2574,7 +2581,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:40Z",
     "date": "2026-11-02T09:27:24Z",
@@ -2586,6 +2593,8 @@
     "run_id": "41499731441",
     "sha256": "cf123d24adc2c42a6fc7d9e2e590a806a326a8371d0884edca6c6239b2b59051"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_80997.jpg",
    "fingerprint": {
@@ -2620,8 +2629,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "ELPW"
   },
   {
@@ -2763,7 +2777,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:43Z",
     "date": "2026-11-02T09:27:24Z",
@@ -2775,6 +2789,8 @@
     "run_id": "41499731441",
     "sha256": "062f33563d7f8eb9c3d1a74d7a579b756b9d0574854173ff4c53b8be90a28fb6"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_80999.jpg",
    "fingerprint": {
@@ -2811,8 +2827,13 @@
      "TIMEFRAME"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_TICKER",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": null
   },
   {
@@ -2859,7 +2880,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:44Z",
     "date": "2026-11-02T09:27:24Z",
@@ -2871,6 +2892,8 @@
     "run_id": "41499731441",
     "sha256": "99c92bd1cfbfe350051116fc83294d9a14ffbee9526be3f9bca241d0b1583054"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_81000.jpg",
    "fingerprint": {
@@ -2907,8 +2930,13 @@
      "TIMEFRAME"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_TICKER",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": null
   },
   {
@@ -3049,7 +3077,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:46Z",
     "date": "2026-11-02T09:27:24Z",
@@ -3061,6 +3089,8 @@
     "run_id": "41499731441",
     "sha256": "a1b9538d44c3d659a06d04fc8df1812f3c52f9f8efa4861b7898918788408355"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_81002.jpg",
    "fingerprint": {
@@ -3095,8 +3125,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "IXIC"
   },
   {
@@ -3143,7 +3178,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:48Z",
     "date": "2026-11-02T09:27:24Z",
@@ -3155,6 +3190,8 @@
     "run_id": "41499731441",
     "sha256": "a31746bdf642cb76140b10b4de081fa7afe9e94e3108c8608b2921880c0e6d5d"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_81003.jpg",
    "fingerprint": {
@@ -3189,8 +3226,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "JEM"
   },
   {
@@ -3237,7 +3279,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:49Z",
     "date": "2026-11-02T09:27:24Z",
@@ -3249,6 +3291,8 @@
     "run_id": "41499731441",
     "sha256": "7cff8fc4ab631a965e8afb97eb197db437f416578581f66774af1b2f3066d1e5"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_81004.jpg",
    "fingerprint": {
@@ -3283,8 +3327,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "ELPW"
   },
   {
@@ -3331,7 +3380,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:50Z",
     "date": "2026-11-02T09:27:29Z",
@@ -3343,6 +3392,8 @@
     "run_id": "41499731441",
     "sha256": "58ea8482d834e36ee1fe4af84a841b34e090469310f41b928da3f1053b861a5e"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_81005.jpg",
    "fingerprint": {
@@ -3377,8 +3428,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "ELPW"
   },
   {
@@ -3425,7 +3481,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:51Z",
     "date": "2026-11-02T09:27:29Z",
@@ -3437,6 +3493,8 @@
     "run_id": "41499731441",
     "sha256": "4f3d02f0b0759ee0d5fd04f397f0f94cb044eb7b9c126324549daca7b8c3dbfd"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_81006.jpg",
    "fingerprint": {
@@ -3471,8 +3529,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "ELPW"
   },
   {
@@ -3613,7 +3676,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:54Z",
     "date": "2026-11-02T09:27:29Z",
@@ -3625,6 +3688,8 @@
     "run_id": "41499731441",
     "sha256": "4cfd722881f96b9a367dba184dd58826833d6ffb214cadbb506509a7f85a5a27"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_81008.jpg",
    "fingerprint": {
@@ -3659,8 +3724,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "ELPW"
   },
   {
@@ -3707,7 +3777,7 @@
     ],
     "ocr": "NOT_RUN"
    },
-   "class7": "UNKNOWN",
+   "class7": "INSUFFICIENT_CONTEXT",
    "collector_row": {
     "collected_utc": "2026-11-02T18:21:55Z",
     "date": "2026-11-02T09:27:29Z",
@@ -3719,6 +3789,8 @@
     "run_id": "41499731441",
     "sha256": "68f68acec74115db712fd280ef0f330506c748e58654836dc34774facde57343"
    },
+   "corrected_by": "CORRECTION_01",
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
    "decision_date": null,
    "file": "faisal_images/TG_81009.jpg",
    "fingerprint": {
@@ -3753,8 +3825,13 @@
      "ORIGINAL_POST_TIMESTAMP"
     ]
    },
-   "reason": "AUTHOR_NOT_ESTABLISHED",
+   "reason": "NO_DECISION",
    "saved": true,
+   "supersedes": {
+    "class7": "UNKNOWN",
+    "reason": "AUTHOR_NOT_ESTABLISHED",
+    "version": 1
+   },
    "symbol": "FBGL"
   },
   {
@@ -14156,10 +14233,10 @@
    "CONTAMINATED": 13,
    "DERIVATIVE": 15,
    "DUPLICATE": 6,
-   "INSUFFICIENT_CONTEXT": 34,
+   "INSUFFICIENT_CONTEXT": 45,
    "NEW_PROSPECTIVE": 16,
    "PRE_EXISTING": 7,
-   "UNKNOWN": 34
+   "UNKNOWN": 23
   },
   "PENDING_PRIMARY": [],
   "SECONDARY_TRACKED": [

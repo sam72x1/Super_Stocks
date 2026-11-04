@@ -1,0 +1,460 @@
+{
+ "batch_id": "B15_20261102",
+ "blind": "قراءةُ الكاتب المصحّحة وحدَها — بلا قرار فيصل ولا هدفٍ ولا دخولٍ ولا وقف ولا قراءةٍ جديدةٍ للصور · إفصاح: الصورُ الخمسَ عشرة فُتحت كاملةً قبل الختم (2026-11-02T21:59:40Z-22:00:06Z · مُفصَحٌ في الختم) · وTG_80998 (CASE_0016) كُشفت كلمتُه 2026-11-04",
+ "contract": "faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md §⑥ (التصحيحُ الإلحاقيّ)",
+ "correction_id": "CORRECTION_01",
+ "images": {
+  "TG_80996": {
+   "author": "F",
+   "content": "قصاصةُ نصّ: أهدافٌ ومقاوماتٌ لسهمٍ غيرِ مسمّى (2.86 · 3 · 3.40 · 3.80 · «التنبؤ الاول/الثاني/الثالث») — لا رمزَ ظاهرًا",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_80996",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: قصاصةُ فقاعة رسالة (خلفيّةُ تلغرام) **بلا رأس قناةٍ ولا اسم كاتب** ⟵ الكاتبُ غيرُ مُثبَت من الصورة (سابقةُ B36: «لا كاتبَ ظاهر» ⟵ UNKNOWN) · وإن أقرّ المالكُ أنّها من «قناة تعليمية» فتصحيحٌ إلحاقيّ",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": null,
+   "timeframe": null,
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_80997": {
+   "author": "F",
+   "content": "لقطةُ تطبيق: ELPW ساعة · After Hours 2.800 ‏+0.36% · خطوطٌ 3.440/3.092/2.862/2.681 · بلا نصّ",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_80997",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: لقطةُ تطبيق الأسعار وحدَها بلا نصٍّ ولا رأس قناة ⟵ الكاتبُ غيرُ مُثبَت",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": "ELPW",
+   "timeframe": "1H",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_80999": {
+   "author": "F",
+   "content": "قصاصةُ نصّ «نموذج W · اختبار مقاومه · يهبط اختبار الدعم الاول · اما يثبت عليه او يسحب السيوله · بعد ثبات الدعم 2 يكون قرار الدخول» — تعليميّ بلا رمز (طابع 11:38 AM)",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_80999",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: قصاصةُ فقاعة رسالة (خلفيّةُ تلغرام) **بلا رأس قناةٍ ولا اسم كاتب** ⟵ الكاتبُ غيرُ مُثبَت من الصورة (سابقةُ B36: «لا كاتبَ ظاهر» ⟵ UNKNOWN) · وإن أقرّ المالكُ أنّها من «قناة تعليمية» فتصحيحٌ إلحاقيّ",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": null,
+   "timeframe": null,
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_81000": {
+   "author": "F",
+   "content": "إنفوغراف «الابتلاع الشرائي» (نقطة الدخول · وقف الخسارة · الهدف قمّة سابقة) بلا رمز",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_81000",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: إنفوغرافٌ تعليميٌّ مطبوع («نموذج الشموع اليابانية: الابتلاع الشرائي») بلا رأس قناةٍ ولا كاتب ⟵ غيرُ مُثبَت (نمطُ تصميم طرفٍ ثالث)",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": null,
+   "timeframe": null,
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_81002": {
+   "author": "F",
+   "content": "قصاصة: IXIC أسبوعيّ ‏+ «الموشر هابط · السوق هابط · ضغط كلي · Elpw صعد» (5:29 PM) و«3.10 هدف + مقاومه» (5:31 PM)",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_81002",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: قصاصةُ فقاعة رسالة (خلفيّةُ تلغرام) **بلا رأس قناةٍ ولا اسم كاتب** ⟵ الكاتبُ غيرُ مُثبَت من الصورة (سابقةُ B36: «لا كاتبَ ظاهر» ⟵ UNKNOWN) · وإن أقرّ المالكُ أنّها من «قناة تعليمية» فتصحيحٌ إلحاقيّ",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": "IXIC",
+   "timeframe": "1W",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_81003": {
+   "author": "F",
+   "content": "قصاصة: JEM أربع ساعات (After Hours 3.080 ‏−3.14%) ‏+ «السهم الجميل صعد … ضرب المقاومه 3.28 · لو بيصحح مهم مايكسر 2.70 < 2.80» (1:15 AM)",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_81003",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: قصاصةُ فقاعة رسالة (خلفيّةُ تلغرام) **بلا رأس قناةٍ ولا اسم كاتب** ⟵ الكاتبُ غيرُ مُثبَت من الصورة (سابقةُ B36: «لا كاتبَ ظاهر» ⟵ UNKNOWN) · وإن أقرّ المالكُ أنّها من «قناة تعليمية» فتصحيحٌ إلحاقيّ",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": "JEM",
+   "timeframe": "4H",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_81004": {
+   "author": "F",
+   "content": "قصاصة: ELPW 30 دقيقة (After Hours 2.790 ‏+1.45%) ‏+ «مقاومات كل رقم يعتبر مقامه 2.80 · 3 · 3.44 · 3.83» (11:02 PM)",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_81004",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: قصاصةُ فقاعة رسالة (خلفيّةُ تلغرام) **بلا رأس قناةٍ ولا اسم كاتب** ⟵ الكاتبُ غيرُ مُثبَت من الصورة (سابقةُ B36: «لا كاتبَ ظاهر» ⟵ UNKNOWN) · وإن أقرّ المالكُ أنّها من «قناة تعليمية» فتصحيحٌ إلحاقيّ",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": "ELPW",
+   "timeframe": "30m",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_81005": {
+   "author": "F",
+   "content": "قصاصة: ELPW يوميّ (2.505 ‏−16.51%) ‏+ «قفله الفجوه بذيل شمعه تبقى ثبات او فشل ساعه زمن يتضح مسار السهم»",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_81005",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: قصاصةُ فقاعة رسالة (خلفيّةُ تلغرام) **بلا رأس قناةٍ ولا اسم كاتب** ⟵ الكاتبُ غيرُ مُثبَت من الصورة (سابقةُ B36: «لا كاتبَ ظاهر» ⟵ UNKNOWN) · وإن أقرّ المالكُ أنّها من «قناة تعليمية» فتصحيحٌ إلحاقيّ",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": "ELPW",
+   "timeframe": "1D",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_81006": {
+   "author": "F",
+   "content": "قصاصة: ELPW 30 دقيقة (2.460 ‏−18.00%) ‏+ «اللي راغب بالسهم لازم يثبت فوق 2.58 … اللي يي الان 2.40 مهم مايكسرها او يرجع فوقها مباشره» (7:25 PM)",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_81006",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: قصاصةُ فقاعة رسالة (خلفيّةُ تلغرام) **بلا رأس قناةٍ ولا اسم كاتب** ⟵ الكاتبُ غيرُ مُثبَت من الصورة (سابقةُ B36: «لا كاتبَ ظاهر» ⟵ UNKNOWN) · وإن أقرّ المالكُ أنّها من «قناة تعليمية» فتصحيحٌ إلحاقيّ",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": "ELPW",
+   "timeframe": "30m",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_81008": {
+   "author": "F",
+   "content": "لقطةُ تطبيق: ELPW يوميّ (After Hours 2.960 ‏−1.33%) · خطوطٌ 6.401/5.605/4.678/3.832/3.444/3.008/2.463 · بلا نصّ",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_81008",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: لقطةُ تطبيق الأسعار وحدَها بلا نصٍّ ولا رأس قناة ⟵ الكاتبُ غيرُ مُثبَت",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": "ELPW",
+   "timeframe": "1D",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_81009": {
+   "author": "F",
+   "content": "قصاصة: FBGL يوميّ (After Hours 2.110) ‏+ «قاع جديد اليوم · امس عنده شمعه 1.83 > 10 اسهم بالليلي» (12:13 AM معدّلة)",
+   "correction_of": {
+    "field": [
+     "author",
+     "faisal_author",
+     "provenance_evidence"
+    ],
+    "file": "annotations.json",
+    "image": "TG_81009",
+    "was": {
+     "author": "UNKNOWN",
+     "faisal_author": false
+    }
+   },
+   "correction_reason": "قراءةُ الكاتب مصحّحة بتصريح المالك (لا خطأُ قاعدة ولا تعديلٌ على الختم): المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها» ⟵ author «UNKNOWN» ⟵ «F» · faisal_author false ⟵ true · والحقولُ الأخرى بت-بت",
+   "date_evidence": "أرسل المالكُ الألبومين 2026-11-02T09:27:24Z و09:27:29Z (صفُّ الجامع · from_recipient=true)",
+   "date_evidence_level": "UNKNOWN",
+   "date_source": "image_visible",
+   "decision_date": null,
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": false,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_timestamp_tz": null,
+   "post_timestamp_utc": null,
+   "post_timestamp_visible": null,
+   "provenance_evidence": "الكاتبُ فيصل بتصريح المالك (2026-11-04) أنّ الصورَ الخمسَ عشرة كلَّها من «قناة تعليمية» (قناةُ فيصل نفسِه بعد إغلاق X · قاعدةُ 2026-10-28) · ⚠️ النسبةُ بتصريح المالك لا بدليلٍ مرئيٍّ في القصاصة نفسِها · والسابق: قصاصةُ فقاعة رسالة (خلفيّةُ تلغرام) **بلا رأس قناةٍ ولا اسم كاتب** ⟵ الكاتبُ غيرُ مُثبَت من الصورة (سابقةُ B36: «لا كاتبَ ظاهر» ⟵ UNKNOWN) · وإن أقرّ المالكُ أنّها من «قناة تعليمية» فتصحيحٌ إلحاقيّ",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": "FBGL",
+   "timeframe": "1D",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  }
+ },
+ "not_corrected": {
+  "images": [
+   "TG_80995",
+   "TG_80998",
+   "TG_81001",
+   "TG_81007"
+  ],
+  "why": "كاتبُها «F» عند الاستلام (رأسُ «قناة تعليمية» ظاهر) ⟵ لا يتغيّر صنفُها بالتصحيح (TG_80995 NO_TICKER · TG_80998 CASE_0016 · TG_81001 DATE_NOT_ESTABLISHED · TG_81007 NO_DECISION) ⟵ والأداةُ ترفض تصحيحًا بلا أثر · وتصريحُ المالك بكاتبها مسجَّلٌ هنا"
+ },
+ "owner_order": "المالك 2026-11-04: «الـ15 كلها من قناة تعليمية.» · وقاعدتُه الدائمة 2026-10-28: «أي صورة من قناة تلغرام «قناة تعليمية» = فيصل نفسه (قناته بعد إغلاق X) — لا تُصنَّف طرفًا ثالثًا، وتصحيح C15 لا ينطبق عليها»",
+ "protocol_amendment": 1,
+ "stage": "INPUT"
+}
