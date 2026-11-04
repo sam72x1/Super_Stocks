@@ -95184,6 +95184,61 @@ check("🔒 WFA10 إغلاقُ `T-W-FAISAL` **مُنفَّذ** («اقفل W»):
       "والحرّاسُ تعبر · ونصُّ الإغلاق بحكمه وشروط فتحه الثلاثة · ولا يُكتب شيءٌ في `results/`", _wfa_ok10 and _wfa_g10 == 0,
       f"{_wfa_d10} · guards={_wfa_g10}"[:300])
 
+# 🕯️📅 DCA1 (‏2026-11-04 · أمرُ المالك «T-DATE-CANDLES … العقد يُدمج قبل أي رقم»): بوّابةُ الجدوى F0 نقيّةً على فِكستشرٍ اصطناعيّ —
+#        50 وحدةً مؤرَّخةً بالرقم متاحة حدٌّ مشمول (49 تسقط) · و`header` ليس «بالرقم» · والخريطةُ تُتيح الصورةَ المُعادة باسم TG_ ·
+#        و③ يلزمه ① ‏+ وحدةٌ غيرُ مؤرَّخة متاحة · و«IMG_6004/6005/6006» ثلاثُ صور · والأداةُ مكتبةٌ قياسيّة فقط (بلا شبكة)
+try:
+    import importlib.util as _dca_iu
+    import ast as _dca_ast
+    import os as _dca_os
+    _dca_p = _dca_os.path.join("fm_forensics", "date_candles", "f0.py")
+    _dca_sp = _dca_iu.spec_from_file_location("_dca_f0", _dca_p)
+    DCF = _dca_iu.module_from_spec(_dca_sp)
+    _dca_sp.loader.exec_module(DCF)
+
+    def _dca_rows(n_price, n_header=0, n_und=0, prefix="IMG_9"):
+        _r = []
+        for _i in range(n_price):
+            _r.append({"symbol": f"P{_i}", "line": str(_i), "images": f"{prefix}{_i:03d}", "date_source": "price" if _i % 2 else "indicator"})
+        for _i in range(n_header):
+            _r.append({"symbol": f"H{_i}", "line": str(500 + _i), "images": f"IMG_8{_i:03d}", "date_source": "header"})
+        for _i in range(n_und):
+            _r.append({"symbol": f"U{_i}", "line": str(700 + _i), "images": f"IMG_7{_i:03d}/7{_i:03d}b", "date_source": ""})
+        return _r
+
+    def _dca_all(rows):
+        return {i for r in rows for i in DCF.expand_images(r["images"])}
+
+    _r49 = _dca_rows(49, n_header=1, n_und=1)
+    _g49 = DCF.f0(_r49, _dca_all(_r49), {})
+    _r50 = _dca_rows(50, n_und=1)
+    _g50 = DCF.f0(_r50, _dca_all(_r50), {})
+    _r50n = _dca_rows(50)
+    _g50n = DCF.f0(_r50n, _dca_all(_r50n), {})
+    _disk_map = {f"TG_{_i}" for _i in range(50)} | {"TG_999"}
+    _map = {f"IMG_9{_i:03d}": f"TG_{_i}" for _i in range(50)} | {"IMG_7000": "TG_999"}
+    _gmap = DCF.f0(_r50, _disk_map, _map)
+    _gnomap = DCF.f0(_r50, _disk_map, {})
+    _exp = DCF.expand_images("IMG_6004/6005/6006 TG_1")
+    _imps = {(_n.module if isinstance(_n, _dca_ast.ImportFrom) else _a.name).split(".")[0]
+             for _n in _dca_ast.walk(_dca_ast.parse(open(_dca_p, encoding="utf-8").read()))
+             if isinstance(_n, (_dca_ast.Import, _dca_ast.ImportFrom))
+             for _a in (_n.names if isinstance(_n, _dca_ast.Import) else [_n])}
+    _dca_ok = (_g49["rc"] == 3 and not _g49["pass_1"] and len(_g49["numeric_available"]) == 49
+               and _g49["undated_units"] == 1 and _g49["undated_rows"] == 1 and _g50n["undated_units"] == 0
+               and _g50["rc"] == 0 and _g50["pass_1"] and _g50["pass_3"]
+               and _g50n["rc"] == 3 and _g50n["pass_1"] and not _g50n["pass_3"]
+               and _gmap["rc"] == 0 and len(_gmap["numeric_available"]) == 50 and _gnomap["rc"] == 3
+               and _exp == ["IMG_6004", "IMG_6005", "IMG_6006", "TG_1"]
+               and DCF.MIN_TEST_UNITS == 50 and DCF.NUMERIC_SOURCES == ("price", "indicator")
+               and _imps <= {"csv", "os", "re", "sys"})
+    _dca_d = (f"49={_g49['rc']}/{len(_g49['numeric_available'])} 50={_g50['rc']} 50بلا③={_g50n['rc']} خريطة={_gmap['rc']}/{_gnomap['rc']} "
+              f"توسيع={_exp} استيراد={sorted(_imps)}")
+except Exception as _e:                                          # noqa: BLE001
+    _dca_ok, _dca_d = False, f"⛔ {type(_e).__name__}: {_e}"
+check("🕯️📅 DCA1 `T-DATE-CANDLES` بوّابةُ F0: الحدُّ 50 مشمول و49 «لا قياس» · `header` ليس «بالرقم» · الخريطةُ تُتيح المُعادَ باسم TG_ · "
+      "③ يلزمه ① ووحدةٌ غيرُ مؤرَّخة · وتوسيعُ الصور · ومكتبةٌ قياسيّة فقط", _dca_ok, _dca_d[:300])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
