@@ -12048,6 +12048,116 @@ if _TYA is not None:
 check("🚦💵🧊 TYA10 `§⑭` يوما الانتقال (09-29 · 10-12) **خارج المراسي وخارج كون `C-CNT`** · والاستبعادُ قبل أوّل "
       "`split_arms` في `main` ويُطبَع سطرُه · والتاريخان **حرفًا كما في العقد**", _tya10_ok, _tya10_why)
 
+# 🔁 `TYS1` (2026-11-04 · عطلٌ مُثبَت): جدوى `T-TC-YIELD` قُتلت مرّتين على الرنر بلا مُخرَج (`41818301261` · `41821188330`) —
+#    `git_snapshots` كانت تحفظ **كلَّ** لقطات `op_entry_state.json` (‏58,031 مراجعة) في الذاكرة معًا ثمّ يمشيها `collect` و`_pool_keys`.
+#    الإصلاح: `iter_snapshots` مولِّدٌ و`collect` مشيٌ واحدٌ متدفّق و`main` يبني كونَ `C-CNT` في المشي نفسِه (`_pool_add`).
+#    القفلُ **سلوكيّ**: ① `collect` لا يُبقي لقطةً سابقة حيّةً (‏weakref: الحيُّ لا يتجاوز واحدةً) ② نتيجتُه على مولِّدٍ = على قائمة =
+#    القيمُ المتوقَّعة بحرفها (`alive` · `alive_eod` · `revs` · `span`) ③ `iter_snapshots` الأقدمُ أوّلًا ويَعُدّ التالفَ ويحترم `limit`
+#    على `subprocess` مُجذَّع ④ و`main` ينادي `iter_snapshots` و`_pool_add` ولا ينادي `git_snapshots` (بالـAST).
+_tys1_ok, _tys1_why = False, _tya_imp
+if _TYA is not None:
+    try:
+        import gc as _tys_gc
+        import weakref as _tys_wr
+        _tys_L = _TYA.LTR
+
+        class _TysD(dict):
+            pass
+
+        _tys_refs, _tys_peak = [], [0]
+
+        def _tys_gen(n):
+            for _i in range(n):
+                _d = _TysD({f"LIQ:S{_i % 3}": {"date": f"2026-11-0{1 + _i % 3}", "anchor_ms": 1000 + _i, "sent": [1]}})
+                _tys_refs.append(_tys_wr.ref(_d))
+                _tys_gc.collect()
+                _tys_peak[0] = max(_tys_peak[0], sum(1 for _r in _tys_refs[:-1] if _r() is not None))
+                yield (f"t{_i}", _d)
+                del _d
+
+        _tys_r = _tys_L.collect(_tys_gen(40))
+        _tys_mem = _tys_peak[0] <= 1 and _tys_r["revs"] == 40
+        # ② قيمٌ متوقَّعة بحرفها: يومان · إعادةُ رسوٍّ · لقطةٌ أخيرةٌ ليومٍ آخر
+        _tys_fx = [("a", {"LIQ:X": {"date": "2026-11-02", "anchor_ms": 5, "sent": [1]}}),
+                   ("b", {"LIQ:X": {"date": "2026-11-02", "anchor_ms": 5, "sent": [1, 2]},
+                          "LIQ:Y": {"date": "2026-11-02", "anchor_ms": 6}}),
+                   ("c", "تالف"),
+                   ("d", {"LIQ:Z": {"date": "2026-11-03", "anchor_ms": 7, "sent": [1]}})]
+        _tys_a = _tys_L.collect(list(_tys_fx))
+        _tys_b = _tys_L.collect(iter(_tys_fx))
+        _tys_exp = {("X", "2026-11-02", 5): (False, True, [1, 2]), ("Y", "2026-11-02", 6): (False, True, []),
+                    ("Z", "2026-11-03", 7): (True, True, [1])}
+        _tys_got = {k: (v["alive"], v["alive_eod"], v["sent"]) for k, v in _tys_a["anchors"].items()}
+        _tys_eq = (_tys_got == _tys_exp and _tys_a["revs"] == 4 and _tys_a["span"] == ("a", "d")
+                   and repr(_tys_a) == repr(_tys_b) and _tys_L.collect([])["revs"] == 0)
+
+        # ③ `iter_snapshots` على `subprocess` مُجذَّع: الأحدثُ أوّلًا في السجلّ ⟵ الأقدمُ أوّلًا في المُخرَج · والتالفُ يُعَدّ
+        class _TysP:
+            def __init__(self, out):
+                self.stdout = out
+
+        class _TysSub:
+            def run(self, cmd, **_k):
+                if cmd[1] == "log":
+                    return _TysP("h3 t3\nh2 t2\nh1 t1\n")
+                return _TysP({"h1": '{"k": 1}', "h2": "ليس json", "h3": '{"k": 3}'}[cmd[2].split(":")[0]])
+
+        _tys_orig_sub = _tys_L.subprocess
+        try:
+            _tys_L.subprocess = _TysSub()
+            _tys_bad = [0]
+            _tys_it = list(_tys_L.iter_snapshots(ref="x", bad=_tys_bad))
+            _tys_bad2 = [0]
+            _tys_lim = list(_tys_L.iter_snapshots(ref="x", limit=1, bad=_tys_bad2))
+            _tys_gs = _tys_L.git_snapshots(ref="x")
+        finally:
+            _tys_L.subprocess = _tys_orig_sub
+        _tys_iter = (_tys_it == [("t1", {"k": 1}), ("t3", {"k": 3})] and _tys_bad == [1]
+                     and _tys_lim == [("t3", {"k": 3})] and _tys_bad2 == [0] and _tys_gs == (_tys_it, 1))
+        # ④ `main` بالـAST
+        _tys_main = next(n for n in _tya_ast.walk(_tya_ast.parse(_tya_io.open("tc_yield_arms.py", encoding="utf-8").read()))
+                         if isinstance(n, _tya_ast.FunctionDef) and n.name == "main")
+        _tys_names = {getattr(c.func, "attr", None) or getattr(c.func, "id", None)
+                      for c in _tya_ast.walk(_tys_main) if isinstance(c, _tya_ast.Call)}
+        _tys_ast = ({"iter_snapshots", "_pool_add", "collect"} <= _tys_names
+                    and not ({"git_snapshots", "_pool_keys"} & _tys_names))
+        # ⑤ كونُ `C-CNT` خطّيّ (لا يُعاد بناءُ المجموعة لكلّ مدخل) · وأوّلُ ظهورٍ لكلّ (رمز·يوم) يفوز بترتيبه ·
+        #    و`main` لا يبنيه في وضع الجدوى (`_pool_add` تحت `if not dry`)
+        class _TysCD(dict):
+            n = 0
+
+            def __iter__(self):
+                _TysCD.n += 1
+                return super().__iter__()
+
+        _tys_cd = _TysCD()
+        _tys_since = "2026-09-09T15:26:30Z"
+        for _st in ({"LIQ:A": {"date": "2026-11-02", "last_eval_ms": 9}, "LIQ:B": {"date": "2026-09-01", "last_eval_ms": 1}},
+                    {"LIQ:A": {"date": "2026-11-02", "last_eval_ms": 3}, "LIQ:C": {"date": "2026-10-12", "last_eval_ms": 2},
+                     "LIQ:D": {"date": "2026-11-03", "tc_seen_ms": 4, "last_eval_ms": 8}}):
+            _TYA._pool_add(_tys_cd, _st, _tys_since, set(k[:2] for k in dict.keys(_tys_cd)))
+        _tys_lin_cd = _TysCD.n == 0
+        _tys_pk = _TYA._pool_keys([(0, {"LIQ:A": {"date": "2026-11-02", "last_eval_ms": 9}}),
+                                   (1, {"LIQ:A": {"date": "2026-11-02", "last_eval_ms": 3},
+                                        "LIQ:D": {"date": "2026-11-03", "tc_seen_ms": 4, "last_eval_ms": 8}})], _tys_since)
+        _tys_pool = (list(_tys_pk) == [("A", "2026-11-02", 9), ("D", "2026-11-03", 4)] and _tys_lin_cd
+                     and list(dict.keys(_tys_cd)) == [("A", "2026-11-02", 9), ("D", "2026-11-03", 4)])
+        _tys_obs = next((n for n in _tya_ast.walk(_tys_main) if isinstance(n, _tya_ast.FunctionDef) and n.name == "_observe"), None)
+        _tys_dry = bool(_tys_obs) and any(
+            isinstance(n, _tya_ast.If) and isinstance(n.test, _tya_ast.UnaryOp) and isinstance(n.test.op, _tya_ast.Not)
+            and getattr(n.test.operand, "id", None) == "dry"
+            and any(getattr(c.func, "id", None) == "_pool_add" for c in _tya_ast.walk(n) if isinstance(c, _tya_ast.Call))
+            for n in _tya_ast.walk(_tys_obs))
+        _tys1_ok = _tys_mem and _tys_eq and _tys_iter and _tys_ast and _tys_pool and _tys_dry
+        _tys1_why = (f"ذاكرة: أقصى حيٍّ سابق={_tys_peak[0]} · قيم={_tys_eq} · مولِّد={_tys_iter} (تالف={_tys_bad}) · "
+                     f"كون={_tys_pool} (تكرارُ pool={_TysCD.n}) · جدوى بلا كون={_tys_dry} · "
+                     f"AST={sorted(_tys_names & {'iter_snapshots', '_pool_add', 'collect', 'git_snapshots', '_pool_keys'})}")
+    except Exception as _e:                                      # noqa: BLE001
+        _tys1_ok, _tys1_why = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🚦💵🔁 TYS1 المشيُ متدفّق: `collect` لا يُبقي لقطةً سابقة حيّة ونتيجتُه على مولِّدٍ = على قائمة = المتوقَّع بحرفه · "
+      "و`iter_snapshots` الأقدمُ أوّلًا ويَعُدّ التالف · وكونُ `C-CNT` خطّيٌّ بأوّل ظهور ولا يُبنى في الجدوى · "
+      "و`main` بلا `git_snapshots` (عطلُ قتل الرنر 2026-11-04)", _tys1_ok, _tys1_why)
+
 # ⏰ `TSC1` (2026-10-27 · أمرُ المالك «جدول السويّة على main»): `tests.yml` تعمل **يوميًّا على main** فلا يبقى أحمرٌ صامت
 #    (دفعاتُ البوت بـ`GITHUB_TOKEN` لا تُطلقها ⇒ main أحمرُ 12 يومًا 10-15 ⟶ 10-27 · #631). بالـYAML لا بالنصّ: كرونٌ **يوميّ**
 #    (يومُ الشهر والشهرُ واليومُ `*`) ‏+ يدويٌّ للتحقّق ‏+ الدفعُ وPR باقيان · ومجموعةُ التزامن تحمل اسمَ الحدث (فلا تُلغي المجدولةُ
