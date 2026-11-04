@@ -87,6 +87,19 @@ CHECK_ORDER_A5 = ("⑤ السعر", "الحجم الدولاري", "① التغ
 NEWS_EXCL = (("law", r"\brosen\b"), ("law", r"\bbronstein\b"), ("law", r"\bfaruqi\b"), ("law", r"\bkirby\b"),
              ("law", r"deadline"), ("law", r"lost money"), ("law", r"shareholder alert"), ("law", r"class action"),
              ("date", r"to report"), ("date", r"announces date"))
+# 🟠⑥ «ملحق استبعاد صغير للفيواب» (أمرُ المالك 2026-11-04 · `vwap_live_addendum_6.md`): إشعاراتُ نقص/استمرار الإدراج ليست خبرًا
+#    («continued listing · deficiency · non-compliance notice» بنصّه) · و«استعادة الامتثال» (regained compliance) تبقى خبرًا ⟵ تُستثنى أوّلًا.
+#    🔸 «deficiency» وحدَها لا تكفي: يلزمها في العنوان نفسِه سياقُ إدراج (`NEWS6_LISTING_CTX`) — الكلمةُ تأتي في أخبار علاجٍ حقيقيّة
+#    («iron deficiency anemia» · «AAT deficiency») فلا تُستبعد (حدٌّ مُفصَحٌ في العقد · الفشلُ نحو «خبر» كالملحق 5) · `VWL_NEWS6=0` ⟵ الملحق 5 بت-بت.
+NEWS6_ENV = "VWL_NEWS6"
+NEWS_EXCL_A6 = (("listing", r"continued listing"), ("listing", r"non[- ]?compliance"), ("listing", r"deficiency"))
+NEWS6_LISTING_CTX = r"nasdaq|nyse|listing|bid price"
+NEWS6_KEEP = r"\bregain(?:s|ed|ing)?\b[^.]{0,40}\bcompliance"
+
+
+def news6_on():
+    """🟠⑥ استبعادُ إشعارات الإدراج مُشعَلٌ ما لم يُطفأ صراحةً (`VWL_NEWS6=0` ⟵ قائمةُ الملحق 5 وحدَها بت-بت)."""
+    return (os.environ.get(NEWS6_ENV) or "").strip() != "0"
 
 
 def def_now():
@@ -105,7 +118,13 @@ def news_excluded(title):
     t = str(title or "").lower()
     if not t:
         return None
-    return next((pat for _cls, pat in NEWS_EXCL if re.search(pat, t)), None)
+    hit = next((pat for _cls, pat in NEWS_EXCL if re.search(pat, t)), None)
+    if hit or not news6_on() or re.search(NEWS6_KEEP, t):           # 🟠⑥ «استعادة الامتثال» تبقى خبرًا
+        return hit
+    for _cls, pat in NEWS_EXCL_A6:
+        if re.search(pat, t) and (pat != r"deficiency" or re.search(NEWS6_LISTING_CTX, t)):
+            return pat
+    return None
 
 
 @contextlib.contextmanager
@@ -1820,6 +1839,7 @@ def main(argv=None):
     if a.mode == "harvest":
         mode_harvest(net, MC)
         return 0
+    log(f"🟠⑥ ② إشعاراتُ نقص/استمرار الإدراج ليست خبرًا (الملحق 6): {'مُشعَل' if news6_on() else 'مطفأ · الملحق 5 بت-بت'}")
     return mode_live(net, MC, os.environ.get("VWL_SEND") == "1", a.segment)
 
 
