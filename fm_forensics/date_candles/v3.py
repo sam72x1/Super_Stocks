@@ -228,6 +228,10 @@ TCOLS = ["file", "symbol", "frame", "b46", "card", "label", "label_m1", "m", "la
          "passers", "recorded_date", "recorded_src", "known_truth", "side_hit", "why"]
 
 def main(argv) -> int:
+    import closed                                                  # noqa: PLC0415  🔒 الملحق 5 §⑤
+    _rc = closed.gate("v3", argv)
+    if _rc is not None:
+        return _rc
     mode = argv[1] if len(argv) > 1 else "build"
     if mode in ("table", "table-check"):
         import results as RS                                       # noqa: PLC0415

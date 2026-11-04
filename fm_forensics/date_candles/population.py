@@ -117,6 +117,10 @@ def load():
 
 
 def main():
+    import closed                                                  # noqa: PLC0415  🔒 الملحق 5 §⑤
+    _rc = closed.gate("population")
+    if _rc is not None:
+        return _rc
     P = population(*load())
     n = len(P["A"]) + len(P["C"])
     print(f"① بنصّ العقد (السعر/المؤشّر): {len(P['A'])} اختبارًا · بالملحق 1 (‏+ تاريخٌ مقروءٌ بالعين): {len(P['C'])} ⟵ المجموع {n} · الحدّ {FLOOR}")

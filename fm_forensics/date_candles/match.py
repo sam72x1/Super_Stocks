@@ -261,6 +261,10 @@ def _events(sym: str):
 
 
 def main() -> int:
+    import closed                                                  # noqa: PLC0415  🔒 الملحق 5 §⑤
+    _rc = closed.gate("match")
+    if _rc is not None:
+        return _rc
     import chart_id_tv as CT                                       # noqa: PLC0415
     import tv_data as TV                                           # noqa: PLC0415
     path = os.environ.get("DC_CARDS", os.path.join(HERE, "data", "cards.jsonl"))
