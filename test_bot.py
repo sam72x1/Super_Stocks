@@ -93010,6 +93010,113 @@ finally:
     _v5_set(_v5_keep)
 check("🟠⑤ V5A9 الدفترُ يحمل صفَّي الملحق 5 (① «سبب صعود» · ② أنماطُ الاستبعاد) بوسمهما في قسم الأداة الحيّة", _v5a9, _v5a9w)
 
+# 🟠⑥ V6A1…V6A4 (‏2026-11-04 · أمرُ المالك «ملحق استبعاد صغير للفيواب قبل جلسة اليوم»): إشعاراتُ نقص/استمرار الإدراج ليست خبرًا ·
+#    و«استعادة الامتثال» تبقى خبرًا · و«deficiency» بسياق إدراجٍ وحدَه · `VWL_NEWS6=0` ⟵ الملحق 5 بت-بت
+import ast as _v6_ast
+import re as _v6_re
+_v6_keep = _va3_os.environ.get("VWL_NEWS6")
+
+
+def _v6_set(v):
+    if v is None:
+        _va3_os.environ.pop("VWL_NEWS6", None)
+    else:
+        _va3_os.environ["VWL_NEWS6"] = v
+
+
+def _v6_a5_only(title):
+    t = str(title or "").lower()
+    return next((pat for _c, pat in _VL.NEWS_EXCL if _v6_re.search(pat, t)), None) if t else None
+
+
+_V6_POS = {"XYZ Receives Nasdaq Notification Regarding Minimum Bid Price Deficiency": "deficiency",
+           "XYZ Receives Notice of Non-Compliance with Nasdaq Listing Rule 5250(c)(1)": r"non[- ]?compliance",
+           "XYZ Receives Noncompliance Notice": r"non[- ]?compliance",
+           "XYZ Receives Continued Listing Standard Notice from NYSE American": "continued listing"}
+_V6_NEG = ("XYZ Regains Compliance with Nasdaq Continued Listing Requirements",
+           "XYZ Regained Compliance with Nasdaq Minimum Bid Price Requirement",
+           "XYZ Announces Positive Phase 2 Data in Iron Deficiency Anemia", "XYZ Receives Deficiency Letter",
+           "Company signs contract", "XYZ Regains Compliance with Nasdaq Listing Rule", None, "")
+try:
+    # V6A1 — المفتاح: الغيابُ و«1» و«» ⟵ مُشعَل · «0» وحدَه ⟵ مطفأ · وقائمةُ الملحق 5 لم تُمَسّ · والعقدُ يحمل نصَّ المالك والحدّ
+    _v6sw = []
+    for _v in (None, "", "1", "x", "0", " 0 "):
+        _v6_set(_v)
+        _v6sw.append(_VL.news6_on())
+    _v6_set(None)
+    _v6ad = open("vwap_live_addendum_6.md", encoding="utf-8").read()
+    _v6a1_c = {"switch": _v6sw == [True, True, True, True, False, False] and _VL.NEWS6_ENV == "VWL_NEWS6",
+               "a5_list": len(_VL.NEWS_EXCL) == 10 and _VL.NEWS_EXCL[-1] == ("date", r"announces date"),
+               "a6_list": _VL.NEWS_EXCL_A6 == (("listing", "continued listing"), ("listing", r"non[- ]?compliance"), ("listing", "deficiency")),
+               "doc": all(x in _v6ad for x in ("continued listing · deficiency · non-compliance notice", "regained compliance",
+                                               "VWL_NEWS6=0", "iron deficiency anemia", "## التنبّؤات"))}
+    _v6a1, _v6a1w = all(_v6a1_c.values()), f"{ {k: v for k, v in _v6a1_c.items() if not v} or 'كلّها'} · sw={_v6sw}"
+except Exception as _e:                                                    # noqa: BLE001
+    _v6a1, _v6a1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑥ V6A1 المفتاح: الغيابُ مُشعَل و«0» وحدَه يطفئ · وقائمةُ الملحق 5 العشرةُ كما هي · وقائمةُ الملحق 6 الثلاث · والعقدُ يحمل نصَّ المالك والحدّ",
+      _v6a1, _v6a1w)
+
+# V6A2 — `news_excluded`: إشعاراتُ الإدراج الأربعة تُستبعد بنمطها · واستعادةُ الامتثال والعلاجُ وخطابٌ بلا سياق إدراجٍ والعقدُ أخبارٌ ·
+#    والمطفأُ = قائمةُ الملحق 5 وحدَها على كلّ عنوانٍ هنا وفي V5A2 (بت-بت)
+try:
+    _v6_set(None)
+    _v6on = {"pos": {t: _VL.news_excluded(t) for t in _V6_POS}, "neg": [_VL.news_excluded(t) for t in _V6_NEG]}
+    _v6_set("0")
+    _v6corpus = list(_V6_POS) + list(_V6_NEG) + list(_v5pos) + list(_v5neg)
+    _v6off = [(_VL.news_excluded(t), _v6_a5_only(t)) for t in _v6corpus]
+    _v6_set(None)
+    _v6a2_c = {"pos": _v6on["pos"] == _V6_POS, "neg": _v6on["neg"] == [None] * len(_V6_NEG),
+               "off_bitwise": all(a == b for a, b in _v6off)}
+    _v6_set("0")
+    _v6a2_c["off_pos_none"] = [_VL.news_excluded(t) for t in _V6_POS] == [None] * len(_V6_POS)
+    _v6_set(None)
+    _v6a2, _v6a2w = all(_v6a2_c.values()), f"{ {k: v for k, v in _v6a2_c.items() if not v} or 'كلّها'} · on={_v6on}"[:400]
+except Exception as _e:                                                    # noqa: BLE001
+    _v6a2, _v6a2w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑥ V6A2 `news_excluded`: إشعاراتُ الإدراج تُستبعد · واستعادةُ الامتثال وخبرُ العلاج وخطابٌ بلا سياق إدراجٍ أخبار · والمطفأُ = الملحق 5 بت-بت",
+      _v6a2, _v6a2w)
+
+# V6A3 — من نقطة النداء (`Day.cat_build`): إشعارُ النقص لا يُثبت ④ ولا يُعرض · واستعادةُ الامتثال تُثبت وتُعرض · والمطفأُ يقبل الإشعار ويعرضه
+try:
+    _Dv6 = object.__new__(_VL.Day)
+    _Dv6.sic_of, _Dv6.day, _Dv6.win_a = {}, _VL_DAY, _VL3.ny_ts(_VL_PREV, 16 * 60)
+    _def6 = _v5_item("XYZ Receives Nasdaq Notification Regarding Minimum Bid Price Deficiency", 8 * 60)
+    _reg6 = _v5_item("XYZ Regains Compliance with Nasdaq Continued Listing Requirements", 8 * 60 + 5)
+    _raw6 = lambda items: {"items": items, "sic": "2834", "rows": [], "known": True}   # noqa: E731
+
+    def _cb6(items):
+        fn, det, _sp = _Dv6.cat_build("TST", _raw6(items))
+        return fn(600).get("C"), ((det(600) or {}).get("wire_item") or {}).get("title")
+    _v5_set(None)
+    _v6_set(None)
+    _r6 = {"def": _cb6([_def6]), "reg": _cb6([_reg6]), "mix": _cb6([_reg6, _def6])}
+    _v6_set("0")
+    _r6off = {"def": _cb6([_def6])}
+    _v6_set(None)
+    _v6a3 = (_r6["def"] == (False, None) and _r6["reg"] == (True, _reg6["title"]) and _r6["mix"] == (True, _reg6["title"])
+             and _r6off["def"] == (True, _def6["title"]))
+    _v6a3w = f"on={_r6} · off={_r6off}"
+except Exception as _e:                                                    # noqa: BLE001
+    _v6a3, _v6a3w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("🟠⑥ V6A3 في `Day.cat_build`: إشعارُ النقص لا يُثبت ④ ولا يُعرض · واستعادةُ الامتثال تُثبت وتُعرض · والمطفأُ (الملحق 5) يقبل الإشعار ويعرضه",
+      _v6a3, _v6a3w)
+
+# V6A4 — سطرُ السجلّ في `main` قبل الحلقة الحيّة (AST): نداءُ `log` يحمل `news6_on()` ويسبق `mode_live`
+try:
+    _m6 = next(n for n in _v6_ast.walk(_v6_ast.parse(open("vwap_momentum_live.py", encoding="utf-8").read()))
+               if isinstance(n, _v6_ast.FunctionDef) and n.name == "main")
+    _m6_calls = [(c.lineno, getattr(c.func, "id", None), {getattr(x.func, "id", None) for x in _v6_ast.walk(c) if isinstance(x, _v6_ast.Call)})
+                 for c in _v6_ast.walk(_m6) if isinstance(c, _v6_ast.Call)]
+    _m6_log = [ln for ln, f, inner in _m6_calls if f == "log" and "news6_on" in inner]
+    _m6_live = [ln for ln, f, _i in _m6_calls if f == "mode_live"]
+    _v6a4 = bool(_m6_log) and bool(_m6_live) and max(_m6_log) < min(_m6_live)
+    _v6a4w = f"log={_m6_log} live={_m6_live}"
+except Exception as _e:                                                    # noqa: BLE001
+    _v6a4, _v6a4w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+finally:
+    _v6_set(_v6_keep)
+check("🟠⑥ V6A4 `main` يطبع سطرَ الملحق 6 (مُشعَل/مطفأ) قبل الحلقة الحيّة", _v6a4, _v6a4w)
+
 # 🧮🔬 SGA1-SGA6 (‏2026-10-30 · أمرُ المالك «قياس مسجَّل قبل الرقم — بوّابتا فلترة التقسيم»): `fm_forensics/split_gates/split_gates.py`
 #        قياسٌ فقط بالعقد `SPLIT_GATES_prereg.md` المثبّتة بصمتُه وقائمةِ الوحدات المجمَّدة · لا تغييرَ على بوّابة · لا تلغرام · لا كرون.
 try:
