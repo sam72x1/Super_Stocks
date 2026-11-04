@@ -30,6 +30,7 @@ TABLE = os.path.join(DATA, "header_dates.tsv")
 CANDLES3 = os.path.join(DATA, "candles_table_v3.tsv")
 NY = ZoneInfo("America/New_York")
 UTC = dt.timezone.utc
+FROZEN_REC_LINES = 913   # سجلُّ العين يومَ البناء (2026-11-04 · بعد سجلّات B46) — إلحاقيٌّ فالأوّلُ ثابت
 CONSIST_DAYS = 7          # §④/§⑥: الطابعُ يومَ آخر الشمعة أو بعده بما لا يتجاوز 7 أيّام
 RANK = {"H3": 0, "H1": 1, "H2": 2, "X1": 3, "A1": 4}
 FULL = ("H1", "H2", "H3")
@@ -177,9 +178,9 @@ def judge(stamps: list, arrival, candle_day: str = "", use_candle: bool = True) 
 
 # ── البيانات ─────────────────────────────────────────────────────────────────────────────────────────────
 def arrivals(files: list) -> dict:
-    """§③: الوصول = أبكرُ (أوّلُ commit أضاف الملفّ · تاريخُ الرسالة · collected_utc) بتوقيت نيويورك ⟵ {معرّف: datetime}."""
+    """§③: الوصول = أبكرُ (أوّلُ commit أضاف الملفّ — والنقلُ إلى المجلّد إضافةٌ (`--no-renames`) · تاريخُ الرسالة · collected_utc) بتوقيت نيويورك ⟵ {معرّف: datetime}."""
     first = {}
-    out = subprocess.run(["git", "log", "--diff-filter=A", "--format=@@%cI", "--name-only", "--", "faisal_images"],
+    out = subprocess.run(["git", "log", "--no-renames", "--diff-filter=A", "--format=@@%cI", "--name-only", "--", "faisal_images"],
                          cwd=ROOT, capture_output=True, text=True).stdout
     cur = None
     for ln in out.splitlines():
@@ -207,12 +208,17 @@ def arrivals(files: list) -> dict:
     return {i: first[i].astimezone(NY) for i in files if i in first}
 
 
-def load():
+def load(frozen: bool = True):
+    """`frozen`: المجتمعُ صفوفُ `arrival.tsv` (الـ891 يومَ البناء) وسجلُّ العين أوّلُ `FROZEN_REC_LINES` سطرًا (إلحاقيٌّ) ⟵ `--check` لا يتغيّر
+    بصورةٍ تصل بعد البناء · ووضعُ `arrival` يقرأ القرص."""
     recs = {}
-    for ln in open(os.path.join(ROOT, "fm_forensics", "reread", "data", "reread_records.jsonl"), encoding="utf-8"):
-        if ln.strip():
-            x = json.loads(ln)
-            recs[x["id"]] = x
+    with open(os.path.join(ROOT, "fm_forensics", "reread", "data", "reread_records.jsonl"), encoding="utf-8") as fh:
+        for i, ln in enumerate(fh):
+            if frozen and i >= FROZEN_REC_LINES:
+                break
+            if ln.strip():
+                x = json.loads(ln)
+                recs[x["id"]] = x
     files = sorted(os.path.splitext(f)[0] for f in os.listdir(os.path.join(ROOT, "faisal_images"))
                    if f.lower().endswith((".jpg", ".jpeg", ".png")))
     ocr = {}
@@ -230,6 +236,8 @@ def load():
     if os.path.exists(ARRIVAL):
         for r in csv.DictReader(open(ARRIVAL, encoding="utf-8"), delimiter="\t"):
             arr[r["file"]] = dt.datetime.fromisoformat(r["arrival_ny"])
+    if frozen and arr:
+        files = sorted(arr)
     return recs, files, ocr, candles, arr
 
 
@@ -408,7 +416,7 @@ def summary(rows: list, recs, files, ocr) -> list:
 
 def main(argv) -> int:
     mode = argv[1] if len(argv) > 1 else "build"
-    recs, files, ocr, candles, arr = load()
+    recs, files, ocr, candles, arr = load(frozen=(mode != "arrival"))
     if mode == "arrival":
         a = arrivals(files)
         rows = [{"file": f, "arrival_ny": a[f].isoformat()} for f in files if f in a]
