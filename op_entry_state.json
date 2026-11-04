@@ -4968,11 +4968,11 @@
   "anchor_open": 1.87,
   "anchor_low": 1.87,
   "trig": "T-C",
-  "date": "2026-11-04",
   "pre_done": true,
   "pre_hi": 1.87,
   "pre_usd": 53790,
-  "pre_n": 32
+  "pre_n": 32,
+  "date": "2026-11-04"
  },
  "LIQ:IPST": {
   "last_eval_ms": 1793739300000,
@@ -5478,7 +5478,7 @@
   "tc_seen_ms": 1793737140000,
   "date": "2026-11-03"
  },
- "OFAL": "2026-11-03",
+ "OFAL": "2026-11-04",
  "LIQ:YQ": {
   "last_eval_ms": 1793817960000,
   "tc_cum": 36573.5658,
