@@ -4,7 +4,8 @@
 `T_DATE_CANDLES_ADDENDUM_4.md` (مدموجٌ قبل أيّ رقم): لكلّ صورةٍ في `faisal_images/` — الطابعُ المطبوع من نصّ سجلّ العين وإلّا من القراءة
 الآليّة (`data/header_ocr.jsonl` · أسطرُ `DHO` من `date_header.yml`) ⟵ الصيغُ `H1` · `H2` · `H3` · `X1` · `A1` (§④) ⟵ السنةُ بالوصول
 (وبالشموع إن وُجدت) ⟵ شرطُ الوصول (§③) ⟵ الثقة (§⑤) ⟵ `data/header_dates.tsv` · والمقارنةُ بالـ20 من الشموع والعدّ (§⑥).
-الأوضاع: `build` · `--check` (يعيد الجدولَ بايتًا).
+الأوضاع: `build` · `--check` (يعيد الجدولَ بايتًا) · `arrival` · والملحق 5: `levels` (الكتابةُ في جدول المستويات بوسم `stamp`) ·
+`levels-check` · 🔒 والمحورُ مُغلَقٌ مُنفَّذًا (`closed.py`): كلُّ وضعٍ غيرِ `--check`/`levels-check` يخرج 8 بلا `DATE_CANDLES_REOPEN=1`.
 """
 from __future__ import annotations
 
@@ -64,7 +65,10 @@ def parse_text(text: str) -> tuple:
         out.append({"code": "H3", "y": int(m.group(1)), "m": int(m.group(2)), "d": int(m.group(3)),
                     "hh": _hh(int(m.group(4)), m.group(6)), "mi": int(m.group(5)), "raw": m.group(0)})
     for m in RX["H3b"].finditer(t):
-        out.append({"code": "H3", "y": int(m.group(3)), "m": int(m.group(1)), "d": int(m.group(2)),
+        # الملحق 5 §③: `DD/MM/YYYY` صيغةُ تطبيق فيصل · والحقلُ الثاني فوق 12 لا يكون شهرًا ⟵ `MM/DD/YYYY` كما كانت
+        _a, _b = int(m.group(1)), int(m.group(2))
+        _mo, _dd = (_a, _b) if _b > 12 else (_b, _a)
+        out.append({"code": "H3", "y": int(m.group(3)), "m": _mo, "d": _dd,
                     "hh": _hh(int(m.group(4)), m.group(6)), "mi": int(m.group(5)), "raw": m.group(0)})
     taken = [m.span() for m in RX["H3a"].finditer(t)] + [m.span() for m in RX["H3b"].finditer(t)]
     free = lambda sp: not any(a < sp[1] and sp[0] < b for a, b in taken)   # noqa: E731
@@ -414,7 +418,154 @@ def summary(rows: list, recs, files, ocr) -> list:
     return L
 
 
+# ── الملحق 5 §④: «واثق» الطابع ⟵ الوحداتُ غيرُ المؤرَّخة في جدول المستويات بوسم `stamp` (بلا دهس) ─────────────────────────────
+#    ⚖️ النتيجة (`T_DATE_CANDLES_ADDENDUM_5_RESULT.md`): صفرُ وحدة — الـ55 كلُّها بلا وحدةٍ في الجدول ⟵ لا كتابة · و`stamp` لم يُضف
+#    إلى `DERIVED_METHODS` ولا إلى `LVT2`/`LVD*` (صفرُ صفّ) · و`levels-check` يُثبت الصفرَ بايتًا.
+RUN_ID = "41894850770"                     # التشغيلةُ الموثّقة (القراءةُ الآليّة للملحق 4 · `LVD2`)
+LEVELS = os.path.join(ROOT, "faisal_levels_table.tsv")
+SIDE = os.path.join(ROOT, "faisal_derived_dates.tsv")
+METHOD = "stamp"
+FP_RE = re.compile(r"^stamp:(H1|H2|H3) src:(eye|ocr) at:(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}) raw:(.+)$")
+
+
+def session_of(day: str) -> str:
+    """§④: يومُ الطابع إن كان جلسةً (يومُ عملٍ ∧ `market_calendar.is_trading_day` — الدالّةُ لا تفحص نهايةَ الأسبوع) وإلّا آخرُ جلسةٍ قبله."""
+    import market_calendar as MC                                   # noqa: PLC0415
+    d = dt.date.fromisoformat(day)
+    for _ in range(15):
+        if d.weekday() < 5 and MC.is_trading_day(d.isoformat()):
+            return d.isoformat()
+        d -= dt.timedelta(days=1)
+    return ""
+
+
+def stamp_fingerprint(r: dict) -> str:
+    """البصمة: قراءةٌ تُعرَب (`LVD5`) — الرمزُ والمصدرُ ولحظةُ الطابع ونصُّه الخامّ · بلا رقم صورة."""
+    return f"stamp:{r['code']} src:{r['source']} at:{r['date']} {r['hour']} raw:{r['raw']}"
+
+
+def parse_stamp_fingerprint(fp: str):
+    """البصمة ⟵ {code, source, date, hour, raw} أو None — والذهابُ والإيابُ يعيدها كما هي."""
+    m = FP_RE.match(fp or "")
+    if not m:
+        return None
+    return {"code": m.group(1), "source": m.group(2), "date": m.group(3), "hour": m.group(4), "raw": m.group(5)}
+
+
+def _sessions_apart(a: str, b: str) -> int:
+    lo, hi = sorted((a, b))
+    d, n = dt.date.fromisoformat(lo), 0
+    while d.isoformat() < hi:
+        d += dt.timedelta(days=1)
+        if session_of(d.isoformat()) == d.isoformat():
+            n += 1
+    return n
+
+
+def mapping_units() -> dict:
+    """الصورةُ ⟵ وحداتُ الكاتالوج بخريطة الملحق 1 (ثقةٌ من `f0.MAP_FOUND`) — كطريقة `candles` بالاسم (`results.build`)."""
+    import f0                                                      # noqa: PLC0415
+    out = collections.defaultdict(list)
+    for m in csv.DictReader(open(os.path.join(DATA, "image_map.tsv"), encoding="utf-8"), delimiter="\t"):
+        if m["confidence"] in f0.MAP_FOUND and m["disk_file"]:
+            for u in [x for x in (m.get("units") or "").split(",") if "|" in x]:
+                sym, line = u.split("|", 1)
+                out[os.path.splitext(m["disk_file"])[0]].append((sym, line))
+    return out
+
+
+def stamp_derived(rows: list, levels: list, mp: dict) -> tuple:
+    """§④ نقيّةً: (صفوفُ الملفّ الجانبيّ، التعارض، الإحصاء). الوحدةُ المؤرَّخةُ بأيّ مصدرٍ غيرِ `stamp` لا تُمسّ ·
+    و`stamp` القائمُ يُقرأ فارغًا (فالبناءُ يُعاد بايتًا قبل الكتابة وبعدها)."""
+    unit_dates = {}
+    for r in levels:
+        unit_dates[(r["symbol"], r["line"])] = "" if r["date_source"] == METHOD else r["date"]
+    st = collections.Counter()
+    by_unit = collections.defaultdict(list)
+    for r in rows:
+        if r["conf"] != "واثق":
+            continue
+        st["wathiq"] += 1
+        us = [u for u in mp.get(r["file"], []) if u in unit_dates]
+        if not us:
+            st["no_unit"] += 1
+            continue
+        free = [u for u in us if not unit_dates[u]]
+        if not free:
+            st["unit_dated"] += 1
+            continue
+        st["to_undated"] += 1
+        for u in free:
+            by_unit[u].append(r)
+    der, conflict = [], []
+    for u, rs in sorted(by_unit.items(), key=lambda kv: (kv[0][0], int(kv[0][1]))):
+        days = sorted({session_of(x["date"]) for x in rs})
+        if "" in days:
+            conflict.append((u, days))
+            continue
+        if len(days) > 1 and _sessions_apart(days[0], days[-1]) > 1:
+            conflict.append((u, days))
+            continue
+        x = sorted(rs, key=lambda x: (x["date"], x["hour"], x["file"]))[-1]
+        der.append({"symbol": u[0], "line": u[1], "date": session_of(x["date"]), "method": METHOD,
+                    "fingerprint": stamp_fingerprint(x), "max_diff": "", "witness": "واثق", "run_id": RUN_ID})
+    return der, conflict, st
+
+
+def _levels():
+    return list(csv.DictReader(open(LEVELS, encoding="utf-8", newline=""), delimiter="\t"))
+
+
+def stamp_build():
+    recs, files, ocr, candles, arr = load()
+    rows = build_rows(recs, files, ocr, candles, arr)
+    return stamp_derived(rows, _levels(), mapping_units())
+
+
+def recheck() -> dict:
+    """`LVD1`: إعادةُ اشتقاق بصمات `stamp` **بلا شبكة** من الجدول المجمَّد ⟵ {(رمز، سطر): بصمة}."""
+    der, _c, _s = stamp_build()
+    return {(d["symbol"], int(d["line"])): d["fingerprint"] for d in der}
+
+
+def write_levels(der: list) -> tuple:
+    """يكتب `stamp` في الملفّ الجانبيّ (يستبدل صفوفَ `stamp` وحدَها) ثمّ يملأ الجدولَ **الفارغَ وحدَه** — بلا إعادة توليده من الكاتالوج."""
+    side_rows = list(csv.DictReader(open(SIDE, encoding="utf-8", newline=""), delimiter="\t"))
+    cols = list(side_rows[0].keys()) if side_rows else ["symbol", "line", "date", "method", "fingerprint", "max_diff", "witness", "run_id"]
+    keep = [r for r in side_rows if r.get("method") != METHOD]
+    new = [{k: d.get(k, "") for k in cols} for d in der]
+    if [r for r in side_rows if r.get("method") == METHOD] != new:        # لا تغيّر ⟵ لا كتابة (الملفّ بايتًا كما هو)
+        b = io.StringIO()
+        w = csv.DictWriter(b, fieldnames=cols, delimiter="\t")         # فاصلُ الأسطر الافتراضيّ \r\n كما كتبه الأصل
+        w.writeheader()
+        w.writerows(keep + new)
+        open(SIDE, "w", encoding="utf-8", newline="").write(b.getvalue())
+    tbl = _levels()
+    tcols = list(tbl[0].keys())
+    dm = {(d["symbol"], d["line"]): d["date"] for d in der}
+    n = cleared = 0
+    for r in tbl:
+        if r["date_source"] == METHOD:
+            r["date"], r["date_source"] = "", ""
+            cleared += 1
+        k = (r["symbol"], r["line"])
+        if not r["date"] and k in dm:
+            r["date"], r["date_source"] = dm[k], METHOD
+            n += 1
+    if n or cleared:
+        b = io.StringIO()
+        w = csv.DictWriter(b, fieldnames=tcols, delimiter="\t")
+        w.writeheader()
+        w.writerows(tbl)
+        open(LEVELS, "w", encoding="utf-8", newline="").write(b.getvalue())
+    return len(der), n
+
+
 def main(argv) -> int:
+    import closed                                                  # noqa: PLC0415  🔒 الملحق 5 §⑤
+    _rc = closed.gate("header", argv)
+    if _rc is not None:
+        return _rc
     mode = argv[1] if len(argv) > 1 else "build"
     recs, files, ocr, candles, arr = load(frozen=(mode != "arrival"))
     if mode == "arrival":
@@ -424,6 +575,22 @@ def main(argv) -> int:
         print(f"⏱️ الوصول: {len(rows)} من {len(files)}")
         return 0
     rows = build_rows(recs, files, ocr, candles, arr)
+    if mode in ("levels", "levels-check"):
+        der, conflict, st = stamp_derived(rows, _levels(), mapping_units())
+        if mode == "levels-check":
+            side = [r for r in csv.DictReader(open(SIDE, encoding="utf-8", newline=""), delimiter="\t") if r.get("method") == METHOD]
+            tbl = {(r["symbol"], r["line"]): r["date"] for r in _levels() if r["date_source"] == METHOD}
+            same = ([{k: r[k] for k in der[0]} for r in side] == der if der else not side) and \
+                tbl == {(d["symbol"], d["line"]): d["date"] for d in der}
+            print("✅ تواريخُ stamp مطابقة (الملفُّ الجانبيّ والجدول)" if same else "❌ تواريخُ stamp تختلف")
+            return 0 if same else 1
+        n_side, n_rows = write_levels(der)
+        print(f"🧾 «واثق» {st['wathiq']} صورة: بلا وحدةٍ في الجدول {st['no_unit']} · على وحدةٍ مؤرَّخةٍ أصلًا {st['unit_dated']} · "
+              f"على وحدةٍ غيرِ مؤرَّخة {st['to_undated']}")
+        print(f"🧾 كُتب: {n_side} وحدة ({n_rows} صفًّا) بوسم {METHOD} · تعارض {len(conflict)} {conflict}")
+        for d in der:
+            print(f"   {d['symbol']}|{d['line']} ⟵ {d['date']} · {d['fingerprint']}")
+        return 0
     body = _tsv(rows, COLS)
     if mode == "--check":
         same = open(TABLE, encoding="utf-8").read() == body

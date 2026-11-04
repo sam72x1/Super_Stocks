@@ -184,6 +184,10 @@ def build():
 
 
 def main(argv):
+    import closed                                                  # noqa: PLC0415  🔒 الملحق 5 §⑤
+    _rc = closed.gate("build_map", ["build_map.py", *argv])   # يُنادى بـ sys.argv[1:] (بلا اسم البرنامج)
+    if _rc is not None:
+        return _rc
     text, s = build()
     if "--check" in argv:
         ok = os.path.exists(OUT) and open(OUT, encoding="utf-8").read() == text

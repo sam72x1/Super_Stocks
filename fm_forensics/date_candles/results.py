@@ -202,6 +202,10 @@ def fsweep_lines(out: list) -> list:
 
 
 def main(argv) -> int:
+    import closed                                                  # noqa: PLC0415  🔒 الملحق 5 §⑤
+    _rc = closed.gate("results", argv)
+    if _rc is not None:
+        return _rc
     pop, out, der, conflict = build()
     t, d = _tsv(out, COLS), _tsv(der, DCOLS)
     if len(argv) > 1 and argv[1] == "--check":

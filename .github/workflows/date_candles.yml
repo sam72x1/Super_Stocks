@@ -33,6 +33,10 @@ on:
         description: "ملفُّ البطاقات (cards.jsonl = v1 · cards_v2.jsonl = الملحق 3)"
         required: false
         default: "cards.jsonl"
+      reopen:
+        description: "🔒 المحورُ مُغلَق (الملحق 5 §⑤) — «1» إقرارُ المالك بشروط الفتح الثلاثة · وإلّا الأداةُ تخرج 8"
+        required: false
+        default: "0"
 
 concurrency:
   group: date-candles
@@ -70,4 +74,5 @@ jobs:
           DC_MODE: ${{ inputs.mode }}
           DC_TOL_MULT: ${{ inputs.tol_mult }}
           DC_CARDS: fm_forensics/date_candles/data/${{ inputs.cards }}
+          DATE_CANDLES_REOPEN: ${{ inputs.reopen }}
         run: python fm_forensics/date_candles/match.py

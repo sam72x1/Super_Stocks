@@ -17,6 +17,10 @@ on:
         description: "صورُ الدفعة"
         required: false
         default: "230"
+      reopen:
+        description: "🔒 المحورُ مُغلَق (الملحق 5 §⑤) — «1» إقرارُ المالك بشروط الفتح الثلاثة · وإلّا الأداةُ تخرج 8"
+        required: false
+        default: "0"
 
 concurrency:
   group: date-header
@@ -52,4 +56,5 @@ jobs:
           PYTHONUNBUFFERED: "1"
           DH_BATCH: ${{ matrix.batch }}
           DH_SIZE: ${{ inputs.size }}
+          DATE_CANDLES_REOPEN: ${{ inputs.reopen }}
         run: python fm_forensics/date_candles/header_ocr.py

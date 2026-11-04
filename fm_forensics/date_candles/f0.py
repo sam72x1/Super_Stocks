@@ -98,6 +98,10 @@ def _mapping() -> dict:
 
 
 def main() -> int:
+    import closed                                                  # noqa: PLC0415  🔒 الملحق 5 §⑤
+    _rc = closed.gate("f0")
+    if _rc is not None:
+        return _rc
     with open(TABLE, encoding="utf-8") as fh:
         rows = list(csv.DictReader(fh, delimiter="\t"))
     disk, mp = _disk(), _mapping()

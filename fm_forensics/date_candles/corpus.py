@@ -171,6 +171,10 @@ def summary(pop: dict, cards: list = None) -> list:
 
 
 def main(argv) -> int:
+    import closed                                                  # noqa: PLC0415  🔒 الملحق 5 §⑤
+    _rc = closed.gate("corpus", argv)
+    if _rc is not None:
+        return _rc
     mode = argv[1] if len(argv) > 1 else "count"
     recs, inv, disk = load()
     if mode == "count":

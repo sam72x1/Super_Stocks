@@ -53,6 +53,10 @@ def ocr_lines(path: str) -> dict:
 
 
 def main() -> int:
+    import closed                                                  # noqa: PLC0415  🔒 الملحق 5 §⑤
+    _rc = closed.gate("header_ocr")
+    if _rc is not None:
+        return _rc
     batch = int(os.environ.get("DH_BATCH", "0") or 0)
     size = int(os.environ.get("DH_SIZE", "230") or 230)
     fs = images()[batch * size:(batch + 1) * size]

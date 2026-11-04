@@ -95346,6 +95346,11 @@ try:
              for _n in _dca_ast.walk(_dca_ast.parse(open(_dca_p, encoding="utf-8").read()))
              if isinstance(_n, (_dca_ast.Import, _dca_ast.ImportFrom))
              for _a in (_n.names if isinstance(_n, _dca_ast.Import) else [_n])}
+    # 🔒 الملحق 5 §⑤: `closed` (بوّابةُ الإغلاق المحلّيّة) مقبولٌ بشرط أن يكون هو نفسُه مكتبةً قياسيّةً فقط (AST)
+    _imps_cl = {(_n.module if isinstance(_n, _dca_ast.ImportFrom) else _a.name).split(".")[0]
+                for _n in _dca_ast.walk(_dca_ast.parse(open(_dca_os.path.join("fm_forensics", "date_candles", "closed.py"), encoding="utf-8").read()))
+                if isinstance(_n, (_dca_ast.Import, _dca_ast.ImportFrom))
+                for _a in (_n.names if isinstance(_n, _dca_ast.Import) else [_n])}
     _dca_ok = (_g49["rc"] == 3 and not _g49["pass_1"] and len(_g49["numeric_available"]) == 49
                and _g49["undated_units"] == 1 and _g49["undated_rows"] == 1 and _g50n["undated_units"] == 0
                and _g50["rc"] == 0 and _g50["pass_1"] and _g50["pass_3"]
@@ -95353,7 +95358,7 @@ try:
                and _gmap["rc"] == 0 and len(_gmap["numeric_available"]) == 50 and _gnomap["rc"] == 3
                and _exp == ["IMG_6004", "IMG_6005", "IMG_6006", "TG_1"]
                and DCF.MIN_TEST_UNITS == 50 and DCF.NUMERIC_SOURCES == ("price", "indicator")
-               and _imps <= {"csv", "os", "re", "sys"})
+               and _imps - {"closed"} <= {"csv", "os", "re", "sys"} and _imps_cl <= {"__future__", "os", "sys"})
     _dca_d = (f"49={_g49['rc']}/{len(_g49['numeric_available'])} 50={_g50['rc']} 50بلا③={_g50n['rc']} خريطة={_gmap['rc']}/{_gnomap['rc']} "
               f"توسيع={_exp} استيراد={sorted(_imps)}")
 except Exception as _e:                                          # noqa: BLE001
@@ -95807,6 +95812,118 @@ except Exception as _e:                                           # noqa: BLE001
     _dh4r_v = (f"⛔ {type(_e).__name__}: {_e}",)
 check("🕯️📅④ DH4R نتيجةُ الملحق 4: جدولُ الطابع يُعاد بايتًا على 891 مجمَّدة · وأرقامُ ملفّ النتيجة من الجدول · والوصولُ يرفض ELPW_01 وحدَه",
       _dh4r_v == (True, 891, True, True, ["CH_20260918_01_ELPW"]), str(_dh4r_v)[:240])
+
+
+# 🕯️📅⑤ DC5A (‏2026-11-04 · الملحق 5 §③-§④ · أمرُ المالك «اقرأ SUGP يوم/شهر … اكتب «واثق» من الطابع … بلا دهس»): `H3b` يومًا/شهرًا
+#    (والثاني فوق 12 شهرًا/يومًا كما كان) · وجلسةُ الطابع (السبتُ ⟵ الجمعة · عيدُ الشكر ⟵ الأربعاء) · و`stamp_derived` نقيًّا: يكتب الفارغَ وحدَه ·
+#    ولا يمسّ المؤرَّخ بأيّ مصدر · ويقرأ `stamp` القائمَ فارغًا · ويُسقط التعارضَ وغيرَ «واثق» · والبصمةُ تعود كما هي ذهابًا وإيابًا بلا رقم صورة.
+try:
+    _dc5_P = lambda t: [(s["code"], s["y"], s["m"], s["d"], s["hh"]) for s in _dh4.parse_text(t)[0]]   # noqa: E731
+    _dc5_rows = [{"file": "A", "conf": "واثق", "code": "H1", "source": "eye", "date": "2026-10-03", "hour": "12:47", "raw": "03/10-12:47 EDT"},
+                 {"file": "B", "conf": "واثق", "code": "H1", "source": "eye", "date": "2026-09-01", "hour": "10:00", "raw": "01/09-10:00 EDT"},
+                 {"file": "C", "conf": "واثق", "code": "H3", "source": "ocr", "date": "2026-09-15", "hour": "10:00", "raw": "x"},
+                 {"file": "D", "conf": "واثق", "code": "H1", "source": "eye", "date": "2026-09-02", "hour": "10:00", "raw": "y"},
+                 {"file": "E", "conf": "مرجّح", "code": "A1", "source": "eye", "date": "2026-09-02", "hour": "", "raw": "z"},
+                 {"file": "F", "conf": "واثق", "code": "H1", "source": "eye", "date": "2026-09-02", "hour": "10:00", "raw": "w"},
+                 {"file": "G", "conf": "واثق", "code": "H1", "source": "eye", "date": "2026-09-08", "hour": "09:00", "raw": "g"}]
+    _dc5_lv = [{"symbol": "AAA", "line": "10", "date": "", "date_source": ""},
+               {"symbol": "BBB", "line": "20", "date": "2026-01-01", "date_source": "header"},
+               {"symbol": "CCC", "line": "30", "date": "", "date_source": ""},
+               {"symbol": "DDD", "line": "40", "date": "2026-02-02", "date_source": "stamp"},
+               {"symbol": "GGG", "line": "50", "date": "2026-03-03", "date_source": "candles"}]
+    _dc5_mp = {"A": [("AAA", "10")], "B": [("BBB", "20")], "C": [("CCC", "30")], "D": [("CCC", "30")],
+               "E": [("DDD", "40")], "F": [("ZZZ", "1")], "G": [("GGG", "50")]}
+    _dc5_der, _dc5_cf, _dc5_st = _dh4.stamp_derived(_dc5_rows, _dc5_lv, _dc5_mp)
+    _dc5_fp = _dc5_der[0]["fingerprint"] if _dc5_der else ""
+    _dc5_v = (_dc5_P("سجلّ أوامر «07/10/2026 12:47 ET»") == [("H3", 2026, 10, 7, 12)],
+              _dc5_P("09/21/2026 12:00 ET") == [("H3", 2026, 9, 21, 12)],
+              (_dh4.session_of("2026-10-03"), _dh4.session_of("2026-11-26"), _dh4.session_of("2026-10-05")) == ("2026-10-02", "2026-11-25", "2026-10-05"),
+              [(d["symbol"], d["line"], d["date"], d["method"], d["run_id"]) for d in _dc5_der] == [("AAA", "10", "2026-10-02", "stamp", "41894850770")],
+              _dc5_cf == [(("CCC", "30"), ["2026-09-02", "2026-09-15"])],
+              dict(_dc5_st) == {"wathiq": 6, "to_undated": 3, "unit_dated": 2, "no_unit": 1},
+              _dh4.stamp_fingerprint(_dh4.parse_stamp_fingerprint(_dc5_fp)) == _dc5_fp and not _dh4r_re.search(r"(?:TG|X|CH|APP|WA|IMG)_", _dc5_fp))
+except Exception as _e:                                           # noqa: BLE001
+    _dc5_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🕯️📅⑤ DC5A H3b يومًا/شهرًا (والثاني فوق 12 كما كان) · جلسةُ الطابع · والكتابةُ نقيّةً: الفارغُ وحدَه ولا دهسَ لأيّ مصدر · "
+      "والتعارضُ وغيرُ «واثق» لا يُكتبان · والبصمةُ ذهابًا وإيابًا بلا رقم صورة",
+      _dc5_v == (True,) * 7, str(_dc5_v)[:240])
+
+# 🕯️📅⑤ DC5R (‏2026-11-04 · نتيجةُ الملحق 5): `H3b` في المدوّنة صورةٌ واحدة (`TG_82813` SUGP ⟵ 2026-10-07) · و«واثق» 55 بلا تغيّر ·
+#    والكتابةُ في جدول المستويات **صفر**: الـ55 كلُّها بلا وحدةٍ في الجدول (خريطةُ الملحق 1) ⟵ لا صفَّ `stamp` في الملفّ الجانبيّ ولا في الجدول ·
+#    وأرقامُ ملفّ النتيجة من البناء نفسِه.
+try:
+    _dc5r_der, _dc5r_cf, _dc5r_st = _dh4.stamp_build()
+    _dc5r_t = list(_dh4r_csv.DictReader(open(_dh4.TABLE, encoding="utf-8"), delimiter="\t"))
+    _dc5r_sugp = [(r["code"], r["date"], r["hour"]) for r in _dc5r_t if r["file"] == "TG_82813"]
+    _dc5r_side = [r for r in _dh4r_csv.DictReader(open(_dh4.SIDE, encoding="utf-8", newline=""), delimiter="\t") if r.get("method") == "stamp"]
+    _dc5r_lvl = [r for r in _dh4._levels() if r.get("date_source") == "stamp"]
+    _dc5r_doc = open(_dh4_os.path.join(_dh4_os.path.dirname(_dh4.__file__), "T_DATE_CANDLES_ADDENDUM_5_RESULT.md"), encoding="utf-8").read()
+    _dc5r_m = _dh4r_re.search(r"«واثق» (\d+) صورة: بلا وحدةٍ في الجدول (\d+) · على وحدةٍ مؤرَّخةٍ أصلًا (\d+) · على وحدةٍ غيرِ مؤرَّخة (\d+)", _dc5r_doc)
+    _dc5r_v = (_dc5r_der == [] and _dc5r_cf == [], dict(_dc5r_st) == {"wathiq": 55, "no_unit": 55},
+               _dc5r_sugp == [("H3", "2026-10-07", "12:47")], not _dc5r_side and not _dc5r_lvl,
+               bool(_dc5r_m) and tuple(int(x) for x in _dc5r_m.groups()) == (_dc5r_st["wathiq"], _dc5r_st["no_unit"], _dc5r_st["unit_dated"], _dc5r_st["to_undated"]))
+except Exception as _e:                                           # noqa: BLE001
+    _dc5r_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🕯️📅⑤ DC5R نتيجةُ الملحق 5: SUGP ⟵ 2026-10-07 · و«واثق» 55 كلُّها بلا وحدةٍ في جدول المستويات ⟵ صفرُ كتابة (لا صفَّ stamp) · "
+      "وأرقامُ ملفّ النتيجة من البناء",
+      _dc5r_v == (True,) * 5, str(_dc5r_v)[:240])
+
+# 🔒 DC5C (‏2026-11-04 · أمرُ المالك «ثم اقفل T-DATE-CANDLES» · الملحق 5 §⑤): الإغلاقُ **مُنفَّذ** — كلُّ أداةٍ من التسع تخرج 8 قبل أيّ عمليّة
+#    (بلا مفتاحٍ و«0» لا يفتح) ولا تكتب في `data/` · والإعادةُ بايتًا (`--check` · `table-check` · `levels-check`) مفتوحة · و«1» وحدَه يفتح ·
+#    والبوّابةُ أوّلُ ما في `main` (AST) · ونصُّ الإغلاق بحكمه وشروط فتحه الثلاثة.
+try:
+    import ast as _dc5c_ast
+    import contextlib as _dc5c_cl
+    import io as _dc5c_io
+    _dc5c_dir = _dh4_os.path.join("fm_forensics", "date_candles")
+    _dc5c_cl_mod = _dh4_il.import_module("closed")
+    _dc5c_tools = ("f0", "build_map", "population", "match", "header_ocr", "corpus", "v3", "results", "header")
+    _dc5c_data = _dh4_os.path.join(_dc5c_dir, "data")
+    _dc5c_snap = {f: _dh4_os.stat(_dh4_os.path.join(_dc5c_data, f)).st_mtime_ns for f in sorted(_dh4_os.listdir(_dc5c_data))}
+    _dc5c_env0 = _dh4_os.environ.get("DATE_CANDLES_REOPEN")
+    _dc5c_argv0 = list(_dh4_sys.argv)
+    _dc5c_rc, _dc5c_first = {}, {}
+    try:
+        for _op in (None, "0"):
+            if _op is None:
+                _dh4_os.environ.pop("DATE_CANDLES_REOPEN", None)
+            else:
+                _dh4_os.environ["DATE_CANDLES_REOPEN"] = _op
+            for _t in _dc5c_tools:
+                _m = _dh4_il.import_module(_t)
+                _dh4_sys.argv = [_t + ".py"]
+                _b = _dc5c_io.StringIO()
+                with _dc5c_cl.redirect_stdout(_b):
+                    _r = (_m.main([]) if _t == "build_map" else _m.main([_t + ".py"]) if _t in ("corpus", "v3", "results", "header") else _m.main())
+                _dc5c_rc[(_op, _t)] = (_r, "مُغلَقٌ إغلاقًا مُنفَّذًا" in _b.getvalue())
+        for _t in _dc5c_tools:
+            _tree = _dc5c_ast.parse(open(_dh4_os.path.join(_dc5c_dir, _t + ".py"), encoding="utf-8").read())
+            _fn = next(n for n in _tree.body if isinstance(n, _dc5c_ast.FunctionDef) and n.name == "main")
+            _body = [s for s in _fn.body if not (isinstance(s, _dc5c_ast.Expr) and isinstance(getattr(s, "value", None), _dc5c_ast.Constant))]
+            _calls = [c for s in _body[:3] for c in _dc5c_ast.walk(s) if isinstance(c, _dc5c_ast.Call)
+                      and getattr(c.func, "attr", None) == "gate" and getattr(c.func.value, "id", None) == "closed"]
+            _dc5c_first[_t] = bool(_calls)
+        _dh4_os.environ["DATE_CANDLES_REOPEN"] = "1"
+        _dc5c_open1 = _dc5c_cl_mod.gate("x", ["x"]) is None
+    finally:
+        _dh4_sys.argv = _dc5c_argv0
+        if _dc5c_env0 is None:
+            _dh4_os.environ.pop("DATE_CANDLES_REOPEN", None)
+        else:
+            _dh4_os.environ["DATE_CANDLES_REOPEN"] = _dc5c_env0
+    _dc5c_after = {f: _dh4_os.stat(_dh4_os.path.join(_dc5c_data, f)).st_mtime_ns for f in sorted(_dh4_os.listdir(_dc5c_data))}
+    _dh4_os.environ.pop("DATE_CANDLES_REOPEN", None) if _dc5c_env0 is None else None
+    _dc5c_openmodes = all(_dc5c_cl_mod.gate("x", ["x", m]) is None for m in ("--check", "table-check", "levels-check"))
+    _dc5c_txt = "\n".join(_dc5c_cl_mod.TEXT)
+    _dc5c_v = (all(v == (8, True) for v in _dc5c_rc.values()) and len(_dc5c_rc) == 18,
+               all(_dc5c_first.values()) and len(_dc5c_first) == 9,
+               _dc5c_open1, _dc5c_openmodes, _dc5c_snap == _dc5c_after,
+               all(k in _dc5c_txt for k in ("مصدرُ تأريخٍ جديدٌ لم يُقَس", "تسجيلٌ مسبقٌ جديد", "إذنُ المالك", "«قبل الحركة» 4")))
+except Exception as _e:                                           # noqa: BLE001
+    _dc5c_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🔒 DC5C إغلاقُ T-DATE-CANDLES **مُنفَّذ**: الأدواتُ التسع تخرج 8 بلا مفتاحٍ و«0» لا يفتح ولا كتابةَ في data/ · والبوّابةُ أوّلُ main · "
+      "والإعادةُ بايتًا مفتوحة و«1» وحدَه يفتح · ونصُّ الإغلاق بحكمه وشروطه الثلاثة",
+      _dc5c_v == (True,) * 6, str(_dc5c_v)[:240])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
