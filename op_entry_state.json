@@ -2682,11 +2682,11 @@
   "anchor_price": 7.24,
   "anchor_open": 6.57,
   "anchor_low": 6.57,
-  "date": "2026-11-04",
   "pre_done": true,
   "pre_hi": 6.6,
   "pre_usd": 332686,
-  "pre_n": 20
+  "pre_n": 20,
+  "date": "2026-11-04"
  },
  "LIQ:PBK": {
   "last_eval_ms": 1793740260000,
@@ -3199,7 +3199,7 @@
   "date": "2026-11-03"
  },
  "RBNE": "2026-11-02",
- "BDMD": "2026-11-03",
+ "BDMD": "2026-11-04",
  "LIQ:IOVA": {
   "last_eval_ms": 1793750040000,
   "tc_cum": 107630063.40398692,
