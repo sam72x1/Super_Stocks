@@ -1,0 +1,4 @@
+symbol	line	date	method	fingerprint	max_diff	witness	run_id
+ARAI	79	2026-04-14	candles	last:2026-04-14 k:0.9987 split:1.0 rms:0.00699 variant:1D	0.00699	واثق (تجريبيّ)	41882807024
+GRI	73	2026-04-13	candles	last:2026-04-13 k:1.0009 split:1.0 rms:0.01192 variant:1D	0.01192	واثق (تجريبيّ)	41882807024
+TRUG	40	2026-03-27	candles	last:2026-03-27 k:10.0016 split:10.0 rms:0.00113 variant:1D	0.00113	واثق (تجريبيّ)	41882807024

@@ -95710,6 +95710,26 @@ check("🕯️📅 DC3P المجتمعُ 3 والمعايرة: نسخةُ B46 ل
       "بـsha256 · وأصغرُ m يصيب 17 بلا كاذبة (1.5) · N دون 10 «لا معايرة» · ولا m ⟵ 1",
       _dc3_pv == (["TG_8"], True, True, True, True, 20, 1.5, None, 1.0, (17, 0)), str(_dc3_pv)[:240])
 
+# 🕯️📅 DC3R (‏2026-11-04 · نتيجةُ الملحق 3 §⑥): جدولُ ③ يُعاد بايتًا من بطاقات v2 المجمَّدة ونتائج المطابقة المحصودة (`v3.table3`) ·
+#    والمجتمع 360 (الـ357 ‏+ B46 ‏3) و«واثق» 20 · ووحداتُ candles المؤهَّلة ARAI|79 وGRI|73 وTRUG|40 **ولم تُكتب** في الملفّ الجانبيّ
+#    (`candles` فيه TRUG|40 وحدَه — قفلُ المصدر `LVD2` يشترط تشغيلةً واحدةً لكلّ طريقة ⟵ الكتابةُ قرارُ المالك).
+try:
+    import csv as _dc3r_csv
+    _dc3r = _dc3_il.import_module("v3")
+    _dc3r_rs = _dc3_il.import_module("results")
+    _p3r, _o3r, _d3r, _c3r = _dc3r.table3()
+    _same3 = (open(_dc3r.TABLE3, encoding="utf-8").read() == _dc3r_rs._tsv(_o3r, _dc3r.TCOLS)
+              and open(_dc3r.DERIVED3, encoding="utf-8").read() == _dc3r_rs._tsv(_d3r, _dc3r_rs.DCOLS))
+    _side3 = {(r["symbol"], r["line"]) for r in _dc3r_csv.DictReader(open("faisal_derived_dates.tsv", encoding="utf-8"), delimiter="\t")
+              if r["method"] == "candles"}
+    _dc3r_v = (_same3, len(_p3r["members"]), sum(1 for m in _p3r["members"] if m.get("b46")),
+               sum(1 for r in _o3r if r["label"] == "واثق"), sorted((d["symbol"], d["line"]) for d in _d3r), sorted(_side3))
+except Exception as _e:                                           # noqa: BLE001
+    _dc3r_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🕯️📅 DC3R نتيجةُ الملحق 3: جدولُ ③ يُعاد بايتًا · المجتمع 360 منه B46 ‏3 · «واثق» 20 · ووحداتُ candles المؤهَّلة ثلاثٌ "
+      "والملفُّ الجانبيّ بلا كتابةٍ جديدة (TRUG|40 وحدَه)",
+      _dc3r_v == (True, 360, 3, 20, [("ARAI", "79"), ("GRI", "73"), ("TRUG", "40")], [("TRUG", "40")]), str(_dc3r_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
