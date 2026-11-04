@@ -133,7 +133,7 @@
 - **RQ-EX-U6 ⟵ RQ-05:** القروبُ مؤقّتٌ عند فيصل: «قروبات هيّضته … هبط بالسهم … حقق المتوسط والدخول» — والإبطالُ بالقروب زمنيٌّ لا نهائيّ · ومؤشّرُه السعريّ في RQ-EX-02. (TG_1807 · TG_20260905_03 · X_20260905_10 · IMG_0746) · قواعدُ V4: `R4-VAL-GRP-01`
 
 ## 🧊 التحقّقُ الأماميّ النهائيّ (`final_protocol/PROTOCOL_STATUS.json` · FINAL PROSPECTIVE VALIDATION PROTOCOL)
-> V4 مجمَّد (V4_COMMIT `7c8826c25e74`) · `V4_2_CANDIDATE` لكلّ عدمِ تطابقٍ أماميّ — **لا يدخل V4 ولا يُعاد التشغيل** · الحالاتُ الصالحة 2 · INSUFFICIENT_SAMPLE
+> V4 مجمَّد (V4_COMMIT `7c8826c25e74`) · `V4_2_CANDIDATE` لكلّ عدمِ تطابقٍ أماميّ — **لا يدخل V4 ولا يُعاد التشغيل** · الحالاتُ الصالحة 3 · INSUFFICIENT_SAMPLE
 - **V4_2_CANDIDATE:** 5
 
 ### CASE_0005 · FALSE_UNKNOWN (SECONDARY)
