@@ -3053,7 +3053,7 @@
  },
  "LIQ:PARA": {
   "anchor_ms": 1793826000000,
-  "last_ms": 1793826000000,
+  "last_ms": 1793826060000,
   "sent": [
    "M1"
   ],
@@ -3061,7 +3061,7 @@
   "vol_x": 4.5,
   "peak_usd": 44554,
   "last_eval_ms": 1793826060000,
-  "pulse_ms": 1793826000000,
+  "pulse_ms": 1793826060000,
   "anchor_price": 0.3399,
   "anchor_open": 0.319,
   "anchor_low": 0.3186,
@@ -3073,11 +3073,11 @@
    "e5": 0.3461,
    "exit_ms": 1793803080000
   },
-  "date": "2026-11-04",
   "pre_done": true,
   "pre_hi": 0.32,
   "pre_usd": 576543,
-  "pre_n": 63
+  "pre_n": 63,
+  "date": "2026-11-04"
  },
  "LIQ:CMCT": {
   "last_eval_ms": 1793825940000,
