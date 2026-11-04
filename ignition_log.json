@@ -1891,5 +1891,23 @@
   "usd_eff": 11647,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "BYND",
+  "date": "2026-11-04",
+  "sustain_min": 88,
+  "operator_ok": true,
+  "fired_ts_ms": 1793802753483,
+  "trigger_bar_ms": 1793802600000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-11-04T21:01:17Z",
+  "break_level": 7.41,
+  "price": 7.49,
+  "vol_x": 16.8,
+  "usd": 54560,
+  "candle_class": "mid",
+  "usd_eff": 54560,
+  "candle_class_eff": "mid",
+  "frames_usd": null
  }
 ]
