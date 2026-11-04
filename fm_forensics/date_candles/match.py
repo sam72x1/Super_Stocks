@@ -111,9 +111,10 @@ def unadjust(bars: list, split_day: str, ratio: float, day_of) -> list:
     return out
 
 
-def window_candidates(bars: list, ref, rel, mask, events, day_of, adjusted_out: str = None) -> list:
+def window_candidates(bars: list, ref, rel, mask, events, day_of, adjusted_out: str = None, mult: float = 1.0) -> list:
     """النوافذُ العابرة للشكل ⟵ [{i, end_ts, rms, k, k_exp, level_ok}] · و`events=None` ⟵ المستوى غيرُ قابلٍ للحساب.
-    `adjusted_out` = تقسيمٌ أُعيد في هذا المتغيّر إلى مقياسه الخامّ فلا يدخل معاملَ النافذة."""
+    `adjusted_out` = تقسيمٌ أُعيد في هذا المتغيّر إلى مقياسه الخامّ فلا يدخل معاملَ النافذة · و`mult` مضاعفُ تسامح الشكل
+    (الملحق 3 §⑥ · و1.0 = الملحق 2 بت-بت)."""
     good = [b for b in bars if all(isinstance(x, (int, float)) and x > 0 for x in b[1:5])]
     if len(good) < len(ref):
         return []
@@ -125,7 +126,7 @@ def window_candidates(bars: list, ref, rel, mask, events, day_of, adjusted_out: 
     st, lt = shape_tol(rel, mask), level_tol(rel, mask)
     m = len(ref)
     out = []
-    for i in np.where(rms <= st)[0]:
+    for i in np.where(rms <= st * mult)[0]:
         i = int(i)
         end = good[i + m - 1][0]
         k = float(math.exp(logk[i]))
@@ -163,7 +164,7 @@ def verdict(passers: list, n_groups: int) -> tuple:
     return "غير محسوم", t1, t2
 
 
-def judge(card: dict, series: dict, events, day_of, stamp) -> dict:
+def judge(card: dict, series: dict, events, day_of, stamp, mult: float = 1.0) -> dict:
     """البطاقة ‏+ {وسمُ المتغيّر: شموع} ‏+ التقسيمات ⟵ صفُّ النتيجة. `series` يحمل كلَّ متغيّرٍ للفريم (والتقسيمُ متغيّرٌ مستقلّ)."""
     ref, rel, mask = card_arrays(card)
     tf = card["frame"]
@@ -171,7 +172,7 @@ def judge(card: dict, series: dict, events, day_of, stamp) -> dict:
     shape_pass, n_groups = [], (2 if events is not None else 1)
     for lab, bars in series.items():
         adj = lab.split("|split:")[1] if "|split:" in lab else None
-        for c in window_candidates(bars, ref, rel, mask, events, day_of, adjusted_out=adj):
+        for c in window_candidates(bars, ref, rel, mask, events, day_of, adjusted_out=adj, mult=mult):
             c["variant"] = lab
             shape_pass.append(c)
     passers = [c for c in shape_pass if c["level_ok"] is not False]
@@ -180,6 +181,8 @@ def judge(card: dict, series: dict, events, day_of, stamp) -> dict:
     row = {"id": card["id"], "symbol": card["symbol"], "frame": tf, "label": label, "n_groups": n_groups,
            "shape_pass": len(shape_pass), "passers": len(merged), "m": len(ref), "present": int(mask.sum()),
            "shape_tol": round(shape_tol(rel, mask), 5), "level_tol": round(level_tol(rel, mask), 5)}
+    if mult != 1.0:
+        row["mult"] = mult
     for nm, t in (("top1", t1), ("top2", t2)):
         if t:
             row[nm] = {"end": stamp(t["end_ts"], tf), "rms": round(t["rms"], 5), "k": round(t["k"], 4),
@@ -189,6 +192,50 @@ def judge(card: dict, series: dict, events, day_of, stamp) -> dict:
         row["best_shape"] = {"end": stamp(b["end_ts"], tf), "rms": round(b["rms"], 5), "k": round(b["k"], 4),
                              "k_exp": None if b["k_exp"] is None else round(b["k_exp"], 4), "variant": b["variant"]}
     return row
+
+
+CALIB_R_MAX = 10.0        # أعلى مضاعفٍ في شبكة الملحق 3 §⑤ (ما فوقه لا يدخل المنحنى)
+CALIB_SHOW = 10           # أصغرُ النوافذ الكاذبة تُطبع للفحص
+
+
+def calib(card: dict, series: dict, events, day_of, stamp, truth: str) -> dict:
+    """الملحق 3 §⑤: البحثُ في كلّ نوافذ تاريخ الرمز (كلُّ المتغيّرات) **بلا الحقيقة** ⟵ لكلّ نافذةٍ النسبةُ `r` = rms ÷ تسامحُ الشكل للبطاقة
+    وقيدُ المستوى كما هو ⟵ **ثمّ** تُصنَّف النوافذُ بالحقيقة (`results.side_hit` بالاسم): `r_true` = أصغرُ `r` لنافذةٍ «تصيب» · `r_false` =
+    أصغرُ `r` لكلّ نافذةٍ أخرى — مرّةً مع قيد المستوى (لا يرفضها) ومرّةً بلا قيده (وصف). وما فوق `CALIB_R_MAX` لا يُحسب (`None`)."""
+    import results as RS                                           # noqa: PLC0415  (بُنيت للفحص الجانبيّ في الملحق 2)
+    ref, rel, mask = card_arrays(card)
+    tf = card["frame"]
+    st, lt = shape_tol(rel, mask), level_tol(rel, mask)
+    out = {"lv": {"true": None, "false": None}, "sh": {"true": None, "false": None}}
+    fal = []
+    n = 0
+    for lab, bars in series.items():
+        adj = lab.split("|split:")[1] if "|split:" in lab else None
+        for c in window_candidates(bars, ref, rel, mask, events, day_of, adjusted_out=adj, mult=CALIB_R_MAX):
+            n += 1
+            r = c["rms"] / st if st > 0 else math.inf
+            end = stamp(c["end_ts"], tf)
+            hit = bool(RS.side_hit(tf, end, truth))
+            key = "true" if hit else "false"
+            for grp, ok in (("sh", True), ("lv", c["level_ok"] is not False)):
+                if ok and (out[grp][key] is None or r < out[grp][key][0]):
+                    out[grp][key] = (r, end, lab, c["level_ok"])
+            if not hit and c["level_ok"] is not False:
+                fal.append((r, end, lab))
+    fal.sort()
+    show, seen_end = [], set()
+    for r, end, lab in fal:
+        if end not in seen_end:
+            seen_end.add(end)
+            show.append([end, round(r, 4), lab])
+        if len(show) >= CALIB_SHOW:
+            break
+    rnd = lambda t: None if t is None else [round(t[0], 4), t[1], t[2], t[3]]  # noqa: E731
+    return {"id": card["id"], "symbol": card["symbol"], "frame": tf, "truth": truth,
+            "n_groups": 2 if events is not None else 1, "shape_tol": round(st, 5), "level_tol": round(lt, 5),
+            "m": len(ref), "present": int(mask.sum()), "windows_r_le_max": n,
+            "lv_true": rnd(out["lv"]["true"]), "lv_false": rnd(out["lv"]["false"]),
+            "sh_true": rnd(out["sh"]["true"]), "sh_false": rnd(out["sh"]["false"]), "false_top": show}
 
 
 # ── التشغيل على الرنر ──────────────────────────────────────────────────────────────────────────────
@@ -217,11 +264,19 @@ def main() -> int:
     import chart_id_tv as CT                                       # noqa: PLC0415
     import tv_data as TV                                           # noqa: PLC0415
     path = os.environ.get("DC_CARDS", os.path.join(HERE, "data", "cards.jsonl"))
+    mode = (os.environ.get("DC_MODE") or "match").strip()
+    mult = float(os.environ.get("DC_TOL_MULT", "1") or 1)
+    truth = json.loads(os.environ.get("DC_TRUTH") or "{}")       # الملحق 3 §⑤: {معرّف: الحقيقة} — للتصنيف بعد البحث وحدَه
+    if mode == "calib" and not truth:                              # الافتراض: مجموعةُ المعايرة المجمَّدة (`v3.calib_set`)
+        cs = json.load(open(os.path.join(HERE, "data", "calib_set.json"), encoding="utf-8"))
+        truth = {x["file"]: x["truth"] for x in cs["set"]}
     batch = int(os.environ.get("DC_BATCH", "0") or 0)
     size = int(os.environ.get("DC_SIZE", "40") or 40)
     only = {x.strip() for x in (os.environ.get("DC_IDS") or "").split(",") if x.strip()}
     cards = [json.loads(ln) for ln in open(path, encoding="utf-8") if ln.strip()]
     cards = [c for c in cards if c.get("ok")]
+    if mode == "calib" and not only:
+        only = set(truth)
     if only:
         cards = [c for c in cards if c["id"] in only]
     else:
@@ -262,10 +317,18 @@ def main() -> int:
             series[lab] = bars
             for d, r in (events or []):
                 series[f"{lab}|split:{d}"] = unadjust(bars, d, r, day_of)
+        if mode == "calib":
+            row = (calib(card, series, events, day_of, stamp, truth.get(card["id"], "")) if series
+                   else {"id": card["id"], "why": why or "لا متغيّر"})
+            print(f"DCC\t{json.dumps(row, ensure_ascii=False)}", flush=True)
+            continue
         if not series:
             row = {"id": card["id"], "symbol": sym, "frame": card["frame"], "label": "لا تطابق", "why": why or "لا متغيّر"}
         else:
-            row = judge(card, series, events, day_of, stamp)
+            row = judge(card, series, events, day_of, stamp, mult=mult)
+            if mult != 1.0:                                        # الملحق 3 §⑥: «واثق» عند m = 1 بجوارها
+                base = judge(card, series, events, day_of, stamp)
+                row["at_m1"] = {"label": base["label"], "end": (base.get("top1") or {}).get("end")}
             first = min((b[0] for v in series.values() for b in v[:1]), default=None)
             row["history_from"] = stamp(first, card["frame"]) if first else None
             row["splits"] = events
