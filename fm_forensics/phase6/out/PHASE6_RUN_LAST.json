@@ -1,39 +1,9 @@
 {
- "run_id": "41810193349",
+ "run_id": "42005624718",
  "result": {
   "done": [
-   "IXIC",
-   "NIVF",
-   "SXTC",
-   "TRUG",
-   "UPC",
-   "VEEE",
-   "VMAR",
-   "ADIL",
-   "ADVB",
-   "AMIX",
-   "ATPC",
-   "BETA",
-   "BNAI",
-   "BRTX",
-   "FUBO",
-   "FULC",
-   "GCTK",
-   "GRI",
-   "GWAV",
-   "HAO",
-   "HCAI",
-   "HCWB",
-   "HUBC",
-   "HWH",
-   "IMCC",
-   "IPDN",
-   "JAGX",
-   "JEM",
-   "KWM",
-   "LABT",
-   "LIMN",
-   "LNAI",
+   "DAIC",
+   "CPOP",
    "MI",
    "WHLR",
    "WORX",
@@ -104,52 +74,84 @@
    "SPRC",
    "STKH",
    "SUGP",
-   "SVRE"
+   "SVRE",
+   "ADIL",
+   "ADVB",
+   "AMIX",
+   "ATPC",
+   "BETA",
+   "BNAI",
+   "BRTX",
+   "FUBO",
+   "FULC",
+   "GCTK",
+   "GRI",
+   "GWAV",
+   "HAO",
+   "HCAI",
+   "HCWB",
+   "HUBC",
+   "HWH",
+   "IMCC",
+   "IPDN",
+   "IXIC",
+   "JAGX",
+   "JEM",
+   "KWM",
+   "LABT",
+   "LIMN",
+   "LNAI",
+   "NIVF",
+   "SXTC",
+   "TRUG",
+   "UPC",
+   "VEEE",
+   "VMAR"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "DETX",
-    "EDSA",
-    "FCUV",
-    "GAUZ",
-    "INTS",
-    "MOVE",
-    "MTVA",
-    "SBFM",
-    "SWMR",
-    "SYPR",
-    "VRAX",
-    "TGHL",
-    "FLUX",
-    "NCRA",
-    "SUPX",
-    "TRIB"
+    "BIOA",
+    "CMCT",
+    "CWD",
+    "DGNX",
+    "GVH",
+    "INTZ",
+    "IREN",
+    "IZM",
+    "KTOS",
+    "NTRP",
+    "NXH",
+    "SAEN",
+    "WVE",
+    "HTZ",
+    "INSG",
+    "MYSZ"
    ],
    "skipped": [],
    "calendar_error": "",
    "ce_used": 16,
-   "pool_date": "2026-11-04",
-   "pool_n": 448,
+   "pool_date": "2026-11-05",
+   "pool_n": 429,
    "status": "OK"
   }
  },
  "audit": {
-  "rows": 1321,
+  "rows": 1559,
   "by_status": {
-   "OK": 936,
-   "UNKNOWN": 228,
-   "FAILED": 9,
-   "NOT_ATTEMPTED": 148
+   "OK": 1167,
+   "UNKNOWN": 232,
+   "FAILED": 7,
+   "NOT_ATTEMPTED": 153
   },
   "by_category": {
-   "1": 525,
-   "2": 411,
-   "4": 385
+   "1": 532,
+   "2": 635,
+   "4": 392
   },
-  "tickers": 119,
+  "tickers": 121,
   "chain_problems": []
  },
  "missing": [
@@ -329,6 +331,11 @@
    "yahoo_splits"
   ],
   [
+   "CPOP",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "CRE",
    "short_interest",
    "yahoo_info"
@@ -509,11 +516,6 @@
    "yahoo_splits"
   ],
   [
-   "FLUX",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
    "FRSX",
    "short_interest",
    "yahoo_info"
@@ -659,6 +661,11 @@
    "yahoo_splits"
   ],
   [
+   "INSG",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "IPDN",
    "short_interest",
    "yahoo_info"
@@ -755,6 +762,16 @@
   ],
   [
    "MTEX",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "MYSZ",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "MYSZ",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -762,16 +779,6 @@
    "NAMM",
    "short_interest",
    "yahoo_info"
-  ],
-  [
-   "NCRA",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "NCRA",
-   "reverse_split",
-   "yahoo_splits"
   ],
   [
    "NCT",
@@ -1049,11 +1056,6 @@
    "nasdaq_calendar"
   ],
   [
-   "SUPX",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
    "SVRE",
    "short_interest",
    "yahoo_info"
@@ -1077,16 +1079,6 @@
    "SXTC",
    "reverse_split",
    "nasdaq_calendar"
-  ],
-  [
-   "TRIB",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "TRIB",
-   "reverse_split",
-   "yahoo_splits"
   ],
   [
    "TRUG",

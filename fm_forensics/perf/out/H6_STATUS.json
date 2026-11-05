@@ -1,12 +1,12 @@
 {
  "contract_sha256": "a6f68f745cba189223b1f8258e733dc5e1e538382dfe6533307092d8e942c7ed",
- "today": "2026-11-04",
+ "today": "2026-11-05",
  "cutoff": "2026-10-09",
  "window_end": "2027-04-09",
  "floor": 15,
- "candidates": 16,
+ "candidates": 17,
  "by_status": {
-  "HISTORICAL": 3,
+  "HISTORICAL": 4,
   "REPEAT": 3,
   "ELIGIBLE_LATE": 1,
   "ELIGIBLE": 8,
@@ -186,6 +186,14 @@
    "sample": "SECONDARY"
   },
   {
+   "case_id": "CASE_0017",
+   "ticker": "SUGP",
+   "T": "2026-10-08",
+   "status": "HISTORICAL",
+   "code": "before_cutoff",
+   "sample": "PRIMARY"
+  },
+  {
    "case_id": "CASE_0008",
    "ticker": "NCT",
    "T": "2026-10-10",
@@ -337,22 +345,22 @@
  },
  "any_testable": false,
  "panel": {
-  "days": 19,
+  "days": 20,
   "first": "2026-10-09",
-  "last": "2026-11-04",
+  "last": "2026-11-05",
   "no_pool_days": 0,
   "k": 16,
-  "pool_date_last": "2026-11-04",
-  "pool_obs_last": "2026-11-04",
+  "pool_date_last": "2026-11-05",
+  "pool_obs_last": "2026-11-05",
   "pool_lag_entries_last": 0,
   "pool_newer_entries": []
  },
  "cases_after_cutoff": 13,
  "inputs": {
-  "last_photo": "2026-11-02",
-  "sessions_since_last_photo": 2
+  "last_photo": "2026-11-04",
+  "sessions_since_last_photo": 1
  },
- "ledger_rows": 58268,
+ "ledger_rows": 59827,
  "floor_reached": false,
  "window_closed": false
 }
