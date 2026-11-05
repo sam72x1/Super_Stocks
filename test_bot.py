@@ -96972,6 +96972,81 @@ except Exception as _e:                                              # noqa: BLE
 check("📈✖️🏃📄 GCR4 نتيجةُ «التقاطع على راكض الارتكاز» كما صدرت: §⑧ مثبَّت · الحاكمُ أسوأُ من العشوائيّ (−0.58% [−0.60، −0.56]) · "
       "وR1-R7 بحكمٍ لكلّ سطر · والإغلاقُ مقترَحٌ لا مُنفَّذ", _gr4_v == (True,) * 4, str(_gr4_v)[:240])
 
+# 🔄🔒 OEU1-OEU3 (‏2026-11-05 · عطلٌ مُثبَت من تذكير «تحقّق إطفاء الزناد الموازي»): عاملُ «هنا الدخول» الثاني انتظر عاملًا أقدمَ (`OES`) من 14:29
+#    وبدأ 17:46 بكود الإقلاع (قبل #737) ولم يُحدَّث حتى 18:32 ⟵ أطلق «🚦 زنادٌ موازٍ» على MASK ‏18:28 UTC بعد أمر «أطفئ الزناد الموازي» ·
+#    وفحوصُ التحديث تُحجَب «غيرُ نظيفة» تسعَ مرّاتٍ من عشرٍ (الدفعةُ المكتومة المعلَّقة) ⟵ ① فحصٌ في الدورة الأولى ② دفعُ المعلَّق قبل الفحص
+#    ③ سطرُ الحجب يسمّي الملفّات.
+try:
+    import ast as _ou_ast
+    import inspect as _ou_insp
+    import operator_entry_live as _OU
+    _ou_tree = _ou_ast.parse(_ou_insp.getsource(_OU.main))
+    _ou_ifs = [n for n in _ou_ast.walk(_ou_tree) if isinstance(n, _ou_ast.If)
+               and any(isinstance(c, _ou_ast.Call) and getattr(c.func, "id", None) == "_self_update" for c in _ou_ast.walk(n))
+               and not any(isinstance(c, _ou_ast.If) and c is not n and any(isinstance(d, _ou_ast.Call) and getattr(d.func, "id", None) == "_self_update"
+                                                                             for d in _ou_ast.walk(c)) and c.test is not n.test for c in n.body)]
+    _ou_if = _ou_ifs[-1] if _ou_ifs else None
+    _ou_expr = compile(_ou_ast.Expression(_ou_if.test), "<oeu>", "eval")
+    _ou_R = _OU.REFRESH_EVERY
+    _ou_true = [k for k in range(1, 3 * _ou_R + 1) if eval(_ou_expr, {"REFRESH_EVERY": _ou_R}, {"loops": k})]   # noqa: S307
+    _ou_v1 = (_ou_true == [1] + [k for k in range(1, 3 * _ou_R + 1) if k % _ou_R == 0],)
+except Exception as _e:                                              # noqa: BLE001
+    _ou_v1 = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🔄🔒 OEU1 فحصُ تحديث الكود في الدورة الأولى أيضًا (بعد انتظار `OES` أو إعادة التشغيل) ثمّ كلَّ `REFRESH_EVERY` دورة — من شرط نقطة النداء نفسِه",
+      _ou_v1 == (True,), str(_ou_v1)[:240])
+try:
+    _ou_try = next(t for t in _ou_ast.walk(_ou_if) if isinstance(t, _ou_ast.Try)
+                   and any(isinstance(c, _ou_ast.Call) and getattr(c.func, "id", None) == "_self_update" for c in _ou_ast.walk(t)))
+    _ou_names = [getattr(c.func, "id", None) for st in _ou_try.body for c in _ou_ast.walk(st) if isinstance(c, _ou_ast.Call)]
+    _ou_order = ("_flush_pending" in _ou_names and "_self_update" in _ou_names
+                 and _ou_names.index("_flush_pending") < _ou_names.index("_self_update"))
+    _ou_saved = []
+    _ou_gs = _OU.bot.git_save
+    _ou_push0 = dict(_OU._PUSH)
+    try:
+        _OU.bot.git_save = lambda files: _ou_saved.append(list(files))
+        _OU._PUSH.update({"last": __import__("time").time(), "pending": True})
+        _ou_r1 = _OU._flush_pending()
+        _ou_after_pending = _OU._PUSH["pending"]
+        _ou_saved_pending = list(_ou_saved)
+        _ou_saved.clear()
+        _ou_r2 = _OU._flush_pending()
+        _ou_saved_clean = list(_ou_saved)
+    finally:
+        _OU.bot.git_save = _ou_gs
+        _OU._PUSH.clear()
+        _OU._PUSH.update(_ou_push0)
+    _ou_v2 = (_ou_order and _ou_r1 is True and _ou_saved_pending == [[_OU.bot.OP_ENTRY_STATE_FILE]] and _ou_after_pending is False
+              and _ou_r2 is False and _ou_saved_clean == [],)
+except Exception as _e:                                              # noqa: BLE001
+    _ou_v2 = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📦🔄🔒 OEU2 الدفعةُ المكتومة المعلَّقة تُدفَع (`_flush_pending` · غيرَ مكتومة · ملفُّ الحالة وحدَه) **قبل** فحص التحديث في الكتلة نفسِها · وبلا معلَّقٍ صفرُ دفع",
+      _ou_v2 == (True,), str(_ou_v2)[:240])
+try:
+    _ou_logs, _ou_calls = [], []
+    _ou_keep = (_OU._git_out, _OU._code_changed, _OU._BOOT_SHA, _OU._log)
+
+    def _ou_git(args, timeout=None):
+        _ou_calls.append(list(args))
+        if args[:1] == ["rev-parse"]:
+            return "f" * 40
+        if args[:1] == ["status"]:
+            return " M op_entry_state.json\n?? tmp_x.txt\n M a.json\n M b.json\n"
+        return ""
+    try:
+        _OU._git_out, _OU._code_changed, _OU._BOOT_SHA = _ou_git, (lambda: ["Super_stock.py"]), "e" * 40
+        _OU._log = lambda m: _ou_logs.append(m)
+        _ou_r = _OU._self_update(__import__("time").time(), 60)
+    finally:
+        _OU._git_out, _OU._code_changed, _OU._BOOT_SHA, _OU._log = _ou_keep
+    _ou_line = next((m for m in _ou_logs if "غيرُ نظيفة" in m), "")
+    _ou_v3 = (_ou_r is False and not any(c[:1] == ["reset"] for c in _ou_calls)
+              and "op_entry_state.json" in _ou_line and "tmp_x.txt" in _ou_line and "a.json" in _ou_line and "b.json" not in _ou_line and "+1" in _ou_line,)
+except Exception as _e:                                              # noqa: BLE001
+    _ou_v3 = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🔎🔒 OEU3 سطرُ «الشجرةُ غيرُ نظيفة» يسمّي أوّلَ ثلاثة ملفّاتٍ متّسخة ويعدّ الباقي · ولا تحديثَ ولا `reset`",
+      _ou_v3 == (True,), str(_ou_v3)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

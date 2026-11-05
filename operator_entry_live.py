@@ -70,6 +70,15 @@ def _push_state(files, muted=False, now=None, every=None):
     return True
 
 
+def _flush_pending():
+    """📦🔄 (2026-11-05 · عطلٌ مُثبَت · `OEU2`): الدفعةُ المكتومة المعلَّقة (`_PUSH`) تُبقي ملفَّ الحالة متّسخًا حتى دفعتها التالية ⟵
+    كلُّ فحصِ تحديثٍ يقع وهي معلَّقة يُحجَب («غيرُ نظيفة» تسعَ مرّاتٍ من عشرٍ يومَ 11-05) ⟵ تُدفَع (غيرَ مكتومة · ملفُّ الحالة وحدَه)
+    قبل الفحص. ⟵ True إن دُفع · وبلا معلَّقٍ صفرُ دفع."""
+    if _PUSH["pending"]:
+        return _push_state([bot.OP_ENTRY_STATE_FILE])
+    return False
+
+
 def _ny_minutes(now=None):
     """دقائقُ اليوم بتوقيت نيويورك — **يتصيّف/يتشتّى ذاتيًّا** (لا ثوابت UTC)."""
     try:
@@ -543,8 +552,12 @@ def _self_update(t0, budget):
         return False                       # حالةُ بوتٍ فقط ⇒ لا إعادةَ تشغيل
     _log(f"🔄 كودٌ أحدثُ على origin ({_BOOT_SHA[:7]} ⟶ {remote[:7]}: "
          f"{'، '.join(changed[:3])}) — يُفحَص الأمان.")
-    if _git_out(["status", "--porcelain"]):
-        _log("⏸️ الشجرةُ غيرُ نظيفة ⇒ **لا تحديث** (يمضي بالقديم).")
+    _dirty = _git_out(["status", "--porcelain"])
+    if _dirty:
+        # 🔎 (2026-11-05 · عطلٌ مُثبَت · `OEU3`): السطرُ يسمّي الملفّاتِ المتّسخة — كان «غيرُ نظيفة» بلا اسمٍ فلا يُشخَّص سببُ الحجب.
+        _paths = [ln[3:].strip() for ln in _dirty.splitlines() if ln.strip()]
+        _log("⏸️ الشجرةُ غيرُ نظيفة (" + "، ".join(_paths[:3]) + (f" ‏+{len(_paths) - 3}" if len(_paths) > 3 else "")
+             + ") ⇒ **لا تحديث** (يمضي بالقديم).")
         return False
     if not _stamps_covered():
         _log("⏸️ أختامُ ددوبٍ محلّيّةٌ ليست كلُّها على origin ⇒ **لا تحديث** "
@@ -828,7 +841,10 @@ def main():
             _maybe_chain(budget - (time.time() - t0) / 60.0)
         except Exception as e:                                   # noqa: BLE001
             _log(f"⚠️ الخلَف (دورة {loops}): {e}")
-        if loops % REFRESH_EVERY == 0:
+        # 🔄 (2026-11-05 · عطلٌ مُثبَت · `OEU1`): **والدورةُ الأولى أيضًا** — العاملُ الذي انتظر عاملًا أقدمَ (`OES`) ثلاثَ ساعاتٍ بدأ
+        #    العملَ بكود الإقلاع (‏14:29) ولم يفحص origin إلّا بعد عشر دورات ⟵ أطلق «🚦 زنادٌ موازٍ» (MASK 18:28 UTC) بعد أمر
+        #    «أطفئ الزناد الموازي» (#737 ‏15:01). وفي الدورة الأولى الشجرةُ نظيفةٌ والتحديثُ ممكن.
+        if loops % REFRESH_EVERY == 0 or loops == 1:
             try:
                 uni, _c, _s, uni_all = _load_universe()
                 for _k, _v in (_s or {}).items():
@@ -839,6 +855,7 @@ def main():
             #    فالمقارنةُ بلا نداءٍ شبكيٍّ إضافيّ. (يُنادى **بعد** ضمّ الددوب
             #    كي لا يُعاد التشغيل قبل أن تُقرأ أختامُ المقاطع الأخرى.)
             try:
+                _flush_pending()                 # 📦🔄 `OEU2`: المعلَّقُ المكتوم يُدفَع أوّلًا فلا تُحجَب الشجرةُ المتّسخة التحديث
                 _self_update(t0, budget)
             except Exception as e:                               # noqa: BLE001
                 _log(f"⚠️ فحصُ تحديث الكود: {e}")
