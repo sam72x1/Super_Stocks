@@ -96277,6 +96277,200 @@ except Exception as _e:                                              # noqa: BLE
 check("📈✖️🔒 GCX0 عقدُ `T-GCROSS` مثبَّتُ البصمة قبل أيّ رقم · وصفوفُ الدفتر 12 (7 نايف · 5 هندسيّ) · واللقطاتُ مُعلَنةٌ «لم تصلني»",
       _gcx_v == (True,) * 4, str(_gcx_v)[:240])
 
+# 📈✖️ GCB1-GCB6 · GCA1 (‏2026-11-05 · `T-GCROSS` «التقاطع الذهبي» · العقد `fm_forensics/ema_cross/T_GCROSS_prereg.md`) — الأداتان قبل أيّ رقم.
+try:
+    import ema_cross_live as _GC
+    import random as _gc_rnd
+    import vwap_momentum_live as _GCV
+    _gc_r = _gc_rnd.Random(7)
+    _gc_vals = [10 + _gc_r.uniform(-1, 1) for _ in range(60)]
+    _gc_s8 = _GC.ema_series(_gc_vals, 8)
+    _gc_v1 = (all(abs(_gc_s8[i] - _GCV.ema_last(_gc_vals[:i + 1], 8)) < 1e-12 for i in range(60)),
+              _GC.FAST_N == 8 and _GC.SLOW_N == 15)
+
+    def _gc_bars(closes, m0=570):
+        return [(m0 + i, c, c, c, c, 1000.0) for i, c in enumerate(closes)]
+    # هابطٌ ثمّ صاعدٌ ثمّ هابط ⟵ إيجابيٌّ ثمّ سلبيّ · والشمعةُ الأولى بلا تقاطع
+    _gc_cl = [10 - 0.1 * i for i in range(20)] + [8 + 0.3 * i for i in range(20)] + [14 - 0.4 * i for i in range(20)]
+    _gc_b = _gc_bars(_gc_cl)
+    _gc_x = _GC.crosses(_gc_b)
+    _gc_signs = [x["sign"] for x in _gc_x]
+    # التساوي «ليس فوق»: ثابتٌ تمامًا ⟵ لا تقاطع
+    _gc_flat = _GC.crosses(_gc_bars([5.0] * 30))
+    _gc_v1 += (_gc_signs == ["+", "-"] and all(x["i"] >= 1 for x in _gc_x) and _gc_flat == [],
+               _GC.regular([(569, 1, 1, 1, 1, 1), (570, 2, 2, 2, 2, 1), (959, 3, 3, 3, 3, 1), (960, 4, 4, 4, 4, 1)], 570, 960)
+               == [(570, 2, 2, 2, 2, 1), (959, 3, 3, 3, 3, 1)])
+except Exception as _e:                                              # noqa: BLE001
+    _gc_v1 = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️ GCB1 `ema_series` = `ema_last` بالاسم لكلّ موضع · EMA8/15 · الإيجابيُّ ثمّ السلبيّ على سلسلةٍ مصنوعة · التساوي «ليس فوق» · "
+      "والنظاميّةُ [09:30، 16:00) وحدَها", _gc_v1 == (True,) * 4, str(_gc_v1)[:240])
+
+# GCB2 — مطابقةُ تسلسل نايف بالترتيب و±2% (حدّاها) والقمّة · وما بعد أوّل سقوطٍ لا يُطابَق
+try:
+    _gm_b = [(570 + i, 1.0, 1.0 + (2.0 if i == 5 else 0.0), 1.0, 1.0, 1.0) for i in range(12)]
+    _gm_x = [{"i": 1, "m": 571, "sign": "+", "px": 1.19 * 1.02}, {"i": 3, "m": 573, "sign": "-", "px": 2.5},
+             {"i": 7, "m": 577, "sign": "-", "px": 2.6}, {"i": 9, "m": 579, "sign": "+", "px": 2.0}]
+    _gm1 = _GC.match_seq(_gm_x, _gm_b, [("+", 1.19, None), ("-", None, 3.00), ("+", 2.00, None)])
+    _gm_x2 = [dict(_gm_x[0], px=1.19 * 1.0201)] + _gm_x[1:]
+    _gm2 = _GC.match_seq(_gm_x2, _gm_b, [("+", 1.19, None), ("+", 2.00, None)])
+    _gm3 = _GC.match_seq(_gm_x, _gm_b, [("+", 2.00, None), ("+", 1.19, None)])
+    _gm_v = ([r["ok"] for r in _gm1] == [True, True, True] and _gm1[1]["x"]["i"] == 7 and abs(_gm1[1]["peak"] - 3.0) < 1e-9,
+             [r["ok"] for r in _gm2] == [False, False],
+             [r["ok"] for r in _gm3] == [True, False])
+except Exception as _e:                                              # noqa: BLE001
+    _gm_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️ GCB2 القبول: التسلسلُ بالترتيب · ±2% شاملٌ حدَّه ويسقط بعده · السلبيُّ «بعد القمّة» يتخطّى ما قبل بلوغها · وبعد أوّل سقوطٍ لا مطابقة",
+      _gm_v == (True,) * 3, str(_gm_v)[:240])
+
+# GCB3 — الدورات: إعادةُ الدخول · «الإغلاق» · أقصى الربح والمدّة · فلترُ الدخول · والضابطُ يستبعد آخرَ دقيقة
+try:
+    _gy_b = [(570 + i, c, c + 0.5, c, c, 1.0) for i, c in enumerate([10, 10, 11, 12, 11, 10, 11, 13, 14, 15])]
+    _gy_x = [{"i": 2, "m": 572, "sign": "+", "px": 11}, {"i": 4, "m": 574, "sign": "-", "px": 11},
+             {"i": 6, "m": 576, "sign": "+", "px": 11}]
+    _gy_all = _GC.cycles(_gy_b, _gy_x, lambda x: True)
+    _gy_f = _GC.cycles(_gy_b, _gy_x, lambda x: x["i"] != 2)
+    _gy_ctl = _GC.control_cycles(_gy_b, _gy_x, [9], 3, _gc_rnd.Random(1))
+    _gy_v = (len(_gy_all) == 2 and _gy_all[0]["exit"] == "neg" and _gy_all[0]["dur"] == 2 and abs(_gy_all[0]["maxp"] - (12.5 / 11 - 1)) < 1e-9
+             and _gy_all[1]["exit"] == "close" and abs(_gy_all[1]["ret"] - (15 / 11 - 1)) < 1e-9 and [c["n"] for c in _gy_all] == [1, 2],
+             len(_gy_f) == 1 and _gy_f[0]["entry_m"] == 576,
+             _gy_ctl == [])
+except Exception as _e:                                              # noqa: BLE001
+    _gy_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️ GCB3 الدورات: كلُّ إيجابيٍّ جديدٍ دورة (رقمُه في اليوم) · الخروجُ بالسلبيّ أو «الإغلاق» · أقصى الربح من `h` بعد الدخول · "
+      "وفلترُ المجتمع يُسقط الإيجابيّ · والضابطُ لا يدخل بآخر دقيقة", _gy_v == (True,) * 3, str(_gy_v)[:240])
+
+# GCB4 — المجتمع = ترتيبُ الملحق 5 عدا ③ L بالحدود نفسِها (سلوكيًّا)
+try:
+    _gu = lambda **k: _GC.momentum_why(dict({"px": 5.0, "cum_dollar": 300000.0, "chg": 0.25}, **{a: b for a, b in k.items() if a in ("px", "cum_dollar", "chg")}),   # noqa: E731
+                                       k.get("ts", "ok"), k.get("spac"), k.get("cat", True))
+    _gu_v = (_GC.CHECK_ORDER == tuple(c for c in _GCV.CHECK_ORDER_A5 if c != "③ L") and "③ L" not in _GC.CHECK_ORDER,
+             _gu() == [] and _gu(px=0.99) == ["⑤ السعر"] and _gu(px=20.0) == ["⑤ السعر"] and _gu(px=19.99) == [],
+             _gu(cum_dollar=249999.0) == ["الحجم الدولاري"] and _gu(cum_dollar=250000.0) == [],
+             _gu(chg=0.19) == ["① التغيّر"] and _gu(chg=0.2) == [] and _gu(chg=None) == ["① التغيّر"],
+             _gu(ts="unknown") == ["⑤ النوع (مجهول)"] and _gu(spac="SPAC") == ["⑤ SPAC"] and _gu(cat=None) == ["④ الخبر (مجهول)"]
+             and _gu(cat=False) == ["④ الخبر"],
+             _gu(px=0.5, cum_dollar=0.0, chg=None) == ["⑤ السعر"])
+except Exception as _e:                                              # noqa: BLE001
+    _gu_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️ GCB4 المجتمع = `CHECK_ORDER_A5` عدا ③ L: السعرُ [1، 20) · 250 ألفًا · ‏+20% · النوع · SPAC · الخبر — بالحدود وبالترتيب (أوّلُ سقوط)",
+      _gu_v == (True,) * 6, str(_gu_v)[:240])
+
+# GCB5 — الحلقةُ الحيّة بمرجعٍ مزيّف: دقيقةُ الحدّ وحدَها · الإيجابيُّ بالمجتمع ثمّ تحقّقُ REST · صامتٌ بلا إرسال · والسلبيُّ يغلق الدورة بنتيجتها
+try:
+    import os as _gl_os
+    import tempfile as _gl_tmp
+    _gl_day = "2026-11-04"
+    _gl_t0 = _GC.V3.ny_ts(_gl_day, 0)
+    _gl_cl = [10 - 0.05 * i for i in range(15)] + [9.3 + 0.2 * i for i in range(10)] + [11.3 - 0.3 * i for i in range(10)]
+    _gl_rows = [(570 + i, c, c, c, c, 100000.0) for i, c in enumerate(_gl_cl)]
+    _gl_xs = _GC.crosses(_gc_bars(_gl_cl))
+    # BBB يدخل المرشِّحَ متأخّرًا (من 09:50) وتقاطعُه الإيجابيُّ الوحيدُ قبل ذلك ⟵ البائتُ لا يُقيَّم ولا يُنبَّه
+    _gl_cb = [10 - 0.05 * i for i in range(10)] + [9.6 + 0.05 * i for i in range(25)]
+    _gl_rows_b = [(570 + i, c, c, c, c, 100000.0) for i, c in enumerate(_gl_cb)]
+    _gl_xb = _GC.crosses(_gc_bars(_gl_cb))
+
+    class _GLNet:
+        calls = fails = 0
+
+        def snapshot(self):
+            late = int((_gl_clock[0] - _gl_t0) // 60) >= 590
+            return dict({"AAA": (12.0, 9.0, 1e6), "CCC": (12.0, 9.0, 1e6)}, **({"BBB": (12.0, 9.0, 1e6)} if late else {}))
+
+        def minutes(self, sym, a, b):
+            upto = int((_gl_clock[0] - _gl_t0) // 60)
+            return {_gl_day: [r for r in (_gl_rows_b if sym == "BBB" else _gl_rows) if r[0] < upto]}
+
+    class _GLDay:
+        def __init__(self, net, day, MC, replay=False):
+            self.ok, self.why, self.day = True, [], day
+            self.types = {"AAA": "CS", "BBB": "CS", "CCC": "CS"}
+
+        def prev_adj_pf(self, sym):
+            return 7.0 if sym != "CCC" else 9.0
+
+        def prev_adj(self, sym):
+            return 7.0 if sym != "CCC" else 9.0                 # CCC بشموع AAA نفسِها و‏+5% وحدَها ⟵ خارج المجتمع (①)
+
+        def type_status(self, sym):
+            return "ok"
+
+        def catalyst(self, sym, upto):
+            return (lambda e: {"C": True}), None, None
+
+    class _GLMC:
+        @staticmethod
+        def session_info(d):
+            return {"open_ny_min": 570, "close_ny_min": 960}
+    _gl_clock = [_GC.V3.ny_ts(_gl_day, 570) - 5]
+    _gl_sent, _gl_saved = [], []
+    _gl_day_cls = _GC.V.Day
+    _gl_dir = _gl_tmp.mkdtemp()
+    _gl_path = _gl_os.path.join(_gl_dir, "led.jsonl")
+    _gl_log = _GC.log
+    try:
+        _GC.V.Day = _GLDay
+        _GC.log = lambda m="": None                                  # سجلُّ الأداة لا يختلط بسطور الأقفال (سطرُ «❌ $AAA» يُقرأ سقوطًا)
+        _gl_rc = _GC.mode_live(_GLNet(), _GLMC, send=False, now_fn=lambda: _gl_clock[0],
+                               sleep_fn=lambda s: _gl_clock.__setitem__(0, _gl_clock[0] + max(s, 0.01)),
+                               sender=lambda m: _gl_sent.append(m) or True, saver=lambda p: _gl_saved.append(p), path=_gl_path,
+                               ws=None, until_mod=570 + len(_gl_cl))
+    finally:
+        _GC.V.Day, _GC.log = _gl_day_cls, _gl_log
+    _gl_led = [__import__("json").loads(ln) for ln in open(_gl_path, encoding="utf-8")]
+    _gl_exp = [(x["sign"], x["m"]) for x in _gl_xs]
+    _gl_v = (_gl_rc == 0,
+             [(r["sign"], r["m"]) for r in _gl_led] == _gl_exp and len(_gl_exp) == 2 and all(r["sym"] == "AAA" for r in _gl_led)
+             and [x["sign"] for x in _gl_xb] == ["+"] and _gl_xb[0]["m"] < 590,
+             _gl_sent == [] and all(r["sent"] is False and r["reason"] is None for r in _gl_led),
+             _gl_led[-1].get("entry_px") == _gl_led[0]["px"] and abs(_gl_led[-1]["ret"] - (_gl_led[-1]["px"] / _gl_led[0]["px"] - 1)) < 1e-12,
+             all(r["lat"]["src"] == "REST" and r["lat"]["total_s"] is not None for r in _gl_led) and len(_gl_saved) == 2)
+except Exception as _e:                                              # noqa: BLE001
+    _gl_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️ GCB5 الحلقةُ الحيّة (مرجعٌ مزيّف · ساعةٌ افتراضيّة): التقاطعان عند دقيقتيهما بالضبط · صامتٌ بلا `send` (صفرُ إرسال) · "
+      "السلبيُّ يحمل نتيجةَ دورته · والمرشّحُ المتأخّرُ لا يُنبَّه بتقاطعٍ بائت · وخارجُ المجتمع لا إيجابيَّ له ولا سلبيّ · ومراحلُ التأخّر في كلّ صفّ", _gl_v == (True,) * 5, str(_gl_v)[:240])
+
+# GCB6 — لا تلغرامَ قبل «فعّل الذهبي»: الـworkflow يدويٌّ بلا كرون ولا سرّ تلغرام ولا `GC_SEND` · ويقرأ فقط · والصامتُ سجلٌّ محلّيٌّ مُتجاهَل
+try:
+    import yaml as _gw_yaml
+    _gw_txt = open(".github/workflows/ema_cross.yml", encoding="utf-8").read()
+    _gw = _gw_yaml.safe_load(_gw_txt)
+    _gw_on = _gw.get(True) or _gw.get("on") or {}
+    _gw_v = ("schedule" not in _gw_on and "workflow_dispatch" in _gw_on,
+             "TELEGRAM" not in _gw_txt.upper() and "GC_SEND" not in _gw_txt,
+             (_gw.get("permissions") or {}).get("contents") == "read",
+             _GC.SILENT_LEDGER in open(".gitignore", encoding="utf-8").read().split(),
+             "import Super_stock" not in open("ema_cross_live.py", encoding="utf-8").read())
+except Exception as _e:                                              # noqa: BLE001
+    _gw_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️🔒 GCB6 لا تلغرامَ قبل «فعّل الذهبي»: `ema_cross.yml` يدويٌّ بلا كرون · بلا سرّ تلغرام ولا `GC_SEND` · `contents: read` · "
+      "والسجلُّ الصامتُ مُتجاهَل · والأداةُ لا تستورد `Super_stock` في رأسها", _gw_v == (True,) * 5, str(_gw_v)[:240])
+
+# GCA1 — الذراع أ: SMA · التقاطعان · «لا يُقاس» تحت 201 · وتجميعُ 4س بحدَّي 09:30 و13:30 (`chart_id_tv.aggregate` بالاسم)
+try:
+    import golden_cross_scan as _GA
+    import datetime as _ga_dt
+    _ga_s = _GA.sma_series([1, 2, 3, 4, 5], 3)
+    _ga_mk = lambda cl: [[i, c, c, c, c, 1.0] for i, c in enumerate(cl)]                 # noqa: E731
+    _ga_cl = [100 - 0.1 * i for i in range(250)] + [75 + 1.0 * i for i in range(150)] + [225 - 2.0 * i for i in range(150)]
+    _ga_ok, _ga_x = _GA.gcrosses(_ga_mk(_ga_cl))
+    _ga_ok2, _ga_x2 = _GA.gcrosses(_ga_mk(_ga_cl[:200]))
+    _ga_ny = __import__("tv_data").NY
+    _ga_day = _ga_dt.datetime(2026, 3, 2, tzinfo=_ga_ny)
+    _ga_b30 = [[int((_ga_day + _ga_dt.timedelta(minutes=m)).timestamp()), 1.0, 2.0, 0.5, float(m), 10.0]
+               for m in range(9 * 60, 16 * 60 + 30, 30)]
+    _ga_4h = _GA.to_4h(_ga_b30)
+    _ga_v = (_ga_s[:2] == [None, None] and _ga_s[2:] == [2.0, 3.0, 4.0],
+             _ga_ok and [x["kind"] for x in _ga_x] == ["golden", "death"],
+             _ga_ok2 is False and _ga_x2 == [],
+             len(_ga_4h) == 2 and _ga_4h[0][4] == 13 * 60 and _ga_4h[1][4] == 15 * 60 + 30
+             and _GA.ny_day(_ga_4h[0][0]) == "2026-03-02" and _ga_4h[0][5] == 80.0 and _ga_4h[1][5] == 50.0,
+             _GA.golden_line({"measurable": False}).endswith("لا يُقاس (أقلّ من 201 شمعة)")
+             and _GA.golden_line({"measurable": True, "last": {"kind": "golden", "day": "2026-03-10", "px": 50.0}}).startswith("⭐ تقاطع ذهبي 4س"))
+except Exception as _e:                                              # noqa: BLE001
+    _ga_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("⭐💀 GCA1 الذراع أ: SMA بسيط · ذهبيٌّ ثمّ موتٌ على سلسلةٍ مصنوعة · 200 شمعة ⟵ «لا يُقاس» · وتجميعُ 4س يبدأ 09:30 ويقسم 13:30 ويُسقط ما قبل "
+      "09:30 وما بعد 16:00", _ga_v == (True,) * 5, str(_ga_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
