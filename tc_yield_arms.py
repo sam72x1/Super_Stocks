@@ -140,6 +140,16 @@ def dedupe_carried(anchors: dict) -> tuple:
     return kept, dropped
 
 
+def anchor_row(a_hist: dict, sym: str, day: str, ams: int, v: dict) -> dict:
+    """**نقيّة** — عطلٌ مُثبَت 2026-11-05 (`41955012614`): `anchor_history` مفتاحُها `(يوم · رمز)` ⟵ مِرساتان للرمز في اليوم نفسِه
+    تأخذان صفَّ آخرِهما ⟵ الأولى تُقاس بلحظة الثانية (16 «بلا أساس» كلُّها أولى مِرساتين · وما له شموعٌ يُقاس صامتًا بمِرساةٍ أخرى).
+    صفُّ التاريخ يُستعمل **إن كانت لحظتُه لحظةَ المِرساة نفسَها** · وإلّا صفُّ المِرساة من مفتاحها وسعرِها."""
+    h = a_hist.get((day, sym))
+    if h and int(h.get("anchor_ms") or 0) == int(ams):
+        return h
+    return {"anchor_ms": ams, "anchor_price": v.get("price"), "date": day, "symbol": sym}
+
+
 def delivered(row: dict) -> bool:
     """§⑤ ‏+ الملحق `§⑬` — «مُسلَّمة» = بلغت المالكَ فعلًا: عمقُ مراحلَ غيرُ فارغ
     **و`alive_eod`** = حاضرةٌ في **آخر لقطةٍ تحمل يومَ المِرساة نفسَه**.
@@ -393,9 +403,7 @@ def main() -> int:                                               # noqa: PLR0911
     a_hist = TLP.anchor_history(since=SHIP_ISO[:10])
     for k, v in sorted(anchors.items()):
         sym, day, ams = k
-        a_row = a_hist.get((day, sym)) or {
-            "anchor_ms": ams, "anchor_price": v.get("price"),
-            "date": day, "symbol": sym}
+        a_row = anchor_row(a_hist, sym, day, ams, v)
         o, bars, prev_close = _measure_key(sym, day, a_row, key, cache)
         if not bars:
             fails += 1
