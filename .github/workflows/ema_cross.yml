@@ -57,8 +57,9 @@ jobs:
           GC_UNTIL: ${{ github.event.inputs.until }}
           PYTHONUNBUFFERED: "1"
         run: |
-          echo "$GC_MODE" | grep -Eq '^(accept|accept_a|measure|trace|scan|live)$' || { echo "⛔ وضعٌ غيرُ معروف"; exit 2; }
+          echo "$GC_MODE" | grep -Eq '^(accept|accept_a|measure|trace|scan|live|diag_chsn|diag_omh|diag_intc)$' || { echo "⛔ وضعٌ غيرُ معروف"; exit 2; }
           case "$GC_MODE" in
+            diag_*)   python gc_diag.py "${GC_MODE#diag_}" ;;
             accept_a) python golden_cross_scan.py --mode accept --date "$GC_DATE" ;;
             scan)     python golden_cross_scan.py --mode scan --date "$GC_DATE" ;;
             *)        python ema_cross_live.py --mode "$GC_MODE" --date "${GC_DATE:-2026-11-04}" --sym "$GC_SYM" --end "$GC_END" --days "$GC_DAYS" --until "$GC_UNTIL" ;;
