@@ -6480,3 +6480,4 @@
 {"key": "envelope|2026-11-04|XRPN", "hunter": "envelope", "session": "2026-11-04", "symbol": "XRPN", "kind": "candidate", "ref_close": 10.59, "fwd": 40, "outcome": null, "src": "tradingview"}
 {"key": "envelope|2026-11-04|XWEL", "hunter": "envelope", "session": "2026-11-04", "symbol": "XWEL", "kind": "candidate", "ref_close": 0.5982, "fwd": 40, "outcome": null, "float": 5813473.0, "src": "tradingview"}
 {"key": "envelope|2026-11-04|YJ", "hunter": "envelope", "session": "2026-11-04", "symbol": "YJ", "kind": "candidate", "ref_close": 1.13, "fwd": 40, "outcome": null, "float": 1871018.0, "src": "tradingview"}
+{"key": "split|2026-11-04|CTNT", "hunter": "split", "session": "2026-11-04", "symbol": "CTNT", "kind": "candidate", "ref_close": 2.04, "fwd": 40, "outcome": null, "price": 2.04, "float": 19375.0, "half": 1.77, "ref": 3.55, "src": "tradingview"}
