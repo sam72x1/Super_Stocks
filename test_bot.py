@@ -96997,32 +96997,30 @@ check("🔄🔒 OEU1 فحصُ تحديث الكود في الدورة الأول
 try:
     _ou_try = next(t for t in _ou_ast.walk(_ou_if) if isinstance(t, _ou_ast.Try)
                    and any(isinstance(c, _ou_ast.Call) and getattr(c.func, "id", None) == "_self_update" for c in _ou_ast.walk(t)))
-    _ou_k = next(i for i, st in enumerate(_ou_try.body) if any(isinstance(c, _ou_ast.Call) and getattr(c.func, "id", None) == "_self_update"
-                                                               for c in _ou_ast.walk(st)))
-    _ou_pre = _ou_ast.Module(body=_ou_try.body[:_ou_k], type_ignores=[])
+    _ou_names = [getattr(c.func, "id", None) for st in _ou_try.body for c in _ou_ast.walk(st) if isinstance(c, _ou_ast.Call)]
+    _ou_order = ("_flush_pending" in _ou_names and "_self_update" in _ou_names
+                 and _ou_names.index("_flush_pending") < _ou_names.index("_self_update"))
     _ou_saved = []
     _ou_gs = _OU.bot.git_save
     _ou_push0 = dict(_OU._PUSH)
     try:
         _OU.bot.git_save = lambda files: _ou_saved.append(list(files))
-        _ou_ns = {"_PUSH": {"last": __import__("time").time(), "pending": True}, "_push_state": _OU._push_state, "bot": _OU.bot}
-        _OU._PUSH.update(_ou_ns["_PUSH"])
-        _ou_ns["_PUSH"] = _OU._PUSH
-        exec(compile(_ou_pre, "<oeu2>", "exec"), _ou_ns)          # noqa: S102
+        _OU._PUSH.update({"last": __import__("time").time(), "pending": True})
+        _ou_r1 = _OU._flush_pending()
         _ou_after_pending = _OU._PUSH["pending"]
         _ou_saved_pending = list(_ou_saved)
         _ou_saved.clear()
-        _OU._PUSH.update({"pending": False})
-        exec(compile(_ou_pre, "<oeu2>", "exec"), _ou_ns)          # noqa: S102
+        _ou_r2 = _OU._flush_pending()
         _ou_saved_clean = list(_ou_saved)
     finally:
         _OU.bot.git_save = _ou_gs
         _OU._PUSH.clear()
         _OU._PUSH.update(_ou_push0)
-    _ou_v2 = (_ou_saved_pending == [[_OU.bot.OP_ENTRY_STATE_FILE]] and _ou_after_pending is False and _ou_saved_clean == [],)
+    _ou_v2 = (_ou_order and _ou_r1 is True and _ou_saved_pending == [[_OU.bot.OP_ENTRY_STATE_FILE]] and _ou_after_pending is False
+              and _ou_r2 is False and _ou_saved_clean == [],)
 except Exception as _e:                                              # noqa: BLE001
     _ou_v2 = (f"⛔ {type(_e).__name__}: {_e}",)
-check("📦🔄🔒 OEU2 الدفعةُ المكتومة المعلَّقة تُدفَع (غيرَ مكتومة · ملفُّ الحالة وحدَه) **قبل** فحص التحديث في الكتلة نفسِها · وبلا معلَّقٍ صفرُ دفع",
+check("📦🔄🔒 OEU2 الدفعةُ المكتومة المعلَّقة تُدفَع (`_flush_pending` · غيرَ مكتومة · ملفُّ الحالة وحدَه) **قبل** فحص التحديث في الكتلة نفسِها · وبلا معلَّقٍ صفرُ دفع",
       _ou_v2 == (True,), str(_ou_v2)[:240])
 try:
     _ou_logs, _ou_calls = [], []
