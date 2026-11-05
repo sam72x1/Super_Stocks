@@ -121,6 +121,35 @@ def exclude_sessions(anchors: dict) -> tuple:
     return kept, dropped
 
 
+def dedupe_carried(anchors: dict) -> tuple:
+    """**نقيّة** — عطلٌ مُثبَت 2026-11-05 (الحاكمة `41949170731`): العاملُ يحمل المِرساةَ إلى لقطةِ الجلسة التالية بتاريخها الجديد
+    ولحظتِها القديمة ⟵ المِرساةُ نفسُها (`رمز · لحظة`) تُعَدّ مرّتين ونسختُها بيومٍ ليس يومَها ⟵ تُجلب شموعُ يومٍ آخر فـ«بلا أساس».
+    المِرساةُ = `(رمز · لحظة)` · يومُها = تاريخُ نيويورك للحظتها ⟵ يُبقى المفتاحُ الذي يومُه يومُ اللحظة (وإلّا الأبكر) ⟵ `(المُبقى، المحذوف)`."""
+    from zoneinfo import ZoneInfo                                  # noqa: PLC0415
+    ny = ZoneInfo("America/New_York")
+    groups = defaultdict(list)
+    for k in (anchors or {}):
+        groups[(k[0], int(k[2]))].append(k)
+    kept, dropped = {}, {}
+    for (sym, ams), ks in groups.items():
+        true_day = dt.datetime.fromtimestamp(ams / 1000, tz=ny).strftime("%Y-%m-%d")
+        ks = sorted(ks, key=lambda k: str(k[1] or ""))
+        keep = next((k for k in ks if str(k[1] or "")[:10] == true_day), ks[0])
+        for k in ks:
+            (kept if k == keep else dropped)[k] = anchors[k]
+    return kept, dropped
+
+
+def anchor_row(a_hist: dict, sym: str, day: str, ams: int, v: dict) -> dict:
+    """**نقيّة** — عطلٌ مُثبَت 2026-11-05 (`41955012614`): `anchor_history` مفتاحُها `(يوم · رمز)` ⟵ مِرساتان للرمز في اليوم نفسِه
+    تأخذان صفَّ آخرِهما ⟵ الأولى تُقاس بلحظة الثانية (16 «بلا أساس» كلُّها أولى مِرساتين · وما له شموعٌ يُقاس صامتًا بمِرساةٍ أخرى).
+    صفُّ التاريخ يُستعمل **إن كانت لحظتُه لحظةَ المِرساة نفسَها** · وإلّا صفُّ المِرساة من مفتاحها وسعرِها."""
+    h = a_hist.get((day, sym))
+    if h and int(h.get("anchor_ms") or 0) == int(ams):
+        return h
+    return {"anchor_ms": ams, "anchor_price": v.get("price"), "date": day, "symbol": sym}
+
+
 def delivered(row: dict) -> bool:
     """§⑤ ‏+ الملحق `§⑬` — «مُسلَّمة» = بلغت المالكَ فعلًا: عمقُ مراحلَ غيرُ فارغ
     **و`alive_eod`** = حاضرةٌ في **آخر لقطةٍ تحمل يومَ المِرساة نفسَه**.
@@ -319,11 +348,14 @@ def main() -> int:                                               # noqa: PLR0911
         return RC_NOMAT
     anchors = {k: v for k, v in res["anchors"].items()
                if str(k[1] or "") >= SHIP_ISO[:10]}
+    anchors, dups = dedupe_carried(anchors)            # 🔁 عطلٌ مُثبَت 2026-11-05: المِرساةُ المحمولة لا تُعَدّ مرّتين
     anchors, excl = exclude_sessions(anchors)          # 🧊 `§⑭` قبل أيّ ذراعٍ أو عدّ
     arms = split_arms(anchors)
     log(f"🚦💵 **`T-TC-YIELD`** · مرجع `{ref}` · {res['revs']} مراجعة"
         + (f" · {bad} تالفة" if bad else "")
         + f" · المدى {res['span'][0]} ⟶ {res['span'][1]}")
+    log(f"🔁 مراسٍ محمولةٌ إلى الجلسة التالية (المِرساةُ نفسُها بيومٍ ليس يومَها): {len(dups)} — حُذفت النسخُ "
+        + " · ".join(f"{k[0]} {k[1]}" for k in sorted(dups, key=lambda k: (k[1], k[0]))))
     _ex = split_arms(excl)
     log("🧊 §⑭ مستبعَدٌ وصفًا (يوما الانتقال " + " · ".join(EXCLUDED_SESSIONS) + "): "
         + " · ".join(f"{n} مِراسٍ {len(_ex[n])} · مُسلَّمة "
@@ -364,21 +396,24 @@ def main() -> int:                                               # noqa: PLR0911
     # ── الشقُّ (ب) — الحصيلة ─────────────────────────────────────────────────
     # `pool` بُني في المشي المتدفّق أعلاه (`_pool_add` · بت-بت مع `_pool_keys`)
     cache, rows, fails, nobase = {}, [], 0, 0
+    nobase_rows = []                     # تشخيصٌ يُطبَع (لا يدخل معيارًا): لماذا «بلا أساس»
     per_arm = defaultdict(list)          # اسمُ الذراع ⟶ [(رمز، أصاب)]
     universe = set()
 
     a_hist = TLP.anchor_history(since=SHIP_ISO[:10])
     for k, v in sorted(anchors.items()):
         sym, day, ams = k
-        a_row = a_hist.get((day, sym)) or {
-            "anchor_ms": ams, "anchor_price": v.get("price"),
-            "date": day, "symbol": sym}
+        a_row = anchor_row(a_hist, sym, day, ams, v)
         o, bars, prev_close = _measure_key(sym, day, a_row, key, cache)
         if not bars:
             fails += 1
             continue
         if o is None:
             nobase += 1
+            _has = any(b[0] == int(ams) for b in bars)
+            _nxt = any(int(ams) < b[0] < int(ams) + 5 * 60_000 for b in bars)
+            nobase_rows.append((("A-TC" if v.get("trig") else "A0"), sym, day, int(ams),
+                                "لا شمعةَ عند لحظة المِرساة" if not _has else ("لا شمعةَ في الدقائق الخمس بعدها" if not _nxt else "أخرى")))
             continue
         universe.add(sym)
         hit = bool(o.get("exploded50"))
@@ -398,6 +433,15 @@ def main() -> int:                                               # noqa: PLR0911
     log("─" * 70)
     log(f"🩺 التغطية: قِيس {len(rows)} · تعذّر الجلب {fails} · بلا أساس {nobase} "
         f"من {total} = {cover*100:.1f}%")
+    if nobase_rows:
+        from zoneinfo import ZoneInfo                              # noqa: PLC0415
+        _ny = ZoneInfo("America/New_York")
+        _why = defaultdict(int)
+        for _a, _s, _d, _ms, _r in nobase_rows:
+            _why[(_a, _r)] += 1
+        log("   🔎 «بلا أساس» بسببه: " + " · ".join(f"{a} {r} {n}" for (a, r), n in sorted(_why.items())))
+        for _a, _s, _d, _ms, _r in sorted(nobase_rows, key=lambda x: (x[0], x[2], x[1])):
+            log(f"      {_a} {_s} {_d} {dt.datetime.fromtimestamp(_ms / 1000, tz=_ny):%H:%M} نيويورك · {_r}")
     if cover < 0.80:
         log("⛔ التغطية دون 80% ⇒ لا يُفسَّر رقم · خروج 6")
         return RC_COVER

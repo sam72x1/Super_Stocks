@@ -89434,8 +89434,13 @@ try:
     _r14_spec.loader.exec_module(_R14)
     _fz14 = _R14.freeze_load()
     _t14 = _r14_json.load(open(sorted(_r14_glob.glob(_R14.TEST_RESULT_GLOB))[-1], encoding="utf-8"))
-    _files14 = sorted(_r14_glob.glob("fm_forensics/rebuild/data/shadow/shadow_*.json"))
-    _bad14, _seen14 = [], set()
+    import re as _r14_re
+    _all14 = sorted(_r14_glob.glob("fm_forensics/rebuild/data/shadow/shadow_*.json"))
+    # 🌘 (2026-11-05): ملفّاتُ القائمة بتعريف الأداة نفسِه (`SHADOW_FILE_RE`) · وتقريرُ أسبوع الظلّ (`shadow_report_YYYY-MM-DD.json` · `RBS1`)
+    #    وحدَه يُستثنى منها — وأيُّ ملفٍّ آخر بالبادئة نفسِها مخالف (لا يُتخطّى صامتًا)
+    _files14 = [f for f in _all14 if _r14_re.fullmatch(_R14.SHADOW_FILE_RE, f.rsplit("/", 1)[-1])]
+    _bad14, _seen14 = [f.rsplit("/", 1)[-1] for f in _all14 if f not in _files14
+                       and not _r14_re.fullmatch(r"shadow_report_\d{4}-\d{2}-\d{2}\.json", f.rsplit("/", 1)[-1])], set()
     for _f in _files14:
         _r = _r14_json.load(open(_f, encoding="utf-8"))
         _ok = (_f.endswith(f"shadow_{_r.get('session')}.json") and _r.get("session") not in _seen14
@@ -95924,6 +95929,91 @@ except Exception as _e:                                           # noqa: BLE001
 check("🔒 DC5C إغلاقُ T-DATE-CANDLES **مُنفَّذ**: الأدواتُ التسع تخرج 8 بلا مفتاحٍ و«0» لا يفتح ولا كتابةَ في data/ · والبوّابةُ أوّلُ main · "
       "والإعادةُ بايتًا مفتوحة و«1» وحدَه يفتح · ونصُّ الإغلاق بحكمه وشروطه الثلاثة",
       _dc5c_v == (True,) * 6, str(_dc5c_v)[:240])
+
+
+# 🔁 TYD1 (‏2026-11-05 · عطلٌ مُثبَت في حاكمة `T-TC-YIELD` ‏`41949170731`): المِرساةُ المحمولة إلى لقطة الجلسة التالية (المِرساةُ نفسُها
+#    `رمز · لحظة` بيومٍ ليس يومَها) كانت تُعَدّ مرّتين ⟵ 12 نسخةً (11 من `A0`) نُسبت «بلا أساس» · `dedupe_carried` نقيّةٌ تُبقي مفتاحَ
+#    يومِ اللحظة بتوقيت نيويورك (وإلّا الأبكر) ولا تمسّ المِراسي المتمايزة · وتُنادى في `main` قبل `exclude_sessions` (AST).
+try:
+    import ast as _tyd_ast
+    import datetime as _tyd_dt
+    import tc_yield_arms as _TYD
+    from zoneinfo import ZoneInfo as _tyd_Z
+    _tyd_ms = lambda s: int(_tyd_dt.datetime.fromisoformat(s).replace(tzinfo=_tyd_Z("America/New_York")).timestamp() * 1000)   # noqa: E731
+    _a1, _a2, _a3 = _tyd_ms("2026-09-11T15:58"), _tyd_ms("2026-09-14T10:00"), _tyd_ms("2026-11-02T19:53")
+    _tyd_in = {("ADXN", "2026-09-14", _a1): {"t": "carried"}, ("ADXN", "2026-09-11", _a1): {"t": "true"},
+               ("ADXN", "2026-09-14", _a2): {"t": "own"}, ("CJMB", "2026-11-02", _a3): {"t": "ah"},
+               ("ZZZ", "2026-09-16", _a1): {"t": "late1"}, ("ZZZ", "2026-09-15", _a1): {"t": "late0"}}
+    _tyd_k, _tyd_d = _TYD.dedupe_carried(_tyd_in)
+    _tyd_main = next(n for n in _tyd_ast.parse(open("tc_yield_arms.py", encoding="utf-8").read()).body
+                     if isinstance(n, _tyd_ast.FunctionDef) and n.name == "main")
+    _tyd_calls = [c.func.id for c in _tyd_ast.walk(_tyd_main) if isinstance(c, _tyd_ast.Call) and isinstance(c.func, _tyd_ast.Name)
+                  and c.func.id in ("dedupe_carried", "exclude_sessions")]
+    _tyd_v = (sorted(_tyd_k) == sorted([("ADXN", "2026-09-11", _a1), ("ADXN", "2026-09-14", _a2), ("CJMB", "2026-11-02", _a3),
+                                        ("ZZZ", "2026-09-15", _a1)]),
+              sorted(_tyd_d) == sorted([("ADXN", "2026-09-14", _a1), ("ZZZ", "2026-09-16", _a1)]),
+              _tyd_in[("ADXN", "2026-09-11", _a1)] is _tyd_k[("ADXN", "2026-09-11", _a1)] and len(_tyd_in) == 6,
+              _tyd_calls[:2] == ["dedupe_carried", "exclude_sessions"])
+except Exception as _e:                                           # noqa: BLE001
+    _tyd_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🚦💵🔁 TYD1 المِرساةُ المحمولة إلى الجلسة التالية تُعَدّ مرّةً: يُبقى مفتاحُ يومِ اللحظة (وإلّا الأبكر) والمتمايزةُ كما هي · "
+      "والمُدخَلُ لا يُعدَّل · وتُنادى قبل `exclude_sessions` في `main`",
+      _tyd_v == (True,) * 4, str(_tyd_v)[:240])
+
+
+# 🔁 TYD2 (‏2026-11-05 · عطلٌ مُثبَت في تشخيص `41955012614`): مِرساتان للرمز في اليوم نفسِه كانتا تأخذان صفَّ `anchor_history` الأخير
+#    (مفتاحُه يوم · رمز) ⟵ الأولى تُقاس بلحظة الثانية · `anchor_row` نقيّةٌ: صفُّ التاريخ إن طابقت لحظتُه لحظةَ المِرساة وإلّا صفُّ المفتاح ·
+#    و`main` ينادي `anchor_row` ولا يقرأ `a_hist.get` مباشرةً (AST).
+try:
+    import ast as _tyd2_ast
+    _tyd2_h = {("2026-09-17", "BCTX"): {"anchor_ms": 2000, "anchor_price": 1.5, "anchor_low": 1.4, "date": "2026-09-17", "symbol": "BCTX"}}
+    _r_late = _TYD.anchor_row(_tyd2_h, "BCTX", "2026-09-17", 2000, {"price": 9.9})
+    _r_early = _TYD.anchor_row(_tyd2_h, "BCTX", "2026-09-17", 1000, {"price": 1.2})
+    _r_none = _TYD.anchor_row(_tyd2_h, "LEXX", "2026-09-17", 3000, {"price": 0.8})
+    _tyd2_main = next(n for n in _tyd2_ast.parse(open("tc_yield_arms.py", encoding="utf-8").read()).body
+                      if isinstance(n, _tyd2_ast.FunctionDef) and n.name == "main")
+    _tyd2_src = _tyd2_ast.unparse(_tyd2_main)
+    _tyd2_v = (_r_late is _tyd2_h[("2026-09-17", "BCTX")],
+               _r_early == {"anchor_ms": 1000, "anchor_price": 1.2, "date": "2026-09-17", "symbol": "BCTX"},
+               _r_none["anchor_ms"] == 3000 and _r_none["anchor_price"] == 0.8,
+               "anchor_row(a_hist, sym, day, ams, v)" in _tyd2_src and "a_hist.get(" not in _tyd2_src)
+except Exception as _e:                                           # noqa: BLE001
+    _tyd2_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🚦💵🔁 TYD2 المِرساةُ تُقاس بلحظتها: صفُّ `anchor_history` إن طابقت لحظتُه وإلّا صفُّ المفتاح · و`main` عبر `anchor_row` (AST)",
+      _tyd2_v == (True,) * 4, str(_tyd2_v)[:240])
+
+# 🌘 RBS1 (‏2026-11-05 · أمرُ المالك 2026-10-29 «في تقرير الظل اذكر لكل سهم: أعمق هبوط من سعر الإدراج قبل أي صعود»): تقريرُ أسبوع الظلّ
+#    `T_REBUILD_shadow.md` = المولِّد (`shadow_doc.render`) على `data/shadow/shadow_report_2026-11-04.json` بايتًا · وأرقامُه من الـJSON
+#    (as_of 2026-11-04 · التشغيلة 41953840057 · 4 قوائم · 8 أسهم · صعد 4 · لم يصعد 4) · وكلُّ صفٍّ متّسق (صعد ⟺ أوّلُ صعود · الأعمقُ لا يُطبع
+#    موجبًا · وتاريخُه فارغٌ عند الصفر) · وملفُّ التقرير لا يدخل قوائمَ التقرير القادم (`SHADOW_FILE_RE`).
+try:
+    import importlib as _rbs_il
+    import json as _rbs_json
+    import os as _rbs_os
+    import re as _rbs_re
+    import sys as _rbs_sys
+    _rbs_dir = _rbs_os.path.join("fm_forensics", "rebuild")
+    _rbs_sys.path.insert(0, _rbs_dir)
+    _rbs_doc = _rbs_il.import_module("shadow_doc")
+    _rbs_f = _rbs_os.path.join(_rbs_dir, "data", "shadow", "shadow_report_2026-11-04.json")
+    _rbs_j = _rbs_json.load(open(_rbs_f, encoding="utf-8"))
+    _rbs_body = _rbs_doc.render(_rbs_j, "shadow_report_2026-11-04.json")
+    _rbs_md = open(_rbs_os.path.join(_rbs_dir, "T_REBUILD_shadow.md"), encoding="utf-8").read()
+    _rbs_e = _rbs_j["entries"]
+    _rbs_ok_rows = all(((e["status"] == "rose") == bool(e.get("first_rise"))) and e["deepest_pct"] <= 0
+                       and ((e["deepest_pct"] == 0) == (e.get("deepest_date") is None)) for e in _rbs_e)
+    _rbs_rb = open(_rbs_os.path.join(_rbs_dir, "rebuild.py"), encoding="utf-8").read()
+    _rbs_rx = _rbs_re.search(r'SHADOW_FILE_RE = r"([^"]+)"', _rbs_rb).group(1)
+    _rbs_v = (_rbs_md == _rbs_body and _rbs_doc.latest_report().endswith("shadow_report_2026-11-04.json"),
+              (_rbs_j["as_of"], _rbs_j["run"], len(_rbs_j["files"]), len(_rbs_e)) == ("2026-11-04", 41953840057, 4, 8),
+              sum(e["status"] == "rose" for e in _rbs_e) == 4 and sum(e["status"] == "not_yet" for e in _rbs_e) == 4,
+              _rbs_ok_rows, "صعد فوق سعر الإدراج: 4 · لم يصعد بعد: 4" in _rbs_md,
+              _rbs_re.fullmatch(_rbs_rx, "shadow_report_2026-11-04.json") is None and _rbs_re.fullmatch(_rbs_rx, "shadow_2026-11-04.json") is not None)
+except Exception as _e:                                           # noqa: BLE001
+    _rbs_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🌘 RBS1 تقريرُ أسبوع الظلّ = المولِّد بايتًا على JSON التشغيلة 41953840057 (as_of 2026-11-04 · 8 أسهم · صعد 4 · لم يصعد 4) · "
+      "وكلُّ صفٍّ متّسق · وملفُّ التقرير خارج قوائم التقرير القادم",
+      _rbs_v == (True,) * 6, str(_rbs_v)[:240])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
