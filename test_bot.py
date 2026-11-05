@@ -96725,19 +96725,36 @@ try:
     _g5_gn = ["sma_series", "gcrosses", "golden_line", "fetch_30m", "universe", "mode_scan"]
     _g5_v = (_g5_fp("ema_cross_live.py", _g5_names) == "e956dc8cd090d1d1c7b8b2eb0efbc3e7dc00a7bb82273c5c1322e7210e28df09"
              and _g5_fp("golden_cross_scan.py", _g5_gn) == "e25d02f799b3e76ab02563884bc9070e89709f213475795f9a9023cf97854f52",)
-    _g5_env = {k: _g5_os.environ.get(k) for k in ("GC_EXT", "GC_UNIVERSE", "POLYGON_API_KEY")}
-    _g5_rcs = []
-    try:
+    _g5_env = {k: _g5_os.environ.get(k) for k in ("GC_EXT", "GC_UNIVERSE", "POLYGON_API_KEY", "SEC_CONTACT")}
+    _g5_calls, _g5_rcs = [], []
+    _g5_keep = {n: getattr(_GE, n) for n in ("log", "mode_accept", "mode_accept_ext", "mode_measure", "mode_measure_ext", "mode_live",
+                                             "mode_trace", "AMBars")}
+    _g5_gkeep = {n: getattr(_GB, n) for n in ("log", "mode_accept", "mode_scan")}
+    _g5_net = _GE.V.Net
+
+    def _g5_stub(name):
+        return lambda *a, **k: (_g5_calls.append((name, a[2:], k)), 77)[1]
+    try:                                                             # لا شبكةَ ولا مقبس: كلُّ وضعٍ جذعٌ يُسجَّل ولا يُنفَّذ
         _g5_os.environ.pop("GC_UNIVERSE", None)
-        _g5_lg = (_GE.log, _GB.log)
-        _GE.log = _GB.log = (lambda m="": None)                      # رسائلُ الرفض «⛔» لا تختلط بسطور الأقفال
-        for _g5_e, _g5_m in (("2", "accept"), ("1", "live"), ("1", "trace")):
+        _g5_os.environ["POLYGON_API_KEY"], _g5_os.environ["SEC_CONTACT"] = "x", "x"
+        _GE.V.Net = lambda *a, **k: None
+        _GE.log = _GB.log = (lambda m="": None)
+        for _g5_n in ("mode_accept", "mode_accept_ext", "mode_measure", "mode_measure_ext", "mode_live", "mode_trace"):
+            setattr(_GE, _g5_n, _g5_stub("E." + _g5_n))
+        _GE.AMBars = lambda *a, **k: (_g5_calls.append(("E.AMBars", (), {})), None)[1]
+        _GB.mode_accept, _GB.mode_scan = _g5_stub("G.mode_accept"), _g5_stub("G.mode_scan")
+        for _g5_e, _g5_m in (("2", "accept"), ("1", "live"), ("1", "trace"), ("1", "accept"), ("0", "accept"), ("1", "measure")):
             _g5_os.environ["GC_EXT"] = _g5_e
-            _g5_rcs.append(_GE.main(["--mode", _g5_m]))
-        _g5_os.environ["GC_EXT"], _g5_os.environ["POLYGON_API_KEY"] = "1", "x"
-        _g5_rcs.append(_GB.main(["--mode", "scan"]))
+            _g5_rcs.append(_GE.main(["--mode", _g5_m, "--end", "2026-11-04"]))
+        for _g5_e, _g5_m in (("1", "scan"), ("1", "accept"), ("0", "accept")):
+            _g5_os.environ["GC_EXT"] = _g5_e
+            _g5_rcs.append(_GB.main(["--mode", _g5_m]))
     finally:
-        _GE.log, _GB.log = _g5_lg
+        for _g5_n, _g5_f in _g5_keep.items():
+            setattr(_GE, _g5_n, _g5_f)
+        for _g5_n, _g5_f in _g5_gkeep.items():
+            setattr(_GB, _g5_n, _g5_f)
+        _GE.V.Net = _g5_net
         for _g5_k, _g5_val in _g5_env.items():
             if _g5_val is None:
                 _g5_os.environ.pop(_g5_k, None)
@@ -96747,7 +96764,9 @@ try:
     _g5_wf = _g5_yaml.safe_load(open(".github/workflows/ema_cross.yml", encoding="utf-8"))
     _g5_in = (_g5_wf.get(True) or _g5_wf.get("on"))["workflow_dispatch"]["inputs"]
     _g5_st = _g5_wf["jobs"]["run"]["steps"][-1]
-    _g5_v += (_g5_rcs == [2, 2, 2, 2],
+    _g5_v += (_g5_rcs == [2, 2, 2, 77, 77, 77, 2, 77, 77]
+              and [c[0] for c in _g5_calls] == ["E.mode_accept_ext", "E.mode_accept", "E.mode_measure_ext", "G.mode_accept", "G.mode_accept"]
+              and [c[1][-1] if c[0] == "G.mode_accept" else None for c in _g5_calls][3:] == [True, False],
               _g5_in["ext"]["default"] == "0" and _g5_st["env"]["GC_EXT"] == "${{ github.event.inputs.ext }}" and "^[01]$" in _g5_st["run"])
 except Exception as _e:                                              # noqa: BLE001
     _g5_v = (f"⛔ {type(_e).__name__}: {_e}",)
