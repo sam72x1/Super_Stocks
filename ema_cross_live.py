@@ -9,6 +9,9 @@
 
 الأوضاع (`--mode`): `accept` (الشهود B1-B3 · إعادةٌ صامتة على Polygon) · `measure` (القياس ③ · 60 جلسة) · `trace` (رمزٌ ويوم) ·
 `live` (الحلقةُ الحيّة · صامتةٌ ما لم يُضبط `GC_SEND=1`). **قراءةٌ وتنبيه — خارج الجذور · لا `LOGIC_VERSION` · لا يمسّ `Super_stock.py`.**
+
+**الملحق 1 «الجلسةُ الممتدّة»** (`T_GCROSS_ADDENDUM_1.md` · `GC_EXT=1` للقبول والقياس وحدَهما): EMA متّصلٌ من دقائق الجلسة السابقة [04:00، 20:00)
+ثمّ اليوم · والتقاطعُ في نافذة اليوم كلِّها · وCHSN ‏11-03 · و±2% وإغلاقُ الدقيقة كما هما · والوصفيُّ D1 (مستوى التقاطع) وD2 (بصمةُ الرأس) — والنظاميُّ بت-بت (`GCE5`).
 """
 import argparse
 import datetime as dt
@@ -46,6 +49,12 @@ WITNESS_B = (
     {"id": "B2", "sym": "OMH", "day": "2026-11-04", "seq": [("+", 5.80, None)], "note": {"low_before": 5.76, "high_after": 9.20}},
 )
 WITNESS_B3 = {"id": "B3", "sym": "OMH", "day": "2026-11-04", "px": 3.00, "low": 3.03, "high": 17.80}
+
+# ── الملحق 1 «الجلسةُ الممتدّة» (`T_GCROSS_ADDENDUM_1.md` · `GC_EXT=1` وحدَه · والنظاميُّ أعلاه بت-بت) ─────────────────────────────
+EXT_OP, EXT_CL = 4 * 60, 20 * 60             # B-①′ نافذةُ [04:00، 20:00) نيويورك — أمرُ المالك «الجلسة الممتدة»
+WITNESS_B_EXT = (dict(WITNESS_B[0], day="2026-11-03"), WITNESS_B[1])   # B1′ CHSN ‏2026-11-03 — أمرُ المالك · ونايف «اقرب سهم امس» (تغريدةُ 11-04)
+HEAD_OMH = {"sym": "OMH", "day": "2026-11-04", "ef": 8.405, "es": 7.744}   # D2 رأسُ لقطة نايف (قراءةُ عيني · الدفتر §T-GCROSS-1)
+PREV_THIN = 60                               # §① يُطبع عددُ الرموز-الأيّام بأقلّ من 60 دقيقةً أمس (وزنُ البذرة فوق 0.04%) — الملحق 1
 
 
 def log(m=""):
@@ -157,6 +166,43 @@ def vwap_side(bars, i):
     vw = V3.vwap_series(bars[:i + 1])
     v = vw[-1] if vw else None
     return None if v is None else ("فوق" if bars[i][4] > v else "تحت")
+
+
+def ext_series(prev_bars, bars, f=1.0, op=EXT_OP, cl=EXT_CL):
+    """الملحق 1 · B-②′ السلسلةُ المتّصلة: دقائقُ الجلسة السابقة في [op، cl) أسعارُها ×f وحجمُها ÷f (معاملُ إغلاق الأمس) مزاحةً −1440 ثمّ دقائقُ
+    اليوم في النافذة ⟵ (السلسلة، موضعُ أوّل دقيقةٍ من اليوم) — البذرةُ أوّلُ دقيقةٍ من الأمس ولا فاصلَ بين اليومين."""
+    pre = [(b[0] - 1440, b[1] * f, b[2] * f, b[3] * f, b[4] * f, (b[5] / f) if f else b[5]) for b in regular(prev_bars, op, cl)]
+    return pre + regular(bars, op, cl), len(pre)
+
+
+def day_crosses(series, fast=FAST_N, slow=SLOW_N):
+    """الملحق 1 · B-①′ تقاطعاتُ السلسلة المتّصلة **في نافذة اليوم وحدَها** (دقيقتُها من 04:00 فصاعدًا) — وما قبلها إحماءٌ للمتوسّط."""
+    return [x for x in crosses(series, fast, slow) if x["m"] >= EXT_OP]
+
+
+def cross_level(bars, x, fast=FAST_N, slow=SLOW_N):
+    """D1 (وصفٌ لا يحكم) مستوى التقاء الخطّين بين الدقيقتين i−1 وi بالاستيفاء الخطّيّ: dₖ = EMAfₖ − EMAsₖ · t = dᵢ₋₁ ÷ (dᵢ₋₁ − dᵢ) ·
+    المستوى = EMAfᵢ₋₁ + t·(EMAfᵢ − EMAfᵢ₋₁) — كما تُرسم الخطوطُ قطعًا مستقيمة."""
+    i = x["i"]
+    closes = [b[4] for b in bars[:i + 1]]
+    ef, es = ema_series(closes, fast), ema_series(closes, slow)
+    d0, d1 = ef[i - 1] - es[i - 1], ef[i] - es[i]
+    t = d0 / (d0 - d1) if d0 != d1 else 1.0
+    return ef[i - 1] + t * (ef[i] - ef[i - 1])
+
+
+def head_match(bars, ef_want, es_want, lo_m=EXT_OP, fast=FAST_N, slow=SLOW_N):
+    """D2 (وصفٌ) الدقيقةُ التي يقترب فيها (EMAf، EMAs) من رأس لقطة ⟵ (دقيقة، EMAf، EMAs، أكبرُ الخطأين النسبيّين) بأصغره · من `lo_m` فصاعدًا."""
+    closes = [b[4] for b in bars]
+    ef, es = ema_series(closes, fast), ema_series(closes, slow)
+    best = None
+    for i, b in enumerate(bars):
+        if b[0] < lo_m:
+            continue
+        e = max(abs(ef[i] / ef_want - 1.0), abs(es[i] / es_want - 1.0))
+        if best is None or e < best[3]:
+            best = (b[0], ef[i], es[i], e)
+    return best
 
 
 def momentum_why(info, type_status, spac, cat_C):
@@ -352,6 +398,130 @@ def mode_accept(net, MC):
     return 4 if bad else (0 if out["ok"] else 1)
 
 
+def ext_fetch(net, MC, sym, day):
+    """الملحق 1: دقائقُ [الجلسة السابقة ⟵ اليوم] بنداءٍ واحد ⟵ (السلسلةُ المتّصلة، دقائقُ الأمس، دقائقُ اليوم كلُّها، Day) أو None (فاشلٌ-آمن ·
+    ولا رجوعَ إلى المبذور في يومه)."""
+    D = V.Day(net, day, MC, replay=True)
+    by = net.minutes(sym, D.prev, day)
+    if by is None or not (by or {}).get(day):
+        return None
+    f = V4.price_factor(D.splits.get(sym, ()), day)
+    series, k = ext_series(by.get(D.prev) or [], by[day], f)
+    return series, k, by[day], D
+
+
+def _fmt_x(x, lvl=None):
+    return f"{x['sign']}{hm(x['m'])} ${x['px']:g}" + ("" if lvl is None else f" (مستوى {lvl:.4g})")
+
+
+def mode_accept_ext(net, MC):
+    """الملحق 1 · القبول ② بالتعريف الممتدّ المتّصل: B1′ (CHSN ‏11-03) وB2 وB3 بالقاعدة والتسامح نفسيهما (الإغلاق · ±2%) ⟵ ومعها الوصفيّ: D1 مطابقةُ
+    التسلسل نفسِه بمستوى تقاطع الخطّين · وD2 بصمةُ رأس OMH · وتقاطعاتُ اليوم كلُّها بإغلاقها ومستواها. ⟵ 0 عبر · 1 سقط · 4 تعذّرت البيانات."""
+    out, ok_all, bad = {"mode": "accept", "ext": 1, "witnesses": [], "d1": [], "d2": {}}, True, False
+    got = {}
+    for w in list(WITNESS_B_EXT) + [WITNESS_B3]:
+        key = (w["sym"], w["day"])
+        if key not in got:
+            got[key] = ext_fetch(net, MC, *key)
+            if got[key] is None:
+                log(f"⛔ {key[0]} {key[1]}: تعذّرت دقائقُ Polygon")
+                bad = True
+    for w in WITNESS_B_EXT:
+        g = got.get((w["sym"], w["day"]))
+        if g is None:
+            ok_all = False
+            continue
+        bars, k, allb, D = g
+        xs = day_crosses(bars)
+        lv = {x["i"]: cross_level(bars, x) for x in xs}
+        res = match_seq(xs, bars, w["seq"])
+        ok = all(r["ok"] for r in res)
+        ok_all = ok_all and ok
+        log(f"{'✅' if ok else '❌'} {w['id']}′ ${w['sym']} {w['day']} · EMA{FAST_N}/{SLOW_N} دقيقة · ممتدّ متّصل · دقائقُ الأمس {k} · "
+            f"تقاطعاتُ اليوم {len(xs)}")
+        log("   📜 " + " · ".join(_fmt_x(x, lv[x["i"]]) for x in xs))
+        rows = []
+        for r in res:
+            s_, px, pk = r["want"]
+            want = f"{s_} {px if px is not None else 'بعد قمّة ' + str(pk)}"
+            if not r["ok"]:
+                log(f"   ✗ {want} ⟵ لم يُلتقط")
+                rows.append({"want": want, "ok": False})
+                continue
+            x = r["x"]
+            mem = _membership(D, w["sym"], allb, x)
+            d = "" if r["diff"] is None else f" · الفرق {r['diff'] * 100:+.2f}%"
+            p = "" if r["peak"] is None else f" · القمّة قبله {r['peak']:g}"
+            log(f"   ✓ {want} ⟵ {hm(x['m'])} ${x['px']:g}{d}{p} · المجتمع لحظتَها: {'داخل' if not mem else 'خارج ' + mem[0]}")
+            rows.append({"want": want, "ok": True, "m": hm(x["m"]), "px": x["px"], "diff": r["diff"], "peak": r["peak"], "out": mem})
+        out["witnesses"].append({"id": w["id"] + "′", "ok": ok, "rows": rows, "prev_bars": k})
+        xs_l = [dict(x, px=lv[x["i"]]) for x in xs]
+        res_l = match_seq(xs_l, bars, w["seq"])
+        ok_l = all(r["ok"] for r in res_l)
+        log(f"   ℹ️ D1 (وصفًا · لا يحكم) المطابقةُ بمستوى التقاطع: {'✅' if ok_l else '❌'} · " + " · ".join(
+            (f"{r['want'][0]} {r['want'][1] if r['want'][1] is not None else 'بعد قمّة ' + str(r['want'][2])} ⟵ "
+             + (f"{hm(r['x']['m'])} مستوى {r['x']['px']:.4g}" + ("" if r["diff"] is None else f" ({r['diff'] * 100:+.2f}%)")
+                + ("" if r["peak"] is None else f" قمّة {r['peak']:g}") if r["ok"] else "✗")) for r in res_l))
+        out["d1"].append({"id": w["id"], "ok": ok_l, "rows": [{"ok": r["ok"], "m": hm(r["x"]["m"]) if r["ok"] else None,
+                                                             "lvl": r["x"]["px"] if r["ok"] else None, "diff": r["diff"]} for r in res_l]})
+    g = got.get((WITNESS_B3["sym"], WITNESS_B3["day"]))
+    b3 = {"id": "B3′", "ok": False, "combos": []}
+    if g is None:
+        ok_all = False
+    else:
+        bars, k, allb, D = g
+        xs = day_crosses(bars)
+        b2 = match_seq(xs, bars, WITNESS_B_EXT[1]["seq"])
+        lim = b2[0]["x"]["m"] if b2[0]["ok"] else EXT_CL
+        day_b = [b for b in bars if b[0] >= EXT_OP]
+        reg_b = regular(allb, D.op, D.cl)
+        g_ = lambda f, xs, j: "—" if not xs else f"{f(b[j] for b in xs):g}"                       # noqa: E731
+        log(f"ℹ️ B3′ قاعُ OMH {WITNESS_B3['day']}: ممتدّ {g_(min, day_b, 3)} · نظاميّ {g_(min, reg_b, 3)} · مقابل {WITNESS_B3['low']} · "
+            f"وأعلى الممتدّ {g_(max, day_b, 2)} مقابل {WITNESS_B3['high']} · دقائقُ الأمس {k}")
+        for kk, (f, sl) in ((1, (8, 15)), (1, (9, 15)), (5, (8, 15)), (5, (9, 15))):
+            bk = bars if kk == 1 else resample(bars, kk, EXT_OP - 1440, EXT_CL)
+            xk = [x for x in crosses(bk, f, sl) if EXT_OP <= x["m"] < lim]
+            hit = next((x for x in xk if x["sign"] == "+" and round(abs(x["px"] / WITNESS_B3["px"] - 1.0), 9) <= ACCEPT_TOL), None)
+            gov = (kk, f, sl) == (1, FAST_N, SLOW_N)
+            tag = "الحاكم" if gov else "وصفًا"
+            if hit:
+                log(f"   {'✅' if gov else 'ℹ️'} B3′ [{tag}] {f}/{sl} · {kk}د ⟵ إيجابيّ {hm(hit['m'])} ${hit['px']:g} · الفرق "
+                    f"{(hit['px'] / WITNESS_B3['px'] - 1) * 100:+.2f}% · مستوى {cross_level(bk, hit, f, sl):.4g}")
+            else:
+                near = [x for x in xk if x["sign"] == "+"][:3]
+                log(f"   {'❌' if gov else 'ℹ️'} B3′ [{tag}] {f}/{sl} · {kk}د ⟵ لا إيجابيّ ضمن ±2% من 3.00 قبل {hm(lim)} · أوّلُ الإيجابيّات: "
+                    + (" · ".join(_fmt_x(x, cross_level(bk, x, f, sl)) for x in near) or "لا شيء"))
+            b3["combos"].append({"k": kk, "fast": f, "slow": sl, "gov": gov, "hit": None if not hit else {"m": hm(hit["m"]), "px": hit["px"]}})
+            if gov:
+                b3["ok"] = hit is not None
+                xl = [dict(x, px=cross_level(bars, x)) for x in xk]
+                hl = next((x for x in xl if x["sign"] == "+" and round(abs(x["px"] / WITNESS_B3["px"] - 1.0), 9) <= ACCEPT_TOL), None)
+                log("   ℹ️ D1 (وصفًا) B3′ بالمستوى: " + ("لا شيء ضمن ±2%" if hl is None else
+                                                    f"✅ {hm(hl['m'])} مستوى {hl['px']:.4g} ({(hl['px'] / 3.0 - 1) * 100:+.2f}%)"))
+                out["d1"].append({"id": "B3", "ok": hl is not None, "m": None if hl is None else hm(hl["m"]),
+                                  "lvl": None if hl is None else hl["px"]})
+        ok_all = ok_all and b3["ok"]
+        log(f"📜 OMH {WITNESS_B3['day']} — الدوراتُ بالممتدّ المتّصل (8/15 · دقيقة · وعضويّتُها وصفًا):")
+        for c in cycles(bars, xs, lambda x: True):
+            ent = next(x for x in xs if x["m"] == c["entry_m"])
+            mem = _membership(D, WITNESS_B3["sym"], allb, ent)
+            log(f"   #{c['n']} ⟵ {hm(c['entry_m'])} ${c['entry_px']:g} ⟵ {hm(c['exit_m'])} ${c['exit_px']:g} ({'سلبيّ' if c['exit'] == 'neg' else 'الإغلاق'}) · "
+                f"{c['ret'] * 100:+.1f}% · أقصى {c['maxp'] * 100:+.1f}% · {c['dur']}د · المجتمع: {'داخل' if not mem else 'خارج ' + mem[0]}")
+        hm_c = head_match(bars, HEAD_OMH["ef"], HEAD_OMH["es"])
+        hm_s = head_match(reg_b, HEAD_OMH["ef"], HEAD_OMH["es"], lo_m=D.op)
+        for nm, h in (("المتّصل", hm_c), ("المبذور 09:30 (العقد)", hm_s)):
+            if h:
+                log(f"   ℹ️ D2 (وصفًا) بصمةُ رأس OMH ({HEAD_OMH['ef']}، {HEAD_OMH['es']}) · {nm}: أقربُ دقيقة {hm(h[0])} · EMA8 {h[1]:.4g} · EMA15 {h[2]:.4g} · "
+                    f"أكبرُ الخطأين {h[3] * 100:.2f}%")
+                out["d2"][nm] = {"m": hm(h[0]), "ef": h[1], "es": h[2], "err": h[3]}
+    out["witnesses"].append(b3)
+    out["ok"] = bool(ok_all and not bad)
+    out["calls"], out["fails"] = net.calls, net.fails
+    log(f"{'✅' if out['ok'] else '❌'} **القبول ② بالملحق 1 (الذراع ب):** {'عبر B1′ وB2 وB3 بالحاكم' if out['ok'] else 'لم يعبر — أين سقط مطبوعٌ أعلاه'}")
+    log("GCROSS_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True, default=str))
+    return 4 if bad else (0 if out["ok"] else 1)
+
+
 # ── وضعُ القياس ③ ────────────────────────────────────────────────────────────────────────────────────────
 def sessions_before(MC, end_day, n):
     """آخرُ n جلسةً مكتملة حتى `end_day` شاملًا (`V3.is_session` بالاسم) ⟵ مرتّبةً تصاعديًّا."""
@@ -438,6 +608,86 @@ def mode_measure(net, MC, end_day, n_sessions=N_SESSIONS):
         log(f"   الضابط: الوسيط {f(s_ctl['median'])} · المتوسّط {f(s_ctl['mean'])} · ‏+20% {s_ctl['ge20'][0]} · سالبة {s_ctl['neg'][0]} · "
             f"التقاطعاتُ الإيجابيّة/رمز/يوم (وسيط) كلُّها {_median(a['pos_all'])} · داخل المجتمع {_median(a['pos_in'])}")
         log(f"   P4 الفرق (الذراع − الضابط) {f(boot[0])} · فاصل 95% [{f(boot[1])} ، {f(boot[2])}] ⟵ **{verdict}**")
+    out["calls"], out["fails"] = net.calls, net.fails
+    log("GCROSS_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True, default=str))
+    return 4 if (bad_days or miss_total) else 0
+
+
+def mode_measure_ext(net, MC, end_day, n_sessions=N_SESSIONS):
+    """الملحق 1 · القياس ③ بالتعريف الممتدّ المتّصل: الجلساتُ والمرشِّحُ والمجتمعُ والضابطُ والأذرعُ والبوتستراب بنصّ §⑤ · ويتغيّر التعريفُ وحدَه
+    (نافذةُ [04:00، 20:00) · EMA متّصلٌ من الجلسة السابقة) ⟵ ويُطبع زيادةً: دخولُ دورات الحاكم بحسب الجزء · والرموزُ-الأيّام بأقلّ من 60 دقيقةً أمس."""
+    days = sessions_before(MC, end_day, n_sessions)
+    log(f"📅 الملحق 1 · الجلسات {len(days)}: {days[0]} ⟵ {days[-1]} · الأذرع {MEASURE_ARMS} · البذرة {SEED} · النافذة [04:00، 20:00) · EMA متّصل")
+    rng = random.Random(SEED)
+    per = {a: {"cyc": [], "ctl": [], "pairs": {}, "pos_all": [], "pos_in": []} for a in MEASURE_ARMS}
+    bad_days, miss_total, thin, parts = [], 0, 0, {"pre": 0, "reg": 0, "post": 0}
+    for day in days:
+        D = V.Day(net, day, MC, replay=True)
+        g = net.poly(f"/v2/aggs/grouped/locale/us/market/stocks/{day}", {"adjusted": "false"})
+        hl = {str(r.get("T") or "").upper(): (r.get("h"), r.get("l"), r.get("v")) for r in ((g or {}).get("results") or []) if r.get("T")}
+        if not D.ok or not hl:
+            bad_days.append(day)
+            log(f"⛔ {day}: مرجعٌ ناقص {D.why + ([] if hl else ['شمعةُ اليوم المجمَّعة'])}")
+            continue
+        cands = sorted(V.prefilter(hl, D.prev_adj_pf, D.types))
+        miss = 0
+        for sym in cands:
+            by = net.minutes(sym, D.prev, day)
+            if by is None:
+                miss += 1
+                continue
+            allb = (by or {}).get(day) or []
+            bars, k = ext_series(by.get(D.prev) or [], allb, V4.price_factor(D.splits.get(sym, ()), day))
+            if len(bars) - k < 2:
+                continue
+            thin += int(k < PREV_THIN)
+            memo = {}
+
+            def ok_at(i, _bars=bars, _allb=allb, _sym=sym, _memo=memo):
+                if i not in _memo:
+                    x = {"m": _bars[i][0], "px": _bars[i][4]}
+                    _memo[i] = not _membership(D, _sym, _allb, x)
+                return _memo[i]
+            ok_idx = None
+            for arm in MEASURE_ARMS:
+                xs = day_crosses(bars, *arm)
+                pos = [x for x in xs if x["sign"] == "+"]
+                cyc = cycles(bars, xs, lambda x: ok_at(x["i"]))
+                per[arm]["pos_all"].append(len(pos))
+                per[arm]["pos_in"].append(sum(1 for x in pos if ok_at(x["i"])))
+                if not cyc:
+                    continue
+                if arm == MEASURE_ARMS[0]:
+                    for c in cyc:
+                        parts["pre" if c["entry_m"] < D.op else ("reg" if c["entry_m"] < D.cl else "post")] += 1
+                if ok_idx is None:
+                    ok_idx = [i for i in range(k, len(bars)) if ok_at(i)]
+                ctl = control_cycles(bars, xs, ok_idx, len(cyc), rng)
+                per[arm]["cyc"].extend(cyc)
+                per[arm]["ctl"].extend(ctl)
+                per[arm]["pairs"][(sym, day)] = ([c["ret"] for c in cyc], [c["ret"] for c in ctl])
+        miss_total += miss
+        log(f"📅 {day}: مرشّحون {len(cands)} · شموعٌ تعذّرت {miss} · دوراتُ 8/15 حتى الآن {len(per[MEASURE_ARMS[0]]['cyc'])}")
+    out = {"mode": "measure", "ext": 1, "days": [days[0], days[-1], len(days)], "bad_days": bad_days, "bars_failed": miss_total,
+           "thin_prev": thin, "parts": parts, "arms": {}}
+    log(f"🧭 دخولُ دورات الحاكم 8/15 بحسب الجزء: بري {parts['pre']} · نظاميّ {parts['reg']} · أفتر {parts['post']} · "
+        f"رموزٌ-أيّامٌ بأقلّ من {PREV_THIN} دقيقةً في الجلسة السابقة {thin}")
+    for arm in MEASURE_ARMS:
+        a = per[arm]
+        s_arm, s_ctl = summarize(a["cyc"]), summarize(a["ctl"])
+        boot = cluster_boot(a["pairs"]) if len(a["cyc"]) >= MIN_CYCLES else (None, None, None)
+        verdict = "لا قياس" if len(a["cyc"]) < MIN_CYCLES else ("يتفوّق" if boot[1] is not None and boot[1] > 0 else "لا يتفوّق")
+        out["arms"][f"{arm[0]}/{arm[1]}"] = {"arm": s_arm, "control": s_ctl, "boot": boot, "verdict": verdict,
+                                              "pos_all_median": _median(a["pos_all"]), "pos_in_median": _median(a["pos_in"]),
+                                              "symbol_days": len(a["pairs"])}
+        f = lambda v: "—" if v is None else f"{v * 100:+.2f}%"                                  # noqa: E731
+        log(f"📊 {arm[0]}/{arm[1]}{' (الحاكم)' if arm == MEASURE_ARMS[0] else ' (وصفًا)'}: دورات {s_arm['n']} على {len(a['pairs'])} رمز-يوم · "
+            f"الوسيط {f(s_arm['median'])} · المتوسّط {f(s_arm['mean'])} · ‏+7% {s_arm['ge7'][0]} · ‏+20% {s_arm['ge20'][0]} · سالبة {s_arm['neg'][0]} · "
+            f"أقصى ربح (وسيط) {f(s_arm['maxp_median'])} · المدّة (وسيط) {s_arm['dur_median']}د · خروجُ «الإغلاق» "
+            f"{'—' if s_arm['close_share'] is None else round(s_arm['close_share'] * 100, 1)}%")
+        log(f"   الضابط: الوسيط {f(s_ctl['median'])} · المتوسّط {f(s_ctl['mean'])} · ‏+20% {s_ctl['ge20'][0]} · سالبة {s_ctl['neg'][0]} · "
+            f"التقاطعاتُ الإيجابيّة/رمز/يوم (وسيط) كلُّها {_median(a['pos_all'])} · داخل المجتمع {_median(a['pos_in'])}")
+        log(f"   P4′ الفرق (الذراع − الضابط) {f(boot[0])} · فاصل 95% [{f(boot[1])} ، {f(boot[2])}] ⟵ **{verdict}**")
     out["calls"], out["fails"] = net.calls, net.fails
     log("GCROSS_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True, default=str))
     return 4 if (bad_days or miss_total) else 0
@@ -677,8 +927,12 @@ def main(argv=None):
     if uni not in UNIVERSE_OK or uni != "vwap":
         log(f"⛔ {UNIVERSE_ENV}={uni!r}: المبنيُّ `vwap` وحدَه · و`top_gainers` بديلٌ للمالك لم يُبنَ بعد ({UNSPEC})")
         return 2
-    if (os.environ.get(EXT_ENV) or "0").strip() != "0":
-        log(f"⛔ {EXT_ENV}: الجلسةُ النظاميّة وحدَها (B-①) · والممتدّة {UNSPEC}")
+    ext = (os.environ.get(EXT_ENV) or "0").strip()
+    if ext not in ("0", "1"):
+        log(f"⛔ {EXT_ENV}={ext!r}: «0» النظاميّة (العقد B-①) أو «1» الممتدّة (الملحق 1) وحدَهما")
+        return 2
+    if ext == "1" and a.mode not in ("accept", "measure"):
+        log(f"⛔ {EXT_ENV}=1: الممتدُّ مبنيٌّ للقبول والقياس وحدَهما (الملحق 1 §①) · و«{a.mode}» به غيرُ مبنيّ — يُبنى إن عبر القبولُ وأمر المالك")
         return 2
     key = os.environ.get("POLYGON_API_KEY", "").strip()
     ua = (os.environ.get("SEC_CONTACT") or "").strip()
@@ -687,7 +941,7 @@ def main(argv=None):
         return 2
     net = V.Net(key, ua)
     if a.mode == "accept":
-        return mode_accept(net, MC)
+        return mode_accept_ext(net, MC) if ext == "1" else mode_accept(net, MC)
     if a.mode == "trace":
         return mode_trace(net, MC, a.date, a.sym.upper())
     if a.mode == "measure":
@@ -697,7 +951,7 @@ def main(argv=None):
             while not V3.is_session(d.isoformat(), MC.session_info):
                 d -= dt.timedelta(1)
             end = d.isoformat()
-        return mode_measure(net, MC, end, a.days)
+        return (mode_measure_ext if ext == "1" else mode_measure)(net, MC, end, a.days)
     until = None
     if a.until:
         hh, mm = a.until.split(":")
