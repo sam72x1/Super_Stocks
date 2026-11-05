@@ -96773,6 +96773,30 @@ except Exception as _e:                                              # noqa: BLE
 check("📈✖️🔒 GCE5 الملحق 1: دوالُّ العقد في الأداتين بت-بت (بصمةُ AST) · و`GC_EXT` غيرُ «0»/«1» يُرفض · والممتدُّ في الحيّ والتتبّع والمسح يُرفض (2) · "
       "والـworkflow يمرّره بافتراض «0»", _g5_v == (True,) * 3, str(_g5_v)[:240])
 
+# 📈✖️📄 GCR3 (‏2026-11-05 · `T-GCROSS` الملحق 1): §⑥ (القبول) و§⑦ (القياس) منشوران كما صدرا ⟵ بصمتاهما مثبَّتتان · والتشغيلاتُ الثلاث برقمها ·
+#    والحاكمُ الممتدّ «لا يتفوّق» بفاصله · والتنبّؤاتُ بحكمٍ لكلّ سطر · **والإغلاقُ مقترَحٌ لا مُنفَّذ** (لا `GCROSS_REOPEN` ولا `CLOSED_RC` في الأداة
+#    حتى أمر المالك — وأمرُه بالإغلاق يُحدّث هذا الشرط في التغيير نفسِه).
+try:
+    import hashlib as _gr3_h
+    _gr3_doc = open("fm_forensics/ema_cross/T_GCROSS_RESULT.md", encoding="utf-8").read()
+    _gr3_i6, _gr3_i7 = _gr3_doc.find("\n## ⑥ "), _gr3_doc.find("\n## ⑦ ")
+    _gr3_s6 = _gr3_doc[_gr3_i6:_gr3_i7] if 0 <= _gr3_i6 < _gr3_i7 else ""
+    _gr3_j = _gr3_doc.find("\n## ", _gr3_i7 + 1) if _gr3_i7 >= 0 else -1
+    _gr3_s7 = (_gr3_doc[_gr3_i7:_gr3_j] if _gr3_j >= 0 else _gr3_doc[_gr3_i7:]) if _gr3_i7 >= 0 else ""
+    _gr3_p = [ln for ln in (_gr3_s6 + _gr3_s7).splitlines() if ln.startswith("- `P")]
+    _gr3_src = open("ema_cross_live.py", encoding="utf-8").read()
+    _gr3_v = (_gr3_h.sha256(_gr3_s6.encode()).hexdigest() == "1a2984b1cf6784c5193454eda7c37bf27d161ded8b51f3944bc8a8a92043f5a7"
+              and _gr3_h.sha256(_gr3_s7.encode()).hexdigest() == "140d98b75ffeb099acf3f3e34b9e64b43eb2a275a35c2f296ac655086bd4a7c0",
+              all(r in _gr3_s6 + _gr3_s7 for r in ("42087187982", "42087192819", "42087198120")) and "لا تفعيل" in _gr3_s6,
+              "−0.12% [−0.41%، ‏+0.16%] ⟵ «لا يتفوّق»" in _gr3_s7 and "**ولم أُغلقه.**" in _gr3_s7,
+              [ln[3:6] for ln in _gr3_p] == ["P5′", "P6′", "P7′", "P8′", "P1′", "P2′", "P3′", "P4′"]
+              and all(("✅" in ln) or ("❌" in ln) for ln in _gr3_p),
+              "GCROSS_REOPEN" not in _gr3_src and "CLOSED_RC" not in _gr3_src)
+except Exception as _e:                                              # noqa: BLE001
+    _gr3_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️📄 GCR3 ملحقُ `T-GCROSS` كما صدر: §⑥ «لا تفعيل» و§⑦ «لا يتفوّق» (−0.12% [−0.41، +0.16]) مثبَّتان · والتشغيلاتُ الثلاث برقمها · "
+      "وP1′-P8′ بحكمٍ لكلّ سطر · والإغلاقُ مقترَحٌ لا مُنفَّذ", _gr3_v == (True,) * 5, str(_gr3_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
