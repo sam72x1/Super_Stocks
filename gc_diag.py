@@ -41,8 +41,8 @@ def day_diag(sym, day):
 
 mode = sys.argv[1]
 if mode == "chsn":
-    d = dt.date(2026, 10, 14)
-    while d <= dt.date(2026, 10, 28):
+    d = dt.date(2026, 10, 29)
+    while d <= dt.date(2026, 11, 5):
         if d.weekday() < 5:
             day_diag("CHSN", d.isoformat())
         d += dt.timedelta(1)
