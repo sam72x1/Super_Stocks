@@ -31,6 +31,9 @@ on:
       ext:
         description: "0 النظاميّة (العقد) · 1 الممتدّة (الملحق 1 · accept · accept_a · measure وحدَها)"
         default: "0"
+      reopen:
+        description: "🔒 المحورُ مُغلَق («اقفل التقاطع الذهبي» 2026-11-05) — «1» إقرارٌ بشروط الفتح الثلاثة وحدَه يفتحه"
+        default: "0"
 
 concurrency:
   group: super-stocks-ema-cross-${{ github.event.inputs.mode }}-${{ github.event.inputs.ext }}
@@ -59,6 +62,7 @@ jobs:
           GC_DAYS: ${{ github.event.inputs.days }}
           GC_UNTIL: ${{ github.event.inputs.until }}
           GC_EXT: ${{ github.event.inputs.ext }}
+          GCROSS_REOPEN: ${{ github.event.inputs.reopen }}
           PYTHONUNBUFFERED: "1"
         run: |
           echo "$GC_MODE" | grep -Eq '^(accept|accept_a|measure|trace|scan|live)$' || { echo "⛔ وضعٌ غيرُ معروف"; exit 2; }

@@ -437,6 +437,10 @@ def omh_example(net, MC, U, sym="OMH", d="2026-11-04"):
 
 
 def main(argv=None):
+    if G._closed_now():                                              # 🔒 «اقفل التقاطع الذهبي» (2026-11-05) — من مصدرٍ واحد
+        for ln in G.closure_notice():
+            log(ln)
+        return G.CLOSED_RC
     p = argparse.ArgumentParser()
     p.add_argument("--mode", default="measure", choices=("freeze", "measure"))
     a = p.parse_args(argv)

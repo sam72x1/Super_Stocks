@@ -1,0 +1,32 @@
+name: "📋🟠 سجلُّ زخم الفيواب منذ الملحق 5 — قراءةٌ فقط (بلا تلغرام)"
+
+# 📋🟠 أمرُ المالك 2026-11-05 «اطبع سجل الفيواب منذ الملحق 5»: لكلّ تنبيهٍ مُرسَل بتعريف `A5` — سعرُه · أعلى سعرٍ بعده حتى الآن (مسوّى بالتقسيم) ·
+#    وإغلاقُ 5د تحت الفيواب يومَ التنبيه ومتى · وموضعُ DNUT. 🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام و`contents: read` · يطبع في السجلّ ولا يكتب شيئًا (`VLR1`).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-vwap-ledger-report
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📋 السجلّ
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: python vwap_ledger_report.py

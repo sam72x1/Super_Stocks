@@ -96725,7 +96725,7 @@ try:
     _g5_gn = ["sma_series", "gcrosses", "golden_line", "fetch_30m", "universe", "mode_scan"]
     _g5_v = (_g5_fp("ema_cross_live.py", _g5_names) == "e956dc8cd090d1d1c7b8b2eb0efbc3e7dc00a7bb82273c5c1322e7210e28df09"
              and _g5_fp("golden_cross_scan.py", _g5_gn) == "e25d02f799b3e76ab02563884bc9070e89709f213475795f9a9023cf97854f52",)
-    _g5_env = {k: _g5_os.environ.get(k) for k in ("GC_EXT", "GC_UNIVERSE", "POLYGON_API_KEY", "SEC_CONTACT")}
+    _g5_env = {k: _g5_os.environ.get(k) for k in ("GC_EXT", "GC_UNIVERSE", "POLYGON_API_KEY", "SEC_CONTACT", "GCROSS_REOPEN")}
     _g5_calls, _g5_rcs = [], []
     _g5_keep = {n: getattr(_GE, n) for n in ("log", "mode_accept", "mode_accept_ext", "mode_measure", "mode_measure_ext", "mode_live",
                                              "mode_trace", "AMBars")}
@@ -96737,6 +96737,7 @@ try:
     try:                                                             # لا شبكةَ ولا مقبس: كلُّ وضعٍ جذعٌ يُسجَّل ولا يُنفَّذ
         _g5_os.environ.pop("GC_UNIVERSE", None)
         _g5_os.environ["POLYGON_API_KEY"], _g5_os.environ["SEC_CONTACT"] = "x", "x"
+        _g5_os.environ["GCROSS_REOPEN"] = "1"                         # 🔒 المحورُ مُغلَق (GCC1) ⟵ الإقرارُ يعبر البوّابةَ إلى منطق الأوضاع
         _GE.V.Net = lambda *a, **k: None
         _GE.log = _GB.log = (lambda m="": None)
         for _g5_n in ("mode_accept", "mode_accept_ext", "mode_measure", "mode_measure_ext", "mode_live", "mode_trace"):
@@ -96774,8 +96775,8 @@ check("📈✖️🔒 GCE5 الملحق 1: دوالُّ العقد في الأد
       "والـworkflow يمرّره بافتراض «0»", _g5_v == (True,) * 3, str(_g5_v)[:240])
 
 # 📈✖️📄 GCR3 (‏2026-11-05 · `T-GCROSS` الملحق 1): §⑥ (القبول) و§⑦ (القياس) منشوران كما صدرا ⟵ بصمتاهما مثبَّتتان · والتشغيلاتُ الثلاث برقمها ·
-#    والحاكمُ الممتدّ «لا يتفوّق» بفاصله · والتنبّؤاتُ بحكمٍ لكلّ سطر · **والإغلاقُ مقترَحٌ لا مُنفَّذ** (لا `GCROSS_REOPEN` ولا `CLOSED_RC` في الأداة
-#    حتى أمر المالك — وأمرُه بالإغلاق يُحدّث هذا الشرط في التغيير نفسِه).
+#    والحاكمُ الممتدّ «لا يتفوّق» بفاصله · والتنبّؤاتُ بحكمٍ لكلّ سطر · وكان الإغلاقُ مقترَحًا · 🔒 **ثمّ نُفِّذ بأمر المالك «اقفل التقاطع الذهبي»
+#    (2026-11-05)** ⟵ الشرطُ صار: الأداةُ مُغلَقة (`AXIS_CLOSED` · والسلوكُ في GCC1).
 try:
     import hashlib as _gr3_h
     _gr3_doc = open("fm_forensics/ema_cross/T_GCROSS_RESULT.md", encoding="utf-8").read()
@@ -96791,11 +96792,11 @@ try:
               "−0.12% [−0.41%، ‏+0.16%] ⟵ «لا يتفوّق»" in _gr3_s7 and "**ولم أُغلقه.**" in _gr3_s7,
               [ln[3:6] for ln in _gr3_p] == ["P5′", "P6′", "P7′", "P8′", "P1′", "P2′", "P3′", "P4′"]
               and all(("✅" in ln) or ("❌" in ln) for ln in _gr3_p),
-              "GCROSS_REOPEN" not in _gr3_src and "CLOSED_RC" not in _gr3_src)
+              getattr(_GE, "AXIS_CLOSED", None) is True and 'REOPEN_ENV = "GCROSS_REOPEN"' in _gr3_src and "CLOSED_RC = 8" in _gr3_src)
 except Exception as _e:                                              # noqa: BLE001
     _gr3_v = (f"⛔ {type(_e).__name__}: {_e}",)
 check("📈✖️📄 GCR3 ملحقُ `T-GCROSS` كما صدر: §⑥ «لا تفعيل» و§⑦ «لا يتفوّق» (−0.12% [−0.41، +0.16]) مثبَّتان · والتشغيلاتُ الثلاث برقمها · "
-      "وP1′-P8′ بحكمٍ لكلّ سطر · والإغلاقُ مقترَحٌ لا مُنفَّذ", _gr3_v == (True,) * 5, str(_gr3_v)[:240])
+      "وP1′-P8′ بحكمٍ لكلّ سطر · والإغلاقُ مُنفَّذٌ بأمر المالك 2026-11-05", _gr3_v == (True,) * 5, str(_gr3_v)[:240])
 
 # 📈✖️🏃🔒 GCX2 (‏2026-11-05 · `T-GCROSS` الملحق 2 «التقاطع على راكض الارتكاز»): الملحقُ والكونُ المجمَّد من git مدموجان قبل أيّ رقم ⟵ بصمتاهما مثبَّتتان ·
 #    والكونُ 60 جلسة (08-12 ⟵ 11-04) · 37,696 رمز-يوم · 1,192 مِرساة · وأيّامُ ما قبل `near_watch.json` بالقائمة وحدَها.
@@ -96954,7 +96955,7 @@ check("📈✖️🏃🔒 GCU3 الملحق 2 — القياسُ كاملًا ب
       "والـworkflow يدويٌّ بلا تلغرام ويقرأ فقط · ولا بناءَ حيّ", _g3_v == (True,) * 4, str(_g3_v)[:240])
 
 # 📈✖️🏃📄 GCR4 (‏2026-11-05 · `T-GCROSS` الملحق 2): §⑧ منشورٌ كما صدر ⟵ بصمتُه مثبَّتة · والتشغيلةُ برقمها · والحاكمُ «لا يتفوّق» بفاصله ·
-#    وR1-R7 بحكمٍ لكلّ سطر · **والإغلاقُ مقترَحٌ لا مُنفَّذ** في الأداة الثالثة أيضًا (أمرُ المالك بالإغلاق يُحدّث هذا الشرط في التغيير نفسِه).
+#    وR1-R7 بحكمٍ لكلّ سطر · وكان الإغلاقُ مقترَحًا · 🔒 **ثمّ نُفِّذ بأمر المالك 2026-11-05** ⟵ الأداةُ الثالثة تُغلَق من مصدرٍ واحد (`G._closed_now`).
 try:
     import hashlib as _gr4_h
     _gr4_doc = open("fm_forensics/ema_cross/T_GCROSS_RESULT.md", encoding="utf-8").read()
@@ -96966,11 +96967,138 @@ try:
     _gr4_v = (_gr4_h.sha256(_gr4_s.encode()).hexdigest() == "231d36156ab5ca80aebfb950dedc01939a730f2bcd358edb6391ddf60ce74e10",
               "42102781638" in _gr4_s and "**−0.58% [−0.60%، −0.56%] ⟵ «لا يتفوّق»" in _gr4_s and "**ولم أُغلقه.**" in _gr4_s,
               [ln[3:5] for ln in _gr4_p] == ["R1", "R2", "R3", "R4", "R5", "R6", "R7"] and all(("✅" in ln) or ("❌" in ln) for ln in _gr4_p),
-              "GCROSS_REOPEN" not in _gr4_src and "CLOSED_RC" not in _gr4_src)
+              "G._closed_now()" in _gr4_src and "return G.CLOSED_RC" in _gr4_src)
 except Exception as _e:                                              # noqa: BLE001
     _gr4_v = (f"⛔ {type(_e).__name__}: {_e}",)
 check("📈✖️🏃📄 GCR4 نتيجةُ «التقاطع على راكض الارتكاز» كما صدرت: §⑧ مثبَّت · الحاكمُ أسوأُ من العشوائيّ (−0.58% [−0.60، −0.56]) · "
-      "وR1-R7 بحكمٍ لكلّ سطر · والإغلاقُ مقترَحٌ لا مُنفَّذ", _gr4_v == (True,) * 4, str(_gr4_v)[:240])
+      "وR1-R7 بحكمٍ لكلّ سطر · والإغلاقُ مُنفَّذٌ بأمر المالك 2026-11-05", _gr4_v == (True,) * 4, str(_gr4_v)[:240])
+
+# 📈✖️🔒 GCC1 (‏2026-11-05 · أمرُ المالك «اقفل التقاطع الذهبي»): الأدواتُ الثلاث تخرج 8 قبل أيّ نداء (لا `Net` ولا وضع) ما لم يكن `GCROSS_REOPEN`
+#    «1» حرفيًّا («0» والفراغُ ونصٌّ آخر لا يفتح) · والنصُّ من مصدرٍ واحد بأرقام الحكم وشروط الفتح الثلاثة · والـworkflowان يمرّران `reopen` بافتراض «0» ·
+#    و§⑨ في النتيجة.
+try:
+    import os as _gcc_os
+    import yaml as _gcc_yaml
+    import ema_cross_live as _gcc_E
+    import golden_cross_scan as _gcc_A
+    import gcross_runner as _gcc_R
+    _gcc_old = {k: _gcc_os.environ.get(k) for k in ("GCROSS_REOPEN", "POLYGON_API_KEY", "SEC_CONTACT", "GC_EXT", "GC_UNIVERSE")}
+    _gcc_hits, _gcc_logs = [], []
+    _gcc_keep = (_gcc_E.V.Net, _gcc_E.log, _gcc_A.log, _gcc_R.log, _gcc_R.mode_measure, _gcc_A.mode_accept, _gcc_E.mode_accept)
+    _gcc_rc = {}
+    try:
+        _gcc_E.V.Net = lambda *a, **k: (_gcc_hits.append("Net"), None)[1]
+        _gcc_E.log = _gcc_A.log = _gcc_R.log = (lambda m="": _gcc_logs.append(str(m)))
+        _gcc_R.mode_measure = lambda *a, **k: (_gcc_hits.append("R.measure"), 0)[1]
+        _gcc_A.mode_accept = lambda *a, **k: (_gcc_hits.append("A.accept"), 0)[1]
+        _gcc_E.mode_accept = lambda *a, **k: (_gcc_hits.append("E.accept"), 0)[1]
+        _gcc_os.environ.update({"POLYGON_API_KEY": "x", "SEC_CONTACT": "x", "GC_EXT": "0"})   # كلُّ ما سوى الإغلاق يعبر ⟵ فالـ8 من الإغلاق وحدَه
+        _gcc_os.environ.pop("GC_UNIVERSE", None)
+        for _gcc_val in (None, "0", "", "yes", " 1 "):
+            if _gcc_val is None:
+                _gcc_os.environ.pop("GCROSS_REOPEN", None)
+            else:
+                _gcc_os.environ["GCROSS_REOPEN"] = _gcc_val
+            _gcc_rc[repr(_gcc_val)] = (_gcc_E.main(["--mode", "accept"]), _gcc_A.main(["--mode", "accept"]), _gcc_R.main(["--mode", "measure"]))
+    finally:
+        _gcc_E.V.Net, _gcc_E.log, _gcc_A.log, _gcc_R.log, _gcc_R.mode_measure, _gcc_A.mode_accept, _gcc_E.mode_accept = _gcc_keep
+        for _gcc_k, _gcc_o in _gcc_old.items():
+            if _gcc_o is None:
+                _gcc_os.environ.pop(_gcc_k, None)
+            else:
+                _gcc_os.environ[_gcc_k] = _gcc_o
+    _gcc_closed = [_gcc_rc[k] for k in ("None", "'0'", "''", "'yes'")]
+    _gcc_n = "\n".join(_gcc_E.closure_notice())
+    _gcc_wfs = []
+    for _gcc_p in (".github/workflows/ema_cross.yml", ".github/workflows/gcross_runner.yml"):
+        _gcc_w = _gcc_yaml.safe_load(open(_gcc_p, encoding="utf-8"))
+        _gcc_in = (_gcc_w.get(True) or _gcc_w.get("on"))["workflow_dispatch"]["inputs"]
+        _gcc_env = [st.get("env", {}) for j in _gcc_w["jobs"].values() for st in j["steps"] if "GCROSS_REOPEN" in st.get("env", {})]
+        _gcc_wfs.append(_gcc_in["reopen"]["default"] == "0" and len(_gcc_env) == 1
+                        and _gcc_env[0]["GCROSS_REOPEN"] == "${{ github.event.inputs.reopen }}")
+    _gcc_doc = open("fm_forensics/ema_cross/T_GCROSS_RESULT.md", encoding="utf-8").read()
+    _gcc_i = _gcc_doc.find("\n## ⑨ 🔒 الإغلاق")
+    _gcc_v = (_gcc_closed == [(8, 8, 8)] * 4 and _gcc_rc["' 1 '"] == (0, 0, 0)
+              and _gcc_hits == ["Net", "E.accept", "Net", "A.accept", "R.measure"],
+              sum(1 for m in _gcc_logs if m.startswith("🔒🔴 محورُ «التقاطع الذهبي»")) == 12,
+              all(t in _gcc_n for t in ("−0.58% [−0.60، −0.56]", "‏+0.10% [−0.14، ‏+0.36]", "−0.12% [−0.41، ‏+0.16]", "لم يعبر",
+                                        "① مصدرٌ جديدٌ", "② تسجيلٌ مسبقٌ جديد", "③ إذنُ المالك", "GCROSS_REOPEN=1")),
+              _gcc_wfs == [True, True],
+              _gcc_i >= 0 and "تخرج **8**" in _gcc_doc[_gcc_i:] and _gcc_doc.rstrip().endswith("**ولم يُبنَ شيءٌ حيّ ولا تلغرام.**"))
+except Exception as _e:                                              # noqa: BLE001
+    _gcc_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️🔒 GCC1 «اقفل التقاطع الذهبي»: الأدواتُ الثلاث تخرج 8 قبل أيّ نداء ما لم يكن `GCROSS_REOPEN` «1» حرفيًّا · والنصُّ بأرقام الحكم "
+      "وشروط الفتح الثلاثة · والـworkflowان يمرّران `reopen` بافتراض «0» · و§⑨ منشور", _gcc_v == (True,) * 5, str(_gcc_v)[:240])
+
+# 📋🟠🔒 VLR1 (‏2026-11-05 · أمرُ المالك «اطبع سجل الفيواب منذ الملحق 5»): `vwap_ledger_report` يعدّ المُرسَلَ بتعريف `A5` وحدَه (لا غيرَ المُرسَل
+#    ولا ما قبل الملحق) · وأعلى سعرٍ **بعد** دقيقة التنبيه حتى آخر يوم (ما قبله مستبعَد) مسوّى بالتقسيم إلى مقياس يوم التنبيه · وإغلاقُ 5د تحت
+#    الفيواب من `V.harvest` بالاسم · وDNUT بقسمه وترتيبه · والتعذّرُ يُعَدّ ولا يُسقَط · ولا تلغرام ولا كتابة · والـworkflow يدويٌّ قارئ.
+try:
+    import ast as _vr_ast
+    import yaml as _vr_yaml
+    import vwap_ledger_report as _VR
+    import vwap_momentum_live as _vr_V
+    _vr_rows = [
+        {"kind": "alert", "sent": True, "def": "A5", "date": "2026-11-03", "sym": "AAA", "arm": "A", "n": 1, "event_end_mod": 600,
+         "event_end_ny": "10:00", "px": 2.0, "key": "2026-11-03|AAA|A|1"},
+        {"kind": "alert", "sent": True, "def": "A5", "date": "2026-11-04", "sym": "DNUT", "arm": "A", "n": 1, "event_end_mod": 600,
+         "event_end_ny": "10:00", "px": 4.0, "key": "2026-11-04|DNUT|A|1"},
+        {"kind": "alert", "sent": True, "def": "A5", "date": "2026-11-05", "sym": "DNUT", "arm": "A", "n": 1, "event_end_mod": 660,
+         "event_end_ny": "11:00", "px": 4.5, "key": "2026-11-05|DNUT|A|1"},
+        {"kind": "alert", "sent": False, "def": "A5", "date": "2026-11-04", "sym": "BBB", "arm": "A", "n": 1, "event_end_mod": 600, "px": 1.0},
+        {"kind": "alert", "sent": True, "date": "2026-10-30", "sym": "CCC", "arm": "A", "n": 1, "event_end_mod": 600, "px": 1.0},
+        {"kind": "alert", "sent": True, "def": "A5", "date": "2026-11-04", "sym": "EEE", "arm": "D", "n": 1, "event_end_mod": 960,
+         "event_end_ny": "16:00", "px": 3.0, "key": "2026-11-04|EEE|D|1"},
+        {"kind": "harvest", "of": "2026-11-03|AAA|A|1", "exit_ny": "10:10", "exit_px": 1.8},
+    ]
+
+    def _vr_day(peak_m, peak_h, base=2.0):
+        out = []
+        for m in range(240, 1200):
+            h = peak_h if m == peak_m else base * 1.01
+            out.append((m, base, h, base * 0.99, base, 1000.0))
+        return out
+    # AAA: قمّةٌ قبل التنبيه (9.0 عند 09:40) تُستبعَد · وبعده يومَ 11-03 ‏2.6 · ويومَ 11-05 بعد تقسيمٍ عكسيّ 10:1 خامُها 40.0 ⟵ 4.0 بالمقياس
+    _vr_aaa = {"2026-11-03": [b if b[0] != 700 else (700, 2.0, 2.6, 1.9, 2.0, 1.0) for b in _vr_day(580, 9.0)],
+               "2026-11-05": _vr_day(800, 40.0, base=20.0)}
+    _vr_dn = {"2026-11-04": _vr_day(900, 5.0, base=4.0), "2026-11-05": _vr_day(700, 4.95, base=4.0)}
+    _vr_calls = []
+
+    def _vr_mins(sym, d0):
+        _vr_calls.append((sym, d0))
+        return {"AAA": _vr_aaa, "DNUT": _vr_dn}.get(sym)
+
+    def _vr_sp(sym, d0):
+        return ([("2026-11-03", 5.0, 1.0), ("2026-11-05", 10.0, 1.0)] if sym == "AAA" else []), True   # تقسيمُ يوم التنبيه نفسِه لا يُسوّى
+    _vr_out, _vr_n = _VR.build(_vr_rows, _vr_mins, _vr_sp, lambda d: {"open_ny_min": 570, "close_ny_min": 960})
+    _vr_by = {x["sym"]: x for x in _vr_out}
+    _vr_dns = [x for x in _vr_out if x["sym"] == "DNUT"]
+    _vr_h = _vr_V.harvest(_vr_aaa["2026-11-03"], 570, 960, 600, 2.0)
+    _vr_L = "\n".join(_VR.render(_vr_out, _vr_n, "2026-11-05"))
+    _vr_src = open("vwap_ledger_report.py", encoding="utf-8").read()
+    _vr_t = _vr_ast.parse(_vr_src)
+    _vr_names = {getattr(c.func, "attr", None) or getattr(c.func, "id", None) for c in _vr_ast.walk(_vr_t) if isinstance(c, _vr_ast.Call)}
+    _vr_opens = [c for c in _vr_ast.walk(_vr_t) if isinstance(c, _vr_ast.Call) and getattr(c.func, "id", None) == "open"]
+    _vr_wf = _vr_yaml.safe_load(open(".github/workflows/vwap_ledger_report.yml", encoding="utf-8"))
+    _vr_on = _vr_wf.get(True) or _vr_wf.get("on")
+    _vr_wtxt = open(".github/workflows/vwap_ledger_report.yml", encoding="utf-8").read()
+    _vr_v = ([x["sym"] for x in _vr_out] == ["AAA", "DNUT", "EEE", "DNUT"] and _vr_calls == [("AAA", "2026-11-03"), ("DNUT", "2026-11-04"), ("EEE", "2026-11-04")],
+             _vr_by["AAA"].get("max_px") == 4.0 and _vr_by["AAA"].get("max_day") == "2026-11-05" and _vr_by["AAA"].get("max_ny") == "13:20"
+             and _vr_by["AAA"].get("max_gain") == 1.0 and _vr_dns[0].get("max_px") == 5.0 and _vr_dns[0].get("max_session") == "نظاميّ"
+             and _vr_dns[1].get("max_px") == 4.95 and _vr_dns[1].get("max_day") == "2026-11-05",
+             _vr_by["AAA"].get("exit_ny") == _vr_h["exit_ny"] and _vr_by["AAA"].get("exit_px") == _vr_h["exit_px"]
+             and _vr_by["AAA"].get("harvest_match") is (_vr_h["exit_ny"] == "10:10" and _vr_h["exit_px"] == 1.8),
+             _vr_by["EEE"]["status"] == "تعذّر" and "تعذّر 1" in _vr_L and "تعذّرت الشموع" in _vr_L,
+             "## DNUT" in _vr_L and "**DNUT** ⬅️" in _vr_L and [x.get("rank") for x in _vr_dns] == [2, 3] and "المرتبة 3 من 3" in _vr_L
+             and "✂️11-05 10:1" in _vr_L,
+             "harvest" in _vr_names and "send_telegram" not in _vr_src and "append_ledger" not in _vr_names and not _vr_opens
+             and "import Super_stock" not in _vr_src,
+             list(_vr_on) == ["workflow_dispatch"] and _vr_wf.get("permissions") == {"contents": "read"} and "TELEGRAM" not in _vr_wtxt
+             and "python vwap_ledger_report.py" in _vr_wtxt)
+except Exception as _e:                                              # noqa: BLE001
+    _vr_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📋🟠🔒 VLR1 سجلُّ الفيواب منذ الملحق 5: المُرسَلُ بـ`A5` وحدَه · أعلى سعرٍ بعد التنبيه مسوّى بالتقسيم · خروجُ 5د من `V.harvest` · "
+      "DNUT بقسمه وترتيبه · والتعذّرُ يُعَدّ · ولا تلغرام ولا كتابة", _vr_v == (True,) * 7, str(_vr_v)[:240])
 
 # 🔄🔒 OEU1-OEU3 (‏2026-11-05 · عطلٌ مُثبَت من تذكير «تحقّق إطفاء الزناد الموازي»): عاملُ «هنا الدخول» الثاني انتظر عاملًا أقدمَ (`OES`) من 14:29
 #    وبدأ 17:46 بكود الإقلاع (قبل #737) ولم يُحدَّث حتى 18:32 ⟵ أطلق «🚦 زنادٌ موازٍ» على MASK ‏18:28 UTC بعد أمر «أطفئ الزناد الموازي» ·
