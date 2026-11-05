@@ -95925,6 +95925,36 @@ check("🔒 DC5C إغلاقُ T-DATE-CANDLES **مُنفَّذ**: الأدوات�
       "والإعادةُ بايتًا مفتوحة و«1» وحدَه يفتح · ونصُّ الإغلاق بحكمه وشروطه الثلاثة",
       _dc5c_v == (True,) * 6, str(_dc5c_v)[:240])
 
+
+# 🔁 TYD1 (‏2026-11-05 · عطلٌ مُثبَت في حاكمة `T-TC-YIELD` ‏`41949170731`): المِرساةُ المحمولة إلى لقطة الجلسة التالية (المِرساةُ نفسُها
+#    `رمز · لحظة` بيومٍ ليس يومَها) كانت تُعَدّ مرّتين ⟵ 12 نسخةً (11 من `A0`) نُسبت «بلا أساس» · `dedupe_carried` نقيّةٌ تُبقي مفتاحَ
+#    يومِ اللحظة بتوقيت نيويورك (وإلّا الأبكر) ولا تمسّ المِراسي المتمايزة · وتُنادى في `main` قبل `exclude_sessions` (AST).
+try:
+    import ast as _tyd_ast
+    import datetime as _tyd_dt
+    import tc_yield_arms as _TYD
+    from zoneinfo import ZoneInfo as _tyd_Z
+    _tyd_ms = lambda s: int(_tyd_dt.datetime.fromisoformat(s).replace(tzinfo=_tyd_Z("America/New_York")).timestamp() * 1000)   # noqa: E731
+    _a1, _a2, _a3 = _tyd_ms("2026-09-11T15:58"), _tyd_ms("2026-09-14T10:00"), _tyd_ms("2026-11-02T19:53")
+    _tyd_in = {("ADXN", "2026-09-14", _a1): {"t": "carried"}, ("ADXN", "2026-09-11", _a1): {"t": "true"},
+               ("ADXN", "2026-09-14", _a2): {"t": "own"}, ("CJMB", "2026-11-02", _a3): {"t": "ah"},
+               ("ZZZ", "2026-09-16", _a1): {"t": "late1"}, ("ZZZ", "2026-09-15", _a1): {"t": "late0"}}
+    _tyd_k, _tyd_d = _TYD.dedupe_carried(_tyd_in)
+    _tyd_main = next(n for n in _tyd_ast.parse(open("tc_yield_arms.py", encoding="utf-8").read()).body
+                     if isinstance(n, _tyd_ast.FunctionDef) and n.name == "main")
+    _tyd_calls = [c.func.id for c in _tyd_ast.walk(_tyd_main) if isinstance(c, _tyd_ast.Call) and isinstance(c.func, _tyd_ast.Name)
+                  and c.func.id in ("dedupe_carried", "exclude_sessions")]
+    _tyd_v = (sorted(_tyd_k) == sorted([("ADXN", "2026-09-11", _a1), ("ADXN", "2026-09-14", _a2), ("CJMB", "2026-11-02", _a3),
+                                        ("ZZZ", "2026-09-15", _a1)]),
+              sorted(_tyd_d) == sorted([("ADXN", "2026-09-14", _a1), ("ZZZ", "2026-09-16", _a1)]),
+              _tyd_in[("ADXN", "2026-09-11", _a1)] is _tyd_k[("ADXN", "2026-09-11", _a1)] and len(_tyd_in) == 6,
+              _tyd_calls[:2] == ["dedupe_carried", "exclude_sessions"])
+except Exception as _e:                                           # noqa: BLE001
+    _tyd_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🚦💵🔁 TYD1 المِرساةُ المحمولة إلى الجلسة التالية تُعَدّ مرّةً: يُبقى مفتاحُ يومِ اللحظة (وإلّا الأبكر) والمتمايزةُ كما هي · "
+      "والمُدخَلُ لا يُعدَّل · وتُنادى قبل `exclude_sessions` في `main`",
+      _tyd_v == (True,) * 4, str(_tyd_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
