@@ -1475,24 +1475,15 @@
   "date": "2026-11-05"
  },
  "LIQ:GOVX": {
-  "anchor_ms": 1793915160000,
-  "last_ms": 1793915280000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 133.4,
-  "peak_usd": 39241,
-  "last_eval_ms": 1793915160000,
-  "pulse_ms": 1793915280000,
-  "anchor_price": 0.2041,
-  "anchor_open": 0.1875,
-  "anchor_low": 0.1862,
-  "pre_done": true,
-  "pre_hi": 0.1875,
-  "pre_usd": 3413,
-  "pre_n": 14,
-  "exit_ms": 1793915220000,
+  "last_eval_ms": 1793915280000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1793915160000,
+   "anchor_price": 0.2041,
+   "anchor_low": 0.1862,
+   "e5": null,
+   "exit_ms": 1793915220000
+  },
   "date": "2026-11-05"
  },
  "LIQ:AEMD": {
@@ -3075,7 +3066,7 @@
   "tc_seen_ms": 1793902380000,
   "date": "2026-11-05"
  },
- "MKDW": "2026-11-03",
+ "MKDW": "2026-11-05",
  "LIQ:GDEV": {
   "date": "2026-11-05"
  },
@@ -3435,7 +3426,7 @@
  "LIQ:NAII": {
   "date": "2026-11-04"
  },
- "CDT": "2026-11-02",
+ "CDT": "2026-11-05",
  "LIQ:MEGL": {
   "last_eval_ms": 1793915040000,
   "tc_cum": 58859.1607716025,
