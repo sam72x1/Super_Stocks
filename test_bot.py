@@ -96953,6 +96953,25 @@ except Exception as _e:                                              # noqa: BLE
 check("📈✖️🏃🔒 GCU3 الملحق 2 — القياسُ كاملًا بمرجعٍ مزيّف: التغطيةُ والتعذّرُ يُعَدّان · دون 90% «لا قياس» · «هنا الدخول» للراكض · ومثالُ OMH · "
       "والـworkflow يدويٌّ بلا تلغرام ويقرأ فقط · ولا بناءَ حيّ", _g3_v == (True,) * 4, str(_g3_v)[:240])
 
+# 📈✖️🏃📄 GCR4 (‏2026-11-05 · `T-GCROSS` الملحق 2): §⑧ منشورٌ كما صدر ⟵ بصمتُه مثبَّتة · والتشغيلةُ برقمها · والحاكمُ «لا يتفوّق» بفاصله ·
+#    وR1-R7 بحكمٍ لكلّ سطر · **والإغلاقُ مقترَحٌ لا مُنفَّذ** في الأداة الثالثة أيضًا (أمرُ المالك بالإغلاق يُحدّث هذا الشرط في التغيير نفسِه).
+try:
+    import hashlib as _gr4_h
+    _gr4_doc = open("fm_forensics/ema_cross/T_GCROSS_RESULT.md", encoding="utf-8").read()
+    _gr4_i = _gr4_doc.find("\n## ⑧ ")
+    _gr4_j = _gr4_doc.find("\n## ", _gr4_i + 1) if _gr4_i >= 0 else -1
+    _gr4_s = (_gr4_doc[_gr4_i:_gr4_j] if _gr4_j >= 0 else _gr4_doc[_gr4_i:]) if _gr4_i >= 0 else ""
+    _gr4_p = [ln for ln in _gr4_s.splitlines() if ln.startswith("- `R")]
+    _gr4_src = open("gcross_runner.py", encoding="utf-8").read()
+    _gr4_v = (_gr4_h.sha256(_gr4_s.encode()).hexdigest() == "231d36156ab5ca80aebfb950dedc01939a730f2bcd358edb6391ddf60ce74e10",
+              "42102781638" in _gr4_s and "**−0.58% [−0.60%، −0.56%] ⟵ «لا يتفوّق»" in _gr4_s and "**ولم أُغلقه.**" in _gr4_s,
+              [ln[3:5] for ln in _gr4_p] == ["R1", "R2", "R3", "R4", "R5", "R6", "R7"] and all(("✅" in ln) or ("❌" in ln) for ln in _gr4_p),
+              "GCROSS_REOPEN" not in _gr4_src and "CLOSED_RC" not in _gr4_src)
+except Exception as _e:                                              # noqa: BLE001
+    _gr4_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️🏃📄 GCR4 نتيجةُ «التقاطع على راكض الارتكاز» كما صدرت: §⑧ مثبَّت · الحاكمُ أسوأُ من العشوائيّ (−0.58% [−0.60، −0.56]) · "
+      "وR1-R7 بحكمٍ لكلّ سطر · والإغلاقُ مقترَحٌ لا مُنفَّذ", _gr4_v == (True,) * 4, str(_gr4_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
