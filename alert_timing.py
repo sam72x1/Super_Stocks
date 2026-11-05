@@ -127,9 +127,26 @@ def dated_for_days(alert_days):
     return out
 
 
+LEDGER_DROPPED = [0]                       # الملحق 1 §②: صفوفُ الدفتر المتروكة لأنّ طابعَها ليس ليلةَ التنبيه (يُطبع)
+
+
+def ledger_evening_ok(day, asof) -> bool:
+    """الملحق 1 §②: طابعُ `avail_asof` بتوقيت نيويورك **يومَ التنبيه نفسَه وفي مسائه (16:00 فأكثر)** ⟵ True · وإلّا (غائبٌ أو يومٌ آخر أو قبل 16:00) False."""
+    try:
+        t = dt.datetime.fromisoformat(str(asof))
+    except (TypeError, ValueError):
+        return False
+    if t.tzinfo is None:
+        return False
+    t = t.astimezone(NY)
+    return t.date().isoformat() == str(day) and t.hour >= 16
+
+
 def load_shadow_ledger(path):
-    """المتاحُ الأماميّ لكلّ (تاريخ، رمز) من دفتر `T-SHADOW` (R-03) ⟵ {} إن غاب الملفّ (لا «لا»)."""
+    """المتاحُ الأماميّ لكلّ (تاريخ، رمز) من دفتر `T-SHADOW` (R-03) ⟵ {} إن غاب الملفّ (لا «لا») ·
+    والملحق 1 §②: لا يُقرأ إلّا ما طابعُه ليلةَ التنبيه (`ledger_evening_ok`) ويُعَدّ المتروك في `LEDGER_DROPPED`."""
     out = {}
+    LEDGER_DROPPED[0] = 0
     try:
         with open(path, encoding="utf-8") as fh:
             for line in fh:
@@ -137,12 +154,25 @@ def load_shadow_ledger(path):
                     r = json.loads(line)
                     k = (r.get("date"), r.get("symbol"))
                     if all(k) and r.get("avail") is not None:
+                        if not ledger_evening_ok(r.get("date"), r.get("avail_asof")):
+                            LEDGER_DROPPED[0] += 1
+                            continue
                         out[k] = float(r["avail"])
                 except (ValueError, TypeError, AttributeError):
                     continue
     except OSError:
         pass
     return out
+
+
+GAP_FROM, GAP_TO = "2026-09-29", "2026-10-12"   # الملحق 1 §①: انقطاعُ المصدر (يوما الحدّ داخلَه)
+
+
+def source_gap_sessions(days, alert_days, lo=GAP_FROM, hi=GAP_TO) -> tuple:
+    """الملحق 1 §①: جلساتُ التقويم في [lo، hi] ⟵ (التي بلا تنبيه، عددُ التنبيهات في المدى) — تُعَدّ ولا تُستكمَل."""
+    ss = [d for d in days if lo <= d <= hi]
+    have = collections.Counter(d for d in alert_days if lo <= d <= hi)
+    return [d for d in ss if not have.get(d)], sum(have.values())
 
 
 def attach_dated(rows, dated, ledger):
@@ -388,6 +418,10 @@ def main() -> int:                                                   # noqa: PLR
     dated = dated_for_days([r["day"] for r in rows])
     ledger = load_shadow_ledger(LEDGER)
     attach_dated(rows, dated, ledger)
+    _gap, _gap_n = source_gap_sessions(days, [d for (d, _s) in anchors])
+    log(f"🧊 فجوةُ المصدر {GAP_FROM} ⟶ {GAP_TO} (الملحق 1 §①): جلساتٌ بلا تنبيه {len(_gap)} ({' · '.join(_gap)}) · "
+        f"وتنبيهاتٌ وقعت في المدى {_gap_n} — تُعَدّ ولا تُستكمَل")
+    log(f"🧾 الدفترُ الأماميّ (الملحق 1 §②): مقروءٌ {len(ledger)} · متروكٌ لأنّ طابعَه ليس ليلةَ التنبيه {LEDGER_DROPPED[0]}")
     fl_all = [flags(r) for r in rows]
     log(f"🧾 معلومٌ: RSI {sum(f['rsi'] is not None for f in fl_all)} · فلوت {sum(f['float'] is not None for f in fl_all)} · "
         f"متاح {sum(f['avail'] is not None for f in fl_all)} (من الدفتر الأماميّ {sum(1 for r in rows if r.get('avail_src') == 'ledger')}) · "

@@ -68657,7 +68657,9 @@ try:
     try:
         _lp9 = _cfd_os.path.join(_t9, "l.jsonl")
         with open(_lp9, "w", encoding="utf-8") as _fh9:
-            _fh9.write('{"date": "2026-09-01", "symbol": "A", "avail": 5000}\nلا-json\n{"date": "2026-09-01", "symbol": "B", "avail": null}\n')
+            # الملحق 1 §② (2026-11-05): الصفُّ يُقرأ بطابعٍ ليلةَ التنبيه وحدَه ⟵ الفِكستشرُ يحمله (القاعدةُ تغيّرت بالملحق لا بالقفل)
+            _fh9.write('{"date": "2026-09-01", "symbol": "A", "avail": 5000, "avail_asof": "2026-09-01T21:30-04:00"}\nلا-json\n'
+                       '{"date": "2026-09-01", "symbol": "B", "avail": null, "avail_asof": "2026-09-01T21:30-04:00"}\n')
         _led9 = _AT.load_shadow_ledger(_lp9)
         _none9 = _AT.load_shadow_ledger(_cfd_os.path.join(_t9, "لا_يوجد.jsonl"))
     finally:
@@ -96073,6 +96075,38 @@ except Exception as _e:                                           # noqa: BLE001
 check("🌘 RBS2 تقريرُ الظلّ الممدَّد: أعلى صعودٍ وأعمقُ هبوطٍ من سعر الإدراج حتى آخر شمعة وتاريخاهما وعددُ الجلسات منذ الإدراج · "
       "والحقولُ السابقةُ كما هي · والأعمدةُ الخمسة في الوثيقة حين يحملها التقرير وحدَه",
       _rbs2_v == (True,) * 5, str(_rbs2_v)[:240])
+
+# ⏱️🕵️ ATM15 (‏2026-11-05 · `alert_timing_addendum_1.md` قبل أيّ رقم): ① المتاحُ الأماميّ «معلومٌ» بطابعٍ ليلةَ التنبيه وحدَه (نيويورك · يومُه · 16:00 فأكثر) —
+#    يومٌ آخر أو قبل الإغلاق أو بلا طابعٍ أو بلا منطقةٍ زمنيّة ⟵ متروكٌ ويُعَدّ · وطابعُ UTC بعد منتصف الليل يُقرأ بيوم نيويورك · ② فجوةُ المصدر تُعَدّ: جلساتُ
+#    المدى بلا تنبيه والتنبيهاتُ التي وقعت فيه · ولا تُستكمَل · و`main` يطبع السطرين (AST).
+try:
+    import ast as _a15_ast
+    _a15_ok = (_AT.ledger_evening_ok("2026-11-03", "2026-11-03T21:22-05:00"), _AT.ledger_evening_ok("2026-11-03", "2026-11-04T02:22+00:00"),
+               _AT.ledger_evening_ok("2026-11-03", "2026-11-04T09:00-05:00"), _AT.ledger_evening_ok("2026-11-03", "2026-11-03T15:00-05:00"),
+               _AT.ledger_evening_ok("2026-11-03", None), _AT.ledger_evening_ok("2026-11-03", "2026-11-03T21:22"))
+    _t15 = _px_tf.mkdtemp()
+    try:
+        _lp15 = _cfd_os.path.join(_t15, "l.jsonl")
+        with open(_lp15, "w", encoding="utf-8") as _fh15:
+            _fh15.write('{"date": "2026-11-03", "symbol": "A", "avail": 5000, "avail_asof": "2026-11-03T21:22-05:00"}\n'
+                        '{"date": "2026-11-03", "symbol": "B", "avail": 7000, "avail_asof": "2026-11-05T21:30-05:00"}\n'
+                        '{"date": "2026-11-03", "symbol": "C", "avail": 9000}\n')
+        _AT.load_shadow_ledger(_lp15)                                     # نداءٌ ثانٍ: العدّادُ يُصفَّر لكلّ تحميلٍ لا يتراكم
+        _led15 = _AT.load_shadow_ledger(_lp15)
+        _drop15 = _AT.LEDGER_DROPPED[0]
+    finally:
+        _px_sh.rmtree(_t15, ignore_errors=True)
+    _gap15 = _AT.source_gap_sessions(["2026-09-26", "2026-09-29", "2026-09-30", "2026-10-01", "2026-10-12", "2026-10-13"],
+                                     ["2026-09-26", "2026-09-29", "2026-10-12", "2026-10-12", "2026-10-13"])
+    _m15 = next(n for n in _a15_ast.parse(open(_AT.__file__, encoding="utf-8").read()).body if isinstance(n, _a15_ast.FunctionDef) and n.name == "main")
+    _c15 = {c.func.id for c in _a15_ast.walk(_m15) if isinstance(c, _a15_ast.Call) and isinstance(c.func, _a15_ast.Name)}
+    _atm15 = (_a15_ok == (True, True, False, False, False, False), _led15 == {("2026-11-03", "A"): 5000.0} and _drop15 == 2,
+              _gap15 == (["2026-09-30", "2026-10-01"], 3), {"source_gap_sessions", "load_shadow_ledger"} <= _c15,
+              (_AT.GAP_FROM, _AT.GAP_TO) == ("2026-09-29", "2026-10-12"))
+except Exception as _e:                                              # noqa: BLE001
+    _atm15 = (f"⛔ {type(_e).__name__}: {_e}",)
+check("⏱️🕵️ ATM15 الملحق 1: المتاحُ الأماميّ معلومٌ بطابعٍ ليلةَ التنبيه وحدَه (والمتروكُ يُعَدّ) · وفجوةُ المصدر 09-29…10-12 تُعَدّ ولا تُستكمَل · "
+      "و`main` يطبع السطرين", _atm15 == (True,) * 5, str(_atm15)[:240])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
