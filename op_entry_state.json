@@ -3461,23 +3461,23 @@
  },
  "LIQ:DVLT": {
   "anchor_ms": 1793918160000,
-  "last_ms": 1793918160000,
+  "last_ms": 1793918220000,
   "sent": [
    "M1"
   ],
-  "updates": 0,
+  "updates": 1,
   "vol_x": 20.0,
-  "peak_usd": 102434,
+  "peak_usd": 207767,
   "last_eval_ms": 1793918220000,
-  "pulse_ms": 1793918160000,
+  "pulse_ms": 1793918220000,
   "anchor_price": 0.0784,
   "anchor_open": 0.0683,
   "anchor_low": 0.0683,
-  "date": "2026-11-05",
   "pre_done": true,
   "pre_hi": 0.0681,
   "pre_usd": 223876,
-  "pre_n": 53
+  "pre_n": 53,
+  "date": "2026-11-05"
  },
  "LIQ:NXXT": {
   "last_eval_ms": 1793912340000,
