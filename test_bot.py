@@ -96265,6 +96265,8 @@ try:
     _gcx_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
     _gcx_i = _gcx_led.find("## §`T-GCROSS`")
     _gcx_sec = _gcx_led[_gcx_i:] if _gcx_i >= 0 else ""
+    _gcx_j = _gcx_sec.find("\n## ", 1)                               # 🔄 2026-11-05: القسمُ حتى العنوانِ التالي (§T-GCROSS-1 بعده · `GCX1`)
+    _gcx_sec = _gcx_sec[:_gcx_j] if _gcx_j >= 0 else _gcx_sec
     _gcx_rows = [ln for ln in _gcx_sec.splitlines()[1:] if ln.startswith("| ") and not ln.startswith("| القاعدة") and not ln.startswith("|---")
                  and not ln.startswith("## ")]
     _gcx_rows = _gcx_rows[:next((k for k, ln in enumerate(_gcx_rows) if ln.startswith("## ")), len(_gcx_rows))]
@@ -96494,6 +96496,8 @@ try:
     _gcm_doc = open("fm_forensics/ema_cross/T_GCROSS_RESULT.md", encoding="utf-8").read()
     _gcm_i = _gcm_doc.find("\n## ⑤ ")
     _gcm_s = _gcm_doc[_gcm_i:] if _gcm_i >= 0 else ""
+    _gcm_j = _gcm_s.find("\n## ", 1)                                 # 🔄 2026-11-05: §⑤ حتى العنوانِ التالي (نتائجُ الملحق 1 بعده)
+    _gcm_s = _gcm_s[:_gcm_j] if _gcm_j >= 0 else _gcm_s
     _gcm_p = [ln for ln in _gcm_s.splitlines() if ln.startswith("- `P")]
     _gcm_v = (_gcm_h.sha256(_gcm_s.encode()).hexdigest() == "aa53577020eeb16e68d630be171fe1cf0a1616bd8d8fb3e9c723f13cc328b4a2",
               "42067230174" in _gcm_s and "‏+0.10% [−0.14%، ‏+0.36%] ⟵ «لا يتفوّق»" in _gcm_s,
@@ -96503,6 +96507,271 @@ except Exception as _e:                                              # noqa: BLE
     _gcm_v = (f"⛔ {type(_e).__name__}: {_e}",)
 check("📈✖️📄 GCR2 قياسُ `T-GCROSS` كما صدر: §⑤ مثبَّت · 8/15 «لا يتفوّق» بفاصله · و9/15 وصفٌ لا اكتشاف · وP1-P5 بحكمٍ لكلّ سطر",
       _gcm_v == (True,) * 4, str(_gcm_v)[:240])
+
+# 📈✖️🔒 GCX1 (‏2026-11-05 · `T-GCROSS` الملحق 1 «الجلسةُ الممتدّة»): الملحقُ مدموجٌ قبل أيّ رقمٍ بتعريفه ⟵ بصمتُه مثبَّتة · وصفوفُ الدفتر
+#    §T-GCROSS-1 (لقطاتُ نايف بعيني) 14 صفًّا (10 `nayef_verbatim` · 4 `engineering`) و«لا تُدفَع» فيه · ولا صورةَ في مجلّد المحور · و§T-GCROSS كما دُمج.
+try:
+    import hashlib as _gx1_h
+    import glob as _gx1_g
+    _gx1_doc = open("fm_forensics/ema_cross/T_GCROSS_ADDENDUM_1.md", "rb").read()
+    _gx1_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _gx1_i = _gx1_led.find("## §`T-GCROSS-1`")
+    _gx1_sec = _gx1_led[_gx1_i:] if _gx1_i >= 0 else ""
+    _gx1_j = _gx1_sec.find("\n## ", 1)
+    _gx1_sec = _gx1_sec[:_gx1_j] if _gx1_j >= 0 else _gx1_sec
+    _gx1_rows = [ln for ln in _gx1_sec.splitlines() if ln.startswith("| ") and not ln.startswith("| القاعدة")]
+    _gx1_v = (_gx1_h.sha256(_gx1_doc).hexdigest() == "2c766a06f963af8548245f1594b9b5474ff843a965acfa5510931f7fc87f1155",
+              len(_gx1_rows) == 14 and sum("`nayef_verbatim`" in r for r in _gx1_rows) == 10 and sum("`engineering`" in r for r in _gx1_rows) == 4,
+              "لا تُدفَع" in _gx1_sec and "قرأتُها بعيني" in _gx1_sec,
+              not [f for f in _gx1_g.glob("fm_forensics/ema_cross/**/*", recursive=True)
+                   if f.lower().endswith((".png", ".jpg", ".jpeg", ".webp", ".heic", ".gif"))],
+              _gx1_led.find("## §`T-GCROSS` ") >= 0 and _gx1_led.find("## §`T-GCROSS` ") < _gx1_i)
+except Exception as _e:                                              # noqa: BLE001
+    _gx1_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️🔒 GCX1 ملحقُ `T-GCROSS` الأوّل مثبَّتُ البصمة قبل أيّ رقم · ولقطاتُ نايف في الدفتر 14 صفًّا (10 نايف · 4 هندسيّ) «لا تُدفَع» · "
+      "ولا صورةَ في مجلّد المحور", _gx1_v == (True,) * 5, str(_gx1_v)[:240])
+
+# 📈✖️ GCE1 (الملحق 1): السلسلةُ المتّصلة · تقاطعاتُ نافذة اليوم وحدَها · مستوى تقاطع الخطّين · بصمةُ الرأس — دوالُّ نقيّة
+try:
+    import ema_cross_live as _GE
+    _ge_prev = [(230, 1, 1, 1, 1, 9), (570, 0.5, 0.6, 0.4, 0.5, 100.0), (1199, 0.5, 0.5, 0.5, 0.5, 100.0), (1200, 9, 9, 9, 9, 9)]
+    _ge_day = [(239, 7, 7, 7, 7, 1), (240, 5.0, 5.0, 5.0, 5.0, 10.0), (600, 5.0, 5.0, 5.0, 5.0, 10.0), (1200, 7, 7, 7, 7, 1)]
+    _ge_s, _ge_k = _GE.ext_series(_ge_prev, _ge_day, 10.0)
+    _ge_v = (_ge_k == 2 and [b[0] for b in _ge_s] == [570 - 1440, 1199 - 1440, 240, 600]
+             and all(abs(a - b) < 1e-12 for a, b in zip(_ge_s[0][1:], (5.0, 6.0, 4.0, 5.0, 10.0))) and _ge_s[2] == (240, 5.0, 5.0, 5.0, 5.0, 10.0),)
+    # الحدُّ بين اليومين: الأمسُ صعد ثمّ هبط (سلبيٌّ أمس) واليومُ يفتح فوقه ⟵ إيجابيٌّ عند أوّل دقيقةٍ من اليوم بالمتّصل وحدَه ·
+    #    والمبذورُ في يومه لا يرى تقاطعًا عندها · وسلبيُّ الأمس لا يُعَدّ في اليوم
+    _ge_pv = [(570 + i, c, c, c, c, 1.0) for i, c in enumerate([9.0 + 0.05 * i for i in range(20)] + [10.0 - 0.05 * i for i in range(20)])]
+    _ge_dv = [(240 + i, c, c, c, c, 1.0) for i, c in enumerate([12.0] * 5 + [12.0 - 0.4 * i for i in range(1, 12)])]
+    _ge_s2, _ge_k2 = _GE.ext_series(_ge_pv, _ge_dv)
+    _ge_x2 = _GE.day_crosses(_ge_s2)
+    _ge_seed = _GE.crosses(_GE.regular(_ge_dv, 240, 1200))
+    _ge_v += (_ge_k2 == 40 and [x["sign"] for x in _ge_x2][:1] == ["+"] and _ge_x2[0]["m"] == 240 and _ge_x2[0]["i"] == 40
+              and all(x["m"] >= 240 for x in _ge_x2) and any(x["m"] < 240 and x["sign"] == "-" for x in _GE.crosses(_ge_s2))
+              and not any(x["m"] == 240 for x in _ge_seed) and _GE.day_crosses(_ge_s2[:40]) == [],)
+    # مستوى التقاطع = التقاءُ القطعتين المستقيمتين (يُتحقَّق بالقيمتين عند t على كلا الخطّين) ويقع بين الإغلاقين
+    _ge_x = _ge_x2[0]
+    _ge_cl = [b[4] for b in _ge_s2[:_ge_x["i"] + 1]]
+    _ge_f, _ge_sl = _GE.ema_series(_ge_cl, 8), _GE.ema_series(_ge_cl, 15)
+    _ge_i = _ge_x["i"]
+    _ge_d0, _ge_d1 = _ge_f[_ge_i - 1] - _ge_sl[_ge_i - 1], _ge_f[_ge_i] - _ge_sl[_ge_i]
+    _ge_t = _ge_d0 / (_ge_d0 - _ge_d1)
+    _ge_L = _GE.cross_level(_ge_s2, _ge_x)
+    _ge_v += (0 <= _ge_t <= 1 and abs(_ge_L - (_ge_sl[_ge_i - 1] + _ge_t * (_ge_sl[_ge_i] - _ge_sl[_ge_i - 1]))) < 1e-12
+              and abs(_ge_L - (_ge_f[_ge_i - 1] + _ge_t * (_ge_f[_ge_i] - _ge_f[_ge_i - 1]))) < 1e-12 and _ge_L < _ge_x["px"],)
+    _ge_hm = _GE.head_match(_ge_s2, _ge_f[_ge_i], _ge_sl[_ge_i])
+    _ge_v += (_ge_hm is not None and _ge_hm[0] == _ge_x["m"] and _ge_hm[3] < 1e-12 and _GE.head_match(_ge_s2[:40], 1, 1) is None,
+              _GE.EXT_OP == 240 and _GE.EXT_CL == 1200 and _GE.WITNESS_B_EXT[0]["day"] == "2026-11-03" and _GE.WITNESS_B[0]["day"] == "2026-10-21"
+              and _GE.WITNESS_B_EXT[0]["seq"] == _GE.WITNESS_B[0]["seq"] and _GE.WITNESS_B_EXT[1] is _GE.WITNESS_B[1])
+except Exception as _e:                                              # noqa: BLE001
+    _ge_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️ GCE1 الملحق 1: الأمسُ مسوًّى بمعامله ومزاحٌ قبل اليوم في [04:00، 20:00) · التقاطعُ عند حدّ اليومين يُرى بالمتّصل ولا يُعَدّ قبل 04:00 · "
+      "مستوى التقاطع = التقاءُ القطعتين · بصمةُ الرأس · وCHSN ‏11-03 بتسلسله والعقدُ على 10-21", _ge_v == (True,) * 5, str(_ge_v)[:240])
+
+# 📈✖️ GCE2 (الملحق 1): القبولُ الممتدّ بمرجعٍ مزيّف — نداءٌ واحدٌ لـ[الأمس ⟵ اليوم] لكلّ شاهد · والحاكمُ إغلاقُ دقيقة التقاطع (±2%) لا مستواه ·
+#    وD1 بالمستوى وصفٌ مستقلّ · وتعذّرُ الدقائق ⟵ 4.
+try:
+    _gq_prev = {"2026-11-03": "2026-10-31", "2026-11-04": "2026-11-03"}
+    _gq_omh_d = ([(240 + i, c, c, c, c, 100000.0) for i, c in enumerate([5.80 - 0.002 * i for i in range(30)])]
+                 + [(270 + i, 5.974, 5.974, 5.974, 5.974, 100000.0) for i in range(10)])
+    _gq_data = {("CHSN", "2026-10-31"): [(570 + i, 1.0, 1.0, 1.0, 1.0, 1000.0) for i in range(30)],
+                ("CHSN", "2026-11-03"): [(240 + i, 1.0, 1.0, 1.0, 1.0, 1000.0) for i in range(30)],
+                ("OMH", "2026-11-03"): [(570 + i, 5.80, 5.80, 5.80, 5.80, 1000.0) for i in range(40)],
+                ("OMH", "2026-11-04"): _gq_omh_d}
+
+    class _GQNet:
+        def __init__(self, fail=()):
+            self.calls, self.fails, self.seen, self.fail = 0, 0, [], fail
+
+        def minutes(self, sym, a, b):
+            self.seen.append((sym, a, b))
+            if sym in self.fail:
+                return None
+            return {d: _gq_data[(sym, d)] for d in (a, b) if (sym, d) in _gq_data}
+
+    class _GQDay:
+        def __init__(self, net, day, MC, replay=False):
+            self.day, self.prev, self.op, self.cl, self.splits = day, _gq_prev[day], 570, 960, {}
+
+        def prev_adj(self, sym):
+            return 1.0
+
+        def type_status(self, sym):
+            return "ok"
+
+        def catalyst(self, sym, upto):
+            return (lambda e: {"C": True}), None, None
+    _gq_dc, _gq_lg, _gq_out = _GE.V.Day, _GE.log, []
+    try:
+        _GE.V.Day, _GE.log = _GQDay, (lambda m="": _gq_out.append(m))
+        _gq_n1 = _GQNet()
+        _gq_rc = _GE.mode_accept_ext(_gq_n1, None)
+        _gq_n2 = _GQNet(fail=("CHSN",))
+        _gq_rc2 = _GE.mode_accept_ext(_gq_n2, None)
+    finally:
+        _GE.V.Day, _GE.log = _gq_dc, _gq_lg
+    _gq_js = [__import__("json").loads(m.split("GCROSS_JSON ", 1)[1]) for m in _gq_out if m.startswith("GCROSS_JSON ")]
+    _gq_j = _gq_js[0]
+    _gq_w = {w["id"]: w for w in _gq_j["witnesses"]}
+    _gq_d1 = {d["id"]: d for d in _gq_j["d1"]}
+    _gq_v = (_gq_rc == 1 and _gq_rc2 == 4 and _gq_j["ext"] == 1,
+             _gq_n1.seen == [("CHSN", "2026-10-31", "2026-11-03"), ("OMH", "2026-11-03", "2026-11-04")],
+             _gq_w["B2′"]["ok"] is False and _gq_d1["B2"]["ok"] is True and abs(_gq_d1["B2"]["rows"][0]["diff"]) <= 0.02,
+             _gq_w["B1′"]["ok"] is False and _gq_w["B1′"]["prev_bars"] == 30 and _gq_w["B3′"]["ok"] is False,
+             set(_gq_j["d2"]) == {"المتّصل", "المبذور 09:30 (العقد)"} or set(_gq_j["d2"]) == {"المتّصل"})
+except Exception as _e:                                              # noqa: BLE001
+    _gq_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️ GCE2 القبولُ الممتدّ (مرجعٌ مزيّف): نداءٌ واحدٌ [الأمس ⟵ اليوم] لكلّ شاهد · الحاكمُ إغلاقُ دقيقة التقاطع (‏+3% يسقط) والمستوى وصفٌ "
+      "يعبر · وتعذّرُ الدقائق ⟵ 4", _gq_v == (True,) * 5, str(_gq_v)[:240])
+
+# 📈✖️ GCE3 (الملحق 1): القياسُ الممتدّ بمرجعٍ مزيّف — نداءُ [الأمس ⟵ اليوم] · معاملُ التقسيم يُطبَّق على الأمس (لا تقاطعَ زائفٌ عند الحدّ) ·
+#    ودخولُ الدورة بحسب الجزء · وعدّادُ الأمس الضئيل · والسلبيُّ يغلق الدورة.
+try:
+    _gz_prev = [(570 + i, 0.5, 0.5, 0.5, 0.5, 1000.0) for i in range(20)]
+    _gz_cl = [5.0] * 30 + [5.0 - 0.01 * i for i in range(1, 11)] + [4.9 + 0.1 * i for i in range(1, 11)] + [5.9 - 0.15 * i for i in range(1, 15)]
+    _gz_day = [(240 + i, c, c, c, c, 100000.0) for i, c in enumerate(_gz_cl)]
+
+    class _GZNet:
+        calls = fails = 0
+
+        def __init__(self):
+            self.seen = []
+
+        def poly(self, path, params=None):
+            return {"results": [{"T": "AAA", "h": 6.0, "l": 4.0, "v": 1e7}]}
+
+        def minutes(self, sym, a, b):
+            self.seen.append((sym, a, b))
+            return {a: _gz_prev, b: _gz_day}
+
+    class _GZDay:
+        def __init__(self, net, day, MC, replay=False):
+            self.day, self.prev, self.op, self.cl, self.ok, self.why = day, "2026-11-03", 570, 960, True, []
+            self.splits, self.types = {"AAA": [(day, 10.0, 1.0)]}, {"AAA": "CS"}
+
+        def prev_adj(self, sym):
+            return 3.0
+
+        def prev_adj_pf(self, sym):
+            return 3.0
+
+        def type_status(self, sym):
+            return "ok"
+
+        def catalyst(self, sym, upto):
+            return (lambda e: {"C": True}), None, None
+
+    class _GZMC:
+        @staticmethod
+        def session_info(d):
+            return {"open_ny_min": 570, "close_ny_min": 960}
+    _gz_dc, _gz_lg, _gz_pf, _gz_out = _GE.V.Day, _GE.log, _GE.V.prefilter, []
+    try:
+        _GE.V.Day, _GE.log, _GE.V.prefilter = _GZDay, (lambda m="": _gz_out.append(m)), (lambda hl, pf, ty: set(hl))
+        _gz_n = _GZNet()
+        _gz_rc = _GE.mode_measure_ext(_gz_n, _GZMC, "2026-11-04", 1)
+    finally:
+        _GE.V.Day, _GE.log, _GE.V.prefilter = _gz_dc, _gz_lg, _gz_pf
+    _gz_j = [__import__("json").loads(m.split("GCROSS_JSON ", 1)[1]) for m in _gz_out if m.startswith("GCROSS_JSON ")][0]
+    _gz_a = _gz_j["arms"]["8/15"]
+    _gz_v = (_gz_rc == 0 and _gz_j["ext"] == 1 and _gz_j["days"] == ["2026-11-04", "2026-11-04", 1],
+             _gz_n.seen == [("AAA", "2026-11-03", "2026-11-04")],
+             _gz_a["arm"]["n"] == 1 and _gz_j["parts"] == {"pre": 1, "reg": 0, "post": 0} and _gz_a["pos_all_median"] == 1,
+             _gz_j["thin_prev"] == 1 and _gz_a["arm"]["close_share"] == 0.0 and _gz_a["verdict"] == "لا قياس")
+except Exception as _e:                                              # noqa: BLE001
+    _gz_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️ GCE3 القياسُ الممتدّ (مرجعٌ مزيّف): نداءُ [الأمس ⟵ اليوم] · معاملُ التقسيم على الأمس (دورةٌ واحدة لا تقاطعَ زائفَ عند الحدّ) · "
+      "دخولُها في البري · وعدّادُ الأمس الضئيل · والسلبيُّ يغلقها", _gz_v == (True,) * 4, str(_gz_v)[:240])
+
+# ⭐💀 GCE4 (الملحق 1): شموعُ 4س الممتدّة 04/08/12/16 حتى 20:00 · وD3 بالصيغ الأربع وبنافذة أيّامها
+try:
+    import golden_cross_scan as _GB
+    import datetime as _gb_dt
+    _gb_ny = __import__("tv_data").NY
+    _gb_d0 = _gb_dt.datetime(2026, 3, 2, tzinfo=_gb_ny)
+    _gb_b30 = [[int((_gb_d0 + _gb_dt.timedelta(minutes=m)).timestamp()), 1.0, 2.0, 0.5, float(m), 10.0] for m in range(3 * 60 + 30, 20 * 60 + 31, 30)]
+    _gb_x = _GB.to_4h(_gb_b30, True)
+    _gb_r = _GB.to_4h(_gb_b30)
+    _gb_v = ([b[4] for b in _gb_x] == [450.0, 690.0, 930.0, 1170.0] and all(b[5] == 80.0 for b in _gb_x)
+             and [b[4] for b in _gb_r] == [780.0, 930.0] and _GB.EXT_STARTS == (240, 480, 720, 960) and _GB.EXT_END == 1200,)
+    _gb_long = []
+    for _gb_k in range(130):
+        _gb_dd = _gb_dt.datetime(2026, 6, 1, tzinfo=_gb_ny) + _gb_dt.timedelta(days=_gb_k)
+        _gb_long += [[int((_gb_dd + _gb_dt.timedelta(minutes=m)).timestamp()), 100.0, 100.0, 100.0, 100.0, 1.0] for m in range(240, 1200, 30)]
+    _gb_m = _GB.d3_match(_gb_long, {"h": (101.0, 99.0)}, ("2026-10-08", "2026-10-08"))
+    _gb_none = _GB.d3_match(_gb_long, {"h": (100.0, 100.0)}, ("2027-01-01", "2027-01-02"))
+    _gb_v += (set(_gb_m) == {"نظاميّة · SMA", "نظاميّة · EMA", "ممتدّة · SMA", "ممتدّة · EMA"}
+              and all(r["h"] is not None and r["h"][0] == "2026-10-08" and abs(r["h"][4] - max(1 - 100 / 101, 100 / 99 - 1)) < 1e-9 for r in _gb_m.values()),
+              all(r["h"] is None for r in _gb_none.values()))
+except Exception as _e:                                              # noqa: BLE001
+    _gb_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("⭐💀 GCE4 الملحق 1: شموعُ 4س الممتدّة 04/08/12/16 حتى 20:00 (وما قبل 04:00 وبعد 20:00 خارجها) والنظاميّةُ كما هي · وD3 بالصيغ الأربع "
+      "داخل نافذة أيّامها", _gb_v == (True,) * 3, str(_gb_v)[:240])
+
+# 📈✖️🔒 GCE5 (الملحق 1): النظاميُّ بت-بت (بصمةُ AST لدوالّ العقد في الأداتين) · و`GC_EXT` «0»/«1» وحدَهما والممتدُّ للقبول والقياس وحدَهما ·
+#    والـworkflow يمرّره بافتراض «0».
+try:
+    import ast as _g5_ast
+    import hashlib as _g5_h
+    import os as _g5_os
+
+    def _g5_fp(path, names):
+        t = _g5_ast.parse(open(path, encoding="utf-8").read())
+        d = {n.name: _g5_h.sha256(_g5_ast.dump(n).encode()).hexdigest()[:16] for n in t.body if isinstance(n, _g5_ast.FunctionDef)}
+        return _g5_h.sha256("".join(d.get(k, "") for k in names).encode()).hexdigest()
+    _g5_names = ["regular", "resample", "crosses", "match_seq", "cycle_from", "cycles", "pct_from_low", "vwap_side", "momentum_why", "_membership",
+                 "mode_accept", "sessions_before", "control_cycles", "mode_measure", "mode_trace", "live_eval", "ledger_row", "mode_live",
+                 "summarize", "cluster_boot", "ema_series"]
+    _g5_gn = ["sma_series", "gcrosses", "golden_line", "fetch_30m", "universe", "mode_scan"]
+    _g5_v = (_g5_fp("ema_cross_live.py", _g5_names) == "e956dc8cd090d1d1c7b8b2eb0efbc3e7dc00a7bb82273c5c1322e7210e28df09"
+             and _g5_fp("golden_cross_scan.py", _g5_gn) == "e25d02f799b3e76ab02563884bc9070e89709f213475795f9a9023cf97854f52",)
+    _g5_env = {k: _g5_os.environ.get(k) for k in ("GC_EXT", "GC_UNIVERSE", "POLYGON_API_KEY", "SEC_CONTACT")}
+    _g5_calls, _g5_rcs = [], []
+    _g5_keep = {n: getattr(_GE, n) for n in ("log", "mode_accept", "mode_accept_ext", "mode_measure", "mode_measure_ext", "mode_live",
+                                             "mode_trace", "AMBars")}
+    _g5_gkeep = {n: getattr(_GB, n) for n in ("log", "mode_accept", "mode_scan")}
+    _g5_net = _GE.V.Net
+
+    def _g5_stub(name):
+        return lambda *a, **k: (_g5_calls.append((name, a[2:], k)), 77)[1]
+    try:                                                             # لا شبكةَ ولا مقبس: كلُّ وضعٍ جذعٌ يُسجَّل ولا يُنفَّذ
+        _g5_os.environ.pop("GC_UNIVERSE", None)
+        _g5_os.environ["POLYGON_API_KEY"], _g5_os.environ["SEC_CONTACT"] = "x", "x"
+        _GE.V.Net = lambda *a, **k: None
+        _GE.log = _GB.log = (lambda m="": None)
+        for _g5_n in ("mode_accept", "mode_accept_ext", "mode_measure", "mode_measure_ext", "mode_live", "mode_trace"):
+            setattr(_GE, _g5_n, _g5_stub("E." + _g5_n))
+        _GE.AMBars = lambda *a, **k: (_g5_calls.append(("E.AMBars", (), {})), None)[1]
+        _GB.mode_accept, _GB.mode_scan = _g5_stub("G.mode_accept"), _g5_stub("G.mode_scan")
+        for _g5_e, _g5_m in (("2", "accept"), ("1", "live"), ("1", "trace"), ("1", "accept"), ("0", "accept"), ("1", "measure")):
+            _g5_os.environ["GC_EXT"] = _g5_e
+            _g5_rcs.append(_GE.main(["--mode", _g5_m, "--end", "2026-11-04"]))
+        for _g5_e, _g5_m in (("1", "scan"), ("1", "accept"), ("0", "accept")):
+            _g5_os.environ["GC_EXT"] = _g5_e
+            _g5_rcs.append(_GB.main(["--mode", _g5_m]))
+    finally:
+        for _g5_n, _g5_f in _g5_keep.items():
+            setattr(_GE, _g5_n, _g5_f)
+        for _g5_n, _g5_f in _g5_gkeep.items():
+            setattr(_GB, _g5_n, _g5_f)
+        _GE.V.Net = _g5_net
+        for _g5_k, _g5_val in _g5_env.items():
+            if _g5_val is None:
+                _g5_os.environ.pop(_g5_k, None)
+            else:
+                _g5_os.environ[_g5_k] = _g5_val
+    import yaml as _g5_yaml
+    _g5_wf = _g5_yaml.safe_load(open(".github/workflows/ema_cross.yml", encoding="utf-8"))
+    _g5_in = (_g5_wf.get(True) or _g5_wf.get("on"))["workflow_dispatch"]["inputs"]
+    _g5_st = _g5_wf["jobs"]["run"]["steps"][-1]
+    _g5_v += (_g5_rcs == [2, 2, 2, 77, 77, 77, 2, 77, 77]
+              and [c[0] for c in _g5_calls] == ["E.mode_accept_ext", "E.mode_accept", "E.mode_measure_ext", "G.mode_accept", "G.mode_accept"]
+              and [c[1][-1] if c[0] == "G.mode_accept" else None for c in _g5_calls][3:] == [True, False],
+              _g5_in["ext"]["default"] == "0" and _g5_st["env"]["GC_EXT"] == "${{ github.event.inputs.ext }}" and "^[01]$" in _g5_st["run"])
+except Exception as _e:                                              # noqa: BLE001
+    _g5_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️🔒 GCE5 الملحق 1: دوالُّ العقد في الأداتين بت-بت (بصمةُ AST) · و`GC_EXT` غيرُ «0»/«1» يُرفض · والممتدُّ في الحيّ والتتبّع والمسح يُرفض (2) · "
+      "والـworkflow يمرّره بافتراض «0»", _g5_v == (True,) * 3, str(_g5_v)[:240])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

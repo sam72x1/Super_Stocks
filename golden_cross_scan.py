@@ -22,6 +22,10 @@ WIN_A1 = ("2026-02-01", "2026-04-30")        # §④ A1 «≈ مارس 2026» �
 WIN_A2 = ("2026-09-01", "2026-10-22")        # §④ A2 «≈ أكتوبر 2026» حتى لقطة 10-22 — العقد
 A1_PX, A2_PX, A2_LOW = (48.0, 52.0), (115.0, 120.0), 88.75   # أرقامُ نايف كما نقلها المالك (وصفٌ لا معيار)
 UNSPEC = "غير محدّد في المصدر"
+# الملحق 1 «الجلسةُ الممتدّة» (`T_GCROSS_ADDENDUM_1.md` · `GC_EXT=1` وحدَه · والنظاميُّ أعلاه بت-بت)
+EXT_STARTS, EXT_END = (4 * 60, 8 * 60, 12 * 60, 16 * 60), 20 * 60   # A-①′ حدودُ 4س الممتدّة 04/08/12/16 ونهايةُ 20:00 — أمرُ المالك
+D3_DAYS = ("2026-10-21", "2026-10-23")       # D3 أيّامُ البحث عن بصمة لقطتَي نايف (تغريدةُ 10-22) — الملحق 1 §②
+D3_HEADS = {"اللقطة 1": (101.04, 114.63), "اللقطة 2": (100.70, 102.75)}   # (الأخضر 50، الأحمر 200) قراءةُ عيني · الدفتر §T-GCROSS-1
 
 
 def log(m=""):
@@ -29,10 +33,45 @@ def log(m=""):
 
 
 # ── دوالُّ نقيّة ────────────────────────────────────────────────────────────────────────────────────────
-def to_4h(b30):
-    """A-① [[ثانية، o، h، l، c، v]] لشموع 30 دقيقة ⟵ شموعُ 4س بـ`chart_id_tv.aggregate` بالاسم (حدودُ 09:30 · 13:30 · نهايةُ 16:00)."""
+def to_4h(b30, ext=False):
+    """A-① [[ثانية، o، h، l، c، v]] لشموع 30 دقيقة ⟵ شموعُ 4س بـ`chart_id_tv.aggregate` بالاسم (حدودُ 09:30 · 13:30 · نهايةُ 16:00) ·
+    و`ext` (الملحق 1 · A-①′): حدودُ 04:00 · 08:00 · 12:00 · 16:00 ونهايةُ 20:00."""
     import chart_id_tv as CT
+    if ext:
+        return CT.aggregate(b30, list(EXT_STARTS), EXT_END)
     return CT.aggregate(b30, list(STARTS), END)
+
+
+def ema4(values, n):
+    """D3 (وصفٌ) EMA بالصيغة نفسِها (`ema_cross_live.ema_series` بالاسم) — None قبل n قيمة كي يُقارَن بـSMA عند الشموع نفسِها."""
+    import ema_cross_live as G
+    e = G.ema_series(values, n)
+    return [None if i < n - 1 else v for i, v in enumerate(e)]
+
+
+def d3_match(b30, heads=None, days=D3_DAYS):
+    """D3 (وصفٌ لا يحكم) لكلّ صيغةٍ من الأربع (نظاميّة/ممتدّة × SMA/EMA) ولكلّ لقطة: شمعةُ 4س في [days] التي يقترب فيها (50، 200) من رأس اللقطة ⟵
+    {الصيغة: {اللقطة: (يوم، ثانية، 50، 200، أكبرُ الخطأين)}}."""
+    heads = heads or D3_HEADS
+    out = {}
+    for ext in (False, True):
+        b4 = to_4h(b30, ext)
+        cl = [b[4] for b in b4]
+        for kind, fn in (("SMA", sma_series), ("EMA", ema4)):
+            f, s_ = fn(cl, FAST_N), fn(cl, SLOW_N)
+            row = {}
+            for nm, (hf, hs) in heads.items():
+                best = None
+                for j, b in enumerate(b4):
+                    d = ny_day(b[0])
+                    if not (days[0] <= d <= days[1]) or f[j] is None or s_[j] is None:
+                        continue
+                    e = max(abs(f[j] / hf - 1.0), abs(s_[j] / hs - 1.0))
+                    if best is None or e < best[4]:
+                        best = (d, b[0], f[j], s_[j], e)
+                row[nm] = best
+            out[f"{'ممتدّة' if ext else 'نظاميّة'} · {kind}"] = row
+    return out
 
 
 def sma_series(values, n):
@@ -102,20 +141,21 @@ def fetch_30m(net, sym, d0, d1):
     return out
 
 
-def state_of(net, sym, d1):
+def state_of(net, sym, d1, ext=False):
     b30 = fetch_30m(net, sym, HISTORY_FROM, d1)
     if b30 is None:
         return None
-    b4 = to_4h(b30)
+    b4 = to_4h(b30, ext)
     ok, xs = gcrosses(b4)
     last = xs[-1] if xs else None
-    return {"sym": sym, "n4h": len(b4), "measurable": ok, "crosses": xs, "bars": b4,
+    return {"sym": sym, "n4h": len(b4), "measurable": ok, "crosses": xs, "bars": b4, "b30": b30,
             "last": None if not last else {"kind": last["kind"], "day": ny_day(last["ts"]), "px": last["px"]}}
 
 
-def mode_accept(net, d1="2026-10-22"):
-    """§④ A1 وA2 على INTC: ذهبيٌّ في نافذة A1 · موتٌ في نافذة A2 (الاتّجاه) ⟵ والأسعارُ وأدنى إغلاقٍ بعد الموت وصفًا. ⟵ 0 · 1 · 4."""
-    st = state_of(net, "INTC", d1)
+def mode_accept(net, d1="2026-10-22", ext=False):
+    """§④ A1 وA2 على INTC: ذهبيٌّ في نافذة A1 · موتٌ في نافذة A2 (الاتّجاه) ⟵ والأسعارُ وأدنى إغلاقٍ بعد الموت وصفًا. ⟵ 0 · 1 · 4.
+    و`ext` (الملحق 1): شموعُ 4س الممتدّة (A-①′) ⟵ ومعها الوصفيُّ D3 (بصمةُ متوسّطَي لقطتَي نايف)."""
+    st = state_of(net, "INTC", d1, ext)
     if st is None:
         log("⛔ INTC: تعذّرت شموعُ 30 دقيقة")
         return 4
@@ -142,7 +182,18 @@ def mode_accept(net, d1="2026-10-22"):
         log(f"✅ {wid} {ny_day(hit['ts'])} ${hit['px']:g} · مقابل نطاق نايف {rng[0]:g}-{rng[1]:g} ({'داخله' if inside else 'خارجه'}){extra}")
         out["rows"].append({"id": wid, "ok": True, "day": ny_day(hit["ts"]), "px": hit["px"], "in_range": inside})
     out["ok"] = ok_all
-    log(f"{'✅' if ok_all else '❌'} **القبول ② (الذراع أ):** {'A1 وA2 بالاتّجاه' if ok_all else 'لم يعبر — أين سقط مطبوعٌ أعلاه'}")
+    if ext:
+        out["ext"] = 1
+        out["d3"] = {}
+        for form, row in d3_match(st["b30"]).items():
+            for nm, b in row.items():
+                if b is None:
+                    log(f"   ℹ️ D3 (وصفًا) {form} · {nm}: لا شمعة 4س في {D3_DAYS[0]}…{D3_DAYS[1]}")
+                    continue
+                log(f"   ℹ️ D3 (وصفًا) {form} · {nm} {D3_HEADS[nm]}: أقربُ شمعة {b[0]} · 50 = {b[2]:.5g} · 200 = {b[3]:.5g} · أكبرُ الخطأين {b[4] * 100:.2f}%")
+                out["d3"][f"{form} · {nm}"] = {"day": b[0], "ts": b[1], "f": b[2], "s": b[3], "err": b[4]}
+    log(f"{'✅' if ok_all else '❌'} **القبول ② (الذراع أ{' · الملحق 1 ممتدّة' if ext else ''}):** "
+        f"{'A1 وA2 بالاتّجاه' if ok_all else 'لم يعبر — أين سقط مطبوعٌ أعلاه'}")
     log("GCROSS_JSON " + json.dumps(out, ensure_ascii=False, sort_keys=True))
     return 0 if ok_all else 1
 
@@ -198,8 +249,12 @@ def main(argv=None):
     import vwap_momentum_live as V
     net = V.Net(key, (os.environ.get("SEC_CONTACT") or "").strip())
     d1 = a.date or dt.datetime.now(tz=V.NY).date().isoformat()
+    ext = (os.environ.get("GC_EXT") or "0").strip()
+    if ext not in ("0", "1") or (ext == "1" and a.mode != "accept"):
+        log(f"⛔ GC_EXT={ext!r}: «0» النظاميّة أو «1» الممتدّة للقبول وحدَه (الملحق 1) — والمسحُ بالممتدّ غيرُ مبنيّ")
+        return 2
     if a.mode == "accept":
-        return mode_accept(net, a.date or "2026-10-22")
+        return mode_accept(net, a.date or "2026-10-22", ext == "1")
     if a.mode == "scan":
         return mode_scan(net, d1)
     st = state_of(net, a.sym.upper(), d1)

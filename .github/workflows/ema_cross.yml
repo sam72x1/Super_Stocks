@@ -28,9 +28,12 @@ on:
       until:
         description: "live: آخرُ دقيقةٍ بتوقيت نيويورك HH:MM (فارغٌ = الإغلاق)"
         default: ""
+      ext:
+        description: "0 النظاميّة (العقد) · 1 الممتدّة (الملحق 1 · accept · accept_a · measure وحدَها)"
+        default: "0"
 
 concurrency:
-  group: super-stocks-ema-cross-${{ github.event.inputs.mode }}
+  group: super-stocks-ema-cross-${{ github.event.inputs.mode }}-${{ github.event.inputs.ext }}
   cancel-in-progress: false
 
 jobs:
@@ -55,9 +58,12 @@ jobs:
           GC_END: ${{ github.event.inputs.end }}
           GC_DAYS: ${{ github.event.inputs.days }}
           GC_UNTIL: ${{ github.event.inputs.until }}
+          GC_EXT: ${{ github.event.inputs.ext }}
           PYTHONUNBUFFERED: "1"
         run: |
           echo "$GC_MODE" | grep -Eq '^(accept|accept_a|measure|trace|scan|live)$' || { echo "⛔ وضعٌ غيرُ معروف"; exit 2; }
+          echo "${GC_EXT:-0}" | grep -Eq '^[01]$' || { echo "⛔ ext: 0 أو 1"; exit 2; }
+          export GC_EXT="${GC_EXT:-0}"
           case "$GC_MODE" in
             accept_a) python golden_cross_scan.py --mode accept --date "$GC_DATE" ;;
             scan)     python golden_cross_scan.py --mode scan --date "$GC_DATE" ;;
