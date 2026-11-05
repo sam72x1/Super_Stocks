@@ -96015,6 +96015,65 @@ check("🌘 RBS1 تقريرُ أسبوع الظلّ = المولِّد بايت�
       "وكلُّ صفٍّ متّسق · وملفُّ التقرير خارج قوائم التقرير القادم",
       _rbs_v == (True,) * 6, str(_rbs_v)[:240])
 
+
+# 🔒 TYD3 (‏2026-11-05 · الملحق `§⑮` · أمرُ المالك «عدّل V-Y4 إلى العضوية»): `V-Y4` تحقّقُ عضويّة لا عدُّ المقيس — `vy4_membership` نقيّةً:
+#    الذراعان = الوسم ولا تقاطع ولا فائض · وصفٌّ مقيسٌ خارج المادّة أو بذراعٍ غيرِ وسمِه ⟵ سقوط · والتغطيةُ لكلّ ذراع (مقيس، مراسٍ) ·
+#    و`_judge` يناديها ولا يقارن العددَ بالمقيس · وتغطيةُ كلّ ذراعٍ دون 80% ⟵ خروج 6 (AST).
+try:
+    import ast as _tyd3_ast
+    import inspect as _tyd3_insp
+    import tc_yield_arms as _TY3
+    _y3_an = {("AAA", "2026-10-01", 1): {"trig": None}, ("BBB", "2026-10-01", 2): {"trig": ""},
+              ("CCC", "2026-10-01", 3): {"trig": "T-C"}}
+    _y3_arms = _TY3.split_arms(_y3_an)
+    _y3_rows = [{"symbol": "AAA", "date": "2026-10-01", "anchor_ms": 1, "trig": None},
+                {"symbol": "CCC", "date": "2026-10-01", "anchor_ms": 3, "trig": "T-C"}]
+    _y3_ok = _TY3.vy4_membership(_y3_an, _y3_arms, _y3_rows)
+    _y3_stray = _TY3.vy4_membership(_y3_an, _y3_arms, _y3_rows + [{"symbol": "ZZZ", "date": "2026-10-01", "anchor_ms": 9, "trig": None}])
+    _y3_wrong = _TY3.vy4_membership(_y3_an, _y3_arms, [{"symbol": "AAA", "date": "2026-10-01", "anchor_ms": 1, "trig": "T-C"}])
+    _y3_bad_arms = _TY3.vy4_membership(_y3_an, {"A0": {("AAA", "2026-10-01", 1): {}}, "A-TC": {("CCC", "2026-10-01", 3): {}}}, [])
+    _y3_src = _tyd3_insp.getsource(_TY3._judge)
+    _y3_calls = {c.func.id for c in _tyd3_ast.walk(_tyd3_ast.parse(_y3_src)) if isinstance(c, _tyd3_ast.Call) and isinstance(c.func, _tyd3_ast.Name)}
+    _tyd3_v = (_y3_ok == (True, {"A0": (1, 2), "A-TC": (1, 1)}, ""),
+               _y3_stray[0] is False and "خارج المادّة" in _y3_stray[2],
+               _y3_wrong[0] is False and "غير وسمِه" in _y3_wrong[2],
+               _y3_bad_arms[0] is False,
+               "vy4_membership" in _y3_calls and "n_a0_tag" not in _y3_src and "m / n < 0.80" in _y3_src and "return RC_COVER" in _y3_src)
+except Exception as _e:                                           # noqa: BLE001
+    _tyd3_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🚦💵🔒 TYD3 `V-Y4` عضويّةٌ (§⑮): الذراعان = الوسم · والصفُّ الدخيلُ أو بذراعٍ غيرِ وسمِه يُسقطه · والتغطيةُ لكلّ ذراع · "
+      "و`_judge` بلا مقارنةِ العدد بالمقيس وتغطيةُ الذراع دون 80% ⟵ 6",
+      _tyd3_v == (True,) * 5, str(_tyd3_v)[:240])
+
+
+# 🌘 RBS2 (‏2026-11-05 · أمرُ المالك «مدّد الظلّ أسبوعًا — والتقرير القادم 11-12 يضيف لكل سهم: أعلى صعود وأعمق هبوط من سعر الإدراج حتى تاريخه،
+#    وعدد الجلسات منذ الإدراج»): `shadow_drawdown` سلوكيًّا على الشموع كلِّها من D — أعلى High ÷ سعر الإدراج − 1 (لا سالب) وتاريخُه · أدنى Low حتى
+#    آخر شمعة (لا موجب) وتاريخُه · وعددُ الجلسات · والحقولُ السابقةُ كما هي · والمولِّدُ يضيف الأعمدةَ الخمسة حين يحملها التقرير وحدَه.
+try:
+    import importlib.util as _rbs2_iu
+    _rbs2_sp = _rbs2_iu.spec_from_file_location("t_rebuild_rbs2", "fm_forensics/rebuild/rebuild.py")
+    _RB2 = _rbs2_iu.module_from_spec(_rbs2_sp)
+    _rbs2_sp.loader.exec_module(_RB2)
+    _b = lambda d, lo, c, hi=None: (d, c, hi if hi is not None else max(lo, c), lo, c, 1000.0)   # noqa: E731
+    _pre2 = [_b("2026-11-04", 0.95, 1.0)]
+    _a2 = _RB2.shadow_drawdown(_pre2 + [_b("2026-11-05", 0.90, 1.10, hi=1.20), _b("2026-11-06", 0.70, 0.80),
+                                        _b("2026-11-09", 0.75, 1.50, hi=1.60)], "2026-11-05", 1.0)
+    _c2 = _RB2.shadow_drawdown(_pre2 + [_b("2026-11-05", 0.80, 0.85, hi=0.90)], "2026-11-05", 1.0)
+    _rep2 = {"as_of": "2026-11-11", "run": 1, "main_sha": "x" * 40, "files": ["shadow_2026-11-05.json"], "note": "", "definition": "",
+             "entries": [{"session": "2026-11-05", "symbol": "AAA", "score": 0.4} | _a2]}
+    _md2 = _rbs_doc.render(_rep2, "shadow_report_2026-11-11.json")
+    _rbs2_v = ((_a2["first_rise"], _a2["deepest_pct"], _a2["sessions_seen"]) == ("2026-11-05", -10.0, 1),
+               (_a2["max_rise_pct"], _a2["max_rise_date"], _a2["deepest_to_date_pct"], _a2["deepest_to_date_date"], _a2["sessions_since"])
+               == (60.0, "2026-11-09", -30.0, "2026-11-06", 3),
+               (_c2["max_rise_pct"], _c2["max_rise_date"], _c2["deepest_to_date_pct"], _c2["sessions_since"]) == (0.0, None, -20.0, 1),
+               "أعلى صعود حتى تاريخه" in _md2 and "| 60.00% | 2026-11-09 | -30.00% | 2026-11-06 | 3 |" in _md2,
+               "أعلى صعود حتى تاريخه" not in _rbs_md)
+except Exception as _e:                                           # noqa: BLE001
+    _rbs2_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🌘 RBS2 تقريرُ الظلّ الممدَّد: أعلى صعودٍ وأعمقُ هبوطٍ من سعر الإدراج حتى آخر شمعة وتاريخاهما وعددُ الجلسات منذ الإدراج · "
+      "والحقولُ السابقةُ كما هي · والأعمدةُ الخمسة في الوثيقة حين يحملها التقرير وحدَه",
+      _rbs2_v == (True,) * 5, str(_rbs2_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

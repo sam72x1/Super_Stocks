@@ -45,14 +45,18 @@ def render(rep: dict, name: str) -> str:
           f"- تعديلُ مقياس (سعرُ الإدراج المُعاد يخالف المسجَّل أكثر من 2%): {sum(1 for e in ents if e.get('ref_rescaled'))}", ""]
     for d in sorted(by):
         rows = sorted(by[d], key=lambda e: (-(e.get("score") or 0), e["symbol"]))
+        ext = any("sessions_since" in e for e in rows)   # أعمدةُ 2026-11-05 حين يحملها التقرير وحدَها (تقريرُ 11-04 بايتًا كما هو)
         L += [f"## جلسة {d} — {len(rows)} سهمًا", "",
-              "| السهم | الدرجة | سعرُ الإدراج (إغلاق D−1) | أعمقُ هبوط | تاريخُه | أوّلُ صعود | تعديلُ مقياس |",
-              "|---|---|---|---|---|---|---|"]
+              "| السهم | الدرجة | سعرُ الإدراج (إغلاق D−1) | أعمقُ هبوط | تاريخُه | أوّلُ صعود | تعديلُ مقياس |"
+              + (" أعلى صعود حتى تاريخه | تاريخُه | أعمقُ هبوط حتى تاريخه | تاريخُه | جلساتٌ منذ الإدراج |" if ext else ""),
+              "|---|---|---|---|---|---|---|" + ("---|---|---|---|---|" if ext else "")]
         for e in rows:
             ref = "—" if e.get("ref") is None else f"{e['ref']:.4g} ({e.get('ref_date', '')})"
             rise = e.get("first_rise") or ("لم يصعد بعد" if e.get("status") == "not_yet" else e.get("status", "—"))
             L.append(f"| {e['symbol']} | {e.get('score', '—')} | {ref} | {_pct(e.get('deepest_pct'))} | {e.get('deepest_date') or '—'} | "
-                     f"{rise} | {'نعم' if e.get('ref_rescaled') else 'لا'} |")
+                     f"{rise} | {'نعم' if e.get('ref_rescaled') else 'لا'} |"
+                     + (f" {_pct(e.get('max_rise_pct'))} | {e.get('max_rise_date') or '—'} | {_pct(e.get('deepest_to_date_pct'))} | "
+                        f"{e.get('deepest_to_date_date') or '—'} | {e.get('sessions_since', '—')} |" if ext else ""))
         L.append("")
     L += ["## ما لا يقوله هذا التقرير", "",
           "- وصفٌ لحركة السعر بعد الإدراج لا حكمٌ على الدرجة ولا على القائمة · والقرارُ بعد أسبوع الظلّ للمالك (لا تلغرام ولا شحن).",

@@ -150,6 +150,29 @@ def anchor_row(a_hist: dict, sym: str, day: str, ams: int, v: dict) -> dict:
     return {"anchor_ms": ams, "anchor_price": v.get("price"), "date": day, "symbol": sym}
 
 
+def vy4_membership(anchors: dict, arms: dict, rows: list) -> tuple:
+    """**نقيّة** — `V-Y4` بالملحق `§⑮` (أمرُ المالك 2026-11-05 «عدّل V-Y4 إلى العضوية»): تحقّقُ عضويّةٍ قبل القياس لا عدُّ المقيس.
+
+    ① `A0` = مراسي وسمِ `R1` (`trig` فارغ) و`A-TC` = مراسي وسمِ `T-C` · لا تقاطع · واتّحادُهما = المراسي كلُّها
+    ② كلُّ صفٍّ مقيسٍ مفتاحُه مِرساةٌ من المادّة وذراعُه ذراعُ وسمِها ⟵ `(سليم؟، {الذراع: (مقيس، مراسٍ)}، السبب)`."""
+    keys = set(anchors or {})
+    a0 = {k for k in keys if not (anchors[k] or {}).get("trig")}
+    tc = keys - a0
+    s0, s1 = set(arms.get("A0") or {}), set(arms.get("A-TC") or {})
+    if s0 != a0 or s1 != tc or (s0 & s1) or (s0 | s1) != keys:
+        return False, {}, "الذراعان لا تطابقان الوسم"
+    cov = {"A0": [0, len(a0)], "A-TC": [0, len(tc)]}
+    for r in rows or []:
+        k = (r.get("symbol"), r.get("date"), r.get("anchor_ms"))
+        if k not in keys:
+            return False, {}, f"صفٌّ مقيسٌ خارج المادّة: {k[0]} {k[1]}"
+        arm = "A-TC" if (anchors[k] or {}).get("trig") else "A0"
+        if bool(r.get("trig")) != (arm == "A-TC"):
+            return False, {}, f"صفٌّ بذراعٍ غير وسمِه: {k[0]} {k[1]}"
+        cov[arm][0] += 1
+    return True, {a: tuple(v) for a, v in cov.items()}, ""
+
+
 def delivered(row: dict) -> bool:
     """§⑤ ‏+ الملحق `§⑬` — «مُسلَّمة» = بلغت المالكَ فعلًا: عمقُ مراحلَ غيرُ فارغ
     **و`alive_eod`** = حاضرةٌ في **آخر لقطةٍ تحمل يومَ المِرساة نفسَه**.
@@ -445,7 +468,7 @@ def main() -> int:                                               # noqa: PLR0911
     if cover < 0.80:
         log("⛔ التغطية دون 80% ⇒ لا يُفسَّر رقم · خروج 6")
         return RC_COVER
-    return _judge(arms, per_arm, pool, cache, key, universe, rows, days)
+    return _judge(arms, per_arm, pool, cache, key, universe, rows, days, anchors)
 
 
 def _ctrl_rows(pool, cache, key, mode, usd_th, pct_th):
@@ -476,22 +499,23 @@ def _ctrl_rows(pool, cache, key, mode, usd_th, pct_th):
     return out
 
 
-def _judge(arms, per_arm, pool, cache, key, universe, rows, days):  # noqa: PLR0915
+def _judge(arms, per_arm, pool, cache, key, universe, rows, days, anchors):  # noqa: PLR0915
     """يحسب الضبطَ الثلاثيّ ثم يُصدر الحكمَ بحرف العقد."""
     import Super_stock as S                                       # noqa: PLC0415
     usd_th, pct_th = float(S.LIQ_TC_USD), float(S.LIQ_TC_PCT)
     log(f"🔬 الضبطُ الحاكم — العتباتُ من الإنتاج: ‏${usd_th:,.0f} · {pct_th:g}%")
 
-    # `V-Y4` — `A0` يجب أن يُعيد عددَ مراسي `R1` المقروءَ من الوسم بت-بت
-    n_a0_tag = len(arms["A0"])
-    n_a0_rows = len({(r["symbol"], r["date"], r["anchor_ms"])
-                     for r in rows if not r["trig"]})
-    log(f"🔒 `V-Y4`: مراسي `R1` بالوسم {n_a0_tag} · المقروءة في الصفوف {n_a0_rows}")
-    if n_a0_tag != n_a0_rows:
-        # 🔴 حارسٌ **يوقف** لا يطبع: لو اختلف العددُ فالمادّةُ ليست ما يدّعيه
-        #    الوسم ⇒ لا يُقرأ أيُّ `Δ`. (درسُ طفرة `n4` في `PGA12`.)
-        log(f"⛔ `V-Y4` سقط ({n_a0_tag} مقابل {n_a0_rows}) — لا يُقرأ رقم · خروج 7")
+    # `V-Y4` بالملحق `§⑮` — تحقّقُ عضويّة: الذراعان = الوسم · وكلُّ صفٍّ مقيسٍ من المادّة وبذراع وسمِه (حارسٌ **يوقف** لا يطبع)
+    ok, cov, why = vy4_membership(anchors, arms, rows)
+    if not ok:
+        log(f"⛔ `V-Y4` (عضويّة · §⑮) سقط: {why} — لا يُقرأ رقم · خروج 7")
         return RC_VY4
+    log("🔒 `V-Y4` (عضويّة · §⑮): الذراعان = الوسم · " + " · ".join(
+        f"{a} مقيس {m} من {n} = {100.0 * m / n:.1f}%" if n else f"{a} 0 من 0" for a, (m, n) in cov.items()))
+    low = [a for a, (m, n) in cov.items() if not n or m / n < 0.80]
+    if low:
+        log(f"⛔ تغطيةُ الذراع دون 80% ({' · '.join(low)}) — §⑮-2 · خروج 6")
+        return RC_COVER
 
     c_mom = _ctrl_rows(pool, cache, key, "mom", usd_th, pct_th)
     c_usd = _ctrl_rows(pool, cache, key, "usd", usd_th, pct_th)
