@@ -11707,7 +11707,8 @@ try:
     # الدالّة نفسِها لا على الملفّ — الصنفُ ②).
     _ty_src = _pgz_insp.getsource(S.liq_stage_events)
     _ty_tag = ('"trig"' in _ty_src) and ('"sent"' in _ty_src)
-    _ty_ok2 = (_ty_on is True
+    # 🔕 المفتاحُ مُطفأٌ بأمر المالك 2026-11-05 (`TCO1`) — المحورُ يُقاس بمفتاحٍ موجودٍ بقيمةٍ منطقيّة
+    _ty_ok2 = (isinstance(_ty_on, bool)
                and _ty_usd == S.CONFIG["IGNITION_USD_OPERATOR"]
                and isinstance(_ty_pct, (int, float)) and _ty_pct > 0
                and _ty_tag)
@@ -50059,7 +50060,7 @@ check("🚦 TCU3 السيولةُ وحدَها لا تكفي والسعرُ وح
       _tc_px == [("M1", 4, None)] and _tc_usd == [("M1", 4, None)]
       and _tc_bad == [("M1", 4, None)]
       and S.LIQ_TC_USD == S.CONFIG["IGNITION_USD_OPERATOR"] == 100_000
-      and S.LIQ_TC_PCT == 20.0 and S.LIQ_TC_ON is True,
+      and S.LIQ_TC_PCT == 20.0 and S.LIQ_TC_ON is False,
       f"سعر={_tc_px} سيولة={_tc_usd} بلا مرجع={_tc_bad}")
 
 # TCU4 — التراكمُ عبر المسحات: كلُّ شمعةٍ **مرّةً واحدة** · والذيلُ لا يُرجِّع.
@@ -50138,6 +50139,35 @@ check("🚦 TCU7 الطبقةُ الموازيةُ **خارج** الاختيار
       "(rank_key/select_top/classify_tier/entry_status/analyze_ticker/backtest_symbol/"
       "build_interpretation/alert_filter_keep/liq_tier)",
       not _tc_leak, f"تسرّب: {_tc_leak}")
+
+# 🔕 TCO1 (‏2026-11-05 · أمرُ المالك «أطفئ الزناد الموازي» بعد حكم `T-TC-YIELD` الفرع 2): **القيمةُ الإنتاجيّة كما هي بلا تجاوز**
+#    ⟵ المسارُ الحيّ `R1` وحدَه (المِرساةُ عند 4 بلا وسم) **ولا نداءَ لإغلاق الأمس** ولو توفّر · و`True` مؤقّتًا يُرجع `R1 ∪ T-C` بت-بت (الدقيقة 3 موسومة)
+#    ⟵ مفتاحٌ يعمل في الاتّجاهين لا يُدَّعى.
+def _tco_scan(fpc):
+    _seen, _rows = {}, []
+    for _n in (4, 6):
+        _rows, _c, _s = S.scan_liq_stages(
+            [{"symbol": "AAA", "src": "تحت المتابعة"}], "2026-09-09",
+            seen=_seen, workers=1, clock=lambda _n=_n: (_TB + _n * 60_000) / 1000.0,
+            fetch_bars=lambda s, minutes=65, _n=_n: _TC_BARS[:_n],
+            fetch_prev_close=fpc)
+    return _rows
+try:
+    _tco_calls = []
+    _tco_fpc = lambda *a, **k: (_tco_calls.append(a), 1.0)[1]
+    _tco_prod = _tc_stages(_tco_scan(_tco_fpc))
+    _tco_n = len(_tco_calls)
+    _tco_old = S.LIQ_TC_ON
+    try:
+        S.LIQ_TC_ON = True
+        _tco_back = _tc_stages(_tco_scan(lambda *a, **k: 1.0))
+    finally:
+        S.LIQ_TC_ON = _tco_old
+    _tco_v = (S.LIQ_TC_ON is False, _tco_prod == [("M1", 4, None)], _tco_n == 0, _tco_back == [("M1", 3, "T-C")])
+except Exception as _e:                                              # noqa: BLE001
+    _tco_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🔕 TCO1 الزنادُ الموازي **مُطفأ** بأمر المالك 2026-11-05: القيمةُ الإنتاجيّة ⟵ `R1` وحدَه بت-بت ولا نداءَ لإغلاق الأمس · "
+      "و`LIQ_TC_ON=True` يُرجع `R1 ∪ T-C`", _tco_v == (True,) * 4, str(_tco_v)[:240])
 
 # TCU8 — الوثيقة: العقدُ والنتيجةُ يحملان أرقامَ الحكم فلا يُشحَن رقمٌ بلا سند.
 _tc_res = open("tc_trigger_result.md", encoding="utf-8").read()
