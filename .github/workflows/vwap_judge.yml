@@ -1,0 +1,32 @@
+name: "🟠⚖️ حكمُ الفيواب الحيّ — أوّلُ 30 تنبيهًا (T-VWAP-J30 · قراءةٌ فقط)"
+
+# 🟠⚖️ العقد `vwap_live_judgment_prereg.md` (أمرُ المالك 2026-11-05): أوّلُ 30 تنبيهًا مُرسَلًا بالملحق 5 من 2026-11-06 — ‏+7% قبل إغلاق 5د تحت
+#    الفيواب مقابل حدٍّ عشوائيٍّ في الرمز-اليوم نفسه. 🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام و`contents: read` · يطبع «N من 30» حتى يكتمل ثمّ الحكم (`VJ2`).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-vwap-judge
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: ⚖️ الحكم
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: python vwap_judge.py
