@@ -96797,6 +96797,162 @@ except Exception as _e:                                              # noqa: BLE
 check("📈✖️📄 GCR3 ملحقُ `T-GCROSS` كما صدر: §⑥ «لا تفعيل» و§⑦ «لا يتفوّق» (−0.12% [−0.41، +0.16]) مثبَّتان · والتشغيلاتُ الثلاث برقمها · "
       "وP1′-P8′ بحكمٍ لكلّ سطر · والإغلاقُ مقترَحٌ لا مُنفَّذ", _gr3_v == (True,) * 5, str(_gr3_v)[:240])
 
+# 📈✖️🏃🔒 GCX2 (‏2026-11-05 · `T-GCROSS` الملحق 2 «التقاطع على راكض الارتكاز»): الملحقُ والكونُ المجمَّد من git مدموجان قبل أيّ رقم ⟵ بصمتاهما مثبَّتتان ·
+#    والكونُ 60 جلسة (08-12 ⟵ 11-04) · 37,696 رمز-يوم · 1,192 مِرساة · وأيّامُ ما قبل `near_watch.json` بالقائمة وحدَها.
+try:
+    import hashlib as _gx2_h
+    import json as _gx2_j
+    _gx2_doc = open("fm_forensics/ema_cross/T_GCROSS_ADDENDUM_2.md", "rb").read()
+    _gx2_ub = open("fm_forensics/ema_cross/data/gcross_runner_universe.json", "rb").read()
+    _gx2_u = _gx2_j.loads(_gx2_ub)
+    _gx2_sd = sum(len(set(v["L"]) | set(v["N"])) for v in _gx2_u["days"].values())
+    _gx2_v = (_gx2_h.sha256(_gx2_doc).hexdigest() == "3dadb3a76e21e9a2d7c76733c9a77b2dc2b885a7858d5e3eebab432af3f27ee3",
+              _gx2_h.sha256(_gx2_ub).hexdigest() == "4ad48b184923cc27452253f5e091a3f70c2f756262943acccd4754669c79ace5",
+              len(_gx2_u["sessions"]) == 60 and _gx2_u["sessions"][0] == "2026-08-12" and _gx2_u["sessions"][-1] == "2026-11-04"
+              and _gx2_sd == 37696 and sum(len(v) for v in _gx2_u["alerts"].values()) == 1192,
+              all(not _gx2_u["days"][d]["N"] for d in ("2026-08-12", "2026-08-13", "2026-08-14")) and len(_gx2_u["days"]["2026-11-04"]["N"]) > 100,
+              "ولم أقرأ أيَّ مِرساةٍ ولا أيَّ سعرٍ ولا أيَّ شمعة" in _gx2_doc.decode("utf-8"))
+except Exception as _e:                                              # noqa: BLE001
+    _gx2_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️🏃🔒 GCX2 ملحقُ «التقاطع على راكض الارتكاز» والكونُ المجمَّد من git مثبَّتان قبل أيّ رقم (60 جلسة · 37,696 رمز-يوم · 1,192 مِرساة)",
+      _gx2_v == (True,) * 5, str(_gx2_v)[:240])
+
+# 📈✖️🏃 GCU1 (الملحق 2): دوالُّ التجميد والقياس النقيّة — آخرُ التزامٍ قبل الحدّ · القائمةُ بلا المشطوب · آخرُ فرزٍ لـ«تحت المتابعة» · أبكرُ مِرساةٍ في يومها ·
+#    الركضُ في نافذة [04:00، 20:00) · ‏+20% بعد التقاطع · الخروجُ بالسياسات الثلاث وتنفيذُ الوقف بالافتتاح دونه · تسويةُ الوقف · و«سبق راكضًا» بعد يوم التقاطع.
+try:
+    import gcross_runner as _GR
+    _gu_ny = _GR.NY
+    _gu_ms = lambda d, h, m: int(__import__("datetime").datetime(*map(int, d.split("-")), h, m, tzinfo=_gu_ny).timestamp() * 1000)   # noqa: E731
+    _gu1 = (_GR.asof([(10, "a"), (20, "b"), (30, "c")], 25) == "b" and _GR.asof([(10, "a")], 10) is None and _GR.asof([(10, "a"), (30, "c")], 31) == "c",
+            _GR.list_members({"stocks": [{"symbol": "aaa", "stop": 1.5, "added": "2026-10-01"}, {"symbol": "BBB", "status": "stopped", "stop": 2},
+                                         {"symbol": "CCC", "status": "active"}]}) == {"AAA": {"stop": 1.5, "added": "2026-10-01"}, "CCC": {"stop": None, "added": None}}
+            and _GR.near_members({"X": {"last_seen": "2026-10-02"}, "y": {"last_seen": "2026-10-03"}, "Z": {"last_seen": "2026-10-03"}}) == ["Y", "Z"]
+            and _GR.near_members({}) == [],
+            _GR.first_anchor({"anchor_ms": _gu_ms("2026-10-05", 10, 0), "anchor_price": 2.0,
+                              "rearm_prev": {"anchor_ms": _gu_ms("2026-10-05", 9, 31), "anchor_price": 1.8}}, "2026-10-05") == (_gu_ms("2026-10-05", 9, 31), 1.8)
+            and _GR.first_anchor({"anchor_ms": _gu_ms("2026-10-05", 10, 0), "anchor_price": 2.0,
+                                  "rearm_prev": {"anchor_ms": _gu_ms("2026-10-02", 9, 31), "anchor_price": 1.8}}, "2026-10-05") == (_gu_ms("2026-10-05", 10, 0), 2.0)
+            and _GR.first_anchor({"anchor_ms": _gu_ms("2026-10-05", 10, 0)}, "2026-10-05") is None)
+    _gu_day = [(230, 1, 9, 1, 1, 1), (240, 1.0, 1.2, 1.0, 1.1, 1), (600, 1.1, 1.6, 1.0, 1.5, 1), (1200, 1, 9, 1, 1, 1)]
+    _gu1 += (abs(_GR.run_ratio(_gu_day, 1.0)[0] - 0.6) < 1e-12 and _GR.run_ratio(_gu_day, 1.0)[1] == 600,
+             _GR.run_ratio(_gu_day, None) == (None, None) and _GR.run_ratio([], 1.0) == (None, None))
+    _gu_s = [(240 + i, c, h, lo, c, 1.0) for i, (c, h, lo) in enumerate([(1.0, 1.0, 1.0), (1.0, 1.0, 1.0), (1.1, 1.15, 1.05), (1.2, 1.32, 1.1),
+                                                                          (1.25, 1.3, 1.2), (1.0, 1.05, 0.9), (1.05, 1.08, 1.0)])]
+    _gu_x = {"i": 2, "m": 242, "sign": "+", "px": 1.1}
+    _gu_xs = [_gu_x, {"i": 5, "m": 245, "sign": "-", "px": 1.0}]
+    _gu_e = _GR.exits(_gu_s, _gu_xs, _gu_x, stop=0.95)
+    _gu1 += (_GR.win_after(_gu_s, _gu_x) is True and _GR.win_after(_gu_s, dict(_gu_x, px=1.11)) is False,
+             abs(_gu_e["H"] - 1.32) < 1e-12 and _gu_e["neg"]["m"] == 245 and abs(_gu_e["neg"]["share"] - (1.0 - 1.1) / (1.32 - 1.1)) < 1e-12
+             and _gu_e["close"]["m"] == 246 and _gu_e["stop"]["m"] == 245 and _gu_e["stop"]["px"] == 0.95
+             and _GR.exits(_gu_s, _gu_xs, _gu_x)["stop"] is None
+             and _GR.exits([(240, 1, 1, 1, 1, 1), (241, 0.8, 0.85, 0.7, 0.8, 1)], [], {"i": 0, "m": 240, "px": 1.0}, stop=0.9)["stop"]["px"] == 0.8,
+             _GR.split_factor_since([("2026-10-01", 10.0, 1.0), ("2026-10-10", 1.0, 2.0), ("2026-09-01", 5.0, 1.0)], "2026-09-15", "2026-10-05") == 10.0,
+             [(g["day"], g["hit"], g["full"], g["same"]) for g in _GR.golden_follow(["d1", "d3"], {"d1", "d4"}, ["d1", "d2", "d3", "d4"], follow=2)]
+             == [("d1", False, True, True), ("d3", True, False, False)])
+except Exception as _e:                                              # noqa: BLE001
+    _gu1 = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️🏃 GCU1 الملحق 2 — دوالُّ نقيّة: آخرُ التزامٍ قبل 04:00 · القائمةُ بلا المشطوب · آخرُ فرزٍ لتحت المتابعة · أبكرُ مِرساةٍ في يومها · الركضُ في "
+      "[04:00، 20:00) · +20% بعد التقاطع · الخروجُ الثلاثيّ (والوقفُ بالافتتاح دونه) · تسويةُ الوقف · و«سبق راكضًا» بعد يوم التقاطع", _gu1 == (True,) * 9, str(_gu1)[:240])
+
+# 📈✖️🏃 GCU2 (الملحق 2): صفُّ الرمز-اليوم والتجميع — الضابطُ حتميٌّ بالبذرة · يومُ التقسيم مستبعَد · أيّامُ الراكض الكبير · والحاكمُ «لا قياس» تحت 30 دورة
+try:
+    _g2_prev = [(570 + i, 1.0, 1.0, 1.0, 1.0, 1000.0) for i in range(30)]
+    _g2_cl = [1.0] * 10 + [1.0 - 0.01 * i for i in range(1, 11)] + [0.9 + 0.12 * i for i in range(1, 16)] + [2.7 - 0.1 * i for i in range(1, 11)]
+    _g2_day = [(240 + i, c, c * 1.01, c * 0.99, c, 1000.0) for i, c in enumerate(_g2_cl)]
+    _g2_by = {"P": _g2_prev, "D": _g2_day}
+    _g2_r = _GR.symday("AAA", "D", "P", _g2_by, 1.0, 1.0, [], 0.5, {"ms": 1, "px": 1.5})
+    _g2_r2 = _GR.symday("AAA", "D", "P", _g2_by, 1.0, 1.0, [], 0.5, None)
+    _g2_v = (_g2_r["R"] is not None and _g2_r["R"] >= 1.0 and _g2_r["fp"]["win20"] is True and _g2_r["ex"]["stop"] is not None
+             and _g2_r["ctl"] == _g2_r2["ctl"] and len(_g2_r["arm"]) == len(_g2_r["ctl"]) >= 1 and _GR.symday("AAA", "D", "P", {"P": _g2_prev}, 1.0, 1.0, [], None, None) is None,)
+    import math as _g2_m
+    import random as _g2_rnd
+    _g2_osc = [(240 + i, c, c, c, c, 1.0) for i, c in enumerate(1.0 + 0.1 * _g2_m.sin(i / 4.0) + 0.001 * i for i in range(240))]
+    _g2_ro = _GR.symday("OSC", "D", "P", {"P": _g2_prev, "D": _g2_osc}, 1.0, 1.0, [], None, None)
+    _g2_se, _g2_k = _GR.G.ext_series(_g2_prev, _g2_osc, 1.0)
+    _g2_xo = _GR.G.day_crosses(_g2_se)
+    _g2_exp = [c["ret"] for c in _GR.G.control_cycles(_g2_se, _g2_xo, list(range(_g2_k, len(_g2_se))), len(_g2_ro["arm"]),
+                                                      _g2_rnd.Random("20261105:OSC:D"))]
+    _g2_v += (len(_g2_ro["arm"]) >= 5 and _g2_ro["ctl"] == _g2_exp and len(set(_g2_exp)) >= 3,)
+    _g2_rows = [dict(_g2_r, sym="AAA", day="2026-11-03"), dict(_g2_r, sym="BBB", day="2026-11-03", split=True),
+                dict(_g2_r2, sym="CCC", day="2026-11-03", R=0.1, fp=dict(_g2_r["fp"], win20=False), ex=None),
+                dict(_g2_r2, sym="DDD", day="2026-11-04", R=0.6)]
+    _g2_S = _GR.summarize_rows(_g2_rows, None, ["2026-11-03", "2026-11-04"])
+    _g2_v += (_g2_S["split_days"] == 1 and _g2_S["run100"] == 1 and _g2_S["run50"] == 2 and _g2_S["days_run50"] == 2 and _g2_S["days_run100"] == 1,
+              _g2_S["two"] == [{"day": "2026-11-03", "crossers": 2, "win20": 1, "false": 1, "run100": 1}],
+              [t["sym"] for t in _g2_S["three"]] == ["AAA", "DDD"] and _g2_S["three"][0]["al_px"] == 1.5 and _g2_S["three"][1]["al_m"] is None,
+              _g2_S["five"]["all"]["verdict"] == "لا قياس" and _g2_S["four"]["stop"]["n"] >= 1
+              and _GR.final_verdict(0.8999, "يتفوّق") == "لا قياس" and _GR.final_verdict(0.90, "يتفوّق") == "يتفوّق"
+              and _GR.final_verdict(0.95, "لا يتفوّق") == "لا يتفوّق")
+except Exception as _e:                                              # noqa: BLE001
+    _g2_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️🏃 GCU2 الملحق 2 — صفُّ الرمز-اليوم والتجميع: الضابطُ حتميٌّ بالبذرة · يومُ التقسيم خارج العدّ · أيّامُ الراكض الكبير بمتقاطعيها · "
+      "«هنا الدخول» للراكض · وتحت 30 دورة «لا قياس»", _g2_v == (True,) * 6, str(_g2_v)[:240])
+
+# 📈✖️🏃🔒 GCU3 (الملحق 2): القياسُ كاملًا بمرجعٍ مزيّف (لا شبكة) · والـworkflow يدويٌّ بلا تلغرام و`contents: read` · ولا بناءَ حيّ
+try:
+    import json as _g3_j
+    import os as _g3_os
+    import tempfile as _g3_t
+    _g3_dir = _g3_t.mkdtemp()
+    _g3_up = _g3_os.path.join(_g3_dir, "u.json")
+    _g3_sess = ["2026-11-02", "2026-11-03", "2026-11-04"]
+    _g3_j.dump({"sessions": _g3_sess, "days": {d: {"L": {"AAA": {"stop": 0.5, "added": "2026-10-01"}}, "N": ["BBB"]} for d in _g3_sess},
+                "alerts": {"2026-11-03": {"AAA": {"ms": 1, "px": 1.2}}}}, open(_g3_up, "w"))
+
+    class _G3Net:
+        calls = fails = 0
+
+        def minutes(self, sym, a, b):
+            if sym == "BBB":
+                return None
+            return {d: _g2_day if d != "2026-10-30" else _g2_prev for d in ("2026-10-30", "2026-11-02", "2026-11-03", "2026-11-04")}
+
+        def poly(self, path, params=None):
+            return {"results": []}
+
+        def poly_url(self, url):
+            return {"results": []}
+
+        def paged(self, path, params, cap=100):
+            return [], True
+
+    class _G3Day:
+        def __init__(self, net, day, MC, replay=False):
+            import vwap_momentum_live as _vv
+            self.ok, self.day, self.prev, self.splits = True, day, _vv.V3._prev_session(day, MC), {}
+
+        def prev_adj(self, sym):
+            return 1.0
+    _g3_keep = (_GR.V.Net, _GR.V.Day, _GR.log)
+    _g3_out = []
+    _g3_env = {k: _g3_os.environ.get(k) for k in ("POLYGON_API_KEY", "SEC_CONTACT")}
+    try:
+        _g3_os.environ["POLYGON_API_KEY"], _g3_os.environ["SEC_CONTACT"] = "x", "x"
+        _GR.V.Net, _GR.V.Day, _GR.log = (lambda *a, **k: _G3Net()), _G3Day, (lambda m="": _g3_out.append(m))
+        import market_calendar as _g3_mc
+        _g3_rc = _GR.mode_measure(_g3_mc, path=_g3_up)
+    finally:
+        _GR.V.Net, _GR.V.Day, _GR.log = _g3_keep
+        for _k, _vv2 in _g3_env.items():
+            if _vv2 is None:
+                _g3_os.environ.pop(_k, None)
+            else:
+                _g3_os.environ[_k] = _vv2
+    _g3_js = [_g3_j.loads(m.split("GCROSS_JSON ", 1)[1]) for m in _g3_out if m.startswith("GCROSS_JSON ")][0]
+    import yaml as _g3_y
+    _g3_wf_txt = open(".github/workflows/gcross_runner.yml", encoding="utf-8").read()
+    _g3_wf = _g3_y.safe_load(_g3_wf_txt)
+    _g3_src = open("gcross_runner.py", encoding="utf-8").read()
+    _g3_v = (_g3_rc == 0 and _g3_js["mode"] == "runner" and _g3_js["failed"] == 1 and abs(_g3_js["cover"] - 0.5) < 1e-12 and _g3_js["verdict"] == "لا قياس",
+             _g3_js["summary"]["run100"] == 3 and _g3_js["three"][1]["al_px"] == 1.2 and _g3_js["omh"] is not None and _g3_js["golden"]["measurable"] == 0,
+             "schedule" not in (_g3_wf.get(True) or _g3_wf.get("on")) and "TELEGRAM" not in _g3_wf_txt.upper()
+             and (_g3_wf.get("permissions") or {}).get("contents") == "read" and "--mode measure" in _g3_wf_txt,
+             "send_telegram" not in _g3_src and "import Super_stock" not in _g3_src and "mode_live" not in _g3_src)
+except Exception as _e:                                              # noqa: BLE001
+    _g3_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️🏃🔒 GCU3 الملحق 2 — القياسُ كاملًا بمرجعٍ مزيّف: التغطيةُ والتعذّرُ يُعَدّان · دون 90% «لا قياس» · «هنا الدخول» للراكض · ومثالُ OMH · "
+      "والـworkflow يدويٌّ بلا تلغرام ويقرأ فقط · ولا بناءَ حيّ", _g3_v == (True,) * 4, str(_g3_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

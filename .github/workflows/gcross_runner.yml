@@ -1,0 +1,33 @@
+name: "📈✖️🏃 التقاطع على راكض الارتكاز — قياسٌ (بلا تلغرام)"
+
+# 📈✖️🏃 `T-GCROSS` الملحق 2 (أمرُ المالك 2026-11-05 · العقد `fm_forensics/ema_cross/T_GCROSS_ADDENDUM_2.md`).
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام و`contents: read` · يقرأ الكونَ المجمَّد (`fm_forensics/ema_cross/data/gcross_runner_universe.json`)
+#    ويطبع ①-⑤ والذراع أ ومثالَ OMH · ولا بناءَ حيٍّ قبل الحكم (`GCU3`).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-gcross-runner
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📈✖️🏃 القياس
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: python gcross_runner.py --mode measure
