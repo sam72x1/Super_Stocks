@@ -96153,6 +96153,80 @@ except Exception as _e:                                              # noqa: BLE
 check("🚦📜 TRD6 `alive_eod` بيومِ المِرساة بتوقيت نيويورك (`§⑯`): نجت يومَها وقُلِّمت غدًا ⟵ ناجية · كُتمت يومَها ⟵ لا · "
       "ولقطةُ الغد لا تُحدّث يومًا مضى · والطابعُ غيرُ المقروء ⟵ القديمُ بت-بت", _trd6 == (True,) * 4, str(_trd6)[:240])
 
+# 🔒 TYC1 (‏2026-11-05 · `§⑫` من عقد `T-TC-YIELD` · الحاكمةُ المُعادة 42029934708 بالملحق §⑯): المحورُ مُغلَقٌ إغلاقًا مُنفَّذًا — `main` تخرج 8 **قبل أيّ عمليّة**
+#    (لا يُنادى فحصُ القراءة ولا غيرُه) بلا `TCYIELD_REOPEN=1` («0» · فارغ · «true» لا تفتح) · و«1» يعبر البوّابةَ إلى الفحص التالي (مجذَّعًا) ·
+#    والبوّابةُ أوّلُ عبارةٍ في `main` (AST) · ولا مُدخَلَ ولا بيئةَ في `tc_yield.yml` تُمرِّر المفتاح · والإشعارُ يسمّي الحاكمةَ وشروطَ الفتح.
+try:
+    import ast as _tyc_ast
+    import os as _tyc_os
+    import tc_yield_arms as _TYC
+    import yaml as _tyc_yaml
+    _tyc_calls, _tyc_logs = [], []
+    _tyc_sc, _tyc_lg, _tyc_env = _TYC.selfcheck_readonly, _TYC.log, _tyc_os.environ.get("TCYIELD_REOPEN")
+    try:
+        _TYC.selfcheck_readonly = lambda *a, **k: (_tyc_calls.append(1), False)[1]
+        _TYC.log = lambda m: _tyc_logs.append(str(m))
+        _tyc_rc = {}
+        for _v in (None, "0", "", "true", "1"):
+            if _v is None:
+                _tyc_os.environ.pop("TCYIELD_REOPEN", None)
+            else:
+                _tyc_os.environ["TCYIELD_REOPEN"] = _v
+            _n0 = len(_tyc_calls)
+            _tyc_rc[_v] = (_TYC.main(), len(_tyc_calls) - _n0)
+    finally:
+        _TYC.selfcheck_readonly, _TYC.log = _tyc_sc, _tyc_lg
+        if _tyc_env is None:
+            _tyc_os.environ.pop("TCYIELD_REOPEN", None)
+        else:
+            _tyc_os.environ["TCYIELD_REOPEN"] = _tyc_env
+    _tyc_main = next(n for n in _tyc_ast.parse(open("tc_yield_arms.py", encoding="utf-8").read()).body
+                     if isinstance(n, _tyc_ast.FunctionDef) and n.name == "main")
+    _tyc_first = _tyc_main.body[0]
+    _tyc_first_ok = (isinstance(_tyc_first, _tyc_ast.If) and "REOPEN_ENV" in _tyc_ast.unparse(_tyc_first.test)
+                     and any(isinstance(x, _tyc_ast.Return) and "CLOSED_RC" in _tyc_ast.unparse(x) for x in _tyc_first.body))
+    _tyc_wf = open(".github/workflows/tc_yield.yml", encoding="utf-8").read()
+    _tyc_wfy = _tyc_yaml.safe_load(_tyc_wf)
+    _tyc_wf_ok = ("TCYIELD_REOPEN" not in _tyc_yaml.safe_dump(_tyc_wfy, allow_unicode=True)
+                  and "reopen" not in str((_tyc_wfy.get(True) or _tyc_wfy.get("on") or {}).get("workflow_dispatch", {}).get("inputs", {})))
+    _tyc_note = "\n".join(_TYC.closure_notice())
+    _tyc_v = (_TYC.CLOSED_RC == 8 and _TYC.AXIS_CLOSED is True and _TYC.REOPEN_ENV == "TCYIELD_REOPEN",
+              all(_tyc_rc[k] == (8, 0) for k in (None, "0", "", "true")),
+              _tyc_rc["1"] == (_TYC.RC_READONLY, 1),
+              _tyc_first_ok, _tyc_wf_ok,
+              "42029934708" in _tyc_note and "إذنُ المالك" in _tyc_note and "TCYIELD_REOPEN=1" in _tyc_note)
+except Exception as _e:                                              # noqa: BLE001
+    _tyc_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🚦💵🔒 TYC1 `T-TC-YIELD` مُغلَقٌ إغلاقًا مُنفَّذًا (`§⑫`): `main` تخرج 8 قبل أيّ عمليّة بلا `TCYIELD_REOPEN=1` · «1» وحدَه يعبر · "
+      "والبوّابةُ أوّلُ عبارة · ولا مُدخَلَ في الـworkflow يُمرِّره", _tyc_v == (True,) * 6, str(_tyc_v)[:240])
+
+# 🚦💵📄 TYR1 (‏2026-11-05 · `tc_yield_result.md §⑧`-`§⑨`): النتيجةُ المنشورة والإغلاقُ المُنفَّذ **يقولان الشيءَ نفسَه** — رقمُ `TY2` وفاصلُه وتشغيلتُه
+#    مستخرَجةٌ من `closure_notice()` برمجيًّا وتُطلب في `§⑨` · وتشغيلةُ رأس `§⑨` = تشغيلةُ الإشعار · والعنوانُ يسمّيها · و`§⑧` منشورةٌ كما صدرت (41992228767 · −5.60)
+#    وموسومةٌ «لا تحكم» · و`Q1`-`Q11` كلُّها في `§⑨` وكلٌّ بحكمٍ (✅/❌) على سطره.
+try:
+    import re as _tyr_re
+    import tc_yield_arms as _TYR
+    _tyr_doc = open("tc_yield_result.md", encoding="utf-8").read()
+    _tyr_note = "\n".join(_TYR.closure_notice())
+    _tyr_m = _tyr_re.search(r"\(([+−-]\d+\.\d+) نقطة (\[[^\]]+\])\)", _tyr_note)
+    _tyr_run = _tyr_re.search(r"`(\d{11})`", _tyr_note)
+    _tyr_i8, _tyr_i9 = _tyr_doc.find("\n## ⑧ "), _tyr_doc.find("\n## ⑨ ")
+    _tyr_s8 = _tyr_doc[_tyr_i8:_tyr_i9] if 0 <= _tyr_i8 < _tyr_i9 else ""
+    _tyr_s9 = _tyr_doc[_tyr_i9:] if _tyr_i9 >= 0 else ""
+    _tyr_h9 = _tyr_re.search(r"\*\*التشغيلة \[`(\d{11})`\]", _tyr_s9)
+    _tyr_q = [ln for ln in _tyr_s9.splitlines() if _tyr_re.match(r"- `Q\d+` ", ln)]
+    _tyr_qn = sorted(int(_tyr_re.match(r"- `Q(\d+)` ", ln).group(1)) for ln in _tyr_q)
+    _tyr_v = (bool(_tyr_m and _tyr_run and _tyr_h9),
+              bool(_tyr_m) and f"**{_tyr_m.group(1)}**" in _tyr_s9 and _tyr_m.group(2) in _tyr_s9,
+              bool(_tyr_run and _tyr_h9) and _tyr_run.group(1) == _tyr_h9.group(1),
+              bool(_tyr_run) and _tyr_run.group(1) in _tyr_doc.splitlines()[0],
+              "41992228767" in _tyr_s8 and "−5.60" in _tyr_s8 and "ولا تحكم" in _tyr_s8.splitlines()[1],
+              _tyr_qn == list(range(1, 12)) and all(("✅" in ln) != ("❌" in ln) for ln in _tyr_q))
+except Exception as _e:                                              # noqa: BLE001
+    _tyr_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🚦💵📄 TYR1 نتيجةُ `T-TC-YIELD` = الإغلاقُ المُنفَّذ: `TY2` وفاصلُه وتشغيلتُه من الإشعار في `§⑨` · والعنوانُ يسمّيها · و`§⑧` كما صدرت «لا تحكم» · "
+      "و`Q1`-`Q11` بحكمٍ واحدٍ لكلّ سطر", _tyr_v == (True,) * 6, str(_tyr_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
