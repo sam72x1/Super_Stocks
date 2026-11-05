@@ -96487,6 +96487,23 @@ except Exception as _e:                                              # noqa: BLE
 check("📈✖️📄 GCR1 نتيجةُ قبول `T-GCROSS` كما صدرت: «لم يعبر» ⟵ «لا تفعيل» · §①-③ مثبَّتة · والتشغيلاتُ الستّ برقمها · و`P5` ❌ منشور",
       _gcr_v == (True,) * 4, str(_gcr_v)[:240])
 
+# 📈✖️📄 GCR2 (‏2026-11-05 · `T-GCROSS` القياس ③): §⑤ منشورٌ كما صدر ⟵ بصمتُه مثبَّتة · والتشغيلةُ برقمها · والحاكمُ «لا يتفوّق» بفاصله ·
+#    و9/15 «وصفًا لا اكتشاف» · والتنبّؤاتُ الخمسة بحكمٍ لكلّ سطر.
+try:
+    import hashlib as _gcm_h
+    _gcm_doc = open("fm_forensics/ema_cross/T_GCROSS_RESULT.md", encoding="utf-8").read()
+    _gcm_i = _gcm_doc.find("\n## ⑤ ")
+    _gcm_s = _gcm_doc[_gcm_i:] if _gcm_i >= 0 else ""
+    _gcm_p = [ln for ln in _gcm_s.splitlines() if ln.startswith("- `P")]
+    _gcm_v = (_gcm_h.sha256(_gcm_s.encode()).hexdigest() == "aa53577020eeb16e68d630be171fe1cf0a1616bd8d8fb3e9c723f13cc328b4a2",
+              "42067230174" in _gcm_s and "‏+0.10% [−0.14%، ‏+0.36%] ⟵ «لا يتفوّق»" in _gcm_s,
+              "**لا يُقرأ اكتشافًا**" in _gcm_s,
+              [ln[3:5] for ln in _gcm_p] == ["P1", "P2", "P3", "P4", "P5"] and all(("✅" in ln) or ("❌" in ln) for ln in _gcm_p))
+except Exception as _e:                                              # noqa: BLE001
+    _gcm_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️📄 GCR2 قياسُ `T-GCROSS` كما صدر: §⑤ مثبَّت · 8/15 «لا يتفوّق» بفاصله · و9/15 وصفٌ لا اكتشاف · وP1-P5 بحكمٍ لكلّ سطر",
+      _gcm_v == (True,) * 4, str(_gcm_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
