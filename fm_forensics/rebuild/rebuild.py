@@ -2002,8 +2002,16 @@ def shadow_drawdown(rows, d, ref_stored=None):
             rise = x[0]
             break
     dd = min(0.0, lo / ref - 1.0)
+    # أمرُ المالك 2026-11-05 («التقرير القادم 11-12 يضيف لكل سهم: أعلى صعود وأعمق هبوط من سعر الإدراج حتى تاريخه، وعدد الجلسات منذ الإدراج»):
+    #    على الشموع كلِّها من D حتى آخر شمعة — أعلى High ÷ سعر الإدراج − 1 (لا يُطبع سالبًا) · أدنى Low ÷ سعر الإدراج − 1 (لا يُطبع موجبًا) · وعددُها
+    hi_b = max(post, key=lambda b: float(b[2]))
+    lo_b = min(post, key=lambda b: float(b[3]))
+    mx, mn = max(0.0, float(hi_b[2]) / ref - 1.0), min(0.0, float(lo_b[3]) / ref - 1.0)
     return out | {"status": "rose" if rise else "not_yet", "first_rise": rise, "deepest_pct": round(100.0 * dd, 2),
-                  "deepest_date": lo_d if dd < 0 else None, "sessions_seen": post.index(x) + 1, "last_bar": post[-1][0]}
+                  "deepest_date": lo_d if dd < 0 else None, "sessions_seen": post.index(x) + 1, "last_bar": post[-1][0],
+                  "max_rise_pct": round(100.0 * mx, 2), "max_rise_date": hi_b[0] if mx > 0 else None,
+                  "deepest_to_date_pct": round(100.0 * mn, 2), "deepest_to_date_date": lo_b[0] if mn < 0 else None,
+                  "sessions_since": len(post)}
 
 
 def shadow_report_to(now):
