@@ -96257,6 +96257,26 @@ except Exception as _e:                                              # noqa: BLE
 check("🚦💵📄 TYR1 نتيجةُ `T-TC-YIELD` = الإغلاقُ المُنفَّذ: `TY2` وفاصلُه وتشغيلتُه من الإشعار في `§⑨` · والعنوانُ يسمّيها · و`§⑧` كما صدرت «لا تحكم» · "
       "و`Q1`-`Q11` بحكمٍ واحدٍ لكلّ سطر", _tyr_v == (True,) * 6, str(_tyr_v)[:240])
 
+# 📈✖️🔒 GCX0 (‏2026-11-05 · `T-GCROSS` «التقاطع الذهبي»): العقدُ مدموجٌ قبل أيّ رقم **ولا يُعدَّل بعده** (التغييرُ ملحقٌ مؤرَّخ) ⟵ بصمتُه مثبَّتة ·
+#    وصفوفُ الدفتر §T-GCROSS موجودة (12 صفًّا · منها 7 `nayef_verbatim` و5 `engineering`) · واللقطاتُ مُعلَنةٌ «لم تصلني».
+try:
+    import hashlib as _gcx_h
+    _gcx_doc = open("fm_forensics/ema_cross/T_GCROSS_prereg.md", "rb").read()
+    _gcx_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _gcx_i = _gcx_led.find("## §`T-GCROSS`")
+    _gcx_sec = _gcx_led[_gcx_i:] if _gcx_i >= 0 else ""
+    _gcx_rows = [ln for ln in _gcx_sec.splitlines()[1:] if ln.startswith("| ") and not ln.startswith("| القاعدة") and not ln.startswith("|---")
+                 and not ln.startswith("## ")]
+    _gcx_rows = _gcx_rows[:next((k for k, ln in enumerate(_gcx_rows) if ln.startswith("## ")), len(_gcx_rows))]
+    _gcx_v = (_gcx_h.sha256(_gcx_doc).hexdigest() == "cf713e1712b62d9d448e2e78fc961a467ab5e600846c45c62183a29efbec6c3e",
+              len(_gcx_rows) == 12,
+              sum("`nayef_verbatim`" in r for r in _gcx_rows) == 7 and sum("`engineering`" in r for r in _gcx_rows) == 5,
+              "لم تصلني" in _gcx_sec and "لم تصلني" in _gcx_doc.decode("utf-8"))
+except Exception as _e:                                              # noqa: BLE001
+    _gcx_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("📈✖️🔒 GCX0 عقدُ `T-GCROSS` مثبَّتُ البصمة قبل أيّ رقم · وصفوفُ الدفتر 12 (7 نايف · 5 هندسيّ) · واللقطاتُ مُعلَنةٌ «لم تصلني»",
+      _gcx_v == (True,) * 4, str(_gcx_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
