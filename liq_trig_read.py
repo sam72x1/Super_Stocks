@@ -45,6 +45,10 @@ import os
 import subprocess
 import sys
 from collections import Counter, defaultdict
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
+_NY = ZoneInfo("America/New_York")
 
 STATE = "op_entry_state.json"
 PREFIX = "LIQ:"
@@ -80,6 +84,17 @@ def _selfcheck_readonly() -> bool:
     return True
 
 
+def _ny_day(ts):
+    """يومُ اللقطة بتوقيت نيويورك من طابعها ISO ذي المنطقة ⟵ `"YYYY-MM-DD"` · وغيرُ ذلك (طابعٌ بلا منطقة أو غيرُ ISO) ⟵ None."""
+    try:
+        t = datetime.fromisoformat(str(ts).replace("Z", "+00:00"))
+    except (TypeError, ValueError):
+        return None
+    if t.tzinfo is None:
+        return None
+    return t.astimezone(_NY).date().isoformat()
+
+
 def collect(snapshots) -> dict:
     """**الدالّةُ النقيّة** — تُجمِّع المراسي المتميّزة من لقطاتِ حالةٍ متتالية.
 
@@ -108,8 +123,13 @@ def collect(snapshots) -> dict:
         last = ts
         _ks = _keys_of(st)
         last_keys = _ks
+        # 🔴 عطلٌ مُثبَت 2026-11-05 (`tc_yield_prereg.md §⑯`): منذ أكتوبر تحمل الحالةُ مراسيَ أيّامٍ عدّة (لا تُفرَّغ عند تبدّل اليوم)
+        #    فصارت «آخرُ لقطةٍ تحمل يومَ المِرساة» لقطةً بعد أيّامٍ يُقلَّم فيها الفوجُ ⟵ `alive_eod` يتبدّل بنهاية المادّة (‏160 ⟵ 131) ·
+        #    الآن: آخرُ لقطةٍ **في يوم المِرساة نفسِه بتوقيت نيويورك** · والطابعُ غيرُ المقروء ⟵ السلوكُ القديم بت-بت (`TRD6`).
+        _ny = _ny_day(ts)
         for _day in {_k[1] for _k in _ks}:
-            eod_keys[_day] = _ks
+            if _ny is None or _ny <= _day:
+                eod_keys[_day] = _ks
         if not isinstance(st, dict):
             continue
         for k, v in st.items():
