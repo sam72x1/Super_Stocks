@@ -237,6 +237,11 @@ def mode_scan(net, d1):
 
 
 def main(argv=None):
+    import ema_cross_live as G                                       # 🔒 الإغلاقُ من مصدرٍ واحد (`ema_cross_live.closure_notice`)
+    if G._closed_now():
+        for ln in G.closure_notice():
+            log(ln)
+        return G.CLOSED_RC
     p = argparse.ArgumentParser()
     p.add_argument("--mode", default="accept", choices=("accept", "scan", "trace"))
     p.add_argument("--date", default="")

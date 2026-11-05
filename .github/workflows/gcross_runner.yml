@@ -7,7 +7,11 @@ permissions:
   contents: read
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      reopen:
+        description: "🔒 المحورُ مُغلَق («اقفل التقاطع الذهبي» 2026-11-05) — «1» إقرارٌ بشروط الفتح الثلاثة وحدَه يفتحه"
+        default: "0"
 
 concurrency:
   group: super-stocks-gcross-runner
@@ -29,5 +33,6 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          GCROSS_REOPEN: ${{ github.event.inputs.reopen }}
           PYTHONUNBUFFERED: "1"
         run: python gcross_runner.py --mode measure
