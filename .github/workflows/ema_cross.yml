@@ -1,0 +1,65 @@
+name: "📈✖️ التقاطع الذهبي — قبولٌ وقياسٌ وتجربةٌ صامتة (بلا تلغرام)"
+
+# 📈✖️ `T-GCROSS` (أمرُ المالك 2026-11-05 · نايف @Naifo9x · العقد `fm_forensics/ema_cross/T_GCROSS_prereg.md`).
+#    🔒 **يدويٌّ بلا كرون وبلا سرِّ تلغرام** ⟵ الإرسالُ مستحيلٌ بنيويًّا حتى عبور القبول ② وكلمةِ المالك «فعّل الذهبي» (`GCB6`).
+#    و`permissions: contents: read` ⟵ لا يكتب في المستودع (سجلُّ التجربة الصامتة ملفٌّ محلّيٌّ على الرنر يُطبع ولا يُدفع).
+# الأوضاع: accept (B1-B3) · accept_a (A1-A2 · INTC) · measure (③ · 60 جلسة) · trace (رمزٌ ويوم) · scan (الذراع أ) · live (صامت · حتى `until`).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "accept · accept_a · measure · trace · scan · live"
+        default: "accept"
+      date:
+        description: "trace: اليوم · accept_a: آخرُ يومٍ للشموع"
+        default: ""
+      sym:
+        description: "trace: الرمز"
+        default: "OMH"
+      end:
+        description: "measure: آخرُ جلسة (فارغٌ = آخرُ جلسةٍ مكتملة)"
+        default: ""
+      days:
+        description: "measure: عددُ الجلسات"
+        default: "60"
+      until:
+        description: "live: آخرُ دقيقةٍ بتوقيت نيويورك HH:MM (فارغٌ = الإغلاق)"
+        default: ""
+
+concurrency:
+  group: super-stocks-ema-cross-${{ github.event.inputs.mode }}
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📈✖️ الوضع
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          GC_MODE: ${{ github.event.inputs.mode }}
+          GC_DATE: ${{ github.event.inputs.date }}
+          GC_SYM: ${{ github.event.inputs.sym }}
+          GC_END: ${{ github.event.inputs.end }}
+          GC_DAYS: ${{ github.event.inputs.days }}
+          GC_UNTIL: ${{ github.event.inputs.until }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          echo "$GC_MODE" | grep -Eq '^(accept|accept_a|measure|trace|scan|live)$' || { echo "⛔ وضعٌ غيرُ معروف"; exit 2; }
+          case "$GC_MODE" in
+            accept_a) python golden_cross_scan.py --mode accept --date "$GC_DATE" ;;
+            scan)     python golden_cross_scan.py --mode scan --date "$GC_DATE" ;;
+            *)        python ema_cross_live.py --mode "$GC_MODE" --date "${GC_DATE:-2026-11-04}" --sym "$GC_SYM" --end "$GC_END" --days "$GC_DAYS" --until "$GC_UNTIL" ;;
+          esac
