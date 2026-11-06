@@ -23867,7 +23867,10 @@ _CR_AH_WINTER = {"13,43 0 * * 2-6", "28,58 0 * * 2-6"}
 #    (`# (قديم — للرجوع) - cron: "…"`) والفاعلُ كروناتُ إطلاق جوب الجلسة · والدوراتُ داخله على فتحات الأساس وحدَها (`PBJ1`: النافذةُ
 #    = اتّحادُ القديمة على كلّ فتحة) ⟵ فتحاتُ الإطلاق ليست سُلَّمًا ولا تُشغّل الوظيفةَ القديمة (`PBJ4`) فتُستثنى هنا · والقفلُ يبقى
 #    يحرس أسطرَ الرجوع: الأساسُ حاضرٌ نصًّا · وكلُّ سُلَّمٍ مذكورٌ في البوّابة ومُغلَقٌ في وقته (فإعادتُها ترجع بالحماية نفسِها).
-_CR_SESSION = {"1 8 * * 1-5", "31 10 * * 1-5", "1 13 * * 1-5", "1 16 * * 1-5", "1 19 * * 1-5", "1 22 * * 1-5"}
+# ⏰ **وإقرارٌ مؤرَّخ ثانٍ 2026-11-06 (أمرُ المالك «زد كرونات البدء — للمراقب كل ساعة»):** سطرُ بدءٍ واحدٌ للساعات الباقية من 08-23 ·
+#    كرونُ إطلاقٍ لا سُلَّم (الدوراتُ على فتحات الأساس داخل الجوب) ⟵ يُضاف إلى صنف الجلسة.
+_CR_SESSION = {"1 8 * * 1-5", "31 10 * * 1-5", "1 13 * * 1-5", "1 16 * * 1-5", "1 19 * * 1-5", "1 22 * * 1-5",
+               "1 9-12,14,15,17,18,20,21,23 * * 1-5"}
 _cr_extra = [c for c in _cr_exprs if c not in _CR_BASE and c not in _CR_AH_WINTER and c not in _CR_SESSION]
 _cr_gate = _cr.split("Delay-ladder window gate")[-1].split("- name:")[0]
 
@@ -28076,7 +28079,9 @@ _vwr_hours = _re10.findall(r'^\s*- cron:\s*"[\d,]+\s+(\d+)-(\d+)\s', _vwr_cron, 
 try:
     import pullback_session as _vwr_PBS                             # noqa: E402
     import datetime as _vwr_dt                                      # noqa: E402
-    _vwr_sess = (set(_vwr_active) == _CR_SESSION and min(int(c.split()[1]) for c in _vwr_active) <= 8
+    # ⏰ إقرارٌ مؤرَّخ 2026-11-06 «زد كرونات البدء»: حقلُ الساعة قد يكون قائمةً ومدًى (`9-12,14,…`) ⟵ أصغرُ ساعةٍ من الحقل كلِّه
+    _vwr_sess = (set(_vwr_active) == _CR_SESSION
+                 and min(int(h) for c in _vwr_active for h in _re10.split(r"[-,]", c.split()[1])) <= 8
                  and _vwr_PBS.in_window(_vwr_dt.datetime(2026, 11, 10, 8, 13, tzinfo=_vwr_dt.timezone.utc))
                  and not _vwr_PBS.in_window(_vwr_dt.datetime(2026, 11, 10, 7, 58, tzinfo=_vwr_dt.timezone.utc)))
 except Exception:                                                    # noqa: BLE001
@@ -97825,7 +97830,7 @@ try:
         def sleep(s, x):
             s.t += _pbs_dt.timedelta(seconds=max(1.0, float(x)))
 
-    def _pbs_sim(start, busy_until=None, older_until=None, budget=None):
+    def _pbs_sim(start, busy_until=None, older_until=None, budget=None, older_age=30):
         c = _PbsClock(start)
         _keep = (_PBS._sleep, _PBS.log, _os_hc.environ.get("PB_BUDGET_MIN"), _os_hc.environ.get("GITHUB_RUN_ID"))
         ran, posts, logs = [], [], []
@@ -97847,7 +97852,7 @@ try:
                 return {"workflow_runs": ([{"status": "in_progress", "event": "schedule"}] if busy_until and c.t < busy_until else [])}
             runs = [{"id": 1, "status": "in_progress", "run_started_at": start.strftime("%Y-%m-%dT%H:%M:%SZ")}]
             if older_until and c.t < older_until:
-                runs.append({"id": 0, "status": "in_progress", "run_started_at": (start - _pbs_dt.timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ")})
+                runs.append({"id": 0, "status": "in_progress", "run_started_at": (start - _pbs_dt.timedelta(minutes=older_age)).strftime("%Y-%m-%dT%H:%M:%SZ")})
             return {"workflow_runs": runs}
         try:
             _PBS._sleep, _PBS.log = c.sleep, (lambda m: logs.append(str(m)))
@@ -97871,10 +97876,24 @@ try:
     _p4 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 8, 1, tzinfo=_pbs_U), older_until=_pbs_dt.datetime(2026, 11, 6, 9, 0, tzinfo=_pbs_U), budget=90)
     # 🔗 عطلٌ مُثبَت 2026-11-06 (أوّلُ تشغيلٍ يدويّ `42165733874`): جوبٌ قصيرٌ ليلًا أطلق خلَفًا 00:02 نيويورك لأن 08:13 داخل أفق 6 ساعات
     _p5 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 5, 0, tzinfo=_pbs_U), budget=8)
+    # ⏰ PBJ5 (‏2026-11-06 · أمرُ المالك «زد كرونات البدء … مع خروج فوري إن وجد جوبًا قائمًا»): أقدمُ حيٌّ بعيدٌ عن نهايته ⟵ خروجٌ فوريّ بلا دورةٍ
+    #    ولا خلَف · وأقدمُ في دقائقه الأخيرة (عمرُه 315 من 324) ⟵ انتظارٌ ثمّ خلافة (وإلّا رآني حيًّا فامتنع عن خلَفه وخرجتُ ⟵ فجوة) ·
+    #    و`STANDBY_ON_OLDER = True` ⟵ الانتظارُ الاحتياطيّ القديم بت-بت · وتعذّرُ الـAPI يمضي كما كان.
+    _p6 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 8, 1, tzinfo=_pbs_U), older_until=_pbs_dt.datetime(2026, 11, 7, tzinfo=_pbs_U), budget=90,
+                   older_age=315)
+    _pbs_keep_sb = _PBS.STANDBY_ON_OLDER
+    try:
+        _PBS.STANDBY_ON_OLDER = True
+        _p7 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 8, 1, tzinfo=_pbs_U), older_until=_pbs_dt.datetime(2026, 11, 6, 9, 0, tzinfo=_pbs_U), budget=90)
+    finally:
+        _PBS.STANDBY_ON_OLDER = _pbs_keep_sb
+    _pbs_v5 = (_PBS.STANDBY_ON_OLDER is False and _PBS.EXIT_GRACE_MIN == 15
+               and _p6[1][:1] == ["08:13"] and any("دقائقَه الأخيرة" in x for x in _p6[3]) and not any("خروجٌ فوريّ" in x for x in _p6[3])
+               and _p7[1][:1] == ["09:13"] and any("أنتظر احتياطًا" in x for x in _p7[3]) and not any("خروجٌ فوريّ" in x for x in _p7[3]))
     _pbs_v2 = (_p1[0] == 0 and _p1[1][0] == "08:13" and _p1[1][-1] == "13:28" and len(_p1[1]) == 22 and _p1[2] == ["13:25"],
                _p2[1][0] == "22:13" and _p2[1][-1] == "00:58" and len(_p2[1]) == 12 and _p2[2] == [],
                _p3[1][:2] == ["09:05", "09:13"] and "08:13" not in _p3[1],
-               _p4[1][0] == "09:13" and any("أنتظر احتياطًا" in x for x in _p4[3]),
+               _p4[0] == 0 and _p4[1] == [] and _p4[2] == [] and any("خروجٌ فوريّ" in x for x in _p4[3]),   # ⏰ 2026-11-06: خروجٌ فوريّ (`PBJ5`)
                _p5[1] == [] and _p5[2] == [] and _PBS.CHAIN_HORIZON_MIN == 60)
     _pbs_calls = []
 
@@ -97894,7 +97913,20 @@ try:
                and _pbs_calls[1][0][-1] == "FETCH_HEAD" and _pbs_calls[2][1] == 900 and _PBS.run_cycle(_pbs_to) == 124)
     _pbs_y = _vwr_yaml.safe_load(open(".github/workflows/pullback_monitor.yml", encoding="utf-8"))
     _pbs_t = open(".github/workflows/pullback_monitor.yml", encoding="utf-8").read()
-    _pbs_sess = {"1 8 * * 1-5", "31 10 * * 1-5", "1 13 * * 1-5", "1 16 * * 1-5", "1 19 * * 1-5", "1 22 * * 1-5"}
+    _pbs_sess = {"1 8 * * 1-5", "31 10 * * 1-5", "1 13 * * 1-5", "1 16 * * 1-5", "1 19 * * 1-5", "1 22 * * 1-5",
+                 "1 9-12,14,15,17,18,20,21,23 * * 1-5"}
+    _pbs_old6 = ["13,43 8-23 * * 1-5", "28,58 8-23 * * 1-5", "13 0,2,4,6 * * 1-5", "13 22 * * 0", "13,43 0 * * 2-6", "28,58 0 * * 2-6"]
+
+    def _pbs_route(cron):
+        """⏰ إقرارٌ مؤرَّخ 2026-11-06 «زد كرونات البدء»: الشرطان يقرآن قائمةَ الكرونات **القديمة** (الجلسةُ = كلُّ كرونٍ غيرُها) ⟵ يُقيَّم
+        الشرطان من الـYAML على كلّ كرون: قائمةُ `fromJSON` المستخرجة · والنفيُ في الجلسة وحدَها."""
+        out = []
+        for job in ("monitor", "session"):
+            cond = str(_pbs_j[job]["if"])
+            m = _re10.search(r"(!?)contains\(fromJSON\('(\[[^']*\])'\)", cond)
+            lst = json.loads(m.group(2)) if m else None
+            out.append(bool(m) and lst == _pbs_old6 and ((cron in lst) != (m.group(1) == "!")))
+        return tuple(out)
     _pbs_j = _pbs_y["jobs"]
     _pbs_v4 = ({c["cron"] for c in _pbs_y[True]["schedule"]} == _pbs_sess
                and all(f'# (قديم — للرجوع) - cron: "{c}"' in _pbs_t for c in ("13,43 8-23 * * 1-5", "28,58 8-23 * * 1-5", "13 0,2,4,6 * * 1-5",
@@ -97905,14 +97937,15 @@ try:
                and _pbs_j["session"]["permissions"] == {"contents": "write", "actions": "write"}
                and _pbs_j["session"]["steps"][-1]["run"] == "python pullback_session.py"
                and _pbs_j["session"]["steps"][-1]["env"].get("BARS_SOURCE") == "tradingview"
-               and all(c in _pbs_j["session"]["if"] and c in _pbs_j["monitor"]["if"] for c in _pbs_sess)
+               and all(_pbs_route(c) == (False, True) for c in _pbs_sess) and all(_pbs_route(c) == (True, False) for c in _pbs_old6)
+               and '↩️ **الرجوع: احذف السطرَ التالي.**\n    - cron: "1 9-12,14,15,17,18,20,21,23 * * 1-5"' in _pbs_t
                and "concurrency" not in _pbs_y)
-    _pbs_v = _pbs_v2 + (_pbs_v1, _pbs_v3, _pbs_v4)
+    _pbs_v = _pbs_v2 + (_pbs_v1, _pbs_v3, _pbs_v4, _pbs_v5)
 except Exception as _e:                                              # noqa: BLE001
     _pbs_v = (f"⛔ {type(_e).__name__}: {_e}",)
 check("🔁 PBJ1-PBJ4 جوبُ جلسة المراقب: النافذةُ = اتّحادُ الكرونات القديمة على كلّ فتحة · 22 دورةً وخلَفٌ واحد · الأفترُ الشتويّ حتى 00:58 بلا خلَف · "
-      "لا دورةَ أثناء الفرز · انتظارُ العامل الأقدم · الدورةُ pullback_live.py بمهلة 15 د · والوظيفةُ القديمة للرجوع",
-      _pbs_v == (True,) * 8, str(_pbs_v)[:240])
+      "لا دورةَ أثناء الفرز · خروجٌ فوريّ عن العامل الأقدم وخلافتُه في دقائقه الأخيرة (PBJ5) · الدورةُ pullback_live.py بمهلة 15 د · والوظيفةُ القديمة للرجوع",
+      _pbs_v == (True,) * 9, str(_pbs_v)[:240])
 
 # 🌘 SHT1-SHT3 (‏2026-11-06 · أمرُ المالك «أرسل قائمة الظل على تلغرام» · سببُه `T-RRGATE` ④): رسالةٌ واحدة عند 09:25 نيويورك بعنوان المالك
 #    حرفيًّا · S بقاعدة `shadow_ready` بالاسم على مراسي بري اليوم · لا إرسالَ بعد 09:29 ولا مكرّر · وبلا SHADOW_TG_SEND=1 لا إرسال.
@@ -97998,7 +98031,9 @@ try:
                and not any(isinstance(n, _sht_ast.FunctionDef) and n.name in ("shadow_flag", "anchor_row", "features", "gap_pct_of")
                            for n in _sht_ast.walk(_sht_ast.parse(_sht_src)))
                and "SHADOW_TG_REPLAY: ${{ inputs.replay_day }}" in open(".github/workflows/shadow_telegram.yml", encoding="utf-8").read()
-               and {c["cron"] for c in _sht_y[True]["schedule"]} == {"41 10 * * 1-5", "11 12 * * 1-5", "41 12 * * 1-5", "11 13 * * 1-5"}
+               # ⏰ إقرارٌ مؤرَّخ 2026-11-06 «ولقائمة الظل كرونات أبكر من 09:41 UTC»: سطرٌ واحد (09:41 · 11:41) والرجوعُ حذفُه
+               and {c["cron"] for c in _sht_y[True]["schedule"]} == {"41 10 * * 1-5", "11 12 * * 1-5", "41 12 * * 1-5", "11 13 * * 1-5", "41 9,11 * * 1-5"}
+               and '↩️ **الرجوع: احذف السطرَ التالي.**\n    - cron: "41 9,11 * * 1-5"' in open(".github/workflows/shadow_telegram.yml", encoding="utf-8").read()
                and _sht_y["jobs"]["send"]["steps"][-1]["env"]["SHADOW_TG_SEND"] == "1" and _sht_y["concurrency"]["group"] == "shadow-telegram"
                and (_SHT.SEND_AT_NY, _SHT.OPEN_NY) == (565, 570)
                and not any(isinstance(n, _sht_ast.Call) and "send_telegram" in (getattr(n.func, "id", "") or getattr(n.func, "attr", ""))
