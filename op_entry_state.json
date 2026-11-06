@@ -1,7 +1,7 @@
 {
  "LIQ:CDT": {
   "anchor_ms": 1793998200000,
-  "last_ms": 1793998200000,
+  "last_ms": 1793998320000,
   "sent": [
    "M1"
   ],
@@ -9,7 +9,7 @@
   "vol_x": 6.5,
   "peak_usd": 138049,
   "last_eval_ms": 1793998320000,
-  "pulse_ms": 1793998200000,
+  "pulse_ms": 1793998320000,
   "anchor_price": 1.28,
   "anchor_open": 1.21,
   "anchor_low": 1.2,
@@ -21,11 +21,11 @@
    "e5": 1.4,
    "exit_ms": 1793975820000
   },
-  "date": "2026-11-06",
   "pre_done": true,
   "pre_hi": 1.3187,
   "pre_usd": 1258430,
-  "pre_n": 62
+  "pre_n": 62,
+  "date": "2026-11-06"
  },
  "LIQ:ALDX": {
   "last_eval_ms": 1793998320000,
@@ -54,7 +54,7 @@
   "date": "2026-11-03"
  },
  "LIQ:FLYE": {
-  "last_eval_ms": 1793998260000,
+  "last_eval_ms": 1793998320000,
   "date": "2026-11-06"
  },
  "LIQ:CIGL": {
@@ -455,7 +455,7 @@
   "date": "2026-11-06"
  },
  "LIQ:NXAT": {
-  "last_eval_ms": 1793998080000,
+  "last_eval_ms": 1793998320000,
   "date": "2026-11-06"
  },
  "LIQ:OPEN": {
@@ -982,7 +982,7 @@
   "date": "2026-11-06"
  },
  "LIQ:RBNE": {
-  "last_eval_ms": 1793998260000,
+  "last_eval_ms": 1793998320000,
   "date": "2026-11-06"
  },
  "LIQ:GFAI": {
@@ -1619,7 +1619,7 @@
   "date": "2026-11-06"
  },
  "LIQ:RENT": {
-  "last_eval_ms": 1793998020000,
+  "last_eval_ms": 1793998320000,
   "date": "2026-11-06"
  },
  "LIQ:YI": {
@@ -1925,7 +1925,7 @@
   "date": "2026-11-06"
  },
  "LIQ:YHC": {
-  "last_eval_ms": 1793998260000,
+  "last_eval_ms": 1793998320000,
   "date": "2026-11-06"
  },
  "LIQ:DGXX": {
@@ -1982,7 +1982,7 @@
   "date": "2026-11-06"
  },
  "LIQ:CMCT": {
-  "last_eval_ms": 1793998140000,
+  "last_eval_ms": 1793998320000,
   "date": "2026-11-06"
  },
  "LIQ:VRM": {
@@ -2663,7 +2663,7 @@
  },
  "LIQ:WETO": {
   "anchor_ms": 1793998260000,
-  "last_ms": 1793998260000,
+  "last_ms": 1793998320000,
   "sent": [
    "M1"
   ],
@@ -2671,15 +2671,15 @@
   "vol_x": 36.6,
   "peak_usd": 235894,
   "last_eval_ms": 1793998320000,
-  "pulse_ms": 1793998260000,
+  "pulse_ms": 1793998320000,
   "anchor_price": 0.9801,
   "anchor_open": 0.8899,
   "anchor_low": 0.8888,
-  "date": "2026-11-06",
   "pre_done": true,
   "pre_hi": 0.89,
   "pre_usd": 202133,
-  "pre_n": 35
+  "pre_n": 35,
+  "date": "2026-11-06"
  },
  "LIQ:CRGO": {
   "last_eval_ms": 1793993280000,
