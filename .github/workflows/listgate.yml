@@ -1,0 +1,55 @@
+name: "🚪📋 T-LISTGATE — أيُّ بوّابةٍ تُخرج الراكضَ من القائمة الأسبوعيّة؟ (قراءةٌ فقط)"
+
+# 🚪📋 أمرُ المالك 2026-11-06 · العقد `fm_forensics/listgate/LISTGATE_prereg.md` مدموجٌ قبل أيّ رقم:
+#    truth (تاريخُ git: `reject_log.json` و`reject_stats` عند كلّ `N_commit`) ⟵ replay (Polygon · `gate_inventory.run_once` بالاسم) ⟵ report.
+#    🔒 قراءةٌ فقط · بلا تلغرام · لا تغييرَ على أيّ بوّابة · والمرساةُ (H6) تُقاس ولا تُمسّ.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout (التاريخُ كاملًا — الحقيقةُ من الالتزامات)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: ① الحقيقة من سجلّ الإنتاج
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/listgate/listgate.py --mode truth
+
+      - name: ② الإعادة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/listgate/listgate.py --mode replay
+
+      - name: ③ التقرير
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/listgate/listgate.py --mode report
+
+      - name: المخرجات
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: listgate-out
+          path: |
+            fm_forensics/listgate/out/
+            fm_forensics/listgate/LISTGATE_RESULT.md
+          if-no-files-found: warn
