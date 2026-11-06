@@ -31,6 +31,10 @@ SEND_AT_NY = 9 * 60 + 25                                          # 09:25 نيو
 OPEN_NY = 9 * 60 + 30                                             # بعده لا إرسال («قبل الافتتاح»)
 WAIT_MAX_S = 5 * 3600                                             # أبعدُ انتظارٍ مقبول (المجدولُ يبدأ قبلها بساعاتٍ احتياطًا)
 STAMP = "shadow_tg_stamp.json"
+# 🎯 `T-SHADOW-TGT` §④ (أمرُ المالك 2026-11-06 «سجّل عقد هدف للظل أماميًا» · «احسبها له عند 09:25»): بعد الإرسال والختم تُلتقط مستوياتُ الذراع ②
+#    لكلّ مرساةِ بريٍّ (`fm_forensics/shadow_tgt/shadow_tgt.py` · ملفٌّ إلحاقيّ) · فاشلٌ-آمن لا يمسّ الرسالة ولا الختم · ↩️ `SHADOW_TGT_CAPTURE=0` ⟵ بت-بت.
+TGT_LEVELS = "shadow_tgt_levels.jsonl"
+TGT_CAPTURE = os.environ.get("SHADOW_TGT_CAPTURE", "1") != "0"
 STATE = "op_entry_state.json"
 _sleep = time.sleep
 
@@ -174,7 +178,17 @@ def replay_day(day, dailies_fn=None, bars_fn=None):
     return 0
 
 
-def main(now_fn=None, runner=subprocess.run, dailies_fn=None, send_fn=None, save_fn=None, bars_fn=None):
+def _tgt_capture(day, syms):
+    """§④ التقاطُ T-SHADOW-TGT بالاسم من ملفّ الأداة (ليست حزمةً تُستورد) ⟵ عددُ الصفوف."""
+    import importlib.util
+    p = os.path.join(os.path.dirname(os.path.abspath(__file__)), "fm_forensics", "shadow_tgt", "shadow_tgt.py")
+    sp = importlib.util.spec_from_file_location("shadow_tgt", p)
+    m = importlib.util.module_from_spec(sp)
+    sp.loader.exec_module(m)
+    return m.capture(day, syms, log=log)
+
+
+def main(now_fn=None, runner=subprocess.run, dailies_fn=None, send_fn=None, save_fn=None, bars_fn=None, capture_fn=None):
     import market_calendar as MC
     now_fn = now_fn or (lambda: dt.datetime.now(NY))
     now = now_fn()
@@ -227,9 +241,17 @@ def main(now_fn=None, runner=subprocess.run, dailies_fn=None, send_fn=None, save
              "n_anchors": len(allr), "skipped": skipped, "symbols": [r["sym"] for r in rows]}
     with open(STAMP, "w", encoding="utf-8") as fh:
         json.dump(stamp, fh, ensure_ascii=False, indent=1)
+    files = [STAMP]
+    if TGT_CAPTURE:
+        try:
+            (capture_fn or _tgt_capture)(day, [s for s, _a in anchors])
+        except Exception as e:                                                         # noqa: BLE001
+            log(f"⚠️ التقاطُ T-SHADOW-TGT تعذّر: {type(e).__name__}: {e} — الرسالةُ والختمُ كما هما")
+        if os.path.exists(TGT_LEVELS):
+            files.append(TGT_LEVELS)
     if save_fn is None:
         import Super_stock as S
-        save_fn = lambda: S.git_save([STAMP])                                         # noqa: E731
+        save_fn = lambda: S.git_save(files)                                           # noqa: E731
     save_fn()
     log(f"✅ أُرسلت قائمةُ الظلّ ({len(rows)} اسمًا من {len(allr)} مرساة) وخُتمت")
     return 0
