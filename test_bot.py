@@ -23863,7 +23863,12 @@ _cr_exprs = _re10.findall(r'- cron: "([^"]+)"', _cr)
 _CR_BASE = {"13,43 8-23 * * 1-5", "28,58 8-23 * * 1-5"}
 # ❄️ فتحاتُ الأفتر الشتويّ (أمرُ المالك 2026-11-04) صنفٌ ثالث ليست سُلَّمًا: تُفتح في أفتر نيويورك ⟵ يحرسها `AHW1` سلوكيًّا
 _CR_AH_WINTER = {"13,43 0 * * 2-6", "28,58 0 * * 2-6"}
-_cr_extra = [c for c in _cr_exprs if c not in _CR_BASE and c not in _CR_AH_WINTER]
+# 🔁 **إقرارٌ مؤرَّخ 2026-11-06 (أمرُ المالك «حوّل المراقب لجوب جلسة طويل»):** الكروناتُ القديمة صارت **أسطرَ رجوعٍ مُعلَّقة بحرفها**
+#    (`# (قديم — للرجوع) - cron: "…"`) والفاعلُ كروناتُ إطلاق جوب الجلسة · والدوراتُ داخله على فتحات الأساس وحدَها (`PBJ1`: النافذةُ
+#    = اتّحادُ القديمة على كلّ فتحة) ⟵ فتحاتُ الإطلاق ليست سُلَّمًا ولا تُشغّل الوظيفةَ القديمة (`PBJ4`) فتُستثنى هنا · والقفلُ يبقى
+#    يحرس أسطرَ الرجوع: الأساسُ حاضرٌ نصًّا · وكلُّ سُلَّمٍ مذكورٌ في البوّابة ومُغلَقٌ في وقته (فإعادتُها ترجع بالحماية نفسِها).
+_CR_SESSION = {"1 8 * * 1-5", "31 10 * * 1-5", "1 13 * * 1-5", "1 16 * * 1-5", "1 19 * * 1-5", "1 22 * * 1-5"}
+_cr_extra = [c for c in _cr_exprs if c not in _CR_BASE and c not in _CR_AH_WINTER and c not in _CR_SESSION]
 _cr_gate = _cr.split("Delay-ladder window gate")[-1].split("- name:")[0]
 
 
@@ -23945,7 +23950,12 @@ try:
                   ("13,43 8-23 * * 1-5", "2026-11-04T09:13:00Z"): "run=1",  # الأساسُ بلا بوّابة كما كان
                   ("13 0,2,4,6 * * 1-5", "2026-11-04T00:13:00Z"): "run=0"}  # السُلَّمُ كما كان
     _ahw_got = {k: _ahw_gate(*k) for k in _ahw_cases}
-    _ahw1 = _CR_AH_WINTER <= _ahw_crons and _ahw_got == _ahw_cases
+    # 🔁 إقرارٌ مؤرَّخ 2026-11-06: فتحاتُ الأفتر الشتويّ صارت أسطرَ رجوعٍ مُعلَّقة بحرفها وجوبُ الجلسة يغطّيها (`PBJ1`: `in_window` =
+    #    اتّحادُ القديمة دقيقةً دقيقة شتاءً وصيفًا) ⟵ تُقبل فعّالةً **أو** رجوعًا مُعلَّقًا مع كرونات الجلسة · والبوّابةُ تُختبر كما هي.
+    _ahw_txt = open(".github/workflows/pullback_monitor.yml", encoding="utf-8").read()
+    _ahw_ok_cr = _CR_AH_WINTER <= _ahw_crons or (
+        _ahw_crons == _CR_SESSION and all(f'# (قديم — للرجوع) - cron: "{c}"' in _ahw_txt for c in _CR_AH_WINTER))
+    _ahw1 = _ahw_ok_cr and _ahw_got == _ahw_cases
     _ahw1w = f"فتحات={sorted(_CR_AH_WINTER & _ahw_crons)} · خلاف={ {k[0][:8] + '@' + k[1][5:16]: v for k, v in _ahw_got.items() if v != _ahw_cases[k]} }"
 except Exception as _e:                                                    # noqa: BLE001
     _ahw1, _ahw1w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
@@ -28058,11 +28068,23 @@ check("🔒 VWR10 خارج الجذور: لا `vwap_entry_confirm` ولا `scan_
 # 🔒 VWR11 — الكرونُ يغطّي البريماركت المبكّر: حركةُ WETO كانت ‏≈08:47 UTC صيفًا،
 #    والكرونُ القديم يبدأ 11:13 ⇒ خارج التغطية. الآن يبدأ 08:13.
 _vwr_cron = open(".github/workflows/pullback_monitor.yml", encoding="utf-8").read()
-_vwr_hours = _re10.findall(r'cron:\s*"[\d,]+\s+(\d+)-(\d+)\s', _vwr_cron)
+# 🔁 إقرارٌ مؤرَّخ 2026-11-06 (جوبُ الجلسة): الفاعلُ يُقرأ من الـYAML لا بالنصّ (الكرونُ القديم صار سطرَ رجوعٍ مُعلَّقًا فكان
+#    سيُرضي النصَّ وهو غيرُ فاعل) ⟵ القديم: ساعاتُ الأساس تبدأ 08 · الجلسة: أوّلُ إطلاقٍ 08 والدورةُ تُفتح 08:13 يومَ عمل (`in_window`).
+import yaml as _vwr_yaml                                             # noqa: E402
+_vwr_active = [c["cron"] for c in _vwr_yaml.safe_load(_vwr_cron)[True]["schedule"]]
+_vwr_hours = _re10.findall(r'^\s*- cron:\s*"[\d,]+\s+(\d+)-(\d+)\s', _vwr_cron, _re10.M)
+try:
+    import pullback_session as _vwr_PBS                             # noqa: E402
+    import datetime as _vwr_dt                                      # noqa: E402
+    _vwr_sess = (set(_vwr_active) == _CR_SESSION and min(int(c.split()[1]) for c in _vwr_active) <= 8
+                 and _vwr_PBS.in_window(_vwr_dt.datetime(2026, 11, 10, 8, 13, tzinfo=_vwr_dt.timezone.utc))
+                 and not _vwr_PBS.in_window(_vwr_dt.datetime(2026, 11, 10, 7, 58, tzinfo=_vwr_dt.timezone.utc)))
+except Exception:                                                    # noqa: BLE001
+    _vwr_sess = False
 check("🔒 VWR11 كرونُ المراقب يبدأ من 08 UTC (بريماركت مبكّر) — وإلّا فاللحظةُ "
       "التي بُنيت لها الميزةُ خارجَ التغطية",
-      _vwr_hours and all(int(a) <= 8 for a, _b in _vwr_hours)
-      and len(_vwr_hours) == 2, str(_vwr_hours))
+      (len(_vwr_hours) == 2 and all(int(a) <= 8 for a, _b in _vwr_hours)) or _vwr_sess,
+      f"{_vwr_hours} · جلسة={_vwr_sess}")
 # 🔒 VWR12 — الدِدوبُ يُقلَّم فلا ينمو بلا حدّ · وقراءتُه فاشلةٌ-آمنة
 _vwr_st = _os_hc.path.join(_rej_tf.gettempdir(), f"_vwr_st.{_SUITE_PID}.json")
 S.save_op_entry_state({"A": "2026-08-16", "B": "2026-01-01"}, path=_vwr_st,
@@ -29046,11 +29068,20 @@ check("⏳ CY1 اليدويُّ في مجموعةٍ خاصّةٍ به · وال�
       and "super-stocks-state" in _cy_grp, _cy_grp[:70].replace("\n", " "))
 check("⏳ CY2 والمجموعةُ **فريدةٌ لكل تشغيلة يدوية** (‏`run_id`) وإلّا عاد الطرد",
       "github.run_id" in _cy_grp)
+# 🔁 **إقرارٌ مؤرَّخ 2026-11-06 (جوبُ الجلسة):** المزامنةُ انتقلت من مستوى الـworkflow إلى الوظائف — الوظيفةُ القديمة (`monitor`، دورةٌ
+#    واحدة ‏≤15 د) تبقى في مجموعة الحالة بحرفها · وجوبُ الجلسة (5.5 ساعات) **خارجها عمدًا** (لو دخلها لحجب تجديدَ الجمعة ساعات) ويحمي
+#    الحالةَ بانتظار الفرز المجدول الجاري قبل كلّ دورة (`state_busy` · `PBJ2`) ⟵ الحمايةُ قائمةٌ بآليّتين لا بآليّة.
+_cy_pmc = _cy_pm.get("concurrency") or (_cy_pm.get("jobs", {}).get("monitor") or {}).get("concurrency") or {}
+_cy_psc = (_cy_pm.get("jobs", {}).get("session") or {}).get("concurrency") or {}
 check("🔒 CY3 و`cancel-in-progress` يبقى **false** (لا يُقتل جارٍ)",
       _cy_ds["concurrency"]["cancel-in-progress"] is False
-      and _cy_pm["concurrency"]["cancel-in-progress"] is False)
+      and _cy_pmc.get("cancel-in-progress") is False
+      and (not _cy_psc or _cy_psc.get("cancel-in-progress") is False))
 check("🔒 CY4 والمراقبُ **لم يُمَسّ** — يبقى في مجموعة الحالة (الحمايةُ قائمة)",
-      _cy_pm["concurrency"]["group"] == "super-stocks-state")
+      _cy_pmc.get("group") == "super-stocks-state"
+      and (not _cy_psc or ("super-stocks-state" not in str(_cy_psc.get("group"))
+                           and "state_busy" in open("pullback_session.py", encoding="utf-8").read())),
+      str(_cy_pmc) + " · " + str(_cy_psc))
 # 🔴 المبرّرُ مقفول: الكرونُ اليوميّ خارج نافذة المراقب · والتجديدُ داخلها فيبقى محميًّا
 _cy_sched = [c["cron"] for c in _cy_ds[True]["schedule"]]
 _cy_hours = lambda c: c.split()[1]
@@ -29079,6 +29110,18 @@ def _cy_slots(cron):
 _cy_mon = set()
 for _c in [c["cron"] for c in _cy_pm[True]["schedule"]]:
     _cy_mon |= _cy_slots(_c)
+# 🔁 إقرارٌ مؤرَّخ 2026-11-06: في جوب الجلسة الذي يكتب الحالةَ **دوراتُه** لا كروناتُ إطلاقه ⟵ تُضاف دقائقُ الدورات الفعليّة
+#    (كلُّ فتحةٍ من `SLOTS` تفتحها `in_window` في أسبوعٍ شتويٍّ وصيفيّ) — تشديدٌ لا إرخاء.
+try:
+    import pullback_session as _cy_PBS                              # noqa: E402
+    import datetime as _cy_dt                                       # noqa: E402
+    for _d0 in (_cy_dt.datetime(2026, 7, 13, tzinfo=_cy_dt.timezone.utc), _cy_dt.datetime(2026, 11, 9, tzinfo=_cy_dt.timezone.utc)):
+        for _k in range(7 * 1440):
+            _t = _d0 + _cy_dt.timedelta(minutes=_k)
+            if _t.minute in _cy_PBS.SLOTS and _cy_PBS.in_window(_t):
+                _cy_mon.add(_t.hour * 60 + _t.minute)
+except Exception:                                                    # noqa: BLE001
+    _cy_mon.add(-10000)
 _cy_daily = next((c for c in _cy_sched if c.split()[4] == "2-5"), "")
 _cy_dmin = int(_cy_daily.split()[1]) * 60 + int(_cy_daily.split()[0])
 _cy_gap = min(min(abs(_cy_dmin - _s), 1440 - abs(_cy_dmin - _s))
@@ -97665,6 +97708,304 @@ except Exception as _e:                                              # noqa: BLE
     _r3_x = (f"⛔ {type(_e).__name__}: {_e}",)
 check("🚪📏📄 RRG3 النتيجتان كما صدرتا: ③ «تُسقط أفضل» بأرقامه · OMH مرشَّحٌ حُذف بـ:14872 ثمّ DQ_HELD · ② لا فرق · R1-R6 · الملحق 1 ‏28.5% مقابل 31.4% · "
       "A1-A8 · والبوّابةُ كما هي", _r3_x == (True,) * 4, str(_r3_x)[:240])
+
+# 🔒👀 NWK1-NWK4 (‏2026-11-06 · أمرُ المالك «أبقِ المحجوب تحت المتابعة» · سببُه OMH ‏10-31 · `T-RRGATE` ①): مَن عبر الفرزَ ثمّ حجبته بوّابةٌ بعده
+#    يبقى في «تحت المتابعة» بسبب حجبه مكتوبًا · عرضٌ فقط (السلّتان وكونُ التنبيه الحيّ لا تريانه) · `NW_KEEP_BLOCKED=0` ⟵ بت-بت.
+try:
+    import catalog_envelope as _nwb_ce
+    _nwb_cols = S.FILL_POOL_COLS
+
+    def _nwb_row(sym, outcome, added=False, av=None, dq="PASS"):
+        d = {"sym": sym, "rank": 1, "pool_pos": 0, "rk": [0], "dq": dq, "excl": None, "round": 1, "outcome": outcome, "av": av,
+             "av_state": "KNOWN", "av_src": "ENRICH", "added": added}
+        return [d[c] for c in _nwb_cols]
+    _nwb_res = [{"symbol": s, "price": 1.5, "rsi": 31.0, "readiness": 60, "score": 7, "rr": 0.4, "drop_pct": 90.0, "soft_fails": ["x"]}
+                for s in ("AAA", "BBB", "CCC", "DDD", "EEE", "FFF", "GGG")]
+    _nwb_rows = [_nwb_row("AAA", "BORROW_REJECT", av=40000), _nwb_row("BBB", "NOT_EXAMINED"),
+                 _nwb_row("CCC", "DQ_HELD", dq="CORPORATE_ACTION_PENDING"), _nwb_row("DDD", "PASSED_KNOWN_AV", added=True),
+                 _nwb_row("EEE", "EXCLUDED"), _nwb_row("FFF", "FLOAT_REJECT"), _nwb_row("ZZZ", "NOT_EXAMINED")]
+    _nwb_b = S.near_watch_blocked(_nwb_rows, _nwb_res, {"FFF"})
+    _nwb_nf = S.near_watch_blocked(None, _nwb_res, {"AAA"}, no_fill="NO_FREE_SLOT")
+    _nwb_v1 = (sorted(_nwb_b) == ["AAA", "BBB", "CCC"] and "40,000" in _nwb_b["AAA"]["label"]
+               and _nwb_b["CCC"]["label"].startswith("سلامةُ البيانات (") and "CORPORATE" not in _nwb_b["CCC"]["label"]
+               and _nwb_b["BBB"]["why"] == "NOT_EXAMINED" and sorted(_nwb_nf) == ["BBB", "CCC", "DDD", "EEE", "FFF", "GGG"]
+               and _nwb_nf["GGG"]["label"] == S.NW_BLOCK_LABELS["NO_FREE_SLOT"]
+               and S.near_watch_blocked(None, _nwb_res, set(), no_fill="WHATEVER") == {})
+    # OMH ‏10-31 من السجلّ الحقيقيّ: مؤهَّلٌ لم يُضَف بسلامة البيانات ⟵ يُبقى
+    _nwb_fp = [json.loads(l) for l in open("fill_pool_log.jsonl", encoding="utf-8") if l.strip()]
+    _nwb_31 = next((r for r in _nwb_fp if r.get("date") == "2026-10-31" and r.get("source") == "renew"), {})
+    _nwb_omh = S.near_watch_blocked(_nwb_31.get("rows"), [{"symbol": x[0]} for x in (_nwb_31.get("rows") or [])], set())
+    _nwb_v1 = _nwb_v1 and (_nwb_omh.get("OMH") or {}).get("why") == "DQ_HELD"
+    _nwb_before = {"AAA": {"symbol": "AAA", "first_seen": "2026-09-08", "last_seen": "2026-10-29", "outside": []}}
+    _nwb_w, _nwb_n = S.near_watch_keep_blocked({"KEEP": {"symbol": "KEEP", "last_seen": "2026-11-06", "n_out": 0, "readiness": 9}},
+                                               _nwb_before, _nwb_res, _nwb_b, "2026-11-06", {"rr": 0.5})
+    _nwb_e = _nwb_w.get("AAA") or {}
+    _nwb_v2 = (_nwb_n == 3 and _nwb_e.get("first_seen") == "2026-09-08" and _nwb_e.get("last_seen") == "2026-11-06"
+               and (_nwb_e.get("blocked") or {}).get("date") == "2026-11-06" and "العائد/المخاطرة (دون الحدّ)" in _nwb_e.get("outside", [])
+               and _nwb_w["BBB"]["first_seen"] == "2026-11-06" and "KEEP" in _nwb_w
+               and _nwb_ce.result_vals(_nwb_res[0])["rr"] == 0.4)
+    _nwb_wx = {k: dict(v, n_out=0) for k, v in _nwb_w.items()}             # داخلَ الظرف ⟵ يظهر في السلّة لولا الوسم
+    _nwb_keep = S.CONFIG.get("NW_KEEP_BLOCKED")
+    try:
+        S.CONFIG["NW_KEEP_BLOCKED"] = True
+        _nwb_in, _nwb_os = S.near_watch_buckets(_nwb_wx)
+        _nwb_sec = S.build_near_watch_section(_nwb_wx)
+        _nwb_uni, _ = S.live_watch_universe({"stocks": [], "pullback": [], "explosions": [{"symbol": "AAA", "date": "2026-11-05"}]},
+                                            near=_nwb_wx, press={}, hunter={}, today_iso="2026-11-06")
+        _nwb_live = {r["symbol"] for r in _nwb_uni}
+        S.CONFIG["NW_KEEP_BLOCKED"] = False
+        _nwb_in0, _nwb_os0 = S.near_watch_buckets(_nwb_wx)
+        _nwb_sec0 = S.build_near_watch_section(_nwb_wx)
+        _nwb_rc0 = S.near_watch_restore_blocked({}, _nwb_res, {"stocks": []}, "2026-11-06", rec_rows=_nwb_rows)
+    finally:
+        S.CONFIG["NW_KEEP_BLOCKED"] = _nwb_keep
+    _nwb_sec_l = _nwb_sec.splitlines()
+    _nwb_ccc = next((ln for ln in _nwb_sec_l if "CCC" in ln), "")
+    _nwb_v3 = ({e["symbol"] for e in _nwb_in + _nwb_os} == {"KEEP"} and "عبر الفرزَ وحجبته بوّابةٌ بعده" in _nwb_sec
+               and "حُجب: المتاح 40,000" in _nwb_sec and "$" not in _nwb_ccc and "حُجب: سلامةُ البيانات" in _nwb_ccc
+               and _nwb_live == {"KEEP"},
+               {e["symbol"] for e in _nwb_in0 + _nwb_os0} == {"KEEP", "AAA", "BBB", "CCC"} and "حجبته" not in _nwb_sec0 and _nwb_rc0 == 0)
+    _nwb_src = open("Super_stock.py", encoding="utf-8").read()
+
+    def _nwb_body(name):
+        i = _nwb_src.find("def " + name + "(")
+        j = _nwb_src.find("\ndef ", i + 5)
+        return _nwb_src[i:j] if i >= 0 else ""
+    _nwb_d, _nwb_r = _nwb_body("run_daily_watchlist"), _nwb_body("run_weekly_renewal")
+    _nwb_v4 = (0 <= _nwb_d.find("_nw_before = load_near_watch()") < _nwb_d.find("scan_market()")
+               and _nwb_d.find('"daily", today_iso, space, _rnd, len(results))') < _nwb_d.find("near_watch_restore_blocked(_nw_before, results, wl")
+               and "near_watch_restore_blocked(_nw_before, results, wl, today_iso,\n                                   no_fill=" in _nwb_d
+               and 0 <= _nwb_r.find("_nw_before = load_near_watch()") < _nwb_r.find("results, hist = scan_market()")
+               and _nwb_r.find("save_watchlist(new_wl)") < _nwb_r.find("near_watch_restore_blocked(_nw_before, results, new_wl")
+               and "return result_vals(res)" in _insp0.getsource(_nwb_ce.measure_session)
+               and S.CONFIG["NW_KEEP_BLOCKED"] is True and "near_watch" not in _insp0.getsource(S.scan_market).split("for _r in results:")[1][:120]
+               or False)
+    _nwb_v = (_nwb_v1, _nwb_v2) + _nwb_v3 + (_nwb_v4,)
+except Exception as _e:                                              # noqa: BLE001
+    _nwb_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🔒👀 NWK1-NWK4 المحجوبُ بعد الفرز يبقى «تحت المتابعة» بسببه (المتاح · الجولات · سلامةُ البيانات · OMH ‏10-31) · first_seen محفوظ · "
+      "سلّةٌ ثالثة بلا أرقامٍ للمحجوب بالسلامة · وكونُ التنبيه الحيّ لا يراه · ومطفأٌ ⟵ بت-بت · وموصولٌ بعد التعبئة في المسارين",
+      _nwb_v == (True,) * 5, str(_nwb_v)[:240])
+
+# 🔁 PBJ1-PBJ4 (‏2026-11-06 · أمرُ المالك «حوّل المراقب لجوب جلسة طويل»): النافذةُ = اتّحادُ الكرونات القديمة بحرفها على كلّ فتحة (أسبوعٌ صيفيّ
+#    وشتويّ) · الدورةُ `pullback_live.py` نفسُه على main طازج بمهلة 15 د · الخلَفُ مرّةً قبل نهاية الميزانيّة ولا خلَفَ بعد 19:30 نيويورك ·
+#    لا دورةَ أثناء الفرز المجدول · والـworkflow: الوظيفةُ القديمة بحرفها للرجوع وكروناتُها مُعلَّقة · والجلسةُ خارج مجموعة الحالة.
+try:
+    import datetime as _pbs_dt
+    import pullback_session as _PBS
+    _pbs_U = _pbs_dt.timezone.utc
+
+    def _pbs_old(t):
+        """النوافذُ القديمة من تعريفاتها الحرفيّة: `13,43 8-23 * * 1-5` ∪ `28,58 8-23 * * 1-5` ∪ (`13,43 0 * * 2-6` ∪ `28,58 0 * * 2-6` ببوّابة نيويورك 16-19)."""
+        dow = t.isoweekday()
+        if t.minute not in (13, 28, 43, 58):
+            return False
+        if 8 <= t.hour <= 23 and dow <= 5:
+            return True
+        if t.hour == 0 and 2 <= dow <= 6:
+            n = t.astimezone(_PBS.NY)
+            return 16 <= n.hour <= 19 and n.isoweekday() <= 5
+        return False
+    _pbs_bad = []
+    for _d0 in (_pbs_dt.datetime(2026, 7, 12, tzinfo=_pbs_U), _pbs_dt.datetime(2026, 11, 1, tzinfo=_pbs_U), _pbs_dt.datetime(2026, 3, 8, tzinfo=_pbs_U)):
+        for _k in range(8 * 1440):
+            _t = _d0 + _pbs_dt.timedelta(minutes=_k)
+            if (_t.minute in _PBS.SLOTS and _PBS.in_window(_t)) != _pbs_old(_t):
+                _pbs_bad.append(_t.isoformat())
+    _pbs_v1 = (_pbs_bad == [] and _PBS.SLOTS == (13, 28, 43, 58) and _PBS.CYCLE_TIMEOUT_S == 900
+               and _PBS.in_window(_pbs_dt.datetime(2026, 11, 7, 0, 58, tzinfo=_pbs_U)) and not _PBS.in_window(_pbs_dt.datetime(2026, 11, 7, 1, 13, tzinfo=_pbs_U)))
+
+    class _PbsClock:
+        def __init__(s, t):
+            s.t = t
+
+        def now(s):
+            return s.t
+
+        def sleep(s, x):
+            s.t += _pbs_dt.timedelta(seconds=max(1.0, float(x)))
+
+    def _pbs_sim(start, busy_until=None, older_until=None, budget=None):
+        c = _PbsClock(start)
+        _keep = (_PBS._sleep, _PBS.log, _os_hc.environ.get("PB_BUDGET_MIN"), _os_hc.environ.get("GITHUB_RUN_ID"))
+        ran, posts, logs = [], [], []
+
+        class _R:
+            returncode = 0
+
+        def _run(cmd, **k):
+            if cmd[-1] == "pullback_live.py":
+                ran.append(c.t.strftime("%H:%M"))
+                c.t += _pbs_dt.timedelta(seconds=40)
+            return _R()
+
+        def _api(m, p, b=None):
+            if m == "POST":
+                posts.append(c.t.strftime("%H:%M"))
+                return {}
+            if "daily_screener" in p:
+                return {"workflow_runs": ([{"status": "in_progress", "event": "schedule"}] if busy_until and c.t < busy_until else [])}
+            runs = [{"id": 1, "status": "in_progress", "run_started_at": start.strftime("%Y-%m-%dT%H:%M:%SZ")}]
+            if older_until and c.t < older_until:
+                runs.append({"id": 0, "status": "in_progress", "run_started_at": (start - _pbs_dt.timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%SZ")})
+            return {"workflow_runs": runs}
+        try:
+            _PBS._sleep, _PBS.log = c.sleep, (lambda m: logs.append(str(m)))
+            _os_hc.environ["GITHUB_RUN_ID"] = "1"
+            if budget:
+                _os_hc.environ["PB_BUDGET_MIN"] = str(budget)
+            else:
+                _os_hc.environ.pop("PB_BUDGET_MIN", None)
+            rc = _PBS.main(now_fn=c.now, api=_api, runner=_run)
+        finally:
+            _PBS._sleep, _PBS.log = _keep[0], _keep[1]
+            for _kk, _vv in (("PB_BUDGET_MIN", _keep[2]), ("GITHUB_RUN_ID", _keep[3])):
+                if _vv is None:
+                    _os_hc.environ.pop(_kk, None)
+                else:
+                    _os_hc.environ[_kk] = _vv
+        return rc, ran, posts, logs
+    _p1 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 8, 1, tzinfo=_pbs_U))
+    _p2 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 22, 1, tzinfo=_pbs_U))                 # الجمعة 17:01 نيويورك ⟵ حتى 00:58 UTC ولا خلَف
+    _p3 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 8, 1, tzinfo=_pbs_U), busy_until=_pbs_dt.datetime(2026, 11, 6, 9, 5, tzinfo=_pbs_U), budget=90)
+    _p4 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 8, 1, tzinfo=_pbs_U), older_until=_pbs_dt.datetime(2026, 11, 6, 9, 0, tzinfo=_pbs_U), budget=90)
+    _pbs_v2 = (_p1[0] == 0 and _p1[1][0] == "08:13" and _p1[1][-1] == "13:28" and len(_p1[1]) == 22 and _p1[2] == ["13:25"],
+               _p2[1][0] == "22:13" and _p2[1][-1] == "00:58" and len(_p2[1]) == 12 and _p2[2] == [],
+               _p3[1][:2] == ["09:05", "09:13"] and "08:13" not in _p3[1],
+               _p4[1][0] == "09:13" and any("أنتظر احتياطًا" in x for x in _p4[3]))
+    _pbs_calls = []
+
+    class _PbsR:
+        returncode = 3
+
+    def _pbs_run(cmd, **k):
+        _pbs_calls.append((cmd, k.get("timeout")))
+        return _PbsR() if cmd[-1] == "pullback_live.py" else type("_Z", (), {"returncode": 0})()
+    _pbs_rc = _PBS.run_cycle(_pbs_run)
+
+    def _pbs_to(cmd, **k):
+        if cmd[-1] == "pullback_live.py":
+            raise _PBS.subprocess.TimeoutExpired(cmd, 900)
+        return type("_Z", (), {"returncode": 0})()
+    _pbs_v3 = (_pbs_rc == 3 and [c[0][:2] for c in _pbs_calls] == [["git", "fetch"], ["git", "reset"], [_PBS.sys.executable, "pullback_live.py"]]
+               and _pbs_calls[1][0][-1] == "FETCH_HEAD" and _pbs_calls[2][1] == 900 and _PBS.run_cycle(_pbs_to) == 124)
+    _pbs_y = _vwr_yaml.safe_load(open(".github/workflows/pullback_monitor.yml", encoding="utf-8"))
+    _pbs_t = open(".github/workflows/pullback_monitor.yml", encoding="utf-8").read()
+    _pbs_sess = {"1 8 * * 1-5", "31 10 * * 1-5", "1 13 * * 1-5", "1 16 * * 1-5", "1 19 * * 1-5", "1 22 * * 1-5"}
+    _pbs_j = _pbs_y["jobs"]
+    _pbs_v4 = ({c["cron"] for c in _pbs_y[True]["schedule"]} == _pbs_sess
+               and all(f'# (قديم — للرجوع) - cron: "{c}"' in _pbs_t for c in ("13,43 8-23 * * 1-5", "28,58 8-23 * * 1-5", "13 0,2,4,6 * * 1-5",
+                                                                           "13 22 * * 0", "13,43 0 * * 2-6", "28,58 0 * * 2-6"))
+               and _pbs_j["monitor"]["steps"][0]["name"] == "Delay-ladder window gate" and _pbs_j["monitor"]["timeout-minutes"] == 15
+               and _pbs_j["monitor"]["concurrency"]["group"] == "super-stocks-state"
+               and "super-stocks-state" not in str(_pbs_j["session"]["concurrency"]["group"])
+               and _pbs_j["session"]["permissions"] == {"contents": "write", "actions": "write"}
+               and _pbs_j["session"]["steps"][-1]["run"] == "python pullback_session.py"
+               and _pbs_j["session"]["steps"][-1]["env"].get("BARS_SOURCE") == "tradingview"
+               and all(c in _pbs_j["session"]["if"] and c in _pbs_j["monitor"]["if"] for c in _pbs_sess)
+               and "concurrency" not in _pbs_y)
+    _pbs_v = _pbs_v2 + (_pbs_v1, _pbs_v3, _pbs_v4)
+except Exception as _e:                                              # noqa: BLE001
+    _pbs_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🔁 PBJ1-PBJ4 جوبُ جلسة المراقب: النافذةُ = اتّحادُ الكرونات القديمة على كلّ فتحة · 22 دورةً وخلَفٌ واحد · الأفترُ الشتويّ حتى 00:58 بلا خلَف · "
+      "لا دورةَ أثناء الفرز · انتظارُ العامل الأقدم · الدورةُ pullback_live.py بمهلة 15 د · والوظيفةُ القديمة للرجوع",
+      _pbs_v == (True,) * 7, str(_pbs_v)[:240])
+
+# 🌘 SHT1-SHT3 (‏2026-11-06 · أمرُ المالك «أرسل قائمة الظل على تلغرام» · سببُه `T-RRGATE` ④): رسالةٌ واحدة عند 09:25 نيويورك بعنوان المالك
+#    حرفيًّا · S بقاعدة `shadow_ready` بالاسم على مراسي بري اليوم · لا إرسالَ بعد 09:29 ولا مكرّر · وبلا SHADOW_TG_SEND=1 لا إرسال.
+try:
+    import ast as _sht_ast
+    import shadow_telegram as _SHT
+    _sht_NY = _SHT.NY
+
+    def _sht_ms(h, m, day="2026-11-06"):
+        return int(_pbs_dt.datetime.fromisoformat(f"{day}T{h:02d}:{m:02d}:00").replace(tzinfo=_sht_NY).timestamp() * 1000)
+    _sht_state = {"LIQ:AAA": {"anchor_ms": _sht_ms(7, 40), "anchor_price": 1.40, "date": "2026-11-06", "k2": {"j1": True}, "last_eval_ms": _sht_ms(9, 20)},
+                  "LIQ:BBB": {"anchor_ms": _sht_ms(8, 10), "anchor_price": 1.20, "date": "2026-11-06", "k2": {"j1": False}},
+                  "LIQ:CCC": {"anchor_ms": _sht_ms(9, 31), "anchor_price": 2.0, "date": "2026-11-06", "k2": {"j1": True}},
+                  "LIQ:DDD": {"anchor_ms": _sht_ms(6, 0, "2026-11-05"), "anchor_price": 2.0, "date": "2026-11-05", "k2": {"j1": True}},
+                  "LIQ:EEE": {"last_eval_ms": _sht_ms(9, 22), "date": "2026-11-06"}, "AAA": {"x": 1},
+                  "LIQ:FFF": {"anchor_ms": _sht_ms(8, 30), "anchor_price": 3.0, "date": "2026-11-06", "k2": {"j1": True}}}
+    _sht_bars = lambda s: ([(int(_sht_state["LIQ:" + s]["anchor_ms"]) + k * 60_000, 1.0, 1.0, 0.9,  # noqa: E731
+                             float(_sht_state["LIQ:" + s]["anchor_price"]), 1000) for k in (0, 1)]
+                           if s in ("AAA", "BBB") else None)
+    _sht_led = {("2026-11-06", "BBB"): {"j1": True, "prev_close": 1.0, "anchor_price": 1.20, "e5": 1.20}}
+    _sht_an = _SHT.premarket_anchors(_sht_state, "2026-11-06")
+    _sht_rows, _sht_all, _sht_skip = _SHT.shadow_rows(_sht_an, lambda s: [("2026-11-05", 1.0, 1.0)], "2026-11-06", _sht_bars, _sht_led)
+    _sht_msg = _SHT.build_message("2026-11-06", "09:25", _sht_rows, _sht_all, _SHT.last_state_ms(_sht_state, "2026-11-06"), first=True,
+                                  skipped=_sht_skip)
+    _sht_msg2 = _SHT.build_message("2026-11-06", "09:25", [], _sht_all, None, first=False)
+    _sht_plain = _re10.sub(r"<[^>]+>", "", _sht_msg)
+    _sht_v1 = ([s for s, _ in _sht_an] == ["AAA", "BBB", "FFF"] and [r["sym"] for r in _sht_rows] == ["AAA", "BBB"]
+               and _sht_rows[0]["why"] == "J1 · فجوة +40%" and _sht_rows[1]["why"] == "J1" and _sht_skip == {"bars": 1, "base": 0}
+               and "تعذّرت شموعُه 1" in _sht_msg
+               and _sht_msg.splitlines()[0] == "<b>🌘 قائمة الظل — قيد الإثبات، لا حكم قبل 12-31</b>"
+               and "بُنيت 09:25 نيويورك" in _sht_msg and "بريماركت اليوم نفسِه" in _sht_msg and "09:22" in _sht_msg
+               and "الرسالة الأولى" in _sht_msg and "الرسالة الأولى" not in _sht_msg2 and "لا اسمَ في S حتى 09:25" in _sht_msg2
+               and not any(ch in _sht_plain for ch in "≥≤<>"))
+    _sht_ny = lambda h, m: _pbs_dt.datetime(2026, 11, 6, h, m, tzinfo=_sht_NY)                       # noqa: E731
+    _sht_sends, _sht_saves = [], []
+
+    def _sht_main(t0, stamp=None, send_ok=True, env="1", day_shift=0, replay=None):
+        c = _PbsClock(t0 + _pbs_dt.timedelta(days=day_shift))
+        _d = _rej_tf.mkdtemp(prefix="sht_")
+        _keep = (_SHT.STAMP, _SHT.STATE, _SHT._sleep, _SHT.log, _os_hc.environ.get("SHADOW_TG_SEND"), _os_hc.environ.get("SHADOW_TG_REPLAY"))
+        try:
+            _SHT.STAMP, _SHT.STATE = _os_hc.path.join(_d, "stamp.json"), _os_hc.path.join(_d, "state.json")
+            _SHT._sleep, _SHT.log = c.sleep, (lambda m: None)
+            with open(_SHT.STATE, "w", encoding="utf-8") as _f:
+                json.dump(_sht_state, _f)
+            if stamp is not None:
+                with open(_SHT.STAMP, "w", encoding="utf-8") as _f:
+                    json.dump(stamp, _f)
+            _os_hc.environ["SHADOW_TG_SEND"] = env
+            if replay:
+                _os_hc.environ["SHADOW_TG_REPLAY"] = replay
+            else:
+                _os_hc.environ.pop("SHADOW_TG_REPLAY", None)
+            rc = _SHT.main(now_fn=c.now, runner=None, dailies_fn=lambda s: [("2026-11-05", 1.0, 1.0)], bars_fn=_sht_bars,
+                           send_fn=lambda t: (_sht_sends.append((c.t.strftime("%H:%M"), t)) or send_ok),
+                           save_fn=lambda: _sht_saves.append(1))
+            st = json.load(open(_SHT.STAMP, encoding="utf-8")) if _os_hc.path.exists(_SHT.STAMP) else None
+            return rc, st
+        finally:
+            _SHT.STAMP, _SHT.STATE, _SHT._sleep, _SHT.log = _keep[:4]
+            for _kk, _vv in (("SHADOW_TG_SEND", _keep[4]), ("SHADOW_TG_REPLAY", _keep[5])):
+                if _vv is None:
+                    _os_hc.environ.pop(_kk, None)
+                else:
+                    _os_hc.environ[_kk] = _vv
+    _s1 = _sht_main(_sht_ny(6, 0))
+    _n1 = len(_sht_sends)
+    _s2 = _sht_main(_sht_ny(9, 26), stamp={"last_sent": "2026-11-06", "first_sent": "2026-11-06"})
+    _s3 = _sht_main(_sht_ny(9, 31))
+    _s4 = _sht_main(_sht_ny(9, 27), send_ok=False)
+    _s5 = _sht_main(_sht_ny(9, 27), env="0")
+    _s6 = _sht_main(_sht_ny(9, 27), day_shift=1)                                       # السبت ⟵ لا جلسة
+    _s7 = _sht_main(_sht_ny(9, 27), replay="2026-11-06")                                # إعادةٌ ⟵ تطبع ولا تُرسل ولا تختم
+    _sht_v2 = (_s1[0] == 0 and _n1 == 1 and _sht_sends[0][0] == "09:25" and (_s1[1] or {}).get("symbols") == ["AAA"]
+               and (_s1[1] or {}).get("first_sent") == "2026-11-06" and len(_sht_saves) == 1
+               and _s2[0] == 0 and _s3[0] == 0 and _s4 == (1, None) and _s5 == (0, None) and _s6 == (0, None) and _s7 == (0, None)
+               and len(_sht_sends) == 2 and len(_sht_saves) == 1)
+    _sht_src = open("shadow_telegram.py", encoding="utf-8").read()
+    _sht_imp = {(n.module, a.name) for n in _sht_ast.walk(_sht_ast.parse(_sht_src)) if isinstance(n, _sht_ast.ImportFrom) for a in n.names}
+    _sht_y = _vwr_yaml.safe_load(open(".github/workflows/shadow_telegram.yml", encoding="utf-8"))
+    _sht_v3 = ({("shadow_ready", "shadow_flag"), ("shadow_ready", "anchor_row"), ("tierlink_probe", "daily_range"),
+                ("tier_fwd_report", "fetch_day"), ("tier_fwd_report", "load_ledger")} <= _sht_imp
+               and not any(isinstance(n, _sht_ast.FunctionDef) and n.name in ("shadow_flag", "anchor_row", "features", "gap_pct_of")
+                           for n in _sht_ast.walk(_sht_ast.parse(_sht_src)))
+               and "SHADOW_TG_REPLAY: ${{ inputs.replay_day }}" in open(".github/workflows/shadow_telegram.yml", encoding="utf-8").read()
+               and {c["cron"] for c in _sht_y[True]["schedule"]} == {"41 10 * * 1-5", "11 12 * * 1-5", "41 12 * * 1-5", "11 13 * * 1-5"}
+               and _sht_y["jobs"]["send"]["steps"][-1]["env"]["SHADOW_TG_SEND"] == "1" and _sht_y["concurrency"]["group"] == "shadow-telegram"
+               and (_SHT.SEND_AT_NY, _SHT.OPEN_NY) == (565, 570)
+               and not any(isinstance(n, _sht_ast.Call) and "send_telegram" in (getattr(n.func, "id", "") or getattr(n.func, "attr", ""))
+                           for n in _sht_ast.walk(_sht_ast.parse(open("shadow_ready.py", encoding="utf-8").read()))))
+    _sht_v = (_sht_v1, _sht_v2, _sht_v3)
+except Exception as _e:                                              # noqa: BLE001
+    _sht_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🌘 SHT1-SHT3 قائمةُ الظلّ قبل الافتتاح: العنوانُ حرفيًّا · S بقاعدة shadow_ready بالاسم على بري اليوم · وقتُ البناء والتغطية · "
+      "شرحُ الرسالة الأولى · 09:25 مرّةً واحدة ولا بعد 09:29 ولا مكرّر ولا بلا SHADOW_TG_SEND=1 ولا في غير جلسة",
+      _sht_v == (True,) * 3, str(_sht_v)[:240])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

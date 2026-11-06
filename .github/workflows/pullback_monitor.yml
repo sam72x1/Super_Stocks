@@ -37,36 +37,62 @@ on:
     #    خارجَ التغطية تمامًا**، وفيها بالضبط تقع اللحظةُ التي طلبها.
     #    ⚠️ والكلفةُ مقيسةٌ ومهملة: وسيطُ التشغيلة **0.6 دقيقة**، وثلاثُ ساعاتٍ
     #    إضافيةٍ = ‏12 فتحةً/يوم ⇒ ‏≈3 تشغيلاتٍ فعلية بمعدّل التسليم المقيس.
-    - cron: "13,43 8-23 * * 1-5"
-    - cron: "28,58 8-23 * * 1-5"
+    # (قديم — للرجوع) - cron: "13,43 8-23 * * 1-5"
+    # (قديم — للرجوع) - cron: "28,58 8-23 * * 1-5"
 
     # 🛟 **إصلاح 2026-08-31 — سُلّم تأخّر للكرون:** اليوم لم تصل أي فتحة من
     #    08:13→10:43 UTC، بينما رادار الانطلاق المقرر 02:11 لم يبدأ إلا 08:35
     #    (≈384د تأخّر). لذلك نزرع فتحات قبل النافذة؛ إن وصلت مبكرًا تُغلق بالبوابة
     #    أدناه بلا فحص أو تنبيه، وإن أخّرها GitHub عدة ساعات تهبط داخل 08–23 UTC.
     #    لا تغيير في شروط الأسهم أو الإرسال — جدولة فقط.
-    - cron: "13 0,2,4,6 * * 1-5"
+    # (قديم — للرجوع) - cron: "13 0,2,4,6 * * 1-5"
     # بذرة الاثنين ضد تأخّرٍ شديد يبدأ من مساء الأحد؛ الوصول الفوري يوم الأحد يُغلق.
-    - cron: "13 22 * * 0"
+    # (قديم — للرجوع) - cron: "13 22 * * 0"
     # ❄️ **الأفترُ الشتويّ حتى 01:00 UTC (أمرُ المالك 2026-11-04 «مدّ مراقبة الأفتر شتاءً حتى 01:00 — استعادة لنفس
     #    التغطية الصيفية لا إطالة»):** شتاءً الأفتر 21:00-01:00 UTC ⟵ ساعتُه الأخيرة في يوم UTC التالي (الثلاثاء-السبت) ·
     #    فتحاتٌ بإيقاع النافذة الأساسيّة نفسِه · **والبوّابةُ تفتحها في أفتر نيويورك وحدَه** (16:00-19:59 · الاثنين-الجمعة
     #    بتوقيت نيويورك) ⟵ صيفًا تصل 20:xx نيويورك فتُغلَق (لا تشغيلَ زائدٌ) · `AHW1`.
-    - cron: "13,43 0 * * 2-6"
-    - cron: "28,58 0 * * 2-6"
-  workflow_dispatch: {}
+    # (قديم — للرجوع) - cron: "13,43 0 * * 2-6"
+    # (قديم — للرجوع) - cron: "28,58 0 * * 2-6"
+    # 🔁 **جوبُ جلسةٍ طويل (أمرُ المالك 2026-11-06 «حوّل المراقب لجوب جلسة طويل»):** الكروناتُ أعلاه (مُعلَّقةً بحرفها للرجوع)
+    #    كانت تُسقطها GitHub (‏11-05: 4 تشغيلاتٍ من ‏≈56 فتحة · وصفرٌ من فتحات الأفتر الشتويّ ليلتين) ⟵ جوبٌ واحدٌ `session` يعيش طوالَ
+    #    النافذة ويُشغّل **الدورةَ نفسَها** (`pullback_live.py`) على الدقائق نفسِها (13 · 28 · 43 · 58) وفي النوافذ نفسِها (`pullback_session.py`) ·
+    #    ويُطلق خلَفَه قبل نهاية ميزانيّته · وهذي كروناتُ **بدءٍ واحتياط** لا فتحات: الأوّلُ يبدأ النافذة والباقي يلتقط سقوطَ الأوّل أو الخلَف
+    #    (العاملُ الأحدث ينتظر احتياطًا ما دام أقدمُ حيًّا) · `PBJ1`-`PBJ4`.
+    #    ↩️ **الرجوع:** أعد الكرونات المُعلَّقة أعلاه (أزل «# (قديم — للرجوع) ») واحذف كرونات الجلسة هذي — وظيفةُ `monitor` القديمة باقيةٌ بحرفها.
+    - cron: "1 8 * * 1-5"
+    - cron: "31 10 * * 1-5"
+    - cron: "1 13 * * 1-5"
+    - cron: "1 16 * * 1-5"
+    - cron: "1 19 * * 1-5"
+    - cron: "1 22 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "session = جوبُ الجلسة (الافتراض) · once = دورةٌ واحدة بالوظيفة القديمة"
+        required: false
+        default: "session"
+      budget:
+        description: "دقائقُ جوب الجلسة (فحصُ دخان — يُقصّر ولا يُطيل · السقف 330)"
+        required: false
+        default: ""
 
 # مجموعة تزامن مشتركة مع daily_screener: كلاهما يكتب weekly_watchlist.json،
 # فلا يعملان متزامنَين (يمنع تضارب git_save وفقدان حالة «triggered»).
-concurrency:
-  group: super-stocks-state
-  cancel-in-progress: false
-
 permissions:
   contents: write
 
 jobs:
+  # 🔁 الوظيفةُ القديمة بحرفها — للرجوع (الكروناتُ المُعلَّقة أعلاه) ولـ`mode=once` · وتبقى في مجموعة الحالة (`CY4`).
   monitor:
+    if: >-
+      ${{ (github.event_name == 'workflow_dispatch' && inputs.mode == 'once')
+          || (github.event_name == 'schedule'
+              && !contains(fromJSON('["1 8 * * 1-5","31 10 * * 1-5","1 13 * * 1-5","1 16 * * 1-5","1 19 * * 1-5","1 22 * * 1-5"]'),
+                           github.event.schedule)) }}
+    concurrency:
+      group: super-stocks-state
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -122,3 +148,44 @@ jobs:
           #    وياهو احتياطٌ لكلّ رمزٍ يتعذّر · ⚠️ بيانُ الزائر متأخّرٌ ‏≈15 دقيقة داخل الجلسة · وحذفُ السطر = ياهو بت-بت.
           BARS_SOURCE: tradingview
         run: python pullback_live.py
+
+  # 🔁 جوبُ الجلسة (أمرُ المالك 2026-11-06): خارج مجموعة الحالة (5.5 ساعة فيها تحجز تجديدَ الجمعة) والحمايةُ داخل الحلقة (`state_busy`) ·
+  #    كلُّ دورةٍ `pullback_live.py` نفسُه على main طازج · والخلَفُ بـ`GITHUB_TOKEN` (`actions: write`) · `PBJ1`-`PBJ4`.
+  session:
+    if: >-
+      ${{ (github.event_name == 'workflow_dispatch' && inputs.mode != 'once')
+          || (github.event_name == 'schedule'
+              && contains(fromJSON('["1 8 * * 1-5","31 10 * * 1-5","1 13 * * 1-5","1 16 * * 1-5","1 19 * * 1-5","1 22 * * 1-5"]'),
+                          github.event.schedule)) }}
+    concurrency:
+      group: super-stocks-pullback-session-${{ github.run_id }}
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      actions: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 345          # فوق ميزانيّة السكربت (330) بهامشٍ للدورة الأخيرة
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🔁 جوبُ جلسة المراقب
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          BARS_SOURCE: tradingview
+          PB_BUDGET_MIN: ${{ github.event.inputs.budget }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PYTHONUNBUFFERED: "1"
+        run: python pullback_session.py
+

@@ -315,6 +315,12 @@ def measure_session(S, sym, df):
                 S.CONFIG[k] = v
     if not res:
         return None
+    return result_vals(res)
+
+
+def result_vals(res):
+    """📏 قيمُ المعايير الخمسة عشر من صفّ `analyze_ticker` — **مصدرٌ واحد** لـ`measure_session` و«المحجوب تحت المتابعة»
+    (أمرُ المالك 2026-11-06 «أبقِ المحجوب تحت المتابعة» · `NWK1`) — والمُخرَجُ بت-بت كما كان داخل `measure_session`."""
     return {
         "price": res.get("price"),
         "drop_pct": res.get("drop_pct"),

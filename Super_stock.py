@@ -192,6 +192,10 @@ CONFIG = {
     "PICK_FILL_ROUNDS": 4,
     # 🗂️ سجلُّ بِركة التعبئة (2026-10-09 · رصدٌ لا قرار): `False` ⟵ لا لقطةَ ولا أثرَ ولا كتابة (القرارُ نفسُه بت-بت · PFC13).
     "FILL_POOL_LOG": True,
+    # 🔒👀 «أبقِ المحجوب تحت المتابعة» (أمرُ المالك 2026-11-06 · سببُه OMH ‏10-31 · `T-RRGATE` ①): مَن عبر الفرزَ ثمّ حجبته بوّابةٌ بعده
+    #    (المتاح · سقفُ الجولات · سلامةُ البيانات · الفلوت · لا خانة) يبقى في «تحت المتابعة» بسبب حجبه مكتوبًا · عرضٌ فقط (كونُ التنبيه
+    #    الحيّ لا يراه) · `NW_KEEP_BLOCKED=0` (بيئةُ التشغيل) ⟵ بت-بت · `NWK1`-`NWK4`.
+    "NW_KEEP_BLOCKED": os.environ.get("NW_KEEP_BLOCKED", "1").strip() != "0",
     "FLOAT_GATE_REQUIRED": True,  # M14: رفض الفلوت الكبير (أقوى رابط في أسهم فيصل)
     "FLOAT_GATE_MAX": 50_000_000, # حد الفلوت: كل أسهم فيصل تحته (HCAI 163ألف ←
                                   # MWC 26.68م). الفلوت الصغير = ينفجر بسهولة.
@@ -14280,6 +14284,8 @@ def near_watch_buckets(watch: dict):
     # 🔒 والقيمُ غيرُ القواميس تُتخطّى (شكلٌ قديم/متخيَّل ⇒ **لا انهيار**):
     #    القاعدةُ نفسُها المطبَّقة على الأقفال — يسقط ولا ينهار.
     rows = [e for e in (watch or {}).values() if isinstance(e, dict)]
+    if CONFIG.get("NW_KEEP_BLOCKED"):          # 🔒👀 المحجوبُ له سلّتُه (`near_watch_blocked_rows`) ولا يدخل هاتين ولا كونَ التنبيه الحيّ
+        rows = [e for e in rows if not e.get("blocked")]
     inside = sorted((e for e in rows if e.get("n_out") == 0),
                     key=lambda e: (-(e.get("readiness") or 0),
                                    e.get("symbol", "")))
@@ -14302,7 +14308,8 @@ def build_near_watch_section(watch: dict, cap: int = None, dq_fn=None) -> str:
     بحالته (قديم · تقسيمٌ معلّق · غيرُ مسوًّى · تعارض) لا يُعرَض · ③ والموسومُ يُعرَض بوسمه — وكلُّ مخفيٍّ **يُعَدّ في سطرٍ واحد** (لا
     صمت). والتقييمُ لما يُعرَض وحدَه (سقفُ العرض) فلا تُستنزَف الشبكة. و`dq_fn=None` ⟵ القسمُ كما كان **بت-بت**."""
     inside, oversold = near_watch_buckets(watch)
-    if not (inside or oversold):
+    blocked = near_watch_blocked_rows(watch) if CONFIG.get("NW_KEEP_BLOCKED") else []
+    if not (inside or oversold or blocked):
         return ""
     lim = max(1, int(cap or NEAR_WATCH_SHOW) // 2)
     out = [f"👀 <b>تحت المتابعة</b> ({len(inside) + len(oversold)}) — "
@@ -14365,10 +14372,141 @@ def build_near_watch_section(watch: dict, cap: int = None, dq_fn=None) -> str:
     _emit("داخلَ ظرف فيصل تمامًا — وجدارُه من عندنا", inside)
     _emit(f"متشبّعٌ الآن (‏RSI تحت {FAISAL_RSI_ENTRY_MAX:.0f} — زنادُ فيصل)",
           oversold)
+    if blocked:
+        # 🔒👀 عبر الفرزَ ثمّ حجبته بوّابةٌ بعده — السببُ مكتوب · والمحجوبُ بسلامة البيانات **بلا أرقام** (لا يُعرَض بسعرٍ غيرِ مأمون)
+        out.append(f"   <b>🔒 عبر الفرزَ وحجبته بوّابةٌ بعده</b> ({len(blocked)})")
+        for e in blocked[:lim]:
+            b = e.get("blocked") or {}
+            _bits = []
+            if b.get("why") != "DQ_HELD":
+                if e.get("price") is not None:
+                    _bits.append(f"${float(e['price']):.2f}")
+                if e.get("rsi_now") is not None:
+                    _bits.append(f"RSI {float(e['rsi_now']):.0f}")
+            out.append(f"   • {esc(e.get('symbol'))} — حُجب: {esc(b.get('label') or b.get('why') or '؟')}"
+                       + (f" · {' · '.join(_bits)}" if _bits else ""))
+        if len(blocked) > lim:
+            out.append(f"   …و{len(blocked) - lim} غيرهم (يُعلَن لا يُطوى)")
     if _hidden:
         out.append("   🛡️ لم يُعرَض (سلامةُ البيانات): "
                    + " · ".join(f"{k} {v}" for k, v in sorted(_hidden.items(), key=lambda x: -x[1])))
     return _rtl_join(out)
+
+
+# ════════════════════════════════════════════════════════════════════════════
+# 🔒👀 «أبقِ المحجوب تحت المتابعة» (أمرُ المالك 2026-11-06 · `T-RRGATE` ① · سببُه OMH ‏10-31)
+#    عطلٌ مُثبَت (`fm_forensics/rrgate/RRGATE_RESULT.md`): `scan_market` يحذف من «تحت المتابعة» **كلَّ مؤهَّلٍ يومَ فرزه**
+#    (`for _r in results:`) · ثمّ تحجبه بوّابةٌ بعد الفرز فلا يُضاف ⟵ يسقط من القائمتين (353 حدثًا منذ 10-09 · OMH بسلامة البيانات).
+#    ⟵ بعد التعبئة يُعاد كلُّ مؤهَّلٍ لم يُضَف (ولم يكن في القائمة) إلى «تحت المتابعة» بمدخلٍ عاديٍّ ‏+ `blocked` (السببُ مكتوبًا) ·
+#    و`first_seen` من «تحت المتابعة» قبل الفرز · وفي الفرز التالي يُقاس كغيره (يُرشَّح أو يبقى أو يخرج) فيزول الوسم بالبناء.
+#    🔒 **عرضٌ فقط:** لا يمسّ `scan_market` ولا الجذور ولا التعبئة · والسلّتان وكونُ التنبيه الحيّ لا تريانه (`near_watch_buckets`) ·
+#    `NW_KEEP_BLOCKED=0` ⟵ بت-بت (صفرُ نداء · صفرُ كتابة).
+# ════════════════════════════════════════════════════════════════════════════
+NW_BLOCK_LABELS = {
+    "BORROW_REJECT": "المتاح فوق الحدّ",
+    "NOT_EXAMINED": "لم تبلغه جولاتُ التعبئة (سقفُ الجولات)",
+    "DQ_HELD": "سلامةُ البيانات",
+    "FLOAT_REJECT": "فلوتٌ كبير ظهر بعد الإثراء",
+    "PASSED_KNOWN_AV": "اجتاز البوّابات ولم يُضَف",
+    "PASSED_UNKNOWN_AV": "اجتاز البوّابات ولم يُضَف",
+    "NO_FREE_SLOT": "لا خانةَ فارغةَ اليوم",
+    "LOW_COVERAGE": "تأجّلت التعبئة (تغطيةُ بياناتٍ ضعيفة)",
+}
+NW_BLOCK_SKIP = ("EXCLUDED", "DUPLICATE")       # الممسوكُ في القائمة والمشطوبُ والمكرَّر — ليسوا «محجوبين»
+
+
+def near_watch_blocked(rec_rows, results, list_syms, no_fill=None) -> dict:
+    """🔒👀 **نقيّة**: مَن عبر الفرزَ (`results`) ولم يُضَف ولم يكن في القائمة ⟵ {رمز: {why · label · av · dq}}.
+    `rec_rows` صفوفُ `fill_pool_record` (بأعمدة `FILL_POOL_COLS`) · وبلا تعبئة (`rec_rows=None`) فسببُها `no_fill` لكلّ مؤهَّل."""
+    res_syms = {str((r or {}).get("symbol") or "").upper() for r in (results or ()) if isinstance(r, dict)}
+    res_syms.discard("")
+    inl = {str(x or "").upper() for x in (list_syms or ())}
+    out = {}
+    if rec_rows is None:
+        if no_fill in NW_BLOCK_LABELS:
+            for sym in sorted(res_syms - inl):
+                out[sym] = {"why": no_fill, "label": NW_BLOCK_LABELS[no_fill], "av": None, "dq": None}
+        return out
+    ix = {c: i for i, c in enumerate(FILL_POOL_COLS)}
+    for row in rec_rows or ():
+        try:
+            sym = str(row[ix["sym"]] or "").upper()
+            why = row[ix["outcome"]]
+            if not sym or sym in inl or sym not in res_syms or row[ix["added"]] or why in NW_BLOCK_SKIP:
+                continue
+            lab = NW_BLOCK_LABELS.get(why, str(why))
+            av, dq = row[ix["av"]], row[ix["dq"]]
+            if why == "BORROW_REJECT" and isinstance(av, (int, float)):
+                lab = f"المتاح {int(av):,} فوق الحدّ {int(CONFIG.get('BORROW_AVAIL_MAX') or 0):,}"
+            elif why == "DQ_HELD" and dq:
+                try:
+                    import data_quality as _DQ
+                    lab = f"سلامةُ البيانات ({_DQ.LABELS_AR.get(dq, dq)})"
+                except Exception:                                # noqa: BLE001
+                    lab = f"سلامةُ البيانات ({dq})"
+            out[sym] = {"why": why, "label": lab, "av": av, "dq": dq}
+        except (IndexError, KeyError, TypeError, ValueError):
+            continue
+    return out
+
+
+def near_watch_keep_blocked(watch, before, results, blocked, today_iso, edges, vals_fn=None):
+    """🔒👀 **نقيّة**: يكتب لكلّ محجوبٍ مدخلَ «تحت المتابعة» العاديّ (`near_watch_entry` بقيم `catalog_envelope.result_vals`) ‏+ `blocked` ·
+    و`first_seen` من المدخل قبل الفرز (`before`) ⟵ (المتابعة، عددُ المكتوب)."""
+    if vals_fn is None:
+        from catalog_envelope import result_vals as vals_fn, CRITERIA as _CR
+        _ncr = len(_CR)
+    else:
+        _ncr = None
+    out = dict(watch or {})
+    by = {str((r or {}).get("symbol") or "").upper(): r for r in (results or ()) if isinstance(r, dict)}
+    n = 0
+    for sym, b in sorted((blocked or {}).items()):
+        r = by.get(sym)
+        if r is None:
+            continue
+        vals = dict(vals_fn(r) or {})
+        if _ncr is not None:
+            vals["_n_criteria"] = _ncr
+        e = near_watch_entry(sym, vals, near_watch_outside(vals, edges), today_iso,
+                             prev=(before or {}).get(sym) or out.get(sym))
+        e["blocked"] = dict(b, date=today_iso)
+        out[sym] = e
+        n += 1
+    return out, n
+
+
+def near_watch_blocked_rows(watch) -> list:
+    """🔒👀 سلّةُ العرض الثالثة — المحجوبون **في فرز اليوم** (`blocked.date` = أحدثُ `last_seen`) مرتَّبين بالرمز · نقيّة."""
+    rows = [e for e in (watch or {}).values() if isinstance(e, dict)]
+    newest = max((str(e.get("last_seen") or "") for e in rows), default="")
+    return sorted((e for e in rows if isinstance(e.get("blocked"), dict)
+                   and str(e["blocked"].get("date") or "") == newest),
+                  key=lambda e: str(e.get("symbol") or ""))
+
+
+def near_watch_restore_blocked(before, results, wl, today_iso, rec_rows=None, no_fill=None) -> int:
+    """🔒👀 نقطةُ النداء بعد التعبئة (اليوميّ والتجديد) — **فاشلةٌ-آمنةٌ مطلقًا** ⟵ عددُ المُبقَين. مطفأةٌ ⟵ 0 بلا قراءةٍ ولا كتابة."""
+    if not CONFIG.get("NW_KEEP_BLOCKED"):
+        return 0
+    try:
+        listed = {s.get("symbol") for s in ((wl or {}).get("stocks") or []) if isinstance(s, dict)}
+        blocked = near_watch_blocked(rec_rows, results, listed, no_fill=no_fill)
+        if not blocked:
+            return 0
+        import envelope_scan as _ev
+        watch, n = near_watch_keep_blocked(load_near_watch(), before, results, blocked, today_iso, _ev.load_edges() or {})
+        if n:
+            save_near_watch(watch)
+        cnt = {}
+        for b in blocked.values():
+            cnt[b["why"]] = cnt.get(b["why"], 0) + 1
+        log(f"🔒👀 تحت المتابعة: أُبقي {n} مرشَّحًا عبر الفرزَ وحجبته بوّابةٌ بعده ("
+            + " · ".join(f"{NW_BLOCK_LABELS.get(k, k)} {v}" for k, v in sorted(cnt.items(), key=lambda kv: -kv[1])) + ")")
+        return n
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ إبقاءُ المحجوب تحت المتابعة تعذّر (لا يمسّ الفرز): {type(e).__name__}")
+        return 0
 
 
 def borrow_watch_row(symbol: str, available, fee, price, date_iso: str,
@@ -16227,7 +16365,9 @@ def live_watch_universe(wl=None, near=None, press=None, hunter=None,
         try:
             if _iso_days_between(_d, today_iso) <= LIVE_WATCH_MOVER_DAYS \
                     and isinstance(_near, dict) \
-                    and str(e.get("symbol") or "").upper() in _near:
+                    and str(e.get("symbol") or "").upper() in _near \
+                    and not (isinstance(_near.get(str(e.get("symbol") or "").upper()), dict)
+                             and _near[str(e.get("symbol") or "").upper()].get("blocked")):
                 _add(e.get("symbol"), "متحرّك حديث قرب الظرف")
         except Exception:                                        # noqa: BLE001
             continue
@@ -22517,6 +22657,7 @@ def run_weekly_renewal(wl: dict) -> None:
     if CONFIG["EXCLUDE_STOPPED_FROM_RENEWAL"]:
         exclude = {s["symbol"] for s in wl["removed"]
                    if s["status"] == "stopped"}
+    _nw_before = load_near_watch() if CONFIG.get("NW_KEEP_BLOCKED") else None   # 🔒👀 `first_seen` قبل أن يحذف الفرزُ المؤهَّلين
     results, hist = scan_market()
     _scan_bars = scan_bars_report()   # ⚠️ «نبهني لو رجع الفرز لياهو» — قبل أيّ تحميلٍ آخر يدهس التقرير (`YF3`)
     _yfl = yahoo_fallback_line(_scan_bars)
@@ -22723,6 +22864,7 @@ def run_weekly_renewal(wl: dict) -> None:
     record_fill_pool(_fp_snap, _fp_trace, picks,
                      [x.get("symbol") for x in final_stocks if x.get("symbol") in new_syms],
                      "renew", today_iso, CONFIG["WATCHLIST_SIZE"], _rnd, len(results))
+    _nw_added = [x.get("symbol") for x in final_stocks if x.get("symbol") in new_syms]
     new_wl = dict(wl)
     new_wl.update({"week_start": today_iso, "created": today_iso,
                    # 🗓️ ختمُ الجيل (2026-09-26): يفرّق تجديدَين في اليوم نفسِه لـ`_merge_watchlist`
@@ -22736,6 +22878,13 @@ def run_weekly_renewal(wl: dict) -> None:
                    "history": wl.get("history", []),
                    "explosions": wl.get("explosions", [])})   # سجل الانفجارات يستمر
     save_watchlist(new_wl)
+    if CONFIG.get("NW_KEEP_BLOCKED"):
+        try:                             # 🔒👀 مَن عبر الفرزَ وحجبته بوّابةٌ بعده يبقى «تحت المتابعة» بسببه (عرضٌ فقط)
+            _nw_rec = fill_pool_record(_fp_snap, _fp_trace, picks, _nw_added, "renew", today_iso,
+                                       CONFIG["WATCHLIST_SIZE"], _rnd, len(results))
+            near_watch_restore_blocked(_nw_before, results, new_wl, today_iso, rec_rows=_nw_rec.get("rows"))
+        except Exception as _e:                                  # noqa: BLE001
+            log(f"⚠️ إبقاءُ المحجوب تحت المتابعة تعذّر (لا يمسّ الفرز): {type(_e).__name__}")
     # 🔄 تقرير «مصير أسهم الأسبوع الماضي» (طلب المستخدم — لا يختفي سهم بصمت)
     if fate:
         try:
@@ -22906,6 +23055,7 @@ def run_daily_watchlist(wl: dict) -> None:
     مرشّحًا جديدًا (⑨ خيار ب، تدقيق 2026-07-12). التجديد الكامل الجمعة. سوق
     مقفل = نفس القائمة (تنمو، ما ترفرف)."""
     today_iso = dt.date.today().isoformat()
+    _nw_before = load_near_watch() if CONFIG.get("NW_KEEP_BLOCKED") else None   # 🔒👀 `first_seen` قبل أن يحذف الفرزُ المؤهَّلين
     # 1) فرز كامل للسوق (لالتقاط الجديد) — بياناته تُعاد استخدامها للمتابعة
     results, hist = scan_market()
     _scan_bars = scan_bars_report()   # ⚠️ قبل تحميل الناقص الذي يدهس التقرير («نبهني لو رجع الفرز لياهو» · `YF3`)
@@ -23056,10 +23206,19 @@ def run_daily_watchlist(wl: dict) -> None:
         # 🗂️ «أُضيف» من القائمة المضافة نفسِها · فاشلٌ-آمنٌ داخل الدالّة (لا يمسّ ما قُرّر قبله).
         record_fill_pool(_fp_snap, _fp_trace, picks, [p["symbol"] for p in added],
                          "daily", today_iso, space, _rnd, len(results))
+        if CONFIG.get("NW_KEEP_BLOCKED"):
+            try:                         # 🔒👀 مَن عبر الفرزَ وحجبته بوّابةٌ بعده يبقى «تحت المتابعة» بسببه (عرضٌ فقط)
+                _nw_rec = fill_pool_record(_fp_snap, _fp_trace, picks, [p["symbol"] for p in added],
+                                           "daily", today_iso, space, _rnd, len(results))
+                near_watch_restore_blocked(_nw_before, results, wl, today_iso, rec_rows=_nw_rec.get("rows"))
+            except Exception as _e:                              # noqa: BLE001
+                log(f"⚠️ إبقاءُ المحجوب تحت المتابعة تعذّر (لا يمسّ الفرز): {type(_e).__name__}")
     if not _fp_tried:
         # 🗂️ لا تعبئةَ اليوم ⟵ سطرٌ يقول لماذا (فلا يُقرأ غيابُ السطر «لم يُسجَّل») · بلا لقطة: السلامةُ لم تُشغَّل ولا تُشغَّل لأجله.
         record_fill_pool(None, None, [], [], "daily", today_iso, space, 0, len(results),
                          no_fill=("LOW_COVERAGE" if low_coverage_note else "NO_FREE_SLOT"))
+        near_watch_restore_blocked(_nw_before, results, wl, today_iso,
+                                   no_fill=("LOW_COVERAGE" if low_coverage_note else "NO_FREE_SLOT"))
     # 🔒📉 حصادُ T-BORROW-FALL — **بعد** البوّابة وبلا أثرٍ عليها: المُخرَجُ يبقى
     # مُخرَجًا، وإنّما يُسجَّل متاحُه ويُتابَع نزولُه (فيصل يدخل «تحت 10K»).
     # حارسٌ مطلق: انكسارُ سجلِّ بحثٍ لا يُسقط الفرز.
