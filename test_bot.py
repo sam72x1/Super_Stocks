@@ -97447,6 +97447,198 @@ except Exception as _e:                                              # noqa: BLE
 check("🚪📏🔒 RRG0 عقدا `T-RRGATE` وملحق القراءة مدموجان قبل أيّ رقم · وقائمةُ الراكضين مجمَّدةٌ ببصمتها · وحقائقُ الكود في ⓪ صحيحة · "
       "وإسقاطُ 7-ب في §⑧", _rg0_v == (True,) * 4, str(_rg0_v)[:240])
 
+# 🟠🔬①🔒 VCA1 (‏2026-11-06 · `T-VWAP-CONT` الملحق 1 · `vwap_cont_addendum_1.md`): ② = `ret_exit` إن وقع الخروجُ وإلّا `ret_close` · وضابطُ ① متوسّطُ `reach`
+#    على حدود الفترة وضابطُ ② وسيطُ ② عليها · و`win` يصير ① فتُعاد آلةُ العقد بالاسم · و«لا قياس» دون الاتّساق 95% · و⑤ لا تُقترح · و9 عند تغيّر بصمة الملحق ·
+#    والـworkflow ينزّل شظايا التشغيلة 42134086032 بـ`actions: read` في وظيفةٍ مشروطة.
+try:
+    import json as _va_json
+    import os as _va_os
+    import tempfile as _va_tmp
+    import yaml as _va_yaml
+    import market_calendar as _va_MC
+    import vwap_cont as _va
+    _va_keep = (_va.V.harvest, _va.J.reach, _va.J.control_points, _va.log)
+    _va_logs = []
+    try:
+        _va.V.harvest = lambda bars, op, cl, t, px: ({"exit_px": 1.0, "ret_exit": -0.02, "ret_close": 0.30} if t < 700
+                                                    else {"exit_px": None, "ret_exit": None, "ret_close": 0.05})
+        _va.J.reach = lambda bars, op, cl, t, px, target=0.07: int(t in (620, 640))
+        _va.J.control_points = lambda bars, op, cl, above_only=True, slot=None: [(620, 1.0), (650, 1.0), (720, 1.0), (760, 1.0)]
+        _va_r = _va.reading_row({"e": 640, "px": 2.0, "reach7": 1, "win": 0, "ctl_slot": 0.9}, [], 570, 960)
+        _va_r2 = _va.reading_row({"e": 800, "px": 2.0, "reach7": 1}, [], 570, 960)
+        _va_v1 = (_va_r["ret2"] == -0.02 and _va_r2["ret2"] == 0.05 and _va_r["win"] == 1 and _va_r2["win"] == 0
+                  and _va_r["consistent"] is True and _va_r2["consistent"] is False and _va_r["ctl_slot"] == 0.25
+                  and abs(_va_r["ctl2"] - 0.015) < 1e-12 and _va_r["n_ctl"] == 4)
+        _va.J.control_points = lambda bars, op, cl, above_only=True, slot=None: []
+        _va_r3 = _va.reading_row({"e": 640, "px": 2.0, "reach7": 1}, [], 570, 960)
+        _va_v1 = _va_v1 and _va_r3["ctl_slot"] is None and _va_r3["ctl2"] is None
+        _va_bm = _va.boot_median([{"date": "d", "sym": f"S{i}", "ret2": float(i)} for i in range(50)])
+        _va_v2 = (_va._median([3, None, 1, 2]) == 2 and _va._median([1, 2, 3, 4]) == 2.5 and _va._median([None]) is None
+                  and _va_bm == _va.boot_median([{"date": "d", "sym": f"S{i}", "ret2": float(i)} for i in range(50)])
+                  and _va_bm[0] < 24.5 < _va_bm[1] and _va.boot_median([{"date": "d", "sym": "S", "ret2": 1.0}]) == (None, None))
+
+        class _VaNet:
+            calls = fails = 0
+
+            def minutes(self, sym, a, b):
+                return {a: [(600, 1, 1, 1, 1, 1)]}
+        _va_days = _va.sessions(_va_MC)
+
+        def _va_alerts(n_bad):
+            out = []
+            for i in range(40):
+                out.append({"date": _va_days[i % 60], "sym": f"Z{i}", "e": 640 if i % 2 else 800, "px": 2.0 + i, "tail": False,
+                            "reach7": (0 if i < n_bad else (1 if i % 2 else 0)), "arm": "A", "n": 1, "earn": False, "gap": 0.1,
+                            "vol_up": True, "cap": 1e6 * (i + 1), "slot": 2})
+            out.append({"date": _va_days[0], "sym": "TAIL", "e": 950, "px": 2.0, "tail": True, "reach7": 0, "cap": None})
+            return out
+        _va.J.control_points = lambda bars, op, cl, above_only=True, slot=None: [(620, 1.0), (760, 1.0)]
+        _va.log = lambda m="": _va_logs.append(str(m))
+        _va_rc = []
+        for _nb in (0, 6):
+            _va_d = _va_tmp.mkdtemp()
+            _va_os.makedirs(_va_os.path.join(_va_d, "vwap-cont-shard-0"))
+            with open(_va_os.path.join(_va_d, "vwap-cont-shard-0", "s.json"), "w", encoding="utf-8") as _f:
+                _va_json.dump({"alerts": _va_alerts(_nb)}, _f)
+            _va_rc.append(_va.mode_reading(_VaNet(), _va_MC, _va_d))
+        _va_txt = "\n".join(_va_logs)
+        _va_ksha = _va.ADDENDUM_SHA
+        _va.ADDENDUM_SHA = "0" * 64
+        _va_rc9 = _va.main(["--mode", "reading"])
+        _va.ADDENDUM_SHA = _va_ksha
+    finally:
+        _va.V.harvest, _va.J.reach, _va.J.control_points, _va.log = _va_keep
+    _va_wf = _va_yaml.safe_load(open(".github/workflows/vwap_cont.yml", encoding="utf-8"))
+    _va_job = (_va_wf.get("jobs") or {}).get("reading") or {}
+    _va_dl = [s for s in _va_job.get("steps") or () if "download-artifact" in str(s.get("uses"))]
+    _va_v3 = (_va_rc == [0, 4] and "صفوفُ الشظايا 41 · بلا آخر ربع ساعة 40" in _va_txt and "`A8` ✅" in _va_txt and "`A1`" in _va_txt
+              and any(ln.startswith("| ⑤") and "| **" in ln and "مفسَّرةٌ بقرار المالك" in ln and "يُضاف" not in ln for ln in _va_logs)
+              and _va_rc9 == 9 and (_va.CONSIST_MIN, _va.READ_BOOT_N, _va.READ_SEED, _va.SOURCE_RUN) == (0.95, 2000, "VCA1", 42134086032))
+    _va_v4 = (_va_job.get("if") == "${{ inputs.reading == '1' }}" and _va_job.get("permissions") == {"contents": "read", "actions": "read"}
+              and len(_va_dl) == 1 and str(_va_dl[0]["with"].get("run-id")) == "42134086032" and _va_dl[0]["with"].get("pattern") == "vwap-cont-shard-*"
+              and "--mode reading --in vwap_cont_shards" in str(_va_job)
+              and "inputs.reading != '1'" in str(_va_wf["jobs"]["shard"].get("if")) and "inputs.reading != '1'" in str(_va_wf["jobs"]["report"].get("if")))
+    _va_v = (_va_v1, _va_v2, _va_v3, _va_v4)
+except Exception as _e:                                              # noqa: BLE001
+    _va_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🟠🔬①🔒 VCA1 الملحق 1: ② خروجٌ أو إغلاق · الضابطان متوسّطٌ ووسيط على حدود الفترة · `win` = ① · «لا قياس» دون الاتّساق · ⑤ لا تُقترح · 9 للبصمة · "
+      "وشظايا 42134086032 بوظيفةٍ مشروطة", _va_v == (True,) * 4, str(_va_v)[:240])
+
+# 🚪📏🔒 RRG1 (‏2026-11-06 · `T-RRGATE` · العقد `fm_forensics/rrgate/RRGATE_prereg.md` #752): الفئاتُ المتنافية بالترتيب · الآليّةُ بالترتيب (رُقّي ⟵ تقادم
+#    أكثرَ من 10 أيّام ⟵ قِيس فخرج) · أحداثُ الإصدارات والباقون وقياسٌ واحدٌ لكلّ مدخلٍ متطابق · «ركض» بـ`rebuild.exploded` والناقصةُ وحدَها · التقسيمُ
+#    في النافذة · الحكمُ بعدم تداخل Wilson وأرضيّة 20 · الذراعان A/B · والمرشِّحُ المسبق حدٌّ أعلى لهبوط `analyze_ticker` (سوبرست) · وسطرُ القاعدة من الكود.
+try:
+    import importlib.util as _rg_iu
+    import random as _rg_rand
+    _rg_spec = _rg_iu.spec_from_file_location("rrgate_lock", "fm_forensics/rrgate/rrgate.py")
+    _rg = _rg_iu.module_from_spec(_rg_spec)
+    _rg_spec.loader.exec_module(_rg)
+    _RR = _rg.RR_LABEL
+    _rg_v1 = ([_rg.category(x) for x in ([], [_RR], ["RSI قاعُه (فوق الحدّ)", _RR], ["M1 السعر (دون الحدّ)"], [_RR, "M1 السعر (دون الحدّ)"], ["RSI الآن (فوق الحدّ)"])]
+              == ["داخلَ الظرف", "العائد/المخاطرة وحدَه", "RSI", "غيرهما", "غيرهما", "RSI"]
+              and _rg.mechanism({"last_seen": "2026-10-01"}, "2026-10-31", True) == "رُقّي"
+              and _rg.mechanism({"last_seen": "2026-10-20"}, "2026-10-31", False) == "تقادم"
+              and _rg.mechanism({"last_seen": "2026-10-21"}, "2026-10-31", False) == "قِيس فخرج"
+              and _rg.compare_verdict(19, 100, 10, 100) == "لا قياس" and _rg.compare_verdict(60, 100, 2000, 10000) == "أكثرُ تمثيلًا"
+              and _rg.compare_verdict(20, 100, 5000, 10000) == "أقلّ" and _rg.compare_verdict(21, 100, 2000, 10000) == "لا فرق"
+              and [_rg.arm_of(f, o) for f, o in ((False, []), (True, []), (True, [_RR]), (True, [_RR, "x"]), (True, ["x"]))] == [None, "A", "B", None, None])
+    _rg_U = {"sessions": ["2026-10-01", "2026-10-02"],
+             "days": {"2026-10-01": {"N_commit": "h1", "L": {}}, "2026-10-02": {"N_commit": "h2", "L": {"PRO": {}}}}}
+    _rg_docs = {"h0": {"KEEP": {"last_seen": "2026-09-29", "outside": [], "x": 1}, "OUT": {"last_seen": "2026-09-29"}, "PRO": {"last_seen": "2026-09-29"},
+                       "OLD": {"last_seen": "2026-09-10"}},
+                "h1": {"KEEP": {"last_seen": "2026-09-30", "outside": [_RR], "x": 1}, "PRO": {"last_seen": "2026-09-30"}},
+                "h2": {"KEEP": {"last_seen": "2026-09-30", "outside": [_RR], "x": 1}}}
+    _rg_ev, _rg_st = _rg.build_events(_rg_U, lambda h: _rg_docs.get(h), {"N_commit": "h0", "L": {}})
+    _rg_m = {(e["sym"], e["day"]): e["mech"] for e in _rg_ev}
+    _rg_v2 = (_rg_m == {("OUT", "2026-10-01"): "قِيس فخرج", ("OLD", "2026-10-01"): "تقادم", ("PRO", "2026-10-02"): "رُقّي"}
+              and [(s["sym"], s["day"], s["measured"]) for s in _rg_st] == [("KEEP", "2026-10-01", True), ("PRO", "2026-10-01", True), ("KEEP", "2026-10-02", True)]
+              and [(s["sym"], s["day"]) for s in _rg.agreement_set(_rg_st)] == [("KEEP", "2026-10-01"), ("PRO", "2026-10-01")])
+    _rg_rows = [(f"2026-09-{d:02d}", 1.0, 1.0, 1.0, 1.0, 1.0) for d in range(1, 21)]
+    _rg_hit = [r if r[0] != "2026-09-12" else (r[0], 1, 1.6, 1, 1, 1) for r in _rg_rows]
+    _rg_v3 = (_rg.run_after(_rg_rows, "2026-09-05") == (False, True) and _rg.run_after(_rg_hit, "2026-09-05") == (True, True)
+              and _rg.run_after(_rg_hit, "2026-09-12") == (True, False) and _rg.run_after(_rg_rows, "2026-09-12") == (None, False)
+              and _rg.run_after(_rg_hit, "2026-09-13") == (None, False)
+              and _rg.split_in_window(_rg_rows, [("2026-09-14", 0.1)], "2026-09-05") is True
+              and _rg.split_in_window(_rg_rows, [("2026-09-04", 0.1)], "2026-09-05") is False
+              and _rg.split_in_window(_rg_rows, [("2026-09-15", 0.1)], "2026-09-05") is False
+              and _rg.split_in_window(_rg_rows, [("2026-09-05", 0.1)], "2026-09-05") is True)
+    _rg_ok = True
+    _rg_r = _rg_rand.Random(7)
+    for _t in range(300):
+        _rg_n = _rg_r.randrange(60, 400)
+        _rg_px = [_rg_r.uniform(0.5, 5.0) for _ in range(_rg_n)]
+        _rg_sr = [(str(k), p, p * _rg_r.uniform(1.0, 1.6), p * 0.9, p, 1.0) for k, p in enumerate(_rg_px)]
+        _i = _rg_r.randrange(30, _rg_n + 1)
+        _hi52 = max(x[2] for x in _rg_sr[max(0, _i - 252):_i])
+        _true = (1.0 - _rg_sr[_i - 1][4] / _hi52) * 100.0
+        _rg_ok = _rg_ok and _rg.cheap_drop(_rg_sr, _i) >= _true - 1e-9
+    _rg_v4 = (_rg_ok and _rg.HIGH_WIN >= 252 and _rg.cheap_drop([], 0) is None
+              and _rg.rule_line("قِيس فخرج") and "for _s in (_nw_meas - set(_nw_new)):" in open("Super_stock.py", encoding="utf-8").read().splitlines()[_rg.rule_line("قِيس فخرج") - 1]
+              and "for _r in results:" in open("Super_stock.py", encoding="utf-8").read().splitlines()[_rg.rule_line("رُقّي") - 1]
+              and (_rg.STALE_DAYS, _rg.RUN_PCT, _rg.RUN_WIN, _rg.EXP_PCT, _rg.EXP_WIN, _rg.AGREE_MIN, _rg.FLOOR_CAT, _rg.B_FLOOR, _rg.COVER_MIN,
+                   _rg.SAMPLE_N, _rg.SAMPLE_SEED, _rg.PIT_SEED, _rg.PIT_SESS)
+              == (10, 50.0, 10, 50.0, 20, 0.80, 20, 30, 0.85, 1000, "RRG4", 20261106, ("2023-01-03", "2025-12-31")))
+    _rg_v = (_rg_v1, _rg_v2, _rg_v3, _rg_v4)
+except Exception as _e:                                              # noqa: BLE001
+    _rg_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🚪📏🔒 RRG1 `T-RRGATE`: الفئاتُ والآليّةُ بالترتيب · الإصداراتُ والباقون · «ركض» والناقصة · التقسيمُ في النافذة · Wilson والأرضيّة · A/B · "
+      "والمرشِّحُ المسبق سوبرست · وسطرُ القاعدة من الكود", _rg_v == (True,) * 4, str(_rg_v)[:240])
+
+# 🚪📏🔒 RRG2: ④ الحجمُ الدولاريّ والفجوة من 04:00-09:29 وحدَها · S بمحاكاة المرساة بالاسم (`first_anchor` ⟵ `kasih_j1` ⟵ `shadow_flag`) و«لم يكتمل» لـM5 بعد 09:30 ·
+#    ③ الحكمُ بأدوات `split_gates` بالاسم (B = الرفض) وأرضيّةُ B ‏30/سنة ⟵ «لا قياس» · والأداةُ تخرج 9 عند تغيّر البصمة · ولا تلغرام · والـworkflow يدويٌّ قارئٌ بعشرين شظيّة.
+try:
+    import ast as _rg2_ast
+    import types as _rg2_types
+    import yaml as _rg2_yaml
+    import vwap_mom_feas as _rg2_V3
+    _rg2_bars = [(230, 1, 1, 1, 9.0, 100.0), (240, 1, 1, 1, 2.0, 100.0), (569, 1, 1, 1, 3.0, 10.0), (570, 1, 1, 1, 50.0, 1e6)]
+    _rg2_ps = _rg.premarket_stats(_rg2_bars, 2.0)
+    _rg2_KS = _rg2_types.SimpleNamespace(ENTRY5_MIN=5, f2_usd5=lambda rows, a: 1e6, first_anchor=None)
+
+    def _rg2_sim(anchor_min, gap, j1=True):
+        _rg2_KS.first_anchor = (lambda rows: None) if anchor_min is None else (
+            lambda rows: {"anchor_ms": int(_rg2_V3.ny_ts("2026-11-04", anchor_min) * 1000), "price": 1.0 + gap})
+        _rg2_KS.f2_usd5 = (lambda rows, a: 1e6) if j1 else (lambda rows, a: 1.0)
+        return _rg.simulate_s(S, _rg2_KS, _rg2_V3.ny_ts, "2026-11-04", [(500, 1, 1, 1, 1, 1)], 1.0)
+    _rg2_a, _rg2_b, _rg2_c, _rg2_d, _rg2_e = _rg2_sim(540, 0.40), _rg2_sim(567, 0.40), _rg2_sim(540, 0.20), _rg2_sim(None, 0.4), _rg2_sim(540, 0.40, j1=False)
+    _rg2_v1 = (_rg2_ps == (2.0 * 100.0 + 3.0 * 10.0, 0.5, 2)
+               and _rg2_a["S"] is True and _rg2_a["j1"] is True and _rg2_b["S"] is True and _rg2_b["j1"] is None
+               and _rg2_c["S"] is False and _rg2_c["j1"] is False and _rg2_d is None and _rg2_e["S"] is True and _rg2_e["j1"] is False
+               and abs(_rg2_a["gap_pct"] - 40.0) < 1e-9)
+    _rg2_ents = ([("A", f"A{i}", f"{y}-03-01", i % 5 == 0, 0.01 * i) for y in (2023, 2024, 2025) for i in range(60)]
+                 + [("B", f"B{i}", f"{y}-03-01", i % 5 == 0, 0.01 * i) for y in (2023, 2024, 2025) for i in range(40)])
+    _rg2_st = _rg.pit_stats(_rg2_ents)
+    _rg2_st2 = _rg.pit_stats([e for e in _rg2_ents if not (e[0] == "B" and e[2][:4] == "2024" and int(e[1][1:]) >= 20)])
+    _rg2_src = open("fm_forensics/rrgate/rrgate.py", encoding="utf-8").read()
+    _rg2_t = _rg2_ast.parse(_rg2_src)
+    _rg2_attr = {(getattr(c.func.value, "id", None), c.func.attr) for c in _rg2_ast.walk(_rg2_t)
+                 if isinstance(c, _rg2_ast.Call) and isinstance(c.func, _rg2_ast.Attribute)}
+    _rg2_v2 = (_rg2_st["arms"]["A"]["n"] == 180 and _rg2_st["arms"]["B"]["n"] == 120 and _rg2_st["floors"] is True
+               and _rg2_st["verdict"] == "لا فرق قابل للكشف" and abs(_rg2_st["raw"]) < 1e-12
+               and _rg2_st2["floors"] is False and _rg2_st2["verdict"] == "لا قياس"
+               and {("G", "delta_raw"), ("G", "delta_strat"), ("G", "cluster_boot"), ("G", "verdict"), ("G", "mom_cuts"), ("G", "mom_bin"),
+                    ("R", "exploded"), ("R", "new_entries"), ("R", "asof_scale"), ("R", "row_guards"), ("S", "near_watch_measure"),
+                    ("S", "near_watch_founded"), ("KS", "first_anchor"), ("S", "kasih_j1"), ("SR", "shadow_flag")} <= _rg2_attr
+               and "send_telegram" not in _rg2_src and "TELEGRAM" not in _rg2_src)
+    _rg2_keep = (_rg.CONTRACT_SHA, _rg.log)
+    _rg.CONTRACT_SHA, _rg.log = "0" * 64, (lambda m="": None)
+    try:
+        _rg2_rc9 = [_rg.main(["--mode", m]) for m in ("local", "nw", "pit_assemble")]
+    finally:
+        _rg.CONTRACT_SHA, _rg.log = _rg2_keep
+    _rg2_wf = _rg2_yaml.safe_load(open(".github/workflows/rrgate.yml", encoding="utf-8"))
+    _rg2_wt = open(".github/workflows/rrgate.yml", encoding="utf-8").read()
+    _rg2_v3 = (_rg2_rc9 == [9, 9, 9] and _rg.contract_ok()
+               and list(_rg2_wf.get(True) or _rg2_wf.get("on")) == ["workflow_dispatch"] and _rg2_wf.get("permissions") == {"contents": "read"}
+               and _rg2_wf["jobs"]["pit_shard"]["strategy"]["matrix"]["shard"] == list(range(_rg.NSHARDS)) and _rg.NSHARDS == 20
+               and _rg2_wf["jobs"]["pit_shard"]["needs"] == "pit_prep" and _rg2_wf["jobs"]["pit_assemble"]["needs"] == "pit_shard"
+               and "TELEGRAM" not in _rg2_wt and "schedule" not in _rg2_wt and "--mode pit_assemble --in fm_forensics/rrgate/out" in _rg2_wt)
+    _rg2_v = (_rg2_v1, _rg2_v2, _rg2_v3)
+except Exception as _e:                                              # noqa: BLE001
+    _rg2_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🚪📏🔒 RRG2 `T-RRGATE`: ④ البريماركتُ 04:00-09:29 وS بمحاكاة المرساة بالاسم و«لم يكتمل» · ③ بأدوات split_gates وأرضيّة B ⟵ «لا قياس» · 9 للبصمة · "
+      "ولا تلغرام · وworkflow يدويٌّ بعشرين شظيّة", _rg2_v == (True,) * 3, str(_rg2_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

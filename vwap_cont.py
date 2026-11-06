@@ -4,6 +4,7 @@
 `--mode shard`: جلساتُ شظيّةٍ من الستّين ⟵ محاكاةُ الحلقة الحيّة بالاسم (`Day` · `prefilter` · `_replay_got`) ⟵ لكلّ تنبيه: النتيجةُ (`harvest.max_gain`
 ‏+10%) والسماتُ السبع والضابطُ المطابِق ⟵ ملفُّ JSON. `--mode report`: الشظايا ‏+ الـ61 الحيّة (وصفًا) ⟵ جدولُ الشرائح · Wilson · أرضيّةُ 20 ·
 «يفرّق» (عدمُ التداخل ‏+ النصفان) · شرطُ الاقتراح (الضابط) · والتنبّؤات C0-C9.
+`--mode reading` (الملحق 1 · `vwap_cont_addendum_1.md`): الشظايا المحفوظة ⟵ الجدولُ نفسُه بمقياس العقد (① ‏+7% قبل الخروج · ② النتيجةُ الصافية) ‏+ A1-A8.
 🔒 لا تلغرام · لا كتابة في المستودع · لا تغيير إنتاجيّ · وتخرج 9 إن تغيّرت بصمةُ العقد.
 """
 import argparse
@@ -354,15 +355,176 @@ def mode_report(net, MC, in_dir):
     return 0
 
 
+# ── الملحق 1: القراءةُ بمقياس العقد على الشظايا المحفوظة (`vwap_cont_addendum_1.md`) ─────────────────────────────────
+ADDENDUM = "vwap_cont_addendum_1.md"
+ADDENDUM_SHA = "5cd7451fb8c8a541ad518880e84c7e713298f97e454757d6d29798543a1397db"
+SOURCE_RUN = 42134086032            # §① التشغيلةُ التي حُفظت شظاياها
+CONSIST_MIN = 0.95                  # §① فحصُ الاتّساق: ① المعادُ = `reach7` المخزَّن
+READ_BOOT_N = 2000                  # §④ ② بوتستراب عنقوديّ على الرمز-اليوم
+READ_SEED = "VCA1"
+
+
+def addendum_ok(path=ADDENDUM):
+    try:
+        with open(path, "rb") as f:
+            return hashlib.sha256(f.read()).hexdigest() == ADDENDUM_SHA
+    except OSError:
+        return False
+
+
+def net_ret(bars, op, cl, t, px):
+    """§② ② النتيجةُ الصافية بوقف نايف: `harvest.ret_exit` إن أُغلقت شمعةُ 5د تحت الفيواب بعد t · وإلّا `ret_close`."""
+    h = V.harvest(bars, op, cl, t, px)
+    return h["ret_exit"] if h["exit_px"] is not None else h["ret_close"]
+
+
+def _median(xs):
+    xs = sorted(x for x in xs if x is not None)
+    if not xs:
+        return None
+    m = len(xs) // 2
+    return xs[m] if len(xs) % 2 else (xs[m - 1] + xs[m]) / 2.0
+
+
+def reading_row(r, bars, op, cl):
+    """صفُّ الشظيّة ⟵ نفسُه ‏+ المقياسان والضابطان (§②-§③) · و`win`/`ctl_slot` يُستبدلان بـ① وضابطه فتُعاد آلةُ العقد بالاسم."""
+    e, px, slot = r["e"], r["px"], J.slot_of(r["e"])
+    pts = J.control_points(bars, op, cl, slot=slot)
+    c1 = (sum(J.reach(bars, op, cl, t, p) for t, p in pts) / len(pts)) if pts else None
+    c2 = _median([net_ret(bars, op, cl, t, p) for t, p in pts]) if pts else None
+    m1 = J.reach(bars, op, cl, e, px)
+    return dict(r, win=m1, reach_new=m1, consistent=(m1 == r.get("reach7")), ret2=net_ret(bars, op, cl, e, px),
+                ctl_slot=c1, ctl2=c2, n_ctl=len(pts))
+
+
+def boot_median(rows, n=READ_BOOT_N, seed=READ_SEED):
+    """فاصلُ 95% لوسيط ② بإعادة سحب عناقيد الرمز-اليوم ⟵ (أدنى، أعلى) أو (None، None)."""
+    import random
+    by = {}
+    for r in rows:
+        if r.get("ret2") is not None:
+            by.setdefault((r["date"], r["sym"]), []).append(r["ret2"])
+    keys = sorted(by)
+    if len(keys) < 2:
+        return (None, None)
+    rnd = random.Random(seed)
+    vals = []
+    for _ in range(n):
+        smp = []
+        for _k in keys:
+            smp.extend(by[keys[rnd.randrange(len(keys))]])
+        vals.append(_median(smp))
+    vals.sort()
+    return (vals[int(0.025 * n)], vals[int(0.975 * n) - 1])
+
+
+def reading_lines(pop, cuts, half_split):
+    """§④ الجدولُ السباعيّ بمقياس العقد ⟵ (أسطر، أحكام، كلّيّ)."""
+    h1 = [r for r in pop if r["date"] <= half_split]
+    h2 = [r for r in pop if r["date"] > half_split]
+    p = lambda x: "—" if x is None else f"{x * 100:.1f}%"                      # noqa: E731
+    s2 = lambda x: "—" if x is None else f"{x * 100:+.2f}%"                    # noqa: E731
+    tot = share(pop)
+    b0 = boot_median(pop)
+    L = ["# 🟠🔬① `T-VWAP-CONT` الملحق 1 — الجدولُ السباعيّ بمقياس العقد (① بلغ ‏+7% قبل إغلاق 5د تحت الفيواب · ② النتيجةُ الصافية)", "",
+         f"المجتمعُ {tot['n']} · **①** {tot['k']} = {p(tot['p'])} [{p(tot['w'][0])}، {p(tot['w'][1])}] · ضابطُ ① {p(_ctl(pop))} · "
+         f"**② الوسيط** {s2(_median([r['ret2'] for r in pop]))} [{s2(b0[0])}، {s2(b0[1])}] · ضابطُ ② {s2(_median([r['ctl2'] for r in pop]))} · "
+         f"بلا حدٍّ ضابطٍ مؤهَّل {sum(1 for r in pop if r['ctl_slot'] is None)}", "",
+         "| السمة | الشريحة | n | ① | الحصة [Wilson 95%] | النصف 1 | النصف 2 | ضابطُ ① | الزيادة | ② الوسيط [95%] | ضابطُ ② |",
+         "|---|---|---|---|---|---|---|---|---|---|---|"]
+    verdicts = {}
+    for code, title, _fn, labs in ATTRS:
+        lab = labeler(code, cuts)
+        for x in labs:
+            rs = [r for r in pop if lab(r) == x]
+            s, a, b = share(rs), share([r for r in h1 if lab(r) == x]), share([r for r in h2 if lab(r) == x])
+            c = _ctl(rs)
+            bm = boot_median(rs)
+            exc = "—" if c is None or s["p"] is None else f"{(s['p'] - c) * 100:+.1f}"
+            fl = "" if s["n"] >= FLOOR else " (دون 20)"
+            L.append(f"| {code} {title} | {x} | {s['n']}{fl} | {s['k']} | {p(s['p'])} [{p(s['w'][0])}، {p(s['w'][1])}] | {p(a['p'])} ({a['n']}) | "
+                     f"{p(b['p'])} ({b['n']}) | {p(c)} | {exc} | {s2(_median([r['ret2'] for r in rs]))} [{s2(bm[0])}، {s2(bm[1])}] | "
+                     f"{s2(_median([r['ctl2'] for r in rs]))} |")
+        verdicts[code] = separates(pop, lab, labs, (h1, h2))
+    L += ["", "| السمة | الحكم على ① | الأعلى | الأدنى | شرطُ الاقتراح |", "|---|---|---|---|---|"]
+    for code, title, _fn, _labs in ATTRS:
+        v, hi, lo, prop = verdicts[code]
+        tag = ("مفسَّرةٌ بقرار المالك (2026-11-06) — تُطبع ولا تُقترح" if code == "⑤"
+               else ("✅ يُضاف إلى مقترَح الملحق 7 (لا يُبنى قبل حكم J30)" if prop else ("تفرّق لكنّ الضابطَ يفسّرها" if v == "يفرّق" else "—")))
+        L.append(f"| {code} {title} | **{v}** | {hi or '—'} | {lo or '—'} | {tag} |")
+    return L, verdicts, tot
+
+
+def reading_predictions(pop, verdicts, consist):
+    v = lambda c: verdicts[c][0]                                                     # noqa: E731
+    tot = share(pop)
+    m2, c2 = _median([r["ret2"] for r in pop]), _median([r["ctl2"] for r in pop])
+    c1 = _ctl(pop)
+    props = [c for c in verdicts if c != "⑤" and verdicts[c][3]]
+    return [
+        ("A1", v("③") == "لا يفرّق", f"③ {v('③')}"),
+        ("A2", v("②") == "يفرّق" and not verdicts["②"][3], f"② {v('②')} · اقتراح {verdicts['②'][3]}"),
+        ("A3", v("⑦") == "يفرّق" and not verdicts["⑦"][3], f"⑦ {v('⑦')} · اقتراح {verdicts['⑦'][3]}"),
+        ("A4", m2 is not None and -0.03 <= m2 <= -0.005, f"وسيطُ ② {m2}"),
+        ("A5", c1 is not None and tot["p"] is not None and c1 > tot["p"], f"ضابطُ ① {c1} مقابل {tot['p']}"),
+        ("A6", m2 is not None and c2 is not None and m2 < c2, f"② {m2} مقابل ضابطه {c2}"),
+        ("A7", not props, "لا اقتراح" if not props else "اقتراحٌ في " + " · ".join(props)),
+        ("A8", consist is not None and consist >= CONSIST_MIN, f"الاتّساق {consist}"),
+    ]
+
+
+def mode_reading(net, MC, in_dir):
+    """§⑥ الشظايا المحفوظة ⟵ الدقائقُ من جديد ⟵ المقياسان والضابطان ⟵ الجدولُ والأحكامُ وA1-A8 · و«لا قياس» دون بوّابتي التغطية والاتّساق."""
+    days = sessions(MC)
+    allr = []
+    for path in sorted(glob.glob(os.path.join(in_dir, "**", "*.json"), recursive=True)):
+        with open(path, encoding="utf-8") as f:
+            allr.extend(json.load(f).get("alerts") or [])
+    src = [r for r in allr if not r["tail"]]
+    keys = sorted({(r["date"], r["sym"]) for r in src})
+    bars_of, miss = {}, 0
+    for day, sym in keys:
+        by = net.minutes(sym, day, day)
+        if by is None or not by.get(day):
+            miss += 1
+            continue
+        bars_of[(day, sym)] = by[day]
+    pop = []
+    for r in src:
+        bars = bars_of.get((r["date"], r["sym"]))
+        if bars is None:
+            continue
+        info = MC.session_info(r["date"])
+        pop.append(reading_row(r, bars, info["open_ny_min"], info["close_ny_min"]))
+    consist = (sum(r["consistent"] for r in pop) / len(pop)) if pop else None
+    cov = f"صفوفُ الشظايا {len(allr)} · بلا آخر ربع ساعة {len(src)} · رموزٌ-أيّام {len(keys)} · دقائقُ تعذّرت {miss} · الاتّساق {consist}"
+    log(f"📦 {cov} · نداءات {net.calls} · تعذّر {net.fails}")
+    if not src or (miss / len(keys) if keys else 1.0) > BARS_FAIL_MAX or consist is None or consist < CONSIST_MIN:
+        log("⛔ **لا قياس** — بوّابةُ التغطية (2% أو أقلّ) أو الاتّساق (95% فأكثر) لم تعبر · والقراءةُ قبل انتهاء الـartifacts (≈2026-12-06)")
+        return 4
+    cuts = {"cap": tertile_cuts([r["cap"] for r in src if r.get("cap") is not None]), "px": tertile_cuts([r["px"] for r in src])}   # §① كما في الشظايا
+    L, verdicts, tot = reading_lines(pop, cuts, days[29])
+    for ln in L:
+        log(ln)
+    log("")
+    for c, ok, why in reading_predictions(pop, verdicts, consist):
+        log(f"- `{c}` {'✅' if ok else '❌'} ({why})")
+    log("CONT_A1_JSON " + json.dumps({"cov": cov, "n": tot, "consist": consist, "cuts": cuts,
+                                      "verdicts": {k: list(v) for k, v in verdicts.items()},
+                                      "m2": _median([r["ret2"] for r in pop]), "c2": _median([r["ctl2"] for r in pop]), "c1": _ctl(pop)},
+                                     ensure_ascii=False, default=str))
+    return 0
+
+
 def main(argv=None):
     p = argparse.ArgumentParser()
-    p.add_argument("--mode", required=True, choices=("shard", "report"))
+    p.add_argument("--mode", required=True, choices=("shard", "report", "reading"))
     p.add_argument("--shard", type=int, default=0)
     p.add_argument("--out", default="")
     p.add_argument("--in", dest="in_dir", default="vwap_cont_shards")
     a = p.parse_args(argv)
-    if not contract_ok():
-        log(f"⛔ بصمةُ العقد `{CONTRACT}` تغيّرت أو غاب — العقدُ المدموجُ لا يُعدَّل (خروج {CONTRACT_RC})")
+    if not contract_ok() or (a.mode == "reading" and not addendum_ok()):
+        log(f"⛔ بصمةُ العقد `{CONTRACT}` أو الملحق `{ADDENDUM}` تغيّرت أو غاب — المدموجُ لا يُعدَّل (خروج {CONTRACT_RC})")
         return CONTRACT_RC
     key = (os.environ.get("POLYGON_API_KEY") or "").strip()
     if not key:
@@ -380,6 +542,8 @@ def main(argv=None):
             json.dump(out, f, ensure_ascii=False)
         log(f"🗂️ الشظيّة {a.shard}: جلسات {len(out['days'])} · تنبيهات {len(out['alerts'])} · نداءات {out['calls']} · تعذّر {out['fails']}")
         return 0
+    if a.mode == "reading":
+        return mode_reading(net, MC, a.in_dir)
     return mode_report(net, MC, a.in_dir)
 
 

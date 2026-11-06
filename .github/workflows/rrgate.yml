@@ -1,0 +1,113 @@
+name: "🚪📏 بوّابةُ العائد/المخاطرة وطردُ OMH (T-RRGATE · قراءةٌ فقط)"
+
+# 🚪📏 العقد `fm_forensics/rrgate/RRGATE_prereg.md` (#752 · أمرُ المالك 2026-11-06): ① الركضُ بعد الخروج والسببُ الأدقّ (`nw`) ·
+#    ④ البريماركت وقاعدةُ الظلّ (`pre`) · ③ ثلاثُ سنوات PIT بعشرين شظيّة (`pit`) · و② محلّيٌّ من تاريخ git (`--mode local`).
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام و`contents: read` · لا يكتب في المستودع · ولا تغييرَ على البوّابة قبل الحكم.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "nw = ① · pre = ④ · pit = ③"
+        required: true
+        default: "nw"
+
+concurrency:
+  group: super-stocks-rrgate-${{ inputs.mode }}
+  cancel-in-progress: false
+
+jobs:
+  single:
+    if: ${{ inputs.mode == 'nw' || inputs.mode == 'pre' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🚪📏 ${{ inputs.mode }}
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rrgate/rrgate.py --mode ${{ inputs.mode }}
+
+  pit_prep:
+    if: ${{ inputs.mode == 'pit' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🧊 الكونُ والتقسيمات
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rrgate/rrgate.py --mode pit_prep
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rrgate-pit-prep
+          path: fm_forensics/rrgate/out/pit_prep.json.gz
+          retention-days: 30
+
+  pit_shard:
+    needs: pit_prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: rrgate-pit-prep
+          path: fm_forensics/rrgate/out
+      - name: 🔬 الشظيّة ${{ matrix.shard }}
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/rrgate/rrgate.py --mode pit_shard --shard ${{ matrix.shard }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rrgate-pit-shard-${{ matrix.shard }}
+          path: fm_forensics/rrgate/out/pit_shard_*.json.gz
+          retention-days: 30
+
+  pit_assemble:
+    needs: pit_shard
+    if: ${{ !cancelled() && inputs.mode == 'pit' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: rrgate-pit-*
+          path: fm_forensics/rrgate/out
+      - name: 📊 الحكم
+        run: python fm_forensics/rrgate/rrgate.py --mode pit_assemble --in fm_forensics/rrgate/out
