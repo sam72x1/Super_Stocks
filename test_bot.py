@@ -97175,6 +97175,224 @@ except Exception as _e:                                              # noqa: BLE
 check("🔎🔒 OEU3 سطرُ «الشجرةُ غيرُ نظيفة» يسمّي أوّلَ ثلاثة ملفّاتٍ متّسخة ويعدّ الباقي · ولا تحديثَ ولا `reset`",
       _ou_v3 == (True,), str(_ou_v3)[:240])
 
+# 🟠⚖️🔒 VJ1 (‏2026-11-05 · `T-VWAP-J30` · العقد `vwap_live_judgment_prereg.md`): النتيجةُ «+7% قبل إغلاق 5د تحت الفيواب» بتعريف `harvest`
+#    (قمّةٌ داخل شمعة الخروج تُحسب · وبعدها لا · والعتبةُ «فأكثر») · والضابطُ حدودُ [الافتتاح+15، الإغلاق−15) المُغلَقةُ فوق الفيواب (والحرفيُّ بلا شرط ·
+#    والفترةُ) · والمجتمعُ: المُرسَلُ الحيُّ بـA5/T من 11-06 بلا آخر ربع ساعة ويقف عند تغيّر التعريف · والحكمُ بحدود الفاصل · والبوتستراب عنقوديٌّ حتميّ.
+try:
+    import vwap_judge as _vj
+    import vwap_momentum_live as _V3live
+    _vj_op, _vj_cl = 570, 960
+
+    def _vj_bar(m, spike=None, close_after=None):
+        c = (2.0 + 0.001 * (m - 570)) if m < 700 else (1.5 if m < 800 else 3.0)
+        if close_after is not None and m >= 700:
+            c = close_after
+        h = spike if spike is not None else c
+        return (m, c, h, min(c, h), c, 1000.0)
+    # إغلاقاتٌ صاعدةٌ فوق الفيواب حتى 11:40 · وقمّةٌ 2.5 بالضبط عند 10:50 · ثمّ هبوطٌ تحت الفيواب (الخروجُ 11:45) · وبعد الخروج قمّةُ 3.0
+    _vj_b = [_vj_bar(m, spike=2.5 if m == 650 else None) for m in range(_vj_op, _vj_cl)]
+    _vj_ex = next(b for b in _V3live.complete_buckets(_vj_b, _vj_op, _vj_cl, _vj_cl)[0] if b["s"] >= 600 and b["c"] < b["vwap"])
+    _vj_v1 = (_vj_ex["e"] == 705 and _vj.reach(_vj_b, _vj_op, _vj_cl, 600, 2.0, 0.25) == 1
+              and _vj.reach(_vj_b, _vj_op, _vj_cl, 600, 2.0, 0.2501) == 0 and _vj.reach(_vj_b, _vj_op, _vj_cl, 600, 2.0, 0.40) == 0
+              and _vj.reach(_vj_b, _vj_op, _vj_cl, 655, 2.0, 0.25) == 0)
+    # شمعةُ الخروج نفسُها: قمّةُ 2.6 في دقيقتها الأولى ثمّ إغلاقٌ تحت الفيواب ⟵ تُحسب
+    _vj_b2 = [_vj_bar(m, spike=2.6 if m == 700 else None) for m in range(_vj_op, _vj_cl)]
+    _vj_v2 = _vj.reach(_vj_b2, _vj_op, _vj_cl, 650, 2.0, 0.25) == 1
+    _vj_pts = _vj.control_points(_vj_b, _vj_op, _vj_cl)
+    _vj_any = _vj.control_points(_vj_b, _vj_op, _vj_cl, above_only=False)
+    _vj_v3 = (len(_vj_any) == 72 and all(_vj_op + 15 <= t < _vj_cl - 15 for t, _ in _vj_any) and 0 < len(_vj_pts) < len(_vj_any)
+              and [t for t, _ in _vj.control_points(_vj_b, _vj_op, _vj_cl, above_only=False, slot=1)] == list(range(585, 631, 5))
+              and [_vj.slot_of(x) for x in (630, 631, 720, 721, 840, 841)] == [1, 2, 2, 3, 3, 4])
+    _vj_pc = _vj.control_prob(_vj_b, _vj_op, _vj_cl, lambda t, p: int(t < 620))
+    _vj_v4 = _vj_pc is not None and abs(_vj_pc - sum(1 for t, _ in _vj_pts if t < 620) / len(_vj_pts)) < 1e-12
+    _vj_si = lambda d: {"open_ny_min": 570, "close_ny_min": 960}                       # noqa: E731
+    _vj_rows = [dict(kind="alert", sent=True, mode="live", date="2026-11-06", sym="AAA", arm="A", n=1, event_end_mod=600, def_="A5"),
+                dict(kind="alert", sent=True, mode="live", date="2026-11-06", sym="BBB", arm="A", n=1, event_end_mod=945, def_="A5"),
+                dict(kind="alert", sent=False, mode="live", date="2026-11-06", sym="CCC", arm="A", n=1, event_end_mod=620, def_="A5"),
+                dict(kind="alert", sent=True, mode="live", date="2026-11-05", sym="DDD", arm="A", n=1, event_end_mod=620, def_="A5"),
+                dict(kind="alert", sent=True, mode="replay", date="2026-11-06", sym="EEE", arm="A", n=1, event_end_mod=620, def_="A5"),
+                dict(kind="alert", sent=True, mode="live", date="2026-11-09", sym="FFF", arm="A", n=1, event_end_mod=620, def_="A5"),
+                dict(kind="alert", sent=True, mode="live", date="2026-11-10", sym="GGG", arm="A", n=1, event_end_mod=620, def_="A7"),
+                dict(kind="alert", sent=True, mode="live", date="2026-11-11", sym="HHH", arm="A", n=1, event_end_mod=620, def_="A5")]
+    for _r in _vj_rows:
+        _r["def"] = _r.pop("def_")
+        _r["ldef"] = "T"
+    _vj_keep, _vj_tail, _vj_chg = _vj.population(_vj_rows, _vj_si)
+    _vj_v5 = ([r["sym"] for r in _vj_keep] == ["AAA", "FFF"] and [r["sym"] for r in _vj_tail] == ["BBB"] and (_vj_chg or {}).get("sym") == "GGG")
+    _vj_cl1 = {("a", "1"): [(1, 0.0)] * 5, ("b", "1"): [(0, 0.5)]}
+    _vj_d1 = _vj.boot_diff(_vj_cl1, n=4000)
+    _vj_d2 = _vj.boot_diff(_vj_cl1, n=4000)
+    _vj_rowlvl = _vj.boot_diff({(i,): [x] for i, x in enumerate(_vj_cl1[("a", "1")] + _vj_cl1[("b", "1")])}, n=4000)
+    _vj_w = _vj.wilson(3, 30)
+    _vj_v6 = (_vj_d1 == _vj_d2 and abs(_vj_d1[0] - (5 / 6 - 0.5 / 6)) < 1e-9 and _vj_d1[1] < _vj_rowlvl[1]
+              and _vj.verdict(0.01, 0.2) == "يتفوّق على العشوائيّ" and _vj.verdict(-0.2, -0.01) == "أسوأ من العشوائيّ"
+              and _vj.verdict(0.0, 0.2) == "لا يتفوّق" and _vj.verdict(-0.1, 0.0) == "لا يتفوّق"
+              and abs(_vj_w[0] - 0.03459) < 1e-4 and abs(_vj_w[1] - 0.25622) < 1e-4
+              and (_vj.FROM_DAY, _vj.N_TARGET, _vj.TARGET, _vj.TAIL_MIN, _vj.BOOT_N, _vj.SEED) == ("2026-11-06", 30, 0.07, 15, 10000, "VWJ30"))
+    _vj_v = (_vj_v1, _vj_v2, _vj_v3, _vj_v4, _vj_v5, _vj_v6)
+except Exception as _e:                                              # noqa: BLE001
+    _vj_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🟠⚖️🔒 VJ1 `T-VWAP-J30`: «+7% قبل إغلاق 5د تحت الفيواب» بتعريف الحصاد (شمعةُ الخروج تُحسب · وبعدها لا) · الضابطُ فوق الفيواب في "
+      "[الافتتاح+15، الإغلاق−15) · المجتمعُ من 11-06 بلا آخر ربع ساعة ويقف عند تغيّر التعريف · والبوتستراب عنقوديٌّ حتميّ", _vj_v == (True,) * 6,
+      str(_vj_v)[:240])
+
+# 🟠⚖️🔒 VJ2: الأداةُ تخرج 9 إن تغيّرت بصمةُ العقد · و2 بلا مفتاح · وتطبع «N من 30 — لا حكم بعد» بلا شبكة حين يقلّ المجتمع · ولا تلغرام ولا كتابة ·
+#    والـworkflow يدويٌّ قارئ.
+try:
+    import ast as _vj2_ast
+    import os as _vj2_os
+    import yaml as _vj2_yaml
+    _vj2_logs = []
+    _vj2_keep = (_vj.log, _vj.CONTRACT_SHA, _V3live.read_ledger, _V3live.Net, _vj2_os.environ.get("POLYGON_API_KEY"))
+    try:
+        _vj.log = lambda m="": _vj2_logs.append(str(m))
+        _vj.CONTRACT_SHA = "0" * 64
+        _vj2_rc9 = _vj.main([])
+        _vj.CONTRACT_SHA = _vj2_keep[1]
+        _vj2_ok_sha = _vj.contract_ok()
+        _vj2_os.environ.pop("POLYGON_API_KEY", None)
+        _vj2_rc2 = _vj.main([])
+        _vj2_os.environ["POLYGON_API_KEY"] = "x"
+        _V3live.read_ledger = lambda path=None: _vj_rows
+        _V3live.Net = lambda *a, **k: (_ for _ in ()).throw(RuntimeError("لا شبكة"))
+        _vj2_rc0 = _vj.main([])
+    finally:
+        _vj.log, _vj.CONTRACT_SHA, _V3live.read_ledger, _V3live.Net = _vj2_keep[:4]
+        if _vj2_keep[4] is None:
+            _vj2_os.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _vj2_os.environ["POLYGON_API_KEY"] = _vj2_keep[4]
+    _vj2_src = open("vwap_judge.py", encoding="utf-8").read()
+    _vj2_t = _vj2_ast.parse(_vj2_src)
+    _vj2_calls = {getattr(c.func, "attr", None) or getattr(c.func, "id", None) for c in _vj2_ast.walk(_vj2_t) if isinstance(c, _vj2_ast.Call)}
+    _vj2_wf = _vj2_yaml.safe_load(open(".github/workflows/vwap_judge.yml", encoding="utf-8"))
+    _vj2_wt = open(".github/workflows/vwap_judge.yml", encoding="utf-8").read()
+    _vj2_v = (_vj2_rc9 == 9 and _vj2_ok_sha and _vj2_rc2 == 2 and _vj2_rc0 == 0,
+              any("2 من 30 — لا حكم بعد" in m for m in _vj2_logs) and any("تغيّرُ التعريف عند 2026-11-10" in m for m in _vj2_logs),
+              "complete_buckets" in _vj2_calls and "send_telegram" not in _vj2_src and "append_ledger" not in _vj2_calls
+              and not any(getattr(c.func, "id", None) == "open" and len(c.args) > 1 and isinstance(c.args[1], _vj2_ast.Constant)
+                          and set(str(c.args[1].value)) & set("wax+") for c in _vj2_ast.walk(_vj2_t) if isinstance(c, _vj2_ast.Call))
+              and any(getattr(c.func, "id", None) == "open" for c in _vj2_ast.walk(_vj2_t) if isinstance(c, _vj2_ast.Call)),
+              list(_vj2_wf.get(True) or _vj2_wf.get("on")) == ["workflow_dispatch"] and _vj2_wf.get("permissions") == {"contents": "read"}
+              and "TELEGRAM" not in _vj2_wt and "python vwap_judge.py" in _vj2_wt)
+except Exception as _e:                                              # noqa: BLE001
+    _vj2_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🟠⚖️🔒 VJ2 أداةُ الحكم: 9 عند تغيّر بصمة العقد · 2 بلا مفتاح · «N من 30 — لا حكم بعد» بلا شبكة · ولا تلغرام ولا كتابة · والـworkflow يدويٌّ قارئ",
+      _vj2_v == (True,) * 4, str(_vj2_v)[:240])
+
+# 🟠🔬🔒 VC1 (‏2026-11-05 · `T-VWAP-CONT` · العقد `vwap_cont_prereg.md`): السماتُ بتعريفها (② بنود 2.02 · ③ الفجوة 0.20 · ④ v1 أقلّ من v2 أقلّ من v3 ·
+#    ⑤ ⑥ الأثلاث · ⑦ الفترات) · و«يفرّق» = الأرضيّةُ 20 ∧ عدمُ تداخل Wilson ∧ الاتّجاهُ في النصفين · وشرطُ الاقتراح بالضابط · والشظايا تغطّي الستّين.
+try:
+    import vwap_cont as _vc
+    _vc_b = [(m, 2.0, 2.0, 2.0, 2.0, 100.0 * (1 + (m >= 600) + (m >= 605))) for m in range(570, 960)]
+    _vc_v1 = (_vc.earn8k({"sec_item": {"items": "2.02, 9.01"}}) and not _vc.earn8k({"sec_item": {"items": "8.01"}}) and not _vc.earn8k({}) and not _vc.earn8k({"sec_item": {"items": "2.03, 9.01"}})
+              and _vc.earn8k_text("إيداع 8-K (بنود 2.02) — SEC — 11-05 06:53 نيويورك") and not _vc.earn8k_text("إيداع 8-K (بنود 8.01) — SEC")
+              and not _vc.earn8k_text("Q3 2.02 Results — GlobeNewswire"),
+              _vc.gap_of(_vc_b, 570, 1.6) == 0.25 and _vc.gap_of(_vc_b, 570, None) is None
+              and _vc.vol_rising(_vc_b, 610) and not _vc.vol_rising(_vc_b, 615) and not _vc.vol_rising(_vc_b, 700),
+              _vc.tertile_cuts(list(range(1, 10))) == (3, 6) and [_vc.tier(x, (3, 6)) for x in (3, 4, 6, 7)] == [1, 2, 2, 3]
+              and _vc.tertile_cuts([1, 2]) is None,
+              _vc.shard_days(list(range(60)), 0) + _vc.shard_days(list(range(60)), 1) + _vc.shard_days(list(range(60)), 2) == list(range(60))
+              and (_vc.END_DAY, _vc.N_DAYS, _vc.WIN, _vc.FLOOR, _vc.GAP_MIN, _vc.DAYS_OK_MIN, _vc.BARS_FAIL_MAX)
+              == ("2026-11-05", 60, 0.10, 20, 0.20, 54, 0.02))
+
+    def _vc_rows(lab, n, k, day, ctl):
+        return [{"lab": lab, "win": int(i < k), "date": day, "ctl_slot": ctl} for i in range(n)]
+    _vc_lab = lambda r: r["lab"]                                                         # noqa: E731
+    _vc_pop = (_vc_rows("x", 40, 30, "2026-09-01", 0.2) + _vc_rows("y", 40, 5, "2026-09-01", 0.1)
+               + _vc_rows("x", 20, 15, "2026-10-20", 0.2) + _vc_rows("y", 20, 2, "2026-10-20", 0.1))
+    _vc_h = ([r for r in _vc_pop if r["date"] <= "2026-09-24"], [r for r in _vc_pop if r["date"] > "2026-09-24"])
+    _vc_s1 = _vc.separates(_vc_pop, _vc_lab, ("x", "y"), _vc_h)
+    _vc_pop2 = [dict(r, ctl_slot=(0.9 if r["lab"] == "x" else 0.0)) for r in _vc_pop]
+    _vc_s2 = _vc.separates(_vc_pop2, _vc_lab, ("x", "y"), _vc_h)
+    _vc_pop3 = [r for r in _vc_pop if not (r["lab"] == "y" and r["date"] > "2026-09-24")] + _vc_rows("y", 20, 18, "2026-10-20", 0.1)
+    _vc_h3 = ([r for r in _vc_pop3 if r["date"] <= "2026-09-24"], [r for r in _vc_pop3 if r["date"] > "2026-09-24"])
+    _vc_s3 = _vc.separates(_vc_pop3, _vc_lab, ("x", "y"), _vc_h3)
+    _vc_s4 = _vc.separates(_vc_rows("x", 19, 19, "2026-09-01", 0.1) + _vc_rows("y", 40, 0, "2026-09-01", 0.1), _vc_lab, ("x", "y"), _vc_h)
+    _vc_s5 = _vc.separates(_vc_rows("x", 40, 12, "2026-09-01", 0.1) + _vc_rows("y", 40, 8, "2026-09-01", 0.1), _vc_lab, ("x", "y"), _vc_h)
+    _vc_v2 = (_vc_s1 == ("يفرّق", "x", "y", True) and _vc_s2 == ("يفرّق", "x", "y", False) and _vc_s3[0] == "لا يفرّق"
+              and _vc_s4[0] == "لا قياس" and _vc_s5[0] == "لا يفرّق")
+    _vc_fp = _vc.first_per_symday([{"date": "d", "sym": "S", "e": 700, "arm": "D", "n": 1}, {"date": "d", "sym": "S", "e": 600, "arm": "A", "n": 1}])
+    _vc_v3 = len(_vc_fp) == 1 and _vc_fp[0]["arm"] == "A"
+    _vc_v = _vc_v1 + (_vc_v2, _vc_v3)
+except Exception as _e:                                              # noqa: BLE001
+    _vc_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🟠🔬🔒 VC1 `T-VWAP-CONT`: السماتُ بتعريف العقد · «يفرّق» = الأرضيّةُ 20 ∧ عدمُ تداخل Wilson ∧ الاتّجاهُ في النصفين · وشرطُ الاقتراح بالضابط · "
+      "والشظايا تغطّي الستّين", _vc_v == (True,) * 6, str(_vc_v)[:240])
+
+# 🟠🔬🔒 VC2: الشظيّةُ تحاكي الحلقةَ بالاسم (`Day` · `prefilter` · `_replay_got` · `harvest` · `J.reach`) وتملأ الصفّ · والتقريرُ يقول «لا قياس» دون بوّابة
+#    التغطية · و9 عند تغيّر البصمة · ولا تلغرام ولا كتابة في المستودع · والـworkflow يدويٌّ بثلاث شظايا وتقريرٍ قارئ.
+try:
+    import ast as _vc2_ast
+    import json as _vc2_json
+    import os as _vc2_os
+    import tempfile as _vc2_tmp
+    import yaml as _vc2_yaml
+    import market_calendar as _vc2_MC
+
+    class _VC2Day:
+        def __init__(self, net, day, MC, replay=False):
+            self.ok, self.why, self.op, self.cl, self.types = True, [], 570, 960, {}
+
+        def prev_adj_pf(self, s):
+            return 1.0
+
+        def prev_adj(self, s):
+            return 1.6
+
+    class _VC2Net:
+        calls = fails = 0
+
+        def poly(self, path, params=None):
+            if "grouped" in path:
+                return {"results": [{"T": "ZZZ", "h": 3, "l": 1, "v": 1}]}
+            return {"results": {"weighted_shares_outstanding": 1000000}}
+
+        def minutes(self, sym, a, b):
+            return {a: _vc_b}
+    _vc2_keep = (_V3live.Day, _V3live.prefilter, _V3live._replay_got, _vc.log)
+    _vc2_logs = []
+    try:
+        _V3live.Day = _VC2Day
+        _V3live.prefilter = lambda hl, pf, ty: list(hl)
+        _V3live._replay_got = lambda D, day, sym, bars, bounds: {
+            ("A", 1): {"arm": "A", "n": 1, "event_end_mod": 610, "px": 2.0, "candle": "5x3", "news_detail": {"sec_item": {"items": "2.02"}}, "news": "x"},
+            ("D", 1): {"arm": "D", "n": 1, "event_end_mod": 950, "px": 2.0, "candle": "5x3", "news_detail": {}, "news": "x"}}
+        _vc.log = lambda m="": _vc2_logs.append(str(m))
+        _vc2_out = _vc.mode_shard(_VC2Net(), _vc2_MC, 2)
+        _vc2_d = _vc2_tmp.mkdtemp()
+        with open(_vc2_os.path.join(_vc2_d, "s.json"), "w", encoding="utf-8") as _f:
+            _vc2_json.dump({"per_day": {d: {"ok": True, "candidates": 10, "bars_failed": 0} for d in _vc2_out["days"]}, "alerts": []}, _f)
+        _vc2_rc4 = _vc.mode_report(_VC2Net(), _vc2_MC, _vc2_d)
+        _vc2_ksha = _vc.CONTRACT_SHA
+        _vc.CONTRACT_SHA = "0" * 64
+        _vc2_rc9 = _vc.main(["--mode", "report"])
+        _vc.CONTRACT_SHA = _vc2_ksha
+    finally:
+        _V3live.Day, _V3live.prefilter, _V3live._replay_got, _vc.log = _vc2_keep
+    _vc2_r = (_vc2_out["alerts"] or [{}])[0]
+    _vc2_src = open("vwap_cont.py", encoding="utf-8").read()
+    _vc2_t = _vc2_ast.parse(_vc2_src)
+    _vc2_attr = {(getattr(c.func.value, "id", None), c.func.attr) for c in _vc2_ast.walk(_vc2_t)
+                 if isinstance(c, _vc2_ast.Call) and isinstance(c.func, _vc2_ast.Attribute)}
+    _vc2_wf = _vc2_yaml.safe_load(open(".github/workflows/vwap_cont.yml", encoding="utf-8"))
+    _vc2_wt = open(".github/workflows/vwap_cont.yml", encoding="utf-8").read()
+    _vc2_d1 = (_vc2_out["alerts"] + [{}, {}])[1]
+    _vc2_v = (len(_vc2_out["days"]) == 20 and _vc2_out["days"][-1] == "2026-11-05" and len(_vc2_out["alerts"]) == 40
+              and _vc2_d1.get("arm") == "D" and _vc2_d1.get("tail") is True and _vc2_d1.get("earn") is False and _vc2_d1.get("slot") == 4
+              and _vc2_r.get("earn") is True and abs(_vc2_r.get("gap") - 0.25) < 1e-12 and _vc2_r.get("vol_up") is True
+              and _vc2_r.get("cap") == 2000000.0 and _vc2_r.get("slot") == 1 and _vc2_r.get("tail") is False and _vc2_r.get("win") == 0,
+              _vc2_rc4 == 4 and any("لا قياس" in m for m in _vc2_logs) and _vc2_rc9 == 9,
+              {("V", "Day"), ("V", "prefilter"), ("V", "_replay_got"), ("V", "harvest"), ("J", "reach"), ("J", "control_prob")} <= _vc2_attr
+              and "send_telegram" not in _vc2_src and "import Super_stock" not in _vc2_src,
+              list(_vc2_wf.get(True) or _vc2_wf.get("on")) == ["workflow_dispatch"] and _vc2_wf.get("permissions") == {"contents": "read"}
+              and _vc2_wf["jobs"]["shard"]["strategy"]["matrix"]["shard"] == [0, 1, 2] and _vc2_wf["jobs"]["report"]["needs"] == "shard"
+              and "TELEGRAM" not in _vc2_wt and "--mode report --in vwap_cont_shards" in _vc2_wt)
+except Exception as _e:                                              # noqa: BLE001
+    _vc2_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🟠🔬🔒 VC2 الشظيّةُ تحاكي الحلقةَ بالاسم وتملأ السمات · والتقريرُ «لا قياس» دون التغطية · و9 عند تغيّر البصمة · ولا تلغرام · "
+      "والـworkflow يدويٌّ بثلاث شظايا وتقريرٍ قارئ", _vc2_v == (True,) * 4, str(_vc2_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

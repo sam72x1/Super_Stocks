@@ -1,0 +1,66 @@
+name: "🟠🔬 مَن يواصل بعد تنبيه الفيواب — إعادةُ 60 جلسة (T-VWAP-CONT · قراءةٌ فقط)"
+
+# 🟠🔬 العقد `vwap_cont_prereg.md` (أمرُ المالك 2026-11-05): ثلاثُ شظايا متوازية (20 جلسةً لكلٍّ من 2026-08-13…11-05) تحاكي الحلقةَ الحيّة بالاسم ⟵
+#    artifact لكلّ شظيّة ⟵ تقريرٌ واحد (الشرائح · Wilson · أرضيّةُ 20 · «يفرّق» · شرطُ الاقتراح · الـ61 وصفًا · C0-C9).
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام و`contents: read` · لا يكتب في المستودع (`VC2`).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-vwap-cont
+  cancel-in-progress: false
+
+jobs:
+  shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🔬 الشظيّة ${{ matrix.shard }}
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: python vwap_cont.py --mode shard --shard ${{ matrix.shard }} --out vwap_cont_shards/shard_${{ matrix.shard }}.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vwap-cont-shard-${{ matrix.shard }}
+          path: vwap_cont_shards/shard_${{ matrix.shard }}.json
+          retention-days: 30
+
+  report:
+    needs: shard
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: vwap-cont-shard-*
+          path: vwap_cont_shards
+      - name: 📊 التقرير
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: python vwap_cont.py --mode report --in vwap_cont_shards
