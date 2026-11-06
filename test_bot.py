@@ -98632,6 +98632,110 @@ check("🚪📋 LSG1-LSG3 T-LISTGATE: البوّابةُ الأولى من سج�
       "كلفةٌ بحدَّين مقابل 2× · قراءةٌ فقط وبصمةُ العقد",
       _lsg_v == (True, True, True), str(_lsg_v)[:240])
 
+# 🔧 PBJ7 (‏2026-11-06 · عطلٌ مُثبَت `42283666700`): عاملُ كرون 19:54 لم يخرج والأقدمُ (`42242058216`) حيّ فشغّل الاثنان فتحةَ 20:43 معًا (التزامُ
+#    القائمة نفسُه بفارق ثانية) ⟵ مالكُ الفتحة: الأقدمُ الذي لم تبلغ الفتحةُ أفقَه (البدء + 324) وإلّا الأحدث · وغيرُ المالك يتخطّاها ·
+#    والتعذّرُ أو غيابي ⟵ تمضي الدورة · و`SLOT_OWNER_GUARD = False` ⟵ بت-بت.
+try:
+    import datetime as _pj_dt
+    import pullback_session as _PJ
+    _pj_U = _pj_dt.timezone.utc
+
+    def _pj_iso(t):
+        return t.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    def _pj_sim(start, my_id, others, fail_first=0, fail_all=False, budget=None):
+        """others: [(id, start, from, until)] تظهر `in_progress` في [from, until) · fail_first: أوّلُ N نداءٍ لقائمة المراقب يتعذّر."""
+        st = {"t": start, "n": 0}
+        _keep = (_PJ._sleep, _PJ.log, _os_hc.environ.get("PB_BUDGET_MIN"), _os_hc.environ.get("GITHUB_RUN_ID"))
+        ran, posts, logs = [], [], []
+
+        class _R:
+            returncode = 0
+
+        def _sleep(x):
+            st["t"] += _pj_dt.timedelta(seconds=max(1.0, float(x)) + 0.004)
+
+        def _run(cmd, **k):
+            if cmd[-1] == "pullback_live.py":
+                ran.append(st["t"].strftime("%H:%M"))
+                st["t"] += _pj_dt.timedelta(seconds=95)
+            return _R()
+
+        def _api(m, p, b=None):
+            if m == "POST":
+                posts.append(st["t"].strftime("%H:%M"))
+                return {}
+            if "daily_screener" in p:
+                return {"workflow_runs": []}
+            st["n"] += 1
+            if fail_all or st["n"] <= fail_first:
+                return None
+            now = st["t"]
+            runs = [{"id": my_id, "status": "in_progress", "run_started_at": _pj_iso(start)}]
+            for rid, rst, a, z in others:
+                if a <= now < z:
+                    runs.append({"id": rid, "status": "in_progress", "run_started_at": _pj_iso(rst)})
+            return {"workflow_runs": runs}
+        try:
+            _PJ._sleep, _PJ.log = _sleep, (lambda m: logs.append(str(m)))
+            _os_hc.environ["GITHUB_RUN_ID"] = str(my_id)
+            if budget:
+                _os_hc.environ["PB_BUDGET_MIN"] = str(budget)
+            else:
+                _os_hc.environ.pop("PB_BUDGET_MIN", None)
+            rc = _PJ.main(now_fn=lambda: st["t"], api=_api, runner=_run)
+        finally:
+            _PJ._sleep, _PJ.log = _keep[0], _keep[1]
+            for _kk, _vv in (("PB_BUDGET_MIN", _keep[2]), ("GITHUB_RUN_ID", _keep[3])):
+                if _vv is None:
+                    _os_hc.environ.pop(_kk, None)
+                else:
+                    _os_hc.environ[_kk] = _vv
+        return rc, ran, posts, logs
+    _pj_d = lambda h, m, s=0, d=6: _pj_dt.datetime(2026, 11, d, h, m, s, tzinfo=_pj_U)          # noqa: E731
+    # ① يومُ العطل: أنا (2) بدأتُ 19:54 وفحصُ البدء تعذّر · والأقدمُ (1) بدأ 15:20:03 وحيٌّ حتى 20:44:47
+    _pj_old = [(1, _pj_d(15, 20, 3), _pj_d(15, 20, 3), _pj_d(20, 44, 47))]
+    _pj_a = _pj_sim(_pj_d(19, 54, 32), 2, _pj_old, fail_first=1)
+    _pj_keep = _PJ.SLOT_OWNER_GUARD
+    try:
+        _PJ.SLOT_OWNER_GUARD = False
+        _pj_a0 = _pj_sim(_pj_d(19, 54, 32), 2, _pj_old, fail_first=1)
+    finally:
+        _PJ.SLOT_OWNER_GUARD = _pj_keep
+    _pj_v1 = (_PJ.SLOT_OWNER_GUARD is True and _pj_a[1][:1] == ["20:58"] and not ({"19:58", "20:13", "20:28", "20:43"} & set(_pj_a[1]))
+              and len(_pj_a[1]) == 17 and _pj_a[1][-1] == "00:58" and any("مملوكةٌ لغيري 4" in x for x in _pj_a[3])
+              and sum("يملكها عاملٌ آخرُ حيّ (1)" in x for x in _pj_a[3]) == 4
+              and _pj_a0[1][:4] == ["19:58", "20:13", "20:28", "20:43"] and not any("مملوكةٌ لغيري" in x for x in _pj_a0[3]))
+    # ② جهةُ الأقدم: أنا (1) بدأتُ 08:01 · وأحدثُ (2) بدأ 13:20 ⟵ فتحةُ 13:28 بعد أفقي (13:25) له وحدَه ولا خلَف · وبلا أحدث ⟵ 13:28 لي وخلَفٌ 13:25
+    _pj_b = _pj_sim(_pj_d(8, 1), 1, [(2, _pj_d(13, 20), _pj_d(13, 20), _pj_d(23, 59))])
+    _pj_b1 = _pj_sim(_pj_d(8, 1), 1, [])
+    _pj_v2 = (_pj_b[1][-1] == "13:13" and len(_pj_b[1]) == 21 and _pj_b[2] == [] and any("يملكها عاملٌ آخرُ حيّ (2)" in x for x in _pj_b[3])
+              and _pj_b1[1][-1] == "13:28" and len(_pj_b1[1]) == 22 and _pj_b1[2] == ["13:25"])
+    # ③ النقيّة: ترتيبٌ بالبدء لا بالمعرّف · التعادلُ للأصغر · التالفُ يُتخطّى · غيابي ⟵ لا تخطّي · وبلا حيٍّ ⟵ None
+    _pj_R = [{"id": 9, "status": "in_progress", "run_started_at": "2026-11-06T08:00:00Z"},
+             {"id": 4, "status": "in_progress", "run_started_at": "2026-11-06T09:00:00Z"},
+             {"id": "x", "status": "in_progress", "run_started_at": "2026-11-06T07:00:00Z"},
+             {"id": 1, "status": "queued", "run_started_at": "2026-11-06T06:00:00Z"},
+             {"id": 2, "status": "in_progress", "run_started_at": "bad"}]
+    _pj_T = [{"id": 5, "status": "in_progress", "run_started_at": "2026-11-06T08:00:00Z"},
+             {"id": 3, "status": "in_progress", "run_started_at": "2026-11-06T08:00:00Z"}]
+    _pj_v3 = (_PJ.slot_owner(_pj_R, _pj_d(10, 0)) == 9 and _PJ.slot_owner(_pj_R, _pj_d(13, 23)) == 9
+              and _PJ.slot_owner(_pj_R, _pj_d(13, 24)) == 4 and _PJ.slot_owner(_pj_R, _pj_d(13, 25)) == 4 and _PJ.slot_owner(_pj_R, _pj_d(18, 0)) == 4
+              and _PJ.slot_owner(_pj_T, _pj_d(10, 0)) == 3 and _PJ.slot_owner([], _pj_d(10, 0)) is None
+              and _PJ.skip_slot(_pj_R, 4, _pj_d(10, 0)) is True and _PJ.skip_slot(_pj_R, 9, _pj_d(10, 0)) is False
+              and _PJ.skip_slot(_pj_R, 4, _pj_d(13, 25)) is False and _PJ.skip_slot(_pj_R, 9, _pj_d(13, 25)) is True
+              and _PJ.skip_slot(_pj_R, 7, _pj_d(10, 0)) is False and _PJ.skip_slot(_pj_R, "z", _pj_d(10, 0)) is False
+              and _PJ.skip_slot(_pj_R, 1, _pj_d(10, 0)) is False)
+    # ④ تعذّرُ الـAPI كلِّه ⟵ تمضي الدورات كما كانت (لا تخطّي على جهل)
+    _pj_c = _pj_sim(_pj_d(8, 1), 1, [], fail_all=True, budget=60)
+    _pj_v4 = (_pj_c[1] == ["08:13", "08:28", "08:43", "08:58"] and not any("مملوكةٌ لغيري" in x for x in _pj_c[3]))
+    _pj_v = (_pj_v1, _pj_v2, _pj_v3, _pj_v4)
+except Exception as _e:                                              # noqa: BLE001
+    _pj_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🔧 PBJ7 جوبُ جلسة المراقب: مالكُ الفتحة وحدَه يُشغّلها (الأقدمُ قبل أفقه وإلّا الأحدث) · عاملُ 19:54 بلا فحص بدءٍ لا يُكرّر 19:58…20:43 · "
+      "والأقدمُ يترك ما بعد أفقه للأحدث بلا خلَف · والتعذّرُ يمضي · و`SLOT_OWNER_GUARD = False` بت-بت",
+      _pj_v == (True, True, True, True), str(_pj_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
