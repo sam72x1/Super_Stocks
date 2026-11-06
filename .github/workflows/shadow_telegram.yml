@@ -1,0 +1,48 @@
+name: "🌘 قائمة الظل على تلغرام قبل الافتتاح (T-SHADOW · قيد الإثبات)"
+
+# 🌘 أمرُ المالك 2026-11-06 «أرسل قائمة الظل على تلغرام» (سببُه `T-RRGATE` ④): رسالةٌ واحدة يومَ الجلسة عند 09:25 نيويورك بأسماء S لليوم
+#    وسببِ كلِّ اسم · **بلا تغييرٍ في قاعدة S ولا في الإنتاج** (`shadow_telegram.py` يقرأ `op_entry_state.json` ويحسب S بدوالّ `shadow_ready` بالاسم).
+#    الكروناتُ **بدءٌ واحتياط** (GitHub يُسقط الكرون): كلُّ تشغيلةٍ تنام حتى 09:25 نيويورك ثمّ تُرسل مرّةً واحدة (ختمُ `shadow_tg_stamp.json`) ·
+#    وبعد 09:29 لا إرسال · والصيفُ والشتاءُ من ساعة نيويورك في السكربت · `SHT1`-`SHT3`.
+#    ↩️ **الرجوع (حذفُ الإرسال):** `SHADOW_TG_SEND: "0"` أدناه (تُبنى وتُطبع ولا تُرسَل) أو حذفُ كتلة `schedule`.
+permissions:
+  contents: write          # يدفع ختمَ الإرسال وحدَه
+
+on:
+  schedule:
+    - cron: "41 10 * * 1-5"
+    - cron: "11 12 * * 1-5"
+    - cron: "41 12 * * 1-5"
+    - cron: "11 13 * * 1-5"
+  workflow_dispatch:
+    inputs:
+      replay_day:
+        description: "🔁 إعادةُ بناء قائمة يومٍ ماضٍ YYYY-MM-DD — تُطبع ولا تُرسَل ولا تُختم (فارغ ⟵ السلوكُ المجدول)"
+        required: false
+        default: ""
+
+concurrency:
+  group: shadow-telegram
+  cancel-in-progress: false
+
+jobs:
+  send:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🌘 قائمة الظل
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SHADOW_TG_SEND: "1"
+          SHADOW_TG_REPLAY: ${{ inputs.replay_day }}
+          PYTHONUNBUFFERED: "1"
+        run: python shadow_telegram.py
