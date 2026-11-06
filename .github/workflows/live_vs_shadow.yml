@@ -1,0 +1,34 @@
+name: "🎯🌘 اللحظي الموجود مقابل الظل (T-LIVE-VS-SHADOW · قراءةٌ فقط)"
+
+# 🎯🌘 العقد `fm_forensics/live_vs_shadow/LVS_prereg.md` (أمرُ المالك 2026-11-06 · مدموجٌ قبل أيّ رقم): راكضو +100% المجمَّدون ⟵ ① الظلُّ 09:25 من
+#    لقطات git ⟵ ② «هنا الدخول» (المِرساةُ المجمَّدة) ⟵ ③ الفئات ⟵ ④ الكلفة على L ∪ N ⟵ ⑤ ذراع J1 ⟵ التنبّؤات.
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام و`contents: read` · لا يكتب في المستودع (`LVS3`).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-live-vs-shadow
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # لقطاتُ op_entry_state.json/tier_fwd_ledger.jsonl عند 09:25 (§②) والسجلُّ المجمَّد (§④)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🎯🌘 القياس
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/live_vs_shadow/live_vs_shadow.py --mode run
