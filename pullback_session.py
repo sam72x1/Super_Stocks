@@ -20,6 +20,10 @@
   **إلّا** إن كان الأقدمُ يبلغ دقائقَه الأخيرة خلال `EXIT_GRACE_MIN` (عيبٌ مقيسٌ قبل الشحن بالمحاكاة: الأقدمُ يسأل «هل غيري حيّ؟» قبل
   إطلاق خلَفه فيرى الخارجَ ما دام جوبُه لم ينتهِ فيمتنع ⟵ فجوةٌ حتى الكرون التالي) ⟵ حينها ينتظر احتياطًا ويخلفه كما كان ·
   ↩️ `STANDBY_ON_OLDER = True` ⟵ الانتظارُ الاحتياطيّ القديم بت-بت (`PBJ5`).
+- 🔧 **مالكُ الفتحة (عطلٌ مُثبَت 2026-11-06 · `42283666700`):** عاملُ كرون 19:54 لم يخرج والأقدمُ حيٌّ (فحصُ البدء لم يرَه) فشغّل الاثنان فتحةَ
+  20:43 معًا (التزامُ القائمة نفسُه بفارق ثانية `fc995c7`/`0ec180854` ⟵ تنبيهٌ مكرَّر مرجَّح) ⟵ قبل كلّ دورةٍ يُسأل: مَن يملك هذه الفتحة؟
+  (`slot_owner`: الأقدمُ الحيُّ الذي لم تبلغ الفتحةُ أفقَه `البدء + MAX_RUNTIME_MIN − CHAIN_MIN_LEFT` = أفقُ `alive_runs` · وإلّا الأحدث) ·
+  وغيرُ المالك يتخطّاها · وتعذّرُ الـAPI أو غيابي من القائمة ⟵ يُشغّلها (الفجوةُ أغلى) · ↩️ `SLOT_OWNER_GUARD = False` ⟵ بت-بت (`PBJ7`).
 - **الرجوع:** إعادةُ الكرونات القديمة في `pullback_monitor.yml` (وظيفةُ `monitor` القديمة باقيةٌ بحرفها) وحذفُ كرونات الجلسة.
 """
 import datetime as dt
@@ -41,6 +45,8 @@ CHAIN_HORIZON_MIN = 60    # 🔗 الخلَفُ لا يُطلَق إلّا إن 
                           #    خلَفٌ أُطلق 00:02 نيويورك لأن الأفقَ 6 ساعات رأى 08:13 ⟵ جوبٌ يخمل 3 ساعات · والكرونُ يبدأ النافذةَ وحدَه)
 STANDBY_ON_OLDER = False  # ⏰ أمرُ المالك 2026-11-06 «خروج فوري إن وجد جوبًا قائمًا» ⟵ ↩️ True = الانتظارُ الاحتياطيّ القديم بت-بت (`PBJ5`)
 EXIT_GRACE_MIN = 15       # الأقدمُ الذي يبلغ دقائقَه الأخيرة خلال هذي الدقائق لا يُخرَج عنه (يُخلَف) — هندسيّ: خروجُ الجوب ‏≈دقيقة
+SLOT_OWNER_GUARD = True   # 🔧 عطلٌ مُثبَت 2026-11-06 (`42283666700`): عاملان شغّلا فتحة 20:43 معًا ⟵ الفتحةُ لمالكها وحدَه (`slot_owner`) ·
+                          #    ↩️ False ⟵ بت-بت (`PBJ7`)
 _sleep = time.sleep                       # يُجذَّع في السويّة
 
 
@@ -130,6 +136,63 @@ def _alive_others(api=None, now=None):
     return OE.alive_runs(res.get("workflow_runs") or [], os.environ.get("GITHUB_RUN_ID"), now)
 
 
+def _live_runs(runs):
+    """تشغيلاتُ الجلسة الحيّة ببدءٍ سليم مرتّبةً (البدءُ ثمّ المعرّف) — والتالفُ يُتخطّى."""
+    out = []
+    for r in runs or []:
+        try:
+            if str(r.get("status") or "") != "in_progress":
+                continue
+            st = dt.datetime.strptime(str(r.get("run_started_at") or r.get("created_at") or "")[:19],
+                                      "%Y-%m-%dT%H:%M:%S").replace(tzinfo=dt.timezone.utc)
+            out.append((st, int(r.get("id"))))
+        except Exception:                                        # noqa: BLE001
+            continue
+    return sorted(out)
+
+
+def slot_owner(runs, slot):
+    """🔧 **نقيّة**: مَن يملك الفتحة `slot`؟ الأقدمُ الحيُّ (البدءُ ثمّ المعرّف) الذي لم تبلغ الفتحةُ أفقَه `البدء + MAX_RUNTIME_MIN − CHAIN_MIN_LEFT`
+    (أفقُ `alive_runs` نفسُه: بعده يُطلق خلَفَه ولا يُعوَّل عليه) · وإلّا الأحدثُ ⟵ معرّفُه · وبلا حيٍّ ⟵ None. ترتيبٌ كلّيّ ⟵ مالكٌ واحدٌ لكلّ فتحة."""
+    live = _live_runs(runs)
+    if not live:
+        return None
+    horizon = dt.timedelta(minutes=OE.MAX_RUNTIME_MIN - OE.CHAIN_MIN_LEFT)
+    for st, rid in live:
+        if slot < st + horizon:
+            return rid
+    return live[-1][1]
+
+
+def skip_slot(runs, my_id, slot) -> bool:
+    """🔧 **نقيّة**: True ⟵ الفتحةُ يملكها عاملٌ حيٌّ غيري · وغيابي من القائمة أو تالفُ معرّفي ⟵ False (لا انسحابَ على جهل · الفجوةُ أغلى)."""
+    try:
+        me = int(my_id)
+    except Exception:                                            # noqa: BLE001
+        return False
+    if me not in {rid for _, rid in _live_runs(runs)}:
+        return False
+    owner = slot_owner(runs, slot)
+    return owner is not None and owner != me
+
+
+def _skip_slot_now(api, slot):
+    """🔧 مالكُ الفتحة من GitHub API ⟵ True إن ملكها غيري · والتعذّرُ ⟵ False (تمضي الدورة)."""
+    api = api or OE._gh_api
+    try:
+        res = api("GET", f"/actions/workflows/{WORKFLOW}/runs?status=in_progress&per_page=50")
+    except Exception as e:                                       # noqa: BLE001
+        log(f"⚠️ فحصُ مالك الفتحة: {e} — تمضي الدورة")
+        return False
+    if res is None:
+        return False
+    runs = res.get("workflow_runs") or []
+    if skip_slot(runs, os.environ.get("GITHUB_RUN_ID"), slot):
+        log(f"🔗🚦 فتحةُ {slot.strftime('%H:%M')} UTC يملكها عاملٌ آخرُ حيّ ({slot_owner(runs, slot)}) — تُتخطّى (عاملٌ واحدٌ لكلّ فتحة)")
+        return True
+    return False
+
+
 def maybe_chain(now, api=None, already=False):
     """🔗 الخلَف بقرار `OE.chain_decision` بالاسم ⟵ True إن أُرسل الطلب. والنافذةُ المتبقّية شرطٌ إضافيّ (لا خلَفَ بلا فتحةٍ قادمة)."""
     api = api or OE._gh_api
@@ -202,7 +265,7 @@ def main(now_fn=None, api=None, runner=None):
             return 0
         _sleep(OE.STANDBY_POLL_S)
         older = _older_alive_now(api, now_fn())
-    cycles = fails = 0
+    cycles = fails = skipped = 0
     chained, last = False, None
     chain_at = end - dt.timedelta(minutes=OE.CHAIN_MIN_LEFT)
     while True:
@@ -230,6 +293,9 @@ def main(now_fn=None, api=None, runner=None):
         last = t
         if not in_window(t):
             continue
+        if SLOT_OWNER_GUARD and _skip_slot_now(api, t):
+            skipped += 1
+            continue
         busy = _state_busy_now(api)
         while busy and now_fn() < end:
             log("⏳ الفرزُ المجدول يعمل (مجموعةُ الحالة) — الدورةُ تنتظر كما كانت تنتظر في المجموعة")
@@ -241,7 +307,7 @@ def main(now_fn=None, api=None, runner=None):
         cycles += 1
         fails += int(rc != 0)
         log(f"🔁 دورة {cycles} عند فتحة {t.strftime('%H:%M')} UTC ⟵ rc={rc}")
-    log(f"🔁 انتهى: دورات {cycles} · غيرُ صفريّة {fails}")
+    log(f"🔁 انتهى: دورات {cycles} · غيرُ صفريّة {fails}" + (f" · مملوكةٌ لغيري {skipped}" if skipped else ""))
     return 1 if fails else 0
 
 
