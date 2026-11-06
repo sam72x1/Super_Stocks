@@ -22,6 +22,7 @@ from zoneinfo import ZoneInfo
 
 from shadow_ready import shadow_flag, anchor_row                  # بالاسم — صفُّ المرساة وقاعدةُ S كما في السجلّ الليليّ
 from tierlink_probe import daily_range                            # بالاسم — الإغلاقاتُ اليوميّة
+from shadow_ready import split_fn                                 # ✂️ بالاسم — تسويةُ الفجوة بالتقسيم (`SSG1`-`SSG3`)
 from tier_fwd_report import fetch_day, load_ledger                # بالاسم — شموعُ الدقيقة وسجلُّ التصنيف
 
 NY = ZoneInfo("America/New_York")
@@ -58,7 +59,7 @@ def premarket_anchors(state, day):
     return sorted(out, key=lambda kv: int(kv[1]["anchor_ms"]))
 
 
-def shadow_rows(anchors, dailies_of, day, bars_of, ledger=None):
+def shadow_rows(anchors, dailies_of, day, bars_of, ledger=None, split_of=None):
     """🔒 **نقيّة على المُدخلات**: صفُّ كلِّ مرساةٍ بـ`anchor_row` بالاسم (بصفّ سجلّ التصنيف إن وُجد) ثمّ `shadow_flag` — كما في
     `shadow_ready.main` حرفيًّا ⟵ (صفوفُ S، كلُّ المراسي المقيسة، المستبعَدُ {bars · base}) · الصفّ = {sym · ms · px · gap · j1 · why}."""
     rows, allr, skipped = [], [], {"bars": 0, "base": 0}
@@ -67,7 +68,8 @@ def shadow_rows(anchors, dailies_of, day, bars_of, ledger=None):
         if not bars:
             skipped["bars"] += 1
             continue
-        got = anchor_row(a, (ledger or {}).get((day, sym)), bars, dailies_of(sym), day)
+        got = anchor_row(a, (ledger or {}).get((day, sym)), bars, dailies_of(sym), day,
+                         split=(split_of(sym) if split_of else None))
         if got is None:
             skipped["base"] += 1
             continue
@@ -159,14 +161,14 @@ def _inputs(day, dailies_fn=None, bars_fn=None):
     dailies_fn = dailies_fn or (lambda s: daily_range(s, day, key) if key else None)
     bars_fn = bars_fn or (lambda s: fetch_day(s, day, key) if key else None)
     ledger = {(r["date"], r["symbol"]): r for r in load_ledger()}
-    return dailies_fn, bars_fn, ledger
+    return dailies_fn, bars_fn, ledger, (lambda s: split_fn(s, day, key))
 
 
 def replay_day(day, dailies_fn=None, bars_fn=None):
     """🔁 إعادةُ بناء قائمة يومٍ ماضٍ من الحالة الحاليّة — **تطبع ولا تُرسل ولا تختم** (لا نداءَ لتلغرام ولا كتابة) ⟵ 0."""
     state = _load(STATE) or {}
-    dailies_fn, bars_fn, ledger = _inputs(day, dailies_fn, bars_fn)
-    rows, allr, skipped = shadow_rows(premarket_anchors(state, day), dailies_fn, day, bars_fn, ledger)
+    dailies_fn, bars_fn, ledger, split_of = _inputs(day, dailies_fn, bars_fn)
+    rows, allr, skipped = shadow_rows(premarket_anchors(state, day), dailies_fn, day, bars_fn, ledger, split_of)
     log(build_message(day, "إعادة", rows, allr, last_state_ms(state, day), first=False, skipped=skipped))
     log(f"🔁 REPLAY {day} · S=" + ",".join(r["sym"] for r in rows) + f" · مراسٍ={len(allr)} · مستبعَد={skipped}")
     return 0
@@ -206,9 +208,9 @@ def main(now_fn=None, runner=subprocess.run, dailies_fn=None, send_fn=None, save
         log(f"📭 أُرسلت قائمةُ {day} سلفًا (بعد المزامنة) — لا تكرار")
         return 0
     state = _load(STATE) or {}
-    dailies_fn, bars_fn, ledger = _inputs(day, dailies_fn, bars_fn)
+    dailies_fn, bars_fn, ledger, split_of = _inputs(day, dailies_fn, bars_fn)
     anchors = premarket_anchors(state, day)
-    rows, allr, skipped = shadow_rows(anchors, dailies_fn, day, bars_fn, ledger)
+    rows, allr, skipped = shadow_rows(anchors, dailies_fn, day, bars_fn, ledger, split_of)
     built = now_fn().strftime("%H:%M")
     msg = build_message(day, built, rows, allr, last_state_ms(state, day), first=not stamp.get("first_sent"), skipped=skipped)
     log(msg)
