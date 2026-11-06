@@ -98131,6 +98131,90 @@ check("🌡️📅 MKD1-MKD3 T-MKTDAY: الوسيطُ والتعادلُ للف�
       "B وP بآلة الحيّ بالاسم (الخبرُ في لحظة الشمعة · البري قبل 09:25) · قراءةٌ فقط وخروجُ 9 بلا بصمة العقد",
       _mkd_v == (True, True, True), str(_mkd_v)[:240])
 
+# 🌘➡️ SCT1-SCT3 (‏2026-11-06 · `T-SHADOW-CONT` «هل يستمر بعد رسالة الظل؟» · العقد `fm_forensics/shadow_cont/T_SHADOW_CONT_prereg.md` قبل أيّ رقم):
+#    المجموعاتُ S · C20 (الحاكم) · C10 (وصف) والمرساةُ عند 09:25 أو بعدها تُستبعَد وتُعَدّ · الدخولُ إغلاقُ آخر دقيقةٍ قبل 09:25 · الأعلى والأدنى قبله ·
+#    الإغلاقُ النظاميّ · والوقفُ −10% (الافتتاحُ تحته بافتتاحه) · «يفرّق» = فاصلُ الجلسات المزدوج لا يضمّ الصفر **و**النصفان · الأرضيّاتُ ⟵ «لا قياس» ·
+#    وقراءةٌ فقط (لا تلغرام · لا كتابة · يدويٌّ قارئ) وتخرج 9 بلا بصمة العقد.
+try:
+    import importlib.util as _sct_iu
+    import ast as _sct_ast
+    import datetime as _sct_dt
+    _sct_sp = _sct_iu.spec_from_file_location("shadow_cont_lock", "fm_forensics/shadow_cont/shadow_cont.py")
+    SCT = _sct_iu.module_from_spec(_sct_sp)
+    _sct_sp.loader.exec_module(SCT)
+
+    def _sct_ms(day, hh, mm):
+        return int(_sct_dt.datetime(*map(int, day.split("-")), hh, mm, tzinfo=SCT.NY).timestamp() * 1000)
+    _sct_day = "2026-11-04"
+
+    def _sct_bar(hh, mm, o, h, low, c):
+        return (_sct_ms(_sct_day, hh, mm), o, h, low, c, 100.0)
+    # SCT1: القياسُ لصفٍّ واحد
+    _sct_b1 = [_sct_bar(8, 0, 1.0, 1.0, 1.0, 1.0), _sct_bar(9, 24, 1.0, 1.0, 1.0, 1.0),        # E = 1.0 (آخرُ دقيقةٍ قبل 09:25)
+               _sct_bar(9, 25, 1.0, 1.05, 0.95, 1.0), _sct_bar(10, 0, 1.0, 1.30, 0.97, 1.2),  # أعلى 16 = 1.30 · الأدنى قبله 0.95
+               _sct_bar(11, 0, 1.2, 1.2, 0.92, 1.1),                                           # أدنى بعد الأعلى لا يُحسب في ②
+               _sct_bar(15, 59, 1.1, 1.1, 1.1, 1.1), _sct_bar(16, 0, 1.1, 1.45, 1.1, 1.3),      # الإغلاقُ 1.1 · و16:00 خارج النظاميّة
+               _sct_bar(17, 0, 1.1, 1.60, 1.1, 1.5)]                                            # أعلى 20 = 1.60 والأدنى قبله 0.92
+    _sct_m1, _sct_w1 = SCT.measure(_sct_b1, _sct_day)
+    _sct_b2 = [_sct_bar(9, 24, 2.0, 2.0, 2.0, 2.0), _sct_bar(9, 30, 1.7, 1.75, 1.6, 1.7),           # يفتح 1.7 تحت الوقف 1.8 ⟵ يخرج بالافتتاح
+               _sct_bar(15, 59, 2.4, 2.4, 2.4, 2.4)]
+    _sct_m2, _ = SCT.measure(_sct_b2, _sct_day)
+    _sct_b3 = [_sct_bar(9, 24, 2.0, 2.0, 2.0, 2.0), _sct_bar(9, 30, 2.0, 2.0, 1.79, 1.9), _sct_bar(15, 59, 2.4, 2.4, 2.4, 2.4)]
+    _sct_m3, _ = SCT.measure(_sct_b3, _sct_day)
+    _sct_v1 = (_sct_w1 == "ok" and abs(_sct_m1["E"] - 1.0) < 1e-9 and abs(_sct_m1["rise16"] - 0.30) < 1e-9 and abs(_sct_m1["dd16"] + 0.05) < 1e-9
+               and abs(_sct_m1["rise20"] - 0.60) < 1e-9 and abs(_sct_m1["dd20"] + 0.08) < 1e-9 and abs(_sct_m1["ret_close"] - 0.10) < 1e-9 and abs(_sct_m1["net"] - 0.10) < 1e-9
+               and not _sct_m1["stopped"] and abs(_sct_m2["net"] + 0.15) < 1e-9 and _sct_m2["stopped"]
+               and abs(_sct_m3["net"] + 0.10) < 1e-9 and _sct_m3["stopped"]
+               and SCT.measure([_sct_bar(9, 25, 1, 1, 1, 1), _sct_bar(15, 59, 1, 1, 1, 1)], _sct_day) == (None, "no_entry")
+               and SCT.measure(None, _sct_day) == (None, "bars")
+               and SCT.measure([_sct_bar(9, 0, 1, 1, 1, 1)], _sct_day) == (None, "no_regular"))
+    # SCT2: المجموعاتُ والاستبعاد · والحكم
+    _sct_rows = [{"sample": "fwd", "tod": "pre", "date": _sct_day, "symbol": "A", "shadow": True, "gap_pct": 40.0, "anchor_ms": _sct_ms(_sct_day, 8, 0)},
+                 {"sample": "fwd", "tod": "pre", "date": _sct_day, "symbol": "B", "shadow": True, "gap_pct": 40.0, "anchor_ms": _sct_ms(_sct_day, 9, 25)},
+                 {"sample": "fwd", "tod": "pre", "date": _sct_day, "symbol": "C", "shadow": False, "gap_pct": 25.0, "anchor_ms": _sct_ms(_sct_day, 7, 0)},
+                 {"sample": "fwd", "tod": "pre", "date": _sct_day, "symbol": "D", "shadow": False, "gap_pct": 12.0, "anchor_ms": _sct_ms(_sct_day, 7, 0)},
+                 {"sample": "fwd", "tod": "pre", "date": _sct_day, "symbol": "E", "shadow": False, "gap_pct": 5.0, "anchor_ms": _sct_ms(_sct_day, 7, 0)},
+                 {"sample": "fwd", "tod": "reg", "date": _sct_day, "symbol": "F", "shadow": False, "gap_pct": 50.0, "anchor_ms": _sct_ms(_sct_day, 7, 0)},
+                 {"sample": "in", "tod": "pre", "date": _sct_day, "symbol": "G", "shadow": True, "gap_pct": 50.0, "anchor_ms": _sct_ms(_sct_day, 7, 0)},
+                 {"sample": "fwd", "tod": "pre", "date": "2026-11-07", "symbol": "H", "shadow": True, "gap_pct": 50.0, "anchor_ms": _sct_ms("2026-11-07", 7, 0)}]
+    _sct_g, _sct_cut = SCT.groups(_sct_rows, [_sct_day])
+    _sct_v2 = ({k: [r["symbol"] for r in v] for k, v in _sct_g.items()} == {"S": ["A"], "C20": ["C"], "C10": ["C", "D"]}
+               and _sct_cut == {"S": 1, "C20": 0, "C10": 0}
+               and SCT.verdict(0.05, (0.01, 0.1), 0.04, 0.06, 25, 25) == "يفرّق"
+               and SCT.verdict(0.05, (-0.01, 0.1), 0.04, 0.06, 25, 25) == "لا يفرّق"
+               and SCT.verdict(0.05, (0.01, 0.1), 0.04, -0.01, 25, 25) == "لا يفرّق"
+               and SCT.verdict(0.05, (0.01, 0.1), 0.04, 0.06, 19, 25) == "لا قياس"
+               and SCT.verdict(-0.05, (-0.1, -0.01), -0.04, -0.06, 25, 25) == "يفرّق")
+    _sct_by = {f"d{i}": {"S": [{"net": 0.10 if i % 2 else -0.10, "rise16": 0.3}], "C20": [{"net": 0.0, "rise16": 0.1}]} for i in range(20)}
+    _sct_lo, _sct_hi = SCT.boot(_sct_by, sorted(_sct_by))
+    _sct_lo2, _sct_hi2 = SCT.boot(_sct_by, sorted(_sct_by))
+    _sct_v2 = _sct_v2 and _sct_lo is not None and _sct_lo < 0 < _sct_hi and (_sct_lo, _sct_hi) == (_sct_lo2, _sct_hi2)
+    # SCT3: قراءةٌ فقط وبصمةُ العقد والإعداد
+    _sct_src = open("fm_forensics/shadow_cont/shadow_cont.py", encoding="utf-8").read()
+    _sct_t = _sct_ast.parse(_sct_src)
+    _sct_calls = {getattr(n.func, "attr", getattr(n.func, "id", None)) for n in _sct_ast.walk(_sct_t) if isinstance(n, _sct_ast.Call)}
+    _sct_y = _vwr_yaml.safe_load(open(".github/workflows/shadow_cont.yml", encoding="utf-8"))
+    _sct_yt = open(".github/workflows/shadow_cont.yml", encoding="utf-8").read()
+    _sct_keep = SCT.CONTRACT_SHA
+    try:
+        SCT.CONTRACT_SHA = "0" * 64
+        _sct_rc = SCT.main(["--mode", "check"])
+    finally:
+        SCT.CONTRACT_SHA = _sct_keep
+    _sct_v3 = (_sct_rc == 9 and SCT.contract_ok() and SCT.main(["--mode", "check"]) == 0
+               and "fetch_day" in _sct_src and "VC.sessions" in _sct_src
+               and not ({"send_telegram", "git_save", "post", "write"} & _sct_calls)
+               and set(_sct_y[True]) == {"workflow_dispatch"} and _sct_y["permissions"] == {"contents": "read"}
+               and "TELEGRAM" not in _sct_yt and "fetch-depth: 0" in _sct_yt
+               and SCT.LEDGER_REF.startswith("ff8bdc690") and (SCT.FLOOR, SCT.BOOT_N, SCT.SEED, SCT.STOP, SCT.GAP_GOV, SCT.GAP_DESC) == (20, 2000, "SHC1", 0.10, 20.0, 10.0)
+               and (SCT.ENTRY_NY, SCT.CLOSE_NY, SCT.END_NY) == (565, 960, 1200))
+    _sct_v = (_sct_v1, _sct_v2, _sct_v3)
+except Exception as _e:                                              # noqa: BLE001
+    _sct_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🌘➡️ SCT1-SCT3 T-SHADOW-CONT: الدخولُ آخرُ دقيقةٍ قبل 09:25 · الأعلى والأدنى قبله · الإغلاقُ · الوقفُ −10% (والافتتاحُ تحته) · المجموعاتُ والاستبعاد · "
+      "«يفرّق» بفاصل الجلسات المزدوج والنصفين · قراءةٌ فقط وخروجُ 9 بلا بصمة العقد",
+      _sct_v == (True, True, True), str(_sct_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

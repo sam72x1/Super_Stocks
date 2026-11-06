@@ -1,0 +1,34 @@
+name: "🌘➡️ هل يستمر بعد رسالة الظل؟ (T-SHADOW-CONT · قراءةٌ فقط)"
+
+# 🌘➡️ العقد `fm_forensics/shadow_cont/T_SHADOW_CONT_prereg.md` (أمرُ المالك 2026-11-06 · مدموجٌ قبل أيّ رقم): سجلُّ الظلّ المجمَّد عند ff8bdc690 ⟵
+#    S · C20 (الحاكم) · C10 (وصف) ⟵ دقائقُ Polygon ليوم كلّ صفّ ⟵ الدخولُ عند 09:25 والمقاييسُ ①-④ ⟵ الحكمُ والتنبّؤات.
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام و`contents: read` · لا يكتب في المستودع (`SCT3`).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-shadow-cont
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # `git show ff8bdc690:shadow_ready_ledger.jsonl` (§①)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🌘➡️ القياس
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/shadow_cont/shadow_cont.py --mode run
