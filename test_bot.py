@@ -97821,17 +97821,17 @@ try:
                and _PBS.in_window(_pbs_dt.datetime(2026, 11, 7, 0, 58, tzinfo=_pbs_U)) and not _PBS.in_window(_pbs_dt.datetime(2026, 11, 7, 1, 13, tzinfo=_pbs_U)))
 
     class _PbsClock:
-        def __init__(s, t):
-            s.t = t
+        def __init__(s, t, jitter=0.0):
+            s.t, s.j = t, jitter
 
         def now(s):
             return s.t
 
         def sleep(s, x):
-            s.t += _pbs_dt.timedelta(seconds=max(1.0, float(x)))
+            s.t += _pbs_dt.timedelta(seconds=max(1.0, float(x)) + s.j)
 
-    def _pbs_sim(start, busy_until=None, older_until=None, budget=None, older_age=30):
-        c = _PbsClock(start)
+    def _pbs_sim(start, busy_until=None, older_until=None, budget=None, older_age=30, jitter=0.0):
+        c = _PbsClock(start, jitter)
         _keep = (_PBS._sleep, _PBS.log, _os_hc.environ.get("PB_BUDGET_MIN"), _os_hc.environ.get("GITHUB_RUN_ID"))
         ran, posts, logs = [], [], []
 
@@ -97881,6 +97881,10 @@ try:
     #    و`STANDBY_ON_OLDER = True` ⟵ الانتظارُ الاحتياطيّ القديم بت-بت · وتعذّرُ الـAPI يمضي كما كان.
     _p6 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 8, 1, tzinfo=_pbs_U), older_until=_pbs_dt.datetime(2026, 11, 7, tzinfo=_pbs_U), budget=90,
                    older_age=315)
+    # 🔧 PBJ6 (‏2026-11-06 · عطلٌ مُثبَت `42192618834`: 5.5 ساعات و«دورات 0»): الساعةُ الحقيقيّة تستيقظ بعد الفتحة بأجزاء ثانية ⟵ اليومُ نفسُه بتأخّر استيقاظ
+    #    4 ميلّي ثانية بعد كلّ نوم يُشغّل الدورات الاثنتين والعشرين نفسَها (والكودُ القديم يتخطّاها كلَّها) — والساعةُ الدقيقة كانت تُخفي العطل.
+    _p8 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 8, 1, tzinfo=_pbs_U), jitter=0.004)
+    _pbs_v6 = (_p8[0] == 0 and len(_p8[1]) == 22 and _p8[1][0] == "08:13" and _p8[1][-1] == "13:28" and _p8[2] == ["13:25"])
     _pbs_keep_sb = _PBS.STANDBY_ON_OLDER
     try:
         _PBS.STANDBY_ON_OLDER = True
@@ -97940,12 +97944,12 @@ try:
                and all(_pbs_route(c) == (False, True) for c in _pbs_sess) and all(_pbs_route(c) == (True, False) for c in _pbs_old6)
                and '↩️ **الرجوع: احذف السطرَ التالي.**\n    - cron: "1 9-12,14,15,17,18,20,21,23 * * 1-5"' in _pbs_t
                and "concurrency" not in _pbs_y)
-    _pbs_v = _pbs_v2 + (_pbs_v1, _pbs_v3, _pbs_v4, _pbs_v5)
+    _pbs_v = _pbs_v2 + (_pbs_v1, _pbs_v3, _pbs_v4, _pbs_v5, _pbs_v6)
 except Exception as _e:                                              # noqa: BLE001
     _pbs_v = (f"⛔ {type(_e).__name__}: {_e}",)
 check("🔁 PBJ1-PBJ4 جوبُ جلسة المراقب: النافذةُ = اتّحادُ الكرونات القديمة على كلّ فتحة · 22 دورةً وخلَفٌ واحد · الأفترُ الشتويّ حتى 00:58 بلا خلَف · "
       "لا دورةَ أثناء الفرز · خروجٌ فوريّ عن العامل الأقدم وخلافتُه في دقائقه الأخيرة (PBJ5) · الدورةُ pullback_live.py بمهلة 15 د · والوظيفةُ القديمة للرجوع",
-      _pbs_v == (True,) * 9, str(_pbs_v)[:240])
+      _pbs_v == (True,) * 10, str(_pbs_v)[:240])
 
 # 🌘 SHT1-SHT3 (‏2026-11-06 · أمرُ المالك «أرسل قائمة الظل على تلغرام» · سببُه `T-RRGATE` ④): رسالةٌ واحدة عند 09:25 نيويورك بعنوان المالك
 #    حرفيًّا · S بقاعدة `shadow_ready` بالاسم على مراسي بري اليوم · لا إرسالَ بعد 09:29 ولا مكرّر · وبلا SHADOW_TG_SEND=1 لا إرسال.
