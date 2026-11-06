@@ -98547,6 +98547,90 @@ check("🌅 MST1-MST3 مُطلِقُ الصباح: المراقبُ قبل فت�
       "حذفُ السطر يوقفه بلا إطلاق · بلا تلغرامَ ولا حفظ",
       _mst_v == (True, True, True), str(_mst_v)[:240])
 
+# 🚪📋 LSG1-LSG3 (‏2026-11-06 · `T-LISTGATE` · العقد `fm_forensics/listgate/LISTGATE_prereg.md` مدموجٌ قبل أيّ رقم): البوّابةُ الأولى من سجلّ الإنتاج
+#    عند `N_commit` ثمّ الإعادةُ بقواعد يومها إن عبرت بوّابةُ الصدق (80%) · والإزالةُ وحدَها = `r0` جدارٌ ∧ `r1` بتحييده PASS · وكلفةٌ بحدَّين مقابل 2× ·
+#    قراءةٌ فقط بلا تلغرام · وخروج 9 إن تغيّرت بصمةُ العقد.
+try:
+    import importlib.util as _lsg_iu
+    import datetime as _lsg_dt
+    _lsg_sp = _lsg_iu.spec_from_file_location("listgate_lock", "fm_forensics/listgate/listgate.py")
+    LSG = _lsg_iu.module_from_spec(_lsg_sp)
+    _lsg_sp.loader.exec_module(LSG)
+    # LSG1: الدوالّ النقيّة
+    _lsg_si = {"2026-11-02": {"close_ny_min": 960}, "2026-11-03": {"close_ny_min": 960}, "2026-11-06": {"close_ny_min": 960},
+               "2026-11-26": {"close_ny_min": None}, "2026-11-25": {"close_ny_min": 960}, "2026-11-27": {"close_ny_min": 780}}
+    _lsg_sf = lambda d: _lsg_si.get(d, {"close_ny_min": 960})                                   # noqa: E731
+    _lsg_v1 = (LSG.gate_of("M_لا_مستوى_مختبر") == "ANCHOR" and LSG.gate_of("RR+نواقص_فوق_الحد") == "SOFT"
+               and LSG.gate_of("نقاط_تحت_5") == "SCORE" and LSG.gate_of("M4_انفجر_فعلاً") == "M4_RISE"
+               and LSG.gate_of("PASS") == "PASS" and LSG.gate_of(None) is None
+               and LSG.prod_walls({"walls": {"M5_سيولة": ["abc", "XYZ"], "M_لا_مستوى_مختبر": ["Q"]}}) == {"ABC": "M5_سيولة", "XYZ": "M5_سيولة", "Q": "M_لا_مستوى_مختبر"}
+               and LSG.pass_load({"valid": 100, "stats": {"a": 60, "b": 30}}) == 10 and LSG.pass_load({"stats": {}}) is None
+               and LSG.cutoff_session("2026-11-03T08:40:00+00:00", _lsg_sf) == "2026-11-02"
+               and LSG.cutoff_session("2026-11-06T22:30:00+00:00", _lsg_sf) == "2026-11-06"
+               and LSG.cutoff_session("2026-11-06T20:30:00+00:00", _lsg_sf) == "2026-11-05"
+               and LSG.cutoff_session("2026-11-27T08:00:00+00:00", _lsg_sf) == "2026-11-25"
+               and LSG.cutoff_session("2026-11-27T18:30:00+00:00", _lsg_sf) == "2026-11-27"
+               and LSG.rise_for("2026-10-29T08:40:00+00:00") == LSG.RISE_HIST and LSG.rise_for("2026-10-30T08:40:00+00:00") == 35.0
+               and LSG.agreement([("A", "A"), ("A", "B"), ("A", "NO_BARS"), (None, "A"), ("C", "C")]) == (2, 3)
+               and LSG.admitted_by(("REJECT", "M5_سيولة"), ("PASS", "")) == "M5_سيولة"
+               and LSG.admitted_by(("REJECT", "M5_سيولة"), ("REJECT", "M3_انفجار_تحت_60")) is None
+               and LSG.admitted_by(("PASS", ""), None) is None
+               and LSG.cost_verdict(5, 40, 50) == "داخل الميزانية" and LSG.cost_verdict(60, 400, 50) == "خارجها"
+               and LSG.cost_verdict(10, 400, 50) == "غيرُ محسوم" and LSG.cost_verdict(None, 1, 1) == "لا قياس"
+               and LSG.selective_verdict(30, 40, 50, 1000) == "انتقائيّة" and LSG.selective_verdict(2, 40, 50, 1000) == "غيرُ انتقائيّة"
+               and LSG.selective_verdict(5, 10, 50, 1000) == "لا قياس")
+    # LSG2: البوّابةُ النهائيّة — الإنتاجُ أوّلًا · الإعادةُ إن عبر الاتّفاق · وإلّا «غيرُ موثوق» · والمتعذّرُ «غيرُ مقيس»
+    _lsg_T = {"rows": [{"prod_key": "M5_سيولة"}] * 8 + [{"prod_key": None}, {"prod_key": None}]}
+    _lsg_RPok = [{"h": ["REJECT", "M5_سيولة"]}] * 8 + [{"h": ["REJECT", "M_لا_مستوى_مختبر"]}, {"h": ["NO_BARS", ""]}]
+    _lsg_RPbad = [{"h": ["REJECT", "M1_سعر"]}] * 8 + [{"h": ["PASS", ""]}, {"h": ["NO_BARS", ""]}]
+    _lsg_f1, _lsg_a1 = LSG.final_gates(_lsg_T, _lsg_RPok)
+    _lsg_f2, _lsg_a2 = LSG.final_gates(_lsg_T, _lsg_RPbad)
+    _lsg_v2 = (_lsg_a1 == (8, 8, True) and _lsg_f1[0] == ("M5", "prod") and _lsg_f1[8] == ("ANCHOR", "replay") and _lsg_f1[9] == ("غيرُ مقيس", "none")
+               and _lsg_a2 == (0, 8, False) and _lsg_f2[0] == ("M5", "prod") and _lsg_f2[8] == ("غيرُ موثوق", "none"))
+    # LSG3: الإعادة — قواعدُ يومها ثمّ اليوم (35) · `r1` بتحييد `g1` وحدَه وإن كان قابلًا للتحييد · واستعادةُ CONFIG · وبصمةُ العقد · وقراءةٌ فقط
+
+    class _LsgS:
+        CONFIG = {"RECENT_RISE_BLOCK_PCT": 7.0}
+
+    class _LsgGI:
+        NEUTRAL = {"M4_RISE": {}, "M5": {}}
+        calls = []
+
+        @staticmethod
+        def _reason_gate(why):
+            return {"M4_انفجر_فعلاً": "M4_RISE", "M5_سيولة": "M5", "X_غريب": "X"}.get(why, why)
+
+        @classmethod
+        def run_once(cls, S, sym, df, neutral):
+            cls.calls.append((S.CONFIG["RECENT_RISE_BLOCK_PCT"], tuple(neutral)))
+            if sym == "RISE":
+                return ("PASS", "") if "M4_RISE" in neutral or S.CONFIG["RECENT_RISE_BLOCK_PCT"] > 100 else ("REJECT", "M4_انفجر_فعلاً")
+            return ("REJECT", "X_غريب")
+    _lsg_r = LSG.replay_row(_LsgS, _LsgGI, "RISE", None, LSG.RISE_HIST)
+    _lsg_c1 = list(_LsgGI.calls)
+    _LsgGI.calls.clear()
+    _lsg_x = LSG.replay_row(_LsgS, _LsgGI, "ODD", None, 35.0)
+    _lsg_d = _rej_tf.mkdtemp(prefix="lsg_")
+    _lsg_bad = _os_hc.path.join(_lsg_d, "c.md")
+    with open(_lsg_bad, "w", encoding="utf-8") as _f:
+        _f.write("x")
+    _lsg_src = open("fm_forensics/listgate/listgate.py", encoding="utf-8").read()
+    _lsg_tree = _ast0.parse(_lsg_src)
+    _lsg_calls = {getattr(_n.func, "attr", None) or getattr(_n.func, "id", None) for _n in _ast0.walk(_lsg_tree) if isinstance(_n, _ast0.Call)}
+    _lsg_v3 = (_lsg_r == (("PASS", ""), ("REJECT", "M4_انفجر_فعلاً"), ("PASS", ""))
+               and _lsg_c1 == [(LSG.RISE_HIST, ()), (35.0, ()), (35.0, ("M4_RISE",))] and _LsgS.CONFIG["RECENT_RISE_BLOCK_PCT"] == 7.0
+               and _lsg_x == (("REJECT", "X_غريب"), ("REJECT", "X_غريب"), None)
+               and LSG.contract_ok() and not LSG.contract_ok(_lsg_bad) and LSG.CONTRACT_RC == 9
+               and {"run_once", "_reason_gate", "compare_verdict", "asof_scale", "wilson"} <= _lsg_calls
+               and not ({"send_telegram", "git_save", "save_watchlist"} & _lsg_calls)
+               and "TELEGRAM" not in open(".github/workflows/listgate.yml", encoding="utf-8").read())
+    _lsg_v = (_lsg_v1, _lsg_v2, _lsg_v3)
+except Exception as _e:                                              # noqa: BLE001
+    _lsg_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🚪📋 LSG1-LSG3 T-LISTGATE: البوّابةُ الأولى من سجلّ الإنتاج ثمّ الإعادةُ بقواعد يومها إن عبر الاتّفاق · الإزالةُ وحدَها r0⟵r1 · "
+      "كلفةٌ بحدَّين مقابل 2× · قراءةٌ فقط وبصمةُ العقد",
+      _lsg_v == (True, True, True), str(_lsg_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
