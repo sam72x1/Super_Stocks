@@ -98736,6 +98736,109 @@ check("🔧 PBJ7 جوبُ جلسة المراقب: مالكُ الفتحة وح�
       "والأقدمُ يترك ما بعد أفقه للأحدث بلا خلَف · والتعذّرُ يمضي · و`SLOT_OWNER_GUARD = False` بت-بت",
       _pj_v == (True, True, True, True), str(_pj_v)[:240])
 
+# 🎯🌘 LVS1-LVS3 (‏2026-11-06 · `T-LIVE-VS-SHADOW` «اللحظي الموجود مقابل الظل» · العقد `fm_forensics/live_vs_shadow/LVS_prereg.md` مدموجٌ قبل أيّ رقم):
+#    أيّامُ المصدر خارج الفجوة · R من [04:00، 20:00) ÷ إغلاق الأمس · ما بقي من الحركة من دقيقة الإطلاق شاملةً · لقطةُ 09:25 = آخرُ التزامٍ عندها ·
+#    J1 أبكرُ صفٍّ صادق · الفئاتُ الأربع · الكلفةُ والذراعُ وحكمُها · قراءةٌ فقط وبصمةُ العقد.
+try:
+    import importlib.util as _lvs_iu
+    import datetime as _lvs_dt
+    _lvs_sp = _lvs_iu.spec_from_file_location("live_vs_shadow_lock", "fm_forensics/live_vs_shadow/live_vs_shadow.py")
+    LVS = _lvs_iu.module_from_spec(_lvs_sp)
+    _lvs_sp.loader.exec_module(LVS)
+
+    def _lvs_ms(day, hh, mm):
+        return int(_lvs_dt.datetime(*map(int, day.split("-")), hh, mm, tzinfo=LVS.NY).timestamp() * 1000)
+    _lvs_D = "2026-11-03"
+    _lvs_bars = [(_lvs_ms(_lvs_D, 3, 59), 1.0, 9.0, 1.0, 1.0, 1), (_lvs_ms(_lvs_D, 4, 0), 1.0, 1.2, 1.0, 1.1, 1),
+                 (_lvs_ms(_lvs_D, 9, 24), 1.4, 1.5, 1.3, 1.45, 1), (_lvs_ms(_lvs_D, 10, 0), 1.5, 2.0, 1.4, 1.9, 1),
+                 (_lvs_ms(_lvs_D, 11, 40), 2.5, 3.0, 2.4, 2.8, 1), (_lvs_ms(_lvs_D, 15, 0), 2.6, 2.5, 2.2, 2.3, 1),
+                 (_lvs_ms(_lvs_D, 20, 0), 2.0, 9.9, 2.0, 2.0, 1), (_lvs_ms("2026-11-04", 5, 0), 2.0, 8.0, 2.0, 2.0, 1)]
+    _lvs_seq = LVS.day_seq(_lvs_bars, _lvs_D)
+    _lvs_dly = [("2026-11-02", 1.1, 0.9), ("2026-11-03", 3.0, 2.3), ("2026-10-31", 1.0, 0.8)]
+    _lvs_U = {"sessions": ["2026-09-28", "2026-09-29", "2026-10-12", "2026-10-13", "2026-10-14"],
+              "alerts": {"2026-09-28": {"A": {}}, "2026-09-29": {"B": {}}, "2026-10-12": {"C": {}}, "2026-10-13": {}, "2026-10-14": {"D": {}}}}
+    _lvs_J = ['{"date": "2026-11-03", "symbol": "x", "j1": true, "price_ms": 200}', '{"date": "2026-11-03", "symbol": "X", "j1": true, "price_ms": 100}',
+              '{"date": "2026-11-03", "symbol": "Y", "j1": false, "price_ms": 50}', "bad", "[1]"]
+    _lvs_jm, _lvs_has = LVS.j1_map(_lvs_J)
+    _lvs_st = {"LIQ:EARLY": {"anchor_ms": _lvs_ms(_lvs_D, 9, 20), "date": _lvs_D}, "LIQ:EDGE": {"anchor_ms": _lvs_ms(_lvs_D, 9, 25), "date": _lvs_D},
+               "LIQ:OLD": {"anchor_ms": _lvs_ms("2026-11-02", 9, 0), "date": "2026-11-02"}, "XYZ": "2026-11-03"}
+    _lvs_v1 = (LVS.source_days(_lvs_U) == ["2026-09-28", "2026-10-14"] and LVS.GAP == ("2026-09-29", "2026-10-12")
+               and [b[0] for b in _lvs_seq] == [240, 564, 600, 700, 900] and LVS.prev_close(_lvs_dly, _lvs_D) == ("2026-11-02", 0.9)
+               and LVS.day_R(_lvs_seq, 1.0)[:2] == (2.0, 700) and LVS.day_R([], 1.0) == (None, None, None)
+               and LVS.price_before(_lvs_seq, LVS.SHADOW_NY) == 1.45 and LVS.price_before(_lvs_seq, 240) is None
+               and LVS.after_stats(_lvs_seq, 600, 1.5, 1.0) == {"left": 0.75, "gain": 1.0, "pct": 0.5}
+               and LVS.after_stats(_lvs_seq, 900, 2.8, 1.0)["left"] == 0.0 and LVS.after_stats(_lvs_seq, 700, 2.0, 1.0)["gain"] == 0.5
+               and LVS.commit_before([(10, "a"), (20, "b"), (30, "c")], 20) == "b" and LVS.commit_before([(10, "a")], 5) is None
+               and _lvs_jm == {("2026-11-03", "X"): {"date": "2026-11-03", "symbol": "X", "j1": True, "price_ms": 100}}
+               and _lvs_has == {("2026-11-03", "X"), ("2026-11-03", "Y")}
+               and [s for s, _a in LVS.anchors_at(_lvs_st, _lvs_D)] == ["EARLY"]
+               and LVS.category(True, 500) == ("كلاهما", "") and LVS.category(True, None) == ("الظلّ فقط", "")
+               and LVS.category(False, 564) == ("هنا الدخول فقط", "قبل 09:25 ولم يدخل S") and LVS.category(False, 565) == ("هنا الدخول فقط", "بعد 09:25")
+               and LVS.category(False, None) == ("لا أحد", "")
+               and [LVS.r_class(x) for x in (0.49, 0.5, 0.99, 1.0, None)] == ["false", "mid", "mid", "run100", None]
+               and LVS.precision_verdict(30, 40, 50, 1000) == "انتقائيّة" and LVS.precision_verdict(19, 20, 50, 1000) == "لا قياس"
+               and LVS.precision_verdict(25, 500, 50, 1000) == "غيرُ انتقائيّة")
+    # LVS2: الراكضُ والتجميعُ والتنبّؤاتُ والعرض
+    _lvs_r = {"sym": "RUN", "day": _lvs_D, "R": 2.0}
+    _lvs_x1 = LVS.runner_row(_lvs_r, {_lvs_D}, {"RUN"}, {"ms": _lvs_ms(_lvs_D, 10, 0), "px": 1.5},
+                             {"price_ms": _lvs_ms(_lvs_D, 10, 5), "e5": 1.8}, _lvs_seq, [("2026-11-02", 1.0, 1.0)])
+    _lvs_x2 = LVS.runner_row(_lvs_r, set(), None, None, None, None, None)
+    _lvs_x3 = LVS.runner_row(_lvs_r, {_lvs_D}, set(), None, None, None, None)
+    _lvs_x4 = LVS.runner_row(dict(_lvs_r, sym="NEI"), {_lvs_D}, {"RUN"}, None, None, _lvs_seq, [("2026-11-02", 1.0, 1.0)])
+    _lvs_x5 = LVS.runner_row(dict(_lvs_r, sym="LAT", R=2.5), {_lvs_D}, set(), {"ms": _lvs_ms(_lvs_D, 11, 40), "px": 2.5}, None, _lvs_seq,
+                             [("2026-11-02", 1.0, 1.0)])
+    _lvs_cost = ([{"sym": f"F{i}", "day": "2026-08-25", "cls": "false", "j1": i < 2, "has_row": True, "j1_m": 600} for i in range(6)]
+                 + [{"sym": "R1", "day": "2026-08-25", "cls": "run100", "j1": True, "has_row": True, "j1_m": 500},
+                    {"sym": "R2", "day": "2026-08-25", "cls": "run100", "j1": False, "has_row": False, "j1_m": None},
+                    {"sym": "M1", "day": "2026-08-25", "cls": "mid", "j1": False, "has_row": True, "j1_m": None},
+                    {"sym": "OLD", "day": "2026-08-20", "cls": "false", "j1": False, "has_row": False, "j1_m": None},
+                    {"sym": "SP", "day": "2026-08-25", "cls": None, "split": True}])
+    _lvs_sc = [{"sym": "S1", "day": "2026-08-25", "cls": "run100"}, {"sym": "S2", "day": "2026-08-25", "cls": "false"}]
+    _lvs_res = LVS.summarize([_lvs_x1, _lvs_x2, _lvs_x3, _lvs_x4, _lvs_x5], _lvs_cost, _lvs_sc, {"2026-08-25"}, 1)
+    _lvs_pr = LVS.predictions(_lvs_res)
+    _lvs_txt = "\n".join(LVS.report_lines(_lvs_res, ["OMH 2026-11-04: **ليس في الـ248**"], _lvs_pr,
+                                          {"run": "1", "sha": "abc", "src_days": 1, "sessions": 2, "snap_days": 1}))
+    _lvs_v2 = (_lvs_x1["cat"] == "كلاهما" and _lvs_x1["fire"] == {"m": 600, "left": 0.75, "gain": 1.0, "pct": 0.5}
+               and abs(_lvs_x1["shadow"]["pct"] - 0.45) < 1e-9 and _lvs_x1["arm"]["m"] == 605 and _lvs_x1["agree"] is True
+               and _lvs_x2["why"] == "المصدرُ غائب" and _lvs_x3["why"] == "شموعٌ متعذّرة" and _lvs_x4["cat"] == "لا أحد" and _lvs_x4["in_s"] is False
+               and _lvs_x5["cat"] == "هنا الدخول فقط" and _lvs_x5["sub"] == "بعد 09:25" and _lvs_x5["agree"] is False
+               and _lvs_res["measured"] == 3 and _lvs_res["fired"] == [2, 3] and _lvs_res["shadow"] == [1, 3]
+               and _lvs_res["agree"] == [2, 3] and _lvs_res["why"] == {"المصدرُ غائب": 1, "شموعٌ متعذّرة": 1}
+               and _lvs_res["cost"]["false"] == 7 and _lvs_res["cost"]["run100"] == 2 and _lvs_res["cost"]["false_per_run"] == 3.5
+               and _lvs_res["cost"]["split"] == 1 and _lvs_res["cost"]["false_per_run50"] == 7 / 3
+               and _lvs_res["arm"]["scope_fires"] == 9 and _lvs_res["arm"]["kept"] == 3 and _lvs_res["arm"]["false_all"] == 6
+               and _lvs_res["arm"]["false_kept"] == 2 and abs(_lvs_res["arm"]["cut_false"] - 2 / 3) < 1e-9 and _lvs_res["arm"]["cut_run"] == 0.5
+               and _lvs_res["arm"]["verdict"] == "لا قياس" and _lvs_res["arm"]["no_row"] == 1 and _lvs_res["arm"]["kept_reg"] == 2
+               and _lvs_res["shadow_cost"]["false_per_run"] == 1.0 and _lvs_res["floor_ok"] is False
+               and _lvs_pr["L3"] is True and _lvs_pr["L6"] is True and _lvs_pr["L8"] is True and _lvs_pr["L7"] is False
+               and "كاذبٌ لكلّ راكضٍ +100%: 3.5" in _lvs_txt and "**كلاهما — 1**" in _lvs_txt and "RUN 11-03 (+200%)" in _lvs_txt
+               and "OMH 2026-11-04: **ليس في الـ248**" in _lvs_txt and "دون الأرضيّة 30" in _lvs_txt)
+    # LVS3: قراءةٌ فقط وبصمةُ العقد والإعداد
+    _lvs_d = _rej_tf.mkdtemp(prefix="lvs_")
+    _lvs_bad = _os_hc.path.join(_lvs_d, "c.md")
+    with open(_lvs_bad, "w", encoding="utf-8") as _f:
+        _f.write("x")
+    _lvs_src = open("fm_forensics/live_vs_shadow/live_vs_shadow.py", encoding="utf-8").read()
+    _lvs_tree = _ast0.parse(_lvs_src)
+    _lvs_calls = {getattr(_n.func, "attr", None) or getattr(_n.func, "id", None) for _n in _ast0.walk(_lvs_tree) if isinstance(_n, _ast0.Call)}
+    _lvs_imp = {(_n.module, _a.name) for _n in _ast0.walk(_lvs_tree) if isinstance(_n, _ast0.ImportFrom) for _a in _n.names}
+    _lvs_gc = {_t.targets[0].id: _ast0.literal_eval(_t.value) for _t in _ast0.parse(open("gcross_runner.py", encoding="utf-8").read()).body
+               if isinstance(_t, _ast0.Assign) and len(_t.targets) == 1 and getattr(_t.targets[0], "id", "") == "GAP"}
+    _lvs_y = _vwr_yaml.safe_load(open(".github/workflows/live_vs_shadow.yml", encoding="utf-8"))
+    _lvs_v3 = (LVS.contract_ok() and not LVS.contract_ok(_lvs_bad) and LVS.CONTRACT_RC == 9 and _lvs_gc.get("GAP") == LVS.GAP
+               and LVS.LEDGER_REF.startswith("86bc3838b") and "`86bc3838b`" in open(LVS.CONTRACT, encoding="utf-8").read()
+               and {("shadow_ready", "split_fn"), ("shadow_ready", "split_ratio"), ("tier_fwd_report", "fetch_day"), ("tier_fwd_report", "load_ledger"),
+                    ("tierlink_probe", "daily_range")} <= _lvs_imp
+               and {"premarket_anchors", "shadow_rows"} <= _lvs_calls and not ({"send_telegram", "git_save", "save_watchlist"} & _lvs_calls)
+               and _lvs_y["permissions"] == {"contents": "read"} and _lvs_y["jobs"]["run"]["steps"][0]["with"]["fetch-depth"] == 0
+               and "TELEGRAM" not in open(".github/workflows/live_vs_shadow.yml", encoding="utf-8").read() and "schedule" not in str(_lvs_y.get(True)))
+    _lvs_v = (_lvs_v1, _lvs_v2, _lvs_v3)
+except Exception as _e:                                              # noqa: BLE001
+    _lvs_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🎯🌘 LVS1-LVS3 T-LIVE-VS-SHADOW: أيّامُ المصدر خارج الفجوة · R من [04:00، 20:00) · ما بقي من الحركة من دقيقة الإطلاق · لقطةُ 09:25 · "
+      "J1 أبكرُ صفٍّ صادق · الفئاتُ الأربع · الكلفةُ والذراع · قراءةٌ فقط وبصمةُ العقد",
+      _lvs_v == (True, True, True), str(_lvs_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
