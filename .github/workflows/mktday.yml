@@ -1,0 +1,73 @@
+name: "🌡️📅 حالة السوق كبوابة — عرض الزخم وعرض البري (T-MKTDAY · قراءةٌ فقط)"
+
+# 🌡️📅 العقد `fm_forensics/mktday/MKTDAY_prereg.md` (أمرُ المالك 2026-11-06 · مدموجٌ قبل أيّ رقم): ثلاثُ شظايا (`vwap_cont.shard_days` بالاسم) تنزّل شظايا
+#    T-VWAP-CONT من التشغيلة 42134086032 ⟵ لكلّ جلسة: B · P · صفوفُ التنبيهات · أسماءُ S بالراكض ⟵ artifact ⟵ تقريرٌ واحد (نقيٌّ بلا شبكة).
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام و`contents: read` (و`actions: read` للتنزيل) · لا يكتب في المستودع (`MKD3`).
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-mktday
+  cancel-in-progress: false
+
+jobs:
+  shard:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [0, 1, 2]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # `git show 7936c0bfc:shadow_ready_ledger.jsonl` (§①)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: vwap-cont-shard-*
+          path: vwap_cont_shards
+          run-id: 42134086032
+          github-token: ${{ github.token }}
+      - name: 🌡️ الشظيّة ${{ matrix.shard }}
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/mktday/mktday.py --mode shard --shard ${{ matrix.shard }} --src vwap_cont_shards --out mktday_shards/shard_${{ matrix.shard }}.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mktday-shard-${{ matrix.shard }}
+          path: mktday_shards/shard_${{ matrix.shard }}.json
+          retention-days: 30
+
+  report:
+    needs: shard
+    if: ${{ !cancelled() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: mktday-shard-*
+          path: mktday_shards
+      - name: 📊 التقرير
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/mktday/mktday.py --mode report --in mktday_shards

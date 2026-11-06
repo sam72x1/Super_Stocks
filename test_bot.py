@@ -98010,6 +98010,92 @@ check("🌘 SHT1-SHT3 قائمةُ الظلّ قبل الافتتاح: العن�
       "شرحُ الرسالة الأولى · 09:25 مرّةً واحدة ولا بعد 09:29 ولا مكرّر ولا بلا SHADOW_TG_SEND=1 ولا في غير جلسة",
       _sht_v == (True,) * 3, str(_sht_v)[:240])
 
+# 🌡️📅 MKD1-MKD3 (‏2026-11-06 · `T-MKTDAY` «حالة السوق كبوابة» · العقد `fm_forensics/mktday/MKTDAY_prereg.md` #758 قبل أيّ رقم): التقسيمُ بالوسيط والتعادلُ
+#    للفقيرة · «يفرّق» = فاصلُ الجلسات لا يضمّ الصفر **و**النصفان بالإشارة نفسِها · الأرضيّاتُ وبوّاباتُ التغطية ⟵ «لا قياس» · وB/P بآلة الحيّ بالاسم ·
+#    وقراءةٌ فقط (لا تلغرام · لا كتابة · يدويٌّ قارئ) وتخرج 9 بلا بصمة العقد.
+try:
+    import importlib.util as _mkd_iu
+    import ast as _mkd_ast
+    _mkd_sp = _mkd_iu.spec_from_file_location("mktday_lock", "fm_forensics/mktday/mktday.py")
+    MKD = _mkd_iu.module_from_spec(_mkd_sp)
+    _mkd_sp.loader.exec_module(MKD)
+    _mkd_med, _mkd_lab = MKD.split_days({"a": 1, "b": 2, "c": 2, "d": 5}, ["a", "b", "c", "d"])
+    _mkd_v1 = (_mkd_med == 2 and _mkd_lab == {"a": "poor", "b": "poor", "c": "poor", "d": "rich"}
+               and MKD.verdict(0.1, (0.02, 0.2), 0.1, 0.05, 25, 25, 20) == "يفرّق"
+               and MKD.verdict(0.1, (-0.01, 0.2), 0.1, 0.05, 25, 25, 20) == "لا يفرّق"
+               and MKD.verdict(0.1, (0.02, 0.2), 0.1, -0.05, 25, 25, 20) == "لا يفرّق"
+               and MKD.verdict(0.1, (0.02, 0.2), 0.1, 0.05, 19, 25, 20) == "لا قياس"
+               and MKD.verdict(-0.1, (-0.2, -0.02), -0.1, -0.05, 25, 25, 20) == "يفرّق")
+    _mkd_days = [f"2026-09-{i:02d}" for i in range(1, 61)]
+    _mkd_pd = {d: {"ok": True, "candidates": 30, "bars_failed": 0, "B": i % 10, "P": i % 7, "up20": 10, "unk": 0, "pre_over_hl": 0}
+               for i, d in enumerate(_mkd_days)}
+    _mkd_al = [{"date": d, "sym": f"S{j}", "win": j < (5 if (i % 10) > 4 else 2), "consistent": True, "ret2": 0.01 * (j - 3)}
+               for i, d in enumerate(_mkd_days) for j in range(7)]
+    _mkd_sr = [{"date": d, "sym": "X", "runner": i % 3 == 0} for i, d in enumerate(_mkd_days)]
+    _mkd_r = MKD.analyze([{"per_day": _mkd_pd, "alerts": _mkd_al, "s_rows": _mkd_sr, "shadow_ok": True, "calls": 0, "fails": 0}], _mkd_days)
+    _mkd_r2 = MKD.analyze([{"per_day": _mkd_pd, "alerts": _mkd_al, "s_rows": _mkd_sr, "shadow_ok": True, "calls": 0, "fails": 0}], _mkd_days)
+    _mkd_bad = dict(_mkd_pd)
+    for _d in _mkd_days[:7]:
+        _mkd_bad[_d] = {"ok": False}
+    _mkd_r3 = MKD.analyze([{"per_day": _mkd_bad, "alerts": _mkd_al, "s_rows": _mkd_sr, "shadow_ok": True, "calls": 0, "fails": 0}], _mkd_days)
+    _mkd_hb = {f"d{i}": [{"win": bool(i % 2)}] * 4 for i in range(10)}          # غنيّةٌ متباينة (0% و100%) ⟵ الفاصلُ عريضٌ بالبناء
+    _mkd_hb.update({f"p{i}": [{"win": True}] + [{"win": False}] * 3 for i in range(10)})   # فقيرةٌ ثابتة 25% ⟵ العرضُ كلُّه من الغنيّة
+    _mkd_lo, _mkd_hi = MKD.boot(_mkd_hb, {**{f"d{i}": "rich" for i in range(10)}, **{f"p{i}": "poor" for i in range(10)}}, "m1")
+    _mkd_v1 = (_mkd_v1 and _mkd_lo is not None and _mkd_hi - _mkd_lo > 0.3
+               and _mkd_r["cov_ok"] and _mkd_r["arms"]["B"]["m1"]["verdict"] == "يفرّق"
+               and _mkd_r["arms"]["P"]["m1"]["verdict"] == "لا يفرّق" and _mkd_r["arms"]["B"]["m3"]["verdict"] == "لا يفرّق"
+               and _mkd_r["arms"]["B"]["m1"]["ci"] == _mkd_r2["arms"]["B"]["m1"]["ci"]
+               and _mkd_r["n_class"]["B"] == {"rich": 30, "poor": 30}
+               and not _mkd_r3["cov_ok"] and {x["verdict"] for a in _mkd_r3["arms"].values() for x in a.values()} == {"لا قياس"})
+    # MKD2: B وP بآلة الحيّ بالاسم على دقائق اصطناعيّة ودِ D مزيّف
+    import vwap_momentum_live as _mkd_V
+
+    class _MkdD:
+        def prev_adj(self, s):
+            return 1.0
+
+        def catalyst(self, s, upto):
+            news = {"AAA": True, "BBB": False, "CCC": None, "DDD": True, "EEE": True, "FFF": True}[s]
+            return ((lambda e, _n=news, _s=s: {"C": (_n if (_s != "EEE" or e >= 600) else False)}), None, None)
+    _mkd_op, _mkd_cl = 570, 960
+
+    def _mkd_bars(reg_px, pre_px=None, pre_at=500):
+        b = []
+        if pre_px is not None:
+            b.append((pre_at, pre_px, pre_px, pre_px, pre_px, 1000.0))
+        b += [(m, reg_px, reg_px, reg_px, reg_px, 1000.0) for m in range(_mkd_op, _mkd_op + 30)]
+        return b
+    _mkd_B = {"AAA": _mkd_bars(1.25), "BBB": _mkd_bars(1.30), "CCC": _mkd_bars(1.30), "DDD": _mkd_bars(1.05, 1.25),
+              "EEE": _mkd_bars(1.05, 1.30, 560), "FFF": _mkd_bars(1.05, 1.30, 565)}   # EEE خبرُه بعد 10:00 · FFF عند 09:25 (خارج)
+    _mkd_m = MKD.day_measure(_MkdD(), "2026-11-06", sorted(_mkd_B), {s: (1.3, 1.0, 1e6) for s in _mkd_B}, _mkd_B.get,
+                             _mkd_op, _mkd_cl, _mkd_V)
+    _mkd_v2 = (_mkd_m["B"] == 1 and _mkd_m["B_syms"] == ["AAA"] and _mkd_m["up20"] == 3 and _mkd_m["unk"] == 1
+               and _mkd_m["P"] == 1 and _mkd_m["P_syms"] == ["DDD"] and _mkd_m["pre20"] == 2 and MKD.PRE_CUT == 565)
+    _mkd_src = open("fm_forensics/mktday/mktday.py", encoding="utf-8").read()
+    _mkd_t = _mkd_ast.parse(_mkd_src)
+    _mkd_calls = {(getattr(n.func.value, "id", None), n.func.attr) for n in _mkd_ast.walk(_mkd_t)
+                  if isinstance(n, _mkd_ast.Call) and isinstance(n.func, _mkd_ast.Attribute)}
+    _mkd_y = _vwr_yaml.safe_load(open(".github/workflows/mktday.yml", encoding="utf-8"))
+    _mkd_yt = open(".github/workflows/mktday.yml", encoding="utf-8").read()
+    _mkd_keep = (MKD.CONTRACT, MKD.CONTRACT_SHA)
+    try:
+        MKD.CONTRACT_SHA = "0" * 64
+        _mkd_rc = MKD.main(["--mode", "report", "--in", "/nonexistent"])
+    finally:
+        MKD.CONTRACT, MKD.CONTRACT_SHA = _mkd_keep
+    _mkd_v3 = (_mkd_rc == 9 and MKD.contract_ok()
+               and {("VC", "reading_row"), ("V", "prefilter"), ("GR", "run_ratio"), ("V", "complete_buckets"), ("D", "catalyst")} <= _mkd_calls
+               and not any(a in ("send_telegram", "git_save", "post") for _m, a in _mkd_calls)
+               and set(_mkd_y[True]) == {"workflow_dispatch"} and _mkd_y["permissions"] == {"contents": "read", "actions": "read"}
+               and "run-id: 42134086032" in _mkd_yt and "TELEGRAM" not in _mkd_yt and "fetch-depth: 0" in _mkd_yt
+               and MKD.SHADOW_REF.startswith("7936c0bfc") and (MKD.FLOOR_A, MKD.FLOOR_S, MKD.BOOT_N, MKD.SEED) == (20, 10, 2000, "MKT1"))
+    _mkd_v = (_mkd_v1, _mkd_v2, _mkd_v3)
+except Exception as _e:                                              # noqa: BLE001
+    _mkd_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🌡️📅 MKD1-MKD3 T-MKTDAY: الوسيطُ والتعادلُ للفقيرة · «يفرّق» بفاصل الجلسات والنصفين · الأرضيّاتُ والتغطيةُ ⟵ «لا قياس» · "
+      "B وP بآلة الحيّ بالاسم (الخبرُ في لحظة الشمعة · البري قبل 09:25) · قراءةٌ فقط وخروجُ 9 بلا بصمة العقد",
+      _mkd_v == (True, True, True), str(_mkd_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
