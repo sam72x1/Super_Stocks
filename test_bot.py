@@ -73475,9 +73475,13 @@ check("📺 TVB8 فاشلٌ-آمن كلّيًّا: `tv_download` يرمي ⟵ ي
 #    البحث بلا البيئة كما هي (المساواةُ تامّةٌ فأيُّ زائدٍ يُسقطه).
 #    🔄 **وإقرارٌ ثانٍ مؤرَّخ 2026-09-30 (أمرُ المالك «انقل رادار الضغط إلى ترندق فيو»):** النطاقُ صار **عشرة** — ورادارُ الضغط
 #    (‏press_radar.yml · خطوتُه مقفولةٌ بـPRV8) · وحاصدُه بلا البيئة (يحسم كلَّ صفٍّ بمصدره من الكود · PRV7).
+#    🔄 **وإقرارٌ ثالثٌ مؤرَّخ 2026-11-06 (أمرُ المالك «سجّل عقد هدف للظل أماميًا» · «احسبها له عند 09:25»):** النطاقُ صار **أحدَ عشر** —
+#    ورسالةُ الظلّ (‏shadow_telegram.yml) لأن التقاطَ `T-SHADOW-TGT` بعد الإرسال ينادي `analyze_on_demand` (حسابُ الفحص اليدويّ نفسُه ·
+#    و`analyze.yml` من العشرة) فيقرأ شموعَ الفرز نفسَها · وخطوتُه مقفولةٌ بـSGT3.
 try:
     _want9 = {"daily_screener.yml", "pullback_monitor.yml", "hand_digest.yml", "analyze.yml", "hand_check.yml",
-              "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml", "press_radar.yml"}
+              "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml", "press_radar.yml",
+              "shadow_telegram.yml"}
     _got9 = set()
     for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
         if not _fn9.endswith((".yml", ".yaml")):
@@ -73493,8 +73497,8 @@ try:
     _v9w = f"زائد={sorted(_got9 - _want9)} · ناقص={sorted(_want9 - _got9)}"
 except Exception as _e:                                              # noqa: BLE001
     _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows العشرة وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
-      "فحص اليد ‏+ الصيّادون الأربعة ‏+ رادارُ الضغط منذ 2026-09-30) — وحصّادا النتائج والضغط وفحصُ الدخان وأدواتُ البحث بلا البيئة (YAML)",
+check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows الأحد عشر وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
+      "فحص اليد ‏+ الصيّادون الأربعة ‏+ رادارُ الضغط منذ 2026-09-30 ‏+ رسالةُ الظلّ منذ 2026-11-06) — وحصّادا النتائج والضغط وفحصُ الدخان وأدواتُ البحث بلا البيئة (YAML)",
       _v9, _v9w)
 
 # TVB10 — `tv_bar_fresh`: إطارُ ياهو (بلا وسم) ⟵ True دائمًا (بت-بت) · وإطارُ TradingView آخرُه آخرُ جلسةٍ مكتملة ⟵ True · وأقدمُ ⟵ False
