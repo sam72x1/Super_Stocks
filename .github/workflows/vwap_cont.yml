@@ -7,7 +7,12 @@ permissions:
   contents: read
 
 on:
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      reading:
+        description: "1 = الملحق 1 وحدَه (قراءةُ الشظايا المحفوظة من التشغيلة 42134086032 بمقياس العقد) · 0 = الإعادةُ الكاملة"
+        required: false
+        default: "0"
 
 concurrency:
   group: super-stocks-vwap-cont
@@ -15,6 +20,7 @@ concurrency:
 
 jobs:
   shard:
+    if: ${{ inputs.reading != '1' }}
     runs-on: ubuntu-latest
     timeout-minutes: 340
     strategy:
@@ -43,7 +49,7 @@ jobs:
 
   report:
     needs: shard
-    if: ${{ !cancelled() }}
+    if: ${{ !cancelled() && inputs.reading != '1' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -64,3 +70,32 @@ jobs:
           SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
           PYTHONUNBUFFERED: "1"
         run: python vwap_cont.py --mode report --in vwap_cont_shards
+
+  # 🟠🔬① الملحق 1 (`vwap_cont_addendum_1.md`): شظايا التشغيلة 42134086032 كما حُفظت (artifacts حتى ‏≈2026-12-06) ⟵ الجدولُ بمقياس العقد ‏+ A1-A8.
+  reading:
+    if: ${{ inputs.reading == '1' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: vwap-cont-shard-*
+          path: vwap_cont_shards
+          run-id: 42134086032
+          github-token: ${{ github.token }}
+      - name: 📖 قراءةُ الملحق 1
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: python vwap_cont.py --mode reading --in vwap_cont_shards
