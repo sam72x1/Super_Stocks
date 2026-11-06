@@ -2695,7 +2695,7 @@
  },
  "LIQ:CLRO": {
   "anchor_ms": 1793999220000,
-  "last_ms": 1793999220000,
+  "last_ms": 1793999280000,
   "sent": [
    "M1"
   ],
@@ -2703,15 +2703,15 @@
   "vol_x": 10.6,
   "peak_usd": 120554,
   "last_eval_ms": 1793999280000,
-  "pulse_ms": 1793999220000,
+  "pulse_ms": 1793999280000,
   "anchor_price": 5.75,
   "anchor_open": 5.23,
   "anchor_low": 5.23,
-  "date": "2026-11-06",
   "pre_done": true,
   "pre_hi": 5.25,
   "pre_usd": 285767,
-  "pre_n": 28
+  "pre_n": 28,
+  "date": "2026-11-06"
  },
  "LIQ:ONEG": {
   "last_eval_ms": 1793998980000,
