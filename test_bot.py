@@ -98575,6 +98575,7 @@ try:
                and LSG.admitted_by(("REJECT", "M5_سيولة"), ("PASS", "")) == "M5_سيولة"
                and LSG.admitted_by(("REJECT", "M5_سيولة"), ("REJECT", "M3_انفجار_تحت_60")) is None
                and LSG.admitted_by(("PASS", ""), None) is None
+               and LSG.cost_bounds(4, 0) == (4, 4, 1) and LSG.cost_bounds(2, 9) == (2, 9, 0)
                and LSG.cost_verdict(5, 40, 50) == "داخل الميزانية" and LSG.cost_verdict(60, 400, 50) == "خارجها"
                and LSG.cost_verdict(10, 400, 50) == "غيرُ محسوم" and LSG.cost_verdict(None, 1, 1) == "لا قياس"
                and LSG.selective_verdict(30, 40, 50, 1000) == "انتقائيّة" and LSG.selective_verdict(2, 40, 50, 1000) == "غيرُ انتقائيّة"

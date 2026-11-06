@@ -139,6 +139,12 @@ def admitted_by(r0, r1):
     return r0[1]
 
 
+def cost_bounds(lo, hi):
+    """🔒 **نقيّة** (§④): (الأدنى، الأعلى، رُفع؟) ليومٍ واحد — الأعلى (سجلُّ الإنتاج بقواعد يومها) لا ينزل عن الأدنى (الإعادةُ بقواعد اليوم ·
+    تغيّرُ K3 يجعله ممكنًا) ⟵ يُرفع إليه ويُعَدّ ويُعلَن."""
+    return lo, max(hi, lo), int(hi < lo)
+
+
 def cost_verdict(lo_med, hi_med, pass_med):
     """🔒 **نقيّة** (§④): «داخل الميزانية» إن الأعلى ≤ PASS · «خارجها» إن الأدنى > PASS · وإلّا «غيرُ محسوم»."""
     if None in (lo_med, hi_med, pass_med):
@@ -351,18 +357,22 @@ def mode_report():
         R_ = sum(1 for i in valid if adm_g[i] == g and rows[i]["r50"])
         Q_ = sum(1 for i in valid if adm_g[i] == g and not rows[i]["r50"])
         sel = selective_verdict(R_, R_ + Q_, base_k, base_n, rg.wilson)
-        lo_d, hi_d = [], []
+        lo_d, hi_d, raised = [], [], 0
         for d in days:
             ses = T["sessions"][d]
             if ses.get("pass") is None:
                 continue
-            lo_d.append(sum(1 for i in valid if rows[i]["day"] == d and adm_g[i] == g))
-            hi_d.append(sum(int(n) for k, n in (ses.get("walls_n") or {}).items() if gate_of(k) == g))
+            lo_x = sum(1 for i in valid if rows[i]["day"] == d and adm_g[i] == g)
+            hi_x = sum(int(n) for k, n in (ses.get("walls_n") or {}).items() if gate_of(k) == g)
+            lo_x, hi_x, up = cost_bounds(lo_x, hi_x)
+            raised += up
+            lo_d.append(lo_x)
+            hi_d.append(hi_x)
         lo_m = statistics.median(lo_d) if lo_d else None
         hi_m = statistics.median(hi_d) if hi_d else None
         cv = cost_verdict(lo_m, hi_m, pass_med)
-        removal[g] = {"R": R_, "Q": Q_, "sel": sel, "cost": cv, "lo": lo_m, "hi": hi_m}
-        L.append(f"| {g}{' 🔒H6' if g == 'ANCHOR' else ''} | {label(g)[0]} | {R_} | {Q_} | {_pct(R_, R_ + Q_)} {_ci(rg.wilson(R_, R_ + Q_))} | {sel} | {lo_m} | {hi_m} | {pass_med} | {cv} |")
+        removal[g] = {"R": R_, "Q": Q_, "sel": sel, "cost": cv, "lo": lo_m, "hi": hi_m, "hi_raised_days": raised}
+        L.append(f"| {g}{' 🔒H6' if g == 'ANCHOR' else ''} | {label(g)[0]} | {R_} | {Q_} | {_pct(R_, R_ + Q_)} {_ci(rg.wilson(R_, R_ + Q_))} | {sel} | {lo_m} | {hi_m}{f' (رُفع {raised} يومًا)' if raised else ''} | {pass_med} | {cv} |")
     nr_in = sum(1 for i in valid if rows[i]["r50"])
     none_single = sum(1 for i in valid if rows[i]["r50"] and not adm_g[i] and RP[i]["r0"][0] == "REJECT")
     L += ["", f"راكضون لا تُدخلهم إزالةُ أيّ بوّابةٍ وحدَها (بوّابتان فأكثر): {none_single} من {nr_in} · ⚠️ «يدخل» = يعبر `analyze_ticker` وما بعده (الشورت/الفلوت/المتاح/السلامة/السعة) لا يُعاد ⟵ حدٌّ أعلى.", ""]
