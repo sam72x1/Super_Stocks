@@ -6551,3 +6551,4 @@
 {"key": "envelope|2026-11-05|XWEL", "hunter": "envelope", "session": "2026-11-05", "symbol": "XWEL", "kind": "candidate", "ref_close": 0.5726, "fwd": 40, "outcome": null, "float": 5813473.0, "src": "tradingview"}
 {"key": "envelope|2026-11-05|YDDL", "hunter": "envelope", "session": "2026-11-05", "symbol": "YDDL", "kind": "candidate", "ref_close": 1.01, "fwd": 40, "outcome": null, "float": 10263065.0, "src": "tradingview"}
 {"key": "envelope|2026-11-05|YDKG", "hunter": "envelope", "session": "2026-11-05", "symbol": "YDKG", "kind": "candidate", "ref_close": 0.9999, "fwd": 40, "outcome": null, "float": 5453937.0, "src": "tradingview"}
+{"key": "split|2026-11-05|CTNT", "hunter": "split", "session": "2026-11-05", "symbol": "CTNT", "kind": "candidate", "ref_close": 1.61, "fwd": 40, "outcome": null, "price": 1.61, "float": 19375.0, "half": 1.77, "ref": 3.55, "src": "tradingview"}
