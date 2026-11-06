@@ -98411,6 +98411,142 @@ check("🎯 SGT1-SGT3 التقاطُ T-SHADOW-TGT عند 09:25: القائمةُ
       "بعد الإرسال والختم · والتعذّرُ لا يمسّ الختم · والمفتاحُ يرجع بت-بت",
       _sgt_v == (True, True, True), str(_sgt_v)[:240])
 
+# 🌅 MST1-MST3 (‏2026-11-06 · أمرُ المالك «ابنِ مُطلِق الصباح» · عطلٌ مُثبَت: جدولةُ GitHub شبه متوقّفة يومَها — `shadow_telegram` صفرُ مجدولة
+#    و`pullback_monitor` تشغيلتان): حارسٌ ينام ويُطلق المراقبَ قبل فتحاته والرسالةَ يومَ الجلسة إن لم يكونا قائمَين · ويُطلق خلَفَه ·
+#    والرجوعُ حذفُ سطر `MORNING_STARTER: "1"` (يُقرأ من main عند كلّ استيقاظ) · بلا تلغرامَ ولا كتابةِ حالة.
+try:
+    import base64 as _mst_b64
+    import datetime as _mst_dt
+    import morning_starter as _MST
+    _mst_utc = _mst_dt.timezone.utc
+
+    class _MstClock:
+        def __init__(s, t):
+            s.t = t
+
+        def now(s):
+            return s.t
+
+        def sleep(s, x):
+            s.t += _mst_dt.timedelta(seconds=x + 0.004)
+
+    class _MstApi:
+        def __init__(s, clock, stamp_day="2026-11-06", yaml_on=True, mon_since=None, sh_visible=True):
+            s.c, s.calls, s.posts, s.stamp_day, s.yaml_on, s.sh_visible = clock, [], [], stamp_day, yaml_on, sh_visible
+            s.mon_alive_from, s.sh_active_from = mon_since, None
+
+        def __call__(s, method, path, body=None):
+            s.calls.append((method, path))
+            if method == "POST":
+                _wf = path.split("/")[3]
+                s.posts.append((s.c.t.strftime("%a %H:%M"), _wf, (body or {}).get("inputs")))
+                if _wf == _MST.MONITOR_WF:
+                    s.mon_alive_from = s.c.t
+                if _wf == _MST.SHADOW_WF:
+                    s.sh_active_from = s.c.t
+                return {}
+            if path.startswith("/contents/.github/workflows"):
+                _y = "jobs:\n  watch:\n    steps:\n      - env:\n" + ('          MORNING_STARTER: "1"\n' if s.yaml_on else '          X: "1"\n')
+                return {"content": _mst_b64.b64encode(_y.encode()).decode()}
+            if path.startswith("/contents/" + _MST.SHADOW_STAMP):
+                return {"content": _mst_b64.b64encode(json.dumps({"last_sent": s.stamp_day}).encode()).decode()}
+            if _MST.MONITOR_WF in path:
+                if "status=in_progress" in path and s.mon_alive_from:
+                    return {"workflow_runs": [{"id": 1, "status": "in_progress",
+                                               "run_started_at": s.mon_alive_from.strftime("%Y-%m-%dT%H:%M:%SZ")}]}
+                return {"workflow_runs": []}
+            if _MST.SHADOW_WF in path:
+                if s.sh_visible and s.sh_active_from and s.c.t - s.sh_active_from < _mst_dt.timedelta(hours=4):
+                    return {"workflow_runs": [{"id": 2, "status": "in_progress"}]}
+                return {"workflow_runs": []}
+            return {}
+
+    def _mst_run(start, env="1", **kw):
+        _c = _MstClock(start)
+        _a = _MstApi(_c, **kw)
+        _keep = (_MST._sleep, _os_hc.environ.get(_MST.ENV))
+        try:
+            _MST._sleep = _c.sleep
+            if env is None:
+                _os_hc.environ.pop(_MST.ENV, None)
+            else:
+                _os_hc.environ[_MST.ENV] = env
+            _rc = _MST.main(now_fn=_c.now, api=_a, no_session=lambda d: _mst_dt.date.fromisoformat(d).weekday() >= 5)
+        finally:
+            _MST._sleep = _keep[0]
+            if _keep[1] is None:
+                _os_hc.environ.pop(_MST.ENV, None)
+            else:
+                _os_hc.environ[_MST.ENV] = _keep[1]
+        return _rc, _c.t.strftime("%a %H:%M"), _a.posts, _a.calls
+
+    _mst_D = lambda d, h, m: _mst_dt.datetime(2026, 11, d, h, m, tzinfo=_mst_utc)       # noqa: E731
+    # MST1: السلوك — الاثنين صباحًا · ليلًا · نهايةُ الأسبوع · المختوم · الأفترُ الشتويّ · سلسلةٌ منقطعة
+    _m_a = _mst_run(_mst_D(9, 7, 27))
+    _m_b = _mst_run(_mst_D(9, 2, 0))
+    _m_c = _mst_run(_mst_D(7, 1, 30))
+    _m_d = _mst_run(_mst_D(9, 7, 27), stamp_day="2026-11-09")
+    _m_e = _mst_run(_mst_D(10, 0, 5))
+    _m_f = _mst_run(_mst_D(9, 13, 5), mon_since=_mst_D(9, 6, 0))
+    _m_s = _mst_run(_mst_D(7, 8, 0))                                          # السبت: لا رسالةَ ولا مراقب
+    _m_q = _mst_run(_mst_D(9, 9, 0), mon_since=_mst_D(9, 8, 50), sh_visible=False)   # تشغيلةٌ لا تظهر ⟵ لا إطلاقَ ثانٍ قبل 50 د
+    _mst_v1 = (_m_a[:3] == (0, "Mon 12:53", [("Mon 08:07", "pullback_monitor.yml", {"mode": "session"}),
+                                              ("Mon 10:30", "shadow_telegram.yml", None), ("Mon 12:53", "morning_starter.yml", None)])
+               and _m_b[2] == [("Mon 07:26", "morning_starter.yml", None)]
+               and _m_c[2] == [("Sat 06:56", "morning_starter.yml", None)]
+               and [p[1] for p in _m_d[2]] == ["pullback_monitor.yml", "morning_starter.yml"]
+               and _m_e[2][0] == ("Tue 00:07", "pullback_monitor.yml", {"mode": "session"})
+               and _m_f[2][0] == ("Mon 13:07", "pullback_monitor.yml", {"mode": "session"})
+               and _m_s[2] == [("Sat 13:26", "morning_starter.yml", None)]
+               and [p[0] for p in _m_q[2] if p[1] == "shadow_telegram.yml"] == ["Mon 10:30", "Mon 11:30", "Mon 12:30", "Mon 13:30"])
+    # MST2: الرجوع — بلا السطر لا نداءَ واحد · وحذفُه من main يوقف القائمَ بلا إطلاق · وبلا مفتاحٍ صفرُ عمل
+    _m_g = _mst_run(_mst_D(9, 7, 27), env=None)
+    _m_h = _mst_run(_mst_D(9, 7, 27), yaml_on=False)
+    _mst_keep_api = (_MST.OE._gh_api, _os_hc.environ.get("GITHUB_TOKEN"), _os_hc.environ.get(_MST.ENV))
+    try:
+        def _mst_boom(*a, **k):
+            raise RuntimeError("لا يُنادى")
+        _MST.OE._gh_api = _mst_boom
+        _os_hc.environ.pop("GITHUB_TOKEN", None)
+        _os_hc.environ[_MST.ENV] = "1"
+        _m_i = _MST.main(now_fn=lambda: _mst_D(9, 7, 27))
+    finally:
+        _MST.OE._gh_api = _mst_keep_api[0]
+        for _kk, _vv in (("GITHUB_TOKEN", _mst_keep_api[1]), (_MST.ENV, _mst_keep_api[2])):
+            if _vv is None:
+                _os_hc.environ.pop(_kk, None)
+            else:
+                _os_hc.environ[_kk] = _vv
+    _mst_v2 = (_m_g[0] == 0 and _m_g[3] == [] and _m_h[2] == [] and _m_h[1] == "Mon 08:07" and _m_i == 0)
+    # MST3: الـworkflow والبنية — إطلاقٌ يدويٌّ واحتياطُ كرون · مجموعةٌ ثابتة لا تُلغي · صلاحيتان · السطرُ والمفتاح · بلا أسرار تلغرام ·
+    #       والسكربتُ يستورد النافذةَ بالاسم ولا ينادي إرسالًا ولا حفظًا · وكلُّ POST إطلاقُ workflow
+    _mst_y = _vwr_yaml.safe_load(open(".github/workflows/morning_starter.yml", encoding="utf-8"))
+    _mst_on = _mst_y.get(True) or _mst_y.get("on") or {}
+    _mst_job = (_mst_y.get("jobs") or {}).get("watch") or {}
+    _mst_env = (_mst_job.get("steps") or [{}])[-1].get("env") or {}
+    _mst_src = open("morning_starter.py", encoding="utf-8").read()
+    _mst_tree = _ast0.parse(_mst_src)
+    _mst_names = {getattr(_n.func, "attr", None) or getattr(_n.func, "id", None) for _n in _ast0.walk(_mst_tree) if isinstance(_n, _ast0.Call)}
+    _mst_attrs = {_n.attr for _n in _ast0.walk(_mst_tree) if isinstance(_n, _ast0.Attribute)}
+    _mst_imp = {(_n.module, _a.name) for _n in _ast0.walk(_mst_tree) if isinstance(_n, _ast0.ImportFrom) for _a in _n.names}
+    _mst_posts = [_n for _n in _ast0.walk(_mst_tree) if isinstance(_n, _ast0.Call) and _n.args
+                  and isinstance(_n.args[0], _ast0.Constant) and _n.args[0].value == "POST"]
+    _mst_v3 = ("workflow_dispatch" in _mst_on and bool(_mst_on.get("schedule"))
+               and _mst_y.get("concurrency") == {"group": "morning-starter", "cancel-in-progress": False}
+               and _mst_y.get("permissions") == {"contents": "read", "actions": "write"}
+               and _mst_env.get("MORNING_STARTER") == "1" and "github.token" in str(_mst_env.get("GITHUB_TOKEN"))
+               and "TELEGRAM" not in json.dumps(_mst_y) and int(_mst_job.get("timeout-minutes") or 0) >= _MST.BUDGET_MIN + 10
+               and {("pullback_session", "in_window"), ("pullback_session", "next_slot")} <= _mst_imp
+               and {"alive_runs", "_no_session"} <= _mst_attrs
+               and not ({"send_telegram", "git_save", "save_watchlist", "save_op_entry_state"} & _mst_names)
+               and len(_mst_posts) == 1 and "dispatches" in _ast0.unparse(_mst_posts[0].args[1]))
+    _mst_v = (_mst_v1, _mst_v2, _mst_v3)
+except Exception as _e:                                              # noqa: BLE001
+    _mst_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🌅 MST1-MST3 مُطلِقُ الصباح: المراقبُ قبل فتحته والرسالةُ يومَ الجلسة إن لم يكونا قائمَين · الخلَفُ قبل نهاية الميزانيّة · "
+      "حذفُ السطر يوقفه بلا إطلاق · بلا تلغرامَ ولا حفظ",
+      _mst_v == (True, True, True), str(_mst_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

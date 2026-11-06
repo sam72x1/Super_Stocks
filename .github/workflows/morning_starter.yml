@@ -1,0 +1,44 @@
+name: "🌅 مُطلِق الصباح — حارسٌ بديلٌ عن جدولة GitHub (المراقب · رسالة الظل)"
+
+# 🌅 أمرُ المالك 2026-11-06 «ابنِ مُطلِق الصباح» بعد عطلٍ مُثبَت: `shadow_telegram.yml` صفرُ تشغيلةٍ مجدولة يومَها و`pullback_monitor.yml` تشغيلتان ·
+#    وسلسلةُ جوب الجلسة تنقطع ليلًا فيعتمد بدءُ الصباح على كرونٍ لا يصل.
+#    جوبٌ ينام ويستيقظ قبل كلّ فتحةٍ للمراقب وعند نقاط رسالة الظلّ ⟵ يُطلقهما إن لم يكونا قائمَين · ويُطلق خلَفَه قبل نهاية ميزانيّته (لا كرونَ يلزمه) ·
+#    ومجموعةُ التزامن الثابتة تُبقي واحدًا يعمل وواحدًا ينتظر على الأكثر · والكروناتُ أدناه احتياطٌ إن انقطعت السلسلة.
+#    🔒 لا تلغرامَ ولا كتابةَ حالة — إطلاقاتٌ وقراءاتٌ من GitHub API وحدَها (`MST1`-`MST3`).
+#    ↩️ **الرجوع: احذف سطرَ `MORNING_STARTER: "1"` أدناه** — التشغيلةُ القائمة تقرؤه من main عند كلّ استيقاظ فتتوقّف بلا إطلاقٍ ولا خلَف.
+permissions:
+  contents: read           # قراءةُ ختم الرسالة وملفِّ هذا الـworkflow من main
+  actions: write           # إطلاقُ المراقب والرسالة والخلَف · وقراءةُ تشغيلاتها
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "7 1,7,13,19 * * *"     # احتياطٌ إن انقطعت السلسلة (يُصفّ خلف القائم في المجموعة)
+
+concurrency:
+  group: morning-starter
+  cancel-in-progress: false
+
+jobs:
+  watch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 345          # فوق ميزانيّة السكربت (330)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🌅 الحارس
+        env:
+          MORNING_STARTER: "1"
+          GITHUB_TOKEN: ${{ github.token }}
+          PYTHONUNBUFFERED: "1"
+        run: python morning_starter.py
