@@ -223,7 +223,10 @@ def main(now_fn=None, api=None, runner=None):
         wait = (target - now).total_seconds()
         if wait > 0:
             _sleep(wait)
-            continue
+            if target < t:
+                continue
+        # 🔧 **عطلٌ مُثبَت 2026-11-06 (`42192618834`: 5.5 ساعات و«دورات 0»):** النومُ يستيقظ بعد الفتحة بأجزاء ثانية فكان «الآن» يُعاد حسابُه و`next_slot`
+        #    يقفز إلى الفتحة التالية ⟵ كلُّ فتحةٍ تُتخطّى · الآن الفتحةُ التي نُوِّم لها تُشغَّل نفسُها (`PBJ6` · ساعةٌ بتأخّر استيقاظ)
         last = t
         if not in_window(t):
             continue

@@ -121,27 +121,69 @@ def sample_of(day) -> str:
     return "fwd" if str(day) >= SHADOW_FWD_SINCE else "in"
 
 
-def gap_pct_of(a, b, dailies, day):
+# ✂️ **عطلٌ مُثبَت 2026-11-06 (أوّلُ رسالةٍ للظلّ · أمرُ المالك «أصلح فجوة CDT (تقسيم عكسي) بقفل قبل رسالة الاثنين»):** إغلاقُ الأمس من
+#    `daily_range` (`adjusted=false`) وسعرُ المرساة بعد التقسيم ⟵ CDT ‏«فجوة +2879%» (1.26$ مقابل ‏≈0.042$ قبل تقسيمٍ عكسيّ) فدخل S بفجوةٍ وهميّة ·
+#    الإصلاح: تقسيمٌ نُفِّذ بعد يوم إغلاق الأمس حتى يوم المرساة (Polygon `/v3/reference/splits`) يُسوّي إغلاقَ الأمس بنسبته (‏`split_from/split_to`)
+#    — وإغلاقُ صفّ السجلّ يُسوّى **فقط** إن طابق الإغلاقَ الخامَّ قبل التقسيم (`SPLIT_SAME_PCT` · هندسيّ) فلا تُسوّى قيمةٌ مسوّاةٌ مرّتين ·
+#    والتعذّرُ ⟵ الفجوةُ كما كانت (فاشلٌ-مفتوح يُعَدّ) · ↩️ `SHADOW_SPLIT_GAP=0` ⟵ بلا تسوية بت-بت (`SSG1`-`SSG3`).
+SPLIT_GAP_ON = os.environ.get("SHADOW_SPLIT_GAP", "1") != "0"
+SPLIT_SAME_PCT = 2.0
+
+
+def split_ratio(sym, after_day, upto_day, key, get=None):
+    """✂️ نسبةُ تسوية إغلاق `after_day` بتقسيماتٍ نُفِّذت في (`after_day`، `upto_day`] = جداءُ `split_from/split_to` (عكسيٌّ 1 مقابل 30 ⟵ 30) ·
+    1.0 بلا تقسيم · None عند التعذّر."""
+    import requests
+    g = requests.get if get is None else get
+    try:
+        r = g("https://api.polygon.io/v3/reference/splits",
+              params={"ticker": str(sym).upper(), "execution_date.gt": after_day, "execution_date.lte": upto_day, "limit": 20},
+              headers={"Authorization": f"Bearer {key}"}, timeout=20)
+        if getattr(r, "status_code", 0) != 200:
+            return None
+        ratio = 1.0
+        for x in (r.json() or {}).get("results") or []:
+            fr, to = float(x.get("split_from") or 0), float(x.get("split_to") or 0)
+            if fr > 0 and to > 0:
+                ratio *= fr / to
+        return ratio
+    except Exception:                                                # noqa: BLE001
+        return None
+
+
+def split_fn(sym, day, key):
+    """الجالبُ الذي تمرّره الأداتان لـ`anchor_row` (‏`prev_day` ⟵ نسبة) — أو None حين يُطفأ المفتاح أو يغيب المفتاحُ السرّيّ."""
+    if not SPLIT_GAP_ON or not key:
+        return None
+    return lambda prev_day: split_ratio(sym, prev_day, day, key)
+
+
+def gap_pct_of(a, b, dailies, day, split=None):
     """فجوةُ المرساة عن إغلاق الأمس **بمصدر `features` نفسِه**: `prev_close` صفِّ السجلّ لمن فيه، ولمن ليس فيه
-    آخرُ إغلاقٍ قبل اليوم من `daily_range` (إصلاحُ `tierlink_probe.main`) ⇒ الرقمُ والسلّةُ من مصدرٍ واحد."""
+    آخرُ إغلاقٍ قبل اليوم من `daily_range` (إصلاحُ `tierlink_probe.main`) ⇒ الرقمُ والسلّةُ من مصدرٍ واحد.
+    ✂️ و`split` (‏`prev_day` ⟵ نسبة) يُسوّي إغلاقَ الأمس بتقسيمٍ نُفِّذ بعده · وبلا `split` بت-بت كما كان."""
     ap = (a or {}).get("anchor_price") or (b or {}).get("anchor_price")
+    raw = [(d, c) for (d, _h, c) in (dailies or []) if d < day]
     if b is not None:
         pc = b.get("prev_close")
     else:
-        pcs = [c for (d, _h, c) in (dailies or []) if d < day]
-        pc = pcs[-1] if pcs else None
+        pc = raw[-1][1] if raw else None
+    if split is not None and pc and raw:
+        r = split(raw[-1][0])
+        if r and r != 1.0 and raw[-1][1] and (b is None or abs(pc / raw[-1][1] - 1) * 100 <= SPLIT_SAME_PCT):
+            pc = pc * r
     return (ap / pc - 1) * 100 if ap and pc else None
 
 
-def anchor_row(a, b, bars, dailies, day):
+def anchor_row(a, b, bars, dailies, day, split=None):
     """`(f, o, gap_pct)` لمرساةٍ واحدة — أو None بلا أساس. **الإصلاحُ نفسُه** لفجوة من ليس في السجلّ
-    كما في `tierlink_probe.main`/`opentry_link_probe.main` (مقفولٌ بالهُويّة)."""
+    كما في `tierlink_probe.main`/`opentry_link_probe.main` (مقفولٌ بالهُويّة). ✂️ و`split` يُسوّي الفجوةَ بالتقسيم (والسلّةُ معها)."""
     o = measure(a, b, bars, dailies)
     if o is None:
         return None
     f = features(a, b)
-    g = gap_pct_of(a, b, dailies, day)
-    if b is None and g is not None:
+    g = gap_pct_of(a, b, dailies, day, split)
+    if g is not None and (b is None or (split is not None and g != gap_pct_of(a, b, dailies, day))):
         f["gap"] = _bucket(g, (10, 30), ("<10%", "10-30%", "≥30%"))
     return f, o, g
 
@@ -356,7 +398,7 @@ def main(now_ny=None) -> int:
             continue
         dailies = daily_range(sym, day, key)
         b = ledger.get((day, sym))
-        got = anchor_row(a, b, bars, dailies, day)
+        got = anchor_row(a, b, bars, dailies, day, split=split_fn(sym, day, key))
         if got is None:
             nobase += 1
             continue

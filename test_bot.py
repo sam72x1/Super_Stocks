@@ -97821,17 +97821,17 @@ try:
                and _PBS.in_window(_pbs_dt.datetime(2026, 11, 7, 0, 58, tzinfo=_pbs_U)) and not _PBS.in_window(_pbs_dt.datetime(2026, 11, 7, 1, 13, tzinfo=_pbs_U)))
 
     class _PbsClock:
-        def __init__(s, t):
-            s.t = t
+        def __init__(s, t, jitter=0.0):
+            s.t, s.j = t, jitter
 
         def now(s):
             return s.t
 
         def sleep(s, x):
-            s.t += _pbs_dt.timedelta(seconds=max(1.0, float(x)))
+            s.t += _pbs_dt.timedelta(seconds=max(1.0, float(x)) + s.j)
 
-    def _pbs_sim(start, busy_until=None, older_until=None, budget=None, older_age=30):
-        c = _PbsClock(start)
+    def _pbs_sim(start, busy_until=None, older_until=None, budget=None, older_age=30, jitter=0.0):
+        c = _PbsClock(start, jitter)
         _keep = (_PBS._sleep, _PBS.log, _os_hc.environ.get("PB_BUDGET_MIN"), _os_hc.environ.get("GITHUB_RUN_ID"))
         ran, posts, logs = [], [], []
 
@@ -97881,6 +97881,10 @@ try:
     #    و`STANDBY_ON_OLDER = True` ⟵ الانتظارُ الاحتياطيّ القديم بت-بت · وتعذّرُ الـAPI يمضي كما كان.
     _p6 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 8, 1, tzinfo=_pbs_U), older_until=_pbs_dt.datetime(2026, 11, 7, tzinfo=_pbs_U), budget=90,
                    older_age=315)
+    # 🔧 PBJ6 (‏2026-11-06 · عطلٌ مُثبَت `42192618834`: 5.5 ساعات و«دورات 0»): الساعةُ الحقيقيّة تستيقظ بعد الفتحة بأجزاء ثانية ⟵ اليومُ نفسُه بتأخّر استيقاظ
+    #    4 ميلّي ثانية بعد كلّ نوم يُشغّل الدورات الاثنتين والعشرين نفسَها (والكودُ القديم يتخطّاها كلَّها) — والساعةُ الدقيقة كانت تُخفي العطل.
+    _p8 = _pbs_sim(_pbs_dt.datetime(2026, 11, 6, 8, 1, tzinfo=_pbs_U), jitter=0.004)
+    _pbs_v6 = (_p8[0] == 0 and len(_p8[1]) == 22 and _p8[1][0] == "08:13" and _p8[1][-1] == "13:28" and _p8[2] == ["13:25"])
     _pbs_keep_sb = _PBS.STANDBY_ON_OLDER
     try:
         _PBS.STANDBY_ON_OLDER = True
@@ -97940,12 +97944,12 @@ try:
                and all(_pbs_route(c) == (False, True) for c in _pbs_sess) and all(_pbs_route(c) == (True, False) for c in _pbs_old6)
                and '↩️ **الرجوع: احذف السطرَ التالي.**\n    - cron: "1 9-12,14,15,17,18,20,21,23 * * 1-5"' in _pbs_t
                and "concurrency" not in _pbs_y)
-    _pbs_v = _pbs_v2 + (_pbs_v1, _pbs_v3, _pbs_v4, _pbs_v5)
+    _pbs_v = _pbs_v2 + (_pbs_v1, _pbs_v3, _pbs_v4, _pbs_v5, _pbs_v6)
 except Exception as _e:                                              # noqa: BLE001
     _pbs_v = (f"⛔ {type(_e).__name__}: {_e}",)
 check("🔁 PBJ1-PBJ4 جوبُ جلسة المراقب: النافذةُ = اتّحادُ الكرونات القديمة على كلّ فتحة · 22 دورةً وخلَفٌ واحد · الأفترُ الشتويّ حتى 00:58 بلا خلَف · "
       "لا دورةَ أثناء الفرز · خروجٌ فوريّ عن العامل الأقدم وخلافتُه في دقائقه الأخيرة (PBJ5) · الدورةُ pullback_live.py بمهلة 15 د · والوظيفةُ القديمة للرجوع",
-      _pbs_v == (True,) * 9, str(_pbs_v)[:240])
+      _pbs_v == (True,) * 10, str(_pbs_v)[:240])
 
 # 🌘 SHT1-SHT3 (‏2026-11-06 · أمرُ المالك «أرسل قائمة الظل على تلغرام» · سببُه `T-RRGATE` ④): رسالةٌ واحدة عند 09:25 نيويورك بعنوان المالك
 #    حرفيًّا · S بقاعدة `shadow_ready` بالاسم على مراسي بري اليوم · لا إرسالَ بعد 09:29 ولا مكرّر · وبلا SHADOW_TG_SEND=1 لا إرسال.
@@ -98214,6 +98218,100 @@ except Exception as _e:                                              # noqa: BLE
 check("🌘➡️ SCT1-SCT3 T-SHADOW-CONT: الدخولُ آخرُ دقيقةٍ قبل 09:25 · الأعلى والأدنى قبله · الإغلاقُ · الوقفُ −10% (والافتتاحُ تحته) · المجموعاتُ والاستبعاد · "
       "«يفرّق» بفاصل الجلسات المزدوج والنصفين · قراءةٌ فقط وخروجُ 9 بلا بصمة العقد",
       _sct_v == (True, True, True), str(_sct_v)[:240])
+
+# ✂️ SSG1-SSG3 (‏2026-11-06 · عطلٌ مُثبَت في أوّل رسالةٍ للظلّ · أمرُ المالك «أصلح فجوة CDT (تقسيم عكسي) بقفل قبل رسالة الاثنين»): إغلاقُ الأمس
+#    الخامّ (`daily_range` · `adjusted=false`) مقابل سعر مرساةٍ بعد تقسيمٍ عكسيّ ⟵ «فجوة +2879%» وهميّة أدخلت CDT في S · الإصلاح: تقسيمٌ نُفِّذ بعد يوم
+#    إغلاق الأمس حتى يوم المرساة يُسوّيه (Polygon `/v3/reference/splits`) · وإغلاقُ صفّ السجلّ يُسوّى إن طابق الخامَّ وحدَه (لا تسويةَ مرّتين) ·
+#    والتعذّرُ ⟵ كما كان · و`SHADOW_SPLIT_GAP=0` ⟵ بت-بت · موصولٌ في السجلّ الليليّ وفي رسالة 09:25 معًا.
+try:
+    import shadow_ready as _ssg_R
+    import shadow_telegram as _ssg_T
+    import ast as _ssg_ast
+
+    class _SsgResp:
+        def __init__(self, code, js):
+            self.status_code, self._js = code, js
+
+        def json(self):
+            return self._js
+    _ssg_calls = []
+
+    def _ssg_get(url, params=None, headers=None, timeout=None):
+        _ssg_calls.append((url, dict(params or {})))
+        return _SsgResp(200, {"results": [{"execution_date": "2026-11-06", "split_from": 30, "split_to": 1}]})
+    _ssg_r30 = _ssg_R.split_ratio("cdt", "2026-11-05", "2026-11-06", "k", get=_ssg_get)
+    _ssg_r1 = _ssg_R.split_ratio("X", "2026-11-05", "2026-11-06", "k", get=lambda *a, **k: _SsgResp(200, {"results": []}))
+    _ssg_rf = _ssg_R.split_ratio("X", "2026-11-05", "2026-11-06", "k", get=lambda *a, **k: _SsgResp(500, {}))
+
+    def _ssg_boom(*a, **k):
+        raise OSError("net")
+    _ssg_re = _ssg_R.split_ratio("X", "2026-11-05", "2026-11-06", "k", get=_ssg_boom)
+    _ssg_v1 = (_ssg_r30 == 30.0 and _ssg_r1 == 1.0 and _ssg_rf is None and _ssg_re is None
+               and _ssg_calls and _ssg_calls[0][0].endswith("/v3/reference/splits")
+               and _ssg_calls[0][1] == {"ticker": "CDT", "execution_date.gt": "2026-11-05", "execution_date.lte": "2026-11-06", "limit": 20})
+    # SSG2: الفجوة · السلّة · صفُّ السجلّ الخامّ والمسوّى · والتعذّر
+    _ssg_a = {"anchor_price": 1.26, "anchor_ms": 1}
+    _ssg_d = [("2026-11-04", 0.05, 0.05), ("2026-11-05", 0.045, 0.0423)]
+    _ssg_seen = []
+    _ssg_sp = lambda prev: (_ssg_seen.append(prev) or 30.0)                               # noqa: E731
+    _ssg_g0 = _ssg_R.gap_pct_of(_ssg_a, None, _ssg_d, "2026-11-06")
+    _ssg_g1 = _ssg_R.gap_pct_of(_ssg_a, None, _ssg_d, "2026-11-06", _ssg_sp)
+    _ssg_gb_raw = _ssg_R.gap_pct_of(_ssg_a, {"prev_close": 0.0423}, _ssg_d, "2026-11-06", _ssg_sp)
+    _ssg_gb_adj = _ssg_R.gap_pct_of(_ssg_a, {"prev_close": 1.269}, _ssg_d, "2026-11-06", _ssg_sp)
+    _ssg_gn = _ssg_R.gap_pct_of(_ssg_a, None, _ssg_d, "2026-11-06", lambda prev: None)
+    _ssg_keep = (_ssg_R.measure, _ssg_R.features)
+    try:
+        _ssg_R.measure = lambda a, b, bars, dailies: {"exploded50": False}
+        _ssg_R.features = lambda a, b: {"tod": "pre", "j1": "لا", "gap": "≥30%" if (b or {}).get("prev_close") == 0.0423 else "؟"}
+        _ssg_f_b, _, _ = _ssg_R.anchor_row(_ssg_a, {"prev_close": 0.0423}, [1], _ssg_d, "2026-11-06", split=_ssg_sp)
+        _ssg_f_b0, _, _ = _ssg_R.anchor_row(_ssg_a, {"prev_close": 0.0423}, [1], _ssg_d, "2026-11-06")
+        _ssg_f_n, _, _ = _ssg_R.anchor_row(_ssg_a, None, [1], _ssg_d, "2026-11-06", split=_ssg_sp)
+        _ssg_f_n0, _, _ = _ssg_R.anchor_row(_ssg_a, None, [1], _ssg_d, "2026-11-06")
+    finally:
+        _ssg_R.measure, _ssg_R.features = _ssg_keep
+    _ssg_v2 = (round(_ssg_g0) == 2879 and abs(_ssg_g1 - (1.26 / 1.269 - 1) * 100) < 1e-9 and _ssg_seen[0] == "2026-11-05"
+               and abs(_ssg_gb_raw - _ssg_g1) < 1e-9 and abs(_ssg_gb_adj - _ssg_g1) < 1e-9 and _ssg_gn == _ssg_g0
+               and _ssg_f_b["gap"] == "<10%" and _ssg_f_b0["gap"] == "≥30%" and _ssg_f_n["gap"] == "<10%" and _ssg_f_n0["gap"] == "≥30%"
+               and not _ssg_R.shadow_flag(_ssg_f_b) and _ssg_R.shadow_flag(_ssg_f_b0) and _ssg_R.SPLIT_SAME_PCT == 2.0)
+    # SSG3: المفتاحُ والوصل (السجلّ الليليّ ورسالة 09:25 بالـAST · والرسالةُ سلوكيًّا على تثبيت SHT)
+    _ssg_kon = _ssg_R.SPLIT_GAP_ON
+    try:
+        _ssg_R.SPLIT_GAP_ON = False
+        _ssg_off = _ssg_R.split_fn("CDT", "2026-11-06", "k")
+        _ssg_R.SPLIT_GAP_ON = True
+        _ssg_on = _ssg_R.split_fn("CDT", "2026-11-06", "k")
+        _ssg_nokey = _ssg_R.split_fn("CDT", "2026-11-06", "")
+    finally:
+        _ssg_R.SPLIT_GAP_ON = _ssg_kon
+    _ssg_rt = _ssg_ast.parse(open("shadow_ready.py", encoding="utf-8").read())
+    _ssg_main = next(n for n in _ssg_ast.walk(_ssg_rt) if isinstance(n, _ssg_ast.FunctionDef) and n.name == "main")
+    _ssg_main_ok = any(isinstance(c, _ssg_ast.Call) and getattr(c.func, "id", None) == "anchor_row"
+                       and any(k.arg == "split" and isinstance(k.value, _ssg_ast.Call) and getattr(k.value.func, "id", None) == "split_fn"
+                               for k in c.keywords) for c in _ssg_ast.walk(_ssg_main))
+    _ssg_rows, _ssg_all, _ = _ssg_T.shadow_rows(_sht_an, lambda s: [("2026-11-05", 1.0, 1.0)], "2026-11-06", _sht_bars, _sht_led,
+                                                lambda s: ((lambda prev: 1.4) if s == "AAA" else None))
+    _ssg_tt = _ssg_ast.parse(open("shadow_telegram.py", encoding="utf-8").read())
+    _ssg_unp = [n for n in _ssg_ast.walk(_ssg_tt) if isinstance(n, _ssg_ast.Assign) and isinstance(n.value, _ssg_ast.Call)
+                and getattr(n.value.func, "id", None) == "_inputs"]
+    _ssg_kk = _os_hc.environ.get("POLYGON_API_KEY")
+    try:
+        _os_hc.environ["POLYGON_API_KEY"] = "k"
+        _ssg_so = _ssg_T._inputs("2026-11-06", dailies_fn=lambda s: None, bars_fn=lambda s: None)[3]
+    finally:
+        if _ssg_kk is None:
+            _os_hc.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _os_hc.environ["POLYGON_API_KEY"] = _ssg_kk
+    _ssg_v3 = (_ssg_off is None and callable(_ssg_on) and _ssg_nokey is None and _ssg_main_ok and callable(_ssg_so("CDT"))
+               and [r["sym"] for r in _ssg_rows] == ["AAA", "BBB"] and _ssg_rows[0]["why"] == "J1" and abs(_ssg_rows[0]["gap"]) < 1e-9
+               and len(_ssg_unp) == 2 and all(len(n.targets[0].elts) == 4 for n in _ssg_unp)
+               and _ssg_T.split_fn is _ssg_R.split_fn)
+    _ssg_v = (_ssg_v1, _ssg_v2, _ssg_v3)
+except Exception as _e:                                              # noqa: BLE001
+    _ssg_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("✂️ SSG1-SSG3 فجوةُ الظلّ تُسوّى بالتقسيم: CDT ‏+2879% ⟵ ‏−0.7% وخارج S بلا J1 · صفُّ السجلّ الخامّ يُسوّى والمسوّى لا يُسوّى مرّتين · "
+      "التعذّرُ والمفتاحُ ⟵ كما كان · موصولٌ في السجلّ الليليّ ورسالة 09:25",
+      _ssg_v == (True, True, True), str(_ssg_v)[:240])
 
 # 🎯 SGT1-SGT3 (‏2026-11-06 · `T-SHADOW-TGT` §④ · أمرُ المالك «سجّل عقد هدف للظل أماميًا» · «احسبها له عند 09:25»): التقاطُ مستويات الذراع ② بعد إرسال
 #    رسالة الظلّ — النشطُ في القائمة منها · وإلّا `analyze_on_demand` بالاسم على شموعٍ قبل يوم الصفّ وحدَها (`stop[0]`) · الملفُّ إلحاقيٌّ بلا تكرار ·
