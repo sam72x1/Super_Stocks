@@ -48,5 +48,6 @@ jobs:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           SHADOW_TG_SEND: "1"
           SHADOW_TG_REPLAY: ${{ inputs.replay_day }}
+          BARS_SOURCE: tradingview      # 🎯 T-SHADOW-TGT §④: مستوياتُ الذراع ② بمصدر شموع البوت نفسِه
           PYTHONUNBUFFERED: "1"
         run: python shadow_telegram.py

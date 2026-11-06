@@ -98215,6 +98215,100 @@ check("🌘➡️ SCT1-SCT3 T-SHADOW-CONT: الدخولُ آخرُ دقيقةٍ 
       "«يفرّق» بفاصل الجلسات المزدوج والنصفين · قراءةٌ فقط وخروجُ 9 بلا بصمة العقد",
       _sct_v == (True, True, True), str(_sct_v)[:240])
 
+# 🎯 SGT1-SGT3 (‏2026-11-06 · `T-SHADOW-TGT` §④ · أمرُ المالك «سجّل عقد هدف للظل أماميًا» · «احسبها له عند 09:25»): التقاطُ مستويات الذراع ② بعد إرسال
+#    رسالة الظلّ — النشطُ في القائمة منها · وإلّا `analyze_on_demand` بالاسم على شموعٍ قبل يوم الصفّ وحدَها (`stop[0]`) · الملفُّ إلحاقيٌّ بلا تكرار ·
+#    قبل 11-09 لا التقاط · فاشلٌ-آمنٌ لا يمسّ الرسالة ولا الختم · `SHADOW_TGT_CAPTURE=0` ⟵ بت-بت.
+try:
+    import importlib.util as _sgt_iu
+    import pandas as _sgt_pd
+    _sgt_sp = _sgt_iu.spec_from_file_location("shadow_tgt_lock", "fm_forensics/shadow_tgt/shadow_tgt.py")
+    SGT = _sgt_iu.module_from_spec(_sgt_sp)
+    _sgt_sp.loader.exec_module(SGT)
+    _sgt_wl = {"stocks": [{"symbol": "LST", "status": "active", "stop": 1.0, "t1": 1.5, "t2": 2.0},
+                          {"symbol": "OLD", "status": "removed", "stop": 9.0, "t1": 9.5, "t2": 9.9}]}
+    _sgt_df = _sgt_pd.DataFrame({"Close": [1.0, 2.0, 3.0]}, index=_sgt_pd.to_datetime(["2026-11-06", "2026-11-09", "2026-11-10"]))
+
+    class _SgtBot:
+        def __init__(s):
+            s.download_history = lambda syms, *a, **k: {x: _sgt_df for x in syms}
+
+    class _SgtAO:
+        def __init__(s):
+            s.bot, s.seen = _SgtBot(), []
+
+        def analyze_on_demand(s, sym):
+            d = s.bot.download_history([sym])[sym]
+            s.seen.append([str(x)[:10] for x in d.index])
+            return ({"stop": (0.8, 0.9), "t1": 1.6, "t2": 2.4}, [])
+    _sgt_ao = _SgtAO()
+    _sgt_orig = _sgt_ao.bot.download_history
+    _sgt_lv, _sgt_why = SGT.on_demand_levels("ABC", "2026-11-09", ao=_sgt_ao)
+    _sgt_v1 = (SGT.list_levels("LST", _sgt_wl) == {"stop": 1.0, "t1": 1.5, "t2": 2.0} and SGT.list_levels("OLD", _sgt_wl) is None
+               and _sgt_lv == {"stop": 0.8, "t1": 1.6, "t2": 2.4} and _sgt_why == "ok" and _sgt_ao.seen == [["2026-11-06"]]
+               and _sgt_ao.bot.download_history is _sgt_orig and SGT.TGT_FROM == "2026-11-09")
+    # SGT2: الالتقاط
+    _sgt_d = _rej_tf.mkdtemp(prefix="sgt_")
+    _sgt_path = _os_hc.path.join(_sgt_d, "lv.jsonl")
+    with open(_sgt_path, "w", encoding="utf-8") as _f:
+        _f.write('{"date": "2026-11-09", "symbol": "PRE", "src": "none"}\n')
+
+    def _sgt_lof(sym, day):
+        return ({"stop": 0.5, "t1": 0.7, "t2": 0.9}, "ok") if sym == "ODM" else (None, "بلا مستويات")
+    _sgt_n0 = SGT.capture("2026-11-06", ["LST"], wl=_sgt_wl, levels_of=_sgt_lof, path=_sgt_path, log=lambda m: None)
+    _sgt_n1 = SGT.capture("2026-11-09", ["lst", "ODM", "NON", "PRE"], wl=_sgt_wl, levels_of=_sgt_lof, path=_sgt_path, log=lambda m: None)
+    _sgt_n2 = SGT.capture("2026-11-09", ["LST", "ODM"], wl=_sgt_wl, levels_of=_sgt_lof, path=_sgt_path, log=lambda m: None)
+    _sgt_rows = [json.loads(x) for x in open(_sgt_path, encoding="utf-8") if x.strip()]
+    _sgt_by = {r["symbol"]: r for r in _sgt_rows}
+    _sgt_v2 = (_sgt_n0 == 0 and _sgt_n1 == 3 and _sgt_n2 == 0 and len(_sgt_rows) == 4 and _sgt_rows[0]["symbol"] == "PRE"
+               and _sgt_by["LST"]["src"] == "list" and _sgt_by["LST"]["t1"] == 1.5
+               and _sgt_by["ODM"]["src"] == "on_demand" and _sgt_by["ODM"]["stop"] == 0.5
+               and _sgt_by["NON"]["src"] == "none" and "stop" not in _sgt_by["NON"] and _sgt_by["NON"]["why"] == "بلا مستويات")
+    # SGT3: الوصل في رسالة 09:25 — بعد الإرسال والختم · والتعذّرُ لا يمسّ الختم · والمفتاح
+    _sgt_cap, _sgt_saves = [], []
+
+    def _sgt_run(capture_fn, flag=True, send_ok=True):
+        c = _PbsClock(_sht_ny(9, 27))
+        _d = _rej_tf.mkdtemp(prefix="sgt3_")
+        _keep = (_SHT.STAMP, _SHT.STATE, _SHT._sleep, _SHT.log, _SHT.TGT_CAPTURE, _os_hc.environ.get("SHADOW_TG_SEND"),
+                 _os_hc.environ.get("SHADOW_TG_REPLAY"))
+        try:
+            _SHT.STAMP, _SHT.STATE = _os_hc.path.join(_d, "stamp.json"), _os_hc.path.join(_d, "state.json")
+            _SHT._sleep, _SHT.log, _SHT.TGT_CAPTURE = c.sleep, (lambda m: None), flag
+            with open(_SHT.STATE, "w", encoding="utf-8") as _f:
+                json.dump(_sht_state, _f)
+            _os_hc.environ["SHADOW_TG_SEND"] = "1"
+            _os_hc.environ.pop("SHADOW_TG_REPLAY", None)
+            rc = _SHT.main(now_fn=c.now, runner=None, dailies_fn=lambda s: [("2026-11-05", 1.0, 1.0)], bars_fn=_sht_bars,
+                           send_fn=lambda t: send_ok, save_fn=lambda: _sgt_saves.append(_os_hc.path.exists(_SHT.STAMP)),
+                           capture_fn=capture_fn)
+            return rc, _os_hc.path.exists(_SHT.STAMP)
+        finally:
+            _SHT.STAMP, _SHT.STATE, _SHT._sleep, _SHT.log, _SHT.TGT_CAPTURE = _keep[:5]
+            for _kk, _vv in (("SHADOW_TG_SEND", _keep[5]), ("SHADOW_TG_REPLAY", _keep[6])):
+                if _vv is None:
+                    _os_hc.environ.pop(_kk, None)
+                else:
+                    _os_hc.environ[_kk] = _vv
+
+    def _sgt_boom(day, syms):
+        raise RuntimeError("x")
+    _sgt_r1 = _sgt_run(lambda day, syms: _sgt_cap.append((day, list(syms), _os_hc.path.exists(_SHT.STAMP))))
+    _sgt_r2 = _sgt_run(_sgt_boom)
+    _sgt_n_before = len(_sgt_cap)
+    _sgt_r3 = _sgt_run(lambda day, syms: _sgt_cap.append(("off",)), flag=False)
+    _sgt_r4 = _sgt_run(lambda day, syms: _sgt_cap.append(("fail",)), send_ok=False)
+    _sgt_y = _vwr_yaml.safe_load(open(".github/workflows/shadow_telegram.yml", encoding="utf-8"))
+    _sgt_v3 = (_sgt_r1 == (0, True) and _sgt_cap[0][0] == "2026-11-06" and _sgt_cap[0][1] == ["AAA", "BBB", "FFF"] and _sgt_cap[0][2] is True
+               and _sgt_r2 == (0, True) and len(_sgt_cap) == _sgt_n_before == 1 and _sgt_r3 == (0, True) and _sgt_r4[0] == 1
+               and _sgt_saves[:3] == [True, True, True] and len(_sgt_saves) == 3
+               and _sgt_y["jobs"]["send"]["steps"][-1]["env"].get("BARS_SOURCE") == "tradingview" and _SHT.TGT_LEVELS == SGT.LEVELS_FILE)
+    _sgt_v = (_sgt_v1, _sgt_v2, _sgt_v3)
+except Exception as _e:                                              # noqa: BLE001
+    _sgt_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🎯 SGT1-SGT3 التقاطُ T-SHADOW-TGT عند 09:25: القائمةُ النشطة أو التحليلُ على شموعٍ قبل يوم الصفّ (stop[0]) · إلحاقيٌّ بلا تكرار · قبل 11-09 لا شيء · "
+      "بعد الإرسال والختم · والتعذّرُ لا يمسّ الختم · والمفتاحُ يرجع بت-بت",
+      _sgt_v == (True, True, True), str(_sgt_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
