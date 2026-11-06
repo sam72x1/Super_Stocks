@@ -1909,5 +1909,23 @@
   "usd_eff": 54560,
   "candle_class_eff": "mid",
   "frames_usd": null
+ },
+ {
+  "symbol": "DGNX",
+  "date": "2026-11-06",
+  "sustain_min": 79,
+  "operator_ok": true,
+  "fired_ts_ms": 1793983533684,
+  "trigger_bar_ms": 1793983380000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-11-06T21:01:06Z",
+  "break_level": 1.17,
+  "price": 1.195,
+  "vol_x": 3.8,
+  "usd": 1184,
+  "candle_class": "group",
+  "usd_eff": 1184,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
