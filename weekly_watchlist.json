@@ -794,7 +794,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.04,
+   "last_price": 1.0,
    "borrow_hist": [
     [
      "2026-11-06",
@@ -819,7 +819,8 @@
     "close": 1.1
    },
    "live_alert": {
-    "buyzone": "2026-11-06"
+    "buyzone": "2026-11-06",
+    "break": "2026-11-06"
    }
   },
   {
@@ -1241,7 +1242,7 @@
    "hit": "t2",
    "hit_date": "2026-10-26",
    "max_gain_pct": 81.3,
-   "last_price": 2.255,
+   "last_price": 2.25,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -1702,7 +1703,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 5.2,
-   "last_price": 2.37,
+   "last_price": 2.45,
    "borrow_hist": [
     [
      "2026-11-04",
@@ -2109,7 +2110,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 13.1005,
+   "last_price": 13.4,
    "live_alert": {
     "breakout": "2026-11-05",
     "dump": "2026-10-16",
@@ -3026,7 +3027,7 @@
    "hit": "t2",
    "hit_date": "2026-10-14",
    "max_gain_pct": 40.4,
-   "last_price": 1.5,
+   "last_price": 1.5506,
    "live_alert": {
     "breakout": "2026-10-30"
    },
@@ -4868,7 +4869,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.92,
+   "last_price": 2.87,
    "borrow_hist": [
     [
      "2026-11-06",
@@ -5242,7 +5243,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 0.7631,
+   "last_price": 0.75,
    "live_alert": {
     "breakout": "2026-10-28",
     "dump": "2026-10-26"
@@ -6148,7 +6149,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 376.8,
-   "last_price": 5.06,
+   "last_price": 5.09,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -6624,7 +6625,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.18,
+   "last_price": 1.185,
    "borrow_hist": [
     [
      "2026-11-06",
@@ -7052,7 +7053,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.965,
+   "last_price": 2.98,
    "borrow_hist": [
     [
      "2026-10-29",
@@ -11392,7 +11393,7 @@
    "sector": "Consumer Defensive",
    "country": "United States",
    "float": 1277897,
-   "last_price": 1.55,
+   "last_price": 1.39,
    "status": "watching",
    "triggered_date": null
   },
