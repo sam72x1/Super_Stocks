@@ -97419,6 +97419,34 @@ except Exception as _e:                                              # noqa: BLE
 check("🟠🔬📄 VCR1 نتيجةُ `T-VWAP-CONT` كما صدرت: الجدولُ والأحكامُ والتنبّؤاتُ مثبَّتة · ③ وحدَها فوق الضابط و⑤ بنصّ الشرط · "
       "والمقترَحُ لا يُبنى قبل حكم J30", _vr1_v == (True,) * 5, str(_vr1_v)[:240])
 
+# 🚪📏🔒 RRG0 (‏2026-11-06 · `T-RRGATE` ‏+ `T-VWAP-CONT` الملحق 1): العقدان مدموجان قبل أيّ رقم ⟵ بصمتاهما مثبَّتتان · وقائمةُ الراكضين المجمَّدة
+#    من التشغيلة 42102781638 ببصمة صفوفها (708 · منها 248 بـ+100%) · وحقائقُ الكود في ⓪ ما زالت صحيحة (RR نقصٌ لين · آليّاتُ الخروج الثلاث) ·
+#    وقرارُ المالك بإسقاط 7-ب مكتوبٌ في §⑧ ولا يمسّ الأقسامَ المثبَّتة.
+try:
+    import hashlib as _rg0_h
+    import json as _rg0_j
+    _rg0_sha = lambda p: _rg0_h.sha256(open(p, "rb").read()).hexdigest()       # noqa: E731
+    _rg0_r = _rg0_j.load(open("fm_forensics/rrgate/data/runners_60.json", encoding="utf-8"))
+    _rg0_blob = _rg0_j.dumps(_rg0_r["rows"], ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    _rg0_src = open("Super_stock.py", encoding="utf-8").read()
+    _rg0_k = _rg0_src.find('if rr < CONFIG["MIN_RR_T1"]:')
+    _rg0_blk = _rg0_src[_rg0_k:_rg0_k + 400] if _rg0_k >= 0 else ""
+    _rg0_res = open("vwap_cont_result.md", encoding="utf-8").read()
+    _rg0_v = (_rg0_sha("fm_forensics/rrgate/RRGATE_prereg.md") == "45040d0d33b7b5959c11ed5a2203d90c80752ef140f47cb3d076af5dc4a505c9"
+              and _rg0_sha("vwap_cont_addendum_1.md") == "5cd7451fb8c8a541ad518880e84c7e713298f97e454757d6d29798543a1397db",
+              _rg0_h.sha256(_rg0_blob.encode()).hexdigest() == _rg0_r["sha256_rows"] == "2e345b80ab3ae2da" + _rg0_r["sha256_rows"][16:]
+              and len(_rg0_r["rows"]) == _rg0_r["n50"] == 708 and sum(1 for x in _rg0_r["rows"] if x["R"] >= 1.0) == _rg0_r["n100"] == 248
+              and "42102781638" in _rg0_r["source"],
+              _rg0_src.count('if rr < CONFIG["MIN_RR_T1"]:') == 1 and 'soft_fails.append("العائد مقابل المخاطرة منخفض")' in _rg0_blk
+              and 'len(soft_fails) > CONFIG.get("WATCH_MAX_FAILS"' in _rg0_blk and 'return _reject("RR+نواقص_فوق_الحد")' in _rg0_blk
+              and "for _s in (_nw_meas - set(_nw_new)):" in _rg0_src and "for _r in results:                       # المرشَّحُ ليس متابَعًا" in _rg0_src
+              and "def near_watch_prune(" in _rg0_src,
+              "## ⑧ قرارُ المالك (2026-11-06)" in _rg0_res and "7-ب (⑤ الثلثُ الأصغر) يسقط" in _rg0_res)
+except Exception as _e:                                              # noqa: BLE001
+    _rg0_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🚪📏🔒 RRG0 عقدا `T-RRGATE` وملحق القراءة مدموجان قبل أيّ رقم · وقائمةُ الراكضين مجمَّدةٌ ببصمتها · وحقائقُ الكود في ⓪ صحيحة · "
+      "وإسقاطُ 7-ب في §⑧", _rg0_v == (True,) * 4, str(_rg0_v)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
