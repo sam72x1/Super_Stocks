@@ -32,6 +32,8 @@ CYCLE_TIMEOUT_S = 15 * 60                # مهلةُ الجوب القديمة 
 WORKFLOW = "pullback_monitor.yml"
 STATE_WORKFLOWS = ("daily_screener.yml",)   # شريكُ المراقب في `super-stocks-state` (المجدولُ وحدَه · اليدويُّ في مجموعته)
 STATE_POLL_S = 60
+CHAIN_HORIZON_MIN = 60    # 🔗 الخلَفُ لا يُطلَق إلّا إن بقيت فتحةٌ داخل النافذة خلال ساعةٍ من لحظته (عطلٌ مُثبَت 2026-11-06 في أوّل تشغيلٍ يدويّ:
+                          #    خلَفٌ أُطلق 00:02 نيويورك لأن الأفقَ 6 ساعات رأى 08:13 ⟵ جوبٌ يخمل 3 ساعات · والكرونُ يبدأ النافذةَ وحدَه)
 _sleep = time.sleep                       # يُجذَّع في السويّة
 
 
@@ -125,8 +127,8 @@ def maybe_chain(now, api=None, already=False):
     """🔗 الخلَف بقرار `OE.chain_decision` بالاسم ⟵ True إن أُرسل الطلب. والنافذةُ المتبقّية شرطٌ إضافيّ (لا خلَفَ بلا فتحةٍ قادمة)."""
     api = api or OE._gh_api
     n = now.astimezone(NY)
-    if not window_left(now):
-        log("🔗 لا خلَف — لا فتحةَ قادمةً في النافذة")
+    if not window_left(now, CHAIN_HORIZON_MIN):
+        log(f"🔗 لا خلَف — لا فتحةَ داخل النافذة خلال {CHAIN_HORIZON_MIN} دقيقة (الكرونُ يبدأ النافذةَ التالية)")
         return False
     do, code, why = OE.chain_decision(n.hour * 60 + n.minute, not OE._no_session(n.date().isoformat()),
                                       _alive_others(api, now), already)
