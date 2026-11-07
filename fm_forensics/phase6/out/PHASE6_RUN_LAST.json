@@ -1,39 +1,7 @@
 {
- "run_id": "42198293091",
+ "run_id": "42358926991",
  "result": {
   "done": [
-   "QMMM",
-   "RGC",
-   "SBDS",
-   "SCNI",
-   "SGRX",
-   "SLXN",
-   "SMX",
-   "SNAL",
-   "SNGX",
-   "BRAI",
-   "BTOC",
-   "BTOG",
-   "CANF",
-   "CDIO",
-   "CDT",
-   "CETX",
-   "CIIT",
-   "CRE",
-   "CUPR",
-   "DCOY",
-   "DKI",
-   "DRMA",
-   "DSY",
-   "DXST",
-   "EDBL",
-   "EHGO",
-   "ELAB",
-   "ELPW",
-   "ENPH",
-   "ENVB",
-   "EZRA",
-   "FGF",
    "FIEE",
    "FRSX",
    "GNPX",
@@ -106,50 +74,82 @@
    "XCUR",
    "YMT",
    "ZCMD",
-   "ZNB"
+   "ZNB",
+   "BRAI",
+   "BTOC",
+   "BTOG",
+   "CANF",
+   "CDIO",
+   "CDT",
+   "CETX",
+   "CIIT",
+   "CRE",
+   "CUPR",
+   "DCOY",
+   "DKI",
+   "DRMA",
+   "DSY",
+   "DXST",
+   "EDBL",
+   "EHGO",
+   "ELAB",
+   "ELPW",
+   "ENPH",
+   "ENVB",
+   "EZRA",
+   "FGF",
+   "QMMM",
+   "RGC",
+   "SBDS",
+   "SCNI",
+   "SGRX",
+   "SLXN",
+   "SMX",
+   "SNAL",
+   "SNGX"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "ATXG",
-    "CNTB",
-    "FFTT",
-    "GOSS",
-    "GSIW",
-    "RCAT",
-    "SGML",
-    "WQEY",
-    "AIFU",
-    "AQMS",
-    "MFI",
-    "GOW",
-    "ALOY",
-    "LNZA",
-    "FGC",
-    "MOVE"
+    "CLIR",
+    "DFLI",
+    "INBS",
+    "MYSE",
+    "QUCY",
+    "RKTO",
+    "SKYQ",
+    "SKYX",
+    "SLNH",
+    "TNXP",
+    "UZX",
+    "TYGO",
+    "NCNA",
+    "BNKK",
+    "RCON",
+    "KTOS"
    ],
    "skipped": [],
    "calendar_error": "",
    "ce_used": 16,
-   "pool_date": "2026-11-06",
-   "pool_n": 467,
+   "pool_date": "2026-11-07",
+   "pool_n": 445,
    "status": "OK"
   }
  },
  "audit": {
-  "rows": 1217,
+  "rows": 1414,
   "by_status": {
-   "OK": 824,
-   "UNKNOWN": 234,
-   "NOT_ATTEMPTED": 152,
-   "FAILED": 7
+   "OK": 1030,
+   "UNKNOWN": 221,
+   "FAILED": 11,
+   "NOT_ATTEMPTED": 152
   },
   "by_category": {
-   "1": 532,
-   "2": 292,
-   "4": 393
+   "1": 531,
+   "2": 499,
+   "4": 384
   },
   "tickers": 121,
   "chain_problems": []
@@ -181,21 +181,6 @@
    "yahoo_splits"
   ],
   [
-   "AIFU",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "ALOY",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "ALOY",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "AMIX",
    "short_interest",
    "yahoo_info"
@@ -209,11 +194,6 @@
    "ANPA",
    "short_interest",
    "yahoo_info"
-  ],
-  [
-   "AQMS",
-   "reverse_split",
-   "yahoo_splits"
   ],
   [
    "ATPC",
@@ -247,6 +227,11 @@
   ],
   [
    "BNAI",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "BNKK",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -318,7 +303,7 @@
   [
    "CDT",
    "reverse_split",
-   "yahoo_splits"
+   "nasdaq_calendar"
   ],
   [
    "CETX",
@@ -531,16 +516,6 @@
    "nasdaq_calendar"
   ],
   [
-   "FGC",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "FGC",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "FIEE",
    "short_interest",
    "yahoo_info"
@@ -726,6 +701,16 @@
    "yahoo_splits"
   ],
   [
+   "KTOS",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "KTOS",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "LABT",
    "short_interest",
    "yahoo_info"
@@ -756,21 +741,6 @@
    "yahoo_splits"
   ],
   [
-   "LNZA",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "LNZA",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "MFI",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "MI",
    "short_interest",
    "yahoo_info"
@@ -787,16 +757,6 @@
   ],
   [
    "MNDR",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "MOVE",
-   "short_interest",
-   "yahoo_info"
-  ],
-  [
-   "MOVE",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -824,6 +784,11 @@
    "NAMM",
    "short_interest",
    "yahoo_info"
+  ],
+  [
+   "NCNA",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "NCT",
@@ -911,6 +876,16 @@
    "yahoo_info"
   ],
   [
+   "ONCO",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "ONCO",
+   "reverse_split",
+   "nasdaq_calendar"
+  ],
+  [
    "PAVS",
    "short_interest",
    "yahoo_info"
@@ -962,6 +937,16 @@
   ],
   [
    "PRFX",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "RCON",
+   "short_interest",
+   "yahoo_info"
+  ],
+  [
+   "RCON",
    "reverse_split",
    "yahoo_splits"
   ],
