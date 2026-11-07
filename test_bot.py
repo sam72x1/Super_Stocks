@@ -99382,6 +99382,46 @@ try:
 except Exception as _owd4_e:                                                     # noqa: BLE001
     check("👁️ OWD5 (انهيارُ القفل)", False, f"⛔ رمى: {type(_owd4_e).__name__}: {_owd4_e}")
 
+# 👁️ OWD6 — `T-OEWIDE` زمنُ الدورة يقرأ سجلَّ العامل بـUTF-8 (عطلٌ مُثبَت 2026-11-07 · `42367314215`: «0 قراءةً من 0 وظيفة» لأن سجلّ GitHub
+#    `text/plain` بلا charset فيفكّه `requests` ISO-8859-1 ⟵ سطرُ «💰 التغطية» العربيّ لا يُطابَق · مقيس: 0 بـ`.text` و33 بـUTF-8 على الوظيفة نفسِها)
+try:
+    import datetime as _owd6_dt
+    import importlib.util as _owd6_iu
+    import requests as _owd6_rq
+    _owd6_sp = _owd6_iu.spec_from_file_location("oewide_owd6", "fm_forensics/oewide/oewide.py")
+    _OW6 = _owd6_iu.module_from_spec(_owd6_sp)
+    _owd6_sp.loader.exec_module(_OW6)
+    _owd6_log = ("2026-11-06T23:50:06.7Z [23:50:06] 💰 التغطية: 330 من 685 في 18.0ث (خيوط 8)" + chr(10)
+                 + "2026-11-06T23:51:38.8Z [23:51:38] 💰 التغطية: 327 من 640 في 16.0ث (خيوط 8)" + chr(10)).encode("utf-8")
+
+    class _Owd6R:
+        def __init__(self, url):
+            self.url = url
+            self.content = _owd6_log if url.endswith("/logs") else b"{}"
+            self.encoding = "ISO-8859-1"                       # كما يُرجعها GitHub (text/plain بلا charset)
+
+        @property
+        def text(self):
+            return self.content.decode(self.encoding)
+
+        def json(self):
+            if "/workflows/" in self.url:
+                return {"workflow_runs": [{"id": 7, "conclusion": "success"}]}
+            if self.url.endswith("/runs/7/jobs"):
+                return {"jobs": [{"id": 70}]}
+            return {}
+    _owd6_get0 = _owd6_rq.get
+    try:
+        _owd6_rq.get = lambda url, **k: _Owd6R(url)
+        _owd6_res = _OW6.cycle_from_logs(now=_owd6_dt.datetime(2026, 11, 7, tzinfo=_owd6_dt.timezone.utc))
+    finally:
+        _owd6_rq.get = _owd6_get0
+    check("👁️ OWD6 زمنُ الدورة من سجلّ العامل يُفكّ UTF-8 لا ISO-8859-1 (سطرُ «💰 التغطية» العربيّ يُطابَق) ⟵ أزواجُ (الكون، الثواني) من الوظيفة "
+          "(التشغيلة `42367314215` قرأت 0 من 20 تشغيلة بهذا العطل)",
+          _owd6_res == ([(685, 18.0), (640, 16.0)], 1, 1), f"res={_owd6_res}")
+except Exception as _owd6_e:                                                     # noqa: BLE001
+    check("👁️ OWD7 (انهيارُ القفل)", False, f"⛔ رمى: {type(_owd6_e).__name__}: {_owd6_e}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
