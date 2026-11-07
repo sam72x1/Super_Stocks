@@ -183,6 +183,10 @@ N = 3 · MATCH = 2 · MISMATCH = 1 · FALSE_READY = 0 · FALSE_WAIT = 1 · FALSE
 | B4_20261008 | `TG_58525` | **DUPLICATE** | SAME_DECISION:CASE_0002 | 0 | 0 | CDT | 2026-10-07 | MEDIUM |
 | B4_20261008 | `TG_58526` | **NEW_PROSPECTIVE** | — | 0 | 0 | NCT | 2026-10-07 | LOW |
 | B4_20261008 | `TG_58527` | **CONTAMINATED** | C5:EX:CH_20260918_25_SXTC,EX:CH_20260918_32_SXTC,EX:TG_50600,EX:TG_57862,EX:WA_20260918_31_SXTC,EX:X_20260918_22_pipeline,EX:X_20260918_23_watchlist,EX:X_20260918_24_SXTC | 8 | 3 | SXTC | 2026-09-24 | LOW |
+| B4_20261107 | `TG_85750` | **NEW_PROSPECTIVE** | — | 0 | 0 | BRTX | 2026-11-07 | LOW |
+| B4_20261107 | `TG_85751` | **CONTAMINATED** | C5:EX:TG_57877 | 1 | 0 | THH | 2026-11-07 | LOW |
+| B4_20261107 | `TG_85752` | **DERIVATIVE** | C2:TG_85751 | 11 | 2 | EHGO | 2026-11-07 | LOW |
+| B4_20261107 | `TG_85753` | **DERIVATIVE** | C2:TG_85751,TG_85752 | 0 | 0 | NEXR | 2026-11-07 | LOW |
 
 ## الحالات (المصدريّةُ بالحقول الثلاثة عشر)
 
@@ -559,4 +563,24 @@ N = 3 · MATCH = 2 · MISMATCH = 1 · FALSE_READY = 0 · FALSE_WAIT = 1 · FALSE
 - الحرجُ المجهول: لا شيء · أساسُ الطابع: VISIBLE_POST_TIMESTAMP
 - المكوّنات: ENTRY FAISAL_NOT_STATED · INVALIDATION FAISAL_NOT_STATED · STOP FAISAL_NOT_STATED · TARGET FAISAL_NOT_STATED
 - النظرُ المستقبليّ: LA1_FUTURE_CANDLES True · LA2_BLIND_INPUT True · LA3_ORDER True · LA4_NO_IMAGE_TO_V4 True · LA6_REPLAY True · LA5_CORPORATE_ACTION PASS_SCALE_INVARIANT · verdict PASS
+
+### CASE_0018 · BRTX · 2026-11-07 — SECONDARY
+
+| الحقل | القيمة |
+|---|---|
+| `CASE_ID` | "CASE_0018" |
+| `SOURCE` | "telegram_bot · run 42391508837" |
+| `SOURCE_MESSAGE_ID` | 85750 |
+| `CAPTURE_TIMESTAMP` | "2026-11-07T16:29:33Z" |
+| `ORIGINAL_POST_TIMESTAMP` | "UNKNOWN" |
+| `FORWARD_TYPE` | "none" |
+| `PUBLIC_CHANNEL_METADATA` | "N/A" |
+| `IMAGE_HASH` | "20aa7de9892283cc21011251c0d103246864ad6fff8956e0c981bcc233b1777a" |
+| `PERCEPTUAL_HASH` | {"dhash256": "c0190000404942591a039843b4d2bf0bb00a8d712d023c826962894800008000", "phash64": "527475b529aba268"} |
+| `TICKER` | "BRTX" |
+| `TIMEFRAME` | "1D" |
+| `DATE_VISIBLE` | "الصورةُ بلا تاريخٍ ظاهر · ساعةُ الهاتف «6:34» وحدَها (‏= 15:34Z إن كانت 6:34 مساءً بتوقيت الرياض — افتراضٌ مُعلَن) · أرسلها المالك 2026-11-07T15:42:01Z (صفُّ الجامع · from_recipient=true · تشغيلةُ الجامع 42391508837) · والمالكُ: «أربع لقطات مرفقة من تطبيق فيصل بتاريخ اليوم 11-07» ⟵ تاريخُ القرار = تاريخُ الاستلام بأمر المالك («بتاريخ الاستلام») · وبياناتُ اللقطة على الأرجح إغلاقُ الجمعة 11-06 (السبتُ بلا جلسة · استنتاج)" |
+| `PROVENANCE_CONFIDENCE` | "LOW" |
+
+- الحرجُ المجهول: ORIGINAL_POST_TIMESTAMP · أساسُ الطابع: UNKNOWN
 

@@ -18718,7 +18718,8 @@ check("🔬 H6/SRC🔒 خارج الجذور: لا تُستورَدان في أ�
 # ══════════════════════════════════════════════════════════
 _LEDGER_TAGS = ("faisal_verbatim", "faisal_inferred", "faisal_adopted",
                 "engineering", "third_party", "unsourced",
-                "nayef_verbatim")   # 🔄 2026-10-28 · أمرُ المالك (برومبت T-VWAP-MOM): الوسمُ السابع وحدَه
+                "nayef_verbatim",   # 🔄 2026-10-28 · أمرُ المالك (برومبت T-VWAP-MOM): الوسمُ السابع وحدَه
+                "faisal_app")       # 🔄 2026-11-07 · أمرُ المالك («… بوسم faisal_app»): الوسمُ الثامن وحدَه (لقطاتُ التطبيق B4_20261107)
 _LEDGER_MIN_ROWS = 90          # §② وحدها 94 صفًّا — الأرضية تكشف الملف المفرَّغ
 
 
@@ -83349,7 +83350,8 @@ _PHB_LEDGER_PINS = ((0, "0" * 64),    # (عددُ القيود · بصمةُ آ�
                     (159, "f0164a75d25ad10bd7225a537e6a38d40f58c5fc87085773ef99c7f2e035132b"),   # B15_20261102 · 15 صورة (قناةٌ تعليميّة وقصاصات) · حالة 1 (CASE_0016 BNAI) · خُتمت قبل V4 (2026-11-03)
                     (162, "f41bb7d511fa6e771bb7bc3ac542f04ca41b295af4023c786f24374d812d1a32"),   # كشفُ CASE_0009…0016 (2026-11-04) · B22 السبعة تبقى مستبعدةً بالتعديل 1 §5 · وBNAI ‏REVEALED ثمّ EXCLUDED E7
                     (252, "1c0ae69b17a9079fb075cf47fc7bebc939e79ca9a1e5d3d0371b033a8cf0d90c"),   # B46_20261104 · 46 صورة (منشورات X ونسخُ 09-18) · حالة 1 (CASE_0017 SUGP) · خُتمت قبل V4 (2026-11-04)
-                    (255, "7dff72a76c9d7be44915370fc6ef0e2fd285d554f9b6e294af4f90cfa5c21589"))   # V4 لـCASE_0017 (run 41837639006 · WAIT) ثمّ كلمةُ فيصل WATCH ⟵ PRIMARY MATCH (2026-11-04)
+                    (255, "7dff72a76c9d7be44915370fc6ef0e2fd285d554f9b6e294af4f90cfa5c21589"),   # V4 لـCASE_0017 (run 41837639006 · WAIT) ثمّ كلمةُ فيصل WATCH ⟵ PRIMARY MATCH (2026-11-04)
+                    (263, "a1235aaa65c79edc02a19f3e060d8bcaa0afd0b8ced5841423b948aaaa8b7f85"))   # B4_20261107 · 4 لقطات تطبيق (BRTX · THH · EHGO · NEXR) · حالة 1 (CASE_0018 BRTX) · خُتمت قبل V4 (2026-11-07)
 _PHB_HSHA = "f" * 64
 try:
     _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))
@@ -99749,6 +99751,144 @@ try:
           f"rc={_jpd_rc_bad},{_jpd_rc_ok} on={_jpd_on}")
 except Exception as _jpd_e:                                       # noqa: BLE001
     check("🥇🎯 J1DL0 الملحق D (انهيارُ القفل)", False, f"⛔ رمى: {type(_jpd_e).__name__}: {_jpd_e}")
+# 📱 APPC1-APPC3 (‏2026-11-07 · أمرُ المالك ①: لقطاتُ تطبيق «مراقب استراتيجية فيصل» · دفعة `B4_20261107`):
+#    مِجَسُّ المقارنة قراءةٌ فقط (الجدارُ بالاسم · قيمُ الظرف وحدّاها) · وصفوفُ الدفتر بوسم `faisal_app` بحرف اللقطات · والدفعةُ مختومةٌ قبل V4.
+try:
+    import importlib.util as _apc_iu
+    import ast as _apc_ast
+    import json as _apc_js
+    _apc_sp = _apc_iu.spec_from_file_location("app_compare_lock", "fm_forensics/app_compare/app_compare.py")
+    APC = _apc_iu.module_from_spec(_apc_sp)
+    _apc_sp.loader.exec_module(APC)
+
+    class _ApcS:                                      # جذعٌ لـSuper_stock: رفضٌ بجدارٍ مسمًّى · مستوًى غائب · قيمُ ظرف
+        _REJECT_REASONS = {}
+        _CUR_SYM = None
+
+        def analyze_ticker(self, sym, df):
+            self._REJECT_REASONS[sym] = "M_لا_مستوى_مختبر"
+            return None
+
+        def tested_level(self, df):
+            return None
+
+        def near_watch_measure(self, sym, df, edges):
+            return ({"drop_pct": 99.97, "rr": 0.31, "price": 2.1}, ["M2 الهبوط من قمة 52أ (فوق السقف)", "العائد/المخاطرة (دون الحدّ)"])
+    _apc_S = _ApcS()
+    _apc_edges = {"drop_pct": [71.7, 99.95], "rr": 0.5}
+    _apc_row = APC.probe_one(_apc_S, "NEXR", [1] * 300, _apc_edges)
+    _apc_none = APC.probe_one(_apc_S, "XX", None, _apc_edges)
+    check("📱 APPC1 مِجَسُّ لقطات التطبيق: الجدارُ بالاسم من `_REJECT_REASONS` · قيمتا M2 والعائد/المخاطرة مع حدّيهما من `CRITERIA` (نطاقٌ وحدٌّ أدنى) · "
+          "والرمزُ بلا شموعٍ لا يُنادى عليه شيء",
+          _apc_row["accepted"] is False and _apc_row["wall"] == "M_لا_مستوى_مختبر" and _apc_row["tested_level"] is None
+          and _apc_row["vals"] == {"drop_pct": 99.97, "rr": 0.31} and _apc_row["edges"] == {"drop_pct": (71.7, 99.95), "rr": (0.5, None)}
+          and len(_apc_row["outside"]) == 2 and _apc_none == {"symbol": "XX", "bars": 0},
+          f"row={_apc_row} none={_apc_none}")
+    _apc_t = _apc_ast.parse(open("fm_forensics/app_compare/app_compare.py", encoding="utf-8").read())
+    _apc_calls = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _apc_ast.walk(_apc_t) if isinstance(c, _apc_ast.Call)}
+    import yaml as _apc_yaml
+    _apc_yd = _apc_yaml.safe_load(open(".github/workflows/app_compare.yml", encoding="utf-8").read())
+    _apc_on = _apc_yd.get("on", _apc_yd.get(True)) or {}
+    _apc_env = " ".join(str(v) for s in ((_apc_yd.get("jobs") or {}).get("probe") or {}).get("steps") or [] for v in ((s.get("env") or {}).items()))
+    check("📱 APPC2 المِجَسُّ قراءةٌ فقط: لا تلغرام ولا حفظ · الـworkflow يدويٌّ بلا كرون وبلا `BARS_SOURCE` (أدواتُ البحث خارج نطاق TVB9 ⟵ ياهو مُفصَح) وظرفُ فيصل مُفعَّل",
+          not ({"send_telegram", "save_watchlist", "git_save", "save_near_watch", "record_tier_fwd"} & _apc_calls)
+          and {"analyze_ticker", "near_watch_measure", "tested_level", "download_history"} <= _apc_calls
+          and set(_apc_on) == {"workflow_dispatch"} and (_apc_yd.get("permissions") or {}).get("contents") == "read"
+          and "BARS_SOURCE" not in _apc_env and "('FAISAL_ONLY', '1')" in _apc_env,
+          f"on={list(_apc_on)} env={_apc_env[:120]}")
+    _apc_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _apc_sec = _apc_led.split("## §`B4_20261107`", 1)[-1] if "## §`B4_20261107`" in _apc_led else ""
+    _apc_rows = [ln for ln in _apc_sec.split("\n") if ln.startswith("| ") and not ln.startswith("| القاعدة") and not set(ln) <= set("|-: ")]
+    _apc_ann = _apc_js.load(open("faisal_method_v41/final_protocol/intake/B4_20261107/annotations.json", encoding="utf-8"))
+    _apc_int = _apc_js.load(open("faisal_method_v41/final_protocol/intake/B4_20261107/INTAKE.json", encoding="utf-8"))
+    _apc_cls = {c["image_id"]: (c["symbol"], c["class7"], c.get("case_id")) for c in _apc_int["candidates"]}
+    check("📱 APPC3 دفعة B4_20261107: الصفوفُ الاثنا عشر بوسم `faisal_app` وحدَه وبحرف اللقطة («ينقصه ثبات يومي جلستين على الأقل» · «ممتاز 0–5%» · «مراقبة 10–15%») · "
+          "والوسمُ الثامن معرَّفٌ في رأس الدفتر · والختمُ: CASE_0018 BRTX أماميّة · THH بـC5 · EHGO وNEXR بـC2 القالب · والإفصاحُ عن الفتح قبل الختم مكتوب",
+          len(_apc_rows) == 12 and all(r.count("`faisal_app`") == 1 for r in _apc_rows)
+          and not any(o in r for r in _apc_rows for o in ("third_party", "engineering", "faisal_verbatim", "faisal_adopted", "faisal_inferred",
+                                                           "unsourced", "nayef_verbatim"))
+          and "ينقصه ثبات يومي جلستين على الأقل" in _apc_sec and "ممتاز 0–5%" in _apc_sec and "مراقبة 10–15%" in _apc_sec
+          and "| `faisal_app` |" in _apc_led.split("## §")[0]
+          and _apc_cls == {"TG_85750": ("BRTX", "NEW_PROSPECTIVE", "CASE_0018"), "TG_85751": ("THH", "CONTAMINATED", None),
+                           "TG_85752": ("EHGO", "DERIVATIVE", None), "TG_85753": ("NEXR", "DERIVATIVE", None)}
+          and "2026-11-07T16:33:34Z" in _apc_ann["blind"] and sorted(_apc_ann["images"]) == ["TG_85750", "TG_85751", "TG_85752", "TG_85753"],
+          f"rows={len(_apc_rows)} cls={_apc_cls}")
+except Exception as _apc_e:                                       # noqa: BLE001
+    check("📱 APPC0 لقطاتُ التطبيق (انهيارُ القفل)", False, f"⛔ رمى: {type(_apc_e).__name__}: {_apc_e}")
+
+# 📱 NWA1-NWA3 (‏2026-11-07 · أمرُ المالك ②: «في رسالة «تحت المتابعة» اليومية، لكل سهم بصفر أو ناقص واحد سطر بصيغة التطبيق»):
+#    مطفأً ⟵ القسمُ بت-بت (لقطةٌ ذهبيّة) · مُشعَلًا ⟵ سطرُ «قريب من الجاهزية N/100 · الناقص الآن» لـn_out ‏≤ 1 المقيسين اليوم بالجاهزية تنازليًّا
+#    مع حالة الحجب · بلا تكرارٍ في السلال · والقصُّ يُعلَن · والمفتاحُ لا يُقرأ خارج العرض (لا معيارَ يتغيّر).
+try:
+    _nwa_fx = {"AAA": {"symbol": "AAA", "last_seen": "2026-11-07", "n_out": 0, "outside": [], "price": 1.5, "rsi_now": 25.0, "readiness": 45,
+                       "first_seen": "2026-11-01"},
+               "BBB": {"symbol": "BBB", "last_seen": "2026-11-07", "n_out": 1, "outside": ["العائد/المخاطرة (دون الحدّ)"], "price": 2.0,
+                       "rsi_now": 40.0, "readiness": 60, "first_seen": "2026-11-07"},
+               "CCC": {"symbol": "CCC", "last_seen": "2026-11-07", "n_out": 2, "outside": ["M1 السعر (دون الحدّ)", "M3"], "price": 0.5,
+                       "rsi_now": 20.0, "readiness": 70, "first_seen": "2026-11-02"},
+               "DDD": {"symbol": "DDD", "last_seen": "2026-11-07", "n_out": 0, "outside": [], "price": 1.0, "rsi_now": 50.0, "readiness": 35,
+                       "first_seen": "2026-11-07", "blocked": {"why": "BORROW_REJECT", "label": "المتاح 100,000 فوق الحدّ 20,000", "date": "2026-11-07"}},
+               "EEE": {"symbol": "EEE", "last_seen": "2026-11-05", "n_out": 0, "outside": [], "price": 3.0, "rsi_now": 28.0, "readiness": 90,
+                       "first_seen": "2026-11-01"}}
+    _nwa_fx2 = {"FFF": {"symbol": "FFF", "last_seen": "2026-11-07", "n_out": 1, "outside": ["M3"], "price": 4.0, "rsi_now": 45.0, "readiness": 77,
+                        "blocked": {"why": "DQ_HELD", "label": "سلامةُ البيانات (تقسيمٌ عكسيّ حديث)", "date": "2026-11-07"}},
+                "GGG": {"symbol": "GGG", "last_seen": "2026-11-07", "n_out": 1, "outside": ["M3"], "price": 2.0, "rsi_now": 45.0, "readiness": 66},
+                "HHH": {"symbol": "HHH", "last_seen": "2026-11-07", "n_out": 1, "outside": ["M3"], "price": 2.0, "rsi_now": 45.0, "readiness": 55},
+                "III": {"symbol": "III", "last_seen": "2026-11-07", "n_out": 0, "outside": [], "price": 2.0, "rsi_now": 45.0, "readiness": 50}}
+    _nwa_sv = (S.CONFIG.get("NW_APP_LINE"), S.CONFIG.get("NW_KEEP_BLOCKED"))
+    try:
+        S.CONFIG["NW_KEEP_BLOCKED"] = True
+        S.CONFIG["NW_APP_LINE"] = False
+        _nwa_off = S.build_near_watch_section(_nwa_fx)
+        S.CONFIG["NW_APP_LINE"] = True
+        _nwa_on = S.build_near_watch_section(_nwa_fx)
+        _nwa_dq = S.build_near_watch_section(_nwa_fx2, dq_fn=lambda s_: {"action": "quarantine", "state": "STALE"} if s_ in ("GGG", "III") else {"action": "allow"})
+        _nwa_cap = S.build_near_watch_section({f"S{i:02d}": {"symbol": f"S{i:02d}", "last_seen": "2026-11-07", "n_out": i % 2, "outside": [],
+                                                             "readiness": 50, "price": 1.0} for i in range(30)}, cap=10)
+    finally:
+        S.CONFIG["NW_APP_LINE"], S.CONFIG["NW_KEEP_BLOCKED"] = _nwa_sv
+    _nwa_gold = ("‏👀 <b>تحت المتابعة</b> (3) — قريبٌ من كتالوج فيصل، غيرُ مرشَّح بعد\n"
+                 "‏   <b>داخلَ ظرف فيصل تمامًا — وجدارُه من عندنا</b> (2)\n"
+                 "‏   • EEE — $3.00 · RSI 28 · جاهزية 90 · ينقصه: لا شيء خارج الظرف · منذ 4 يومًا\n"
+                 "‏   • AAA — $1.50 · RSI 25 · جاهزية 45 · ينقصه: لا شيء خارج الظرف · منذ 6 يومًا\n"
+                 "‏   <b>متشبّعٌ الآن (‏RSI تحت 30 — زنادُ فيصل)</b> (1)\n"
+                 "‏   • CCC — $0.50 · RSI 20 · جاهزية 70 · ينقصه: M1 السعر (دون الحدّ) · M3 · منذ 5 يومًا\n"
+                 "‏   <b>🔒 عبر الفرزَ وحجبته بوّابةٌ بعده</b> (1)\n"
+                 "‏   • DDD — حُجب: المتاح 100,000 فوق الحدّ 20,000 · $1.00 · RSI 50")
+    check("📱 NWA1 «تحت المتابعة» والمفتاحُ مطفأ ⟵ القسمُ بت-بت (لقطةٌ ذهبيّة: السلالُ الثلاث كما كانت ولا سطرَ 📱)",
+          _nwa_off == _nwa_gold, repr(_nwa_off)[:160])
+    _nwa_lines = _nwa_on.split("\n")
+    _nwa_app = [ln for ln in _nwa_lines if "قريب من الجاهزية" in ln]
+    _nwa_hdr = next((i for i, ln in enumerate(_nwa_lines) if "صفرٌ أو ناقصٌ واحد — بصيغة التطبيق</b> (3)" in ln), -1)
+    _nwa_rest = "\n".join(_nwa_lines[:_nwa_hdr] + _nwa_lines[_nwa_hdr + 4:]) if _nwa_hdr > 0 else ""
+    _nwa_dql = _nwa_dq.split("\n")
+    _nwa_fff = next((ln for ln in _nwa_dql if "• FFF" in ln), "")
+    check("📱 NWA2 مُشعَلًا: كتلةٌ مضافةٌ في الرأس — سطرُ «قريب من الجاهزية N/100 · الناقص الآن: …» لكلّ مقيسٍ اليوم بصفرٍ أو ناقصٍ واحد بالجاهزية تنازليًّا "
+          "(BBB 60 ⟵ AAA 45 ⟵ DDD 35) · والمحجوبُ بحالته · وصاحبُ النقصين والقديمُ خارجها · **والسلالُ الثلاث بعدها بت-بت كما هي مطفأً** · "
+          "والمحجوبُ بالسلامة بلا رقمٍ ولا سعر · والمحجوزُ بالبوّابة لا يظهر ويُعَدّ مرّةً · والقصُّ يُعلَن",
+          len(_nwa_app) == 3 and "BBB" in _nwa_app[0] and "60/100" in _nwa_app[0] and "الناقص الآن: العائد/المخاطرة (دون الحدّ)" in _nwa_app[0]
+          and "AAA" in _nwa_app[1] and "لا شيء خارج ظرف فيصل" in _nwa_app[1] and "DDD" in _nwa_app[2] and "🔒 حُجب: المتاح 100,000" in _nwa_app[2]
+          and not any("EEE" in ln or "CCC" in ln for ln in _nwa_app) and _nwa_rest == _nwa_off
+          and "FFF" in _nwa_fff and "الجاهزيةُ لا تُعرَض (سلامةُ البيانات)" in _nwa_fff and "77" not in _nwa_fff and "$" not in _nwa_fff
+          and "GGG" not in _nwa_dq and "III" not in _nwa_dq and "HHH — قريب من الجاهزية 55/100" in _nwa_dq and "🛡️ لم يُعرَض (سلامةُ البيانات): " in _nwa_dq
+          and _nwa_dq.count("🛡️") == 1 and _nwa_dql[-1].endswith(" 2")
+          and "…و25 غيرهم (يُعلَن لا يُطوى)" in _nwa_cap and sum("قريب من الجاهزية" in ln for ln in _nwa_cap.split("\n")) == 5,
+          f"app={_nwa_app} dq={_nwa_dql[-2:]} cap={_nwa_cap[-60:]}")
+    import ast as _nwa_ast
+    _nwa_tree = _nwa_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+    _nwa_users = set()
+    for _nwa_fn in _nwa_ast.walk(_nwa_tree):
+        if isinstance(_nwa_fn, _nwa_ast.FunctionDef):
+            for _nwa_c in _nwa_ast.walk(_nwa_fn):
+                if isinstance(_nwa_c, _nwa_ast.Constant) and _nwa_c.value == "NW_APP_LINE":
+                    _nwa_users.add(_nwa_fn.name)
+    _nwa_cfg = next((ln for ln in open("Super_stock.py", encoding="utf-8").read().split("\n") if ln.strip().startswith('"NW_APP_LINE":')), "")
+    check("📱 NWA3 مفتاحُ العرض: بيئةُ `NW_APP_LINE=0` تطفئه (والافتراضُ مُشعَل) · ولا تقرؤه إلّا `build_near_watch_section` (لا معيارَ ولا جذرَ يتغيّر)",
+          _nwa_users == {"build_near_watch_section"} and 'os.environ.get("NW_APP_LINE", "1").strip() != "0"' in _nwa_cfg
+          and S.CONFIG.get("NW_APP_LINE") is True,
+          f"users={_nwa_users} cfg={_nwa_cfg[:90]}")
+except Exception as _nwa_e:                                       # noqa: BLE001
+    check("📱 NWA0 سطرُ صيغة التطبيق (انهيارُ القفل)", False, f"⛔ رمى: {type(_nwa_e).__name__}: {_nwa_e}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

@@ -2568,6 +2568,57 @@
    "sha256": "c75fb23cc8863aa26eaa5b2c357b5d65715557520cca26ea82d522c61d3b3ca2",
    "utc": "2026-11-04T13:25:41Z",
    "version": 1
+  },
+  {
+   "case_id": "TG_85750",
+   "entry_hash": "077ccd84705aee3b8969e3693251474da454b80c40c6aa1cabebc2dc60b62c1a",
+   "kind": "candidate",
+   "path": "candidates/TG_85750.v1.json",
+   "prev": "fbab4879d4ba06442c3cf29ddd88347fb2028c714f4dcf44713ee7606c3a5ba7",
+   "seq": 251,
+   "sha256": "9c673b72ee4c66d7ae1f8133e63ec86d170aaad1528f0abcacb434dc51a0c5b3",
+   "utc": "2026-11-07T16:35:02Z"
+  },
+  {
+   "case_id": "TG_85751",
+   "entry_hash": "6a1188c0893d5a0aff431dc8ac7c132c4563364354c34e8e406430e898be3208",
+   "kind": "candidate",
+   "path": "candidates/TG_85751.v1.json",
+   "prev": "077ccd84705aee3b8969e3693251474da454b80c40c6aa1cabebc2dc60b62c1a",
+   "seq": 252,
+   "sha256": "fef0a91b210f0462c931c15ad685add9f5e9dc1153290930de8c26084e1b9edc",
+   "utc": "2026-11-07T16:35:02Z"
+  },
+  {
+   "case_id": "TG_85752",
+   "entry_hash": "e9bfc16e69c9c69bd80b8680bc78e15ee659384c069da5e4b60816a6a01aeb58",
+   "kind": "candidate",
+   "path": "candidates/TG_85752.v1.json",
+   "prev": "6a1188c0893d5a0aff431dc8ac7c132c4563364354c34e8e406430e898be3208",
+   "seq": 253,
+   "sha256": "12f693da4739d57027bebabe5f07829c484192a79597f906e99d1925e49d3ea0",
+   "utc": "2026-11-07T16:35:02Z"
+  },
+  {
+   "case_id": "TG_85753",
+   "entry_hash": "c4be17228ea4fbaa127e01507c68f49b552d3214ab0fe7f5fdd9561e9ec0703d",
+   "kind": "candidate",
+   "path": "candidates/TG_85753.v1.json",
+   "prev": "e9bfc16e69c9c69bd80b8680bc78e15ee659384c069da5e4b60816a6a01aeb58",
+   "seq": 254,
+   "sha256": "e3b651cd766c163a6beda25712f8e752518ec2538355ffc8c7eb6c684c4dab99",
+   "utc": "2026-11-07T16:35:02Z"
+  },
+  {
+   "case_id": "CASE_0018",
+   "entry_hash": "5193e9631164293b21db5b09707cfbe5f0ab42ddc7adfa40405833c9d5a55a86",
+   "kind": "case",
+   "path": "cases/CASE_0018.v1.json",
+   "prev": "c4be17228ea4fbaa127e01507c68f49b552d3214ab0fe7f5fdd9561e9ec0703d",
+   "seq": 255,
+   "sha256": "b8d9d2b9e27b6d16334cc081deeed80edca835defef75f09c38d65287046641a",
+   "utc": "2026-11-07T16:35:02Z",
+   "version": 1
   }
  ],
  "schema": 1,

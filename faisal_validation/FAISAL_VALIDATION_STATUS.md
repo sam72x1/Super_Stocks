@@ -11,7 +11,7 @@ EPOCH_INTEGRITY = PASS
 COLLECTOR_STATUS = PASS · SCHEDULED_ACTIVE (131 runs: schedule 102 · workflow_dispatch 29 · schedule `17 */4 * * *` fired 102 time(s) · last run 42176154376 success · 0 update(s) · observed 2026-11-06T09:30:00Z)
 PRIMARY_CASES = 3 of 43 minimum (HISTORICAL 54 outside Phase B by definition)
 VALID_CASES = 0 (PRIMARY 3 minus 3 external-context-blocked)
-EXCLUDED_CASES = 114 (E1 82, E3 4, E4 12, E6 9, E7 4, E8 3)
+EXCLUDED_CASES = 117 (E1 82, E3 4, E4 15, E6 9, E7 4, E8 3)
 UNKNOWN_CASES = 0
 FAISAL_READY = 0
 FAISAL_WAIT = 0
@@ -37,9 +37,9 @@ TIMEFRAME_DIVERSITY = NONE (0 valid cases)
 REGIME_DIVERSITY = NONE (0 valid cases)
 LOOKAHEAD_TEST = PASS (protocol LA1-LA6) · E9 exclusions 0
 PROVENANCE_TEST = PASS (protocol I8-I10) · E7 exclusions 4
-CONTAMINATION_TEST = PASS · E2 0 · E3 4 · E4 12 · E5 0 excluded
+CONTAMINATION_TEST = PASS · E2 0 · E3 4 · E4 15 · E5 0 excluded
 FREEZE_TEST = PASS
-LEDGER_INTEGRITY = PASS · 255 record(s) · head 7dff72a76c9d7be4
+LEDGER_INTEGRITY = PASS · 263 record(s) · head a1235aaa65c79edc
 VALIDATION_STATE = INSUFFICIENT_SAMPLE
 V5_CANDIDATES = 0
 TESTS = test_bot.py — PHB0-PHB9 (the number is read from the CI log, never written by this tool)
@@ -55,8 +55,8 @@ NEXT_ALLOWED_ACTION = Continue collecting under the same frozen rules; nothing c
 |---|---|
 | HISTORICAL (outside Phase B) | 54 |
 | PRIMARY | 3 |
-| PENDING | 0 |
-| EXCLUDED | 114 |
+| PENDING | 1 |
+| EXCLUDED | 117 |
 | UNKNOWN | 0 |
 
 **HISTORICAL** = captured or dated on/before the cutoff (a day-only date counts when its New-York day — 2026-10-07 for this cutoff — is after it). Phase A sealed that period; these are not exclusions and never enter a denominator.
