@@ -35,6 +35,12 @@ MISS_MAX, A_MIN, B_MIN = 0.10, 100, 20                               # §⑥ ب�
 MIN_MS = 60_000
 B5 = 5 * MIN_MS                                                      # إزاحةُ نيويورك عن UTC مضاعفُ ساعة ⟵ محاذاةُ 5د واحدةٌ في الساعتين
 OUT_ROWS = "j1pb_rows.json"
+ADD_D = os.path.join(HERE, "J1PB_ADDENDUM_D.md")                     # الملحق D (أمرُ المالك 2026-11-07 · قبل أيّ رقم)
+ADD_D_SHA = "c1d5691f4f2349327c0b8124a924a3fac3a3ff1262e628c309062ac07ec8e59c"
+D_DELAY = 2 * MIN_MS                                                 # «الدخول بعد دقيقتين من الإشعار»
+D_T1, D_T2, D_CAT = 0.20, 0.50, 0.30                                 # نصفٌ ‏+20% · نصفٌ ‏+50% · كارثيٌّ −30%
+OUT_ROWS_D = "j1pd_rows.json"
+D_BUCKETS = ((-1e9, -30.0), (-30.0, -20.0), (-20.0, -10.0), (-10.0, 0.0), (0.0, 10.0), (10.0, 20.0), (20.0, 1e9))
 
 
 def log(m=""):
@@ -45,6 +51,14 @@ def contract_ok(path=CONTRACT):
     try:
         with open(path, "rb") as f:
             return hashlib.sha256(f.read()).hexdigest() == CONTRACT_SHA
+    except OSError:
+        return False
+
+
+def addendum_ok(path=ADD_D):
+    try:
+        with open(path, "rb") as f:
+            return hashlib.sha256(f.read()).hexdigest() == ADD_D_SHA
     except OSError:
         return False
 
@@ -364,6 +378,152 @@ def report_lines(res, branch_txt, preds, meta, not_gold=0):
     return L
 
 
+# ── الملحق D (نقيّة) ──────────────────────────────────────────────────────────────────────────────────────
+def ny_close_cut(t_ms):
+    """16:00 نيويورك ليوم `t_ms` (ميلّي ثانية UTC)."""
+    from zoneinfo import ZoneInfo
+    d = dt.datetime.fromtimestamp(int(t_ms) / 1000, tz=ZoneInfo("America/New_York"))
+    return int(d.replace(hour=16, minute=0, second=0, microsecond=0).timestamp() * 1000)
+
+
+def d_cut(t_d):
+    """§② حدُّ «الإغلاق»: 16:00 إن كان الدخولُ قبلها · وإلّا None (آخرُ شمعةٍ في اليوم)."""
+    c = ny_close_cut(t_d)
+    return c if t_d < c else None
+
+
+def d_entry(bars, t_d):
+    """§② سعرُ الدخول = إغلاقُ آخر شمعةٍ بدايتُها قبل `t_d`."""
+    prev = [b for b in bars if b[0] < t_d]
+    return float(prev[-1][4]) if prev else None
+
+
+def plan_d(bars, t0, E, cut=None, t1=D_T1, t2=D_T2, cat=D_CAT):
+    """§② الخطّة D: أمرا حدٍّ على الذيل (نصفٌ ‏+20% · نصفٌ ‏+50%) · وقفٌ كارثيٌّ −30% بالأدنى من (الافتتاح · سعرِه) والوقفُ أوّلًا ·
+    والباقي بإغلاق آخر شمعةٍ قبل `cut` (أو آخر شمعةٍ في اليوم)."""
+    g1, g2, gs = E * (1.0 + t1), E * (1.0 + t2), E * (1.0 - cat)
+    x1 = x2 = None
+    h1 = h2 = hit_cat = False
+    last = None
+    for b in bars:
+        t, o, h, lo, c, _v = b
+        if t < t0:
+            continue
+        if cut is not None and t >= cut:
+            break
+        last = float(c)
+        if lo <= gs:
+            px = min(float(o), gs)
+            x1 = px if x1 is None else x1
+            x2 = px if x2 is None else x2
+            hit_cat = True
+            break
+        if x1 is None and h >= g1:
+            x1, h1 = g1, True
+        if x2 is None and h >= g2:
+            x2, h2 = g2, True
+        if x1 is not None and x2 is not None:
+            break
+    end = last if last is not None else E
+    x1 = end if x1 is None else x1
+    x2 = end if x2 is None else x2
+    pct = ((0.5 * x1 + 0.5 * x2) / E - 1.0) * 100.0
+    kind = "cat" if hit_cat else ("t50" if (h1 and h2) else "close")
+    return {"pct": pct, "R": pct / (cat * 100.0), "hit20": h1, "hit50": h2, "cat": hit_cat, "kind": kind}
+
+
+def control_d(bars, t_d, cut, key, k=K_DRAWS):
+    """§③ `C_D`: شمعةُ دقيقةٍ عشوائيّة من `t_d` حتى قبل الحدّ · الدخولُ إغلاقُها · والخطّةُ D من الشمعة التالية ⟵ متوسّطُ العائد %."""
+    cand = [b for b in bars if b[0] >= t_d and (cut is None or b[0] < cut)]
+    if not cand:
+        return None
+    rng = random.Random(key)
+    vals = []
+    for _ in range(int(k)):
+        b = cand[rng.randrange(len(cand))]
+        vals.append(plan_d(bars, b[0] + MIN_MS, float(b[4]), cut)["pct"])
+    return mean(vals)
+
+
+def summarize_d(rows):
+    """§④ من صفوف الملحق D."""
+    ev = [r for r in rows if r.get("bars")]
+    ok = [r for r in ev if r.get("D")]
+    ds = [r["D"] for r in ok]
+    n = len(ds)
+
+    def _sh(key):
+        return (100.0 * sum(1 for d in ds if d.get(key)) / n) if n else None
+    buckets = []
+    for lo, hi in D_BUCKETS:
+        buckets.append(sum(1 for d in ds if lo < d["pct"] <= hi) if lo > -1e9 else sum(1 for d in ds if d["pct"] <= hi))
+    tail = sorted(({"date": r["date"], "symbol": r["symbol"], "pct": r["D"]["pct"], "kind": r["D"]["kind"]}
+                   for r in ok if r["D"]["pct"] <= -10.0), key=lambda x: x["pct"])
+    worst = sorted(({"date": r["date"], "symbol": r["symbol"], "pct": r["D"]["pct"], "kind": r["D"]["kind"]} for r in ok),
+                   key=lambda x: x["pct"])[:10]
+    pa = [(r["date"], r["D"]["pct"] - r["A_pct"]) for r in ok if r.get("A_pct") is not None]
+    pc = [(r["date"], r["D"]["pct"] - r["C"]) for r in ok if r.get("C") is not None]
+    pr = [(r["date"], r["D"]["R"]) for r in ok]
+    return {"n_pop": len(rows), "n_ev": len(ev), "n_nobars": len(rows) - len(ev), "n_ok": n,
+            "R": mean([d["R"] for d in ds]), "R_ci": boot_ci(pr), "R_med": median([d["R"] for d in ds]),
+            "pct": mean([d["pct"] for d in ds]), "pct_med": median([d["pct"] for d in ds]),
+            "pos": (100.0 * sum(1 for d in ds if d["pct"] > 0) / n) if n else None,
+            "hit20": _sh("hit20"), "hit50": _sh("hit50"), "cat": _sh("cat"),
+            "close": (100.0 * sum(1 for d in ds if d["kind"] == "close") / n) if n else None,
+            "buckets": buckets, "tail": tail, "worst": worst,
+            "A_pct": mean([r["A_pct"] for r in ok if r.get("A_pct") is not None]),
+            "C_pct": mean([r["C"] for r in ok if r.get("C") is not None]),
+            "DA": mean([v for _d, v in pa]), "DA_ci": boot_ci(pa), "DA_n": len(pa),
+            "DC": mean([v for _d, v in pc]), "DC_ci": boot_ci(pc), "DC_n": len(pc)}
+
+
+def verdict_d(res):
+    """§⑤ ⟵ (رمز، نصّ): 0 «لا قياس» · 1 المرحلة 2 تُفتح (متوسّطُ R_D فوق الصفر) · 2 لا تُفتح."""
+    if not res["n_pop"] or res["n_nobars"] / res["n_pop"] > MISS_MAX or res["n_ok"] < A_MIN:
+        return 0, "«لا قياس» — شموعٌ تعذّرت لأكثر من 10% أو أقلُّ من 100 إشعارٍ بعائدٍ معرَّف"
+    if res["R"] is not None and res["R"] > 0:
+        return 1, "R_D موجب ⟵ **تُفتح المرحلة 2** (ثلاثُ سنوات PIT بملحقٍ قبل أيّ رقم)"
+    return 2, "R_D غيرُ موجب ⟵ المرحلة 2 لا تُفتح · لا شيء يُشحَن"
+
+
+def predictions_d(res, code):
+    ci = res.get("DC_ci")
+    return {
+        "J1PD1": res["R"] is not None and res["R"] < 0,
+        "J1PD2": res["pct"] is not None and -15.0 <= res["pct"] <= 0.0,
+        "J1PD3": res["cat"] is not None and 15.0 <= res["cat"] <= 35.0,
+        "J1PD4": (res["hit20"] is not None and 20.0 <= res["hit20"] <= 30.0 and res["hit50"] is not None and 8.0 <= res["hit50"] <= 18.0),
+        "J1PD5": res["DA"] is not None and res["DA"] < 0,
+        "J1PD6": ci is not None and ci[0] <= 0 <= ci[1],
+        "J1PD7": bool(res["worst"]) and all(w["kind"] == "cat" for w in res["worst"]),
+    }
+
+
+def report_lines_d(res, txt, preds, meta):
+    names = ("−30% فأدنى", "−30…−20", "−20…−10", "−10…0", "0…10", "10…20", "20…35")
+    kinds = {"cat": "كارثيّ −30%", "close": "الإغلاق", "t50": "‏+50%"}
+    L = ["## ⑦ الملحق D — أوامرُ بيعٍ استباقيّة بلا وقفٍ ضيّق (مولَّدٌ بـ`j1_pullback.py --mode armd` · لا رقمَ باليد)", "",
+         f"**التشغيلة:** {meta.get('run')} · main `{(meta.get('sha') or '')[:9]}`", "",
+         f"- الإشعارات {res['n_pop']} · بشموع {res['n_ev']} · بعائدٍ معرَّف **{res['n_ok']}**",
+         f"- **`R_D` لكلّ إشعار (العائد ÷ 30%): المتوسّط {_f(res['R'])} {_ci(res['R_ci'])} · الوسيط {_f(res['R_med'])}** · "
+         f"العائدُ % المتوسّط {_f(res['pct'], '+.2f')} والوسيط {_f(res['pct_med'], '+.2f')} · الموجب {_f(res['pos'], '.1f')}%",
+         f"- ‏+20% {_f(res['hit20'], '.1f')}% · ‏+50% {_f(res['hit50'], '.1f')}% · الوقفُ الكارثيّ {_f(res['cat'], '.1f')}% · خرج الباقي بالإغلاق "
+         f"{_f(res['close'], '.1f')}%", "",
+         "| السلّة (العائد %) | " + " | ".join(names) + " |", "|---|" + "---|" * len(names),
+         "| الإشعارات | " + " | ".join(str(x) for x in res["buckets"]) + " |", "",
+         f"- **مقابل A** (العائد % لكلّ إشعار): A {_f(res['A_pct'], '+.2f')} · `D − A` = **{_f(res['DA'], '+.2f')}** {_ci(res['DA_ci'])} على {res['DA_n']}",
+         f"- **مقابل العشوائيّ** `C_D` {_f(res['C_pct'], '+.2f')} · `D − C_D` = **{_f(res['DC'], '+.2f')}** {_ci(res['DC_ci'])} على {res['DC_n']}", "",
+         f"**الحكم: {txt}**", "", "**أسوأ 10 صفقات:**", ""]
+    for w in res["worst"]:
+        L.append(f"- {w['date']} {w['symbol']} {_f(w['pct'], '+.2f')}% ({kinds.get(w['kind'], w['kind'])})")
+    L += ["", f"**الذيلُ الأيسر بالأسماء (العائد −10% فأدنى · {len(res['tail'])}):**", ""]
+    L.append(" · ".join(f"{w['date'][5:]} {w['symbol']} {_f(w['pct'], '+.1f')}%" for w in res["tail"]) or "—")
+    L += ["", "**التنبّؤات (الملحق §⑥ · منشورةٌ قبل الرقم):**", ""]
+    for k, v in preds.items():
+        L.append(f"- `{k}` {'✅' if v else '❌'}")
+    return L
+
+
 # ── الجلب (رنر) ─────────────────────────────────────────────────────────────────────────────────────────
 def fetch_daily(sym, d0, d1, key, adjusted, get=None):
     """يوميّةُ Polygon ⟵ [(تاريخ نيويورك، o، h، l، c)] أو None."""
@@ -453,16 +613,75 @@ def mode_run():
     return 0
 
 
+def measure_d(row, bars):
+    """صفُّ إشعارٍ واحد للملحق D."""
+    day, sym = row["date"], str(row["symbol"]).upper()
+    out = {"date": day, "symbol": sym, "bars": bool(bars)}
+    if not bars:
+        return out
+    t_ev = t_ev_of(row)
+    t_d = t_ev + D_DELAY
+    E = d_entry(bars, t_d)
+    if not E or E <= 0:
+        return out
+    cut = d_cut(t_d)
+    out["E"] = E
+    out["D"] = plan_d(bars, t_d, E, cut)
+    out["A_pct"] = exit_plan(bars, t_ev, float(row["e5"]), float(row["anchor_low"]))["pct"]
+    out["C"] = control_d(bars, t_d, cut, f"20261107:D:{day}:{sym}")
+    return out
+
+
+def mode_armd():
+    from concurrent.futures import ThreadPoolExecutor
+    from tier_fwd_report import fetch_day
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    if not key:
+        log("⛔ بلا مفتاح Polygon — لا قياس")
+        return 3
+    U = json.load(open(UNIVERSE, encoding="utf-8"))
+    led = subprocess.run(["git", "show", f"{LEDGER_REF}:tier_fwd_ledger.jsonl"], capture_output=True, text=True).stdout
+    if not led.strip():
+        log("⛔ تعذّر قراءةُ السجلّ عند المرجع — لا قياس")
+        return 3
+    rows, _ng = population(led.splitlines(), set(U["sessions"]))
+    log(f"📥 الملحق D: {len(rows)} إشعارًا")
+
+    def _one(row):
+        try:
+            return measure_d(row, fetch_day(row["symbol"], row["date"], key))
+        except Exception as e:                                       # noqa: BLE001
+            log(f"⛔ {row['date']} {row['symbol']}: {type(e).__name__}")
+            return {"date": row["date"], "symbol": str(row["symbol"]).upper(), "bars": False, "err": type(e).__name__}
+    with ThreadPoolExecutor(8) as pool:
+        got = list(pool.map(_one, rows))
+    json.dump(got, open(OUT_ROWS_D, "w", encoding="utf-8"), ensure_ascii=False, default=str)
+    res = summarize_d(got)
+    code, txt = verdict_d(res)
+    preds = predictions_d(res, code)
+    meta = {"run": os.environ.get("GITHUB_RUN_ID"),
+            "sha": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()}
+    for ln in report_lines_d(res, txt, preds, meta):
+        print(ln)
+    print("J1PD_JSON " + json.dumps({"res": res, "code": code, "preds": preds, "meta": meta}, ensure_ascii=False, default=str))
+    return 0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--mode", choices=("check", "run"), default="check")
+    ap.add_argument("--mode", choices=("check", "run", "armd"), default="check")
     a = ap.parse_args(argv)
     if not contract_ok():
         log("⛔ بصمةُ العقد تغيّرت — خروج 9 (لا قياس).")
         return CONTRACT_RC
+    if a.mode in ("check", "armd") and not addendum_ok():
+        log("⛔ بصمةُ الملحق D تغيّرت — خروج 9 (لا قياس).")
+        return CONTRACT_RC
     if a.mode == "check":
-        log("🔒 بصمةُ العقد ✅")
+        log("🔒 بصمةُ العقد والملحق D ✅")
         return 0
+    if a.mode == "armd":
+        return mode_armd()
     return mode_run()
 
 
