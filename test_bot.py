@@ -99056,6 +99056,35 @@ try:
 except Exception as _nof_e:                                                      # noqa: BLE001
     check("🔇 NOFL0 T-NOFIRE (انهيارُ القفل)", False, f"⛔ رمى: {type(_nof_e).__name__}: {_nof_e}")
 
+# 📅 OMD1 — يومٌ جديد يُصفّر حالةَ «هنا الدخول» في دمج الددوب (عطلٌ مُثبَت 2026-11-07 · `T-NOFIRE §⑤-د` · WETO 08-31)
+try:
+    import json as _omd_js
+    _omd_rem = _omd_js.dumps({"LIQ:WETO": {"date": "2026-08-28", "anchor_ms": 1787952300000, "anchor_price": 7.31,
+                                           "sent": ["M1", "M5", "M30"], "last_eval_ms": 1788174720000},
+                              "LIQ:SAME": {"date": "2026-08-31", "anchor_ms": 5, "sent": ["M1"]},
+                              "WETO": "2026-08-28"}).encode()
+    _omd_loc = _omd_js.dumps({"LIQ:WETO": {"date": "2026-08-31", "last_eval_ms": 1788175020000},
+                              "LIQ:SAME": {"date": "2026-08-31", "anchor_ms": 5, "sent": ["M5"]},
+                              "WETO": "2026-08-31"}).encode()
+    _omd_m = _omd_js.loads(S._merge_op_entry(_omd_rem, _omd_loc))
+    # والعكس: البعيدُ أحدثُ يومًا (كاتبٌ بائتٌ محلّيّ) ⟵ البعيدُ كاملًا
+    _omd_m2 = _omd_js.loads(S._merge_op_entry(_omd_loc, _omd_rem))
+    _omd_old = S.OP_MERGE_DATE_RESET
+    try:
+        S.OP_MERGE_DATE_RESET = False
+        _omd_m3 = _omd_js.loads(S._merge_op_entry(_omd_rem, _omd_loc))
+    finally:
+        S.OP_MERGE_DATE_RESET = _omd_old
+    _omd_w, _omd_w2, _omd_w3 = _omd_m.get("LIQ:WETO") or {}, _omd_m2.get("LIQ:WETO") or {}, _omd_m3.get("LIQ:WETO") or {}
+    check("📅 OMD1 دمجُ ددوب «هنا الدخول»: تاريخان مختلفان ⟵ الأحدثُ يومًا يفوز كاملًا (لا مِرساةَ أمسٍ تُختم بتاريخ اليوم · WETO 08-31) · "
+          "واليومُ نفسُه ⟵ الدمجُ الحقليّ كما كان (اتّحادُ `sent`) · و`OP_MERGE_DATE_RESET=False` ⟵ السلوكُ السابق بت-بت",
+          _omd_w == {"date": "2026-08-31", "last_eval_ms": 1788175020000}
+          and _omd_w2 == {"date": "2026-08-31", "last_eval_ms": 1788175020000}
+          and (_omd_m.get("LIQ:SAME") or {}).get("sent") == ["M1", "M5"] and _omd_m.get("WETO") == "2026-08-31"
+          and _omd_w3.get("anchor_ms") == 1787952300000 and _omd_w3.get("date") == "2026-08-31",
+          f"m={_omd_w} m2={_omd_w2} m3={_omd_w3}")
+except Exception as _omd_e:                                                      # noqa: BLE001
+    check("📅 OMD1 (انهيارُ القفل)", False, f"⛔ رمى: {type(_omd_e).__name__}: {_omd_e}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

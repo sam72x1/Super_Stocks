@@ -26901,6 +26901,10 @@ def _union_jsonl(remote_bytes, local_bytes) -> bytes:
         return local_bytes
 
 
+# 📅 مفتاحُ «يومٌ جديد يُصفّر الحالة» في دمج ددوب «هنا الدخول» (2026-11-07 · `OMD1`) — False ⟵ القاعدةُ السابقة بت-بت.
+OP_MERGE_DATE_RESET = True
+
+
 def _merge_op_entry(remote_bytes, local_bytes) -> bytes:
     """🎯 نقيّة (خطة 031): دمجُ ددوب «هنا الدخول» **بالمفتاح** بدل الدهس.
 
@@ -26956,6 +26960,14 @@ def _merge_op_entry(remote_bytes, local_bytes) -> bytes:
             #    يُعيد إليها مِرساةَ الأمس من النسخة البعيدة ⇒ `rearm_n` يبقى
             #    و`exit_ms` يعود ⇒ **تموت الإعادةُ صامتةً**. العدّادُ رتيبٌ
             #    بالبناء ⇒ الأكبرُ هو الأحدث (وقبل الإعادة كلاهما صفر ⇒ بت-بت).
+            # 📅 **يومٌ جديد يُصفّر الحالة** (عطلٌ مُثبَت 2026-11-07 · `T-NOFIRE §⑤-د`): يومَ 08-31 حملت النسخةُ البعيدة مِرساةَ
+            #    الجمعة 08-28 والمحلّيّةُ حالةَ الاثنين المصفَّرة (`date` جديد بلا `anchor_ms`) ⇒ الدمجُ الحقليّ ختم مِرساةَ الجمعة
+            #    بتاريخ الاثنين في 12 رمزًا (WETO منها) فلم يُرسَل M1 لزنادهم ذلك اليوم. ⇒ تاريخان مختلفان ⟵ **الأحدثُ يفوز كاملًا**
+            #    (ISO يُقارن نصًّا) · وغيابُ أحدهما ⟵ القاعدةُ السابقة بت-بت · `OP_MERGE_DATE_RESET=False` ⟵ بت-بت.
+            rd_, ld_ = r.get("date"), l.get("date")
+            if (OP_MERGE_DATE_RESET and isinstance(rd_, str) and isinstance(ld_, str)
+                    and rd_ and ld_ and rd_ != ld_):
+                return r if rd_ > ld_ else l
             rr_, lr_ = _num(r.get("rearm_n")), _num(l.get("rearm_n"))
             if (rr_ or 0) != (lr_ or 0):
                 return r if (rr_ or 0) > (lr_ or 0) else l
