@@ -100004,6 +100004,23 @@ try:
           and set(_ops_on) == {"workflow_dispatch"} and (_ops_yd.get("permissions") or {}).get("contents") == "read"
           and "fetch-depth: 0" in open(".github/workflows/opsig.yml", encoding="utf-8").read(),
           f"on={list(_ops_on)}")
+    # OPSL4 (‏2026-11-07 · عطلان مُثبَتان في أوّل تشغيلة `42396386956`): ① البوّابةُ قارنت 1596 **قبل** استبعاد يوم التقسيم والعقدُ يحيل إلى
+    #       LVS §④ «الإطلاقات 1561 … يومُ تقسيمٍ مستبعَد 35» (1596 = 1561 ‏+ 35) ⟵ `pop_gate` بعد الاستبعاد · ② `predictions` كانت تمرّ على كلّ
+    #       مفاتيح `verd` (ومنها `b_share` رقمًا) ⟵ TypeError ⟵ السماتُ الأربع وحدَها.
+    _ops_vx = {"a": ("لا تفرّق", 0.0, (-1, 1)), "b": ("لا قياس", None, None), "c": ("تفرّق", 5.0, (1, 9)), "d": ("تفرّق", 4.0, (1, 8)),
+               "b_share": 12.0, "d_row": {"higher": 3.0}}
+    try:
+        _ops_pr = OPS.predictions(1561, {"win": 25.0, "cat": 12.0}, _ops_vx, {"win": 40.0}, {"maxg_med": 9.0})
+    except Exception as _ops_pe:                                  # noqa: BLE001
+        _ops_pr = {"⛔": f"{type(_ops_pe).__name__}"}
+    _ops_mr = _ops_ast.unparse(next(n for n in _ops_tree.body if isinstance(n, _ops_ast.FunctionDef) and n.name == "mode_run"))
+    check("🕵️📈 OPSL4 T-OPSIG: بوّابةُ العدد **بعد** استبعاد يوم التقسيم (1596 ‏− 35 = 1561 ⟵ تعبر · بلا استبعاد ⟵ تسقط) كما نشرها LVS §④ · "
+          "و`predictions` لا ترمي على `verd` بمفاتيحه الإضافيّة وتعدّ السماتِ الأربع وحدَها (OPS9) · و`mode_run` يحكم بـ`pop_gate` ويمرّر `n_gate`",
+          OPS.pop_gate(1596, 35) == (1561, True) and OPS.pop_gate(1596, 0) == (1596, False) and OPS.pop_gate(1561, 0) == (1561, True)
+          and _ops_pr.get("OPS1") is True and _ops_pr.get("OPS9") is False and _ops_pr.get("OPS7") is True and _ops_pr.get("OPS5") is True and _ops_pr.get("OPS6") is False
+          and "pop_gate(len(fires), n_split)" in _ops_mr and "predictions(n_gate," in _ops_mr and "len(fires) != N_GATE" not in _ops_mr
+          and "if not gate_ok or" in _ops_mr,
+          f"pr={_ops_pr} gate={OPS.pop_gate(1596, 35)}")
 except Exception as _ops_e:                                       # noqa: BLE001
     check("🕵️📈 OPSL0 T-OPSIG (انهيارُ القفل)", False, f"⛔ رمى: {type(_ops_e).__name__}: {_ops_e}")
 
