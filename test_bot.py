@@ -99540,6 +99540,131 @@ try:
 except Exception as _owf_e:                                                      # noqa: BLE001
     check("👁️➕ OWF0 (انهيارُ القفل)", False, f"⛔ رمى: {type(_owf_e).__name__}: {_owf_e}")
 
+# 🥇↩️ J1BP1-J1BP3 (‏2026-11-07 · `T-J1-PULLBACK` «الدخول على العودة لا على الإشعار» · العقد `fm_forensics/j1_pullback/J1PB_prereg.md` مدموجٌ قبل أيّ رقم):
+#    المجتمع (j1 ∧ 🥇 ∧ الجلسات · أوّلُ صفٍّ لكلّ يوم-رمز) · المستوى PIT بمعامل القياس · المغادرةُ ثمّ العودةُ في شمعةٍ لاحقة · أوّلُ إغلاق 5د فوق L ·
+#    الوقفُ من العودة · الخطّةُ (الوقفُ أوّلًا · نصفان) · الضابطُ بوقفٍ مطابقٍ حتميّ · D_A وتفكيكُه · الفروعُ الأربعة · قراءةٌ فقط وبصمةُ العقد.
+try:
+    import importlib.util as _jbp_iu
+    import ast as _jbp_ast
+    import json as _jbp_js
+    _jbp_sp = _jbp_iu.spec_from_file_location("j1_pullback_lock", "fm_forensics/j1_pullback/j1_pullback.py")
+    JBP = _jbp_iu.module_from_spec(_jbp_sp)
+    _jbp_sp.loader.exec_module(JBP)
+    _jbp_M = 60_000
+    _jbp_T = 1_700_000_100_000 - (1_700_000_100_000 % 300_000)
+
+    def _jbp_b(i, o, h, lo, c):
+        return (_jbp_T + i * _jbp_M, o, h, lo, c, 100.0)
+    # المسار: إشعار P=10 · L=7 (مغادِرٌ عند الإشعار) · هبوطٌ إلى 7.2 عند الدقيقة 11 · شمعةُ 5د [10..14] تُغلق 7.55 فوق 7 ⟵ دخول · ثمّ صعود
+    _jbp_bars = [_jbp_b(i, 10, 10.2, 9.8, 10) for i in range(5)]
+    _jbp_bars += [_jbp_b(5 + i, 10 - i * 0.5, 10 - i * 0.5 + 0.1, 10 - i * 0.5 - 0.1, 10 - i * 0.5) for i in range(6)]
+    _jbp_bars += [_jbp_b(11, 7.4, 7.5, 7.2, 7.3), _jbp_b(12, 7.3, 7.4, 7.1, 7.2), _jbp_b(13, 7.2, 7.6, 7.15, 7.5), _jbp_b(14, 7.5, 7.6, 7.4, 7.55)]
+    _jbp_bars += [_jbp_b(15 + i, 7.55 + i * 0.1, 7.6 + i * 0.2, 7.5, 7.6 + i * 0.15) for i in range(30)]
+    _jbp_tev = _jbp_T + 5 * _jbp_M
+    _jbp_B = JBP.arm_b(_jbp_bars, _jbp_tev, 10.0, 7.0)
+    # الدقيقة 10 فيها bar[3]=7.4 فوق 1.05·7=7.35 ⟵ ليست عودة · والعودةُ الدقيقة 11 · والوقفُ أدنى Low من 11 حتى 14 = 7.1 (لا 7.4 قبلها)
+    _jbp_ok_b = (_jbp_B.get("ret") and _jbp_B.get("entry") and _jbp_B["t_ret"] == _jbp_T + 11 * _jbp_M and abs(_jbp_B["e"] - 7.55) < 1e-9
+                 and abs(_jbp_B["s"] - 7.1) < 1e-9 and _jbp_B["t0"] == _jbp_T + 15 * _jbp_M and _jbp_B["dep"] is True)
+    # مغادرةٌ وعودةٌ في الشمعة نفسِها لا تُعَدّ: P=L=10 · شمعةٌ رأسُها 10.6 وقاعُها 10.4 ثمّ صعودٌ بلا عودة ⟵ لا عودة
+    _jbp_same = [_jbp_b(5, 10, 10.6, 10.4, 10.55), _jbp_b(6, 10.6, 11.0, 10.6, 10.9), _jbp_b(7, 10.9, 11.2, 10.8, 11.1)]
+    _jbp_B2 = JBP.arm_b(_jbp_same, _jbp_tev, 10.0, 10.0)
+    # عودةٌ بلا إغلاق 5د فوق L ⟵ لا صفقة
+    _jbp_dn = [_jbp_b(5, 10, 10.1, 9.0, 9.0)] + [_jbp_b(6 + i, 6.9, 7.0, 6.5, 6.8) for i in range(10)]
+    _jbp_B3 = JBP.arm_b(_jbp_dn, _jbp_tev, 10.0, 7.0)
+    # P=L=10 (غيرُ مغادِر): قاعٌ 9.0 قبل المغادرة لا يدخل الوقف · والإغلاقُ 10.4 فوق L ودون 1.05·L يكفي للدخول
+    _jbp_F = [_jbp_b(5, 10, 10.2, 9.0, 9.5), _jbp_b(6, 9.5, 10.6, 9.6, 10.5), _jbp_b(7, 10.5, 10.55, 10.3, 10.45),
+              _jbp_b(8, 10.45, 10.5, 10.2, 10.3), _jbp_b(9, 10.3, 10.4, 10.25, 10.4)]
+    _jbp_B4 = JBP.arm_b(_jbp_F, _jbp_tev, 10.0, 10.0)
+    _jbp_ok_f = (_jbp_B4.get("entry") is True and _jbp_B4["t_ret"] == _jbp_T + 7 * _jbp_M and abs(_jbp_B4["e"] - 10.4) < 1e-9
+                 and abs(_jbp_B4["s"] - 10.2) < 1e-9 and _jbp_B4["dep"] is False)
+    # الخطّة: الوقفُ أوّلًا ولو لمس الرأسُ الهدف · نصفان · نهايةُ اليوم · مخاطرةٌ صفر ⟵ None · بلا شمعةٍ بعد t0 ⟵ 0
+    _jbp_x_stop = JBP.exit_plan([_jbp_b(0, 10, 13, 8, 8.5)], _jbp_T, 10.0, 9.0)
+    _jbp_x_half = JBP.exit_plan([_jbp_b(0, 10, 12.5, 9.5, 12), _jbp_b(1, 12, 12.2, 11.0, 11.5)], _jbp_T, 10.0, 9.0)
+    _jbp_x_both = JBP.exit_plan([_jbp_b(0, 10, 12.5, 9.5, 12), _jbp_b(1, 12, 15.5, 11.0, 15)], _jbp_T, 10.0, 9.0)
+    _jbp_x_none = JBP.exit_plan([_jbp_b(0, 10, 10.5, 9.5, 10.2)], _jbp_T + _jbp_M, 10.0, 9.0)
+    _jbp_x_zero = JBP.exit_plan([_jbp_b(0, 10, 10.5, 9.5, 10.2)], _jbp_T, 10.0, 10.0)
+    _jbp_ok_x = (_jbp_x_stop["stop"] and not _jbp_x_stop["hit20"] and abs(_jbp_x_stop["R"] - (-1.5)) < 1e-9
+                 and _jbp_x_half["hit20"] and not _jbp_x_half["hit50"] and abs(_jbp_x_half["R"] - (0.5 * 2 + 0.5 * 1.5)) < 1e-9 and _jbp_x_half["eod"]
+                 and _jbp_x_both["hit20"] and _jbp_x_both["hit50"] and abs(_jbp_x_both["R"] - 3.5) < 1e-9 and not _jbp_x_both["eod"]
+                 and _jbp_x_none["R"] == 0.0 and _jbp_x_zero["R"] is None)
+    # المستوى: معاملُ القياس (الخامّ ÷ المسوّى ليوم D) · عنقودان ⟵ tested · عنقودٌ واحد ⟵ alert · تعذّر ⟵ alert-fetch
+    _jbp_adj = [(f"2026-09-0{i}", 1, 1, lo, 1) for i, lo in zip(range(1, 9), [2.0, 2.02, 3, 2.5, 2.01, 3, 3, 3])] + [("2026-09-10", 1, 1, 1, 1.5)]
+    _jbp_adj1 = [(f"2026-09-0{i}", 1, 1, lo, 1) for i, lo in zip(range(1, 5), [2.0, 3, 3, 3])] + [("2026-09-10", 1, 1, 1, 1.5)]
+    _jbp_lv = [JBP.level_of(_jbp_adj, 3.0, "2026-09-10"), JBP.level_of(_jbp_adj1, 3.0, "2026-09-10"),
+               JBP.level_of(_jbp_adj, None, "2026-09-10"), JBP.level_of(None, 3.0, "2026-09-10"),
+               JBP.level_of(_jbp_adj[:-1], 3.0, "2026-09-10")]
+    _jbp_ok_l = (_jbp_lv[0] == (4.0, "tested") and _jbp_lv[1] == (None, "alert") and _jbp_lv[2][1] == "alert-fetch"
+                 and _jbp_lv[3][1] == "alert-fetch" and _jbp_lv[4][1] == "alert-fetch")
+    # الضابط: حتميٌّ بالمفتاح · ووقفُه بالنسبة الممرَّرة (نسبةٌ ضيّقةٌ جدًّا ⟵ وقفٌ أقرب ⟵ R مختلف)
+    _jbp_c1 = JBP.control_R(_jbp_bars, _jbp_tev, 0.06, "20261107:2026-09-10:X")
+    _jbp_c2 = JBP.control_R(_jbp_bars, _jbp_tev, 0.06, "20261107:2026-09-10:X")
+    _jbp_c3 = JBP.control_R(_jbp_bars, _jbp_tev, 0.30, "20261107:2026-09-10:X")
+    _jbp_ok_c = (_jbp_c1 == _jbp_c2 and _jbp_c1[1] == 20 and _jbp_c1[0] is not None and _jbp_c3[0] != _jbp_c1[0]
+                 and JBP.control_R(_jbp_bars, _jbp_tev, 0.0, "k") == (None, 0))
+    # المجتمع: j1 ∧ 🥇 ∧ ضمن الجلسات · أوّلُ صفٍّ لكلّ (تاريخ، رمز)
+    _jbp_led = [_jbp_js.dumps(d) for d in [
+        {"date": "2026-09-10", "symbol": "aaa", "j1": True, "tier": "قوي", "price_ms": 5, "e5": 1},
+        {"date": "2026-09-10", "symbol": "AAA", "j1": True, "tier": "قوي", "price_ms": 9, "e5": 2},
+        {"date": "2026-09-10", "symbol": "BBB", "j1": True, "tier": "متوسط", "price_ms": 5},
+        {"date": "2026-09-10", "symbol": "CCC", "j1": False, "tier": "قوي", "price_ms": 5},
+        {"date": "2026-12-01", "symbol": "DDD", "j1": True, "tier": "قوي", "price_ms": 5}]] + ["{bad"]
+    _jbp_pop, _jbp_ng = JBP.population(_jbp_led, {"2026-09-10"})
+    _jbp_ok_p = len(_jbp_pop) == 1 and _jbp_pop[0]["e5"] == 1 and _jbp_ng == 1
+    _jbp_tev_r = JBP.t_ev_of({"anchor_ms": 0, "price_ms": 9 * _jbp_M})
+    check("🥇↩️ J1BP1 T-J1-PULLBACK: المغادرةُ ثمّ العودةُ في شمعةٍ لاحقة · أوّلُ إغلاق 5د فوق L · الوقفُ أدنى Low من العودة · الخطّةُ (الوقفُ أوّلًا · نصفان · "
+          "نهايةُ اليوم) · المستوى PIT بمعامل القياس وثلاثةُ مصادر · الضابطُ حتميٌّ بوقفٍ مطابق · المجتمعُ j1 ∧ 🥇 ∧ الجلسات · وبدءُ التقييم بعد شمعة الكرت",
+          _jbp_ok_b and _jbp_ok_f and _jbp_B2.get("ret") is False and _jbp_B3.get("ret") is True and _jbp_B3.get("entry") is False
+          and _jbp_ok_x and _jbp_ok_l and _jbp_ok_c and _jbp_ok_p and _jbp_tev_r == 10 * _jbp_M
+          and JBP.t_ev_of({"anchor_ms": 0, "price_ms": 4 * _jbp_M}) == 5 * _jbp_M,
+          f"b={_jbp_ok_b} f={_jbp_B4} b2={_jbp_B2.get('ret')} b3={_jbp_B3.get('entry')} x={_jbp_ok_x} l={_jbp_lv} c={_jbp_c1},{_jbp_c3} p={_jbp_ok_p}")
+
+    # الملخّص والحكم: صفوفٌ اصطناعيّة ⟵ D_A يعدّ «لا صفقة» صفرًا · وتفكيكُه يطابقه · والفروعُ الأربعة
+    def _jbp_row(d, ra, rb=None, c=None, ret=False, src="tested"):
+        b = {"ret": ret or rb is not None, "entry": rb is not None}
+        if rb is not None:
+            b.update(R=rb, pct=rb, hit20=rb > 1, hit50=False, stop=rb < 0, eod=rb >= 0, pos=rb > 0)
+        return {"date": d, "symbol": "X", "bars": True, "src": src, "A": {"R": ra, "pct": ra, "hit20": ra > 1, "hit50": False, "stop": ra < 0,
+                                                                        "eod": ra >= 0, "pos": ra > 0},
+                "B": b, "C": c, "at10": ra}
+    _jbp_rows = ([_jbp_row(f"2026-09-{1 + i % 25:02d}", -1.0, rb=1.0, c=-0.2) for i in range(30)]
+                 + [_jbp_row(f"2026-09-{1 + i % 25:02d}", -1.0) for i in range(90)])
+    _jbp_res = JBP.summarize(_jbp_rows)
+    _jbp_v = JBP.verdict(_jbp_res)[0]
+    _jbp_res2 = dict(_jbp_res, DC=-0.1, DC_ci=(-0.5, 0.3))
+    _jbp_res3 = dict(_jbp_res, DA=-0.1, DA_ci=(-0.3, 0.1))
+    _jbp_res4 = dict(_jbp_res, B1=dict(_jbp_res["B1"], n=19))
+    _jbp_res5 = dict(_jbp_res, n_nobars=15, n_pop=135)
+    _jbp_br = [_jbp_v, JBP.verdict(_jbp_res2)[0], JBP.verdict(_jbp_res3)[0], JBP.verdict(_jbp_res4)[0], JBP.verdict(_jbp_res5)[0],
+               JBP.verdict(dict(_jbp_res, DA_n=99))[0], JBP.verdict(dict(_jbp_res, src={"alert-fetch": 13}))[0]]
+    _jbp_pr = JBP.predictions(_jbp_res, _jbp_v)
+    _jbp_txt = "\n".join(JBP.report_lines(_jbp_res, "③ «لا يعبر»", _jbp_pr, {"run": "1", "sha": "abc"}, 18))
+    check("🥇↩️ J1BP2 T-J1-PULLBACK: D_A يعدّ «لا صفقة» صفرًا (لا يُسقطها) وتفكيكُه B1/B2 يطابقه حسابيًّا · D_C على صفقات ب وحدَها · الفروعُ: ① يلزمه D_A وD_C معًا · "
+          "② التجنّبُ لا التوقيت · ③ · «لا قياس» بالبوّابات الأربع · والتقريرُ يطبع العودةَ والدخولَ وR لكلّ ذراع و‏+20%/+50% والضابطَ والتنبّؤات العشرة",
+          _jbp_res["n_ev"] == 120 and _jbp_res["ret"] == 30 and _jbp_res["entry"] == 30 and _jbp_res["DA_n"] == 120
+          and abs(_jbp_res["DA"] - (30 * 2.0 + 90 * 1.0) / 120) < 1e-9 and abs(_jbp_res["DA_check"] - _jbp_res["DA"]) < 1e-9
+          and abs(_jbp_res["DC"] - 1.2) < 1e-9 and _jbp_res["DC_n"] == 30 and _jbp_res["B2"]["n"] == 90
+          and _jbp_br == [1, 2, 3, 0, 0, 0, 0] and len(_jbp_pr) == 10 and _jbp_pr["J1PB10"] is False
+          and "أعطى عودةً: 30 من 120" in _jbp_txt and "C — الضابطُ العشوائيّ" in _jbp_txt and "‏+50% من الصفقات" in _jbp_txt
+          and "`J1PB10` ❌" in _jbp_txt and "J1 بلا 🥇 خارجَ المجتمع 18" in _jbp_txt and "`D_C`" in _jbp_txt,
+          f"res={ {k: _jbp_res[k] for k in ('DA', 'DA_check', 'DC', 'DA_n')} } br={_jbp_br}")
+    _jbp_src = open("fm_forensics/j1_pullback/j1_pullback.py", encoding="utf-8").read()
+    _jbp_t = _jbp_ast.parse(_jbp_src)
+    _jbp_calls = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _jbp_ast.walk(_jbp_t) if isinstance(c, _jbp_ast.Call)}
+    _jbp_imps = {(n.module, a.name) for n in _jbp_ast.walk(_jbp_t) if isinstance(n, _jbp_ast.ImportFrom) for a in n.names}
+    _jbp_con = open("fm_forensics/j1_pullback/J1PB_prereg.md", encoding="utf-8").read()
+    import yaml as _jbp_yaml
+    _jbp_yd = _jbp_yaml.safe_load(open(".github/workflows/j1_pullback.yml", encoding="utf-8").read())
+    _jbp_on = _jbp_yd.get("on", _jbp_yd.get(True)) or {}
+    check("🥇↩️ J1BP3 T-J1-PULLBACK: بصمةُ العقد مثبَّتة · نصُّ أمر المالك والمرجعُ المجمَّد في العقد · الشموعُ بـfetch_day والمستوى بـtested_level والوصفُ بـarm_exit "
+          "بالاسم · لا تلغرام ولا حفظ حالة · الـworkflow يدويٌّ بلا كرون وقراءةٌ فقط",
+          JBP.contract_ok() and "الوقف تحت القاع الذي عاد إليه · الهدف +20% نصف ثم +50%" in _jbp_con and JBP.LEDGER_REF in _jbp_con
+          and ("tier_fwd_report", "fetch_day") in _jbp_imps and ("Super_stock", "tested_level") in _jbp_imps and "arm_exit" in _jbp_calls
+          and not ({"send_telegram", "save_watchlist", "git_save", "save_state"} & _jbp_calls)
+          and set(_jbp_on) == {"workflow_dispatch"} and (_jbp_yd.get("permissions") or {}).get("contents") == "read",
+          f"on={list(_jbp_on)} calls~{len(_jbp_calls)}")
+except Exception as _jbp_e:                                       # noqa: BLE001
+    check("🥇↩️ J1BP0 T-J1-PULLBACK (انهيارُ القفل)", False, f"⛔ رمى: {type(_jbp_e).__name__}: {_jbp_e}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

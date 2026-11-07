@@ -1,0 +1,43 @@
+name: "🥇↩️ T-J1-PULLBACK (الدخول على العودة · قراءةٌ فقط)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · العقد fm_forensics/j1_pullback/J1PB_prereg.md
+#    إشعاراتُ 🥇 J1 في الجلسات الستّين من tier_fwd_ledger.jsonl عند المرجع المجمَّد ⟵ الذراعان والضابطُ العشوائيّ ⟵ الحكمُ بالأضعف.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: super-stocks-j1-pullback
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout (تاريخٌ كامل لسجلّ التصنيف عند المرجع)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🥇↩️ القياس
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          FAISAL_ONLY: "1"
+        run: python fm_forensics/j1_pullback/j1_pullback.py --mode run
+      - name: 📤 رفع
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: j1pb-rows
+          path: j1pb_rows.json
+          retention-days: 30
+          if-no-files-found: warn
