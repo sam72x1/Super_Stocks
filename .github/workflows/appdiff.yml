@@ -1,0 +1,118 @@
+name: "📱⚖️ T-APPDIFF ثلاثة فروق بين تطبيق فيصل والبوت (قراءةٌ فقط · يدويّ)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا شحن (العقد `fm_forensics/appdiff/T_APPDIFF_prereg.md` · APD0-APD3).
+# prep (لقطاتٌ شهريّة 2022-12…2025-12 · تقسيمات · FINRA) ⟵ 20 شريحةً متوازية ⟵ assemble — وكلُّ وضعٍ يخرج 9 إن تغيّرت بصمةُ العقد.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: super-stocks-appdiff
+  cancel-in-progress: false
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📱 العضويّة · التقسيمات · FINRA
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/appdiff/appdiff.py --mode prep
+
+      - name: Upload prep
+        uses: actions/upload-artifact@v4
+        with:
+          name: apd-prep
+          path: fm_forensics/appdiff/out/prep.json.gz
+          retention-days: 30
+
+  shard:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 8               # لا يستنفد رنرات البوت الحيّة (المراقب · الرادار · الفرز)
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep
+        uses: actions/download-artifact@v4
+        with:
+          name: apd-prep
+          path: fm_forensics/appdiff/out
+
+      - name: 📱 الشريحة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "20"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/appdiff/appdiff.py --mode shard
+
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: apd-shard-${{ matrix.shard }}
+          path: fm_forensics/appdiff/out/shard_*.json.gz
+          retention-days: 30
+
+  assemble:
+    needs: shard
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep and shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: apd-*
+          path: fm_forensics/appdiff/out
+          merge-multiple: true
+
+      - name: 📱 التجميع والحكم
+        env:
+          NSHARDS: "20"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/appdiff/appdiff.py --mode assemble

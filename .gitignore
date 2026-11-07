@@ -92,3 +92,6 @@ faisal_engine/out/replay_std*.txt
 # 📝 (2026-10-31) T-W-FAISAL — مخرَجاتُ التشغيل (artifacts على Actions · لا تُدفَع)
 fm_forensics/w_faisal/out/
 ema_cross_ledger_silent.jsonl
+
+# T-APPDIFF — مُخرَجاتُ الرنر (prep · الشرائح) لا تُدفَع
+fm_forensics/appdiff/out/

@@ -100024,6 +100024,155 @@ try:
 except Exception as _ops_e:                                       # noqa: BLE001
     check("🕵️📈 OPSL0 T-OPSIG (انهيارُ القفل)", False, f"⛔ رمى: {type(_ops_e).__name__}: {_ops_e}")
 
+# 📱⚖️ APD1-APD3 (‏2026-11-07 · `T-APPDIFF` «ثلاثة فروق بين تطبيق فيصل والبوت» · العقد `fm_forensics/appdiff/T_APPDIFF_prereg.md` مدموجٌ قبل أيّ رقم):
+#    الأعلامُ الثلاثة (BELOW · M12 بصيغة الإنتاج · F5 · T1 التشغيليّ · ret5) · والتجميعُ (الإدخالُ الجديد · الطبقات · Δ المضبوط · البوتستراب ·
+#    الحكمُ بالأضعف · الميزانية) · والعقدُ ببصمته وحرفِ المالك والمصدر · والأداةُ تعيد استعمال `T-REBUILD` بالاسم · قراءةٌ فقط.
+try:
+    import importlib.util as _apd_iu
+    import ast as _apd_ast
+    import hashlib as _apd_h
+    import datetime as _apd_dt
+    import pandas as _apd_pd
+    _apd_sp = _apd_iu.spec_from_file_location("appdiff_lock", "fm_forensics/appdiff/appdiff.py")
+    APD = _apd_iu.module_from_spec(_apd_sp)
+    _apd_sp.loader.exec_module(APD)
+    _apd_flat = [1.0] * 60
+
+    def _apd_s(last):
+        return _apd_pd.Series(_apd_flat + [last])
+    _apd_band = 95.47
+    _apd_f = {x: (APD.below_all(S, _apd_s(x)), APD.m12_ok(S, _apd_s(x), _apd_band)) for x in (1.0, 0.99, 0.95, 1.5, 3.0)}
+    _apd_mix = _apd_pd.Series([2.0 - 0.02 * k for k in range(50)] + [1.0 + 0.03 * k for k in range(1, 11)])   # فوق EMA20 وتحت EMA50
+    _apd_mixv = (APD.below_all(S, _apd_mix), float(_apd_mix.iloc[-1]) > S.ema(_apd_mix, 20), float(_apd_mix.iloc[-1]) < S.ema(_apd_mix, 50))
+    _apd_lo1 = [2.0, 1.5, 1.6, 1.7, 1.55]
+    _apd_ot = (APD.one_touch([2.0, 1.6, 1.7, 1.5], [2.0, 1.7, 1.8, 1.52]),          # القاعُ آخرُ شمعة ⟵ لا «ناجح»
+               APD.one_touch(_apd_lo1, [2.0, 1.55, 1.65, 1.75, 1.545]),             # 3% فوق القاع ⟵ نعم
+               APD.one_touch(_apd_lo1, [2.0, 1.55, 1.65, 1.75, 1.6]),               # 6.7% ⟵ لا
+               APD.one_touch(_apd_lo1, [2.0, 1.5, 1.65, 1.75, 1.5]),                # على القاع تمامًا ⟵ نعم (0%)
+               APD.one_touch([1.0, 1.0], [1.0, 1.0]))                               # قصير ⟵ لا
+    _apd_v1 = (_apd_f == {1.0: (False, True), 0.99: (True, True), 0.95: (True, False), 1.5: (False, True), 3.0: (False, False)}
+               and _apd_ot[0][0] is False and _apd_ot[1][0] is True and abs(_apd_ot[1][2] - 0.03) < 1e-9 and _apd_ot[2][0] is False
+               and _apd_ot[3][0] is True and _apd_ot[3][2] == 0.0 and _apd_ot[4] == (False, None, None)
+               and APD.ret5([1, 1, 1, 1, 1, 1.1]) == 0.1 and APD.ret5([1, 1, 1, 1, 1.1]) is None
+               and APD.f5_flag(None) is None and APD.f5_flag(5_000_000) == 1 and APD.f5_flag(5_000_001) == 0
+               and _apd_mixv == (False, True, True))
+    _apd_src = open("Super_stock.py", encoding="utf-8").read()
+    _apd_at = _apd_src[_apd_src.find("def analyze_ticker("):_apd_src.find("\ndef ", _apd_src.find("def analyze_ticker(") + 10)]
+    _apd_v1 = _apd_v1 and all(t in _apd_at for t in ("(price >= m * (1.0 - 0.02))", "and (price / m - 1.0) <= band", "for m in (ema30, ema50)",
+                                                     'band = CONFIG["MA_GATE_MAX_ABOVE_PCT"] / 100.0'))
+    check("📱⚖️ APD1 T-APPDIFF الأعلام: BELOW تحت EMA20/30/50 معًا · M12 بصيغة `analyze_ticker` بحرفها (‏−2% · الحدّ · EMA30/50 — ويتداخلان عند 0.99) · "
+          "T1 لمسةٌ «ناجحة» (القاعُ ليس آخرَ شمعة) و0-5% فوقها · ret5 · F5 المجهولُ مجهول",
+          _apd_v1, f"f={_apd_f} ot={_apd_ot}")
+
+    # APD2 — التجميع
+    _apd_sess = [(_apd_dt.date(2023, 1, 2) + _apd_dt.timedelta(k)).isoformat() for k in range(400)]
+
+    def _apd_row(d, cur=1, b=1, below=1, m12=0, f5=1, t1=1, t2=0, r5=0.0, y=False):
+        return [d, cur, b, below, m12, f5, t1, t2, r5, y, 4e6]
+    _apd_rb = {"AAA": [_apd_row(_apd_sess[k]) for k in (10, 11, 12, 13, 14, 40)]}
+    _apd_e = APD.entries(_apd_rb, _apd_sess, APD.RULES["CUR"])
+    _apd_cuts = [0.1, 0.2, 0.3, 0.4]
+    _apd_A = {(f"A{k}", _apd_sess[100]): _apd_row(_apd_sess[100], r5=0.0, y=(k % 2 == 0)) for k in range(80)}
+    _apd_R = {(f"R{k}", _apd_sess[100]): _apd_row(_apd_sess[100], r5=0.0, y=(k % 5 == 0)) for k in range(80)}
+    _apd_R.update({(f"S{k}", _apd_sess[100]): _apd_row(_apd_sess[100], r5=0.5, y=(k % 5 != 0)) for k in range(320)})
+    _apd_adj = APD.adj_delta(_apd_A, _apd_R, _apd_cuts)
+    _apd_bd1 = APD.boot_delta(_apd_A, _apd_R, _apd_cuts, b=300)
+    _apd_bd2 = APD.boot_delta(_apd_A, _apd_R, _apd_cuts, b=300)
+    _apd_N = {(f"N{k}", _apd_sess[100]): _apd_row(_apd_sess[100], r5=0.0, y=(k % 3 == 0)) for k in range(60)}
+    _apd_M = {(f"M{k}", _apd_sess[100]): _apd_row(_apd_sess[100], r5=0.0, y=(k % 3 == 1)) for k in range(60)}
+    _apd_bn = APD.boot_delta(_apd_N, _apd_M, _apd_cuts, b=300)
+
+    def _apd_cmp(ci, ys, lab=40):
+        return {"ci": ci, "years": {y: {"lab_a": lab, "lab_r": lab, "delta": d} for y, d in zip(APD.YEARS, ys)}}
+    _apd_vs = (APD.verdict(_apd_cmp([0.01, 0.2], [0.1, 0.05, 0.02])), APD.verdict(_apd_cmp([0.01, 0.2], [0.1, -0.01, 0.02])),
+               APD.verdict(_apd_cmp([-0.2, -0.01], [-0.1, -0.05, -0.02])), APD.verdict(_apd_cmp([0.01, 0.2], [0.1, 0.05, 0.02], lab=29)),
+               APD.verdict(_apd_cmp([0.01, 0.2], [0.1, 0.05, 0.02]), extra_nq=True),
+               APD.verdict(_apd_cmp([0.01, 0.2], [0.1, 0.05, 0.02]), ("أدقّ", "أقلّ دقّة")), APD.verdict(_apd_cmp([-0.01, 0.2], [0.1, 0.05, 0.02])))
+    _apd_res = {"below_share": 0.6, "f5_share": 0.1, "in_budget": {"B": False, "B_T1": True},
+                "v": {"c1_below": "لا فرق قابل للكشف", "c1_m12": "يرفع", "c2_f5": "يرفع", "c3_t1": "لا فرق قابل للكشف", "c3_b": "أدقّ"}}
+    _apd_pr = APD.predictions(_apd_res)
+    _apd_pr2 = APD.predictions(dict(_apd_res, v=dict(_apd_res["v"], c2_f5="لا فرق قابل للكشف")))
+    _apd_v2 = (sorted(k[1] for k in _apd_e) == [_apd_sess[10], _apd_sess[40]] and APD.stratum(0.15, _apd_cuts) == 1 and APD.stratum(None, _apd_cuts) is None
+               and abs(_apd_adj["delta"] - 0.30) < 1e-9 and _apd_adj["dropped"] == 0
+               and abs(APD.share(_apd_A)["p"] - APD.share(_apd_R)["p"] - (-0.18)) < 1e-9
+               and _apd_bd1 == _apd_bd2 and _apd_bd1[0] > 0 and _apd_bn[0] < 0 < _apd_bn[1]
+               and _apd_vs == ("يرفع", "لا فرق قابل للكشف", "يخفض", "لا قياس", "لا قياس", "أدقّ", "لا فرق قابل للكشف")
+               and _apd_pr == {"APD1": True, "APD2": True, "APD3": False, "APD4": True, "APD5": True, "APD6": True, "APD7": False,
+                               "APD8": True, "APD9": False} and _apd_pr2["APD5"] is False
+               and APD.FLOOR == 30 and APD.BUDGET == 2.0 and APD.F5_MAX == 5_000_000 and APD.PCT == 50.0 and APD.WIN == 20)
+    check("📱⚖️ APD2 T-APPDIFF التجميع: الإدخالُ الجديد بـ`rebuild.new_entries` (20 جلسة) · Δ = p_A − Σ w_A·p_R بالطبقة (الخامُ −0.18 والمضبوطُ +0.30) · "
+          "البوتستراب حتميٌّ ويفصل الواضحَ ويضمّ الصفرَ في الضجيج · الحكمُ بالأضعف (السنواتُ الثلاث · أرضيّةُ 30 · «لا قياس») · والتنبّؤاتُ بنصّها",
+          _apd_v2, f"e={sorted(_apd_e)} adj={_apd_adj} bd={_apd_bd1} bn={_apd_bn} vs={_apd_vs} pr={_apd_pr}")
+
+    # APD3 — العقد والأداة والوصلة
+    _apd_con = open("fm_forensics/appdiff/T_APPDIFF_prereg.md", encoding="utf-8").read()
+    _apd_sha0 = APD.CONTRACT_SHA
+    try:
+        APD.CONTRACT_SHA = "0" * 64
+        _apd_rc9 = APD.main(["--mode", "check"])
+    finally:
+        APD.CONTRACT_SHA = _apd_sha0
+    _apd_tree = _apd_ast.parse(open("fm_forensics/appdiff/appdiff.py", encoding="utf-8").read())
+    _apd_fn = {n.name: n for n in _apd_tree.body if isinstance(n, _apd_ast.FunctionDef)}
+    _apd_calls = lambda name: {(getattr(getattr(c.func, "value", None), "id", None), getattr(c.func, "attr", None))
+                               for c in _apd_ast.walk(_apd_fn[name]) if isinstance(c, _apd_ast.Call)}
+    _apd_all = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _apd_ast.walk(_apd_tree) if isinstance(c, _apd_ast.Call)}
+    import yaml as _apd_yaml
+    _apd_yd = _apd_yaml.safe_load(open(".github/workflows/appdiff.yml", encoding="utf-8").read())
+    _apd_on = _apd_yd.get("on", _apd_yd.get(True)) or {}
+    _apd_envs = " ".join(str(s.get("env")) for j in (_apd_yd.get("jobs") or {}).values() for s in (j.get("steps") or []) if s.get("env"))
+
+    class _ApdS:                                                     # جذعٌ: CURRENT يرفض · B يقبل (يُثبت أن `cfgs_of` يمرّر BT_ANCHOR="pivot")
+        CONFIG = {}
+        ema = staticmethod(S.ema)
+
+        def analyze_ticker(self, sym, sub):
+            return {"symbol": sym, "soft_fails": []} if self.CONFIG.get("BT_ANCHOR") == "pivot" else None
+
+        def tested_level(self, sub):
+            return None
+
+        def apply_short_gate(self, x):
+            return x
+
+        def apply_float_gate(self, x):
+            return x
+
+        def classify_tier(self, sf):
+            return "B"
+    _apd_RB = APD._rb()
+    _apd_fs = _ApdS()
+    _apd_cur = {"MA_GATE_MAX_ABOVE_PCT": 95.47, "BT_ANCHOR": "", "ANCHOR_MODE": "tested_strict"}
+    _apd_bars = [(_apd_sess[k], 1.0, 1.05, 0.95, 1.0, 1e6) for k in range(0, 300) if _apd_dt.date.fromisoformat(_apd_sess[k]).weekday() < 5]
+    _apd_bd = [b[0] for b in _apd_bars]
+    _apd_out, _apd_cnt = APD.appdiff_symbol("ZZZ", _apd_bars, None, _apd_bd[150:160], {d: _apd_bd[i - 1] for i, d in enumerate(_apd_bd) if i},
+                                            {}, lambda s, d: 4e6, _apd_fs, _apd_cur, dict(_apd_cur, BT_ANCHOR="pivot"), _apd_RB._gen5_ext(), _apd_RB)
+    import types as _apd_ty
+    _apd_RBs = _apd_ty.SimpleNamespace(**{k: getattr(_apd_RB, k) for k in dir(_apd_RB) if not k.startswith("__")})
+    _apd_RBs.row_guards = lambda *a, **k: (True, False)                 # كلُّ صفٍّ «تقسيمٌ غيرُ مسوّى» ⟵ يُستبعد ويُعَدّ
+    _apd_out2, _apd_cnt2 = APD.appdiff_symbol("ZZZ", _apd_bars, None, _apd_bd[150:160], {d: _apd_bd[i - 1] for i, d in enumerate(_apd_bd) if i},
+                                              {}, lambda s, d: 4e6, _apd_fs, _apd_cur, dict(_apd_cur, BT_ANCHOR="pivot"), _apd_RB._gen5_ext(), _apd_RBs)
+    _apd_cfg = APD.cfgs_of(S, _apd_RB)
+    _apd_v3 = (APD.contract_ok() and _apd_out2 == [] and _apd_cnt2["excl_split"] == 10 and _apd_cfg[1]["BT_ANCHOR"] == "pivot"
+               and _apd_cfg[0]["BT_ANCHOR"] == "" and _apd_cfg[0]["ANCHOR_MODE"] == S.CONFIG.get("ANCHOR_MODE")
+               and '    "ANCHOR_MODE": "tested_strict",' in open("Super_stock.py", encoding="utf-8").read()
+               and {k: v for k, v in _apd_cfg[1].items() if k != "BT_ANCHOR"} == {k: v for k, v in _apd_cfg[0].items() if k != "BT_ANCHOR"} and _apd_h.sha256(_apd_con.encode("utf-8")).hexdigest() == APD.CONTRACT_SHA and _apd_rc9 == 9
+               and "قياس مسجَّل قبل الرقم — «ثلاثة فروق بين تطبيق فيصل والبوت» (T-APPDIFF)" in _apd_con
+               and "ولا يمس H6 ولا الإنتاج. المصدر faisal_app بالحرف." in _apd_con
+               and all(q in _apd_con for q in ("«أسفل جميع EMA ✓»", "«Free Float 1.3M · ملايين أو أقل 5»", "«اختبار ناجح · ممتاز 0–5%»"))
+               and {("RB", "exploded"), ("RB", "row_guards"), ("RB", "asof_factor"), ("RB", "post_scan"), ("S", "analyze_ticker"),
+                    ("S", "tested_level")} <= _apd_calls("appdiff_symbol") and ("RB", "configs") in _apd_calls("cfgs_of")
+               and not ({"send_telegram", "git_save", "save_watchlist", "save_near_watch"} & _apd_all)
+               and set(_apd_on) == {"workflow_dispatch"} and (_apd_yd.get("permissions") or {}).get("contents") == "read"
+               and "BARS_SOURCE" not in _apd_envs and len(_apd_yd["jobs"]["shard"]["strategy"]["matrix"]["shard"]) == 20
+               and len(_apd_out) == 10 and all(len(r) == 11 and r[1] == 0 and r[2] == 1 and r[5] == 1 for r in _apd_out)
+               and _apd_cnt["pass_cur"] == 0 and _apd_cnt["pass_piv"] == 10)
+    check("📱⚖️ APD3 T-APPDIFF العقدُ ببصمته (والبصمةُ المغيَّرة ⟵ خروج 9) · حرفُ المالك وحدُّ H6 واقتباساتُ `faisal_app` · الأداةُ بدوالّ `T-REBUILD` بالاسم "
+          "وB بـ`BT_ANCHOR=\"pivot\"` (جذعٌ يقبل B ويرفض CURRENT) · بلا تلغرام ولا حفظ · والـworkflow يدويٌّ بلا `BARS_SOURCE` و20 شريحة",
+          _apd_v3, f"rc9={_apd_rc9} out={len(_apd_out)} cnt={_apd_cnt} calls={sorted(map(str, _apd_calls('appdiff_symbol')))[:6]}")
+except Exception as _apd_e:                                          # noqa: BLE001
+    check("📱⚖️ APD0 T-APPDIFF (انهيارُ القفل)", False, f"⛔ رمى: {type(_apd_e).__name__}: {_apd_e}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
