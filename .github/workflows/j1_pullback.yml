@@ -7,6 +7,12 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "run = العقد الأصل · armd = الملحق D (أوامرُ بيعٍ استباقيّة)"
+        type: choice
+        options: [run, armd]
+        default: run
 
 concurrency:
   group: super-stocks-j1-pullback
@@ -32,12 +38,14 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           FAISAL_ONLY: "1"
-        run: python fm_forensics/j1_pullback/j1_pullback.py --mode run
+        run: python fm_forensics/j1_pullback/j1_pullback.py --mode "${{ github.event.inputs.mode || 'run' }}"
       - name: 📤 رفع
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: j1pb-rows
-          path: j1pb_rows.json
+          path: |
+            j1pb_rows.json
+            j1pd_rows.json
           retention-days: 30
           if-no-files-found: warn

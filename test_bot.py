@@ -99665,6 +99665,91 @@ try:
 except Exception as _jbp_e:                                       # noqa: BLE001
     check("🥇↩️ J1BP0 T-J1-PULLBACK (انهيارُ القفل)", False, f"⛔ رمى: {type(_jbp_e).__name__}: {_jbp_e}")
 
+# 🥇🎯 J1DL1-J1DL3 (‏2026-11-07 · الملحق D لـ`T-J1-PULLBACK` «أوامرُ بيعٍ استباقيّة بلا وقفٍ ضيّق» · `fm_forensics/j1_pullback/J1PB_ADDENDUM_D.md` مدموجٌ قبل أيّ رقم):
+#    الدخولُ بعد دقيقتين بسعر آخر شمعةٍ قبلها · أمرا حدٍّ على الذيل · كارثيٌّ −30% بالأدنى من الافتتاح وسعرِه والوقفُ أوّلًا · الإغلاقُ 16:00 نيويورك ·
+#    R = العائد ÷ 30 · العشوائيُّ حتميّ · الذيلُ والأسوأُ العشرة · المرحلة 2 بـR موجب · وبصمةُ الملحق.
+try:
+    import importlib.util as _jpd_iu
+    import datetime as _jpd_dt
+    from zoneinfo import ZoneInfo as _jpd_Z
+    _jpd_sp = _jpd_iu.spec_from_file_location("j1_pullback_d_lock", "fm_forensics/j1_pullback/j1_pullback.py")
+    JPD = _jpd_iu.module_from_spec(_jpd_sp)
+    _jpd_sp.loader.exec_module(JPD)
+    _jpd_M = 60_000
+    _jpd_t0 = int(_jpd_dt.datetime(2026, 9, 10, 8, 0, tzinfo=_jpd_Z("America/New_York")).timestamp() * 1000)
+
+    def _jpd_b(i, o, h, lo, c):
+        return (_jpd_t0 + i * _jpd_M, o, h, lo, c, 100.0)
+    _jpd_cut = JPD.d_cut(_jpd_t0)
+    _jpd_late = int(_jpd_dt.datetime(2026, 9, 10, 16, 30, tzinfo=_jpd_Z("America/New_York")).timestamp() * 1000)
+    _jpd_p50 = JPD.plan_d([_jpd_b(5, 10, 12.5, 9.8, 12), _jpd_b(6, 12, 15.5, 11, 15)], _jpd_t0 + 5 * _jpd_M, 10.0, _jpd_cut)
+    _jpd_cat = JPD.plan_d([_jpd_b(5, 10, 10.2, 6.9, 7.0)], _jpd_t0 + 5 * _jpd_M, 10.0)
+    _jpd_gap = JPD.plan_d([_jpd_b(5, 6.5, 6.6, 6.0, 6.2)], _jpd_t0 + 5 * _jpd_M, 10.0)
+    # الوقفُ أوّلًا: شمعةٌ تلمس ‏+50% وتكسر −30% معًا ⟵ كارثيّ
+    _jpd_both = JPD.plan_d([_jpd_b(5, 10, 16, 6.5, 8)], _jpd_t0 + 5 * _jpd_M, 10.0)
+    # نصفٌ عند ‏+20% ثمّ كارثيٌّ للباقي ⟵ 0.5·20 + 0.5·(−30) = −5%
+    _jpd_half = JPD.plan_d([_jpd_b(5, 10, 12.1, 9.9, 11), _jpd_b(6, 11, 11, 6.8, 7)], _jpd_t0 + 5 * _jpd_M, 10.0)
+    # الإغلاقُ 16:00: الشمعةُ عند 16:00 خارجَ الحساب (رأسُها 13 لا يُنفَّذ)
+    _jpd_cb = [(_jpd_cut - _jpd_M, 10, 10.1, 9.9, 10.5, 1), (_jpd_cut, 10.5, 13, 10, 12.9, 1)]
+    _jpd_close = JPD.plan_d(_jpd_cb, _jpd_cut - _jpd_M, 10.0, _jpd_cut)
+    _jpd_ent = [JPD.d_entry([_jpd_b(i, 10, 10, 10, 10 + i) for i in range(5)], _jpd_t0 + 3 * _jpd_M), JPD.d_entry([_jpd_b(3, 1, 1, 1, 1)], _jpd_t0)]
+    _jpd_bars = [_jpd_b(i, 10, 10.1, 9.9, 10 + 0.05 * i) for i in range(40)]
+    _jpd_c1 = JPD.control_d(_jpd_bars, _jpd_t0 + 2 * _jpd_M, _jpd_cut, "20261107:D:2026-09-10:X")
+    _jpd_c2 = JPD.control_d(_jpd_bars, _jpd_t0 + 2 * _jpd_M, _jpd_cut, "20261107:D:2026-09-10:X")
+    _jpd_ok1 = (abs(_jpd_p50["pct"] - 35.0) < 1e-9 and _jpd_p50["kind"] == "t50" and abs(_jpd_p50["R"] - 35.0 / 30.0) < 1e-9
+                and _jpd_cat["kind"] == "cat" and abs(_jpd_cat["pct"] + 30.0) < 1e-9 and abs(_jpd_gap["pct"] + 35.0) < 1e-9
+                and _jpd_both["cat"] and not _jpd_both["hit50"] and abs(_jpd_half["pct"] + 5.0) < 1e-9 and _jpd_half["hit20"]
+                and abs(_jpd_close["pct"] - 5.0) < 1e-9 and _jpd_close["kind"] == "close"
+                and _jpd_cut - _jpd_t0 == 8 * 60 * _jpd_M and JPD.d_cut(_jpd_late) is None
+                and _jpd_ent == [12.0, None] and _jpd_c1 == _jpd_c2 and _jpd_c1 is not None)
+    check("🥇🎯 J1DL1 الملحق D: أمرا حدٍّ على الذيل (‏+20% نصف · ‏+50% نصف) · كارثيٌّ −30% بالأدنى من الافتتاح وسعرِه والوقفُ أوّلًا · الإغلاقُ 16:00 نيويورك "
+          "(وبعدها آخرُ شمعة) · الدخولُ بسعر آخر شمعةٍ قبل الدقيقتين · R = العائد ÷ 30 · العشوائيُّ حتميٌّ بالمفتاح",
+          _jpd_ok1, f"p50={_jpd_p50} cat={_jpd_cat['pct']} gap={_jpd_gap['pct']} both={_jpd_both['kind']} half={_jpd_half['pct']} "
+                    f"close={_jpd_close['pct']} ent={_jpd_ent} c={_jpd_c1}")
+
+    def _jpd_row(d, sym, pct, kind, a=-5.0, c=-1.0):
+        return {"date": d, "symbol": sym, "bars": True, "E": 1.0, "A_pct": a, "C": c,
+                "D": {"pct": pct, "R": pct / 30.0, "hit20": pct >= 10, "hit50": pct >= 35, "cat": kind == "cat", "kind": kind}}
+    _jpd_rows = ([_jpd_row(f"2026-09-{1 + i % 25:02d}", f"S{i}", 35.0, "t50") for i in range(30)]
+                 + [_jpd_row(f"2026-09-{1 + i % 25:02d}", f"L{i}", -30.0 - i * 0.1, "cat") for i in range(40)]
+                 + [_jpd_row(f"2026-09-{1 + i % 25:02d}", f"M{i}", -12.0, "close") for i in range(35)]
+                 + [{"date": "2026-09-02", "symbol": "NB", "bars": False}])
+    _jpd_res = JPD.summarize_d(_jpd_rows)
+    _jpd_code = JPD.verdict_d(_jpd_res)[0]
+    _jpd_pr = JPD.predictions_d(_jpd_res, _jpd_code)
+    _jpd_txt = "\n".join(JPD.report_lines_d(_jpd_res, "x", _jpd_pr, {"run": "1", "sha": "abc"}))
+    check("🥇🎯 J1DL2 الملحق D: السلالُ السبع تجمع الكلّ · الذيلُ الأيسر (−10% فأدنى) كاملًا بالأسماء مرتّبًا · أسوأُ عشرٍ بالأسماء · D−A وD−C على الإشعار · "
+          "المرحلة 2 بـR موجب وحدَه و«لا قياس» بالبوّابتين · والتقريرُ يطبع ذلك والتنبّؤات السبعة",
+          _jpd_res["n_ok"] == 105 and sum(_jpd_res["buckets"]) == 105 and _jpd_res["buckets"][0] == 40 and _jpd_res["buckets"][2] == 35
+          and _jpd_res["buckets"][6] == 30 and len(_jpd_res["tail"]) == 75 and _jpd_res["tail"][0]["symbol"] == "L39"
+          and [w["symbol"] for w in _jpd_res["worst"]] == [f"L{i}" for i in range(39, 29, -1)]
+          and abs(_jpd_res["DA"] - (_jpd_res["pct"] + 5.0)) < 1e-9 and abs(_jpd_res["DC"] - (_jpd_res["pct"] + 1.0)) < 1e-9
+          and _jpd_res["n_nobars"] == 1 and _jpd_code == (1 if _jpd_res["R"] > 0 else 2)
+          and JPD.verdict_d(dict(_jpd_res, R=0.01))[0] == 1 and JPD.verdict_d(dict(_jpd_res, R=-0.01))[0] == 2
+          and JPD.verdict_d(dict(_jpd_res, n_ok=99))[0] == 0 and JPD.verdict_d(dict(_jpd_res, n_nobars=12, n_pop=106))[0] == 0
+          and len(_jpd_pr) == 7 and _jpd_pr["J1PD7"] is True
+          and "أسوأ 10 صفقات" in _jpd_txt and "L39" in _jpd_txt and "`J1PD7` ✅" in _jpd_txt and "`D − C_D`" in _jpd_txt,
+          f"b={_jpd_res['buckets']} tail={len(_jpd_res['tail'])} R={_jpd_res['R']} code={_jpd_code}")
+    _jpd_add = open("fm_forensics/j1_pullback/J1PB_ADDENDUM_D.md", encoding="utf-8").read()
+    _jpd_sha0 = JPD.ADD_D_SHA
+    try:
+        JPD.ADD_D_SHA = "0" * 64                 # بصمةٌ لا تطابق ⟵ check وarmd يخرجان 9 قبل أيّ عمل
+        _jpd_rc_bad = [JPD.main(["--mode", "check"]), JPD.main(["--mode", "armd"])]
+    finally:
+        JPD.ADD_D_SHA = _jpd_sha0
+    _jpd_rc_ok = JPD.main(["--mode", "check"])
+    import yaml as _jpd_yaml
+    _jpd_yd = _jpd_yaml.safe_load(open(".github/workflows/j1_pullback.yml", encoding="utf-8").read())
+    _jpd_on = _jpd_yd.get("on", _jpd_yd.get(True)) or {}
+    _jpd_run = " ".join(str(s.get("run") or "") for s in ((_jpd_yd.get("jobs") or {}).get("run") or {}).get("steps") or [])
+    check("🥇🎯 J1DL3 الملحق D: بصمتا العقد والملحق مثبَّتتان · نصُّ أمر المالك في الملحق · والـworkflow يدويٌّ بمُدخَل mode (run · armd) بلا كرون ويرفع صفوفَ الذراعين",
+          JPD.contract_ok() and JPD.addendum_ok() and _jpd_rc_bad == [9, 9] and _jpd_rc_ok == 0 and "لا وقف إلا كارثي −30%" in _jpd_add and "ثم على 3 سنوات PIT إن كان R موجبًا" in _jpd_add
+          and set(_jpd_on) == {"workflow_dispatch"} and (((_jpd_on.get("workflow_dispatch") or {}).get("inputs") or {}).get("mode") or {}).get("options") == ["run", "armd"]
+          and "--mode" in _jpd_run and "inputs.mode" in _jpd_run and "j1pd_rows.json" in open(".github/workflows/j1_pullback.yml", encoding="utf-8").read(),
+          f"rc={_jpd_rc_bad},{_jpd_rc_ok} on={_jpd_on}")
+except Exception as _jpd_e:                                       # noqa: BLE001
+    check("🥇🎯 J1DL0 الملحق D (انهيارُ القفل)", False, f"⛔ رمى: {type(_jpd_e).__name__}: {_jpd_e}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
