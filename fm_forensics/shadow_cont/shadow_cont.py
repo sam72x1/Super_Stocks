@@ -280,6 +280,19 @@ def report_lines(res):
     return L
 
 
+def strictest(v_old, v_full):
+    """🔧 `CORRECTION_PROTOCOL.md §②` (نقيّة): «يفرّق» لا تُقال إلّا بالتعريفين · و«لا قياس» بأحدهما تحكم · وإلّا «لا يفرّق»."""
+    if "لا قياس" in (v_old, v_full):
+        return "لا قياس"
+    return "يفرّق" if (v_old == "يفرّق" and v_full == "يفرّق") else "لا يفرّق"
+
+
+def extra_exited(base, extra):
+    """🔧 صفوفُ المراسي الخارجة (`exited`) من مُخرَج `shadow_ready` (الملحق 1) غيرُ الموجودة في السجلّ المجمَّد ⟵ تُضاف إليه."""
+    have = {(r.get("date"), r.get("symbol")) for r in base}
+    return [r for r in (extra or []) if r.get("exited") and (r.get("date"), r.get("symbol")) not in have]
+
+
 def load_ledger(ref=LEDGER_REF):
     txt = subprocess.run(["git", "show", f"{ref}:{LEDGER_FILE}"], cwd=ROOT, capture_output=True, text=True, check=True).stdout
     return [json.loads(x) for x in txt.splitlines() if x.strip()]
@@ -288,6 +301,7 @@ def load_ledger(ref=LEDGER_REF):
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=("run", "check"), default="run")
+    ap.add_argument("--extra-rows", default=None)   # 🔧 CORRECTION_PROTOCOL.md §②: صفوفُ shadow_ready (SHADOW_DUMP=1) JSON
     a = ap.parse_args(argv)
     if not contract_ok():
         log(f"⛔ بصمةُ العقد `{CONTRACT}` تغيّرت أو غاب — المدموجُ لا يُعدَّل (خروج {CONTRACT_RC})")
@@ -303,21 +317,37 @@ def main(argv=None):
         log("⛔ بلا مفتاح Polygon — لا قياس")
         return 3
     days = VC.sessions(MC)
-    grp, cut = groups(load_ledger(), days)
-    cache, measured, fails = {}, {g: [] for g in grp}, {g: {} for g in grp}
-    for g, rows in grp.items():
-        for r in rows:
-            k = (r["symbol"], r["date"])
-            if k not in cache:
-                cache[k] = measure(fetch_day(r["symbol"], r["date"], key), r["date"])
-            m, why = cache[k]
-            if m is None:
-                fails[g][why] = fails[g].get(why, 0) + 1
-            else:
-                measured[g].append((r["date"], r["symbol"], m))
+    base = load_ledger()
+    grp, cut = groups(base, days)
+    cache = {}
+
+    def _measure_groups(grp_):
+        measured_, fails_ = {g: [] for g in grp_}, {g: {} for g in grp_}
+        for g, rows in grp_.items():
+            for r in rows:
+                k = (r["symbol"], r["date"])
+                if k not in cache:
+                    cache[k] = measure(fetch_day(r["symbol"], r["date"], key), r["date"])
+                m, why = cache[k]
+                if m is None:
+                    fails_[g][why] = fails_[g].get(why, 0) + 1
+                else:
+                    measured_[g].append((r["date"], r["symbol"], m))
+        return measured_, fails_
+    measured, fails = _measure_groups(grp)
     res = analyze(measured, cut, fails, days)
     for ln in report_lines(res):
         log(ln)
+    if a.extra_rows:
+        ex = extra_exited(base, json.load(open(a.extra_rows, encoding="utf-8")))
+        grp_f, cut_f = groups(base + ex, days)
+        measured_f, fails_f = _measure_groups(grp_f)
+        res_f = analyze(measured_f, cut_f, fails_f, days)
+        log(f"\n## 🔧 بالتعريف المصحَّح (`CORRECTION_PROTOCOL.md §②`) — صفوفٌ خارجةٌ مضافة {len(ex)} "
+            f"(منها في S {sum(1 for r in ex if r.get('shadow'))})")
+        for ln in report_lines(res_f):
+            log(ln)
+        log(f"\n⚖️ الحكمُ بالتعريف القديم «{res['verdict']}» · بالمصحَّح «{res_f['verdict']}» ⟵ الأشدّ «{strictest(res['verdict'], res_f['verdict'])}»")
     log("SHC_ROWS " + json.dumps({g: [(d, s, {k: (round(v, 6) if isinstance(v, float) else v) for k, v in m.items()}) for d, s, m in v]
                                  for g, v in measured.items()}, ensure_ascii=False))
     log("SHC_JSON " + json.dumps({k: v for k, v in res.items()}, ensure_ascii=False, default=str))

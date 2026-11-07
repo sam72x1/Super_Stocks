@@ -1,0 +1,68 @@
+name: "👁️ T-OEWIDE (لو راقب «هنا الدخول» تحت المتابعة كاملًا · قراءةٌ فقط)"
+
+# 👁️ العقد `fm_forensics/oewide/OEWIDE_prereg.md` (أمرُ المالك 2026-11-07 · مدموجٌ قبل أيّ رقم): ستّةُ أجزاءٍ متوازية (جلساتٌ متناوبة) ⟵ `U` و`W`
+#    من لقطات git ⟵ `nofire.replay` بالاسم ⟵ JSON ⟵ الجمعُ وزمنُ الدورة من سجلّات العامل ⟵ التقرير والتنبّؤات.
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام · `contents: read` و`actions: read` · لا يكتب في المستودع (`OWD3`).
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-oewide
+  cancel-in-progress: false
+
+jobs:
+  chunk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [0, 1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # لقطاتُ القوائم الأربع وتاريخُ op_entry_state.json (المراسي المصحَّحة)
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 👁️ الجزء
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/oewide/oewide.py --mode chunk --part ${{ matrix.part }} --parts 6 --out oewide_part_${{ matrix.part }}.json
+      - name: 📤 رفع
+        uses: actions/upload-artifact@v4
+        with:
+          name: oewide-part-${{ matrix.part }}
+          path: oewide_part_${{ matrix.part }}.json
+          retention-days: 30
+  pool:
+    needs: chunk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📥 تنزيل
+        uses: actions/download-artifact@v4
+        with:
+          pattern: oewide-part-*
+          merge-multiple: true
+      - name: ⚖️ الجمع
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/oewide/oewide.py --mode pool $(ls oewide_part_*.json)

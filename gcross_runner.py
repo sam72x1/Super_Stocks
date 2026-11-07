@@ -80,17 +80,27 @@ def near_members(doc):
     return sorted(str(k).upper() for k, v in doc.items() if isinstance(v, dict) and str(v.get("last_seen") or "") == last)
 
 
+# 🔧 مِرساةٌ مُرسَلة بلا `anchor_price` (75 في أغسطس) كانت تسقط بـ`float(None)` (عطلٌ مُثبَت 2026-11-07 · `NOFIRE_RESULT.md §⑤-هـ`) ⟵
+#    `ANCHOR_HIST_FULL` (البيئةُ نفسُها التي تحكم `tierlink_probe.anchor_history`) ⟵ تُقرأ `(ms، None)` · و«0» ⟵ السلوكُ السابق بت-بت · `AHF2`.
+ANCHOR_HIST_FULL = os.environ.get("ANCHOR_HIST_FULL", "1") != "0"
+
+
 def first_anchor(v, day):
-    """§② ③ أبكرُ مِرساةٍ لليوم من لقطة آخر اليوم: `anchor_ms` و`rearm_prev.anchor_ms` (إن كان يومُها نيويوركيًّا هو اليوم) ⟵ (ms، سعر) أو None."""
+    """§② ③ أبكرُ مِرساةٍ لليوم من لقطة آخر اليوم: `anchor_ms` و`rearm_prev.anchor_ms` (إن كان يومُها نيويوركيًّا هو اليوم) ⟵ (ms، سعر) أو None.
+    و`ANCHOR_HIST_FULL` ⟵ المِرساةُ بلا سعر تُقرأ `(ms، None)` (السعرُ من شمعتها عند القارئ)."""
     cands = []
     for a in (v, (v or {}).get("rearm_prev") or {}):
         try:
-            ms, px = int(a["anchor_ms"]), float(a["anchor_price"])
+            ms = int(a["anchor_ms"])
+            px = (float(a["anchor_price"]) if (a.get("anchor_price") is not None or not ANCHOR_HIST_FULL)
+                  else None)
         except (KeyError, TypeError, ValueError):
             continue
         if dt.datetime.fromtimestamp(ms / 1000, tz=NY).date().isoformat() == day:
             cands.append((ms, px))
-    return min(cands) if cands else None
+    if not cands:
+        return None
+    return min(cands, key=lambda c: c[0]) if ANCHOR_HIST_FULL else min(cands)   # المُطفأ: الترتيبُ السابق بت-بت
 
 
 def freeze(MC, path=UNIVERSE_FILE):
