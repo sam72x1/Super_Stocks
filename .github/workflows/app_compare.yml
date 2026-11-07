@@ -1,7 +1,7 @@
 name: "📱 لقطات تطبيق فيصل مقابل قيم البوت (قراءةٌ فقط)"
 
 # 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · أمرُ المالك 2026-11-07 ①-ب/ج (دفعة B4_20261107)
-#    شموعُ ياهو (أدواتُ البحث بلا BARS_SOURCE · قفلُ TVB9) — والفرزُ اليوميّ على TradingView ⟵ يُفصَح ويُطابَق الجدارُ بسجلّ near_watch ⟵ analyze_ticker وجدارُه · near_watch_measure · tested_level · M2 والعائد/المخاطرة مقابل حدّيهما.
+#    شموعُ الإنتاج نفسُها (BARS_SOURCE=tradingview كالفرز اليوميّ · ضمن نطاق TVB9 بإقرارٍ مؤرَّخ 2026-11-07: ياهو أعطى NEXR ‏154 شمعةً فقط) ⟵ analyze_ticker وجدارُه · near_watch_measure · tested_level · M2 والعائد/المخاطرة مقابل حدّيهما.
 permissions:
   contents: read
 
@@ -33,6 +33,7 @@ jobs:
       - name: 📱 المقارنة
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          BARS_SOURCE: tradingview
           FAISAL_ONLY: "1"
           SCREENER_MODE: PROBE
           APP_SYMS: ${{ github.event.inputs.syms || 'BRTX,THH,EHGO,NEXR' }}

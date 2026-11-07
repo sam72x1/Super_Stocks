@@ -25,8 +25,8 @@
  "collector_status": "PASS · SCHEDULED_ACTIVE (131 runs: schedule 102 · workflow_dispatch 29 · schedule `17 */4 * * *` fired 102 time(s) · last run 42176154376 success · 0 update(s) · observed 2026-11-06T09:30:00Z)",
  "contract": "faisal_validation/PHASE_B_prereg.md",
  "counts": {
-  "EXCLUDED": 117,
-  "PENDING": 1,
+  "EXCLUDED": 118,
+  "PENDING": 0,
   "PRIMARY": 3,
   "UNKNOWN": 0
  },
@@ -37,7 +37,7 @@
   "E3": 4,
   "E4": 15,
   "E6": 9,
-  "E7": 4,
+  "E7": 5,
   "E8": 3
  },
  "gate": {
@@ -325,10 +325,10 @@
  },
  "ledger": {
   "due_now": 0,
-  "file_sha256": "cdf705c474d9cf5fc33dcd5db7dec38968156b24be2431290e27a2599e66fd56",
-  "head_sha256": "b71b223cc9837bdd6af3dcbfc012722e8234b56fd1afac16f7e27d6fe36c9080",
+  "file_sha256": "fcf6f550cea13c414561c7cd95be45ae469186f3f16c757b9436dc68ae21a45d",
+  "head_sha256": "a9bc27207d54999eabeb098111ff7789500a072a6b73ae77d7179b458494de9e",
   "problems": [],
-  "records": 264
+  "records": 266
  },
  "main": 0,
  "metrics_main": {
@@ -3467,22 +3467,27 @@
    "case_id": "PB:TG_85750",
    "categories": [],
    "cause": null,
-   "code": "",
-   "components": {},
+   "code": "E7",
+   "components": {
+    "ENTRY": "FAISAL_NOT_STATED",
+    "INVALIDATION": "FAISAL_NOT_STATED",
+    "STOP": "FAISAL_NOT_STATED",
+    "TARGET": "FAISAL_NOT_STATED"
+   },
    "external_context": "NOT_EVALUATED",
-   "faisal_decision": null,
+   "faisal_decision": "WAIT",
    "faisal_timestamp": "2026-11-07",
    "historical_prior": "WAIT",
    "image_hash": "20aa7de9892283cc21011251c0d103246864ad6fff8956e0c981bcc233b1777a",
-   "match_class": null,
-   "pattern": null,
+   "match_class": "MATCH",
+   "pattern": "UNSPECIFIED",
    "protocol_case": "CASE_0018",
-   "reason": "protocol PENDING_FAISAL (Faisal not revealed)",
-   "regime": null,
-   "setup": null,
-   "status": "PENDING",
+   "reason": "E7 provenance adequate: provenance LOW",
+   "regime": "BELOW_SMA50",
+   "setup": "RETEST_PENDING",
+   "status": "EXCLUDED",
    "ticker": "BRTX",
-   "timeframe": "1D",
+   "timeframe": "D",
    "v4_decision": "WAIT"
   },
   {
