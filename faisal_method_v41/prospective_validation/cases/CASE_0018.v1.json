@@ -1,0 +1,109 @@
+{
+ "capture_utc": "2026-11-07T16:29:33Z",
+ "case_id": "CASE_0018",
+ "date_precision": "day",
+ "date_source": "image_visible",
+ "decision_date": "2026-11-07",
+ "image": "faisal_images/TG_85750.jpg",
+ "image_sha256": "20aa7de9892283cc21011251c0d103246864ad6fff8956e0c981bcc233b1777a",
+ "layer": "1",
+ "near_duplicates": [],
+ "notes": "B4_20261107 · رسالة 85750",
+ "protocol": {
+  "blind_input": {
+   "decision_date": "2026-11-07",
+   "symbol": "BRTX",
+   "timeframe": "1D"
+  },
+  "input_hash": "e603dbd80362cd927d48bd63818542e3d0c2b283eecc15334f2e5d8d4c2eb3ed",
+  "intake": {
+   "batch": "B4_20261107",
+   "checks": {
+    "C1": [],
+    "C2": [],
+    "C3": [],
+    "C4": [],
+    "C5": [],
+    "C6": [],
+    "C7": [],
+    "C8": [],
+    "C8_DISCLOSURE": {
+     "ex_undated": 0,
+     "v4_undated": []
+    },
+    "nearest_corpus": [
+     {
+      "dhash256_dist": 45,
+      "id": "TG_57882",
+      "phash_dist": 8
+     },
+     {
+      "dhash256_dist": 85,
+      "id": "APP_20260918_19_NTCL",
+      "phash_dist": 22
+     },
+     {
+      "dhash256_dist": 91,
+      "id": "TG_57921",
+      "phash_dist": 22
+     },
+     {
+      "dhash256_dist": 100,
+      "id": "TG_2095",
+      "phash_dist": 20
+     },
+     {
+      "dhash256_dist": 108,
+      "id": "IMG_0512",
+      "phash_dist": 18
+     }
+    ],
+    "ocr": "NOT_RUN"
+   },
+   "class": "NEW_PROSPECTIVE"
+  },
+  "provenance": {
+   "basis": "UNKNOWN",
+   "decision_date_from_post": null,
+   "fields": {
+    "CAPTURE_TIMESTAMP": "2026-11-07T16:29:33Z",
+    "CASE_ID": "—",
+    "DATE_VISIBLE": "الصورةُ بلا تاريخٍ ظاهر · ساعةُ الهاتف «6:34» وحدَها (‏= 15:34Z إن كانت 6:34 مساءً بتوقيت الرياض — افتراضٌ مُعلَن) · أرسلها المالك 2026-11-07T15:42:01Z (صفُّ الجامع · from_recipient=true · تشغيلةُ الجامع 42391508837) · والمالكُ: «أربع لقطات مرفقة من تطبيق فيصل بتاريخ اليوم 11-07» ⟵ تاريخُ القرار = تاريخُ الاستلام بأمر المالك («بتاريخ الاستلام») · وبياناتُ اللقطة على الأرجح إغلاقُ الجمعة 11-06 (السبتُ بلا جلسة · استنتاج)",
+    "FORWARD_TYPE": "none",
+    "IMAGE_HASH": "20aa7de9892283cc21011251c0d103246864ad6fff8956e0c981bcc233b1777a",
+    "ORIGINAL_POST_TIMESTAMP": "UNKNOWN",
+    "PERCEPTUAL_HASH": {
+     "dhash256": "c0190000404942591a039843b4d2bf0bb00a8d712d023c826962894800008000",
+     "phash64": "527475b529aba268"
+    },
+    "PROVENANCE_CONFIDENCE": "LOW",
+    "PUBLIC_CHANNEL_METADATA": "N/A",
+    "SOURCE": "telegram_bot · run 42391508837",
+    "SOURCE_MESSAGE_ID": 85750,
+    "TICKER": "BRTX",
+    "TIMEFRAME": "1D"
+   },
+   "meta_v": 2,
+   "missing_critical": [
+    "ORIGINAL_POST_TIMESTAMP"
+   ]
+  },
+  "v4_freeze": {
+   "DATA_PIPELINE_VERSION": "e7d44195e6ad26340ce38cdd2143948a37cc2b2eb4c8fe911e387009101118c9",
+   "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+   "V4_CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+   "V4_FREEZE_ID": "5f291a3b301be047d8c9d2a42e17c82cc75b6a37077d4c3cf17bba6c420f392f",
+   "V4_RULE_REGISTRY_HASH": "5a2a86262511ac2143920c2d8cc1e910740f1325ed47f5c199ed07b3910e3531",
+   "V4_TOOL_VERSION": {
+    "engine": "FAISAL-V4 1.0 (2026-10-02)",
+    "freeze": "V4.1-FREEZE 1.0 (2026-10-07)",
+    "rules": "V4-RULES 1.0 (2026-10-02)",
+    "runner": "V41-RUNNER 1.0 (2026-10-07)"
+   },
+   "epoch": 1
+  }
+ },
+ "symbol": "BRTX",
+ "timeframe_f": "1D",
+ "unit_id": "TG_85750"
+}

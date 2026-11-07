@@ -1,0 +1,43 @@
+name: "🕵️📈 T-OPSIG (إشعار المضارب يدفع · قراءةٌ فقط)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · العقد fm_forensics/opsig/T_OPSIG_prereg.md
+#    المراسي المصحَّحة (تاريخُ git كامل) ⟵ شموعٌ وصفقاتٌ وأسعارُ Polygon ⟵ السماتُ الأربع والنتيجة ⟵ الجداول وسطرُ الكرت المقترح.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: super-stocks-opsig
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - name: Checkout (تاريخٌ كامل لـop_entry_state.json وسجلّ التصنيف)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🕵️📈 القياس
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          FAISAL_ONLY: "1"
+        run: python fm_forensics/opsig/opsig.py --mode run
+      - name: 📤 رفع
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: opsig-rows
+          path: opsig_rows.json
+          retention-days: 30
+          if-no-files-found: warn

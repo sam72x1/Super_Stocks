@@ -18718,7 +18718,8 @@ check("🔬 H6/SRC🔒 خارج الجذور: لا تُستورَدان في أ�
 # ══════════════════════════════════════════════════════════
 _LEDGER_TAGS = ("faisal_verbatim", "faisal_inferred", "faisal_adopted",
                 "engineering", "third_party", "unsourced",
-                "nayef_verbatim")   # 🔄 2026-10-28 · أمرُ المالك (برومبت T-VWAP-MOM): الوسمُ السابع وحدَه
+                "nayef_verbatim",   # 🔄 2026-10-28 · أمرُ المالك (برومبت T-VWAP-MOM): الوسمُ السابع وحدَه
+                "faisal_app")       # 🔄 2026-11-07 · أمرُ المالك («… بوسم faisal_app»): الوسمُ الثامن وحدَه (لقطاتُ التطبيق B4_20261107)
 _LEDGER_MIN_ROWS = 90          # §② وحدها 94 صفًّا — الأرضية تكشف الملف المفرَّغ
 
 
@@ -83349,7 +83350,8 @@ _PHB_LEDGER_PINS = ((0, "0" * 64),    # (عددُ القيود · بصمةُ آ�
                     (159, "f0164a75d25ad10bd7225a537e6a38d40f58c5fc87085773ef99c7f2e035132b"),   # B15_20261102 · 15 صورة (قناةٌ تعليميّة وقصاصات) · حالة 1 (CASE_0016 BNAI) · خُتمت قبل V4 (2026-11-03)
                     (162, "f41bb7d511fa6e771bb7bc3ac542f04ca41b295af4023c786f24374d812d1a32"),   # كشفُ CASE_0009…0016 (2026-11-04) · B22 السبعة تبقى مستبعدةً بالتعديل 1 §5 · وBNAI ‏REVEALED ثمّ EXCLUDED E7
                     (252, "1c0ae69b17a9079fb075cf47fc7bebc939e79ca9a1e5d3d0371b033a8cf0d90c"),   # B46_20261104 · 46 صورة (منشورات X ونسخُ 09-18) · حالة 1 (CASE_0017 SUGP) · خُتمت قبل V4 (2026-11-04)
-                    (255, "7dff72a76c9d7be44915370fc6ef0e2fd285d554f9b6e294af4f90cfa5c21589"))   # V4 لـCASE_0017 (run 41837639006 · WAIT) ثمّ كلمةُ فيصل WATCH ⟵ PRIMARY MATCH (2026-11-04)
+                    (255, "7dff72a76c9d7be44915370fc6ef0e2fd285d554f9b6e294af4f90cfa5c21589"),   # V4 لـCASE_0017 (run 41837639006 · WAIT) ثمّ كلمةُ فيصل WATCH ⟵ PRIMARY MATCH (2026-11-04)
+                    (263, "a1235aaa65c79edc02a19f3e060d8bcaa0afd0b8ced5841423b948aaaa8b7f85"))   # B4_20261107 · 4 لقطات تطبيق (BRTX · THH · EHGO · NEXR) · حالة 1 (CASE_0018 BRTX) · خُتمت قبل V4 (2026-11-07)
 _PHB_HSHA = "f" * 64
 try:
     _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))
@@ -99749,6 +99751,230 @@ try:
           f"rc={_jpd_rc_bad},{_jpd_rc_ok} on={_jpd_on}")
 except Exception as _jpd_e:                                       # noqa: BLE001
     check("🥇🎯 J1DL0 الملحق D (انهيارُ القفل)", False, f"⛔ رمى: {type(_jpd_e).__name__}: {_jpd_e}")
+# 📱 APPC1-APPC3 (‏2026-11-07 · أمرُ المالك ①: لقطاتُ تطبيق «مراقب استراتيجية فيصل» · دفعة `B4_20261107`):
+#    مِجَسُّ المقارنة قراءةٌ فقط (الجدارُ بالاسم · قيمُ الظرف وحدّاها) · وصفوفُ الدفتر بوسم `faisal_app` بحرف اللقطات · والدفعةُ مختومةٌ قبل V4.
+try:
+    import importlib.util as _apc_iu
+    import ast as _apc_ast
+    import json as _apc_js
+    _apc_sp = _apc_iu.spec_from_file_location("app_compare_lock", "fm_forensics/app_compare/app_compare.py")
+    APC = _apc_iu.module_from_spec(_apc_sp)
+    _apc_sp.loader.exec_module(APC)
+
+    class _ApcS:                                      # جذعٌ لـSuper_stock: رفضٌ بجدارٍ مسمًّى · مستوًى غائب · قيمُ ظرف
+        _REJECT_REASONS = {}
+        _CUR_SYM = None
+
+        def analyze_ticker(self, sym, df):
+            self._REJECT_REASONS[sym] = "M_لا_مستوى_مختبر"
+            return None
+
+        def tested_level(self, df):
+            return None
+
+        def near_watch_measure(self, sym, df, edges):
+            return ({"drop_pct": 99.97, "rr": 0.31, "price": 2.1}, ["M2 الهبوط من قمة 52أ (فوق السقف)", "العائد/المخاطرة (دون الحدّ)"])
+    _apc_S = _ApcS()
+    _apc_edges = {"drop_pct": [71.7, 99.95], "rr": 0.5}
+    _apc_row = APC.probe_one(_apc_S, "NEXR", [1] * 300, _apc_edges)
+    _apc_none = APC.probe_one(_apc_S, "XX", None, _apc_edges)
+    check("📱 APPC1 مِجَسُّ لقطات التطبيق: الجدارُ بالاسم من `_REJECT_REASONS` · قيمتا M2 والعائد/المخاطرة مع حدّيهما من `CRITERIA` (نطاقٌ وحدٌّ أدنى) · "
+          "والرمزُ بلا شموعٍ لا يُنادى عليه شيء",
+          _apc_row["accepted"] is False and _apc_row["wall"] == "M_لا_مستوى_مختبر" and _apc_row["tested_level"] is None
+          and _apc_row["vals"] == {"drop_pct": 99.97, "rr": 0.31} and _apc_row["edges"] == {"drop_pct": (71.7, 99.95), "rr": (0.5, None)}
+          and len(_apc_row["outside"]) == 2 and _apc_none == {"symbol": "XX", "bars": 0},
+          f"row={_apc_row} none={_apc_none}")
+    _apc_t = _apc_ast.parse(open("fm_forensics/app_compare/app_compare.py", encoding="utf-8").read())
+    _apc_calls = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _apc_ast.walk(_apc_t) if isinstance(c, _apc_ast.Call)}
+    import yaml as _apc_yaml
+    _apc_yd = _apc_yaml.safe_load(open(".github/workflows/app_compare.yml", encoding="utf-8").read())
+    _apc_on = _apc_yd.get("on", _apc_yd.get(True)) or {}
+    _apc_env = " ".join(str(v) for s in ((_apc_yd.get("jobs") or {}).get("probe") or {}).get("steps") or [] for v in ((s.get("env") or {}).items()))
+    check("📱 APPC2 المِجَسُّ قراءةٌ فقط: لا تلغرام ولا حفظ · الـworkflow يدويٌّ بلا كرون وبلا `BARS_SOURCE` (أدواتُ البحث خارج نطاق TVB9 ⟵ ياهو مُفصَح) وظرفُ فيصل مُفعَّل",
+          not ({"send_telegram", "save_watchlist", "git_save", "save_near_watch", "record_tier_fwd"} & _apc_calls)
+          and {"analyze_ticker", "near_watch_measure", "tested_level", "download_history"} <= _apc_calls
+          and set(_apc_on) == {"workflow_dispatch"} and (_apc_yd.get("permissions") or {}).get("contents") == "read"
+          and "BARS_SOURCE" not in _apc_env and "('FAISAL_ONLY', '1')" in _apc_env,
+          f"on={list(_apc_on)} env={_apc_env[:120]}")
+    _apc_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
+    _apc_sec = _apc_led.split("## §`B4_20261107`", 1)[-1] if "## §`B4_20261107`" in _apc_led else ""
+    _apc_rows = [ln for ln in _apc_sec.split("\n") if ln.startswith("| ") and not ln.startswith("| القاعدة") and not set(ln) <= set("|-: ")]
+    _apc_ann = _apc_js.load(open("faisal_method_v41/final_protocol/intake/B4_20261107/annotations.json", encoding="utf-8"))
+    _apc_int = _apc_js.load(open("faisal_method_v41/final_protocol/intake/B4_20261107/INTAKE.json", encoding="utf-8"))
+    _apc_cls = {c["image_id"]: (c["symbol"], c["class7"], c.get("case_id")) for c in _apc_int["candidates"]}
+    check("📱 APPC3 دفعة B4_20261107: الصفوفُ الاثنا عشر بوسم `faisal_app` وحدَه وبحرف اللقطة («ينقصه ثبات يومي جلستين على الأقل» · «ممتاز 0–5%» · «مراقبة 10–15%») · "
+          "والوسمُ الثامن معرَّفٌ في رأس الدفتر · والختمُ: CASE_0018 BRTX أماميّة · THH بـC5 · EHGO وNEXR بـC2 القالب · والإفصاحُ عن الفتح قبل الختم مكتوب",
+          len(_apc_rows) == 12 and all(r.count("`faisal_app`") == 1 for r in _apc_rows)
+          and not any(o in r for r in _apc_rows for o in ("third_party", "engineering", "faisal_verbatim", "faisal_adopted", "faisal_inferred",
+                                                           "unsourced", "nayef_verbatim"))
+          and "ينقصه ثبات يومي جلستين على الأقل" in _apc_sec and "ممتاز 0–5%" in _apc_sec and "مراقبة 10–15%" in _apc_sec
+          and "| `faisal_app` |" in _apc_led.split("## §")[0]
+          and _apc_cls == {"TG_85750": ("BRTX", "NEW_PROSPECTIVE", "CASE_0018"), "TG_85751": ("THH", "CONTAMINATED", None),
+                           "TG_85752": ("EHGO", "DERIVATIVE", None), "TG_85753": ("NEXR", "DERIVATIVE", None)}
+          and "2026-11-07T16:33:34Z" in _apc_ann["blind"] and sorted(_apc_ann["images"]) == ["TG_85750", "TG_85751", "TG_85752", "TG_85753"],
+          f"rows={len(_apc_rows)} cls={_apc_cls}")
+except Exception as _apc_e:                                       # noqa: BLE001
+    check("📱 APPC0 لقطاتُ التطبيق (انهيارُ القفل)", False, f"⛔ رمى: {type(_apc_e).__name__}: {_apc_e}")
+
+# 📱 NWA1-NWA3 (‏2026-11-07 · أمرُ المالك ②: «في رسالة «تحت المتابعة» اليومية، لكل سهم بصفر أو ناقص واحد سطر بصيغة التطبيق»):
+#    مطفأً ⟵ القسمُ بت-بت (لقطةٌ ذهبيّة) · مُشعَلًا ⟵ سطرُ «قريب من الجاهزية N/100 · الناقص الآن» لـn_out ‏≤ 1 المقيسين اليوم بالجاهزية تنازليًّا
+#    مع حالة الحجب · بلا تكرارٍ في السلال · والقصُّ يُعلَن · والمفتاحُ لا يُقرأ خارج العرض (لا معيارَ يتغيّر).
+try:
+    _nwa_fx = {"AAA": {"symbol": "AAA", "last_seen": "2026-11-07", "n_out": 0, "outside": [], "price": 1.5, "rsi_now": 25.0, "readiness": 45,
+                       "first_seen": "2026-11-01"},
+               "BBB": {"symbol": "BBB", "last_seen": "2026-11-07", "n_out": 1, "outside": ["العائد/المخاطرة (دون الحدّ)"], "price": 2.0,
+                       "rsi_now": 40.0, "readiness": 60, "first_seen": "2026-11-07"},
+               "CCC": {"symbol": "CCC", "last_seen": "2026-11-07", "n_out": 2, "outside": ["M1 السعر (دون الحدّ)", "M3"], "price": 0.5,
+                       "rsi_now": 20.0, "readiness": 70, "first_seen": "2026-11-02"},
+               "DDD": {"symbol": "DDD", "last_seen": "2026-11-07", "n_out": 0, "outside": [], "price": 1.0, "rsi_now": 50.0, "readiness": 35,
+                       "first_seen": "2026-11-07", "blocked": {"why": "BORROW_REJECT", "label": "المتاح 100,000 فوق الحدّ 20,000", "date": "2026-11-07"}},
+               "EEE": {"symbol": "EEE", "last_seen": "2026-11-05", "n_out": 0, "outside": [], "price": 3.0, "rsi_now": 28.0, "readiness": 90,
+                       "first_seen": "2026-11-01"}}
+    _nwa_fx2 = {"FFF": {"symbol": "FFF", "last_seen": "2026-11-07", "n_out": 1, "outside": ["M3"], "price": 4.0, "rsi_now": 45.0, "readiness": 77,
+                        "blocked": {"why": "DQ_HELD", "label": "سلامةُ البيانات (تقسيمٌ عكسيّ حديث)", "date": "2026-11-07"}},
+                "GGG": {"symbol": "GGG", "last_seen": "2026-11-07", "n_out": 1, "outside": ["M3"], "price": 2.0, "rsi_now": 45.0, "readiness": 66},
+                "HHH": {"symbol": "HHH", "last_seen": "2026-11-07", "n_out": 1, "outside": ["M3"], "price": 2.0, "rsi_now": 45.0, "readiness": 55},
+                "III": {"symbol": "III", "last_seen": "2026-11-07", "n_out": 0, "outside": [], "price": 2.0, "rsi_now": 45.0, "readiness": 50}}
+    _nwa_sv = (S.CONFIG.get("NW_APP_LINE"), S.CONFIG.get("NW_KEEP_BLOCKED"))
+    try:
+        S.CONFIG["NW_KEEP_BLOCKED"] = True
+        S.CONFIG["NW_APP_LINE"] = False
+        _nwa_off = S.build_near_watch_section(_nwa_fx)
+        S.CONFIG["NW_APP_LINE"] = True
+        _nwa_on = S.build_near_watch_section(_nwa_fx)
+        _nwa_dq = S.build_near_watch_section(_nwa_fx2, dq_fn=lambda s_: {"action": "quarantine", "state": "STALE"} if s_ in ("GGG", "III") else {"action": "allow"})
+        _nwa_cap = S.build_near_watch_section({f"S{i:02d}": {"symbol": f"S{i:02d}", "last_seen": "2026-11-07", "n_out": i % 2, "outside": [],
+                                                             "readiness": 50, "price": 1.0} for i in range(30)}, cap=10)
+    finally:
+        S.CONFIG["NW_APP_LINE"], S.CONFIG["NW_KEEP_BLOCKED"] = _nwa_sv
+    _nwa_gold = ("‏👀 <b>تحت المتابعة</b> (3) — قريبٌ من كتالوج فيصل، غيرُ مرشَّح بعد\n"
+                 "‏   <b>داخلَ ظرف فيصل تمامًا — وجدارُه من عندنا</b> (2)\n"
+                 "‏   • EEE — $3.00 · RSI 28 · جاهزية 90 · ينقصه: لا شيء خارج الظرف · منذ 4 يومًا\n"
+                 "‏   • AAA — $1.50 · RSI 25 · جاهزية 45 · ينقصه: لا شيء خارج الظرف · منذ 6 يومًا\n"
+                 "‏   <b>متشبّعٌ الآن (‏RSI تحت 30 — زنادُ فيصل)</b> (1)\n"
+                 "‏   • CCC — $0.50 · RSI 20 · جاهزية 70 · ينقصه: M1 السعر (دون الحدّ) · M3 · منذ 5 يومًا\n"
+                 "‏   <b>🔒 عبر الفرزَ وحجبته بوّابةٌ بعده</b> (1)\n"
+                 "‏   • DDD — حُجب: المتاح 100,000 فوق الحدّ 20,000 · $1.00 · RSI 50")
+    check("📱 NWA1 «تحت المتابعة» والمفتاحُ مطفأ ⟵ القسمُ بت-بت (لقطةٌ ذهبيّة: السلالُ الثلاث كما كانت ولا سطرَ 📱)",
+          _nwa_off == _nwa_gold, repr(_nwa_off)[:160])
+    _nwa_lines = _nwa_on.split("\n")
+    _nwa_app = [ln for ln in _nwa_lines if "قريب من الجاهزية" in ln]
+    _nwa_hdr = next((i for i, ln in enumerate(_nwa_lines) if "صفرٌ أو ناقصٌ واحد — بصيغة التطبيق</b> (3)" in ln), -1)
+    _nwa_rest = "\n".join(_nwa_lines[:_nwa_hdr] + _nwa_lines[_nwa_hdr + 4:]) if _nwa_hdr > 0 else ""
+    _nwa_dql = _nwa_dq.split("\n")
+    _nwa_fff = next((ln for ln in _nwa_dql if "• FFF" in ln), "")
+    check("📱 NWA2 مُشعَلًا: كتلةٌ مضافةٌ في الرأس — سطرُ «قريب من الجاهزية N/100 · الناقص الآن: …» لكلّ مقيسٍ اليوم بصفرٍ أو ناقصٍ واحد بالجاهزية تنازليًّا "
+          "(BBB 60 ⟵ AAA 45 ⟵ DDD 35) · والمحجوبُ بحالته · وصاحبُ النقصين والقديمُ خارجها · **والسلالُ الثلاث بعدها بت-بت كما هي مطفأً** · "
+          "والمحجوبُ بالسلامة بلا رقمٍ ولا سعر · والمحجوزُ بالبوّابة لا يظهر ويُعَدّ مرّةً · والقصُّ يُعلَن",
+          len(_nwa_app) == 3 and "BBB" in _nwa_app[0] and "60/100" in _nwa_app[0] and "الناقص الآن: العائد/المخاطرة (دون الحدّ)" in _nwa_app[0]
+          and "AAA" in _nwa_app[1] and "لا شيء خارج ظرف فيصل" in _nwa_app[1] and "DDD" in _nwa_app[2] and "🔒 حُجب: المتاح 100,000" in _nwa_app[2]
+          and not any("EEE" in ln or "CCC" in ln for ln in _nwa_app) and _nwa_rest == _nwa_off
+          and "FFF" in _nwa_fff and "الجاهزيةُ لا تُعرَض (سلامةُ البيانات)" in _nwa_fff and "77" not in _nwa_fff and "$" not in _nwa_fff
+          and "GGG" not in _nwa_dq and "III" not in _nwa_dq and "HHH — قريب من الجاهزية 55/100" in _nwa_dq and "🛡️ لم يُعرَض (سلامةُ البيانات): " in _nwa_dq
+          and _nwa_dq.count("🛡️") == 1 and _nwa_dql[-1].endswith(" 2")
+          and "…و25 غيرهم (يُعلَن لا يُطوى)" in _nwa_cap and sum("قريب من الجاهزية" in ln for ln in _nwa_cap.split("\n")) == 5,
+          f"app={_nwa_app} dq={_nwa_dql[-2:]} cap={_nwa_cap[-60:]}")
+    import ast as _nwa_ast
+    _nwa_tree = _nwa_ast.parse(open("Super_stock.py", encoding="utf-8").read())
+    _nwa_users = set()
+    for _nwa_fn in _nwa_ast.walk(_nwa_tree):
+        if isinstance(_nwa_fn, _nwa_ast.FunctionDef):
+            for _nwa_c in _nwa_ast.walk(_nwa_fn):
+                if isinstance(_nwa_c, _nwa_ast.Constant) and _nwa_c.value == "NW_APP_LINE":
+                    _nwa_users.add(_nwa_fn.name)
+    _nwa_cfg = next((ln for ln in open("Super_stock.py", encoding="utf-8").read().split("\n") if ln.strip().startswith('"NW_APP_LINE":')), "")
+    check("📱 NWA3 مفتاحُ العرض: بيئةُ `NW_APP_LINE=0` تطفئه (والافتراضُ مُشعَل) · ولا تقرؤه إلّا `build_near_watch_section` (لا معيارَ ولا جذرَ يتغيّر)",
+          _nwa_users == {"build_near_watch_section"} and 'os.environ.get("NW_APP_LINE", "1").strip() != "0"' in _nwa_cfg
+          and S.CONFIG.get("NW_APP_LINE") is True,
+          f"users={_nwa_users} cfg={_nwa_cfg[:90]}")
+except Exception as _nwa_e:                                       # noqa: BLE001
+    check("📱 NWA0 سطرُ صيغة التطبيق (انهيارُ القفل)", False, f"⛔ رمى: {type(_nwa_e).__name__}: {_nwa_e}")
+
+# 🕵️📈 OPSL1-OPSL3 (‏2026-11-07 · `T-OPSIG` «إشعار المضارب يدفع» · العقد `fm_forensics/opsig/T_OPSIG_prereg.md` مدموجٌ قبل أيّ رقم):
+#    الدخولُ بعد دقيقتين من نهاية شمعة المِرساة · النجاحُ ‏+20% قبل −10% والفشلُ أوّلًا في الشمعة نفسِها · الكارثيُّ −20% خلال 30 د · السماتُ قبل الدخول
+#    (أ Lee-Ready · ب شمعةُ دقيقة · ج التركّز · د الثبات ودخولُها بعد معرفتها) · الجدولُ والراكضون · «تفرّق» بفاصل العناقيد · وسطرُ الكرت ④ · وبصمةُ العقد.
+try:
+    import importlib.util as _ops_iu
+    import ast as _ops_ast
+    _ops_sp = _ops_iu.spec_from_file_location("opsig_lock", "fm_forensics/opsig/opsig.py")
+    OPS = _ops_iu.module_from_spec(_ops_sp)
+    _ops_sp.loader.exec_module(OPS)
+    _ops_M = 60_000
+    _ops_ms = 1_700_000_100_000 - (1_700_000_100_000 % 60_000)
+
+    def _ops_b(i, o, h, lo, c, v=100.0):
+        return (_ops_ms + i * _ops_M, o, h, lo, c, v)
+    # قبل المِرساة: هادئ ثمّ شمعةُ المِرساة (i=0) تفتح بفجوة 1.3 ورأسُها 1.6 (‏+60% من إغلاق السابقة لا +23% من افتتاحها) · ثمّ ثبات · الدخولُ إغلاقُ i=2 (‏1.50) · ثمّ صعودٌ إلى 1.80 (‏+20%)
+    _ops_bars = ([_ops_b(i, 1.0, 1.01, 0.99, 1.0, 10) for i in range(-9, 0)]
+                 + [_ops_b(0, 1.3, 1.6, 1.0, 1.5, 900), _ops_b(1, 1.5, 1.55, 1.45, 1.52), _ops_b(2, 1.52, 1.55, 1.48, 1.50),
+                    _ops_b(3, 1.5, 1.6, 1.46, 1.55), _ops_b(4, 1.55, 1.81, 1.5, 1.8)])
+    _ops_t_a = _ops_ms + _ops_M
+    _ops_E = OPS.entry_px(_ops_bars, _ops_t_a + 2 * _ops_M)
+    _ops_out = OPS.outcome(_ops_bars, _ops_t_a + 2 * _ops_M, _ops_E)
+    _ops_loss = OPS.outcome([_ops_b(3, 1.5, 1.85, 1.30, 1.6)], _ops_t_a + 2 * _ops_M, 1.5)           # الشمعةُ نفسُها تلمس +20% و−10% ⟵ فشل
+    _ops_cat = OPS.outcome([_ops_b(3, 1.5, 1.5, 1.19, 1.2), _ops_b(40, 1.2, 1.2, 1.0, 1.1)], _ops_t_a + 2 * _ops_M, 1.5)
+    _ops_late = OPS.outcome([_ops_b(3, 1.5, 1.5, 1.4, 1.45), _ops_b(40, 1.45, 1.45, 1.1, 1.2)], _ops_t_a + 2 * _ops_M, 1.5)  # −20% بعد 30 د ⟵ لا كارثيّ
+    _ops_bv = OPS.attr_b(_ops_bars, _ops_ms)
+    _ops_cv = OPS.attr_c(_ops_bars, _ops_ms)
+    _ops_dv = OPS.attr_d(_ops_bars, _ops_ms)
+    _ops_lr = OPS.lee_ready([(10 + i, 1.02, 100.0) for i in range(15)] + [(30 + i, 0.98, 100.0) for i in range(5)], [(0, 0.99, 1.01)])
+    _ops_lr_few = OPS.lee_ready([(10, 1.02, 100.0)] * 5, [(0, 0.99, 1.01)])
+    _ops_m = OPS.measure("2026-09-10", "X", _ops_ms, _ops_bars, lambda s, a, b: ([(a * 1_000_000 + k, 1.02, 100.0) for k in range(25)], [(a * 1_000_000 - 1, 0.99, 1.01)]))
+    _ops_ok_m = (_ops_m["E"] == 1.50 and _ops_m["out"]["res"] == "win" and _ops_m.get("E_d") == 1.55 and _ops_m["out_d"]["res"] == "open"
+                 and abs(_ops_m["a"] - 1.0) < 1e-9 and _ops_m["a_n"] == 25 and _ops_m["d"] is True)
+    _ops_ok1 = _ops_ok_m and (_ops_E == 1.50 and _ops_out["res"] == "win" and not _ops_out["cat"] and abs(_ops_out["maxg"] - 100 * (1.81 / 1.5 - 1)) < 1e-9
+                and _ops_loss["res"] == "loss" and _ops_cat["cat"] and _ops_cat["res"] == "loss" and not _ops_late["cat"]
+                and abs(_ops_out["stop10"] - 100 * (1.8 / 1.5 - 1)) < 1e-9 and abs(_ops_loss["stop10"] + 10.0) < 1e-9
+                and abs(_ops_bv - 60.0) < 1e-9 and abs(_ops_cv - 900 / 990) < 1e-9 and _ops_dv[0] is True and abs(_ops_dv[1] - 1.3) < 1e-9
+                and abs(_ops_lr[0] - 0.75) < 1e-9 and _ops_lr[1] == 20 and _ops_lr_few[0] is None)
+    check("🕵️📈 OPSL1 T-OPSIG: الدخولُ إغلاقُ آخر شمعةٍ قبل الدقيقتين · ‏+20% قبل −10% والشمعةُ المزدوجة فشل · الكارثيُّ خلال 30 د وحدَها · أعلى ربحٍ والوقفُ −10% · "
+          "(ب) قفزةُ الدقيقة من إغلاق السابقة · (ج) حصّةُ المِرساة من العشر · (د) فوق منتصف الأوسع · (أ) Lee-Ready بأرضيّة 20 صفقة",
+          _ops_ok1, f"m={ {k: _ops_m.get(k) for k in ('E', 'E_d', 'a', 'a_n', 'd')} } E={_ops_E} out={_ops_out} loss={_ops_loss['res']} cat={_ops_cat['cat']} late={_ops_late['cat']} b={_ops_bv} c={_ops_cv} d={_ops_dv} lr={_ops_lr}")
+
+    def _ops_row(day, sym, win, a=None, b=None, c=None, d=None, cat=False, gold=False, ed=None):
+        o = {"res": "win" if win else "loss", "cat": cat, "maxg": 25.0 if win else 3.0, "stop10": 20.0 if win else -10.0}
+        r = {"day": day, "sym": sym, "E": 1.0, "out": o, "a": a, "b": b, "c": c, "d": d, "gold": gold}
+        if d:
+            r["E_d"] = ed or 1.05
+            r["out_d"] = o
+        return r
+    _ops_rows = ([_ops_row(f"2026-09-{1 + i % 20:02d}", f"W{i}", True, a=0.7, d=True) for i in range(40)]
+                 + [_ops_row(f"2026-09-{1 + i % 20:02d}", f"L{i}", False, a=0.3, d=False) for i in range(60)])
+    _ops_runners = {("2026-09-01", "W0"): 1.2, ("2026-09-02", "L1"): 0.6}
+    _ops_t = OPS.table_row(_ops_rows, ("d",), _ops_runners, (5, 2))
+    _ops_v = OPS.verdict_attr(_ops_rows, "d")
+    _ops_v2 = OPS.verdict_attr(_ops_rows[:45], "d")
+    _ops_va = OPS.verdict_attr([dict(r, a=None) for r in _ops_rows], "a")
+    _ops_noise = ([_ops_row(f"2026-09-{1 + i % 16:02d}", f"N{i}", i % 2 == 0 or i % 7 == 0, d=True) for i in range(32)]
+                  + [_ops_row(f"2026-09-{1 + i % 16:02d}", f"M{i}", i % 2 == 0, d=False) for i in range(32)])
+    _ops_vn = OPS.verdict_attr(_ops_noise, "d")
+    _ops_cs = OPS.card_stats(_ops_rows)
+    check("🕵️📈 OPSL2 T-OPSIG: الجدولُ (n · يوميًّا ÷ 47 · النجاح وWilson · الراكضون ملتقَطون ومفقودون وغيرُ مُطلَقين · كم أعلى الدخول) · «تفرّق» بفاصل العناقيد "
+          "وأرضيّةُ 30 لكلّ جانب · (أ) المجهولةُ فوق 25% «لا قياس» · وسطرُ الكرت ④ بصيغته",
+          _ops_t["n"] == 40 and abs(_ops_t["win"] - 100.0) < 1e-9 and _ops_t["cap100"] == 1 and _ops_t["lost50"] == 1 and _ops_t["unfired50"] == 5
+          and abs(_ops_t["per_day"] - 40 / 47) < 1e-9 and abs(_ops_t["higher"] - 5.0) < 1e-6
+          and _ops_v[0] == "تفرّق" and _ops_v[2][0] > 0 and _ops_v2[0] == "لا قياس" and _ops_va[0] == "لا قياس"
+          and _ops_vn[0] == "لا تفرّق" and _ops_vn[1] > 0 and _ops_vn[2][0] <= 0
+          and _ops_cs["n"] == 100 and abs(_ops_cs["p20"] - 40.0) < 1e-9
+          and OPS.card_line(_ops_cs) == "📊 مثل هذا الإشعار: وسيط الربح 3% · 1 من 2 بلغ +20% · كارثي 0%",
+          f"vn={_ops_vn} t={_ops_t} v={_ops_v[0]} v2={_ops_v2[0]} va={_ops_va[0]} line={OPS.card_line(_ops_cs)}")
+    _ops_src = open("fm_forensics/opsig/opsig.py", encoding="utf-8").read()
+    _ops_tree = _ops_ast.parse(_ops_src)
+    _ops_calls = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _ops_ast.walk(_ops_tree) if isinstance(c, _ops_ast.Call)}
+    _ops_con = open("fm_forensics/opsig/T_OPSIG_prereg.md", encoding="utf-8").read()
+    import yaml as _ops_yaml
+    _ops_yd = _ops_yaml.safe_load(open(".github/workflows/opsig.yml", encoding="utf-8").read())
+    _ops_on = _ops_yd.get("on", _ops_yd.get(True)) or {}
+    check("🕵️📈 OPSL3 T-OPSIG: بصمةُ العقد مثبَّتة · نصُّ أمر المالك وبوّابةُ 1,561 وحدُّ التسريب في العقد · المراسي بـrebuild_alerts والشموع بـfetch_day بالاسم · "
+          "لا تلغرام ولا حفظ · الـworkflow يدويٌّ بتاريخ git كامل بلا كرون",
+          OPS.contract_ok() and OPS.N_GATE == 1561 and "1,561 بالاستخراج المصحَّح" in _ops_con and "حدُّ تسريبٍ في نصّ الأمر" in _ops_con
+          and {"rebuild_alerts", "fetch_day", "lee_ready", "outcome"} <= _ops_calls
+          and not ({"send_telegram", "save_watchlist", "git_save"} & _ops_calls)
+          and set(_ops_on) == {"workflow_dispatch"} and (_ops_yd.get("permissions") or {}).get("contents") == "read"
+          and "fetch-depth: 0" in open(".github/workflows/opsig.yml", encoding="utf-8").read(),
+          f"on={list(_ops_on)}")
+except Exception as _ops_e:                                       # noqa: BLE001
+    check("🕵️📈 OPSL0 T-OPSIG (انهيارُ القفل)", False, f"⛔ رمى: {type(_ops_e).__name__}: {_ops_e}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل

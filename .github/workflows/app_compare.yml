@@ -1,0 +1,39 @@
+name: "📱 لقطات تطبيق فيصل مقابل قيم البوت (قراءةٌ فقط)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · أمرُ المالك 2026-11-07 ①-ب/ج (دفعة B4_20261107)
+#    شموعُ ياهو (أدواتُ البحث بلا BARS_SOURCE · قفلُ TVB9) — والفرزُ اليوميّ على TradingView ⟵ يُفصَح ويُطابَق الجدارُ بسجلّ near_watch ⟵ analyze_ticker وجدارُه · near_watch_measure · tested_level · M2 والعائد/المخاطرة مقابل حدّيهما.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      syms:
+        description: "الرموز بفاصلة"
+        default: "BRTX,THH,EHGO,NEXR"
+
+concurrency:
+  group: super-stocks-app-compare
+  cancel-in-progress: false
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📱 المقارنة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          FAISAL_ONLY: "1"
+          SCREENER_MODE: PROBE
+          APP_SYMS: ${{ github.event.inputs.syms || 'BRTX,THH,EHGO,NEXR' }}
+        run: python fm_forensics/app_compare/app_compare.py

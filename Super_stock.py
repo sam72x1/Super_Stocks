@@ -197,6 +197,10 @@ CONFIG = {
     #    (المتاح · سقفُ الجولات · سلامةُ البيانات · الفلوت · لا خانة) يبقى في «تحت المتابعة» بسبب حجبه مكتوبًا · عرضٌ فقط (كونُ التنبيه
     #    الحيّ لا يراه) · `NW_KEEP_BLOCKED=0` (بيئةُ التشغيل) ⟵ بت-بت · `NWK1`-`NWK4`.
     "NW_KEEP_BLOCKED": os.environ.get("NW_KEEP_BLOCKED", "1").strip() != "0",
+    # 📱 «سطرٌ بصيغة التطبيق» (أمرُ المالك 2026-11-07 ②): في «تحت المتابعة» لكلّ سهمٍ بصفرٍ أو ناقصٍ واحد «قريب من الجاهزية N/100 ·
+    #    الناقص الآن: …» من `readiness` و`outside` الموجودَين ‏+ حالةُ الحجب · مرتَّبًا بالجاهزية تنازليًّا · عرضٌ فقط بلا تغيير معيار ·
+    #    `NW_APP_LINE=0` (بيئةُ التشغيل) ⟵ القسمُ بت-بت · `NWA1`-`NWA3`.
+    "NW_APP_LINE": os.environ.get("NW_APP_LINE", "1").strip() != "0",
     "FLOAT_GATE_REQUIRED": True,  # M14: رفض الفلوت الكبير (أقوى رابط في أسهم فيصل)
     "FLOAT_GATE_MAX": 50_000_000, # حد الفلوت: كل أسهم فيصل تحته (HCAI 163ألف ←
                                   # MWC 26.68م). الفلوت الصغير = ينفجر بسهولة.
@@ -14299,6 +14303,32 @@ def near_watch_buckets(watch: dict):
     return inside, oversold
 
 
+def near_watch_app_rows(watch) -> list:
+    """📱 صفٌّ أو ناقصٌ واحد (`n_out` ‏≤ 1) مقيسٌ في فرز اليوم (`last_seen` = الأحدث) — بالجاهزية تنازليًّا ثمّ الرمز · نقيّة (المحجوبُ داخلٌ بحالته)."""
+    rows = [e for e in (watch or {}).values() if isinstance(e, dict)]
+    newest = max((str(e.get("last_seen") or "") for e in rows), default="")
+    sel = [e for e in rows if isinstance(e.get("n_out"), int) and not isinstance(e.get("n_out"), bool)
+           and e["n_out"] <= 1 and str(e.get("last_seen") or "") == newest]
+    return sorted(sel, key=lambda e: (-(e.get("readiness") or 0), str(e.get("symbol") or "")))
+
+
+def near_watch_app_line(e: dict, newest: str = "", show_block: bool = True) -> str:
+    """📱 سطرٌ بصيغة التطبيق: «• الرمز — قريب من الجاهزية N/100 · الناقص الآن: … [· 🔒 حُجب: السبب]» · نقيّة.
+    المحجوبُ بسلامة البيانات (`DQ_HELD`) بلا رقم جاهزيّة (قاعدةُ السلّة الثالثة: لا أرقامَ على بياناتٍ محجوزة)."""
+    miss = " · ".join(e.get("outside") or []) or "لا شيء خارج ظرف فيصل (جدارُه من عندنا)"
+    rd = e.get("readiness")
+    b = e.get("blocked") if show_block else None
+    b = b if isinstance(b, dict) and (not newest or str(b.get("date") or "") == newest) else None
+    if b and b.get("why") == "DQ_HELD":
+        head = "الجاهزيةُ لا تُعرَض (سلامةُ البيانات)"
+    else:
+        head = f"قريب من الجاهزية {int(rd) if rd is not None else '—'}/100"
+    s = f"   • {esc(e.get('symbol'))} — {head} · الناقص الآن: {esc(miss)}"
+    if b:
+        s += f" · 🔒 حُجب: {esc(b.get('label') or b.get('why') or '؟')}"
+    return s
+
+
 def build_near_watch_section(watch: dict, cap: int = None, dq_fn=None) -> str:
     """👀 قسمُ «تحت المتابعة» في التقرير اليوميّ — عرضٌ فقط، **بسلّتين**.
 
@@ -14310,7 +14340,8 @@ def build_near_watch_section(watch: dict, cap: int = None, dq_fn=None) -> str:
     صمت). والتقييمُ لما يُعرَض وحدَه (سقفُ العرض) فلا تُستنزَف الشبكة. و`dq_fn=None` ⟵ القسمُ كما كان **بت-بت**."""
     inside, oversold = near_watch_buckets(watch)
     blocked = near_watch_blocked_rows(watch) if CONFIG.get("NW_KEEP_BLOCKED") else []
-    if not (inside or oversold or blocked):
+    app = near_watch_app_rows(watch) if CONFIG.get("NW_APP_LINE") else []
+    if not (inside or oversold or blocked or app):
         return ""
     lim = max(1, int(cap or NEAR_WATCH_SHOW) // 2)
     out = [f"👀 <b>تحت المتابعة</b> ({len(inside) + len(oversold)}) — "
@@ -14318,24 +14349,31 @@ def build_near_watch_section(watch: dict, cap: int = None, dq_fn=None) -> str:
     _hidden = {}
     _newest = max((str(e.get("last_seen") or "") for e in inside + oversold), default="")
 
-    def _ok(e):
-        """(يُعرَض؟، وسم) — بلا `dq_fn` دائمًا (True، "")."""
+    _dq_memo = {}
+
+    def _ok(e, count=True):
+        """(يُعرَض؟، وسم) — بلا `dq_fn` دائمًا (True، ""). `count=False` (كتلةُ 📱) لا يعدّ في «🛡️ لم يُعرَض» فلا يُعَدّ صفٌّ مرّتين."""
         if dq_fn is None:
             return True, ""
         if str(e.get("last_seen") or "") < _newest:
-            _hidden["لم يُقَس في فرز اليوم"] = _hidden.get("لم يُقَس في فرز اليوم", 0) + 1
+            if count:
+                _hidden["لم يُقَس في فرز اليوم"] = _hidden.get("لم يُقَس في فرز اليوم", 0) + 1
             return False, ""
-        try:
-            a = dq_fn(e.get("symbol")) or {}
-        except Exception:                                        # noqa: BLE001
-            a = {"action": "warn", "label": "⚠️ تعذّر التحقّق"}
+        _sym = e.get("symbol")
+        if _sym not in _dq_memo:
+            try:
+                _dq_memo[_sym] = dq_fn(_sym) or {}
+            except Exception:                                    # noqa: BLE001
+                _dq_memo[_sym] = {"action": "warn", "label": "⚠️ تعذّر التحقّق"}
+        a = _dq_memo[_sym]
         if a.get("action") in ("block", "quarantine"):
             try:
                 import data_quality as _DQ
                 k = _DQ.LABELS_AR.get(a.get("state"), a.get("state") or "؟")
             except Exception:                                    # noqa: BLE001
                 k = a.get("state") or "؟"
-            _hidden[k] = _hidden.get(k, 0) + 1
+            if count:
+                _hidden[k] = _hidden.get(k, 0) + 1
             return False, ""
         return True, (a.get("label") or "") if a.get("action") == "warn" else ""
 
@@ -14370,6 +14408,21 @@ def build_near_watch_section(watch: dict, cap: int = None, dq_fn=None) -> str:
         if rest > 0:
             out.append(f"   …و{rest} غيرهم (يُعلَن لا يُطوى)")
 
+    if app:                                    # 📱 كتلةٌ مضافةٌ في الرأس — السلالُ الثلاث بعدها كما هي (حراستُها لا تتغيّر)
+        _nw_new = max((str(e.get("last_seen") or "") for e in (watch or {}).values() if isinstance(e, dict)), default="")
+        _kb = bool(CONFIG.get("NW_KEEP_BLOCKED"))
+        _in_bk = {e.get("symbol") for e in inside + oversold}     # يُعَدّ هناك ⟵ لا يُعَدّ هنا مرّةً ثانية (ولا يُقصّ صامتًا)
+        _shown, _k = [], 0
+        while _k < len(app) and len(_shown) < lim:
+            _e = app[_k]
+            _k += 1
+            if dq_fn is not None and not (_kb and isinstance(_e.get("blocked"), dict)) and not _ok(_e, _e.get("symbol") not in _in_bk)[0]:
+                continue
+            _shown.append(_e)
+        out.append(f"   <b>📱 صفرٌ أو ناقصٌ واحد — بصيغة التطبيق</b> ({len(app)})")
+        out.extend(near_watch_app_line(_e, _nw_new, _kb) for _e in _shown)
+        if len(app) - _k > 0:
+            out.append(f"   …و{len(app) - _k} غيرهم (يُعلَن لا يُطوى)")
     _emit("داخلَ ظرف فيصل تمامًا — وجدارُه من عندنا", inside)
     _emit(f"متشبّعٌ الآن (‏RSI تحت {FAISAL_RSI_ENTRY_MAX:.0f} — زنادُ فيصل)",
           oversold)
