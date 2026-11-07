@@ -99422,6 +99422,124 @@ try:
 except Exception as _owd6_e:                                                     # noqa: BLE001
     check("👁️ OWD7 (انهيارُ القفل)", False, f"⛔ رمى: {type(_owd6_e).__name__}: {_owd6_e}")
 
+# 👁️➕ OWW1-OWW4 — توسيعُ كون «هنا الدخول» (أمرُ المالك 2026-11-07 «وسّع كون هنا الدخول كاملًا — خلف مفتاح يرجعه بت-بت» · `T-OEWIDE`)
+try:
+    import os as _oww_os
+    import ast as _oww_ast
+    import inspect as _oww_insp
+    import operator_entry_live as _OWW
+    _oww_wl = {"stocks": [{"symbol": "AAA", "status": "active"}], "pullback": [], "explosions": []}
+    _oww_near = {"AAA": {"x": 1}, "ZZZ": {"x": 1}, "BBB": {"x": 1}, "QQQ": {"blocked": True, "x": 1}, "MMM": {"x": 1}}
+    _oww_fx = {"weekly_watchlist.json": _oww_wl, "near_watch.json": _oww_near, "press_radar_state.json": {},
+               "hunter_watchlist.json": {"stocks": []}, _OWW.bot.OP_ENTRY_STATE_FILE: {}}
+    _oww_keep = (_OWW._fetch_state, _OWW.OE_WIDE_UNIVERSE, dict(_OWW._WIDE))
+    _oww_live = _OWW.OE_WIDE_UNIVERSE
+    try:
+        _OWW._fetch_state = lambda paths: {p: _oww_fx.get(p) for p in paths}
+        _OWW.OE_WIDE_UNIVERSE = False
+        _oww_off = _OWW._load_universe()
+        _OWW.OE_WIDE_UNIVERSE = True
+        _oww_on = _OWW._load_universe()
+    finally:
+        _OWW._fetch_state, _OWW.OE_WIDE_UNIVERSE = _oww_keep[0], _oww_keep[1]
+        _OWW._WIDE.clear()
+        _OWW._WIDE.update(_oww_keep[2])
+    _oww_ref, _ = _OWW.bot.live_watch_universe(_oww_wl, _oww_near, {}, {"stocks": []}, cap=10 ** 9)
+    _oww_ext = _oww_on[3][len(_oww_off[3]):]
+    _oww1 = (len(_oww_off) == 4 and len(_oww_on) == 4
+             and _oww_off[3] == _oww_ref and not any(r.get("wide") for r in _oww_off[3])
+             and _oww_on[3][:len(_oww_off[3])] == _oww_off[3]
+             and [r["symbol"] for r in _oww_ext] == sorted({"BBB", "MMM", "ZZZ"} - {r["symbol"] for r in _oww_ref})
+             and all(r.get("wide") is True and r.get("src") == "تحت المتابعة" for r in _oww_ext)
+             and "QQQ" not in {r["symbol"] for r in _oww_on[3]}
+             and len({r["symbol"] for r in _oww_on[3]}) == len(_oww_on[3])
+             and _oww_on[0] == _oww_off[0] and _oww_live is True)
+    check("👁️➕ OWW1 المفتاح `OE_WIDE_UNIVERSE`: مُطفأً ⟵ كونُ السيولة = `live_watch_universe(cap=10**9)` بت-بت · مُشعَلًا ⟵ الكونُ نفسُه بترتيبه "
+          "‏+ صفوفُ «تحت المتابعة» غيرُ المحجوبة وحدَها مرتّبةً بلا تكرار (والمحجوبُ خارج) · والكونُ المُسقَّف لمسح الدخول لا يتغيّر · "
+          "والافتراضُ مُشعَلٌ بأمر المالك 2026-11-07",
+          _oww1, f"off={[r['symbol'] for r in _oww_off[3]]} on={[r['symbol'] for r in _oww_on[3]]} live={_oww_live}")
+    # OWW2 — عدّادُ ردود Polygon لا يغيّر ما تُرجعه الدالّة
+    class _OwwR:
+        def __init__(self, code, res=None):
+            self.status_code, self._res = code, res
+
+        def json(self):
+            return {"results": self._res or []}
+    _oww_seq = [_OwwR(429), _OwwR(200, [{"o": 1, "h": 2, "l": 1, "c": 2, "v": 9, "t": 5, "vw": 1.5}]), RuntimeError("net")]
+
+    def _oww_get(url, **k):
+        x = _oww_seq.pop(0)
+        if isinstance(x, Exception):
+            raise x
+        return x
+    _oww_g0, _oww_k0 = _OWW.bot.requests.get, _oww_os.environ.get("POLYGON_API_KEY")
+    _oww_st0 = dict(_OWW.bot.POLY_MIN_STATUS)
+    try:
+        _OWW.bot.requests.get = _oww_get
+        _oww_os.environ["POLYGON_API_KEY"] = "x"
+        _oww_r = [_OWW.bot.polygon_minute_bars("AAA") for _ in range(3)]
+        _oww_st1 = dict(_OWW.bot.POLY_MIN_STATUS)
+    finally:
+        _OWW.bot.requests.get = _oww_g0
+        if _oww_k0 is None:
+            _oww_os.environ.pop("POLYGON_API_KEY", None)
+        else:
+            _oww_os.environ["POLYGON_API_KEY"] = _oww_k0
+        _OWW.bot.POLY_MIN_STATUS.clear()
+        _OWW.bot.POLY_MIN_STATUS.update(_oww_st0)
+    _oww_d = {k: _oww_st1.get(k, 0) - _oww_st0.get(k, 0) for k in ("429", "200", "exc")}
+    check("👁️➕ OWW2 `polygon_minute_bars` تعدّ ردودَها بالرمز (429 · 200 · exc) وتُرجع ما كانت تُرجعه (None · الشموع · None)",
+          _oww_r[0] is None and _oww_r[2] is None and _oww_r[1] == [{"o": 1, "h": 2, "l": 1, "c": 2, "v": 9, "t": 5, "vw": 1.5}]
+          and _oww_d == {"429": 1, "200": 1, "exc": 1}, f"r={_oww_r} d={_oww_d}")
+    # OWW3 — الحارس: الجدولُ النقيّ · وموصولٌ في `_liq_sweep` (الكونُ الممسوح `scan_rows(uni_all)` والإسقاطُ يُكتب في `_WIDE`)
+    _oww_tab = [_OWW.wide_guard(59.9, 0), _OWW.wide_guard(60.1, 0), _OWW.wide_guard(10.0, 1), _OWW.wide_guard(None, 0), _OWW.wide_guard(70, 2)]
+    _oww_rows = [{"symbol": "A"}, {"symbol": "B", "wide": True}]
+    _oww_w0 = dict(_OWW._WIDE)
+    try:
+        _OWW._WIDE["off"] = False
+        _oww_id = _OWW.scan_rows(_oww_rows) is _oww_rows
+        _OWW._WIDE["off"] = True
+        _oww_cut = [r["symbol"] for r in _OWW.scan_rows(_oww_rows)]
+    finally:
+        _OWW._WIDE.clear()
+        _OWW._WIDE.update(_oww_w0)
+    _oww_tr = _oww_ast.parse(_oww_insp.getsource(_OWW.main))
+    _oww_sw = next(n for n in _oww_ast.walk(_oww_tr) if isinstance(n, _oww_ast.FunctionDef) and n.name == "_liq_sweep")
+    _oww_scan = [c for c in _oww_ast.walk(_oww_sw) if isinstance(c, _oww_ast.Call) and getattr(c.func, "attr", None) == "scan_liq_stages"]
+    _oww_uni = [a for a in _oww_ast.walk(_oww_sw) if isinstance(a, _oww_ast.Assign) and any(getattr(t, "id", None) == "_uni" for t in a.targets)
+                and isinstance(a.value, _oww_ast.Call) and getattr(a.value.func, "id", None) == "scan_rows"]
+    _oww_gd = [c for c in _oww_ast.walk(_oww_sw) if isinstance(c, _oww_ast.Call) and getattr(c.func, "id", None) == "wide_guard"]
+    _oww_off_set = [a for a in _oww_ast.walk(_oww_sw) if isinstance(a, _oww_ast.Assign) and "_WIDE[\'off\']" in _oww_ast.unparse(a.targets[0])]
+    check("👁️➕ OWW3 حارسُ المالك: 429 واحدةٌ أو مسحٌ فوق 60 ث ⟵ سبب · وما دونهما ⟵ لا · و`scan_rows` تُسقط المضافَ بعد التعثّر وإلّا القائمةُ نفسُها · "
+          "وموصولٌ في `_liq_sweep` (الممسوحُ `_uni = scan_rows(uni_all)` والإسقاطُ يُكتب)",
+          _oww_tab[0] == "" and "فوق" in _oww_tab[1] and "429" in _oww_tab[2] and _oww_tab[3] == "" and "429" in _oww_tab[4]
+          and _oww_id and _oww_cut == ["A"] and len(_oww_scan) == 1 and getattr(_oww_scan[0].args[0], "id", None) == "_uni"
+          and len(_oww_uni) == 1 and len(_oww_gd) == 1 and len(_oww_off_set) == 1,
+          f"tab={_oww_tab} id={_oww_id} cut={_oww_cut} scan={len(_oww_scan)} uni={len(_oww_uni)} gd={len(_oww_gd)} off={len(_oww_off_set)}")
+    # OWW4 — سطرُ القياس (نقيّ) وموصولٌ في `main` (زمنُ عمل الدورة يُلحق قبل النوم)
+    _oww_ln = _OWW.stats_line([10.0, 70.0, 30.0], [15.0, 20.5], {"200": 50, "429": 2}, {"200": 10}, 849, 232)
+    _oww_main = _oww_insp.getsource(_OWW.main)
+    _oww_calls = {getattr(c.func, "id", None) for c in _oww_ast.walk(_oww_tr) if isinstance(c, _oww_ast.Call)}
+    check("👁️➕ OWW4 سطرُ القياس: وسيطُ العمل وأقصاه وما فوق 60 ث · ومسحُ السيولة على الكون (ومنه المضاف) · وفرقُ ردود Polygon بالرمز · وموصولٌ في `main`",
+          all(x in _oww_ln for x in ("وسيطُه 30.0ث", "أقصاه 70.0ث", "فوق 60ث: 1", "وسيطُه 20.5ث", "على 849 سهمًا (منها مضافٌ 232)", "200=40", "429=2"))
+          and "stats_line" in _oww_calls and '_STATS["work"].append(_w)' in _oww_main,
+          _oww_ln)
+except Exception as _oww_e:                                                      # noqa: BLE001
+    check("👁️➕ OWW0 (انهيارُ القفل)", False, f"⛔ رمى: {type(_oww_e).__name__}: {_oww_e}")
+
+# 👁️➕ OWF1 — عقدُ الحكم الأماميّ `T-OEWIDE-FWD` مدموجٌ مع التوسيع قبل أوّل جلسة (2026-11-09) · بصمتُه مثبَّتة (لا يُعدَّل بعد الرقم)
+try:
+    import hashlib as _owf_h
+    _owf_p = "fm_forensics/oewide/OEWIDE_FWD_prereg.md"
+    _owf_b = open(_owf_p, "rb").read()
+    _owf_t = _owf_b.decode("utf-8")
+    check("👁️➕ OWF1 عقدُ `T-OEWIDE-FWD` بصمتُه مثبَّتة · نافذتُه 20 جلسة 2026-11-09…2026-12-07 · والحاكمان والعتبتان والتنبّؤات الأربعة مكتوبةٌ قبل الرقم",
+          _owf_h.sha256(_owf_b).hexdigest() == "43b765096bc44cff16a4aab44b7004ed0d965a0c39f6ce41e81c1586555d21a0"
+          and all(x in _owf_t for x in ("**2026-11-09**", "**2026-12-07**", "0.5 فأكثر", "11.7 فأقلّ", "`F1`", "`F4`", "خروج 7")),
+          _owf_h.sha256(_owf_b).hexdigest())
+except Exception as _owf_e:                                                      # noqa: BLE001
+    check("👁️➕ OWF0 (انهيارُ القفل)", False, f"⛔ رمى: {type(_owf_e).__name__}: {_owf_e}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
