@@ -307,7 +307,7 @@ def _gh_get(path, params=None, raw=False):
     tok, repo = os.environ.get("GITHUB_TOKEN", "").strip(), os.environ.get("GITHUB_REPOSITORY", "").strip()
     r = requests.get(f"https://api.github.com/repos/{repo}{path}", params=params or {}, timeout=60,
                      headers={"Authorization": f"Bearer {tok}", "Accept": "application/vnd.github+json"})
-    return r.text if raw else r.json()
+    return r.content.decode("utf-8", "replace") if raw else r.json()   # السجلُّ text/plain بلا charset ⟵ requests يفكّه ISO-8859-1 فيعمى العربيّ (`42367314215`)
 
 
 def cycle_from_logs(now=None):
