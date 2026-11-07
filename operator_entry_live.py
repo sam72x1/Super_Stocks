@@ -45,6 +45,64 @@ CHAIN_WORKFLOW = "operator_entry.yml"
 #    (الدِّدوبُ ينجو من موت الرنر) · وما بقي معلَّقًا يُدفَع عند نهاية المقطع · `OE_MUTED_PUSH_S=0` ⟵ كلُّ دورةٍ كما كان بت-بت.
 MUTED_PUSH_EVERY_S = 600
 _PUSH = {"last": 0.0, "pending": False}
+# 👁️➕ **توسيعُ كون «هنا الدخول»** (أمرُ المالك 2026-11-07 «وسّع كون هنا الدخول كاملًا — خلف مفتاح يرجعه بت-بت» · `T-OEWIDE`
+#    `fm_forensics/oewide/OEWIDE_RESULT.md`): كونُ **السيولة** = الكونُ السابق ‏+ كلُّ صفٍّ **غيرِ محجوبٍ** في «تحت المتابعة» (`wide_extras`) ·
+#    والكونُ المُسقَّف لمسح الدخول كما هو · والكرتُ وشارةُ 🥇 كما هما (المسحُ يقرأ الرمزَ وحدَه) · `False` ⟵ الكونُ السابق بت-بت (`OWW1`).
+OE_WIDE_UNIVERSE = True
+# 🛑 **حارسُ المالك** («إن تجاوز الدورة 60 ثانية أو ظهر حد المعدّل ارجع بالمفتاح»): مسحُ سيولةٍ أطولُ من `OE_WIDE_GUARD_S` ثانية
+#    أو أيُّ ردِّ 429 من Polygon منذ بدء العامل ⟵ يُسقَط المضافُ **لبقيّة عمر العامل** ويُسجَّل سببُه (`OWW3`) · والرجوعُ الدائم قلبُ المفتاح.
+#    ⚠️ «الدورة» هنا **مسحُ السيولة** (المقيسُ في `T-OEWIDE` §④) — الدورةُ الكاملة (مسحان ‏+ مسحُ الدخول ‏+ الدفع) فوق 60 ث قبل التوسيع أصلًا.
+OE_WIDE_GUARD_S = 60
+_WIDE = {"off": False, "why": "", "p429": None}
+# ⏱️📡 سطرُ القياس (`OWW4` · سجلٌّ فقط): زمنُ عمل الدورات ومسوح السيولة وردود Polygon منذ السطر السابق ‏+ خلاصةٌ عند نهاية المقطع.
+_STATS = {"work": [], "sweep": [], "st": {}, "work_max": 0.0, "sweep_max": 0.0, "over": 0}
+
+
+def wide_extras(near, rows):
+    """`T-OEWIDE` ⓪-K2 (نقيّة): صفوفُ «تحت المتابعة» **غيرُ المحجوبة** التي ليست في `rows` ⟵ [{'symbol', 'src', 'wide': True}] بترتيبٍ ثابت."""
+    have = {str(r.get("symbol") or "").upper() for r in (rows or [])}
+    out = []
+    for k in sorted({str(k).upper() for k, v in (near or {}).items() if isinstance(v, dict) and not v.get("blocked")}):
+        if k and k not in have:
+            out.append({"symbol": k, "src": "تحت المتابعة", "wide": True})
+    return out
+
+
+def wide_guard(sweep_s, n429, limit=None):
+    """🛑 (نقيّة) سببُ إسقاط المضاف أو "" — أيُّ 429 منذ بدء العامل · أو مسحُ سيولةٍ فوق الحدّ."""
+    lim = OE_WIDE_GUARD_S if limit is None else limit
+    try:
+        if n429 and int(n429) > 0:
+            return f"Polygon ردّ 429 ({int(n429)} مرّة)"
+        if sweep_s is not None and float(sweep_s) > float(lim):
+            return f"مسحُ السيولة {float(sweep_s):.1f}ث فوق {lim}ث"
+    except Exception:                                            # noqa: BLE001
+        return ""
+    return ""
+
+
+def scan_rows(uni_all):
+    """الكونُ الذي يُمسَح فعلًا: المضافُ يسقط بعد أن يتعثّر الحارس · وإلّا الكونُ كما هو (القائمةُ نفسُها بلا مفتاح)."""
+    if _WIDE["off"]:
+        return [r for r in (uni_all or []) if not r.get("wide")]
+    return uni_all
+
+
+def stats_line(work, sweeps, st_now, st_prev, n_scan, n_wide):
+    """⏱️📡 (نقيّة) سطرُ القياس منذ السطر السابق — العملُ والمسحُ (وسيطٌ · أقصى) وردودُ Polygon بالرمز."""
+    def _md(x):
+        x = sorted(x)
+        return x[len(x) // 2] if x else None
+
+    def _f(v):
+        return "—" if v is None else f"{v:.1f}"
+    d = {k: (st_now or {}).get(k, 0) - (st_prev or {}).get(k, 0) for k in sorted(st_now or {})}
+    d = {k: v for k, v in d.items() if v}
+    pol = " · ".join(f"{k}={v}" for k, v in d.items()) or "لا نداء"
+    return (f"⏱️📡 القياس ({len(work)} دورة · {len(sweeps)} مسحًا): عملُ الدورة وسيطُه {_f(_md(work))}ث وأقصاه "
+            f"{_f(max(work) if work else None)}ث (فوق 60ث: {sum(1 for w in work if w > 60)}) · مسحُ السيولة وسيطُه "
+            f"{_f(_md(sweeps))}ث وأقصاه {_f(max(sweeps) if sweeps else None)}ث على {n_scan} سهمًا (منها مضافٌ {n_wide}) · "
+            f"ردودُ Polygon: {pol}")
 
 
 def _log(msg):
@@ -615,6 +673,8 @@ def _load_universe():
     # 💰 كونُ السيولة **بلا سقف** — أمرُ المالك «لكل الأسهم اللي تحت متابعة البوت
     #    بلا اي استثناء». والقصُّ في الكون المُسقَّف يبقى لِـ«هنا الدخول» وحده.
     uni_all, _ = bot.live_watch_universe(wl, near, press, hunter, cap=10 ** 9)
+    if OE_WIDE_UNIVERSE and isinstance(near, dict):
+        uni_all = uni_all + wide_extras(near, uni_all)           # 👁️➕ `OWW1` — `False` ⟵ الكونُ السابق بت-بت
     return uni, cut, seen, uni_all
 
 
@@ -686,6 +746,10 @@ def main():
          + f" · 🔁 إعادةُ المِرساة بعد الخروج البنيويّ مرّةً واحدة "
            f"(`LIQ_REARM_MAX`={bot.LIQ_REARM_MAX}) · ووسمُ «مِرساة #N» "
            f"يُطبَع هنا مُسلَّمًا كان أو مكتومًا")
+    _WIDE["p429"], _STATS["st"] = bot.POLY_MIN_STATUS.get("429", 0), dict(bot.POLY_MIN_STATUS)
+    if OE_WIDE_UNIVERSE:
+        _log(f"👁️➕ التوسيع (`OE_WIDE_UNIVERSE`): منها مضافٌ {sum(1 for r in uni_all if r.get('wide'))} من «تحت المتابعة» كاملًا "
+             f"(غيرُ المحجوب) · 🛑 الحارس: مسحُ سيولةٍ فوق {OE_WIDE_GUARD_S}ث أو أيُّ 429 ⟵ يسقط المضافُ لبقيّة العامل")
     if feed is not None:
         _log("📺 مصدرُ الشموع: **TradingView** (`OE_SOURCE`) — دفعةٌ واحدةٌ في الدورة بـ"
              f"{bot.TV_LIVE_WORKERS} مقابس · وبوّابةُ المضارب بلا Polygon ⟵ «لم يُتحقّق» (فاشلةٌ-آمنةٌ مفتوحة)")
@@ -708,10 +772,11 @@ def main():
         #    والمسحُ **متزامنٌ** فيغطّي الكونَ كلَّه في دورةٍ واحدة (‏319 نداءً
         #    تسلسليًّا ‏≈96ث ⇒ يستحيل وعدُ الدقيقة).
         _snap = dict(seen)          # لقطةٌ للرجوع عند رفض تيليجرام (لا كتمَ صامت)
+        _uni = scan_rows(uni_all)   # 👁️➕🛑 المضافُ يسقط إن تعثّر الحارس · وبلا مفتاح القائمةُ نفسُها (`OWW1`/`OWW3`)
         _kw = {}
         if feed is not None:        # 🎯📺 دفعةُ TradingView (لا جلبَ ثانيًا قبل `TV_LIVE_REFRESH_S`)
             try:
-                _tvr = feed.refresh([r["symbol"] for r in uni_all])
+                _tvr = feed.refresh([r["symbol"] for r in _uni])
                 if loops % REFRESH_EVERY == 0 or not _tvr.get("got"):
                     _log(f"📺 TradingView: {_tvr.get('got')} من {_tvr.get('asked')} في {_tvr.get('secs')}ث · "
                          f"مسوّى الحجم {_tvr.get('scaled')} · إغلاقُ الأمس {_tvr.get('prev')}")
@@ -721,9 +786,11 @@ def main():
         try:
             _today2 = _ny_minutes()[1]
             lrows, lcov, lsec = bot.scan_liq_stages(
-                uni_all, _today2, seen=seen,
+                _uni, _today2, seen=seen,
                 fetch_operator=bot.operator_flow, **_kw)
             liq_cov += lcov
+            _STATS["sweep"].append(float(lsec or 0.0))
+            _STATS["sweep_max"] = max(_STATS["sweep_max"], float(lsec or 0.0))
         except Exception as e:                                   # noqa: BLE001
             errs += 1
             lrows, lcov, lsec = [], 0, 0.0
@@ -740,8 +807,16 @@ def main():
                  + f" (قِيس ولا طبعةَ {bot.CONFIG['OPERATOR_MIN_SHARES']:,} سهم فأكثر ⟵ تُمسَح حالتُه ويُعاد فحصُه)")
         # 🩺 بلا شرط `lcov` (‏2026-09-29): التغطيةُ صارت ما وصل فعلًا ⇒ صفرُها يُطبَع ولا يُخفى
         if loops % REFRESH_EVERY == 0 or lrows:
-            _log(f"💰 التغطية: {lcov} من {len(uni_all)} في {lsec}ث "
+            _log(f"💰 التغطية: {lcov} من {len(_uni)} في {lsec}ث "
                  f"(خيوط {bot.LIQ_WORKERS})")
+        # 🛑 حارسُ التوسيع (`OWW3`): أيُّ 429 منذ بدء العامل أو مسحٌ فوق الحدّ ⟵ يسقط المضافُ لبقيّة العامل (ويُسجَّل مرّةً)
+        if OE_WIDE_UNIVERSE and not _WIDE["off"] and any(r.get("wide") for r in _uni):
+            _n429 = bot.POLY_MIN_STATUS.get("429", 0) - (_WIDE["p429"] or 0)
+            _why = wide_guard(lsec, _n429)
+            if _why:
+                _WIDE["off"], _WIDE["why"] = True, _why
+                _log(f"🛑 التوسيعُ أُسقِط ذاتيًّا: {_why} ⟵ بقيّةُ هذا العامل على الكون السابق "
+                     f"({len(scan_rows(uni_all))} سهمًا) · والرجوعُ الدائم `OE_WIDE_UNIVERSE = False`")
         # 🎛️ **فلترُ المالك — يقصّ ما يُرسَل ولا يمسّ ما يُفحَص** (قرارُه
         #    2026-08-18 «ابن الفلتر»). ملفٌّ غائبٌ/فارغ ⇒ **بت-بت كما كان**.
         #    🔴 **وحارسٌ حاسم:** الحالةُ تُختَم **بعد الإرسال** في هذا المسار، فلو
@@ -861,6 +936,11 @@ def main():
                 _log(f"⚠️ فحصُ تحديث الكود: {e}")
             _log(f"💰 تغطيةُ السيولة: {liq_cov} قراءةً تراكميًّا من "
                  f"{len(uni_all)} · الموضعُ الآن {liq_at} · {liq_hit} رفعة.")
+            if _STATS["work"] or _STATS["sweep"]:                # ⏱️📡 `OWW4` — سجلٌّ فقط
+                _su = scan_rows(uni_all)
+                _log(stats_line(_STATS["work"], _STATS["sweep"], dict(bot.POLY_MIN_STATUS), _STATS["st"],
+                                len(_su), sum(1 for r in _su if r.get("wide"))))
+                _STATS["work"], _STATS["sweep"], _STATS["st"] = [], [], dict(bot.POLY_MIN_STATUS)
         # ⏫ السيولة أوّلًا (النداء الأوّل من اثنين — انظر docstring المسح):
         #    الدقيقةُ الحرِجة لا تنتظر المسحَ التسلسليَّ البطيء.
         _liq_sweep()
@@ -907,6 +987,10 @@ def main():
         #    شكوى المالك بعينها. الآن الدورةُ `max(عمل، interval)`:
         #    🔒 **رتيبٌ لا يُؤخّر أبدًا** — يساوي القديمَ حين يطول العمل، وأسرعُ
         #    منه حين يقصُر؛ ويستحيل عليه بنيويًّا أن يجعل دورةً أطولَ ممّا كانت.
+        _w = time.time() - _cyc                                  # ⏱️ `OWW4` — زمنُ عمل الدورة (سجلٌّ فقط)
+        _STATS["work"].append(_w)
+        _STATS["work_max"] = max(_STATS["work_max"], _w)
+        _STATS["over"] += int(_w > 60)
         time.sleep(max(0.0, interval - (time.time() - _cyc)))
     # 📦 المعلَّقُ المكتوم يُدفَع عند نهاية المقطع (وإلّا ضاع ختمُ آخر دقائقه مع الرنر)
     if _PUSH["pending"]:
@@ -915,6 +999,10 @@ def main():
             _log("📦 دُفع ختمُ المكتوم المعلَّق عند نهاية المقطع.")
         except Exception as e:                                   # noqa: BLE001
             _log(f"⚠️ دفعُ المكتوم المعلَّق: {e}")
+    _log(f"⏱️📡 خلاصةُ المقطع: أقصى عملِ دورة {_STATS['work_max']:.1f}ث (فوق 60ث: {_STATS['over']}) · أقصى مسحِ سيولة "
+         f"{_STATS['sweep_max']:.1f}ث · ردودُ Polygon منذ البدء: "
+         + (" · ".join(f"{k}={v}" for k, v in sorted(bot.POLY_MIN_STATUS.items())) or "لا نداء")
+         + (f" · 🛑 التوسيعُ أُسقِط: {_WIDE['why']}" if _WIDE["off"] else ""))
     _rs = _restarts()
     _log(f"✅ انتهى [{role}]: {loops} دورة · {fired} دخولًا · {liq_hit} رفعةَ "
          f"سيولة · تغطيةُ السيولة {liq_cov} قراءةً · {errs} خطأ."

@@ -86,6 +86,7 @@ import json
 import shutil
 import time
 import math
+import threading
 import datetime as dt
 import traceback
 from urllib.parse import quote     # P1-8: إخفاء التوكن بشكله المرمّز-URL أيضًا
@@ -15982,6 +15983,20 @@ def build_hand_section(wl: dict) -> str:
 # ==========================================================
 # ⚡ كنسة الدقيقة الحية (POLYGON_EDGE_PLAN §ب) — تأكيد مسح أدق بشموع الدقيقة
 # ==========================================================
+# 📡 عدّادُ ردود `polygon_minute_bars` بالرمز (‏"200" · "429" · … · "exc") — **سجلٌّ فقط** (أمرُ المالك 2026-11-07 «اقرأ ردود Polygon
+#    (429/أخطاء المعدّل)» مع توسيع كون «هنا الدخول» · `OWW2`): لا يغيّر ما تُرجعه الدالّة · وعاملُ «هنا الدخول» يقرؤه لحارس التوسيع وسطرِ القياس.
+POLY_MIN_STATUS = {}
+_POLY_MIN_LOCK = threading.Lock()
+
+
+def _poly_min_count(code):
+    try:
+        with _POLY_MIN_LOCK:
+            POLY_MIN_STATUS[code] = POLY_MIN_STATUS.get(code, 0) + 1
+    except Exception:                                            # noqa: BLE001
+        pass
+
+
 def polygon_minute_bars(sym: str, minutes: int = 90):
     """شموع الدقيقة الحية (آخر ~`minutes` دقيقة) من Polygon:
     `GET /v2/aggs/ticker/{sym}/range/1/minute/{from}/{to}`. **فاشل-آمن مطلق** →
@@ -15997,6 +16012,7 @@ def polygon_minute_bars(sym: str, minutes: int = 90):
         url = (f"https://api.polygon.io/v2/aggs/ticker/{sym.upper()}"
                f"/range/1/minute/{frm}/{now_ms}?adjusted=true&sort=asc&limit=500")
         r = requests.get(url, headers=h, timeout=10)
+        _poly_min_count(str(r.status_code))
         if r.status_code != 200:
             return None
         res = (r.json() or {}).get("results") or []
@@ -16010,6 +16026,7 @@ def polygon_minute_bars(sym: str, minutes: int = 90):
                 if b.get("l") is not None and b.get("c") is not None]
         return bars or None
     except Exception:
+        _poly_min_count("exc")
         return None
 
 
