@@ -99043,6 +99043,16 @@ try:
           _nof_kinds == ["بلا سعر", "غابت", None, "غابت", "حاضرة", None, None] and _nof_sent == [True, True, False, False]
           and _nof_pb == [{"a": 1}, {"b": 2}],
           f"kinds={_nof_kinds} sent={_nof_sent} pb={_nof_pb}")
+    # 🔧 NOFL5: التشغيلةُ الأولى `42344390231` قُتلت بالذاكرة (54,748 لقطةً كاملة) ⟵ `keep` يقصر كلَّ لقطةٍ على مفاتيح راكضي يومها
+    _nof_pk = NOF.parse_batch(b"a blob 24\n{\"LIQ:X\": 1, \"LIQ:Y\": 2}\nb blob 11\n{\"LIQ:Z\":3}\n", {"LIQ:X"})
+    _nof_mr = _ast0.parse(_insp0.getsource(NOF.mode_run))
+    _nof_ds = [c for c in _ast0.walk(_nof_mr) if isinstance(c, _ast0.Call) and getattr(c.func, "id", None) == "day_states"]
+    _nof_dsrc = _insp0.getsource(NOF.day_states)
+    check("🔇 NOFL5 T-NOFIRE: لقطاتُ الحالة تُقصَر وقتَ القراءة على مفاتيح راكضي اليوم (`keep`) · و`mode_run` يمرّرها لكلّ يوم · "
+          "وبلا `keep` القاموسُ كاملٌ كما كان",
+          _nof_pk == [{"LIQ:X": 1}, {}] and NOF.parse_batch(b"a blob 9\n{\"a\": 1}\n") == [{"a": 1}]
+          and len(_nof_ds) == 1 and len(_nof_ds[0].args) == 2 and "parse_batch(raw, keep)" in _nof_dsrc,
+          f"pk={_nof_pk} ds={[len(c.args) for c in _nof_ds]}")
 except Exception as _nof_e:                                                      # noqa: BLE001
     check("🔇 NOFL0 T-NOFIRE (انهيارُ القفل)", False, f"⛔ رمى: {type(_nof_e).__name__}: {_nof_e}")
 
