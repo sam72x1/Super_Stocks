@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """📱 لقطاتُ تطبيق «مراقب استراتيجية فيصل» (دفعة `B4_20261107`) مقابل قيم البوت — قراءةٌ فقط (أمرُ المالك 2026-11-07 ①-ب/ج).
 
-`--mode probe` (رنر): لكلّ رمزٍ في `APP_SYMS` (افتراضًا الأربعة): شموعُ `Super_stock.download_history` (ياهو هنا · والفرزُ اليوميّ على TradingView ⟵ الجدارُ يُطابَق بسجلّ `near_watch`) ⟵
+`--mode probe` (رنر): لكلّ رمزٍ في `APP_SYMS` (افتراضًا الأربعة): شموعُ الإنتاج (`Super_stock.download_history` بمصدر `BARS_SOURCE`=tradingview كالفرز اليوميّ) ⟵
 `analyze_ticker` (مقبولٌ أم جدارُه بالاسم من `_REJECT_REASONS`) · `near_watch_measure` (قيمُ ظرف الكاتالوج والخارجُ عنه بحوافّ `envelope_p100.json`
 الحيّة) · `tested_level` (المستوى واللمسات) · و`drop_pct`/`rr` مقابل حدّيهما ⟵ سطرٌ لكلّ رمز و`APP_JSON`.
 🔒 لا تلغرام · لا حفظ حالة · لا تغيير في أيّ جذرٍ أو عتبة.
@@ -58,9 +58,9 @@ def probe_one(S, sym, df, edges):
 
 def main(argv=None):
     import Super_stock as S
-    import catalog_envelope as CE
+    import envelope_scan as ES                     # 🔧 مصدرُ الحوافّ كالإنتاج (`Super_stock.py` · «تحت المتابعة») — كان `catalog_envelope.load_edges` ولا وجودَ لها
     syms = [s.strip().upper() for s in os.environ.get("APP_SYMS", ",".join(DEFAULT_SYMS)).split(",") if s.strip()]
-    edges = CE.load_edges() or {}
+    edges = ES.load_edges() or {}
     hist = S.download_history(syms)
     rows = [probe_one(S, s, (hist or {}).get(s), edges) for s in syms]
     for r in rows:

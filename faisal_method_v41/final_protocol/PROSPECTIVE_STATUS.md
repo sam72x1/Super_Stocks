@@ -35,7 +35,7 @@ DIVERSITY = pattern {"UNSPECIFIED": 3} · timeframe {"4H": 2, "D": 1} · market_
 FINAL_VALIDATION_STATE = INSUFFICIENT_SAMPLE
 ```
 
-- **خارجَ العيّنة الأساسيّة (يُتتبَّع ولا يُحسب):** CASE_0001 BRTX MATCH (مصدريّة LOW) · CASE_0002 CDT MATCH (مصدريّة LOW) · CASE_0003 NCT MATCH (مصدريّة LOW) · CASE_0004 CYCU MATCH (مصدريّة LOW) · CASE_0005 ICMB FALSE_UNKNOWN (مصدريّة LOW) · CASE_0008 NCT FALSE_WAIT (مصدريّة LOW) · CASE_0009 BRTX MATCH (مصدريّة LOW) · CASE_0010 FBGL MATCH (مصدريّة LOW) · CASE_0011 GNPX MATCH (مصدريّة LOW) · CASE_0012 BTOC MATCH (مصدريّة LOW) · CASE_0013 CYCU MATCH (مصدريّة LOW) · CASE_0014 NIVF FALSE_WAIT (مصدريّة LOW) · CASE_0015 BRAI FALSE_WAIT (مصدريّة LOW) · CASE_0016 BNAI MATCH (مصدريّة LOW) · CASE_0018 BRTX PENDING (مصدريّة LOW)
+- **خارجَ العيّنة الأساسيّة (يُتتبَّع ولا يُحسب):** CASE_0001 BRTX MATCH (مصدريّة LOW) · CASE_0002 CDT MATCH (مصدريّة LOW) · CASE_0003 NCT MATCH (مصدريّة LOW) · CASE_0004 CYCU MATCH (مصدريّة LOW) · CASE_0005 ICMB FALSE_UNKNOWN (مصدريّة LOW) · CASE_0008 NCT FALSE_WAIT (مصدريّة LOW) · CASE_0009 BRTX MATCH (مصدريّة LOW) · CASE_0010 FBGL MATCH (مصدريّة LOW) · CASE_0011 GNPX MATCH (مصدريّة LOW) · CASE_0012 BTOC MATCH (مصدريّة LOW) · CASE_0013 CYCU MATCH (مصدريّة LOW) · CASE_0014 NIVF FALSE_WAIT (مصدريّة LOW) · CASE_0015 BRAI FALSE_WAIT (مصدريّة LOW) · CASE_0016 BNAI MATCH (مصدريّة LOW) · CASE_0018 BRTX MATCH (مصدريّة LOW)
 - **الدقّةُ والاستدعاء بكسرهما** · «UNDEFINED» حين المقامُ صفر · وفترةُ ويلسون من 10 فأكثر · بلا p.
 - **V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY ولا REJECT · وكلُّ تطابقٍ لـV4 تطابقٌ لـALWAYS_WAIT** ⟵ لا يُعلَن نجاحٌ من التطابق الإجماليّ وحدَه.
 

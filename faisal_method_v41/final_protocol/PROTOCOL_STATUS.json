@@ -19129,7 +19129,60 @@
   },
   {
    "CASE_ID": "CASE_0018",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-11-07",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "split",
+     "short_borrow",
+     "app"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Healthcare",
+    "setup": "RETEST_PENDING",
+    "ticker": "BRTX",
+    "timeframe": "D",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "مراقبة",
+    "external_codes": [
+     "«قريب من الجاهزية 76/100» (درجةُ التطبيق)",
+     "«منذ التقسيم 60 يوم» (تقسيم)",
+     "«الشورت المتاح 10K سهم» · «نسبة الاقتراض 11.6%» (اقتراض)"
+    ],
+    "false_ready_cause": null,
+    "label": "WATCH",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "NONE",
+    "px_f": 1.52,
+    "quote_verbatim": true,
+    "timeframe_f": "D",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -19141,6 +19194,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -19169,7 +19223,7 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "BRTX",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -19739,7 +19793,7 @@
    },
    {
     "CASE_ID": "CASE_0018",
-    "MATCH_CLASS": null,
+    "MATCH_CLASS": "MATCH",
     "PROVENANCE_CONFIDENCE": "LOW",
     "SYMBOL": "BRTX",
     "missing_critical": [
@@ -19749,9 +19803,9 @@
   ],
   "STRUCTURAL": "V4 الأماميّ ∈ {WAIT · UNKNOWN} (FVO1) ⟵ لا READY ولا REJECT · وكلُّ تطابقٍ لـV4 تطابقٌ لـALWAYS_WAIT",
   "secondary_metrics": {
-   "MATCHES": 10,
+   "MATCHES": 11,
    "MISMATCHES": 4,
-   "n_valid": 14
+   "n_valid": 15
   }
  },
  "tool_version": "V4-FINAL-PROTOCOL 1.1 (2026-10-08 · amendment 1)",

@@ -291,8 +291,15 @@ def card_line(st):
     return f"📊 مثل هذا الإشعار: وسيط الربح {st['maxg_med']:.0f}% · 1 من {z} بلغ +20% · كارثي {st['cat']:.0f}%"
 
 
+def pop_gate(n_fires, n_split):
+    """§① بوّابةُ الصدق على العدد **بعد** استبعاد يوم التقسيم — كما نشره LVS §④ («الإطلاقات 1561 … يومُ تقسيمٍ مستبعَد 35»).
+    🔧 عطلٌ مُثبَت في التشغيلة الأولى (`42396386956`): قارنتُ العددَ قبل الاستبعاد (1596 = 1561 ‏+ 35) ⟵ «سقطت» زورًا."""
+    n = int(n_fires) - int(n_split)
+    return n, n == N_GATE
+
+
 def predictions(n_pop, all_row, verd, j1_row, cs_norm):
-    sep = [k for k, v in verd.items() if v[0] == "تفرّق"]
+    sep = [k for k in ATTRS if verd[k][0] == "تفرّق"]     # 🔧 السماتُ الأربع وحدَها (`verd` يحمل `b_share` و`d_row` أيضًا ⟵ كان يرمي TypeError)
     d_row = verd.get("d_row") or {}
     return {
         "OPS1": n_pop == N_GATE,
@@ -303,7 +310,7 @@ def predictions(n_pop, all_row, verd, j1_row, cs_norm):
         "OPS6": verd["c"][0] == "لا تفرّق",
         "OPS7": verd["d"][0] == "تفرّق" and d_row.get("higher") is not None and 2.0 <= d_row["higher"] <= 8.0,
         "OPS8": (j1_row.get("win") is not None and all_row["win"] is not None and j1_row["win"] >= all_row["win"] + 10.0),
-        "OPS9": len([k for k in sep if k in ATTRS]) <= 1,
+        "OPS9": len(sep) <= 1,
         "OPS10": cs_norm.get("maxg_med") is not None and 5.0 <= cs_norm["maxg_med"] <= 15.0,
     }
 
@@ -323,10 +330,10 @@ HDR = ["| الفلتر | n | يوميًّا | نجاح % [Wilson] | فشل % | �
        "|---|---|---|---|---|---|---|---|---|---|---|"]
 
 
-def report_lines(meta, n_pop, n_split, n_nobars, tabs, verd, j1tabs, octo, cards, preds, literal):
+def report_lines(meta, n_pop, n_split, n_nobars, tabs, verd, j1tabs, octo, cards, preds, literal, n_gate=None):
     L = ["# 🕵️📈 `T-OPSIG` — النتيجة (مولَّدةٌ بـ`opsig.py --mode run` · لا رقمَ باليد)", "",
          f"**التشغيلة:** {meta.get('run')} · main `{(meta.get('sha') or '')[:9]}`", "",
-         f"- الإشعاراتُ المصحَّحة على الكون: **{n_pop}** (البوّابة {N_GATE}) · يومُ تقسيمٍ خارجَ النتيجة {n_split} · بلا شموع {n_nobars}", "",
+         f"- الإشعاراتُ المصحَّحة على الكون: {n_pop} · يومُ تقسيمٍ خارجَ النتيجة {n_split} ⟵ **{n_pop - n_split if n_gate is None else n_gate}** (البوّابة {N_GATE} = LVS §④ بعد الاستبعاد) · بلا شموع {n_nobars}", "",
          "## ① الجدول الحاكم — كلُّ «هنا الدخول» (السماتُ قبل الدخول)", ""] + HDR
     L += [_trow(t) for t in tabs]
     L += ["", "**الحكمُ لكلّ سمة (فرقُ النجاح مع − بدون · فاصلُ عناقيد الأيّام 95%):**", ""]
@@ -433,9 +440,7 @@ def mode_run():
     U = dict(U, alerts=full)
     src = LVS.source_days(U)
     fires = [(d, sym, int(a["ms"])) for d in src for sym, a in sorted((full.get(d) or {}).items()) if sym in LVS.universe_of(U, d)]
-    log(f"📥 الإشعاراتُ المصحَّحة على الكون: {len(fires)} (البوّابة {N_GATE}) · أيّامُ المصدر {len(src)}")
-    if len(fires) != N_GATE:
-        log("⛔ بوّابةُ العدد سقطت — لا قياس")
+    log(f"📥 الإشعاراتُ المصحَّحة على الكون قبل استبعاد يوم التقسيم: {len(fires)} · أيّامُ المصدر {len(src)} (البوّابة {N_GATE} بعد الاستبعاد)")
     j1m, _has = LVS.j1_map(LVS._show(LVS.LEDGER_REF, LVS.TIER_FILE).splitlines())
     runners_by = {(r["day"], r["sym"]): float(r["R"]) for r in RN["rows"] if r["day"] in set(src)}
     fired = {(d, s) for d, s, _m in fires}
@@ -461,6 +466,8 @@ def mode_run():
         rows = list(pool.map(_one, fires))
     json.dump(rows, open("opsig_rows.json", "w", encoding="utf-8"), ensure_ascii=False, default=str)
     n_split = sum(1 for r in rows if r.get("split"))
+    n_gate, gate_ok = pop_gate(len(fires), n_split)
+    log(f"📥 بعد استبعاد يوم التقسيم ({n_split}): {n_gate} · البوّابة {N_GATE} {'✅' if gate_ok else '⛔ سقطت — لا قياس'}")
     ok = [r for r in rows if r.get("out")]
     n_nobars = len(rows) - n_split - len(ok)
     tabs = [table_row(ok, (), runners_by, unfired)] + [table_row(ok, (k,), runners_by, unfired) for k in ATTRS]
@@ -480,14 +487,14 @@ def mode_run():
     for k in ATTRS:
         if verd[k][0] == "تفرّق":
             cards[f"السمة ({k})"] = card_stats([r for r in ok if flags(r)[k]])
-    preds = predictions(len(fires), tabs[0], verd, j1tabs[0], cards["عاديّ (ليس 🥇)"])
+    preds = predictions(n_gate, tabs[0], verd, j1tabs[0], cards["عاديّ (ليس 🥇)"])
     meta = {"run": os.environ.get("GITHUB_RUN_ID"),
             "sha": subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()}
-    if len(fires) != N_GATE or (rows and n_nobars / len(rows) > MISS_MAX):
+    if not gate_ok or (rows and n_nobars / len(rows) > MISS_MAX):
         log("⛔ «لا قياس» للكلّ (البوّابة أو الشموع)")
-    for ln in report_lines(meta, len(fires), n_split, n_nobars, tabs, verd, j1tabs, octo, cards, preds, literal):
+    for ln in report_lines(meta, len(fires), n_split, n_nobars, tabs, verd, j1tabs, octo, cards, preds, literal, n_gate):
         print(ln)
-    print("OPSIG_JSON " + json.dumps({"n_pop": len(fires), "tabs": tabs, "verd": {k: verd[k] for k in ATTRS}, "j1": j1tabs, "cards": cards,
+    print("OPSIG_JSON " + json.dumps({"n_pop": len(fires), "n_split": n_split, "n_gate": n_gate, "tabs": tabs, "verd": {k: verd[k] for k in ATTRS}, "j1": j1tabs, "cards": cards,
                                       "preds": preds, "unfired": unfired, "meta": meta}, ensure_ascii=False, default=str))
     return 0
 

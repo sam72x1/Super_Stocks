@@ -73479,10 +73479,13 @@ check("📺 TVB8 فاشلٌ-آمن كلّيًّا: `tv_download` يرمي ⟵ ي
 #    🔄 **وإقرارٌ ثالثٌ مؤرَّخ 2026-11-06 (أمرُ المالك «سجّل عقد هدف للظل أماميًا» · «احسبها له عند 09:25»):** النطاقُ صار **أحدَ عشر** —
 #    ورسالةُ الظلّ (‏shadow_telegram.yml) لأن التقاطَ `T-SHADOW-TGT` بعد الإرسال ينادي `analyze_on_demand` (حسابُ الفحص اليدويّ نفسُه ·
 #    و`analyze.yml` من العشرة) فيقرأ شموعَ الفرز نفسَها · وخطوتُه مقفولةٌ بـSGT3.
+#    🔄 **وإقرارٌ رابعٌ مؤرَّخ 2026-11-07 (أمرُ المالك ①-ج «قيمة M2 الفعلية مقابل السقف»):** النطاقُ صار **اثني عشر** — ومِجَسُّ لقطات التطبيق
+#    (‏app_compare.yml · يدويٌّ قارئ · أربعةُ رموز) لأن تشغيلتَه على ياهو (`42396577513`) أعطت NEXR ‏154 شمعةً وحدَها فقاست قمّةَ 52 أسبوعًا على
+#    نافذةٍ أقصر من الإنتاج (M2 ‏99.30% مقابل «فوق السقف» في الفرز) ⟵ القيمةُ الفعليّة لا تُقرأ إلّا بشموع الفرز نفسِها.
 try:
     _want9 = {"daily_screener.yml", "pullback_monitor.yml", "hand_digest.yml", "analyze.yml", "hand_check.yml",
               "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml", "press_radar.yml",
-              "shadow_telegram.yml"}
+              "shadow_telegram.yml", "app_compare.yml"}
     _got9 = set()
     for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
         if not _fn9.endswith((".yml", ".yaml")):
@@ -73498,8 +73501,8 @@ try:
     _v9w = f"زائد={sorted(_got9 - _want9)} · ناقص={sorted(_want9 - _got9)}"
 except Exception as _e:                                              # noqa: BLE001
     _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows الأحد عشر وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
-      "فحص اليد ‏+ الصيّادون الأربعة ‏+ رادارُ الضغط منذ 2026-09-30 ‏+ رسالةُ الظلّ منذ 2026-11-06) — وحصّادا النتائج والضغط وفحصُ الدخان وأدواتُ البحث بلا البيئة (YAML)",
+check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows الاثني عشر وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
+      "فحص اليد ‏+ الصيّادون الأربعة ‏+ رادارُ الضغط منذ 2026-09-30 ‏+ رسالةُ الظلّ منذ 2026-11-06 ‏+ مِجَسُّ لقطات التطبيق منذ 2026-11-07) — وحصّادا النتائج والضغط وفحصُ الدخان وأدواتُ البحث بلا البيئة (YAML)",
       _v9, _v9w)
 
 # TVB10 — `tv_bar_fresh`: إطارُ ياهو (بلا وسم) ⟵ True دائمًا (بت-بت) · وإطارُ TradingView آخرُه آخرُ جلسةٍ مكتملة ⟵ True · وأقدمُ ⟵ False
@@ -83351,7 +83354,8 @@ _PHB_LEDGER_PINS = ((0, "0" * 64),    # (عددُ القيود · بصمةُ آ�
                     (162, "f41bb7d511fa6e771bb7bc3ac542f04ca41b295af4023c786f24374d812d1a32"),   # كشفُ CASE_0009…0016 (2026-11-04) · B22 السبعة تبقى مستبعدةً بالتعديل 1 §5 · وBNAI ‏REVEALED ثمّ EXCLUDED E7
                     (252, "1c0ae69b17a9079fb075cf47fc7bebc939e79ca9a1e5d3d0371b033a8cf0d90c"),   # B46_20261104 · 46 صورة (منشورات X ونسخُ 09-18) · حالة 1 (CASE_0017 SUGP) · خُتمت قبل V4 (2026-11-04)
                     (255, "7dff72a76c9d7be44915370fc6ef0e2fd285d554f9b6e294af4f90cfa5c21589"),   # V4 لـCASE_0017 (run 41837639006 · WAIT) ثمّ كلمةُ فيصل WATCH ⟵ PRIMARY MATCH (2026-11-04)
-                    (263, "a1235aaa65c79edc02a19f3e060d8bcaa0afd0b8ced5841423b948aaaa8b7f85"))   # B4_20261107 · 4 لقطات تطبيق (BRTX · THH · EHGO · NEXR) · حالة 1 (CASE_0018 BRTX) · خُتمت قبل V4 (2026-11-07)
+                    (263, "a1235aaa65c79edc02a19f3e060d8bcaa0afd0b8ced5841423b948aaaa8b7f85"),   # B4_20261107 · 4 لقطات تطبيق (BRTX · THH · EHGO · NEXR) · حالة 1 (CASE_0018 BRTX) · خُتمت قبل V4 (2026-11-07)
+                    (266, "a9bc27207d54999eabeb098111ff7789500a072a6b73ae77d7179b458494de9e"))   # V4 لـCASE_0018 (run 42396391598 · WAIT · RETEST_PENDING) ثمّ كلمةُ فيصل (التطبيق «مراقبة») WATCH ⟵ MATCH · خارجَ الأساسيّة (مصدريّة LOW) (2026-11-07)
 _PHB_HSHA = "f" * 64
 try:
     _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))
@@ -99784,17 +99788,44 @@ try:
           and _apc_row["vals"] == {"drop_pct": 99.97, "rr": 0.31} and _apc_row["edges"] == {"drop_pct": (71.7, 99.95), "rr": (0.5, None)}
           and len(_apc_row["outside"]) == 2 and _apc_none == {"symbol": "XX", "bars": 0},
           f"row={_apc_row} none={_apc_none}")
+    # APPC4 (‏2026-11-07 · عطلٌ مُثبَت في تشغيلة `42396389434`: `catalog_envelope.load_edges` لا وجودَ لها ⟵ AttributeError قبل أيّ رمز):
+    #       `main()` نفسُها تُشغَّل طرفًا لطرف بشموعٍ فارغة (لا شبكة) ⟵ تخرج 0 وتطبع `APP_JSON` · والحوافُّ من `envelope_scan.load_edges` كالإنتاج.
+    import io as _apc_io
+    import contextlib as _apc_cl
+    import os as _apc_os
+    _apc_dh, _apc_env0 = S.download_history, _apc_os.environ.get("APP_SYMS")
+    _apc_buf = _apc_io.StringIO()
+    try:
+        S.download_history = lambda syms, *a, **k: {}
+        _apc_os.environ["APP_SYMS"] = "XX"
+        with _apc_cl.redirect_stdout(_apc_buf):
+            _apc_rc = APC.main()
+    except Exception as _apc_me:                                  # noqa: BLE001
+        _apc_rc = f"⛔ {type(_apc_me).__name__}: {_apc_me}"
+    finally:
+        S.download_history = _apc_dh
+        if _apc_env0 is None:
+            _apc_os.environ.pop("APP_SYMS", None)
+        else:
+            _apc_os.environ["APP_SYMS"] = _apc_env0
+    _apc_main_calls = {(getattr(getattr(c.func, "value", None), "id", None), getattr(c.func, "attr", None))
+                       for c in _apc_ast.walk(_apc_ast.parse(open("fm_forensics/app_compare/app_compare.py", encoding="utf-8").read()))
+                       if isinstance(c, _apc_ast.Call)}
+    check("📱 APPC4 `main()` طرفًا لطرف (بلا شبكة): تخرج 0 وتطبع `APP_JSON` · والحوافُّ من `envelope_scan.load_edges` (كـ«تحت المتابعة» في الإنتاج) لا `catalog_envelope`",
+          _apc_rc == 0 and 'APP_JSON [{"symbol": "XX", "bars": 0}]' in _apc_buf.getvalue()
+          and ("ES", "load_edges") in _apc_main_calls and ("CE", "load_edges") not in _apc_main_calls,
+          f"rc={_apc_rc} out={_apc_buf.getvalue()[-120:]}")
     _apc_t = _apc_ast.parse(open("fm_forensics/app_compare/app_compare.py", encoding="utf-8").read())
     _apc_calls = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _apc_ast.walk(_apc_t) if isinstance(c, _apc_ast.Call)}
     import yaml as _apc_yaml
     _apc_yd = _apc_yaml.safe_load(open(".github/workflows/app_compare.yml", encoding="utf-8").read())
     _apc_on = _apc_yd.get("on", _apc_yd.get(True)) or {}
     _apc_env = " ".join(str(v) for s in ((_apc_yd.get("jobs") or {}).get("probe") or {}).get("steps") or [] for v in ((s.get("env") or {}).items()))
-    check("📱 APPC2 المِجَسُّ قراءةٌ فقط: لا تلغرام ولا حفظ · الـworkflow يدويٌّ بلا كرون وبلا `BARS_SOURCE` (أدواتُ البحث خارج نطاق TVB9 ⟵ ياهو مُفصَح) وظرفُ فيصل مُفعَّل",
+    check("📱 APPC2 المِجَسُّ قراءةٌ فقط: لا تلغرام ولا حفظ · الـworkflow يدويٌّ بلا كرون ومصدرُ الشموع tradingview كالفرز (ضمن نطاق TVB9 بإقرارٍ مؤرَّخ) وظرفُ فيصل مُفعَّل",
           not ({"send_telegram", "save_watchlist", "git_save", "save_near_watch", "record_tier_fwd"} & _apc_calls)
           and {"analyze_ticker", "near_watch_measure", "tested_level", "download_history"} <= _apc_calls
           and set(_apc_on) == {"workflow_dispatch"} and (_apc_yd.get("permissions") or {}).get("contents") == "read"
-          and "BARS_SOURCE" not in _apc_env and "('FAISAL_ONLY', '1')" in _apc_env,
+          and "('BARS_SOURCE', 'tradingview')" in _apc_env and "('FAISAL_ONLY', '1')" in _apc_env,
           f"on={list(_apc_on)} env={_apc_env[:120]}")
     _apc_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
     _apc_sec = _apc_led.split("## §`B4_20261107`", 1)[-1] if "## §`B4_20261107`" in _apc_led else ""
@@ -99973,6 +100004,23 @@ try:
           and set(_ops_on) == {"workflow_dispatch"} and (_ops_yd.get("permissions") or {}).get("contents") == "read"
           and "fetch-depth: 0" in open(".github/workflows/opsig.yml", encoding="utf-8").read(),
           f"on={list(_ops_on)}")
+    # OPSL4 (‏2026-11-07 · عطلان مُثبَتان في أوّل تشغيلة `42396386956`): ① البوّابةُ قارنت 1596 **قبل** استبعاد يوم التقسيم والعقدُ يحيل إلى
+    #       LVS §④ «الإطلاقات 1561 … يومُ تقسيمٍ مستبعَد 35» (1596 = 1561 ‏+ 35) ⟵ `pop_gate` بعد الاستبعاد · ② `predictions` كانت تمرّ على كلّ
+    #       مفاتيح `verd` (ومنها `b_share` رقمًا) ⟵ TypeError ⟵ السماتُ الأربع وحدَها.
+    _ops_vx = {"a": ("لا تفرّق", 0.0, (-1, 1)), "b": ("لا قياس", None, None), "c": ("تفرّق", 5.0, (1, 9)), "d": ("تفرّق", 4.0, (1, 8)),
+               "b_share": 12.0, "d_row": {"higher": 3.0}}
+    try:
+        _ops_pr = OPS.predictions(1561, {"win": 25.0, "cat": 12.0}, _ops_vx, {"win": 40.0}, {"maxg_med": 9.0})
+    except Exception as _ops_pe:                                  # noqa: BLE001
+        _ops_pr = {"⛔": f"{type(_ops_pe).__name__}"}
+    _ops_mr = _ops_ast.unparse(next(n for n in _ops_tree.body if isinstance(n, _ops_ast.FunctionDef) and n.name == "mode_run"))
+    check("🕵️📈 OPSL4 T-OPSIG: بوّابةُ العدد **بعد** استبعاد يوم التقسيم (1596 ‏− 35 = 1561 ⟵ تعبر · بلا استبعاد ⟵ تسقط) كما نشرها LVS §④ · "
+          "و`predictions` لا ترمي على `verd` بمفاتيحه الإضافيّة وتعدّ السماتِ الأربع وحدَها (OPS9) · و`mode_run` يحكم بـ`pop_gate` ويمرّر `n_gate`",
+          OPS.pop_gate(1596, 35) == (1561, True) and OPS.pop_gate(1596, 0) == (1596, False) and OPS.pop_gate(1561, 0) == (1561, True)
+          and _ops_pr.get("OPS1") is True and _ops_pr.get("OPS9") is False and _ops_pr.get("OPS7") is True and _ops_pr.get("OPS5") is True and _ops_pr.get("OPS6") is False
+          and "pop_gate(len(fires), n_split)" in _ops_mr and "predictions(n_gate," in _ops_mr and "len(fires) != N_GATE" not in _ops_mr
+          and "if not gate_ok or" in _ops_mr,
+          f"pr={_ops_pr} gate={OPS.pop_gate(1596, 35)}")
 except Exception as _ops_e:                                       # noqa: BLE001
     check("🕵️📈 OPSL0 T-OPSIG (انهيارُ القفل)", False, f"⛔ رمى: {type(_ops_e).__name__}: {_ops_e}")
 
