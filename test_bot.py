@@ -98839,6 +98839,213 @@ check("🎯🌘 LVS1-LVS3 T-LIVE-VS-SHADOW: أيّامُ المصدر خارج �
       "J1 أبكرُ صفٍّ صادق · الفئاتُ الأربع · الكلفةُ والذراع · قراءةٌ فقط وبصمةُ العقد",
       _lvs_v == (True, True, True), str(_lvs_v)[:240])
 
+# 💵🥇 J1PL1-J1PL3 (‏2026-11-07 · `T-J1-PROFIT` «عقد ربح J1» · العقد `fm_forensics/j1_profit/J1P_prereg.md` مدموجٌ قبل أيّ رقم):
+#    المجموعاتُ الثلاث (J1 · M ضبطُ الزخم · الباقي) · R المشذَّب ±10R · الفرقان وفاصلُ عناقيد الأيّام · بوّابةُ التكامل من سجلّ target10 ·
+#    الفروعُ الأربعة بالأضعف · وtarget10_arms بلا تعديل في الـworkflow · قراءةٌ فقط وبصمةُ العقد.
+try:
+    import importlib.util as _j1p_iu
+    import ast as _j1p_ast
+    import tempfile as _j1p_tf
+    import json as _j1p_js
+    import os as _j1p_os
+    import random as _j1p_rnd
+    _j1p_sp = _j1p_iu.spec_from_file_location("j1_profit_lock", "fm_forensics/j1_profit/j1_profit.py")
+    J1P = _j1p_iu.module_from_spec(_j1p_sp)
+    _j1p_sp.loader.exec_module(J1P)
+    _j1p_g = [J1P.group_of({"j1": True, "gap_pct": 50, "f2": "strong"}),
+              J1P.group_of({"j1": False, "gap_pct": 35, "f2": "mid"}),
+              J1P.group_of({"j1": False, "gap_pct": 35, "f2": "operator"}),
+              J1P.group_of({"j1": False, "gap_pct": 29.9, "f2": "group"}),
+              J1P.group_of({"j1": False, "gap_pct": None, "f2": "mid"})]
+    _j1p_rows = [{"day": "2023-01-02", "g": "J1", "top": False, "r10": 12.0, "r0": 1.0, "p10": 10.0},
+                 {"day": "2023-01-02", "g": "R", "top": False, "r10": -1.0, "r0": -1.0, "p10": -5.0},
+                 {"day": "2023-01-03", "g": "M", "top": False, "r10": 0.5, "r0": 0.2, "p10": 2.0},
+                 {"day": "2023-01-03", "g": "J1", "top": True, "r10": None, "r0": None, "p10": 0.0}]
+    _j1p_yb = J1P.year_block(_j1p_rows)
+    _j1p_log = "📥 ... مراسٍ 1,234 · مؤهَّل 99\n📥 أيامٌ قِيست 250 · **مراسٍ 10,851** · استُبعد\n🔒 V0 (تكافؤ T0 مع resolve): تفرّقات 0 ✅\n"
+
+    def _j1p_year(d1w, d1raw, d2w, nJ=200, nN=900, nM=150, ok=True):
+        return {"integrity": ok, "arm": {"J1": {"nR": nJ, "pos": 40.0}, "notJ1": {"nR": nN, "pos": 30.0}, "M": {"nR": nM},
+                                         "D1w": d1w, "D1raw": d1raw, "D2w": d2w}}
+    _j1p_Y = lambda **k: {y: _j1p_year(**k) for y in J1P.YEARS}                       # noqa: E731
+    _j1p_P = {"D1w": 0.2, "D1ci": (0.05, 0.3), "D2ci": (0.01, 0.2)}
+    _j1p_br = [J1P.verdict(_j1p_Y(d1w=0.2, d1raw=0.3, d2w=0.1), _j1p_P)[0],
+               J1P.verdict(_j1p_Y(d1w=0.2, d1raw=0.3, d2w=0.1), dict(_j1p_P, D2ci=(-0.01, 0.2)))[0],
+               J1P.verdict(_j1p_Y(d1w=0.2, d1raw=-0.1, d2w=0.1), _j1p_P)[0],
+               J1P.verdict(_j1p_Y(d1w=0.2, d1raw=0.3, d2w=0.1), dict(_j1p_P, D1w=0.09))[0],
+               J1P.verdict(_j1p_Y(d1w=0.2, d1raw=0.3, d2w=0.1), dict(_j1p_P, D1ci=(-0.01, 0.3)))[0],
+               J1P.verdict(_j1p_Y(d1w=0.2, d1raw=0.3, d2w=0.1, ok=False), _j1p_P)[0],
+               J1P.verdict(_j1p_Y(d1w=0.2, d1raw=0.3, d2w=0.1, nJ=149), _j1p_P)[0],
+               J1P.verdict(_j1p_Y(d1w=0.2, d1raw=0.3, d2w=0.1, nM=99), _j1p_P)[0]]
+    _j1p_rng = _j1p_rnd.Random(3)
+    _j1p_br_rows = [{"year": "2024", "day": f"2024-02-{1 + i % 20:02d}", "g": ("J1" if i % 3 == 0 else ("M" if i % 3 == 1 else "R")),
+                     "r10": (_j1p_rng.gauss(0.4, 0.5) if i % 3 == 0 else _j1p_rng.gauss(-0.2, 0.5))} for i in range(300)]
+    _j1p_ci = J1P.boot_ci(_j1p_br_rows, "J1", "notJ1", n=300)
+    _j1p_ci2 = J1P.boot_ci(_j1p_br_rows, "J1", "notJ1", n=300)
+    _j1p_td = _j1p_tf.mkdtemp()
+    _j1p_rp = _j1p_os.path.join(_j1p_td, "rows.jsonl")
+    with open(_j1p_rp, "w", encoding="utf-8") as _f:
+        for _i in range(6):
+            _f.write(_j1p_js.dumps({"day": "2023-03-01", "j1": _i < 2, "j1_top": False, "gap_pct": 40 if _i < 4 else 5,
+                                    "f2": "strong" if _i < 2 else "mid", "t10": {"r": 0.5 if _i < 2 else -0.5, "pct": 1.0},
+                                    "t0": {"r": 0.1, "pct": 0.1}}) + "\n")
+    _j1p_lp = _j1p_os.path.join(_j1p_td, "t.log")
+    with open(_j1p_lp, "w", encoding="utf-8") as _f:
+        _f.write(_j1p_log)
+    _j1p_out = _j1p_os.path.join(_j1p_td, "y.json")
+    J1P.mode_year("2023", _j1p_rp, _j1p_lp, "0", _j1p_out)
+    _j1p_y = _j1p_js.load(open(_j1p_out, encoding="utf-8"))["y"]
+    _j1p_txt = "\n".join(J1P.report_lines({"2023": _j1p_y, "2024": _j1p_y, "2025": _j1p_y},
+                                          {"D1w": 0.1, "D2w": 0.05, "D1ci": (0.01, 0.2), "D2ci": (-0.1, 0.2), "J1w": 0.1, "J1n": 3},
+                                          "② «J1 أربح والزخمُ يفسّره»", {"J1P1": False}, None, {"run": "1", "sha": "abc"}))
+    check("💵🥇 J1PL1 T-J1-PROFIT: المجموعاتُ (J1 · M = فجوة 30%+ بلا صنفٍ قويّ/مضارب · الباقي) · R المشذَّب ±10R · الفرقان · الفروعُ الخمسة بالأضعف · "
+          "فاصلُ العناقيد حتميٌّ وموجب · بوّابةُ التكامل من سجلّ target10",
+          _j1p_g == ["J1", "M", "R", "R", "R"]
+          and abs(_j1p_yb["J1"]["w"] - 10.0) < 1e-9 and _j1p_yb["J1"]["raw"] == 12.0 and _j1p_yb["J1"]["nR"] == 1 and _j1p_yb["J1"]["n"] == 2
+          and abs(_j1p_yb["D1w"] - (10.0 - (-0.25))) < 1e-9 and abs(_j1p_yb["D2w"] - 9.5) < 1e-9 and _j1p_yb["top"]["n"] == 1
+          and J1P.parse_t10_log(_j1p_log) == (10851, 0) and J1P.parse_t10_log("") == (None, None)
+          and J1P.integrity("2023", 10851, 8834, 0, 0) and not J1P.integrity("2023", 10851, 8833, 0, 0)
+          and not J1P.integrity("2023", 10851, 8834, 1, 0) and not J1P.integrity("2023", 10851, 8834, 0, 3)
+          and _j1p_br == [1, 2, 3, 3, 3, 4, 4, 0]
+          and _j1p_ci == _j1p_ci2 and _j1p_ci is not None and _j1p_ci[0] > 0
+          and J1P.wins(25) == 10.0 and J1P.wins(-25) == -10.0,
+          f"g={_j1p_g} br={_j1p_br} ci={_j1p_ci} yb={_j1p_yb['D1w']}")
+    check("💵🥇 J1PL2 T-J1-PROFIT: وضعُ السنة يكتب مُخرَجَه حيث يُطلب (لا في المستودع) · التكاملُ يسقط بعددٍ لا يطابق المنشور · التقريرُ يطبع الحكمَ "
+          "والتكاملَ والكتمَ والتنبّؤات",
+          _j1p_y["anchors"] == 10851 and _j1p_y["qualified"] == 6 and _j1p_y["integrity"] is False and _j1p_y["arm"]["J1"]["nR"] == 2
+          and _j1p_y["arm"]["M"]["nR"] == 2 and _j1p_y["mute"]["lost_pos"] == 4
+          and "④" not in _j1p_txt.split("## ③")[0] and "② «J1 أربح والزخمُ يفسّره»" in _j1p_txt and "بوّابةُ التكامل" in _j1p_txt
+          and "الكتم" in _j1p_txt and "`J1P1` ❌" in _j1p_txt and "(المنشور 8834)" in _j1p_txt,
+          _j1p_txt[:120])
+    _j1p_src = open("fm_forensics/j1_profit/j1_profit.py", encoding="utf-8").read()
+    _j1p_t = _j1p_ast.parse(_j1p_src)
+    _j1p_calls = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _j1p_ast.walk(_j1p_t) if isinstance(c, _j1p_ast.Call)}
+    _j1p_yml = open(".github/workflows/j1_profit.yml", encoding="utf-8").read()
+    import yaml as _j1p_yaml
+    _j1p_yd = _j1p_yaml.safe_load(_j1p_yml)
+    _j1p_on = _j1p_yd.get("on", _j1p_yd.get(True)) or {}
+    _j1p_jobs = _j1p_yd.get("jobs") or {}
+    _j1p_runs = [str(s.get("run") or "") for s in ((_j1p_jobs.get("year") or {}).get("steps") or [])]
+    _j1p_res = open("target10_result.md", encoding="utf-8").read()
+    check("💵🥇 J1PL3 T-J1-PROFIT: بصمةُ العقد · الأعدادُ المنشورة من target10_result.md حرفيًّا · الخروجُ والوقفُ بـtarget10_arms/tier_days_report بالاسم · "
+          "J1 الحيّ بـlive_vs_shadow.j1_map · الفجوةُ والمرجعُ هما نفسُهما · لا تلغرام ولا حفظ · الـworkflow يشغّل target10_arms.py بلا تعديل · لا كرون",
+          J1P.contract_ok()
+          and all(f"{v:,}" in _j1p_res for v in list(J1P.ANCHORS.values()) + list(J1P.QUALIFIED.values()))
+          and {"arm_exit", "true_e5", "j1_map", "source_days", "universe_of", "split_ratio"} <= _j1p_calls
+          and not ({"send_telegram", "git_save", "save_watchlist", "save_op_entry_state"} & _j1p_calls)
+          and J1P.GAP == LVS.GAP and J1P.LEDGER_REF == LVS.LEDGER_REF
+          and any(r.lstrip().startswith("set +e") and "python target10_arms.py >" in r for r in _j1p_runs)
+          and _j1p_yd.get("permissions") == {"contents": "read"} and "schedule" not in _j1p_on
+          and "TELEGRAM" not in _j1p_yml and (_j1p_jobs.get("year") or {}).get("strategy", {}).get("matrix", {}).get("year") == ["2023", "2024", "2025"]
+          and any((s.get("with") or {}).get("fetch-depth") == 0 for s in ((_j1p_jobs.get("live") or {}).get("steps") or [])),
+          f"calls={sorted(_j1p_calls)[:6]}")
+except Exception as _j1p_e:                                                      # noqa: BLE001
+    check("💵🥇 J1PL0 T-J1-PROFIT (انهيارُ القفل)", False, f"⛔ رمى: {type(_j1p_e).__name__}: {_j1p_e}")
+
+# 🔇 NOFL1-NOFL4 (‏2026-11-07 · `T-NOFIRE` «ليه ما أُطلق للـ52» · العقد `fm_forensics/nofire/NOFIRE_prereg.md` مدموجٌ قبل أيّ رقم):
+#    الإعادةُ دقيقةً دقيقة بالحالة المحمولة (`liq_stage_events` بالاسم) · فجوةُ العامل أطولُ من نافذة 65 دقيقة تُضيّع الزناد وأقصرُ منها لا ·
+#    بوّابةُ المضارب تحذف الحالة · ترتيبُ G1-G5 · الكونُ والعاملُ والدِّدوب · قراءةٌ فقط وبصمتا العقد والمجتمع.
+try:
+    import importlib.util as _nof_iu
+    import ast as _nof_ast
+    _nof_sp = _nof_iu.spec_from_file_location("nofire_lock", "fm_forensics/nofire/nofire.py")
+    NOF = _nof_iu.module_from_spec(_nof_sp)
+    _nof_sp.loader.exec_module(NOF)
+    _nof_D = "2026-10-20"
+    _nof_raw = []
+    for _m in range(200, 1230):
+        _t = int(NOF.ny_ts(_nof_D, _m) * 1000)
+        if _m == 540:
+            _nof_raw.append((_t, 1.0, 1.11, 0.99, 1.10, 200000.0))
+        elif _m > 540:
+            _nof_raw.append((_t, 1.1, 1.1, 1.1, 1.1, 3000.0))
+        else:
+            _nof_raw.append((_t, 1.0, 1.0, 1.0, 1.0, 2000.0))
+    _nof_bars = NOF.bar_dicts(_nof_raw, _nof_D)
+    _nof_sw = NOF.sweep_times(_nof_D)
+    _nof_ms = lambda h, m: int(NOF.ny_ts(_nof_D, h * 60 + m) * 1000)           # noqa: E731
+    _nof_F = NOF.replay(_nof_bars, _nof_D)
+    _nof_long = NOF.replay(_nof_bars, _nof_D, lambda s: not (_nof_ms(8, 0) <= s <= _nof_ms(10, 30)))
+    _nof_short = NOF.replay(_nof_bars, _nof_D, lambda s: not (_nof_ms(8, 50) <= s <= _nof_ms(9, 30)))
+    _nof_calls = []
+
+    def _nof_op(s):
+        _nof_calls.append(s)
+        return len(_nof_calls) > 1
+    _nof_P = NOF.replay(_nof_bars, _nof_D, None, None, _nof_op)
+    _nof_Pnone = NOF.replay(_nof_bars, _nof_D, None, None, lambda s: None)
+    _nof_A = {"anchor_ms": 1}
+    _nof_Z = {"anchor_ms": None}
+    _nof_attr = [NOF.attribute(_nof_Z, _nof_Z, _nof_Z, _nof_Z), NOF.attribute(_nof_A, _nof_Z, _nof_Z, _nof_Z),
+                 NOF.attribute(_nof_A, _nof_A, _nof_Z, _nof_Z), NOF.attribute(_nof_A, _nof_A, _nof_A, _nof_Z),
+                 NOF.attribute(_nof_A, _nof_A, _nof_A, _nof_A)]
+    _nof_mem = NOF.membership_fn([(NOF.ny_ts(_nof_D, 600), True), (NOF.ny_ts(_nof_D, 700), False)])
+    _nof_iv = [(_nof_ms(4, 0), _nof_ms(8, 0)), (_nof_ms(10, 30), _nof_ms(16, 0))]
+    _nof_gd = NOF.gap_detail(_nof_iv, _nof_F["anchor_ms"] or 0)
+    _nof_gd2 = NOF.gap_detail(_nof_iv, _nof_F["anchor_ms"] or 0, ((12, 30),))
+    _nof_res = {"counts": {"G1": 30, "G3": 5, "G2": 1, "G4": 3, "G5": 2}, "truth_ok": True, "dedup": 0,
+                "g1_top_reason": "قفزةُ حجمٍ N× دون N"}
+    _nof_txt = "\n".join(NOF.report_lines(dict(_nof_res, truth=[130, 143], bars_fail=0, bars_n=195, bars_ok=True, truth_dt_med=3,
+                                               g3_any=6, g1_first=2, g1_main={"قفزةُ حجمٍ N× دون N": 20}, g1_dist={"حمراء": 9},
+                                               preds=NOF.predictions(_nof_res)),
+                                          [{"sym": "AAA", "day": "2026-09-01", "R": 1.5, "gate": "G3", "detail": "زنادٌ 09:00"}],
+                                          {"run": "1", "sha": "abc", "jobs": 9, "days": 3}))
+    check("🔇 NOFL1 T-NOFIRE: الإعادةُ دقيقةً دقيقة بـliq_stage_events · زنادُ 09:00 يُرسى · فجوةُ عاملٍ أطولُ من 65 دقيقة تُضيّعه وأقصرُ لا · بوّابةُ "
+          "المضارب الخاطئةُ تحذف الحالة وتعذّرُها يمرّ · ترتيبُ G1-G5 · الكونُ آخرُ تغيّرٍ قبل اللحظة · كروناتُ الفجوة",
+          len(_nof_bars) == 960 and len(_nof_sw) == 960 and NOF.ny_parts(_nof_sw[0][1] - 6000)[1] == 241
+          and _nof_F["anchor_ms"] == _nof_ms(9, 0) and _nof_long["anchor_ms"] is None and _nof_short["anchor_ms"] == _nof_ms(9, 0)
+          and _nof_P["anchor_ms"] is None and _nof_P["muted"] == 1 and _nof_Pnone["anchor_ms"] == _nof_ms(9, 0)
+          and _nof_attr == ["G1", "G2", "G3", "G4", "G5"]
+          and _nof_mem(_nof_ms(9, 59)) is False and _nof_mem(_nof_ms(10, 0)) is True and _nof_mem(_nof_ms(11, 40)) is False
+          and _nof_gd[0] == _nof_ms(8, 0) and _nof_gd[1] == _nof_ms(10, 30) and _nof_gd[2] == ["13:21"] and _nof_gd2[2] == ["12:30"]
+          and NOF.has_anchor({"anchor_ms": _nof_ms(9, 0)}, _nof_D) and not NOF.has_anchor({"last_eval_ms": 1, "date": _nof_D}, _nof_D)
+          and NOF.has_anchor({"rearm_prev": {"anchor_ms": _nof_ms(5, 0)}}, _nof_D),
+          f"F={_nof_F} long={_nof_long['anchor_ms']} short={_nof_short['anchor_ms']} P={_nof_P} attr={_nof_attr} gd={_nof_gd[2]}")
+    check("🔇 NOFL2 T-NOFIRE: التنبّؤاتُ بنصّ العقد · التقريرُ يطبع بوّابةَ الصدق والعدَّ والسقوطَ المستقلّ للكرون والدِّدوبَ والأسماء",
+          NOF.predictions(_nof_res) == {"NF1": True, "NF2": True, "NF3": True, "NF4": True, "NF5": True, "NF6": True, "NF7": True, "NF8": True}
+          and NOF.predictions(dict(_nof_res, counts={"G1": 43, "G3": 2}))["NF2"] is False
+          and "130 من 143" in _nof_txt and "| G3 لا عامل (سقوطُ الكرون) | 5 |" in _nof_txt and "مستقلًّا عن الكون" in _nof_txt
+          and "| AAA | 09-01 | +150% | G3" in _nof_txt and "`NF8` ✅" in _nof_txt,
+          _nof_txt[:150])
+    _nof_src = open("fm_forensics/nofire/nofire.py", encoding="utf-8").read()
+    _nof_t = _nof_ast.parse(_nof_src)
+    _nof_calls_n = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _nof_ast.walk(_nof_t) if isinstance(c, _nof_ast.Call)}
+    _nof_yml = open(".github/workflows/nofire.yml", encoding="utf-8").read()
+    import yaml as _nof_yaml
+    _nof_yd = _nof_yaml.safe_load(_nof_yml)
+    _nof_on = _nof_yd.get("on", _nof_yd.get(True)) or {}
+    _nof_steps = [s for j in (_nof_yd.get("jobs") or {}).values() for s in (j.get("steps") or [])]
+    _nof_oe = open(".github/workflows/operator_entry.yml", encoding="utf-8").read()
+    _nof_crons = list(NOF.parse_crons(_nof_oe))
+    _nof_c2 = NOF.parse_crons('    - cron: "5 3,9 * * 1-5"\n    # - cron: "7 7 * * 1-5"\n')
+    check("🔇 NOFL3 T-NOFIRE: بصمتا العقد والمجتمع · الزنادُ liq_stage_events والسببُ liq_case_probe وبوّابةُ المضارب _operator_blocks والكونُ "
+          "live_watch_universe بالاسم · كروناتُ الأداة = كروناتُ operator_entry.yml · لا تلغرام ولا حفظ · actions: read وتاريخٌ كامل ولا كرون",
+          NOF.contract_ok() and {"why", "gate_trace", "_operator_blocks", "live_watch_universe"} <= _nof_calls_n
+          and "bot.liq_stage_events" in _nof_src
+          and not ({"send_telegram", "git_save", "save_watchlist", "save_op_entry_state"} & _nof_calls_n)
+          and sorted(NOF.CRONS_UTC) == _nof_crons and _nof_c2 == ((3, 5), (9, 5)) and NOF.TC_FROM == "2026-09-10" and NOF.TC_TO == "2026-11-04"
+          and _nof_yd.get("permissions") == {"contents": "read", "actions": "read"}
+          and any((s.get("with") or {}).get("fetch-depth") == 0 for s in _nof_steps)
+          and "schedule" not in _nof_on and "TELEGRAM" not in _nof_yml,
+          f"crons={_nof_crons} calls={sorted(c for c in _nof_calls_n if c)[:8]}")
+    _nof_a9 = _nof_ms(9, 0)
+    _nof_st = [{"LIQ:AAA": {"date": _nof_D, "anchor_ms": _nof_a9, "anchor_price": None, "sent": ["M1"]},
+                "LIQ:BBB": {"date": _nof_D, "last_eval_ms": 1}, "LIQ:FFF": {"date": _nof_D, "last_eval_ms": 1}, "LIQ:EEE": {"date": _nof_D, "anchor_ms": _nof_a9, "anchor_price": 1.2}},
+               {"LIQ:BBB": {"date": _nof_D, "anchor_ms": _nof_a9, "anchor_price": 1.0, "sent": ["M1"]},
+                "LIQ:CCC": {"date": "2026-10-19", "anchor_ms": _nof_a9 - 86400000, "sent": ["M1"]},
+                "LIQ:DDD": {"date": _nof_D, "anchor_ms": _nof_a9, "anchor_price": 2.0, "sent": []}}]
+    _nof_kinds = [NOF.dedup_kind(s, _nof_D, _nof_st) for s in ("AAA", "BBB", "CCC", "DDD", "EEE", "ZZZ", "FFF")]
+    _nof_sent = [NOF.dedup_sent(s, _nof_D, _nof_st) for s in ("AAA", "BBB", "CCC", "DDD")]
+    _nof_raw2 = (b"abc123 blob 9\n{\"a\": 1}\nmissing:x missing\ndef456 blob 8\n{\"b\":2}\n")
+    _nof_pb = NOF.parse_batch(_nof_raw2)
+    check("🔇 NOFL4 T-NOFIRE: الدِّدوب = مِرساةٌ بتاريخ اليوم في أيّ لقطة (والحالةُ بلا مِرساة ليست ددوبًا) · نوعُها «بلا سعر»/«غابت»/«حاضرة» من أحدث "
+          "لقطة · و`sent` يفرّق المُرسَل · وقراءةُ `git cat-file --batch` تتخطّى المفقود",
+          _nof_kinds == ["بلا سعر", "غابت", None, "غابت", "حاضرة", None, None] and _nof_sent == [True, True, False, False]
+          and _nof_pb == [{"a": 1}, {"b": 2}],
+          f"kinds={_nof_kinds} sent={_nof_sent} pb={_nof_pb}")
+except Exception as _nof_e:                                                      # noqa: BLE001
+    check("🔇 NOFL0 T-NOFIRE (انهيارُ القفل)", False, f"⛔ رمى: {type(_nof_e).__name__}: {_nof_e}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

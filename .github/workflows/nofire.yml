@@ -1,0 +1,36 @@
+name: "🔇 T-NOFIRE (ليه ما أُطلق للـ52 · قراءةٌ فقط)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · العقد fm_forensics/nofire/NOFIRE_prereg.md
+#    إعادةُ liq_stage_events بالاسم + تشغيلاتُ operator_entry.yml من GitHub API (actions: read) + لقطاتُ git الكاملة.
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: super-stocks-nofire
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - name: Checkout (تاريخٌ كامل)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🔇 القياس
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python fm_forensics/nofire/nofire.py --mode run
