@@ -379,8 +379,9 @@ def uni_timeline(sym, day, commits):
     return tl
 
 
-def day_states(day):
-    """③ كلُّ لقطات `op_entry_state.json` يومَ نيويورك `day` (حدودُ الإطار ISO بالـUTC) ⟵ قائمةُ قواميس — بقراءةٍ واحدة `git cat-file --batch`."""
+def day_states(day, keep=None):
+    """③ كلُّ لقطات `op_entry_state.json` يومَ نيويورك `day` (حدودُ الإطار ISO بالـUTC) ⟵ قائمةُ قواميس — بقراءةٍ واحدة `git cat-file --batch`.
+    🔧 و`keep` (مفاتيحُ `LIQ:sym` ليوم الراكضين) يُبقي من كلّ لقطةٍ هذه المفاتيحَ وحدَها (التشغيلةُ الأولى `42344390231` قُتلت بالذاكرة: 54,748 لقطةً كاملة)."""
     t0 = dt.datetime.fromtimestamp(ny_ts(day, 0), dt.timezone.utc)
     t1 = t0 + dt.timedelta(days=1)
     hs = _git(["log", f"--since={t0.strftime('%Y-%m-%dT%H:%M:%SZ')}", f"--until={t1.strftime('%Y-%m-%dT%H:%M:%SZ')}",
@@ -389,11 +390,11 @@ def day_states(day):
         return []
     raw = subprocess.run(["git", "cat-file", "--batch"], input=("\n".join(f"{h}:{OP_STATE}" for h in hs) + "\n").encode(),
                          capture_output=True, check=False).stdout
-    return parse_batch(raw)
+    return parse_batch(raw, keep)
 
 
-def parse_batch(raw):
-    """مُخرَجُ `git cat-file --batch` ⟵ قواميسُ JSON (المفقودُ والتالفُ يُتخطّى)."""
+def parse_batch(raw, keep=None):
+    """مُخرَجُ `git cat-file --batch` ⟵ قواميسُ JSON (المفقودُ والتالفُ يُتخطّى) · و`keep` يقصر كلَّ قاموسٍ على مفاتيحه."""
     out, i = [], 0
     while i < len(raw):
         j = raw.find(b"\n", i)
@@ -405,7 +406,8 @@ def parse_batch(raw):
             continue
         n = int(head[2])
         try:
-            out.append(json.loads(raw[i:i + n].decode("utf-8")))
+            d = json.loads(raw[i:i + n].decode("utf-8"))
+            out.append({k: d[k] for k in keep if k in d} if (keep is not None and isinstance(d, dict)) else d)
         except ValueError:
             pass
         i += n + 1
@@ -540,7 +542,10 @@ def mode_run():
         out["dedup_kind"] = dedup_kind(x["sym"], x["day"], states.get(x["day"]))
         return out
 
-    states = {d: day_states(d) for d in days}
+    keep_by = {}
+    for x in allrows:
+        keep_by.setdefault(x["day"], set()).add(f"LIQ:{x['sym']}")
+    states = {d: day_states(d, keep_by.get(d, set())) for d in days}
     log(f"🗂️ لقطاتُ الحالة: {sum(len(v) for v in states.values())} في {len(days)} يومًا")
     with ThreadPoolExecutor(4) as pool:
         done = list(pool.map(_one, allrows))
