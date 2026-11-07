@@ -99314,6 +99314,74 @@ try:
           f"on={_owd_on} perms={_owd_wf.get('permissions')}")
 except Exception as _owd_e:                                                      # noqa: BLE001
     check("👁️ OWD0 (انهيارُ القفل)", False, f"⛔ رمى: {type(_owd_e).__name__}: {_owd_e}")
+# 👁️ OWD4 — `T-OEWIDE` الجزءُ يقبل شكلَ `worker_jobs` الحقيقيّ (عطلٌ مُثبَت 2026-11-07 · التشغيلة `42365143778` سقطت أجزاؤها الستّة بـ`AttributeError`)
+try:
+    import os as _owd4_os
+    import io as _owd4_io
+    import json as _owd4_js
+    import tempfile as _owd4_tf
+    import contextlib as _owd4_cl
+    import datetime as _owd4_dt
+    import importlib.util as _owd4_iu
+    import tier_fwd_report as _owd4_tfr
+    import shadow_ready as _owd4_sr
+    _owd4_sp = _owd4_iu.spec_from_file_location("oewide_owd4", "fm_forensics/oewide/oewide.py")
+    _OW4 = _owd4_iu.module_from_spec(_owd4_sp)
+    _owd4_sp.loader.exec_module(_OW4)
+    _OW4N = _OW4._load("nofire_owd4", "fm_forensics/nofire/nofire.py")
+    _OW4L = _OW4._load("lvs_owd4", "fm_forensics/live_vs_shadow/live_vs_shadow.py")
+    _owd4_tree = _ast0.parse(open("fm_forensics/nofire/nofire.py", encoding="utf-8").read())
+    _owd4_fn = next(n for n in _ast0.walk(_owd4_tree) if isinstance(n, _ast0.FunctionDef) and n.name == "worker_jobs")
+    _owd4_ret = [r for r in _ast0.walk(_owd4_fn) if isinstance(r, _ast0.Return)]
+    _owd4_shape = len(_owd4_ret) == 1 and isinstance(_owd4_ret[0].value, _ast0.Tuple) and len(_owd4_ret[0].value.elts) == 3
+    _owd4_ses = sorted(_owd4_js.load(open(_OW4.UNIVERSE, encoding="utf-8"))["sessions"])
+    _owd4_d = "2026-10-13"
+    _owd4_t0 = int(_owd4_dt.datetime(2026, 10, 13, 9, 0, tzinfo=_OW4.NY).timestamp() * 1000)
+
+    def _owd4_rows(sym, day, key, get=None):
+        if sym not in ("AAA", "BBB"):
+            return []
+        r = [(_owd4_t0 + i * 60_000, 1.0, 1.0, 1.0, 1.0, 1000.0) for i in range(30)]
+        r.append((_owd4_t0 + 30 * 60_000, 1.0, 1.11, 1.0, 1.10, 200_000.0))
+        r += [(_owd4_t0 + (31 + i) * 60_000, 1.10, 1.13, 1.09, 1.12, 80_000.0) for i in range(12)]
+        return r
+    _owd4_a, _owd4_b = int(_OW4N.ny_ts(_owd4_d, 240) * 1000), int(_OW4N.ny_ts(_owd4_d, 1200) * 1000)
+    _OW4N.worker_jobs = lambda days: ({d: [(_owd4_a, _owd4_b, 1)] for d in days}, len(days), len(days))   # شكلُ الحقيقيّة (مقفولٌ بالـAST أعلاه)
+    _OW4N.file_commits = lambda f: []
+    _OW4N.op_gate = lambda sym, key: (lambda s: None)
+    _OW4L.rebuild_alerts = lambda U, full: {}
+    _OW4L.source_days = lambda U, **k: []
+    _OW4.day_points = lambda NOF, bot, day, commits: [(_owd4_a / 1000.0, {"AAA"}, {"AAA", "BBB"})]
+    _OW4.dailies_all = lambda sym, d0, d1, key: [("2026-10-10", 1.0, 1.0)]
+    _OW4._load = lambda n, rel: _OW4N if "nofire" in rel else _OW4L
+    _owd4_save = (_owd4_tfr.fetch_day, _owd4_sr.split_ratio, _owd4_os.environ.get("POLYGON_API_KEY"), _owd4_os.environ.get("GITHUB_TOKEN"))
+    _owd4_fd, _owd4_out = _owd4_tf.mkstemp(suffix=".json")
+    _owd4_os.close(_owd4_fd)
+    try:
+        _owd4_tfr.fetch_day, _owd4_sr.split_ratio = _owd4_rows, (lambda *a, **k: 1.0)
+        _owd4_os.environ["POLYGON_API_KEY"], _owd4_os.environ["GITHUB_TOKEN"] = "x", "x"
+        with _owd4_cl.redirect_stdout(_owd4_io.StringIO()):
+            try:
+                _owd4_rc = _OW4.mode_chunk(_owd4_ses.index(_owd4_d), len(_owd4_ses), _owd4_out)
+            except Exception as _owd4_x:                                       # noqa: BLE001
+                _owd4_rc = f"⛔ {type(_owd4_x).__name__}: {_owd4_x}"
+        _owd4_res = _owd4_js.load(open(_owd4_out, encoding="utf-8")) if _owd4_rc == 0 else {}
+    finally:
+        _owd4_tfr.fetch_day, _owd4_sr.split_ratio = _owd4_save[0], _owd4_save[1]
+        for _owd4_k, _owd4_v in (("POLYGON_API_KEY", _owd4_save[2]), ("GITHUB_TOKEN", _owd4_save[3])):
+            if _owd4_v is None:
+                _owd4_os.environ.pop(_owd4_k, None)
+            else:
+                _owd4_os.environ[_owd4_k] = _owd4_v
+        _owd4_os.remove(_owd4_out)
+    _owd4_f = {f["sym"]: (f["U"], f["W"]) for f in _owd4_res.get("fires") or []}
+    check("👁️ OWD4 `mode_chunk` يقبل شكلَ `worker_jobs` الحقيقيّ (ثلاثيّ: الفتراتُ · المقيس · الكلّ) ويمضي إلى الإعادة: "
+          "رمزٌ في `U` و`W` يُطلَق في الاثنين · ورمزٌ في `W` وحدَه يُطلَق في `W` وحدَه (التشغيلة `42365143778` سقطت قبل أيّ رقم)",
+          _owd4_shape and _owd4_rc == 0 and _owd4_f.get("AAA") == (True, True) and _owd4_f.get("BBB") == (False, True),
+          f"shape={_owd4_shape} rc={_owd4_rc} fires={_owd4_f}")
+except Exception as _owd4_e:                                                     # noqa: BLE001
+    check("👁️ OWD5 (انهيارُ القفل)", False, f"⛔ رمى: {type(_owd4_e).__name__}: {_owd4_e}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

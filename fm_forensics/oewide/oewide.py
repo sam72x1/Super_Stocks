@@ -229,7 +229,7 @@ def mode_chunk(part, parts, out_path):
     days = sessions[part::parts]
     alerts = LVS.rebuild_alerts(U0, True)                      # CORRECTION_PROTOCOL.md §① (المصحَّحة)
     src = set(LVS.source_days(dict(U0, alerts=alerts)))
-    jobs = NOF.worker_jobs(days)
+    jobs, _n_jobs, _n_runs = NOF.worker_jobs(days)                # ⟵ ({يوم: [(بدء، نهاية، id)]}، عددُ التشغيلات المقيسة، الكلّ)
     commits = {f: NOF.file_commits(f) for f in NOF.LIST_FILES}
     log(f"👁️ الجزء {part + 1}/{parts}: {len(days)} جلسة ({days[0]} … {days[-1]}) · مراسٍ مصحَّحة على أيّامه "
         f"{sum(len(alerts.get(d) or {}) for d in days)} · أيّامُ مصدرٍ منه {sum(1 for d in days if d in src)}")
