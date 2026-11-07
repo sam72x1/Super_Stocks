@@ -1,0 +1,113 @@
+name: "💵🥇 T-J1-PROFIT (ربح J1 مقابل غيره · قراءةٌ فقط)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا تلغرام · لا كتابةَ حالة · العقد fm_forensics/j1_profit/J1P_prereg.md
+#    ثلاثُ سنواتٍ متوازية تشغّل target10_arms.py **بلا تعديل** ⟵ تحليلُ كلّ سنة ⟵ قراءةٌ حيّةٌ وصفيّة ⟵ جمعٌ وحكم.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: super-stocks-j1-profit
+  cancel-in-progress: false
+
+jobs:
+  year:
+    runs-on: ubuntu-latest
+    timeout-minutes: 350
+    strategy:
+      fail-fast: false
+      matrix:
+        year: ["2023", "2024", "2025"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🎯 target10_arms.py (بلا تعديل)
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.POLYGON_S3_KEY }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.POLYGON_S3_SECRET }}
+          AWS_DEFAULT_REGION: us-east-1
+          AWS_REQUEST_CHECKSUM_CALCULATION: when_required
+          AWS_RESPONSE_CHECKSUM_VALIDATION: when_required
+          TGT_YEAR: ${{ matrix.year }}
+        run: |
+          set +e
+          python target10_arms.py > "t10_${{ matrix.year }}.log" 2>&1
+          echo $? > "t10_rc_${{ matrix.year }}.txt"
+          tail -40 "t10_${{ matrix.year }}.log"
+      - name: 💵 تحليلُ السنة
+        run: |
+          python fm_forensics/j1_profit/j1_profit.py --mode year --year "${{ matrix.year }}" \
+            --rows "target10_rows_${{ matrix.year }}.jsonl" --log "t10_${{ matrix.year }}.log" \
+            --rc "$(cat t10_rc_${{ matrix.year }}.txt)"
+      - name: 📤 رفع
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: j1p-${{ matrix.year }}
+          path: |
+            j1p_${{ matrix.year }}.json
+            t10_${{ matrix.year }}.log
+          retention-days: 30
+          if-no-files-found: warn
+
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout (تاريخٌ كامل لسجلّ التصنيف عند المرجع)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📡 القراءةُ الحيّة الوصفيّة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+        run: python fm_forensics/j1_profit/j1_profit.py --mode live
+      - name: 📤 رفع
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: j1p-live
+          path: j1p_live.json
+          retention-days: 30
+          if-no-files-found: warn
+
+  pool:
+    needs: [year, live]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📥 تنزيل
+        uses: actions/download-artifact@v4
+        with:
+          pattern: j1p-*
+          merge-multiple: true
+      - name: ⚖️ الجمعُ والحكم
+        run: |
+          ls -la j1p_*.json || true
+          python fm_forensics/j1_profit/j1_profit.py --mode pool --live j1p_live.json $(ls j1p_20*.json 2>/dev/null)
