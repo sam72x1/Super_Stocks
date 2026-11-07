@@ -99890,6 +99890,92 @@ try:
 except Exception as _nwa_e:                                       # noqa: BLE001
     check("📱 NWA0 سطرُ صيغة التطبيق (انهيارُ القفل)", False, f"⛔ رمى: {type(_nwa_e).__name__}: {_nwa_e}")
 
+# 🕵️📈 OPSL1-OPSL3 (‏2026-11-07 · `T-OPSIG` «إشعار المضارب يدفع» · العقد `fm_forensics/opsig/T_OPSIG_prereg.md` مدموجٌ قبل أيّ رقم):
+#    الدخولُ بعد دقيقتين من نهاية شمعة المِرساة · النجاحُ ‏+20% قبل −10% والفشلُ أوّلًا في الشمعة نفسِها · الكارثيُّ −20% خلال 30 د · السماتُ قبل الدخول
+#    (أ Lee-Ready · ب شمعةُ دقيقة · ج التركّز · د الثبات ودخولُها بعد معرفتها) · الجدولُ والراكضون · «تفرّق» بفاصل العناقيد · وسطرُ الكرت ④ · وبصمةُ العقد.
+try:
+    import importlib.util as _ops_iu
+    import ast as _ops_ast
+    _ops_sp = _ops_iu.spec_from_file_location("opsig_lock", "fm_forensics/opsig/opsig.py")
+    OPS = _ops_iu.module_from_spec(_ops_sp)
+    _ops_sp.loader.exec_module(OPS)
+    _ops_M = 60_000
+    _ops_ms = 1_700_000_100_000 - (1_700_000_100_000 % 60_000)
+
+    def _ops_b(i, o, h, lo, c, v=100.0):
+        return (_ops_ms + i * _ops_M, o, h, lo, c, v)
+    # قبل المِرساة: هادئ ثمّ شمعةُ المِرساة (i=0) تفتح بفجوة 1.3 ورأسُها 1.6 (‏+60% من إغلاق السابقة لا +23% من افتتاحها) · ثمّ ثبات · الدخولُ إغلاقُ i=2 (‏1.50) · ثمّ صعودٌ إلى 1.80 (‏+20%)
+    _ops_bars = ([_ops_b(i, 1.0, 1.01, 0.99, 1.0, 10) for i in range(-9, 0)]
+                 + [_ops_b(0, 1.3, 1.6, 1.0, 1.5, 900), _ops_b(1, 1.5, 1.55, 1.45, 1.52), _ops_b(2, 1.52, 1.55, 1.48, 1.50),
+                    _ops_b(3, 1.5, 1.6, 1.46, 1.55), _ops_b(4, 1.55, 1.81, 1.5, 1.8)])
+    _ops_t_a = _ops_ms + _ops_M
+    _ops_E = OPS.entry_px(_ops_bars, _ops_t_a + 2 * _ops_M)
+    _ops_out = OPS.outcome(_ops_bars, _ops_t_a + 2 * _ops_M, _ops_E)
+    _ops_loss = OPS.outcome([_ops_b(3, 1.5, 1.85, 1.30, 1.6)], _ops_t_a + 2 * _ops_M, 1.5)           # الشمعةُ نفسُها تلمس +20% و−10% ⟵ فشل
+    _ops_cat = OPS.outcome([_ops_b(3, 1.5, 1.5, 1.19, 1.2), _ops_b(40, 1.2, 1.2, 1.0, 1.1)], _ops_t_a + 2 * _ops_M, 1.5)
+    _ops_late = OPS.outcome([_ops_b(3, 1.5, 1.5, 1.4, 1.45), _ops_b(40, 1.45, 1.45, 1.1, 1.2)], _ops_t_a + 2 * _ops_M, 1.5)  # −20% بعد 30 د ⟵ لا كارثيّ
+    _ops_bv = OPS.attr_b(_ops_bars, _ops_ms)
+    _ops_cv = OPS.attr_c(_ops_bars, _ops_ms)
+    _ops_dv = OPS.attr_d(_ops_bars, _ops_ms)
+    _ops_lr = OPS.lee_ready([(10 + i, 1.02, 100.0) for i in range(15)] + [(30 + i, 0.98, 100.0) for i in range(5)], [(0, 0.99, 1.01)])
+    _ops_lr_few = OPS.lee_ready([(10, 1.02, 100.0)] * 5, [(0, 0.99, 1.01)])
+    _ops_m = OPS.measure("2026-09-10", "X", _ops_ms, _ops_bars, lambda s, a, b: ([(a * 1_000_000 + k, 1.02, 100.0) for k in range(25)], [(a * 1_000_000 - 1, 0.99, 1.01)]))
+    _ops_ok_m = (_ops_m["E"] == 1.50 and _ops_m["out"]["res"] == "win" and _ops_m.get("E_d") == 1.55 and _ops_m["out_d"]["res"] == "open"
+                 and abs(_ops_m["a"] - 1.0) < 1e-9 and _ops_m["a_n"] == 25 and _ops_m["d"] is True)
+    _ops_ok1 = _ops_ok_m and (_ops_E == 1.50 and _ops_out["res"] == "win" and not _ops_out["cat"] and abs(_ops_out["maxg"] - 100 * (1.81 / 1.5 - 1)) < 1e-9
+                and _ops_loss["res"] == "loss" and _ops_cat["cat"] and _ops_cat["res"] == "loss" and not _ops_late["cat"]
+                and abs(_ops_out["stop10"] - 100 * (1.8 / 1.5 - 1)) < 1e-9 and abs(_ops_loss["stop10"] + 10.0) < 1e-9
+                and abs(_ops_bv - 60.0) < 1e-9 and abs(_ops_cv - 900 / 990) < 1e-9 and _ops_dv[0] is True and abs(_ops_dv[1] - 1.3) < 1e-9
+                and abs(_ops_lr[0] - 0.75) < 1e-9 and _ops_lr[1] == 20 and _ops_lr_few[0] is None)
+    check("🕵️📈 OPSL1 T-OPSIG: الدخولُ إغلاقُ آخر شمعةٍ قبل الدقيقتين · ‏+20% قبل −10% والشمعةُ المزدوجة فشل · الكارثيُّ خلال 30 د وحدَها · أعلى ربحٍ والوقفُ −10% · "
+          "(ب) قفزةُ الدقيقة من إغلاق السابقة · (ج) حصّةُ المِرساة من العشر · (د) فوق منتصف الأوسع · (أ) Lee-Ready بأرضيّة 20 صفقة",
+          _ops_ok1, f"m={ {k: _ops_m.get(k) for k in ('E', 'E_d', 'a', 'a_n', 'd')} } E={_ops_E} out={_ops_out} loss={_ops_loss['res']} cat={_ops_cat['cat']} late={_ops_late['cat']} b={_ops_bv} c={_ops_cv} d={_ops_dv} lr={_ops_lr}")
+
+    def _ops_row(day, sym, win, a=None, b=None, c=None, d=None, cat=False, gold=False, ed=None):
+        o = {"res": "win" if win else "loss", "cat": cat, "maxg": 25.0 if win else 3.0, "stop10": 20.0 if win else -10.0}
+        r = {"day": day, "sym": sym, "E": 1.0, "out": o, "a": a, "b": b, "c": c, "d": d, "gold": gold}
+        if d:
+            r["E_d"] = ed or 1.05
+            r["out_d"] = o
+        return r
+    _ops_rows = ([_ops_row(f"2026-09-{1 + i % 20:02d}", f"W{i}", True, a=0.7, d=True) for i in range(40)]
+                 + [_ops_row(f"2026-09-{1 + i % 20:02d}", f"L{i}", False, a=0.3, d=False) for i in range(60)])
+    _ops_runners = {("2026-09-01", "W0"): 1.2, ("2026-09-02", "L1"): 0.6}
+    _ops_t = OPS.table_row(_ops_rows, ("d",), _ops_runners, (5, 2))
+    _ops_v = OPS.verdict_attr(_ops_rows, "d")
+    _ops_v2 = OPS.verdict_attr(_ops_rows[:45], "d")
+    _ops_va = OPS.verdict_attr([dict(r, a=None) for r in _ops_rows], "a")
+    _ops_noise = ([_ops_row(f"2026-09-{1 + i % 16:02d}", f"N{i}", i % 2 == 0 or i % 7 == 0, d=True) for i in range(32)]
+                  + [_ops_row(f"2026-09-{1 + i % 16:02d}", f"M{i}", i % 2 == 0, d=False) for i in range(32)])
+    _ops_vn = OPS.verdict_attr(_ops_noise, "d")
+    _ops_cs = OPS.card_stats(_ops_rows)
+    check("🕵️📈 OPSL2 T-OPSIG: الجدولُ (n · يوميًّا ÷ 47 · النجاح وWilson · الراكضون ملتقَطون ومفقودون وغيرُ مُطلَقين · كم أعلى الدخول) · «تفرّق» بفاصل العناقيد "
+          "وأرضيّةُ 30 لكلّ جانب · (أ) المجهولةُ فوق 25% «لا قياس» · وسطرُ الكرت ④ بصيغته",
+          _ops_t["n"] == 40 and abs(_ops_t["win"] - 100.0) < 1e-9 and _ops_t["cap100"] == 1 and _ops_t["lost50"] == 1 and _ops_t["unfired50"] == 5
+          and abs(_ops_t["per_day"] - 40 / 47) < 1e-9 and abs(_ops_t["higher"] - 5.0) < 1e-6
+          and _ops_v[0] == "تفرّق" and _ops_v[2][0] > 0 and _ops_v2[0] == "لا قياس" and _ops_va[0] == "لا قياس"
+          and _ops_vn[0] == "لا تفرّق" and _ops_vn[1] > 0 and _ops_vn[2][0] <= 0
+          and _ops_cs["n"] == 100 and abs(_ops_cs["p20"] - 40.0) < 1e-9
+          and OPS.card_line(_ops_cs) == "📊 مثل هذا الإشعار: وسيط الربح 3% · 1 من 2 بلغ +20% · كارثي 0%",
+          f"vn={_ops_vn} t={_ops_t} v={_ops_v[0]} v2={_ops_v2[0]} va={_ops_va[0]} line={OPS.card_line(_ops_cs)}")
+    _ops_src = open("fm_forensics/opsig/opsig.py", encoding="utf-8").read()
+    _ops_tree = _ops_ast.parse(_ops_src)
+    _ops_calls = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _ops_ast.walk(_ops_tree) if isinstance(c, _ops_ast.Call)}
+    _ops_con = open("fm_forensics/opsig/T_OPSIG_prereg.md", encoding="utf-8").read()
+    import yaml as _ops_yaml
+    _ops_yd = _ops_yaml.safe_load(open(".github/workflows/opsig.yml", encoding="utf-8").read())
+    _ops_on = _ops_yd.get("on", _ops_yd.get(True)) or {}
+    check("🕵️📈 OPSL3 T-OPSIG: بصمةُ العقد مثبَّتة · نصُّ أمر المالك وبوّابةُ 1,561 وحدُّ التسريب في العقد · المراسي بـrebuild_alerts والشموع بـfetch_day بالاسم · "
+          "لا تلغرام ولا حفظ · الـworkflow يدويٌّ بتاريخ git كامل بلا كرون",
+          OPS.contract_ok() and OPS.N_GATE == 1561 and "1,561 بالاستخراج المصحَّح" in _ops_con and "حدُّ تسريبٍ في نصّ الأمر" in _ops_con
+          and {"rebuild_alerts", "fetch_day", "lee_ready", "outcome"} <= _ops_calls
+          and not ({"send_telegram", "save_watchlist", "git_save"} & _ops_calls)
+          and set(_ops_on) == {"workflow_dispatch"} and (_ops_yd.get("permissions") or {}).get("contents") == "read"
+          and "fetch-depth: 0" in open(".github/workflows/opsig.yml", encoding="utf-8").read(),
+          f"on={list(_ops_on)}")
+except Exception as _ops_e:                                       # noqa: BLE001
+    check("🕵️📈 OPSL0 T-OPSIG (انهيارُ القفل)", False, f"⛔ رمى: {type(_ops_e).__name__}: {_ops_e}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
