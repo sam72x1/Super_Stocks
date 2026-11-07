@@ -99784,6 +99784,33 @@ try:
           and _apc_row["vals"] == {"drop_pct": 99.97, "rr": 0.31} and _apc_row["edges"] == {"drop_pct": (71.7, 99.95), "rr": (0.5, None)}
           and len(_apc_row["outside"]) == 2 and _apc_none == {"symbol": "XX", "bars": 0},
           f"row={_apc_row} none={_apc_none}")
+    # APPC4 (‏2026-11-07 · عطلٌ مُثبَت في تشغيلة `42396389434`: `catalog_envelope.load_edges` لا وجودَ لها ⟵ AttributeError قبل أيّ رمز):
+    #       `main()` نفسُها تُشغَّل طرفًا لطرف بشموعٍ فارغة (لا شبكة) ⟵ تخرج 0 وتطبع `APP_JSON` · والحوافُّ من `envelope_scan.load_edges` كالإنتاج.
+    import io as _apc_io
+    import contextlib as _apc_cl
+    import os as _apc_os
+    _apc_dh, _apc_env0 = S.download_history, _apc_os.environ.get("APP_SYMS")
+    _apc_buf = _apc_io.StringIO()
+    try:
+        S.download_history = lambda syms, *a, **k: {}
+        _apc_os.environ["APP_SYMS"] = "XX"
+        with _apc_cl.redirect_stdout(_apc_buf):
+            _apc_rc = APC.main()
+    except Exception as _apc_me:                                  # noqa: BLE001
+        _apc_rc = f"⛔ {type(_apc_me).__name__}: {_apc_me}"
+    finally:
+        S.download_history = _apc_dh
+        if _apc_env0 is None:
+            _apc_os.environ.pop("APP_SYMS", None)
+        else:
+            _apc_os.environ["APP_SYMS"] = _apc_env0
+    _apc_main_calls = {(getattr(getattr(c.func, "value", None), "id", None), getattr(c.func, "attr", None))
+                       for c in _apc_ast.walk(_apc_ast.parse(open("fm_forensics/app_compare/app_compare.py", encoding="utf-8").read()))
+                       if isinstance(c, _apc_ast.Call)}
+    check("📱 APPC4 `main()` طرفًا لطرف (بلا شبكة): تخرج 0 وتطبع `APP_JSON` · والحوافُّ من `envelope_scan.load_edges` (كـ«تحت المتابعة» في الإنتاج) لا `catalog_envelope`",
+          _apc_rc == 0 and 'APP_JSON [{"symbol": "XX", "bars": 0}]' in _apc_buf.getvalue()
+          and ("ES", "load_edges") in _apc_main_calls and ("CE", "load_edges") not in _apc_main_calls,
+          f"rc={_apc_rc} out={_apc_buf.getvalue()[-120:]}")
     _apc_t = _apc_ast.parse(open("fm_forensics/app_compare/app_compare.py", encoding="utf-8").read())
     _apc_calls = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _apc_ast.walk(_apc_t) if isinstance(c, _apc_ast.Call)}
     import yaml as _apc_yaml

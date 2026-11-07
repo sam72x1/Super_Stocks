@@ -58,9 +58,9 @@ def probe_one(S, sym, df, edges):
 
 def main(argv=None):
     import Super_stock as S
-    import catalog_envelope as CE
+    import envelope_scan as ES                     # 🔧 مصدرُ الحوافّ كالإنتاج (`Super_stock.py` · «تحت المتابعة») — كان `catalog_envelope.load_edges` ولا وجودَ لها
     syms = [s.strip().upper() for s in os.environ.get("APP_SYMS", ",".join(DEFAULT_SYMS)).split(",") if s.strip()]
-    edges = CE.load_edges() or {}
+    edges = ES.load_edges() or {}
     hist = S.download_history(syms)
     rows = [probe_one(S, s, (hist or {}).get(s), edges) for s in syms]
     for r in rows:
