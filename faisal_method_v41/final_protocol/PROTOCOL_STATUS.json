@@ -19132,6 +19132,15 @@
    "DECISION_DATE": "2026-11-07",
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
+   "LOOKAHEAD": {
+    "LA1_FUTURE_CANDLES": true,
+    "LA2_BLIND_INPUT": true,
+    "LA3_ORDER": true,
+    "LA4_NO_IMAGE_TO_V4": true,
+    "LA5_CORPORATE_ACTION": "PASS_SCALE_INVARIANT",
+    "LA6_REPLAY": true,
+    "verdict": "PASS"
+   },
    "PROVENANCE": {
     "basis": "UNKNOWN",
     "decision_date_from_post": null,
@@ -19160,8 +19169,167 @@
    },
    "PROVENANCE_CONFIDENCE": "LOW",
    "SAMPLE": "SECONDARY",
-   "STATUS": "PENDING_V4",
-   "SYMBOL": "BRTX"
+   "STATUS": "PENDING_FAISAL",
+   "SYMBOL": "BRTX",
+   "V4": {
+    "15_PERCENT_ZONE": {
+     "in_zone": false,
+     "zone": [
+      1.28,
+      1.472
+     ],
+     "zone_pct": 15.0
+    },
+    "5_SESSION_HOLD": {
+     "met": true,
+     "required": 5,
+     "value": 16
+    },
+    "BOTTOM_CYCLE": {
+     "bottom": 1.28,
+     "bottom_date": "2026-10-15",
+     "cycle_high": 13.6,
+     "cycle_high_date": "2026-05-27"
+    },
+    "CASE_ID": "CASE_0018",
+    "CASE_SHA256": "b8d9d2b9e27b6d16334cc081deeed80edca835defef75f09c38d65287046641a",
+    "CONFIG_HASH": "bd548f119a55de5c653d747b1eaa499809749df98973ef77f0b3082473af067d",
+    "DATA_AVAILABLE": {
+     "bars": 1000,
+     "context": {
+      "groups": "UNAVAILABLE: لا مصدرَ نقطيٌّ لدخول القروبات",
+      "offering_pending": "UNAVAILABLE: لا تعريفَ آليٌّ مُتحقَّقٌ لـ«طرحٍ معلَّق» وقتَ النقطة (V41_prereg §⑥)",
+      "operator_press": "UNAVAILABLE: لا مصدرَ لبصمة المضارب بعد انتهاء Polygon 2026-09-29 (CR-01)",
+      "short_available": "live:2026-11-07"
+     },
+     "firewall": "VALID",
+     "last_bar": "2026-11-06",
+     "warns": []
+    },
+    "DECISION_GRAPH": [
+     "tech_state=RETEST_PENDING",
+     "STATE_DECISION=WAIT",
+     "validity.blocks=['R4-VAL-SHORT-01']",
+     "validity.missing=3",
+     "final=WAIT"
+    ],
+    "DECISION_REASON": [
+     "لماذا WAIT؟ صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم (R4-LOC-01)",
+     "لماذا WAIT؟ المتاحُ للشورت 25,000 فوق 20,000 (R4-VAL-SHORT-01)",
+     "المستوى الحاسم 1.46 (السعر 1.52)"
+    ],
+    "ENTRY_MECHANISM": {
+     "type1_bids": [
+      1.344,
+      1.472
+     ],
+     "type1_rule": "R4-ENT-01 (SUPPORTING)",
+     "type2_liberation": 1.65,
+     "type2_rule": "R4-ENT-02 (INFORMATIONAL · C-BREAKOUT)"
+    },
+    "FINAL_DECISION": "WAIT",
+    "FINAL_STATE": "WAIT",
+    "GRAPH_CONSISTENT": true,
+    "HOLD_SWEEP_RETURN": {
+     "depth_pct": null,
+     "hold_zone": 3,
+     "sweep_max_pct": 13.0
+    },
+    "INPUT_HASH": "e603dbd80362cd927d48bd63818542e3d0c2b283eecc15334f2e5d8d4c2eb3ed",
+    "INVALIDATION": [
+     {
+      "name": "القاع (الأساسيّ)",
+      "price": 1.28,
+      "rule": "R4-STOP-01"
+     },
+     {
+      "name": "‏−5% تحت القاع",
+      "price": 1.216,
+      "rule": "R4-STOP-01 (TG_1978)"
+     },
+     {
+      "name": "‏−7% تحت القاع",
+      "price": 1.1904,
+      "rule": "R4-STOP-01 (الإنتاج 5-7)"
+     }
+    ],
+    "PATTERN": [
+     "W (V3.1)"
+    ],
+    "RUN_COMMIT": "0cb9abe9d6f1d7c98862a70e957254c0d64b0609",
+    "SNAPSHOT_SHA256": "b06995482e8fb22769fb98cb540535694089a20749f1ac42adf05dec21e5c0b5",
+    "STRUCTURE": {
+     "bottom": 1.28,
+     "bottom_body_low": 1.46,
+     "bottom_date": "2026-10-15",
+     "hold_sessions": 16,
+     "prior_base": 2.55,
+     "rise_pct": 30.469
+    },
+    "TARGET": [
+     {
+      "family": "faisal_ladder",
+      "name": "T1",
+      "price": 1.65,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T2",
+      "price": 2.9288,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_ladder",
+      "name": "T3",
+      "price": 4.72,
+      "rule": "R-W-08",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     },
+     {
+      "family": "faisal_gain100",
+      "name": "+100%",
+      "price": 2.816,
+      "rule": "R-100-01 · F100-1",
+      "source": "faisal_verbatim",
+      "status": "CONFIRMED"
+     }
+    ],
+    "TECH_STATE": "RETEST_PENDING",
+    "TEST_RISE": {
+     "met": true,
+     "required": 15.0,
+     "value": 30.469
+    },
+    "TIMEFRAME": "1D",
+    "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
+    "V4_RESULT_SHA256": "793759f4c9fdcdf7282eca77ff3718e5aac7bac0d1c0cc239228be5004819457",
+    "V4_VERSION": "FAISAL-V4 1.0 (2026-10-02) · V4-RULES 1.0 (2026-10-02)",
+    "VALIDITY": {
+     "blocking": [
+      {
+       "rule": "R4-LOC-01",
+       "why": "صعد للاختبار والسعرُ فوق المنطقة — انتظارُ الرجوع لاختبار الدعم"
+      },
+      {
+       "rule": "R4-VAL-SHORT-01",
+       "why": "المتاحُ للشورت 25,000 فوق 20,000"
+      }
+     ],
+     "context_input": {
+      "groups": null,
+      "offering_pending": null,
+      "operator_press": null,
+      "short_available": 25000
+     },
+     "missing": []
+    }
+   }
   }
  ],
  "contract": "faisal_method_v41/FINAL_PROTOCOL_prereg.md",

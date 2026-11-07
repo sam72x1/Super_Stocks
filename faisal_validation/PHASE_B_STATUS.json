@@ -325,10 +325,10 @@
  },
  "ledger": {
   "due_now": 0,
-  "file_sha256": "f66d8f1f8a587540c9625f4675e4d8767960b66cf298ac402422dd59b966088e",
-  "head_sha256": "a1235aaa65c79edc02a19f3e060d8bcaa0afd0b8ced5841423b948aaaa8b7f85",
+  "file_sha256": "cdf705c474d9cf5fc33dcd5db7dec38968156b24be2431290e27a2599e66fd56",
+  "head_sha256": "b71b223cc9837bdd6af3dcbfc012722e8234b56fd1afac16f7e27d6fe36c9080",
   "problems": [],
-  "records": 263
+  "records": 264
  },
  "main": 0,
  "metrics_main": {
@@ -3477,13 +3477,13 @@
    "match_class": null,
    "pattern": null,
    "protocol_case": "CASE_0018",
-   "reason": "protocol PENDING_V4 (Faisal not revealed)",
+   "reason": "protocol PENDING_FAISAL (Faisal not revealed)",
    "regime": null,
    "setup": null,
    "status": "PENDING",
    "ticker": "BRTX",
    "timeframe": "1D",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
