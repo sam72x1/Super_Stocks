@@ -96885,7 +96885,9 @@ try:
                               "rearm_prev": {"anchor_ms": _gu_ms("2026-10-05", 9, 31), "anchor_price": 1.8}}, "2026-10-05") == (_gu_ms("2026-10-05", 9, 31), 1.8)
             and _GR.first_anchor({"anchor_ms": _gu_ms("2026-10-05", 10, 0), "anchor_price": 2.0,
                                   "rearm_prev": {"anchor_ms": _gu_ms("2026-10-02", 9, 31), "anchor_price": 1.8}}, "2026-10-05") == (_gu_ms("2026-10-05", 10, 0), 2.0)
-            and _GR.first_anchor({"anchor_ms": _gu_ms("2026-10-05", 10, 0)}, "2026-10-05") is None)
+            # 🔧 (2026-11-07 · `AHF2`): المِرساةُ بلا سعر ⟵ `(ms، None)` بالمفتاح المُشعَل · وNone بالمُطفأ (السلوكُ السابق)
+            and _GR.first_anchor({"anchor_ms": _gu_ms("2026-10-05", 10, 0)}, "2026-10-05")
+            == ((_gu_ms("2026-10-05", 10, 0), None) if _GR.ANCHOR_HIST_FULL else None))
     _gu_day = [(230, 1, 9, 1, 1, 1), (240, 1.0, 1.2, 1.0, 1.1, 1), (600, 1.1, 1.6, 1.0, 1.5, 1), (1200, 1, 9, 1, 1, 1)]
     _gu1 += (abs(_GR.run_ratio(_gu_day, 1.0)[0] - 0.6) < 1e-12 and _GR.run_ratio(_gu_day, 1.0)[1] == 600,
              _GR.run_ratio(_gu_day, None) == (None, None) and _GR.run_ratio([], 1.0) == (None, None))
@@ -99085,6 +99087,233 @@ try:
           f"m={_omd_w} m2={_omd_w2} m3={_omd_w3}")
 except Exception as _omd_e:                                                      # noqa: BLE001
     check("📅 OMD0 (انهيارُ القفل)", False, f"⛔ رمى: {type(_omd_e).__name__}: {_omd_e}")
+# 🔧 AHF1-AHF3 — استخراجُ المراسي كاملًا (أمرُ المالك 2026-11-07 «أصلح استخراج المراسي» · `NOFIRE_RESULT.md §⑤-هـ` · الملحق 1 لـ`T-SHADOW`)
+try:
+    import json as _ahf_js
+    import types as _ahf_ty
+    import datetime as _ahf_dt
+    import tierlink_probe as _AHF_T
+    import gcross_runner as _AHF_G
+    import shadow_ready as _AHF_S
+    _ahf_ny = _AHF_T.NY
+    _ahf_ms = lambda d, h, m: int(_ahf_dt.datetime(*map(int, d.split("-")), h, m, tzinfo=_ahf_ny).timestamp() * 1000)   # noqa: E731
+    _ahf_state = {
+        "LIQ:AAA": {"date": "2026-09-11", "anchor_ms": _ahf_ms("2026-09-11", 9, 40), "anchor_price": 2.0, "sent": ["M1"]},
+        "LIQ:BBB": {"date": "2026-09-11", "last_eval_ms": 1, "rearm_n": 1,
+                    "rearm_prev": {"anchor_ms": _ahf_ms("2026-09-11", 9, 54), "anchor_price": 1.455, "anchor_low": 1.435,
+                                   "e5": 1.47, "exit_ms": _ahf_ms("2026-09-11", 10, 32)}},
+        "LIQ:CCC": {"date": "2026-09-11", "last_eval_ms": 1},
+        "LIQ:DDD": {"date": "2026-09-11", "rearm_prev": {"anchor_ms": _ahf_ms("2026-09-10", 9, 0), "anchor_price": 1.0}},
+        "LIQ:EEE": {"date": "2026-09-11", "anchor_ms": _ahf_ms("2026-09-11", 4, 30), "sent": ["M1"]},
+        "WETO": "2026-09-11"}
+
+    class _AhfRes:
+        def __init__(self, out):
+            self.stdout, self.returncode = out, 0
+
+    # لقطةٌ ثانية (يومُ UTC التالي) تحمل AAA نفسَه خارجًا بحقولٍ أطول ⟵ الحاضرةُ يجب أن تعلو (لا «الأطولُ يفوز»)
+    _ahf_state2 = {"LIQ:AAA": {"date": "2026-09-11", "rearm_n": 1, "last_eval_ms": 123456789,
+                               "rearm_prev": {"anchor_ms": _ahf_ms("2026-09-11", 9, 40), "anchor_price": 2.0, "anchor_low": 1.95,
+                                              "e5": 2.05, "exit_ms": _ahf_ms("2026-09-11", 11, 0)}}}
+
+    def _ahf_run(cmd, **k):
+        if cmd[:2] == ["git", "log"]:
+            return _AhfRes("h2 2026-09-12T23:00:00+00:00" + chr(10) + "h1 2026-09-11T23:00:00+00:00" + chr(10))
+        if cmd[:2] == ["git", "show"]:
+            return _AhfRes(_ahf_js.dumps(_ahf_state2 if str(cmd[2]).startswith("h2") else _ahf_state))
+        return _AhfRes("")
+    _ahf_sub0, _ahf_full0 = _AHF_T.subprocess, _AHF_T.ANCHOR_HIST_FULL
+    try:
+        _AHF_T.subprocess = _ahf_ty.SimpleNamespace(run=_ahf_run)
+        _ahf_old = _AHF_T.anchor_history("2026-09-01", full=False)
+        _ahf_new = _AHF_T.anchor_history("2026-09-01", full=True)
+        _AHF_T.ANCHOR_HIST_FULL = True
+        _ahf_def = _AHF_T.anchor_history("2026-09-01")
+        _AHF_T.ANCHOR_HIST_FULL = False
+        _ahf_off = _AHF_T.anchor_history("2026-09-01")
+    finally:
+        _AHF_T.subprocess, _AHF_T.ANCHOR_HIST_FULL = _ahf_sub0, _ahf_full0
+    _ahf_b = _ahf_new.get(("2026-09-11", "BBB")) or {}
+    _ahf1 = (set(_ahf_old) == {("2026-09-11", "AAA"), ("2026-09-11", "EEE")}
+             and set(_ahf_new) == {("2026-09-11", "AAA"), ("2026-09-11", "EEE"), ("2026-09-11", "BBB")}
+             and all(_ahf_new[k] == _ahf_old[k] for k in _ahf_old)
+             and _ahf_b.get("exited") is True and _ahf_b.get("anchor_ms") == _ahf_ms("2026-09-11", 9, 54)
+             and _ahf_b.get("anchor_price") == 1.455 and _ahf_b.get("anchor_low") == 1.435 and _ahf_b.get("symbol") == "BBB"
+             and _ahf_def == _ahf_new and _ahf_off == _ahf_old
+             and _AHF_T.exited_anchor({"rearm_prev": {"anchor_ms": _ahf_ms("2026-09-11", 9, 0)}, "anchor_ms": 5}, "2026-09-11") is None
+             and _AHF_T.exited_anchor({"date": "x"}, "2026-09-11") is None)
+    check("🔧 AHF1 `anchor_history` المصحَّحة: السجلُّ بلا مِرساةٍ فوقه وله `rearm_prev` من يومه ⟵ صفٌّ `exited` بحقول `rearm_prev` · "
+          "و`rearm_prev` من يومٍ آخر لا · والمِرساةُ بلا سعر باقيةٌ كما كانت · **إضافةٌ بحتة** (مفاتيحُ المُطفأ ⊂ المُشعَل وصفوفُها هي هي) · "
+          "والافتراضُ `ANCHOR_HIST_FULL` والمُطفأُ = السابق",
+          _ahf1, f"old={sorted(_ahf_old)} new={sorted(_ahf_new)} b={_ahf_b}")
+    _ahf_r = {"anchor_ms": _ahf_ms("2026-10-05", 10, 0), "rearm_prev": {"anchor_ms": _ahf_ms("2026-10-05", 9, 31)}}
+    _ahf_g0 = _AHF_G.ANCHOR_HIST_FULL
+    try:
+        _AHF_G.ANCHOR_HIST_FULL = True
+        _ahf2t = _AHF_G.first_anchor({"anchor_ms": _ahf_ms("2026-10-05", 9, 31), "anchor_price": 1.9,
+                                      "rearm_prev": {"anchor_ms": _ahf_ms("2026-10-05", 9, 31)}}, "2026-10-05")
+        _ahf2a = (_AHF_G.first_anchor(_ahf_r, "2026-10-05"), _AHF_G.first_anchor({"anchor_ms": _ahf_ms("2026-10-05", 11, 0), "anchor_price": None}, "2026-10-05"))
+        _AHF_G.ANCHOR_HIST_FULL = False
+        _ahf2b = (_AHF_G.first_anchor(_ahf_r, "2026-10-05"), _AHF_G.first_anchor({"anchor_ms": _ahf_ms("2026-10-05", 11, 0), "anchor_price": None}, "2026-10-05"))
+    finally:
+        _AHF_G.ANCHOR_HIST_FULL = _ahf_g0
+    check("🔧 AHF2 `first_anchor`: المِرساةُ بلا سعر ⟵ `(ms، None)` والأبكرُ بين الحاضرة و`rearm_prev` بالوقت وحدَه بالمفتاح المُشعَل · "
+          "والمُطفأُ ⟵ None كما كان",
+          _ahf2a == ((_ahf_ms("2026-10-05", 9, 31), None), (_ahf_ms("2026-10-05", 11, 0), None)) and _ahf2b == (None, None)
+          and _ahf2t == (_ahf_ms("2026-10-05", 9, 31), 1.9), f"on={_ahf2a} off={_ahf2b} tie={_ahf2t}")
+    _ahf_v = lambda b: {"branch": b, "why": "x"}   # noqa: E731
+    _ahf3_tab = [(_AHF_S.governing(_ahf_v(a), _ahf_v(b))["branch"], w) for a, b, w in
+                 ((1, 1, 1), (1, 2, 2), (2, 1, 2), (1, None, None), (None, 1, None), (None, None, None), (3, 1, 3), (2, None, 2), (3, 2, 2))]
+    _ahf_src = open("shadow_ready.py", encoding="utf-8").read()
+    _ahf_tr = _ast0.parse(_ahf_src)
+    _ahf_lr = [c for c in _ast0.walk(_ahf_tr) if isinstance(c, _ast0.Call) and getattr(c.func, "id", None) == "ledger_rows"]
+    _ahf_lr_ok = (len(_ahf_lr) == 1 and isinstance(_ahf_lr[0].args[0], _ast0.ListComp)
+                  and "exited" in _ast0.unparse(_ahf_lr[0].args[0]))
+    _ahf_gov = [c for c in _ast0.walk(_ahf_tr) if isinstance(c, _ast0.Call) and getattr(c.func, "id", None) == "governing"]
+    check("🔧 AHF3 الملحق 1 لـ`T-SHADOW`: «تفصل» لا تُقال إلّا بالتعريفين · و«لا تفصل» بأحدهما تحكم · وإلّا «لا حكم/لا قياس» · "
+          "والسجلُّ الأماميّ يُكتب بالتعريف القديم (`ledger_rows` على الصفوف بلا `exited`) · والحكمان (§④ و§⑤) بالأشدّ",
+          all(g == w for g, w in _ahf3_tab) and _ahf_lr_ok and len(_ahf_gov) == 2 and '"exited": bool(a.get("exited"))' in _ahf_src,
+          f"tab={_ahf3_tab} ledger={_ahf_lr_ok} gov={len(_ahf_gov)}")
+except Exception as _ahf_e:                                                      # noqa: BLE001
+    check("🔧 AHF0 (انهيارُ القفل)", False, f"⛔ رمى: {type(_ahf_e).__name__}: {_ahf_e}")
+# 🔧 AFX1-AFX3 — إعادةُ T-LIVE-VS-SHADOW وT-SHADOW-CONT بالاستخراج المصحَّح (`fm_forensics/nofire/CORRECTION_PROTOCOL.md` · 2026-11-07)
+try:
+    import importlib.util as _afx_iu
+    import datetime as _afx_dt
+    import types as _afx_ty
+    _afx_sp = _afx_iu.spec_from_file_location("lvs_afx", "fm_forensics/live_vs_shadow/live_vs_shadow.py")
+    _AFX_L = _afx_iu.module_from_spec(_afx_sp)
+    _afx_sp.loader.exec_module(_AFX_L)
+    _afx_sp2 = _afx_iu.spec_from_file_location("shc_afx", "fm_forensics/shadow_cont/shadow_cont.py")
+    _AFX_C = _afx_iu.module_from_spec(_afx_sp2)
+    _afx_sp2.loader.exec_module(_AFX_C)
+    _afx_ny = _AFX_L.NY
+    _afx_ms = lambda d, h, m: int(_afx_dt.datetime(*map(int, d.split("-")), h, m, tzinfo=_afx_ny).timestamp() * 1000)   # noqa: E731
+    _afx_d = "2026-10-13"
+    _afx_state = {"LIQ:XX": {"date": _afx_d, "rearm_n": 1, "rearm_prev": {"anchor_ms": _afx_ms(_afx_d, 9, 0), "anchor_price": 1.0}},
+                  "LIQ:YY": {"date": _afx_d, "rearm_n": 1, "rearm_prev": {"anchor_ms": _afx_ms(_afx_d, 10, 0), "anchor_price": 1.0}},
+                  "LIQ:ZZ": {"date": _afx_d, "rearm_n": 1, "rearm_prev": {"anchor_ms": _afx_ms("2026-10-12", 9, 0), "anchor_price": 1.0}},
+                  "LIQ:PP": {"date": _afx_d, "anchor_ms": _afx_ms(_afx_d, 8, 0), "anchor_price": 2.0}}
+    _afx_SH = _afx_ty.SimpleNamespace(premarket_anchors=lambda st, d: [("PP", st["LIQ:PP"])])
+    _afx_af = [s for s, _a in _AFX_L.anchors_at_full(_afx_state, _afx_d, _afx_SH)]
+    _afx_al = {_afx_d: {"S": {"ms": 60_000, "px": None}, "T": {"ms": 120_000, "px": 2.0}, "U": {"ms": 180_000, "px": None}}}
+    _afx_fp = _AFX_L.fill_px(_afx_al, lambda s, d: [(60_000, 1, 1, 1, 1.5, 10)] if s == "S" else [])
+    _afx_tr = _ast0.parse(open("fm_forensics/live_vs_shadow/live_vs_shadow.py", encoding="utf-8").read())
+    _afx_rb = [f for f in _afx_tr.body if isinstance(f, _ast0.FunctionDef) and f.name == "rebuild_alerts"]
+    _afx_rb_calls = {getattr(c.func, "attr", None) for f in _afx_rb for c in _ast0.walk(f) if isinstance(c, _ast0.Call)}
+    _afx_mr = [f for f in _afx_tr.body if isinstance(f, _ast0.FunctionDef) and f.name == "mode_run"]
+    _afx_ret7 = any(isinstance(n, _ast0.Return) and getattr(n.value, "value", None) == 7 for f in _afx_mr for n in _ast0.walk(f))
+    check("🔧 AFX1 LVS المصحَّحة: المراسي تُعاد من git بـ`anchor_history`/`first_anchor` بالاسم · وبوّابةُ صدقٍ (الإعادةُ المُطفأة = المجمَّدة وإلّا خروج 7) · "
+          "والمِرساةُ بلا سعر من إغلاق شمعتها · والظلُّ المصحَّح يضيف الخارجةَ قبل 09:25 من يومها وحدَها",
+          _afx_af == ["PP", "XX"] and _afx_fp == (1, 1) and _afx_al[_afx_d]["S"]["px"] == 1.5 and _afx_al[_afx_d]["T"]["px"] == 2.0
+          and {"anchor_history", "first_anchor"} <= _afx_rb_calls and _afx_ret7,
+          f"af={_afx_af} fp={_afx_fp} calls={sorted(x for x in _afx_rb_calls if x)} ret7={_afx_ret7}")
+    _afx_tab = [(_AFX_C.strictest(a, b), w) for a, b, w in (("يفرّق", "يفرّق", "يفرّق"), ("يفرّق", "لا يفرّق", "لا يفرّق"),
+                                                             ("لا يفرّق", "يفرّق", "لا يفرّق"), ("لا قياس", "يفرّق", "لا قياس"),
+                                                             ("لا يفرّق", "لا قياس", "لا قياس"), ("لا يفرّق", "لا يفرّق", "لا يفرّق"))]
+    _afx_base = [{"date": "d1", "symbol": "A"}]
+    _afx_ex = _AFX_C.extra_exited(_afx_base, [{"date": "d1", "symbol": "A", "exited": True}, {"date": "d1", "symbol": "B", "exited": True},
+                                              {"date": "d1", "symbol": "C", "exited": False}])
+    check("🔧 AFX2 T-SHADOW-CONT المصحَّحة: الصفوفُ الخارجة وحدَها تُضاف (لا تكرارَ لمفتاحٍ في السجلّ المجمَّد) · و«يفرّق» لا تُقال إلّا بالتعريفين · "
+          "و«لا قياس» بأحدهما تحكم",
+          all(g == w for g, w in _afx_tab) and [r["symbol"] for r in _afx_ex] == ["B"], f"tab={_afx_tab} ex={_afx_ex}")
+    _afx_wf = _wfh_yaml.safe_load(open(".github/workflows/anchor_fix_rerun.yml", encoding="utf-8"))
+    _afx_on = _afx_wf.get(True) or _afx_wf.get("on") or {}
+    _afx_steps = [s for j in _afx_wf["jobs"].values() for s in j["steps"]]
+    _afx_runs = "\n".join(s.get("run") or "" for s in _afx_steps)
+    _afx_envs = {}
+    for _s in _afx_steps:
+        _afx_envs.update(_s.get("env") or {})
+    check("🔧 AFX3 الـworkflow: يدويٌّ وحدَه · `contents: read` · بلا تلغرام ولا `SHADOW_READY` ولا دفع · LVS بـ`--alerts full` · وshadow_ready "
+          "بـ`SHADOW_DUMP=1` ثمّ T-SHADOW-CONT بـ`--extra-rows`",
+          set(_afx_on) == {"workflow_dispatch"} and _afx_wf.get("permissions") == {"contents": "read"}
+          and "--alerts full" in _afx_runs and "--extra-rows sr_rows.json" in _afx_runs and _afx_envs.get("SHADOW_DUMP") == "1"
+          and "SHADOW_READY" not in _afx_envs and "TELEGRAM" not in _afx_runs and not any("TELEGRAM" in k for k in _afx_envs)
+          and "git push" not in _afx_runs,
+          f"on={_afx_on} env={sorted(_afx_envs)}")
+except Exception as _afx_e:                                                      # noqa: BLE001
+    check("🔧 AFX0 (انهيارُ القفل)", False, f"⛔ رمى: {type(_afx_e).__name__}: {_afx_e}")
+# 🔧 AFX4 — الوثائقُ الثلاث قبل أيّ رقم (2026-11-07): ملحقُ T-SHADOW · بروتوكولُ التصحيح · عقدُ T-OEWIDE والـ42 المجمَّدون — بصماتٌ لا تُعدَّل
+try:
+    import hashlib as _afx4_h
+    _afx4_pins = {"shadow_ready_addendum_1.md": "870cb50c22b081d83eec7be2358f7205a229f2a1c7c097a13de04915ee291b97",
+                  "fm_forensics/nofire/CORRECTION_PROTOCOL.md": "6e3dc3ca8b4b25efd443cdbc1efa64e1a3897f9d7eefde69c38b33028446d37e",
+                  "fm_forensics/oewide/OEWIDE_prereg.md": "fc19b346e8e10dfc067f191ddf262301abcc364cf49c3d97afc2935f4e6a7f8a",
+                  "fm_forensics/oewide/data/g2_42.json": "7d16f31872072e77c396bd806584dae07fbc00969ad7b921d6c932e20a79cf62"}
+    _afx4_got = {p: _afx4_h.sha256(open(p, "rb").read()).hexdigest() for p in _afx4_pins}
+    check("🔧 AFX4 ملحقُ T-SHADOW (التعريفان والحاكمُ الأشدّ) وبروتوكولُ تصحيح LVS/SHADOW-CONT وعقدُ T-OEWIDE والـ42 المجمَّدون مدموجةٌ قبل أيّ رقم ببصماتها",
+          _afx4_got == _afx4_pins, str({p: v[:12] for p, v in _afx4_got.items() if v != _afx4_pins[p]}))
+except Exception as _afx4_e:                                                     # noqa: BLE001
+    check("🔧 AFX5 (انهيارُ القفل)", False, f"⛔ رمى: {type(_afx4_e).__name__}: {_afx4_e}")
+# 👁️ OWD1-OWD3 — `T-OEWIDE` (العقد `fm_forensics/oewide/OEWIDE_prereg.md` · 2026-11-07): الدوالُّ النقيّة والإعادةُ بالاسم والـworkflow
+try:
+    import importlib.util as _owd_iu
+    import datetime as _owd_dt
+    _owd_sp = _owd_iu.spec_from_file_location("oewide_lock", "fm_forensics/oewide/oewide.py")
+    _OWD = _owd_iu.module_from_spec(_owd_sp)
+    _owd_sp.loader.exec_module(_OWD)
+    import Super_stock as _owd_bot
+    _OWD_N = _OWD._load("nofire_owd", "fm_forensics/nofire/nofire.py")
+    _owd_pts = [(100.0, {"A"}, {"A", "B"}), (200.0, {"A", "B"}, {"A", "B"})]
+    _owd_mb, _owd_mu = _OWD.membership(_owd_pts, "B", "W"), _OWD.membership(_owd_pts, "B", "U")
+    _owd_ch = {"days": ["d1", "d2"], "sd": 20, "bars_fail": 1, "u_size": {"d1": [5, 6], "d2": [5, 7]}, "w_size": {"d1": [8, 9], "d2": [8, 11]},
+               "fires": [{"sym": "A", "d": "d1", "U": True, "W": True, "R": 0.1, "split": False, "j1U": False, "j1W": False},
+                         {"sym": "B", "d": "d1", "U": False, "W": True, "R": 0.2, "split": False, "j1U": False, "j1W": False},
+                         {"sym": "C", "d": "d2", "U": False, "W": True, "R": 0.3, "split": False, "j1U": False, "j1W": True},
+                         {"sym": "D", "d": "d2", "U": False, "W": True, "R": 1.4, "split": False, "j1U": False, "j1W": True},
+                         {"sym": "E", "d": "d2", "U": True, "W": True, "R": 0.0, "split": True, "j1U": False, "j1W": False}],
+               "g42": [{"sym": "D", "d": "d2", "caughtU": False, "caughtW": True, "caughtW_actual": False, "j1W": True, "R": 1.4,
+                        "m": 600, "left": 0.7, "gain": 0.4, "pct": 0.5},
+                       {"sym": "F", "d": "d1", "caughtU": False, "caughtW": False, "caughtW_actual": False, "j1W": False, "R": 1.1}],
+               "truth": {"n": 20, "hit": 18, "outside_u": 2, "miss": []}}
+    _owd_r = _OWD.aggregate([_owd_ch], [(500, 10.0), (400, 6.0), (0, 1.0)])
+    _owd1 = (_OWD.wide_set({"aaa": {"x": 1}, "BBB": {"blocked": True}, "ccc": 3}) == {"AAA"}
+             and _owd_mb(150_000) and not _owd_mu(150_000) and _owd_mu(250_000) and not _owd_mb(50_000)
+             and not _OWD.same_membership(_owd_pts, "B") and _OWD.same_membership(_owd_pts, "A")
+             and _OWD.cycle_pairs("x 💰 التغطية: 386 من 386 في 8.8ث (خيوط 8) y 💰 التغطية: 10 من 12 في 0.5ث") == [(386, 8.8), (12, 0.5)]
+             and abs(_OWD.sec_per_symbol([(500, 10.0), (400, 6.0)]) - 0.0175) < 1e-12
+             and _owd_r["cost"]["added_false_day"] == 1.0 and _owd_r["cost"]["split_n"] == 1 and _owd_r["cost"]["falseU"] == 1 and _owd_r["cost"]["run100W"] == 1
+             and _owd_r["j1"]["added_false"] == 2 and _owd_r["j1"]["cut_added_false"] == 0.5 and _owd_r["j1"]["keep42"] == 1
+             and _owd_r["g42"]["caught"] == 1 and _owd_r["g42"]["n"] == 2 and _owd_r["truth"]["ok"] is True
+             and _owd_r["cycle"]["at800"] == 14.0 and _OWD.contract_ok())
+    check("👁️ OWD1 T-OEWIDE النقيّة: `W` = كلُّ صفٍّ غيرِ محجوب · العضويّةُ بآخر نقطةٍ قبل اللحظة · الكاذبُ المُضاف يوميًّا ÷ الجلسات بلا يوم التقسيم · "
+          "قصُّ J1 للمُضاف وحدَه · بوّابةُ الصدق 85% · وزمنُ الدورة خطّيٌّ من «💰 التغطية» · وبصمتا العقد والـ42",
+          _owd1, f"cost={_owd_r['cost']} j1={_owd_r['j1']} cyc={_owd_r['cycle']}")
+    _owd_ny = _OWD.NY
+    _owd_d = "2026-10-13"
+    _owd_t0 = int(_owd_dt.datetime(2026, 10, 13, 9, 0, tzinfo=_owd_ny).timestamp() * 1000)
+    _owd_bars = [{"t": _owd_t0 + i * 60_000, "o": 1.0, "h": 1.0, "l": 1.0, "c": 1.0, "v": 1000.0} for i in range(30)]
+    _owd_bars.append({"t": _owd_t0 + 30 * 60_000, "o": 1.0, "h": 1.11, "l": 1.0, "c": 1.10, "v": 200_000.0})
+    _owd_bars += [{"t": _owd_t0 + (31 + i) * 60_000, "o": 1.10, "h": 1.13, "l": 1.09, "c": 1.12, "v": 80_000.0} for i in range(12)]
+    _owd_rp = _OWD.rp(_OWD_N, _owd_bot, _owd_bars, _owd_d, None, None, None)
+    _owd_j1a = _OWD.is_j1(_owd_bot, _owd_rp["m5"], 0.8)
+    _owd_j1b = _OWD.is_j1(_owd_bot, _owd_rp["m5"], 1.0)
+    _owd_ref = _OWD_N.replay(_owd_bars, _owd_d)
+    _owd_src = open("fm_forensics/oewide/oewide.py", encoding="utf-8").read()
+    _owd_tr = _ast0.parse(_owd_src)
+    _owd_calls = {getattr(c.func, "attr", None) for c in _ast0.walk(_owd_tr) if isinstance(c, _ast0.Call)}
+    check("👁️ OWD2 الإعادةُ بالاسم: `rp` ⟵ `nofire.replay` (المِرساةُ نفسُها) ثمّ أوّلُ `M5` بالحالة المحمولة ⟵ `kasih_j1` (فجوةٌ 30% ⟵ J1 · 0% ⟵ لا) · "
+          "والكونُ من `live_watch_universe` · والمراسي الحيّة المصحَّحة `rebuild_alerts` · وبوّابةُ المضارب `op_gate`",
+          _owd_rp["a"] is not None and _owd_rp["a"] == _owd_ref["anchor_ms"] and _owd_rp["m5"] is not None
+          and _owd_j1a is True and _owd_j1b is False
+          and {"replay", "live_watch_universe", "rebuild_alerts", "op_gate", "kasih_j1", "sweep_times"} <= _owd_calls,
+          f"rp={_owd_rp} ref={_owd_ref.get('anchor_ms')} j1={_owd_j1a}/{_owd_j1b}")
+    _owd_wf = _wfh_yaml.safe_load(open(".github/workflows/oewide.yml", encoding="utf-8"))
+    _owd_on = _owd_wf.get(True) or _owd_wf.get("on") or {}
+    _owd_steps = [s for j in _owd_wf["jobs"].values() for s in j["steps"]]
+    _owd_runs = "\n".join(s.get("run") or "" for s in _owd_steps)
+    _owd_envs = {}
+    for _s in _owd_steps:
+        _owd_envs.update(_s.get("env") or {})
+    check("👁️ OWD3 الـworkflow: يدويٌّ وحدَه · `contents: read` و`actions: read` · ستّةُ أجزاءٍ ثمّ جمع · تاريخُ git كامل للأجزاء · بلا تلغرام ولا دفع",
+          set(_owd_on) == {"workflow_dispatch"} and _owd_wf.get("permissions") == {"contents": "read", "actions": "read"}
+          and _owd_wf["jobs"]["chunk"]["strategy"]["matrix"]["part"] == [0, 1, 2, 3, 4, 5] and "--parts 6" in _owd_runs
+          and _owd_wf["jobs"]["pool"]["needs"] == "chunk" and "--mode pool" in _owd_runs
+          and _owd_wf["jobs"]["chunk"]["steps"][0]["with"]["fetch-depth"] == 0
+          and "TELEGRAM" not in _owd_runs and not any("TELEGRAM" in k for k in _owd_envs) and "git push" not in _owd_runs,
+          f"on={_owd_on} perms={_owd_wf.get('permissions')}")
+except Exception as _owd_e:                                                      # noqa: BLE001
+    check("👁️ OWD0 (انهيارُ القفل)", False, f"⛔ رمى: {type(_owd_e).__name__}: {_owd_e}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

@@ -170,6 +170,56 @@ def anchors_at(state, day, SH=None):
     return [(s, a) for s, a in SH.premarket_anchors(state, day) if ny_parts(a["anchor_ms"])[1] < SHADOW_NY]
 
 
+def anchors_at_full(state, day, SH=None):
+    """🔧 `CORRECTION_PROTOCOL.md §①` (وصفًا): مراسي `anchors_at` **ومعها** المِرساةُ الخارجة قبل 09:25 (`rearm_prev` من يومها · بلا مِرساةٍ فوقه)."""
+    import tierlink_probe as TLP
+    out = list(anchors_at(state, day, SH))
+    have = {s for s, _a in out}
+    for k, v in (state or {}).items():
+        if not str(k).startswith("LIQ:") or not isinstance(v, dict) or str(v.get("date") or "") != day:
+            continue
+        sym = str(k)[4:]
+        a = TLP.exited_anchor(v, day)
+        if sym in have or not a or ny_parts(a["anchor_ms"])[1] >= SHADOW_NY:
+            continue
+        out.append((sym, a))
+    return sorted(out, key=lambda kv: int(kv[1]["anchor_ms"]))
+
+
+def rebuild_alerts(U, full):
+    """🔧 `CORRECTION_PROTOCOL.md §①`: أبكرُ مِرساةٍ لكلّ (يوم، رمز) في جلسات `U` من تاريخ git — `anchor_history` ثمّ `first_anchor` بالاسم بالمفتاح المُعطى."""
+    import tierlink_probe as TLP
+    import gcross_runner as GR
+    g0 = GR.ANCHOR_HIST_FULL
+    try:
+        GR.ANCHOR_HIST_FULL = bool(full)
+        days, out = set(U.get("sessions") or []), {}
+        for (d, sym), v in TLP.anchor_history(GR.SINCE_ALERTS, full=bool(full)).items():
+            if d in days:
+                fa = GR.first_anchor(v, d)
+                if fa:
+                    out.setdefault(d, {})[sym] = {"ms": fa[0], "px": fa[1]}
+        return out
+    finally:
+        GR.ANCHOR_HIST_FULL = g0
+
+
+def fill_px(alerts, bars_fn):
+    """🔧 المِرساةُ بلا سعر ⟵ إغلاقُ شمعة دقيقة المِرساة (`anchor_price` = `c` شمعتها في `liq_stage_events`) · ويُرجع (مُلئ، تعذّر)."""
+    ok = miss = 0
+    for d, m in alerts.items():
+        for sym, a in m.items():
+            if a.get("px") is not None:
+                continue
+            row = next((b for b in (bars_fn(sym, d) or []) if int(b[0]) == int(a["ms"])), None)
+            if row is not None:
+                a["px"] = float(row[4])
+                ok += 1
+            else:
+                miss += 1
+    return ok, miss
+
+
 def category(in_s, fire_min):
     """③ ⟵ (الفئة، الفرعيّة)."""
     if in_s and fire_min is not None:
@@ -411,7 +461,7 @@ def _show(h, path):
     return subprocess.run(["git", "show", f"{h}:{path}"], cwd=ROOT, capture_output=True, text=True).stdout
 
 
-def mode_run():
+def mode_run(alerts_mode="frozen"):
     from concurrent.futures import ThreadPoolExecutor
     import shadow_telegram as SH
     from shadow_ready import split_fn, split_ratio
@@ -423,6 +473,19 @@ def mode_run():
         return 3
     U = json.load(open(UNIVERSE, encoding="utf-8"))
     RN = json.load(open(RUNNERS, encoding="utf-8"))
+    corr = alerts_mode == "full"
+    if corr:
+        old = rebuild_alerts(U, False)
+        n_fz = sum(len(v) for v in (U.get("alerts") or {}).values())
+        if old != (U.get("alerts") or {}):
+            log(f"⛔ بوّابةُ الصدق: الإعادةُ بالمفتاح المُطفأ لا تطابق المراسي المجمَّدة ({sum(len(v) for v in old.values())} مقابل {n_fz}) — لا قياس")
+            return 7
+        full = rebuild_alerts(U, True)
+        n_fu = sum(len(v) for v in full.values())
+        log(f"🔧 التصحيح: المراسي المجمَّدة {n_fz} = الإعادةُ المُطفأة بت-بت ✅ · المصحَّحة {n_fu} (‏+{n_fu - n_fz}) · بلا سعر "
+            f"{sum(1 for v in full.values() for a in v.values() if a.get('px') is None)} · بصمةٌ "
+            f"{hashlib.sha256(json.dumps(full, sort_keys=True).encode()).hexdigest()[:16]}")
+        U = dict(U, alerts=full)
     run100 = [r for r in RN["rows"] if r["R"] >= RUN100]
     src = source_days(U)
     j1m, has_row = j1_map(_show(LEDGER_REF, TIER_FILE).splitlines())
@@ -475,6 +538,9 @@ def mode_run():
     with ThreadPoolExecutor(8) as pool:
         list(pool.map(lambda k: (bars(*k), dly(*k)), sorted(need)))
     log(f"📡 رموزٌ-أيّام مجلوبة {len(need)} · بلا شموع {sum(1 for k in need if not bars_c.get(k))}")
+    if corr:
+        _f_ok, _f_miss = fill_px(U["alerts"], bars)
+        log(f"🔧 سعرُ المِرساة بلا سعر من شمعتها: مُلئ {_f_ok} · تعذّر {_f_miss}")
     S_by = {}
     for d in src:
         if d not in snaps:
@@ -549,7 +615,7 @@ def mode_run():
             R, tm, _H = day_R(seq, p0)
             al = (U["alerts"].get(d_) or {}).get(s_)
             named.append(f"{s_} {d_}: **ليس في الـ248** · R المُعادة {_p(R)} (القمّة {_hm(tm)}) · في الكون {'نعم' if s_ in universe_of(U, d_) else 'لا'} · "
-                         f"«هنا الدخول» {(_hm(ny_parts(al['ms'])[1]) + ' $' + format(al['px'], 'g')) if al else 'لا'} · في الظلّ 09:25 "
+                         f"«هنا الدخول» {(_hm(ny_parts(al['ms'])[1]) + ((' $' + format(al['px'], 'g')) if al.get('px') is not None else '')) if al else 'لا'} · في الظلّ 09:25 "
                          f"{'نعم' if s_ in (S_by.get(d_) or ()) else 'لا'}")
         for x in rows:
             if x["sym"] == s_ and x["day"] != d_:
@@ -559,6 +625,36 @@ def mode_run():
             "sessions": len(U["sessions"]), "snap_days": snap_days}
     for ln in report_lines(res, named, preds, meta):
         log(ln)
+    if corr:
+        # 🌘 وصفًا (أمرُ المالك ③): الظلُّ 09:25 بالتعريف المصحَّح (ومعه الخارجةُ قبل 09:25) مقابل الرسالة كما هي
+        S_full, add_days = {}, 0
+        for d in src:
+            if d not in snaps:
+                S_full[d] = set()
+                continue
+            h = commit_before(commits, ny_ts(d, SHADOW_NY))
+            try:
+                state = json.loads(_show(h, STATE_FILE) or "{}")
+            except ValueError:
+                state = {}
+            af = anchors_at_full(state, d, SH)
+            extra = [(s_, a_) for s_, a_ in af if s_ not in {x for x, _y in snaps[d][0]}]
+            if extra:
+                add_days += 1
+                for s_, _a in extra:
+                    bars(s_, d), dly(s_, d)
+            srows, _allr, _sk = SH.shadow_rows(af, lambda s_, _d=d: dly(s_, _d), d, lambda s_, _d=d: bars(s_, _d), snaps[d][1],
+                                               lambda s_, _d=d: split_fn(s_, _d, key))
+            S_full[d] = {x["sym"] for x in srows}
+        r_old = sum(1 for x in rows if x.get("in_s"))
+        r_full = sum(1 for x in rows if x["day"] in src and x["sym"] in (S_full.get(x["day"]) or ()))
+        f_old = sum(1 for c in shadow_cost if c.get("cls") == "false")
+        sc_full = [{"sym": s_, "day": d, **classify(s_, d)} for d in src for s_ in sorted(S_full.get(d) or ()) if s_ in universe_of(U, d)]
+        f_full = sum(1 for c in sc_full if c.get("cls") == "false")
+        log("\n## 🌘 الظلُّ 09:25 بالتعريفين (وصفًا · الرسالةُ لم تُمَسّ)")
+        log(f"- أسماءُ S: الرسالةُ كما هي {sum(len(v) for v in S_by.values())} · بالمصحَّح {sum(len(v) for v in S_full.values())} · أيّامٌ فيها خارجةٌ قبل 09:25 {add_days}")
+        log(f"- راكضو +100% في S: كما هي {r_old} · بالمصحَّح {r_full} · وكاذبُ S على الكون: كما هي {f_old} · بالمصحَّح {f_full}")
+        log("- الأسماءُ المضافة: " + (" · ".join(f"{s_} {d[5:]}" for d in src for s_ in sorted((S_full.get(d) or set()) - (S_by.get(d) or set()))) or "لا شيء"))
     log("LVS_ROWS " + json.dumps(rows, ensure_ascii=False, default=str))
     log("LVS_JSON " + json.dumps({"res": res, "preds": preds, "named": named, "meta": meta}, ensure_ascii=False, default=str))
     return 0
@@ -567,6 +663,7 @@ def mode_run():
 def main(argv=None):
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=("run", "check"), default="run")
+    ap.add_argument("--alerts", choices=("frozen", "full"), default="frozen")   # 🔧 CORRECTION_PROTOCOL.md §①
     a = ap.parse_args(argv)
     if not contract_ok():
         log(f"⛔ بصمةُ العقد `{CONTRACT}` تغيّرت أو غاب — المدموجُ لا يُعدَّل (خروج {CONTRACT_RC})")
@@ -574,7 +671,7 @@ def main(argv=None):
     if a.mode == "check":
         log("✅ العقدُ مطابقٌ لبصمته")
         return 0
-    return mode_run()
+    return mode_run(a.alerts)
 
 
 if __name__ == "__main__":

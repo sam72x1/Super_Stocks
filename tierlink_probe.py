@@ -39,8 +39,38 @@ MIN_COVER = 0.80                           # بوّابةُ الجلب
 
 
 # ───────────────────────── الطبقة A: المراسي من تاريخ git ─────────────────────
-def anchor_history(since=SINCE):
-    """آخرُ لقطةٍ لكلّ يومٍ من تاريخ `op_entry_state.json` ⇒ كلُّ `LIQ:*` بمِرساة."""
+# 🔧 **استخراجُ المراسي كاملًا** (عطلٌ مُثبَت 2026-11-07 · `fm_forensics/nofire/NOFIRE_RESULT.md §⑤-هـ` · أمرُ المالك «أصلح استخراج المراسي»):
+#    منذ إعادة المِرساة (2026-09-03) تنتقل المِرساةُ عند الخروج البنيويّ إلى `rearm_prev` فيبقى السجلُّ بلا `anchor_ms` أعلاه ⟵ كانت هذه
+#    الدالّةُ تُسقطه (592 مِرساةً مُرسَلة منذ سبتمبر) · والمِرساةُ بلا سعر (75 في أغسطس) تُبقى هنا كما كانت وتُسقطها `gcross_runner.first_anchor`.
+#    ⟵ `ANCHOR_HIST_FULL` (افتراضًا مُشعَل): السجلُّ الذي لا مِرساةَ فوقه **وله `rearm_prev` من يومه** يُقرأ صفًّا من حقول `rearm_prev` موسومًا
+#    `exited` · **إضافةٌ بحتة**: مفاتيحُ المُطفأ ⊂ مفاتيحِ المُشعَل وصفوفُها هي هي (السجلُّ ذو المِرساة يعلو المُستخرَجَ دائمًا) ·
+#    `ANCHOR_HIST_FULL=0` في البيئة ⟵ السلوكُ السابق بت-بت · `AHF1`.
+ANCHOR_HIST_FULL = os.environ.get("ANCHOR_HIST_FULL", "1") != "0"
+_EXITED_FIELDS = ("anchor_ms", "anchor_price", "anchor_low", "e5", "exit_ms")
+
+
+def exited_anchor(v, day):
+    """🔧 **نقيّة**: سجلُّ `LIQ:*` بلا `anchor_ms` أعلاه وله `rearm_prev.anchor_ms` يقع يومَ نيويورك `day` ⟵ صفُّ المِرساة الخارجة
+    (حقولُ `rearm_prev` ‏+ `date` ‏+ `exited`) · وإلّا None."""
+    if not isinstance(v, dict) or v.get("anchor_ms"):
+        return None
+    rp = v.get("rearm_prev")
+    if not isinstance(rp, dict) or not rp.get("anchor_ms"):
+        return None
+    try:
+        if dt.datetime.fromtimestamp(int(rp["anchor_ms"]) / 1000, tz=NY).date().isoformat() != day:
+            return None
+    except (TypeError, ValueError, OverflowError, OSError):
+        return None
+    out = {k: rp.get(k) for k in _EXITED_FIELDS if k in rp}
+    out.update({"date": day, "exited": True, "rearm_n": v.get("rearm_n")})
+    return out
+
+
+def anchor_history(since=SINCE, full=None):
+    """آخرُ لقطةٍ لكلّ يومٍ من تاريخ `op_entry_state.json` ⇒ كلُّ `LIQ:*` بمِرساة.
+    و`full` (افتراضًا `ANCHOR_HIST_FULL`) ⟵ ومعها المِرساةُ الخارجة في `rearm_prev` (`exited_anchor`) — والمِرساةُ الحاضرة تعلوها."""
+    full = ANCHOR_HIST_FULL if full is None else bool(full)
     log = subprocess.run(["git", "log", "--format=%h %ad", "--date=iso-strict",
                           "--", "op_entry_state.json"],
                          capture_output=True, text=True).stdout.splitlines()
@@ -58,12 +88,21 @@ def anchor_history(since=SINCE):
         except (ValueError, OSError):
             continue
         for k, v in s.items():
-            if not k.startswith("LIQ:") or not isinstance(v, dict) or not v.get("anchor_ms"):
+            if not k.startswith("LIQ:") or not isinstance(v, dict):
                 continue
+            if not v.get("anchor_ms"):
+                v = exited_anchor(v, v.get("date") or day) if full else None
+                if v is None:
+                    continue
             d = v.get("date") or day
             if d < since:
                 continue
             key = (d, k[4:])
+            old = rows.get(key)
+            if old is not None and bool(old.get("exited")) != bool(v.get("exited")):
+                if old.get("exited"):                      # الحاضرةُ تعلو الخارجةَ دائمًا (إضافةٌ بحتة)
+                    rows[key] = dict(v, symbol=k[4:], date=d)
+                continue
             if key not in rows or len(json.dumps(v)) > len(json.dumps(rows[key])):
                 rows[key] = dict(v, symbol=k[4:], date=d)
     return rows

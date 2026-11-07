@@ -51,6 +51,9 @@ CAPTURE_AT_NY = (20, 15)             # engineering — المجدولُ ينتظ
                                      #   آخرِ دفعٍ لـ`op_entry_state.json` (مقيس: ‏20:00:43 · 20:04:16 نيويورك)
 CAPTURE_WAIT_MAX_S = 200 * 60        # engineering — أبعدُ منه ⇒ لا انتظار (إقلاعٌ بعد منتصف الليل أو صباحًا)
 IDENTITY = ("2026-08-18", "2026-09-01", 33, 321, 14)   # V-S2 · T-TIERLINK بت-بت
+# 🔧 **الملحق 1 (2026-11-07 · `shadow_ready_addendum_1.md`):** المراسي من `anchor_history` **المصحَّحة** (المِرساةُ الخارجة في `rearm_prev`
+#    موسومةٌ `exited`) ⟵ الحكمُ بالتعريفين: **القديم** (بلا `exited` = ما كان يُحسَب) و**المصحَّح** (الكلّ) · **والحاكمُ الأشدّ** (`governing`) ·
+#    والسجلُّ الأماميّ يبقى بالتعريف القديم بت-بت (الصفُّ `exited` لا يُكتب) · `SHADOW_DUMP=1` ⟵ صفوفُ الحساب سطرًا في السجلّ للقارئ (بلا كتابة).
 LEDGER_FIELDS = ("schema", "date", "symbol", "sample", "anchor_ms", "tod", "j1", "gap", "gap_pct", "shadow",
                  "member", "ready", "in_tier_ledger", "avail", "avail_why", "avail_asof", "run_id", "recorded_at")
 OUTCOME_FIELDS = ("exploded50", "exploded100", "mg_day", "mg_cut", "close_ret", "mg_5d", "e5")
@@ -271,6 +274,18 @@ def append_ledger(rows, path=None) -> int:
     return n
 
 
+def governing(v_old, v_full):
+    """🔧 **الملحق 1 — الحاكمُ الأشدّ** (نقيّة): «تفصل» (1) لا تُقال إلّا إن قالها التعريفان · وأيُّهما «لا تفصل» (2) ⟵ 2 ·
+    وإلّا «لا حكم/لا قياس» (`branch` ‏None أو 3 كما في أيٍّ منهما)."""
+    bo, bf = (v_old or {}).get("branch"), (v_full or {}).get("branch")
+    if bo == 1 and bf == 1:
+        return {"branch": 1, "why": "تفصل بالتعريفين"}
+    if 2 in (bo, bf):
+        return {"branch": 2, "why": "لا تفصل بأحد التعريفين (" + ("القديم" if bo == 2 else "المصحَّح") + ")"}
+    b3 = 3 if 3 in (bo, bf) else None
+    return {"branch": b3, "why": "لا حكم — " + ("القديم" if bo != 1 else "المصحَّح") + " لم يبلغ"}
+
+
 def decision_window(rows, floor_s=FLOOR_S, floor_all=FLOOR_ALL, key=None):
     """نافذةُ الحكم (العقد §④): أوّلُ يومٍ `D*` تبلغ فيه الصفوفُ حتى `D*` الأرضيتين — `(D*, الصفوف)` أو `(None, [])`.
     `key(r)` ⟵ عضويّةُ السلّة الحاكمة (افتراضًا `S`)."""
@@ -410,7 +425,8 @@ def main(now_ny=None) -> int:
              "gap_pct": None if g is None else round(g, 2), "shadow": shadow_flag(f), "member": bool(mem),
              "ready": bool(rdy), "in_tier_ledger": b is not None, "avail": av, "avail_why": why,
              "avail_asof": asof, "run_id": run_id,
-             "recorded_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds")}
+             "recorded_at": dt.datetime.now(dt.timezone.utc).isoformat(timespec="seconds"),
+             "exited": bool(a.get("exited"))}
         r.update({k: o.get(k) for k in OUTCOME_FIELDS})
         rows.append(r)
     total = len(keys)
@@ -446,7 +462,7 @@ def main(now_ny=None) -> int:
                                     f"S={'نعم' if r['shadow'] else 'لا'} عضو={'نعم' if r['member'] else 'لا'} "
                                     f"انفجر={'نعم' if r['exploded50'] else 'لا'}" for r in sx) or "لا مرساةَ في النافذة"))
     # ── السجلّ (D-2 · D-3)
-    to_write = ledger_rows(rows, load_ledger_keys())
+    to_write = ledger_rows([r for r in rows if not r.get("exited")], load_ledger_keys())   # الملحق 1: السجلُّ بالتعريف القديم بت-بت
     if write:
         n = append_ledger(to_write)
         log(f"\n🗂️ السجلّ: كُتب {n} صفًّا أماميًّا جديدًا في `{LEDGER}` (بلا نتيجة · مرّةً لكلّ تاريخ ورمز)")
@@ -479,13 +495,26 @@ def main(now_ny=None) -> int:
             + (f"{_bm:+.0f}%" if _bm is not None else "—") + f" · {'داخل S' if big['shadow'] else 'خارج S'}")
     else:
         log("   لا صفوفَ أماميّةً بعد")
-    v = shadow_verdict(fwd)
-    av = avail_verdict(fwd)
-    if v["branch"] is None and now_ny.date().isoformat() > STOP_DATE:
-        v = dict(v, branch=3, why=f"«لا قياس» — الأرضيةُ لم تُبلَغ حتى {STOP_DATE}")
-    log("\n🏁 الحكم (العقد §④): " + (f"الفرعُ {v['branch']} — " if v["branch"] else "") + v["why"]
-        + (f" · نافذةُ الحكم حتى {v['d_star']}" if v.get("d_star") else ""))
-    log(f"🏁 المتاح (العقد §⑤): {av['why']}")
+    fwd_old = [r for r in fwd if not r.get("exited")]
+    if os.environ.get("SHADOW_DUMP") == "1":
+        log("SHADOW_ROWS_JSON " + json.dumps([{k: r.get(k) for k in ("date", "symbol", "sample", "anchor_ms", "tod", "j1", "gap",
+                                                                      "gap_pct", "shadow", "exited", "exploded50")}
+                                               for r in rows], ensure_ascii=False))
+    v_old, v_full = shadow_verdict(fwd_old), shadow_verdict(fwd)
+    av_old, av_full = avail_verdict(fwd_old), avail_verdict(fwd)
+    if now_ny.date().isoformat() > STOP_DATE:
+        v_old, v_full = [dict(x, branch=3, why=f"«لا قياس» — الأرضيةُ لم تُبلَغ حتى {STOP_DATE}") if x["branch"] is None else x
+                         for x in (v_old, v_full)]
+    v, av = governing(v_old, v_full), governing(av_old, av_full)
+    log(f"\n🔧 الملحق 1: الأماميّ القديم {len(fwd_old)} · المصحَّح {len(fwd)} (منها خارجةٌ {len(fwd) - len(fwd_old)} · "
+        f"S {sum(1 for r in fwd if r['shadow'])} مقابل {sum(1 for r in fwd_old if r['shadow'])})")
+    for nm, x in (("القديم", v_old), ("المصحَّح", v_full)):
+        log(f"   الحكم بالتعريف {nm}: " + (f"الفرعُ {x['branch']} — " if x["branch"] else "") + x["why"]
+            + (f" · نافذةُ الحكم حتى {x['d_star']}" if x.get("d_star") else ""))
+    for nm, x in (("القديم", av_old), ("المصحَّح", av_full)):
+        log(f"   المتاح بالتعريف {nm}: {x['why']}")
+    log("\n🏁 الحكم (العقد §④ · الحاكمُ الأشدّ بالملحق 1): " + (f"الفرعُ {v['branch']} — " if v["branch"] else "") + v["why"])
+    log(f"🏁 المتاح (العقد §⑤ · الأشدّ): " + (f"الفرعُ {av['branch']} — " if av["branch"] else "") + av["why"])
     log("🔒 لا تلغرام · لا كرون · لا يمسّ «الجاهز» (R-00) — القائمةُ الظلّيّة قياسٌ لا تنبيه.")
     return 0
 

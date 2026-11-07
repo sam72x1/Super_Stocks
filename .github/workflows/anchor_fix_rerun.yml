@@ -1,0 +1,61 @@
+name: "🔧 تصحيحُ استخراج المراسي — إعادةُ T-LIVE-VS-SHADOW وT-SHADOW-CONT (قراءةٌ فقط)"
+
+# 🔧 `fm_forensics/nofire/CORRECTION_PROTOCOL.md` (أمرُ المالك 2026-11-07 · مدموجٌ قبل أيّ رقمٍ مصحَّح): ① LVS بالمراسي المصحَّحة (`--alerts full`)
+#    ② `shadow_ready.py` بالملحق 1 (`SHADOW_DUMP=1` · بلا كتابة) ⟵ صفوفُ المراسي الخارجة ⟵ T-SHADOW-CONT (`--extra-rows`).
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام و`contents: read` · لا يكتب في المستودع (`AFX3`).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-anchor-fix-rerun
+  cancel-in-progress: false
+
+jobs:
+  lvs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # تاريخُ op_entry_state.json كاملًا (إعادةُ المراسي) ولقطاتُ 09:25
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🎯🌘 LVS بالمراسي المصحَّحة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/live_vs_shadow/live_vs_shadow.py --mode run --alerts full
+  shadow_cont:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # سجلُّ الظلّ المجمَّد (ff8bdc690) وتاريخُ المراسي
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🌅 صفوفُ shadow_ready بالملحق 1 (بلا كتابة)
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SHADOW_DUMP: "1"
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python shadow_ready.py > sr.log
+          python -c "import json,sys;l=[x for x in open('sr.log',encoding='utf-8') if x.startswith('SHADOW_ROWS_JSON ')];json.dump(json.loads(l[-1][17:]),open('sr_rows.json','w'));print('rows',len(json.load(open('sr_rows.json'))))"
+          grep -v '^SHADOW_ROWS_JSON ' sr.log | tail -40
+      - name: 🌘➡️ T-SHADOW-CONT بالتعريفين
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/shadow_cont/shadow_cont.py --mode run --extra-rows sr_rows.json
