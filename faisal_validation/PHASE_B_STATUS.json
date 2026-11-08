@@ -325,10 +325,10 @@
  },
  "ledger": {
   "due_now": 0,
-  "file_sha256": "b68df86d574a058c938986fc025bb4d4981abebdae6f8928c1bf1fb1a73e1523",
-  "head_sha256": "df31d1bf05c72e97ac30b9ef8e6e46199d8bba2bc1adef59e9bb6c8f3911b94b",
+  "file_sha256": "40f10d8109cd255e135b1bc738c46f0d9cfbfc97f2fbf240b2d9271af54ef5e0",
+  "head_sha256": "3385997652a1773a19c9dadf379059353a21a9a181f55d1c36eed5572c4ce456",
   "problems": [],
-  "records": 272
+  "records": 273
  },
  "main": 0,
  "metrics_main": {
@@ -3607,13 +3607,13 @@
    "match_class": null,
    "pattern": null,
    "protocol_case": "CASE_0019",
-   "reason": "protocol PENDING_V4 (Faisal not revealed)",
+   "reason": "protocol PENDING_FAISAL (Faisal not revealed)",
    "regime": null,
    "setup": null,
    "status": "PENDING",
    "ticker": "NEXR",
    "timeframe": "4H",
-   "v4_decision": null
+   "v4_decision": "WAIT"
   },
   {
    "always_wait": "WAIT",
