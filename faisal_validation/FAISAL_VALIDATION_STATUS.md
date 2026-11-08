@@ -9,8 +9,8 @@ V4_FROZEN = YES (protocol epoch 1 · I1-I12 PASS)
 V4_COMMIT = 7c8826c25e745668d33facabb2efbc488e997fb7
 EPOCH_INTEGRITY = PASS
 COLLECTOR_STATUS = PASS · SCHEDULED_ACTIVE (131 runs: schedule 102 · workflow_dispatch 29 · schedule `17 */4 * * *` fired 102 time(s) · last run 42176154376 success · 0 update(s) · observed 2026-11-06T09:30:00Z)
-PRIMARY_CASES = 3 of 43 minimum (HISTORICAL 54 outside Phase B by definition)
-VALID_CASES = 0 (PRIMARY 3 minus 3 external-context-blocked)
+PRIMARY_CASES = 4 of 43 minimum (HISTORICAL 54 outside Phase B by definition)
+VALID_CASES = 0 (PRIMARY 4 minus 4 external-context-blocked)
 EXCLUDED_CASES = 120 (E1 82, E3 4, E4 17, E6 9, E7 5, E8 3)
 UNKNOWN_CASES = 0
 FAISAL_READY = 0
@@ -27,7 +27,7 @@ FALSE_READY = UNDEFINED (0/0)
 FALSE_WAIT = UNDEFINED (0/0)
 FALSE_REJECT = UNDEFINED (0/0)
 FALSE_UNKNOWN = UNDEFINED (0/0)
-EXTERNAL_CONTEXT_BLOCKED = 3
+EXTERNAL_CONTEXT_BLOCKED = 4
 DATA_BLOCKED = 3
 METHODOLOGY_MISMATCH = 0
 IMPLEMENTATION_ERROR = 0
@@ -39,7 +39,7 @@ LOOKAHEAD_TEST = PASS (protocol LA1-LA6) · E9 exclusions 0
 PROVENANCE_TEST = PASS (protocol I8-I10) · E7 exclusions 5
 CONTAMINATION_TEST = PASS · E2 0 · E3 4 · E4 17 · E5 0 excluded
 FREEZE_TEST = PASS
-LEDGER_INTEGRITY = PASS · 273 record(s) · head 3385997652a1773a
+LEDGER_INTEGRITY = PASS · 275 record(s) · head 4ac3ccc928e9facc
 VALIDATION_STATE = INSUFFICIENT_SAMPLE
 V5_CANDIDATES = 0
 TESTS = test_bot.py — PHB0-PHB9 (the number is read from the CI log, never written by this tool)
@@ -54,8 +54,8 @@ NEXT_ALLOWED_ACTION = Continue collecting under the same frozen rules; nothing c
 | status | count |
 |---|---|
 | HISTORICAL (outside Phase B) | 54 |
-| PRIMARY | 3 |
-| PENDING | 1 |
+| PRIMARY | 4 |
+| PENDING | 0 |
 | EXCLUDED | 120 |
 | UNKNOWN | 0 |
 
@@ -69,7 +69,7 @@ NEXT_ALLOWED_ACTION = Continue collecting under the same frozen rules; nothing c
 | WAIT | 0 | 0 | 0 | UNDEFINED | UNDEFINED |
 | REJECT | 0 | 0 | 0 | UNDEFINED | UNDEFINED |
 
-**Sensitivity (external-context-blocked cases included):** n 3 · exact 2/3 (66.7%) LOW_POWER · ALWAYS_WAIT 2/3 (66.7%) LOW_POWER · V4_VS_BASELINE NO. VALIDATED / PARTIALLY_VALIDATED need their criteria in both analyses (the lower state is reported).
+**Sensitivity (external-context-blocked cases included):** n 4 · exact 3/4 (75.0%) LOW_POWER · ALWAYS_WAIT 3/4 (75.0%) LOW_POWER · V4_VS_BASELINE NO. VALIDATED / PARTIALLY_VALIDATED need their criteria in both analyses (the lower state is reported).
 
 ## Dimensions (B7 — never collapsed)
 

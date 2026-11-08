@@ -19683,7 +19683,58 @@
   },
   {
    "CASE_ID": "CASE_0019",
+   "COMPONENTS": {
+    "ENTRY": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "INVALIDATION": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "STOP": {
+     "status": "FAISAL_NOT_STATED"
+    },
+    "TARGET": {
+     "status": "FAISAL_NOT_STATED"
+    }
+   },
    "DECISION_DATE": "2026-11-07",
+   "DIVERSITY": {
+    "decision": "WAIT",
+    "external_context": [
+     "split",
+     "short_borrow"
+    ],
+    "market_regime": "BELOW_SMA50",
+    "pattern": "UNSPECIFIED",
+    "price_range": "1-5",
+    "sector": "Consumer Cyclical",
+    "setup": "BROKEN_NEW_BASE",
+    "ticker": "NEXR",
+    "timeframe": "4H",
+    "v4_patterns": [
+     "W (V3.1)"
+    ]
+   },
+   "FAISAL": {
+    "components": {},
+    "effective_label": "WAIT",
+    "evidence_class": "DIRECT",
+    "evidence_quote": "جميل السهم لو ضغطه وثبت",
+    "external_codes": [
+     "«قسم امس» (تقسيمٌ عكسيّ يومَ 11-06)",
+     "«شورته صفر بسبب التقسيم» (اقتراض)"
+    ],
+    "false_ready_cause": null,
+    "label": "WATCH",
+    "label4": "WAIT",
+    "legacy": false,
+    "pattern_f": null,
+    "plan_f": "BELOW",
+    "px_f": 2.05,
+    "quote_verbatim": true,
+    "timeframe_f": "4H",
+    "v4_2": null
+   },
    "INTAKE_CLASS": "NEW_PROSPECTIVE",
    "LEGACY": false,
    "LOOKAHEAD": {
@@ -19695,6 +19746,7 @@
     "LA6_REPLAY": true,
     "verdict": "PASS"
    },
+   "MATCH_CLASS": "MATCH",
    "PROVENANCE": {
     "basis": "FORWARD_METADATA",
     "decision_date_from_post": "2026-11-07",
@@ -19721,7 +19773,7 @@
    },
    "PROVENANCE_CONFIDENCE": "HIGH",
    "SAMPLE": "PRIMARY",
-   "STATUS": "PENDING_FAISAL",
+   "STATUS": "COMPLETE",
    "SYMBOL": "NEXR",
    "V4": {
     "15_PERCENT_ZONE": {
@@ -19886,43 +19938,46 @@
   "dims": {
    "decision": {
     "READY": 1,
-    "WAIT": 2
+    "WAIT": 3
    },
    "external_context": {
     "other": 2,
-    "split": 1
+    "short_borrow": 1,
+    "split": 2
    },
    "market_regime": {
     "ABOVE_SMA50": 2,
-    "BELOW_SMA50": 1
+    "BELOW_SMA50": 2
    },
    "pattern": {
-    "UNSPECIFIED": 3
+    "UNSPECIFIED": 4
    },
    "price_range": {
-    "1-5": 3
+    "1-5": 4
    },
    "sector": {
+    "Consumer Cyclical": 1,
     "Industrials": 3
    },
    "setup": {
-    "BROKEN_NEW_BASE": 2,
+    "BROKEN_NEW_BASE": 3,
     "RETEST_PENDING": 1
    },
    "ticker": {
     "ANPA": 1,
     "BKYI": 1,
+    "NEXR": 1,
     "SUGP": 1
    },
    "timeframe": {
-    "4H": 2,
+    "4H": 3,
     "D": 1
    },
    "v4_patterns": {
-    "W (V3.1)": 3
+    "W (V3.1)": 4
    }
   },
-  "longest_same_setup_run": 2
+  "longest_same_setup_run": 3
  },
  "epoch": {
   "DATA_PIPELINE_PINS": {
@@ -20008,19 +20063,19 @@
   "ok": true
  },
  "metrics": {
-  "ALWAYS_WAIT_MATCH": 2,
+  "ALWAYS_WAIT_MATCH": 3,
   "FAISAL_UNKNOWN": 0,
   "FALSE_READY_FPR": 0.0,
   "FALSE_READY_RATE": 0.0,
   "FALSE_READY_RATE_WILSON": null,
-  "MATCHES": 2,
+  "MATCHES": 3,
   "MISMATCHES": 1,
   "P1_TECH_READY": {
    "faisal_ready": 1,
-   "faisal_wait_reject": 2,
+   "faisal_wait_reject": 3,
    "met": false,
    "newcombe95": [
-    -0.6576,
+    -0.5615,
     0.7935
    ],
    "tech_ready_given_ready": 0,
@@ -20031,7 +20086,7 @@
   "UNRESOLVED": 0,
   "V4_BEATS_BASELINE": "NO",
   "V4_UNKNOWN": 0,
-  "always_wait_rate": 0.6667,
+  "always_wait_rate": 0.75,
   "baseline_discordant": {
    "b_v4_only": 0,
    "c_baseline_only": 0
@@ -20042,7 +20097,7 @@
    "FALSE_REJECT": 0,
    "FALSE_UNKNOWN": 0,
    "FALSE_WAIT": 1,
-   "MATCH": 2,
+   "MATCH": 3,
    "MISMATCH_REJECT_WAIT": 0,
    "MISMATCH_WAIT_REJECT": 0,
    "UNRESOLVED": 0
@@ -20050,12 +20105,12 @@
   "coverage": {
    "READY": 1,
    "REJECT": 0,
-   "WAIT": 2
+   "WAIT": 3
   },
-  "exact_rate": 0.6667,
+  "exact_rate": 0.75,
   "exact_wilson": null,
-  "n_comparable": 3,
-  "n_valid": 3,
+  "n_comparable": 4,
+  "n_valid": 4,
   "per_class": {
    "READY": {
     "faisal": 1,
@@ -20076,18 +20131,18 @@
     "v4": 0
    },
    "WAIT": {
-    "faisal": 2,
-    "precision": 0.6667,
+    "faisal": 3,
+    "precision": 0.75,
     "precision_wilson": null,
     "recall": 1.0,
     "recall_wilson": null,
-    "tp": 2,
-    "v4": 3
+    "tp": 3,
+    "v4": 4
    }
   }
  },
  "output": {
-  "ALWAYS_WAIT_MATCH": 2,
+  "ALWAYS_WAIT_MATCH": 3,
   "CORPUS_AUDIT": "COMPLETE",
   "CURRENT_STATUS": "VERY_PRELIMINARY",
   "EXCLUDED_CASES": 174,
@@ -20098,7 +20153,7 @@
   "FALSE_WAIT": 1,
   "FINAL_VALIDATION_STATE": "INSUFFICIENT_SAMPLE",
   "LOOKAHEAD": "PASS",
-  "MATCHES": 2,
+  "MATCHES": 3,
   "METHODOLOGY_CHANGED": "NO",
   "MISMATCHES": 1,
   "PROVENANCE": "PASS",
@@ -20107,7 +20162,7 @@
   "V4_COMMIT": "7c8826c25e745668d33facabb2efbc488e997fb7",
   "V4_FROZEN": "YES",
   "V4_UNKNOWN": 0,
-  "VALID_PROSPECTIVE_CASES": 3
+  "VALID_PROSPECTIVE_CASES": 4
  },
  "output_order": [
   "V4_FROZEN",
@@ -20155,9 +20210,7 @@
    "PRE_EXISTING": 9,
    "UNKNOWN": 33
   },
-  "PENDING_PRIMARY": [
-   "CASE_0019"
-  ],
+  "PENDING_PRIMARY": [],
   "SECONDARY_TRACKED": [
    {
     "CASE_ID": "CASE_0001",

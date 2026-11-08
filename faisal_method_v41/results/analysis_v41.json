@@ -6701,17 +6701,17 @@
  },
  "prospective": {
   "candidates": 176,
-  "complete": 18,
+  "complete": 19,
   "coverage": {
    "disagreements": 5,
    "golden": 0,
    "pattern": {
-    "UNSPECIFIED": 18
+    "UNSPECIFIED": 19
    },
    "targets_stated": 0,
    "timeframe": {
     "1D": 1,
-    "4H": 5,
+    "4H": 6,
     "5M": 1,
     "D": 8,
     "UNKNOWN": 2,
@@ -6724,18 +6724,18 @@
     "READY": "0/4",
     "REJECT": "N=0",
     "UNKNOWN": "N=0",
-    "WAIT": "13/14"
+    "WAIT": "14/15"
    },
    "always_wait": {
-    "agree": 14,
-    "n": 18,
-    "rate": 0.7778
+    "agree": 15,
+    "n": 19,
+    "rate": 0.7895
    },
-   "exact": 13,
-   "exact_rate": 0.7222,
+   "exact": 14,
+   "exact_rate": 0.7368,
    "exact_wilson": [
-    0.4913,
-    0.875
+    0.5121,
+    0.8819
    ],
    "false": {
     "READY": 0,
@@ -6746,8 +6746,8 @@
    "false_rate": {
     "READY": 0.0,
     "REJECT": 0.0,
-    "UNKNOWN": 0.0556,
-    "WAIT": 0.2222
+    "UNKNOWN": 0.0526,
+    "WAIT": 0.2105
    },
    "insufficient": false,
    "matrix": {
@@ -6773,10 +6773,10 @@
      "READY": 0,
      "REJECT": 0,
      "UNKNOWN": 1,
-     "WAIT": 13
+     "WAIT": 14
     }
    },
-   "n": 18,
+   "n": 19,
    "ready_precision": "UNDEFINED (V4 READY = 0)",
    "ready_recall": "0/4",
    "v4_not_run": 0
