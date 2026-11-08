@@ -1,0 +1,102 @@
+{
+ "batch_id": "B3_20261108",
+ "blind": "يُكتب قبل تشغيل V4 — الرمزُ والتاريخُ والفريمُ والكاتبُ ووجودُ عبارة القرار والمصدريّة وحدَها · بلا قرار فيصل ولا هدفٍ ولا دخولٍ ولا وقف (FINAL_PROTOCOL §⑦) · ⚠️ إفصاح: أمرُ المالك 2026-11-08 «اختمها H6/FSWEEP أولًا» جاء **ومعه لقطاتُ شاشةٍ للمنشورات نفسِها بنصّ فيصل** (‏THH · BRTX · NEXR مرّتين · EHGO) ⟵ قرأتُ نصَّ فيصل (القرار والمستويات) قبل الختم — والختمُ لا يحمل شيئًا منه · وV4 مجمَّدٌ يُشغَّل على الرنر فلا يتأثّر بقراءتي · والصورُ الثلاث فُتحت كاملةً قبل الختم لملء هذه الحقول (2026-11-08) · ومنشورُ THH وصل في المحادثة وحدَها ولم يجمعه البوت ⟵ خارج هذه الدفعة (لا ملفّ في `faisal_images/`) · 🧵 TG_85754 (BRTX) يُوسَم `same_case_of` CASE_0018 بالعين قبل الختم (القرارُ نفسُه بتاريخ نيويورك نفسِه · الأسبقُ يحمل) — كُشف بعد ختمٍ محلّيٍّ أوّل لم يُدفع ولم يُشغَّل عليه V4",
+ "images": {
+  "TG_85754": {
+   "author": "F",
+   "content": "منشورُ «قناة تعليمية»: شارتُ BRTX اليوميّ (لقطةُ تطبيق التداول · After Hours 1.450 ‏−4.61% · RSI14 37.690) بخطوطٍ ملوّنة · والتعليقُ في نصّ المنشور",
+   "date_evidence": "تاريخُ المنشور الأصليّ في التوجيه 2026-11-07T20:14:32Z (= 15:14 نيويورك) · ولقطةُ المالك «اليوم عند 11:14 PM» (الرياض) تطابقه · وأرسله المالك 2026-11-07T20:29:15Z (from_recipient=true)",
+   "date_evidence_level": "HIGH",
+   "date_source": "forward_origin",
+   "decision_date": "2026-11-07",
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": true,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_order": 1,
+   "post_timestamp_tz": "Asia/Riyadh",
+   "post_timestamp_utc": "2026-11-07T20:14:32Z",
+   "post_timestamp_visible": "اليوم عند 11:14 PM",
+   "provenance_evidence": "صفُّ الجامع forward_type=channel (‏`telegram_collect_meta.jsonl` · تشغيلةُ الجامع 42426149543) ‏+ لقطاتُ المالك للمنشور نفسِه برأس «قناة تعليمية» ⟵ الكاتبُ فيصل بقاعدة المالك الدائمة (2026-10-28 · «قناة تعليمية» = فيصل نفسه) · ⚠️ اسمُ القناة محجوبٌ في صفّ الجامع (redacted) ⟵ النسبةُ بلقطة المالك وإقراره",
+   "same_case_of": [
+    "CASE_0018"
+   ],
+   "seen_example_of": [],
+   "symbol": "BRTX",
+   "timeframe": "1D",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "C4 بالعين: القرارُ نفسُه (BRTX · تاريخ نيويورك 2026-11-07) مختومٌ سلفًا CASE_0018 من لقطة التطبيق (B4_20261107 · 15:42Z) ⟵ الأسبقُ يحمل الحالة (سابقةُ A1 داخل الدفعة) · فلا تُعَدّ BRTX مرّتين في H6"
+  },
+  "TG_85755": {
+   "author": "F",
+   "content": "منشورُ «قناة تعليمية»: شارتُ NEXR على 4 ساعات (لقطةُ تطبيق التداول · After Hours 2.050 ‏−2.38% · RSI14 44.623) بخطوطٍ ملوّنة · والتعليقُ في نصّ المنشور · وأُرسل مرّتين (الرسالة 85757 نسخةٌ بالمعرّف نفسِه تخطّاها الجامع)",
+   "date_evidence": "تاريخُ المنشور الأصليّ في التوجيه 2026-11-07T20:19:42Z (= 15:19 نيويورك) · ولقطةُ المالك «اليوم عند 11:19 PM» تطابقه · وأرسله المالك 2026-11-07T20:29:15Z و20:35:32Z",
+   "date_evidence_level": "HIGH",
+   "date_source": "forward_origin",
+   "decision_date": "2026-11-07",
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": true,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_order": 1,
+   "post_timestamp_tz": "Asia/Riyadh",
+   "post_timestamp_utc": "2026-11-07T20:19:42Z",
+   "post_timestamp_visible": "اليوم عند 11:19 PM",
+   "provenance_evidence": "صفُّ الجامع forward_type=channel (‏`telegram_collect_meta.jsonl` · تشغيلةُ الجامع 42426149543) ‏+ لقطاتُ المالك للمنشور نفسِه برأس «قناة تعليمية» ⟵ الكاتبُ فيصل بقاعدة المالك الدائمة (2026-10-28 · «قناة تعليمية» = فيصل نفسه) · ⚠️ اسمُ القناة محجوبٌ في صفّ الجامع (redacted) ⟵ النسبةُ بلقطة المالك وإقراره",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": "NEXR",
+   "timeframe": "4H",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  },
+  "TG_85756": {
+   "author": "F",
+   "content": "منشورُ «قناة تعليمية»: شارتُ EHGO على 4 ساعات (لقطةُ تطبيق التداول · After Hours 1.730 ‏−0.02% · RSI14 38.026) بخطوطٍ ملوّنة · والتعليقُ في نصّ المنشور",
+   "date_evidence": "تاريخُ المنشور الأصليّ في التوجيه 2026-11-07T20:22:52Z (= 15:22 نيويورك) · ولقطةُ المالك «اليوم عند 11:22 PM» تطابقه · وأرسله المالك 2026-11-07T20:29:15Z",
+   "date_evidence_level": "HIGH",
+   "date_source": "forward_origin",
+   "decision_date": "2026-11-07",
+   "decision_date_max": null,
+   "derivative_of": [],
+   "faisal_author": true,
+   "has_decision_statement": true,
+   "layer": "1",
+   "ocr_jaccard": "NOT_RUN",
+   "post_order": 1,
+   "post_timestamp_tz": "Asia/Riyadh",
+   "post_timestamp_utc": "2026-11-07T20:22:52Z",
+   "post_timestamp_visible": "اليوم عند 11:22 PM",
+   "provenance_evidence": "صفُّ الجامع forward_type=channel (‏`telegram_collect_meta.jsonl` · تشغيلةُ الجامع 42426149543) ‏+ لقطاتُ المالك للمنشور نفسِه برأس «قناة تعليمية» ⟵ الكاتبُ فيصل بقاعدة المالك الدائمة (2026-10-28 · «قناة تعليمية» = فيصل نفسه) · ⚠️ اسمُ القناة محجوبٌ في صفّ الجامع (redacted) ⟵ النسبةُ بلقطة المالك وإقراره",
+   "same_case_of": [],
+   "seen_example_of": [],
+   "symbol": "EHGO",
+   "timeframe": "4H",
+   "visual_review": [
+    "NONE"
+   ],
+   "visual_review_note": "NONE"
+  }
+ },
+ "protocol_amendment": 1,
+ "source": {
+  "collector_run": "42426149543",
+  "duplicates_skipped": 1,
+  "forward_type": "channel",
+  "ingestion": "TELEGRAM",
+  "media_groups": 0,
+  "messages": 4,
+  "original_content": "تلغرام: ثلاثةُ منشوراتٍ من «قناة تعليمية» (BRTX · NEXR · EHGO) وجّهها المالك يدويًّا · ونسخةٌ مكرّرة لـNEXR",
+  "saved": 3,
+  "sender": "OWNER — صفوفُ الجامع from_recipient=true · وتصريحٌ مكتوبٌ للمالك في الجلسة 2026-11-08 (لقطاتُ المنشورات ‏+ «اختمها H6/FSWEEP أولًا»)",
+  "telegram_date_utc": "2026-11-07T20:29:15Z"
+ }
+}

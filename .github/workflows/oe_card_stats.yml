@@ -1,0 +1,65 @@
+name: "📊 «مثل هذا الإشعار» — تحديثٌ أسبوعيّ من سجلّ الحصاد"
+
+# أمرُ المالك 2026-11-08 ②: أرقامُ سطر كرت المِرساة (العاديّ و🥇) من `T-OPSIG` بذرةً ثمّ من `tier_fwd_ledger.jsonl` أسبوعيًّا (`oe_card_stats.py`).
+# يكتب `oe_card_outcomes.jsonl` (إلحاقيّ) و`oe_card_stats.json` وحدَهما · لا تلغرام · لا حالةَ إنتاج · والعاملُ الحيّ يقرأ الأرقام عند بدئه.
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: "47 14 * * 6"
+  workflow_dispatch:
+    inputs:
+      cap:
+        description: "سقفُ الإشعارات المقيسة في التشغيلة (فارغ = الكلّ)"
+        required: false
+        default: ""
+
+concurrency:
+  group: super-stocks-oe-card-stats
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 📊 قياسُ الجديد وإعادةُ الأرقام
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          OE_STATS_CAP: ${{ inputs.cap }}
+        run: python oe_card_stats.py refresh
+
+      - name: 💾 دفعُ الملفّين (fetch+rebase)
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -z "$(git status --porcelain -- oe_card_outcomes.jsonl oe_card_stats.json)" ]; then
+            echo "لا جديد — لا دفع"; exit 0
+          fi
+          git add oe_card_outcomes.jsonl oe_card_stats.json
+          git commit -m "📊 «مثل هذا الإشعار»: تحديثٌ أسبوعيّ من سجلّ الحصاد"
+          for i in 1 2 3 4; do
+            git fetch origin main && git rebase origin/main && \
+              git push origin HEAD:main && exit 0
+            echo "⚠️ محاولةُ الدفع $i فشلت — تراجعٌ أُسّيّ"
+            sleep $((2 ** i))
+          done
+          echo "⛔ سقط الدفعُ بعد أربع محاولات — يُعلَن ولا يُصمت"
+          exit 1

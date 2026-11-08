@@ -201,6 +201,12 @@ CONFIG = {
     #    الناقص الآن: …» من `readiness` و`outside` الموجودَين ‏+ حالةُ الحجب · مرتَّبًا بالجاهزية تنازليًّا · عرضٌ فقط بلا تغيير معيار ·
     #    `NW_APP_LINE=0` (بيئةُ التشغيل) ⟵ القسمُ بت-بت · `NWA1`-`NWA3`.
     "NW_APP_LINE": os.environ.get("NW_APP_LINE", "1").strip() != "0",
+    # 🏷️ «وسمُ فلوت 5 ملايين أو أقلّ» (أمرُ المالك 2026-11-08 ① بعد `T-APPDIFF` ②: «يرفع» ‏+2.8 [+0.2، +5.2]): سطرُ عرضٍ في الكرت
+    #    وحدَه بالفلوت الحقيقيّ (`float` ياهو/الذاكرة · لا عدد الأسهم القائمة) — لا يُسقط سهمًا ولا يمسّ ترتيبًا · `FLOAT5_TAG=0` ⟵ بت-بت · `FT51`-`FT53`.
+    "FLOAT5_TAG": os.environ.get("FLOAT5_TAG", "1").strip() != "0",
+    # 📊 «مثل هذا الإشعار» (أمرُ المالك 2026-11-08 ② · أرقامُ `T-OPSIG` ثمّ سجلُّ الحصاد أسبوعيًّا `oe_card_stats.py`): سطرٌ على كرت مِرساة السيولة
+    #    (حدثُ `M5`) للعاديّ و🥇 كلٌّ برقمه من `oe_card_stats.json` · عرضٌ لا توصية · `OE_STAT_LINE=0` ⟵ الكرتُ بت-بت · `OSL1`-`OSL4`.
+    "OE_STAT_LINE": os.environ.get("OE_STAT_LINE", "1").strip() != "0",
     "FLOAT_GATE_REQUIRED": True,  # M14: رفض الفلوت الكبير (أقوى رابط في أسهم فيصل)
     "FLOAT_GATE_MAX": 50_000_000, # حد الفلوت: كل أسهم فيصل تحته (HCAI 163ألف ←
                                   # MWC 26.68م). الفلوت الصغير = ينفجر بسهولة.
@@ -11519,6 +11525,9 @@ def build_message(results: list, splits: list,
         if r.get("country"):
             small.append(country_label(r["country"]))
         lines.append("💰 " + " · ".join(small))
+        _f5 = float5_tag_line(r)                 # 🏷️ أمرُ المالك 2026-11-08 ① — عرضٌ فقط
+        if _f5:
+            lines.append(_f5)
         # 🔒 معدّل الاقتراض (فيصل: أساس الارتكاز · اقتراض صعب = وقود سكويز) — يظهر عند
         # توفّره فقط (غالبًا يُحجب Fintel؛ لا نحشو «—» بسطر مستقل لكل كرت). عرض/سياق فقط.
         if r.get("borrow_fee") is not None or r.get("shares_available") is not None:
@@ -13927,6 +13936,59 @@ REJECT_LOG_MAX_SYMS = 400               # سقفٌ لكل جدارٍ في الي
 # ⛔ **عرض/متابعة فقط:** لا يدخل `results` ولا `rank_key` ولا `select_top` ولا
 #    يحجز خانة · ولا `LOGIC_VERSION` · ولا قناةَ تلغرام رابعة (قسمٌ داخل التقرير).
 NEAR_WATCH_FILE = "near_watch.json"
+FLOAT5_MAX = 5_000_000            # 🏷️ «ملايين أو أقل 5» (تطبيقُ فيصل · `faisal_app` · `FAISAL_SOURCE_LEDGER.md §B4_20261107`)
+OE_CARD_STATS_FILE = "oe_card_stats.json"
+
+
+def float5_tag_line(r: dict) -> str:
+    """🏷️ (أمرُ المالك 2026-11-08 ①) سطرُ «فلوت 5 ملايين أو أقلّ» — عرضٌ فقط بالفلوت الحقيقيّ `float` (ياهو `floatShares`/الذاكرة · لا
+    `sharesOutstanding`) · لا يُسقط سهمًا ولا يدخل ترتيبًا · مجهولٌ أو صفرٌ ⟵ لا سطر · `FLOAT5_TAG=False` ⟵ لا سطر (بت-بت)."""
+    if not CONFIG.get("FLOAT5_TAG"):
+        return ""
+    try:
+        f = float((r or {}).get("float"))
+    except (TypeError, ValueError):
+        return ""
+    if not (0 < f <= FLOAT5_MAX):
+        return ""
+    return ("🏷️ فلوت 5 ملايين أو أقلّ (معيارُ تطبيق فيصل) — في 2023-2025 أدقُّ بـ‏+2.8 نقطة "
+            "(‏T-APPDIFF) · وصفٌ لا بوّابة")
+
+
+_OE_STATS_CACHE = {}
+
+
+def load_oe_card_stats(path: str = None, fresh: bool = False) -> dict:
+    """📊 أرقامُ «مثل هذا الإشعار» (`oe_card_stats.json`) — تُقرأ مرّةً للعامل وتُخزَّن · فاشلٌ-آمن ⟵ `{}` (لا سطر)."""
+    path = OE_CARD_STATS_FILE if path is None else path
+    if not fresh and path in _OE_STATS_CACHE:
+        return _OE_STATS_CACHE[path]
+    try:
+        with open(path, encoding="utf-8") as fh:
+            d = json.load(fh)
+        d = d if isinstance(d, dict) else {}
+    except Exception:                                            # noqa: BLE001
+        d = {}
+    _OE_STATS_CACHE[path] = d
+    return d
+
+
+def oe_stat_line(gold: bool, stats: dict = None) -> str:
+    """📊 (أمرُ المالك 2026-11-08 ②) «📊 مثل هذا الإشعار: أعلى ربح وسيطه X% · 1 من Z بلغ +20% · كارثي Y% · بوقف −10% الوسيط W%» —
+    العاديُّ والـ🥇 كلٌّ برقمه · أرقامٌ بلا عيّنةٍ كافية ⟵ لا سطر · `OE_STAT_LINE=False` ⟵ لا سطر (بت-بت)."""
+    if not CONFIG.get("OE_STAT_LINE"):
+        return ""
+    st = ((stats if stats is not None else load_oe_card_stats()) or {}).get("gold" if gold else "normal") or {}
+    try:
+        n, med, p20, cat, s10 = (int(st["n"]), float(st["maxg_med"]), float(st["p20"]), float(st["cat"]), float(st["s10_med"]))
+    except (KeyError, TypeError, ValueError):
+        return ""
+    if n < 30 or p20 <= 0:
+        return ""
+    z = max(1, round(100.0 / p20))
+    w = f"{s10:.0f}%".replace("-", "−")
+    return (f"📊 مثل هذا الإشعار{' 🥇' if gold else ''}: أعلى ربح وسيطه {med:.0f}% · 1 من {z} بلغ +20% · "
+            f"كارثي {cat:.0f}% · بوقف −10% الوسيط {w}")
 NEAR_WATCH_MAX_OUT = 2       # 🥇 «جدارين» — قرارُ المالك 2026-08-16 حرفيًّا
 # 👀 سقفُ العرض — **‏40 بأمر المالك «وسّع العرض» (2026-08-16)**: العرضُ
 #    **سلّتان** فيصير 20 لكلٍّ. والسببُ مقيس: بـ15 كان `RUBI` **آخرَ ظاهر**
@@ -18710,6 +18772,11 @@ def build_liq_stage_alert(rows: list, now_ms=None) -> str:
                     _wl = bid_wall_line(e.get("operator"))
                     if _wl:
                         lines.append("   " + _wl)
+        # 📊 (أمرُ المالك 2026-11-08 ②) «مثل هذا الإشعار» على كرت المِرساة (حدثُ `M5`) وحدَه — 🥇 = شارةُ التوليفة نفسُها (`_j1`)
+        if any(e.get("stage") == "M5" for e in evs):     # المفتاحُ داخل `oe_stat_line`
+            _osl = oe_stat_line(any(a for _s, (a, _t) in _j1))
+            if _osl:
+                lines.append("   " + _osl)
     lines.append("<i>⏫💰 سيولةُ الشمعة · توقيتٌ لا توصية · «دخلت سيولة» "
                  "ليست «دخل المضارب»</i>")
     return _rtl_join(lines)
@@ -21598,6 +21665,9 @@ def build_daily_message(wl: dict, splits: list,
         if s.get("country"):
             small.append(country_label(s["country"]))
         lines.append("   💰 " + " · ".join(small))
+        _f5 = float5_tag_line(s)                 # 🏷️ أمرُ المالك 2026-11-08 ① — عرضٌ فقط
+        if _f5:
+            lines.append("   " + _f5)
         # 🔒 معدّل الاقتراض (فيصل: أساس الارتكاز · اقتراض صعب = سكويز) — عند توفّره فقط
         if s.get("borrow_fee") is not None or s.get("shares_available") is not None:
             lines.append("   " + borrow_line(s))

@@ -11,6 +11,9 @@ on:
       syms:
         description: "الرموز بفاصلة"
         default: "BRTX,THH,EHGO,NEXR"
+      levels:
+        description: "1 = مستوياتُ البوت (الفحصُ اليدويّ ‏+ 4س ‏+ المتاح) بدل المقارنة"
+        default: "0"
 
 concurrency:
   group: super-stocks-app-compare
@@ -37,4 +40,5 @@ jobs:
           FAISAL_ONLY: "1"
           SCREENER_MODE: PROBE
           APP_SYMS: ${{ github.event.inputs.syms || 'BRTX,THH,EHGO,NEXR' }}
+          APP_LEVELS: ${{ github.event.inputs.levels || '0' }}
         run: python fm_forensics/app_compare/app_compare.py
