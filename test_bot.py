@@ -35792,12 +35792,16 @@ _br_two = S.build_liq_stage_alert([(_br_row, [_br_m1, _br_m5])], now_ms=_br_now)
 #   `T-TARGET10`):** أُضيف سطرُ «🎯 هدفُ الربح» لكرت `M5` **داخل الميزانية
 #   القائمة بلا توسعة** (‏539 من 560 محرفًا · 6 من 7 أسطر) — **ويُشدَّد**:
 #   حضورُه صار شرطًا في العيّنة نفسِها كالوقف والفئة.
-check("📏 BRIEF1 كرتُ `$RITR` (سهمٌ · حدثٌ) تحت 560 محرفٍ و7 أسطر · "
-      "والزيادةُ هي المأمورُ بها (وقفٌ + فئة + هدف) "
+# ⚖️ **إقرارٌ مؤرَّخ 2026-11-08 (أمرُ المالك ② «اعرض سطر الكرت بالصيغة الأصدق» · `T-OPSIG`):** سطرُ «📊 مثل هذا الإشعار»
+#   على كرت `M5` أضاف ‏98 محرفًا (‏558 ⟵ 656) ⇒ الميزانيةُ **680 محرفًا والأسطرُ 7 كما هي**. **والتشديدُ كسوابقه:** الاتّساعُ
+#   مشروطٌ بأنّ الزيادةَ هي المأمورُ بها — السطرُ حاضرٌ في العيّنة نفسِها (ومفتاحُه `OE_STAT_LINE`=0 يُرجع الكرتَ بت-بت).
+check("📏 BRIEF1 كرتُ `$RITR` (سهمٌ · حدثٌ) تحت 680 محرفٍ و7 أسطر · "
+      "والزيادةُ هي المأمورُ بها (وقفٌ + فئة + هدف + سطرُ «📊 مثل هذا الإشعار») "
       f"— الفعليّ {len(_br_one)}/{len(_br_one.splitlines())}",
-      len(_br_one) < 560 and len(_br_one.splitlines()) <= 7
+      len(_br_one) < 680 and len(_br_one.splitlines()) <= 7
       and "🛑 وقفُ الجلسة" in _br_one
       and "🎯 هدفُ الربح" in _br_one
+      and "📊 مثل هذا الإشعار" in _br_one
       and any(_t in _br_one for _t in ("🥇 قوي", "🥈 متوسط", "🥉 ضعيف")),
       f"محارف={len(_br_one)} · أسطر={len(_br_one.splitlines())}")
 
@@ -35844,12 +35848,15 @@ _br_many = S.build_liq_stage_alert(
 #   والوسيطُ إلى **600**. **والتشديدُ كسوابقه:** مشروطٌ بأن تكون الزيادةُ هي
 #   المأمورُ بها — الشارةُ حاضرةٌ **ثلاثًا** في العيّنة نفسِها؛ و`BRIEF1` (كرتُ
 #   `M5` المفرد) بقي **داخل** ميزانيته 560 بلا توسعة (‏558).
-check("📏 BRIEF4 ثلاثةُ أسهمٍ بحدثين ⇒ ثلاثةُ رؤوسٍ وفاصلان وتحت 1,800 محرف "
-      "(ووسيطُ السهم دون 600 · وسطرُ الهدف ثلاثًا · وشارةُ J1-البريماركت ثلاثًا)",
+# ⚖️ **إقرارٌ مؤرَّخ 2026-11-08 (أمرُ المالك ② سطرُ «📊 مثل هذا الإشعار»):** العيّنةُ 2,052 (‏+98 لكلّ كرت `M5`) ⇒ السقفُ
+#   **2,100** والوسيطُ **700** · **والتشديدُ كسوابقه:** السطرُ حاضرٌ **ثلاثًا** في العيّنة نفسِها.
+check("📏 BRIEF4 ثلاثةُ أسهمٍ بحدثين ⇒ ثلاثةُ رؤوسٍ وفاصلان وتحت 2,100 محرف "
+      "(ووسيطُ السهم دون 700 · وسطرُ الهدف ثلاثًا · وشارةُ J1-البريماركت ثلاثًا · وسطرُ «📊» ثلاثًا)",
       _br_many.count("🔥") == 3
       and _br_many.count(S.DAILY_CARD_SEP) == 2
-      and len(_br_many) < 1800 and (len(_br_many) / 3.0) < 600
+      and len(_br_many) < 2100 and (len(_br_many) / 3.0) < 700
       and _br_many.count("🎯 هدفُ الربح") == 3
+      and _br_many.count("📊 مثل هذا الإشعار") == 3
       and _br_many.count("🌅 J1 في البريماركت") == 3,
       f"محارف={len(_br_many)} · للسهم={len(_br_many) / 3.0:.0f}")
 
@@ -83355,7 +83362,8 @@ _PHB_LEDGER_PINS = ((0, "0" * 64),    # (عددُ القيود · بصمةُ آ�
                     (252, "1c0ae69b17a9079fb075cf47fc7bebc939e79ca9a1e5d3d0371b033a8cf0d90c"),   # B46_20261104 · 46 صورة (منشورات X ونسخُ 09-18) · حالة 1 (CASE_0017 SUGP) · خُتمت قبل V4 (2026-11-04)
                     (255, "7dff72a76c9d7be44915370fc6ef0e2fd285d554f9b6e294af4f90cfa5c21589"),   # V4 لـCASE_0017 (run 41837639006 · WAIT) ثمّ كلمةُ فيصل WATCH ⟵ PRIMARY MATCH (2026-11-04)
                     (263, "a1235aaa65c79edc02a19f3e060d8bcaa0afd0b8ced5841423b948aaaa8b7f85"),   # B4_20261107 · 4 لقطات تطبيق (BRTX · THH · EHGO · NEXR) · حالة 1 (CASE_0018 BRTX) · خُتمت قبل V4 (2026-11-07)
-                    (266, "a9bc27207d54999eabeb098111ff7789500a072a6b73ae77d7179b458494de9e"))   # V4 لـCASE_0018 (run 42396391598 · WAIT · RETEST_PENDING) ثمّ كلمةُ فيصل (التطبيق «مراقبة») WATCH ⟵ MATCH · خارجَ الأساسيّة (مصدريّة LOW) (2026-11-07)
+                    (266, "a9bc27207d54999eabeb098111ff7789500a072a6b73ae77d7179b458494de9e"),   # V4 لـCASE_0018 (run 42396391598 · WAIT · RETEST_PENDING) ثمّ كلمةُ فيصل (التطبيق «مراقبة») WATCH ⟵ MATCH · خارجَ الأساسيّة (مصدريّة LOW) (2026-11-07)
+                    (272, "df31d1bf05c72e97ac30b9ef8e6e46199d8bba2bc1adef59e9bb6c8f3911b94b"))   # B3_20261108 · 3 منشورات (BRTX ثانيةً ⟵ CASE_0018 · NEXR ⟵ CASE_0019 · EHGO) · THH لم يُجمَع · خُتمت قبل V4 (2026-11-08)
 _PHB_HSHA = "f" * 64
 try:
     _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))
@@ -99829,6 +99837,7 @@ try:
           f"on={list(_apc_on)} env={_apc_env[:120]}")
     _apc_led = open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()
     _apc_sec = _apc_led.split("## §`B4_20261107`", 1)[-1] if "## §`B4_20261107`" in _apc_led else ""
+    _apc_sec = _apc_sec.split("\n## ", 1)[0]          # 🔒 القسمُ وحدَه حتى العنوان التالي (2026-11-08: قسمُ `FLOAT5` بعده لا يُعَدّ فيه)
     _apc_rows = [ln for ln in _apc_sec.split("\n") if ln.startswith("| ") and not ln.startswith("| القاعدة") and not set(ln) <= set("|-: ")]
     _apc_ann = _apc_js.load(open("faisal_method_v41/final_protocol/intake/B4_20261107/annotations.json", encoding="utf-8"))
     _apc_int = _apc_js.load(open("faisal_method_v41/final_protocol/intake/B4_20261107/INTAKE.json", encoding="utf-8"))
@@ -100173,6 +100182,273 @@ try:
 except Exception as _apd_e:                                          # noqa: BLE001
     check("📱⚖️ APD0 T-APPDIFF (انهيارُ القفل)", False, f"⛔ رمى: {type(_apd_e).__name__}: {_apd_e}")
 
+# 🏷️📊 FT51-FT53 · OSL1-OSL4 (‏2026-11-08 · أمرُ المالك ① «اعرض وسم الفلوت ≤5م» و② «اعرض سطر الكرت بالصيغة الأصدق»): عرضٌ فقط خلف مفتاحين يرجعان بت-بت.
+try:
+    import os as _ft_os
+    import sys as _ft_sys
+    import ast as _ft_ast
+    import inspect as _ft_insp
+    import json as _ft_json
+    import re as _ft_re
+    _ft_f0, _ft_o0 = S.CONFIG.get("FLOAT5_TAG"), S.CONFIG.get("OE_STAT_LINE")
+    try:
+        S.CONFIG["FLOAT5_TAG"] = True
+        _ft_on = [S.float5_tag_line({"float": v}) for v in (1.2e6, 5_000_000, 5_000_001, None, "—", 0, 0.0)]
+        S.CONFIG["FLOAT5_TAG"] = False
+        _ft_off = S.float5_tag_line({"float": 1.2e6})
+    finally:
+        S.CONFIG["FLOAT5_TAG"] = _ft_f0
+    check("🏷️ FT51 وسمُ «فلوت 5 ملايين أو أقلّ»: 1.2م و5,000,000 حرفًا ⟵ سطر · 5,000,001 والمجهولُ والشرطةُ والصفرُ ⟵ لا سطر · والمفتاحُ مطفأً ⟵ لا سطر · "
+          "وبلا علامة مقارنة في النصّ · و`FLOAT5_MAX` = 5,000,000 بصفٍّ `faisal_app` في الدفتر",
+          bool(_ft_on[0]) and bool(_ft_on[1]) and _ft_on[2:] == ["", "", "", "", ""] and _ft_off == "" and "فلوت 5 ملايين أو أقلّ" in _ft_on[0]
+          and not any(c in _ft_on[0] for c in "≤≥<>") and S.FLOAT5_MAX == 5_000_000
+          and _ft_re.search(r"\| `FLOAT5_MAX`[^\n]*5,000,000[^\n]*`faisal_app`", open("FAISAL_SOURCE_LEDGER.md", encoding="utf-8").read()) is not None,
+          f"on={[bool(x) for x in _ft_on]} off={_ft_off!r}")
+
+    # FT52 — الوصلةُ في الكرتين · والمطفأُ = الكرتُ بلا السطر حرفًا
+    _ft_r = {"symbol": "ZZFT", "price": 1.5, "float": 1_200_000, "tier": "B", "soft_fails": [], "score": 60, "readiness": 50,
+             "entry": (1.4, 1.5), "tranches": [1.40, 1.44, 1.48], "stop": (1.30, 1.35), "t1": 1.8, "t2": 2.0, "t3": 2.4, "rr": 1.2,
+             "pivot": 1.4, "drop_pct": 80.0, "best_spike": 150.0, "rsi": 30.0, "flags": [], "warnings": []}
+
+    def _ft_msg():
+        try:
+            _wl = {"week_start": "2024-01-01", "stocks": [S.make_watch_entry(dict(_ft_r), "2024-01-02")], "removed": [], "notes": []}
+            for _s in _wl["stocks"]:
+                _s["readiness"], _s["have"], _s["partial"], _s["missing"] = 80, [], [], []
+            return S.build_message([dict(_ft_r)], [], 0, 0) + "\n⟦يوميّ⟧\n" + S.build_daily_message(_wl, [], [], [])
+        except Exception as _e:                                     # noqa: BLE001
+            return f"⛔ {type(_e).__name__}: {_e}"
+    _ft_fn0 = S.float5_tag_line
+    try:
+        S.CONFIG["FLOAT5_TAG"] = True
+        _ft_m_on = _ft_msg()
+        S.CONFIG["FLOAT5_TAG"] = False
+        _ft_m_off = _ft_msg()
+        S.CONFIG["FLOAT5_TAG"] = True
+        S.float5_tag_line = lambda r: ""
+        _ft_m_blank = _ft_msg()
+    finally:
+        S.float5_tag_line = _ft_fn0
+        S.CONFIG["FLOAT5_TAG"] = _ft_f0
+    _ft_calls = lambda fn: {getattr(c.func, "id", None) for c in _ft_ast.walk(_ft_ast.parse(_ft_insp.getsource(fn))) if isinstance(c, _ft_ast.Call)}
+    check("🏷️ FT52 الوصلة: `build_message` و`build_daily_message` ينادِيان `float5_tag_line` (AST) · والكرتان (الفرزُ واليوميّ) يحملان الوسمَ مع المفتاح · "
+          "ومطفأً = الكرتُ نفسُه بدالّةٍ فارغة حرفًا (لا تغييرَ آخر)",
+          _ft_m_on.count("فلوت 5 ملايين أو أقلّ") == 2 and "فلوت 5 ملايين أو أقلّ" in _ft_m_on.split("⟦يوميّ⟧")[1]
+          and "فلوت 5 ملايين أو أقلّ" not in _ft_m_off and _ft_m_off == _ft_m_blank
+          and not _ft_m_on.startswith("⛔") and "float5_tag_line" in _ft_calls(S.build_message) and "float5_tag_line" in _ft_calls(S.build_daily_message),
+          f"on={'فلوت 5' in _ft_m_on} off={'فلوت 5' in _ft_m_off} same={_ft_m_off == _ft_m_blank} {_ft_m_on[:60]!r}")
+    _ft_roots = ("rank_key", "select_top", "classify_tier", "analyze_ticker", "apply_float_gate", "scan_market", "entry_status")
+    check("🏷️ FT53 عرضٌ لا اختيار: لا جذرَ من السبعة يقرأ `float5_tag_line` ولا `FLOAT5_MAX` ولا `FLOAT5_TAG`",
+          not any(n in _ft_insp.getsource(getattr(S, f)) for f in _ft_roots for n in ("float5_tag_line", "FLOAT5_MAX", "FLOAT5_TAG")), "")
+
+    # OSL1 — النصّ من الأرقام
+    _osl_st = {"normal": {"n": 1436, "maxg_med": 8.5, "p20": 27.1, "cat": 12.8, "s10_med": -10.0},
+               "gold": {"n": 125, "maxg_med": 18.5, "p20": 45.6, "cat": 36.0, "s10_med": -10.0}}
+    try:
+        S.CONFIG["OE_STAT_LINE"] = True
+        _osl_n = S.oe_stat_line(False, _osl_st)
+        _osl_g = S.oe_stat_line(True, _osl_st)
+        _osl_small = S.oe_stat_line(False, {"normal": dict(_osl_st["normal"], n=29)})
+        _osl_p0 = S.oe_stat_line(False, {"normal": dict(_osl_st["normal"], p20=0)})
+        _osl_none = S.oe_stat_line(True, {})
+        _osl_s7 = S.oe_stat_line(False, {"normal": dict(_osl_st["normal"], s10_med=-7.4)})
+        S.CONFIG["OE_STAT_LINE"] = False
+        _osl_off = S.oe_stat_line(False, _osl_st)
+    finally:
+        S.CONFIG["OE_STAT_LINE"] = _ft_o0
+    check("📊 OSL1 «مثل هذا الإشعار» بصيغة المالك حرفًا: العاديّ «أعلى ربح وسيطه 8% · 1 من 4 بلغ +20% · كارثي 13% · بوقف −10% الوسيط −10%» · "
+          "و🥇 «18% · 1 من 2 · 36%» · ودون 30 أو بلا ‏+20% أو بلا أرقام ⟵ لا سطر · والوسيطُ بإشارته (−7%) · والمفتاحُ مطفأً ⟵ لا سطر",
+          _osl_n == "📊 مثل هذا الإشعار: أعلى ربح وسيطه 8% · 1 من 4 بلغ +20% · كارثي 13% · بوقف −10% الوسيط −10%"
+          and _osl_g == "📊 مثل هذا الإشعار 🥇: أعلى ربح وسيطه 18% · 1 من 2 بلغ +20% · كارثي 36% · بوقف −10% الوسيط −10%"
+          and _osl_small == "" and _osl_p0 == "" and _osl_none == "" and _osl_off == "" and _osl_s7.endswith("الوسيط −7%"),
+          f"n={_osl_n!r} g={_osl_g!r} s7={_osl_s7[-12:]!r}")
+
+    # OSL2 — الكرت: M5 فقط · 🥇 بشارة التوليفة · والمطفأُ = بلا سطرٍ حرفًا
+    _osl_now = 1_800_000_000_000
+
+    def _osl_card(stage):
+        _e = {"stage": stage, "price": 1.01, "price_ms": _osl_now - 30_000, "minutes": 5, "usd": 145_000, "vol_x": 4.0, "move": 5.5,
+              "class": ("operator", "مضارب"), "prev_close": 0.9}
+        try:
+            return S.build_liq_stage_alert([({"symbol": "ZZOS", "src": "اختبار"}, [_e])], now_ms=_osl_now)
+        except Exception as _e2:                                    # noqa: BLE001
+            return f"⛔ {type(_e2).__name__}: {_e2}"
+    _osl_j0, _osl_ld0 = S._event_j1, S.load_oe_card_stats
+    try:
+        S.load_oe_card_stats = lambda path=None, fresh=False: _osl_st
+        S.CONFIG["OE_STAT_LINE"] = True
+        S._event_j1 = lambda e: (False, False)
+        _osl_c5 = _osl_card("M5")
+        _osl_c1 = _osl_card("M1")
+        S._event_j1 = lambda e: (True, False)
+        _osl_c5g = _osl_card("M5")
+        S._event_j1 = lambda e: (False, False)
+        S.CONFIG["OE_STAT_LINE"] = False
+        _osl_c5off = _osl_card("M5")
+        S.CONFIG["OE_STAT_LINE"] = True
+        _osl_sl0 = S.oe_stat_line
+        S.oe_stat_line = lambda g, stats=None: ""
+        _osl_c5blank = _osl_card("M5")
+        S.oe_stat_line = _osl_sl0
+    finally:
+        S._event_j1, S.load_oe_card_stats = _osl_j0, _osl_ld0
+        S.CONFIG["OE_STAT_LINE"] = _ft_o0
+    check("📊 OSL2 الكرت: سطرُ «مثل هذا الإشعار» على كرت المِرساة `M5` وحدَه (لا على `M1`) · 🥇 بشارة التوليفة نفسِها (`_event_j1`) ⟵ أرقامُ 🥇 · "
+          "ومطفأً = الكرتُ بدالّةٍ فارغة حرفًا",
+          "📊 مثل هذا الإشعار: أعلى ربح وسيطه 8%" in _osl_c5 and "مثل هذا الإشعار" not in _osl_c1
+          and "📊 مثل هذا الإشعار 🥇: أعلى ربح وسيطه 18%" in _osl_c5g and "مثل هذا الإشعار" not in _osl_c5off
+          and _osl_c5off == _osl_c5blank and not _osl_c5.startswith("⛔"),
+          f"m5={'مثل هذا' in _osl_c5} m1={'مثل هذا' in _osl_c1} gold={'🥇:' in _osl_c5g} off_eq={_osl_c5off == _osl_c5blank} {_osl_c5[:50]!r}")
+
+    # OSL3 — أداةُ التحديث الأسبوعيّ
+    _ft_sys.path.insert(0, ".")
+    import importlib as _osl_il
+    OEC = _osl_il.import_module("oe_card_stats")
+    _osl_lines = [_ft_json.dumps(x, ensure_ascii=False) for x in (
+        {"date": "2026-11-02", "symbol": "AAA", "tier": "قوي", "j1": True, "anchor_ms": 300, "price_ms": 360},
+        {"date": "2026-11-02", "symbol": "AAA", "tier": "ضعيف", "j1": False, "anchor_ms": 100, "price_ms": 160},
+        {"date": "2026-11-02", "symbol": "BBB", "tier": "متوسط", "j1": True, "anchor_ms": 200, "price_ms": 260},
+        {"date": "2026-11-03", "symbol": "CCC", "tier": "قوي", "j1": False, "price_ms": 500})]
+    _ft_sys.path.insert(0, _ft_os.path.join("fm_forensics", "live_vs_shadow"))
+    _osl_LVS = _osl_il.import_module("live_vs_shadow")
+    _osl_al = OEC.alerts_of(_osl_lines, _osl_LVS.j1_map)
+    _osl_seed = {"source": "T-OPSIG بذرة", "normal": {"n": 1}, "gold": {"n": 1}, "defs": "d"}
+    _osl_mk = lambda n, g: {"normal": {"n": n, "maxg_med": 1, "p20": 10, "cat": 1, "s10_med": -10}, "gold": {"n": g, "maxg_med": 2, "p20": 20, "cat": 2, "s10_med": -10}}
+    _osl_p1 = OEC.publish(_osl_mk(299, 40), _osl_seed, "X")
+    _osl_p2 = OEC.publish(_osl_mk(300, 30), _osl_seed, "X")
+    _osl_rows = [{"day": "d", "sym": "A", "gold": False, "out": {"res": "win", "cat": False, "maxg": 30.0, "stop10": 5.0}},
+                 {"day": "d", "sym": "B", "gold": True, "out": {"res": "loss", "cat": True, "maxg": 4.0, "stop10": -10.0}},
+                 {"day": "d", "sym": "C", "gold": False, "skip": "split"}]
+    _ft_sys.path.insert(0, _ft_os.path.join("fm_forensics", "opsig"))
+    _osl_OP = _osl_il.import_module("opsig")
+    _osl_sf = OEC.stats_from(_osl_rows, _osl_OP.card_stats)
+    check("📊 OSL3 التحديثُ الأسبوعيّ: أبكرُ مِرساةٍ لكلّ يومٍ ورمز (`anchor_ms` ثمّ `price_ms`) · و🥇 = J1 ∧ «قوي» بـ`j1_map` بالاسم (BBB «متوسط» ⟵ عاديّ) · "
+          "والبذرةُ تبقى دون 300/30 وتُستبدَل عندهما · ويومُ التقسيم خارج الأرقام · و`opsig.card_stats` بالاسم",
+          _osl_al == {("2026-11-02", "AAA"): {"ms": 100, "gold": True}, ("2026-11-02", "BBB"): {"ms": 200, "gold": False},
+                      ("2026-11-03", "CCC"): {"ms": 500, "gold": False}}
+          and _osl_p1["source"] == "T-OPSIG بذرة" and _osl_p1["harvest"]["n_normal"] == 299
+          and "سجلُّ الحصاد" in _osl_p2["source"] and _osl_p2["normal"]["n"] == 300 and _osl_p2["gold"]["n"] == 30
+          and _osl_sf["normal"]["n"] == 1 and _osl_sf["gold"]["n"] == 1 and _osl_sf["gold"]["cat"] == 100.0
+          and "card_stats" in _ft_insp.getsource(OEC.mode_stats) and "measure" in _ft_insp.getsource(OEC.mode_refresh),
+          f"al={_osl_al} p1={_osl_p1.get('source')} p2={str(_osl_p2.get('source'))[:20]}")
+
+    # OSL4 — البذرةُ = أرقامُ T-OPSIG المنشورة · والـworkflow
+    _osl_seedf = _ft_json.load(open("oe_card_stats.json", encoding="utf-8"))
+    _osl_res = open(_ft_os.path.join("fm_forensics", "opsig", "T_OPSIG_RESULT.md"), encoding="utf-8").read()
+    _osl_rn = _ft_re.search(r"\| عاديّ \(ليس 🥇\) \| (\d+) \| ([\d.]+) / [\d.]+ \| (-?[\d.]+) / [-\d.]+ \| ([\d.]+) \| [\d.]+ \| ([\d.]+) \|", _osl_res)
+    _osl_rg = _ft_re.search(r"\| 🥇 J1 \| (\d+) \| ([\d.]+) / [\d.]+ \| (-?[\d.]+) / [-\d.]+ \| ([\d.]+) \| [\d.]+ \| ([\d.]+) \|", _osl_res)
+    _osl_cmp = lambda m, d: m is not None and (int(m.group(1)), float(m.group(2)), float(m.group(3)), float(m.group(4)), float(m.group(5))) == \
+        (d["n"], d["maxg_med"], d["s10_med"], d["p20"], d["cat"])
+    import yaml as _osl_y
+    _osl_wf = _osl_y.safe_load(open(".github/workflows/oe_card_stats.yml", encoding="utf-8").read())
+    _osl_on = _osl_wf.get("on", _osl_wf.get(True)) or {}
+    _osl_run = " ".join(str(s.get("run")) for s in _osl_wf["jobs"]["refresh"]["steps"] if s.get("run"))
+    check("📊 OSL4 البذرةُ `oe_card_stats.json` = جدولُ T-OPSIG §④ المنشور حرفًا (العاديّ و🥇) · والـworkflow أسبوعيٌّ بكرون ويدويّ · يكتب الملفّين وحدَهما · "
+          "بلا سرِّ تلغرام",
+          _osl_cmp(_osl_rn, _osl_seedf["normal"]) and _osl_cmp(_osl_rg, _osl_seedf["gold"]) and "T-OPSIG" in _osl_seedf["source"]
+          and set(_osl_on) == {"schedule", "workflow_dispatch"} and (_osl_wf.get("permissions") or {}).get("contents") == "write"
+          and "git add oe_card_outcomes.jsonl oe_card_stats.json" in _osl_run and "oe_card_stats.py refresh" in _osl_run
+          and "TELEGRAM" not in open(".github/workflows/oe_card_stats.yml", encoding="utf-8").read(),
+          f"rn={_osl_rn and _osl_rn.groups()} rg={_osl_rg and _osl_rg.groups()}")
+except Exception as _ft_e:                                           # noqa: BLE001
+    check("🏷️📊 FT50 وسمُ الفلوت وسطرُ الكرت (انهيارُ القفل)", False, f"⛔ رمى: {type(_ft_e).__name__}: {_ft_e}")
+
+# 📏 APPC5 (‏2026-11-08 · أمرُ المالك ④ «مقارنة منشورات فيصل الأربعة 11-07 … جدول رقمًا برقم»): وضعُ `APP_LEVELS=1` في مِجَسّ المقارنة —
+#    يقرأ بطاقةَ الفحص اليدويّ (`analyze_on_demand`) ومستوياتِ البوت بجذوعٍ بلا شبكة ⟵ الدعمُ والوقفُ والأهدافُ والـ4س والمتاحُ بأسمائها ·
+#    و`main()` يذهب إليه حين المفتاحُ 1 وحدَه · وقراءةٌ فقط (لا تلغرام ولا حفظ).
+try:
+    import importlib.util as _ap5_iu
+    import ast as _ap5_ast
+    import io as _ap5_io
+    import contextlib as _ap5_cl
+    import os as _ap5_os
+    import pandas as _ap5_pd
+    _ap5_sp = _ap5_iu.spec_from_file_location("app_compare_lock5", "fm_forensics/app_compare/app_compare.py")
+    AP5 = _ap5_iu.module_from_spec(_ap5_sp)
+    _ap5_sp.loader.exec_module(AP5)
+    _ap5_idx = _ap5_pd.date_range("2026-10-01", periods=30, freq="B")
+    _ap5_df = _ap5_pd.DataFrame({"Open": [2.0] * 30, "High": [2.2] * 30, "Low": [1.0 + 0.01 * k for k in range(30)],
+                                 "Close": [2.1] * 30, "Volume": [1e6] * 30}, index=_ap5_idx)
+
+    class _Ap5AO:
+        @staticmethod
+        def analyze_on_demand(sym):
+            return ({"price": 2.1, "pivot": 1.85, "stop": (1.72, 1.76), "tranches": [1.85, 1.9, 1.96], "sweep": (1.7, 1.75),
+                     "t1": 2.36, "t2": 2.86, "t3": 3.37, "targets_kind": ["⚫", "⚫", "🔵"], "rr": 0.33, "drop_pct": 99.954,
+                     "key_levels": {"sup_major": 1.85, "sup_minor": 1.9, "res_major": 2.86, "res_minor": 2.36},
+                     "h4_levels": {"supports": [1.85], "resistances": [2.4, 2.86], "flip": None, "sweep_low": 1.7, "managed_ceiling": None},
+                     "warnings": ["w"]}, [("M2", False, "x", "hard"), ("M1", True, "y", "hard")], _ap5_df)
+
+    class _Ap5S:
+        @staticmethod
+        def resistance_levels(df, price):
+            return [2.36, 2.86]
+
+        @staticmethod
+        def tested_level(df):
+            return {"level": 1.0, "touches": 2}
+
+        @staticmethod
+        def faisal_candle_supports(df, price):
+            return {"red_tails": [1.5], "green_origins": []}
+
+        @staticmethod
+        def fetch_4h(sym):
+            return _ap5_df
+
+        @staticmethod
+        def ce_borrow_info(sym):
+            return {"shares_available": 0}
+    _ap5_r = AP5.levels_one(_Ap5S, _Ap5AO, "NEXR")
+    _ap5_bad = AP5.levels_one(_Ap5S, type("B", (), {"analyze_on_demand": staticmethod(lambda s: (None, "تعذّر", None))}), "XX")
+    check("📏 APPC5 وضعُ المستويات: بطاقةُ الفحص اليدويّ بأرقامها (الدعم · الوقف · t1-t3 · RR · الهبوط · المستوياتُ الأساسيّة · 4س) "
+          "‏+ مِرساةُ الإنتاج `tested_level` ‏+ المقاوماتُ اليوميّة ‏+ أدنى القيعان ‏+ المتاح · والبوّاباتُ الساقطة بأسمائها · والتعذّرُ يُقال",
+          _ap5_r.get("pivot") == 1.85 and _ap5_r.get("stop") == [1.72, 1.76] and _ap5_r.get("t") == [2.36, 2.86, 3.37]
+          and _ap5_r.get("rr") == 0.33 and _ap5_r.get("drop_pct") == 99.954 and _ap5_r.get("gates_failed") == ["M2"]
+          and _ap5_r.get("h4", {}).get("resistances") == [2.4, 2.86] and _ap5_r.get("tested_level") == {"level": 1.0, "touches": 2}
+          and _ap5_r.get("daily_resistances") == [2.36, 2.86] and _ap5_r.get("low5") == 1.25 and _ap5_r.get("low20") == 1.1
+          and _ap5_r.get("borrow") == {"shares_available": 0} and _ap5_r.get("h4_low20") == 1.1
+          and _ap5_bad.get("error") == "تعذّر" and "pivot" not in _ap5_bad,
+          f"r={str(_ap5_r)[:300]} bad={_ap5_bad}")
+    _ap5_calls = []
+    _ap5_ml, _ap5_mn = AP5.main_levels, getattr(AP5, "download_history", None)
+    _ap5_e0, _ap5_s0 = _ap5_os.environ.get("APP_LEVELS"), _ap5_os.environ.get("APP_SYMS")
+    _ap5_dh = S.download_history
+    _ap5_buf = _ap5_io.StringIO()
+    try:
+        AP5.main_levels = lambda syms: (_ap5_calls.append(list(syms)), 0)[1]
+        S.download_history = lambda syms, *a, **k: {}
+        _ap5_os.environ["APP_SYMS"] = "AA,BB"
+        _ap5_os.environ["APP_LEVELS"] = "1"
+        with _ap5_cl.redirect_stdout(_ap5_buf):
+            _ap5_rc1 = AP5.main()
+        _ap5_os.environ["APP_LEVELS"] = "0"
+        with _ap5_cl.redirect_stdout(_ap5_buf):
+            _ap5_rc0 = AP5.main()
+        _ap5_os.environ["APP_LEVELS"] = "yes"                  # «1» حرفيًّا وحدَه يفتح الوضع
+        with _ap5_cl.redirect_stdout(_ap5_buf):
+            AP5.main()
+    except Exception as _ap5_e:                                  # noqa: BLE001
+        _ap5_rc1 = _ap5_rc0 = f"⛔ {type(_ap5_e).__name__}: {_ap5_e}"
+    finally:
+        AP5.main_levels = _ap5_ml
+        S.download_history = _ap5_dh
+        for _k, _v in (("APP_LEVELS", _ap5_e0), ("APP_SYMS", _ap5_s0)):
+            if _v is None:
+                _ap5_os.environ.pop(_k, None)
+            else:
+                _ap5_os.environ[_k] = _v
+    _ap5_t = _ap5_ast.parse(open("fm_forensics/app_compare/app_compare.py", encoding="utf-8").read())
+    _ap5_fn = next((n for n in _ap5_t.body if isinstance(n, _ap5_ast.FunctionDef) and n.name in ("levels_one",)), None)
+    _ap5_c = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _ap5_ast.walk(_ap5_fn) if isinstance(c, _ap5_ast.Call)} if _ap5_fn else set()
+    check("📏 APPC6 `main()` يذهب لوضع المستويات حين `APP_LEVELS=1` وحدَه (ومرّةً بالرموز نفسِها) · والمقارنةُ القديمة بت-بت حين 0 · "
+          "و`levels_one` قراءةٌ فقط (لا تلغرام ولا حفظ)",
+          _ap5_rc1 == 0 and _ap5_rc0 == 0 and _ap5_calls == [["AA", "BB"]]
+          and "APP_JSON [" in _ap5_buf.getvalue() and _ap5_fn is not None
+          and not ({"send_telegram", "save_watchlist", "git_save", "save_near_watch"} & _ap5_c),
+          f"rc1={_ap5_rc1} rc0={_ap5_rc0} calls={_ap5_calls}")
+except Exception as _ap5_x:                                      # noqa: BLE001
+    check("📏 APPC50 أقفالُ وضع المستويات لم تنهَر", False, f"⛔ {type(_ap5_x).__name__}: {_ap5_x}")
 # 📱⚖️ APD4-APD6 (‏2026-11-08 · `T-APPDIFF` الملحق 1 «سقفُ M2 والعائد/المخاطرة» · `fm_forensics/appdiff/T_APPDIFF_ADDENDUM_1.md` مدموجٌ قبل أيّ رقم):
 #   APD4 R والتقييمُ المشروط · APD5 الشريحةُ بجذعٍ (السقف · العائد/المخاطرة · تدقيقُ السوبرست يمسك المشروطَ المعطوب) · APD6 التجميعُ والملحقُ والـworkflow.
 try:

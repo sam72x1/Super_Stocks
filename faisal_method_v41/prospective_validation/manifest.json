@@ -2642,6 +2642,47 @@
    "sha256": "1085cd3065573a005f690a28b2f3953153fc25ab5313485b029f3c83f88581df",
    "utc": "2026-11-07T17:30:06Z",
    "version": 1
+  },
+  {
+   "case_id": "TG_85754",
+   "entry_hash": "4c3c0cc0c2a59d51f0ac867f780a6431ab895310e02ea4fbb621cc91536abd15",
+   "kind": "candidate",
+   "path": "candidates/TG_85754.v1.json",
+   "prev": "4795e4a2372c18c2e797b125cc52f4442ba2b8298d9127314b4d7fff00d6b8c0",
+   "seq": 258,
+   "sha256": "c354a02d7917d24adc6d2772d51b74344f043d05e35a26a970e36b75d2454128",
+   "utc": "2026-11-08T05:00:56Z"
+  },
+  {
+   "case_id": "TG_85755",
+   "entry_hash": "7c05feed7abd9db1074767fba0fe60fd54f1662f8aaebd03d410bb871fd962ad",
+   "kind": "candidate",
+   "path": "candidates/TG_85755.v1.json",
+   "prev": "4c3c0cc0c2a59d51f0ac867f780a6431ab895310e02ea4fbb621cc91536abd15",
+   "seq": 259,
+   "sha256": "63bb0082a9583fcdcf895b5825046285699452f13c94d54f9991c162ecd54084",
+   "utc": "2026-11-08T05:00:56Z"
+  },
+  {
+   "case_id": "TG_85756",
+   "entry_hash": "1d854d2ed1b1ebc73c0d63d0518afdc4bc1d97e80510c1bac8fee7881275788d",
+   "kind": "candidate",
+   "path": "candidates/TG_85756.v1.json",
+   "prev": "7c05feed7abd9db1074767fba0fe60fd54f1662f8aaebd03d410bb871fd962ad",
+   "seq": 260,
+   "sha256": "9327628ad0b2995e6f141e3a0c0b73aaae370b650a1b0bd815bfa571f093debe",
+   "utc": "2026-11-08T05:00:56Z"
+  },
+  {
+   "case_id": "CASE_0019",
+   "entry_hash": "62c9db495d51b88f971a8d86f35284cc17d26e2b3348f0643cd5cbc3185e8ef8",
+   "kind": "case",
+   "path": "cases/CASE_0019.v1.json",
+   "prev": "1d854d2ed1b1ebc73c0d63d0518afdc4bc1d97e80510c1bac8fee7881275788d",
+   "seq": 261,
+   "sha256": "a6d43592c934a9f42f21404e33abbdc7c4202946d499ad66178aca845b7edbc6",
+   "utc": "2026-11-08T05:00:56Z",
+   "version": 1
   }
  ],
  "schema": 1,
