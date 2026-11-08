@@ -1,12 +1,18 @@
 name: "📱⚖️ T-APPDIFF ثلاثة فروق بين تطبيق فيصل والبوت (قراءةٌ فقط · يدويّ)"
 
 # 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا شحن (العقد `fm_forensics/appdiff/T_APPDIFF_prereg.md` · APD0-APD3).
+# والملحق 1 بالمُدخَل `addendum=1` (`APD_ADDENDUM`).
 # prep (لقطاتٌ شهريّة 2022-12…2025-12 · تقسيمات · FINRA) ⟵ 20 شريحةً متوازية ⟵ assemble — وكلُّ وضعٍ يخرج 9 إن تغيّرت بصمةُ العقد.
 permissions:
   contents: read
 
 on:
   workflow_dispatch:
+    inputs:
+      addendum:
+        description: "1 = الملحق 1 (سقفُ M2 والعائد/المخاطرة · T_APPDIFF_ADDENDUM_1.md) · 0 = العقد الأصل بت-بت"
+        required: false
+        default: "0"
 
 concurrency:
   group: super-stocks-appdiff
@@ -76,6 +82,7 @@ jobs:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           SHARD: ${{ matrix.shard }}
           NSHARDS: "20"
+          APD_ADDENDUM: ${{ inputs.addendum }}
           PYTHONUNBUFFERED: "1"
         run: python fm_forensics/appdiff/appdiff.py --mode shard
 
@@ -114,5 +121,6 @@ jobs:
       - name: 📱 التجميع والحكم
         env:
           NSHARDS: "20"
+          APD_ADDENDUM: ${{ inputs.addendum }}
           PYTHONUNBUFFERED: "1"
         run: python fm_forensics/appdiff/appdiff.py --mode assemble
