@@ -1,6 +1,6 @@
 {
  "amendment": "faisal_method_v41/FINAL_PROTOCOL_AMENDMENT_1_prereg.md",
- "blocked_external": 3,
+ "blocked_external": 4,
  "checkpoints_reached": [],
  "collector": {
   "last_run": {
@@ -26,8 +26,8 @@
  "contract": "faisal_validation/PHASE_B_prereg.md",
  "counts": {
   "EXCLUDED": 120,
-  "PENDING": 1,
-  "PRIMARY": 3,
+  "PENDING": 0,
+  "PRIMARY": 4,
   "UNKNOWN": 0
  },
  "cutoff": "2026-10-08T01:29:04Z",
@@ -325,10 +325,10 @@
  },
  "ledger": {
   "due_now": 0,
-  "file_sha256": "40f10d8109cd255e135b1bc738c46f0d9cfbfc97f2fbf240b2d9271af54ef5e0",
-  "head_sha256": "3385997652a1773a19c9dadf379059353a21a9a181f55d1c36eed5572c4ce456",
+  "file_sha256": "d2bf3766d01689da652c2b1e7d2ec19921286d718d16007967aa719cc21eb036",
+  "head_sha256": "4ac3ccc928e9facc04c2ff92ba04637c8bef15ee59a397e65d2de7a6170f9230",
   "problems": [],
-  "records": 273
+  "records": 275
  },
  "main": 0,
  "metrics_main": {
@@ -355,12 +355,12 @@
   }
  },
  "metrics_sensitivity": {
-  "always_wait": 2,
-  "exact": 2,
+  "always_wait": 3,
+  "exact": 3,
   "faisal": {
    "READY": 1,
    "REJECT": 0,
-   "WAIT": 2
+   "WAIT": 3
   },
   "false": {
    "READY": 0,
@@ -368,13 +368,13 @@
    "UNKNOWN": 0,
    "WAIT": 1
   },
-  "n": 3,
-  "prior": 1,
+  "n": 4,
+  "prior": 2,
   "v4": {
    "READY": 0,
    "REJECT": 0,
    "UNKNOWN": 0,
-   "WAIT": 3
+   "WAIT": 4
   }
  },
  "predictions": {
@@ -382,7 +382,7 @@
   "P2": "HELD",
   "P3": "HELD (FVO1: V4's forward output ∈ {WAIT, UNKNOWN})"
  },
- "primary": 3,
+ "primary": 4,
  "protocol": {
   "LOOKAHEAD": "PASS",
   "PROVENANCE": "PASS",
@@ -455,7 +455,7 @@
   "coverage": {
    "READY": 1,
    "REJECT": 0,
-   "WAIT": 2
+   "WAIT": 3
   }
  },
  "rows": [
@@ -3592,25 +3592,33 @@
   },
   {
    "always_wait": "WAIT",
-   "blocked": false,
+   "blocked": true,
    "capture_timestamp": "2026-11-07T23:38:46Z",
    "case_id": "PB:TG_85755",
-   "categories": [],
+   "categories": [
+    "split",
+    "short_borrow"
+   ],
    "cause": null,
    "code": "",
-   "components": {},
-   "external_context": "NOT_EVALUATED",
-   "faisal_decision": null,
+   "components": {
+    "ENTRY": "FAISAL_NOT_STATED",
+    "INVALIDATION": "FAISAL_NOT_STATED",
+    "STOP": "FAISAL_NOT_STATED",
+    "TARGET": "FAISAL_NOT_STATED"
+   },
+   "external_context": "EXTERNAL_REQUIRED · VALIDATION_BLOCKED_EXTERNAL_CONTEXT",
+   "faisal_decision": "WAIT",
    "faisal_timestamp": "2026-11-07T20:19:42Z",
    "historical_prior": "WAIT",
    "image_hash": "6b45d62c7067a292f2624337f8ff2c03e7ec91a5f51a4544c7020ef01058a202",
-   "match_class": null,
-   "pattern": null,
+   "match_class": "MATCH",
+   "pattern": "UNSPECIFIED",
    "protocol_case": "CASE_0019",
-   "reason": "protocol PENDING_FAISAL (Faisal not revealed)",
-   "regime": null,
-   "setup": null,
-   "status": "PENDING",
+   "reason": "",
+   "regime": "BELOW_SMA50",
+   "setup": "BROKEN_NEW_BASE",
+   "status": "PRIMARY",
    "ticker": "NEXR",
    "timeframe": "4H",
    "v4_decision": "WAIT"

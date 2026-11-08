@@ -83363,7 +83363,8 @@ _PHB_LEDGER_PINS = ((0, "0" * 64),    # (عددُ القيود · بصمةُ آ�
                     (255, "7dff72a76c9d7be44915370fc6ef0e2fd285d554f9b6e294af4f90cfa5c21589"),   # V4 لـCASE_0017 (run 41837639006 · WAIT) ثمّ كلمةُ فيصل WATCH ⟵ PRIMARY MATCH (2026-11-04)
                     (263, "a1235aaa65c79edc02a19f3e060d8bcaa0afd0b8ced5841423b948aaaa8b7f85"),   # B4_20261107 · 4 لقطات تطبيق (BRTX · THH · EHGO · NEXR) · حالة 1 (CASE_0018 BRTX) · خُتمت قبل V4 (2026-11-07)
                     (266, "a9bc27207d54999eabeb098111ff7789500a072a6b73ae77d7179b458494de9e"),   # V4 لـCASE_0018 (run 42396391598 · WAIT · RETEST_PENDING) ثمّ كلمةُ فيصل (التطبيق «مراقبة») WATCH ⟵ MATCH · خارجَ الأساسيّة (مصدريّة LOW) (2026-11-07)
-                    (272, "df31d1bf05c72e97ac30b9ef8e6e46199d8bba2bc1adef59e9bb6c8f3911b94b"))   # B3_20261108 · 3 منشورات (BRTX ثانيةً ⟵ CASE_0018 · NEXR ⟵ CASE_0019 · EHGO) · THH لم يُجمَع · خُتمت قبل V4 (2026-11-08)
+                    (272, "df31d1bf05c72e97ac30b9ef8e6e46199d8bba2bc1adef59e9bb6c8f3911b94b"),   # B3_20261108 · 3 منشورات (BRTX ثانيةً ⟵ CASE_0018 · NEXR ⟵ CASE_0019 · EHGO) · THH لم يُجمَع · خُتمت قبل V4 (2026-11-08)
+                    (275, "4ac3ccc928e9facc04c2ff92ba04637c8bef15ee59a397e65d2de7a6170f9230"))   # V4 لـCASE_0019 (run 42452867183 · WAIT · BROKEN_NEW_BASE) ثمّ كلمةُ فيصل «جميل السهم لو ضغطه وثبت» WATCH ⟵ PRIMARY MATCH (2026-11-08)
 _PHB_HSHA = "f" * 64
 try:
     _phb_spec = _pha_ilu.spec_from_file_location("_phb_phase_b", _pha_os.path.join("faisal_validation", "phase_b.py"))
