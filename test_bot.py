@@ -100173,6 +100173,120 @@ try:
 except Exception as _apd_e:                                          # noqa: BLE001
     check("📱⚖️ APD0 T-APPDIFF (انهيارُ القفل)", False, f"⛔ رمى: {type(_apd_e).__name__}: {_apd_e}")
 
+# 📱⚖️ APD4-APD6 (‏2026-11-08 · `T-APPDIFF` الملحق 1 «سقفُ M2 والعائد/المخاطرة» · `fm_forensics/appdiff/T_APPDIFF_ADDENDUM_1.md` مدموجٌ قبل أيّ رقم):
+#   APD4 R والتقييمُ المشروط · APD5 الشريحةُ بجذعٍ (السقف · العائد/المخاطرة · تدقيقُ السوبرست يمسك المشروطَ المعطوب) · APD6 التجميعُ والملحقُ والـworkflow.
+try:
+    import os as _apd4_os
+    import sys as _apd4_sys
+    import importlib as _apd4_il
+    import datetime as _apd4_dt
+    import hashlib as _apd4_h
+    _apd4_sys.path.insert(0, _apd4_os.path.join("fm_forensics", "appdiff"))
+    APD4 = _apd4_il.import_module("appdiff")
+    # APD4 — plan_r · need_arm
+    _apd4_rows = [("d%02d" % k, 1.0, 1.10, 0.95, 1.0, 1e6) for k in range(30)]
+    _apd4_up = [("d%02d" % k, 1.0, 1.60, 0.95, 1.0, 1e6) for k in range(30)]
+    _apd4_dn = [("d%02d" % k, 1.0, 1.60, 0.70, 1.0, 1e6) for k in range(30)]     # الوقفُ والهدفُ في جلسةٍ واحدة ⟵ الوقفُ أوّلًا
+    _apd4_cl = _apd4_rows[:20] + [("d20", 1.0, 1.1, 0.95, 1.2, 1e6)] + _apd4_rows[21:]
+    _apd4_r = (APD4.plan_r(_apd4_up, 1, 1.0, 0.8, 1.5), APD4.plan_r(_apd4_dn, 1, 1.0, 0.8, 1.5), APD4.plan_r(_apd4_cl, 1, 1.0, 0.8, 1.5),
+               APD4.plan_r(_apd4_up, 1, 1.0, 0.949, 1.55), APD4.plan_r(_apd4_rows, 1, 0.8, 0.8, 1.5), APD4.plan_r(_apd4_rows, 15, 1.0, 0.8, 1.5),
+               APD4.plan_r(_apd4_rows, 1, 1.0, 0.8, None))
+    _apd4_na = (APD4.need_arm("C9999", None, False, APD4.CAP_REASON), APD4.need_arm("C9999", None, False, "M2_هبوط_تحت_40"),
+                APD4.need_arm("CNOCAP", {"x": 1}, True, None), APD4.need_arm("CNORR", {"x": 1}, False, None),
+                APD4.need_arm("CNORR", None, False, "RR+نواقص_فوق_الحد"), APD4.need_arm("CNORR", None, False, APD4.CAP_REASON),
+                APD4.need_arm("CNORR", {"x": 1}, True, None))
+    check("📱⚖️ APD4 T-APPDIFF الملحق 1 — R بخطّة البوت (t1 ⟵ +2.5 · الوقفُ أوّلًا في الجلسة نفسِها ⟵ −1 · إغلاقُ D+19 ⟵ +1.0 · القصّ عند +10 · "
+          "None بلا هامشٍ أو جلساتٍ أو هدف) · والتقييمُ المشروط: السقفُ لرفض السقف وحدَه · والعائد/المخاطرة لِما لم ينطلق ∧ (عبر أو رُفض بنواقص)",
+          _apd4_r == (2.5, -1.0, 1.0, 10.0, None, None, None) and _apd4_na == (True, False, False, True, True, False, False),
+          f"R={_apd4_r} need={_apd4_na}")
+
+    # APD5 — الشريحة بجذع
+    class _Apd4S:
+        CONFIG = {}
+        _REJECT_REASONS = {}
+        DROP = {"CAP": 99.97, "DEEP": 99.995, "RR": 60.0, "OK": 60.0}
+        RRV = {"CAP": 1.0, "DEEP": 1.0, "RR": 0.3, "OK": 1.0}
+
+        def analyze_ticker(self, sym, sub):
+            if self.DROP[sym] > self.CONFIG["MAX_DROP_PCT"]:
+                self._REJECT_REASONS[sym] = APD4.CAP_REASON
+                return None
+            sf = ["العائد مقابل المخاطرة منخفض"] if self.RRV[sym] < self.CONFIG["MIN_RR_T1"] else []
+            return {"symbol": sym, "soft_fails": sf, "price": 1.0, "stop": (0.8, 0.9), "t1": 1.5, "rr": self.RRV[sym], "readiness": 50}
+
+        def rank_key(self, x):
+            return (0, -x.get("readiness", 0), 0, 0, -x.get("rr", 0))
+
+        def apply_short_gate(self, x):
+            return x
+
+        def apply_float_gate(self, x):
+            return x
+
+        def classify_tier(self, sf):
+            return "B" if not sf else None
+    _apd4_RB = APD4._rb()
+    _apd4_S = _Apd4S()
+    _apd4_cur = {"MAX_DROP_PCT": 99.94998, "MIN_RR_T1": 0.5}
+    _apd4_s0 = _apd4_dt.date(2024, 1, 2)
+    _apd4_days = [(_apd4_s0 + _apd4_dt.timedelta(k)).isoformat() for k in range(420)]
+    _apd4_bars = [(d, 1.0, 1.05, 0.95, 1.0, 1e6) for d in _apd4_days if _apd4_dt.date.fromisoformat(d).weekday() < 5]
+    _apd4_bd = [b[0] for b in _apd4_bars]
+    _apd4_prev = {d: _apd4_bd[i - 1] for i, d in enumerate(_apd4_bd) if i}
+
+    def _apd4_run(sym, audit=False):
+        return APD4.appdiff2_symbol(sym, _apd4_bars, None, _apd4_bd[150:155], _apd4_prev, {}, lambda s, d: 4e6, _apd4_S, _apd4_cur,
+                                    _apd4_RB._gen5_ext(), _apd4_RB, audit=audit)
+    _apd4_o = {s: _apd4_run(s, audit=True) for s in ("CAP", "DEEP", "RR", "OK")}
+    _apd4_flags = {s: [tuple(r[1:5]) for r in o[0]] for s, o in _apd4_o.items()}
+    _apd4_na0 = APD4.need_arm
+    try:
+        APD4.need_arm = lambda *a, **k: False                          # مشروطٌ معطوب ⟵ التدقيقُ يجب أن يمسكه
+        _apd4_bad = _apd4_run("CAP", audit=True)[1]["audit_mismatch"]
+    finally:
+        APD4.need_arm = _apd4_na0
+    check("📱⚖️ APD5 T-APPDIFF الملحق 1 — الشريحة بجذع: 99.97 يُرفض بالسقف الحاليّ ويعبر 99.99 وبلا سقف · 99.995 يعبر بلا سقفٍ وحدَه · "
+          "العائد 0.3 نقصٌ يُسقطه CURRENT ويعبر بلا عائد/مخاطرة · والسليمُ ينطلق في الأربع · وتدقيقُ السوبرست صفرُ مخالفة ويمسك مشروطًا معطوبًا · وR وrank_key في الصفّ",
+          _apd4_flags == {"CAP": [(0, 1, 1, 0)] * 5, "DEEP": [(0, 0, 1, 0)] * 5, "RR": [(0, 0, 0, 1)] * 5, "OK": [(1, 1, 1, 1)] * 5}
+          and all(o[1]["audit_mismatch"] == 0 and o[1]["audit_rows"] == 15 for o in _apd4_o.values()) and _apd4_bad > 0
+          and all(len(r) == 10 and r[9] is not None and r[7] is not None for o in _apd4_o.values() for r in o[0]),
+          f"flags={ {k: v[:1] for k, v in _apd4_flags.items()} } audit={[o[1]['audit_mismatch'] for o in _apd4_o.values()]} bad={_apd4_bad}")
+
+    # APD6 — التجميع والملحق والـworkflow
+    _apd4_sess = [d for d in ((_apd4_dt.date(2022, 12, 1) + _apd4_dt.timedelta(k)).isoformat() for k in range(1200))
+                  if _apd4_dt.date.fromisoformat(d).weekday() < 5 and d <= "2025-12-31"]
+    _apd4_rb = {"AAA": [["2024-03-01", 1, 1, 1, 1, -0.1, True, 1.0, 1.0, [0, -60, 0, 0, -1]],
+                        ["2024-03-04", 1, 1, 1, 1, -0.1, True, 1.0, 1.0, [0, -60, 0, 0, -1]]],
+                "BBB": [["2024-03-01", 0, 1, 1, 0, -0.1, False, -1.0, 1.0, [1, -40, 0, 0, -1]]],
+                "CCC": [["2024-03-01", 0, 0, 1, 0, -0.1, True, 2.0, 1.0, [0, -90, 0, 0, -1]]]}
+    _apd4_res = APD4.analyse2(_apd4_rb, _apd4_sess, [("AAA", "2024-03-05"), ("CCC", "2024-03-01"), ("ZZZ", "2024-03-01")], b=50)
+    _apd4_cp = APD4.capacity_pick(APD4.entries2(_apd4_rb, _apd4_sess, APD4.RULES2["CNOCAP"]), APD4.entries2(_apd4_rb, _apd4_sess, APD4.RULES2["CUR"]))
+    _apd4_u = {x["sym"]: (x["in_rows"], x["CUR"], x["CNOCAP"]) for x in _apd4_res["units"]}
+    _apd4_shah = APD4.ADDENDUM_SHA
+    try:
+        APD4.ADDENDUM_SHA = "0" * 64
+        _apd4_os.environ["APD_ADDENDUM"] = "1"
+        _apd4_rc9 = APD4.main(["--mode", "check"])
+    finally:
+        APD4.ADDENDUM_SHA = _apd4_shah
+        _apd4_os.environ.pop("APD_ADDENDUM", None)
+    _apd4_add = open(APD4.ADDENDUM, encoding="utf-8").read()
+    import yaml as _apd4_y
+    _apd4_wf = _apd4_y.safe_load(open(".github/workflows/appdiff.yml", encoding="utf-8").read())
+    _apd4_in = ((_apd4_wf.get("on", _apd4_wf.get(True)) or {}).get("workflow_dispatch") or {}).get("inputs") or {}
+    _apd4_env = [str(s.get("env")) for j in ("shard", "assemble") for s in _apd4_wf["jobs"][j]["steps"] if s.get("env")]
+    check("📱⚖️ APD6 T-APPDIFF الملحق 1 — «المضاف» = الذراعُ ∧ ¬CUR (CNOCAP يضيف BBB وCCC) · أيّامُ الظهور بالصفوف · تحت سعة CUR بأوّل n_CUR(D) بـrank_key · "
+          "وحداتُ فيصل بنافذة 20 جلسة و«خارج الصفوف» · والملحقُ ببصمته (المغيَّرة ⟵ 9) وحرفِ المالك · والـworkflow بمُدخَل addendum افتراضُه 0 إلى الشريحة والتجميع",
+          _apd4_res["counts"]["ADD_CNOCAP"]["n"] == 2 and _apd4_res["fire_days"] == {"CUR": 2, "C9999": 3, "CNOCAP": 4, "CNORR": 2}
+          and _apd4_res["counts"]["ADD_C9999"]["n"] == 1 and len(_apd4_cp) == 1 and list(_apd4_cp)[0][0] == "CCC"
+          and _apd4_u == {"AAA": (True, True, True), "CCC": (True, False, True), "ZZZ": (False, False, False)}
+          and _apd4_rc9 == 9 and APD4.addendum_ok() and _apd4_h.sha256(_apd4_add.encode("utf-8")).hexdigest() == APD4.ADDENDUM_SHA
+          and "⑤ العائد/المخاطرة: الحد 0.5 مقابل بلا." in _apd4_add and "بأيام الظهور" in _apd4_add
+          and (_apd4_in.get("addendum") or {}).get("default") == "0" and all("APD_ADDENDUM" in e for e in _apd4_env if "NSHARDS" in e),
+          f"add={_apd4_res['counts']['ADD_CNOCAP']['n']} fd={_apd4_res['fire_days']} cp={list(_apd4_cp)} u={_apd4_u} rc9={_apd4_rc9} in={list(_apd4_in)}")
+except Exception as _apd4_e:                                         # noqa: BLE001
+    check("📱⚖️ APD40 T-APPDIFF الملحق 1 (انهيارُ القفل)", False, f"⛔ رمى: {type(_apd4_e).__name__}: {_apd4_e}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
