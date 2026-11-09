@@ -786,7 +786,7 @@
  },
  "LIQ:CODX": {
   "anchor_ms": 1794266760000,
-  "last_ms": 1794266760000,
+  "last_ms": 1794266820000,
   "sent": [
    "M1"
   ],
@@ -794,15 +794,15 @@
   "vol_x": 34.4,
   "peak_usd": 72721,
   "last_eval_ms": 1794266820000,
-  "pulse_ms": 1794266760000,
+  "pulse_ms": 1794266820000,
   "anchor_price": 0.456,
   "anchor_open": 0.3708,
   "anchor_low": 0.3654,
-  "date": "2026-11-09",
   "pre_done": true,
   "pre_hi": 0.3792,
   "pre_usd": 51499,
-  "pre_n": 32
+  "pre_n": 32,
+  "date": "2026-11-09"
  },
  "LIQ:FTHM": {
   "last_eval_ms": 1794257940000,
