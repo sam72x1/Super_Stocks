@@ -149,6 +149,7 @@
    "j1_top": true
   },
   "e5": 0.2358,
+  "tgt_ms": 1794239940000,
   "date": "2026-11-09"
  },
  "LIQ:ENLV": {
@@ -2510,11 +2511,11 @@
   "anchor_price": 0.9888,
   "anchor_open": 0.926,
   "anchor_low": 0.9151,
-  "date": "2026-11-09",
   "pre_done": true,
   "pre_hi": 0.9966,
   "pre_usd": 74747,
-  "pre_n": 9
+  "pre_n": 9,
+  "date": "2026-11-09"
  },
  "LIQ:STKE": {
   "last_eval_ms": 1793998680000,
