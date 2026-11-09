@@ -754,7 +754,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.2,
+   "last_price": 1.21,
    "live_alert": {
     "premarket": "2026-11-09",
     "sweep": "2026-11-09",
@@ -1128,7 +1128,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 12.11,
+   "last_price": 12.02,
    "live_alert": {
     "buyzone": "2026-11-09"
    }
@@ -2215,7 +2215,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 6.46,
+   "last_price": 6.26,
    "live_alert": {
     "buyzone": "2026-11-09",
     "break": "2026-11-09"
@@ -2580,9 +2580,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.08,
+   "last_price": 2.28,
    "live_alert": {
-    "buyzone": "2026-11-09"
+    "buyzone": "2026-11-09",
+    "breakout": "2026-11-09"
    }
   },
   {
@@ -2975,7 +2976,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.795,
+   "last_price": 1.77,
    "live_alert": {
     "buyzone": "2026-11-09"
    }
@@ -3394,7 +3395,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.28,
+   "last_price": 2.27,
    "live_alert": {}
   },
   {
@@ -4679,7 +4680,7 @@
    "hit": "t2",
    "hit_date": "2026-10-14",
    "max_gain_pct": 40.4,
-   "last_price": 1.56,
+   "last_price": 1.5116,
    "live_alert": {
     "breakout": "2026-11-06"
    },
@@ -5147,7 +5148,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 5.8,
-   "last_price": 3.6041,
+   "last_price": 3.57,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -6912,7 +6913,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 0.782,
+   "last_price": 0.7819,
    "live_alert": {
     "breakout": "2026-10-28",
     "dump": "2026-10-26"
@@ -7805,7 +7806,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 376.8,
-   "last_price": 5.31,
+   "last_price": 5.35,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
