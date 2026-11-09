@@ -371,7 +371,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.4371,
+   "last_price": 2.48,
    "live_alert": {}
   },
   {
@@ -754,7 +754,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.2099,
+   "last_price": 1.19,
    "live_alert": {
     "premarket": "2026-11-09",
     "sweep": "2026-11-09",
@@ -1128,7 +1128,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 12.11,
+   "last_price": 12.18,
    "live_alert": {
     "buyzone": "2026-11-09"
    }
@@ -2215,7 +2215,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 6.83,
+   "last_price": 6.9,
    "live_alert": {
     "buyzone": "2026-11-09"
    }
@@ -2579,8 +2579,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.18,
-   "live_alert": {}
+   "last_price": 2.15,
+   "live_alert": {
+    "buyzone": "2026-11-09"
+   }
   },
   {
    "symbol": "PPCB",
@@ -2972,7 +2974,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.78,
+   "last_price": 1.77,
    "live_alert": {}
   },
   {
@@ -3389,7 +3391,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.25,
+   "last_price": 2.28,
    "live_alert": {}
   },
   {
@@ -4197,7 +4199,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 21.4,
-   "last_price": 25.88,
+   "last_price": 25.92,
    "live_alert": {
     "breakout": "2026-08-31"
    },
@@ -5609,7 +5611,7 @@
    "hit": "t2",
    "hit_date": "2026-10-29",
    "max_gain_pct": 37.4,
-   "last_price": 9.0896,
+   "last_price": 9.0,
    "borrow_hist": [
     [
      "2026-10-15",
@@ -6047,7 +6049,7 @@
    "hit": "t2",
    "hit_date": "2026-11-03",
    "max_gain_pct": 37.3,
-   "last_price": 6.21,
+   "last_price": 6.19,
    "faisal_levels": "🧭 إغلاقات الهابطة $6.31 · $6.51 · $7.50 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-11-02"
@@ -7800,7 +7802,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 376.8,
-   "last_price": 5.22,
+   "last_price": 5.25,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -8290,7 +8292,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 7.0,
-   "last_price": 1.1595,
+   "last_price": 1.16,
    "borrow_hist": [
     [
      "2026-11-06",
@@ -8356,7 +8358,7 @@
    "sector": "Technology",
    "country": "Hong Kong",
    "float": 14864979,
-   "last_price": 8.0,
+   "last_price": 8.75,
    "status": "watching",
    "triggered_date": null
   },
