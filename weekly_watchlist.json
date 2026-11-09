@@ -755,7 +755,9 @@
    "hit_date": null,
    "max_gain_pct": 0.0,
    "last_price": 1.14,
-   "live_alert": {}
+   "live_alert": {
+    "premarket": "2026-11-09"
+   }
   },
   {
    "symbol": "AFJK",
