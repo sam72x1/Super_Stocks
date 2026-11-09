@@ -373,7 +373,19 @@
   "date": "2026-11-09"
  },
  "LIQ:XHLD": {
-  "last_eval_ms": 1794236160000,
+  "anchor_ms": 1794236220000,
+  "last_ms": 1794236220000,
+  "sent": [
+   "M1"
+  ],
+  "updates": 0,
+  "vol_x": 5.1,
+  "peak_usd": 418997,
+  "last_eval_ms": 1794236220000,
+  "pulse_ms": 1794236220000,
+  "anchor_price": 0.8032,
+  "anchor_open": 0.75,
+  "anchor_low": 0.7405,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794235560000,
@@ -382,7 +394,11 @@
    "e5": null,
    "exit_ms": 1794235680000
   },
-  "date": "2026-11-09"
+  "date": "2026-11-09",
+  "pre_done": true,
+  "pre_hi": 0.8224,
+  "pre_usd": 2085807,
+  "pre_n": 28
  },
  "LIQ:CLIK": {
   "last_eval_ms": 1794235500000,
@@ -2478,11 +2494,11 @@
   "anchor_price": 19.83,
   "anchor_open": 17.89,
   "anchor_low": 17.85,
-  "date": "2026-11-09",
   "pre_done": true,
   "pre_hi": 17.8499,
   "pre_usd": 6920229,
-  "pre_n": 37
+  "pre_n": 37,
+  "date": "2026-11-09"
  },
  "LIQ:GOGO": {
   "anchor_ms": 1793975640000,
@@ -2591,7 +2607,7 @@
   "date": "2026-11-09"
  },
  "LIQ:USAR": {
-  "last_eval_ms": 1794236160000,
+  "last_eval_ms": 1794236220000,
   "date": "2026-11-09"
  },
  "LIQ:WFF": {
@@ -3362,7 +3378,7 @@
   "date": "2026-11-09"
  },
  "LIQ:WORX": {
-  "last_eval_ms": 1794236100000,
+  "last_eval_ms": 1794236220000,
   "date": "2026-11-09"
  },
  "LIQ:ZYBT": {
@@ -3585,7 +3601,7 @@
   "date": "2026-11-09"
  },
  "LIQ:LBGJ": {
-  "last_eval_ms": 1794229740000,
+  "last_eval_ms": 1794235080000,
   "date": "2026-11-09"
  },
  "LIQ:UCL": {
@@ -3593,7 +3609,7 @@
   "date": "2026-11-09"
  },
  "LIQ:XELB": {
-  "last_eval_ms": 1794235920000,
+  "last_eval_ms": 1794236220000,
   "date": "2026-11-09"
  },
  "LIQ:ATYR": {
@@ -3776,7 +3792,7 @@
   "date": "2026-11-09"
  },
  "LIQ:UPB": {
-  "last_eval_ms": 1794236040000,
+  "last_eval_ms": 1794236220000,
   "date": "2026-11-09"
  },
  "LIQ:PSNY": {
@@ -3799,7 +3815,7 @@
   "date": "2026-11-09"
  },
  "LIQ:XTIA": {
-  "last_eval_ms": 1794236160000,
+  "last_eval_ms": 1794236220000,
   "date": "2026-11-09"
  },
  "LIQ:MAMO": {
@@ -3855,7 +3871,7 @@
   "date": "2026-11-09"
  },
  "LIQ:WKHS": {
-  "last_eval_ms": 1794236040000,
+  "last_eval_ms": 1794236220000,
   "date": "2026-11-09"
  },
  "LIQ:GITS": {
