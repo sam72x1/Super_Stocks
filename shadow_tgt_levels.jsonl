@@ -1,0 +1,4 @@
+{"schema": 1, "date": "2026-11-09", "symbol": "PLCE", "src": "on_demand", "why": "ok", "captured_at": "2026-11-09T14:25:07+00:00", "stop": 0.2, "t1": 0.41, "t2": 0.53}
+{"schema": 1, "date": "2026-11-09", "symbol": "OMH", "src": "on_demand", "why": "ok", "captured_at": "2026-11-09T14:25:07+00:00", "stop": 2.3, "t1": 8.38, "t2": 10.02}
+{"schema": 1, "date": "2026-11-09", "symbol": "VIVK", "src": "on_demand", "why": "ok", "captured_at": "2026-11-09T14:25:07+00:00", "stop": 0.36, "t1": 0.64, "t2": 0.77}
+{"schema": 1, "date": "2026-11-09", "symbol": "EDSA", "src": "on_demand", "why": "ok", "captured_at": "2026-11-09T14:25:07+00:00", "stop": 2.01, "t1": 2.4, "t2": 2.95}

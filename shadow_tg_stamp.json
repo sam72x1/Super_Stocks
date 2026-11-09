@@ -1,15 +1,15 @@
 {
- "last_sent": "2026-11-06",
+ "last_sent": "2026-11-09",
  "first_sent": "2026-11-06",
  "built_ny": "09:25",
  "n_s": 2,
- "n_anchors": 8,
+ "n_anchors": 4,
  "skipped": {
   "bars": 0,
   "base": 0
  },
  "symbols": [
-  "RAYA",
-  "CDT"
+  "OMH",
+  "EDSA"
  ]
 }
