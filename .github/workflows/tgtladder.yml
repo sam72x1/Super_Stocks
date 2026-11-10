@@ -1,0 +1,141 @@
+name: "🎯🪜 T-TGTLADDER سلّم الأهداف (قراءةٌ فقط · يدويّ)"
+
+# 🔒 قراءةٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا تغيير على الكرت (العقد `fm_forensics/tgtladder/T_TGTLADDER_prereg.md` · TGL0-TGL5).
+# posts (① المطابقة لأرقام فيصل) · ثمّ prep ⟵ 20 شريحةً متوازية ⟵ assemble (② ثلاثُ سنوات PIT) — وكلُّ وضعٍ يخرج 9 إن تغيّرت بصمةُ العقد.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: super-stocks-tgtladder
+  cancel-in-progress: false
+
+jobs:
+  posts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🎯 ① المطابقة لأرقام فيصل
+        env:
+          FAISAL_ONLY: "1"
+          BARS_SOURCE: tradingview
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tgtladder/tgtladder.py --mode posts
+
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🪜 العضويّة · التقسيمات حتى اليوم · FINRA
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tgtladder/tgtladder.py --mode prep
+
+      - name: Upload prep
+        uses: actions/upload-artifact@v4
+        with:
+          name: tgl-prep
+          path: fm_forensics/tgtladder/out/prep.json.gz
+          retention-days: 30
+
+  shard:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      max-parallel: 8               # لا يستنفد رنرات البوت الحيّة (المراقب · الرادار · الفرز)
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep
+        uses: actions/download-artifact@v4
+        with:
+          name: tgl-prep
+          path: fm_forensics/tgtladder/out
+
+      - name: 🪜 الشريحة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "20"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tgtladder/tgtladder.py --mode shard
+
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: tgl-shard-${{ matrix.shard }}
+          path: fm_forensics/tgtladder/out/shard_*.json.gz
+          retention-days: 30
+
+  assemble:
+    needs: shard
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep and shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tgl-*
+          path: fm_forensics/tgtladder/out
+          merge-multiple: true
+
+      - name: 🪜 التجميع والحكم
+        env:
+          NSHARDS: "20"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tgtladder/tgtladder.py --mode assemble
