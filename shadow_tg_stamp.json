@@ -1,15 +1,14 @@
 {
- "last_sent": "2026-11-09",
+ "last_sent": "2026-11-10",
  "first_sent": "2026-11-06",
  "built_ny": "09:25",
- "n_s": 2,
- "n_anchors": 4,
+ "n_s": 1,
+ "n_anchors": 6,
  "skipped": {
   "bars": 0,
   "base": 0
  },
  "symbols": [
-  "OMH",
-  "EDSA"
+  "RUBI"
  ]
 }

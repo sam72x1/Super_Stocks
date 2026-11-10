@@ -2,3 +2,9 @@
 {"schema": 1, "date": "2026-11-09", "symbol": "OMH", "src": "on_demand", "why": "ok", "captured_at": "2026-11-09T14:25:07+00:00", "stop": 2.3, "t1": 8.38, "t2": 10.02}
 {"schema": 1, "date": "2026-11-09", "symbol": "VIVK", "src": "on_demand", "why": "ok", "captured_at": "2026-11-09T14:25:07+00:00", "stop": 0.36, "t1": 0.64, "t2": 0.77}
 {"schema": 1, "date": "2026-11-09", "symbol": "EDSA", "src": "on_demand", "why": "ok", "captured_at": "2026-11-09T14:25:07+00:00", "stop": 2.01, "t1": 2.4, "t2": 2.95}
+{"schema": 1, "date": "2026-11-10", "symbol": "RUBI", "src": "on_demand", "why": "ok", "captured_at": "2026-11-10T14:25:08+00:00", "stop": 1.62, "t1": 2.0, "t2": 2.33}
+{"schema": 1, "date": "2026-11-10", "symbol": "YMAT", "src": "on_demand", "why": "ok", "captured_at": "2026-11-10T14:25:08+00:00", "stop": 0.84, "t1": 1.46, "t2": 1.74}
+{"schema": 1, "date": "2026-11-10", "symbol": "AMIX", "src": "on_demand", "why": "ok", "captured_at": "2026-11-10T14:25:08+00:00", "stop": 1.46, "t1": 1.88, "t2": 2.11}
+{"schema": 1, "date": "2026-11-10", "symbol": "SMX", "src": "on_demand", "why": "ok", "captured_at": "2026-11-10T14:25:08+00:00", "stop": 3.22, "t1": 10.56, "t2": 11.9}
+{"schema": 1, "date": "2026-11-10", "symbol": "LICN", "src": "on_demand", "why": "ok", "captured_at": "2026-11-10T14:25:08+00:00", "stop": 0.29, "t1": 0.38, "t2": 0.76}
+{"schema": 1, "date": "2026-11-10", "symbol": "WFF", "src": "on_demand", "why": "ok", "captured_at": "2026-11-10T14:25:08+00:00", "stop": 1.0, "t1": 1.27, "t2": 1.7}
