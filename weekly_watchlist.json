@@ -373,7 +373,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 13.1,
+   "last_price": 12.68,
    "live_alert": {
     "breakout": "2026-11-05",
     "dump": "2026-10-16",
@@ -841,7 +841,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 0.8144,
+   "last_price": 0.8719,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -1248,7 +1248,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -7.6,
-   "last_price": 2.5,
+   "last_price": 2.45,
    "live_alert": {},
    "price_state": "VALID",
    "price_bar": "2026-11-09",
@@ -2486,7 +2486,7 @@
    "hit": "t1",
    "hit_date": "2026-11-09",
    "max_gain_pct": 12.4,
-   "last_price": 0.7901,
+   "last_price": 0.7761,
    "live_alert": {
     "premarket": "2026-11-09",
     "buyzone": "2026-11-10",
@@ -2895,7 +2895,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -0.7,
-   "last_price": 12.5,
+   "last_price": 12.6,
    "live_alert": {
     "buyzone": "2026-11-10"
    },
@@ -3289,7 +3289,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -0.4,
-   "last_price": 3.6,
+   "last_price": 3.47,
    "live_alert": {
     "buyzone": "2026-11-09",
     "break": "2026-11-10"
@@ -3720,7 +3720,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.8,
-   "last_price": 1.71,
+   "last_price": 1.7,
    "live_alert": {
     "buyzone": "2026-11-10"
    },
@@ -4171,7 +4171,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 35.7,
-   "last_price": 2.13,
+   "last_price": 2.16,
    "live_alert": {},
    "price_state": "VALID",
    "price_bar": "2026-11-09",
@@ -4579,7 +4579,7 @@
    "hit": "t2",
    "hit_date": "2026-10-14",
    "max_gain_pct": 40.4,
-   "last_price": 1.51,
+   "last_price": 1.46,
    "live_alert": {
     "breakout": "2026-11-06"
    },
@@ -5017,7 +5017,7 @@
    "hit": "t2",
    "hit_date": "2026-11-03",
    "max_gain_pct": 37.3,
-   "last_price": 6.04,
+   "last_price": 5.75,
    "faisal_levels": "🧭 إغلاقات الهابطة $6.31 · $6.51 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-11-02"
@@ -5501,7 +5501,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 10.0,
-   "last_price": 2.855,
+   "last_price": 2.88,
    "borrow_hist": [
     [
      "2026-11-06",
@@ -5892,7 +5892,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 7.12,
+   "last_price": 7.19,
    "borrow_hist": [
     [
      "2026-10-16",
@@ -6381,7 +6381,7 @@
    "hit": "t2",
    "hit_date": "2026-10-29",
    "max_gain_pct": 37.4,
-   "last_price": 8.63,
+   "last_price": 8.52,
    "borrow_hist": [
     [
      "2026-10-16",
@@ -6775,7 +6775,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 386.6,
-   "last_price": 5.23,
+   "last_price": 5.38,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -7260,7 +7260,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 5.8,
-   "last_price": 3.58,
+   "last_price": 3.44,
    "borrow_hist": [
     [
      "2026-10-16",
@@ -7334,7 +7334,8 @@
     "afterdump": "2026-10-21",
     "buyzone": "2026-11-05",
     "premarket": "2026-11-10",
-    "breakout": "2026-11-04"
+    "breakout": "2026-11-04",
+    "break": "2026-11-10"
    },
    "price_state": "VALID",
    "price_bar": "2026-11-09",
@@ -7707,7 +7708,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 8.5,
+   "last_price": 8.33,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -8081,7 +8082,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 0.7255,
+   "last_price": 0.716,
    "live_alert": {
     "breakout": "2026-10-28",
     "dump": "2026-10-26"
@@ -8549,7 +8550,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 7.0,
-   "last_price": 1.17,
+   "last_price": 1.185,
    "borrow_hist": [
     [
      "2026-11-06",
@@ -9381,7 +9382,7 @@
    "sector": "Technology",
    "country": "Hong Kong",
    "float": 14864979,
-   "last_price": 10.3,
+   "last_price": 9.49,
    "status": "watching",
    "triggered_date": null
   },
