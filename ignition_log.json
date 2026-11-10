@@ -1927,5 +1927,41 @@
   "usd_eff": 1184,
   "candle_class_eff": "group",
   "frames_usd": null
+ },
+ {
+  "symbol": "DGNX",
+  "date": "2026-11-10",
+  "sustain_min": 0,
+  "operator_ok": false,
+  "fired_ts_ms": 1794322225620,
+  "trigger_bar_ms": 1794322080000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-11-10T21:01:14Z",
+  "break_level": 1.17,
+  "price": 1.18,
+  "vol_x": 7.2,
+  "usd": 20166,
+  "candle_class": "group",
+  "usd_eff": 20166,
+  "candle_class_eff": "group",
+  "frames_usd": null
+ },
+ {
+  "symbol": "LNKS",
+  "date": "2026-11-10",
+  "sustain_min": 213,
+  "operator_ok": true,
+  "fired_ts_ms": 1794324554627,
+  "trigger_bar_ms": 1794324420000,
+  "fired_ts_src": "telegram_sent",
+  "fired_at": "2026-11-10T21:01:14Z",
+  "break_level": 0.69,
+  "price": 0.7,
+  "vol_x": 3.0,
+  "usd": 1900,
+  "candle_class": "group",
+  "usd_eff": 1900,
+  "candle_class_eff": "group",
+  "frames_usd": null
  }
 ]
