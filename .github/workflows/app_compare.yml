@@ -14,6 +14,9 @@ on:
       levels:
         description: "1 = مستوياتُ البوت (الفحصُ اليدويّ ‏+ 4س ‏+ المتاح) بدل المقارنة"
         default: "0"
+      h4fix:
+        description: "1 = كم سهمًا في القائمة و«تحت المتابعة» تغيّرت شموعُ 4س وأهدافُه بإصلاح التقسيم"
+        default: "0"
 
 concurrency:
   group: super-stocks-app-compare
@@ -41,4 +44,5 @@ jobs:
           SCREENER_MODE: PROBE
           APP_SYMS: ${{ github.event.inputs.syms || 'BRTX,THH,EHGO,NEXR' }}
           APP_LEVELS: ${{ github.event.inputs.levels || '0' }}
+          APP_H4FIX: ${{ github.event.inputs.h4fix || '0' }}
         run: python fm_forensics/app_compare/app_compare.py

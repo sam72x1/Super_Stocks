@@ -757,6 +757,10 @@ CONFIG = {
     "SPLIT_SOURCE_REPAIR": True,
     "SPLIT_MISMATCH_RATIO": 1.5,  # engineering (جودةُ بيانات لا عتبةُ فرز): مِجَسّ فحص 09-26 ⟵ 39 رمزًا فوقه (SMX ×159 ·
                                   # MGN ×40 · VWAV ×20) وأعلى ما تحته 1.42 (OXLC · أرباحٌ موزّعة يعدّلها ياهو وحدَه)
+    # 🕓✂️ (2026-11-10 · أمرُ المالك «أصلح شموع 4س بعد التقسيم» · عطلٌ مُثبَت: NEXR شمعةُ 4س يومَ 11-05 تُغلق 1.18 واليوميُّ 1.91):
+    #    شموعُ الساعة (ياهو) تُعاد إلى مقياس الشموع اليوميّة للبوت في كلّ يومٍ يختلف فيه الإغلاقان بـ`SPLIT_MISMATCH_RATIO` فأكثر ·
+    #    `H4_SPLIT_FIX=0` ⟵ شموعُ 4س كما كانت بت-بت (`H4S1`-`H4S4`).
+    "H4_SPLIT_FIX": os.environ.get("H4_SPLIT_FIX", "1").strip() != "0",
     "REPORT_CSV": True,
     "MISSED_RISE_PCT": 30.0,     # مرفوض صعد ≥ هذا (آخر ~10 جلسات) = فرصة فائتة
     "SPLIT_SUSPECT_GAIN_PCT": 300.0,  # A2: كسب فوق هذا يُرجَّح أثر تقسيم عكسي غير
@@ -1635,7 +1639,61 @@ def multi_timeframe(df: pd.DataFrame) -> dict:
             "monthly": m, "patterns": pats, "display": disp}
 
 
-def fetch_4h(sym: str, with_h1: bool = False):
+# 🕓✂️ سجلُّ الشموع اليوميّة التي حمّلها البوت في هذه العمليّة (مرجعُ مقياس 4س · إشاراتٌ لا نسخ) · و`H4_RESCALE_LAST` ما أُعيد قياسُه لكلّ رمز.
+_DAILY_FOR_H4 = {}
+H4_RESCALE_LAST = {}
+
+
+def h1_daily_rescale(h1, daily, thr=None):
+    """🕓✂️ **نقيّة:** تعيد شموعَ الساعة إلى مقياس الشموع اليوميّة يومًا بيوم (أمرُ المالك 2026-11-10 «أصلح شموع 4س بعد التقسيم»).
+    لكلّ يومٍ (توقيت نيويورك) فيه شموعٌ نظاميّة (09:30-16:00): النسبةُ = إغلاقُ اليوميّ ÷ إغلاقُ آخرِ شمعةٍ نظاميّة · إن بلغت
+    `SPLIT_MISMATCH_RATIO` (أو مقلوبَها) ضُربت أسعارُ شموع ذلك اليوم كلِّها (والممتدّةُ منها) بها وقُسم الحجم ⟵ يومٌ بلا شمعةٍ يوميّة أو بلا
+    شمعةٍ نظاميّة يبقى كما هو. يرجّع `(h1_جديد، [(اليوم، النسبة)…])` · وأيُّ تعذّرٍ ⟵ `(h1، [])` كما هو."""
+    try:
+        if h1 is None or daily is None or not len(h1) or not len(daily):
+            return h1, []
+        thr = float(thr if thr is not None else CONFIG.get("SPLIT_MISMATCH_RATIO", 1.5))
+        from zoneinfo import ZoneInfo
+        idx = h1.index
+        if getattr(idx, "tz", None) is None:
+            idx = idx.tz_localize("UTC")
+        ny = idx.tz_convert(ZoneInfo("America/New_York"))
+        days = [d.isoformat() for d in ny.date]
+        mins = [t.hour * 60 + t.minute for t in ny]
+        dcl = {}
+        for k, v in zip(daily.index, daily["Close"].values):
+            try:
+                dcl[str(getattr(k, "date", lambda: k)())[:10]] = float(v)
+            except Exception:                                    # noqa: BLE001
+                continue
+        last_reg = {}
+        closes = h1["Close"].values
+        for i, (d, m) in enumerate(zip(days, mins)):
+            if 570 <= m < 960:
+                last_reg[d] = float(closes[i])
+        ratios = {}
+        for d, c in last_reg.items():
+            dc = dcl.get(d)
+            if not dc or not c or c <= 0 or dc <= 0:
+                continue
+            r = dc / c
+            if max(r, 1.0 / r) >= thr:
+                ratios[d] = r
+        if not ratios:
+            return h1, []
+        out = h1.copy()
+        fac = [ratios.get(d, 1.0) for d in days]
+        for col in ("Open", "High", "Low", "Close"):
+            if col in out.columns:
+                out[col] = out[col].values * fac
+        if "Volume" in out.columns:
+            out["Volume"] = out["Volume"].values / fac
+        return out, sorted((d, round(r, 4)) for d, r in ratios.items())
+    except Exception:                                            # noqa: BLE001 — فاشلٌ-آمن: كما هو
+        return h1, []
+
+
+def fetch_4h(sym: str, with_h1: bool = False, daily=None):
     """يحمّل فريم 4 ساعات (يشمل التداول خارج السوق prepost — لرصد ذيل المسح
     الحقيقي مثل ما يوضّح فيصل). يرجع DataFrame مجمّعة 4س أو None.
 
@@ -1652,6 +1710,9 @@ def fetch_4h(sym: str, with_h1: bool = False):
         if isinstance(h1.columns, pd.MultiIndex):
             h1.columns = h1.columns.get_level_values(0)
         h1 = h1.dropna(subset=["Close"])
+        if daily is not None and CONFIG.get("H4_SPLIT_FIX", True):   # 🕓✂️ مقياسُ اليوميّ (H4S1)
+            h1, _rs = h1_daily_rescale(h1, daily)
+            H4_RESCALE_LAST[sym] = _rs
         h4 = resample_ohlc(h1, "4h")
         h4 = h4 if len(h4) >= 20 else None
         return (h4, h1) if with_h1 else h4
@@ -2637,6 +2698,8 @@ def download_history(tickers: list, start_override: str = None) -> dict:
         BARS_SOURCE_LAST.update(tv_rep)
         log(_tv_bars_line(tv_rep))
     log(f"بيانات صالحة لـ {len(out)} سهم")
+    if start_override is None:                                   # 🕓✂️ مرجعُ مقياس 4س (إشاراتٌ لا نسخ)
+        _DAILY_FOR_H4.update(out)
     return out
 
 
@@ -6919,7 +6982,8 @@ def enrich(results: list) -> None:
                 r.setdefault("warnings", []).append(_w)
             # فريم 4 ساعات: تأكيد الانعكاس + مستويات فيصل (دعوم/أهداف/انقلاب)
             try:
-                h4, _h1 = fetch_4h(r["symbol"], with_h1=True)
+                h4, _h1 = fetch_4h(r["symbol"], with_h1=True,
+                                   daily=_DAILY_FOR_H4.get(r["symbol"]))   # 🕓✂️ H4S2
                 # 🌙 «اليوميُّ فوّت هذا» — من **نفس** الشموع الساعيّة المجلوبة
                 #    هنا (‏`prepost=True`) ⇒ صفرُ نداءٍ شبكيٍّ إضافيّ. عرضٌ فقط.
                 try:

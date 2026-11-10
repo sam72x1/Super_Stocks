@@ -644,7 +644,7 @@ def analyze_on_demand(sym: str):
     #    لِما يفعله `enrich` — قفل «الفحص اليدوي = الأساسي»). صفرُ نداءٍ إضافيّ.
     _ah_missed = None
     try:
-        _h4, _h1 = bot.fetch_4h(sym, with_h1=True)
+        _h4, _h1 = bot.fetch_4h(sym, with_h1=True, daily=df)   # 🕓✂️ مقياسُ اليوميّ (H4S2)
         h4_levels = bot.four_hour_levels(_h4, price) if _h4 is not None else None
         _ah_missed = bot.ah_missed_extremes(_h1)
     except Exception:
