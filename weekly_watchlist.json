@@ -377,7 +377,8 @@
    "live_alert": {
     "breakout": "2026-11-05",
     "dump": "2026-10-16",
-    "sweep": "2026-10-30"
+    "sweep": "2026-10-30",
+    "premarket": "2026-11-10"
    },
    "borrow_hist": [
     [
@@ -863,7 +864,8 @@
     "date": "2026-11-04",
     "high": 0.63475,
     "close": 0.58
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "CGTL",
@@ -7723,7 +7725,8 @@
     "date": "2026-11-05",
     "high": 10.05,
     "close": 9.25
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "CELU",
