@@ -99468,10 +99468,10 @@ try:
              and all(r.get("wide") is True and r.get("src") == "تحت المتابعة" for r in _oww_ext)
              and "QQQ" not in {r["symbol"] for r in _oww_on[3]}
              and len({r["symbol"] for r in _oww_on[3]}) == len(_oww_on[3])
-             and _oww_on[0] == _oww_off[0] and _oww_live is True)
+             and _oww_on[0] == _oww_off[0] and _oww_live is False)
     check("👁️➕ OWW1 المفتاح `OE_WIDE_UNIVERSE`: مُطفأً ⟵ كونُ السيولة = `live_watch_universe(cap=10**9)` بت-بت · مُشعَلًا ⟵ الكونُ نفسُه بترتيبه "
           "‏+ صفوفُ «تحت المتابعة» غيرُ المحجوبة وحدَها مرتّبةً بلا تكرار (والمحجوبُ خارج) · والكونُ المُسقَّف لمسح الدخول لا يتغيّر · "
-          "والافتراضُ مُشعَلٌ بأمر المالك 2026-11-07",
+          "والافتراضُ مُطفأٌ منذ 2026-11-10 بقاعدة الرجوع (مسحُ 11-09 ‏60.5ث فوق 60ث) بعد أن أُشعل بأمر المالك 2026-11-07",
           _oww1, f"off={[r['symbol'] for r in _oww_off[3]]} on={[r['symbol'] for r in _oww_on[3]]} live={_oww_live}")
     # OWW2 — عدّادُ ردود Polygon لا يغيّر ما تُرجعه الدالّة
     class _OwwR:
@@ -100334,7 +100334,15 @@ try:
           f"al={_osl_al} p1={_osl_p1.get('source')} p2={str(_osl_p2.get('source'))[:20]}")
 
     # OSL4 — البذرةُ = أرقامُ T-OPSIG المنشورة · والـworkflow
-    _osl_seedf = _ft_json.load(open("oe_card_stats.json", encoding="utf-8"))
+    # 🔧 (2026-11-10 · عطلٌ مُثبَت: main أحمرُ 11-09 و11-10 · `42613908544` · `42809659121`): القفلُ كان يقرأ **الملفَّ الحيّ** فأسقطه
+    #    أوّلُ حصادٍ منشور (1251/155 · `a661e3f4d`) ⟵ البذرةُ تُقارَن من **الكود** (`OEC.SEED`) · والملفُّ الحيّ بذرةٌ **أو** حصادٌ فوق العتبة.
+    _osl_seedf = OEC.SEED
+    _osl_live = _ft_json.load(open("oe_card_stats.json", encoding="utf-8"))
+    _osl_live_ok = (("T-OPSIG" in str(_osl_live.get("source")) and _osl_live.get("normal") == OEC.SEED["normal"]
+                     and _osl_live.get("gold") == OEC.SEED["gold"])
+                    or ("سجلُّ الحصاد" in str(_osl_live.get("source"))
+                        and int((_osl_live.get("normal") or {}).get("n") or 0) >= 300
+                        and int((_osl_live.get("gold") or {}).get("n") or 0) >= 30))
     _osl_res = open(_ft_os.path.join("fm_forensics", "opsig", "T_OPSIG_RESULT.md"), encoding="utf-8").read()
     _osl_rn = _ft_re.search(r"\| عاديّ \(ليس 🥇\) \| (\d+) \| ([\d.]+) / [\d.]+ \| (-?[\d.]+) / [-\d.]+ \| ([\d.]+) \| [\d.]+ \| ([\d.]+) \|", _osl_res)
     _osl_rg = _ft_re.search(r"\| 🥇 J1 \| (\d+) \| ([\d.]+) / [\d.]+ \| (-?[\d.]+) / [-\d.]+ \| ([\d.]+) \| [\d.]+ \| ([\d.]+) \|", _osl_res)
@@ -100344,13 +100352,14 @@ try:
     _osl_wf = _osl_y.safe_load(open(".github/workflows/oe_card_stats.yml", encoding="utf-8").read())
     _osl_on = _osl_wf.get("on", _osl_wf.get(True)) or {}
     _osl_run = " ".join(str(s.get("run")) for s in _osl_wf["jobs"]["refresh"]["steps"] if s.get("run"))
-    check("📊 OSL4 البذرةُ `oe_card_stats.json` = جدولُ T-OPSIG §④ المنشور حرفًا (العاديّ و🥇) · والـworkflow أسبوعيٌّ بكرون ويدويّ · يكتب الملفّين وحدَهما · "
+    check("📊 OSL4 البذرةُ `oe_card_stats.SEED` = جدولُ T-OPSIG §④ المنشور حرفًا (العاديّ و🥇) · والملفُّ الحيّ بذرةٌ أو حصادٌ فوق 300/30 · والـworkflow أسبوعيٌّ بكرون ويدويّ · يكتب الملفّين وحدَهما · "
           "بلا سرِّ تلغرام",
           _osl_cmp(_osl_rn, _osl_seedf["normal"]) and _osl_cmp(_osl_rg, _osl_seedf["gold"]) and "T-OPSIG" in _osl_seedf["source"]
+          and _osl_live_ok
           and set(_osl_on) == {"schedule", "workflow_dispatch"} and (_osl_wf.get("permissions") or {}).get("contents") == "write"
           and "git add oe_card_outcomes.jsonl oe_card_stats.json" in _osl_run and "oe_card_stats.py refresh" in _osl_run
           and "TELEGRAM" not in open(".github/workflows/oe_card_stats.yml", encoding="utf-8").read(),
-          f"rn={_osl_rn and _osl_rn.groups()} rg={_osl_rg and _osl_rg.groups()}")
+          f"rn={_osl_rn and _osl_rn.groups()} rg={_osl_rg and _osl_rg.groups()} live={str(_osl_live.get('source'))[:30]}")
 except Exception as _ft_e:                                           # noqa: BLE001
     check("🏷️📊 FT50 وسمُ الفلوت وسطرُ الكرت (انهيارُ القفل)", False, f"⛔ رمى: {type(_ft_e).__name__}: {_ft_e}")
 
