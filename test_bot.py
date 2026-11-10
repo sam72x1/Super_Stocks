@@ -73489,10 +73489,13 @@ check("📺 TVB8 فاشلٌ-آمن كلّيًّا: `tv_download` يرمي ⟵ ي
 #    🔄 **وإقرارٌ رابعٌ مؤرَّخ 2026-11-07 (أمرُ المالك ①-ج «قيمة M2 الفعلية مقابل السقف»):** النطاقُ صار **اثني عشر** — ومِجَسُّ لقطات التطبيق
 #    (‏app_compare.yml · يدويٌّ قارئ · أربعةُ رموز) لأن تشغيلتَه على ياهو (`42396577513`) أعطت NEXR ‏154 شمعةً وحدَها فقاست قمّةَ 52 أسبوعًا على
 #    نافذةٍ أقصر من الإنتاج (M2 ‏99.30% مقابل «فوق السقف» في الفرز) ⟵ القيمةُ الفعليّة لا تُقرأ إلّا بشموع الفرز نفسِها.
+#    🔄 **وإقرارٌ خامسٌ مؤرَّخ 2026-11-10 (أمرُ المالك «سجّل اختبار سلّم الأهداف»):** النطاقُ صار **ثلاثةَ عشر** — وجوبُ `posts` في
+#    `tgtladder.yml` (يدويٌّ قارئ) لأن العقد §② يقيس الذراعين «على شموع البوت … اليوميّ من مصدر الإنتاج» ⟵ شموعُ الفرز نفسُها كمِجَسّ اللقطات ·
+#    وأجزاءُ PIT فيه على Polygon لا البيئة.
 try:
     _want9 = {"daily_screener.yml", "pullback_monitor.yml", "hand_digest.yml", "analyze.yml", "hand_check.yml",
               "split_hunter.yml", "split_filter.yml", "method_hunter.yml", "envelope_hunter.yml", "press_radar.yml",
-              "shadow_telegram.yml", "app_compare.yml"}
+              "shadow_telegram.yml", "app_compare.yml", "tgtladder.yml"}
     _got9 = set()
     for _fn9 in sorted(_tvb_os.listdir(".github/workflows")):
         if not _fn9.endswith((".yml", ".yaml")):
@@ -73508,8 +73511,8 @@ try:
     _v9w = f"زائد={sorted(_got9 - _want9)} · ناقص={sorted(_want9 - _got9)}"
 except Exception as _e:                                              # noqa: BLE001
     _v9, _v9w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
-check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows الاثني عشر وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
-      "فحص اليد ‏+ الصيّادون الأربعة ‏+ رادارُ الضغط منذ 2026-09-30 ‏+ رسالةُ الظلّ منذ 2026-11-06 ‏+ مِجَسُّ لقطات التطبيق منذ 2026-11-07) — وحصّادا النتائج والضغط وفحصُ الدخان وأدواتُ البحث بلا البيئة (YAML)",
+check("📺 TVB9 النطاق: `BARS_SOURCE: tradingview` في الـworkflows الثلاثة عشر وحدَها (الفرز · المراقب · تحديث اليد · الفحص اليدويّ · "
+      "فحص اليد ‏+ الصيّادون الأربعة ‏+ رادارُ الضغط منذ 2026-09-30 ‏+ رسالةُ الظلّ منذ 2026-11-06 ‏+ مِجَسُّ لقطات التطبيق منذ 2026-11-07 ‏+ منشوراتُ سلّم الأهداف منذ 2026-11-10) — وحصّادا النتائج والضغط وفحصُ الدخان وأدواتُ البحث بلا البيئة (YAML)",
       _v9, _v9w)
 
 # TVB10 — `tv_bar_fresh`: إطارُ ياهو (بلا وسم) ⟵ True دائمًا (بت-بت) · وإطارُ TradingView آخرُه آخرُ جلسةٍ مكتملة ⟵ True · وأقدمُ ⟵ False
@@ -100677,6 +100680,109 @@ try:
           f"r={str(_h4s_r)[:160]} flat={_h4s_flat}")
 except Exception as _h4s_e:                                          # noqa: BLE001
     check("🕓✂️ H4S0 أقفالُ شموع 4س بعد التقسيم (انهيارُ القفل)", False, f"⛔ رمى: {type(_h4s_e).__name__}: {_h4s_e}")
+
+# 🎯🪜 TGL1-TGL5 (‏2026-11-10 · أمرُ المالك «سجّل اختبار سلّم الأهداف» · العقد `fm_forensics/tgtladder/T_TGTLADDER_prereg.md` مدموجٌ قبل أيّ رقم):
+#    أداةُ القياس قراءةٌ فقط — السلّمُ (حتى 6 · دمجُ 3%) · الصفقةُ (الوقفُ أوّلًا · يومُ التعبئة وقفٌ وحدَه · الأجزاءُ بالتساوي) ·
+#    المقياسُ الواحد (`asof_factor` على شموع الصفقة · درسُ عطل R في ملحق T-APPDIFF) · بصمةُ العقد (خروج 9) · والـworkflow بلا كرونٍ ولا تلغرام.
+try:
+    import importlib.util as _tgl_iu
+    import ast as _tgl_ast
+    import hashlib as _tgl_h
+    _tgl_sp = _tgl_iu.spec_from_file_location("tgtladder_lock", "fm_forensics/tgtladder/tgtladder.py")
+    TGL = _tgl_iu.module_from_spec(_tgl_sp)
+    _tgl_sp.loader.exec_module(TGL)
+    # TGL1 — بصمةُ العقد = الملفّ · وبصمةٌ خاطئة ⟵ 9 قبل أيّ وضع
+    _tgl_real = _tgl_h.sha256(open("fm_forensics/tgtladder/T_TGTLADDER_prereg.md", "rb").read()).hexdigest()
+    _tgl_keep = TGL.CONTRACT_SHA
+    try:
+        TGL.CONTRACT_SHA = "0" * 64
+        _tgl_rc_bad = TGL.main(["--mode", "check"])
+    finally:
+        TGL.CONTRACT_SHA = _tgl_keep
+    _tgl_rc_ok = TGL.main(["--mode", "check"])
+    check("🎯🪜 TGL1 T-TGTLADDER: بصمةُ العقد في الأداة = ملفُّ العقد · وبصمةٌ مختلفة ⟵ خروج 9 قبل أيّ وضع",
+          TGL.CONTRACT_SHA == _tgl_real and _tgl_rc_ok == 0 and _tgl_rc_bad == 9, f"ok={_tgl_rc_ok} bad={_tgl_rc_bad}")
+    # TGL2 — السلّم: فوق السعر · صعودًا · دمجُ ما ضمن 3% (يبقى الأدنى) · أوّلُ 6 · والفارغُ ⟵ t1 موسومًا
+    _tgl_l, _tgl_e = TGL.ladder6([1.10, 1.12, 1.30, 1.5, 0.9], [1.2, 1.21, 2.0, 2.5, 3.0], 1.0)
+    _tgl_l0, _tgl_e0 = TGL.ladder6([0.8], [], 1.0, t1=1.2)
+    _tgl_m = TGL.match_counts([1.0, 2.0, 5.0], [1.009, 1.95, 3.0])
+    _tgl_m10 = TGL.match_counts([10.0], [10.08])                     # ضمن 1% نسبيًّا لا مطلقًا
+    check("🎯🪜 TGL2 السلّم: اتّحادُ اليوميّ و4س فوق السعر صعودًا · ما ضمن 3% من سابقه يُدمج (يبقى الأدنى) · أوّلُ 6 · وبلا مقاومة ⟵ t1 وحدَه موسومًا · "
+          "والمطابقةُ ضمن 1% نسبيًّا في الاتّجاهين",
+          _tgl_l == [1.1, 1.2, 1.3, 1.5, 2.0, 2.5] and _tgl_e is False and _tgl_l0 == [1.2] and _tgl_e0 is True
+          and TGL.GAP_PCT == 3.0 and TGL.LADDER_K == 6 and TGL.TOL == 0.01 and _tgl_m == (1, 3, 1, 3) and _tgl_m10 == (1, 1, 1, 1),
+          f"l={_tgl_l} l0={_tgl_l0} m={_tgl_m}")
+    # TGL3 — الصفقة
+    _tgl_R = [("d0", 1, 1, 1, 1, 0)] + [("d%02d" % k, 1.0, 1.0, 0.97, 1.0, 0) for k in range(1, 60)]
+    _tgl_R[2] = ("d02", 1.0, 1.2, 0.94, 0.97, 0)          # التعبئةُ 0.96 · وHigh 1.2 يومَها لا يُحتسب
+    _tgl_R[3] = ("d03", 0.97, 1.1, 0.96, 1.05, 0)         # يبلغ 1.1 بالضبط (High = الهدف)
+    _tgl_R[21] = ("d21", 1.0, 1.0, 0.97, 1.03, 0)        # الجلسةُ العشرون من التعبئة (d02 … d21) ⟵ إغلاقُ الباقي
+    _tgl_R[22] = ("d22", 1.0, 1.0, 0.97, 0.99, 0)
+    _tgl_a = TGL.trade_r(_tgl_R, 1, 0.96, 0.90, [1.1, 1.3])
+    _tgl_R2 = list(_tgl_R)
+    _tgl_R2[3] = ("d03", 0.97, 1.15, 0.89, 1.1, 0)        # الوقفُ والهدفُ في جلسة ⟵ الوقفُ أوّلًا
+    _tgl_b = TGL.trade_r(_tgl_R2, 1, 0.96, 0.90, [1.1, 1.3])
+    _tgl_R3 = list(_tgl_R)
+    _tgl_R3[2] = ("d02", 0.93, 0.95, 0.92, 0.94, 0)       # فُتحت تحت الدخول ⟵ التعبئةُ بالافتتاح
+    _tgl_c = TGL.trade_r(_tgl_R3, 1, 0.96, 0.90, [1.1])
+    _tgl_d = TGL.trade_r(_tgl_R, 1, 0.96, 0.97, [1.1])
+    _tgl_hf = TGL.hit_flags(_tgl_R, 1, [1.1, 1.3])
+    check("🎯🪜 TGL3 الصفقة: تعبئةٌ بالدخول (أو بالافتتاح تحته) · يومُ التعبئة وقفٌ وحدَه · الأجزاءُ بالتساوي · الوقفُ أوّلًا في الجلسة نفسِها · "
+          "والباقي بإغلاق الجلسة العشرين · والدخولُ الذي لا يعلو وقفَه لا يُحسب · وبلوغُ الهدف من D",
+          _tgl_a == (1.75, True, [1.166667, 0.583333]) and _tgl_b == (-1.0, True, [-0.5, -0.5])
+          and _tgl_c[1] is True and abs(_tgl_c[0] - (1.1 - 0.93) / (0.93 - 0.90)) < 1e-5
+          and _tgl_d == (None, False, None) and _tgl_hf == [True, False],
+          f"a={_tgl_a} b={_tgl_b} c={_tgl_c} d={_tgl_d} hf={_tgl_hf}")
+    # TGL4 — المقياسُ الواحد: شموعُ الصفقة × asof_factor قبل trade_r/hit_flags (AST) ‏+ scale_rows سلوكيًّا
+    _tgl_t = _tgl_ast.parse(open("fm_forensics/tgtladder/tgtladder.py", encoding="utf-8").read())
+    _tgl_er = next(n for n in _tgl_t.body if isinstance(n, _tgl_ast.FunctionDef) and n.name == "entry_row")
+    _tgl_calls = [c for c in _tgl_ast.walk(_tgl_er) if isinstance(c, _tgl_ast.Call)
+                  and getattr(c.func, "id", None) in ("trade_r", "hit_flags")]
+    _tgl_sc = [c for c in _tgl_ast.walk(_tgl_er) if isinstance(c, _tgl_ast.Call) and getattr(c.func, "id", None) == "scale_rows"]
+    _tgl_ok4 = (len(_tgl_calls) == 4 and all(getattr(c.args[0], "id", None) == "rs" for c in _tgl_calls)
+                and len(_tgl_sc) == 1 and [getattr(a, "id", None) for a in _tgl_sc[0].args] == ["rows", "f"])
+    _tgl_s = TGL.scale_rows([("d", 1.0, 2.0, 0.5, 1.5, 100.0)], 10.0)
+    check("🎯🪜 TGL4 المقياسُ الواحد: `entry_row` يمرّر لـ`trade_r` و`hit_flags` شموعًا مضروبةً في `asof_factor(D)` (‏`scale_rows(rows, f)`) · "
+          "والسعرُ × f والحجمُ ÷ f",
+          _tgl_ok4 and _tgl_s == [("d", 10.0, 20.0, 5.0, 15.0, 10.0)], f"calls={len(_tgl_calls)} sc={len(_tgl_sc)} s={_tgl_s}")
+    # TGL5 — قراءةٌ فقط: الـworkflow يدويٌّ بلا تلغرام · والأداةُ لا تنادي ما يكتب حالةً أو يرسل
+    _tgl_y = open(".github/workflows/tgtladder.yml", encoding="utf-8").read()
+    _tgl_names = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _tgl_ast.walk(_tgl_t) if isinstance(c, _tgl_ast.Call)}
+    check("🎯🪜 TGL5 قراءةٌ فقط: `tgtladder.yml` يدويٌّ (`workflow_dispatch` بلا `schedule`) و`contents: read` بلا سرّ تلغرام · "
+          "والأداةُ لا تنادي `send_telegram`/`save_watchlist`/`git_save`",
+          "workflow_dispatch" in _tgl_y and "schedule:" not in _tgl_y and "contents: read" in _tgl_y and "TELEGRAM" not in _tgl_y
+          and not ({"send_telegram", "save_watchlist", "git_save", "save_near_watch"} & _tgl_names),
+          f"names∩={({'send_telegram', 'save_watchlist', 'git_save'} & _tgl_names)}")
+    # TGL6 — التجميع: ΔR مزدوجٌ على المعبَّأة · «لا قياس» دون 30 صفقةً في سنة أو تغطية 4س دون 80% · وحصّةُ البلوغ لكلّ رتبة
+    def _tgl_e(y, k, dr, h4=True):
+        return {"d": f"{y}-03-{k % 28 + 1:02d}", "h4": h4, "cur3": [1, 2, 3], "lad": [1, 1.5, 2, 2.5],
+                "lad_empty": False, "hit_cur": [True, False, False], "hit_lad": [True, True, False, False],
+                "r_cur": 0.1, "r_lad": 0.1 + dr, "legs_lad": [0.1, 0.1, 0.0, -0.1], "filled": True}
+
+    def _tgl_rb(n24=30, dr=0.2, h4=True, dr25=None):
+        rb = {}
+        for y, n in (("2023", 30), ("2024", n24), ("2025", 30)):
+            for k in range(n):
+                _d = dr25 if (y == "2025" and dr25 is not None) else dr
+                rb.setdefault(f"S{y}{k % 7}", []).append(_tgl_e(y, k, _d + 0.01 * (k % 3), h4))
+        for k in range(5):                                        # غيرُ معبَّأة ⟵ خارج ΔR
+            _u = _tgl_e("2023", k, 10.0, h4)
+            _u["filled"] = False
+            rb.setdefault("U", []).append(_u)
+        return rb
+    _tgl_A = TGL.analyse(_tgl_rb(), b=300)
+    _tgl_B = TGL.analyse(_tgl_rb(n24=29), b=300)
+    _tgl_C = TGL.analyse(_tgl_rb(dr=-0.2), b=300)
+    _tgl_D = TGL.analyse(_tgl_rb(h4=False), b=300)
+    _tgl_E = TGL.analyse(_tgl_rb(dr=0.5, dr25=-0.03), b=300)       # المجمَّعُ موجبٌ وسنةٌ سالبة ⟵ لا حكمَ «أربح»
+    check("🎯🪜 TGL6 التجميع: ΔR = R(LADDER6) − R(CUR3) مزدوجًا ⟵ «أربح»/«أخسر» بالفاصل وإشارةِ كلّ سنة · و29 صفقةً في سنةٍ ⟵ «لا قياس» · "
+          "وتغطيةُ 4س دون 80% ⟵ «لا قياس» · وحصّةُ البلوغ لكلّ رتبة",
+          _tgl_A["verdict"] == "السلّمُ أربح" and _tgl_B["verdict"] == "لا قياس" and _tgl_C["verdict"] == "السلّمُ أخسر"
+          and _tgl_D["verdict"] == "لا قياس" and _tgl_E["verdict"] == "لا فرق قابل للكشف" and _tgl_E["pooled"][1][0] > 0 and _tgl_A["share"]["CUR3"][0] == (100.0, 95) and _tgl_A["share"]["LADDER6"][1] == (100.0, 95)
+          and _tgl_A["share"]["LADDER6"][2] == (0.0, 95) and abs(_tgl_A["pooled"][0] - 0.21) < 1e-9 and _tgl_A["n_year"] == {"2023": 30, "2024": 30, "2025": 30},
+          f"E={_tgl_E['verdict']} {_tgl_E['pooled']} A={_tgl_A['verdict']} B={_tgl_B['verdict']} C={_tgl_C['verdict']} D={_tgl_D['verdict']} m={_tgl_A['pooled']}")
+except Exception as _tgl_x:                                      # noqa: BLE001
+    check("🎯🪜 TGL0 أقفالُ T-TGTLADDER لم تنهَر", False, f"⛔ {type(_tgl_x).__name__}: {_tgl_x}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

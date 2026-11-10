@@ -95,3 +95,5 @@ ema_cross_ledger_silent.jsonl
 
 # T-APPDIFF — مُخرَجاتُ الرنر (prep · الشرائح) لا تُدفَع
 fm_forensics/appdiff/out/
+# T-TGTLADDER — مُخرَجاتُ الرنر (prep · الشرائح) لا تُدفَع
+fm_forensics/tgtladder/out/
