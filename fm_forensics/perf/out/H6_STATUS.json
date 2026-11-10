@@ -1,18 +1,18 @@
 {
  "contract_sha256": "a6f68f745cba189223b1f8258e733dc5e1e538382dfe6533307092d8e942c7ed",
- "today": "2026-11-07",
+ "today": "2026-11-10",
  "cutoff": "2026-10-09",
  "window_end": "2027-04-09",
  "floor": 15,
- "candidates": 17,
+ "candidates": 19,
  "by_status": {
   "HISTORICAL": 4,
-  "REPEAT": 3,
+  "REPEAT": 4,
   "ELIGIBLE_LATE": 1,
-  "ELIGIBLE": 8,
+  "ELIGIBLE": 9,
   "INELIGIBLE": 1
  },
- "eligible": 9,
+ "eligible": 10,
  "units": [
   {
    "case_id": "CASE_0007",
@@ -157,6 +157,22 @@
    ],
    "panel_day": "2026-10-29",
    "late": false
+  },
+  {
+   "case_id": "CASE_0019",
+   "ticker": "NEXR",
+   "T": "2026-11-07",
+   "C": "2026-11-10",
+   "lag": 2,
+   "sample": "PRIMARY",
+   "controls": [
+    "PCSA",
+    "STI",
+    "CBUS",
+    "MRLN"
+   ],
+   "panel_day": "2026-11-10",
+   "late": false
   }
  ],
  "late_units": 1,
@@ -296,26 +312,33 @@
    "status": "INELIGIBLE",
    "code": "E1:date_ambiguous",
    "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0018",
+   "ticker": "BRTX",
+   "T": "2026-11-07",
+   "status": "REPEAT",
+   "code": "E4:repeat_of_2026-10-03",
+   "sample": "SECONDARY"
+  },
+  {
+   "case_id": "CASE_0019",
+   "ticker": "NEXR",
+   "T": "2026-11-07",
+   "status": "ELIGIBLE",
+   "code": "",
+   "sample": "PRIMARY"
   }
  ],
  "coverage_failures": 0,
  "coverage_failure_share": 0.0,
  "lag_sessions": {
-  "n": 9,
+  "n": 10,
   "median": 2,
   "max": 10
  },
  "families": {
   "A_float": {
-   "units_with_value": 8,
-   "units": 8,
-   "controls_with_value": 32,
-   "controls": 32,
-   "coverage_units": 1.0,
-   "coverage_controls": 1.0,
-   "testable": false
-  },
-  "B_offering": {
    "units_with_value": 9,
    "units": 9,
    "controls_with_value": 36,
@@ -324,43 +347,52 @@
    "coverage_controls": 1.0,
    "testable": false
   },
+  "B_offering": {
+   "units_with_value": 10,
+   "units": 10,
+   "controls_with_value": 40,
+   "controls": 40,
+   "coverage_units": 1.0,
+   "coverage_controls": 1.0,
+   "testable": false
+  },
   "C_borrow": {
-   "units_with_value": 8,
-   "units": 8,
-   "controls_with_value": 32,
-   "controls": 32,
+   "units_with_value": 9,
+   "units": 9,
+   "controls_with_value": 36,
+   "controls": 36,
    "coverage_units": 1.0,
    "coverage_controls": 1.0,
    "testable": false
   },
   "D_split": {
-   "units_with_value": 6,
-   "units": 9,
-   "controls_with_value": 23,
-   "controls": 36,
-   "coverage_units": 0.6667,
-   "coverage_controls": 0.6389,
+   "units_with_value": 7,
+   "units": 10,
+   "controls_with_value": 26,
+   "controls": 40,
+   "coverage_units": 0.7,
+   "coverage_controls": 0.65,
    "testable": false
   }
  },
  "any_testable": false,
  "panel": {
-  "days": 22,
+  "days": 23,
   "first": "2026-10-09",
-  "last": "2026-11-07",
+  "last": "2026-11-10",
   "no_pool_days": 0,
   "k": 16,
-  "pool_date_last": "2026-11-07",
-  "pool_obs_last": "2026-11-07",
+  "pool_date_last": "2026-11-10",
+  "pool_obs_last": "2026-11-10",
   "pool_lag_entries_last": 0,
   "pool_newer_entries": []
  },
- "cases_after_cutoff": 13,
+ "cases_after_cutoff": 15,
  "inputs": {
-  "last_photo": "2026-11-04",
+  "last_photo": "2026-11-07",
   "sessions_since_last_photo": 2
  },
- "ledger_rows": 62458,
+ "ledger_rows": 64198,
  "floor_reached": false,
  "window_closed": false
 }
