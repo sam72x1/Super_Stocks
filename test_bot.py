@@ -32223,7 +32223,7 @@ check("🔒 AHM10 الكرتُ لا يمرّر today_iso (القياسُ طاز�
 # 🔒 AHM11 — `enrich` يقرأ الساعيّة من **نفس** نداء `fetch_4h` (صفرُ نداءٍ ثانٍ)
 _AH_E = _insp0.getsource(S.enrich)
 check("🔒 AHM11 `enrich` يقرأ الساعيّة من نفس نداء 4س (صفرُ نداءٍ شبكيٍّ ثانٍ)",
-      "fetch_4h(r[\"symbol\"], with_h1=True)" in _AH_E
+      "fetch_4h(r[\"symbol\"], with_h1=True, daily=_DAILY_FOR_H4.get(r[\"symbol\"]))" in " ".join(_AH_E.split()).replace("( ", "(")   # 🕓✂️ H4S2 (2026-11-10)
       and _AH_E.count("fetch_4h(") == 1
       and "ah_missed_extremes(_h1)" in _AH_E)
 # 🔒 AHM12 — `with_h1=False` (الافتراض) ⇒ **المُخرَجُ بت-بت** لكلّ المستهلكين
@@ -100389,6 +100389,8 @@ try:
                      "h4_levels": {"supports": [1.85], "resistances": [2.4, 2.86], "flip": None, "sweep_low": 1.7, "managed_ceiling": None},
                      "warnings": ["w"]}, [("M2", False, "x", "hard"), ("M1", True, "y", "hard")], _ap5_df)
 
+    _ap5_daily = []
+
     class _Ap5S:
         @staticmethod
         def resistance_levels(df, price):
@@ -100403,7 +100405,8 @@ try:
             return {"red_tails": [1.5], "green_origins": []}
 
         @staticmethod
-        def fetch_4h(sym):
+        def fetch_4h(sym, daily=None):                    # 🕓✂️ (2026-11-10) يُمرَّر اليوميّ لإعادة القياس (H4S2)
+            _ap5_daily.append(daily is _ap5_df)
             return _ap5_df
 
         @staticmethod
@@ -100418,8 +100421,8 @@ try:
           and _ap5_r.get("h4", {}).get("resistances") == [2.4, 2.86] and _ap5_r.get("tested_level") == {"level": 1.0, "touches": 2}
           and _ap5_r.get("daily_resistances") == [2.36, 2.86] and _ap5_r.get("low5") == 1.25 and _ap5_r.get("low20") == 1.1
           and _ap5_r.get("borrow") == {"shares_available": 0} and _ap5_r.get("h4_low20") == 1.1
-          and _ap5_bad.get("error") == "تعذّر" and "pivot" not in _ap5_bad,
-          f"r={str(_ap5_r)[:300]} bad={_ap5_bad}")
+          and _ap5_bad.get("error") == "تعذّر" and "pivot" not in _ap5_bad and _ap5_daily == [True],
+          f"r={str(_ap5_r)[:300]} bad={_ap5_bad} daily={_ap5_daily}")
     _ap5_calls = []
     _ap5_ml, _ap5_mn = AP5.main_levels, getattr(AP5, "download_history", None)
     _ap5_e0, _ap5_s0 = _ap5_os.environ.get("APP_LEVELS"), _ap5_os.environ.get("APP_SYMS")
@@ -100573,6 +100576,107 @@ try:
 except Exception as _apd4_e:                                         # noqa: BLE001
     check("📱⚖️ APD40 T-APPDIFF الملحق 1 (انهيارُ القفل)", False, f"⛔ رمى: {type(_apd4_e).__name__}: {_apd4_e}")
 
+# 🕓✂️ H4S1-H4S4 (‏2026-11-10 · أمرُ المالك «أصلح شموع 4س بعد التقسيم — عطل مثبت (NEXR 11-05: 1.18 مقابل 1.91)، خلف مفتاح يرجع بت-بت»):
+#    شموعُ الساعة تُعاد إلى مقياس الشموع اليوميّة للبوت يومًا بيوم حين يختلف الإغلاقان بـ`SPLIT_MISMATCH_RATIO` · موصولةٌ في الإثراء والفحص اليدويّ ·
+#    والصيّادان وحارسُ متابعة الصيّاد بلا تغيير (حمايةُ المالك) · و`H4_SPLIT_FIX=0` ⟵ بت-بت.
+try:
+    import ast as _h4s_ast
+    import inspect as _h4s_insp
+    import pandas as _h4s_pd
+
+    def _h4s_frame(spec):
+        _rows = []
+        for _d, _p in spec:
+            for _h, _m in ((8, 0), (9, 30), (10, 30), (11, 30), (12, 30), (13, 30), (14, 30), (15, 30), (16, 0), (17, 0)):
+                _t = _h4s_pd.Timestamp(f"{_d} {_h:02d}:{_m:02d}", tz="America/New_York")
+                _q = _p * (1.3 if _h >= 16 else 1.0)          # الممتدّةُ بسعرٍ مختلف ⟵ نافذةُ الجلسة النظاميّة تُقاس
+                _rows.append((_t, _q, _q * 1.02, _q * 0.98, _q, 1000.0))
+        return _h4s_pd.DataFrame(_rows, columns=["t", "Open", "High", "Low", "Close", "Volume"]).set_index("t")
+    _h4s_days = [("2026-10-%02d" % k, 1.2) for k in range(1, 31) if _h4s_pd.Timestamp("2026-10-%02d" % k).weekday() < 5]
+    _h4s_h1 = _h4s_frame(_h4s_days + [("2026-11-05", 1.17), ("2026-11-06", 2.05)])
+    _h4s_dd = [d for d, _ in _h4s_days] + ["2026-11-05", "2026-11-06"]
+    _h4s_daily = _h4s_pd.DataFrame({"Close": [1.9776] * len(_h4s_days) + [1.9088, 2.1]}, index=_h4s_pd.to_datetime(_h4s_dd))
+    _h4s_out, _h4s_rs = S.h1_daily_rescale(_h4s_h1, _h4s_daily)
+    _h4s_reg = _h4s_out[[t.hour * 60 + t.minute < 960 for t in _h4s_out.index]]
+    _h4s_last = _h4s_reg["Close"].groupby(_h4s_reg.index.date).last()
+    _h4s_near = _h4s_pd.DataFrame({"Close": [1.5] * len(_h4s_days) + [1.5, 2.05]}, index=_h4s_pd.to_datetime(_h4s_dd))   # نسبةُ 1.28 دون 1.5
+    _h4s_n_out, _h4s_n_rs = S.h1_daily_rescale(_h4s_h1, _h4s_near)
+    _h4s_v = _h4s_out["Volume"].groupby(_h4s_out.index.date).last()
+    check("🕓✂️ H4S1 `h1_daily_rescale` نقيّة: أيّامُ ما قبل التقسيم تُعاد إلى إغلاق اليوميّ (11-05 ‏1.17 ⟵ 1.9088) ويومُ التقسيم يبقى (2.05) · "
+          "والممتدّةُ تُضرب بنسبة يومها والحجمُ يُقسم · ونسبةٌ دون `SPLIT_MISMATCH_RATIO` (1.28) لا تُمسّ · وبلا يوميٍّ أو بإطارٍ تالفٍ كما هو",
+          abs(float(_h4s_last[_h4s_pd.Timestamp("2026-11-05").date()]) - 1.9088) < 1e-9
+          and abs(float(_h4s_last[_h4s_pd.Timestamp("2026-11-06").date()]) - 2.05) < 1e-9
+          and len(_h4s_rs) == len(_h4s_days) + 1 and ("2026-11-06" not in dict(_h4s_rs))
+          and abs(float(_h4s_out["Close"].iloc[len(_h4s_days) * 10 + 9]) - 1.9088 * 1.3) < 1e-9      # شمعةُ 17:00 الممتدّة يومَ 11-05 بنسبة يومها
+          and float(_h4s_v[_h4s_pd.Timestamp("2026-11-05").date()]) < 1000.0
+          and _h4s_n_rs == [] and _h4s_n_out is _h4s_h1
+          and S.h1_daily_rescale(_h4s_h1, None) == (_h4s_h1, []) and S.h1_daily_rescale("x", _h4s_daily) == ("x", []),
+          f"rs={_h4s_rs[-2:]} last={list(_h4s_last.round(4))[-2:]} near={_h4s_n_rs}")
+
+    class _H4sYF:
+        @staticmethod
+        def download(*a, **k):
+            return _h4s_h1.copy()
+    _h4s_yf0, _h4s_sw0 = S.yf, S.CONFIG.get("H4_SPLIT_FIX")
+    try:
+        S.yf = _H4sYF
+        S.CONFIG["H4_SPLIT_FIX"] = True
+        _h4s_on = S.fetch_4h("NEXR", daily=_h4s_daily)
+        _h4s_none = S.fetch_4h("NEXR")
+        S.CONFIG["H4_SPLIT_FIX"] = False
+        _h4s_off = S.fetch_4h("NEXR", daily=_h4s_daily)
+    finally:
+        S.yf = _h4s_yf0
+        S.CONFIG["H4_SPLIT_FIX"] = _h4s_sw0
+    _h4s_cl = lambda f: None if f is None else float(f["Close"][f.index.date == _h4s_pd.Timestamp("2026-11-05").date()].iloc[-1])
+    _h4s_ratio = (round(_h4s_cl(_h4s_on) / _h4s_cl(_h4s_none), 4) if _h4s_on is not None and _h4s_none is not None else None)
+    check("🕓✂️ H4S2 `fetch_4h(daily=)` يعيد المقياس حين المفتاحُ مُشعَل (11-05 بمقياس اليوميّ) · ومطفأً ⟵ مطابقٌ لـ`daily=None` بت-بت · "
+          "والإثراءُ والفحصُ اليدويّ يمرّران اليوميّ (`_DAILY_FOR_H4` · `df`) والافتراضُ مُشعَل",
+          _h4s_ratio == round(1.9088 / 1.17, 4) and _h4s_off is not None and _h4s_none is not None
+          and _h4s_off.equals(_h4s_none) and S.H4_RESCALE_LAST.get("NEXR") and _h4s_sw0 is True
+          and "daily=_DAILY_FOR_H4.get(" in _h4s_insp.getsource(S.enrich)
+          and "fetch_4h(sym, with_h1=True, daily=df)" in open("analyze_one.py", encoding="utf-8").read(),
+          f"ratio={_h4s_ratio} off_eq={_h4s_off is not None and _h4s_off.equals(_h4s_none)} sw={_h4s_sw0}")
+    _h4s_dh = _h4s_ast.parse(_h4s_insp.getsource(S.download_history))
+    _h4s_reg = [n for n in _h4s_ast.walk(_h4s_dh) if isinstance(n, _h4s_ast.If)
+                and "start_override is None" in _h4s_ast.unparse(n.test)
+                and any("_DAILY_FOR_H4.update" in _h4s_ast.unparse(b) for b in n.body)]
+    check("🕓✂️ H4S3 `download_history` يسجّل إطاراتِ الإنتاج وحدَها في `_DAILY_FOR_H4` (لا الباكتيست · `start_override is None`)",
+          len(_h4s_reg) == 1, f"n={len(_h4s_reg)}")
+
+    def _h4s_calls(path):
+        _t = _h4s_ast.parse(open(path, encoding="utf-8").read())
+        return [c for c in _h4s_ast.walk(_t) if isinstance(c, _h4s_ast.Call) and getattr(c.func, "attr", getattr(c.func, "id", None)) == "fetch_4h"]
+    _h4s_hunt = _h4s_calls("split_hunter.py") + _h4s_calls("method_hunter.py")
+    check("🕓✂️ H4S4 الصيّادان بلا تغيير (حمايةُ المالك): نداءاتُهما لـ`fetch_4h` بلا `daily` ⟵ شموعُ 4س فيهما كما كانت",
+          len(_h4s_hunt) >= 3 and all(not any(k.arg == "daily" for k in c.keywords) for c in _h4s_hunt), f"n={len(_h4s_hunt)}")
+    # H4S5 — مِجَسُّ العدّ (`app_compare.py` ‏`APP_H4FIX=1`): يسأل الفحصَ اليدويّ مرّتين للمتأثّر وحدَه ويُرجع المفتاحَ كما كان
+    import importlib.util as _h4s_iu
+    _h4s_sp = _h4s_iu.spec_from_file_location("app_compare_h4s", "fm_forensics/app_compare/app_compare.py")
+    _H4C = _h4s_iu.module_from_spec(_h4s_sp)
+    _h4s_sp.loader.exec_module(_H4C)
+
+    class _H4sS:
+        CONFIG = {"H4_SPLIT_FIX": True}
+        h1_daily_rescale = staticmethod(S.h1_daily_rescale)
+
+        @staticmethod
+        def fetch_4h(sym, with_h1=False):
+            return (None, _h4s_h1)
+
+    class _H4sAO:
+        @staticmethod
+        def analyze_on_demand(sym):
+            _on = _H4sS.CONFIG["H4_SPLIT_FIX"]
+            return ({"t1": 2.27, "t2": 2.87 if _on else 2.24, "t3": 3.92 if _on else 2.5}, [], None)
+    _h4s_r = _H4C.h4fix_one(_H4sS, _H4sAO, "NEXR", _h4s_daily)
+    _h4s_flat = _H4C.h4fix_one(_H4sS, _H4sAO, "AAA", _h4s_near)
+    check("🕓✂️ H4S5 مِجَسُّ العدّ: المتأثّرُ (أيّامٌ أُعيد قياسُها) يُفحَص مرّتين ⟵ الأهدافُ بلا إصلاح وبه وتغيّرُها · وغيرُ المتأثّر لا يُفحَص · والمفتاحُ يعود كما كان",
+          _h4s_r.get("targets_changed") is True and _h4s_r.get("off") == [2.27, 2.24, 2.5] and _h4s_r.get("on") == [2.27, 2.87, 3.92]
+          and _h4s_flat.get("days") == [] and "on" not in _h4s_flat and _H4sS.CONFIG["H4_SPLIT_FIX"] is True,
+          f"r={str(_h4s_r)[:160]} flat={_h4s_flat}")
+except Exception as _h4s_e:                                          # noqa: BLE001
+    check("🕓✂️ H4S0 أقفالُ شموع 4س بعد التقسيم (انهيارُ القفل)", False, f"⛔ رمى: {type(_h4s_e).__name__}: {_h4s_e}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

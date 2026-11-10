@@ -118,7 +118,7 @@ def levels_one(S, AO, sym):
         out["last5"] = [[str(i)[:10], _f(o), _f(h), _f(l), _f(c)] for i, o, h, l, c in
                         zip(df.index[-5:], df["Open"].tail(5), df["High"].tail(5), lo.tail(5), df["Close"].tail(5))]
     try:
-        h4 = S.fetch_4h(sym)
+        h4 = S.fetch_4h(sym, daily=df)
         if h4 is not None and len(h4):
             out["h4_low20"] = _f(h4["Low"].tail(20).min())
             out["h4_last6"] = [[str(i)[:16], _f(o), _f(h), _f(l), _f(c)] for i, o, h, l, c in
@@ -142,10 +142,66 @@ def main_levels(syms):
     return 0
 
 
+def h4fix_one(S, AO, sym, daily):
+    """🕓✂️ رمزٌ واحد (`APP_H4FIX=1` · أمرُ المالك 2026-11-10 «اطبع كم سهمًا … تأثرت أهدافه به اليوم») — قراءةٌ فقط:
+    شموعُ الساعة الخامّ ⟵ أيّامٌ تُعاد قياسًا (`h1_daily_rescale`) · وللمتأثّر وحدَه الفحصُ اليدويّ مرّتين (المفتاحُ مُشعَلًا ثمّ مطفأً) ⟵ t1-t3."""
+    out = {"symbol": sym, "days": []}
+    try:
+        _h4, h1 = S.fetch_4h(sym, with_h1=True)
+    except Exception as e:                                       # noqa: BLE001
+        out["error"] = f"fetch_4h: {type(e).__name__}"
+        return out
+    if h1 is None or daily is None:
+        out["error"] = "بلا شموع"
+        return out
+    _, days = S.h1_daily_rescale(h1, daily)
+    out["days"] = days
+    if not days:
+        return out
+    keep = S.CONFIG.get("H4_SPLIT_FIX", True)
+    try:
+        for flag, key in ((True, "on"), (False, "off")):
+            S.CONFIG["H4_SPLIT_FIX"] = flag
+            r = (list(AO.analyze_on_demand(sym)) + [None])[0]
+            out[key] = [_f(r.get(k)) for k in ("t1", "t2", "t3")] if r else None
+    finally:
+        S.CONFIG["H4_SPLIT_FIX"] = keep
+    out["targets_changed"] = bool(out.get("on") and out.get("off") and out["on"] != out["off"])
+    return out
+
+
+def main_h4fix():
+    import Super_stock as S
+    import analyze_one as AO
+    wl = json.load(open(os.path.join(ROOT, "weekly_watchlist.json"), encoding="utf-8"))
+    lst = [s["symbol"] for s in wl.get("stocks", []) if s.get("symbol") and s.get("status", "active") == "active"]
+    near = json.load(open(os.path.join(ROOT, "near_watch.json"), encoding="utf-8"))
+    nw = [k for k in near if k not in lst] if isinstance(near, dict) else []
+    syms = lst + nw
+    hist = S.download_history(syms) or {}
+    rows = []
+    for s in syms:
+        r = h4fix_one(S, AO, s, hist.get(s))
+        r["src"] = "القائمة" if s in lst else "تحت المتابعة"
+        rows.append(r)
+    for src in ("القائمة", "تحت المتابعة"):
+        sub = [r for r in rows if r["src"] == src]
+        aff = [r for r in sub if r.get("days")]
+        chg = [r for r in aff if r.get("targets_changed")]
+        print(f"🕓✂️ {src}: {len(sub)} سهمًا · شموعُ 4س أُعيد قياسُها لـ{len(aff)} · وتغيّرت أهدافُه في {len(chg)} · "
+              f"تعذّر {sum(1 for r in sub if r.get('error'))}")
+        for r in aff:
+            print(f"   {r['symbol']}: أيّام {len(r['days'])} (أوّلُها {r['days'][0][0]} ×{r['days'][0][1]}) · الأهداف بلا إصلاح {r.get('off')} ⟵ بالإصلاح {r.get('on')}")
+    print("APP_H4FIX_JSON " + json.dumps(rows, ensure_ascii=False, default=str))
+    return 0
+
+
 def main(argv=None):
     import Super_stock as S
     import envelope_scan as ES                     # 🔧 مصدرُ الحوافّ كالإنتاج (`Super_stock.py` · «تحت المتابعة») — كان `catalog_envelope.load_edges` ولا وجودَ لها
     syms = [s.strip().upper() for s in os.environ.get("APP_SYMS", ",".join(DEFAULT_SYMS)).split(",") if s.strip()]
+    if os.environ.get("APP_H4FIX", "0").strip() == "1":
+        return main_h4fix()
     if os.environ.get("APP_LEVELS", "0").strip() == "1":
         return main_levels(syms)
     edges = ES.load_edges() or {}
