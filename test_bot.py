@@ -100783,6 +100783,53 @@ try:
           f"E={_tgl_E['verdict']} {_tgl_E['pooled']} A={_tgl_A['verdict']} B={_tgl_B['verdict']} C={_tgl_C['verdict']} D={_tgl_D['verdict']} m={_tgl_A['pooled']}")
 except Exception as _tgl_x:                                      # noqa: BLE001
     check("🎯🪜 TGL0 أقفالُ T-TGTLADDER لم تنهَر", False, f"⛔ {type(_tgl_x).__name__}: {_tgl_x}")
+# 🎯🪜 TGL7 (‏2026-11-10 · عطلٌ مُثبَت في أوّل تشغيلة `42923696006`: شموعُ الإنتاج مسوّاةٌ بتقسيماتٍ بعد تاريخ الوحدة ⟵ NEXR يومَ 04-01 بسعر 199.76
+#    وأرقامُ فيصل 1.71-3.26): وحدةُ المنشورات تُقاس بمقياس يومها — السعرُ × حاصلِ نسب التقسيمات المنفّذة في D أو بعده (`_split_scale_factor` بالاسم).
+try:
+    import importlib.util as _tg7_iu
+    import pandas as _tg7_pd
+    _tg7_sp = _tg7_iu.spec_from_file_location("tgtladder_lock7", "fm_forensics/tgtladder/tgtladder.py")
+    TG7 = _tg7_iu.module_from_spec(_tg7_sp)
+    _tg7_sp.loader.exec_module(TG7)
+    _tg7_f = (TG7.unit_factor(S, [("2026-05-01", 0.01)], "2026-04-01"), TG7.unit_factor(S, [("2026-04-01", 0.1)], "2026-04-01"),
+              TG7.unit_factor(S, [("2026-03-31", 0.1)], "2026-04-01"), TG7.unit_factor(S, None, "2026-04-01"))
+    _tg7_idx = _tg7_pd.bdate_range("2025-10-01", "2026-04-10")
+    _tg7_df = _tg7_pd.DataFrame({"Open": 200.0, "High": 210.0, "Low": 190.0, "Close": 200.0, "Volume": 1e4}, index=_tg7_idx)
+    _tg7_seen = []
+
+    class _Tg7AO:
+        @staticmethod
+        def analyze_on_demand(sym):
+            _d = S.download_history([sym])[sym]
+            _tg7_seen.append((float(_d["Close"].iloc[-1]), _d.index[-1].strftime("%Y-%m-%d"), float(_d["Volume"].iloc[-1])))
+            return ({"t1": 2.5, "t2": 3.0, "t3": 4.0}, [], _d)
+    _tg7_r = TG7.posts_unit(S, _Tg7AO, "ZZ", "2026-04-01", [2.5, 3.5], _tg7_df, None, splits=[("2026-05-01", 0.01)])
+    import ast as _tg7_ast
+    _tg7_t = _tg7_ast.parse(open("fm_forensics/tgtladder/tgtladder.py", encoding="utf-8").read())
+    _tg7_mp = next(n for n in _tg7_t.body if isinstance(n, _tg7_ast.FunctionDef) and n.name == "mode_posts")
+    _tg7_pc = [c for c in _tg7_ast.walk(_tg7_mp) if isinstance(c, _tg7_ast.Call) and getattr(c.func, "id", None) == "posts_unit"]
+    _tg7_fs = [c for c in _tg7_ast.walk(_tg7_mp) if isinstance(c, _tg7_ast.Call) and getattr(c.func, "attr", None) == "_fetch_splits_dq"]
+    _tg7_wire = len(_tg7_pc) == 1 and any(k.arg == "splits" and getattr(k.value, "id", None) == "sp" for k in _tg7_pc[0].keywords) and len(_tg7_fs) == 1
+    check("🎯🪜 TGL7 وحدةُ المنشورات بمقياس يومها: تقسيمٌ بعد D أو فيه يضرب شموعَ الإنتاج في نسبته (والحجمُ ÷) قبل الفحص اليدويّ والسلّم · "
+          "وتقسيمٌ قبل D أو تعذّرُه ⟵ 1.0 · والشموعُ قبل D حصرًا",
+          _tg7_wire and _tg7_f == (0.01, 0.1, 1.0, 1.0) and _tg7_seen == [(2.0, "2026-03-31", 1e6)] and _tg7_r.get("factor") == 0.01
+          and _tg7_r.get("price") == 2.0 and _tg7_r.get("faisal") == [2.5, 3.5] and _tg7_r.get("cur3") == [2.5, 3.0, 4.0],
+          f"wire={_tg7_wire} f={_tg7_f} seen={_tg7_seen} r={ {k: _tg7_r.get(k) for k in ('factor', 'price', 'faisal', 'cur3', 'error')} }")
+except Exception as _tg7_x:                                      # noqa: BLE001
+    check("🎯🪜 TGL70 قفلُ مقياس المنشورات لم ينهَر", False, f"⛔ {type(_tg7_x).__name__}: {_tg7_x}")
+# 🎯🪜 TGL8 (‏2026-11-10): مُدخَلُ `part` في `tgtladder.yml` — `posts` يشغّل ① وحدَه (لإعادة المنشورات بعد إصلاح `TGL7` بلا إعادة ③) · `pit` ③ وحدَه · `all` الاثنين.
+try:
+    import yaml as _tg8_y
+    _tg8 = _tg8_y.safe_load(open(".github/workflows/tgtladder.yml", encoding="utf-8"))
+    _tg8_on = _tg8.get("on", _tg8.get(True)) or {}
+    _tg8_j = {k: (v or {}).get("if") for k, v in (_tg8.get("jobs") or {}).items()}
+    check("🎯🪜 TGL8 `tgtladder.yml`: مُدخَلُ `part` (افتراضُه all) · posts بلا pit · prep بلا posts · والتجميعُ always بلا posts · والشرائحُ بعد prep",
+          ((_tg8_on.get("workflow_dispatch") or {}).get("inputs") or {}).get("part", {}).get("default") == "all"
+          and _tg8_j == {"posts": "inputs.part != 'pit'", "prep": "inputs.part != 'posts'", "shard": None,
+                         "assemble": "always() && inputs.part != 'posts'"}
+          and (_tg8["jobs"]["shard"].get("needs") == "prep"), f"{_tg8_j}")
+except Exception as _tg8_x:                                      # noqa: BLE001
+    check("🎯🪜 TGL80 قفلُ مُدخَل part لم ينهَر", False, f"⛔ {type(_tg8_x).__name__}: {_tg8_x}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
