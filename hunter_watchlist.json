@@ -253,8 +253,36 @@
    "max_high": 2.31,
    "max_move_pct": 6.5,
    "stopped_at": "2026-11-02"
+  },
+  {
+   "symbol": "AXG",
+   "added": "2026-11-09",
+   "ref_price": 1.36,
+   "half": 1.18,
+   "ref": 2.35,
+   "event_kind": "split",
+   "split_date": "2026-10-29",
+   "float": 199380,
+   "avail": 9000,
+   "borrow_fee": 32.16,
+   "stop": 1.28,
+   "hold_above": 1.53,
+   "targets": [
+    {
+     "price": 1.87,
+     "src": "رأس شمعة حمراء"
+    },
+    {
+     "price": 2.35,
+     "src": "رأس شمعة حمراء"
+    }
+   ],
+   "status": "active",
+   "last_price": 1.36
   }
  ],
- "added_last": [],
+ "added_last": [
+  "AXG"
+ ],
  "pruned": []
 }
