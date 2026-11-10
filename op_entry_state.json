@@ -947,11 +947,11 @@
   "anchor_price": 2.0498,
   "anchor_open": 1.8699,
   "anchor_low": 1.8558,
-  "date": "2026-11-10",
   "pre_done": true,
   "pre_hi": 2.44,
   "pre_usd": 436851,
-  "pre_n": 57
+  "pre_n": 57,
+  "date": "2026-11-10"
  },
  "LIQ:JZXN": {
   "last_eval_ms": 1794318660000,
@@ -1613,24 +1613,15 @@
   "date": "2026-11-10"
  },
  "LIQ:SDA": {
-  "anchor_ms": 1794321300000,
-  "last_ms": 1794321540000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 5.7,
-  "peak_usd": 18253,
-  "last_eval_ms": 1794321300000,
-  "pulse_ms": 1794321540000,
-  "anchor_price": 0.3949,
-  "anchor_open": 0.3759,
-  "anchor_low": 0.371,
-  "pre_done": true,
-  "pre_hi": 0.4568,
-  "pre_usd": 172571,
-  "pre_n": 52,
-  "exit_ms": 1794321540000,
+  "last_eval_ms": 1794321540000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794321300000,
+   "anchor_price": 0.3949,
+   "anchor_low": 0.371,
+   "e5": null,
+   "exit_ms": 1794321540000
+  },
   "date": "2026-11-10"
  },
  "LIQ:ONFO": {
@@ -2722,11 +2713,11 @@
   "anchor_price": 2.6045,
   "anchor_open": 2.4299,
   "anchor_low": 2.365,
-  "date": "2026-11-10",
   "pre_done": true,
   "pre_hi": 2.45,
   "pre_usd": 5843,
-  "pre_n": 5
+  "pre_n": 5,
+  "date": "2026-11-10"
  },
  "LIQ:KITT": {
   "last_eval_ms": 1794321540000,
@@ -3805,5 +3796,6 @@
  "LIQ:VEEE": {
   "date": "2026-11-10"
  },
- "BENF": "2026-11-10"
+ "BENF": "2026-11-10",
+ "NXXT": "2026-11-10"
 }
