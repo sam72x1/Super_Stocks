@@ -1596,24 +1596,15 @@
   "date": "2026-11-09"
  },
  "LIQ:CHSN": {
-  "anchor_ms": 1794305100000,
-  "last_ms": 1794305280000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 10.3,
-  "peak_usd": 189121,
-  "last_eval_ms": 1794305100000,
-  "pulse_ms": 1794305280000,
-  "anchor_price": 3.25,
-  "anchor_open": 3.0501,
-  "anchor_low": 3.01,
-  "pre_done": true,
-  "pre_hi": 3.38,
-  "pre_usd": 633319,
-  "pre_n": 36,
-  "exit_ms": 1794305220000,
+  "last_eval_ms": 1794305280000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794305100000,
+   "anchor_price": 3.25,
+   "anchor_low": 3.01,
+   "e5": null,
+   "exit_ms": 1794305220000
+  },
   "date": "2026-11-10"
  },
  "LIQ:WHLR": {
@@ -3087,7 +3078,7 @@
   "date": "2026-11-10"
  },
  "LIQ:QNME": {
-  "last_eval_ms": 1794302220000,
+  "last_eval_ms": 1794305340000,
   "date": "2026-11-10"
  },
  "LIQ:JLHL": {
@@ -3656,5 +3647,6 @@
  "AUUD": "2026-11-10",
  "LIQ:GURE": {
   "date": "2026-11-10"
- }
+ },
+ "XLAB": "2026-11-10"
 }
