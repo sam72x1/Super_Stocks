@@ -374,7 +374,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 12.67,
+   "last_price": 13.04,
    "live_alert": {
     "breakout": "2026-11-05",
     "dump": "2026-10-16",
@@ -856,7 +856,7 @@
    "hit": "t2",
    "hit_date": "2026-11-10",
    "max_gain_pct": 44.8,
-   "last_price": 0.8239,
+   "last_price": 0.8259,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -1290,9 +1290,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 2.8,
-   "last_price": 1.74,
+   "last_price": 1.8746,
    "live_alert": {
-    "buyzone": "2026-11-10"
+    "buyzone": "2026-11-10",
+    "breakout": "2026-11-11"
    },
    "price_state": "VALID",
    "price_bar": "2026-11-10",
@@ -1705,7 +1706,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": -4.8,
-   "last_price": 2.46,
+   "last_price": 2.3,
    "live_alert": {},
    "price_state": "VALID",
    "price_bar": "2026-11-10",
@@ -2108,7 +2109,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 8.5,
-   "last_price": 2.22,
+   "last_price": 2.18,
    "live_alert": {
     "buyzone": "2026-11-10",
     "breakout": "2026-11-09"
@@ -3873,7 +3874,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 35.7,
-   "last_price": 2.2,
+   "last_price": 2.02,
    "live_alert": {},
    "price_state": "VALID",
    "price_bar": "2026-11-10",
@@ -4260,7 +4261,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 7.25,
+   "last_price": 7.36,
    "borrow_hist": [
     [
      "2026-10-20",
@@ -5210,7 +5211,7 @@
    "hit": "t2",
    "hit_date": "2026-10-29",
    "max_gain_pct": 37.4,
-   "last_price": 8.58,
+   "last_price": 8.6,
    "borrow_hist": [
     [
      "2026-10-20",
@@ -5604,7 +5605,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 386.6,
-   "last_price": 5.36,
+   "last_price": 5.3,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -6050,7 +6051,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 0.711,
+   "last_price": 0.7112,
    "live_alert": {
     "breakout": "2026-10-28",
     "dump": "2026-10-26"
@@ -6519,7 +6520,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 7.0,
-   "last_price": 1.17,
+   "last_price": 1.2,
    "borrow_hist": [
     [
      "2026-11-06",
