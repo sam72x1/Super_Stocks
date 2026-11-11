@@ -784,7 +784,7 @@
  },
  "LIQ:BDMD": {
   "anchor_ms": 1794398820000,
-  "last_ms": 1794398820000,
+  "last_ms": 1794398880000,
   "sent": [
    "M1"
   ],
@@ -792,7 +792,7 @@
   "vol_x": 39.4,
   "peak_usd": 62588,
   "last_eval_ms": 1794398880000,
-  "pulse_ms": 1794398820000,
+  "pulse_ms": 1794398880000,
   "anchor_price": 0.1152,
   "anchor_open": 0.1008,
   "anchor_low": 0.1008,
