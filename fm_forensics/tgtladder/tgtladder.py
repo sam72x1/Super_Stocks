@@ -25,6 +25,16 @@ ADDENDUM_1 = os.path.join(HERE, "T_TGTLADDER_addendum_1.md")
 ADDENDUM_1_SHA = "e6b02b3ef00350fe5960568b7744232e9042f0a646060e75a47cb019eacfced7"
 RISK_EPS = 1e-6               # الملحق 1 §②: مخاطرةٌ مخطَّطة دون 1e-6 × الدخول ⟵ «لا يعلو وقفَه» (فُتاتُ فاصلةٍ عائمة)
 OUT = os.path.join(HERE, "out")
+# 🔒 «ثم اقفل سلّم الأهداف» (أمرُ المالك 2026-11-11 بعد ① و② «لا فرق قابل للكشف» · `T_TGTLADDER_RESULT.md §⑧`):
+#    كلُّ وضعٍ عدا `check` يخرج 8 قبل أيّ جلب ما لم يكن `TGTLADDER_REOPEN` «1» حرفيًّا (إقرارٌ بشروط الفتح الثلاثة) · `TGL11`.
+AXIS_CLOSED = True
+REOPEN_ENV = "TGTLADDER_REOPEN"
+CLOSED_RC = 8                 # غيرُ 0 · 3 (مفتاح) · 9 (العقد/الملحق)
+
+
+def _closed_now():
+    """مُغلَقٌ الآن؟ يُقرأ وقتَ النداء · والإقرارُ «1» حرفيًّا («0» لا يفتح)."""
+    return AXIS_CLOSED and (os.environ.get(REOPEN_ENV) or "").strip() != "1"
 SEED = 20261110
 BOOT_B = 2000
 WIN = 20                      # نافذةُ التعبئة · ونافذةُ الحمل · ونافذةُ بلوغ الهدف (جلسات)
@@ -591,6 +601,9 @@ def main(argv=None):
     if a.mode == "check":
         log("✅ العقدُ مطابق")
         return 0
+    if _closed_now():
+        log("🔒 محورُ «سلّم الأهداف» مُغلَقٌ بأمر المالك 2026-11-11 — لا تشغيل (TGTLADDER_REOPEN=1 إقرارٌ بشروط الفتح)")
+        return CLOSED_RC
     if a.mode == "posts":
         return mode_posts()
     key = (os.environ.get("POLYGON_API_KEY") or "").strip()

@@ -204,6 +204,10 @@ CONFIG = {
     # 🏷️ «وسمُ فلوت 5 ملايين أو أقلّ» (أمرُ المالك 2026-11-08 ① بعد `T-APPDIFF` ②: «يرفع» ‏+2.8 [+0.2، +5.2]): سطرُ عرضٍ في الكرت
     #    وحدَه بالفلوت الحقيقيّ (`float` ياهو/الذاكرة · لا عدد الأسهم القائمة) — لا يُسقط سهمًا ولا يمسّ ترتيبًا · `FLOAT5_TAG=0` ⟵ بت-بت · `FT51`-`FT53`.
     "FLOAT5_TAG": os.environ.get("FLOAT5_TAG", "1").strip() != "0",
+    # 🪜 (أمرُ المالك 2026-11-11 «اعرض السلّم سطرًا معلومةً لا هدفًا» بعد `T-TGTLADDER` «لا فرق قابل للكشف»): سطرُ عرضٍ بسلّم
+    #    المقاومات (اليوميّ ∪ 4س حتى 6 · `target_ladder` = `tgtladder.ladder6` بت-بت) ونسبةِ بلوغ كلّ درجةٍ من القياس — والأهدافُ الثلاثة
+    #    كما هي · لا يمسّ t1/t2/t3/RR/الترتيب · `TGT_LADDER_LINE=0` ⟵ الكرتُ بت-بت · `LDL1`-`LDL3`.
+    "TGT_LADDER_LINE": os.environ.get("TGT_LADDER_LINE", "1").strip() != "0",
     # 📊 «مثل هذا الإشعار» (أمرُ المالك 2026-11-08 ② · أرقامُ `T-OPSIG` ثمّ سجلُّ الحصاد أسبوعيًّا `oe_card_stats.py`): سطرٌ على كرت مِرساة السيولة
     #    (حدثُ `M5`) للعاديّ و🥇 كلٌّ برقمه من `oe_card_stats.json` · عرضٌ لا توصية · `OE_STAT_LINE=0` ⟵ الكرتُ بت-بت · `OSL1`-`OSL4`.
     "OE_STAT_LINE": os.environ.get("OE_STAT_LINE", "1").strip() != "0",
@@ -7014,6 +7018,15 @@ def enrich(results: list) -> None:
                     except Exception:
                         pass
                     r["h4_confirm"] = h4_confirm_score(r)
+                    # 🪜 سلّمُ المقاومات للعرض (أمرُ المالك 2026-11-11) — من الشموع اليوميّة نفسِها ومقاومات 4س المحسوبة أعلاه ·
+                    #    صفرُ نداء · فاشلٌ-آمن · لا يمسّ الأهداف (`LDL2`)
+                    try:
+                        _dd = _DAILY_FOR_H4.get(r["symbol"])
+                        r["ladder6"], r["ladder6_empty"] = target_ladder(
+                            resistance_levels(_dd, r["price"]) if _dd is not None else [],
+                            (r.get("h4_levels") or {}).get("resistances") or [], r["price"], t1=r.get("t1"))
+                    except Exception:                    # noqa: BLE001
+                        r["ladder6"], r["ladder6_empty"] = None, None
                     # 🎬 KST على 4س بإعدادات فيصل (فيديو DSY) — حالة زخم مساندة.
                     # عرض/سياق فقط — لا نقاط ولا بوابة (المؤشر مساند لا أساس).
                     try:
@@ -11665,6 +11678,9 @@ def build_message(results: list, splits: list,
             _ktag = (" 🔵 نظيف" if _kk == "🔵"
                      else (" ⚫ مقاومة" if _kk == "⚫" else ""))
             lines.append(f"🎯 الهدف {i}{suffix}: ${tv:.2f}{_ktag}")
+        _ldl = ladder_info_line(r)                 # 🪜 أمرُ المالك 2026-11-11 — معلومةٌ لا هدف
+        if _ldl:
+            lines.append(_ldl)
         # المقاومة الفرعية لو ما طابقت أي هدف معروض (لا تكرار)
         minor_shown = res_minor is not None and any(
             abs(round(tv, 2) - round(res_minor, 2)) < 0.005 for tv in targets)
@@ -12906,6 +12922,7 @@ def make_watch_entry(r: dict, today_iso: str) -> dict:
         "t1": round(r["t1"], 4), "t2": round(r["t2"], 4),
         "t3": round(r["t3"], 4),
         "targets_kind": r.get("targets_kind"),    # 🎨 لون كل هدف (فيصل)
+        "ladder6": r.get("ladder6"), "ladder6_empty": r.get("ladder6_empty"),   # 🪜 سلّمُ العرض (أمرُ المالك 2026-11-11)
         "score": r["score"], "flags": list(r["flags"]),
         "rsi": r.get("rsi"), "float": r.get("float"),      # سمات للتعلم
         "short": r.get("finra_short"), "short_pct": r.get("short_pct"),
@@ -14017,6 +14034,53 @@ def float5_tag_line(r: dict) -> str:
         return ""
     return ("🏷️ فلوت 5 ملايين أو أقلّ (معيارُ تطبيق فيصل) — في 2023-2025 أدقُّ بـ‏+2.8 نقطة "
             "(‏T-APPDIFF) · وصفٌ لا بوّابة")
+
+
+# 🪜 نسبةُ بلوغ كلّ درجةٍ من السلّم خلال 20 جلسة (`T-TGTLADDER` ② · 4,414 إدخالًا CURRENT ‏2023-2025 · تشغيلة `42943607531` ·
+#    مقرَّبةً بأمر المالك 2026-11-11: 89.8 · 72.2 · 58.3 · 47.8 · 35.5 · 25.1) — وصفٌ مقيسٌ لا عتبة · دفترُ المصادر §`TGTLADDER`.
+LADDER_HIT_PCT = (90, 72, 58, 48, 36, 25)
+LADDER_K = 6
+
+
+def target_ladder(daily_res, h4_res, price, gap_pct=None, k=LADDER_K, t1=None):
+    """🪜 سلّمُ المقاومات = `fm_forensics/tgtladder/tgtladder.ladder6` حرفيًّا (القفل `LDL1` يطابقهما على عوالمَ عشوائيّة): اتّحادُ مقاومات
+    اليوميّ و4س فوق السعر صعودًا · ما يقع ضمن `MIN_TARGET_GAP_PCT` من سابقه يُدمج (يبقى الأدنى) · أوّلُ k · وإن خلت ⟵ [t1] موسومًا.
+    يُرجع (القائمة، خلت؟)."""
+    gap_pct = float(CONFIG.get("MIN_TARGET_GAP_PCT", 3)) if gap_pct is None else gap_pct
+    try:
+        px = float(price)
+    except (TypeError, ValueError):
+        return ([round(float(t1), 4)] if t1 else []), True
+    lv = sorted({round(float(x), 4) for x in list(daily_res or []) + list(h4_res or [])
+                 if x is not None and float(x) > px})
+    out = []
+    for x in lv:
+        if out and x <= out[-1] * (1.0 + gap_pct / 100.0):
+            continue
+        out.append(x)
+        if len(out) >= k:
+            break
+    if not out:
+        return ([round(float(t1), 4)] if t1 else []), True
+    return out, False
+
+
+def ladder_info_line(r: dict) -> str:
+    """🪜 (أمرُ المالك 2026-11-11) سطرُ «سلّم المقاومات — معلومةٌ لا هدف» بنسبة بلوغ كلّ درجةٍ من القياس · عرضٌ فقط ·
+    سلّمٌ فارغٌ أو احتياطُ t1 وحدَه ⟵ لا سطر · `TGT_LADDER_LINE=False` ⟵ لا سطر (بت-بت)."""
+    if not CONFIG.get("TGT_LADDER_LINE"):
+        return ""
+    lad = list((r or {}).get("ladder6") or [])
+    if not lad or (r or {}).get("ladder6_empty"):
+        return ""
+    parts = []
+    for i, v in enumerate(lad[:LADDER_K]):
+        txt = _px_txt(v)
+        if not txt:
+            return ""
+        parts.append(f"{txt} ({LADDER_HIT_PCT[i]}%)")
+    return ("🪜 سلّمُ المقاومات — معلومةٌ لا هدف: " + " · ".join(parts)
+            + " — نسبةُ بلوغ كلّ درجةٍ خلال 20 جلسة (2023-2025) · والأهدافُ أعلاه كما هي")
 
 
 _OE_STATS_CACHE = {}
@@ -15881,6 +15945,8 @@ def migrate_watchlist(wl: dict, history: dict) -> int:
         s["t2"] = round(fresh["t2"], 4)
         s["t3"] = round(fresh["t3"], 4)
         s["targets_kind"] = fresh.get("targets_kind")   # 🎨 لون كل هدف (فيصل)
+        if fresh.get("ladder6") is not None:              # 🪜 سلّمُ العرض يتجدّد مع الأهداف (والقديمُ يبقى إن تعذّر)
+            s["ladder6"], s["ladder6_empty"] = fresh.get("ladder6"), fresh.get("ladder6_empty")
         s["key_levels"] = fresh.get("key_levels")
         s["liberation"] = fresh.get("liberation")
         # حقول مشتقّة من السعر تتغيّر مع الوقف/الأهداف → نحدّثها معها حتى لا
@@ -21813,6 +21879,9 @@ def build_daily_message(wl: dict, splits: list,
             _tparts.append(_seg)
         _hdr = "🎯 أهداف (🔵 نظيف · ⚫ مقاومة): " if _dtk else "🎯 أهداف: "
         lines.append("   " + _hdr + " · ".join(_tparts))
+        _ldl = ladder_info_line(s)                 # 🪜 أمرُ المالك 2026-11-11 — معلومةٌ لا هدف
+        if _ldl:
+            lines.append("   " + _ldl)
         if _dblk and _dpend:
             lines.append(f"   ⏳ المعلّق يتفعّل بتجاوز ${_dblk:.2f}")
         if s.get("liberation"):
