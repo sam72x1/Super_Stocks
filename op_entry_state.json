@@ -1566,7 +1566,7 @@
  },
  "LIQ:LICN": {
   "anchor_ms": 1794388080000,
-  "last_ms": 1794388080000,
+  "last_ms": 1794388140000,
   "sent": [
    "M1"
   ],
@@ -1574,15 +1574,15 @@
   "vol_x": 4.9,
   "peak_usd": 164937,
   "last_eval_ms": 1794388140000,
-  "pulse_ms": 1794388080000,
+  "pulse_ms": 1794388140000,
   "anchor_price": 0.0589,
   "anchor_open": 0.0548,
   "anchor_low": 0.05,
-  "date": "2026-11-11",
   "pre_done": true,
   "pre_hi": 0.055,
   "pre_usd": 228340,
-  "pre_n": 8
+  "pre_n": 8,
+  "date": "2026-11-11"
  },
  "LIQ:OMEX": {
   "last_eval_ms": 1794346020000,
