@@ -1716,24 +1716,15 @@
   "date": "2026-11-10"
  },
  "LIQ:CHSN": {
-  "anchor_ms": 1794390300000,
-  "last_ms": 1794390420000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 4.6,
-  "peak_usd": 13216,
-  "last_eval_ms": 1794390300000,
-  "pulse_ms": 1794390420000,
-  "anchor_price": 3.07,
-  "anchor_open": 2.91,
-  "anchor_low": 2.91,
-  "pre_done": true,
-  "pre_hi": 2.865,
-  "pre_usd": 68267,
-  "pre_n": 26,
-  "exit_ms": 1794390420000,
+  "last_eval_ms": 1794390420000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794390300000,
+   "anchor_price": 3.07,
+   "anchor_low": 2.91,
+   "e5": null,
+   "exit_ms": 1794390420000
+  },
   "date": "2026-11-11"
  },
  "LIQ:WHLR": {
@@ -3765,7 +3756,7 @@
   "date": "2026-11-10"
  },
  "BENF": "2026-11-10",
- "NXXT": "2026-11-10",
+ "NXXT": "2026-11-11",
  "ONFO": "2026-11-10",
  "HYFM": "2026-11-10",
  "YOUL": "2026-11-10",
