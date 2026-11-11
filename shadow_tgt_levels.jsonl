@@ -8,3 +8,12 @@
 {"schema": 1, "date": "2026-11-10", "symbol": "SMX", "src": "on_demand", "why": "ok", "captured_at": "2026-11-10T14:25:08+00:00", "stop": 3.22, "t1": 10.56, "t2": 11.9}
 {"schema": 1, "date": "2026-11-10", "symbol": "LICN", "src": "on_demand", "why": "ok", "captured_at": "2026-11-10T14:25:08+00:00", "stop": 0.29, "t1": 0.38, "t2": 0.76}
 {"schema": 1, "date": "2026-11-10", "symbol": "WFF", "src": "on_demand", "why": "ok", "captured_at": "2026-11-10T14:25:08+00:00", "stop": 1.0, "t1": 1.27, "t2": 1.7}
+{"schema": 1, "date": "2026-11-11", "symbol": "RCT", "src": "on_demand", "why": "ok", "captured_at": "2026-11-11T14:25:12+00:00", "stop": 0.03, "t1": 0.04, "t2": 0.05}
+{"schema": 1, "date": "2026-11-11", "symbol": "INLF", "src": "on_demand", "why": "ok", "captured_at": "2026-11-11T14:25:12+00:00", "stop": 0.17, "t1": 2.5, "t2": 2.85}
+{"schema": 1, "date": "2026-11-11", "symbol": "BDMD", "src": "on_demand", "why": "ok", "captured_at": "2026-11-11T14:25:12+00:00", "stop": 0.07, "t1": 0.12, "t2": 0.2}
+{"schema": 1, "date": "2026-11-11", "symbol": "YFOR", "src": "on_demand", "why": "ok", "captured_at": "2026-11-11T14:25:12+00:00", "stop": 0.05, "t1": 0.08, "t2": 0.09}
+{"schema": 1, "date": "2026-11-11", "symbol": "AUUD", "src": "on_demand", "why": "ok", "captured_at": "2026-11-11T14:25:12+00:00", "stop": 0.21, "t1": 0.27, "t2": 0.35}
+{"schema": 1, "date": "2026-11-11", "symbol": "SHFS", "src": "on_demand", "why": "ok", "captured_at": "2026-11-11T14:25:12+00:00", "stop": 0.01, "t1": 0.02, "t2": 0.03}
+{"schema": 1, "date": "2026-11-11", "symbol": "CHSN", "src": "on_demand", "why": "ok", "captured_at": "2026-11-11T14:25:12+00:00", "stop": 0.7, "t1": 2.83, "t2": 3.2}
+{"schema": 1, "date": "2026-11-11", "symbol": "YMAT", "src": "on_demand", "why": "ok", "captured_at": "2026-11-11T14:25:12+00:00", "stop": 0.84, "t1": 1.13, "t2": 1.46}
+{"schema": 1, "date": "2026-11-11", "symbol": "BRAI", "src": "on_demand", "why": "ok", "captured_at": "2026-11-11T14:25:12+00:00", "stop": 1.76, "t1": 1.95, "t2": 2.2}
