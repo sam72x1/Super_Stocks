@@ -211,7 +211,7 @@
  },
  "LIQ:VIVK": {
   "anchor_ms": 1794405600000,
-  "last_ms": 1794405600000,
+  "last_ms": 1794405660000,
   "sent": [
    "M1"
   ],
@@ -219,15 +219,15 @@
   "vol_x": 65.5,
   "peak_usd": 73663,
   "last_eval_ms": 1794405660000,
-  "pulse_ms": 1794405600000,
+  "pulse_ms": 1794405660000,
   "anchor_price": 0.252,
   "anchor_open": 0.24,
   "anchor_low": 0.24,
-  "date": "2026-11-11",
   "pre_done": true,
   "pre_hi": 0.2611,
   "pre_usd": 51700,
-  "pre_n": 47
+  "pre_n": 47,
+  "date": "2026-11-11"
  },
  "LIQ:HUBC": {
   "last_eval_ms": 1794405660000,
