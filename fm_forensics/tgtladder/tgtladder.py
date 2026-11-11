@@ -358,8 +358,10 @@ def polygon_hourly(sym, d, key, fetch=None):
     return pd.DataFrame(rs).set_index("t").sort_index()
 
 
-def entry_row(S, RB, sym, rows, i, sub, f, r0, hourly):
-    """صفُّ إدخالٍ واحد: CUR3 (بتنقيح 4س) · LADDER6 · بلوغُ الأهداف · وR الذراعين على المقياس الواحد."""
+def entry_row(S, RB, sym, rows, i, sub, f, r0, hourly, d=None):
+    """صفُّ إدخالٍ واحد: CUR3 (بتنقيح 4س) · LADDER6 · بلوغُ الأهداف · وR الذراعين على المقياس الواحد.
+    🔧 (2026-11-10 · عطلٌ مُثبَت: الشريحة 5 في `42923696006` سقطت بـIndexError) — يومُ D يُمرَّر ولا يُقرأ من `rows[i]`: رمزٌ آخرُ شموعه قبل D
+    (`bisect` يُرجع طولَ القائمة) يبقى إدخالًا بلا جلساتٍ لاحقة ⟵ بلوغٌ None وصفقةٌ لا تُعبَّأ (تُعَدّ) كما يقول العقد."""
     price = float(sub["Close"].iloc[-1])
     h4 = None
     if hourly is not None and len(hourly):
@@ -381,7 +383,7 @@ def entry_row(S, RB, sym, rows, i, sub, f, r0, hourly):
     stop = (r0.get("stop") or (None,))[0]
     rc, fc, _lc = trade_r(rs, i, entry, stop, cur3)
     rl, fl, ll = trade_r(rs, i, entry, stop, lad)
-    return {"d": rows[i][0], "h4": h4 is not None, "cur3": cur3, "lad": lad, "lad_empty": empty,
+    return {"d": d or rows[i][0], "h4": h4 is not None, "cur3": cur3, "lad": lad, "lad_empty": empty,
             "hit_cur": hit_flags(rs, i, cur3), "hit_lad": hit_flags(rs, i, lad),
             "r_cur": rc, "r_lad": rl, "legs_lad": ll, "filled": bool(fc and fl)}
 
@@ -390,7 +392,7 @@ def shard_symbol(sym, rows, splits_sym, member_days, sessions_ix, prev_of, finra
                  hourly_fn=None):
     """إدخالاتُ CURRENT الجديدة لرمز (حرّاسُ `appdiff_symbol` بالاسم) ⟵ صفوفُ `entry_row`."""
     import pandas as pd
-    cnt = {"rows": 0, "fire_cur": 0, "entries": 0, "h4": 0}
+    cnt = {"rows": 0, "fire_cur": 0, "entries": 0, "h4": 0, "entry_err": 0}
     out = []
     if not rows:
         return out, cnt
@@ -434,7 +436,12 @@ def shard_symbol(sym, rows, splits_sym, member_days, sessions_ix, prev_of, finra
             continue
         cnt["entries"] += 1
         hourly = (hourly_fn or (lambda s, dd: polygon_hourly(s, dd, key)))(sym, d)
-        er = entry_row(S, RB, sym, rows, i, sub, f, r0, hourly)
+        try:
+            er = entry_row(S, RB, sym, rows, i, sub, f, r0, hourly, d=d)
+        except Exception as e:                                   # noqa: BLE001 — يُعَدّ ويُسمّى ولا يُسقط الشريحة
+            cnt["entry_err"] += 1
+            log(f"⚠️ {sym} {d}: تعذّر صفُّ الإدخال ({type(e).__name__}: {e}) — يُعَدّ")
+            continue
         cnt["h4"] += er["h4"]
         out.append(er)
     RB.with_config(S, cfg_cur)
@@ -556,6 +563,7 @@ def mode_assemble(nshards):
             tot[k] = tot.get(k, 0) + v
     res = analyse(rows_by)
     m, (lo, hi) = res["pooled"]
+    log(f"② عدّاداتُ الشرائح {tot} — وتعذّرُ صفِّ الإدخال (entry_err) يُطبع هنا ولا يُخفى")
     log(f"② الإدخالات {res['desc']['n_entries']} · الصفقاتُ المعبَّأة {res['desc']['n_trades']} · تغطيةُ 4س {res['cover']:.3f}")
     log(f"   حصّةُ البلوغ CUR3 {res['share']['CUR3']} · LADDER6 {res['share']['LADDER6']}")
     _yr = ", ".join(f"{y}: {round(v, 3)} (n={res['n_year'].get(y)})" for y, v in sorted(res["per_year"].items()) if v is not None)

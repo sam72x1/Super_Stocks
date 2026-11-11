@@ -100830,6 +100830,34 @@ try:
           and (_tg8["jobs"]["shard"].get("needs") == "prep"), f"{_tg8_j}")
 except Exception as _tg8_x:                                      # noqa: BLE001
     check("🎯🪜 TGL80 قفلُ مُدخَل part لم ينهَر", False, f"⛔ {type(_tg8_x).__name__}: {_tg8_x}")
+# 🎯🪜 TGL9 (‏2026-11-10 · عطلٌ مُثبَت: الشريحة 5 في `42923696006` سقطت بـIndexError على رمزٍ آخرُ شموعه قبل D): `entry_row` يأخذ D ممرَّرًا ·
+#    وإدخالٌ بلا جلساتٍ لاحقة (i = طولُ الشموع) لا ينهار — بلوغُه None وصفقتُه غيرُ معبَّأة · و`shard_symbol` يمرّر D (AST).
+try:
+    import importlib.util as _tg9_iu
+    import ast as _tg9_ast
+    import pandas as _tg9_pd
+    _tg9_sp = _tg9_iu.spec_from_file_location("tgtladder_lock9", "fm_forensics/tgtladder/tgtladder.py")
+    TG9 = _tg9_iu.module_from_spec(_tg9_sp)
+    _tg9_sp.loader.exec_module(TG9)
+    _tg9_idx = _tg9_pd.bdate_range("2025-01-01", periods=80)
+    _tg9_rows = [(x.strftime("%Y-%m-%d"), 1.0, 1.05, 0.95, 1.0, 1e5) for x in _tg9_idx]
+    _tg9_sub = _tg9_pd.DataFrame({"Open": 1.0, "High": 1.05, "Low": 0.95, "Close": 1.0, "Volume": 1e5}, index=_tg9_idx)
+    _tg9_r0 = {"t1": 1.2, "t2": 1.4, "t3": 2.0, "tranches": [0.97, 1.0, 1.03], "stop": (0.9, 0.92)}
+    try:
+        _tg9_e = TG9.entry_row(S, None, "ZZ", _tg9_rows, len(_tg9_rows), _tg9_sub, 1.0, _tg9_r0, None, d="2025-04-25")
+    except Exception as _tg9_ie:                                  # noqa: BLE001
+        _tg9_e = {"crash": type(_tg9_ie).__name__}
+    _tg9_t = _tg9_ast.parse(open("fm_forensics/tgtladder/tgtladder.py", encoding="utf-8").read())
+    _tg9_ss = next(n for n in _tg9_t.body if isinstance(n, _tg9_ast.FunctionDef) and n.name == "shard_symbol")
+    _tg9_c = [c for c in _tg9_ast.walk(_tg9_ss) if isinstance(c, _tg9_ast.Call) and getattr(c.func, "id", None) == "entry_row"]
+    check("🎯🪜 TGL9 إدخالٌ بلا جلساتٍ لاحقة (رمزٌ آخرُ شموعه قبل D) لا يُسقط الشريحة: D ممرَّر · البلوغُ None · الصفقةُ غيرُ معبَّأة · "
+          "و`shard_symbol` يمرّر `d=d`",
+          _tg9_e.get("d") == "2025-04-25" and _tg9_e.get("hit_cur") is None and _tg9_e.get("hit_lad") is None
+          and _tg9_e.get("filled") is False and _tg9_e.get("r_cur") is None
+          and len(_tg9_c) == 1 and any(k.arg == "d" and getattr(k.value, "id", None) == "d" for k in _tg9_c[0].keywords),
+          f"e={ {k: _tg9_e.get(k) for k in ('d', 'hit_cur', 'filled', 'crash')} } calls={len(_tg9_c)}")
+except Exception as _tg9_x:                                      # noqa: BLE001
+    check("🎯🪜 TGL90 قفلُ الإدخال بلا جلسات لم ينهَر", False, f"⛔ {type(_tg9_x).__name__}: {_tg9_x}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
