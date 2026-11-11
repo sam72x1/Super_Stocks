@@ -503,7 +503,7 @@
  },
  "LIQ:SHFS": {
   "anchor_ms": 1794402900000,
-  "last_ms": 1794402900000,
+  "last_ms": 1794402960000,
   "sent": [
    "M1"
   ],
@@ -511,7 +511,7 @@
   "vol_x": 4.2,
   "peak_usd": 506884,
   "last_eval_ms": 1794402960000,
-  "pulse_ms": 1794402900000,
+  "pulse_ms": 1794402960000,
   "anchor_price": 0.0391,
   "anchor_open": 0.0369,
   "anchor_low": 0.0369,
@@ -523,11 +523,11 @@
    "e5": null,
    "exit_ms": 1794392460000
   },
-  "date": "2026-11-11",
   "pre_done": true,
   "pre_hi": 0.0376,
   "pre_usd": 6304290,
-  "pre_n": 63
+  "pre_n": 63,
+  "date": "2026-11-11"
  },
  "LIQ:SIDU": {
   "last_eval_ms": 1794402900000,
@@ -1828,7 +1828,7 @@
  },
  "LIQ:CHSN": {
   "anchor_ms": 1794402900000,
-  "last_ms": 1794402900000,
+  "last_ms": 1794402960000,
   "sent": [
    "M1"
   ],
@@ -1836,7 +1836,7 @@
   "vol_x": 22.2,
   "peak_usd": 144950,
   "last_eval_ms": 1794402960000,
-  "pulse_ms": 1794402900000,
+  "pulse_ms": 1794402960000,
   "anchor_price": 3.13,
   "anchor_open": 2.87,
   "anchor_low": 2.865,
@@ -1848,11 +1848,11 @@
    "e5": null,
    "exit_ms": 1794390420000
   },
-  "date": "2026-11-11",
   "pre_done": true,
   "pre_hi": 2.9,
   "pre_usd": 320279,
-  "pre_n": 54
+  "pre_n": 54,
+  "date": "2026-11-11"
  },
  "LIQ:WHLR": {
   "last_eval_ms": 1794402960000,
@@ -3272,35 +3272,15 @@
   "date": "2026-11-10"
  },
  "LIQ:UCL": {
-  "anchor_ms": 1794402600000,
-  "last_ms": 1794402960000,
-  "sent": [
-   "M1",
-   "M5"
-  ],
-  "updates": 0,
-  "vol_x": 26.7,
-  "peak_usd": 173596,
-  "last_eval_ms": 1794402600000,
-  "pulse_ms": 1794402960000,
-  "anchor_price": 0.2692,
-  "anchor_open": 0.2487,
-  "anchor_low": 0.2316,
-  "pre_done": true,
-  "pre_hi": 0.2586,
-  "pre_usd": 311645,
-  "pre_n": 55,
-  "k2": {
-   "c3": "صادقت (إغلاقٌ فوق المرساة)",
-   "c4": "خضراء 2",
-   "v2": "المرساة دون 30% (سيولة تتوالى)",
-   "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)",
-   "j1": true,
-   "j1_top": false
+  "last_eval_ms": 1794402960000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794402600000,
+   "anchor_price": 0.2692,
+   "anchor_low": 0.2316,
+   "e5": 0.2367,
+   "exit_ms": 1794402960000
   },
-  "e5": 0.2367,
-  "tgt_ms": 1794402660000,
-  "exit_ms": 1794402960000,
   "date": "2026-11-11"
  },
  "LIQ:XELB": {
