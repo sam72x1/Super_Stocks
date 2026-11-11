@@ -101066,6 +101066,176 @@ try:
 except Exception as _ld_x:                                       # noqa: BLE001
     check("🪜 LDL0 أقفالُ سطر السلّم وإغلاقُه لم تنهَر", False, f"⛔ {type(_ld_x).__name__}: {_ld_x}")
 
+# 🧱 TBK2-TBK7 (‏2026-11-11 · أمرُ المالك «ابنِ أداة T-BLOCK — على العقد حرفيًا وشغّلها»): الأداةُ `fm_forensics/tblock/tblock.py` على العقد والملحق 1
+try:
+    import importlib.util as _tbk_iu
+    import os as _tbk_os
+    import ast as _tbk_ast
+    import yaml as _tbk_y
+    import datetime as _tbk_dt
+    from zoneinfo import ZoneInfo as _tbk_Z
+    _tbk_sp = _tbk_iu.spec_from_file_location("tblock_lock", "fm_forensics/tblock/tblock.py")
+    TBK = _tbk_iu.module_from_spec(_tbk_sp)
+    _tbk_sp.loader.exec_module(TBK)
+    _tbk_NY = _tbk_Z("America/New_York")
+    # TBK2 — البصمتان والخروج: check ⟵ 0 · بصمةُ الملحق مختلفة ⟵ 9 · بلا مفتاح ⟵ 3 · التجميعُ بلا SEC_CONTACT ⟵ 2 · والـworkflow يدويٌّ قارئ
+    _tbk_env0 = {k: _tbk_os.environ.get(k) for k in ("POLYGON_API_KEY", "SEC_CONTACT")}
+    _tbk_keep = TBK.ADDENDUM_1_SHA
+    try:
+        for k in _tbk_env0:
+            _tbk_os.environ.pop(k, None)
+        _tbk_rc = {"check": TBK.main(["--mode", "check"]), "prep_a": TBK.main(["--mode", "prep_a"]), "shard_b": TBK.main(["--mode", "shard_b"]),
+                   "assemble": TBK.main(["--mode", "assemble"])}
+        TBK.ADDENDUM_1_SHA = "0" * 64
+        _tbk_rc["bad"] = TBK.main(["--mode", "check"])
+    finally:
+        TBK.ADDENDUM_1_SHA = _tbk_keep
+        for k, v in _tbk_env0.items():
+            if v is not None:
+                _tbk_os.environ[k] = v
+    _tbk_w = _tbk_y.safe_load(open(".github/workflows/tblock.yml", encoding="utf-8"))
+    _tbk_on = _tbk_w.get("on", _tbk_w.get(True)) or {}
+    _tbk_txt = open(".github/workflows/tblock.yml", encoding="utf-8").read()
+    _tbk_asm = " ".join(str(s.get("env") or "") for s in _tbk_w["jobs"]["assemble"]["steps"])
+    check("🧱 TBK2 الأداةُ: check ⟵ 0 · بصمةُ الملحق مختلفة ⟵ 9 · بلا مفتاح Polygon ⟵ 3 · التجميعُ بلا SEC_CONTACT ⟵ 2 قبل أيّ رقم · "
+          "والـworkflow يدويٌّ بلا كرون (contents: read) بلا تلغرام والإيداعاتُ في التجميع وحدَه",
+          _tbk_rc == {"check": 0, "prep_a": 3, "shard_b": 3, "assemble": 2, "bad": 9} and list(_tbk_on) == ["workflow_dispatch"]
+          and (_tbk_w.get("permissions") or {}) == {"contents": "read"} and "TELEGRAM" not in _tbk_txt and "SEC_CONTACT" in _tbk_asm
+          and sum(1 for _l in _tbk_txt.splitlines() if _l.strip().startswith("SEC_CONTACT:")) == 1 and TBK.ADDENDUM_1_SHA == TBK._sha(TBK.ADDENDUM_1),
+          f"rc={_tbk_rc}")
+
+    # TBK3 — الصفقات: الشروطُ المستبعدة تُسقَط وتُعَدّ · التيك (صاعد · مساوٍ يُبقيه · هابط) · الحدود الثلاثة كلٌّ وحده (999/1000 · 0.5% · 25 ألف)
+    _tbk_ex = TBK.excluded_conditions([{"id": 2, "name": "Average Price", "data_types": ["trade"], "update_rules": {"consolidated": {"updates_open_close": False}}},
+                                       {"id": 14, "name": "Intermarket Sweep", "data_types": ["trade"], "update_rules": {"consolidated": {"updates_open_close": True}}},
+                                       {"id": 99, "name": "Q", "data_types": ["quote"], "update_rules": {"consolidated": {"updates_open_close": False}}}])
+    _tbk_sc = TBK.TradeScan(_tbk_ex, 200_000)
+    for _i, (_px, _sz, _cd) in enumerate(((1.00, 100, []), (1.01, 1000, []), (1.01, 999, []), (1.00, 1000, [2]), (1.01, 2000, []), (0.99, 30000, []))):
+        _tbk_sc.feed({"price": _px, "size": _sz, "conditions": _cd, "sip_timestamp": 1000 + _i})
+    _tbk_c = [(c["sz"], c["labs"], c["tick_up"]) for c in _tbk_sc.cands]
+    check("🧱 TBK3 الصفقات: شرطٌ لا يحدّث آخرَ سعرٍ مجمَّع (updates_open_close=false) يُسقَط ويُعَدّ · وشرطُ العروض ليس منها · التيك: صاعد ثمّ مساوٍ يُبقيه ثمّ هابط · "
+          "1000 سهم (أ) و999 لا · 0.5% من فلوت 200 ألف = 1000 (ب05) و1% = 2000 (ب1) · 25 ألف دولار (ج)",
+          _tbk_ex == {2: "Average Price"} and _tbk_sc.n_all == 6 and _tbk_sc.n_excl == 1
+          and _tbk_c == [(1000.0, ["a", "b05"], True), (2000.0, ["a", "b05", "b1"], True), (30000.0, ["a", "b05", "b1", "b2", "c"], False)]
+          and TBK.labels_of(1.0, 999, None) == [] and TBK.labels_of(30.0, 834, None) == ["c"],
+          f"ex={_tbk_ex} c={_tbk_c}")
+
+    # TBK4 — العرض: ≥ العرض ⟵ على العرض · دونه ⟵ لا · بلا عرضٍ أو عرضٌ صفر ⟵ التيك · ونافذةُ التغطية تُعاد لما بعدها (نداءٌ واحد) · وتعذّرُ الجلب ⟵ False
+    _tbk_calls = {"asc": 0, "desc": 0}
+    _tbk_Q = [(1_000, 1.00), (5_000, 1.02), (9_000, 0.0)]
+
+    def _tbk_asc(a, b, lim):
+        _tbk_calls["asc"] += 1
+        return [q for q in _tbk_Q if a <= q[0] <= b][:lim]
+
+    def _tbk_desc(a, b):
+        _tbk_calls["desc"] += 1
+        return sorted([q for q in _tbk_Q if a <= q[0] <= b], reverse=True)[:1]
+    _tbk_cd = [{"ts": 2_000, "px": 1.00, "tick_up": False}, {"ts": 6_000, "px": 1.01, "tick_up": True}, {"ts": 9_500, "px": 1.05, "tick_up": True},
+               {"ts": 700_000_000_000, "px": 1.0, "tick_up": True}]
+    _tbk_ok = TBK.assign_ask(_tbk_cd, _tbk_asc, _tbk_desc)
+    _tbk_fail = TBK.assign_ask([{"ts": 5, "px": 1, "tick_up": True}], lambda a, b, n: None, _tbk_desc)
+    check("🧱 TBK4 العرض: سعرٌ يساوي آخرَ عرضٍ قبله ⟵ على العرض · دونه ⟵ لا · عرضٌ صفر ⟵ التيك · لا عرضَ خلال 60 ث ⟵ التيك · "
+          "والمرشَّحاتُ داخل نافذة التغطية بنداءٍ واحد · وتعذّرُ الجلب ⟵ يومٌ متعذّر",
+          _tbk_ok is True and [(c["src"], c["on_ask"]) for c in _tbk_cd] == [("q", True), ("q", False), ("t", True), ("t", True)]
+          and _tbk_calls == {"asc": 2, "desc": 1} and _tbk_fail is False,
+          f"{[(c.get('src'), c.get('on_ask')) for c in _tbk_cd]} calls={_tbk_calls}")
+
+    # TBK5 — النتائج والمجموعات: النافذةُ بعد دقيقة المرجع · اتّجاهُ 30 دقيقة (ثابت/مقصوص) · G2/G1/G0/Gx بنطاق 10% · الآفاقُ 5/10/20 · وعائدُ الزخم
+    _tbk_seq = [(600, 1, 1.60, 1, 1.0), (601, 1, 1.10, 1, 1.0), (631, 1, 1.21, 1, 1.0), (700, 1, 1.0, 1, 1.0)]
+    _tbk_o = TBK.outcome_after(_tbk_seq, 600, 1.0, [1.4, 1.5, 1.0, 1.0, 1.0])
+    _tbk_d = (TBK.direction_30(_tbk_seq, 600, 1.0), TBK.direction_30(_tbk_seq, 690, 1.0))
+    _tbk_g = (TBK.window_groups([("d1", 1.05), ("d2", 0.95)], 1.0, "a"), TBK.window_groups([("d1", 1.05), ("d2", 1.2)], 1.0, "a"),
+              TBK.window_groups([], 1.0, "a"), TBK.window_groups([("d1", 1.11)], 1.0, "a"))
+    _tbk_rows = [("d%02d" % k, 1, 1.0, 1, 1.0, 0) for k in range(30)]
+    _tbk_rows[12] = ("d12", 1, 1.6, 1, 1.0, 0)
+    _tbk_eo = TBK.entry_outcomes(_tbk_rows, 4)
+    _tbk_m = TBK.momentum5([("d%d" % k, float(k + 1)) for k in range(8)], "d7")
+    check("🧱 TBK5 النتيجةُ من الشموع بعد دقيقة المرجع (شمعتُها لا تُحتسب) والخمسُ بأعلاها · اتّجاهُ 30 دقيقة «ثابت» بأربع خانات و«مقصوص» بعد آخر شمعة · "
+          "G2 بلوكان ضمن 10% · G1 واحد · G0 لا بلوك · Gx خارج النطاق · +50% عند 10 و20 لا 5 · وعائدُ الزخم = الأمس ÷ السادسة قبل اليوم − 1",
+          _tbk_o == (True, False, True, True) and _tbk_d == (("flat", False), ("flat", True))
+          and _tbk_g == (("G2", "d1"), ("G1", "d1"), ("G0", None), ("Gx", None))
+          and _tbk_eo[0] == {5: False, 10: True, 20: True} and _tbk_eo[1] == 12 and abs(_tbk_m - (7.0 / 2.0 - 1)) < 1e-12,
+          f"o={_tbk_o} d={_tbk_d} g={_tbk_g} eo={_tbk_eo} m={_tbk_m}")
+
+    # TBK6 — الحاكمان: ⑦ «يُضيف» يلزمه فاصلٌ فوق الصفر وموجبٌ في السنوات الثلاث · والأرضيّةُ ⟵ «لا قياس» · و③ «يسبق»/«متأخّرًا»/«لا يفرّق»/«لا قياس» · وNewcombe
+    _tbk_good = {"floor_ok": True, "fail_ok": True, "est": 0.05, "ci": (0.01, 0.09), "per_year": {"2023": 0.02, "2024": 0.04, "2025": 0.06}}
+    _tbk_v7 = (TBK.verdict7({"a": _tbk_good, "c": dict(_tbk_good, est=0.0, ci=(-0.02, 0.02))}),
+               TBK.verdict7({"a": dict(_tbk_good, per_year={"2023": -0.01, "2024": 0.04, "2025": 0.06}), "c": dict(_tbk_good, ci=(-0.01, 0.1))}),
+               TBK.verdict7({"a": dict(_tbk_good, floor_ok=False), "c": dict(_tbk_good, floor_ok=False)}))
+    _tbk_r3 = {"floor_ok": True, "fail_ok": True, "diff": 0.2, "ci": (0.05, 0.35), "left_med": 0.6}
+    _tbk_v3 = (TBK.verdict3(_tbk_r3), TBK.verdict3(dict(_tbk_r3, left_med=0.4)), TBK.verdict3(dict(_tbk_r3, ci=(-0.01, 0.3))),
+               TBK.verdict3(dict(_tbk_r3, floor_ok=False)))
+    _tbk_nc = TBK.newcombe(30, 100, 30, 100)
+    _tbk_nc2 = TBK.newcombe(60, 100, 20, 100)
+    check("🧱 TBK6 الحاكمان: ⑦ «يُضيف» بحدٍّ واحدٍ يعبر (فاصلٌ فوق الصفر وموجبٌ في 2023 و2024 و2025) · وسنةٌ سالبة ⟵ «لا فرق» · والأرضيّة ⟵ «لا قياس» · "
+          "③ «يسبق» (وما بقي 50% فأكثر) · «يسبق متأخّرًا» · «لا يفرّق» · «لا قياس» · وNewcombe 97.5% يضمّ الصفر لنسبتين متساويتين ولا يضمّه لـ60/20",
+          _tbk_v7 == ("يُضيف", "لا فرق قابل للكشف", "لا قياس") and _tbk_v3 == ("يسبق", "يسبق متأخّرًا", "لا يفرّق", "لا قياس")
+          and _tbk_nc[1][0] < 0 < _tbk_nc[1][1] and _tbk_nc2[1][0] > 0 and TBK.CI_GOV == 0.975 and TBK.BOOT_SEED == "TBLK" and TBK.FLOOR_G == 30,
+          f"v7={_tbk_v7} v3={_tbk_v3} nc={_tbk_nc} nc2={_tbk_nc2}")
+
+    # TBK7 — قراءةٌ فقط: لا وحدةَ إنتاجٍ تستورد الأداة · والأداةُ لا تنادي إرسالًا ولا حفظَ حالة · والاستبعادُ (نوعٌ · SIC 6770 · الاسم) يُعَدّ
+    _tbk_t = _tbk_ast.parse(open("fm_forensics/tblock/tblock.py", encoding="utf-8").read())
+    _tbk_calls2 = {getattr(c.func, "attr", getattr(c.func, "id", None)) for c in _tbk_ast.walk(_tbk_t) if isinstance(c, _tbk_ast.Call)}
+    _tbk_prod = [f for f in ("Super_stock.py", "pullback_live.py", "operator_entry_live.py", "daily_screener.py") if _tbk_os.path.exists(f)
+                 and "tblock" in open(f, encoding="utf-8").read()]
+    _tbk_sx = (TBK.is_spac_or_other({"type": "CS", "name": "X Inc"}), TBK.is_spac_or_other({"type": "UNIT", "name": "X"}),
+               TBK.is_spac_or_other({"type": "CS", "sic_code": "6770", "name": "X"}), TBK.is_spac_or_other({"type": "CS", "name": "Alpha Acquisition Corp."}),
+               TBK.is_spac_or_other(None))
+    check("🧱 TBK7 قراءةٌ فقط: لا وحدةَ إنتاجٍ تستورد الأداة · ولا نداءَ إرسالٍ أو حفظِ حالة فيها · والاستبعاد: CS باقٍ · UNIT ⟵ نوع · SIC 6770 · «Acquisition Corp.» · وبلا مرجع يبقى",
+          not _tbk_prod and not ({"send_telegram", "save_watchlist", "git_save", "_push_state"} & _tbk_calls2)
+          and [x[0] for x in _tbk_sx] == [False, True, True, True, False] and _tbk_sx[4][1] == "بلا مرجع",
+          f"prod={_tbk_prod} sx={_tbk_sx}")
+except Exception as _tbk_x:                                      # noqa: BLE001
+    check("🧱 TBKX0 أقفالُ أداة T-BLOCK لم تنهَر", False, f"⛔ {type(_tbk_x).__name__}: {_tbk_x}")
+
+# ✂️ LSP1-LSP3 (‏2026-11-11 · أمرُ المالك «قس أثر التقسيمات المتأخرة على T-REBUILD وT-APPDIFF»): مفتاحُ مدى التقسيمات بت-بت بغيابه · وإعادةُ TEST بشرطين معًا
+try:
+    import importlib.util as _lsp_iu
+    import os as _lsp_os
+    import yaml as _lsp_y
+    import sys as _lsp_sys
+    _lsp_sys.path.insert(0, _lsp_os.path.join("fm_forensics", "rebuild"))
+    _lsp_sp = _lsp_iu.spec_from_file_location("rebuild_lsp", "fm_forensics/rebuild/rebuild.py")
+    LSPRB = _lsp_iu.module_from_spec(_lsp_sp)
+    _lsp_sp.loader.exec_module(LSPRB)
+    _lsp_r = (LSPRB.splits_range_for(None, {}), LSPRB.splits_range_for(None, {"RB_SPLITS_TO": "today"}, today="2026-11-11"),
+              LSPRB.splits_range_for(None, {"RB_SPLITS_TO": "2026-10-01"}), LSPRB.splits_range_for(("2023-09-01", "2026-10-27"), {"RB_SPLITS_TO": "today"}),
+              LSPRB.splits_range_for(None, {"RB_SPLITS_TO": "  "}))
+    check("✂️ LSP1 مدى التقسيمات: بغياب RB_SPLITS_TO = (BARS_FROM، BARS_TO) بت-بت · «today» = يومُ التشغيل · تاريخٌ صريح كما هو · والمدى الصريحُ (2026) يعلو المفتاح · والفراغُ غياب",
+          _lsp_r == ((LSPRB.BARS_FROM, LSPRB.BARS_TO), (LSPRB.BARS_FROM, "2026-11-11"), (LSPRB.BARS_FROM, "2026-10-01"), ("2023-09-01", "2026-10-27"),
+                     (LSPRB.BARS_FROM, LSPRB.BARS_TO)) and LSPRB.BARS_TO == "2026-01-31", f"{_lsp_r}")
+    _lsp_l = (LSPRB.late_remeasure({}), LSPRB.late_remeasure({"REBUILD_REMEASURE": "late_splits"}), LSPRB.late_remeasure({"RB_SPLITS_TO": "today"}),
+              LSPRB.late_remeasure({"REBUILD_REMEASURE": "late_splits", "RB_SPLITS_TO": "today"}), LSPRB.late_remeasure({"REBUILD_REMEASURE": "x", "RB_SPLITS_TO": "today"}))
+    _lsp_env0 = {k: _lsp_os.environ.get(k) for k in ("REBUILD_MODE", "REBUILD_REMEASURE", "RB_SPLITS_TO")}
+    try:
+        _lsp_os.environ["REBUILD_MODE"] = "test_assemble"
+        _lsp_os.environ.pop("REBUILD_REMEASURE", None)
+        _lsp_os.environ.pop("RB_SPLITS_TO", None)
+        _lsp_rc = LSPRB.main() if hasattr(LSPRB, "main") else None
+    finally:
+        for k, v in _lsp_env0.items():
+            if v is None:
+                _lsp_os.environ.pop(k, None)
+            else:
+                _lsp_os.environ[k] = v
+    check("✂️ LSP2 إعادةُ TEST بشرطين معًا (REBUILD_REMEASURE=late_splits ‏+ RB_SPLITS_TO) وإلّا قاعدةُ «مرّةً واحدة» بت-بت (TEST بلا الشرطين ⟵ 7)",
+          _lsp_l == (False, False, False, True, False) and _lsp_rc == 7, f"l={_lsp_l} rc={_lsp_rc}")
+    _lsp_a = _lsp_y.safe_load(open(".github/workflows/appdiff.yml", encoding="utf-8"))
+    _lsp_b = _lsp_y.safe_load(open(".github/workflows/rebuild.yml", encoding="utf-8"))
+    _lsp_ai = (_lsp_a.get("on", _lsp_a.get(True)) or {})["workflow_dispatch"]["inputs"]
+    _lsp_bi = (_lsp_b.get("on", _lsp_b.get(True)) or {})["workflow_dispatch"]["inputs"]
+    _lsp_aenv = [st.get("env") or {} for j in _lsp_a["jobs"].values() for st in j.get("steps") or []]
+    _lsp_benv = [st.get("env") or {} for j in _lsp_b["jobs"].values() for st in j.get("steps") or []]
+    check("✂️ LSP3 الـworkflowان: مُدخَلُ splits_to افتراضُه فارغ · في T-APPDIFF يصل التحضيرَ وحدَه · وفي T-REBUILD يصل جوباتِ TEST الثلاث وحدَها ومعه REBUILD_REMEASURE",
+          _lsp_ai["splits_to"]["default"] == "" and _lsp_bi["splits_to"]["default"] == ""
+          and [e.get("RB_SPLITS_TO") for e in _lsp_aenv if "RB_SPLITS_TO" in e] == ["${{ inputs.splits_to }}"]
+          and sorted(e.get("REBUILD_MODE") for e in _lsp_benv if "RB_SPLITS_TO" in e) == ["test_assemble", "test_prep", "test_shard"]
+          and all("REBUILD_REMEASURE" in e for e in _lsp_benv if "RB_SPLITS_TO" in e)
+          and _lsp_os.path.exists("fm_forensics/late_splits/LATE_SPLITS_note.md"),
+          f"a={[e.get('RB_SPLITS_TO') for e in _lsp_aenv if 'RB_SPLITS_TO' in e]}")
+except Exception as _lsp_x:                                      # noqa: BLE001
+    check("✂️ LSPX0 أقفالُ مفتاح التقسيمات لم تنهَر", False, f"⛔ {type(_lsp_x).__name__}: {_lsp_x}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

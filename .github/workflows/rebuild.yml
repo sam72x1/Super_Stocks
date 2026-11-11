@@ -27,6 +27,10 @@ on:
         description: "للقائمة الظلّيّة: الجلسة (فارغ = أوّلُ جلسةٍ بعد يوم البناء)"
         type: string
         default: ""
+      splits_to:
+        description: "لـtest وحدَه: فارغ = بت-بت · today = إعادةُ قياس «التقسيمات المتأخرة» بلا كتابةٍ في data/ (LATE_SPLITS_note.md)"
+        type: string
+        default: ""
 
 jobs:
   rebuild:
@@ -286,6 +290,8 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           REBUILD_MODE: test_prep
+          RB_SPLITS_TO: ${{ inputs.splits_to }}
+          REBUILD_REMEASURE: ${{ inputs.splits_to != '' && 'late_splits' || '' }}
           PYTHONUNBUFFERED: "1"
         run: python fm_forensics/rebuild/rebuild.py
 
@@ -328,6 +334,8 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           REBUILD_MODE: test_shard
+          RB_SPLITS_TO: ${{ inputs.splits_to }}
+          REBUILD_REMEASURE: ${{ inputs.splits_to != '' && 'late_splits' || '' }}
           SHARD: ${{ matrix.shard }}
           NSHARDS: "20"
           PYTHONUNBUFFERED: "1"
@@ -367,6 +375,8 @@ jobs:
       - name: 🧭 الحكمُ §⑩ والرقمُ §⑪
         env:
           REBUILD_MODE: test_assemble
+          RB_SPLITS_TO: ${{ inputs.splits_to }}
+          REBUILD_REMEASURE: ${{ inputs.splits_to != '' && 'late_splits' || '' }}
           PYTHONUNBUFFERED: "1"
         run: python fm_forensics/rebuild/rebuild.py
 

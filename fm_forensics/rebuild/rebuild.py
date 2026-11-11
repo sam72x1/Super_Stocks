@@ -540,6 +540,22 @@ def _jload(path):
         return json.load(fh)
 
 
+def splits_range_for(splits_range, env=None, today=None):
+    """✂️ `LSP1`: مدى التقسيمات — الصريحُ أوّلًا · ثمّ `RB_SPLITS_TO` («today» = يومُ التشغيل) · وإلّا (BARS_FROM، BARS_TO) بت-بت."""
+    if splits_range:
+        return tuple(splits_range)
+    to = ((os.environ if env is None else env).get("RB_SPLITS_TO") or "").strip()
+    if to:
+        return (BARS_FROM, (today or dt.date.today().isoformat()) if to == "today" else to)
+    return (BARS_FROM, BARS_TO)
+
+
+def late_remeasure(env=None):
+    """✂️ `LSP2`: إعادةُ قياس «التقسيمات المتأخرة» = `REBUILD_REMEASURE`=late_splits **و**`RB_SPLITS_TO` غيرُ فارغ معًا."""
+    e = os.environ if env is None else env
+    return (e.get("REBUILD_REMEASURE") or "").strip() == "late_splits" and bool((e.get("RB_SPLITS_TO") or "").strip())
+
+
 def mode_bases_prep(key, months=None, sess_from=SESS_FROM, sess_to=None, all_from="2022-11-01", out="prep.json.gz",
                     tag="bases_prep", splits_range=None):
     """العضويّةُ الشهريّة (36 لقطةً ‏+ لقطةُ الإحماء) · التقسيماتُ بالرمز · وملفُّ FINRA لجلسة D−1 لكلّ D (للاتّحاد وحدَه) —
@@ -558,7 +574,12 @@ def mode_bases_prep(key, months=None, sess_from=SESS_FROM, sess_to=None, all_fro
         union |= set(keep)
         log(f"prep snapshot {d}: CS/ADRC {len(keep)}")
     sp_by = {}
-    for r in PS.fetch_all_splits(*(splits_range or (BARS_FROM, BARS_TO)), key):
+    # ✂️ (2026-11-11 · أمرُ المالك «قس أثر التقسيمات المتأخرة على T-REBUILD وT-APPDIFF» · `fm_forensics/late_splits/LATE_SPLITS_note.md`):
+    #    `RB_SPLITS_TO` غيرُ فارغ ⟵ تقسيماتُ الاتّحاد حتى ذلك اليوم («today» = يومُ التشغيل) فتطابق الشموعَ المسوّاة وقتَ الجلب · وغيابُه ⟵ بت-بت · `LSP1`
+    _rng = splits_range_for(splits_range)
+    if _rng != (splits_range or (BARS_FROM, BARS_TO)):
+        log(f"✂️ RB_SPLITS_TO: التقسيماتُ {_rng[0]} ⟵ {_rng[1]} (بدل {BARS_TO})")
+    for r in PS.fetch_all_splits(*_rng, key):
         try:
             if r["ticker"] in union:
                 sp_by.setdefault(r["ticker"], []).append([r["execution_date"], float(r["split_to"]) / float(r["split_from"])])
@@ -2071,9 +2092,14 @@ def main():
     if mode not in built:
         log(f"⛔ وضعٌ غيرُ مبنيّ: {mode!r} (المبنيّ: {' · '.join(built)})")
         return 3
+    # ✂️ إعادةُ قياسٍ لأثر التقسيمات المتأخرة (أمرُ المالك 2026-11-11 · `LATE_SPLITS_note.md`): لا تُكتب نتيجةٌ في data/ ·
+    #    والقاعدةُ «مرّةً واحدة» تحرس الحكمَ المنشور لا إعادةَ قياسه بتغييرٍ واحدٍ مسمّى ⟵ تُتخطّى بشرطين معًا وإلّا بت-بت · `LSP2`
+    _late = late_remeasure()
+    if _late:
+        log("✂️ إعادةُ قياس «التقسيمات المتأخرة»: RB_SPLITS_TO مضبوط — والنتيجةُ في السجلّ وحدَه (لا data/)")
     if mode.startswith("test_"):
         import glob as _g
-        if _g.glob(TEST_RESULT_GLOB):
+        if _g.glob(TEST_RESULT_GLOB) and not _late:
             log("⛔ TEST قِيس مرّةً ونتيجتُه في data/ ⟵ لا إعادة (§⑩ «مرّةً واحدة»)")
             return 7
         if not addendum_ok() or freeze_load() is None:
