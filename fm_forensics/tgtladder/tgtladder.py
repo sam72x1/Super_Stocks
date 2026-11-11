@@ -21,6 +21,9 @@ ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
 CONTRACT = os.path.join(HERE, "T_TGTLADDER_prereg.md")
 CONTRACT_SHA = "1e3bcb6a3baa7f57ddf53a4595d0cbbf320de0de6212e195036f4a337dbe7ec0"
 CONTRACT_RC = 9
+ADDENDUM_1 = os.path.join(HERE, "T_TGTLADDER_addendum_1.md")
+ADDENDUM_1_SHA = "e6b02b3ef00350fe5960568b7744232e9042f0a646060e75a47cb019eacfced7"
+RISK_EPS = 1e-6               # الملحق 1 §②: مخاطرةٌ مخطَّطة دون 1e-6 × الدخول ⟵ «لا يعلو وقفَه» (فُتاتُ فاصلةٍ عائمة)
 OUT = os.path.join(HERE, "out")
 SEED = 20261110
 BOOT_B = 2000
@@ -59,7 +62,7 @@ def _sha(path):
 
 
 def contract_ok(path=CONTRACT, sha=None):
-    return _sha(path) == (sha or CONTRACT_SHA)
+    return _sha(path) == (sha or CONTRACT_SHA) and _sha(ADDENDUM_1) == ADDENDUM_1_SHA
 
 
 def _rb():
@@ -119,13 +122,16 @@ def trade_r(rows, i, entry, stop, targets, win=WIN):
     """§③ الصفقة: أمرُ شراءٍ عند `entry` في [D، D+win−1] (Low ≤ entry ⟵ min(open، entry)) · الوقفُ حين Low < stop (يُنفَّذ
     بـmin(open، stop)) · أوامرُ بيعٍ مقسّمةٌ بالتساوي على الأهداف · يومُ التعبئة يُفحص فيه الوقفُ وحدَه · وبعده الوقفُ أوّلًا ثمّ
     الأهدافُ صعودًا (بـmax(open، الهدف)) · وما بقي بإغلاق الجلسة win من التعبئة.
-    يُرجع (R، عُبّئت؟، R بالأجزاء صعودًا) · و(None، False، None) إن تعذّر (الدخولُ لا يعلو الوقف · أهدافٌ فارغة · جلساتٌ ناقصة)."""
+    يُرجع (R، عُبّئت؟، R بالأجزاء صعودًا) · و(None، False، None) إن تعذّر (الدخولُ لا يعلو الوقف · أهدافٌ فارغة · جلساتٌ ناقصة).
+    🔧 الملحق 1 (2026-11-11 · عطلٌ مُثبَت في `42930133720`): المقامُ **المخاطرةُ المخطَّطة `entry − stop`** لا `fill − stop` — الوقفُ مقرَّبٌ
+    لخانتين والشموعُ مضروبةٌ في `asof_factor` فتبقى `fill − stop` فُتاتًا (‏2.2e-16) حين تُفتح التعبئةُ عند الوقف ⟵ R بالمليارات ·
+    ومخاطرةٌ مخطَّطة دون `RISK_EPS × entry` ⟵ «لا يعلو وقفَه» · والبسطُ من سعر التعبئة الفعليّ كما هو."""
     try:
         E, st = float(entry), float(stop)
         tg = sorted(float(t) for t in targets if t is not None and float(t) > 0)
     except (TypeError, ValueError):
         return None, False, None
-    if not (E > st > 0) or not tg or i < 1 or i + 2 * win - 1 > len(rows):
+    if not (st > 0 and E - st > RISK_EPS * E) or not tg or i < 1 or i + 2 * win - 1 > len(rows):
         return None, False, None
     k0 = None
     fill = None
@@ -135,9 +141,9 @@ def trade_r(rows, i, entry, stop, targets, win=WIN):
             break
     if k0 is None:
         return None, False, None
-    risk = fill - st
-    if risk <= 0:
+    if fill <= st:                                   # تعبئةٌ لا تعلو الوقف (فُتحت تحته) ⟵ مستبعدةٌ كما يوم العقد
         return None, False, None
+    risk = E - st
     w = 1.0 / len(tg)
     left = list(tg)
     leg = {t: None for t in tg}
@@ -540,7 +546,9 @@ def analyse(rows_by, seed=SEED, b=BOOT_B):
             "win_lad": mean([1.0 if e["r_lad"] > 0 else 0.0 for _s, e in tr]),
             "legs_lad": [(round(mean(v), 4) if v else None, len(v)) for v in
                          ([e["legs_lad"][j] for _s, e in tr if e.get("legs_lad") and len(e["legs_lad"]) > j] for j in range(LADDER_K))],
-            "excluded_no_trade": sum(1 for _s, e in ents if not e["filled"])}
+            "excluded_no_trade": sum(1 for _s, e in ents if not e["filled"]),
+            "r_cur_max_abs": max([abs(e["r_cur"]) for _s, e in tr], default=None),
+            "r_lad_max_abs": max([abs(e["r_lad"]) for _s, e in tr], default=None)}
     ver = verdict2(pooled, per_year, n_year, cover=cover)
     return {"cover": cover, "share": share, "pooled": pooled, "per_year": per_year, "n_year": n_year, "desc": desc,
             "verdict": ver,
