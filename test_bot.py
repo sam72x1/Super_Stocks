@@ -92051,6 +92051,20 @@ except Exception as _e:                                                    # noq
     _vl8, _vl8w = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
 check("🟠 VWL8 A مرّةً لكلّ رمزٍ/يوم · وD بعد أوّل A كامل لكلّ لمسةٍ جديدة حتى 3 (أربعُ لمساتٍ ⟵ ثلاثُ تنبيهات) · وبلا A لا D", _vl8, _vl8w)
 
+def _vl_rollback_crons(path=".github/workflows/vwap_momentum_live.yml"):
+    """⛔ (2026-11-11 · أمرُ المالك «أوقف كرون الفيواب») كروناتُ سطر الرجوع المعلَّق: انزعْ «# » عن السطر الوحيد «# schedule: [» ثمّ اقرأ
+    الـYAML كما سيكون بعد الرجوع · لا سطرَ أو أكثرُ من سطر ⟵ None (يُسقط القفلَ نظيفًا)."""
+    import yaml as _y
+    _lines = open(path, encoding="utf-8").read().splitlines()
+    _rb = [i for i, l in enumerate(_lines) if l.strip().startswith("# schedule: [")]
+    if len(_rb) != 1:
+        return None
+    _lines[_rb[0]] = _lines[_rb[0]].replace("# schedule:", "schedule:", 1)
+    _w = _y.safe_load("\n".join(_lines))
+    _o = _w.get("on", _w.get(True)) or {}
+    return [c.get("cron") for c in (_o.get("schedule") or [])]
+
+
 # VWL9 — الحلقةُ الحيّة: الطازجُ يُرسَل والمتأخّرُ أكثرَ من 10 د يُسجَّل بلا إرسال · بلا `send` لا إرسالَ ولا سجلّ · والمقطعُ الثاني لا يكرّر ·
 #        والـworkflow بكروناته الأربعة (مُفعَّلٌ 2026-10-29 بأمر المالك · تغطيتُها `VWL19`) وجوبُ الأوضاع اليدويّة بلا أسرار تلغرام
 try:
@@ -92073,7 +92087,8 @@ try:
         "late_logged": _sentL == [] and [(r["sent"], r["reason"]) for r in _rowsL if r["kind"] == "alert"] == [(False, "late"), (False, "late")],
         "dry": _sentD == [] and _rowsD == [] and _savD == [],
         "saved": _sav and all(_p in f for f in _sav),
-        "cron_four": [c.get("cron") for c in (_on.get("schedule") or [])] == ["23 2 * * 1-5", "23 5 * * 1-5", "23 8 * * 1-5", "23 11 * * 1-5"]
+        # ⛔ 2026-11-11: الكرونُ موقوفٌ بأمر المالك ⟵ الكروناتُ الأربعة في سطر الرجوع المعلَّق (`VWS1`) لا في `on.schedule`
+        "cron_four": _vl_rollback_crons() == ["23 2 * * 1-5", "23 5 * * 1-5", "23 8 * * 1-5", "23 11 * * 1-5"]
                      and "workflow_dispatch" in _on,
         "offline_no_tg": "TELEGRAM" not in _off_env and "POLYGON_API_KEY" in _off_env,
         "live_gated": all("schedule" in str(_wf["jobs"][j].get("if")) and "live" in str(_wf["jobs"][j].get("if"))
@@ -92508,7 +92523,7 @@ try:
     _U19 = _dt.timezone.utc
     _wf19 = _vl19y.safe_load(open(".github/workflows/vwap_momentum_live.yml", encoding="utf-8"))
     _on19 = _wf19.get("on", _wf19.get(True)) or {}
-    _crons19 = [c["cron"] for c in (_on19.get("schedule") or [])]
+    _crons19 = [c["cron"] for c in (_on19.get("schedule") or [])] or (_vl_rollback_crons() or [])   # ⛔ موقوفٌ ⟵ تغطيةُ سطر الرجوع
     _cm19 = sorted(int(c.split()[1]) * 60 + int(c.split()[0]) for c in _crons19)
     _mr19 = int(_wf19["jobs"]["open_segment"]["steps"][-1]["env"]["VWL_MAX_RUNTIME_MIN"])
     _SET19 = 2                                                              # إعدادُ الجوب (checkout · pip) — مقيسٌ ‏≈1 د يوم 10-29 · احتياطٌ ‏×2
@@ -100905,6 +100920,152 @@ try:
           _tbk_h.sha256(_tbk_b).hexdigest())
 except Exception as _tbk_e:                                                      # noqa: BLE001
     check("🧱 TBK0 (انهيارُ القفل)", False, f"⛔ رمى: {type(_tbk_e).__name__}: {_tbk_e}")
+# VWS1 — ⛔ (2026-11-11 · أمرُ المالك «أوقف كرون الفيواب — الحكم J30 «لا يتفوّق» · السجلّ والأداة يبقيان، والرجوع بسطر»):
+#        لا `schedule` نشطًا في `vwap_momentum_live.yml` · وسطرُ رجوعٍ معلَّقٌ واحدٌ بالضبط يُعيد الكروناتِ الأربعة بت-بت حين يُنزَع «# » ·
+#        و`workflow_dispatch` باقٍ · والأداةُ والسجلُّ حاضران
+try:
+    import os as _vws_os
+    import yaml as _vws_y
+    _vws_w = _vws_y.safe_load(open(".github/workflows/vwap_momentum_live.yml", encoding="utf-8"))
+    _vws_on = _vws_w.get("on", _vws_w.get(True)) or {}
+    _vws_c = {
+        "no_active_schedule": "schedule" not in _vws_on,
+        "dispatch_kept": "workflow_dispatch" in _vws_on,
+        "rollback_four": _vl_rollback_crons() == ["23 2 * * 1-5", "23 5 * * 1-5", "23 8 * * 1-5", "23 11 * * 1-5"],
+        "tool_and_ledger_kept": _vws_os.path.exists("vwap_momentum_live.py") and _vws_os.path.exists("vwap_live_ledger.jsonl"),
+    }
+    _vws, _vwsw = all(_vws_c.values()), str({k: v for k, v in _vws_c.items() if not v} or "كلّها")
+except Exception as _e:                                                    # noqa: BLE001
+    _vws, _vwsw = False, f"⛔ رمى: {type(_e).__name__}: {_e}"
+check("⛔ VWS1 كرونُ الفيواب موقوفٌ (أمرُ المالك 2026-11-11 · J30 «لا يتفوّق»): لا schedule نشطٌ · وسطرُ رجوعٍ واحدٌ يُعيد الكروناتِ الأربعة بت-بت · "
+      "والتشغيلُ اليدويُّ والأداةُ والسجلُّ باقية", _vws, _vwsw)
+
+# 🪜 LDL1-LDL3 · TGL11 (‏2026-11-11 · أمرُ المالك «اعرض السلّم سطرًا معلومةً لا هدفًا — خلف مفتاح … والأهداف الثلاثة كما هي. ثم اقفل سلّم الأهداف»)
+try:
+    import ast as _ld_ast
+    import inspect as _ld_insp
+    import random as _ld_rnd
+    import re as _ld_re
+    import importlib.util as _ld_iu
+    _ld_sp = _ld_iu.spec_from_file_location("tgtladder_lock11", "fm_forensics/tgtladder/tgtladder.py")
+    TGLD = _ld_iu.module_from_spec(_ld_sp)
+    _ld_sp.loader.exec_module(TGLD)
+    _ld_g = _ld_rnd.Random(20261111)
+    _ld_same, _ld_n = 0, 0
+    for _ld_i in range(400):
+        _ld_px = round(_ld_g.uniform(0.2, 20), 4)
+        _ld_d = [round(_ld_px * _ld_g.uniform(0.7, 4.0), _ld_g.choice((2, 3, 4))) for _ in range(_ld_g.randint(0, 9))]
+        _ld_h = [round(_ld_px * _ld_g.uniform(0.7, 4.0), _ld_g.choice((2, 4))) for _ in range(_ld_g.randint(0, 9))]
+        if _ld_i % 7 == 0 and _ld_d:
+            _ld_h.append(round(_ld_d[0] * 1.03, 4))                    # تخومُ الدمج
+        _ld_t1 = _ld_g.choice((None, round(_ld_px * 1.2, 2)))
+        _ld_n += 1
+        _ld_same += S.target_ladder(_ld_d, _ld_h, _ld_px, t1=_ld_t1) == TGLD.ladder6(_ld_d, _ld_h, _ld_px, t1=_ld_t1)
+    _ld_l0 = S.CONFIG.get("TGT_LADDER_LINE")
+    _ld_r = {"ladder6": [1.1, 1.25, 1.4, 1.6, 1.9, 2.3], "ladder6_empty": False}
+    try:
+        S.CONFIG["TGT_LADDER_LINE"] = True
+        _ld_on = S.ladder_info_line(_ld_r)
+        _ld_emp = [S.ladder_info_line({"ladder6": [1.2], "ladder6_empty": True}), S.ladder_info_line({"ladder6": []}), S.ladder_info_line({})]
+        _ld_three = S.ladder_info_line({"ladder6": [1.1, 1.2, 1.3], "ladder6_empty": False})
+        S.CONFIG["TGT_LADDER_LINE"] = False
+        _ld_off = S.ladder_info_line(_ld_r)
+    finally:
+        S.CONFIG["TGT_LADDER_LINE"] = _ld_l0
+    _ld_res = open("fm_forensics/tgtladder/T_TGTLADDER_RESULT.md", encoding="utf-8").read()
+    _ld_meas = _ld_re.search(r"LADDER6 \[\(89\.8, 4414\), \(72\.2, 4414\), \(58\.3, 4414\), \(47\.8, 4414\), \(35\.5, 4414\), \(25\.1, 4414\)\]", _ld_res)
+    check("🪜 LDL1 السلّمُ في الإنتاج = `ladder6` الأداة حرفيًّا (400 عالمٍ عشوائيّ بتخوم الدمج) · والنسبُ (90 · 72 · 58 · 48 · 36 · 25) = حصصُ ② المنشورة مقرَّبةً · "
+          "والسطرُ يطبع الدرجاتِ الستّ بنسبها بالترتيب ويقول «معلومةٌ لا هدف» بلا علامة مقارنة · واحتياطُ t1 والفارغُ والمطفأُ ⟵ لا سطر",
+          _ld_same == _ld_n == 400 and S.LADDER_HIT_PCT == (90, 72, 58, 48, 36, 25) and _ld_meas is not None
+          and tuple(round(x) for x in (89.8, 72.2, 58.3, 47.8, 35.5, 25.1)) == S.LADDER_HIT_PCT and S.LADDER_K == TGLD.LADDER_K
+          and float(S.CONFIG.get("MIN_TARGET_GAP_PCT", 3)) == TGLD.GAP_PCT
+          and "معلومةٌ لا هدف" in _ld_on and [_m.group(1) for _m in _ld_re.finditer(r"\((\d+)%\)", _ld_on)] == ["90", "72", "58", "48", "36", "25"]
+          and _ld_on.index("1.10") < _ld_on.index("2.30") and not any(c in _ld_on for c in "≤≥<>")
+          and _ld_emp == ["", "", ""] and _ld_off == "" and "(58%)" in _ld_three and "(48%)" not in _ld_three,
+          f"same={_ld_same}/{_ld_n} meas={_ld_meas is not None} on={_ld_on[:90]!r} emp={_ld_emp} off={_ld_off!r}")
+
+    # LDL2 — الوصلةُ من نقطة النداء الحيّة: enrich يحسبه من مقاومات اليوميّ و4س · make_watch_entry يخزّنه · والكرتان يعرضانه ·
+    #        والمطفأُ = الكرتُ نفسُه بدالّةٍ فارغة حرفًا
+    _ld_card = {"symbol": "ZZLD", "price": 1.0, "float": 9_000_000, "tier": "B", "soft_fails": [], "score": 60, "readiness": 50,
+                "entry": (0.95, 1.0), "tranches": [0.95, 0.98, 1.01], "stop": (0.88, 0.9), "t1": 1.2, "t2": 1.5, "t3": 2.2, "rr": 1.2,
+                "pivot": 0.95, "drop_pct": 80.0, "best_spike": 150.0, "rsi": 30.0, "flags": [], "warnings": [],
+                "ladder6": [1.1, 1.25, 1.4, 1.6, 1.9, 2.3], "ladder6_empty": False}
+
+    def _ld_msg():
+        try:
+            _wl = {"week_start": "2024-01-01", "stocks": [S.make_watch_entry(dict(_ld_card), "2024-01-02")], "removed": [], "notes": []}
+            for _s in _wl["stocks"]:
+                _s["readiness"], _s["have"], _s["partial"], _s["missing"] = 80, [], [], []
+            return S.build_message([dict(_ld_card)], [], 0, 0) + "\n⟦يوميّ⟧\n" + S.build_daily_message(_wl, [], [], [])
+        except Exception as _e:                                     # noqa: BLE001
+            return f"⛔ {type(_e).__name__}: {_e}"
+    _ld_fn0 = S.ladder_info_line
+    try:
+        S.CONFIG["TGT_LADDER_LINE"] = True
+        _ld_m_on = _ld_msg()
+        S.CONFIG["TGT_LADDER_LINE"] = False
+        _ld_m_off = _ld_msg()
+        S.CONFIG["TGT_LADDER_LINE"] = True
+        S.ladder_info_line = lambda r: ""
+        _ld_m_blank = _ld_msg()
+    finally:
+        S.ladder_info_line = _ld_fn0
+        S.CONFIG["TGT_LADDER_LINE"] = _ld_l0
+    _ld_calls = lambda fn: {getattr(c.func, "id", None) for c in _ld_ast.walk(_ld_ast.parse(_ld_insp.getsource(fn))) if isinstance(c, _ld_ast.Call)}
+    _ld_mwe = S.make_watch_entry(dict(_ld_card), "2024-01-02")
+    check("🪜 LDL2 الوصلة: `enrich` ينادي `target_ladder` و`resistance_levels` (AST) · و`make_watch_entry` يخزّن السلّم · والكرتان (الفرزُ واليوميّ) يحملان السطرَ مع المفتاح · "
+          "ومطفأً = الكرتُ نفسُه بدالّةٍ فارغة حرفًا · والأهدافُ الثلاثة في الكرت كما هي",
+          _ld_m_on.count("سلّمُ المقاومات") == 2 and "سلّمُ المقاومات" in _ld_m_on.split("⟦يوميّ⟧")[1]
+          and "سلّمُ المقاومات" not in _ld_m_off and _ld_m_off == _ld_m_blank and not _ld_m_on.startswith("⛔")
+          and {"target_ladder", "resistance_levels"} <= _ld_calls(S.enrich)
+          and "ladder_info_line" in _ld_calls(S.build_message) and "ladder_info_line" in _ld_calls(S.build_daily_message)
+          and _ld_mwe.get("ladder6") == _ld_card["ladder6"] and _ld_mwe.get("ladder6_empty") is False
+          and all(f"{v:.2f}" in _ld_m_off for v in (1.2, 1.5, 2.2)),
+          f"on={_ld_m_on.count('سلّمُ المقاومات')} same={_ld_m_off == _ld_m_blank} mwe={_ld_mwe.get('ladder6')} {_ld_m_on[:60]!r}")
+
+    # LDL3 — معلومةٌ لا هدف: لا جذرَ يقرأ السلّم · ونداءُ `target_ladder` في enrich لا يكتب إلّا ladder6/ladder6_empty (لا t1/t2/t3/rr)
+    _ld_roots = ("rank_key", "select_top", "classify_tier", "analyze_ticker", "scan_market", "entry_status", "refine_targets_4h")
+    _ld_tgt = []
+    for _n in _ld_ast.walk(_ld_ast.parse(_ld_insp.getsource(S.enrich))):
+        if isinstance(_n, _ld_ast.Assign) and any(isinstance(c, _ld_ast.Call) and getattr(c.func, "id", None) == "target_ladder"
+                                                  for c in _ld_ast.walk(_n.value)):
+            for _t in _n.targets:
+                for _e in (_t.elts if isinstance(_t, _ld_ast.Tuple) else [_t]):
+                    _ld_tgt.append(getattr(getattr(_e, "slice", None), "value", None))
+    check("🪜 LDL3 عرضٌ لا هدف: لا جذرَ ولا `refine_targets_4h` يقرأ السلّمَ أو نسبه أو مفتاحه · ونداءُ `target_ladder` في enrich يكتب ladder6/ladder6_empty وحدَهما",
+          not any(n in _ld_insp.getsource(getattr(S, f)) for f in _ld_roots
+                  for n in ("target_ladder", "ladder_info_line", "LADDER_HIT_PCT", "TGT_LADDER_LINE", "ladder6"))
+          and _ld_tgt and set(_ld_tgt) == {"ladder6", "ladder6_empty"}, f"targets={_ld_tgt}")
+
+    # TGL11 — الإغلاقُ مُنفَّذ: كلُّ وضعٍ عدا check يخرج 8 قبل أيّ عمل ما لم يكن TGTLADDER_REOPEN «1» حرفيًّا
+    import os as _ld_os
+    _ld_env0 = _ld_os.environ.get("TGTLADDER_REOPEN")
+    _ld_mp0, _ld_ma0 = TGLD.mode_posts, TGLD.mode_assemble
+    _ld_hit = []
+    try:
+        TGLD.mode_posts = lambda: _ld_hit.append("posts") or 77
+        TGLD.mode_assemble = lambda n: _ld_hit.append("assemble") or 77
+        _ld_os.environ.pop("TGTLADDER_REOPEN", None)
+        _ld_rc = [TGLD.main(["--mode", m]) for m in ("posts", "prep", "shard", "assemble")]
+        _ld_os.environ["TGTLADDER_REOPEN"] = "0"
+        _ld_rc0 = TGLD.main(["--mode", "posts"])
+        _ld_hit_closed = list(_ld_hit)
+        _ld_os.environ["TGTLADDER_REOPEN"] = "1"
+        _ld_rc1 = TGLD.main(["--mode", "posts"])
+        _ld_os.environ.pop("TGTLADDER_REOPEN", None)
+        _ld_chk = TGLD.main(["--mode", "check"])
+    finally:
+        TGLD.mode_posts, TGLD.mode_assemble = _ld_mp0, _ld_ma0
+        if _ld_env0 is None:
+            _ld_os.environ.pop("TGTLADDER_REOPEN", None)
+        else:
+            _ld_os.environ["TGTLADDER_REOPEN"] = _ld_env0
+    check("🎯🪜🔒 TGL11 «اقفل سلّم الأهداف» مُنفَّذ: posts وprep وshard وassemble تخرج 8 قبل أيّ عمل · و«0» لا يفتح · و«1» حرفيًّا يفتح · وcheck مفتوح",
+          _ld_rc == [8, 8, 8, 8] and _ld_rc0 == 8 and _ld_hit_closed == [] and _ld_rc1 == 77 and _ld_chk == 0 and TGLD.CLOSED_RC == 8,
+          f"rc={_ld_rc} rc0={_ld_rc0} rc1={_ld_rc1} chk={_ld_chk} hit={_ld_hit}")
+except Exception as _ld_x:                                       # noqa: BLE001
+    check("🪜 LDL0 أقفالُ سطر السلّم وإغلاقُه لم تنهَر", False, f"⛔ {type(_ld_x).__name__}: {_ld_x}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
