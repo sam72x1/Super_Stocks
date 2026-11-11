@@ -7199,7 +7199,7 @@
    "result_date": "2026-09-15",
    "max_gain_pct": -0.5,
    "mg_obs_pct": 84.3,
-   "mg_obs_days": 40
+   "mg_obs_days": 41
   },
   {
    "symbol": "CRIS",
@@ -7238,7 +7238,7 @@
    "result_date": "2026-09-15",
    "max_gain_pct": 8.0,
    "mg_obs_pct": 42.9,
-   "mg_obs_days": 40
+   "mg_obs_days": 41
   },
   {
    "symbol": "HCTI",
@@ -7278,7 +7278,7 @@
    "result_date": "2026-09-15",
    "max_gain_pct": 3.5,
    "mg_obs_pct": 324.0,
-   "mg_obs_days": 40
+   "mg_obs_days": 41
   },
   {
    "symbol": "SPRC",
@@ -7318,7 +7318,7 @@
    "result_date": "2026-09-15",
    "max_gain_pct": 4.7,
    "mg_obs_pct": 14.1,
-   "mg_obs_days": 40
+   "mg_obs_days": 41
   },
   {
    "symbol": "FUSE",
@@ -7353,7 +7353,7 @@
    "result_date": "2026-09-15",
    "max_gain_pct": 0.8,
    "mg_obs_pct": 56.3,
-   "mg_obs_days": 40
+   "mg_obs_days": 41
   },
   {
    "symbol": "NEUP",
@@ -7389,7 +7389,7 @@
    "result_date": "2026-09-21",
    "max_gain_pct": 1.3,
    "mg_obs_pct": 1.3,
-   "mg_obs_days": 39
+   "mg_obs_days": 40
   },
   {
    "symbol": "GNPX",
@@ -7431,7 +7431,7 @@
    "result_date": "2026-09-16",
    "max_gain_pct": 3.0,
    "mg_obs_pct": 26.9,
-   "mg_obs_days": 39
+   "mg_obs_days": 40
   },
   {
    "symbol": "LNAI",
@@ -7511,7 +7511,7 @@
    "result_date": "2026-09-16",
    "max_gain_pct": 13.4,
    "mg_obs_pct": 16.6,
-   "mg_obs_days": 39
+   "mg_obs_days": 40
   },
   {
    "symbol": "BCTX",
@@ -7550,7 +7550,7 @@
    "result_date": "2026-09-17",
    "max_gain_pct": 22.2,
    "mg_obs_pct": 24.4,
-   "mg_obs_days": 38
+   "mg_obs_days": 39
   },
   {
    "symbol": "SEV",
@@ -7585,7 +7585,7 @@
    "result_date": "2026-09-23",
    "max_gain_pct": 6.8,
    "mg_obs_pct": 11.2,
-   "mg_obs_days": 38
+   "mg_obs_days": 39
   },
   {
    "symbol": "MOBX",
@@ -7625,7 +7625,7 @@
    "result_date": "2026-09-18",
    "max_gain_pct": 1.3,
    "mg_obs_pct": 44.2,
-   "mg_obs_days": 37
+   "mg_obs_days": 38
   },
   {
    "symbol": "DSY",
@@ -7665,7 +7665,7 @@
    "result_date": "2026-10-09",
    "max_gain_pct": 8.3,
    "mg_obs_pct": 15.6,
-   "mg_obs_days": 37
+   "mg_obs_days": 38
   },
   {
    "symbol": "UPC",
@@ -7707,7 +7707,7 @@
    "result_date": "2026-10-17",
    "max_gain_pct": 6.1,
    "mg_obs_pct": 6.1,
-   "mg_obs_days": 37
+   "mg_obs_days": 38
   },
   {
    "symbol": "CURX",
@@ -7749,7 +7749,7 @@
    "result_date": "2026-09-25",
    "max_gain_pct": 8.7,
    "mg_obs_pct": 37.3,
-   "mg_obs_days": 37
+   "mg_obs_days": 38
   },
   {
    "symbol": "SKYQ",
@@ -7790,7 +7790,7 @@
    "result_date": "2026-09-24",
    "max_gain_pct": 20.4,
    "mg_obs_pct": 20.4,
-   "mg_obs_days": 37
+   "mg_obs_days": 38
   },
   {
    "symbol": "JUNS",
@@ -7834,7 +7834,7 @@
    "result_date": "2026-09-21",
    "max_gain_pct": -1.9,
    "mg_obs_pct": 21.8,
-   "mg_obs_days": 36
+   "mg_obs_days": 37
   },
   {
    "symbol": "FRGT",
@@ -7873,7 +7873,7 @@
    "result_date": "2026-09-21",
    "max_gain_pct": -25.0,
    "mg_obs_pct": -7.5,
-   "mg_obs_days": 36
+   "mg_obs_days": 37
   },
   {
    "symbol": "WLDS",
@@ -7913,7 +7913,7 @@
    "result_date": "2026-09-23",
    "max_gain_pct": 36.8,
    "mg_obs_pct": 36.8,
-   "mg_obs_days": 36
+   "mg_obs_days": 37
   },
   {
    "symbol": "NNNN",
@@ -7948,7 +7948,7 @@
    "result_date": "2026-09-23",
    "max_gain_pct": 29.5,
    "mg_obs_pct": 29.5,
-   "mg_obs_days": 36
+   "mg_obs_days": 37
   },
   {
    "symbol": "ATPC",
@@ -7989,7 +7989,7 @@
    "result_date": "2026-09-21",
    "max_gain_pct": 2.3,
    "mg_obs_pct": 28.1,
-   "mg_obs_days": 36
+   "mg_obs_days": 37
   },
   {
    "symbol": "PTLE",
@@ -8030,7 +8030,7 @@
    "result_date": "2026-09-21",
    "max_gain_pct": 9.4,
    "mg_obs_pct": 50.1,
-   "mg_obs_days": 36
+   "mg_obs_days": 37
   },
   {
    "symbol": "CRVO",
@@ -8073,7 +8073,7 @@
    "result_date": "2026-09-29",
    "max_gain_pct": 17.0,
    "mg_obs_pct": 37.9,
-   "mg_obs_days": 36
+   "mg_obs_days": 37
   },
   {
    "symbol": "MSAI",
@@ -8113,7 +8113,7 @@
    "result_date": "2026-09-24",
    "max_gain_pct": 3.1,
    "mg_obs_pct": 11.9,
-   "mg_obs_days": 36
+   "mg_obs_days": 37
   },
   {
    "symbol": "NPT",
@@ -8150,7 +8150,7 @@
    "result_date": "2026-09-18",
    "max_gain_pct": 3.9,
    "mg_obs_pct": 10.7,
-   "mg_obs_days": 37
+   "mg_obs_days": 38
   },
   {
    "symbol": "NCRA",
@@ -8191,7 +8191,7 @@
    "result_date": "2026-09-23",
    "max_gain_pct": 10.1,
    "mg_obs_pct": 10.1,
-   "mg_obs_days": 37
+   "mg_obs_days": 38
   },
   {
    "symbol": "WSHP",
@@ -8237,7 +8237,7 @@
    "result_date": "2026-09-22",
    "max_gain_pct": 32.3,
    "mg_obs_pct": 32.3,
-   "mg_obs_days": 37
+   "mg_obs_days": 38
   },
   {
    "symbol": "QTEX",
@@ -8279,7 +8279,7 @@
    "result_date": "2026-09-22",
    "max_gain_pct": 3.4,
    "mg_obs_pct": 121.8,
-   "mg_obs_days": 37
+   "mg_obs_days": 38
   },
   {
    "symbol": "GCTK",
@@ -8318,7 +8318,7 @@
    "result_date": "2026-09-23",
    "max_gain_pct": 0.4,
    "mg_obs_pct": 41.3,
-   "mg_obs_days": 35
+   "mg_obs_days": 36
   },
   {
    "symbol": "KITT",
@@ -8358,7 +8358,7 @@
    "result_date": "2026-09-23",
    "max_gain_pct": -2.6,
    "mg_obs_pct": 5.5,
-   "mg_obs_days": 35
+   "mg_obs_days": 36
   },
   {
    "symbol": "UZX",
@@ -8396,7 +8396,7 @@
    "result_date": "2026-09-22",
    "max_gain_pct": 3.4,
    "mg_obs_pct": 3.4,
-   "mg_obs_days": 35
+   "mg_obs_days": 36
   },
   {
    "symbol": "PHIO",
@@ -8436,7 +8436,7 @@
    "result_date": "2026-10-05",
    "max_gain_pct": 9.8,
    "mg_obs_pct": 9.8,
-   "mg_obs_days": 33
+   "mg_obs_days": 34
   },
   {
    "symbol": "BIYA",
@@ -8475,7 +8475,7 @@
    "result_date": "2026-09-28",
    "max_gain_pct": 3.4,
    "mg_obs_pct": 53.6,
-   "mg_obs_days": 33
+   "mg_obs_days": 34
   },
   {
    "symbol": "WYHG",
@@ -8514,7 +8514,7 @@
    "result_date": "2026-09-28",
    "max_gain_pct": 3.8,
    "mg_obs_pct": 3.8,
-   "mg_obs_days": 33
+   "mg_obs_days": 34
   },
   {
    "symbol": "REVB",
@@ -8550,7 +8550,7 @@
    "result_date": "2026-09-24",
    "max_gain_pct": 0.4,
    "mg_obs_pct": 0.4,
-   "mg_obs_days": 33
+   "mg_obs_days": 34
   },
   {
    "symbol": "CGTL",
@@ -8588,7 +8588,7 @@
    "result_date": "2026-09-28",
    "max_gain_pct": 11.6,
    "mg_obs_pct": 11.6,
-   "mg_obs_days": 32
+   "mg_obs_days": 33
   },
   {
    "symbol": "EFOI",
@@ -9095,7 +9095,7 @@
    "result_date": "2026-09-28",
    "max_gain_pct": 3.6,
    "mg_obs_pct": 3.6,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "UFG",
@@ -9134,7 +9134,7 @@
    "result_date": "2026-09-28",
    "max_gain_pct": 0.0,
    "mg_obs_pct": 2.0,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "ADVB",
@@ -9173,7 +9173,7 @@
    "result_date": "2026-09-30",
    "max_gain_pct": 13.3,
    "mg_obs_pct": 13.3,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "WKHS",
@@ -9208,8 +9208,8 @@
    "status": "stopped",
    "result_date": "2026-10-16",
    "max_gain_pct": 7.7,
-   "mg_obs_pct": 16.3,
-   "mg_obs_days": 31
+   "mg_obs_pct": 19.2,
+   "mg_obs_days": 32
   },
   {
    "symbol": "UONE",
@@ -9245,7 +9245,7 @@
    "result_date": "2026-09-30",
    "max_gain_pct": 3.3,
    "mg_obs_pct": 7.8,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "PTLE",
@@ -9289,7 +9289,7 @@
    "result_date": "2026-09-28",
    "max_gain_pct": 1.4,
    "mg_obs_pct": 41.3,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "SXTP",
@@ -9333,7 +9333,7 @@
    "result_date": "2026-09-29",
    "max_gain_pct": 11.1,
    "mg_obs_pct": 41.9,
-   "mg_obs_days": 31
+   "mg_obs_days": 32
   },
   {
    "symbol": "NCRA",
@@ -9373,7 +9373,7 @@
    "result_date": "2026-10-02",
    "max_gain_pct": 6.4,
    "mg_obs_pct": 6.4,
-   "mg_obs_days": 30
+   "mg_obs_days": 31
   },
   {
    "symbol": "CCHH",
@@ -9409,7 +9409,7 @@
    "result_date": "2026-09-29",
    "max_gain_pct": 15.9,
    "mg_obs_pct": 22.2,
-   "mg_obs_days": 30
+   "mg_obs_days": 31
   },
   {
    "symbol": "WXM",
@@ -9446,7 +9446,7 @@
    "result_date": "2026-09-29",
    "max_gain_pct": 4.8,
    "mg_obs_pct": 14.5,
-   "mg_obs_days": 30
+   "mg_obs_days": 31
   },
   {
    "symbol": "MSAI",
@@ -9486,7 +9486,7 @@
    "result_date": "2026-09-30",
    "max_gain_pct": 13.1,
    "mg_obs_pct": 13.1,
-   "mg_obs_days": 29
+   "mg_obs_days": 30
   },
   {
    "symbol": "HUCK",
@@ -9521,8 +9521,8 @@
    "status": "stopped",
    "result_date": "2026-10-02",
    "max_gain_pct": 3.9,
-   "mg_obs_pct": 3.9,
-   "mg_obs_days": 29
+   "mg_obs_pct": 4.2,
+   "mg_obs_days": 30
   },
   {
    "symbol": "NPT",
@@ -9563,7 +9563,7 @@
    "result_date": "2026-10-01",
    "max_gain_pct": -0.7,
    "mg_obs_pct": -0.7,
-   "mg_obs_days": 28
+   "mg_obs_days": 29
   },
   {
    "symbol": "QNRX",
@@ -9596,7 +9596,7 @@
    "result_date": "2026-10-01",
    "max_gain_pct": 5.3,
    "mg_obs_pct": 16.4,
-   "mg_obs_days": 28
+   "mg_obs_days": 29
   },
   {
    "symbol": "NUWE",
@@ -9641,7 +9641,7 @@
    "result_date": "2026-10-02",
    "max_gain_pct": 4.1,
    "mg_obs_pct": 6.1,
-   "mg_obs_days": 26
+   "mg_obs_days": 27
   },
   {
    "symbol": "MVIS",
@@ -9682,7 +9682,7 @@
    "result_date": "2026-10-07",
    "max_gain_pct": 13.5,
    "mg_obs_pct": 13.5,
-   "mg_obs_days": 26
+   "mg_obs_days": 27
   },
   {
    "symbol": "AMIX",
@@ -9718,7 +9718,7 @@
    "result_date": "2026-10-05",
    "max_gain_pct": -1.3,
    "mg_obs_pct": -1.3,
-   "mg_obs_days": 26
+   "mg_obs_days": 27
   },
   {
    "symbol": "NTHI",
@@ -9751,7 +9751,9 @@
    "rr": 3.406408094435075,
    "status": "stopped",
    "result_date": "2026-10-05",
-   "max_gain_pct": 4.7
+   "max_gain_pct": 4.7,
+   "mg_obs_pct": 57.9,
+   "mg_obs_days": 27
   },
   {
    "symbol": "KMRK",
@@ -9791,7 +9793,9 @@
    "rr": 0.3567374736500734,
    "status": "hit_t1",
    "result_date": "2026-10-12",
-   "max_gain_pct": 20.9
+   "max_gain_pct": 20.9,
+   "mg_obs_pct": 47.7,
+   "mg_obs_days": 27
   },
   {
    "symbol": "JZXN",
@@ -9832,7 +9836,9 @@
    "rr": 1.9656019656019668,
    "status": "stopped",
    "result_date": "2026-10-05",
-   "max_gain_pct": 8.8
+   "max_gain_pct": 8.8,
+   "mg_obs_pct": 9.7,
+   "mg_obs_days": 27
   },
   {
    "symbol": "ZDAI",
@@ -9872,7 +9878,9 @@
    "rr": 0.7547734930737549,
    "status": "stopped",
    "result_date": "2026-10-06",
-   "max_gain_pct": -3.9
+   "max_gain_pct": -3.9,
+   "mg_obs_pct": 3.9,
+   "mg_obs_days": 27
   },
   {
    "symbol": "TRAW",
@@ -9914,7 +9922,9 @@
    "rr": 0.42178542178542155,
    "status": "stopped",
    "result_date": "2026-10-07",
-   "max_gain_pct": 2.0
+   "max_gain_pct": 2.0,
+   "mg_obs_pct": 2.0,
+   "mg_obs_days": 27
   },
   {
    "symbol": "MOBX",
@@ -9953,7 +9963,9 @@
    "rr": 0.8769876285318096,
    "status": "stopped",
    "result_date": "2026-10-05",
-   "max_gain_pct": 3.3
+   "max_gain_pct": 3.3,
+   "mg_obs_pct": 60.2,
+   "mg_obs_days": 27
   },
   {
    "symbol": "CSAI",
@@ -9989,7 +10001,9 @@
    "rr": 1.2984336356141788,
    "status": "stopped",
    "result_date": "2026-10-13",
-   "max_gain_pct": 3.6
+   "max_gain_pct": 3.6,
+   "mg_obs_pct": 3.6,
+   "mg_obs_days": 27
   },
   {
    "symbol": "NIKI",
@@ -11096,8 +11110,8 @@
    "drop_pct": 95.84782608695652,
    "best_spike": 967.1052631578947,
    "rr": 0.8215206185567013,
-   "status": "open",
-   "result_date": null,
+   "status": "stopped",
+   "result_date": "2026-11-10",
    "max_gain_pct": 5.8
   },
   {
@@ -13048,8 +13062,8 @@
    "drop_pct": 96.92070492170409,
    "best_spike": 234.4444444444444,
    "rr": 1.059642857142856,
-   "status": "open",
-   "result_date": null,
+   "status": "stopped",
+   "result_date": "2026-11-10",
    "max_gain_pct": 10.0
   },
   {
@@ -13203,7 +13217,7 @@
    "rr": 1.4851834727417925,
    "status": "open",
    "result_date": null,
-   "max_gain_pct": -0.7
+   "max_gain_pct": 4.5
   },
   {
    "symbol": "UONE",
@@ -13239,9 +13253,9 @@
    "drop_pct": 96.05825242718447,
    "best_spike": 753.0392156862746,
    "rr": 1.370951156812336,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": -0.2
+   "status": "stopped",
+   "result_date": "2026-11-10",
+   "max_gain_pct": 1.2
   },
   {
    "symbol": "IMNN",
@@ -13457,9 +13471,9 @@
    "drop_pct": 90.74670266902066,
    "best_spike": 426.06837606837615,
    "rr": 1.764909447456453,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "stopped",
+   "result_date": "2026-11-10",
+   "max_gain_pct": -2.2
   },
   {
    "symbol": "LNKS",
@@ -13498,9 +13512,9 @@
    "drop_pct": 99.8404761904762,
    "best_spike": 342.80442804428037,
    "rr": 0.7299851348481627,
-   "status": "open",
-   "result_date": null,
-   "max_gain_pct": 0.0
+   "status": "hit_t2",
+   "result_date": "2026-11-10",
+   "max_gain_pct": 44.8
   }
  ]
 }
