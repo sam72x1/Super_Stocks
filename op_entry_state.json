@@ -224,11 +224,11 @@
   "anchor_price": 0.1083,
   "anchor_open": 0.1,
   "anchor_low": 0.0925,
-  "date": "2026-11-11",
   "pre_done": true,
   "pre_hi": 0.1,
   "pre_usd": 49610,
-  "pre_n": 31
+  "pre_n": 31,
+  "date": "2026-11-11"
  },
  "LIQ:ADGM": {
   "date": "2026-11-11"
@@ -3815,5 +3815,6 @@
  },
  "LIQ:ISPC": {
   "date": "2026-11-11"
- }
+ },
+ "RIME": "2026-11-11"
 }
