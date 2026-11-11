@@ -101260,6 +101260,46 @@ try:
 except Exception as _tb8_x:                                      # noqa: BLE001
     check("🧱 TBKX8 قفلُ رمز خروج prep_b لم ينهَر", False, f"⛔ {type(_tb8_x).__name__}: {_tb8_x}")
 
+
+# 🧱 TBK9 (‏2026-11-11 · عطلٌ مُثبَت في `43052070347`: «رموزٌ-أيّام بفلوت 0» لأن `float_src` يُكتب «ياهو» بالعربيّة): فلوتُ near_watch بالملحق ④ يُقرأ من مسار `mode_prep_a` نفسِه
+try:
+    import importlib.util as _tb9_iu
+    import json as _tb9_json
+    import os as _tb9_os
+    import tempfile as _tb9_tf
+    _tb9_sp = _tb9_iu.spec_from_file_location("tblock_lock9", "fm_forensics/tblock/tblock.py")
+    TB9 = _tb9_iu.module_from_spec(_tb9_sp)
+    _tb9_sp.loader.exec_module(TB9)
+    _tb9_pure = (TB9.nw_float({"float": 281036.0, "float_src": "ياهو"}),
+                 TB9.nw_float({"float": 5e5, "float_src": "Yahoo"}),
+                 TB9.nw_float({"float": 5e5, "float_src": "CE"}),
+                 TB9.nw_float({"float": 0, "float_src": "ياهو"}),
+                 TB9.nw_float({"float": 5e5}), TB9.nw_float(None))
+    _tb9_LV = TB9._lvs()
+    _tb9_keep = (_tb9_LV.source_days, _tb9_LV.universe_of, _tb9_LV._commits, _tb9_LV.commit_before, _tb9_LV._show,
+                 TB9.fetch_conditions, TB9.OUT)
+    _tb9_dir = _tb9_tf.mkdtemp()
+    _tb9_nw = {"AAA": {"float": 281036.0, "float_src": "ياهو"}, "BBB": {"float": 9e5, "float_src": "CE"}}
+    try:
+        TB9.OUT = _tb9_dir
+        _tb9_LV.source_days = lambda U: ["2026-10-01"]
+        _tb9_LV.universe_of = lambda U, d: {"AAA", "BBB"}
+        _tb9_LV._commits = lambda p: ["h1"]
+        _tb9_LV.commit_before = lambda c, ts: "h1"
+        _tb9_LV._show = lambda h, p: _tb9_json.dumps(_tb9_nw)
+        TB9.fetch_conditions = lambda key: [{"id": 99, "name": "x", "update_rules": {"consolidated": {"updates_open_close": True}}}]
+        _tb9_rc = TB9.mode_prep_a("k")
+        _tb9_out = TB9._jload(_tb9_os.path.join(_tb9_dir, "prep_a.json.gz")) if _tb9_rc == 0 else {}
+    finally:
+        (_tb9_LV.source_days, _tb9_LV.universe_of, _tb9_LV._commits, _tb9_LV.commit_before, _tb9_LV._show,
+         TB9.fetch_conditions, TB9.OUT) = _tb9_keep
+    _tb9_fl = list((_tb9_out.get("float_nw") or {}).values())
+    _tb9_flt = _tb9_fl[0] if _tb9_fl and all(x == _tb9_fl[0] for x in _tb9_fl) else _tb9_fl
+    check("🧱 TBK9 فلوتُ near_watch بمصدر «ياهو» (بالعربيّة كما يُكتب) يدخل التحضير · ومصدرٌ غيرُه أو صفرٌ أو غيابٌ لا",
+          _tb9_pure == (281036.0, 5e5, None, None, None, None) and _tb9_rc == 0 and _tb9_flt == {"AAA": 281036.0},
+          f"pure={_tb9_pure} rc={_tb9_rc} flt={_tb9_flt}")
+except Exception as _tb9_x:                                      # noqa: BLE001
+    check("🧱 TBKX9 قفلُ فلوت near_watch لم ينهَر", False, f"⛔ {type(_tb9_x).__name__}: {_tb9_x}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
