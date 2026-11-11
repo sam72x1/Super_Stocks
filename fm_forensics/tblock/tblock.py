@@ -510,6 +510,20 @@ def _lvs():
     return LV
 
 
+YAHOO_SRC = ("ياهو", "yahoo")   # `float_src` في near_watch يُكتب «ياهو» بالعربيّة (عطلٌ مُثبَت في `43052070347`: صفرُ رمزٍ-يوم)
+
+
+def nw_float(e):
+    """فلوتُ مدخل near_watch بالملحق ④: حقلُ `float` موجبٌ ومصدرُه ياهو ⟵ العدد · وإلّا None."""
+    if not isinstance(e, dict):
+        return None
+    f = e.get("float")
+    src = str(e.get("float_src") or "").strip().lower()
+    if isinstance(f, (int, float)) and not isinstance(f, bool) and f > 0 and src in YAHOO_SRC:
+        return float(f)
+    return None
+
+
 def mode_prep_a(key):
     LV = _lvs()
     U = json.load(open(UNIVERSE, encoding="utf-8"))
@@ -537,10 +551,9 @@ def mode_prep_a(key):
             nw = {}
         m = {}
         for s in uni[d]:
-            e = nw.get(s) or {}
-            f = e.get("float")
-            if isinstance(f, (int, float)) and f > 0 and str(e.get("float_src") or "").lower().startswith("yahoo"):
-                m[s] = float(f)
+            f = nw_float(nw.get(s))
+            if f is not None:
+                m[s] = f
         flt[d] = m
     _jdump({"sessions": sess, "src": src, "uni": uni, "union": union, "excl": excl, "float_nw": flt},
            os.path.join(OUT, "prep_a.json.gz"))
