@@ -627,7 +627,7 @@
  },
  "LIQ:RCT": {
   "anchor_ms": 1794388320000,
-  "last_ms": 1794388320000,
+  "last_ms": 1794388380000,
   "sent": [
    "M1"
   ],
@@ -635,15 +635,15 @@
   "vol_x": 8.6,
   "peak_usd": 81449,
   "last_eval_ms": 1794388380000,
-  "pulse_ms": 1794388320000,
+  "pulse_ms": 1794388380000,
   "anchor_price": 0.0395,
   "anchor_open": 0.0359,
   "anchor_low": 0.0358,
-  "date": "2026-11-11",
   "pre_done": true,
   "pre_hi": 0.0366,
   "pre_usd": 95567,
-  "pre_n": 12
+  "pre_n": 12,
+  "date": "2026-11-11"
  },
  "LIQ:GTBP": {
   "last_eval_ms": 1794345420000,
@@ -1599,6 +1599,7 @@
    "j1_top": false
   },
   "e5": 0.0522,
+  "tgt_ms": 1794388140000,
   "date": "2026-11-11"
  },
  "LIQ:OMEX": {
