@@ -100730,7 +100730,7 @@ try:
     check("🎯🪜 TGL3 الصفقة: تعبئةٌ بالدخول (أو بالافتتاح تحته) · يومُ التعبئة وقفٌ وحدَه · الأجزاءُ بالتساوي · الوقفُ أوّلًا في الجلسة نفسِها · "
           "والباقي بإغلاق الجلسة العشرين · والدخولُ الذي لا يعلو وقفَه لا يُحسب · وبلوغُ الهدف من D",
           _tgl_a == (1.75, True, [1.166667, 0.583333]) and _tgl_b == (-1.0, True, [-0.5, -0.5])
-          and _tgl_c[1] is True and abs(_tgl_c[0] - (1.1 - 0.93) / (0.93 - 0.90)) < 1e-5
+          and _tgl_c[1] is True and abs(_tgl_c[0] - (1.1 - 0.93) / (0.96 - 0.90)) < 1e-5     # الملحق 1: المقامُ المخطَّط
           and _tgl_d == (None, False, None) and _tgl_hf == [True, False],
           f"a={_tgl_a} b={_tgl_b} c={_tgl_c} d={_tgl_d} hf={_tgl_hf}")
     # TGL4 — المقياسُ الواحد: شموعُ الصفقة × asof_factor قبل trade_r/hit_flags (AST) ‏+ scale_rows سلوكيًّا
@@ -100858,6 +100858,38 @@ try:
           f"e={ {k: _tg9_e.get(k) for k in ('d', 'hit_cur', 'filled', 'crash')} } calls={len(_tg9_c)}")
 except Exception as _tg9_x:                                      # noqa: BLE001
     check("🎯🪜 TGL90 قفلُ الإدخال بلا جلسات لم ينهَر", False, f"⛔ {type(_tg9_x).__name__}: {_tg9_x}")
+# 🎯🪜 TGL10 (‏2026-11-11 · عطلٌ مُثبَت في `42930133720`: متوسّطُ R ‏1.5e11): المقامُ **المخاطرةُ المخطَّطة `entry − stop`** لا `fill − stop` —
+#    جلسةُ تعبئةٍ تُفتح عند الوقف بفُتاتٍ عائم (`12.3×0.1` مقابل `round(…, 2)`) تُعطي R محدودًا مساويًا للمخطَّط · ومخاطرةٌ مخطَّطة دون RISK_EPS
+#    ⟵ مستبعدة · والملحقُ 1 مثبَّتٌ ببصمته (بصمةٌ مختلفة ⟵ خروج 9).
+try:
+    import importlib.util as _tg10_iu
+    _tg10_sp = _tg10_iu.spec_from_file_location("tgtladder_lock10", "fm_forensics/tgtladder/tgtladder.py")
+    TG10 = _tg10_iu.module_from_spec(_tg10_sp)
+    _tg10_sp.loader.exec_module(TG10)
+    _tg10_st = round(12.3 * 0.1, 2)                                   # 1.23
+    _tg10_op = 12.3 * 0.1                                             # 1.2300000000000002
+    _tg10_R = [("d0", 1.3, 1.3, 1.3, 1.3, 0)] + [("d%02d" % k, 1.30, 1.31, 1.29, 1.30, 0) for k in range(1, 60)]
+    _tg10_R[2] = ("d02", _tg10_op, 1.26, _tg10_op, 1.25, 0)           # تُفتح عند الوقف ⟵ التعبئةُ بالافتتاح
+    _tg10_R[3] = ("d03", 1.25, 1.40, 1.24, 1.38, 0)                   # يبلغ 1.4
+    _tg10_a = TG10.trade_r(_tg10_R, 1, 1.27, _tg10_st, [1.4])
+    _tg10_z = TG10.trade_r(_tg10_R, 1, _tg10_st * (1 + 1e-9), _tg10_st, [1.4])
+    _tg10_exp = (1.4 - _tg10_op) / (1.27 - _tg10_st)
+    _tg10_Rb = list(_tg10_R)
+    _tg10_Rb[2] = ("d02", 1.20, 1.26, 1.19, 1.25, 0)                  # فُتحت تحت الوقف ⟵ مستبعدةٌ كما يوم العقد
+    _tg10_b = TG10.trade_r(_tg10_Rb, 1, 1.27, _tg10_st, [1.4])
+    _tg10_keep = TG10.ADDENDUM_1_SHA
+    try:
+        TG10.ADDENDUM_1_SHA = "0" * 64
+        _tg10_bad = TG10.main(["--mode", "check"])
+    finally:
+        TG10.ADDENDUM_1_SHA = _tg10_keep
+    check("🎯🪜 TGL10 الملحق 1: R بالمخاطرة المخطَّطة — تعبئةٌ عند الوقف بفُتاتٍ عائم تُعطي R محدودًا = (الخروج − التعبئة) ÷ (الدخول − الوقف) · "
+          "ومخاطرةٌ مخطَّطة دون RISK_EPS مستبعدة · وتعبئةٌ فُتحت تحت الوقف مستبعدةٌ كيوم العقد · وبصمةُ الملحق مثبَّتة (مختلفةٌ ⟵ 9)",
+          _tg10_a[1] is True and _tg10_a[0] is not None and abs(_tg10_a[0] - _tg10_exp) < 1e-5 and abs(_tg10_a[0]) < 10
+          and _tg10_z == (None, False, None) and _tg10_b == (None, False, None) and TG10.RISK_EPS == 1e-6 and _tg10_bad == 9 and TG10.main(["--mode", "check"]) == 0,
+          f"a={_tg10_a} exp={round(_tg10_exp, 4)} z={_tg10_z} b={_tg10_b} bad={_tg10_bad}")
+except Exception as _tg10_x:                                     # noqa: BLE001
+    check("🎯🪜 TGL100 قفلُ R بالمخاطرة المخطَّطة لم ينهَر", False, f"⛔ {type(_tg10_x).__name__}: {_tg10_x}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
