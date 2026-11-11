@@ -885,7 +885,8 @@
     "close": 0.8239
    },
    "live_alert": {
-    "breakout": "2026-11-10"
+    "breakout": "2026-11-10",
+    "premarket": "2026-11-11"
    },
    "price_state": "VALID",
    "price_bar": "2026-11-10"
