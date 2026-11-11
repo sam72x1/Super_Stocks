@@ -944,7 +944,7 @@
   "date": "2026-11-11"
  },
  "LIQ:ALMS": {
-  "last_eval_ms": 1794423720000,
+  "last_eval_ms": 1794423840000,
   "date": "2026-11-11"
  },
  "LIQ:RBNE": {
@@ -1888,7 +1888,7 @@
  },
  "LIQ:RNTZ": {
   "anchor_ms": 1794423780000,
-  "last_ms": 1794423780000,
+  "last_ms": 1794423840000,
   "sent": [
    "M1"
   ],
@@ -1896,7 +1896,7 @@
   "vol_x": 4.7,
   "peak_usd": 17715,
   "last_eval_ms": 1794423840000,
-  "pulse_ms": 1794423780000,
+  "pulse_ms": 1794423840000,
   "anchor_price": 5.0,
   "anchor_open": 4.61,
   "anchor_low": 4.61,
@@ -1908,11 +1908,12 @@
    "e5": null,
    "exit_ms": 1794398400000
   },
-  "date": "2026-11-11",
   "pre_done": true,
   "pre_hi": 5.09,
   "pre_usd": 111451,
-  "pre_n": 31
+  "pre_n": 31,
+  "exit_ms": 1794423840000,
+  "date": "2026-11-11"
  },
  "LIQ:FLL": {
   "last_eval_ms": 1794423780000,
