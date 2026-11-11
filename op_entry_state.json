@@ -710,36 +710,15 @@
   "date": "2026-11-11"
  },
  "LIQ:RCT": {
-  "anchor_ms": 1794388320000,
-  "last_ms": 1794408840000,
-  "sent": [
-   "M1",
-   "M5",
-   "M30"
-  ],
-  "updates": 2,
-  "vol_x": 8.6,
-  "peak_usd": 526296,
-  "last_eval_ms": 1794388380000,
-  "pulse_ms": 1794408840000,
-  "anchor_price": 0.0395,
-  "anchor_open": 0.0359,
-  "anchor_low": 0.0358,
-  "pre_done": true,
-  "pre_hi": 0.0366,
-  "pre_usd": 95567,
-  "pre_n": 12,
-  "k2": {
-   "c3": "صادقت (إغلاقٌ فوق المرساة)",
-   "c4": "خضراء 3-4",
-   "v2": "المرساة دون 30% (سيولة تتوالى)",
-   "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)",
-   "j1": false,
-   "j1_top": false
+  "last_eval_ms": 1794408840000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794388320000,
+   "anchor_price": 0.0395,
+   "anchor_low": 0.0358,
+   "e5": 0.0432,
+   "exit_ms": 1794408780000
   },
-  "e5": 0.0432,
-  "tgt_ms": 1794388500000,
-  "exit_ms": 1794408780000,
   "date": "2026-11-11"
  },
  "LIQ:GTBP": {
@@ -931,7 +910,7 @@
  },
  "LIQ:BBOT": {
   "anchor_ms": 1794408780000,
-  "last_ms": 1794408780000,
+  "last_ms": 1794408840000,
   "sent": [
    "M1"
   ],
@@ -939,15 +918,15 @@
   "vol_x": 14.1,
   "peak_usd": 39599,
   "last_eval_ms": 1794408840000,
-  "pulse_ms": 1794408780000,
+  "pulse_ms": 1794408840000,
   "anchor_price": 2.47,
   "anchor_open": 2.35,
   "anchor_low": 2.35,
-  "date": "2026-11-11",
   "pre_done": true,
   "pre_hi": 2.35,
   "pre_usd": 41945,
-  "pre_n": 16
+  "pre_n": 16,
+  "date": "2026-11-11"
  },
  "LIQ:CGTL": {
   "date": "2026-11-11"
@@ -3443,34 +3422,15 @@
   "date": "2026-11-10"
  },
  "LIQ:BMGL": {
-  "anchor_ms": 1794407880000,
-  "last_ms": 1794408840000,
-  "sent": [
-   "M1",
-   "M5"
-  ],
-  "updates": 0,
-  "vol_x": 6.8,
-  "peak_usd": 62436,
-  "last_eval_ms": 1794407880000,
-  "pulse_ms": 1794408840000,
-  "anchor_price": 0.79,
-  "anchor_open": 0.7468,
-  "anchor_low": 0.74,
-  "pre_done": true,
-  "pre_hi": 1.2,
-  "pre_usd": 512092,
-  "pre_n": 53,
-  "k2": {
-   "c3": "صادقت (إغلاقٌ فوق المرساة)",
-   "c4": "خضراء 2",
-   "v2": "المرساة 30-60% من الخمس",
-   "v3": "نبضٌ متعادل",
-   "j1": false,
-   "j1_top": false
+  "last_eval_ms": 1794408840000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794407880000,
+   "anchor_price": 0.79,
+   "anchor_low": 0.74,
+   "e5": 0.9301,
+   "exit_ms": 1794408780000
   },
-  "e5": 0.9301,
-  "exit_ms": 1794408780000,
   "date": "2026-11-11"
  },
  "LIQ:UFG": {
