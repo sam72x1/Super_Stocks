@@ -7,6 +7,11 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      part:
+        description: "all = ① و② · posts = ① وحدَه (منشوراتُ فيصل) · pit = ② وحدَه (ثلاثُ سنوات)"
+        required: false
+        default: "all"
 
 concurrency:
   group: super-stocks-tgtladder
@@ -14,6 +19,7 @@ concurrency:
 
 jobs:
   posts:
+    if: inputs.part != 'pit'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -37,6 +43,7 @@ jobs:
         run: python fm_forensics/tgtladder/tgtladder.py --mode posts
 
   prep:
+    if: inputs.part != 'posts'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -111,7 +118,7 @@ jobs:
 
   assemble:
     needs: shard
-    if: always()
+    if: always() && inputs.part != 'posts'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
