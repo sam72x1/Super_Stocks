@@ -346,7 +346,7 @@
  },
  "LIQ:OBAI": {
   "anchor_ms": 1794411900000,
-  "last_ms": 1794411900000,
+  "last_ms": 1794411960000,
   "sent": [
    "M1"
   ],
@@ -354,15 +354,15 @@
   "vol_x": 26.1,
   "peak_usd": 114074,
   "last_eval_ms": 1794411960000,
-  "pulse_ms": 1794411900000,
+  "pulse_ms": 1794411960000,
   "anchor_price": 1.94,
   "anchor_open": 1.84,
   "anchor_low": 1.82,
-  "date": "2026-11-11",
   "pre_done": true,
   "pre_hi": 1.89,
   "pre_usd": 202481,
-  "pre_n": 51
+  "pre_n": 51,
+  "date": "2026-11-11"
  },
  "LIQ:SOUN": {
   "last_eval_ms": 1794411960000,
@@ -878,7 +878,7 @@
   "date": "2026-11-10"
  },
  "LIQ:GOVX": {
-  "last_eval_ms": 1794411900000,
+  "last_eval_ms": 1794411960000,
   "date": "2026-11-11"
  },
  "LIQ:AEMD": {
@@ -929,7 +929,7 @@
   "date": "2026-11-11"
  },
  "LIQ:BRAI": {
-  "last_eval_ms": 1794411900000,
+  "last_eval_ms": 1794411960000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794406800000,
@@ -1266,7 +1266,7 @@
  },
  "LIQ:CRVO": {
   "anchor_ms": 1794410160000,
-  "last_ms": 1794411900000,
+  "last_ms": 1794411960000,
   "sent": [
    "M1",
    "M5",
@@ -1276,7 +1276,7 @@
   "vol_x": 115.0,
   "peak_usd": 627233,
   "last_eval_ms": 1794410220000,
-  "pulse_ms": 1794411900000,
+  "pulse_ms": 1794411960000,
   "anchor_price": 1.51,
   "anchor_open": 1.3964,
   "anchor_low": 1.395,
@@ -1526,7 +1526,7 @@
   "date": "2026-11-11"
  },
  "LIQ:SUNE": {
-  "last_eval_ms": 1794411900000,
+  "last_eval_ms": 1794411960000,
   "date": "2026-11-11"
  },
  "LIQ:AVAT": {
@@ -1991,7 +1991,7 @@
   "date": "2026-11-11"
  },
  "LIQ:HTCO": {
-  "last_eval_ms": 1794411900000,
+  "last_eval_ms": 1794411960000,
   "date": "2026-11-11"
  },
  "LIQ:GRML": {
@@ -2111,7 +2111,7 @@
   "date": "2026-11-11"
  },
  "LIQ:CETX": {
-  "last_eval_ms": 1794411840000,
+  "last_eval_ms": 1794411960000,
   "date": "2026-11-11"
  },
  "LIQ:XCH": {
@@ -2417,7 +2417,7 @@
   "date": "2026-11-10"
  },
  "LIQ:SKYQ": {
-  "last_eval_ms": 1794411900000,
+  "last_eval_ms": 1794411960000,
   "date": "2026-11-11"
  },
  "LIQ:SEGG": {
@@ -2668,7 +2668,7 @@
   "date": "2026-11-11"
  },
  "LIQ:NAMI": {
-  "last_eval_ms": 1794410520000,
+  "last_eval_ms": 1794411960000,
   "date": "2026-11-11"
  },
  "HUHU": "2026-11-10",
@@ -3064,7 +3064,7 @@
   "date": "2026-11-10"
  },
  "LIQ:PCLA": {
-  "last_eval_ms": 1794411900000,
+  "last_eval_ms": 1794411960000,
   "date": "2026-11-11"
  },
  "LIQ:HQ": {
