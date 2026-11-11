@@ -101236,6 +101236,30 @@ try:
 except Exception as _lsp_x:                                      # noqa: BLE001
     check("✂️ LSPX0 أقفالُ مفتاح التقسيمات لم تنهَر", False, f"⛔ {type(_lsp_x).__name__}: {_lsp_x}")
 
+# 🧱 TBK8 (‏2026-11-11 · عطلٌ مُثبَت في `43031294361`: prep_b نجح ثمّ خرج 1 لأن `tgtladder.mode_prep` يُرجع قاموسًا): prep_b يُرجع 0 حين يُكتب ملفُّ التحضير و5 حين يغيب
+try:
+    import importlib.util as _tb8_iu
+    import os as _tb8_os
+    import tempfile as _tb8_tf
+    _tb8_sp = _tb8_iu.spec_from_file_location("tblock_lock8", "fm_forensics/tblock/tblock.py")
+    TB8 = _tb8_iu.module_from_spec(_tb8_sp)
+    _tb8_sp.loader.exec_module(TB8)
+    _tb8_tgl = TB8._tgl()
+    _tb8_keep = (_tb8_tgl.mode_prep, _tb8_tgl.OUT, TB8.OUT)
+    _tb8_dir = _tb8_tf.mkdtemp()
+    try:
+        TB8.OUT = _tb8_dir
+        _tb8_tgl.mode_prep = lambda key: {"mode": "tgtladder_prep", "union": 1}
+        _tb8_miss = TB8.mode_prep_b("k")
+        _tb8_tgl.mode_prep = lambda key: (open(_tb8_os.path.join(_tb8_tgl.OUT, "prep.json.gz"), "wb").close(), {"mode": "x"})[1]
+        _tb8_ok = TB8.mode_prep_b("k")
+    finally:
+        _tb8_tgl.mode_prep, _tb8_tgl.OUT, TB8.OUT = _tb8_keep
+    check("🧱 TBK8 prep_b يُرجع رمزَ خروجٍ صحيحًا لا قاموسَ الوصف: ملفُّ التحضير كُتب ⟵ 0 · وغائب ⟵ 5",
+          _tb8_ok == 0 and _tb8_miss == 5, f"ok={_tb8_ok!r} miss={_tb8_miss!r}")
+except Exception as _tb8_x:                                      # noqa: BLE001
+    check("🧱 TBKX8 قفلُ رمز خروج prep_b لم ينهَر", False, f"⛔ {type(_tb8_x).__name__}: {_tb8_x}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

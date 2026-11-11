@@ -692,7 +692,8 @@ def _tgl():
 def mode_prep_b(key):
     TGL = _tgl()
     TGL.OUT = OUT                                                # الملحق ⑤: المادّةُ نفسُها في مجلّد هذه الأداة
-    return TGL.mode_prep(key) or 0
+    TGL.mode_prep(key)                                           # 🔧 يُرجع قاموسَ الوصف لا رمزَ خروج (`43031294361`: prep_b خرج 1 بعد نجاحه) · `TBK8`
+    return 0 if os.path.exists(os.path.join(OUT, "prep.json.gz")) else 5
 
 
 def window_groups(blocks, tested, lab):
