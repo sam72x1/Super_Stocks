@@ -13,6 +13,10 @@ on:
         description: "1 = الملحق 1 (سقفُ M2 والعائد/المخاطرة · T_APPDIFF_ADDENDUM_1.md) · 0 = العقد الأصل بت-بت"
         required: false
         default: "0"
+      splits_to:
+        description: "فارغ = بت-بت · today = تقسيماتُ الاتّحاد حتى يوم التشغيل (إعادةُ قياس «التقسيمات المتأخرة» · LATE_SPLITS_note.md)"
+        required: false
+        default: ""
 
 concurrency:
   group: super-stocks-appdiff
@@ -39,6 +43,7 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           FAISAL_ONLY: "1"
+          RB_SPLITS_TO: ${{ inputs.splits_to }}
           PYTHONUNBUFFERED: "1"
         run: python fm_forensics/appdiff/appdiff.py --mode prep
 

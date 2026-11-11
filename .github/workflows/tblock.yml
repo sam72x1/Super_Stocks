@@ -1,0 +1,213 @@
+name: "🧱 T-BLOCK البلوك على العرض (قراءةٌ فقط · يدويّ)"
+
+# 🔒 قراءةٌ وقياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا إنتاج (العقد `fm_forensics/tblock/T_BLOCK_prereg.md` #812 · الملحق 1 · TBK1-TBK6).
+# جزءُ أ (الـ60 جلسة) prep_a ⟵ 20 شريحة · جزءُ ب (2023-2025) prep_b ⟵ 20 شريحة · ثمّ assemble (والإيداعاتُ ⑤ بـSEC_CONTACT) — وكلُّ وضعٍ يخرج 9 إن تغيّرت بصمةُ العقد أو الملحق.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      part:
+        description: "all = الجزءان · a = جزءُ أ وحدَه (①-⑥) · b = جزءُ ب وحدَه (⑦)"
+        required: false
+        default: "all"
+
+concurrency:
+  group: super-stocks-tblock
+  cancel-in-progress: false
+
+jobs:
+  prep_a:
+    if: inputs.part != 'b'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧱 جزءُ أ — الكون · الفلوت من تاريخ near_watch · جدولُ الشروط
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tblock/tblock.py --mode prep_a
+
+      - name: Upload prep_a
+        uses: actions/upload-artifact@v4
+        with:
+          name: tblk-prep-a
+          path: fm_forensics/tblock/out/prep_a.json.gz
+          retention-days: 30
+
+  shard_a:
+    needs: prep_a
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      max-parallel: 6               # لا يستنفد رنرات البوت الحيّة (والجزءان معًا 12)
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep_a
+        uses: actions/download-artifact@v4
+        with:
+          name: tblk-prep-a
+          path: fm_forensics/tblock/out
+
+      - name: 🧱 شريحةُ جزء أ
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "20"
+          FAISAL_ONLY: "0"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tblock/tblock.py --mode shard_a
+
+      - name: Upload shard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tblk-a-${{ matrix.shard }}
+          path: fm_forensics/tblock/out/a_*.json.gz
+          retention-days: 30
+
+  prep_b:
+    if: inputs.part != 'a'
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧱 جزءُ ب — العضويّة · التقسيمات حتى اليوم · FINRA (مولِّدُ T-TGTLADDER بالاسم)
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tblock/tblock.py --mode prep_b
+
+      - name: Upload prep_b
+        uses: actions/upload-artifact@v4
+        with:
+          name: tblk-prep-b
+          path: fm_forensics/tblock/out/prep.json.gz
+          retention-days: 30
+
+  shard_b:
+    needs: prep_b
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep_b
+        uses: actions/download-artifact@v4
+        with:
+          name: tblk-prep-b
+          path: fm_forensics/tblock/out
+
+      - name: 🧱 شريحةُ جزء ب
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "20"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tblock/tblock.py --mode shard_b
+
+      - name: Upload shard
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: tblk-b-${{ matrix.shard }}
+          path: fm_forensics/tblock/out/b_*.json.gz
+          retention-days: 30
+
+  assemble:
+    needs: [shard_a, shard_b]
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download prep and shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tblk-*
+          path: fm_forensics/tblock/out
+          merge-multiple: true
+
+      - name: 🧱 التجميع · الإيداعات ⑤ · الحكمان
+        env:
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          NSHARDS_A: "20"
+          NSHARDS_B: "20"
+          FAISAL_ONLY: "0"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tblock/tblock.py --mode assemble
