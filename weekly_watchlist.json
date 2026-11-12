@@ -3903,7 +3903,8 @@
    "last_price": 2.36,
    "live_alert": {
     "buyzone": "2026-11-10",
-    "breakout": "2026-11-11"
+    "breakout": "2026-11-11",
+    "premarket": "2026-11-12"
    },
    "price_state": "VALID",
    "price_bar": "2026-11-11",
