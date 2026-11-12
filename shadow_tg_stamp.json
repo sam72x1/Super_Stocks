@@ -1,16 +1,16 @@
 {
- "last_sent": "2026-11-11",
+ "last_sent": "2026-11-12",
  "first_sent": "2026-11-06",
  "built_ny": "09:25",
  "n_s": 3,
- "n_anchors": 9,
+ "n_anchors": 7,
  "skipped": {
   "bars": 0,
   "base": 0
  },
  "symbols": [
-  "SHFS",
-  "CHSN",
-  "YMAT"
+  "CENN",
+  "PLCE",
+  "PARA"
  ]
 }
