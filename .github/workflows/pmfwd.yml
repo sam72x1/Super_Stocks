@@ -54,8 +54,10 @@ jobs:
           PMFWD_DRY: ${{ inputs.dry }}
         run: python pmfwd_harvest.py
 
+      # 🔴 PWS1 (2026-11-12 · عطلٌ مُثبَت `43146797363`): الحصادُ يكتب صفوفَ اليوم الناقص (`short_cover` · `V-W2`) ثمّ يخرج 3 —
+      #    والدفعُ كان يُتخطّى فضاعت الصفوفُ وهي تُعَدّ بنصّ العقد ⟵ يُدفع ما كُتب حتى بعد خروجٍ غيرِ صفريّ (والتشغيلةُ تبقى حمراء)
       - name: 💾 دفعُ السجلّ (fetch+rebase — درسُ ignition.yml المدوَّن)
-        if: ${{ inputs.dry != '1' }}
+        if: ${{ !cancelled() && inputs.dry != '1' }}
         run: |
           set -e
           git config user.name "github-actions[bot]"
