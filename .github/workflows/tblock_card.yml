@@ -1,0 +1,137 @@
+name: "💵 T-BLOCK الملحق 2 §③ صفقةُ الكرت بعد التكلفة (قراءةٌ فقط · يدويّ)"
+
+# 🔒 قراءةٌ وقياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا إنتاج (`fm_forensics/tblock/T_BLOCK_addendum_2.md` §③ و§③-ب · TBK14-TBK16).
+# prep (مادّةُ T-TGTLADDER ‏42943607531 ‏+ مادّةُ 2026) ⟵ 20 شريحة ⟵ assemble — وكلُّ وضعٍ يخرج 9 إن تغيّرت بصمةُ الملحق و8 بلا الإقرار.
+# ⚖️ T-TGTLADDER مُغلَقٌ مُنفَّذًا · والإقرارُ `TGTLADDER_REOPEN=1` بأمر المالك 2026-11-12 لهذه التشغيلة وحدَها (الملحق 2 §⓪-أ).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: super-stocks-tblock-card
+  cancel-in-progress: false
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      TGTLADDER_REOPEN: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 💵 مادّةُ 2026 (العضويّة 2025-10 ⟵ 2026-11 · التقسيمات حتى اليوم · FINRA)
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          FAISAL_ONLY: "1"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tblock/cardcost.py --mode prep26
+
+      - name: Upload prep26
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-prep26
+          path: fm_forensics/tblock/out/card/prep26.json.gz
+          retention-days: 30
+
+  shard:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 345
+    permissions:
+      contents: read
+      actions: read
+    env:
+      TGTLADDER_REOPEN: "1"
+    strategy:
+      fail-fast: false
+      max-parallel: 8               # لا يستنفد رنرات البوت الحيّة
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download T-TGTLADDER material
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tgl-*
+          path: fm_forensics/tblock/out/tgl
+          merge-multiple: true
+          run-id: 42943607531
+          github-token: ${{ github.token }}
+
+      - name: Download prep26
+        uses: actions/download-artifact@v4
+        with:
+          name: card-prep26
+          path: fm_forensics/tblock/out/card
+
+      - name: 💵 الشريحة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "20"
+          PYTHONUNBUFFERED: "1"
+        run: ls fm_forensics/tblock/out/tgl | head -5 && python fm_forensics/tblock/cardcost.py --mode shard
+
+      - name: Upload shard
+        uses: actions/upload-artifact@v4
+        with:
+          name: card-shard-${{ matrix.shard }}
+          path: fm_forensics/tblock/out/card/card_*.json.gz
+          retention-days: 30
+
+  assemble:
+    needs: shard
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      TGTLADDER_REOPEN: "1"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download shards
+        uses: actions/download-artifact@v4
+        with:
+          pattern: card-shard-*
+          path: fm_forensics/tblock/out/card
+          merge-multiple: true
+
+      - name: 💵 التجميع والحكم
+        env:
+          NSHARDS: "20"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tblock/cardcost.py --mode assemble
