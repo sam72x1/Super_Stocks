@@ -101300,6 +101300,66 @@ try:
           f"pure={_tb9_pure} rc={_tb9_rc} flt={_tb9_flt}")
 except Exception as _tb9_x:                                      # noqa: BLE001
     check("🧱 TBKX9 قفلُ فلوت near_watch لم ينهَر", False, f"⛔ {type(_tb9_x).__name__}: {_tb9_x}")
+# 🧱 TBK10 (‏2026-11-12 · عطلٌ مُثبَت في `43057090925`: ثلاثُ شرائحَ أسقطتها خدمةُ ملفّات GitHub والتجميعُ كان سيحكم على الباقي): لا حكمَ على شرائحَ ناقصة
+try:
+    import contextlib as _tb10_cl
+    import importlib.util as _tb10_iu
+    import io as _tb10_io
+    import json as _tb10_json
+    import os as _tb10_os
+    import sys as _tb10_sys
+    import tempfile as _tb10_tf
+    _tb10_sp = _tb10_iu.spec_from_file_location("tblock_lock10", "fm_forensics/tblock/tblock.py")
+    TB10 = _tb10_iu.module_from_spec(_tb10_sp)
+    _tb10_sp.loader.exec_module(TB10)
+    _tb10_S = _tb10_sys.modules.get("Super_stock")
+    _tb10_keep = (TB10.OUT, TB10.part_a_results, TB10.part_b_results, TB10.edgar_part, TB10.verdict3, TB10.verdict7,
+                  TB10.predictions, TB10.report_lines, TB10.log, _tb10_os.environ.get("SEC_CONTACT"),
+                  getattr(_tb10_S, "sec_cik_map", None))
+
+    def _tb10_run(na, nb, fa, fb):
+        d = _tb10_tf.mkdtemp()
+        TB10.OUT = d
+        TB10._jdump({"sessions": [], "excl": {}}, _tb10_os.path.join(d, "prep_a.json.gz"))
+        for i in range(fa):
+            TB10._jdump({"rows": [], "diag": {}}, _tb10_os.path.join(d, f"a_{i}.json.gz"))
+        for i in range(fb):
+            TB10._jdump({"units": [{"u": i}], "counts": {}}, _tb10_os.path.join(d, f"b_{i}.json.gz"))
+        buf = _tb10_io.StringIO()
+        with _tb10_cl.redirect_stdout(buf):
+            rc = TB10.mode_assemble(na, nb)
+        ln = [x for x in buf.getvalue().splitlines() if x.startswith("TBLK_JSON ")]
+        o = _tb10_json.loads(ln[-1].split(" ", 1)[1]) if ln else {}
+        return rc, (o.get("A") or {}).get("three", {}).get("a", {}).get("verdict"), (o.get("B") or {}).get("verdict7")
+    try:
+        _tb10_os.environ["SEC_CONTACT"] = "lock@example.invalid"
+        TB10.part_a_results = lambda rows, prep, runners, LV, al, NY: {"three": {lab: {} for lab in TB10.GOV_LABELS}}
+        TB10.part_b_results = lambda units: ({lab: {} for lab in TB10.GOV_LABELS}, {"n_units": TB10.K4_ENTRIES})
+        TB10.edgar_part = lambda rows, prep, contact, cmap=None: ({}, [])
+        TB10.verdict3 = lambda r: "يسبق"
+        TB10.verdict7 = lambda r: "يُضيف"
+        TB10.predictions = lambda A, B: {}
+        TB10.report_lines = lambda out: []
+        TB10.log = lambda *a, **k: None
+        if _tb10_S is not None:
+            _tb10_S.sec_cik_map = lambda: {}
+        _tb10_full = _tb10_run(2, 2, 2, 2)
+        _tb10_miss = _tb10_run(3, 3, 2, 2)
+    finally:
+        (TB10.OUT, TB10.part_a_results, TB10.part_b_results, TB10.edgar_part, TB10.verdict3, TB10.verdict7,
+         TB10.predictions, TB10.report_lines, TB10.log, _tb10_sc, _tb10_cik) = _tb10_keep
+        if _tb10_sc is None:
+            _tb10_os.environ.pop("SEC_CONTACT", None)
+        else:
+            _tb10_os.environ["SEC_CONTACT"] = _tb10_sc
+        if _tb10_S is not None and _tb10_cik is not None:
+            _tb10_S.sec_cik_map = _tb10_cik
+    _tb10_pure = (TB10.shards_complete(20, 20), TB10.shards_complete(18, 20), TB10.shards_complete(0, 0))
+    check("🧱 TBK10 التجميعُ لا يحكم على شرائحَ ناقصة: كاملةٌ ⟵ الحكم · ناقصةٌ في الجزءين ⟵ «لا قياس»",
+          _tb10_full == (0, "يسبق", "يُضيف") and _tb10_miss == (0, "لا قياس", "لا قياس") and _tb10_pure == (True, False, False),
+          f"full={_tb10_full} miss={_tb10_miss} pure={_tb10_pure}")
+except Exception as _tb10_x:                                     # noqa: BLE001
+    check("🧱 TBKX10 قفلُ الشرائح الناقصة لم ينهَر", False, f"⛔ {type(_tb10_x).__name__}: {_tb10_x}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
