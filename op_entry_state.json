@@ -1065,25 +1065,32 @@
   "date": "2026-11-12"
  },
  "LIQ:RAYA": {
-  "anchor_ms": 1794519360000,
+  "anchor_ms": 1794519540000,
   "last_ms": 1794519540000,
   "sent": [
    "M1"
   ],
   "updates": 0,
-  "vol_x": 16.9,
-  "peak_usd": 29182,
-  "last_eval_ms": 1794519360000,
+  "vol_x": 5.9,
+  "peak_usd": 61822,
+  "last_eval_ms": 1794519540000,
   "pulse_ms": 1794519540000,
-  "anchor_price": 0.6,
-  "anchor_open": 0.5617,
-  "anchor_low": 0.5399,
+  "anchor_price": 0.5978,
+  "anchor_open": 0.5085,
+  "anchor_low": 0.502,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794519360000,
+   "anchor_price": 0.6,
+   "anchor_low": 0.5399,
+   "e5": null,
+   "exit_ms": 1794519480000
+  },
+  "date": "2026-11-12",
   "pre_done": true,
-  "pre_hi": 0.566,
-  "pre_usd": 51001,
-  "pre_n": 34,
-  "exit_ms": 1794519480000,
-  "date": "2026-11-12"
+  "pre_hi": 0.68,
+  "pre_usd": 356858,
+  "pre_n": 36
  },
  "LIQ:SPHL": {
   "last_eval_ms": 1794517680000,
