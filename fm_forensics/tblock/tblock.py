@@ -349,6 +349,11 @@ def verdict7(lab_res):
     return "لا فرق قابل للكشف"
 
 
+def shards_complete(found, expected):
+    """TBK10 ⟵ لا حكمَ على شرائحَ ناقصة: كلُّ شريحةٍ متوقّعة حاضرة (عطلُ `43057090925`: ثلاثُ شرائحَ أسقطتها خدمةُ الملفّات)."""
+    return expected > 0 and found == expected
+
+
 def verdict3(r):
     """§④ الحاكم ③ لحدٍّ واحد ⟵ «يسبق» · «يسبق متأخّرًا» · «لا يفرّق» · «لا قياس»."""
     if not r.get("floor_ok") or not r.get("fail_ok"):
@@ -1304,11 +1309,16 @@ def mode_assemble(nshards_a, nshards_b):
     if units:
         res_b, meta_b = part_b_results(units)
         B = {"res": res_b, "meta": meta_b, "counts": cnt_b, "shards": [len(fb), nshards_b], "k4": meta_b["n_units"] == K4_ENTRIES}
-        B["verdict7"] = verdict7({lab: res_b[lab] for lab in GOV_LABELS}) if B["k4"] else "لا قياس"
+        B["complete"] = shards_complete(len(fb), nshards_b)
+        B["verdict7"] = verdict7({lab: res_b[lab] for lab in GOV_LABELS}) if (B["k4"] and B["complete"]) else "لا قياس"
         out["B"] = B
     if out.get("A"):
+        out["A"]["complete"] = shards_complete(out["A"]["shards"][0], nshards_a)
         for lab in GOV_LABELS:
-            out["A"]["three"][lab]["verdict"] = verdict3(out["A"]["three"][lab])
+            out["A"]["three"][lab]["verdict"] = verdict3(out["A"]["three"][lab]) if out["A"]["complete"] else "لا قياس"
+    for part in ("A", "B"):
+        if out.get(part) and not out[part]["complete"]:
+            log(f"⛔ جزءُ {part}: شرائحُ ناقصة {out[part]['shards'][0]} من {out[part]['shards'][1]} — الحكمُ «لا قياس» (TBK10)")
     out["preds"] = predictions(out.get("A") or {}, out.get("B"))
     for ln in report_lines(out):
         log(ln)
