@@ -41,7 +41,8 @@ GOV_LABELS = ("a", "c")
 SESS_PRE, SESS_REG, SESS_POST = "pre", "reg", "post"
 OP_NY, REG_NY, CLOSE_NY, END_NY = 4 * 60, 9 * 60 + 30, 16 * 60, 20 * 60
 QUOTE_BACK_NS = 60 * 1_000_000_000
-WIN_BACK_NS, WIN_FWD_NS, WIN_LIMIT = 1_000_000_000, 600 * 1_000_000_000, 50
+WIN_BACK_NS, WIN_FWD_NS, WIN_LIMIT = 1_000_000_000, 600 * 1_000_000_000, 1000   # الملحق ② «بحدّ 1,000» (كان 50 خلافًا له · TBK11)
+ENTRY_BUDGET_S = 1200                                        # TBK11 · engineering: مهلةُ الإدخال الواحد (5 جلسات) ⟵ «تعذّر» يُعَدّ (العقد: «ومهلةٌ وتعذّرٌ يُعدّان»)
 TRADE_PAGE, TRADE_PAGES = 50000, 80
 GRID = tuple(range(OP_NY, END_NY, 15))                       # الملحق ③: شبكةُ 15 دقيقة لضابط الزخم
 UP20, UP50 = 0.20, 0.50
@@ -159,11 +160,17 @@ class TradeScan:
             self.cands.append({"ts": ts, "px": px, "sz": sz, "labs": labs, "tick_up": tick_up})
 
 
-def assign_ask(cands, fetch_asc, fetch_desc):
+def _late(deadline, clock):
+    return deadline is not None and clock() > deadline
+
+
+def assign_ask(cands, fetch_asc, fetch_desc, deadline=None, clock=time.time):
     """الملحق ②: لكلّ مرشَّحة (تصاعديًّا) ⟵ `on_ask` و`src` («q» عرضٌ · «t» تيك) · ويرجع False إن تعذّر جلبٌ (يُعَدّ تعذّرًا لليوم).
     `fetch_asc(a_ns، b_ns، limit)` و`fetch_desc(a_ns، b_ns)` ⟵ [(ts، ask)] أو None."""
     cov = None
     for c in sorted(cands, key=lambda x: x["ts"]):
+        if _late(deadline, clock):
+            return False
         ts, q = c["ts"], None
         if cov is not None and cov[0] <= ts <= cov[1]:
             k = bisect.bisect_right(cov[2], ts)
@@ -458,13 +465,15 @@ def daily_bars(sym, d0, d1, key, adjusted):
             for b in j.get("results") or [] if b.get("c") is not None]
 
 
-def scan_day_trades(sym, day, key, scan, NY):
+def scan_day_trades(sym, day, key, scan, NY, deadline=None, clock=time.time):
     """الملحق ①: صفقاتُ [04:00، 20:00) نيويورك صفحاتٍ ⟵ True أو False (تعذّر/سقف)."""
     a = int(dt.datetime.fromisoformat(day).replace(hour=4, tzinfo=NY).timestamp() * 1e9)
     b = int(dt.datetime.fromisoformat(day).replace(hour=20, tzinfo=NY).timestamp() * 1e9)
     url = f"https://api.polygon.io/v3/trades/{sym}"
     params = {"timestamp.gte": a, "timestamp.lt": b, "limit": TRADE_PAGE, "order": "asc", "sort": "timestamp"}
     for _p in range(TRADE_PAGES):
+        if _late(deadline, clock):
+            return False
         j = poly_get(url, key, params)
         if j is None:
             return False
@@ -496,14 +505,14 @@ def quote_fetchers(sym, key):
     return asc, desc
 
 
-def day_blocks(sym, day, key, excl, float_sh, NY):
+def day_blocks(sym, day, key, excl, float_sh, NY, deadline=None):
     """رمزٌ-يومٌ ⟵ {ok، n_all، n_excl، n_cand، cands} · `ok` False ⟵ تعذّر (صفقاتٌ أو عروض)."""
     scan = TradeScan(excl, float_sh)
-    ok = scan_day_trades(sym, day, key, scan, NY)
+    ok = scan_day_trades(sym, day, key, scan, NY, deadline=deadline)
     if not ok:
         return {"ok": False, "n_all": scan.n_all}
     asc, desc = quote_fetchers(sym, key)
-    ok = assign_ask(scan.cands, asc, desc)
+    ok = assign_ask(scan.cands, asc, desc, deadline=deadline)
     return {"ok": ok, "n_all": scan.n_all, "n_excl": scan.n_excl, "n_cand": len(scan.cands), "cands": scan.cands}
 
 
@@ -776,8 +785,9 @@ def units_for_symbol(sym, rows, rec, splits_sym, key, excl, NY, yahoo_float):
         blocks_q = {lab: [] for lab in LABELS}
         fail = False
         srcs = {"q": 0, "t": 0}
+        deadline = time.time() + ENTRY_BUDGET_S
         for wd in wdays:
-            db = day_blocks(sym, wd, key, excl, fl, NY)
+            db = day_blocks(sym, wd, key, excl, fl, NY, deadline=deadline)
             if not db.get("ok"):
                 fail = True
                 break
@@ -790,6 +800,8 @@ def units_for_symbol(sym, rows, rec, splits_sym, key, excl, NY, yahoo_float):
                             blocks_q[lab].append((wd, c["px"]))
         if fail:
             u["why"] = "تعذّر الصفقات/العروض"
+            if time.time() > deadline:
+                u["timeout"] = True
             out.append(u)
             continue
         outc, first = entry_outcomes(rows, iS)
@@ -865,10 +877,13 @@ def mode_shard_b(key, shard, nshards):
                                        _proxy, S, cur, G5, RB, key, hourly_fn=lambda s, dd: None)
             for k, v in cnt.items():
                 tot[k] = tot.get(k, 0) + v
-            if not rec:
-                continue
-            out.extend(units_for_symbol(sym, rows, list(rec), prep["splits"].get(sym), key, excl, NY,
-                                        lambda s_: S._yahoo_float(s_, strict=True)))
+            if rec:
+                t_s = time.time()
+                us_ = units_for_symbol(sym, rows, list(rec), prep["splits"].get(sym), key, excl, NY,
+                                       lambda s_: S._yahoo_float(s_, strict=True))
+                out.extend(us_)
+                if time.time() - t_s > 300:
+                    log(f"shard_b {shard}: ⏱️ {sym} {int(time.time() - t_s)}ث · إدخالات {len(rec)} · مهلة {sum(1 for u in us_ if u.get('timeout'))}")
             if n % 25 == 0:
                 log(f"shard_b {shard}: {n + 1}/{len(syms)} · {tot} · إدخالات {len(out)} · {int(time.time() - t0)}ث")
     finally:
@@ -923,7 +938,7 @@ def part_b_results(units):
         r["floor_ok"] = all(r["groups"][g]["by_year"][y] >= FLOOR_G for g in ("G2", "G0") for y in YEARS)
         r["fail_ok"] = (fails / n_all) <= FAIL_MAX if n_all else False
         res[lab] = r
-    meta = {"n_units": n_all, "ok": len(ok), "fails": fails,
+    meta = {"n_units": n_all, "ok": len(ok), "fails": fails, "timeouts": sum(1 for u in units if u.get("timeout")),
             "why": {w: sum(1 for u in units if u.get("why") == w) for w in sorted({u.get("why") for u in units if u.get("why")})}}
     return res, meta
 
@@ -1369,7 +1384,7 @@ def report_lines(out):
             L.append(f"⑥ ({lab}) n={s6['n']} · صعد {s6['cnt']['up']} · هبط {s6['cnt']['down']} · ثابت {s6['cnt']['flat']} · مقصوص {s6['cut']}")
     if B:
         m = B["meta"]
-        L.append(f"جزءُ ب: الإدخالات {m['n_units']} (بوّابةُ K4 = {K4_ENTRIES}: {'✅' if B['k4'] else '❌'}) · مقيسة {m['ok']} · {m['why']} · "
+        L.append(f"جزءُ ب: الإدخالات {m['n_units']} (بوّابةُ K4 = {K4_ENTRIES}: {'✅' if B['k4'] else '❌'}) · مقيسة {m['ok']} · {m['why']} · منها مهلة {m.get('timeouts', 0)} · "
                  f"العدّادات {B['counts']} · شرائح {B['shards'][0]}/{B['shards'][1]}")
         for lab in LABELS:
             r = B["res"][lab]

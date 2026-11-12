@@ -101414,6 +101414,48 @@ try:
           f"full={_tb10_full} miss={_tb10_miss} pure={_tb10_pure}")
 except Exception as _tb10_x:                                     # noqa: BLE001
     check("🧱 TBKX10 قفلُ الشرائح الناقصة لم ينهَر", False, f"⛔ {type(_tb10_x).__name__}: {_tb10_x}")
+# 🧱 TBK11 (‏2026-11-12 · عطلٌ مُثبَت في `43057090925`: shard_b 13 علِق بعد 151/253 أربعَ ساعات حتى المهلة): الأداةُ كانت تطلب العروض
+#    بحدّ 50 والملحق ② يقول «بحدّ 1,000» ⟵ رمزٌ كثيفُ الصفقات نداءٌ لكلّ مرشَّحة · والإصلاح: الحدُّ من نصّ الملحق · ومهلةُ الإدخال
+#    `ENTRY_BUDGET_S` تُعيد «تعذّر» يُعَدّ (العقد: «ومهلةٌ وتعذّرٌ يُعدّان») · وعدُّ المهلة في الوصف
+try:
+    import importlib.util as _tb11_iu
+    import re as _tb11_re
+    _tb11_sp = _tb11_iu.spec_from_file_location("tblock_lock11", "fm_forensics/tblock/tblock.py")
+    TB11 = _tb11_iu.module_from_spec(_tb11_sp)
+    _tb11_sp.loader.exec_module(TB11)
+    _tb11_doc = open("fm_forensics/tblock/T_BLOCK_addendum_1.md", encoding="utf-8").read()
+    _tb11_m = _tb11_re.search(r"\(\+600 ث\) بحدّ ([\d,]+)", _tb11_doc)
+    _tb11_doc_lim = int(_tb11_m.group(1).replace(",", "")) if _tb11_m else None
+    _tb11_lims = []
+    _tb11_ok = TB11.assign_ask([{"ts": 2_000, "px": 1.0, "tick_up": False}],
+                               lambda a, b, n: (_tb11_lims.append(n) or [(1_000, 1.0)]), lambda a, b: [])
+    # المهلة: ساعةٌ بعد الموعد ⟵ لا نداء · وتعذّر
+    _tb11_n = {"asc": 0}
+    _tb11_late = TB11.assign_ask([{"ts": 5, "px": 1, "tick_up": True}],
+                                 lambda a, b, n: (_tb11_n.__setitem__("asc", _tb11_n["asc"] + 1) or []), lambda a, b: [],
+                                 deadline=100.0, clock=lambda: 101.0)
+    _tb11_pg = {"n": 0}
+    _tb11_keep = TB11.poly_get
+    try:
+        TB11.poly_get = lambda *a, **k: (_tb11_pg.__setitem__("n", _tb11_pg["n"] + 1) or {"results": []})
+        from zoneinfo import ZoneInfo as _tb11_Z
+        _tb11_sc = TB11.TradeScan((), None)
+        _tb11_scan_late = TB11.scan_day_trades("X", "2025-01-02", "k", _tb11_sc, _tb11_Z("America/New_York"),
+                                               deadline=100.0, clock=lambda: 101.0)
+        _tb11_scan_ok = TB11.scan_day_trades("X", "2025-01-02", "k", _tb11_sc, _tb11_Z("America/New_York"))
+    finally:
+        TB11.poly_get = _tb11_keep
+    _tb11_units = [{"sym": "A", "why": "تعذّر الصفقات/العروض", "timeout": True}, {"sym": "B", "why": "تعذّر الصفقات/العروض"}]
+    _tb11_meta = TB11.part_b_results(_tb11_units)[1]
+    check("🧱 TBK11 العروضُ بحدّ الملحق ② (1,000 من نصّه لا 50) · ومهلةُ الإدخال: بعد الموعد لا نداءَ عروضٍ ولا صفحةَ صفقات ⟵ «تعذّر» · "
+          "وبلا موعدٍ يمضي كما كان · وعدُّ المهلة في الوصف ضمن التعذّر",
+          _tb11_doc_lim == 1000 and TB11.WIN_LIMIT == _tb11_doc_lim and _tb11_lims == [_tb11_doc_lim] and _tb11_ok is True
+          and _tb11_late is False and _tb11_n["asc"] == 0 and _tb11_scan_late is False and _tb11_scan_ok is True and _tb11_pg["n"] == 1
+          and _tb11_meta.get("timeouts") == 1 and _tb11_meta.get("fails") == 2 and isinstance(TB11.ENTRY_BUDGET_S, int) and TB11.ENTRY_BUDGET_S > 0,
+          f"doc={_tb11_doc_lim} WIN={TB11.WIN_LIMIT} lims={_tb11_lims} late={_tb11_late}/{_tb11_n} scan={_tb11_scan_late}/{_tb11_scan_ok}/{_tb11_pg} "
+          f"meta={_tb11_meta.get('timeouts')}/{_tb11_meta.get('fails')}")
+except Exception as _tb11_x:                                     # noqa: BLE001
+    check("🧱 TBKX11 قفلُ حدّ العروض والمهلة لم ينهَر", False, f"⛔ {type(_tb11_x).__name__}: {_tb11_x}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
