@@ -819,6 +819,25 @@ def units_for_symbol(sym, rows, rec, splits_sym, key, excl, NY, yahoo_float):
     return out
 
 
+def real_yahoo_float(S, real_yf, sym):
+    """🔧 `TBK12` (عطلٌ مُثبَت في `43200129347`: (ب) في جزء ب G0 لكلّ الـ4,334): فلوتُ ياهو الحاليّ بمكتبة ياهو الحقيقيّة رغم `install_stubs`
+    (الذي يُبدّل `S.yf` بفراغٍ لبوّابات الفرز التاريخيّة) — تُعاد المكتبةُ الحقيقيّة للنداء وحدَه ثمّ يُعاد الفراغ."""
+    stub = S.yf
+    S.yf = real_yf
+    try:
+        return S._yahoo_float(sym, strict=True)
+    finally:
+        S.yf = stub
+
+
+def no_float(lab, u):
+    """🔧 `TBK12` العقد §①: «بلا فلوت ⟵ (ب) «لا قياس» للرمز ويُعَدّ» — وحدةٌ/صفٌّ بلا فلوتٍ موجب لا يدخل حدَّ (ب) (لا يُقرأ «بلا بلوك»)."""
+    if not str(lab).startswith("b"):
+        return False
+    f = (u or {}).get("float")
+    return not (isinstance(f, (int, float)) and not isinstance(f, bool) and f > 0)
+
+
 def mode_shard_b(key, shard, nshards):
     from zoneinfo import ZoneInfo
     NY = ZoneInfo("America/New_York")
@@ -840,6 +859,7 @@ def mode_shard_b(key, shard, nshards):
             return 6
         excl = excluded_conditions(cond)
     cur, _piv = AD.cfgs_of(S, RB)
+    real_yf = S.yf                                              # 🔧 TBK12: قبل `install_stubs` (تُبدّل `S.yf` بفراغ ⟵ كان كلُّ فلوتٍ None في `43200129347`)
     RB.install_stubs(S)
     G5 = RB._gen5_ext()
     member = {}
@@ -880,7 +900,7 @@ def mode_shard_b(key, shard, nshards):
             if rec:
                 t_s = time.time()
                 us_ = units_for_symbol(sym, rows, list(rec), prep["splits"].get(sym), key, excl, NY,
-                                       lambda s_: S._yahoo_float(s_, strict=True))
+                                       lambda s_: real_yahoo_float(S, real_yf, s_))
                 out.extend(us_)
                 if time.time() - t_s > 300:
                     log(f"shard_b {shard}: ⏱️ {sym} {int(time.time() - t_s)}ث · إدخالات {len(rec)} · مهلة {sum(1 for u in us_ if u.get('timeout'))}")
@@ -903,7 +923,7 @@ def part_b_results(units):
     for lab in LABELS:
         us = []
         for u in ok:
-            if not u.get("out"):
+            if not u.get("out") or no_float(lab, u):
                 continue
             us.append({"sym": u["sym"], "y": u["y"], "grp": u["grp_" + lab], "grpq": u["grpq_" + lab], "mom5": u.get("mom5"),
                        "o5": u["out"]["5"] if "5" in u["out"] else u["out"].get(5),
@@ -913,7 +933,7 @@ def part_b_results(units):
         edges = quintile_edges([x["mom5"] for x in us])
         for x in us:
             x["q"] = quintile_of(x["mom5"], edges)
-        r = {"n": len(us), "groups": {}}
+        r = {"n": len(us), "groups": {}, "no_float": sum(1 for u in ok if u.get("out") and no_float(lab, u))}
         for g in ("G2", "G1", "G0", "Gx"):
             gs = [x for x in us if x["grp"] == g]
             r["groups"][g] = {"n": len(gs), "by_year": {y: sum(1 for x in gs if x["y"] == y) for y in YEARS},
@@ -1013,6 +1033,8 @@ def part_a_results(rows, prep, runners, LV, alerts, NY):
         for d in src:
             tot = tot_n = 0
             for s in prep["uni"][d]:
+                if no_float(lab, byk.get((s, d))):
+                    continue
                 c = (byk.get((s, d)) or {}).get("cnt_" + lab) or {}
                 n = sum(c.values())
                 tot += n
@@ -1022,17 +1044,19 @@ def part_a_results(rows, prep, runners, LV, alerts, NY):
                     split[k] = split.get(k, 0) + v
             per_day.append(tot)
             per_day_n.append(tot_n)
-        one[lab] = {"median_day": statistics.median(per_day) if per_day else None, "sum": sum(per_day),
+        n_lab = sum(1 for d in src for s in prep["uni"][d] if not no_float(lab, byk.get((s, d))))
+        one[lab] = {"median_day": statistics.median(per_day) if per_day else None, "sum": sum(per_day), "n_symdays": n_lab,
                     "median_day_N": statistics.median(per_day_n) if per_day_n else None, "symdays_with": sd_with,
-                    "share_symdays": sd_with / n_univ if n_univ else None, "by_sess_src": split}
+                    "share_symdays": sd_with / n_lab if n_lab else None, "by_sess_src": split}
     res["one"] = one
     # ② ما بعد البلوك (+ ⑥)
     src_rows = [x for x in rows if x["src_day"] and x.get("trades_ok") and x.get("bars_ok")]
     edges = quintile_edges([x.get("mom5") for x in src_rows])
     two, six_ = {}, {}
     for lab in LABELS:
-        blk = [x for x in src_rows if x.get("first_" + lab) and x.get("out_" + lab)]
-        ctrl = [x for x in src_rows if not x.get("first_" + lab) and x.get("grid")]
+        lab_rows = [x for x in src_rows if not no_float(lab, x)]
+        blk = [x for x in lab_rows if x.get("first_" + lab) and x.get("out_" + lab)]
+        ctrl = [x for x in lab_rows if not x.get("first_" + lab) and x.get("grid")]
         g_rates = {}
         for x in ctrl:
             q = quintile_of(x.get("mom5"), edges)
@@ -1112,7 +1136,7 @@ def part_a_results(rows, prep, runners, LV, alerts, NY):
             rr, nr = [], []
             for (s_, d) in run_keys:
                 r = byk.get((s_, d))
-                if not r or not r.get("trades_ok") or not r.get("bars_ok") or r.get("R") is None:
+                if not r or not r.get("trades_ok") or not r.get("bars_ok") or r.get("R") is None or no_float(lab, r):
                     continue
                 pre = r.get("pre20_" + k)
                 prior = (not pre) and prior_block(s_, d, k)
@@ -1121,7 +1145,7 @@ def part_a_results(rows, prep, runners, LV, alerts, NY):
             for d in src:
                 for s_ in prep["uni"][d]:
                     r = byk.get((s_, d)) or {}
-                    if not r.get("trades_ok") or r.get("R") is None or r["R"] >= RUN50 or r.get("split_day"):
+                    if not r.get("trades_ok") or r.get("R") is None or r["R"] >= RUN50 or r.get("split_day") or no_float(lab, r):
                         continue
                     nr.append(bool(r.get("pre20_" + k) or prior_block(s_, d, k)))
             k1, n1 = sum(1 for x in rr if x["hit"]), len(rr)
@@ -1150,7 +1174,8 @@ def part_a_results(rows, prep, runners, LV, alerts, NY):
                     elif x["m"] is not None and x["m"] < am:
                         earlier += 1
                         e_min.append(am - x["m"])
-            pre_rows = [r for r in src_rows if r.get("pre20_" + lab) and r.get("R") is not None and not r.get("split_day")]
+            pre_rows = [r for r in src_rows if r.get("pre20_" + lab) and r.get("R") is not None and not r.get("split_day")
+                        and not no_float(lab, r)]
             kb = sum(1 for r in pre_rows if r["R"] >= RUN100)
             nfb = sum(1 for r in pre_rows if r["R"] < RUN50)
             four[lab] = {"cats": {c: [len(v), v] for c, v in cats.items()}, "earlier": [earlier, len(cats["كلاهما"])],
@@ -1341,6 +1366,62 @@ def mode_assemble(nshards_a, nshards_b):
     return 0
 
 
+def k4_diff(tgl_rows_by, units, prep_t, prep_b):
+    """🔍 `TBK13` بوّابةُ K4 «يُطبع الفرقُ بسببه»: الإدخالاتُ (رمز، D) في `T-TGTLADDER` لا هنا والعكس ⟵ لكلّ رمزٍ مختلفٍ سببُه المرشَّح
+    من المادّتين: «تقسيمات» (قائمةُ الرمز اختلفت) · «عضويّة» (أشهرُ لقطاته اختلفت) · «اتّحاد» · «FINRA» (قيمةُ D−1 لإدخالٍ مختلف) ·
+    وإلّا «غيرُ مفسَّرٍ بالمادّة» (شموع Polygon أو المرجع) — وصفٌ لا يُعيد حكمًا."""
+    a = {(sym, e.get("d")) for sym, es in (tgl_rows_by or {}).items() for e in (es or [])}
+    b = {(u.get("sym"), u.get("d")) for u in (units or [])}
+    only_t, only_b = sorted(a - b), sorted(b - a)
+    sp_t, sp_b = prep_t.get("splits") or {}, prep_b.get("splits") or {}
+    sn_t, sn_b = prep_t.get("snapshots") or {}, prep_b.get("snapshots") or {}
+    un_t, un_b = set(prep_t.get("union") or ()), set(prep_b.get("union") or ())
+    pv_t, pv_b = prep_t.get("prev_of") or {}, prep_b.get("prev_of") or {}
+    fi_t, fi_b = prep_t.get("finra") or {}, prep_b.get("finra") or {}
+    days = {}
+    for sym, d in only_t + only_b:
+        days.setdefault(sym, set()).add(d)
+    cause = {}
+    for sym in sorted(days):
+        c = []
+        if sorted(tuple(x) for x in sp_t.get(sym) or []) != sorted(tuple(x) for x in sp_b.get(sym) or []):
+            c.append("تقسيمات")
+        if {m for m, l in sn_t.items() if sym in l} != {m for m, l in sn_b.items() if sym in l}:
+            c.append("عضويّة")
+        if (sym in un_t) != (sym in un_b):
+            c.append("اتّحاد")
+        if any((fi_t.get(pv_t.get(d)) or {}).get(sym) != (fi_b.get(pv_b.get(d)) or {}).get(sym) for d in days[sym]):
+            c.append("FINRA")
+        cause[sym] = c or ["غيرُ مفسَّرٍ بالمادّة"]
+    tally = {}
+    for c in cause.values():
+        for k in c:
+            tally[k] = tally.get(k, 0) + 1
+    return {"n_t": len(a), "n_b": len(b), "only_t": only_t, "only_b": only_b, "cause": cause, "tally": tally}
+
+
+def mode_k4diff():
+    """🔍 `TBK13` (رقمُ تشغيلة جزء ب يُقرأ من مجلّدَين يُنزَّلان في الـworkflow): `K4_TGL_DIR` (shard_*.json.gz ‏+ prep.json.gz من `42943607531`)
+    و`K4_TBLK_DIR` (b_*.json.gz ‏+ prep.json.gz من تشغيلة T-BLOCK) ⟵ يطبع الفرقَ بسببه · قراءةٌ فقط بلا شبكة."""
+    import glob
+    dt_, db_ = os.environ.get("K4_TGL_DIR") or "", os.environ.get("K4_TBLK_DIR") or ""
+    ft, fb = sorted(glob.glob(os.path.join(dt_, "shard_*.json.gz"))), sorted(glob.glob(os.path.join(db_, "b_*.json.gz")))
+    if not ft or not fb or not os.path.exists(os.path.join(dt_, "prep.json.gz")) or not os.path.exists(os.path.join(db_, "prep.json.gz")):
+        log(f"⛔ K4: مادّةٌ ناقصة (TGTLADDER {len(ft)} شريحة · T-BLOCK {len(fb)} شريحة)")
+        return 4
+    rows_by, units = {}, []
+    for f in ft:
+        rows_by.update(_jload(f).get("rows") or {})
+    for f in fb:
+        units.extend(_jload(f).get("units") or [])
+    r = k4_diff(rows_by, units, _jload(os.path.join(dt_, "prep.json.gz")), _jload(os.path.join(db_, "prep.json.gz")))
+    log(f"🔍 K4: TGTLADDER {r['n_t']} · T-BLOCK {r['n_b']} · هنا وحدَه {len(r['only_b'])} · هناك وحدَه {len(r['only_t'])} · الأسبابُ {r['tally']}")
+    for sym, c in r["cause"].items():
+        log(f"   {sym}: {' · '.join(c)} · هنا {[d for s_, d in r['only_b'] if s_ == sym]} · هناك {[d for s_, d in r['only_t'] if s_ == sym]}")
+    print("TBLK_K4 " + json.dumps(r, ensure_ascii=False, default=str))
+    return 0
+
+
 def _pc(x, n=1):
     return "—" if x is None else f"{100 * x:.{n}f}%"
 
@@ -1354,7 +1435,7 @@ def report_lines(out):
         for lab in LABELS:
             o = A["one"][lab]
             L.append(f"① ({lab}) وسيطُ البلوكات/يوم {o['median_day']} (N وحدَه {o['median_day_N']}) · المجموع {o['sum']} · "
-                     f"رموزٌ-أيّام ببلوك {o['symdays_with']} ({_pc(o['share_symdays'])}) · {o['by_sess_src']}")
+                     f"رموزٌ-أيّام ببلوك {o['symdays_with']} ({_pc(o['share_symdays'])} من {o.get('n_symdays')}) · {o['by_sess_src']}")
         for lab in LABELS:
             t = A["two"][lab]
             L.append(f"② ({lab}) n={t['n_block']} · " + " · ".join(
@@ -1390,7 +1471,7 @@ def report_lines(out):
             r = B["res"][lab]
             gs = " · ".join(f"{g} {r['groups'][g]['n']} {r['groups'][g]['by_year']} (20ج {_pc(r['groups'][g]['o20'][0] / r['groups'][g]['o20'][1] if r['groups'][g]['o20'][1] else None)})"
                             for g in ("G2", "G1", "G0", "Gx"))
-            L.append(f"⑦ ({lab}) {gs} · G2−G0 مضبوطًا {_pc(r['est'])} [{_pc(r['ci'][0])}، {_pc(r['ci'][1])}] · لكلّ سنة "
+            L.append(f"⑦ ({lab}) {gs}" + (f" · بلا فلوت {r.get('no_float')}" if r.get("no_float") else "") + f" · G2−G0 مضبوطًا {_pc(r['est'])} [{_pc(r['ci'][0])}، {_pc(r['ci'][1])}] · لكلّ سنة "
                      f"{ {y: _pc(v) for y, v in r['per_year'].items()} } · خامّ {r['raw']} · G2−G1 {_pc(r['adj_g2g1'])} · بالعرض وحدَه "
                      f"{_pc(r['ask_only'][0])} · الأرضيّة {'✅' if r['floor_ok'] else '❌'}")
         L.append("⚖️ ⑦ لكلّ حدّ: " + " · ".join(f"({lab}) {verdict7({lab: B['res'][lab]})}" for lab in GOV_LABELS))
@@ -1404,7 +1485,7 @@ def report_lines(out):
 
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--mode", default="check", choices=("check", "prep_a", "shard_a", "prep_b", "shard_b", "assemble"))
+    ap.add_argument("--mode", default="check", choices=("check", "prep_a", "shard_a", "prep_b", "shard_b", "assemble", "k4diff"))
     a = ap.parse_args(argv)
     if not contract_ok():
         log("⛔ بصمةُ العقد أو الملحق تغيّرت — لا تشغيل")
@@ -1412,6 +1493,8 @@ def main(argv=None):
     if a.mode == "check":
         log("✅ العقدُ والملحقُ مطابقان")
         return 0
+    if a.mode == "k4diff":
+        return mode_k4diff()
     if a.mode == "assemble":
         return mode_assemble(int(os.environ.get("NSHARDS_A", "20")), int(os.environ.get("NSHARDS_B", "20")))
     key = (os.environ.get("POLYGON_API_KEY") or "").strip()

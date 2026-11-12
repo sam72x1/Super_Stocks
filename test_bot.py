@@ -101456,6 +101456,90 @@ try:
           f"meta={_tb11_meta.get('timeouts')}/{_tb11_meta.get('fails')}")
 except Exception as _tb11_x:                                     # noqa: BLE001
     check("🧱 TBKX11 قفلُ حدّ العروض والمهلة لم ينهَر", False, f"⛔ {type(_tb11_x).__name__}: {_tb11_x}")
+# 🧱 TBK12 (‏2026-11-12 · عطلٌ مُثبَت في `43200129347`: حدُّ (ب) في جزء ب G0 لكلّ الـ4,334 إدخالًا): `RB.install_stubs` يُبدّل `S.yf` بفراغ ⟵
+#    كلُّ فلوتِ ياهو None ⟵ صفرُ بلوكٍ بالحدّ (ب) قُرئ «G0» · والإصلاح: مكتبةُ ياهو الحقيقيّة للنداء وحدَه (`real_yahoo_float`) · وبلا فلوت ⟵
+#    (ب) «لا قياس» للوحدة ويُعَدّ (العقد §①) في الجزأين بـ`no_float` لا «بلا بلوك»
+try:
+    import ast as _tb12_ast
+    import importlib.util as _tb12_iu
+    import types as _tb12_ty
+    _tb12_sp = _tb12_iu.spec_from_file_location("tblock_lock12", "fm_forensics/tblock/tblock.py")
+    TB12 = _tb12_iu.module_from_spec(_tb12_sp)
+    _tb12_sp.loader.exec_module(TB12)
+
+    class _TB12Stub:
+        class Ticker:
+            def __init__(self, s):
+                self.info = {}
+
+    class _TB12Real:
+        class Ticker:
+            def __init__(self, s):
+                self.info = {"floatShares": 1234567}
+    _tb12_S = _tb12_ty.SimpleNamespace(yf=_TB12Stub)
+    _tb12_S._yahoo_float = lambda sym, strict=False: (_tb12_S.yf.Ticker(sym).info or {}).get("floatShares")
+    _tb12_f = TB12.real_yahoo_float(_tb12_S, _TB12Real, "X")
+    _tb12_restored = _tb12_S.yf is _TB12Stub
+    # part_b_results: وحدةٌ بلا فلوت تخرج من (ب) وتُعَدّ · وتبقى في (أ)
+    def _tb12_u(sym, fl):
+        u = {"sym": sym, "d": "2024-03-01", "y": "2024", "mom5": 0.1, "out": {"5": False, "10": False, "20": True}, "float": fl}
+        for lab in TB12.LABELS:
+            u["grp_" + lab] = u["grpq_" + lab] = "G0"
+        return u
+    _tb12_res = TB12.part_b_results([_tb12_u("A", None), _tb12_u("B", 5_000_000.0)])[0]
+    _tb12_src = open("fm_forensics/tblock/tblock.py", encoding="utf-8").read()
+    _tb12_t = _tb12_ast.parse(_tb12_src)
+    _tb12_fn = {n.name: n for n in _tb12_ast.walk(_tb12_t) if isinstance(n, _tb12_ast.FunctionDef)}
+    _tb12_calls = lambda f, name: [c for c in _tb12_ast.walk(_tb12_fn[f]) if isinstance(c, _tb12_ast.Call)
+                                   and (getattr(c.func, "id", None) == name or getattr(c.func, "attr", None) == name)]
+    _tb12_stub_ln = min((c.lineno for c in _tb12_calls("mode_shard_b", "install_stubs")), default=0)
+    _tb12_cap_ln = min((n.lineno for n in _tb12_ast.walk(_tb12_fn["mode_shard_b"]) if isinstance(n, _tb12_ast.Assign)
+                        and getattr(n.targets[0], "id", None) == "real_yf"), default=10**9)
+    _tb12_direct = [c for c in _tb12_calls("mode_shard_b", "_yahoo_float")]
+    check("🧱 TBK12 فلوتُ جزء ب بياهو الحقيقيّ رغم الفراغ (ويُعاد الفراغ) · والمكتبةُ تُلتقط قبل `install_stubs` ولا نداءَ مباشرًا تحته · "
+          "وبلا فلوت ⟵ خارج (ب) ويُعَدّ لا «G0» · و(أ) لا يتأثّر · والجزءُ أ يستبعد بلا فلوت في ①②③④",
+          _tb12_f == 1234567 and _tb12_restored and _tb12_cap_ln < _tb12_stub_ln and not _tb12_direct
+          and len(_tb12_calls("mode_shard_b", "real_yahoo_float")) == 1
+          and _tb12_res["b05"]["n"] == 1 and _tb12_res["b05"].get("no_float") == 1 and _tb12_res["a"]["n"] == 2
+          and TB12.no_float("b1", {"float": None}) and TB12.no_float("b2", {"float": True}) and not TB12.no_float("b1", {"float": 9.0})
+          and not TB12.no_float("a", {}) and len(_tb12_calls("part_a_results", "no_float")) >= 6,
+          f"f={_tb12_f} rest={_tb12_restored} ln={_tb12_cap_ln}/{_tb12_stub_ln} direct={len(_tb12_direct)} "
+          f"b05={_tb12_res['b05']['n']}/{_tb12_res['b05'].get('no_float')} a={_tb12_res['a']['n']} A={len(_tb12_calls('part_a_results', 'no_float'))}")
+except Exception as _tb12_x:                                     # noqa: BLE001
+    check("🧱 TBKX12 قفلُ فلوت جزء ب لم ينهَر", False, f"⛔ {type(_tb12_x).__name__}: {_tb12_x}")
+# 🔍 TBK13 (‏2026-11-12 · بوّابةُ K4 سقطت في `43200129347`: 4,478 مقابل 4,465 والعقدُ «يُطبع الفرقُ بسببه»): `k4_diff` يقارن (رمز، D) بين
+#    شرائح `T-TGTLADDER` ووحدات T-BLOCK ويسمّي السببَ المرشَّح من المادّتين · ووضعُ `k4diff` بمادّةٍ ناقصة يخرج 4 لا صفرًا
+try:
+    import importlib.util as _tb13_iu
+    _tb13_sp = _tb13_iu.spec_from_file_location("tblock_lock13", "fm_forensics/tblock/tblock.py")
+    TB13 = _tb13_iu.module_from_spec(_tb13_sp)
+    _tb13_sp.loader.exec_module(TB13)
+    _tb13_pt = {"splits": {"B": [["2025-01-02", 0.1]]}, "snapshots": {"2024-01": ["A", "B", "C", "D"]}, "union": ["A", "B", "C", "D"],
+                "prev_of": {"5": "4"}, "finra": {"4": {"E": 100}}}
+    _tb13_pb = {"splits": {"B": [["2025-01-02", 0.1], ["2026-11-12", 0.05]]}, "snapshots": {"2024-01": ["A", "B", "D"], "2024-02": ["C"]},
+                "union": ["A", "B", "C", "D"], "prev_of": {"5": "4"}, "finra": {"4": {"E": 200}}}
+    _tb13_r = TB13.k4_diff({"A": [{"d": "1"}], "B": [{"d": "2"}], "D": [{"d": "6"}], "E": [{"d": "5"}]},
+                           [{"sym": "A", "d": "1"}, {"sym": "C", "d": "3"}, {"sym": "E", "d": "5"}], _tb13_pt, _tb13_pb)
+    import os as _tb13_os
+    _tb13_keep = {k: _tb13_os.environ.get(k) for k in ("K4_TGL_DIR", "K4_TBLK_DIR")}
+    try:
+        _tb13_os.environ["K4_TGL_DIR"] = _tb13_os.environ["K4_TBLK_DIR"] = "/nonexistent-tbk13"
+        _tb13_rc = TB13.main(["--mode", "k4diff"])
+    finally:
+        for _k, _v in _tb13_keep.items():
+            if _v is None:
+                _tb13_os.environ.pop(_k, None)
+            else:
+                _tb13_os.environ[_k] = _v
+    check("🔍 TBK13 فرقُ K4 بسببه: هناك وحدَه (B بتقسيم · D غيرُ مفسَّر) · هنا وحدَه (C بعضويّة) · والمشتركُ لا يُعَدّ فرقًا ولو اختلف FINRA · "
+          "والعدّاداتُ صادقة · ومادّةٌ ناقصة ⟵ 4",
+          _tb13_r["only_t"] == [("B", "2"), ("D", "6")] and _tb13_r["only_b"] == [("C", "3")]
+          and _tb13_r["cause"] == {"B": ["تقسيمات"], "C": ["عضويّة"], "D": ["غيرُ مفسَّرٍ بالمادّة"]}
+          and _tb13_r["n_t"] == 4 and _tb13_r["n_b"] == 3 and _tb13_r["tally"] == {"تقسيمات": 1, "عضويّة": 1, "غيرُ مفسَّرٍ بالمادّة": 1}
+          and _tb13_rc == 4,
+          f"t={_tb13_r['only_t']} b={_tb13_r['only_b']} c={_tb13_r['cause']} rc={_tb13_rc}")
+except Exception as _tb13_x:                                     # noqa: BLE001
+    check("🔍 TBKX13 قفلُ فرق K4 لم ينهَر", False, f"⛔ {type(_tb13_x).__name__}: {_tb13_x}")
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

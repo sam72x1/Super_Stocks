@@ -9,9 +9,13 @@ on:
   workflow_dispatch:
     inputs:
       part:
-        description: "all = الجزءان · a = جزءُ أ وحدَه (①-⑥) · b = جزءُ ب وحدَه (⑦)"
+        description: "all = الجزءان · a = جزءُ أ وحدَه (①-⑥) · b = جزءُ ب وحدَه (⑦) · k4diff = فرقُ K4 بسببه (TBK13 · بلا شبكة)"
         required: false
         default: "all"
+      k4_run:
+        description: "k4diff: تشغيلةُ T-BLOCK التي تُقارَن إدخالاتُ جزء ب فيها بـT-TGTLADDER ‏42943607531"
+        required: false
+        default: "43200129347"
 
 concurrency:
   group: super-stocks-tblock
@@ -19,7 +23,7 @@ concurrency:
 
 jobs:
   prep_a:
-    if: inputs.part != 'b'
+    if: inputs.part == 'all' || inputs.part == 'a'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -98,7 +102,7 @@ jobs:
           retention-days: 30
 
   prep_b:
-    if: inputs.part != 'a'
+    if: inputs.part == 'all' || inputs.part == 'b'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -178,7 +182,7 @@ jobs:
 
   assemble:
     needs: [shard_a, shard_b]
-    if: always()
+    if: always() && inputs.part != 'k4diff'
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -211,3 +215,51 @@ jobs:
           FAISAL_ONLY: "0"
           PYTHONUNBUFFERED: "1"
         run: python fm_forensics/tblock/tblock.py --mode assemble
+
+  k4diff:
+    # 🔍 TBK13 (بوّابةُ K4 في `43200129347`: 4,478 مقابل 4,465 · والعقدُ «يُطبع الفرقُ بسببه»): تنزيلُ مادّتَي التشغيلتين وقراءتُهما وحدَها
+    if: inputs.part == 'k4diff'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      actions: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download T-TGTLADDER material (42943607531)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tgl-*
+          path: k4/tgl
+          merge-multiple: true
+          run-id: 42943607531
+          github-token: ${{ github.token }}
+
+      - name: Download T-BLOCK part B material
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tblk-*b*
+          path: k4/tblk
+          merge-multiple: true
+          run-id: ${{ inputs.k4_run }}
+          github-token: ${{ github.token }}
+
+      - name: 🔍 فرقُ K4 بسببه
+        env:
+          K4_TGL_DIR: k4/tgl
+          K4_TBLK_DIR: k4/tblk
+          PYTHONUNBUFFERED: "1"
+        run: ls k4/tgl k4/tblk | head -60 && python fm_forensics/tblock/tblock.py --mode k4diff
