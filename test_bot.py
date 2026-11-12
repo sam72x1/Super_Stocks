@@ -56021,6 +56021,31 @@ check("🌅📡🔒 PWA13 شرطُ دفعِ `pmfwd.yml` **يرى الملفَّ 
       "حقيقةٍ بثلاث حالاتٍ فيها شاهدُ ضبطٍ موجب) — أوّلُ حصادٍ لا يضيع",
       _pwa_ok13, _pwa_w13)
 
+# 🔴 PWS1 (‏2026-11-12 · عطلٌ مُثبَت `43146797363`: التغطيةُ 18/19 ⟵ `V-W2` كتب 19 صفًّا موسومةً `short_cover` ثمّ خرج 3 فتخطّى الدفعُ وضاعت الصفوف
+#    والعقدُ يقول «يُوسَم ناقصًا ويُقصى من الحكم **ويُعَدّ**»): خطوةُ الدفع في `pmfwd.yml` تعمل بعد خروج الحصاد غيرِ الصفريّ (`!cancelled()`) ·
+#    والحصادُ بلا `continue-on-error` (فالتشغيلةُ تبقى حمراء ويُرى اليومُ الناقص) · والوضعُ الجافّ لا يدفع · و`RC_COVER` غيرُ صفريّ.
+try:
+    import yaml as _pws_yaml
+    import importlib.util as _pws_iu
+    _pws_wf = _pws_yaml.safe_load(open(".github/workflows/pmfwd.yml", encoding="utf-8"))
+    _pws_steps = _pws_wf["jobs"]["pmfwd"]["steps"]
+    _pws_h = next(s for s in _pws_steps if "pmfwd_harvest.py" in str(s.get("run", "")))
+    _pws_p = next(s for s in _pws_steps if "git push" in str(s.get("run", "")))
+    _pws_if = str(_pws_p.get("if", ""))
+    _pws_sp = _pws_iu.spec_from_file_location("pmfwd_lock_pws1", "pmfwd_harvest.py")
+    _PWS = _pws_iu.module_from_spec(_pws_sp)
+    _pws_sp.loader.exec_module(_PWS)
+    _pws_v = (("!cancelled()" in _pws_if or "always()" in _pws_if),
+              "inputs.dry != '1'" in _pws_if,
+              not _pws_h.get("continue-on-error"),
+              _pws_steps.index(_pws_p) > _pws_steps.index(_pws_h),
+              _PWS.RC_COVER != 0)
+except Exception as _e:                                          # noqa: BLE001
+    _pws_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🌅📡🔒 PWS1 صفوفُ اليوم الناقص (`V-W2` · خروج 3) تُدفَع ولا تضيع: الدفعُ بعد الحصاد بـ`!cancelled()` · والجافُّ لا يدفع · "
+      "والحصادُ بلا continue-on-error فتبقى التشغيلةُ حمراء",
+      _pws_v == (True,) * 5, str(_pws_v)[:240])
+
 # 🔴 `PWA14` — `fired_of` **جدولُ حقيقة**: الموثوقيّةُ تسقط في حالة **الدهس**
 #    (`newest > day`) لا في غيابِ العامل وحدَه. والمجموعةُ تبقى كما هي في الحالتين
 #    فالقفلُ يحرس **الرايةَ** لا العدّ.
