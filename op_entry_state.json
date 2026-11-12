@@ -2461,7 +2461,7 @@
  },
  "LIQ:XRTX": {
   "anchor_ms": 1794517320000,
-  "last_ms": 1794517320000,
+  "last_ms": 1794517380000,
   "sent": [
    "M1"
   ],
@@ -2469,15 +2469,15 @@
   "vol_x": 23.2,
   "peak_usd": 34355,
   "last_eval_ms": 1794517380000,
-  "pulse_ms": 1794517320000,
+  "pulse_ms": 1794517380000,
   "anchor_price": 1.1,
   "anchor_open": 0.8891,
   "anchor_low": 0.8891,
-  "date": "2026-11-12",
   "pre_done": true,
   "pre_hi": 0.93,
   "pre_usd": 3702,
-  "pre_n": 3
+  "pre_n": 3,
+  "date": "2026-11-12"
  },
  "LIQ:MNTS": {
   "last_eval_ms": 1794517140000,
