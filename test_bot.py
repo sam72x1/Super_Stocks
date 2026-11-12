@@ -96100,7 +96100,7 @@ check("🚦💵🔁 TYD2 المِرساةُ تُقاس بلحظتها: صفُّ 
       _tyd2_v == (True,) * 4, str(_tyd2_v)[:240])
 
 # 🌘 RBS1 (‏2026-11-05 · أمرُ المالك 2026-10-29 «في تقرير الظل اذكر لكل سهم: أعمق هبوط من سعر الإدراج قبل أي صعود»): تقريرُ أسبوع الظلّ
-#    `T_REBUILD_shadow.md` = المولِّد (`shadow_doc.render`) على `data/shadow/shadow_report_2026-11-04.json` بايتًا · وأرقامُه من الـJSON
+#    (🔄 2026-11-12: الوثيقةُ صارت من تقرير 11-11 ⟵ يُقفل هنا مولَّدُ 11-04 وحدَه لا الوثيقة · والوثيقةُ في RBS3) — المولِّد (`shadow_doc.render`) على `data/shadow/shadow_report_2026-11-04.json` · وأرقامُه من الـJSON
 #    (as_of 2026-11-04 · التشغيلة 41953840057 · 4 قوائم · 8 أسهم · صعد 4 · لم يصعد 4) · وكلُّ صفٍّ متّسق (صعد ⟺ أوّلُ صعود · الأعمقُ لا يُطبع
 #    موجبًا · وتاريخُه فارغٌ عند الصفر) · وملفُّ التقرير لا يدخل قوائمَ التقرير القادم (`SHADOW_FILE_RE`).
 try:
@@ -96121,15 +96121,15 @@ try:
                        and ((e["deepest_pct"] == 0) == (e.get("deepest_date") is None)) for e in _rbs_e)
     _rbs_rb = open(_rbs_os.path.join(_rbs_dir, "rebuild.py"), encoding="utf-8").read()
     _rbs_rx = _rbs_re.search(r'SHADOW_FILE_RE = r"([^"]+)"', _rbs_rb).group(1)
-    _rbs_v = (_rbs_md == _rbs_body and _rbs_doc.latest_report().endswith("shadow_report_2026-11-04.json"),
+    _rbs_v = ("صعد فوق سعر الإدراج: 4 · لم يصعد بعد: 4" in _rbs_body and "أعلى صعود حتى تاريخه" not in _rbs_body,
               (_rbs_j["as_of"], _rbs_j["run"], len(_rbs_j["files"]), len(_rbs_e)) == ("2026-11-04", 41953840057, 4, 8),
               sum(e["status"] == "rose" for e in _rbs_e) == 4 and sum(e["status"] == "not_yet" for e in _rbs_e) == 4,
-              _rbs_ok_rows, "صعد فوق سعر الإدراج: 4 · لم يصعد بعد: 4" in _rbs_md,
+              _rbs_ok_rows, all(f"| {e['symbol']} |" in _rbs_body for e in _rbs_e),
               _rbs_re.fullmatch(_rbs_rx, "shadow_report_2026-11-04.json") is None and _rbs_re.fullmatch(_rbs_rx, "shadow_2026-11-04.json") is not None)
 except Exception as _e:                                           # noqa: BLE001
     _rbs_v = (f"⛔ {type(_e).__name__}: {_e}",)
-check("🌘 RBS1 تقريرُ أسبوع الظلّ = المولِّد بايتًا على JSON التشغيلة 41953840057 (as_of 2026-11-04 · 8 أسهم · صعد 4 · لم يصعد 4) · "
-      "وكلُّ صفٍّ متّسق · وملفُّ التقرير خارج قوائم التقرير القادم",
+check("🌘 RBS1 تقريرُ أسبوع الظلّ الأوّل يُولَّد من JSON التشغيلة 41953840057 (as_of 2026-11-04 · 8 أسهم · صعد 4 · لم يصعد 4) بلا الأعمدة الخمسة · "
+      "وكلُّ صفٍّ متّسق · وملفُّ التقرير خارج قوائم التقرير القادم (والوثيقةُ اليوم من تقرير 11-11 · RBS3)",
       _rbs_v == (True,) * 6, str(_rbs_v)[:240])
 
 
@@ -96184,12 +96184,41 @@ try:
                == (60.0, "2026-11-09", -30.0, "2026-11-06", 3),
                (_c2["max_rise_pct"], _c2["max_rise_date"], _c2["deepest_to_date_pct"], _c2["sessions_since"]) == (0.0, None, -20.0, 1),
                "أعلى صعود حتى تاريخه" in _md2 and "| 60.00% | 2026-11-09 | -30.00% | 2026-11-06 | 3 |" in _md2,
-               "أعلى صعود حتى تاريخه" not in _rbs_md)
+               "أعلى صعود حتى تاريخه" not in _rbs_body)
 except Exception as _e:                                           # noqa: BLE001
     _rbs2_v = (f"⛔ {type(_e).__name__}: {_e}",)
 check("🌘 RBS2 تقريرُ الظلّ الممدَّد: أعلى صعودٍ وأعمقُ هبوطٍ من سعر الإدراج حتى آخر شمعة وتاريخاهما وعددُ الجلسات منذ الإدراج · "
       "والحقولُ السابقةُ كما هي · والأعمدةُ الخمسة في الوثيقة حين يحملها التقرير وحدَه",
       _rbs2_v == (True,) * 5, str(_rbs2_v)[:240])
+
+# 🌘 RBS3 (‏2026-11-12 · أمرُ المالك 2026-11-05 «مدّد الظلّ أسبوعًا — والتقرير القادم 11-12 يضيف لكل سهم: أعلى صعود وأعمق هبوط من سعر الإدراج حتى تاريخه،
+#    وعدد الجلسات منذ الإدراج»): `T_REBUILD_shadow.md` = المولِّد على `data/shadow/shadow_report_2026-11-11.json` بايتًا (التشغيلة 43143000806 · as_of 2026-11-11 ·
+#    8 قوائم · 19 سهمًا · صعد 8 · لم يصعد 11) وهو أحدثُ تقرير · وكلُّ صفٍّ متّسق بالحقول الممدَّدة (الأعلى لا سالب وتاريخُه فارغٌ عند الصفر · الأعمقُ حتى تاريخه
+#    لا يزيد عن الأعمق قبل الصعود · الجلساتُ منذ الإدراج لا تقلّ عن المرئيّة · آخرُ شمعةٍ = as_of) · وقائمةُ كلّ جلسةٍ في التقرير = ملفُّها.
+try:
+    _rbs3_f = _rbs_os.path.join(_rbs_dir, "data", "shadow", "shadow_report_2026-11-11.json")
+    _rbs3_j = _rbs_json.load(open(_rbs3_f, encoding="utf-8"))
+    _rbs3_md = open(_rbs_os.path.join(_rbs_dir, "T_REBUILD_shadow.md"), encoding="utf-8").read()
+    _rbs3_e = _rbs3_j["entries"]
+    _rbs3_rows = all(((e["status"] == "rose") == bool(e.get("first_rise"))) and e["deepest_pct"] <= 0 and e["max_rise_pct"] >= 0
+                     and ((e["max_rise_pct"] == 0) == (e.get("max_rise_date") is None))
+                     and ((e["deepest_to_date_pct"] == 0) == (e.get("deepest_to_date_date") is None))
+                     and e["deepest_to_date_pct"] <= e["deepest_pct"] and e["sessions_since"] >= e["sessions_seen"]
+                     and e["last_bar"] == _rbs3_j["as_of"] for e in _rbs3_e)
+    _rbs3_lists = set()
+    for _f3 in _rbs3_j["files"]:
+        _d3 = _rbs_json.load(open(_rbs_os.path.join(_rbs_dir, "data", "shadow", _f3), encoding="utf-8"))
+        _rbs3_lists |= {(_d3["session"], _r3[0], _r3[1], _r3[5]) for _r3 in _d3["list"]}
+    _rbs3_v = (_rbs3_md == _rbs_doc.render(_rbs3_j, "shadow_report_2026-11-11.json") and _rbs_doc.latest_report().endswith("shadow_report_2026-11-11.json"),
+               (_rbs3_j["as_of"], _rbs3_j["run"], len(_rbs3_j["files"]), len(_rbs3_e)) == ("2026-11-11", 43143000806, 8, 19),
+               sum(e["status"] == "rose" for e in _rbs3_e) == 8 and sum(e["status"] == "not_yet" for e in _rbs3_e) == 11,
+               _rbs3_rows, "صعد فوق سعر الإدراج: 8 · لم يصعد بعد: 11" in _rbs3_md and "أعلى صعود حتى تاريخه" in _rbs3_md,
+               {(e["session"], e["symbol"], e["score"], e["ref_stored"]) for e in _rbs3_e} == _rbs3_lists)
+except Exception as _e:                                           # noqa: BLE001
+    _rbs3_v = (f"⛔ {type(_e).__name__}: {_e}",)
+check("🌘 RBS3 تقريرُ أسبوع الظلّ الممدَّد = المولِّد بايتًا على JSON التشغيلة 43143000806 (as_of 2026-11-11 · 19 سهمًا · صعد 8 · لم يصعد 11) · "
+      "وكلُّ صفٍّ متّسق بالحقول الممدَّدة · وقائمةُ كلّ جلسةٍ = ملفُّها",
+      _rbs3_v == (True,) * 6, str(_rbs3_v)[:240])
 
 # ⏱️🕵️ ATM15 (‏2026-11-05 · `alert_timing_addendum_1.md` قبل أيّ رقم): ① المتاحُ الأماميّ «معلومٌ» بطابعٍ ليلةَ التنبيه وحدَه (نيويورك · يومُه · 16:00 فأكثر) —
 #    يومٌ آخر أو قبل الإغلاق أو بلا طابعٍ أو بلا منطقةٍ زمنيّة ⟵ متروكٌ ويُعَدّ · وطابعُ UTC بعد منتصف الليل يُقرأ بيوم نيويورك · ② فجوةُ المصدر تُعَدّ: جلساتُ
