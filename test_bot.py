@@ -101540,6 +101540,114 @@ try:
           f"t={_tb13_r['only_t']} b={_tb13_r['only_b']} c={_tb13_r['cause']} rc={_tb13_rc}")
 except Exception as _tb13_x:                                     # noqa: BLE001
     check("🔍 TBKX13 قفلُ فرق K4 لم ينهَر", False, f"⛔ {type(_tb13_x).__name__}: {_tb13_x}")
+# 💵 TBK14-TBK16 (‏2026-11-12 · الملحق 2 §③ «صفقةُ الكرت» · أمرُ المالك «صفقة الكرت أولًا»): `cardcost.trade_legs` مرآةُ `tgtladder.trade_r`
+#    بالـR على عوالمَ عشوائيّة والحصصُ تجمع واحدًا لكلّ تعبئة · والتكلفةُ c/2 × السعر × الحصّة ÷ المخاطرة وساقٌ بلا c تُسقط الصفقة · وأعلى 5% سقفًا ·
+#    والحكمُ من الفاصل · والبوّاباتُ (9 بصمة · 8 إقرار · 3 مفتاح) · والـworkflow يدويٌّ بلا تلغرام ويُنزّل مادّةَ 42943607531.
+try:
+    import importlib.util as _cc_iu
+    _cc_sp = _cc_iu.spec_from_file_location("cardcost_lock14", "fm_forensics/tblock/cardcost.py")
+    _CC = _cc_iu.module_from_spec(_cc_sp)
+    _cc_sp.loader.exec_module(_CC)
+    _cc_sp2 = _cc_iu.spec_from_file_location("tgtladder_lock14", "fm_forensics/tgtladder/tgtladder.py")
+    _TGLc = _cc_iu.module_from_spec(_cc_sp2)
+    _cc_sp2.loader.exec_module(_TGLc)
+    import random as _rnd_cc
+    _rg = _rnd_cc.Random(1112)
+    _n_eq = _n_tot = _n_w = _n_f = 0
+    _kinds = set()
+    for _ in range(600):
+        _px = 1.0 + _rg.random() * 4
+        _rows = []
+        for _k in range(60):
+            _o = _px * (1 + _rg.uniform(-0.08, 0.08))
+            _h = max(_o, _px) * (1 + _rg.uniform(0, 0.12))
+            _l = min(_o, _px) * (1 - _rg.uniform(0, 0.12))
+            _c = _rg.uniform(_l, _h)
+            _rows.append(["2024-01-%02d" % (_k % 28 + 1), _o, _h, _l, _c, 1000])
+            _px = _c
+        _i = _rg.randint(1, 15)
+        _E = _rows[_i - 1][4] * _rg.uniform(0.85, 1.0)
+        _st = _E * _rg.uniform(0.85, 0.97)
+        _tg = sorted(_E * _rg.uniform(1.02, 1.5) for _ in range(_rg.randint(1, 3)))
+        _a, _fa, _la = _TGLc.trade_r(_rows, _i, _E, _st, _tg)
+        _b = _CC.trade_legs(_rows, _i, _E, _st, _tg)
+        _n_tot += 1
+        _n_eq += (_a is None and _b is None) or (_a is not None and _b is not None and abs(_a - _b["r"]) <= 1e-9)
+        if _b:
+            _n_f += 1
+            _n_w += abs(sum(_lg["w"] for _lg in _b["legs"] if _lg["kind"] != "entry") - 1.0) <= 1e-9 \
+                and abs(sum(_lg["w"] * (_lg["px"] - _b["fill"]) for _lg in _b["legs"] if _lg["kind"] != "entry") / _b["risk"]
+                        - _b["r"]) <= 1e-5
+            _kinds |= {_lg["kind"] for _lg in _b["legs"]}
+    _v14 = (_n_eq, _n_tot, _n_w, sorted(_kinds), _n_f)
+except Exception as _e:                                         # noqa: BLE001
+    _v14 = f"⛔ {type(_e).__name__}: {_e}"
+check("💵 TBK14 trade_legs = trade_r بالـR على 600 عالمٍ عشوائيّ · وحصصُ الخروج تجمع واحدًا وأسعارُ السيقان تُعيد R · والأنواعُ الأربعة تقع",
+      isinstance(_v14, tuple) and _v14[0] == _v14[1] == 600 and _v14[2] == _v14[4] > 100
+      and _v14[3] == ["close", "entry", "stop", "target"], str(_v14)[:160])
+try:
+    _lgs = [{"px": 2.0, "w": 1.0, "c": 2.0}, {"px": 2.4, "w": 0.5, "c": 4.0}, {"px": 1.8, "w": 0.5, "c": 1.0}]
+    _ra = _CC.r_after(0.5, 0.2, _lgs)                            # كلفة = 0.01×2 + 0.02×2.4×0.5 + 0.005×1.8×0.5 = 0.0485
+    _rmiss = _CC.r_after(0.5, 0.2, _lgs[:2] + [{"px": 1.8, "w": 0.5, "c": None}])
+    _rf = _CC.r_fixed(0.5, 0.2, [{"px": 2.0, "w": 1.0}], c_pct=2.0)
+    _ts = _CC.top_share([10, 1, 1, 1, -3] + [0] * 15)           # 20 صفقة ⟵ أعلى 1 = 10 · الصافي 10 · الموجب 13
+    _ts21 = _CC.top_share([1.0] * 21)                            # 21 ⟵ سقفٌ 2
+    _vd = (_CC.sign_verdict((0.01, 0.2)), _CC.sign_verdict((-0.2, 0.1)), _CC.sign_verdict((-0.3, -0.01)), _CC.sign_verdict((None, None)))
+    _sm = _CC.summarize([{"sym": "A", "d": "2024-01-02", "y": "2024", "filled": True, "r_cur": 0.5,
+                          "card": {"r": 0.5, "risk": 0.2, "legs": [dict(_l) for _l in _lgs]}},
+                         {"sym": "B", "d": "2024-01-03", "y": "2024", "filled": True, "r_cur": 0.3,
+                          "card": {"r": 0.3000001, "risk": 0.2, "legs": [dict(_l) for _l in _lgs]}},
+                         {"sym": "C", "d": "2024-01-04", "y": "2024", "filled": True, "r_cur": 0.1,
+                          "card": {"r": 0.1, "risk": 0.2, "legs": [dict(_lgs[0]), {"px": 1.8, "w": 1.0, "c": None}]}}],
+                        {"A|2024-01-02": {"filled": True, "r_cur": 0.5}, "B|2024-01-03": {"filled": True, "r_cur": 0.3},
+                         "C|2024-01-04": {"filled": True, "r_cur": 0.1}, "D|2024-01-05": {"filled": False, "r_cur": None}})
+    _y = _sm["years"]["2024"]
+    _v15 = (round(_ra, 6), _rmiss, round(_rf, 6), _ts, _ts21, _vd, _sm["id"], _y["n"], _y["n_after"], round(_y["cover"], 4))
+except Exception as _e:                                         # noqa: BLE001
+    _v15 = f"⛔ {type(_e).__name__}: {_e}"
+check("💵 TBK15 R بعد التكلفة (c/2 × السعر × الحصّة ÷ المخاطرة) · ساقٌ بلا c ⟵ None · C-MED ثابت · أعلى 5% سقفًا · الحكمُ من الفاصل · "
+      "والهويّةُ على المعبَّأ المخزَّن بتسامح 1e-6 (B ينحرف 1e-7 فيُقبل · وD غيرُ معبَّأ لا يُعَدّ) · والصفقةُ بلا ساقٍ مقيسة خارج «بعد»",
+      isinstance(_v15, tuple) and _v15[0] == round(0.5 - 0.0485 / 0.2, 6) and _v15[1] is None and _v15[2] == round(0.5 - 0.02 / 0.2, 6)
+      and _v15[3] == (1.0, 10 / 13) and _v15[4] == (2 / 21, 2 / 21)
+      and _v15[5] == ("موجبٌ بعد التكلفة", "لا يُعرف", "سالبٌ بعد التكلفة", "لا قياس")
+      and _v15[6] == [3, 3] and _v15[7] == 3 and _v15[8] == 2 and _v15[9] == round(2 / 3, 4), str(_v15)[:200])
+try:
+    import subprocess as _sp_cc
+    import os as _cc_os
+    import sys as _cc_sys
+    import tempfile
+    import yaml
+    _ccp = _cc_os.path.join(".", "fm_forensics", "tblock", "cardcost.py")
+    _env0 = {k: v for k, v in _cc_os.environ.items() if k not in ("TGTLADDER_REOPEN", "POLYGON_API_KEY")}
+    _rc = lambda mode, extra: _sp_cc.run([_cc_sys.executable, _ccp, "--mode", mode], env=dict(_env0, **extra),
+                                         capture_output=True, text=True, timeout=120).returncode
+    _g = (_rc("check", {}), _rc("shard", {}), _rc("assemble", {}), _rc("shard", {"TGTLADDER_REOPEN": "1"}),
+          _rc("prep26", {"TGTLADDER_REOPEN": "yes"}))
+    _cc_src = open(_ccp, encoding="utf-8").read()
+    _bad = _cc_src.replace(_CC.ADDENDUM_2_SHA, "0" * 64)
+    _tmpd = tempfile.mkdtemp()
+    _cc_os.makedirs(_cc_os.path.join(_tmpd, "fm_forensics", "tblock"))
+    open(_cc_os.path.join(_tmpd, "fm_forensics", "tblock", "cardcost.py"), "w", encoding="utf-8").write(_bad)
+    import shutil as _sh_cc
+    _sh_cc.copy(_CC.ADDENDUM_2, _cc_os.path.join(_tmpd, "fm_forensics", "tblock"))
+    _g9 = _sp_cc.run([_cc_sys.executable, _cc_os.path.join(_tmpd, "fm_forensics", "tblock", "cardcost.py"), "--mode", "check"],
+                     capture_output=True, text=True, timeout=60).returncode
+    _sh_cc.rmtree(_tmpd, ignore_errors=True)
+    _wf = yaml.safe_load(open(_cc_os.path.join(".", ".github", "workflows", "tblock_card.yml"),
+                              encoding="utf-8"))
+    _on = _wf.get(True) or _wf.get("on") or {}
+    _wtxt = open(_cc_os.path.join(".", ".github", "workflows", "tblock_card.yml"), encoding="utf-8").read()
+    _v16 = (_g, _g9, sorted(_on), "TELEGRAM" in _wtxt, "run-id: 42943607531" in _wtxt,
+            all((j.get("env") or {}).get("TGTLADDER_REOPEN") == "1" or any((st.get("env") or {}).get("TGTLADDER_REOPEN") == "1"
+                for st in j.get("steps") or []) for j in _wf["jobs"].values()),
+            len(((_wf["jobs"].get("shard") or {}).get("strategy") or {}).get("matrix", {}).get("shard") or []))
+except Exception as _e:                                         # noqa: BLE001
+    _v16 = f"⛔ {type(_e).__name__}: {_e}"
+check("💵 TBK16 البوّابات: check 0 · بلا إقرار 8 (shard وassemble) · بإقرارٍ بلا مفتاح 3 · «yes» ليس إقرارًا 8 · بصمةٌ مختلفة 9 · "
+      "والـworkflow يدويٌّ بلا تلغرام يُنزّل مادّةَ 42943607531 وكلُّ جوبٍ بالإقرار و20 شريحة",
+      isinstance(_v16, tuple) and _v16[0] == (0, 8, 8, 3, 8) and _v16[1] == 9 and _v16[2] == ["workflow_dispatch"]
+      and not _v16[3] and _v16[4] and _v16[5] and _v16[6] == 20, str(_v16)[:200])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
