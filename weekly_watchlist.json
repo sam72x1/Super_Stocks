@@ -1733,7 +1733,8 @@
     "date": "2026-11-11",
     "high": 17.29,
     "close": 16.06
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "CUPR",
@@ -2140,7 +2141,8 @@
     "date": "2026-11-11",
     "high": 1.79,
     "close": 1.72
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "CGTL",
@@ -4283,7 +4285,8 @@
     "date": "2026-11-10",
     "high": 1.29,
     "close": 1.2
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "FBGL",
@@ -7336,7 +7339,8 @@
     "date": "2026-11-09",
     "high": 3.2,
     "close": 2.955
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "CELU",
@@ -8196,7 +8200,8 @@
     "date": "2026-11-10",
     "high": 2.26,
     "close": 1.9
-   }
+   },
+   "live_alert": {}
   },
   {
    "symbol": "PRHI",
