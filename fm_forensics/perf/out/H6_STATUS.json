@@ -1,6 +1,6 @@
 {
  "contract_sha256": "a6f68f745cba189223b1f8258e733dc5e1e538382dfe6533307092d8e942c7ed",
- "today": "2026-11-12",
+ "today": "2026-11-13",
  "cutoff": "2026-10-09",
  "window_end": "2027-04-09",
  "floor": 15,
@@ -377,22 +377,22 @@
  },
  "any_testable": false,
  "panel": {
-  "days": 25,
+  "days": 26,
   "first": "2026-10-09",
-  "last": "2026-11-12",
+  "last": "2026-11-13",
   "no_pool_days": 0,
   "k": 16,
-  "pool_date_last": "2026-11-12",
-  "pool_obs_last": "2026-11-12",
+  "pool_date_last": "2026-11-13",
+  "pool_obs_last": "2026-11-13",
   "pool_lag_entries_last": 0,
   "pool_newer_entries": []
  },
  "cases_after_cutoff": 15,
  "inputs": {
   "last_photo": "2026-11-07",
-  "sessions_since_last_photo": 4
+  "sessions_since_last_photo": 5
  },
- "ledger_rows": 67138,
+ "ledger_rows": 68509,
  "floor_reached": false,
  "window_closed": false
 }

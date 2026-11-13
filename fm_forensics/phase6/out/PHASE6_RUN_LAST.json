@@ -1,39 +1,7 @@
 {
- "run_id": "43199168663",
+ "run_id": "43405497833",
  "result": {
   "done": [
-   "EZRA",
-   "FGF",
-   "QMMM",
-   "RGC",
-   "SBDS",
-   "SCNI",
-   "SGRX",
-   "SLXN",
-   "SMX",
-   "SNAL",
-   "SNGX",
-   "ADIL",
-   "ADVB",
-   "AMIX",
-   "ATPC",
-   "BETA",
-   "BNAI",
-   "BRTX",
-   "FIEE",
-   "FRSX",
-   "FUBO",
-   "FULC",
-   "GCTK",
-   "GNPX",
-   "GRI",
-   "GWAV",
-   "HAO",
-   "HCAI",
-   "HCWB",
-   "HUBC",
-   "HWH",
-   "IMCC",
    "IPDN",
    "IXIC",
    "JAGX",
@@ -108,50 +76,82 @@
    "XCUR",
    "YMT",
    "ZCMD",
-   "ZNB"
+   "ZNB",
+   "ADIL",
+   "ADVB",
+   "AMIX",
+   "ATPC",
+   "BETA",
+   "BNAI",
+   "BRTX",
+   "EZRA",
+   "FGF",
+   "FIEE",
+   "FRSX",
+   "FUBO",
+   "FULC",
+   "GCTK",
+   "GNPX",
+   "GRI",
+   "GWAV",
+   "HAO",
+   "HCAI",
+   "HCWB",
+   "HUBC",
+   "HWH",
+   "IMCC",
+   "QMMM",
+   "RGC",
+   "SBDS",
+   "SCNI",
+   "SGRX",
+   "SLXN",
+   "SMX",
+   "SNAL",
+   "SNGX"
   ],
   "skipped": [],
   "calendar_error": "",
   "ce_used": 48,
   "controls": {
    "done": [
-    "AVAT",
-    "BIYA",
-    "BRUN",
-    "DWSN",
-    "EXOZ",
-    "METCB",
-    "MVIS",
-    "NIKI",
-    "PONY",
-    "SVIA",
-    "WSHP",
-    "XWEL",
-    "YJ",
-    "CALC",
-    "BTCS",
-    "SWMR"
+    "AAOI",
+    "AGRZ",
+    "CNCK",
+    "ELTX",
+    "GDHG",
+    "HCTI",
+    "JUNS",
+    "OBAI",
+    "WETH",
+    "JBDI",
+    "KXIN",
+    "AIFU",
+    "DFLI",
+    "KTOS",
+    "MYSE",
+    "UZX"
    ],
    "skipped": [],
    "calendar_error": "",
    "ce_used": 16,
-   "pool_date": "2026-11-12",
-   "pool_n": 409,
+   "pool_date": "2026-11-13",
+   "pool_n": 428,
    "status": "OK"
   }
  },
  "audit": {
-  "rows": 1475,
+  "rows": 1371,
   "by_status": {
-   "OK": 1055,
-   "UNKNOWN": 249,
-   "NOT_ATTEMPTED": 159,
-   "FAILED": 12
+   "OK": 973,
+   "UNKNOWN": 231,
+   "FAILED": 8,
+   "NOT_ATTEMPTED": 159
   },
   "by_category": {
-   "1": 527,
-   "2": 528,
-   "4": 420
+   "1": 531,
+   "2": 442,
+   "4": 398
   },
   "tickers": 123,
   "chain_problems": []
@@ -179,6 +179,11 @@
   ],
   [
    "AEHL",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "AIFU",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -248,11 +253,6 @@
    "yahoo_splits"
   ],
   [
-   "BTCS",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "BTOC",
    "short_interest",
    "yahoo_info"
@@ -271,16 +271,6 @@
    "BTOG",
    "short_interest",
    "yahoo_info"
-  ],
-  [
-   "BTOG",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
-   "CALC",
-   "reverse_split",
-   "yahoo_splits"
   ],
   [
    "CANF",
@@ -396,6 +386,16 @@
    "DCOY",
    "reverse_split",
    "yahoo_splits"
+  ],
+  [
+   "DFLI",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "DFLI",
+   "reverse_split",
+   "nasdaq_calendar"
   ],
   [
    "DKI",
@@ -523,11 +523,6 @@
    "yahoo_splits"
   ],
   [
-   "FBGL",
-   "reverse_split",
-   "nasdaq_calendar"
-  ],
-  [
    "FIEE",
    "short_interest",
    "yahoo_info"
@@ -583,11 +578,6 @@
    "yahoo_splits"
   ],
   [
-   "GMEX",
-   "reverse_split",
-   "nasdaq_calendar"
-  ],
-  [
    "GNPX",
    "short_interest",
    "yahoo_info"
@@ -656,11 +646,6 @@
    "HUBC",
    "short_interest",
    "yahoo_info"
-  ],
-  [
-   "HUBC",
-   "reverse_split",
-   "yahoo_splits"
   ],
   [
    "HWH",
@@ -703,12 +688,27 @@
    "yahoo_splits"
   ],
   [
+   "JBDI",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
    "JEM",
    "short_interest",
    "yahoo_info"
   ],
   [
    "JEM",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "KTOS",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "KXIN",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -779,6 +779,11 @@
   ],
   [
    "MTEX",
+   "reverse_split",
+   "yahoo_splits"
+  ],
+  [
+   "MYSE",
    "reverse_split",
    "yahoo_splits"
   ],
@@ -983,14 +988,14 @@
    "yahoo_info"
   ],
   [
-   "SGRX",
-   "reverse_split",
-   "yahoo_splits"
-  ],
-  [
    "SLXN",
    "short_interest",
    "yahoo_info"
+  ],
+  [
+   "SLXN",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "SLXN",
@@ -1153,9 +1158,9 @@
    "yahoo_splits"
   ],
   [
-   "VEEE",
-   "short_interest",
-   "yahoo_info"
+   "UZX",
+   "reverse_split",
+   "yahoo_splits"
   ],
   [
    "VEEE",
