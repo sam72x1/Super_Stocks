@@ -1,0 +1,36 @@
+name: "🧪 T-BLOCK الملحق 2 §① اختبارُ قبول صيغة مومو (قراءةٌ فقط · يدويّ)"
+
+# 🔒 قراءةٌ وقياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا إنتاج (`fm_forensics/tblock/T_BLOCK_addendum_2.md` §① و§⓪-أ · TBK17-TBK18).
+# NXXT · SMX · MCGA يومَ 2026-11-10 ⟵ أربعُ قواعد × بديلا الشروط ⟵ الدرجةُ وبوّابةُ R-T (فوق 30% ⟵ توقّفٌ قبل ②) — ويخرج 9 إن تغيّرت بصمةُ الملحق.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: super-stocks-tblock-momo
+  cancel-in-progress: false
+
+jobs:
+  momo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🧪 مومو
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/tblock/momo.py --mode run
