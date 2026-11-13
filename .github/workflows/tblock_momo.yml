@@ -7,6 +7,11 @@ permissions:
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "run = الملحق 2 §① (الجلسة كاملة) · cut = الملحق 3 (النافذة مقطوعةً بحجم مومو)"
+        required: false
+        default: "run"
 
 concurrency:
   group: super-stocks-tblock-momo
@@ -33,4 +38,7 @@ jobs:
         env:
           POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
           PYTHONUNBUFFERED: "1"
-        run: python fm_forensics/tblock/momo.py --mode run
+          MOMO_MODE: ${{ inputs.mode }}
+        run: |
+          case "$MOMO_MODE" in run|cut) ;; *) echo "mode غيرُ معروف: $MOMO_MODE"; exit 2;; esac
+          python fm_forensics/tblock/momo.py --mode "$MOMO_MODE"
