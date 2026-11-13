@@ -1,16 +1,17 @@
 {
- "last_sent": "2026-11-12",
+ "last_sent": "2026-11-13",
  "first_sent": "2026-11-06",
  "built_ny": "09:25",
- "n_s": 3,
- "n_anchors": 7,
+ "n_s": 4,
+ "n_anchors": 8,
  "skipped": {
   "bars": 0,
   "base": 0
  },
  "symbols": [
-  "CENN",
-  "PLCE",
-  "PARA"
+  "XXII",
+  "SHFS",
+  "ZBAO",
+  "FCUV"
  ]
 }
