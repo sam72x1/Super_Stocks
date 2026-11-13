@@ -8,7 +8,7 @@ FAISAL VALIDATION STATUS
 V4_FROZEN = YES (protocol epoch 1 · I1-I12 PASS)
 V4_COMMIT = 7c8826c25e745668d33facabb2efbc488e997fb7
 EPOCH_INTEGRITY = PASS
-COLLECTOR_STATUS = PASS · SCHEDULED_ACTIVE (131 runs: schedule 102 · workflow_dispatch 29 · schedule `17 */4 * * *` fired 102 time(s) · last run 42176154376 success · 0 update(s) · observed 2026-11-06T09:30:00Z)
+COLLECTOR_STATUS = PASS · SCHEDULED_ACTIVE (152 runs: schedule 122 · workflow_dispatch 30 · schedule `17 */4 * * *` fired 122 time(s) · last run 43341998338 success · 0 update(s) · observed 2026-11-13T09:30:00Z)
 PRIMARY_CASES = 4 of 43 minimum (HISTORICAL 54 outside Phase B by definition)
 VALID_CASES = 0 (PRIMARY 4 minus 4 external-context-blocked)
 EXCLUDED_CASES = 120 (E1 82, E3 4, E4 17, E6 9, E7 5, E8 3)

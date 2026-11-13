@@ -2,19 +2,19 @@
  "workflow": ".github/workflows/telegram_collect.yml",
  "schedule": "17 */4 * * *",
  "schedule_added_utc": "2026-10-07T21:39:54Z",
- "observed_utc": "2026-11-06T09:30:00Z",
- "runs_total": 131,
+ "observed_utc": "2026-11-13T09:30:00Z",
+ "runs_total": 152,
  "runs_by_event": {
-  "schedule": 102,
-  "workflow_dispatch": 29
+  "schedule": 122,
+  "workflow_dispatch": 30
  },
  "last_run": {
-  "id": 42176154376,
+  "id": 43341998338,
   "event": "schedule",
-  "created_utc": "2026-11-06T06:42:33Z",
+  "created_utc": "2026-11-13T01:03:52Z",
   "conclusion": "success"
  },
  "last_run_updates": 0,
- "last_run_updates_evidence": "run 42176154376 job log (job 127754969542): «📥 حُفِظت 0 صورة جديدة · مكرّرة متخطّاة 0 · (مستندات 0 · صور مضغوطة 0)» · «📁 مجموع الصور في faisal_images/ الآن: 891» · «ℹ️ لا جديد» · commit 0a27329 «📥 صور التلغرام: 0 ملفًا + تحديث سجلّ التغطية» (FAISAL_IMAGE_AUDIT.md only) · the 30 scheduled runs since 2026-10-27T05:03:02Z all completed success (the 46-image batch B46_20261104 arrived in between and was sealed separately) · meta_v 2 rows 383 · X (x.com) from the session: no connection (curl code 000) — recorded, not worked around · previous observation 2026-10-27T13:20:00Z: 99 runs (72 schedule), last 40453100275 with 0 updates",
+ "last_run_updates_evidence": "run 43341998338 job 131612282450: commit 48a7cff «📥 صور التلغرام: 0 ملفًا + تحديث سجلّ التغطية» (FAISAL_IMAGE_AUDIT.md only) · all 152 runs success (21 since the 2026-11-06T09:30:00Z observation: 20 schedule + 1 dispatch) · new images since that observation: 7 in two collector commits (9fabb8d 4 files · d92f40c 3 files) — faisal_images/ now 899 · LIVE_PENDING_IMAGES 0 (sealed through the intake loop) · meta_v 2 rows 401 · X (x.com) from the session: the agent proxy refused the connection (connect_rejected) — recorded, not worked around · previous observation 2026-11-06T09:30:00Z: 131 runs, last 42176154376 with 0 updates",
  "source": "GitHub Actions REST API (actions/workflows/telegram_collect.yml/runs) read from the session — CI has no network, so the observation is recorded with its time and goes stale until re-recorded"
 }
