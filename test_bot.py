@@ -101706,6 +101706,49 @@ check("🧪 TBK18 الدرجةُ متوسّطُ |الفرق %| على الخلا
       and _v18[3][3][0].startswith("🛑") and _v18[4] == (0, 3) and _v18[5] == 9 and _v18[6] == ["workflow_dispatch"] and not _v18[7],
       str(_v18)[:220])
 
+# ✂️ TBK19 (‏2026-11-13 · الملحق 3 «النافذة مقطوعةً بحجم مومو» · أمرُ المالك): القطعُ عند أوّل صفقةٍ يبلغ بها التراكميُّ الهدفَ وتُحسب كاملة ·
+#    وما لم يبلغ ⟵ الجلسةُ كلُّها موسومة · والهدفُ مجموعُ مكوّنات مومو · والبوّابةُ على أدنى الثماني بحدّ 30% شاملًا والتعادلُ بترتيب R-T ثمّ R-Q ·
+#    ووضعُ cut يخرج 9 إن تغيّرت بصمةُ الملحق 3 و3 بلا مفتاح · والـworkflow يمرّر الوضعَ بقائمةٍ مغلقة.
+try:
+    import importlib.util as _c19_iu
+    import subprocess as _c19_sp
+    import shutil as _c19_sh
+    import tempfile as _c19_tf
+    import os as _c19_os
+    import sys as _c19_sys
+    _c19_s = _c19_iu.spec_from_file_location("momo_lock19", "fm_forensics/tblock/momo.py")
+    _M19 = _c19_iu.module_from_spec(_c19_s)
+    _c19_s.loader.exec_module(_M19)
+    _t = [(1, 1.0, 100), (2, 1.1, 200), (3, 1.2, 300), (4, 1.3, 400)]
+    _cuts = (_M19.cut_by_volume(_t, 300), _M19.cut_by_volume(_t, 301), _M19.cut_by_volume(_t, 5000))
+    _gates = (_M19.gate_any({("R-Q", "all"): 31.0, ("R-T", "cond"): 30.0}), _M19.gate_any({("R-Q", "all"): 25.0, ("R-T", "cond"): 25.0}),
+              _M19.gate_any({("R-Q", "all"): 30.0001}), _M19.gate_any({("R-Q", "all"): None}))
+    _env = {k: v for k, v in _c19_os.environ.items() if k != "POLYGON_API_KEY"}
+    _rc3 = _c19_sp.run([_c19_sys.executable, "fm_forensics/tblock/momo.py", "--mode", "cut"], env=_env, capture_output=True, text=True,
+                       timeout=120).returncode
+    _td = _c19_tf.mkdtemp()
+    _c19_sh.copy("fm_forensics/tblock/momo.py", _td)
+    _c19_sh.copy("fm_forensics/tblock/T_BLOCK_addendum_2.md", _td)
+    open(_c19_os.path.join(_td, "T_BLOCK_addendum_3.md"), "w", encoding="utf-8").write("x")
+    _rc9 = _c19_sp.run([_c19_sys.executable, _c19_os.path.join(_td, "momo.py"), "--mode", "cut"], env=_env, capture_output=True, text=True,
+                       timeout=60).returncode
+    _rc0 = _c19_sp.run([_c19_sys.executable, _c19_os.path.join(_td, "momo.py"), "--mode", "check"], env=_env, capture_output=True,
+                       text=True, timeout=60).returncode
+    _c19_sh.rmtree(_td, ignore_errors=True)
+    _wf19 = open(".github/workflows/tblock_momo.yml", encoding="utf-8").read()
+    _v19 = (_cuts, _gates, _M19.MOMO_TOTAL, _rc3, _rc9, _rc0, 'case "$MOMO_MODE" in run|cut)' in _wf19, "${{ inputs.mode }}" in _wf19.split("run: |")[0])
+except Exception as _e:                                         # noqa: BLE001
+    _v19 = f"⛔ {type(_e).__name__}: {_e}"
+check("✂️ TBK19 الملحق 3: القطعُ عند أوّل صفقةٍ تبلغ الهدف وتُحسب كاملةً (300 ⟵ صفقتان · 301 ⟵ ثلاث) · ولم يبلغ ⟵ الكلّ موسومًا · "
+      "والهدفُ مجموعُ مومو (1,611,270 · 6,080,000 · 134,900) · والبوّابةُ أدنى الثماني بحدّ 30% شاملًا والتعادلُ لـR-T · "
+      "وcut بلا مفتاح 3 وببصمةٍ مختلفة 9 (وcheck يبقى 0) · والـworkflow يمرّر الوضعَ بقائمةٍ مغلقة",
+      isinstance(_v19, tuple)
+      and _v19[0] == (([(1, 1.0, 100), (2, 1.1, 200)], True, 300.0), ([(1, 1.0, 100), (2, 1.1, 200), (3, 1.2, 300)], True, 600.0),
+                      (_t, False, 1000.0))
+      and _v19[1] == (("✅ تُبنى ② بها", ("R-T", "cond", 30.0)), ("✅ تُبنى ② بها", ("R-T", "cond", 25.0)),
+                      ("🛑 توقّف", ("R-Q", "all", 30.0001)), ("🛑 توقّف (لا درجة)", None))
+      and _v19[2] == {"NXXT": 1611270, "SMX": 6080000, "MCGA": 134900} and _v19[3:] == (3, 9, 0, True, True), str(_v19)[:240])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
