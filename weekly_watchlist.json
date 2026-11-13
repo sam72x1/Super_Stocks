@@ -1288,7 +1288,7 @@
    "hit": "t2",
    "hit_date": "2026-11-10",
    "max_gain_pct": 44.8,
-   "last_price": 0.918,
+   "last_price": 0.92,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -1710,7 +1710,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 15.79,
+   "last_price": 16.29,
    "borrow_hist": [
     [
      "2026-11-13",
@@ -3365,7 +3365,7 @@
    "hit": "t2",
    "hit_date": "2026-11-03",
    "max_gain_pct": 37.3,
-   "last_price": 4.64,
+   "last_price": 4.84,
    "faisal_levels": "🧭 إغلاقات الهابطة $6.01 · $6.06 · $6.51 · جسم قبل الهبوط $5.77 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-11-02",
@@ -4669,9 +4669,9 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 11.8,
-   "last_price": 2.04,
+   "last_price": 2.09,
    "live_alert": {
-    "buyzone": "2026-11-12",
+    "buyzone": "2026-11-13",
     "breakout": "2026-11-11",
     "premarket": "2026-11-12",
     "break": "2026-11-13"
@@ -5135,7 +5135,7 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 42.7,
-   "last_price": 2.3,
+   "last_price": 2.29,
    "live_alert": {},
    "price_state": "VALID",
    "price_bar": "2026-11-12",
@@ -8566,7 +8566,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 5.29,
+   "last_price": 5.296,
    "borrow_hist": [
     [
      "2026-10-22",
@@ -11986,7 +11986,7 @@
    "sector": "Technology",
    "country": "Hong Kong",
    "float": 14864979,
-   "last_price": 8.3,
+   "last_price": 8.4,
    "status": "watching",
    "triggered_date": null
   },
