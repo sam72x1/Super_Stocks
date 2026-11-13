@@ -9,7 +9,7 @@ on:
   workflow_dispatch:
     inputs:
       mode:
-        description: "run = الملحق 2 §① (الجلسة كاملة) · cut = الملحق 3 (النافذة مقطوعةً بحجم مومو)"
+        description: "run = الملحق 2 §① (الجلسة كاملة) · cut = الملحق 3 (النافذة مقطوعةً بحجم مومو) · set = الملحق 4 (R-QT على لقطات 11-13)"
         required: false
         default: "run"
 
@@ -40,5 +40,5 @@ jobs:
           PYTHONUNBUFFERED: "1"
           MOMO_MODE: ${{ inputs.mode }}
         run: |
-          case "$MOMO_MODE" in run|cut) ;; *) echo "mode غيرُ معروف: $MOMO_MODE"; exit 2;; esac
+          case "$MOMO_MODE" in run|cut|set) ;; *) echo "mode غيرُ معروف: $MOMO_MODE"; exit 2;; esac
           python fm_forensics/tblock/momo.py --mode "$MOMO_MODE"
