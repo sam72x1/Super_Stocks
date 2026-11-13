@@ -1274,7 +1274,7 @@
  },
  "LIQ:AUUD": {
   "anchor_ms": 1794574200000,
-  "last_ms": 1794574200000,
+  "last_ms": 1794574260000,
   "sent": [
    "M1"
   ],
@@ -1282,15 +1282,15 @@
   "vol_x": 11.3,
   "peak_usd": 35981,
   "last_eval_ms": 1794574260000,
-  "pulse_ms": 1794574200000,
+  "pulse_ms": 1794574260000,
   "anchor_price": 0.3721,
   "anchor_open": 0.34,
   "anchor_low": 0.34,
-  "date": "2026-11-13",
   "pre_done": true,
   "pre_hi": 0.3498,
   "pre_usd": 76647,
-  "pre_n": 27
+  "pre_n": 27,
+  "date": "2026-11-13"
  },
  "LIQ:CVKD": {
   "last_eval_ms": 1794344280000,
