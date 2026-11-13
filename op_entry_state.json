@@ -160,24 +160,15 @@
   "date": "2026-11-13"
  },
  "LIQ:HUBC": {
-  "anchor_ms": 1794580560000,
-  "last_ms": 1794580740000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 6.4,
-  "peak_usd": 21712,
-  "last_eval_ms": 1794580560000,
-  "pulse_ms": 1794580740000,
-  "anchor_price": 1.74,
-  "anchor_open": 1.53,
-  "anchor_low": 1.53,
-  "pre_done": true,
-  "pre_hi": 1.81,
-  "pre_usd": 89615,
-  "pre_n": 30,
-  "exit_ms": 1794580740000,
+  "last_eval_ms": 1794580740000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794580560000,
+   "anchor_price": 1.74,
+   "anchor_low": 1.53,
+   "e5": null,
+   "exit_ms": 1794580740000
+  },
   "date": "2026-11-13"
  },
  "LIQ:ADGM": {
@@ -4122,7 +4113,7 @@
   "date": "2026-11-13"
  },
  "LIQ:VIP": {
-  "last_eval_ms": 1794576060000,
+  "last_eval_ms": 1794580620000,
   "date": "2026-11-13"
  },
  "LIQ:KPLT": {
@@ -4155,5 +4146,6 @@
  },
  "LIQ:ANPA": {
   "date": "2026-11-13"
- }
+ },
+ "PRPL": "2026-11-13"
 }
