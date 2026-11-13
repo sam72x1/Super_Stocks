@@ -36,7 +36,7 @@
   "date": "2026-11-13"
  },
  "LIQ:STAK": {
-  "last_eval_ms": 1794591660000,
+  "last_eval_ms": 1794591720000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794572880000,
@@ -291,7 +291,7 @@
   "date": "2026-11-13"
  },
  "LIQ:SGRX": {
-  "last_eval_ms": 1794591180000,
+  "last_eval_ms": 1794591720000,
   "date": "2026-11-13"
  },
  "LIQ:KIDZ": {
@@ -447,7 +447,7 @@
  },
  "LIQ:FCUV": {
   "anchor_ms": 1794577380000,
-  "last_ms": 1794591660000,
+  "last_ms": 1794591720000,
   "sent": [
    "M1",
    "M5",
@@ -457,7 +457,7 @@
   "vol_x": 4.2,
   "peak_usd": 7795596,
   "last_eval_ms": 1794577380000,
-  "pulse_ms": 1794591660000,
+  "pulse_ms": 1794591720000,
   "anchor_price": 5.73,
   "anchor_open": 5.15,
   "anchor_low": 5.11,
@@ -506,7 +506,7 @@
   "date": "2026-11-13"
  },
  "LIQ:AMIX": {
-  "last_eval_ms": 1794591660000,
+  "last_eval_ms": 1794591720000,
   "date": "2026-11-13"
  },
  "LIQ:BRNX": {
@@ -834,7 +834,7 @@
   "date": "2026-11-13"
  },
  "LIQ:RBNE": {
-  "last_eval_ms": 1794591660000,
+  "last_eval_ms": 1794591720000,
   "date": "2026-11-13"
  },
  "LIQ:GFAI": {
@@ -1011,7 +1011,7 @@
   "date": "2026-11-13"
  },
  "LIQ:GOVX": {
-  "last_eval_ms": 1794590820000,
+  "last_eval_ms": 1794591720000,
   "date": "2026-11-13"
  },
  "LIQ:AEMD": {
@@ -1221,7 +1221,7 @@
   "date": "2026-11-13"
  },
  "LIQ:BLDP": {
-  "last_eval_ms": 1794591660000,
+  "last_eval_ms": 1794591720000,
   "date": "2026-11-13"
  },
  "LIQ:PUSA": {
@@ -1309,7 +1309,7 @@
  },
  "LIQ:CRVO": {
   "anchor_ms": 1794588780000,
-  "last_ms": 1794591660000,
+  "last_ms": 1794591720000,
   "sent": [
    "M1",
    "M5",
@@ -1319,7 +1319,7 @@
   "vol_x": 46.5,
   "peak_usd": 115150,
   "last_eval_ms": 1794588840000,
-  "pulse_ms": 1794591660000,
+  "pulse_ms": 1794591720000,
   "anchor_price": 1.775,
   "anchor_open": 1.68,
   "anchor_low": 1.68,
@@ -2690,7 +2690,7 @@
   "date": "2026-11-11"
  },
  "LIQ:CRIS": {
-  "last_eval_ms": 1794591660000,
+  "last_eval_ms": 1794591720000,
   "date": "2026-11-13"
  },
  "LIQ:DFSC": {
@@ -3111,7 +3111,7 @@
   "date": "2026-11-13"
  },
  "LIQ:BZFD": {
-  "last_eval_ms": 1794591660000,
+  "last_eval_ms": 1794591720000,
   "date": "2026-11-13"
  },
  "LIQ:AGMH": {
@@ -4166,7 +4166,7 @@
   "date": "2026-11-13"
  },
  "LIQ:EDBL": {
-  "last_eval_ms": 1794591600000,
+  "last_eval_ms": 1794591720000,
   "date": "2026-11-13"
  },
  "LIQ:DXST": {
