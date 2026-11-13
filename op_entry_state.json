@@ -675,24 +675,15 @@
   "date": "2026-11-10"
  },
  "LIQ:ZBAO": {
-  "anchor_ms": 1794568140000,
-  "last_ms": 1794568320000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 3.3,
-  "peak_usd": 93021,
-  "last_eval_ms": 1794568200000,
-  "pulse_ms": 1794568320000,
-  "anchor_price": 0.2883,
-  "anchor_open": 0.2391,
-  "anchor_low": 0.2391,
-  "pre_done": true,
-  "pre_hi": 0.2556,
-  "pre_usd": 185285,
-  "pre_n": 8,
-  "exit_ms": 1794568260000,
+  "last_eval_ms": 1794568320000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794568140000,
+   "anchor_price": 0.2883,
+   "anchor_low": 0.2391,
+   "e5": null,
+   "exit_ms": 1794568260000
+  },
   "date": "2026-11-13"
  },
  "LIQ:RENX": {
@@ -3816,7 +3807,7 @@
  "LOT": "2026-11-11",
  "SKYQ": "2026-11-11",
  "CAN": "2026-11-11",
- "ZBAO": "2026-11-12",
+ "ZBAO": "2026-11-13",
  "CYAB": "2026-11-11",
  "QCLS": "2026-11-11",
  "NXTS": "2026-11-11",
