@@ -31,6 +31,11 @@ ADDENDUM_3_SHA = "2d5687fcccefbf5a7eba98660b7e916bacce7ad19325f7b1c8cf12704f4706
 MOMO_TOTAL = {s: sum(v) for s, v in MOMO.items()}  # الملحق 3 §①: 1,611,270 · 6,080,000 · 134,900
 SNAP_ET = {"NXXT": "12:00", "SMX": "11:07", "MCGA": "14:40"}   # الملحق 3 §⓪-3 (الرياض − 8 ساعات · للطباعة وحدَها)
 TIE_ORDER = ("R-T", "R-Q", "R-QM", "R-LR")
+ADDENDUM_4 = os.path.join(HERE, "T_BLOCK_addendum_4.md")
+ADDENDUM_4_SHA = "4885e738c4e84acd753e73da2511615a18d9863d3e13eed7f90839478a96d121"
+SET_FILE = os.path.join(HERE, "data", "momo_set_20261113.json")   # الملحق 4 ⓪-3: يُدمج قبل أوّل تشغيل
+DAY4 = "2026-11-13"
+MIN_CELLS4 = 4                                                     # الملحق 4 §③: «لا قياس» دون 4 خلايا داخلة
 
 
 def log(*a):
@@ -42,6 +47,67 @@ def addendum3_ok():
         return False
     with open(ADDENDUM_3, "rb") as fh:
         return hashlib.sha256(fh.read()).hexdigest() == ADDENDUM_3_SHA
+
+
+def addendum4_ok():
+    if not os.path.exists(ADDENDUM_4):
+        return False
+    with open(ADDENDUM_4, "rb") as fh:
+        return hashlib.sha256(fh.read()).hexdigest() == ADDENDUM_4_SHA
+
+
+def classify_qt(trades, quotes, stale_ns=STALE_NS):
+    """الملحق 4 §①: R-Q حيث يوجد اقتباسٌ سائدٌ صالح · وإلّا التيكُ (يرحّل الصفر ويمشي على كلّ الصفقات) ⟵ ([شراء، بيع، محايد]، حجمٌ صُنِّف بالتيك)."""
+    out = [0, 0, 0]
+    by_tick = 0
+    j, q = 0, None
+    prev, last_diff, tick_dir = None, None, 0
+    for ts, px, sz in trades:
+        while j < len(quotes) and quotes[j][0] <= ts:
+            q = quotes[j]
+            j += 1
+        if prev is not None and px != prev:
+            last_diff, tick_dir = prev, (1 if px > prev else -1)
+        prev = px
+        ok = q is not None and ts - q[0] <= stale_ns and q[1] > 0 and q[2] > 0 and q[2] >= q[1]
+        if ok:
+            out[0 if px >= q[2] else 1 if px <= q[1] else 2] += sz
+        else:
+            by_tick += sz
+            t = tick_dir if last_diff is not None else 0
+            out[0 if t > 0 else 1 if t < 0 else 2] += sz
+    return out, by_tick
+
+
+def load_set(path=SET_FILE):
+    """الملحق 4 ⓪-3: {رمز: (شراء، بيع، محايد)} من الملفّ المدموج · رمزٌ بلا ثلاثة أعدادٍ صحيحةٍ غيرِ سالبة يُسقط ويُعَدّ ⟵ (المادّة، المُسقَط) أو (None، سبب)."""
+    if not os.path.exists(path):
+        return None, "الملفّ غائب"
+    try:
+        with open(path, encoding="utf-8") as fh:
+            raw = json.load(fh)
+    except (OSError, ValueError) as e:
+        return None, f"تعذّر قراءته: {type(e).__name__}"
+    good, dropped = {}, []
+    for sym, v in (raw.get("momo") or {}).items():
+        try:
+            t = tuple(int(x) for x in v)
+            if len(t) == 3 and all(x >= 0 for x in t) and isinstance(sym, str) and sym.isupper():
+                good[sym] = t
+                continue
+        except (TypeError, ValueError):
+            pass
+        dropped.append(sym)
+    return good, dropped
+
+
+def gate4(cells):
+    """الملحق 4 §③: الدرجةُ على الخلايا الداخلة ⟵ («لا قياس» دون 4 · «✅ تُبنى ②» عند 30% فأقلّ · وإلّا «🛑 توقّف»، الدرجة، عددُ الخلايا)."""
+    xs = [abs(v[2]) for v in cells.values() if v[3] and v[2] is not None]
+    if len(xs) < MIN_CELLS4:
+        return "⚪ لا قياس", None, len(xs)
+    sc = sum(xs) / len(xs)
+    return ("✅ تُبنى ② بـR-QT" if sc <= GATE_RT else "🛑 توقّف"), sc, len(xs)
 
 
 def contract_ok():
@@ -178,13 +244,69 @@ def fetch_day(TB, sym, day, key, excl, NY):
             "quotes": quotes, "n_trades": len(rows), "n_quotes": len(quotes)}
 
 
+def main_set():
+    """الملحق 4: R-QT على لقطات 11-13 الجديدة وحدَها · الجلسةُ النظاميّة الكاملة · البديلُ الحاكم «الكلّ»."""
+    if not contract_ok() or not addendum4_ok():
+        log("⛔ بصمةُ الملحق 2 أو 4 تغيّرت — لا تشغيل")
+        return CONTRACT_RC
+    mset, dropped = load_set()
+    if mset is None:
+        log(f"⛔ مادّةُ الملحق 4 ({SET_FILE}): {dropped} — «لا قياس» (تُدمج قبل التشغيل)")
+        return DATA_RC
+    key = (os.environ.get("POLYGON_API_KEY") or "").strip()
+    if not key:
+        log("⛔ بلا مفتاح Polygon — لا قياس")
+        return KEY_RC
+    from zoneinfo import ZoneInfo
+    NY = ZoneInfo("America/New_York")
+    TB = _tb()
+    excl = TB.excluded_conditions(TB.fetch_conditions(key))
+    log(f"الملحق 4 · {DAY4} · الرموز {sorted(mset)} · المُسقَط {dropped}")
+    ours = {v: {r: {} for r in RULES + ("R-QT",)} for v in VARIANTS}
+    tickvol, tot = {v: {} for v in VARIANTS}, {}
+    for sym in sorted(mset):
+        d = fetch_day(TB, sym, DAY4, key, excl, NY)
+        if d is None:
+            log(f"⛔ {sym}: تعذّر جلبُ الصفقات أو الاقتباسات — «لا قياس»")
+            return DATA_RC
+        for v in VARIANTS:
+            c, _nq = classify(d[v], d["quotes"])
+            for r in RULES:
+                ours[v][r][sym] = c[r]
+            ours[v]["R-QT"][sym], tickvol[v][sym] = classify_qt(d[v], d["quotes"])
+        tot[sym] = sum(sz for _t, _p, sz in d["all"])
+        log(f"{sym}: صفقات {d['n_trades']} · اقتباسات {d['n_quotes']} · حجمُنا {tot[sym]:,.0f} مقابل مومو {sum(mset[sym]):,} "
+            f"(×{tot[sym] / max(1, sum(mset[sym])):.2f}) · صُنِّف بالتيك {tickvol['all'][sym]:,.0f}")
+    log("")
+    log("=" * 70)
+    log(f"🧪 الملحق 4 — R-QT على لقطات مومو {DAY4} · التشغيلة {os.environ.get('GITHUB_RUN_ID')}")
+    res = {}
+    for v in VARIANTS:
+        for r in ("R-QT",) + RULES:
+            cells = cell_diffs(ours[v][r], mset)
+            g, sc, n = gate4(cells)
+            res[(r, v)] = (g, sc, n, cells)
+            cs = " · ".join(f"{s} {c} {o:,.0f}/{m:,.0f} ({'—' if dd is None else f'{dd:+.1f}%'}{'' if inc else ' خارج'})"
+                            for (s, c), (o, m, dd, inc) in cells.items())
+            log(f"   {r} × {v}{'' if (r, v) == ('R-QT', 'all') else ' (وصف)'}: الدرجة {'—' if sc is None else f'{sc:.1f}%'} · خلايا {n} · {cs}")
+    g, sc, n, _c = res[("R-QT", "all")]
+    log(f"🚦 بوّابةُ الملحق 4 §③ (R-QT × الكلّ): {g} · الدرجة {'—' if sc is None else f'{sc:.1f}%'} · خلايا {n}")
+    print("MOMO4_JSON " + json.dumps({"gate": g, "score": sc, "cells_in": n, "dropped": dropped,
+                                      "table": {f"{r}|{v}": [x[0], x[1], x[2], {f"{s}|{c}": list(t) for (s, c), t in x[3].items()}]
+                                                for (r, v), x in res.items()},
+                                      "tick_volume": tickvol, "total": tot}, ensure_ascii=False))
+    return 0
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser()
-    ap.add_argument("--mode", default="check", choices=("check", "run", "cut"))
+    ap.add_argument("--mode", default="check", choices=("check", "run", "cut", "set"))
     a = ap.parse_args(argv)
     if not contract_ok():
         log("⛔ بصمةُ الملحق 2 تغيّرت — لا تشغيل")
         return CONTRACT_RC
+    if a.mode == "set":
+        return main_set()
     if a.mode == "cut" and not addendum3_ok():
         log("⛔ بصمةُ الملحق 3 تغيّرت — لا تشغيل")
         return CONTRACT_RC

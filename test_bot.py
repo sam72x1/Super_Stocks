@@ -101736,7 +101736,7 @@ try:
                        text=True, timeout=60).returncode
     _c19_sh.rmtree(_td, ignore_errors=True)
     _wf19 = open(".github/workflows/tblock_momo.yml", encoding="utf-8").read()
-    _v19 = (_cuts, _gates, _M19.MOMO_TOTAL, _rc3, _rc9, _rc0, 'case "$MOMO_MODE" in run|cut)' in _wf19, "${{ inputs.mode }}" in _wf19.split("run: |")[0])
+    _v19 = (_cuts, _gates, _M19.MOMO_TOTAL, _rc3, _rc9, _rc0, 'case "$MOMO_MODE" in run|cut|set)' in _wf19, "${{ inputs.mode }}" in _wf19.split("run: |")[0])
 except Exception as _e:                                         # noqa: BLE001
     _v19 = f"⛔ {type(_e).__name__}: {_e}"
 check("✂️ TBK19 الملحق 3: القطعُ عند أوّل صفقةٍ تبلغ الهدف وتُحسب كاملةً (300 ⟵ صفقتان · 301 ⟵ ثلاث) · ولم يبلغ ⟵ الكلّ موسومًا · "
@@ -101748,6 +101748,50 @@ check("✂️ TBK19 الملحق 3: القطعُ عند أوّل صفقةٍ تب
       and _v19[1] == (("✅ تُبنى ② بها", ("R-T", "cond", 30.0)), ("✅ تُبنى ② بها", ("R-T", "cond", 25.0)),
                       ("🛑 توقّف", ("R-Q", "all", 30.0001)), ("🛑 توقّف (لا درجة)", None))
       and _v19[2] == {"NXXT": 1611270, "SMX": 6080000, "MCGA": 134900} and _v19[3:] == (3, 9, 0, True, True), str(_v19)[:240])
+
+# 🧪 TBK20 (‏2026-11-13 · الملحق 4 «R-QT على لقطات مومو جديدة» · أمرُ المالك): العرضُ حيث يوجد اقتباسٌ صالح وإلّا التيكُ بحالته الماشية على كلّ الصفقات ·
+#    والمادّةُ من ملفٍّ مدموج (غائبٌ ⟵ 7 · رمزٌ بلا ثلاثة أعدادٍ صحيحةٍ غيرِ سالبة يُسقط ويُعَدّ) · والبوّابةُ «لا قياس» دون 4 خلايا و30% شاملًا · وبصمةُ الملحق 4 ⟵ 9.
+try:
+    import importlib.util as _c20_iu
+    import subprocess as _c20_sp
+    import shutil as _c20_sh
+    import tempfile as _c20_tf
+    import os as _c20_os
+    import sys as _c20_sys
+    import json as _c20_js
+    _c20_s = _c20_iu.spec_from_file_location("momo_lock20", "fm_forensics/tblock/momo.py")
+    _M20 = _c20_iu.module_from_spec(_c20_s)
+    _c20_s.loader.exec_module(_M20)
+    # اقتباسٌ صالح حتى ts 50 ثمّ بائت (أقدمُ من 60 ث): الصفقاتُ 1-3 بالعرض · و4-5 بالتيك (والتيكُ يرى الصفقات كلَّها: 1.02 ثمّ 1.00 ⟵ هبوط ثمّ 1.00 يرحّله)
+    _q20 = [(0, 1.00, 1.02)]
+    _t20 = [(1, 1.02, 100), (2, 1.00, 50), (3, 1.01, 10), (10 ** 11, 1.00, 7), (10 ** 11 + 1, 1.03, 3)]
+    _qt = _M20.classify_qt(_t20, _q20)
+    _qt_cross = _M20.classify_qt([(1, 1.0, 5), (2, 1.1, 4)], [(0, 1.2, 1.0)])          # متقاطع ⟵ تيك: الأولى محايدة والثانية شراء
+    _td = _c20_tf.mkdtemp()
+    _f_ok = _c20_os.path.join(_td, "ok.json")
+    _c20_js.dump({"momo": {"AAA": [10, 20, 30], "bbb": [1, 2, 3], "CCC": [1, -2, 3], "DDD": [1, 2], "EEE": ["x", 1, 2]}}, open(_f_ok, "w"))
+    _ls = (_M20.load_set(_f_ok), _M20.load_set(_c20_os.path.join(_td, "none.json")))
+    _cells_n = lambda pct: {("S%d" % k, "buy"): (0, 20000, pct, True) for k in range(4)}
+    _g4 = (_M20.gate4(_cells_n(30.0)), _M20.gate4(_cells_n(30.0001)),
+           _M20.gate4({("S", "buy"): (0, 20000, 5.0, True), ("S", "sell"): (0, 900, 500.0, False)}))
+    _env = {k: v for k, v in _c20_os.environ.items() if k != "POLYGON_API_KEY"}
+    _rc7 = _c20_sp.run([_c20_sys.executable, "fm_forensics/tblock/momo.py", "--mode", "set"], env=_env, capture_output=True, text=True,
+                       timeout=120).returncode if not _c20_os.path.exists(_M20.SET_FILE) else 7
+    _c20_sh.copy("fm_forensics/tblock/momo.py", _td)
+    _c20_sh.copy("fm_forensics/tblock/T_BLOCK_addendum_2.md", _td)
+    open(_c20_os.path.join(_td, "T_BLOCK_addendum_4.md"), "w", encoding="utf-8").write("x")
+    _rc9 = _c20_sp.run([_c20_sys.executable, _c20_os.path.join(_td, "momo.py"), "--mode", "set"], env=_env, capture_output=True, text=True,
+                       timeout=60).returncode
+    _c20_sh.rmtree(_td, ignore_errors=True)
+    _v20 = (_qt, _qt_cross, _ls, _g4, _rc7, _rc9)
+except Exception as _e:                                         # noqa: BLE001
+    _v20 = f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 TBK20 الملحق 4: R-QT بالعرض حيث يوجد اقتباسٌ صالح (100 شراء · 50 بيع · 10 محايد) وبالتيك عند البائت (7 بيع يرحّل الهبوط · 3 شراء) · "
+      "والمتقاطعُ تيك · والمادّةُ تُسقط الرمزَ الصغير والسالبَ والناقصَ وغيرَ العدديّ وتعدّها · وغيابُ الملفّ ⟵ 7 · والبوّابةُ 30% شاملًا و«لا قياس» دون 4 خلايا · وبصمةٌ مختلفة ⟵ 9",
+      isinstance(_v20, tuple) and _v20[0] == ([103, 57, 10], 10) and _v20[1] == ([4, 0, 5], 9)
+      and _v20[2] == (({"AAA": (10, 20, 30)}, ["bbb", "CCC", "DDD", "EEE"]), (None, "الملفّ غائب"))
+      and _v20[3] == (("✅ تُبنى ② بـR-QT", 30.0, 4), ("🛑 توقّف", 30.0001, 4), ("⚪ لا قياس", None, 1))
+      and _v20[4] == 7 and _v20[5] == 9, str(_v20)[:260])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
