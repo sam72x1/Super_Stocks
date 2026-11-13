@@ -403,7 +403,7 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 12.4,
-   "last_price": 1.94,
+   "last_price": 1.9409,
    "live_alert": {
     "buyzone": "2026-11-10",
     "breakout": "2026-11-13",
@@ -805,7 +805,7 @@
    "hit": "t2",
    "hit_date": "2026-09-04",
    "max_gain_pct": 100.4,
-   "last_price": 13.33,
+   "last_price": 13.29,
    "live_alert": {
     "breakout": "2026-11-05",
     "dump": "2026-10-16",
@@ -1288,7 +1288,7 @@
    "hit": "t2",
    "hit_date": "2026-11-10",
    "max_gain_pct": 44.8,
-   "last_price": 0.915,
+   "last_price": 0.8701,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -1710,7 +1710,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 16.29,
+   "last_price": 15.79,
    "borrow_hist": [
     [
      "2026-11-13",
@@ -2118,7 +2118,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.75,
+   "last_price": 1.69,
    "borrow_hist": [
     [
      "2026-11-13",
@@ -2142,7 +2142,9 @@
     "high": 1.79,
     "close": 1.72
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-11-13"
+   }
   },
   {
    "symbol": "CGTL",
@@ -4268,7 +4270,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.105,
+   "last_price": 1.085,
    "borrow_hist": [
     [
      "2026-11-13",
@@ -5544,7 +5546,7 @@
    "hit": "t2",
    "hit_date": "2026-10-14",
    "max_gain_pct": 40.4,
-   "last_price": 1.39,
+   "last_price": 1.36,
    "live_alert": {
     "breakout": "2026-11-06"
    },
@@ -5951,7 +5953,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 386.6,
-   "last_price": 5.43,
+   "last_price": 5.44,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -7698,7 +7700,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 0.6302,
+   "last_price": 0.6301,
    "live_alert": {
     "breakout": "2026-10-28",
     "dump": "2026-10-26",
@@ -8190,7 +8192,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.72,
+   "last_price": 1.7,
    "borrow_hist": [
     [
      "2026-11-13",
@@ -8572,7 +8574,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 5.255,
+   "last_price": 5.29,
    "borrow_hist": [
     [
      "2026-10-22",
