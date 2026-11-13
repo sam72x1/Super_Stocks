@@ -101648,6 +101648,64 @@ check("💵 TBK16 البوّابات: check 0 · بلا إقرار 8 (shard وas
       isinstance(_v16, tuple) and _v16[0] == (0, 8, 8, 3, 8) and _v16[1] == 9 and _v16[2] == ["workflow_dispatch"]
       and not _v16[3] and _v16[4] and _v16[5] and _v16[6] == 20, str(_v16)[:200])
 
+# 🧪 TBK17-TBK18 (‏2026-11-12 · الملحق 2 §① «اختبارُ قبول صيغة مومو» و§⓪-أ): القواعدُ الأربع على مثالٍ مُتتبَّعٍ باليد (التيكُ يرحّل الصفر ·
+#    R-LR يرجع للتيك عند المنتصف · الاقتباسُ الأقدمُ من 60 ث أو المتقاطع «بلا اقتباس» ⟵ محايد) · والدرجةُ تُسقط خليّةَ الأساس دون 10,000 ·
+#    والبوّابةُ على الأدنى من بديلَي R-T بحدّ 30% شاملًا · والبصمةُ 9 والمفتاحُ 3 · والـworkflow يدويٌّ بلا تلغرام.
+try:
+    import importlib.util as _mm_iu
+    _mm_sp = _mm_iu.spec_from_file_location("momo_lock17", "fm_forensics/tblock/momo.py")
+    _MM = _mm_iu.module_from_spec(_mm_sp)
+    _mm_sp.loader.exec_module(_MM)
+    _mm_q = [(0, 1.00, 1.02), (100, 1.00, 1.04)]
+    _mm_t = [(1, 1.01, 100), (2, 1.02, 200), (3, 1.02, 50), (4, 1.00, 300), (101, 1.02, 10), (200, 1.04, 5)]
+    _mm_a = _MM.classify(_mm_t, _mm_q)
+    _mm_b = _MM.classify([(10 ** 12, 1.0, 5)], [(0, 1.0, 1.1)])                    # اقتباسٌ أقدمُ من 60 ث
+    _mm_c = _MM.classify([(5, 1.05, 7), (6, 1.06, 3)], [(0, 1.1, 1.0)])           # متقاطع
+    _v17 = (_mm_a, _mm_b, _mm_c)
+except Exception as _e:                                         # noqa: BLE001
+    _v17 = f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 TBK17 قواعدُ مومو الأربع على المثال المتتبَّع باليد: R-Q ‏255/300/110 · R-QM مثلُها · R-LR ‏265/300/100 · R-T ‏265/300/100 (يرحّل الصفر) · "
+      "والاقتباسُ البائت والمتقاطع «بلا اقتباس» محايدٌ في الثلاث والتيكُ مستقلٌّ عنه",
+      isinstance(_v17, tuple) and _v17[0] == ({"R-Q": [255, 300, 110], "R-QM": [255, 300, 110], "R-LR": [265, 300, 100],
+                                                "R-T": [265, 300, 100]}, 0)
+      and _v17[1] == ({"R-Q": [0, 0, 5], "R-QM": [0, 0, 5], "R-LR": [0, 0, 5], "R-T": [0, 0, 5]}, 5)
+      and _v17[2] == ({"R-Q": [0, 0, 10], "R-QM": [0, 0, 10], "R-LR": [0, 0, 10], "R-T": [3, 0, 7]}, 10), str(_v17)[:220])
+try:
+    import subprocess as _mm_spr
+    import shutil as _mm_sh
+    import tempfile as _mm_tf
+    import os as _mm_os
+    import sys as _mm_sys
+    import yaml as _mm_yaml
+    _ours = {"NXXT": [548010 * 1.2, 296840, 766420], "SMX": [1290000, 1100000 * 0.9, 3690000], "MCGA": [129410, 910 * 5, 4580]}
+    _cells = _MM.cell_diffs(_ours, _MM.MOMO)
+    _sc = _MM.score(_cells)
+    _gt = (_MM.gate([30.0, 45.0]), _MM.gate([30.0001, 45.0]), _MM.gate([None, 12.0]), _MM.gate([None, None]))
+    _env0 = {k: v for k, v in _mm_os.environ.items() if k != "POLYGON_API_KEY"}
+    _rc = lambda m: _mm_spr.run([_mm_sys.executable, "fm_forensics/tblock/momo.py", "--mode", m], env=_env0, capture_output=True,
+                                text=True, timeout=120).returncode
+    _rcs = (_rc("check"), _rc("run"))
+    _td = _mm_tf.mkdtemp()
+    _src = open("fm_forensics/tblock/momo.py", encoding="utf-8").read().replace(_MM.ADDENDUM_2_SHA, "0" * 64)
+    open(_mm_os.path.join(_td, "momo.py"), "w", encoding="utf-8").write(_src)
+    _mm_sh.copy("fm_forensics/tblock/T_BLOCK_addendum_2.md", _td)
+    _rc9 = _mm_spr.run([_mm_sys.executable, _mm_os.path.join(_td, "momo.py"), "--mode", "check"], capture_output=True, text=True,
+                       timeout=60).returncode
+    _mm_sh.rmtree(_td, ignore_errors=True)
+    _wt = open(".github/workflows/tblock_momo.yml", encoding="utf-8").read()
+    _wy = _mm_yaml.safe_load(_wt)
+    _v18 = (round(_sc[0], 6), round(_sc[1], 6), _cells[("MCGA", "sell")][3], _gt, _rcs, _rc9, sorted(_wy.get(True) or _wy.get("on")),
+            "TELEGRAM" in _wt)
+except Exception as _e:                                         # noqa: BLE001
+    _v18 = f"⛔ {type(_e).__name__}: {_e}"
+check("🧪 TBK18 الدرجةُ متوسّطُ |الفرق %| على الخلايا بأساسٍ 10,000 فأكثر (بيعُ MCGA ‏910 ومحايدُه ‏4,580 خارجان ولو +400%) · والبوّابةُ على الأدنى من بديلَي R-T "
+      "بحدّ 30% شاملًا (30 يمضي · 30.0001 يتوقّف · الغائبُ لا يُحسب · ولا درجةَ ⟵ توقّف) · check 0 · run بلا مفتاح 3 · بصمةٌ مختلفة 9 · "
+      "والـworkflow يدويٌّ بلا تلغرام",
+      isinstance(_v18, tuple) and _v18[0] == round((20.0 + 10.0) / 7, 6) and _v18[1] == 20.0 and _v18[2] is False
+      and _v18[3][0][0].startswith("✅") and _v18[3][1][0].startswith("🛑") and _v18[3][2] == ("✅ يمضي ②", 12.0)
+      and _v18[3][3][0].startswith("🛑") and _v18[4] == (0, 3) and _v18[5] == 9 and _v18[6] == ["workflow_dispatch"] and not _v18[7],
+      str(_v18)[:220])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
