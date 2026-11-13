@@ -1291,5 +1291,23 @@
    "RENT",
    "ZSTK"
   ]
+ },
+ {
+  "date": "2026-11-13",
+  "symbols": [
+   "AFJK",
+   "ANPA",
+   "BANL",
+   "CGTL",
+   "CUPR",
+   "DGNX",
+   "FBGL",
+   "IOTR",
+   "KELYB",
+   "LNKS",
+   "PHOE",
+   "PPCB",
+   "RENT"
+  ]
  }
 ]
