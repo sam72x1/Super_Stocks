@@ -403,10 +403,10 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 12.4,
-   "last_price": 1.92,
+   "last_price": 1.98,
    "live_alert": {
     "buyzone": "2026-11-10",
-    "breakout": "2026-11-12",
+    "breakout": "2026-11-13",
     "premarket": "2026-11-12"
    },
    "price_state": "VALID",
@@ -1288,7 +1288,7 @@
    "hit": "t2",
    "hit_date": "2026-11-10",
    "max_gain_pct": 44.8,
-   "last_price": 0.9085,
+   "last_price": 0.94,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -1710,7 +1710,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 16.2,
+   "last_price": 15.79,
    "borrow_hist": [
     [
      "2026-11-13",
@@ -3363,7 +3363,7 @@
    "hit": "t2",
    "hit_date": "2026-11-03",
    "max_gain_pct": 37.3,
-   "last_price": 5.67,
+   "last_price": 5.04,
    "faisal_levels": "🧭 إغلاقات الهابطة $6.01 · $6.06 · $6.51 · جسم قبل الهبوط $5.77 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-11-02"
@@ -4286,7 +4286,9 @@
     "high": 1.29,
     "close": 1.2
    },
-   "live_alert": {}
+   "live_alert": {
+    "buyzone": "2026-11-13"
+   }
   },
   {
    "symbol": "FBGL",
@@ -5128,7 +5130,7 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 42.7,
-   "last_price": 2.43,
+   "last_price": 2.32,
    "live_alert": {},
    "price_state": "VALID",
    "price_bar": "2026-11-12",
@@ -5941,7 +5943,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 386.6,
-   "last_price": 5.29,
+   "last_price": 5.22,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -7316,7 +7318,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 2.92,
+   "last_price": 2.98,
    "borrow_hist": [
     [
      "2026-11-13",
@@ -7686,7 +7688,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 0.6848,
+   "last_price": 0.7,
    "live_alert": {
     "breakout": "2026-10-28",
     "dump": "2026-10-26"
@@ -8177,7 +8179,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.89,
+   "last_price": 1.91,
    "borrow_hist": [
     [
      "2026-11-13",
@@ -8557,7 +8559,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 5.75,
+   "last_price": 5.745,
    "borrow_hist": [
     [
      "2026-10-22",
@@ -12113,9 +12115,9 @@
    "sector": "Industrials",
    "country": "China",
    "float": 1022465,
-   "last_price": 0.48,
-   "status": "watching",
-   "triggered_date": null
+   "last_price": 0.448,
+   "status": "triggered",
+   "triggered_date": "2026-11-13"
   }
  ],
  "history": [
