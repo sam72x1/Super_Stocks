@@ -7006,3 +7006,5 @@
 {"key": "envelope|2026-11-12|ZSTK", "hunter": "envelope", "session": "2026-11-12", "symbol": "ZSTK", "kind": "candidate", "ref_close": 2.51, "fwd": 40, "outcome": null, "float": 6068795.0, "src": "tradingview"}
 {"key": "envelope|2026-11-12|ZTG", "hunter": "envelope", "session": "2026-11-12", "symbol": "ZTG", "kind": "candidate", "ref_close": 0.4774, "fwd": 40, "outcome": null, "float": 4083260.0, "src": "tradingview"}
 {"key": "split|2026-11-12|CTNT", "hunter": "split", "session": "2026-11-12", "symbol": "CTNT", "kind": "candidate", "ref_close": 1.6, "fwd": 40, "outcome": null, "price": 1.6, "float": 19375.0, "half": 1.77, "ref": 3.55, "src": "tradingview"}
+{"key": "split_filter_g2soft|2026-11-12|OBAI", "hunter": "split_filter_g2soft", "session": "2026-11-12", "symbol": "OBAI", "kind": "candidate", "ref_close": 1.66, "fwd": 40, "outcome": null, "price": 1.66, "half": 1.5, "ref": 3.0, "src": "tradingview"}
+{"key": "split_filter_g2soft|2026-11-12|TWG", "hunter": "split_filter_g2soft", "session": "2026-11-12", "symbol": "TWG", "kind": "candidate", "ref_close": 2.5, "fwd": 40, "outcome": null, "price": 2.5, "half": 2.06, "ref": 4.13, "src": "tradingview"}
