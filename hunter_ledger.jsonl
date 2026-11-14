@@ -7068,3 +7068,4 @@
 {"key": "envelope|2026-11-13|YDDL", "hunter": "envelope", "session": "2026-11-13", "symbol": "YDDL", "kind": "candidate", "ref_close": 1.02, "fwd": 40, "outcome": null, "float": 10263065.0, "src": "tradingview"}
 {"key": "envelope|2026-11-13|YI", "hunter": "envelope", "session": "2026-11-13", "symbol": "YI", "kind": "candidate", "ref_close": 2.84, "fwd": 40, "outcome": null, "float": 4659962.0, "src": "tradingview"}
 {"key": "envelope|2026-11-13|ZSTK", "hunter": "envelope", "session": "2026-11-13", "symbol": "ZSTK", "kind": "candidate", "ref_close": 2.74, "fwd": 40, "outcome": null, "float": 6068795.0, "src": "tradingview"}
+{"key": "split|2026-11-13|CTNT", "hunter": "split", "session": "2026-11-13", "symbol": "CTNT", "kind": "candidate", "ref_close": 1.61, "fwd": 40, "outcome": null, "price": 1.61, "float": 19375.0, "half": 1.77, "ref": 3.55, "src": "tradingview"}
