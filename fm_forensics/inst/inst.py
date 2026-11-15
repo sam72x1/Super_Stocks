@@ -13,6 +13,7 @@ import random
 import re
 import sys
 import time
+from html import unescape
 from html.parser import HTMLParser
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -84,16 +85,47 @@ class _Rows(HTMLParser):
 
 
 def screen_tickers(html):
-    """🔧 (2026-11-15 · عطلٌ مُثبَت في `43758111383`: المطبوع 31 والمستخرج 0) — الرموزُ من وسوم <a> التي فيها quote.ashx?t= **والصنف tab-link**
-    (صنفُ روابط صفوف النتائج) بترتيبها بلا تكرار، أيًّا كان ترتيبُ الخصائص · ولا تعتمد على بنية الجدول."""
+    """🔧 (2026-11-15 · عطلٌ مُثبَت في `43758111383`/`43759650332`: المطبوع 31 والمستخرج 0 — finviz انتقل إلى جدول `fv-table` بلا <tr>
+    وروابطُه `/quote?t=` لا `quote.ashx?t=`) — الرموزُ من وسوم <a> صفوف النتائج: الصنفُ `fv-table_row-link` (الجديد) أو `tab-link` (القديم)
+    ورابطُ `quote?t=`/`quote.ashx?t=` · بترتيبها بلا تكرار أيًّا كان ترتيبُ الخصائص · وروابطُ التذييل (`tab-link` بلا رابط رمز) لا تُعَدّ."""
     out = []
     for tag in re.findall(r"<a\b[^>]*>", html or "", flags=re.I):
-        if "tab-link" not in tag:
+        if "tab-link" not in tag and "fv-table_row-link" not in tag:
             continue
-        m = re.search(r"quote\.ashx\?t=([A-Z][A-Z0-9.\-]*)", tag)
+        m = re.search(r"quote(?:\.ashx)?\?t=([A-Z][A-Z0-9.\-]*)", tag)
         if m and m.group(1) not in out:
             out.append(m.group(1))
     return out
+
+
+_FV_CELL = re.compile(r'<[^>]*\bdata-column-id="([^"]+)"[^>]*>')
+_FV_ROW = re.compile(r'data-row-index="\d+"[^>]*>\s*<a\b[^>]*fv-table_row-link[^>]*quote\?t=([A-Z][A-Z0-9.\-]*)')
+
+
+def fv_rows(html):
+    """جدولُ finviz الجديد (`fv-table`) ⟵ {رمز: {عنوانُ العمود أو معرّفُه: نصّ}} بأحسن جهد (وصفٌ لا يحكم) — العنوانُ من خلايا
+    role="columnheader" بمعرّف العمود · والقيمةُ نصُّ الخليّة حتى الخليّة التالية بلا وسوم."""
+    html = html or ""
+    rows = [(m.start(), m.group(1)) for m in _FV_ROW.finditer(html)]
+    ms = list(_FV_CELL.finditer(html))
+    label, out = {}, {}
+    for i, m in enumerate(ms):
+        end = ms[i + 1].start() if i + 1 < len(ms) else min(len(html), m.end() + 400)
+        seg = html[m.end():end]
+        seg = seg[:seg.find("</div>")] if "</div>" in seg else seg
+        txt = " ".join(unescape(re.sub(r"<[^>]*>", " ", seg)).split())
+        if 'role="columnheader"' in m.group(0):
+            label.setdefault(m.group(1), txt)
+            continue
+        owner = None
+        for pos, sym in rows:
+            if pos < m.start():
+                owner = sym
+            else:
+                break
+        if owner:
+            out.setdefault(owner, {})[m.group(1)] = txt
+    return {sym: {label.get(k, k): v for k, v in d.items()} for sym, d in out.items()}
 
 
 def parse_screen(html):
@@ -108,6 +140,8 @@ def parse_screen(html):
     for r, t in p.rows:
         if t and t not in rowmap and t in r:
             rowmap[t] = dict(zip(head, r)) if head and len(r) == len(head) else {}
+    if not rowmap:
+        rowmap = fv_rows(html)
     return total, head, [(t, rowmap.get(t, {})) for t in screen_tickers(html)]
 
 
@@ -260,7 +294,7 @@ def fetch_screen(view):
             return None
         t, h, rs = parse_screen(html)
         if not rs:
-            i = html.find("quote.ashx?t=")
+            i = html.find("quote?t=")
             log(f"🔍 v={view} r={1 + 20 * k}: المطبوع {t} · رموزٌ 0 · الطول {len(html)} · مقتطف: {html[max(0, i - 300):i + 300] if i >= 0 else html[:600]!r}")
             for _kw in ("quote?t=", "quote.ashx", "/quote/", "ticker", "Ticker", "styled-row", "screener-body-table", "tab-link", "<tr"):
                 _ix = [mm.start() for mm in re.finditer(re.escape(_kw), html)]
