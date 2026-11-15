@@ -101881,6 +101881,78 @@ check("🏛️ TIN4 finviz: الرموزُ AAA وBBB من روابط tab-link ب
       isinstance(_v4, tuple) and _v4[0] == ["AAA", "BBB"] and _v4[1] == 2 and _v4[2] == ["AAA", "BBB"]
       and _v4[3] == ["AVAT", "BB.W"] and _v4[4] == ["25.10%", "30%"], str(_v4)[:240])
 
+# 🏛️📜 TIB1-TIB3 (‏2026-11-15 · `T-INST-BT` «فلتر المؤسسات تاريخيًّا» · العقد قبل أيّ رقم): الإيداعاتُ الصالحة نقطة-بنقطة (أحدثُ أصليٍّ/RESTATEMENT ‏+ NEW HOLDINGS حتى الموعد) ·
+#    والموعدُ +45 يومًا إلى أوّل جلسة · والجمعُ ثلاثيُّ القيمة (الكاذبُ المعلوم يغلب المجهول) · وIT «جديد» حين الربعُ السابق صفر · وFTD الأقربُ داخل ±183 يومًا ·
+#    والنتيجةُ تُسقط النافذةَ القصيرة · والحكمُ بالأضعف · وصفوفُ 13F من EDGAR بلا PUTCALL ولا PRN · والـworkflow يدويٌّ بلا تلغرام يُنزّل مادّةَ ‏42943607531.
+try:
+    import importlib.util as _tib_iu
+    _tib_s = _tib_iu.spec_from_file_location("inst_bt_lock", "fm_forensics/inst/inst_bt.py")
+    _IB = _tib_iu.module_from_spec(_tib_s)
+    _tib_s.loader.exec_module(_IB)
+    _tbH = {"2026-11-26"}
+    _tb1 = (_IB.deadline("2026-09-30", _tbH), _IB.deadline("2025-09-30", _tbH), _IB.deadline("2026-06-30", _tbH),
+            _IB.select_filings([("a1", "1", "2026-11-10", "13F-HR", ""), ("a2", "1", "2026-11-12", "13F-HR/A", "RESTATEMENT"),
+                                ("a3", "1", "2026-11-13", "13F-HR/A", "NEW HOLDINGS"), ("b1", "2", "2026-11-20", "13F-HR", ""),
+                                ("c1", "3", "2026-11-01", "13F-HR", ""), ("c2", "3", "2026-10-30", "13F-HR/A", "NEW HOLDINGS")], "2026-11-14"),
+            _IB.io_it(30, 20, 100), _IB.io_it(30, 0, 100), _IB.io_it(10, 10, None)[2], _IB.io_it(None, 5, 100)[1:3],
+            _IB.match_state("XNAS", 1.0, 10e6, True, True), _IB.match_state("XNYS", 1.0, 10e6, True, None),
+            _IB.match_state(None, 1.0, 10e6, True, True), _IB.match_state("XNAS", 8, 1e6, True, True), _IB.match_state("XNAS", 6.9, 8e6, True, True))
+except Exception as _e:                                         # noqa: BLE001
+    _tb1 = f"⛔ {type(_e).__name__}: {_e}"
+check("🏛️📜 TIB1 الموعد (11-14 السبت ⟵ 11-16) · الإيداعاتُ الصالحة (RESTATEMENT يغلب الأصليّ · NEW HOLDINGS بعده · ما بعد الحدّ خارج · وNEW HOLDINGS قبل الأصليّ خارج) · "
+      "IO/IT و«جديد» · والجمعُ الثلاثيّ (الكاذبُ يغلب المجهول) · وناسداك ∧ دون 7$ ∧ دون 50م",
+      isinstance(_tb1, tuple) and _tb1[0] == "2026-11-16" and _tb1[1] == "2025-11-14" and _tb1[2] == "2026-08-14" and _tb1[3] == ["a2", "a3", "c1"]
+      and _tb1[4] == (0.3, True, True, False) and _tb1[5] == (0.3, True, True, True) and _tb1[6] is False and _tb1[7] == (None, None)
+      and _tb1[8] is True and _tb1[9] is False and _tb1[10] is None and _tb1[11] is False and _tb1[12] is False, str(_tb1)[:260])
+try:
+    _bars = [("d0", 1, 1.0), ("d1", 1.2, 1.1), ("d2", 1.6, 1.5)]
+    _tb2 = (_IB.pick_ftd([("2026-01-01", "AAA"), ("2026-09-01", "BBB"), ("2025-01-01", "CCC")], "2026-09-30"), _IB.pick_ftd([("2025-01-01", "CCC")], "2026-09-30"),
+            _IB.outcome_hits(_bars, 0, 2, 0.5), _IB.outcome_hits(_bars, 0, 3, 0.5), _IB.outcome_hits(_bars, 0, 1, 0.5),
+            _IB.year_verdict(25, 0.01, 0.2), _IB.year_verdict(25, -0.1, 0.2), _IB.year_verdict(25, -0.3, -0.1), _IB.year_verdict(19, 0.1, 0.2),
+            _IB.weakest(["يرفع", "لا فرق قابل للكشف", "يرفع"]), _IB.weakest(["يرفع", "يخفض"]), _IB.weakest(["يخفض", "لا قياس"]),
+            _IB.mm_share({"1": 100, "2": 300, "3": -50}, {"1": "Jane Street Group", "2": "Vanguard"}, lambda n: "jane street" in n.lower()),
+            _IB.accept_verdict(["A", "B", "C"], ["A", "B", "D", "E"])["accepted"],
+            _IB.accept_verdict(["A", "B", "C", "X"], ["A", "B", "C", "D"])["accepted"], _IB.accept_verdict(list("ABCDEFG"), ["A", "B", "C"])["accepted"],
+            _IB.norm_name("Ascent Solar Technologies, Inc.") == _IB.norm_name("ASCENT SOLAR TECHNOLOGIES INC"), _IB.norm_name("Foo Holdings Corp."),
+            _IB.common_class("COM"), _IB.common_class("WARRANT"), _IB.common_class("PFD SER A"))
+except Exception as _e:                                         # noqa: BLE001
+    _tb2 = f"⛔ {type(_e).__name__}: {_e}"
+check("🏛️📜 TIB2 FTD الأقربُ داخل ±183 · النتيجةُ (‏+50% · نافذةٌ قصيرة ⟵ None) · الحكمُ السنويّ بأرضيّة 20 والأضعفُ يحكم · حصّةُ صنّاع السوق من الزيادات الموجبة · "
+      "والقبولُ استرجاعٌ 70% ∧ دقّةٌ 50% · وتطبيعُ الاسم وفئةُ الأسهم العاديّة",
+      isinstance(_tb2, tuple) and _tb2[0] == "BBB" and _tb2[1] is None and _tb2[2] is True and _tb2[3] is None and _tb2[4] is False
+      and _tb2[5] == "يرفع" and _tb2[6] == "لا فرق قابل للكشف" and _tb2[7] == "يخفض" and _tb2[8] == "لا قياس"
+      and _tb2[9] == "لا فرق قابل للكشف" and _tb2[10] == "يخفض" and _tb2[11] == "لا قياس" and abs(_tb2[12] - 0.25) < 1e-9
+      and _tb2[13] is False and _tb2[14] is True and _tb2[15] is False and _tb2[16] is True and _tb2[17] == "foo"
+      and _tb2[18] is True and _tb2[19] is False and _tb2[20] is False, str(_tb2)[:260])
+try:
+    import io as _tb_io, zipfile as _tb_zf, yaml as _tb_y
+    _tx = ("COMPANY CONFORMED NAME:\t\tHRT FINANCIAL LP\n<periodOfReport>09-30-2026</periodOfReport><amendmentType>RESTATEMENT</amendmentType>"
+           "<ns1:infoTable><ns1:nameOfIssuer>ACME INC</ns1:nameOfIssuer><ns1:titleOfClass>COM</ns1:titleOfClass><ns1:cusip>00123x101</ns1:cusip>"
+           "<ns1:shrsOrPrnAmt><ns1:sshPrnamt>1,500</ns1:sshPrnamt><ns1:sshPrnamtType>SH</ns1:sshPrnamtType></ns1:shrsOrPrnAmt></ns1:infoTable>"
+           "<ns1:infoTable><ns1:cusip>00123X101</ns1:cusip><ns1:sshPrnamt>99</ns1:sshPrnamt><ns1:sshPrnamtType>SH</ns1:sshPrnamtType><ns1:putCall>Put</ns1:putCall></ns1:infoTable>"
+           "<infoTable><cusip>00123X101</cusip><sshPrnamt>5</sshPrnamt><sshPrnamtType>PRN</sshPrnamtType></infoTable>")
+    _zb = _tb_io.BytesIO()
+    with _tb_zf.ZipFile(_zb, "w") as _z:
+        _z.writestr("SUBMISSION.tsv", "ACCESSION_NUMBER\tFILING_DATE\tSUBMISSIONTYPE\tCIK\tPERIODOFREPORT\nA1\t10-AUG-2026\t13F-HR\t1\t30-JUN-2026\nA2\t11-AUG-2026\t13F-NT\t2\t30-JUN-2026\n")
+        _z.writestr("COVERPAGE.tsv", "ACCESSION_NUMBER\tAMENDMENTTYPE\tFILINGMANAGER_NAME\nA1\t\tJANE STREET GROUP\n")
+        _z.writestr("INFOTABLE.tsv", "ACCESSION_NUMBER\tNAMEOFISSUER\tTITLEOFCLASS\tCUSIP\tFIGI\tSSHPRNAMT\tSSHPRNAMTTYPE\tPUTCALL\n"
+                    "A1\tACME\tCOM\tabc\t\t100\tSH\t\nA1\tACME\tCOM\tABC\t\t50\tSH\t\nA1\tACME\tCOM\tABC\t\t7\tSH\tCall\nA1\tACME\tNOTE\tABD\t\t9\tPRN\t\nA9\tX\tCOM\tABC\t\t1000\tSH\t\n")
+    _df, _mt = _IB.read_zip_info(_zb.getvalue(), {"A1"})
+    _wf = _tb_y.safe_load(open(".github/workflows/inst_bt.yml", encoding="utf-8"))
+    _wt = open(".github/workflows/inst_bt.yml", encoding="utf-8").read()
+    _tb3 = (_IB.parse_edgar_13f(_tx), _IB.read_zip_subs(_zb.getvalue()), _df.to_dict("records"),
+            _IB.zip_window("https://x/2023q1_form13f.zip"), _IB.zip_window("https://x/01jun2026-31aug2026_form13f.zip"),
+            sorted(_wf.get(True) or _wf.get("on")), "TELEGRAM" in _wt, "run-id: 42943607531" in _wt, "fetch-depth: 0" in _wt,
+            _IB.contract_ok(), _IB.contract_ok(sha="0" * 64))
+except Exception as _e:                                         # noqa: BLE001
+    _tb3 = f"⛔ {type(_e).__name__}: {_e}"
+check("🏛️📜 TIB3 إيداعُ EDGAR (الربع · التعديل · المُودِع · SH بلا Put ولا PRN · CUSIP بحروفٍ كبيرة) · ومجموعاتُ SEC (13F-HR وحدَه · SH بلا Call · الحسابُ المختار وحدَه) · "
+      "ونوافذُ الأسماء · والـworkflow يدويٌّ بلا تلغرام يُنزّل ‏42943607531 بتاريخٍ كامل · وبصمةُ العقد",
+      isinstance(_tb3, tuple) and _tb3[0] == ("2026-09-30", "RESTATEMENT", "HRT FINANCIAL LP", [("00123X101", "ACME INC", "COM", "", 1500.0)])
+      and _tb3[1] == [("A1", "1", "2026-08-10", "13F-HR", "", "2026-06-30", "JANE STREET GROUP")]
+      and _tb3[2] == [{"acc": "A1", "cusip": "ABC", "shares": 150}] and _tb3[3] == ("2023-01-01", "2023-03-31") and _tb3[4] == ("2026-06-01", "2026-08-31")
+      and _tb3[5] == ["workflow_dispatch"] and not _tb3[6] and _tb3[7] and _tb3[8] and _tb3[9] and not _tb3[10], str(_tb3)[:260])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
