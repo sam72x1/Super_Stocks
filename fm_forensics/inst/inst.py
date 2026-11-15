@@ -13,6 +13,7 @@ import random
 import re
 import sys
 import time
+from html import unescape
 from html.parser import HTMLParser
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -83,19 +84,65 @@ class _Rows(HTMLParser):
             self._row = None
 
 
+def screen_tickers(html):
+    """🔧 (2026-11-15 · عطلٌ مُثبَت في `43758111383`/`43759650332`: المطبوع 31 والمستخرج 0 — finviz انتقل إلى جدول `fv-table` بلا <tr>
+    وروابطُه `/quote?t=` لا `quote.ashx?t=`) — الرموزُ من وسوم <a> صفوف النتائج: الصنفُ `fv-table_row-link` (الجديد) أو `tab-link` (القديم)
+    ورابطُ `quote?t=`/`quote.ashx?t=` · بترتيبها بلا تكرار أيًّا كان ترتيبُ الخصائص · وروابطُ التذييل (`tab-link` بلا رابط رمز) لا تُعَدّ."""
+    out = []
+    for tag in re.findall(r"<a\b[^>]*>", html or "", flags=re.I):
+        if "tab-link" not in tag and "fv-table_row-link" not in tag:
+            continue
+        m = re.search(r"quote(?:\.ashx)?\?t=([A-Z][A-Z0-9.\-]*)", tag)
+        if m and m.group(1) not in out:
+            out.append(m.group(1))
+    return out
+
+
+_FV_CELL = re.compile(r'<[^>]*\bdata-column-id="([^"]+)"[^>]*>')
+_FV_ROW = re.compile(r'data-row-index="\d+"[^>]*>\s*<a\b[^>]*fv-table_row-link[^>]*quote\?t=([A-Z][A-Z0-9.\-]*)')
+
+
+def fv_rows(html):
+    """جدولُ finviz الجديد (`fv-table`) ⟵ {رمز: {عنوانُ العمود أو معرّفُه: نصّ}} بأحسن جهد (وصفٌ لا يحكم) — العنوانُ من خلايا
+    role="columnheader" بمعرّف العمود · والقيمةُ نصُّ الخليّة حتى الخليّة التالية بلا وسوم."""
+    html = html or ""
+    rows = [(m.start(), m.group(1)) for m in _FV_ROW.finditer(html)]
+    ms = list(_FV_CELL.finditer(html))
+    label, out = {}, {}
+    for i, m in enumerate(ms):
+        end = ms[i + 1].start() if i + 1 < len(ms) else min(len(html), m.end() + 400)
+        seg = html[m.end():end]
+        seg = seg[:seg.find("</div>")] if "</div>" in seg else seg
+        txt = " ".join(unescape(re.sub(r"<[^>]*>", " ", seg)).split())
+        if 'role="columnheader"' in m.group(0):
+            label.setdefault(m.group(1), txt)
+            continue
+        owner = None
+        for pos, sym in rows:
+            if pos < m.start():
+                owner = sym
+            else:
+                break
+        if owner:
+            out.setdefault(owner, {})[m.group(1)] = txt
+    return {sym: {label.get(k, k): v for k, v in d.items()} for sym, d in out.items()}
+
+
 def parse_screen(html):
-    """صفحةُ finviz ⟵ (العددُ الكلّيّ المطبوع أو None، الرأس، [(رمز، {عمود: نصّ})]) — الرأسُ أوّلُ صفٍّ فيه «Ticker» · والصفوفُ ما فيه رابطُ رمزٍ بطول الرأس."""
+    """صفحةُ finviz ⟵ (العددُ الكلّيّ المطبوع أو None، الرأس، [(رمز، {عمود: نصّ})]) — **الرموزُ من `screen_tickers`** (لا من الجدول) ·
+    والأعمدةُ بأحسن جهد: الرأسُ صفٌّ فيه خليّةٌ «Ticker» · وصفُّ الرمز يُقرن بالرأس إن تساوى الطولان وإلّا {} (وصفٌ لا يحكم)."""
     m = re.search(r"(\d[\d,]*)\s*Total", html or "")
     total = int(m.group(1).replace(",", "")) if m else None
     p = _Rows()
     p.feed(html or "")
-    head = next((r for r, _t in p.rows if "Ticker" in r), None)
-    out = []
-    if head:
-        for r, t in p.rows:
-            if t and len(r) == len(head) and t in r:
-                out.append((t, dict(zip(head, r))))
-    return total, head, out
+    head = next((r for r, _t in p.rows if any(c.strip() == "Ticker" for c in r)), None)
+    rowmap = {}
+    for r, t in p.rows:
+        if t and t not in rowmap and t in r:
+            rowmap[t] = dict(zip(head, r)) if head and len(r) == len(head) else {}
+    if not rowmap:
+        rowmap = fv_rows(html)
+    return total, head, [(t, rowmap.get(t, {})) for t in screen_tickers(html)]
 
 
 def merge_pages(pages):
@@ -222,16 +269,20 @@ def boot_adj(units, b=BOOT_B, seed=BOOT_SEED):
 
 
 # ── الجلب ────────────────────────────────────────────────────────────────────────────────────────
-def _get(url, headers, tries=3, as_json=False):
+def _get(url, headers, tries=4, as_json=False):
+    """GET بإعادة · و429 (خنقُ finviz) يُمهَل أطول · والتعذّرُ يُطبع بحالته (لا صمت)."""
     import requests
+    last = None
     for i in range(tries):
         try:
             r = requests.get(url, headers=headers, timeout=40)
+            last = r.status_code
             if r.status_code == 200:
                 return r.json() if as_json else r.text
-        except Exception:                                        # noqa: BLE001
-            pass
-        time.sleep(2 * (i + 1))
+        except Exception as e:                                   # noqa: BLE001
+            last = type(e).__name__
+        time.sleep((15 if last == 429 else 2) * (i + 1))
+    log(f"⚠️ تعذّر {url.split('?')[0]} · آخرُ حالة {last}")
     return None
 
 
@@ -246,11 +297,22 @@ def fetch_screen(view):
         if html is None:
             return None
         t, h, rs = parse_screen(html)
+        if not rs:
+            i = html.find("quote?t=")
+            log(f"🔍 v={view} r={1 + 20 * k}: المطبوع {t} · رموزٌ 0 · الطول {len(html)} · مقتطف: {html[max(0, i - 300):i + 300] if i >= 0 else html[:600]!r}")
+            for _kw in ("quote?t=", "quote.ashx", "/quote/", "ticker", "Ticker", "styled-row", "screener-body-table", "tab-link", "<tr"):
+                _ix = [mm.start() for mm in re.finditer(re.escape(_kw), html)]
+                log(f"🔍 «{_kw}» ×{len(_ix)}" + (f" · أوّلها: {html[max(0, _ix[min(2, len(_ix) - 1)] - 200):_ix[min(2, len(_ix) - 1)] + 300]!r}" if _ix else ""))
+            try:
+                os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
+                open(os.path.join(HERE, "out", f"raw_v{view}_r{1 + 20 * k}.html"), "w", encoding="utf-8").write(html)
+            except OSError:
+                pass
         pages.append((t, h, rs))
         got = len({s for _t, _h, rr in pages for s, _r in rr})
         if not rs or (t is not None and got >= t):
             break
-        time.sleep(1.5)
+        time.sleep(4)
     return merge_pages(pages)
 
 

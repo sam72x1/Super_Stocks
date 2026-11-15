@@ -101860,6 +101860,26 @@ except Exception as _e:                                         # noqa: BLE001
     _v3 = f"⛔ {type(_e).__name__}: {_e}"
 check("🏛️ TIN3 البوّابات: check 0 · sec بلا SEC_CONTACT 3 · measure بلا مفتاح 3 · بصمةٌ مختلفة 9 · والـworkflow يدويٌّ بلا تلغرام بقائمة أوضاعٍ مغلقة",
       isinstance(_v3, tuple) and _v3[0] == (0, 3, 3) and _v3[1] == 9 and _v3[2] == ["workflow_dispatch"] and not _v3[3] and _v3[4], str(_v3)[:200])
+# 🏛️ TIN4 (‏2026-11-15 · عطلٌ مُثبَت `43758111383`/`43759650332`: finviz طبع 31 والمستخرج 0 — جدولُ `fv-table` بلا <tr> وروابطُ `/quote?t=`): الرموزُ من روابط `tab-link` **مستقلّةً عن بنية الجدول** —
+#    رأسٌ في جدولٍ متداخل وصفٌّ بطولٍ غيرِ طول الرأس لا يُسقطان رمزًا · وترتيبُ الخصائص لا يهمّ · والرابطُ بلا الصنف لا يُعَدّ.
+try:
+    _h4 = ('<div>#1 / 2 Total</div><table><tr><td><table><tr><th>Ticker</th><th>Price</th></tr></table></td></tr>'
+           '<tr class="styled-row"><td>1</td><td><a class="tab-link" href="quote.ashx?t=AAA&ty=c">AAA</a></td><td>x</td><td>y</td></tr>'
+           '<tr><td><a href="quote.ashx?t=BBB&p=d" class="tab-link">BBB</a></td></tr><a href="quote.ashx?t=ZZZ">ZZZ</a>'
+           '<a href="quote.ashx?t=AAA" class="tab-link">AAA</a>')
+    _p4 = _IN.parse_screen(_h4)
+    _fvr = lambda i, t, o: (f'<div role="row" data-row-index="{i}"><a aria-hidden="true" class="fv-table_row-link" href="/quote?t={t}&amp;b=1" tabindex="-1"></a>'
+                            f'<div data-column-id="ticker" role="gridcell"><a href="/quote?t={t}">{t}</a></div><div data-column-id="instOwn" role="gridcell"><span>{o}</span></div></div>')
+    _h5 = ('<div>#1 / 2 Total</div><div data-column-id="ticker" role="columnheader">Ticker</div><div data-column-id="instOwn" role="columnheader"><span>Inst Own</span></div>'
+           + _fvr(0, "AVAT", "25.10%") + _fvr(1, "BB.W", "30%") + '<a class="tab-link" href="/advertise">Advertise</a>')
+    _p5 = _IN.parse_screen(_h5)
+    _v4 = (_IN.screen_tickers(_h4), _p4[0], [x[0] for x in _p4[2]], [x[0] for x in _p5[2]], [x[1].get("Inst Own") for x in _p5[2]])
+except Exception as _e:                                         # noqa: BLE001
+    _v4 = f"⛔ {type(_e).__name__}: {_e}"
+check("🏛️ TIN4 finviz: الرموزُ AAA وBBB من روابط tab-link بترتيبها بلا تكرار رغم رأسٍ متداخل وصفوفٍ بطولٍ مختلف · وZZZ بلا الصنف لا يُعَدّ · والعددُ المطبوع 2 · "
+      "وجدولُ fv-table الجديد (/quote?t=) يعطي AVAT وBB.W بـInst Own من عنوان العمود ورابطُ التذييل لا يُعَدّ",
+      isinstance(_v4, tuple) and _v4[0] == ["AAA", "BBB"] and _v4[1] == 2 and _v4[2] == ["AAA", "BBB"]
+      and _v4[3] == ["AVAT", "BB.W"] and _v4[4] == ["25.10%", "30%"], str(_v4)[:240])
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
