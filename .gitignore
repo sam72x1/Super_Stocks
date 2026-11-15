@@ -97,3 +97,7 @@ ema_cross_ledger_silent.jsonl
 fm_forensics/appdiff/out/
 # T-TGTLADDER — مُخرَجاتُ الرنر (prep · الشرائح) لا تُدفَع
 fm_forensics/tgtladder/out/
+
+# 🏛️ (2026-11-15) مخرجاتُ T-INST وT-INST-BT على الرنر وحدَه
+fm_forensics/inst/out/
+fm_forensics/inst/out_bt/

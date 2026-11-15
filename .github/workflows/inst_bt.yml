@@ -1,0 +1,59 @@
+name: "🏛️📜 T-INST-BT فلتر المؤسسات تاريخيًّا (قراءةٌ فقط · يدويّ)"
+
+# 🔒 قراءةٌ وقياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا إنتاج (العقد `fm_forensics/inst/T_INST_BT_prereg.md` · TIB1-TIB3).
+# run = 13F نقطة-بنقطة ⟵ ① القبول ⟵ ② الـ60 جلسة ⟵ ③ ثلاث سنوات على CURRENT (شرائحُ T-TGTLADDER ‏42943607531) ⟵ ④ ⟵ ⑤ · ويخرج 9 إن تغيّرت بصمةُ العقد.
+permissions:
+  contents: read
+  actions: read
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: super-stocks-inst-bt
+  cancel-in-progress: false
+
+jobs:
+  inst_bt:
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download T-TGTLADDER material (42943607531)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: tgl-*
+          path: k4/tgl
+          merge-multiple: true
+          run-id: 42943607531
+          github-token: ${{ github.token }}
+
+      - name: 🏛️📜 T-INST-BT
+        env:
+          K4_TGL_DIR: k4/tgl
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/inst/inst_bt.py --mode run
+
+      - name: Upload result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: inst-bt
+          path: fm_forensics/inst/out_bt/
+          if-no-files-found: ignore
+          retention-days: 90
