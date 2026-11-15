@@ -1,0 +1,3526 @@
+{
+ "captured_utc": "2026-11-15T20:47:10Z",
+ "filters": "cap_nano,exch_nasd,sh_instown_o20,sh_insttrans_o10,sh_price_u7",
+ "finviz_total": 31,
+ "owner_saw": 31,
+ "tickers": [
+  "ASTI",
+  "AVAT",
+  "BFRI",
+  "BOF",
+  "BOSC",
+  "CALC",
+  "CLRB",
+  "DETX",
+  "ELTX",
+  "EYPT",
+  "FEMY",
+  "HOWL",
+  "INLF",
+  "IPWR",
+  "JUNS",
+  "KPRX",
+  "LIQT",
+  "LONA",
+  "MDXH",
+  "NA",
+  "ONMD",
+  "OPAD",
+  "QTI",
+  "RNTX",
+  "SCYX",
+  "SSM",
+  "SUNE",
+  "TCRX",
+  "TRAW",
+  "VIP",
+  "WATR"
+ ],
+ "ownership": {
+  "ASTI": {
+   "No.": "1",
+   "Ticker": "A ASTI",
+   "Market Cap Mkt Cap": "12.57M",
+   "Outstanding Shs Out": "9.82M",
+   "Float": "9.81M",
+   "Insider Own Insd Own": "0.06%",
+   "Insider Trans Insd Trans": "-88.22%",
+   "Inst Own": "23.23%",
+   "Inst Trans": "14.63%",
+   "Short Float Short Flt": "5.90%",
+   "Short Ratio Short R": "2.21",
+   "Avg Volume Avg Vol": "262.25K",
+   "Price": "1.28",
+   "Change % Chg %": "-9.54%",
+   "Volume Vol": "214,131"
+  },
+  "AVAT": {
+   "No.": "2",
+   "Ticker": "A AVAT",
+   "Market Cap Mkt Cap": "47.22M",
+   "Outstanding Shs Out": "33.43M",
+   "Float": "30.64M",
+   "Insider Own Insd Own": "19.19%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "21.55%",
+   "Inst Trans": "45.24%",
+   "Short Float Short Flt": "1.54%",
+   "Short Ratio Short R": "0.40",
+   "Avg Volume Avg Vol": "1.17M",
+   "Price": "1.08",
+   "Change % Chg %": "-0.92%",
+   "Volume Vol": "1,281,093"
+  },
+  "BFRI": {
+   "No.": "3",
+   "Ticker": "B BFRI",
+   "Market Cap Mkt Cap": "10.40M",
+   "Outstanding Shs Out": "17.95M",
+   "Float": "12.84M",
+   "Insider Own Insd Own": "13.53%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "33.42%",
+   "Inst Trans": "11.60%",
+   "Short Float Short Flt": "1.48%",
+   "Short Ratio Short R": "0.40",
+   "Avg Volume Avg Vol": "479.89K",
+   "Price": "0.70",
+   "Change % Chg %": "-24.39%",
+   "Volume Vol": "883,738"
+  },
+  "BOF": {
+   "No.": "4",
+   "Ticker": "B BOF",
+   "Market Cap Mkt Cap": "38.98M",
+   "Outstanding Shs Out": "19.20M",
+   "Float": "16.32M",
+   "Insider Own Insd Own": "15.01%",
+   "Insider Trans Insd Trans": "-29.22%",
+   "Inst Own": "31.44%",
+   "Inst Trans": "14.09%",
+   "Short Float Short Flt": "0.33%",
+   "Short Ratio Short R": "0.77",
+   "Avg Volume Avg Vol": "69.76K",
+   "Price": "2.03",
+   "Change % Chg %": "14.69%",
+   "Volume Vol": "66,801"
+  },
+  "BOSC": {
+   "No.": "5",
+   "Ticker": "B BOSC",
+   "Market Cap Mkt Cap": "28.56M",
+   "Outstanding Shs Out": "7.06M",
+   "Float": "6.53M",
+   "Insider Own Insd Own": "8.06%",
+   "Insider Trans Insd Trans": "0.17%",
+   "Inst Own": "20.01%",
+   "Inst Trans": "10.79%",
+   "Short Float Short Flt": "0.52%",
+   "Short Ratio Short R": "0.97",
+   "Avg Volume Avg Vol": "34.86K",
+   "Price": "4.02",
+   "Change % Chg %": "0.25%",
+   "Volume Vol": "29,963"
+  },
+  "CALC": {
+   "No.": "6",
+   "Ticker": "C CALC",
+   "Market Cap Mkt Cap": "8.34M",
+   "Outstanding Shs Out": "6.89M",
+   "Float": "4.18M",
+   "Insider Own Insd Own": "39.39%",
+   "Insider Trans Insd Trans": "10.10%",
+   "Inst Own": "35.73%",
+   "Inst Trans": "19.39%",
+   "Short Float Short Flt": "4.10%",
+   "Short Ratio Short R": "2.09",
+   "Avg Volume Avg Vol": "81.84K",
+   "Price": "1.21",
+   "Change % Chg %": "-0.82%",
+   "Volume Vol": "31,548"
+  },
+  "CLRB": {
+   "No.": "7",
+   "Ticker": "C CLRB",
+   "Market Cap Mkt Cap": "11.44M",
+   "Outstanding Shs Out": "10.04M",
+   "Float": "9.86M",
+   "Insider Own Insd Own": "1.75%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "36.83%",
+   "Inst Trans": "56.93%",
+   "Short Float Short Flt": "2.22%",
+   "Short Ratio Short R": "2.32",
+   "Avg Volume Avg Vol": "94.37K",
+   "Price": "1.14",
+   "Change % Chg %": "-1.72%",
+   "Volume Vol": "19,469"
+  },
+  "DETX": {
+   "No.": "8",
+   "Ticker": "D DETX",
+   "Market Cap Mkt Cap": "6.82M",
+   "Outstanding Shs Out": "5.68M",
+   "Float": "5.09M",
+   "Insider Own Insd Own": "10.38%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "35.83%",
+   "Inst Trans": "61.93%",
+   "Short Float Short Flt": "0.13%",
+   "Short Ratio Short R": "0.27",
+   "Avg Volume Avg Vol": "25.68K",
+   "Price": "1.20",
+   "Change % Chg %": "3.45%",
+   "Volume Vol": "4,922"
+  },
+  "ELTX": {
+   "No.": "9",
+   "Ticker": "E ELTX",
+   "Market Cap Mkt Cap": "42.46M",
+   "Outstanding Shs Out": "28.31M",
+   "Float": "20.40M",
+   "Insider Own Insd Own": "27.95%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "22.98%",
+   "Inst Trans": "15.83%",
+   "Short Float Short Flt": "9.00%",
+   "Short Ratio Short R": "5.73",
+   "Avg Volume Avg Vol": "320.39K",
+   "Price": "1.50",
+   "Change % Chg %": "-3.85%",
+   "Volume Vol": "327,186"
+  },
+  "EYPT": {
+   "No.": "10",
+   "Ticker": "E EYPT",
+   "Market Cap Mkt Cap": "34.82M",
+   "Outstanding Shs Out": "90.77M",
+   "Float": "80.71M",
+   "Insider Own Insd Own": "6.38%",
+   "Insider Trans Insd Trans": "0.08%",
+   "Inst Own": "121.97%",
+   "Inst Trans": "11.02%",
+   "Short Float Short Flt": "13.65%",
+   "Short Ratio Short R": "1.18",
+   "Avg Volume Avg Vol": "9.33M",
+   "Price": "0.31",
+   "Change % Chg %": "-4.23%",
+   "Volume Vol": "3,086,229"
+  },
+  "FEMY": {
+   "No.": "11",
+   "Ticker": "F FEMY",
+   "Market Cap Mkt Cap": "11.89M",
+   "Outstanding Shs Out": "8.66M",
+   "Float": "8.09M",
+   "Insider Own Insd Own": "3.43%",
+   "Insider Trans Insd Trans": "17.07%",
+   "Inst Own": "54.65%",
+   "Inst Trans": "37.67%",
+   "Short Float Short Flt": "0.61%",
+   "Short Ratio Short R": "0.07",
+   "Avg Volume Avg Vol": "698.92K",
+   "Price": "1.42",
+   "Change % Chg %": "1.43%",
+   "Volume Vol": "52,899"
+  },
+  "HOWL": {
+   "No.": "12",
+   "Ticker": "H HOWL",
+   "Market Cap Mkt Cap": "47.64M",
+   "Outstanding Shs Out": "48.60M",
+   "Float": "39.93M",
+   "Insider Own Insd Own": "17.84%",
+   "Insider Trans Insd Trans": "-22.47%",
+   "Inst Own": "24.45%",
+   "Inst Trans": "27.98%",
+   "Short Float Short Flt": "5.33%",
+   "Short Ratio Short R": "0.32",
+   "Avg Volume Avg Vol": "6.58M",
+   "Price": "0.98",
+   "Change % Chg %": "0.03%",
+   "Volume Vol": "317,834"
+  },
+  "INLF": {
+   "No.": "13",
+   "Ticker": "I INLF",
+   "Market Cap Mkt Cap": "0.79M",
+   "Outstanding Shs Out": "1.53M",
+   "Float": "1.39M",
+   "Insider Own Insd Own": "9.14%",
+   "Insider Trans Insd Trans": "-56.60%",
+   "Inst Own": "22.58%",
+   "Inst Trans": "15.14%",
+   "Short Float Short Flt": "105.69%",
+   "Short Ratio Short R": "0.07",
+   "Avg Volume Avg Vol": "22.50M",
+   "Price": "0.51",
+   "Change % Chg %": "25.30%",
+   "Volume Vol": "21,397,639"
+  },
+  "IPWR": {
+   "No.": "14",
+   "Ticker": "I IPWR",
+   "Market Cap Mkt Cap": "34.35M",
+   "Outstanding Shs Out": "16.43M",
+   "Float": "15.24M",
+   "Insider Own Insd Own": "7.27%",
+   "Insider Trans Insd Trans": "0.44%",
+   "Inst Own": "40.16%",
+   "Inst Trans": "15.16%",
+   "Short Float Short Flt": "2.60%",
+   "Short Ratio Short R": "2.21",
+   "Avg Volume Avg Vol": "179.72K",
+   "Price": "2.09",
+   "Change % Chg %": "-4.57%",
+   "Volume Vol": "203,996"
+  },
+  "JUNS": {
+   "No.": "15",
+   "Ticker": "J JUNS",
+   "Market Cap Mkt Cap": "2.32M",
+   "Outstanding Shs Out": "1.32M",
+   "Float": "0.91M",
+   "Insider Own Insd Own": "31.06%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "77.24%",
+   "Inst Trans": "18.94%",
+   "Short Float Short Flt": "2.76%",
+   "Short Ratio Short R": "0.03",
+   "Avg Volume Avg Vol": "881.44K",
+   "Price": "1.76",
+   "Change % Chg %": "-5.38%",
+   "Volume Vol": "12,572"
+  },
+  "KPRX": {
+   "No.": "16",
+   "Ticker": "K KPRX",
+   "Market Cap Mkt Cap": "5.44M",
+   "Outstanding Shs Out": "4.42M",
+   "Float": "3.91M",
+   "Insider Own Insd Own": "11.64%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "35.07%",
+   "Inst Trans": "18.02%",
+   "Short Float Short Flt": "1.45%",
+   "Short Ratio Short R": "1.88",
+   "Avg Volume Avg Vol": "30.08K",
+   "Price": "1.23",
+   "Change % Chg %": "-7.52%",
+   "Volume Vol": "88,965"
+  },
+  "LIQT": {
+   "No.": "17",
+   "Ticker": "L LIQT",
+   "Market Cap Mkt Cap": "8.70M",
+   "Outstanding Shs Out": "32.95M",
+   "Float": "24.55M",
+   "Insider Own Insd Own": "25.50%",
+   "Insider Trans Insd Trans": "10.53%",
+   "Inst Own": "38.32%",
+   "Inst Trans": "41.61%",
+   "Short Float Short Flt": "0.85%",
+   "Short Ratio Short R": "0.81",
+   "Avg Volume Avg Vol": "256.39K",
+   "Price": "0.26",
+   "Change % Chg %": "-6.84%",
+   "Volume Vol": "208,913"
+  },
+  "LONA": {
+   "No.": "18",
+   "Ticker": "L LONA",
+   "Market Cap Mkt Cap": "32.69M",
+   "Outstanding Shs Out": "9.42M",
+   "Float": "6.37M",
+   "Insider Own Insd Own": "32.39%",
+   "Insider Trans Insd Trans": "103.21%",
+   "Inst Own": "63.26%",
+   "Inst Trans": "14.97%",
+   "Short Float Short Flt": "1.17%",
+   "Short Ratio Short R": "0.37",
+   "Avg Volume Avg Vol": "200.98K",
+   "Price": "3.47",
+   "Change % Chg %": "-6.97%",
+   "Volume Vol": "20,170"
+  },
+  "MDXH": {
+   "No.": "19",
+   "Ticker": "M MDXH",
+   "Market Cap Mkt Cap": "13.75M",
+   "Outstanding Shs Out": "95.42M",
+   "Float": "64.98M",
+   "Insider Own Insd Own": "31.90%",
+   "Insider Trans Insd Trans": "7.80%",
+   "Inst Own": "40.27%",
+   "Inst Trans": "45.93%",
+   "Short Float Short Flt": "1.41%",
+   "Short Ratio Short R": "0.15",
+   "Avg Volume Avg Vol": "6.20M",
+   "Price": "0.14",
+   "Change % Chg %": "2.93%",
+   "Volume Vol": "2,003,710"
+  },
+  "NA": {
+   "No.": "20",
+   "Ticker": "N NA",
+   "Market Cap Mkt Cap": "32.08M",
+   "Outstanding Shs Out": "22.01M",
+   "Float": "8.54M",
+   "Insider Own Insd Own": "61.21%",
+   "Insider Trans Insd Trans": "-0.08%",
+   "Inst Own": "35.87%",
+   "Inst Trans": "14.62%",
+   "Short Float Short Flt": "12.92%",
+   "Short Ratio Short R": "4.36",
+   "Avg Volume Avg Vol": "252.77K",
+   "Price": "1.46",
+   "Change % Chg %": "5.63%",
+   "Volume Vol": "14,263"
+  },
+  "ONMD": {
+   "No.": "21",
+   "Ticker": "O ONMD",
+   "Market Cap Mkt Cap": "32.11M",
+   "Outstanding Shs Out": "5.77M",
+   "Float": "1.73M",
+   "Insider Own Insd Own": "71.19%",
+   "Insider Trans Insd Trans": "155.12%",
+   "Inst Own": "32.97%",
+   "Inst Trans": "17.44%",
+   "Short Float Short Flt": "7.69%",
+   "Short Ratio Short R": "3.18",
+   "Avg Volume Avg Vol": "41.89K",
+   "Price": "5.34",
+   "Change % Chg %": "-0.19%",
+   "Volume Vol": "11,837"
+  },
+  "OPAD": {
+   "No.": "22",
+   "Ticker": "O OPAD",
+   "Market Cap Mkt Cap": "9.15M",
+   "Outstanding Shs Out": "5.14M",
+   "Float": "4.02M",
+   "Insider Own Insd Own": "21.69%",
+   "Insider Trans Insd Trans": "28.59%",
+   "Inst Own": "35.66%",
+   "Inst Trans": "12.83%",
+   "Short Float Short Flt": "12.90%",
+   "Short Ratio Short R": "13.24",
+   "Avg Volume Avg Vol": "39.19K",
+   "Price": "1.78",
+   "Change % Chg %": "-9.18%",
+   "Volume Vol": "12,651"
+  },
+  "QTI": {
+   "No.": "23",
+   "Ticker": "Q QTI",
+   "Market Cap Mkt Cap": "27.62M",
+   "Outstanding Shs Out": "14.67M",
+   "Float": "11.50M",
+   "Insider Own Insd Own": "21.76%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "22.52%",
+   "Inst Trans": "12.61%",
+   "Short Float Short Flt": "1.83%",
+   "Short Ratio Short R": "5.94",
+   "Avg Volume Avg Vol": "35.46K",
+   "Price": "1.88",
+   "Change % Chg %": "-8.74%",
+   "Volume Vol": "53,816"
+  },
+  "RNTX": {
+   "No.": "24",
+   "Ticker": "R RNTX",
+   "Market Cap Mkt Cap": "47.63M",
+   "Outstanding Shs Out": "85.77M",
+   "Float": "78.95M",
+   "Insider Own Insd Own": "8.49%",
+   "Insider Trans Insd Trans": "0.65%",
+   "Inst Own": "49.86%",
+   "Inst Trans": "48.33%",
+   "Short Float Short Flt": "0.90%",
+   "Short Ratio Short R": "1.66",
+   "Avg Volume Avg Vol": "425.13K",
+   "Price": "0.55",
+   "Change % Chg %": "-1.41%",
+   "Volume Vol": "488,676"
+  },
+  "SCYX": {
+   "No.": "25",
+   "Ticker": "S SCYX",
+   "Market Cap Mkt Cap": "31.95M",
+   "Outstanding Shs Out": "9.95M",
+   "Float": "9.56M",
+   "Insider Own Insd Own": "3.96%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "58.91%",
+   "Inst Trans": "12.49%",
+   "Short Float Short Flt": "4.71%",
+   "Short Ratio Short R": "2.05",
+   "Avg Volume Avg Vol": "219.79K",
+   "Price": "3.21",
+   "Change % Chg %": "-3.60%",
+   "Volume Vol": "64,386"
+  },
+  "SSM": {
+   "No.": "26",
+   "Ticker": "S SSM",
+   "Market Cap Mkt Cap": "3.48M",
+   "Outstanding Shs Out": "3.01M",
+   "Float": "1.85M",
+   "Insider Own Insd Own": "71.54%",
+   "Insider Trans Insd Trans": "-1.19%",
+   "Inst Own": "21.85%",
+   "Inst Trans": "15.68%",
+   "Short Float Short Flt": "2.68%",
+   "Short Ratio Short R": "0.02",
+   "Avg Volume Avg Vol": "2.74M",
+   "Price": "0.84",
+   "Change % Chg %": "-2.36%",
+   "Volume Vol": "46,177"
+  },
+  "SUNE": {
+   "No.": "27",
+   "Ticker": "S SUNE",
+   "Market Cap Mkt Cap": "12.73M",
+   "Outstanding Shs Out": "6.51M",
+   "Float": "5.84M",
+   "Insider Own Insd Own": "10.41%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "33.56%",
+   "Inst Trans": "11.44%",
+   "Short Float Short Flt": "5.09%",
+   "Short Ratio Short R": "0.12",
+   "Avg Volume Avg Vol": "2.50M",
+   "Price": "1.96",
+   "Change % Chg %": "0.26%",
+   "Volume Vol": "57,798"
+  },
+  "TCRX": {
+   "No.": "28",
+   "Ticker": "T TCRX",
+   "Market Cap Mkt Cap": "10.89M",
+   "Outstanding Shs Out": "63.50M",
+   "Float": "53.32M",
+   "Insider Own Insd Own": "21.33%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "49.01%",
+   "Inst Trans": "27.61%",
+   "Short Float Short Flt": "3.79%",
+   "Short Ratio Short R": "2.69",
+   "Avg Volume Avg Vol": "749.96K",
+   "Price": "0.16",
+   "Change % Chg %": "-4.40%",
+   "Volume Vol": "227,689"
+  },
+  "TRAW": {
+   "No.": "29",
+   "Ticker": "T TRAW",
+   "Market Cap Mkt Cap": "3.86M",
+   "Outstanding Shs Out": "15.26M",
+   "Float": "10.86M",
+   "Insider Own Insd Own": "29.34%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "24.63%",
+   "Inst Trans": "12.36%",
+   "Short Float Short Flt": "6.30%",
+   "Short Ratio Short R": "1.15",
+   "Avg Volume Avg Vol": "592.15K",
+   "Price": "0.25",
+   "Change % Chg %": "-11.87%",
+   "Volume Vol": "531,891"
+  },
+  "VIP": {
+   "No.": "30",
+   "Ticker": "V VIP",
+   "Market Cap Mkt Cap": "31.40M",
+   "Outstanding Shs Out": "35.60M",
+   "Float": "18.31M",
+   "Insider Own Insd Own": "48.58%",
+   "Insider Trans Insd Trans": "21.22%",
+   "Inst Own": "21.78%",
+   "Inst Trans": "85.04%",
+   "Short Float Short Flt": "1.72%",
+   "Short Ratio Short R": "2.90",
+   "Avg Volume Avg Vol": "108.42K",
+   "Price": "0.88",
+   "Change % Chg %": "-5.93%",
+   "Volume Vol": "90,831"
+  },
+  "WATR": {
+   "No.": "31",
+   "Ticker": "W WATR",
+   "Market Cap Mkt Cap": "45.88M",
+   "Outstanding Shs Out": "26.04M",
+   "Float": "17.87M",
+   "Insider Own Insd Own": "43.54%",
+   "Insider Trans Insd Trans": "0.00%",
+   "Inst Own": "68.50%",
+   "Inst Trans": "19.37%",
+   "Short Float Short Flt": "1.10%",
+   "Short Ratio Short R": "2.19",
+   "Avg Volume Avg Vol": "90.11K",
+   "Price": "1.45",
+   "Change % Chg %": "-9.37%",
+   "Volume Vol": "5,093"
+  }
+ },
+ "near_watch": [
+  "AAOI",
+  "AARD",
+  "ABAT",
+  "ABOS",
+  "ABTC",
+  "ABTS",
+  "ACET",
+  "ACON",
+  "ACTU",
+  "ACXP",
+  "ADGM",
+  "ADTN",
+  "ADVB",
+  "AEC",
+  "AEHL",
+  "AEI",
+  "AEMD",
+  "AGMH",
+  "AGNT",
+  "AGRZ",
+  "AHMA",
+  "AIAI",
+  "AIBZ",
+  "AIDX",
+  "AIFC",
+  "AIFU",
+  "AIIO",
+  "AIRE",
+  "AIRS",
+  "AIXI",
+  "AKAN",
+  "AKBA",
+  "AKTX",
+  "ALAR",
+  "ALDX",
+  "ALGS",
+  "ALLO",
+  "ALMS",
+  "ALMU",
+  "ALOY",
+  "ALP",
+  "ALPS",
+  "ALT",
+  "AMCI",
+  "AMIX",
+  "AMOD",
+  "AMPG",
+  "AMSS",
+  "AMST",
+  "ANNA",
+  "ANPA",
+  "ANTA",
+  "APRE",
+  "APVO",
+  "AQMS",
+  "ARAI",
+  "ARAY",
+  "ARBE",
+  "ARBK",
+  "AREC",
+  "ARTL",
+  "ARTV",
+  "ASBP",
+  "ASPC",
+  "ASPI",
+  "ASTC",
+  "ASTI",
+  "ASTS",
+  "ATCX",
+  "ATGL",
+  "ATLX",
+  "ATOM",
+  "ATOS",
+  "ATPC",
+  "ATXG",
+  "ATYR",
+  "AUID",
+  "AURE",
+  "AUUD",
+  "AVAT",
+  "AVX",
+  "AVXL",
+  "AXG",
+  "AXNX",
+  "AZI",
+  "AZIO",
+  "BAER",
+  "BAOS",
+  "BBGI",
+  "BBLG",
+  "BBOT",
+  "BCTX",
+  "BDAI",
+  "BDMD",
+  "BDRX",
+  "BEAT",
+  "BENF",
+  "BETR",
+  "BFRG",
+  "BGDE",
+  "BGL",
+  "BGLC",
+  "BGM",
+  "BGMS",
+  "BHST",
+  "BIAF",
+  "BIOA",
+  "BIOX",
+  "BIRD",
+  "BIYA",
+  "BJDX",
+  "BKYI",
+  "BLDP",
+  "BLNE",
+  "BLNK",
+  "BMEA",
+  "BMGL",
+  "BNAI",
+  "BNKK",
+  "BODI",
+  "BOXL",
+  "BRAG",
+  "BRAI",
+  "BRBI",
+  "BRFH",
+  "BRLS",
+  "BRNX",
+  "BRTX",
+  "BRUN",
+  "BSEM",
+  "BTBT",
+  "BTCS",
+  "BTCT",
+  "BTDR",
+  "BTQ",
+  "BTTC",
+  "BXBL",
+  "BYAH",
+  "BYND",
+  "BYRN",
+  "BYSI",
+  "BZAI",
+  "BZFD",
+  "CABR",
+  "CALC",
+  "CAN",
+  "CAPR",
+  "CAPS",
+  "CAR",
+  "CAST",
+  "CBRS",
+  "CBUS",
+  "CCHH",
+  "CCOI",
+  "CCTG",
+  "CDIO",
+  "CDLX",
+  "CDNL",
+  "CDT",
+  "CDTG",
+  "CELU",
+  "CELZ",
+  "CENN",
+  "CEPL",
+  "CETX",
+  "CGC",
+  "CGTL",
+  "CHAI",
+  "CHGA",
+  "CHR",
+  "CHRS",
+  "CHSN",
+  "CIFR",
+  "CIGL",
+  "CIIT",
+  "CIRC",
+  "CISO",
+  "CISS",
+  "CJMB",
+  "CLGN",
+  "CLIK",
+  "CLIR",
+  "CLLS",
+  "CLRB",
+  "CLRO",
+  "CMCT",
+  "CMND",
+  "CMPX",
+  "CMTL",
+  "CNCK",
+  "CNET",
+  "CNEY",
+  "CNSP",
+  "CNSY",
+  "CNTB",
+  "CNTX",
+  "CNTY",
+  "CNXU",
+  "CODX",
+  "COOT",
+  "COSM",
+  "CPOP",
+  "CPSH",
+  "CRBP",
+  "CRBU",
+  "CRDF",
+  "CRGO",
+  "CRIS",
+  "CRML",
+  "CRMN",
+  "CRMT",
+  "CRVO",
+  "CSAI",
+  "CSHR",
+  "CSTE",
+  "CTMX",
+  "CTNT",
+  "CVKD",
+  "CVRX",
+  "CWD",
+  "CXAI",
+  "CYAB",
+  "CYCU",
+  "CYN",
+  "DAIC",
+  "DARE",
+  "DBGI",
+  "DCGO",
+  "DCOY",
+  "DCX",
+  "DEFT",
+  "DETX",
+  "DFLI",
+  "DFNS",
+  "DFSC",
+  "DGXX",
+  "DJT",
+  "DKI",
+  "DLXY",
+  "DOGZ",
+  "DOMH",
+  "DPRO",
+  "DPU",
+  "DRIO",
+  "DRK",
+  "DRMA",
+  "DSY",
+  "DTCX",
+  "DTSS",
+  "DUKR",
+  "DUO",
+  "DVLT",
+  "DWSN",
+  "DWTX",
+  "DXLG",
+  "DXST",
+  "DYAI",
+  "EDBL",
+  "EDSA",
+  "EEIQ",
+  "EHGO",
+  "EHTH",
+  "EJH",
+  "ELAB",
+  "ELPW",
+  "ELTX",
+  "ELVR",
+  "EMAT",
+  "ENGN",
+  "ENGS",
+  "ENLV",
+  "ENSC",
+  "ENVB",
+  "ENVX",
+  "EOCN",
+  "EOSE",
+  "EPOW",
+  "EPSM",
+  "ERNA",
+  "ESLA",
+  "EU",
+  "EUDA",
+  "EXOZ",
+  "EXYN",
+  "EYPT",
+  "EZGO",
+  "EZRA",
+  "FABC",
+  "FAC",
+  "FAMI",
+  "FBLG",
+  "FBYD",
+  "FCDH",
+  "FCEL",
+  "FCHL",
+  "FCUV",
+  "FEMY",
+  "FFAI",
+  "FFR",
+  "FFTT",
+  "FGL",
+  "FHTX",
+  "FIEE",
+  "FLL",
+  "FLNA",
+  "FLNC",
+  "FLUX",
+  "FLYE",
+  "FMFC",
+  "FMST",
+  "FNGR",
+  "FNUC",
+  "FOFO",
+  "FOXX",
+  "FRGT",
+  "FRMI",
+  "FRMM",
+  "FRSX",
+  "FRVO",
+  "FTCI",
+  "FTFT",
+  "FTH",
+  "FTHM",
+  "FUFU",
+  "FUSE",
+  "FXHO",
+  "GANX",
+  "GAUZ",
+  "GDC",
+  "GDEV",
+  "GDHG",
+  "GELS",
+  "GEMI",
+  "GEOS",
+  "GFAI",
+  "GILT",
+  "GIPR",
+  "GITS",
+  "GLE",
+  "GLND",
+  "GLXG",
+  "GMEX",
+  "GMM",
+  "GNLN",
+  "GNPX",
+  "GOAI",
+  "GOSS",
+  "GOVX",
+  "GOW",
+  "GP",
+  "GPCR",
+  "GRAN",
+  "GRI",
+  "GRML",
+  "GRNQ",
+  "GRSD",
+  "GSIT",
+  "GSIW",
+  "GSUN",
+  "GTBP",
+  "GURE",
+  "GUTS",
+  "GVH",
+  "GWAV",
+  "GXAI",
+  "HAIN",
+  "HCAI",
+  "HCWB",
+  "HDRN",
+  "HERE",
+  "HIND",
+  "HIT",
+  "HKPD",
+  "HQ",
+  "HRTX",
+  "HTCO",
+  "HTCR",
+  "HTLM",
+  "HTOO",
+  "HTZ",
+  "HUBC",
+  "HUCK",
+  "HUHU",
+  "HXHX",
+  "HYFM",
+  "HYMC",
+  "IBG",
+  "IBIO",
+  "ICCM",
+  "ICON",
+  "ICU",
+  "IDN",
+  "IHRT",
+  "ILAG",
+  "IMCC",
+  "IMDX",
+  "IMMP",
+  "IMNN",
+  "IMSR",
+  "INBS",
+  "INHD",
+  "INLF",
+  "INSG",
+  "INTJ",
+  "INTS",
+  "INTZ",
+  "INV",
+  "INVZ",
+  "IOTR",
+  "IPDN",
+  "IPST",
+  "IPW",
+  "IPWR",
+  "IPX",
+  "IQST",
+  "IREN",
+  "IRLA",
+  "ISPC",
+  "ITOC",
+  "IVDA",
+  "IVF",
+  "IVVD",
+  "IXHL",
+  "IZM",
+  "JAGX",
+  "JBDI",
+  "JEM",
+  "JFIN",
+  "JFU",
+  "JLHL",
+  "JSPR",
+  "JTAI",
+  "JUNS",
+  "JYD",
+  "JZ",
+  "JZXN",
+  "KALA",
+  "KAZR",
+  "KDK",
+  "KEEL",
+  "KG",
+  "KIDZ",
+  "KITT",
+  "KLRS",
+  "KMRK",
+  "KPTI",
+  "KSCP",
+  "KTOS",
+  "KTTA",
+  "KUST",
+  "KXIN",
+  "LABT",
+  "LAES",
+  "LASE",
+  "LBGJ",
+  "LCFY",
+  "LCID",
+  "LENZ",
+  "LEXX",
+  "LFS",
+  "LGCL",
+  "LGHL",
+  "LGO",
+  "LGVN",
+  "LHAI",
+  "LHSW",
+  "LICN",
+  "LIDR",
+  "LIMN",
+  "LIQT",
+  "LNKS",
+  "LNZA",
+  "LOBO",
+  "LONA",
+  "LOOP",
+  "LOT",
+  "LPCN",
+  "LSTA",
+  "LTBR",
+  "LTRN",
+  "LUCD",
+  "LUNR",
+  "LVLU",
+  "LWLG",
+  "LX",
+  "LXEH",
+  "LZMH",
+  "MAMO",
+  "MASK",
+  "MB",
+  "MBAI",
+  "MBRX",
+  "MCRB",
+  "MDCX",
+  "MDXH",
+  "MEDS",
+  "MEGL",
+  "MENS",
+  "METC",
+  "METCB",
+  "MF",
+  "MFI",
+  "MGN",
+  "MGRX",
+  "MIND",
+  "MIST",
+  "MKDW",
+  "MKZR",
+  "MLGO",
+  "MNDR",
+  "MNTS",
+  "MOB",
+  "MOBX",
+  "MODD",
+  "MOVE",
+  "MPLT",
+  "MRAM",
+  "MREO",
+  "MRLN",
+  "MRNO",
+  "MSAI",
+  "MSLE",
+  "MSS",
+  "MTEK",
+  "MTEN",
+  "MTRI",
+  "MTVA",
+  "MVIS",
+  "MVST",
+  "MWC",
+  "MYSE",
+  "MYSZ",
+  "NA",
+  "NAII",
+  "NAKA",
+  "NAMI",
+  "NAMM",
+  "NBP",
+  "NCI",
+  "NCNA",
+  "NCRA",
+  "NCT",
+  "NEGG",
+  "NEON",
+  "NERV",
+  "NEXM",
+  "NEXR",
+  "NFE",
+  "NHTC",
+  "NIKI",
+  "NIPG",
+  "NIXX",
+  "NKLR",
+  "NMAD",
+  "NMRA",
+  "NMTC",
+  "NNE",
+  "NNNN",
+  "NOMA",
+  "NPT",
+  "NRSN",
+  "NTCL",
+  "NTRP",
+  "NUCL",
+  "NUR",
+  "NUWE",
+  "NVNO",
+  "NVTS",
+  "NVX",
+  "NWGL",
+  "NXAT",
+  "NXGL",
+  "NXH",
+  "NXL",
+  "NXTS",
+  "NXTT",
+  "NXXT",
+  "NYXH",
+  "OBAI",
+  "OCCI",
+  "OCG",
+  "OCS",
+  "ODYS",
+  "OFAL",
+  "OIO",
+  "OLB",
+  "OLMA",
+  "OLOX",
+  "OMEX",
+  "OMH",
+  "ONCO",
+  "ONEG",
+  "ONEN",
+  "ONFO",
+  "ONMD",
+  "OPAD",
+  "OPEN",
+  "OPNW",
+  "OPTH",
+  "ORBS",
+  "ORGO",
+  "OSS",
+  "OST",
+  "OTLK",
+  "OWLS",
+  "PAL",
+  "PASG",
+  "PASW",
+  "PAVM",
+  "PAVS",
+  "PBK",
+  "PBM",
+  "PC",
+  "PCSA",
+  "PCT",
+  "PDC",
+  "PETS",
+  "PFSA",
+  "PIII",
+  "PLCE",
+  "PLSM",
+  "PLUG",
+  "PLUR",
+  "PLUT",
+  "PLYX",
+  "PMAX",
+  "PMCB",
+  "PMEC",
+  "PMN",
+  "PN",
+  "POET",
+  "POLA",
+  "POM",
+  "PONY",
+  "PPBT",
+  "PRFX",
+  "PROP",
+  "PRPL",
+  "PRSO",
+  "PSNY",
+  "PSQL",
+  "PTN",
+  "PULM",
+  "PUSA",
+  "PWCM",
+  "PWRL",
+  "QCLS",
+  "QFIN",
+  "QH",
+  "QNME",
+  "QNRX",
+  "QNTM",
+  "QS",
+  "QTI",
+  "QUCY",
+  "RADX",
+  "RAIN",
+  "RANI",
+  "RAYA",
+  "RCAT",
+  "RCON",
+  "RCT",
+  "RDGT",
+  "RDHL",
+  "REAX",
+  "REFR",
+  "REKR",
+  "RENT",
+  "RENX",
+  "RETO",
+  "REVB",
+  "RGC",
+  "RIME",
+  "RKDA",
+  "RKTO",
+  "RMCF",
+  "RMIX",
+  "RMSG",
+  "RNAZ",
+  "RNTX",
+  "RNTZ",
+  "RPID",
+  "RR",
+  "RTB",
+  "RUBI",
+  "RVSN",
+  "RYET",
+  "RYM",
+  "RZLV",
+  "SAEN",
+  "SAFX",
+  "SAIQ",
+  "SATL",
+  "SBFM",
+  "SCAG",
+  "SCKT",
+  "SCLX",
+  "SCNI",
+  "SCNX",
+  "SDA",
+  "SDOT",
+  "SEAT",
+  "SEGG",
+  "SERV",
+  "SEV",
+  "SFWL",
+  "SGLY",
+  "SGML",
+  "SGRX",
+  "SHAZ",
+  "SHFS",
+  "SHMD",
+  "SHPH",
+  "SIDU",
+  "SILO",
+  "SION",
+  "SKYE",
+  "SKYQ",
+  "SKYX",
+  "SLBT",
+  "SLDP",
+  "SLE",
+  "SLGB",
+  "SLMT",
+  "SLNH",
+  "SLXN",
+  "SMTK",
+  "SMX",
+  "SMXT",
+  "SNAL",
+  "SNGX",
+  "SNOA",
+  "SNTI",
+  "SNWV",
+  "SONM",
+  "SOUN",
+  "SOWG",
+  "SPHL",
+  "SPRC",
+  "SPWR",
+  "SQFT",
+  "SRTM",
+  "SSII",
+  "SSM",
+  "STAK",
+  "STEX",
+  "STFS",
+  "STI",
+  "STKH",
+  "STRO",
+  "SUGP",
+  "SUNE",
+  "SUPX",
+  "SURG",
+  "SVIA",
+  "SVRE",
+  "SVRN",
+  "SWMR",
+  "SXTC",
+  "SXTP",
+  "SYPR",
+  "TAOP",
+  "TAOX",
+  "TC",
+  "TCRX",
+  "TDIC",
+  "TDTH",
+  "TDUP",
+  "TEAD",
+  "TENX",
+  "TGL",
+  "THH",
+  "THRY",
+  "TLRY",
+  "TMC",
+  "TMCR",
+  "TNMG",
+  "TNON",
+  "TNXP",
+  "TNYA",
+  "TOYO",
+  "TPST",
+  "TRAW",
+  "TRIB",
+  "TRNR",
+  "TROO",
+  "TRT",
+  "TRUG",
+  "TURB",
+  "TVRD",
+  "TWG",
+  "TYGO",
+  "UCAR",
+  "UCL",
+  "UFG",
+  "UK",
+  "UONE",
+  "UONEK",
+  "UPB",
+  "UPC",
+  "UPLD",
+  "UPXI",
+  "USAR",
+  "USGO",
+  "UXIN",
+  "UZX",
+  "VBIO",
+  "VCIG",
+  "VEEA",
+  "VEEE",
+  "VELO",
+  "VERI",
+  "VHUB",
+  "VIP",
+  "VISN",
+  "VITL",
+  "VIVK",
+  "VIVS",
+  "VMAR",
+  "VNET",
+  "VRAX",
+  "VRM",
+  "VRRM",
+  "VRXA",
+  "VSA",
+  "VTGN",
+  "VTIX",
+  "VUZI",
+  "VVOS",
+  "VWAV",
+  "WATR",
+  "WATT",
+  "WBUY",
+  "WCT",
+  "WETH",
+  "WETO",
+  "WFF",
+  "WHLR",
+  "WIMI",
+  "WKHS",
+  "WKSP",
+  "WLDS",
+  "WNW",
+  "WOK",
+  "WORX",
+  "WQEY",
+  "WSHP",
+  "WVE",
+  "WVVIP",
+  "WXM",
+  "WYFI",
+  "WYHG",
+  "XAIR",
+  "XCH",
+  "XCUR",
+  "XELB",
+  "XGPU",
+  "XHLD",
+  "XLAB",
+  "XNDU",
+  "XOS",
+  "XPON",
+  "XRPN",
+  "XRX",
+  "XWEL",
+  "XXII",
+  "YAAS",
+  "YDDL",
+  "YFOR",
+  "YHC",
+  "YI",
+  "YJ",
+  "YMAT",
+  "YOUL",
+  "YXT",
+  "YYAI",
+  "ZBAO",
+  "ZCMD",
+  "ZDAI",
+  "ZENA",
+  "ZEO",
+  "ZNB",
+  "ZNTL",
+  "ZSQR",
+  "ZTG",
+  "ZURA",
+  "ZYBT"
+ ],
+ "watchlist": [
+  "CUPR",
+  "HCTI",
+  "BTOC",
+  "AIOS",
+  "TVGN",
+  "PPCB",
+  "BNR",
+  "LNKS",
+  "PHOE",
+  "KELYB",
+  "CURX",
+  "AFJK",
+  "RENT",
+  "KMRK",
+  "PSIG",
+  "PTLE",
+  "DGNX",
+  "BANL",
+  "CELU",
+  "PRHI"
+ ],
+ "overlap": {
+  "near_watch": [
+   "ASTI",
+   "AVAT",
+   "CALC",
+   "CLRB",
+   "DETX",
+   "ELTX",
+   "EYPT",
+   "FEMY",
+   "INLF",
+   "IPWR",
+   "JUNS",
+   "LIQT",
+   "LONA",
+   "MDXH",
+   "NA",
+   "ONMD",
+   "OPAD",
+   "QTI",
+   "RNTX",
+   "SSM",
+   "SUNE",
+   "TCRX",
+   "TRAW",
+   "VIP",
+   "WATR"
+  ],
+  "watchlist": []
+ },
+ "run": "43759954351",
+ "own_view_tickers": [
+  "ASTI",
+  "AVAT",
+  "BFRI",
+  "BOF",
+  "BOSC",
+  "CALC",
+  "CLRB",
+  "DETX",
+  "ELTX",
+  "EYPT",
+  "FEMY",
+  "HOWL",
+  "INLF",
+  "IPWR",
+  "JUNS",
+  "KPRX",
+  "LIQT",
+  "LONA",
+  "MDXH",
+  "NA",
+  "ONMD",
+  "OPAD",
+  "QTI",
+  "RNTX",
+  "SCYX",
+  "SSM",
+  "SUNE",
+  "TCRX",
+  "TRAW",
+  "VIP",
+  "WATR"
+ ],
+ "sec": {
+  "ASTI": {
+   "cik": 1350102,
+   "title": "Ascent Solar Technologies, Inc.",
+   "q2": {
+    "registered": [
+     [
+      "424B5",
+      "2026-06-26"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "Ascent Solar Technologies",
+   "f13_q3_total": 36,
+   "f13_q2_total": 37,
+   "new_holders": [
+    [
+     "putney financial group llc",
+     "صندوق/آخر"
+    ],
+    [
+     "b. riley wealth advisors, inc.",
+     "صندوق/آخر"
+    ],
+    [
+     "bfc planning, inc.",
+     "صندوق/آخر"
+    ],
+    [
+     "fortitude family office, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "caitong international asset management co., ltd",
+     "صندوق/آخر"
+    ],
+    [
+     "barclays plc (bcs, bclyf)",
+     "صانع سوق/كمّيّ"
+    ]
+   ]
+  },
+  "AVAT": {
+   "cik": 2092446,
+   "title": "Avalanche Treasury Corp",
+   "q2": {
+    "registered": [
+     [
+      "424B3",
+      "2026-05-29"
+     ],
+     [
+      "424B3",
+      "2026-05-18"
+     ],
+     [
+      "424B3",
+      "2026-05-14"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-06-17"
+     ]
+    ]
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B3",
+      "2026-08-19"
+     ],
+     [
+      "424B3",
+      "2026-07-27"
+     ],
+     [
+      "S-1/A",
+      "2026-07-22"
+     ],
+     [
+      "S-1",
+      "2026-07-10"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [
+     [
+      "424B3",
+      "2026-11-12"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "Avalanche Treasury",
+   "f13_q3_total": 1,
+   "f13_q2_total": 4,
+   "new_holders": [
+    [
+     "geode capital management, llc",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "BFRI": {
+   "cik": 1858685,
+   "title": "Biofrontera Inc.",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "Biofrontera",
+   "f13_q3_total": 17,
+   "f13_q2_total": 23,
+   "new_holders": [
+    [
+     "acadian asset management llc",
+     "صندوق/آخر"
+    ],
+    [
+     "citigroup inc (c, c-pn, c-pr)",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "BOF": {
+   "cik": 1962481,
+   "title": "BranchOut Food Inc.",
+   "q2": {
+    "registered": [
+     [
+      "424B3",
+      "2026-06-15"
+     ],
+     [
+      "S-3",
+      "2026-06-05"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B5",
+      "2026-08-27"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [
+     [
+      "424B5",
+      "2026-10-23"
+     ],
+     [
+      "S-3",
+      "2026-10-09"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [
+    [
+     "424B5",
+     "2026-08-27"
+    ]
+   ],
+   "preceded": true,
+   "query": "BranchOut Food",
+   "f13_q3_total": 18,
+   "f13_q2_total": 24,
+   "new_holders": [
+    [
+     "thompson siegel & walmsley llc",
+     "صندوق/آخر"
+    ],
+    [
+     "clifford swan investment counsel llc",
+     "صندوق/آخر"
+    ],
+    [
+     "vanguard global advisers, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "citigroup inc (c, c-pn, c-pr)",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "BOSC": {
+   "cik": 1005516,
+   "title": "BOS BETTER ONLINE SOLUTIONS LTD",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "BOS BETTER ONLINE SOLUTIONS",
+   "f13_q3_total": 11,
+   "f13_q2_total": 22,
+   "new_holders": [
+    [
+     "essex investment management co llc",
+     "صندوق/آخر"
+    ],
+    [
+     "legato capital management llc",
+     "صندوق/آخر"
+    ],
+    [
+     "focus partners wealth",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "CALC": {
+   "cik": 1534133,
+   "title": "CalciMedica, Inc.",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-06-24"
+     ],
+     [
+      "8-K",
+      "2026-06-24"
+     ]
+    ]
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B5",
+      "2026-09-30"
+     ],
+     [
+      "S-3",
+      "2026-07-24"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [
+    [
+     "424B5",
+     "2026-09-30"
+    ]
+   ],
+   "preceded": true,
+   "query": "CalciMedica",
+   "f13_q3_total": 11,
+   "f13_q2_total": 35,
+   "new_holders": [
+    [
+     "jane street group, llc",
+     "صانع سوق/كمّيّ"
+    ],
+    [
+     "jpmorgan chase & co (jpm, amjb, vyld, jpm-pc, jpm-pd, jpm-pj, jpm-pk, jpm-pl, jpm-pm)",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "CLRB": {
+   "cik": 1279704,
+   "title": "Cellectar Biosciences, Inc.",
+   "q2": {
+    "registered": [
+     [
+      "424B3",
+      "2026-06-02"
+     ],
+     [
+      "S-1/A",
+      "2026-05-29"
+     ],
+     [
+      "S-1",
+      "2026-05-19"
+     ],
+     [
+      "424B5",
+      "2026-05-06"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-05-08"
+     ]
+    ]
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "Cellectar Biosciences",
+   "f13_q3_total": 23,
+   "f13_q2_total": 29,
+   "new_holders": [
+    [
+     "key financial inc",
+     "صندوق/آخر"
+    ],
+    [
+     "nuveen, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "fmr llc",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "DETX": {
+   "cik": 1919776,
+   "title": "LIBERTY DEFENSE HOLDINGS, LTD.",
+   "q2": {
+    "registered": [
+     [
+      "424B4",
+      "2026-04-21"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "LIBERTY DEFENSE HOLDINGS",
+   "f13_q3_total": 1,
+   "f13_q2_total": 1,
+   "new_holders": []
+  },
+  "ELTX": {
+   "cik": 1601485,
+   "title": "Elicio Therapeutics, Inc.",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B5",
+      "2026-07-02"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [
+    [
+     "424B5",
+     "2026-07-02"
+    ]
+   ],
+   "preceded": true,
+   "query": "Elicio Therapeutics",
+   "f13_q3_total": 61,
+   "f13_q2_total": 58,
+   "new_holders": [
+    [
+     "shah capital management",
+     "صندوق/آخر"
+    ],
+    [
+     "abel hall, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "jpl wealth management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "quadrature capital ltd",
+     "صندوق/آخر"
+    ],
+    [
+     "ieq capital, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "fortitude family office, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "nisa investment advisors, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "bfc planning, inc.",
+     "صندوق/آخر"
+    ],
+    [
+     "renaissance technologies llc",
+     "صندوق/آخر"
+    ],
+    [
+     "essential partners llc",
+     "صندوق/آخر"
+    ],
+    [
+     "clearstead advisors, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "rothschild investment llc",
+     "صندوق/آخر"
+    ],
+    [
+     "sjs investment consulting inc.",
+     "صندوق/آخر"
+    ],
+    [
+     "huntington national bank",
+     "صندوق/آخر"
+    ],
+    [
+     "root financial partners, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "squarepoint ops llc",
+     "صانع سوق/كمّيّ"
+    ],
+    [
+     "hrt financial lp",
+     "صندوق/آخر"
+    ],
+    [
+     "mariner, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "ifp advisors, inc",
+     "صندوق/آخر"
+    ],
+    [
+     "global retirement partners, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "gamma investing llc",
+     "صندوق/آخر"
+    ],
+    [
+     "arax advisory partners",
+     "صندوق/آخر"
+    ],
+    [
+     "pnc financial services group, inc. (pnc)",
+     "صندوق/آخر"
+    ],
+    [
+     "creative planning",
+     "صندوق/آخر"
+    ],
+    [
+     "eversource wealth advisors, llc",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "EYPT": {
+   "cik": 1314102,
+   "title": "EyePoint, Inc.",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "EyePoint",
+   "f13_q3_total": 148,
+   "f13_q2_total": 201,
+   "new_holders": [
+    [
+     "dcf advisers, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "tejara capital ltd",
+     "صندوق/آخر"
+    ],
+    [
+     "stonepine capital management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "sectoral asset management inc",
+     "صندوق/آخر"
+    ],
+    [
+     "sun life financial inc (slf, slfif, slfqf, sunff)",
+     "صندوق/آخر"
+    ],
+    [
+     "accent capital management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "greenwich wealth management llc",
+     "صندوق/آخر"
+    ],
+    [
+     "hurricane capital advisors llc",
+     "صندوق/آخر"
+    ],
+    [
+     "fora capital, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "jefferies financial group inc. (jef)",
+     "صانع سوق/كمّيّ"
+    ],
+    [
+     "axq capital, lp",
+     "صندوق/آخر"
+    ],
+    [
+     "principia wealth advisory, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "winton group ltd",
+     "صندوق/آخر"
+    ],
+    [
+     "gw&k investment management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "j. safra sarasin holding ag",
+     "صندوق/آخر"
+    ],
+    [
+     "virginia retirement systems et al",
+     "صندوق/آخر"
+    ],
+    [
+     "quantbot technologies lp",
+     "صندوق/آخر"
+    ],
+    [
+     "acadian asset management llc",
+     "صندوق/آخر"
+    ],
+    [
+     "universal- beteiligungs- und servicegesellschaft mbh",
+     "صندوق/آخر"
+    ],
+    [
+     "stonex group inc. (snex)",
+     "صندوق/آخر"
+    ],
+    [
+     "bolton securities corporation",
+     "صندوق/آخر"
+    ],
+    [
+     "td private client wealth llc",
+     "صندوق/آخر"
+    ],
+    [
+     "quadrature capital ltd",
+     "صندوق/آخر"
+    ],
+    [
+     "victory capital management inc",
+     "صندوق/آخر"
+    ],
+    [
+     "mml investors services, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "california state teachers retirement system",
+     "صندوق/آخر"
+    ],
+    [
+     "m&t bank corp (mtb, mtb-ph, mtb-pj, mtb-pk, mtb-pl)",
+     "صندوق/آخر"
+    ],
+    [
+     "sjs investment consulting inc.",
+     "صندوق/آخر"
+    ],
+    [
+     "lpl financial llc",
+     "صندوق/آخر"
+    ],
+    [
+     "franklin templeton inc (ben)",
+     "صندوق/آخر"
+    ],
+    [
+     "stifel financial corp (sf, sfb, sf-pb, sf-pc, sf-pd)",
+     "صندوق/آخر"
+    ],
+    [
+     "advisory services network, llc",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "FEMY": {
+   "cik": 1339005,
+   "title": "FEMASYS INC",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B3",
+      "2026-09-29"
+     ],
+     [
+      "S-3",
+      "2026-09-03"
+     ]
+    ],
+    "placement_d": [
+     [
+      "D",
+      "2026-08-20"
+     ]
+    ],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-08-11"
+     ]
+    ]
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": true,
+   "query": "FEMASYS",
+   "f13_q3_total": 22,
+   "f13_q2_total": 20,
+   "new_holders": [
+    [
+     "stonepine capital management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "creek drive management group llc",
+     "صندوق/آخر"
+    ],
+    [
+     "nantahala capital management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "warberg asset management llc",
+     "صندوق/آخر"
+    ],
+    [
+     "hrt financial lp",
+     "صندوق/آخر"
+    ],
+    [
+     "fmr llc",
+     "صندوق/آخر"
+    ],
+    [
+     "jpmorgan chase & co (jpm, amjb, vyld, jpm-pc, jpm-pd, jpm-pj, jpm-pk, jpm-pl, jpm-pm)",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "HOWL": {
+   "cik": 1785530,
+   "title": "Werewolf Therapeutics, Inc.",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-08-21"
+     ]
+    ]
+   },
+   "q4": {
+    "registered": [
+     [
+      "424B3",
+      "2026-11-12"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": true,
+   "query": "Werewolf Therapeutics",
+   "f13_q3_total": 40,
+   "f13_q2_total": 48,
+   "new_holders": [
+    [
+     "vilga financial planning llc",
+     "صندوق/آخر"
+    ],
+    [
+     "acadian asset management llc",
+     "صندوق/آخر"
+    ],
+    [
+     "covestor ltd",
+     "صندوق/آخر"
+    ],
+    [
+     "vanguard global advisers, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "vontobel holding ltd.",
+     "صندوق/آخر"
+    ],
+    [
+     "hrt financial lp",
+     "صندوق/آخر"
+    ],
+    [
+     "citigroup inc (c, c-pn, c-pr)",
+     "صندوق/آخر"
+    ],
+    [
+     "jones financial companies lllp",
+     "صندوق/آخر"
+    ],
+    [
+     "fmr llc",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "INLF": {
+   "cik": 1991592,
+   "title": "INLIF Ltd",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [
+     [
+      "424B5",
+      "2026-10-20"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "INLIF",
+   "f13_q3_total": 6,
+   "f13_q2_total": 9,
+   "new_holders": [
+    [
+     "td waterhouse canada inc.",
+     "صندوق/آخر"
+    ],
+    [
+     "geode capital management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "ubs group ag (ubs)",
+     "صانع سوق/كمّيّ"
+    ],
+    [
+     "jpmorgan chase & co (jpm, amjb, vyld, jpm-pc, jpm-pd, jpm-pj, jpm-pk, jpm-pl, jpm-pm)",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "IPWR": {
+   "cik": 1507957,
+   "title": "Ideal Power Inc.",
+   "q2": {
+    "registered": [
+     [
+      "424B5",
+      "2026-05-18"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [
+     [
+      "S-3",
+      "2026-07-10"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "Ideal Power",
+   "f13_q3_total": 4,
+   "f13_q2_total": 6,
+   "new_holders": []
+  },
+  "JUNS": {
+   "cik": 1679628,
+   "title": "JUPITER NEUROSCIENCES, INC.",
+   "q2": {
+    "registered": [
+     [
+      "424B3",
+      "2026-06-30"
+     ],
+     [
+      "S-1",
+      "2026-06-26"
+     ],
+     [
+      "424B3",
+      "2026-06-22"
+     ],
+     [
+      "424B3",
+      "2026-06-05"
+     ],
+     [
+      "424B3",
+      "2026-05-21"
+     ],
+     [
+      "424B3",
+      "2026-05-21"
+     ],
+     [
+      "424B5",
+      "2026-05-21"
+     ],
+     [
+      "424B3",
+      "2026-05-20"
+     ],
+     [
+      "424B3",
+      "2026-05-14"
+     ],
+     [
+      "424B3",
+      "2026-05-08"
+     ],
+     [
+      "S-3",
+      "2026-04-16"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [
+     [
+      "S-3",
+      "2026-09-25"
+     ],
+     [
+      "424B5",
+      "2026-08-24"
+     ],
+     [
+      "424B3",
+      "2026-07-29"
+     ],
+     [
+      "424B3",
+      "2026-07-27"
+     ],
+     [
+      "424B3",
+      "2026-07-21"
+     ]
+    ],
+    "placement_d": [
+     [
+      "D",
+      "2026-09-04"
+     ]
+    ],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-08-24"
+     ],
+     [
+      "8-K",
+      "2026-07-28"
+     ],
+     [
+      "8-K",
+      "2026-07-21"
+     ]
+    ]
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [
+    [
+     "424B5",
+     "2026-08-24"
+    ]
+   ],
+   "preceded": true,
+   "query": "JUPITER NEUROSCIENCES",
+   "f13_q3_total": 9,
+   "f13_q2_total": 13,
+   "new_holders": [
+    [
+     "state street corp (stt, stt-pg)",
+     "صندوق/آخر"
+    ],
+    [
+     "nuveen, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "ubs group ag (ubs)",
+     "صانع سوق/كمّيّ"
+    ],
+    [
+     "jpmorgan chase & co (jpm, amjb, vyld, jpm-pc, jpm-pd, jpm-pj, jpm-pk, jpm-pl, jpm-pm)",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "KPRX": {
+   "cik": 1372514,
+   "title": "KIORA PHARMACEUTICALS INC",
+   "q2": {
+    "registered": [
+     [
+      "424B3",
+      "2026-05-28"
+     ],
+     [
+      "S-3",
+      "2026-05-18"
+     ]
+    ],
+    "placement_d": [
+     [
+      "D",
+      "2026-04-21"
+     ]
+    ],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-04-07"
+     ]
+    ]
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "KIORA PHARMACEUTICALS",
+   "f13_q3_total": 15,
+   "f13_q2_total": 22,
+   "new_holders": [
+    [
+     "fmr llc",
+     "صندوق/آخر"
+    ],
+    [
+     "citigroup inc (c, c-pn, c-pr)",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "LIQT": {
+   "cik": 1307579,
+   "title": "LIQTECH INTERNATIONAL INC",
+   "q2": {
+    "registered": [
+     [
+      "424B4",
+      "2026-06-05"
+     ],
+     [
+      "S-1/A",
+      "2026-05-28"
+     ],
+     [
+      "S-1",
+      "2026-05-27"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-06-09"
+     ],
+     [
+      "8-K",
+      "2026-06-01"
+     ]
+    ]
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "LIQTECH INTERNATIONAL",
+   "f13_q3_total": 1,
+   "f13_q2_total": 1,
+   "new_holders": []
+  },
+  "LONA": {
+   "cik": 1620463,
+   "title": "LeonaBio, Inc.",
+   "q2": {
+    "registered": [
+     [
+      "424B3",
+      "2026-04-02"
+     ],
+     [
+      "424B3",
+      "2026-04-02"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "LeonaBio",
+   "f13_q3_total": 29,
+   "f13_q2_total": 43,
+   "new_holders": [
+    [
+     "nantahala capital management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "landscape capital management, l.l.c.",
+     "صندوق/آخر"
+    ],
+    [
+     "jane street group, llc",
+     "صانع سوق/كمّيّ"
+    ]
+   ]
+  },
+  "MDXH": {
+   "cik": 1872529,
+   "title": "MDxHealth SA",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B5",
+      "2026-08-13"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [
+    [
+     "424B5",
+     "2026-08-13"
+    ]
+   ],
+   "preceded": true,
+   "query": "MDxHealth",
+   "f13_q3_total": 20,
+   "f13_q2_total": 28,
+   "new_holders": [
+    [
+     "awm investment company, inc.",
+     "صندوق/آخر"
+    ],
+    [
+     "jpmorgan chase & co (jpm, amjb, vyld, jpm-pc, jpm-pd, jpm-pj, jpm-pk, jpm-pl, jpm-pm)",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "NA": {
+   "cik": 1872302,
+   "title": "Nano Labs Ltd",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "Nano Labs",
+   "f13_q3_total": 11,
+   "f13_q2_total": 12,
+   "new_holders": [
+    [
+     "renaissance technologies llc",
+     "صندوق/آخر"
+    ],
+    [
+     "hrt financial lp",
+     "صندوق/آخر"
+    ],
+    [
+     "imc-chicago, llc",
+     "صانع سوق/كمّيّ"
+    ]
+   ]
+  },
+  "ONMD": {
+   "cik": 1849380,
+   "title": "OneMedNet Corp",
+   "q2": {
+    "registered": [
+     [
+      "424B3",
+      "2026-05-15"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B3",
+      "2026-09-30"
+     ],
+     [
+      "424B3",
+      "2026-09-30"
+     ],
+     [
+      "424B3",
+      "2026-08-20"
+     ],
+     [
+      "424B3",
+      "2026-08-20"
+     ],
+     [
+      "424B3",
+      "2026-07-13"
+     ],
+     [
+      "S-1/A",
+      "2026-07-08"
+     ],
+     [
+      "S-1",
+      "2026-07-01"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "OneMedNet",
+   "f13_q3_total": 12,
+   "f13_q2_total": 29,
+   "new_holders": [
+    [
+     "bfc planning, inc.",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "OPAD": {
+   "cik": 1825024,
+   "title": "Offerpad Solutions Inc.",
+   "q2": {
+    "registered": [
+     [
+      "424B5",
+      "2026-04-30"
+     ],
+     [
+      "S-3/A",
+      "2026-04-27"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "Offerpad Solutions",
+   "f13_q3_total": 29,
+   "f13_q2_total": 26,
+   "new_holders": [
+    [
+     "kingsbury capital investment advisors llc",
+     "صندوق/آخر"
+    ],
+    [
+     "wilmington savings fund society, fsb",
+     "صندوق/آخر"
+    ],
+    [
+     "fmr llc",
+     "صندوق/آخر"
+    ],
+    [
+     "osaic holdings, inc.",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "QTI": {
+   "cik": 1844505,
+   "title": "QT IMAGING HOLDINGS, INC.",
+   "q2": {
+    "registered": [
+     [
+      "424B5",
+      "2026-05-15"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "QT IMAGING HOLDINGS",
+   "f13_q3_total": 1,
+   "f13_q2_total": 2,
+   "new_holders": []
+  },
+  "RNTX": {
+   "cik": 1420565,
+   "title": "Rein Therapeutics, Inc.",
+   "q2": {
+    "registered": [
+     [
+      "424B5",
+      "2026-05-04"
+     ],
+     [
+      "S-1",
+      "2026-04-28"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "Rein Therapeutics",
+   "f13_q3_total": 46,
+   "f13_q2_total": 60,
+   "new_holders": [
+    [
+     "sanders morris harris llc",
+     "صندوق/آخر"
+    ],
+    [
+     "sfmg, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "certuity, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "stonex group inc. (snex)",
+     "صندوق/آخر"
+    ],
+    [
+     "rossby financial, lcc",
+     "صندوق/آخر"
+    ],
+    [
+     "sbi securities co., ltd.",
+     "صندوق/آخر"
+    ],
+    [
+     "hrt financial lp",
+     "صندوق/آخر"
+    ],
+    [
+     "jane street group, llc",
+     "صانع سوق/كمّيّ"
+    ]
+   ]
+  },
+  "SCYX": {
+   "cik": 1178253,
+   "title": "SCYNEXIS INC",
+   "q2": {
+    "registered": [
+     [
+      "424B3",
+      "2026-05-08"
+     ],
+     [
+      "S-3",
+      "2026-05-01"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [
+     [
+      "S-3",
+      "2026-11-05"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "SCYNEXIS",
+   "f13_q3_total": 39,
+   "f13_q2_total": 38,
+   "new_holders": [
+    [
+     "yakira capital management, inc.",
+     "صندوق/آخر"
+    ],
+    [
+     "quadrature capital ltd",
+     "صندوق/آخر"
+    ],
+    [
+     "physician wealth advisors, inc.",
+     "صندوق/آخر"
+    ],
+    [
+     "bfc planning, inc.",
+     "صندوق/آخر"
+    ],
+    [
+     "marshall wace, llp",
+     "صندوق/آخر"
+    ],
+    [
+     "state street corp (stt, stt-pg)",
+     "صندوق/آخر"
+    ],
+    [
+     "hrt financial lp",
+     "صندوق/آخر"
+    ],
+    [
+     "fmr llc",
+     "صندوق/آخر"
+    ],
+    [
+     "empowered funds, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "nuveen, llc",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "SSM": {
+   "cik": 1840416,
+   "title": "Sono Group N.V.",
+   "q2": {
+    "registered": [
+     [
+      "S-3",
+      "2026-05-12"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B5",
+      "2026-09-02"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "Sono Group N V",
+   "f13_q3_total": 11,
+   "f13_q2_total": 9,
+   "new_holders": [
+    [
+     "accent capital management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "context capital management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "caitong international asset management co., ltd",
+     "صندوق/آخر"
+    ],
+    [
+     "fmr llc",
+     "صندوق/آخر"
+    ],
+    [
+     "jpmorgan chase & co (jpm, amjb, vyld, jpm-pc, jpm-pd, jpm-pj, jpm-pk, jpm-pl, jpm-pm)",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "SUNE": {
+   "cik": 22701,
+   "title": "SUNation Energy, Inc.",
+   "q2": {
+    "registered": [
+     [
+      "424B5",
+      "2026-04-09"
+     ]
+    ],
+    "placement_d": [
+     [
+      "D",
+      "2026-04-22"
+     ]
+    ],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-04-15"
+     ]
+    ]
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "SUNation Energy",
+   "f13_q3_total": 16,
+   "f13_q2_total": 14,
+   "new_holders": [
+    [
+     "dekabank deutsche girozentrale",
+     "صندوق/آخر"
+    ],
+    [
+     "state street corp (stt, stt-pg)",
+     "صندوق/آخر"
+    ],
+    [
+     "dimensional fund advisors lp",
+     "صندوق/آخر"
+    ],
+    [
+     "fmr llc",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "TCRX": {
+   "cik": 1783328,
+   "title": "TScan Therapeutics, Inc.",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "TScan Therapeutics",
+   "f13_q3_total": 35,
+   "f13_q2_total": 63,
+   "new_holders": [
+    [
+     "ieq capital, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "root financial partners, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "pathstone holdings, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "empowered funds, llc",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "TRAW": {
+   "cik": 1130598,
+   "title": "Traws Pharma, Inc.",
+   "q2": {
+    "registered": [
+     [
+      "424B5",
+      "2026-05-22"
+     ],
+     [
+      "424B3",
+      "2026-05-15"
+     ],
+     [
+      "S-3",
+      "2026-05-08"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-04-15"
+     ]
+    ]
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B5",
+      "2026-07-10"
+     ],
+     [
+      "S-3",
+      "2026-07-01"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [
+     [
+      "S-1",
+      "2026-10-26"
+     ]
+    ],
+    "placement_d": [
+     [
+      "D",
+      "2026-11-05"
+     ]
+    ],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-10-23"
+     ]
+    ]
+   },
+   "q3_atm": [],
+   "preceded": false,
+   "query": "Traws Pharma",
+   "f13_q3_total": 20,
+   "f13_q2_total": 38,
+   "new_holders": [
+    [
+     "stonex group inc. (snex)",
+     "صندوق/آخر"
+    ],
+    [
+     "northwestern mutual wealth management co",
+     "صندوق/آخر"
+    ],
+    [
+     "citigroup inc (c, c-pn, c-pr)",
+     "صندوق/آخر"
+    ]
+   ]
+  },
+  "VIP": {
+   "cik": 1844971,
+   "title": "Vulcan Infrastructure & Power Inc.",
+   "q2": {
+    "registered": [
+     [
+      "S-3/A",
+      "2026-06-12"
+     ],
+     [
+      "S-3",
+      "2026-05-15"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-06-04"
+     ]
+    ]
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B3",
+      "2026-07-09"
+     ]
+    ],
+    "placement_d": [
+     [
+      "D",
+      "2026-09-24"
+     ]
+    ],
+    "pipe_302": [
+     [
+      "8-K",
+      "2026-09-10"
+     ],
+     [
+      "8-K",
+      "2026-07-20"
+     ]
+    ]
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [],
+   "preceded": true,
+   "query": "Vulcan Infrastructure & Power",
+   "f13_q3_total": 0,
+   "f13_q2_total": 0,
+   "new_holders": []
+  },
+  "WATR": {
+   "cik": 2092314,
+   "title": "Air Water Ventures Ltd",
+   "q2": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3": {
+    "registered": [
+     [
+      "424B3",
+      "2026-07-08"
+     ]
+    ],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q4": {
+    "registered": [],
+    "placement_d": [],
+    "pipe_302": []
+   },
+   "q3_atm": [
+    [
+     "424B3",
+     "2026-07-08"
+    ]
+   ],
+   "preceded": true,
+   "query": "Air Water Ventures",
+   "f13_q3_total": 17,
+   "f13_q2_total": 0,
+   "new_holders": [
+    [
+     "rlh capital llc",
+     "صندوق/آخر"
+    ],
+    [
+     "mmcap international inc. spc",
+     "صندوق/آخر"
+    ],
+    [
+     "k2 principal fund, l.p.",
+     "صندوق/آخر"
+    ],
+    [
+     "context capital management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "alberta investment management corp",
+     "صندوق/آخر"
+    ],
+    [
+     "persistent asset partners ltd",
+     "صندوق/آخر"
+    ],
+    [
+     "healthcare of ontario pension plan trust fund",
+     "صندوق/آخر"
+    ],
+    [
+     "hudson bay capital management lp",
+     "صندوق/آخر"
+    ],
+    [
+     "picton mahoney asset management",
+     "صندوق/آخر"
+    ],
+    [
+     "magnetar financial llc",
+     "صندوق/آخر"
+    ],
+    [
+     "caitong international asset management co., ltd",
+     "صندوق/آخر"
+    ],
+    [
+     "geode capital management, llc",
+     "صندوق/آخر"
+    ],
+    [
+     "ubs group ag (ubs)",
+     "صانع سوق/كمّيّ"
+    ],
+    [
+     "rockefeller capital management l.p.",
+     "صندوق/آخر"
+    ],
+    [
+     "bnp paribas financial markets",
+     "صندوق/آخر"
+    ],
+    [
+     "jpmorgan chase & co (jpm, amjb, vyld, jpm-pc, jpm-pd, jpm-pj, jpm-pk, jpm-pl, jpm-pm)",
+     "صندوق/آخر"
+    ],
+    [
+     "morgan stanley (ms, ms-pa, ms-pe, ms-pf, ms-pi, ms-pk, ms-pl, ms-po, ms-pp, ms-pq)",
+     "صانع سوق/كمّيّ"
+    ]
+   ]
+  }
+ },
+ "capture_note": "التقاطُ التشغيلة 43759954351 على فرع التطوير (0bdfaa4) بعد إصلاح قارئ finviz (جدول fv-table) — العقدُ وبقيّةُ الأداة بلا تغيير"
+}
