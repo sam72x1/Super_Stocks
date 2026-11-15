@@ -101793,6 +101793,74 @@ check("🧪 TBK20 الملحق 4: R-QT بالعرض حيث يوجد اقتباس
       and _v20[3] == (("✅ تُبنى ② بـR-QT", 30.0, 4), ("🛑 توقّف", 30.0001, 4), ("⚪ لا قياس", None, 1))
       and _v20[4] == 7 and _v20[5] == 9, str(_v20)[:260])
 
+# 🏛️ TIN1-TIN3 (‏2026-11-15 · `T-INST` «فلتر المؤسسات» · العقد قبل أيّ رقم): صفحةُ finviz تُقرأ بالرأس والرابط لا بالموضع (رابطٌ بلا صفٍّ كامل لا يُعَدّ) ·
+#    والتداخلُ يَسِم الموقوف · وصانعُ السوق بقائمةٍ ثابتة بحدود كلمات (Citadel Advisors صندوق) · و«الجديد» فرقُ مجموعتين مطبَّعتين · والنتيجةُ تستبعد ما دون 20 جلسة ·
+#    وضابطُ الزخم على الأخماس المشتركة وحدَها · والبوّابات (9 بصمة · 3 بلا SEC_CONTACT/مفتاح) · والـworkflow يدويٌّ بلا تلغرام بقائمة أوضاعٍ مغلقة.
+try:
+    import importlib.util as _tin_iu
+    _tin_s = _tin_iu.spec_from_file_location("inst_lock1", "fm_forensics/inst/inst.py")
+    _IN = _tin_iu.module_from_spec(_tin_s)
+    _tin_s.loader.exec_module(_IN)
+    _h = ('<div>#1 / 3 Total</div><table><tr><th>No.</th><th>Ticker</th><th>Inst Own</th><th>Price</th></tr>'
+          '<tr><td>1</td><td><a href="quote.ashx?t=AAA&ty=c" class="tab-link">AAA</a></td><td><span>25.10%</span></td><td>1.20</td></tr>'
+          '<tr><td>2</td><td><a href="quote.ashx?t=BB.W" class="tab-link">BB.W</a></td><td>30%</td><td>6.90</td></tr>'
+          '<tr><td><a href="quote.ashx?t=ZZZ">ZZZ</a></td></tr></table>')
+    _p = _IN.parse_screen(_h)
+    _mg = _IN.merge_pages([_p, _IN.parse_screen(_h.replace("AAA", "CCC"))])
+    _ov = _IN.overlap(["AAA", "BBB", "CCC"], ["CCC", "AAA", "X"], [{"symbol": "AAA"}, {"symbol": "CCC", "stopped": True}])
+    _v1 = (_p[0], [x[0] for x in _p[2]], _p[2][0][1].get("Inst Own"), _mg[0], _mg[1], _ov)
+except Exception as _e:                                         # noqa: BLE001
+    _v1 = f"⛔ {type(_e).__name__}: {_e}"
+check("🏛️ TIN1 finviz: العددُ المطبوع 3 · الرموزُ AAA وBB.W وحدَهما (ZZZ بلا صفٍّ كامل لا يُعَدّ) · Inst Own من الرأس لا الموضع · والدمجُ بلا تكرار بالترتيب · "
+      "والتداخلُ «تحت المتابعة» AAA وCCC والقائمةُ بوسم الموقوف",
+      isinstance(_v1, tuple) and _v1[0] == 3 and _v1[1] == ["AAA", "BB.W"] and _v1[2] == "25.10%" and _v1[3] == 3 and _v1[4] == ["AAA", "BB.W", "CCC"]
+      and _v1[5] == {"near_watch": ["AAA", "CCC"], "watchlist": [("AAA", False), ("CCC", True)]}, str(_v1)[:240])
+try:
+    _mm = tuple(_IN.is_mm(n) for n in ("CITADEL ADVISORS LLC", "Citadel Securities LLC", "IMC-Chicago, LLC", "Kimco Fund", "JUMP FINANCIAL, LLC"))
+    _nh = _IN.new_holders(["Vanguard Group Inc (CIK 0000102909)", "Virtu Financial LLC  (CIK 1)", "virtu financial llc"], ["VANGUARD GROUP INC"])
+    _iq = (_IN.issuer_query("Acme Therapeutics, Inc."), _IN.issuer_query("Foo Holdings Corp."))
+    _fl = _IN.offering_flags([{"form": "424B5", "date": "2026-08-01"}, {"form": "D", "date": "2026-07-02"}, {"form": "8-K", "date": "2026-09-30", "items": "1.01,3.02"},
+                              {"form": "8-K", "date": "2026-09-01", "items": "2.02"}, {"form": "S-3", "date": "2026-10-01"}], "2026-07-01", "2026-09-30")
+    _bars = [("2026-11-13", 1.0, 1.0)] + [("2026-11-%02d" % (16 + k), 1.6 if k == 3 else 1.1, 1.0) for k in range(20)]
+    _oc = (_IN.outcome(_bars, "2026-11-13", "2026-11-16", "2026-12-14"), _IN.outcome(_bars[:15], "2026-11-13", "2026-11-16", "2026-12-14"),
+           _IN.outcome([(d, h * 2.5 if d == "2026-11-20" else h, c) for d, h, c in _bars], "2026-11-13", "2026-11-16", "2026-12-14"))
+    _ad = _IN.mom_adj_diff([("I", 0, 1), ("I", 0, 0), ("R", 0, 0), ("R", 0, 0), ("I", 1, 1), ("R", 2, 1)], None)
+    _bt = (_IN.boot_adj([("a", "I", 0, 1), ("b", "I", 0, 0), ("c", "R", 0, 0), ("d", "R", 0, 1)]),
+           _IN.boot_adj([("a", "I", 0, 1), ("b", "I", 0, 0), ("c", "R", 0, 0), ("d", "R", 0, 1)]))
+    _v2 = (_mm, _nh, _iq, _fl, _oc, _ad, _bt[0] == _bt[1], _bt[0][0])
+except Exception as _e:                                         # noqa: BLE001
+    _v2 = f"⛔ {type(_e).__name__}: {_e}"
+check("🏛️ TIN2 صانعُ السوق بحدود الكلمات (Citadel Advisors صندوق · Kimco ليست IMC) · الجديدُ فرقٌ مطبَّع بلا تكرار · اسمُ المُصدِر بلا لاحقةٍ قانونيّة ويُبقي Holdings · "
+      "الطرحُ في الربع (424B5 · D · 8-K بـ3.02 · لا 2.02 ولا ما بعد الربع) · النتيجةُ ‏+60% ⟵ +50% لا +100% ودون 20 جلسة ⟵ None · وضابطُ الزخم على الأخماس المشتركة والبوتستراب حتميّ",
+      isinstance(_v2, tuple) and _v2[0] == (False, True, True, False, True) and _v2[1] == ["virtu financial llc"]
+      and _v2[2] == ("Acme Therapeutics", "Foo Holdings")
+      and _v2[3] == {"registered": [("424B5", "2026-08-01")], "placement_d": [("D", "2026-07-02")], "pipe_302": [("8-K", "2026-09-30")]}
+      and _v2[4] == ((True, False, 20), (None, None, 14), (True, True, 20)) and _v2[5] == 0.5 and _v2[6] and _v2[7] == 0.0, str(_v2)[:260])
+try:
+    import subprocess as _tin_sp
+    import shutil as _tin_sh
+    import tempfile as _tin_tf
+    import os as _tin_os
+    import sys as _tin_sys
+    import yaml as _tin_yaml
+    _env = {k: v for k, v in _tin_os.environ.items() if k not in ("SEC_CONTACT", "POLYGON_API_KEY")}
+    _rc = lambda m: _tin_sp.run([_tin_sys.executable, "fm_forensics/inst/inst.py", "--mode", m], env=_env, capture_output=True, text=True,
+                                timeout=120).returncode
+    _rcs = (_rc("check"), _rc("sec"), _rc("measure"))
+    _td = _tin_tf.mkdtemp()
+    _tin_sh.copy("fm_forensics/inst/inst.py", _td)
+    open(_tin_os.path.join(_td, "T_INST_prereg.md"), "w", encoding="utf-8").write("x")
+    _rc9 = _tin_sp.run([_tin_sys.executable, _tin_os.path.join(_td, "inst.py"), "--mode", "capture"], env=_env, capture_output=True, text=True,
+                       timeout=60).returncode
+    _tin_sh.rmtree(_td, ignore_errors=True)
+    _wt = open(".github/workflows/inst.yml", encoding="utf-8").read()
+    _wy = _tin_yaml.safe_load(_wt)
+    _v3 = (_rcs, _rc9, sorted(_wy.get(True) or _wy.get("on")), "TELEGRAM" in _wt, "*) echo" in _wt and "exit 2" in _wt)
+except Exception as _e:                                         # noqa: BLE001
+    _v3 = f"⛔ {type(_e).__name__}: {_e}"
+check("🏛️ TIN3 البوّابات: check 0 · sec بلا SEC_CONTACT 3 · measure بلا مفتاح 3 · بصمةٌ مختلفة 9 · والـworkflow يدويٌّ بلا تلغرام بقائمة أوضاعٍ مغلقة",
+      isinstance(_v3, tuple) and _v3[0] == (0, 3, 3) and _v3[1] == 9 and _v3[2] == ["workflow_dispatch"] and not _v3[3] and _v3[4], str(_v3)[:200])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
