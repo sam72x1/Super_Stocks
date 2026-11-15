@@ -101938,15 +101938,21 @@ try:
         _z.writestr("INFOTABLE.tsv", "ACCESSION_NUMBER\tNAMEOFISSUER\tTITLEOFCLASS\tCUSIP\tFIGI\tSSHPRNAMT\tSSHPRNAMTTYPE\tPUTCALL\n"
                     "A1\tACME\tCOM\tabc\t\t100\tSH\t\nA1\tACME\tCOM\tABC\t\t50\tSH\t\nA1\tACME\tCOM\tABC\t\t7\tSH\tCall\nA1\tACME\tNOTE\tABD\t\t9\tPRN\t\nA9\tX\tCOM\tABC\t\t1000\tSH\t\n")
     _df, _mt = _IB.read_zip_info(_zb.getvalue(), {"A1"})
+    _zb2 = _tb_io.BytesIO()
+    with _tb_zf.ZipFile(_zb.getvalue() and _tb_io.BytesIO(_zb.getvalue())) as _zi, _tb_zf.ZipFile(_zb2, "w") as _zo:
+        for _n in _zi.namelist():
+            _zo.writestr("2022q4_form13f/" + _n.lower(), _zi.read(_n))
+    _df2, _ = _IB.read_zip_info(_zb2.getvalue(), {"A1"})
     _wf = _tb_y.safe_load(open(".github/workflows/inst_bt.yml", encoding="utf-8"))
     _wt = open(".github/workflows/inst_bt.yml", encoding="utf-8").read()
-    _tb3 = (_IB.parse_edgar_13f(_tx), _IB.read_zip_subs(_zb.getvalue()), _df.to_dict("records"),
+    _tb3 = (_IB.parse_edgar_13f(_tx), _IB.read_zip_subs(_zb.getvalue()) == _IB.read_zip_subs(_zb2.getvalue()) and _IB.read_zip_subs(_zb.getvalue()),
+            _df.to_dict("records") == _df2.to_dict("records") and _df.to_dict("records"),
             _IB.zip_window("https://x/2023q1_form13f.zip"), _IB.zip_window("https://x/01jun2026-31aug2026_form13f.zip"),
             sorted(_wf.get(True) or _wf.get("on")), "TELEGRAM" in _wt, "run-id: 42943607531" in _wt, "fetch-depth: 0" in _wt,
             _IB.contract_ok(), _IB.contract_ok(sha="0" * 64))
 except Exception as _e:                                         # noqa: BLE001
     _tb3 = f"⛔ {type(_e).__name__}: {_e}"
-check("🏛️📜 TIB3 إيداعُ EDGAR (الربع · التعديل · المُودِع · SH بلا Put ولا PRN · CUSIP بحروفٍ كبيرة) · ومجموعاتُ SEC (13F-HR وحدَه · SH بلا Call · الحسابُ المختار وحدَه) · "
+check("🏛️📜 TIB3 إيداعُ EDGAR (الربع · التعديل · المُودِع · SH بلا Put ولا PRN · CUSIP بحروفٍ كبيرة) · ومجموعاتُ SEC (13F-HR وحدَه · SH بلا Call · الحسابُ المختار وحدَه · وفي مجلّدٍ داخليّ بأحرفٍ صغيرة كالجذر) · "
       "ونوافذُ الأسماء · والـworkflow يدويٌّ بلا تلغرام يُنزّل ‏42943607531 بتاريخٍ كامل · وبصمةُ العقد",
       isinstance(_tb3, tuple) and _tb3[0] == ("2026-09-30", "RESTATEMENT", "HRT FINANCIAL LP", [("00123X101", "ACME INC", "COM", "", 1500.0)])
       and _tb3[1] == [("A1", "1", "2026-08-10", "13F-HR", "", "2026-06-30", "JANE STREET GROUP")]

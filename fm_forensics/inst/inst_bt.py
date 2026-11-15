@@ -259,10 +259,15 @@ def zip_window(url):
     return None
 
 
+def _member(z, base):
+    """🔧 (2026-11-15 · عطلٌ مُثبَت `43768208578`: بعضُ المجموعات تضع ملفّاتها في مجلّدٍ داخل الأرشيف) — العضوُ بالاسم الأخير بلا حالةِ أحرف أو None."""
+    return next((n for n in z.namelist() if n.rsplit("/", 1)[-1].upper() == base.upper()), None)
+
+
 def read_zip_subs(zb):
     import pandas as pd
     z = zipfile.ZipFile(io.BytesIO(zb))
-    rd = lambda n, cols: pd.read_csv(z.open(n), sep="\t", dtype=str, usecols=cols, quoting=3, keep_default_na=False, on_bad_lines="skip")
+    rd = lambda n, cols: pd.read_csv(z.open(_member(z, n)), sep="\t", dtype=str, usecols=cols, quoting=3, keep_default_na=False, on_bad_lines="skip")
     s = rd("SUBMISSION.tsv", ["ACCESSION_NUMBER", "FILING_DATE", "SUBMISSIONTYPE", "CIK", "PERIODOFREPORT"])
     c = rd("COVERPAGE.tsv", ["ACCESSION_NUMBER", "AMENDMENTTYPE", "FILINGMANAGER_NAME"])
     s = s.merge(c, on="ACCESSION_NUMBER", how="left").fillna("")
@@ -284,7 +289,7 @@ def read_zip_info(zb, accs):
     z = zipfile.ZipFile(io.BytesIO(zb))
     cols = ["ACCESSION_NUMBER", "NAMEOFISSUER", "TITLEOFCLASS", "CUSIP", "FIGI", "SSHPRNAMT", "SSHPRNAMTTYPE", "PUTCALL"]
     parts, meta = [], {}
-    for ch in pd.read_csv(z.open("INFOTABLE.tsv"), sep="\t", dtype=str, usecols=cols, quoting=3, keep_default_na=False,
+    for ch in pd.read_csv(z.open(_member(z, "INFOTABLE.tsv")), sep="\t", dtype=str, usecols=cols, quoting=3, keep_default_na=False,
                           on_bad_lines="skip", chunksize=1_000_000):
         ch = ch[ch["ACCESSION_NUMBER"].isin(accs) & (ch["SSHPRNAMTTYPE"] == "SH") & (ch["PUTCALL"] == "")]
         ch = ch.assign(CUSIP=ch["CUSIP"].str.upper().str.strip(), shares=pd.to_numeric(ch["SSHPRNAMT"], errors="coerce").fillna(0))
@@ -401,8 +406,13 @@ def mode_run(key, contact):
         if zb is None:
             log(f"⛔ تعذّر {u}")
             continue
+        try:
+            subs_z = read_zip_subs(zb)
+        except Exception as e:                                   # noqa: BLE001
+            log(f"⛔ قراءةُ {u.rsplit('/', 1)[-1]}: {type(e).__name__} {e} — {zipfile.ZipFile(io.BytesIO(zb)).namelist()[:12]}")
+            continue
         zbytes[u] = zb
-        for acc, cik, fd, typ, am, pe, nm in read_zip_subs(zb):
+        for acc, cik, fd, typ, am, pe, nm in subs_z:
             names[cik] = nm
             for p, v in need.items():
                 if pe == v["end"]:
