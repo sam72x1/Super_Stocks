@@ -83,19 +83,32 @@ class _Rows(HTMLParser):
             self._row = None
 
 
+def screen_tickers(html):
+    """🔧 (2026-11-15 · عطلٌ مُثبَت في `43758111383`: المطبوع 31 والمستخرج 0) — الرموزُ من وسوم <a> التي فيها quote.ashx?t= **والصنف tab-link**
+    (صنفُ روابط صفوف النتائج) بترتيبها بلا تكرار، أيًّا كان ترتيبُ الخصائص · ولا تعتمد على بنية الجدول."""
+    out = []
+    for tag in re.findall(r"<a\b[^>]*>", html or "", flags=re.I):
+        if "tab-link" not in tag:
+            continue
+        m = re.search(r"quote\.ashx\?t=([A-Z][A-Z0-9.\-]*)", tag)
+        if m and m.group(1) not in out:
+            out.append(m.group(1))
+    return out
+
+
 def parse_screen(html):
-    """صفحةُ finviz ⟵ (العددُ الكلّيّ المطبوع أو None، الرأس، [(رمز، {عمود: نصّ})]) — الرأسُ أوّلُ صفٍّ فيه «Ticker» · والصفوفُ ما فيه رابطُ رمزٍ بطول الرأس."""
+    """صفحةُ finviz ⟵ (العددُ الكلّيّ المطبوع أو None، الرأس، [(رمز، {عمود: نصّ})]) — **الرموزُ من `screen_tickers`** (لا من الجدول) ·
+    والأعمدةُ بأحسن جهد: الرأسُ صفٌّ فيه خليّةٌ «Ticker» · وصفُّ الرمز يُقرن بالرأس إن تساوى الطولان وإلّا {} (وصفٌ لا يحكم)."""
     m = re.search(r"(\d[\d,]*)\s*Total", html or "")
     total = int(m.group(1).replace(",", "")) if m else None
     p = _Rows()
     p.feed(html or "")
-    head = next((r for r, _t in p.rows if "Ticker" in r), None)
-    out = []
-    if head:
-        for r, t in p.rows:
-            if t and len(r) == len(head) and t in r:
-                out.append((t, dict(zip(head, r))))
-    return total, head, out
+    head = next((r for r, _t in p.rows if any(c.strip() == "Ticker" for c in r)), None)
+    rowmap = {}
+    for r, t in p.rows:
+        if t and t not in rowmap and t in r:
+            rowmap[t] = dict(zip(head, r)) if head and len(r) == len(head) else {}
+    return total, head, [(t, rowmap.get(t, {})) for t in screen_tickers(html)]
 
 
 def merge_pages(pages):
@@ -246,6 +259,9 @@ def fetch_screen(view):
         if html is None:
             return None
         t, h, rs = parse_screen(html)
+        if not rs:
+            i = html.find("quote.ashx?t=")
+            log(f"🔍 v={view} r={1 + 20 * k}: المطبوع {t} · رموزٌ 0 · الطول {len(html)} · مقتطف: {html[max(0, i - 300):i + 300] if i >= 0 else html[:600]!r}")
         pages.append((t, h, rs))
         got = len({s for _t, _h, rr in pages for s, _r in rr})
         if not rs or (t is not None and got >= t):
