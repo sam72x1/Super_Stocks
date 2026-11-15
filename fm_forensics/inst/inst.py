@@ -262,6 +262,9 @@ def fetch_screen(view):
         if not rs:
             i = html.find("quote.ashx?t=")
             log(f"🔍 v={view} r={1 + 20 * k}: المطبوع {t} · رموزٌ 0 · الطول {len(html)} · مقتطف: {html[max(0, i - 300):i + 300] if i >= 0 else html[:600]!r}")
+            for _kw in ("quote?t=", "quote.ashx", "/quote/", "ticker", "Ticker", "styled-row", "screener-body-table", "tab-link", "<tr"):
+                _ix = [mm.start() for mm in re.finditer(re.escape(_kw), html)]
+                log(f"🔍 «{_kw}» ×{len(_ix)}" + (f" · أوّلها: {html[max(0, _ix[min(2, len(_ix) - 1)] - 200):_ix[min(2, len(_ix) - 1)] + 300]!r}" if _ix else ""))
             try:
                 os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
                 open(os.path.join(HERE, "out", f"raw_v{view}_r{1 + 20 * k}.html"), "w", encoding="utf-8").write(html)
