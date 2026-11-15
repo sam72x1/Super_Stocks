@@ -262,6 +262,11 @@ def fetch_screen(view):
         if not rs:
             i = html.find("quote.ashx?t=")
             log(f"🔍 v={view} r={1 + 20 * k}: المطبوع {t} · رموزٌ 0 · الطول {len(html)} · مقتطف: {html[max(0, i - 300):i + 300] if i >= 0 else html[:600]!r}")
+            try:
+                os.makedirs(os.path.join(HERE, "out"), exist_ok=True)
+                open(os.path.join(HERE, "out", f"raw_v{view}_r{1 + 20 * k}.html"), "w", encoding="utf-8").write(html)
+            except OSError:
+                pass
         pages.append((t, h, rs))
         got = len({s for _t, _h, rr in pages for s, _r in rr})
         if not rs or (t is not None and got >= t):
