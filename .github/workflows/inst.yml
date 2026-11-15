@@ -1,0 +1,57 @@
+name: "🏛️ T-INST فلتر المؤسسات (قراءةٌ فقط · يدويّ)"
+
+# 🔒 قراءةٌ وقياسٌ فقط — لا كرون · لا كتابة حالة · لا تلغرام · لا إنتاج (العقد `fm_forensics/inst/T_INST_prereg.md` · TIN1-TIN3).
+# capture = ① الالتقاطُ من finviz و② التداخل ثمّ ④ الحائزون والطروحات من EDGAR · measure = ③ بعد D20 (2026-12-14) — وكلُّ وضعٍ يخرج 9 إن تغيّرت بصمةُ العقد.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "capture = ① ② ④ · measure = ③ (بعد 2026-12-14)"
+        required: false
+        default: "capture"
+
+concurrency:
+  group: super-stocks-inst
+  cancel-in-progress: false
+
+jobs:
+  inst:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🏛️ T-INST
+        env:
+          INST_MODE: ${{ inputs.mode }}
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          case "$INST_MODE" in
+            capture) python fm_forensics/inst/inst.py --mode capture && python fm_forensics/inst/inst.py --mode sec ;;
+            measure) python fm_forensics/inst/inst.py --mode measure ;;
+            *) echo "mode غيرُ معروف: $INST_MODE"; exit 2 ;;
+          esac
+
+      - name: Upload capture
+        if: always() && inputs.mode == 'capture'
+        uses: actions/upload-artifact@v4
+        with:
+          name: inst-capture
+          path: fm_forensics/inst/out/
+          if-no-files-found: ignore
+          retention-days: 90
