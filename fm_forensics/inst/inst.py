@@ -269,16 +269,20 @@ def boot_adj(units, b=BOOT_B, seed=BOOT_SEED):
 
 
 # ── الجلب ────────────────────────────────────────────────────────────────────────────────────────
-def _get(url, headers, tries=3, as_json=False):
+def _get(url, headers, tries=4, as_json=False):
+    """GET بإعادة · و429 (خنقُ finviz) يُمهَل أطول · والتعذّرُ يُطبع بحالته (لا صمت)."""
     import requests
+    last = None
     for i in range(tries):
         try:
             r = requests.get(url, headers=headers, timeout=40)
+            last = r.status_code
             if r.status_code == 200:
                 return r.json() if as_json else r.text
-        except Exception:                                        # noqa: BLE001
-            pass
-        time.sleep(2 * (i + 1))
+        except Exception as e:                                   # noqa: BLE001
+            last = type(e).__name__
+        time.sleep((15 if last == 429 else 2) * (i + 1))
+    log(f"⚠️ تعذّر {url.split('?')[0]} · آخرُ حالة {last}")
     return None
 
 
@@ -308,7 +312,7 @@ def fetch_screen(view):
         got = len({s for _t, _h, rr in pages for s, _r in rr})
         if not rs or (t is not None and got >= t):
             break
-        time.sleep(1.5)
+        time.sleep(4)
     return merge_pages(pages)
 
 
