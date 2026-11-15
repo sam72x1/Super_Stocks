@@ -44,6 +44,7 @@ jobs:
           case "$INST_MODE" in
             capture) python fm_forensics/inst/inst.py --mode capture && python fm_forensics/inst/inst.py --mode sec ;;
             measure) python fm_forensics/inst/inst.py --mode measure ;;
+            btprobe) python fm_forensics/inst/bt_probe.py ;;
             *) echo "mode غيرُ معروف: $INST_MODE"; exit 2 ;;
           esac
 
