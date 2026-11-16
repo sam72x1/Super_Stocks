@@ -102154,6 +102154,103 @@ check("⏳🔓 NFW4 وسمُ النصف بحدّ الأداة (عطلُ عدّ 1
       "و`d*` قبل أيّ R في `nfwd_read` · والأداةُ قراءةٌ فقط",
       _nfw4 == (["H1", "H2"], True, True, True), str(_nfw4))
 
+# 📣 XMV1-XMV4 — `T-XMOVE` (العقد `fm_forensics/xmove/XMOVE_prereg.md` · أمرُ المالك 2026-11-16): الإطلاقُ بالعتبة والحجم التراكميّ ·
+#    🥇 بقاعدة اليوم · الجمعُ والبوّابة G1 · والـworkflow القارئ.
+try:
+    import importlib.util as _xmv_iu
+    import datetime as _xmv_dt
+    import tempfile as _xmv_tf
+    import contextlib as _xmv_cl
+    import io as _xmv_io
+    import os as _xmv_os
+    _xmv_sp = _xmv_iu.spec_from_file_location("xmove_lock", "fm_forensics/xmove/xmove.py")
+    _XMV = _xmv_iu.module_from_spec(_xmv_sp)
+    _xmv_sp.loader.exec_module(_XMV)
+    _xmv_d = "2026-10-13"
+
+    def _xmv_ms(h, m):
+        return int(_xmv_dt.datetime(2026, 10, 13, h, m, tzinfo=_XMV.NY).timestamp() * 1000)
+    # (t، o، h، l، c، v)
+    _xmv_bars = [(_xmv_ms(3, 59), 1, 1.9, 1, 1.5, 900_000),          # قبل 04:00 ⟵ لا يُعَدّ حجمًا ولا إطلاقًا
+                 (_xmv_ms(4, 10), 1, 1.12, 1, 1.1, 1_000),           # العتبةُ بلا حجم
+                 (_xmv_ms(4, 20), 1, 1.05, 1, 1.0, 40_000),          # الحجمُ بلا عتبة (التراكم 41,100)
+                 (_xmv_ms(4, 30), 1, 1.11, 1, 1.08, 10_000),         # ⟵ الإطلاق: high ≥ 1.1 والتراكمُ بدقيقتها 51,900 · السعرُ c
+                 (_xmv_ms(4, 40), 1, 1.20, 1, 1.19, 50_000)]
+    _xmv_late = [(_xmv_ms(15, 59), 1, 1.05, 1, 1.0, 100_000), (_xmv_ms(16, 0), 1, 1.5, 1, 1.4, 100_000)]
+    _xmv1 = (_XMV.x_fire(_xmv_bars, _xmv_d, 1.0, 0.10) == (270, _xmv_ms(4, 30), 1.08)
+             and _XMV.x_fire(_xmv_bars, _xmv_d, 1.0, 0.15) == (280, _xmv_ms(4, 40), 1.19)
+             and _XMV.x_fire(_xmv_bars, _xmv_d, 1.0, 0.30) is None
+             and _XMV.x_fire(_xmv_late, _xmv_d, 1.0, 0.10) is None
+             and _XMV.x_fire(_xmv_bars, "2026-10-14", 1.0, 0.10) is None
+             and _XMV.x_fire(_xmv_bars, _xmv_d, None, 0.10) is None
+             and _XMV.XS == (0.10, 0.15, 0.20, 0.30) and _XMV.USD_MIN == 50_000 and (_XMV.X_FROM, _XMV.X_END) == (240, 960))
+    check("📣 XMV1 T-XMOVE الإطلاق: أوّلُ دقيقةٍ في [04:00، 16:00) يبلغ `high` فيها العتبةَ **و**الدولارُ التراكميّ بدقيقتها 50 ألفًا · السعرُ إغلاقُها · "
+          "وما قبل 04:00 وما بعد 16:00 لا يُعَدّ · والعتباتُ الأربع بالأمر",
+          _xmv1, str([_XMV.x_fire(_xmv_bars, _xmv_d, 1.0, x) for x in _XMV.XS]))
+    _xmv_led = [json.dumps(r) for r in (
+        {"date": "d", "symbol": "a", "green": 3, "j1": False, "price_ms": 200, "e5": 2.0},
+        {"date": "d", "symbol": "A", "green": 4, "j1": False, "price_ms": 100, "e5": 1.5},
+        {"date": "d", "symbol": "B", "green": 1, "j1": True, "price_ms": 300, "e5": 3.0},
+        {"date": "d", "symbol": "C", "green": 2, "j1": False, "tier": "قوي", "price_ms": 50, "e5": 9.0},
+        {"date": "d", "symbol": "D", "green": 3, "j1": False, "price_ms": 70, "e5": 7.0},
+        {"date": "d", "symbol": "E", "green": 4, "j1": True, "price_ms": 80}, )] + ["not json"]
+    import Super_stock as _xmv_bot
+    _xmv_g = _XMV.gold_map(_xmv_led)
+    check("📣 XMV2 🥇 بقاعدة اليوم: `green ≥ LIQ_TIER_STRONG_MIN` أو `j1` (لا حقلُ `tier` المختوم) · أبكرُ صفٍّ قويٍّ للسهم يومَه بـ`price_ms` و`e5` · "
+          "وبلا `e5` لا صفّ · والعتبةُ بالهُويّة مع الإنتاج والسجلُّ مثبَّت",
+          _xmv_g == {("d", "A"): (100, 1.5), ("d", "B"): (300, 3.0), ("d", "D"): (70, 7.0)}
+          and _XMV.GOLD_MIN == _xmv_bot.LIQ_TIER_STRONG_MIN and _XMV.LEDGER_REF == "b7d812971" and _XMV.GOLD_FROM == "2026-08-24",
+          str(_xmv_g))
+    _xmv_recs = [
+        {"sym": "R1", "d": "d1", "R": 1.5, "Rf": 1.5, "ok": True, "split": False, "fires": {"X10": [300, 1.1], "cur": [320, 1.2]},
+         "stats": {"X10": {"left": 0.9, "pct": 0.1, "gain": 1.0}, "cur": {"left": 0.8, "pct": 0.2, "gain": 0.8}}},
+        {"sym": "R2", "d": "d1", "R": 0.6, "Rf": 0.6, "ok": True, "split": False, "fires": {"X10": [310, 1.1]},
+         "stats": {"X10": {"left": 0.7, "pct": 0.1, "gain": 0.4}}},
+        {"sym": "F1", "d": "d1", "R": 0.2, "Rf": None, "ok": True, "split": False, "fires": {"X10": [400, 1.1], "cur": [410, 1.1]}, "stats": {}},
+        {"sym": "S1", "d": "d1", "R": 9.0, "Rf": None, "ok": True, "split": True, "fires": {"X10": [200, 1.1]}, "stats": {}},
+        {"sym": "R3", "d": "d3", "R": 1.2, "Rf": 1.2, "ok": True, "split": False, "fires": {}, "stats": {}},
+        {"sym": "B5", "d": "d1", "R": 0.5, "Rf": None, "ok": True, "split": False, "fires": {"X10": [420, 1.1]}, "stats": {}},
+        {"sym": "N1", "d": "d3", "R": None, "Rf": 1.3, "ok": False, "split": False, "fires": {}, "stats": {}}]
+    _xmv_s = _XMV.scope_rows(_xmv_recs, ["d1", "d2", "d3"], ("X10", "cur"))
+    _xmv3 = (_xmv_s["X10"]["day_med"] == 0 and _xmv_s["X10"]["day_max"] == 4 and _xmv_s["X10"]["fires"] == 4 and _xmv_s["X10"]["split"] == 1
+             and _xmv_s["X10"]["prec50"] == [3, 4] and _xmv_s["X10"]["prec100"] == [1, 4] and _xmv_s["X10"]["cap100"] == [1, 2]
+             and _xmv_s["X10"]["cap50"] == [2, 3] and _xmv_s["X10"]["false_per_run"] == 1.0 and _xmv_s["X10"]["left_med"] == 0.9
+             and _xmv_s["cur"]["fires"] == 2 and _xmv_s["cur"]["prec50"] == [1, 2] and _xmv_s["cur"]["cap100"] == [1, 2]
+             and _XMV.g1_ok(209, 155, 1561) and _XMV.g1_ok(209, 155, 1576) and not _XMV.g1_ok(209, 155, 1577)
+             and not _XMV.g1_ok(208, 155, 1561) and not _XMV.g1_ok(209, 154, 1561) and _XMV.day_stats([0, 2, 5]) == (2, 5, 7))
+    with _xmv_tf.TemporaryDirectory() as _xmv_td:
+        _xmv_p = _xmv_os.path.join(_xmv_td, "p.json")
+        json.dump({"days": {"d1": {"src": True, "uni": 5, "fail": 0}}, "recs": _xmv_recs}, open(_xmv_p, "w"))
+        _xmv_buf = _xmv_io.StringIO()
+        with _xmv_cl.redirect_stdout(_xmv_buf):
+            _xmv_rc = _XMV.mode_pool([_xmv_p])
+    check("📣 XMV3 الجمع: الأيّامُ بصفرٍ تُعَدّ في الوسيط · يومُ التقسيم خارج ①-③ ويُعَدّ · الدقّةُ ‏+50% شاملةً الحدّ · الالتقاطُ للمقيس وحدَه · و**G1 الساقطة ⟵ خروج 7 بلا جدول**",
+          _xmv3 and _xmv_rc == _XMV.G1_RC == 7 and "## ①" not in _xmv_buf.getvalue() and "⛔ G1" in _xmv_buf.getvalue(),
+          f"s={ {k: _xmv_s[k] for k in ('X10',)} } rc={_xmv_rc}")
+    _xmv_sha0 = _XMV.CONTRACT_SHA
+    _XMV.CONTRACT_SHA = "0" * 64
+    _xmv_buf2 = _xmv_io.StringIO()
+    with _xmv_cl.redirect_stdout(_xmv_buf2):
+        _xmv_rc9 = _XMV.main(["--mode", "chunk"])
+    _XMV.CONTRACT_SHA = _xmv_sha0
+    _xmv_wf = _wfh_yaml.safe_load(open(".github/workflows/xmove.yml", encoding="utf-8"))
+    _xmv_on = _xmv_wf.get(True) or _xmv_wf.get("on") or {}
+    _xmv_steps = [s for j in _xmv_wf["jobs"].values() for s in j["steps"]]
+    _xmv_runs = "\n".join(s.get("run") or "" for s in _xmv_steps)
+    _xmv_envs = {}
+    for _s in _xmv_steps:
+        _xmv_envs.update(_s.get("env") or {})
+    check("📣 XMV4 العقدُ ببصمته (خروج 9 قبل أيّ جلب) · والـworkflow يدويٌّ وحدَه · `contents: read` · ستّةُ أجزاءٍ ثمّ جمع · تاريخُ git كامل · بلا تلغرام ولا دفع",
+          _XMV.contract_ok() and _xmv_rc9 == 9 and not _XMV.contract_ok(sha="0" * 64)
+          and set(_xmv_on) == {"workflow_dispatch"} and _xmv_wf.get("permissions") == {"contents": "read"}
+          and _xmv_wf["jobs"]["chunk"]["strategy"]["matrix"]["part"] == [0, 1, 2, 3, 4, 5] and "--parts 6" in _xmv_runs
+          and _xmv_wf["jobs"]["pool"]["needs"] == "chunk" and "--mode pool" in _xmv_runs
+          and _xmv_wf["jobs"]["chunk"]["steps"][0]["with"]["fetch-depth"] == 0
+          and "TELEGRAM" not in _xmv_runs and not any("TELEGRAM" in k for k in _xmv_envs) and "git push" not in _xmv_runs,
+          f"rc9={_xmv_rc9}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📣 أقفالُ T-XMOVE انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
