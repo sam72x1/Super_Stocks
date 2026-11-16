@@ -102567,8 +102567,8 @@ try:
           "يدويٌّ بلا كرون ولا أسرار ولا تلغرام · ولا نداءَ شبكة",
           _BKO.flag({"res": {"O0": {"r": 7.58}, "O30": {"r": 1.0}, "X0": {"r": -0.95}, "X30": {"r": -1.01}, "X50": {"r": 1.05}, "A0": None}}) == {"O0": 7.58, "X30": -1.01, "X50": 1.05}
           and _BKO.flag({"res": None}) == {}
-          and _BKO.window_splits([{"execution_date": "2024-03-01"}, {"execution_date": "2024-02-28"}, {"execution_date": "2024-04-02"}],
-                                 "2024-03-01", "2024-03-29") == [{"execution_date": "2024-03-01"}]
+          and _BKO.window_splits([["2024-03-01", 0.1], ["2024-02-28", 0.2], ["2024-04-02", 0.5]],
+                                 "2024-03-01", "2024-03-29") == [["2024-03-01", 0.1]]
           and "schedule" not in _bsk_oon and "secrets." not in _bsk_oraw and "TELEGRAM" not in _bsk_oraw
           and not any(w in _bsk_osrc for w in ("urllib", "requests", "http.client", "socket")),
           str(_BKO.flag({"res": {"O0": {"r": 7.58}, "O30": {"r": 1.0}, "X0": {"r": -0.95}, "X30": {"r": -1.01}}})))
