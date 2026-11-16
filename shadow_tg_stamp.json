@@ -1,17 +1,15 @@
 {
- "last_sent": "2026-11-13",
+ "last_sent": "2026-11-16",
  "first_sent": "2026-11-06",
  "built_ny": "09:25",
- "n_s": 4,
- "n_anchors": 8,
+ "n_s": 2,
+ "n_anchors": 6,
  "skipped": {
   "bars": 0,
   "base": 0
  },
  "symbols": [
-  "XXII",
-  "SHFS",
-  "ZBAO",
-  "FCUV"
+  "GOVX",
+  "LGHL"
  ]
 }
