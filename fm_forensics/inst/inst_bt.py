@@ -23,6 +23,10 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 CONTRACT = os.path.join(HERE, "T_INST_BT_prereg.md")
 CONTRACT_SHA = "99705712b47cd9ee2c3527dbb154eb342996259443a29e9e9dcb2dc3d6def461"
+ADDENDUM = os.path.join(HERE, "T_INST_BT_addendum_1.md")
+ADDENDUM_SHA = "259b8f63aa0df503e7fb380bf9ed442023b7404b6a709612df41cbd0a9a376f3"
+SPLIT_ADJ = os.environ.get("INSTBT_SPLIT_ADJ", "1") != "0"      # الملحق 1 · «0» ⟵ العقدُ الأصليّ بت-بت
+SPLIT_MIN, SPLIT_FROM, SPLIT_TO = 500, "2022-06-01", "2026-11-14"
 OUT = os.path.join(HERE, "out_bt")
 FINVIZ = os.path.join(HERE, "data", "finviz_inst_20261115.json")
 RUNNERS = os.path.join(ROOT, "fm_forensics", "rrgate", "data", "runners_60.json")
@@ -49,6 +53,13 @@ CONTRACT_RC, DATA_RC, KEY_RC = 9, 7, 3
 
 def log(*a):
     print(*a, flush=True)
+
+
+def addendum_ok(path=ADDENDUM, sha=ADDENDUM_SHA):
+    try:
+        return hashlib.sha256(open(path, "rb").read()).hexdigest() == sha
+    except OSError:
+        return False
 
 
 def contract_ok(path=CONTRACT, sha=CONTRACT_SHA):
@@ -124,8 +135,17 @@ def tri_and(vals):
     return True
 
 
-def io_it(h, hp, shares):
-    """⟵ (IO أو None، شرطُ IO، شرطُ IT، «جديد»؟) · h/hp None = بلا CUSIP مربوط."""
+def split_factor(splits, lo, hi):
+    """الملحق 1: splits [(execution_date، split_from، split_to)] ⟵ Π(to ÷ from) للتنفيذ في (lo، hi] · الصفُّ الناقص يُتخطّى · بلا تقسيم 1."""
+    f = 1.0
+    for d, a, b in splits or ():
+        if d and lo < d <= hi and a and b:
+            f *= float(b) / float(a)
+    return f
+
+
+def io_it(h, hp, shares, sf=1.0):
+    """⟵ (IO أو None، شرطُ IO، شرطُ IT، «جديد»؟) · h/hp None = بلا CUSIP مربوط · sf عاملُ التقسيم بين الربعين (الملحق 1) يُسوّي hp."""
     if h is None:
         return None, None, None, False
     io_ = (h / shares) if shares else None
@@ -135,7 +155,7 @@ def io_it(h, hp, shares):
     elif hp == 0:
         c_it = h > 0
     else:
-        c_it = h / hp - 1 > IT_MIN
+        c_it = h / (hp * sf) - 1 > IT_MIN
     return io_, c_io, c_it, bool(hp == 0 and h > 0)
 
 
@@ -506,6 +526,27 @@ def mode_run(key, contact):
 
     # 3) Polygon
     det_cache = {}
+    split_map = {}
+    if SPLIT_ADJ:
+        url = (f"https://api.polygon.io/v3/reference/splits?execution_date.gte={SPLIT_FROM}&execution_date.lte={SPLIT_TO}"
+               "&limit=1000&sort=execution_date&order=asc")
+        nsp = 0
+        while url:
+            j = _poly(url, key) or {}
+            for r in j.get("results") or []:
+                split_map.setdefault(r.get("ticker"), []).append((r.get("execution_date"), r.get("split_from"), r.get("split_to")))
+                nsp += 1
+            url = j.get("next_url")
+        res["counts"]["splits"] = nsp
+        res["gates"]["V4"] = nsp >= SPLIT_MIN
+        log(f"✂️ الملحق 1: تقسيماتُ Polygon {SPLIT_FROM}…{SPLIT_TO}: {nsp} في {len(split_map)} رمزًا · V4 {'✅' if nsp >= SPLIT_MIN else '❌'}")
+        if nsp < SPLIT_MIN:
+            log("⛔ V4: مسحُ التقسيمات دون الأرضيّة — لا قياس · خروج 7")
+            return DATA_RC
+    res["split_adj"] = SPLIT_ADJ
+
+    def sf_of(sym, p):
+        return split_factor(split_map.get(sym), periods[prev_q(*p)]["end"], periods[p]["end"]) if SPLIT_ADJ else 1.0
 
     def details(sym, d):
         k = (sym, d)
@@ -553,9 +594,10 @@ def mode_run(key, contact):
         hp, _ = hq(sym, prev_q(*p))
         sh_q = details(sym, periods[p]["end"])
         shares_q = sh_q.get("share_class_shares_outstanding") or sh_q.get("weighted_shares_outstanding")
-        io_, c_io, c_it, new = io_it(h, hp, shares_q)
-        st = {"src": src, "io": io_, "it": (None if (h is None or not hp) else h / hp - 1), "new": new, "c_io": c_io, "c_it": c_it,
-              "has_shares": bool(shares_q)}
+        sf = sf_of(sym, p)
+        io_, c_io, c_it, new = io_it(h, hp, shares_q, sf)
+        st = {"src": src, "io": io_, "it": (None if (h is None or not hp) else h / (hp * sf) - 1), "new": new, "c_io": c_io, "c_it": c_it,
+              "has_shares": bool(shares_q), "sf": sf, "it_raw": (None if (h is None or not hp) else h / hp - 1)}
         if c_io is False or c_it is False:
             st["m"] = False
             return st
@@ -594,7 +636,7 @@ def mode_run(key, contact):
     ours = sorted(s for s, v in st1.items() if v["m"] is True)
     acc = accept_verdict(ours, fv["tickers"])
     fvrow = {s: {"io": (fv["ownership"].get(s) or {}).get("Inst Own"), "it": (fv["ownership"].get(s) or {}).get("Inst Trans")} for s in fv["tickers"]}
-    res["accept"] = {"coverage": cov1, "ours": ours, **acc, "finviz": {s: {**fvrow[s], **{k: st1[s][k] for k in ("m", "io", "it", "src", "new")}}
+    res["accept"] = {"coverage": cov1, "ours": ours, **acc, "finviz": {s: {**fvrow[s], **{k: st1[s].get(k) for k in ("m", "io", "it", "src", "new", "sf", "it_raw")}}
                                                                   for s in fv["tickers"]},
                      "unknown": sum(1 for v in st1.values() if v["m"] is None), "universe": len(nas)}
     gate1 = cov1["V2"] and cov1["V3"] and res["gates"]["V1"].get(f"{ACCEPT_Q[0]}Q{ACCEPT_Q[1]}", False)
@@ -799,6 +841,10 @@ def main(argv=None):
     if not contract_ok():
         log("⛔ بصمةُ العقد تغيّرت — خروج 9")
         return CONTRACT_RC
+    if SPLIT_ADJ and not addendum_ok():
+        log("⛔ بصمةُ الملحق 1 تغيّرت — خروج 9")
+        return CONTRACT_RC
+    log(f"✂️ تسويةُ التقسيم (الملحق 1): {'مُفعَّلة' if SPLIT_ADJ else 'مطفأة — العقدُ الأصليّ بت-بت'}")
     if a.mode == "check":
         log("✅ العقد مطابق")
         return 0
