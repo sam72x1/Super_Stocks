@@ -940,7 +940,7 @@ def main():
             bot.save_op_entry_state(seen)
             _tfwd = 0
             try:
-                _tfwd = bot.record_tier_fwd(lrows, _today2)
+                _tfwd = bot.record_tier_fwd(lrows, _today2, extra={"muted": "XMOVE_ON"})   # رُصد لا سُلّم (TFW1 مؤرَّخ)
             except Exception as e:                               # noqa: BLE001
                 _log(f"⚠️ حصادُ التصنيف: {e}")
             try:

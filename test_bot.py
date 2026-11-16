@@ -37495,9 +37495,16 @@ for _n in _ast_t3.walk(_tw_tree):
         _tw_inlok = [c for c in _ast_t3.walk(_n)
                      if isinstance(c, _ast_t3.Call)
                      and getattr(c.func, "attr", None) == "record_tier_fwd"]
-check("📏 TFW1 الحصادُ **داخل `if lok:` وحدَه** (بعد نجاح الإرسال) · نداءٌ واحد",
-      len(_tw_calls) == 1 and len(_tw_inlok) == 1,
-      f"كلّ={len(_tw_calls)} داخل lok={len(_tw_inlok)}")
+# 📣 (2026-11-16 · أمرُ المالك «اعتمد تحرّك 30% بدل الحالي» · `XMOVE_ON`): نداءٌ ثانٍ **وحيد** مسموحٌ داخل فرع `if lrows and XMOVE_ON:`
+#    وبوسم `extra={"muted": "XMOVE_ON"}` حرفيًّا (رُصد لا سُلّم — قراءاتُ «المُسلَّم» تفرزه) · وما سواهما يُسقط القفل كما كان.
+_tw_inxm = []
+for _n in _ast_t3.walk(_tw_tree):
+    if isinstance(_n, _ast_t3.If) and _ast_t3.unparse(_n.test) == "lrows and XMOVE_ON":
+        _tw_inxm = [c for c in _ast_t3.walk(_n) if isinstance(c, _ast_t3.Call) and getattr(c.func, "attr", None) == "record_tier_fwd"
+                    and any(k.arg == "extra" and _ast_t3.unparse(k.value) == "{'muted': 'XMOVE_ON'}" for k in c.keywords)]
+check("📏 TFW1 الحصادُ **داخل `if lok:`** (بعد نجاح الإرسال) نداءٌ واحد · والآخرُ الوحيد في فرع `XMOVE_ON` الصامت موسومًا `muted`",
+      len(_tw_calls) == 2 and len(_tw_inlok) == 1 and len(_tw_inxm) == 1,
+      f"كلّ={len(_tw_calls)} داخل lok={len(_tw_inlok)} صامت={len(_tw_inxm)}")
 
 # TFW2 — 🔒 **التصنيفُ من `liq_tier` الإنتاجيّة** لا يُعاد بناؤه (وإلّا صار
 #        للمشروع تصنيفان يتفرّقان بحرف).
@@ -94405,7 +94412,11 @@ try:
             _os_hc.environ["OE_MUTED_PUSH_S"] = _oeb_env
     _oeb_src = open("operator_entry_live.py", encoding="utf-8").read()
     _oeb_main = next(n for n in _oeb_ast.walk(_oeb_ast.parse(_oeb_src)) if isinstance(n, _oeb_ast.FunctionDef) and n.name == "main")
-    _oeb_pc = [n for n in _oeb_ast.walk(_oeb_main) if isinstance(n, _oeb_ast.Call) and getattr(n.func, "id", None) == "_push_state"]
+    # 📣 (2026-11-16 · `XMOVE_ON`): دفعاتُ فرعَي الصمت بالمفتاح (`if … and XMOVE_ON:`) خارج العدّ — يحرسهما `XMS4` · وما سواهما كما كان
+    _oeb_xm = {id(c) for n in _oeb_ast.walk(_oeb_main) if isinstance(n, _oeb_ast.If) and _oeb_ast.unparse(n.test).endswith(" and XMOVE_ON")
+               for c in _oeb_ast.walk(n)}
+    _oeb_pc = [n for n in _oeb_ast.walk(_oeb_main) if isinstance(n, _oeb_ast.Call) and getattr(n.func, "id", None) == "_push_state"
+               and id(n) not in _oeb_xm]
     _oeb_muted = [n for n in _oeb_pc if any(k.arg == "muted" and getattr(k.value, "value", None) is True for k in n.keywords)]
     _oeb_gs = [n for n in _oeb_ast.walk(_oeb_main) if isinstance(n, _oeb_ast.Call)
                and _oeb_ast.unparse(n.func) == "bot.git_save" and "OP_ENTRY_STATE_FILE" in _oeb_ast.unparse(n)]
@@ -102333,9 +102344,21 @@ try:
     _xms_j1 = _xms_src.find("        if rows:\n", _xms_j0)
     _xms_j1 = _xms_j1 if _xms_j1 < _xms_src.find("bot.build_operator_entry_alert(rows)") else -1
     _xms_k = _xms_src.find("        if XMOVE_ON:\n            try:\n                _m, _d = _ny_minutes()\n                xmove_cycle(seen, _d, _m)")
-    check("📣 XMS4 الوصلُ والمفتاح: `XMOVE_ON` مُشعَل · كروتُ السيولة تُختَم وتُحصَد (🥇 والظلّ) ثمّ `lrows = []` **قبل** الإرسال · و«🎯 هنا الدخول» "
+    import tempfile as _xms_tf
+    _xms_tfr0 = _XS.tier_fwd_row
+    _xms_d = _xms_tf.mkdtemp()
+    try:
+        _XS.tier_fwd_row = lambda r, e, d: {"date": d, "symbol": r["symbol"]}
+        _XS.record_tier_fwd([({"symbol": "M1"}, [{}])], "2026-11-17", path=_xms_d + "/a.jsonl", extra={"muted": "XMOVE_ON"})
+        _XS.record_tier_fwd([({"symbol": "M2"}, [{}])], "2026-11-17", path=_xms_d + "/b.jsonl")
+        _xms_ra = [json.loads(x) for x in open(_xms_d + "/a.jsonl", encoding="utf-8")]
+        _xms_rb = [json.loads(x) for x in open(_xms_d + "/b.jsonl", encoding="utf-8")]
+    finally:
+        _XS.tier_fwd_row = _xms_tfr0
+    _xms_mute = _xms_ra == [{"date": "2026-11-17", "symbol": "M1", "muted": "XMOVE_ON"}] and _xms_rb == [{"date": "2026-11-17", "symbol": "M2"}]
+    check("📣 XMS4 الوصلُ والمفتاح: `XMOVE_ON` مُشعَل · كروتُ السيولة تُختَم وتُحصَد موسومةً `muted` (🥇 والظلّ · وبلا وسمٍ الصفُّ بت-بت) ثمّ `lrows = []` **قبل** الإرسال · و«🎯 هنا الدخول» "
           "يُختَم ولا يُرسَل · ودورةُ «تحرّك 30%» في الحلقة خلف المفتاح وحدَه · و`False` ⟵ المسارُ القديم بلا لقطة",
-          _XOE.XMOVE_ON is True and _xms_blk and "bot.record_tier_fwd(lrows, _today2)" in _xms_blk and "bot.save_op_entry_state(seen)" in _xms_blk
+          _XOE.XMOVE_ON is True and _xms_blk and _xms_mute and 'bot.record_tier_fwd(lrows, _today2, extra={"muted": "XMOVE_ON"})' in _xms_blk and "bot.save_op_entry_state(seen)" in _xms_blk
           and "lrows = []" in _xms_blk and "send_telegram" not in _xms_blk
           and 0 <= _xms_j0 < _xms_j1 and "rows = []" in _xms_src[_xms_j0:_xms_j1] and "send_telegram" not in _xms_src[_xms_j0:_xms_j1]
           and _xms_k > 0 and _xms_src.count("xmove_cycle(seen, _d, _m)") == 1,

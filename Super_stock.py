@@ -18512,7 +18512,7 @@ def tier_fwd_row(row: dict, ev: dict, today_iso: str):
         return None
 
 
-def record_tier_fwd(rows, today_iso, path=None) -> int:
+def record_tier_fwd(rows, today_iso, path=None, extra=None) -> int:
     """يُلحق صفوفَ كروت `M5` في `tier_fwd_ledger.jsonl` — **إلحاقٌ فقط**.
 
     🔴 **يُنادى بعد نجاح الإرسال حصرًا** (عقدُ «الإدراجُ بعد الإرسال») —
@@ -18522,7 +18522,9 @@ def record_tier_fwd(rows, today_iso, path=None) -> int:
     ⚖️ **فاشلٌ-آمنٌ مطلق:** أيُّ عطبٍ ⇒ صفرٌ ولا يُسقط الإشعار.
 
     `path` وسيطٌ للاختبار — يُحسَم **وقت النداء** لا وقت التعريف
-    (درسُ `load_edges`/`record_rejected_symbols`)."""
+    (درسُ `load_edges`/`record_rejected_symbols`).
+    📣 `extra` (2026-11-16 · `XMOVE_ON`): حقولٌ تُضاف لكلّ صفّ — الكرتُ الصامتُ بالمفتاح يُحصَد موسومًا `{"muted": "XMOVE_ON"}` (رُصد لا سُلّم)
+    فتفرزه قراءاتُ «المُسلَّم» · وبلا `extra` الصفُّ بت-بت."""
     fp = TIER_FWD_LEDGER_FILE if path is None else path
     try:
         out = []
@@ -18530,6 +18532,8 @@ def record_tier_fwd(rows, today_iso, path=None) -> int:
             for _e in (_evs or []):
                 _row = tier_fwd_row(_r, _e, today_iso)
                 if _row:
+                    if extra:
+                        _row.update(extra)
                     out.append(_row)
         if not out:
             return 0
