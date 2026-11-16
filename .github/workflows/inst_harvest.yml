@@ -1,0 +1,66 @@
+name: "🏛️🗓️ حصادُ فلتر المؤسسات الأسبوعيّ (صامت)"
+
+# أمرُ المالك 2026-11-16: كلَّ اثنين بعد الإغلاق يُلحق `fm_forensics/inst/inst_harvest.py` صفًّا واحدًا بـ`fm_forensics/inst/data/inst_weekly.jsonl`
+# (القائمةُ بتاريخها · التقاطعُ مع «تحت المتابعة» وجاهزيّةُ كلّ سهم · الداخلون والخارجون) · والعطلُ صفُّ «عطل» بسببه لا لقطةٌ فارغة.
+# 🔒 لا تلغرام · لا حالةَ إنتاج · لا حكم حتى `T-INST` في 2026-12-15 · واليدويُّ جافٌّ افتراضًا (write=0 ⟵ يطبع ولا يكتب).
+permissions:
+  contents: write
+
+on:
+  schedule:
+    - cron: "23 22 * * 1"
+  workflow_dispatch:
+    inputs:
+      write:
+        description: "1 = يُلحق الصفَّ ويدفعه · 0 = جافّ (يطبع فقط)"
+        required: false
+        default: "0"
+
+concurrency:
+  group: super-stocks-inst-harvest
+  cancel-in-progress: false
+
+jobs:
+  harvest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: 🏛️🗓️ الحصاد
+        env:
+          INST_H_WRITE: ${{ github.event_name == 'schedule' && '1' || inputs.write }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/inst/inst_harvest.py
+
+      - name: 💾 دفعُ السجلّ (fetch+rebase) — ولو كان الصفُّ صفَّ عطل
+        if: always()
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          if [ -z "$(git status --porcelain -- fm_forensics/inst/data/inst_weekly.jsonl)" ]; then
+            echo "لا جديد — لا دفع"; exit 0
+          fi
+          git add fm_forensics/inst/data/inst_weekly.jsonl
+          git commit -m "🏛️🗓️ حصادُ فلتر المؤسسات الأسبوعيّ"
+          for i in 1 2 3 4; do
+            git fetch origin main && git rebase origin/main && \
+              git push origin HEAD:main && exit 0
+            echo "⚠️ محاولةُ الدفع $i فشلت — تراجعٌ أُسّيّ"
+            sleep $((2 ** i))
+          done
+          echo "⛔ سقط الدفعُ بعد أربع محاولات — يُعلَن ولا يُصمت"
+          exit 1
