@@ -130,6 +130,16 @@ def prev_days(sym: str, day: str, key: str, dcache: dict, n: int):
     return list(reversed(pv))[:n]
 
 
+def relabel_halves(rows, h2_from: str):
+    """يَسِم النصفَ بحدّ **هذه الأداة** — عطلٌ مُثبَت 2026-11-16: `build_rows` يَسِمه بـ
+    `optrade_arms.H2_FROM` فكان مُدخَلُ `OPHOLD2_H2_FROM` لا يصل الصفوف (عدُّ `43772449290`
+    طبع «H2 من 2026-10-12» ووسم كلَّ صفوف 09-16 فما بعد H2) · وفي النافذة المجمَّدة القيمتان
+    متطابقتان (2026-09-01) ⇒ حكمُ `T-OPHOLD-2` بت-بت."""
+    for r in rows:
+        r["half"] = "H1" if r["date"] < h2_from else "H2"
+    return rows
+
+
 # ═══════════════ ② إلحاقُ الأذرع والبديلة ═════════════════════════════════════
 def attach_hold2(rows, key: str) -> dict:
     """يُلحق `HN`/`HC0`/`HD`/`HX2` وبديلةَ `C-MOM` بسلّم `D0 ⟶ D4` (§⑤ + §⑫).
@@ -415,6 +425,7 @@ def main() -> int:                                               # noqa: PLR0911
          f"{FLOOR_ARM} صفًّا قابلًا للتداول أو {FWD_FLOOR_DATE} أيُّهما أوّلًا "
          "— ولا وعدَ يتعفّن.")
     rows, fails, nobase = build_rows(key, anchors, ledger)        # بالاسم
+    relabel_halves(rows, H2_FROM)            # 🔧 حدُّ هذه الأداة لا حدُّ `optrade_arms`
     cover = len(rows) / len(anchors)
     _log(f"🩺 التغطية: قِيس {len(rows)} · تعذّر الجلب {fails} · بلا أساس "
          f"{nobase} من {len(anchors)} = {cover*100:.1f}%")
