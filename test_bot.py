@@ -101980,6 +101980,80 @@ check("✂️🏛️ TIB4 عاملُ التقسيم في (نهاية الساب�
       and "return DATA_RC" in _tb4s[_tb4s.find("if nsp < SPLIT_MIN"):_tb4s.find('res["split_adj"]')] and _tb4s.find("if nsp < SPLIT_MIN") > 0,
       str(_tb4)[:260])
 
+# 🏛️🗓️ IHV1-IHV3 (‏2026-11-16 · أمرُ المالك «حصّاد أسبوعي صامت لفلتر المؤسسات»): الحارسُ يكتب صفَّ عطلٍ بسببه (صفرُ رمز · بلا مطبوع ·
+#    عددٌ لا يطابق · عمودٌ غائب · قيمةٌ خارج الفلتر) لا لقطةً فارغة · والداخلون والخارجون على آخر صفٍّ سليم (والأوّلُ None لا «كلُّهم») ·
+#    وصفٌّ سليمٌ واحد في الأسبوع والعطلُ لا يحجزه · والـworkflow كرونُ الاثنين بعد الإغلاق ويدويُّه جافّ ويدفع السجلَّ وحدَه بلا تلغرام.
+try:
+    import importlib.util as _ih_iu, tempfile as _ih_tf, datetime as _ih_dt, json as _ih_js, ast as _ih_ast
+    _ih_s = _ih_iu.spec_from_file_location("inst_harvest_lock", "fm_forensics/inst/inst_harvest.py")
+    _IH = _ih_iu.module_from_spec(_ih_s)
+    _ih_s.loader.exec_module(_IH)
+    _ok = {"AAA": {"Inst Own": "25.1%", "Inst Trans": "12%"}, "BBB": {"Inst Own": "20.00%", "Inst Trans": "10.00%"}}
+    _ih1 = (_IH.guard(2, ["AAA", "BBB"], _ok), _IH.guard(0, [], {}), _IH.guard(None, ["AAA"], _ok), _IH.guard(3, ["AAA", "BBB"], _ok),
+            _IH.guard(2, ["AAA", "BBB"], {"AAA": _ok["AAA"], "BBB": {"Inst Own": "30%"}}),
+            _IH.guard(2, ["AAA", "BBB"], {"AAA": _ok["AAA"], "BBB": {"Inst Own": "5%", "Inst Trans": "12%"}}),
+            _IH.guard(1, ["AAA"], {"AAA": {"Inst Own": "25%", "Inst Trans": "-3%"}}), _IH.week_of("2026-11-17"), _IH.week_of("2026-11-16"))
+except Exception as _e:                                         # noqa: BLE001
+    _ih1 = f"⛔ {type(_e).__name__}: {_e}"
+check("🏛️🗓️ IHV1 حارسُ الحصاد: السليمُ None · وصفرُ رمز · بلا مطبوع · عددٌ لا يطابق · عمودٌ غائب · ملكيّةٌ أو تعاملاتٌ خارج الفلتر ⟵ سببٌ مكتوب · والأسبوعُ اثنينُه",
+      isinstance(_ih1, tuple) and _ih1[0] is None and _ih1[1] == "صفرُ رمز" and "لا عددَ" in (_ih1[2] or "") and "المطبوع 3" in (_ih1[3] or "")
+      and "أعمدةٌ غائبة" in (_ih1[4] or "") and "خارج الفلتر" in (_ih1[5] or "") and "خارج الفلتر" in (_ih1[6] or "")
+      and _ih1[7] == "2026-11-16" and _ih1[8] == "2026-11-16", str(_ih1)[:260])
+try:
+    _ihd = _ih_tf.mkdtemp()
+    _ihL, _ihN, _ihW = (_os_hc.path.join(_ihd, n) for n in ("l.jsonl", "nw.json", "wl.json"))
+    _ih_js.dump({"AAA": {"readiness": 70, "n_out": 0}, "CCC": {"readiness": 40, "n_out": 2}}, open(_ihN, "w"))
+    _ih_js.dump({"stocks": [{"symbol": "BBB"}]}, open(_ihW, "w"))
+    _ihT = lambda d: _ih_dt.datetime.fromisoformat(d + "T23:00:00+00:00")
+    _o2 = dict(_ok, CCC={"Inst Own": "21%", "Inst Trans": "11%"})
+    _IH.log = lambda *a: None
+    import contextlib as _ih_cl, io as _ih_io
+    with _ih_cl.redirect_stdout(_ih_io.StringIO()):          # ⟵ يُستعاد stdout ولو رمى النداء (وإلّا ابتلع سطرَ الفشل)
+        _r1 = _IH.run(True, _ihL, lambda: (2, ["AAA", "BBB"], _ok), _ihN, _ihW, _ihT("2026-11-16"))
+        _r1b = _IH.run(True, _ihL, lambda: (2, ["AAA", "BBB"], _ok), _ihN, _ihW, _ihT("2026-11-18"))
+        _r2 = _IH.run(True, _ihL, lambda: (0, [], {}), _ihN, _ihW, _ihT("2026-11-23"))
+        _r3 = _IH.run(True, _ihL, lambda: (2, ["AAA", "CCC"], _o2), _ihN, _ihW, _ihT("2026-11-24"))
+        _r4 = _IH.run(True, _ihL, lambda: None, _ihN, _ihW, _ihT("2026-11-30"))
+        _r5 = _IH.run(False, _ihL, lambda: (2, ["AAA", "CCC"], _o2), _ihN, _ihW, _ihT("2026-12-07"))
+    _ihR = _IH.read_ledger(_ihL)
+    _ih2 = (_r1, _r1b, _r2, _r3, _r4, _r5, [(r["status"], r["week_of"]) for r in _ihR], _ihR[0].get("entered"), _ihR[0]["rows"]["AAA"],
+            _ihR[0]["rows"]["BBB"]["in_list"], _ihR[2].get("entered"), _ihR[2].get("exited"), _ihR[2].get("prev_week"), _ihR[1].get("reason"),
+            _ihR[1].get("tickers"), _ihR[2]["ready_n"], _ihR[2]["near_watch_n"], _ihR[3].get("reason"))
+except Exception as _e:                                         # noqa: BLE001
+    _ih2 = f"⛔ {type(_e).__name__}: {_e}"
+check("🏛️🗓️ IHV2 السجلّ: صفٌّ سليمٌ واحد في الأسبوع (الثاني لا يُكرَّر) · والعطلُ صفٌّ بسببه بلا رموز ولا يحجز الأسبوع · والداخلون والخارجون على آخر سليم "
+      "(والأوّلُ None) · والتقاطعُ بالجاهزيّة والنواقص والقائمة · والجافُّ لا يكتب · وخروجُ العطل 7",
+      isinstance(_ih2, tuple) and _ih2[:6] == (0, 0, 7, 0, 7, 0)
+      and _ih2[6] == [("ok", "2026-11-16"), ("fault", "2026-11-23"), ("ok", "2026-11-23"), ("fault", "2026-11-30")] and _ih2[7] is None
+      and _ih2[8] == {"inst_own": 25.1, "inst_trans": 12.0, "price": None, "float": None, "near_watch": True, "readiness": 70, "n_out": 0, "in_list": False}
+      and _ih2[9] is True and _ih2[10] == ["CCC"] and _ih2[11] == ["BBB"] and _ih2[12] == "2026-11-16" and _ih2[13] == "صفرُ رمز"
+      and _ih2[14] is None and _ih2[15] == 1 and _ih2[16] == 2 and _ih2[17] == "تعذّر جلبُ finviz", str(_ih2)[:300])
+try:
+    import yaml as _ih_y
+    _ihy_t = open(".github/workflows/inst_harvest.yml", encoding="utf-8").read()
+    _ihy = _ih_y.safe_load(_ihy_t)
+    _ih_on = _ihy.get(True) or _ihy.get("on")
+    _ih_steps = _ihy["jobs"]["harvest"]["steps"]
+    _ih_push = next((st for st in _ih_steps if "git push" in str(st.get("run"))), {})
+    _ih_src = open("fm_forensics/inst/inst_harvest.py", encoding="utf-8").read()
+    _ih_names = {n.id for n in _ih_ast.walk(_ih_ast.parse(_ih_src)) if isinstance(n, _ih_ast.Name)} | \
+        {n.attr for n in _ih_ast.walk(_ih_ast.parse(_ih_src)) if isinstance(n, _ih_ast.Attribute)}
+    _ih_imps = {a.name for n in _ih_ast.walk(_ih_ast.parse(_ih_src)) if isinstance(n, (_ih_ast.Import, _ih_ast.ImportFrom)) for a in n.names} | \
+        {n.module for n in _ih_ast.walk(_ih_ast.parse(_ih_src)) if isinstance(n, _ih_ast.ImportFrom) and n.module}
+    _ih3 = ([c["cron"] for c in _ih_on.get("schedule") or []], (_ih_on.get("workflow_dispatch") or {}).get("inputs", {}).get("write", {}).get("default"),
+            "TELEGRAM" in _ihy_t, _ih_push.get("if"), "git add fm_forensics/inst/data/inst_weekly.jsonl" in str(_ih_push.get("run")),
+            "git add -A" in str(_ih_push.get("run")) or "git add ." in str(_ih_push.get("run")),
+            "send_telegram" in _ih_names, "Super_stock" in _ih_imps, _IH.VIEW, _IH.COLS, (_IH.OWN_MIN, _IH.TRANS_MIN),
+            "github.event_name == 'schedule' && '1'" in _ihy_t)
+    _ih_inst = open("fm_forensics/inst/inst.py", encoding="utf-8").read()
+except Exception as _e:                                         # noqa: BLE001
+    _ih3, _ih_inst = f"⛔ {type(_e).__name__}: {_e}", ""
+check("🏛️🗓️ IHV3 الـworkflow: كرونُ الاثنين 22:23 UTC بعد الإغلاق · اليدويُّ جافٌّ افتراضًا والمجدولُ يكتب · بلا تلغرام · يدفع السجلَّ وحدَه ولو عطلًا · "
+      "والأداةُ لا ترسل ولا تستورد البوت · وحدّا الفلتر 20/10 كفلاتر finviz في `inst.FILTERS`",
+      isinstance(_ih3, tuple) and _ih3[0] == ["23 22 * * 1"] and _ih3[1] == "0" and not _ih3[2] and _ih3[3] == "always()" and _ih3[4]
+      and not _ih3[5] and not _ih3[6] and not _ih3[7] and _ih3[8] == 131 and _ih3[9] == ("Inst Own", "Inst Trans") and _ih3[10] == (20.0, 10.0)
+      and _ih3[11] and "sh_instown_o20" in _ih_inst and "sh_insttrans_o10" in _ih_inst, str(_ih3)[:260])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
