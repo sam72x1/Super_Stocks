@@ -102162,6 +102162,7 @@ try:
     import tempfile as _xmv_tf
     import contextlib as _xmv_cl
     import io as _xmv_io
+    import os as _xmv_os
     _xmv_sp = _xmv_iu.spec_from_file_location("xmove_lock", "fm_forensics/xmove/xmove.py")
     _XMV = _xmv_iu.module_from_spec(_xmv_sp)
     _xmv_sp.loader.exec_module(_XMV)
@@ -102218,7 +102219,7 @@ try:
              and _XMV.g1_ok(209, 155, 1561) and _XMV.g1_ok(209, 155, 1576) and not _XMV.g1_ok(209, 155, 1577)
              and not _XMV.g1_ok(208, 155, 1561) and not _XMV.g1_ok(209, 154, 1561) and _XMV.day_stats([0, 2, 5]) == (2, 5, 7))
     with _xmv_tf.TemporaryDirectory() as _xmv_td:
-        _xmv_p = _os.path.join(_xmv_td, "p.json")
+        _xmv_p = _xmv_os.path.join(_xmv_td, "p.json")
         json.dump({"days": {"d1": {"src": True, "uni": 5, "fail": 0}}, "recs": _xmv_recs}, open(_xmv_p, "w"))
         _xmv_buf = _xmv_io.StringIO()
         with _xmv_cl.redirect_stdout(_xmv_buf):
@@ -102248,7 +102249,7 @@ try:
           and "TELEGRAM" not in _xmv_runs and not any("TELEGRAM" in k for k in _xmv_envs) and "git push" not in _xmv_runs,
           f"rc9={_xmv_rc9}")
 except Exception as _e:                                          # noqa: BLE001
-    check("📣 XMV1-XMV4 T-XMOVE", False, f"⛔ {type(_e).__name__}: {_e}")
+    check("📣 أقفالُ T-XMOVE انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
