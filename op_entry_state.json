@@ -459,25 +459,32 @@
   "date": "2026-11-16"
  },
  "LIQ:WBUY": {
-  "anchor_ms": 1794848400000,
+  "anchor_ms": 1794848580000,
   "last_ms": 1794848580000,
   "sent": [
    "M1"
   ],
   "updates": 0,
-  "vol_x": 10.9,
-  "peak_usd": 92378,
-  "last_eval_ms": 1794848460000,
+  "vol_x": 3.9,
+  "peak_usd": 121246,
+  "last_eval_ms": 1794848580000,
   "pulse_ms": 1794848580000,
-  "anchor_price": 0.7155,
-  "anchor_open": 0.6156,
-  "anchor_low": 0.6156,
+  "anchor_price": 0.5256,
+  "anchor_open": 0.5,
+  "anchor_low": 0.5,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794848400000,
+   "anchor_price": 0.7155,
+   "anchor_low": 0.6156,
+   "e5": null,
+   "exit_ms": 1794848520000
+  },
+  "date": "2026-11-16",
   "pre_done": true,
-  "pre_hi": 0.7,
-  "pre_usd": 288565,
-  "pre_n": 40,
-  "exit_ms": 1794848520000,
-  "date": "2026-11-16"
+  "pre_hi": 0.7901,
+  "pre_usd": 1474181,
+  "pre_n": 43
  },
  "LIQ:ZENA": {
   "last_eval_ms": 1794848580000,
@@ -1436,7 +1443,7 @@
   "date": "2026-11-16"
  },
  "LIQ:OTLK": {
-  "last_eval_ms": 1794848460000,
+  "last_eval_ms": 1794848580000,
   "date": "2026-11-16"
  },
  "LIQ:BIRD": {
