@@ -1528,11 +1528,11 @@
   "anchor_price": 5.1307,
   "anchor_open": 4.83,
   "anchor_low": 4.82,
-  "date": "2026-11-16",
   "pre_done": true,
   "pre_hi": 5.16,
   "pre_usd": 3685110,
-  "pre_n": 64
+  "pre_n": 64,
+  "date": "2026-11-16"
  },
  "LIQ:ONEG": {
   "last_eval_ms": 1794603540000,
@@ -2833,5 +2833,6 @@
  },
  "LIQ:FTH": {
   "date": "2026-11-16"
- }
+ },
+ "CRIS": "2026-11-16"
 }
