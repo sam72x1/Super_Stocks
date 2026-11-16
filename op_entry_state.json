@@ -1017,7 +1017,7 @@
  },
  "LIQ:CSAI": {
   "anchor_ms": 1794868740000,
-  "last_ms": 1794873420000,
+  "last_ms": 1794873480000,
   "sent": [
    "M1",
    "M5",
@@ -1027,7 +1027,7 @@
   "vol_x": 12.3,
   "peak_usd": 265062,
   "last_eval_ms": 1794868800000,
-  "pulse_ms": 1794873420000,
+  "pulse_ms": 1794873480000,
   "anchor_price": 1.72,
   "anchor_open": 1.5,
   "anchor_low": 1.49,
@@ -1049,7 +1049,7 @@
  },
  "LIQ:MEDS": {
   "anchor_ms": 1794872580000,
-  "last_ms": 1794873420000,
+  "last_ms": 1794873480000,
   "sent": [
    "M1",
    "M5"
@@ -1058,7 +1058,7 @@
   "vol_x": 7.3,
   "peak_usd": 48861,
   "last_eval_ms": 1794872580000,
-  "pulse_ms": 1794873420000,
+  "pulse_ms": 1794873480000,
   "anchor_price": 0.7674,
   "anchor_open": 0.72,
   "anchor_low": 0.72,
@@ -1851,7 +1851,7 @@
  },
  "LIQ:GDHG": {
   "anchor_ms": 1794841320000,
-  "last_ms": 1794873420000,
+  "last_ms": 1794873480000,
   "sent": [
    "M1",
    "M5",
@@ -1861,7 +1861,7 @@
   "vol_x": 38.6,
   "peak_usd": 12931564,
   "last_eval_ms": 1794841380000,
-  "pulse_ms": 1794873420000,
+  "pulse_ms": 1794873480000,
   "anchor_price": 1.38,
   "anchor_open": 1.18,
   "anchor_low": 1.1,
@@ -2076,7 +2076,7 @@
  },
  "LIQ:CRDF": {
   "anchor_ms": 1794839460000,
-  "last_ms": 1794873420000,
+  "last_ms": 1794873480000,
   "sent": [
    "M1",
    "M5",
@@ -2086,7 +2086,7 @@
   "vol_x": 8.4,
   "peak_usd": 167539,
   "last_eval_ms": 1794839460000,
-  "pulse_ms": 1794873420000,
+  "pulse_ms": 1794873480000,
   "anchor_price": 0.8585,
   "anchor_open": 0.807,
   "anchor_low": 0.8,
@@ -2418,7 +2418,7 @@
   "date": "2026-11-16"
  },
  "LIQ:KTOS": {
-  "last_eval_ms": 1794872640000,
+  "last_eval_ms": 1794873480000,
   "date": "2026-11-16"
  },
  "LIQ:FCEL": {
@@ -3138,7 +3138,7 @@
   "date": "2026-11-16"
  },
  "LIQ:CRMN": {
-  "last_eval_ms": 1794873300000,
+  "last_eval_ms": 1794873480000,
   "date": "2026-11-16"
  },
  "LIQ:XRX": {
@@ -3310,7 +3310,7 @@
   "date": "2026-11-16"
  },
  "LIQ:PLUG": {
-  "last_eval_ms": 1794873420000,
+  "last_eval_ms": 1794873480000,
   "date": "2026-11-16"
  },
  "LIQ:QS": {
@@ -3334,7 +3334,7 @@
   "date": "2026-11-16"
  },
  "LIQ:DPU": {
-  "last_eval_ms": 1794872640000,
+  "last_eval_ms": 1794873480000,
   "date": "2026-11-16"
  },
  "LIQ:INTZ": {
