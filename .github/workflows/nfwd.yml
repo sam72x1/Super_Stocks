@@ -1,0 +1,50 @@
+name: "⏳🔓 N-FWD — القراءةُ الأماميّة للحمل إلى الإغلاق (nfwd_prereg)"
+
+# 🔒 قراءة/قياس فقط — لا كرون · لا كتابة حالة · **ولا سرَّ تلغرام** فالإرسالُ مستحيلٌ بنيويًّا.
+#    محورُ إدارة الخروج مُغلَق (`T-TRAIL`) ⇒ الأداةُ تخرج 8 ما لم يُمرَّر `trail_reopen` = "1" حرفيًّا
+#    (إقرارُ المالك 2026-11-16 لهذه القراءة وحدَها) · والعقدُ ببصمته (خروج 11) · سرُّ POLYGON_API_KEY وحدَه.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      trail_reopen:
+        description: "إقرارُ المالك لقراءة N-FWD وحدها: 1 = مُقَرّ · 0 = المحورُ مُغلَق (خروج 8)"
+        required: false
+        default: "0"
+      dry:
+        description: "1 = أعدادٌ فقط (المجتمع · d* · الأزواج) بلا R ولا تكلفة"
+        required: false
+        default: ""
+
+concurrency:
+  group: super-stocks-nfwd
+  cancel-in-progress: false
+
+jobs:
+  nfwd:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - name: Checkout (كامل التاريخ لقراءة لقطات op_entry_state)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: ⏳🔓 N-FWD
+        env:
+          PYTHONUNBUFFERED: "1"
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          TRAIL_REOPEN: ${{ inputs.trail_reopen }}
+          NFWD_DRY: ${{ inputs.dry }}
+        run: python nfwd_read.py

@@ -102054,6 +102054,106 @@ check("🏛️🗓️ IHV3 الـworkflow: كرونُ الاثنين 22:23 UTC �
       and not _ih3[5] and not _ih3[6] and not _ih3[7] and _ih3[8] == 131 and _ih3[9] == ("Inst Own", "Inst Trans") and _ih3[10] == (20.0, 10.0)
       and _ih3[11] and "sh_instown_o20" in _ih_inst and "sh_insttrans_o10" in _ih_inst, str(_ih3)[:260])
 
+# ══════════════════════════════════════════════════════════════════════════
+# ⏳🔓 `NFW1`-`NFW4` — `N-FWD` القراءةُ الأماميّة (`nfwd_prereg.md` · أمرُ المالك 2026-11-16) ‏+ إصلاحُ وسم النصف في `ophold2_arms`
+#   ⛔ لا شبكة: `anchor_history` مُستبدَلةٌ بعدّادٍ يُثبت أن الإغلاقَ يسبق أيَّ جلب · والبيئةُ تُستعاد في `finally`.
+# ══════════════════════════════════════════════════════════════════════════
+import ast as _nfw_ast
+import contextlib as _nfw_cl
+import io as _nfw_io
+import os as _nfw_os
+
+import nfwd_read as _NFW
+
+
+def _nfw_run(env, sha=None):
+    """‏`(رمزُ الخروج، نداءاتُ anchor_history)` لـ`main()` ببيئةٍ محقونة — ويستعيد كلَّ شيء."""
+    _keep = {k: _nfw_os.environ.get(k) for k in ("TRAIL_REOPEN", "POLYGON_API_KEY")}
+    _keep_ah, _keep_sha, _calls = _NFW.anchor_history, _NFW.CONTRACT_SHA, []
+    try:
+        for k in _keep:
+            _nfw_os.environ.pop(k, None)
+        _nfw_os.environ.update(env)
+        _NFW.anchor_history = lambda *a, **k: (_calls.append(1), {})[1]
+        if sha is not None:
+            _NFW.CONTRACT_SHA = sha
+        with _nfw_cl.redirect_stdout(_nfw_io.StringIO()):
+            rc = _NFW.main()
+        return rc, len(_calls)
+    except Exception as _e:                                      # noqa: BLE001
+        return f"⛔ {type(_e).__name__}", len(_calls)
+    finally:
+        _NFW.anchor_history, _NFW.CONTRACT_SHA = _keep_ah, _keep_sha
+        for k, v in _keep.items():
+            _nfw_os.environ.pop(k, None)
+            if v is not None:
+                _nfw_os.environ[k] = v
+
+
+# 🔴 `NFW1` — المحورُ مُغلَق: بلا إقرارٍ أو بـ"0" أو بـ"true" ⟵ 8 قبل أيّ جلب · و"1" بلا مفتاح ⟵ 2 قبل أيّ جلب · والعقدُ المختلف ⟵ 11 ولو أُقِرّ.
+_nfw1 = [_nfw_run({}), _nfw_run({"TRAIL_REOPEN": "0"}), _nfw_run({"TRAIL_REOPEN": "true"}),
+         _nfw_run({"TRAIL_REOPEN": "1"}), _nfw_run({"TRAIL_REOPEN": "1", "POLYGON_API_KEY": "X"}, sha="0" * 64)]
+check("⏳🔓 NFW1 `N-FWD` مُغلَقٌ ما لم يُقَرّ `TRAIL_REOPEN` بـ\"1\" حرفيًّا (خروج 8 قبل أيّ جلب) · وبلا مفتاحٍ 2 · والعقدُ المختلف 11",
+      _nfw1 == [(8, 0), (8, 0), (8, 0), (2, 0), (11, 0)], str(_nfw1))
+
+# 🔴 `NFW2` — ثوابتُ العقد: النافذةُ والمجتمعُ والحدودُ وبصمةُ العقد والـworkflow (يدويٌّ · افتراضُه "0" · بلا تلغرام).
+try:
+    _nfw_doc = open("nfwd_prereg.md", encoding="utf-8").read()
+    _nfw_yml = open(".github/workflows/nfwd.yml", encoding="utf-8").read()
+    _nfw2 = (_NFW.SINCE, _NFW.UNTIL, _NFW.N_ANCHORS, _NFW.J1_MIN, _NFW.TAIL_FRAC, _NFW.FLOOR_ARM, _NFW.FLOOR_PAIR,
+             _NFW.contract_ok(), "**1,555**" in _nfw_doc and "⌈n/2⌉" in _nfw_doc and 'TRAIL_REOPEN == "1"' in _nfw_doc,
+             "schedule" not in _nfw_yml, "TELEGRAM" not in _nfw_yml, 'default: "0"' in _nfw_yml,
+             "TRAIL_REOPEN: ${{ inputs.trail_reopen }}" in _nfw_yml)
+except Exception as _e:                                          # noqa: BLE001
+    _nfw2 = f"⛔ {type(_e).__name__}"
+check("⏳🔓 NFW2 ثوابتُ العقد: 09-16…11-14 · 1,555 مِرساة · J1 ‏30 · الذيلُ 5% · الأرضيّةُ 150/150 · البصمةُ مطابقة · والـworkflow يدويٌّ بلا تلغرام وإقرارُه افتراضًا 0",
+      _nfw2 == ("2026-09-16", "2026-11-14", 1555, 30, 0.05, 150, 150, True, True, True, True, True, True), str(_nfw2))
+
+# 🔴 `NFW3` — الجديدُ سلوكيًّا: `d*` بقاعدة ⌈n/2⌉ (اليومُ كلُّه في نصف · غيرُ القابل خارجها) · حصّةُ أعلى 5% · الوسيط · وفلترُ 🥇 J1.
+try:
+    _nfw_rows = ([{"date": d, "sym": s, "HN": {"x": 1}} for d, s in
+                  [("2026-10-12", "A"), ("2026-10-12", "B"), ("2026-10-13", "A"), ("2026-10-14", "A"), ("2026-10-15", "C")]]
+                 + [{"date": "2026-10-01", "sym": "Z", "HN": None}])
+    _nfw3 = (_NFW.split_date(_nfw_rows), _NFW.split_date([]),
+             round(_NFW.top_share([10, 1, 1, 1] + [-1] * 6 + [0] * 10), 4), _NFW.top_share([-1, -2]),
+             round(_NFW.top_share([5, 4, 3, 2, 1] * 8), 4), round(_NFW.top_share([3, 2, 1] * 10), 4), _NFW.median_of([1, None, 3, 8]),
+             [r["sym"] for r in _NFW.j1_rows([{"sym": "J", "f": {"j1": "J1"}}, {"sym": "N", "f": {"j1": "لا"}},
+                                              {"sym": "Q", "f": {"j1": "؟"}}, {"sym": "E"}])])
+except Exception as _e:                                          # noqa: BLE001
+    _nfw3 = f"⛔ {type(_e).__name__}"
+check("⏳🔓 NFW3 §③/§④ سلوكيًّا: d* = 2026-10-13 (الترتيبُ 3 من 5) · حصّةُ أعلى 5% ‏76.9231 · ‏(5+5)÷120 = 8.3333 · و30 قيمةً ⟵ k = round(1.5) = 2 ⟵ 10.0 · الوسيطُ يتخطّى None · وJ1 حرفيًّا",
+      _nfw3 == ("2026-10-13", None, 76.9231, None, 8.3333, 10.0, 3, ["J"]), str(_nfw3))
+
+# 🔴 `NFW4` — إصلاحُ وسم النصف: `relabel_halves` سلوكيًّا · ونداؤه في `ophold2_arms.main` بعد `build_rows` وقبل التغطية ·
+#    وفي `nfwd_read.main` قبل `report` وقبل وضع الجدوى · والأداةُ قراءةٌ فقط (`selfcheck_readonly`).
+def _nfw_order(src, fn, names):
+    _t = _nfw_ast.parse(src)
+    _f = next((n for n in _t.body if isinstance(n, _nfw_ast.FunctionDef) and n.name == fn), None)
+    _pos = {}
+    for _n in _nfw_ast.walk(_f) if _f else []:
+        if isinstance(_n, _nfw_ast.Call):
+            _id = getattr(_n.func, "id", None) or getattr(_n.func, "attr", None)
+            if _id in names and _id not in _pos:
+                _pos[_id] = _n.lineno
+    return _pos
+
+
+try:
+    _nfw_rr = [{"date": "2026-09-30", "half": "H2"}, {"date": "2026-10-12", "half": "H2"}]
+    _HNA.relabel_halves(_nfw_rr, "2026-10-12")
+    _nfw_o2 = _nfw_order(open("ophold2_arms.py", encoding="utf-8").read(), "main", {"build_rows", "relabel_halves", "attach_trades"})
+    _nfw_nr_src = open("nfwd_read.py", encoding="utf-8").read()
+    _nfw_nr = _nfw_order(_nfw_nr_src, "main", {"split_date", "relabel_halves", "report", "attach_hold2"})
+    _nfw4 = ([r["half"] for r in _nfw_rr],
+             bool(_nfw_o2) and _nfw_o2.get("build_rows", 9e9) < _nfw_o2.get("relabel_halves", -1) < _nfw_o2.get("attach_trades", -1),
+             bool(_nfw_nr) and _nfw_nr.get("attach_hold2", 9e9) < _nfw_nr.get("split_date", -1) < _nfw_nr.get("relabel_halves", -1) < _nfw_nr.get("report", -1),
+             _NFW.selfcheck_readonly(_nfw_nr_src))
+except Exception as _e:                                          # noqa: BLE001
+    _nfw4 = f"⛔ {type(_e).__name__}"
+check("⏳🔓 NFW4 وسمُ النصف بحدّ الأداة (عطلُ عدّ 11-15): `relabel_halves` سلوكيًّا وموصولٌ بعد `build_rows` في `ophold2` · "
+      "و`d*` قبل أيّ R في `nfwd_read` · والأداةُ قراءةٌ فقط",
+      _nfw4 == (["H1", "H2"], True, True, True), str(_nfw4))
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
