@@ -163,7 +163,15 @@ def mode_chunk(part, parts, out_path):
     days = sessions[part::parts]
     alerts = LVS.rebuild_alerts(U0, True)                        # K1 (المصحَّحة)
     src = set(LVS.source_days(dict(U0, alerts=alerts)))
-    gold = gold_map(_git("show", f"{LEDGER_REF}:{TIER_FILE}").splitlines())
+    _led = _git("show", f"{LEDGER_REF}:{TIER_FILE}").splitlines()
+    gold = gold_map(_led)
+    m5_by = {}
+    for _ln in _led:
+        try:
+            _d = str(json.loads(_ln).get("date") or "")
+        except (ValueError, TypeError, AttributeError):
+            continue
+        m5_by[_d] = m5_by.get(_d, 0) + 1
     run_by = {(r["sym"], r["day"]): r["R"] for r in RN["rows"]}
     d_min = (dt.date.fromisoformat(sessions[0]) - dt.timedelta(days=12)).isoformat()
     d_max = (dt.date.fromisoformat(sessions[-1]) + dt.timedelta(days=2)).isoformat()
@@ -179,7 +187,7 @@ def mode_chunk(part, parts, out_path):
         with ThreadPoolExecutor(WORKERS) as pool:
             for s, v in zip(need, pool.map(lambda s: _dailies(s, d_min, d_max, key), need)):
                 dly_c[s] = v
-        n_fail, n_m5 = 0, 0
+        n_fail = 0
         cands = []
         for sym in syms:
             bars = raw.get(sym)
@@ -217,7 +225,7 @@ def mode_chunk(part, parts, out_path):
         for (rec, _pd), sr in zip(fired, srs):
             rec["split"] = bool(sr is not None and sr != 1.0)
         out["recs"].extend(rec for rec, _pd in cands)
-        out["days"][d] = {"src": d in src, "uni": len(syms), "fail": n_fail}
+        out["days"][d] = {"src": d in src, "uni": len(syms), "fail": n_fail, "m5": m5_by.get(d, 0)}
         log(f"   {d}: كون {len(syms)} · بلا شموع/إغلاق {n_fail} · سجلّات {len(cands)} · مصدر {'نعم' if d in src else 'لا'}")
     json.dump(out, open(out_path, "w", encoding="utf-8"), ensure_ascii=False)
     log(f"✅ كُتب {out_path}")
@@ -347,6 +355,8 @@ def mode_pool(paths):
     for ln in table_lines(A, ROWS, A["_run100"] >= FLOOR_RUN):
         log(ln if ok else ln + " (لا قياس: شموع)")
     log("")
+    _m5 = [days[d].get("m5", 0) for d in scA]
+    log(f"وصفًا (K1): كروتُ `M5` المُرسَلة يوميًّا من السجلّ — الوسيط {_num(median(_m5))} · الأقصى {_num(max(_m5) if _m5 else None)} (فوق إشعار «الحاليّ» الأوّل)")
     log(f"راكضو ‏+100% في النطاق {A['_run100']} · ‏+50% فأكثر {A['_run50']} · أيّامُ تقسيمٍ مستبعَدة (الإطلاقات): "
         + " · ".join(f"{ROW_AR[k]} {A[k]['split']}" for k in ROWS))
     log("")
