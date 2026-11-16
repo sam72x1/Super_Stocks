@@ -101959,6 +101959,27 @@ check("🏛️📜 TIB3 إيداعُ EDGAR (الربع · التعديل · ال
       and _tb3[2] == [{"acc": "A1", "cusip": "ABC", "shares": 150}] and _tb3[3] == ("2023-01-01", "2023-03-31") and _tb3[4] == ("2026-06-01", "2026-08-31")
       and _tb3[5] == ["workflow_dispatch"] and not _tb3[6] and _tb3[7] and _tb3[8] and _tb3[9] and not _tb3[10], str(_tb3)[:260])
 
+# ✂️🏛️ TIB4 (‏2026-11-16 · الملحق 1 لـ`T-INST-BT` بأمر المالك · قبل أيّ إعادة): عاملُ التقسيم Π(to ÷ from) في (نهاية الربع السابق، نهاية الربع]
+#    يُسوّي أسهمَ الربع السابق في «التغيّر» وحدَه (IO كما هو) · والعكسيُّ 1:10 يقلب −90% إلى «لم يتغيّر» · والمفتاحُ «0» يُرجع العقدَ بت-بت · وبصمةُ الملحق.
+try:
+    _sp = [("2026-08-01", 10, 1), ("2026-06-30", 4, 1), ("2026-09-30", 1, 2), ("2026-10-01", 20, 1), (None, 5, 1), ("2026-07-15", 0, 1)]
+    _tb4 = (_IB.split_factor(_sp, "2026-06-30", "2026-09-30"), _IB.split_factor(None, "2026-06-30", "2026-09-30"),
+            _IB.io_it(100, 1000, 500, 0.1), _IB.io_it(100, 1000, 500), _IB.io_it(100, 1000, 500, 1.0) == _IB.io_it(100, 1000, 500),
+            _IB.io_it(100, 0, 500, 0.1), _IB.io_it(120, 1000, 500, 0.1)[2], _IB.io_it(100, None, 500, 0.1)[2],
+            _IB.SPLIT_ADJ, _IB.SPLIT_MIN, _IB.addendum_ok(), _IB.addendum_ok(sha="0" * 64))
+    _tb4s = __import__("inspect").getsource(_IB.mode_run)
+except Exception as _e:                                         # noqa: BLE001
+    _tb4, _tb4s = f"⛔ {type(_e).__name__}: {_e}", ""
+check("✂️🏛️ TIB4 عاملُ التقسيم في (نهاية السابق، نهاية الربع] (العكسيُّ 0.1 × الأماميُّ 2 · الحدُّ الأدنى خارج · الأعلى داخل · بعد الربع خارج · الناقصُ يُتخطّى) · "
+      "وIT يُسوّى بأسهم السابق وIO لا · و«جديد» كما هو · والمفتاحُ مُفعَّلٌ افتراضًا وأرضيّةُ V4 ‏500 · وبصمةُ الملحق · وstate يمرّر sf_of",
+      isinstance(_tb4, tuple) and abs(_tb4[0] - 0.2) < 1e-12 and _tb4[1] == 1.0
+      and _tb4[2] == (0.2, False, False, False) and _tb4[3] == (0.2, False, False, False) and _tb4[4] is True
+      and _tb4[5] == (0.2, False, True, True) and _tb4[6] is True and _tb4[7] is None
+      and _tb4[8] is True and _tb4[9] == 500 and _tb4[10] is True and _tb4[11] is False
+      and "io_it(h, hp, shares_q, sf)" in _tb4s and "sf = sf_of(sym, p)" in _tb4s
+      and "return DATA_RC" in _tb4s[_tb4s.find("if nsp < SPLIT_MIN"):_tb4s.find('res["split_adj"]')] and _tb4s.find("if nsp < SPLIT_MIN") > 0,
+      str(_tb4)[:260])
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»
