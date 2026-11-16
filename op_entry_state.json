@@ -460,7 +460,7 @@
  },
  "LIQ:WBUY": {
   "anchor_ms": 1794848400000,
-  "last_ms": 1794848400000,
+  "last_ms": 1794848460000,
   "sent": [
    "M1"
   ],
@@ -468,15 +468,15 @@
   "vol_x": 10.9,
   "peak_usd": 92378,
   "last_eval_ms": 1794848460000,
-  "pulse_ms": 1794848400000,
+  "pulse_ms": 1794848460000,
   "anchor_price": 0.7155,
   "anchor_open": 0.6156,
   "anchor_low": 0.6156,
-  "date": "2026-11-16",
   "pre_done": true,
   "pre_hi": 0.7,
   "pre_usd": 288565,
-  "pre_n": 40
+  "pre_n": 40,
+  "date": "2026-11-16"
  },
  "LIQ:ZENA": {
   "last_eval_ms": 1794848460000,
@@ -666,7 +666,7 @@
   "date": "2026-11-16"
  },
  "LIQ:GPCR": {
-  "last_eval_ms": 1794848340000,
+  "last_eval_ms": 1794848460000,
   "date": "2026-11-16"
  },
  "LIQ:DCX": {
@@ -1518,7 +1518,7 @@
   "date": "2026-11-16"
  },
  "LIQ:VHUB": {
-  "last_eval_ms": 1794848340000,
+  "last_eval_ms": 1794848400000,
   "date": "2026-11-16"
  },
  "LIQ:KLRS": {
@@ -1627,7 +1627,7 @@
  },
  "LIQ:MOVE": {
   "anchor_ms": 1794841800000,
-  "last_ms": 1794848340000,
+  "last_ms": 1794848460000,
   "sent": [
    "M1",
    "M5",
@@ -1637,7 +1637,7 @@
   "vol_x": 4.2,
   "peak_usd": 51878,
   "last_eval_ms": 1794841800000,
-  "pulse_ms": 1794848340000,
+  "pulse_ms": 1794848460000,
   "anchor_price": 4.915,
   "anchor_open": 4.6601,
   "anchor_low": 4.6001,
@@ -2234,7 +2234,7 @@
   "date": "2026-11-13"
  },
  "LIQ:INV": {
-  "last_eval_ms": 1794848340000,
+  "last_eval_ms": 1794848460000,
   "date": "2026-11-16"
  },
  "LIQ:MWYN": {
@@ -2564,35 +2564,15 @@
   "date": "2026-11-16"
  },
  "LIQ:NOMA": {
-  "anchor_ms": 1794843960000,
-  "last_ms": 1794848460000,
-  "sent": [
-   "M1",
-   "M5",
-   "M30"
-  ],
-  "updates": 4,
-  "vol_x": 30.4,
-  "peak_usd": 1640449,
-  "last_eval_ms": 1794844020000,
-  "pulse_ms": 1794848460000,
-  "anchor_price": 1.14,
-  "anchor_open": 1.04,
-  "anchor_low": 1.04,
-  "pre_done": true,
-  "pre_hi": 1.06,
-  "pre_usd": 38079,
-  "pre_n": 16,
-  "k2": {
-   "c3": "صادقت (إغلاقٌ فوق المرساة)",
-   "c4": "خضراء 0-1",
-   "v2": "المرساة 30-60% من الخمس",
-   "v3": "سيولةٌ داخلة (نبضٌ صافٍ موجب)",
-   "j1": true,
-   "j1_top": false
+  "last_eval_ms": 1794848460000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794843960000,
+   "anchor_price": 1.14,
+   "anchor_low": 1.04,
+   "e5": 1.7,
+   "exit_ms": 1794848460000
   },
-  "e5": 1.7,
-  "exit_ms": 1794848460000,
   "date": "2026-11-16"
  },
  "LIQ:GITS": {
