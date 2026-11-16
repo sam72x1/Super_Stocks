@@ -102442,6 +102442,123 @@ except Exception as _e:                                          # noqa: BLE001
     check("📣 أقفالُ «تحرّك 30%» والدفتر انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 
+# 🧺 BSK1-BSK6 — `T-BASKET` «السلة» (العقد `fm_forensics/basket/T_BASKET_prereg.md` · أمرُ المالك وإقرارُه `TRAIL_REOPEN` 2026-11-16 · قراءةٌ فقط).
+try:
+    import importlib.util as _bsk_ilu
+    import os as _bsk_os
+    _bsk_spec = _bsk_ilu.spec_from_file_location("bsk_mod", _bsk_os.path.join("fm_forensics", "basket", "basket.py"))
+    _BK = _bsk_ilu.module_from_spec(_bsk_spec)
+    _bsk_spec.loader.exec_module(_BK)
+    _bsk_calls = []
+    _bsk_rb0, _bsk_env0 = _BK._rb, dict(_bsk_os.environ)
+    try:
+        _BK._rb = lambda: _bsk_calls.append(1)
+        _bsk_os.environ.pop("TRAIL_REOPEN", None)
+        _bsk_os.environ["BASKET_MODE"] = "prep"
+        _bsk_m1 = _BK.main()
+        _bsk_os.environ["TRAIL_REOPEN"] = "0"
+        _bsk_m2 = _BK.main()
+    finally:
+        _BK._rb = _bsk_rb0
+        _bsk_os.environ.clear()
+        _bsk_os.environ.update(_bsk_env0)
+    check("🧺 BSK1 الحارس: بلا `TRAIL_REOPEN`=\"1\" حرفيًّا خروج 8 قبل أيّ عمل · وعقدٌ متغيّر 11 · ونتيجةٌ قائمة 7 «مرّةٌ واحدة» · "
+          "وبصمةُ العقد = الملفُّ المدموج",
+          _bsk_m1 == 8 and _bsk_m2 == 8 and not _bsk_calls and _BK.contract_ok()
+          and [_BK.gate(e, ok, dn) for e, ok, dn in (({"TRAIL_REOPEN": "yes"}, True, False), ({"TRAIL_REOPEN": "1"}, False, False),
+                                                     ({"TRAIL_REOPEN": "1"}, True, True), ({"TRAIL_REOPEN": "1"}, True, False))] == [8, 11, 7, 0],
+          f"{_bsk_m1} {_bsk_m2} {_bsk_calls}")
+
+    def _bb(ms, nm, o, h, lo, c, v=100):
+        return (ms, nm, o, h, lo, c, v)
+    _bsk_mins = {"d1": [_bb(1, 560, 9, 9, 9, 9), _bb(2, 570, 1.0, 1.2, 0.95, 1.1), _bb(3, 571, 1.1, 1.55, 1.05, 1.5)],
+                 "d2": [_bb(4, 570, 1.5, 2.1, 1.4, 2.0)], "d3": [_bb(5, 570, 2, 2, 2, 2)]}
+    _bsk_cl = {"d1": 1.5, "d2": 2.0, "d3": 2.0}
+    _bsk_a = _BK.simulate(_bsk_mins, _bsk_cl, ["d1", "d2", "d3"])
+    _bsk_fc = []
+    _bsk_b = _BK.simulate(_bsk_mins, _bsk_cl, ["d1", "d2", "d3"], fill_ok=lambda d, ms, L: (_bsk_fc.append((d, ms, L)) or ms != 3))
+    _bsk_c = _BK.simulate(_bsk_mins, _bsk_cl, ["d1", "d2", "d3"], fill_ok=lambda d, ms, L: False)
+    _bsk_g = {"d1": [_bb(2, 570, 1, 1.1, 0.9, 1.0)], "d2": [_bb(4, 570, 0.6, 0.65, 0.5, 0.55)]}
+    _bsk_s30 = _BK.simulate(_bsk_g, {"d1": 1.0, "d2": 0.55}, ["d1", "d2"], stop=0.30)
+    _bsk_s50 = _BK.simulate(_bsk_g, {"d1": 1.0, "d2": 0.55}, ["d1", "d2"], stop=0.50)
+    _bsk_s0 = _BK.simulate(_bsk_g, {"d1": 1.0, "d2": 0.55}, ["d1", "d2"], stop=None)
+    _bsk_both = _BK.simulate({"d1": [_bb(2, 570, 1, 1.0, 1.0, 1.0), _bb(3, 571, 1, 1.6, 0.6, 1.0)]}, {"d1": 1.0}, ["d1"], stop=0.30)
+    check("🧺 BSK2 الصفقة: الدخولُ افتتاحُ أوّل دقيقةٍ عند 09:30 (البري قبلها لا يُتداول) · نصفٌ ×1.5 ونصفٌ ×2.0 بسعر الأمر · العائدُ ناقصُ 1.8 نقطة · "
+          "وشرطُ الخمسة آلاف يرفض الدقيقة ويُعَدّ (`rej`) والأمرُ الملموسُ الذي لم يُنفَّذ قطّ يُعَدّ (`tu`) · والوقفُ بافتتاح الدقيقة إن فُتحت دونه · "
+          "والوقفُ قبل الأمر في الدقيقة نفسِها · والزمنُ بآخر إغلاق",
+          _bsk_a["r"] == 0.732 and _bsk_a["e"] == 1.0 and [x[0] for x in _bsk_a["ex"]] == ["t1", "t2"] and _bsk_a["m"] == [1.5, 1.75]
+          and [x[:3] for x in _bsk_b["ex"]] == [["t1", 2, 1.5], ["t2", 2, 2.0]] and _bsk_b["rej"] == 1 and _bsk_b["tu"] == 0
+          and _bsk_fc[0] == ("d1", 3, 1.5) and _bsk_c["tu"] == 2 and [x[0] for x in _bsk_c["ex"]] == ["time", "time"] and _bsk_c["r"] == 0.982
+          and _bsk_s30["ex"][0][2] == 0.6 and _bsk_s30["r"] == -0.418 and _bsk_s50["ex"][0][2] == 0.5 and _bsk_s0["r"] == -0.468
+          and [x[0] for x in _bsk_both["ex"]] == ["stop", "stop"] and abs(_bsk_both["ex"][0][2] - 0.7) < 1e-9
+          and _BK.simulate({"d1": [_bb(1, 560, 1, 1, 1, 1)]}, {}, ["d1"]) is None
+          and (_BK.T1, _BK.T2, _BK.COST, _BK.FILL_USD, _BK.STOPS, _BK.WIN) == (1.5, 2.0, 0.018, 5000.0, (None, 0.3, 0.5), 20),
+          f"{_bsk_a} {_bsk_b} {_bsk_c}")
+    _bsk_xm = {"d1": [_bb(1, 300, 1, 1.4, 1, 1.35, 40000), _bb(2, 570, 1.0, 1.0, 1.0, 1.0, 100), _bb(3, 600, 1.2, 1.31, 1.2, 1.25, 100)],
+               "d2": [_bb(4, 965, 1.0, 9.0, 1.0, 5.0, 1e6)]}
+    _bsk_x = _BK.simulate(_bsk_xm, {"d1": 1.25, "d2": 5.0}, ["d1", "d2"], mode="x30", prev_close={"d1": 1.0, "d2": 1.25})
+    _bsk_x2 = _BK.simulate({"d1": [_bb(2, 570, 1.0, 1.0, 1.0, 1.0, 100)], "d2": [_bb(4, 965, 1.0, 9.0, 1.0, 5.0, 1e6)]}, {"d1": 1.0, "d2": 5.0},
+                           ["d1", "d2"], mode="x30", prev_close={"d1": 1.0, "d2": 1.0})
+    _bsk_al = _BK.simulate(_bsk_xm, {"d1": 1.25, "d2": 5.0}, ["d1", "d2"], mode="alert", alert=[("d1", 1, 7.0), ("d1", 3, None)])
+    check("🧺 BSK3 الذراعان: «تحرّك 30%» يبيع الكلَّ بإغلاق أوّل دقيقةٍ في [04:00، 16:00) بلغ أعلاها 1.3×إغلاقَ الأمس ودولارُها التراكميّ من 04:00 "
+          "(شاملًا ما قبل الدخول) 50 ألفًا · وما بعد 16:00 لا يُطلق · و«هنا الدخول» تنبيهُ ما قبل دقيقة الدخول لا يُحتسب",
+          [x[:3] for x in _bsk_x["ex"]] == [["x30", 1, 1.25]] and [x[0] for x in _bsk_x2["ex"]] == ["time"] and _bsk_x["r"] == round(0.25 - 0.018, 6)
+          and [x[:3] for x in _bsk_al["ex"]] == [["alert", 1, 1.25]] and (_BK.X30_PCT, _BK.X30_USD, _BK.X30_FROM, _BK.X30_END) == (0.30, 50000.0, 240, 960),
+          f"{_bsk_x} {_bsk_al}")
+    _bsk_conc = _BK.concentration([1.0] + [0.1] * 19 + [-0.2] * 80)
+    _bsk_ws = _BK.window_scales(["D", "d1", "d2", "d3"], [["d2", 0.1]], "d1")
+    _bsk_ws2 = _BK.window_scales(["D", "d1"], [["d1", 0.1]], "d1")
+    _bsk_bm = _BK.boot_mean([("A", 0.1), ("A", 0.3), ("B", -0.1), ("C", 0.2)])
+    _bsk_cy = {y: {"n": 40} for y in _BK.GOV_YEARS}
+    check("🧺 BSK4 المطبوعُ والحكم: استبعادُ أعلى ⌈1%⌉ وحصّةُ أعلى ⌈5%⌉ من الربح الموجب (تعديلُ المالك ②) · ومقياسُ التقسيم داخل النافذة · "
+          "والبوتستراب حتميٌّ بالبذرة · و«موجبٌ مُثبَت» بأدنى فاصلٍ فوق الصفر في السنوات الثلاث كلٍّ وحدَها · وسنةٌ دون 30 أو تغطيةٍ 80% ⟵ «لا قياس»",
+          _bsk_conc["drop1_n"] == 1 and _bsk_conc["mean_ex1"] == round((1.9 - 16.0) / 99, 6) and _bsk_conc["top5_n"] == 5
+          and _bsk_conc["top5_of_gross"] == round(1.4 / 2.9, 4) and _bsk_conc["top5_of_net"] is None
+          and _bsk_ws == {"D": 1.0, "d1": 1.0, "d2": 0.1, "d3": 0.1} and _bsk_ws2 == {"D": 10.0, "d1": 1.0}
+          and _bsk_bm == _BK.boot_mean([("C", 0.2), ("B", -0.1), ("A", 0.3), ("A", 0.1)])
+          and _BK.cell_verdict(_bsk_cy, {y: [0.01, 0.2] for y in _BK.GOV_YEARS}, {y: 0.9 for y in _BK.GOV_YEARS}) == "موجبٌ مُثبَت"
+          and _BK.cell_verdict(_bsk_cy, {"2023": [0.01, 0.2], "2024": [-0.01, 0.2], "2025": [0.01, 0.2]}, {y: 0.9 for y in _BK.GOV_YEARS}) == "غيرُ مُثبَت"
+          and _BK.cell_verdict(dict(_bsk_cy, **{"2024": {"n": 29}}), {y: [0.01, 0.2] for y in _BK.GOV_YEARS}, {y: 0.9 for y in _BK.GOV_YEARS}) == "لا قياس"
+          and _BK.cell_verdict(_bsk_cy, {y: [0.01, 0.2] for y in _BK.GOV_YEARS}, {"2023": 0.9, "2024": 0.79, "2025": 0.9}) == "لا قياس"
+          and (_BK.SEED, _BK.BOOT, _BK.MIN_N, _BK.COV_FLOOR) == (20261116, 10000, 30, 0.80),
+          f"{_bsk_conc} {_bsk_ws} {_bsk_bm}")
+    _bsk_pf = _BK.portfolio([{"day": "2025-01-02", "key": ("D", "A"), "m": [1.1, 1.2]}, {"day": "2025-01-02", "key": ("D", "B"), "m": [0.9]},
+                             {"day": "2025-01-02", "key": ("D", "C"), "m": [2.0]}], ["2025-01-02", "2025-01-03", "2025-01-06"], 2)
+    check("🧺 BSK5 السلّة: الخانةُ = قيمةُ السلّة عند إغلاق الأمس ÷ N · والتكلفةُ 1.8% عند الدخول · والإشارةُ بلا خانةٍ تُسقَط وتُعَدّ (الأسبقيّةُ بالإدراج ثمّ الرمز) · "
+          "والمنفَّذُ نقد · وأعمقُ الهبوط من رأس المال 1.0",
+          _bsk_pf["skipped"] == 1 and _bsk_pf["ret"] == 0.032 and _bsk_pf["dd"] == -0.018 and _bsk_pf["months"] == {"2025-01": 0.032}
+          and _BK.SLOTS == (10, 15),
+          str(_bsk_pf))
+    _bsk_wf = _wfh_yaml.safe_load(open(".github/workflows/basket.yml", encoding="utf-8"))
+    _bsk_on = _bsk_wf.get("on", _bsk_wf.get(True)) or {}
+    _bsk_jobs = _bsk_wf.get("jobs") or {}
+    _bsk_envs = [st.get("env") or {} for j in _bsk_jobs.values() for st in j.get("steps") or [] if "basket.py" in str(st.get("run") or "")]
+    _bsk_raw = open(".github/workflows/basket.yml", encoding="utf-8").read()
+    _bsk_dec = {"A": 3, "B": 3, "C": 3, "D": 2, "E": 3, "F": 3, "G": 3, "H": 3}
+    check("🧺 BSK6 الوصل: يدويٌّ بلا كرون وافتراضُ `trail_reopen` \"0\" يمرّ إلى الأوضاع الثلاثة · 40 شريحةً بـ`NSHARDS`=40 · بلا سرِّ تلغرام · `contents: read` · "
+          "وضابطُ الزخم خمسةٌ من العُشير نفسِه بترتيبٍ حتميٍّ لا يتبع ترتيبَ القاموس · واستبعادُ (ب) في الثلاثين يومًا قبل D وحدَها",
+          (_bsk_on.get("workflow_dispatch") or {}).get("inputs", {}).get("trail_reopen", {}).get("default") == "0" and "schedule" not in _bsk_on
+          and len(_bsk_envs) == 3 and all(e.get("TRAIL_REOPEN") == "${{ inputs.trail_reopen }}" for e in _bsk_envs)
+          and sorted(e.get("BASKET_MODE") for e in _bsk_envs) == ["assemble", "prep", "shard"]
+          and len(_bsk_jobs["shard"]["strategy"]["matrix"]["shard"]) == 40 and any(e.get("NSHARDS") == "40" for e in _bsk_envs)
+          and "TELEGRAM" not in _bsk_raw and _bsk_wf.get("permissions") == {"contents": "read"}
+          and _BK.ctrl_pick("A", "2025-01-02", _bsk_dec) == _BK.ctrl_pick("A", "2025-01-02", dict(reversed(list(_bsk_dec.items()))))
+          and len(_BK.ctrl_pick("A", "2025-01-02", _bsk_dec)) == 5 and "D" not in _BK.ctrl_pick("A", "2025-01-02", _bsk_dec)
+          and "A" not in _BK.ctrl_pick("A", "2025-01-02", _bsk_dec)
+          and _BK.edgar_flag([("2025-01-10", "424B5", "")], "2025-02-01") is True and _BK.edgar_flag([("2025-01-01", "8-K", "3.01")], "2025-02-01") is False
+          and _BK.edgar_flag([("2025-01-02", "8-K", "3.01,9.01")], "2025-02-01") is True and _BK.edgar_flag(None, "2025-02-01") is None
+          and _BK.edgar_flag([("2025-01-30", "10-Q", "")], "2025-02-01") is False and _BK.edgar_flag([("2025-02-01", "S-3", "")], "2025-02-01") is False,
+          f"{len(_bsk_envs)}")
+    _bsk_rl = _BK.report_lines({"cells": {"CURRENT|O0": {"2025": {"n": 0}}}, "predictions": {"BKP1": True},
+                                "verdict": {"CURRENT|O0": "غيرُ مُثبَت", "NEW|O0": "لا قياس"}})
+    check("🧺 BSK7 المُخرَج: الحكمُ آخرَ الأسطر (لا يُدفن فوق الجداول) · والتنبّؤاتُ قبله",
+          _bsk_rl[-2:] == ["BASKET_VERDICT CURRENT|O0: غيرُ مُثبَت", "BASKET_VERDICT NEW|O0: لا قياس"] and _bsk_rl[-3] == "BKP BKP1: True"
+          and _bsk_rl[0].startswith("BKT CURRENT|O0 2025"),
+          str(_bsk_rl))
+except Exception as _e:                                          # noqa: BLE001
+    check("🧺 أقفالُ T-BASKET انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

@@ -1,0 +1,119 @@
+name: "🧺 T-BASKET (السلة · قراءةٌ فقط)"
+
+# 🧺 العقد `fm_forensics/basket/T_BASKET_prereg.md` (أمرُ المالك 2026-11-16 · مدموجٌ قبل أيّ رقم):
+#    prep (العضويّة · التقسيمات · FINRA · عُشيراتُ الزخم · CIK · تنبيهاتُ «هنا الدخول») ⟵ 40 شريحة ⟵ assemble (المطبوعُ والحكم).
+#    🔒 محورُ الخروج مُغلَق: الأداةُ تخرج 8 ما لم يكن مُدخَلُ `trail_reopen` = "1" (إقرارُ المالك لهذه القراءة وحدَها) ·
+#    يدويٌّ بلا كرون وبلا سرِّ تلغرام · `contents: read` · لا يكتب في المستودع (النتيجةُ تُقرأ من السجلّ وتُدفَع بـPR).
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch:
+    inputs:
+      trail_reopen:
+        description: "إقرارُ المالك TRAIL_REOPEN لقراءة T-BASKET وحدها (1 فقط)"
+        required: true
+        default: "0"
+
+concurrency:
+  group: super-stocks-basket
+  cancel-in-progress: false
+
+jobs:
+  prep:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # تاريخُ op_entry_state.json لتنبيهات «هنا الدخول» الوصفيّة
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 🧺 prep
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          TRAIL_REOPEN: ${{ inputs.trail_reopen }}
+          BASKET_MODE: prep
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/basket/basket.py
+      - name: 📤 رفع
+        uses: actions/upload-artifact@v4
+        with:
+          name: basket-prep
+          path: fm_forensics/basket/out/basket_*.json.gz
+          retention-days: 30
+
+  shard:
+    needs: prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      max-parallel: 12              # لا يستنفد رنرات البوت الحيّة
+      matrix:
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
+                20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📥 prep
+        uses: actions/download-artifact@v4
+        with:
+          name: basket-prep
+          path: fm_forensics/basket/out
+      - name: 🧺 شريحة
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          SEC_CONTACT: ${{ secrets.SEC_CONTACT }}
+          TRAIL_REOPEN: ${{ inputs.trail_reopen }}
+          BASKET_MODE: shard
+          SHARD: ${{ matrix.shard }}
+          NSHARDS: "40"
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/basket/basket.py
+      - name: 📤 رفع
+        uses: actions/upload-artifact@v4
+        with:
+          name: basket-shard-${{ matrix.shard }}
+          path: fm_forensics/basket/out/basket_shard_*.json.gz
+          retention-days: 30
+
+  assemble:
+    needs: shard
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📥 prep
+        uses: actions/download-artifact@v4
+        with:
+          name: basket-prep
+          path: fm_forensics/basket/out
+      - name: 📥 الشرائح
+        uses: actions/download-artifact@v4
+        with:
+          pattern: basket-shard-*
+          path: fm_forensics/basket/out
+          merge-multiple: true
+      - name: 🧺 الحكم
+        env:
+          TRAIL_REOPEN: ${{ inputs.trail_reopen }}
+          BASKET_MODE: assemble
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/basket/basket.py

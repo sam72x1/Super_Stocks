@@ -101,3 +101,6 @@ fm_forensics/tgtladder/out/
 # 🏛️ (2026-11-15) مخرجاتُ T-INST وT-INST-BT على الرنر وحدَه
 fm_forensics/inst/out/
 fm_forensics/inst/out_bt/
+
+# 🧺 (2026-11-16) T-BASKET: مخرجاتُ الشرائح على الرنر وحدَه (تُقرأ من السجلّ)
+fm_forensics/basket/out/
