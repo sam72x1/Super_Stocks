@@ -1,0 +1,65 @@
+name: "📣 T-XMOVE (تحرّك X% · إشعارٌ واحدٌ يوميًّا · قراءةٌ فقط)"
+
+# 📣 العقد `fm_forensics/xmove/XMOVE_prereg.md` (أمرُ المالك 2026-11-16 · مدموجٌ قبل أيّ رقم): ستّةُ أجزاءٍ متوازية (جلساتٌ متناوبة من الستّين) ⟵
+#    دقائقُ Polygon لكلّ سهمٍ في الكون `L ∪ N` ⟵ إطلاقاتُ X ‏10/15/20/30% والحاليّ و🥇 ⟵ JSON ⟵ الجمعُ والجدولُ والتنبّؤات.
+#    🔒 يدويٌّ بلا كرون وبلا سرِّ تلغرام · `contents: read` · لا يكتب في المستودع.
+permissions:
+  contents: read
+
+on:
+  workflow_dispatch: {}
+
+concurrency:
+  group: super-stocks-xmove
+  cancel-in-progress: false
+
+jobs:
+  chunk:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    strategy:
+      fail-fast: false
+      matrix:
+        part: [0, 1, 2, 3, 4, 5]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0              # تاريخُ op_entry_state.json (المراسي المصحَّحة) وسجلُّ التصنيف المثبَّت
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📣 الجزء
+        env:
+          POLYGON_API_KEY: ${{ secrets.POLYGON_API_KEY }}
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/xmove/xmove.py --mode chunk --part ${{ matrix.part }} --parts 6 --out xmove_part_${{ matrix.part }}.json
+      - name: 📤 رفع
+        uses: actions/upload-artifact@v4
+        with:
+          name: xmove-part-${{ matrix.part }}
+          path: xmove_part_${{ matrix.part }}.json
+          retention-days: 30
+  pool:
+    needs: chunk
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: 📥 تنزيل
+        uses: actions/download-artifact@v4
+        with:
+          pattern: xmove-part-*
+          merge-multiple: true
+      - name: ⚖️ الجمع
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: python fm_forensics/xmove/xmove.py --mode pool $(ls xmove_part_*.json)
