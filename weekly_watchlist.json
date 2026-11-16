@@ -374,7 +374,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.69,
+   "last_price": 1.64,
    "live_alert": {
     "buyzone": "2026-11-16"
    }
@@ -768,7 +768,7 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.5,
+   "last_price": 3.3476,
    "live_alert": {
     "break": "2026-11-16"
    }
@@ -2311,7 +2311,7 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 12.4,
-   "last_price": 1.88,
+   "last_price": 1.8863,
    "live_alert": {
     "buyzone": "2026-11-10",
     "breakout": "2026-11-13",
@@ -3183,7 +3183,7 @@
    "hit": "t2",
    "hit_date": "2026-11-10",
    "max_gain_pct": 44.8,
-   "last_price": 0.8969,
+   "last_price": 0.8766,
    "borrow_hist": [
     [
      "2026-11-10",
@@ -4431,7 +4431,7 @@
    "hit": "t2",
    "hit_date": "2026-11-03",
    "max_gain_pct": 37.3,
-   "last_price": 4.8,
+   "last_price": 4.79,
    "faisal_levels": "🧭 إغلاقات الهابطة $4.88 · $5.10 · $5.22 · جسم قبل الهبوط $6.19 · اختبار المقاومة $4.34 إلى $4.71",
    "live_alert": {
     "breakout": "2026-11-02",
@@ -5378,7 +5378,7 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 42.7,
-   "last_price": 2.22,
+   "last_price": 2.175,
    "live_alert": {},
    "price_state": "VALID",
    "price_bar": "2026-11-13",
@@ -6191,7 +6191,7 @@
    "hit": "t2",
    "hit_date": "2026-08-21",
    "max_gain_pct": 386.6,
-   "last_price": 5.37,
+   "last_price": 5.55,
    "live_alert": {
     "buyzone": "2026-08-17",
     "sweep": "2026-08-17",
@@ -7134,7 +7134,7 @@
    "hit": "t1",
    "hit_date": "2026-11-12",
    "max_gain_pct": 14.8,
-   "last_price": 1.25,
+   "last_price": 1.223,
    "borrow_hist": [
     [
      "2026-11-06",
@@ -7941,7 +7941,7 @@
    "hit": "t3",
    "hit_date": "2026-08-27",
    "max_gain_pct": 266.8,
-   "last_price": 0.6202,
+   "last_price": 0.6001,
    "live_alert": {
     "breakout": "2026-10-28",
     "dump": "2026-10-26",
@@ -8414,7 +8414,7 @@
    "hit": "t2",
    "hit_date": "2026-08-13",
    "max_gain_pct": 131.5,
-   "last_price": 5.46,
+   "last_price": 5.25,
    "borrow_hist": [
     [
      "2026-10-22",
