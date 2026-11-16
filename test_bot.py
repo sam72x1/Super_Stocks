@@ -102555,6 +102555,23 @@ try:
           _bsk_rl[-2:] == ["BASKET_VERDICT CURRENT|O0: غيرُ مُثبَت", "BASKET_VERDICT NEW|O0: لا قياس"] and _bsk_rl[-3] == "BKP BKP1: True"
           and _bsk_rl[0].startswith("BKT CURRENT|O0 2025"),
           str(_bsk_rl))
+    # 🔎 BSK8 (2026-11-16): تشخيصُ الشاذّ بعد التشغيلة — يُسمّي ولا يحكم · بلا شبكة ولا أسرار.
+    _bsk_ospec = _bsk_ilu.spec_from_file_location("bsk_out", _bsk_os.path.join("fm_forensics", "basket", "outliers.py"))
+    _BKO = _bsk_ilu.module_from_spec(_bsk_ospec)
+    _bsk_ospec.loader.exec_module(_BKO)
+    _bsk_osrc = open(_bsk_os.path.join("fm_forensics", "basket", "outliers.py"), encoding="utf-8").read()
+    _bsk_owf = _wfh_yaml.safe_load(open(".github/workflows/basket_outliers.yml", encoding="utf-8"))
+    _bsk_oon = _bsk_owf.get("on", _bsk_owf.get(True)) or {}
+    _bsk_oraw = open(".github/workflows/basket_outliers.yml", encoding="utf-8").read()
+    check("🔎 BSK8 الشاذّ: يُسمّي ذراعَ الصفقة خارج [−95%، +100%] وحدَها (الحدّان داخلان) · وتقسيماتِ النافذة من يوم القرار حتى آخرها وحدَها · "
+          "يدويٌّ بلا كرون ولا أسرار ولا تلغرام · ولا نداءَ شبكة",
+          _BKO.flag({"res": {"O0": {"r": 7.58}, "O30": {"r": 1.0}, "X0": {"r": -0.95}, "X30": {"r": -1.01}, "X50": {"r": 1.05}, "A0": None}}) == {"O0": 7.58, "X30": -1.01, "X50": 1.05}
+          and _BKO.flag({"res": None}) == {}
+          and _BKO.window_splits([{"execution_date": "2024-03-01"}, {"execution_date": "2024-02-28"}, {"execution_date": "2024-04-02"}],
+                                 "2024-03-01", "2024-03-29") == [{"execution_date": "2024-03-01"}]
+          and "schedule" not in _bsk_oon and "secrets." not in _bsk_oraw and "TELEGRAM" not in _bsk_oraw
+          and not any(w in _bsk_osrc for w in ("urllib", "requests", "http.client", "socket")),
+          str(_BKO.flag({"res": {"O0": {"r": 7.58}, "O30": {"r": 1.0}, "X0": {"r": -0.95}, "X30": {"r": -1.01}}})))
 except Exception as _e:                                          # noqa: BLE001
     check("🧺 أقفالُ T-BASKET انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
