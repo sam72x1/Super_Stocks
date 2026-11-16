@@ -374,7 +374,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.69
+   "last_price": 1.69,
+   "live_alert": {}
   },
   {
    "symbol": "HCTI",
@@ -765,7 +766,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 3.66
+   "last_price": 3.66,
+   "live_alert": {}
   },
   {
    "symbol": "BTOC",
@@ -1149,7 +1151,10 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 1.73
+   "last_price": 1.73,
+   "live_alert": {
+    "premarket": "2026-11-16"
+   }
   },
   {
    "symbol": "AIOS",
@@ -1511,7 +1516,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 8.12
+   "last_price": 8.12,
+   "live_alert": {}
   },
   {
    "symbol": "TVGN",
@@ -1898,7 +1904,8 @@
    "hit": null,
    "hit_date": null,
    "max_gain_pct": 0.0,
-   "last_price": 6.0
+   "last_price": 6.0,
+   "live_alert": {}
   },
   {
    "symbol": "PPCB",
