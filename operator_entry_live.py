@@ -57,6 +57,14 @@ OE_WIDE_UNIVERSE = False
 #    ⚠️ «الدورة» هنا **مسحُ السيولة** (المقيسُ في `T-OEWIDE` §④) — الدورةُ الكاملة (مسحان ‏+ مسحُ الدخول ‏+ الدفع) فوق 60 ث قبل التوسيع أصلًا.
 OE_WIDE_GUARD_S = 60
 _WIDE = {"off": False, "why": "", "p429": None}
+# 📣 **«تحرّك 30% — إشعارٌ واحدٌ يوميًّا» بدل الحاليّ** (أمرُ المالك 2026-11-16 «اعتمد تحرّك 30% بدل الحالي — خلف مفتاح، بإغلاق مسوّى
+#    بالتقسيم، و🥇 يبقى وسمًا داخله. إشعار واحد للسهم في اليوم ثم يسكت» · `T-XMOVE`): `True` ⟵ كروتُ السيولة (`M1`/`M5`/`Px`/`M30`) وتنبيهُ
+#    «🎯 هنا الدخول» **صامتان** (المسحُ والختمُ وحصادُ التصنيف كما هي فيبقى 🥇 وقائمةُ الظلّ) ويُرسَل «📣 تحرّك 30%» مرّةً للسهم في اليوم
+#    (`xmove_cycle` · `bot.xmove_fire`) · `False` ⟵ كما كان **بت-بت** (لا لقطةَ ولا نداءَ إضافيّ). قائمةُ ما قبل الجلسة خارجه.
+XMOVE_ON = True
+_XM = {"day": None, "cand": set(), "last": {}}
+_GOLD_LIVE = {}
+_NEAR = {}
 # ⏱️📡 سطرُ القياس (`OWW4` · سجلٌّ فقط): زمنُ عمل الدورات ومسوح السيولة وردود Polygon منذ السطر السابق ‏+ خلاصةٌ عند نهاية المقطع.
 _STATS = {"work": [], "sweep": [], "st": {}, "work_max": 0.0, "sweep_max": 0.0, "over": 0}
 
@@ -106,6 +114,63 @@ def stats_line(work, sweeps, st_now, st_prev, n_scan, n_wide):
             f"{_f(max(work) if work else None)}ث (فوق 60ث: {sum(1 for w in work if w > 60)}) · مسحُ السيولة وسيطُه "
             f"{_f(_md(sweeps))}ث وأقصاه {_f(max(sweeps) if sweeps else None)}ث على {n_scan} سهمًا (منها مضافٌ {n_wide}) · "
             f"ردودُ Polygon: {pol}")
+
+
+def xmove_cycle(seen, day, ny_min, snap_fn=None, bars_fn=None, prev_fn=None, gold_fn=None, send_fn=None, push_fn=None, now=None):
+    """📣 دورةُ «تحرّك 30%»: لقطةٌ للكون ⟵ مرشَّحو ‏+20% (لاصقون لليوم) ⟵ شموعُ اليوم المسوّاة وإغلاقُ الأمس المسوّى لكلّ مرشَّحٍ لم يُرسَل
+    له اليوم (فاصلُ `XMOVE_RECHECK_S`) ⟵ `bot.xmove_fire` ⟵ رسالةٌ واحدة للمُطلَقين ⟵ ختمُ `XM:<رمز>` **بعد** الإرسال ودفعُه فورًا.
+    الجوالبُ محقونةٌ للسويّة · ترجّع صفوفَ المُرسَلين (فارغةٌ عند الرفض: يُعاد في دورةٍ تالية)."""
+    snap_fn = snap_fn or bot.polygon_snapshot_tickers
+    bars_fn = bars_fn or bot.polygon_day_minutes
+    prev_fn = prev_fn or bot.polygon_prev_close
+    gold_fn = gold_fn or (lambda d, ms: bot.xmove_gold_today(bot.TIER_FWD_LEDGER_FILE, d, ms) | _GOLD_LIVE.get(d, set()))
+    send_fn = send_fn or bot.send_telegram
+    push_fn = push_fn or _push_state
+    now = time.time() if now is None else now
+    if ny_min < bot.XMOVE_FROM_NY or ny_min >= bot.XMOVE_END_NY + 15:   # +15 د: دقيقةُ 15:59 تُحسَم بعد اكتمالها
+        return []
+    if _XM["day"] != day:
+        _XM.update(day=day, cand=set(), last={})
+    pref = bot.XMOVE_STATE_PREFIX
+    done = {k[len(pref):] for k, v in (seen or {}).items()
+            if str(k).startswith(pref) and isinstance(v, dict) and v.get("date") == day}
+    uni = bot.xmove_universe(_WL, _NEAR) - done
+    if ny_min < bot.XMOVE_END_NY and uni:
+        snap = snap_fn(sorted(uni))
+        if snap is None:
+            _log("⚠️ 📣 لقطةُ Polygon تعذّرت — لا مرشَّحَ جديدَ في هذه الدورة")
+        else:
+            _XM["cand"] |= bot.xmove_snapshot_hits(snap, uni)
+    due = sorted(s for s in _XM["cand"] - done if now - _XM["last"].get(s, 0.0) >= bot.XMOVE_RECHECK_S)
+    rows = []
+    for sym in due:
+        _XM["last"][sym] = now
+        try:
+            f = bot.xmove_fire(bars_fn(sym, day), day, prev_fn(sym, day))
+        except Exception as e:                                   # noqa: BLE001
+            f = None
+            _log(f"⚠️ 📣 {sym}: {e}")
+        if f:
+            rows.append({"sym": sym, **f})
+    if not rows:
+        return []
+    gold = gold_fn(day, max(r["ms"] for r in rows) + 60_000)
+    for r in rows:
+        r["gold"] = r["sym"] in gold
+    if not send_fn(bot.build_xmove_alert(rows)):
+        _log(f"⚠️ 📣 تيليجرام رفض «تحرّك {bot.XMOVE_PCT:g}%» ({len(rows)}) — يُعاد في دورةٍ تالية")
+        for r in rows:
+            _XM["last"].pop(r["sym"], None)
+        return []
+    for r in rows:
+        seen[pref + r["sym"]] = {"date": day, "ms": r["ms"], "px": r["px"], "pct": round(r["pct"], 4), "gold": r["gold"]}
+    bot.save_op_entry_state(seen)
+    try:
+        push_fn([bot.OP_ENTRY_STATE_FILE])
+    except Exception as e:                                       # noqa: BLE001
+        _log(f"⚠️ 📣 دفعُ الختم: {e}")
+    _log(f"📣 تحرّك {bot.XMOVE_PCT:g}%: " + " · ".join(f"{r['sym']} +{r['pct'] * 100:.1f}%" + (" 🥇" if r["gold"] else "") for r in rows))
+    return rows
 
 
 def _log(msg):
@@ -672,6 +737,9 @@ def _load_universe():
     _WL.clear()
     if isinstance(wl, dict):
         _WL.update(wl)
+    _NEAR.clear()
+    if isinstance(near, dict):
+        _NEAR.update(near)                                       # 📣 كونُ `XMOVE` (القائمة ∪ «تحت المتابعة» كاملًا)
     uni, cut = bot.live_watch_universe(wl, near, press, hunter)
     # 💰 كونُ السيولة **بلا سقف** — أمرُ المالك «لكل الأسهم اللي تحت متابعة البوت
     #    بلا اي استثناء». والقصُّ في الكون المُسقَّف يبقى لِـ«هنا الدخول» وحده.
@@ -753,6 +821,10 @@ def main():
     if OE_WIDE_UNIVERSE:
         _log(f"👁️➕ التوسيع (`OE_WIDE_UNIVERSE`): منها مضافٌ {sum(1 for r in uni_all if r.get('wide'))} من «تحت المتابعة» كاملًا "
              f"(غيرُ المحجوب) · 🛑 الحارس: مسحُ سيولةٍ فوق {OE_WIDE_GUARD_S}ث أو أيُّ 429 ⟵ يسقط المضافُ لبقيّة العامل")
+    if XMOVE_ON:
+        _log(f"📣 «تحرّك {bot.XMOVE_PCT:g}%» بدل الحاليّ (`XMOVE_ON`): كروتُ السيولة و«🎯 هنا الدخول» صامتة · الكونُ "
+             f"{len(bot.xmove_universe(_WL, _NEAR))} سهمًا (القائمة ∪ «تحت المتابعة» كاملًا) · مرشِّحُ اللقطة +{bot.XMOVE_PRE_PCT:g}% · "
+             f"الحكمُ بشموع اليوم المسوّاة وإغلاق الأمس المسوّى · حجمٌ {bot.XMOVE_USD_MIN:,}$ · 04:00-16:00 · مرّةً للسهم في اليوم")
     if feed is not None:
         _log("📺 مصدرُ الشموع: **TradingView** (`OE_SOURCE`) — دفعةٌ واحدةٌ في الدورة بـ"
              f"{bot.TV_LIVE_WORKERS} مقابس · وبوّابةُ المضارب بلا Polygon ⟵ «لم يُتحقّق» (فاشلةٌ-آمنةٌ مفتوحة)")
@@ -858,6 +930,26 @@ def main():
                     _push_state([bot.OP_ENTRY_STATE_FILE], muted=True)
                 except Exception as e:                           # noqa: BLE001
                     _log(f"⚠️ دفعُ ددوب السيولة (مكتوم): {e}")
+        if lrows and XMOVE_ON:
+            # 📣 **صامتةٌ بالمفتاح** (`XMOVE_ON`): تُختَم وتُحصَد كما لو وصلت (🥇 وقائمةُ الظلّ تقرآن السجلّ) ولا تُرسَل
+            for _r, _evs in lrows:
+                for _e in _evs:
+                    _t = bot.liq_tier(_e)
+                    if _t and _t[0] == "قوي":
+                        _GOLD_LIVE.setdefault(_today2, set()).add(_r["symbol"])
+            bot.save_op_entry_state(seen)
+            _tfwd = 0
+            try:
+                _tfwd = bot.record_tier_fwd(lrows, _today2, extra={"muted": "XMOVE_ON"})   # رُصد لا سُلّم (TFW1 مؤرَّخ)
+            except Exception as e:                               # noqa: BLE001
+                _log(f"⚠️ حصادُ التصنيف: {e}")
+            try:
+                _push_state([bot.OP_ENTRY_STATE_FILE] + ([bot.TIER_FWD_LEDGER_FILE] if _tfwd else []), muted=not _tfwd)
+            except Exception as e:                               # noqa: BLE001
+                _log(f"⚠️ دفعُ ددوب السيولة (صامت): {e}")
+            _log(f"📣🔇 كروتُ السيولة صامتةٌ بالمفتاح: {sum(len(_evs) for _r, _evs in lrows)} حدثًا ({', '.join(r[0]['symbol'] for r in lrows)})"
+                 + (f" · حصادُ التصنيف +{_tfwd}" if _tfwd else ""))
+            lrows = []
         if lrows:
             _lsyms = [r[0]["symbol"] for r in lrows]
             _lstg = [e["stage"] for _r, _evs in lrows for e in _evs]
@@ -947,6 +1039,12 @@ def main():
         # ⏫ السيولة أوّلًا (النداء الأوّل من اثنين — انظر docstring المسح):
         #    الدقيقةُ الحرِجة لا تنتظر المسحَ التسلسليَّ البطيء.
         _liq_sweep()
+        if XMOVE_ON:
+            try:
+                _m, _d = _ny_minutes()
+                xmove_cycle(seen, _d, _m)
+            except Exception as e:                               # noqa: BLE001
+                _log(f"⚠️ 📣 دورةُ «تحرّك {bot.XMOVE_PCT:g}%» (دورة {loops}): {e}")
         try:
             _today = _ny_minutes()[1]
             rows = bot.scan_operator_entry(
@@ -956,6 +1054,14 @@ def main():
             errs += 1
             rows = []
             _log(f"⚠️ المسح (دورة {loops}): {e}")
+        if rows and XMOVE_ON:                                    # 📣 صامتٌ بالمفتاح: يُختَم ولا يُرسَل
+            _log(f"📣🔇 «هنا الدخول» صامتٌ بالمفتاح: {', '.join(r[0]['symbol'] for r in rows)}")
+            bot.save_op_entry_state(seen)
+            try:
+                _push_state([bot.OP_ENTRY_STATE_FILE], muted=True)
+            except Exception as e:                               # noqa: BLE001
+                _log(f"⚠️ دفعُ الدِدوب (صامت): {e}")
+            rows = []
         if rows:
             _syms = [r[0]["symbol"] for r in rows]
             try:

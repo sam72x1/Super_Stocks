@@ -32,10 +32,22 @@ jobs:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           # 🧾 المشرف (أوّلُ رقم) يُقارَن ولا يُكتب: نصُّ الرسائل ومصدرُ توجيهها يُحفظان له وحده
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          # 📒 حسابُ المالك (اختياريّ · يُقارَن ولا يُكتب): أمرُ الدفتر «صفقة:»/«خروج:» وحدَه يُحفظ نصُّه · وبلا السرّ بت-بت
+          TELEGRAM_OWNER_ID: ${{ secrets.TELEGRAM_OWNER_ID }}
           TG_MAX_FILES: ${{ github.event.inputs.max_files }}
         run: python telegram_collect.py
       - name: Update the coverage ledger
         run: python image_audit.py
+      # 📒 دفترُ صفقات المالك (أمرُه 2026-11-16 · `trade_journal_prereg.md`): يقرأ رسائلَ المشرف التي حفظها الجامعُ للتوّ (لا سحبَ ثانيًا
+      #    من تلغرام) ⟵ `trade_journal.jsonl` بحالة السهم عند البوت لحظةَ الرسالة (تاريخُ الأيّام الأخيرة يُجلَب لذلك) ⟵ تقريرٌ كلَّ 10 صفقات.
+      #    فاشلٌ-آمن: عطلُه تحذيرٌ لا يُسقط دفعَ الصور.
+      - name: 📒 Owner trade journal
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          git fetch -q --shallow-since="5 days ago" origin "$GITHUB_REF_NAME" || true
+          python trade_journal.py || echo "::warning::📒 الدفتر تعذّر هذه المرّة"
       # 🛡️ نسخة ثانية **قبل** الدفع: لو أخفق الدفع لأي سبب لا تضيع الصور
       # (درس 2026-07-27: دفعٌ على نفس الفرع أثناء التشغيل رفض دفع 367 صورة فضاعت).
       - name: Safety copy as an artifact
@@ -62,6 +74,9 @@ jobs:
           if [ -f telegram_collect_meta.jsonl ]; then
             git add -f telegram_collect_meta.jsonl
           fi
+          for f in trade_journal.jsonl trade_journal_state.json; do
+            if [ -f "$f" ]; then git add -f "$f"; fi
+          done
           if git diff --cached --quiet; then
             echo "لا جديد — لا commit"; exit 0
           fi
