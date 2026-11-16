@@ -17883,6 +17883,181 @@ def polygon_prev_close(sym: str, day_iso: str = None):
     return px
 
 
+# 📣 **«تحرّك 30% — إشعارٌ واحدٌ يوميًّا»** (أمرُ المالك 2026-11-16 «اعتمد تحرّك 30% بدل الحالي — خلف مفتاح، بإغلاق مسوّى بالتقسيم،
+#    و🥇 يبقى وسمًا داخله. إشعار واحد للسهم في اليوم ثم يسكت» · بعد `T-XMOVE` `fm_forensics/xmove/XMOVE_RESULT.md`): التعريفُ هو المقيسُ
+#    بحرفه — أوّلُ دقيقةٍ في [04:00، 16:00) نيويورك يبلغ `high` فيها إغلاقَ الأمس ×1.30 **و**الدولارُ التراكميّ (`v × c` من 04:00 حتى الدقيقة
+#    شاملةً) 50 ألفًا · السعرُ إغلاقُ تلك الدقيقة · والكونُ القائمة ∪ «تحت المتابعة» كاملًا (`xmove_universe` = `gcross_runner.list_members`
+#    ∪ `near_members` بالتعريف نفسِه) · والمفتاحُ `XMOVE_ON` في `operator_entry_live.py` (False ⟵ كروتُ السيولة كما كانت بت-بت).
+#    ✂️ **والفرقُ الوحيد عن القياس مقصود:** الشموعُ وإغلاقُ الأمس **مسوّاةٌ بالتقسيم** (`adjusted=true` · `/prev`) فلا إشعارَ كاذبًا يومَ
+#    التقسيم (القياسُ استبعد 80 إطلاقًا كذلك). واللقطةُ (`/v2/snapshot`) **مرشِّحٌ يوفّر النداءات لا حَكَم**: ما بلغ فيها ‏+20% يُفحص بشموع
+#    اليوم كاملةً ويُحكَم بالقاعدة وحدَها.
+XMOVE_PCT = 30.0               # owner_decision — «اعتمد تحرّك 30%» (T-XMOVE)
+XMOVE_USD_MIN = 50_000         # owner_decision — «بشرط حجم دولاري تراكمي ≥ 50 ألفًا» (T-XMOVE)
+XMOVE_FROM_NY, XMOVE_END_NY = 4 * 60, 16 * 60   # بري ‏+ نظامي (العقد §②)
+XMOVE_PRE_PCT = 20.0           # engineering — مرشِّحُ اللقطة (أدنى من الحدّ فلا يفوّت · يُحكَم بالشموع)
+XMOVE_RECHECK_S = 120          # engineering — أقلُّ فاصلٍ بين فحصَي شموعِ اليوم للمرشَّح نفسِه
+XMOVE_STATE_PREFIX = "XM:"     # حالةُ «أُرسل اليوم» في `op_entry_state.json` (دِدوبُ اليوم)
+_XM_NY = None
+
+
+def _xm_ny():
+    global _XM_NY
+    if _XM_NY is None:
+        from zoneinfo import ZoneInfo
+        _XM_NY = ZoneInfo("America/New_York")
+    return _XM_NY
+
+
+def xmove_fire(bars, day: str, p0, pct=None, usd_min=None, start=None, end=None):
+    """📣 (نقيّة) أوّلُ دقيقةٍ في [start، end) نيويورك يومَ `day` يبلغ `h` فيها `p0 × (1 + pct/100)` **و**مجموعُ `v × c` من `start` حتى
+    الدقيقة **شاملةً** يبلغ `usd_min` ⟵ {m: دقيقةُ نيويورك · ms · px: `c` الدقيقة · pct: px/p0 − 1} أو None · `bars` = [{t، h، c، v}]."""
+    try:
+        p0 = float(p0)
+    except (TypeError, ValueError):
+        return None
+    if not bars or p0 <= 0:
+        return None
+    lvl = p0 * (1.0 + float(XMOVE_PCT if pct is None else pct) / 100.0)
+    umin = float(XMOVE_USD_MIN if usd_min is None else usd_min)
+    a = XMOVE_FROM_NY if start is None else int(start)
+    b = XMOVE_END_NY if end is None else int(end)
+    cum = 0.0
+    for x in sorted((x for x in bars if isinstance(x, dict) and x.get("t") is not None), key=lambda x: int(x["t"])):
+        t = dt.datetime.fromtimestamp(int(x["t"]) / 1000, dt.timezone.utc).astimezone(_xm_ny())
+        m = t.hour * 60 + t.minute
+        if t.date().isoformat() != day or m < a or m >= b:
+            continue
+        try:
+            c, h, v = float(x["c"]), float(x.get("h") or x["c"]), float(x.get("v") or 0.0)
+        except (TypeError, ValueError, KeyError):
+            continue
+        cum += v * c
+        if h >= lvl and cum >= umin:
+            return {"m": m, "ms": int(x["t"]), "px": c, "pct": c / p0 - 1.0}
+    return None
+
+
+def xmove_universe(wl, near):
+    """📣 (نقيّة) الكونُ المقيس في `T-XMOVE` = القائمةُ (كلُّ `stocks` غيرِ المشطوبة) ∪ «تحت المتابعة» (مداخلُ آخر فرزٍ: `last_seen` الأكبر) —
+    بتعريف `gcross_runner.list_members`/`near_members` حرفيًّا (مقفولٌ بالتطابق في السويّة) ⟵ مجموعةُ رموز."""
+    out = set()
+    stocks = (wl.get("stocks") or ()) if isinstance(wl, dict) else ()
+    for s in stocks:
+        sym = str((s or {}).get("symbol") or "").upper()
+        if sym and (s or {}).get("status") != "stopped":
+            out.add(sym)
+    if isinstance(near, dict) and near:
+        vals = [v for v in near.values() if isinstance(v, dict)]
+        if vals:
+            last = max(str(v.get("last_seen") or "") for v in vals)
+            out |= {str(k).upper() for k, v in near.items() if isinstance(v, dict) and str(v.get("last_seen") or "") == last}
+    return out
+
+
+def xmove_snapshot_hits(tickers, universe, pre_pct=None):
+    """📣 (نقيّة) لقطةُ Polygon ⟵ رموزُ الكون التي بلغ أعلاها (شمعةُ اليوم · شمعةُ الدقيقة · آخرُ صفقة) إغلاقَ أمسها × (1 + pre_pct/100)."""
+    thr = 1.0 + float(XMOVE_PRE_PCT if pre_pct is None else pre_pct) / 100.0
+    uni = {str(s).upper() for s in (universe or ())}
+    out = set()
+    for t in tickers or ():
+        sym = str((t or {}).get("ticker") or "").upper()
+        if sym not in uni:
+            continue
+        try:
+            pc = float(((t.get("prevDay") or {}).get("c")) or 0)
+        except (TypeError, ValueError):
+            pc = 0.0
+        vals = []
+        for k, f in (("day", "h"), ("min", "h"), ("lastTrade", "p")):
+            try:
+                vals.append(float(((t.get(k) or {}).get(f)) or 0))
+            except (TypeError, ValueError):
+                pass
+        if pc > 0 and vals and max(vals) >= pc * thr:
+            out.add(sym)
+    return out
+
+
+def polygon_snapshot_tickers(syms, chunk: int = 200):
+    """📣 لقطةُ Polygon لرموزٍ بعينها (`/v2/snapshot/locale/us/markets/stocks/tickers?tickers=…`) ⟵ قائمةُ قواميس أو None عند أيّ تعذّر
+    (فاشلةٌ-آمنة: بلا لقطةٍ لا مرشَّحَ جديدَ في الدورة · ويُطبَع)."""
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    syms = sorted({str(s).upper() for s in (syms or ()) if s})
+    if not key or not syms:
+        return None
+    out = []
+    try:
+        for i in range(0, len(syms), max(1, int(chunk))):
+            r = requests.get("https://api.polygon.io/v2/snapshot/locale/us/markets/stocks/tickers",
+                             params={"tickers": ",".join(syms[i:i + chunk])},
+                             headers={"Authorization": f"Bearer {key}"}, timeout=20)
+            _poly_min_count(str(r.status_code))
+            if r.status_code != 200:
+                return None
+            out.extend((r.json() or {}).get("tickers") or [])
+        return out
+    except Exception:                                            # noqa: BLE001
+        _poly_min_count("exc")
+        return None
+
+
+def polygon_day_minutes(sym: str, day: str):
+    """📣 شموعُ دقيقة اليوم كاملةً **مسوّاةً بالتقسيم** (`adjusted=true`) ⟵ [{t، h، c، v}] أو None (فاشلةٌ-آمنة)."""
+    key = os.environ.get("POLYGON_API_KEY", "").strip()
+    if not key:
+        return None
+    try:
+        r = requests.get(f"https://api.polygon.io/v2/aggs/ticker/{str(sym).upper()}/range/1/minute/{day}/{day}",
+                         params={"adjusted": "true", "sort": "asc", "limit": 50000},
+                         headers={"Authorization": f"Bearer {key}"}, timeout=20)
+        _poly_min_count(str(r.status_code))
+        if r.status_code != 200:
+            return None
+        res = (r.json() or {}).get("results") or []
+        return [{"t": b.get("t"), "h": b.get("h"), "c": b.get("c"), "v": b.get("v")} for b in res
+                if b.get("t") is not None and b.get("c") is not None] or None
+    except Exception:                                            # noqa: BLE001
+        _poly_min_count("exc")
+        return None
+
+
+def xmove_gold_today(path, day: str, upto_ms=None):
+    """📣🥇 (فاشلةٌ-آمنة) رموزُ اليوم التي لها كرتُ `M5` قويٌّ بقاعدة اليوم (`green` ‏≥ `LIQ_TIER_STRONG_MIN` أو `j1`) حتى `upto_ms` من
+    `tier_fwd_ledger.jsonl` ⟵ مجموعة (التصنيفُ يُحصَد هنا سلفًا · صفرُ حسابٍ جديد)."""
+    out = set()
+    try:
+        with open(path, encoding="utf-8") as fh:
+            for ln in fh:
+                if day not in ln:
+                    continue
+                try:
+                    r = json.loads(ln)
+                except ValueError:
+                    continue
+                if not isinstance(r, dict) or str(r.get("date") or "") != day:
+                    continue
+                if upto_ms is not None and r.get("price_ms") and int(r["price_ms"]) > int(upto_ms):
+                    continue
+                g = r.get("green")
+                if (isinstance(g, (int, float)) and g >= LIQ_TIER_STRONG_MIN) or r.get("j1") is True:
+                    out.add(str(r.get("symbol") or "").upper())
+    except (OSError, TypeError, ValueError):
+        return out
+    return out
+
+
+def build_xmove_alert(rows) -> str:
+    """📣 الرسالة: سطرٌ لكلّ سهم «$الرمز ‏+X% · $السعر · الساعة (🥇)» — `rows` = [{sym، pct، px، m، gold}] · بلا ذيلٍ عامّ (`send_telegram` يختم)."""
+    head = f"📣 تحرّك {XMOVE_PCT:g}% — إشعارٌ واحدٌ للسهم اليوم"
+    lines = [head]
+    for r in rows or ():
+        m = int(r.get("m") or 0)
+        lines.append(f"${r.get('sym')} +{float(r.get('pct') or 0) * 100:.1f}% · {_px_txt(r.get('px'))} · "
+                     f"{m // 60:02d}:{m % 60:02d} نيويورك" + (" 🥇" if r.get("gold") else ""))
+    lines.append(f"ℹ️ أوّلُ بلوغٍ لـ+{XMOVE_PCT:g}% من إغلاق الأمس (مسوّى بالتقسيم) بسيولة {XMOVE_USD_MIN // 1000} ألف$ · لا تحديثَ بعده اليوم")
+    return _rtl_join(lines)
+
+
 def _px_txt(v) -> str:
     """💵 سعرٌ **بدقّةٍ لا تكذب**: ما دون الدولار بأربع خانات.
 

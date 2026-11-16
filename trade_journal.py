@@ -1,0 +1,269 @@
+#!/usr/bin/env python3
+"""📒 دفترُ صفقات المالك (أمرُه 2026-11-16 · التعريفاتُ في `trade_journal_prereg.md` قبل أيّ صفقة).
+
+يقرأ رسائلَ المشرف التي حفظها جامعُ التلغرام (`telegram_collect_meta.jsonl`) ⟵ أمرا «صفقة:»/«خروج:» ⟵ صفٌّ إلحاقيّ في
+`trade_journal.jsonl` مع حالة السهم عند البوت **لحظةَ الرسالة** (نسخُ الملفّات عند آخر التزامٍ قبلها) ⟵ تقريرٌ على تلغرام بعد كلّ عشر
+صفقاتٍ مغلقة. 🔒 لا يسحب من تلغرام ولا يمسّ إزاحةَ الجامع ولا أيَّ حالة إنتاج.
+"""
+import datetime as dt
+import json
+import os
+import re
+import subprocess
+import sys
+from zoneinfo import ZoneInfo
+
+META = "telegram_collect_meta.jsonl"
+LEDGER = "trade_journal.jsonl"
+STATE = "trade_journal_state.json"
+REPORT_EVERY = 10
+NY = ZoneInfo("America/New_York")
+_DIG = str.maketrans("٠١٢٣٤٥٦٧٨٩٫۰۱۲۳۴۵۶۷۸۹", "0123456789.0123456789")
+_SEP = re.compile(r"\s*(?:·|\||،|—|–|\s-\s|\n)\s*")
+_SYM = re.compile(r"^\$?([A-Za-z][A-Za-z.]{0,5})$")
+_NUM = re.compile(r"\d+(?:\.\d+)?")
+
+
+def log(m=""):
+    print(m, flush=True)
+
+
+# ── نقيّة ──────────────────────────────────────────────────────────────────────────────────────
+def parse_cmd(text):
+    """نصُّ رسالةٍ ⟵ {kind: entry|exit، sym، price، reason} · أو {kind: bad، why} لأمرٍ لا يُقرأ · أو None لغير الأوامر."""
+    t = str(text or "").strip().translate(_DIG)
+    m = re.match(r"^(صفقة|خروج)\s*[:：]\s*(.*)$", t, re.S)
+    if not m:
+        return None
+    kind = "entry" if m.group(1) == "صفقة" else "exit"
+    parts = [p.strip() for p in _SEP.split(m.group(2).strip()) if p.strip()]
+    if len(parts) < 2 and parts:                                 # «صفقة: ABCD 1.25 سبب» بلا فاصل ⟵ المسافات
+        w = parts[0].split()
+        parts = w[:2] + ([" ".join(w[2:])] if len(w) > 2 else [])
+    if len(parts) < 2:
+        return {"kind": "bad", "why": "حقولٌ ناقصة", "text": t[:200]}
+    sm = _SYM.match(parts[0].replace(" ", ""))
+    nm = _NUM.search(parts[1].replace(",", "."))
+    if not sm or not nm or float(nm.group()) <= 0:
+        return {"kind": "bad", "why": "الرمزُ أو السعرُ لا يُقرأ", "text": t[:200]}
+    out = {"kind": kind, "sym": sm.group(1).upper(), "price": float(nm.group())}
+    if kind == "entry":
+        out["reason"] = " · ".join(parts[2:])[:300]
+    return out
+
+
+def ny_day(iso):
+    return dt.datetime.fromisoformat(str(iso).replace("Z", "+00:00")).astimezone(NY).date().isoformat()
+
+
+def iso_ms(iso):
+    return int(dt.datetime.fromisoformat(str(iso).replace("Z", "+00:00")).timestamp() * 1000)
+
+
+def new_commands(meta_rows, have):
+    """صفوفُ الجامع ⟵ أوامرُ المالك الجديدة (مفتاحُها `message_id`) بترتيب الوقت: نصُّ المشرف (`from_admin`) أو أمرُ الدفتر من حساب
+    المالك (`from_owner` · `journal_cmd` — السرُّ `TELEGRAM_OWNER_ID`) · وما سواهما لا يُقرأ."""
+    out = []
+    for r in meta_rows:
+        if not isinstance(r, dict):
+            continue
+        txt = r.get("text") if r.get("from_admin") is True else (r.get("journal_cmd") if r.get("from_owner") is True else None)
+        if not txt:
+            continue
+        mid = r.get("message_id")
+        if mid is None or int(mid) in have:
+            continue
+        c = parse_cmd(txt)
+        if c is None:
+            continue
+        out.append({"id": int(mid), "date": r.get("date"), **c})
+    return sorted(out, key=lambda x: (str(x.get("date") or ""), x["id"]))
+
+
+def gold_of(ledger_lines, sym, day, upto_ms, gmin=3):
+    """🥇 بقاعدة اليوم: كرتُ `M5` للسهم يومَه بـ`green` ‏≥ gmin أو `j1` قبل `upto_ms`."""
+    for ln in ledger_lines:
+        if sym not in ln or day not in ln:
+            continue
+        try:
+            r = json.loads(ln)
+        except ValueError:
+            continue
+        if str(r.get("symbol") or "").upper() != sym or str(r.get("date") or "") != day:
+            continue
+        if r.get("price_ms") and int(r["price_ms"]) > upto_ms:
+            continue
+        g = r.get("green")
+        if (isinstance(g, (int, float)) and g >= gmin) or r.get("j1") is True:
+            return True
+    return False
+
+
+def bot_state(sym, day, ms, files, entry_status=None):
+    """حالةُ السهم عند البوت من نسخ الملفّات `files` = {اسم: نصّ} (نقيّة) ⟵ dict."""
+    def _j(name):
+        try:
+            return json.loads(files.get(name) or "null")
+        except ValueError:
+            return None
+    st = {"list": False, "near": False, "ready": None, "readiness": None, "missing": [], "gold": False, "shadow": False, "x30": None}
+    wl = _j("weekly_watchlist.json") or {}
+    for s in (wl.get("stocks") or []) if isinstance(wl, dict) else []:
+        if str(s.get("symbol") or "").upper() == sym and s.get("status") != "stopped":
+            st["list"], st["readiness"] = True, s.get("readiness")
+            st["missing"] = list(s.get("soft_fails") or [])[:8]
+            if entry_status is not None:
+                try:
+                    st["ready"] = str((entry_status(s) or {}).get("label") or "") or None
+                except Exception:                                # noqa: BLE001
+                    st["ready"] = None
+            break
+    near = _j("near_watch.json") or {}
+    row = near.get(sym) if isinstance(near, dict) else None
+    if isinstance(row, dict):
+        st["near"] = True
+        if not st["list"]:
+            st["readiness"] = row.get("readiness")
+            st["missing"] = list(row.get("outside") or [])[:8]
+    st["gold"] = gold_of((files.get("tier_fwd_ledger.jsonl") or "").splitlines(), sym, day, ms)
+    stamp = _j("shadow_tg_stamp.json") or {}
+    st["shadow"] = bool(isinstance(stamp, dict) and stamp.get("last_sent") == day and sym in (stamp.get("symbols") or []))
+    oe = _j("op_entry_state.json") or {}
+    xm = oe.get("XM:" + sym) if isinstance(oe, dict) else None
+    if isinstance(xm, dict) and xm.get("date") == day:
+        st["x30"] = {"px": xm.get("px"), "ms": xm.get("ms"), "before_you": bool(xm.get("ms") and int(xm["ms"]) <= ms)}
+    return st
+
+
+def pair(rows):
+    """أوامرُ الدفتر ⟵ صفقاتٌ مغلقة: كلُّ خروجٍ يُغلق أقدمَ دخولٍ مفتوحٍ لرمزه (FIFO) ⟵ [(دخول، خروج)] بترتيب الإغلاق."""
+    opened, closed = {}, []
+    for r in sorted(rows, key=lambda x: (str(x.get("date") or ""), x["id"])):
+        if r.get("kind") == "entry":
+            opened.setdefault(r["sym"], []).append(r)
+        elif r.get("kind") == "exit" and opened.get(r["sym"]):
+            closed.append((opened[r["sym"]].pop(0), r))
+    return closed
+
+
+def outcome(entry, ex):
+    """نتيجتُك وما كان البوت سيفعله (العقد §③): إشعارُ «تحرّك 30%» يومَ دخولك ⟵ دخلَ بسعره وخرجَ بخروجك · وإلّا لم يدخل."""
+    you = ex["price"] / entry["price"] - 1.0
+    x = (entry.get("state") or {}).get("x30")
+    bot = (ex["price"] / float(x["px"]) - 1.0) if (x and x.get("px")) else None
+    return you, bot
+
+
+def _med(xs):
+    xs = sorted(xs)
+    n = len(xs)
+    return None if not n else (xs[n // 2] if n % 2 else (xs[n // 2 - 1] + xs[n // 2]) / 2)
+
+
+def _p(x):
+    return "—" if x is None else f"{x * 100:+.1f}%"
+
+
+def report(closed, upto):
+    """تقريرُ آخر عشر صفقاتٍ حتى `upto` (نقيّ) ⟵ نصّ."""
+    chunk = closed[upto - REPORT_EVERY:upto]
+    L = [f"📒 دفترُ صفقاتك — الصفقات {upto - REPORT_EVERY + 1}-{upto}"]
+    you_all, pair_you, pair_bot, no_alert = [], [], [], 0
+    for e, x in chunk:
+        you, bot = outcome(e, x)
+        st = e.get("state") or {}
+        you_all.append(you)
+        if bot is None:
+            no_alert += 1
+            b = "البوت لم ينبّه"
+        else:
+            pair_you.append(you)
+            pair_bot.append(bot)
+            b = f"البوت {_p(bot)}" + ("" if (st.get("x30") or {}).get("before_you") else " (نبّه بعدك)")
+        flags = (" 🥇" if st.get("gold") else "") + (" 🌘" if st.get("shadow") else "")
+        where = "القائمة" if st.get("list") else ("تحت المتابعة" if st.get("near") else "خارج البوت")
+        L.append(f"${e['sym']} {ny_day(e['date'])[5:]}: أنت {_p(you)} · {b}{flags} · {where}"
+                 + (f" · {st['ready']}" if st.get("ready") else ""))
+    L.append(f"— أنت: وسيطك {_p(_med(you_all))} · رابحة {sum(1 for y in you_all if y > 0)} من {len(you_all)}")
+    if pair_bot:
+        L.append(f"— حيث نبّه البوت ({len(pair_bot)}): وسيطك {_p(_med(pair_you))} مقابل البوت {_p(_med(pair_bot))} على الصفقات نفسِها")
+    L.append(f"— لم ينبّه البوت في {no_alert} · ⚠️ عشرُ صفقاتٍ وصفٌ لا حكم")
+    return "\n".join(L)
+
+
+# ── الرنر ─────────────────────────────────────────────────────────────────────────────────────
+STATE_FILES = ("weekly_watchlist.json", "near_watch.json", "tier_fwd_ledger.jsonl", "shadow_tg_stamp.json", "op_entry_state.json")
+
+
+def _git(*a):
+    return subprocess.run(["git", *a], capture_output=True, text=True).stdout
+
+
+def files_at(iso):
+    """نسخُ ملفّات الحالة عند آخر التزامٍ قبل `iso` ⟵ ({اسم: نصّ}، صادقٌ؟) · وإلّا الحاليّة وصادقٌ = False (يُوسَم)."""
+    h = _git("rev-list", "-1", f"--before={iso}", "HEAD").strip()
+    out, exact = {}, bool(h)
+    for f in STATE_FILES:
+        txt = _git("show", f"{h}:{f}") if h else ""
+        if not txt:
+            exact = False
+            try:
+                txt = open(f, encoding="utf-8").read()
+            except OSError:
+                txt = ""
+        out[f] = txt
+    return out, exact
+
+
+def main():
+    try:
+        rows = [json.loads(ln) for ln in open(META, encoding="utf-8") if ln.strip()]
+    except OSError:
+        rows = []
+    led = []
+    if os.path.exists(LEDGER):
+        led = [json.loads(ln) for ln in open(LEDGER, encoding="utf-8") if ln.strip()]
+    have = {int(r["id"]) for r in led if r.get("id") is not None}
+    new = new_commands(rows, have)
+    try:
+        import Super_stock as bot
+        es = bot.entry_status
+    except Exception:                                            # noqa: BLE001
+        es = None
+    for c in new:
+        if c["kind"] == "entry":
+            fl, exact = files_at(c["date"])
+            c["state"] = bot_state(c["sym"], ny_day(c["date"]), iso_ms(c["date"]), fl, es)
+            c["state"]["exact"] = exact
+        led.append(c)
+        with open(LEDGER, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(c, ensure_ascii=False) + "\n")
+    bad = [c for c in new if c["kind"] == "bad"]
+    log(f"📒 الدفتر: أوامرُ جديدة {len(new)} (غيرُ مقروءة {len(bad)}) · المجموع {len(led)}")
+    st = {}
+    if os.path.exists(STATE):
+        st = json.load(open(STATE, encoding="utf-8")) or {}
+    closed = pair([r for r in led if r.get("kind") in ("entry", "exit")])
+    done = int(st.get("reported") or 0)
+    sent = 0
+    while len(closed) >= done + REPORT_EVERY:
+        txt = report(closed, done + REPORT_EVERY)
+        log(txt)
+        ok = True
+        if (os.environ.get("TELEGRAM_BOT_TOKEN") or "").strip():
+            import Super_stock as bot
+            ok = bool(bot.send_telegram(txt))
+        if not ok:
+            log("⚠️ تيليجرام رفض التقرير — يُعاد في التشغيل التالي")
+            break
+        done += REPORT_EVERY
+        sent += 1
+    st.update(reported=done, closed=len(closed), entries=sum(1 for r in led if r.get("kind") == "entry"))
+    with open(STATE, "w", encoding="utf-8") as fh:
+        json.dump(st, fh, ensure_ascii=False, indent=1)
+    log(f"📒 صفقاتٌ مغلقة {len(closed)} · تقاريرُ أُرسلت الآن {sent} · آخرُ ما غُطّي {done}")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

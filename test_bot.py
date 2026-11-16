@@ -102251,6 +102251,174 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("📣 أقفالُ T-XMOVE انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 📣 XMS1-XMS4 — «تحرّك 30% — إشعارٌ واحدٌ يوميًّا» بدل كروت السيولة (أمرُ المالك 2026-11-16 · `T-XMOVE`) ‏+ 📒 TJR1-TJR3 دفترُ الصفقات.
+try:
+    import datetime as _xms_dt
+    import Super_stock as _XS
+    import operator_entry_live as _XOE
+    import gcross_runner as _XGR
+    _xms_ny = _XS._xm_ny()
+
+    def _xms_ms(h, m, d=17):
+        return int(_xms_dt.datetime(2026, 11, d, h, m, tzinfo=_xms_ny).timestamp() * 1000)
+    _xms_bars = [{"t": _xms_ms(3, 59), "h": 9.0, "c": 9.0, "v": 1e6},          # قبل 04:00 ⟵ لا يُعَدّ
+                 {"t": _xms_ms(5, 0), "h": 1.4, "c": 1.35, "v": 1000},          # العتبة بلا حجم
+                 {"t": _xms_ms(5, 1), "h": 1.1, "c": 1.0, "v": 40000},          # الحجم بلا عتبة (التراكم 41,350)
+                 {"t": _xms_ms(5, 2), "h": 1.31, "c": 1.28, "v": 7000},         # ⟵ الإطلاق: h ≥ 1.30 والتراكم بدقيقتها 50,310 · السعر c
+                 {"t": _xms_ms(6, 0), "h": 2.0, "c": 1.9, "v": 1e5}]
+    _xms_f = _XS.xmove_fire(_xms_bars, "2026-11-17", 1.0)
+    _xms_wl = {"stocks": [{"symbol": "aa", "status": "active"}, {"symbol": "bb", "status": "stopped"}, {"symbol": "cc"}]}
+    _xms_near = {"X": {"last_seen": "2026-11-14"}, "Y": {"last_seen": "2026-11-13"}, "z": {"last_seen": "2026-11-14"}, "w": 3}
+    check("📣 XMS1 تحرّك 30% (نقيّة): أوّلُ دقيقةٍ في [04:00، 16:00) يبلغ `h` فيها 1.30×إغلاق الأمس **و**الدولارُ التراكميّ بدقيقتها 50 ألفًا · "
+          "السعرُ إغلاقُها · وما بعد 16:00 لا يُطلق · والكونُ = `gcross_runner.list_members ∪ near_members` بالتعريف نفسِه",
+          _xms_f == {"m": 302, "ms": _xms_ms(5, 2), "px": 1.28, "pct": 0.28000000000000003}
+          and _XS.xmove_fire(_xms_bars, "2026-11-17", 1.0, pct=60) == {"m": 360, "ms": _xms_ms(6, 0), "px": 1.9, "pct": 0.8999999999999999}
+          and _XS.xmove_fire([{"t": _xms_ms(16, 0), "h": 5, "c": 5, "v": 1e6}], "2026-11-17", 1.0) is None
+          and _XS.xmove_fire([{"t": _xms_ms(5, 0), "h": 1.29, "c": 1.2, "v": 1e6}], "2026-11-17", 1.0) is None
+          and (_XS.xmove_fire([{"t": _xms_ms(5, 0), "h": 1.3, "c": 1.2, "v": 1e6}], "2026-11-17", 1.0) or {}).get("m") == 300
+          and _XS.xmove_fire(_xms_bars, "2026-11-18", 1.0) is None and _XS.xmove_fire(_xms_bars, "2026-11-17", None) is None
+          and (_XS.XMOVE_PCT, _XS.XMOVE_USD_MIN, _XS.XMOVE_FROM_NY, _XS.XMOVE_END_NY) == (30.0, 50_000, 240, 960)
+          and _XS.xmove_universe(_xms_wl, _xms_near) == {"AA", "CC", "X", "Z"} == set(_XGR.list_members(_xms_wl)) | set(_XGR.near_members(_xms_near)),
+          str(_xms_f))
+    _xms_snap = [{"ticker": "AA", "prevDay": {"c": 1.0}, "day": {"h": 0}, "min": {"h": 1.25}, "lastTrade": {"p": 1.1}},
+                 {"ticker": "CC", "prevDay": {"c": 1.0}, "day": {"h": 1.19}, "min": {"h": 1.1}, "lastTrade": {"p": 1.0}},
+                 {"ticker": "QQ", "prevDay": {"c": 1.0}, "day": {"h": 3.0}},
+                 {"ticker": "X", "prevDay": {"c": 0}, "day": {"h": 3.0}},
+                 {"ticker": "Z", "prevDay": {"c": 2.0}, "lastTrade": {"p": 2.4}}]
+    check("📣 XMS2 مرشِّحُ اللقطة: رموزُ الكون وحدَها · أعلى (اليوم · الدقيقة · آخر صفقة) ‏+20% فوق إغلاق الأمس فأكثر · وبلا إغلاقٍ لا مرشَّح",
+          _XS.xmove_snapshot_hits(_xms_snap, {"AA", "CC", "X", "Z"}) == {"AA", "Z"} and _XS.XMOVE_PRE_PCT == 20.0,
+          str(_XS.xmove_snapshot_hits(_xms_snap, {"AA", "CC", "X", "Z"})))
+    _xms_sent, _xms_push, _xms_calls = [], [], []
+    _xms_seen = {}
+    _xms_save0 = _XS.save_op_entry_state
+    _XS.save_op_entry_state = lambda *a, **k: None
+    _XOE._WL.clear()
+    _XOE._WL.update(_xms_wl)
+    _XOE._NEAR.clear()
+    _XOE._NEAR.update(_xms_near)
+    _XOE._XM.update(day=None, cand=set(), last={})
+
+    def _xms_bars_fn(sym, day):
+        _xms_calls.append(sym)
+        return _xms_bars if sym == "AA" else [{"t": _xms_ms(5, 0), "h": 1.1, "c": 1.1, "v": 1e6}]
+    _xms_asked = []
+    _xms_kw = dict(snap_fn=lambda syms: _xms_asked.append(list(syms)) or _xms_snap, bars_fn=_xms_bars_fn, prev_fn=lambda s, d: 1.0,
+                   gold_fn=lambda d, ms: {"AA"}, push_fn=lambda f: _xms_push.append(f))
+    try:
+        _xms_r0 = _XOE.xmove_cycle(_xms_seen, "2026-11-17", 200, send_fn=lambda t: _xms_sent.append(t) or True, now=1000.0, **_xms_kw)
+        _xms_r1 = _XOE.xmove_cycle(_xms_seen, "2026-11-17", 330, send_fn=lambda t: _xms_sent.append(t) or True, now=2000.0, **_xms_kw)
+        _xms_r2 = _XOE.xmove_cycle(_xms_seen, "2026-11-17", 340, send_fn=lambda t: _xms_sent.append(t) or True, now=4000.0, **_xms_kw)
+        _xms_seen_b = {}
+        _XOE._XM.update(day=None, cand=set(), last={})
+        _xms_r3 = _XOE.xmove_cycle(_xms_seen_b, "2026-11-17", 330, send_fn=lambda t: False, now=2000.0, **_xms_kw)
+        _xms_a3 = "XM:AA" in _xms_seen_b
+        _xms_r4 = _XOE.xmove_cycle(_xms_seen_b, "2026-11-17", 331, send_fn=lambda t: _xms_sent.append(t) or True, now=2001.0, **_xms_kw)
+    finally:
+        _XS.save_op_entry_state = _xms_save0
+    check("📣 XMS3 دورةُ «تحرّك 30%»: لا عملَ قبل 04:00 · المرشَّحُ من اللقطة وحدَها · الإطلاقُ مرّةً للسهم في اليوم ثمّ يسكت · 🥇 وسمٌ داخله · "
+          "والختمُ بعد الإرسال ويُدفَع · ورفضُ تيليجرام لا يختم ويُعاد في الدورة التالية",
+          _xms_r0 == [] and [r["sym"] for r in _xms_r1] == ["AA"] and _xms_r1[0]["gold"] is True and _xms_r2 == []
+          and _xms_seen.get("XM:AA", {}).get("date") == "2026-11-17" and _xms_seen["XM:AA"]["px"] == 1.28
+          and "QQ" not in _xms_calls and "CC" not in _xms_calls and _xms_push and len(_xms_sent) == 2
+          and "$AA +28.0% · $1.28 · 05:02 نيويورك 🥇" in _xms_sent[0]
+          and len(_xms_asked) >= 2 and "AA" in _xms_asked[0] and "AA" not in _xms_asked[1] and "CC" in _xms_asked[1]
+          and _xms_r3 == [] and not _xms_a3 and "XM:AA" in _xms_seen_b and [r["sym"] for r in _xms_r4] == ["AA"],
+          f"r1={_xms_r1} r2={_xms_r2} calls={_xms_calls} sent={len(_xms_sent)}")
+    _xms_src = open("operator_entry_live.py", encoding="utf-8").read()
+    _xms_i0 = _xms_src.find("        if lrows and XMOVE_ON:")
+    _xms_i1 = _xms_src.find("lok = bot.send_telegram(bot.build_liq_stage_alert(lrows))")
+    _xms_e0 = _xms_src.find("        if lrows:\n", _xms_i0)
+    _xms_blk = _xms_src[_xms_i0:_xms_e0] if 0 <= _xms_i0 < _xms_e0 < _xms_i1 else ""
+    _xms_j0 = _xms_src.find("        if rows and XMOVE_ON:")
+    _xms_j1 = _xms_src.find("        if rows:\n", _xms_j0)
+    _xms_j1 = _xms_j1 if _xms_j1 < _xms_src.find("bot.build_operator_entry_alert(rows)") else -1
+    _xms_k = _xms_src.find("        if XMOVE_ON:\n            try:\n                _m, _d = _ny_minutes()\n                xmove_cycle(seen, _d, _m)")
+    check("📣 XMS4 الوصلُ والمفتاح: `XMOVE_ON` مُشعَل · كروتُ السيولة تُختَم وتُحصَد (🥇 والظلّ) ثمّ `lrows = []` **قبل** الإرسال · و«🎯 هنا الدخول» "
+          "يُختَم ولا يُرسَل · ودورةُ «تحرّك 30%» في الحلقة خلف المفتاح وحدَه · و`False` ⟵ المسارُ القديم بلا لقطة",
+          _XOE.XMOVE_ON is True and _xms_blk and "bot.record_tier_fwd(lrows, _today2)" in _xms_blk and "bot.save_op_entry_state(seen)" in _xms_blk
+          and "lrows = []" in _xms_blk and "send_telegram" not in _xms_blk
+          and 0 <= _xms_j0 < _xms_j1 and "rows = []" in _xms_src[_xms_j0:_xms_j1] and "send_telegram" not in _xms_src[_xms_j0:_xms_j1]
+          and _xms_k > 0 and _xms_src.count("xmove_cycle(seen, _d, _m)") == 1,
+          f"i0={_xms_i0} i1={_xms_i1} j0={_xms_j0} k={_xms_k}")
+    import trade_journal as _TJ
+    _tj_rows = [{"from_admin": True, "message_id": 5, "date": "2026-11-17T14:00:00Z", "text": "صفقة: $abcd · ١٫٢٥ · ارتداد"},
+                {"from_admin": True, "message_id": 6, "date": "2026-11-17T15:00:00Z", "text": "خروج: ABCD · 1.5"},
+                {"from_admin": True, "message_id": 8, "date": "2026-11-17T15:30:00Z", "text": "صفقة: ABCD · 2"},
+                {"from_admin": False, "message_id": 7, "date": "2026-11-17T15:10:00Z", "text": "صفقة: XX · 1"},
+                {"from_admin": True, "message_id": 9, "date": "2026-11-17T16:00:00Z", "text": "خروج: ABCD"},
+                {"from_admin": True, "message_id": 10, "date": "2026-11-17T16:10:00Z", "text": "صباح الخير"}]
+    _tj_new = _TJ.new_commands(_tj_rows, {8})
+    _tj_e = dict(_tj_new[0], state={"x30": {"px": 1.0, "ms": 1, "before_you": True}, "gold": True, "list": True})
+    _tj_cl = _TJ.pair([_tj_e, _tj_new[1], {"id": 11, "date": "2026-11-17T17:00:00Z", "kind": "exit", "sym": "ZZ", "price": 1}])
+    _tj_out = _TJ.outcome(*_tj_cl[0])
+    _tj_rep = _TJ.report([(_tj_e, _tj_new[1])] * 10, 10)
+    check("📒 TJR1 الدفتر: «صفقة: الرمز · دخول · السبب» و«خروج: الرمز · السعر» بالأرقام الهنديّة · المشرفُ وحدَه · لا تكرارَ للمعرّف · "
+          "الأمرُ الناقص «غيرُ مقروء» لا يُخمَّن · الخروجُ يُغلق أقدمَ دخولٍ لرمزه · والبوتُ = سعرُ إشعاره بخروجك نفسِه",
+          [(c["id"], c["kind"]) for c in _tj_new] == [(5, "entry"), (6, "exit"), (9, "bad")] and _tj_new[0]["price"] == 1.25
+          and _tj_new[0]["sym"] == "ABCD" and _tj_new[0]["reason"] == "ارتداد" and len(_tj_cl) == 1
+          and [(e["id"], x["id"]) for e, x in _TJ.pair([
+              {"id": 21, "date": "2026-11-17T14:00:00Z", "kind": "entry", "sym": "Q", "price": 1},
+              {"id": 22, "date": "2026-11-17T15:00:00Z", "kind": "entry", "sym": "Q", "price": 2},
+              {"id": 23, "date": "2026-11-17T16:00:00Z", "kind": "exit", "sym": "Q", "price": 3}])] == [(21, 23)]
+          and abs(_tj_out[0] - 0.2) < 1e-9 and abs(_tj_out[1] - 0.5) < 1e-9
+          and "الصفقات 1-10" in _tj_rep and "حيث نبّه البوت (10)" in _tj_rep and "وصفٌ لا حكم" in _tj_rep and _TJ.REPORT_EVERY == 10,
+          f"{_tj_new} {_tj_out}")
+    _tj_files = {"weekly_watchlist.json": json.dumps({"stocks": [{"symbol": "ABCD", "status": "active", "readiness": 70, "soft_fails": ["x"]}]}),
+                 "near_watch.json": json.dumps({"ABCD": {"readiness": 40, "outside": ["y"]}}),
+                 "tier_fwd_ledger.jsonl": "\n".join(json.dumps(r) for r in (
+                     {"date": "2026-11-17", "symbol": "ABCD", "green": 2, "j1": False, "price_ms": 10},
+                     {"date": "2026-11-17", "symbol": "ABCD", "green": 3, "j1": False, "price_ms": 900})),
+                 "shadow_tg_stamp.json": json.dumps({"last_sent": "2026-11-17", "symbols": ["ABCD"]}),
+                 "op_entry_state.json": json.dumps({"XM:ABCD": {"date": "2026-11-17", "px": 1.1, "ms": 500}})}
+    _tj_s1 = _TJ.bot_state("ABCD", "2026-11-17", 600, _tj_files)
+    _tj_s2 = _TJ.bot_state("ABCD", "2026-11-17", 1000, _tj_files)
+    check("📒 TJR2 حالةُ السهم عند البوت لحظةَ الرسالة: القائمةُ وجاهزيّتُها ونواقصُها · 🥇 بقاعدة اليوم **قبل** وقت الرسالة · الظلُّ ليومه · "
+          "وإشعارُ «تحرّك 30%» قبلك أو بعدك",
+          _tj_s1["list"] and _tj_s1["near"] and _tj_s1["readiness"] == 70 and _tj_s1["missing"] == ["x"] and _tj_s1["gold"] is False
+          and _tj_s2["gold"] is True and _tj_s1["shadow"] is True and _tj_s1["x30"]["before_you"] is True
+          and _TJ.bot_state("ABCD", "2026-11-17", 400, _tj_files)["x30"]["before_you"] is False
+          and _TJ.bot_state("ABCD", "2026-11-18", 400, _tj_files)["shadow"] is False,
+          f"{_tj_s1} {_tj_s2}")
+    _tj_wf = open(".github/workflows/telegram_collect.yml", encoding="utf-8").read()
+    _tj_doc = open("trade_journal_prereg.md", encoding="utf-8").read()
+    check("📒 TJR3 الدفترُ موصولٌ بعد الجامع (لا سحبَ ثانيًا من تلغرام) وفاشلٌ-آمن · وملفّاه يُدفَعان · والعقدُ يكتب «ما كان البوت سيفعله» قبل أيّ صفقة",
+          "python trade_journal.py || echo" in _tj_wf and _tj_wf.find("python telegram_collect.py") < _tj_wf.find("python trade_journal.py")
+          and "trade_journal.jsonl trade_journal_state.json" in _tj_wf and "getUpdates" not in open("trade_journal.py", encoding="utf-8").read()
+          and "سعرُ خروجك ÷ سعرُ إشعاره − 1" in _tj_doc and "FIFO" in _tj_doc,
+          "")
+    import telegram_collect as _TJC
+
+    def _tj_mm(chat, text, owner):
+        _r = _TJC.msg_meta({"update_id": 1}, {"message_id": 3, "date": 1791370000, "chat": {"id": chat}, "text": text},
+                           "no_media", None, ["111", "555"], owner=owner)
+        _r.pop("collected_utc", None)
+        return _r
+    _tj_o1 = _tj_mm(555, "صفقة: ABCD · ١٫٢", "555")
+    _tj_o2 = _tj_mm(555, "مرحبا يا بوت", "555")
+    _tj_o3 = _tj_mm(777, "خروج: ABCD · 2", "555")
+    _tj_o4 = _tj_mm(555, "صفقة: ABCD · 1.2", None)
+    _tj_base = _TJC.msg_meta({"update_id": 1}, {"message_id": 3, "date": 1791370000, "chat": {"id": 555}, "text": "صفقة: ABCD · 1.2"},
+                             "no_media", None, ["111", "555"])
+    _tj_base.pop("collected_utc", None)
+    _tj_oc = _TJ.new_commands([dict(_tj_o1, message_id=3, date="2026-11-17T14:00:00Z"),
+                               {"from_admin": False, "from_owner": False, "journal_cmd": "صفقة: QQ · 1", "message_id": 4},
+                               {"from_admin": False, "text": "صفقة: RR · 1", "message_id": 5}], set())
+    _tj_csrc = open("telegram_collect.py", encoding="utf-8").read()
+    _tj_wf = open(".github/workflows/telegram_collect.yml", encoding="utf-8").read()
+    _tj_step = _tj_wf.split("- name: Pull images from the Telegram bot")[-1].split("- name:")[0]
+    check("📒 TJR4 حسابُ المالك (`TELEGRAM_OWNER_ID`): أمرُ الدفتر وحدَه من حسابه يُحفظ نصُّه (`journal_cmd`) والدفترُ يقرؤه · رسائلُه الأخرى "
+          "ومستلمٌ آخرُ محجوبةٌ كما كانت · وبلا السرّ الصفُّ بت-بت · والجامعُ يمرّره في مسار النصّ والسرُّ في خطوة الجمع",
+          _tj_o1.get("from_owner") is True and _tj_o1.get("journal_cmd") == "صفقة: ABCD · ١٫٢" and "text" not in _tj_o1
+          and _tj_o1.get("redacted") is True and _tj_o1.get("from_admin") is False
+          and "journal_cmd" not in _tj_o2 and "from_owner" not in _tj_o2 and "journal_cmd" not in _tj_o3
+          and _tj_o4 == _tj_base and _TJC.owner_id("") is None and _TJC.owner_id(" 555 ") == "555"
+          and [(c["id"], c["sym"], c["price"]) for c in _tj_oc] == [(3, "ABCD", 1.2)]
+          and _tj_csrc.count("owner=owner_id()") == 1 and "TELEGRAM_OWNER_ID: ${{ secrets.TELEGRAM_OWNER_ID }}" in _tj_step,
+          f"{_tj_o1} {_tj_oc}")
+except Exception as _e:                                          # noqa: BLE001
+    check("📣 أقفالُ «تحرّك 30%» والدفتر انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+
 # 🧹 LEAK0-LEAK2 — **آخرُ الأقفال بالبناء** (‏«صلّح التسريب» 2026-09-23): اللقطةُ في
 #    رأس الملف والحكمُ هنا بعد كلّ ما سبق. 🔴 **والقفلُ الجديد يُضاف قبل هذا الفاصل
 #    لا بعده** — فحارسُ البصمات الستّ (‏«حرسٌ شامل»، سطر 21 ألف) كُتب «قبل الملخّص»

@@ -93,6 +93,16 @@ def admin_id(raw=None):
     return ids[0] if ids else None
 
 
+def owner_id(raw=None):
+    """📒 حسابُ المالك لدفتر الصفقات = السرُّ الاختياريّ `TELEGRAM_OWNER_ID` (يُقارَن ولا يُكتب) ⇒ نصٌّ أو None.
+    سببُه (2026-11-16): المالكُ مستلمٌ لا أوّلُ رقمٍ في `TELEGRAM_CHAT_ID` ⟵ رسائلُه `from_admin=false` بنصٍّ محجوب ⟵ الدفترُ أعمى."""
+    raw = os.environ.get("TELEGRAM_OWNER_ID", "") if raw is None else raw
+    return str(raw or "").strip() or None
+
+
+JOURNAL_CMD_RE = re.compile(r"^\s*(?:صفقة|خروج)\s*[:：]")     # أوامرُ الدفتر وحدَها (`trade_journal.parse_cmd`)
+
+
 def forward_meta(msg):
     """🧾 مصدرُ إعادة التوجيه **بلا هويّةٍ شخصيّة** ⇒ dict أو None (رسالةٌ غيرُ مُعادٍ توجيهُها). نقيّة.
 
@@ -172,7 +182,7 @@ def file_meta(msg, f):
     return {k: v for k, v in got.items() if v is not None}
 
 
-def msg_meta(u, msg, status, f=None, admin=None, **extra):
+def msg_meta(u, msg, status, f=None, admin=None, owner=None, **extra):
     """🧾 صفُّ بياناتٍ لرسالةٍ واحدة ⇒ dict جاهزٌ لسطر JSONL (نقيّةٌ عدا `collected_utc`).
 
     `admin` = معرّفُ المشرف · أو قائمةُ المستلمين كلِّهم (`recipient_ids` · الأوّلُ = المشرف) يُقارَن بمعرّف المحادثة **ولا
@@ -211,6 +221,10 @@ def msg_meta(u, msg, status, f=None, admin=None, **extra):
         row["forward"] = forward_public(fm)
         if from_admin is False:
             row["from_recipient"] = str(cid) in ids
+        # 📒 دفترُ الصفقات: **أمرُ الدفتر وحدَه** من حساب المالك (`owner_id`) يُحفظ نصُّه · وما سواه محجوبٌ كما كان · وبلا السرّ بت-بت
+        if owner and cid is not None and str(cid) == str(owner) and JOURNAL_CMD_RE.match(str(msg.get("text") or "")):
+            row["from_owner"] = True
+            row["journal_cmd"] = str(msg.get("text"))[:TEXT_CAP]
     row.update(extra)
     return {k: v for k, v in row.items() if v is not None or k in KEEP_NULL}
 
@@ -681,7 +695,7 @@ def main():
                 else:
                     no_media.append(int(msg.get("message_id") or 0))
                 _mrow(msg_meta(u, msg, f"dropped:{_media}" if _media else "no_media",
-                               None, adm))
+                               None, adm, owner=owner_id()))
                 marks.append((uid, True))            # نصّ ⇒ لا شيء يُفقَد
                 continue
             if f["file_id"] in seen_uid:
