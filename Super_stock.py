@@ -28370,7 +28370,7 @@ def run_performance_system(results, weekly_report_now=False):
     #       فلم تُسجَّل ملاحظةٌ لاحقةٌ واحدة منذ 2026-08-16 · `.jsonl` فيتّحد عند التعارض.
     git_save([TRACK_FILE, WATCH_FILE, COMPANY_FILE, REJECT_LOG_FILE,
               HUNTER_WATCH_FILE, NEAR_WATCH_FILE, NEAR_WATCH_FLOAT_FILE, FILL_POOL_FILE,
-              BORROW_WATCH_FILE] + list(NW_CSV_SAVED))   # 📎 أرشيفُ CSV «تحت المتابعة» (فارغٌ بـ`NW_XLSX=0` ⟵ بت-بت)
+              BORROW_WATCH_FILE, *NW_CSV_SAVED])   # 📎 أرشيفُ CSV «تحت المتابعة» (فارغٌ بـ`NW_XLSX=0` ⟵ بت-بت)
 
 
 if __name__ == "__main__":

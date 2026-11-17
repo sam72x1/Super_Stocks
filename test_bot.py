@@ -17499,9 +17499,11 @@ _c7_pins = [_l.strip() for _l in _c7_req.splitlines()
 # 🔴 **وحُدِّث عمدًا رابعةً 2026-09-29 — `websocket-client`** لمِقبس شموع TradingView (`tv_data.Chart`) بعد أمر المالك
 #    «اشتراكي مخلص ولا راح اجدده … البيانات تاخذها من ترندق فيو مب ياهو»: تُستورَد كسولةً داخل `Chart.open` فلا تحتاجها
 #    السويّة · والمجموعةُ **مطابقةٌ بالضبط** (ثامنةٌ لا «تحوي»).
-_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml", "Pillow", "websocket-client"}
+# 🔴 **وحُدِّث عمدًا خامسةً 2026-11-17 — `openpyxl`** لملفّ «تحت المتابعة» اليوميّ (أمرُ المالك · `NW_XLSX` · `NXL4` يفتح الإكسل
+#    المكتوب) · تُستورَد كسولةً داخل `near_watch_xlsx_step` وتعذّرُها ⟵ الـCSV يُكتب ويُعلَن · والمجموعةُ **مطابقةٌ بالضبط** (تاسعةٌ لا «تحوي»).
+_C7_EXPECT = {"PyYAML", "yfinance", "pandas", "numpy", "requests", "lxml", "Pillow", "websocket-client", "openpyxl"}
 _c7_names = {_l.split("==")[0].strip() for _l in _c7_pins}
-check("📌 007·الاعتمادياتُ الثماني مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
+check("📌 007·الاعتمادياتُ التسع مثبَّتةٌ بـ== ومجموعتُها مطابقةٌ بالضبط "
       "(لا ترقيةٌ صامتة ولا إضافةٌ صامتة)",
       _c7_names == _C7_EXPECT and all("==" in _l for _l in _c7_pins)
       and len(_c7_pins) == len(_C7_EXPECT),
@@ -103187,7 +103189,7 @@ try:
     check("📎 NXL4: `NW_XLSX` مطفأ ⟵ صفرُ عمل (لا ملفّ · لا إرسال · لا مسار دفع) · ومُفعَّل ⟵ CSV في أرشيفه (صفّان) يُضاف لقائمة الدفع "
           "وإكسلٌ (يمين-يسار) خارج المستودع يُرسَل مرّةً · وموصولٌ من اليوميّ والتجديد (AST) و`git_save` يحمل `NW_CSV_SAVED`",
           _off_ok and _on_ok and _nx_calls(S.run_daily_watchlist, "near_watch_xlsx_step")
-          and _nx_calls(S.run_weekly_renewal, "near_watch_xlsx_step") and "list(NW_CSV_SAVED)" in _nx_gs.split(")")[0] + ")"
+          and _nx_calls(S.run_weekly_renewal, "near_watch_xlsx_step") and "*NW_CSV_SAVED]" in _nx_gs.split(")")[0]
           and S.CONFIG.get("NW_XLSX") is True,
           f"off={_off_ok} on={_on_ok} sent={_nx_sent}")
 except Exception as _e:                                          # noqa: BLE001
