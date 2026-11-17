@@ -29,7 +29,7 @@ for _p in (HERE, REPO):
 TABLE = os.path.join(HERE, "data", "header_dates.tsv")
 APP_CARD = os.path.join(HERE, "app_card.py")
 SALT = "T-DATE-CANDLES-V2|"
-FROZEN_SHA = ""                # ⟵ بصمةُ app_card.py المجمَّد (تُكتب في PR التجميد قبل تشغيل المحجوز)
+FROZEN_SHA = "5e0e421a730836d1d50973eb9a3b89401082c6a900fd698a8d02df3fc0a2088b"                # ⟵ بصمةُ app_card.py المجمَّد (تُكتب في PR التجميد قبل تشغيل المحجوز)
 PASSED = False                 # ⟵ يصير True فقط في PR نتيجةٍ «يعبر» (§⑦)
 BUILD_MIN, HIT_MIN = 0.70, 0.85   # §⑥ نصُّ المالك
 # ── المطابقةُ على الملمح (معلماتٌ حرّة · تُضبط على المعايرة) ──────────────────────────────────────────────
