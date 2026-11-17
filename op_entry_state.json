@@ -24,19 +24,19 @@
   "date": "2026-11-17"
  },
  "LIQ:STAK": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917940000,
   "date": "2026-11-17"
  },
  "LIQ:FLNC": {
-  "last_eval_ms": 1794917220000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:NCT": {
-  "last_eval_ms": 1794914280000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:LAES": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:LFS": {
@@ -86,7 +86,7 @@
   "date": "2026-11-17"
  },
  "LIQ:SMX": {
-  "last_eval_ms": 1794916620000,
+  "last_eval_ms": 1794917940000,
   "date": "2026-11-17"
  },
  "LIQ:VIVK": {
@@ -94,7 +94,7 @@
   "date": "2026-11-17"
  },
  "LIQ:HUBC": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:ADGM": {
@@ -109,11 +109,11 @@
   "date": "2026-11-17"
  },
  "LIQ:FFAI": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:CNTB": {
-  "last_eval_ms": 1794908880000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:RIME": {
@@ -129,7 +129,7 @@
   "date": "2026-11-17"
  },
  "LIQ:CIIT": {
-  "last_eval_ms": 1794917280000,
+  "last_eval_ms": 1794917940000,
   "date": "2026-11-17"
  },
  "LIQ:FRGT": {
@@ -144,7 +144,7 @@
   "date": "2026-11-17"
  },
  "LIQ:RCON": {
-  "last_eval_ms": 1794916980000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:SBFM": {
@@ -155,7 +155,7 @@
   "date": "2026-11-17"
  },
  "LIQ:SOUN": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:UZX": {
@@ -166,7 +166,7 @@
   "date": "2026-11-17"
  },
  "LIQ:AKAN": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794916800000,
@@ -178,19 +178,19 @@
   "date": "2026-11-17"
  },
  "LIQ:BTQ": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:OPEN": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:SERV": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:UPXI": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917700000,
   "date": "2026-11-17"
  },
  "LIQ:CVRX": {
@@ -204,7 +204,7 @@
   "date": "2026-11-17"
  },
  "LIQ:PONY": {
-  "last_eval_ms": 1794917100000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:VSA": {
@@ -212,7 +212,7 @@
   "date": "2026-11-17"
  },
  "LIQ:YFOR": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794907560000,
@@ -224,35 +224,27 @@
   "date": "2026-11-17"
  },
  "LIQ:FCUV": {
-  "anchor_ms": 1794917340000,
-  "last_ms": 1794917460000,
-  "sent": [
-   "M1"
-  ],
-  "updates": 0,
-  "vol_x": 11.4,
-  "peak_usd": 31109,
-  "last_eval_ms": 1794917340000,
-  "pulse_ms": 1794917460000,
-  "anchor_price": 4.949,
-  "anchor_open": 4.66,
-  "anchor_low": 4.66,
-  "pre_done": true,
-  "pre_hi": 4.66,
-  "pre_usd": 50029,
-  "pre_n": 20,
+  "last_eval_ms": 1794918120000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794917340000,
+   "anchor_price": 4.949,
+   "anchor_low": 4.66,
+   "e5": null,
+   "exit_ms": 1794917520000
+  },
   "date": "2026-11-17"
  },
  "LIQ:TRUG": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:IVVD": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:ORBS": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:TLRY": {
@@ -274,11 +266,11 @@
   "date": "2026-11-17"
  },
  "LIQ:OPNW": {
-  "last_eval_ms": 1794916200000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:RETO": {
-  "last_eval_ms": 1794916440000,
+  "last_eval_ms": 1794917940000,
   "date": "2026-11-17"
  },
  "LIQ:TGL": {
@@ -294,11 +286,11 @@
   "date": "2026-11-17"
  },
  "LIQ:AREC": {
-  "last_eval_ms": 1794917100000,
+  "last_eval_ms": 1794917640000,
   "date": "2026-11-17"
  },
  "LIQ:SHFS": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794908220000,
@@ -310,11 +302,11 @@
   "date": "2026-11-17"
  },
  "LIQ:SIDU": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917880000,
   "date": "2026-11-17"
  },
  "LIQ:SLNH": {
-  "last_eval_ms": 1794917340000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:VERI": {
@@ -322,11 +314,11 @@
   "date": "2026-11-17"
  },
  "LIQ:WBUY": {
-  "last_eval_ms": 1794917340000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:ZENA": {
-  "last_eval_ms": 1794916620000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:ASPI": {
@@ -345,7 +337,7 @@
  },
  "LIQ:BNAI": {
   "anchor_ms": 1794913920000,
-  "last_ms": 1794917460000,
+  "last_ms": 1794918120000,
   "sent": [
    "M1",
    "M5",
@@ -355,7 +347,7 @@
   "vol_x": 9.9,
   "peak_usd": 136418,
   "last_eval_ms": 1794913920000,
-  "pulse_ms": 1794917460000,
+  "pulse_ms": 1794918120000,
   "anchor_price": 2.75,
   "anchor_open": 1.4,
   "anchor_low": 1.35,
@@ -380,7 +372,7 @@
  },
  "LIQ:GP": {
   "anchor_ms": 1794906480000,
-  "last_ms": 1794917460000,
+  "last_ms": 1794918120000,
   "sent": [
    "M1",
    "M5",
@@ -390,7 +382,7 @@
   "vol_x": 22.1,
   "peak_usd": 6099109,
   "last_eval_ms": 1794906540000,
-  "pulse_ms": 1794917460000,
+  "pulse_ms": 1794918120000,
   "anchor_price": 1.865,
   "anchor_open": 1.6816,
   "anchor_low": 1.6816,
@@ -419,7 +411,7 @@
   "date": "2026-11-17"
  },
  "LIQ:RANI": {
-  "last_eval_ms": 1794916860000,
+  "last_eval_ms": 1794917760000,
   "date": "2026-11-17"
  },
  "LIQ:BTCS": {
@@ -427,14 +419,14 @@
   "date": "2026-11-16"
  },
  "LIQ:DFNS": {
-  "last_eval_ms": 1794917160000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:RKTO": {
   "date": "2026-11-17"
  },
  "LIQ:POLA": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794914160000,
@@ -450,11 +442,11 @@
   "date": "2026-11-16"
  },
  "LIQ:FGL": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:CODX": {
-  "last_eval_ms": 1794916800000,
+  "last_eval_ms": 1794917640000,
   "date": "2026-11-17"
  },
  "LIQ:FTHM": {
@@ -462,7 +454,7 @@
   "date": "2026-11-16"
  },
  "LIQ:SMTK": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794916800000,
@@ -487,11 +479,11 @@
   "date": "2026-11-17"
  },
  "LIQ:NXH": {
-  "last_eval_ms": 1794916980000,
+  "last_eval_ms": 1794917940000,
   "date": "2026-11-17"
  },
  "LIQ:BAER": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:NCI": {
@@ -522,6 +514,7 @@
   "date": "2026-11-17"
  },
  "LIQ:ZNB": {
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:WVE": {
@@ -541,7 +534,7 @@
   "date": "2026-11-16"
  },
  "LIQ:MIST": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917760000,
   "date": "2026-11-17"
  },
  "LIQ:AIFC": {
@@ -556,7 +549,7 @@
   "date": "2026-11-17"
  },
  "LIQ:ZBAO": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:APVO": {
@@ -571,7 +564,7 @@
   "date": "2026-11-16"
  },
  "LIQ:BDMD": {
-  "last_eval_ms": 1794917340000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:BRAI": {
@@ -653,19 +646,19 @@
   "date": "2026-11-16"
  },
  "LIQ:CSAI": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:MEDS": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:DBGI": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:NWGL": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:JZXN": {
@@ -687,17 +680,18 @@
   "date": "2026-11-17"
  },
  "LIQ:HUHU": {
-  "last_eval_ms": 1794917100000,
+  "last_eval_ms": 1794917940000,
   "date": "2026-11-17"
  },
  "LIQ:BLDP": {
   "date": "2026-11-17"
  },
  "LIQ:PUSA": {
+  "last_eval_ms": 1794917640000,
   "date": "2026-11-17"
  },
  "LIQ:RR": {
-  "last_eval_ms": 1794917040000,
+  "last_eval_ms": 1794917760000,
   "date": "2026-11-17"
  },
  "LIQ:SONM": {
@@ -720,7 +714,7 @@
   "date": "2026-11-17"
  },
  "LIQ:RCAT": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:CYAB": {
@@ -728,7 +722,7 @@
   "date": "2026-11-17"
  },
  "LIQ:LABT": {
-  "last_eval_ms": 1794917220000,
+  "last_eval_ms": 1794917760000,
   "date": "2026-11-17"
  },
  "LIQ:CAPS": {
@@ -747,7 +741,7 @@
   "date": "2026-11-17"
  },
  "LIQ:SAFX": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:WLDS": {
@@ -770,7 +764,7 @@
   "date": "2026-11-17"
  },
  "LIQ:VWAV": {
-  "last_eval_ms": 1794916800000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:OWLS": {
@@ -778,7 +772,7 @@
   "date": "2026-11-16"
  },
  "LIQ:CENN": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917880000,
   "date": "2026-11-17"
  },
  "LIQ:SCNI": {
@@ -847,19 +841,19 @@
   "date": "2026-11-17"
  },
  "LIQ:PMAX": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:CJMB": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:TDIC": {
-  "last_eval_ms": 1794916200000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:AUUD": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:SKYX": {
@@ -881,7 +875,7 @@
   "date": "2026-11-16"
  },
  "LIQ:BTCT": {
-  "last_eval_ms": 1794915300000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:VRM": {
@@ -923,7 +917,7 @@
   "date": "2026-11-16"
  },
  "LIQ:XXII": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:WIMI": {
@@ -937,10 +931,11 @@
   "date": "2026-11-17"
  },
  "LIQ:SXTC": {
+  "last_eval_ms": 1794917700000,
   "date": "2026-11-17"
  },
  "LIQ:DOGZ": {
-  "last_eval_ms": 1794916980000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:ZCMD": {
@@ -968,7 +963,7 @@
  },
  "LIQ:LICN": {
   "anchor_ms": 1794911760000,
-  "last_ms": 1794917460000,
+  "last_ms": 1794918120000,
   "sent": [
    "M1",
    "M5"
@@ -977,7 +972,7 @@
   "vol_x": 3.2,
   "peak_usd": 149874,
   "last_eval_ms": 1794911760000,
-  "pulse_ms": 1794917460000,
+  "pulse_ms": 1794918120000,
   "anchor_price": 0.0319,
   "anchor_open": 0.028,
   "anchor_low": 0.028,
@@ -1015,11 +1010,11 @@
   "date": "2026-11-16"
  },
  "LIQ:SDA": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:ONFO": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794906960000,
@@ -1083,7 +1078,7 @@
   "date": "2026-11-16"
  },
  "LIQ:XLAB": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:IMNN": {
@@ -1135,15 +1130,23 @@
   "date": "2026-11-16"
  },
  "LIQ:CHSN": {
-  "last_eval_ms": 1794917280000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:WHLR": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
+  "rearm_n": 1,
+  "rearm_prev": {
+   "anchor_ms": 1794917640000,
+   "anchor_price": 0.5285,
+   "anchor_low": 0.4713,
+   "e5": null,
+   "exit_ms": 1794917760000
+  },
   "date": "2026-11-17"
  },
  "LIQ:GDHG": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:KALA": {
@@ -1203,11 +1206,11 @@
   "date": "2026-11-17"
  },
  "LIQ:ABTC": {
-  "last_eval_ms": 1794916980000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:KEEL": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:GANX": {
@@ -1240,7 +1243,7 @@
   "date": "2026-11-16"
  },
  "LIQ:CELZ": {
-  "last_eval_ms": 1794916800000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:IMSR": {
@@ -1258,7 +1261,7 @@
   "date": "2026-11-16"
  },
  "LIQ:CRDF": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:PBM": {
@@ -1274,7 +1277,7 @@
   "date": "2026-11-16"
  },
  "LIQ:SKYQ": {
-  "last_eval_ms": 1794917100000,
+  "last_eval_ms": 1794917520000,
   "date": "2026-11-17"
  },
  "LIQ:SEGG": {
@@ -1285,7 +1288,7 @@
   "date": "2026-11-17"
  },
  "LIQ:AAOI": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:BRUN": {
@@ -1293,7 +1296,7 @@
   "date": "2026-11-17"
  },
  "LIQ:BTBT": {
-  "last_eval_ms": 1794917100000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:SGML": {
@@ -1320,15 +1323,14 @@
   "date": "2026-11-17"
  },
  "LIQ:ALLO": {
-  "last_eval_ms": 1794865740000,
-  "date": "2026-11-16"
+  "date": "2026-11-17"
  },
  "LIQ:LGHL": {
   "last_eval_ms": 1794908520000,
   "date": "2026-11-17"
  },
  "LIQ:CRIS": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:DFSC": {
@@ -1336,7 +1338,7 @@
   "date": "2026-11-16"
  },
  "LIQ:ALOY": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:SNWV": {
@@ -1381,18 +1383,18 @@
   "date": "2026-11-16"
  },
  "LIQ:VELO": {
-  "last_eval_ms": 1794916980000,
+  "last_eval_ms": 1794917880000,
   "date": "2026-11-17"
  },
  "LIQ:BMEA": {
   "date": "2026-11-17"
  },
  "LIQ:USAR": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:WFF": {
-  "last_eval_ms": 1794917340000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:ABTS": {
@@ -1400,7 +1402,7 @@
   "date": "2026-11-16"
  },
  "LIQ:XNDU": {
-  "last_eval_ms": 1794917340000,
+  "last_eval_ms": 1794917880000,
   "date": "2026-11-17"
  },
  "LIQ:TNMG": {
@@ -1415,7 +1417,7 @@
   "date": "2026-11-16"
  },
  "LIQ:ACXP": {
-  "last_eval_ms": 1794917100000,
+  "last_eval_ms": 1794917760000,
   "date": "2026-11-17"
  },
  "LIQ:MGRX": {
@@ -1443,7 +1445,7 @@
   "date": "2026-11-16"
  },
  "LIQ:QCLS": {
-  "last_eval_ms": 1794916800000,
+  "last_eval_ms": 1794917880000,
   "date": "2026-11-17"
  },
  "LIQ:RMCF": {
@@ -1481,7 +1483,7 @@
   "date": "2026-11-17"
  },
  "LIQ:RZLV": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:GSIT": {
@@ -1496,7 +1498,7 @@
   "date": "2026-11-17"
  },
  "LIQ:ENVX": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:FABC": {
@@ -1504,15 +1506,15 @@
   "date": "2026-11-16"
  },
  "LIQ:ELPW": {
-  "last_eval_ms": 1794917220000,
+  "last_eval_ms": 1794917880000,
   "date": "2026-11-17"
  },
  "LIQ:LWLG": {
-  "last_eval_ms": 1794916980000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:HTZ": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:ALAR": {
@@ -1522,10 +1524,11 @@
   "date": "2026-11-17"
  },
  "LIQ:AGMH": {
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:CRML": {
-  "last_eval_ms": 1794917280000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:AIXI": {
@@ -1601,7 +1604,7 @@
   "date": "2026-11-17"
  },
  "LIQ:OMH": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:ONCO": {
@@ -1617,11 +1620,11 @@
   "date": "2026-11-16"
  },
  "LIQ:WORX": {
-  "last_eval_ms": 1794910560000,
+  "last_eval_ms": 1794917940000,
   "date": "2026-11-17"
  },
  "LIQ:CAPR": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917880000,
   "date": "2026-11-17"
  },
  "LIQ:FMST": {
@@ -1631,7 +1634,7 @@
   "date": "2026-11-17"
  },
  "LIQ:EMAT": {
-  "last_eval_ms": 1794916680000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:PRFX": {
@@ -1647,7 +1650,7 @@
   "date": "2026-11-17"
  },
  "LIQ:BMGL": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:VEEA": {
@@ -1700,8 +1703,7 @@
   "date": "2026-11-16"
  },
  "LIQ:FRMM": {
-  "last_eval_ms": 1794865260000,
-  "date": "2026-11-16"
+  "date": "2026-11-17"
  },
  "LIQ:QNTM": {
   "last_eval_ms": 1794862680000,
@@ -1754,7 +1756,7 @@
   "date": "2026-11-16"
  },
  "LIQ:RAIN": {
-  "last_eval_ms": 1794916860000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:RYET": {
@@ -1770,7 +1772,7 @@
   "date": "2026-11-17"
  },
  "LIQ:SLDP": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:MTRI": {
@@ -1819,7 +1821,7 @@
  "CJMB": "2026-11-16",
  "MKDW": "2026-11-16",
  "LIQ:ZURA": {
-  "last_eval_ms": 1794914820000,
+  "last_eval_ms": 1794917760000,
   "date": "2026-11-17"
  },
  "LIQ:LIDR": {
@@ -1876,12 +1878,12 @@
  "LICN": "2026-11-16",
  "SRTM": "2026-11-16",
  "LIQ:ENGS": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "SCKT": "2026-11-16",
  "LIQ:BYAH": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917580000,
   "date": "2026-11-17"
  },
  "LIQ:RTB": {
@@ -1924,21 +1926,21 @@
   "date": "2026-11-16"
  },
  "LIQ:ALT": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917520000,
   "date": "2026-11-17"
  },
  "LIQ:GILT": {
   "date": "2026-11-17"
  },
  "LIQ:IREN": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:ASTI": {
   "date": "2026-11-17"
  },
  "LIQ:CRMN": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917940000,
   "date": "2026-11-17"
  },
  "LIQ:XRX": {
@@ -2039,7 +2041,7 @@
  "SGLY": "2026-11-16",
  "PRE:2026-11-16:PM": "2026-11-16T08:50:26.532612+00:00",
  "LIQ:FRMI": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:RMIX": {
@@ -2047,15 +2049,15 @@
   "date": "2026-11-16"
  },
  "LIQ:BTDR": {
-  "last_eval_ms": 1794916980000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:SPWR": {
-  "last_eval_ms": 1794917100000,
+  "last_eval_ms": 1794917760000,
   "date": "2026-11-17"
  },
  "LIQ:FNGR": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794907980000,
@@ -2067,11 +2069,11 @@
   "date": "2026-11-17"
  },
  "LIQ:DJT": {
-  "last_eval_ms": 1794917220000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:HYMC": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917520000,
   "date": "2026-11-17"
  },
  "LIQ:YXT": {
@@ -2085,11 +2087,11 @@
   "date": "2026-11-17"
  },
  "LIQ:PLUG": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:QS": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:NMAD": {
@@ -2107,7 +2109,7 @@
   "date": "2026-11-17"
  },
  "LIQ:DPU": {
-  "last_eval_ms": 1794916680000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:INTZ": {
@@ -2121,7 +2123,7 @@
   "date": "2026-11-17"
  },
  "LIQ:SATL": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:CNSP": {
@@ -2129,10 +2131,11 @@
   "date": "2026-11-16"
  },
  "LIQ:MRAM": {
+  "last_eval_ms": 1794917940000,
   "date": "2026-11-17"
  },
  "LIQ:PEPG": {
-  "last_eval_ms": 1794917220000,
+  "last_eval_ms": 1794917880000,
   "date": "2026-11-17"
  },
  "LIQ:INVZ": {
@@ -2140,6 +2143,7 @@
  },
  "ALDX": "2026-11-16",
  "LIQ:PBK": {
+  "last_eval_ms": 1794917760000,
   "date": "2026-11-17"
  },
  "LIQ:OLOX": {
@@ -2191,7 +2195,7 @@
  },
  "GOVX": "2026-11-16",
  "LIQ:GFAI": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:WKHS": {
@@ -2566,7 +2570,7 @@
   "gold": false
  },
  "LIQ:IOVA": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "XM:ONFO": {
@@ -2616,6 +2620,7 @@
   "gold": false
  },
  "LIQ:PICS": {
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:RENT": {
@@ -2628,32 +2633,32 @@
   "date": "2026-11-17"
  },
  "LIQ:GMM": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:SLMT": {
   "date": "2026-11-17"
  },
  "LIQ:SNAL": {
-  "last_eval_ms": 1794910380000,
+  "last_eval_ms": 1794917700000,
   "date": "2026-11-17"
  },
  "LIQ:TURB": {
   "date": "2026-11-17"
  },
  "LIQ:YMT": {
-  "last_eval_ms": 1794916500000,
+  "last_eval_ms": 1794917640000,
   "date": "2026-11-17"
  },
  "LIQ:JDZG": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:FLD": {
   "date": "2026-11-17"
  },
  "LIQ:DGXX": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794917820000,
   "date": "2026-11-17"
  },
  "LIQ:GRRR": {
@@ -2664,19 +2669,19 @@
   "date": "2026-11-17"
  },
  "LIQ:NVTS": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:POET": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:QBTS": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:SGRX": {
-  "last_eval_ms": 1794916500000,
+  "last_eval_ms": 1794917880000,
   "date": "2026-11-17"
  },
  "LIQ:TMC": {
@@ -2695,21 +2700,22 @@
   "date": "2026-11-17"
  },
  "LIQ:ASTS": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:DAIC": {
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:RNTX": {
   "date": "2026-11-17"
  },
  "LIQ:FCEL": {
-  "last_eval_ms": 1794917220000,
+  "last_eval_ms": 1794917580000,
   "date": "2026-11-17"
  },
  "LIQ:VVOS": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794917940000,
   "date": "2026-11-17"
  },
  "LIQ:OSS": {
@@ -2717,7 +2723,7 @@
   "date": "2026-11-17"
  },
  "LIQ:STRL": {
-  "last_eval_ms": 1794916800000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:SNGX": {
@@ -2728,7 +2734,7 @@
   "date": "2026-11-17"
  },
  "LIQ:EOSE": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:GELS": {
@@ -2739,7 +2745,7 @@
   "date": "2026-11-17"
  },
  "LIQ:CAN": {
-  "last_eval_ms": 1794917340000,
+  "last_eval_ms": 1794917760000,
   "date": "2026-11-17"
  },
  "LIQ:JBDI": {
@@ -2777,7 +2783,7 @@
   "date": "2026-11-17"
  },
  "LIQ:HIVE": {
-  "last_eval_ms": 1794917280000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:KITT": {
@@ -2788,7 +2794,7 @@
   "date": "2026-11-17"
  },
  "LIQ:SSII": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:TROO": {
@@ -2799,14 +2805,14 @@
   "date": "2026-11-17"
  },
  "LIQ:SDOT": {
-  "last_eval_ms": 1794910440000,
+  "last_eval_ms": 1794918060000,
   "date": "2026-11-17"
  },
  "LIQ:SXTP": {
   "date": "2026-11-17"
  },
  "LIQ:AZI": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794918120000,
   "rearm_n": 1,
   "rearm_prev": {
    "anchor_ms": 1794915120000,
@@ -2818,11 +2824,11 @@
   "date": "2026-11-17"
  },
  "LIQ:INOD": {
-  "last_eval_ms": 1794916380000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:LASE": {
-  "last_eval_ms": 1794917400000,
+  "last_eval_ms": 1794918000000,
   "date": "2026-11-17"
  },
  "LIQ:MBOT": {
@@ -2833,7 +2839,7 @@
   "date": "2026-11-17"
  },
  "LIQ:USDE": {
-  "last_eval_ms": 1794917340000,
+  "last_eval_ms": 1794917520000,
   "date": "2026-11-17"
  },
  "LIQ:BEEM": {
@@ -2885,7 +2891,7 @@
   "date": "2026-11-17"
  },
  "LIQ:GRML": {
-  "last_eval_ms": 1794917040000,
+  "last_eval_ms": 1794918120000,
   "date": "2026-11-17"
  },
  "LIQ:CLLS": {
@@ -2904,7 +2910,7 @@
   "date": "2026-11-17"
  },
  "LIQ:AIRS": {
-  "last_eval_ms": 1794917460000,
+  "last_eval_ms": 1794917880000,
   "date": "2026-11-17"
  },
  "LIQ:INBS": {
@@ -2935,7 +2941,7 @@
   "date": "2026-11-17"
  },
  "LIQ:WW": {
-  "last_eval_ms": 1794917340000,
+  "last_eval_ms": 1794917700000,
   "date": "2026-11-17"
  },
  "XM:BRFH": {
@@ -2951,5 +2957,18 @@
   "px": 0.5001,
   "pct": 0.2471,
   "gold": false
+ },
+ "LIQ:EHTH": {
+  "date": "2026-11-17"
+ },
+ "LIQ:CSHR": {
+  "date": "2026-11-17"
+ },
+ "VVOS": "2026-11-17",
+ "LIQ:BDRX": {
+  "date": "2026-11-17"
+ },
+ "LIQ:MPLT": {
+  "date": "2026-11-17"
  }
 }
