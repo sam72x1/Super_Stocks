@@ -102827,9 +102827,11 @@ except Exception as _e:                                          # noqa: BLE001
 
 # 📗 NQB1-NQB2 — `T-BOOK` وبروتوكولُ الفلتر المشترك (المعلّقات ②-1 · العقدان قبل أيّ رقم).
 try:
-    _sys.path.insert(0, _os_hc.path.join("fm_forensics", "nawaqis"))
-    import tbook as _NQB
-    import filter_core as _NQF
+    import importlib.util as _nqb_iu
+    _nqb_spec = _nqb_iu.spec_from_file_location("tbook", _os_hc.path.join("fm_forensics", "nawaqis", "tbook.py"))
+    _NQB = _nqb_iu.module_from_spec(_nqb_spec)
+    _nqb_spec.loader.exec_module(_NQB)
+    _NQF = _NQB.FC
     _nqb_m = _NQB.book_metrics([(1.0, 1000), (1.04, 12_000), (1.2, 99_999), (0.96, 500), (0.94, 50_000)], 1.0, 1_000_000)
     _nqb_lo = _NQB.book_metrics([(1.0, 12_000)], 1.0)
     _nqb_none = _NQB.book_metrics([(2.0, 50_000)], 1.0)
