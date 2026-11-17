@@ -102965,7 +102965,7 @@ try:
           and _NQS.level_of(_nqs2_h[:9], _nqs2_S) is None,
           f"{_NQS.level_of(_nqs2_h, _nqs2_S)} · {_nqs2_tb}")
 except Exception as _e:                                          # noqa: BLE001
-    check("🪜 NQS2 انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+    check("🪜 قفلُ المستوى المختبر (قاموسٌ لا رقم) انهار قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
 # 📱🕯️📅 DV21-DV24 — T-DATE-CANDLES v2 (المعلّقات ②-7 · `T_DATE_CANDLES_ADDENDUM_6.md`): القسمة · الحاكم · البوّابات · المطابقة.
 try:
