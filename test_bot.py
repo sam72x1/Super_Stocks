@@ -101697,7 +101697,7 @@ try:
     _cells = _MM.cell_diffs(_ours, _MM.MOMO)
     _sc = _MM.score(_cells)
     _gt = (_MM.gate([30.0, 45.0]), _MM.gate([30.0001, 45.0]), _MM.gate([None, 12.0]), _MM.gate([None, None]))
-    _env0 = {k: v for k, v in _mm_os.environ.items() if k != "POLYGON_API_KEY"}
+    _env0 = {k: v for k, v in _mm_os.environ.items() if k != "POLYGON_API_KEY"} | {"MOMO_REOPEN": "1"}
     _rc = lambda m: _mm_spr.run([_mm_sys.executable, "fm_forensics/tblock/momo.py", "--mode", m], env=_env0, capture_output=True,
                                 text=True, timeout=120).returncode
     _rcs = (_rc("check"), _rc("run"))
@@ -101739,7 +101739,7 @@ try:
     _cuts = (_M19.cut_by_volume(_t, 300), _M19.cut_by_volume(_t, 301), _M19.cut_by_volume(_t, 5000))
     _gates = (_M19.gate_any({("R-Q", "all"): 31.0, ("R-T", "cond"): 30.0}), _M19.gate_any({("R-Q", "all"): 25.0, ("R-T", "cond"): 25.0}),
               _M19.gate_any({("R-Q", "all"): 30.0001}), _M19.gate_any({("R-Q", "all"): None}))
-    _env = {k: v for k, v in _c19_os.environ.items() if k != "POLYGON_API_KEY"}
+    _env = {k: v for k, v in _c19_os.environ.items() if k != "POLYGON_API_KEY"} | {"MOMO_REOPEN": "1"}
     _rc3 = _c19_sp.run([_c19_sys.executable, "fm_forensics/tblock/momo.py", "--mode", "cut"], env=_env, capture_output=True, text=True,
                        timeout=120).returncode
     _td = _c19_tf.mkdtemp()
@@ -101790,7 +101790,7 @@ try:
     _cells_n = lambda pct: {("S%d" % k, "buy"): (0, 20000, pct, True) for k in range(4)}
     _g4 = (_M20.gate4(_cells_n(30.0)), _M20.gate4(_cells_n(30.0001)),
            _M20.gate4({("S", "buy"): (0, 20000, 5.0, True), ("S", "sell"): (0, 900, 500.0, False)}))
-    _env = {k: v for k, v in _c20_os.environ.items() if k != "POLYGON_API_KEY"}
+    _env = {k: v for k, v in _c20_os.environ.items() if k != "POLYGON_API_KEY"} | {"MOMO_REOPEN": "1"}
     _rc7 = _c20_sp.run([_c20_sys.executable, "fm_forensics/tblock/momo.py", "--mode", "set"], env=_env, capture_output=True, text=True,
                        timeout=120).returncode if not _c20_os.path.exists(_M20.SET_FILE) else 7
     _c20_sh.copy("fm_forensics/tblock/momo.py", _td)
@@ -102976,6 +102976,23 @@ try:
           str(_nqh2_c[("4", "2023")]))
 except Exception as _e:                                          # noqa: BLE001
     check("📗⏱️ أقفالُ الاستثناءين الأخيرين انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
+# 🔒 MOC1 — «اقفل كمية التجميع» (أمرُ المالك 2026-11-17): momo.py ‏run/cut/set تخرج 8 بلا MOMO_REOPEN=1 حرفيًّا · وcheck مفتوح (0).
+try:
+    import importlib.util as _moc_iu, subprocess as _moc_sp, sys as _moc_sys, os as _moc_os
+    _moc_s = _moc_iu.spec_from_file_location("momo_moc1", "fm_forensics/tblock/momo.py")
+    _MOC = _moc_iu.module_from_spec(_moc_s); _moc_s.loader.exec_module(_MOC)
+    _moc_env = {k: v for k, v in _moc_os.environ.items() if k not in ("POLYGON_API_KEY", "MOMO_REOPEN")}
+    _moc_rc = lambda m, e: _moc_sp.run([_moc_sys.executable, "fm_forensics/tblock/momo.py", "--mode", m], env=e, capture_output=True,
+                                       text=True, timeout=120).returncode
+    _moc_v = (_moc_rc("run", _moc_env), _moc_rc("cut", _moc_env), _moc_rc("set", _moc_env), _moc_rc("check", _moc_env),
+              _moc_rc("run", _moc_env | {"MOMO_REOPEN": "0"}), _moc_rc("run", _moc_env | {"MOMO_REOPEN": "1"}),
+              _MOC.CLOSED, _MOC.blocked({}, True), _MOC.blocked({"MOMO_REOPEN": "1"}, True), _MOC.blocked({"MOMO_REOPEN": "yes"}, True),
+              _MOC.blocked({}, False))
+except Exception as _e:                                          # noqa: BLE001
+    _moc_v = f"⛔ {type(_e).__name__}: {_e}"
+check("🔒 MOC1 كميةُ التجميع مُغلَقةٌ مُنفَّذًا: run/cut/set ⟵ 8 بلا MOMO_REOPEN=1 (و«0» يبقى 8) · وبالإقرار run بلا مفتاح ⟵ 3 · وcheck ⟵ 0",
+      _moc_v == (8, 8, 8, 0, 8, 3, True, True, False, True, False), str(_moc_v)[:200])
 
 # 🪜 NQS2 — عطلٌ مُثبَت 2026-11-17 (`44070973064`): `tested_level` يُرجع {"level","touches"} فـ`float(L)` رمى في الشرائح الأربعين
 #    ⟵ المستوى يمرّ بـ`filter_core.level_value` في `support2.level_of` و`tbook.level_at` (سلوكيًّا بجذعٍ يُرجع القاموسَ نفسَه).
