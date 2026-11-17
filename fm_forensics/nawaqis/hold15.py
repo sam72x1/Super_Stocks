@@ -3,6 +3,7 @@
 
   shard <k> --dir D     — أيّامُ الشريحة k من 40 (2023-2025): المرشّحون ⟵ `xmove_fire` بالاسم ⟵ H15 وC0 وCR بالأذرع الثلاثة.
   assemble --dir D      — الحكمُ بالأضعف ⟵ `T_HOLD15_RESULT.md`.
+  c0all --dir D         — تذييلُ تصحيح القراءة (أمرُ المالك 2026-11-17): C0 على **كلّ** الإشعارات من الشرائح نفسِها بلا جلب ⟵ وصفٌ لا حكم.
 🔒 محورُ الخروج مُغلَق: تخرج 8 ما لم يكن `TRAIL_REOPEN == "1"` (إقرارُ المالك لهذه القراءة وحدَها). قراءةٌ فقط · لا تلغرام · لا إنتاج.
 الأسعارُ **خامٌ** كلُّها (الدقائقُ والإغلاقُ اليوميّ) ⟵ يومٌ نُفّذ فيه تقسيمٌ يُتخطّى ويُعَدّ.
 """
@@ -183,6 +184,38 @@ def evaluate(recs, boot_mean):
     return cells, verdict
 
 
+def c0_all_cells(recs, boot_mean):
+    """(نقيّة) لكلّ وقفٍ وسنة: C0 على كلّ الإشعارات (بلا شرط الصمود) مقابل C0 على صفقات H15 وحدَها ⟵ وصفٌ لا حكم."""
+    out = {}
+    for s in STOPS:
+        tag = f"{int(s * 100)}"
+        for y in FC.YEARS:
+            allr = [(r["sym"], r[f"C0_{tag}"]) for r in recs if r["y"] == y and r.get(f"C0_{tag}") is not None]
+            okr = [r[f"C0_{tag}"] for r in recs if r["y"] == y and r.get(f"C0_{tag}") is not None and r.get(f"H_{tag}") is not None]
+            out[(tag, y)] = {"n": len(allr), "c0": FC._mean([v for _s, v in allr]), "ci": boot_mean(allr) if len(allr) >= 2 else None,
+                             "n_ok": len(okr), "c0_ok": FC._mean(okr)}
+    return out
+
+
+def mode_c0all(d_in):
+    B = FC._basket()
+    paths = sorted(glob.glob(os.path.join(d_in, "**", "hold15_shard_*.json.gz"), recursive=True))
+    if len(paths) != FC.NSHARDS:
+        log(f"⛔ شرائحُ T-HOLD15 {len(paths)} لا {FC.NSHARDS} — خروج 5")
+        return RC_POP
+    recs = []
+    for p in paths:
+        with gzip.open(p, "rt", encoding="utf-8") as fh:
+            recs += json.load(fh)["recs"]
+    cells = c0_all_cells(recs, B.boot_mean)
+    L = ["| الوقف | السنة | الإشعارات | C0 على الكلّ | فاصل | صفقاتُ H15 | C0 على الصامدة وحدَها |", "|---|---|---|---|---|---|---|"]
+    for (tag, y), c in sorted(cells.items(), key=lambda kv: (int(kv[0][0]), kv[0][1])):
+        L.append(f"| −{tag}% | {y} | {c['n']} | {FC.pct(c['c0'])} | {FC.ci_txt(c['ci'])} | {c['n_ok']} | {FC.pct(c['c0_ok'])} |")
+    print("\n".join(L))
+    log(f"📊 C0 على الكلّ: إشعارات {len(recs)} · وصفٌ لا حكم")
+    return RC_OK
+
+
 def mode_assemble(d_in):
     B = FC._basket()
     paths = sorted(glob.glob(os.path.join(d_in, "**", "hold15_shard_*.json.gz"), recursive=True))
@@ -224,6 +257,8 @@ def main(argv=None):
     d_in = argv[argv.index("--dir") + 1] if "--dir" in argv else "nq_in"
     if mode == "assemble":
         return mode_assemble(d_in)
+    if mode == "c0all":
+        return mode_c0all(d_in)
     key = (os.environ.get("POLYGON_API_KEY") or "").strip()
     if not key:
         log("⛔ بلا مفتاح Polygon — خروج 2")

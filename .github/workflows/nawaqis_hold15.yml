@@ -13,13 +13,42 @@ on:
         description: "إقرارُ المالك لهذه القراءة وحدَها: 1 (وإلّا خروج 8)"
         required: true
         default: "0"
+      mode:
+        description: "full (الشرائح ⟵ الحكم) · c0all (تذييلُ C0 على كلّ الإشعارات من شرائح 44073484594 · وصفٌ لا حكم)"
+        required: true
+        default: "full"
 
 concurrency:
   group: super-stocks-nawaqis-hold15
   cancel-in-progress: false
 
 jobs:
+  c0all:
+    if: inputs.mode == 'c0all'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"      # 🔒 PYV1
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: 📥 شرائحُ T-HOLD15 (التشغيلة الحاكمة · بلا جلب جديد)
+        uses: actions/download-artifact@v4
+        with:
+          pattern: hold15-shard-*
+          path: nq_in
+          run-id: 44073484594
+          github-token: ${{ github.token }}
+      - name: 📊 C0 على كلّ الإشعارات
+        env:
+          PYTHONUNBUFFERED: "1"
+          TRAIL_REOPEN: ${{ inputs.trail_reopen }}
+        run: python fm_forensics/nawaqis/hold15.py c0all --dir nq_in
+
   shard:
+    if: inputs.mode == 'full'
     runs-on: ubuntu-latest
     timeout-minutes: 330
     strategy:
@@ -62,6 +91,7 @@ jobs:
 
   assemble:
     needs: shard
+    if: inputs.mode == 'full'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:

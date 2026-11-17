@@ -3,6 +3,7 @@
 
 الأوضاع:
   gate                  — بوّابةُ وحدات الحجم على شاهدَي فيصل (THH 18,440 @1.29 · EHGO 8,113 @1.68 · 11-02…11-06) ⟵ خروج 0 تعبر · 12 لا تعبر.
+  gate2                 — بوّابةُ «الوجود» (الملحق 1): تحديثٌ واحدٌ على الأقلّ عند السعر بحجمٍ ضمن ±10% من الشاهد ⟵ 0 تعبر · 12 لا تعبر.
   shard <k> --dir D     — لإدخالات CURRENT من شرائح T-BASKET تحت D (رموزُ الشريحة k من 40 بالترتيب): المستوى ⟵ الاقتباسات ⟵ الإشارة.
   assemble --dir D      — الإشارات ‏+ الشرائح ⟵ الحكم ⟵ `T_BOOK_RESULT.md` (بحرف FILTER_PROTOCOL).
 قراءةٌ فقط · لا تلغرام · لا إنتاج · لا CONFIG.
@@ -30,7 +31,11 @@ CONTRACT = os.path.join(HERE, "T_BOOK_prereg.md")
 CONTRACT_SHA = "78944409f4b966330085b5e8274d822cc684125f19f7bac456ee3ce425a5b11d"
 PROTOCOL_SHA = "9887a99f0dee4308ca336812bcc154403f0e9985ef3b3f4690b95d065c59735f"
 OUT = os.path.join(HERE, "out")
-RESULT = os.path.join(HERE, "T_BOOK_RESULT.md")
+RESULT = os.path.join(HERE, "T_BOOK_ADDENDUM_1_RESULT.md")    # الملحق 1 §② (البوّابةُ الأولى توقّفت ونتيجتُها T_BOOK_RESULT.md)
+ADDENDUM = os.path.join(HERE, "T_BOOK_ADDENDUM_1.md")
+ADDENDUM_SHA = "4b176987c0a94737e1fbafb339d111413baae95cce9c028f114c79641db7afa2"
+REOPEN_ENV = "TBOOK_REOPEN"
+CLOSED = False                                                   # الملحق 1 §②: تُقلب True إن سقطت بوّابةُ «الوجود» ⟵ خروج 8 بلا TBOOK_REOPEN=1
 BAND = 0.05
 USD_MIN = 13_000.0                                               # §① أصغرُ الشاهدَين مقرَّبًا للأسفل
 NSESS = 5
@@ -40,7 +45,7 @@ MAX_PAGES = 40                                                   # سقفُ صف
 WITNESS = (("THH", 1.29, 18_440), ("EHGO", 1.68, 8_113))
 WITNESS_DAYS = ("2026-11-02", "2026-11-03", "2026-11-04", "2026-11-05", "2026-11-06")
 WITNESS_TOL = 0.10
-RC_OK, RC_KEY, RC_POP, RC_CONTRACT, RC_GATE = 0, 2, 5, 11, 12
+RC_OK, RC_KEY, RC_POP, RC_CLOSED, RC_CONTRACT, RC_GATE = 0, 2, 5, 8, 11, 12
 
 
 def log(m=""):
@@ -48,7 +53,13 @@ def log(m=""):
 
 
 def contracts_ok():
-    return (FC.sha_of(CONTRACT) == CONTRACT_SHA) and (FC.sha_of(FC.PROTOCOL) == PROTOCOL_SHA)
+    return (FC.sha_of(CONTRACT) == CONTRACT_SHA) and (FC.sha_of(FC.PROTOCOL) == PROTOCOL_SHA) and (FC.sha_of(ADDENDUM) == ADDENDUM_SHA)
+
+
+def blocked(env=None, closed=None):
+    """(نقيّة) الملحق 1 §②: المحورُ مُغلَقٌ وما أُقرّ `TBOOK_REOPEN == "1"`."""
+    closed = CLOSED if closed is None else closed
+    return bool(closed) and (os.environ if env is None else env).get(REOPEN_ENV, "") != "1"
 
 
 def _get(url, tries=4):
@@ -111,6 +122,33 @@ def witness_hit(bids, price, size, tol=WITNESS_TOL):
     at = [s for p, s in bids if abs(p - price) < 1e-9]
     mx = max(at) if at else 0.0
     return (abs(mx - size) <= tol * size, mx)
+
+
+def witness_exists(bids, price, size, tol=WITNESS_TOL):
+    """(نقيّة) الملحق 1 §①: (يوجد تحديثٌ عند السعر بالضبط حجمُه ضمن ±tol شاملًا الحدّين، عددُ التحديثات عند السعر، عددُ ما في النطاق، أقربُ حجم)."""
+    at = [s for p, s in bids if abs(p - price) < 1e-9]
+    inr = [s for s in at if (1 - tol) * size - 1e-9 <= s <= (1 + tol) * size + 1e-9]
+    near = min(at, key=lambda s: abs(s - size)) if at else None
+    return (bool(inr), len(at), len(inr), near)
+
+
+def mode_gate2(key):
+    ok_all = True
+    for sym, px, size in WITNESS:
+        any_ok = False
+        for d in WITNESS_DAYS:
+            b = quotes_bids(sym, d, key, px - 1e-6, px + 1e-6)
+            if b is None:
+                log(f"⛔ {sym} {d}: تعذّر جلبُ الاقتباسات — خروج 12 (لا يُحكم بعبورٍ على مادّةٍ ناقصة)")
+                return RC_GATE
+            ok, n_at, n_in, near = witness_exists(b, px, size)
+            log(f"🔎 {sym} {d}: عند {px} تحديثات {n_at:,} · في النطاق {n_in:,} · أقربُ حجم {near if near is None else f'{near:,.0f}'} (الشاهد {size:,})"
+                + (" ✅" if ok else ""))
+            any_ok = any_ok or ok
+        ok_all = ok_all and any_ok
+        log(f"{'✅' if any_ok else '❌'} {sym}: «وجودُ» حجمٍ بين {0.9 * size:,.1f} و{1.1 * size:,.1f} عند {px}")
+    log(f"🚪 بوّابةُ «الوجود» (الملحق 1): {'✅ تعبر ⟵ الفلتر' if ok_all else '❌ لا تعبر ⟵ المحورُ يُغلَق'}")
+    return RC_OK if ok_all else RC_GATE
 
 
 def mode_gate(key):
@@ -264,8 +302,8 @@ def mode_assemble(d_in):
     sig = {tuple(k.split("|")): (None if v is None else bool(v["B"])) for k, v in raw.items()}
     last = FC.last_sessions(_sessions("2026-01-01", FC.WIN_END, MC))
     ev = FC.evaluate(recs, sig, last)
-    L = ["# 📗 `T-BOOK` «طلبُ المضارب عند الدعم» — النتيجة", "",
-         f"> العقد `T_BOOK_prereg.md` · القاعدة `FILTER_PROTOCOL.md` · شرائحُ T-BASKET `{FC.BASKET_RUN}` · الإشارة: أكبرُ قيمة طلبٍ في ±5% من المستوى المختبر "
+    L = ["# 📗 `T-BOOK` «طلبُ المضارب عند الدعم» — نتيجةُ الفلتر بعد بوّابة «الوجود» (الملحق 1)", "",
+         f"> العقد `T_BOOK_prereg.md` والملحق `T_BOOK_ADDENDUM_1.md` (مكتوبٌ بعد رؤية أرقام البوّابة الأولى) · القاعدة `FILTER_PROTOCOL.md` · شرائحُ T-BASKET `{FC.BASKET_RUN}` · الإشارة: أكبرُ قيمة طلبٍ في ±5% من المستوى المختبر "
          f"خلال الجلسات الخمس حتى يوم القرار ‏{USD_MIN:,.0f}$ فأكثر.", "",
          f"- إدخالاتٌ محسوبة {sum(1 for v in raw.values() if v)} · None {sum(1 for v in raw.values() if v is None)} بأسبابها {why}", ""]
     L += FC.report_lines(ev, "الحاكم (بالأضعف)")
@@ -291,6 +329,9 @@ def main(argv=None):
     if not contracts_ok():
         log("⛔ العقد أو البروتوكول لا يطابق بصمتَه — خروج 11 قبل أيّ جلب")
         return RC_CONTRACT
+    if blocked():
+        log(f"⛔ محورُ T-BOOK مُغلَقٌ مُنفَّذًا (الملحق 1 §②) — `{REOPEN_ENV}` لم يُقَرّ بـ\"1\" — خروج 8")
+        return RC_CLOSED
     mode = argv[0] if argv else ""
     d_in = argv[argv.index("--dir") + 1] if "--dir" in argv else "nq_in"
     if mode == "assemble":
@@ -301,9 +342,11 @@ def main(argv=None):
         return RC_KEY
     if mode == "gate":
         return mode_gate(key)
+    if mode == "gate2":
+        return mode_gate2(key)
     if mode == "shard":
         return mode_shard(key, int(argv[1]), d_in)
-    log("الأوضاع: gate · shard <k> --dir D · assemble --dir D")
+    log("الأوضاع: gate · gate2 · shard <k> --dir D · assemble --dir D")
     return 1
 
 

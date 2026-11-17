@@ -102945,6 +102945,32 @@ try:
 except Exception as _e:                                          # noqa: BLE001
     check("🔣 أقفالُ أدوات المعلّقات ②-2…②-6 انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
 
+# 📗⏱️ NQB3 · NQH2 — آخرُ استثناءين قبل انتهاء البحث (أمرُ المالك 2026-11-17): بوّابةُ «الوجود» لـT-BOOK (الملحق 1) · وC0 على كلّ إشعارات T-HOLD15 (وصف).
+try:
+    _nqb3_w = _NQB.witness_exists([(1.68, 1200), (1.68, 7302), (1.69, 8113), (1.68, 9700)], 1.68, 8113)
+    _nqb3_hi = _NQB.witness_exists([(1.68, 8924.3)], 1.68, 8113)
+    _nqb3_out = _NQB.witness_exists([(1.68, 7301), (1.68, 8925), (1.681, 8113)], 1.68, 8113)
+    check("📗 NQB3 T-BOOK الملحق 1: «الوجود» = تحديثٌ عند السعر بالضبط بحجمٍ ضمن ±10% شاملًا الحدّين (لا «الأكبر») · سعرٌ آخر لا يُعَدّ · "
+          "والإغلاقُ يخرج 8 بلا TBOOK_REOPEN=1 · والملحقُ مطابقٌ لبصمته",
+          _nqb3_w == (True, 3, 1, 7302) and _nqb3_hi[0] is True and _nqb3_out == (False, 2, 0, 7301)
+          and _NQB.witness_exists([], 1.68, 8113) == (False, 0, 0, None) and _NQB.witness_exists([(1.29, 16596)], 1.29, 18440)[0] is True
+          and _NQB.witness_exists([(1.29, 20284)], 1.29, 18440)[0] is True
+          and _NQB.blocked({}, True) and not _NQB.blocked({"TBOOK_REOPEN": "1"}, True) and _NQB.blocked({"TBOOK_REOPEN": "0"}, True)
+          and not _NQB.blocked({}, False) and _NQB.contracts_ok() and _NQB.RESULT.endswith("T_BOOK_ADDENDUM_1_RESULT.md"),
+          f"{_nqb3_w} {_nqb3_out}")
+    _nqh2_r = [{"sym": "A", "y": "2023", "C0_4": 0.10, "H_4": None, "C0_10": 0.20, "H_10": 0.0, "C0_20": 0.30, "H_20": 0.0},
+               {"sym": "B", "y": "2023", "C0_4": -0.10, "H_4": 0.0, "C0_10": None, "H_10": None, "C0_20": 0.10, "H_20": None},
+               {"sym": "C", "y": "2024", "C0_4": 0.50, "H_4": 0.0, "C0_10": 0.5, "H_10": 0.0, "C0_20": 0.5, "H_20": 0.0}]
+    _nqh2_c = _NQH.c0_all_cells(_nqh2_r, lambda p: [len(p), len(p)])
+    check("⏱️ NQH2 T-HOLD15 C0 على الكلّ: يشمل غيرَ الصامد (H غائب) ويُسقط C0 الغائب · وعمودُ «الصامدة وحدَها» = ما حُسب في الحكم · والسنةُ منفصلة · بلا جلب",
+          _nqh2_c[("4", "2023")] == {"n": 2, "c0": 0.0, "ci": [2, 2], "n_ok": 1, "c0_ok": -0.1}
+          and _nqh2_c[("10", "2023")]["n"] == 1 and _nqh2_c[("10", "2023")]["ci"] is None and _nqh2_c[("20", "2023")]["n_ok"] == 1
+          and abs(_nqh2_c[("20", "2023")]["c0"] - 0.2) < 1e-12 and _nqh2_c[("4", "2024")]["n"] == 1 and _nqh2_c[("4", "2025")]["n"] == 0
+          and "poly_" not in _insp.getsource(_NQH.mode_c0all) and "_get(" not in _insp.getsource(_NQH.mode_c0all),
+          str(_nqh2_c[("4", "2023")]))
+except Exception as _e:                                          # noqa: BLE001
+    check("📗⏱️ أقفالُ الاستثناءين الأخيرين انهارت قبل الحكم", False, f"⛔ {type(_e).__name__}: {_e}")
+
 # 🪜 NQS2 — عطلٌ مُثبَت 2026-11-17 (`44070973064`): `tested_level` يُرجع {"level","touches"} فـ`float(L)` رمى في الشرائح الأربعين
 #    ⟵ المستوى يمرّ بـ`filter_core.level_value` في `support2.level_of` و`tbook.level_at` (سلوكيًّا بجذعٍ يُرجع القاموسَ نفسَه).
 try:
