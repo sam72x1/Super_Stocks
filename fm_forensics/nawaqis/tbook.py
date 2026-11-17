@@ -35,7 +35,7 @@ RESULT = os.path.join(HERE, "T_BOOK_ADDENDUM_1_RESULT.md")    # الملحق 1 �
 ADDENDUM = os.path.join(HERE, "T_BOOK_ADDENDUM_1.md")
 ADDENDUM_SHA = "4b176987c0a94737e1fbafb339d111413baae95cce9c028f114c79641db7afa2"
 REOPEN_ENV = "TBOOK_REOPEN"
-CLOSED = False                                                   # الملحق 1 §②: تُقلب True إن سقطت بوّابةُ «الوجود» ⟵ خروج 8 بلا TBOOK_REOPEN=1
+CLOSED = True                                                    # 🔒 2026-11-17: الفلترُ «لا قياس» (التغطية 58.5%) ⟵ مُغلَقٌ مُنفَّذًا · خروج 8 بلا TBOOK_REOPEN=1
 BAND = 0.05
 USD_MIN = 13_000.0                                               # §① أصغرُ الشاهدَين مقرَّبًا للأسفل
 NSESS = 5
